@@ -1,0 +1,25 @@
+{
+  "name": "BioSpecInfo — Chimica Interattiva",
+  "short_name": "BioSpecInfo",
+  "description": "Piattaforma chimica gratuita: farmaci, sintesi, tavola periodica, viewer 3D, spettri",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#1B5E20",
+  "theme_color": "#1B5E20",
+  "lang": "it",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["education", "productivity", "books"],
+  "icons": [
+    {"src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "./assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Cerca Molecola", "short_name": "Molecola", "url": "./index.html#molecules", "icons": [{"src":"./assets/icons/icon-192.png","sizes":"192x192"}]},
+    {"name": "Farmaci", "short_name": "Farmaci", "url": "./index.html#pharma", "icons": [{"src":"./assets/icons/icon-192.png","sizes":"192x192"}]},
+    {"name": "Tavola Periodica", "short_name": "Periodica", "url": "./index.html#periodic", "icons": [{"src":"./assets/icons/icon-192.png","sizes":"192x192"}]}
+  ]
+}
