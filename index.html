@@ -659,7 +659,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13b</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -26890,5 +26890,85 @@ window.init3DViewerPro = function(){
 };
 
 </script>
+<!-- ============ FIX v13b: Dashboard + PubChem robusti ============ -->
+<script>
+(function(){
+  function id(x){ return document.getElementById(x); }
+
+  function tile(icon,title,sub,target){
+    return '<div data-goto="'+target+'" class="dash-tile" '
+      + 'style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:14px;cursor:pointer">'
+      + '<div style="font-size:1.8rem;margin-bottom:6px">'+icon+'</div>'
+      + '<div style="font-weight:800;color:var(--g900);font-size:.92rem">'+title+'</div>'
+      + '<div style="font-size:.75rem;color:var(--text2);margin-top:2px">'+sub+'</div>'
+      + '</div>';
+  }
+
+  window.initDashboard = function(){
+    var sec = id('sdashboard');
+    if(!sec) return;
+    if(sec._built) return;
+    sec._built = true;
+    sec.innerHTML = ''
+      + '<div class="section-title">BENVENUTO IN BIOSPECINFO</div>'
+      + '<div style="background:linear-gradient(135deg,#1B5E20,#388E3C);color:#fff;border-radius:14px;padding:22px;margin-bottom:16px">'
+      + '<div style="font-size:1.5rem;font-weight:900;margin-bottom:6px">La tua piattaforma di chimica</div>'
+      + '<div style="opacity:.9;font-size:.95rem">Spettri, molecole 3D, sintesi, farmaci, biochimica e molto altro.</div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">'
+      + tile('A','Cerca Molecole','PubChem 100M+','smol')
+      + tile('B','Viewer 3D PRO','Molecole + proteine','s3dpro')
+      + tile('C','Tavola Periodica','118 elementi','speriodic')
+      + tile('D','I miei file','Appunti salvati','sfilemanager')
+      + '</div>'
+      + '<div style="margin-top:16px;background:var(--g50);border-radius:10px;padding:14px;font-size:.85rem;color:var(--text2)">'
+      + 'Suggerimento: usa la barra di ricerca nella sezione Molecole per trovare qualsiasi composto, oppure prova il Viewer 3D PRO.'
+      + '</div>';
+    sec.querySelectorAll('.dash-tile').forEach(function(t){
+      t.onclick = function(){ var b=document.querySelector('[data-s="'+t.getAttribute('data-goto')+'"]'); if(b) b.click(); };
+    });
+  };
+
+  window.ensurePubChemPills = function(){
+    var ps = id('ps'), pp = id('pp');
+    if(!ps || !pp) return;
+    if(ps.children.length > 0) return;
+    var EX_S = ["Adenine","Caffeine","Dopamine","Glucose","Cholesterol","Tryptophan","ATP","Aspirin","Penicillin","Alanine","Cysteine","Phenylalanine"];
+    var EX_P = ["1AKI","1HHO","4INS","1BNA","2HHB"];
+    function mkPill(txt, cls){
+      var b = document.createElement('button');
+      b.textContent = txt; b.className = cls;
+      b.onclick = function(){
+        if(typeof window.go === 'function'){ window.go(txt); }
+        else { var qi=id('qi'); if(qi){ qi.value=txt; var gb=id('goBtn'); if(gb) gb.click(); } }
+      };
+      return b;
+    }
+    EX_S.forEach(function(x){ ps.appendChild(mkPill(x,'pill')); });
+    EX_P.forEach(function(x){ pp.appendChild(mkPill(x,'pill pillb')); });
+    var gb = id('goBtn'), qi = id('qi');
+    if(gb && qi && !gb._wired){
+      gb._wired = true;
+      gb.onclick = function(){ if(typeof window.go==='function') window.go(qi.value); };
+      qi.onkeydown = function(e){ if(e.key==='Enter' && typeof window.go==='function') window.go(this.value); };
+    }
+  };
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-s]');
+    if(!btn) return;
+    var sec = btn.getAttribute('data-s');
+    setTimeout(function(){
+      if(sec === 'sdashboard') window.initDashboard();
+      if(sec === 'smol') window.ensurePubChemPills();
+    }, 60);
+  });
+
+  function bootFix(){ setTimeout(function(){ window.ensurePubChemPills(); }, 400); }
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){ bootFix(); }
+  else { document.addEventListener('DOMContentLoaded', bootFix); window.addEventListener('load', bootFix); }
+})();
+</script>
+
 </body>
 </html>
