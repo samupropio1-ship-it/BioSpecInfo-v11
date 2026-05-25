@@ -659,7 +659,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13b</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13d</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -710,7 +710,8 @@ input::placeholder, textarea::placeholder { color: #888888; }
 
   <!-- Group button panels -->
   <div id="navGroup0" class="nav-group-panel" style="display:flex;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
-    <button class="nav-btn on" data-s="smol">🔍 Molecola</button>
+    <button class="nav-btn on" data-s="sdashboard">🏠 Dashboard</button>
+    <button class="nav-btn" data-s="smol">🔍 Molecola</button>
     <button class="nav-btn" data-s="spt">⬡ Tavola Periodica</button>
     <button class="nav-btn" data-s="ssyn">🧪 Sintesi Org.</button>
     <button class="nav-btn" data-s="sretro">🔄 Retrosintesi</button>
@@ -775,7 +776,6 @@ input::placeholder, textarea::placeholder { color: #888888; }
     <button class="nav-btn" data-s="scompare">⚖️ Confronto Mol.</button>
     <button class="nav-btn" data-s="spubchem">🔬 PubChem Live</button>
     <button class="nav-btn" data-s="srisorse">🌐 Risorse Web</button>
-    <button class="nav-btn" data-s="sdashboard">🏠 Dashboard</button>
     <button class="nav-btn" data-s="smateriali">📁 Materiali</button>
     <button class="nav-btn" data-s="snotes">📝 Note</button>
     <button class="nav-btn" data-s="sfilemanager">📁 File Manager</button>
@@ -788,7 +788,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 <div id="main">
 
 <!-- ══ SECTION: MOLECOLA ══ -->
-<div id="smol" class="section on">
+<div id="smol" class="section">
   <div class="srow">
     <input type="text" id="qi" placeholder="caffeina · glucosio · caffeine · Glucose · Tryptophan · ATP · 1AKI…"/>
     <button class="go" id="goBtn">→</button>
@@ -24996,7 +24996,7 @@ window.calcMolProps = function() {
 </div>
 <div id="ssteich" class="section"></div>
 <div id="spubchem" class="section"></div>
-<div id="sdashboard" class="section">
+<div id="sdashboard" class="section on">
   <div id="sdash-inner"></div>
 </div>
 
@@ -26964,9 +26964,15 @@ window.init3DViewerPro = function(){
     }, 60);
   });
 
-  function bootFix(){ setTimeout(function(){ window.ensurePubChemPills(); }, 400); }
-  if(document.readyState === 'complete' || document.readyState === 'interactive'){ bootFix(); }
-  else { document.addEventListener('DOMContentLoaded', bootFix); window.addEventListener('load', bootFix); }
+  // Boot DOPO onload (1.8s) per non sovrapporsi alla popolazione originale delle pill
+  window.addEventListener('load', function(){
+    // Dashboard è la sezione default: inizializzala subito
+    setTimeout(function(){ window.initDashboard(); }, 200);
+    // PubChem pills pronte per quando l'utente ci va
+    setTimeout(function(){ window.ensurePubChemPills(); }, 1800);
+  });
+  // Anche subito se il DOM è pronto
+  if(document.readyState !== 'loading'){ setTimeout(function(){ window.initDashboard(); }, 300); }
 })();
 </script>
 
