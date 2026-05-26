@@ -682,7 +682,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13i</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13k</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -27004,13 +27004,11 @@ window.init3DViewerPro = function(){
 })();
 </script>
 
-<!-- ============ PubChem Launcher + Atlante di Studio (illustrazioni etichettate, stabile/offline) ============ -->
+<!-- ============ Riassunti offline + Atlante Chimica/Biochimica (stabile, gratis) ============ -->
 <script>
 (function(){
   function id(x){ return document.getElementById(x); }
-  function el(tag, css, txt){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(txt!=null)e.innerHTML=txt; return e; }
-
-  /* ===== PubChem launcher esterno ===== */
+  function el(tag,css,txt){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(txt!=null)e.innerHTML=txt; return e; }
   window.initPubChem = function(){
     var sec = id('spubchem'); if(!sec || sec._built) return; sec._built = true;
     sec.innerHTML = '<div class="section-title">RICERCA MOLECOLE ONLINE</div>'
@@ -27031,155 +27029,250 @@ window.init3DViewerPro = function(){
     ['Aspirina','Caffeina','Glucosio','Paracetamolo','Penicillina','Colesterolo','Dopamina','ATP'].forEach(function(n){ var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b); });
   };
 
-  /* ===== ATLANTE DI STUDIO: illustrazioni etichettate + spiegazione + punti chiave ===== */
-  var ATLAS = {
-    'Cellula animale': {
-      svg: function(){ return ''
-        + '<ellipse cx="220" cy="200" rx="180" ry="140" fill="#e3f2fd" stroke="#1976d2" stroke-width="3"/>'
-        + '<circle cx="210" cy="195" r="55" fill="#ce93d8" stroke="#6a1b9a" stroke-width="2"/>'
-        + '<circle cx="210" cy="195" r="22" fill="#8e24aa"/>'
-        + '<ellipse cx="120" cy="150" rx="30" ry="16" fill="#ef9a9a" stroke="#c62828" stroke-width="2"/>'
-        + '<ellipse cx="120" cy="150" rx="30" ry="16" fill="none" stroke="#c62828" stroke-width="1" transform="rotate(20 120 150)"/>'
-        + '<ellipse cx="310" cy="260" rx="34" ry="18" fill="#ffcc80" stroke="#e65100" stroke-width="2"/>'
-        + '<path d="M150 280 q10 -20 25 0 q10 -20 25 0" fill="none" stroke="#43a047" stroke-width="3"/>'
-        + '<circle cx="300" cy="140" r="10" fill="#80deea" stroke="#00838f" stroke-width="2"/>'
-        + lab(390,120,300,140,'Lisosoma') + lab(40,150,90,150,'Mitocondrio')
-        + lab(390,200,265,195,'Nucleo') + lab(40,210,155,195,'Nucleolo')
-        + lab(390,275,344,260,'App. Golgi') + lab(40,285,150,278,'Rete endoplasm.')
-        + lab(220,355,220,335,'Membrana plasmatica'); },
-      desc: 'La cellula animale e l unita fondamentale degli organismi. E delimitata dalla membrana plasmatica e contiene il citoplasma con gli organelli sospesi.',
-      points: ['Nucleo: contiene il DNA e controlla l attivita cellulare','Mitocondri: producono ATP (respirazione cellulare)','Reticolo endoplasmatico: sintesi proteine (rugoso) e lipidi (liscio)','Apparato di Golgi: modifica e smista le proteine','Lisosomi: digestione di materiale di scarto','Membrana plasmatica: regola lo scambio con l esterno']
-    },
-    'Mitocondrio': {
-      svg: function(){ return ''
-        + '<ellipse cx="220" cy="200" rx="185" ry="105" fill="#ffebee" stroke="#c62828" stroke-width="3"/>'
-        + '<ellipse cx="220" cy="200" rx="165" ry="88" fill="none" stroke="#e53935" stroke-width="2"/>'
-        + '<path d="M70 200 q25 -55 50 0 q25 55 50 0 q25 -55 50 0 q25 55 50 0 q25 -55 50 0" fill="none" stroke="#ef5350" stroke-width="4"/>'
-        + lab(390,130,300,170,'Membrana esterna') + lab(40,130,120,165,'Membrana interna')
-        + lab(390,250,250,205,'Creste') + lab(40,260,170,210,'Matrice'); },
-      desc: 'Il mitocondrio e la centrale energetica della cellula: qui avviene la respirazione cellulare che produce ATP. Ha una doppia membrana.',
-      points: ['Membrana esterna: liscia, permeabile a piccole molecole','Membrana interna: ripiegata in creste, sede della catena respiratoria','Creste: aumentano la superficie per la produzione di ATP','Matrice: contiene enzimi del ciclo di Krebs, DNA mitocondriale','Produce ATP tramite fosforilazione ossidativa']
-    },
-    'Neurone': {
-      svg: function(){ return ''
-        + '<circle cx="150" cy="200" r="48" fill="#fff3e0" stroke="#e65100" stroke-width="3"/>'
-        + '<circle cx="150" cy="200" r="18" fill="#ffb74d"/>'
-        + '<path d="M110 170 l-40 -30 M105 185 l-50 -10 M110 230 l-45 25 M120 240 l-25 40" stroke="#e65100" stroke-width="3" fill="none"/>'
-        + '<rect x="198" y="194" width="150" height="12" fill="#ffcc80" stroke="#e65100" stroke-width="2"/>'
-        + '<g fill="#90caf9" stroke="#1565c0" stroke-width="1"><rect x="210" y="190" width="14" height="20" rx="3"/><rect x="240" y="190" width="14" height="20" rx="3"/><rect x="270" y="190" width="14" height="20" rx="3"/></g>'
-        + '<path d="M348 200 l30 -15 M348 200 l30 0 M348 200 l30 15" stroke="#e65100" stroke-width="3" fill="none"/>'
-        + lab(150,90,150,152,'Dendriti') + lab(40,260,140,210,'Corpo cellulare (soma)')
-        + lab(150,310,150,218,'Nucleo') + lab(270,140,270,190,'Guaina mielinica')
-        + lab(390,250,378,200,'Terminali assonici') + lab(230,310,225,206,'Assone'); },
-      desc: 'Il neurone e la cellula del sistema nervoso. Riceve segnali tramite i dendriti, li elabora nel corpo cellulare e li trasmette lungo l assone.',
-      points: ['Dendriti: ricevono i segnali da altri neuroni','Corpo cellulare (soma): contiene il nucleo, elabora i segnali','Assone: trasmette l impulso elettrico','Guaina mielinica: isola l assone e accelera la conduzione','Terminali assonici: rilasciano neurotrasmettitori nella sinapsi']
-    },
-    'Sinapsi': {
-      svg: function(){ return ''
-        + '<path d="M40 120 q80 0 110 80 l-10 10 q-50 -60 -100 -50 z" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>'
-        + '<circle cx="120" cy="170" r="7" fill="#42a5f5"/><circle cx="135" cy="185" r="7" fill="#42a5f5"/><circle cx="110" cy="190" r="7" fill="#42a5f5"/>'
-        + '<rect x="60" y="240" width="320" height="40" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/>'
-        + '<g fill="#7e57c2"><rect x="150" y="232" width="8" height="10" rx="2"/><rect x="200" y="232" width="8" height="10" rx="2"/><rect x="250" y="232" width="8" height="10" rx="2"/></g>'
-        + '<circle cx="170" cy="222" r="5" fill="#42a5f5"/><circle cx="215" cy="225" r="5" fill="#42a5f5"/>'
-        + lab(40,90,90,140,'Neurone pre-sinaptico') + lab(300,150,128,178,'Vescicole (neurotrasmettitore)')
-        + lab(390,200,260,228,'Recettori') + lab(220,320,220,280,'Neurone post-sinaptico')
-        + lab(40,210,130,215,'Fessura sinaptica'); },
-      desc: 'La sinapsi e il punto di contatto tra due neuroni. Il segnale elettrico viene convertito in segnale chimico (neurotrasmettitori) per attraversare la fessura sinaptica.',
-      points: ['Vescicole sinaptiche: contengono i neurotrasmettitori','Fessura sinaptica: spazio tra i due neuroni','Neurotrasmettitori: molecole che trasmettono il segnale','Recettori post-sinaptici: legano i neurotrasmettitori','Molti farmaci agiscono proprio a livello sinaptico']
-    },
-    'Nefrone': {
-      svg: function(){ return ''
-        + '<circle cx="110" cy="130" r="38" fill="#ffcdd2" stroke="#c62828" stroke-width="2"/>'
-        + '<path d="M110 130 m-20 0 a20 14 0 1 0 40 0 a20 14 0 1 0 -40 0" fill="#ef9a9a"/>'
-        + '<path d="M130 160 q60 30 20 90 q-40 60 30 80 q60 -10 50 -80" fill="none" stroke="#ab47bc" stroke-width="9"/>'
-        + '<path d="M130 165 q40 20 10 80 q-30 50 25 75 q55 -5 48 -70" fill="none" stroke="#ffb74d" stroke-width="5"/>'
-        + lab(110,55,110,92,'Glomerulo') + lab(40,140,75,135,'Capsula di Bowman')
-        + lab(390,180,175,200,'Tubulo prossimale') + lab(390,290,165,265,'Ansa di Henle')
-        + lab(290,330,230,290,'Tubulo distale'); },
-      desc: 'Il nefrone e l unita funzionale del rene. Filtra il sangue nel glomerulo e riassorbe selettivamente acqua e soluti lungo il tubulo, formando l urina.',
-      points: ['Glomerulo: rete di capillari dove avviene la filtrazione','Capsula di Bowman: raccoglie il filtrato glomerulare','Tubulo prossimale: riassorbimento di glucosio, ioni, acqua','Ansa di Henle: concentra l urina (gradiente osmotico)','Tubulo distale e dotto collettore: regolazione fine (ADH, aldosterone)']
-    },
-    'Membrana cellulare': {
-      svg: function(){ return ''
-        + '<rect x="40" y="150" width="360" height="100" fill="#e1f5fe"/>'
-        + heads(40,360,150,'#42a5f5') + heads(40,360,238,'#42a5f5')
-        + '<ellipse cx="150" cy="200" rx="26" ry="40" fill="#ffe082" stroke="#f9a825" stroke-width="2"/>'
-        + '<circle cx="300" cy="160" r="14" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/>'
-        + lab(220,110,150,160,'Teste idrofile (fosfato)') + lab(220,290,150,235,'Code idrofobe (lipidi)')
-        + lab(60,110,150,200,'Proteina di membrana') + lab(380,110,300,160,'Glicoproteina'); },
-      desc: 'La membrana plasmatica e un doppio strato fosfolipidico. Le teste idrofile sono rivolte verso l acqua, le code idrofobe verso l interno. Regola il passaggio delle sostanze.',
-      points: ['Doppio strato fosfolipidico: barriera selettiva','Teste idrofile: verso ambiente acquoso (esterno/citoplasma)','Code idrofobe: al centro, respingono l acqua','Proteine di membrana: trasporto, recettori, enzimi','Modello a mosaico fluido (Singer-Nicolson)']
-    },
-    'DNA': {
-      svg: function(){ return ''
-        + dnaHelix()
-        + lab(390,120,250,140,'Scheletro zucchero-fosfato')
-        + lab(40,200,170,200,'Coppie di basi') + lab(390,260,250,260,'Legami idrogeno'); },
-      desc: 'Il DNA e una doppia elica formata da due filamenti antiparalleli. Le basi azotate si appaiano (A-T, G-C) tramite legami idrogeno e custodiscono l informazione genetica.',
-      points: ['Doppia elica: due filamenti avvolti','Scheletro: zucchero (desossiribosio) + gruppo fosfato','Basi: Adenina-Timina (2 legami H), Guanina-Citosina (3 legami H)','Antiparallelo: 5 -> 3 e 3 -> 5','La sequenza delle basi codifica le proteine']
-    },
-    'Amminoacido': {
-      svg: function(){ return ''
-        + '<circle cx="220" cy="200" r="26" fill="#90a4ae" stroke="#37474f" stroke-width="2"/><text x="220" y="207" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">C</text>'
-        + '<line x1="194" y1="200" x2="120" y2="200" stroke="#555" stroke-width="3"/><circle cx="100" cy="200" r="24" fill="#5c6bc0" stroke="#283593" stroke-width="2"/><text x="100" y="206" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">NH2</text>'
-        + '<line x1="246" y1="200" x2="310" y2="200" stroke="#555" stroke-width="3"/><circle cx="335" cy="200" r="26" fill="#ef5350" stroke="#b71c1c" stroke-width="2"/><text x="335" y="206" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">COOH</text>'
-        + '<line x1="220" y1="174" x2="220" y2="120" stroke="#555" stroke-width="3"/><circle cx="220" cy="100" r="22" fill="#bdbdbd" stroke="#424242" stroke-width="2"/><text x="220" y="106" font-size="16" font-weight="bold" fill="#222" text-anchor="middle">H</text>'
-        + '<line x1="220" y1="226" x2="220" y2="280" stroke="#555" stroke-width="3"/><circle cx="220" cy="300" r="24" fill="#66bb6a" stroke="#1b5e20" stroke-width="2"/><text x="220" y="306" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">R</text>'
-        + lab(60,140,100,178,'Gruppo amminico') + lab(380,140,335,176,'Gruppo carbossilico')
-        + lab(300,90,220,100,'Idrogeno') + lab(300,310,220,300,'Catena laterale (R)')
-        + lab(120,255,210,210,'Carbonio alfa'); },
-      desc: 'Gli amminoacidi sono i mattoni delle proteine. Hanno un carbonio centrale (alfa) legato a un gruppo amminico, uno carbossilico, un idrogeno e una catena laterale R che li distingue.',
-      points: ['Carbonio alfa: centro chirale (tranne glicina)','Gruppo amminico (-NH2): basico','Gruppo carbossilico (-COOH): acido','Catena laterale R: determina le proprieta (20 amminoacidi)','Si legano con legame peptidico per formare proteine']
-    },
-    'Enzima (substrato)': {
-      svg: function(){ return ''
-        + '<path d="M120 260 q-40 -90 40 -120 q40 -15 80 5 l0 30 q-30 -10 -50 5 q-20 25 0 45 l-30 30 z" fill="#c5e1a5" stroke="#558b2f" stroke-width="3"/>'
-        + '<circle cx="250" cy="170" r="20" fill="#ffb74d" stroke="#e65100" stroke-width="2"/>'
-        + lab(120,330,160,250,'Enzima') + lab(330,150,265,168,'Substrato')
-        + lab(110,150,185,180,'Sito attivo'); },
-      desc: 'Gli enzimi sono catalizzatori biologici (proteine) che accelerano le reazioni abbassando l energia di attivazione. Il substrato si lega al sito attivo (modello chiave-serratura / adattamento indotto).',
-      points: ['Sito attivo: tasca dove si lega il substrato','Specificita: ogni enzima agisce su substrati precisi','Abbassano l energia di attivazione (Ea)','Non vengono consumati nella reazione','Influenzati da pH, temperatura, inibitori']
-    }
+  function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ===== RIASSUNTI OFFLINE (no AI, gia scritti, chimica/biochimica) ===== */
+  var SUM = {
+    'Termodinamica':{nodes:['1 Principio dU=Q-W','2 Principio dS>=0','Entalpia H','Energia libera G','dG=dH-TdS','Spontaneita','Equilibrio'],
+      body:[['Primo principio','L energia si conserva: dU = Q - W. U e funzione di stato.'],['Secondo principio','In un processo spontaneo l entropia dell universo aumenta (dS_univ > 0).'],['Energia libera di Gibbs','dG = dH - T dS. Se dG < 0 il processo e spontaneo a P,T costanti.'],['Criteri','dG<0 spontaneo, dG=0 equilibrio, dG>0 non spontaneo.']]},
+    'Cinetica chimica':{nodes:['Velocita','Ordine reazione','Costante k','Energia attivazione','Arrhenius','Catalizzatore','Meccanismo'],
+      body:[['Velocita','Variazione di concentrazione nel tempo. v = k[A]^m[B]^n.'],['Ordine','Somma degli esponenti. Ordine 0,1,2 con leggi integrate diverse.'],['Arrhenius','k = A e^(-Ea/RT): la velocita cresce con T e cala con Ea.'],['Catalizzatore','Abbassa Ea, non sposta l equilibrio, non si consuma.']]},
+    'Legame e VSEPR':{nodes:['Ionico','Covalente','Ibridazione','sp/sp2/sp3','Geometria','Polarita','Risonanza'],
+      body:[['Tipi di legame','Ionico (trasferimento e-), covalente (condivisione), metallico.'],['VSEPR','Le coppie elettroniche si respingono: determinano la geometria.'],['Geometrie','2=lineare, 3=trigonale planare, 4=tetraedrica, 5=bipiramide, 6=ottaedrica.'],['Ibridazione','sp (lineare), sp2 (planare 120), sp3 (tetraedrica 109.5).']]},
+    'Spettroscopia NMR':{nodes:['Spin nucleare','Chemical shift','Integrazione','Molteplicita','J coupling','TMS rif','DEPT'],
+      body:[['Principio','Nuclei con spin (1H, 13C) in campo magnetico assorbono radiofrequenze.'],['Chemical shift','Posizione del segnale (ppm) dipende dall intorno elettronico.'],['Integrazione','Area del segnale proporzionale al numero di protoni.'],['Molteplicita','Regola n+1: protoni vicini dividono il segnale (J coupling).']]},
+    'Farmacocinetica (ADME)':{nodes:['Assorbimento','Distribuzione','Metabolismo','Escrezione','Emivita','Clearance','Biodisponibilita'],
+      body:[['ADME','Assorbimento, Distribuzione, Metabolismo, Escrezione del farmaco.'],['Parametri','Vd (volume distribuzione), Cl (clearance), t1/2 (emivita).'],['Emivita','t1/2 = 0.693 Vd / Cl: tempo per dimezzare la concentrazione.'],['Biodisponibilita','Frazione di dose che raggiunge la circolazione (F).']]},
+    'Ciclo di Krebs':{nodes:['Acetil-CoA','Citrato','Isocitrato','a-chetoglutarato','Succinil-CoA','NADH/FADH2','CO2'],
+      body:[['Sede','Matrice mitocondriale. Via centrale del metabolismo ossidativo.'],['Ingresso','Acetil-CoA + ossalacetato -> citrato.'],['Resa per giro','3 NADH, 1 FADH2, 1 GTP, 2 CO2.'],['Funzione','Ossida l acetil-CoA e fornisce coenzimi ridotti alla catena respiratoria.']]},
+    'Equilibrio chimico':{nodes:['Keq','Le Chatelier','Q vs K','Pressione','Temperatura','Concentrazione','Kp/Kc'],
+      body:[['Costante','Keq = [prodotti]/[reagenti] all equilibrio (coeff. come esponenti).'],['Le Chatelier','Un sistema all equilibrio reagisce a una perturbazione opponendosi.'],['Quoziente Q','Q<K procede a destra, Q>K a sinistra, Q=K equilibrio.'],['Effetti','T, P e concentrazione spostano l equilibrio.']]},
+    'Acidi e basi':{nodes:['Bronsted','Lewis','pH','pKa','Tampone','Henderson','Titolazione'],
+      body:[['Definizioni','Bronsted: donatore/accettore di H+. Lewis: accettore/donatore di doppietto.'],['pH','pH = -log[H+]. pH+pOH=14 a 25 C.'],['Henderson-Hasselbalch','pH = pKa + log([A-]/[HA]) per i tamponi.'],['Forza','Acido forte: dissociazione completa; debole: parziale (Ka).']]},
+    'Reazione SN1/SN2':{nodes:['SN1 carbocatione','SN2 concertato','Nucleofilo','Gruppo uscente','Solvente','Stereochimica','Cinetica'],
+      body:[['SN2','Concertato, 1 stadio, cinetica 2 ordine, inversione di Walden, favorita su 1.'],['SN1','2 stadi via carbocatione, cinetica 1 ordine, racemizzazione, favorita su 3.'],['Fattori','Nucleofilo forte e aprotico -> SN2; solvente protico e substrato 3 -> SN1.'],['Gruppo uscente','Migliore se base debole stabile (I- > Br- > Cl-).']]},
+    'Struttura proteine':{nodes:['Primaria','Secondaria','a-elica','b-foglietto','Terziaria','Quaternaria','Legame peptidico'],
+      body:[['Primaria','Sequenza di amminoacidi unita da legami peptidici.'],['Secondaria','a-elica e b-foglietto, stabilizzate da legami idrogeno.'],['Terziaria','Ripiegamento 3D di una catena (interazioni R).'],['Quaternaria','Associazione di piu subunita (es. emoglobina).']]}
   };
 
-  function lab(tx,ty,px,py,text){ return '<line x1="'+tx+'" y1="'+ty+'" x2="'+px+'" y2="'+py+'" stroke="#78909c" stroke-width="1.5"/><circle cx="'+px+'" cy="'+py+'" r="3" fill="#37474f"/><text x="'+tx+'" y="'+ty+'" font-family="Arial" font-size="12.5" font-weight="700" fill="#263238" text-anchor="'+(tx<200?'end':(tx>240?'start':'middle'))+'">'+text+'</text>'; }
-  function heads(x0,x1,y,col){ var s=''; for(var x=x0+15;x<x1;x+=30){ s+='<circle cx="'+x+'" cy="'+y+'" r="9" fill="'+col+'"/><line x1="'+x+'" y1="'+(y<200?y+9:y-9)+'" x2="'+x+'" y2="'+(y<200?y+40:y-40)+'" stroke="#90caf9" stroke-width="3"/>'; } return s; }
-  function dnaHelix(){ var s=''; for(var i=0;i<14;i++){ var y=90+i*16; var ph=Math.sin(i*0.6)*60; s+='<circle cx="'+(220+ph)+'" cy="'+y+'" r="6" fill="#ef5350"/><circle cx="'+(220-ph)+'" cy="'+y+'" r="6" fill="#42a5f5"/><line x1="'+(220+ph)+'" y1="'+y+'" x2="'+(220-ph)+'" y2="'+y+'" stroke="#b0bec5" stroke-width="2"/>'; } return s; }
+  function buildMap(center, nodes){
+    var W=560,H=360,cx=W/2,cy=H/2,r=132;
+    var cols=['#00c896','#4f8ef7','#a78bfa','#f59e0b','#f87171','#06b6d4','#84cc16','#e879f9'];
+    var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" style="width:100%;background:#060d1a;border-radius:12px;border:1px solid #1a3050">';
+    var n=Math.min(nodes.length,8);
+    for(var i=0;i<n;i++){ var a=i/n*2*Math.PI-Math.PI/2,nx=cx+Math.cos(a)*r,ny=cy+Math.sin(a)*r,col=cols[i%cols.length];
+      s+='<line x1="'+Math.round(cx+Math.cos(a)*64)+'" y1="'+Math.round(cy+Math.sin(a)*26)+'" x2="'+Math.round(nx-Math.cos(a)*50)+'" y2="'+Math.round(ny-Math.sin(a)*18)+'" stroke="'+col+'" stroke-width="1.5" stroke-dasharray="4,2" opacity=".6"/>'; }
+    for(var j=0;j<n;j++){ var a2=j/n*2*Math.PI-Math.PI/2,nx2=cx+Math.cos(a2)*r,ny2=cy+Math.sin(a2)*r,col2=cols[j%cols.length];
+      s+='<ellipse cx="'+Math.round(nx2)+'" cy="'+Math.round(ny2)+'" rx="54" ry="20" fill="#0d1b2e" stroke="'+col2+'" stroke-width="1.5"/>';
+      var t=esc(nodes[j]||''); var words=t.split(' '); var l1=words.slice(0,Math.ceil(words.length/2)).join(' '),l2=words.slice(Math.ceil(words.length/2)).join(' ');
+      s+='<text x="'+Math.round(nx2)+'" y="'+Math.round(ny2+(l2?-3:4))+'" text-anchor="middle" font-size="9.5" fill="'+col2+'" font-family="Arial">'+l1.substring(0,18)+'</text>';
+      if(l2)s+='<text x="'+Math.round(nx2)+'" y="'+Math.round(ny2+9)+'" text-anchor="middle" font-size="9.5" fill="'+col2+'" font-family="Arial">'+l2.substring(0,18)+'</text>'; }
+    s+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="72" ry="30" fill="#0f2040" stroke="#00c896" stroke-width="2.5"/>';
+    s+='<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" font-size="13" fill="#00c896" font-weight="bold" font-family="Arial">'+esc(center).substring(0,22)+'</text>';
+    return s+'</svg>';
+  }
 
-  window.initDiagrammi = function(){
-    var sec = id('sdiagrammi'); if(!sec || sec._built) return; sec._built = true;
-    sec.innerHTML = '<div class="section-title">ATLANTE DI STUDIO</div>'
-      + '<div style="background:var(--g50);border-radius:10px;padding:12px;margin-bottom:14px;font-size:.86rem;color:var(--text2)">Scegli un argomento: vedrai l illustrazione etichettata, la spiegazione e i punti chiave da ricordare. Puoi scaricare l immagine in PNG.</div>';
-    var picker = el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px');
+  window.initRiassunti = function(){
+    var sec=id('serrori'); if(!sec || sec._offInit) return; sec._offInit=true; sec._riassuntiInit=true;
+    var keys=Object.keys(SUM);
+    sec.innerHTML='<div class="section-title">RIASSUNTI & MAPPE CONCETTUALI</div>'
+      + '<div style="background:var(--g50);border-radius:10px;padding:12px;margin-bottom:14px;font-size:.86rem;color:var(--text2)">Scegli un argomento di chimica/biochimica: riassunto strutturato + mappa concettuale, pronti e offline. Esportabili.</div>'
+      + '<div id="rsPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>'
+      + '<div id="rsMap" style="margin-bottom:12px"></div>'
+      + '<div id="rsBody" style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:14px;min-height:60px"></div>'
+      + '<button id="rsDl" style="width:100%;margin-top:10px;background:var(--g900);color:#fff;border:none;border-radius:10px;padding:11px;font-weight:700;cursor:pointer">Scarica mappa (PNG)</button>';
+    var pills=id('rsPills'); var cur=keys[0];
+    keys.forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.dataset.k=k; pills.appendChild(b); });
+    function show(k){ cur=k; pills.querySelectorAll('button').forEach(function(b){ b.classList.toggle('pillb', b.dataset.k===k); });
+      var d=SUM[k]; id('rsMap').innerHTML=buildMap(k,d.nodes);
+      var h=''; d.body.forEach(function(r){ h+='<div style="margin-bottom:10px"><div style="font-weight:800;color:var(--g700);font-size:.9rem">'+r[0]+'</div><div style="font-size:.88rem;line-height:1.5;color:var(--text)">'+r[1]+'</div></div>'; });
+      id('rsBody').innerHTML=h;
+      id('rsDl').onclick=function(){ var svg=buildMap(k,d.nodes).replace('style="width:100%;background:#060d1a;border-radius:12px;border:1px solid #1a3050"','').replace('<svg ','<svg width="560" height="360" '); var full=svg; var img=new Image(); var url=URL.createObjectURL(new Blob([full],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=560; cv.height=360; var ctx=cv.getContext('2d'); ctx.fillStyle='#060d1a'; ctx.fillRect(0,0,560,360); ctx.drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='mappa_'+k.replace(/[^a-zA-Z0-9]/g,'_')+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; };
+    }
+    pills.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ show(b.dataset.k); }; });
+    show(keys[0]);
+  };
+
+  /* ===== ATLANTE CHIMICA/BIOCHIMICA (illustrazioni etichettate) ===== */
+  function lab(tx,ty,px,py,t){ return '<line x1="'+tx+'" y1="'+ty+'" x2="'+px+'" y2="'+py+'" stroke="#78909c" stroke-width="1.5"/><circle cx="'+px+'" cy="'+py+'" r="3" fill="#37474f"/><text x="'+tx+'" y="'+ty+'" font-family="Arial" font-size="12.5" font-weight="700" fill="#263238" text-anchor="'+(tx<200?'end':(tx>240?'start':'middle'))+'">'+t+'</text>'; }
+  var ATLAS={
+    'Amminoacido':{ svg:function(){ return ''
+      +'<circle cx="220" cy="200" r="26" fill="#90a4ae" stroke="#37474f" stroke-width="2"/><text x="220" y="207" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">Ca</text>'
+      +'<line x1="194" y1="200" x2="125" y2="200" stroke="#555" stroke-width="3"/><circle cx="100" cy="200" r="24" fill="#5c6bc0" stroke="#283593" stroke-width="2"/><text x="100" y="205" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">NH2</text>'
+      +'<line x1="246" y1="200" x2="312" y2="200" stroke="#555" stroke-width="3"/><circle cx="338" cy="200" r="26" fill="#ef5350" stroke="#b71c1c" stroke-width="2"/><text x="338" y="205" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">COOH</text>'
+      +'<line x1="220" y1="174" x2="220" y2="122" stroke="#555" stroke-width="3"/><circle cx="220" cy="100" r="20" fill="#cfd8dc" stroke="#607d8b" stroke-width="2"/><text x="220" y="106" font-size="15" font-weight="bold" fill="#333" text-anchor="middle">H</text>'
+      +'<line x1="220" y1="226" x2="220" y2="278" stroke="#555" stroke-width="3"/><circle cx="220" cy="302" r="24" fill="#66bb6a" stroke="#1b5e20" stroke-width="2"/><text x="220" y="308" font-size="17" font-weight="bold" fill="#fff" text-anchor="middle">R</text>'
+      +lab(55,150,100,178,'Gruppo amminico')+lab(385,150,338,176,'Gruppo carbossilico')+lab(300,95,220,100,'H')+lab(300,305,220,302,'Catena laterale R')+lab(120,255,205,210,'Carbonio alfa'); },
+      desc:'Mattone delle proteine: carbonio alfa legato a gruppo amminico (-NH2), carbossilico (-COOH), idrogeno e catena R variabile.',
+      points:['Carbonio alfa chirale (tranne glicina)','-NH2 basico, -COOH acido: forma zwitterionica a pH fisiologico','La catena R determina le proprieta (20 amminoacidi)','Si uniscono con legame peptidico','Punto isoelettrico (pI): pH a carica netta zero'] },
+    'Legame peptidico':{ svg:function(){ return ''
+      +'<circle cx="120" cy="200" r="22" fill="#90a4ae" stroke="#37474f" stroke-width="2"/><text x="120" y="206" font-size="13" fill="#fff" text-anchor="middle">C</text>'
+      +'<circle cx="200" cy="160" r="20" fill="#ef5350" stroke="#b71c1c" stroke-width="2"/><text x="200" y="165" font-size="12" fill="#fff" text-anchor="middle">O</text>'
+      +'<circle cx="200" cy="240" r="20" fill="#5c6bc0" stroke="#283593" stroke-width="2"/><text x="200" y="245" font-size="11" fill="#fff" text-anchor="middle">N-H</text>'
+      +'<circle cx="290" cy="200" r="22" fill="#90a4ae" stroke="#37474f" stroke-width="2"/><text x="290" y="206" font-size="13" fill="#fff" text-anchor="middle">C</text>'
+      +'<line x1="142" y1="200" x2="182" y2="168" stroke="#b71c1c" stroke-width="4"/><line x1="142" y1="206" x2="182" y2="174" stroke="#b71c1c" stroke-width="2"/>'
+      +'<line x1="140" y1="205" x2="182" y2="235" stroke="#283593" stroke-width="3"/><line x1="218" y1="235" x2="270" y2="208" stroke="#283593" stroke-width="3"/>'
+      +lab(200,90,200,140,'Gruppo carbonile C=O')+lab(200,310,200,260,'Gruppo amminico N-H')+lab(60,250,120,200,'C amminoacido 1')+lab(360,250,290,200,'C amminoacido 2')
+      +lab(330,120,250,220,'Legame peptidico'); },
+      desc:'Legame ammidico tra il gruppo carbossilico di un amminoacido e l amminico del successivo, con perdita di acqua (condensazione).',
+      points:['Reazione di condensazione (elimina H2O)','Carattere parziale di doppio legame (planare, rigido)','Configurazione trans favorita','Idrolizzabile da proteasi','Forma lo scheletro delle proteine'] },
+    'Orbitali atomici':{ svg:function(){ return ''
+      +'<circle cx="120" cy="200" r="34" fill="#42a5f5" opacity=".7"/><text x="120" y="250" font-size="14" font-weight="bold" text-anchor="middle" fill="#1565c0">s</text>'
+      +'<ellipse cx="250" cy="175" rx="20" ry="38" fill="#ef5350" opacity=".7"/><ellipse cx="250" cy="225" rx="20" ry="38" fill="#ffa726" opacity=".7"/><text x="250" y="270" font-size="14" font-weight="bold" text-anchor="middle" fill="#b71c1c">p</text>'
+      +'<ellipse cx="350" cy="180" rx="14" ry="26" fill="#66bb6a" opacity=".7" transform="rotate(45 350 180)"/><ellipse cx="375" cy="200" rx="14" ry="26" fill="#66bb6a" opacity=".7" transform="rotate(-45 375 200)"/><ellipse cx="350" cy="220" rx="14" ry="26" fill="#26a69a" opacity=".7" transform="rotate(45 350 220)"/><text x="362" y="270" font-size="14" font-weight="bold" text-anchor="middle" fill="#1b5e20">d</text>'
+      +lab(120,120,120,170,'Orbitale s (sferico)')+lab(250,110,250,140,'Orbitale p (2 lobi)')+lab(390,130,365,180,'Orbitale d (4 lobi)'); },
+      desc:'Regioni di spazio dove e probabile trovare l elettrone. Forma diversa per ogni tipo: s sferico, p a due lobi, d a quattro lobi.',
+      points:['s: 1 orbitale, forma sferica (max 2 e-)','p: 3 orbitali (px,py,pz), 2 lobi (max 6 e-)','d: 5 orbitali, 4 lobi (max 10 e-)','Riempimento: Aufbau, Hund, Pauli','Numeri quantici n, l, m, s'] },
+    'Ibridazione':{ svg:function(){ return ''
+      +'<circle cx="110" cy="200" r="16" fill="#455a64"/><line x1="110" y1="200" x2="60" y2="200" stroke="#555" stroke-width="3"/><line x1="110" y1="200" x2="160" y2="200" stroke="#555" stroke-width="3"/><text x="110" y="250" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">sp (180)</text>'
+      +'<circle cx="250" cy="200" r="16" fill="#455a64"/><line x1="250" y1="200" x2="250" y2="155" stroke="#555" stroke-width="3"/><line x1="250" y1="200" x2="212" y2="225" stroke="#555" stroke-width="3"/><line x1="250" y1="200" x2="288" y2="225" stroke="#555" stroke-width="3"/><text x="250" y="265" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">sp2 (120)</text>'
+      +'<circle cx="370" cy="200" r="16" fill="#455a64"/><line x1="370" y1="200" x2="370" y2="158" stroke="#555" stroke-width="3"/><line x1="370" y1="200" x2="335" y2="222" stroke="#555" stroke-width="3"/><line x1="370" y1="200" x2="405" y2="222" stroke="#555" stroke-width="3"/><line x1="370" y1="200" x2="370" y2="235" stroke="#999" stroke-width="2" stroke-dasharray="3,2"/><text x="370" y="265" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">sp3 (109.5)</text>'
+      +lab(110,120,110,184,'2 legami - lineare')+lab(250,110,250,184,'3 legami - planare')+lab(390,130,370,184,'4 legami - tetraedrica'); },
+      desc:'Mescolamento di orbitali atomici per formare orbitali ibridi equivalenti, che determinano la geometria delle molecole.',
+      points:['sp: lineare, angolo 180 (es. alchini, CO2)','sp2: trigonale planare, 120 (es. alcheni, C=O)','sp3: tetraedrica, 109.5 (es. alcani, CH4)','Spiega geometria e angoli di legame','sp = 1 sigma forte + p per i legami pi'] },
+    'Gruppi funzionali':{ svg:function(){ var rows=[['Alcol','-OH','#42a5f5'],['Aldeide','-CHO','#ef5350'],['Chetone','C=O','#ffa726'],['Ac. carbossilico','-COOH','#ab47bc'],['Ammina','-NH2','#26a69a'],['Estere','-COO-','#8d6e63']]; var s=''; rows.forEach(function(r,i){ var y=70+i*48; s+='<rect x="40" y="'+(y-22)+'" width="360" height="40" rx="8" fill="'+(i%2?'#f5f5f5':'#ffffff')+'" stroke="#e0e0e0"/><circle cx="68" cy="'+(y-2)+'" r="10" fill="'+r[2]+'"/><text x="92" y="'+(y+3)+'" font-size="14" font-weight="bold" fill="#263238">'+r[0]+'</text><text x="300" y="'+(y+3)+'" font-size="15" font-weight="bold" fill="'+r[2]+'" font-family="monospace">'+r[1]+'</text>'; }); return s; },
+      desc:'I gruppi funzionali sono porzioni della molecola che ne determinano la reattivita e le proprieta chimiche.',
+      points:['Alcol (-OH): polare, forma legami H','Aldeide (-CHO) e chetone (C=O): carbonile','Ac. carbossilico (-COOH): acido','Ammina (-NH2): basica','Estere (-COO-): da acido + alcol','Determinano nome IUPAC e reattivita'] },
+    'Struttura ATP':{ svg:function(){ return ''
+      +'<rect x="60" y="180" width="60" height="44" rx="8" fill="#7e57c2" stroke="#4527a0" stroke-width="2"/><text x="90" y="206" font-size="12" fill="#fff" text-anchor="middle">Adenina</text>'
+      +'<polygon points="130,202 165,182 200,202 165,222" fill="#ffb74d" stroke="#e65100" stroke-width="2"/><text x="165" y="206" font-size="11" fill="#fff" text-anchor="middle">Ribosio</text>'
+      +'<circle cx="240" cy="202" r="20" fill="#ef5350"/><text x="240" y="207" font-size="14" fill="#fff" text-anchor="middle">P</text>'
+      +'<circle cx="295" cy="202" r="20" fill="#ef5350"/><text x="295" y="207" font-size="14" fill="#fff" text-anchor="middle">P</text>'
+      +'<circle cx="350" cy="202" r="20" fill="#ef5350"/><text x="350" y="207" font-size="14" fill="#fff" text-anchor="middle">P</text>'
+      +'<line x1="260" y1="202" x2="275" y2="202" stroke="#ff1744" stroke-width="4"/><line x1="315" y1="202" x2="330" y2="202" stroke="#ff1744" stroke-width="4"/>'
+      +lab(90,150,90,178,'Base azotata')+lab(165,150,165,184,'Zucchero')+lab(295,260,295,222,'3 gruppi fosfato')+lab(390,150,322,202,'Legami ad alta energia'); },
+      desc:'L ATP (adenosina trifosfato) e la moneta energetica della cellula. L idrolisi dei legami fosfoanidridici libera energia.',
+      points:['Adenina + ribosio = adenosina','Tre gruppi fosfato (alfa, beta, gamma)','Legami beta-gamma ad alta energia','ATP -> ADP + Pi libera ~30.5 kJ/mol','Prodotta da glicolisi, Krebs, catena respiratoria'] },
+    'Risonanza':{ svg:function(){ return ''
+      +'<polygon points="120,140 160,165 160,210 120,235 80,210 80,165" fill="none" stroke="#455a64" stroke-width="3"/><circle cx="120" cy="187" r="22" fill="none" stroke="#90a4ae" stroke-width="2" stroke-dasharray="4,3"/>'
+      +'<text x="200" y="195" font-size="30" text-anchor="middle" fill="#1565c0">&#8596;</text>'
+      +'<polygon points="320,140 360,165 360,210 320,235 280,210 280,165" fill="none" stroke="#455a64" stroke-width="3"/><line x1="288" y1="170" x2="288" y2="205" stroke="#455a64" stroke-width="3"/><line x1="352" y1="170" x2="352" y2="205" stroke="#455a64" stroke-width="3"/><line x1="320" y1="142" x2="320" y2="142"/>'
+      +lab(120,110,120,142,'Struttura 1')+lab(320,110,320,142,'Struttura 2')+lab(200,260,200,205,'Ibrido di risonanza reale'); },
+      desc:'Quando una molecola non e descritta da una sola struttura di Lewis, si usano piu forme di risonanza. La molecola reale e l ibrido (media pesata).',
+      points:['Le strutture differiscono solo per posizione degli elettroni','Frecce a doppia punta tra le forme','La molecola reale e l ibrido, piu stabile','Delocalizzazione = maggiore stabilita','Es: benzene, ione carbossilato, ozono'] },
+    'Geometria VSEPR':{ svg:function(){ return ''
+      +'<circle cx="100" cy="190" r="14" fill="#455a64"/><line x1="100" y1="190" x2="60" y2="190" stroke="#555" stroke-width="3"/><line x1="100" y1="190" x2="140" y2="190" stroke="#555" stroke-width="3"/><text x="100" y="235" font-size="11" text-anchor="middle">Lineare</text>'
+      +'<circle cx="230" cy="190" r="14" fill="#455a64"/><line x1="230" y1="190" x2="230" y2="150" stroke="#555" stroke-width="3"/><line x1="230" y1="190" x2="197" y2="212" stroke="#555" stroke-width="3"/><line x1="230" y1="190" x2="263" y2="212" stroke="#555" stroke-width="3"/><text x="230" y="245" font-size="11" text-anchor="middle">Trig. planare</text>'
+      +'<circle cx="360" cy="190" r="14" fill="#455a64"/><line x1="360" y1="190" x2="360" y2="150" stroke="#555" stroke-width="3"/><line x1="360" y1="190" x2="325" y2="210" stroke="#555" stroke-width="3"/><line x1="360" y1="190" x2="395" y2="210" stroke="#555" stroke-width="3"/><line x1="360" y1="190" x2="360" y2="225" stroke="#999" stroke-width="2" stroke-dasharray="3,2"/><text x="360" y="255" font-size="11" text-anchor="middle">Tetraedrica</text>'
+      +lab(100,140,100,176,'2 coppie - 180')+lab(230,110,230,176,'3 coppie - 120')+lab(390,140,360,176,'4 coppie - 109.5'); },
+      desc:'La teoria VSEPR prevede la geometria molecolare basandosi sulla repulsione tra coppie elettroniche di valenza.',
+      points:['2 coppie: lineare (180)','3 coppie: trigonale planare (120)','4 coppie: tetraedrica (109.5)','5 coppie: bipiramide trigonale','Coppie solitarie comprimono gli angoli'] }
+    ,'Chiralita ed enantiomeri':{ svg:function(){ return ''
+      +'<circle cx="140" cy="190" r="16" fill="#455a64"/><line x1="140" y1="190" x2="140" y2="145" stroke="#555" stroke-width="3"/><line x1="140" y1="190" x2="140" y2="235" stroke="#555" stroke-width="3"/><line x1="140" y1="190" x2="103" y2="212" stroke="#555" stroke-width="3"/><line x1="140" y1="190" x2="177" y2="212" stroke="#555" stroke-width="3"/>'
+      +'<circle cx="140" cy="140" r="13" fill="#ef5350"/><circle cx="140" cy="240" r="13" fill="#42a5f5"/><circle cx="98" cy="215" r="13" fill="#66bb6a"/><circle cx="182" cy="215" r="13" fill="#ffa726"/>'
+      +'<line x1="220" y1="190" x2="250" y2="190" stroke="#90a4ae" stroke-width="2" stroke-dasharray="5,4"/><text x="235" y="180" font-size="22" text-anchor="middle" fill="#90a4ae">|</text>'
+      +'<circle cx="330" cy="190" r="16" fill="#455a64"/><line x1="330" y1="190" x2="330" y2="145" stroke="#555" stroke-width="3"/><line x1="330" y1="190" x2="330" y2="235" stroke="#555" stroke-width="3"/><line x1="330" y1="190" x2="293" y2="212" stroke="#555" stroke-width="3"/><line x1="330" y1="190" x2="367" y2="212" stroke="#555" stroke-width="3"/>'
+      +'<circle cx="330" cy="140" r="13" fill="#ef5350"/><circle cx="330" cy="240" r="13" fill="#42a5f5"/><circle cx="288" cy="215" r="13" fill="#ffa726"/><circle cx="372" cy="215" r="13" fill="#66bb6a"/>'
+      +lab(140,110,140,127,'Stesso atomo')+lab(235,255,235,200,'Specchio')+lab(330,110,330,127,'Immagine speculare')+lab(60,215,98,215,'Gruppi invertiti'); },
+      desc:'Una molecola chirale non e sovrapponibile alla sua immagine speculare. I due enantiomeri hanno proprieta fisiche identiche ma attivita biologica spesso diversa (es. talidomide).',
+      points:['Centro chirale: C con 4 gruppi diversi','Enantiomeri: immagini speculari non sovrapponibili','Configurazione R/S (regole CIP)','Ruotano il piano della luce polarizzata (+/-)','In farmacologia un enantiomero puo essere attivo, l altro tossico'] }
+    ,'Reazione SN2':{ svg:function(){ return ''
+      +'<circle cx="80" cy="200" r="16" fill="#26a69a"/><text x="80" y="205" font-size="11" fill="#fff" text-anchor="middle">Nu</text>'
+      +'<text x="120" y="205" font-size="20" fill="#26a69a">&#8594;</text>'
+      +'<circle cx="200" cy="200" r="18" fill="#455a64"/><text x="200" y="205" font-size="12" fill="#fff" text-anchor="middle">C</text>'
+      +'<circle cx="280" cy="200" r="16" fill="#ef5350"/><text x="280" y="205" font-size="11" fill="#fff" text-anchor="middle">LG</text>'
+      +'<text x="320" y="205" font-size="20" fill="#ef5350">&#8594;</text>'
+      +'<line x1="200" y1="182" x2="200" y2="155" stroke="#999" stroke-width="2"/><line x1="200" y1="218" x2="200" y2="245" stroke="#999" stroke-width="2"/>'
+      +'<text x="200" y="120" font-size="13" font-weight="bold" text-anchor="middle" fill="#5e35b1">Stato di transizione</text><ellipse cx="200" cy="200" rx="60" ry="34" fill="none" stroke="#b39ddb" stroke-width="2" stroke-dasharray="4,3"/>'
+      +lab(80,150,80,184,'Nucleofilo attacca')+lab(280,150,280,184,'Gruppo uscente')+lab(330,250,300,205,'LG va via'); },
+      desc:'Sostituzione nucleofila bimolecolare: il nucleofilo attacca dal lato opposto al gruppo uscente, in un unico stadio concertato, con inversione della configurazione (inversione di Walden).',
+      points:['Concertata: 1 solo stadio','Cinetica di 2 ordine: v = k[substrato][Nu]','Inversione di Walden (configurazione ribaltata)','Favorita su carboni primari, nucleofili forti','Solventi aprotici polari (DMSO, acetone)'] }
+    ,'Cinetica enzimatica (Michaelis-Menten)':{ svg:function(){ return ''
+      +'<line x1="70" y1="290" x2="400" y2="290" stroke="#37474f" stroke-width="2"/><line x1="70" y1="290" x2="70" y2="80" stroke="#37474f" stroke-width="2"/>'
+      +'<path d="M70 290 Q150 130 250 110 Q330 100 390 96" fill="none" stroke="#1565c0" stroke-width="3"/>'
+      +'<line x1="70" y1="110" x2="390" y2="110" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,4"/>'
+      +'<line x1="70" y1="200" x2="160" y2="200" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="4,3"/><line x1="160" y1="200" x2="160" y2="290" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="4,3"/>'
+      +lab(390,90,390,100,'Vmax')+lab(390,310,390,290,'[S]')+lab(45,180,70,180,'V')+lab(170,180,160,200,'Km a Vmax/2'); },
+      desc:'L equazione di Michaelis-Menten descrive la velocita di una reazione enzimatica: v = Vmax[S]/(Km+[S]). Iperbole che tende a Vmax con substrato saturante.',
+      points:['Vmax: velocita massima (enzima saturo)','Km: [S] a cui v = Vmax/2 (affinita: Km basso = alta affinita)','Lineweaver-Burk: doppio reciproco (retta)','Inibitore competitivo: Km aumenta, Vmax invariata','Inibitore non competitivo: Vmax diminuisce'] }
+    ,'Glucosio (Fischer/Haworth)':{ svg:function(){ return ''
+      +'<text x="120" y="80" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">Fischer</text>'
+      +'<line x1="120" y1="95" x2="120" y2="285" stroke="#455a64" stroke-width="3"/>'
+      +'<text x="120" y="100" font-size="11" text-anchor="middle" fill="#ef5350">CHO</text>'
+      +'<line x1="105" y1="130" x2="135" y2="130" stroke="#555" stroke-width="2"/><text x="150" y="134" font-size="10" fill="#42a5f5">OH</text>'
+      +'<line x1="105" y1="165" x2="135" y2="165" stroke="#555" stroke-width="2"/><text x="80" y="169" font-size="10" fill="#42a5f5">HO</text>'
+      +'<line x1="105" y1="200" x2="135" y2="200" stroke="#555" stroke-width="2"/><text x="150" y="204" font-size="10" fill="#42a5f5">OH</text>'
+      +'<line x1="105" y1="235" x2="135" y2="235" stroke="#555" stroke-width="2"/><text x="150" y="239" font-size="10" fill="#42a5f5">OH</text>'
+      +'<text x="120" y="285" font-size="10" text-anchor="middle" fill="#66bb6a">CH2OH</text>'
+      +'<text x="320" y="80" font-size="13" font-weight="bold" text-anchor="middle" fill="#263238">Haworth</text>'
+      +'<polygon points="270,200 300,170 350,170 380,200 350,235 300,235" fill="none" stroke="#455a64" stroke-width="3"/><text x="365" y="165" font-size="11" fill="#ef5350">O</text>'
+      +lab(120,300,120,285,'Catena aperta')+lab(325,255,325,235,'Forma ciclica (piranosio)'); },
+      desc:'Il glucosio (C6H12O6) esiste in forma aperta (proiezione di Fischer) e in forma ciclica (proiezione di Haworth) in equilibrio. La forma piranosica (6 atomi) e prevalente in soluzione.',
+      points:['Aldoesoso: 6 C, gruppo aldeidico','Forma aperta -> ciclica per attacco -OH al carbonile','Anomeri alfa e beta (al C1)','Mutarotazione: equilibrio tra anomeri','Zucchero fondamentale del metabolismo energetico'] }
+    ,'Legame a idrogeno':{ svg:function(){ return ''
+      +'<circle cx="130" cy="170" r="22" fill="#ef5350"/><text x="130" y="176" font-size="14" fill="#fff" text-anchor="middle">O</text>'
+      +'<circle cx="100" cy="130" r="13" fill="#eceff1" stroke="#90a4ae"/><text x="100" y="135" font-size="11" text-anchor="middle">H</text>'
+      +'<circle cx="160" cy="130" r="13" fill="#eceff1" stroke="#90a4ae"/><text x="160" y="135" font-size="11" text-anchor="middle">H</text>'
+      +'<line x1="130" y1="170" x2="100" y2="140" stroke="#555" stroke-width="3"/><line x1="130" y1="170" x2="160" y2="140" stroke="#555" stroke-width="3"/>'
+      +'<circle cx="290" cy="240" r="22" fill="#ef5350"/><text x="290" y="246" font-size="14" fill="#fff" text-anchor="middle">O</text>'
+      +'<circle cx="260" cy="280" r="13" fill="#eceff1" stroke="#90a4ae"/><circle cx="320" cy="280" r="13" fill="#eceff1" stroke="#90a4ae"/>'
+      +'<line x1="290" y1="240" x2="260" y2="270" stroke="#555" stroke-width="3"/><line x1="290" y1="240" x2="320" y2="270" stroke="#555" stroke-width="3"/>'
+      +'<line x1="155" y1="150" x2="270" y2="228" stroke="#1565c0" stroke-width="2.5" stroke-dasharray="5,4"/>'
+      +lab(80,110,100,130,'H (parziale +)')+lab(360,240,290,240,'O (parziale -)')+lab(310,170,215,190,'Legame a idrogeno'); },
+      desc:'Interazione tra un H legato a un atomo elettronegativo (O, N, F) e un doppietto di un altro atomo elettronegativo. Debole singolarmente ma cruciale (acqua, DNA, proteine).',
+      points:['Tra H(+) e atomo elettronegativo con doppietto','Forte tra i legami intermolecolari (~20-40 kJ/mol)','Responsabile dell alto punto di ebollizione dell acqua','Tiene unite le basi del DNA','Stabilizza alfa-elica e beta-foglietto'] }
+    ,'Cella galvanica (redox)':{ svg:function(){ return ''
+      +'<rect x="60" y="180" width="90" height="110" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/><rect x="290" y="180" width="90" height="110" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>'
+      +'<rect x="95" y="150" width="14" height="120" fill="#90a4ae"/><rect x="331" y="150" width="14" height="120" fill="#ff8a65"/>'
+      +'<path d="M150 235 Q220 235 290 235" fill="none" stroke="#7e57c2" stroke-width="14" opacity=".5"/>'
+      +'<line x1="102" y1="150" x2="102" y2="120" stroke="#333" stroke-width="3"/><line x1="338" y1="150" x2="338" y2="120" stroke="#333" stroke-width="3"/><line x1="102" y1="120" x2="338" y2="120" stroke="#333" stroke-width="3"/>'
+      +'<circle cx="220" cy="120" r="16" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/><text x="220" y="125" font-size="11" text-anchor="middle">e-</text>'
+      +lab(102,310,102,250,'Anodo (-) ossidazione')+lab(338,310,338,250,'Catodo (+) riduzione')+lab(220,250,220,235,'Ponte salino')+lab(290,100,220,120,'Flusso elettroni'); },
+      desc:'Una cella galvanica converte energia chimica (reazione redox spontanea) in energia elettrica. All anodo avviene l ossidazione, al catodo la riduzione.',
+      points:['Anodo (-): ossidazione (perdita e-)','Catodo (+): riduzione (acquisto e-)','Gli elettroni fluiscono anodo -> catodo nel filo','Ponte salino: mantiene la neutralita','f.e.m. = E(catodo) - E(anodo), Nernst per [non standard]'] }
+    ,'Nucleotide':{ svg:function(){ return ''
+      +'<circle cx="120" cy="200" r="26" fill="#ef5350" stroke="#b71c1c" stroke-width="2"/><text x="120" y="205" font-size="11" fill="#fff" text-anchor="middle">P</text>'
+      +'<polygon points="180,200 215,178 255,200 215,222" fill="#ffb74d" stroke="#e65100" stroke-width="2"/><text x="215" y="204" font-size="10" fill="#fff" text-anchor="middle">Zucchero</text>'
+      +'<rect x="295" y="178" width="70" height="44" rx="8" fill="#7e57c2" stroke="#4527a0" stroke-width="2"/><text x="330" y="204" font-size="11" fill="#fff" text-anchor="middle">Base</text>'
+      +'<line x1="146" y1="200" x2="178" y2="200" stroke="#555" stroke-width="3"/><line x1="252" y1="200" x2="293" y2="200" stroke="#555" stroke-width="3"/>'
+      +lab(120,150,120,176,'Gruppo fosfato')+lab(215,150,215,180,'Zucchero (pentoso)')+lab(330,150,330,178,'Base azotata'); },
+      desc:'Il nucleotide e l unita di DNA e RNA: gruppo fosfato + zucchero pentoso (desossiribosio o ribosio) + base azotata (A, T/U, G, C).',
+      points:['3 componenti: fosfato + zucchero + base','Basi puriniche (A, G) e pirimidiniche (C, T, U)','Legame fosfodiesterico unisce i nucleotidi','DNA: desossiribosio; RNA: ribosio','Anche ATP, NAD, FAD sono nucleotidi'] }
+    ,'Tampone (Henderson-Hasselbalch)':{ svg:function(){ return ''
+      +'<line x1="70" y1="280" x2="400" y2="280" stroke="#37474f" stroke-width="2"/><line x1="70" y1="280" x2="70" y2="80" stroke="#37474f" stroke-width="2"/>'
+      +'<path d="M90 250 Q150 245 200 180 Q250 115 360 105" fill="none" stroke="#1565c0" stroke-width="3"/>'
+      +'<rect x="160" y="120" width="90" height="120" fill="#c8e6c9" opacity=".4"/>'
+      +'<line x1="205" y1="180" x2="70" y2="180" stroke="#66bb6a" stroke-width="1.5" stroke-dasharray="4,3"/>'
+      +lab(205,105,205,180,'pH = pKa')+lab(390,95,360,105,'Aggiunta base')+lab(45,180,70,180,'pH')+lab(205,260,205,240,'Zona tampone'); },
+      desc:'Una soluzione tampone resiste alle variazioni di pH. L equazione di Henderson-Hasselbalch lega il pH al rapporto base/acido: pH = pKa + log([A-]/[HA]).',
+      points:['Coppia acido debole / base coniugata','pH = pKa + log([A-]/[HA])','Massima capacita tampone quando pH = pKa','Zona tampone: circa pKa +/- 1','Fondamentale nei sistemi biologici (bicarbonato, fosfato)'] }
+    ,'Coenzimi (NAD/FAD)':{ svg:function(){ return ''
+      +'<rect x="70" y="170" width="130" height="60" rx="12" fill="#e1f5fe" stroke="#0277bd" stroke-width="2"/><text x="135" y="195" font-size="14" font-weight="bold" text-anchor="middle" fill="#0277bd">NAD+</text><text x="135" y="215" font-size="10" text-anchor="middle" fill="#0277bd">ossidato</text>'
+      +'<text x="235" y="195" font-size="22" fill="#66bb6a">&#8644;</text><text x="235" y="220" font-size="10" text-anchor="middle" fill="#66bb6a">+2e- +H+</text>'
+      +'<rect x="270" y="170" width="130" height="60" rx="12" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/><text x="335" y="195" font-size="14" font-weight="bold" text-anchor="middle" fill="#2e7d32">NADH</text><text x="335" y="215" font-size="10" text-anchor="middle" fill="#2e7d32">ridotto</text>'
+      +lab(135,150,135,168,'Forma ossidata')+lab(335,150,335,168,'Forma ridotta')+lab(235,260,235,225,'Trasferimento elettroni'); },
+      desc:'I coenzimi NAD+ e FAD trasportano elettroni nelle reazioni redox del metabolismo. Si riducono (NADH, FADH2) catturando elettroni e li cedono alla catena respiratoria.',
+      points:['NAD+ + 2e- + H+ -> NADH','FAD + 2e- + 2H+ -> FADH2','Trasportatori di elettroni (potere riducente)','Derivano da vitamine (niacina B3, riboflavina B2)','Alimentano la catena respiratoria (ATP)'] }
+    ,'Acidi grassi e trigliceridi':{ svg:function(){ return ''
+      +'<circle cx="90" cy="160" r="16" fill="#ef5350"/><text x="90" y="165" font-size="9" fill="#fff" text-anchor="middle">COOH</text>'
+      +'<path d="M106 160 l24 0 l16 -14 l24 0 l16 14 l24 0 l16 -14 l24 0" fill="none" stroke="#ffa726" stroke-width="3"/>'
+      +'<text x="90" y="240" font-size="12" font-weight="bold" fill="#5d4037">Glicerolo</text><line x1="130" y1="235" x2="160" y2="225" stroke="#8d6e63" stroke-width="3"/><line x1="130" y1="250" x2="160" y2="250" stroke="#8d6e63" stroke-width="3"/><line x1="130" y1="265" x2="160" y2="275" stroke="#8d6e63" stroke-width="3"/>'
+      +'<rect x="160" y="218" width="40" height="14" fill="#ffcc80"/><rect x="160" y="243" width="40" height="14" fill="#ffcc80"/><rect x="160" y="268" width="40" height="14" fill="#ffcc80"/>'
+      +lab(90,115,90,144,'Testa carbossilica (-COOH)')+lab(220,140,180,150,'Coda idrocarburica')+lab(95,290,140,250,'Glicerolo + 3 acidi grassi'); },
+      desc:'Gli acidi grassi sono catene idrocarburiche con un gruppo carbossilico. Tre acidi grassi esterificati con glicerolo formano un trigliceride (riserva energetica).',
+      points:['Catena lunga + gruppo -COOH','Saturi (no doppi legami) vs insaturi','Trigliceride = glicerolo + 3 acidi grassi','Riserva energetica (9 kcal/g)','La beta-ossidazione li degrada ad acetil-CoA'] }
+  };
+
+  window.initDiagrammi=function(){
+    var sec=id('sdiagrammi'); if(!sec || sec._built) return; sec._built=true;
+    sec.innerHTML='<div class="section-title">ATLANTE CHIMICA & BIOCHIMICA</div>'
+      +'<div style="background:var(--g50);border-radius:10px;padding:12px;margin-bottom:14px;font-size:.86rem;color:var(--text2)">Scegli un argomento di chimica/biochimica: illustrazione etichettata + spiegazione + punti chiave. Scaricabile in PNG.</div>';
+    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px');
     Object.keys(ATLAS).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.dataset.k=k; picker.appendChild(b); });
-    sec.appendChild(picker);
-    var view = el('div'); sec.appendChild(view);
-    function show(k){
-      picker.querySelectorAll('button').forEach(function(b){ b.classList.toggle('pillb', b.dataset.k===k); });
-      var d = ATLAS[k];
-      var svgInner = d.svg();
-      var pts = d.points.map(function(p){ return '<li style="margin-bottom:5px">'+p+'</li>'; }).join('');
-      view.innerHTML = ''
-        + '<div style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:10px;margin-bottom:12px;text-align:center">'
-        + '<svg id="atlasSvg" viewBox="0 0 440 380" style="width:100%;max-width:480px;height:auto">'+svgInner+'</svg></div>'
-        + '<button id="atlasDl" style="width:100%;background:var(--g900);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;margin-bottom:14px">Scarica illustrazione (PNG)</button>'
-        + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-weight:800;color:var(--g900);margin-bottom:6px">'+k+'</div><div style="font-size:.9rem;line-height:1.5;color:var(--text)">'+d.desc+'</div></div>'
-        + '<div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px"><div style="font-weight:800;color:var(--g700);margin-bottom:8px">PUNTI CHIAVE</div><ul style="margin:0;padding-left:20px;font-size:.88rem;line-height:1.5">'+pts+'</ul></div>';
-      id('atlasDl').onclick = function(){ dlSvg(k, svgInner); };
+    sec.appendChild(picker); var view=el('div'); sec.appendChild(view);
+    function show(k){ picker.querySelectorAll('button').forEach(function(b){ b.classList.toggle('pillb', b.dataset.k===k); });
+      var d=ATLAS[k]; var inner=d.svg(); var pts=d.points.map(function(p){ return '<li style="margin-bottom:5px">'+p+'</li>'; }).join('');
+      view.innerHTML='<div style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:10px;margin-bottom:12px;text-align:center"><svg viewBox="0 0 440 360" style="width:100%;max-width:480px;height:auto">'+inner+'</svg></div>'
+        +'<button id="atDl" style="width:100%;background:var(--g900);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;margin-bottom:14px">Scarica illustrazione (PNG)</button>'
+        +'<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-weight:800;color:var(--g900);margin-bottom:6px">'+k+'</div><div style="font-size:.9rem;line-height:1.5">'+d.desc+'</div></div>'
+        +'<div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px"><div style="font-weight:800;color:var(--g700);margin-bottom:8px">PUNTI CHIAVE</div><ul style="margin:0;padding-left:20px;font-size:.88rem;line-height:1.5">'+pts+'</ul></div>';
+      id('atDl').onclick=function(){ var full='<svg xmlns="http://www.w3.org/2000/svg" width="660" height="540" viewBox="0 0 440 360"><rect width="440" height="360" fill="white"/>'+inner+'</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([full],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=660; cv.height=540; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,660,540); ctx.drawImage(img,0,0,660,540); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=k.replace(/[^a-zA-Z0-9]/g,'_')+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; };
     }
     picker.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ show(b.dataset.k); }; });
     show(Object.keys(ATLAS)[0]);
   };
 
-  function dlSvg(name, inner){
-    var full = '<svg xmlns="http://www.w3.org/2000/svg" width="660" height="570" viewBox="0 0 440 380"><rect width="440" height="380" fill="white"/>'+inner+'</svg>';
-    var img = new Image(); var url = URL.createObjectURL(new Blob([full],{type:'image/svg+xml'}));
-    img.onload = function(){ var cv=document.createElement('canvas'); cv.width=660; cv.height=570; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,660,570); ctx.drawImage(img,0,0,660,570); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name.replace(/[^a-zA-Z0-9]/g,'_')+'.png'; a.click(); }); URL.revokeObjectURL(url); };
-    img.onerror = function(){ URL.revokeObjectURL(url); };
-    img.src = url;
-  }
-
-  document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='spubchem') window.initPubChem(); if(s==='sdiagrammi') window.initDiagrammi(); },60); });
+  document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='serrori') window.initRiassunti(); if(s==='sdiagrammi') window.initDiagrammi(); if(s==='spubchem'&&window.initPubChem) window.initPubChem(); },60); });
 })();
 </script>
 
