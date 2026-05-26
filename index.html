@@ -682,7 +682,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13h</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13i</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -798,7 +798,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
     <button class="nav-btn" data-s="smap">🗺️ Mappa Concett.</button>
     <button class="nav-btn" data-s="scompare">⚖️ Confronto Mol.</button>
     <button class="nav-btn" data-s="spubchem">🔬 Cerca Molecole</button>
-     <button class="nav-btn" data-s="sdiagrammi">📊 Studio Visivo</button>
+     <button class="nav-btn" data-s="sdiagrammi">📖 Atlante Studio</button>
     <button class="nav-btn" data-s="srisorse">🌐 Risorse Web</button>
     <button class="nav-btn" data-s="smateriali">📁 Materiali</button>
     <button class="nav-btn" data-s="snotes">📝 Note</button>
@@ -27004,147 +27004,180 @@ window.init3DViewerPro = function(){
 })();
 </script>
 
-<!-- ============ PubChem Launcher + Strumenti di Studio Visivi (stabile/offline) ============ -->
+<!-- ============ PubChem Launcher + Atlante di Studio (illustrazioni etichettate, stabile/offline) ============ -->
 <script>
 (function(){
   function id(x){ return document.getElementById(x); }
   function el(tag, css, txt){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(txt!=null)e.innerHTML=txt; return e; }
 
+  /* ===== PubChem launcher esterno ===== */
   window.initPubChem = function(){
     var sec = id('spubchem'); if(!sec || sec._built) return; sec._built = true;
     sec.innerHTML = '<div class="section-title">RICERCA MOLECOLE ONLINE</div>'
-      + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.88rem;color:var(--text2)">Cerca qualsiasi molecola sui database ufficiali: struttura, proprieta, spettri, sicurezza.</div>'
-      + '<div style="display:flex;gap:6px;margin-bottom:14px"><input id="pcq" type="text" placeholder="Nome molecola (es. aspirina, caffeine)..." style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--g200);font-size:.95rem"></div>'
+      + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.88rem;color:var(--text2)">Cerca qualsiasi molecola sui database ufficiali.</div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:14px"><input id="pcq" type="text" placeholder="Nome molecola..." style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--g200);font-size:.95rem"></div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
       + '<button id="pcGoPub" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Cerca su PubChem</button>'
-      + '<button id="pcGoMol" style="background:#00838f;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Apri in MolView 3D</button>'
+      + '<button id="pcGoMol" style="background:#00838f;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">MolView 3D</button>'
       + '<button id="pcGoWiki" style="background:#5d4037;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Wikipedia</button>'
       + '<button id="pcGoChEBI" style="background:#6a1b9a;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">ChEBI</button></div>'
-      + '<div style="margin-top:14px"><div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;font-weight:700">RICERCHE RAPIDE</div><div id="pcPills" style="display:flex;flex-wrap:wrap;gap:5px"></div></div>';
-    function q(){ return (id('pcq').value||'').trim(); }
-    function op(u){ window.open(u,'_blank'); }
+      + '<div style="margin-top:14px"><div id="pcPills" style="display:flex;flex-wrap:wrap;gap:5px"></div></div>';
+    function q(){ return (id('pcq').value||'').trim(); } function op(u){ window.open(u,'_blank'); }
     id('pcGoPub').onclick=function(){ var t=q(); op(t?'https://pubchem.ncbi.nlm.nih.gov/#query='+encodeURIComponent(t):'https://pubchem.ncbi.nlm.nih.gov/'); };
     id('pcGoMol').onclick=function(){ var t=q(); op(t?'https://molview.org/?q='+encodeURIComponent(t):'https://molview.org/'); };
     id('pcGoWiki').onclick=function(){ var t=q(); op(t?'https://it.wikipedia.org/wiki/Special:Search?search='+encodeURIComponent(t):'https://it.wikipedia.org/'); };
     id('pcGoChEBI').onclick=function(){ var t=q(); op('https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString='+encodeURIComponent(t||'')); };
     id('pcq').onkeydown=function(e){ if(e.key==='Enter') id('pcGoPub').click(); };
-    ['Aspirina','Caffeina','Glucosio','Paracetamolo','Ibuprofene','Penicillina','Colesterolo','Dopamina','ATP','Morfina'].forEach(function(n){ var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b); });
+    ['Aspirina','Caffeina','Glucosio','Paracetamolo','Penicillina','Colesterolo','Dopamina','ATP'].forEach(function(n){ var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b); });
   };
+
+  /* ===== ATLANTE DI STUDIO: illustrazioni etichettate + spiegazione + punti chiave ===== */
+  var ATLAS = {
+    'Cellula animale': {
+      svg: function(){ return ''
+        + '<ellipse cx="220" cy="200" rx="180" ry="140" fill="#e3f2fd" stroke="#1976d2" stroke-width="3"/>'
+        + '<circle cx="210" cy="195" r="55" fill="#ce93d8" stroke="#6a1b9a" stroke-width="2"/>'
+        + '<circle cx="210" cy="195" r="22" fill="#8e24aa"/>'
+        + '<ellipse cx="120" cy="150" rx="30" ry="16" fill="#ef9a9a" stroke="#c62828" stroke-width="2"/>'
+        + '<ellipse cx="120" cy="150" rx="30" ry="16" fill="none" stroke="#c62828" stroke-width="1" transform="rotate(20 120 150)"/>'
+        + '<ellipse cx="310" cy="260" rx="34" ry="18" fill="#ffcc80" stroke="#e65100" stroke-width="2"/>'
+        + '<path d="M150 280 q10 -20 25 0 q10 -20 25 0" fill="none" stroke="#43a047" stroke-width="3"/>'
+        + '<circle cx="300" cy="140" r="10" fill="#80deea" stroke="#00838f" stroke-width="2"/>'
+        + lab(390,120,300,140,'Lisosoma') + lab(40,150,90,150,'Mitocondrio')
+        + lab(390,200,265,195,'Nucleo') + lab(40,210,155,195,'Nucleolo')
+        + lab(390,275,344,260,'App. Golgi') + lab(40,285,150,278,'Rete endoplasm.')
+        + lab(220,355,220,335,'Membrana plasmatica'); },
+      desc: 'La cellula animale e l unita fondamentale degli organismi. E delimitata dalla membrana plasmatica e contiene il citoplasma con gli organelli sospesi.',
+      points: ['Nucleo: contiene il DNA e controlla l attivita cellulare','Mitocondri: producono ATP (respirazione cellulare)','Reticolo endoplasmatico: sintesi proteine (rugoso) e lipidi (liscio)','Apparato di Golgi: modifica e smista le proteine','Lisosomi: digestione di materiale di scarto','Membrana plasmatica: regola lo scambio con l esterno']
+    },
+    'Mitocondrio': {
+      svg: function(){ return ''
+        + '<ellipse cx="220" cy="200" rx="185" ry="105" fill="#ffebee" stroke="#c62828" stroke-width="3"/>'
+        + '<ellipse cx="220" cy="200" rx="165" ry="88" fill="none" stroke="#e53935" stroke-width="2"/>'
+        + '<path d="M70 200 q25 -55 50 0 q25 55 50 0 q25 -55 50 0 q25 55 50 0 q25 -55 50 0" fill="none" stroke="#ef5350" stroke-width="4"/>'
+        + lab(390,130,300,170,'Membrana esterna') + lab(40,130,120,165,'Membrana interna')
+        + lab(390,250,250,205,'Creste') + lab(40,260,170,210,'Matrice'); },
+      desc: 'Il mitocondrio e la centrale energetica della cellula: qui avviene la respirazione cellulare che produce ATP. Ha una doppia membrana.',
+      points: ['Membrana esterna: liscia, permeabile a piccole molecole','Membrana interna: ripiegata in creste, sede della catena respiratoria','Creste: aumentano la superficie per la produzione di ATP','Matrice: contiene enzimi del ciclo di Krebs, DNA mitocondriale','Produce ATP tramite fosforilazione ossidativa']
+    },
+    'Neurone': {
+      svg: function(){ return ''
+        + '<circle cx="150" cy="200" r="48" fill="#fff3e0" stroke="#e65100" stroke-width="3"/>'
+        + '<circle cx="150" cy="200" r="18" fill="#ffb74d"/>'
+        + '<path d="M110 170 l-40 -30 M105 185 l-50 -10 M110 230 l-45 25 M120 240 l-25 40" stroke="#e65100" stroke-width="3" fill="none"/>'
+        + '<rect x="198" y="194" width="150" height="12" fill="#ffcc80" stroke="#e65100" stroke-width="2"/>'
+        + '<g fill="#90caf9" stroke="#1565c0" stroke-width="1"><rect x="210" y="190" width="14" height="20" rx="3"/><rect x="240" y="190" width="14" height="20" rx="3"/><rect x="270" y="190" width="14" height="20" rx="3"/></g>'
+        + '<path d="M348 200 l30 -15 M348 200 l30 0 M348 200 l30 15" stroke="#e65100" stroke-width="3" fill="none"/>'
+        + lab(150,90,150,152,'Dendriti') + lab(40,260,140,210,'Corpo cellulare (soma)')
+        + lab(150,310,150,218,'Nucleo') + lab(270,140,270,190,'Guaina mielinica')
+        + lab(390,250,378,200,'Terminali assonici') + lab(230,310,225,206,'Assone'); },
+      desc: 'Il neurone e la cellula del sistema nervoso. Riceve segnali tramite i dendriti, li elabora nel corpo cellulare e li trasmette lungo l assone.',
+      points: ['Dendriti: ricevono i segnali da altri neuroni','Corpo cellulare (soma): contiene il nucleo, elabora i segnali','Assone: trasmette l impulso elettrico','Guaina mielinica: isola l assone e accelera la conduzione','Terminali assonici: rilasciano neurotrasmettitori nella sinapsi']
+    },
+    'Sinapsi': {
+      svg: function(){ return ''
+        + '<path d="M40 120 q80 0 110 80 l-10 10 q-50 -60 -100 -50 z" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>'
+        + '<circle cx="120" cy="170" r="7" fill="#42a5f5"/><circle cx="135" cy="185" r="7" fill="#42a5f5"/><circle cx="110" cy="190" r="7" fill="#42a5f5"/>'
+        + '<rect x="60" y="240" width="320" height="40" rx="10" fill="#c8e6c9" stroke="#2e7d32" stroke-width="2"/>'
+        + '<g fill="#7e57c2"><rect x="150" y="232" width="8" height="10" rx="2"/><rect x="200" y="232" width="8" height="10" rx="2"/><rect x="250" y="232" width="8" height="10" rx="2"/></g>'
+        + '<circle cx="170" cy="222" r="5" fill="#42a5f5"/><circle cx="215" cy="225" r="5" fill="#42a5f5"/>'
+        + lab(40,90,90,140,'Neurone pre-sinaptico') + lab(300,150,128,178,'Vescicole (neurotrasmettitore)')
+        + lab(390,200,260,228,'Recettori') + lab(220,320,220,280,'Neurone post-sinaptico')
+        + lab(40,210,130,215,'Fessura sinaptica'); },
+      desc: 'La sinapsi e il punto di contatto tra due neuroni. Il segnale elettrico viene convertito in segnale chimico (neurotrasmettitori) per attraversare la fessura sinaptica.',
+      points: ['Vescicole sinaptiche: contengono i neurotrasmettitori','Fessura sinaptica: spazio tra i due neuroni','Neurotrasmettitori: molecole che trasmettono il segnale','Recettori post-sinaptici: legano i neurotrasmettitori','Molti farmaci agiscono proprio a livello sinaptico']
+    },
+    'Nefrone': {
+      svg: function(){ return ''
+        + '<circle cx="110" cy="130" r="38" fill="#ffcdd2" stroke="#c62828" stroke-width="2"/>'
+        + '<path d="M110 130 m-20 0 a20 14 0 1 0 40 0 a20 14 0 1 0 -40 0" fill="#ef9a9a"/>'
+        + '<path d="M130 160 q60 30 20 90 q-40 60 30 80 q60 -10 50 -80" fill="none" stroke="#ab47bc" stroke-width="9"/>'
+        + '<path d="M130 165 q40 20 10 80 q-30 50 25 75 q55 -5 48 -70" fill="none" stroke="#ffb74d" stroke-width="5"/>'
+        + lab(110,55,110,92,'Glomerulo') + lab(40,140,75,135,'Capsula di Bowman')
+        + lab(390,180,175,200,'Tubulo prossimale') + lab(390,290,165,265,'Ansa di Henle')
+        + lab(290,330,230,290,'Tubulo distale'); },
+      desc: 'Il nefrone e l unita funzionale del rene. Filtra il sangue nel glomerulo e riassorbe selettivamente acqua e soluti lungo il tubulo, formando l urina.',
+      points: ['Glomerulo: rete di capillari dove avviene la filtrazione','Capsula di Bowman: raccoglie il filtrato glomerulare','Tubulo prossimale: riassorbimento di glucosio, ioni, acqua','Ansa di Henle: concentra l urina (gradiente osmotico)','Tubulo distale e dotto collettore: regolazione fine (ADH, aldosterone)']
+    },
+    'Membrana cellulare': {
+      svg: function(){ return ''
+        + '<rect x="40" y="150" width="360" height="100" fill="#e1f5fe"/>'
+        + heads(40,360,150,'#42a5f5') + heads(40,360,238,'#42a5f5')
+        + '<ellipse cx="150" cy="200" rx="26" ry="40" fill="#ffe082" stroke="#f9a825" stroke-width="2"/>'
+        + '<circle cx="300" cy="160" r="14" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/>'
+        + lab(220,110,150,160,'Teste idrofile (fosfato)') + lab(220,290,150,235,'Code idrofobe (lipidi)')
+        + lab(60,110,150,200,'Proteina di membrana') + lab(380,110,300,160,'Glicoproteina'); },
+      desc: 'La membrana plasmatica e un doppio strato fosfolipidico. Le teste idrofile sono rivolte verso l acqua, le code idrofobe verso l interno. Regola il passaggio delle sostanze.',
+      points: ['Doppio strato fosfolipidico: barriera selettiva','Teste idrofile: verso ambiente acquoso (esterno/citoplasma)','Code idrofobe: al centro, respingono l acqua','Proteine di membrana: trasporto, recettori, enzimi','Modello a mosaico fluido (Singer-Nicolson)']
+    },
+    'DNA': {
+      svg: function(){ return ''
+        + dnaHelix()
+        + lab(390,120,250,140,'Scheletro zucchero-fosfato')
+        + lab(40,200,170,200,'Coppie di basi') + lab(390,260,250,260,'Legami idrogeno'); },
+      desc: 'Il DNA e una doppia elica formata da due filamenti antiparalleli. Le basi azotate si appaiano (A-T, G-C) tramite legami idrogeno e custodiscono l informazione genetica.',
+      points: ['Doppia elica: due filamenti avvolti','Scheletro: zucchero (desossiribosio) + gruppo fosfato','Basi: Adenina-Timina (2 legami H), Guanina-Citosina (3 legami H)','Antiparallelo: 5 -> 3 e 3 -> 5','La sequenza delle basi codifica le proteine']
+    },
+    'Amminoacido': {
+      svg: function(){ return ''
+        + '<circle cx="220" cy="200" r="26" fill="#90a4ae" stroke="#37474f" stroke-width="2"/><text x="220" y="207" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">C</text>'
+        + '<line x1="194" y1="200" x2="120" y2="200" stroke="#555" stroke-width="3"/><circle cx="100" cy="200" r="24" fill="#5c6bc0" stroke="#283593" stroke-width="2"/><text x="100" y="206" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">NH2</text>'
+        + '<line x1="246" y1="200" x2="310" y2="200" stroke="#555" stroke-width="3"/><circle cx="335" cy="200" r="26" fill="#ef5350" stroke="#b71c1c" stroke-width="2"/><text x="335" y="206" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">COOH</text>'
+        + '<line x1="220" y1="174" x2="220" y2="120" stroke="#555" stroke-width="3"/><circle cx="220" cy="100" r="22" fill="#bdbdbd" stroke="#424242" stroke-width="2"/><text x="220" y="106" font-size="16" font-weight="bold" fill="#222" text-anchor="middle">H</text>'
+        + '<line x1="220" y1="226" x2="220" y2="280" stroke="#555" stroke-width="3"/><circle cx="220" cy="300" r="24" fill="#66bb6a" stroke="#1b5e20" stroke-width="2"/><text x="220" y="306" font-size="18" font-weight="bold" fill="#fff" text-anchor="middle">R</text>'
+        + lab(60,140,100,178,'Gruppo amminico') + lab(380,140,335,176,'Gruppo carbossilico')
+        + lab(300,90,220,100,'Idrogeno') + lab(300,310,220,300,'Catena laterale (R)')
+        + lab(120,255,210,210,'Carbonio alfa'); },
+      desc: 'Gli amminoacidi sono i mattoni delle proteine. Hanno un carbonio centrale (alfa) legato a un gruppo amminico, uno carbossilico, un idrogeno e una catena laterale R che li distingue.',
+      points: ['Carbonio alfa: centro chirale (tranne glicina)','Gruppo amminico (-NH2): basico','Gruppo carbossilico (-COOH): acido','Catena laterale R: determina le proprieta (20 amminoacidi)','Si legano con legame peptidico per formare proteine']
+    },
+    'Enzima (substrato)': {
+      svg: function(){ return ''
+        + '<path d="M120 260 q-40 -90 40 -120 q40 -15 80 5 l0 30 q-30 -10 -50 5 q-20 25 0 45 l-30 30 z" fill="#c5e1a5" stroke="#558b2f" stroke-width="3"/>'
+        + '<circle cx="250" cy="170" r="20" fill="#ffb74d" stroke="#e65100" stroke-width="2"/>'
+        + lab(120,330,160,250,'Enzima') + lab(330,150,265,168,'Substrato')
+        + lab(110,150,185,180,'Sito attivo'); },
+      desc: 'Gli enzimi sono catalizzatori biologici (proteine) che accelerano le reazioni abbassando l energia di attivazione. Il substrato si lega al sito attivo (modello chiave-serratura / adattamento indotto).',
+      points: ['Sito attivo: tasca dove si lega il substrato','Specificita: ogni enzima agisce su substrati precisi','Abbassano l energia di attivazione (Ea)','Non vengono consumati nella reazione','Influenzati da pH, temperatura, inibitori']
+    }
+  };
+
+  function lab(tx,ty,px,py,text){ return '<line x1="'+tx+'" y1="'+ty+'" x2="'+px+'" y2="'+py+'" stroke="#78909c" stroke-width="1.5"/><circle cx="'+px+'" cy="'+py+'" r="3" fill="#37474f"/><text x="'+tx+'" y="'+ty+'" font-family="Arial" font-size="12.5" font-weight="700" fill="#263238" text-anchor="'+(tx<200?'end':(tx>240?'start':'middle'))+'">'+text+'</text>'; }
+  function heads(x0,x1,y,col){ var s=''; for(var x=x0+15;x<x1;x+=30){ s+='<circle cx="'+x+'" cy="'+y+'" r="9" fill="'+col+'"/><line x1="'+x+'" y1="'+(y<200?y+9:y-9)+'" x2="'+x+'" y2="'+(y<200?y+40:y-40)+'" stroke="#90caf9" stroke-width="3"/>'; } return s; }
+  function dnaHelix(){ var s=''; for(var i=0;i<14;i++){ var y=90+i*16; var ph=Math.sin(i*0.6)*60; s+='<circle cx="'+(220+ph)+'" cy="'+y+'" r="6" fill="#ef5350"/><circle cx="'+(220-ph)+'" cy="'+y+'" r="6" fill="#42a5f5"/><line x1="'+(220+ph)+'" y1="'+y+'" x2="'+(220-ph)+'" y2="'+y+'" stroke="#b0bec5" stroke-width="2"/>'; } return s; }
 
   window.initDiagrammi = function(){
     var sec = id('sdiagrammi'); if(!sec || sec._built) return; sec._built = true;
-    sec.innerHTML = '<div class="section-title">STRUMENTI DI STUDIO VISIVI</div>';
-    var tabs = el('div','display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap');
-    [['cmp','Tabelle Confronto'],['flow','Schemi & Processi'],['map','Mappe Concettuali']].forEach(function(t,i){
-      var b=el('button',null,t[1]); b.dataset.tab=t[0];
-      b.style.cssText='flex:1;min-width:130px;padding:11px;border-radius:8px;border:1px solid var(--g200);background:'+(i===0?'var(--g900)':'var(--white)')+';color:'+(i===0?'#fff':'var(--text)')+';cursor:pointer;font-weight:700;font-size:.82rem';
-      tabs.appendChild(b);
-    });
-    sec.appendChild(tabs);
-    var bodyc=el('div'); sec.appendChild(bodyc);
-    function setTab(name){ tabs.querySelectorAll('button').forEach(function(b){ var on=b.dataset.tab===name; b.style.background=on?'var(--g900)':'var(--white)'; b.style.color=on?'#fff':'var(--text)'; }); bodyc.innerHTML=''; if(name==='cmp') renderCmp(bodyc); else if(name==='flow') renderFlow(bodyc); else renderMap(bodyc); }
-    tabs.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ setTab(b.dataset.tab); }; });
-    setTab('cmp');
+    sec.innerHTML = '<div class="section-title">ATLANTE DI STUDIO</div>'
+      + '<div style="background:var(--g50);border-radius:10px;padding:12px;margin-bottom:14px;font-size:.86rem;color:var(--text2)">Scegli un argomento: vedrai l illustrazione etichettata, la spiegazione e i punti chiave da ricordare. Puoi scaricare l immagine in PNG.</div>';
+    var picker = el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px');
+    Object.keys(ATLAS).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.dataset.k=k; picker.appendChild(b); });
+    sec.appendChild(picker);
+    var view = el('div'); sec.appendChild(view);
+    function show(k){
+      picker.querySelectorAll('button').forEach(function(b){ b.classList.toggle('pillb', b.dataset.k===k); });
+      var d = ATLAS[k];
+      var svgInner = d.svg();
+      var pts = d.points.map(function(p){ return '<li style="margin-bottom:5px">'+p+'</li>'; }).join('');
+      view.innerHTML = ''
+        + '<div style="background:#fff;border:1px solid var(--g200);border-radius:12px;padding:10px;margin-bottom:12px;text-align:center">'
+        + '<svg id="atlasSvg" viewBox="0 0 440 380" style="width:100%;max-width:480px;height:auto">'+svgInner+'</svg></div>'
+        + '<button id="atlasDl" style="width:100%;background:var(--g900);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;margin-bottom:14px">Scarica illustrazione (PNG)</button>'
+        + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-weight:800;color:var(--g900);margin-bottom:6px">'+k+'</div><div style="font-size:.9rem;line-height:1.5;color:var(--text)">'+d.desc+'</div></div>'
+        + '<div style="background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px"><div style="font-weight:800;color:var(--g700);margin-bottom:8px">PUNTI CHIAVE</div><ul style="margin:0;padding-left:20px;font-size:.88rem;line-height:1.5">'+pts+'</ul></div>';
+      id('atlasDl').onclick = function(){ dlSvg(k, svgInner); };
+    }
+    picker.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ show(b.dataset.k); }; });
+    show(Object.keys(ATLAS)[0]);
   };
 
-  /* TABELLE DI CONFRONTO (utilissime per esami) */
-  function renderCmp(c){
-    var CMP={
-      'SN1 vs SN2':{a:'SN1',b:'SN2',rows:[['Cinetica','1 ordine (substrato)','2 ordine (substrato+Nu)'],['Meccanismo','2 stadi (carbocatione)','1 stadio concertato'],['Substrato','3 > 2 > 1','1 > 2 > 3'],['Nucleofilo','Debole','Forte'],['Solvente','Protico polare','Aprotico polare'],['Stereochimica','Racemizzazione','Inversione (Walden)']]},
-      'E1 vs E2':{a:'E1',b:'E2',rows:[['Cinetica','1 ordine','2 ordine'],['Stadi','2 (carbocatione)','1 concertato'],['Base','Debole','Forte'],['Substrato','3 > 2 > 1','3 > 2 > 1'],['Geometria','Non richiesta','Anti-periplanare'],['Regola','Zaitsev','Zaitsev/Hofmann']]},
-      'DNA vs RNA':{a:'DNA',b:'RNA',rows:[['Zucchero','Desossiribosio','Ribosio'],['Basi','A,T,G,C','A,U,G,C'],['Filamenti','Doppio','Singolo'],['Stabilita','Alta','Minore'],['Funzione','Conservazione info','Trasferimento/sintesi'],['Sede','Nucleo','Nucleo+citoplasma']]},
-      'Mitosi vs Meiosi':{a:'Mitosi',b:'Meiosi',rows:[['Divisioni','1','2'],['Cellule figlie','2','4'],['Cromosomi','Diploidi (2n)','Aploidi (n)'],['Crossing-over','No','Si'],['Scopo','Crescita/riparazione','Gameti'],['Variabilita','No','Si']]},
-      'Inibizione enzimatica':{a:'Competitiva',b:'Non-competitiva',rows:[['Sito legame','Sito attivo','Sito allosterico'],['Km','Aumenta','Invariata'],['Vmax','Invariata','Diminuisce'],['Reversibile con substrato','Si','No'],['Lineweaver-Burk','Stesso intercetta y','Stesso intercetta x']]},
-      'Acidi forti vs deboli':{a:'Forte',b:'Debole',rows:[['Dissociazione','Completa','Parziale'],['Ka','Molto grande','Piccola'],['pKa','< 0','> 0'],['Equilibrio','Spostato a dx','Equilibrio reale'],['Esempi','HCl, H2SO4','CH3COOH, HF'],['Conduce corrente','Forte','Debole']]},
-      'Termodinamica vs Cinetica':{a:'Termodinamica',b:'Cinetica',rows:[['Studia','Spontaneita/equilibrio','Velocita reazione'],['Grandezza','dG, dH, dS','k, Ea'],['Tempo','Non considera','Centrale'],['Catalizzatore','Non cambia dG','Abbassa Ea'],['Domanda','Avviene?','Quanto veloce?']]},
-      'Legame ionico vs covalente':{a:'Ionico',b:'Covalente',rows:[['Elettroni','Trasferiti','Condivisi'],['Tra','Metallo+non-metallo','Non-metalli'],['delta-EN','> 1.7','< 1.7'],['Stato','Solido cristallino','Vari'],['P.fusione','Alto','Variabile'],['In acqua','Conduce','Spesso no']]}
-    };
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Scegli un confronto da studiare. Puoi esportarlo in PNG per i tuoi appunti.'));
-    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
-    var out=el('div','width:100%'); var cur='SN1 vs SN2';
-    Object.keys(CMP).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
-    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ expTable(cur,CMP[cur]); }; picker.appendChild(exp);
-    c.appendChild(picker); c.appendChild(out);
-    function draw(k){ var d=CMP[k]; var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.86rem">';
-      h+='<tr><th style="padding:9px;background:var(--g900);color:#fff;text-align:left;border-radius:8px 0 0 0">Caratteristica</th><th style="padding:9px;background:#1565c0;color:#fff">'+d.a+'</th><th style="padding:9px;background:#e65100;color:#fff;border-radius:0 8px 0 0">'+d.b+'</th></tr>';
-      d.rows.forEach(function(r,i){ var bg=i%2?'var(--g50)':'#fff'; h+='<tr><td style="padding:8px;font-weight:700;background:'+bg+';border:1px solid var(--g200)">'+r[0]+'</td><td style="padding:8px;background:'+bg+';border:1px solid var(--g200)">'+r[1]+'</td><td style="padding:8px;background:'+bg+';border:1px solid var(--g200)">'+r[2]+'</td></tr>'; });
-      h+='</table></div>'; out.innerHTML=h;
-    }
-    function expTable(name,d){ var cw=720,rowh=38,headh=46,th=90; var H=th+headh+d.rows.length*rowh+20;
-      var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+cw+'" height="'+H+'"><rect width="100%" height="100%" fill="white"/>';
-      s+='<text x="20" y="34" font-family="Arial" font-size="22" font-weight="bold" fill="#1b5e20">'+name+'</text>';
-      var c0=20,c1=270,c2=495,wc=225; var y=th;
-      s+='<rect x="'+c0+'" y="'+y+'" width="240" height="'+headh+'" fill="#263238"/><rect x="'+c1+'" y="'+y+'" width="'+wc+'" height="'+headh+'" fill="#1565c0"/><rect x="'+c2+'" y="'+y+'" width="'+wc+'" height="'+headh+'" fill="#e65100"/>';
-      s+='<text x="'+(c0+10)+'" y="'+(y+29)+'" font-family="Arial" font-size="14" font-weight="bold" fill="#fff">Caratteristica</text>';
-      s+='<text x="'+(c1+wc/2)+'" y="'+(y+29)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+d.a+'</text>';
-      s+='<text x="'+(c2+wc/2)+'" y="'+(y+29)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+d.b+'</text>';
-      y+=headh;
-      d.rows.forEach(function(r,i){ var bg=i%2?'#f1f8f1':'#ffffff'; s+='<rect x="'+c0+'" y="'+y+'" width="'+(240+wc*2+15)+'" height="'+rowh+'" fill="'+bg+'"/>';
-        s+='<text x="'+(c0+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#222">'+esc(r[0])+'</text>';
-        s+='<text x="'+(c1+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" fill="#222">'+esc(r[1])+'</text>';
-        s+='<text x="'+(c2+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" fill="#222">'+esc(r[2])+'</text>'; y+=rowh; });
-      s+='</svg>'; toPNG(s,cw,H,name);
-    }
-    draw('SN1 vs SN2'); picker.querySelector('button').classList.add('pillb');
+  function dlSvg(name, inner){
+    var full = '<svg xmlns="http://www.w3.org/2000/svg" width="660" height="570" viewBox="0 0 440 380"><rect width="440" height="380" fill="white"/>'+inner+'</svg>';
+    var img = new Image(); var url = URL.createObjectURL(new Blob([full],{type:'image/svg+xml'}));
+    img.onload = function(){ var cv=document.createElement('canvas'); cv.width=660; cv.height=570; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,660,570); ctx.drawImage(img,0,0,660,570); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name.replace(/[^a-zA-Z0-9]/g,'_')+'.png'; a.click(); }); URL.revokeObjectURL(url); };
+    img.onerror = function(){ URL.revokeObjectURL(url); };
+    img.src = url;
   }
-
-  /* SCHEMI & PROCESSI (flowchart esportabili) */
-  function renderFlow(c){
-    var TPL={
-      'Glicolisi':['Glucosio','G6P','F6P','F1,6-BP','G3P','1,3-BPG','3-PG','PEP','Piruvato'],
-      'Ciclo di Krebs':['Acetil-CoA','Citrato','Isocitrato','a-KG','Succinil-CoA','Succinato','Fumarato','Malato','OAA'],
-      'Catena respiratoria':['NADH','Compl. I','CoQ','Compl. III','Cit c','Compl. IV','O2','H2O'],
-      'beta-ossidazione':['Acil-CoA','Enoil-CoA','3-OH-acil-CoA','3-cheto-acil-CoA','Acetil-CoA'],
-      'Ciclo urea':['NH3','Carbamil-P','Citrullina','Argininosucc.','Arginina','Urea'],
-      'Espressione genica':['DNA','mRNA','Ribosoma','tRNA','Proteina'],
-      'Fotosintesi':['Luce','H2O','Fase luminosa','ATP+NADPH','Ciclo Calvin','Glucosio'],
-      'Fermentazione':['Glucosio','Piruvato','Acetaldeide','Etanolo+CO2'],
-      'Coagulazione':['Lesione','Piastrine','Trombina','Fibrinogeno','Fibrina','Coagulo']
-    };
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Schemi a blocchi dei processi. Esporta in PNG per gli appunti.'));
-    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
-    var out=el('div','width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px;overflow-x:auto'); var cur='Glicolisi';
-    Object.keys(TPL).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
-    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ expFlow(cur,TPL[cur]); }; picker.appendChild(exp);
-    c.appendChild(picker); c.appendChild(out);
-    function draw(k){ var st=TPL[k]; var h='<div style="font-weight:800;color:var(--g900);margin-bottom:12px">'+k+'</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">';
-      st.forEach(function(s,i){ h+='<div style="background:linear-gradient(135deg,#1B5E20,#388E3C);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap">'+s+'</div>'; if(i<st.length-1) h+='<div style="color:#388E3C;font-size:1.4rem;font-weight:900">&rarr;</div>'; }); h+='</div>'; out.innerHTML=h;
-    }
-    function expFlow(name,st){ var bw=140,bh=46,gap=38,pad=24; var w=pad*2+st.length*bw+(st.length-1)*gap,H=130;
-      var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+H+'"><rect width="100%" height="100%" fill="white"/><text x="'+pad+'" y="32" font-family="Arial" font-size="20" font-weight="bold" fill="#1b5e20">'+name+'</text>';
-      st.forEach(function(t,i){ var x=pad+i*(bw+gap),y=58; s+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="10" fill="#2e7d32"/><text x="'+(x+bw/2)+'" y="'+(y+bh/2+5)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">'+esc(t)+'</text>'; if(i<st.length-1) s+='<text x="'+(x+bw+gap/2)+'" y="'+(y+bh/2+8)+'" font-size="26" fill="#388e3c" text-anchor="middle">&#8594;</text>'; });
-      s+='</svg>'; toPNG(s,w,H,name);
-    }
-    draw('Glicolisi'); picker.querySelector('button').classList.add('pillb');
-  }
-
-  /* MAPPE CONCETTUALI (radiale, espandibile) */
-  function renderMap(c){
-    var MAPS={
-      'Biomolecole':{c:'Biomolecole',n:['Carboidrati','Lipidi','Proteine','Acidi nucleici']},
-      'Reazioni organiche':{c:'Reazioni',n:['Sostituzione','Eliminazione','Addizione','Riarrangiamento','Redox']},
-      'Legami chimici':{c:'Legami',n:['Ionico','Covalente','Metallico','Idrogeno','Van der Waals']},
-      'Spettroscopia':{c:'Spettroscopia',n:['NMR','IR','UV-Vis','Massa']},
-      'Farmacocinetica':{c:'ADME',n:['Assorbimento','Distribuzione','Metabolismo','Escrezione']},
-      'Vie metaboliche':{c:'Metabolismo',n:['Glicolisi','Krebs','beta-ossidazione','Gluconeogenesi','Pentoso-P']}
-    };
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Mappe concettuali degli argomenti chiave. Esporta in PNG.'));
-    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
-    var out=el('div','width:100%;display:flex;justify-content:center'); var cur='Biomolecole';
-    Object.keys(MAPS).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
-    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ var s=buildMap(MAPS[cur]); toPNG(s,420,420,cur); }; picker.appendChild(exp);
-    c.appendChild(picker); c.appendChild(out);
-    function buildMap(m){ var cx=210,cy=210,R=130; var s='<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420"><rect width="100%" height="100%" fill="white"/>';
-      m.n.forEach(function(node,i){ var a=(i/m.n.length)*2*Math.PI-Math.PI/2; var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R; s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#90a4ae" stroke-width="2"/>'; });
-      m.n.forEach(function(node,i){ var a=(i/m.n.length)*2*Math.PI-Math.PI/2; var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R; s+='<rect x="'+(x-58)+'" y="'+(y-18)+'" width="116" height="36" rx="18" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/><text x="'+x+'" y="'+(y+5)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#1b5e20" text-anchor="middle">'+esc(node)+'</text>'; });
-      s+='<circle cx="'+cx+'" cy="'+cy+'" r="52" fill="#1b5e20"/><text x="'+cx+'" y="'+(cy+5)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+esc(m.c)+'</text></svg>'; return s;
-    }
-    function draw(k){ out.innerHTML=buildMap(MAPS[k]); }
-    draw('Biomolecole'); picker.querySelector('button').classList.add('pillb');
-  }
-
-  function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function toPNG(svg,w,h,name){ var img=new Image(); var url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=h; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(name||'studio')+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; }
 
   document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='spubchem') window.initPubChem(); if(s==='sdiagrammi') window.initDiagrammi(); },60); });
 })();
