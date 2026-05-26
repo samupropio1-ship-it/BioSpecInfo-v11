@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+/* GUARD localStorage: evita crash su WebView/modalità privata */
+(function(){
+  var ok=false;
+  try{var t="__bsi_t";window.localStorage.setItem(t,t);window.localStorage.removeItem(t);ok=true;}catch(e){ok=false;}
+  if(!ok){
+    var mem={};
+    try{
+      Object.defineProperty(window,"localStorage",{
+        value:{
+          getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+          setItem:function(k,v){mem[k]=String(v);},
+          removeItem:function(k){delete mem[k];},
+          clear:function(){mem={};},
+          key:function(i){return Object.keys(mem)[i]||null;},
+          get length(){return Object.keys(mem).length;}
+        },
+        configurable:true
+      });
+    }catch(e2){}
+  }
+})();
+</script>
 <link rel="icon" type="image/png" href="data:image/png;base64,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">
 
 
@@ -659,7 +682,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13d</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13g</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -774,7 +797,8 @@ input::placeholder, textarea::placeholder { color: #888888; }
     <button class="nav-btn" data-s="sghs">⚠️ GHS</button>
     <button class="nav-btn" data-s="smap">🗺️ Mappa Concett.</button>
     <button class="nav-btn" data-s="scompare">⚖️ Confronto Mol.</button>
-    <button class="nav-btn" data-s="spubchem">🔬 PubChem Live</button>
+    <button class="nav-btn" data-s="spubchem">🔬 Cerca Molecole</button>
+     <button class="nav-btn" data-s="sdiagrammi">🎨 Diagrammi Sci.</button>
     <button class="nav-btn" data-s="srisorse">🌐 Risorse Web</button>
     <button class="nav-btn" data-s="smateriali">📁 Materiali</button>
     <button class="nav-btn" data-s="snotes">📝 Note</button>
@@ -1337,11 +1361,13 @@ window.onload = function(){
       if(sec==='sdashboard' && typeof window.initDashboard==='function') window.initDashboard();
       if(sec==='sfilemanager' && typeof window.initFileManager==='function') window.initFileManager();
       if(sec==='s3dpro' && typeof window.init3DViewerPro==='function') window.init3DViewerPro();
+      if(sec==='sdiagrammi' && typeof window.initDiagrammi==='function') window.initDiagrammi();
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='senergia' && typeof window.initEnergyDiagrams==='function') window.initEnergyDiagrams();
       if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
       if(sec==='sfilemanager' && typeof window.initFileManager==='function') window.initFileManager();
       if(sec==='s3dpro' && typeof window.init3DViewerPro==='function') window.init3DViewerPro();
+      if(sec==='sdiagrammi' && typeof window.initDiagrammi==='function') window.initDiagrammi();
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='senergia' && typeof window.initEnergyDiagrams==='function') window.initEnergyDiagrams();
       if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
@@ -1367,6 +1393,7 @@ window.onload = function(){
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='sfilemanager' && typeof window.initFileManager==='function') window.initFileManager();
       if(sec==='s3dpro' && typeof window.init3DViewerPro==='function') window.init3DViewerPro();
+      if(sec==='sdiagrammi' && typeof window.initDiagrammi==='function') window.initDiagrammi();
       if(sec==='sdashboard' && typeof window.initDashboard==='function') window.initDashboard();
       if(sec==='smateriali' && typeof window.initMateriali==='function') window.initMateriali();
       if(sec==='serrori' && typeof window.initErroriComuni==='function') window.initErroriComuni();
@@ -25002,6 +25029,7 @@ window.calcMolProps = function() {
 
 <div id="sfilemanager" class="section"></div>
 <div id="s3dpro" class="section"></div>
+<div id="sdiagrammi" class="section"></div>
 
 
 <script>
@@ -26973,6 +27001,214 @@ window.init3DViewerPro = function(){
   });
   // Anche subito se il DOM è pronto
   if(document.readyState !== 'loading'){ setTimeout(function(){ window.initDashboard(); }, 300); }
+})();
+</script>
+
+<!-- ============ PubChem Launcher + Diagrammi Scientifici v2 (CSS3D, gratis/offline/stabile) ============ -->
+<script>
+(function(){
+  function id(x){ return document.getElementById(x); }
+  function el(tag, css, html){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(html!=null)e.innerHTML=html; return e; }
+
+  window.initPubChem = function(){
+    var sec = id('spubchem');
+    if(!sec || sec._built) return;
+    sec._built = true;
+    sec.innerHTML = ''
+      + '<div class="section-title">RICERCA MOLECOLE ONLINE</div>'
+      + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.88rem;color:var(--text2)">Cerca qualsiasi molecola sui database ufficiali: struttura, proprieta, spettri, sicurezza, sempre aggiornati.</div>'
+      + '<div style="display:flex;gap:6px;margin-bottom:14px"><input id="pcq" type="text" placeholder="Nome molecola (es. aspirina, caffeine)..." style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--g200);font-size:.95rem"></div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      + '<button id="pcGoPub" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Cerca su PubChem</button>'
+      + '<button id="pcGoMol" style="background:#00838f;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Apri in MolView 3D</button>'
+      + '<button id="pcGoWiki" style="background:#5d4037;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Wikipedia</button>'
+      + '<button id="pcGoChEBI" style="background:#6a1b9a;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">ChEBI</button>'
+      + '</div>'
+      + '<div style="margin-top:14px"><div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;font-weight:700">RICERCHE RAPIDE</div><div id="pcPills" style="display:flex;flex-wrap:wrap;gap:5px"></div></div>'
+      + '<div style="margin-top:16px;background:var(--g50);border-radius:10px;padding:12px;font-size:.8rem;color:var(--text2)">Per la visualizzazione 3D integrata e offline usa la sezione Viewer 3D PRO.</div>';
+    function q(){ return (id('pcq').value||'').trim(); }
+    function openUrl(u){ window.open(u,'_blank'); }
+    id('pcGoPub').onclick=function(){ var t=q(); openUrl(t?'https://pubchem.ncbi.nlm.nih.gov/#query='+encodeURIComponent(t):'https://pubchem.ncbi.nlm.nih.gov/'); };
+    id('pcGoMol').onclick=function(){ var t=q(); openUrl(t?'https://molview.org/?q='+encodeURIComponent(t):'https://molview.org/'); };
+    id('pcGoWiki').onclick=function(){ var t=q(); openUrl(t?'https://it.wikipedia.org/wiki/Special:Search?search='+encodeURIComponent(t):'https://it.wikipedia.org/'); };
+    id('pcGoChEBI').onclick=function(){ var t=q(); openUrl('https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString='+encodeURIComponent(t||'')); };
+    id('pcq').onkeydown=function(e){ if(e.key==='Enter') id('pcGoPub').click(); };
+    ['Aspirina','Caffeina','Glucosio','Paracetamolo','Ibuprofene','Penicillina','Colesterolo','Dopamina','ATP','Morfina'].forEach(function(n){
+      var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b);
+    });
+  };
+
+  window.initDiagrammi = function(){
+    var sec = id('sdiagrammi');
+    if(!sec || sec._built) return;
+    sec._built = true;
+    sec.innerHTML = '<div class="section-title">DIAGRAMMI SCIENTIFICI</div>';
+    var tabs = el('div','display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap');
+    [['3d','Diagrammi 3D'],['build','Costruttore Schemi'],['lib','Libreria SVG'],['gen','Generatore']].forEach(function(t,i){
+      var b=el('button',null,t[1]); b.dataset.tab=t[0];
+      b.style.cssText='flex:1;min-width:120px;padding:10px;border-radius:8px;border:1px solid var(--g200);background:'+(i===0?'var(--g900)':'var(--white)')+';color:'+(i===0?'#fff':'var(--text)')+';cursor:pointer;font-weight:700;font-size:.8rem';
+      tabs.appendChild(b);
+    });
+    sec.appendChild(tabs);
+    var bodyc = el('div'); sec.appendChild(bodyc);
+    function setTab(name){
+      tabs.querySelectorAll('button').forEach(function(b){ var on=b.dataset.tab===name; b.style.background=on?'var(--g900)':'var(--white)'; b.style.color=on?'#fff':'var(--text)'; });
+      bodyc.innerHTML='';
+      if(name==='3d') render3D(bodyc); else if(name==='build') renderBuilder(bodyc); else if(name==='lib') renderLib(bodyc); else renderGen(bodyc);
+    }
+    tabs.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ setTab(b.dataset.tab); }; });
+    setTab('3d');
+  };
+
+  function render3D(c){
+    var picker = el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
+    var models=[['dna','DNA'],['atom','Atomo'],['cell','Cellula'],['membrane','Membrana'],['water','Acqua H2O'],['benzene','Benzene'],['methane','Metano'],['ammonia','Ammoniaca'],['mito','Mitocondrio'],['virus','Virus']];
+    models.forEach(function(m){ var b=el('button',null,m[1]); b.className='pill'; b.onclick=function(){ show(m[0]); picker.querySelectorAll('button').forEach(function(x){x.classList.remove('pillb');}); b.classList.add('pillb'); }; picker.appendChild(b); });
+    c.appendChild(picker);
+    var stage=el('div','width:100%;height:380px;background:radial-gradient(circle at 50% 40%,#10243a,#060d16);border-radius:14px;overflow:hidden;position:relative;perspective:900px;touch-action:none;cursor:grab');
+    var world=el('div','position:absolute;top:50%;left:50%;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(-15deg) rotateY(0deg)');
+    stage.appendChild(world); c.appendChild(stage);
+    var caption=el('div','margin-top:8px;text-align:center;color:var(--text2);font-size:.84rem'); c.appendChild(caption);
+    var rx=-15, ry=0, drag=false, lx=0, ly=0, auto=true;
+    function apply(){ world.style.transform='translate(-50%,-50%) rotateX('+rx+'deg) rotateY('+ry+'deg)'; }
+    stage.addEventListener('pointerdown',function(e){ drag=true; auto=false; lx=e.clientX; ly=e.clientY; stage.style.cursor='grabbing'; });
+    window.addEventListener('pointermove',function(e){ if(!drag)return; ry+=(e.clientX-lx)*0.5; rx-=(e.clientY-ly)*0.5; lx=e.clientX; ly=e.clientY; apply(); });
+    window.addEventListener('pointerup',function(){ drag=false; stage.style.cursor='grab'; });
+    (function spin(){ if(auto){ ry+=0.35; apply(); } requestAnimationFrame(spin); })();
+    function clear(){ world.innerHTML=''; }
+    function dot(x,y,z,size,color,label){ var d=el('div'); d.style.cssText='position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';left:'+(-size/2)+'px;top:'+(-size/2)+'px;transform:translate3d('+x+'px,'+y+'px,'+z+'px);box-shadow:0 0 12px '+color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:'+(size/2.6)+'px;font-weight:700'; if(label)d.textContent=label; world.appendChild(d); return d; }
+    function bond(x,y,z,w,rotZ,rotY,color){ var b=el('div'); b.style.cssText='position:absolute;height:4px;width:'+w+'px;background:'+(color||'#cfd8dc')+';left:0;top:-2px;transform:translate3d('+x+'px,'+y+'px,'+z+'px) rotateY('+(rotY||0)+'deg) rotateZ('+rotZ+'deg);transform-origin:left center;opacity:.8'; world.appendChild(b); }
+    function show(kind){
+      clear();
+      if(kind==='dna'){ caption.innerHTML='<b>DNA</b> doppia elica. Coppie A-T e G-C.';
+        for(var i=0;i<26;i++){ var a=i*36*Math.PI/180,y=(i-13)*13,r=70; var x1=Math.cos(a)*r,z1=Math.sin(a)*r,x2=Math.cos(a+Math.PI)*r,z2=Math.sin(a+Math.PI)*r;
+          dot(x1,y,z1,12,i%2?'#4fc3f7':'#66bb6a'); dot(x2,y,z2,12,i%2?'#ef5350':'#ffa726'); dot((x1+x2)/2,y,(z1+z2)/2,5,'#b0bec5'); }
+      } else if(kind==='atom'){ caption.innerHTML='<b>Atomo</b> nucleo + elettroni in orbita.';
+        dot(0,0,0,34,'#ff7043'); dot(8,6,6,16,'#ef5350','+'); dot(-8,-4,-6,16,'#90a4ae'); dot(6,-8,4,16,'#ef5350','+'); dot(-6,6,-4,16,'#90a4ae');
+        [[90,0],[90,60],[90,120]].forEach(function(o,k){ var ring=el('div'); ring.style.cssText='position:absolute;width:'+(o[0]*2)+'px;height:'+(o[0]*2)+'px;border:1px solid rgba(120,200,255,.35);border-radius:50%;left:'+(-o[0])+'px;top:'+(-o[0])+'px;transform:rotateY('+o[1]+'deg)'; world.appendChild(ring); var ea=k*70*Math.PI/180; dot(Math.cos(ea)*o[0]*Math.cos(o[1]*Math.PI/180),Math.sin(ea)*o[0],Math.cos(ea)*o[0]*Math.sin(o[1]*Math.PI/180),11,'#29b6f6','-'); });
+      } else if(kind==='cell'){ caption.innerHTML='<b>Cellula</b> membrana, nucleo (viola), organelli.';
+        var mem=el('div'); mem.style.cssText='position:absolute;width:300px;height:300px;border-radius:50%;left:-150px;top:-150px;background:radial-gradient(circle,rgba(102,187,106,.12),rgba(102,187,106,.28));border:3px solid #66bb6a'; world.appendChild(mem);
+        dot(0,0,30,70,'rgba(126,87,194,.85)'); dot(-70,40,20,26,'#ffa726'); dot(80,-30,10,22,'#ef5350'); dot(40,70,-10,20,'#26c6da'); dot(-50,-60,15,24,'#ffee58');
+      } else if(kind==='membrane'){ caption.innerHTML='<b>Membrana</b> doppio strato fosfolipidico.';
+        for(var j=0;j<16;j++){ var px=(j-8)*20; dot(px,-30,0,12,'#42a5f5'); bond(px,-30,0,26,90,0,'#90caf9'); dot(px,30,0,12,'#42a5f5'); bond(px,30,0,26,-90,0,'#90caf9'); }
+      } else if(kind==='water'){ caption.innerHTML='<b>Acqua (H2O)</b> angolo 104.5 gradi, polare.';
+        dot(0,0,0,40,'#ef5350','O'); dot(-46,34,0,24,'#eceff1','H'); dot(46,34,0,24,'#eceff1','H'); bond(0,0,0,55,145,0,'#b0bec5'); bond(0,0,0,55,35,0,'#b0bec5');
+      } else if(kind==='benzene'){ caption.innerHTML='<b>Benzene (C6H6)</b> anello aromatico.';
+        for(var b6=0;b6<6;b6++){ var ba=b6*60*Math.PI/180; dot(Math.cos(ba)*60,Math.sin(ba)*60,0,26,'#455a64','C'); var na=(b6+0.5)*60*Math.PI/180; dot(Math.cos(na)*95,Math.sin(na)*95,0,16,'#eceff1','H'); }
+        var rr=el('div'); rr.style.cssText='position:absolute;width:70px;height:70px;border:2px dashed rgba(255,255,255,.4);border-radius:50%;left:-35px;top:-35px'; world.appendChild(rr);
+      } else if(kind==='methane'){ caption.innerHTML='<b>Metano (CH4)</b> geometria tetraedrica.';
+        dot(0,0,0,40,'#455a64','C'); var t=[[60,60,60],[-60,-60,60],[-60,60,-60],[60,-60,-60]]; t.forEach(function(p){ dot(p[0],p[1],p[2],22,'#eceff1','H'); });
+      } else if(kind==='ammonia'){ caption.innerHTML='<b>Ammoniaca (NH3)</b> piramidale, doppietto libero.';
+        dot(0,-20,0,38,'#5c6bc0','N'); dot(-50,40,30,22,'#eceff1','H'); dot(50,40,30,22,'#eceff1','H'); dot(0,40,-55,22,'#eceff1','H');
+      } else if(kind==='mito'){ caption.innerHTML='<b>Mitocondrio</b> doppia membrana con creste.';
+        var out=el('div'); out.style.cssText='position:absolute;width:260px;height:150px;border-radius:75px;left:-130px;top:-75px;background:rgba(239,83,80,.18);border:3px solid #ef5350'; world.appendChild(out);
+        for(var cr=0;cr<6;cr++){ var crv=el('div'); crv.style.cssText='position:absolute;width:40px;height:90px;border:2px solid #ff8a65;border-radius:20px;left:'+((cr-3)*38)+'px;top:-45px;background:rgba(255,138,101,.1)'; world.appendChild(crv); }
+      } else { caption.innerHTML='<b>Virus</b> capside icosaedrico con spike.';
+        dot(0,0,0,90,'rgba(102,187,106,.5)'); for(var s=0;s<14;s++){ var sa=s*(360/14)*Math.PI/180,sb=(s%3)*40-40; dot(Math.cos(sa)*70,sb,Math.sin(sa)*70,14,'#ef5350'); }
+      }
+    }
+    show('dna'); picker.querySelector('button').classList.add('pillb');
+  }
+
+  function renderBuilder(c){
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Aggiungi elementi, trascinali, poi esporta in PNG. Doppio tap sul testo per modificarlo.'));
+    var bar=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px');
+    [['rect','Riquadro'],['circle','Cerchio'],['arrow','Freccia'],['text','Testo'],['clear','Pulisci'],['png','Esporta PNG']].forEach(function(a){ var b=el('button',null,a[1]); b.className='pill'; b.dataset.a=a[0]; bar.appendChild(b); });
+    c.appendChild(bar);
+    var colors=['#c8e6c9','#bbdefb','#ffccbc','#fff9c4','#e1bee7','#b2dfdb']; var curCol=colors[0];
+    var colbar=el('div','display:flex;gap:6px;margin-bottom:10px');
+    colors.forEach(function(col){ var b=el('button','width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ccc;cursor:pointer;background:'+col); b.onclick=function(){ curCol=col; colbar.querySelectorAll('button').forEach(function(x){x.style.outline='none';}); b.style.outline='2px solid #1b5e20'; }; colbar.appendChild(b); });
+    c.appendChild(colbar);
+    var wrap=el('div','width:100%;height:340px;background:#fff;border:1px solid var(--g200);border-radius:10px;overflow:hidden;position:relative');
+    var svgNS='http://www.w3.org/2000/svg';
+    var svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width','100%'); svg.setAttribute('height','100%'); svg.style.touchAction='none';
+    var defs=document.createElementNS(svgNS,'defs'); defs.innerHTML='<marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#37474f"/></marker>'; svg.appendChild(defs);
+    wrap.appendChild(svg); c.appendChild(wrap);
+    var sel=null, off={x:0,y:0};
+    function mk(type){ var g=document.createElementNS(svgNS,'g'); g.setAttribute('transform','translate(70,70)'); var n;
+      if(type==='rect'){ n=document.createElementNS(svgNS,'rect'); n.setAttribute('width',110); n.setAttribute('height',60); n.setAttribute('rx',8); n.setAttribute('fill',curCol); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',2); }
+      else if(type==='circle'){ n=document.createElementNS(svgNS,'circle'); n.setAttribute('r',40); n.setAttribute('fill',curCol); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',2); }
+      else if(type==='arrow'){ n=document.createElementNS(svgNS,'line'); n.setAttribute('x1',0); n.setAttribute('y1',0); n.setAttribute('x2',120); n.setAttribute('y2',0); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',3); n.setAttribute('marker-end','url(#ah)'); }
+      else { n=document.createElementNS(svgNS,'text'); n.setAttribute('font-size',18); n.setAttribute('font-weight','700'); n.setAttribute('fill','#1b5e20'); n.textContent='Testo'; }
+      g.appendChild(n); g.style.cursor='move';
+      g.addEventListener('pointerdown',function(e){ sel=g; var m=svg.getBoundingClientRect(); var tr=g.getAttribute('transform').match(/-?\d+\.?\d*/g); off.x=e.clientX-m.left-(+tr[0]); off.y=e.clientY-m.top-(+tr[1]); e.stopPropagation(); });
+      if(type==='text'){ g.addEventListener('dblclick',function(){ var t=prompt('Testo:',n.textContent); if(t!=null)n.textContent=t; }); }
+      svg.appendChild(g);
+    }
+    svg.addEventListener('pointermove',function(e){ if(!sel)return; var m=svg.getBoundingClientRect(); sel.setAttribute('transform','translate('+(e.clientX-m.left-off.x)+','+(e.clientY-m.top-off.y)+')'); });
+    svg.addEventListener('pointerup',function(){ sel=null; });
+    bar.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ var a=b.dataset.a; if(a==='clear'){ Array.from(svg.querySelectorAll('g')).forEach(function(g){g.remove();}); } else if(a==='png'){ exportPNG(svg,wrap); } else mk(a); }; });
+    colbar.querySelector('button').click();
+  }
+  function exportPNG(svg, wrap){
+    var xml=new XMLSerializer().serializeToString(svg); var w=wrap.clientWidth,h=wrap.clientHeight;
+    var s2='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'"><rect width="100%" height="100%" fill="white"/>'+xml.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')+'</svg>';
+    var img=new Image(); var url=URL.createObjectURL(new Blob([s2],{type:'image/svg+xml'}));
+    img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='schema.png'; a.click(); }); URL.revokeObjectURL(url); };
+    img.src=url;
+  }
+
+  function renderLib(c){
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Illustrazioni pronte. Tocca per scaricarle in PNG ad alta risoluzione.'));
+    var grid=el('div','display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px');
+    var SV={
+      'Provetta':'<rect x="26" y="8" width="12" height="48" rx="6" fill="none" stroke="#2e7d32" stroke-width="3"/><rect x="28" y="34" width="8" height="20" fill="#66bb6a"/>',
+      'Beuta':'<path d="M26 8 L26 26 L14 54 L50 54 L38 26 L38 8 Z" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>',
+      'Becher':'<path d="M18 14 L18 52 Q18 56 22 56 L42 56 Q46 56 46 52 L46 14" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/><line x1="18" y1="14" x2="48" y2="14" stroke="#1565c0" stroke-width="2"/>',
+      'Atomo':'<circle cx="32" cy="32" r="6" fill="#ff7043"/><ellipse cx="32" cy="32" rx="22" ry="9" fill="none" stroke="#29b6f6" stroke-width="2"/><ellipse cx="32" cy="32" rx="9" ry="22" fill="none" stroke="#29b6f6" stroke-width="2"/>',
+      'DNA':'<path d="M22 8 Q42 20 22 32 Q42 44 22 56" fill="none" stroke="#ef5350" stroke-width="3"/><path d="M42 8 Q22 20 42 32 Q22 44 42 56" fill="none" stroke="#42a5f5" stroke-width="3"/>',
+      'Cellula':'<circle cx="32" cy="32" r="26" fill="#e8f5e9" stroke="#66bb6a" stroke-width="3"/><circle cx="32" cy="32" r="10" fill="#9575cd"/>',
+      'Neurone':'<circle cx="24" cy="32" r="10" fill="#ffcc80" stroke="#e65100" stroke-width="2"/><line x1="34" y1="32" x2="56" y2="32" stroke="#e65100" stroke-width="3"/><line x1="14" y1="24" x2="6" y2="16" stroke="#e65100" stroke-width="2"/><line x1="14" y1="40" x2="6" y2="48" stroke="#e65100" stroke-width="2"/>',
+      'Microscopio':'<rect x="28" y="40" width="20" height="6" fill="#455a64"/><rect x="34" y="14" width="6" height="26" fill="#607d8b"/><circle cx="37" cy="12" r="6" fill="#90a4ae"/>',
+      'Molecola':'<circle cx="20" cy="40" r="8" fill="#ef5350"/><circle cx="44" cy="40" r="8" fill="#42a5f5"/><circle cx="32" cy="20" r="8" fill="#66bb6a"/><line x1="20" y1="40" x2="32" y2="20" stroke="#555" stroke-width="3"/><line x1="44" y1="40" x2="32" y2="20" stroke="#555" stroke-width="3"/>',
+      'Benzene':'<polygon points="32,10 50,21 50,43 32,54 14,43 14,21" fill="none" stroke="#455a64" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="none" stroke="#90a4ae" stroke-width="2"/>',
+      'Proteina':'<path d="M14 40 Q22 20 30 40 Q38 60 46 40 Q52 24 50 18" fill="none" stroke="#7e57c2" stroke-width="4" stroke-linecap="round"/>',
+      'Mitocondrio':'<ellipse cx="32" cy="32" rx="26" ry="16" fill="#ffcdd2" stroke="#ef5350" stroke-width="2"/><path d="M14 32 Q22 22 30 32 Q38 42 46 32" fill="none" stroke="#ef5350" stroke-width="2"/>',
+      'Virus':'<circle cx="32" cy="32" r="16" fill="#c8e6c9" stroke="#388e3c" stroke-width="2"/><g stroke="#388e3c" stroke-width="2"><line x1="32" y1="16" x2="32" y2="6"/><line x1="32" y1="48" x2="32" y2="58"/><line x1="16" y1="32" x2="6" y2="32"/><line x1="48" y1="32" x2="58" y2="32"/></g>',
+      'Cuore':'<path d="M32 52 C10 34 14 14 32 24 C50 14 54 34 32 52 Z" fill="#ef5350"/>',
+      'Polmoni':'<path d="M30 14 L30 40 Q30 50 20 50 Q12 50 14 38 Q16 24 30 18" fill="#f8bbd0" stroke="#c2185b" stroke-width="2"/><path d="M34 14 L34 40 Q34 50 44 50 Q52 50 50 38 Q48 24 34 18" fill="#f8bbd0" stroke="#c2185b" stroke-width="2"/>',
+      'Pipetta':'<rect x="29" y="8" width="6" height="36" fill="#90caf9" stroke="#1565c0" stroke-width="1.5"/><path d="M29 44 L35 44 L33 56 L31 56 Z" fill="#42a5f5"/>'
+    };
+    Object.keys(SV).forEach(function(name){
+      var card=el('div','background:#fff;border:1px solid var(--g200);border-radius:10px;padding:10px;text-align:center;cursor:pointer');
+      card.innerHTML='<svg width="60" height="60" viewBox="0 0 64 64">'+SV[name]+'</svg><div style="font-size:.76rem;font-weight:700;color:var(--g900);margin-top:4px">'+name+'</div>';
+      card.onclick=function(){ var full='<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64"><rect width="64" height="64" fill="white"/>'+SV[name]+'</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([full],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=256; cv.height=256; cv.getContext('2d').drawImage(img,0,0,256,256); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; };
+      grid.appendChild(card);
+    });
+    c.appendChild(grid);
+  }
+
+  function renderGen(c){
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Scegli un processo: genero uno schema a blocchi. Tocca Esporta per salvarlo in PNG.'));
+    var TPL={
+      'Glicolisi':['Glucosio','G6P','F6P','F1,6BP','Gliceraldeide-3P','1,3-BPG','Piruvato'],
+      'Ciclo di Krebs':['Acetil-CoA','Citrato','Isocitrato','a-chetoglutarato','Succinil-CoA','Succinato','Fumarato','Malato','Ossalacetato'],
+      'Catena respiratoria':['NADH','Complesso I','CoQ','Complesso III','Citocromo c','Complesso IV','O2','H2O'],
+      'beta-ossidazione':['Acil-CoA','Enoil-CoA','3-OH-acil-CoA','3-cheto-acil-CoA','Acetil-CoA'],
+      'Ciclo dell urea':['NH3','Carbamil-P','Citrullina','Argininosuccinato','Arginina','Urea'],
+      'Trascrizione-Traduzione':['DNA','mRNA','Ribosoma','tRNA','Proteina'],
+      'Fotosintesi':['Luce','H2O','Clorofilla','ATP+NADPH','Calvin','Glucosio'],
+      'Fermentazione':['Glucosio','Piruvato','Acetaldeide','Etanolo+CO2']
+    };
+    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
+    var out=el('div','width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px;overflow-x:auto');
+    var curName='Glicolisi';
+    Object.keys(TPL).forEach(function(name){ var b=el('button',null,name); b.className='pill'; b.onclick=function(){ curName=name; draw(name); }; picker.appendChild(b); });
+    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ exportGen(); }; picker.appendChild(exp);
+    c.appendChild(picker); c.appendChild(out);
+    function draw(name){ var steps=TPL[name]; var h='<div style="font-weight:800;color:var(--g900);margin-bottom:12px">'+name+'</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">';
+      steps.forEach(function(s,i){ h+='<div style="background:linear-gradient(135deg,#1B5E20,#388E3C);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap">'+s+'</div>'; if(i<steps.length-1) h+='<div style="color:#388E3C;font-size:1.4rem;font-weight:900">&rarr;</div>'; });
+      h+='</div>'; out.innerHTML=h;
+    }
+    function exportGen(){ var steps=TPL[curName]; var bw=150,bh=46,gap=40,pad=30; var w=pad*2+steps.length*bw+(steps.length-1)*gap; var hh=140;
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+hh+'"><rect width="100%" height="100%" fill="white"/><text x="'+pad+'" y="34" font-family="Arial" font-size="20" font-weight="bold" fill="#1b5e20">'+curName+'</text>';
+      steps.forEach(function(s,i){ var x=pad+i*(bw+gap),y=60; svg+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="10" fill="#2e7d32"/><text x="'+(x+bw/2)+'" y="'+(y+bh/2+5)+'" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">'+s+'</text>'; if(i<steps.length-1){ var ax=x+bw+6; svg+='<text x="'+(ax+gap/2-6)+'" y="'+(y+bh/2+7)+'" font-size="24" fill="#388e3c" text-anchor="middle">&#8594;</text>'; } });
+      svg+='</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=hh; cv.getContext('2d').drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=curName+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url;
+    }
+    draw('Glicolisi'); picker.querySelector('button').classList.add('pillb');
+  }
+
+  document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='spubchem') window.initPubChem(); if(s==='sdiagrammi') window.initDiagrammi(); },60); });
 })();
 </script>
 
