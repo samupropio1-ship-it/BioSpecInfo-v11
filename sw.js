@@ -1,7 +1,7 @@
 // BioSpecInfo Service Worker — cache file singolo HTML + risorse + API PubChem/RCSB
 'use strict';
 
-const CACHE_VERSION = 'biospecinfo-v13-2026-05h';
+const CACHE_VERSION = 'biospecinfo-v13-2026-05i';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const API_CACHE = CACHE_VERSION + '-api';
 

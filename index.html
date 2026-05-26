@@ -682,7 +682,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13g</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13h</span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>
@@ -798,7 +798,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
     <button class="nav-btn" data-s="smap">🗺️ Mappa Concett.</button>
     <button class="nav-btn" data-s="scompare">⚖️ Confronto Mol.</button>
     <button class="nav-btn" data-s="spubchem">🔬 Cerca Molecole</button>
-     <button class="nav-btn" data-s="sdiagrammi">🎨 Diagrammi Sci.</button>
+     <button class="nav-btn" data-s="sdiagrammi">📊 Studio Visivo</button>
     <button class="nav-btn" data-s="srisorse">🌐 Risorse Web</button>
     <button class="nav-btn" data-s="smateriali">📁 Materiali</button>
     <button class="nav-btn" data-s="snotes">📝 Note</button>
@@ -27004,209 +27004,147 @@ window.init3DViewerPro = function(){
 })();
 </script>
 
-<!-- ============ PubChem Launcher + Diagrammi Scientifici v2 (CSS3D, gratis/offline/stabile) ============ -->
+<!-- ============ PubChem Launcher + Strumenti di Studio Visivi (stabile/offline) ============ -->
 <script>
 (function(){
   function id(x){ return document.getElementById(x); }
-  function el(tag, css, html){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(html!=null)e.innerHTML=html; return e; }
+  function el(tag, css, txt){ var e=document.createElement(tag); if(css)e.style.cssText=css; if(txt!=null)e.innerHTML=txt; return e; }
 
   window.initPubChem = function(){
-    var sec = id('spubchem');
-    if(!sec || sec._built) return;
-    sec._built = true;
-    sec.innerHTML = ''
-      + '<div class="section-title">RICERCA MOLECOLE ONLINE</div>'
-      + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.88rem;color:var(--text2)">Cerca qualsiasi molecola sui database ufficiali: struttura, proprieta, spettri, sicurezza, sempre aggiornati.</div>'
+    var sec = id('spubchem'); if(!sec || sec._built) return; sec._built = true;
+    sec.innerHTML = '<div class="section-title">RICERCA MOLECOLE ONLINE</div>'
+      + '<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.88rem;color:var(--text2)">Cerca qualsiasi molecola sui database ufficiali: struttura, proprieta, spettri, sicurezza.</div>'
       + '<div style="display:flex;gap:6px;margin-bottom:14px"><input id="pcq" type="text" placeholder="Nome molecola (es. aspirina, caffeine)..." style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--g200);font-size:.95rem"></div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
       + '<button id="pcGoPub" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Cerca su PubChem</button>'
       + '<button id="pcGoMol" style="background:#00838f;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Apri in MolView 3D</button>'
       + '<button id="pcGoWiki" style="background:#5d4037;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Wikipedia</button>'
-      + '<button id="pcGoChEBI" style="background:#6a1b9a;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">ChEBI</button>'
-      + '</div>'
-      + '<div style="margin-top:14px"><div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;font-weight:700">RICERCHE RAPIDE</div><div id="pcPills" style="display:flex;flex-wrap:wrap;gap:5px"></div></div>'
-      + '<div style="margin-top:16px;background:var(--g50);border-radius:10px;padding:12px;font-size:.8rem;color:var(--text2)">Per la visualizzazione 3D integrata e offline usa la sezione Viewer 3D PRO.</div>';
+      + '<button id="pcGoChEBI" style="background:#6a1b9a;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">ChEBI</button></div>'
+      + '<div style="margin-top:14px"><div style="font-size:.78rem;color:var(--text2);margin-bottom:6px;font-weight:700">RICERCHE RAPIDE</div><div id="pcPills" style="display:flex;flex-wrap:wrap;gap:5px"></div></div>';
     function q(){ return (id('pcq').value||'').trim(); }
-    function openUrl(u){ window.open(u,'_blank'); }
-    id('pcGoPub').onclick=function(){ var t=q(); openUrl(t?'https://pubchem.ncbi.nlm.nih.gov/#query='+encodeURIComponent(t):'https://pubchem.ncbi.nlm.nih.gov/'); };
-    id('pcGoMol').onclick=function(){ var t=q(); openUrl(t?'https://molview.org/?q='+encodeURIComponent(t):'https://molview.org/'); };
-    id('pcGoWiki').onclick=function(){ var t=q(); openUrl(t?'https://it.wikipedia.org/wiki/Special:Search?search='+encodeURIComponent(t):'https://it.wikipedia.org/'); };
-    id('pcGoChEBI').onclick=function(){ var t=q(); openUrl('https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString='+encodeURIComponent(t||'')); };
+    function op(u){ window.open(u,'_blank'); }
+    id('pcGoPub').onclick=function(){ var t=q(); op(t?'https://pubchem.ncbi.nlm.nih.gov/#query='+encodeURIComponent(t):'https://pubchem.ncbi.nlm.nih.gov/'); };
+    id('pcGoMol').onclick=function(){ var t=q(); op(t?'https://molview.org/?q='+encodeURIComponent(t):'https://molview.org/'); };
+    id('pcGoWiki').onclick=function(){ var t=q(); op(t?'https://it.wikipedia.org/wiki/Special:Search?search='+encodeURIComponent(t):'https://it.wikipedia.org/'); };
+    id('pcGoChEBI').onclick=function(){ var t=q(); op('https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString='+encodeURIComponent(t||'')); };
     id('pcq').onkeydown=function(e){ if(e.key==='Enter') id('pcGoPub').click(); };
-    ['Aspirina','Caffeina','Glucosio','Paracetamolo','Ibuprofene','Penicillina','Colesterolo','Dopamina','ATP','Morfina'].forEach(function(n){
-      var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b);
-    });
+    ['Aspirina','Caffeina','Glucosio','Paracetamolo','Ibuprofene','Penicillina','Colesterolo','Dopamina','ATP','Morfina'].forEach(function(n){ var b=el('button',null,n); b.className='pill'; b.onclick=function(){ id('pcq').value=n; }; id('pcPills').appendChild(b); });
   };
 
   window.initDiagrammi = function(){
-    var sec = id('sdiagrammi');
-    if(!sec || sec._built) return;
-    sec._built = true;
-    sec.innerHTML = '<div class="section-title">DIAGRAMMI SCIENTIFICI</div>';
+    var sec = id('sdiagrammi'); if(!sec || sec._built) return; sec._built = true;
+    sec.innerHTML = '<div class="section-title">STRUMENTI DI STUDIO VISIVI</div>';
     var tabs = el('div','display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap');
-    [['3d','Diagrammi 3D'],['build','Costruttore Schemi'],['lib','Libreria SVG'],['gen','Generatore']].forEach(function(t,i){
+    [['cmp','Tabelle Confronto'],['flow','Schemi & Processi'],['map','Mappe Concettuali']].forEach(function(t,i){
       var b=el('button',null,t[1]); b.dataset.tab=t[0];
-      b.style.cssText='flex:1;min-width:120px;padding:10px;border-radius:8px;border:1px solid var(--g200);background:'+(i===0?'var(--g900)':'var(--white)')+';color:'+(i===0?'#fff':'var(--text)')+';cursor:pointer;font-weight:700;font-size:.8rem';
+      b.style.cssText='flex:1;min-width:130px;padding:11px;border-radius:8px;border:1px solid var(--g200);background:'+(i===0?'var(--g900)':'var(--white)')+';color:'+(i===0?'#fff':'var(--text)')+';cursor:pointer;font-weight:700;font-size:.82rem';
       tabs.appendChild(b);
     });
     sec.appendChild(tabs);
-    var bodyc = el('div'); sec.appendChild(bodyc);
-    function setTab(name){
-      tabs.querySelectorAll('button').forEach(function(b){ var on=b.dataset.tab===name; b.style.background=on?'var(--g900)':'var(--white)'; b.style.color=on?'#fff':'var(--text)'; });
-      bodyc.innerHTML='';
-      if(name==='3d') render3D(bodyc); else if(name==='build') renderBuilder(bodyc); else if(name==='lib') renderLib(bodyc); else renderGen(bodyc);
-    }
+    var bodyc=el('div'); sec.appendChild(bodyc);
+    function setTab(name){ tabs.querySelectorAll('button').forEach(function(b){ var on=b.dataset.tab===name; b.style.background=on?'var(--g900)':'var(--white)'; b.style.color=on?'#fff':'var(--text)'; }); bodyc.innerHTML=''; if(name==='cmp') renderCmp(bodyc); else if(name==='flow') renderFlow(bodyc); else renderMap(bodyc); }
     tabs.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ setTab(b.dataset.tab); }; });
-    setTab('3d');
+    setTab('cmp');
   };
 
-  function render3D(c){
-    var picker = el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
-    var models=[['dna','DNA'],['atom','Atomo'],['cell','Cellula'],['membrane','Membrana'],['water','Acqua H2O'],['benzene','Benzene'],['methane','Metano'],['ammonia','Ammoniaca'],['mito','Mitocondrio'],['virus','Virus']];
-    models.forEach(function(m){ var b=el('button',null,m[1]); b.className='pill'; b.onclick=function(){ show(m[0]); picker.querySelectorAll('button').forEach(function(x){x.classList.remove('pillb');}); b.classList.add('pillb'); }; picker.appendChild(b); });
-    c.appendChild(picker);
-    var stage=el('div','width:100%;height:380px;background:radial-gradient(circle at 50% 40%,#10243a,#060d16);border-radius:14px;overflow:hidden;position:relative;perspective:900px;touch-action:none;cursor:grab');
-    var world=el('div','position:absolute;top:50%;left:50%;transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(-15deg) rotateY(0deg)');
-    stage.appendChild(world); c.appendChild(stage);
-    var caption=el('div','margin-top:8px;text-align:center;color:var(--text2);font-size:.84rem'); c.appendChild(caption);
-    var rx=-15, ry=0, drag=false, lx=0, ly=0, auto=true;
-    function apply(){ world.style.transform='translate(-50%,-50%) rotateX('+rx+'deg) rotateY('+ry+'deg)'; }
-    stage.addEventListener('pointerdown',function(e){ drag=true; auto=false; lx=e.clientX; ly=e.clientY; stage.style.cursor='grabbing'; });
-    window.addEventListener('pointermove',function(e){ if(!drag)return; ry+=(e.clientX-lx)*0.5; rx-=(e.clientY-ly)*0.5; lx=e.clientX; ly=e.clientY; apply(); });
-    window.addEventListener('pointerup',function(){ drag=false; stage.style.cursor='grab'; });
-    (function spin(){ if(auto){ ry+=0.35; apply(); } requestAnimationFrame(spin); })();
-    function clear(){ world.innerHTML=''; }
-    function dot(x,y,z,size,color,label){ var d=el('div'); d.style.cssText='position:absolute;width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+color+';left:'+(-size/2)+'px;top:'+(-size/2)+'px;transform:translate3d('+x+'px,'+y+'px,'+z+'px);box-shadow:0 0 12px '+color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:'+(size/2.6)+'px;font-weight:700'; if(label)d.textContent=label; world.appendChild(d); return d; }
-    function bond(x,y,z,w,rotZ,rotY,color){ var b=el('div'); b.style.cssText='position:absolute;height:4px;width:'+w+'px;background:'+(color||'#cfd8dc')+';left:0;top:-2px;transform:translate3d('+x+'px,'+y+'px,'+z+'px) rotateY('+(rotY||0)+'deg) rotateZ('+rotZ+'deg);transform-origin:left center;opacity:.8'; world.appendChild(b); }
-    function show(kind){
-      clear();
-      if(kind==='dna'){ caption.innerHTML='<b>DNA</b> doppia elica. Coppie A-T e G-C.';
-        for(var i=0;i<26;i++){ var a=i*36*Math.PI/180,y=(i-13)*13,r=70; var x1=Math.cos(a)*r,z1=Math.sin(a)*r,x2=Math.cos(a+Math.PI)*r,z2=Math.sin(a+Math.PI)*r;
-          dot(x1,y,z1,12,i%2?'#4fc3f7':'#66bb6a'); dot(x2,y,z2,12,i%2?'#ef5350':'#ffa726'); dot((x1+x2)/2,y,(z1+z2)/2,5,'#b0bec5'); }
-      } else if(kind==='atom'){ caption.innerHTML='<b>Atomo</b> nucleo + elettroni in orbita.';
-        dot(0,0,0,34,'#ff7043'); dot(8,6,6,16,'#ef5350','+'); dot(-8,-4,-6,16,'#90a4ae'); dot(6,-8,4,16,'#ef5350','+'); dot(-6,6,-4,16,'#90a4ae');
-        [[90,0],[90,60],[90,120]].forEach(function(o,k){ var ring=el('div'); ring.style.cssText='position:absolute;width:'+(o[0]*2)+'px;height:'+(o[0]*2)+'px;border:1px solid rgba(120,200,255,.35);border-radius:50%;left:'+(-o[0])+'px;top:'+(-o[0])+'px;transform:rotateY('+o[1]+'deg)'; world.appendChild(ring); var ea=k*70*Math.PI/180; dot(Math.cos(ea)*o[0]*Math.cos(o[1]*Math.PI/180),Math.sin(ea)*o[0],Math.cos(ea)*o[0]*Math.sin(o[1]*Math.PI/180),11,'#29b6f6','-'); });
-      } else if(kind==='cell'){ caption.innerHTML='<b>Cellula</b> membrana, nucleo (viola), organelli.';
-        var mem=el('div'); mem.style.cssText='position:absolute;width:300px;height:300px;border-radius:50%;left:-150px;top:-150px;background:radial-gradient(circle,rgba(102,187,106,.12),rgba(102,187,106,.28));border:3px solid #66bb6a'; world.appendChild(mem);
-        dot(0,0,30,70,'rgba(126,87,194,.85)'); dot(-70,40,20,26,'#ffa726'); dot(80,-30,10,22,'#ef5350'); dot(40,70,-10,20,'#26c6da'); dot(-50,-60,15,24,'#ffee58');
-      } else if(kind==='membrane'){ caption.innerHTML='<b>Membrana</b> doppio strato fosfolipidico.';
-        for(var j=0;j<16;j++){ var px=(j-8)*20; dot(px,-30,0,12,'#42a5f5'); bond(px,-30,0,26,90,0,'#90caf9'); dot(px,30,0,12,'#42a5f5'); bond(px,30,0,26,-90,0,'#90caf9'); }
-      } else if(kind==='water'){ caption.innerHTML='<b>Acqua (H2O)</b> angolo 104.5 gradi, polare.';
-        dot(0,0,0,40,'#ef5350','O'); dot(-46,34,0,24,'#eceff1','H'); dot(46,34,0,24,'#eceff1','H'); bond(0,0,0,55,145,0,'#b0bec5'); bond(0,0,0,55,35,0,'#b0bec5');
-      } else if(kind==='benzene'){ caption.innerHTML='<b>Benzene (C6H6)</b> anello aromatico.';
-        for(var b6=0;b6<6;b6++){ var ba=b6*60*Math.PI/180; dot(Math.cos(ba)*60,Math.sin(ba)*60,0,26,'#455a64','C'); var na=(b6+0.5)*60*Math.PI/180; dot(Math.cos(na)*95,Math.sin(na)*95,0,16,'#eceff1','H'); }
-        var rr=el('div'); rr.style.cssText='position:absolute;width:70px;height:70px;border:2px dashed rgba(255,255,255,.4);border-radius:50%;left:-35px;top:-35px'; world.appendChild(rr);
-      } else if(kind==='methane'){ caption.innerHTML='<b>Metano (CH4)</b> geometria tetraedrica.';
-        dot(0,0,0,40,'#455a64','C'); var t=[[60,60,60],[-60,-60,60],[-60,60,-60],[60,-60,-60]]; t.forEach(function(p){ dot(p[0],p[1],p[2],22,'#eceff1','H'); });
-      } else if(kind==='ammonia'){ caption.innerHTML='<b>Ammoniaca (NH3)</b> piramidale, doppietto libero.';
-        dot(0,-20,0,38,'#5c6bc0','N'); dot(-50,40,30,22,'#eceff1','H'); dot(50,40,30,22,'#eceff1','H'); dot(0,40,-55,22,'#eceff1','H');
-      } else if(kind==='mito'){ caption.innerHTML='<b>Mitocondrio</b> doppia membrana con creste.';
-        var out=el('div'); out.style.cssText='position:absolute;width:260px;height:150px;border-radius:75px;left:-130px;top:-75px;background:rgba(239,83,80,.18);border:3px solid #ef5350'; world.appendChild(out);
-        for(var cr=0;cr<6;cr++){ var crv=el('div'); crv.style.cssText='position:absolute;width:40px;height:90px;border:2px solid #ff8a65;border-radius:20px;left:'+((cr-3)*38)+'px;top:-45px;background:rgba(255,138,101,.1)'; world.appendChild(crv); }
-      } else { caption.innerHTML='<b>Virus</b> capside icosaedrico con spike.';
-        dot(0,0,0,90,'rgba(102,187,106,.5)'); for(var s=0;s<14;s++){ var sa=s*(360/14)*Math.PI/180,sb=(s%3)*40-40; dot(Math.cos(sa)*70,sb,Math.sin(sa)*70,14,'#ef5350'); }
-      }
-    }
-    show('dna'); picker.querySelector('button').classList.add('pillb');
-  }
-
-  function renderBuilder(c){
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Aggiungi elementi, trascinali, poi esporta in PNG. Doppio tap sul testo per modificarlo.'));
-    var bar=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px');
-    [['rect','Riquadro'],['circle','Cerchio'],['arrow','Freccia'],['text','Testo'],['clear','Pulisci'],['png','Esporta PNG']].forEach(function(a){ var b=el('button',null,a[1]); b.className='pill'; b.dataset.a=a[0]; bar.appendChild(b); });
-    c.appendChild(bar);
-    var colors=['#c8e6c9','#bbdefb','#ffccbc','#fff9c4','#e1bee7','#b2dfdb']; var curCol=colors[0];
-    var colbar=el('div','display:flex;gap:6px;margin-bottom:10px');
-    colors.forEach(function(col){ var b=el('button','width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ccc;cursor:pointer;background:'+col); b.onclick=function(){ curCol=col; colbar.querySelectorAll('button').forEach(function(x){x.style.outline='none';}); b.style.outline='2px solid #1b5e20'; }; colbar.appendChild(b); });
-    c.appendChild(colbar);
-    var wrap=el('div','width:100%;height:340px;background:#fff;border:1px solid var(--g200);border-radius:10px;overflow:hidden;position:relative');
-    var svgNS='http://www.w3.org/2000/svg';
-    var svg=document.createElementNS(svgNS,'svg'); svg.setAttribute('width','100%'); svg.setAttribute('height','100%'); svg.style.touchAction='none';
-    var defs=document.createElementNS(svgNS,'defs'); defs.innerHTML='<marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#37474f"/></marker>'; svg.appendChild(defs);
-    wrap.appendChild(svg); c.appendChild(wrap);
-    var sel=null, off={x:0,y:0};
-    function mk(type){ var g=document.createElementNS(svgNS,'g'); g.setAttribute('transform','translate(70,70)'); var n;
-      if(type==='rect'){ n=document.createElementNS(svgNS,'rect'); n.setAttribute('width',110); n.setAttribute('height',60); n.setAttribute('rx',8); n.setAttribute('fill',curCol); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',2); }
-      else if(type==='circle'){ n=document.createElementNS(svgNS,'circle'); n.setAttribute('r',40); n.setAttribute('fill',curCol); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',2); }
-      else if(type==='arrow'){ n=document.createElementNS(svgNS,'line'); n.setAttribute('x1',0); n.setAttribute('y1',0); n.setAttribute('x2',120); n.setAttribute('y2',0); n.setAttribute('stroke','#37474f'); n.setAttribute('stroke-width',3); n.setAttribute('marker-end','url(#ah)'); }
-      else { n=document.createElementNS(svgNS,'text'); n.setAttribute('font-size',18); n.setAttribute('font-weight','700'); n.setAttribute('fill','#1b5e20'); n.textContent='Testo'; }
-      g.appendChild(n); g.style.cursor='move';
-      g.addEventListener('pointerdown',function(e){ sel=g; var m=svg.getBoundingClientRect(); var tr=g.getAttribute('transform').match(/-?\d+\.?\d*/g); off.x=e.clientX-m.left-(+tr[0]); off.y=e.clientY-m.top-(+tr[1]); e.stopPropagation(); });
-      if(type==='text'){ g.addEventListener('dblclick',function(){ var t=prompt('Testo:',n.textContent); if(t!=null)n.textContent=t; }); }
-      svg.appendChild(g);
-    }
-    svg.addEventListener('pointermove',function(e){ if(!sel)return; var m=svg.getBoundingClientRect(); sel.setAttribute('transform','translate('+(e.clientX-m.left-off.x)+','+(e.clientY-m.top-off.y)+')'); });
-    svg.addEventListener('pointerup',function(){ sel=null; });
-    bar.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ var a=b.dataset.a; if(a==='clear'){ Array.from(svg.querySelectorAll('g')).forEach(function(g){g.remove();}); } else if(a==='png'){ exportPNG(svg,wrap); } else mk(a); }; });
-    colbar.querySelector('button').click();
-  }
-  function exportPNG(svg, wrap){
-    var xml=new XMLSerializer().serializeToString(svg); var w=wrap.clientWidth,h=wrap.clientHeight;
-    var s2='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'"><rect width="100%" height="100%" fill="white"/>'+xml.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')+'</svg>';
-    var img=new Image(); var url=URL.createObjectURL(new Blob([s2],{type:'image/svg+xml'}));
-    img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='schema.png'; a.click(); }); URL.revokeObjectURL(url); };
-    img.src=url;
-  }
-
-  function renderLib(c){
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Illustrazioni pronte. Tocca per scaricarle in PNG ad alta risoluzione.'));
-    var grid=el('div','display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px');
-    var SV={
-      'Provetta':'<rect x="26" y="8" width="12" height="48" rx="6" fill="none" stroke="#2e7d32" stroke-width="3"/><rect x="28" y="34" width="8" height="20" fill="#66bb6a"/>',
-      'Beuta':'<path d="M26 8 L26 26 L14 54 L50 54 L38 26 L38 8 Z" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/>',
-      'Becher':'<path d="M18 14 L18 52 Q18 56 22 56 L42 56 Q46 56 46 52 L46 14" fill="#bbdefb" stroke="#1565c0" stroke-width="2"/><line x1="18" y1="14" x2="48" y2="14" stroke="#1565c0" stroke-width="2"/>',
-      'Atomo':'<circle cx="32" cy="32" r="6" fill="#ff7043"/><ellipse cx="32" cy="32" rx="22" ry="9" fill="none" stroke="#29b6f6" stroke-width="2"/><ellipse cx="32" cy="32" rx="9" ry="22" fill="none" stroke="#29b6f6" stroke-width="2"/>',
-      'DNA':'<path d="M22 8 Q42 20 22 32 Q42 44 22 56" fill="none" stroke="#ef5350" stroke-width="3"/><path d="M42 8 Q22 20 42 32 Q22 44 42 56" fill="none" stroke="#42a5f5" stroke-width="3"/>',
-      'Cellula':'<circle cx="32" cy="32" r="26" fill="#e8f5e9" stroke="#66bb6a" stroke-width="3"/><circle cx="32" cy="32" r="10" fill="#9575cd"/>',
-      'Neurone':'<circle cx="24" cy="32" r="10" fill="#ffcc80" stroke="#e65100" stroke-width="2"/><line x1="34" y1="32" x2="56" y2="32" stroke="#e65100" stroke-width="3"/><line x1="14" y1="24" x2="6" y2="16" stroke="#e65100" stroke-width="2"/><line x1="14" y1="40" x2="6" y2="48" stroke="#e65100" stroke-width="2"/>',
-      'Microscopio':'<rect x="28" y="40" width="20" height="6" fill="#455a64"/><rect x="34" y="14" width="6" height="26" fill="#607d8b"/><circle cx="37" cy="12" r="6" fill="#90a4ae"/>',
-      'Molecola':'<circle cx="20" cy="40" r="8" fill="#ef5350"/><circle cx="44" cy="40" r="8" fill="#42a5f5"/><circle cx="32" cy="20" r="8" fill="#66bb6a"/><line x1="20" y1="40" x2="32" y2="20" stroke="#555" stroke-width="3"/><line x1="44" y1="40" x2="32" y2="20" stroke="#555" stroke-width="3"/>',
-      'Benzene':'<polygon points="32,10 50,21 50,43 32,54 14,43 14,21" fill="none" stroke="#455a64" stroke-width="3"/><circle cx="32" cy="32" r="9" fill="none" stroke="#90a4ae" stroke-width="2"/>',
-      'Proteina':'<path d="M14 40 Q22 20 30 40 Q38 60 46 40 Q52 24 50 18" fill="none" stroke="#7e57c2" stroke-width="4" stroke-linecap="round"/>',
-      'Mitocondrio':'<ellipse cx="32" cy="32" rx="26" ry="16" fill="#ffcdd2" stroke="#ef5350" stroke-width="2"/><path d="M14 32 Q22 22 30 32 Q38 42 46 32" fill="none" stroke="#ef5350" stroke-width="2"/>',
-      'Virus':'<circle cx="32" cy="32" r="16" fill="#c8e6c9" stroke="#388e3c" stroke-width="2"/><g stroke="#388e3c" stroke-width="2"><line x1="32" y1="16" x2="32" y2="6"/><line x1="32" y1="48" x2="32" y2="58"/><line x1="16" y1="32" x2="6" y2="32"/><line x1="48" y1="32" x2="58" y2="32"/></g>',
-      'Cuore':'<path d="M32 52 C10 34 14 14 32 24 C50 14 54 34 32 52 Z" fill="#ef5350"/>',
-      'Polmoni':'<path d="M30 14 L30 40 Q30 50 20 50 Q12 50 14 38 Q16 24 30 18" fill="#f8bbd0" stroke="#c2185b" stroke-width="2"/><path d="M34 14 L34 40 Q34 50 44 50 Q52 50 50 38 Q48 24 34 18" fill="#f8bbd0" stroke="#c2185b" stroke-width="2"/>',
-      'Pipetta':'<rect x="29" y="8" width="6" height="36" fill="#90caf9" stroke="#1565c0" stroke-width="1.5"/><path d="M29 44 L35 44 L33 56 L31 56 Z" fill="#42a5f5"/>'
+  /* TABELLE DI CONFRONTO (utilissime per esami) */
+  function renderCmp(c){
+    var CMP={
+      'SN1 vs SN2':{a:'SN1',b:'SN2',rows:[['Cinetica','1 ordine (substrato)','2 ordine (substrato+Nu)'],['Meccanismo','2 stadi (carbocatione)','1 stadio concertato'],['Substrato','3 > 2 > 1','1 > 2 > 3'],['Nucleofilo','Debole','Forte'],['Solvente','Protico polare','Aprotico polare'],['Stereochimica','Racemizzazione','Inversione (Walden)']]},
+      'E1 vs E2':{a:'E1',b:'E2',rows:[['Cinetica','1 ordine','2 ordine'],['Stadi','2 (carbocatione)','1 concertato'],['Base','Debole','Forte'],['Substrato','3 > 2 > 1','3 > 2 > 1'],['Geometria','Non richiesta','Anti-periplanare'],['Regola','Zaitsev','Zaitsev/Hofmann']]},
+      'DNA vs RNA':{a:'DNA',b:'RNA',rows:[['Zucchero','Desossiribosio','Ribosio'],['Basi','A,T,G,C','A,U,G,C'],['Filamenti','Doppio','Singolo'],['Stabilita','Alta','Minore'],['Funzione','Conservazione info','Trasferimento/sintesi'],['Sede','Nucleo','Nucleo+citoplasma']]},
+      'Mitosi vs Meiosi':{a:'Mitosi',b:'Meiosi',rows:[['Divisioni','1','2'],['Cellule figlie','2','4'],['Cromosomi','Diploidi (2n)','Aploidi (n)'],['Crossing-over','No','Si'],['Scopo','Crescita/riparazione','Gameti'],['Variabilita','No','Si']]},
+      'Inibizione enzimatica':{a:'Competitiva',b:'Non-competitiva',rows:[['Sito legame','Sito attivo','Sito allosterico'],['Km','Aumenta','Invariata'],['Vmax','Invariata','Diminuisce'],['Reversibile con substrato','Si','No'],['Lineweaver-Burk','Stesso intercetta y','Stesso intercetta x']]},
+      'Acidi forti vs deboli':{a:'Forte',b:'Debole',rows:[['Dissociazione','Completa','Parziale'],['Ka','Molto grande','Piccola'],['pKa','< 0','> 0'],['Equilibrio','Spostato a dx','Equilibrio reale'],['Esempi','HCl, H2SO4','CH3COOH, HF'],['Conduce corrente','Forte','Debole']]},
+      'Termodinamica vs Cinetica':{a:'Termodinamica',b:'Cinetica',rows:[['Studia','Spontaneita/equilibrio','Velocita reazione'],['Grandezza','dG, dH, dS','k, Ea'],['Tempo','Non considera','Centrale'],['Catalizzatore','Non cambia dG','Abbassa Ea'],['Domanda','Avviene?','Quanto veloce?']]},
+      'Legame ionico vs covalente':{a:'Ionico',b:'Covalente',rows:[['Elettroni','Trasferiti','Condivisi'],['Tra','Metallo+non-metallo','Non-metalli'],['delta-EN','> 1.7','< 1.7'],['Stato','Solido cristallino','Vari'],['P.fusione','Alto','Variabile'],['In acqua','Conduce','Spesso no']]}
     };
-    Object.keys(SV).forEach(function(name){
-      var card=el('div','background:#fff;border:1px solid var(--g200);border-radius:10px;padding:10px;text-align:center;cursor:pointer');
-      card.innerHTML='<svg width="60" height="60" viewBox="0 0 64 64">'+SV[name]+'</svg><div style="font-size:.76rem;font-weight:700;color:var(--g900);margin-top:4px">'+name+'</div>';
-      card.onclick=function(){ var full='<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 64 64"><rect width="64" height="64" fill="white"/>'+SV[name]+'</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([full],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=256; cv.height=256; cv.getContext('2d').drawImage(img,0,0,256,256); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; };
-      grid.appendChild(card);
-    });
-    c.appendChild(grid);
-  }
-
-  function renderGen(c){
-    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem',null,'Scegli un processo: genero uno schema a blocchi. Tocca Esporta per salvarlo in PNG.'));
-    var TPL={
-      'Glicolisi':['Glucosio','G6P','F6P','F1,6BP','Gliceraldeide-3P','1,3-BPG','Piruvato'],
-      'Ciclo di Krebs':['Acetil-CoA','Citrato','Isocitrato','a-chetoglutarato','Succinil-CoA','Succinato','Fumarato','Malato','Ossalacetato'],
-      'Catena respiratoria':['NADH','Complesso I','CoQ','Complesso III','Citocromo c','Complesso IV','O2','H2O'],
-      'beta-ossidazione':['Acil-CoA','Enoil-CoA','3-OH-acil-CoA','3-cheto-acil-CoA','Acetil-CoA'],
-      'Ciclo dell urea':['NH3','Carbamil-P','Citrullina','Argininosuccinato','Arginina','Urea'],
-      'Trascrizione-Traduzione':['DNA','mRNA','Ribosoma','tRNA','Proteina'],
-      'Fotosintesi':['Luce','H2O','Clorofilla','ATP+NADPH','Calvin','Glucosio'],
-      'Fermentazione':['Glucosio','Piruvato','Acetaldeide','Etanolo+CO2']
-    };
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Scegli un confronto da studiare. Puoi esportarlo in PNG per i tuoi appunti.'));
     var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
-    var out=el('div','width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px;overflow-x:auto');
-    var curName='Glicolisi';
-    Object.keys(TPL).forEach(function(name){ var b=el('button',null,name); b.className='pill'; b.onclick=function(){ curName=name; draw(name); }; picker.appendChild(b); });
-    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ exportGen(); }; picker.appendChild(exp);
+    var out=el('div','width:100%'); var cur='SN1 vs SN2';
+    Object.keys(CMP).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
+    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ expTable(cur,CMP[cur]); }; picker.appendChild(exp);
     c.appendChild(picker); c.appendChild(out);
-    function draw(name){ var steps=TPL[name]; var h='<div style="font-weight:800;color:var(--g900);margin-bottom:12px">'+name+'</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">';
-      steps.forEach(function(s,i){ h+='<div style="background:linear-gradient(135deg,#1B5E20,#388E3C);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap">'+s+'</div>'; if(i<steps.length-1) h+='<div style="color:#388E3C;font-size:1.4rem;font-weight:900">&rarr;</div>'; });
-      h+='</div>'; out.innerHTML=h;
+    function draw(k){ var d=CMP[k]; var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.86rem">';
+      h+='<tr><th style="padding:9px;background:var(--g900);color:#fff;text-align:left;border-radius:8px 0 0 0">Caratteristica</th><th style="padding:9px;background:#1565c0;color:#fff">'+d.a+'</th><th style="padding:9px;background:#e65100;color:#fff;border-radius:0 8px 0 0">'+d.b+'</th></tr>';
+      d.rows.forEach(function(r,i){ var bg=i%2?'var(--g50)':'#fff'; h+='<tr><td style="padding:8px;font-weight:700;background:'+bg+';border:1px solid var(--g200)">'+r[0]+'</td><td style="padding:8px;background:'+bg+';border:1px solid var(--g200)">'+r[1]+'</td><td style="padding:8px;background:'+bg+';border:1px solid var(--g200)">'+r[2]+'</td></tr>'; });
+      h+='</table></div>'; out.innerHTML=h;
     }
-    function exportGen(){ var steps=TPL[curName]; var bw=150,bh=46,gap=40,pad=30; var w=pad*2+steps.length*bw+(steps.length-1)*gap; var hh=140;
-      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+hh+'"><rect width="100%" height="100%" fill="white"/><text x="'+pad+'" y="34" font-family="Arial" font-size="20" font-weight="bold" fill="#1b5e20">'+curName+'</text>';
-      steps.forEach(function(s,i){ var x=pad+i*(bw+gap),y=60; svg+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="10" fill="#2e7d32"/><text x="'+(x+bw/2)+'" y="'+(y+bh/2+5)+'" font-family="Arial" font-size="14" font-weight="bold" fill="white" text-anchor="middle">'+s+'</text>'; if(i<steps.length-1){ var ax=x+bw+6; svg+='<text x="'+(ax+gap/2-6)+'" y="'+(y+bh/2+7)+'" font-size="24" fill="#388e3c" text-anchor="middle">&#8594;</text>'; } });
-      svg+='</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=hh; cv.getContext('2d').drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=curName+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url;
+    function expTable(name,d){ var cw=720,rowh=38,headh=46,th=90; var H=th+headh+d.rows.length*rowh+20;
+      var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+cw+'" height="'+H+'"><rect width="100%" height="100%" fill="white"/>';
+      s+='<text x="20" y="34" font-family="Arial" font-size="22" font-weight="bold" fill="#1b5e20">'+name+'</text>';
+      var c0=20,c1=270,c2=495,wc=225; var y=th;
+      s+='<rect x="'+c0+'" y="'+y+'" width="240" height="'+headh+'" fill="#263238"/><rect x="'+c1+'" y="'+y+'" width="'+wc+'" height="'+headh+'" fill="#1565c0"/><rect x="'+c2+'" y="'+y+'" width="'+wc+'" height="'+headh+'" fill="#e65100"/>';
+      s+='<text x="'+(c0+10)+'" y="'+(y+29)+'" font-family="Arial" font-size="14" font-weight="bold" fill="#fff">Caratteristica</text>';
+      s+='<text x="'+(c1+wc/2)+'" y="'+(y+29)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+d.a+'</text>';
+      s+='<text x="'+(c2+wc/2)+'" y="'+(y+29)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+d.b+'</text>';
+      y+=headh;
+      d.rows.forEach(function(r,i){ var bg=i%2?'#f1f8f1':'#ffffff'; s+='<rect x="'+c0+'" y="'+y+'" width="'+(240+wc*2+15)+'" height="'+rowh+'" fill="'+bg+'"/>';
+        s+='<text x="'+(c0+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#222">'+esc(r[0])+'</text>';
+        s+='<text x="'+(c1+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" fill="#222">'+esc(r[1])+'</text>';
+        s+='<text x="'+(c2+10)+'" y="'+(y+24)+'" font-family="Arial" font-size="13" fill="#222">'+esc(r[2])+'</text>'; y+=rowh; });
+      s+='</svg>'; toPNG(s,cw,H,name);
+    }
+    draw('SN1 vs SN2'); picker.querySelector('button').classList.add('pillb');
+  }
+
+  /* SCHEMI & PROCESSI (flowchart esportabili) */
+  function renderFlow(c){
+    var TPL={
+      'Glicolisi':['Glucosio','G6P','F6P','F1,6-BP','G3P','1,3-BPG','3-PG','PEP','Piruvato'],
+      'Ciclo di Krebs':['Acetil-CoA','Citrato','Isocitrato','a-KG','Succinil-CoA','Succinato','Fumarato','Malato','OAA'],
+      'Catena respiratoria':['NADH','Compl. I','CoQ','Compl. III','Cit c','Compl. IV','O2','H2O'],
+      'beta-ossidazione':['Acil-CoA','Enoil-CoA','3-OH-acil-CoA','3-cheto-acil-CoA','Acetil-CoA'],
+      'Ciclo urea':['NH3','Carbamil-P','Citrullina','Argininosucc.','Arginina','Urea'],
+      'Espressione genica':['DNA','mRNA','Ribosoma','tRNA','Proteina'],
+      'Fotosintesi':['Luce','H2O','Fase luminosa','ATP+NADPH','Ciclo Calvin','Glucosio'],
+      'Fermentazione':['Glucosio','Piruvato','Acetaldeide','Etanolo+CO2'],
+      'Coagulazione':['Lesione','Piastrine','Trombina','Fibrinogeno','Fibrina','Coagulo']
+    };
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Schemi a blocchi dei processi. Esporta in PNG per gli appunti.'));
+    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
+    var out=el('div','width:100%;background:#fff;border:1px solid var(--g200);border-radius:10px;padding:14px;overflow-x:auto'); var cur='Glicolisi';
+    Object.keys(TPL).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
+    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ expFlow(cur,TPL[cur]); }; picker.appendChild(exp);
+    c.appendChild(picker); c.appendChild(out);
+    function draw(k){ var st=TPL[k]; var h='<div style="font-weight:800;color:var(--g900);margin-bottom:12px">'+k+'</div><div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">';
+      st.forEach(function(s,i){ h+='<div style="background:linear-gradient(135deg,#1B5E20,#388E3C);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:.85rem;white-space:nowrap">'+s+'</div>'; if(i<st.length-1) h+='<div style="color:#388E3C;font-size:1.4rem;font-weight:900">&rarr;</div>'; }); h+='</div>'; out.innerHTML=h;
+    }
+    function expFlow(name,st){ var bw=140,bh=46,gap=38,pad=24; var w=pad*2+st.length*bw+(st.length-1)*gap,H=130;
+      var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+H+'"><rect width="100%" height="100%" fill="white"/><text x="'+pad+'" y="32" font-family="Arial" font-size="20" font-weight="bold" fill="#1b5e20">'+name+'</text>';
+      st.forEach(function(t,i){ var x=pad+i*(bw+gap),y=58; s+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="10" fill="#2e7d32"/><text x="'+(x+bw/2)+'" y="'+(y+bh/2+5)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">'+esc(t)+'</text>'; if(i<st.length-1) s+='<text x="'+(x+bw+gap/2)+'" y="'+(y+bh/2+8)+'" font-size="26" fill="#388e3c" text-anchor="middle">&#8594;</text>'; });
+      s+='</svg>'; toPNG(s,w,H,name);
     }
     draw('Glicolisi'); picker.querySelector('button').classList.add('pillb');
   }
+
+  /* MAPPE CONCETTUALI (radiale, espandibile) */
+  function renderMap(c){
+    var MAPS={
+      'Biomolecole':{c:'Biomolecole',n:['Carboidrati','Lipidi','Proteine','Acidi nucleici']},
+      'Reazioni organiche':{c:'Reazioni',n:['Sostituzione','Eliminazione','Addizione','Riarrangiamento','Redox']},
+      'Legami chimici':{c:'Legami',n:['Ionico','Covalente','Metallico','Idrogeno','Van der Waals']},
+      'Spettroscopia':{c:'Spettroscopia',n:['NMR','IR','UV-Vis','Massa']},
+      'Farmacocinetica':{c:'ADME',n:['Assorbimento','Distribuzione','Metabolismo','Escrezione']},
+      'Vie metaboliche':{c:'Metabolismo',n:['Glicolisi','Krebs','beta-ossidazione','Gluconeogenesi','Pentoso-P']}
+    };
+    c.appendChild(el('div','margin-bottom:10px;color:var(--text2);font-size:.85rem','Mappe concettuali degli argomenti chiave. Esporta in PNG.'));
+    var picker=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px');
+    var out=el('div','width:100%;display:flex;justify-content:center'); var cur='Biomolecole';
+    Object.keys(MAPS).forEach(function(k){ var b=el('button',null,k); b.className='pill'; b.onclick=function(){ cur=k; draw(k); }; picker.appendChild(b); });
+    var exp=el('button',null,'Esporta PNG'); exp.className='pill'; exp.style.background='#1b5e20'; exp.style.color='#fff'; exp.onclick=function(){ var s=buildMap(MAPS[cur]); toPNG(s,420,420,cur); }; picker.appendChild(exp);
+    c.appendChild(picker); c.appendChild(out);
+    function buildMap(m){ var cx=210,cy=210,R=130; var s='<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420"><rect width="100%" height="100%" fill="white"/>';
+      m.n.forEach(function(node,i){ var a=(i/m.n.length)*2*Math.PI-Math.PI/2; var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R; s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'" stroke="#90a4ae" stroke-width="2"/>'; });
+      m.n.forEach(function(node,i){ var a=(i/m.n.length)*2*Math.PI-Math.PI/2; var x=cx+Math.cos(a)*R,y=cy+Math.sin(a)*R; s+='<rect x="'+(x-58)+'" y="'+(y-18)+'" width="116" height="36" rx="18" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/><text x="'+x+'" y="'+(y+5)+'" font-family="Arial" font-size="13" font-weight="bold" fill="#1b5e20" text-anchor="middle">'+esc(node)+'</text>'; });
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="52" fill="#1b5e20"/><text x="'+cx+'" y="'+(cy+5)+'" font-family="Arial" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">'+esc(m.c)+'</text></svg>'; return s;
+    }
+    function draw(k){ out.innerHTML=buildMap(MAPS[k]); }
+    draw('Biomolecole'); picker.querySelector('button').classList.add('pillb');
+  }
+
+  function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function toPNG(svg,w,h,name){ var img=new Image(); var url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=w; cv.height=h; var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(name||'studio')+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; }
 
   document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='spubchem') window.initPubChem(); if(s==='sdiagrammi') window.initDiagrammi(); },60); });
 })();
