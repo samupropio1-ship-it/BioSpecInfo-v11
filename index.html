@@ -1648,25 +1648,34 @@ function buildInfo(d){
 
 function irBandList(smi){
   var b=[];
-  b.push({n:"C–H st.",pk:2925,fw:60,h:0.55});b.push({n:"C–H bend",pk:1455,fw:30,h:0.38});b.push({n:"C–H bend",pk:1375,fw:22,h:0.30});
-  if(has(smi,/c[cnops]/i)||has(smi,/[cnops]c/i)){b.push({n:"=C–H ar.",pk:3055,fw:25,h:0.45});b.push({n:"C=C ar.",pk:1600,fw:30,h:0.62});b.push({n:"C=C ar.",pk:1500,fw:28,h:0.55});b.push({n:"C–H oop",pk:810,fw:40,h:0.50});}
-  if(has(smi,/C\(=O\)O[^C]|C\(=O\)\[OH/)){b.push({n:"O–H acido",pk:2990,fw:400,h:0.70});b.push({n:"C=O acido",pk:1710,fw:24,h:1.00});b.push({n:"C–O acido",pk:1240,fw:50,h:0.72});b.push({n:"O–H bend",pk:935,fw:60,h:0.55});}
-  else if(has(smi,/C\(=O\)OC|OC\(=O\)/)){b.push({n:"C=O estere",pk:1735,fw:24,h:1.00});b.push({n:"C–O estere",pk:1195,fw:55,h:0.85});b.push({n:"C–O estere",pk:1050,fw:42,h:0.68});}
-  else if(has(smi,/C\(=O\)N|NC\(=O\)/)){var nm=cnt(smi,/C\(=O\)N/g);var str=Math.min(1.0,0.72+nm*0.06);b.push({n:"N–H amm.",pk:3315,fw:80,h:0.62});b.push({n:"C=O I",pk:1650,fw:30,h:str});b.push({n:"N–H II",pk:1545,fw:38,h:str*0.78});b.push({n:"C–N",pk:1310,fw:40,h:0.52});}
-  else if(has(smi,/C=O|C\(=O\)/)){b.push({n:"C=O",pk:1715,fw:24,h:1.00});}
-  if(has(smi,/CO[^C=]|COC/)&&!has(smi,/C\(=O\)/)){b.push({n:"O–H alcol",pk:3335,fw:200,h:0.90});b.push({n:"C–O",pk:1060,fw:50,h:0.75});}
-  if(has(smi,/CN|NH/)&&!has(smi,/C\(=O\)N/)&&!has(smi,/NC\(=O\)/)){b.push({n:"N–H amm.",pk:3375,fw:70,h:0.55});b.push({n:"C–N",pk:1080,fw:55,h:0.48});}
-  if(has(smi,/C#N/))b.push({n:"C≡N",pk:2225,fw:20,h:0.92});
-  if(has(smi,/P/)){b.push({n:"P=O",pk:1232,fw:55,h:0.95});b.push({n:"P–O",pk:1055,fw:65,h:0.88});}
-  if(has(smi,/SH|\[SH\]/))b.push({n:"S–H",pk:2560,fw:28,h:0.40});
-  if(has(smi,/S=O/))b.push({n:"S=O",pk:1040,fw:50,h:0.85});
-  if(has(smi,/[nH]/))b.push({n:"N–H ar.",pk:3405,fw:50,h:0.52});
-  var nO=cnt(smi,/O/g);
-  if(nO>5&&!has(smi,/P/)){b.push({n:"O–H poliol",pk:3350,fw:250,h:0.95});b.push({n:"C–O–C",pk:1110,fw:65,h:0.82});}
-  if(cnt(smi,/CC/g)>8)b.push({n:"CH₂ rock.",pk:722,fw:18,h:0.48});
+  function add(n,pk,fw,h){b.push({n:n,pk:pk,fw:fw,h:h});}
+  function nOx(s){return cnt(s,/O/g);}
+  add("C–H st.",2925,60,0.55);add("C–H bend",1455,30,0.38);add("C–H bend",1375,22,0.30);
+  if(has(smi,/c[cnops]/i)||has(smi,/[cnops]c/i)){add("=C–H ar.",3055,25,0.45);add("C=C ar.",1600,30,0.62);add("C=C ar.",1500,28,0.55);add("C–H oop ar.",810,40,0.50);}
+  var isAcid=has(smi,/C\(=O\)O[H\]]/)||(has(smi,/C\(=O\)O/)&&!has(smi,/C\(=O\)O[Cc]/)&&!has(smi,/OC\(=O\)/));
+  if(isAcid){add("O–H acido (largo)",2990,400,0.70);add("C=O acido",1710,24,1.00);add("C–O acido",1240,50,0.72);add("O–H bend",935,60,0.55);}
+  else if(has(smi,/C\(=O\)O[Cc]/)||has(smi,/[Cc]OC\(=O\)/)){add("C=O estere",1735,24,1.00);add("C–O estere",1195,55,0.85);add("C–O estere",1050,42,0.68);}
+  else if(has(smi,/C\(=O\)N/)||has(smi,/NC\(=O\)/)){var nm=cnt(smi,/C\(=O\)N/g)+cnt(smi,/NC\(=O\)/g);var str=Math.min(1.0,0.72+nm*0.06);add("N–H ammide",3315,80,0.62);add("C=O ammide I",1650,30,str);add("N–H bend (ammide II)",1545,38,str*0.78);add("C–N",1310,40,0.52);}
+  else if((has(smi,/[CH]=O/)&&!has(smi,/[CH]\(=O\)[OCN]/))||has(smi,/C\(=O\)[H\]]/)){add("C=O aldeide",1725,24,1.00);add("C–H aldeide (Fermi)",2820,30,0.30);add("C–H aldeide (Fermi)",2720,30,0.28);}
+  else if(has(smi,/C=O|C\(=O\)/)){add("C=O chetone",1715,24,1.00);}
+  if(nOx(smi)>4&&!has(smi,/P/)&&!isAcid){add("O–H poliolo (largo)",3350,250,0.95);add("C–O–C",1110,65,0.82);}
+  else if((has(smi,/CO[H\]]/)||has(smi,/[CH]O$/))&&!has(smi,/C\(=O\)/)&&!has(smi,/c/)){add("O–H alcol (largo)",3335,200,0.90);add("C–O",1060,50,0.75);}
+  if(has(smi,/COC/)&&!has(smi,/C\(=O\)/)&&!has(smi,/OC\(=O\)/))add("C–O–C etere",1120,55,0.70);
+  if(has(smi,/\[NH2\]|N$|^N[cC]|[cC]N$/)&&!has(smi,/C\(=O\)N/)&&!has(smi,/NC\(=O\)/)&&!has(smi,/\[N\+\]/)){add("N–H₂ st. asim.",3375,55,0.50);add("N–H₂ st. sim.",3300,55,0.45);add("N–H₂ bend",1610,40,0.45);add("C–N",1080,55,0.45);}
+  else if(has(smi,/[CH]N[CH]/)&&!has(smi,/C\(=O\)N/)&&!has(smi,/NC\(=O\)/)){add("N–H ammina 2°",3320,55,0.40);add("C–N",1080,55,0.45);}
+  if(has(smi,/C#N/))add("C≡N nitrile",2225,20,0.92);
+  if(has(smi,/C#C/)){add("C≡C alchino",2120,22,0.45);if(has(smi,/C#C[H\]]|[H\]]C#C|^C#C|C#C$/))add("≡C–H term.",3300,30,0.55);}
+  if(has(smi,/C=C/)&&!has(smi,/c/)){add("C=C alchene",1645,28,0.45);add("=C–H st.",3080,30,0.40);}
+  if(has(smi,/\[N\+\]\(=O\)\[O-\]|N\(=O\)=O|\[N\+\]\(\[O-\]\)=O/)){add("N=O nitro asim.",1520,35,0.85);add("N=O nitro sim.",1350,35,0.78);}
+  if(has(smi,/P/)){add("P=O",1232,55,0.95);add("P–O",1055,65,0.88);}
+  if(has(smi,/\[SH\]|S[H\]]/))add("S–H tiolo",2560,28,0.40);
+  if(has(smi,/S\(=O\)|S=O/))add("S=O",1040,50,0.85);
+  if(has(smi,/Cl/))add("C–Cl",730,50,0.55);
+  if(has(smi,/Br/))add("C–Br",600,50,0.50);
+  if(has(smi,/[nH]/))add("N–H eteroar.",3405,50,0.52);
+  if(cnt(smi,/CC/g)>8)add("CH₂ rocking",722,18,0.48);
   return b;
 }
-
 function irAbsAt(bands,wn){
   var A=0;for(var i=0;i<bands.length;i++){var b=bands[i];var s=b.fw/2.3548;A+=b.h*Math.exp(-(wn-b.pk)*(wn-b.pk)/(2*s*s));}return A;
 }
@@ -1684,7 +1693,7 @@ function makeIRsvg(bands,color){
   [0,0.25,0.5,0.75,1.0].forEach(function(f){var py=+(PT+CH*(1-f)).toFixed(1);var lbl=(f*maxA).toFixed(2);grid+='<line x1="'+PL+'" y1="'+py+'" x2="'+(PL+CW)+'" y2="'+py+'" stroke="#182840" stroke-width="0.5" stroke-dasharray="2 8"/>';ylbl+='<text x="'+(PL-4)+'" y="'+(py+3.5)+'" text-anchor="end" fill="#3a6080" font-size="9" font-family="monospace">'+lbl+'</text>';});
   var markers="",mlbls="";
   bands.slice().sort(function(a,b){return b.h-a.h;}).slice(0,8).forEach(function(b){var px=+(PL+((4000-b.pk)/3600)*CW).toFixed(1);markers+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="'+color+'" stroke-width="0.8" stroke-dasharray="3 7" opacity="0.55"/>';mlbls+='<text x="'+px+'" y="'+(PT+10)+'" text-anchor="middle" fill="'+color+'" font-size="8" font-family="monospace" opacity="0.85">'+b.pk+'</text>';});
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+VW+' '+VH+'" style="background:#f9fbf9">'+grid+markers+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.10"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/><line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(PL+CW)+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/>'+xlbl+ylbl+mlbls+'<text x="'+(PL+CW/2)+'" y="'+(VH-4)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">Numero d\'onda (cm⁻¹)</text><text x="13" y="'+(PT+CH/2)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace" transform="rotate(-90,13,'+(PT+CH/2)+')">Assorbanza</text></svg>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+VW+' '+VH+'" preserveAspectRatio="xMidYMid meet" style="background:#f9fbf9;display:block;width:100%;height:auto">'+grid+markers+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.10"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/><line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(PL+CW)+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/>'+xlbl+ylbl+mlbls+'<text x="'+(PL+CW/2)+'" y="'+(VH-4)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">Numero d\'onda (cm⁻¹)</text><text x="13" y="'+(PT+CH/2)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace" transform="rotate(-90,13,'+(PT+CH/2)+')">Assorbanza</text></svg>';
 }
 
 function buildIR(d){
@@ -1729,28 +1738,68 @@ function buildIR(d){
 function nmrPeakList(smi){
   if(!smi)return[];
   var pk=[];
-  if(has(smi,/C\(=O\)O/)&&!has(smi,/OC\(=O\)OC/))pk.push({ppm:11.5,lbl:"–COOH",mult:"br s",nH:1});
-  if(has(smi,/[nH]/))pk.push({ppm:10.6,lbl:"N–H indolico/imidaz.",mult:"br s",nH:1});
-  if(has(smi,/C\(=O\)N/)||has(smi,/NC\(=O\)/))pk.push({ppm:8.2,lbl:"N–H ammide",mult:"br s",nH:1});
-  var nAr=cnt(smi,/[a-z]/g);
-  if(nAr>0)pk.push({ppm:7.3,lbl:"H aromatici",mult:"m",nH:Math.min(nAr,6)});
-  if(has(smi,/[CH]=O/))pk.push({ppm:9.8,lbl:"H aldeide",mult:"s",nH:1});
-  if(has(smi,/C=C/)&&!has(smi,/c/))pk.push({ppm:5.7,lbl:"H olefinico",mult:"m",nH:2});
-  var nO=cnt(smi,/O/g);
-  if(nO>5&&!has(smi,/P/))pk.push({ppm:5.2,lbl:"H anometico",mult:"d",nH:1});
-  if(has(smi,/C\(=O\)OC/)||has(smi,/OC\(=O\)/))pk.push({ppm:3.8,lbl:"O–CH₃ estere",mult:"s",nH:3});
-  if(has(smi,/CO/)&&!has(smi,/C\(=O\)/)){var nCO=cnt(smi,/CO/g);pk.push({ppm:3.7,lbl:"O–CH alcol/etere",mult:"m",nH:nCO});}
-  if(has(smi,/P/))pk.push({ppm:4.1,lbl:"O–CH fosfoestere",mult:"m",nH:2});
-  if(has(smi,/CN/)&&!has(smi,/C\(=O\)N/)&&!has(smi,/NC\(=O\)/)){var nCN=cnt(smi,/CN/g);pk.push({ppm:2.6,lbl:"N–CH amminico",mult:"m",nH:nCN*2});}
-  if(has(smi,/CC\(=O\)/)||has(smi,/C\(=O\)C/)){var nAlpha=cnt(smi,/CC\(=O\)/g)+cnt(smi,/C\(=O\)C/g);pk.push({ppm:2.4,lbl:"CH₂/CH₃ α-C=O",mult:"m",nH:nAlpha*2});}
-  if(has(smi,/NH2|\[NH2/)&&!has(smi,/C\(=O\)N/))pk.push({ppm:1.5,lbl:"N–H₂ ammina",mult:"br s",nH:2});
-  var nHeavy=cnt(smi,/[A-Z]/g),nAlipC=nHeavy-nAr-nO-cnt(smi,/N/g)-cnt(smi,/P/g)-cnt(smi,/S/g);
-  if(nAlipC>2)pk.push({ppm:1.3,lbl:"CH₂ catena alifatica",mult:"m",nH:Math.min(nAlipC*1.5,12)});
-  if(cnt(smi,/CC/g)>4)pk.push({ppm:0.88,lbl:"CH₃ terminale",mult:"t",nH:3});
+  function add(ppm,lbl,mult,nH){pk.push({ppm:ppm,lbl:lbl,mult:mult,nH:nH});}
+  var nC=cnt(smi,/C/g), nAr=cnt(smi,/[cnops]/g), nO=cnt(smi,/O/g), nN=cnt(smi,/[Nn]/g);
+  var isAcid=has(smi,/C\(=O\)O[H\]]/)||(has(smi,/C\(=O\)O/)&&!has(smi,/C\(=O\)O[Cc]/)&&!has(smi,/OC\(=O\)/));
+  var isAldehyde=has(smi,/[CH]=O/)&&!has(smi,/[CH]\(=O\)[OCN]/)||has(smi,/C\(=O\)[H\]]/);
+  var isEster=has(smi,/C\(=O\)O[Cc]/)||has(smi,/[Cc]OC\(=O\)/);
+  var isAmide=has(smi,/C\(=O\)N/)||has(smi,/NC\(=O\)/);
+  var isKetone=has(smi,/C\(=O\)C/)||has(smi,/CC\(=O\)/);
+  var hasArom=nAr>0;
+  // --- Protoni molto deschermati / scambiabili ---
+  if(isAcid)add(11.7,"–COOH acido carbossilico","br s",1);
+  if(isAldehyde)add(9.7,"–CHO aldeide","s",1);
+  if(has(smi,/[nH]/))add(10.2,"N–H eteroaromatico","br s",1);
+  if(isAmide){var na=cnt(smi,/C\(=O\)N/g)+cnt(smi,/NC\(=O\)/g);add(7.8,"N–H ammide","br s",Math.max(1,na));}
+  // --- Aromatici, distinti per ricchezza elettronica ---
+  if(hasArom){
+    var ewg=has(smi,/c.{0,4}\[N\+\]\(=O\)|c.{0,4}C\(=O\)|c.{0,4}C#N|c.{0,4}N\(=O\)=O/);
+    var edg=has(smi,/cO|c\[OH\]|cN(?![+])|c[O]/);
+    if(ewg)add(7.85,"H aromatici (anello elettron-povero)","m",Math.min(nAr,5));
+    else if(edg)add(6.80,"H aromatici (anello elettron-ricco)","m",Math.min(nAr,5));
+    else add(7.27,"H aromatici","m",Math.min(nAr,6));
+  }
+  // --- Vinilici ---
+  if(has(smi,/C=C/)&&!hasArom){var nv=cnt(smi,/C=C/g);add(5.6,"H vinilico (C=C)","m",Math.min(nv*2,4));}
+  // --- Anomerico zuccheri ---
+  if(nO>=4&&!has(smi,/P/)&&has(smi,/[CH]1O/))add(5.2,"H anomerico (O–CH–O)","d",1);
+  // --- O–CH₃ (metossi / estere metilico) ---
+  if(has(smi,/C\(=O\)OC([^C]|$)/))add(3.70,"O–CH₃ estere metilico","s",3);
+  else if(has(smi,/[c]OC([^C(]|$)/)||(hasArom&&has(smi,/OC([^C(=]|$)/)))add(3.80,"O–CH₃ aril-metossi","s",3);
+  // --- O–CH / O–CH₂ alcoli, eteri, zuccheri ---
+  if(nO>4&&!has(smi,/P/)&&!isAcid)add(3.65,"O–CH / O–CH₂ (poliolo / zucchero)","m",Math.min(nO,8));
+  else if((has(smi,/[CH]O[H\]]/)||(has(smi,/CO/)&&!has(smi,/C\(=O\)/)&&!has(smi,/OC\(=O\)/)&&!has(smi,/[cC]O[cC]/)))&&!isAcid){
+    add(3.55,"O–CH₂ / O–CH alcol primario","m",2);
+  }
+  // --- Fosfoesteri ---
+  if(has(smi,/P/)&&nO>=3)add(4.05,"O–CH₂ fosfoestere","m",2);
+  // --- α-CH a carbonile / nitrile / metilchetoni ---
+  if(has(smi,/^CC\(=O\)C([^C(=]|$)/)&&isKetone)add(2.15,"CH₃–CO (metilchetone)","s",3);
+  else if((has(smi,/CCC\(=O\)/)||has(smi,/C\(=O\)CC/))&&(isKetone||isEster))add(2.40,"CH₂ in α al carbonile","t",2);
+  if(has(smi,/^CC\(=O\)O/)||has(smi,/OC\(=O\)C([^C]|$)/))add(2.05,"CH₃–CO (acetile/acetato)","s",3);
+  if(has(smi,/CCOC\(=O\)/)||has(smi,/C\(=O\)OCC/)){add(4.12,"O–CH₂ estere etilico","q",2);add(1.25,"CH₃ estere etilico","t",3);}
+  if(has(smi,/CC#N/)||has(smi,/N#CC/))add(2.00,"CH₃/CH₂ in α al nitrile","t",2);
+  // --- CH benzilico (CH₃ su anello) ---
+  if(has(smi,/c[CH]([^c(=]|$)/)||has(smi,/[CH]c/)&&!has(smi,/cO|cN/))add(2.32,"Ar–CH₃ benzilico","s",3);
+  // --- N–CH amminico ---
+  if(has(smi,/[CH]N([^C]|$)/)&&!isAmide&&nN>0)add(2.65,"N–CH amminico","m",2);
+  // --- NH₂ ammina (alifatica o aromatica) ---
+  if(has(smi,/N$|^N[cC]|[cC]N$|\[NH2\]/)&&!isAmide&&!has(smi,/\[N\+\]/)&&!has(smi,/C#N/)){
+    if(hasArom&&has(smi,/Nc|cN/))add(3.7,"Ar–NH₂ (anilina)","br s",2);
+    else add(1.6,"–NH₂ ammina alifatica","br s",2);
+  }
+  // --- Catena alifatica: SOLO se realmente presente (propile+) ---
+  // Stima C alifatici non funzionalizzati
+  var nAlipC=nC-nAr-cnt(smi,/C\(=O\)/g)-cnt(smi,/CO[^C]/g);
+  if(has(smi,/CCC/)&&nAlipC>=3)add(1.28,"–CH₂– catena alifatica","m",Math.min(Math.round(nAlipC*1.2),14));
+  // --- CH₃ terminale: SOLO con catena alchilica vera (propile o piu lungo) ---
+  if(has(smi,/CCC/)&&!has(smi,/CCC\(=O\)O$/)&&nAlipC>=3)add(0.89,"–CH₃ terminale (catena)","t",3);
+  // --- OH alcolico isolato (piccoli alcoli) ---
+  if((has(smi,/^[CH]+O$/)||has(smi,/CO$/))&&!has(smi,/C\(=O\)/)&&nO<=2&&!isAcid)add(2.2,"–OH alcolico (scambiabile)","br s",1);
+  // dedup e ordina
   var seen={};
   return pk.filter(function(p){var k=p.ppm.toFixed(1);return seen[k]?false:(seen[k]=true);}).sort(function(a,b){return b.ppm-a.ppm;});
 }
-
 function makeNMRsvg(peaks,color){
   var VW=800,VH=240,PL=14,PR=14,PT=20,PB=40,CW=VW-PL-PR,CH=VH-PT-PB;
   var PMAX=14,PMIN=-0.5,PRANGE=PMAX-PMIN,GAMMA=0.045;
@@ -1767,7 +1816,7 @@ function makeNMRsvg(peaks,color){
   for(var p=0;p<=14;p+=2){var px=+xOf(p).toFixed(1);grid+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="#182840" stroke-width="0.6" stroke-dasharray="4 6"/>';xlbl+='<text x="'+px+'" y="'+(VH-6)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">'+p+'</text>';}
   grid+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(PL+CW)+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/>';
   var pLabels="";peaks.forEach(function(pk){var px=+xOf(pk.ppm).toFixed(1);pLabels+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="'+color+'" stroke-width="0.7" stroke-dasharray="3 6" opacity="0.5"/><text x="'+px+'" y="'+(PT+10)+'" text-anchor="middle" fill="'+color+'" font-size="8.5" font-family="monospace">'+pk.ppm.toFixed(2)+'</text>';});
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+VW+' '+VH+'" style="background:#f9fbf9">'+grid+pLabels+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.12"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1"/>'+xlbl+'<text x="'+(PL+CW/2)+'" y="'+(VH-20)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">δ (ppm) — 14 ← → 0</text></svg>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+VW+' '+VH+'" preserveAspectRatio="xMidYMid meet" style="background:#f9fbf9;display:block;width:100%;height:auto">'+grid+pLabels+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.12"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1"/>'+xlbl+'<text x="'+(PL+CW/2)+'" y="'+(VH-20)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">δ (ppm) — 14 ← → 0</text></svg>';
 }
 
 function buildNMR(d){
@@ -25615,7 +25664,7 @@ function buildHome(){
   var html='<div style="padding:4px 0 16px">'
     +'<div style="background:linear-gradient(135deg,#050d1a,#0d1f40);border:1px solid #1a3050;border-radius:14px;padding:18px 14px;margin-bottom:14px;text-align:center">'
     +'<div style="font-size:1.8rem;margin-bottom:5px">\u29e1</div>'
-    +'<div style="font-size:1.15rem;font-weight:800;color:#e8f4ff;margin-bottom:3px">BioSpecInfo v10.4</div>'
+    +'<div style="font-size:1.15rem;font-weight:800;color:#e8f4ff;margin-bottom:3px">BioSpecInfo v11.1</div>'
     +'<div style="color:#4a7090;font-size:.78rem;margin-bottom:12px">57 sezioni \u00b7 143 farmaci \u00b7 3D universale</div>'
     +'<div style="display:flex;justify-content:center;gap:5px;flex-wrap:wrap">'
     +'<span style="background:#0a1e3a;border:1px solid #00c896;border-radius:20px;padding:3px 10px;font-size:.71rem;color:#00c896">143 Farmaci</span>'
@@ -25626,7 +25675,7 @@ function buildHome(){
     +'<div id="bsiHomeGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;margin-bottom:14px"></div>'
     +'<div style="font-size:.73rem;color:#4a7090;margin-bottom:7px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">Suggerite</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px" id="bsiHomeSugg"></div>'
-    +'<div style="text-align:center;color:#2d4a65;font-size:.68rem;border-top:1px solid #0f1f30;padding-top:8px">\u00a9 2025 Samuele Pio Provenzano \u00b7 BioSpecInfo v10.4</div>'
+    +'<div style="text-align:center;color:#2d4a65;font-size:.68rem;border-top:1px solid #0f1f30;padding-top:8px">\u00a9 2025 Samuele Pio Provenzano \u00b7 BioSpecInfo v10.7</div>'
     +'</div>';
   me.innerHTML=html;
   me.style.display='block';
@@ -27327,6 +27376,1287 @@ window.init3DViewerPro = function(){
   };
 
   document.addEventListener('click', function(e){ var btn=e.target.closest('[data-s]'); if(!btn) return; var s=btn.getAttribute('data-s'); setTimeout(function(){ if(s==='serrori') window.initRiassunti(); if(s==='sdiagrammi') window.initDiagrammi(); if(s==='spubchem'&&window.initPubChem) window.initPubChem(); },60); });
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH — BioSpecInfo v10.5 © 2025 Samuele Pio Provenzano
+// Potenziamenti: Export PNG/SVG · Glossario · Stampa · Sfida Spettroscopica · Costanti J
+// Patch additivo: non modifica il codice esistente. Tutto namespaced bsi105_.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+
+// ── Stili del patch (coerenti col tema scuro esistente) ─────────────────
+var css = document.createElement('style');
+css.textContent = [
+'#bsi105-fab{position:fixed;right:18px;bottom:18px;z-index:99990;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1fd39a,#1aa97a);border:none;color:#04140d;font-size:24px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:.2s}',
+'#bsi105-fab:hover{transform:scale(1.1) rotate(8deg)}',
+'#bsi105-menu{position:fixed;right:18px;bottom:84px;z-index:99990;display:none;flex-direction:column;gap:8px}',
+'#bsi105-menu.open{display:flex;animation:bsi105pop .2s ease}',
+'@keyframes bsi105pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}',
+'.bsi105-mi{display:flex;align-items:center;gap:10px;padding:11px 16px;background:#11243a;border:1px solid #1e3a52;border-radius:12px;color:#e8f4ff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:.15s}',
+'.bsi105-mi:hover{background:#1a3a5a;border-color:#1fd39a;transform:translateX(-4px)}',
+'.bsi105-mi .ic{font-size:18px}',
+'#bsi105-modal{position:fixed;inset:0;z-index:99995;display:none;align-items:center;justify-content:center;background:rgba(2,8,16,.78);backdrop-filter:blur(4px);padding:16px}',
+'#bsi105-modal.open{display:flex}',
+'#bsi105-box{background:#0c1828;border:1px solid #1e3a52;border-radius:18px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.6)}',
+'#bsi105-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1e3a52;position:sticky;top:0;background:#0c1828;z-index:2}',
+'#bsi105-head h3{margin:0;color:#1fd39a;font-size:1.05rem;font-weight:800}',
+'#bsi105-x{background:#16293f;border:none;color:#9fb8d0;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px}',
+'#bsi105-x:hover{background:#1e3a52;color:#fff}',
+'#bsi105-body{padding:20px}',
+'.bsi105-q{background:#11243a;border:1px solid #1e3a52;border-radius:12px;padding:16px;margin-bottom:14px}',
+'.bsi105-q .qt{color:#e8f4ff;font-size:14px;font-weight:600;line-height:1.5;margin-bottom:12px}',
+'.bsi105-opt{display:block;width:100%;text-align:left;padding:10px 14px;margin:6px 0;background:#0c1828;border:1px solid #1e3a52;border-radius:9px;color:#cfe2f5;font-size:13px;cursor:pointer;transition:.12s}',
+'.bsi105-opt:hover{border-color:#1fd39a;background:#13283f}',
+'.bsi105-opt.ok{background:#0c3a28;border-color:#1fd39a;color:#7df5c5}',
+'.bsi105-opt.no{background:#3a1418;border-color:#e05260;color:#f5a0a8}',
+'.bsi105-tbl{width:100%;border-collapse:collapse;font-size:12.5px}',
+'.bsi105-tbl th{background:#1aa97a;color:#04140d;padding:8px 10px;text-align:left;font-weight:800}',
+'.bsi105-tbl td{padding:7px 10px;border-bottom:1px solid #1a3047;color:#cfe2f5}',
+'.bsi105-tbl tr:nth-child(even) td{background:#0e1e30}',
+'.bsi105-search{width:100%;padding:11px 14px;background:#0c1828;border:1px solid #1e3a52;border-radius:10px;color:#e8f4ff;font-size:14px;outline:none;margin-bottom:14px}',
+'.bsi105-search:focus{border-color:#1fd39a}',
+'.bsi105-gloss{background:#11243a;border:1px solid #1e3a52;border-radius:10px;padding:12px 15px;margin-bottom:8px}',
+'.bsi105-gloss .term{color:#1fd39a;font-weight:800;font-size:13.5px;margin-bottom:4px}',
+'.bsi105-gloss .def{color:#bcd3e8;font-size:12.5px;line-height:1.5}',
+'.bsi105-dlbtn{position:absolute;top:6px;right:6px;z-index:50;padding:4px 10px;background:rgba(31,211,154,.92);border:none;border-radius:7px;color:#04140d;font-size:11px;font-weight:800;cursor:pointer;opacity:0;transition:.15s}',
+'.bsi105-wrap:hover .bsi105-dlbtn{opacity:1}',
+'.bsi105-score{text-align:center;padding:14px;font-size:1.1rem;font-weight:800;color:#1fd39a}',
+'.bsi105-next{display:block;margin:14px auto 0;padding:11px 28px;background:#1fd39a;border:none;border-radius:10px;color:#04140d;font-weight:800;font-size:14px;cursor:pointer}',
+'@media print{#bsi105-fab,#bsi105-menu,#bsi105-modal{display:none!important}}',
+'.bsi105-hint{color:#7a96b0;font-size:11.5px;margin-top:10px;line-height:1.5}'
+].join('\n');
+document.head.appendChild(css);
+
+// ── UI: pulsante flottante + menu ───────────────────────────────────────
+var fab = document.createElement('button');
+fab.id = 'bsi105-fab'; fab.innerHTML = '\u2728'; fab.title = 'Strumenti avanzati (v10.5)';
+document.body.appendChild(fab);
+
+var menu = document.createElement('div');
+menu.id = 'bsi105-menu';
+var items = [
+  ['\uD83D\uDCF8','Esporta figure (PNG/SVG)','export'],
+  ['\uD83C\uDFAF','Sfida spettroscopica','challenge'],
+  ['\uD83D\uDCD6','Glossario chimico','gloss'],
+  ['\u269B\uFE0F','Costanti di accoppiamento J','jconst'],
+  ['\uD83D\uDDA8\uFE0F','Stampa pagina corrente','print']
+];
+items.forEach(function(it){
+  var b = document.createElement('div');
+  b.className = 'bsi105-mi';
+  b.innerHTML = '<span class="ic">'+it[0]+'</span><span>'+it[1]+'</span>';
+  b.onclick = function(){ menu.classList.remove('open'); bsi105_open(it[2]); };
+  menu.appendChild(b);
+});
+document.body.appendChild(menu);
+fab.onclick = function(){ menu.classList.toggle('open'); };
+
+// ── Modale generico ─────────────────────────────────────────────────────
+var modal = document.createElement('div');
+modal.id = 'bsi105-modal';
+modal.innerHTML = '<div id="bsi105-box"><div id="bsi105-head"><h3 id="bsi105-title"></h3>'
+  +'<button id="bsi105-x">\u2715</button></div><div id="bsi105-body"></div></div>';
+document.body.appendChild(modal);
+document.getElementById('bsi105-x').onclick = function(){ modal.classList.remove('open'); };
+modal.onclick = function(e){ if(e.target===modal) modal.classList.remove('open'); };
+
+function bsi105_show(title, html){
+  document.getElementById('bsi105-title').textContent = title;
+  document.getElementById('bsi105-body').innerHTML = html;
+  modal.classList.add('open');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// 1. EXPORT PNG/SVG
+// ════════════════════════════════════════════════════════════════════════
+function bsi105_svgToPng(svg, name){
+  try{
+    var clone = svg.cloneNode(true);
+    var bbox = svg.getBoundingClientRect();
+    var w = Math.max(bbox.width, 300), h = Math.max(bbox.height, 200);
+    clone.setAttribute('width', w); clone.setAttribute('height', h);
+    var data = new XMLSerializer().serializeToString(clone);
+    var blob = new Blob([data], {type:'image/svg+xml;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function(){
+      var cv = document.createElement('canvas');
+      cv.width = w*2; cv.height = h*2;
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.scale(2,2); ctx.drawImage(img,0,0);
+      URL.revokeObjectURL(url);
+      cv.toBlob(function(b){ bsi105_dl(URL.createObjectURL(b), name+'.png'); });
+    };
+    img.onerror = function(){ alert('Export PNG non riuscito per questa figura.'); URL.revokeObjectURL(url); };
+    img.src = url;
+  }catch(e){ alert('Errore export: '+e.message); }
+}
+function bsi105_svgToSvg(svg, name){
+  var data = new XMLSerializer().serializeToString(svg);
+  if(data.indexOf('xmlns')<0) data = data.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+  var blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n'+data], {type:'image/svg+xml'});
+  bsi105_dl(URL.createObjectURL(blob), name+'.svg');
+}
+function bsi105_canvasToPng(cv, name){ try{ bsi105_dl(cv.toDataURL('image/png'), name+'.png'); }catch(e){ alert('Export non riuscito.'); } }
+function bsi105_dl(url, fname){
+  var a = document.createElement('a'); a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); }, 100);
+}
+function bsi105_doExport(){
+  // Trova SVG e canvas visibili nella pagina, esclusi quelli del patch
+  var found = [];
+  document.querySelectorAll('svg, canvas').forEach(function(el){
+    if(el.closest('#bsi105-modal')||el.closest('#bsi105-menu')||el.closest('#bsi105-fab')) return;
+    var r = el.getBoundingClientRect();
+    if(r.width<40||r.height<40) return;
+    if(el.offsetParent===null) return; // non visibile
+    found.push(el);
+  });
+  if(!found.length){
+    bsi105_show('Esporta figure', '<p style="color:#bcd3e8;line-height:1.6">Nessuna figura esportabile \u00e8 attualmente visibile sullo schermo.<br><br>Apri prima una sezione che contiene una struttura molecolare, uno spettro o un diagramma (per esempio: Molecola, Spettroscopia, Chimica Fisica), poi riapri questo strumento.</p>');
+    return;
+  }
+  var html = '<p style="color:#bcd3e8;margin-bottom:14px">Trovate <b style="color:#1fd39a">'+found.length+'</b> figure esportabili sullo schermo. Scegli formato:</p>';
+  found.forEach(function(el, i){
+    var tag = el.tagName.toLowerCase();
+    html += '<div style="background:#11243a;border:1px solid #1e3a52;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px">'
+      + '<span style="color:#cfe2f5;font-size:13px">Figura '+(i+1)+' <span style="color:#7a96b0">('+tag+')</span></span>'
+      + '<span>'
+      + '<button class="bsi105-opt" style="display:inline-block;width:auto;margin:0 4px;padding:7px 14px" data-exp="png" data-i="'+i+'">\u2b07 PNG</button>'
+      + (tag==='svg'?'<button class="bsi105-opt" style="display:inline-block;width:auto;margin:0;padding:7px 14px" data-exp="svg" data-i="'+i+'">\u2b07 SVG</button>':'')
+      + '</span></div>';
+  });
+  html += '<p class="bsi105-hint">Suggerimento: il PNG \u00e8 ideale per documenti Word e presentazioni; l\'SVG \u00e8 vettoriale e scala senza perdere qualit\u00e0 (ottimo per la stampa).</p>';
+  bsi105_show('Esporta figure', html);
+  document.querySelectorAll('#bsi105-body [data-exp]').forEach(function(btn){
+    btn.onclick = function(){
+      var el = found[+btn.dataset.i], fmt = btn.dataset.exp, nm = 'BioSpecInfo_figura_'+(+btn.dataset.i+1);
+      if(fmt==='png'){ el.tagName.toLowerCase()==='svg' ? bsi105_svgToPng(el,nm) : bsi105_canvasToPng(el,nm); }
+      else { bsi105_svgToSvg(el,nm); }
+    };
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// 2. SFIDA SPETTROSCOPICA
+// ════════════════════════════════════════════════════════════════════════
+var bsi105_challenges = [
+  {q:'Una molecola mostra una banda IR intensa a 1715 cm\u207B\u00B9 e nessun assorbimento largo sopra 3000 cm\u207B\u00B9. Quale gruppo funzionale \u00e8 pi\u00f9 probabile?',
+   opts:['Chetone (C=O)','Alcol (O\u2013H)','Ammina (N\u2013H)','Alchino (C\u2261C)'], a:0,
+   exp:'La banda a ~1715 cm\u207B\u00B9 \u00e8 tipica dello stretching C=O di un chetone; l\'assenza di banda larga sopra 3000 esclude O\u2013H/N\u2013H.'},
+  {q:'Nello spettro \u00b9H NMR un segnale appare come tripletto a 1.2 ppm (3H) e un quartetto a 3.7 ppm (2H). Quale frammento \u00e8 indicato?',
+   opts:['\u2013OCH\u2082CH\u2083 (etossi)','\u2013CH\u2083 isolato','Anello aromatico','\u2013COOH'], a:0,
+   exp:'Il pattern tripletto(3H)+quartetto(2H) con il CH\u2082 spostato a 3.7 ppm \u00e8 il classico gruppo etossi \u2013OCH\u2082CH\u2083.'},
+  {q:'Una banda IR molto larga tra 3200\u20133550 cm\u207B\u00B9 indica tipicamente:',
+   opts:['Stretching O\u2013H (alcol/acido)','Stretching C=O','Bending C\u2013H','Stretching C\u2261N'], a:0,
+   exp:'La banda larga in quella regione \u00e8 caratteristica dello stretching O\u2013H legato a idrogeno (alcoli, acidi carbossilici).'},
+  {q:'Nel \u00b9\u00b3C NMR un picco a ~200 ppm \u00e8 diagnostico di:',
+   opts:['Carbonio carbonilico (C=O)','Carbonio aromatico','Carbonio alifatico CH\u2083','Carbonio alchinico'], a:0,
+   exp:'I carboni carbonilici di aldeidi e chetoni risuonano a 190\u2013210 ppm, la regione pi\u00f9 deschermata dello spettro \u00b9\u00b3C.'},
+  {q:'Un singoletto \u00b9H NMR a 2.1 ppm (3H) accanto a una banda IR a 1710 cm\u207B\u00B9 suggerisce:',
+   opts:['Metilchetone (CH\u2083\u2013CO\u2013)','Metile aromatico','Metossi \u2013OCH\u2083','Metile su azoto'], a:0,
+   exp:'Il CH\u2083 di un metilchetone (acetile) d\u00e0 un singoletto a ~2.1 ppm; la banda IR a 1710 conferma il C=O.'},
+  {q:'Due doppietti aromatici simmetrici (pattern AA\'BB\') nel \u00b9H NMR indicano un anello benzenico:',
+   opts:['para-disostituito','orto-disostituito','mono-sostituito','meta-disostituito'], a:0,
+   exp:'Il pattern a due doppietti \"a specchio\" \u00e8 tipico dei benzeni para-disostituiti, per la simmetria della molecola.'},
+  {q:'Una banda IR a ~2250 cm\u207B\u00B9, stretta e isolata, \u00e8 diagnostica di:',
+   opts:['Nitrile (C\u2261N)','Carbonile (C=O)','Alcol (O\u2013H)','Ammide'], a:0,
+   exp:'Lo stretching C\u2261N dei nitrili cade a ~2250 cm\u207B\u00B9, in una regione \"silenziosa\" dove pochi altri gruppi assorbono.'},
+  {q:'Nel \u00b9H NMR un segnale molto deschermato a 9\u201310 ppm (1H) indica:',
+   opts:['Aldeide (\u2013CHO)','Alcol (\u2013OH)','Metile','Aromatico'], a:0,
+   exp:'Il protone aldeidico \u2013CHO risuona a 9\u201310 ppm, una posizione molto caratteristica e isolata.'},
+  {q:'Nello spettro di massa, una perdita di 18 unit\u00e0 (M\u201318) dal picco molecolare suggerisce la perdita di:',
+   opts:['Acqua (H\u2082O)','Metile (CH\u2083)','Monossido di carbonio','Ammoniaca'], a:0,
+   exp:'La perdita di 18 \u00e8 tipica dell\'acqua, frequente in alcoli e acidi che disidratano nella sorgente.'},
+  {q:'Una banda IR doppia a ~1760 e ~1820 cm\u207B\u00B9 \u00e8 caratteristica di:',
+   opts:['Anidride (due C=O accoppiati)','Singolo chetone','Alchene','Etere'], a:0,
+   exp:'Le anidridi mostrano due bande C=O accoppiate (simmetrica+asimmetrica) a ~1760 e ~1820 cm\u207B\u00B9.'},
+  {q:'Nel \u00b9³C NMR DEPT-135, un carbonio CH\u2082 appare:',
+   opts:['Negativo (verso il basso)','Positivo','Assente','Doppio'], a:0,
+   exp:'In DEPT-135 i CH e CH\u2083 sono positivi, i CH\u2082 negativi e i carboni quaternari assenti.'},
+  {q:'Due protoni vinilici trans di un alchene mostrano una costante di accoppiamento \u00b3J di circa:',
+   opts:['12\u201318 Hz','0\u20133 Hz','6\u20138 Hz','>20 Hz'], a:0,
+   exp:'I protoni trans di un doppio legame hanno \u00b3J grande (12\u201318 Hz), mentre i cis hanno \u00b3J pi\u00f9 piccola (6\u201312 Hz).'},
+];
+var bsi105_chState = {i:0, score:0, order:[]};
+function bsi105_startChallenge(){
+  bsi105_chState = {i:0, score:0, order:[]};
+  var idx = bsi105_challenges.map(function(_,i){return i;});
+  for(var k=idx.length-1;k>0;k--){ var j=Math.floor(Math.random()*(k+1)); var t=idx[k];idx[k]=idx[j];idx[j]=t; }
+  bsi105_chState.order = idx.slice(0, 6); // 6 domande per partita
+  bsi105_renderChallenge();
+}
+function bsi105_renderChallenge(){
+  var st = bsi105_chState;
+  if(st.i >= st.order.length){
+    var pct = Math.round(st.score/st.order.length*100);
+    var msg = pct>=80?'Eccellente! \uD83C\uDF89':pct>=50?'Buono, continua cos\u00ec!':'Continua a esercitarti!';
+    bsi105_show('Sfida spettroscopica', '<div class="bsi105-score">Punteggio: '+st.score+'/'+st.order.length+' ('+pct+'%)<br><span style="font-size:.9rem;color:#bcd3e8">'+msg+'</span></div><button class="bsi105-next" id="bsi105-restart">\uD83D\uDD04 Nuova partita</button>');
+    document.getElementById('bsi105-restart').onclick = bsi105_startChallenge;
+    return;
+  }
+  var c = bsi105_challenges[st.order[st.i]];
+  var html = '<div style="color:#7a96b0;font-size:12px;margin-bottom:10px">Domanda '+(st.i+1)+' di '+st.order.length+' \u00b7 Punteggio: '+st.score+'</div>';
+  html += '<div class="bsi105-q"><div class="qt">'+c.q+'</div><div id="bsi105-opts">';
+  c.opts.forEach(function(o,i){ html += '<button class="bsi105-opt" data-opt="'+i+'">'+o+'</button>'; });
+  html += '</div></div><div id="bsi105-fb"></div>';
+  bsi105_show('Sfida spettroscopica', html);
+  document.querySelectorAll('#bsi105-opts .bsi105-opt').forEach(function(btn){
+    btn.onclick = function(){
+      var chosen = +btn.dataset.opt;
+      document.querySelectorAll('#bsi105-opts .bsi105-opt').forEach(function(b,i){
+        b.style.pointerEvents='none';
+        if(i===c.a) b.classList.add('ok');
+        else if(i===chosen) b.classList.add('no');
+      });
+      if(chosen===c.a) st.score++;
+      document.getElementById('bsi105-fb').innerHTML =
+        '<div class="bsi105-q" style="border-color:'+(chosen===c.a?'#1fd39a':'#e05260')+'"><div class="qt"><b style="color:'+(chosen===c.a?'#7df5c5':'#f5a0a8')+'">'+(chosen===c.a?'\u2713 Corretto!':'\u2717 Risposta corretta: '+c.opts[c.a])+'</b><br><br><span style="font-weight:400;color:#bcd3e8">'+c.exp+'</span></div></div>'
+        +'<button class="bsi105-next" id="bsi105-nx">'+(st.i+1>=st.order.length?'Vedi risultato':'Prossima domanda \u2192')+'</button>';
+      document.getElementById('bsi105-nx').onclick = function(){ st.i++; bsi105_renderChallenge(); };
+    };
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// 3. GLOSSARIO
+// ════════════════════════════════════════════════════════════════════════
+var bsi105_glossary = [
+  ['Chemioselettività','Preferenza di un reagente a reagire con un gruppo funzionale piuttosto che con un altro presente nella stessa molecola.'],
+  ['Regioselettività','Preferenza di una reazione a formare un isomero di posizione rispetto ad altri possibili (es. regola di Markovnikov).'],
+  ['Stereoselettività','Tendenza di una reazione a produrre preferenzialmente uno stereoisomero rispetto agli altri.'],
+  ['Stereospecificità','Reazione in cui stereoisomeri diversi del reagente danno stereoisomeri diversi del prodotto, per meccanismo.'],
+  ['Enantiomero','Uno di due stereoisomeri che sono immagini speculari non sovrapponibili l\'uno dell\'altro.'],
+  ['Diastereomero','Stereoisomero che non \u00e8 immagine speculare di un altro (es. isomeri cis/trans, o composti con pi\u00f9 centri chirali).'],
+  ['Centro stereogenico','Atomo (tipicamente C) legato a quattro sostituenti diversi, origine di chiralit\u00e0.'],
+  ['Configurazione R/S','Descrittore assoluto della disposizione spaziale dei sostituenti attorno a un centro stereogenico, secondo le regole CIP.'],
+  ['Regole CIP','Regole di Cahn\u2013Ingold\u2013Prelog per assegnare priorit\u00e0 ai sostituenti in base al numero atomico.'],
+  ['Chemical shift (\u03b4)','Posizione di un segnale NMR rispetto a un riferimento (TMS), espressa in ppm; riflette l\'intorno elettronico del nucleo.'],
+  ['Molteplicit\u00e0','Numero di righe in cui si scinde un segnale NMR per accoppiamento con nuclei vicini (regola n+1).'],
+  ['Costante di accoppiamento (J)','Distanza in Hz tra le righe di un multipletto NMR; misura l\'interazione tra spin nucleari vicini.'],
+  ['Effetto NOE','Variazione di intensit\u00e0 di un segnale NMR per vicinanza spaziale (non attraverso i legami) a un altro nucleo.'],
+  ['Deschermatura','Riduzione della densit\u00e0 elettronica attorno a un nucleo, che sposta il segnale NMR verso valori di \u03b4 maggiori (campo basso).'],
+  ['Numero d\'onda','Inverso della lunghezza d\'onda (cm\u207B\u00b9), unit\u00e0 dell\'asse x negli spettri IR.'],
+  ['Stretching','Vibrazione di allungamento/accorciamento di un legame, responsabile delle bande IR pi\u00f9 intense.'],
+  ['Bending','Vibrazione di piegamento di un angolo di legame, in genere a numeri d\'onda inferiori rispetto allo stretching.'],
+  ['Nucleofilo','Specie ricca di elettroni che dona un doppietto formando un nuovo legame (base di Lewis).'],
+  ['Elettrofilo','Specie povera di elettroni che accetta un doppietto (acido di Lewis).'],
+  ['Carbocatione','Intermedio con carbonio carico positivamente; la stabilit\u00e0 aumenta da primario a terziario.'],
+  ['Stato di transizione','Configurazione di massima energia lungo la coordinata di reazione, non isolabile.'],
+  ['Intermedio di reazione','Specie con vita finita che si forma e si consuma durante una reazione (es. carbocatione).'],
+  ['Inversione di Walden','Inversione della configurazione al carbonio in una reazione SN2, come un ombrello al vento.'],
+  ['Effetto induttivo','Trasmissione di carica attraverso i legami \u03c3 per differenza di elettronegativit\u00e0.'],
+  ['Risonanza','Delocalizzazione elettronica descritta da pi\u00f9 strutture limite; stabilizza la molecola.'],
+  ['Aromaticit\u00e0','Stabilit\u00e0 speciale di sistemi ciclici planari con 4n+2 elettroni \u03c0 (regola di H\u00fcckel).'],
+  ['pKa','Logaritmo negativo della costante di acidit\u00e0; misura la forza di un acido (pi\u00f9 basso = pi\u00f9 forte).'],
+  ['Tampone','Soluzione che resiste alle variazioni di pH, costituita da un acido debole e la sua base coniugata.'],
+  ['Henderson\u2013Hasselbalch','Equazione che lega il pH di un tampone al pKa e al rapporto base/acido: pH = pKa + log([A\u207B]/[HA]).'],
+  ['Costante di Michaelis (Km)','Concentrazione di substrato a cui la velocit\u00e0 enzimatica \u00e8 met\u00e0 della massima; misura inversa dell\'affinit\u00e0.'],
+  ['Vmax','Velocit\u00e0 massima di una reazione enzimatica, raggiunta a saturazione di substrato.'],
+  ['Cooperativit\u00e0','Fenomeno per cui il legame di un ligando a una subunit\u00e0 modifica l\'affinit\u00e0 delle altre (es. emoglobina).'],
+  ['Anomero','Uno dei due stereoisomeri (\u03b1/\u03b2) di uno zucchero ciclico che differiscono al carbonio anomerico.'],
+  ['Mutarotazione','Variazione del potere rotatorio di una soluzione di zucchero per equilibrio tra anomeri \u03b1 e \u03b2.'],
+  ['\u03b2-lattame','Anello ammidico a quattro termini, nucleo reattivo degli antibiotici penicillinici.'],
+  ['Orbitale molecolare','Funzione d\'onda che descrive un elettrone esteso su pi\u00f9 atomi, da combinazione di orbitali atomici (LCAO).'],
+  ['HOMO/LUMO','Orbitale molecolare occupato di energia pi\u00f9 alta / non occupato di energia pi\u00f9 bassa; governano la reattivit\u00e0.'],
+  ['VSEPR','Teoria che predice la geometria molecolare dalla repulsione delle coppie elettroniche di valenza.'],
+  ['Idrofobicit\u00e0 (LogP)','Misura della lipofilia di un composto; il coefficiente di ripartizione ottanolo/acqua in scala logaritmica.'],
+  ['Biodisponibilit\u00e0','Frazione di un farmaco somministrato che raggiunge la circolazione sistemica in forma attiva.']
+];
+function bsi105_renderGloss(filter){
+  filter = (filter||'').toLowerCase();
+  var list = bsi105_glossary.filter(function(g){ return !filter || g[0].toLowerCase().indexOf(filter)>=0 || g[1].toLowerCase().indexOf(filter)>=0; });
+  var html = '<input class="bsi105-search" id="bsi105-gsearch" placeholder="\uD83D\uDD0D Cerca un termine..." value="'+(filter||'')+'">';
+  html += '<div style="color:#7a96b0;font-size:12px;margin-bottom:10px">'+list.length+' termini'+(filter?' trovati':' nel glossario')+'</div>';
+  if(!list.length) html += '<p style="color:#bcd3e8">Nessun termine trovato per "'+filter+'".</p>';
+  list.forEach(function(g){ html += '<div class="bsi105-gloss"><div class="term">'+g[0]+'</div><div class="def">'+g[1]+'</div></div>'; });
+  bsi105_show('Glossario chimico-biochimico', html);
+  var s = document.getElementById('bsi105-gsearch');
+  s.oninput = function(){ var v=this.value; var pos=this.selectionStart; bsi105_renderGloss(v); var ns=document.getElementById('bsi105-gsearch'); ns.focus(); ns.setSelectionRange(pos,pos); };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// 4. COSTANTI DI ACCOPPIAMENTO J
+// ════════════════════════════════════════════════════════════════════════
+function bsi105_renderJ(){
+  var rows = [
+    ['Tipo di accoppiamento','Sistema','J tipica (Hz)'],
+    ['\u00b3J vicinale (libera rotazione)','H\u2013C\u2013C\u2013H alifatico','6\u20138'],
+    ['\u00b2J geminale (sp\u00b3)','H\u2013C\u2013H','\u221212 a \u221215'],
+    ['\u00b3J alchene cis','=CH\u2013CH= (cis)','6\u201312'],
+    ['\u00b3J alchene trans','=CH\u2013CH= (trans)','12\u201318'],
+    ['\u00b2J alchene geminale','=CH\u2082','0\u20133'],
+    ['\u00b3J aromatico orto','Ar H\u2013H (1,2)','7\u201310'],
+    ['\u2074J aromatico meta','Ar H\u2013H (1,3)','2\u20133'],
+    ['\u2075J aromatico para','Ar H\u2013H (1,4)','0\u20131'],
+    ['\u00b3J aldeidico','O=CH\u2013CH','1\u20133'],
+    ['\u00b3J assiale-assiale (cicloesano)','H\u2013C\u2013C\u2013H (aa)','8\u201312'],
+    ['\u00b3J assiale-equatoriale','H\u2013C\u2013C\u2013H (ae)','2\u20135'],
+    ['\u00b3J equatoriale-equatoriale','H\u2013C\u2013C\u2013H (ee)','2\u20135'],
+    ['\u00b3J vinilico geminale','Vinil =CH\u2082','0\u20132'],
+    ['\u00b3J H\u2013C\u2013O\u2013H (alcoli)','variabile, scambio','0\u20137'],
+  ];
+  var html = '<p style="color:#bcd3e8;margin-bottom:14px;line-height:1.5">Valori di riferimento delle costanti di accoppiamento <b style="color:#1fd39a">J</b> (in Hz) per l\'interpretazione della molteplicit\u00e0 nei segnali \u00b9H NMR. La costante J \u00e8 indipendente dal campo magnetico applicato.</p>';
+  html += '<table class="bsi105-tbl"><thead><tr><th>'+rows[0][0]+'</th><th>'+rows[0][1]+'</th><th>'+rows[0][2]+'</th></tr></thead><tbody>';
+  for(var i=1;i<rows.length;i++) html += '<tr><td><b style="color:#cfe2f5">'+rows[i][0]+'</b></td><td>'+rows[i][1]+'</td><td style="color:#1fd39a;font-weight:700">'+rows[i][2]+'</td></tr>';
+  html += '</tbody></table>';
+  html += '<p class="bsi105-hint"><b>Regola pratica:</b> nei sistemi rigidi (alcheni, anelli aromatici, cicloesani) la J dipende fortemente dalla geometria (angolo diedro, relazione di Karplus per i \u00b3J vicinali). Costanti J grandi (>10 Hz) indicano relazioni trans-diassiali o trans-alcheniche; costanti piccole (<5 Hz) indicano relazioni gauche o meta/para aromatiche.</p>';
+  bsi105_show('Costanti di accoppiamento J', html);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// 5. STAMPA
+// ════════════════════════════════════════════════════════════════════════
+function bsi105_doPrint(){
+  // Trova il contenuto principale visibile (la sezione attiva)
+  var main = document.querySelector('main, #content, #main, .content, .view-active, [class*="active"]');
+  var target = null;
+  // Heuristica: prendi il contenitore visibile pi\u00f9 grande che non sia body
+  var best = null, bestArea = 0;
+  document.querySelectorAll('section, div').forEach(function(el){
+    if(el.id && el.id.indexOf('bsi105')>=0) return;
+    if(el.offsetParent===null) return;
+    var r = el.getBoundingClientRect();
+    var area = r.width*r.height;
+    if(r.top<400 && area>bestArea && area<window.innerWidth*window.innerHeight*3){ bestArea=area; best=el; }
+  });
+  // Fallback: stampa tutta la pagina
+  bsi105_show('Stampa', '<p style="color:#bcd3e8;line-height:1.6">Sto preparando la stampa della vista corrente.<br><br>Si aprir\u00e0 la finestra di stampa del browser: puoi scegliere <b style="color:#1fd39a">\"Salva come PDF\"</b> come destinazione per ottenere un PDF della scheda, oppure stampare su carta.</p><button class="bsi105-next" id="bsi105-goprint">\uD83D\uDDA8\uFE0F Apri stampa / Salva PDF</button><p class="bsi105-hint">Suggerimento: nelle opzioni di stampa attiva \"Grafica di sfondo\" per mantenere i colori delle schede.</p>');
+  document.getElementById('bsi105-goprint').onclick = function(){ modal.classList.remove('open'); setTimeout(function(){ window.print(); }, 250); };
+}
+
+// ── Dispatcher ──────────────────────────────────────────────────────────
+window.bsi105_open = function(which){
+  if(which==='export') bsi105_doExport();
+  else if(which==='challenge') bsi105_startChallenge();
+  else if(which==='gloss') bsi105_renderGloss('');
+  else if(which==='jconst') bsi105_renderJ();
+  else if(which==='print') bsi105_doPrint();
+};
+
+// Chiudi menu cliccando fuori
+document.addEventListener('click', function(e){
+  if(!menu.contains(e.target) && e.target!==fab) menu.classList.remove('open');
+});
+
+console.log('BioSpecInfo v10.5 potenziamenti caricati \u2714 (Export, Sfida, Glossario, Costanti J, Stampa)');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH 3D — BioSpecInfo v10.6 · Orbitali Atomici 3D (Three.js)
+// Aggiunge una sezione di visualizzazione 3D degli orbitali idrogenoidi.
+// Three.js caricato in lazy-load (solo all'apertura). Tutto namespaced bsi3d_.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+
+var css = document.createElement('style');
+css.textContent = [
+'#bsi3d-modal{position:fixed;inset:0;z-index:99996;display:none;background:#04080f}',
+'#bsi3d-modal.open{display:block}',
+'#bsi3d-canvas{width:100%;height:100%;display:block;cursor:grab}',
+'#bsi3d-canvas:active{cursor:grabbing}',
+'#bsi3d-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(180deg,rgba(4,8,15,.9),transparent);z-index:5}',
+'#bsi3d-top h3{margin:0;color:#1fd39a;font-size:1rem;font-weight:800}',
+'#bsi3d-close{background:#16293f;border:none;color:#cfe2f5;width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:18px}',
+'#bsi3d-close:hover{background:#1e3a52}',
+'#bsi3d-panel{position:absolute;left:12px;bottom:12px;right:12px;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(8,18,30,.82);backdrop-filter:blur(6px);border:1px solid #1e3a52;border-radius:12px;padding:10px 12px}',
+'.bsi3d-orb{padding:7px 12px;background:#11243a;border:1px solid #1e3a52;border-radius:8px;color:#cfe2f5;font-size:12px;font-weight:700;cursor:pointer;transition:.12s}',
+'.bsi3d-orb:hover{border-color:#1fd39a}',
+'.bsi3d-orb.active{background:#1fd39a;color:#04140d;border-color:#1fd39a}',
+'#bsi3d-info{color:#9fb8d0;font-size:11.5px;margin-left:auto;line-height:1.4;max-width:46%}',
+'#bsi3d-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#1fd39a;font-size:15px;font-weight:700;background:#04080f;z-index:8;text-align:center;padding:20px}',
+'.bsi3d-legend{display:inline-flex;align-items:center;gap:4px;color:#9fb8d0;font-size:11px;margin-right:10px}',
+'.bsi3d-dot{width:10px;height:10px;border-radius:50%;display:inline-block}'
+].join('\n');
+document.head.appendChild(css);
+
+var modal = document.createElement('div');
+modal.id = 'bsi3d-modal';
+modal.innerHTML =
+  '<div id="bsi3d-top"><h3>\uD83D\uDD2E Orbitali Atomici 3D</h3>'
+  +'<button id="bsi3d-close">\u2715</button></div>'
+  +'<div id="bsi3d-loading">Caricamento motore 3D\u2026</div>'
+  +'<canvas id="bsi3d-canvas"></canvas>'
+  +'<div id="bsi3d-panel">'
+    +'<button class="bsi3d-orb active" data-orb="1s">1s</button>'
+    +'<button class="bsi3d-orb" data-orb="2s">2s</button>'
+    +'<button class="bsi3d-orb" data-orb="2pz">2p_z</button>'
+    +'<button class="bsi3d-orb" data-orb="2px">2p_x</button>'
+    +'<button class="bsi3d-orb" data-orb="3dz2">3d_z\u00b2</button>'
+    +'<button class="bsi3d-orb" data-orb="3dxy">3d_xy</button>'
+    +'<button class="bsi3d-orb" data-orb="3dx2y2">3d_x\u00b2-y\u00b2</button>'
+    +'<span id="bsi3d-info"></span>'
+  +'</div>';
+document.body.appendChild(modal);
+
+var orbInfo = {
+  '1s':'Orbitale 1s: simmetria sferica, nessun nodo. La densit\u00e0 elettronica decresce esponenzialmente con la distanza dal nucleo.',
+  '2s':'Orbitale 2s: sferico con un nodo radiale (una superficie sferica dove \u03c8=0). Energia maggiore del 1s.',
+  '2pz':'Orbitale 2p_z: due lobi lungo l\'asse z, separati da un piano nodale (xy). I lobi hanno segno opposto della funzione d\'onda.',
+  '2px':'Orbitale 2p_x: due lobi lungo l\'asse x, con piano nodale yz. Insieme a 2p_y e 2p_z forma il set p degenere.',
+  '3dz2':'Orbitale 3d_z\u00b2: lobo principale lungo z pi\u00f9 un anello (toroide) sul piano xy. Forma caratteristica del set d.',
+  '3dxy':'Orbitale 3d_xy: quattro lobi sul piano xy, orientati tra gli assi x e y. Due piani nodali.',
+  '3dx2y2':'Orbitale 3d_x\u00b2-y\u00b2: quattro lobi lungo gli assi x e y. Importante nella teoria del campo cristallino (complessi).'
+};
+
+document.getElementById('bsi3d-close').onclick = function(){
+  modal.classList.remove('open');
+  if(bsi3d.raf) cancelAnimationFrame(bsi3d.raf);
+};
+
+// ── Funzioni d'onda idrogenoidi (non normalizzate; forma corretta) ──────
+function psi(orb, x, y, z){
+  var r = Math.sqrt(x*x+y*y+z*z)+1e-9;
+  switch(orb){
+    case '1s': return Math.exp(-r);
+    case '2s': return (2-r)*Math.exp(-r/2);
+    case '2pz': return z*Math.exp(-r/2);
+    case '2px': return x*Math.exp(-r/2);
+    case '3dz2': return (3*z*z-r*r)*Math.exp(-r/3);
+    case '3dxy': return x*y*Math.exp(-r/3);
+    case '3dx2y2': return (x*x-y*y)*Math.exp(-r/3);
+    default: return Math.exp(-r);
+  }
+}
+// scala spaziale per orbitale (raggio di campionamento)
+function orbScale(orb){
+  if(orb.charAt(0)==='1') return 6;
+  if(orb.charAt(0)==='2') return 16;
+  return 28;
+}
+
+var bsi3d = { loaded:false, scene:null, camera:null, renderer:null, points:null, raf:null, rotX:0.4, rotY:0.6, drag:false, lx:0, ly:0, dist:null };
+
+function bsi3d_loadThree(cb){
+  if(window.THREE){ cb(); return; }
+  var s = document.createElement('script');
+  s.src = './three.min.js';
+  s.onload = function(){ cb(); };
+  s.onerror = function(){
+    document.getElementById('bsi3d-loading').innerHTML = 'Impossibile caricare il motore 3D.<br>Verifica che il file three.min.js sia presente accanto all\'app.';
+  };
+  document.head.appendChild(s);
+}
+
+function bsi3d_buildCloud(orb){
+  var THREE = window.THREE;
+  if(bsi3d.points){ bsi3d.scene.remove(bsi3d.points); bsi3d.points.geometry.dispose(); bsi3d.points.material.dispose(); }
+  var N = 14000, scale = orbScale(orb);
+  // trova psi^2 massimo per rejection sampling
+  var maxP = 0;
+  for(var t=0;t<3000;t++){
+    var x=(Math.random()*2-1)*scale, y=(Math.random()*2-1)*scale, z=(Math.random()*2-1)*scale;
+    var p=psi(orb,x,y,z); p=p*p; if(p>maxP)maxP=p;
+  }
+  var positions = [], colors = [], got = 0, tries = 0, maxTries = N*120;
+  while(got<N && tries<maxTries){
+    tries++;
+    var x=(Math.random()*2-1)*scale, y=(Math.random()*2-1)*scale, z=(Math.random()*2-1)*scale;
+    var w=psi(orb,x,y,z); var p=w*w;
+    if(Math.random() < p/maxP){
+      positions.push(x,y,z);
+      // colore per segno della funzione d'onda
+      if(w>=0){ colors.push(0.13,0.83,0.60); }   // verde-acqua (+)
+      else    { colors.push(0.90,0.30,0.45); }   // rosso-rosa (−)
+      got++;
+    }
+  }
+  var geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions,3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors,3));
+  var mat = new THREE.PointsMaterial({ size:0.32, vertexColors:true, transparent:true, opacity:0.85, sizeAttenuation:true });
+  bsi3d.points = new THREE.Points(geo, mat);
+  bsi3d.scene.add(bsi3d.points);
+  // nucleo
+  if(!bsi3d.nucleus){
+    var ng = new THREE.SphereGeometry(0.45, 16, 16);
+    var nm = new THREE.MeshBasicMaterial({ color:0xffffff });
+    bsi3d.nucleus = new THREE.Mesh(ng, nm);
+    bsi3d.scene.add(bsi3d.nucleus);
+  }
+  // assi
+  if(!bsi3d.axes){
+    bsi3d.axes = new THREE.Group();
+    var al = scale*1.1;
+    [[al,0,0,0xff6b6b],[0,al,0,0x6bff9e],[0,0,al,0x6b9eff]].forEach(function(a){
+      var g=new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0,a[0],a[1],a[2]],3));
+      bsi3d.axes.add(new THREE.Line(g, new THREE.LineBasicMaterial({color:a[3],transparent:true,opacity:0.35})));
+    });
+    bsi3d.scene.add(bsi3d.axes);
+  }
+  bsi3d.camera.position.set(0,0,scale*2.4);
+  document.getElementById('bsi3d-info').textContent = orbInfo[orb]||'';
+}
+
+function bsi3d_init(){
+  var THREE = window.THREE;
+  var canvas = document.getElementById('bsi3d-canvas');
+  var w = window.innerWidth, h = window.innerHeight;
+  bsi3d.scene = new THREE.Scene();
+  bsi3d.scene.background = new THREE.Color(0x04080f);
+  bsi3d.camera = new THREE.PerspectiveCamera(55, w/h, 0.1, 1000);
+  try{
+    bsi3d.renderer = new THREE.WebGLRenderer({ canvas:canvas, antialias:true });
+  }catch(e){
+    document.getElementById('bsi3d-loading').innerHTML='Il tuo dispositivo non supporta WebGL.<br>Gli orbitali 3D richiedono WebGL.';
+    return;
+  }
+  bsi3d.renderer.setSize(w,h);
+  bsi3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  bsi3d_buildCloud('1s');
+  document.getElementById('bsi3d-loading').style.display='none';
+  // interazione drag
+  canvas.onmousedown = function(e){ bsi3d.drag=true; bsi3d.lx=e.clientX; bsi3d.ly=e.clientY; };
+  window.addEventListener('mouseup', function(){ bsi3d.drag=false; });
+  window.addEventListener('mousemove', function(e){
+    if(!bsi3d.drag) return;
+    bsi3d.rotY += (e.clientX-bsi3d.lx)*0.01; bsi3d.rotX += (e.clientY-bsi3d.ly)*0.01;
+    bsi3d.lx=e.clientX; bsi3d.ly=e.clientY;
+  });
+  // touch
+  canvas.ontouchstart = function(e){ bsi3d.drag=true; bsi3d.lx=e.touches[0].clientX; bsi3d.ly=e.touches[0].clientY; };
+  canvas.ontouchend = function(){ bsi3d.drag=false; };
+  canvas.ontouchmove = function(e){
+    if(!bsi3d.drag)return; e.preventDefault();
+    bsi3d.rotY += (e.touches[0].clientX-bsi3d.lx)*0.01; bsi3d.rotX += (e.touches[0].clientY-bsi3d.ly)*0.01;
+    bsi3d.lx=e.touches[0].clientX; bsi3d.ly=e.touches[0].clientY;
+  };
+  canvas.onwheel = function(e){ e.preventDefault(); bsi3d.camera.position.z *= (e.deltaY>0?1.1:0.9); };
+  window.addEventListener('resize', function(){
+    if(!modal.classList.contains('open'))return;
+    var w=window.innerWidth,h=window.innerHeight;
+    bsi3d.camera.aspect=w/h; bsi3d.camera.updateProjectionMatrix(); bsi3d.renderer.setSize(w,h);
+  });
+  bsi3d.loaded = true;
+  bsi3d_animate();
+}
+
+function bsi3d_animate(){
+  bsi3d.raf = requestAnimationFrame(bsi3d_animate);
+  if(!bsi3d.drag) bsi3d.rotY += 0.0035;
+  var grp = [bsi3d.points, bsi3d.axes, bsi3d.nucleus];
+  grp.forEach(function(o){ if(o){ o.rotation.x=bsi3d.rotX; o.rotation.y=bsi3d.rotY; } });
+  bsi3d.renderer.render(bsi3d.scene, bsi3d.camera);
+}
+
+// selettore orbitali
+modal.querySelectorAll('.bsi3d-orb').forEach(function(btn){
+  btn.onclick = function(){
+    modal.querySelectorAll('.bsi3d-orb').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    if(bsi3d.loaded) bsi3d_buildCloud(btn.dataset.orb);
+  };
+});
+
+// API pubblica per aprire la sezione
+window.bsi3d_open = function(){
+  modal.classList.add('open');
+  document.getElementById('bsi3d-loading').style.display='flex';
+  bsi3d_loadThree(function(){
+    if(!bsi3d.loaded) bsi3d_init();
+    else { document.getElementById('bsi3d-loading').style.display='none'; bsi3d_animate(); }
+  });
+};
+
+// Aggiungo la voce al menu ✨ esistente (se presente)
+function bsi3d_addMenuItem(){
+  var menu = document.getElementById('bsi105-menu');
+  if(!menu){ setTimeout(bsi3d_addMenuItem, 500); return; }
+  var b = document.createElement('div');
+  b.className = 'bsi105-mi';
+  b.innerHTML = '<span class="ic">\uD83D\uDD2E</span><span>Orbitali Atomici 3D</span>';
+  b.onclick = function(){ menu.classList.remove('open'); window.bsi3d_open(); };
+  menu.appendChild(b);
+}
+bsi3d_addMenuItem();
+
+console.log('BioSpecInfo Orbitali 3D (Three.js) caricato \u2714');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH FIX — BioSpecInfo v10.7
+// Fix sicuri: grafico NMR, contrasto NMR 2D, competitor Risorse Web,
+// sezione Stechiometria. Additivo, namespaced bsi107_. Non tocca il core.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+
+// ── FIX 1 + 2: CSS per grafico NMR e contrasto NMR 2D ──────────────────
+var css = document.createElement('style');
+css.textContent = [
+// Grafico NMR/IR: assicura che l'SVG abbia dimensioni e non collassi
+'.spec-box{min-height:230px;width:100%;display:block;background:#f9fbf9;border-radius:8px;overflow:hidden}',
+'.spec-box svg{width:100%!important;height:240px!important;min-height:240px;display:block;background:#f9fbf9}','.spec-box{min-height:240px!important;height:auto!important}',
+// NMR 2D: forza sfondo scuro sui pannelli così il testo chiaro è leggibile
+'#snoe #noeContent,#snoe #noeTable,#snoe #noeDiagram{background:#0a1628!important;border-radius:10px;padding:14px!important;color:#e2e8f0!important;margin-bottom:12px}',
+'#snoe #noeContent *,#snoe #noeTable *{color:inherit}',
+'#snoe #noeContent p{color:#e2e8f0!important}',
+'#snoe #noeTitle{color:#00d4aa!important;background:transparent!important}',
+// Garantisce contrasto su eventuali pannelli figli del NMR 2D
+'#snoe .panel,#snoe [class*="panel"]{background:#0c1828!important;color:#e2e8f0!important}',
+'#snoe h2,#snoe h3{color:#00d4aa!important}',
+// Competitor box
+'.bsi107-comp{background:#0c1828;border:1px solid #1e3a52;border-radius:10px;padding:12px 14px;margin-bottom:8px}',
+'.bsi107-comp a{color:#4fc3f7;text-decoration:none;font-weight:700;font-size:14px}',
+'.bsi107-comp a:hover{text-decoration:underline}',
+'.bsi107-comp .d{color:#bcd3e8;font-size:12.5px;margin-top:3px;line-height:1.5}',
+'.bsi107-comp .s{color:#7a96b0;font-size:11px;font-style:italic;margin-top:2px}',
+'.bsi107-sec{color:#1fd39a;font-size:15px;font-weight:800;margin:18px 0 10px}',
+// Stechiometria
+'#ssteich .bsi107-st{max-width:880px;margin:0 auto}',
+'#ssteich .bsi107-card{background:#0c1828;border:1px solid #1e3a52;border-radius:12px;padding:16px 18px;margin-bottom:14px}',
+'#ssteich .bsi107-card h3{color:#1fd39a;margin:0 0 8px;font-size:1rem}',
+'#ssteich .bsi107-card p,#ssteich .bsi107-card li{color:#cfe2f5;font-size:13px;line-height:1.6}',
+'#ssteich .bsi107-f{font-family:monospace;background:#0a1628;padding:2px 7px;border-radius:5px;color:#7df5c5}',
+'#ssteich input{padding:9px;background:#0f2040;border:1px solid #2a4a6a;color:#e8f4ff;border-radius:7px;font-family:monospace;font-size:13px;outline:none}',
+'#ssteich .bsi107-btn{padding:9px 18px;background:#1fd39a;border:none;border-radius:7px;color:#04140d;font-weight:800;cursor:pointer;font-size:13px}',
+'#ssteich .bsi107-out{margin-top:10px;padding:12px;background:#0a1628;border-radius:8px;color:#7df5c5;font-family:monospace;font-size:13px;min-height:20px;white-space:pre-line}'
+].join('\n');
+document.head.appendChild(css);
+
+// ── FIX 3: Competitor in Risorse Web (aggancio a initResources) ─────────
+var competitors = [
+  {cat:'Spettroscopia NMR/IR didattica', items:[
+    {n:'NMRium', u:'https://www.nmrium.org', d:'Processing reale di spettri NMR (JCAMP-DX, Bruker) nel browser. PWA open-source.', s:'Patiny et al., Beilstein J. Org. Chem. 2024'},
+    {n:'NMR-Challenge.com', u:'https://nmr-challenge.com', d:'Esercizi interattivi di determinazione strutturale da spettri reali.', s:'Osifová et al., J. Chem. Educ. 2023'},
+    {n:'iSpec', u:'https://ispec.au.dk', d:'Attività web gamificata sulla spettroscopia.', s:'Vosegaard, J. Chem. Educ. 2018'},
+    {n:'SpinDrops', u:'https://spindrops.de', d:'Visualizzazione interattiva dei fenomeni quantistici NMR.', s:'Diermann et al., J. Chem. Educ. 2024'},
+    {n:'nmrdb.org', u:'https://www.nmrdb.org', d:'Predizione NMR con algoritmo HOSE.', s:'Banfi & Patiny, Chimia 2008'},
+    {n:'ir.cheminfo.org', u:'https://ir.cheminfo.org', d:'Spettri IR simulati interattivi.', s:'Patiny group'}
+  ]},
+  {cat:'Cheminformatica e visualizzazione 3D', items:[
+    {n:'ChemDoodle Web', u:'https://web.chemdoodle.com', d:'Libreria JS: editor, simulazione NMR/MS, viewer 3D WebGL.', s:'iChemLabs'},
+    {n:'Kekule.js', u:'http://partridgejiang.github.io/Kekule.js/', d:'Toolkit JS open-source per cheminformatica.', s:'Jiang et al., JCIM 2016'},
+    {n:'MolView', u:'https://molview.org', d:'Visualizzazione 3D molecole basata su WebGL.', s:'open'},
+    {n:'RDKit-JS', u:'https://github.com/rdkit/rdkit-js', d:'Porting JavaScript di RDKit.', s:'open'},
+    {n:'Jmol', u:'http://jmol.sourceforge.net', d:'Viewer 3D storico per proteine.', s:'open'}
+  ]},
+  {cat:'Vie metaboliche e biochimica', items:[
+    {n:'KEGG', u:'https://www.kegg.jp', d:'Database di riferimento per pathway biochimici (migliaia di vie).', s:'Kanehisa et al.'},
+    {n:'Reactome', u:'https://reactome.org', d:'Database open-source di pathway biologici.', s:'Stein et al.'},
+    {n:'MetExploreViz', u:'https://metexplore.toulouse.inra.fr/metexploreViz', d:'Visualizzazione di reti metaboliche.', s:'Chazalviel et al., Bioinformatics 2017'},
+    {n:'MetPath', u:'http://www.metpath.teithe.gr', d:'Mappa interattiva del metabolismo energetico.', s:'Kalogiannis et al., BMBE 2014'}
+  ]}
+];
+
+function bsi107_compHTML(){
+  var h = '<div style="border-top:2px solid #1e3a52;margin-top:24px;padding-top:18px">'
+    + '<h2 style="color:#1B5E20;margin:6px 0 4px">Strumenti analoghi e riferimenti (per confronto e attribuzione)</h2>'
+    + '<p style="color:#6b7280;font-size:12.5px;margin-bottom:14px;line-height:1.5">Strumenti web didattici esistenti nel campo della cheminformatica e spettroscopia. Citati per trasparenza e corretta attribuzione del lavoro altrui.</p>';
+  competitors.forEach(function(g){
+    h += '<div class="bsi107-sec">'+g.cat+'</div>';
+    g.items.forEach(function(it){
+      h += '<div class="bsi107-comp"><a href="'+it.u+'" target="_blank" rel="noopener">'+it.n+' \u2197</a>'
+         + '<div class="d">'+it.d+'</div><div class="s">'+it.s+'</div></div>';
+    });
+  });
+  h += '</div>';
+  return h;
+}
+
+// Aggancio: dopo initResources, aggiungo i competitor (se non già presenti)
+if(typeof window.initResources === 'function'){
+  var _origRes = window.initResources;
+  window.initResources = function(){
+    _origRes.apply(this, arguments);
+    var sec = document.getElementById('srisorse');
+    if(sec && !sec.querySelector('.bsi107-comp')){
+      var div = document.createElement('div');
+      div.innerHTML = bsi107_compHTML();
+      sec.appendChild(div);
+    }
+  };
+}
+
+// ── FIX 4: Sezione Stechiometria (initStechio mai definita) ─────────────
+window.initStechio = function(){
+  var sec = document.getElementById('ssteich');
+  if(!sec || sec.querySelector('.bsi107-st')) return;
+  sec.innerHTML =
+   '<div class="bsi107-st">'
+   +'<h2 style="color:#1B5E20;margin:6px 0 14px">\u2697\uFE0F Stechiometria</h2>'
+   +'<div class="bsi107-card"><h3>Concetti fondamentali</h3>'
+     +'<p><b>Mole:</b> 1 mol = 6.022\u00d710\u00b2\u00b3 entit\u00e0 (numero di Avogadro). <br>'
+     +'<b>Massa molare (M):</b> grammi per mole (g/mol), pari alla somma delle masse atomiche. <br>'
+     +'<b>Numero di moli:</b> <span class="bsi107-f">n = m / M</span> dove m \u00e8 la massa in grammi. <br>'
+     +'<b>Concentrazione molare:</b> <span class="bsi107-f">C = n / V</span> (mol/L). <br>'
+     +'<b>Diluizione:</b> <span class="bsi107-f">C\u2081V\u2081 = C\u2082V\u2082</span>.</p></div>'
+   +'<div class="bsi107-card"><h3>Reagente limitante e resa</h3>'
+     +'<p>In una reazione <span class="bsi107-f">aA + bB \u2192 cC</span>, il <b>reagente limitante</b> \u00e8 quello che si esaurisce per primo: si calcola confrontando n(A)/a con n(B)/b (il pi\u00f9 piccolo limita). <br>'
+     +'<b>Resa teorica:</b> massa massima di prodotto dalla stechiometria. <br>'
+     +'<b>Resa percentuale:</b> <span class="bsi107-f">resa% = (resa reale / resa teorica) \u00d7 100</span>.</p></div>'
+   +'<div class="bsi107-card"><h3>Calcolatore: massa \u2194 moli</h3>'
+     +'<p style="margin-bottom:8px">Inserisci due valori, lascia vuoto il terzo:</p>'
+     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+       +'<input id="bsi107-m" type="number" placeholder="massa (g)" style="width:120px">'
+       +'<input id="bsi107-mm" type="number" placeholder="M (g/mol)" style="width:120px">'
+       +'<input id="bsi107-n" type="number" placeholder="moli (mol)" style="width:120px">'
+       +'<button class="bsi107-btn" id="bsi107-calc">Calcola</button></div>'
+     +'<div class="bsi107-out" id="bsi107-stout">n = m / M \u00b7 inserisci due valori</div></div>'
+   +'<div class="bsi107-card"><h3>Bilanciamento: regole rapide</h3>'
+     +'<p>1. Bilancia prima gli atomi diversi da H e O. <br>2. Poi O, infine H. <br>'
+     +'3. Usa coefficienti interi minimi. <br>4. Verifica la conservazione della carica (reazioni ioniche). <br>'
+     +'Esempio: <span class="bsi107-f">C\u2086H\u2081\u2082O\u2086 + 6 O\u2082 \u2192 6 CO\u2082 + 6 H\u2082O</span> (combustione del glucosio).</p></div>'
+   +'</div>';
+  var btn = document.getElementById('bsi107-calc');
+  if(btn) btn.onclick = function(){
+    var m=parseFloat(document.getElementById('bsi107-m').value);
+    var mm=parseFloat(document.getElementById('bsi107-mm').value);
+    var n=parseFloat(document.getElementById('bsi107-n').value);
+    var out=document.getElementById('bsi107-stout'), r='';
+    if(!isNaN(m)&&!isNaN(mm)&&isNaN(n)){ r='n = '+(m/mm).toFixed(4)+' mol'; }
+    else if(!isNaN(n)&&!isNaN(mm)&&isNaN(m)){ r='m = '+(n*mm).toFixed(4)+' g'; }
+    else if(!isNaN(m)&&!isNaN(n)&&isNaN(mm)){ r='M = '+(m/n).toFixed(4)+' g/mol'; }
+    else { r='Inserisci esattamente due valori, lascia vuoto il terzo.'; }
+    out.textContent = r;
+  };
+};
+// Se la sezione è già aperta ora, popolala
+if(document.getElementById('ssteich') && document.getElementById('ssteich').offsetParent !== null){
+  try{ window.initStechio(); }catch(e){}
+}
+
+console.log('BioSpecInfo v10.7 fix caricati \u2714 (NMR grafico, NMR 2D contrasto, competitor, stechiometria)');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH — BioSpecInfo v10.8
+// Avviso "Retrosintesi avanzata" con link a strumenti professionali.
+// Additivo, namespaced bsi108_. Non tocca il core.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+
+var css = document.createElement('style');
+css.textContent = [
+'.bsi108-adv{background:linear-gradient(135deg,#0c2030,#0e2840);border:1px solid #1fd39a;border-radius:14px;padding:16px 18px;margin:16px auto;max-width:900px}',
+'.bsi108-adv h3{color:#1fd39a;margin:0 0 8px;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}',
+'.bsi108-adv p{color:#cfe2f5;font-size:13px;line-height:1.6;margin:0 0 12px}',
+'.bsi108-tools{display:flex;flex-wrap:wrap;gap:8px}',
+'.bsi108-tool{display:block;background:#0a1828;border:1px solid #1e3a52;border-radius:9px;padding:9px 13px;text-decoration:none;transition:.15s;flex:1 1 200px;min-width:180px}',
+'.bsi108-tool:hover{border-color:#1fd39a;background:#11283f}',
+'.bsi108-tool .nm{color:#4fc3f7;font-weight:700;font-size:13px}',
+'.bsi108-tool .ds{color:#9fb8d0;font-size:11px;margin-top:2px;line-height:1.4}'
+].join('\n');
+document.head.appendChild(css);
+
+var advTools = [
+  {n:'IBM RXN for Chemistry', u:'https://rxn.res.ibm.com', d:'Retrosintesi AI gratuita: inserisci qualsiasi molecola e ottieni vie di sintesi predette. Richiede registrazione gratuita.'},
+  {n:'ASKCOS (MIT)', u:'https://askcos.mit.edu', d:'Pianificazione retrosintetica open-source del MIT, basata su machine learning su milioni di reazioni.'},
+  {n:'Synthia\u2122 (Merck)', u:'https://www.synthiaonline.com', d:'Software professionale di retrosintesi (ex Chematica). Standard commerciale, a pagamento.'},
+  {n:'Reaxys', u:'https://www.reaxys.com', d:'Database di reazioni e pianificazione sintetica (Elsevier). Accesso tipicamente via universit\u00e0.'},
+  {n:'SciFinder-n', u:'https://scifinder-n.cas.org', d:'CAS: ricerca reazioni e retrosintesi. Accesso tramite biblioteca accademica.'}
+];
+
+function bsi108_advHTML(){
+  var h = '<div class="bsi108-adv"><h3>\uD83E\uDDEA Retrosintesi di molecole complesse \u2014 strumenti avanzati</h3>'
+    + '<p>Questa sezione mostra <b>retrosintesi didattiche precompilate</b> con reazioni, condizioni e catalizzatori reali, pensate per i casi tipici del corso. '
+    + 'Per la pianificazione retrosintetica <b>automatica di molecole arbitrariamente complesse</b> (con scelta di vie alternative, reagenti industriali e catalizzatori specifici), servono motori dedicati basati su database di milioni di reazioni e intelligenza artificiale. I principali, anche gratuiti, sono:</p>'
+    + '<div class="bsi108-tools">';
+  advTools.forEach(function(t){
+    h += '<a class="bsi108-tool" href="'+t.u+'" target="_blank" rel="noopener"><span class="nm">'+t.n+' \u2197</span><span class="ds">'+t.d+'</span></a>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function bsi108_inject(){
+  var sec = document.getElementById('sretro');
+  if(!sec) return false;
+  if(sec.querySelector('.bsi108-adv')) return true;
+  var div = document.createElement('div');
+  div.innerHTML = bsi108_advHTML();
+  // inserisco in cima alla sezione, subito dopo un eventuale titolo
+  var h2 = sec.querySelector('h2');
+  if(h2 && h2.parentNode) h2.parentNode.insertBefore(div.firstChild, h2.nextSibling);
+  else sec.insertBefore(div.firstChild, sec.firstChild);
+  return true;
+}
+
+// Aggancio a initRetro (se esiste) + fallback su click nav + tentativo ritardato
+if(typeof window.initRetro === 'function'){
+  var _origRetro = window.initRetro;
+  window.initRetro = function(){
+    _origRetro.apply(this, arguments);
+    setTimeout(bsi108_inject, 60);
+  };
+}
+// Fallback: quando si clicca il bottone nav retrosintesi
+document.addEventListener('click', function(e){
+  var b = e.target && e.target.closest ? e.target.closest('[data-s="sretro"]') : null;
+  if(b) setTimeout(bsi108_inject, 120);
+});
+// Tentativo iniziale (se la sezione è già nel DOM)
+setTimeout(bsi108_inject, 800);
+
+console.log('BioSpecInfo v10.8 \u2014 avviso retrosintesi avanzata caricato \u2714');
+})();
+</script>
+
+
+
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH — BioSpecInfo v10.9
+// Sezione "Tossicologia & Antidoti" (taglio clinico-didattico) + Donazioni.
+// Additivo, namespaced bsi109_. Autonomo (modale proprio). Non tocca il core.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+
+var css = document.createElement('style');
+css.textContent = [
+'#bsi109-modal{position:fixed;inset:0;z-index:99997;display:none;align-items:center;justify-content:center;background:rgba(2,8,16,.82);backdrop-filter:blur(4px);padding:16px}',
+'#bsi109-modal.open{display:flex}',
+'#bsi109-box{background:#0c1828;border:1px solid #1e3a52;border-radius:16px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.6)}',
+'#bsi109-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #1e3a52;position:sticky;top:0;background:#0c1828;z-index:2}',
+'#bsi109-head h3{margin:0;color:#1fd39a;font-size:1rem;font-weight:800}',
+'#bsi109-x{background:#16293f;border:none;color:#cfe2f5;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:17px}',
+'#bsi109-x:hover{background:#1e3a52}',
+'#bsi109-body{padding:18px}',
+'#bsi109-search{width:100%;padding:11px 14px;background:#0a1628;border:1px solid #1e3a52;border-radius:10px;color:#e8f4ff;font-size:14px;outline:none;margin-bottom:14px;box-sizing:border-box}',
+'#bsi109-search:focus{border-color:#1fd39a}',
+'.bsi109-tox{background:#11243a;border:1px solid #1e3a52;border-radius:11px;padding:13px 15px;margin-bottom:9px}',
+'.bsi109-tox .nm{color:#ff8a80;font-weight:800;font-size:14px}',
+'.bsi109-tox .cls{color:#7a96b0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}',
+'.bsi109-tox .row{display:flex;gap:8px;margin-top:5px;font-size:12.5px;line-height:1.5}',
+'.bsi109-tox .row .k{color:#1fd39a;font-weight:700;min-width:92px;flex-shrink:0}',
+'.bsi109-tox .row .v{color:#cfe2f5}',
+'.bsi109-tox .anti{background:#0c3a28;border-radius:7px;padding:7px 10px;margin-top:7px}',
+'.bsi109-tox .anti .k{color:#7df5c5}',
+'.bsi109-warn{background:#3a1418;border:1px solid #e05260;border-radius:10px;padding:12px 15px;margin-bottom:14px;color:#ffb3ba;font-size:12.5px;line-height:1.6}',
+'.bsi109-warn b{color:#ff8a80}',
+'.bsi109-cat{color:#1fd39a;font-size:15px;font-weight:800;margin:18px 0 10px}',
+'.bsi109-don{background:linear-gradient(135deg,#0c2030,#10283e);border:1px solid #ffd54f;border-radius:14px;padding:18px 20px;text-align:center}',
+'.bsi109-don h3{color:#ffd54f;margin:0 0 8px;font-size:1.1rem}',
+'.bsi109-don p{color:#cfe2f5;font-size:13px;line-height:1.6;margin:0 0 14px}',
+'.bsi109-don a.btn{display:inline-block;background:#ffd54f;color:#1a1400;font-weight:800;padding:12px 26px;border-radius:10px;text-decoration:none;font-size:14px;transition:.15s}',
+'.bsi109-don a.btn:hover{background:#ffe082;transform:scale(1.04)}'
+].join('\n');
+document.head.appendChild(css);
+
+var modal = document.createElement('div');
+modal.id = 'bsi109-modal';
+modal.innerHTML = '<div id="bsi109-box"><div id="bsi109-head"><h3 id="bsi109-title"></h3>'
+  + '<button id="bsi109-x">\u2715</button></div><div id="bsi109-body"></div></div>';
+document.body.appendChild(modal);
+document.getElementById('bsi109-x').onclick = function(){ modal.classList.remove('open'); };
+modal.onclick = function(e){ if(e.target===modal) modal.classList.remove('open'); };
+
+function bsi109_show(title, html){
+  document.getElementById('bsi109-title').textContent = title;
+  document.getElementById('bsi109-body').innerHTML = html;
+  modal.classList.add('open');
+}
+
+var toxData = [
+  {cat:'Farmaci e sostanze ad azione centrale', items:[
+    {nm:'Oppioidi (morfina, eroina, fentanil)', cls:'Agonisti recettori \u03bc-oppioidi',
+     mecc:'Attivazione dei recettori \u03bc nel SNC \u2192 analgesia e depressione del centro respiratorio.',
+     sint:'Triade: miosi puntiforme, depressione respiratoria, coma. Cianosi, bradicardia.',
+     anti:'Naloxone (antagonista competitivo, e.v./i.m./intranasale). Supporto ventilatorio.'},
+    {nm:'Benzodiazepine (diazepam, alprazolam)', cls:'Modulatori allosterici GABA-A',
+     mecc:'Potenziano l\'azione del GABA \u2192 maggiore ingresso di Cl\u207b, depressione del SNC.',
+     sint:'Sedazione, atassia, disartria; in overdose depressione respiratoria (specie con alcol/oppioidi).',
+     anti:'Flumazenil (antagonista; uso cauto: rischio convulsioni nei dipendenti cronici).'},
+    {nm:'Antidepressivi triciclici (amitriptilina)', cls:'Inibitori reuptake + blocco canali Na\u207a',
+     mecc:'Cardiotossicit\u00e0 da blocco dei canali del sodio; marcati effetti anticolinergici.',
+     sint:'Tachicardia, allargamento del QRS, ipotensione, convulsioni, coma, aritmie.',
+     anti:'Bicarbonato di sodio e.v. (restringe il QRS). Monitoraggio ECG continuo.'},
+    {nm:'Etanolo / Metanolo', cls:'Alcoli \u2014 depressori del SNC',
+     mecc:'Etanolo: depressione SNC. Metanolo: ossidato ad acido formico \u2192 acidosi e tossicit\u00e0 retinica.',
+     sint:'Metanolo: acidosi metabolica grave, disturbi visivi fino alla cecit\u00e0.',
+     anti:'Metanolo: fomepizolo (inibitore dell\'alcol-deidrogenasi) o etanolo; dialisi; bicarbonato.'},
+    {nm:'Cocaina / Anfetamine', cls:'Stimolanti simpaticomimetici',
+     mecc:'Aumento di dopamina e noradrenalina sinaptiche \u2192 iperattivazione simpatica.',
+     sint:'Ipertensione, tachicardia, ipertermia, agitazione, midriasi; rischio di ictus e infarto.',
+     anti:'Nessun antidoto specifico. Benzodiazepine per l\'agitazione, raffreddamento, terapia di supporto.'}
+  ]},
+  {cat:'Farmaci comuni in sovradosaggio', items:[
+    {nm:'Paracetamolo (acetaminofene)', cls:'Analgesico / antipiretico',
+     mecc:'In overdose si accumula il metabolita NAPQI che esaurisce il glutatione \u2192 necrosi epatica.',
+     sint:'Fase iniziale aspecifica; dopo 24-72h danno epatico (transaminasi elevate, ittero).',
+     anti:'N-acetilcisteina (rigenera il glutatione). Massima efficacia se somministrata precocemente.'},
+    {nm:'Salicilati (aspirina)', cls:'FANS',
+     mecc:'Disaccoppiamento della fosforilazione ossidativa; stimolo del centro respiratorio.',
+     sint:'Alcalosi respiratoria poi acidosi metabolica, tinnito, iperventilazione, ipertermia.',
+     anti:'Bicarbonato (alcalinizzazione delle urine), reidratazione, emodialisi nei casi gravi.'},
+    {nm:'Digossina', cls:'Glicoside cardiaco',
+     mecc:'Inibizione della pompa Na\u207a/K\u207a-ATPasi; finestra terapeutica molto stretta.',
+     sint:'Nausea, alterazioni visive (xantopsia), aritmie, iperkaliemia.',
+     anti:'Frammenti anticorpali anti-digossina (Fab). Correzione degli elettroliti.'},
+    {nm:'Warfarin / anticoagulanti orali', cls:'Antagonisti della vitamina K',
+     mecc:'Inibizione della sintesi dei fattori della coagulazione vit-K dipendenti (II, VII, IX, X).',
+     sint:'Emorragie, ematomi, sanguinamento delle mucose, INR elevato.',
+     anti:'Vitamina K1 (fitomenadione); plasma fresco o concentrato di complesso protrombinico.'}
+  ]},
+  {cat:'Veleni e tossici ambientali / industriali', items:[
+    {nm:'Cianuro', cls:'Tossico cellulare',
+     mecc:'Blocca la citocromo-c-ossidasi (complesso IV) \u2192 arresto della respirazione cellulare.',
+     sint:'Cefalea, dispnea, acidosi lattica, convulsioni, arresto cardiaco rapido.',
+     anti:'Idrossicobalamina e.v.; in alternativa nitriti + tiosolfato di sodio.'},
+    {nm:'Monossido di carbonio (CO)', cls:'Gas asfissiante',
+     mecc:'Affinit\u00e0 per l\'emoglobina ~250\u00d7 quella dell\'O\u2082 \u2192 carbossiemoglobina, ipossia tissutale.',
+     sint:'Cefalea, vertigini, confusione, coma. Il pulsossimetro pu\u00f2 dare valori falsamente normali.',
+     anti:'Ossigeno 100% ad alti flussi; ossigenoterapia iperbarica nei casi gravi.'},
+    {nm:'Organofosfati (insetticidi, agenti nervini)', cls:'Inibitori dell\'acetilcolinesterasi',
+     mecc:'Inibizione dell\'AChE \u2192 accumulo di acetilcolina alle sinapsi.',
+     sint:'Sindrome colinergica: salivazione, lacrimazione, miosi, bradicardia, broncorrea, fascicolazioni.',
+     anti:'Atropina (blocca gli effetti muscarinici) + pralidossima (riattiva l\'AChE).'},
+    {nm:'Metalli pesanti (piombo, arsenico, mercurio)', cls:'Tossici cumulativi',
+     mecc:'Legame ai gruppi tiolici di enzimi e proteine; danno multiorgano.',
+     sint:'Variabili: dolori addominali, neuropatia periferica, encefalopatia, danno renale.',
+     anti:'Agenti chelanti: dimercaprolo (BAL), DMSA (succimer), EDTA, penicillamina.'},
+    {nm:'Ferro (sovradosaggio, spesso pediatrico)', cls:'Metallo essenziale in eccesso',
+     mecc:'Tossicit\u00e0 diretta sulla mucosa gastrointestinale e sulle cellule; acidosi metabolica.',
+     sint:'Vomito (anche ematico), diarrea, shock, danno epatico tardivo.',
+     anti:'Deferoxamina (chelante del ferro) e.v.'}
+  ]}
+];
+
+function bsi109_toxHTML(filter){
+  filter=(filter||'').toLowerCase();
+  var h = '<div class="bsi109-warn"><b>\u26a0\uFE0F Avviso.</b> Sezione a scopo <b>esclusivamente didattico</b> (tossicologia e farmacologia per studenti CTF). Non sostituisce il parere medico. In caso di sospetta intossicazione reale, <b>chiama il 112</b> o il <b>Centro Antiveleni</b>. I trattamenti vanno somministrati solo da personale sanitario.</div>';
+  h += '<input id="bsi109-search" placeholder="\uD83D\uDD0D Cerca sostanza, sintomo o antidoto..." value="'+(filter||'')+'">';
+  var count=0;
+  toxData.forEach(function(g){
+    var matches = g.items.filter(function(it){
+      if(!filter) return true;
+      return (it.nm+' '+it.cls+' '+it.mecc+' '+it.sint+' '+it.anti).toLowerCase().indexOf(filter)>=0;
+    });
+    if(!matches.length) return;
+    h += '<div class="bsi109-cat">'+g.cat+'</div>';
+    matches.forEach(function(it){
+      count++;
+      h += '<div class="bsi109-tox"><div class="nm">'+it.nm+'</div><div class="cls">'+it.cls+'</div>'
+        + '<div class="row"><span class="k">Meccanismo</span><span class="v">'+it.mecc+'</span></div>'
+        + '<div class="row"><span class="k">Sintomi</span><span class="v">'+it.sint+'</span></div>'
+        + '<div class="anti row"><span class="k">Antidoto / Terapia</span><span class="v">'+it.anti+'</span></div></div>';
+    });
+  });
+  if(filter && !count) h += '<p style="color:#bcd3e8">Nessun risultato per "'+filter+'".</p>';
+  return h;
+}
+
+function bsi109_bindSearch(){
+  var s=document.getElementById('bsi109-search');
+  if(!s) return;
+  s.oninput=function(){
+    var v=this.value, pos=this.selectionStart;
+    document.getElementById('bsi109-body').innerHTML=bsi109_toxHTML(v);
+    var ns=document.getElementById('bsi109-search');
+    if(ns){ ns.focus(); ns.setSelectionRange(pos,pos); bsi109_bindSearch(); }
+  };
+}
+
+window.bsi109_openTox = function(){
+  bsi109_show('Tossicologia & Antidoti', bsi109_toxHTML(''));
+  setTimeout(bsi109_bindSearch, 40);
+};
+
+window.bsi109_openDonate = function(){
+  bsi109_show('Sostieni il progetto',
+    '<div class="bsi109-don"><h3>\uD83D\uDC9a BioSpecInfo \u00e8 gratuito</h3>'
+    +'<p>BioSpecInfo \u00e8 e rester\u00e0 gratuito e senza pubblicit\u00e0. \u00c8 un progetto realizzato da uno studente di Chimica e Tecnologie Farmaceutiche. Se ti \u00e8 utile e vuoi sostenere lo sviluppo, puoi lasciare una donazione libera, a piacere, anche piccola. Grazie di cuore!</p>'
+    +'<a class="btn" href="https://www.paypal.me/samupropio96" target="_blank" rel="noopener">Sostieni con PayPal \u2197</a>'
+    +'<p style="margin-top:14px;font-size:11px;color:#7a96b0">Donazione volontaria \u00b7 nessun obbligo \u00b7 tutte le funzioni restano gratuite</p></div>');
+};
+
+function bsi109_addMenu(){
+  var menu=document.getElementById('bsi105-menu');
+  if(!menu){ setTimeout(bsi109_addMenu,500); return; }
+  var tox=document.createElement('div');
+  tox.className='bsi105-mi';
+  tox.innerHTML='<span class="ic">\u2620\uFE0F</span><span>Tossicologia & Antidoti</span>';
+  tox.onclick=function(){menu.classList.remove('open');window.bsi109_openTox();};
+  menu.appendChild(tox);
+  var don=document.createElement('div');
+  don.className='bsi105-mi';
+  don.innerHTML='<span class="ic">\uD83D\uDC9a</span><span>Sostieni il progetto</span>';
+  don.onclick=function(){menu.classList.remove('open');window.bsi109_openDonate();};
+  menu.appendChild(don);
+}
+bsi109_addMenu();
+
+console.log('BioSpecInfo v10.9 \u2014 Tossicologia & Donazioni caricato \u2714');
+})();
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MASTER PATCH — BioSpecInfo v11.0
+// Leggibilità NMR 2D / UV · Stechiometria completa · Laboratorio ricco.
+// Additivo, namespaced bsi110_. Non tocca il core.
+// ═══════════════════════════════════════════════════════════════════════
+(function(){
+'use strict';
+var css=document.createElement('style');
+css.textContent=[
+// ── Leggibilità NMR 2D e UV: ingrandisce diagrammi e testo ──
+'#snoe svg,#suvvis svg{width:100%!important;height:auto!important;max-width:640px;display:block;margin:0 auto}',
+'#snoe,#suvvis{font-size:14px!important;line-height:1.65!important}',
+'#snoe p,#snoe li,#snoe span,#snoe td,#suvvis p,#suvvis li,#suvvis span{font-size:14px!important;line-height:1.6!important;color:#dce8f5!important}',
+'#snoe h2,#suvvis h2{font-size:1.25rem!important}',
+'#snoe h3,#suvvis h3{font-size:1.05rem!important;color:#1fd39a!important}',
+'#snoe .grid,#snoe [style*="grid"],#suvvis [style*="grid"]{grid-template-columns:1fr!important;gap:14px!important}',
+'#snoe table,#suvvis table{width:100%!important;font-size:13.5px!important}',
+'#snoe table td,#snoe table th{padding:8px!important}',
+// box generali per le nuove sezioni
+'.bsi110-wrap{max-width:920px;margin:0 auto}',
+'.bsi110-card{background:#0c1828;border:1px solid #1e3a52;border-radius:13px;padding:17px 19px;margin-bottom:14px}',
+'.bsi110-card h3{color:#1fd39a;margin:0 0 10px;font-size:1.08rem;font-weight:800}',
+'.bsi110-card h4{color:#7df5c5;margin:14px 0 6px;font-size:.97rem;font-weight:700}',
+'.bsi110-card p,.bsi110-card li{color:#cfe2f5;font-size:13.5px;line-height:1.7}',
+'.bsi110-card ul,.bsi110-card ol{margin:6px 0 6px 4px;padding-left:18px}',
+'.bsi110-card li{margin-bottom:5px}',
+'.bsi110-f{font-family:monospace;background:#0a1628;padding:2px 8px;border-radius:5px;color:#7df5c5;font-size:13px}',
+'.bsi110-ex{background:#0a1f18;border-left:3px solid #1fd39a;border-radius:6px;padding:11px 14px;margin:10px 0}',
+'.bsi110-ex .t{color:#1fd39a;font-weight:700;font-size:12.5px;margin-bottom:5px}',
+'.bsi110-safe{background:#2a1810;border-left:3px solid #ff9800;border-radius:6px;padding:9px 13px;margin:8px 0;color:#ffd9a0;font-size:12.5px}',
+'.bsi110-cat{color:#4fc3f7;font-size:1.15rem;font-weight:800;margin:22px 0 12px;padding-bottom:6px;border-bottom:2px solid #1e3a52}',
+'.bsi110-calc{background:#0a1628;border:1px solid #2a4a6a;border-radius:10px;padding:14px;margin:10px 0}',
+'.bsi110-calc label{display:block;color:#9fb8d0;font-size:12px;margin:7px 0 3px}',
+'.bsi110-calc input,.bsi110-calc select{width:100%;padding:9px;background:#0c1828;border:1px solid #2a4a6a;color:#e8f4ff;border-radius:7px;font-size:13px;box-sizing:border-box}',
+'.bsi110-calc button{margin-top:10px;padding:10px 20px;background:#1fd39a;border:none;border-radius:8px;color:#04140d;font-weight:800;cursor:pointer;font-size:13px}',
+'.bsi110-calc .out{margin-top:10px;padding:11px;background:#0c3a28;border-radius:7px;color:#7df5c5;font-family:monospace;font-size:14px;min-height:18px}',
+'.bsi110-proc{counter-reset:step}',
+'.bsi110-proc li{margin-bottom:8px}',
+'.bsi110-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}',
+'.bsi110-tab{padding:8px 14px;background:#11243a;border:1px solid #1e3a52;border-radius:8px;color:#cfe2f5;font-size:12.5px;font-weight:700;cursor:pointer}',
+'.bsi110-tab.active{background:#1fd39a;color:#04140d;border-color:#1fd39a}'
+].join('\n');
+document.head.appendChild(css);
+
+// ════════════════ STECHIOMETRIA COMPLETA ════════════════
+function bsi110_stechHTML(){
+  return '<div class="bsi110-wrap">'
+  +'<h2 style="color:#1B5E20;margin:6px 0 14px">\u2697\uFE0F Stechiometria</h2>'
+  +'<div class="bsi110-card"><h3>1. La mole e la massa molare</h3>'
+    +'<p>La <b>mole</b> \u00e8 l\'unit\u00e0 di quantit\u00e0 di sostanza: 1 mol contiene <span class="bsi110-f">N\u1d00 = 6,022\u00d710\u00b2\u00b3</span> entit\u00e0 (numero di Avogadro).</p>'
+    +'<p>La <b>massa molare M</b> (g/mol) \u00e8 la somma delle masse atomiche degli elementi. Numero di moli:</p>'
+    +'<p style="text-align:center"><span class="bsi110-f">n = m / M</span> &nbsp;&nbsp; m = massa (g), M = massa molare (g/mol)</p>'
+    +'<div class="bsi110-ex"><div class="t">Esempio</div>Quante moli in 18 g di acqua (M = 18 g/mol)? &rarr; n = 18/18 = <b>1 mol</b> (= 6,022\u00d710\u00b2\u00b3 molecole).</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>2. Calcolatore: moli \u2194 massa</h3>'
+    +'<div class="bsi110-calc">'
+      +'<label>Massa (g)</label><input id="bsi110-m" type="number" placeholder="es. 18">'
+      +'<label>Massa molare M (g/mol)</label><input id="bsi110-M" type="number" placeholder="es. 18">'
+      +'<button onclick="bsi110_calcMol()">Calcola moli</button>'
+      +'<div class="out" id="bsi110-molout">n = \u2026</div>'
+    +'</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>3. Concentrazioni</h3>'
+    +'<ul>'
+    +'<li><b>Molarit\u00e0 (M):</b> <span class="bsi110-f">C = n / V</span> mol per litro di soluzione.</li>'
+    +'<li><b>Molalit\u00e0 (m):</b> moli di soluto per kg di solvente.</li>'
+    +'<li><b>% m/m:</b> (g soluto / g soluzione) \u00d7 100.</li>'
+    +'<li><b>% m/V:</b> (g soluto / mL soluzione) \u00d7 100.</li>'
+    +'<li><b>ppm:</b> mg di soluto per kg (o L) di soluzione.</li>'
+    +'<li><b>Frazione molare (x):</b> moli componente / moli totali.</li>'
+    +'</ul>'
+    +'<h4>Calcolatore molarit\u00e0</h4>'
+    +'<div class="bsi110-calc">'
+      +'<label>Moli di soluto (mol)</label><input id="bsi110-n2" type="number" placeholder="es. 0.5">'
+      +'<label>Volume soluzione (L)</label><input id="bsi110-V2" type="number" placeholder="es. 2">'
+      +'<button onclick="bsi110_calcC()">Calcola C</button>'
+      +'<div class="out" id="bsi110-cout">C = \u2026</div>'
+    +'</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>4. Diluizioni</h3>'
+    +'<p>In una diluizione le moli di soluto si conservano:</p>'
+    +'<p style="text-align:center"><span class="bsi110-f">C\u2081 V\u2081 = C\u2082 V\u2082</span></p>'
+    +'<div class="bsi110-calc">'
+      +'<label>C\u2081 iniziale (M)</label><input id="bsi110-c1" type="number" placeholder="es. 1">'
+      +'<label>V\u2082 finale desiderato (mL)</label><input id="bsi110-v2f" type="number" placeholder="es. 100">'
+      +'<label>C\u2082 finale (M)</label><input id="bsi110-c2" type="number" placeholder="es. 0.1">'
+      +'<button onclick="bsi110_calcDil()">Calcola V\u2081 da prelevare</button>'
+      +'<div class="out" id="bsi110-dilout">V\u2081 = \u2026</div>'
+    +'</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>5. Bilanciamento e rapporti stechiometrici</h3>'
+    +'<p>In <span class="bsi110-f">a A + b B \u2192 c C + d D</span> i coefficienti danno i rapporti molari. Bilanciare = conservare gli atomi di ogni elemento ai due lati.</p>'
+    +'<div class="bsi110-ex"><div class="t">Esempio</div>Combustione del metano: <span class="bsi110-f">CH\u2084 + 2 O\u2082 \u2192 CO\u2082 + 2 H\u2082O</span>. 1 mol di CH\u2084 richiede 2 mol di O\u2082 e produce 1 mol di CO\u2082 e 2 mol di H\u2082O.</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>6. Reagente limitante e resa</h3>'
+    +'<p>Il <b>reagente limitante</b> si esaurisce per primo e determina la quantit\u00e0 massima di prodotto. Si individua confrontando <span class="bsi110-f">n(A)/a</span> con <span class="bsi110-f">n(B)/b</span>: il pi\u00f9 piccolo limita.</p>'
+    +'<ul>'
+    +'<li><b>Resa teorica:</b> prodotto massimo dalla stechiometria.</li>'
+    +'<li><b>Resa reale:</b> prodotto effettivamente ottenuto.</li>'
+    +'<li><b>Resa %:</b> <span class="bsi110-f">(reale / teorica) \u00d7 100</span>.</li>'
+    +'</ul>'
+    +'<div class="bsi110-ex"><div class="t">Esempio</div>2 mol H\u2082 + 1 mol O\u2082 \u2192 2 mol H\u2082O. Con 3 mol H\u2082 e 1 mol O\u2082: O\u2082 \u00e8 limitante (1/1 &lt; 3/2), si formano 2 mol H\u2082O e avanza 1 mol H\u2082.</div>'
+  +'</div>'
+  +'<div class="bsi110-card"><h3>7. Gas ideali</h3>'
+    +'<p><span class="bsi110-f">P V = n R T</span> con R = 0,0821 L\u00b7atm/(mol\u00b7K). A 0\u00b0C e 1 atm (STP) una mole di gas occupa <b>22,414 L</b> (volume molare).</p>'
+  +'</div>'
+  +'</div>';
+}
+window.bsi110_calcMol=function(){var m=parseFloat(document.getElementById('bsi110-m').value),M=parseFloat(document.getElementById('bsi110-M').value);var o=document.getElementById('bsi110-molout');if(isNaN(m)||isNaN(M)||M<=0){o.textContent='Inserisci valori validi';return;}var n=m/M;o.textContent='n = '+n.toPrecision(4)+' mol  (= '+(n*6.022e23).toExponential(3)+' entit\u00e0)';};
+window.bsi110_calcC=function(){var n=parseFloat(document.getElementById('bsi110-n2').value),V=parseFloat(document.getElementById('bsi110-V2').value);var o=document.getElementById('bsi110-cout');if(isNaN(n)||isNaN(V)||V<=0){o.textContent='Inserisci valori validi';return;}o.textContent='C = '+(n/V).toPrecision(4)+' mol/L (M)';};
+window.bsi110_calcDil=function(){var c1=parseFloat(document.getElementById('bsi110-c1').value),v2=parseFloat(document.getElementById('bsi110-v2f').value),c2=parseFloat(document.getElementById('bsi110-c2').value);var o=document.getElementById('bsi110-dilout');if(isNaN(c1)||isNaN(v2)||isNaN(c2)||c1<=0){o.textContent='Inserisci valori validi';return;}var v1=c2*v2/c1;o.textContent='Preleva '+v1.toPrecision(4)+' mL di soluzione madre e porta a '+v2+' mL';};
+
+// ════════════════ LABORATORIO RICCO ════════════════
+var bsi110_labCats={
+ tecniche:'Tecniche di base', sintesi:'Sintesi organiche', farmaci:'Sintesi di farmaci',
+ oli:'Oli essenziali ed essenze', ferm:'Fermentazioni', dist:'Distillazioni'
+};
+var bsi110_labContent={
+ tecniche:'<div class="bsi110-card"><h3>Distillazione</h3>'
+   +'<p>Separa liquidi sfruttando la differenza di <b>punto di ebollizione</b>. Il vapore, pi\u00f9 ricco nel componente volatile, viene condensato e raccolto.</p>'
+   +'<h4>Tipi</h4><ul>'
+   +'<li><b>Semplice:</b> per liquidi con T<sub>eb</sub> molto diverse (&gt;70\u00b0C) o liquido/solido.</li>'
+   +'<li><b>Frazionata:</b> colonna di frazionamento con molti equilibri liquido-vapore; separa liquidi con T<sub>eb</sub> vicine.</li>'
+   +'<li><b>In corrente di vapore:</b> per composti immiscibili in acqua e termolabili (oli essenziali); abbassa la T di distillazione.</li>'
+   +'<li><b>Sotto vuoto:</b> riduce la pressione e quindi la T<sub>eb</sub>, per composti che decompongono a caldo.</li></ul></div>'
+   +'<div class="bsi110-card"><h3>Estrazione liquido-liquido</h3><p>Separa un soluto fra due solventi immiscibili (es. acqua / etere) in base al <b>coefficiente di ripartizione</b>. Si usa l\'imbuto separatore. Estrazioni multiple con piccoli volumi sono pi\u00f9 efficienti di una sola con volume grande.</p></div>'
+   +'<div class="bsi110-card"><h3>Cristallizzazione</h3><p>Purifica un solido: si scioglie a caldo nel minimo solvente, si filtra a caldo, e raffreddando lentamente il prodotto cristallizza puro mentre le impurezze restano in soluzione (acque madri).</p></div>'
+   +'<div class="bsi110-card"><h3>Cromatografia (TLC e colonna)</h3><p>Separa in base alla diversa affinit\u00e0 tra <b>fase stazionaria</b> (silice) e <b>fase mobile</b> (eluente). La TLC d\u00e0 il valore <span class="bsi110-f">Rf = distanza sostanza / distanza fronte</span>, utile per monitorare le reazioni.</p></div>'
+   +'<div class="bsi110-card"><h3>Riflusso</h3><p>Riscaldamento prolungato con condensatore verticale: i vapori condensano e ritornano nel pallone, mantenendo la T costante al punto di ebollizione senza perdita di solvente. Tecnica base per le reazioni che richiedono calore.</p></div>',
+
+ sintesi:'<div class="bsi110-card"><h3>Esterificazione di Fischer</h3>'
+   +'<p><b>Obiettivo:</b> formare un estere da acido carbossilico + alcol con catalisi acida.</p>'
+   +'<p><b>Reazione:</b> <span class="bsi110-f">RCOOH + R\u2032OH \u21cc RCOOR\u2032 + H\u2082O</span> (H\u2082SO\u2084 cat.)</p>'
+   +'<h4>Procedura tipo (acetato di isoamile, \u201caroma di banana\u201d)</h4>'
+   +'<ol class="bsi110-proc"><li>In pallone: alcol isoamilico + acido acetico glaciale in eccesso.</li>'
+   +'<li>Aggiungere alcune gocce di H\u2082SO\u2084 concentrato.</li><li>Riflusso 1 ora.</li>'
+   +'<li>Lavare con acqua e con NaHCO\u2083 (elimina acido residuo).</li><li>Anidrificare e distillare.</li></ol>'
+   +'<div class="bsi110-safe">\u26a0 H\u2082SO\u2084 concentrato corrosivo: occhiali e guanti. Lavorare sotto cappa.</div></div>'
+   +'<div class="bsi110-card"><h3>Saponificazione</h3><p><b>Obiettivo:</b> idrolisi basica di un trigliceride a glicerolo + sali di acidi grassi (sapone).</p>'
+   +'<p><span class="bsi110-f">trigliceride + 3 NaOH \u2192 glicerolo + 3 RCOONa</span></p>'
+   +'<ol class="bsi110-proc"><li>Scaldare olio/grasso con NaOH in etanolo/acqua a riflusso ~30-60 min.</li>'
+   +'<li>Versare in soluzione satura di NaCl (\u201csalting out\u201d): il sapone precipita.</li><li>Filtrare e lavare.</li></ol></div>'
+   +'<div class="bsi110-card"><h3>Sostituzione nucleofila (alogenuro \u2192 alcol/etere)</h3><p>Esempio classico: idrolisi di un alogenuro alchilico (SN1/SN2) o sintesi di Williamson dell\u2019etere <span class="bsi110-f">R\u2013ON\u0430 + R\u2032\u2013X \u2192 R\u2013O\u2013R\u2032 + NaX</span>.</p></div>',
+
+ farmaci:'<div class="bsi110-card"><h3>Sintesi dell\u2019Aspirina (acido acetilsalicilico)</h3>'
+   +'<p><b>Reazione:</b> acetilazione dell\u2019acido salicilico con anidride acetica, catalisi acida.</p>'
+   +'<p><span class="bsi110-f">acido salicilico + (CH\u2083CO)\u2082O \u2192 ASA + CH\u2083COOH</span></p>'
+   +'<h4>Procedura</h4><ol class="bsi110-proc">'
+   +'<li>In beuta: 2 g acido salicilico + 5 mL anidride acetica.</li>'
+   +'<li>Aggiungere 5 gocce di H\u2082SO\u2084 (o H\u2083PO\u2084) come catalizzatore.</li>'
+   +'<li>Scaldare a bagnomaria 50-60\u00b0C per 15 min, agitando.</li>'
+   +'<li>Versare su acqua fredda \u2192 precipita l\u2019ASA. Raffreddare in ghiaccio.</li>'
+   +'<li>Filtrare sotto vuoto (Buchner) e lavare con acqua fredda.</li>'
+   +'<li>Ricristallizzare da etanolo/acqua per purificare.</li></ol>'
+   +'<p><b>Controlli:</b> punto di fusione (135\u00b0C), TLC, test FeCl\u2083 (assenza di colore violetto = salicilico residuo eliminato). Resa tipica 70-85%.</p>'
+   +'<div class="bsi110-safe">\u26a0 Anidride acetica irritante/lacrimogena, H\u2082SO\u2084 corrosivo. Lavorare sotto cappa con DPI.</div></div>'
+   +'<div class="bsi110-card"><h3>Sintesi del Paracetamolo</h3>'
+   +'<p><b>Reazione:</b> acetilazione del <i>p</i>-amminofenolo con anidride acetica.</p>'
+   +'<p><span class="bsi110-f">p-amminofenolo + (CH\u2083CO)\u2082O \u2192 paracetamolo + CH\u2083COOH</span></p>'
+   +'<ol class="bsi110-proc"><li>Sciogliere <i>p</i>-amminofenolo in acqua tiepida.</li>'
+   +'<li>Aggiungere anidride acetica e agitare; il prodotto precipita.</li>'
+   +'<li>Raffreddare, filtrare, ricristallizzare da acqua.</li></ol>'
+   +'<p>Resa tipica 80%; controllo con punto di fusione (168-170\u00b0C) e TLC.</p></div>'
+   +'<div class="bsi110-card"><h3>Sintesi della Benzocaina (anestetico locale)</h3><p><b>Reazione:</b> esterificazione di Fischer dell’acido <i>p</i>-amminobenzoico (PABA) con etanolo, catalisi acida.</p><p><span class="bsi110-f">PABA + EtOH \u2192 benzocaina + H\u2082O</span> (H\u2082SO\u2084 cat.)</p><ol class="bsi110-proc"><li>Sciogliere PABA in etanolo assoluto.</li><li>Aggiungere lentamente H\u2082SO\u2084 concentrato.</li><li>Riflusso 1-2 ore.</li><li>Neutralizzare con Na\u2082CO\u2083 fino a pH ~8: precipita la benzocaina.</li><li>Filtrare e ricristallizzare da etanolo/acqua (p.f. ~90\u00b0C).</li></ol></div>'+'<div class="bsi110-card"><h3>Dibenzalacetone (condensazione aldolica)</h3><p><b>Reazione:</b> doppia condensazione aldolica incrociata tra benzaldeide e acetone in ambiente basico.</p><p><span class="bsi110-f">2 PhCHO + CH\u2083COCH\u2083 \u2192 dibenzalacetone + 2 H\u2082O</span> (NaOH)</p><ol class="bsi110-proc"><li>Sciogliere NaOH in acqua/etanolo.</li><li>Aggiungere benzaldeide e acetone (rapporto 2:1).</li><li>Agitare a temperatura ambiente: precipita il prodotto giallo.</li><li>Filtrare e ricristallizzare da etanolo (p.f. ~110\u00b0C).</li></ol><p>Esempio didattico classico di condensazione aldolica; usato come filtro UV.</p></div>'+'<div class="bsi110-card"><h3>Sulfanilammide (sulfamidico)</h3><p>Sintesi multi-step a partire dall’acetanilide:</p><ol class="bsi110-proc"><li><b>Clorosolfonazione</b> dell’acetanilide con acido clorosolfonico.</li><li><b>Amminazione</b> con ammoniaca \u2192 solfonammide.</li><li><b>Idrolisi acida</b> del gruppo acetammidico \u2192 sulfanilammide.</li></ol><p>Capostipite dei sulfamidici: inibisce la diidropteroato-sintetasi come analogo del PABA.</p><div class="bsi110-safe">\u26a0 Acido clorosolfonico estremamente corrosivo: solo in laboratorio attrezzato.</div></div>'+'<div class="bsi110-card"><h3>Fenacetina (sintesi di Williamson)</h3><p><b>Reazione:</b> O-etilazione del paracetamolo (etere di Williamson).</p><p><span class="bsi110-f">paracetamolo + EtI + NaOH \u2192 fenacetina</span></p><ol class="bsi110-proc"><li>Sciogliere il paracetamolo in NaOH \u2192 fenolato.</li><li>Aggiungere ioduro di etile, riflusso.</li><li>Raffreddare, filtrare, ricristallizzare (p.f. ~134\u00b0C).</li></ol><p>Storico analgesico; ottimo per illustrare la sintesi di Williamson degli eteri.</p></div>'+'<div class="bsi110-card"><h3>Acido barbiturico</h3><p><b>Reazione:</b> condensazione dell’urea con dietilmalonato (etossido di sodio come base).</p><p><span class="bsi110-f">urea + CH\u2082(COOEt)\u2082 \u2192 acido barbiturico + 2 EtOH</span></p><ol class="bsi110-proc"><li>Preparare etossido di sodio (Na in etanolo assoluto).</li><li>Aggiungere dietilmalonato e urea; riflusso ~2 ore.</li><li>Acidificare con HCl: precipita l’acido barbiturico.</li><li>Filtrare e ricristallizzare da acqua.</li></ol><p>Nucleo dei barbiturici; condensazione tipo Claisen e chiusura d’anello.</p></div>'+'<div class="bsi110-safe">Nota: le sintesi di farmaci qui descritte sono <b>esperienze didattiche classiche</b> di laboratorio universitario, da svolgere solo in laboratorio attrezzato sotto supervisione.</div>',
+
+ oli:'<div class="bsi110-card"><h3>Estrazione di oli essenziali \u2014 distillazione in corrente di vapore</h3>'
+   +'<p><b>Principio:</b> il vapore acqueo trascina i componenti volatili (terpeni) a una T inferiore al loro punto di ebollizione, evitando la degradazione termica. Il distillato si separa in fase acquosa + olio essenziale.</p>'
+   +'<h4>Procedura (es. limonene dalle bucce d\u2019agrumi)</h4><ol class="bsi110-proc">'
+   +'<li>Porre le bucce sminuzzate nel pallone con acqua.</li>'
+   +'<li>Distillazione in corrente di vapore; raccogliere il distillato.</li>'
+   +'<li>Estrarre l\u2019olio dal distillato con solvente apolare (es. pentano) in imbuto separatore.</li>'
+   +'<li>Anidrificare (Na\u2082SO\u2084) ed evaporare il solvente.</li></ol>'
+   +'<p>Altri esempi: <b>eugenolo</b> dai chiodi di garofano, <b>mentolo</b> dalla menta, <b>limonene</b> da agrumi.</p></div>'
+   +'<div class="bsi110-card"><h3>Altri metodi di estrazione delle essenze</h3><ul>'
+   +'<li><b>Spremitura a freddo:</b> per agrumi (l\u2019olio \u00e8 nella buccia).</li>'
+   +'<li><b>Estrazione con solventi:</b> produce le \u201cconcrete\u201d e gli \u201cassoluti\u201d (fiori delicati, es. gelsomino).</li>'
+   +'<li><b>Enfleurage:</b> metodo storico con grassi che assorbono il profumo dei fiori.</li>'
+   +'<li><b>CO\u2082 supercritica:</b> tecnica moderna, alta resa e purezza.</li></ul></div>',
+
+ ferm:'<div class="bsi110-card"><h3>Fermentazione alcolica</h3>'
+   +'<p><b>Principio:</b> i lieviti (<i>Saccharomyces cerevisiae</i>) convertono gli zuccheri in etanolo e CO\u2082 in anaerobiosi.</p>'
+   +'<p><span class="bsi110-f">C\u2086H\u2081\u2082O\u2086 \u2192 2 C\u2082H\u2085OH + 2 CO\u2082</span></p>'
+   +'<h4>Procedura</h4><ol class="bsi110-proc"><li>Sciogliere glucosio (o saccarosio) in acqua tiepida.</li>'
+   +'<li>Aggiungere lievito e un po\u2019 di nutriente (fosfato d\u2019ammonio).</li>'
+   +'<li>Chiudere con valvola (gorgogliatore) che lascia uscire la CO\u2082 ma non entra aria.</li>'
+   +'<li>Lasciare a ~25-30\u00b0C per giorni; poi distillare per concentrare l\u2019etanolo.</li></ol></div>'
+   +'<div class="bsi110-card"><h3>Altre fermentazioni</h3><ul>'
+   +'<li><b>Lattica:</b> glucosio \u2192 acido lattico (yogurt, muscolo in anaerobiosi).</li>'
+   +'<li><b>Acetica:</b> etanolo + O\u2082 \u2192 acido acetico (aceto), via <i>Acetobacter</i>.</li>'
+   +'<li><b>Industriale:</b> produzione di antibiotici (penicillina), enzimi, acido citrico.</li></ul></div>',
+
+ dist:'<div class="bsi110-card"><h3>Teoria della distillazione</h3>'
+   +'<p>Si basa sull\u2019<b>equilibrio liquido-vapore</b>: a una data T, il vapore \u00e8 pi\u00f9 ricco nel componente pi\u00f9 volatile (legge di Raoult per miscele ideali). Ripetendo molti equilibri (colonna di frazionamento) si ottiene una separazione spinta.</p>'
+   +'<h4>Parametri chiave</h4><ul>'
+   +'<li><b>Punto di ebollizione:</b> T a cui la tensione di vapore eguaglia la pressione esterna.</li>'
+   +'<li><b>Piatti teorici:</b> numero di equilibri della colonna; pi\u00f9 piatti = separazione migliore.</li>'
+   +'<li><b>Azeotropi:</b> miscele che bollono a composizione costante (es. etanolo/acqua 95,6%) e non si separano per sola distillazione.</li></ul></div>'
+   +'<div class="bsi110-card"><h3>Distillazione frazionata in pratica</h3><ol class="bsi110-proc">'
+   +'<li>Montare pallone, colonna di frazionamento, testa di distillazione con termometro, condensatore.</li>'
+   +'<li>Riscaldare gradualmente; registrare la T di testa.</li>'
+   +'<li>Raccogliere le frazioni a T costante (ogni plateau = un componente).</li>'
+   +'<li>Scartare \u201ctesta\u201d e \u201ccoda\u201d, conservare il \u201ccuore\u201d della frazione pura.</li></ol></div>'
+};
+function bsi110_labHTML(){
+  var h='<div class="bsi110-wrap"><h2 style="color:#1B5E20;margin:6px 0 8px">\uD83D\uDD2C Laboratorio</h2>'
+    +'<p style="color:#8aadcc;font-size:13px;margin-bottom:14px">Teoria e procedure delle principali esperienze di laboratorio organico e farmaceutico.</p>'
+    +'<div class="bsi110-tabs" id="bsi110-labtabs">';
+  Object.keys(bsi110_labCats).forEach(function(k,i){
+    h+='<div class="bsi110-tab'+(i===0?' active':'')+'" data-lc="'+k+'">'+bsi110_labCats[k]+'</div>';
+  });
+  h+='</div><div id="bsi110-labbody">'+bsi110_labContent.tecniche+'</div></div>';
+  return h;
+}
+function bsi110_bindLabTabs(){
+  document.querySelectorAll('#bsi110-labtabs .bsi110-tab').forEach(function(t){
+    t.onclick=function(){
+      document.querySelectorAll('#bsi110-labtabs .bsi110-tab').forEach(function(x){x.classList.remove('active');});
+      t.classList.add('active');
+      document.getElementById('bsi110-labbody').innerHTML=bsi110_labContent[t.dataset.lc]||'';
+    };
+  });
+}
+
+// ════════════════ AGGANCIO ALLE SEZIONI ════════════════
+function bsi110_injectStech(){
+  var sec=document.getElementById('ssteich');
+  if(!sec) return;
+  if(sec.querySelector('.bsi110-wrap')) return;
+  sec.innerHTML=bsi110_stechHTML();
+}
+function bsi110_injectLab(){
+  var sec=document.getElementById('slab');
+  if(!sec) return;
+  if(sec.querySelector('.bsi110-wrap')) return;
+  sec.innerHTML=bsi110_labHTML();
+  bsi110_bindLabTabs();
+}
+// Override delle init (preserva il nome, sostituisce contenuto debole)
+window.initStechio=function(){ bsi110_injectStech(); };
+var _origLab=window.initLab;
+window.initLab=function(){ try{ if(typeof _origLab==='function') {} }catch(e){} bsi110_injectLab(); };
+
+// Aggancio anche ai click di navigazione (fallback robusto)
+document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('[data-s]'):null;
+  if(!b) return;
+  var s=b.getAttribute('data-s');
+  if(s==='ssteich') setTimeout(bsi110_injectStech,80);
+  if(s==='slab') setTimeout(bsi110_injectLab,80);
+});
+// Tentativo iniziale
+setTimeout(function(){bsi110_injectStech();bsi110_injectLab();},900);
+
+console.log('BioSpecInfo v11.0 \u2014 Stechiometria, Laboratorio, leggibilit\u00e0 NMR2D/UV caricato \u2714');
 })();
 </script>
 
