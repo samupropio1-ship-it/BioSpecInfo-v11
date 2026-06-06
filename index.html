@@ -15090,6 +15090,9 @@ window.runNMRPred = function(){
     +'</div>';
 };
 
+// Expose analyzeSMILES globally so external patches can call it
+window.analyzeSMILES = analyzeSMILES;
+
 document.addEventListener('DOMContentLoaded', function(){
   var nav = document.getElementById('nav');
   if(nav){
@@ -15099,7 +15102,7 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.innerHTML = '🔮 NMR Pred.';
     nav.appendChild(btn);
   }
-  
+
 });
 })();
 
