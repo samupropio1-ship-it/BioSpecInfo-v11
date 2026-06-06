@@ -31869,6 +31869,230 @@ fenolo:{syn:[
 ],ret:[
   {d:'Retro-processo Cumene',sy:'Cumene + O₂',eq:'Idroperossido cumilico (autossidazione)',tp:'Retro-ossidazione cumene'},
   {d:'Retro-idrossigenazione',sy:'Benzene + [OH]',eq:'Ossidazione diretta (rara)',tp:'Retro-OH arene'}
+]},
+toluene:{iupac:'metilbenzene',smiles:'Cc1ccccc1',livello:1,syn:[
+  {n:1,nm:'Friedel-Crafts alchilazione',re:'C₆H₆+CH₃Cl → C₆H₅CH₃+HCl',me:'AlCl₃ genera CH₃⁺; SEAr sul benzene; eccesso benzene limita polimetilazione',ct:'AlCl₃, DCM, 0°C (benzene in eccesso)'},
+  {n:2,nm:'Riforma catalitica',re:'n-C₇H₁₆ → toluene+4H₂',me:'Pt/Re su Al₂O₃; ciclizzazione+aromatizzazione; estrazione sulfolano',ct:'Pt-Re/Al₂O₃, 490–520°C, 15–35 atm'}
+],ret:[
+  {d:'Retro-FC metilazione',sy:'Benzene + CH₃⁺',eq:'Benzene + CH₃Cl/AlCl₃',tp:'Retro-SEAr'},
+  {d:'Retro-ossidazione laterale',sy:'Acido benzoico',eq:'KMnO₄ aq. Δ: –CH₃→–COOH',tp:'Retro-ossidazione'}
+]},
+metanolo:{iupac:'metanolo',smiles:'CO',livello:1,syn:[
+  {n:1,nm:'Gas di sintesi (ICI)',re:'CO+2H₂ → CH₃OH',me:'Cu/ZnO/Al₂O₃; inserzione CO → formiato; idrogenazione → metanolo',ct:'Cu/ZnO/Al₂O₃, 250–300°C, 50–100 atm'},
+  {n:2,nm:'Pirolisi legno (storico)',re:'Legno → CH₃OH+CO+CO₂+H₂',me:'Pirolisi ~300°C; condensazione vapori; frazionamento distillazione',ct:'~300°C, pirolisi secca'}
+],ret:[
+  {d:'Retro-idrogenazione CO',sy:'CO+2H₂',eq:'Gassificazione CH₄ → syngas',tp:'Retro-idrogenazione'},
+  {d:'Retro-ossidazione parziale',sy:'Formaldeide (HCHO)',eq:'Ag/O₂ 680°C: CH₃OH→HCHO',tp:'Retro-ossidazione'}
+]},
+acetaldeide:{iupac:'etanale',smiles:'CC=O',livello:1,syn:[
+  {n:1,nm:'Ossidazione Wacker (etilene)',re:'CH₂=CH₂+½O₂ → CH₃CHO',me:'PdCl₂ coordina etilene; idropalladazione-β-eliminazione → acetaldeide; CuCl₂ rigenera Pd(II)',ct:'PdCl₂/CuCl₂, H₂O/DMF, 60°C, O₂'},
+  {n:2,nm:'Ossidazione etanolo (PCC)',re:'CH₃CH₂OH+½O₂ → CH₃CHO+H₂O',me:'PCC: Cr(VI) chelato; stop prima di COOH; alcol primario → aldeide',ct:'PCC, DCM, 0°C→RT'}
+],ret:[
+  {d:'Retro-Wacker ossidazione',sy:'Etilene+[O]',eq:'Wacker: PdCl₂/CuCl₂',tp:'Retro-ossidazione Pd'},
+  {d:'Retro-ossidazione alcol',sy:'Etanolo',eq:'NaBH₄: CH₃CHO→CH₃CH₂OH',tp:'Retro-ossidazione'}
+]},
+formaldeide:{iupac:'metanale',smiles:'C=O',livello:1,syn:[
+  {n:1,nm:'Ossidazione catalitica metanolo (Ag)',re:'CH₃OH+½O₂ → HCHO+H₂O',me:'Ag cristallino desidrogenante 600°C; CH₃OH→•CH₂OH; O₂ rimuove H; HCHO gassoso',ct:'Ag cristallino, 600–650°C, O₂/CH₃OH 40%'},
+  {n:2,nm:'Processo FORMOX (Fe₂O₃/MoO₃)',re:'CH₃OH+O₂ → HCHO+H₂O',me:'Meccanismo Mars-van Krevelen; MoO₃ ossida; Fe₂O₃ struttura; T più bassa di Ag',ct:'Fe₂O₃-MoO₃, 250–400°C, eccesso O₂'}
+],ret:[
+  {d:'Retro-ossidazione metanolo',sy:'Metanolo',eq:'NaBH₄: HCHO→CH₃OH',tp:'Retro-ossidazione'},
+  {d:'Retro-polimerizzazione',sy:'(HCHO)ₙ paraformaldeide',eq:'Depolim. in acqua calda',tp:'Retro-polimerizzazione'}
+]},
+'acido formico':{iupac:'acido metanoico',smiles:'OC=O',livello:1,syn:[
+  {n:1,nm:'Carbonilazione NaOH+CO',re:'NaOH+CO → HCOONa; poi H₂SO₄ → HCOOH',me:'CO inserzione su NaOH 160°C/8atm; formiato Na precipita; acidificazione H₂SO₄ dil.',ct:'NaOH, CO, 160°C, 8 atm; poi H₂SO₄ dil.'},
+  {n:2,nm:'Idrolisi metilformiato (Reppe)',re:'CO+CH₃OH → HCOOCH₃; idrolisi → HCOOH+CH₃OH',me:'NaOCH₃ cat.; CO inserzione; idrolisi acida del formiato di metile',ct:'NaOCH₃, 80°C; poi H₂O/H⁺, 130°C'}
+],ret:[
+  {d:'Retro-carbonilazione',sy:'CO+OH⁻',eq:'CO+NaOH (formiato sodico)',tp:'Retro-carbonilazione'},
+  {d:'Retro-ossidazione C1',sy:'Formaldeide',eq:'KMnO₄: HCHO→HCOOH',tp:'Retro-ossidazione C1'}
+]},
+'1-propanolo':{iupac:'propan-1-olo',smiles:'CCCO',livello:1,syn:[
+  {n:1,nm:'Idroborazione-ossidazione propilene',re:'CH₃CH=CH₂ → CH₃CH₂CH₂OH (anti-Markovnikov)',me:'BH₃·THF: addizione syn anti-Markovnikov; H₂O₂/NaOH: ossidazione retentive',ct:'1. BH₃·THF, 0°C; 2. H₂O₂, NaOH, H₂O'},
+  {n:2,nm:'Idrogenazione propanale',re:'CH₃CH₂CHO+H₂ → CH₃CH₂CH₂OH',me:'Ni Raney: H₂ adsorbito; addizione syn al C=O; chemioselettivo aldeide',ct:'H₂/Ni Raney, EtOH, RT, 1–3 bar'}
+],ret:[
+  {d:'Retro-idroborazione',sy:'Propilene+BH₃',eq:'Anti-Markovnikov idratazione propilene',tp:'Retro-idroborazione'},
+  {d:'Retro-ossidazione',sy:'Propanale',eq:'PCC: 1-propanolo→propanale',tp:'Retro-ossidazione'}
+]},
+'2-propanolo':{iupac:'propan-2-olo',smiles:'CC(O)C',livello:1,syn:[
+  {n:1,nm:'Idratazione propilene (Markovnikov)',re:'CH₃CH=CH₂+H₂O → (CH₃)₂CHOH',me:'H⁺ su C1 → carbocat. C2 (secondario, più stabile); H₂O attacca C2; deprotonazione',ct:'H₃PO₄/SiO₂, 120°C, 25 atm'},
+  {n:2,nm:'Riduzione acetone (NaBH₄)',re:'(CH₃)₂C=O+NaBH₄ → (CH₃)₂CHOH',me:'H⁻ trasferimento dal B al carbonile; lato meno ingombrato; idrolisi borate',ct:'NaBH₄, MeOH o EtOH, 0°C→RT'}
+],ret:[
+  {d:'Retro-idratazione',sy:'Propilene+H₂O',eq:'H₂SO₄ 80%, 140°C (disidratazione)',tp:'Retro-idratazione'},
+  {d:'Retro-riduzione',sy:'Acetone',eq:'PCC o CrO₃: isopropanolo→acetone',tp:'Retro-ossidazione'}
+]},
+urea:{iupac:'carbamide',smiles:'NC(N)=O',livello:1,syn:[
+  {n:1,nm:'Sintesi di Wöhler (1828)',re:'NH₄OCN → (NH₂)₂CO',me:'Isomerizzazione ionica NH₄⁺+OCN⁻→urea; prima sintesi totale organica da inorganico (storica)',ct:'NH₄OCN aq., 60°C, 2h'},
+  {n:2,nm:'Processo Bazarov (industriale)',re:'CO₂+2NH₃ → NH₂COONH₄ → (NH₂)₂CO+H₂O',me:'1°: NH₃+CO₂→carbammato; 2°: deammoniazione→urea; 185°C ottimale; 180 Mt/anno',ct:'NH₃/CO₂ 2:1, 185°C, 150–200 atm'}
+],ret:[
+  {d:'Retro-Wöhler',sy:'NH₄⁺+OCN⁻',eq:'NH₄Cl+KOCN (retro-isomerizzazione)',tp:'Retro-isomerizzazione'},
+  {d:'Retro-idrolisi',sy:'CO₂+2NH₃',eq:'Idrolisi acida: urea+H₂O→CO₂+2NH₃',tp:'Retro-condensazione'}
+]},
+'acido propanoico':{iupac:'acido propanoico',smiles:'CCC(=O)O',livello:1,syn:[
+  {n:1,nm:'Carbonilazione etilene Pd',re:'CH₂=CH₂+CO+H₂O → CH₃CH₂COOH',me:'Pd(II)/I⁻: inserzione CO nel legame Pd–Et; protonosolvolisi; rigenerazione Pd',ct:'Pd(OAc)₂, HI, CO 20 atm, 120°C'},
+  {n:2,nm:'Ossidazione propanale',re:'CH₃CH₂CHO+½O₂ → CH₃CH₂COOH',me:'Autossidazione radicalica; ROO•→perossido→acido; Mn(II) cat.',ct:'Mn(OAc)₂, 60°C, O₂ aria'}
+],ret:[
+  {d:'Retro-carbonilazione',sy:'Etilene+CO+H₂O',eq:'Etilene+CO (Reppe)',tp:'Retro-carbonilazione'},
+  {d:'Retro-ossidazione',sy:'Propanale',eq:'DIBAL −78°C riduce COOH→CHO',tp:'Retro-ossidazione'}
+]},
+'acetato di etile':{iupac:'etil etanoato',smiles:'CCOC(C)=O',livello:1,syn:[
+  {n:1,nm:'Fischer esterificazione',re:'CH₃COOH+C₂H₅OH ⇌ CH₃COOC₂H₅+H₂O',me:'H⁺ attiva C=O; EtOH attacca; espulsione H₂O; Keq≈4; Dean-Stark sposta equil.',ct:'H₂SO₄ cat., riflusso, Dean-Stark'},
+  {n:2,nm:'Reazione di Tischenko',re:'2CH₃CHO → CH₃COOC₂H₅',me:'Al(OEt)₃ cat.: MPV trasferimento H tra due acetaldeidi; acetato etile direttamente',ct:'Al(OEt)₃, 0°C, 1h'}
+],ret:[
+  {d:'Retro-Fischer',sy:'Acido acetico+etanolo',eq:'H₂O/H⁺ riflusso (idrolisi acida)',tp:'Retro-esterificazione'},
+  {d:'Retro-acilazione O',sy:'CH₃CO⁺+EtO⁻',eq:'CH₃COCl+EtOH/piridina',tp:'Retro-acilazione'}
+]},
+'acido benzoico':{iupac:'acido benzoico',smiles:'OC(=O)c1ccccc1',livello:2,syn:[
+  {n:1,nm:'Ossidazione toluene',re:'C₆H₅CH₃+O₂ → C₆H₅COOH',me:'Co(OAc)₂/Mn cat.; autossidazione radicalica ROO•→perossido→acido; o KMnO₄ in lab',ct:'Co/Mn, 160°C, 5 atm O₂; o KMnO₄ aq., Δ'},
+  {n:2,nm:'Grignard+CO₂',re:'C₆H₅MgBr+CO₂ → PhCOOMgBr → C₆H₅COOH',me:'Ph–MgBr nucleofilo forte; inserzione 1,2 nel CO₂; idrolisi benzoato di Mg',ct:'PhMgBr in Et₂O, CO₂ gas, 0°C; poi NH₄Cl aq.'}
+],ret:[
+  {d:'Retro-ossidazione laterale',sy:'Toluene',eq:'KMnO₄, H₂O, Δ',tp:'Retro-ossidazione'},
+  {d:'Retro-Grignard CO₂',sy:'PhMgBr+CO₂',eq:'Grignard+CO₂ secco',tp:'Retro-carbonilazione'}
+]},
+'acido salicilico':{iupac:'acido 2-idrossibenzoico',smiles:'OC(=O)c1ccccc1O',livello:2,syn:[
+  {n:1,nm:'Kolbe-Schmitt',re:'C₆H₅ONa+CO₂ → o-HOC₆H₄COONa; poi HCl → acido salicilico',me:'Fenossido Na nuc.; CO₂ elettrofilo; rearrangiamento [1,3]; Na⁺ dirige orto',ct:'Fenolo/NaOH essiccato; CO₂ 4–5 atm, 120°C; poi HCl'},
+  {n:2,nm:'Idrolisi aspirina',re:'Aspirina+NaOH → salicilato Na+CH₃COONa; poi HCl',me:'OH⁻ attacca carbonile estere; espulsione salicilato; acidificazione',ct:'NaOH 2M, 100°C, 30 min; poi HCl'}
+],ret:[
+  {d:'Retro-Kolbe-Schmitt',sy:'Fenolo+CO₂',eq:'Fenossido+CO₂ (Kolbe)',tp:'Retro-carbossilazione'},
+  {d:'Retro-idrossigenazione',sy:'Acido benzoico+[OH]',eq:'Funzionale formale (no equiv. diretto)',tp:'Retro-OH aromatico'}
+]},
+vanillina:{iupac:'4-idrossi-3-metossibenzaldeide',smiles:'COc1cc(C=O)ccc1O',livello:2,syn:[
+  {n:1,nm:'Ozonolisoide eugenolo',re:'Eugenolo+O₃ → vanillina+HCHO',me:'O₃ cliva doppio legame allilico; workup riduttivo Me₂S; HCHO sub-prodotto',ct:'O₃, DCM, −78°C; poi Me₂S'},
+  {n:2,nm:'Processo guaiacol-gliossilato (Rhodia)',re:'Guaiacolo+ClCH₂COOH → vanillato → vanillina',me:'SEAr guaiacolo; condensazione glicolato; ossidazione decarbossilativa',ct:'NaOH, ClCH₂COOH; CuSO₄ o NaIO₄'}
+],ret:[
+  {d:'Retro-ozonolisoide allile',sy:'Eugenolo',eq:'O₃ su doppio legame allilico',tp:'Retro-ozonolisoide'},
+  {d:'Retro-CHO (riduzione COOH)',sy:'Acido vanillico',eq:'DIBAL: COOH→CHO a −78°C',tp:'Retro-ossidazione'}
+]},
+acetanilide:{iupac:'N-feniletanamide',smiles:'CC(=O)Nc1ccccc1',livello:2,syn:[
+  {n:1,nm:'Anilina+anidride acetica',re:'Ph–NH₂+(CH₃CO)₂O → Ph–NHCOCH₃+CH₃COOH',me:'SNA: NH₂ attacca carbonile; espulsione CH₃COO⁻; esotermica; chemioselettiva',ct:'Anidride acetica, 50°C, 30 min'},
+  {n:2,nm:'Via cloruro acetilico (Schotten-Baumann)',re:'Ph–NH₂+CH₃COCl → Ph–NHCOCH₃+HCl',me:'SNA rapida su AcCl; NaOH aq. neutralizza HCl; interfaccia acquosa-organica',ct:'CH₃COCl, NaOH aq. o piridina, 0°C'}
+],ret:[
+  {d:'Retro-N-acetilazione',sy:'Anilina+CH₃CO⁺',eq:'Anilina+Ac₂O o AcCl',tp:'Retro-amidazione'},
+  {d:'Retro-idrolisi amide',sy:'Anilina+acido acetico',eq:'HCl 6N o NaOH, riflusso',tp:'Retro-idrolisi amide'}
+]},
+'salicilato di metile':{iupac:'metil 2-idrossibenzoato',smiles:'COC(=O)c1ccccc1O',livello:2,syn:[
+  {n:1,nm:'Fischer esterificazione',re:'Acido salicilico+CH₃OH → salicilato di metile+H₂O',me:'H⁺ cat.; eccesso MeOH sposta equilibrio; profumo gaulteria',ct:'H₂SO₄ cat., MeOH, riflusso 2h'},
+  {n:2,nm:'Dimetilsolfato selettivo',re:'Salicilato Na+(CH₃O)₂SO₂ → salicilato metile',me:'(CH₃O)₂SO₂ metila COOH prefer.; K₂CO₃ base; OH fenolico meno reattivo',ct:'K₂CO₃, acetone, riflusso'}
+],ret:[
+  {d:'Retro-esterificazione',sy:'Acido salicilico+MeOH',eq:'NaOH/H₂O idrolisi→salicilato Na→HCl',tp:'Retro-Fischer'},
+  {d:'Retro-O-metilazione COOH',sy:'Acido salicilico+CH₃⁺',eq:'(CH₃)₂SO₄, K₂CO₃, acetone',tp:'Retro-O-metilazione'}
+]},
+anisolo:{iupac:'metossibenzene',smiles:'COc1ccccc1',livello:2,syn:[
+  {n:1,nm:'Williamson Ether Synthesis',re:'C₆H₅O⁻Na⁺+CH₃I → C₆H₅OCH₃+NaI',me:'SN2: fenossido (nuc. morbido) attacca CH₃I; inversione Walden; NaH genera fenossido',ct:'NaH, DMF, 0°C; poi CH₃I, RT, 2h'},
+  {n:2,nm:'Metilazione diretta (DMS)',re:'C₆H₅OH+(CH₃)₂SO₄+NaOH → C₆H₅OCH₃',me:'OH fenolico metilato; NaOH neutralizza; selettivo O vs C-alchilazione',ct:'NaOH 10% aq., (CH₃)₂SO₄, 60°C'}
+],ret:[
+  {d:'Retro-Williamson',sy:'Fenolo+CH₃I',eq:'PhONa+CH₃I',tp:'Retro-etere'},
+  {d:'Retro-O-demetilazione',sy:'Fenolo',eq:'BBr₃, DCM, −78°C (clivaggio etere)',tp:'Retro-O-metilazione'}
+]},
+acetofenone:{iupac:'1-feniletanone',smiles:'CC(=O)c1ccccc1',livello:2,syn:[
+  {n:1,nm:'Friedel-Crafts acilazione benzene',re:'C₆H₆+CH₃COCl+AlCl₃ → C₆H₅COCH₃+HCl',me:'AlCl₃ genera acilio CH₃CO⁺; SEAr; no poliacilazione (C=O disattiva anello)',ct:'CH₃COCl, AlCl₃, DCM, 0°C→RT'},
+  {n:2,nm:'Ossidazione 1-feniletanolo',re:'C₆H₅CH(OH)CH₃ → C₆H₅COCH₃',me:'PCC o DMP: Cr(VI); alcol secondario→chetone; neutro, no epimerizzazione',ct:'PCC o DMP, DCM, 0°C–RT'}
+],ret:[
+  {d:'Retro-FC acilazione',sy:'Benzene+CH₃CO⁺',eq:'Benzene+CH₃COCl/AlCl₃',tp:'Retro-SEAr acilazione'},
+  {d:'Retro-ossidazione alcol sec.',sy:'1-feniletanolo',eq:'NaBH₄: acetofenone→alcol sec.',tp:'Retro-ossidazione'}
+]},
+stirene:{iupac:'vinilbenzene',smiles:'C=Cc1ccccc1',livello:2,syn:[
+  {n:1,nm:'Desidrogenazione etilbenzene',re:'C₆H₅CH₂CH₃ → C₆H₅CH=CH₂+H₂',me:'Fe₃O₄/K₂CO₃; K₂CO₃ evita coke; desidrogenazione non ossidativa; equilibrio a T alta',ct:'Fe₂O₃/K₂O, 600–650°C, vapore H₂O'},
+  {n:2,nm:'Wittig lab (benzaldeide)',re:'C₆H₅CHO+Ph₃P=CH₂ → C₆H₅CH=CH₂',me:'Ilide non stabilizzata; betaine; ossietano [2+2]; retro-[2+2]→alchene+Ph₃P=O',ct:'Ph₃PCH₂Br, BuLi, THF, −78°C→RT'}
+],ret:[
+  {d:'Retro-desidrogenazione',sy:'Etilbenzene',eq:'H₂/Pd: stirene→etilbenzene',tp:'Retro-desidrogenazione'},
+  {d:'Retro-Wittig',sy:'Benzaldeide+CH₂=PPh₃',eq:'Wittig con ilide non stabilizzata',tp:'Retro-Wittig'}
+]},
+cicloesanolo:{iupac:'cicloesanolo',smiles:'OC1CCCCC1',livello:2,syn:[
+  {n:1,nm:'Idrogenazione catalitica fenolo',re:'C₆H₅OH+3H₂ → C₆H₁₁OH',me:'H₂ adsorbito su Ni; addizione syn al piano aromatico; idrogenazione completa',ct:'H₂/Ni Raney, 150°C, 30–50 atm'},
+  {n:2,nm:'Idratazione cicloesene',re:'C₆H₁₀+H₂O → C₆H₁₁OH',me:'H⁺ protona C=C→carbocatione; H₂O attacca (Markovnikov su C simmetrico)',ct:'H₂SO₄ 70%, H₂O, 70°C'}
+],ret:[
+  {d:'Retro-idrogenazione arene',sy:'Fenolo+3H₂',eq:'Aromatizzazione cicloesanolo con DDQ',tp:'Retro-idrogenazione'},
+  {d:'Retro-ossidazione',sy:'Cicloesanone',eq:'NaBH₄: cicloesanone→cicloesanolo',tp:'Retro-ossidazione'}
+]},
+'acido lattico':{iupac:'acido 2-idrossipropanoico',smiles:'CC(O)C(=O)O',livello:2,syn:[
+  {n:1,nm:'Fermentazione lattica',re:'C₆H₁₂O₆ → 2CH₃CH(OH)COOH',me:'LDH: piruvato+NADH→L-lattato+NAD⁺; glicolisi anaerobia; L-stereospecifico',ct:'Lactobacillus, anaerobiosi, 37°C, pH 5–7'},
+  {n:2,nm:'Cianidrina acetaldeide',re:'CH₃CHO+HCN → CH₃CH(OH)CN → CH₃CH(OH)COOH',me:'HCN addizione nucleofila al C=O; idrolisi nitrile H₃O⁺; racemico',ct:'NaCN, AcOH, 0°C; poi HCl/H₂O, 100°C'}
+],ret:[
+  {d:'Retro-fermentazione',sy:'Glucosio (glicolisi)',eq:'Glicolisi: glucosio→piruvato→lattato',tp:'Retro-fermentazione'},
+  {d:'Retro-cianidrina',sy:'Acetaldeide+HCN',eq:'Killiani: CH₃CHO+NaCN',tp:'Retro-cianidrina'}
+]},
+'acido piruvico':{iupac:'acido 2-ossopropanoico',smiles:'CC(=O)C(=O)O',livello:2,syn:[
+  {n:1,nm:'Ossidazione acido lattico',re:'CH₃CH(OH)COOH+[O] → CH₃COCOOH+H₂O',me:'KMnO₄ dil. ossida alcol α-chetonico; MnO₂ precipita; controllata bassa T',ct:'KMnO₄ dil., H₂SO₄, 0°C'},
+  {n:2,nm:'Glicolisi (step finale)',re:'PEP+ADP → piruvato+ATP',me:'Piruvato chinasi: PEP dephosphorilazione; fosforilazione substrato; irreversibile in vivo',ct:'Piruvato chinasi, Mg²⁺, citoplasma 37°C'}
+],ret:[
+  {d:'Retro-ossidazione α-OH',sy:'Acido lattico',eq:'NaBH₄ o LDH: piruvato→lattato',tp:'Retro-ossidazione'},
+  {d:'Retro-decarbossilazione',sy:'Acetaldeide+CO₂',eq:'Piruvato decarbossilasi TPP in vivo',tp:'Retro-decarbossilazione'}
+]},
+naftalene:{iupac:'naftalene',smiles:'c1ccc2ccccc2c1',livello:2,syn:[
+  {n:1,nm:'Catrame di carbone (distillazione)',re:'Catrame → fraz. 210–240°C → naftalene grezzo → cristalliz.',me:'Coke ~1100°C; distillazione frazionata; naftalene (pmelt=80°C) cristallizza fraz. 218°C',ct:'Coke 1100°C; distill. fraz.; cristallin. da EtOH'},
+  {n:2,nm:'Sintesi Haworth',re:'Benzene+succinico → β-benzoilpropionico → tetralin → naftalene',me:'FC AlCl₃; Clemmensen (C=O→CH₂); ciclizzazione HF; aromatizzazione Pd',ct:'AlCl₃, CS₂; Zn/Hg, HCl; HF; Pd/Al₂O₃, 300°C'}
+],ret:[
+  {d:'Retro-Haworth (fusione anelli)',sy:'Benzene+anidride succinica',eq:'FC+ciclizzazione+desidrogenazione',tp:'Retro-cicloaddizione'},
+  {d:'Retro-idrogenazione parziale',sy:'Tetralina',eq:'H₂/Ni parziale: naftalene→tetralina',tp:'Retro-idrogenazione'}
+]},
+'acido nicotinico':{iupac:'acido piridina-3-carbossilico',smiles:'OC(=O)c1cccnc1',livello:2,syn:[
+  {n:1,nm:'Ossidazione β-picolin (V₂O₅)',re:'3-CH₃–piridina+O₂ → acido nicotinico',me:'V₂O₅ cat.; CH₃→COOH via aldeide; o KMnO₄ lab',ct:'V₂O₅, 250–300°C, O₂; o KMnO₄/H₂SO₄'},
+  {n:2,nm:'Ossidazione nicotina',re:'Nicotina+KMnO₄ → acido nicotinico+pirrolidinone',me:'KMnO₄ ossida anello pirrolidinico e catena; rimane piridina-3-COOH (niacina)',ct:'KMnO₄ aq., H₂SO₄, Δ'}
+],ret:[
+  {d:'Retro-ossidazione CH₃→COOH',sy:'3-metilpiridina (β-picolin)',eq:'β-picolin+KMnO₄',tp:'Retro-ossidazione laterale'},
+  {d:'Retro-COOH',sy:'3-piridil-MgBr+CO₂',eq:'Grignard piridilico+CO₂ (THF anidro)',tp:'Retro-carbonilazione'}
+]},
+lidocaina:{iupac:'2-(dietilamino)-N-(2,6-dimetilfenil)acetamide',smiles:'CCN(CC)CC(=O)Nc1c(C)cccc1C',livello:2,syn:[
+  {n:1,nm:'Cloroacetilamide+dietilammina',re:'2,6-Me₂C₆H₃NH₂+ClCH₂COCl → amide-Cl; poi+Et₂NH → lidocaina',me:'SNA NH₂ arile su cloruro acilico; poi SN2 Cl con Et₂NH; base neutralizza HCl',ct:'ClCH₂COCl, NaOH, 0°C; poi Et₂NH, K₂CO₃, MeCN, 60°C'},
+  {n:2,nm:'Sintesi one-pot',re:'2,6-dimetilaniline+ClCH₂COCl+Et₂NH → lidocaina·HCl',me:'Amina acilata in situ; amminazione nucleofila; precipitaz. come sale HCl',ct:'DCM, K₂CO₃, 0°C→RT; HCl/Et₂O precipita sale'}
+],ret:[
+  {d:'Retro-amminazione N',sy:'Cloroacetilamide+Et₂NH',eq:'SN2: cloroacetamide+dietilammina',tp:'Retro-SN2'},
+  {d:'Retro-amidazione N-aril',sy:'2,6-dimetilaniline+ClCH₂COOH',eq:'Cloruro acilico+arile-NH₂',tp:'Retro-amidazione'}
+]},
+dopamina:{iupac:'4-(2-amminoetil)benzene-1,2-diolo',smiles:'NCCc1ccc(O)c(O)c1',livello:3,syn:[
+  {n:1,nm:'Decarbossilazione L-DOPA (AAAD)',re:'L-DOPA → dopamina+CO₂',me:'DOPA decarbossilasi (AAAD, PLP): schiff base; β-eliminazione CO₂; stereospecifica; neuroni dopaminergici',ct:'AAAD, PLP, citoplasma; o HCl aq. 200°C lab'},
+  {n:2,nm:'Sintesi Strecker da catecolo',re:'Catecolo+gliossalato+NH₃ → DL-DOPA → decarbossilazione → dopamina',me:'Condensazione Strecker: NH₃+aldeide+CN⁻; amminonitrile; idrolisi; decarb. HCl',ct:'NaCN, NH₄Cl, H₂O; poi HCl 6N, Δ'}
+],ret:[
+  {d:'Retro-decarbossilazione DOPA',sy:'L-DOPA',eq:'Tirosina idrossilasi: Tyr→DOPA in vivo',tp:'Retro-decarbossilazione'},
+  {d:'Retro-catecolo–etilammina',sy:'Catecolo+CH₂=CHNH₂',eq:'Disconnessione 1,2 Cβ–N formale',tp:'Retro-1,2-addizione'}
+]},
+adrenalina:{iupac:'(R)-4-[1-idrossi-2-(metilamino)etil]benzene-1,2-diolo',smiles:'CNC[C@@H](O)c1ccc(O)c(O)c1',livello:3,syn:[
+  {n:1,nm:'Via dopamina (biosintesi)',re:'Dopamina → noradrenalina (DBH) → adrenalina (PNMT)',me:'DBH β-idrossila catena (Cu²⁺, O₂, ascorbato); PNMT N-metila con SAM; stereospecifico R',ct:'DBH, O₂, ascorbato; PNMT, SAM; midollare surrenale'},
+  {n:2,nm:'Sintesi Stolz (1904)',re:'Catecolo+cloroacetile → catecol-amide → Zn rid. → N-metilaz. → risoluzione',me:'Riduzione Zn/HCl → aminoalcol racemico; CH₃NH₂ N-metila; risoluzione (+)-tartrato dà (R)',ct:'Zn polvere, HCl; CH₃NH₂; (R)-(+)-tartrato'}
+],ret:[
+  {d:'Retro-N-metilazione',sy:'Noradrenalina+CH₃⁺',eq:'SAM biologico o HCHO/NaBH₃CN lab',tp:'Retro-N-metilazione'},
+  {d:'Retro-β-idrossilazione',sy:'Dopamina+[O]',eq:'DBH inversa; Fenton non stereospecifico',tp:'Retro-ossidazione β-C'}
+]},
+serotonina:{iupac:'3-(2-amminoetil)-1H-indolo-5-olo',smiles:'NCCc1c[nH]c2ccc(O)cc12',livello:3,syn:[
+  {n:1,nm:'Decarbossilazione 5-HTP (AAAD)',re:'5-HTP → serotonina+CO₂',me:'AAAD (stessa DOPA-decarbossilasi); PLP; β-eliminazione CO₂; neuroni enterocromaffini',ct:'AAAD, PLP, 37°C; o HCl aq. 220°C lab'},
+  {n:2,nm:'Fischer indolica+BBr₃ dem.',re:'5-metossi-fenilidentine → 5-MeO-triptamina; BBr₃ → serotonina',me:'Fischer BF₃/AcOH; [3,3] sigma; ciclizzazione; BBr₃ rimuove O-metile C5',ct:'BF₃·Et₂O, AcOH, 60°C; poi BBr₃, DCM, −78°C'}
+],ret:[
+  {d:'Retro-decarbossilazione 5-HTP',sy:'5-idrossitriptofano',eq:'5-HTP decarbossilasi PLP in vivo',tp:'Retro-decarbossilazione'},
+  {d:'Retro-Fischer indolica',sy:'5-OH-fenilidentina+acetaldeide',eq:'Fischer: idrazone+acido Lewis',tp:'Retro-Fischer-indolica'}
+]},
+istamina:{iupac:'2-(1H-imidazol-4-il)etanammina',smiles:'NCCc1c[nH]cn1',livello:3,syn:[
+  {n:1,nm:'Decarbossilazione istidina (HDC)',re:'L-istidina → istamina+CO₂',me:'HDC (PLP-dipendente); schiff base; β-eliminazione CO₂; mastociti, basofili, neuroni',ct:'HDC, PLP, pH 6, 37°C; o HCl 200°C lab'},
+  {n:2,nm:'Amminazione riduttiva imidazolo-aldeide',re:'4-imidazolilacetaldeide+NH₃+NaBH₃CN → istamina',me:'NH₄OAc+NaBH₃CN: imminazione riduttiva; imina→amina primaria',ct:'NH₄OAc, NaBH₃CN, MeOH, RT'}
+],ret:[
+  {d:'Retro-decarbossilazione istidina',sy:'L-istidina',eq:'Biosintesi istidina da PRPP+ATP',tp:'Retro-decarbossilazione'},
+  {d:'Retro-amminazione riduttiva',sy:'4-imidazolilacetaldeide+NH₃',eq:'Amminazione riduttiva aldeide',tp:'Retro-amminazione'}
+]},
+nicotina:{iupac:'(S)-3-(1-metilpirrolidin-2-il)piridina',smiles:'CN1CCC[C@@H]1c1cccnc1',livello:3,syn:[
+  {n:1,nm:'Sintesi Pictet-Spengler',re:'Nicotinaldeide+N-metil-4-amminobutanale → Schiff → ciclizz. → rid. → nicotina',me:'Condensazione imminica; SEAr Pictet-Spengler; riduzione NaBH₄; risoluzione (+)-tartrato',ct:'AcOH cat., 60°C; NaBH₄; (+)-tartrato'},
+  {n:2,nm:'Via N-metilpirrolinone+Grignard',re:'N-Me-pirrolidinoato+3-piridil-MgBr → rid. → nicotina',me:'3-BrMgC₅H₄N attacca carbonile; riduzione C=O; stereocentro S da risoluzione',ct:'3-BrMgC₅H₄N, THF; NaBH₄; tartrato'}
+],ret:[
+  {d:'Retro-N-metilazione pirrolidina',sy:'Nornicotina+CH₃⁺',eq:'Nornicotina+HCHO/NaBH₃CN o SAM',tp:'Retro-N-metilazione'},
+  {d:'Retro-C2(pirr)–C3(pir)',sy:'Nicotinaldeide+N-Me-pirrolidina',eq:'Pictet-Spengler o Grignard',tp:'Retro-C–C eterociclo'}
+]},
+melatonina:{iupac:'N-[2-(5-metossi-1H-indol-3-il)etil]acetamide',smiles:'COc1ccc2[nH]cc(CCNC(C)=O)c2c1',livello:3,syn:[
+  {n:1,nm:'Biosintesi via serotonina (epifisi)',re:'Serotonina → N-acetilserotonina (AANAT) → melatonina (ASMT)',me:'AANAT: Ac-CoA N-acetila NH₂; ASMT (HIOMT): SAM O-metila OH C5; buio/epifisi',ct:'AANAT, Ac-CoA; ASMT, SAM; epifisi, buio'},
+  {n:2,nm:'Fischer+AcCl (O-MeO precursore)',re:'5-metossi-fenilidentina → 5-MeO-triptamina → AcCl → melatonina',me:'Fischer BF₃/AcOH; precursore già O-metilato; AcCl/piridina N-acetila',ct:'BF₃·Et₂O, AcOH; poi AcCl, piridina, DCM, 0°C'}
+],ret:[
+  {d:'Retro-O5-metilazione',sy:'N-acetilserotonina+SAM',eq:'BBr₃: demetilazione O5',tp:'Retro-O-metilazione'},
+  {d:'Retro-N-acetilazione',sy:'5-metossitriptamina+CH₃CO⁺',eq:'AcCl, piridina o Ac₂O',tp:'Retro-N-acetilazione'}
+]},
+'acido ascorbico':{iupac:'(2R)-2-[(1S)-1,2-diidrossietil]-3,4-diidrossifuran-2(5H)-one',smiles:'OC[C@@H](O)[C@H]1OC(=O)C(O)=C1O',livello:3,syn:[
+  {n:1,nm:'Processo Reichstein-Grüssner (1933)',re:'D-Glucosio→D-sorbitolo→L-sorbosio→2-KGA→Vit.C',me:'H₂/Ni (riduzione aldoso); Acetobacter (ossid. C5); KMnO₄ (C1 ossid.); lactonizzazione HCl',ct:'H₂/Ni; Acetobacter 25°C; KMnO₄/H₂O; HCl pH 2'},
+  {n:2,nm:'Processo fermentativo 2-KGA moderno',re:'D-glucosio → 2-ceto-L-gulonato → Vit.C',me:'E. coli rDNA ossida → 2-KGA; lactonizzazione acida o enzimatica a pH 2',ct:'E. coli rDNA, 37°C pH 7; poi HCl pH 2, 50°C'}
+],ret:[
+  {d:'Retro-lactonizzazione',sy:'2-ceto-L-gulonato',eq:'NaOH dil.: idrolisi lattone reversibile',tp:'Retro-lactonizzazione'},
+  {d:'Retro-riduzione C1',sy:'D-glucuronolattone',eq:'NADPH in fegato: glucuronolattone→ascorbato',tp:'Retro-riduzione biologica'}
+]},
+testosterone:{iupac:'17β-idrossiandrost-4-en-3-one',smiles:'[C@@H]1([C@@H]2CC[C@H]3[C@]2(CC[C@@H]3O)C)CCC4=CC(=O)CC[C@]14C',livello:3,syn:[
+  {n:1,nm:'Degradazione Marker da diosgenina',re:'Diosgenina → 16-DPA (4 passi) → progesterone → testosterone',me:'Marker: Ac₂O/Py; Br₂/AcOH; CrO₃; pirolisi; rimozione catena C17; ricostruzione anello D',ct:'Ac₂O/piridina; Br₂/AcOH; CrO₃; Δ; Pd/H₂'},
+  {n:2,nm:'Biosintesi da colesterolo',re:'Colesterolo → pregnenolone → progesterone → 17α-OH-Prog. → androstenedione → testosterone',me:'CYP11A1 desmolasi; 3β-HSD; CYP17A1; 17β-HSD; ogni step NADPH-dipendente',ct:'Cellule Leydig, NADPH, O₂; mitocondrio+REL'}
+],ret:[
+  {d:'Retro-17β-ossidazione',sy:'Androstenedione',eq:'17β-HSD: testosterone→androstenedione (NAD⁺)',tp:'Retro-ossidazione C17'},
+  {d:'Retro-Δ4 riduzione',sy:'5α-diidrotestosterone (DHT)',eq:'5α-reduttasi+NADPH: testosterone→DHT',tp:'Retro-riduzione Δ4'}
 ]}
 };
 
@@ -31888,16 +32112,136 @@ function _render(outEl, displayName, syn, ret, extraInfo){
   outEl.innerHTML=html;
 }
 
+// ══ 9a. Aliases: IUPAC / SMILES / nomi alternativi → chiave _DB ══════════════
+var _ALIASES={
+  // acetone
+  'propan-2-one':'acetone','propanone':'acetone','dimetilchetone':'acetone','dimethyl ketone':'acetone',
+  // aspirina
+  'aspirin':'aspirina','asa':'aspirina','acido acetilsalicilico':'aspirina',
+  'acido 2-acetilossibenzoico':'aspirina','acetylsalicylic acid':'aspirina',
+  'cc(=o)oc1ccccc1c(=o)o':'aspirina',
+  // paracetamolo
+  'acetaminophen':'paracetamolo','paracetamol':'paracetamolo','acetaminofene':'paracetamolo',
+  '4-acetamidofenolo':'paracetamolo','4-acetamidophenol':'paracetamolo',
+  // glucosio
+  'glucose':'glucosio','d-glucose':'glucosio','dextrose':'glucosio','destrosio':'glucosio',
+  // caffeina
+  'caffeine':'caffeina','1,3,7-trimetilxantina':'caffeina','trimethylxanthine':'caffeina',
+  // etanolo
+  'ethanol':'etanolo','alcol etilico':'etanolo','alcohol':'etanolo','cco':'etanolo',
+  // benzene
+  'benzol':'benzene','c1ccccc1':'benzene',
+  // acido acetico
+  'acetic acid':'acido acetico','acido etanoico':'acido acetico','ethanoic acid':'acido acetico',
+  'cc(=o)o':'acido acetico','ch3cooh':'acido acetico',
+  // anilina
+  'anilina':'aniline','benzenammina':'aniline','aminobenzene':'aniline','phenylamine':'aniline',
+  // fenolo
+  'phenol':'fenolo','idrossibenzene':'fenolo','oc1ccccc1':'fenolo',
+  // toluene
+  'metilbenzene':'toluene','methylbenzene':'toluene','toluol':'toluene','cc1ccccc1':'toluene',
+  // metanolo
+  'methanol':'metanolo','alcol metilico':'metanolo','methyl alcohol':'metanolo','co':'metanolo',
+  // acetaldeide
+  'etanale':'acetaldeide','acetaldehyde':'acetaldeide','ethanal':'acetaldeide','cc=o':'acetaldeide',
+  // formaldeide
+  'metanale':'formaldeide','formaldehyde':'formaldeide','methanal':'formaldeide','c=o':'formaldeide',
+  // acido formico
+  'acido metanoico':'acido formico','formic acid':'acido formico','methanoic acid':'acido formico',
+  'oc=o':'acido formico',
+  // 1-propanolo
+  'propan-1-olo':'1-propanolo','n-propanol':'1-propanolo','1-propanol':'1-propanolo','ccco':'1-propanolo',
+  // 2-propanolo
+  'propan-2-olo':'2-propanolo','isopropanol':'2-propanolo','isopropanolo':'2-propanolo',
+  '2-propanol':'2-propanolo','cc(o)c':'2-propanolo',
+  // urea
+  'carbamide':'urea','carbammide':'urea','nc(n)=o':'urea',
+  // acido propanoico
+  'propionic acid':'acido propanoico','acido propionico':'acido propanoico',
+  'propanoic acid':'acido propanoico','ccc(=o)o':'acido propanoico',
+  // acetato di etile
+  'etil etanoato':'acetato di etile','ethyl acetate':'acetato di etile',
+  'ethyl ethanoate':'acetato di etile','ccoc(c)=o':'acetato di etile',
+  // acido benzoico
+  'benzoic acid':'acido benzoico','oc(=o)c1ccccc1':'acido benzoico',
+  // acido salicilico
+  'salicylic acid':'acido salicilico','acido 2-idrossibenzoico':'acido salicilico',
+  '2-hydroxybenzoic acid':'acido salicilico','oc(=o)c1ccccc1o':'acido salicilico',
+  // vanillina
+  'vanillin':'vanillina','4-hydroxy-3-methoxybenzaldehyde':'vanillina',
+  '4-idrossi-3-metossibenzaldeide':'vanillina','coc1cc(c=o)ccc1o':'vanillina',
+  // acetanilide
+  'n-phenylacetamide':'acetanilide','n-feniletanamide':'acetanilide',
+  'acetylaniline':'acetanilide','cc(=o)nc1ccccc1':'acetanilide',
+  // salicilato di metile
+  'metil 2-idrossibenzoato':'salicilato di metile','methyl salicylate':'salicilato di metile',
+  'olio di gaulteria':'salicilato di metile','coc(=o)c1ccccc1o':'salicilato di metile',
+  // anisolo
+  'metossibenzene':'anisolo','methoxybenzene':'anisolo','anisole':'anisolo','coc1ccccc1':'anisolo',
+  // acetofenone
+  '1-feniletanone':'acetofenone','acetophenone':'acetofenone','methyl phenyl ketone':'acetofenone',
+  'cc(=o)c1ccccc1':'acetofenone',
+  // stirene
+  'vinilbenzene':'stirene','styrene':'stirene','vinylbenzene':'stirene','ethenylbenzene':'stirene',
+  'c=cc1ccccc1':'stirene',
+  // cicloesanolo
+  'cyclohexanol':'cicloesanolo','oc1ccccc1 (non aromatico)':'cicloesanolo','oc1ccccc1':'cicloesanolo',
+  // acido lattico
+  'lactic acid':'acido lattico','acido 2-idrossipropanoico':'acido lattico',
+  '2-hydroxypropanoic acid':'acido lattico','cc(o)c(=o)o':'acido lattico',
+  // acido piruvico
+  'pyruvic acid':'acido piruvico','acido 2-ossopropanoico':'acido piruvico',
+  '2-oxopropanoic acid':'acido piruvico','cc(=o)c(=o)o':'acido piruvico',
+  // naftalene
+  'naphthalene':'naftalene','naftalene':'naftalene','c1ccc2ccccc2c1':'naftalene',
+  // acido nicotinico
+  'niacin':'acido nicotinico','nicotinic acid':'acido nicotinico','vitamina b3':'acido nicotinico',
+  'vitamin b3':'acido nicotinico','acido piridina-3-carbossilico':'acido nicotinico',
+  'oc(=o)c1cccnc1':'acido nicotinico',
+  // lidocaina
+  'lidocaine':'lidocaina','lignocaine':'lidocaina',
+  // dopamina
+  'dopamine':'dopamina','3,4-diidrossifeniletilammina':'dopamina',
+  '3,4-dihydroxyphenethylamine':'dopamina','nccс1ccc(o)c(o)c1':'dopamina',
+  // adrenalina
+  'adrenaline':'adrenalina','epinephrine':'adrenalina','epinefrina':'adrenalina',
+  // serotonina
+  'serotonin':'serotonina','5-idrossitriptamina':'serotonina','5-ht':'serotonina',
+  '5-hydroxytryptamine':'serotonina',
+  // istamina
+  'histamine':'istamina','2-(1h-imidazol-4-il)etanammina':'istamina',
+  // nicotina
+  'nicotine':'nicotina',
+  // melatonina
+  'melatonin':'melatonina',
+  // acido ascorbico
+  'vitamina c':'acido ascorbico','vitamin c':'acido ascorbico','ascorbic acid':'acido ascorbico',
+  'ascorbato':'acido ascorbico',
+  // testosterone
+  'testosterone':'testosterone','17β-idrossiandrost-4-en-3-one':'testosterone',
+  // ibuprofen
+  'ibuprofene':'ibuprofen','ibuprofen':'ibuprofen',
+  // morfina
+  'morphine':'morfina','morfina':'morfina'
+};
+
 // ══ 9. Search: DB → PubChem ══════════════════════════════════════════════════
 function _search(name, outEl){
   outEl.innerHTML='<div style="color:#1fd39a;font-size:12px;padding:14px;font-family:monospace;">🔍 Analisi per: <b>'+_esc(name)+'</b>…</div>';
+  var nl=name.toLowerCase().trim();
   // Normalise key for local DB
-  var key=name.toLowerCase().trim()
-    .replace(/^acido\s+/,'').replace(/[àáâ]/g,'a').replace(/[èéê]/g,'e')
+  var key=nl.replace(/^acido\s+/,'').replace(/[àáâ]/g,'a').replace(/[èéê]/g,'e')
     .replace(/[ìíî]/g,'i').replace(/[òóô]/g,'o').replace(/[ùúû]/g,'u');
-  var dbKey=Object.keys(_DB).find(function(k){ return key===k||name.toLowerCase().trim()===k; });
+  // 1. Direct key match
+  var dbKey=Object.keys(_DB).find(function(k){ return key===k||nl===k; });
+  // 2. Alias map
+  if(!dbKey){ var aliasKey=_ALIASES[nl]||_ALIASES[key]; if(aliasKey&&_DB[aliasKey]) dbKey=aliasKey; }
+  // 3. SMILES alias (lowercase)
+  if(!dbKey&&_isSmiles(name)){ var sk=_ALIASES[nl]; if(sk&&_DB[sk]) dbKey=sk; }
   if(dbKey){
-    setTimeout(function(){ _render(outEl,name,_DB[dbKey].syn,_DB[dbKey].ret,'Dati locali · PubChem: cerca "'+name+'" per info CID/MW'); },150);
+    var mol=_DB[dbKey];
+    var extra='Livello '+(mol.livello||'–')+(mol.iupac?' · IUPAC: '+mol.iupac:'')+(mol.smiles?' · SMILES: '+mol.smiles:'');
+    setTimeout(function(){ _render(outEl,name,mol.syn,mol.ret,extra); },150);
     return;
   }
   var isSmiles=_isSmiles(name);
@@ -31942,10 +32286,11 @@ function _build(){
     +'<div id="bsi15-hd"><h3>⚗️ Sintesi &amp; Retrosintesi</h3><button id="bsi15-x">✕</button></div>'
     +'<div id="bsi15-body">'
     +'<div class="bsi15-hint">'
-    +'🔬 <b>Nome italiano:</b> aspirina · paracetamolo · glucosio · caffeina<br>'
-    +'📐 <b>Nome IUPAC:</b> acido 2-acetilossibenzoico · 4-amminofenolo<br>'
-    +'🧬 <b>SMILES:</b> CC(=O)Oc1ccccc1C(=O)O · c1ccccc1 · CC(=O)O<br>'
-    +'🌐 <b>Inglese:</b> ibuprofen · morphine · benzene · toluene'
+    +'🔬 <b>L1 (base):</b> metanolo · formaldeide · acetaldeide · urea · etanolo · acetato di etile · 1-propanolo · 2-propanolo · acido formico · acido propanoico<br>'
+    +'⚗️ <b>L2 (intermedio):</b> aspirina · paracetamolo · acetofenone · stirene · anisolo · vanillina · acetanilide · naftalene · lidocaina · acido salicilico · acido benzoico · acido lattico · acido nicotinico<br>'
+    +'🧬 <b>L3 (avanzato):</b> glucosio · caffeina · ibuprofen · morfina · dopamina · adrenalina · serotonina · istamina · nicotina · melatonina · acido ascorbico · testosterone<br>'
+    +'📐 <b>IUPAC:</b> acido 2-acetilossibenzoico · propan-2-one · etanale · carbamide<br>'
+    +'🌐 <b>Inglese/SMILES:</b> aspirin · caffeine · glucose · CC(=O)Oc1ccccc1C(=O)O'
     +'</div>'
     +'<input id="bsi15-inp" type="text" placeholder="aspirina · acido 2-acetilossibenzoico · CC(=O)Oc1ccccc1C(=O)O…"/>'
     +'<button id="bsi15-go">🔍 Analizza Sintesi &amp; Retrosintesi</button>'
