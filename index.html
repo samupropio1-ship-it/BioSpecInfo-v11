@@ -29349,5 +29349,455 @@ console.log('BioSpecInfo v12.3 \u2014 controllo aggiornamenti attivo \u2714 (loc
 })();
 </script>
 
+<script>
+// ─── BioSpecInfo v12.4 · Layout & Funzioni Avanzate ───────────────────────
+// Fix: header icons → FAB menu · Android safe-area · Sintesi/Retrosintesi ·
+//      Meccanismi organici completi nella sezione Sintesi
+// ──────────────────────────────────────────────────────────────────────────
+(function(){
+'use strict';
+
+// ══ 1. CSS GLOBALE ══════════════════════════════════════════════════════════
+var css = document.createElement('style');
+css.textContent = [
+  // Pulsanti header: nascosti (spostati nel FAB)
+  '#hdr-actions{display:none!important}',
+  // Safe-area Android: body e main non finiscono sotto la gesture bar
+  'body{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important}',
+  '#main{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)!important}',
+  // FAB: più visibile, più in alto (sopra gesture bar Android)
+  '#bsi105-fab{bottom:calc(env(safe-area-inset-bottom,0px) + 80px)!important;',
+  'width:64px!important;height:64px!important;font-size:28px!important;',
+  'box-shadow:0 8px 28px rgba(0,212,170,.55),0 2px 8px rgba(0,0,0,.4)!important;}',
+  // Menu del FAB: riposizionato di conseguenza
+  '#bsi105-menu{bottom:calc(env(safe-area-inset-bottom,0px) + 156px)!important;}',
+  // Meccanismi: card step-by-step
+  '.bsim-step{background:#0b1a2b;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:12px 15px;margin-bottom:10px}',
+  '.bsim-step-n{color:#1fd39a;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}',
+  '.bsim-step-d{color:#cfe2f5;font-size:12.5px;line-height:1.55}',
+  '.bsim-cat{color:#1fd39a;font-size:.95rem;font-weight:800;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #1e3a52;display:flex;align-items:center;gap:8px}',
+  '.bsim-box{background:#0c1828;border:1px solid #1e3a52;border-radius:12px;padding:14px;margin-bottom:14px}',
+  '.bsim-title{color:#e8f4ff;font-size:.85rem;font-weight:700;margin-bottom:3px}',
+  '.bsim-sub{color:#8aadcc;font-size:11.5px;margin-bottom:10px;font-style:italic}',
+  '.bsim-arrow{color:#1fd39a;font-size:18px;text-align:center;padding:4px 0}',
+  '.bsim-energy{background:#0a1628;border:1px solid #1e3a52;border-radius:8px;padding:8px 12px;font-family:var(--font-mono);font-size:11px;color:#6bcfff;margin:8px 0}',
+  '.bsim-note{background:#101e2e;border-left:3px solid #6bcfff;padding:8px 12px;border-radius:0 8px 8px 0;font-size:11.5px;color:#8aadcc;margin-top:8px;line-height:1.5}',
+  // Modale Sintesi & Retrosintesi
+  '#bsiSR-modal{position:fixed;inset:0;z-index:99996;display:none;align-items:center;justify-content:center;background:rgba(2,8,16,.82);backdrop-filter:blur(5px);padding:14px}',
+  '#bsiSR-modal.open{display:flex}',
+  '#bsiSR-box{background:#0c1828;border:1px solid #1e3a52;border-radius:18px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.65)}',
+  '#bsiSR-head{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid #1e3a52;position:sticky;top:0;background:#0c1828;z-index:2}',
+  '#bsiSR-head h3{margin:0;color:#1fd39a;font-size:1.05rem;font-weight:800}',
+  '#bsiSR-x{background:#16293f;border:none;color:#9fb8d0;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px}',
+  '#bsiSR-body{padding:18px}',
+  '.bsiSR-card{background:#11243a;border:1px solid #1e3a52;border-radius:12px;padding:14px;margin-bottom:12px}',
+  '.bsiSR-card-syn{border-left:4px solid #1fd39a}',
+  '.bsiSR-card-ret{border-left:4px solid #6bcfff}',
+  '.bsiSR-lbl{font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}',
+  '.bsiSR-lbl-syn{color:#1fd39a}',
+  '.bsiSR-lbl-ret{color:#6bcfff}',
+  '.bsiSR-row{color:#cfe2f5;font-size:12.5px;line-height:1.55;margin:3px 0}',
+  '.bsiSR-cat{color:#8aadcc;font-size:11px}',
+].join('');
+document.head.appendChild(css);
+
+// ══ 2. MIGRAZIONE PULSANTI HEADER NEL MENU FAB ══════════════════════════════
+function migrateHdrBtns(){
+  var menu = document.getElementById('bsi105-menu');
+  if(!menu || document.getElementById('bsiM-migrated')) return;
+
+  var items = [
+    { emoji:'❓', label:'Guida al sito',       fn: function(){ if(typeof openBSIGuide==='function') openBSIGuide(0); } },
+    { emoji:'🔗', label:'Condividi app',        fn: function(){ var b=document.getElementById('shareBtn'); if(b) b.click(); } },
+    { emoji:'⬇️', label:'Scarica BioSpecInfo',  fn: function(){ if(typeof downloadBioSpecInfo==='function') downloadBioSpecInfo(); } },
+    { emoji:'📲', label:'Aggiungi a Home',      fn: function(){ if(typeof showAddToHome==='function') showAddToHome(); } },
+    { emoji:'🔄', label:'Aggiornamenti',        fn: function(){ if(typeof window.bsiOpenUpdate==='function') window.bsiOpenUpdate(); } },
+  ];
+
+  items.forEach(function(it, i){
+    var b = document.createElement('div');
+    b.className = 'bsi105-mi';
+    b.innerHTML = '<span class="ic">'+it.emoji+'</span><span>'+it.label+'</span>';
+    b.onclick = function(){ menu.classList.remove('open'); it.fn(); };
+    menu.appendChild(b);
+  });
+
+  var m = document.createElement('span');
+  m.id = 'bsiM-migrated'; m.style.display = 'none';
+  document.body.appendChild(m);
+}
+setTimeout(migrateHdrBtns, 600);
+setTimeout(migrateHdrBtns, 1800);
+
+// ══ 3. STRUMENTO SINTESI & RETROSINTESI ════════════════════════════════════
+var SYNRET_DB = {
+  'acetone':{ syn:[
+    {step:1,name:'Wacker (propilene)',reagents:'CH₃CH=CH₂ + O₂ + H₂O',mechanism:'Coordinazione Pd(II) sul doppio legame → idropalladazione → β-idrelio → rilascio chetone',catalyst:'PdCl₂/CuCl₂, H₂O/DMF, 60°C, O₂'},
+    {step:2,name:'Ossidazione isopropanolo',reagents:'(CH₃)₂CHOH → (CH₃)₂C=O',mechanism:'Ossidazione alcol secondario: astrazio­ne H dal C-OH con agente ossidante',catalyst:'CrO₃·2Py (PCC), DCM, 0°C; oppure DMP, RT'},
+    {step:3,name:'Cumene Process (ind.)',reagents:'C₆H₅CH(CH₃)₂ + O₂ → idroperossido → acetone + fenolo',mechanism:'Autossidazione radicalica del cumene; riarrangiamento acido del perossido (tipo BV)',catalyst:'O₂, aria; H₂SO₄ dil. per clivaggio'},
+  ], retro:[
+    {disconn:'C–H α',synthon:'CH₃COCH₂⁻ (enolato)',equiv:'Enolato acetone + elettrofilo',type:'Umpolung α-carbonilico'},
+    {disconn:'C=O (retro-Wacker)',synthon:'CH₃–CH=CH₂',equiv:'Propilene (ossidazione Wacker)',type:'Retro-ossidazione'},
+    {disconn:'C–C (retro-aldol)',synthon:'2 × CH₃CHO',equiv:'Due molecole acetaldeide (condensazione aldolica retro)',type:'Retro-aldol'},
+  ]},
+  'aspirina':{ syn:[
+    {step:1,name:'Acetilazione (Fischer)',reagents:'Acido salicilico + (CH₃CO)₂O',mechanism:'SNA: il gruppo OH fenolico attacca il carbonile dell\'anidride; espulsione del acetato come gruppo uscente',catalyst:'H₃PO₄ o H₂SO₄ cat., 85°C, 15 min'},
+    {step:2,name:'Via cloruro acilico',reagents:'Acido salicilico + CH₃COCl + piridina',mechanism:'SNA facilitata dal cloruro; la piridina neutralizza HCl generato',catalyst:'Piridina anidra, 0°C → RT'},
+  ], retro:[
+    {disconn:'C(acil)–O',synthon:'ArOH · CH₃CO⁺',equiv:'Acido salicilico + anidride acetica',type:'Retro-esterificazione fenolica'},
+    {disconn:'Idrolisi estere',synthon:'Salicilato⁻ + CH₃COOH',equiv:'Idrolisi basica (saponificazione)',type:'Retro-acetilazione'},
+  ]},
+  'glucosio':{ syn:[
+    {step:1,name:'Sintesi Kiliani-Fischer',reagents:'D-arabinosio + HCN → aldonolattone → aldoesoso',mechanism:'Addizione nucleofila di CN⁻ al C-1 dell\'aldopentoso; riduzione lattone → aldosio',catalyst:'NaCN, H₂O; poi H₂ (Pd) o Na-Hg'},
+    {step:2,name:'Sintesi Haworth (ad anello)',reagents:'Glucosio aperto → α/β-D-glucopiranosio',mechanism:'Attacco nucleofilo OH-5 al C-1 aldeidico (ciclizzazione); controllo anomerico',catalyst:'Catalisi acida o enzimatica; equilibrio'},
+  ], retro:[
+    {disconn:'C1–O (anello)',synthon:'Glucosio a catena aperta (aldoeso)',equiv:'Apertura del piranoso in soluzione acquosa',type:'Retro-ciclizzazione'},
+    {disconn:'C1–C2',synthon:'D-Arabinosio + C₁ (Kiliani)',equiv:'Degradazione di un carbonio (Ruff, Wohl)',type:'Degradazione C-chain'},
+    {disconn:'C–H enolizzaz.',synthon:'Endiolo C1-C2',equiv:'Epimerizzazione in base (Lobry de Bruyn)',type:'Isomerizzazione enolica'},
+  ]},
+  'etanolo':{ syn:[
+    {step:1,name:'Idratazione etilene (ind.)',reagents:'CH₂=CH₂ + H₂O',mechanism:'Addizione elettrofila: protonazione alchene → carbocatione etilico → attacco acqua → protocollo → alcol',catalyst:'H₃PO₄/SiO₂, 300°C, 60 atm'},
+    {step:2,name:'Fermentazione glucosio',reagents:'C₆H₁₂O₆ → 2 C₂H₅OH + 2 CO₂',mechanism:'Via glicolisi (Embden-Meyerhof): piruvato decarbossilato ad acetaldeide → riduzione con NADH → etanolo',catalyst:'Saccharomyces cerevisiae, piruvato decarbossilasi, alcol deidrogenasi'},
+  ], retro:[
+    {disconn:'C–O (retro-addizione)',synthon:'CH₂=CH₂ + H₂O',equiv:'Etilene (disidratazione inversa)',type:'Retro-idratazione'},
+    {disconn:'Ossid. parziale',synthon:'CH₃CHO (acetaldeide)',equiv:'Ossidazione a due elettroni (ADH)',type:'Retro-riduzione'},
+  ]},
+  'paracetamolo':{ syn:[
+    {step:1,name:'Acetilazione p-amminofenolo',reagents:'H₂N–C₆H₄–OH + (CH₃CO)₂O',mechanism:'SNA: ammina più nucleofila dell\'OH; attacco al carbonile anidride; espulsione acetato',catalyst:'Acido acetico glaciale o piridina, 50°C'},
+  ], retro:[
+    {disconn:'C(acil)–N',synthon:'p-amminofenolo + (CH₃CO)⁺',equiv:'p-amminofenolo + anidride acetica',type:'Retro-amidazione'},
+  ]},
+  'benzaldeide':{ syn:[
+    {step:1,name:'Ossidazione toluene (Étard)',reagents:'C₆H₅–CH₃ + CrO₂Cl₂',mechanism:'Ossidazione radicalica del gruppo metilico; complesso Cr intermedio → idrolisi → aldeide',catalyst:'CrO₂Cl₂, CS₂, 0°C; poi H₂O'},
+    {step:2,name:'Gattermann-Koch',reagents:'C₆H₆ + CO + HCl (Friedel-Crafts tipo)',mechanism:'CO + HCl + AlCl₃ → formyl-cation [CHO]⁺ → SEAr su benzene',catalyst:'AlCl₃/CuCl, HCl/CO, HP'},
+  ], retro:[
+    {disconn:'Ar–CHO',synthon:'PhH + CHO⁺ (formile)',equiv:'Benzene + CO/HCl (Gattermann-Koch)',type:'Retro-Friedel-Crafts'},
+    {disconn:'Ar–C → CH₃',synthon:'Toluene (ossidazione)',equiv:'Toluene + CrO₂Cl₂ o KMnO₄',type:'Retro-ossidazione'},
+  ]},
+  'caffeina':{ syn:[
+    {step:1,name:'Sintesi Traube',reagents:'4,5-Diamminouracile + acido formico → xantina → caffeina',mechanism:'Ciclizzazione del sistema purinico: condensazione + metilazione con CH₃I/K₂CO₃',catalyst:'Acido formico, Δ; poi (CH₃)₂SO₄ o CH₃I, K₂CO₃, DMF'},
+    {step:2,name:'Metilazione teofilline',reagents:'Teofillina + CH₃I o (CH₃)₂SO₄',mechanism:'Alchilazione N7 preferenziale in condizioni blande',catalyst:'K₂CO₃, DMF, 60°C'},
+  ], retro:[
+    {disconn:'N1–CH₃',synthon:'Teofillina + CH₃⁺',equiv:'Teofillina + dimetilsolfato (alchilazione)',type:'Retro-N-metilazione'},
+    {disconn:'C8 (retro-Traube)',synthon:'4,5-Diamminouracile + HCOOH',equiv:'Via Traube (Xantina → Caffeina)',type:'Retro-Traube'},
+  ]},
+};
+
+var MECC_DATA = [
+  { cat:'Sostituzioni Nucleofile', items:[
+    { title:'SN2 — Sostituzione Nucleofila Bimolecolare', sub:'Invertisce la configurazione (inversione di Walden)',
+      steps:[
+        'Il nucleofilo (Nu⁻) si avvicina allo stesso asse del legame C–LG, dal lato opposto al gruppo uscente (attacco posteriore, 180°).',
+        'Stato di transizione: geometria trigonale bipiramidale distorta [Nu···C···LG]‡ — il carbonio è pentacoordinato a bassa barriera.',
+        'Il gruppo uscente (LG) si allontana; il carbonio "si rovescia" (ombrello invertito): inversione completa della configurazione assoluta.',
+        'Cinetica: k = k₂[Nu][R–LG]. Substrati 1° > 2° ≫ 3°. Solventi aprotici polari (DMF, DMSO) aumentano la nucleofilicità.',
+      ], note:'Esempio chiave: CH₃Br + OH⁻ → CH₃OH + Br⁻. Regola di Ingold: Nu forti + 1°-subst. → SN2. Ordine LG: I > Br > Cl > F per substrati alifatici.'
+    },
+    { title:'SN1 — Sostituzione Nucleofila Unimolecolare', sub:'Via carbocatione, produce miscela racemica',
+      steps:[
+        'Ionizzazione (stadio determinante la velocità): R–LG → R⁺ + LG⁻. K = k₁[R–LG]. Solo il substrato controlla la velocità.',
+        'Il carbocatione planare (sp²) è stabilizzato per: ipercon­jugazione (3° > 2° > 1°), effetti mesomeri (benzilico, allilico).',
+        'Attacco del nucleofilo da entrambe le facce del carbocatione planare → miscela racemica (50:50) o, con ion pair, con lieve eccesso della coppia retenzione.',
+        'Partecipazione del solvente (solvolisi): l\'acqua o alcol fungono da nucleofilo. Riarrangiamenti (idride, metide) frequenti con carbocationi instabili.',
+      ], note:'Solventi protici polari (H₂O, EtOH, AcOH) stabilizzano il carbocatione per solvente. Substrati 3° e benzilici favoriscono SN1.'
+    },
+  ]},
+  { cat:'Eliminazioni', items:[
+    { title:'E2 — Eliminazione Bimolecolare (trans-periplanare)', sub:'Stereospecifica: richiede conformazione anti',
+      steps:[
+        'La base forte (KOtBu, NaH) astrae l\'H anti-periplanare rispetto al gruppo uscente (conformazione gauche-periplanare sfavorita → conformazione anti attiva).',
+        'Stato di transizione sincrono: [Base···H···Cα=Cβ···LG]‡. Formazione simultanea di C=C, rottura C–H e C–LG.',
+        'Geometria E o Z del prodotto dipende da quale idrogeno anti-periplanare viene eliminato (es.: eritro → Z; treo → E).',
+        'Regola di Zaitsev: con base piccola → alchene più sostituito; base voluminosa (KOtBu) → alchene meno sost. (Hofmann).',
+      ], note:'E2 richiede almeno un H antiperiplanare rispetto a LG. In cicloesano: H e LG devono essere entrambi in posizione assiale (conformazione diassiale).'
+    },
+    { title:'E1 — Eliminazione Unimolecolare', sub:'Via carbocatione, Zaitsev',
+      steps:[
+        'Stadio 1 (lento): ionizzazione → carbocatione planare (stesso del SN1). Favorito da substrati 3°/benzilici.',
+        'Stadio 2 (rapido): base (o solvente) astrae un H dal carbonio adiacente al cationico → forma il π-legame.',
+        'Regioselezione: Zaitsev → alchene più sost. (termodin. controllato a temperatura elevata).',
+        'Competizione SN1 vs E1 dipende da T°C, [base], natura del nucleofilo.',
+      ], note:'A T alta: E1 favorita su SN1. Carbocationi ariel (allilici, benzilici) stabilizzati ↑ SN1/E1 su SN2/E2.'
+    },
+  ]},
+  { cat:'Aggiunte Elettrofile su Alcheni', items:[
+    { title:'Addizione HX a Alchene (Markovnikov)', sub:'Meccanismo di addizione elettrofila (AdE)',
+      steps:[
+        'H⁺ (da HBr, HCl, HI, H₂SO₄) si lega al carbonio meno sostituito: forma il carbocatione più stabile (regola di Markovnikov).',
+        'Il carbocatione intermediario (planare, sp²) è stabilizzato da iperc­oniugazione e/o risonanza.',
+        'X⁻ (nucleofilo) attacca il carbocatione; addizione anti o syn dipende dalle condizioni (ionica → anti meno controllata; epossido → anti).',
+        'HBr in presenza di perossidi → meccanismo radicalico → anti-Markovnikov (Br⁺· al C più sost.).',
+      ], note:'Regola di Markovnikov: il protone va al carbonio più idrogenato. Con perossidi (HBr): inversione → anti-Markovnikov (radicali).'
+    },
+    { title:'Diidrossilazione cis (OsO₄/NMO)', sub:'Addizione sin-facciale stereospecifica',
+      steps:[
+        'OsO₄ si coordina al doppio legame in geometria [3+2] (cicloaddizione concertata): entrambi gli atomi di O atterrano sulla stessa faccia.',
+        'Intermedio: osmate(VI) ciclico → idrolisi ossidativa → diol cis (entrambi gli OH sullo stesso lato).',
+        'NMO (N-metilmorfolina-N-ossido) rigenera OsO₄ → catalisi (1 mol%). Con AD-mix-α/β (ligante DHQD/DHQ) → asimmetria (e.e.>99%).',
+        'Complementare all\'epossidazione: diol trans si ottiene via epossido + apertura in acido.',
+      ], note:'AD-mix-α: l\'OH si forma in faccia "α" (regola empirica di Sharpless). Usato in sintesi totali (taxolo, criptoficina).'
+    },
+  ]},
+  { cat:'Sostituzione Elettrofila Aromatica (SEAr)', items:[
+    { title:'Meccanismo Generale SEAr', sub:'Complesso σ (arenio) come intermedio',
+      steps:[
+        'Formazione dell\'elettrofilo attivato: E⁺ o complesso E–LewisAcid. Esempio: Cl₂ + AlCl₃ → Cl⁺[AlCl₄⁻]; HNO₃ + H₂SO₄ → [NO₂]⁺ nitronium.',
+        'Attacco dell\'elettrofilo al sistema π aromatico: addizione al C-sp² → intermediario carbocationico (complesso σ, arenio ion) che rompe aromaticità.',
+        'Il complesso σ stabilizzato da risonanza su 3 posizioni del ciclo aromatico — ma arom. interrotta.',
+        'Ri-aromatizzazione: perdita di H⁺ al vettore base o al controione → restaura aromaticità. Questo è lo stadio che libera la forza driving force.',
+      ], note:'Gruppi EWG (NO₂, CF₃): diri­gono meta, disattivano. Gruppi EDG (OH, NH₂, OR): dirigono orto/para, attivano. Alogeni: dirigono orto/para ma deattivano.'
+    },
+    { title:'Nitrazione (Ar–H → Ar–NO₂)', sub:'Elettrofilo: catione nitronium [NO₂]⁺',
+      steps:[
+        'Mescola HNO₃ + H₂SO₄ conc. (acido di nitrazione): H₂SO₄ protona HNO₃ → [NO₂]⁺ + H₂O.',
+        'NO₂⁺ attacca il sistema π aromatico → complesso σ (Wheland).',
+        'Perdita di H⁺ → prodotto aromatico nitrato.',
+        'Temperatura < 50°C per mono-nitrazione; > 70°C → di-nitrazione (es. TNT richiede 3 stadi con misti di acidi fumanti).',
+      ], note:'Selettività orto/para: anilina (forte attivante, NH₂ dirige o/p); toluene (o/p, ~60% para). Nitrobenzene richiede condizioni più energiche (meta).'
+    },
+    { title:'Alogenazione (Ar–H → Ar–X) Friedel-Crafts', sub:'Cl₂/AlCl₃ o Br₂/FeBr₃',
+      steps:[
+        'X₂ + Lewis Acid (AlCl₃, FeBr₃) → X⁺[MX₄⁻] o complesso eterolitico polarizzato.',
+        'Attacco X⁺ al benzene → complesso σ con carica positiva delocalizzata sull\'anello.',
+        'Espulsione H⁺ al controione [AlCl₄⁻] → restauro aromaticità + HAlCl₄ → HCl + AlCl₃ (riciclo cat.).',
+        'La reazione è reversibile in condizioni dure (protodealoganazione). Iodo­benzene richiede ossidante (HNO₃, H₂O₂).',
+      ], note:'Senza Lewis acid: Cl₂ non reagisce con benzene ma agisce come radicale in luce UV (addizione radicalica, poi non-SEAr).'
+    },
+  ]},
+  { cat:'Addizione Nucleofila al Carbonile', items:[
+    { title:'Riduzione NaBH₄ / LiAlH₄ (aldeidi e chetoni)', sub:'Trasferimento di idruro H⁻',
+      steps:[
+        'NaBH₄: H⁻ (nucleofilo) trasferito dal boro al carbonile; attacca la faccia meno ingombra del C=O. Intermedio: alchilborato.',
+        'Dopo idrolisi acida: alcol primario (da aldeide) o secondario (da chetone).',
+        'LiAlH₄: più reattivo, riduce anche esteri (→ 2×1°alc), acidi, ammidi, nitrili. Richiede Et₂O anidro, 0°C (violento con H₂O!).',
+        'Selettività: NaBH₄ non tocca esteri, acidi, ammidi, olefine. LiAlH₄ non selettivo.',
+      ], note:'Riduzione asimmetrica CBS: ossazaborolidina chirale trasferisce H⁻ da una sola faccia → e.e. >97%. Usata per alcoli chirali in API farmaceutici.'
+    },
+    { title:'Addizione di Grignard al Carbonile', sub:'R-MgX: nucleofilo carbaninico C-nucleofilo',
+      steps:[
+        'Preparazione del Grignard: Mg (trucioli) + R-X in Et₂O anidro → R-MgX (esotermico).',
+        'R⁻ del Grignard attacca il carbonile (aldeide → 2°alc, chetone → 3°alc, CO₂ → acido).',
+        'Intermedio: alco­lato di magnesio → idrolisi acquosa → alcol.',
+        'Incompatibile con: H₂O, alcoli, NH, COOH, NO₂ (proto­demagnesiano). Richiede protezione gruppi attivi.',
+      ], note:'Variante: organolitio R-Li (più reattivo, aggiunge a esteri → chetoni terziari). Vinilici e aromatici stabili in Grignard; alchilici più reattivi.'
+    },
+    { title:'Condensazione Aldolica', sub:'Enolato + carbonile → β-idrossicarbonile → α,β-insaturo',
+      steps:[
+        'Formazione enolato (base, NaOH) o enolo (acido): il C-α del carbonile diventa nucleofilo.',
+        'Addizione dell\'enolato al C=O di un secondo carbonile (può essere lo stesso composto = aldol omologo): forma β-alcossido (β-idrossicarbonile dopo idrolisi).',
+        'Disidratazione (Δ o acido, base forte): eliminazione H₂O → alchene coniugato α,β-insaturo (aldol cross-condensation = aldol-deidratazione = condensazione aldolica).',
+        'Controllo sterochimica: LDA a −78°C → enolato Z → syn-aldol (Zimmermann-Traxler). BH₃/LDA → enolato E → anti-aldol.',
+      ], note:'Applicazione chiave: Claisen (esteri), Dieckmann (intramolecolare), Knoevenagel (cationi attivati), biosintesi acidi grassi (FAS: uso malonil-CoA).'
+    },
+  ]},
+  { cat:'Reazioni Pericicliche', items:[
+    { title:'Diels-Alder [4+2]', sub:'Cicloaddizione concertata, stereospecifica endo/exo',
+      steps:[
+        'Diene (4π, conformazione s-cis obbligatoria) + dienofilo (2π, EWG attivante come CHO, CO₂R, CN).',
+        'Stato di transizione a 6 centri (ciclico, aromatico-aroide): orbite di frontiera HOMO(diene)–LUMO(dienofilo) interagiscono.',
+        'Regola endo: il sostituente del dienofilo è endo nello stato di transizione per interazioni secondarie orbitali → prodotto endo cinetico.',
+        'Prodotto: cicloesene (anello 6), 2 nuovi C–C, fino a 4 nuovi stereocentri (stereospecifica: syn-addizione sulle facce).',
+      ], note:'HOMO-LUMO: dienofili con EWG abbassano il LUMO → aumento reattività. Catalisi Lewis: BF₃, TiCl₄ abbassano LUMO del dienofilo → T più bassa, e.e. con catalyst chirali.'
+    },
+    { title:'Riarrangiamento di Cope e Claisen [3,3]', sub:'Riarrangiamento sigmatropico termico [3,3]',
+      steps:[
+        'Substrato: 1,5-diene (Cope) o allil vinil etere (Claisen). Conformazione a barca o sedia nello ST.',
+        'ST a 6 centri aromatici (Hückel): 6 elettroni, aromatico, sedia = stereochimica ben definita (es. Eschenmoser-Claisen, Ireland-Claisen).',
+        'Cope: 1,5-diene → 1,5-diene (isomerismo). Claisen: allil vinil etere → δ,ε-insaturo chetone (nuova connettività C–C).',
+        'Stereocontrollo: la geometria del doppio legame determina stereochimica del prodotto (sedia vs barca ST).',
+      ], note:'Irlanda-Claisen: enolato sililato di estere allilico → [3,3] a bassa T → acido allilico con stereocontrollo elevato. Usato in sintesi di amminoacidi non naturali.'
+    },
+  ]},
+  { cat:'Reazioni con Metalli di Transizione', items:[
+    { title:'Ciclo Catalitico Suzuki-Miyaura', sub:'Pd(0)/Pd(II): 3 stadi — addizione ossidativa · transmetalazione · eliminazione riduttiva',
+      steps:[
+        'Addizione Ossidativa: Pd(0) + Ar–X (X=Br, I) → Ar–Pd(II)–X. Il Pd si ossida a Pd(II); legame σ Pd–C formato.',
+        'Transmetalazione: Ar–Pd(II)–X + Ar\'–B(OH)₂ + base (K₂CO₃) → Ar–Pd(II)–Ar\'. Il boro trasferisce il gruppo arilico al palladio; X⁻ parte come borate.',
+        'Eliminazione Riduttiva: Ar–Pd(II)–Ar\' → Ar–Ar\' + Pd(0) (riciclo). Il nuovo legame C–C si forma; Pd torna a stato 0.',
+        'Ligandi (PPh₃, SPhos, XPhos) stabilizzano Pd(0), controllano velocità e tolleranza ai gruppi funzionali.',
+      ], note:'Nobel 2010 (Heck, Negishi, Suzuki). Standard industria farmaceutica: tolera OH, NHBoc, ester, amilina. Usato in sintesi di losartan, valsartan, neratinib.'
+    },
+    { title:'Metathesi con Ruthenio (Grubbs)', sub:'Scambio di alchilene: [2+2]+[2+2] retro',
+      steps:[
+        'Iniziazione: catalizzatore Ru-carbene forma metallaciclobutano [4+2] con alchene.',
+        'Propagazione: apertura del metallaciclobutano → nuovo Ru-carbene e nuova olefina. Ciclo si ripete.',
+        'RCM (Ring Closing Metathesis): due alcheni intramolecolari → ciclo + etilene (volatil, sposta equilibrio).',
+        'Grubbs 1ª gen. (PCy₃), 2ª gen. (NHC): maggiore stabilità termica, tolleranza ai GF polari. Hoveyda-Grubbs per RCM stereospecifico.',
+      ], note:'Nobel 2005. RCM chiave per macrolattami (epotilone), ciclopenteni, oxacicli. ROMP (Ring Opening) per polimeri con struttura controllata.'
+    },
+  ]},
+  { cat:'Protezione / Deprotezione Gruppi Funzionali', items:[
+    { title:'Protezione OH come Eteri TBS/TMS', sub:'Si(CH₃)₃ o Si(tBu)(CH₃)₂: stabili a base, labili a HF/TBAF',
+      steps:[
+        'Protezione: R–OH + TBSCl + Et₃N → R–OTBS + Et₃N·HCl. Stadio SNA su silicio (tetraedrale): Cl partente, O nucleofilo.',
+        'Selettività: TBS (t-Bu-dimetilsilil) > TMS (trimetilsilil) per la stabilità stericaidata (più robusto).',
+        'Deprotezione: TBAF (fluoruro tetrabutilammonio) in THF → R–OH + F–Si(t-Bu)(CH₃)₂ (Si–F legame più forte, ~135 kcal/mol).',
+        'Alternative: PMB (p-metossibenzile, DDQ/CAN), Bn (benzile, H₂/Pd-C), MOM (metossimetile, HCl/MeOH).',
+      ], note:'Strategia di protezione ortogonale: TBS rimosso da F⁻; PMB da DDQ (ossidazione); Bn da H₂/Pd. Usati in combinazione per selettività in sintesi totali.'
+    },
+  ]},
+];
+
+// ── Costruisce HTML meccanismi ──
+function buildMechHTML(){
+  var html = '<div id="bsi-mech-panel" style="margin-top:22px">';
+  html += '<div style="color:#1fd39a;font-size:.9rem;font-weight:800;padding:10px 0 14px;border-bottom:2px solid #1e3a52;margin-bottom:18px;letter-spacing:.08em">🔬 MECCANISMI STEP-BY-STEP · TUTTI I TIPI PRINCIPALI</div>';
+
+  MECC_DATA.forEach(function(cat){
+    html += '<div class="bsim-cat">⚗️ '+cat.cat+'</div>';
+    cat.items.forEach(function(it){
+      html += '<div class="bsim-box">'
+        +'<div class="bsim-title">'+it.title+'</div>'
+        +'<div class="bsim-sub">'+it.sub+'</div>';
+      it.steps.forEach(function(s, i){
+        html += '<div class="bsim-step">'
+          +'<div class="bsim-step-n">Passo '+(i+1)+'</div>'
+          +'<div class="bsim-step-d">'+s+'</div>'
+          +'</div>';
+      });
+      if(it.note){
+        html += '<div class="bsim-note">📌 '+it.note+'</div>';
+      }
+      html += '</div>';
+    });
+  });
+  html += '</div>';
+  return html;
+}
+
+// ── Inietta meccanismi nella sezione ssyn ──
+function injectMechanisms(){
+  var ssyn = document.getElementById('ssyn');
+  if(!ssyn || document.getElementById('bsi-mech-panel')) return;
+  var panel = document.createElement('div');
+  panel.innerHTML = buildMechHTML();
+  ssyn.appendChild(panel);
+}
+
+// ── Modale Sintesi & Retrosintesi ──
+function buildSRModal(){
+  if(document.getElementById('bsiSR-modal')) return;
+  var modal = document.createElement('div');
+  modal.id = 'bsiSR-modal';
+  modal.innerHTML = '<div id="bsiSR-box">'
+    +'<div id="bsiSR-head"><h3>⚗️ Sintesi &amp; Retrosintesi Molecola</h3><button id="bsiSR-x">✕</button></div>'
+    +'<div id="bsiSR-body">'
+    +'<div style="margin-bottom:14px">'
+    +'<input id="bsiSR-inp" type="text" placeholder="acetone · aspirina · glucosio · caffeina · paracetamolo · etanolo…" '
+    +'style="width:100%;padding:12px 15px;background:#0c1828;border:1px solid #1e3a52;border-radius:10px;color:#e8f4ff;font-size:14px;outline:none;font-family:var(--font);box-sizing:border-box;margin-bottom:10px">'
+    +'<button id="bsiSR-go" style="width:100%;padding:12px;background:linear-gradient(135deg,#1fd39a,#1aa97a);border:none;border-radius:10px;color:#e9eef6;font-weight:800;font-size:14px;cursor:pointer">🔍 Analizza sintesi e retrosintesi</button>'
+    +'</div>'
+    +'<div id="bsiSR-out"></div>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+
+  document.getElementById('bsiSR-x').onclick = function(){ modal.classList.remove('open'); };
+  modal.onclick = function(e){ if(e.target === modal) modal.classList.remove('open'); };
+
+  document.getElementById('bsiSR-go').onclick = doSRSearch;
+  document.getElementById('bsiSR-inp').addEventListener('keydown', function(e){ if(e.key==='Enter') doSRSearch(); });
+}
+
+function doSRSearch(){
+  var inp = document.getElementById('bsiSR-inp');
+  var out = document.getElementById('bsiSR-out');
+  if(!inp||!out) return;
+  var val = inp.value.trim();
+  if(!val){ out.innerHTML = ''; return; }
+  var key = val.toLowerCase();
+  var data = SYNRET_DB[key];
+
+  var html = '';
+  if(!data){
+    // Prova ricerca parziale
+    var keys = Object.keys(SYNRET_DB);
+    var found = keys.find(function(k){ return k.indexOf(key)!==-1 || key.indexOf(k)!==-1; });
+    if(found) data = SYNRET_DB[found];
+  }
+
+  if(!data){
+    html = '<div style="background:#0a1628;border:1px dashed #1e3a52;border-radius:10px;padding:16px;color:#8aadcc;font-size:13px;line-height:1.6">'
+      +'<b style="color:#1fd39a">Molecola non trovata nel database locale.</b><br><br>'
+      +'Molecole disponibili: <span style="color:#cfe2f5">acetone, aspirina, glucosio, caffeina, paracetamolo, etanolo, benzaldeide</span><br><br>'
+      +'Per analisi avanzate usa le sezioni:<br>'
+      +'<button onclick="document.getElementById(\'bsiSR-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=ssyn]\').click()" '
+      +'style="background:#1a3050;border:none;color:#1fd39a;padding:6px 14px;border-radius:8px;cursor:pointer;margin:4px 2px;font-size:12px;font-weight:700">🧪 Sintesi Organica</button>'
+      +'<button onclick="document.getElementById(\'bsiSR-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=sretro]\').click()" '
+      +'style="background:#1a3050;border:none;color:#6bcfff;padding:6px 14px;border-radius:8px;cursor:pointer;margin:4px 2px;font-size:12px;font-weight:700">🔄 Retrosintesi</button>'
+      +'</div>';
+    out.innerHTML = html;
+    return;
+  }
+
+  // Sintesi
+  html += '<div style="color:#1fd39a;font-size:.85rem;font-weight:800;margin:4px 0 12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">⚗️ PERCORSI DI SINTESI</div>';
+  (data.syn||[]).forEach(function(s){
+    html += '<div class="bsiSR-card bsiSR-card-syn">'
+      +'<div class="bsiSR-lbl bsiSR-lbl-syn">Metodo '+s.step+' · '+s.name+'</div>'
+      +'<div class="bsiSR-row"><b>Reagenti:</b> '+s.reagents+'</div>'
+      +'<div class="bsiSR-row"><b>Meccanismo:</b> '+s.mechanism+'</div>'
+      +'<div class="bsiSR-row"><b style="color:#6bcfff">Catalizzatore / Condizioni:</b> <span style="color:#6bcfff">'+s.catalyst+'</span></div>'
+      +'</div>';
+  });
+
+  // Retrosintesi
+  html += '<div style="color:#6bcfff;font-size:.85rem;font-weight:800;margin:16px 0 12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">🔄 ANALISI RETROSINTETICA</div>';
+  (data.retro||[]).forEach(function(r){
+    html += '<div class="bsiSR-card bsiSR-card-ret">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<span class="bsiSR-lbl bsiSR-lbl-ret">Disconnessione '+r.disconn+'</span>'
+      +'<span style="background:#1a3050;color:#8aadcc;font-size:10.5px;padding:2px 8px;border-radius:8px">'+r.type+'</span>'
+      +'</div>'
+      +'<div class="bsiSR-row"><b>Sinton:</b> '+r.synthon+' ⟹</div>'
+      +'<div class="bsiSR-row"><b>Equivalente sintetico:</b> '+r.equiv+'</div>'
+      +'</div>';
+  });
+
+  html += '<div style="margin-top:12px;padding:10px 14px;background:#060d1a;border-radius:10px;border:1px dashed #1e3a52;color:#8aadcc;font-size:11.5px;line-height:1.6">'
+    +'💡 Vai alle sezioni dedicate: '
+    +'<button onclick="document.getElementById(\'bsiSR-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=ssyn]\').click()" '
+    +'style="background:#1a3050;border:none;color:#1fd39a;padding:3px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin:0 3px">🧪 Sintesi Org.</button>'
+    +'<button onclick="document.getElementById(\'bsiSR-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=sretro]\').click()" '
+    +'style="background:#1a3050;border:none;color:#6bcfff;padding:3px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin:0 3px">🔄 Retrosintesi</button>'
+    +'</div>';
+
+  out.innerHTML = html;
+}
+
+// ── Aggiunge voce "Sintesi & Retrosintesi" al FAB menu ──
+function addSRMenuItem(){
+  var menu = document.getElementById('bsi105-menu');
+  if(!menu || document.getElementById('bsiSR-fabitem')) return;
+  var b = document.createElement('div');
+  b.id = 'bsiSR-fabitem';
+  b.className = 'bsi105-mi';
+  b.style.cssText = 'border-color:#6bcfff;background:linear-gradient(135deg,#0a1a2e,#0a1628)';
+  b.innerHTML = '<span class="ic">⚗️</span><span style="color:#6bcfff">Sintesi &amp; Retrosintesi</span>';
+  b.onclick = function(){
+    menu.classList.remove('open');
+    buildSRModal();
+    var m = document.getElementById('bsiSR-modal');
+    if(m){ m.classList.add('open'); setTimeout(function(){ var inp=document.getElementById('bsiSR-inp'); if(inp) inp.focus(); },120); }
+  };
+  menu.insertBefore(b, menu.firstChild);
+}
+
+// ══ AVVIO ════════════════════════════════════════════════════════════════════
+setTimeout(function(){
+  migrateHdrBtns();
+  addSRMenuItem();
+  buildSRModal();
+  injectMechanisms();
+}, 700);
+setTimeout(function(){
+  migrateHdrBtns();
+  addSRMenuItem();
+  injectMechanisms();
+}, 2000);
+
+console.log('BioSpecInfo v12.4 — layout fix + sintesi/retrosintesi + meccanismi ✔');
+})();
+</script>
+
 </body>
 </html>
