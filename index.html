@@ -31273,8 +31273,8 @@ _st.textContent=[
 '.bsi15-step-badge{background:#1fd39a22;border:1px solid #1fd39a55;border-radius:20px;',
 'padding:2px 9px;color:#6adfb0;font-size:9px;font-family:monospace;font-weight:700;white-space:nowrap;}',
 '.bsi15-card-nm{color:#1fd39a;font-size:12.5px;font-weight:800;font-family:monospace;flex:1;}',
-'.bsi15-svg-wrap{background:#f8fcf8;overflow:visible;min-height:120px;}',
-'.bsi15-svg-wrap svg{display:block;width:100%;height:120px;}',
+'.bsi15-svg-wrap{background:#f8fcf8;overflow-x:auto;overflow-y:hidden;min-height:120px;}',
+'.bsi15-svg-wrap svg{display:block;width:520px;min-width:520px;height:120px;}',
 '.bsi15-card-bd{background:#f2f9f2;padding:10px 14px;}',
 '.bsi15-rxn{color:#1b3a1b;font-size:11px;font-family:monospace;',
 'margin-bottom:5px;word-break:break-all;line-height:1.4;}',
@@ -31314,7 +31314,7 @@ function _sh(cx,cy,r,c){var p=[];for(var i=0;i<6;i++){var a=Math.PI/3*i-Math.PI/
 function _sd(x1,y1,x2,y2,c){var dx=y2-y1,dy=x1-x2,l=Math.sqrt(dx*dx+dy*dy)||1,o=2.8,nx=dx/l*o,ny=dy/l*o;return _sl(x1+nx,y1+ny,x2+nx,y2+ny,c)+_sl(x1-nx,y1-ny,x2-nx,y2-ny,c);}
 function _sa(x1,x2,y,top,bot){var mx=(x1+x2)/2;return _sl(x1,y,x2-9,y,_LN,1.5)+'<polygon points="'+(x2-9)+','+(y-4)+' '+x2+','+y+' '+(x2-9)+','+(y+4)+'" fill="'+_LN+'"/>'+(top?_st2(mx,y-14,top,_CA,8.5):'')+(bot?_st2(mx,y+15,bot,_CK,8):'');}
 function _sch(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=_sl(x1,y1,x2,y2,c||_LN);}return o;}
-function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" height="120" style="background:'+_BG+';display:block;width:100%;height:120px;font-family:Arial,sans-serif">'+inner+'</svg>';}
+function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" style="background:'+_BG+';display:block;font-family:Arial,sans-serif">'+inner+'</svg>';}
 function _splus(x,y){return _st2(x,y,'+',_TX,14);}
 // Double-arrow for retrosynthesis (⟹)
 function _sretarrow(x1,x2,y){
@@ -31922,8 +31922,8 @@ _st.textContent=[
 '.rv16-cat{font-size:9px;font-family:monospace;font-weight:700;padding:2px 8px;',
 'border-radius:10px;text-transform:uppercase;letter-spacing:.1em;}',
 '.rv16-nm{font-size:13px;font-weight:800;flex:1;}',
-'.rv16-svg-wrap{background:#f8f9fa;overflow:visible;min-height:120px;}',
-'.rv16-svg-wrap svg{display:block;width:100%;height:120px;}',
+'.rv16-svg-wrap{background:#f8f9fa;overflow-x:auto;overflow-y:hidden;min-height:120px;}',
+'.rv16-svg-wrap svg{display:block;width:520px;min-width:520px;height:120px;}',
 '.rv16-bd{background:#f0f4f8;padding:10px 14px;}',
 '.rv16-target{background:#fff;border-left:3px solid #334155;padding:6px 10px;',
 'border-radius:0 6px 6px 0;font-size:11.5px;color:#1e293b;margin-bottom:6px;}',
@@ -31951,7 +31951,7 @@ function _sh(cx,cy,r,c){var p=[];for(var i=0;i<6;i++){var a=Math.PI/3*i-Math.PI/
 function _sd(x1,y1,x2,y2,c){var dx=y2-y1,dy=x1-x2,l=Math.sqrt(dx*dx+dy*dy)||1,o=2.8,nx=dx/l*o,ny=dy/l*o;return _sl(x1+nx,y1+ny,x2+nx,y2+ny,c)+_sl(x1-nx,y1-ny,x2-nx,y2-ny,c);}
 function _sa(x1,x2,y,top,bot){var mx=(x1+x2)/2;return _sl(x1,y,x2-9,y,_LN,1.5)+'<polygon points="'+(x2-9)+','+(y-4)+' '+x2+','+y+' '+(x2-9)+','+(y+4)+'" fill="'+_LN+'"/>'+(top?_st2(mx,y-14,top,_CA,8.5):'')+(bot?_st2(mx,y+15,bot,_CK,8):'');}
 function _sch(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=_sl(x1,y1,x2,y2,c||_LN);}return o;}
-function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" height="120" style="background:'+_BG+';display:block;width:100%;height:120px;font-family:Arial,sans-serif">'+inner+'</svg>';}
+function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" style="background:'+_BG+';display:block;font-family:Arial,sans-serif">'+inner+'</svg>';}
 function _splus(x,y){return _st2(x,y,'+',_TX,14);}
 function _sretarrow(x1,x2,y){var mx=(x1+x2)/2;return _sl(x1,y-3,x2-9,y-3,_CK,1.5)+_sl(x1,y+3,x2-9,y+3,_CK,1.5)+'<polygon points="'+(x2-9)+','+(y-7)+' '+x2+','+y+' '+(x2-9)+','+(y+7)+'" fill="'+_CK+'"/>'+_st2(mx,y-16,'disconnessione retrosintetica',_CK,8);}
 
@@ -33059,17 +33059,12 @@ console.log('BioSpecInfo v19 — NMR Lorentzian curves ✔');
 (function(){
 'use strict';
 
-// ══ 1. CSS fix — explicit SVG height + light colour-scheme (dark-mode guard)
+// ══ 1. CSS reinforcement — pixel-sized SVGs + light colour-scheme guard
 var _st=document.createElement('style');
 _st.textContent=[
-  '.bsi15-svg-wrap,.rv16-svg-wrap{min-height:112px !important;color-scheme:light !important;}',
-  '.bsi15-svg-wrap svg,.rv16-svg-wrap svg{',
-  '  height:112px !important;width:100% !important;',
-  '  display:block !important;background:#ffffff !important;',
-  '  color-scheme:light !important;',
-  '}',
-  '.bsi15-card,.bsi15-rcard,.rv16-card{color-scheme:light !important;}',
-  '.bsi15-card-bd,.bsi15-rcard-bd,.rv16-bd{color-scheme:light !important;}',
+  '.bsi15-svg-wrap,.rv16-svg-wrap{min-height:120px !important;overflow-x:auto !important;color-scheme:light !important;}',
+  '.bsi15-svg-wrap svg,.rv16-svg-wrap svg{width:520px !important;min-width:520px !important;height:120px !important;display:block !important;background:#ffffff !important;}',
+  '.bsi15-card,.bsi15-rcard,.bsi15-card-bd,.bsi15-rcard-bd,.rv16-card,.rv16-bd{color-scheme:light !important;}',
 ].join('');
 document.head.appendChild(_st);
 
@@ -33079,8 +33074,9 @@ function _patchSvgHeights(){
   if(!out) return;
   var svgs=out.querySelectorAll('svg');
   for(var i=0;i<svgs.length;i++){
+    svgs[i].setAttribute('width','520');
     svgs[i].setAttribute('height','120');
-    svgs[i].style.cssText+='height:112px!important;background:#ffffff!important;display:block!important;';
+    svgs[i].style.cssText+='width:520px!important;min-width:520px!important;height:120px!important;background:#ffffff!important;display:block!important;';
   }
 }
 
