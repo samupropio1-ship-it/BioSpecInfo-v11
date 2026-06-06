@@ -29977,5 +29977,224 @@ console.log('BioSpecInfo v12.5 — fix UI completo ✔');
 })();
 </script>
 
+<script>
+// ─── BioSpecInfo v12.6 · Correzioni finali ──────────────────────────────────
+// Fix: FAB posizione corretta · navWrapper top corretto · guida leggibile ·
+//      pulsante Sintesi&Retrosintesi ricreato da zero (senza dipendenze v12.4)
+// ────────────────────────────────────────────────────────────────────────────
+(function(){
+'use strict';
+
+// ══ 1. CSS — sovrascrive errori v12.4/v12.5 ═════════════════════════════════
+var css = document.createElement('style');
+css.textContent = [
+  // FAB: posizione "via di mezzo" — non troppo alto, sopra gesture bar
+  '#bsi105-fab{',
+  '  bottom:calc(env(safe-area-inset-bottom,0px) + 26px)!important;',
+  '  right:18px!important;',
+  '  width:60px!important;height:60px!important;font-size:26px!important;',
+  '}',
+  // Menu FAB: segue il FAB
+  '#bsi105-menu{bottom:calc(env(safe-area-inset-bottom,0px) + 98px)!important;}',
+  // navWrapper: deve stare SOTTO l'header (non a top:0!)
+  '#navWrapper{top:calc(env(safe-area-inset-top,0px) + 58px)!important;}',
+  // Guida: z-index garantito sopra tutto, testo leggibile
+  '#bsi-guide{z-index:99999!important;}',
+  '#bsi-guide *{color:inherit;}',
+  '#bsi-guide [style*="color:#8aadcc"]{color:#b0c8e0!important;}',
+  '#bsi-guide [style*="color:#c9d3df"]{color:#cfdde8!important;}',
+  '#bsi-guide [style*="color:#e8f4ff"]{color:#e8f4ff!important;}',
+  // main: padding top per non finire sotto navWrapper
+  '#main{padding-top:8px!important;}',
+].join('');
+document.head.appendChild(css);
+
+// ══ 2. SINTESI & RETROSINTESI — ricreato completamente standalone ═══════════
+
+var SR_DB = {
+  'acetone':{ syn:[
+    {step:1,name:'Wacker (propilene + O₂)',reagents:'CH₃CH=CH₂ + O₂ + H₂O',mech:'Coordinazione Pd(II) al doppio legame → idropalladazione → β-H-eliminazione → chetone',cat:'PdCl₂/CuCl₂, H₂O/DMF, 60°C, O₂'},
+    {step:2,name:'Ossidazione 2-propanolo',reagents:'(CH₃)₂CHOH → (CH₃)₂C=O',mech:'Ossidazione alcol 2° con agente ossidante cromico: astrazione H-alfa',cat:'PCC o DMP, DCM, 0°C–RT'},
+    {step:3,name:'Processo Cumene (industria)',reagents:'Cumene → idroperossido → acetone + fenolo',mech:'Autossidazione radicalica + riarrangiamento acido tipo Baeyer-Villiger',cat:'O₂, aria; H₂SO₄ dil. per clivaggio'},
+  ], retro:[
+    {disc:'C–Hα (enolato)',syn:'CH₃COCH₂⁻',equiv:'Acetone enolato + elettrofilo (alchilazione α)',type:'Umpolung α-carbonilico'},
+    {disc:'C=O retro-Wacker',syn:'CH₃CH=CH₂',equiv:'Propilene (ossidazione Wacker inversa)',type:'Retro-ossidazione'},
+    {disc:'C–C retro-aldol',syn:'2 × CH₃CHO',equiv:'Due acetaldeidi (condensazione aldolica retro)',type:'Retro-aldol'},
+  ]},
+  'aspirina':{ syn:[
+    {step:1,name:'Acetilazione con anidride acetica',reagents:'Acido salicilico + (CH₃CO)₂O → aspirina + CH₃COOH',mech:'SNA: OH fenolico nucleofilo attacca carbonile anidride; CH₃COO⁻ è il gruppo uscente',cat:'H₃PO₄ o H₂SO₄ cat., 80–85°C, 15 min'},
+    {step:2,name:'Via cloruro acilico',reagents:'Acido salicilico + CH₃COCl + base',mech:'SNA su cloruro acilico: Cl⁻ miglior leaving group; base (piridina) neutralizza HCl',cat:'Piridina anidra, 0°C → RT'},
+  ], retro:[
+    {disc:'C(acil)–O estereo',syn:'Sal-OH · CH₃CO⁺',equiv:'Acido salicilico + anidride acetica',type:'Retro-esterificazione fenolica'},
+    {disc:'Idrolisi (base)',syn:'Salicilato⁻ + CH₃COOH',equiv:'Saponificazione (NaOH/H₂O)',type:'Retro-acetilazione'},
+  ]},
+  'glucosio':{ syn:[
+    {step:1,name:'Sintesi Fischer-Kiliani',reagents:'D-arabinosio (C5) + HCN → cianoridrina → D-glucosio (C6)',mech:'Addizione nucleofila CN⁻ al C-1 aldeidico; riduzione del lattone a aldeide',cat:'NaCN, H₂O; poi H₂/Pd o Na/Hg amalgama'},
+    {step:2,name:'Isomerizzazione enolica',reagents:'D-fruttosio ⇌ D-glucosio (endiolo comune)',mech:'Enolizzazione in base (Lobry de Bruyn-Alberda): C1-C2 endiolo intermediario',cat:'NaOH dil., H₂O, T amb.; o isomerasi enzimatica'},
+  ], retro:[
+    {disc:'C1–O (anello piranoso)',syn:'Glucosio aperto (aldeide)',equiv:'Apertura anello in soluzione acquosa',type:'Retro-ciclizzazione'},
+    {disc:'C1–C2 (Kiliani)',syn:'D-arabinosio + C₁',equiv:'Degradazione Ruff/Wohl (degrada di un C)',type:'Retro-allungamento C'},
+  ]},
+  'paracetamolo':{ syn:[
+    {step:1,name:'Acetilazione p-amminofenolo',reagents:'H₂N–C₆H₄–OH + (CH₃CO)₂O → paracetamolo',mech:'SNA sulla NH₂ (più nucleofila di OH): attacco al carbonile anidride, espulsione CH₃COO⁻',cat:'Acido acetico glaciale, 50–60°C, 15 min'},
+  ], retro:[
+    {disc:'C(acil)–N (ammide)',syn:'p-amminofenolo + CH₃CO⁺',equiv:'p-amminofenolo + anidride acetica',type:'Retro-amidazione'},
+  ]},
+  'caffeina':{ syn:[
+    {step:1,name:'Sintesi Traube (base xantinica)',reagents:'5-amminouracile + acido formico → xantina → teofillina',mech:'Ciclocondensazione del sistema purinico: formazione del C8 con HCOOH, ciclizzazione',cat:'HCOOH, Δ; poi metilazione con (CH₃)₂SO₄'},
+    {step:2,name:'Metilazione N7 della teofillina',reagents:'Teofillina + CH₃I (o (CH₃)₂SO₄) → caffeina',mech:'Alchilazione N7 selettiva; K₂CO₃ come base non-nucleofila',cat:'K₂CO₃, DMF, 60°C'},
+  ], retro:[
+    {disc:'N1–CH₃',syn:'Teofillina + CH₃⁺',equiv:'Teofillina + dimetilsolfato',type:'Retro-N-metilazione'},
+    {disc:'C8–N (retro-Traube)',syn:'4,5-diamminouracile + HCOOH',equiv:'Via Traube (classica, 1882)',type:'Retro-Traube'},
+  ]},
+  'etanolo':{ syn:[
+    {step:1,name:'Idratazione etilene (industria)',reagents:'CH₂=CH₂ + H₂O → CH₃CH₂OH',mech:'Addizione elettrofila H⁺ → carbocatione etilico → attacco H₂O → protonazione/deprotonazione',cat:'H₃PO₄/SiO₂, 300°C, 60–70 atm'},
+    {step:2,name:'Fermentazione glucosio',reagents:'C₆H₁₂O₆ → 2 CH₃CH₂OH + 2 CO₂',mech:'Via glicolisi: piruvato decarbossilato ad acetaldeide (piruvato decarbossilasi, TPP); NADH riduce a etanolo (alcol deidrogenasi)',cat:'Saccharomyces cerevisiae, anaerobiosi'},
+  ], retro:[
+    {disc:'C–OH retro-addizione',syn:'CH₂=CH₂ + H₂O',equiv:'Etilene (disidratazione E1)',type:'Retro-idratazione'},
+    {disc:'Ossidazione parziale',syn:'CH₃CHO (acetaldeide)',equiv:'Ossidazione parziale ADH-inversa',type:'Retro-riduzione'},
+  ]},
+  'benzaldeide':{ syn:[
+    {step:1,name:'Ossidazione toluene (Étard)',reagents:'C₆H₅–CH₃ + CrO₂Cl₂',mech:'Ossidazione selettiva catena laterale: complesso Cr intermedio; idrolisi → aldeide',cat:'CrO₂Cl₂, CS₂, 0°C; poi H₂O'},
+    {step:2,name:'Gattermann-Koch',reagents:'Benzene + CO + HCl → benzaldeide',mech:'[CHO]⁺ (catione formile) generato da CO+HCl+AlCl₃; SEAr sul benzene',cat:'AlCl₃/CuCl, HCl/CO, alta P'},
+  ], retro:[
+    {disc:'Ar–CHO → ArH',syn:'PhH + [CHO]⁺',equiv:'Benzene + CO/HCl (Gattermann-Koch)',type:'Retro-formilazione'},
+    {disc:'CH₃ → CHO',syn:'Toluene + ossidante',equiv:'Toluene + CrO₂Cl₂ o KMnO₄ dil.',type:'Retro-ossidazione laterale'},
+  ]},
+};
+
+function srSearch(val){
+  var key = val.toLowerCase().trim();
+  var data = SR_DB[key];
+  if(!data){
+    var keys = Object.keys(SR_DB);
+    for(var i=0;i<keys.length;i++){
+      if(keys[i].indexOf(key)!==-1 || key.indexOf(keys[i])!==-1){ data=SR_DB[keys[i]]; break; }
+    }
+  }
+  var out = document.getElementById('bsiSR2-out');
+  if(!out) return;
+  if(!data){
+    out.innerHTML = '<div style="background:#0a1628;border:1px dashed #1e3a52;border-radius:10px;padding:14px;color:#8aadcc;font-size:13px;line-height:1.7">'
+      +'<b style="color:#1fd39a">Molecola non trovata.</b><br>'
+      +'Disponibili: <span style="color:#cfe2f5">acetone, aspirina, glucosio, paracetamolo, caffeina, etanolo, benzaldeide</span><br><br>'
+      +'<button onclick="document.getElementById(\'bsiSR2-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=ssyn]\').click()" '
+      +'style="background:#1a3050;border:none;color:#1fd39a;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;margin-right:6px">🧪 Sintesi Org.</button>'
+      +'<button onclick="document.getElementById(\'bsiSR2-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=sretro]\').click()" '
+      +'style="background:#1a3050;border:none;color:#6bcfff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">🔄 Retrosintesi</button>'
+      +'</div>';
+    return;
+  }
+  var h = '';
+  h += '<div style="color:#1fd39a;font-size:.85rem;font-weight:800;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">⚗️ PERCORSI DI SINTESI</div>';
+  (data.syn||[]).forEach(function(s){
+    h += '<div style="background:#11243a;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:12px 14px;margin-bottom:10px">'
+      +'<div style="color:#1fd39a;font-size:.72rem;font-weight:800;letter-spacing:.08em;margin-bottom:5px">METODO '+s.step+' · '+s.name+'</div>'
+      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Reagenti:</b> '+s.reagents+'</div>'
+      +'<div style="color:#aac4dc;font-size:12px;margin:3px 0"><b>Meccanismo:</b> '+s.mech+'</div>'
+      +'<div style="color:#6bcfff;font-size:12px;margin:3px 0"><b>Catalizzatore:</b> '+s.cat+'</div>'
+      +'</div>';
+  });
+  h += '<div style="color:#6bcfff;font-size:.85rem;font-weight:800;margin:14px 0 12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">🔄 ANALISI RETROSINTETICA</div>';
+  (data.retro||[]).forEach(function(r){
+    h += '<div style="background:#0c1c2e;border:1px solid #1e3a52;border-left:4px solid #6bcfff;border-radius:10px;padding:11px 14px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px">'
+      +'<span style="color:#6bcfff;font-weight:700;font-size:.78rem">Disconnessione: '+r.disc+'</span>'
+      +'<span style="background:#1a3050;color:#8aadcc;font-size:10px;padding:2px 8px;border-radius:8px">'+r.type+'</span>'
+      +'</div>'
+      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Sinton:</b> '+r.syn+' ⟹</div>'
+      +'<div style="color:#8aadcc;font-size:12px;margin:3px 0"><b>Equiv. sintetico:</b> '+r.equiv+'</div>'
+      +'</div>';
+  });
+  h += '<div style="margin-top:10px;padding:10px 12px;background:#060d1a;border-radius:8px;border:1px dashed #1e3a52;color:#7a96b0;font-size:11.5px">'
+    +'💡 Approfondisci: '
+    +'<button onclick="document.getElementById(\'bsiSR2-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=ssyn]\').click()" '
+    +'style="background:#1a3050;border:none;color:#1fd39a;padding:2px 9px;border-radius:6px;cursor:pointer;font-size:11px;margin:0 3px">🧪 Sintesi</button>'
+    +'<button onclick="document.getElementById(\'bsiSR2-modal\').classList.remove(\'open\');document.querySelector(\'[data-s=sretro]\').click()" '
+    +'style="background:#1a3050;border:none;color:#6bcfff;padding:2px 9px;border-radius:6px;cursor:pointer;font-size:11px">🔄 Retrosintesi</button>'
+    +'</div>';
+  out.innerHTML = h;
+}
+
+function buildSRModal2(){
+  if(document.getElementById('bsiSR2-modal')) return;
+  var css2 = document.createElement('style');
+  css2.textContent = '#bsiSR2-modal{position:fixed;inset:0;z-index:99997;display:none;align-items:center;justify-content:center;background:rgba(2,8,16,.85);backdrop-filter:blur(5px);padding:14px}'
+    +'#bsiSR2-modal.open{display:flex!important}'
+    +'#bsiSR2-box{background:#0c1828;border:1px solid #1e3a52;border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.65)}'
+    +'#bsiSR2-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #1e3a52;position:sticky;top:0;background:#0c1828;z-index:2}'
+    +'#bsiSR2-head h3{margin:0;color:#1fd39a;font-size:1rem;font-weight:800}'
+    +'#bsiSR2-x{background:#16293f;border:none;color:#9fb8d0;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px}'
+    +'#bsiSR2-body{padding:16px}';
+  document.head.appendChild(css2);
+  var m = document.createElement('div');
+  m.id = 'bsiSR2-modal';
+  m.innerHTML = '<div id="bsiSR2-box">'
+    +'<div id="bsiSR2-head"><h3>⚗️ Sintesi &amp; Retrosintesi Molecola</h3><button id="bsiSR2-x">✕</button></div>'
+    +'<div id="bsiSR2-body">'
+    +'<div style="margin-bottom:12px">'
+    +'<input id="bsiSR2-inp" type="text" '
+    +'placeholder="acetone · aspirina · glucosio · caffeina · paracetamolo · etanolo…" '
+    +'style="width:100%;padding:11px 14px;background:#0c1828;border:1.5px solid #1e3a52;'
+    +'border-radius:10px;color:#e8f4ff;font-size:14px;outline:none;'
+    +'font-family:var(--font,system-ui);box-sizing:border-box;margin-bottom:10px">'
+    +'<button id="bsiSR2-go" style="width:100%;padding:11px;background:linear-gradient(135deg,#1fd39a,#1aa97a);'
+    +'border:none;border-radius:10px;color:#fff;font-weight:800;font-size:14px;cursor:pointer">'
+    +'🔍 Analizza sintesi e retrosintesi</button>'
+    +'</div>'
+    +'<div id="bsiSR2-out"></div>'
+    +'</div></div>';
+  document.body.appendChild(m);
+  document.getElementById('bsiSR2-x').onclick = function(){ m.classList.remove('open'); };
+  m.onclick = function(e){ if(e.target===m) m.classList.remove('open'); };
+  document.getElementById('bsiSR2-go').onclick = function(){
+    var v = (document.getElementById('bsiSR2-inp')||{}).value||'';
+    if(v.trim()) srSearch(v.trim());
+  };
+  document.getElementById('bsiSR2-inp').addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ var v=this.value.trim(); if(v) srSearch(v); }
+  });
+}
+
+function openSRModal(){
+  buildSRModal2();
+  var m = document.getElementById('bsiSR2-modal');
+  if(m){
+    m.classList.add('open');
+    setTimeout(function(){ var i=document.getElementById('bsiSR2-inp'); if(i) i.focus(); }, 80);
+  }
+}
+
+// ── Aggiunge/sostituisce il pulsante SR nel menu FAB ──────────────────────
+function installSRBtn(){
+  var menu = document.getElementById('bsi105-menu');
+  if(!menu) return;
+  // Rimuovi versioni precedenti (bsiSR-fabitem dal v12.4, e questo stesso)
+  ['bsiSR-fabitem','bsiSR2-fabitem'].forEach(function(id){
+    var old = document.getElementById(id);
+    if(old) old.remove();
+  });
+  var b = document.createElement('div');
+  b.id = 'bsiSR2-fabitem';
+  b.className = 'bsi105-mi';
+  b.style.cssText = 'border-color:#6bcfff;background:linear-gradient(135deg,#0a1a2e,#0a1628)';
+  b.innerHTML = '<span class="ic">⚗️</span><span style="color:#6bcfff">Sintesi &amp; Retrosintesi</span>';
+  b.onclick = function(){
+    menu.classList.remove('open');
+    openSRModal();
+  };
+  menu.insertBefore(b, menu.firstChild);
+}
+
+// ══ AVVIO ════════════════════════════════════════════════════════════════════
+buildSRModal2();
+setTimeout(installSRBtn, 400);
+setTimeout(installSRBtn, 1200);
+setTimeout(installSRBtn, 2500);
+
+console.log('BioSpecInfo v12.6 — correzioni finali ✔');
+})();
+</script>
+
 </body>
 </html>
