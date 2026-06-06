@@ -31897,7 +31897,503 @@ window.openSR14=function(prefill){
   },d);
 });
 
+});
+
 console.log('BioSpecInfo v15 — SR Visual Cards + SMILES/IUPAC ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v16 · Retrosintesi visual + NMR spectrum + IR flip ──────────
+(function(){
+'use strict';
+
+// ══ 1. CSS ═══════════════════════════════════════════════════════════════════
+var _st=document.createElement('style');
+_st.textContent=[
+// Retro cards: white card style matching v15 synthesis cards
+'.rv16-card{background:#ffffff;border-radius:14px;overflow:hidden;margin-bottom:0;',
+'box-shadow:0 3px 14px rgba(0,0,0,.32);transition:transform .15s;}',
+'.rv16-card:hover{transform:translateY(-2px);}',
+'.rv16-hd{padding:12px 15px;display:flex;align-items:center;gap:10px;}',
+'.rv16-cat{font-size:9px;font-family:monospace;font-weight:700;padding:2px 8px;',
+'border-radius:10px;text-transform:uppercase;letter-spacing:.1em;}',
+'.rv16-nm{font-size:13px;font-weight:800;flex:1;}',
+'.rv16-svg-wrap{background:#f8f9fa;overflow:hidden;}',
+'.rv16-svg-wrap svg{display:block;width:100%;}',
+'.rv16-bd{background:#f0f4f8;padding:10px 14px;}',
+'.rv16-target{background:#fff;border-left:3px solid #334155;padding:6px 10px;',
+'border-radius:0 6px 6px 0;font-size:11.5px;color:#1e293b;margin-bottom:6px;}',
+'.rv16-disc{font-size:11.5px;color:#1e293b;margin-bottom:5px;}',
+'.rv16-reagents{font-size:11px;font-family:monospace;background:#e8f5e9;',
+'border-radius:6px;padding:5px 9px;color:#1b5e20;margin-bottom:5px;}',
+'.rv16-example{background:#e3f2fd;border-radius:6px;padding:5px 9px;',
+'font-size:11px;font-family:monospace;color:#0d47a1;}',
+// NMR spectrum chart
+'.v16-nmr-chart{background:#0c1828;border-radius:12px;overflow:hidden;margin-bottom:14px;',
+'box-shadow:0 2px 8px rgba(0,0,0,.4);}',
+'.v16-nmr-title{padding:8px 14px;font-family:monospace;font-size:10px;font-weight:700;',
+'letter-spacing:.1em;text-transform:uppercase;}',
+'.v16-nmr-1h .v16-nmr-title{color:#C084FC;background:#1a0d2e;}',
+'.v16-nmr-13c .v16-nmr-title{color:#60a5fa;background:#0d1e3e;}',
+].join('');
+document.head.appendChild(_st);
+
+// ══ 2. Shared SVG helpers (same as v15) ══════════════════════════════════════
+var _BG='#ffffff',_LN='#2563eb',_TX='#1e293b',_CO='#dc2626',_CN='#2563eb';
+var _CF='#16a34a',_CX='#ef4444',_CA='#ea580c',_CK='#0f4c81';
+function _sl(x1,y1,x2,y2,c,w){return'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||_LN)+'" stroke-width="'+(w||1.5)+'"/>';}
+function _st2(x,y,s,c,fs,a){return'<text x="'+x+'" y="'+y+'" fill="'+(c||_TX)+'" font-size="'+(fs||11)+'" font-family="monospace" text-anchor="'+(a||'middle')+'" dominant-baseline="middle">'+s+'</text>';}
+function _sh(cx,cy,r,c){var p=[];for(var i=0;i<6;i++){var a=Math.PI/3*i-Math.PI/6;p.push(+(cx+r*Math.cos(a)).toFixed(1)+','+(+(cy+r*Math.sin(a)).toFixed(1)));}return'<polygon points="'+p.join(' ')+'" fill="none" stroke="'+(c||_LN)+'" stroke-width="1.5"/>';}
+function _sd(x1,y1,x2,y2,c){var dx=y2-y1,dy=x1-x2,l=Math.sqrt(dx*dx+dy*dy)||1,o=2.8,nx=dx/l*o,ny=dy/l*o;return _sl(x1+nx,y1+ny,x2+nx,y2+ny,c)+_sl(x1-nx,y1-ny,x2-nx,y2-ny,c);}
+function _sa(x1,x2,y,top,bot){var mx=(x1+x2)/2;return _sl(x1,y,x2-9,y,_LN,1.5)+'<polygon points="'+(x2-9)+','+(y-4)+' '+x2+','+y+' '+(x2-9)+','+(y+4)+'" fill="'+_LN+'"/>'+(top?_st2(mx,y-14,top,_CA,8.5):'')+(bot?_st2(mx,y+15,bot,_CK,8):'');}
+function _sch(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=_sl(x1,y1,x2,y2,c||_LN);}return o;}
+function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" style="background:'+_BG+';display:block;width:100%;font-family:Arial,sans-serif">'+inner+'</svg>';}
+function _splus(x,y){return _st2(x,y,'+',_TX,14);}
+function _sretarrow(x1,x2,y){var mx=(x1+x2)/2;return _sl(x1,y-3,x2-9,y-3,_CK,1.5)+_sl(x1,y+3,x2-9,y+3,_CK,1.5)+'<polygon points="'+(x2-9)+','+(y-7)+' '+x2+','+y+' '+(x2-9)+','+(y+7)+'" fill="'+_CK+'"/>'+_st2(mx,y-16,'disconnessione retrosintetica',_CK,8);}
+
+// Per-strategy SVG maps
+var _RETSVG={
+  grignard:function(){return _sw(
+    _sch(10,58,3)+_sl(52,50,72,32,_CO)+_st2(80,27,'OH',_CO,10)+_sch(72,58,2)
+    +_sretarrow(116,292,58)
+    +_sd(302,46,322,28,_CO)+_st2(328,23,'O',_CO,12)+_sl(302,46,288,62)
+    +_splus(350,58)+_sch(372,58,2,_CN)+_st2(404,52,'MgBr',_CN,9)
+    +_st2(260,106,'Alcol terzio ⟹ chetone + R–MgBr',_CK,8)
+  );},
+  aldol:function(){return _sw(
+    _sch(10,60,3)+_sd(54,52,74,32,_CO)+_st2(80,27,'O',_CO,12)
+    +_sl(32,56,46,74)+_st2(54,80,'OH',_CO,9)
+    +_sretarrow(108,292,58)
+    +_sch(300,60,2)+_sd(328,50,348,30,_CO)+_st2(354,25,'O',_CO,12)
+    +_splus(374,58)
+    +_sch(396,60,2)+_sd(424,50,444,30,_CO)+_st2(450,25,'O',_CO,12)
+    +_st2(260,106,'β-OH-carbonile ⟹ 2 carbonili (condensaz. aldolica)',_CK,8)
+  );},
+  wittig:function(){return _sw(
+    _sl(14,68,34,52)+_sd(34,52,66,52,_LN)+_sl(66,52,86,68)
+    +_sretarrow(116,288,58)
+    +_sd(298,46,318,28,_CO)+_st2(324,23,'O',_CO,12)+_sl(298,46,284,62)
+    +_splus(350,58)+_st2(392,48,'Ph₃P=CHR',_LN,9)
+    +_st2(260,106,'Alchene ⟹ carbonile + ylide fosforanica (Wittig)',_CK,8)
+  );},
+  sn2:function(){return _sw(
+    _sch(14,58,3)+_sl(56,50,76,32)+_st2(84,52,'X',_CX,12)
+    +_sretarrow(116,292,58)
+    +_sch(300,58,3)+_sl(342,50,362,32,_CO)+_st2(370,27,'OH',_CO,10)
+    +_splus(390,58)+_st2(418,52,'HX/SOCl₂',_CX,9)
+    +_st2(260,106,'R–X ⟹ R–OH + agente alogenante',_CK,8)
+  );},
+  ossidazione:function(){return _sw(
+    _sch(14,58,3)+_sd(56,48,76,28,_CO)+_st2(82,23,'O',_CO,12)+_sch(76,58,2)
+    +_sretarrow(118,292,58)
+    +_sch(298,58,3)+_sl(340,50,360,32,_CO)+_st2(368,27,'OH',_CO,10)+_sch(360,58,2)
+    +_st2(260,106,'C=O ⟹ alcol (PCC inverso; retro-ossidazione)',_CK,8)
+  );},
+  rcm:function(){return _sw(
+    _sl(14,72,34,52)+_sl(34,52,54,52)+_sl(54,52,74,52)+_sl(74,52,94,72)
+    +_sl(94,72,74,96)+_sl(74,96,34,96)+_sl(34,96,14,72)
+    +_sd(34,52,74,52,_CF)
+    +_sretarrow(116,292,58)
+    +_sl(300,58,320,44)+_sd(320,44,360,44)+_sl(360,44,380,58)+_st2(342,34,'diene',_CK,9)
+    +_st2(260,106,'Alchene ciclico ⟹ diene + Grubbs (RCM)',_CK,8)
+  );},
+  protezione:function(){return _sw(
+    _sch(14,58,2)+_sl(52,50,72,32,_CO)+_st2(80,27,'OH',_CO,10)
+    +_sl(52,50,40,66)+_st2(36,72,'OH',_CO,10)
+    +_sretarrow(110,286,58)
+    +_sch(295,58,2)+_sl(333,50,353,32,_CO)+_st2(361,27,'OH',_CO,10)
+    +_sl(333,50,321,66)+_st2(317,72,'OTBS',_LN,9)
+    +_st2(260,106,'Diolo ⟹ monoprotetto (TBS selettivo C1°)',_CK,8)
+  );},
+  suzuki:function(){return _sw(
+    _sh(36,58,20)+_sl(56,58,72,58,_CF,2)+_sh(90,58,20)
+    +_sretarrow(124,295,58)
+    +_sh(302,58,18)+_sl(320,58,337,58)+_st2(351,52,'Br',_CX,12)
+    +_splus(375,58)
+    +_sh(396,58,18)+_sl(414,58,431,58)+_st2(447,50,'B(OH)₂',_CN,9)
+    +_st2(260,106,'Biarile ⟹ Ar–Br + Ar–B(OH)₂ (Suzuki)',_CK,8)
+  );},
+  // New strategies
+  diels_alder:function(){return _sw(
+    _sl(14,72,34,52)+_sl(34,52,54,52)+_sl(54,52,74,72)+_sl(74,72,62,96)+_sl(62,96,26,96)+_sl(26,96,14,72)
+    +_sd(34,52,54,52,_CF)
+    +_sretarrow(116,290,58)
+    +_sl(298,68,318,52)+_sl(318,52,338,52)+_sl(338,52,358,68)+_sd(318,52,338,52,_LN)+_st2(326,42,'diene',_CK,8)
+    +_splus(378,58)
+    +_sl(398,52,418,52)+_sd(398,52,418,52,_CX)+_st2(422,43,'dienofilo',_CK,8)
+    +_st2(260,106,'Cicloesene ⟹ diene + dienofilo (retro-[4+2] DA)',_CK,8)
+  );},
+  claisen:function(){return _sw(
+    _sh(36,58,22)+_sl(58,58,76,46)+_sl(76,46,96,46)+_sl(96,46,108,58)+_sl(58,72,76,46)
+    +_sretarrow(128,294,58)
+    +_sh(300,58,20)+_sl(320,58,338,72)+_st2(350,76,'OH',_CO,10)
+    +_splus(374,58)+_st2(406,50,'alliliche',_CK,9)+_st2(406,64,'(vinil eteree)',_CK,9)
+    +_st2(260,106,'γ,δ-insaturo carbonile ⟹ allil vinil etere (Claisen)',_CK,8)
+  );},
+  buchwald:function(){return _sw(
+    _sh(36,58,20)+_sl(56,58,74,58,_CF)+_st2(90,52,'NR₂',_CN,11)
+    +_sretarrow(124,292,58)
+    +_sh(300,58,18)+_sl(318,58,336,58)+_st2(350,52,'Br',_CX,12)
+    +_splus(375,58)+_st2(410,52,'HNR₂',_CN,11)
+    +_st2(260,106,'Ar–NR₂ ⟹ Ar–Br + amina (Buchwald-Hartwig)',_CK,8)
+  );},
+  robinson:function(){return _sw(
+    _sh(34,58,22)+_sl(56,58,76,46)+_sd(76,46,96,28,_CO)+_st2(102,23,'O',_CO,12)
+    +_sretarrow(126,294,58)
+    +_sh(300,58,20)+_splus(332,58)
+    +_sl(352,64,372,48)+_sd(372,48,394,28,_CO)+_st2(400,23,'O',_CO,12)
+    +_st2(260,106,'Enone ciclico ⟹ enone + carbonile (Robinson)',_CK,8)
+  );},
+  sharpless:function(){return _sw(
+    _sl(14,68,34,52)+_sd(34,52,66,52)+_sl(66,52,86,68)+_sl(86,68,100,52)+_st2(108,46,'OH',_CO,10)
+    +_sretarrow(134,300,58)
+    +_sl(298,68,318,52)+_sd(318,52,350,52)+_sl(350,52,370,68)
+    +_splus(390,58)+_st2(422,52,'[O]*',_CX,12)
+    +_st2(260,106,'Epossido chirale ⟹ allilic-OH + ossidante asimm.',_CK,8)
+  );},
+  gabriel:function(){return _sw(
+    _sch(14,58,3)+_sl(56,50,76,32)+_st2(84,27,'NH₂',_CN,10)
+    +_sretarrow(116,290,58)
+    +_st2(296,50,'Ftalimmide-K',_CA,10)+_splus(368,58)+_sch(388,58,2,_CX)+_st2(410,52,'Br',_CX,12)
+    +_st2(260,106,'RNH₂ ⟹ ftalimmide-K + R–Br (Gabriel)',_CK,8)
+  );},
+  noyori:function(){return _sw(
+    _sch(14,58,4)+_sl(70,50,90,32,_CO)+_st2(98,27,'OH',_CO,10)+_sch(90,58,2)
+    +_sretarrow(134,292,58)
+    +_sch(300,58,4)+_sd(356,48,376,28,_CO)+_st2(382,23,'O',_CO,12)+_sch(376,58,2)
+    +_splus(400,58)+_st2(426,52,'H₂',_LN,12)
+    +_st2(260,106,'Alcol chirale ⟹ chetone + H₂/Ru-BINAP (Noyori)',_CK,8)
+  );}
+};
+
+// New strategies to add to RETRO_STRATEGIES
+var _newStrats=[
+  {name:'Retro-Diels-Alder [4+2]',icon:'🎯',cat:'Ciclizzazione',
+   target:'Cicloesene o cicloaddotto',
+   disconnection:'Disconnetti il legame C–C sigmatropico: apri l\'anello → diene coniugato + dienofilo attivato',
+   synthons:['Diene s-cis (butadiene, ciclopentadiene)','Dienofilo con EWG (acrilato, maleato)'],
+   reagents:'Δ o Lewis acid · stereospecifica [4+2] · endo/exo selettività',
+   example:'{cicloesene} ⇐ {butadiene + etilene}',
+   color:'#0277BD',
+   svgKey:'diels_alder'},
+  {name:'Retro-Claisen [3,3]',icon:'🌀',cat:'Sigmatropic',
+   target:'γ,δ-insaturo carbonile',
+   disconnection:'Apri il legame C–C della riarrangiamento: allil vinil etere precursore',
+   synthons:['Allil vinil etere (o allil estere → Carroll)'],
+   reagents:'Allil vinil etere → Claisen termica a 150-200°C · variante aromatica a 200°C',
+   example:'{allil-acetale} → {pent-4-en-2-one via Claisen}',
+   color:'#4527A0',
+   svgKey:'claisen'},
+  {name:'Amminazione Buchwald-Hartwig',icon:'⚗️',cat:'C–N Transizione Metal',
+   target:'Ar–NR₂ (arile aminato)',
+   disconnection:'Disconnetti C(arile)–N: alogeno aromatico + ammina secondaria o primaria',
+   synthons:['Ar–X (X=Br,Cl,I)','HNR₂ o H₂N–R'],
+   reagents:'Pd₂dba₃/BINAP o Pd/XPhos, Cs₂CO₃, toluene 80°C',
+   example:'{Ph–N(CH₃)₂} ⇐ {PhBr + HN(CH₃)₂ + Pd}',
+   color:'#1565C0',
+   svgKey:'buchwald'},
+  {name:'Anellazione di Robinson',icon:'🔁',cat:'Anellazione',
+   target:'Cicloesa-2-enone (anello a 6 con C=C-C=O)',
+   disconnection:'Disconnetti in 2 tappe: Michael su enone → poi aldol intramolecolare',
+   synthons:['Enone (accettore Michael)','Carbonile enolizzabile (donatore Michael)'],
+   reagents:'NaOH o KOH catalisi base · 2 step: addizione 1,4 + aldol + deidratazione',
+   example:'{cicloesa-2-enone} ⇐ {metilvinilchetone + carbonile}',
+   color:'#33691E',
+   svgKey:'robinson'},
+  {name:'Epossidazione Asimmetrica (Sharpless)',icon:'⭐',cat:'Stereocontrollo',
+   target:'Epossido chiriale da alcol allilico',
+   disconnection:'Apri l\'epossido: alcol allilico precursore + ossidante chirale',
+   synthons:['Alcol allilico R–CH=CH–CH₂OH','Tartrato chirale + TBHP + Ti(OiPr)₄'],
+   reagents:'Ti(OiPr)₄ + L-(+)-tartrato/D-(−)-tartrato + TBHP, DCM −20°C · e.e.>90%',
+   example:'{(2R,3S)-epossido allilico} ⇐ {alcol allilico + AD-mix-α}',
+   color:'#BF360C',
+   svgKey:'sharpless'},
+  {name:'Sintesi Gabriel (ammine primarie pure)',icon:'🧪',cat:'Funzionalizzazione',
+   target:'RNH₂ pura (ammina primaria senza secondarie)',
+   disconnection:'Disconnetti C–N via ftalimmide: R–Br precursore + ftalimmide-K',
+   synthons:['Ftalimmide di potassio (K-phthalimide)','R–X (alogenuro alchilico)'],
+   reagents:'K-ftalimmide + R–X, DMF 80°C → poi N₂H₄ (idrazina) o NaOH/MeOH idrolisi',
+   example:'{benzilammina} ⇐ {K-ftalimmide + BnBr → idrolisi N₂H₄}',
+   color:'#006064',
+   svgKey:'gabriel'},
+  {name:'Idrogenazione Asimmetrica (Noyori)',icon:'🌟',cat:'Stereocontrollo',
+   target:'Alcol chirale (e.e.>99%)',
+   disconnection:'Disconnetti C–H di riduzione: chetone precursore + H₂ con Ru chirale',
+   synthons:['Chetone pro-chirale','H₂ + catalizzatore Ru-BINAP (Noyori, Nobel 2001)'],
+   reagents:'[RuCl₂((R)-BINAP)] 0.01%, i-PrOH, 50 atm H₂, 50°C · e.e.>99%',
+   example:'{(S)-ibuprofene} ⇐ {chetone pro-chirale + Ru-(S)-BINAP + H₂}',
+   color:'#880E4F',
+   svgKey:'noyori'}
+];
+
+// Build a retro card with SVG
+function _mkRetroCard(s){
+  var svgHtml='';
+  var svgKey=s.svgKey||s.name.toLowerCase().replace(/\W+/g,'_').substring(0,12);
+  // Map name to SVG key
+  if(/grignard/i.test(s.name)) svgKey='grignard';
+  else if(/aldol/i.test(s.name)) svgKey='aldol';
+  else if(/wittig/i.test(s.name)) svgKey='wittig';
+  else if(/sn2|alogenur/i.test(s.name)) svgKey='sn2';
+  else if(/ossidaz/i.test(s.name)) svgKey='ossidazione';
+  else if(/rcm|metathes|ciclizzaz/i.test(s.name)) svgKey='rcm';
+  else if(/protezion/i.test(s.name)) svgKey='protezione';
+  else if(/suzuki|heck|cross/i.test(s.name)) svgKey='suzuki';
+  try{ svgHtml=(_RETSVG[svgKey]||_RETSVG.grignard)(); }catch(e){}
+  var col=s.color||'#334155';
+  return '<div class="rv16-card" data-cat="'+s.cat+'" '
+    +'style="border-top:3px solid '+col+'">'
+    +'<div class="rv16-hd" style="background:'+col+'18;">'
+    +'<span style="font-size:20px">'+s.icon+'</span>'
+    +'<div class="rv16-nm" style="color:'+col+'">'+s.name+'</div>'
+    +'<span class="rv16-cat" style="background:'+col+'22;color:'+col+'">'+s.cat+'</span>'
+    +'</div>'
+    +'<div class="rv16-svg-wrap">'+svgHtml+'</div>'
+    +'<div class="rv16-bd">'
+    +'<div class="rv16-target"><b>Target:</b> '+s.target+'</div>'
+    +'<div class="rv16-disc"><span style="font-weight:700;color:'+col+'">⇒ </span>'+s.disconnection+'</div>'
+    +'<div class="rv16-reagents">⚗ '+s.reagents+'</div>'
+    +'<div class="rv16-example">'+s.example+'</div>'
+    +'</div></div>';
+}
+
+// ══ 3. Override initRetro ════════════════════════════════════════════════════
+window.initRetro = function(){
+  var sec=document.getElementById('sretro');
+  if(!sec) return;
+  // Extend original strategies with new ones
+  var all = (typeof RETRO_STRATEGIES !== 'undefined' ? RETRO_STRATEGIES : []).concat(_newStrats);
+  var cats=[...new Set(all.map(function(s){ return s.cat; }))];
+  var filterBtns='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
+    +'<button onclick="window.filterRetro16(\'all\')" id="rf16_all" style="background:#1fd39a;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">Tutte ('+all.length+')</button>'
+    +cats.map(function(cat){
+      return '<button onclick="window.filterRetro16(\''+cat+'\')" class="rf16-btn" style="background:#16273e;color:#e9eef6;border:1px solid #1e3a52;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer">'+cat+'</button>';
+    }).join('')+'</div>';
+  var cards=all.map(_mkRetroCard).join('');
+  sec.innerHTML='<div style="max-width:1000px;margin:0 auto;padding:16px">'
+    +'<div style="text-align:center;margin-bottom:18px">'
+    +'<div style="font-size:36px">🔄</div>'
+    +'<h2 style="color:#e9eef6;margin:6px 0 4px">Analisi Retrosintetica</h2>'
+    +'<p style="color:#c9d3df;font-size:13px;margin:0">Corey (Nobel 1990): ogni card mostra il target, la disconnessione chiave e il diagramma strutturale</p>'
+    +'</div>'
+    +'<div style="background:#0d1e30;border-left:3px solid #1fd39a;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#c9d3df">'
+    +'<strong style="color:#1fd39a">⇒ Notazione:</strong> la freccia retrosintetica (<strong>⇒</strong>) va dal prodotto ai precursori. '
+    +'Ogni card: <b>target</b> → <b>disconnessione</b> → <b>reagente equivalente</b>. '
+    +'Per molecole arbitrarie usa ⚗️ Sintesi &amp; Retrosintesi nel menu ✨.'
+    +'</div>'
+    +filterBtns
+    +'<div id="retroGrid16" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px">'+cards+'</div>'
+    +'</div>';
+  window.filterRetro = function(c){ window.filterRetro16(c); };
+};
+
+window.filterRetro16 = function(cat){
+  document.querySelectorAll('[data-cat]').forEach(function(c){
+    if(c.closest('#retroGrid16')) c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none';
+  });
+  var allBtn=document.getElementById('rf16_all');
+  if(allBtn) allBtn.style.background=(cat==='all'?'#1fd39a':'#16273e');
+  document.querySelectorAll('.rf16-btn').forEach(function(b){
+    b.style.background=(b.textContent===cat?'#1fd39a':'#16273e');
+    b.style.color='#e9eef6';
+  });
+};
+
+// ══ 4. NMR Spectrum Charts ══════════════════════════════════════════════════
+function _nmrSvg(predictions, maxPpm, colorLine, colorLabel, bgColor){
+  var W=520, H=90, padL=36, padR=10, padT=8, padB=28;
+  var plotW=W-padL-padR, plotH=H-padT-padB;
+  var out='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" '
+    +'style="background:'+bgColor+';display:block;width:100%;font-family:monospace">';
+  // Axes
+  out+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="#334155" stroke-width="1"/>';
+  out+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH)+'" stroke="#334155" stroke-width="1"/>';
+  // Baseline
+  out+='<line x1="'+padL+'" y1="'+(padT+plotH-2)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH-2)+'" stroke="#475569" stroke-width="1.5"/>';
+  // X axis ticks: 0..maxPpm, right to left (NMR convention)
+  var step=maxPpm<=15?2:(maxPpm<=50?20:50);
+  for(var ppm=0;ppm<=maxPpm;ppm+=step){
+    var px=padL+plotW*(1-ppm/maxPpm); // right-to-left
+    out+='<line x1="'+px+'" y1="'+(padT+plotH-2)+'" x2="'+px+'" y2="'+(padT+plotH+4)+'" stroke="#475569" stroke-width="0.8"/>';
+    out+='<text x="'+px+'" y="'+(H-4)+'" fill="#8899aa" font-size="8" text-anchor="middle">'+ppm+'</text>';
+  }
+  // Y label
+  out+='<text x="10" y="'+(padT+plotH/2)+'" fill="#8899aa" font-size="7" text-anchor="middle" transform="rotate(-90,10,'+(padT+plotH/2)+')">Int.</text>';
+  // X label
+  out+='<text x="'+(padL+plotW/2)+'" y="'+(H-1)+'" fill="#8899aa" font-size="7" text-anchor="middle">δ (ppm)</text>';
+  // Peaks
+  predictions.forEach(function(p){
+    var dVal=parseFloat(p.delta)||0;
+    if(dVal<0||dVal>maxPpm) return;
+    var px=padL+plotW*(1-dVal/maxPpm);
+    var intensity=0.55+Math.random()*0.38; // simulate random height
+    var peakH=plotH*intensity;
+    var py=padT+plotH-2-peakH;
+    // Lorentzian shape approximation using a thin tall rect + broadening
+    out+='<line x1="'+px+'" y1="'+(padT+plotH-2)+'" x2="'+px+'" y2="'+py+'" stroke="'+colorLine+'" stroke-width="2.5"/>';
+    // Label
+    var lbl=(p.group||p.type||'').replace(/['"<>]/g,'').substring(0,12);
+    var lblY=py-5;
+    if(lblY<padT+6) lblY=padT+6;
+    out+='<text x="'+px+'" y="'+lblY+'" fill="'+colorLabel+'" font-size="6.5" text-anchor="middle">'+dVal+'</text>';
+  });
+  out+='</svg>';
+  return out;
+}
+
+// ══ 5. Override runNMRPred to add spectrum charts ═════════════════════════════
+var _origRunNMR = window.runNMRPred;
+window.runNMRPred = function(){
+  if(typeof _origRunNMR === 'function') _origRunNMR();
+  // Inject charts after tables render
+  setTimeout(function(){
+    var res=document.getElementById('nmrPredResult');
+    if(!res||document.getElementById('v16-nmr-charts')) return;
+    var inp=document.getElementById('nmrPredInput');
+    if(!inp||!inp.value.trim()) return;
+    var analysis=(typeof analyzeSMILES==='function')?analyzeSMILES(inp.value.trim()):null;
+    if(!analysis) return;
+    var chartsDiv=document.createElement('div');
+    chartsDiv.id='v16-nmr-charts';
+    chartsDiv.style.cssText='margin-top:14px;';
+
+    // ¹H NMR Chart
+    if(analysis.h1_predictions && analysis.h1_predictions.length){
+      var h1Div=document.createElement('div');
+      h1Div.className='v16-nmr-chart v16-nmr-1h';
+      h1Div.innerHTML='<div class="v16-nmr-title">🔮 Spettro ¹H NMR simulato · δ 0–12 ppm</div>'
+        +_nmrSvg(analysis.h1_predictions, 12, '#C084FC', '#e9d5ff', '#120a1e');
+      chartsDiv.appendChild(h1Div);
+    }
+    // ¹³C NMR Chart
+    if(analysis.c13_predictions && analysis.c13_predictions.length){
+      var c13Div=document.createElement('div');
+      c13Div.className='v16-nmr-chart v16-nmr-13c';
+      c13Div.innerHTML='<div class="v16-nmr-title">🔮 Spettro ¹³C NMR simulato · δ 0–220 ppm</div>'
+        +_nmrSvg(analysis.c13_predictions, 220, '#60a5fa', '#bfdbfe', '#091220');
+      chartsDiv.appendChild(c13Div);
+    }
+
+    if(chartsDiv.children.length>0){
+      var innerBox=res.firstElementChild;
+      if(innerBox) innerBox.appendChild(chartsDiv);
+      else res.appendChild(chartsDiv);
+    }
+  }, 80);
+};
+
+// ══ 6. IR Spectrum: peaks go UP (absorbance mode) ═══════════════════════════
+var _origDrawIR = window.drawIRSpectrum;
+window.drawIRSpectrum = function(groupKey){
+  var data=(window.IR_DATA||{})[groupKey];
+  if(!data){ if(typeof _origDrawIR==='function') _origDrawIR(groupKey); return; }
+  var canvas=document.getElementById('irCanvas');
+  if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  var W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0f1a2e'; ctx.fillRect(0,0,W,H);
+  var pad={l:60,r:20,t:20,b:50};
+  var plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
+  // Grid
+  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=0.6;
+  for(var xi=0;xi<=4;xi++){ var px=pad.l+xi*plotW/4; ctx.beginPath(); ctx.moveTo(px,pad.t); ctx.lineTo(px,pad.t+plotH); ctx.stroke(); }
+  for(var yi=0;yi<=4;yi++){ var py=pad.t+yi*plotH/4; ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+plotW,py); ctx.stroke(); }
+  // Axes
+  ctx.strokeStyle='#475569'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t+plotH); ctx.lineTo(pad.l+plotW,pad.t+plotH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+plotH); ctx.stroke();
+  // X labels
+  ctx.fillStyle='#94a3b8'; ctx.font='12px monospace'; ctx.textAlign='center';
+  var cmMarks=[4000,3500,3000,2500,2000,1800,1600,1400,1200,1000,800,600,400];
+  cmMarks.forEach(function(cm){
+    var px=pad.l+plotW*(1-(cm-400)/(4000-400));
+    ctx.fillText(cm,px,pad.t+plotH+16);
+    ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(px,pad.t); ctx.lineTo(px,pad.t+plotH); ctx.stroke();
+  });
+  // Y axis label: Assorbanza
+  ctx.save(); ctx.translate(16,pad.t+plotH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#94a3b8'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Assorbanza (u.a.)',0,0); ctx.restore();
+  ctx.fillStyle='#94a3b8'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Numero d\'onda (cm⁻¹)',pad.l+plotW/2,H-4);
+  // Y axis tick labels: 0 at bottom, 100 at top
+  ctx.textAlign='right';
+  ['100','75','50','25','0'].forEach(function(lbl,i){
+    ctx.fillText(lbl,pad.l-6,pad.t+i*plotH/4+4);
+  });
+  // Compute absorbance spectrum (peaks UP = transmittance flipped)
+  var numPts=1000;
+  var transmittances=new Float32Array(numPts);
+  for(var i=0;i<numPts;i++) transmittances[i]=1.0;
+  data.bands.forEach(function(b){
+    var cm1=b.cm, cm2=b.cm2, center=(cm1+cm2)/2, width=(cm2-cm1)/2;
+    var depth=b.height, sigma=width/2.5;
+    for(var i=0;i<numPts;i++){
+      var cm_here=400+(4000-400)*(1-i/(numPts-1));
+      var gauss=Math.exp(-Math.pow(cm_here-center,2)/(2*sigma*sigma));
+      transmittances[i]-=depth*gauss;
+    }
+  });
+  // Draw: absorbance = 1 - transmittance → peak UP (py decreases as absorption increases)
+  ctx.beginPath(); ctx.strokeStyle='#00d4aa'; ctx.lineWidth=2;
+  for(var i=0;i<numPts;i++){
+    var t=Math.max(0,Math.min(1,transmittances[i]));
+    var px2=pad.l+i*plotW/(numPts-1);
+    var absorbance=1-t; // 0=no absorption (baseline), 1=max absorption (peak top)
+    var py2=pad.t+plotH*(1-absorbance); // 0 absorption → bottom; 1 → top ✓
+    if(i===0) ctx.moveTo(px2,py2); else ctx.lineTo(px2,py2);
+  }
+  ctx.stroke();
+  // Band labels
+  data.bands.forEach(function(b,idx){
+    var cm=(b.cm+b.cm2)/2;
+    var px=pad.l+plotW*(1-(cm-400)/(4000-400));
+    var absMax=b.height; // height = absorption depth = how far peak goes up
+    var pyPeak=pad.t+plotH*(1-absMax*0.7);
+    var pyLabel=pad.t+plotH*(0.02+idx*0.10);
+    ctx.fillStyle=b.color; ctx.font='bold 11px monospace'; ctx.textAlign='center';
+    ctx.fillText(Math.round(cm)+' cm⁻¹',px,pyLabel);
+    ctx.strokeStyle=b.color; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(px,pyLabel+4); ctx.lineTo(px,pyPeak); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+  // Update side panels (reuse original logic)
+  var bandsHTML=data.bands.map(function(b){
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e3a5f">'
+      +'<span style="color:'+b.color+';font-family:monospace">'+b.cm+'–'+b.cm2+' cm⁻¹</span>'
+      +'<span style="color:#e2e8f0;font-size:0.85rem;flex:1;margin:0 8px">'+b.label+'</span>'
+      +(b.note?'<span style="color:#c9d3df;font-size:0.8rem">'+b.note+'</span>':'')
+      +'</div>';
+  }).join('');
+  var bl=document.getElementById('irBandsList'), it=document.getElementById('irInterpText');
+  if(bl) bl.innerHTML=bandsHTML;
+  if(it) it.innerHTML='<p style="color:#e2e8f0;font-size:0.9rem;line-height:1.6">'+data.interp+'</p>'
+    +'<p style="color:#c9d3df;font-size:0.85rem;margin-top:8px;font-family:monospace">'+data.example+'</p>';
+};
+
+// Re-draw IR on section open if already active
+[300,800].forEach(function(d){
+  setTimeout(function(){
+    var irSection=document.getElementById('sirvis');
+    if(irSection&&irSection.classList.contains('on')){
+      var activeBtn=document.querySelector('#irvisFp button.on, #irvisFp button[style*="background:#0d1522"]');
+      if(activeBtn&&activeBtn.dataset&&activeBtn.dataset.g) window.drawIRSpectrum(activeBtn.dataset.g);
+    }
+  },d);
+});
+
+// Re-init retro if already open
+[200,700].forEach(function(d){
+  setTimeout(function(){
+    var rs=document.getElementById('sretro');
+    if(rs&&rs.classList.contains('on')&&!document.getElementById('retroGrid16')) window.initRetro();
+  },d);
+});
+
+console.log('BioSpecInfo v16 — Retrosintesi+NMR spectrum+IR flip ✔');
 })();
 </script>
 
