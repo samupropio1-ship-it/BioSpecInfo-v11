@@ -31433,15 +31433,123 @@ sintesi_multilineare:function(){return _sw(
 };
 
 // Retrosynthesis SVG (shows double arrow and fragments)
-function _retSvg(synthon, equiv){
-  var sn=(synthon||'Sinton').substring(0,18);
-  var eq=(equiv||'Equivalente').substring(0,18);
-  return _sw(
-    _st2(80,52,sn,_TX,10)
-    +_sretarrow(148,372,58)
-    +_st2(430,52,eq,_CF,10)
-    +_st2(260,106,'Analisi retrosintetica · Corey (Nobel 1990)',_CK,8)
-  );
+// Per-type retrosynthesis SVG builders (target ⟹ fragments)
+var _RSVGS={
+  ammide:function(){return _sw(
+    _sch(10,58,2)+_sd(50,50,70,30,_CO)+_st2(76,25,'O',_CO,12)
+    +_sl(50,50,38,65)+_st2(34,71,'NH',_CN,10)+_sch(46,74,2,_CN)
+    +_sretarrow(108,268,58)
+    +_sch(276,54,2)+_sd(308,46,328,26,_CO)+_st2(334,21,'O',_CO,12)
+    +_sl(308,46,296,62)+_st2(292,68,'OH',_CO,10)
+    +_splus(356,58)+_st2(382,52,'H₂N–R',_CN,10)
+    +_st2(260,106,'C(acil)–N ⟹ acido carbossilico + ammina',_CK,8)
+  );},
+  esterificazione:function(){return _sw(
+    _sch(10,58,2)+_sd(50,50,70,30,_CO)+_st2(76,25,'O',_CO,12)
+    +_sl(50,50,38,65)+_st2(34,71,'O',_CO,10)+_sch(44,74,2,_LN)
+    +_sretarrow(108,268,58)
+    +_sch(276,54,2)+_sd(308,46,328,26,_CO)+_st2(334,21,'O',_CO,12)
+    +_sl(308,46,296,62)+_st2(292,68,'OH',_CO,10)
+    +_splus(356,58)+_st2(380,52,'HO',_CO,10)+_sch(394,58,2,_LN)
+    +_st2(260,106,'C(acil)–O ⟹ acido carbossilico + alcol',_CK,8)
+  );},
+  arene:function(){return _sw(
+    _sh(48,58,22)+_sl(70,58,90,58,_CF)+_st2(104,52,'E',_CF,13)
+    +_sretarrow(130,292,58)
+    +_sh(300,58,20)+_sl(320,58,338,58)+_st2(352,52,'H',_TX,12)
+    +_splus(378,58)+_st2(412,52,'E⁺',_CX,14)
+    +_st2(260,106,'Retro-SEAr: Ar–E ⟹ Ar–H + elettrofilo',_CK,8)
+  );},
+  wittig:function(){return _sw(
+    _sl(14,68,34,52)+_sd(34,52,66,52,_LN)+_sl(66,52,86,68)
+    +_sretarrow(114,285,58)
+    +_sd(295,46,315,28,_CO)+_st2(321,23,'O',_CO,12)+_sl(295,46,281,62)
+    +_splus(350,58)+_st2(392,48,'Ph₃P=CHR',_LN,9)
+    +_st2(260,106,'Retro-Wittig: C=C ⟹ C=O + ylide fosforanica',_CK,8)
+  );},
+  aldol:function(){return _sw(
+    _sch(10,60,3)+_sd(54,52,74,32,_CO)+_st2(80,27,'O',_CO,12)
+    +_sl(32,56,46,74)+_st2(54,80,'OH',_CO,9)
+    +_sretarrow(106,285,58)
+    +_sch(296,60,2)+_sd(324,50,344,30,_CO)+_st2(350,25,'O',_CO,12)
+    +_splus(372,58)
+    +_sch(394,60,2)+_sd(422,50,442,30,_CO)+_st2(448,25,'O',_CO,12)
+    +_st2(260,106,'Retro-aldol: β-OH-carbonile ⟹ 2 carbonili',_CK,8)
+  );},
+  cross_coupling:function(){return _sw(
+    _sh(36,58,20)+_sl(56,58,72,58,_CF,2)+_sh(90,58,20)
+    +_sretarrow(124,296,58)
+    +_sh(302,58,18)+_sl(320,58,337,58)+_st2(351,52,'X',_CX,13)
+    +_splus(376,58)
+    +_sh(398,58,18)+_sl(416,58,433,58)+_st2(447,52,'M',_CN,13)
+    +_st2(260,106,'Retro-coupling: Biarile ⟹ Ar–X + Ar–M(boronico)',_CK,8)
+  );},
+  alcol:function(){return _sw(
+    _sch(14,58,3)+_sl(56,50,76,32,_CO)+_st2(84,27,'OH',_CO,10)
+    +_sretarrow(114,290,58)
+    +_sl(298,68,318,52)+_sd(318,52,350,52)+_sl(350,52,370,68)
+    +_splus(392,58)+_st2(420,52,'H₂O',_CN,11)
+    +_st2(260,106,'Retro-idratazione: C–OH ⟹ alchene + H₂O',_CK,8)
+  );},
+  ammina:function(){return _sw(
+    _sch(14,58,3)+_sl(56,50,76,32)+_st2(84,27,'NH₂',_CN,10)
+    +_sretarrow(114,286,58)
+    +_sch(296,58,3)+_sd(340,50,360,30,_CO)+_st2(366,25,'O',_CO,12)
+    +_splus(388,58)+_st2(420,52,'NH₃',_CN,12)
+    +_st2(260,106,'Retro-amminaz.: R–NH₂ ⟹ C=O + NH₃/RNH₂',_CK,8)
+  );},
+  acido:function(){return _sw(
+    _sch(14,54,3)+_sd(56,46,76,26,_CO)+_st2(82,21,'O',_CO,12)
+    +_sl(56,46,42,62)+_st2(50,68,'OH',_CO,10)
+    +_sretarrow(108,286,58)
+    +_sch(296,58,3)+_sl(340,50,360,32,_CO)+_st2(368,27,'OH',_CO,10)
+    +_splus(390,58)+_st2(416,52,'[O]',_CX,13)
+    +_st2(260,106,'Retro-ossidaz.: COOH ⟹ alcol primario + [O]',_CK,8)
+  );},
+  carbonile:function(){return _sw(
+    _sch(10,58,3)+_sd(52,48,72,28,_CO)+_st2(78,23,'O',_CO,12)+_sch(72,58,2)
+    +_sretarrow(116,292,58)
+    +_sch(296,58,3)+_sl(340,50,360,32,_CO)+_st2(368,27,'OH',_CO,10)+_sch(360,58,2)
+    +_st2(260,106,'Retro-riduz. C=O ⟹ alcol (NaBH₄ o LiAlH₄)',_CK,8)
+  );},
+  grignard:function(){return _sw(
+    _sch(10,58,3)+_sl(52,50,72,32,_CO)+_st2(80,27,'OH',_CO,10)+_sch(72,58,2)
+    +_sretarrow(116,290,58)
+    +_sd(294,46,314,28,_CO)+_st2(320,23,'O',_CO,12)+_sl(294,46,280,62)
+    +_splus(350,58)+_sch(372,58,2,_CN)+_st2(404,52,'MgBr',_CN,9)
+    +_st2(260,106,'Retro-Grignard: alcol terz. ⟹ C=O + R–MgBr',_CK,8)
+  );},
+  fosfato:function(){return _sw(
+    _sch(10,58,2)+_sl(46,58,62,58)+_st2(74,52,'O',_CO,10)+_sl(78,58,96,58)
+    +_st2(102,52,'P',_LN,12)+_st2(102,70,'(=O)',_LN,8)
+    +_sretarrow(130,296,58)
+    +_sch(300,58,2)+_sl(336,50,356,32,_CO)+_st2(364,27,'OH',_CO,10)
+    +_splus(388,58)+_st2(420,52,'H₃PO₄',_LN,10)
+    +_st2(260,106,'Retro-fosforil.: R–OPO₃ ⟹ R–OH + fosfato',_CK,8)
+  );},
+  default:function(){return _sw(
+    _st2(66,50,'Molecola',_CK,11)+_st2(66,66,'target',_CK,9)
+    +_sretarrow(120,390,58)
+    +_st2(410,50,'Frammenti',_CF,11)+_st2(410,66,'sintonici',_CF,9)
+    +_st2(260,106,'Disconnessione retrosintetica · Corey (Nobel 1990)',_CK,8)
+  );}
+};
+
+function _retSvgKey(d, tp){
+  var s=((d||'')+' '+((tp)||'')).toLowerCase();
+  if(/ammid|c.*acil.*n|retro.*amid/.test(s)) return 'ammide';
+  if(/ester|c.*acil.*o|retro.*ester/.test(s)) return 'esterificazione';
+  if(/sear|aromat|nitraz|retro.*sear|ar.*e\b/.test(s)) return 'arene';
+  if(/wittig|c=c\b|alchene.*carb|retro.*wittig/.test(s)) return 'wittig';
+  if(/aldol|β.*oh|beta.*oh/.test(s)) return 'aldol';
+  if(/cross.*coupl|suzuki|heck|biarile|coupling/.test(s)) return 'cross_coupling';
+  if(/idrataz|alcol.*alchene|retro.*idrat|c.*oh.*alch/.test(s)) return 'alcol';
+  if(/amminaz|ammina.*carb|retro.*amminaz/.test(s)) return 'ammina';
+  if(/acido.*ossid|ossidaz.*cooh|retro.*ossid.*cooh/.test(s)) return 'acido';
+  if(/grignard|alcol.*terz|retro.*grignard/.test(s)) return 'grignard';
+  if(/carbonile.*alcol|riduz.*carbonile|retro.*riduz.*c/.test(s)) return 'carbonile';
+  if(/fosfat|fosforilaz/.test(s)) return 'fosfato';
+  return 'default';
 }
 
 // Match reaction type from text
@@ -31485,7 +31593,7 @@ function _mkSCard(n,nm,re,me,ct){
 // Build retro card HTML
 function _mkRCard(d,sy,eq,tp){
   var svgHtml='';
-  try{ svgHtml=_retSvg(sy,eq); }catch(e){}
+  try{ svgHtml=(_RSVGS[_retSvgKey(d,tp)]||_RSVGS.default)(); }catch(e){ try{ svgHtml=_RSVGS.default(); }catch(e2){} }
   return '<div class="bsi15-rcard">'
     +'<div class="bsi15-rcard-hd">'
     +'<span class="bsi15-disconn-badge">⟹</span>'
