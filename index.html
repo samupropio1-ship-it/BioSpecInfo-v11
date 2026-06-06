@@ -661,7 +661,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v36-2026-06';</script>
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v37-2026-06';</script>
 
 
 <!-- ═══════════════ HEADER ═══════════════ -->
@@ -30557,6 +30557,555 @@ setTimeout(hookFab13,400);
 setTimeout(hookFab13,1200);
 
 console.log('BioSpecInfo v13 — rebuild UI definitivo ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v14 · FAB + Bottom Sheet + SR PubChem + Android fix ─────────
+(function(){
+'use strict';
+
+// ══ 0. CLEANUP: elimina stile v12.5 che forza navWrapper a top:0 ═════════════
+document.querySelectorAll('style').forEach(function(el){
+  var t = el.textContent || '';
+  if(t.indexOf('navWrapper') > -1 && t.indexOf('top:0') > -1){ try{ el.remove(); }catch(e){} }
+});
+
+// ══ 1. CSS definitivo ════════════════════════════════════════════════════════
+var _st = document.createElement('style');
+_st.textContent = [
+'#hdr{padding-top:calc(14px + env(safe-area-inset-top,0px))!important;}',
+'#hdr-actions{display:none!important;}',
+'#navWrapper{position:sticky!important;z-index:90!important;}',
+'body{padding-bottom:0!important;}',
+'#main{padding-top:6px!important;padding-bottom:calc(env(safe-area-inset-bottom,0px)+90px)!important;}',
+/* hide old FAB — creiamo #bsi14-fab */
+'#bsi105-fab{display:none!important;}',
+'#bsi105-menu{display:none!important;}',
+'#bsi-scroll-top{bottom:calc(env(safe-area-inset-bottom,0px)+100px)!important;}',
+'#bsi-guide{z-index:99999!important;}',
+/* nuovo FAB */
+'#bsi14-fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px)+24px);right:20px;',
+'width:58px;height:58px;border-radius:50%;',
+'background:linear-gradient(135deg,#1fd39a,#14a87a);',
+'border:none;cursor:pointer;color:#fff;font-size:26px;',
+'z-index:99990;box-shadow:0 6px 24px rgba(0,212,154,.5),0 2px 8px rgba(0,0,0,.4);',
+'transition:transform .15s;display:flex;align-items:center;justify-content:center;}',
+'#bsi14-fab:active{transform:scale(.92);}',
+/* bottom sheet */
+'#bsi14-sheet{position:fixed;inset:0;z-index:99991;display:none;align-items:flex-end;',
+'background:rgba(2,8,18,.75);backdrop-filter:blur(9px);}',
+'#bsi14-sheet.open{display:flex;}',
+'#bsi14-panel{background:#091422;border:1px solid #192f45;border-radius:20px 20px 0 0;',
+'width:100%;max-height:82vh;overflow-y:auto;',
+'padding-bottom:calc(env(safe-area-inset-bottom,0px)+28px);',
+'box-shadow:0 -10px 50px rgba(0,0,0,.6);animation:_bs14up .22s cubic-bezier(.25,.8,.25,1);}',
+'@keyframes _bs14up{from{transform:translateY(100%)}to{transform:translateY(0)}}',
+'#bsi14-drag{width:36px;height:4px;background:#1a3550;border-radius:2px;margin:12px auto 0;}',
+'#bsi14-hd{padding:14px 18px 12px;border-bottom:1px solid #0f1e2e;',
+'display:flex;align-items:center;justify-content:space-between;}',
+'#bsi14-hd-t{color:#e8f4ff;font-size:.95rem;font-weight:800;}',
+'#bsi14-close{background:#0f1e2e;border:none;color:#5a7a94;',
+'width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;}',
+'.bsi14-sec{padding:14px 18px 4px;color:#2a4f6a;font-size:.6rem;font-weight:700;',
+'letter-spacing:.15em;text-transform:uppercase;}',
+'.bsi14-row{display:flex;align-items:center;gap:13px;padding:13px 18px;cursor:pointer;',
+'border-bottom:1px solid #0a1825;transition:background .12s;}',
+'.bsi14-row:active{background:#0d1f32;}',
+'.bsi14-row.hl{border-left:3px solid #1fd39a;padding-left:15px;background:rgba(31,211,154,.04);}',
+'.bsi14-row.hl:active{background:rgba(31,211,154,.11);}',
+'.bsi14-ic{font-size:20px;width:26px;text-align:center;flex-shrink:0;}',
+'.bsi14-tx{flex:1;}',
+'.bsi14-nm{color:#d0e8f8;font-size:13.5px;font-weight:600;}',
+'.bsi14-ds{color:#2e5572;font-size:11px;margin-top:1px;}',
+'.bsi14-ar{color:#1e3a54;font-size:17px;}',
+/* SR modal */
+'#bsi14-sr{position:fixed;inset:0;z-index:99997;display:none;align-items:center;',
+'justify-content:center;background:rgba(2,8,16,.85);backdrop-filter:blur(6px);padding:12px;}',
+'#bsi14-sr.open{display:flex;}',
+'#bsi14-sr-box{background:#0b1828;border:1px solid #1e3a52;border-radius:18px;',
+'max-width:700px;width:100%;max-height:92vh;overflow-y:auto;',
+'box-shadow:0 16px 50px rgba(0,0,0,.65);}',
+'#bsi14-sr-hd{display:flex;align-items:center;justify-content:space-between;',
+'padding:14px 18px;border-bottom:1px solid #1e3a52;',
+'position:sticky;top:0;background:#0b1828;z-index:2;}',
+'#bsi14-sr-hd h3{margin:0;color:#1fd39a;font-size:1rem;font-weight:800;}',
+'#bsi14-sr-x{background:#16293f;border:none;color:#9fb8d0;',
+'width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;}',
+'#bsi14-sr-body{padding:14px;}',
+'#bsi14-sr-inp{width:100%;padding:11px 14px;background:#060e1a;border:1.5px solid #1e3a52;',
+'border-radius:10px;color:#e8f4ff;font-size:14px;outline:none;',
+'font-family:var(--font,system-ui);box-sizing:border-box;margin-bottom:9px;}',
+'#bsi14-sr-inp:focus{border-color:#1fd39a;}',
+'#bsi14-sr-go{width:100%;padding:11px;background:linear-gradient(135deg,#1fd39a,#1aa97a);',
+'border:none;border-radius:10px;color:#fff;font-weight:800;font-size:14px;',
+'cursor:pointer;margin-bottom:14px;}',
+].join('');
+document.head.appendChild(_st);
+
+// ══ 2. navWrapper top via JS inline !important ════════════════════════════════
+function _fixNav(){
+  var h=document.getElementById('hdr'), n=document.getElementById('navWrapper');
+  if(!h||!n) return;
+  var ht = h.getBoundingClientRect().height || h.offsetHeight || 68;
+  if(ht > 10) n.style.setProperty('top', ht+'px', 'important');
+}
+_fixNav();
+window.addEventListener('resize', _fixNav);
+[80,400,1000].forEach(function(d){ setTimeout(_fixNav,d); });
+
+// ══ 3. showAddToHome fix ════════════════════════════════════════════════════
+window.showAddToHome = function(){
+  if(typeof window.showInstallGuide==='function'){ window.showInstallGuide(); return; }
+  alert(/iphone|ipad|ipod/i.test(navigator.userAgent)
+    ? 'iPhone: tocca Condividi (□↑) → "Aggiungi a schermata Home"'
+    : 'Android Chrome: menu ⋮ → "Installa app" o "Aggiungi a schermata Home"');
+};
+
+// ══ 4. SR: database molecole comuni ══════════════════════════════════════════
+var _DB = {
+acetone:{syn:[
+  {n:1,nm:'Wacker (propilene)',re:'CH₃CH=CH₂+O₂+H₂O→acetone',me:'Pd(II) coordina al doppio legame→idropalladazione→β-H eliminazione→chetone',ct:'PdCl₂/CuCl₂, DMF/H₂O, 60°C, O₂'},
+  {n:2,nm:'Ossidazione 2-propanolo',re:'(CH₃)₂CHOH→(CH₃)₂C=O',me:'Astrazione H-α con Cr(VI)→cromato estere→β-eliminazione',ct:'PCC o DMP, DCM, 0°C–RT'},
+  {n:3,nm:'Processo Cumene (ind.)',re:'Cumene→idroperossido→acetone+fenolo',me:'Autossidazione radicalica+riarrangiamento Baeyer-Villiger acido',ct:'O₂ aria; H₂SO₄ dil. per clivaggio'}
+],retro:[
+  {d:'C–Hα enolato',sy:'CH₃COCH₂⁻',eq:'Enolato acetone+elettrofilo (alchilazione α)',tp:'Umpolung α-carbonilico'},
+  {d:'C=O retro-Wacker',sy:'CH₃CH=CH₂',eq:'Propilene→ossidazione Wacker',tp:'Retro-ossidazione'},
+  {d:'C–C retro-aldol',sy:'2×CH₃CHO',eq:'Due acetaldeidi (retro-aldol)',tp:'Retro-aldol'}
+]},
+aspirina:{syn:[
+  {n:1,nm:'Acetilazione anidride acetica',re:'Acido salicilico+(CH₃CO)₂O→aspirina+CH₃COOH',me:'SNA: OH fenolico attacca carbonile anidride; CH₃COO⁻ leaving group',ct:'H₃PO₄ cat., 80–85°C, 15 min'},
+  {n:2,nm:'Via cloruro acilico',re:'Acido salicilico+CH₃COCl+base→aspirina+HCl',me:'SNA su cloruro acilico: Cl⁻ ottimo LG; piridina neutralizza HCl',ct:'Piridina anidra, 0°C→RT'}
+],retro:[
+  {d:'C(acil)–O fenolico',sy:'Acido salicilico+CH₃CO⁺',eq:'Acido salicilico+anidride acetica',tp:'Retro-esterificazione fenolica'},
+  {d:'Idrolisi base',sy:'Salicilato⁻+CH₃COOH',eq:'NaOH/H₂O (saponificazione)',tp:'Retro-acetilazione'}
+]},
+paracetamolo:{syn:[
+  {n:1,nm:'Acetilazione p-amminofenolo',re:'H₂N–C₆H₄–OH+(CH₃CO)₂O→paracetamolo',me:'SNA sulla NH₂ (più nucleofila di OH); espulsione CH₃COO⁻',ct:'AcOH glaciale, 50–60°C, 15 min'}
+],retro:[
+  {d:'C(acil)–N ammide',sy:'p-amminofenolo+CH₃CO⁺',eq:'p-amminofenolo+anidride acetica',tp:'Retro-amidazione'}
+]},
+glucosio:{syn:[
+  {n:1,nm:'Sintesi Fischer-Kiliani',re:'D-arabinosio+HCN→cianoridrina→D-glucosio',me:'Addizione nucleofila CN⁻ al C1 aldeidico; riduzione lattone ad aldeide',ct:'NaCN,H₂O; poi H₂/Pd o Na/Hg'},
+  {n:2,nm:'Isomerizzazione enolica',re:'D-fruttosio⇌D-glucosio',me:'Lobry de Bruyn: endiolo C1–C2 in base',ct:'NaOH dil., amb.; o glucosio isomerasi enzimatica'}
+],retro:[
+  {d:'C1–O piranoso',sy:'Glucosio aperto (aldeide)',eq:'Apertura anello in H₂O',tp:'Retro-ciclizzazione'},
+  {d:'C1–C2 Kiliani',sy:'D-arabinosio+C₁',eq:'Degradazione Ruff/Wohl (–1C)',tp:'Retro-allungamento C'}
+]},
+caffeina:{syn:[
+  {n:1,nm:'Sintesi Traube',re:'5-amminouracile+HCOOH→xantina→teofillina',me:'Ciclocondensazione purinica: C8 da HCOOH; ciclizzazione N',ct:'HCOOH, Δ; poi metilazione (CH₃)₂SO₄'},
+  {n:2,nm:'Metilazione N7 teofillina',re:'Teofillina+CH₃I→caffeina',me:'Alchilazione N7 selettiva; K₂CO₃ base non nucleofila',ct:'K₂CO₃, DMF, 60°C'}
+],retro:[
+  {d:'N1–CH₃',sy:'Teofillina+CH₃⁺',eq:'Teofillina+dimetilsolfato',tp:'Retro-N-metilazione'},
+  {d:'C8–N retro-Traube',sy:'4,5-diamminouracile+HCOOH',eq:'Via Traube (1882)',tp:'Retro-Traube'}
+]},
+etanolo:{syn:[
+  {n:1,nm:'Idratazione etilene',re:'CH₂=CH₂+H₂O→CH₃CH₂OH',me:'AE: H⁺→carbocatione etilico→H₂O attacca→deprotonazione',ct:'H₃PO₄/SiO₂, 300°C, 60–70 atm'},
+  {n:2,nm:'Fermentazione glucosio',re:'C₆H₁₂O₆→2C₂H₅OH+2CO₂',me:'Glicolisi→piruvato→acetaldeide (TPP)→etanolo (NADH)',ct:'Saccharomyces cerevisiae, anaerobiosi'}
+],retro:[
+  {d:'C–OH retro-idratazione',sy:'CH₂=CH₂+H₂O',eq:'Etilene (disidratazione E1)',tp:'Retro-idratazione'},
+  {d:'Ossidazione parziale',sy:'CH₃CHO',eq:'Acetaldeide (ADH inversa)',tp:'Retro-riduzione'}
+]},
+benzene:{syn:[
+  {n:1,nm:'Riforma catalitica',re:'Cicloesano→benzene+3H₂',me:'Disidratazione/aromatizzazione su Pt; H₂ sposta equilibrio',ct:'Pt/Al₂O₃, 500°C, 10–40 atm'},
+  {n:2,nm:'Pirolisi catrame carbone',re:'Catrame→benzene (fraz. 80°C)',me:'Distillazione frazionata industriale del catrame di carbone',ct:'~1000°C pirolisi; frazionazione'}
+],retro:[
+  {d:'Ar→cicloesano',sy:'Cicloesano+[Pt]',eq:'Idrogenazione (H₂/Pd)',tp:'Retro-aromatizzazione'}
+]},
+toluene:{syn:[
+  {n:1,nm:'Alchilazione Friedel-Crafts',re:'Benzene+CH₃Cl→toluene+HCl',me:'AlCl₃ genera CH₃⁺; SEAr su benzene; problema polimetilazione',ct:'AlCl₃, DCM, 0°C (benzene in eccesso)'},
+  {n:2,nm:'Riforma catalitica (metilcicloesano)',re:'Metilcicloesano→toluene+3H₂',me:'Aromatizzazione catalitica',ct:'Pt/Al₂O₃, 500°C'}
+],retro:[
+  {d:'Ar–CH₃',sy:'Benzene+CH₃⁺',eq:'Benzene+CH₃Cl/AlCl₃ (FC)',tp:'Retro-FC alchilazione'},
+  {d:'CH₃→COOH',sy:'Acido benzoico',eq:'KMnO₄ ossida catena laterale',tp:'Retro-ossidazione laterale'}
+]},
+'acido acetico':{syn:[
+  {n:1,nm:'Carbonilazione metanolo (Monsanto)',re:'CH₃OH+CO→CH₃COOH',me:'Ciclo Rh(I)/I⁻: addiz. ossidativa CH₃I→migrazione CO→acido',ct:'[Rh(CO)₂I₂]⁻, HI, 150–200°C, 30–60 atm'},
+  {n:2,nm:'Ossidazione acetaldeide',re:'CH₃CHO+½O₂→CH₃COOH',me:'Meccanismo radicalico: peracetato intermedio',ct:'Mn(OAc)₂ o Co(OAc)₂, 50–60°C'}
+],retro:[
+  {d:'C–OH carbossilico',sy:'CH₃CO⁺+OH⁻',eq:'Acetil cloruro+H₂O',tp:'Retro-idrolisi'},
+  {d:'C=O retro-carbonilazione',sy:'CH₃OH+CO',eq:'Metanolo+CO (Monsanto inverso)',tp:'Retro-carbonilazione'}
+]},
+'acido benzoico':{syn:[
+  {n:1,nm:'Ossidazione toluene',re:'C₆H₅–CH₃+KMnO₄→C₆H₅–COOH',me:'KMnO₄ ossida la catena laterale completa a COOH in condiz. acide',ct:'KMnO₄, H₂SO₄, Δ o CrO₃'},
+  {n:2,nm:'Grignard + CO₂',re:'C₆H₅MgBr+CO₂→C₆H₅COOMgBr→C₆H₅COOH',me:'Addizione Grignard a CO₂ solida; idrolisi acida',ct:'CO₂ (s), Et₂O anidro; poi HCl dil.'}
+],retro:[
+  {d:'Ar–COOH',sy:'Toluene+ossidante',eq:'Toluene+KMnO₄ (ossidazione laterale)',tp:'Retro-ossidazione laterale'},
+  {d:'Ar–COOH retro-Grignard',sy:'C₆H₅MgBr+CO₂',eq:'Fenilmagnesio bromuro+CO₂',tp:'Retro-carboxilazione Grignard'}
+]},
+aniline:{syn:[
+  {n:1,nm:'Riduzione nitrobenzene',re:'C₆H₅NO₂+6[H]→C₆H₅NH₂+2H₂O',me:'Fe/HCl: Fe si ossida a Fe²⁺; H⁺ fornisce H; intermedi nitroso/idrossilammina',ct:'Fe, HCl dil., Δ (classic) o H₂/Pd/C (cat.)'},
+  {n:2,nm:'Riduzione catalitica',re:'C₆H₅NO₂+3H₂→C₆H₅NH₂+2H₂O',me:'Idrogenazione su Pd/C: H₂ adsorbito riduce NO₂ in 3 stadi',ct:'H₂/Pd/C (5%), EtOH o EtOAc, RT, 1 atm'}
+],retro:[
+  {d:'Ar–NH₂',sy:'ArNO₂+6[H]',eq:'Nitrobenzene (riduzione)',tp:'Retro-riduzione nitro'},
+  {d:'Ar–NO₂',sy:'ArH+NO₂⁺',eq:'Nitrazione SEAr (HNO₃/H₂SO₄)',tp:'Retro-SEAr nitrazione'}
+]},
+fenolo:{syn:[
+  {n:1,nm:'Processo Cumene',re:'Cumene→idroperossido→fenolo+acetone',me:'Autossidazione radicalica; riarrangiamento acido: migrazione 1,2-Ph',ct:'O₂ aria; H₂SO₄ cat. per clivaggio'},
+  {n:2,nm:'Idrolisi diazonioben zene',re:'C₆H₅N₂⁺+H₂O→C₆H₅OH+N₂',me:'Sostituzione nucleofila su ArN₂⁺ con acqua calda',ct:'H₂O, HBF₄, Δ (>5°C provoca aromatico)'}
+],retro:[
+  {d:'Ar–OH',sy:'Cumene+O₂',eq:'Cumene+aria (processo Cumene)',tp:'Retro-perossidazione'},
+  {d:'Ar–OH retro-diazonio',sy:'Ar–N₂⁺+H₂O',eq:'Aniline→diazotazione→idrolisi',tp:'Retro-diazotazione/idrolisi'}
+]},
+ibuprofen:{syn:[
+  {n:1,nm:'Via Boots (classica)',re:'Isobutilbenzene→Ac→alcol→alchilazione→ibuprofen',me:'Friedel-Crafts acilazione, riduzione, alchilazione, ossidazione Dakin',ct:'Sequenza 6 stadi; resa totale ~55%'},
+  {n:2,nm:'Via BHC (verde, 3 stadi)',re:'Isobutilbenzene→acetile (FC)→alcol (BH₃)→CO insertion (Pd)→ibuprofen',me:'Ossidazione BH₃/H₂O₂, carbonilazione Pd(CO) catalitica',ct:'AlCl₃; BH₃·THF, H₂O₂/NaOH; Pd cat., CO, 120°C, 30 bar'}
+],retro:[
+  {d:'α-CH–COOH',sy:'ArCH(CH₃)CH₂Ar\'+CO₂',eq:'Grignard + CO₂ o carboxilazione enolato',tp:'Retro-carboxilazione'},
+  {d:'Ar–CH₂–isobutile',sy:'Isobutilbenzene+H⁺',eq:'Alkylbenzene (F-C o retro-FC)',tp:'Retro-FC alchilazione'}
+]},
+morfina:{syn:[
+  {n:1,nm:'Estrazione papavero (ind.)',re:'Papaver somniferum→lattice→morfina (Merck 1804)',me:'Precipitazione con NH₃; cristallizzazione sal di morfina',ct:'Estrazione acqua/acido, precipitazione base, ricristallizzazione'},
+  {n:2,nm:'Sintesi totale Gates-Tschudi (1952)',re:'2-naftol→…→morfina (30 stadi)',me:'Prima sintesi totale: include ossidazione fenantreninica, ciclizzazione',ct:'Storica, non pratica (<1% resa complessiva)'}
+],retro:[
+  {d:'O-CH₃ (codeina→morfina)',sy:'Codeina+CH₃⁺',eq:'Codeina (N-demetilazione inversa)',tp:'Retro-demetilazione'},
+  {d:'Ponte ossido C4–C5',sy:'Morfina retro-epossido',eq:'Apertura/chiusura epossido',tp:'Retro-epossidazione'}
+]}
+};
+
+// ══ 5. Analisi SMILES per gruppi funzionali ═══════════════════════════════════
+function _smAnal(smi){
+  var s = smi || '';
+  var fgs=[], ret=[];
+  var push = function(f,r){ fgs.push(f); if(r) ret.push(r); };
+
+  if(/\[N\+\]\(=O\)\[O-\]|N\(=O\)=O/.test(s))
+    push({t:'Nitro (–NO₂)',c:'#ff6347'},
+         {d:'Ar–NO₂',sy:'ArH+NO₂⁺',eq:'Nitrazione SEAr: HNO₃/H₂SO₄',tp:'Retro-SEAr'});
+
+  if(/C\(=O\)OC\(=O\)/.test(s))
+    push({t:'Anidride acida',c:'#daa520'},
+         {d:'C–O anidride',sy:'2×RCOOH',eq:'Disidratazione acida/P₂O₅',tp:'Retro-disidratazione'});
+
+  if(/C\(=O\)[NH]|NC\(=O\)/.test(s))
+    push({t:'Ammide (–CONH–)',c:'#98fb98'},
+         {d:'C(acil)–N',sy:'RCOOH+H₂NR\'',eq:'EDC/DCC coupling o cloruro acilico+ammina',tp:'Retro-amidazione'});
+
+  if(/C\(=O\)O[^C$\s]|C\(=O\)O$|C\(O\)=O/.test(s))
+    push({t:'Acido carbossilico (–COOH)',c:'#ff8c69'},
+         {d:'C–OH acido',sy:'RCO⁺+OH⁻',eq:'Alcol 1° (KMnO₄) o Grignard+CO₂',tp:'Retro-ossidazione'});
+  else if(/C\(=O\)OC/.test(s))
+    push({t:'Estere (–COO–)',c:'#ffa500'},
+         {d:'C(acil)–OR',sy:'RCOOH+R\'OH',eq:'Esterificazione Fischer o cloruro acilico+alcol',tp:'Retro-esterificazione'});
+
+  var hasC_O = /C=O|\(=O\)/.test(s);
+  var classC_O = /C\(=O\)[ON]|NC\(=O\)|C\(O\)=O/.test(s);
+  if(hasC_O && !classC_O)
+    push({t:'Carbonile C=O (chetone/aldeide)',c:'#ffd700'},
+         {d:'C=O',sy:'R¹MgX+R²CO⁺',eq:'Grignard+cloruro acilico/estere o Friedel-Crafts acilazione',tp:'Retro-Grignard/FC'});
+
+  if(/[a-z]/.test(s)){
+    push({t:'Anello aromatico',c:'#ffa07a'},
+         {d:'C–Ar SEAr',sy:'ArH+E⁺',eq:'Friedel-Crafts, alogenazione (FeCl₃), nitrazione',tp:'Retro-SEAr'});
+  }
+
+  if(/[A-Z]=[A-Z]/.test(s) && !/\(=O\)/.test(s))
+    push({t:'Alchene (C=C)',c:'#90ee90'},
+         {d:'C=C',sy:'Ylide+C=O (Wittig)',eq:'Wittig o eliminazione E2',tp:'Retro-Wittig/E2'});
+
+  if(s.indexOf('#') > -1)
+    push({t:'Alchino (C≡C)',c:'#add8e6'},
+         {d:'C≡C',sy:'RC≡C⁻+R\'X',eq:'Alchinuro+alchil alogenuro (SN2)',tp:'Retro-alchilazione'});
+
+  if(/CCO$|COC|C\[OH\]|\[OH\]/.test(s))
+    push({t:'Alcol (–OH)',c:'#87ceeb'},
+         {d:'C–OH',sy:'Carbenio⁺+H₂O',eq:'Idratazione alchene o NaBH₄ su carbonile',tp:'Retro-idratazione/riduzione'});
+
+  if(/[CN]N(?!\()|^N[^O]/.test(s) && !/\[N\+\]/.test(s) && !fgs.find(function(f){return f.t.includes('Ammide');}))
+    push({t:'Ammina (–NH₂/NHR)',c:'#dda0dd'},
+         {d:'C–N',sy:'Carbonile+H₂NR',eq:'Aminazione riduttiva (NaBH₃CN) o riduzione nitro/nitrile',tp:'Retro-aminazione'});
+
+  var hl=[];
+  if(s.indexOf('F')>-1 && !/\[Fe|PF|BF/.test(s)) hl.push('F');
+  if(/Cl(?![A-Z])/.test(s)) hl.push('Cl');
+  if(s.indexOf('Br')>-1) hl.push('Br');
+  if(/\bI\b/.test(s)) hl.push('I');
+  if(hl.length)
+    push({t:'Alogenuro ('+hl.join('/')+') C–X',c:'#b0c4de'},
+         {d:'C–X',sy:'Carbenio⁺+X⁻',eq:'Alchene+HX (Markovnikov) o alcol+SOCl₂',tp:'Retro-AE/SN'});
+
+  if(/S\(=O\)\(=O\)/.test(s))
+    push({t:'Sulfonile (–SO₂–)',c:'#f0e68c'},
+         {d:'Ar–SO₃H',sy:'ArH+SO₃',eq:'Sulfonazione SEAr: H₂SO₄ concentrato fumante',tp:'Retro-sulfonazione'});
+
+  return {fgs:fgs, ret:ret};
+}
+
+// ══ 6. Vie di sintesi suggerite dai gruppi funzionali ═════════════════════════
+function _fgSyn(fgs, name){
+  var r=[], seen={};
+  function add(obj){ if(!seen[obj.nm]){seen[obj.nm]=1; r.push(obj);} }
+  fgs.forEach(function(fg){
+    var t=fg.t;
+    if(t.includes('Acido carbossilico')){
+      add({n:1,nm:'Ossidazione alcol 1°',re:'RCH₂OH → RCOOH',me:'KMnO₄ in H₂SO₄ caldo ossida a COOH; Jones (CrO₃) alternativa',ct:'KMnO₄/H₂SO₄ caldo o CrO₃·2py (PCC poi Jones)'});
+      add({n:2,nm:'Carboxilazione Grignard',re:'RMgX+CO₂(s)→RCOOMgX→RCOOH',me:'Addizione RMgX su CO₂ solida; idrolisi acida del magnesiato',ct:'Et₂O anidro, CO₂(s); poi HCl dil., H₂O'});
+    }
+    if(t.includes('Estere')){
+      add({n:1,nm:'Esterificazione Fischer',re:'RCOOH+R\'OH⇌RCOOR\'+H₂O',me:'Acid-cat: proton. C=O→addiz. R\'OH→eliminaz. H₂O (equil. favorito con Dean-Stark)',ct:'H₂SO₄ cat., toluene+Dean-Stark, Δ'});
+      add({n:2,nm:'Via cloruro acilico',re:'RCOCl+R\'OH→RCOOR\'',me:'SNA su carbonile più reattivo; base (Et₃N) neutralizza HCl; reaz. rapida',ct:'Et₃N, DCM, 0°C'});
+    }
+    if(t.includes('Ammide')){
+      add({n:1,nm:'Coupling EDC/HOBt',re:'RCOOH+H₂NR\'→RCONHR\'',me:'EDC attiva COOH→O-acilisourea; HOBt evita epimerizzazione; SNA da NH₂',ct:'EDC·HCl, HOBt, DIPEA, DMF, 0°C→RT, 12h'});
+      add({n:2,nm:'Via cloruro acilico',re:'RCOCl+H₂NR\'→RCONHR\'+HCl',me:'SNA: Cl⁻ ottimo leaving group; reaz. veloce a 0°C',ct:'Piridina, DCM, 0°C'});
+    }
+    if(t.includes('Carbonile')){
+      add({n:1,nm:'Ossidazione alcol (PCC)',re:'R₂CHOH→R₂C=O (chetone) / RCH₂OH→RCHO',me:'PCC ossida selettivamente 2° e 1° senza sovraossidare aldeidi; Swern per sensibili',ct:'PCC, DCM, RT; o Swern (DMSO/Cl₂CO), –78°C'});
+      add({n:2,nm:'Friedel-Crafts acilazione (Ar)',re:'ArH+RCOCl→Ar–COR',me:'AlCl₃ genera acilelio RCO⁺; SEAr; complesso Al lavato con H₂O',ct:'AlCl₃ (1.1 eq), DCM o CS₂, 0°C→RT'});
+    }
+    if(t.includes('Aromatico')){
+      add({n:1,nm:'SEAr alogenazione',re:'ArH+Cl₂/Br₂→Ar–X+HX',me:'Cat. Lewis (FeCl₃/FeBr₃) genera X⁺; σ-complesso Wheland→deprotonazione',ct:'Cl₂/FeCl₃ o Br₂/FeBr₃, DCM, RT'});
+      add({n:2,nm:'SEAr nitrazione',re:'ArH+HNO₃→Ar–NO₂+H₂O',me:'H₂SO₄ genera NO₂⁺; SEAr; ortopara direttori attivano',ct:'HNO₃ dil./H₂SO₄ conc., 0–5°C (mono)'});
+    }
+    if(t.includes('Alchene')){
+      add({n:1,nm:'Eliminazione E2',re:'R–CHXCH₂R\'+base→RCH=CHR\'+HX',me:'Anti-periplanare sincrono: H-β abstrato mentre X⁻ parte; regola Zaitsev vs Hofmann',ct:'KOt-Bu/DMSO (Hofmann) o KOH/EtOH,Δ (Zaitsev)'});
+      add({n:2,nm:'Reazione di Wittig',re:'R₂C=O+Ph₃P=CR\'₂→R₂C=CR\'₂+Ph₃P=O',me:'Ylide+carbonile→[2+2] ossafosfetano→retro-[2+2]; Z (unstab.) o E (stab.)',ct:'Ph₃P, n-BuLi, THF, –78°C (ylide instabilizzata)'});
+    }
+    if(t.includes('Alcol')){
+      add({n:1,nm:'Riduzione NaBH₄/LiAlH₄',re:'R₂C=O→R₂CHOH',me:'NaBH₄ trasferisce H⁻ al C-carbonilico; LiAlH₄ per acidi/esteri/nitrili',ct:'NaBH₄, MeOH, 0°C (chetoni); LiAlH₄, Et₂O, 0°C→RF'});
+      add({n:2,nm:'Idratazione alchene',re:'RCH=CH₂+H₂O→RCH(OH)CH₃',me:'Markovnikov: H⁺ al C meno sost.; BH₃→ossidazione: anti-Markovnikov',ct:'H₂SO₄/H₂O (Markovnikov) o BH₃·THF poi H₂O₂/NaOH'});
+    }
+    if(t.includes('Ammina')){
+      add({n:1,nm:'Aminazione riduttiva',re:'R₂C=O+H₂NR\'→R₂C=NR\'→R₂CHNHR\'',me:'pH≈5: imina si forma; NaBH₃CN riduce selettivamente immine non carbonili',ct:'NaBH₃CN, MeOH/AcOH (pH 5), RT, 12h'});
+      add({n:2,nm:'Riduzione nitrile/nitro',re:'RCN→RCH₂NH₂; ArNO₂→ArNH₂',me:'LiAlH₄ riduce CN; H₂/Pd o Fe/HCl riducono NO₂',ct:'LiAlH₄, Et₂O (CN); H₂/Pd/C o Fe/AcOH (NO₂)'});
+    }
+    if(t.includes('Alogenuro')){
+      add({n:1,nm:'HX su alchene (Markovnikov)',re:'CH₂=CR₂+HX→CH₃CXR₂',me:'AE: H⁺ al C meno sost.→carbenio Markovnikov→X⁻ attacca',ct:'HBr, DCM, 0°C; o HCl(g), CH₂Cl₂'});
+      add({n:2,nm:'Alcol+SOCl₂',re:'ROH+SOCl₂→RCl+SO₂+HCl',me:'Piridin. forma clorosolfito→SN₂ (inversione Walden)',ct:'SOCl₂, piridina, 0°C; o PBr₃, Et₂O (bromuro)'});
+    }
+    if(t.includes('Alchino')){
+      add({n:1,nm:'Eliminazione doppia su gem-dibromo',re:'RCHBr₂+2NaNH₂→RC≡CH',me:'E2 doppia; NaNH₂ base forte; via vinil bromuro',ct:'NaNH₂, NH₃ liq., –33°C'});
+      add({n:2,nm:'Alchilazione acetiluro',re:'RC≡C⁻Na⁺+R\'X→RC≡CR\'',me:'SN2 su alchil alogenuro 1°; acetiluro formato con NaNH₂',ct:'NaNH₂, NH₃ liq.; poi R\'X primario'});
+    }
+  });
+  return r.slice(0,5);
+}
+
+// ══ 7. Render risultati SR ════════════════════════════════════════════════════
+function _renderSR(el, name, props, cid, fgData, localData){
+  var h='';
+  // Card info molecola (da PubChem)
+  if(props && (props.MolecularFormula || props.IUPACName)){
+    h+='<div style="background:#0b1c30;border:1px solid #1e3a52;border-radius:12px;padding:13px;margin-bottom:14px">'
+      +'<div style="color:#1fd39a;font-size:.7rem;font-weight:800;letter-spacing:.1em;margin-bottom:8px">📋 DATI MOLECOLA (PubChem)</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px">'
+      +(props.IUPACName?'<div style="grid-column:1/-1"><span style="color:#3a6080;font-size:10px">Nome IUPAC</span><div style="color:#cfe2f5;font-size:11.5px">'+props.IUPACName+'</div></div>':'')
+      +(props.MolecularFormula?'<div><span style="color:#3a6080;font-size:10px">Formula</span><div style="color:#cfe2f5;font-size:13px;font-family:monospace">'+props.MolecularFormula+'</div></div>':'')
+      +(props.MolecularWeight?'<div><span style="color:#3a6080;font-size:10px">Peso mol.</span><div style="color:#cfe2f5;font-size:12px">'+parseFloat(props.MolecularWeight).toFixed(2)+' g/mol</div></div>':'')
+      +(cid?'<div style="grid-column:1/-1"><span style="color:#3a6080;font-size:10px">PubChem CID</span> <a href="https://pubchem.ncbi.nlm.nih.gov/compound/'+cid+'" target="_blank" style="color:#6bcfff;font-size:11px">'+cid+' ↗</a></div>':'')
+      +(props.CanonicalSMILES?'<div style="grid-column:1/-1;background:#060d1a;border-radius:8px;padding:7px 9px;margin-top:3px"><span style="color:#2a4a64;font-size:10px">SMILES</span><div style="color:#6a8eaa;font-size:10.5px;word-break:break-all;font-family:monospace">'+props.CanonicalSMILES.substring(0,120)+(props.CanonicalSMILES.length>120?'…':'')+'</div></div>':'')
+      +'</div></div>';
+  }
+  // Gruppi funzionali
+  if(fgData && fgData.fgs && fgData.fgs.length){
+    h+='<div style="margin-bottom:12px">'
+      +'<div style="color:#8aadcc;font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-bottom:6px">🔍 GRUPPI FUNZIONALI IDENTIFICATI</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:5px">';
+    fgData.fgs.forEach(function(f){
+      h+='<span style="background:#0b1a2a;border:1px solid '+f.c+';color:'+f.c+';padding:3px 9px;border-radius:14px;font-size:11px;font-weight:600">'+f.t+'</span>';
+    });
+    h+='</div></div>';
+  }
+  // Vie di sintesi
+  var syn = localData ? localData.syn : (fgData ? _fgSyn(fgData.fgs,name) : []);
+  if(syn && syn.length){
+    h+='<div style="color:#1fd39a;font-size:.8rem;font-weight:800;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #1a3347;letter-spacing:.06em">⚗️ VIE DI SINTESI'+(localData?'':' — stima da gruppi funzionali')+'</div>';
+    syn.forEach(function(s){
+      h+='<div style="background:#0e1d2d;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:11px 13px;margin-bottom:9px">'
+        +'<div style="color:#1fd39a;font-size:.68rem;font-weight:800;letter-spacing:.08em;margin-bottom:4px">METODO '+(s.n||'')+(s.nm?' · '+s.nm:'')+'</div>'
+        +'<div style="color:#cfe2f5;font-size:12px;margin:2px 0"><b>Reagenti:</b> '+(s.re||'')+'</div>'
+        +'<div style="color:#9abcce;font-size:11.5px;margin:2px 0"><b>Meccanismo:</b> '+(s.me||s.mech||'')+'</div>'
+        +'<div style="color:#6bcfff;font-size:11.5px;margin:2px 0"><b>Condizioni:</b> '+(s.ct||s.cat||'')+'</div>'
+        +'</div>';
+    });
+  }
+  // Analisi retrosintetica
+  var rtr = localData ? localData.retro : (fgData ? fgData.ret : []);
+  if(rtr && rtr.length){
+    h+='<div style="color:#6bcfff;font-size:.8rem;font-weight:800;margin:12px 0 10px;padding-bottom:6px;border-bottom:2px solid #1a3347;letter-spacing:.06em">🔄 ANALISI RETROSINTETICA'+(localData?'':' — da struttura SMILES')+'</div>';
+    rtr.forEach(function(r){
+      h+='<div style="background:#07101a;border:1px solid #1a3347;border-left:4px solid #6bcfff;border-radius:10px;padding:11px 13px;margin-bottom:7px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:4px">'
+        +'<span style="color:#6bcfff;font-weight:700;font-size:.72rem">Disconnessione: '+(r.d||r.disc||r.dc||'')+'</span>'
+        +'<span style="background:#0b1928;color:#3a6080;font-size:10px;padding:2px 7px;border-radius:5px">'+(r.tp||r.type||'')+'</span></div>'
+        +'<div style="color:#cfe2f5;font-size:12px;margin:2px 0"><b>Sinton:</b> '+(r.sy||r.syn||'')+'⟹</div>'
+        +'<div style="color:#8aadcc;font-size:11.5px;margin:2px 0"><b>Equivalente sintetico:</b> '+(r.eq||r.equiv||'')+'</div>'
+        +'</div>';
+    });
+  }
+  if(!syn.length && (!rtr||!rtr.length)){
+    h+='<div style="text-align:center;padding:20px;color:#3a6080;font-size:13px">'
+      +'Nessun dato di sintesi disponibile.<br>'
+      +(cid?'<a href="https://pubchem.ncbi.nlm.nih.gov/compound/'+cid+'" target="_blank" style="color:#6bcfff;font-size:12px">Cerca su PubChem ↗</a>':'')
+      +'</div>';
+  }
+  el.innerHTML = h;
+}
+
+// ══ 8. Ricerca SR via PubChem ═════════════════════════════════════════════════
+function _srSearch(name){
+  var out = document.getElementById('bsi14-sr-out');
+  if(!out) return;
+  out.innerHTML = '<div style="text-align:center;padding:28px;color:#3a6080"><div style="font-size:32px;margin-bottom:10px">⏳</div>Ricerca su PubChem…</div>';
+
+  var key = name.toLowerCase().trim();
+  var local = null;
+  for(var k in _DB){ if(k===key||k.indexOf(key)>-1||key.indexOf(k)>-1){ local=_DB[k]; break; } }
+
+  fetch('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/'+encodeURIComponent(name)+'/cids/JSON')
+    .then(function(r){ return r.ok ? r.json() : Promise.reject('HTTP '+r.status); })
+    .then(function(d){
+      var cid = d.IdentifierList && d.IdentifierList.CID && d.IdentifierList.CID[0];
+      if(!cid) throw new Error('not found');
+      return cid;
+    })
+    .then(function(cid){
+      return fetch('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'+cid+'/property/MolecularFormula,MolecularWeight,IUPACName,CanonicalSMILES/JSON')
+        .then(function(r){ return r.ok ? r.json() : Promise.reject('props'); })
+        .then(function(d){
+          var p = (d.PropertyTable&&d.PropertyTable.Properties&&d.PropertyTable.Properties[0])||{};
+          var fg = _smAnal(p.CanonicalSMILES||'');
+          _renderSR(out, name, p, cid, fg, local);
+        });
+    })
+    .catch(function(){
+      if(local){ _renderSR(out,name,null,null,null,local); }
+      else {
+        out.innerHTML='<div style="background:#0a1628;border:1px dashed #1e3a52;border-radius:10px;padding:16px;text-align:center">'
+          +'<div style="color:#ff8a80;font-weight:700;margin-bottom:8px">Molecola non trovata o offline</div>'
+          +'<div style="color:#5a8090;font-size:12px">Prova: aspirina · glucosio · paracetamolo · caffeina · etanolo · toluene · benzene · aniline · fenolo · ibuprofen</div>'
+          +'</div>';
+      }
+    });
+}
+
+// ══ 9. SR Modal ══════════════════════════════════════════════════════════════
+function _buildSR(){
+  if(document.getElementById('bsi14-sr')) return;
+  var m=document.createElement('div'); m.id='bsi14-sr';
+  m.innerHTML='<div id="bsi14-sr-box">'
+    +'<div id="bsi14-sr-hd"><h3>⚗️ Sintesi &amp; Retrosintesi</h3><button id="bsi14-sr-x">✕</button></div>'
+    +'<div id="bsi14-sr-body">'
+    +'<input id="bsi14-sr-inp" type="text" placeholder="Cerca qualsiasi molecola (aspirina, glucosio, morfina…)">'
+    +'<button id="bsi14-sr-go">🔍 Analizza — usa PubChem per qualsiasi molecola</button>'
+    +'<div id="bsi14-sr-out"></div>'
+    +'</div></div>';
+  document.body.appendChild(m);
+  document.getElementById('bsi14-sr-x').onclick=function(){ m.classList.remove('open'); };
+  m.onclick=function(e){ if(e.target===m) m.classList.remove('open'); };
+  document.getElementById('bsi14-sr-go').onclick=function(){
+    var v=(document.getElementById('bsi14-sr-inp')||{}).value||'';
+    if(v.trim()) _srSearch(v.trim());
+  };
+  document.getElementById('bsi14-sr-inp').addEventListener('keydown',function(e){
+    if(e.key==='Enter'){ var v=this.value.trim(); if(v) _srSearch(v); }
+  });
+}
+window.openSR14=function(){
+  _buildSR();
+  var m=document.getElementById('bsi14-sr');
+  if(m){ m.classList.add('open'); setTimeout(function(){ var i=document.getElementById('bsi14-sr-inp'); if(i) i.focus(); },80); }
+};
+
+// ══ 10. Bottom Sheet ═════════════════════════════════════════════════════════
+var _ITEMS=[
+  {sec:'🔬 Funzioni chimiche'},
+  {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Qualsiasi molecola via PubChem',key:'sr',hl:true},
+  {ic:'🧪',nm:'Sintesi Organica',ds:'Reazioni animate con meccanismi',key:'ssyn'},
+  {ic:'🔄',nm:'Retrosintesi',ds:'Disconnessioni sistematiche',key:'sretro'},
+  {sec:'⚙️ Strumenti'},
+  {ic:'📸',nm:'Esporta figure',ds:'PNG/SVG ad alta risoluzione',key:'export'},
+  {ic:'🎯',nm:'Sfida spettroscopica',ds:'Quiz NMR/IR/MS',key:'challenge'},
+  {ic:'📖',nm:'Glossario chimico',ds:'Termini e definizioni',key:'gloss'},
+  {ic:'⚛️',nm:'Costanti J',ds:'Tabella accoppiamenti NMR',key:'jconst'},
+  {ic:'🖨️',nm:'Stampa pagina',ds:'',key:'print'},
+  {sec:'📱 App & Schermo'},
+  {ic:'⛶',nm:'Schermo intero',ds:'Nasconde barra navigazione Android',key:'fs'},
+  {ic:'❓',nm:'Guida al sito',ds:'Tour guidato',key:'guide'},
+  {ic:'🔗',nm:'Condividi app',ds:'',key:'share'},
+  {ic:'⬇️',nm:'Scarica BioSpecInfo',ds:'HTML per uso offline',key:'dl'},
+  {ic:'📲',nm:'Aggiungi a Home',ds:'Installa come app',key:'install'},
+  {ic:'🔄',nm:'Aggiornamenti',ds:'Verifica nuove versioni',key:'update'},
+];
+
+function _closeSheet(){ var s=document.getElementById('bsi14-sheet'); if(s) s.classList.remove('open'); }
+
+function _trigOld(txt){
+  var items=document.querySelectorAll('#bsi105-menu .bsi105-mi');
+  for(var i=0;i<items.length;i++){
+    if((items[i].textContent||'').toLowerCase().indexOf(txt.toLowerCase())>-1){ items[i].click(); return true; }
+  }
+  return false;
+}
+
+function _act(key){
+  _closeSheet();
+  setTimeout(function(){
+    if(key==='sr')       { window.openSR14(); return; }
+    if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
+    if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
+    if(key==='export')   { _trigOld('Esporta'); return; }
+    if(key==='challenge'){ _trigOld('Sfida'); return; }
+    if(key==='gloss')    { _trigOld('Glossario'); return; }
+    if(key==='jconst')   { _trigOld('Costanti'); return; }
+    if(key==='print')    { _trigOld('Stampa')||window.print(); return; }
+    if(key==='fs'){
+      if(document.fullscreenElement||document.webkitFullscreenElement)
+        (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);
+      else
+        (document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen||function(){}).call(document.documentElement);
+      return;
+    }
+    if(key==='guide')    { if(typeof openBSIGuide==='function') openBSIGuide(0); return; }
+    if(key==='share')    { var b=document.getElementById('shareBtn'); if(b) b.click(); return; }
+    if(key==='dl')       { if(typeof downloadBioSpecInfo==='function') downloadBioSpecInfo(); return; }
+    if(key==='install')  { window.showAddToHome(); return; }
+    if(key==='update')   { if(typeof window.bsiOpenUpdate==='function') window.bsiOpenUpdate(); return; }
+  }, 60);
+}
+
+function _buildSheet(){
+  if(document.getElementById('bsi14-sheet')) return;
+  var el=document.createElement('div'); el.id='bsi14-sheet';
+  var h='<div id="bsi14-panel"><div id="bsi14-drag"></div>'
+    +'<div id="bsi14-hd"><span id="bsi14-hd-t">🛠 Strumenti BioSpecInfo</span>'
+    +'<button id="bsi14-close">✕</button></div>';
+  _ITEMS.forEach(function(it){
+    if(it.sec) h+='<div class="bsi14-sec">'+it.sec+'</div>';
+    else h+='<div class="bsi14-row'+(it.hl?' hl':'')+'" data-key="'+it.key+'">'
+        +'<span class="bsi14-ic">'+it.ic+'</span>'
+        +'<div class="bsi14-tx"><div class="bsi14-nm">'+it.nm+'</div>'
+        +(it.ds?'<div class="bsi14-ds">'+it.ds+'</div>':'')+'</div>'
+        +'<span class="bsi14-ar">›</span></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+  document.body.appendChild(el);
+  el.onclick=function(e){ if(e.target===el) _closeSheet(); };
+  document.getElementById('bsi14-close').onclick=_closeSheet;
+  el.querySelectorAll('.bsi14-row').forEach(function(r){
+    r.onclick=function(){ _act(this.getAttribute('data-key')); };
+  });
+  var sy=0, panel=document.getElementById('bsi14-panel');
+  panel.addEventListener('touchstart',function(e){ sy=e.touches[0].clientY; },{passive:true});
+  panel.addEventListener('touchend',function(e){ if(e.changedTouches[0].clientY-sy>70) _closeSheet(); },{passive:true});
+}
+
+// ══ 11. Crea FAB v14 ══════════════════════════════════════════════════════════
+function _mkFab(){
+  if(document.getElementById('bsi14-fab')) return;
+  var fab=document.createElement('button');
+  fab.id='bsi14-fab'; fab.innerHTML='✨'; fab.title='Strumenti BioSpecInfo';
+  fab.onclick=function(e){
+    e.stopPropagation();
+    _buildSheet(); _buildSR();
+    document.getElementById('bsi14-sheet').classList.toggle('open');
+  };
+  document.body.appendChild(fab);
+}
+_mkFab();
+
+console.log('BioSpecInfo v14 — FAB+SR PubChem+Android ✔');
 })();
 </script>
 
