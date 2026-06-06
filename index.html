@@ -29799,5 +29799,183 @@ console.log('BioSpecInfo v12.4 — layout fix + sintesi/retrosintesi + meccanism
 })();
 </script>
 
+<script>
+// ─── BioSpecInfo v12.5 · Fix completo UI ────────────────────────────────────
+// Fix: header top cut (safe-area-top) · pulsante 📲 · scroll-to-top ·
+//      modale SR visibilità · showRxns con animazioni per tutti i formati ·
+//      nav compatta
+// ────────────────────────────────────────────────────────────────────────────
+(function(){
+'use strict';
+
+// ══ 1. CSS FIX ══════════════════════════════════════════════════════════════
+var css = document.createElement('style');
+css.textContent = [
+  // Fix top cut-off (notch/status bar Android/iOS con viewport-fit=cover)
+  '#hdr{padding-top:calc(14px + env(safe-area-inset-top,0px))!important;}',
+  // Nav più compatta
+  '#navWrapper{position:sticky;top:0!important;z-index:90;}',
+  '#navGroupTabs{padding:3px 6px!important;gap:3px!important;}',
+  '.nav-group-tab{padding:4px 10px!important;font-size:10.5px!important;}',
+  '.nav-group-panel{padding:2px 4px 4px!important;}',
+  '.nav-btn{padding:8px 12px!important;font-size:10.5px!important;}',
+  // navWrapper alto ridotto su mobile
+  '@media(max-width:600px){',
+  '#navWrapper input[type=text]{font-size:12px!important;padding:5px 12px!important;}',
+  '.nav-group-tab{padding:3px 8px!important;font-size:10px!important;}',
+  '}',
+  // Scroll-to-top button
+  '#bsi-scroll-top{position:fixed;left:18px;bottom:calc(env(safe-area-inset-bottom,0px)+80px);',
+  'z-index:99989;width:44px;height:44px;border-radius:50%;',
+  'background:rgba(31,211,154,.18);border:1.5px solid rgba(31,211,154,.5);',
+  'color:#1fd39a;font-size:20px;cursor:pointer;',
+  'display:flex;align-items:center;justify-content:center;',
+  'opacity:0;pointer-events:none;transition:.25s;}',
+  '#bsi-scroll-top.visible{opacity:1;pointer-events:all;}',
+  '#bsi-scroll-top:hover{background:rgba(31,211,154,.32);border-color:#1fd39a;}',
+  // z-index SR modal garantito sopra tutto
+  '#bsiSR-modal{z-index:99998!important;}',
+  // Assicura che la modale SR mostri display:flex quando open
+  '#bsiSR-modal.open{display:flex!important;}',
+].join('');
+document.head.appendChild(css);
+
+// ══ 2. FIX 📲 BUTTON (showAddToHome → showInstallGuide) ══════════════════
+// La funzione reale si chiama showInstallGuide
+window.showAddToHome = function(){
+  if(typeof window.showInstallGuide === 'function'){
+    window.showInstallGuide();
+  } else {
+    // Fallback diretto
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    alert(isIOS
+      ? 'iPhone: tocca Condividi (□↑) → "Aggiungi a schermata Home"'
+      : 'Android Chrome: menu ⋮ → "Installa app" o "Aggiungi a schermata Home"');
+  }
+};
+// Aggiorna anche il pulsante nel FAB se già inserito
+setTimeout(function(){
+  var items = document.querySelectorAll('.bsi105-mi');
+  items.forEach(function(b){
+    if((b.textContent||'').indexOf('Aggiungi')!==-1){
+      b.onclick = function(){
+        var menu = document.getElementById('bsi105-menu');
+        if(menu) menu.classList.remove('open');
+        window.showAddToHome();
+      };
+    }
+  });
+}, 1000);
+
+// ══ 3. SCROLL-TO-TOP BUTTON ═════════════════════════════════════════════════
+function buildScrollTop(){
+  if(document.getElementById('bsi-scroll-top')) return;
+  var btn = document.createElement('button');
+  btn.id = 'bsi-scroll-top';
+  btn.innerHTML = '↑';
+  btn.title = 'Torna su';
+  btn.setAttribute('aria-label', 'Torna in cima');
+  btn.onclick = function(){ window.scrollTo({top:0, behavior:'smooth'}); };
+  document.body.appendChild(btn);
+
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 300){
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  }, {passive: true});
+}
+buildScrollTop();
+
+// ══ 4. FIX showRxns — supporta sia {t:,fn:} che {n:,svg:} ═════════════════
+// Overriding la funzione globale per renderizzare tutte le reazioni con SVG
+(function patchShowRxns(){
+  var MAX_WAIT = 30, waited = 0;
+  function tryPatch(){
+    if(typeof window.showRxns !== 'function' || typeof window.RXN === 'undefined'){
+      if(waited < MAX_WAIT){ waited++; setTimeout(tryPatch, 200); }
+      return;
+    }
+    var _orig = window.showRxns;
+    window.showRxns = function(cat, q){
+      var el = document.getElementById('rxnList');
+      if(!el){ _orig(cat,q); return; }
+      el.innerHTML = '';
+      var ql = (q||'').toLowerCase();
+      var filtered = (window.RXN||[]).filter(function(r){
+        var catOk = (cat === 'all' || r.c === cat);
+        if(!ql) return catOk;
+        // supporta t: (vecchio) e n: (nuovo), it: e en:
+        var title = (r.t || r.n || '');
+        var kw = (r.it || r.en || '');
+        var haystack = (title+'|'+(r.d||'')+'|'+(r.cond||'')+'|'+kw).toLowerCase();
+        return catOk && haystack.indexOf(ql) !== -1;
+      });
+      var cnt = document.getElementById('rxnCount');
+      if(cnt) cnt.textContent = filtered.length + ' reazioni · frecce elettroni in giallo';
+      filtered.forEach(function(r){
+        // supporta fn: (vecchio) e svg: (nuovo)
+        var renderFn = r.fn || r.svg;
+        var svgHtml = '';
+        try{ svgHtml = '<div class="rxn-sw">' + (renderFn ? renderFn() : '') + '</div>'; }catch(e){}
+        var title = r.t || r.n || '';
+        var d = document.createElement('div');
+        d.className = 'rxn-card';
+        d.innerHTML = '<div class="rxn-tt">' + title + '</div>'
+          + svgHtml
+          + '<div class="rxn-desc">' + (r.d||'') + '</div>'
+          + '<div class="rxn-cond">⚗ ' + (r.cond||'') + '</div>';
+        el.appendChild(d);
+      });
+    };
+    // Forza refresh se ssyn è già aperta
+    var ssyn = document.getElementById('ssyn');
+    if(ssyn && ssyn.classList.contains('on')){
+      var cat = (function(){ var p=document.querySelector('#rxnFp button.on'); return p?p.getAttribute('data-c'):'all'; })();
+      var q = (document.getElementById('synQ')||{}).value||'';
+      window.showRxns(cat, q);
+    }
+  }
+  tryPatch();
+})();
+
+// ══ 5. ASSICURA APERTURA MODALE SR ══════════════════════════════════════════
+// La modale potrebbe non aprirsi se creata prima che il DOM fosse pronto.
+// Ri-costruiamo su click se assente.
+function ensureSRModal(){
+  if(document.getElementById('bsiSR-modal')) return;
+  // La funzione buildSRModal è definita nel patch v12.4
+  if(typeof window._bsiSR_build === 'function') window._bsiSR_build();
+}
+// Esponiamo buildSRModal come globale per poterla chiamare
+setTimeout(function(){
+  if(typeof buildSRModal === 'function'){
+    window._bsiSR_build = buildSRModal;
+    buildSRModal();
+  }
+  // Fix: ri-agganciamo il click del pulsante SR nel FAB se presente
+  var item = document.getElementById('bsiSR-fabitem');
+  if(item){
+    item.onclick = function(){
+      var menu = document.getElementById('bsi105-menu');
+      if(menu) menu.classList.remove('open');
+      var m = document.getElementById('bsiSR-modal');
+      if(!m){
+        if(typeof buildSRModal === 'function') buildSRModal();
+        m = document.getElementById('bsiSR-modal');
+      }
+      if(m){
+        m.classList.add('open');
+        setTimeout(function(){ var inp=document.getElementById('bsiSR-inp'); if(inp) inp.focus(); },100);
+      }
+    };
+  }
+}, 1200);
+
+console.log('BioSpecInfo v12.5 — fix UI completo ✔');
+})();
+</script>
+
 </body>
 </html>
