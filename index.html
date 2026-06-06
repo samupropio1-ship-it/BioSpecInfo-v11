@@ -32397,5 +32397,196 @@ console.log('BioSpecInfo v16 — Retrosintesi+NMR spectrum+IR flip ✔');
 })();
 </script>
 
+<!-- ═══════════════════════════════════════════════════════════════════════
+     BioSpecInfo v17 — NMR Charts Fix: inline SVG, correct delta parsing
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+'use strict';
+
+// Parse midpoint from range strings like "6.5–8.5 ppm", "110–160 ppm", "—"
+function _midDelta(str){
+  if(!str||str==='—'||str==='') return null;
+  var m=str.match(/([\d.]+)\s*[–\-]\s*([\d.]+)/);
+  if(m) return (parseFloat(m[1])+parseFloat(m[2]))/2;
+  var n=parseFloat(str);
+  return isNaN(n)?null:n;
+}
+
+// NMR spectrum SVG — handles range-string deltas correctly
+function _nmr17Svg(predictions, maxPpm, colorLine, colorLabel, bgColor){
+  var W=560, H=110, pL=44, pR=12, pT=12, pB=32;
+  var plotW=W-pL-pR, plotH=H-pT-pB;
+
+  // Collect valid peaks (deduplicated by proximity)
+  var peaks=[];
+  predictions.forEach(function(p,idx){
+    var mid=_midDelta(p.delta);
+    if(mid===null||mid<0||mid>maxPpm) return;
+    peaks.push({mid:mid, idx:idx, label:(p.group||p.type||'')});
+  });
+  if(!peaks.length) return '';
+
+  var s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" '
+    +'style="background:'+bgColor+';display:block;width:100%;max-width:100%">';
+
+  // Background grid
+  for(var gi=0;gi<=5;gi++){
+    var gx=pL+gi*plotW/5;
+    s+='<line x1="'+gx+'" y1="'+pT+'" x2="'+gx+'" y2="'+(pT+plotH)+'" stroke="#1e3a5f" stroke-width="0.6"/>';
+  }
+  for(var gyi=1;gyi<=3;gyi++){
+    var gy=pT+gyi*plotH/4;
+    s+='<line x1="'+pL+'" y1="'+gy+'" x2="'+(pL+plotW)+'" y2="'+gy+'" stroke="#1a2e48" stroke-width="0.4"/>';
+  }
+
+  // Axes
+  s+='<line x1="'+pL+'" y1="'+(pT+plotH)+'" x2="'+(pL+plotW)+'" y2="'+(pT+plotH)+'" stroke="#475569" stroke-width="1.5"/>';
+  s+='<line x1="'+pL+'" y1="'+pT+'" x2="'+pL+'" y2="'+(pT+plotH)+'" stroke="#334155" stroke-width="1"/>';
+
+  // X ticks — NMR convention: right=0, left=maxPpm (downfield at left)
+  var step=maxPpm<=15?2:(maxPpm<=50?20:50);
+  for(var t=0;t<=maxPpm;t+=step){
+    var tx=pL+plotW*(1-t/maxPpm);
+    s+='<line x1="'+tx+'" y1="'+(pT+plotH)+'" x2="'+tx+'" y2="'+(pT+plotH+4)+'" stroke="#475569" stroke-width="0.8"/>';
+    s+='<text x="'+tx+'" y="'+(H-5)+'" fill="#8899aa" font-size="8" text-anchor="middle" font-family="monospace">'+t+'</text>';
+  }
+
+  // Axis labels
+  s+='<text x="'+(pL+plotW/2)+'" y="'+(H-1)+'" fill="#607080" font-size="7.5" text-anchor="middle">δ (ppm)</text>';
+  s+='<text x="8" y="'+(pT+plotH/2)+'" fill="#607080" font-size="7" text-anchor="middle" transform="rotate(-90,8,'+(pT+plotH/2)+')">Int.</text>';
+
+  // Peaks
+  var npeaks=peaks.length;
+  peaks.forEach(function(pk,i){
+    var px=pL+plotW*(1-pk.mid/maxPpm);
+    // Vary heights so overlapping peaks are distinguishable
+    var hf=0.35+(i%4)*0.14+((npeaks-i)%3)*0.08;
+    if(hf>0.90) hf=0.90;
+    var peakPx=plotH*hf;
+    var py=pT+plotH-peakPx;
+
+    // Lorentzian broadening shape: wide base, thin top
+    s+='<line x1="'+px+'" y1="'+(pT+plotH)+'" x2="'+px+'" y2="'+py+'" stroke="'+colorLine+'" stroke-width="3" opacity="0.85"/>';
+    // Broadening wings
+    s+='<line x1="'+(px-5)+'" y1="'+(pT+plotH)+'" x2="'+(px+5)+'" y2="'+(pT+plotH)+'" stroke="'+colorLine+'" stroke-width="1.2" opacity="0.35"/>';
+
+    // δ label above peak
+    var lblY=py-4;
+    if(lblY<pT+8) lblY=pT+8;
+    s+='<text x="'+px+'" y="'+lblY+'" fill="'+colorLabel+'" font-size="7.5" text-anchor="middle" font-family="monospace" font-weight="700">'+pk.mid.toFixed(1)+'</text>';
+  });
+
+  s+='</svg>';
+  return s;
+}
+
+// Complete replacement — builds tables + charts in one synchronous pass
+window.runNMRPred = function(){
+  var inp=document.getElementById('nmrPredInput');
+  var res=document.getElementById('nmrPredResult');
+  if(!inp||!res) return;
+  var smiles=inp.value.trim();
+  if(!smiles){ res.innerHTML=''; return; }
+
+  var analysis=(typeof analyzeSMILES==='function')?analyzeSMILES(smiles):null;
+  if(!analysis){
+    res.innerHTML='<div style="color:#c9d3df;padding:12px">SMILES non valido o troppo complesso.</div>';
+    return;
+  }
+
+  var grpBadges=analysis.groups.map(function(g){
+    return '<span style="background:#1e3452;color:#c8d8f0;padding:3px 10px;border-radius:20px;'
+      +'font-size:11px;font-weight:600;border:1px solid #2d4a7a">'+g+'</span>';
+  }).join(' ');
+
+  // ¹H table
+  var h1Rows=analysis.h1_predictions.map(function(p,i){
+    return '<tr style="background:'+(i%2===0?'rgba(106,27,154,.18)':'rgba(106,27,154,.06)')+';'
+      +'border-bottom:1px solid rgba(106,27,154,.2)">'
+      +'<td style="padding:7px 10px;color:#e2d4f8;font-weight:600;font-size:12px">'+p.group+'</td>'
+      +'<td style="padding:7px 10px;text-align:center;color:#C084FC;font-family:monospace;font-weight:700;font-size:12px">'+p.delta+'</td>'
+      +'<td style="padding:7px 10px;color:#d4c8f0;font-size:11px">'+p.typical+'</td>'
+      +'<td style="padding:7px 10px;color:#b0a0d0;font-size:10px;max-width:160px">'+p.note+'</td>'
+      +'</tr>';
+  }).join('');
+  var h1Table=h1Rows?
+    '<div style="overflow-x:auto;border-radius:8px;overflow:hidden">'
+    +'<table style="width:100%;border-collapse:collapse">'
+    +'<tr style="background:linear-gradient(90deg,#4a1080,#7b22a8)">'
+    +'<th style="color:#fff;padding:8px 10px;text-align:left;font-size:12px">Gruppo</th>'
+    +'<th style="color:#fff;padding:8px 10px;font-size:12px">δ (ppm)</th>'
+    +'<th style="color:#fff;padding:8px 10px;font-size:12px">Tipico</th>'
+    +'<th style="color:#fff;padding:8px 10px;font-size:12px">Note</th></tr>'
+    +h1Rows+'</table></div>'
+    :'<div style="color:#c9d3df;padding:12px;font-size:13px">Nessuna predizione ¹H disponibile.</div>';
+
+  // ¹³C table
+  var c13Rows=analysis.c13_predictions.map(function(p,i){
+    return '<tr style="background:'+(i%2===0?'rgba(21,101,192,.18)':'rgba(21,101,192,.06)')+';'
+      +'border-bottom:1px solid rgba(21,101,192,.2)">'
+      +'<td style="padding:7px 10px;color:#c8daf8;font-weight:600;font-size:12px">'+p.type+'</td>'
+      +'<td style="padding:7px 10px;text-align:center;color:#60a5fa;font-family:monospace;font-weight:700;font-size:12px">'+p.delta+'</td>'
+      +'<td style="padding:7px 10px;color:#a0b8e0;font-size:10px;max-width:160px">'+p.note+'</td>'
+      +'</tr>';
+  }).join('');
+  var c13Table=c13Rows?
+    '<div style="overflow-x:auto;border-radius:8px;overflow:hidden">'
+    +'<table style="width:100%;border-collapse:collapse">'
+    +'<tr style="background:linear-gradient(90deg,#0d3080,#1a6fd4)">'
+    +'<th style="color:#fff;padding:8px 10px;text-align:left;font-size:12px">Tipo di Carbonio</th>'
+    +'<th style="color:#fff;padding:8px 10px;font-size:12px">δ ¹³C (ppm)</th>'
+    +'<th style="color:#fff;padding:8px 10px;font-size:12px">Note DEPT</th></tr>'
+    +c13Rows+'</table></div>'
+    :'<div style="color:#c9d3df;padding:12px;font-size:13px">Nessuna predizione ¹³C disponibile.</div>';
+
+  // NMR charts (inline, synchronous)
+  var h1Svg=_nmr17Svg(analysis.h1_predictions, 12, '#C084FC', '#e9d5ff', '#12091e');
+  var c13Svg=_nmr17Svg(analysis.c13_predictions, 220, '#60a5fa', '#bfdbfe', '#091220');
+
+  res.innerHTML=
+    '<div style="background:#16273e;border-radius:16px;padding:18px;box-shadow:0 4px 24px rgba(0,0,0,.5)">'
+    // Header row
+    +'<div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="flex:1;min-width:180px">'
+    +'<div style="font-family:monospace;font-size:12px;color:#c8d8f0;background:#0c1828;padding:7px 11px;border-radius:7px;margin-bottom:7px;word-break:break-all">'+smiles+'</div>'
+    +'<div style="font-size:13px;color:#e9eef6"><strong>Formula:</strong> '+analysis.formula
+    +(analysis.mw?' &nbsp;·&nbsp; <strong>MW≈:</strong> '+analysis.mw.toFixed(1)+' g/mol':'')+'</div>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start">'+grpBadges+'</div>'
+    +'</div>'
+    // Warning
+    +'<div style="background:#201808;border-left:3px solid #F57C00;padding:7px 11px;border-radius:0 6px 6px 0;font-size:11px;color:#c8b890;margin-bottom:14px">'
+    +'⚠️ Valori di riferimento (Shoolery). Per alta precisione usare DFT (Gaussian, ORCA) o SDBS.'
+    +'</div>'
+    // ¹H NMR
+    +'<div style="margin-bottom:18px">'
+    +'<h3 style="color:#C084FC;margin:0 0 8px;font-size:14px">🔮 Predizione ¹H NMR</h3>'
+    +'<div style="margin-bottom:10px">'+h1Table+'</div>'
+    +(h1Svg
+      ?'<div style="border-radius:8px;overflow:hidden;border:1px solid #2a1060">'
+        +'<div style="background:#12091e;padding:5px 10px;font-size:10px;color:#C084FC;font-family:monospace;font-weight:700">'
+        +'Spettro ¹H NMR simulato &nbsp;|&nbsp; asse δ: destra→sinistra (downfield)</div>'
+        +h1Svg+'</div>'
+      :'')
+    +'</div>'
+    // ¹³C NMR
+    +'<div>'
+    +'<h3 style="color:#60a5fa;margin:0 0 8px;font-size:14px">🔮 Predizione ¹³C NMR</h3>'
+    +'<div style="margin-bottom:10px">'+c13Table+'</div>'
+    +(c13Svg
+      ?'<div style="border-radius:8px;overflow:hidden;border:1px solid #0a2050">'
+        +'<div style="background:#091220;padding:5px 10px;font-size:10px;color:#60a5fa;font-family:monospace;font-weight:700">'
+        +'Spettro ¹³C NMR simulato &nbsp;|&nbsp; asse δ: destra→sinistra (downfield)</div>'
+        +c13Svg+'</div>'
+      :'')
+    +'</div>'
+    +'</div>';
+};
+
+console.log('BioSpecInfo v17 — NMR charts inline fix ✔');
+})();
+</script>
+
 </body>
 </html>
