@@ -661,7 +661,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v37-2026-06';</script>
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v38-2026-06';</script>
 
 
 <!-- ═══════════════ HEADER ═══════════════ -->
@@ -31106,6 +31106,74 @@ function _mkFab(){
 _mkFab();
 
 console.log('BioSpecInfo v14 — FAB+SR PubChem+Android ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v14b · FAB position + z-index fix ───────────────────────────
+(function(){
+'use strict';
+
+// CSS: sovrascrive v14 con valori definitivi per Android
+var _s = document.createElement('style');
+_s.textContent = [
+  // FAB: bottom=88px batte qualsiasi navbar Android (3-tasti ~56px, gesture ~32px)
+  // z-index=2147483647 = massimo CSS, batte ogni overlay dell'app
+  '#bsi14-fab{',
+  'bottom:88px!important;',
+  'right:20px!important;',
+  'z-index:2147483647!important;',
+  'display:flex!important;',
+  'visibility:visible!important;',
+  'opacity:1!important;',
+  'pointer-events:all!important;',
+  '}',
+  // Bottom sheet e SR modal: sotto il FAB ma sopra tutto il resto
+  '#bsi14-sheet{z-index:2147483640!important;}',
+  '#bsi14-sr{z-index:2147483641!important;}',
+  // Padding bottom #main: content visibile sopra navbar + FAB
+  '#main{padding-bottom:180px!important;}',
+  // Body: no padding che fa saltare il layout
+  'body{padding-bottom:0!important;}',
+  // Scroll-to-top: sopra la navbar ma sotto il FAB
+  '#bsi-scroll-top{bottom:88px!important;z-index:9000!important;}',
+].join('');
+document.head.appendChild(_s);
+
+// JS: ri-crea il FAB se per qualsiasi motivo non è nel DOM
+(function ensureFab(){
+  if(!document.getElementById('bsi14-fab')){
+    var fab = document.createElement('button');
+    fab.id = 'bsi14-fab';
+    fab.innerHTML = '✨';
+    fab.title = 'Strumenti BioSpecInfo';
+    fab.onclick = function(e){
+      e.stopPropagation();
+      if(typeof _buildSheet === 'function') _buildSheet();
+      if(typeof _buildSR === 'function') _buildSR();
+      var s = document.getElementById('bsi14-sheet');
+      if(s) s.classList.toggle('open');
+    };
+    document.body.appendChild(fab);
+  }
+})();
+
+// Forza il FAB sempre visibile se viene nascosto da qualcosa
+var _fabTimer = setInterval(function(){
+  var f = document.getElementById('bsi14-fab');
+  if(f){
+    f.style.setProperty('display','flex','important');
+    f.style.setProperty('visibility','visible','important');
+    f.style.setProperty('opacity','1','important');
+    f.style.setProperty('bottom','88px','important');
+    f.style.setProperty('right','20px','important');
+    f.style.setProperty('z-index','2147483647','important');
+  }
+}, 2000);
+// Ferma dopo 30s (non serve tenere attivo in eterno)
+setTimeout(function(){ clearInterval(_fabTimer); }, 30000);
+
+console.log('BioSpecInfo v14b — FAB z-index/position fix ✔');
 })();
 </script>
 
