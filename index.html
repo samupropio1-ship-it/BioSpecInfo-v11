@@ -30909,31 +30909,81 @@ function _renderSR(el, name, props, cid, fgData, localData){
     });
     h+='</div></div>';
   }
-  // Vie di sintesi
+  // ── SVG helpers (self-contained, suffix 14 to avoid conflicts) ────────────
+  var _B='#ffffff',_L='#2563eb',_T='#1e293b',_R='#dc2626',_N='#2563eb';
+  var _G='#16a34a',_X='#ef4444',_A='#ea580c',_K='#0f4c81';
+  function _sl14(x1,y1,x2,y2,c,w){return'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||_L)+'" stroke-width="'+(w||1.5)+'"/>';}
+  function _st14(x,y,s,c,fs,a){return'<text x="'+x+'" y="'+y+'" fill="'+(c||_T)+'" font-size="'+(fs||11)+'" font-family="monospace" text-anchor="'+(a||'middle')+'" dominant-baseline="middle">'+s+'</text>';}
+  function _sh14(cx,cy,r,c){var p=[];for(var i=0;i<6;i++){var a=Math.PI/3*i-Math.PI/6;p.push(+(cx+r*Math.cos(a)).toFixed(1)+','+(+(cy+r*Math.sin(a)).toFixed(1)));}return'<polygon points="'+p.join(' ')+'" fill="none" stroke="'+(c||_L)+'" stroke-width="1.5"/>';}
+  function _sd14(x1,y1,x2,y2,c){var dx=y2-y1,dy=x1-x2,l=Math.sqrt(dx*dx+dy*dy)||1,o=2.8,nx=dx/l*o,ny=dy/l*o;return _sl14(x1+nx,y1+ny,x2+nx,y2+ny,c)+_sl14(x1-nx,y1-ny,x2-nx,y2-ny,c);}
+  function _sa14(x1,x2,y,top,bot){var mx=(x1+x2)/2;return _sl14(x1,y,x2-9,y,_L,1.5)+'<polygon points="'+(x2-9)+','+(y-4)+' '+x2+','+y+' '+(x2-9)+','+(y+4)+'" fill="'+_L+'"/>'+(top?_st14(mx,y-14,top,_A,8.5):'')+(bot?_st14(mx,y+15,bot,_K,8):'');}
+  function _sch14(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=_sl14(x1,y1,x2,y2,c||_L);}return o;}
+  function _sw14(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" style="background:#ffffff;display:block;font-family:Arial,sans-serif">'+inner+'</svg>';}
+  function _sra14(x1,x2,y){var mx=(x1+x2)/2;return _sl14(x1,y-3,x2-9,y-3,_K,1.5)+_sl14(x1,y+3,x2-9,y+3,_K,1.5)+'<polygon points="'+(x2-9)+','+(y-7)+' '+x2+','+y+' '+(x2-9)+','+(y+7)+'" fill="'+_K+'"/>'+_st14(mx,y-16,'disconnessione retrosintetica',_K,8);}
+  function _sp14(x,y){return _st14(x,y,'+',_T,14);}
+  function _synSvg14(nm,me){
+    var s=((nm||'')+' '+(me||'')).toLowerCase();
+    if(/acetila|anidride acetica|cloruro acilico/.test(s))return _sw14(_sch14(14,60,3)+_sl14(57,50,77,30,_R)+_st14(85,25,'OH/NH₂',_R,10)+_sp14(103,58)+_st14(137,50,'(AcO)₂O',_A,9)+_sa14(170,318,58,'H₃PO₄ cat.','80°C, 15 min')+_sch14(322,58,3)+_sl14(365,50,385,30,_R)+_st14(395,23,'OAc/NHAc',_N,9)+_st14(260,106,'Acetilazione OH/NH₂ · condizioni blande',_K,8));
+    if(/estere|esterif|fischer|lacton/.test(s))return _sw14(_sch14(14,58,3)+_sl14(56,50,76,32,_R)+_st14(84,27,'OH',_R,10)+_sp14(102,58)+_st14(128,50,"HO–R'",_L,10)+_sa14(158,318,58,'H₂SO₄ / DCC','reflux o RT')+_sch14(324,58,3)+_sl14(366,50,386,32,_R)+_st14(395,24,"O–R'",_L,9)+_st14(260,106,'Estere · Fischer o DCC/DMAP',_K,8));
+    if(/riduzione|nabh|lialh|riduz/.test(s))return _sw14(_sch14(14,58,4)+_sd14(70,50,90,30,_R)+_st14(96,25,'O',_R,12)+_sp14(114,58)+_st14(148,50,'NaBH₄',_A,11)+_sa14(178,318,58,'NaBH₄','MeOH, 0°C→RT')+_sch14(324,58,4)+_sl14(368,50,388,32,_R)+_st14(396,27,'OH',_R,10)+_st14(260,106,'Riduzione selettiva C=O',_K,8));
+    if(/ammid|amide|dcc|hatu|peptid/.test(s))return _sw14(_sch14(14,54,3)+_sd14(56,46,76,26,_R)+_st14(82,21,'O',_R,12)+_sl14(56,46,42,62)+_st14(50,68,'OH',_R,10)+_sp14(100,58)+_st14(135,50,"H₂N–R'",_N,10)+_sa14(165,315,58,'DCC/HATU','DIPEA, DMF')+_sch14(322,58,3)+_sd14(364,48,384,28,_R)+_st14(390,23,'O',_R,12)+_sl14(364,48,378,66)+_st14(388,72,"NHR'",_N,10)+_st14(260,106,'Legame ammidico · DCC/HATU',_K,8));
+    if(/cross.coupl|suzuki|heck|pd/.test(s))return _sw14(_sh14(44,58,20)+_sl14(64,58,82,58)+_st14(96,52,'X',_X,13)+_sp14(115,58)+_sh14(140,58,20)+_sl14(160,58,177,58)+_st14(200,52,'M–Ar',_N,9)+_sa14(222,354,58,'Pd(0) cat.','base, DMF/H₂O')+_sh14(374,58,22)+_sl14(396,58,414,58,_G,2.5)+_sh14(436,58,22)+_st14(260,106,'Cross-coupling C–C (Suzuki/Heck)',_K,8));
+    if(/sear|aromat|nitraz|alogenaz|friedel/.test(s))return _sw14(_sh14(44,58,22)+_sp14(80,58)+_st14(110,50,'E⁺',_X,14)+_sa14(136,270,58,'Lewis acid','AlCl₃ / FeBr₃')+_sh14(282,58,22)+_sl14(304,58,322,58,_G,2)+_st14(340,52,'E',_G,13)+_st14(260,106,'SEAr · Nitrazione/Alogenazione/Friedel-Crafts',_K,8));
+    if(/grignard/.test(s))return _sw14(_sch14(14,58,3)+_st14(60,51,'MgBr',_N,10)+_sp14(82,58)+_sd14(104,46,124,28,_R)+_st14(130,23,'O',_R,12)+_sa14(165,315,58,'1. Et₂O, −78°C','2. H₃O⁺')+_sch14(322,58,4)+_sl14(366,50,384,32,_R)+_st14(392,27,'OH',_R,10)+_st14(260,106,'Alcol 2°/3° · Grignard (Nobel 1912)',_K,8));
+    if(/wittig|ylide/.test(s))return _sw14(_sd14(28,58,50,38,_R)+_st14(56,33,'O',_R,12)+_sl14(28,58,12,72)+_sp14(78,58)+_st14(115,48,'Ph₃P=CHR',_L,9)+_sa14(186,322,58,'n-BuLi / THF','−78°C')+_sl14(330,58,350,44)+_sd14(350,44,375,44,_G)+_sl14(375,44,396,58)+_st14(365,34,'alchene',_G,9)+_st14(448,58,'+ Ph₃P=O',_K,9)+_st14(260,106,'Wittig · Nobel 1979',_K,8));
+    if(/ossidaz|pcc|dmp|kmno/.test(s))return _sw14(_sch14(14,58,3)+_sl14(55,50,75,32,_R)+_st14(82,27,'OH',_R,10)+_sa14(110,310,58,'PCC / DMP','o KMnO₄')+_sch14(310,58,3)+_sd14(352,50,372,30,_R)+_st14(378,25,'O',_R,12)+_st14(240,106,'Alcol → aldeide/chetone',_K,8));
+    if(/fermenta/.test(s))return _sw14(_st14(80,44,'C₆H₁₂O₆',_K,11)+_st14(80,62,'(glucosio)',_K,9)+_sa14(148,370,58,'lievito / anaerobiosi','glicolisi + PDC')+_st14(420,44,'2 EtOH',_G,11)+_st14(420,58,'+ 2 CO₂',_G,9)+_st14(260,106,'Fermentazione alcolica',_K,8));
+    return _sw14(_st14(80,50,'Precursori',_K,11)+_st14(80,66,'commerciali',_K,9)+_sa14(148,370,58,'Sintesi multistep','protezione/funzionalizzaz.')+_st14(420,50,'Prodotto',_G,11)+_st14(420,66,'target',_G,9)+_st14(260,106,'Pianificazione retrosintetica',_K,8));
+  }
+  function _retSvg14(d,tp){
+    var s=((d||'')+' '+(tp||'')).toLowerCase();
+    if(/esterif|estere|acilaz|fenolic/.test(s))return _sw14(_sch14(10,58,2)+_sd14(50,50,70,30,_R)+_st14(76,25,'O',_R,12)+_sl14(50,50,38,65)+_st14(34,71,'O',_R,10)+_sch14(44,74,2,_L)+_sra14(108,268,58)+_sch14(276,54,2)+_sd14(308,46,328,26,_R)+_st14(334,21,'O',_R,12)+_sl14(308,46,296,62)+_st14(292,68,'OH',_R,10)+_sp14(356,58)+_st14(380,52,'HO',_R,10)+_sch14(394,58,2,_L)+_st14(260,106,"C(acil)–O ⟹ acido + alcol",_K,8));
+    if(/ammid|amid|ammin/.test(s)&&/acil/.test(s))return _sw14(_sch14(10,58,2)+_sd14(50,50,70,30,_R)+_st14(76,25,'O',_R,12)+_sl14(50,50,38,65)+_st14(34,71,'NH',_N,10)+_sch14(46,74,2,_N)+_sra14(108,268,58)+_sch14(276,54,2)+_sd14(308,46,328,26,_R)+_st14(334,21,'O',_R,12)+_sl14(308,46,296,62)+_st14(292,68,'OH',_R,10)+_sp14(356,58)+_st14(382,52,'H₂N–R',_N,10)+_st14(260,106,"C(acil)–N ⟹ acido + ammina",_K,8));
+    if(/aldol/.test(s))return _sw14(_sch14(10,60,3)+_sd14(54,52,74,32,_R)+_st14(80,27,'O',_R,12)+_sl14(32,56,46,74)+_st14(54,80,'OH',_R,9)+_sra14(106,285,58)+_sch14(296,60,2)+_sd14(324,50,344,30,_R)+_st14(350,25,'O',_R,12)+_sp14(372,58)+_sch14(394,60,2)+_sd14(422,50,442,30,_R)+_st14(448,25,'O',_R,12)+_st14(260,106,"Retro-aldol: β-OH-carbonile ⟹ 2 carbonili",_K,8));
+    if(/grignard|alcol.terz/.test(s))return _sw14(_sch14(10,58,3)+_sl14(52,50,72,32,_R)+_st14(80,27,'OH',_R,10)+_sch14(72,58,2)+_sra14(116,292,58)+_sd14(302,46,322,28,_R)+_st14(328,23,'O',_R,12)+_sl14(302,46,288,62)+_sp14(350,58)+_sch14(372,58,2,_N)+_st14(404,52,'MgBr',_N,9)+_st14(260,106,"Alcol terzio ⟹ chetone + R–MgBr",_K,8));
+    if(/arene|sear|aromat/.test(s))return _sw14(_sh14(48,58,22)+_sl14(70,58,90,58,_G)+_st14(104,52,'E',_G,13)+_sra14(130,292,58)+_sh14(300,58,20)+_sl14(320,58,338,58)+_st14(352,52,'H',_T,12)+_sp14(378,58)+_st14(412,52,'E⁺',_X,14)+_st14(260,106,"Retro-SEAr: Ar–E ⟹ Ar–H + E⁺",_K,8));
+    if(/cross.coupl|biarile|suzuki/.test(s))return _sw14(_sh14(36,58,20)+_sl14(56,58,72,58,_G,2)+_sh14(90,58,20)+_sra14(124,296,58)+_sh14(302,58,18)+_sl14(320,58,337,58)+_st14(351,52,'X',_X,13)+_sp14(376,58)+_sh14(398,58,18)+_sl14(416,58,433,58)+_st14(447,50,'B(OH)₂',_N,9)+_st14(260,106,"Retro-coupling: Ar–Ar ⟹ Ar–X + Ar–M",_K,8));
+    if(/alcol|idrataz|c.oh|carbonile.alcol/.test(s))return _sw14(_sch14(14,58,3)+_sl14(56,50,76,32,_R)+_st14(84,27,'OH',_R,10)+_sra14(114,290,58)+_sl14(298,68,318,52)+_sd14(318,52,350,52)+_sl14(350,52,370,68)+_sp14(392,58)+_st14(420,52,'H₂O',_N,11)+_st14(260,106,"Retro-idratazione: C–OH ⟹ alchene + H₂O",_K,8));
+    if(/ossid|cooh/.test(s))return _sw14(_sch14(14,54,3)+_sd14(56,46,76,26,_R)+_st14(82,21,'O',_R,12)+_sl14(56,46,42,62)+_st14(50,68,'OH',_R,10)+_sra14(108,286,58)+_sch14(296,58,3)+_sl14(340,50,360,32,_R)+_st14(368,27,'OH',_R,10)+_sp14(390,58)+_st14(416,52,'[O]',_X,13)+_st14(260,106,"Retro-ossidaz.: COOH ⟹ alcol + [O]",_K,8));
+    if(/ammina|amminaz|n-metil/.test(s))return _sw14(_sch14(14,58,3)+_sl14(56,50,76,32)+_st14(84,27,'NH₂',_N,10)+_sra14(114,286,58)+_sch14(296,58,3)+_sd14(340,50,360,30,_R)+_st14(366,25,'O',_R,12)+_sp14(388,58)+_st14(420,52,'NH₃',_N,12)+_st14(260,106,"Retro-amminaz.: R–NH₂ ⟹ C=O + NH₃",_K,8));
+    return _sw14(_sch14(10,58,4)+_sra14(110,292,58)+_sch14(300,58,2)+_sp14(352,58)+_sch14(370,58,2,_N)+_st14(260,106,'Disconnessione retrosintetica',_K,8));
+  }
+  // ── Card rendering ──────────────────────────────────────────────────────────
   var syn = localData ? localData.syn : (fgData ? _fgSyn(fgData.fgs,name) : []);
   if(syn && syn.length){
     h+='<div style="color:#1fd39a;font-size:.8rem;font-weight:800;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #1a3347;letter-spacing:.06em">⚗️ VIE DI SINTESI'+(localData?'':' — stima da gruppi funzionali')+'</div>';
     syn.forEach(function(s){
-      h+='<div style="background:#0e1d2d;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:11px 13px;margin-bottom:9px">'
-        +'<div style="color:#1fd39a;font-size:.68rem;font-weight:800;letter-spacing:.08em;margin-bottom:4px">METODO '+(s.n||'')+(s.nm?' · '+s.nm:'')+'</div>'
-        +'<div style="color:#cfe2f5;font-size:12px;margin:2px 0"><b>Reagenti:</b> '+(s.re||'')+'</div>'
-        +'<div style="color:#9abcce;font-size:11.5px;margin:2px 0"><b>Meccanismo:</b> '+(s.me||s.mech||'')+'</div>'
-        +'<div style="color:#6bcfff;font-size:11.5px;margin:2px 0"><b>Condizioni:</b> '+(s.ct||s.cat||'')+'</div>'
-        +'</div>';
+      var svgH=_synSvg14(s.nm||'',s.me||s.mech||'');
+      h+='<div style="background:#ffffff;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.35)">'
+        +'<div style="background:linear-gradient(135deg,#0c3322,#082918);padding:10px 14px;display:flex;align-items:center;gap:10px">'
+        +(s.n?'<span style="background:#1fd39a22;border:1px solid #1fd39a55;border-radius:20px;padding:2px 9px;color:#6adfb0;font-size:9px;font-family:monospace;font-weight:700;white-space:nowrap">Passo '+(s.n||'')+'</span>':'')
+        +'<span style="color:#1fd39a;font-size:12.5px;font-weight:800;font-family:monospace;flex:1">'+(s.nm||'Sintesi')+'</span>'
+        +'</div>'
+        +'<div style="overflow-x:auto;overflow-y:hidden;background:#f8fcf8">'+svgH+'</div>'
+        +'<div style="background:#f2f9f2;padding:10px 14px">'
+        +(s.re?'<div style="color:#1b3a1b;font-size:11px;font-family:monospace;margin-bottom:5px;word-break:break-all">⚗ '+(s.re||'')+'</div>':'')
+        +(s.me||s.mech?'<div style="color:#1e293b;font-size:11.5px;line-height:1.5;margin-bottom:5px">'+(s.me||s.mech||'')+'</div>':'')
+        +((s.ct||s.cat)?'<div style="display:inline-block;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:4px 9px;color:#1b5e20;font-size:10px;font-family:monospace">🌡 '+(s.ct||s.cat||'')+'</div>':'')
+        +'</div></div>';
     });
   }
-  // Analisi retrosintetica
   var rtr = localData ? localData.retro : (fgData ? fgData.ret : []);
   if(rtr && rtr.length){
     h+='<div style="color:#6bcfff;font-size:.8rem;font-weight:800;margin:12px 0 10px;padding-bottom:6px;border-bottom:2px solid #1a3347;letter-spacing:.06em">🔄 ANALISI RETROSINTETICA'+(localData?'':' — da struttura SMILES')+'</div>';
     rtr.forEach(function(r){
-      h+='<div style="background:#07101a;border:1px solid #1a3347;border-left:4px solid #6bcfff;border-radius:10px;padding:11px 13px;margin-bottom:7px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:4px">'
-        +'<span style="color:#6bcfff;font-weight:700;font-size:.72rem">Disconnessione: '+(r.d||r.disc||r.dc||'')+'</span>'
-        +'<span style="background:#0b1928;color:#3a6080;font-size:10px;padding:2px 7px;border-radius:5px">'+(r.tp||r.type||'')+'</span></div>'
-        +'<div style="color:#cfe2f5;font-size:12px;margin:2px 0"><b>Sinton:</b> '+(r.sy||r.syn||'')+'⟹</div>'
-        +'<div style="color:#8aadcc;font-size:11.5px;margin:2px 0"><b>Equivalente sintetico:</b> '+(r.eq||r.equiv||'')+'</div>'
-        +'</div>';
+      var svgH=_retSvg14(r.d||r.disc||r.dc||'',r.tp||r.type||'');
+      h+='<div style="background:#fff8e1;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.3)">'
+        +'<div style="background:linear-gradient(135deg,#0d1b6e,#0a1454);padding:10px 14px;display:flex;align-items:center;gap:10px">'
+        +'<span style="background:#6bcfff22;border:1px solid #6bcfff55;border-radius:20px;padding:2px 9px;color:#6bcfff;font-size:9px;font-family:monospace;font-weight:700">⟹</span>'
+        +'<span style="color:#90caf9;font-size:12.5px;font-weight:800;font-family:monospace;flex:1">'+(r.d||r.disc||r.dc||'Disconnessione')+'</span>'
+        +((r.tp||r.type)?'<span style="background:#0d1b4e;color:#6bcfff;font-size:9px;border-radius:4px;padding:2px 6px">'+(r.tp||r.type||'')+'</span>':'')
+        +'</div>'
+        +'<div style="overflow-x:auto;overflow-y:hidden;background:#fffde7">'+svgH+'</div>'
+        +'<div style="background:#fffde7;padding:10px 14px">'
+        +'<div style="color:#1a237e;font-size:11.5px;line-height:1.5;margin-bottom:5px"><b>Sinton:</b> '+(r.sy||r.syn||'')+'</div>'
+        +'<div style="color:#1a237e;font-size:11.5px;line-height:1.5;margin-bottom:5px"><b>Equivalente sintetico:</b> '+(r.eq||r.equiv||'')+'</div>'
+        +((r.tp||r.type)?'<div style="display:inline-block;background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:4px 9px;color:#0d47a1;font-size:10px;font-family:monospace">'+(r.tp||r.type||'')+'</div>':'')
+        +'</div></div>';
     });
   }
   if(!syn.length && (!rtr||!rtr.length)){
