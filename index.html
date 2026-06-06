@@ -26434,6 +26434,11 @@ window.downloadMaterial=function(type){
     navigator.serviceWorker.register('./sw.js',{scope:'./'})
       .then(function(r){console.log('SW ok');})
       .catch(function(e){console.warn('SW:',e.message);});
+    navigator.serviceWorker.addEventListener('message',function(e){
+      if(e.data&&e.data.type==='BSI_SW_UPDATED'){
+        setTimeout(function(){ location.reload(true); },800);
+      }
+    });
   }
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
@@ -30066,6 +30071,81 @@ var SR_DB = {
   ]},
 };
 
+// ── Shared SR SVG helpers (all versions) ─────────────────────────────────────
+var _SRSVG=(function(){
+  var L='#2563eb',T='#1e293b',R='#dc2626',G='#16a34a',X='#ef4444',A='#ea580c',K='#0f4c81',N='#2563eb';
+  function sl(x1,y1,x2,y2,c,w){return'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||L)+'" stroke-width="'+(w||1.5)+'"/>';}
+  function st(x,y,s,c,fs,a){return'<text x="'+x+'" y="'+y+'" fill="'+(c||T)+'" font-size="'+(fs||11)+'" font-family="monospace" text-anchor="'+(a||'middle')+'" dominant-baseline="middle">'+s+'</text>';}
+  function sh(cx,cy,r,c){var p=[];for(var i=0;i<6;i++){var a=Math.PI/3*i-Math.PI/6;p.push(+(cx+r*Math.cos(a)).toFixed(1)+','+(+(cy+r*Math.sin(a)).toFixed(1)));}return'<polygon points="'+p.join(' ')+'" fill="none" stroke="'+(c||L)+'" stroke-width="1.5"/>';}
+  function sd(x1,y1,x2,y2,c){var dx=y2-y1,dy=x1-x2,l=Math.sqrt(dx*dx+dy*dy)||1,o=2.8,nx=dx/l*o,ny=dy/l*o;return sl(x1+nx,y1+ny,x2+nx,y2+ny,c)+sl(x1-nx,y1-ny,x2-nx,y2-ny,c);}
+  function sa(x1,x2,y,top,bot){var mx=(x1+x2)/2;return sl(x1,y,x2-9,y,L,1.5)+'<polygon points="'+(x2-9)+','+(y-4)+' '+x2+','+y+' '+(x2-9)+','+(y+4)+'" fill="'+L+'"/>'+(top?st(mx,y-14,top,A,8.5):'')+(bot?st(mx,y+15,bot,K,8):'');}
+  function sc(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=sl(x1,y1,x2,y2,c||L);}return o;}
+  function sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" style="background:#ffffff;display:block;font-family:Arial,sans-serif">'+inner+'</svg>';}
+  function ra(x1,x2,y){var mx=(x1+x2)/2;return sl(x1,y-3,x2-9,y-3,K,1.5)+sl(x1,y+3,x2-9,y+3,K,1.5)+'<polygon points="'+(x2-9)+','+(y-7)+' '+x2+','+y+' '+(x2-9)+','+(y+7)+'" fill="'+K+'"/>'+st(mx,y-16,'disconnessione retrosintetica',K,8);}
+  function sp(x,y){return st(x,y,'+',T,14);}
+  function synSvg(nm,me){
+    var s=((nm||'')+' '+(me||'')).toLowerCase();
+    if(/acetila|anidride acetica|cloruro acilico/.test(s))return sw(sc(14,60,3)+sl(57,50,77,30,R)+st(85,25,'OH/NH₂',R,10)+sp(103,58)+st(137,50,'(AcO)₂O',A,9)+sa(170,318,58,'H₃PO₄ cat.','80°C, 15 min')+sc(322,58,3)+sl(365,50,385,30,R)+st(395,23,'OAc/NHAc',N,9)+st(260,106,'Acetilazione OH/NH₂ · condizioni blande',K,8));
+    if(/estere|esterif|fischer|lacton/.test(s))return sw(sc(14,58,3)+sl(56,50,76,32,R)+st(84,27,'OH',R,10)+sp(102,58)+st(128,50,"HO–R'",L,10)+sa(158,318,58,'H₂SO₄ / DCC','reflux o RT')+sc(324,58,3)+sl(366,50,386,32,R)+st(395,24,"O–R'",L,9)+st(260,106,'Estere · Fischer o DCC/DMAP',K,8));
+    if(/riduzione|nabh|lialh|riduz/.test(s))return sw(sc(14,58,4)+sd(70,50,90,30,R)+st(96,25,'O',R,12)+sp(114,58)+st(148,50,'NaBH₄',A,11)+sa(178,318,58,'NaBH₄','MeOH, 0°C→RT')+sc(324,58,4)+sl(368,50,388,32,R)+st(396,27,'OH',R,10)+st(260,106,'Riduzione selettiva C=O',K,8));
+    if(/ammid|amide|dcc|hatu|peptid/.test(s))return sw(sc(14,54,3)+sd(56,46,76,26,R)+st(82,21,'O',R,12)+sl(56,46,42,62)+st(50,68,'OH',R,10)+sp(100,58)+st(135,50,"H₂N–R'",N,10)+sa(165,315,58,'DCC/HATU','DIPEA, DMF')+sc(322,58,3)+sd(364,48,384,28,R)+st(390,23,'O',R,12)+sl(364,48,378,66)+st(388,72,"NHR'",N,10)+st(260,106,'Legame ammidico · DCC/HATU',K,8));
+    if(/cross.coupl|suzuki|heck|pd/.test(s))return sw(sh(44,58,20)+sl(64,58,82,58)+st(96,52,'X',X,13)+sp(115,58)+sh(140,58,20)+sl(160,58,177,58)+st(200,52,'M–Ar',N,9)+sa(222,354,58,'Pd(0) cat.','base, DMF/H₂O')+sh(374,58,22)+sl(396,58,414,58,G,2.5)+sh(436,58,22)+st(260,106,'Cross-coupling C–C (Suzuki/Heck)',K,8));
+    if(/sear|aromat|nitraz|alogenaz|friedel/.test(s))return sw(sh(44,58,22)+sp(80,58)+st(110,50,'E⁺',X,14)+sa(136,270,58,'Lewis acid','AlCl₃ / FeBr₃')+sh(282,58,22)+sl(304,58,322,58,G,2)+st(340,52,'E',G,13)+st(260,106,'SEAr · Nitrazione/Alogenazione/Friedel-Crafts',K,8));
+    if(/grignard/.test(s))return sw(sc(14,58,3)+st(60,51,'MgBr',N,10)+sp(82,58)+sd(104,46,124,28,R)+st(130,23,'O',R,12)+sa(165,315,58,'1. Et₂O, −78°C','2. H₃O⁺')+sc(322,58,4)+sl(366,50,384,32,R)+st(392,27,'OH',R,10)+st(260,106,'Alcol 2°/3° · Grignard (Nobel 1912)',K,8));
+    if(/wittig|ylide/.test(s))return sw(sd(28,58,50,38,R)+st(56,33,'O',R,12)+sl(28,58,12,72)+sp(78,58)+st(115,48,'Ph₃P=CHR',L,9)+sa(186,322,58,'n-BuLi / THF','−78°C')+sl(330,58,350,44)+sd(350,44,375,44,G)+sl(375,44,396,58)+st(365,34,'alchene',G,9)+st(448,58,'+ Ph₃P=O',K,9)+st(260,106,'Wittig · Nobel 1979',K,8));
+    if(/ossidaz|pcc|dmp|kmno/.test(s))return sw(sc(14,58,3)+sl(55,50,75,32,R)+st(82,27,'OH',R,10)+sa(110,310,58,'PCC / DMP','o KMnO₄')+sc(310,58,3)+sd(352,50,372,30,R)+st(378,25,'O',R,12)+st(240,106,'Alcol → aldeide/chetone',K,8));
+    if(/fermenta/.test(s))return sw(st(80,44,'C₆H₁₂O₆',K,11)+st(80,62,'(glucosio)',K,9)+sa(148,370,58,'lievito / anaerobiosi','glicolisi + PDC')+st(420,44,'2 EtOH',G,11)+st(420,58,'+ 2 CO₂',G,9)+st(260,106,'Fermentazione alcolica',K,8));
+    if(/gattermann|formil/.test(s))return sw(sh(44,58,22)+sp(80,58)+st(108,50,'CO+HCl',A,9)+sa(145,318,58,'AlCl₃/CuCl','alta P')+sh(326,58,22)+sl(348,58,366,44)+st(374,38,'CHO',R,10)+st(260,106,'Gattermann-Koch · formilazione aromatica',K,8));
+    if(/oxidat|étard|ossidaz.*lateral|toluene.*aldeide/.test(s))return sw(sc(14,58,3)+sl(56,52,76,34)+st(84,29,'CH₃',T,10)+sa(108,308,58,'CrO₂Cl₂','CS₂, 0°C')+sc(310,58,3)+sl(352,52,372,34)+st(380,29,'CHO',R,10)+st(260,106,'Ossidazione catena laterale → aldeide',K,8));
+    return sw(st(80,50,'Precursori',K,11)+st(80,66,'commerciali',K,9)+sa(148,370,58,'Sintesi multistep','protezione/funzionalizzaz.')+st(420,50,'Prodotto',G,11)+st(420,66,'target',G,9)+st(260,106,'Pianificazione retrosintetica',K,8));
+  }
+  function retSvg(d,tp){
+    var s=((d||'')+' '+(tp||'')).toLowerCase();
+    if(/esterif|estere|acilaz|fenolic/.test(s))return sw(sc(10,58,2)+sd(50,50,70,30,R)+st(76,25,'O',R,12)+sl(50,50,38,65)+st(34,71,'O',R,10)+sc(44,74,2,L)+ra(108,268,58)+sc(276,54,2)+sd(308,46,328,26,R)+st(334,21,'O',R,12)+sl(308,46,296,62)+st(292,68,'OH',R,10)+sp(356,58)+st(380,52,'HO',R,10)+sc(394,58,2,L)+st(260,106,'C(acil)–O ⟹ acido + alcol',K,8));
+    if(/ammid|amid|ammin/.test(s)&&/acil/.test(s))return sw(sc(10,58,2)+sd(50,50,70,30,R)+st(76,25,'O',R,12)+sl(50,50,38,65)+st(34,71,'NH',N,10)+sc(46,74,2,N)+ra(108,268,58)+sc(276,54,2)+sd(308,46,328,26,R)+st(334,21,'O',R,12)+sl(308,46,296,62)+st(292,68,'OH',R,10)+sp(356,58)+st(382,52,'H₂N–R',N,10)+st(260,106,'C(acil)–N ⟹ acido + ammina',K,8));
+    if(/aldol/.test(s))return sw(sc(10,60,3)+sd(54,52,74,32,R)+st(80,27,'O',R,12)+sl(32,56,46,74)+st(54,80,'OH',R,9)+ra(106,285,58)+sc(296,60,2)+sd(324,50,344,30,R)+st(350,25,'O',R,12)+sp(372,58)+sc(394,60,2)+sd(422,50,442,30,R)+st(448,25,'O',R,12)+st(260,106,'Retro-aldol: β-OH-carbonile ⟹ 2 carbonili',K,8));
+    if(/grignard|alcol.terz/.test(s))return sw(sc(10,58,3)+sl(52,50,72,32,R)+st(80,27,'OH',R,10)+sc(72,58,2)+ra(116,292,58)+sd(302,46,322,28,R)+st(328,23,'O',R,12)+sl(302,46,288,62)+sp(350,58)+sc(372,58,2,N)+st(404,52,'MgBr',N,9)+st(260,106,'Alcol terzio ⟹ chetone + R–MgBr',K,8));
+    if(/arene|sear|aromat/.test(s))return sw(sh(48,58,22)+sl(70,58,90,58,G)+st(104,52,'E',G,13)+ra(130,292,58)+sh(300,58,20)+sl(320,58,338,58)+st(352,52,'H',T,12)+sp(378,58)+st(412,52,'E⁺',X,14)+st(260,106,'Retro-SEAr: Ar–E ⟹ Ar–H + E⁺',K,8));
+    if(/cross.coupl|biarile|suzuki/.test(s))return sw(sh(36,58,20)+sl(56,58,72,58,G,2)+sh(90,58,20)+ra(124,296,58)+sh(302,58,18)+sl(320,58,337,58)+st(351,52,'X',X,13)+sp(376,58)+sh(398,58,18)+sl(416,58,433,58)+st(447,50,'B(OH)₂',N,9)+st(260,106,'Retro-coupling: Ar–Ar ⟹ Ar–X + Ar–M',K,8));
+    if(/alcol|idrataz/.test(s))return sw(sc(14,58,3)+sl(56,50,76,32,R)+st(84,27,'OH',R,10)+ra(114,290,58)+sl(298,68,318,52)+sd(318,52,350,52)+sl(350,52,370,68)+sp(392,58)+st(420,52,'H₂O',N,11)+st(260,106,'Retro-idratazione: C–OH ⟹ alchene + H₂O',K,8));
+    if(/ossid|cooh/.test(s))return sw(sc(14,54,3)+sd(56,46,76,26,R)+st(82,21,'O',R,12)+sl(56,46,42,62)+st(50,68,'OH',R,10)+ra(108,286,58)+sc(296,58,3)+sl(340,50,360,32,R)+st(368,27,'OH',R,10)+sp(390,58)+st(416,52,'[O]',X,13)+st(260,106,'Retro-ossidaz.: COOH ⟹ alcol + [O]',K,8));
+    if(/ammina|amminaz/.test(s))return sw(sc(14,58,3)+sl(56,50,76,32)+st(84,27,'NH₂',N,10)+ra(114,286,58)+sc(296,58,3)+sd(340,50,360,30,R)+st(366,25,'O',R,12)+sp(388,58)+st(420,52,'NH₃',N,12)+st(260,106,'Retro-amminaz.: R–NH₂ ⟹ C=O + NH₃',K,8));
+    if(/aromatiz|catalitica|cicloes/.test(s))return sw(sc(10,58,5,L,18)+ra(124,296,58)+sh(305,58,22)+sl(327,58,345,58)+st(358,52,'3H₂',N,10)+st(260,106,'Retro-aromatizzazione: arene ⟹ cicloesano',K,8));
+    if(/formilaz|gattermann|cho/.test(s))return sw(sh(38,58,22)+sl(60,58,78,44)+st(86,38,'CHO',R,10)+ra(110,286,58)+sh(295,58,20)+sp(330,58)+st(368,50,'CO+HCl',A,9)+st(260,106,'Retro-Gattermann: Ar-CHO ⟹ ArH + CO',K,8));
+    return sw(sc(10,58,4)+ra(110,292,58)+sc(300,58,2)+sp(352,58)+sc(370,58,2,N)+st(260,106,'Disconnessione retrosintetica',K,8));
+  }
+  function sCard(n,nm,re,me,ct){
+    var svgH=synSvg(nm,me);
+    return '<div style="background:#ffffff;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.35)">'
+      +'<div style="background:linear-gradient(135deg,#0c3322,#082918);padding:10px 14px;display:flex;align-items:center;gap:10px">'
+      +(n>0?'<span style="background:#1fd39a22;border:1px solid #1fd39a55;border-radius:20px;padding:2px 9px;color:#6adfb0;font-size:9px;font-family:monospace;font-weight:700;white-space:nowrap">Passo '+n+'</span>':'')
+      +'<span style="color:#1fd39a;font-size:12.5px;font-weight:800;font-family:monospace;flex:1">'+(nm||'Sintesi')+'</span>'
+      +'</div>'
+      +'<div style="overflow-x:auto;overflow-y:hidden;background:#f8fcf8">'+svgH+'</div>'
+      +'<div style="background:#f2f9f2;padding:10px 14px">'
+      +(re?'<div style="color:#1b3a1b;font-size:11px;font-family:monospace;margin-bottom:5px;word-break:break-all">⚗ '+re+'</div>':'')
+      +(me?'<div style="color:#1e293b;font-size:11.5px;line-height:1.5;margin-bottom:5px">'+me+'</div>':'')
+      +(ct?'<div style="display:inline-block;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:4px 9px;color:#1b5e20;font-size:10px;font-family:monospace">🌡 '+ct+'</div>':'')
+      +'</div></div>';
+  }
+  function rCard(d,sy,eq,tp){
+    var svgH=retSvg(d,tp);
+    return '<div style="background:#fff8e1;border-radius:12px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.3)">'
+      +'<div style="background:linear-gradient(135deg,#0d1b6e,#0a1454);padding:10px 14px;display:flex;align-items:center;gap:10px">'
+      +'<span style="background:#6bcfff22;border:1px solid #6bcfff55;border-radius:20px;padding:2px 9px;color:#6bcfff;font-size:9px;font-family:monospace;font-weight:700">⟹</span>'
+      +'<span style="color:#90caf9;font-size:12.5px;font-weight:800;font-family:monospace;flex:1">'+(d||'Disconnessione')+'</span>'
+      +(tp?'<span style="background:#0d1b4e;color:#6bcfff;font-size:9px;border-radius:4px;padding:2px 6px">'+tp+'</span>':'')
+      +'</div>'
+      +'<div style="overflow-x:auto;overflow-y:hidden;background:#fffde7">'+svgH+'</div>'
+      +'<div style="background:#fffde7;padding:10px 14px">'
+      +'<div style="color:#1a237e;font-size:11.5px;line-height:1.5;margin-bottom:5px"><b>Sinton:</b> '+sy+'</div>'
+      +'<div style="color:#1a237e;font-size:11.5px;line-height:1.5;margin-bottom:5px"><b>Equiv. sintetico:</b> '+eq+'</div>'
+      +(tp?'<div style="display:inline-block;background:#e3f2fd;border:1px solid #90caf9;border-radius:6px;padding:4px 9px;color:#0d47a1;font-size:10px;font-family:monospace">'+tp+'</div>':'')
+      +'</div></div>';
+  }
+  return {syn:synSvg,ret:retSvg,sCard:sCard,rCard:rCard};
+})();
+
 function srSearch(val){
   var key = val.toLowerCase().trim();
   var data = SR_DB[key];
@@ -30091,23 +30171,11 @@ function srSearch(val){
   var h = '';
   h += '<div style="color:#1fd39a;font-size:.85rem;font-weight:800;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">⚗️ PERCORSI DI SINTESI</div>';
   (data.syn||[]).forEach(function(s){
-    h += '<div style="background:#11243a;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:12px 14px;margin-bottom:10px">'
-      +'<div style="color:#1fd39a;font-size:.72rem;font-weight:800;letter-spacing:.08em;margin-bottom:5px">METODO '+s.step+' · '+s.name+'</div>'
-      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Reagenti:</b> '+s.reagents+'</div>'
-      +'<div style="color:#aac4dc;font-size:12px;margin:3px 0"><b>Meccanismo:</b> '+s.mech+'</div>'
-      +'<div style="color:#6bcfff;font-size:12px;margin:3px 0"><b>Catalizzatore:</b> '+s.cat+'</div>'
-      +'</div>';
+    h += _SRSVG.sCard(s.step||s.n||0, s.name||s.nm||'', s.reagents||s.re||'', s.mech||s.me||'', s.cat||s.ct||'');
   });
   h += '<div style="color:#6bcfff;font-size:.85rem;font-weight:800;margin:14px 0 12px;padding-bottom:6px;border-bottom:2px solid #1e3a52">🔄 ANALISI RETROSINTETICA</div>';
   (data.retro||[]).forEach(function(r){
-    h += '<div style="background:#0c1c2e;border:1px solid #1e3a52;border-left:4px solid #6bcfff;border-radius:10px;padding:11px 14px;margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px">'
-      +'<span style="color:#6bcfff;font-weight:700;font-size:.78rem">Disconnessione: '+r.disc+'</span>'
-      +'<span style="background:#1a3050;color:#8aadcc;font-size:10px;padding:2px 8px;border-radius:8px">'+r.type+'</span>'
-      +'</div>'
-      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Sinton:</b> '+r.syn+' ⟹</div>'
-      +'<div style="color:#8aadcc;font-size:12px;margin:3px 0"><b>Equiv. sintetico:</b> '+r.equiv+'</div>'
-      +'</div>';
+    h += _SRSVG.rCard(r.disc||r.d||r.dc||'', r.syn||r.sy||'', r.equiv||r.eq||'', r.type||r.tp||'');
   });
   h += '<div style="margin-top:10px;padding:10px 12px;background:#060d1a;border-radius:8px;border:1px dashed #1e3a52;color:#7a96b0;font-size:11.5px">'
     +'💡 Approfondisci: '
@@ -30406,24 +30474,9 @@ function sr13Search(val){
     return;
   }
   var h='<div style="color:#1fd39a;font-size:.82rem;font-weight:800;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #1e3a52;letter-spacing:.06em">⚗️ PERCORSI DI SINTESI</div>';
-  (data.syn||[]).forEach(function(s){
-    h+='<div style="background:#0f1e30;border:1px solid #1e3a52;border-left:4px solid #1fd39a;border-radius:10px;padding:12px 14px;margin-bottom:10px">'
-      +'<div style="color:#1fd39a;font-size:.7rem;font-weight:800;letter-spacing:.08em;margin-bottom:5px">METODO '+s.n+' · '+s.nm+'</div>'
-      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Reagenti:</b> '+s.re+'</div>'
-      +'<div style="color:#a0bcd4;font-size:12px;margin:3px 0"><b>Meccanismo:</b> '+s.me+'</div>'
-      +'<div style="color:#6bcfff;font-size:12px;margin:3px 0"><b>Condizioni:</b> '+s.ct+'</div>'
-      +'</div>';
-  });
+  (data.syn||[]).forEach(function(s){ h+=_SRSVG.sCard(s.n||0,s.nm||'',s.re||'',s.me||'',s.ct||''); });
   h+='<div style="color:#6bcfff;font-size:.82rem;font-weight:800;margin:14px 0 10px;padding-bottom:7px;border-bottom:2px solid #1e3a52;letter-spacing:.06em">🔄 ANALISI RETROSINTETICA</div>';
-  (data.retro||[]).forEach(function(r){
-    h+='<div style="background:#080f1a;border:1px solid #1e3a52;border-left:4px solid #6bcfff;border-radius:10px;padding:12px 14px;margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px">'
-      +'<span style="color:#6bcfff;font-weight:700;font-size:.75rem">Disconnessione: '+r.dc+'</span>'
-      +'<span style="background:#0e1e30;color:#5a80a0;font-size:10px;padding:2px 8px;border-radius:6px">'+r.tp+'</span></div>'
-      +'<div style="color:#cfe2f5;font-size:12.5px;margin:3px 0"><b>Sinton:</b> '+r.sy+' ⟹</div>'
-      +'<div style="color:#8aadcc;font-size:12px;margin:3px 0"><b>Equiv. sintetico:</b> '+r.eq+'</div>'
-      +'</div>';
-  });
+  (data.retro||[]).forEach(function(r){ h+=_SRSVG.rCard(r.dc||r.d||'',r.sy||'',r.eq||'',r.tp||''); });
   out.innerHTML=h;
 }
 
