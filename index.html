@@ -661,7 +661,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v38-2026-06';</script>
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v39-2026-06';</script>
 
 
 <!-- ═══════════════ HEADER ═══════════════ -->
@@ -31174,6 +31174,53 @@ var _fabTimer = setInterval(function(){
 setTimeout(function(){ clearInterval(_fabTimer); }, 30000);
 
 console.log('BioSpecInfo v14b — FAB z-index/position fix ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v14c · Posizione FAB + guida + bottom sheet + scroll ────────
+(function(){
+'use strict';
+
+var _s = document.createElement('style');
+_s.textContent = [
+
+  /* ── FAB: leggermente più alto (sopra navbar + respiro) ── */
+  '#bsi14-fab{bottom:108px!important;}',
+
+  /* ── Guida (openBSIGuide): padding-bottom aumentato così "Avanti →" non viene tagliato */
+  '#bsi-guide{padding-bottom:72px!important;}',
+
+  /* ── Bottom sheet: padding-bottom maggiore così l'ultimo item non viene tagliato ── */
+  '#bsi14-panel{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 80px)!important;}',
+
+  /* ── Scroll-to-top: segue il FAB ── */
+  '#bsi-scroll-top{bottom:108px!important;}',
+
+  /* ── Ogni sezione del main: scrollabile, con spazio sotto per FAB ── */
+  '#main{',
+  '  overflow-y:auto!important;',
+  '  -webkit-overflow-scrolling:touch!important;',
+  '  padding-bottom:190px!important;',
+  '}',
+
+  /* ── Contenitori interni delle sezioni: non bloccare lo scroll ── */
+  '#main > div, #main > section, #main > article{',
+  '  overflow-x:hidden;',
+  '  overflow-y:visible;',
+  '}',
+
+].join('');
+document.head.appendChild(_s);
+
+/* Aggiorna anche il watchdog v14b con la nuova posizione */
+var _w2 = setInterval(function(){
+  var f = document.getElementById('bsi14-fab');
+  if(f) f.style.setProperty('bottom','108px','important');
+}, 2000);
+setTimeout(function(){ clearInterval(_w2); }, 30000);
+
+console.log('BioSpecInfo v14c — layout finale ✔');
 })();
 </script>
 
