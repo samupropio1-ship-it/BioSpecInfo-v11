@@ -33054,5 +33054,59 @@ console.log('BioSpecInfo v19 — NMR Lorentzian curves ✔');
 })();
 </script>
 
+<!-- ─── BioSpecInfo v20 · Fix SVG visibility in SR modal ──────────────────── -->
+<script>
+(function(){
+'use strict';
+
+// ══ 1. CSS fix — explicit SVG height + light colour-scheme to block dark-mode inversion
+var _st=document.createElement('style');
+_st.textContent=[
+  /* Force SVG inside SR/retro cards to be visible at correct height */
+  '.bsi15-svg-wrap,.rv16-svg-wrap{min-height:112px !important;color-scheme:light !important;}',
+  '.bsi15-svg-wrap svg,.rv16-svg-wrap svg{',
+  '  height:112px !important;width:100% !important;',
+  '  display:block !important;background:#ffffff !important;',
+  '  color-scheme:light !important;',
+  '}',
+  /* Card bodies: keep light background even in forced-dark-mode browsers */
+  '.bsi15-card,.bsi15-rcard,.rv16-card{color-scheme:light !important;}',
+  '.bsi15-card-bd,.bsi15-rcard-bd,.rv16-bd{color-scheme:light !important;}',
+].join('');
+document.head.appendChild(_st);
+
+// ══ 2. DOM fix — add explicit height="120" attribute to every SR-modal SVG
+//    Needed for Android WebViews that ignore CSS height on inline SVG
+function _patchSvgHeights(){
+  var svgs=document.querySelectorAll(
+    '#bsi15-out .bsi15-svg-wrap svg, #bsi15-out .rv16-svg-wrap svg');
+  for(var i=0;i<svgs.length;i++){
+    svgs[i].setAttribute('height','120');
+    svgs[i].style.height='112px';
+    svgs[i].style.background='#ffffff';
+  }
+}
+
+// ══ 3. MutationObserver — patch SVGs whenever cards are (re-)rendered
+function _startObs(){
+  var out=document.getElementById('bsi15-out');
+  if(!out) return;
+  if(window.MutationObserver){
+    var obs=new MutationObserver(function(){ _patchSvgHeights(); });
+    obs.observe(out,{childList:true,subtree:true});
+  }
+  _patchSvgHeights();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',_startObs);
+} else {
+  _startObs();
+}
+
+console.log('BioSpecInfo v20 — SR SVG visibility fix ✔');
+})();
+</script>
+
 </body>
 </html>
