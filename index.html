@@ -25786,12 +25786,22 @@ function opsinNameToSmiles(name){
   return fetchTimeout('https://opsin.ch.cam.ac.uk/opsin/'+encodeURIComponent(name)+'.json', 9000)
     .then(function(r){
       // OPSIN restituisce un body JSON con {status, message} anche per nomi non
-      // interpretabili (spesso con HTTP 400): leggiamo sempre il JSON, così il
-      // motivo specifico (FAILURE + messaggio) emerge invece di un generico
-      // "non raggiungibile" quando il servizio in realtà ha risposto regolarmente.
-      return r.json().catch(function(){
-        if(!r.ok) throw new Error('OPSIN ha risposto con errore HTTP '+r.status);
-        throw new Error('OPSIN: risposta non valida');
+      // interpretabili (spesso con HTTP 400): leggiamo sempre il testo grezzo e
+      // proviamo a interpretarlo come JSON noi stessi (invece di affidarci a
+      // r.json(), che fallisce silenziosamente senza dirci COSA è arrivato
+      // davvero — pagina HTML di errore, blocco anti-bot, rate-limit, ecc).
+      // In caso di formato inatteso mostriamo un estratto della risposta reale:
+      // questo è l'unico modo per capire, da remoto, cosa risponde il servizio
+      // al dispositivo dell'utente quando le cose vanno storte.
+      return r.text().then(function(txt){
+        var j;
+        try { j = JSON.parse(txt); }
+        catch(parseErr){
+          var snippet = (txt||'').replace(/\s+/g,' ').trim().slice(0,140);
+          throw new Error('OPSIN ha risposto in formato inatteso (HTTP '+r.status+')'
+            +(snippet ? ': "'+snippet+(txt&&txt.length>140?'…':'')+'"' : ' — risposta vuota'));
+        }
+        return j;
       });
     })
     .then(function(j){
