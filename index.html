@@ -25784,9 +25784,22 @@ var PUB = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug';
 // IUPAC arbitraria — per nomi "costruiti" complessi serve un parser dedicato).
 function opsinNameToSmiles(name){
   return fetchTimeout('https://opsin.ch.cam.ac.uk/opsin/'+encodeURIComponent(name)+'.json', 9000)
-    .then(function(r){ if(!r.ok) throw new Error('OPSIN non raggiungibile'); return r.json(); })
+    .then(function(r){
+      // OPSIN restituisce un body JSON con {status, message} anche per nomi non
+      // interpretabili (spesso con HTTP 400): leggiamo sempre il JSON, così il
+      // motivo specifico (FAILURE + messaggio) emerge invece di un generico
+      // "non raggiungibile" quando il servizio in realtà ha risposto regolarmente.
+      return r.json().catch(function(){
+        if(!r.ok) throw new Error('OPSIN ha risposto con errore HTTP '+r.status);
+        throw new Error('OPSIN: risposta non valida');
+      });
+    })
     .then(function(j){
-      if(j.status!=='SUCCESS'||!j.smiles) throw new Error('Nome IUPAC non interpretabile (OPSIN: '+(j.message||'sconosciuto')+')');
+      // OPSIN risponde con status SUCCESS o WARNING (nomi interpretati ma con
+      // qualche ambiguità segnalata, es. stereodescrittori/sostituenti complessi):
+      // in entrambi i casi lo SMILES restituito è valido e utilizzabile — solo
+      // FAILURE indica un nome realmente non interpretabile.
+      if(j.status==='FAILURE'||!j.smiles) throw new Error('Nome IUPAC non interpretabile (OPSIN: '+(j.message||'sconosciuto')+')');
       return j.smiles;
     });
 }
@@ -25953,8 +25966,13 @@ window.fetchPub = function(term){
     if(!looksLikeIupacName(term)) throw origErr;
     var translated = italianToEnglishIupac(term);
     var tries = (translated && translated.toLowerCase()!==term.trim().toLowerCase()) ? [term, translated] : [term];
+    // Tiene traccia dell'ultimo errore SPECIFICO di OPSIN (nome non interpretabile)
+    // così, se tutti i tentativi falliscono, possiamo mostrare all'utente il motivo
+    // reale invece del generico "non trovata" — utile per capire se si tratta di un
+    // limite di interpretazione del nome o di un problema di connessione/PubChem.
+    var lastOpsinErr = null;
     function attempt(i){
-      if(i>=tries.length) throw origErr;
+      if(i>=tries.length) throw (lastOpsinErr || origErr);
       var candidate = tries[i];
       return opsinNameToSmiles(candidate).then(function(smiles){
         return smilesToCid(smiles).then(fetchByCid).catch(function(){
@@ -25963,7 +25981,10 @@ window.fetchPub = function(term){
             +(i>0?' (traduzione automatica IT→EN: "'+candidate+'")':'')
             +' — composto non presente nel database PubChem (dati 2D/3D PubChem non disponibili, analisi locale attiva).');
         });
-      }).catch(function(){ return attempt(i+1); });
+      }).catch(function(e){
+        if(e && e.message && /OPSIN/.test(e.message)) lastOpsinErr = e;
+        return attempt(i+1);
+      });
     }
     return attempt(0);
   }
