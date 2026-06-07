@@ -31706,6 +31706,13 @@ function _sa(x1,x2,y,top,bot){var mx=(x1+x2)/2;return _sl(x1,y,x2-9,y,_LN,1.5)+'
 function _sch(x,y,n,c,bl){var BL=bl||22,o='';for(var i=0;i<n-1;i++){var x1=x+i*BL,y1=y+(i%2===0?4:-4),x2=x+(i+1)*BL,y2=y+(i%2===0?-4:4);o+=_sl(x1,y1,x2,y2,c||_LN);}return o;}
 function _sw(inner){return'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" style="background:'+_BG+';display:block;font-family:Arial,sans-serif">'+inner+'</svg>';}
 function _splus(x,y){return _st2(x,y,'+',_TX,14);}
+// Embeds the real 2D structure (PubChem depiction by CID) inside an SVG diagram
+function _img2D(cid,cx,cy,size){
+  if(!cid) return '';
+  var s=size||60, half=s/2;
+  return '<rect x="'+(cx-half)+'" y="'+(cy-half)+'" width="'+s+'" height="'+s+'" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" rx="4"/>'
+    +'<image href="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'+encodeURIComponent(cid)+'/PNG?image_size='+s+'x'+s+'" x="'+(cx-half)+'" y="'+(cy-half)+'" width="'+s+'" height="'+s+'" preserveAspectRatio="xMidYMid meet"/>';
+}
 // Double-arrow for retrosynthesis (⟹)
 function _sretarrow(x1,x2,y){
   var mx=(x1+x2)/2;
@@ -31817,11 +31824,13 @@ metilazione:function(){return _sw(
   +_sch(324,58,3)+_sl(366,50,386,32,_CO)+_st2(396,25,'N–CH₃',_CN,9)
   +_st2(260,106,'N-metilazione o O-metilazione selettiva',_CK,8)
 );},
-sintesi_multilineare:function(){return _sw(
-  _st2(80,50,'Precursori',_CK,11)+_st2(80,66,'commerciali',_CK,9)
-  +_sa(148,370,58,'Sintesi multistep','protezione/funzionalizzaz.')
-  +_st2(420,50,'Prodotto',_CF,11)+_st2(420,66,'target',_CF,9)
-  +_st2(260,106,'Pianificazione retrosintetica (Corey) · FGI + disconnessioni',_CK,8)
+sintesi_multilineare:function(cid){return _sw(
+  _sh(50,54,18)+_sl(68,54,84,54)+_st2(98,48,'R',_CK,11)+_st2(50,86,'precursore',_CK,7)
+  +_sa(120,(cid?354:368),54,'Sintesi multistep','protezione/funzionalizzaz. (FGI)')
+  +(cid
+     ? _img2D(cid,418,54,64)+_st2(418,98,'prodotto · struttura reale (PubChem)',_CF,7)
+     : _st2(420,48,'Prodotto',_CF,11)+_st2(420,64,'target',_CF,9))
+  +_st2(260,114,'Pianificazione retrosintetica (Corey) · FGI + disconnessioni',_CK,7)
 );}
 };
 
@@ -31920,11 +31929,15 @@ var _RSVGS={
     +_splus(388,58)+_st2(420,52,'H₃PO₄',_LN,10)
     +_st2(260,106,'Retro-fosforil.: R–OPO₃ ⟹ R–OH + fosfato',_CK,8)
   );},
-  default:function(){return _sw(
-    _st2(66,50,'Molecola',_CK,11)+_st2(66,66,'target',_CK,9)
-    +_sretarrow(120,390,58)
-    +_st2(410,50,'Frammenti',_CF,11)+_st2(410,66,'sintonici',_CF,9)
-    +_st2(260,106,'Disconnessione retrosintetica · Corey (Nobel 1990)',_CK,8)
+  default:function(cid){return _sw(
+    (cid
+       ? _img2D(cid,84,54,64)+_st2(84,98,'molecola target · reale (PubChem)',_CK,7)
+       : _st2(66,48,'Molecola',_CK,11)+_st2(66,64,'target',_CK,9))
+    +_sretarrow((cid?142:120),(cid?372:390),54)
+    +_sh(414,54,15)+_st2(414,76,'sintone A',_CF,7)
+    +_splus(448,54)
+    +_sh(480,54,13)+_st2(480,74,'sintone B',_CN,7)
+    +_st2(260,114,'Disconnessione retrosintetica · Corey (Nobel 1990)',_CK,7)
   );}
 };
 
@@ -31966,10 +31979,10 @@ function _svgType(nm,me){
 }
 
 // Build synthesis card HTML
-function _mkSCard(n,nm,re,me,ct){
+function _mkSCard(n,nm,re,me,ct,cid){
   var typ=_svgType(nm,me);
   var svgHtml='';
-  try{ svgHtml=(_SVGS[typ]||_SVGS.sintesi_multilineare)(); }catch(e){ svgHtml=_SVGS.sintesi_multilineare(); }
+  try{ svgHtml=(_SVGS[typ]||_SVGS.sintesi_multilineare)(cid); }catch(e){ svgHtml=_SVGS.sintesi_multilineare(cid); }
   return '<div class="bsi15-card">'
     +'<div class="bsi15-card-hd">'
     +(n>0?'<span class="bsi15-step-badge">Passo '+n+'</span>':'')
@@ -31984,9 +31997,9 @@ function _mkSCard(n,nm,re,me,ct){
 }
 
 // Build retro card HTML
-function _mkRCard(d,sy,eq,tp){
+function _mkRCard(d,sy,eq,tp,cid){
   var svgHtml='';
-  try{ svgHtml=(_RSVGS[_retSvgKey(d,tp)]||_RSVGS.default)(); }catch(e){ try{ svgHtml=_RSVGS.default(); }catch(e2){} }
+  try{ svgHtml=(_RSVGS[_retSvgKey(d,tp)]||_RSVGS.default)(cid); }catch(e){ try{ svgHtml=_RSVGS.default(cid); }catch(e2){} }
   return '<div class="bsi15-rcard">'
     +'<div class="bsi15-rcard-hd">'
     +'<span class="bsi15-disconn-badge">⟹</span>'
@@ -32384,24 +32397,19 @@ testosterone:{iupac:'17β-idrossiandrost-4-en-3-one',smiles:'[C@@H]1([C@@H]2CC[C
 };
 
 // ══ 8. Render visual cards ════════════════════════════════════════════════════
-function _render(outEl, displayName, syn, ret, extraInfo, cid, lookupName){
-  var nameFor3D = lookupName || displayName;
+function _render(outEl, displayName, syn, ret, extraInfo, cid){
   var html='';
   html+='<div class="bsi15-mol-hdr">'
-    +'<div class="bsi15-mol-nm">'+_esc(displayName)
-    +' <button id="bsi15-3d-btn" style="margin-left:8px;background:#0a1e3a;border:1px solid #00c896;border-radius:8px;padding:2px 9px;color:#00c896;cursor:pointer;font-size:.78rem;font-weight:700;vertical-align:middle">⛛️ Struttura 3D</button>'
-    +'</div>'
+    +'<div class="bsi15-mol-nm">'+_esc(displayName)+'</div>'
     +(extraInfo?'<div class="bsi15-mol-info">'+extraInfo+'</div>':'')
     +'</div>';
   html+='<div><div class="bsi15-sec-t bsi15-sec-t-syn">⚗ Vie di Sintesi · '+syn.length+' rotte</div>';
-  syn.forEach(function(s){ html+=_mkSCard(s.n,s.nm,s.re,s.me,s.ct); });
+  syn.forEach(function(s){ html+=_mkSCard(s.n,s.nm,s.re,s.me,s.ct,cid); });
   html+='</div>';
   html+='<div style="margin-top:16px"><div class="bsi15-sec-t bsi15-sec-t-ret">⟹ Analisi Retrosintetica · '+ret.length+' disconnessioni</div>';
-  ret.forEach(function(r){ html+=_mkRCard(r.d,r.sy,r.eq,r.tp); });
+  ret.forEach(function(r){ html+=_mkRCard(r.d,r.sy,r.eq,r.tp,cid); });
   html+='</div>';
   outEl.innerHTML=html;
-  var btn3d=outEl.querySelector('#bsi15-3d-btn');
-  if(btn3d) btn3d.onclick=function(){ if(typeof show3DPopup==='function') show3DPopup(nameFor3D,'',false,cid); };
 }
 
 // ══ 9a. Aliases: IUPAC / SMILES / nomi alternativi → chiave _DB ══════════════
@@ -32561,7 +32569,7 @@ function _search(name, outEl){
   if(dbKey){
     var mol=_DB[dbKey];
     var extra='Livello '+(mol.livello||'–')+(mol.iupac?' · IUPAC: '+mol.iupac:'')+(mol.smiles?' · SMILES: '+mol.smiles:'');
-    setTimeout(function(){ _render(outEl,name,mol.syn,mol.ret,extra,null,name); },150);
+    setTimeout(function(){ _render(outEl,name,mol.syn,mol.ret,extra,null); },150);
     return;
   }
   var isSmiles=_isSmiles(name);
@@ -32582,7 +32590,7 @@ function _search(name, outEl){
       var dName=name+(iupac&&iupac.toLowerCase()!==name.toLowerCase()?' · '+iupac:'');
       var info='Formula: '+formula+(mw?' · MW='+mw+' g/mol':'')+' · FG: '+(fgs.join(', ')||'n.d.')
         +(isSmiles?'':'\nSMILES: '+smi);
-      _render(outEl,dName,sr.steps,sr.ret,info,p.CID||null,iupac||name);
+      _render(outEl,dName,sr.steps,sr.ret,info,p.CID||null);
     })
     .catch(function(err){
       var canTranslate = !isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name)
@@ -32609,7 +32617,7 @@ function _search(name, outEl){
                 +(isTranslated?' (traduzione automatica IT→EN: "'+candidate+'")':'')
                 +' (composto non presente in PubChem)'
                 +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
-              _render(outEl,name,sr.steps,sr.ret,info,null,candidate);
+              _render(outEl,name,sr.steps,sr.ret,info,null);
             }).catch(function(e){
               if(e && e.message && /OPSIN/.test(e.message)) lastOpsinErr = e;
               attempt(i+1);
@@ -32643,7 +32651,7 @@ function _search(name, outEl){
             var dName=name+' · traduzione IT→EN: "'+translated+'"'
               +(iupac&&iupac.toLowerCase()!==translated.toLowerCase()?' · '+iupac:'');
             var info='Formula: '+formula+(mw?' · MW='+mw+' g/mol':'')+' · FG: '+(fgs.join(', ')||'n.d.')+'\nSMILES: '+smi;
-            _render(outEl,dName,sr.steps,sr.ret,info,p.CID||null,iupac||translated);
+            _render(outEl,dName,sr.steps,sr.ret,info,p.CID||null);
           })
           .catch(viaOpsinFallback);
         return;
