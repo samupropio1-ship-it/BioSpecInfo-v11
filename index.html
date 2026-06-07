@@ -26053,17 +26053,34 @@ window.fetchPub = function(term){
       });
   }
 
-  // Ricerca per nome — poi formula — poi (se nome IUPAC complesso) OPSIN
+  // Ricerca per nome — poi nome tradotto IT→EN — poi formula — poi (ultima spiaggia) OPSIN
   return fetchTimeout(PUB+'/compound/name/'+encodeURIComponent(term)+'/cids/JSON', 10000)
     .then(function(r){ if(!r.ok) throw new Error('"'+term+'" non trovata'); return r.json(); })
     .then(function(j){ return j.IdentifierList.CID[0]; })
     .then(fetchByCid)
     .catch(function(e1){
-      return fetchTimeout(PUB+'/compound/formula/'+encodeURIComponent(term)+'/cids/JSON', 6000)
-        .then(function(r){ if(!r.ok) throw e1; return r.json(); })
-        .then(function(j){ return j.IdentifierList.CID[0]; })
-        .then(fetchByCid)
-        .catch(function(){ return viaOpsin(e1); });
+      // PubChem riconosce nomi IUPAC solo in grammatica inglese: un nome italiano
+      // come "2-cloro-4-nitroanilina" non viene trovato col nome originale, ma
+      // PubChem (a differenza di OPSIN, spesso bloccato da CORS dal browser) HA
+      // CORS abilitato ed elenca la maggior parte dei nomi IUPAC inglesi standard
+      // come sinonimi diretti — quindi ritentiamo subito con la traduzione inglese,
+      // prima di ricorrere a OPSIN (che richiede comunque la stessa traduzione e in
+      // più è spesso irraggiungibile dal browser).
+      var translatedName = looksLikeIupacName(term) ? italianToEnglishIupac(term) : null;
+      var hasTranslatedName = !!(translatedName && translatedName.toLowerCase()!==term.trim().toLowerCase());
+      var byTranslatedName = hasTranslatedName
+        ? fetchTimeout(PUB+'/compound/name/'+encodeURIComponent(translatedName)+'/cids/JSON', 10000)
+            .then(function(r){ if(!r.ok) throw e1; return r.json(); })
+            .then(function(j){ return j.IdentifierList.CID[0]; })
+            .then(fetchByCid)
+        : Promise.reject(e1);
+      return byTranslatedName.catch(function(){
+        return fetchTimeout(PUB+'/compound/formula/'+encodeURIComponent(term)+'/cids/JSON', 6000)
+          .then(function(r){ if(!r.ok) throw e1; return r.json(); })
+          .then(function(j){ return j.IdentifierList.CID[0]; })
+          .then(fetchByCid)
+          .catch(function(){ return viaOpsin(e1); });
+      });
     });
 };
 
