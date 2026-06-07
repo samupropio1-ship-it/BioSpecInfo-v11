@@ -32046,45 +32046,103 @@ function _smAnal(smi){
 function _fgSyn(fgs, name){
   var steps=[], ret=[];
   var used=function(k){ return fgs.indexOf(k)>-1; };
+  function aS(nm,re,me,ct){ steps.push({n:steps.length+1,nm:nm,re:re,me:me,ct:ct}); }
+  function aR(d,sy,eq,tp){ ret.push({d:d,sy:sy,eq:eq,tp:tp}); }
+  var skipArene=false, skipAmmina=false, skipAlchene=false, skipCarbonile=false, skipAlcol=false, skipEstere=false, skipAcido=false;
+
+  // ── Sequenze multi-step per combinazioni di gruppi funzionali (FGI, route alternative) ──
+  if(used('arene') && used('ammina') && !used('eterociclo_N')){
+    aS('Via A — Nitrazione poi riduzione (FGI classica)','Ar–H →(HNO₃/H₂SO₄)→ Ar–NO₂ →(H₂/Pd-C o Fe/HCl)→ Ar–NH₂','SEAr: NO₂⁺ elettrofilo attacca l\'anello (complesso σ di Wheland); poi riduzione step-wise del nitro a nitroso, idrossilammina, ammina (Fe/HCl di Béchamp o idrogenazione catalitica).','1) HNO₃ fum./H₂SO₄, 0–5°C; 2) H₂ (3 atm)/Pd-C, EtOH, RT — oppure Fe in polvere/HCl, EtOH/H₂O, riflusso (Béchamp)');
+    aR('Retro-FGI ammina aromatica → nitroarene','Arene nitro-sostituito + [H] riducente','Ar–NO₂ ottenuto per nitrazione SEAr, poi ridotto: disconnessione a due stadi','Retro-riduzione + retro-nitrazione (analisi FGI a ritroso, sequenza classica)');
+    aS('Via B — Amminazione di Buchwald-Hartwig (Pd)','Ar–X + H₂N–R →(Pd₂(dba)₃/XPhos, NaOtBu)→ Ar–NHR','Ciclo catalitico Pd(0)/Pd(II): addizione ossidativa di Pd(0) nel legame Ar–X, coordinazione e deprotonazione dell\'ammina, eliminazione riduttiva forma il legame C–N con alta chemoselettività.','Pd₂(dba)₃ (2 mol%), XPhos, NaOtBu, toluene, 80–100°C, atmosfera inerte');
+    aR('Disconnessione C(aril)–N via cross-coupling Pd','Arilalogenuro + Ammina libera','Ar–X (X=Br, OTf) + H₂NR con catalisi Pd/fosfina (Buchwald-Hartwig)','Retro-amminazione Pd-catalizzata: alternativa moderna, regioselettiva, alla via nitro/riduzione');
+    skipArene=true; skipAmmina=true;
+  }
+  if(used('arene') && (used('estere')||used('ammide')||used('carbonile')) && !skipArene){
+    aS('Via A — Friedel-Crafts acilazione, poi funzionalizzazione','Ar–H + RCOCl →(AlCl₃)→ Ar–COR → [riduzione / ammidazione / esterificazione]','AlCl₃ genera lo ione acilio R–C≡O⁺ (stabilizzato, non riarrangia come i carbocationi alchilici); SEAr forma il chetone aromatico; il C=O viene poi trasformato nel gruppo funzionale finale.','AlCl₃ (1.1 eq), DCM o CS₂, 0°C→RT; poi funzionalizzazione del carbonile risultante');
+    aR('Retro-Friedel-Crafts acilativa','Arene + acil cloruro/anidride','Disconnessione C(aril)–C(acil): retro-SEAr acilativa su anello già attivato/orientato','Retro-acilazione FC: la regiochimica orto/para dipende dai sostituenti già presenti');
+    aS('Via B — Funzionalizza prima la catena, poi aggancia con cross-coupling','R-COX (gruppo già pronto) + Ar–[M] →(Pd cat.)→ prodotto','Si costruisce prima il frammento funzionalizzato (acido/estere/ammide) come reagente organometallico o boronico, poi si forma il legame C(aril)–C tramite catalisi al Pd, evitando i problemi di regioselettività della SEAr diretta.','Suzuki: Pd(PPh₃)₄, K₂CO₃, dioxano/H₂O, 80°C · Negishi: R-ZnCl, Pd(PPh₃)₄, THF, RT');
+    aR('Disconnessione C(aril)–C via cross-coupling','Arilboronico/alogenuro + frammento già funzionalizzato','Suzuki-Miyaura o Negishi retro: anello e catena costruiti separatamente, poi uniti','Retro-cross-coupling: alternativa regioselettiva e modulare alla Friedel-Crafts diretta');
+    skipArene=true;
+  }
+  if(used('alchene') && used('carbonile') && !used('estere') && !used('ammide')){
+    aS('Via A — Condensazione aldolica e disidratazione → enone','2 R-CHO/R₂C=O →(base)→ aldolo →(–H₂O)→ enone C=C–C=O','L\'enolato (generato da base) attacca il carbonile elettrofilo di un\'altra molecola (addizione aldolica); il β-idrossichetone risultante si disidrata (E1cb) dando il sistema coniugato α,β-insaturo, termodinamicamente favorito.','NaOH dil. (10%) o LDA/THF, −78°C; poi riscaldamento o catalisi acida per la disidratazione');
+    aR('Retro-aldol / retro-Claisen-Schmidt','Due frammonti carbonilici più piccoli','Disconnessione C=C–C=O: retro-condensazione aldolica a due unità carboniliche separate','Retro-aldol: taglio del legame C–C in posizione β rispetto al carbonile');
+    aS('Via B — Olefinazione di Wittig stabilizzata','R₂C=O + Ph₃P=CHCOR\' → enone (E) + Ph₃P=O','L\'ylide stabilizzata (da estere/chetone fosforanico) reagisce con E-selettività attraverso un ossafosfetano; condizioni più blande dell\'aldolica e compatibili con altri gruppi funzionali sensibili.','Ph₃P=CHCOR\' (ylide stabilizzata), toluene, riflusso — alta E-selettività, nessun acido/base forte');
+    aR('Retro-Wittig su sistema enonico','Carbonile + ylide fosforanica stabilizzata','R₂C=O + Ph₃P=CHCOR\' (Wittig su substrato già funzionalizzato)','Retro-olefinazione: alternativa chemoselettiva alla via aldolica per costruire l\'enone');
+    skipAlchene=true; skipCarbonile=true;
+  }
+  if(used('alcol') && used('alogenuro')){
+    aS('Via A — Sintesi dell\'etere di Williamson','R–O⁻ Na⁺ + R\'–X →(SN2)→ R–O–R\' + NaX','L\'alcossido (nucleofilo forte, generato con Na o NaH) effettua una SN2 concertata sull\'alogenuro primario, con inversione di Walden e senza riarrangiamenti — via pulita per costruire eteri asimmetrici.','NaH, THF anidro, 0°C→RT; poi aggiunta di R\'X (alogenuro 1°), riflusso, atmosfera inerte');
+    aR('Retro-Williamson (eterea)','Alcossido + alogenuro alchilico','R–O⁻ + R\'–X: disconnessione del legame C–O eterea per via SN2','Retro-sostituzione nucleofila sull\'ossigeno: rivela alcol/alcossido + alogenuro');
+    aS('Via B — Sostituzione/idrolisi diretta dell\'alogenuro','R–X + H₂O/OH⁻ →(SN1 o SN2)→ R–OH + HX','Substrati 3°/benzilici procedono via SN1 (carbocatione, poi attacco di H₂O); substrati 1° via SN2 (attacco diretto e concertato di OH⁻) — il meccanismo è dettato dalla struttura.','NaOH acquoso, EtOH/H₂O, riflusso (SN2, 1°) oppure AgNO₃/H₂O, RT (SN1, substrati 3°/benzilici)');
+    aR('Retro-idrolisi dell\'alogenuro','Alogenuro alchilico + [OH]⁻','R–OH ottenuto per idrolisi (SN1/SN2) di R–X — disconnessione diretta C–OH','Retro-sostituzione: converti l\'alcol nell\'alogenuro precursore (PBr₃, SOCl₂, HX)');
+    skipAlcol=true;
+  }
+
+  // ── Vie alternative (Via A / Via B) per singolo gruppo funzionale ──
   if(used('ammide')){
-    steps.push({n:steps.length+1,nm:'Formazione ammide (DCC/HATU)',re:'RCOOH + H₂NR\'→ RC(=O)NHR\' + H₂O',me:'DCC attiva il COOH formando O-acilisourea. L\'ammina attacca il carbonile, DCC-urea è il sottoprodotto.',ct:'DCC/DMAP o HATU/DIPEA, DCM o DMF, 0°C→RT, 2-6h'});
-    ret.push({d:'Disconnessione C(acil)–N',sy:'Acido carbossilico + Ammina',eq:'RCOOH + RNH₂ con agente accoppiante (DCC, EDC, HATU)',tp:'Retro-amidazione: taglio ammide → COOH + NHR'});
+    aS('Via A — Coupling con agente attivante (DCC/HATU)','RCOOH + H₂NR\' →(DCC o HATU/DIPEA)→ RC(=O)NHR\' + sottoprodotto urea','DCC attiva il COOH a O-acilisourea elettrofila; l\'ammina attacca il carbonile ed espelle DCU (dicicloesilurea), sottoprodotto insolubile rimosso per filtrazione — via standard in sintesi peptidica.','DCC/DMAP o HATU/DIPEA, DCM o DMF anidro, 0°C→RT, 2–6h');
+    aR('Disconnessione C(acil)–N (via attivazione)','Acido carbossilico + Ammina','RCOOH + RNH₂ con agente accoppiante (DCC, EDC, HATU) — disconnessione standard dell\'ammide','Retro-amidazione: taglio ammide → COOH + NHR');
+    aS('Via B — Via cloruro acilico (Schotten-Baumann)','RCOOH →(SOCl₂)→ RCOCl;  RCOCl + H₂NR\' →(base)→ RCONHR\'','SOCl₂ converte il COOH in cloruro acilico (Cl⁻ ottimo gruppo uscente); l\'ammina, in presenza di base acquosa o piridina (condizioni di Schotten-Baumann, bifasiche), attacca il carbonile molto elettrofilo in una SNA rapida a 0°C, minimizzando l\'idrolisi competitiva.','1) SOCl₂, riflusso o cat. DMF; 2) Et₃N o NaOH(aq)/piridina, 0°C, sistema bifasico');
+    aR('Disconnessione C(acil)–N (via cloruro acilico)','Cloruro acilico + Ammina','RCOCl + RNH₂ in condizioni Schotten-Baumann (base acquosa, bifasico)','Retro-amidazione: alternativa rapida ed economica al coupling con DCC/HATU');
   }
-  if(used('estere')){
-    steps.push({n:steps.length+1,nm:'Esterificazione (Fischer)',re:'RCOOH + R\'OH → RCOOR\' + H₂O',me:'Protonazione C=O da H⁺; attacco nucleofilo dell\'alcol; perdita H₂O; deprotonazione.',ct:'H₂SO₄ cat., alcol come solvente, reflux; o DCC/DMAP, RT'});
-    ret.push({d:'Disconnessione C(acil)–O',sy:'Acido carbossilico + Alcol',eq:'RCOOH + R\'OH (esterificazione Fischer o attivazione DCC)',tp:'Retro-esterificazione: idrolisi estere → COOH + ROH'});
+  if(used('estere') && !skipEstere){
+    aS('Via A — Esterificazione di Fischer (acido-catalizzata)','RCOOH + R\'OH ⇌(H⁺, Δ)⇌ RCOOR\' + H₂O','Protonazione del carbonile da H⁺ ne aumenta l\'elettrofilia; l\'alcol attacca formando un intermedio tetraedrico; perdita di H₂O e deprotonazione liberano l\'estere — equilibrio (Keq~4) spostato con eccesso di alcol o trappola Dean-Stark.','H₂SO₄ cat. (o p-TsOH), alcol in eccesso come solvente, riflusso con Dean-Stark');
+    aR('Disconnessione C(acil)–O (via Fischer)','Acido carbossilico + Alcol','RCOOH + R\'OH (esterificazione Fischer, equilibrio acido-catalizzato)','Retro-esterificazione: idrolisi acida o saponificazione basica → COOH + ROH');
+    aS('Via B — Esterificazione di Steglich (DCC/DMAP, condizioni neutre)','RCOOH + R\'OH →(DCC, DMAP cat.)→ RCOOR\' + DCU','DCC attiva l\'acido a O-acilisourea; la DMAP (catalisi nucleofila) accelera il trasferimento acilico anche su alcoli terziari o sensibili all\'ambiente acido, in condizioni blande e neutre — utile per substrati delicati.','DCC (1.1 eq), DMAP (10 mol%), DCM anidro, 0°C→RT, 12h');
+    aR('Disconnessione C(acil)–O (via Steglich)','Acido carbossilico attivato + Alcol','RCOOH attivato (DCC) + R\'OH, catalisi DMAP — adatto ad alcoli ingombrati o acido-labili','Retro-acilazione neutra: alternativa a Fischer per substrati sensibili agli acidi');
+    skipEstere=true;
   }
-  if(used('acido_carbossilico')&&!used('estere')){
-    steps.push({n:steps.length+1,nm:'Ossidazione a COOH',re:'RCH₂OH / RCHO → RCOOH',me:'Cr(VI) forma cromato estere; β-eliminazione riduce Cr e ossida C. TEMPO: via radicale.',ct:'KMnO₄/H₂SO₄ o PCC→aldeide o TEMPO/NaOCl (Anelli)'});
-    ret.push({d:'Retro-ossidazione C–COOH',sy:'Alcol primario o aldeide',eq:'Riduzione COOH → CH₂OH (LiAlH₄) o RCHO (DIBAL)',tp:'Retro-ossidazione: riduci COOH al livello di ossidazione precursore'});
+  if(used('acido_carbossilico') && !used('estere') && !skipAcido){
+    aS('Via A — Ossidazione di un alcol primario / aldeide','RCH₂OH →(KMnO₄ o Jones)→ RCOOH  ·  RCHO →(Pinnick: NaClO₂)→ RCOOH','Cr(VI)/Mn(VII): l\'alcol forma un estere di cromato/manganato che subisce β-eliminazione, ossidando fino al COOH. L\'ossidazione di Pinnick converte selettivamente l\'aldeide in acido tramite clorito, senza intaccare altri gruppi sensibili.','KMnO₄/H₂SO₄ a caldo o Jones (CrO₃/H₂SO₄); oppure Pinnick: NaClO₂, NaH₂PO₄, 2-metil-2-butene, t-BuOH/H₂O, RT (blanda)');
+    aR('Retro-ossidazione COOH → alcol/aldeide','Alcol primario o aldeide','LiAlH₄ riduce il COOH ad alcol; DIBAL a −78°C ferma la riduzione all\'aldeide (controllo cinetico)','Retro-ossidazione: riporta il COOH al livello di ossidazione del precursore');
+    aS('Via B — Carbossilazione di un reattivo di Grignard','R–MgX + CO₂(s) → RCOOMgX →(H₃O⁺)→ RCOOH','Il carbanione fortemente nucleofilo del Grignard addiziona 1,2 sul carbonio elettrofilo della CO₂; il carbossilato di magnesio formato viene idrolizzato in ambiente acido — costruisce ex novo il legame C–COOH.','Mg, Et₂O anidro (formazione Grignard, atmosfera inerte); poi CO₂ solido (ghiaccio secco) in eccesso; idrolisi con HCl 10% o NH₄Cl(aq)');
+    aR('Disconnessione C–COOH via Grignard/CO₂','Alogenuro alchilico/arilico + CO₂','R–X →(Mg)→ R–MgX, poi addizione a CO₂ — il carbonio del COOH proviene dalla CO₂','Retro-carbossilazione: disconnetti il COOH rivelando un organometallo + anidride carbonica');
+    skipAcido=true;
   }
-  if(used('arene')){
-    steps.push({n:steps.length+1,nm:'Sostituzione Elettrofila Aromatica (SEAr)',re:'Ar–H + E⁺ → Ar–E + H⁺',me:'E⁺ (da Lewis acid) attacca π-ring → complesso σ Wheland → deprotonazione ripristina aromaticità.',ct:'Nitraz: HNO₃/H₂SO₄, 0°C · Br₂/FeBr₃ · RCOCl/AlCl₃ (FC)'});
-    ret.push({d:'Retro-SEAr su arene',sy:'Ar–H + elettrofilo E⁺',eq:'Benzene/arene + E⁺ via Friedel-Crafts, nitrazione, alogenazione',tp:'Retro-SEAr: disconnetti sostituente aromatico'});
+  if(used('arene') && !skipArene){
+    aS('Via A — Sostituzione Elettrofila Aromatica (SEAr)','Ar–H + E⁺ →(catalisi acido di Lewis)→ Ar–E + H⁺','L\'elettrofilo E⁺, generato da un acido di Lewis (AlCl₃, FeBr₃, H₂SO₄/HNO₃), attacca la nuvola π aromatica formando il complesso σ di Wheland (carbocatione delocalizzato); la deprotonazione ripristina l\'aromaticità.','Nitrazione: HNO₃/H₂SO₄, 0°C · Alogenazione: Br₂/FeBr₃ · Acilazione: RCOCl/AlCl₃ (Friedel-Crafts)');
+    aR('Retro-SEAr (disconnessione diretta sull\'anello)','Arene non sostituito + elettrofilo E⁺','Benzene/arene + E⁺ via Friedel-Crafts, nitrazione, solfonazione o alogenazione','Retro-SEAr: rimuovi il sostituente introdotto per via elettrofila diretta');
+    aS('Via B — Cross-coupling Pd-catalizzato (Suzuki / Sonogashira)','Ar–X + R–B(OH)₂ →(Pd(PPh₃)₄, base)→ Ar–R','Ciclo Pd(0)/Pd(II): addizione ossidativa nel legame Ar–X, transmetallazione con l\'acido boronico (attivato da base), eliminazione riduttiva forma il nuovo legame C–C con ritenzione di regiochimica.','Suzuki: Pd(PPh₃)₄, K₂CO₃, dioxano/H₂O, 80°C · Sonogashira: Pd(PPh₃)₂Cl₂/CuI, Et₃N, RT (alchini terminali)');
+    aR('Disconnessione C(aril)–C via cross-coupling','Arilalogenuro/triflato + organometallo (boronico, stannano, alchino)','Ar–X + R-[M] con catalisi Pd/Cu — disconnessione regioselettiva moderna','Retro-cross-coupling: alternativa a SEAr dove la regiochimica diretta è difficile da controllare');
   }
-  if(used('ammina')&&!used('eterociclo_N')){
-    steps.push({n:steps.length+1,nm:'Amminazione riduttiva',re:'R₂C=O + RNH₂ → [immine] → R₂CHNHR',me:'Formazione immine/iminio per disidratazione; riduzione selettiva con NaBH₃CN a pH 5-7.',ct:'NaBH₃CN o NaBH(OAc)₃, MeOH, pH 5–7, RT, 12-24h'});
-    ret.push({d:'Disconnessione C–N (retro-amminaz.)',sy:'Carbonile + Ammina → immine',eq:'R₂C=O + RNH₂ con agente riducente',tp:'Retro-amminazione: ossida l\'ammina C-N → C=O + NH₃/RNH₂'});
+  if(used('ammina') && !used('eterociclo_N') && !skipAmmina){
+    aS('Via A — Amminazione riduttiva','R₂C=O + R\'NH₂ →[immina/iminio]→(NaBH₃CN)→ R₂CH–NHR\'','Condensazione reversibile carbonile-ammina forma immina/ione iminio (con perdita di H₂O); il riducente blando NaBH₃CN, attivo a pH 5-7, riduce selettivamente l\'iminio senza toccare il carbonile residuo in eccesso.','NaBH₃CN o NaBH(OAc)₃, MeOH o DCE, AcOH cat., pH 5–7, RT, 12–24h');
+    aR('Disconnessione C–N (retro-amminazione riduttiva)','Carbonile + Ammina (via immina)','R₂C=O + R\'NH₂ con riduzione selettiva dell\'intermedio iminio/ione iminio','Retro-amminazione: ossida il C–N a C=O, rivelando carbonile + ammina di partenza');
+    aS('Via B — Sintesi di Gabriel (ammine primarie pure)','Ftalimmide-K⁺ + R–X →(SN2)→ N-alchilftalimmide →(N₂H₄)→ R–NH₂','Lo ione ftalimmuro (nucleofilo ma poco basico) effettua una SN2 pulita sull\'alogenuro senza dare polialchilazione; l\'idrazinolisi (Ing-Manske) libera l\'ammina primaria pura insieme a ftalilidrazide come sottoprodotto.','1) ftalimmide-K, K₂CO₃, DMF, 80°C; 2) N₂H₄·H₂O, EtOH, riflusso (idrazinolisi)');
+    aR('Disconnessione C–N via Gabriel','Alogenuro alchilico + ftalimmuro','R–X + ftalimmide-K, poi idrazinolisi — evita la sovralchilazione tipica della SN2 diretta con NH₃','Retro-Gabriel: l\'ammina primaria proviene da un alogenuro tramite un gruppo "protetto"');
+    skipAmmina=true;
   }
-  if(used('alchene')){
-    steps.push({n:steps.length+1,nm:'Olefinazione di Wittig / HWE',re:'R₂C=O + Ph₃P=CHR\' → R₂C=CHR\' + Ph₃P=O',me:'Ylide attacca C=O → betaina → [2+2]ossafosfetano → retro-[2+2] → alchene + Ph₃P=O.',ct:'n-BuLi, THF −78°C (Z); NaH/toluene HWE (E)'});
-    ret.push({d:'Retro-Wittig C=C',sy:'Carbonile + Ylide fosforanica',eq:'R₂C=O + Ph₃P=CHR\' (Wittig) o fosfonato (HWE)',tp:'Retro-Wittig: disconnetti doppio legame → C=O + Ph₃P=CHR'});
+  if(used('alchene') && !skipAlchene){
+    aS('Via A — Olefinazione di Wittig / Horner-Wadsworth-Emmons','R₂C=O + Ph₃P=CHR\' →[ossafosfetano]→ R₂C=CHR\' + Ph₃P=O','L\'ylide (carbanione stabilizzato dal fosforo) attacca il carbonile formando una betaina che ciclizza a ossafosfetano [2+2]; la retro-[2+2] espelle Ph₃P=O e libera l\'alchene con stereochimica controllata (Z con ylide non stabilizzate, E con HWE).','Wittig: n-BuLi, THF, −78°C (favorisce Z) · HWE: NaH/(EtO)₂P(O)CH₂R\', toluene (favorisce E)');
+    aR('Retro-Wittig/HWE su C=C','Carbonile + ylide fosforanica o fosfonato','R₂C=O + Ph₃P=CHR\' (Wittig) oppure (EtO)₂P(O)CH₂R\' attivato da base (HWE)','Retro-olefinazione: disconnetti il doppio legame al carbonile + reagente fosforato');
+    aS('Via B — Eliminazione E1/E2 da alogenuro o alcol','R–CH₂–CHX–R\' →(base forte, Δ)→ R–CH=CH–R\' + HX','E2: una base forte (KOH/EtOH, DBU) rimuove un H anti-periplanare mentre il gruppo uscente si stacca in modo concertato (regola di Zaitsev → alchene più sostituito); E1 via carbocatione per substrati 3°/benzilici.','KOH/EtOH, riflusso (E2) oppure H₂SO₄ conc., Δ (E1 da alcol, disidratazione)');
+    aR('Retro-eliminazione (idroalogenazione/idratazione)','Alogenuro alchilico o alcol precursore','Addizione di HX (Markovnikov/anti-Markovnikov) o di H₂O al doppio legame','Retro-E1/E2: l\'alchene proviene da un\'eliminazione su un substrato saturo funzionalizzato');
   }
-  if(used('carbonile')&&!used('ammide')&&!used('estere')){
-    steps.push({n:steps.length+1,nm:'Ossidazione alcol → chetone/aldeide',re:'R₂CHOH → R₂C=O',me:'PCC (Corey): H-α sottratto, Cr(VI)→Cr(IV). Swern: DMSO attivato da (COCl)₂ → sulfonium ylide → β-eliminazione.',ct:'PCC, DCM, RT o DMP, DCM o Swern: −78°C, Et₃N'});
-    ret.push({d:'Retro-ossidazione C=O',sy:'Alcol R₂CHOH',eq:'Riduzione con NaBH₄ (ketone→2°alcol) o LiAlH₄',tp:'Retro-riduzione carbonile'});
+  if(used('carbonile') && !used('ammide') && !used('estere') && !skipCarbonile){
+    aS('Via A — Ossidazione controllata di un alcol (PCC / Swern / Dess-Martin)','R₂CHOH →(ossidante blando)→ R₂C=O','PCC (Corey): Cr(VI) forma un cromato-estere; l\'H-α viene sottratto in β-eliminazione, riducendo Cr(VI)→Cr(IV) e fermandosi all\'aldeide/chetone (no sovraossidazione a COOH). Swern: DMSO attivato da (COCl)₂ genera uno ione sulfonio che, deprotonato, ossida l\'alcol per β-eliminazione intramolecolare.','PCC, DCM, RT · oppure DMP (Dess-Martin), DCM, RT · oppure Swern: (COCl)₂/DMSO, −78°C, poi Et₃N');
+    aR('Retro-ossidazione C=O → alcol','Alcol secondario (da chetoni) o primario (da aldeidi)','Riduzione chemoselettiva: NaBH₄ (chetone→2° alcol, blando) o LiAlH₄ (energico, anche su esteri/acidi)','Retro-riduzione carbonile: riporta al livello di ossidazione dell\'alcol precursore');
+    aS('Via B — Idratazione di un alchino o ozonolisi di un alchene','R–C≡CH →(Hg²⁺/H₂SO₄, Markovnikov)→ R–C(=O)–CH₃  ·  R₂C=CR\'₂ →(O₃; poi Zn/AcOH)→ 2 R₂C=O','Idratazione di Markovnikov via tautomeria cheto-enolica genera il metilchetone; l\'ozonolisi forma un molozonuro che si riarrangia a ozonuro, poi viene ridotto (work-up riducente), tagliando il C=C in due frammenti carbonilici.','Idratazione: HgSO₄, H₂SO₄ dil., H₂O, 60°C (o idroborazione anti-Markovnikov: BH₃ poi H₂O₂/NaOH) · Ozonolisi: O₃, DCM, −78°C; poi Zn/AcOH o Me₂S');
+    aR('Retro-idratazione/retro-ozonolisi del carbonile','Alchino (idratazione) o alchene (ozonolisi)','Disconnessione C=O → C≡C (retro-idratazione Markovnikov) o → 2× C=C (retro-ozonolisi)','Retro-funzionalizzazione: il carbonile costruito da un\'insaturazione precursore via idratazione o clivaggio ossidativo');
+    skipCarbonile=true;
   }
-  if(used('alcol')&&!used('carbonile')){
-    steps.push({n:steps.length+1,nm:'Idratazione alchene (Markovnikov)',re:'R-CH=CH₂ + H₂O → R-CHOH-CH₃',me:'H⁺ si aggiunge al C più idrogeno (Markovnikov); H₂O attacca carbocatione; deprotonazione.',ct:'H₂SO₄ dil., 60–80°C o idroborazione-ossidazione (anti-Markovnikov)'});
-    ret.push({d:'Retro-idratazione C–OH',sy:'Alchene + H₂O',eq:'Disidratazione E1/E2 con H₂SO₄ conc.',tp:'Retro-idratazione: elimina H₂O per tornare all\'alchene'});
+  if(used('alcol') && !used('carbonile') && !skipAlcol){
+    aS('Via A — Idratazione di un alchene (Markovnikov o anti-Markovnikov)','R–CH=CH₂ + H₂O →(H₃O⁺ o idroborazione)→ R–CH(OH)–CH₃ / R–CH₂–CH₂OH','Markovnikov: H⁺ si addiziona al carbonio meno sostituito generando il carbocatione più stabile, poi attaccato da H₂O. Idroborazione-ossidazione (anti-Markovnikov): BH₃ si addiziona in modo concertato e syn al carbonio meno ingombrato; H₂O₂/NaOH ossida con ritenzione di configurazione.','Markovnikov: H₂SO₄ dil./H₂O, 60–80°C · anti-Markovnikov: 1) BH₃·THF, 0°C; 2) H₂O₂, NaOH');
+    aR('Retro-idratazione C–OH → alchene','Alchene + H₂O','Disidratazione E1 (H₂SO₄ conc., Δ, regola di Zaitsev) o E2 (alcoli 1°/2° con base forte)','Retro-idratazione: elimina H₂O per rivelare il doppio legame precursore');
+    aS('Via B — Riduzione del carbonile o addizione di Grignard','R₂C=O →(NaBH₄/LiAlH₄)→ R₂CH–OH   ·   R₂C=O + R\'MgX →(poi H₃O⁺)→ R₂R\'C–OH','Riduzione: trasferimento di idruro dal boro/alluminio al carbonio carbonilico, dal lato meno ingombrato. Grignard: il carbanione fortemente nucleofilo addiziona 1,2 al C=O, costruendo un nuovo legame C–C e formando un alcossido di magnesio idrolizzato all\'alcol.','NaBH₄, MeOH, 0°C (chemoselettivo) · LiAlH₄, Et₂O anidro · Grignard: R\'MgX, Et₂O anidro, 0°C, poi NH₄Cl(aq)');
+    aR('Retro-riduzione/retro-Grignard sull\'alcol','Carbonile (+ organometallo se C–C nuovo)','Ossidazione dell\'alcol al carbonile (PCC/Swern), con eventuale disconnessione retro-Grignard se l\'alcol è terziario','Retro-addizione nucleofila: rivela carbonile + frammento organometallico precursore');
   }
   if(used('fosfato')){
-    steps.push({n:steps.length+1,nm:'Fosforilazione',re:'ROH + POCl₃ → ROPO₃²⁻',me:'POCl₃ è electrofilo forte; piridina assorbe HCl; idrolisi → fosfato monoestere.',ct:'POCl₃, piridina, 0°C o fosforamiditi (sintesi oligonucleotidi)'});
-    ret.push({d:'Retro-fosforilazione P–O',sy:'Alcol + acido fosforico',eq:'Idrolisi in acqua a pH 7 (fosfatasi enzimatica)',tp:'Retro-fosforilazione'});
+    aS('Via A — Fosforilazione diretta con POCl₃','ROH + POCl₃ →(piridina)→ RO–P(=O)Cl₂ →(H₂O)→ RO–PO₃H₂','POCl₃ è un elettrofilo al fosforo molto reattivo; la piridina assorbe l\'HCl liberato spostando l\'equilibrio; l\'idrolisi controllata dell\'intermedio diclorofosfato dà il monoestere fosfato.','POCl₃ (1.05 eq), piridina anidra, 0°C, poi idrolisi controllata in ghiaccio');
+    aR('Retro-fosforilazione P–O (via POCl₃)','Alcol + acido fosforico attivato','ROH + POCl₃/piridina — disconnessione diretta del legame fosfoestereo','Retro-fosforilazione: idrolisi enzimatica (fosfatasi) o acida del fosfomonoestere');
+    aS('Via B — Chimica dei fosforamiditi (sintesi di oligonucleotidi)','RO–P(NiPr₂)(OCH₂CH₂CN) + R\'OH →(attivatore tetrazolico)→ fosfito triestere →(I₂/H₂O)→ fosfato','La fosforamidita, attivata da un acido debole (tetrazolo), reagisce con l\'alcol libero formando un fosfito triestere; l\'ossidazione con I₂/H₂O/piridina converte il P(III) in P(V), dando il legame fosfodiestere stabile — ciclo ripetuto nella sintesi automatizzata di DNA/RNA.','Tetrazolo (attivatore), CH₃CN anidro; poi I₂/H₂O/piridina/THF (ossidazione P(III)→P(V))');
+    aR('Retro-fosforamidita (chimica degli oligonucleotidi)','Fosforamidita protetta + alcol 5\'-OH libero','Ciclo sintetico automatizzato: detritilazione → accoppiamento → ossidazione → capping','Retro-accoppiamento fosforamiditico: disconnessione tipica nella sintesi degli acidi nucleici');
   }
   if(steps.length===0){
-    steps.push({n:1,nm:'Sintesi multistep',re:'Precursore commerciale → '+name,me:'Sequenza pianificata retrosinteticamente (Corey): protezione gruppi funzionali → funzionalizzazione chiave → deprotezione.',ct:'Vedi Reaxys, SciFinder-n o Organic Syntheses per la procedura ottimale'});
-    ret.push({d:'Disconnessione principale',sy:'Frammenti commerciali',eq:'Approccio retrosintetico sistematico',tp:'Analisi FGI + transform-based retrosynthesis (Corey)'});
+    aS('Pianificazione retrosintetica generale (Corey)','Precursori commerciali → intermedi funzionalizzati → '+name,'Analisi retrosintetica sistematica: identificazione dei legami strategici (disconnessioni), riconoscimento dei sintoni, scelta dei reagenti reali equivalenti (FGI — interconversione di gruppi funzionali), pianificazione di eventuali protezioni/deprotezioni.','Verifica su Reaxys/SciFinder per precedenti sintetici; Organic Syntheses per procedure validate sperimentalmente');
+    aR('Disconnessione strategica primaria','Frammenti commerciali o intermedi noti','Approccio basato su trasformazioni (transform-based retrosynthesis) e analisi dei gruppi funzionali (FGI)','Analisi FGI sistematica + valutazione di rotte alternative (Corey, Nobel 1990)');
+    aS('Approfondimento — confronta vie alternative','Valuta: funzionalizzazione diretta vs. cross-coupling Pd-catalizzato vs. via biocatalitica/enzimatica','Per molecole complesse conviene sempre confrontare più disconnessioni: quella che minimizza gli stadi, massimizza la convergenza (sintesi convergente vs lineare) e usa reagenti economici/selettivi è generalmente preferibile.','Valuta selettività, costo dei catalizzatori (Pd, Rh, enzimi), tossicità dei reagenti e scalabilità industriale');
   }
   return {steps:steps, ret:ret};
 }
@@ -32393,6 +32451,41 @@ testosterone:{iupac:'17β-idrossiandrost-4-en-3-one',smiles:'[C@@H]1([C@@H]2CC[C
 ],ret:[
   {d:'Retro-17β-ossidazione',sy:'Androstenedione',eq:'17β-HSD: testosterone→androstenedione (NAD⁺)',tp:'Retro-ossidazione C17'},
   {d:'Retro-Δ4 riduzione',sy:'5α-diidrotestosterone (DHT)',eq:'5α-reduttasi+NADPH: testosterone→DHT',tp:'Retro-riduzione Δ4'}
+]},
+cinnamaldeide:{iupac:'(2E)-3-fenilprop-2-enale',smiles:'O=C/C=C/c1ccccc1',livello:2,syn:[
+  {n:1,nm:'Via A — Condensazione di Claisen-Schmidt (aldolica crociata)',re:'C₆H₅CHO + CH₃CHO →(NaOH)→ aldolo →(–H₂O)→ C₆H₅CH=CH–CHO',me:'NaOH genera l\'enolato dell\'acetaldeide (unico enolizzabile); l\'enolato attacca il carbonile del benzaldeide (non enolizzabile, niente autocondensazione); disidratazione E1cb dà il sistema coniugato E-cinnamaldeide.',ct:'NaOH 10%, EtOH/H₂O, 0–10°C, poi RT (condensazione crociata controllata)'},
+  {n:2,nm:'Via B — Olefinazione di Wittig/HWE su benzaldeide',re:'C₆H₅CHO + Ph₃P=CH–CHO (o fosfonato stabilizzato) → C₆H₅CH=CH–CHO',me:'L\'ylide semi-stabilizzata attacca il carbonile aromatico; ossafosfetano si forma e collassa via retro-[2+2] espellendo Ph₃P=O; alta E-selettività per ylide stabilizzate.',ct:'(EtO)₂P(O)CH₂CHO, NaH, THF, 0°C→RT (HWE, E-selettivo)'}
+],ret:[
+  {d:'Retro-aldol crociata (Claisen-Schmidt)',sy:'Benzaldeide + Acetaldeide',eq:'C₆H₅CHO + CH₃CHO con base (NaOH) — disconnessione C=C–C=O',tp:'Retro-condensazione aldolica crociata'},
+  {d:'Retro-Wittig/HWE su C=C coniugato',sy:'Benzaldeide + ylide/fosfonato stabilizzato',eq:'C₆H₅CHO + Ph₃P=CH–CHO — alternativa regioselettiva alla via aldolica',tp:'Retro-olefinazione'}
+]},
+lidocaina:{iupac:'2-(dietilammino)-N-(2,6-dimetilfenil)acetammide',smiles:'CCN(CC)CC(=O)Nc1c(C)cccc1C',livello:3,syn:[
+  {n:1,nm:'Via A — Cloroacetilazione poi amminazione (sequenza FGI a 2 stadi)',re:'2,6-Me₂C₆H₃NH₂ + ClCH₂COCl → cloroacetammide →(HN(C₂H₅)₂)→ lidocaina',me:'1° stadio: SNA dell\'anilina ingombrata sul cloruro acilico (base per neutralizzare HCl); 2° stadio: SN2 dell\'ammina secondaria (dietilammina, nucleofilo forte) sul C–Cl attivato dall\'adiacente carbonile.',ct:'1) ClCH₂COCl, K₂CO₃ o NaOH(aq), 0–5°C (Schotten-Baumann); 2) HN(C₂H₅)₂ in eccesso, toluene, riflusso'},
+  {n:2,nm:'Via B — Coupling diretto poi alchilazione riduttiva',re:'2,6-Me₂C₆H₃NH₂ + ClCH₂COOH →(DCC)→ ammide; poi sostituzione con dietilammina',me:'L\'acido cloroacetico viene attivato (DCC) e accoppiato all\'anilina ingombrata; il C–Cl residuo, attivato dal carbonile adiacente (effetto induttivo + stabilizzazione TS), reagisce poi con dietilammina via SN2.',ct:'1) DCC/DMAP, DCM, RT; 2) HN(C₂H₅)₂, K₂CO₃, CH₃CN, riflusso'}
+],ret:[
+  {d:'Disconnessione C(acil)–N (ammide anilidica)',sy:'2,6-Dimetilanilina + acido/cloruro cloroacetico',eq:'2,6-Me₂C₆H₃NH₂ + ClCH₂COX (X=Cl, OH attivato) — SNA su anello ingombrato',tp:'Retro-amidazione anilidica (regiochimica orto-disostituita chiave)'},
+  {d:'Disconnessione C–N (ammina terziaria)',sy:'α-Cloroacetammide intermedia + Dietilammina',eq:'Cloroacetammide + HN(C₂H₅)₂ — SN2 sul carbonio attivato dal carbonile',tp:'Retro-alchilazione N (SN2 retro)'}
+]},
+stirene:{iupac:'vinilbenzene (etenilbenzene)',smiles:'C=Cc1ccccc1',livello:1,syn:[
+  {n:1,nm:'Via A — Deidrogenazione catalitica dell\'etilbenzene (industriale)',re:'C₆H₅CH₂CH₃ →(Fe₂O₃/Cr₂O₃/K₂CO₃, Δ)→ C₆H₅CH=CH₂ + H₂',me:'Catalisi eterogenea su ossido di ferro promosso; deidrogenazione endotermica favorita ad alta T e bassa pressione (vapore diluente sposta l\'equilibrio); processo su scala Mt/anno.',ct:'Fe₂O₃/Cr₂O₃/K₂CO₃, 600–650°C, vapore diluente, leggero sottovuoto'},
+  {n:2,nm:'Via B — Olefinazione di Wittig sulla benzaldeide',re:'C₆H₅CHO + Ph₃P=CH₂ → C₆H₅CH=CH₂ + Ph₃P=O',me:'L\'ylide non stabilizzata (da CH₃PPh₃⁺Br⁻ + n-BuLi) attacca il carbonile aromatico; ossafosfetano collassa via retro-[2+2] liberando lo stirene e l\'ossido di trifenilfosfina.',ct:'CH₃PPh₃Br, n-BuLi, THF, −78°C→RT (Wittig classico)'}
+],ret:[
+  {d:'Retro-deidrogenazione catalitica',sy:'Etilbenzene + [H₂]',eq:'Idrogenazione catalitica dello stirene (H₂/Pd, retro-industriale)',tp:'Retro-deidrogenazione'},
+  {d:'Retro-Wittig su vinilarene',sy:'Benzaldeide + metilentrifenilfosforano',eq:'C₆H₅CHO + Ph₃P=CH₂ — disconnessione del doppio legame stirenico',tp:'Retro-olefinazione'}
+]},
+'acido mandelico':{iupac:'acido (2RS)-2-idrossi-2-fenilacetico',smiles:'OC(c1ccccc1)C(=O)O',livello:2,syn:[
+  {n:1,nm:'Via A — Cianidrina e idrolisi (Strecker-tipo)',re:'C₆H₅CHO + HCN →(addizione)→ mandelonitrile →(H₃O⁺, Δ)→ acido mandelico',me:'Addizione nucleofila reversibile di CN⁻ al carbonile (catalizzata da base/acido) forma la cianidrina; idrolisi acida del nitrile passa per l\'ammide e arriva all\'acido carbossilico, con perdita di NH₄⁺.',ct:'1) NaCN o KCN cat., NaHSO₃, H₂O, 0–10°C; 2) HCl conc., riflusso (idrolisi nitrile→COOH)'},
+  {n:2,nm:'Via B — Apertura idrolitica dell\'epossido stirenico e ossidazione',re:'C₆H₅CH=CH₂ →(mCPBA)→ stirene ossido →(H₃O⁺)→ diolo →(ossidazione selettiva)→ acido mandelico',me:'Epossidazione diastereoselettiva (mCPBA, syn-addizione); apertura acido-catalizzata dell\'epossido (attacco SN1-like sul carbonio benzilico, più stabilizzato); ossidazione chemoselettiva dell\'alcol primario terminale a COOH.',ct:'1) mCPBA, DCM, 0°C; 2) H₃O⁺ dil.; 3) KMnO₄ dil. o TEMPO/NaOCl (ossidazione selettiva del CH₂OH terminale)'}
+],ret:[
+  {d:'Retro-cianidrina (addizione HCN)',sy:'Benzaldeide + HCN',eq:'C₆H₅CHO + HCN, poi idrolisi del nitrile (via Strecker/cianidrina)',tp:'Retro-addizione nucleofila + retro-idrolisi nitrile'},
+  {d:'Retro-epossidazione/apertura',sy:'Stirene + [O] ossidante',eq:'Stirene ossido (mCPBA) → apertura regioselettiva → ossidazione terminale',tp:'Retro-funzionalizzazione via epossido'}
+]},
+amfetamina:{iupac:'1-fenilpropan-2-amina',smiles:'CC(N)Cc1ccccc1',livello:2,syn:[
+  {n:1,nm:'Via A — Amminazione riduttiva del fenilacetone',re:'C₆H₅CH₂COCH₃ + NH₃ →[immina]→(NaBH₃CN)→ C₆H₅CH₂CH(NH₂)CH₃',me:'Condensazione reversibile chetone-ammoniaca forma l\'immina (con perdita di H₂O); il riducente blando NaBH₃CN, selettivo a pH 5-7, riduce l\'intermedio iminio senza intaccare il chetone in eccesso.',ct:'NH₃ (o NH₄OAc) in eccesso, NaBH₃CN, MeOH, AcOH cat., pH 5–7, RT, 12–24h'},
+  {n:2,nm:'Via B — Reazione di Leuckart-Wallach',re:'C₆H₅CH₂COCH₃ + HCOONH₄ (Δ)→ formammide intermedia →(idrolisi)→ amfetamina',me:'Il formiato d\'ammonio agisce sia da fonte di azoto sia da agente riducente (trasferimento di idruro dal formiato all\'immina, simile a una MPV); l\'N-formil-ammina intermedia viene idrolizzata a dare l\'ammina libera.',ct:'HCOONH₄ in eccesso, 150–180°C, poi HCl conc., riflusso (idrolisi del formammide)'}
+],ret:[
+  {d:'Disconnessione C–N (retro-amminazione riduttiva)',sy:'Fenilacetone + Ammoniaca',eq:'C₆H₅CH₂COCH₃ + NH₃ con riduzione selettiva dell\'iminio',tp:'Retro-amminazione riduttiva'},
+  {d:'Retro-Leuckart-Wallach',sy:'Fenilacetone + formiato d\'ammonio',eq:'C₆H₅CH₂COCH₃ + HCOONH₄ — via alternativa a riduttori metallici',tp:'Retro-trasferimento di idruro (MPV-tipo)'}
 ]}
 };
 
