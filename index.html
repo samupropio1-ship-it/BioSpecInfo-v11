@@ -25837,6 +25837,7 @@ function italianToEnglishIupac(name){
     return (stem+' acid').trim();
   }
   return _itFragToEn(s)
+    .replace(/anilina\b/g,'aniline')
     .replace(/diammina\b/g,'diamine').replace(/ammina\b/g,'amine')
     .replace(/diammide\b/g,'diamide').replace(/ammide\b/g,'amide')
     .replace(/diolo\b/g,'diol').replace(/triolo\b/g,'triol').replace(/olo\b/g,'ol')
