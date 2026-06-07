@@ -1429,6 +1429,13 @@ function showSt(m,c){var e=id("st");e.textContent=m;e.className=c;e.style.displa
 function hideSt(){id("st").style.display="none";}
 function isPDB(q){return /^[1-9][A-Za-z0-9]{3}$/.test(q.trim());}
 function isCID(q){return /^(cid:)?\d{3,}/i.test(q.trim());}
+// IUPAC names with locants/sostituenti contengono pattern "(cifra)-(lettera)"
+// (es. "8-chloro", "(2E,4E)", "3-(propan-2-yl)") e frammenti di nome comuni —
+// queste stringhe NON sono SMILES anche se contengono parentesi/virgole/trattini.
+function looksLikeIupacName(q){
+  return /\d-[a-zA-Z]/.test(q) || /[a-zA-Z]-\d/.test(q)
+    || /(chloro|fluoro|bromo|iodo|methyl|ethyl|propyl|butyl|amino|hydroxy|oxo|amide|nitro|cyclo|phenyl|benzyl|carboxy|diol|triol|amine|cloro|metil|etil|propil|butil|ammin|idrossi|fenil|carbossi)/i.test(q);
+}
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function prow(l,v){return '<div class="pr"><span class="pl">'+l+'</span><span class="pv">'+v+'</span></div>';}
 function note(t){return '<div class="note">'+t+'</div>';}
@@ -1561,7 +1568,7 @@ function go(term){
 function fetchPub(term){
   var cidP;
   if(isCID(term))cidP=Promise.resolve(term.replace(/^cid:/i,"").trim());
-  else if(/[=(#]/.test(term))cidP=fetch(PUB+"/compound/smiles/"+encodeURIComponent(term)+"/cids/JSON").then(function(r){if(!r.ok)throw new Error("SMILES non valido");return r.json();}).then(function(j){return j.IdentifierList.CID[0];});
+  else if(!looksLikeIupacName(term)&&/[=(#]/.test(term))cidP=fetch(PUB+"/compound/smiles/"+encodeURIComponent(term)+"/cids/JSON").then(function(r){if(!r.ok)throw new Error("SMILES non valido");return r.json();}).then(function(j){return j.IdentifierList.CID[0];});
   else cidP=fetch(PUB+"/compound/name/"+encodeURIComponent(term)+"/cids/JSON").then(function(r){if(!r.ok)throw new Error('"'+term+'" non trovata in PubChem');return r.json();}).then(function(j){return j.IdentifierList.CID[0];});
   return cidP.then(function(cid){
     return fetch(PUB+"/compound/cid/"+cid+"/property/MolecularFormula,MolecularWeight,IUPACName,SMILES,ConnectivitySMILES,CanonicalSMILES,IsomericSMILES,XLogP,TPSA,HBondDonorCount,HBondAcceptorCount,RotatableBondCount,HeavyAtomCount,Charge/JSON")
@@ -25762,7 +25769,7 @@ window.fetchPub = function(term){
 
   if(/^cid:\d+$/i.test(term)){
     cidP = Promise.resolve(term.replace(/^cid:/i,'').trim());
-  } else if(/[=(#@\\\/]/.test(term)){
+  } else if(!looksLikeIupacName(term) && /[=(#@\\\/]/.test(term)){
     // SMILES
     cidP = fetchTimeout(PUB+'/compound/smiles/'+encodeURIComponent(term)+'/cids/JSON')
       .then(function(r){ if(!r.ok) throw new Error('SMILES non valido'); return r.json(); })
