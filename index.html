@@ -25815,6 +25815,31 @@ function _localPropsFromSmiles(term, smiles, note){
   return d;
 }
 
+// Cerca il termine nel database locale della sezione "Sintesi & Retrosintesi"
+// (window._DB/_ALIASES, esposti da quel modulo): contiene nomi classici E nomi
+// IUPAC in italiano (es. "acido 2-(acetilossi)benzoico") che PubChem — il cui
+// motore di ricerca per nome fa solo matching su sinonimi noti, perlopiù in
+// inglese — e OPSIN — che interpreta solo grammatica IUPAC inglese — non
+// riconoscono. Normalizza parentesi/accenti/prefisso "acido" per far combaciare
+// scritture diverse dello stesso nome (es. "acetilossi" vs "(acetilossi)").
+function localDbLookup(term){
+  var DB = window._DB, AL = window._ALIASES;
+  if(!DB) return null;
+  var nl = term.toLowerCase().trim();
+  var flat = nl.replace(/[()]/g,'').replace(/\s+/g,' ').trim();
+  function deAcc(s){ return s.replace(/[àáâ]/g,'a').replace(/[èéê]/g,'e').replace(/[ìíî]/g,'i').replace(/[òóô]/g,'o').replace(/[ùúû]/g,'u'); }
+  function noAcido(s){ return s.replace(/^acido\s+/,''); }
+  var variants = [nl, flat, deAcc(nl), deAcc(flat)];
+  var all = [];
+  variants.forEach(function(v){ all.push(v, noAcido(v)); });
+  for(var i=0;i<all.length;i++){
+    var c = all[i];
+    if(DB[c]) return c;
+    if(AL && AL[c] && DB[AL[c]]) return AL[c];
+  }
+  return null;
+}
+
 window.fetchPub = function(term){
   term = term.trim();
 
@@ -25863,6 +25888,25 @@ window.fetchPub = function(term){
         'SMILES valido ma non presente nel database PubChem (analisi locale attiva).');
       throw e;
     });
+  }
+
+  // Nome riconosciuto nel DB locale (es. nome IUPAC italiano "acido 2-(acetilossi)benzoico"
+  // → "aspirina"): cerca su PubChem col nome canonico (sicuramente noto), altrimenti
+  // prova lo SMILES del DB locale, altrimenti mostra comunque l'analisi locale.
+  var localKey = localDbLookup(term);
+  if(localKey){
+    var lmol = window._DB[localKey];
+    return fetchTimeout(PUB+'/compound/name/'+encodeURIComponent(localKey)+'/cids/JSON', 10000)
+      .then(function(r){ if(!r.ok) throw new Error('non trovata'); return r.json(); })
+      .then(function(j){ return j.IdentifierList.CID[0]; })
+      .then(fetchByCid)
+      .catch(function(){
+        if(lmol.smiles) return smilesToCid(lmol.smiles).then(fetchByCid).catch(function(){
+          return _localPropsFromSmiles(term, lmol.smiles,
+            'Nome riconosciuto dal database locale ("'+localKey+'") — composto non presente in PubChem (analisi locale attiva).');
+        });
+        throw new Error('"'+term+'" non trovata');
+      });
   }
 
   // Ricerca per nome — poi formula — poi (se nome IUPAC complesso) OPSIN
@@ -32302,18 +32346,29 @@ var _ALIASES={
   // morfina
   'morphine':'morfina','morfina':'morfina'
 };
+// Espone il database locale (nomi classici/IUPAC italiani → SMILES) alla ricerca
+// principale ("Molecola"), che gira fuori da questo modulo e non vede queste var locali.
+window._DB=_DB; window._ALIASES=_ALIASES;
 
 // ══ 9. Search: DB → PubChem ══════════════════════════════════════════════════
 function _search(name, outEl){
   outEl.innerHTML='<div style="color:#1fd39a;font-size:12px;padding:14px;font-family:monospace;">🔍 Analisi per: <b>'+_esc(name)+'</b>…</div>';
   var nl=name.toLowerCase().trim();
-  // Normalise key for local DB
-  var key=nl.replace(/^acido\s+/,'').replace(/[àáâ]/g,'a').replace(/[èéê]/g,'e')
-    .replace(/[ìíî]/g,'i').replace(/[òóô]/g,'o').replace(/[ùúû]/g,'u');
-  // 1. Direct key match
-  var dbKey=Object.keys(_DB).find(function(k){ return key===k||nl===k; });
-  // 2. Alias map
-  if(!dbKey){ var aliasKey=_ALIASES[nl]||_ALIASES[key]; if(aliasKey&&_DB[aliasKey]) dbKey=aliasKey; }
+  function _deAcc(s){ return s.replace(/[àáâ]/g,'a').replace(/[èéê]/g,'e').replace(/[ìíî]/g,'i').replace(/[òóô]/g,'o').replace(/[ùúû]/g,'u'); }
+  // Variante "appiattita": rimuove parentesi/spazi extra, es. "acido 2-(acetilossi)benzoico"
+  // → "acido 2-acetilossibenzoico" — così combacia con le scritture alternative del nome IUPAC
+  function _flat(s){ return s.replace(/[()]/g,'').replace(/\s+/g,' ').trim(); }
+  function _noAcido(s){ return s.replace(/^acido\s+/,''); }
+  var variants=[nl,_flat(nl),_deAcc(nl),_deAcc(_flat(nl))];
+  var all=[];
+  variants.forEach(function(v){ all.push(v,_noAcido(v)); });
+  // 1. Direct key match / 2. Alias map (provo tutte le varianti normalizzate)
+  var dbKey=null;
+  for(var vi=0; vi<all.length && !dbKey; vi++){
+    var c=all[vi];
+    if(_DB[c]) dbKey=c;
+    else if(_ALIASES[c]&&_DB[_ALIASES[c]]) dbKey=_ALIASES[c];
+  }
   // 3. SMILES alias (lowercase)
   if(!dbKey&&_isSmiles(name)){ var sk=_ALIASES[nl]; if(sk&&_DB[sk]) dbKey=sk; }
   if(dbKey){
