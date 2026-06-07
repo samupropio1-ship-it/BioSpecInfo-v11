@@ -1615,6 +1615,11 @@ function render(d){
 
 function buildInfo(d){
   var el=id("ti");var smi=d.SMILES||d.ConnectivitySMILES||d.IsomericSMILES||d.CanonicalSMILES||"";
+  if(d.localOnly){
+    var pn=mk("div");pn.style.cssText="background:#241a08;border:1px solid #8a5a1a;border-radius:8px;padding:10px 12px;margin-bottom:10px;color:#ffcb80;font-size:12px;line-height:1.5";
+    pn.innerHTML="⚠ <b>Analisi locale (non da PubChem):</b> "+esc(d.localNote||"composto non presente nel database PubChem; immagine 2D e viewer 3D non disponibili.");
+    el.appendChild(pn);
+  }
   if(d.type==="small"&&d.cid){
     var p1=panel("Struttura 2D · CID "+d.cid,"#0d1522");
     var iw=mk("div");iw.style.cssText="background:#16273e;text-align:center;padding:8px";
@@ -1622,6 +1627,9 @@ function buildInfo(d){
     iw.appendChild(img);p1.insertBefore(iw,p1.querySelector(".pb"));el.appendChild(p1);
     var p2=panel("Proprietà","#0d1522");p2.querySelector(".pb").innerHTML=[["Peso Molecolare",d.MolecularWeight?d.MolecularWeight+" g/mol":"—"],["Atomi pesanti",d.HeavyAtomCount||"—"],["XLogP",d.XLogP!==undefined?d.XLogP:"—"],["TPSA",d.TPSA?d.TPSA+" Å²":"—"],["H-Bond Donor",d.HBondDonorCount!==undefined?d.HBondDonorCount:"—"],["H-Bond Accettore",d.HBondAcceptorCount!==undefined?d.HBondAcceptorCount:"—"],["Legami Rotabili",d.RotatableBondCount!==undefined?d.RotatableBondCount:"—"],["Carica",d.Charge!==undefined?d.Charge:"0"]].map(function(r){return prow(r[0],r[1]);}).join("");
     el.appendChild(p2);
+  } else if(d.type==="small"&&d.localOnly&&d.MolecularFormula){
+    var p2b=panel("Proprietà (stima locale da SMILES)","#0d1522");p2b.querySelector(".pb").innerHTML=[["Formula",d.MolecularFormula||"—"],["Peso Molecolare",d.MolecularWeight?d.MolecularWeight+" g/mol":"—"],["Atomi pesanti",d.HeavyAtomCount||"—"],["XLogP (stima)",d.XLogP!==undefined?d.XLogP:"—"],["TPSA (stima)",d.TPSA?d.TPSA+" Å²":"—"],["H-Bond Donor",d.HBondDonorCount!==undefined?d.HBondDonorCount:"—"],["H-Bond Accettore",d.HBondAcceptorCount!==undefined?d.HBondAcceptorCount:"—"],["Legami Rotabili",d.RotatableBondCount!==undefined?d.RotatableBondCount:"—"]].map(function(r){return prow(r[0],r[1]);}).join("");
+    el.appendChild(p2b);
   }
   if(d.type==="protein"){
     var p1=panel("Scheda PDB · "+d.pdbId,"#0277bd");var pb1=p1.querySelector(".pb");
@@ -1881,12 +1889,16 @@ function addExtLinks(parent,links){
 function build3D(d){
   var el=id("t3d");var smi=d.SMILES||d.ConnectivitySMILES||d.IsomericSMILES||d.CanonicalSMILES||"";
   var centers=chiralCenters(smi);
-  var p1=panel(d.type==="protein"?"3D · "+d.pdbId+" · Mol*":"3D · CID "+d.cid+" · MolView","#0277bd");
+  var p1=panel(d.type==="protein"?"3D · "+d.pdbId+" · Mol*":(d.cid?"3D · CID "+d.cid+" · MolView":"3D · struttura non disponibile"),"#0277bd");
   p1.querySelector(".pb").style.padding="0";
   if(d.type==="protein"){
     var ifr=mk("iframe");ifr.className="viewer";ifr.allow="fullscreen";
     ifr.src="https://molstar.org/viewer/?pdbId="+d.pdbId+"&preset=default";
     p1.appendChild(ifr);el.appendChild(p1);
+  } else if(!d.cid){
+    var nope=mk("div");nope.style.cssText="font-size:12px;color:#9fb8d0;text-align:center;padding:24px 12px;line-height:1.6";
+    nope.innerHTML="🔭 Struttura 3D non disponibile<br><span style='color:#5a8aaa;font-size:11px'>Composto assente da PubChem (analisi locale dallo SMILES) — niente record CID da cui scaricare le coordinate 3D.</span>";
+    p1.querySelector(".pb").appendChild(nope);el.appendChild(p1);
   } else {
     var canvas3d=mk("canvas");
     canvas3d.style.cssText="width:100%;height:300px;background:#060d1a;display:block;border-radius:8px;touch-action:none";
@@ -25763,34 +25775,50 @@ function fetchTimeout(url, ms){
 // Override window.fetchPub with improved version
 var PUB = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug';
 
+// OPSIN (Open Parser for Systematic IUPAC Nomenclature, Univ. Cambridge):
+// converte un nome IUPAC sistematico complesso in SMILES anche quando il
+// composto non è registrato fra i sinonimi noti di PubChem (la ricerca per
+// nome di PubChem fa solo matching su sinonimi, NON interpreta la grammatica
+// IUPAC arbitraria — per nomi "costruiti" complessi serve un parser dedicato).
+function opsinNameToSmiles(name){
+  return fetchTimeout('https://opsin.ch.cam.ac.uk/opsin/'+encodeURIComponent(name)+'.json', 9000)
+    .then(function(r){ if(!r.ok) throw new Error('OPSIN non raggiungibile'); return r.json(); })
+    .then(function(j){
+      if(j.status!=='SUCCESS'||!j.smiles) throw new Error('Nome IUPAC non interpretabile (OPSIN: '+(j.message||'sconosciuto')+')');
+      return j.smiles;
+    });
+}
+
+// Costruisce un oggetto proprietà "minimo" da uno SMILES analizzato in locale,
+// per molecole valide ma assenti da PubChem (niente CID → niente immagine 2D
+// PubChem né viewer 3D, ma SMILES/IR/NMR/legami/sintesi/cinetica funzionano).
+function _localPropsFromSmiles(term, smiles, note){
+  var d = {};
+  var lp = (typeof parseSMILES==='function') ? parseSMILES(smiles) : null;
+  if(lp){
+    d.MolecularFormula = lp.formula;
+    d.MolecularWeight = lp.mw;
+    d.XLogP = lp.logp;
+    d.HBondDonorCount = lp.hDonors;
+    d.HBondAcceptorCount = lp.hAcceptors;
+    d.TPSA = lp.tpsa;
+    d.RotatableBondCount = lp.rotBonds;
+    d.HeavyAtomCount = lp.heavyAtoms;
+  }
+  d.SMILES = smiles; d.IsomericSMILES = smiles;
+  d.CanonicalSMILES = smiles; d.ConnectivitySMILES = smiles;
+  d.type = 'small';
+  d.cid = null;
+  d.searchTerm = term;
+  d.localOnly = true;
+  d.localNote = note;
+  return d;
+}
+
 window.fetchPub = function(term){
-  var cidP;
   term = term.trim();
 
-  if(/^cid:\d+$/i.test(term)){
-    cidP = Promise.resolve(term.replace(/^cid:/i,'').trim());
-  } else if(!looksLikeIupacName(term) && /[=(#@\\\/]/.test(term)){
-    // SMILES
-    cidP = fetchTimeout(PUB+'/compound/smiles/'+encodeURIComponent(term)+'/cids/JSON')
-      .then(function(r){ if(!r.ok) throw new Error('SMILES non valido'); return r.json(); })
-      .then(function(j){ return j.IdentifierList.CID[0]; });
-  } else {
-    // Name search — try name first, then formula
-    cidP = fetchTimeout(PUB+'/compound/name/'+encodeURIComponent(term)+'/cids/JSON', 10000)
-      .then(function(r){
-        if(!r.ok) throw new Error('"'+term+'" non trovata');
-        return r.json();
-      })
-      .then(function(j){ return j.IdentifierList.CID[0]; })
-      .catch(function(e){
-        // Retry con formula
-        return fetchTimeout(PUB+'/compound/formula/'+encodeURIComponent(term)+'/cids/JSON', 6000)
-          .then(function(r){ if(!r.ok) throw e; return r.json(); })
-          .then(function(j){ return j.IdentifierList.CID[0]; });
-      });
-  }
-
-  return cidP.then(function(cid){
+  function fetchByCid(cid){
     if(!cid) throw new Error('"'+term+'" non trovata in PubChem');
     var propUrl = PUB+'/compound/cid/'+cid+'/property/'
       +'MolecularFormula,MolecularWeight,IUPACName,SMILES,ConnectivitySMILES,CanonicalSMILES,IsomericSMILES,'
@@ -25805,7 +25833,50 @@ window.fetchPub = function(term){
         p.searchTerm = term;
         return p;
       });
-  });
+  }
+  function smilesToCid(smiles){
+    return fetchTimeout(PUB+'/compound/smiles/'+encodeURIComponent(smiles)+'/cids/JSON', 9000)
+      .then(function(r){ if(!r.ok) throw new Error('SMILES non in PubChem'); return r.json(); })
+      .then(function(j){ return j.IdentifierList.CID[0]; });
+  }
+  // Ultima spiaggia per nomi IUPAC complessi: OPSIN nome→SMILES, poi prova
+  // a trovare il composto su PubChem via SMILES; se assente, render locale.
+  function viaOpsin(origErr){
+    if(!looksLikeIupacName(term)) throw origErr;
+    return opsinNameToSmiles(term).then(function(smiles){
+      return smilesToCid(smiles).then(fetchByCid).catch(function(){
+        return _localPropsFromSmiles(term, smiles,
+          'Struttura interpretata dal nome IUPAC tramite OPSIN — composto non presente nel database PubChem (dati 2D/3D PubChem non disponibili, analisi locale attiva).');
+      });
+    }).catch(function(){ throw origErr; });
+  }
+
+  if(/^cid:\d+$/i.test(term)){
+    return Promise.resolve(term.replace(/^cid:/i,'').trim()).then(fetchByCid);
+  }
+
+  if(!looksLikeIupacName(term) && /[=(#@\\\/]/.test(term)){
+    // SMILES diretto
+    return smilesToCid(term).then(fetchByCid).catch(function(e){
+      // SMILES sintatticamente valido ma assente da PubChem → render locale
+      if(typeof parseSMILES==='function' && parseSMILES(term)) return _localPropsFromSmiles(term, term,
+        'SMILES valido ma non presente nel database PubChem (analisi locale attiva).');
+      throw e;
+    });
+  }
+
+  // Ricerca per nome — poi formula — poi (se nome IUPAC complesso) OPSIN
+  return fetchTimeout(PUB+'/compound/name/'+encodeURIComponent(term)+'/cids/JSON', 10000)
+    .then(function(r){ if(!r.ok) throw new Error('"'+term+'" non trovata'); return r.json(); })
+    .then(function(j){ return j.IdentifierList.CID[0]; })
+    .then(fetchByCid)
+    .catch(function(e1){
+      return fetchTimeout(PUB+'/compound/formula/'+encodeURIComponent(term)+'/cids/JSON', 6000)
+        .then(function(r){ if(!r.ok) throw e1; return r.json(); })
+        .then(function(j){ return j.IdentifierList.CID[0]; })
+        .then(fetchByCid)
+        .catch(function(){ return viaOpsin(e1); });
+    });
 };
 
 // ── 2. SHOW 3D POPUP ESPANSO ────────────────────────────────────────────
@@ -32272,16 +32343,31 @@ function _search(name, outEl){
       _render(outEl,dName,sr.steps,sr.ret,info);
     })
     .catch(function(err){
-      outEl.innerHTML='<div style="background:#1a0a0a;border:1px solid #ff4444;border-radius:10px;padding:14px;color:#ff8888;font-family:monospace;font-size:12px;">'
-        +'<b>Molecola non trovata:</b> "'+_esc(name)+'"<br><br>'
-        +'Prova con:<br>'
-        +'• Nome comune (aspirina, glucosio, caffeina, etanolo)<br>'
-        +'• Nome IUPAC: acido 2-acetilossibenzoico · 4-amminofenolo<br>'
-        +'• SMILES: CC(=O)Oc1ccccc1C(=O)O<br>'
-        +'• Inglese: aspirin, glucose, caffeine<br><br>'
-        +'<span style="color:#666">'+_esc(err.message)+'</span>'
-        +'</div>';
+      // Fallback: nomi IUPAC complessi/sconosciuti a PubChem — prova a interpretarli con OPSIN
+      if(!isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name) && typeof opsinNameToSmiles==='function'){
+        opsinNameToSmiles(name).then(function(smi){
+          var fgs=_smAnal(smi);
+          var sr=_fgSyn(fgs,name);
+          var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN (composto non presente in PubChem)'
+            +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
+          _render(outEl,name,sr.steps,sr.ret,info);
+        }).catch(function(){ _srNotFound(outEl,name,err); });
+        return;
+      }
+      _srNotFound(outEl,name,err);
     });
+}
+
+function _srNotFound(outEl,name,err){
+  outEl.innerHTML='<div style="background:#1a0a0a;border:1px solid #ff4444;border-radius:10px;padding:14px;color:#ff8888;font-family:monospace;font-size:12px;">'
+    +'<b>Molecola non trovata:</b> "'+_esc(name)+'"<br><br>'
+    +'Prova con:<br>'
+    +'• Nome comune (aspirina, glucosio, caffeina, etanolo)<br>'
+    +'• Nome IUPAC: acido 2-acetilossibenzoico · 4-amminofenolo<br>'
+    +'• SMILES: CC(=O)Oc1ccccc1C(=O)O<br>'
+    +'• Inglese: aspirin, glucose, caffeine<br><br>'
+    +'<span style="color:#666">'+_esc(err.message)+'</span>'
+    +'</div>';
 }
 
 // ══ 10. Build modal ═══════════════════════════════════════════════════════════
