@@ -32576,35 +32576,70 @@ function _search(name, outEl){
       _render(outEl,dName,sr.steps,sr.ret,info);
     })
     .catch(function(err){
-      // Fallback: nomi IUPAC complessi/sconosciuti a PubChem — prova a interpretarli con OPSIN
-      // (anche traducendo nomi italiani in inglese, dato che OPSIN capisce solo grammatica IUPAC inglese).
-      // Prova prima il nome tradotto in inglese (quello che OPSIN può davvero interpretare):
-      // tentare prima l'originale italiano sprecherebbe sempre un round-trip di rete.
-      if(!isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name) && typeof opsinNameToSmiles==='function'){
-        var translated = (typeof italianToEnglishIupac==='function') ? italianToEnglishIupac(name) : null;
-        var hasTranslation = !!(translated && translated.toLowerCase()!==name.trim().toLowerCase());
-        var tries = hasTranslation ? [translated, name] : [name];
-        var lastOpsinErr = null;
-        (function attempt(i){
-          if(i>=tries.length){ _srNotFound(outEl,name,lastOpsinErr||err); return; }
-          var candidate=tries[i];
-          var isTranslated = hasTranslation && candidate===translated;
-          opsinNameToSmiles(candidate).then(function(smi){
+      var canTranslate = !isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name)
+        && typeof italianToEnglishIupac==='function';
+      var translated = canTranslate ? italianToEnglishIupac(name) : null;
+      var hasTranslation = !!(translated && translated.toLowerCase()!==name.trim().toLowerCase());
+
+      // Ultima spiaggia: interpreta il nome (tradotto, poi originale) tramite OPSIN.
+      // NB: OPSIN (opsin.ch.cam.ac.uk) risulta spesso irraggiungibile dal browser
+      // ("Failed to fetch" — niente header CORS), quindi questo ramo fallisce quasi
+      // sempre nella pratica; lo teniamo come tentativo a costo zero.
+      function viaOpsinFallback(){
+        if(!isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name) && typeof opsinNameToSmiles==='function'){
+          var tries = hasTranslation ? [translated, name] : [name];
+          var lastOpsinErr = null;
+          (function attempt(i){
+            if(i>=tries.length){ _srNotFound(outEl,name,lastOpsinErr||err); return; }
+            var candidate=tries[i];
+            var isTranslated = hasTranslation && candidate===translated;
+            opsinNameToSmiles(candidate).then(function(smi){
+              var fgs=_smAnal(smi);
+              var sr=_fgSyn(fgs,name);
+              var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN'
+                +(isTranslated?' (traduzione automatica IT→EN: "'+candidate+'")':'')
+                +' (composto non presente in PubChem)'
+                +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
+              _render(outEl,name,sr.steps,sr.ret,info);
+            }).catch(function(e){
+              if(e && e.message && /OPSIN/.test(e.message)) lastOpsinErr = e;
+              attempt(i+1);
+            });
+          })(0);
+          return;
+        }
+        _srNotFound(outEl,name,err);
+      }
+
+      // PubChem capisce solo nomi IUPAC in grammatica inglese: un nome italiano
+      // come "2-cloro-4-nitroanilina" non viene trovato col nome originale, ma
+      // PubChem — a differenza di OPSIN — ha CORS abilitato per richieste dal
+      // browser ed elenca i nomi IUPAC inglesi standard come sinonimi diretti.
+      // Ritentiamo quindi subito la ricerca PubChem con la traduzione inglese
+      // prima di ricorrere a OPSIN (che richiede la stessa traduzione ed è
+      // comunque spesso irraggiungibile).
+      if(hasTranslation){
+        var apiUrl2='https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/'+encodeURIComponent(translated)+'/property/IUPACName,MolecularFormula,MolecularWeight,IsomericSMILES/JSON';
+        fetch(apiUrl2)
+          .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+          .then(function(data){
+            var p=data.PropertyTable&&data.PropertyTable.Properties&&data.PropertyTable.Properties[0];
+            if(!p) throw new Error('Nessun dato PubChem');
+            var smi=p.IsomericSMILES||'';
+            var iupac=p.IUPACName||'';
+            var formula=p.MolecularFormula||'';
+            var mw=p.MolecularWeight||'';
             var fgs=_smAnal(smi);
             var sr=_fgSyn(fgs,name);
-            var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN'
-              +(isTranslated?' (traduzione automatica IT→EN: "'+candidate+'")':'')
-              +' (composto non presente in PubChem)'
-              +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
-            _render(outEl,name,sr.steps,sr.ret,info);
-          }).catch(function(e){
-            if(e && e.message && /OPSIN/.test(e.message)) lastOpsinErr = e;
-            attempt(i+1);
-          });
-        })(0);
+            var dName=name+' · traduzione IT→EN: "'+translated+'"'
+              +(iupac&&iupac.toLowerCase()!==translated.toLowerCase()?' · '+iupac:'');
+            var info='Formula: '+formula+(mw?' · MW='+mw+' g/mol':'')+' · FG: '+(fgs.join(', ')||'n.d.')+'\nSMILES: '+smi;
+            _render(outEl,dName,sr.steps,sr.ret,info);
+          })
+          .catch(viaOpsinFallback);
         return;
       }
-      _srNotFound(outEl,name,err);
+      viaOpsinFallback();
     });
 }
 
