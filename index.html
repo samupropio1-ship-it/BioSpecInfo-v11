@@ -1433,8 +1433,10 @@ function isCID(q){return /^(cid:)?\d{3,}/i.test(q.trim());}
 // (es. "8-chloro", "(2E,4E)", "3-(propan-2-yl)") e frammenti di nome comuni —
 // queste stringhe NON sono SMILES anche se contengono parentesi/virgole/trattini.
 function looksLikeIupacName(q){
-  return /\d-[a-zA-Z]/.test(q) || /[a-zA-Z]-\d/.test(q)
-    || /(chloro|fluoro|bromo|iodo|methyl|ethyl|propyl|butyl|amino|hydroxy|oxo|amide|nitro|cyclo|phenyl|benzyl|carboxy|diol|triol|amine|cloro|metil|etil|propil|butil|ammin|idrossi|fenil|carbossi)/i.test(q);
+  var s=q.trim();
+  if(/^acido\s+[a-zà-ù]/i.test(s)) return true; // nomi italiani "acido X-...-oico/ico"
+  return /\d-[a-zA-Z(]/.test(s) || /[a-zA-Z)]-\d/.test(s)
+    || /(chloro|fluoro|bromo|iodo|methyl|ethyl|propyl|butyl|amino|hydroxy|oxo|amide|nitro|cyclo|phenyl|benzyl|carboxy|diol|triol|amine|cloro|metil|etil|propil|butil|ammin|idrossi|fenil|carbossi|acetil|acetoss|benzo|ossi)/i.test(s);
 }
 function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function prow(l,v){return '<div class="pr"><span class="pl">'+l+'</span><span class="pv">'+v+'</span></div>';}
@@ -25789,6 +25791,61 @@ function opsinNameToSmiles(name){
     });
 }
 
+// Traduzione "best effort" di un nome IUPAC scritto in italiano nel suo
+// equivalente inglese: OPSIN interpreta SOLO grammatica IUPAC inglese, quindi
+// nomi sistematici italiani (es. "acido 2-(acetilossi)benzoico") gli sarebbero
+// altrimenti incomprensibili. Non è un traduttore grammaticale completo — copre
+// i pattern/frammenti più comuni (acidi, alogeni, alchili, gruppi funzionali);
+// se la traduzione non è corretta OPSIN risponde semplicemente FAILURE, quindi
+// il tentativo extra non comporta rischi, solo un'opportunità in più di trovare la molecola.
+var _IT_EN_FRAG=[
+  ['acetilossi','acetyloxy'],['acetossi','acetyloxy'],['benzilossi','benzyloxy'],
+  ['idrossimetil','hydroxymethyl'],['amminometil','aminomethyl'],
+  ['trifluorometil','trifluoromethyl'],['clorometil','chloromethyl'],
+  ['dimetilammino','dimethylamino'],['dietilammino','diethylamino'],
+  ['metossicarbonil','methoxycarbonyl'],['etossicarbonil','ethoxycarbonyl'],
+  ['carbammoil','carbamoyl'],['carbamoil','carbamoyl'],
+  ['idrossi','hydroxy'],['ammino','amino'],['carbossi','carboxy'],
+  ['ciano','cyano'],['nitro','nitro'],['azido','azido'],
+  ['trifluoro','trifluoro'],['difluoro','difluoro'],['dicloro','dichloro'],['tricloro','trichloro'],['dibromo','dibromo'],
+  ['cloro','chloro'],['fluoro','fluoro'],['bromo','bromo'],['iodio','iodo'],['iodo','iodo'],
+  ['metossi','methoxy'],['etossi','ethoxy'],['propossi','propoxy'],['fenossi','phenoxy'],
+  ['isopropil','isopropyl'],['isobutil','isobutyl'],['terz-butil','tert-butyl'],
+  ['ciclopropil','cyclopropyl'],['ciclobutil','cyclobutyl'],['ciclopentil','cyclopentyl'],['cicloesil','cyclohexyl'],
+  ['ciclopropan','cyclopropan'],['ciclobutan','cyclobutan'],['ciclopentan','cyclopentan'],['cicloesan','cyclohexan'],
+  ['naftil','naphthyl'],['naftalen','naphthalen'],
+  ['piridil','pyridyl'],['piridin','pyridin'],
+  ['fenolo','phenolo'],['fenolic','phenolic'],['fenantren','phenanthren'],
+  ['benzil','benzyl'],['fenil','phenyl'],['fenol','phenol'],
+  ['solfonil','sulfonyl'],['solfanil','sulfanyl'],['solfo','sulfo'],['tio','thio'],
+  ['acetil','acetyl'],['formil','formyl'],['benzoil','benzoyl'],['propanoil','propanoyl'],['butanoil','butanoyl'],
+  ['metil','methyl'],['etil','ethyl'],['propil','propyl'],['butil','butyl'],['pentil','pentyl'],['esil','hexyl'],['eptil','heptyl'],['ottil','octyl'],
+  ['esano','hexane'],['esan','hexan'],['ottano','octane'],['ottan','octan'],
+  ['osso','oxo'],['ossi','oxy']
+];
+function _itFragToEn(s){
+  for(var i=0;i<_IT_EN_FRAG.length;i++){ s=s.split(_IT_EN_FRAG[i][0]).join(_IT_EN_FRAG[i][1]); }
+  return s;
+}
+function italianToEnglishIupac(name){
+  var s=name.toLowerCase().trim();
+  if(/^acido\s+/.test(s)){
+    var stem=_itFragToEn(s.replace(/^acido\s+/,''));
+    if(/oico$/.test(stem)) stem=stem.replace(/oico$/,'oic');
+    else if(/oici$/.test(stem)) stem=stem.replace(/oici$/,'oic');
+    else if(/ico$/.test(stem)) stem=stem.replace(/ico$/,'ic');
+    return (stem+' acid').trim();
+  }
+  return _itFragToEn(s)
+    .replace(/diammina\b/g,'diamine').replace(/ammina\b/g,'amine')
+    .replace(/diammide\b/g,'diamide').replace(/ammide\b/g,'amide')
+    .replace(/diolo\b/g,'diol').replace(/triolo\b/g,'triol').replace(/olo\b/g,'ol')
+    .replace(/ale\b/g,'al')
+    .replace(/ino\b/g,'yne')
+    .replace(/ene\b/g,'ene')
+    .replace(/ano\b/g,'ane');
+}
+
 // Costruisce un oggetto proprietà "minimo" da uno SMILES analizzato in locale,
 // per molecole valide ma assenti da PubChem (niente CID → niente immagine 2D
 // PubChem né viewer 3D, ma SMILES/IR/NMR/legami/sintesi/cinetica funzionano).
@@ -25868,12 +25925,21 @@ window.fetchPub = function(term){
   // a trovare il composto su PubChem via SMILES; se assente, render locale.
   function viaOpsin(origErr){
     if(!looksLikeIupacName(term)) throw origErr;
-    return opsinNameToSmiles(term).then(function(smiles){
-      return smilesToCid(smiles).then(fetchByCid).catch(function(){
-        return _localPropsFromSmiles(term, smiles,
-          'Struttura interpretata dal nome IUPAC tramite OPSIN — composto non presente nel database PubChem (dati 2D/3D PubChem non disponibili, analisi locale attiva).');
-      });
-    }).catch(function(){ throw origErr; });
+    var translated = italianToEnglishIupac(term);
+    var tries = (translated && translated.toLowerCase()!==term.trim().toLowerCase()) ? [term, translated] : [term];
+    function attempt(i){
+      if(i>=tries.length) throw origErr;
+      var candidate = tries[i];
+      return opsinNameToSmiles(candidate).then(function(smiles){
+        return smilesToCid(smiles).then(fetchByCid).catch(function(){
+          return _localPropsFromSmiles(term, smiles,
+            'Struttura interpretata dal nome IUPAC tramite OPSIN'
+            +(i>0?' (traduzione automatica IT→EN: "'+candidate+'")':'')
+            +' — composto non presente nel database PubChem (dati 2D/3D PubChem non disponibili, analisi locale attiva).');
+        });
+      }).catch(function(){ return attempt(i+1); });
+    }
+    return attempt(0);
   }
 
   if(/^cid:\d+$/i.test(term)){
@@ -32399,14 +32465,23 @@ function _search(name, outEl){
     })
     .catch(function(err){
       // Fallback: nomi IUPAC complessi/sconosciuti a PubChem — prova a interpretarli con OPSIN
+      // (anche traducendo nomi italiani in inglese, dato che OPSIN capisce solo grammatica IUPAC inglese)
       if(!isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name) && typeof opsinNameToSmiles==='function'){
-        opsinNameToSmiles(name).then(function(smi){
-          var fgs=_smAnal(smi);
-          var sr=_fgSyn(fgs,name);
-          var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN (composto non presente in PubChem)'
-            +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
-          _render(outEl,name,sr.steps,sr.ret,info);
-        }).catch(function(){ _srNotFound(outEl,name,err); });
+        var translated = (typeof italianToEnglishIupac==='function') ? italianToEnglishIupac(name) : null;
+        var tries = (translated && translated.toLowerCase()!==name.trim().toLowerCase()) ? [name, translated] : [name];
+        (function attempt(i){
+          if(i>=tries.length){ _srNotFound(outEl,name,err); return; }
+          var candidate=tries[i];
+          opsinNameToSmiles(candidate).then(function(smi){
+            var fgs=_smAnal(smi);
+            var sr=_fgSyn(fgs,name);
+            var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN'
+              +(i>0?' (traduzione automatica IT→EN: "'+candidate+'")':'')
+              +' (composto non presente in PubChem)'
+              +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
+            _render(outEl,name,sr.steps,sr.ret,info);
+          }).catch(function(){ attempt(i+1); });
+        })(0);
         return;
       }
       _srNotFound(outEl,name,err);
