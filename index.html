@@ -25899,6 +25899,26 @@ function localDbLookup(term){
     if(DB[c]) return c;
     if(AL && AL[c] && DB[AL[c]]) return AL[c];
   }
+  // Confronto "senza spazi": copre varianti di battitura tipo "acido acetil
+  // salicilico" (utente) vs "acido acetilsalicilico" (alias salvato) — la
+  // spaziatura nei nomi composti italiani non è standardizzata.
+  function noSpace(s){ return s.replace(/\s+/g,''); }
+  if(!window.__bsiNoSpaceIdx){
+    var idx = {};
+    function add(key, target){
+      [key, noAcido(key)].forEach(function(v){
+        var ns = noSpace(v);
+        if(!idx[ns]) idx[ns] = target;
+      });
+    }
+    Object.keys(DB).forEach(function(k){ add(k, k); });
+    if(AL) Object.keys(AL).forEach(function(k){ if(DB[AL[k]]) add(k, AL[k]); });
+    window.__bsiNoSpaceIdx = idx;
+  }
+  for(var j=0;j<all.length;j++){
+    var nsKey = window.__bsiNoSpaceIdx[noSpace(all[j])];
+    if(nsKey) return nsKey;
+  }
   return null;
 }
 
@@ -32442,6 +32462,23 @@ function _search(name, outEl){
   }
   // 3. SMILES alias (lowercase)
   if(!dbKey&&_isSmiles(name)){ var sk=_ALIASES[nl]; if(sk&&_DB[sk]) dbKey=sk; }
+  // 4. Confronto "senza spazi" (es. "acido acetil salicilico" vs alias "acido acetilsalicilico")
+  if(!dbKey){
+    function _noSpace(s){ return s.replace(/\s+/g,''); }
+    if(!window.__bsiNoSpaceIdx){
+      var _idx={};
+      function _addIdx(key,target){
+        [key,_noAcido(key)].forEach(function(v){ var ns=_noSpace(v); if(!_idx[ns]) _idx[ns]=target; });
+      }
+      Object.keys(_DB).forEach(function(k){ _addIdx(k,k); });
+      Object.keys(_ALIASES).forEach(function(k){ if(_DB[_ALIASES[k]]) _addIdx(k,_ALIASES[k]); });
+      window.__bsiNoSpaceIdx=_idx;
+    }
+    for(var nj=0;nj<all.length && !dbKey;nj++){
+      var nsKey=window.__bsiNoSpaceIdx[_noSpace(all[nj])];
+      if(nsKey) dbKey=nsKey;
+    }
+  }
   if(dbKey){
     var mol=_DB[dbKey];
     var extra='Livello '+(mol.livello||'–')+(mol.iupac?' · IUPAC: '+mol.iupac:'')+(mol.smiles?' · SMILES: '+mol.smiles:'');
