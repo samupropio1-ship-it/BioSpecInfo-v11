@@ -32005,79 +32005,79 @@ function _fgSyn(fgs, name){
 
 // ══ 7. Local DB (compact, for visual cards) ══════════════════════════════════
 var _DB={
-acetone:{syn:[
+acetone:{iupac:'propan-2-one',smiles:'CC(=O)C',livello:1,syn:[
   {n:1,nm:'Wacker (propilene)',re:'CH₃CH=CH₂+O₂+H₂O → acetone',me:'Pd(II) coordina al doppio legame; idropalladazione; β-H eliminazione → chetone; Cu rigenera Pd(0)',ct:'PdCl₂/CuCl₂, DMF/H₂O, 60°C, O₂'},
   {n:2,nm:'Ossidazione 2-propanolo',re:'(CH₃)₂CHOH → (CH₃)₂C=O',me:'H-α sottratto da Cr(VI); cromato estere; β-eliminazione riduce Cr e ossida C',ct:'PCC o DMP, DCM, 0°C–RT'}
 ],ret:[
   {d:'Retro-Wacker C=O',sy:'CH₃CH=CH₂',eq:'Propilene via ossidazione Wacker',tp:'Retro-ossidazione'},
   {d:'Retro-aldol',sy:'2×CH₃CHO',eq:'Due acetaldeidi (condensazione aldolica)',tp:'Retro-aldol'}
 ]},
-aspirina:{syn:[
+aspirina:{iupac:'acido 2-acetilossibenzoico',smiles:'CC(=O)Oc1ccccc1C(=O)O',livello:2,syn:[
   {n:1,nm:'Acetilazione con anidride acetica',re:'Acido salicilico + (CH₃CO)₂O → aspirina + CH₃COOH',me:'SNA: OH fenolico attacca carbonile dell\'anidride; CH₃COO⁻ leaving group; esotermico',ct:'H₃PO₄ cat., 80–85°C, 15 min'},
   {n:2,nm:'Via cloruro acilico',re:'Acido salicilico + CH₃COCl + base → aspirina + HCl',me:'SNA su cloruro acilico; Cl⁻ ottimo LG; piridina neutralizza HCl prodotto',ct:'Piridina anidra, 0°C→RT'}
 ],ret:[
   {d:'Disconnessione C(acil)–O fenolico',sy:'Acido salicilico + CH₃CO⁺',eq:'Acido salicilico + anidride acetica',tp:'Retro-esterificazione fenolica'},
   {d:'Idrolisi estere',sy:'Salicilato⁻ + CH₃COOH',eq:'NaOH/H₂O (saponificazione, via irreversibile)',tp:'Retro-acetilazione'}
 ]},
-paracetamolo:{syn:[
+paracetamolo:{iupac:'N-(4-idrossifenil)acetamide',smiles:'CC(=O)Nc1ccc(O)cc1',livello:2,syn:[
   {n:1,nm:'Acetilazione p-amminofenolo',re:'H₂N–C₆H₄–OH + (CH₃CO)₂O → paracetamolo',me:'SNA sulla NH₂ (più nucleofila di OH); espulsione CH₃COO⁻; chemioselettiva',ct:'AcOH glaciale, 50–60°C, 15 min'}
 ],ret:[
   {d:'Disconnessione C(acil)–N',sy:'p-amminofenolo + CH₃CO⁺',eq:'p-amminofenolo + anidride acetica o AcCl',tp:'Retro-amidazione fenolamminica'}
 ]},
-glucosio:{syn:[
+glucosio:{iupac:'(2R,3S,4R,5R)-2,3,4,5,6-pentaidrossiesanale',smiles:'OC[C@@H](O)[C@@H](O)[C@H](O)[C@@H](O)C=O',livello:3,syn:[
   {n:1,nm:'Sintesi Fischer-Kiliani',re:'D-arabinosio + HCN → cianoridrina → D-glucosio',me:'Addizione nucleofila CN⁻ al C1 aldeidico; idrolisi nitrile → acido aldonico; riduzione lattone',ct:'NaCN, H₂O; poi H₂/Pd o Na/Hg'},
   {n:2,nm:'Isomerizzazione enolica (Lobry de Bruyn)',re:'D-fruttosio ⇌ D-glucosio (via C1-C2 endiolo)',me:'Base forma endiolo C1-C2 → richiusura su C1 (glucosio) o C2 (fruttosio)',ct:'NaOH dil., RT; o glucosio isomerasi enzimatica'}
 ],ret:[
   {d:'C1–O ciclizzazione piranoso',sy:'D-glucosio forma aperta (aldeide)',eq:'Apertura anello hemiacetale in H₂O (equilibrio)',tp:'Retro-ciclizzazione'},
   {d:'C1–C2 Kiliani',sy:'D-arabinosio + C₁',eq:'Degradazione Wohl-Zemplen (–1C)',tp:'Retro-allungamento C'}
 ]},
-caffeina:{syn:[
+caffeina:{iupac:'1,3,7-trimetilpurina-2,6-dione',smiles:'Cn1cnc2c1c(=O)n(C)c(=O)n2C',livello:3,syn:[
   {n:1,nm:'Sintesi Traube',re:'5-amminouracile + HCOOH → xantina → teofillina',me:'Ciclocondensazione: HCOOH fornisce C8; ciclizzazione N7–C8; aromatizzazione',ct:'HCOOH, Δ; poi metilazione con (CH₃)₂SO₄'},
   {n:2,nm:'N-metilazione teofillina → caffeina',re:'Teofillina + CH₃I → caffeina',me:'Alchilazione N7 selettiva; K₂CO₃ base non nucleofila, non compete con SN2',ct:'K₂CO₃, DMF, 60°C'}
 ],ret:[
   {d:'Retro-N7-metilazione',sy:'Teofillina + CH₃⁺',eq:'Teofillina + dimetilsolfato (N-metilazione)',tp:'Retro-metilazione N7'},
   {d:'Retro-Traube C8',sy:'4,5-diamminouracile + HCOOH',eq:'Sintesi Traube (1882) dal diaminouracile',tp:'Retro-ciclocondensazione'}
 ]},
-etanolo:{syn:[
+etanolo:{iupac:'etanolo',smiles:'CCO',livello:1,syn:[
   {n:1,nm:'Idratazione etilene',re:'CH₂=CH₂ + H₂O → CH₃CH₂OH',me:'AE: H⁺ si aggiunge → carbocatione etilico primario → H₂O nucleofilo attacca → deprotonazione',ct:'H₃PO₄/SiO₂, 300°C, 60–70 atm (proc. industriale)'},
   {n:2,nm:'Fermentazione alcolica',re:'C₆H₁₂O₆ → 2 C₂H₅OH + 2 CO₂',me:'Glicolisi (10 step) → piruvato → acetaldeide (piruvato decarbossilasi, TPP) → etanolo (ADH, NADH)',ct:'Saccharomyces cerevisiae, anaerobiosi, 25-32°C'}
 ],ret:[
   {d:'Retro-idratazione C–OH',sy:'CH₂=CH₂ + H₂O',eq:'Etilene (disidratazione E1 con H₂SO₄ conc.)',tp:'Retro-idratazione'},
   {d:'Retro-riduzione (ossidazione parziale)',sy:'CH₃CHO (acetaldeide)',eq:'ADH inversa: etanolo → acetaldeide (NAD⁺)',tp:'Retro-ossidazione'}
 ]},
-benzene:{syn:[
+benzene:{iupac:'benzene',smiles:'c1ccccc1',livello:2,syn:[
   {n:1,nm:'Riforma catalitica',re:'Cicloesano → benzene + 3H₂',me:'Disidratazione/aromatizzazione su Pt; idrogeno spostato da equilibrio; ciclizzazione',ct:'Pt/Al₂O₃, 500°C, 10–40 atm'},
   {n:2,nm:'Pirolisi catrame carbone',re:'Catrame → frazione 80°C → benzene',me:'Distillazione frazionata del catrame di carbone coke a ~1000°C',ct:'~1000°C pirolisi; frazionazione industriale'}
 ],ret:[
   {d:'Retro-aromatizzazione',sy:'Cicloesano + [Pt]',eq:'Idrogenazione benzene (H₂/Pt, 150°C, 3 atm)',tp:'Retro-riforma catalitica'}
 ]},
-ibuprofen:{syn:[
+ibuprofen:{iupac:'acido 2-[4-(2-metilpropil)fenil]propanoico',smiles:'CC(C)Cc1ccc(cc1)C(C)C(=O)O',livello:3,syn:[
   {n:1,nm:'Sintesi Boots (6 step)',re:'Isobutilbenzene → FC-acetilazione → riduzione → Grignard → carbonilazione → ibuprofen',me:'FC: AlCl₃ genera CH₃CO⁺; DAIB riduzione; Grignard su chetone; CO₂ inserzione',ct:'AlCl₃, DCM; DAIB; MgBr, THF; CO₂, −78°C'},
   {n:2,nm:'Sintesi BHC Green (3 step, Nobel 1997)',re:'Isobutilbenzene → acilazione → riduzione → carbonilazione Pd',me:'HF cat. (vs AlCl₃ solido); H₂/RANEY Ni; CO Pd-catalizzato; 99% ee',ct:'HF cat.; H₂/Pd; CO/PdCl₂, alta efficienza atomica'}
 ],ret:[
   {d:'Disconnessione COOH–CHα',sy:'Aril-CH(CH₃)– + CO₂',eq:'Grignard + CO₂ o Pd-carbonilazione',tp:'Retro-carbonilazione'},
   {d:'Disconnessione Ar–C(alifat.)',sy:'Isobutilbenzene + chetone',eq:'Friedel-Crafts (retro)',tp:'Retro-acilazione FC'}
 ]},
-morfina:{syn:[
+morfina:{iupac:'(5R,6S)-7,8-didehidro-4,5-epossi-17-metilmorfinan-3,6-diolo',smiles:'CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@H]3[C@H]1C5',livello:3,syn:[
   {n:1,nm:'Sintesi Gates-Tschudi (1952, 12 passi)',re:'Diidrocodinone → morfina (totale da 2-naftolo)',me:'Prima sintesi totale: [4+2] DA chiave, riduzione stereoselettiva, formazione anello ossigenato',ct:'Gates-Tschudi, 12 passi, 0.06% resa complessiva (storica)'}
 ],ret:[
   {d:'Retro-N-metilazione',sy:'Normorfina + CH₃⁺',eq:'N-demetilazione (cloruro cianico) poi remetilazione',tp:'Retro-metilazione N'},
   {d:'Retro-C6–OH',sy:'Diidromorfina precursore',eq:'Ossidazione selettiva alcol C6 con MnO₂',tp:'Retro-ossidazione C6'}
 ]},
-'acido acetico':{syn:[
+'acido acetico':{iupac:'acido etanoico',smiles:'CC(=O)O',livello:1,syn:[
   {n:1,nm:'Carbonilazione metanolo (Monsanto)',re:'CH₃OH + CO → CH₃COOH',me:'Ciclo Rh(I)/I⁻: addizione ossidativa CH₃I→Rh(III), CO inserzione, eliminazione riduttiva, idrolisi acetaldeide',ct:'[Rh(CO)₂I₂]⁻, HI, 150–200°C, 30–60 atm'},
   {n:2,nm:'Ossidazione acetaldeide',re:'CH₃CHO + ½O₂ → CH₃COOH',me:'Autossidazione radicalica: R• + O₂ → ROO• → peracido → acido acetico',ct:'Mn(OAc)₂, 60°C, O₂ aria'}
 ],ret:[
   {d:'Retro-carbonilazione',sy:'CH₃OH + CO',eq:'Metanolo + CO (Monsanto retro)',tp:'Retro-carbonilazione'},
   {d:'Retro-ossidazione',sy:'CH₃CHO (acetaldeide)',eq:'Riduzione COOH→CHO con DIBAL, −78°C',tp:'Retro-ossidazione'}
 ]},
-aniline:{syn:[
+aniline:{iupac:'anilina',smiles:'Nc1ccccc1',livello:2,syn:[
   {n:1,nm:'Riduzione nitrobenzene',re:'Ph–NO₂ + 3H₂ → Ph–NH₂ + 2H₂O',me:'Idrogenazione catalitica: H₂ adsorbito su Pd → aggiunta stepwise NO₂→NO→NHOH→NH₂',ct:'H₂/Pd-C 5%, EtOH o AcOEt, RT, 1-4h'}
 ],ret:[
   {d:'Retro-riduzione N',sy:'Nitrobenzene',eq:'Nitrazione benzene (HNO₃/H₂SO₄)',tp:'Retro-idrogenazione'},
   {d:'Retro-SEAr nitrazione',sy:'Benzene + HNO₃',eq:'HNO₃/H₂SO₄, 0°C',tp:'Retro-nitrazione'}
 ]},
-fenolo:{syn:[
+fenolo:{iupac:'fenolo',smiles:'Oc1ccccc1',livello:1,syn:[
   {n:1,nm:'Fusione alcalina (ind.)',re:'C₆H₅SO₃Na + 2NaOH → C₆H₅ONa + Na₂SO₃',me:'SNA su anello: OH⁻ sostituisce SO₃Na (Meisenheimer intermedio) in condizioni dure',ct:'NaOH fuso, 300°C; poi H₂SO₄ dil.'},
   {n:2,nm:'Processo Cumene',re:'Cumene + O₂ → idroperossido → fenolo + acetone',me:'Autossidazione radicalica; riarrangiamento acido di Hock (idroperossido → fenolo+acetone)',ct:'H₂SO₄ dil., RT (seconda tappa)'}
 ],ret:[
