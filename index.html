@@ -25783,7 +25783,16 @@ var PUB = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug';
 // nome di PubChem fa solo matching su sinonimi, NON interpreta la grammatica
 // IUPAC arbitraria — per nomi "costruiti" complessi serve un parser dedicato).
 function opsinNameToSmiles(name){
-  return fetchTimeout('https://opsin.ch.cam.ac.uk/opsin/'+encodeURIComponent(name)+'.json', 9000)
+  return fetchTimeout('https://opsin.ch.cam.ac.uk/opsin/'+encodeURIComponent(name)+'.json', 12000)
+    .catch(function(networkErr){
+      // fetch() può rifiutarsi PRIMA di ricevere qualunque risposta HTTP — timeout,
+      // assenza di rete, blocco CORS, DNS irraggiungibile, ecc. In questi casi
+      // l'errore NON contiene "OPSIN" nel messaggio (es. "Timeout (12s)",
+      // "Failed to fetch"), quindi senza questo wrapper viaOpsin lo scarterebbe
+      // silenziosamente mostrando il generico "non trovata" invece di spiegare
+      // che il servizio di interpretazione nomi IUPAC non è raggiungibile.
+      throw new Error('OPSIN non raggiungibile ('+(networkErr&&networkErr.message||'errore di rete')+')');
+    })
     .then(function(r){
       // OPSIN restituisce un body JSON con {status, message} anche per nomi non
       // interpretabili (spesso con HTTP 400): leggiamo sempre il testo grezzo e
@@ -25975,20 +25984,32 @@ window.fetchPub = function(term){
   function viaOpsin(origErr){
     if(!looksLikeIupacName(term)) throw origErr;
     var translated = italianToEnglishIupac(term);
-    var tries = (translated && translated.toLowerCase()!==term.trim().toLowerCase()) ? [term, translated] : [term];
-    // Tiene traccia dell'ultimo errore SPECIFICO di OPSIN (nome non interpretabile)
-    // così, se tutti i tentativi falliscono, possiamo mostrare all'utente il motivo
-    // reale invece del generico "non trovata" — utile per capire se si tratta di un
-    // limite di interpretazione del nome o di un problema di connessione/PubChem.
+    var hasTranslation = !!(translated && translated.toLowerCase()!==term.trim().toLowerCase());
+    // OPSIN interpreta SOLO grammatica IUPAC inglese: un nome italiano come
+    // "2-cloro-4-nitroanilina" fallirebbe da OPSIN quasi certamente. Provarlo
+    // per primo sprecherebbe un'intera chiamata di rete (e relativo timeout)
+    // prima di arrivare al candidato realmente promettente — su connessioni
+    // lente questo può far accumulare ritardi fino al timeout complessivo.
+    // Proviamo quindi PRIMA la traduzione inglese (il candidato più probabile),
+    // tenendo l'originale come ultima spiaggia (nomi già scritti in inglese,
+    // o casi in cui la traduzione automatica è incompleta/errata).
+    var tries = hasTranslation ? [translated, term] : [term];
+    // Tiene traccia dell'ultimo errore di OPSIN (sia "nome non interpretabile"
+    // sia problemi di rete/timeout, ora sempre marcati "OPSIN" da
+    // opsinNameToSmiles) così, se tutti i tentativi falliscono, possiamo
+    // mostrare all'utente il motivo reale invece del generico "non trovata" —
+    // utile per distinguere un limite di interpretazione del nome da un
+    // problema di connettività verso il servizio OPSIN.
     var lastOpsinErr = null;
     function attempt(i){
       if(i>=tries.length) throw (lastOpsinErr || origErr);
       var candidate = tries[i];
+      var isTranslated = hasTranslation && candidate===translated;
       return opsinNameToSmiles(candidate).then(function(smiles){
         return smilesToCid(smiles).then(fetchByCid).catch(function(){
           return _localPropsFromSmiles(term, smiles,
             'Struttura interpretata dal nome IUPAC tramite OPSIN'
-            +(i>0?' (traduzione automatica IT→EN: "'+candidate+'")':'')
+            +(isTranslated?' (traduzione automatica IT→EN: "'+candidate+'")':'')
             +' — composto non presente nel database PubChem (dati 2D/3D PubChem non disponibili, analisi locale attiva).');
         });
       }).catch(function(e){
