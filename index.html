@@ -32560,22 +32560,30 @@ function _search(name, outEl){
     })
     .catch(function(err){
       // Fallback: nomi IUPAC complessi/sconosciuti a PubChem — prova a interpretarli con OPSIN
-      // (anche traducendo nomi italiani in inglese, dato che OPSIN capisce solo grammatica IUPAC inglese)
+      // (anche traducendo nomi italiani in inglese, dato che OPSIN capisce solo grammatica IUPAC inglese).
+      // Prova prima il nome tradotto in inglese (quello che OPSIN può davvero interpretare):
+      // tentare prima l'originale italiano sprecherebbe sempre un round-trip di rete.
       if(!isSmiles && typeof looksLikeIupacName==='function' && looksLikeIupacName(name) && typeof opsinNameToSmiles==='function'){
         var translated = (typeof italianToEnglishIupac==='function') ? italianToEnglishIupac(name) : null;
-        var tries = (translated && translated.toLowerCase()!==name.trim().toLowerCase()) ? [name, translated] : [name];
+        var hasTranslation = !!(translated && translated.toLowerCase()!==name.trim().toLowerCase());
+        var tries = hasTranslation ? [translated, name] : [name];
+        var lastOpsinErr = null;
         (function attempt(i){
-          if(i>=tries.length){ _srNotFound(outEl,name,err); return; }
+          if(i>=tries.length){ _srNotFound(outEl,name,lastOpsinErr||err); return; }
           var candidate=tries[i];
+          var isTranslated = hasTranslation && candidate===translated;
           opsinNameToSmiles(candidate).then(function(smi){
             var fgs=_smAnal(smi);
             var sr=_fgSyn(fgs,name);
             var info='⚠ Struttura interpretata dal nome IUPAC tramite OPSIN'
-              +(i>0?' (traduzione automatica IT→EN: "'+candidate+'")':'')
+              +(isTranslated?' (traduzione automatica IT→EN: "'+candidate+'")':'')
               +' (composto non presente in PubChem)'
               +' · SMILES: '+smi+' · FG: '+(fgs.join(', ')||'n.d.');
             _render(outEl,name,sr.steps,sr.ret,info);
-          }).catch(function(){ attempt(i+1); });
+          }).catch(function(e){
+            if(e && e.message && /OPSIN/.test(e.message)) lastOpsinErr = e;
+            attempt(i+1);
+          });
         })(0);
         return;
       }
