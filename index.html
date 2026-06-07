@@ -25845,6 +25845,11 @@ function italianToEnglishIupac(name){
     .replace(/ene\b/g,'ene')
     .replace(/ano\b/g,'ane');
 }
+// Espone i due helper OPSIN sul window: questa funzione gira dentro una IIFE
+// locale, ma il modulo "Sintesi & Retrosintesi" (altra IIFE, più avanti nel
+// documento) deve poterli richiamare per il proprio fallback sui nomi complessi.
+window.opsinNameToSmiles = opsinNameToSmiles;
+window.italianToEnglishIupac = italianToEnglishIupac;
 
 // Costruisce un oggetto proprietà "minimo" da uno SMILES analizzato in locale,
 // per molecole valide ma assenti da PubChem (niente CID → niente immagine 2D
