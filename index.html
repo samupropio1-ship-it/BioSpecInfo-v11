@@ -661,7 +661,10 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v40-2026-06';</script>
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v40-2026-06';
+// URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
+// Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
+window.BSI_TELEMETRY_URL='';</script>
 
 
 <!-- ═══════════════ HEADER ═══════════════ -->
@@ -31404,6 +31407,7 @@ window.openSR14=function(){
 var _ITEMS=[
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Qualsiasi molecola via PubChem',key:'sr',hl:true},
+  {ic:'📋',nm:'Questionario & Feedback',ds:'Vota l\'app, segnala bug o idee',key:'feedback',hl:true},
   {ic:'🧪',nm:'Sintesi Organica',ds:'Reazioni animate con meccanismi',key:'ssyn'},
   {ic:'🔄',nm:'Retrosintesi',ds:'Disconnessioni sistematiche',key:'sretro'},
   {sec:'⚙️ Strumenti'},
@@ -31435,6 +31439,7 @@ function _act(key){
   _closeSheet();
   setTimeout(function(){
     if(key==='sr')       { window.openSR14(); return; }
+    if(key==='feedback') { if(typeof window.openFeedback21==='function') window.openFeedback21(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
     if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
     if(key==='export')   { _trigOld('Esporta'); return; }
@@ -34048,6 +34053,255 @@ function _hookModal(){
 });
 
 console.log('BioSpecInfo v20 — SR SVG visibility fix ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v21 · Telemetria accessi/errori/allerte (privacy-friendly) ──
+(function(){
+'use strict';
+
+var TELEMETRY_URL=(window.BSI_TELEMETRY_URL||'').trim();
+var QUEUE_KEY='bsi_telemetry_queue';
+var MAX_QUEUE=60;
+
+function _deviceId(){
+  try{
+    var id=localStorage.getItem('bsi_device_id');
+    if(!id){ id='dev-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10); localStorage.setItem('bsi_device_id',id); }
+    return id;
+  }catch(e){ return 'dev-unknown'; }
+}
+
+function _ctx(){
+  return {
+    ts:new Date().toISOString(),
+    device:_deviceId(),
+    edition:(window.BSI_EDITION||'pro'),
+    appVersion:(window.BSI_APP_VERSION||''),
+    ua:navigator.userAgent,
+    lang:navigator.language,
+    screen:(screen.width+'x'+screen.height)
+  };
+}
+
+function _queuePush(payload){
+  try{
+    var q=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');
+    q.push(payload);
+    if(q.length>MAX_QUEUE) q=q.slice(q.length-MAX_QUEUE);
+    localStorage.setItem(QUEUE_KEY,JSON.stringify(q));
+  }catch(e){}
+}
+
+function _send(payload){
+  if(!TELEMETRY_URL){ _queuePush(payload); return; }
+  try{
+    fetch(TELEMETRY_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+      .catch(function(){ _queuePush(payload); });
+  }catch(e){ _queuePush(payload); }
+}
+
+function _flushQueue(){
+  if(!TELEMETRY_URL) return;
+  try{
+    var q=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');
+    if(!q.length) return;
+    localStorage.removeItem(QUEUE_KEY);
+    q.forEach(function(p){ _send(p); });
+  }catch(e){}
+}
+
+window._bsiTelemetry=function(type,data){
+  var payload=_ctx(); payload.type=type;
+  if(data){ for(var k in data){ if(data.hasOwnProperty(k)) payload[k]=data[k]; } }
+  _send(payload);
+};
+
+// ── 1. Log accesso (una volta per sessione del browser) ──
+try{
+  if(!sessionStorage.getItem('bsi_session_logged')){
+    sessionStorage.setItem('bsi_session_logged','1');
+    window._bsiTelemetry('accesso',{referrer:(document.referrer||'')});
+  }
+}catch(e){}
+_flushQueue();
+window.addEventListener('online',_flushQueue);
+
+// ── 2. Verifica integrità licenza PRO (rileva manomissioni di localStorage) ──
+function _hash(s){
+  var h=0;
+  for(var i=0;i<s.length;i++){ h=((h<<5)-h+s.charCodeAt(i))|0; }
+  return 'h'+(h>>>0).toString(36);
+}
+try{
+  var lic=localStorage.getItem('bsi_pro_license');
+  if(lic){
+    var chkKey='bsi_pro_license_chk';
+    var expected=localStorage.getItem(chkKey);
+    var actual=_hash(lic+'|bsi-salt-2026');
+    if(!expected){
+      localStorage.setItem(chkKey,actual);
+    } else if(expected!==actual){
+      if(!sessionStorage.getItem('bsi_lic_alert_sent')){
+        sessionStorage.setItem('bsi_lic_alert_sent','1');
+        window._bsiTelemetry('allerta',{tipo:'licenza_modificata',dettagli:'bsi_pro_license non corrisponde al checksum salvato in precedenza'});
+      }
+      localStorage.setItem(chkKey,actual);
+    }
+  }
+}catch(e){}
+
+// ── 3. Euristica DevTools aperti (best-effort, non invasiva) ──
+(function(){
+  var THRESH=170, sent=false;
+  function check(){
+    if(sent) return;
+    var wd=window.outerWidth-window.innerWidth;
+    var hd=window.outerHeight-window.innerHeight;
+    if(wd>THRESH || hd>THRESH){
+      sent=true;
+      window._bsiTelemetry('allerta',{tipo:'devtools_aperti',dettagli:'finestra '+window.outerWidth+'x'+window.outerHeight+' vs viewport '+window.innerWidth+'x'+window.innerHeight});
+    }
+  }
+  window.addEventListener('resize',check);
+  setTimeout(check,2000);
+})();
+
+// ── 4. Errori JS non gestiti (utile per individuare bug in produzione) ──
+(function(){
+  var seen={}, count=0, MAXERR=15;
+  function report(msg,src,line,stack){
+    var key=msg+'|'+src+'|'+line;
+    if(seen[key]||count>=MAXERR) return;
+    seen[key]=1; count++;
+    window._bsiTelemetry('errore',{messaggio:String(msg).slice(0,300),sorgente:String(src||'').slice(0,200),riga:line||0,stack:String(stack||'').slice(0,500)});
+  }
+  window.addEventListener('error',function(e){
+    report(e.message,e.filename,e.lineno,e.error&&e.error.stack);
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    var r=e.reason;
+    report((r&&r.message)||String(r),'',0,r&&r.stack);
+  });
+})();
+
+console.log('BioSpecInfo v21 — Telemetria accessi/errori ✔');
+})();
+</script>
+
+<script>
+// ─── BioSpecInfo v21b · Sezione "stella" Questionario & Feedback ─────────────
+(function(){
+'use strict';
+
+var _st=document.createElement('style');
+_st.textContent=[
+'#bsi21-fb{position:fixed;inset:0;z-index:2147483642;display:none;align-items:center;',
+'justify-content:center;background:rgba(2,8,16,.9);backdrop-filter:blur(8px);padding:10px;}',
+'#bsi21-fb.open{display:flex;}',
+'#bsi21-fb-box{background:#0c1828;border:1px solid #1e3a52;border-radius:18px;',
+'max-width:520px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.7);}',
+'#bsi21-fb-hd{display:flex;align-items:center;justify-content:space-between;',
+'padding:14px 18px;border-bottom:1px solid #1e3a52;position:sticky;top:0;background:#0c1828;z-index:2;}',
+'#bsi21-fb-hd h3{margin:0;color:#1fd39a;font-size:1rem;font-weight:800;}',
+'#bsi21-fb-x{background:#16293f;border:none;color:#9fb8d0;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;}',
+'#bsi21-fb-body{padding:16px 18px;}',
+'.bsi21-fb-lbl{display:block;color:#9fb8d0;font-size:11.5px;font-weight:700;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.06em;}',
+'.bsi21-fb-lbl:first-child{margin-top:0;}',
+'#bsi21-fb-stars{font-size:30px;letter-spacing:6px;cursor:pointer;user-select:none;}',
+'.bsi21-fb-star{color:#2c4258;transition:color .15s;}',
+'.bsi21-fb-star.on{color:#ffc94d;}',
+'#bsi21-fb-cat{width:100%;padding:10px 12px;background:#060e1a;border:1.5px solid #1e3a52;',
+'border-radius:10px;color:#e8f4ff;font-size:13px;outline:none;box-sizing:border-box;}',
+'#bsi21-fb-cat:focus{border-color:#1fd39a;}',
+'#bsi21-fb-msg{width:100%;padding:12px 14px;background:#060e1a;border:1.5px solid #1e3a52;',
+'border-radius:10px;color:#e8f4ff;font-size:13px;outline:none;box-sizing:border-box;',
+'min-height:100px;resize:vertical;font-family:inherit;}',
+'#bsi21-fb-msg:focus{border-color:#1fd39a;}',
+'#bsi21-fb-email{width:100%;padding:10px 12px;background:#060e1a;border:1.5px solid #1e3a52;',
+'border-radius:10px;color:#e8f4ff;font-size:13px;outline:none;box-sizing:border-box;}',
+'#bsi21-fb-email:focus{border-color:#1fd39a;}',
+'#bsi21-fb-go{width:100%;padding:13px;background:linear-gradient(135deg,#1fd39a,#1aa97a);',
+'border:none;border-radius:10px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;margin-top:18px;}',
+'#bsi21-fb-go:disabled{opacity:.5;cursor:default;}',
+'#bsi21-fb-out{margin-top:14px;text-align:center;font-size:13px;font-weight:700;display:none;}',
+'.bsi21-fb-hint{font-size:11px;color:#5a8aaa;line-height:1.6;margin-bottom:4px;}'
+].join('');
+document.head.appendChild(_st);
+
+var CATS=['Suggerimento','Segnalazione bug','Contenuto mancante/errato','Apprezzamento','Altro'];
+
+function _build(){
+  if(document.getElementById('bsi21-fb')) return;
+  var m=document.createElement('div'); m.id='bsi21-fb'; m.dataset.rating='0';
+  var starsHtml=''; for(var i=1;i<=5;i++) starsHtml+='<span class="bsi21-fb-star" data-v="'+i+'">★</span>';
+  m.innerHTML='<div id="bsi21-fb-box">'
+    +'<div id="bsi21-fb-hd"><h3>📋 Questionario & Feedback</h3><button id="bsi21-fb-x">✕</button></div>'
+    +'<div id="bsi21-fb-body">'
+    +'<div class="bsi21-fb-hint">Aiutaci a migliorare BioSpecInfo: il feedback è anonimo, a meno che tu non lasci un\'email.</div>'
+    +'<label class="bsi21-fb-lbl">Quanto ti piace l\'app?</label>'
+    +'<div id="bsi21-fb-stars">'+starsHtml+'</div>'
+    +'<label class="bsi21-fb-lbl">Tipo di feedback</label>'
+    +'<select id="bsi21-fb-cat">'+CATS.map(function(c){return '<option>'+c+'</option>';}).join('')+'</select>'
+    +'<label class="bsi21-fb-lbl">Il tuo commento</label>'
+    +'<textarea id="bsi21-fb-msg" placeholder="Scrivi qui cosa funziona, cosa no, o cosa vorresti vedere…"></textarea>'
+    +'<label class="bsi21-fb-lbl">Email (opzionale, per risposta)</label>'
+    +'<input id="bsi21-fb-email" type="email" placeholder="tuamail@esempio.it"/>'
+    +'<button id="bsi21-fb-go">📨 Invia feedback</button>'
+    +'<div id="bsi21-fb-out"></div>'
+    +'</div></div>';
+  document.body.appendChild(m);
+  document.getElementById('bsi21-fb-x').onclick=function(){ m.classList.remove('open'); };
+  m.addEventListener('click',function(e){ if(e.target===m) m.classList.remove('open'); });
+
+  m.querySelectorAll('.bsi21-fb-star').forEach(function(s){
+    s.onclick=function(){
+      var v=parseInt(this.getAttribute('data-v'),10);
+      m.dataset.rating=String(v);
+      m.querySelectorAll('.bsi21-fb-star').forEach(function(st){
+        st.classList.toggle('on',parseInt(st.getAttribute('data-v'),10)<=v);
+      });
+    };
+  });
+
+  document.getElementById('bsi21-fb-go').onclick=function(){
+    var rating=parseInt(m.dataset.rating||'0',10);
+    var msg=(document.getElementById('bsi21-fb-msg').value||'').trim();
+    var cat=document.getElementById('bsi21-fb-cat').value;
+    var email=(document.getElementById('bsi21-fb-email').value||'').trim();
+    var out=document.getElementById('bsi21-fb-out');
+    if(!rating && !msg){
+      out.style.display='block'; out.style.color='#ff8a80';
+      out.textContent='Aggiungi una valutazione o un commento prima di inviare.';
+      return;
+    }
+    if(typeof window._bsiTelemetry==='function'){
+      window._bsiTelemetry('feedback',{voto:rating,categoria:cat,messaggio:msg.slice(0,1000),email:email});
+    }
+    var btn=document.getElementById('bsi21-fb-go');
+    btn.disabled=true; btn.textContent='✓ Inviato';
+    out.style.display='block'; out.style.color='#1fd39a';
+    out.textContent='Grazie per il tuo feedback! 🙏';
+    setTimeout(function(){ m.classList.remove('open'); },1400);
+  };
+}
+
+window.openFeedback21=function(){
+  _build();
+  var m=document.getElementById('bsi21-fb');
+  m.classList.add('open');
+  m.dataset.rating='0';
+  m.querySelectorAll('.bsi21-fb-star').forEach(function(st){ st.classList.remove('on'); });
+  document.getElementById('bsi21-fb-msg').value='';
+  document.getElementById('bsi21-fb-email').value='';
+  document.getElementById('bsi21-fb-cat').selectedIndex=0;
+  var go=document.getElementById('bsi21-fb-go'); go.disabled=false; go.textContent='📨 Invia feedback';
+  var out=document.getElementById('bsi21-fb-out'); out.style.display='none';
+  setTimeout(function(){ var i=document.getElementById('bsi21-fb-msg'); if(i) i.focus(); },120);
+};
+
+console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
 })();
 </script>
 
