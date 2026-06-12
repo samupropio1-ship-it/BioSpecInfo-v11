@@ -31443,9 +31443,11 @@ function _buildSheet(){
   el.querySelectorAll('.bsi14-row').forEach(function(r){
     r.onclick=function(){ _act(this.getAttribute('data-key')); };
   });
-  var sy=0, panel=document.getElementById('bsi14-panel');
-  panel.addEventListener('touchstart',function(e){ sy=e.touches[0].clientY; },{passive:true});
-  panel.addEventListener('touchend',function(e){ if(e.changedTouches[0].clientY-sy>70) _closeSheet(); },{passive:true});
+  var sy=0, sTop=0, panel=document.getElementById('bsi14-panel');
+  panel.addEventListener('touchstart',function(e){ sy=e.touches[0].clientY; sTop=panel.scrollTop; },{passive:true});
+  panel.addEventListener('touchend',function(e){
+    if(sTop<=0 && panel.scrollTop<=0 && e.changedTouches[0].clientY-sy>70) _closeSheet();
+  },{passive:true});
 }
 
 // ══ 11. Crea FAB v14 ══════════════════════════════════════════════════════════
