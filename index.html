@@ -65,12 +65,13 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overscroll-behavior-y: contain; }
 body {
   background: var(--bg); color: var(--text);
   font-family: var(--font); font-size: 14px;
   line-height: 1.55; min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
 }
 input, button, select, textarea { font-family: var(--font); }
 a { color: var(--g800); text-decoration: none; }
@@ -661,7 +662,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v57-2026-06';
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v59-2026-06';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -30950,7 +30951,7 @@ _st.textContent = [
 'background:rgba(2,8,18,.75);backdrop-filter:blur(9px);}',
 '#bsi14-sheet.open{display:flex;}',
 '#bsi14-panel{background:#091422;border:1px solid #192f45;border-radius:20px 20px 0 0;',
-'width:100%;max-height:82vh;overflow-y:auto;',
+'width:100%;max-height:82vh;overflow-y:auto;overscroll-behavior-y:contain;',
 'padding-bottom:calc(env(safe-area-inset-bottom,0px)+28px);',
 'box-shadow:0 -10px 50px rgba(0,0,0,.6);animation:_bs14up .22s cubic-bezier(.25,.8,.25,1);}',
 '@keyframes _bs14up{from{transform:translateY(100%)}to{transform:translateY(0)}}',
@@ -34269,7 +34270,7 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
 
 <!-- ===== BSI QUANTUM LAB (integrato nel menu ✨ → "Lab Quantistico") ===== -->
 <style id="bsiQ-style">
-#bsiQ-ov{position:fixed;inset:0;width:100%;height:100%;z-index:999999!important;background:rgba(6,18,30,.97);display:none;flex-direction:column}
+#bsiQ-ov{position:fixed;inset:0;width:100%;height:100%;z-index:999999!important;background:rgba(6,18,30,.97);display:none;flex-direction:column;overscroll-behavior:contain}
 #bsiQ-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(0,201,183,.22);flex-wrap:wrap}
 #bsiQ-bar .bsiQ-ttl{font-family:"Palatino Linotype",Palatino,Georgia,serif;color:#00c9b7;font-size:18px;margin-right:auto}
 #bsiQ-close{font-size:22px;background:none;border:none;color:#e9eef6;cursor:pointer;padding:4px 12px;border-radius:8px}
@@ -34294,6 +34295,7 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
     --teal:#00c9b7;--teal2:#05ad8a;--orange:#f77f00;--text:#e9eef6;--text2:#9fb3c8;
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;--ease:cubic-bezier(.22,.61,.36,1);}
   *{box-sizing:border-box;margin:0;padding:0}
+  html,body{overscroll-behavior-y:contain}
   body{background:radial-gradient(1200px 800px at 70% -10%,#0e2740,#0a1b2e 60%);color:var(--text);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding:18px}
   .wrap{max-width:1060px;margin:0 auto}
@@ -34470,11 +34472,11 @@ function Ylm(l,m,x,y,z){const P=Math.PI;if(l===0)return 0.5/Math.sqrt(P);
   if(l===3){if(m===-3)return 0.25*Math.sqrt(35/(2*P))*y*(3*x*x-y*y);if(m===-2)return 0.5*Math.sqrt(105/P)*x*y*z;if(m===-1)return 0.25*Math.sqrt(21/(2*P))*y*(5*z*z-1);if(m===0)return 0.25*Math.sqrt(7/P)*z*(5*z*z-3);if(m===1)return 0.25*Math.sqrt(21/(2*P))*x*(5*z*z-1);if(m===2)return 0.25*Math.sqrt(105/P)*z*(x*x-y*y);return 0.25*Math.sqrt(35/(2*P))*x*(x*x-3*y*y);}return 0;}
 function psiO(n,l,m,x,y,z){const r=Math.sqrt(x*x+y*y+z*z)||1e-9;return Rnl(n,l,r)*Ylm(l,m,x/r,y/r,z/r);}
 let oN=2,oL=1,oM=0,oCloud=null,oYaw=0.6,oPitch=-0.35,oDrag=false,oLX=0,oLY=0,oFade=1,oOrder=null,oZ=null,oPX=null,oPY=null,oSC=null,oZoom=1,oZoomLum=1;
-const oMobile=(window.matchMedia?window.matchMedia('(max-width:760px)').matches:false), oNP=oMobile?9000:15000;
+const oMobile=(window.matchMedia?window.matchMedia('(max-width:760px)').matches:false), oNP=oMobile?5000:9000;
 function oSample(){oFade=0;const n=oN,l=oL,m=oM,L=2.2*n*n+6;let pmax=0;
-  for(let i=0;i<24000;i++){const x=(Math.random()*2-1)*L,y=(Math.random()*2-1)*L,z=(Math.random()*2-1)*L;const p=psiO(n,l,m,x,y,z);if(p*p>pmax)pmax=p*p;}pmax*=1.02;
+  for(let i=0;i<5000;i++){const x=(Math.random()*2-1)*L,y=(Math.random()*2-1)*L,z=(Math.random()*2-1)*L;const p=psiO(n,l,m,x,y,z);if(p*p>pmax)pmax=p*p;}pmax*=1.02;
   const pts=new Float32Array(oNP*3),sgn=new Int8Array(oNP),den=new Float32Array(oNP);let g=0,t=0;
-  while(g<oNP&&t<oNP*400){t++;const x=(Math.random()*2-1)*L,y=(Math.random()*2-1)*L,z=(Math.random()*2-1)*L;const p=psiO(n,l,m,x,y,z),p2=p*p;
+  while(g<oNP&&t<oNP*120){t++;const x=(Math.random()*2-1)*L,y=(Math.random()*2-1)*L,z=(Math.random()*2-1)*L;const p=psiO(n,l,m,x,y,z),p2=p*p;
     if(p2>Math.random()*pmax){pts[g*3]=x/L;pts[g*3+1]=y/L;pts[g*3+2]=z/L;sgn[g]=p>=0?1:-1;den[g]=Math.min(1,p2/pmax);g++;}}
   oCloud={pts:pts.subarray(0,g*3),sgn:sgn.subarray(0,g),den:den.subarray(0,g),count:g};}
 const LET=['s','p','d','f'];
@@ -34485,17 +34487,24 @@ function drawOrb(){const o=ctx2('cOrb');if(!o)return;const x=o.x,w=o.w,h=o.h;bg(
   if(oCloud&&oCloud.count){
     const cyA=Math.cos(oYaw),syA=Math.sin(oYaw),cp=Math.cos(oPitch),sp=Math.sin(oPitch);
     const R=Math.min(w,h)*0.40*oZoom,focal=3.2,p=oCloud.pts,sg=oCloud.sgn,dn=oCloud.den,cx=w/2,cyy=h/2;
-    for(let i=0;i<oCloud.count;i++){
+    // disegno diretto su buffer pixel: evita migliaia di cambi fillStyle/fillRect per frame (causa di lag/crash)
+    const img=x.getImageData(0,0,w,h),buf=img.data,cnt=oCloud.count;
+    for(let i=0;i<cnt;i++){
       const X=p[i*3],Y=p[i*3+1],Z=p[i*3+2];
       const x1=X*cyA-Z*syA,z1=X*syA+Z*cyA,y2=Y*cp-z1*sp,z2=Y*sp+z1*cp,sc=focal/(focal+z2);
-      const px=cx+x1*R*sc,py=cyy-y2*R*sc,depth=Math.max(0,Math.min(1,(z2+1.4)/2.8)),d=dn[i];
+      const px=(cx+x1*R*sc)|0,py=(cyy-y2*R*sc)|0;
+      if(px<0||px>=w-1||py<0||py>=h-1)continue;
+      const depth=Math.max(0,Math.min(1,(z2+1.4)/2.8)),d=dn[i];
       let rr,gg,bb;
-      if(sg[i]>0){rr=Math.round(20+200*d);gg=Math.round(150+90*d);bb=Math.round(110+60*d);} // teal->verde acceso
-      else{rr=Math.round(180+75*d);gg=Math.round(90+110*d);bb=Math.round(40+30*d);}           // arancio->giallo
+      if(sg[i]>0){rr=20+200*d;gg=150+90*d;bb=110+60*d;} // teal->verde acceso
+      else{rr=180+75*d;gg=90+110*d;bb=40+30*d;}           // arancio->giallo
       const a=(0.10+0.40*depth)*oFade;
-      x.fillStyle='rgba('+rr+','+gg+','+bb+','+a.toFixed(3)+')';
-      const sz=1.2+depth*1.6;x.fillRect(px,py,sz,sz);
+      for(let oy=0;oy<2;oy++)for(let ox=0;ox<2;ox++){
+        const idx=((py+oy)*w+(px+ox))*4;
+        buf[idx]+=(rr-buf[idx])*a;buf[idx+1]+=(gg-buf[idx+1])*a;buf[idx+2]+=(bb-buf[idx+2])*a;
+      }
     }
+    x.putImageData(img,0,0);
   }
   const rad=oN-oL-1;
   document.getElementById('orbInfo').innerHTML='<b>Orbitale '+oName()+'</b> · n='+oN+' l='+oL+' m='+oM+'<br>Nodi radiali: <span class="hl">'+rad+'</span> · Nodi angolari: <span class="hl">'+oL+'</span> · Energia: <span class="hl">'+(-13.6/(oN*oN)).toFixed(2)+' eV</span><br><span style="color:#00c9b7">Teal/verde</span> = fase +, <span style="color:#f77f00">arancio/giallo</span> = fase −. Trascina per ruotare.';}
