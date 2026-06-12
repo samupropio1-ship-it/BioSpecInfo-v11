@@ -661,7 +661,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v56-2026-06';
+<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v57-2026-06';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -25594,7 +25594,14 @@ window.openBSIGuide=function(step){
   ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
   document.body.appendChild(ov);render(step||0);
 };
-if(!localStorage.getItem('bsi_guide_v3')){setTimeout(function(){if(!document.getElementById('bsi-guide'))window.openBSIGuide(0);localStorage.setItem('bsi_guide_v3','1');},2000);}
+if(!localStorage.getItem('bsi_guide_v3')){setTimeout(function(){
+  var qlabOv=document.getElementById('bsiQ-ov');
+  var qlabOpen=qlabOv&&getComputedStyle(qlabOv).display!=='none';
+  if(!document.getElementById('bsi-guide')&&!qlabOpen){
+    window.openBSIGuide(0);
+    localStorage.setItem('bsi_guide_v3','1');
+  }
+},2000);}
 }
 
 // ── 6. ADD GUIDE BTN TO HEADER ──────────────────────────────────────────
@@ -34260,7 +34267,7 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
 
 <!-- ===== BSI QUANTUM LAB (integrato nel menu ✨ → "Lab Quantistico") ===== -->
 <style id="bsiQ-style">
-#bsiQ-ov{position:fixed;inset:0;width:100%;height:100%;z-index:99991;background:rgba(6,18,30,.97);display:none;flex-direction:column}
+#bsiQ-ov{position:fixed;inset:0;width:100%;height:100%;z-index:999999!important;background:rgba(6,18,30,.97);display:none;flex-direction:column}
 #bsiQ-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(0,201,183,.22);flex-wrap:wrap}
 #bsiQ-bar .bsiQ-ttl{font-family:"Palatino Linotype",Palatino,Georgia,serif;color:#00c9b7;font-size:18px;margin-right:auto}
 #bsiQ-close{font-size:22px;background:none;border:none;color:#e9eef6;cursor:pointer;padding:4px 12px;border-radius:8px}
@@ -34895,6 +34902,8 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden){var
 (function(){try{
   var ov=document.getElementById('bsiQ-ov'),fr=document.getElementById('bsiQ-frame');
   window.openQuantumLab=function(){
+    var guide=document.getElementById('bsi-guide'); if(guide) guide.remove();
+    var sheet=document.getElementById('bsi14-sheet'); if(sheet) sheet.classList.remove('open');
     ov.style.display='flex';
     var node=document.getElementById('bsiQ-src-lab');
     fr.srcdoc=node.textContent.replace(/<\/SCRIPTBSIQ>/g,'<\/script>');
