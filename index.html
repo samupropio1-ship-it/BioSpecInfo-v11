@@ -658,6 +658,25 @@ input::placeholder, textarea::placeholder { color: #888888; }
 /* c-var aliases for light theme */
 .rxn-fp button { background: var(--white); border: 1px solid var(--g200); border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text2); }
 .rxn-fp button.on, .rxn-fp button:hover { background: var(--g100); border-color: var(--g700); color: var(--g900); }
+/* ===== Quiz Spettri ===== */
+.qz-opt{background:#102a44;border:1px solid rgba(0,201,183,.25);color:#e9eef6;border-radius:10px;padding:12px;cursor:pointer;font-weight:600;font-size:.95rem;transition:all .15s ease;text-align:center}
+.qz-opt:hover{border-color:#00c9b7;transform:translateY(-1px)}
+.qz-opt.correct{background:#0d6e4f;border-color:#10b981;color:#fff}
+.qz-opt.wrong{background:#7a2020;border-color:#ef4444;color:#fff}
+/* ===== Centro Spettroscopico Unificato ===== */
+@keyframes shpfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ctrb{padding:9px 15px;border:1px solid rgba(0,201,183,.25);background:#102a44;color:#e9eef6;border-radius:11px;cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s ease}
+.ctrb:hover{border-color:#00c9b7;transform:translateY(-1px)}
+.ctrb.on{background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border-color:#00c9b7}
+.ctrp{display:none;animation:shpfade .35s ease}
+.ctrp.on{display:block}
+#scentro svg{width:100%!important;height:auto!important;display:block;border-radius:8px}
+.ctr-nav{background:#102a44;border:1px solid rgba(0,201,183,.22);border-radius:12px;padding:14px 12px;color:#e9eef6;cursor:pointer;text-align:center;font-size:.8rem;line-height:1.5;transition:all .2s ease}
+.ctr-nav:hover{border-color:#00c9b7;transform:translateY(-2px);background:#143452}
+.ctr-nav b{color:#00c9b7;font-size:.95rem}
+.ctr-nav span{color:#9fb3c8;font-size:.75rem}
+.specmap-reg{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:5px 0;background:#102a44;border-left:4px solid #00c9b7;border-radius:8px;font-size:.86rem}
+.specmap-reg .rng{font-family:monospace;color:#00c9b7;font-weight:700;min-width:120px}
 
 </style>
 </head>
@@ -753,6 +772,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="srxnbal">⚖️ Bilancia Rz.</button>
   </div>
   <div id="navGroup1" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
+    <button class="nav-btn" data-s="squizspec">🎯 Quiz Spettri</button>
     <button class="nav-btn" data-s="sspec">📊 Spettri Ref.</button>
     <button class="nav-btn" data-s="sirvis">📈 IR Visivi</button>
     <button class="nav-btn" data-s="sms">⚗️ Spettro MS</button>
@@ -18067,7 +18087,9 @@ function setupNavBtn(btn){
       "suvvis": "initUVVis",
       "svsepr": "initVSEPR",
       "smm": "initMM",
-      "snernst": "initNernst"
+      "snernst": "initNernst",
+      "squizspec": "initQuizSpec",
+      "scentro": "initCentro"
     };
     var fn = initMap[sec];
     if(fn && typeof window[fn] === 'function'){
@@ -19617,6 +19639,10 @@ document.addEventListener('click',function(e){
           <div id="mdSmiles" style="font-family:monospace;font-size:0.88rem;color:#e2e8f0;word-break:break-all;min-height:40px;background:#0a1628;padding:8px;border-radius:6px"></div>
           <button onclick="copySmiles()" style="margin-top:8px;width:100%;background:#00d4aa;color:#e9eef6;border:none;padding:7px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.85rem">📋 Copia SMILES</button>
         </div>
+      </div>
+      <div class="panel" style="margin-bottom:10px">
+        <div class="ph" style="color:#00d4aa;font-size:0.85rem">Spettri predetti (IR · ¹H-NMR)</div>
+        <div class="pb"><div id="mdSpectra"><div style="color:#7a8aa0;font-size:.85rem;padding:8px">Disegna una molecola per vedere gli spettri predetti.</div></div></div>
       </div>
       <div class="panel" style="margin-bottom:10px">
         <div class="ph" style="color:#f59e0b;font-size:0.85rem">Formula Bruta</div>
@@ -21488,6 +21514,10 @@ console.log('✅ DB farmaci completo: ' + Object.keys(D).length + ' schede');
 })();
 
 </script>
+<!-- ══ SECTION: QUIZ SPETTRI ═══════════════════════════════════════════ -->
+<div id="squizspec" class="section"><div class="section-title">🎯 QUIZ SPETTRI — Riconosci il gruppo funzionale</div><div style="color:#9fb3c8;font-size:.9rem;margin-bottom:14px;max-width:720px;line-height:1.6">Osserva lo spettro IR e indica quale gruppo funzionale è presente. Ottimo allenamento per l'esame.</div><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><div style="font-size:1.1rem;font-weight:700;color:#00c9b7">Punteggio: <span id="qzScore">0</span> / <span id="qzTot">0</span></div><button id="qzNew" style="background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border:none;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer">Nuova domanda</button></div><div id="qzSpectrum" style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:14px;min-height:120px"></div><div id="qzOptions" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px"></div><div id="qzFeedback" style="font-size:.95rem;min-height:40px;padding:10px;border-radius:8px"></div></div>
+<!-- ══ SECTION: CENTRO SPETTROSCOPICO UNIFICATO (apribile da ✨ → Centro Spettri) ══ -->
+<div id="scentro" class="section"><div class="section-title">🌈 CENTRO SPETTROSCOPICO UNIFICATO</div><div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;margin-bottom:14px;max-width:760px">Tutte le tecniche spettroscopiche in un'unica dashboard. Scrivi uno SMILES o caricalo dall'editor, e confronta le firme della molecola in IR e ¹H-NMR.</div><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px"><input id="ctrSmiles" type="text" placeholder="SMILES, es. CC(=O)Oc1ccccc1C(=O)O" style="flex:1;min-width:220px;background:#102a44;color:#e9eef6;border:1px solid rgba(0,201,183,.3);border-radius:10px;padding:10px 13px;font-size:14px;font-family:monospace"><button id="ctrGo" style="background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border:none;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer">Analizza</button><button id="ctrFromEditor" style="background:#102a44;color:#e9eef6;border:1px solid rgba(0,201,183,.3);border-radius:10px;padding:10px 16px;cursor:pointer">↩ Dall'editor</button></div><div class="ctr-bar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="ctrb on" data-ctr="ir">📊 IR</button><button class="ctrb" data-ctr="nmr">〰 ¹H-NMR</button><button class="ctrb" data-ctr="map">🗺️ Mappa</button><button class="ctrb" data-ctr="more">➕ Altre tecniche</button></div><div id="ctrIR" class="ctrp on"></div><div id="ctrNMR" class="ctrp"></div><div id="ctrMore" class="ctrp"><div style="color:#e9eef6;font-size:.95rem;font-weight:600;margin-bottom:6px">Tecniche spettroscopiche avanzate</div><div style="color:#9fb3c8;font-size:.85rem;margin-bottom:14px;line-height:1.6">Oltre a IR e NMR di base, l'app offre strumenti dedicati per altre tecniche. Ognuno apre la sua sezione completa con grafici e dati specifici. Tocca una scheda per aprirla.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px"><button class="ctr-nav" onclick="goSection('sirvis')"><div style="font-size:1.6rem">📈</div><b>IR Visivi</b><span>Esplora le bande IR raggruppate per gruppo funzionale, con spettri interattivi</span></button><button class="ctr-nav" onclick="goSection('suvvis')"><div style="font-size:1.6rem">🌈</div><b>UV-Vis</b><span>Spettroscopia elettronica: transizioni e cromofori nel visibile/UV</span></button><button class="ctr-nav" onclick="goSection('sms')"><div style="font-size:1.6rem">⚗️</div><b>Spettro di massa</b><span>Frammentazione e picchi m/z per l'identificazione molecolare</span></button><button class="ctr-nav" onclick="goSection('snmrpred')"><div style="font-size:1.6rem">📡</div><b>NMR Predittivo</b><span>Predizione dei chemical shift ¹H e ¹³C dalla struttura</span></button><button class="ctr-nav" onclick="goSection('snoe')"><div style="font-size:1.6rem">🔗</div><b>NMR 2D / NOE</b><span>Correlazioni spaziali e bidimensionali tra nuclei</span></button><button class="ctr-nav" onclick="goSection('sspec')"><div style="font-size:1.6rem">📊</div><b>Database reali</b><span>Spettri sperimentali da NIST, SDBS e nmrdb per confronto</span></button></div></div><div id="ctrMap" class="ctrp"><div id="ctrMapBox"></div></div></div>
 <!-- ══ SECTION: IR SPETTRI VISIVI ══════════════════════════════════════ -->
 <div id="sirvis" class="section">
   <div class="section-title">📈 SPETTRI IR VISIVI — Gruppi Funzionali</div>
@@ -24545,10 +24575,39 @@ function genFormula(){
   return f || '—';
 }
 
+function mdRenderSpectra(){
+  var smi=(typeof genSMILES==='function')?genSMILES():'';
+  var box=document.getElementById('mdSpectra');
+  if(!box)return;
+  if(!smi){box.innerHTML='<div style="color:#7a8aa0;font-size:.85rem;padding:10px">Disegna una molecola per vedere gli spettri predetti.</div>';return;}
+  var html='';
+  try{
+    var bands=(typeof irBandList==='function')?irBandList(smi):[];
+    var peaks=(typeof nmrPeakList==='function')?nmrPeakList(smi):[];
+    if(bands&&bands.length&&typeof makeIRsvg==='function'){
+      html+='<div style="color:#c62828;font-weight:600;font-size:.85rem;margin:6px 0 3px">IR predetto</div>';
+      html+='<div style="background:#fff;border-radius:8px;overflow:hidden">'+makeIRsvg(bands,'#c62828')+'</div>';
+      html+='<div style="font-size:.74rem;color:#9fb3c8;margin:4px 0 10px">'+bands.slice().sort(function(a,b){return b.pk-a.pk;}).map(function(b){return '<b style="color:#e2a0a0">'+b.pk+'</b> '+(b.n||'');}).join(' · ')+'</div>';
+    }
+    if(peaks&&peaks.length&&typeof makeNMRsvg==='function'){
+      html+='<div style="color:#a060d0;font-weight:600;font-size:.85rem;margin:8px 0 3px">¹H-NMR predetto</div>';
+      html+='<div style="background:#fff;border-radius:8px;overflow:hidden">'+makeNMRsvg(peaks,'#6a1b9a')+'</div>';
+      html+='<div style="font-size:.74rem;color:#9fb3c8;margin:4px 0 6px">'+peaks.slice().sort(function(a,b){return b.ppm-a.ppm;}).map(function(p){return '<b style="color:#c9a0e0">'+(+p.ppm).toFixed(2)+' ppm</b> ('+p.nH+'H)';}).join(' · ')+'</div>';
+    }
+    if(!html){html='<div style="color:#7a8aa0;font-size:.85rem;padding:10px">Nessuna banda caratteristica rilevata per questa struttura.</div>';}
+  }catch(e){
+    html='<div style="color:#f59e0b;font-size:.82rem;padding:10px">Spettri non disponibili per questa struttura.</div>';
+  }
+  html+='<div style="color:#7a8aa0;font-size:.7rem;margin-top:8px;line-height:1.5;border-top:1px solid rgba(159,179,200,.15);padding-top:6px">Spettri <b>predetti da regole</b> sui gruppi funzionali, qualitativi e didattici. Per dati sperimentali reali usa i link a NIST / SDBS / nmrdb nelle sezioni IR e NMR.</div>';
+  box.innerHTML=html;
+}
+
 function updateMDInfo(){
   var smiles = genSMILES();
   var el = document.getElementById('mdSmiles');
   if(el) el.textContent = smiles || '(vuoto)';
+  if(window._mdSpecT)clearTimeout(window._mdSpecT);
+  window._mdSpecT=setTimeout(function(){try{mdRenderSpectra();}catch(e){}},220);
   var fe = document.getElementById('mdFormula');
   if(fe) fe.innerHTML = '<span style="font-size:1.1rem">'+genFormula()+'</span><br><span style="color:#c9d3df;font-size:0.8rem">Atomi: '+MD.atoms.length+' | Legami: '+MD.bonds.length+'</span>';
 }
@@ -24564,6 +24623,161 @@ function copySmiles(){
   });
 }
 
+/* ===== CENTRO SPETTROSCOPICO UNIFICATO (sezione globale) ===== */
+var _ctrSmiles="CC(=O)Oc1ccccc1C(=O)O";
+function initCentro(){
+  var bar=document.querySelectorAll('.ctrb'); if(!bar.length)return;
+  bar.forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll('.ctrb').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var w=b.getAttribute('data-ctr');
+      var map={ir:'ctrIR',nmr:'ctrNMR',more:'ctrMore',map:'ctrMap'};
+      Object.keys(map).forEach(function(k){var el=document.getElementById(map[k]);if(el)el.classList.toggle('on',k===w);});
+      if(w==='map')ctrBuildMap();
+    };
+  });
+  var go=document.getElementById('ctrGo'), inp=document.getElementById('ctrSmiles'), fe=document.getElementById('ctrFromEditor');
+  if(go)go.onclick=function(){ if(inp&&inp.value.trim()){_ctrSmiles=inp.value.trim();ctrRender();} };
+  if(inp){inp.value=_ctrSmiles;inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&go)go.click();});}
+  if(fe)fe.onclick=function(){
+    var smi=(typeof genSMILES==='function')?genSMILES():'';
+    if(smi){_ctrSmiles=smi;if(inp)inp.value=smi;ctrRender();}
+    else{alert('Disegna prima una molecola nell\'Editor Mol.');}
+  };
+  ctrRender();
+}
+function ctrRender(){
+  try{
+    var smi=_ctrSmiles;
+    var ir=document.getElementById('ctrIR'), nm=document.getElementById('ctrNMR');
+    if(ir&&typeof irBandList==='function'&&typeof makeIRsvg==='function'){
+      var bands=irBandList(smi);
+      window._ctrBands=bands;
+      var svg=makeIRsvg(bands,'#c62828');
+      // inserisco un layer per l'highlight subito dopo l'apertura dell'svg
+      svg=svg.replace('<svg ','<svg id="ctrIRsvg" ');
+      var h='<div style="background:#fff;border-radius:8px;overflow:hidden;margin-bottom:8px;position:relative">'+svg+'</div>';
+      h+='<div style="font-size:.8rem;color:#9fb3c8;line-height:1.7">'+bands.slice().sort(function(a,b){return b.pk-a.pk;}).map(function(b){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#e2a0a0">'+b.pk+' cm⁻¹</b> '+(b.n||'')+'</span>';}).join('')+'</div>';
+      ir.innerHTML=h;
+    }
+    if(nm&&typeof nmrPeakList==='function'&&typeof makeNMRsvg==='function'){
+      var peaks=nmrPeakList(smi);
+      if(peaks&&peaks.length){
+        var h2='<div style="background:#fff;border-radius:8px;overflow:hidden;margin-bottom:8px">'+makeNMRsvg(peaks,'#6a1b9a')+'</div>';
+        h2+='<div style="font-size:.8rem;color:#9fb3c8;line-height:1.7">'+peaks.slice().sort(function(a,b){return b.ppm-a.ppm;}).map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#c9a0e0">'+(+p.ppm).toFixed(2)+' ppm</b> ('+p.nH+'H)</span>';}).join('')+'</div>';
+        nm.innerHTML=h2;
+      } else { nm.innerHTML='<div style="color:#9fb3c8;padding:10px">Nessun segnale ¹H rilevato per questa struttura.</div>'; }
+    }
+  }catch(e){
+    var ir=document.getElementById('ctrIR'); if(ir)ir.innerHTML='<div style="color:#f59e0b;padding:10px">SMILES non valido: '+e.message+'</div>';
+  }
+}
+function ctrBuildMap(){
+  var box=document.getElementById('ctrMapBox'); if(!box)return;
+  var regions=[
+    {grp:'O–H / N–H',ir:'3200–3600 cm⁻¹',nmr:'1–5 ppm',col:'#00c9b7',w1:3200,w2:3600},
+    {grp:'C–H aromatici',ir:'~3030 cm⁻¹',nmr:'6,5–8,5 ppm',col:'#6bcfff',w1:3000,w2:3100},
+    {grp:'C–H alifatici',ir:'2850–2960 cm⁻¹',nmr:'0,8–2,5 ppm',col:'#a0e0a0',w1:2850,w2:2960},
+    {grp:'C≡N / C≡C',ir:'2100–2260 cm⁻¹',nmr:'—',col:'#f59e0b',w1:2100,w2:2260},
+    {grp:'C=O carbonile',ir:'1670–1750 cm⁻¹',nmr:'CHO 9–10 ppm',col:'#f77f00',w1:1670,w2:1750},
+    {grp:'C=C / aromatici',ir:'1450–1650 cm⁻¹',nmr:'5–7 ppm',col:'#c98ae0',w1:1450,w2:1650},
+    {grp:'C–O',ir:'1050–1300 cm⁻¹',nmr:'O–CH 3,3–4,5 ppm',col:'#e0a0a0',w1:1050,w2:1300}
+  ];
+  var h='<div style="color:#9fb3c8;font-size:.88rem;line-height:1.6;margin-bottom:12px"><b style="color:#e9eef6">Tocca una regione</b> per evidenziare la banda corrispondente sullo spettro IR qui sotto. Ogni gruppo lascia una firma sia nell\'IR sia nell\'NMR.</div>';
+  regions.forEach(function(r,i){
+    h+='<div class="specmap-reg specmap-click" data-w1="'+r.w1+'" data-w2="'+r.w2+'" data-i="'+i+'" style="border-left-color:'+r.col+';cursor:pointer" onclick="ctrHighlight('+r.w1+','+r.w2+',\''+r.col+'\',this)"><span style="font-weight:700;min-width:130px;color:#e9eef6">'+r.grp+'</span><span class="rng" style="color:'+r.col+'">IR '+r.ir+'</span><span class="rng" style="color:'+r.col+'">NMR '+r.nmr+'</span></div>';
+  });
+  // lo spettro IR live sotto la mappa, per l'evidenziazione
+  var bands=(window._ctrBands)||(typeof irBandList==='function'?irBandList(_ctrSmiles):[]);
+  var svg=(typeof makeIRsvg==='function')?makeIRsvg(bands,'#c62828'):'';
+  svg=svg.replace('<svg ','<svg id="ctrMapIRsvg" ');
+  h+='<div style="margin-top:14px;color:#9fb3c8;font-size:.82rem;margin-bottom:4px">Spettro IR della molecola:</div>';
+  h+='<div id="ctrMapIRwrap" style="background:#fff;border-radius:8px;overflow:hidden;position:relative">'+svg+'</div>';
+  box.innerHTML=h;
+}
+function ctrHighlight(w1,w2,col,el){
+  // evidenzio la regione selezionata nella lista
+  document.querySelectorAll('.specmap-click').forEach(function(x){x.style.background='#102a44';});
+  if(el)el.style.background='#16395a';
+  var wrap=document.getElementById('ctrMapIRwrap'); if(!wrap)return;
+  var svg=wrap.querySelector('svg'); if(!svg)return;
+  // coordinate: X = 50 + ((4000-wn)/3600)*736 ; viewBox 800x250
+  var x1=50+((4000-w2)/3600)*736, x2=50+((4000-w1)/3600)*736;
+  var rectX=Math.min(x1,x2), rectW=Math.abs(x2-x1);
+  // rimuovo highlight precedente
+  var old=svg.querySelector('#ctrHL'); if(old)old.parentNode.removeChild(old);
+  var ns='http://www.w3.org/2000/svg';
+  var r=document.createElementNS(ns,'rect');
+  r.setAttribute('id','ctrHL');r.setAttribute('x',rectX.toFixed(1));r.setAttribute('y','16');
+  r.setAttribute('width',rectW.toFixed(1));r.setAttribute('height','192');
+  r.setAttribute('fill',col);r.setAttribute('fill-opacity','0.22');
+  r.setAttribute('stroke',col);r.setAttribute('stroke-width','1.5');r.setAttribute('stroke-dasharray','4 3');
+  svg.appendChild(r);
+}
+
+/* ===== QUIZ SPETTRI ===== */
+var QZ_BANK=[
+  {smi:"CC(=O)O",grp:"Acido carbossilico",hint:"O–H largo 2500-3300 + C=O ~1710"},
+  {smi:"CCO",grp:"Alcol",hint:"O–H largo ~3350"},
+  {smi:"CC(=O)C",grp:"Chetone",hint:"C=O intenso ~1715"},
+  {smi:"CC=O",grp:"Aldeide",hint:"C=O ~1725 + C–H aldeidico ~2720"},
+  {smi:"CCN",grp:"Ammina",hint:"N–H ~3400"},
+  {smi:"CC(=O)N",grp:"Ammide",hint:"C=O ~1660 + N–H"},
+  {smi:"CC#N",grp:"Nitrile",hint:"C≡N stretto ~2250"},
+  {smi:"c1ccccc1",grp:"Aromatico",hint:"=C–H ~3030 + C=C ~1600"},
+  {smi:"CCOC(C)=O",grp:"Estere",hint:"C=O ~1740 + C–O ~1200"},
+  {smi:"CC#C",grp:"Alchino",hint:"C≡C ~2120"}
+];
+var qzScore=0,qzTot=0,qzCurrent=null;
+function qzAllGroups(){return QZ_BANK.map(function(q){return q.grp;}).filter(function(v,i,a){return a.indexOf(v)===i;});}
+function initQuizSpec(){
+  var nb=document.getElementById('qzNew');
+  if(nb&&!nb._init){nb._init=true;nb.addEventListener('click',qzNewQuestion);}
+  qzNewQuestion();
+}
+function qzShuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function qzNewQuestion(){
+  qzCurrent=QZ_BANK[Math.floor(Math.random()*QZ_BANK.length)];
+  // spettro IR
+  var box=document.getElementById('qzSpectrum');
+  try{
+    var bands=(typeof irBandList==='function')?irBandList(qzCurrent.smi):[];
+    box.innerHTML=(typeof makeIRsvg==='function')?makeIRsvg(bands,'#c62828'):'(spettro non disponibile)';
+  }catch(e){box.innerHTML='(errore spettro)';}
+  // opzioni: la corretta + 3 distrattori
+  var all=qzAllGroups().filter(function(g){return g!==qzCurrent.grp;});
+  qzShuffle(all);
+  var opts=qzShuffle([qzCurrent.grp,all[0],all[1],all[2]]);
+  var cont=document.getElementById('qzOptions');cont.innerHTML='';
+  opts.forEach(function(o){
+    var b=document.createElement('button');b.className='qz-opt';b.textContent=o;
+    b.onclick=function(){qzAnswer(o,b);};
+    cont.appendChild(b);
+  });
+  document.getElementById('qzFeedback').innerHTML='';
+  document.getElementById('qzFeedback').style.background='transparent';
+}
+function qzAnswer(choice,btn){
+  if(btn._done)return;
+  qzTot++;
+  var fb=document.getElementById('qzFeedback');
+  document.querySelectorAll('.qz-opt').forEach(function(b){b._done=true;
+    if(b.textContent===qzCurrent.grp)b.classList.add('correct');
+  });
+  if(choice===qzCurrent.grp){
+    qzScore++;
+    fb.innerHTML='✅ <b>Corretto!</b> '+qzCurrent.grp+' — '+qzCurrent.hint;
+    fb.style.background='rgba(16,185,129,.15)';
+  }else{
+    btn.classList.add('wrong');
+    fb.innerHTML='❌ Era <b>'+qzCurrent.grp+'</b> — '+qzCurrent.hint;
+    fb.style.background='rgba(239,68,68,.12)';
+  }
+  document.getElementById('qzScore').textContent=qzScore;
+  document.getElementById('qzTot').textContent=qzTot;
+}
+
 // Expose globals
 window.setMDTool = setMDTool;
 window.addRing = addRing;
@@ -24573,6 +24787,13 @@ window.mdRedo = mdRedo;
 window.mdClear = mdClear;
 window.copySmiles = copySmiles;
 window.initMolEditor = initMolEditor;
+window.initCentro = initCentro;
+window.ctrRender = ctrRender;
+window.ctrBuildMap = ctrBuildMap;
+window.ctrHighlight = ctrHighlight;
+window.initQuizSpec = initQuizSpec;
+window.qzNewQuestion = qzNewQuestion;
+window.qzAnswer = qzAnswer;
 
 })();
 
@@ -31365,7 +31586,8 @@ window.openSR14=function(){
 var _ITEMS=[
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Qualsiasi molecola via PubChem',key:'sr',hl:true},
-  {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 10 simulazioni',key:'qlab',hl:true},
+  {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 11 simulazioni',key:'qlab',hl:true},
+  {ic:'🌈',nm:'Centro Spettri',ds:'Dashboard unificata: IR · ¹H-NMR · mappa diagnostica',key:'centro',hl:true},
   {ic:'📋',nm:'Questionario & Feedback',ds:'Vota l\'app, segnala bug o idee',key:'feedback',hl:true},
   {ic:'🧪',nm:'Sintesi Organica',ds:'Reazioni animate con meccanismi',key:'ssyn'},
   {ic:'🔄',nm:'Retrosintesi',ds:'Disconnessioni sistematiche',key:'sretro'},
@@ -31399,6 +31621,15 @@ function _act(key){
   setTimeout(function(){
     if(key==='sr')       { window.openSR14(); return; }
     if(key==='qlab')     { if(typeof window.openQuantumLab==='function') window.openQuantumLab(); return; }
+    if(key==='centro'){
+      document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');x.style.removeProperty('display');});
+      document.querySelectorAll('.nav-btn').forEach(function(x){x.classList.remove('on');});
+      var sec=document.getElementById('scentro');
+      if(sec){sec.classList.add('on');sec.style.display='block';}
+      if(typeof window.initCentro==='function')setTimeout(function(){window.initCentro();},30);
+      window.scrollTo&&window.scrollTo(0,0);
+      return;
+    }
     if(key==='feedback') { if(typeof window.openFeedback21==='function') window.openFeedback21(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
     if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
@@ -34334,7 +34565,7 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
 <body>
 <div class="wrap">
   <div class="brand">Laboratorio Quantistico &amp; Fisico</div>
-  <div class="sub">Dieci moduli interattivi a matematica esatta · BioSpecInfo</div>
+  <div class="sub">Undici moduli interattivi a matematica esatta · BioSpecInfo</div>
   <div class="tabs" id="tabs">
     <div class="tab on" data-m="orb"><span class="ic">🔮</span>Orbitali idrogeno 3D</div>
     <div class="tab" data-m="hyd"><span class="ic">⚛️</span>Emissione idrogeno</div>
@@ -34346,6 +34577,7 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
     <div class="tab" data-m="spec"><span class="ic">🌈</span>Spettroscopie</div>
     <div class="tab" data-m="kin"><span class="ic">⚗️</span>Cinetica chimica</div>
     <div class="tab" data-m="mb"><span class="ic">🌡️</span>Maxwell–Boltzmann</div>
+    <div class="tab" data-m="jab"><span class="ic">✨</span>Diagramma di Jablonski</div>
   </div>
 
   <div class="mod on" id="m-orb"><div class="panel">
@@ -34441,9 +34673,15 @@ console.log('BioSpecInfo v21b — Questionario & Feedback ✔');
     <div class="info" id="mbInfo"></div>
   </div></div>
 
-  
+  <div class="mod" id="m-jab"><div class="panel">
+    <div class="mtitle">Diagramma di Jablonski</div>
+    <div class="mdesc">Gli stati elettronici di una molecola (S₀, S₁, S₂, T₁) con i loro sottolivelli vibrazionali, e le transizioni — radiative e non radiative — che li collegano: assorbimento, conversione interna, fluorescenza, fosforescenza.</div>
+    <canvas id="cJab" width="1000" height="440"></canvas>
+    <div class="ctrls"><span class="lab">transizione</span><div class="chiprow" id="jabSel"><div class="chip on" data-j="abs">Assorbimento</div><div class="chip" data-j="fluo">Fluorescenza</div><div class="chip" data-j="phos">Fosforescenza</div><div class="chip" data-j="ic">Conversione interna</div></div></div>
+    <div class="info" id="jabInfo"></div>
+  </div></div>
 
-  
+
 </div>
 
 <script>
@@ -34676,6 +34914,69 @@ function drawMB(){const _c=ctx2('cMB');if(!_c)return;const {x,w,h}=_c;bg(x,w,h);
   const vmp=Math.sqrt(2*kB*Tk/mass),vavg=Math.sqrt(8*kB*Tk/(Math.PI*mass)),vrms=Math.sqrt(3*kB*Tk/mass);
   document.getElementById('mbInfo').innerHTML='A <span class="hl">'+Tk+' K</span>: v più probabile = <span class="hl">'+vmp.toFixed(0)+' m/s</span> · v media = '+vavg.toFixed(0)+' · v rms = '+vrms.toFixed(0)+' m/s<br>Alzando T la curva si <b>abbassa e allarga</b>; i gas più leggeri sono più veloci.';}
 
+var jabMode='abs',jabT=0;
+function jabUI(){
+  var sel=document.getElementById('jabSel');if(!sel)return;
+  sel.querySelectorAll('.chip').forEach(function(c){
+    c.onclick=function(){sel.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});c.classList.add('on');jabMode=c.getAttribute('data-j');jabT=0;};
+  });
+}
+function drawJab(){
+  var o=ctx2('cJab');if(!o)return;var x=o.x,w=o.w,h=o.h;bg(x,w,h);
+  jabT+=0.02;if(jabT>1.4)jabT=0;
+  // livelli energetici elettronici: S0, S1, S2, T1
+  var S0=h*0.82,S1=h*0.46,S2=h*0.24,T1=h*0.56;
+  var xL=w*0.12,xR=w*0.50,xT=w*0.62,xTR=w*0.86;
+  function band(yc,x1,x2,col,lbl){
+    // stato elettronico (linea spessa) + sottolivelli vibrazionali (linee sottili sopra)
+    x.strokeStyle=col;x.lineWidth=3;x.beginPath();x.moveTo(x1,yc);x.lineTo(x2,yc);x.stroke();
+    x.lineWidth=1;x.strokeStyle='rgba(159,179,200,.35)';
+    for(var v=1;v<=3;v++){x.beginPath();x.moveTo(x1,yc-v*10);x.lineTo(x2,yc-v*10);x.stroke();}
+    x.fillStyle=col;x.font='bold 14px sans-serif';x.textAlign='right';x.fillText(lbl,x1-8,yc+5);
+  }
+  band(S0,xL,xR,'#00c9b7','S₀');
+  band(S1,xL,xR,'#6bcfff','S₁');
+  band(S2,xL,xR,'#c98ae0','S₂');
+  band(T1,xT,xTR,'#f77f00','T₁');
+  x.textAlign='left';
+  // frecce di transizione animate secondo la modalità
+  function arrow(x1,y1,x2,y2,col,wob){
+    x.strokeStyle=col;x.lineWidth=3;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+    var ang=Math.atan2(y2-y1,x2-x1);
+    x.beginPath();x.moveTo(x2,y2);x.lineTo(x2-10*Math.cos(ang-0.4),y2-10*Math.sin(ang-0.4));
+    x.moveTo(x2,y2);x.lineTo(x2-10*Math.cos(ang+0.4),y2-10*Math.sin(ang+0.4));x.stroke();
+  }
+  function wavy(x1,y1,x2,y2,col){ // freccia ondulata = non radiativo
+    x.strokeStyle=col;x.lineWidth=2;x.beginPath();var n=18;
+    for(var i=0;i<=n;i++){var t=i/n,px=x1+(x2-x1)*t,py=y1+(y2-y1)*t+Math.sin(t*Math.PI*6)*5;if(i===0)x.moveTo(px,py);else x.lineTo(px,py);}
+    x.stroke();
+  }
+  var xa=w*0.22, prog=jabT;
+  var info='';
+  if(jabMode==='abs'){
+    var yy=S0-(S0-S1)*Math.min(1,prog/0.7);
+    arrow(xa,S0,xa,Math.max(S1,yy),'#6bcfff');
+    if(prog>0.7){arrow(xa,S1,xa,S2,'#c98ae0');}
+    info='<b>Assorbimento</b> (10⁻¹⁵ s): un fotone porta l\'elettrone da S₀ a stati eccitati S₁/S₂ e a sottolivelli vibrazionali. È la transizione più rapida.';
+  } else if(jabMode==='ic'){
+    var xb=w*0.30;
+    if(prog<0.7){var yy=S2+(S1-S2)*(prog/0.7);wavy(xb,S2,xb,yy,'#9fb3c8');}
+    else{var yy2=S1+(S0-S1)*((prog-0.7)/0.7);wavy(xb,S1,xb,yy2,'#9fb3c8');}
+    info='<b>Conversione interna</b> (non radiativa): l\'energia si dissipa come calore tra stati di pari molteplicità (S₂→S₁→S₀). Freccia ondulata = nessun fotone emesso.';
+  } else if(jabMode==='fluo'){
+    var xc=w*0.38;
+    var yy=S1+(S0-S1)*Math.min(1,prog/0.8);
+    arrow(xc,S1,xc,yy,'#6bcfff');
+    info='<b>Fluorescenza</b> (10⁻⁹–10⁻⁷ s): emissione di un fotone nel ritorno S₁→S₀, stesso spin. Avviene dopo rilassamento vibrazionale, quindi a energia minore dell\'assorbimento (spostamento di Stokes).';
+  } else if(jabMode==='phos'){
+    var xd=w*0.55;
+    if(prog<0.5){wavy(xd,S1,w*0.62,T1,'#f77f00');}      // ISC S1->T1
+    else{var yy=T1+(S0-T1)*((prog-0.5)/0.9);arrow(w*0.70,T1,w*0.70,yy,'#f77f00');} // T1->S0
+    info='<b>Fosforescenza</b> (10⁻³–10² s): dopo incrocio intersistema (ISC) a T₁, l\'emissione T₁→S₀ è proibita per spin, quindi lenta. Luce che persiste.';
+  }
+  document.getElementById('jabInfo').innerHTML=info+'<br><span style="color:#9fb3c8;font-size:.9em">Frecce dritte = transizioni radiative (fotone) · ondulate = non radiative (calore/spin).</span>';
+}
+
 
 /* ===== GEOMETRIA VSEPR 3D (motore da formula) ===== */
 var VAL={H:1,B:3,C:4,N:5,O:6,F:7,Si:4,P:5,S:6,Cl:7,As:5,Se:6,Br:7,Te:6,I:7,Xe:8,Kr:8,Be:2,Al:3,Ga:3,Ge:4,Sn:4,Sb:5};
@@ -34888,6 +35189,7 @@ function setModule(m){stopAnim();document.querySelectorAll('.mod').forEach(funct
   else if(m==='vsepr'){vseprUI();vseprBuild();bindVsepr();loop(drawVsepr);}
   else if(m==='vib'){vibUI();loop(drawVib);}
   else if(m==='ho'){hoUI();drawHO();}else if(m==='box'){boxUI();drawBox();}else if(m==='mb')drawMB();
+  else if(m==='jab'){jabUI();loop(drawJab);}
   else if(m==='spec'){specUI();loop(drawSpec);}
   else if(m==='kin'){if(typeof kinParticles!=='undefined'&&!kinParticles.length&&typeof kinInit==='function')kinInit();loop(drawKin);}}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){document.querySelectorAll('.tab').forEach(function(z){z.classList.remove('on');});this.classList.add('on');setModule(this.dataset.m);};});
