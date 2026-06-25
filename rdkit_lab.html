@@ -854,6 +854,12 @@ function setStatus(msg,type){
       document.getElementById('rdk-ver').textContent='v'+rdk.version();
       setStatus('RDKit.js pronto — tutte le funzioni disponibili ✔','ok');
       document.querySelectorAll('.btn').forEach(function(b){if(b.id!=='btn-svg'&&b.id!=='btn-png'&&b.id!=='btn-cpsmi'&&b.id!=='btn-addlib'&&b.id!=='btn-runall')b.disabled=false;});
+      // Run any queued analysis (user clicked a preset before RDKit was ready)
+      if(window._pendingSMI){
+        document.getElementById('smiles-input').value=window._pendingSMI;
+        window._pendingSMI=null;
+        setTimeout(analyzeMol,80);
+      }
     }).catch(function(e){setStatus('Errore init: '+e.message,'err');});
   }
   tryLoad(CDN1,onLoaded,function(){
@@ -891,12 +897,18 @@ var library=JSON.parse(localStorage.getItem('bsi_rdkit_lib2')||'[]');
 // ─── Molecule analysis ───────────────────────────────────────────────
 var EXAMPLES=['CC(=O)Nc1ccc(O)cc1','CC(C)Cc1ccc(cc1)C(C)C(=O)O','CN1CCC[C@H]1c2cccnc2','O=C(O)c1ccccc1OC(C)=O','NCCc1ccc(O)c(O)c1'];
 var exIdx=0;
-function loadExample(){document.getElementById('smiles-input').value=EXAMPLES[exIdx++%EXAMPLES.length];analyzeMol();}
-function loadPreset(smi){document.getElementById('smiles-input').value=smi;analyzeMol();}
+function loadExample(){var smi=EXAMPLES[exIdx++%EXAMPLES.length];_loadSmi(smi);}
+function loadPreset(smi){_loadSmi(smi);}
+function _loadSmi(smi){
+  document.getElementById('smiles-input').value=smi;
+  if(!rdkReady){window._pendingSMI=smi;setStatus('RDKit.js in caricamento — la molecola verrà analizzata automaticamente…','loading');return;}
+  analyzeMol();
+}
 function syncFrom(id){if(curSMI)document.getElementById(id).value=curSMI;}
 function loadFromGuide(smi,name){
   document.getElementById('smiles-input').value=smi;
   showPanelById('p-mol');
+  if(!rdkReady){window._pendingSMI=smi;return;}
   setTimeout(analyzeMol,50);
 }
 
