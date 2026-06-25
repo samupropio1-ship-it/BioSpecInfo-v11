@@ -74,12 +74,15 @@ select{background:#0d2236;color:#e8eef4;border:1px solid #1c3a57;border-radius:4
   <a class="nav-s" onclick="goS('s10')"><span class="nav-num">10</span>Ammine &amp; Diazo</a>
   <a class="nav-s" onclick="goS('s11')"><span class="nav-num">11</span>Reazioni C–C</a>
   <a class="nav-s" onclick="goS('s12')"><span class="nav-num">12</span>Ossidaz. &amp; Riduz.</a>
-  <a class="nav-s" onclick="goS('s13')"><span class="nav-num">13</span>Composti Naturali</a>
+  <a class="nav-s" onclick="goS('s13')"><span class="nav-num">13</span>Carboidrati</a>
   <a class="nav-s" onclick="goS('s14')"><span class="nav-num">14</span>Riepilogo</a>
+  <a class="nav-s" onclick="goS('s15')"><span class="nav-num">15</span>Amminoacidi &amp; Proteine</a>
+  <a class="nav-s" onclick="goS('s16')"><span class="nav-num">16</span>Lipidi</a>
+  <a class="nav-s" onclick="goS('s17')"><span class="nav-num">17</span>Nucleosidi &amp; Nucleotidi</a>
 </nav>
 <div id="main">
 <h1>⚗️ Chimica Organica 1 + 2</h1>
-<p style="color:#9fb3c8;font-size:.85rem;margin-bottom:16px">Guida completa · 14 moduli · meccanismi interattivi · stereochimica · reazioni named</p>
+<p style="color:#9fb3c8;font-size:.85rem;margin-bottom:16px">Guida completa · 17 moduli · meccanismi interattivi · stereochimica · molecole biologiche</p>
 
 <!-- S1 ─────────────────────────────────────────────────────── -->
 <section class="sec" id="s1">
@@ -622,48 +625,128 @@ Annellazione di Robinson = Addizione di Michael + Condensazione aldolica + Deidr
 
 <!-- S13 ─────────────────────────────────────────────────────── -->
 <section class="sec" id="s13">
-<h2>13 · Composti Naturali</h2>
-<h3>13.1 Carboidrati</h3>
+<h2>13 · Carboidrati</h2>
+<h3>13.1 Classificazione e serie D/L</h3>
 <div class="card">
-<p><strong>Formula generale:</strong> (CH₂O)ₙ. Il carbonio anomerico (C1 aldosi, C2 chetosi) è centro della ciclizzazione.</p>
+<p><strong>Formula generale:</strong> (CH₂O)ₙ. Aldosi: gruppo aldeidico in C1. Chetosi: chetone in C2. La serie D/L dipende dalla configurazione del centro chirale più lontano dal carbonile (confronto con D/L-gliceraldeide).</p>
 <table>
-<tr><th>Anomero</th><th>OH al C1</th><th>% in H₂O (25°C)</th><th>[α]</th></tr>
-<tr><td>α-D-glucopiranosio</td><td>Assiale</td><td>36%</td><td>+112°</td></tr>
-<tr><td>β-D-glucopiranosio</td><td>Equatoriale</td><td>64%</td><td>+19°</td></tr>
+<tr><th>Scheletro C</th><th>Aldoso</th><th>Chetoso</th><th>Esempi D-serie</th></tr>
+<tr><td>C3 (triosi)</td><td>Gliceraldeide</td><td>Diidrossiacetone</td><td>D-Gliceraldeide</td></tr>
+<tr><td>C4 (tetrosi)</td><td>Eritrosio, Treosio</td><td>Eritrulosio</td><td>D-Eritrosio</td></tr>
+<tr><td>C5 (pentosi)</td><td>Ribosio, Arabinosio, Xilosio, Lixosio</td><td>Ribulosio, Xilulosio</td><td>D-Ribosio (RNA)</td></tr>
+<tr><td>C6 (esosi)</td><td>Glucosio, Mannosio, Galattosio, Idrosio…</td><td>Fruttosio, Sorbosio</td><td>D-Glucosio (più abbondante)</td></tr>
 </table>
-<p style="margin-top:7px"><strong>Mutarotazione:</strong> interconversione α⇌β via forma aperta. [α]eq = +52.7°.</p>
-<p><strong>Legami glicosidici:</strong> α-1,4 (amido, glicogeno); β-1,4 (cellulosa). La cellulosa non è digeribile (mancanza β-glucosidasi negli animali).</p>
+<div class="tip">Proiezione di Fischer: OH a destra = configurazione D (come D-gliceraldeide). Nella rappresentazione verticale il carbonio più ossidato è in cima (C1 negli aldosi).</div>
+<div class="formula">D-Glucosio (proiezione Fischer):
+     CHO
+     |
+H ── C ── OH    ← C2 (R)
+     |
+HO ── C ── H    ← C3 (S)
+     |
+H ── C ── OH    ← C4 (R)
+     |
+H ── C ── OH    ← C5 (R) → OH a destra = serie D
+     |
+    CH₂OH</div>
 </div>
-<h3>13.2 Aminoacidi e peptidi</h3>
+
+<h3>13.2 Forme cicliche e anomeria</h3>
 <div class="card">
-<p>I 20 aminoacidi proteinogenici hanno configurazione <strong>L</strong> (equiv. S, tranne Cys). Forma <strong>zwitterionica</strong> al pI.</p>
+<p>Il gruppo OH in C5 (aldoesosi) o C4 (aldopentosi) attacca il carbonile per formare un <strong>emiacetale intramolecolare</strong> → anello piranosico (6 atomi) o furanosico (5 atomi). Si genera un nuovo stereocentro in C1: il <strong>carbonio anomerico</strong>.</p>
 <table>
-<tr><th>Classe</th><th>Esempi</th><th>pKₐ catena</th></tr>
-<tr><td>Basici</td><td>Lys, Arg, His</td><td>10.5 / 12.5 / 6.0</td></tr>
-<tr><td>Acidi</td><td>Asp, Glu</td><td>3.7 / 4.3</td></tr>
-<tr><td>Idrofili neutri</td><td>Ser, Thr, Asn, Gln, Tyr</td><td>—</td></tr>
-<tr><td>Idrofobici</td><td>Ala, Val, Leu, Ile, Pro, Phe, Trp, Met</td><td>—</td></tr>
+<tr><th>Anomero</th><th>OH-1 (Haworth)</th><th>OH-1 (sedia 4C₁)</th><th>Equilibrio H₂O 25°C</th><th>[α]D</th></tr>
+<tr><td><strong>α-D-glucopiranosio</strong></td><td>sotto il piano</td><td>Assiale</td><td>36%</td><td>+112°</td></tr>
+<tr><td><strong>β-D-glucopiranosio</strong></td><td>sopra il piano</td><td>Equatoriale</td><td>64%</td><td>+19°</td></tr>
 </table>
-<p style="margin-top:6px"><strong>Legame peptidico:</strong> parziale doppio legame (risonanza) → planare, trans prevalente (angolo ω ~180°). Mappa di Ramachandran (ψ vs φ) definisce strutture 2° (α-elica: φ=−57°, ψ=−47°; β-foglietto: φ=−139°, ψ=+135°).</p>
+<div class="tip">β più stabile: OH equatoriale evita le interazioni 1,3-diassiali. Il β-D-glucopiranosio (conformazione ⁴C₁) ha tutti i sostituenti equatoriali → conformazione più stabile possibile.</div>
+<p style="margin-top:6px"><strong>Proiezione di Haworth (β-D-glucopiranosio):</strong></p>
+<div class="formula">        CH₂OH
+         |
+    6    O     1
+    /   /  \   \
+   5  OH    OH   2
+   |   \   /    |
+   4    3
+  OH  OH  H   (tutti OH cis con C6 = β)</div>
 </div>
-<h3>13.3 Lipidi e acidi grassi</h3>
+
+<h3>13.3 Mutarotazione</h3>
 <div class="card">
-<p><strong>Saturi:</strong> catene lineari, impacchettamento ordinato, solidi (grassi animali). Es. palmitico C16:0, stearico C18:0.</p>
-<p><strong>Insaturi:</strong> doppi legami cis → kink → liquidi (oli vegetali). Oleico C18:1 Δ9-cis; linoleico C18:2 Δ9,12-cis (essenziale).</p>
-<p><strong>Saponificazione:</strong> trigliceride + NaOH → 3 sali di acido grasso (sapone) + glicerolo.</p>
-<p><strong>Fosfolipidi:</strong> glicerolo + 2 acidi grassi + fosfato + testa polare → membrana biologica (doppio strato).</p>
+<p>In soluzione acquosa α ⇌ forma aperta ⇌ β, catalizzato da H⁺ o OH⁻. L'equilibrio si raggiunte a <strong>[α]eq = +52.7°</strong> (36% α + 64% β).</p>
+<div class="flow">
+  <div class="fbox y">α-D-glucopiranosio<br><span style="color:#9fb3c8;font-size:.78rem">[α] = +112° (36%)</span></div>
+  <div class="fa">⇌ H₂O, H⁺/OH⁻</div>
+  <div class="fbox">Forma aperta (aldeide)<br><span style="color:#9fb3c8;font-size:.78rem">~0.003% in equilibrio</span></div>
+  <div class="fa">⇌</div>
+  <div class="fbox y">β-D-glucopiranosio<br><span style="color:#9fb3c8;font-size:.78rem">[α] = +19° (64%)</span></div>
 </div>
-<h3>13.4 Terpenoidi e steroidi</h3>
+<p>La velocità dipende dal pH: massima a pH neutro (contributo sia H₃O⁺ sia OH⁻). Alla fine: [α]eq = 0.36×112 + 0.64×19 ≈ <strong>+52.7°</strong>.</p>
+</div>
+
+<h3>13.4 Reazioni dei monosaccaridi</h3>
+<div class="card">
+<p><strong>1 · Riduzione → Alditoli</strong></p>
+<div class="rxn">Glucosio <span style="color:#00c9b7">──NaBH₄──▶</span> Glucitolo (sorbitolo) (C6 → CH₂OH)<span class="cond">Tutti i centri chirali mantenuti tranne C1: CH=O → CH₂OH</span></div>
+<p style="margin-top:8px"><strong>2 · Ossidazioni</strong></p>
+<table>
+<tr><th>Reagente</th><th>Prodotto</th><th>Selettività</th></tr>
+<tr><td>Tollens (Ag⁺/NH₃) o Fehling/Benedict (Cu²⁺)</td><td>Acido gluconico (gluconato)</td><td>Solo zuccheri riducenti (libero C anomerico)</td></tr>
+<tr><td>Br₂/H₂O (pH 5–7)</td><td>Acido aldonico (es. gluconico)</td><td>Selettiva: solo CHO, non ossida C6</td></tr>
+<tr><td>HNO₃ dil. caldo</td><td>Acido aldarico (es. glucarico)</td><td>Ossida CHO e CH₂OH → entrambi COOH</td></tr>
+<tr><td>HIO₄ (periodato)</td><td>Clivaggio dioli vicinali → aldeidi/chetoni</td><td>Conta i carboni ossidati (stoichiometria)</td></tr>
+</table>
+<p style="margin-top:8px"><strong>3 · Formazione di osazoni (Ph-NH-NH₂)</strong></p>
+<div class="rxn">Glucosio + 3 PhNHNH₂ <span style="color:#00c9b7">──▶</span> Glucoosazone (C1=N-NHPh, C2=N-NHPh)<span class="cond">C3–C6 invariati. Il glucoosazone = mannoosazone (stesso fino a C3) → usato per distinguere epimeri</span></div>
+<p style="margin-top:8px"><strong>4 · Formazione di glicosidi</strong></p>
+<div class="rxn">Glucosio + R-OH <span style="color:#00c9b7">──H⁺──▶</span> α/β-Glucoside (acetale) + H₂O<span class="cond">Glicosidi non mutarotano, non sono riducenti. Si formano α o β a seconda delle condizioni.</span></div>
+</div>
+
+<h3>13.5 Sintesi di Kiliani-Fischer e Degradazione di Wohl</h3>
+<div class="card">
+<p><strong>Sintesi Kiliani-Fischer</strong> (allungamento di 1 C al carbonile):</p>
+<div class="flow">
+  <div class="fbox">Aldoso (Cn)<br><span style="color:#9fb3c8;font-size:.78rem">CHO–CHOH…CH₂OH</span></div>
+  <div class="fa">+ HCN</div>
+  <div class="fbox">Cianoidrina (Cn+1)<br><span style="color:#9fb3c8;font-size:.78rem">CN-CHOH…CH₂OH (coppia epimerica)</span></div>
+  <div class="fa">1) H₂/Pd (riduz. parziale) 2) H₂O/H⁺</div>
+  <div class="fbox r">Due aldosi epimeri in C2 (Cn+1)<br><span style="font-weight:400;color:#9fb3c8;font-size:.78rem">es. D-arabinosio → D-glucosio + D-mannosio</span></div>
+</div>
+<p style="margin-top:8px"><strong>Degradazione di Wohl</strong> (opposta, accorcia di 1 C):</p>
+<div class="flow">
+  <div class="fbox">Aldoso (Cn)</div>
+  <div class="fa">+ NH₂OH → ossima → Ac₂O → nitrile di acetato</div>
+  <div class="fbox">Nitrile (Cn)</div>
+  <div class="fa">+ Ag₂O/NH₃ → eliminazione HCN</div>
+  <div class="fbox r">Aldoso (Cn−1)</div>
+</div>
+<div class="tip">Insieme, Kiliani-Fischer e Wohl permettono di costruire o dimostrare la struttura relativa di tutti gli aldosi dalla D-gliceraldeide (dimostrazione di Fischer, Premio Nobel 1902).</div>
+</div>
+
+<h3>13.6 Disaccaridi</h3>
 <div class="card">
 <table>
-<tr><th>Classe</th><th>Unità C₅</th><th>C tot.</th><th>Esempi</th></tr>
-<tr><td>Monoterpeni</td><td>2</td><td>10</td><td>Mentolo, limonene, canfora</td></tr>
-<tr><td>Sesquiterpeni</td><td>3</td><td>15</td><td>Farnesolo, artemisinina</td></tr>
-<tr><td>Diterpeni</td><td>4</td><td>20</td><td>Retinolo (vit. A), Taxolo</td></tr>
-<tr><td>Triterpeni</td><td>6</td><td>30</td><td>Squalene → colesterolo</td></tr>
-<tr><td>Tetraterpeni</td><td>8</td><td>40</td><td>β-Carotene (pro-vit. A)</td></tr>
+<tr><th>Disaccaride</th><th>Legame</th><th>Componenti</th><th>Riducente?</th><th>Note</th></tr>
+<tr><td><strong>Maltosio</strong></td><td>α(1→4)</td><td>Glc + Glc</td><td>Sì</td><td>Da idrolisi amido (maltasi); sciroppo di malto</td></tr>
+<tr><td><strong>Cellobiosio</strong></td><td>β(1→4)</td><td>Glc + Glc</td><td>Sì</td><td>Da idrolisi cellulosa; non digerito dai mammiferi</td></tr>
+<tr><td><strong>Lattosio</strong></td><td>β(1→4)</td><td>Gal + Glc</td><td>Sì</td><td>Latte dei mammiferi; intolleranza (mancanza lattasi)</td></tr>
+<tr><td><strong>Saccarosio</strong></td><td>α(1↔2)β</td><td>Glc + Fru</td><td><strong>No</strong></td><td>Entrambi C anomerico legato → nessun OH libero</td></tr>
+<tr><td><strong>Trealosio</strong></td><td>α(1↔1)α</td><td>Glc + Glc</td><td><strong>No</strong></td><td>Crioprotettore in insetti e funghi</td></tr>
 </table>
-<p style="margin-top:6px"><strong>Steroidi:</strong> nucleo a 4 anelli (A/B/C/D) dal lanosterolo via squalene. Tutti condividono questo nucleo: colesterolo, cortisolo, estrogeni, testosterone, vitamina D.</p>
+<div class="warn">Zucchero riducente = ha OH al C anomerico libero → riduce Fehling/Benedict/Tollens e forma osazoni. Il saccarosio NON è riducente (legame 1↔2 blocca entrambi gli anomerici).</div>
+</div>
+
+<h3>13.7 Polisaccaridi</h3>
+<div class="card">
+<table>
+<tr><th>Polisaccaride</th><th>Monomero</th><th>Legame</th><th>Struttura</th><th>Funzione</th></tr>
+<tr><td><strong>Amilosio</strong></td><td>D-Glc</td><td>α(1→4)</td><td>Elicoidale, lineare</td><td>Riserva energetica (piante); ~20% dell'amido</td></tr>
+<tr><td><strong>Amilopectina</strong></td><td>D-Glc</td><td>α(1→4) + ramif. α(1→6)</td><td>Ramificata ogni 24–30 unità</td><td>~80% dell'amido; più solubile</td></tr>
+<tr><td><strong>Glicogeno</strong></td><td>D-Glc</td><td>α(1→4) + ramif. α(1→6)</td><td>Molto ramificata ogni 8–12 unità</td><td>Riserva animale (fegato, muscolo)</td></tr>
+<tr><td><strong>Cellulosa</strong></td><td>D-Glc</td><td>β(1→4)</td><td>Lineare, fibre, legami H inter/intra</td><td>Struttura parete cellulare piante</td></tr>
+<tr><td><strong>Chitina</strong></td><td>N-acetil-D-glucosamina</td><td>β(1→4)</td><td>Fibrosa, legami H</td><td>Esoscheletro artropodi, parete funghi</td></tr>
+</table>
+<div class="tip">La cellulosa ha legami β(1→4) → ogni glucosio ruotato di 180° → struttura planare estesa → legami H forti tra catene → fibra insolubile ad alta resistenza. I mammiferi non possono digerir la (assenza di β-glucosidasi specifiche).</div>
 </div>
 </section>
 
@@ -707,7 +790,257 @@ Annellazione di Robinson = Addizione di Michael + Condensazione aldolica + Deidr
 </div>
 <div class="card" style="text-align:center;background:#071221;padding:16px">
   <p style="color:#00c9b7;font-weight:700;font-size:1rem">⚗️ BioSpecInfo · Chimica Organica 1+2</p>
-  <p style="color:#9fb3c8;font-size:.83rem;margin-top:5px">14 moduli · meccanismi interattivi · stereochimica · named reactions</p>
+  <p style="color:#9fb3c8;font-size:.83rem;margin-top:5px">17 moduli · meccanismi interattivi · stereochimica · molecole biologiche</p>
+</div>
+</section>
+
+
+<!-- S15 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s15">
+<h2>15 · Amminoacidi &amp; Proteine</h2>
+<h3>15.1 I 20 amminoacidi proteinogenici</h3>
+<div class="card">
+<p>Tutti gli α-amminoacidi hanno la struttura generale H₂N–CHR–COOH. Sono in serie <strong>L</strong> (equivalente alla configurazione <em>S</em> tranne Cys che è <em>R</em> per priorità del gruppo tiolico).</p>
+<table>
+<tr><th>Nome</th><th>3-let.</th><th>1-let.</th><th>Classe</th><th>Catena laterale (R)</th></tr>
+<tr><td>Glicina</td><td>Gly</td><td>G</td><td>Alifatico</td><td>–H (achiral)</td></tr>
+<tr><td>Alanina</td><td>Ala</td><td>A</td><td>Alifatico</td><td>–CH₃</td></tr>
+<tr><td>Valina</td><td>Val</td><td>V</td><td>Alifatico</td><td>–CH(CH₃)₂</td></tr>
+<tr><td>Leucina</td><td>Leu</td><td>L</td><td>Alifatico</td><td>–CH₂CH(CH₃)₂</td></tr>
+<tr><td>Isoleucina</td><td>Ile</td><td>I</td><td>Alifatico</td><td>–CH(CH₃)CH₂CH₃ (2 centri chirali)</td></tr>
+<tr><td>Prolina</td><td>Pro</td><td>P</td><td>Ciclico (iminoacido)</td><td>–(CH₂)₃– forma anello con N (pirrolidina)</td></tr>
+<tr><td>Fenilalanina</td><td>Phe</td><td>F</td><td>Aromatico</td><td>–CH₂–C₆H₅</td></tr>
+<tr><td>Triptofano</td><td>Trp</td><td>W</td><td>Aromatico</td><td>–CH₂–indolil (bicyclico)</td></tr>
+<tr><td>Tirosina</td><td>Tyr</td><td>Y</td><td>Aromatico, polare</td><td>–CH₂–C₆H₄–OH</td></tr>
+<tr><td>Serina</td><td>Ser</td><td>S</td><td>Idrossilato</td><td>–CH₂OH</td></tr>
+<tr><td>Treonina</td><td>Thr</td><td>T</td><td>Idrossilato</td><td>–CH(OH)CH₃</td></tr>
+<tr><td>Cisteina</td><td>Cys</td><td>C</td><td>Con zolfo</td><td>–CH₂SH (pKa ~8.3, forma ponti –S–S–)</td></tr>
+<tr><td>Metionina</td><td>Met</td><td>M</td><td>Con zolfo</td><td>–CH₂CH₂SCH₃</td></tr>
+<tr><td>Asparagina</td><td>Asn</td><td>N</td><td>Ammidico</td><td>–CH₂CONH₂</td></tr>
+<tr><td>Glutammina</td><td>Gln</td><td>Q</td><td>Ammidico</td><td>–CH₂CH₂CONH₂</td></tr>
+<tr><td>Acido aspartico</td><td>Asp</td><td>D</td><td>Acido</td><td>–CH₂COOH (pKa 3.65)</td></tr>
+<tr><td>Acido glutammico</td><td>Glu</td><td>E</td><td>Acido</td><td>–CH₂CH₂COOH (pKa 4.25)</td></tr>
+<tr><td>Lisina</td><td>Lys</td><td>K</td><td>Basico</td><td>–(CH₂)₄NH₂ (pKa 10.53)</td></tr>
+<tr><td>Arginina</td><td>Arg</td><td>R</td><td>Basico</td><td>–(CH₂)₃–NH–C(=NH)–NH₂ (guanidinio, pKa 12.48)</td></tr>
+<tr><td>Istidina</td><td>His</td><td>H</td><td>Basico</td><td>–CH₂–imidazolil (pKa 6.00)</td></tr>
+</table>
+</div>
+
+<h3>15.2 Proprietà acido-base e punto isoelettrico</h3>
+<div class="card">
+<table>
+<tr><th>Gruppo</th><th>pKa tipico</th><th>Forma acida</th><th>Forma basica</th></tr>
+<tr><td>α-COOH</td><td>1.8–2.4</td><td>–COOH</td><td>–COO⁻</td></tr>
+<tr><td>α-NH₃⁺</td><td>9.0–10.8</td><td>–NH₃⁺</td><td>–NH₂</td></tr>
+<tr><td>Asp/Glu (catena)</td><td>3.65 / 4.25</td><td>–COOH</td><td>–COO⁻</td></tr>
+<tr><td>His (imidazolil)</td><td>6.00</td><td>imidazolio⁺</td><td>imidazolo</td></tr>
+<tr><td>Cys (–SH)</td><td>8.37</td><td>–SH</td><td>–S⁻</td></tr>
+<tr><td>Tyr (–OH)</td><td>10.46</td><td>–OH</td><td>–O⁻</td></tr>
+<tr><td>Lys (ε-NH₃⁺)</td><td>10.53</td><td>–NH₃⁺</td><td>–NH₂</td></tr>
+<tr><td>Arg (guanidinio)</td><td>12.48</td><td>–C(NH₂)₂⁺</td><td>–C(NH)(NH₂)</td></tr>
+</table>
+<div class="tip"><strong>pI (punto isoelettrico):</strong> pH in cui la specie netta è neutra (zwitterione). Per AA senza catena ionizzabile: pI = (pKa₁ + pKa₂)/2. Per AA basici: pI = (pKa₂ + pKa₃)/2. Per AA acidi: pI = (pKa₁ + pKa₂)/2 dove pKa₁ è catena acida.</div>
+</div>
+
+<h3>15.3 Sintesi degli amminoacidi</h3>
+<div class="card">
+<p><strong>1 · Hell-Volhard-Zelinski (HVZ) → α-alogenazione</strong></p>
+<div class="rxn">R–CH₂–COOH <span style="color:#00c9b7">──Br₂ / PBr₃──▶</span> R–CHBr–COOH <span style="color:#00c9b7">──NH₃ (eccesso)──▶</span> R–CH(NH₂)–COOH<span class="cond">Meccanismo: PBr₃ forma R–CH₂–COBr (cloruro d'acile) che bromura all'α (più acido). Prodotto: α-AA racemo.</span></div>
+<p style="margin-top:10px"><strong>2 · Sintesi di Strecker</strong></p>
+<div class="rxn">RCHO <span style="color:#00c9b7">──NH₃ + HCN──▶</span> R–CH(NH₂)–CN <span style="color:#00c9b7">──H₃O⁺ / H₂O──▶</span> R–CH(NH₂)–COOH<span class="cond">Passaggi: RCHO + NH₃ → aldimine; + HCN → α-amminonitrile; idrolisi → α-AA. Prodotto racemo.</span></div>
+<p style="margin-top:10px"><strong>3 · Sintesi ftalimmidica (Gabriel modificata)</strong></p>
+<div class="rxn">Ftalimmide <span style="color:#00c9b7">──K₂CO₃──▶</span> K-ftalimmide <span style="color:#00c9b7">──R–X (SN2)──▶</span> N-alchil-ftalimmide <span style="color:#00c9b7">──H₂NNH₂──▶</span> R–CH₂NH₂<span class="cond">Variante per AA: si usa bromo-malonato di dietile, alchilazione, idrolisi, decarbossilazione → α-AA racemo. Utile per AA primari puri senza over-alchilazione.</span></div>
+<p style="margin-top:10px"><strong>4 · Sintesi enantioselettiva (Corey-Lygo, ausiliare chirale)</strong></p>
+<div class="rxn">Glicinato + Base chirale (es. glicole chirale di Corey) <span style="color:#00c9b7">──alkyl-X──▶</span> α-AA ee &gt;95%<span class="cond">Il reattivo di fase-transfer chirale induce stereocontrollo all'α. Prodotto enantiomericamente puro senza cromatografia chirale.</span></div>
+</div>
+
+<h3>15.4 Legame peptidico</h3>
+<div class="card">
+<p>Formazione per condensazione del –COOH di un AA con –NH₂ del successivo con eliminazione di H₂O:</p>
+<div class="formula">H₂N–CHR₁–CO–OH  +  H–NH–CHR₂–COOH
+         ↓  –H₂O
+H₂N–CHR₁–CO–NH–CHR₂–COOH
+         ↑
+    legame peptidico</div>
+<div class="tip"><strong>Proprietà del legame peptidico:</strong> risonanza tra C=O e C–N → <em>parziale carattere di doppio legame</em> (45%). Rotazione intorno a C–N impedita → il piano peptidico è <strong>planare</strong>. Configurazione prevalente <strong>trans</strong> (ω ≈ 180°) per minimizzare repulsioni stanche; cis solo in Pro (~10%).</div>
+<table style="margin-top:8px">
+<tr><th>Parametro</th><th>α-elica</th><th>β-foglietto (antiparallelo)</th></tr>
+<tr><td>φ (C–N–Cα–C)</td><td>−57°</td><td>−139°</td></tr>
+<tr><td>ψ (N–Cα–C–N)</td><td>−47°</td><td>+135°</td></tr>
+<tr><td>Legami H</td><td>i → i+4 (intracatena)</td><td>tra catene parallele/antiparallele</td></tr>
+<tr><td>Residui/giro</td><td>3.6</td><td>—</td></tr>
+<tr><td>Avanzam./residuo</td><td>1.5 Å</td><td>3.4 Å</td></tr>
+</table>
+</div>
+
+<h3>15.5 Sintesi peptidica in fase solida (Merrifield)</h3>
+<div class="card">
+<p>Strategia: elongazione <strong>C→N</strong> con il C-terminale ancorato alla resina (Merrifield, Nobel 1984).</p>
+<div class="flow">
+  <div class="fbox y">Resina (Cl-CH₂–polistirene)<br><span style="color:#9fb3c8;font-size:.78rem">supporto insolubile in DCM/DMF</span></div>
+  <div class="fa">+ Boc-AA₁-OH (DCC, DMAP) → Boc-AA₁-Resina</div>
+  <div class="fbox">Deprotezione Boc: TFA/DCM<br><span style="color:#9fb3c8;font-size:.78rem">H-AA₁-Resina + CO₂ + isobutene</span></div>
+  <div class="fa">+ Boc-AA₂-OH (DCC) → Boc-AA₂-AA₁-Resina</div>
+  <div class="fbox">Ripetere deprotezione e accoppiamento<br><span style="color:#9fb3c8;font-size:.78rem">n cicli per n residui</span></div>
+  <div class="fa">HF anidro o TFA forte</div>
+  <div class="fbox r">Peptide H-AA_n…AA₁-OH libero<br><span style="font-weight:400;color:#9fb3c8;font-size:.78rem">+ purificazione HPLC</span></div>
+</div>
+<table style="margin-top:8px">
+<tr><th>Reagente</th><th>Ruolo</th></tr>
+<tr><td>Boc (tert-butossicarbonile)</td><td>Protezione α-ammino; rimosso da TFA</td></tr>
+<tr><td>DCC (dicicloesilcarbodiimmide)</td><td>Attiva –COOH → O-acilisourea → reagisce con –NH₂ senza racemizzazione</td></tr>
+<tr><td>HOBt (idrossibenzotriazolo)</td><td>Coattivatore con DCC → riduce epimerizzazione ed effetti collaterali</td></tr>
+<tr><td>Fmoc (alternativa a Boc)</td><td>Rimosso da piperidina/DMF (più mite); usato nella sintesi moderna SPPS</td></tr>
+</table>
+</div>
+</section>
+
+<!-- S16 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s16">
+<h2>16 · Lipidi</h2>
+<h3>16.1 Acidi grassi: classificazione e struttura</h3>
+<div class="card">
+<p>Gli acidi grassi (AG) sono acidi carbossilici a catena lineare con numero pari di carboni. Nomenclatura: <code>Cn:m Δa,b…</code> (n = C totali, m = n° doppi legami, Δa = posizione dal C1).</p>
+<table>
+<tr><th>Nome comune</th><th>Sigla</th><th>Nomenclatura sistematica</th><th>Stato (25°C)</th><th>Fonte</th></tr>
+<tr><td>Laurico</td><td>C12:0</td><td>Acido dodecanóico</td><td>Solido</td><td>Olio di cocco, palma</td></tr>
+<tr><td>Miristico</td><td>C14:0</td><td>Acido tetradecanóico</td><td>Solido</td><td>Noce moscata, latticini</td></tr>
+<tr><td>Palmitico</td><td>C16:0</td><td>Acido esadecanóico</td><td>Solido</td><td>Palma, carne</td></tr>
+<tr><td>Stearico</td><td>C18:0</td><td>Acido ottadecanóico</td><td>Solido</td><td>Sego, burro di cacao</td></tr>
+<tr><td>Oleico</td><td>C18:1 Δ9<em>cis</em></td><td>Acido cis-9-ottadecenoico</td><td>Liquido</td><td>Olio d'oliva (ω-9)</td></tr>
+<tr><td>Linoleico*</td><td>C18:2 Δ9,12<em>cis</em></td><td>Acido cis,cis-9,12-ottadecadienoico</td><td>Liquido</td><td>Olio di girasole (ω-6)</td></tr>
+<tr><td>α-Linolenico*</td><td>C18:3 Δ9,12,15<em>cis</em></td><td>Acido all-cis-9,12,15-ottadecatrienoico</td><td>Liquido</td><td>Olio di lino (ω-3)</td></tr>
+<tr><td>Arachidonico</td><td>C20:4 Δ5,8,11,14</td><td>Acido all-cis-eicosatetraenoico</td><td>Liquido</td><td>Fosfolipidi animali (ω-6)</td></tr>
+<tr><td>EPA</td><td>C20:5 Δ5,8,11,14,17</td><td>Acido eicosapentaenoico</td><td>Liquido</td><td>Olio di pesce (ω-3)</td></tr>
+<tr><td>DHA</td><td>C22:6 Δ4,7,10,13,16,19</td><td>Acido docosaesaenoico</td><td>Liquido</td><td>Cervello, pesce (ω-3)</td></tr>
+</table>
+<div class="tip">* = essenziali: non sintetizzabili dai mammiferi, devono essere introdotti con la dieta. I doppi legami cis creano una curvatura ("kink") che abbassa Tm e mantiene le membrane fluide.</div>
+</div>
+
+<h3>16.2 Trigliceridi, cere e reazioni</h3>
+<div class="card">
+<p><strong>Trigliceridi (triacilgliceroli):</strong> estere del glicerolo con 3 acidi grassi (possono essere misti).</p>
+<div class="formula">CH₂–OOC–R₁      CH₂OH          3 R–COO⁻Na⁺
+|                   |           (sapone)
+CH –OOC–R₂  + 3NaOH → CHOH  +
+|                   |
+CH₂–OOC–R₃      CH₂OH
+(trigliceride)   (glicerolo)       saponificazione</div>
+<table style="margin-top:8px">
+<tr><th>Reazione</th><th>Reagenti</th><th>Prodotti</th><th>Applicazione</th></tr>
+<tr><td>Saponificazione</td><td>NaOH o KOH / H₂O, Δ</td><td>Sapone (sali RCOONa) + glicerolo</td><td>Detergente; KOH → sapone molle</td></tr>
+<tr><td>Transesterificazione (biodiesel)</td><td>CH₃OH / KOH cat.</td><td>3 RCOOCH₃ (FAME) + glicerolo</td><td>Biocarburante</td></tr>
+<tr><td>Idrogenazione parziale</td><td>H₂ / Ni, Δ</td><td>AG saturi parziali (margarina)</td><td>Solidificazione oli; rischio AG trans</td></tr>
+<tr><td>Ossidazione (rancidità)</td><td>O₂ atmosferico</td><td>Idroperossidi, aldeidi, chetoni</td><td>Degradazione indesiderata; antiossidanti (E306)</td></tr>
+</table>
+<p style="margin-top:8px"><strong>Cere:</strong> estere tra un AG a lunga catena (C16–C36) e un alcol a lunga catena. Es. cera d'api: palmitico C16 + miricilico C30. Impermeabili, punto di fusione elevato.</p>
+</div>
+
+<h3>16.3 Fosfolipidi, micelle e membrane biologiche</h3>
+<div class="card">
+<p><strong>Fosfatidilcolina (lecitina):</strong> struttura più abbondante nelle membrane.</p>
+<div class="formula">CH₂–OOC–R₁  (sn-1, satura)
+|
+CH –OOC–R₂  (sn-2, insatura cis, spesso C18:2 o C20:4)
+|
+CH₂–O–PO₃⁻–O–CH₂CH₂N⁺(CH₃)₃
+              ↑
+        testa polare (colina)</div>
+<div class="tip">La testa polare è idrofilica; le code degli AG sono idrofobiche. In acqua i fosfolipidi si auto-organizzano in <strong>doppio strato</strong> (bilayer, ~4 nm) con le code rivolte verso l'interno. Le micelle si formano con detergenti (un solo "tail").</div>
+<table style="margin-top:8px">
+<tr><th>Struttura</th><th>Componenti</th><th>Caratteristica</th></tr>
+<tr><td>Micella</td><td>Tensioattivi (saponi, SDS)</td><td>Sferoide ~5 nm, code al centro</td></tr>
+<tr><td>Liposoma</td><td>Fosfolipidi</td><td>Doppio strato chiuso; trasporto farmaci</td></tr>
+<tr><td>Membrana biologica</td><td>Fosfolipidi + colesterolo + glicoproteine</td><td>Fluidità modulata da colesterolo e AG insaturi</td></tr>
+</table>
+<p style="margin-top:8px"><strong>Colesterolo:</strong> steride, regola fluidità della membrana (rigidità a T alta, fluidità a T bassa). Precursore di ormoni steroidei, acidi biliari, vitamina D.</p>
+</div>
+
+<h3>16.4 Terpenoidi e steroidi</h3>
+<div class="card">
+<p>I terpenoidi seguono la <strong>regola dell'isoprene</strong>: assemblaggio di unità C₅ (IPP/DMAPP → isoprene).</p>
+<table>
+<tr><th>Classe</th><th>Unità C₅</th><th>C tot.</th><th>Esempi</th></tr>
+<tr><td>Monoterpeni</td><td>2</td><td>10</td><td>Mentolo, limonene, canfora, geranolo</td></tr>
+<tr><td>Sesquiterpeni</td><td>3</td><td>15</td><td>Farnesolo, artemisinina, bisabololo</td></tr>
+<tr><td>Diterpeni</td><td>4</td><td>20</td><td>Retinolo (vit. A), fitolo, Taxolo</td></tr>
+<tr><td>Sesterterpeni</td><td>5</td><td>25</td><td>Scalarina, manoalide</td></tr>
+<tr><td>Triterpeni</td><td>6</td><td>30</td><td>Squalene → lanosterolo → colesterolo</td></tr>
+<tr><td>Tetraterpeni</td><td>8</td><td>40</td><td>β-Carotene, licopene, xantofille</td></tr>
+</table>
+<div class="tip"><strong>Steroidi:</strong> nucleo a 4 anelli fusi (A/B/C/D, ciclopentanoperidrofenantrenyl). Biosintesi: squalene → lanosterolo → colesterolo (19 passaggi enzimatici). Da colesterolo: cortisolo, aldosterone, testosterone, estradiolo, vitamina D₃.</div>
+</div>
+</section>
+
+<!-- S17 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s17">
+<h2>17 · Nucleosidi &amp; Nucleotidi</h2>
+<h3>17.1 Basi azotate</h3>
+<div class="card">
+<table>
+<tr><th>Base</th><th>Tipo</th><th>In</th><th>Struttura</th><th>pKa</th></tr>
+<tr><td><strong>Adenina (A)</strong></td><td>Purina</td><td>DNA, RNA</td><td>6-aminopurina (biciclo pirimi + imidazolo)</td><td>4.1 (N1)</td></tr>
+<tr><td><strong>Guanina (G)</strong></td><td>Purina</td><td>DNA, RNA</td><td>2-amino-6-ossipurina</td><td>3.3 (N7)</td></tr>
+<tr><td><strong>Citosina (C)</strong></td><td>Pirimidina</td><td>DNA, RNA</td><td>4-aminouracile → 4-amino-2-ossopirimidina</td><td>4.5 (N3)</td></tr>
+<tr><td><strong>Timina (T)</strong></td><td>Pirimidina</td><td>solo DNA</td><td>5-metiluracile</td><td>9.9 (N3)</td></tr>
+<tr><td><strong>Uracile (U)</strong></td><td>Pirimidina</td><td>solo RNA</td><td>2,4-diossopurimidina</td><td>9.4 (N3)</td></tr>
+</table>
+<div class="tip">Purine: anello a 9 atomi (pirimidina fusa con imidazolo), N9 lega lo zucchero. Pirimidine: anello a 6 atomi, N1 lega lo zucchero. La sostituzione T→U (da DNA a RNA) rimuove il gruppo metilico; il riconoscimento è praticamente equivalente (Watson-Crick).</div>
+</div>
+
+<h3>17.2 Nucleosidi e nucleotidi</h3>
+<div class="card">
+<p><strong>Nucleoside</strong> = base + zucchero (legame N-glicosidico β da N9 delle purine o N1 delle pirimidine a C1' dello zucchero).</p>
+<p><strong>Nucleotide</strong> = nucleoside + 1–3 gruppi fosfato al C5'.</p>
+<table>
+<tr><th>Base</th><th>Ribonucleoside (RNA)</th><th>Desossiribonucleoside (DNA)</th><th>Mono-fosfato</th></tr>
+<tr><td>Adenina</td><td>Adenosina</td><td>Desossiadenosina (dA)</td><td>AMP / dAMP</td></tr>
+<tr><td>Guanina</td><td>Guanosina</td><td>Desossiguanosina (dG)</td><td>GMP / dGMP</td></tr>
+<tr><td>Citosina</td><td>Citidina</td><td>Desossicitidina (dC)</td><td>CMP / dCMP</td></tr>
+<tr><td>Uracile</td><td>Uridina</td><td>— (solo RNA)</td><td>UMP</td></tr>
+<tr><td>Timina</td><td>— (solo DNA)</td><td>Desossitimidina (dT)</td><td>dTMP</td></tr>
+</table>
+<div class="tip">Lo zucchero è β-D-ribofuranosio (RNA) o β-2'-desossi-D-ribofuranosio (DNA, manca OH in C2'). Il legame N-glicosidico è sempre β (base sopra il piano del ribosio nella proiezione Haworth).</div>
+</div>
+
+<h3>17.3 ATP e trasporto energetico</h3>
+<div class="card">
+<div class="formula">Adenosina–5'–O–PO₂⁻–O–PO₂⁻–O–PO₃²⁻
+                    α         β         γ
+                    ↑ legami fosfo-anidridici ad alta energia</div>
+<table>
+<tr><th>Idrolisi</th><th>ΔG°' (kJ/mol)</th><th>Prodotti</th></tr>
+<tr><td>ATP → ADP + Pᵢ</td><td>−30.5</td><td>Adenosina-5'-difosfato + fosfato</td></tr>
+<tr><td>ATP → AMP + PPᵢ</td><td>−45.6</td><td>Adenilato + pirofosfato</td></tr>
+<tr><td>PPᵢ → 2Pᵢ</td><td>−33.5</td><td>Guida molte biosintesi (PPᵢ idrolasi)</td></tr>
+</table>
+<div class="tip">L'alto ΔG° negativo dell'idrolisi ATP deriva da: (1) repulsione cariche negative nei polifosfati; (2) maggiore risonanza di ADP e Pᵢ rispetto ad ATP; (3) maggiore solvatazione dei prodotti. ATP è la "valuta energetica" della cellula ma non è un deposito (t½ ≈ 1–2 min).</div>
+<p style="margin-top:8px"><strong>Cofattori nucleotidici correlati:</strong></p>
+<table>
+<tr><th>Cofattore</th><th>Base</th><th>Funzione</th></tr>
+<tr><td>NAD⁺/NADH</td><td>Adenina + nicotinamide</td><td>Trasporto elettroni (ossidazione/riduzione)</td></tr>
+<tr><td>FAD/FADH₂</td><td>Adenina + riboflavina (B₂)</td><td>Ossidoriduzione (complessi resp.)</td></tr>
+<tr><td>CoA (Coenzima A)</td><td>Adenina + pantotenico (B₅)</td><td>Trasporto gruppi acile (–CO–S–CoA)</td></tr>
+<tr><td>cAMP</td><td>Adenina (3',5'-ciclico)</td><td>Secondo messaggero (ormoni, segnalazione)</td></tr>
+</table>
+</div>
+
+<h3>17.4 Legame fosfodiestere e struttura acidi nucleici</h3>
+<div class="card">
+<p>I nucleotidi nel DNA/RNA sono collegati dal <strong>legame fosfodiestere</strong> (3'–5'): il fosfato lega il C3'–OH di un nucleotide al C5'–OH del successivo.</p>
+<div class="formula">…–5'–CH₂–zucchero₁–3'–O–PO₂⁻–O–5'–CH₂–zucchero₂–3'–O–PO₂⁻–O–…
+                              ↑
+                   legame fosfodiestere (asse dello scheletro)</div>
+<table>
+<tr><th>Caratteristica</th><th>DNA</th><th>RNA</th></tr>
+<tr><td>Zucchero</td><td>2'-desossiribosio</td><td>Ribosio (2'-OH)</td></tr>
+<tr><td>Basi</td><td>A, G, C, T</td><td>A, G, C, U</td></tr>
+<tr><td>Struttura</td><td>Doppia elica (B-DNA: passo 3.4 nm, 10 bp/giro)</td><td>Singolo filamento (+ strutture secondarie)</td></tr>
+<tr><td>Coppie di basi</td><td>A=T (2 H-bond), G≡C (3 H-bond)</td><td>A=U (2 H-bond), G≡C (3 H-bond)</td></tr>
+<tr><td>Direzione catene</td><td>Antiparallele (5'→3' e 3'→5')</td><td>Tipicamente 5'→3'</td></tr>
+<tr><td>Stabilità</td><td>Molto stabile (desossiribosilazione)</td><td>Meno stabile (2'-OH catalizza idrolisi)</td></tr>
+</table>
+<div class="tip">Il contenuto G+C correla con la temperatura di melting (Tm): ogni G≡C contribuisce ~3°C vs ~2°C di ogni A=T. Formula approssimata: Tm ≈ 69.3 + 0.41 × %G+C (per DNA &gt;2 kbp in 0.9 M NaCl).</div>
 </div>
 </section>
 
@@ -724,7 +1057,7 @@ function goS(id){
 window.addEventListener('scroll',function(){
   var mid=window.scrollY+window.innerHeight/2;
   var active='s1';
-  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14'].forEach(function(id){
+  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17'].forEach(function(id){
     var el=document.getElementById(id);
     if(el&&el.offsetTop<=mid)active=id;
   });
@@ -913,6 +1246,27 @@ function drawSmooth(ctx,pts,pl,gW,gH){
 }
 
 window.addEventListener('load',function(){drawNm();drawCh();drawSN();});
+
+// Show floating back button when embedded in BioSpecInfo overlay
+(function(){
+  try{
+    if(window.self!==window.top){
+      document.getElementById('bsi-co-back').style.display='block';
+    }
+  }catch(e){
+    document.getElementById('bsi-co-back').style.display='block';
+  }
+})();
 </script>
+
+<style>
+#bsi-co-back{position:fixed;bottom:16px;right:14px;z-index:9997;display:none}
+#bsi-co-back>button{background:#071221;border:2px solid #00c9b7;color:#00c9b7;border-radius:22px;padding:10px 22px;font-size:.82rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.65),0 0 14px rgba(0,201,183,.15);letter-spacing:.025em;transition:background .15s,transform .12s}
+#bsi-co-back>button:hover{background:rgba(0,201,183,.1);transform:scale(1.05)}
+#bsi-co-back>button:active{transform:scale(.95)}
+</style>
+<div id="bsi-co-back">
+  <button onclick="try{window.parent.document.getElementById('bsi-chimorga-ov').style.display='none';}catch(e){}" title="Torna all\'app">◀ Indietro</button>
+</div>
 </body>
 </html>
