@@ -15,7 +15,9 @@ const STATIC_FILES = [
   './three.min.js',
   './guidaret.html',
   './sr_completo.html',
-  './sr_essenziale.html'
+  './sr_essenziale.html',
+  './chimorga.html',
+  './rdkit_lab.html'
 ];
 
 // Install: precarica i file statici

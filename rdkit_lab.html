@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RDKit Cheminformatics Lab — BioSpecInfo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0a1b2e;color:#d4e0ec;line-height:1.55;min-height:100vh}
+h2{color:#e8eef4;font-size:1.05rem;margin:.9em 0 .4em;border-left:3px solid #00c9b7;padding-left:8px}
+h3{color:#9fb3c8;font-size:.92rem;margin:.7em 0 .25em}
+p{margin:.35em 0}
+strong{color:#e8eef4}
+code{background:#071221;border:1px solid #1c3a57;border-radius:3px;padding:1px 5px;font-size:.86em;color:#00c9b7;font-family:monospace}
+table{border-collapse:collapse;width:100%;margin:.4em 0;font-size:.85em}
+th{background:#071221;color:#00c9b7;padding:5px 9px;text-align:left;border:1px solid #1c3a57}
+td{padding:4px 9px;border:1px solid #1c3a57;color:#d4e0ec;vertical-align:top}
+tr:nth-child(even) td{background:rgba(7,18,33,.35)}
+
+/* Layout */
+#app{display:flex;flex-direction:column;min-height:100vh}
+#topbar{display:flex;align-items:center;gap:0;background:#071221;border-bottom:1px solid #1c3a57;height:44px;padding:0 12px;flex-shrink:0;flex-wrap:nowrap;overflow-x:auto}
+#topbar .logo{color:#00c9b7;font-weight:800;font-size:.9rem;white-space:nowrap;margin-right:12px}
+.tab{padding:0 12px;height:100%;display:flex;align-items:center;color:#9fb3c8;font-size:.8rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab.active{color:#00c9b7;border-bottom-color:#00c9b7}
+.tab:hover:not(.active){color:#e2e8f0}
+#content{flex:1;overflow-y:auto}
+.panel{display:none;padding:16px 18px;max-width:920px}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:#0d2236;border:1px solid #1c3a57;border-radius:7px;padding:12px 14px;margin:.6em 0}
+.card-dark{background:#071221}
+.tip{background:#071c2e;border-left:3px solid #00c9b7;padding:7px 11px;border-radius:0 5px 5px 0;margin:.5em 0;font-size:.88rem}
+.warn{background:#1c0e00;border-left:3px solid #ffb454;padding:7px 11px;border-radius:0 5px 5px 0;margin:.5em 0;font-size:.88rem}
+
+/* Inputs */
+input[type=text],textarea,select{background:#071221;color:#e8eef4;border:1px solid #1c3a57;border-radius:5px;padding:7px 10px;font-size:.88rem;font-family:inherit;outline:none;transition:border-color .15s}
+input[type=text]:focus,textarea:focus,select:focus{border-color:#00c9b7}
+textarea{resize:vertical;min-height:60px}
+.inp-row{display:flex;gap:8px;align-items:stretch;margin:.5em 0;flex-wrap:wrap}
+.inp-row input[type=text]{flex:1;min-width:200px}
+.btn{background:#0a7a71;color:#fff;border:none;border-radius:5px;padding:7px 14px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap}
+.btn:hover{background:#00a898}
+.btn:disabled{background:#1c3a57;color:#9fb3c8;cursor:not-allowed}
+.btn-sm{padding:4px 10px;font-size:.78rem}
+.btn-outline{background:transparent;border:1px solid #1c3a57;color:#9fb3c8}
+.btn-outline:hover{border-color:#00c9b7;color:#00c9b7;background:transparent}
+.btn-red{background:#4a1518}
+.btn-red:hover{background:#6b1d21}
+
+/* Spinner / status */
+#rdkit-status{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#071221;border:1px solid #1c3a57;border-radius:7px;margin-bottom:12px;font-size:.88rem}
+.spinner{width:18px;height:18px;border:2px solid #1c3a57;border-top-color:#00c9b7;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status-ok{color:#4caf80}
+.status-err{color:#ff6b6b}
+.status-loading{color:#9fb3c8}
+
+/* Molecule viewer */
+#mol-svg-box{background:#fff;border-radius:7px;border:2px solid #1c3a57;min-height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#mol-svg-box svg{max-width:100%;height:auto}
+#mol-svg-box .placeholder{color:#9fb3c8;font-size:.85rem}
+
+/* Descriptors */
+.desc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:.6em 0}
+.desc-item{background:#071221;border:1px solid #1c3a57;border-radius:6px;padding:8px 10px}
+.desc-item .dv{font-size:1.2rem;font-weight:700;color:#00c9b7}
+.desc-item .dk{font-size:.75rem;color:#9fb3c8;margin-top:2px}
+.desc-item .tt{font-size:.7rem;color:#1c3a57;font-style:italic;margin-top:1px}
+.desc-item.warn-item{border-color:#ffb454}.desc-item.warn-item .dv{color:#ffb454}
+.desc-item.ok-item{border-color:#4caf80}.desc-item.ok-item .dv{color:#4caf80}
+.desc-item.bad-item{border-color:#ff6b6b}.desc-item.bad-item .dv{color:#ff6b6b}
+
+/* Drug-likeness */
+.rule-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1c3a57;font-size:.85rem}
+.rule-row:last-child{border-bottom:none}
+.rule-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:700}
+.rb-pass{background:rgba(76,175,128,.15);color:#4caf80}
+.rb-fail{background:rgba(255,107,107,.15);color:#ff6b6b}
+.rb-warn{background:rgba(255,180,84,.15);color:#ffb454}
+
+/* Fingerprint / similarity */
+.fp-bar{height:8px;background:#1c3a57;border-radius:4px;overflow:hidden;margin:4px 0}
+.fp-fill{height:100%;background:#00c9b7;border-radius:4px;transition:width .4s}
+.sim-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #1c3a57;font-size:.83rem}
+.sim-row:last-child{border-bottom:none}
+
+/* Library */
+.lib-item{background:#071221;border:1px solid #1c3a57;border-radius:6px;padding:8px 10px;margin:.35em 0;display:flex;align-items:center;gap:10px;font-size:.83rem}
+.lib-item .li-name{flex:1;color:#e8eef4}
+.lib-item .li-smi{color:#9fb3c8;font-size:.75rem;font-family:monospace;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Export buttons */
+.export-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* Tooltip */
+[data-tip]{position:relative;cursor:help}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:#0d2236;color:#d4e0ec;border:1px solid #1c3a57;border-radius:5px;padding:5px 9px;font-size:.75rem;white-space:pre;z-index:99;pointer-events:none;max-width:240px;line-height:1.4}
+
+@media(max-width:600px){.desc-grid{grid-template-columns:repeat(2,1fr)}.panel{padding:12px}.inp-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Top bar -->
+<div id="topbar">
+  <div class="logo">🧪 RDKit Lab</div>
+  <div class="tab active" onclick="showPanel('p-mol')">🔬 Molecola</div>
+  <div class="tab" onclick="showPanel('p-desc')">📊 Descrittori</div>
+  <div class="tab" onclick="showPanel('p-drug')">💊 Drug-likeness</div>
+  <div class="tab" onclick="showPanel('p-sim')">🔗 Similarità</div>
+  <div class="tab" onclick="showPanel('p-lib')">📚 Libreria</div>
+</div>
+
+<!-- RDKit status bar -->
+<div id="content">
+<div style="padding:10px 18px 0">
+<div id="rdkit-status">
+  <div class="spinner" id="rdk-spin"></div>
+  <span id="rdk-msg" class="status-loading">Caricamento RDKit.js in corso…</span>
+  <span id="rdk-ver" style="color:#1c3a57;font-size:.75rem;margin-left:auto"></span>
+</div>
+</div>
+
+<!-- ─── Panel: Molecola ──────────────────────────────── -->
+<div class="panel active" id="p-mol">
+<h2>🔬 Visualizzatore Molecolare</h2>
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="smiles-input" placeholder="Inserisci SMILES — es. CC(=O)Nc1ccc(O)cc1 (paracetamolo)" style="width:100%">
+    <button class="btn" onclick="analyzeMol()">Analizza</button>
+    <button class="btn btn-outline btn-sm" onclick="loadExample()">Esempio</button>
+  </div>
+  <div style="font-size:.78rem;color:#9fb3c8;margin-top:4px">Oppure scegli un farmaco noto:</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('CC(=O)Nc1ccc(O)cc1','Paracetamolo')">Paracetamolo</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C','Testosterone')">Testosterone</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('CN1CCC[C@H]1c2cccnc2','Nicotina')">Nicotina</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('CC(C)Cc1ccc(cc1)C(C)C(=O)O','Ibuprofene')">Ibuprofene</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('c1ccc2c(c1)cc1ccc3cccc4ccc2c1c34','Pirene')">Pirene</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('O=C(O)c1ccccc1OC(C)=O','Aspirina')">Aspirina</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('CC1=C2[C@@]([C@H](C(=O)[C@@H]3[C@@]2(C[C@@H]([C@H]4[C@]3(COC4=O)OC(=O)c5ccccc5)O)C)OC(=O)[C@@H](NC(=O)c6ccccc6)c7ccccc7)(C[C@@H]1OC(=O)[C@H](O)[C@@H](NC(=O)c8ccccc8)c9ccccc9)O','Paclitaxel')">Paclitaxel</button>
+    <button class="btn btn-outline btn-sm" onclick="loadPreset('OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O','Glucosio')">Glucosio</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px">
+  <div>
+    <h3>Struttura 2D (SVG)</h3>
+    <div id="mol-svg-box" style="min-height:240px">
+      <div class="placeholder">Inserisci uno SMILES per visualizzare la struttura</div>
+    </div>
+    <div class="export-row">
+      <button class="btn btn-sm btn-outline" onclick="exportSVG()" id="btn-exp-svg" disabled>⬇ SVG</button>
+      <button class="btn btn-sm btn-outline" onclick="exportPNG()" id="btn-exp-png" disabled>⬇ PNG</button>
+      <button class="btn btn-sm btn-outline" onclick="copySMILES()" id="btn-copy-smi" disabled>📋 Copia SMILES</button>
+      <button class="btn btn-sm" onclick="addToLibrary()" id="btn-add-lib" disabled>+ Libreria</button>
+    </div>
+  </div>
+  <div>
+    <h3>SMILES canonico e formula</h3>
+    <div class="card card-dark" id="mol-info" style="min-height:100px;font-family:monospace;font-size:.83rem;color:#9fb3c8">
+      Nessuna molecola caricata.
+    </div>
+    <h3 style="margin-top:12px">Descrittori rapidi</h3>
+    <div id="mol-desc-quick" class="desc-grid"></div>
+  </div>
+</div>
+
+<div id="mol-error" class="warn" style="display:none;margin-top:10px"></div>
+</div>
+
+<!-- ─── Panel: Descrittori ───────────────────────────── -->
+<div class="panel" id="p-desc">
+<h2>📊 Calcolo Descrittori Completo</h2>
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="desc-smiles" placeholder="SMILES (o usa la molecola caricata nella tab Molecola)" style="flex:1">
+    <button class="btn" onclick="calcDescriptors()">Calcola</button>
+    <button class="btn btn-outline btn-sm" onclick="syncFromMain('desc-smiles')">← Carica da tab Molecola</button>
+  </div>
+</div>
+<div id="desc-result"></div>
+<div id="desc-export" style="display:none" class="export-row">
+  <button class="btn btn-sm btn-outline" onclick="exportJSON('desc')">⬇ JSON</button>
+  <button class="btn btn-sm btn-outline" onclick="exportCSV('desc')">⬇ CSV</button>
+</div>
+</div>
+
+<!-- ─── Panel: Drug-likeness ─────────────────────────── -->
+<div class="panel" id="p-drug">
+<h2>💊 Drug-likeness e Regole Farmaceutiche</h2>
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="drug-smiles" placeholder="SMILES" style="flex:1">
+    <button class="btn" onclick="calcDrugLike()">Valuta</button>
+    <button class="btn btn-outline btn-sm" onclick="syncFromMain('drug-smiles')">← Carica da tab Molecola</button>
+  </div>
+</div>
+<div id="drug-result"></div>
+</div>
+
+<!-- ─── Panel: Similarità ────────────────────────────── -->
+<div class="panel" id="p-sim">
+<h2>🔗 Fingerprint e Similarità di Tanimoto</h2>
+<div class="card">
+  <h3>Confronto tra due molecole</h3>
+  <div class="inp-row">
+    <input type="text" id="sim-smi1" placeholder="SMILES molecola 1" style="flex:1">
+    <input type="text" id="sim-smi2" placeholder="SMILES molecola 2" style="flex:1">
+    <button class="btn" onclick="calcSimilarity()">Calcola</button>
+  </div>
+  <div id="sim-result"></div>
+</div>
+<div class="card" style="margin-top:12px">
+  <h3>Ricerca di similarità contro farmaci noti</h3>
+  <div class="inp-row">
+    <input type="text" id="sim-query" placeholder="SMILES da cercare" style="flex:1">
+    <button class="btn" onclick="simSearch()">Cerca</button>
+    <button class="btn btn-outline btn-sm" onclick="syncFromMain('sim-query')">← Carica da tab Molecola</button>
+  </div>
+  <div id="sim-search-result"></div>
+</div>
+</div>
+
+<!-- ─── Panel: Libreria ──────────────────────────────── -->
+<div class="panel" id="p-lib">
+<h2>📚 Libreria Molecole</h2>
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="lib-smi-in" placeholder="SMILES" style="flex:1">
+    <input type="text" id="lib-name-in" placeholder="Nome" style="width:160px">
+    <button class="btn" onclick="addToLibraryManual()">+ Aggiungi</button>
+    <button class="btn btn-outline btn-sm" onclick="clearLibrary()" style="color:#ff6b6b;border-color:#ff6b6b">Svuota</button>
+  </div>
+</div>
+<div id="lib-list"></div>
+<div class="export-row" style="margin-top:8px">
+  <button class="btn btn-sm btn-outline" onclick="exportLibJSON()">⬇ JSON</button>
+  <button class="btn btn-sm btn-outline" onclick="exportLibCSV()">⬇ CSV</button>
+</div>
+<div id="lib-desc-area"></div>
+</div>
+
+</div><!-- #content -->
+</div><!-- #app -->
+
+<script>
+// ─── RDKit loader ───────────────────────────────────────────────
+var RDKit = null;
+var rdkitReady = false;
+
+function setStatus(msg, type){
+  var el=document.getElementById('rdk-msg');
+  var sp=document.getElementById('rdk-spin');
+  el.textContent=msg;
+  el.className='status-'+type;
+  if(type!=='loading') sp.style.display='none';
+  else sp.style.display='block';
+}
+
+(function loadRDKit(){
+  setStatus('Caricamento RDKit.js…','loading');
+  var script=document.createElement('script');
+  script.src='https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/RDKit_minimal.js';
+  script.crossOrigin='anonymous';
+  script.onload=function(){
+    if(typeof initRDKitModule==='function'){
+      initRDKitModule().then(function(rdk){
+        RDKit=rdk;
+        rdkitReady=true;
+        document.getElementById('rdk-ver').textContent='v'+rdk.version();
+        setStatus('RDKit.js pronto — tutte le funzioni disponibili','ok');
+        document.querySelectorAll('.btn').forEach(function(b){b.disabled=false;});
+      }).catch(function(e){
+        setStatus('Errore inizializzazione: '+e.message,'err');
+      });
+    } else {
+      setStatus('Errore: initRDKitModule non trovato','err');
+    }
+  };
+  script.onerror=function(){
+    setStatus('Errore caricamento CDN. Verifica connessione.','err');
+    // Try fallback CDN
+    var s2=document.createElement('script');
+    s2.src='https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/RDKit_minimal.js';
+    s2.onload=script.onload;
+    s2.onerror=function(){setStatus('Fallback CDN fallito. Connessione richiesta per RDKit.js.','err');};
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(script);
+})();
+
+// ─── Tab navigation ─────────────────────────────────────────────
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── State ──────────────────────────────────────────────────────
+var currentSMILES='';
+var currentCanonSmiles='';
+var currentDescriptors={};
+var library=JSON.parse(localStorage.getItem('bsi_rdkit_lib')||'[]');
+
+// ─── Molecule analysis ──────────────────────────────────────────
+var EXAMPLES=[
+  'CC(=O)Nc1ccc(O)cc1',
+  'CC(C)Cc1ccc(cc1)C(C)C(=O)O',
+  'CN1CCC[C@H]1c2cccnc2',
+  'O=C(O)c1ccccc1OC(C)=O',
+  'c1ccc2c(c1)ccc3cccc4ccc2c3c4',
+];
+var exIdx=0;
+function loadExample(){
+  document.getElementById('smiles-input').value=EXAMPLES[exIdx%EXAMPLES.length];
+  exIdx++;
+  analyzeMol();
+}
+function loadPreset(smi,name){
+  document.getElementById('smiles-input').value=smi;
+  analyzeMol();
+}
+function syncFromMain(targetId){
+  if(currentSMILES) document.getElementById(targetId).value=currentSMILES;
+}
+
+function requireRDKit(){
+  if(!rdkitReady){alert('RDKit.js non ancora pronto. Attendi il caricamento.');return false;}
+  return true;
+}
+
+function analyzeMol(){
+  if(!requireRDKit()) return;
+  var smi=document.getElementById('smiles-input').value.trim();
+  if(!smi){showMolError('Inserisci uno SMILES valido.');return;}
+  var mol=null;
+  try{mol=RDKit.get_mol(smi);}catch(e){}
+  if(!mol||!mol.is_valid()){
+    showMolError('SMILES non valido: "'+smi+'"');
+    if(mol)mol.delete();
+    return;
+  }
+  document.getElementById('mol-error').style.display='none';
+  currentSMILES=smi;
+  currentCanonSmiles=mol.get_smiles();
+
+  // SVG
+  var svg=mol.get_svg_with_highlights('{}');
+  document.getElementById('mol-svg-box').innerHTML=svg;
+
+  // Info
+  var mw=getMW(mol);
+  var formula=mol.get_molblock().match(/M  END/)?'—':getFormula(mol);
+  document.getElementById('mol-info').innerHTML=
+    '<div><span style="color:#9fb3c8">SMILES canonico:</span><br><span style="color:#00c9b7">'+escHtml(currentCanonSmiles)+'</span></div>'+
+    '<div style="margin-top:6px"><span style="color:#9fb3c8">MW:</span> <strong>'+mw.toFixed(2)+' Da</strong></div>'+
+    '<div><span style="color:#9fb3c8">Input:</span> <span style="color:#ffb454">'+escHtml(smi)+'</span></div>';
+
+  // Quick descriptors
+  var qd=computeDescriptors(mol);
+  currentDescriptors=qd;
+  renderQuickDesc(qd);
+
+  // Enable buttons
+  ['btn-exp-svg','btn-exp-png','btn-copy-smi','btn-add-lib'].forEach(function(id){document.getElementById(id).disabled=false;});
+  mol.delete();
+}
+
+function showMolError(msg){
+  var el=document.getElementById('mol-error');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('mol-svg-box').innerHTML='<div class="placeholder" style="color:#ff6b6b">'+escHtml(msg)+'</div>';
+}
+
+function getMW(mol){
+  try{return parseFloat(mol.get_descriptors()['MolWt']||mol.get_descriptors()['ExactMolWt']||0);}
+  catch(e){return 0;}
+}
+
+function computeDescriptors(mol){
+  var d={};
+  try{
+    var raw=JSON.parse(mol.get_descriptors());
+    d.MW=raw.amw||raw.MolWt||0;
+    d.LogP=raw.CrippenClogP||raw.MolLogP||0;
+    d.TPSA=raw.tpsa||raw.TPSA||0;
+    d.HBA=raw.NumHBA||raw.NumHAcceptors||0;
+    d.HBD=raw.NumHBD||raw.NumHDonors||0;
+    d.RotBonds=raw.NumRotatableBonds||0;
+    d.ArRings=raw.NumAromaticRings||0;
+    d.Rings=raw.RingCount||0;
+    d.FractionCSP3=raw.FractionCSP3||0;
+    d.HeavyAtoms=raw.NumHeavyAtoms||0;
+    d.Stereo=raw.NumChiralCenters||raw.NumStereocenters||0;
+    d.SMILES=mol.get_smiles();
+  }catch(e){
+    // fallback: estimate from SMILES
+    var s=mol.get_smiles();
+    d.MW=estimateMW(s);d.LogP=0;d.TPSA=0;d.HBA=0;d.HBD=0;d.RotBonds=0;d.ArRings=0;d.Rings=0;d.FractionCSP3=0;d.HeavyAtoms=0;d.Stereo=0;d.SMILES=s;
+  }
+  return d;
+}
+
+function estimateMW(s){
+  // very rough estimation from SMILES
+  var atomW={C:12,N:14,O:16,S:32,F:19,Cl:35.5,Br:80,I:127,P:31};
+  var mw=0;
+  for(var i=0;i<s.length;i++){var c=s[i];if(atomW[c])mw+=atomW[c];}
+  return mw;
+}
+
+function renderQuickDesc(d){
+  var items=[
+    {k:'MW',v:d.MW?d.MW.toFixed(2):'—',u:'Da',tip:'Peso molecolare medio'},
+    {k:'LogP',v:d.LogP?d.LogP.toFixed(2):'—',u:'',tip:'Lipofilia (Crippen)'},
+    {k:'TPSA',v:d.TPSA?d.TPSA.toFixed(1):'—',u:'Ų',tip:'Polar Surface Area'},
+    {k:'HBA',v:d.HBA||'—',u:'',tip:'H-bond acceptors'},
+    {k:'HBD',v:d.HBD||'—',u:'',tip:'H-bond donors'},
+    {k:'RotBonds',v:d.RotBonds||'—',u:'',tip:'Legami rotabili'},
+    {k:'ArRings',v:d.ArRings||'—',u:'',tip:'Anelli aromatici'},
+    {k:'FrCSP3',v:d.FractionCSP3?(d.FractionCSP3*100).toFixed(1)+'%':'—',u:'',tip:'Frazione carboni sp³'},
+    {k:'HeavyAt',v:d.HeavyAtoms||'—',u:'',tip:'Atomi pesanti'},
+    {k:'Stereo',v:d.Stereo||'—',u:'',tip:'Centri stereogenici'},
+  ];
+  document.getElementById('mol-desc-quick').innerHTML=items.map(function(it){
+    return '<div class="desc-item" data-tip="'+it.tip+'"><div class="dv">'+it.v+(it.u?' <span style="font-size:.7rem;color:#9fb3c8">'+it.u+'</span>':'')+'</div><div class="dk">'+it.k+'</div></div>';
+  }).join('');
+}
+
+// ─── Full descriptors ───────────────────────────────────────────
+function calcDescriptors(){
+  if(!requireRDKit())return;
+  var smi=document.getElementById('desc-smiles').value.trim()||currentSMILES;
+  if(!smi){alert('Inserisci uno SMILES.');return;}
+  var mol=null;
+  try{mol=RDKit.get_mol(smi);}catch(e){}
+  if(!mol||!mol.is_valid()){document.getElementById('desc-result').innerHTML='<div class="warn">SMILES non valido.</div>';if(mol)mol.delete();return;}
+  var d=computeDescriptors(mol);mol.delete();
+  currentDescriptors=d;
+  var html='<div class="desc-grid">';
+  var fullItems=[
+    {k:'Peso Molecolare',v:d.MW?d.MW.toFixed(3):0,u:'Da',tip:'Peso medio pesato sulle abbondanze isotopiche'},
+    {k:'LogP (Crippen)',v:d.LogP?d.LogP.toFixed(3):0,u:'',tip:'Predizione lipofilia di Crippen–Wildman. Ottimale: −0.4–5.6'},
+    {k:'TPSA',v:d.TPSA?d.TPSA.toFixed(2):0,u:'Ų',tip:'Topological Polar Surface Area. <90Ų = buon assorbimento orale'},
+    {k:'H-bond Acceptors',v:d.HBA,u:'',tip:'Lipinski: ≤10'},
+    {k:'H-bond Donors',v:d.HBD,u:'',tip:'Lipinski: ≤5'},
+    {k:'Legami Rotabili',v:d.RotBonds,u:'',tip:'Veber: ≤10 per buona biodisponibilità'},
+    {k:'Anelli Aromatici',v:d.ArRings,u:'',tip:'Regola PPI: ≤3'},
+    {k:'Anelli Tot.',v:d.Rings,u:'',tip:''},
+    {k:'Frac. C sp³',v:d.FractionCSP3?(d.FractionCSP3*100).toFixed(1)+'%':0,u:'',tip:'Fsp3 > 0.25 = miglior solubilità'},
+    {k:'Atomi Pesanti',v:d.HeavyAtoms,u:'',tip:''},
+    {k:'Centri Stereo',v:d.Stereo,u:'',tip:''},
+  ];
+  html+=fullItems.map(function(it){
+    return '<div class="desc-item" data-tip="'+it.tip+'"><div class="dv">'+it.v+(it.u?' <span style="font-size:.7rem;color:#9fb3c8">'+it.u+'</span>':'')+'</div><div class="dk">'+it.k+'</div><div class="tt">'+it.tip.split('.')[0]+'</div></div>';
+  }).join('');
+  html+='</div>';
+  document.getElementById('desc-result').innerHTML=html;
+  document.getElementById('desc-export').style.display='flex';
+}
+
+// ─── Drug-likeness ──────────────────────────────────────────────
+function calcDrugLike(){
+  if(!requireRDKit())return;
+  var smi=document.getElementById('drug-smiles').value.trim()||currentSMILES;
+  if(!smi){alert('Inserisci uno SMILES.');return;}
+  var mol=null;
+  try{mol=RDKit.get_mol(smi);}catch(e){}
+  if(!mol||!mol.is_valid()){document.getElementById('drug-result').innerHTML='<div class="warn">SMILES non valido.</div>';if(mol)mol.delete();return;}
+  var d=computeDescriptors(mol);mol.delete();
+  var mw=d.MW,logP=d.LogP,hba=d.HBA,hbd=d.HBD,rb=d.RotBonds,tpsa=d.TPSA,fsp3=d.FractionCSP3;
+
+  var rules=[
+    {name:'Regola di Lipinski (Ro5)',desc:'Farmaci orali classici',
+     checks:[
+       {lbl:'MW ≤ 500 Da',ok:mw<=500,val:mw.toFixed(1)+' Da',tip:'Peso molecolare: ≤500 per buon assorbimento'},
+       {lbl:'LogP ≤ 5',ok:logP<=5,val:logP.toFixed(2),tip:'Lipofilia: >5 = scarsa solubilità'},
+       {lbl:'HBD ≤ 5',ok:hbd<=5,val:hbd,tip:'Donatori H-bond'},
+       {lbl:'HBA ≤ 10',ok:hba<=10,val:hba,tip:'Accettori H-bond'},
+     ]},
+    {name:'Regola di Veber (biodisponibilità orale)',
+     checks:[
+       {lbl:'Legami rotabili ≤ 10',ok:rb<=10,val:rb,tip:'Flessibilità molecolare'},
+       {lbl:'TPSA ≤ 140 Ų',ok:tpsa<=140,val:tpsa.toFixed(1)+' Ų',tip:'Polar surface area'},
+     ]},
+    {name:'Regola di Ghose',
+     checks:[
+       {lbl:'MW 160–480 Da',ok:mw>=160&&mw<=480,val:mw.toFixed(1)+' Da',tip:''},
+       {lbl:'LogP −0.4–5.6',ok:logP>=-0.4&&logP<=5.6,val:logP.toFixed(2),tip:''},
+       {lbl:'HeavyAtoms 20–70',ok:d.HeavyAtoms>=20&&d.HeavyAtoms<=70,val:d.HeavyAtoms,tip:''},
+     ]},
+    {name:'Regola di Egan (assorbimento intestinale)',
+     checks:[
+       {lbl:'TPSA ≤ 131.6 Ų',ok:tpsa<=131.6,val:tpsa.toFixed(1)+' Ų',tip:''},
+       {lbl:'LogP ≤ 5.88',ok:logP<=5.88,val:logP.toFixed(2),tip:''},
+     ]},
+    {name:'Lead-likeness (Teague et al.)',
+     checks:[
+       {lbl:'MW 200–350 Da',ok:mw>=200&&mw<=350,val:mw.toFixed(1)+' Da',tip:'Lead più piccoli, più facili da ottimizzare'},
+       {lbl:'LogP ≤ 3.5',ok:logP<=3.5,val:logP.toFixed(2),tip:''},
+       {lbl:'HBD ≤ 3',ok:hbd<=3,val:hbd,tip:''},
+     ]},
+    {name:'Fragment-likeness (Ro3)',
+     checks:[
+       {lbl:'MW ≤ 300 Da',ok:mw<=300,val:mw.toFixed(1)+' Da',tip:''},
+       {lbl:'LogP ≤ 3',ok:logP<=3,val:logP.toFixed(2),tip:''},
+       {lbl:'HBD ≤ 3',ok:hbd<=3,val:hbd,tip:''},
+       {lbl:'HBA ≤ 3',ok:hba<=3,val:hba,tip:''},
+     ]},
+  ];
+
+  var html='';
+  rules.forEach(function(r){
+    var pass=r.checks.filter(function(c){return c.ok;}).length;
+    var tot=r.checks.length;
+    var pct=Math.round((pass/tot)*100);
+    var badgeC=pct===100?'rb-pass':(pct>=50?'rb-warn':'rb-fail');
+    html+='<div class="card" style="margin:.5em 0">';
+    html+='<div style="display:flex;align-items:center;margin-bottom:8px"><strong style="flex:1">'+r.name+'</strong><span class="rule-badge '+badgeC+'">'+pass+'/'+tot+'</span></div>';
+    r.checks.forEach(function(c){
+      html+='<div class="rule-row"><span class="rule-badge '+(c.ok?'rb-pass':'rb-fail')+'">'+(c.ok?'✔':'✘')+'</span>';
+      html+='<span data-tip="'+c.tip+'" style="flex:1">'+c.lbl+'</span>';
+      html+='<span style="color:#9fb3c8;font-size:.78rem">'+c.val+'</span></div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('drug-result').innerHTML=html;
+}
+
+// ─── Fingerprint & Similarity ───────────────────────────────────
+function getMorganFP(smi){
+  if(!rdkitReady)return null;
+  var mol=null;
+  try{mol=RDKit.get_mol(smi);}catch(e){}
+  if(!mol||!mol.is_valid()){if(mol)mol.delete();return null;}
+  var fp=mol.get_morgan_fp();mol.delete();
+  return fp;
+}
+
+function tanimoto(fp1,fp2){
+  if(!fp1||!fp2||fp1.length!==fp2.length)return 0;
+  var ab=0,a=0,b=0;
+  for(var i=0;i<fp1.length;i++){ab+=fp1[i]&fp2[i]?1:0;a+=fp1[i]?1:0;b+=fp2[i]?1:0;}
+  return ab/(a+b-ab)||0;
+}
+
+function calcSimilarity(){
+  if(!requireRDKit())return;
+  var s1=document.getElementById('sim-smi1').value.trim();
+  var s2=document.getElementById('sim-smi2').value.trim();
+  if(!s1||!s2){alert('Inserisci entrambi gli SMILES.');return;}
+  var fp1=getMorganFP(s1),fp2=getMorganFP(s2);
+  if(!fp1||!fp2){document.getElementById('sim-result').innerHTML='<div class="warn">Uno o entrambi gli SMILES non validi.</div>';return;}
+  var sim=tanimoto(fp1.split('').map(Number),fp2.split('').map(Number));
+  var pct=(sim*100).toFixed(1);
+  var col=sim>=0.7?'#4caf80':(sim>=0.4?'#ffb454':'#ff6b6b');
+  document.getElementById('sim-result').innerHTML=
+    '<div class="card" style="margin-top:8px"><div style="font-size:1.4rem;font-weight:700;color:'+col+'">'+pct+'%</div>'+
+    '<div class="fp-bar" style="margin:8px 0 4px"><div class="fp-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
+    '<div style="font-size:.82rem;color:#9fb3c8">Similarità di Tanimoto (Morgan fingerprint r=2). '+
+    (sim>=0.7?'Alta similarità — probabilmente stesso scaffold.':(sim>=0.4?'Similarità moderata.':'Molecole strutturalmente distinte.'))+
+    '</div></div>';
+}
+
+var REFERENCE_DRUGS=[
+  {name:'Paracetamolo',smi:'CC(=O)Nc1ccc(O)cc1'},
+  {name:'Ibuprofene',smi:'CC(C)Cc1ccc(cc1)C(C)C(=O)O'},
+  {name:'Aspirina',smi:'O=C(O)c1ccccc1OC(C)=O'},
+  {name:'Caffè­ina',smi:'Cn1cnc2N(C)C(=O)N(C)c12'},
+  {name:'Nicotina',smi:'CN1CCC[C@H]1c2cccnc2'},
+  {name:'Dopamina',smi:'NCCc1ccc(O)c(O)c1'},
+  {name:'Serotonina',smi:'NCCc1c[nH]c2ccc(O)cc12'},
+  {name:'Adrenalina',smi:'CNC[C@@H](O)c1ccc(O)c(O)c1'},
+  {name:'Testosterone',smi:'CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C'},
+  {name:'Glucosio',smi:'OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O'},
+  {name:'Colesterolo',smi:'CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C'},
+  {name:'Penicillina G',smi:'CC1(C(N2C(S1)C(C2=O)NC(=O)Cc3ccccc3)C(=O)O)C'},
+  {name:'Morfina',smi:'OC1CC2CC3Oc4c(CC3N(C)CC2C=C1)cc(O)cc4'},
+  {name:'Vitamina C',smi:'OC[C@H](O)[C@H]1OC(=O)C(O)=C1O'},
+];
+
+function simSearch(){
+  if(!requireRDKit())return;
+  var smi=document.getElementById('sim-query').value.trim()||currentSMILES;
+  if(!smi){alert('Inserisci uno SMILES da cercare.');return;}
+  var fp=getMorganFP(smi);
+  if(!fp){document.getElementById('sim-search-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
+  var fpArr=fp.split('').map(Number);
+  var results=REFERENCE_DRUGS.map(function(drug){
+    var rfp=getMorganFP(drug.smi);
+    if(!rfp)return null;
+    var sim=tanimoto(fpArr,rfp.split('').map(Number));
+    return{name:drug.name,smi:drug.smi,sim:sim};
+  }).filter(Boolean).sort(function(a,b){return b.sim-a.sim;});
+
+  var html='<div class="card" style="margin-top:8px">';
+  results.forEach(function(r){
+    var pct=(r.sim*100).toFixed(1);
+    var col=r.sim>=0.7?'#4caf80':(r.sim>=0.3?'#ffb454':'#ff6b6b');
+    html+='<div class="sim-row"><span style="min-width:120px;color:#e8eef4">'+r.name+'</span>'+
+      '<div class="fp-bar" style="flex:1;margin:0 8px"><div class="fp-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
+      '<span style="color:'+col+';min-width:44px;text-align:right;font-weight:700">'+pct+'%</span>'+
+      '<button class="btn btn-sm btn-outline" style="margin-left:8px;font-size:.72rem" onclick="loadPresetSim(\''+r.smi+'\',\''+r.name+'\')">Carica</button></div>';
+  });
+  html+='</div>';
+  document.getElementById('sim-search-result').innerHTML=html;
+}
+
+function loadPresetSim(smi,name){
+  document.getElementById('smiles-input').value=smi;
+  showPanel('p-mol');
+  document.querySelector('.tab').click();
+  setTimeout(analyzeMol,100);
+}
+
+// ─── Library ────────────────────────────────────────────────────
+function saveLib(){localStorage.setItem('bsi_rdkit_lib',JSON.stringify(library));}
+
+function addToLibrary(){
+  if(!currentSMILES)return;
+  var name=prompt('Nome per la molecola:','Molecola '+(library.length+1));
+  if(name===null)return;
+  library.push({name:name,smiles:currentCanonSmiles||currentSMILES,ts:Date.now()});
+  saveLib();renderLibrary();
+}
+
+function addToLibraryManual(){
+  var smi=document.getElementById('lib-smi-in').value.trim();
+  var name=document.getElementById('lib-name-in').value.trim()||'Molecola '+(library.length+1);
+  if(!smi){alert('Inserisci uno SMILES.');return;}
+  library.push({name:name,smiles:smi,ts:Date.now()});
+  saveLib();renderLibrary();
+  document.getElementById('lib-smi-in').value='';
+  document.getElementById('lib-name-in').value='';
+}
+
+function removeFromLib(idx){
+  library.splice(idx,1);saveLib();renderLibrary();
+}
+
+function clearLibrary(){
+  if(confirm('Svuotare tutta la libreria?')){library=[];saveLib();renderLibrary();}
+}
+
+function renderLibrary(){
+  var el=document.getElementById('lib-list');
+  if(!library.length){el.innerHTML='<div class="card" style="text-align:center;color:#9fb3c8">Libreria vuota. Analizza una molecola e usa "+ Aggiungi alla Libreria".</div>';return;}
+  el.innerHTML=library.map(function(it,i){
+    return '<div class="lib-item"><div class="li-name">'+escHtml(it.name)+'</div>'+
+      '<div class="li-smi">'+escHtml(it.smiles)+'</div>'+
+      '<button class="btn btn-sm btn-outline" onclick="loadLibMol('+i+')">Carica</button>'+
+      '<button class="btn btn-sm btn-outline" style="color:#ff6b6b;border-color:#ff6b6b" onclick="removeFromLib('+i+')">✕</button></div>';
+  }).join('');
+}
+
+function loadLibMol(idx){
+  var it=library[idx];
+  document.getElementById('smiles-input').value=it.smiles;
+  showPanel('p-mol');
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  setTimeout(analyzeMol,100);
+}
+
+// ─── Export ─────────────────────────────────────────────────────
+function exportSVG(){
+  var svg=document.getElementById('mol-svg-box').innerHTML;
+  if(!svg||svg.includes('placeholder'))return;
+  var blob=new Blob([svg],{type:'image/svg+xml'});
+  downloadBlob(blob,'molecule.svg');
+}
+
+function exportPNG(){
+  var svgEl=document.getElementById('mol-svg-box').querySelector('svg');
+  if(!svgEl)return;
+  var svgData=new XMLSerializer().serializeToString(svgEl);
+  var canvas=document.createElement('canvas');
+  canvas.width=400;canvas.height=300;
+  var ctx=canvas.getContext('2d');
+  var img=new Image();
+  img.onload=function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,400,300);ctx.drawImage(img,0,0,400,300);canvas.toBlob(function(b){downloadBlob(b,'molecule.png');});};
+  img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svgData)));
+}
+
+function copySMILES(){
+  if(currentCanonSmiles) navigator.clipboard.writeText(currentCanonSmiles).then(function(){alert('SMILES copiato!');});
+}
+
+function exportJSON(type){
+  var data=type==='desc'?currentDescriptors:{};
+  downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),type+'_rdkit.json');
+}
+
+function exportCSV(type){
+  if(type==='desc'){
+    var lines=['Descrittore,Valore'];
+    Object.entries(currentDescriptors).forEach(function(kv){lines.push(escCsv(kv[0])+','+escCsv(String(kv[1])));});
+    downloadBlob(new Blob([lines.join('\n')],{type:'text/csv'}),'descriptors.csv');
+  }
+}
+
+function exportLibJSON(){
+  downloadBlob(new Blob([JSON.stringify(library,null,2)],{type:'application/json'}),'bsi_library.json');
+}
+
+function exportLibCSV(){
+  var lines=['Nome,SMILES,Timestamp'];
+  library.forEach(function(it){lines.push(escCsv(it.name)+','+escCsv(it.smiles)+','+new Date(it.ts).toISOString());});
+  downloadBlob(new Blob([lines.join('\n')],{type:'text/csv'}),'bsi_library.csv');
+}
+
+function downloadBlob(blob,fname){
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+}
+
+// ─── Utils ──────────────────────────────────────────────────────
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escCsv(s){return '"'+String(s).replace(/"/g,'""')+'"';}
+function getFormula(mol){try{return JSON.parse(mol.get_descriptors()).formula||'—';}catch(e){return'—';}}
+
+// Init
+renderLibrary();
+</script>
+</body>
+</html>
