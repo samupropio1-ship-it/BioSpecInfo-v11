@@ -12,7 +12,10 @@ const STATIC_FILES = [
   './icon-192.png',
   './icon-512.png',
   './3Dmol-min.js',
-  './three.min.js'
+  './three.min.js',
+  './guidaret.html',
+  './sr_completo.html',
+  './sr_essenziale.html'
 ];
 
 // Install: precarica i file statici
