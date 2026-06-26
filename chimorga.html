@@ -79,6 +79,7 @@ select{background:#0d2236;color:#e8eef4;border:1px solid #1c3a57;border-radius:4
   <a class="nav-s" onclick="goS('s15')"><span class="nav-num">15</span>Amminoacidi &amp; Proteine</a>
   <a class="nav-s" onclick="goS('s16')"><span class="nav-num">16</span>Lipidi</a>
   <a class="nav-s" onclick="goS('s17')"><span class="nav-num">17</span>Nucleosidi &amp; Nucleotidi</a>
+  <a class="nav-s" onclick="goS('s18')"><span class="nav-num">18</span>Sintesi Animate ✨</a>
 </nav>
 <div id="main">
 <h1>⚗️ Chimica Organica 1 + 2</h1>
@@ -1049,15 +1050,16 @@ CH₂–O–PO₃⁻–O–CH₂CH₂N⁺(CH₃)₃
 <script>
 // Navigation
 function goS(id){
-  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
-  document.querySelectorAll('.nav-s').forEach(function(el){
-    el.classList.toggle('active',el.getAttribute('onclick')==="goS('"+id+"')");
+  var el=document.getElementById(id);
+  if(el){el.style.display='';el.scrollIntoView({behavior:'smooth',block:'start'});}
+  document.querySelectorAll('.nav-s').forEach(function(e){
+    e.classList.toggle('active',e.getAttribute('onclick')==="goS('"+id+"')");
   });
 }
 window.addEventListener('scroll',function(){
   var mid=window.scrollY+window.innerHeight/2;
   var active='s1';
-  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17'].forEach(function(id){
+  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18'].forEach(function(id){
     var el=document.getElementById(id);
     if(el&&el.offsetTop<=mid)active=id;
   });
@@ -1259,14 +1261,481 @@ window.addEventListener('load',function(){drawNm();drawCh();drawSN();});
 })();
 </script>
 
+<!-- ─── Section 18: Sintesi Animate ──────────────────────────────────── -->
 <style>
-#bsi-co-back{position:fixed;bottom:16px;right:14px;z-index:9997;display:none}
+.acard{background:#0d2236;border:1px solid #1c3a57;border-radius:10px;padding:14px;margin:10px 0}
+.atitle{color:#00c9b7;font-weight:700;font-size:.93rem;margin-bottom:8px}
+.astage{background:#071221;border-radius:7px;margin:8px 0;display:block;width:100%;overflow:hidden}
+.astage svg{display:block;width:100%;height:auto;max-height:160px}
+.adots{display:flex;gap:6px;margin:6px 0;align-items:center}
+.adot{width:9px;height:9px;border-radius:50%;background:#1c3a57;transition:background .3s;cursor:pointer}
+.adot.on{background:#00c9b7}
+.adesc{color:#9fb3c8;font-size:.82rem;min-height:30px;margin-top:4px;padding:4px 6px;border-left:2px solid #1c3a57;transition:opacity .25s}
+.abtns{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.abtn{padding:6px 14px;border-radius:8px;border:1px solid #1c3a57;background:#071221;color:#9fb3c8;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .15s}
+.abtn:hover{border-color:#00c9b7;color:#00c9b7}
+.abtn.playing{border-color:#00c9b7;color:#00c9b7;background:rgba(0,201,183,.08)}
+</style>
+
+<section class="sec" id="s18" style="display:none">
+<h2>18 · Sintesi Animate — Meccanismi Passo per Passo</h2>
+<p style="color:#9fb3c8;font-size:.84rem;margin-bottom:14px">Animazioni interattive dei meccanismi fondamentali. Premi <strong style="color:#00c9b7">▶ Avvia</strong> o <strong style="color:#00c9b7">⏭ Passo</strong> per procedere.</p>
+
+<!-- SVG arrow markers shared by all animations -->
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <marker id="amY" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#ffb454"/>
+  </marker>
+  <marker id="amG" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#4caf80"/>
+  </marker>
+  <marker id="amR" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <path d="M0,0 L0,6 L8,3 z" fill="#ff6b6b"/>
+  </marker>
+</defs>
+</svg>
+
+<!-- ── Reaction 1: SN2 ─────────────────────────────────────── -->
+<div class="acard">
+<div class="atitle">⚡ Reazione 1 — SN2: Sostituzione Nucleofila Bimolecolare</div>
+<div class="astage" id="ar1-stage">
+
+<svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg">
+<!-- Frame 0: Reagenti -->
+<g id="ar1-f0">
+  <!-- CH₃Br -->
+  <text x="68" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="72" y1="35" x2="100" y2="55" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="46" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="58" y1="66" x2="90" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="68" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="72" y1="97" x2="100" y2="77" stroke="#5a7a99" stroke-width="1.5"/>
+  <circle cx="106" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="106" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="120" y1="66" x2="155" y2="66" stroke="#e05050" stroke-width="2.5"/>
+  <circle cx="170" cy="66" r="16" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="170" y="66" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <text x="106" y="44" fill="#ff9070" font-size="9" text-anchor="middle">δ+</text>
+  <text x="186" y="44" fill="#e05050" font-size="9" text-anchor="middle">δ−</text>
+  <!-- + -->
+  <text x="240" y="72" fill="#9fb3c8" font-size="20" text-anchor="middle" font-weight="700">+</text>
+  <!-- OH⁻ -->
+  <circle cx="330" cy="66" r="14" fill="#0a1a0a" stroke="#1a3a1a" stroke-width="1.5"/>
+  <text x="330" y="66" fill="#4cce80" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="344" y1="58" x2="354" y2="50" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="362" y="47" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <text x="316" y="48" fill="#4cce80" font-size="13" text-anchor="middle">⊖</text>
+  <!-- lone pairs -->
+  <circle cx="316" cy="67" r="2" fill="#4cce80"/><circle cx="321" cy="67" r="2" fill="#4cce80"/>
+  <!-- electron-pushing curved arrow: O → C -->
+  <path d="M318,58 Q260,15 188,57" stroke="#ffb454" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amY)"/>
+  <!-- electron-pushing arrow: C-Br → Br (bond breaks) -->
+  <path d="M148,58 Q165,30 170,48" stroke="#ff6b6b" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amR)"/>
+  <!-- label -->
+  <text x="230" y="115" fill="#9fb3c8" font-size="10" text-anchor="middle">Il nucleofilo OH⁻ attacca il carbonio elettrofilo</text>
+</g>
+
+<!-- Frame 1: Transition State -->
+<g id="ar1-f1" opacity="0">
+  <!-- H atoms pointing up (flap) -->
+  <text x="195" y="18" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="195" y1="24" x2="210" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="222" y="12" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="220" y1="18" x2="218" y2="50" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="248" y="18" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="244" y1="24" x2="228" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <!-- HO on left -->
+  <circle cx="58" cy="65" r="14" fill="#0a1a0a" stroke="#1a3a1a" stroke-width="1.5"/>
+  <text x="58" y="65" fill="#4cce80" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="44" y1="57" x2="34" y2="49" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="26" y="46" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <text x="75" y="46" fill="#ff9070" font-size="9">δ−</text>
+  <!-- dashed O···C bond forming -->
+  <line x1="72" y1="65" x2="200" y2="65" stroke="#4cce80" stroke-width="2" stroke-dasharray="6,3"/>
+  <!-- C atom (pentacoordinate) -->
+  <circle cx="216" cy="65" r="14" fill="#0e2040" stroke="#00c9b7" stroke-width="2"/>
+  <text x="216" y="65" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <!-- dashed C···Br bond breaking -->
+  <line x1="230" y1="65" x2="350" y2="65" stroke="#e05050" stroke-width="2" stroke-dasharray="6,3"/>
+  <!-- Br on right -->
+  <circle cx="366" cy="65" r="16" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="366" y="65" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <text x="386" y="46" fill="#ff9070" font-size="9">δ−</text>
+  <!-- brackets -->
+  <text x="28" y="72" fill="#9fb3c8" font-size="22" font-weight="300">[</text>
+  <text x="400" y="72" fill="#9fb3c8" font-size="22" font-weight="300">]</text>
+  <text x="416" y="55" fill="#ffb454" font-size="13" font-weight="700">‡</text>
+  <!-- label -->
+  <text x="215" y="110" fill="#9fb3c8" font-size="10" text-anchor="middle">Stato di transizione: C pentacoordinato — Inversione di Walden</text>
+</g>
+
+<!-- Frame 2: Prodotti -->
+<g id="ar1-f2" opacity="0">
+  <!-- CH₃OH -->
+  <text x="68" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="72" y1="35" x2="100" y2="55" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="46" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="58" y1="66" x2="90" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="68" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="72" y1="97" x2="100" y2="77" stroke="#5a7a99" stroke-width="1.5"/>
+  <circle cx="106" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="106" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <!-- C-O bond (formed, green) -->
+  <line x1="120" y1="66" x2="152" y2="66" stroke="#4cce80" stroke-width="3"/>
+  <circle cx="166" cy="66" r="14" fill="#0a1a0a" stroke="#1a3a1a" stroke-width="1.5"/>
+  <text x="166" y="66" fill="#4cce80" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="180" y1="58" x2="192" y2="50" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="200" y="47" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- CH₃OH label -->
+  <text x="120" y="100" fill="#4cce80" font-size="10" text-anchor="middle">CH₃OH</text>
+  <!-- + -->
+  <text x="255" y="72" fill="#9fb3c8" font-size="20" text-anchor="middle" font-weight="700">+</text>
+  <!-- Br⁻ -->
+  <circle cx="340" cy="66" r="16" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="340" y="66" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <text x="360" y="47" fill="#4cce80" font-size="13" text-anchor="middle">⊖</text>
+  <text x="340" y="100" fill="#c9a0f5" font-size="10" text-anchor="middle">Br⁻</text>
+  <!-- result label -->
+  <text x="230" y="120" fill="#4cce80" font-size="10" text-anchor="middle">✓ Configurazione invertita (S→R o R→S) — reazione stereospecifica</text>
+</g>
+</svg>
+
+</div><!-- astage -->
+<div class="adots" id="ar1-dots"></div>
+<div class="adesc" id="ar1-desc">OH⁻ nucleofilo si avvicina al carbonio di CH₃Br sul lato opposto al gruppo uscente Br</div>
+<div class="abtns">
+  <button class="abtn" id="ar1-play" onclick="animPlay('ar1',3)">▶ Avvia</button>
+  <button class="abtn" onclick="animStep('ar1',3)">⏭ Passo</button>
+  <button class="abtn" onclick="animReset('ar1',3)">↺ Reset</button>
+</div>
+</div>
+
+<!-- ── Reaction 2: HBr addition to alkene ─────────────────── -->
+<div class="acard">
+<div class="atitle">🔴 Reazione 2 — Addizione Elettrofila HBr all'Etene (Markovnikov)</div>
+<div class="astage" id="ar2-stage">
+
+<svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg">
+<!-- Frame 0: Reagenti -->
+<g id="ar2-f0">
+  <!-- CH₂=CH₂ -->
+  <text x="46" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="35" x2="70" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="46" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="97" x2="70" y2="80" stroke="#5a7a99" stroke-width="1.5"/>
+  <circle cx="82" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="82" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <!-- double bond -->
+  <line x1="96" y1="62" x2="136" y2="62" stroke="#00c9b7" stroke-width="2.5"/>
+  <line x1="96" y1="70" x2="136" y2="70" stroke="#00c9b7" stroke-width="2.5"/>
+  <circle cx="148" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="148" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <text x="175" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="170" y1="35" x2="154" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="175" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="170" y1="97" x2="154" y2="80" stroke="#5a7a99" stroke-width="1.5"/>
+  <!-- π label -->
+  <text x="116" y="50" fill="#00c9b7" font-size="10" text-anchor="middle">π</text>
+  <!-- + -->
+  <text x="220" y="72" fill="#9fb3c8" font-size="20" text-anchor="middle" font-weight="700">+</text>
+  <!-- HBr -->
+  <text x="280" y="72" fill="#e8eef4" font-size="14" text-anchor="middle" font-weight="700">H</text>
+  <line x1="290" y1="66" x2="310" y2="66" stroke="#5a7a99" stroke-width="2"/>
+  <circle cx="325" cy="66" r="14" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="325" y="66" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <text x="281" y="52" fill="#ff9070" font-size="9" text-anchor="middle">δ+</text>
+  <text x="340" y="52" fill="#e05050" font-size="9">δ−</text>
+  <!-- electron arrow: π → H (electrophilic addition) -->
+  <path d="M115,56 Q150,10 260,55" stroke="#ffb454" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amY)"/>
+  <text x="230" y="115" fill="#9fb3c8" font-size="10" text-anchor="middle">Il legame π attacca H⁺ — addizione elettrofila</text>
+</g>
+
+<!-- Frame 1: Carbocatione intermedio -->
+<g id="ar2-f1" opacity="0">
+  <!-- CH₃-CH₂⁺ carbocation -->
+  <text x="46" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="35" x2="76" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="30" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="40" y1="66" x2="76" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="46" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="97" x2="76" y2="80" stroke="#5a7a99" stroke-width="1.5"/>
+  <circle cx="88" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="88" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <!-- single bond now (π broke) -->
+  <line x1="102" y1="66" x2="140" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="152" cy="66" r="14" fill="#2a1a08" stroke="#6a3a00" stroke-width="2"/>
+  <text x="152" y="66" fill="#ffb454" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <!-- carbocation + charge -->
+  <text x="172" y="46" fill="#ffb454" font-size="15" text-anchor="middle">⊕</text>
+  <text x="190" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="186" y1="35" x2="164" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="210" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="200" y1="66" x2="168" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <!-- + -->
+  <text x="250" y="72" fill="#9fb3c8" font-size="20" text-anchor="middle" font-weight="700">+</text>
+  <!-- Br⁻ -->
+  <circle cx="340" cy="66" r="16" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="340" y="66" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <text x="320" y="48" fill="#4cce80" font-size="13" text-anchor="middle">⊖</text>
+  <!-- arrow: Br attacks carbocation -->
+  <path d="M324,62 Q280,30 220,58" stroke="#4cce80" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amG)"/>
+  <text x="230" y="115" fill="#9fb3c8" font-size="10" text-anchor="middle">Carbocatione intermedio — Br⁻ attacca il C caricato positivamente</text>
+</g>
+
+<!-- Frame 2: Prodotto -->
+<g id="ar2-f2" opacity="0">
+  <!-- CH₃CH₂Br bromoethane -->
+  <text x="46" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="35" x2="76" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="30" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="40" y1="66" x2="76" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="46" y="102" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="50" y1="97" x2="76" y2="80" stroke="#5a7a99" stroke-width="1.5"/>
+  <circle cx="88" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="88" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="102" y1="66" x2="140" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="152" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="152" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <text x="190" y="30" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="186" y1="35" x2="164" y2="52" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="210" y="66" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <line x1="200" y1="66" x2="168" y2="66" stroke="#5a7a99" stroke-width="1.5"/>
+  <!-- C-Br bond (formed, green) -->
+  <line x1="166" y1="66" x2="204" y2="66" stroke="#4cce80" stroke-width="3"/>
+  <circle cx="220" cy="66" r="16" fill="#1a0a22" stroke="#4a1a60" stroke-width="1.5"/>
+  <text x="220" y="66" fill="#c9a0f5" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">Br</text>
+  <!-- product label -->
+  <text x="155" y="110" fill="#4cce80" font-size="11" text-anchor="middle" font-weight="700">Bromoetano CH₃CH₂Br</text>
+  <text x="310" y="75" fill="#9fb3c8" font-size="10" text-anchor="middle">Regola di Markovnikov:</text>
+  <text x="310" y="90" fill="#ffb454" font-size="10" text-anchor="middle">H+ si lega al C con più H</text>
+  <text x="310" y="105" fill="#9fb3c8" font-size="10" text-anchor="middle">(C primario → etene: simmetrico)</text>
+</g>
+</svg>
+
+</div>
+<div class="adots" id="ar2-dots"></div>
+<div class="adesc" id="ar2-desc">Il legame π dell'etene attacca il protone H⁺ di HBr — addizione elettrofila</div>
+<div class="abtns">
+  <button class="abtn" id="ar2-play" onclick="animPlay('ar2',3)">▶ Avvia</button>
+  <button class="abtn" onclick="animStep('ar2',3)">⏭ Passo</button>
+  <button class="abtn" onclick="animReset('ar2',3)">↺ Reset</button>
+</div>
+</div>
+
+<!-- ── Reaction 3: Aldol condensation ─────────────────────── -->
+<div class="acard">
+<div class="atitle">🟡 Reazione 3 — Condensazione Aldolica (NaOH/H₂O)</div>
+<div class="astage" id="ar3-stage">
+
+<svg viewBox="0 0 460 140" xmlns="http://www.w3.org/2000/svg">
+<!-- Frame 0: Reagenti — 2 acetaldeidi + NaOH -->
+<g id="ar3-f0">
+  <!-- Acetaldehyde 1: CH₃-CHO -->
+  <text x="50" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH₃</text>
+  <line x1="70" y1="66" x2="90" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="103" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="103" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="117" y1="62" x2="140" y2="62" stroke="#ffb454" stroke-width="2.5"/>
+  <line x1="117" y1="70" x2="140" y2="70" stroke="#ffb454" stroke-width="2.5"/>
+  <text x="150" y="66" fill="#ff9070" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="103" y1="52" x2="103" y2="36" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="103" y="29" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- α-H label -->
+  <text x="52" y="92" fill="#ffb454" font-size="10" text-anchor="middle">α-H</text>
+  <!-- NaOH -->
+  <text x="200" y="66" fill="#4cce80" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">NaOH</text>
+  <!-- + -->
+  <text x="240" y="72" fill="#9fb3c8" font-size="20" text-anchor="middle" font-weight="700">+</text>
+  <!-- Acetaldehyde 2 -->
+  <text x="280" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH₃</text>
+  <line x1="300" y1="66" x2="320" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="333" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="333" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="347" y1="62" x2="370" y2="62" stroke="#ffb454" stroke-width="2.5"/>
+  <line x1="347" y1="70" x2="370" y2="70" stroke="#ffb454" stroke-width="2.5"/>
+  <text x="380" y="66" fill="#ff9070" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="333" y1="52" x2="333" y2="36" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="333" y="29" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- arrow: NaOH takes α-H -->
+  <path d="M58,68 Q100,100 185,70" stroke="#4cce80" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amG)"/>
+  <text x="230" y="125" fill="#9fb3c8" font-size="10" text-anchor="middle">NaOH sottrae l'H alfa: si forma l'enolato carboanione</text>
+</g>
+
+<!-- Frame 1: Enolate + electrophile -->
+<g id="ar3-f1" opacity="0">
+  <!-- Enolate: ⁻CH₂-CHO -->
+  <text x="36" y="66" fill="#4cce80" font-size="13" font-weight="700" text-anchor="middle">⁻</text>
+  <circle cx="54" cy="66" r="14" fill="#0d2a16" stroke="#1a4a24" stroke-width="2"/>
+  <text x="54" y="66" fill="#4cce80" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH₂</text>
+  <line x1="70" y1="66" x2="90" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="103" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="103" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="117" y1="62" x2="140" y2="62" stroke="#ffb454" stroke-width="2.5"/>
+  <line x1="117" y1="70" x2="140" y2="70" stroke="#ffb454" stroke-width="2.5"/>
+  <text x="150" y="66" fill="#ff9070" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="103" y1="52" x2="103" y2="36" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="103" y="29" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- + -->
+  <text x="195" y="72" fill="#9fb3c8" font-size="16" text-anchor="middle" font-weight="700">+</text>
+  <!-- Second CHO (electrophile) -->
+  <text x="230" y="66" fill="#e8eef4" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH₃</text>
+  <line x1="252" y1="66" x2="272" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="285" cy="66" r="14" fill="#2a1a00" stroke="#5a3a00" stroke-width="2"/>
+  <text x="285" y="66" fill="#ffb454" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="299" y1="62" x2="322" y2="62" stroke="#ffb454" stroke-width="2.5"/>
+  <line x1="299" y1="70" x2="322" y2="70" stroke="#ffb454" stroke-width="2.5"/>
+  <text x="332" y="66" fill="#ff9070" font-size="13" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <text x="285" y="44" fill="#ffb454" font-size="9" text-anchor="middle">elettrofilo</text>
+  <line x1="285" y1="52" x2="285" y2="36" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="285" y="29" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- arrow: ⁻CH₂ attacks CHO carbon -->
+  <path d="M70,60 Q160,15 268,57" stroke="#ffb454" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#amY)"/>
+  <text x="230" y="125" fill="#9fb3c8" font-size="10" text-anchor="middle">Enolato nucleofilo attacca il C=O elettrofilo — legame C–C nuovo</text>
+</g>
+
+<!-- Frame 2: Prodotto aldolico -->
+<g id="ar3-f2" opacity="0">
+  <!-- Aldol product: CH₃-CH(OH)-CH₂-CHO -->
+  <text x="36" y="66" fill="#e8eef4" font-size="12" font-weight="700" text-anchor="middle">CH₃</text>
+  <line x1="56" y1="66" x2="76" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="89" cy="66" r="14" fill="#0e2040" stroke="#4cce80" stroke-width="2"/>
+  <text x="89" y="66" fill="#e8eef4" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH</text>
+  <!-- OH group -->
+  <line x1="89" y1="52" x2="89" y2="36" stroke="#4cce80" stroke-width="2.5"/>
+  <text x="89" y="29" fill="#4cce80" font-size="12" text-anchor="middle" font-weight="700">OH</text>
+  <!-- C–C bond (new, green!) -->
+  <line x1="103" y1="66" x2="143" y2="66" stroke="#4cce80" stroke-width="3"/>
+  <circle cx="156" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="156" y="66" fill="#e8eef4" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">CH₂</text>
+  <line x1="170" y1="66" x2="200" y2="66" stroke="#6a8aaa" stroke-width="2"/>
+  <circle cx="213" cy="66" r="14" fill="#0e2040" stroke="#1c3a57" stroke-width="1.5"/>
+  <text x="213" y="66" fill="#e8eef4" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">C</text>
+  <line x1="227" y1="62" x2="250" y2="62" stroke="#ffb454" stroke-width="2.5"/>
+  <line x1="227" y1="70" x2="250" y2="70" stroke="#ffb454" stroke-width="2.5"/>
+  <text x="262" y="66" fill="#ff9070" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">O</text>
+  <line x1="213" y1="52" x2="213" y2="36" stroke="#5a7a99" stroke-width="1.5"/>
+  <text x="213" y="29" fill="#9fb3c8" font-size="11" text-anchor="middle">H</text>
+  <!-- new bond label -->
+  <text x="124" y="88" fill="#4cce80" font-size="10" text-anchor="middle" font-weight="700">↑ Nuovo C–C</text>
+  <!-- product name -->
+  <text x="155" y="112" fill="#4cce80" font-size="11" text-anchor="middle" font-weight="700">3-idrossibutanale (Aldol)</text>
+  <!-- condensation note -->
+  <text x="370" y="60" fill="#9fb3c8" font-size="10" text-anchor="middle">Poi deidratazione</text>
+  <text x="370" y="75" fill="#ffb454" font-size="10" text-anchor="middle">→ crotonaldeide</text>
+  <text x="370" y="90" fill="#9fb3c8" font-size="10" text-anchor="middle">(aldol condensation)</text>
+</g>
+</svg>
+
+</div>
+<div class="adots" id="ar3-dots"></div>
+<div class="adesc" id="ar3-desc">NaOH sottrae un H in posizione α (accanto al C=O) formando un enolato carbanionico</div>
+<div class="abtns">
+  <button class="abtn" id="ar3-play" onclick="animPlay('ar3',3)">▶ Avvia</button>
+  <button class="abtn" onclick="animStep('ar3',3)">⏭ Passo</button>
+  <button class="abtn" onclick="animReset('ar3',3)">↺ Reset</button>
+</div>
+</div>
+
+<div class="tip" style="margin-top:14px">
+  <strong>🎯 Osserva i colori:</strong>
+  <span style="color:#4cce80">Verde</span> = legame che si <strong>forma</strong> ·
+  <span style="color:#e05050">Rosso</span> = legame che si <strong>rompe</strong> ·
+  <span style="color:#ffb454">Giallo</span> = frecce elettroniche (pushing) ·
+  <span style="color:#c9a0f5">Viola</span> = atomo di Br
+</div>
+</section>
+
+<script>
+// Generic animation controller for chimorga section 18
+(function(){
+var _state={};
+var _descs={
+  ar1:['OH⁻ nucleofilo si avvicina al carbonio di CH₃Br sul lato opposto al gruppo uscente Br','Stato di transizione: C pentacoordinato con 5 legami — Inversione di Walden in corso','Prodotto: CH₃OH + Br⁻. La configurazione è stata invertita (reazione stereospecifica)'],
+  ar2:['Il legame π dell\'etene attacca il protone H⁺ di HBr — addizione elettrofila al doppio legame','Carbocatione intermedio CH₃CH₂⁺ — Br⁻ si avvicina al carbonio caricato positivamente','Prodotto: bromoetano (simmetrico → Markovnikov non determina regioisomeri qui)'],
+  ar3:['NaOH sottrae un H in posizione α (accanto al C=O) formando un enolato carbanionico','Enolato nucleofilo attacca il carbonile della seconda acetaldeide — si forma il legame C–C','Prodotto aldolico: 3-idrossibutanale. Ulterior deidratazione → crotonaldeide (condensazione aldolica)']
+};
+function initAnim(id,n){
+  _state[id]={cur:0,n:n,timer:null,playing:false};
+  var dotsEl=document.getElementById(id+'-dots');
+  if(!dotsEl)return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<n;i++){
+    var d=document.createElement('span');
+    d.className='adot'+(i===0?' on':'');
+    d.setAttribute('data-i',i);
+    (function(idx){d.onclick=function(){animGoto(id,idx,n);};})(i);
+    dotsEl.appendChild(d);
+  }
+  showFrame(id,0);
+}
+function showFrame(id,idx){
+  var n=(_state[id]||{}).n||3;
+  for(var i=0;i<n;i++){
+    var fr=document.getElementById(id+'-f'+i);
+    if(fr){
+      fr.style.transition='opacity 0.4s';
+      fr.style.opacity=i===idx?'1':'0';
+      fr.style.pointerEvents=i===idx?'auto':'none';
+    }
+  }
+  var dots=document.querySelectorAll('#'+id+'-dots .adot');
+  dots.forEach(function(d,i){d.classList.toggle('on',i===idx);});
+  var desc=document.getElementById(id+'-desc');
+  if(desc&&_descs[id]&&_descs[id][idx]){
+    desc.style.opacity='0';
+    setTimeout(function(){desc.textContent=_descs[id][idx];desc.style.opacity='1';},200);
+  }
+}
+window.animPlay=function(id,n){
+  if(!_state[id]) initAnim(id,n);
+  var s=_state[id];
+  if(s.playing){clearInterval(s.timer);s.playing=false;document.getElementById(id+'-play').textContent='▶ Avvia';document.getElementById(id+'-play').classList.remove('playing');return;}
+  s.playing=true;
+  document.getElementById(id+'-play').textContent='⏸ Pausa';
+  document.getElementById(id+'-play').classList.add('playing');
+  function tick(){
+    s.cur=(s.cur+1)%n;
+    showFrame(id,s.cur);
+    if(s.cur===n-1){clearInterval(s.timer);s.playing=false;document.getElementById(id+'-play').textContent='▶ Avvia';document.getElementById(id+'-play').classList.remove('playing');}
+  }
+  s.timer=setInterval(tick,2200);
+  tick();
+};
+window.animStep=function(id,n){
+  if(!_state[id]) initAnim(id,n);
+  var s=_state[id];
+  if(s.playing){clearInterval(s.timer);s.playing=false;document.getElementById(id+'-play').textContent='▶ Avvia';document.getElementById(id+'-play').classList.remove('playing');}
+  s.cur=(s.cur+1)%n;
+  showFrame(id,s.cur);
+};
+window.animReset=function(id,n){
+  if(_state[id]&&_state[id].timer)clearInterval(_state[id].timer);
+  _state[id]={cur:0,n:n,timer:null,playing:false};
+  var pb=document.getElementById(id+'-play');if(pb){pb.textContent='▶ Avvia';pb.classList.remove('playing');}
+  showFrame(id,0);
+};
+window.animGoto=function(id,idx,n){
+  if(!_state[id]) initAnim(id,n);
+  if(_state[id].playing){clearInterval(_state[id].timer);_state[id].playing=false;var pb=document.getElementById(id+'-play');if(pb){pb.textContent='▶ Avvia';pb.classList.remove('playing');}}
+  _state[id].cur=idx;
+  showFrame(id,idx);
+};
+// Init all on load
+document.addEventListener('DOMContentLoaded',function(){
+  initAnim('ar1',3);initAnim('ar2',3);initAnim('ar3',3);
+});
+})();
+</script>
+
+<style>
+#bsi-co-back{position:fixed;bottom:16px;left:14px;z-index:9997;display:none}
 #bsi-co-back>button{background:#071221;border:2px solid #00c9b7;color:#00c9b7;border-radius:22px;padding:10px 22px;font-size:.82rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.65),0 0 14px rgba(0,201,183,.15);letter-spacing:.025em;transition:background .15s,transform .12s}
 #bsi-co-back>button:hover{background:rgba(0,201,183,.1);transform:scale(1.05)}
 #bsi-co-back>button:active{transform:scale(.95)}
 </style>
 <div id="bsi-co-back">
-  <button onclick="try{window.parent.document.getElementById('bsi-chimorga-ov').style.display='none';}catch(e){}" title="Torna all\'app">◀ Indietro</button>
+  <button onclick="try{window.parent.document.getElementById('bsi-chimorga-ov').style.display='none';}catch(e){}" title="Torna all\'app">↩ Indietro</button>
 </div>
 </body>
 </html>
