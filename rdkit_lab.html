@@ -2223,7 +2223,7 @@ function calcSMARTS(){
   var col=count>0?'#4caf80':'#ff6b6b';
   document.getElementById('smarts-sv').innerHTML=svg;
   document.getElementById('smarts-count').innerHTML=
-    '<span style="color:'+col+';font-weight:700">'+(count>0?count+' corrisp.'+(count>1?'e trovate':'a trovata')+' ':''+'<em style="color:#9fb3c8">(1° evidenziata in giallo)</em>':'Nessuna corrispondenza — pattern assente in questa molecola.')+'</span>';
+    '<span style="color:'+col+';font-weight:700">'+(count>0?count+' corrisp.'+(count>1?'e trovate':'a trovata')+' <em style="color:#9fb3c8">(1° evidenziata in giallo)</em>':'Nessuna corrispondenza — pattern assente in questa molecola.')+'</span>';
 
   // List all matches
   if(count>0){
