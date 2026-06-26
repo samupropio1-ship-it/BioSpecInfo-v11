@@ -1359,35 +1359,54 @@ function setStatus(msg,type){
   sp.style.display=type==='loading'?'block':'none';
 }
 
+function _rdkitReady(rdk){
+  RDKit=rdk; rdkReady=true;
+  try{document.getElementById('rdk-ver').textContent='v'+rdk.version();}catch(e){}
+  setStatus('RDKit.js pronto ✔ — tutte le funzioni disponibili','ok');
+  // Only re-enable the specific output-action buttons (preset buttons are never disabled)
+  ['btn-svg','btn-png','btn-cpsmi','btn-addlib','btn-runall'].forEach(function(id){
+    var b=document.getElementById(id);if(b)b.disabled=false;
+  });
+  if(window._pendingSMI){
+    document.getElementById('smiles-input').value=window._pendingSMI;
+    window._pendingSMI=null;
+    setTimeout(analyzeMol,80);
+  }
+}
+
 (function(){
-  setStatus('Caricamento RDKit.js…','loading');
-  function tryLoad(src,onOk,onFail){
+  var BASE1='https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/';
+  var BASE2='https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/';
+  var _timer=null;
+
+  function tryLoad(src,base,onFail){
+    setStatus('Scaricamento RDKit.js (≈7 MB)…','loading');
     var s=document.createElement('script');
     s.src=src; s.crossOrigin='anonymous';
-    s.onload=onOk; s.onerror=onFail;
+    s.onload=function(){
+      if(typeof initRDKitModule!=='function'){setStatus('Errore: initRDKitModule non trovato','err');return;}
+      setStatus('Inizializzazione WASM…','loading');
+      // locateFile tells Emscripten where to fetch the .wasm binary on the same CDN
+      _timer=setTimeout(function(){setStatus('Timeout init (30s) — connessione lenta o bloccata','err');},30000);
+      initRDKitModule({
+        locateFile:function(f){return base+f;}
+      }).then(function(rdk){
+        clearTimeout(_timer);
+        _rdkitReady(rdk);
+      }).catch(function(e){
+        clearTimeout(_timer);
+        setStatus('Errore init WASM: '+(e&&e.message||e),'err');
+      });
+    };
+    s.onerror=onFail;
     document.head.appendChild(s);
   }
-  var CDN1='https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/RDKit_minimal.js';
-  var CDN2='https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/RDKit_minimal.js';
 
-  function onLoaded(){
-    if(typeof initRDKitModule!=='function'){setStatus('Errore: initRDKitModule non trovato','err');return;}
-    initRDKitModule().then(function(rdk){
-      RDKit=rdk; rdkReady=true;
-      document.getElementById('rdk-ver').textContent='v'+rdk.version();
-      setStatus('RDKit.js pronto — tutte le funzioni disponibili ✔','ok');
-      document.querySelectorAll('.btn').forEach(function(b){if(b.id!=='btn-svg'&&b.id!=='btn-png'&&b.id!=='btn-cpsmi'&&b.id!=='btn-addlib'&&b.id!=='btn-runall')b.disabled=false;});
-      // Run any queued analysis (user clicked a preset before RDKit was ready)
-      if(window._pendingSMI){
-        document.getElementById('smiles-input').value=window._pendingSMI;
-        window._pendingSMI=null;
-        setTimeout(analyzeMol,80);
-      }
-    }).catch(function(e){setStatus('Errore init: '+e.message,'err');});
-  }
-  tryLoad(CDN1,onLoaded,function(){
-    setStatus('CDN1 fallito, provo CDN2…','loading');
-    tryLoad(CDN2,onLoaded,function(){setStatus('Nessun CDN raggiungibile. Connessione internet richiesta.','err');});
+  tryLoad(BASE1+'RDKit_minimal.js', BASE1, function(){
+    setStatus('CDN1 non raggiungibile, provo CDN2…','loading');
+    tryLoad(BASE2+'RDKit_minimal.js', BASE2, function(){
+      setStatus('Nessun CDN disponibile. Verifica la connessione.','err');
+    });
   });
 })();
 
