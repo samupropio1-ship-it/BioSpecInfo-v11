@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RDKit Cheminformatics Lab — BioSpecInfo</title>
+<script src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js" crossorigin="anonymous"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0a1b2e;color:#d4e0ec;line-height:1.55;min-height:100vh}
@@ -177,6 +178,12 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 .inchi-lbl{color:#9fb3c8;font-size:.72rem;min-width:65px;flex-shrink:0}
 .inchi-val{font-family:monospace;font-size:.73rem;color:#d4e0ec;word-break:break-all;flex:1}
 @media(max-width:500px){.cmp-grid{grid-template-columns:1fr}}
+/* ── Spectral Lab ── */
+.spec-cw{position:relative;background:#07111f;border-radius:7px;border:1px solid #1c3a57;overflow:hidden;margin:.5em 0;line-height:0}
+.spec-cw canvas{display:block;width:100%;cursor:crosshair}
+.spec-tip{position:absolute;background:rgba(10,25,45,.97);border:1px solid #2a4a6b;border-radius:5px;padding:4px 9px;font-size:.74rem;color:#d4e0ec;pointer-events:none;white-space:normal;line-height:1.4;z-index:20;max-width:260px;display:none}
+.sptb{padding:4px 11px;font-size:.77rem;font-weight:700;border-radius:4px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.sptb.on{background:#0a7a71!important;color:#fff!important;border-color:transparent!important}
 /* ── Floating back button ── */
 #bsi-float-back{position:fixed;bottom:16px;right:14px;z-index:9997;display:none}
 #bsi-float-back>button{background:#071221;border:2px solid #00c9b7;color:#00c9b7;border-radius:22px;padding:10px 22px;font-size:.82rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.65),0 0 14px rgba(0,201,183,.15);letter-spacing:.025em;transition:background .15s,transform .12s,box-shadow .15s}
@@ -200,7 +207,8 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 
 <div id="topbar">
   <div class="logo">🧪 RDKit Lab</div>
-  <div class="tab active" data-panel="p-mol" onclick="showPanel(this,'p-mol')">🔬 Molecola</div>
+  <div class="tab active" data-panel="p-intro" onclick="showPanel(this,'p-intro')">📋 Intro</div>
+  <div class="tab" data-panel="p-mol" onclick="showPanel(this,'p-mol')">🔬 Molecola</div>
   <div class="tab" data-panel="p-desc" onclick="showPanel(this,'p-desc')">📊 Descrittori</div>
   <div class="tab" data-panel="p-drug" onclick="showPanel(this,'p-drug')">💊 Drug-likeness</div>
   <div class="tab" data-panel="p-qsar" onclick="showPanel(this,'p-qsar')">🔮 QSAR</div>
@@ -209,6 +217,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
   <div class="tab" data-panel="p-cmp" onclick="showPanel(this,'p-cmp')">⚖️ Confronto</div>
   <div class="tab" data-panel="p-lib" onclick="showPanel(this,'p-lib')">📚 Libreria</div>
   <div class="tab" data-panel="p-guide" onclick="showPanel(this,'p-guide')">📖 Guida</div>
+  <div class="tab" data-panel="p-speclive" onclick="showPanel(this,'p-speclive');if(!window._spLivInit){SpectralLab.init();window._spLivInit=1;}">🎬 Spettri</div>
 </div>
 
 <div id="content">
@@ -220,8 +229,101 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 </div>
 </div>
 
+<!-- ══════════════════════════════════════ PANEL: INTRO -->
+<div class="panel active" id="p-intro">
+<h2>📋 Che cos'è questo Lab?</h2>
+
+<div class="card">
+<h3>🧪 RDKit — la libreria di cheminformatica</h3>
+<p><strong>RDKit</strong> è una libreria open-source di <em>cheminformatica</em> scritta in C++ e Python, sviluppata da Greg Landrum e mantenuta da una grande comunità scientifica. È lo standard industriale in aziende farmaceutiche (Novartis, Roche, AstraZeneca…) e in ambito accademico.</p>
+<p style="margin-top:.5em">In questo lab utilizziamo <strong>RDKit.js</strong>, la versione WebAssembly (WASM) che gira direttamente nel browser — nessun server, nessun dato inviato a terzi.</p>
+<div class="tip" style="margin-top:.7em">
+  <strong>SMILES</strong> (Simplified Molecular Input Line Entry System) è il linguaggio testuale per descrivere molecole. Esempio: <span class="smiles-eg" onclick="_loadSmi(this.textContent);showPanelById('p-mol')">CC(=O)Nc1ccc(O)cc1</span> = Paracetamolo. Clicca per caricarlo.
+</div>
+</div>
+
+<div class="card">
+<h3>📊 Descrittori molecolari — cosa sono?</h3>
+<p>I <strong>descrittori molecolari</strong> sono proprietà numeriche calcolate dalla struttura di una molecola. Sono fondamentali in farmacologia, QSAR e scoperta di farmaci:</p>
+<div class="desc-grid" style="margin-top:.5em">
+  <div class="di"><div class="dv">MW</div><div class="dk">Peso molecolare (Da)</div><div class="dh">Massa in Dalton. &lt;500 Da per farmaci orali (Lipinski)</div></div>
+  <div class="di"><div class="dv">LogP</div><div class="dk">Lipofilicità (partizione)</div><div class="dh">Misura quanto è lipofilica/idrofila una molecola. Ideale 0–3 per farmaci</div></div>
+  <div class="di"><div class="dv">HBD</div><div class="dk">Donatori H-bond</div><div class="dh">N-H e O-H. &lt;5 (Lipinski). Influenza assorbimento orale</div></div>
+  <div class="di"><div class="dv">HBA</div><div class="dk">Accettori H-bond</div><div class="dh">N e O. &lt;10 (Lipinski). Influenza solubilità e permeabilità</div></div>
+  <div class="di"><div class="dv">TPSA</div><div class="dk">Sup. polare topologica</div><div class="dh">Somma delle aree polari. &lt;140 Å² per buona biodisponibilità orale</div></div>
+  <div class="di"><div class="dv">RotB</div><div class="dk">Legami rotabili</div><div class="dh">&lt;10 per farmaci orali. Influenza conformazione e flessibilità</div></div>
+  <div class="di"><div class="dv">Rings</div><div class="dk">N° di anelli</div><div class="dh">Anelli aromatici e alifatici. Influenza rigidità e metabolismo</div></div>
+  <div class="di"><div class="dv">FSP3</div><div class="dk">Frazione sp³</div><div class="dh">C sp³ / totale C. Correlato con solubilità e successo clinico</div></div>
+</div>
+</div>
+
+<div class="card">
+<h3>💊 Drug-likeness — Regola di Lipinski (Ro5)</h3>
+<p>La <strong>Regola dei Cinque di Lipinski</strong> (1997) predice se una molecola ha buona biodisponibilità orale. Una molecola <em>drug-like</em> rispetta <strong>al massimo 1 violazione</strong>:</p>
+<div style="margin:.5em 0">
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>MW ≤ 500 Da</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>LogP ≤ 5</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>Donatori H-bond ≤ 5 (N-H + O-H)</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>Accettori H-bond ≤ 10 (N + O)</span></div>
+</div>
+<p>Esistono regole aggiuntive: <strong>Regola di Veber</strong> (TPSA ≤ 140 Å², RotBond ≤ 10), <strong>Regola di Ghose</strong> (LogP –0.4/5.6, MW 160–480), <strong>Regola di Egan</strong>.</p>
+<div class="note">Il <strong>QED</strong> (Quantitative Estimate of Drug-likeness) è un punteggio 0–1 che integra tutte le proprietà in un unico numero. QED &gt; 0.5 è considerato farmaco-simile.</div>
+</div>
+
+<div class="card">
+<h3>🔮 QSAR — Relazioni Struttura-Attività</h3>
+<p>Il <strong>QSAR</strong> (Quantitative Structure–Activity Relationship) mette in relazione descrittori molecolari con attività biologica o tossicità. Questo lab calcola predizioni empiriche basate su correlazioni note dalla letteratura:</p>
+<ul style="margin:.4em 0 .4em 1.2em;font-size:.85rem;color:#d4e0ec">
+  <li><strong>pIC50 stimato</strong>: potenza inibitoria predetta (IC50 = concentrazione che inibisce al 50%)</li>
+  <li><strong>LogS (ESOL)</strong>: solubilità acquosa predetta (modello di Delaney)</li>
+  <li><strong>Tossicità Ames</strong>: predizione di mutagenicità batterica</li>
+  <li><strong>hERG alert</strong>: rischio di blocco canale K⁺ cardiaco (QT prolongation)</li>
+  <li><strong>ADMET</strong>: predizioni di assorbimento, distribuzione, metabolismo, escrezione, tossicità</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>🔗 Fingerprints molecolari e Tanimoto</h3>
+<p>Un <strong>fingerprint molecolare</strong> è una rappresentazione binaria (stringa di bit 0/1) della struttura chimica. Ogni bit rappresenta la presenza/assenza di un sottostruttura.</p>
+<p style="margin-top:.4em">La <strong>similarità di Tanimoto</strong> (Jaccard coefficient) tra due molecole A e B è:</p>
+<div style="text-align:center;font-size:1.05rem;font-family:monospace;color:#00c9b7;margin:.5em 0;padding:8px;background:#071221;border-radius:6px">
+  T(A,B) = |A ∩ B| / |A ∪ B| = bit_comuni / (bit_A + bit_B − bit_comuni)
+</div>
+<p>T = 1.0 → molecole identiche; T &gt; 0.85 → molto simili; T &lt; 0.4 → diverse strutturalmente. Usato in virtual screening e clustering di librerie chimiche.</p>
+</div>
+
+<div class="card">
+<h3>🎬 Laboratorio Spettri — come funziona</h3>
+<p>La tab <strong>🎬 Spettri</strong> genera spettri animati (NMR, IR, UV-Vis, MS, Raman) a partire dal codice SMILES, senza bisogno di RDKit:</p>
+<ul style="margin:.4em 0 .4em 1.2em;font-size:.85rem;color:#d4e0ec">
+  <li><strong>¹H NMR</strong>: picchi calcolati dai gruppi funzionali (ArH, OH, NH, CH₃, CH₂…) con spostamenti chimici tipici (δ in ppm)</li>
+  <li><strong>IR (Trasmittanza)</strong>: bande di assorbimento per stretching/bending di C=O, O-H, N-H, C-H, C≡N…</li>
+  <li><strong>UV-Vis</strong>: transizioni π→π* e n→π* calcolate dai cromofori rilevati</li>
+  <li><strong>MS</strong>: ione molecolare M⁺ + frammenti tipici (perdita CO, CH₃, COOH…) con pattern isotopici per Cl e Br</li>
+  <li><strong>Raman</strong>: bande intense per C≡C, C=C aromatico, ring breathing, C-X</li>
+</ul>
+<div class="tip">Passa il cursore sui picchi per leggere l'assegnazione chimica.</div>
+</div>
+
+<div class="card">
+<h3>⚡ Come usare questo Lab</h3>
+<div class="guide-step"><div class="step-num">1</div><div class="step-body"><strong>🔬 Molecola</strong> — inserisci un SMILES o clicca su un preset. La struttura 2D appare immediatamente grazie a SmilesDrawer, senza attendere RDKit.</div></div>
+<div class="guide-step"><div class="step-num">2</div><div class="step-body"><strong>📊 Descrittori</strong> — dopo che RDKit carica (barra in alto), tutti i parametri fisico-chimici vengono calcolati automaticamente.</div></div>
+<div class="guide-step"><div class="step-num">3</div><div class="step-body"><strong>💊 Drug-likeness</strong> — verifica Lipinski Ro5, QED, SA Score e tutte le regole farmacologiche per la tua molecola.</div></div>
+<div class="guide-step"><div class="step-num">4</div><div class="step-body"><strong>🔮 QSAR</strong> — predizioni di LogS, pIC50, BBB, tossicità e altro basate su correlazioni empiriche.</div></div>
+<div class="guide-step"><div class="step-num">5</div><div class="step-body"><strong>🔗 Similarità</strong> — confronta la molecola con i farmaci nel database tramite fingerprint e indice di Tanimoto.</div></div>
+<div class="guide-step"><div class="step-num">6</div><div class="step-body"><strong>🎬 Spettri</strong> — visualizza NMR, IR, MS, UV-Vis e Raman animati. Funziona anche senza RDKit.</div></div>
+<div class="guide-step"><div class="step-num">7</div><div class="step-body"><strong>📚 Libreria</strong> — salva le molecole che analizzi per confrontarle in seguito.</div></div>
+</div>
+
+<div style="text-align:center;margin:14px 0 6px">
+  <button class="btn" onclick="showPanelById('p-mol');setTimeout(function(){loadExample();},80)">▶ Inizia con un esempio</button>
+  <button class="btn btn-outline" style="margin-left:8px" onclick="showPanelById('p-speclive');if(!window._spLivInit){SpectralLab.init();window._spLivInit=1;}">🎬 Vai agli Spettri</button>
+</div>
+</div>
+
 <!-- ══════════════════════════════════════ PANEL: MOLECOLA -->
-<div class="panel active" id="p-mol">
+<div class="panel" id="p-mol">
 <h2>🔬 Visualizzatore Molecolare</h2>
 <div class="card">
   <div class="inp-row">
@@ -1346,6 +1448,58 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 </div>
 </div>
 
+<!-- ══════════════════════════════════════ PANEL: SPETTRI LIVE -->
+<div class="panel" id="p-speclive">
+<h2>🎬 Laboratorio Spettri Animati</h2>
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="spec-smi-input" placeholder="SMILES — usa ← da Molecola o inserisci direttamente" onkeydown="if(event.key==='Enter')specAnalyze()">
+    <button class="btn btn-outline btn-sm" onclick="specLoadFromMol()" title="Importa SMILES dalla tab Molecola">← da Molecola</button>
+    <button class="btn btn-sm" onclick="specAnalyze()">Avvia</button>
+  </div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin:.4em 0">
+    <button class="btn sptb on" data-spt="nmr" onclick="specSetType(this,'nmr')">¹H NMR</button>
+    <button class="btn btn-outline sptb" data-spt="ir" onclick="specSetType(this,'ir')">IR</button>
+    <button class="btn btn-outline sptb" data-spt="uv" onclick="specSetType(this,'uv')">UV-Vis</button>
+    <button class="btn btn-outline sptb" data-spt="ms" onclick="specSetType(this,'ms')">MS</button>
+    <button class="btn btn-outline sptb" data-spt="raman" onclick="specSetType(this,'raman')">Raman</button>
+  </div>
+  <div class="spec-cw"><canvas id="spec-cv"></canvas><div id="spec-tip" class="spec-tip"></div></div>
+  <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:6px">
+    <button class="btn btn-sm" id="spec-pb" onclick="specPlay()">▶ Avvia</button>
+    <button class="btn btn-outline btn-sm" onclick="specStep()">⏭ Passo</button>
+    <button class="btn btn-outline btn-sm" onclick="specReset()">↺ Reset</button>
+    <label style="font-size:.78rem;color:#9fb3c8;display:inline-flex;align-items:center;gap:4px;margin-left:auto;cursor:pointer">
+      <input type="checkbox" id="spec-ap" onchange="specToggleAuto(this.checked)"> Auto-play
+    </label>
+  </div>
+  <div id="spec-lgd" style="margin-top:5px;min-height:16px"></div>
+  <div id="spec-asgn" style="font-size:.81rem;color:#9fb3c8;min-height:20px;padding:3px 0;border-top:1px solid #0d2236;margin-top:4px"></div>
+</div>
+<div class="card card-dark">
+  <h3>Molecole rapide</h3>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CC(=O)Nc1ccc(O)cc1','Paracetamolo')">Paracetamolo</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('c1ccccc1','Benzene')">Benzene</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CC(=O)O','Acido acetico')">AcOH</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CCO','Etanolo')">Etanolo</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CC(=O)CC(=O)C','Acetilacetone')">Acetilacetone</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CN1CCC[C@H]1c2cccnc2','Nicotina')">Nicotina</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('O=C(O)c1ccccc1OC(C)=O','Aspirina')">Aspirina</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('CC(C)Cc1ccc(cc1)C(C)C(=O)O','Ibuprofene')">Ibuprofene</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('C#Cc1ccccc1','Fenilacetilene')">Fenilacetilene</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('OC(=O)c1ccc(N)cc1','PABA')">PABA</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('O=C1CCCCC1','Cicloesanone')">Cicloesanone</button>
+    <button class="btn btn-outline btn-sm" onclick="specLoadPreset('OCC1OC(O)C(O)C(O)C1O','Glucosio')">Glucosio</button>
+  </div>
+</div>
+<div class="tip">
+  <strong>Come usare:</strong> inserisci uno SMILES oppure clicca <em>← da Molecola</em> per importare quello attivo, poi scegli il tipo di spettro e premi <em>Avvia</em>.
+  Passa il cursore sui picchi per leggere l'assegnazione chimica. Clicca un picco per fissarla.
+  Lo spettro è generato in modo euristico dai gruppi funzionali rilevati nel SMILES, senza RDKit.
+</div>
+</div>
+
 </div><!-- #content -->
 </div><!-- #app -->
 
@@ -1362,52 +1516,79 @@ function setStatus(msg,type){
 function _rdkitReady(rdk){
   RDKit=rdk; rdkReady=true;
   try{document.getElementById('rdk-ver').textContent='v'+rdk.version();}catch(e){}
-  setStatus('RDKit.js pronto ✔ — tutte le funzioni disponibili','ok');
-  // Only re-enable the specific output-action buttons (preset buttons are never disabled)
+  setStatus('RDKit.js pronto ✔ — tutti i descrittori disponibili','ok');
   ['btn-svg','btn-png','btn-cpsmi','btn-addlib','btn-runall'].forEach(function(id){
     var b=document.getElementById(id);if(b)b.disabled=false;
   });
-  if(window._pendingSMI){
-    document.getElementById('smiles-input').value=window._pendingSMI;
-    window._pendingSMI=null;
-    setTimeout(analyzeMol,80);
+  // Analyze pending molecule (loaded before RDKit was ready)
+  var smiToAnalyze = window._pendingSMI || curSMI ||
+    (document.getElementById('smiles-input')||{value:''}).value.trim();
+  window._pendingSMI=null;
+  if(smiToAnalyze){
+    document.getElementById('smiles-input').value=smiToAnalyze;
+    curSMI=smiToAnalyze;
+    setTimeout(analyzeMol,100);
   }
 }
 
 (function(){
-  var BASE1='https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/';
-  var BASE2='https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/';
-  var _timer=null;
+  // CDN cascade: 3 versions × 2 CDNs = 6 attempts; most stable first
+  var combos=[];
+  ['2023.9.6','2024.3.3','2022.9.5'].forEach(function(v){
+    combos.push('https://cdn.jsdelivr.net/npm/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
+    combos.push('https://unpkg.com/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
+  });
+  var _tried=0;
 
-  function tryLoad(src,base,onFail){
-    setStatus('Scaricamento RDKit.js (≈7 MB)…','loading');
-    var s=document.createElement('script');
-    s.src=src; s.crossOrigin='anonymous';
-    s.onload=function(){
-      if(typeof initRDKitModule!=='function'){setStatus('Errore: initRDKitModule non trovato','err');return;}
-      setStatus('Inizializzazione WASM…','loading');
-      // locateFile tells Emscripten where to fetch the .wasm binary on the same CDN
-      _timer=setTimeout(function(){setStatus('Timeout init (30s) — connessione lenta o bloccata','err');},30000);
-      initRDKitModule({
-        locateFile:function(f){return base+f;}
-      }).then(function(rdk){
-        clearTimeout(_timer);
-        _rdkitReady(rdk);
-      }).catch(function(e){
-        clearTimeout(_timer);
-        setStatus('Errore init WASM: '+(e&&e.message||e),'err');
-      });
-    };
-    s.onerror=onFail;
-    document.head.appendChild(s);
+  function initWasm(base,onFail){
+    if(typeof initRDKitModule!=='function'){onFail();return;}
+    setStatus('WASM: inizializzazione…','loading');
+    var _t=setTimeout(function(){onFail();},35000);
+    initRDKitModule({locateFile:function(f){return base+f;}})
+    .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
+    .catch(function(e){clearTimeout(_t);onFail();});
   }
 
-  tryLoad(BASE1+'RDKit_minimal.js', BASE1, function(){
-    setStatus('CDN1 non raggiungibile, provo CDN2…','loading');
-    tryLoad(BASE2+'RDKit_minimal.js', BASE2, function(){
-      setStatus('Nessun CDN disponibile. Verifica la connessione.','err');
-    });
-  });
+  function fetchAndLoad(base,onFail){
+    _tried++;
+    setStatus('RDKit.js (tentativo '+_tried+'/'+combos.length+') 0%…','loading');
+    var ctrl=new AbortController();
+    var fetchTO=setTimeout(function(){ctrl.abort();onFail();},25000);
+    fetch(base+'RDKit_minimal.js',{mode:'cors',signal:ctrl.signal}).then(function(r){
+      clearTimeout(fetchTO);
+      if(!r.ok){onFail();return;}
+      var total=parseInt(r.headers.get('content-length')||'0');
+      var reader=r.body.getReader();
+      var chunks=[];var received=0;
+      function pump(){
+        return reader.read().then(function(d){
+          if(d.done){
+            var blob=new Blob(chunks,{type:'application/javascript'});
+            var burl=URL.createObjectURL(blob);
+            var s=document.createElement('script');
+            s.src=burl;
+            s.onload=function(){URL.revokeObjectURL(burl);initWasm(base,onFail);};
+            s.onerror=function(){URL.revokeObjectURL(burl);onFail();};
+            document.head.appendChild(s);return;
+          }
+          chunks.push(d.value);received+=d.value.length;
+          var pct=total>0?Math.round(received/total*100):Math.round(received/1048576)+'MB';
+          setStatus('RDKit.js '+pct+(total>0?'%':'')+'…','loading');
+          return pump();
+        }).catch(function(){onFail();});
+      }
+      return pump();
+    }).catch(function(){clearTimeout(fetchTO);onFail();});
+  }
+
+  function tryNext(i){
+    if(i>=combos.length){
+      setStatus('RDKit.js non raggiungibile. Le strutture 2D via SmilesDrawer restano disponibili.','err');
+      return;
+    }
+    fetchAndLoad(combos[i],function(){tryNext(i+1);});
+  }
+  tryNext(0);
 })();
 
 // ─── Tab navigation ──────────────────────────────────────────────────
@@ -1419,11 +1600,22 @@ function showPresetCat(el,id){
   var t=document.getElementById(id);if(t)t.classList.add('active');
 }
 
+var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
 function showPanel(tab,id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
+  // Auto-trigger analysis when switching to RDKit-dependent panels
+  if(_RDKIT_PANELS.indexOf(id)!==-1){
+    if(!rdkReady){
+      setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
+    } else if(curSMI && !curDesc.MW){
+      setTimeout(analyzeMol,60);
+    }
+  }
+  // Init spectral lab on first visit
+  if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
 }
 function showPanelById(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -1431,6 +1623,8 @@ function showPanelById(id){
   document.getElementById(id).classList.add('active');
   var t=document.querySelector('[data-panel="'+id+'"]');
   if(t)t.classList.add('active');
+  if(_RDKIT_PANELS.indexOf(id)!==-1&&rdkReady&&curSMI&&!curDesc.MW)setTimeout(analyzeMol,60);
+  if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
 }
 
 // ─── Accordion ───────────────────────────────────────────────────────
@@ -1451,13 +1645,15 @@ function loadExample(){var smi=EXAMPLES[exIdx++%EXAMPLES.length];_loadSmi(smi);}
 function loadPreset(smi){_loadSmi(smi);}
 function _loadSmi(smi){
   document.getElementById('smiles-input').value=smi;
-  if(!rdkReady){window._pendingSMI=smi;setStatus('RDKit.js in caricamento — la molecola verrà analizzata automaticamente…','loading');return;}
+  drawFallback(smi);
+  if(!rdkReady){window._pendingSMI=smi;return;}
   analyzeMol();
 }
 function syncFrom(id){if(curSMI)document.getElementById(id).value=curSMI;}
 function loadFromGuide(smi,name){
   document.getElementById('smiles-input').value=smi;
   showPanelById('p-mol');
+  drawFallback(smi);
   if(!rdkReady){window._pendingSMI=smi;return;}
   setTimeout(analyzeMol,50);
 }
@@ -1465,6 +1661,34 @@ function loadFromGuide(smi,name){
 function requireRDKit(){
   if(!rdkReady){setStatus('RDKit.js in caricamento — attendi…','loading');return false;}
   return true;
+}
+
+function drawFallback(smi){
+  curSMI=smi;
+  document.getElementById('mol-err').style.display='none';
+  document.getElementById('mol-info').innerHTML=
+    '<div style="margin-bottom:6px"><span style="color:#9fb3c8;font-size:.76rem">SMILES</span><br>'+
+    '<span style="color:#ffb454;font-family:monospace;font-size:.82rem;word-break:break-all">'+escH(smi)+'</span></div>'+
+    '<div style="color:#9fb3c8;font-size:.78rem;margin-top:6px">⏳ RDKit in caricamento — descrittori disponibili a breve</div>';
+  var box=document.getElementById('mol-svg-box');
+  if(typeof SmilesDrawer==='undefined'){
+    box.innerHTML='<div class="placeholder">Struttura 2D in attesa di RDKit…</div>';
+    return;
+  }
+  box.innerHTML='<canvas id="sd-cv" width="380" height="260" style="max-width:100%"></canvas>';
+  try{
+    if(SmilesDrawer.SmiDrawer){
+      var d=new SmilesDrawer.SmiDrawer({width:380,height:260});
+      d.draw(smi,'#sd-cv','light',false);
+    } else {
+      var d2=new SmilesDrawer.Drawer({width:380,height:260});
+      SmilesDrawer.parse(smi,function(tree){d2.draw(tree,'sd-cv','light',false);},function(){
+        box.innerHTML='<div class="placeholder" style="color:#ff6b6b">SMILES non riconosciuto</div>';
+      });
+    }
+  }catch(e){
+    box.innerHTML='<div class="placeholder">2D non disponibile — SMILES in attesa</div>';
+  }
 }
 
 function getMolSafe(smi){
@@ -2511,6 +2735,459 @@ window.addEventListener('load',function(){
   if(!curSMI){document.getElementById('smiles-input').value='CC(=O)Nc1ccc(O)cc1';}
 });
 
+// ─── Spectral Lab ─────────────────────────────────────────────────────
+var SpectralLab=(function(){
+  var cv=null,ctx=null,W=0,H=0;
+  var PAD={top:36,right:16,bottom:50,left:56};
+  var _type='nmr',_peaks=[],_frame=0,_maxF=100,_playing=false,_auto=false,_raf=null;
+  var _molName='',_hover=null;
+
+  var SPEC={
+    nmr:{title:'¹H NMR',xl:'δ (ppm)',yl:'Intensità',xA:12,xB:0,col:'#00c9b7',gl:[0,2,4,6,8,10,12],rev:true},
+    ir:{title:'Infrarosso (Trasmittanza)',xl:'Numero d\'onda (cm⁻¹)',yl:'T (%)',xA:4000,xB:400,col:'#ffb454',gl:[4000,3500,3000,2500,2000,1500,1000,500],rev:true,ir:true},
+    uv:{title:'UV-Vis',xl:'λ (nm)',yl:'Assorbanza',xA:200,xB:700,col:'#9c6fde',gl:[200,250,300,350,400,450,500,600,700],rev:false},
+    ms:{title:'Spettrometria di Massa (EI)',xl:'m/z',yl:'Int. rel. (%)',xA:0,xB:500,col:'#4caf80',gl:[0,100,200,300,400,500],rev:false,bar:true},
+    raman:{title:'Raman',xl:'Shift Raman (cm⁻¹)',yl:'Intensità',xA:200,xB:3500,col:'#64b5f6',gl:[500,1000,1500,2000,2500,3000],rev:false}
+  };
+
+  function xCV(v,s){
+    var pW=W-PAD.left-PAD.right;
+    return s.rev?PAD.left+(s.xA-v)/(s.xA-s.xB)*pW:PAD.left+(v-s.xA)/(s.xB-s.xA)*pW;
+  }
+  function yCV(f){return H-PAD.bottom-f*(H-PAD.top-PAD.bottom);}
+  function g2(x,sig){return Math.exp(-x*x/(2*sig*sig));}
+  function h2r(hex,a){
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+  function pSig(s,p){
+    var rng=Math.abs(s.xB-s.xA)||1,pW=W-PAD.left-PAD.right;
+    return Math.max(3.5,Math.min(p.w/rng*pW*0.5,90));
+  }
+
+  function init(){
+    cv=document.getElementById('spec-cv');
+    if(!cv)return;
+    ctx=cv.getContext('2d');
+    cv.addEventListener('mousemove',onMM);
+    cv.addEventListener('mouseleave',onML);
+    cv.addEventListener('click',onCK);
+    setSz(cv.parentElement.clientWidth||600);
+    window.addEventListener('resize',function(){if(cv&&cv.parentElement)setSz(cv.parentElement.clientWidth);});
+  }
+
+  function setSz(w){
+    if(!cv)return;
+    cv.width=Math.max(280,w-2);
+    cv.height=Math.round(cv.width*0.44);
+    W=cv.width;H=cv.height;
+    draw();
+  }
+
+  function draw(){
+    if(!cv||!ctx)return;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#07111f';ctx.fillRect(0,0,W,H);
+    var s=SPEC[_type];
+    drawAxes(s);
+    if(!_peaks||!_peaks.length)return;
+    var n=_peaks.length;
+    for(var i=0;i<n;i++){
+      var p=_peaks[i];
+      var t0=(i/n)*_maxF*0.62;
+      var prog=Math.max(0,Math.min(1,(_frame-t0)/(_maxF*0.38)));
+      var ease=prog<1?prog*prog*(3-2*prog):1;
+      drawP(s,p,ease,!!(_hover&&_hover.id===p.id));
+    }
+  }
+
+  function drawAxes(s){
+    var pL=PAD.left,pR=PAD.right,pT=PAD.top,pB=PAD.bottom;
+    var pH=H-pT-pB,pW=W-pL-pR;
+    ctx.save();
+    // Y grid
+    ctx.lineWidth=1;
+    var yTk=s.ir?[20,40,60,80,100]:[0.25,0.5,0.75,1.0];
+    yTk.forEach(function(v){
+      var f=s.ir?v/100:v;
+      var y=yCV(f);
+      ctx.strokeStyle='#0d1f35';ctx.setLineDash([2,4]);
+      ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='#2a4a6b';ctx.font='9px monospace';ctx.textAlign='right';
+      ctx.fillText(s.ir?v+'%':v.toFixed(2),pL-3,y+3);
+    });
+    // X grid
+    s.gl.forEach(function(v){
+      var x=xCV(v,s);
+      if(x<pL||x>W-pR)return;
+      ctx.strokeStyle='#0d1f35';ctx.setLineDash([2,4]);
+      ctx.beginPath();ctx.moveTo(x,pT);ctx.lineTo(x,H-pB);ctx.stroke();
+      ctx.setLineDash([]);
+    });
+    // IR baseline
+    if(s.ir){
+      ctx.strokeStyle='rgba(255,180,84,0.28)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+      ctx.beginPath();ctx.moveTo(pL,yCV(1));ctx.lineTo(W-pR,yCV(1));ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Axes
+    ctx.strokeStyle='#1c3a57';ctx.lineWidth=1.5;ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(pL,pT);ctx.lineTo(pL,H-pB);ctx.lineTo(W-pR,H-pB);ctx.stroke();
+    // X ticks + labels
+    s.gl.forEach(function(v){
+      var x=xCV(v,s);if(x<pL||x>W-pR)return;
+      ctx.strokeStyle='#1c3a57';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,H-pB);ctx.lineTo(x,H-pB+4);ctx.stroke();
+      ctx.fillStyle='#4a6a8a';ctx.font='9px monospace';ctx.textAlign='center';
+      ctx.fillText(v,x,H-pB+13);
+    });
+    // Axis labels
+    ctx.fillStyle='#6a8aaa';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(s.xl,pL+pW/2,H-2);
+    ctx.save();ctx.translate(11,pT+pH/2);ctx.rotate(-Math.PI/2);ctx.fillText(s.yl,0,0);ctx.restore();
+    // Title
+    ctx.fillStyle=s.col;ctx.font='bold 11px sans-serif';ctx.textAlign='left';
+    ctx.fillText(s.title+(_molName?' — '+_molName:''),pL+4,pT-8);
+    ctx.restore();
+  }
+
+  function drawP(s,p,prog,hov){
+    if(!prog||!p)return;
+    var cx=xCV(p.x,s);
+    var col=hov?'#ffb454':(p.col||s.col);
+    var sig=pSig(s,p);
+    var span=sig*4.5;
+    var steps=Math.max(18,Math.ceil(span*2));
+
+    if(s.bar){
+      // MS bar chart
+      var bH=(H-PAD.top-PAD.bottom)*p.h*prog;
+      var bW=hov?4:2.5;
+      ctx.save();
+      ctx.fillStyle=col;ctx.globalAlpha=hov?1:0.88;
+      if(hov){ctx.shadowColor=col;ctx.shadowBlur=14;}
+      ctx.fillRect(cx-bW/2,yCV(p.h*prog),bW,bH);
+      ctx.shadowBlur=0;ctx.globalAlpha=1;
+      if(prog>0.75&&p.label&&p.h>0.1){
+        ctx.fillStyle=col;ctx.font='8px monospace';ctx.textAlign='center';
+        ctx.fillText(Math.round(p.x),cx,yCV(p.h*prog)-4);
+      }
+      if(hov&&p.label){
+        ctx.fillStyle='#e8eef4';ctx.font='bold 9px monospace';
+        ctx.fillText(p.label,cx,yCV(p.h*prog)-14);
+      }
+      ctx.restore();return;
+    }
+
+    // Build Gaussian point array
+    var pts=[];
+    for(var i=0;i<=steps;i++){
+      var dx=((i/steps)-0.5)*span*2;
+      var gv=p.h*prog*g2(dx,sig);
+      pts.push([cx+dx, s.ir?yCV(1-gv*0.88):yCV(gv)]);
+    }
+    var by=s.ir?yCV(1):yCV(0);
+
+    ctx.save();
+    // Fill
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0],by);
+    pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1]);});
+    ctx.lineTo(pts[pts.length-1][0],by);
+    ctx.closePath();
+    var gr;
+    if(s.ir){
+      gr=ctx.createLinearGradient(cx,yCV(1-p.h*prog*0.88),cx,by);
+      gr.addColorStop(0,h2r(col,hov?0.38:0.20));
+      gr.addColorStop(1,'transparent');
+    }else{
+      gr=ctx.createLinearGradient(cx,yCV(p.h*prog),cx,by);
+      gr.addColorStop(0,h2r(col,hov?0.72:0.52));
+      gr.addColorStop(1,h2r(col,0.04));
+    }
+    ctx.fillStyle=gr;ctx.fill();
+
+    // Stroke outline
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0],pts[0][1]);
+    for(var j=1;j<pts.length;j++)ctx.lineTo(pts[j][0],pts[j][1]);
+    ctx.strokeStyle=col;ctx.lineWidth=hov?2:1.5;
+    if(hov){ctx.shadowColor=col;ctx.shadowBlur=14;}
+    ctx.stroke();ctx.shadowBlur=0;
+
+    // Label
+    var topY=s.ir?yCV(1-p.h*prog*0.88):yCV(p.h*prog);
+    if(prog>0.5&&p.label&&p.h>(s.ir?0.28:0.1)){
+      ctx.fillStyle=col;ctx.font=(hov?'bold ':'')+Math.max(8,Math.min(10,Math.round(sig*0.7)))+'px monospace';
+      ctx.textAlign='center';ctx.fillText(p.label,cx,topY-5);
+    }
+    ctx.restore();
+  }
+
+  // Animation
+  function tick(){
+    _frame=Math.min(_frame+2.2,_maxF);
+    draw();
+    if(_frame<_maxF){_raf=requestAnimationFrame(tick);}
+    else{_playing=false;updBtn();if(_auto)setTimeout(function(){if(_peaks.length)SpectralLab.step();},1600);}
+  }
+  function updBtn(){var b=document.getElementById('spec-pb');if(b)b.textContent=_playing?'⏸ Pausa':'▶ Avvia';}
+
+  // Mouse
+  function cvPos(e){var r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+  function nearest(mx,my){
+    var s=SPEC[_type],best=null,bd=9999;
+    (_peaks||[]).forEach(function(p){
+      var cx2=xCV(p.x,s);
+      var cy2=s.ir?yCV(1-p.h*0.88):yCV(p.h);
+      var d=Math.sqrt((mx-cx2)*(mx-cx2)+(my-cy2)*(my-cy2));
+      if(d<40&&d<bd){bd=d;best=p;}
+    });
+    return best;
+  }
+  function showTip(p,mx,my){
+    var tip=document.getElementById('spec-tip');
+    if(!tip)return;
+    var s=SPEC[_type];
+    if(p){
+      tip.textContent=(p.assign||p.label||p.x+' '+s.xl);
+      tip.style.display='block';
+      tip.style.left=Math.min(mx+12,cv.clientWidth-220)+'px';
+      tip.style.top=Math.max(my-32,2)+'px';
+      var ai=document.getElementById('spec-asgn');
+      if(ai)ai.innerHTML='<span style="color:'+escH(s.col)+'">●</span> <b>'+escH(p.label||String(p.x))+'</b> — '+escH(p.assign||'');
+    }else{
+      tip.style.display='none';
+      var ai2=document.getElementById('spec-asgn');
+      if(ai2&&ai2.textContent.charAt(0)!=='📌')ai2.textContent='';
+    }
+  }
+  function onMM(e){var c=cvPos(e);var p=nearest(c.x,c.y);if(p!==_hover){_hover=p;draw();}showTip(p,c.x,c.y);}
+  function onML(){_hover=null;var tip=document.getElementById('spec-tip');if(tip)tip.style.display='none';draw();}
+  function onCK(e){var c=cvPos(e);var p=nearest(c.x,c.y);if(p){var ai=document.getElementById('spec-asgn');var s=SPEC[_type];if(ai)ai.innerHTML='<span style="color:#00c9b7">📌</span> <b>'+escH(p.label||String(p.x))+'</b> — '+escH(p.assign||'');}}
+
+  // SMILES feature detection
+  function feat(smi){
+    var f={smi:smi};
+    f.nC=(smi.match(/C/gi)||[]).length;
+    f.ar=(smi.match(/c/g)||[]).length>=4;
+    f.benz=/c1ccccc1/.test(smi)||((smi.match(/c/g)||[]).length>=6&&f.ar);
+    f.amide=/C\(=O\)N|NC\(=O\)/.test(smi);
+    f.ester=/C\(=O\)OC|OC\(=O\)C/.test(smi);
+    f.acid=!f.ester&&/C\(=O\)O(?!C)/.test(smi);
+    f.ket=!f.amide&&!f.acid&&!f.ester&&/C\(=O\)C/.test(smi);
+    f.ald=/C=O[)\s]|C=O$/.test(smi)||/\[CH\]=O/.test(smi);
+    f.co=f.amide||f.acid||f.ester||f.ket||f.ald;
+    f.oh=/[^C(]O(?![C=(\[])|^O(?![C=(])|\[OH\]/.test(smi);
+    f.alc=f.oh&&!f.acid;
+    f.phen=f.oh&&f.ar;
+    f.ether=/COC|cOC|COc/.test(smi);
+    f.nh=/N[H]|NH/.test(smi);
+    f.amine=!f.amide&&/N/.test(smi);
+    f.nme=/CN/.test(smi);
+    f.alkene=/C=C/.test(smi)&&!f.ar;
+    f.triple=/C#C/.test(smi);
+    f.nitrile=/C#N/.test(smi);
+    f.cl=/Cl/.test(smi);f.br=/Br/.test(smi);f.s=/S/.test(smi);
+    f.nitro=/\[N\+\].*\[O-\]|N\(=O\)=O/.test(smi);
+    // MW estimate
+    var mw=0;
+    mw+=(smi.match(/C(?!l)/gi)||[]).length*12;
+    mw+=(smi.match(/N/g)||[]).length*14;
+    mw+=(smi.match(/O/g)||[]).length*16;
+    mw+=(smi.match(/S/g)||[]).length*32;
+    mw+=(smi.match(/Cl/g)||[]).length*35;
+    mw+=(smi.match(/Br/g)||[]).length*80;
+    mw+=(smi.match(/F(?!e)/g)||[]).length*19;
+    mw+=Math.max(2,f.nC)*1.5;
+    f.mw=Math.round(mw)||80;
+    return f;
+  }
+
+  function nmrPk(smi,f){
+    var ps=[],id=0;
+    function pk(x,h,w,lb,as){ps.push({id:id++,x:x,h:h,w:w,label:lb,assign:as});}
+    if(f.ald)pk(9.8,0.70,0.06,'CHO','Aldeide H-C=O (9.4–10.2 ppm)');
+    if(f.acid)pk(11.5,0.42,0.80,'COOH','Acido O-H (9–12 ppm, segnale largo)');
+    if(f.amide)pk(8.4,0.44,0.24,'N-H','Ammide N-H (7.5–9 ppm, largo)');
+    if(f.benz){pk(7.28,0.90,0.16,'ArH','Protoni aromatici (7.2–8.0 ppm)');
+      if(f.amide||f.phen)pk(7.90,0.55,0.10,'ArH (p-sos.)','ArH para-sostituito (7.5–8.2 ppm)');
+      else pk(7.52,0.60,0.09,'ArH','ArH (meta/orto, 7.3–7.7 ppm)');}
+    else if(f.ar)pk(7.1,0.72,0.20,'ArH','ArH eterociclico (6.8–8.5 ppm)');
+    if(f.alkene){pk(5.88,0.55,0.08,'=CH₂','Vinile =CH₂ (4.5–6.5 ppm)');pk(6.42,0.42,0.07,'=CH-','Vinile =CH- (5.5–7 ppm)');}
+    if(f.triple)pk(2.5,0.38,0.05,'≡CH','Alchino terminale (2–3 ppm)');
+    if(f.ether)pk(3.76,0.76,0.07,'OCH₃','Metossi O-CH₃ (3.3–3.9 ppm)');
+    if(f.alc&&!f.acid)pk(3.55,0.30,0.30,'O-H','Alcol O-H (variabile, 2–5 ppm)');
+    if(f.nme)pk(2.88,0.62,0.08,'N-CH₃','N-metile (2.2–3.1 ppm)');
+    if(f.co&&!f.ald)pk(2.34,0.73,0.07,'CO-CH₃','CH₃ adiacente C=O (2.0–2.6 ppm)');
+    if(f.benz&&f.nC>6)pk(2.72,0.63,0.11,'Ar-CH₂','Benzilico ArCH₂ (2.5–3.2 ppm)');
+    if(f.nC>5&&!f.ar)pk(1.60,0.52,0.15,'CH₂','Metilene -CH₂- (1.2–1.8 ppm)');
+    if(f.nC>3)pk(0.90,0.68,0.09,'CH₃','Metile terminale (0.8–1.5 ppm)');
+    var mx=ps.reduce(function(a,b){return a>b.h?a:b.h;},0.01);
+    ps.forEach(function(p){p.h=p.h/mx;});return ps;
+  }
+
+  function irPk(smi,f){
+    var ps=[],id=0;
+    function pk(x,h,w,lb,as){ps.push({id:id++,x:x,h:h,w:w,label:lb,assign:as});}
+    if(f.acid)pk(2950,0.82,340,'O-H (COOH)','O-H stretch acido carbossilico (2500–3300 cm⁻¹, largo)');
+    if(f.alc&&!f.acid)pk(3350,0.76,115,'O-H str','O-H stretch alcol (3200–3550 cm⁻¹)');
+    if(f.phen)pk(3405,0.80,105,'O-H (fenolo)','O-H stretch fenolo (3200–3600 cm⁻¹)');
+    if(f.nh&&!f.amide){pk(3420,0.52,33,'N-H str','N-H stretch ammina (3300–3500 cm⁻¹)');pk(3340,0.48,30,'N-H str (sim.)','N-H stretch simmetrico');}
+    if(f.amide){pk(3310,0.65,52,'N-H (amm.)','N-H stretch ammide (~3300 cm⁻¹)');pk(1660,0.93,27,'C=O I (amm.)','C=O stretch band I ammide (1630–1680 cm⁻¹)');pk(1550,0.74,32,'N-H II (amm.)','N-H bending band II (1510–1570 cm⁻¹)');}
+    if(f.ar)pk(3065,0.32,20,'=C-H (Ar)','Aromatico =C-H stretch (3000–3100 cm⁻¹)');
+    if(f.triple){pk(3310,0.72,17,'≡C-H','≡C-H stretch (3300 cm⁻¹, tagliente)');pk(2120,0.84,26,'C≡C','C≡C stretch (2100–2260 cm⁻¹)');}
+    if(f.nitrile)pk(2225,0.88,20,'C≡N','Nitrile C≡N stretch (2200–2260 cm⁻¹)');
+    if(f.ald){pk(2820,0.54,17,'CHO H','Aldeide C-H stretch (2820 cm⁻¹)');pk(2720,0.50,17,'CHO H','Aldeide C-H stretch (2720 cm⁻¹)');pk(1730,0.95,22,'C=O (CHO)','Aldeide C=O stretch (1720–1740 cm⁻¹)');}
+    if(f.nC>2){pk(2965,0.55,21,'C-H str','C-H alifatico stretch (~2960 cm⁻¹)');pk(2870,0.44,17,'CH₂ str','CH₂ stretch (~2860 cm⁻¹)');}
+    if(f.ester){pk(1735,0.95,22,'C=O (est.)','Estere C=O stretch (1735–1750 cm⁻¹)');pk(1250,0.80,36,'C-O str','Estere C-O stretch (1200–1300 cm⁻¹)');}
+    if(f.acid&&!f.amide)pk(1710,0.93,27,'C=O (COOH)','Acido C=O stretch (1700–1725 cm⁻¹)');
+    if(f.ket)pk(1715,0.92,24,'C=O (chet.)','Chetone C=O stretch (1705–1725 cm⁻¹)');
+    if(f.ar){pk(1600,0.68,17,'C=C Ar','C=C aromatico (1600 cm⁻¹)');pk(1500,0.62,15,'C=C Ar','C=C aromatico (1500 cm⁻¹)');pk(750,0.80,27,'=C-H oop','C-H out-of-plane aromatico (650–900 cm⁻¹)');}
+    if(f.alkene){pk(1640,0.60,19,'C=C str','Alchene C=C stretch (1620–1680 cm⁻¹)');pk(900,0.74,21,'=CH₂ oop','=CH₂ wag (890 cm⁻¹)');}
+    if(f.nC>2){pk(1465,0.54,17,'CH₂ bend','CH₂ scissor (1450–1470 cm⁻¹)');pk(1375,0.49,13,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');}
+    if(f.ether)pk(1090,0.74,36,'C-O-C str','Etere C-O stretch (1050–1150 cm⁻¹)');
+    if(f.cl)pk(730,0.80,27,'C-Cl str','C-Cl stretch (600–800 cm⁻¹)');
+    if(f.br)pk(620,0.75,23,'C-Br str','C-Br stretch (500–700 cm⁻¹)');
+    return ps;
+  }
+
+  function uvPk(smi,f){
+    var ps=[],id=0;
+    function pk(x,h,w,lb,as){ps.push({id:id++,x:x,h:h,w:w,label:lb,assign:as});}
+    pk(205,0.44,11,'σ→σ*','Transizione σ→σ* (legami C-C/C-H, <200 nm)');
+    if(f.benz){pk(254,0.90,7,'π→π* E₂','Benzene π→π* E₂ (254 nm, ε≈10⁴)');pk(280,0.46,17,'B-band','B-band (280 nm, proibita per simmetria)');}
+    else if(f.ar)pk(270,0.74,15,'π→π*','Eterociclico π→π* (~270 nm)');
+    if((f.ket||f.acid)&&!f.benz)pk(275,0.24,13,'n→π* (C=O)','Chetone/Acido n→π* (270–280 nm, ε≈30)');
+    if(f.ald)pk(330,0.32,17,'n→π* (CHO)','Aldeide n→π* (315–340 nm, ε≈15)');
+    if(f.amide){pk(210,0.84,10,'π→π* (amm.)','Ammide π→π* (200–230 nm)');pk(260,0.18,17,'n→π* (amm.)','Ammide n→π* (~260 nm, ε<200)');}
+    if(f.alkene)pk(190,0.76,9,'π→π* (C=C)','Alchene isolato π→π* (170–200 nm, ε>10⁴)');
+    if(f.nitrile)pk(215,0.62,10,'π→π* (C≡N)','Nitrile π→π* (~215 nm)');
+    if(f.nitro){pk(270,0.90,18,'π→π* (NO₂)','Nitro π→π* (250–280 nm)');pk(330,0.43,26,'n→π* (NO₂)','Nitro n→π* (310–340 nm)');}
+    var mx=ps.reduce(function(a,b){return a>b.h?a:b.h;},0.01);
+    ps.forEach(function(p){p.h=p.h/mx;});return ps;
+  }
+
+  function msPk(smi,f){
+    var ps=[],id=0,mw=f.mw;
+    function pk(x,h,lb,as){var xi=Math.round(x);if(xi>=10&&xi<700)ps.push({id:id++,x:xi,h:Math.max(0,Math.min(1,h)),w:1,label:lb,assign:as});}
+    pk(mw,0.65,'M⁺·','Ione molecolare M⁺· (m/z = '+mw+')');
+    pk(mw+1,0.08,'M+1','[M+1]⁺ contributo ¹³C');
+    pk(mw-28,1.0,'[M-28]⁺','Perdita CO o C₂H₄ (m/z '+(mw-28)+')');
+    pk(mw-15,0.55,'[M-CH₃]⁺','Perdita CH₃ (m/z '+(mw-15)+')');
+    if(f.acid){pk(mw-17,0.72,'[M-OH]⁺','Perdita OH (m/z '+(mw-17)+')');pk(mw-45,0.58,'[M-COOH]⁺','Perdita COOH (m/z '+(mw-45)+')');}
+    if(f.ester)pk(mw-31,0.75,'[M-OCH₃]⁺','Perdita OCH₃ (m/z '+(mw-31)+')');
+    if(f.amide)pk(mw-17,0.65,'[M-NH₃]⁺','Perdita NH₃ (m/z '+(mw-17)+')');
+    if(f.benz){pk(77,0.60,'C₆H₅⁺','Catione fenile (m/z 77)');pk(51,0.28,'m/z 51','[C₄H₃]⁺');pk(65,0.20,'m/z 65','C₅H₅⁺');}
+    if(f.ald)pk(29,0.68,'CHO⁺','Ione formile CHO⁺ (m/z 29)');
+    if(f.cl){pk(mw+2,0.22,'M+2 (³⁷Cl)','Isotopo ³⁷Cl (33% del M+)');pk(mw-35,0.78,'[M-Cl]⁺','Perdita ³⁵Cl');}
+    if(f.br){pk(mw+2,0.65,'M+2 (⁸¹Br)','Isotopo ⁸¹Br (quasi = M+)');pk(mw-79,0.84,'[M-Br]⁺','Perdita ⁷⁹Br');}
+    // noise
+    var bases=[mw*0.12,mw*0.25,mw*0.42,mw*0.6,mw*0.78];
+    bases.forEach(function(b,i){pk(b,0.04+i*0.02,'','frammento');});
+    ps.sort(function(a,b){return a.x-b.x;});
+    var mx2=ps.reduce(function(a,b){return a>b.x?a:b.x;},100);
+    var step=Math.ceil(mx2/4/25)*25||50;
+    SPEC.ms.xB=mx2+Math.round(mx2*0.1);
+    SPEC.ms.gl=[];for(var gv=0;gv<=SPEC.ms.xB;gv+=step)SPEC.ms.gl.push(gv);
+    return ps;
+  }
+
+  function ramanPk(smi,f){
+    var ps=[],id=0;
+    function pk(x,h,w,lb,as){ps.push({id:id++,x:x,h:h,w:w,label:lb,assign:as});}
+    if(f.nC>2){pk(2920,0.75,17,'C-H str','C-H stretch alifatico (2850–3000 cm⁻¹)');pk(2850,0.65,15,'CH₂ str','CH₂ stretch simmetrico (2850 cm⁻¹)');}
+    if(f.ar){pk(3060,0.52,13,'=C-H Ar','Aromatico C-H stretch (3060 cm⁻¹)');pk(1600,0.95,15,'C=C (Ar)','C=C aromatico 1600 cm⁻¹ — molto intenso in Raman');pk(1580,0.78,13,'C=C (Ar)','C=C aromatico 1580 cm⁻¹');pk(1000,0.90,10,'Ring breath.','Benzene ring breathing (1000 cm⁻¹) — diagnostico Raman');}
+    if(f.triple)pk(2150,0.96,13,'C≡C','C≡C stretch (2100–2200 cm⁻¹) — molto intenso in Raman');
+    if(f.alkene)pk(1640,0.78,15,'C=C','C=C stretch alchene (intenso in Raman)');
+    if(f.co&&!f.ald)pk(1720,0.43,17,'C=O','C=O stretch (debole in Raman rispetto a IR)');
+    if(f.s){pk(2555,0.84,10,'S-H str','S-H stretch (2550–2580 cm⁻¹) — caratteristico');pk(650,0.70,17,'C-S str','C-S stretch (600–700 cm⁻¹)');}
+    if(f.nC>3){pk(1050,0.57,21,'C-C str','C-C stretch scheletrico (900–1100 cm⁻¹)');pk(870,0.48,17,'C-C str','C-C stretch (800–900 cm⁻¹)');}
+    if(f.nC>2){pk(1445,0.54,13,'CH₂ sciss.','CH₂ scissors (1440–1460 cm⁻¹)');pk(1375,0.44,10,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');}
+    if(f.ether)pk(1100,0.66,22,'C-O-C str','C-O-C stretch etere (intenso in Raman)');
+    if(f.cl)pk(700,0.86,17,'C-Cl str','C-Cl stretch (intenso in Raman)');
+    if(f.br)pk(580,0.88,15,'C-Br str','C-Br stretch (intenso in Raman)');
+    var mx=ps.reduce(function(a,b){return a>b.h?a:b.h;},0.01);
+    ps.forEach(function(p){p.h=p.h/mx;});return ps;
+  }
+
+  function analyze(){
+    var inp=document.getElementById('spec-smi-input');
+    var smi=inp?inp.value.trim():'';
+    if(!smi){alert('Inserisci un SMILES valido');return;}
+    var f=feat(smi);
+    if(_type==='nmr')_peaks=nmrPk(smi,f);
+    else if(_type==='ir')_peaks=irPk(smi,f);
+    else if(_type==='uv')_peaks=uvPk(smi,f);
+    else if(_type==='ms')_peaks=msPk(smi,f);
+    else _peaks=ramanPk(smi,f);
+    _frame=0;_playing=true;_hover=null;
+    if(_raf)cancelAnimationFrame(_raf);
+    _raf=requestAnimationFrame(tick);
+    updBtn();lgnd();
+    var ai=document.getElementById('spec-asgn');if(ai)ai.textContent='';
+  }
+
+  function lgnd(){
+    var el=document.getElementById('spec-lgd');if(!el)return;
+    var seen={};
+    var html='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    (_peaks||[]).forEach(function(p){
+      if(p.label&&!seen[p.label]&&p.h>0.08){
+        seen[p.label]=1;
+        var col2=p.col||SPEC[_type].col;
+        html+='<span style="font-size:.72rem;color:#9fb3c8;display:inline-flex;align-items:center;gap:3px">'+
+          '<span style="width:8px;height:8px;border-radius:50%;background:'+escH(col2)+';display:inline-block;flex-shrink:0"></span>'+escH(p.label)+'</span>';
+      }
+    });
+    el.innerHTML=html+'</div>';
+  }
+
+  var pub={
+    init:init,
+    setType:function(btn,t){
+      document.querySelectorAll('.sptb').forEach(function(b){b.classList.remove('on','active');b.classList.add('btn-outline');});
+      if(btn){btn.classList.add('on');btn.classList.remove('btn-outline');}
+      _type=t;
+      // Reset MS x-range on type change
+      if(t!=='ms'){SPEC.ms.xB=500;SPEC.ms.gl=[0,100,200,300,400,500];}
+      analyze();
+    },
+    loadFromMol:function(){
+      var smi=window.curSMI||(document.getElementById('smiles-input')||{value:''}).value.trim();
+      if(smi){var inp=document.getElementById('spec-smi-input');if(inp)inp.value=smi;analyze();}
+      else alert('Nessuna molecola caricata. Vai alla tab 🔬 Molecola e carica un SMILES prima.');
+    },
+    loadPreset:function(smi,name){_molName=name||'';var inp=document.getElementById('spec-smi-input');if(inp)inp.value=smi;analyze();},
+    analyze:analyze,
+    play:function(){if(_playing){_playing=false;cancelAnimationFrame(_raf);updBtn();return;}if(_frame>=_maxF)_frame=0;_playing=true;_raf=requestAnimationFrame(tick);updBtn();},
+    step:function(){_playing=false;cancelAnimationFrame(_raf);var n=Math.max(1,(_peaks||[]).length);_frame=Math.min(_frame+Math.ceil(_maxF/n),_maxF);draw();updBtn();},
+    reset:function(){_playing=false;cancelAnimationFrame(_raf);_frame=0;draw();updBtn();},
+    toggleAuto:function(v){_auto=v;},
+    animateSpectrum:function(smi,type){
+      if(!cv)init();
+      if(type&&SPEC[type])_type=type;
+      var inp=document.getElementById('spec-smi-input');if(inp)inp.value=smi;
+      if(!cv){setTimeout(function(){SpectralLab.analyze();},120);}else analyze();
+    }
+  };
+  return pub;
+})();
+
+// Global wrappers for onclick attributes
+function specSetType(btn,t){SpectralLab.setType(btn,t);}
+function specLoadFromMol(){SpectralLab.loadFromMol();}
+function specLoadPreset(smi,name){SpectralLab.loadPreset(smi,name);}
+function specAnalyze(){SpectralLab.analyze();}
+function specPlay(){SpectralLab.play();}
+function specStep(){SpectralLab.step();}
+function specReset(){SpectralLab.reset();}
+function specToggleAuto(v){SpectralLab.toggleAuto(v);}
+function animateSpectrum(smi,type){SpectralLab.animateSpectrum(smi,type);}
+
+// ─── End Spectral Lab ─────────────────────────────────────────────────
+
 // Show floating back button when embedded in BioSpecInfo overlay
 (function(){
   try{
@@ -2525,7 +3202,7 @@ window.addEventListener('load',function(){
 
 <!-- Floating back button — visible only inside the BioSpecInfo overlay -->
 <div id="bsi-float-back">
-  <button onclick="try{window.parent.document.getElementById('bsi-rdkitlab-ov').style.display='none';}catch(e){}" title="Chiudi Lab e torna all\'app">◀ Indietro</button>
+  <button onclick="try{window.parent.document.getElementById('bsi-rdkitlab-ov').style.display='none';}catch(e){}" title="Torna all\'app">↩ Indietro</button>
 </div>
 </body>
 </html>
