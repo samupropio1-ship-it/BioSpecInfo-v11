@@ -207,7 +207,8 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 
 <div id="topbar">
   <div class="logo">🧪 RDKit Lab</div>
-  <div class="tab active" data-panel="p-mol" onclick="showPanel(this,'p-mol')">🔬 Molecola</div>
+  <div class="tab active" data-panel="p-intro" onclick="showPanel(this,'p-intro')">📋 Intro</div>
+  <div class="tab" data-panel="p-mol" onclick="showPanel(this,'p-mol')">🔬 Molecola</div>
   <div class="tab" data-panel="p-desc" onclick="showPanel(this,'p-desc')">📊 Descrittori</div>
   <div class="tab" data-panel="p-drug" onclick="showPanel(this,'p-drug')">💊 Drug-likeness</div>
   <div class="tab" data-panel="p-qsar" onclick="showPanel(this,'p-qsar')">🔮 QSAR</div>
@@ -228,8 +229,101 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 </div>
 </div>
 
+<!-- ══════════════════════════════════════ PANEL: INTRO -->
+<div class="panel active" id="p-intro">
+<h2>📋 Che cos'è questo Lab?</h2>
+
+<div class="card">
+<h3>🧪 RDKit — la libreria di cheminformatica</h3>
+<p><strong>RDKit</strong> è una libreria open-source di <em>cheminformatica</em> scritta in C++ e Python, sviluppata da Greg Landrum e mantenuta da una grande comunità scientifica. È lo standard industriale in aziende farmaceutiche (Novartis, Roche, AstraZeneca…) e in ambito accademico.</p>
+<p style="margin-top:.5em">In questo lab utilizziamo <strong>RDKit.js</strong>, la versione WebAssembly (WASM) che gira direttamente nel browser — nessun server, nessun dato inviato a terzi.</p>
+<div class="tip" style="margin-top:.7em">
+  <strong>SMILES</strong> (Simplified Molecular Input Line Entry System) è il linguaggio testuale per descrivere molecole. Esempio: <span class="smiles-eg" onclick="_loadSmi(this.textContent);showPanelById('p-mol')">CC(=O)Nc1ccc(O)cc1</span> = Paracetamolo. Clicca per caricarlo.
+</div>
+</div>
+
+<div class="card">
+<h3>📊 Descrittori molecolari — cosa sono?</h3>
+<p>I <strong>descrittori molecolari</strong> sono proprietà numeriche calcolate dalla struttura di una molecola. Sono fondamentali in farmacologia, QSAR e scoperta di farmaci:</p>
+<div class="desc-grid" style="margin-top:.5em">
+  <div class="di"><div class="dv">MW</div><div class="dk">Peso molecolare (Da)</div><div class="dh">Massa in Dalton. &lt;500 Da per farmaci orali (Lipinski)</div></div>
+  <div class="di"><div class="dv">LogP</div><div class="dk">Lipofilicità (partizione)</div><div class="dh">Misura quanto è lipofilica/idrofila una molecola. Ideale 0–3 per farmaci</div></div>
+  <div class="di"><div class="dv">HBD</div><div class="dk">Donatori H-bond</div><div class="dh">N-H e O-H. &lt;5 (Lipinski). Influenza assorbimento orale</div></div>
+  <div class="di"><div class="dv">HBA</div><div class="dk">Accettori H-bond</div><div class="dh">N e O. &lt;10 (Lipinski). Influenza solubilità e permeabilità</div></div>
+  <div class="di"><div class="dv">TPSA</div><div class="dk">Sup. polare topologica</div><div class="dh">Somma delle aree polari. &lt;140 Å² per buona biodisponibilità orale</div></div>
+  <div class="di"><div class="dv">RotB</div><div class="dk">Legami rotabili</div><div class="dh">&lt;10 per farmaci orali. Influenza conformazione e flessibilità</div></div>
+  <div class="di"><div class="dv">Rings</div><div class="dk">N° di anelli</div><div class="dh">Anelli aromatici e alifatici. Influenza rigidità e metabolismo</div></div>
+  <div class="di"><div class="dv">FSP3</div><div class="dk">Frazione sp³</div><div class="dh">C sp³ / totale C. Correlato con solubilità e successo clinico</div></div>
+</div>
+</div>
+
+<div class="card">
+<h3>💊 Drug-likeness — Regola di Lipinski (Ro5)</h3>
+<p>La <strong>Regola dei Cinque di Lipinski</strong> (1997) predice se una molecola ha buona biodisponibilità orale. Una molecola <em>drug-like</em> rispetta <strong>al massimo 1 violazione</strong>:</p>
+<div style="margin:.5em 0">
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>MW ≤ 500 Da</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>LogP ≤ 5</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>Donatori H-bond ≤ 5 (N-H + O-H)</span></div>
+  <div class="rule-row"><span class="rbadge rb-ok">✓</span><span>Accettori H-bond ≤ 10 (N + O)</span></div>
+</div>
+<p>Esistono regole aggiuntive: <strong>Regola di Veber</strong> (TPSA ≤ 140 Å², RotBond ≤ 10), <strong>Regola di Ghose</strong> (LogP –0.4/5.6, MW 160–480), <strong>Regola di Egan</strong>.</p>
+<div class="note">Il <strong>QED</strong> (Quantitative Estimate of Drug-likeness) è un punteggio 0–1 che integra tutte le proprietà in un unico numero. QED &gt; 0.5 è considerato farmaco-simile.</div>
+</div>
+
+<div class="card">
+<h3>🔮 QSAR — Relazioni Struttura-Attività</h3>
+<p>Il <strong>QSAR</strong> (Quantitative Structure–Activity Relationship) mette in relazione descrittori molecolari con attività biologica o tossicità. Questo lab calcola predizioni empiriche basate su correlazioni note dalla letteratura:</p>
+<ul style="margin:.4em 0 .4em 1.2em;font-size:.85rem;color:#d4e0ec">
+  <li><strong>pIC50 stimato</strong>: potenza inibitoria predetta (IC50 = concentrazione che inibisce al 50%)</li>
+  <li><strong>LogS (ESOL)</strong>: solubilità acquosa predetta (modello di Delaney)</li>
+  <li><strong>Tossicità Ames</strong>: predizione di mutagenicità batterica</li>
+  <li><strong>hERG alert</strong>: rischio di blocco canale K⁺ cardiaco (QT prolongation)</li>
+  <li><strong>ADMET</strong>: predizioni di assorbimento, distribuzione, metabolismo, escrezione, tossicità</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>🔗 Fingerprints molecolari e Tanimoto</h3>
+<p>Un <strong>fingerprint molecolare</strong> è una rappresentazione binaria (stringa di bit 0/1) della struttura chimica. Ogni bit rappresenta la presenza/assenza di un sottostruttura.</p>
+<p style="margin-top:.4em">La <strong>similarità di Tanimoto</strong> (Jaccard coefficient) tra due molecole A e B è:</p>
+<div style="text-align:center;font-size:1.05rem;font-family:monospace;color:#00c9b7;margin:.5em 0;padding:8px;background:#071221;border-radius:6px">
+  T(A,B) = |A ∩ B| / |A ∪ B| = bit_comuni / (bit_A + bit_B − bit_comuni)
+</div>
+<p>T = 1.0 → molecole identiche; T &gt; 0.85 → molto simili; T &lt; 0.4 → diverse strutturalmente. Usato in virtual screening e clustering di librerie chimiche.</p>
+</div>
+
+<div class="card">
+<h3>🎬 Laboratorio Spettri — come funziona</h3>
+<p>La tab <strong>🎬 Spettri</strong> genera spettri animati (NMR, IR, UV-Vis, MS, Raman) a partire dal codice SMILES, senza bisogno di RDKit:</p>
+<ul style="margin:.4em 0 .4em 1.2em;font-size:.85rem;color:#d4e0ec">
+  <li><strong>¹H NMR</strong>: picchi calcolati dai gruppi funzionali (ArH, OH, NH, CH₃, CH₂…) con spostamenti chimici tipici (δ in ppm)</li>
+  <li><strong>IR (Trasmittanza)</strong>: bande di assorbimento per stretching/bending di C=O, O-H, N-H, C-H, C≡N…</li>
+  <li><strong>UV-Vis</strong>: transizioni π→π* e n→π* calcolate dai cromofori rilevati</li>
+  <li><strong>MS</strong>: ione molecolare M⁺ + frammenti tipici (perdita CO, CH₃, COOH…) con pattern isotopici per Cl e Br</li>
+  <li><strong>Raman</strong>: bande intense per C≡C, C=C aromatico, ring breathing, C-X</li>
+</ul>
+<div class="tip">Passa il cursore sui picchi per leggere l'assegnazione chimica.</div>
+</div>
+
+<div class="card">
+<h3>⚡ Come usare questo Lab</h3>
+<div class="guide-step"><div class="step-num">1</div><div class="step-body"><strong>🔬 Molecola</strong> — inserisci un SMILES o clicca su un preset. La struttura 2D appare immediatamente grazie a SmilesDrawer, senza attendere RDKit.</div></div>
+<div class="guide-step"><div class="step-num">2</div><div class="step-body"><strong>📊 Descrittori</strong> — dopo che RDKit carica (barra in alto), tutti i parametri fisico-chimici vengono calcolati automaticamente.</div></div>
+<div class="guide-step"><div class="step-num">3</div><div class="step-body"><strong>💊 Drug-likeness</strong> — verifica Lipinski Ro5, QED, SA Score e tutte le regole farmacologiche per la tua molecola.</div></div>
+<div class="guide-step"><div class="step-num">4</div><div class="step-body"><strong>🔮 QSAR</strong> — predizioni di LogS, pIC50, BBB, tossicità e altro basate su correlazioni empiriche.</div></div>
+<div class="guide-step"><div class="step-num">5</div><div class="step-body"><strong>🔗 Similarità</strong> — confronta la molecola con i farmaci nel database tramite fingerprint e indice di Tanimoto.</div></div>
+<div class="guide-step"><div class="step-num">6</div><div class="step-body"><strong>🎬 Spettri</strong> — visualizza NMR, IR, MS, UV-Vis e Raman animati. Funziona anche senza RDKit.</div></div>
+<div class="guide-step"><div class="step-num">7</div><div class="step-body"><strong>📚 Libreria</strong> — salva le molecole che analizzi per confrontarle in seguito.</div></div>
+</div>
+
+<div style="text-align:center;margin:14px 0 6px">
+  <button class="btn" onclick="showPanelById('p-mol');setTimeout(function(){loadExample();},80)">▶ Inizia con un esempio</button>
+  <button class="btn btn-outline" style="margin-left:8px" onclick="showPanelById('p-speclive');if(!window._spLivInit){SpectralLab.init();window._spLivInit=1;}">🎬 Vai agli Spettri</button>
+</div>
+</div>
+
 <!-- ══════════════════════════════════════ PANEL: MOLECOLA -->
-<div class="panel active" id="p-mol">
+<div class="panel" id="p-mol">
 <h2>🔬 Visualizzatore Molecolare</h2>
 <div class="card">
   <div class="inp-row">
@@ -1422,67 +1516,76 @@ function setStatus(msg,type){
 function _rdkitReady(rdk){
   RDKit=rdk; rdkReady=true;
   try{document.getElementById('rdk-ver').textContent='v'+rdk.version();}catch(e){}
-  setStatus('RDKit.js pronto ✔ — tutte le funzioni disponibili','ok');
-  // Only re-enable the specific output-action buttons (preset buttons are never disabled)
+  setStatus('RDKit.js pronto ✔ — tutti i descrittori disponibili','ok');
   ['btn-svg','btn-png','btn-cpsmi','btn-addlib','btn-runall'].forEach(function(id){
     var b=document.getElementById(id);if(b)b.disabled=false;
   });
-  if(window._pendingSMI){
-    document.getElementById('smiles-input').value=window._pendingSMI;
-    window._pendingSMI=null;
-    setTimeout(analyzeMol,80);
+  // Analyze pending molecule (loaded before RDKit was ready)
+  var smiToAnalyze = window._pendingSMI || curSMI ||
+    (document.getElementById('smiles-input')||{value:''}).value.trim();
+  window._pendingSMI=null;
+  if(smiToAnalyze){
+    document.getElementById('smiles-input').value=smiToAnalyze;
+    curSMI=smiToAnalyze;
+    setTimeout(analyzeMol,100);
   }
 }
 
 (function(){
+  // CDN cascade: 3 versions × 2 CDNs = 6 attempts; most stable first
   var combos=[];
-  ['2024.3.3','2023.9.6'].forEach(function(v){
+  ['2023.9.6','2024.3.3','2022.9.5'].forEach(function(v){
     combos.push('https://cdn.jsdelivr.net/npm/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
     combos.push('https://unpkg.com/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
   });
+  var _tried=0;
 
   function initWasm(base,onFail){
     if(typeof initRDKitModule!=='function'){onFail();return;}
-    setStatus('Inizializzazione WASM…','loading');
-    var _t=setTimeout(function(){setStatus('Timeout WASM (30s) — rete lenta o bloccata','err');onFail();},30000);
+    setStatus('WASM: inizializzazione…','loading');
+    var _t=setTimeout(function(){onFail();},35000);
     initRDKitModule({locateFile:function(f){return base+f;}})
     .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
-    .catch(function(){clearTimeout(_t);onFail();});
+    .catch(function(e){clearTimeout(_t);onFail();});
   }
 
   function fetchAndLoad(base,onFail){
-    var jsUrl=base+'RDKit_minimal.js';
-    setStatus('RDKit.js 0%…','loading');
-    fetch(jsUrl,{mode:'cors'}).then(function(r){
+    _tried++;
+    setStatus('RDKit.js (tentativo '+_tried+'/'+combos.length+') 0%…','loading');
+    var ctrl=new AbortController();
+    var fetchTO=setTimeout(function(){ctrl.abort();onFail();},25000);
+    fetch(base+'RDKit_minimal.js',{mode:'cors',signal:ctrl.signal}).then(function(r){
+      clearTimeout(fetchTO);
       if(!r.ok){onFail();return;}
       var total=parseInt(r.headers.get('content-length')||'0');
       var reader=r.body.getReader();
-      var chunks=[];
-      var received=0;
+      var chunks=[];var received=0;
       function pump(){
-        return reader.read().then(function(chunk){
-          if(chunk.done){
+        return reader.read().then(function(d){
+          if(d.done){
             var blob=new Blob(chunks,{type:'application/javascript'});
             var burl=URL.createObjectURL(blob);
             var s=document.createElement('script');
             s.src=burl;
             s.onload=function(){URL.revokeObjectURL(burl);initWasm(base,onFail);};
             s.onerror=function(){URL.revokeObjectURL(burl);onFail();};
-            document.head.appendChild(s);
-            return;
+            document.head.appendChild(s);return;
           }
-          chunks.push(chunk.value);received+=chunk.value.length;
-          if(total>0){setStatus('RDKit.js '+Math.round(received/total*100)+'%…','loading');}
-          else{setStatus('RDKit.js '+Math.round(received/1048576)+'MB…','loading');}
+          chunks.push(d.value);received+=d.value.length;
+          var pct=total>0?Math.round(received/total*100):Math.round(received/1048576)+'MB';
+          setStatus('RDKit.js '+pct+(total>0?'%':'')+'…','loading');
           return pump();
         }).catch(function(){onFail();});
       }
       return pump();
-    }).catch(function(){onFail();});
+    }).catch(function(){clearTimeout(fetchTO);onFail();});
   }
 
   function tryNext(i){
-    if(i>=combos.length){setStatus('RDKit.js non disponibile. Verifica la connessione.','err');return;}
+    if(i>=combos.length){
+      setStatus('RDKit.js non raggiungibile. Le strutture 2D via SmilesDrawer restano disponibili.','err');
+      return;
+    }
     fetchAndLoad(combos[i],function(){tryNext(i+1);});
   }
   tryNext(0);
@@ -1497,11 +1600,22 @@ function showPresetCat(el,id){
   var t=document.getElementById(id);if(t)t.classList.add('active');
 }
 
+var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
 function showPanel(tab,id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
+  // Auto-trigger analysis when switching to RDKit-dependent panels
+  if(_RDKIT_PANELS.indexOf(id)!==-1){
+    if(!rdkReady){
+      setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
+    } else if(curSMI && !curDesc.MW){
+      setTimeout(analyzeMol,60);
+    }
+  }
+  // Init spectral lab on first visit
+  if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
 }
 function showPanelById(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -1509,6 +1623,8 @@ function showPanelById(id){
   document.getElementById(id).classList.add('active');
   var t=document.querySelector('[data-panel="'+id+'"]');
   if(t)t.classList.add('active');
+  if(_RDKIT_PANELS.indexOf(id)!==-1&&rdkReady&&curSMI&&!curDesc.MW)setTimeout(analyzeMol,60);
+  if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
 }
 
 // ─── Accordion ───────────────────────────────────────────────────────
@@ -3086,7 +3202,7 @@ function animateSpectrum(smi,type){SpectralLab.animateSpectrum(smi,type);}
 
 <!-- Floating back button — visible only inside the BioSpecInfo overlay -->
 <div id="bsi-float-back">
-  <button onclick="try{window.parent.document.getElementById('bsi-rdkitlab-ov').style.display='none';}catch(e){}" title="Chiudi Lab e torna all\'app">◀ Indietro</button>
+  <button onclick="try{window.parent.document.getElementById('bsi-rdkitlab-ov').style.display='none';}catch(e){}" title="Torna all\'app">↩ Indietro</button>
 </div>
 </body>
 </html>
