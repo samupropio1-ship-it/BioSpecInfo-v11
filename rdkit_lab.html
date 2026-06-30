@@ -200,6 +200,27 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 .meter-fill{transition:width .75s cubic-bezier(.4,0,.2,1)}
 .fp-fill{transition:width .65s cubic-bezier(.4,0,.2,1)}
 .qed-bar-fill{transition:width .8s cubic-bezier(.4,0,.2,1)}
+/* ── Pharma Pro ── */
+.adme-card{background:#071221;border:1px solid #1c3a57;border-radius:8px;padding:10px 12px}
+.adme-val{font-size:1.1rem;font-weight:800;margin-bottom:2px}
+.adme-key{font-size:.73rem;color:#9fb3c8}
+.adme-bar{height:6px;background:#1c3a57;border-radius:3px;overflow:hidden;margin:4px 0}
+.adme-fill{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.tox-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #1c3a57;font-size:.82rem}
+.tox-row:last-child{border-bottom:none}
+.tox-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.tox-text{flex:1}
+.tox-lvl{font-size:.7rem;padding:2px 8px;border-radius:8px;font-weight:700;flex-shrink:0}
+.cmp-drug-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #1c3a57;font-size:.81rem}
+.cmp-drug-row:last-child{border-bottom:none}
+.cmp-drug-name{min-width:90px;color:#e8eef4;font-weight:600}
+.cmp-sim-bar{flex:1;height:6px;background:#1c3a57;border-radius:3px;overflow:hidden}
+.cmp-sim-fill{height:100%;border-radius:3px;transition:width .6s}
+/* ── Quantum Lab ── */
+#q-canvas{image-rendering:crisp-edges}
+.q-orbit-label{display:inline-block;background:#071221;border:1px solid #1c3a57;border-radius:4px;padding:2px 8px;font-family:monospace;font-size:.8em;color:#b794f6;margin:2px}
+.q-shell{margin:.3em 0;padding:6px 10px;border-radius:6px;background:#071221;border-left:3px solid #00c9b7;font-family:monospace;font-size:.84rem}
+.q-electron{color:#00c9b7;font-weight:700}
 </style>
 </head>
 <body>
@@ -218,6 +239,8 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
   <div class="tab" data-panel="p-lib" onclick="showPanel(this,'p-lib')">📚 Libreria</div>
   <div class="tab" data-panel="p-guide" onclick="showPanel(this,'p-guide')">📖 Guida</div>
   <div class="tab" data-panel="p-speclive" onclick="showPanel(this,'p-speclive');if(!window._spLivInit){SpectralLab.init();window._spLivInit=1;}">🎬 Spettri</div>
+  <div class="tab" data-panel="p-pharma" onclick="showPanel(this,'p-pharma')">🔬 Pharma Pro</div>
+  <div class="tab" data-panel="p-quantum" onclick="showPanel(this,'p-quantum');initQuantum()">⚛️ Quantum</div>
 </div>
 
 <div id="content">
@@ -226,6 +249,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
   <div class="spinner" id="rdk-spin"></div>
   <span id="rdk-msg" class="s-loading">Caricamento RDKit.js…</span>
   <span id="rdk-ver" style="color:#1c3a57;font-size:.73rem;margin-left:auto"></span>
+  <button id="rdk-retry-btn" class="btn btn-outline btn-sm" style="display:none;margin-left:8px;font-size:.73rem" onclick="retryRDKit()">↺ Ricarica</button>
 </div>
 </div>
 
@@ -1500,6 +1524,159 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 </div>
 </div>
 
+<!-- ══════════════════════════════════════ PANEL: PHARMA PRO -->
+<div class="panel" id="p-pharma">
+<h2>🔬 Pharma Pro — Drug Discovery Suite</h2>
+
+<div class="card">
+  <div class="inp-row">
+    <input type="text" id="pharma-smiles" placeholder="SMILES molecola — es. CC(=O)Nc1ccc(O)cc1 (paracetamolo)" onkeydown="if(event.key==='Enter')runPharmaAnalysis()">
+    <button class="btn" onclick="runPharmaAnalysis()">🔬 Analisi Pharma</button>
+    <button class="btn btn-outline btn-sm" onclick="syncFrom('pharma-smiles')">← da Molecola</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('CC(=O)Nc1ccc(O)cc1','Paracetamolo')">Paracetamolo</button>
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('CC(C)Cc1ccc(cc1)C(C)C(=O)O','Ibuprofene')">Ibuprofene</button>
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('CN1CCC[C@H]1c2cccnc2','Nicotina')">Nicotina</button>
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('Cn1cnc2N(C)C(=O)N(C)c12','Caffeina')">Caffeina</button>
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C','Testosterone')">Testosterone</button>
+    <button class="btn btn-outline btn-sm" onclick="pharmaPreset('Nc1ccc(NC2=NC=CC(Nc3ccc(N)cc3)=N2)cc1','Metformina-ana.')">Metformina-ana.</button>
+  </div>
+</div>
+
+<div id="pharma-result" style="display:none">
+
+<!-- ADME Panel -->
+<div class="card" style="margin-top:10px">
+  <h3 style="color:#00c9b7;margin-bottom:8px">💊 ADME Prediction</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px" id="adme-grid"></div>
+  <div id="adme-interp" class="tip" style="margin-top:10px;font-size:.82rem"></div>
+</div>
+
+<!-- Radar Drug Profile -->
+<div class="card" style="margin-top:10px">
+  <h3 style="color:#00c9b7;margin-bottom:8px">🕸 Drug Profile Radar (5 regole)</h3>
+  <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center">
+    <canvas id="pharma-radar" width="260" height="260" style="background:#071221;border-radius:10px;border:1px solid #1c3a57"></canvas>
+    <div id="pharma-radar-legend" style="font-size:.79rem;min-width:160px"></div>
+  </div>
+</div>
+
+<!-- Target & Docking -->
+<div class="card" style="margin-top:10px">
+  <h3 style="color:#00c9b7;margin-bottom:8px">🎯 Target Prediction & Docking Score Stimato</h3>
+  <div id="pharma-docking"></div>
+</div>
+
+<!-- Toxicity Alerts -->
+<div class="card" style="margin-top:10px">
+  <h3 style="color:#ff6b6b;margin-bottom:8px">⚠ Tossicità & Alert PAINS</h3>
+  <div id="pharma-tox"></div>
+</div>
+
+<!-- Drug Comparison -->
+<div class="card" style="margin-top:10px">
+  <h3 style="color:#00c9b7;margin-bottom:8px">⚖ Confronto con Farmaci di Riferimento</h3>
+  <div id="pharma-compare"></div>
+</div>
+
+<!-- Pharma Report Export -->
+<div class="card" style="margin-top:10px;background:#071221">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button class="btn" onclick="exportPharmaReport()">📄 Genera Report Pharma</button>
+    <span style="color:#9fb3c8;font-size:.79rem">Report HTML completo con tutti i parametri farmaceutici</span>
+  </div>
+</div>
+
+</div><!-- #pharma-result -->
+
+<div class="tip" style="margin-top:10px">
+  <strong>Pipeline Drug Discovery:</strong> ADME → Drug-likeness → Toxicity screening → Target prediction → Lead optimization. Questo pannello simula i primi step computazionali di uno screening primario.
+</div>
+</div>
+
+<!-- ══════════════════════════════════════ PANEL: QUANTUM LAB -->
+<div class="panel" id="p-quantum">
+<h2>⚛️ Quantum Lab — Struttura Atomica & Orbitali</h2>
+
+<div class="card">
+  <h3>Seleziona elemento e configurazione</h3>
+  <div class="inp-row" style="flex-wrap:wrap;gap:8px">
+    <select id="q-element" onchange="updateQuantum()" style="width:auto;flex:none">
+      <option value="H,1">H (Z=1)</option>
+      <option value="He,2">He (Z=2)</option>
+      <option value="Li,3">Li (Z=3)</option>
+      <option value="Be,4">Be (Z=4)</option>
+      <option value="B,5">B (Z=5)</option>
+      <option value="C,6" selected>C (Z=6)</option>
+      <option value="N,7">N (Z=7)</option>
+      <option value="O,8">O (Z=8)</option>
+      <option value="F,9">F (Z=9)</option>
+      <option value="Ne,10">Ne (Z=10)</option>
+      <option value="Na,11">Na (Z=11)</option>
+      <option value="Mg,12">Mg (Z=12)</option>
+      <option value="Al,13">Al (Z=13)</option>
+      <option value="Si,14">Si (Z=14)</option>
+      <option value="P,15">P (Z=15)</option>
+      <option value="S,16">S (Z=16)</option>
+      <option value="Cl,17">Cl (Z=17)</option>
+      <option value="Ar,18">Ar (Z=18)</option>
+      <option value="K,19">K (Z=19)</option>
+      <option value="Ca,20">Ca (Z=20)</option>
+      <option value="Fe,26">Fe (Z=26)</option>
+      <option value="Cu,29">Cu (Z=29)</option>
+      <option value="Zn,30">Zn (Z=30)</option>
+      <option value="Br,35">Br (Z=35)</option>
+      <option value="I,53">I (Z=53)</option>
+    </select>
+    <select id="q-orbital-type" onchange="updateQuantum()" style="width:auto;flex:none">
+      <option value="atomic">Orbitali atomici (s, p, d)</option>
+      <option value="cloud">Nuvola elettronica</option>
+      <option value="energy">Livelli energetici</option>
+    </select>
+    <button class="btn btn-sm" onclick="toggleQuantumAnim()" id="q-play-btn">▶ Anima</button>
+    <button class="btn btn-outline btn-sm" onclick="resetQuantum()">↺ Reset</button>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+  <div>
+    <h3>Visualizzatore Orbitali</h3>
+    <div style="position:relative;background:#030d1a;border-radius:10px;border:1px solid #1c3a57;overflow:hidden;line-height:0">
+      <canvas id="q-canvas" width="380" height="320" style="width:100%;display:block;cursor:crosshair"></canvas>
+      <div id="q-overlay" style="position:absolute;top:8px;left:10px;font-size:.73rem;color:#00c9b7;font-weight:700;font-family:monospace;pointer-events:none"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('1s')">1s</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('2s')">2s</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('2p')">2p</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('3d')">3d</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('sp')">sp</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('sp2')">sp²</button>
+      <button class="btn btn-outline btn-sm" onclick="setQOrbital('sp3')">sp³</button>
+    </div>
+  </div>
+  <div>
+    <h3>Configurazione Elettronica</h3>
+    <div class="card card-dark" id="q-config-box" style="min-height:120px;font-size:.84rem"></div>
+    <h3 style="margin-top:10px">Proprietà Quantistiche</h3>
+    <div class="desc-grid" id="q-props-grid" style="margin-top:6px"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:10px">
+  <h3>📖 Numeri Quantistici</h3>
+  <table style="font-size:.82rem">
+    <tr><th>Simbolo</th><th>Nome</th><th>Valori</th><th>Significato</th></tr>
+    <tr><td><code>n</code></td><td>Principale</td><td>1, 2, 3…</td><td>Livello energetico / shell</td></tr>
+    <tr><td><code>ℓ</code></td><td>Angolare (azimutale)</td><td>0…n−1</td><td>Forma dell'orbitale (s=0, p=1, d=2, f=3)</td></tr>
+    <tr><td><code>m<sub>ℓ</sub></code></td><td>Magnetico</td><td>−ℓ…+ℓ</td><td>Orientazione nello spazio</td></tr>
+    <tr><td><code>m<sub>s</sub></code></td><td>Spin</td><td>+½, −½</td><td>Spin dell'elettrone (↑ o ↓)</td></tr>
+  </table>
+  <div class="tip" style="margin-top:8px"><strong>Principio di Aufbau:</strong> gli elettroni occupano gli orbitali nell'ordine 1s → 2s → 2p → 3s → 3p → 4s → 3d… seguendo la regola di Hund e il principio di esclusione di Pauli.</div>
+</div>
+</div>
+
 </div><!-- #content -->
 </div><!-- #app -->
 
@@ -1591,12 +1768,15 @@ function _rdkitReady(rdk){
   function tryNext(i){
     if(i>=combos.length){
       setStatus('RDKit.js non raggiungibile. Le strutture 2D via SmilesDrawer restano disponibili.','err');
+      var rb=document.getElementById('rdk-retry-btn');if(rb)rb.style.display='inline-flex';
       return;
     }
     fetchAndLoad(combos[i],function(){tryNext(i+1);});
   }
   tryNext(0);
+  window._rdkInitFn=function(){_tried=0;tryNext(0);};
 })();
+function initRDKitRobust(){if(window._rdkInitFn)window._rdkInitFn();}
 
 // ─── Tab navigation ──────────────────────────────────────────────────
 
@@ -2849,6 +3029,564 @@ renderLib();
 window.addEventListener('load',function(){
   if(!curSMI){document.getElementById('smiles-input').value='CC(=O)Nc1ccc(O)cc1';}
 });
+
+// ─── PHARMA PRO ──────────────────────────────────────────────────────
+var _pharmaDesc=null,_pharmaSmi='';
+
+function pharmaPreset(smi,name){
+  document.getElementById('pharma-smiles').value=smi;
+  runPharmaAnalysis();
+}
+
+function runPharmaAnalysis(){
+  var smi=document.getElementById('pharma-smiles').value.trim()||curSMI;
+  if(!smi){alert('Inserisci uno SMILES.');return;}
+  _pharmaSmi=smi;
+  var d;
+  if(rdkReady){
+    var mol=getMolSafe(smi);
+    if(!mol){alert('SMILES non valido.');return;}
+    d=computeDesc(mol);mol.delete();
+  } else {
+    d=smilesDescHeuristic(smi);
+    if(!d){alert('SMILES non riconoscibile.');return;}
+  }
+  _pharmaDesc=d;
+  document.getElementById('pharma-result').style.display='block';
+  renderADME(d,smi);
+  renderPharmaRadar(d);
+  renderPharmaDocking(d,smi);
+  renderPharmaTox(d,smi);
+  renderPharmaCompare(d,smi);
+}
+
+function renderADME(d,smi){
+  var mw=d.MW,lp=d.LogP,tpsa=d.TPSA,hbd=d.HBD,rb=d.RotBonds,ha=d.HeavyAtoms,hba=d.HBA;
+  // ESOL solubility (Delaney)
+  var logS=0.16-0.63*lp-0.0062*mw+0.066*rb-0.74*(d.ArRings||0);
+  var solvScore=logS>=-2?100:(logS>=-4?Math.round(75+(logS+4)*12.5):Math.round(50+(logS+6)*12.5));
+  solvScore=Math.max(0,Math.min(100,solvScore));
+  // BBB
+  var bbb=0;
+  if(mw<450)bbb+=30;else if(mw<500)bbb+=15;
+  if(tpsa<60)bbb+=30;else if(tpsa<90)bbb+=15;
+  if(lp>=1&&lp<=3)bbb+=25;else if(lp>=0&&lp<=4)bbb+=12;
+  if(hbd<=3)bbb+=15;
+  bbb=Math.min(100,bbb);
+  // Oral bioav
+  var lio5=((mw<=500?1:0)+(lp<=5?1:0)+(hbd<=5?1:0)+(hba<=10?1:0));
+  var veb=((rb<=10?1:0)+(tpsa<=140?1:0));
+  var oral=Math.round(((lio5/4)*60)+((veb/2)*40));
+  // Caco-2
+  var caco=100-Math.round(tpsa*0.4)-Math.round(Math.max(0,hbd-3)*8);
+  caco=Math.max(5,Math.min(100,caco));
+  // P-gp substrate
+  var pgp=lp>3&&mw>400?'Alto rischio':lp>2&&mw>350?'Moderato':'Basso';
+  var pgpC=lp>3&&mw>400?'#ff6b6b':lp>2&&mw>350?'#ffb454':'#4caf80';
+  // CYP3A4
+  var cyp=d.ArRings>=2&&lp>2?'Substrato probabile':d.ArRings>=1?'Substrato possibile':'Non substrato';
+  var cypC=d.ArRings>=2&&lp>2?'#ffb454':d.ArRings>=1?'#9fb3c8':'#4caf80';
+  // Half-life estimate
+  var hl=mw<300?'Breve (1-3h)':mw<500?'Media (4-12h)':'Lunga (>12h)';
+  var admeItems=[
+    {k:'Solubilità Acquosa (logS)',v:logS.toFixed(2),u:'mol/L',score:solvScore,
+     color:solvScore>70?'#4caf80':solvScore>40?'#ffb454':'#ff6b6b',
+     tip:logS>=-2?'Solubile':'Poco solubile'},
+    {k:'Biodisponib. Orale',v:oral+'%',u:'',score:oral,
+     color:oral>=70?'#4caf80':oral>=40?'#ffb454':'#ff6b6b',tip:oral>=70?'Buona':'Ridotta'},
+    {k:'Permeabilità BBB',v:bbb+'%',u:'',score:bbb,
+     color:bbb>=60?'#4caf80':bbb>=30?'#ffb454':'#ff6b6b',tip:bbb>=60?'Penetra BBB':'Non penetra BBB'},
+    {k:'Permeabilità Caco-2',v:caco+'%',u:'',score:caco,
+     color:caco>=70?'#4caf80':caco>=40?'#ffb454':'#ff6b6b',tip:caco>=70?'Alta':'Bassa'},
+    {k:'Substrato P-gp',v:pgp,u:'',score:null,color:pgpC,tip:'Pompa di efflusso intestinale'},
+    {k:'CYP3A4',v:cyp,u:'',score:null,color:cypC,tip:'Metabolismo epatico principale'},
+    {k:'Emivita stimata (t½)',v:hl,u:'',score:null,color:'#9fb3c8',tip:'Stima da MW'},
+  ];
+  var html='';
+  admeItems.forEach(function(it){
+    html+='<div class="adme-card">';
+    html+='<div class="adme-val" style="color:'+it.color+'">'+it.v+(it.u?' <span style="font-size:.68rem;color:#9fb3c8">'+it.u+'</span>':'')+'</div>';
+    html+='<div class="adme-key">'+it.k+'</div>';
+    if(it.score!==null){
+      html+='<div class="adme-bar"><div class="adme-fill" style="width:0%;background:'+it.color+'" data-w="'+it.score+'"></div></div>';
+    }
+    html+='<div style="font-size:.69rem;color:#9fb3c8;margin-top:2px">'+it.tip+'</div>';
+    html+='</div>';
+  });
+  document.getElementById('adme-grid').innerHTML=html;
+  requestAnimationFrame(function(){
+    document.querySelectorAll('#adme-grid .adme-fill').forEach(function(el){
+      var w=el.getAttribute('data-w');if(w)el.style.width=w+'%';
+    });
+  });
+  // Interpretation
+  var interps=[];
+  if(oral>=70)interps.push('✅ Buona biodisponibilità orale — candidato farmaco orale');
+  else if(oral>=40)interps.push('⚠ Biodisponibilità orale borderline — potrebbe richiedere formulazione');
+  else interps.push('❌ Biodisponibilità orale bassa — considerare formulazione parenterale o prodrug');
+  if(bbb>=60)interps.push('🧠 Penetra la barriera emato-encefalica — potenziale attività CNS');
+  if(lp>3&&mw>400)interps.push('⚠ Possibile substrato P-glicoproteina — rischio efflux intestinale');
+  if(d.ArRings>=2&&lp>2)interps.push('⚠ Probabile metabolismo via CYP3A4 — attenzione alle interazioni');
+  document.getElementById('adme-interp').innerHTML=interps.join('<br>');
+}
+
+function renderPharmaRadar(d){
+  var cv=document.getElementById('pharma-radar');
+  if(!cv)return;
+  var ctx=cv.getContext('2d');
+  var W=cv.width,H=cv.height,cx=W/2,cy=H/2,R=90;
+  ctx.clearRect(0,0,W,H);
+  var axes=[
+    {l:'Lipinski',score:((d.MW<=500?1:0)+(d.LogP<=5?1:0)+(d.HBD<=5?1:0)+(d.HBA<=10?1:0))/4},
+    {l:'Veber',score:((d.RotBonds<=10?1:0)+(d.TPSA<=140?1:0))/2},
+    {l:'Ghose',score:((d.MW>=160&&d.MW<=480?1:0)+(d.LogP>=-0.4&&d.LogP<=5.6?1:0)+(d.HeavyAtoms>=20&&d.HeavyAtoms<=70?1:0))/3},
+    {l:'Egan',score:((d.TPSA<=131.6?1:0)+(d.LogP<=5.88?1:0))/2},
+    {l:'Lead-like',score:((d.MW>=200&&d.MW<=350?1:0)+(d.LogP<=3.5?1:0)+(d.HBD<=3?1:0))/3},
+  ];
+  var n=axes.length;
+  // Grid rings
+  [0.25,0.5,0.75,1].forEach(function(r){
+    ctx.beginPath();
+    for(var i=0;i<n;i++){
+      var a=i/n*Math.PI*2-Math.PI/2;
+      var x=cx+Math.cos(a)*R*r, y=cy+Math.sin(a)*R*r;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(28,58,87,'+(r===1?'0.8':'0.35')+')';
+    ctx.lineWidth=1;ctx.stroke();
+  });
+  // Axes
+  axes.forEach(function(ax,i){
+    var a=i/n*Math.PI*2-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);
+    ctx.strokeStyle='rgba(28,58,87,0.6)';ctx.lineWidth=1;ctx.stroke();
+  });
+  // Molecule polygon
+  ctx.beginPath();
+  axes.forEach(function(ax,i){
+    var a=i/n*Math.PI*2-Math.PI/2,r=R*ax.score;
+    var x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(0,201,183,0.18)';ctx.fill();
+  ctx.strokeStyle='#00c9b7';ctx.lineWidth=2;ctx.stroke();
+  // Dots
+  axes.forEach(function(ax,i){
+    var a=i/n*Math.PI*2-Math.PI/2,r=R*ax.score;
+    ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,4,0,Math.PI*2);
+    ctx.fillStyle='#00c9b7';ctx.fill();
+  });
+  // Labels
+  ctx.font='bold 11px system-ui,sans-serif';ctx.fillStyle='#9fb3c8';ctx.textAlign='center';
+  axes.forEach(function(ax,i){
+    var a=i/n*Math.PI*2-Math.PI/2,lr=R+22;
+    ctx.fillText(ax.l,cx+Math.cos(a)*lr,cy+Math.sin(a)*lr+4);
+  });
+  // Legend
+  var legHtml='<div style="color:#e8eef4;font-weight:700;font-size:.82rem;margin-bottom:8px">Punteggi</div>';
+  axes.forEach(function(ax){
+    var pct=Math.round(ax.score*100);
+    var c=pct>=80?'#4caf80':pct>=50?'#ffb454':'#ff6b6b';
+    legHtml+='<div style="display:flex;align-items:center;gap:6px;margin:.18em 0;font-size:.78rem">'+
+      '<span style="width:8px;height:8px;border-radius:50%;background:#00c9b7;flex-shrink:0"></span>'+
+      '<span style="flex:1;color:#9fb3c8">'+ax.l+'</span>'+
+      '<span style="color:'+c+';font-weight:700">'+pct+'%</span></div>';
+  });
+  document.getElementById('pharma-radar-legend').innerHTML=legHtml;
+}
+
+var PHARMA_TARGETS=[
+  {name:'COX-1/2',smarts:['c1ccccc1','C(=O)O','NS(=O)'],desc:'FANS, analgesici',affScore:function(d,smi){return smi.match(/c1ccc/)?0.7:0.2;}},
+  {name:'β-adrenergico',smarts:['c1ccccc1','NCC'],desc:'Cardiovascolare',affScore:function(d,smi){return smi.match(/NCCc/)?0.8:0.2;}},
+  {name:'Dopamina D2',smarts:['c1ccccc1','NCC'],desc:'CNS, antipsicotico',affScore:function(d,smi){return d.ArRings>=2&&d.MW>250?0.6:0.2;}},
+  {name:'hERG K⁺ channel',smarts:['c1ccccc1'],desc:'Cardiotossicità',affScore:function(d,smi){return d.LogP>3&&d.ArRings>=2?0.7:0.2;}},
+  {name:'ACE (inibitore)',smarts:['CC(=O)'],desc:'Ipertensione',affScore:function(d,smi){return smi.match(/C\(=O\)O/)?0.5:0.15;}},
+  {name:'Serotonina 5-HT',smarts:['c1cc[nH]c1'],desc:'CNS, antidepressivi',affScore:function(d,smi){return smi.match(/\[nH\]|c1cc\[nH\]/)?0.8:0.2;}},
+];
+
+function renderPharmaDocking(d,smi){
+  var html='<div style="overflow-x:auto"><table style="font-size:.8rem;min-width:500px"><tr><th>Target</th><th>Categoria</th><th>Score stimato</th><th>Affinità</th></tr>';
+  PHARMA_TARGETS.forEach(function(t){
+    var sc=t.affScore(d,smi);
+    // Adjust by MW/LogP
+    if(d.MW>600)sc*=0.6;
+    if(d.LogP>5||d.LogP<-1)sc*=0.8;
+    sc=Math.min(0.95,Math.max(0.05,sc));
+    var kcal=(-4-sc*6).toFixed(1);
+    var c=sc>0.6?'#4caf80':sc>0.3?'#ffb454':'#ff6b6b';
+    var label=sc>0.6?'Alta':sc>0.3?'Moderata':'Bassa';
+    html+='<tr><td><strong>'+escH(t.name)+'</strong></td><td style="color:#9fb3c8">'+escH(t.desc)+'</td>'+
+      '<td style="font-family:monospace;color:#b794f6">'+kcal+' kcal/mol</td>'+
+      '<td><span class="rbadge" style="background:rgba('+hexToRGBA(c)+',0.15);color:'+c+'">'+label+'</span></td></tr>';
+  });
+  html+='</table></div>';
+  html+='<div class="note" style="margin-top:8px;font-size:.77rem">Score stimati da descrittori molecolari e SMARTS. Per docking reale usare AutoDock Vina, Glide o GOLD.</div>';
+  document.getElementById('pharma-docking').innerHTML=html;
+}
+
+function hexToRGBA(hex){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return r+','+g+','+b;
+}
+
+var PAINS_PATTERNS=[
+  {name:'Catecholo (BIS-CATECHOL)',smarts:/c1cc(O)c(O)cc1/,level:'Alto',tip:'Falso positivo comune — interferisce con saggi fluorescenti'},
+  {name:'Michael Acceptor',smarts:/C=CC=O|C=CC#N|C=CS/,level:'Alto',tip:'Reattivo covalente — può alchilare residui nucleofili'},
+  {name:'Idrazide',smarts:/C\(=O\)NN|NNC=O/,level:'Medio',tip:'Potenziale mutagenicità (test di Ames)'},
+  {name:'Epossido',smarts:/C1OC1/,level:'Alto',tip:'Altamente reattivo, possibile cancerogeno'},
+  {name:'Aldeide reattiva',smarts:/[^O]C=O/,level:'Alto',tip:'Interferisce con assay thiol-based'},
+  {name:'Nitro aromatico',smarts:/\[N\+\]\(=O\)\[O-\]|N\(=O\)=O/,level:'Medio',tip:'Potenziale mutagenicità (riduzione a idrossilamina)'},
+  {name:'Anello furano',smarts:/c1ccoc1|o1cccc1/,level:'Basso',tip:'Metabolismo a metaboliti reattivi epossidici'},
+  {name:'Idrossamic acid',smarts:/C\(=O\)NO|NOS\(=O\)/,level:'Basso',tip:'Chelante metallico — può dare effetti off-target'},
+];
+
+function renderPharmaTox(d,smi){
+  var alerts=[];
+  PAINS_PATTERNS.forEach(function(p){
+    if(p.smarts.test(smi))alerts.push(p);
+  });
+  // Additional descriptor-based alerts
+  if(d.ArRings>=4)alerts.push({name:'Troppi anelli aromatici ('+d.ArRings+')',level:'Medio',tip:'> 4 anelli aromatici: rischio hERG, scarsa solubilità'});
+  if(d.MW>500&&d.LogP>5)alerts.push({name:'Ro5 dual failure (MW+LogP)',level:'Alto',tip:'Violazione doppia Lipinski: bassa biodisponibilità orale'});
+  if(d.LogP>4.5)alerts.push({name:'Alta lipofilia (LogP '+d.LogP.toFixed(1)+')',level:'Medio',tip:'LogP >4.5: accumulo nei tessuti lipofili, tossicità epatica'});
+  if(d.TPSA<50&&d.LogP>2)alerts.push({name:'Bassa TPSA + alto LogP',level:'Basso',tip:'Penetrazione non selettiva nelle membrane — tossicità non specifica'});
+  if(!alerts.length){
+    document.getElementById('pharma-tox').innerHTML='<div class="note">✅ Nessun alert PAINS rilevato. La molecola sembra strutturalmente pulita.</div>';return;
+  }
+  var html='';
+  alerts.forEach(function(a){
+    var c=a.level==='Alto'?'#ff6b6b':a.level==='Medio'?'#ffb454':'#4caf80';
+    html+='<div class="tox-row">'+
+      '<span class="tox-icon">'+(a.level==='Alto'?'🚨':a.level==='Medio'?'⚠':'ℹ')+'</span>'+
+      '<span class="tox-text"><strong>'+escH(a.name)+'</strong><br><span style="color:#9fb3c8;font-size:.77rem">'+escH(a.tip)+'</span></span>'+
+      '<span class="tox-lvl" style="background:rgba('+hexToRGBA(c)+',0.15);color:'+c+'">'+a.level+'</span></div>';
+  });
+  document.getElementById('pharma-tox').innerHTML=html;
+}
+
+var REF_DRUGS=[
+  {name:'Paracetamolo',smi:'CC(=O)Nc1ccc(O)cc1',fp:[1,0,1,1,0,0,1,0]},
+  {name:'Ibuprofene',smi:'CC(C)Cc1ccc(cc1)C(C)C(=O)O',fp:[1,0,0,0,0,1,0,0]},
+  {name:'Aspirina',smi:'CC(=O)Oc1ccccc1C(=O)O',fp:[1,0,0,1,0,0,0,0]},
+  {name:'Caffeina',smi:'Cn1cnc2N(C)C(=O)N(C)c12',fp:[0,1,0,1,1,0,0,1]},
+  {name:'Morfina',smi:'CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@@H]3[C@@H]1C5',fp:[0,0,1,0,1,1,0,0]},
+  {name:'Amoxicillina',smi:'CC1(C)S[C@@H]2[C@H](NC(=O)[C@@H](N)c3ccc(O)cc3)C(=O)N2[C@H]1C(=O)O',fp:[0,0,1,1,0,0,1,1]},
+  {name:'Metformina',smi:'CN(C)C(=N)NC(=N)N',fp:[0,1,0,1,1,0,0,0]},
+  {name:'Omeprazolo',smi:'COc1ccc2[nH]c(=S)cc2c1OC',fp:[0,1,0,0,1,0,0,1]},
+];
+
+function simpleFP(d,smi){
+  return [
+    d.ArRings>0?1:0,
+    (d.HBA||0)>4?1:0,
+    (d.HBD||0)>1?1:0,
+    d.MW>200&&d.MW<500?1:0,
+    d.MW>300?1:0,
+    d.LogP>1?1:0,
+    (d.RotBonds||0)<8?1:0,
+    (d.ArRings||0)>1?1:0,
+  ];
+}
+
+function tanimotoSimple(a,b){
+  var inter=0,union=0;
+  for(var i=0;i<a.length;i++){if(a[i]||b[i])union++;if(a[i]&&b[i])inter++;}
+  return union>0?inter/union:0;
+}
+
+function renderPharmaCompare(d,smi){
+  var fp=simpleFP(d,smi);
+  var rows=REF_DRUGS.map(function(r){
+    return {name:r.name,sim:tanimotoSimple(fp,r.fp),smi:r.smi};
+  }).sort(function(a,b){return b.sim-a.sim;});
+  var html='';
+  rows.forEach(function(r){
+    var pct=Math.round(r.sim*100);
+    var c=pct>=70?'#4caf80':pct>=40?'#ffb454':'#ff6b6b';
+    html+='<div class="cmp-drug-row">'+
+      '<span class="cmp-drug-name">'+escH(r.name)+'</span>'+
+      '<div class="cmp-sim-bar"><div class="cmp-sim-fill" style="width:0%;background:'+c+'" data-w="'+pct+'"></div></div>'+
+      '<span style="min-width:42px;text-align:right;font-size:.77rem;color:'+c+'">'+pct+'%</span>'+
+      '<button class="btn btn-outline btn-sm" style="font-size:.7rem;padding:2px 7px;margin-left:4px" onclick="loadPreset(\''+r.smi+'\');showPanelById(\'p-mol\')">Carica</button>'+
+      '</div>';
+  });
+  document.getElementById('pharma-compare').innerHTML=html;
+  requestAnimationFrame(function(){
+    document.querySelectorAll('#pharma-compare .cmp-sim-fill').forEach(function(el){
+      var w=el.getAttribute('data-w');if(w)el.style.width=w+'%';
+    });
+  });
+}
+
+function exportPharmaReport(){
+  if(!_pharmaDesc){alert('Esegui prima un\'analisi Pharma.');return;}
+  var d=_pharmaDesc;
+  var html='<!DOCTYPE html><html lang="it"><head><meta charset="utf-8">'+
+    '<title>Pharma Report — BioSpecInfo</title>'+
+    '<style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;color:#1a1a2e;padding:20px}'+
+    'h1{color:#0a7a71;border-bottom:2px solid #0a7a71;padding-bottom:8px}'+
+    'h2{color:#0a7a71;margin-top:24px;font-size:1.05rem}'+
+    'table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.9rem}'+
+    'th{background:#0a7a71;color:#fff;padding:6px 10px;text-align:left}'+
+    'td{padding:5px 10px;border:1px solid #ddd}tr:nth-child(even)td{background:#f0f8f7}'+
+    '.ok{color:#2e7d32;font-weight:700}.warn{color:#e65100;font-weight:700}.bad{color:#c62828;font-weight:700}'+
+    '.footer{margin-top:32px;color:#888;font-size:.8rem;text-align:center;border-top:1px solid #ddd;padding-top:12px}</style></head><body>';
+  html+='<h1>🔬 Pharma Report — BioSpecInfo</h1>';
+  html+='<p><strong>SMILES:</strong> <code>'+escH(_pharmaSmi)+'</code></p>';
+  html+='<p><strong>Data:</strong> '+new Date().toLocaleDateString('it-IT')+'</p>';
+  html+='<h2>📊 Descrittori Molecolari</h2><table><tr><th>Descrittore</th><th>Valore</th><th>Range farmaceutico</th><th>Giudizio</th></tr>';
+  [
+    {k:'MW',v:d.MW.toFixed(2)+' Da',ok:d.MW<=500,range:'≤ 500 Da (Lipinski)'},
+    {k:'LogP',v:d.LogP.toFixed(3),ok:d.LogP>=-0.4&&d.LogP<=5,range:'-0.4 a 5'},
+    {k:'TPSA',v:d.TPSA.toFixed(1)+' Ų',ok:d.TPSA<=140,range:'≤ 140 Ų (Veber)'},
+    {k:'HBD',v:d.HBD,ok:d.HBD<=5,range:'≤ 5 (Lipinski)'},
+    {k:'HBA',v:d.HBA,ok:d.HBA<=10,range:'≤ 10 (Lipinski)'},
+    {k:'RotBonds',v:d.RotBonds,ok:d.RotBonds<=10,range:'≤ 10 (Veber)'},
+    {k:'Anelli Ar.',v:d.ArRings,ok:d.ArRings<=3,range:'≤ 3 ottimale'},
+    {k:'FrCSP3',v:(d.FrCSP3*100).toFixed(0)+'%',ok:d.FrCSP3>=0.25,range:'> 25%'},
+  ].forEach(function(r){
+    html+='<tr><td>'+r.k+'</td><td>'+r.v+'</td><td>'+r.range+'</td><td class="'+(r.ok?'ok':'bad')+'">'+(r.ok?'✔ OK':'✘ Fuori range')+'</td></tr>';
+  });
+  html+='</table>';
+  html+='<h2>💊 Drug-likeness</h2><p>Regola di Lipinski Ro5: '+[d.MW<=500,d.LogP<=5,d.HBD<=5,d.HBA<=10].filter(Boolean).length+'/4 criteri soddisfatti.</p>';
+  html+='<h2>📋 Considerazioni Farmaceutiche</h2><ul>';
+  if(d.MW<=500&&d.LogP<=5&&d.HBD<=5&&d.HBA<=10)html+='<li class="ok">✅ Rispetta la Regola dei Cinque di Lipinski — candidato per somministrazione orale</li>';
+  else html+='<li class="bad">⚠ Non rispetta tutti i criteri Lipinski — valutare vie di somministrazione alternative</li>';
+  if(d.TPSA<60)html+='<li>🧠 TPSA bassa ('+d.TPSA.toFixed(0)+' Ų) — possibile penetrazione BBB</li>';
+  if(d.FrCSP3>=0.25)html+='<li class="ok">✅ Buona frazione sp³ — migliore solubilità e selettività target</li>';
+  else html+='<li class="warn">⚠ Molecola planare (FrCSP3 = '+(d.FrCSP3*100).toFixed(0)+'%) — rischio scarsa solubilità</li>';
+  html+='</ul>';
+  html+='<div class="footer">Report generato da BioSpecInfo v11 — RDKit Cheminformatics Lab<br>Per uso didattico e di ricerca. I valori sono stime computazionali.</div>';
+  html+='</body></html>';
+  var blob=new Blob([html],{type:'text/html'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='pharma-report-bsi.html';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// ─── QUANTUM LAB ─────────────────────────────────────────────────────
+var _qAnim=null,_qPlaying=false,_qAngle=0,_qOrbital='2p',_qElement='C',_qZ=6;
+
+var ELEMENTS={
+  H:{Z:1,config:'1s¹',shells:[1],color:'#ffffff',ionE:13.6,radius:53},
+  He:{Z:2,config:'1s²',shells:[2],color:'#b794f6',ionE:24.6,radius:31},
+  Li:{Z:3,config:'[He] 2s¹',shells:[2,1],color:'#ff6b6b',ionE:5.4,radius:167},
+  Be:{Z:4,config:'[He] 2s²',shells:[2,2],color:'#4caf80',ionE:9.3,radius:112},
+  B:{Z:5,config:'[He] 2s² 2p¹',shells:[2,3],color:'#ffb454',ionE:8.3,radius:87},
+  C:{Z:6,config:'[He] 2s² 2p²',shells:[2,4],color:'#00c9b7',ionE:11.3,radius:77},
+  N:{Z:7,config:'[He] 2s² 2p³',shells:[2,5],color:'#64b5f6',ionE:14.5,radius:75},
+  O:{Z:8,config:'[He] 2s² 2p⁴',shells:[2,6],color:'#ff6b6b',ionE:13.6,radius:73},
+  F:{Z:9,config:'[He] 2s² 2p⁵',shells:[2,7],color:'#b794f6',ionE:17.4,radius:64},
+  Ne:{Z:10,config:'[He] 2s² 2p⁶',shells:[2,8],color:'#00c9b7',ionE:21.6,radius:38},
+  Na:{Z:11,config:'[Ne] 3s¹',shells:[2,8,1],color:'#ff6b6b',ionE:5.1,radius:190},
+  Mg:{Z:12,config:'[Ne] 3s²',shells:[2,8,2],color:'#4caf80',ionE:7.6,radius:160},
+  Al:{Z:13,config:'[Ne] 3s² 3p¹',shells:[2,8,3],color:'#ffb454',ionE:6.0,radius:143},
+  Si:{Z:14,config:'[Ne] 3s² 3p²',shells:[2,8,4],color:'#9fb3c8',ionE:8.2,radius:117},
+  P:{Z:15,config:'[Ne] 3s² 3p³',shells:[2,8,5],color:'#ffb454',ionE:10.5,radius:110},
+  S:{Z:16,config:'[Ne] 3s² 3p⁴',shells:[2,8,6],color:'#ffb454',ionE:10.4,radius:103},
+  Cl:{Z:17,config:'[Ne] 3s² 3p⁵',shells:[2,8,7],color:'#4caf80',ionE:13.0,radius:99},
+  Ar:{Z:18,config:'[Ne] 3s² 3p⁶',shells:[2,8,8],color:'#00c9b7',ionE:15.8,radius:71},
+  K:{Z:19,config:'[Ar] 4s¹',shells:[2,8,8,1],color:'#ff6b6b',ionE:4.3,radius:243},
+  Ca:{Z:20,config:'[Ar] 4s²',shells:[2,8,8,2],color:'#4caf80',ionE:6.1,radius:194},
+  Fe:{Z:26,config:'[Ar] 3d⁶ 4s²',shells:[2,8,14,2],color:'#ffb454',ionE:7.9,radius:126},
+  Cu:{Z:29,config:'[Ar] 3d¹⁰ 4s¹',shells:[2,8,18,1],color:'#ffb454',ionE:7.7,radius:128},
+  Zn:{Z:30,config:'[Ar] 3d¹⁰ 4s²',shells:[2,8,18,2],color:'#9fb3c8',ionE:9.4,radius:122},
+  Br:{Z:35,config:'[Ar] 3d¹⁰ 4s² 4p⁵',shells:[2,8,18,7],color:'#ff6b6b',ionE:11.8,radius:114},
+  I:{Z:53,config:'[Kr] 4d¹⁰ 5s² 5p⁵',shells:[2,8,18,18,7],color:'#b794f6',ionE:10.5,radius:133},
+};
+
+var ORBITAL_SHAPES={
+  '1s':{type:'sphere',n:1,l:0,desc:'1s: sferica, vicina al nucleo'},
+  '2s':{type:'sphere2',n:2,l:0,desc:'2s: sferica con nodo radiale'},
+  '2p':{type:'dumbbell',n:2,l:1,desc:'2p: due lobi, 3 orientazioni (x,y,z)'},
+  '3d':{type:'clover',n:3,l:2,desc:'3d: quattro lobi, forma a quadrifoglio'},
+  'sp':{type:'sp',n:2,l:1,desc:'sp ibrido: 2 lobi lineari (180°)'},
+  'sp2':{type:'sp2',n:2,l:1,desc:'sp² ibrido: 3 lobi planari (120°)'},
+  'sp3':{type:'sp3',n:2,l:1,desc:'sp³ ibrido: 4 lobi tetraedrici (109.5°)'},
+};
+
+function initQuantum(){
+  if(window._qInit)return;
+  window._qInit=true;
+  updateQuantum();
+}
+
+function updateQuantum(){
+  var sel=document.getElementById('q-element');
+  if(!sel)return;
+  var val=sel.value.split(',');
+  _qElement=val[0];_qZ=parseInt(val[1])||6;
+  var el=ELEMENTS[_qElement]||ELEMENTS['C'];
+  drawOrbital();
+  updateQConfig(el);
+  updateQProps(el);
+}
+
+function setQOrbital(orb){_qOrbital=orb;drawOrbital();}
+
+function toggleQuantumAnim(){
+  var btn=document.getElementById('q-play-btn');
+  if(_qPlaying){
+    _qPlaying=false;
+    if(_qAnim){cancelAnimationFrame(_qAnim);_qAnim=null;}
+    if(btn)btn.textContent='▶ Anima';
+  } else {
+    _qPlaying=true;
+    if(btn)btn.textContent='⏸ Pausa';
+    animateQuantum();
+  }
+}
+
+function resetQuantum(){
+  _qPlaying=false;if(_qAnim){cancelAnimationFrame(_qAnim);_qAnim=null;}
+  _qAngle=0;
+  var btn=document.getElementById('q-play-btn');if(btn)btn.textContent='▶ Anima';
+  drawOrbital();
+}
+
+function animateQuantum(){
+  _qAngle+=0.015;
+  drawOrbital();
+  if(_qPlaying)_qAnim=requestAnimationFrame(animateQuantum);
+}
+
+function drawOrbital(){
+  var cv=document.getElementById('q-canvas');if(!cv)return;
+  var ctx=cv.getContext('2d');
+  var W=cv.width,H=cv.height,cx=W/2,cy=H/2;
+  ctx.clearRect(0,0,W,H);
+
+  // Background gradient
+  var bg=ctx.createRadialGradient(cx,cy,0,cx,cy,W/2);
+  bg.addColorStop(0,'#061020');bg.addColorStop(1,'#020810');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+  var el=ELEMENTS[_qElement]||ELEMENTS['C'];
+  var oinfo=ORBITAL_SHAPES[_qOrbital]||ORBITAL_SHAPES['2p'];
+  var elColor=el.color||'#00c9b7';
+
+  // Draw nuclear glow
+  var nucR=12+el.Z*0.3;
+  var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,nucR*3);
+  grad.addColorStop(0,elColor+'ff');grad.addColorStop(0.3,elColor+'66');grad.addColorStop(1,'transparent');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx,cy,nucR*3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=elColor;ctx.beginPath();ctx.arc(cx,cy,nucR,0,Math.PI*2);ctx.fill();
+  // nucleus label
+  ctx.fillStyle='#000';ctx.font='bold '+(Math.max(8,Math.min(14,nucR)))+'px system-ui,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(_qElement,cx,cy);
+
+  // Draw orbital based on type
+  var type=oinfo.type;
+  if(type==='sphere'||type==='sphere2'){
+    var orR=type==='sphere'?55:80;
+    // Outer glow
+    var sgrad=ctx.createRadialGradient(cx,cy,orR*0.6,cx,cy,orR);
+    sgrad.addColorStop(0,elColor+'33');sgrad.addColorStop(1,'transparent');
+    ctx.fillStyle=sgrad;ctx.beginPath();ctx.arc(cx,cy,orR,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=elColor+'88';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.arc(cx,cy,orR,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+    if(type==='sphere2'){
+      ctx.strokeStyle=elColor+'44';ctx.beginPath();ctx.arc(cx,cy,orR*0.45,0,Math.PI*2);ctx.stroke();
+    }
+    // Electron dot(s)
+    var eN=Math.min(2,el.shells[0]||1);
+    for(var ei=0;ei<eN;ei++){
+      var ea=_qAngle*2+ei*Math.PI;
+      var ex=cx+Math.cos(ea)*orR,ey=cy+Math.sin(ea)*orR*0.35;
+      drawElectron(ctx,ex,ey,elColor);
+    }
+  } else if(type==='dumbbell'||type==='sp'||type==='sp2'||type==='sp3'){
+    var orbs=[];
+    if(type==='dumbbell')orbs=[{ax:0},{ax:Math.PI/2},{ax:Math.PI}];
+    else if(type==='sp')orbs=[{ax:0},{ax:Math.PI}];
+    else if(type==='sp2')orbs=[{ax:0},{ax:Math.PI*2/3},{ax:Math.PI*4/3}];
+    else orbs=[{ax:0},{ax:Math.PI*2/3},{ax:Math.PI*4/3+0.5},{ax:0.3}];
+    orbs.forEach(function(orb,oi){
+      var a=orb.ax+_qAngle*0.3;
+      var lbR=70,lbH=35;
+      ctx.save();
+      ctx.translate(cx,cy);ctx.rotate(a);
+      // lobe 1
+      var lg1=ctx.createRadialGradient(lbR/2,0,0,lbR/2,0,lbR);
+      lg1.addColorStop(0,elColor+(oi%2===0?'99':'66'));lg1.addColorStop(1,'transparent');
+      ctx.fillStyle=lg1;
+      ctx.beginPath();ctx.ellipse(lbR/2,0,lbR/2,lbH,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=elColor+(oi%2===0?'88':'55');ctx.lineWidth=1;
+      ctx.beginPath();ctx.ellipse(lbR/2,0,lbR/2,lbH,0,0,Math.PI*2);ctx.stroke();
+      // lobe 2
+      var lg2=ctx.createRadialGradient(-lbR/2,0,0,-lbR/2,0,lbR);
+      lg2.addColorStop(0,elColor+'55');lg2.addColorStop(1,'transparent');
+      ctx.fillStyle=lg2;
+      ctx.beginPath();ctx.ellipse(-lbR/2,0,lbR/2,lbH,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      // electron on lobe
+      var ea2=a+_qAngle*1.5+oi*2.1;
+      var ex2=cx+Math.cos(ea2)*70,ey2=cy+Math.sin(ea2)*35;
+      drawElectron(ctx,ex2,ey2,elColor);
+    });
+  } else if(type==='clover'){
+    [0,Math.PI/4,Math.PI/2,Math.PI*3/4].forEach(function(a0,oi){
+      var a=a0+_qAngle*0.2;
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(a);
+      var cg=ctx.createRadialGradient(60,0,0,60,0,70);
+      cg.addColorStop(0,elColor+(oi%2===0?'88':'55'));cg.addColorStop(1,'transparent');
+      ctx.fillStyle=cg;
+      ctx.beginPath();ctx.ellipse(55,0,40,22,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      var ea3=a+_qAngle*2+oi*1.57;
+      drawElectron(ctx,cx+Math.cos(ea3)*70,cy+Math.sin(ea3)*25,elColor);
+    });
+  }
+
+  // Label overlay
+  var ov=document.getElementById('q-overlay');
+  if(ov)ov.textContent=_qElement+' (Z='+_qZ+') · '+oinfo.desc;
+}
+
+function drawElectron(ctx,x,y,col){
+  var eg=ctx.createRadialGradient(x,y,0,x,y,6);
+  eg.addColorStop(0,'#fff');eg.addColorStop(0.4,col);eg.addColorStop(1,'transparent');
+  ctx.fillStyle=eg;ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();
+}
+
+function updateQConfig(el){
+  var box=document.getElementById('q-config-box');if(!box)return;
+  var shells=el.shells||[1];
+  var shellNames=['K','L','M','N','O'];
+  var html='<div style="margin-bottom:6px"><strong>Configurazione:</strong> <code style="color:#b794f6">'+el.config+'</code></div>';
+  shells.forEach(function(n,i){
+    html+='<div class="q-shell">'+shellNames[i]+' (n='+(i+1)+'): <span class="q-electron">'+n+' e⁻</span></div>';
+  });
+  html+='<div style="margin-top:8px;font-size:.78rem;color:#9fb3c8">Elettroni totali: <strong style="color:#00c9b7">'+el.Z+'</strong></div>';
+  box.innerHTML=html;
+}
+
+function updateQProps(el){
+  var grid=document.getElementById('q-props-grid');if(!grid)return;
+  var props=[
+    {k:'Numero Atomico',v:'Z = '+el.Z,c:'#00c9b7'},
+    {k:'Config. Elettronica',v:el.config,c:'#b794f6'},
+    {k:'Elettronegatività est.',v:(el.ionE*0.15+1.5).toFixed(1)+' (Pauling~)',c:'#ffb454'},
+    {k:'Raggio Atomico',v:el.radius+' pm',c:'#4caf80'},
+    {k:'Energia Ioniz.',v:el.ionE.toFixed(1)+' eV',c:'#64b5f6'},
+    {k:'Shell Valenza',v:'n = '+el.shells.length,c:'#9fb3c8'},
+  ];
+  grid.innerHTML=props.map(function(p){
+    return '<div class="di" style="border-color:#1c3a57"><div class="dv" style="color:'+p.c+';font-size:.95rem">'+p.v+'</div><div class="dk">'+p.k+'</div></div>';
+  }).join('');
+}
+
+// ─── RDKit Retry ─────────────────────────────────────────────────────
+function retryRDKit(){
+  document.getElementById('rdk-retry-btn').style.display='none';
+  setStatus('RDKit.js: nuovo tentativo…','loading');
+  // Re-run the init sequence
+  initRDKitRobust();
+}
 
 // ─── Spectral Lab ─────────────────────────────────────────────────────
 var SpectralLab=(function(){
