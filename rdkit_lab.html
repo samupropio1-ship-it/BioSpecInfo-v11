@@ -1520,14 +1520,21 @@ function _rdkitReady(rdk){
   ['btn-svg','btn-png','btn-cpsmi','btn-addlib','btn-runall'].forEach(function(id){
     var b=document.getElementById(id);if(b)b.disabled=false;
   });
-  // Analyze pending molecule (loaded before RDKit was ready)
+  // Analyze pending molecule — update all panels that showed heuristic estimates
   var smiToAnalyze = window._pendingSMI || curSMI ||
     (document.getElementById('smiles-input')||{value:''}).value.trim();
   window._pendingSMI=null;
   if(smiToAnalyze){
     document.getElementById('smiles-input').value=smiToAnalyze;
     curSMI=smiToAnalyze;
-    setTimeout(analyzeMol,100);
+    setTimeout(function(){
+      analyzeMol();
+      // Re-run any panels that were showing heuristic data
+      var active=document.querySelector('.panel.active');
+      if(active&&active.id==='p-drug'){calcDrugLike();}
+      if(active&&active.id==='p-qsar'){calcQSAR();}
+      if(active&&active.id==='p-desc'){calcDescriptors();}
+    },100);
   }
 }
 
@@ -1606,15 +1613,25 @@ function showPanel(tab,id){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
-  // Auto-trigger analysis when switching to RDKit-dependent panels
   if(_RDKIT_PANELS.indexOf(id)!==-1){
-    if(!rdkReady){
+    if(rdkReady){
+      if(curSMI&&!curDesc.MW) setTimeout(analyzeMol,60);
+    } else {
+      if(curSMI){
+        var hd=smilesDescHeuristic(curSMI);
+        if(hd){
+          curDesc=hd;
+          renderQuickDesc(hd);
+          if(id==='p-drug'){document.getElementById('drug-smiles').value=curSMI;_renderDrugLike(hd);}
+          if(id==='p-qsar'){document.getElementById('qsar-smiles').value=curSMI;_renderQSAR(hd);}
+          if(id==='p-desc'){document.getElementById('desc-smiles').value=curSMI;_renderDescPanel(hd);}
+          setStatus('Stima SMILES (RDKit in caricamento…)','loading');
+          return;
+        }
+      }
       setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
-    } else if(curSMI && !curDesc.MW){
-      setTimeout(analyzeMol,60);
     }
   }
-  // Init spectral lab on first visit
   if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
 }
 function showPanelById(id){
@@ -1786,6 +1803,78 @@ function computeDesc(mol){
   return d;
 }
 
+// ─── SMILES heuristic descriptor estimation (no RDKit needed) ────────
+function smilesDescHeuristic(smi){
+  if(!smi)return null;
+  var d={MW:0,LogP:0,HBD:0,HBA:0,RotBonds:0,TPSA:0,HeavyAtoms:0,ArRings:0,Rings:0,FrCSP3:0,Stereo:0,Formula:'',_heuristic:true};
+  var AW={C:12.011,N:14.007,O:15.999,S:32.06,P:30.974,F:18.998,Cl:35.45,Br:79.904,I:126.904,B:10.81,Si:28.086,Se:78.96};
+  var atoms=[],i=0,s=smi;
+  while(i<s.length){
+    var c=s[i];
+    if(c==='['){
+      var j=s.indexOf(']',i);if(j<0)break;
+      var inn=s.slice(i+1,j),em=inn.match(/^([A-Z][a-z]?|[a-z])/);
+      if(em){
+        var sym=em[1],isAr=sym!==sym.toUpperCase();
+        sym=sym[0].toUpperCase()+(sym[1]||'');
+        if(AW[sym]){var hm=inn.match(/H(\d*)/),nh=hm?(hm[1]===''?1:+hm[1]):0;atoms.push({el:sym,arom:isAr,nh:nh,br:true});}
+      }
+      i=j+1;
+    } else if(c>='A'&&c<='Z'){
+      var sym2=c;
+      if(i+1<s.length){var t2=c+s[i+1];if(AW[t2]&&s[i+1]>='a'&&s[i+1]<='z'){sym2=t2;i++;}}
+      if(AW[sym2])atoms.push({el:sym2,arom:false,nh:0,br:false});
+      i++;
+    } else if('bcnosp'.indexOf(c)>=0){
+      atoms.push({el:c.toUpperCase(),arom:true,nh:0,br:false});i++;
+    } else i++;
+  }
+  if(!atoms.length)return null;
+  d.HeavyAtoms=atoms.length;
+  var cnt={};atoms.forEach(function(a){cnt[a.el]=(cnt[a.el]||0)+1;});
+  // Implicit H estimate
+  var totalH=atoms.reduce(function(sum,a){
+    if(a.br)return sum+a.nh;
+    if(a.arom)return sum+(a.el==='C'?0.5:a.el==='N'?0.1:0);
+    return sum+(a.el==='C'?1.4:a.el==='N'?0.7:a.el==='O'?0.2:0);
+  },0);
+  d.MW=atoms.reduce(function(s,a){return s+(AW[a.el]||12);},0)+totalH*1.008;
+  // HBD
+  d.HBD=atoms.filter(function(a){return a.br&&a.nh>0&&(a.el==='N'||a.el==='O');}).reduce(function(s,a){return s+a.nh;},0);
+  d.HBD+=atoms.filter(function(a){return !a.br&&a.el==='N'&&!a.arom;}).length;
+  d.HBD+=Math.round(atoms.filter(function(a){return !a.br&&a.el==='O'&&!a.arom;}).length*0.5);
+  d.HBD=Math.max(0,d.HBD);
+  // HBA, LogP, TPSA
+  d.HBA=(cnt.N||0)+(cnt.O||0);
+  var LP={C:0.53,N:-1.03,O:-1.0,S:0.73,P:-0.18,F:0.14,Cl:0.71,Br:1.03,I:1.12};
+  var LPA={C:0.28,N:-0.97,O:-0.73,S:0.65};
+  d.LogP=atoms.reduce(function(s,a){return s+(a.arom?(LPA[a.el]||0):(LP[a.el]||0));},0);
+  d.TPSA=(cnt.N||0)*12.9+(cnt.O||0)*9.0;
+  // Rings
+  var ro={},rc=0;
+  for(var ri=0;ri<smi.length;ri++){
+    var ch=smi[ri];
+    if(ch==='%'&&ri+2<smi.length&&/\d\d/.test(smi.slice(ri+1,ri+3))){
+      var rn=smi.slice(ri+1,ri+3);ri+=2;if(ro[rn]){rc++;delete ro[rn];}else ro[rn]=true;
+    } else if(ch>='1'&&ch<='9'){if(ro[ch]){rc++;delete ro[ch];}else ro[ch]=true;}
+  }
+  d.Rings=rc;
+  var arC=atoms.filter(function(a){return a.arom&&a.el==='C';}).length;
+  d.ArRings=Math.min(rc,Math.round(arC/6));
+  d.FrCSP3=Math.max(0,(cnt.C||0)-arC)/Math.max(1,cnt.C||1);
+  d.RotBonds=Math.max(0,Math.round((d.HeavyAtoms-arC-rc*3)*0.35));
+  d.Stereo=(smi.match(/@/g)||[]).length;
+  var fo=[];['C','N','O','S','P','F','Cl','Br','I'].forEach(function(e){if(cnt[e])fo.push(e+(cnt[e]>1?cnt[e]:''));});
+  d.Formula='~'+fo.join('');
+  return d;
+}
+
+function _heuristicBanner(){
+  return '<div class="warn" style="margin-bottom:10px;font-size:.82rem">'+
+    '⚠ Valori <strong>stimati da SMILES</strong> (RDKit.js in caricamento). '+
+    'I dati si aggiorneranno automaticamente con i valori precisi una volta pronto RDKit.</div>';
+}
+
 function renderQuickDesc(d){
   var items=[
     {k:'MW',v:d.MW.toFixed(2),u:'Da',tip:'Peso molecolare medio.\n≤ 500 Da per Lipinski.',
@@ -1822,13 +1911,21 @@ function renderQuickDesc(d){
 
 // ─── Full descriptors ────────────────────────────────────────────────
 function calcDescriptors(){
-  if(!requireRDKit())return;
   var smi=document.getElementById('desc-smiles').value.trim()||curSMI;
   if(!smi){alert('Inserisci uno SMILES o caricalo dal tab Molecola.');return;}
-  var mol=getMolSafe(smi);
-  if(!mol){document.getElementById('desc-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
-  var d=computeDesc(mol);mol.delete();
+  var d;
+  if(rdkReady){
+    var mol=getMolSafe(smi);
+    if(!mol){document.getElementById('desc-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
+    d=computeDesc(mol);mol.delete();
+  } else {
+    d=smilesDescHeuristic(smi);
+    if(!d){document.getElementById('desc-result').innerHTML='<div class="warn">SMILES non riconoscibile.</div>';return;}
+  }
   curDesc=d;
+  _renderDescPanel(d);
+}
+function _renderDescPanel(d){
 
   var fullItems=[
     {k:'Peso Molecolare (MW)',v:d.MW.toFixed(3),u:'Da',tip:'Media pesata isotopica. ≤ 500 Da per Lipinski.',
@@ -1855,18 +1952,27 @@ function calcDescriptors(){
       '<div class="dh">'+it.hint+'</div></div>';
   }).join('');
   html+='</div>';
-  document.getElementById('desc-result').innerHTML=html;
+  var banner=d._heuristic?_heuristicBanner():'';
+  document.getElementById('desc-result').innerHTML=banner+html;
   document.getElementById('desc-export').style.display='flex';
 }
 
 // ─── Drug-likeness ───────────────────────────────────────────────────
 function calcDrugLike(){
-  if(!requireRDKit())return;
   var smi=document.getElementById('drug-smiles').value.trim()||curSMI;
   if(!smi){alert('Inserisci uno SMILES.');return;}
-  var mol=getMolSafe(smi);
-  if(!mol){document.getElementById('drug-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
-  var d=computeDesc(mol);mol.delete();
+  var d;
+  if(rdkReady){
+    var mol=getMolSafe(smi);
+    if(!mol){document.getElementById('drug-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
+    d=computeDesc(mol);mol.delete();
+  } else {
+    d=smilesDescHeuristic(smi);
+    if(!d){document.getElementById('drug-result').innerHTML='<div class="warn">SMILES non riconoscibile.</div>';return;}
+  }
+  _renderDrugLike(d);
+}
+function _renderDrugLike(d){
   var mw=d.MW,lp=d.LogP,hba=d.HBA,hbd=d.HBD,rb=d.RotBonds,tpsa=d.TPSA,ha=d.HeavyAtoms;
 
   var rules=[
@@ -1940,7 +2046,8 @@ function calcDrugLike(){
     '<div><div style="color:#e8eef4;font-weight:700">Score complessivo</div>'+
     '<div style="color:#9fb3c8;font-size:.78rem">'+totalPass+'/'+totalChecks+' criteri soddisfatti</div></div>'+
     '</div><div class="score-bar" style="margin-top:8px"><div class="score-fill" style="width:'+overall+'%;background:'+oc+'"></div></div></div>';
-  document.getElementById('drug-result').innerHTML=summary+html;
+  var banner=d._heuristic?_heuristicBanner():'';
+  document.getElementById('drug-result').innerHTML=banner+summary+html;
   // Animate score bars: set to 0, reflow, then restore width for CSS transition
   requestAnimationFrame(function(){
     document.querySelectorAll('#drug-result .score-fill').forEach(function(el){
@@ -1992,12 +2099,20 @@ function calcDrugLike(){
 
 // ─── QSAR predictions ────────────────────────────────────────────────
 function calcQSAR(){
-  if(!requireRDKit())return;
   var smi=document.getElementById('qsar-smiles').value.trim()||curSMI;
   if(!smi){alert('Inserisci uno SMILES.');return;}
-  var mol=getMolSafe(smi);
-  if(!mol){document.getElementById('qsar-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
-  var d=computeDesc(mol);mol.delete();
+  var d;
+  if(rdkReady){
+    var mol=getMolSafe(smi);
+    if(!mol){document.getElementById('qsar-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
+    d=computeDesc(mol);mol.delete();
+  } else {
+    d=smilesDescHeuristic(smi);
+    if(!d){document.getElementById('qsar-result').innerHTML='<div class="warn">SMILES non riconoscibile.</div>';return;}
+  }
+  _renderQSAR(d);
+}
+function _renderQSAR(d){
   var mw=d.MW,lp=d.LogP,tpsa=d.TPSA,hbd=d.HBD,hba=d.HBA,rb=d.RotBonds,ar=d.ArRings,fsp3=d.FrCSP3;
 
   // LogS (solubilità acquosa) — Delaney-like
@@ -2096,8 +2211,8 @@ function calcQSAR(){
       return '<span style="color:'+cc+'">'+c.name+' '+Math.round(c.score*100)+'%</span>';
     }).join(' · ')+'</div>';
 
-  document.getElementById('qsar-result').innerHTML=html;
-  // Animate meter bars
+  var banner=d._heuristic?_heuristicBanner():'';
+  document.getElementById('qsar-result').innerHTML=banner+html;
   requestAnimationFrame(function(){
     document.querySelectorAll('#qsar-result .meter-fill').forEach(function(el){
       var w=el.style.width; el.style.width='0'; el.offsetWidth; el.style.width=w;
