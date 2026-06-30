@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BioSpecInfo Accademia</title>
+<style>
+:root{
+  --bg:#071221;--bg2:#0d2236;--card:#0f2942;--line:#1c3a57;
+  --teal:#00c9b7;--teal-d:#0a8f84;--amber:#ffb454;--coral:#ff6b6b;--violet:#b794f6;
+  --tx:#e8eef4;--tx2:#9fb3c8;--tx3:#6f8aa0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;height:100vh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh}
+#topbar{display:flex;align-items:center;background:var(--bg);border-bottom:1px solid var(--line);padding:0 14px;height:48px;flex-shrink:0;gap:8px}
+#topbar .logo{color:var(--teal);font-weight:800;font-size:.88rem;flex:1;white-space:nowrap}
+#content{flex:1;overflow-y:auto}
+.view{display:none;padding:14px 16px;max-width:620px;margin:0 auto;animation:fadeIn .22s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Level & XP */
+.lvl-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,201,183,.12);border:1px solid rgba(0,201,183,.3);border-radius:20px;padding:2px 9px;font-size:.76rem;font-weight:700;color:var(--teal);white-space:nowrap}
+.xp-bar-wrap{background:#0a1b2e;border-radius:8px;height:8px;overflow:hidden;margin:5px 0}
+.xp-bar{height:100%;background:linear-gradient(90deg,var(--teal-d),var(--teal));border-radius:8px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+
+/* Streak card */
+.streak-card{background:linear-gradient(135deg,#1a0a00,#2d1600);border:1px solid rgba(255,124,42,.25);border-radius:12px;padding:13px 14px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.streak-num{font-size:2rem;font-weight:900;color:#ff7c2a;line-height:1}
+.streak-lbl{font-size:.75rem;color:var(--tx2);margin-top:2px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px;text-align:center}
+.stat-val{font-size:1.35rem;font-weight:900;line-height:1}
+.stat-lbl{font-size:.68rem;color:var(--tx2);margin-top:3px}
+
+/* Category grid */
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
+.cat-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px;cursor:pointer;transition:border-color .15s,transform .1s;user-select:none;-webkit-tap-highlight-color:transparent}
+.cat-card:active{transform:scale(.97);border-color:var(--teal)}
+.cat-card .ci{font-size:1.7rem;margin-bottom:5px}
+.cat-card .cn{font-weight:700;font-size:.84rem;color:var(--tx);margin-bottom:2px}
+.cat-card .cd{font-size:.7rem;color:var(--tx2)}
+.cat-card .cp{height:3px;background:#1c3a57;border-radius:3px;margin-top:7px;overflow:hidden}
+.cat-card .cpf{height:100%;background:var(--teal);border-radius:3px;transition:width .5s}
+.cat-meta{font-size:.65rem;color:var(--tx3);margin-top:4px}
+
+/* Difficulty buttons */
+.diff-row{display:flex;gap:7px;margin:10px 0}
+.diff-btn{flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--tx2);font-size:.79rem;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;line-height:1.3}
+.diff-btn:hover{border-color:var(--teal);color:var(--teal)}
+.diff-btn.df.sel{border-color:#4caf80;color:#4caf80;background:rgba(76,175,128,.1)}
+.diff-btn.dm.sel{border-color:var(--amber);color:var(--amber);background:rgba(255,180,84,.1)}
+.diff-btn.dd.sel{border-color:var(--coral);color:var(--coral);background:rgba(255,107,107,.1)}
+
+/* Quiz */
+#qprog{height:4px;background:var(--line);border-radius:2px;margin-bottom:12px;overflow:hidden}
+#qprog-fill{height:100%;background:var(--teal);border-radius:2px;transition:width .4s}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px}
+.q-meta{color:var(--tx3);font-size:.73rem;font-weight:600;margin-bottom:7px}
+.q-txt{font-size:.95rem;font-weight:600;line-height:1.5;color:var(--tx)}
+.opts{display:flex;flex-direction:column;gap:7px;margin-top:11px}
+.opt{padding:11px 13px;background:var(--bg2);border:1.5px solid var(--line);border-radius:8px;cursor:pointer;font-size:.85rem;color:var(--tx2);display:flex;align-items:center;gap:9px;user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .12s,background .12s,color .12s}
+.opt:hover:not(.done){background:#0d2236;border-color:var(--teal);color:var(--tx)}
+.opt.ok{background:rgba(76,175,128,.15);border-color:#4caf80;color:#4caf80;font-weight:700}
+.opt.no{background:rgba(255,107,107,.15);border-color:var(--coral);color:var(--coral)}
+.opt.done{cursor:default}
+.opt-lbl{width:22px;height:22px;border-radius:50%;background:var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;flex-shrink:0;color:var(--tx2);transition:background .12s,color .12s}
+.opt.ok .opt-lbl{background:#4caf80;color:#071221}
+.opt.no .opt-lbl{background:var(--coral);color:#fff}
+.exp-box{background:#071c2e;border-left:3px solid var(--teal);padding:9px 13px;border-radius:0 7px 7px 0;margin-top:9px;font-size:.82rem;color:var(--tx2);display:none}
+.exp-box.vis{display:block;animation:fadeIn .3s ease}
+
+/* XP popup */
+.xp-pop{position:fixed;top:58px;right:14px;background:rgba(0,201,183,.93);color:#071221;font-weight:800;padding:6px 15px;border-radius:18px;font-size:.85rem;z-index:200;animation:xpAnim .9s ease forwards;pointer-events:none}
+@keyframes xpAnim{0%{opacity:0;transform:translateY(-10px) scale(.8)}25%{opacity:1;transform:translateY(0) scale(1.08)}75%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-18px)}}
+
+/* Results */
+.res-circle{width:106px;height:106px;border-radius:50%;border:4px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 12px}
+.res-score{font-size:2.1rem;font-weight:900;line-height:1}
+.res-lbl{font-size:.68rem;color:var(--tx2)}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:.83rem}
+.res-row:last-child{border-bottom:none}
+
+/* Buttons */
+.btn{padding:9px 16px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;transition:opacity .15s;display:inline-block}
+.btn:hover{opacity:.85}
+.btn-p{background:var(--teal);color:#071221}
+.btn-o{background:transparent;border:1.5px solid var(--line);color:var(--tx2)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+.btn-full{width:100%;margin-top:6px}
+
+/* Level-up overlay */
+#lvup{position:fixed;inset:0;background:rgba(7,18,33,.93);display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;z-index:300}
+#lvup.vis{display:flex;animation:fadeIn .3s ease}
+.lv-emoji{font-size:3.5rem;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* Section title */
+.sec-title{font-weight:700;font-size:.82rem;color:var(--tx2);letter-spacing:.05em;text-transform:uppercase;margin:12px 0 7px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="topbar">
+  <span class="logo">🎓 Accademia BioSpecInfo</span>
+  <span id="hd-str" style="font-size:.8rem;font-weight:700;color:#ff7c2a"></span>
+  <span id="hd-lv" class="lvl-badge"></span>
+</div>
+
+<div id="content">
+
+<!-- DASHBOARD -->
+<div class="view active" id="v-dash">
+  <div style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+      <span id="d-lvname" style="font-weight:800;font-size:1rem;color:var(--teal)"></span>
+      <span id="d-xplbl" style="font-size:.75rem;color:var(--tx3)"></span>
+    </div>
+    <div class="xp-bar-wrap"><div class="xp-bar" id="d-xpbar"></div></div>
+  </div>
+
+  <div class="streak-card">
+    <div style="font-size:2rem">🔥</div>
+    <div>
+      <div class="streak-num" id="d-str">0</div>
+      <div class="streak-lbl">giorni consecutivi</div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="color:var(--amber);font-weight:800;font-size:.85rem" id="d-mult"></div>
+      <div style="color:var(--tx3);font-size:.7rem">moltiplicatore XP</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="d-stats"></div>
+
+  <div class="sec-title">Percorsi di studio</div>
+  <div class="cat-grid" id="d-cats"></div>
+</div>
+
+<!-- CATEGORY -->
+<div class="view" id="v-cat">
+  <button class="btn btn-o btn-sm" onclick="go('v-dash');renderDash()" style="margin-bottom:12px">← Dashboard</button>
+  <div id="c-hdr" style="margin-bottom:12px"></div>
+  <div class="sec-title">Difficoltà</div>
+  <div class="diff-row">
+    <button class="diff-btn df sel" onclick="pickDiff('facile',this)">🟢 Facile<br><span style="font-size:.65rem;font-weight:400">+5 XP</span></button>
+    <button class="diff-btn dm" onclick="pickDiff('medio',this)">🟡 Medio<br><span style="font-size:.65rem;font-weight:400">+10 XP</span></button>
+    <button class="diff-btn dd" onclick="pickDiff('difficile',this)">🔴 Difficile<br><span style="font-size:.65rem;font-weight:400">+20 XP</span></button>
+  </div>
+  <div id="c-qinfo" style="font-size:.8rem;color:var(--tx2);margin-bottom:10px"></div>
+  <button class="btn btn-p btn-full" onclick="startQuiz()">Inizia Quiz ▶</button>
+  <div id="c-stats" style="margin-top:14px"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="view" id="v-quiz">
+  <div id="qprog"><div id="qprog-fill"></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+    <span id="q-cnt" style="font-size:.75rem;color:var(--tx3)"></span>
+    <span id="q-tim" style="font-size:.8rem;font-weight:700;color:var(--teal)"></span>
+  </div>
+  <div class="qcard">
+    <div class="q-meta" id="q-meta"></div>
+    <div class="q-txt" id="q-txt"></div>
+    <div class="opts" id="q-opts"></div>
+    <div class="exp-box" id="q-exp"></div>
+  </div>
+  <button class="btn btn-p btn-full" id="q-nxt" style="display:none" onclick="nextQ()">Prossima →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="view" id="v-res">
+  <div id="res-body"></div>
+  <canvas id="conf-cv" style="position:fixed;inset:0;pointer-events:none;z-index:100;display:none"></canvas>
+</div>
+
+</div>
+</div>
+
+<!-- Level-up overlay -->
+<div id="lvup">
+  <div class="lv-emoji">⭐</div>
+  <div style="font-size:1.7rem;font-weight:900;color:var(--teal);margin:10px 0 4px">Nuovo livello!</div>
+  <div id="lvup-name" style="font-size:1rem;color:var(--tx2);margin-bottom:18px"></div>
+  <button class="btn btn-p" onclick="document.getElementById('lvup').classList.remove('vis')">Continua →</button>
+</div>
+
+<script>
+'use strict';
+
+var LEVELS=[
+  {n:'Molecola',min:0},{n:'Atomo',min:101},{n:'Ione',min:251},{n:'Legame',min:501},
+  {n:'Composto',min:901},{n:'Formula',min:1401},{n:'Reazione',min:2101},
+  {n:'Meccanismo',min:3001},{n:'Struttura',min:4201},{n:'Maestro',min:5801}
+];
+
+var CATS=[
+  {id:'biochimica',ic:'🧬',nm:'Biochimica',ds:'Metabolismo, enzimi, vie biochimiche'},
+  {id:'organica',ic:'⚗️',nm:'Ch. Organica',ds:'Meccanismi, gruppi funzionali, stereochimica'},
+  {id:'spettri',ic:'🌈',nm:'Spettroscopia',ds:'NMR, IR, MS, UV-Vis'},
+  {id:'termo',ic:'🌡️',nm:'Termodinamica',ds:'ΔG, ΔH, ΔS, equilibri'},
+  {id:'cinetica',ic:'⏱️',nm:'Cinetica',ds:'Velocità, ordine, Arrhenius'},
+  {id:'stec',ic:'⚖️',nm:'Stechiometria',ds:'Bilanciamento, moli, rese'},
+];
+
+var XPM={facile:5,medio:10,difficile:20};
+
+var QB=[
+  // ══ BIOCHIMICA facile ══
+  {c:'biochimica',d:'facile',q:'Qual è il prodotto finale della glicolisi per molecola di glucosio?',
+   o:['2 piruvato + 2 ATP + 2 NADH','1 piruvato + 1 ATP','3 acetil-CoA + 3 NADH','4 piruvato + 4 ATP'],
+   a:0,e:'La glicolisi converte 1 glucosio in 2 piruvati con guadagno netto di 2 ATP e 2 NADH.'},
+  {c:'biochimica',d:'facile',q:'Dove avviene il ciclo di Krebs?',
+   o:['Matrice mitocondriale','Citoplasma','Membrana interna mitocondriale','Reticolo endoplasm.'],
+   a:0,e:'Il ciclo di Krebs si svolge nella matrice mitocondriale.'},
+  {c:'biochimica',d:'facile',q:'Quanti ATP netti produce la glicolisi?',
+   o:['2 ATP','4 ATP','36 ATP','38 ATP'],
+   a:0,e:'La glicolisi produce 4 ATP ma ne consuma 2 nella fase preparatoria → guadagno netto = 2 ATP.'},
+  {c:'biochimica',d:'facile',q:'Quanti NADH produce la glicolisi per molecola di glucosio?',
+   o:['2 NADH','4 NADH','10 NADH','1 NADH'],
+   a:0,e:'Nella glicolisi si ossidano 2 molecole di GAPDH → 2 NADH.'},
+  {c:'biochimica',d:'facile',q:'Qual è il ruolo dell\'ATP sintasi mitocondriale?',
+   o:['Sintesi di ATP usando il gradiente protonico','Trasporto di glucosio','Idrolisi di AMP','Riduzione del NAD⁺'],
+   a:0,e:'L\'ATP sintasi (complesso V) accoppia il flusso di H⁺ alla sintesi di ATP (fosforilazione ossidativa).'},
+  {c:'biochimica',d:'facile',q:'Il β-carotene è precursore di quale vitamina?',
+   o:['Vitamina A','Vitamina C','Vitamina D','Vitamina K'],
+   a:0,e:'Il β-carotene (provitamina A) viene scisso enzimaticamente in retinale → vitamina A (retinolo).'},
+  {c:'biochimica',d:'facile',q:'Come si chiama il legame tra due amminoacidi in una proteina?',
+   o:['Legame peptidico','Legame glicosidico','Legame estereo','Legame fosfodiestereo'],
+   a:0,e:'Il legame peptidico è un legame ammidico (CO–NH) che si forma per condensazione tra COOH e NH₂.'},
+  {c:'biochimica',d:'facile',q:'Quale molecola trasporta l\'ossigeno nel sangue?',
+   o:['Emoglobina','Albumina','Fibrinogeno','Lisozima'],
+   a:0,e:'L\'emoglobina (α₂β₂) contiene 4 gruppi eme-Fe²⁺ che legano reversibilmente O₂.'},
+  // ══ BIOCHIMICA medio ══
+  {c:'biochimica',d:'medio',q:'Quante molecole di ATP produce la β-ossidazione dell\'acido palmitico (C16)?',
+   o:['129 ATP','106 ATP','38 ATP','84 ATP'],
+   a:0,e:'7 cicli β-ox → 7 FADH₂ + 7 NADH + 8 acetil-CoA. Totale ATP ≈ 129 (calcolo per mammiferi).'},
+  {c:'biochimica',d:'medio',q:'Quale enzima è il principale punto di controllo della glicolisi, inibito dall\'ATP?',
+   o:['Fosfofruttochinasi-1 (PFK-1)','Esochinasi','Piruvato chinasi','Aldolasi'],
+   a:0,e:'PFK-1 catalizza fruttosio-6-P → fruttosio-1,6-bisP. L\'ATP elevato segnala abbondanza energetica e inibisce allostericamente.'},
+  {c:'biochimica',d:'medio',q:'Nel ciclo glucosio-alanina, quale molecola viene inviata dal muscolo al fegato?',
+   o:['Alanina','Glutammato','Acido lattico','Glucosio-6-fosfato'],
+   a:0,e:'Il muscolo trasferisce il gruppo NH₂ del piruvato all\'alanina → alanina al fegato → piruvato per gluconeogenesi (ciclo di Cahill).'},
+  {c:'biochimica',d:'medio',q:'Quale coenzima cede elettroni al complesso I della catena respiratoria?',
+   o:['NADH','FADH₂','NADPH','CoA'],
+   a:0,e:'Il NADH cede 2 e⁻ al complesso I (NADH deidrogenasi). Il FADH₂ cede al complesso II (succinato deidrogenasi).'},
+  {c:'biochimica',d:'medio',q:'La struttura quaternaria di una proteina descrive:',
+   o:['Associazione di più subunità polipeptidiche','Sequenza amminoacidica','α-eliche e β-foglietti','Ripiegamento 3D di una catena'],
+   a:0,e:'Struttura quaternaria = assemblaggio di 2+ catene polipeptidiche in un complesso (es. emoglobina α₂β₂).'},
+  {c:'biochimica',d:'medio',q:'Quale ormone stimola l\'uptake cellulare di glucosio e abbassa la glicemia?',
+   o:['Insulina','Glucagone','Adrenalina','Cortisolo'],
+   a:0,e:'L\'insulina (cellule β pancreatiche) attiva i trasportatori GLUT4 in muscolo e tessuto adiposo.'},
+  {c:'biochimica',d:'medio',q:'Il Km di un enzima è la [S] a cui la velocità è:',
+   o:['½ Vmax','Vmax','¼ Vmax','2 × Vmax'],
+   a:0,e:'Michaelis-Menten: v = Vmax[S]/(Km+[S]). Per [S]=Km → v = Vmax/2. Km misura l\'affinità: Km basso = alta affinità.'},
+  // ══ BIOCHIMICA difficile ══
+  {c:'biochimica',d:'difficile',q:'Quanti protoni fluiscono attraverso l\'ATP sintasi per produrre 1 ATP nei mitocondri dei mammiferi?',
+   o:['≈ 2.7–3.3 H⁺','1 H⁺','8 H⁺','10 H⁺'],
+   a:0,e:'L\'ATP sintasi di mammifero ha un c-ring con 8 subunità → 8 H⁺/giro × (1 giro / 3 siti catalitici) ≈ 2.7 H⁺/ATP. Spesso approssimato a 3–4.'},
+  {c:'biochimica',d:'difficile',q:'L\'inibizione dell\'aconitasi nel ciclo di Krebs porta ad accumulo di:',
+   o:['Citrato','Succinato','Ossalacetato','Fumarato'],
+   a:0,e:'L\'aconitasi catalizza citrato → isocitrato. Se bloccata, il citrato si accumula ed esce dal mitocondrio per la sintesi degli acidi grassi.'},
+  {c:'biochimica',d:'difficile',q:'Quale vitamina è coenzima (TPP) nella decarbossilazione ossidativa del piruvato?',
+   o:['Tiamina (B1)','Riboflavina (B2)','Niacina (B3)','Acido pantotenico (B5)'],
+   a:0,e:'La tiamina pirofosfato (TPP), forma attiva della vitamina B1, è coenzima dell\'E1 del complesso piruvato deidrogenasi.'},
+  {c:'biochimica',d:'difficile',q:'In un enzima con cooperatività positiva, il coefficiente di Hill n è:',
+   o:['n > 1','n = 1','n < 1','n = 0'],
+   a:0,e:'n > 1 = cooperatività positiva: il legame del primo ligando aumenta l\'affinità per i successivi. Emoglobina: n ≈ 2.8 per O₂.'},
+  {c:'biochimica',d:'difficile',q:'Quale reazione catalizza la succinil-CoA sintetasi nel ciclo di Krebs?',
+   o:['Succinil-CoA + GDP + Pi → succinato + CoA + GTP','Succinato → fumarato','Isocitrato → α-chetoglutarato','Malato → ossalacetato'],
+   a:0,e:'È l\'unica reazione del ciclo di Krebs che produce direttamente un nucleoside trifosfato (GTP) per fosforilazione a livello del substrato.'},
+
+  // ══ ORGANICA facile ══
+  {c:'organica',d:'facile',q:'Qual è il gruppo funzionale degli alcoli?',
+   o:['–OH (ossidrile)','–COOH (carbossile)','–CHO (aldeide)','–NH₂ (ammino)'],
+   a:0,e:'Il gruppo –OH su C sp³ definisce un alcol. Se è su aromatico è un fenolo (proprietà diverse).'},
+  {c:'organica',d:'facile',q:'Cosa si intende con "carbonio chirale"?',
+   o:['C con 4 sostituenti tutti diversi','C con un doppio legame','C in un anello','C con 3 H'],
+   a:0,e:'Un carbonio chirale (stereogeno) ha 4 sostituenti diversi → genera non-sovrapponibilità speculare (enantiomeri).'},
+  {c:'organica',d:'facile',q:'Qual è il prodotto principale dell\'addizione di HBr a propene per la regola di Markovnikov?',
+   o:['2-bromopropano (CH₃CHBrCH₃)','1-bromopropano','Dibromopropano','Propan-2-olo'],
+   a:0,e:'Markovnikov: H va al C con più H (C1), Br al C più sostituito (C2) → 2-bromopropano.'},
+  {c:'organica',d:'facile',q:'Come si chiama la reazione tra acido carbossilico e alcol con produzione di acqua?',
+   o:['Esterificazione','Idrolisi','Saponificazione','Ossidazione'],
+   a:0,e:'RCOOH + R\'OH ⇌ RCOOR\' + H₂O. Reazione di Fischer in catalisi acida, reversibile.'},
+  {c:'organica',d:'facile',q:'Il benzene è aromatico perché soddisfa la regola di Hückel con:',
+   o:['6 e⁻ π (4n+2, n=1)','4 e⁻ π','8 e⁻ π','3 doppi legami fissi'],
+   a:0,e:'Hückel: aromatico se ciclico, planare, coniugato, 4n+2 e⁻ π. Benzene: 6 e⁻ (n=1) → straordinaria stabilità.'},
+  {c:'organica',d:'facile',q:'Quali isomeri sono immagini speculari non sovrapponibili?',
+   o:['Enantiomeri','Diastereoisomeri','Conformeri','Tautomeri'],
+   a:0,e:'Enantiomeri = coppia di stereoisomeri a configurazione opposta, attività ottica uguale e contraria.'},
+  {c:'organica',d:'facile',q:'Qual è il prodotto dell\'ossidazione di un alcol primario con KMnO₄ in eccesso?',
+   o:['Acido carbossilico','Aldeide','Chetone','Alcol secondario'],
+   a:0,e:'Alcol primario → aldeide (con PCC si ferma qui) → acido carbossilico (KMnO₄ caldo/eccesso).'},
+  {c:'organica',d:'facile',q:'Un carbonio sp³ ha geometria:',
+   o:['Tetraedrica (109.5°)','Planare trigonale (120°)','Lineare (180°)','Piramidale quadrata'],
+   a:0,e:'sp³ = 4 orbitali ibridi equivalenti → geometria tetraedrica, angoli ≈109.5°. Es: metano, alcani.'},
+  // ══ ORGANICA medio ══
+  {c:'organica',d:'medio',q:'In una reazione E2, quale geometria è obbligatoria?',
+   o:['Anti-periplanare tra H e leaving group (180°)','Syn-periplanare (0°)','Qualsiasi','Gauche (60°)'],
+   a:0,e:'E2 è stereospecifica: il protone e il LG devono essere anti-periplanari → stereoselettività cis/trans nel prodotto.'},
+  {c:'organica',d:'medio',q:'La reazione di Diels-Alder è una cicloaddizione:',
+   o:['[4+2] termicamente permessa','[2+2] fotochimicamente','[4+4] con acido','[6+2] con base'],
+   a:0,e:'Diels-Alder: diene coniugato + dienofilo → cicloesadiene. Termicamente concertata [4+2], syn, suprafacciale su entrambi.'},
+  {c:'organica',d:'medio',q:'Perché le ammine terziarie (R₃N) non possono donare legami H?',
+   o:['Non hanno H legati a N','Sono troppo basiche','L\'N è positivo','Sono aromatiche'],
+   a:0,e:'In R₃N l\'azoto non ha H → non può donare legami H. Può però accettarli (N è accettore).'},
+  {c:'organica',d:'medio',q:'Qual è il prodotto della nitrazione del benzene con HNO₃/H₂SO₄?',
+   o:['Nitrobenzene','Benzilammina','Fenolo','Anilina'],
+   a:0,e:'H₂SO₄ protona HNO₃ → NO₂⁺ (ione nitronium, elettrofilo). SEAr su benzene → nitrobenzene.'},
+  {c:'organica',d:'medio',q:'In quale reazione un alcol viene eliminato per dare un alchene?',
+   o:['Disidratazione in H₂SO₄ caldo','Esterificazione','Riduzione con LiAlH₄','Alogenazione'],
+   a:0,e:'R-CH₂-CHOH-R\' + H₂SO₄ caldo → R-CH=CH-R\' + H₂O. Eliminazione E1 o E2; il prodotto più sostituito è favorito (Zaitsev).'},
+  {c:'organica',d:'medio',q:'Il paracetamolo appartiene alla classe:',
+   o:['Ammidi aromatiche','Esteri aromatici','Acidi carbossilici','Alcol secondari'],
+   a:0,e:'Paracetamolo = N-(4-idrossifenil)acetammide. Gruppo ammide –NHCO– + fenolo in para.'},
+  {c:'organica',d:'medio',q:'L\'idrogenazione catalitica di un alchene produce:',
+   o:['Un alcano (addizione syn di H₂)','Un alcol','Un alchino','Un alogenuro'],
+   a:0,e:'R-CH=CH₂ + H₂ (Pd/C) → R-CH₂-CH₃. Addizione syn: entrambi gli H si aggiungono dallo stesso lato.'},
+  // ══ ORGANICA difficile ══
+  {c:'organica',d:'difficile',q:'Nella reazione di Wittig, l\'ilide di fosforo reagisce con un aldeide per dare:',
+   o:['Un alchene + ossido di trifenilfosfina','Un alcol','Un acido','Un etere'],
+   a:0,e:'Ph₃P=CR₂ + R\'CHO → R\'CH=CR₂ + Ph₃P=O. Meccanismo [2+2] via ossafosfetano. Selettiva per Z con ilidi non stabilizzate.'},
+  {c:'organica',d:'difficile',q:'Cosa si intende per "inversione di Walden" nella SN2?',
+   o:['Inversione completa della configurazione al C chirale','Racemizzazione','Ritenzione','Isomerizzazione cis-trans'],
+   a:0,e:'Il nucleofilo attacca dal lato opposto al LG (attacco "a ombrello") → completa inversione di configurazione (R→S o S→R).'},
+  {c:'organica',d:'difficile',q:'La riduzione di un estere con LiAlH₄ produce:',
+   o:['Due alcoli primari','Un alcol + un\'aldeide','Un chetone','Un acido carbossilico'],
+   a:0,e:'RCOOR\' + LiAlH₄ → RCH₂OH + R\'OH. LiAlH₄ è il riducente più forte; riduce tutti i carbossili.'},
+  {c:'organica',d:'difficile',q:'Perché i cicloesani preferiscono la conformazione a sedia rispetto alla barca?',
+   o:['Sedia: nessuna tensione torsionale né interazione 1,3-diassiale','Barca è più planare','Sedia: tutti i legami eclissati','Barca: angoli normali'],
+   a:0,e:'La sedia ha tutti i legami sfalsati (tensione torsionale = 0) e minimizza le interazioni steriche. La barca ha legami eclissati e H flagpole ravvicinati.'},
+  {c:'organica',d:'difficile',q:'Nella reazione di Reformatsky, lo zinco reagisce con α-bromoesteri per formare:',
+   o:['β-idrossiesteri (via organozincico)','Acidi α,β-insaturi','Anidride carbossilica','Emiacetali'],
+   a:0,e:'Zn si inserisce nel C–Br dell\'α-bromoestere → enolato di zinco (organozincico) attacca il carbonile → β-idrossiestere dopo idrolisi.'},
+
+  // ══ SPETTRI facile ══
+  {c:'spettri',d:'facile',q:'Dove appaiono i protoni aromatici in ¹H-NMR?',
+   o:['7–8 ppm','0–2 ppm','4–5 ppm','9–10 ppm'],
+   a:0,e:'L\'anisotropia magnetica dell\'anello aromatico deschermano i protoni aromatici → δ ≈ 7–8 ppm.'},
+  {c:'spettri',d:'facile',q:'In IR, a quale frequenza circa compare lo stretching O–H degli alcoli?',
+   o:['3200–3550 cm⁻¹','1700–1750 cm⁻¹','2100–2260 cm⁻¹','1500–1600 cm⁻¹'],
+   a:0,e:'O–H: alta forza di legame + massa ridotta → alta frequenza. Il picco è allargato dai legami H intermolecolari.'},
+  {c:'spettri',d:'facile',q:'Cosa indica la legge di Beer-Lambert in UV-Vis?',
+   o:['A = ε·c·l','A = h·ν/c','A = frequenza × energia','A = n·RT/V'],
+   a:0,e:'A = ε·c·l: assorbanza proporzionale a concentrazione (c) e cammino ottico (l). ε = coefficiente di estinzione molare.'},
+  {c:'spettri',d:'facile',q:'Qual è il rapporto isotopico ³⁵Cl : ³⁷Cl in spettrometria di massa?',
+   o:['3 : 1','1 : 1','9 : 1','1 : 3'],
+   a:0,e:'75% ³⁵Cl + 25% ³⁷Cl → rapporto 3:1. Produce il caratteristico pattern M e M+2 di uguale forma.'},
+  {c:'spettri',d:'facile',q:'In MS, cosa si intende per "ione base"?',
+   o:['Il frammento più abbondante (100% di intensità)','Lo ione molecolare M⁺','Il frammento più leggero','Il picco M+1'],
+   a:0,e:'L\'ione base è il picco di massima intensità (normalizzato al 100%). Non deve essere lo ione molecolare.'},
+  // ══ SPETTRI medio ══
+  {c:'spettri',d:'medio',q:'In ¹H-NMR, un doppio doppietto (dd) indica:',
+   o:['H accoppiato con 2 H non equivalenti (J₁ ≠ J₂)','H accoppiato con 2 H equivalenti','H senza vicini','H accoppiato con ¹³C'],
+   a:0,e:'Il dd ha 4 righe: H è accoppiato con due H distinti di costanti J diverse. Comune in sistemi AMX e β-carboni.'},
+  {c:'spettri',d:'medio',q:'Quale banda IR è diagnostica per il carbonile C=O dei chetoni?',
+   o:['~1715 cm⁻¹','~3300 cm⁻¹','~2200 cm⁻¹','~1600 cm⁻¹'],
+   a:0,e:'C=O stretching: chetoni ~1715, aldeidi ~1725, esteri ~1735, ammidi ~1650–1680. Banda forte e caratteristica.'},
+  {c:'spettri',d:'medio',q:'In ¹³C-NMR con broadband decoupling, ogni carbonio appare come:',
+   o:['Un singoletto','Un multiplo','Un doppietto','Una banda larga'],
+   a:0,e:'Il decoupling elimina l\'accoppiamento H-¹³C → ogni C appare come singoletto. Senza decoupling si vedrebbero multipli complessi.'},
+  {c:'spettri',d:'medio',q:'Cosa misura l\'assorbimento a 280 nm di una soluzione proteica?',
+   o:['Triptofano e tirosina','Gruppi eme','Legami S–S','Lisina'],
+   a:0,e:'Trp (ε≈5500 M⁻¹cm⁻¹) e Tyr (ε≈1490) assorbono a 280 nm. Usato per quantificare proteine (metodo UV diretto).'},
+  {c:'spettri',d:'medio',q:'Un bathochromic shift (red shift) in UV-Vis indica:',
+   o:['Spostamento verso λ maggiori (minore energia)','Spostamento verso λ minori','Aumento di ε','Perdita di assorbanza'],
+   a:0,e:'Bathochromic = verso il rosso (λ maggiori = fotoni meno energetici). Tipico di sistemi con coniugazione estesa o effetti di solvente.'},
+  {c:'spettri',d:'medio',q:'In ¹H-NMR, i protoni CHO delle aldeidi appaiono circa a:',
+   o:['9–10 ppm','7–8 ppm','2–3 ppm','4–5 ppm'],
+   a:0,e:'Il H aldeidioco è fortemente deschermato dal C=O e dall\'anisotropia del carbonile → δ ≈ 9–10 ppm.'},
+  // ══ SPETTRI difficile ══
+  {c:'spettri',d:'difficile',q:'L\'effetto NOE in NOESY 2D rivela:',
+   o:['Protoni vicini nello spazio (<5 Å) tramite rilassamento dipolare','Accoppiamenti scalari J','Correlazioni ¹H-¹³C dirette','Sequenza di frammenti MS'],
+   a:0,e:'NOE = Nuclear Overhauser Effect. Si propaga nello spazio (non attraverso legami) → NOESY è fondamentale per determinare la struttura 3D.'},
+  {c:'spettri',d:'difficile',q:'In DEPT-135, i gruppi CH₂ appaiono:',
+   o:['Come picchi negativi (verso il basso)','Come picchi positivi','Non appaiono','Come doppietti'],
+   a:0,e:'DEPT-135: CH e CH₃ → picchi positivi (↑); CH₂ → picchi negativi (↓); C quaternari → assenti.'},
+  {c:'spettri',d:'difficile',q:'In MS/MS (MS²), il "precursor ion scan" consiste in:',
+   o:['Seleziono M⁺, lo frammento in CID, analizzo i prodotti','Analizzo tutti gli ioni contemporaneamente','Solo ioni negativi','Misuro M⁺ senza frammentazione'],
+   a:0,e:'Q1 seleziona lo ione precursore → CID in Q2 lo frammenta → Q3 analizza i prodotti. Base per sequenziamento peptidico e lipidomica.'},
+  {c:'spettri',d:'difficile',q:'Perché i protoni dei gruppi NH nelle ammidi primarie appaiono spesso come due picchi?',
+   o:['Rotazione lenta intorno al legame ammidico (carattere di doppio legame)','Presenza di due conformeri','Accoppiamento con ¹⁴N','Effetti di solvente'],
+   a:0,e:'Il legame C–N delle ammidi ha ~40% di carattere di doppio legame (risonanza) → rotazione lenta (barriera ~60 kJ/mol) → i due H cis e trans risuonano diversamente.'},
+
+  // ══ TERMODINAMICA facile ══
+  {c:'termo',d:'facile',q:'Una reazione spontanea a T e P costanti ha:',
+   o:['ΔG < 0','ΔG > 0','ΔG = 0','ΔG = ΔH'],
+   a:0,e:'ΔG = ΔH – TΔS. Spontaneità richiede ΔG < 0. ΔG = 0 → equilibrio.'},
+  {c:'termo',d:'facile',q:'L\'entropia (S) è una misura di:',
+   o:['Dispersione/disordine a livello microscopico','Energia libera','Calore specifico','Entalpia molare'],
+   a:0,e:'S = k_B ln(Ω). S aumenta con il numero di microstati accessibili. Secondo principio: ΔS_universo ≥ 0.'},
+  {c:'termo',d:'facile',q:'ΔH°f degli elementi nella loro forma più stabile è, per convenzione:',
+   o:['Zero','Sempre negativa','Sempre positiva','Dipende dall\'elemento'],
+   a:0,e:'Per convenzione ΔH°f(elemento stabile) = 0. Es: H₂(g), O₂(g), C(grafite) = 0.'},
+  {c:'termo',d:'facile',q:'Il primo principio della termodinamica afferma che:',
+   o:['ΔU = q + w (energia si conserva)','L\'entropia aumenta sempre','G < 0 per processi spontanei','H è sempre negativa'],
+   a:0,e:'Energia non si crea né si distrugge: ΔU = q (calore assorbito) + w (lavoro compiuto sul sistema).'},
+  // ══ TERMODINAMICA medio ══
+  {c:'termo',d:'medio',q:'La costante di equilibrio K è correlata a ΔG° da:',
+   o:['ΔG° = −RT ln K','ΔG° = RT ln K','ΔG° = K/RT','ΔG° = −K/T'],
+   a:0,e:'ΔG° = −RT ln K. Se K > 1 → ΔG° < 0 → prodotti termodinamicamente favoriti.'},
+  {c:'termo',d:'medio',q:'Il potenziale elettrochimico standard E° è legato a ΔG° da:',
+   o:['ΔG° = −nFE°','ΔG° = nFE°','ΔG° = E°/nF','ΔG° = −E°/RT'],
+   a:0,e:'n = e⁻ trasferiti, F = 96485 C/mol. Se E° > 0 → ΔG° < 0 → reazione spontanea.'},
+  {c:'termo',d:'medio',q:'Una reazione con ΔH > 0 e ΔS > 0 è spontanea:',
+   o:['Solo ad alta temperatura (TΔS > ΔH)','Solo a bassa T','Sempre','Mai'],
+   a:0,e:'ΔG = ΔH – TΔS. A T alta, TΔS domina → ΔG < 0. Es: fusione del ghiaccio.'},
+  {c:'termo',d:'medio',q:'Cosa afferma il principio di Le Chatelier?',
+   o:['Il sistema risponde alle perturbazioni per minimizzarle','La velocità aumenta con T','K non cambia con la pressione','ΔH è sempre < 0 all\'equilibrio'],
+   a:0,e:'Se T, P o [C] cambiano, l\'equilibrio si sposta per opporsi alla variazione → nuovo equilibrio.'},
+  // ══ TERMODINAMICA difficile ══
+  {c:'termo',d:'difficile',q:'L\'equazione di van\'t Hoff descrive come K varia con T:',
+   o:['d(ln K)/dT = ΔH°/RT²','d(ln K)/dT = −ΔG°/RT','K è indipendente da T','ln K = −ΔS°/R'],
+   a:0,e:'Integrazione: ln(K₂/K₁) = (ΔH°/R)(1/T₁ − 1/T₂). Per reazione endotermica (ΔH° > 0), K aumenta con T.'},
+  {c:'termo',d:'difficile',q:'Il terzo principio della termodinamica afferma che:',
+   o:['S = 0 per un cristallo perfetto a 0 K','ΔS = 0 per ogni processo reversibile','S dipende solo da T','L\'entropia di miscelazione è 0'],
+   a:0,e:'Terzo principio (Nernst): un cristallo perfetto a 0 K ha un solo microstato → S = k_B ln(1) = 0.'},
+
+  // ══ CINETICA facile ══
+  {c:'cinetica',d:'facile',q:'v = k[A]² indica una reazione di ordine:',
+   o:['Secondo rispetto ad A','Primo','Zero','Terzo'],
+   a:0,e:'L\'ordine parziale rispetto ad A è l\'esponente nella legge cinetica. [A]² → secondo ordine in A.'},
+  {c:'cinetica',d:'facile',q:'L\'equazione di Arrhenius k = A·e^(−Ea/RT) descrive:',
+   o:['Dipendenza di k dalla temperatura','Velocità di diffusione','Costante di equilibrio','Potenziale di riduzione'],
+   a:0,e:'k aumenta esponenzialmente con T. Ea = energia di attivazione; A = fattore preesponenziale (frequenza di collisioni orientate).'},
+  {c:'cinetica',d:'facile',q:'Un catalizzatore aumenta la velocità perché:',
+   o:['Abbassa l\'energia di attivazione Ea','Sposta l\'equilibrio verso i prodotti','Consuma reagenti più in fretta','Aumenta T del sistema'],
+   a:0,e:'Il catalizzatore offre un percorso alternativo con Ea minore → k maggiore. Non modifica ΔG°, K, né la termodinamica.'},
+  {c:'cinetica',d:'facile',q:'La legge integrata del 1° ordine è:',
+   o:['ln[A]t = ln[A]₀ − kt','[A]t = [A]₀ − kt','1/[A]t = 1/[A]₀ + kt','[A]t = [A]₀·e^(+kt)'],
+   a:0,e:'d[A]/dt = −k[A] → [A]t = [A]₀·e^(−kt) → ln[A]t = ln[A]₀ − kt. Grafico lin[A] vs t è una retta di slope −k.'},
+  // ══ CINETICA medio ══
+  {c:'cinetica',d:'medio',q:'Il t½ di una reazione del 1° ordine è:',
+   o:['ln2/k (indipendente da [A]₀)','1/(k[A]₀)','k/ln2','Dipende da [A]₀'],
+   a:0,e:'t½ = ln2/k ≈ 0.693/k. È costante (non dipende dalla concentrazione iniziale). Fondamentale per emivita dei farmaci (PK).'},
+  {c:'cinetica',d:'medio',q:'La condizione Vmax si raggiunge in enzimologia quando:',
+   o:['Tutti gli enzimi sono saturi ([S] >> Km)','[S] = Km','[S] è bassa','L\'enzima è inibito'],
+   a:0,e:'Vmax = kcat[E]tot. Si raggiunge quando ogni molecola di enzima è nel complesso ES → v non aumenta più all\'aumentare di [S].'},
+  {c:'cinetica',d:'medio',q:'L\'inhibizione competitiva si distingue perché:',
+   o:['Km apparente ↑, Vmax invariata','Vmax ↓, Km invariata','Entrambi ↓','Km ↓, Vmax ↑'],
+   a:0,e:'Competitiva: inibitore compete con il substrato per il sito attivo → Km app aumenta (superabile con [S] alta). Vmax non cambia.'},
+  {c:'cinetica',d:'medio',q:'Il coefficiente Q10 in biologia vale tipicamente:',
+   o:['2–3 (la velocità raddoppia per ogni 10°C)','1 (velocità costante)','10 (aumento di 10×)','0.5 (rallentamento)'],
+   a:0,e:'Q10 = v(T+10)/v(T) ≈ 2–3 per reazioni enzimatiche. Spiega perché la febbre accelera le risposte immunitarie.'},
+  // ══ CINETICA difficile ══
+  {c:'cinetica',d:'difficile',q:'L\'equazione di Eyring dalla teoria dello stato di transizione è:',
+   o:['k = (kBT/h)·e^(−ΔG‡/RT)','k = Ea/RT','k = h·ν','k = A·T²'],
+   a:0,e:'ΔG‡ = ΔH‡ − TΔS‡. L\'equazione di Eyring permette di scomporre la barriera in contributi entalpici ed entropici.'},
+  {c:'cinetica',d:'difficile',q:'In una reazione del 2° ordine (v = k[A]²), la legge integrata è:',
+   o:['1/[A]t = 1/[A]₀ + kt','ln[A]t = ln[A]₀ − kt','[A]t = [A]₀ − kt','[A]t² = [A]₀² + 2kt'],
+   a:0,e:'d[A]/dt = −k[A]² → integrazione → 1/[A]t = 1/[A]₀ + kt. Grafico 1/[A] vs t è una retta di slope k.'},
+
+  // ══ STECHIOMETRIA facile ══
+  {c:'stec',d:'facile',q:'Quante moli di CO₂ produce la combustione di 2 mol di propano (C₃H₈)?',
+   o:['6 mol CO₂','4 mol','8 mol','3 mol'],
+   a:0,e:'C₃H₈ + 5O₂ → 3CO₂ + 4H₂O. 2 mol C₃H₈ × 3 = 6 mol CO₂.'},
+  {c:'stec',d:'facile',q:'Massa molare del glucosio C₆H₁₂O₆:',
+   o:['180 g/mol','60 g/mol','342 g/mol','90 g/mol'],
+   a:0,e:'6×12 + 12×1 + 6×16 = 72 + 12 + 96 = 180 g/mol.'},
+  {c:'stec',d:'facile',q:'In 2 moli di H₂O, quanti grammi di ossigeno ci sono?',
+   o:['32 g','16 g','36 g','18 g'],
+   a:0,e:'2 mol H₂O × 1 O/H₂O × 16 g/mol = 32 g.'},
+  {c:'stec',d:'facile',q:'Resa% se il teorico è 20 g e l\'effettivo è 15 g:',
+   o:['75%','80%','60%','85%'],
+   a:0,e:'Resa% = (15/20) × 100 = 75%.'},
+  // ══ STECHIOMETRIA medio ══
+  {c:'stec',d:'medio',q:'In 500 mL di NaOH 0.4 M, quanti grammi di NaOH sono disciolti?',
+   o:['8 g','4 g','20 g','16 g'],
+   a:0,e:'n = 0.4 mol/L × 0.5 L = 0.2 mol. m = 0.2 × 40 = 8 g.'},
+  {c:'stec',d:'medio',q:'Reagente limitante in N₂ + 3H₂ → 2NH₃ con 5 mol N₂ e 9 mol H₂:',
+   o:['H₂ (servono 15 mol ma ce ne sono solo 9)','N₂','Entrambi equimolari','Nessun limitante'],
+   a:0,e:'5 mol N₂ richiedono 15 mol H₂ (rapporto 1:3). Con solo 9 mol H₂ → H₂ è il limitante → 6 mol NH₃.'},
+  {c:'stec',d:'medio',q:'pH di un tampone acetato/acido acetico (pKa=4.75) con [A⁻]/[HA]=3:',
+   o:['5.23','4.75','4.27','3.75'],
+   a:0,e:'Henderson-Hasselbalch: pH = pKa + log([A⁻]/[HA]) = 4.75 + log(3) = 4.75 + 0.48 ≈ 5.23.'},
+  // ══ STECHIOMETRIA difficile ══
+  {c:'stec',d:'difficile',q:'Quanti grammi di CaCO₃ (MW=100) reagiscono con 1 mol HCl in CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂?',
+   o:['50 g','100 g','25 g','200 g'],
+   a:0,e:'Rapporto 1 CaCO₃ : 2 HCl. 1 mol HCl → 0.5 mol CaCO₃ → 0.5 × 100 = 50 g.'},
+];
+
+// ─── State ────────────────────────────────────────────────────────
+var SK='bsi_academy_v2';
+var ST={xp:0,streak:0,last:'',cs:{}};
+
+function save(){try{localStorage.setItem(SK,JSON.stringify(ST));}catch(e){}}
+function load(){
+  try{
+    var s=JSON.parse(localStorage.getItem(SK)||'{}');
+    if(s.xp!=null)ST.xp=s.xp;
+    if(s.streak!=null)ST.streak=s.streak;
+    if(s.last)ST.last=s.last;
+    if(s.cs)ST.cs=s.cs;
+  }catch(e){}
+  // Streak check
+  var today=todayStr();
+  if(ST.last){
+    var diff=(new Date(today)-new Date(ST.last))/86400000;
+    if(diff>1.5)ST.streak=0;
+  }
+}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function lvIdx(xp){for(var i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min)return i;}return 0;}
+function lvPct(xp){
+  var i=lvIdx(xp);if(i>=LEVELS.length-1)return 100;
+  return Math.round((xp-LEVELS[i].min)/(LEVELS[i+1].min-LEVELS[i].min)*100);
+}
+function mult(){return ST.streak>=7?2:ST.streak>=3?1.5:1;}
+
+// ─── Navigation ───────────────────────────────────────────────────
+function go(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────
+function renderDash(){
+  var li=lvIdx(ST.xp);var lv=LEVELS[li];
+  var next=li<LEVELS.length-1?LEVELS[li+1]:null;
+  // Header badges
+  document.getElementById('hd-str').innerHTML='🔥 '+ST.streak;
+  document.getElementById('hd-lv').textContent='Lv.'+(li+1)+' '+lv.n;
+  // XP bar
+  document.getElementById('d-lvname').textContent='Lv.'+(li+1)+' — '+lv.n;
+  document.getElementById('d-xplbl').textContent=ST.xp+' XP'+(next?' / '+next.min:'');
+  document.getElementById('d-xpbar').style.width=lvPct(ST.xp)+'%';
+  // Streak card
+  document.getElementById('d-str').textContent=ST.streak;
+  document.getElementById('d-mult').textContent='×'+mult().toFixed(1)+' XP';
+  // Stats
+  var tq=Object.values(ST.cs).reduce(function(s,c){return s+(c.t||0);},0);
+  var tr=Object.values(ST.cs).reduce(function(s,c){return s+(c.r||0);},0);
+  var acc=tq>0?Math.round(tr/tq*100):0;
+  var accCol=acc>=70?'#4caf80':acc>=50?'var(--amber)':'var(--coral)';
+  document.getElementById('d-stats').innerHTML=
+    '<div class="stat-box"><div class="stat-val" style="color:var(--teal)">'+ST.xp+'</div><div class="stat-lbl">XP totali</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:var(--amber)">'+tq+'</div><div class="stat-lbl">Domande</div></div>'+
+    '<div class="stat-box"><div class="stat-val" style="color:'+accCol+'">'+acc+'%</div><div class="stat-lbl">Accuratezza</div></div>';
+  // Category grid
+  var html='';
+  CATS.forEach(function(cat){
+    var cs=ST.cs[cat.id]||{t:0,r:0};
+    var a2=cs.t>0?Math.round(cs.r/cs.t*100):0;
+    var prog=Math.min(100,Math.round((cs.t||0)/15*100));
+    html+='<div class="cat-card" onclick="openCat(\''+cat.id+'\')" role="button">'+
+      '<div class="ci">'+cat.ic+'</div>'+
+      '<div class="cn">'+cat.nm+'</div>'+
+      '<div class="cd">'+cat.ds+'</div>'+
+      '<div class="cp"><div class="cpf" style="width:'+prog+'%"></div></div>'+
+      '<div class="cat-meta">'+(cs.t?cs.t+' dom. · '+a2+'% acc.':'Inizia ora')+'</div>'+
+    '</div>';
+  });
+  document.getElementById('d-cats').innerHTML=html;
+}
+
+// ─── Category ────────────────────────────────────────────────────
+var curCat='', curDiff='facile';
+function openCat(id){
+  curCat=id;curDiff='facile';
+  var cat=CATS.find(function(c){return c.id===id;});
+  document.getElementById('c-hdr').innerHTML=
+    '<div style="font-size:1.8rem">'+cat.ic+'</div>'+
+    '<div style="font-size:1rem;font-weight:800;color:var(--teal);margin:4px 0">'+cat.nm+'</div>'+
+    '<div style="font-size:.8rem;color:var(--tx2)">'+cat.ds+'</div>';
+  document.querySelectorAll('.diff-btn').forEach(function(b){b.classList.remove('sel');});
+  document.querySelector('.diff-btn.df').classList.add('sel');
+  updateQInfo();renderCatStats(id);
+  go('v-cat');
+}
+function pickDiff(d,el){
+  curDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(function(b){b.classList.remove('sel');});
+  el.classList.add('sel');
+  updateQInfo();
+}
+function updateQInfo(){
+  var n=QB.filter(function(q){return q.c===curCat&&q.d===curDiff;}).length;
+  var xpp=XPM[curDiff];
+  var mStr=mult()>1?' · <span style="color:var(--amber)">×'+mult().toFixed(1)+' streak</span>':'';
+  document.getElementById('c-qinfo').innerHTML='<strong>'+n+'</strong> domande · +<strong>'+xpp+'</strong> XP/risposta'+mStr;
+}
+function renderCatStats(id){
+  var cs=ST.cs[id]||{t:0,r:0};
+  if(!cs.t){document.getElementById('c-stats').innerHTML='';return;}
+  var acc=Math.round(cs.r/cs.t*100);
+  var col=acc>=70?'#4caf80':acc>=50?'var(--amber)':'var(--coral)';
+  document.getElementById('c-stats').innerHTML=
+    '<div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px">'+
+    '<div class="sec-title" style="margin-top:0">I tuoi progressi</div>'+
+    '<div style="display:flex;gap:16px">'+
+    '<div class="stat-box" style="flex:1"><div class="stat-val" style="color:var(--teal)">'+cs.t+'</div><div class="stat-lbl">Domande</div></div>'+
+    '<div class="stat-box" style="flex:1"><div class="stat-val" style="color:'+col+'">'+acc+'%</div><div class="stat-lbl">Accuratezza</div></div>'+
+    '</div></div>';
+}
+
+// ─── Quiz engine ─────────────────────────────────────────────────
+var qItems=[],qIdx=0,qRight=0,qAnswered=false,qTimer=null,qTL=0;
+
+function startQuiz(){
+  var pool=QB.filter(function(q){return q.c===curCat&&q.d===curDiff;});
+  if(!pool.length){alert('Nessuna domanda per questa difficoltà.');return;}
+  qItems=pool.slice().sort(function(){return Math.random()-.5;}).slice(0,Math.min(pool.length,10));
+  qIdx=0;qRight=0;
+  go('v-quiz');renderQ();
+}
+
+function renderQ(){
+  var q=qItems[qIdx];
+  document.getElementById('qprog-fill').style.width=Math.round(qIdx/qItems.length*100)+'%';
+  document.getElementById('q-cnt').textContent='Domanda '+(qIdx+1)+'/'+qItems.length;
+  var cat=CATS.find(function(c){return c.id===q.c;})||{nm:q.c};
+  document.getElementById('q-meta').textContent=cat.nm+' · '+q.d;
+  document.getElementById('q-txt').textContent=q.q;
+  document.getElementById('q-exp').className='exp-box';
+  document.getElementById('q-nxt').style.display='none';
+  qAnswered=false;
+  var labs=['A','B','C','D'];
+  document.getElementById('q-opts').innerHTML=q.o.map(function(o,i){
+    return '<div class="opt" id="oo'+i+'" onclick="answer('+i+')" role="button">'+
+      '<div class="opt-lbl">'+labs[i]+'</div><span>'+o+'</span></div>';
+  }).join('');
+  // Timer
+  clearInterval(qTimer);
+  qTL=curDiff==='difficile'?20:curDiff==='medio'?30:45;
+  updTimer();
+  qTimer=setInterval(function(){
+    qTL--;updTimer();
+    if(qTL<=0){clearInterval(qTimer);if(!qAnswered)answer(-1);}
+  },1000);
+}
+
+function updTimer(){
+  var el=document.getElementById('q-tim');
+  if(!el)return;
+  el.textContent='⏱ '+qTL+'s';
+  el.style.color=qTL<=5?'var(--coral)':qTL<=10?'var(--amber)':'var(--teal)';
+}
+
+function answer(idx){
+  if(qAnswered)return;
+  qAnswered=true;clearInterval(qTimer);
+  var q=qItems[qIdx];
+  var isOk=idx===q.a;
+  for(var i=0;i<q.o.length;i++){
+    var el=document.getElementById('oo'+i);if(!el)continue;
+    el.classList.add('done');el.onclick=null;
+    if(i===q.a)el.classList.add('ok');
+    else if(i===idx&&!isOk)el.classList.add('no');
+  }
+  if(q.e){
+    var ex=document.getElementById('q-exp');
+    ex.textContent=q.e;
+    setTimeout(function(){ex.classList.add('vis');},50);
+  }
+  if(isOk){
+    qRight++;
+    var xp=Math.round(XPM[curDiff]*mult());
+    var prevLv=lvIdx(ST.xp);
+    ST.xp+=xp;save();
+    showXP('+'+xp+' XP');
+    if(lvIdx(ST.xp)>prevLv)setTimeout(function(){showLvUp(lvIdx(ST.xp));},600);
+  }
+  document.getElementById('q-nxt').style.display='block';
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx>=qItems.length){showResults();return;}
+  renderQ();
+}
+
+// ─── XP popup ─────────────────────────────────────────────────────
+function showXP(txt){
+  var el=document.createElement('div');el.className='xp-pop';el.textContent=txt;
+  document.body.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},950);
+}
+function showLvUp(li){
+  document.getElementById('lvup-name').textContent='Sei diventato/a '+LEVELS[li].n+'!';
+  document.getElementById('lvup').classList.add('vis');
+}
+
+// ─── Results ──────────────────────────────────────────────────────
+function showResults(){
+  clearInterval(qTimer);
+  // Streak
+  var today=todayStr();
+  if(ST.last!==today){
+    var diff=ST.last?(new Date(today)-new Date(ST.last))/86400000:999;
+    ST.streak=diff<=1.5?ST.streak+1:1;
+    ST.last=today;
+  }
+  // catStats
+  if(!ST.cs[curCat])ST.cs[curCat]={t:0,r:0};
+  ST.cs[curCat].t+=qItems.length;
+  ST.cs[curCat].r+=qRight;
+  save();
+
+  var pct=Math.round(qRight/qItems.length*100);
+  var col=pct>=80?'#4caf80':pct>=50?'#ffb454':'#ff6b6b';
+  var msg=pct>=80?'Eccellente! 🎉':pct>=50?'Buon risultato! Continua.':'Riprova — ci riuscirai! 💪';
+  var xpTot=Math.round(qRight*XPM[curDiff]*mult());
+  var li=lvIdx(ST.xp);
+
+  document.getElementById('res-body').innerHTML=
+    '<h2 style="text-align:center;color:var(--teal);margin-bottom:14px">Risultato</h2>'+
+    '<div class="res-circle" style="border-color:'+col+'">'+
+      '<div class="res-score" style="color:'+col+'">'+pct+'%</div>'+
+      '<div class="res-lbl">'+qRight+'/'+qItems.length+'</div>'+
+    '</div>'+
+    '<div style="text-align:center;color:var(--tx2);font-size:.88rem;margin-bottom:14px">'+msg+'</div>'+
+    '<div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:12px">'+
+      '<div class="res-row"><span>XP guadagnati</span><span style="color:var(--teal);font-weight:800">+'+xpTot+'</span></div>'+
+      '<div class="res-row"><span>Streak</span><span style="color:#ff7c2a;font-weight:800">🔥 '+ST.streak+' giorni</span></div>'+
+      '<div class="res-row"><span>Moltiplicatore</span><span style="color:var(--amber)">×'+mult().toFixed(1)+'</span></div>'+
+      '<div class="res-row"><span>Livello</span><span style="color:var(--teal)">Lv.'+(li+1)+' '+LEVELS[li].n+'</span></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-o" style="flex:1" onclick="openCat(curCat)">Riprova</button>'+
+      '<button class="btn btn-p" style="flex:1" onclick="go(\'v-dash\');renderDash()">Dashboard →</button>'+
+    '</div>';
+  go('v-res');
+  if(pct>=80)confetti();
+}
+
+// ─── Confetti ─────────────────────────────────────────────────────
+function confetti(){
+  var cv=document.getElementById('conf-cv');
+  var ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;cv.style.display='block';
+  var cols=['#00c9b7','#ffb454','#b794f6','#ff6b6b','#4caf80'];
+  var ps=[];
+  for(var i=0;i<70;i++)ps.push({
+    x:Math.random()*cv.width,y:-20,
+    vx:(Math.random()-.5)*4,vy:Math.random()*4+2,
+    r:Math.random()*5+3,c:cols[i%cols.length],
+    rot:Math.random()*360,vr:Math.random()*8-4
+  });
+  var fr=0;
+  function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=0.06;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      ctx.restore();
+    });
+    fr++;if(fr<110)requestAnimationFrame(tick);else cv.style.display='none';
+  }
+  tick();
+}
+
+// ─── Init ─────────────────────────────────────────────────────────
+load();
+renderDash();
+</script>
+</body>
+</html>
