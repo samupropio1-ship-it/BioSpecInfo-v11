@@ -12,16 +12,18 @@ Branch principale: main
 Tipo: Single-file HTML5 PWA (Progressive Web App) per chimica farmaceutica
 
 ## STRUTTURA FILE
-- index.html        (~37.800 righe) — App principale con tutte le sezioni
-- rdkit_lab.html    (~4.100 righe) — Lab cheminformatica RDKit.js (iframe overlay)
-- accademia.html    (~1.329 righe) — Piattaforma gamificata "Duolingo della chimica"
-- chimorga.html     — Chimica organica 1+2
-- guidaret.html     — Guida reazioni
-- sr_completo.html  — Spettri completi
-- sr_essenziale.html — Spettri essenziali
-- sw.js             — Service Worker (cache PWA, versione corrente: 07a)
-- manifest.json     — PWA manifest
-- download.html     — Pagina download/install
+- index.html          (~37.850 righe) — App principale con tutte le sezioni
+- rdkit_lab.html      (~4.100 righe)  — Lab cheminformatica RDKit.js (iframe overlay)
+- accademia.html      (~1.329 righe)  — Piattaforma gamificata "Duolingo della chimica"
+- chimorga.html                       — Chimica organica 1+2
+- guidaret.html                       — Guida reazioni
+- sr_completo.html                    — Spettri completi
+- sr_essenziale.html                  — Spettri essenziali
+- changelog_tesi.html                 — Documentazione tecnica per tesi (dal 26/06/2026)
+- sw.js                               — Service Worker (cache PWA, versione corrente: 07b)
+- manifest.json                       — PWA manifest
+- download.html                       — Pagina download/install
+- prompt_sessione.txt                 — Questo file (contesto sessione AI)
 
 ## STATO ATTUALE (1 luglio 2026)
 
@@ -36,25 +38,37 @@ Tipo: Single-file HTML5 PWA (Progressive Web App) per chimica farmaceutica
 - Accademia Chimica (overlay iframe → accademia.html)
 - RDKit Lab (overlay iframe → rdkit_lab.html)
 - Chimica Organica 1+2 (overlay iframe → chimorga.html)
+- Documentazione Tecnica/Tesi (overlay iframe → changelog_tesi.html) [key='tesi']
 - Navbar con bottoni: Sintesi, Organica 1+2, Accademia, Retrosintesi, Biosintesi
 
-### rdkit_lab.html — tab presenti:
-1. 📋 Intro — guida teorica completa
-2. 🔬 Molecola — input SMILES, struttura 2D (RDKit + SmilesDrawer fallback)
-   - Preset: Farmaci, Organica, Biochimica, Naturali, Solventi, Chimica Fisica
-3. 📊 Descrittori — 12 descrittori con export JSON/CSV
-4. 💊 Drug-likeness — Lipinski/Veber/Ghose/Egan/Lead-like/Fragment + QED gauge + Radar
-5. 🔮 QSAR — LogS, pIC50, BBB, hERG, ADMET, biodisponibilità
-6. 🔗 Similarità — Tanimoto Fingerprint Morgan + visualizzatore bit 2048
-7. 🔍 SMARTS — ricerca sottostruttura con highlight giallo
-8. ⚖️ Confronto — side-by-side due molecole + tabella delta
-9. 📚 Libreria — salva/esporta JSON/CSV molecole personali
-10. 📖 Guida — accordion completo con SMILES, regole, FAQ
-11. 🎬 Spettri — NMR¹H/IR/UV/MS/Raman animati con SpectralLab canvas
-12. 🔬 Pharma Pro — ADME/BBB/CYP3A4/P-gp, Radar 5 regole, Docking score,
+### index.html — overlay functions:
+- window.openRDKitLab()  → 'bsi-rdkitlab-ov'  → rdkit_lab.html
+- window.openAccademia() → 'bsi-accademia-ov'  → accademia.html
+- window.openChimOrga()  → 'bsi-chimorga-ov'   → chimorga.html
+- window.openTesi()      → 'bsi-tesi-ov'       → changelog_tesi.html
+- window.openGuidaRet()  → 'bsi-guidaret-ov'   → guidaret.html
+Tutte usano _BSI_TB_STYLE (topbar) e _BSI_BACK_BTN (pulsante ↩ Indietro).
+Disponibili nel Bottom Sheet (key: 'rdkitlab', 'accademia', 'chimorga', 'tesi', 'guidaret').
+
+### rdkit_lab.html — tab presenti (13 tab):
+1.  📋 Intro     — guida teorica completa
+2.  🔬 Molecola  — input SMILES, struttura 2D (RDKit + SmilesDrawer fallback)
+    - Preset: Farmaci, Organica, Biochimica, Naturali, Solventi, Chimica Fisica
+3.  📊 Descrittori — 12 descrittori con export JSON/CSV
+4.  💊 Drug-likeness — Lipinski/Veber/Ghose/Egan/Lead-like/Fragment + QED gauge + Radar
+5.  🔮 QSAR      — LogS, pIC50, BBB, hERG, ADMET, biodisponibilità
+6.  🔗 Similarità — Tanimoto Fingerprint Morgan + visualizzatore bit 2048
+7.  🔍 SMARTS    — ricerca sottostruttura con highlight giallo
+8.  ⚖️ Confronto — side-by-side due molecole + tabella delta
+9.  📚 Libreria  — salva/esporta JSON/CSV molecole personali
+10. 📖 Guida     — accordion completo con SMILES, regole, FAQ
+11. 🎬 Spettri   — NMR¹H/IR/UV/MS/Raman animati con SpectralLab canvas
+12. 🔬 Pharma Pro — ADME/BBB/CYP3A4/P-gp, Radar 5 assi, Docking score,
     Alert PAINS, Confronto 8 farmaci ref, Export Report HTML
+    AUTO-POPOLA lo SMILES corrente quando si apre il tab
 13. ⚛️ Quantum Lab — orbitali 1s/2s/2p/3d/sp/sp²/sp³ animati, 25 elementi,
-    nuvola elettronica, livelli energetici, configurazione elettronica
+    nuvola elettronica (cloud mode), livelli energetici (energy mode),
+    configurazione elettronica, proprietà atomiche
 
 ### accademia.html — Duolingo della chimica:
 - 10 livelli (Molecola → Maestro) con soglie XP
@@ -65,23 +79,34 @@ Tipo: Single-file HTML5 PWA (Progressive Web App) per chimica farmaceutica
 - Confetti, level-up overlay, XP popup animati
 - localStorage: bsi_academy_v2
 
+### changelog_tesi.html — Documentazione tecnica per tesi:
+- Dark theme (#071221 bg, #00c9b7 accent), responsive
+- Statistiche progetto (8 stat card): 4 file HTML, 43K+ righe, 13 tab RDKit, 83 domande...
+- Timeline delle modifiche dal 26/06/2026 con entry per ogni deploy
+- Dettaglio release per ogni PR/commit con tag NEW/FIX/IMP/PERF
+- Tabella architettura tecnica
+- Accessibile dal Bottom Sheet (key='tesi') → overlay iframe
+- Da aggiornare ad ogni deploy significativo
+
 ## PATTERN DI SVILUPPO
 
-### Overlay iframe:
+### Overlay iframe (pattern standard):
 ```javascript
-window.openAccademia=function(){
-  var ov=document.getElementById('bsi-accademia-ov');
+window.openTesi=function(){
+  var ov=document.getElementById('bsi-tesi-ov');
   if(!ov){
     ov=document.createElement('div');
-    ov.id='bsi-accademia-ov';
+    ov.id='bsi-tesi-ov';
     ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';
     var tb=document.createElement('div');
     tb.style.cssText=_BSI_TB_STYLE; // topbar con safe-area-inset-top
     var fr=document.createElement('iframe');
-    fr.src='accademia.html';
+    fr.src='changelog_tesi.html';
     fr.style.cssText='flex:1;border:none;width:100%;height:100%';
     var cb=document.createElement('button');
     cb.setAttribute('style',_BSI_BACK_BTN); // bottom:calc(20px + env(safe-area-inset-bottom,0px))
+    cb.innerHTML='↩ Indietro';
+    cb.onclick=function(){ov.style.display='none';};
     ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);
     document.body.appendChild(ov);
   } else ov.style.display='flex';
@@ -90,17 +115,20 @@ window.openAccademia=function(){
 
 ### SW cache bump (ogni deploy):
 In sw.js: cambia CACHE_VERSION da 'biospecinfo-v99-2026-07a' a '...-07b' ecc.
-Se aggiungi nuovi file: aggiungili all'array STATIC_FILES.
+Se aggiungi nuovi file: aggiungili all'array STATIC_FILES in sw.js.
+STATIC_FILES include: index.html, manifest.json, icon-192/512.png, 3Dmol-min.js,
+three.min.js, guidaret.html, sr_completo.html, sr_essenziale.html, chimorga.html,
+rdkit_lab.html, accademia.html, changelog_tesi.html, prompt_sessione.txt
 
 ### Mobile safe-area:
 ```javascript
-var _BSI_TB_STYLE='background:#071221;border-bottom:1px solid #1c3a57;display:flex;'+
-  'align-items:center;padding:env(safe-area-inset-top,12px) 10px 8px 10px;'+
-  'min-height:calc(44px + env(safe-area-inset-top,0px));flex-shrink:0;gap:0';
-var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));'+
-  'right:14px;z-index:10000;background:#071221;border:2px solid #00c9b7;color:#00c9b7;'+
-  'border-radius:22px;padding:10px 22px;font-size:.82rem;font-weight:800;cursor:pointer;'+
-  'box-shadow:0 4px 20px rgba(0,0,0,.65)';
+var _BSI_TB_STYLE='display:flex;align-items:flex-end;background:#071221;border-bottom:1px solid #1c3a57;'+
+  'padding:env(safe-area-inset-top,12px) 10px 8px 10px;'+
+  'min-height:calc(44px + env(safe-area-inset-top,0px));flex-shrink:0';
+var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:16px;'+
+  'z-index:10000;height:40px;border-radius:20px;padding:0 16px;border:1.5px solid rgba(0,201,183,.6);'+
+  'background:rgba(7,18,33,.97);color:#00c9b7;font-size:13px;font-weight:700;cursor:pointer;'+
+  'display:inline-flex;align-items:center;gap:5px';
 ```
 
 ### RDKit loading (robusto):
@@ -109,6 +137,13 @@ var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,
 - smilesDescHeuristic(smi): stima descrittori da SMILES senza RDKit
 - Pulsante "↺ Ricarica" se tutti i CDN falliscono
 - initRDKitRobust() / window._rdkInitFn() per retry
+
+## AGGIORNARE IL CHANGELOG TESI
+Ogni volta che si fa un deploy significativo, aggiornare changelog_tesi.html:
+1. Aggiungere entry nella sezione timeline (.tl-item) con la data
+2. Aggiungere blocco .release con tag NEW/FIX/IMP/PERF
+3. Aggiornare le stat card se cambiano i numeri
+4. Fare commit + push + PR merge
 
 ## POSSIBILI MIGLIORAMENTI FUTURI
 
