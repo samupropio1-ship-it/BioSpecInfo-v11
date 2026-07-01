@@ -1,7 +1,7 @@
 // BioSpecInfo Service Worker — cache file singolo HTML + risorse + API PubChem/RCSB
 'use strict';
 
-const CACHE_VERSION = 'biospecinfo-v99-2026-06h';
+const CACHE_VERSION = 'biospecinfo-v99-2026-07a';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const API_CACHE = CACHE_VERSION + '-api';
 
@@ -18,7 +18,9 @@ const STATIC_FILES = [
   './sr_essenziale.html',
   './chimorga.html',
   './rdkit_lab.html',
-  './accademia.html'
+  './accademia.html',
+  './changelog_tesi.html',
+  './prompt_sessione.txt'
 ];
 
 // Install: precarica i file statici
