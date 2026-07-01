@@ -1,0 +1,150 @@
+================================================================================
+  PROMPT SESSIONE — BioSpecInfo v11
+  Copia e incolla questo testo all'inizio di ogni nuova sessione Claude Code
+  per dare al modello il contesto completo del progetto.
+================================================================================
+
+## PROGETTO
+Repository: samupropio1-ship-it/BioSpecInfo-v11
+GitHub Pages: https://samupropio1-ship-it.github.io/BioSpecInfo-v11/
+Branch di sviluppo: claude/app-layout-synthesis-features-97UCN
+Branch principale: main
+Tipo: Single-file HTML5 PWA (Progressive Web App) per chimica farmaceutica
+
+## STRUTTURA FILE
+- index.html        (~37.800 righe) — App principale con tutte le sezioni
+- rdkit_lab.html    (~4.100 righe) — Lab cheminformatica RDKit.js (iframe overlay)
+- accademia.html    (~1.329 righe) — Piattaforma gamificata "Duolingo della chimica"
+- chimorga.html     — Chimica organica 1+2
+- guidaret.html     — Guida reazioni
+- sr_completo.html  — Spettri completi
+- sr_essenziale.html — Spettri essenziali
+- sw.js             — Service Worker (cache PWA, versione corrente: 07a)
+- manifest.json     — PWA manifest
+- download.html     — Pagina download/install
+
+## STATO ATTUALE (1 luglio 2026)
+
+### index.html — sezioni presenti:
+- NMR ¹H/¹³C/2D, IR, UV-Vis, MS, Raman (con quiz spettri)
+- Sintesi organica (324 reazioni, viewer SVG animato)
+- Retrosintesi interattiva
+- Biosintesi (26 vie metaboliche)
+- Viewer 3D molecolare (3Dmol.js + Three.js)
+- Farmaci, biomolecole, steroidi
+- Quiz NMR, IR, metaboliche, SMILES
+- Accademia Chimica (overlay iframe → accademia.html)
+- RDKit Lab (overlay iframe → rdkit_lab.html)
+- Chimica Organica 1+2 (overlay iframe → chimorga.html)
+- Navbar con bottoni: Sintesi, Organica 1+2, Accademia, Retrosintesi, Biosintesi
+
+### rdkit_lab.html — tab presenti:
+1. 📋 Intro — guida teorica completa
+2. 🔬 Molecola — input SMILES, struttura 2D (RDKit + SmilesDrawer fallback)
+   - Preset: Farmaci, Organica, Biochimica, Naturali, Solventi, Chimica Fisica
+3. 📊 Descrittori — 12 descrittori con export JSON/CSV
+4. 💊 Drug-likeness — Lipinski/Veber/Ghose/Egan/Lead-like/Fragment + QED gauge + Radar
+5. 🔮 QSAR — LogS, pIC50, BBB, hERG, ADMET, biodisponibilità
+6. 🔗 Similarità — Tanimoto Fingerprint Morgan + visualizzatore bit 2048
+7. 🔍 SMARTS — ricerca sottostruttura con highlight giallo
+8. ⚖️ Confronto — side-by-side due molecole + tabella delta
+9. 📚 Libreria — salva/esporta JSON/CSV molecole personali
+10. 📖 Guida — accordion completo con SMILES, regole, FAQ
+11. 🎬 Spettri — NMR¹H/IR/UV/MS/Raman animati con SpectralLab canvas
+12. 🔬 Pharma Pro — ADME/BBB/CYP3A4/P-gp, Radar 5 regole, Docking score,
+    Alert PAINS, Confronto 8 farmaci ref, Export Report HTML
+13. ⚛️ Quantum Lab — orbitali 1s/2s/2p/3d/sp/sp²/sp³ animati, 25 elementi,
+    nuvola elettronica, livelli energetici, configurazione elettronica
+
+### accademia.html — Duolingo della chimica:
+- 10 livelli (Molecola → Maestro) con soglie XP
+- 83 domande in 6 categorie: biochimica(20), organica(20), spettri(15),
+  termodinamica(10), cinetica(10), stechiometria(8)
+- 3 difficoltà con timer (45s/30s/20s)
+- Streak giornaliero con moltiplicatori (×1.5 ≥3gg, ×2.0 ≥7gg)
+- Confetti, level-up overlay, XP popup animati
+- localStorage: bsi_academy_v2
+
+## PATTERN DI SVILUPPO
+
+### Overlay iframe:
+```javascript
+window.openAccademia=function(){
+  var ov=document.getElementById('bsi-accademia-ov');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='bsi-accademia-ov';
+    ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';
+    var tb=document.createElement('div');
+    tb.style.cssText=_BSI_TB_STYLE; // topbar con safe-area-inset-top
+    var fr=document.createElement('iframe');
+    fr.src='accademia.html';
+    fr.style.cssText='flex:1;border:none;width:100%;height:100%';
+    var cb=document.createElement('button');
+    cb.setAttribute('style',_BSI_BACK_BTN); // bottom:calc(20px + env(safe-area-inset-bottom,0px))
+    ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);
+    document.body.appendChild(ov);
+  } else ov.style.display='flex';
+};
+```
+
+### SW cache bump (ogni deploy):
+In sw.js: cambia CACHE_VERSION da 'biospecinfo-v99-2026-07a' a '...-07b' ecc.
+Se aggiungi nuovi file: aggiungili all'array STATIC_FILES.
+
+### Mobile safe-area:
+```javascript
+var _BSI_TB_STYLE='background:#071221;border-bottom:1px solid #1c3a57;display:flex;'+
+  'align-items:center;padding:env(safe-area-inset-top,12px) 10px 8px 10px;'+
+  'min-height:calc(44px + env(safe-area-inset-top,0px));flex-shrink:0;gap:0';
+var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));'+
+  'right:14px;z-index:10000;background:#071221;border:2px solid #00c9b7;color:#00c9b7;'+
+  'border-radius:22px;padding:10px 22px;font-size:.82rem;font-weight:800;cursor:pointer;'+
+  'box-shadow:0 4px 20px rgba(0,0,0,.65)';
+```
+
+### RDKit loading (robusto):
+- 6 CDN (jsdelivr + unpkg, 3 versioni) con retry automatico
+- Fallback immediato con SmilesDrawer per strutture 2D
+- smilesDescHeuristic(smi): stima descrittori da SMILES senza RDKit
+- Pulsante "↺ Ricarica" se tutti i CDN falliscono
+- initRDKitRobust() / window._rdkInitFn() per retry
+
+## POSSIBILI MIGLIORAMENTI FUTURI
+
+### Priorità ALTA:
+- [ ] Modalità offline completa per RDKit.js (cache WASM nel SW)
+- [ ] Editor SMILES drag-and-drop canvas (disegno struttura)
+- [ ] Integrazione PubChem autocomplete per ricerca molecole per nome
+- [ ] Sezione "Chimica Computazionale" con ottimizzazione geometria 3D
+- [ ] Accademia: modalità multiplayer/sfida amici (via URL share)
+
+### Priorità MEDIA:
+- [ ] Dark/light mode toggle per rdkit_lab.html
+- [ ] Esportazione dati in formato SDF/MOL2 per uso in software esterni
+- [ ] Sezione "Farmacologia Clinica" con tabelle farmaci approvati FDA/EMA
+- [ ] NMR 2D avanzato (COSY, HSQC, HMBC) nella sezione Spettri
+- [ ] Animazione reazioni chimiche (arrow-pushing mechanism)
+
+### Priorità BASSA:
+- [ ] Tema "neon" per Quantum Lab
+- [ ] Tabella periodica interattiva integrata in Quantum Lab
+- [ ] Export report in PDF (jsPDF o html2canvas)
+- [ ] Condivisione molecola via QR code generato in-app
+
+## ISTRUZIONI GIT
+Branch: claude/app-layout-synthesis-features-97UCN
+git push -u origin claude/app-layout-synthesis-features-97UCN
+
+Se il branch ha già un PR merged, ripartire da main:
+  git fetch origin main
+  git checkout -B claude/app-layout-synthesis-features-97UCN origin/main
+
+Merge conflicts → sempre: git merge origin/main -X ours --no-edit
+
+PR: creare via GitHub MCP (mcp__github__create_pull_request) e fare merge
+    con mcp__github__merge_pull_request — owner: samupropio1-ship-it
+
+================================================================================
+  Fine prompt — versione aggiornata al 01/07/2026
+================================================================================

@@ -1629,7 +1629,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
       <option value="Br,35">Br (Z=35)</option>
       <option value="I,53">I (Z=53)</option>
     </select>
-    <select id="q-orbital-type" onchange="updateQuantum()" style="width:auto;flex:none">
+    <select id="q-orbital-type" onchange="updateQuantumMode(this.value)" style="width:auto;flex:none">
       <option value="atomic">Orbitali atomici (s, p, d)</option>
       <option value="cloud">Nuvola elettronica</option>
       <option value="energy">Livelli energetici</option>
@@ -1813,6 +1813,7 @@ function showPanel(tab,id){
     }
   }
   if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
+  if(id==='p-pharma'&&curSMI){var pf=document.getElementById('pharma-smiles');if(pf&&!pf.value)pf.value=curSMI;}
 }
 function showPanelById(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -3408,10 +3409,17 @@ var ORBITAL_SHAPES={
   'sp3':{type:'sp3',n:2,l:1,desc:'sp³ ibrido: 4 lobi tetraedrici (109.5°)'},
 };
 
+var _qMode='atomic';
+
 function initQuantum(){
   if(window._qInit)return;
   window._qInit=true;
   updateQuantum();
+}
+
+function updateQuantumMode(mode){
+  _qMode=mode;
+  drawOrbital();
 }
 
 function updateQuantum(){
@@ -3467,6 +3475,85 @@ function drawOrbital(){
   var el=ELEMENTS[_qElement]||ELEMENTS['C'];
   var oinfo=ORBITAL_SHAPES[_qOrbital]||ORBITAL_SHAPES['2p'];
   var elColor=el.color||'#00c9b7';
+
+  // ── Cloud mode ──────────────────────────────────────────────────────
+  if(_qMode==='cloud'){
+    var nucRc=10+el.Z*0.25;
+    // Nucleus
+    var gn=ctx.createRadialGradient(cx,cy,0,cx,cy,nucRc*2.5);
+    gn.addColorStop(0,elColor+'ff');gn.addColorStop(0.5,elColor+'55');gn.addColorStop(1,'transparent');
+    ctx.fillStyle=gn;ctx.beginPath();ctx.arc(cx,cy,nucRc*2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=elColor;ctx.beginPath();ctx.arc(cx,cy,nucRc,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#000';ctx.font='bold '+Math.max(8,Math.min(12,nucRc-2))+'px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(_qElement,cx,cy);
+    // Electron cloud dots
+    var shells=el.shells||[1];
+    var shellRadii=[55,90,125,155];
+    shells.forEach(function(ne,si){
+      var sr=shellRadii[si]||40;
+      for(var di=0;di<ne*18;di++){
+        var a2=Math.random()*Math.PI*2;
+        var rjit=sr*(0.7+Math.random()*0.6);
+        var dx=cx+Math.cos(a2)*rjit,dy=cy+Math.sin(a2)*rjit;
+        var alpha=Math.floor(60+Math.random()*100).toString(16).padStart(2,'0');
+        ctx.fillStyle=elColor+alpha;
+        ctx.beginPath();ctx.arc(dx,dy,1.2,0,Math.PI*2);ctx.fill();
+      }
+    });
+    var ov2=document.getElementById('q-overlay');
+    if(ov2)ov2.textContent=_qElement+' (Z='+_qZ+') · Nuvola elettronica';
+    return;
+  }
+
+  // ── Energy levels mode ──────────────────────────────────────────────
+  if(_qMode==='energy'){
+    ctx.font='bold 13px system-ui,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+    var levels=[
+      {n:'1s',e:2,y:H-40},{n:'2s',e:2,y:H-90},{n:'2p',e:6,y:H-120},
+      {n:'3s',e:2,y:H-160},{n:'3p',e:6,y:H-185},{n:'4s',e:2,y:H-210},
+      {n:'3d',e:10,y:H-230},{n:'4p',e:6,y:H-255},
+    ];
+    // Total electrons for this element
+    var remaining=el.Z,filled=[];
+    var fillOrder=['1s','2s','2p','3s','3p','4s','3d','4p'];
+    var maxE={s:2,p:6,d:10,f:14};
+    fillOrder.forEach(function(lv){
+      var mx=maxE[lv.slice(-1)]||2;
+      if(remaining>0){filled.push({n:lv,e:Math.min(remaining,mx)});remaining-=mx;}
+    });
+    // Draw energy axis
+    ctx.strokeStyle='#1c3a57';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(70,20);ctx.lineTo(70,H-20);ctx.stroke();
+    ctx.fillStyle='#9fb3c8';ctx.font='10px system-ui';ctx.textAlign='center';
+    ctx.fillText('E',70,14);
+    levels.forEach(function(lv){
+      var fe=filled.find(function(f){return f.n===lv.n;});
+      var eCount=fe?fe.e:0;
+      var col=eCount>0?elColor:'#1c3a57';
+      // Level line
+      ctx.strokeStyle=col;ctx.lineWidth=eCount>0?2.5:1;
+      ctx.beginPath();ctx.moveTo(90,lv.y);ctx.lineTo(W-80,lv.y);ctx.stroke();
+      // Label
+      ctx.fillStyle=eCount>0?elColor:'#4a5568';ctx.font='bold 11px monospace';ctx.textAlign='right';
+      ctx.fillText(lv.n,85,lv.y);
+      // Electrons as arrows
+      var maxEl=parseInt(lv.n.slice(-1)==='s'?2:lv.n.slice(-1)==='p'?6:10);
+      var step=(W-170)/(maxEl+1);
+      for(var ei=0;ei<eCount;ei++){
+        var ex2=100+(ei+1)*step;
+        var spin=ei%2===0?1:-1;
+        ctx.strokeStyle=elColor;ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(ex2,lv.y+6*spin);ctx.lineTo(ex2,lv.y-6*spin);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(ex2,lv.y-6*spin);ctx.lineTo(ex2-3,lv.y-6*spin+4*spin);ctx.moveTo(ex2,lv.y-6*spin);ctx.lineTo(ex2+3,lv.y-6*spin+4*spin);ctx.stroke();
+      }
+      if(eCount>0){ctx.fillStyle=elColor+'99';ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillText(eCount+'e⁻',W-75,lv.y);}
+    });
+    ctx.fillStyle='#9fb3c8';ctx.font='11px system-ui';ctx.textAlign='center';
+    ctx.fillText(_qElement+' (Z='+_qZ+')',W/2,H-10);
+    var ov3=document.getElementById('q-overlay');
+    if(ov3)ov3.textContent=_qElement+' (Z='+_qZ+') · Diagramma livelli energetici';
+    return;
+  }
 
   // Draw nuclear glow
   var nucR=12+el.Z*0.3;
