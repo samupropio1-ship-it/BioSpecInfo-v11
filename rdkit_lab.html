@@ -1716,53 +1716,48 @@ function _rdkitReady(rdk){
 }
 
 (function(){
-  // CDN cascade: 3 versions × 2 CDNs = 6 attempts; most stable first
-  var combos=[];
-  ['2023.9.6','2024.3.3','2022.9.5'].forEach(function(v){
-    combos.push('https://cdn.jsdelivr.net/npm/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
-    combos.push('https://unpkg.com/@rdkit/rdkit@'+v+'/Code/MinimalLib/dist/');
-  });
+  // CDN cascade: script-tag approach (più affidabile di fetch+blob in iframe)
+  // Versioni stabili × CDN multipli = 8 tentativi
+  var combos=[
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'}
+  ];
   var _tried=0;
+  var _activeScript=null;
 
   function initWasm(base,onFail){
     if(typeof initRDKitModule!=='function'){onFail();return;}
     setStatus('WASM: inizializzazione…','loading');
-    var _t=setTimeout(function(){onFail();},35000);
+    var _t=setTimeout(function(){onFail();},40000);
     initRDKitModule({locateFile:function(f){return base+f;}})
     .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
-    .catch(function(e){clearTimeout(_t);onFail();});
+    .catch(function(){clearTimeout(_t);onFail();});
   }
 
-  function fetchAndLoad(base,onFail){
+  function loadViaScriptTag(combo,onFail){
     _tried++;
-    setStatus('RDKit.js (tentativo '+_tried+'/'+combos.length+') 0%…','loading');
-    var ctrl=new AbortController();
-    var fetchTO=setTimeout(function(){ctrl.abort();onFail();},25000);
-    fetch(base+'RDKit_minimal.js',{mode:'cors',signal:ctrl.signal}).then(function(r){
-      clearTimeout(fetchTO);
-      if(!r.ok){onFail();return;}
-      var total=parseInt(r.headers.get('content-length')||'0');
-      var reader=r.body.getReader();
-      var chunks=[];var received=0;
-      function pump(){
-        return reader.read().then(function(d){
-          if(d.done){
-            var blob=new Blob(chunks,{type:'application/javascript'});
-            var burl=URL.createObjectURL(blob);
-            var s=document.createElement('script');
-            s.src=burl;
-            s.onload=function(){URL.revokeObjectURL(burl);initWasm(base,onFail);};
-            s.onerror=function(){URL.revokeObjectURL(burl);onFail();};
-            document.head.appendChild(s);return;
-          }
-          chunks.push(d.value);received+=d.value.length;
-          var pct=total>0?Math.round(received/total*100):Math.round(received/1048576)+'MB';
-          setStatus('RDKit.js '+pct+(total>0?'%':'')+'…','loading');
-          return pump();
-        }).catch(function(){onFail();});
-      }
-      return pump();
-    }).catch(function(){clearTimeout(fetchTO);onFail();});
+    setStatus('RDKit.js (tentativo '+_tried+'/'+combos.length+')…','loading');
+    // Rimuovi script precedente se c'è
+    if(_activeScript&&_activeScript.parentNode){_activeScript.parentNode.removeChild(_activeScript);}
+    var s=document.createElement('script');
+    _activeScript=s;
+    s.crossOrigin='anonymous';
+    // Timeout: se non carica in 20s prova il prossimo
+    var to=setTimeout(function(){
+      s.onload=s.onerror=null;
+      if(s.parentNode)s.parentNode.removeChild(s);
+      onFail();
+    },20000);
+    s.onload=function(){clearTimeout(to);initWasm(combo.base,onFail);};
+    s.onerror=function(){clearTimeout(to);onFail();};
+    s.src=combo.base+combo.js+'?v='+Date.now(); // cache-bust
+    document.head.appendChild(s);
   }
 
   function tryNext(i){
@@ -1771,7 +1766,7 @@ function _rdkitReady(rdk){
       var rb=document.getElementById('rdk-retry-btn');if(rb)rb.style.display='inline-flex';
       return;
     }
-    fetchAndLoad(combos[i],function(){tryNext(i+1);});
+    loadViaScriptTag(combos[i],function(){tryNext(i+1);});
   }
   tryNext(0);
   window._rdkInitFn=function(){_tried=0;tryNext(0);};
