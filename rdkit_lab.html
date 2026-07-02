@@ -1719,14 +1719,16 @@ function _rdkitReady(rdk){
   // CDN cascade: script-tag approach (più affidabile di fetch+blob in iframe)
   // Versioni stabili × CDN multipli = 8 tentativi
   var combos=[
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'}
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2025.3.4-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.5-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2024.3.5-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.9.2-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2023.9.2-1.0.0/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/', js:'RDKit_minimal.js'}
   ];
   var _tried=0;
   var _activeScript=null;
@@ -1829,7 +1831,7 @@ function toggleAcc(head){
 
 // ─── State ───────────────────────────────────────────────────────────
 var curSMI='', curCanon='', curDesc={};
-var library=JSON.parse(localStorage.getItem('bsi_rdkit_lib2')||'[]');
+var library=(function(){try{return JSON.parse(localStorage.getItem('bsi_rdkit_lib2')||'[]');}catch(e){return [];}})();
 
 // ─── Molecule analysis ───────────────────────────────────────────────
 var EXAMPLES=['CC(=O)Nc1ccc(O)cc1','CC(C)Cc1ccc(cc1)C(C)C(=O)O','CN1CCC[C@H]1c2cccnc2','O=C(O)c1ccccc1OC(C)=O','NCCc1ccc(O)c(O)c1'];
@@ -2516,7 +2518,7 @@ function runAllTabs(){
 }
 
 // ─── Library ─────────────────────────────────────────────────────────
-function saveLib(){localStorage.setItem('bsi_rdkit_lib2',JSON.stringify(library));}
+function saveLib(){try{localStorage.setItem('bsi_rdkit_lib2',JSON.stringify(library));}catch(e){}}
 
 function addToLibrary(){
   if(!curSMI)return;

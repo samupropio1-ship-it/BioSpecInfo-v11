@@ -194,6 +194,7 @@ textarea.form-input{height:100px;resize:vertical;font-family:monospace;font-size
       <button class="tab-btn" onclick="switchTab('photos')">🖼️ Foto</button>
       <button class="tab-btn" onclick="switchTab('sections')">📄 Sezioni HTML</button>
       <button class="tab-btn" onclick="switchTab('notes')">📝 Note</button>
+      <button class="tab-btn" onclick="switchTab('docs')">📄 Documenti</button>
     </div>
 
     <div id="content">
@@ -280,6 +281,16 @@ textarea.form-input{height:100px;resize:vertical;font-family:monospace;font-size
           <button class="btn btn-sec" onclick="exportNote()">📤 Esporta .txt</button>
         </div>
       </div>
+      <div class="tab-pane" id="tab-docs">
+        <div class="sec-head">📄 Documenti & PDF</div>
+        <div class="sec-sub">Carica PDF, documenti e file. Salvati offline nel tuo dispositivo (IndexedDB).</div>
+        <div id="docs-drop" style="border:2px dashed rgba(0,201,183,.4);border-radius:12px;padding:24px;text-align:center;cursor:pointer;margin:12px 0">
+          <div style="font-size:2rem">📄</div>
+          <div style="color:#cdd9e6;margin-top:6px">Trascina qui i file o tocca per selezionare</div>
+          <input type="file" id="docs-input" multiple style="display:none"/>
+        </div>
+        <div id="docs-list" style="display:grid;gap:8px"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -359,7 +370,7 @@ function logout(){
 // ─── INDEXEDDB ───────────────────────────────────────────────────────────────
 var db = null;
 var DB_NAME = 'bsi_filemanager_v1';
-var DB_VER = 1;
+var DB_VER = 2;
 
 function initDB(){
   var req = indexedDB.open(DB_NAME, DB_VER);
@@ -369,6 +380,7 @@ function initDB(){
     if(!d.objectStoreNames.contains('sections')) d.createObjectStore('sections',{keyPath:'id',autoIncrement:true});
     if(!d.objectStoreNames.contains('notes')) d.createObjectStore('notes',{keyPath:'key'});
     if(!d.objectStoreNames.contains('activity')) d.createObjectStore('activity',{keyPath:'id',autoIncrement:true});
+        if(!d.objectStoreNames.contains('docs')) d.createObjectStore('docs',{keyPath:'id',autoIncrement:true});
   };
   req.onsuccess = function(e){
     db = e.target.result;
@@ -688,7 +700,7 @@ async function clearAll(){
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 var _tabInited={};
-function switchTab(id){
+function switchTab(id){ if(id==='docs'){ setTimeout(function(){setupDocsDrop();renderDocs();},50); }
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   var pane=document.getElementById('tab-'+id);
@@ -724,6 +736,50 @@ window.addEventListener('load',function(){
   if(checkSession()) showApp();
   document.getElementById('pwd-input').focus();
 });
+
+// ── GESTIONE DOCUMENTI (PDF e file generici) ──
+function setupDocsDrop(){
+  var drop=document.getElementById('docs-drop'), inp=document.getElementById('docs-input');
+  if(!drop||!inp||drop._w) return; drop._w=1;
+  drop.addEventListener('click',function(){inp.click();});
+  drop.addEventListener('dragover',function(e){e.preventDefault();drop.style.background='rgba(0,201,183,.1)';});
+  drop.addEventListener('dragleave',function(){drop.style.background='';});
+  drop.addEventListener('drop',function(e){e.preventDefault();drop.style.background='';uploadDocs(e.dataTransfer.files);});
+  inp.addEventListener('change',function(){uploadDocs(inp.files);inp.value='';});
+}
+async function uploadDocs(files){
+  if(!files||!files.length) return;
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    try{
+      var data=await readFileAsDataURL(f);
+      await dbAdd('docs',{name:f.name,type:f.type||'file',size:f.size,data:data,date:Date.now()});
+      await logActivity('📄 Documento caricato: '+f.name);
+    }catch(e){ showToast('Errore caricando '+f.name); }
+  }
+  showToast('Documenti caricati'); renderDocs(); refreshAll&&refreshAll();
+}
+async function renderDocs(){
+  var list=document.getElementById('docs-list'); if(!list) return;
+  try{
+    var docs=await dbGetAll('docs');
+    if(!docs.length){ list.innerHTML='<div style="color:#9fb3c8;text-align:center;padding:20px">Nessun documento caricato.</div>'; return; }
+    list.innerHTML=docs.map(function(d){
+      var icon=/pdf/i.test(d.type)?'📕':/image/i.test(d.type)?'🖼️':/word|doc/i.test(d.type)?'📘':/sheet|excel|xls/i.test(d.type)?'📗':'📄';
+      return '<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px">'
+        +'<div style="font-size:1.5rem">'+icon+'</div>'
+        +'<div style="flex:1;min-width:0"><div style="color:#e9eef6;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(d.name)+'</div>'
+        +'<div style="color:#9fb3c8;font-size:.74rem">'+fmtSize(d.size)+' · '+new Date(d.date).toLocaleDateString()+'</div></div>'
+        +'<a href="'+d.data+'" download="'+escHtml(d.name)+'" style="background:#00c9b7;color:#04121e;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:.78rem;font-weight:700">⬇</a>'
+        +'<button onclick="deleteDoc('+d.id+')" style="background:rgba(224,103,139,.2);color:#e0678b;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.78rem">🗑</button></div>';
+    }).join('');
+  }catch(e){ list.innerHTML='<div style="color:#e0678b">Errore nel caricamento documenti.</div>'; }
+}
+async function deleteDoc(id){
+  if(!confirm('Eliminare questo documento?')) return;
+  try{ await dbDelete('docs',id); await logActivity('🗑 Documento eliminato'); renderDocs(); refreshAll&&refreshAll(); }catch(e){}
+}
+
 </script>
 </body>
 </html>
