@@ -1785,32 +1785,47 @@ function showPresetCat(el,id){
 }
 
 var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
+
+// Popola il pannello specifico con i descrittori (fix tab vuoti)
+function _renderPanelFor(id, desc, smi){
+  try{
+    if(id==='p-desc'){ var f=document.getElementById('desc-smiles'); if(f)f.value=smi; _renderDescPanel(desc); }
+    else if(id==='p-drug'){ var f2=document.getElementById('drug-smiles'); if(f2)f2.value=smi; _renderDrugLike(desc); }
+    else if(id==='p-qsar'){ var f3=document.getElementById('qsar-smiles'); if(f3)f3.value=smi; _renderQSAR(desc); }
+    else if(id==='p-sim'){ var f4=document.getElementById('sim-smiles'); if(f4&&!f4.value)f4.value=smi; }
+    else if(id==='p-smarts'){ var f5=document.getElementById('smarts-smiles'); if(f5&&!f5.value)f5.value=smi; }
+  }catch(e){ console.log('renderPanelFor',e); }
+}
+
 function showPanel(tab,id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('active');
   tab.classList.add('active');
   if(_RDKIT_PANELS.indexOf(id)!==-1){
+    // se non c'è ancora una molecola, ne carico una di default (aspirina) così il tab non resta mai vuoto
+    if(!curSMI){ curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; }
+    // IMPORTANTE: analyzeMol() legge lo SMILES dal campo #smiles-input, quindi lo riempio prima
+    var _si=document.getElementById('smiles-input'); if(_si && !_si.value.trim()){ _si.value=curSMI; }
     if(rdkReady){
-      if(curSMI&&!curDesc.MW) setTimeout(analyzeMol,60);
+      if(!curDesc || !curDesc.MW){ try{ analyzeMol(); }catch(e){} }
+      // se analyzeMol non ha prodotto descrittori, uso l'euristica come rete di sicurezza
+      if(!curDesc || !curDesc.MW){ var hh=smilesDescHeuristic(curSMI); if(hh)curDesc=hh; }
+      _renderPanelFor(id, curDesc, curSMI);
     } else {
-      if(curSMI){
-        var hd=smilesDescHeuristic(curSMI);
-        if(hd){
-          curDesc=hd;
-          renderQuickDesc(hd);
-          if(id==='p-drug'){document.getElementById('drug-smiles').value=curSMI;_renderDrugLike(hd);}
-          if(id==='p-qsar'){document.getElementById('qsar-smiles').value=curSMI;_renderQSAR(hd);}
-          if(id==='p-desc'){document.getElementById('desc-smiles').value=curSMI;_renderDescPanel(hd);}
-          setStatus('Stima SMILES (RDKit in caricamento…)','loading');
-          return;
-        }
+      var hd=smilesDescHeuristic(curSMI);
+      if(hd){
+        curDesc=hd;
+        try{ renderQuickDesc(hd); }catch(e){}
+        _renderPanelFor(id, hd, curSMI);
+        setStatus('Stima SMILES (RDKit in caricamento…)','loading');
+      } else {
+        setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
       }
-      setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
     }
   }
-  if(id==='p-speclive'&&!window._spLivInit){SpectralLab.init();window._spLivInit=1;}
-  if(id==='p-pharma'&&curSMI){var pf=document.getElementById('pharma-smiles');if(pf&&!pf.value)pf.value=curSMI;}
+  if(id==='p-speclive'&&!window._spLivInit){try{SpectralLab.init();window._spLivInit=1;}catch(e){}}
+  if(id==='p-pharma'){ if(!curSMI)curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; var pf=document.getElementById('pharma-smiles');if(pf&&!pf.value)pf.value=curSMI; }
 }
 function showPanelById(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -4140,6 +4155,7 @@ function animateSpectrum(smi,type){SpectralLab.animateSpectrum(smi,type);}
 <!-- Floating back button — visible only inside the BioSpecInfo overlay -->
 <div id="bsi-float-back">
   <button onclick="try{window.parent.document.getElementById('bsi-rdkitlab-ov').style.display='none';}catch(e){}" title="Torna all\'app">↩ Indietro</button>
+</div>
 </div>
 </body>
 </html>

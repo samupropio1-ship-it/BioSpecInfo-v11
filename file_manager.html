@@ -314,6 +314,14 @@ textarea.form-input{height:100px;resize:vertical;font-family:monospace;font-size
 <div id="toast"></div>
 
 <script>
+// ─── Storage di sessione sicuro (fallback in memoria se sessionStorage non disponibile) ───
+var _memSession={};
+var _safeSession={
+  setItem:function(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){ _memSession[k]=v; } },
+  getItem:function(k){ try{ return sessionStorage.getItem(k); }catch(e){ return _memSession[k]||null; } },
+  removeItem:function(k){ try{ sessionStorage.removeItem(k); }catch(e){ delete _memSession[k]; } }
+};
+
 'use strict';
 
 // ─── PASSWORD AUTH (SHA-256) ──────────────────────────────────────────────────
@@ -334,7 +342,7 @@ async function doLogin(){
   var hash = await sha256(val);
   if(hash === CORRECT_HASH){
     // Store session flag (hashed token, not password)
-    sessionStorage.setItem(SESSION_KEY, '1');
+    _safeSession.setItem(SESSION_KEY, '1');
     showApp();
   } else {
     showErr('❌ Password errata. Accesso negato.');
@@ -350,7 +358,7 @@ function showErr(msg){
 }
 
 function checkSession(){
-  return sessionStorage.getItem(SESSION_KEY) === '1';
+  return _safeSession.getItem(SESSION_KEY) === '1';
 }
 
 function showApp(){
@@ -363,7 +371,7 @@ function showApp(){
 }
 
 function logout(){
-  sessionStorage.removeItem(SESSION_KEY);
+  _safeSession.removeItem(SESSION_KEY);
   location.reload();
 }
 
