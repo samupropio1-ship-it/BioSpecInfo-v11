@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RDKit Cheminformatics Lab — BioSpecInfo</title>
-<script src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js" crossorigin="anonymous" onerror="var s=document.createElement('script');s.src='https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js';document.head.appendChild(s)"></script>
+<script src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@rdkit/rdkit@2024.3.1/Code/rdkit_minimal.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0a1b2e;color:#d4e0ec;line-height:1.55;min-height:100vh}
@@ -1789,11 +1790,23 @@ var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
 // Popola il pannello specifico con i descrittori (fix tab vuoti)
 function _renderPanelFor(id, desc, smi){
   try{
-    if(id==='p-desc'){ var f=document.getElementById('desc-smiles'); if(f)f.value=smi; _renderDescPanel(desc); }
-    else if(id==='p-drug'){ var f2=document.getElementById('drug-smiles'); if(f2)f2.value=smi; _renderDrugLike(desc); }
-    else if(id==='p-qsar'){ var f3=document.getElementById('qsar-smiles'); if(f3)f3.value=smi; _renderQSAR(desc); }
-    else if(id==='p-sim'){ var f4=document.getElementById('sim-smiles'); if(f4&&!f4.value)f4.value=smi; }
-    else if(id==='p-smarts'){ var f5=document.getElementById('smarts-smiles'); if(f5&&!f5.value)f5.value=smi; }
+    // riempio il campo SMILES del pannello e chiamo la FUNZIONE VERA del pannello (quella dei pulsanti)
+    if(id==='p-desc'){
+      var f=document.getElementById('desc-smiles'); if(f)f.value=smi;
+      if(typeof calcDescriptors==='function') calcDescriptors();
+    } else if(id==='p-drug'){
+      var f2=document.getElementById('drug-smiles'); if(f2)f2.value=smi;
+      if(typeof calcDrugLike==='function') calcDrugLike();
+    } else if(id==='p-qsar'){
+      var f3=document.getElementById('qsar-smiles'); if(f3)f3.value=smi;
+      if(typeof calcQSAR==='function') calcQSAR();
+    } else if(id==='p-sim'){
+      var f4=document.getElementById('sim-smi1'); if(f4&&!f4.value)f4.value=smi;
+    } else if(id==='p-smarts'){
+      var f5=document.getElementById('smarts-smiles'); if(f5&&!f5.value)f5.value=smi;
+    } else if(id==='p-cmp'){
+      var f6=document.getElementById('cmp-smiles'); if(f6&&!f6.value)f6.value=smi;
+    }
   }catch(e){ console.log('renderPanelFor',e); }
 }
 
@@ -1993,6 +2006,8 @@ function computeDesc(mol){
     d.Formula=raw.formula||'';
     d.SMILES=mol.get_smiles();
   }catch(e){d.SMILES=mol.get_smiles();}
+  // normalizzo: ogni campo numerico deve essere un numero valido (evita undefined.toFixed)
+  ['MW','ExactMW','LogP','TPSA','HBA','HBD','RotBonds','ArRings','Rings','FrCSP3','HeavyAtoms','Stereo','MR','QED'].forEach(function(kk){ if(typeof d[kk]!=='number'||isNaN(d[kk])) d[kk]=0; });
   return d;
 }
 
@@ -2119,6 +2134,7 @@ function calcDescriptors(){
   _renderDescPanel(d);
 }
 function _renderDescPanel(d){
+  try{
 
   var fullItems=[
     {k:'Peso Molecolare (MW)',v:d.MW.toFixed(3),u:'Da',tip:'Media pesata isotopica. ≤ 500 Da per Lipinski.',
@@ -2148,6 +2164,12 @@ function _renderDescPanel(d){
   var banner=d._heuristic?_heuristicBanner():'';
   document.getElementById('desc-result').innerHTML=banner+html;
   document.getElementById('desc-export').style.display='flex';
+
+  }catch(_err){
+    var _r=document.getElementById("desc-result");
+    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
+    console.log("_renderDescPanel",_err);
+  }
 }
 
 // ─── Drug-likeness ───────────────────────────────────────────────────
@@ -2166,6 +2188,7 @@ function calcDrugLike(){
   _renderDrugLike(d);
 }
 function _renderDrugLike(d){
+  try{
   var mw=d.MW,lp=d.LogP,hba=d.HBA,hbd=d.HBD,rb=d.RotBonds,tpsa=d.TPSA,ha=d.HeavyAtoms;
 
   var rules=[
@@ -2288,6 +2311,12 @@ function _renderDrugLike(d){
       });
     });
   }
+
+  }catch(_err){
+    var _r=document.getElementById("drug-result");
+    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
+    console.log("_renderDrugLike",_err);
+  }
 }
 
 // ─── QSAR predictions ────────────────────────────────────────────────
@@ -2306,6 +2335,7 @@ function calcQSAR(){
   _renderQSAR(d);
 }
 function _renderQSAR(d){
+  try{
   var mw=d.MW,lp=d.LogP,tpsa=d.TPSA,hbd=d.HBD,hba=d.HBA,rb=d.RotBonds,ar=d.ArRings,fsp3=d.FrCSP3;
 
   // LogS (solubilità acquosa) — Delaney-like
@@ -2411,6 +2441,12 @@ function _renderQSAR(d){
       var w=el.style.width; el.style.width='0'; el.offsetWidth; el.style.width=w;
     });
   });
+
+  }catch(_err){
+    var _r=document.getElementById("qsar-result");
+    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
+    console.log("_renderQSAR",_err);
+  }
 }
 
 // ─── Similarity ──────────────────────────────────────────────────────

@@ -948,7 +948,7 @@ function initCosmo(){
     try {
     _cosmo.scene=new THREE.Scene();
     _cosmo.cam=new THREE.PerspectiveCamera(55,W/H,0.01,2000);
-    _cosmo.cam.position.set(0,3,18);
+    _cosmo.cam.position.set(0,1.8,10.8);
     _cosmo.ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:false});
     if(!_cosmo.ren||!_cosmo.ren.getContext||!_cosmo.ren.getContext()){ throw new Error('WebGL non disponibile'); }
     _cosmo.ren.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -997,6 +997,7 @@ function _cosmoAnimate(){
 
 // ─── Caricamento scene Cosmo ───
 function _cosmoLoad(name){
+  var _cl=document.getElementById('cosmo-loading'); if(_cl)_cl.style.display='none';
   _cosmo.curScene=name; _cosmoClear(); _cosmo._tick=null;
   var hud=document.getElementById('cosmo-hud');
   var info=document.getElementById('cosmo-info');
@@ -1057,7 +1058,7 @@ function _buildBlackhole(){
     sc.add(jet);_cosmo.objects.push(jet);
   });
   _cosmo._tick=function(t){ discMat.uniforms.uTime.value+=t*2; disc.rotation.z-=t*0.12; photon.rotation.z+=t*0.05; };
-  _cosmo.cam.position.set(0,3.5,16);
+  _cosmo.cam.position.set(0,2.1,9.6);
 }
 function _infoBlackhole(){
   return '<div style="background:rgba(167,139,250,.08);border-left:3px solid #a78bfa;border-radius:0 10px 10px 0;padding:12px 14px">'
@@ -1183,7 +1184,7 @@ function _buildSolar(){
     });
   };
   _cosmoBodyClick(planets);
-  _cosmo.cam.position.set(0,16,32);
+  _cosmo.cam.position.set(0,9.6,19.2);
 }
 function _infoSolar(){
   return '<div style="background:rgba(245,166,35,.08);border-left:3px solid #f5a623;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#f5a623">☀️ Moti orbitali (3ª legge di Keplero)</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px">La velocità orbitale segue T²∝a³: i pianeti interni orbitano più veloci. Qui i periodi sono rispettati in proporzione (Mercurio 88 giorni → Nettuno 165 anni). <b>Chimica</b>: pianeti rocciosi (silicati, Fe) all\'interno, giganti gassosi (H₂/He, NH₃, CH₄) all\'esterno oltre la "linea del ghiaccio".</div><div style="margin-top:8px"><a href="https://science.nasa.gov/solar-system/" target="_blank" style="color:#6bcfff;font-size:.8rem">NASA · Solar System ↗</a></div></div>';
@@ -1216,7 +1217,7 @@ function _buildExo3D(){
   });
   _cosmo._tick=function(t){ star.rotation.y+=t*0.08; starTex.offset.x+=t*0.008; ps.forEach(function(m){ m.userData.ph+=t*(1.2/m.userData.T); m.position.x=Math.cos(m.userData.ph)*m.userData.a; m.position.z=Math.sin(m.userData.ph)*m.userData.a; m.rotation.y+=t*0.4; }); };
   _cosmoBodyClick(ps);
-  _cosmo.cam.position.set(0,11,24);
+  _cosmo.cam.position.set(0,6.6,14.4);
 }
 function _infoExo(){
   return '<div style="background:rgba(124,111,255,.08);border-left:3px solid #7c6fff;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#7c6fff">🪐 TRAPPIST-1 — 7 pianeti terrestri</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px">Sistema a 40 anni luce con 7 pianeti rocciosi, 3 nella zona abitabile. Studiato dal JWST per cercare atmosfere (H₂O, CO₂, CH₄). Le orbite sono in <b>risonanza</b>. È uno dei bersagli principali nella ricerca di biofirme.</div><div style="margin-top:8px"><a href="https://exoplanets.nasa.gov/exoplanet-catalog/" target="_blank" style="color:#6bcfff;font-size:.8rem">NASA Exoplanet Archive ↗</a> &nbsp; <a href="https://webb.nasa.gov/" target="_blank" style="color:#6bcfff;font-size:.8rem">JWST ↗</a></div></div>';
@@ -1244,7 +1245,7 @@ function _buildGalaxy(){
   var core=new THREE.Mesh(new THREE.SphereGeometry(1.2,32,32),new THREE.MeshBasicMaterial({color:0xfff0cc,transparent:true,opacity:0.8}));
   sc.add(core);_cosmo.objects.push(core);
   _cosmo._tick=function(t){ gal.rotation.y+=t*0.05; };
-  _cosmo.cam.position.set(0,14,24);
+  _cosmo.cam.position.set(0,8.4,14.4);
 }
 function _infoGalaxy(){
   return '<div style="background:rgba(107,207,255,.08);border-left:3px solid #6bcfff;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#6bcfff">🌀 Galassia a spirale</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px">Miliardi di stelle in <b>rotazione differenziale</b> attorno a un buco nero supermassiccio centrale. I bracci a spirale sono onde di densità dove nascono nuove stelle (regioni HII, ricche di H ionizzato). La <b>materia oscura</b> spiega perché le stelle esterne ruotano più veloci del previsto. La nostra Via Lattea è una spirale barrata.</div><div style="margin-top:8px"><a href="https://esahubble.org/images/" target="_blank" style="color:#6bcfff;font-size:.8rem">ESA/Hubble Images ↗</a> &nbsp; <a href="https://science.nasa.gov/universe/galaxies/" target="_blank" style="color:#6bcfff;font-size:.8rem">NASA · Galaxies ↗</a></div></div>';
@@ -1271,7 +1272,7 @@ function _buildMap(){
   // linee di connessione dal Sole
   STARS.slice(1).forEach(function(st){ var geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(st.x,st.y,st.z)]); var ln=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x225544,transparent:true,opacity:0.4})); sc.add(ln);_cosmo.objects.push(ln); });
   _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.02; };
-  _cosmo.cam.position.set(0,8,20);
+  _cosmo.cam.position.set(0,4.8,12.0);
 }
 function _infoMap(){
   return '<div style="background:rgba(52,211,153,.08);border-left:3px solid #34d399;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#34d399">🗺️ Stelle ed esopianeti vicini</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px">Mappa delle stelle vicine con sistemi planetari noti. Fonti ufficiali per esplorare in tempo reale:</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'
@@ -2386,7 +2387,7 @@ function _buildUniverse(){
     });
   });
   _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.03; };
-  _cosmo.cam.position.set(0,6,30);
+  _cosmo.cam.position.set(0,3.6,18.0);
   // pannello di ricerca + lista (sotto il canvas)
   _renderUniversePanel();
   // click sui corpi nel 3D → apre scheda
@@ -2471,7 +2472,7 @@ function _buildComet(){
   var tail=new THREE.Points(tailGeo,new THREE.PointsMaterial({size:0.12,vertexColors:true,transparent:true,opacity:0.7}));
   sc.add(tail);_cosmo.objects.push(tail);
   _cosmo._tick=function(t){ nucleus.rotation.y+=t*0.5; tail.rotation.x+=t*0.02; };
-  _cosmo.cam.position.set(4,6,20);
+  _cosmo.cam.position.set(4,3.6,12.0);
 }
 function _infoComet(){
   return '<div style="background:rgba(136,221,255,.08);border-left:3px solid #88ddff;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#88ddff">☄️ Anatomia di una cometa</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px"><b>Nucleo</b>: "palla di neve sporca" di ghiaccio (H₂O, CO₂, CO) e polvere. <b>Chioma</b>: gas che sublima avvicinandosi al Sole. <b>Due code</b>: quella di ioni (blu, dritta, spinta dal vento solare) e quella di polvere (giallastra, curva). Le code puntano sempre <b>lontano dal Sole</b>. La cometa 67P (Rosetta/ESA) conteneva glicina e fosforo — mattoni della vita.</div><div style="margin-top:8px"><a href="https://www.esa.int/Science_Exploration/Space_Science/Rosetta" target="_blank" style="color:#6bcfff;font-size:.8rem">ESA Rosetta ↗</a> &nbsp; <a href="https://science.nasa.gov/solar-system/comets/" target="_blank" style="color:#6bcfff;font-size:.8rem">NASA Comets ↗</a></div></div>';
@@ -2788,7 +2789,7 @@ function _buildGalaxies3D(){
     rotors.push({pts:pts,cx:gx.cx,cy:gx.cy,speed:gx.type==='spiral'?0.08:0.03});
   });
   _cosmo._tick=function(t){ rotors.forEach(function(r){ r.pts.rotation.y+=t*r.speed; }); };
-  _cosmo.cam.position.set(0,4,28);
+  _cosmo.cam.position.set(0,2.4,16.8);
 }
 function _infoGalaxies3D(){
   return '<div style="background:rgba(136,187,255,.08);border-left:3px solid #88bbff;border-radius:0 10px 10px 0;padding:12px 14px"><b style="color:#88bbff">🌌 Tipi di galassie (classificazione di Hubble)</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin-top:6px"><b>Spirali</b> (Via Lattea, Andromeda): disco rotante con bracci, formazione stellare attiva, gas H/He abbondante. <b>Ellittiche</b> (M87): stelle vecchie, poco gas, moto casuale delle stelle (non rotazione ordinata). <b>Termodinamica</b>: il gas intergalattico caldo (milioni di K) emette raggi X. <b>Momento angolare</b>: le spirali ruotano in modo differenziale; la materia oscura spiega le curve di rotazione piatte.</div><div style="margin-top:8px"><a href="https://esahubble.org/images/" target="_blank" style="color:#6bcfff;font-size:.8rem">ESA/Hubble ↗</a> · <a href="https://science.nasa.gov/universe/galaxies/" target="_blank" style="color:#6bcfff;font-size:.8rem">NASA Galaxies ↗</a></div></div>';
@@ -3095,7 +3096,7 @@ function _buildWormhole(){
   // le due bocche (dischi luminosi)
   [-8,8].forEach(function(z){ var mouth=new THREE.Mesh(new THREE.SphereGeometry(3.7,32,32),new THREE.MeshBasicMaterial({color:0x8866ff,transparent:true,opacity:0.15,side:THREE.BackSide})); mouth.position.z=z; sc.add(mouth);_cosmo.objects.push(mouth); });
   _cosmo._tick=function(t){ throatMat.uniforms.uTime.value+=t*1.5; stars.rotation.z+=t*0.3; rings.forEach(function(r,i){ r.rotation.z+=t*(0.2+i*0.02); }); };
-  _cosmo.cam.position.set(0,4,18);
+  _cosmo.cam.position.set(0,2.4,10.8);
 }
 function _infoWormhole(){
   return '<div style="background:rgba(167,139,250,.08);border-left:3px solid #a78bfa;border-radius:0 10px 10px 0;padding:12px 14px">'
@@ -3292,14 +3293,14 @@ function _jShow(){
 }
 function _jNav(dir){ if(dir===-99){_journeyStep=0;} else {_journeyStep=Math.max(0,Math.min(_JOURNEY.length-1,_journeyStep+dir));} _jShow(); }
 // scene del viaggio (riusano/adattano le funzioni esistenti)
-function _jBigBang(){ var sc=_cosmo.scene; var core=new THREE.Mesh(new THREE.SphereGeometry(0.5,32,32),new THREE.MeshBasicMaterial({color:0xffffff})); sc.add(core);_cosmo.objects.push(core); var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<3000;i++){var r=Math.random()*0.5;var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);v.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));c.push(1,0.8+Math.random()*0.2,0.4);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.05,vertexColors:true,transparent:true,opacity:0.9})); sc.add(p);_cosmo.objects.push(p); var expand=1; _cosmo._tick=function(t){ expand+=t*3; p.scale.set(expand,expand,expand); if(expand>15)expand=1; core.scale.set(Math.max(0.1,2-expand*0.1),Math.max(0.1,2-expand*0.1),Math.max(0.1,2-expand*0.1)); }; _cosmo.cam.position.set(0,0,8); }
-function _jNucleo(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<4000;i++){var x=(Math.random()-0.5)*20,y=(Math.random()-0.5)*20,z=(Math.random()-0.5)*20;v.push(x,y,z);var w=0.9+Math.random()*0.1;c.push(w,w*0.9,w*0.7);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.6})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.05; }; _cosmo.cam.position.set(0,0,14); }
-function _jStructure(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[]; for(var n=0;n<40;n++){ var cx=(Math.random()-0.5)*18,cy=(Math.random()-0.5)*18,cz=(Math.random()-0.5)*18; for(var i=0;i<80;i++){ v.push(cx+(Math.random()-0.5)*3,cy+(Math.random()-0.5)*3,cz+(Math.random()-0.5)*3); } } g.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({color:0x88aaff,size:0.09,transparent:true,opacity:0.8})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.04; }; _cosmo.cam.position.set(0,0,20); }
+function _jBigBang(){ var sc=_cosmo.scene; var core=new THREE.Mesh(new THREE.SphereGeometry(0.5,32,32),new THREE.MeshBasicMaterial({color:0xffffff})); sc.add(core);_cosmo.objects.push(core); var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<3000;i++){var r=Math.random()*0.5;var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);v.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));c.push(1,0.8+Math.random()*0.2,0.4);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.05,vertexColors:true,transparent:true,opacity:0.9})); sc.add(p);_cosmo.objects.push(p); var expand=1; _cosmo._tick=function(t){ expand+=t*3; p.scale.set(expand,expand,expand); if(expand>15)expand=1; core.scale.set(Math.max(0.1,2-expand*0.1),Math.max(0.1,2-expand*0.1),Math.max(0.1,2-expand*0.1)); }; _cosmo.cam.position.set(0,0.0,4.8); }
+function _jNucleo(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<4000;i++){var x=(Math.random()-0.5)*20,y=(Math.random()-0.5)*20,z=(Math.random()-0.5)*20;v.push(x,y,z);var w=0.9+Math.random()*0.1;c.push(w,w*0.9,w*0.7);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.6})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.05; }; _cosmo.cam.position.set(0,0.0,8.4); }
+function _jStructure(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[]; for(var n=0;n<40;n++){ var cx=(Math.random()-0.5)*18,cy=(Math.random()-0.5)*18,cz=(Math.random()-0.5)*18; for(var i=0;i<80;i++){ v.push(cx+(Math.random()-0.5)*3,cy+(Math.random()-0.5)*3,cz+(Math.random()-0.5)*3); } } g.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({color:0x88aaff,size:0.09,transparent:true,opacity:0.8})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.04; }; _cosmo.cam.position.set(0,0.0,12.0); }
 function _jStars(){ if(window._buildGalaxy)_buildGalaxy(); }
-function _jChemistry(){ var sc=_cosmo.scene; var atoms=[]; var cols=[0x4488ff,0xff4444,0xffffff,0x44ff88]; for(var i=0;i<60;i++){ var m=new THREE.Mesh(new THREE.SphereGeometry(0.2+Math.random()*0.2,16,16),new THREE.MeshBasicMaterial({color:cols[i%4]})); m.position.set((Math.random()-0.5)*14,(Math.random()-0.5)*10,(Math.random()-0.5)*14); m.userData={vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2}; sc.add(m);_cosmo.objects.push(m); atoms.push(m); } _cosmo._tick=function(t){ atoms.forEach(function(m){ m.position.x+=m.userData.vx*t; m.position.y+=m.userData.vy*t; if(Math.abs(m.position.x)>8)m.userData.vx*=-1; if(Math.abs(m.position.y)>6)m.userData.vy*=-1; }); }; _cosmo.cam.position.set(0,0,16); }
-function _jSupernova(){ var sc=_cosmo.scene; var core=new THREE.Mesh(new THREE.SphereGeometry(0.8,32,32),new THREE.MeshBasicMaterial({color:0xffffcc})); sc.add(core);_cosmo.objects.push(core); var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<2000;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);v.push(Math.sin(ph)*Math.cos(th),Math.sin(ph)*Math.sin(th),Math.cos(ph));c.push(1,0.4+Math.random()*0.4,0.2);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.8})); sc.add(p);_cosmo.objects.push(p); var ex=1; _cosmo._tick=function(t){ ex+=t*4; p.scale.set(ex,ex,ex); if(ex>18)ex=1; core.scale.setScalar(Math.max(0.2,1.5-ex*0.08)); }; _cosmo.cam.position.set(0,0,12); }
+function _jChemistry(){ var sc=_cosmo.scene; var atoms=[]; var cols=[0x4488ff,0xff4444,0xffffff,0x44ff88]; for(var i=0;i<60;i++){ var m=new THREE.Mesh(new THREE.SphereGeometry(0.2+Math.random()*0.2,16,16),new THREE.MeshBasicMaterial({color:cols[i%4]})); m.position.set((Math.random()-0.5)*14,(Math.random()-0.5)*10,(Math.random()-0.5)*14); m.userData={vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2}; sc.add(m);_cosmo.objects.push(m); atoms.push(m); } _cosmo._tick=function(t){ atoms.forEach(function(m){ m.position.x+=m.userData.vx*t; m.position.y+=m.userData.vy*t; if(Math.abs(m.position.x)>8)m.userData.vx*=-1; if(Math.abs(m.position.y)>6)m.userData.vy*=-1; }); }; _cosmo.cam.position.set(0,0.0,9.6); }
+function _jSupernova(){ var sc=_cosmo.scene; var core=new THREE.Mesh(new THREE.SphereGeometry(0.8,32,32),new THREE.MeshBasicMaterial({color:0xffffcc})); sc.add(core);_cosmo.objects.push(core); var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<2000;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);v.push(Math.sin(ph)*Math.cos(th),Math.sin(ph)*Math.sin(th),Math.cos(ph));c.push(1,0.4+Math.random()*0.4,0.2);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.8})); sc.add(p);_cosmo.objects.push(p); var ex=1; _cosmo._tick=function(t){ ex+=t*4; p.scale.set(ex,ex,ex); if(ex>18)ex=1; core.scale.setScalar(Math.max(0.2,1.5-ex*0.08)); }; _cosmo.cam.position.set(0,0.0,7.2); }
 function _jBlackhole(){ if(window._buildBlackhole)_buildBlackhole(); }
-function _jFreeze(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<800;i++){var x=(Math.random()-0.5)*30,y=(Math.random()-0.5)*30,z=(Math.random()-0.5)*30;v.push(x,y,z);var d=0.3+Math.random()*0.3;c.push(d,d,d*1.2);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.4})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.01; }; _cosmo.cam.position.set(0,0,20); }
+function _jFreeze(){ var sc=_cosmo.scene; var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<800;i++){var x=(Math.random()-0.5)*30,y=(Math.random()-0.5)*30,z=(Math.random()-0.5)*30;v.push(x,y,z);var d=0.3+Math.random()*0.3;c.push(d,d,d*1.2);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.4})); sc.add(p);_cosmo.objects.push(p); _cosmo._tick=function(t){ p.rotation.y+=t*0.01; }; _cosmo.cam.position.set(0,0.0,12.0); }
 
 </script></body>
 </html>
