@@ -1253,6 +1253,11 @@ function _cosmoLoad(name){
   if(name==='journey'){ _buildJourney(); }
   else if(name==='wormhole'){ _buildWormhole(); hud.innerHTML='<b style="color:#a78bfa">🌀 Wormhole (Ponte di Einstein-Rosen)</b><br>Tunnel teorico nello spaziotempo. Trascina per esplorare.'; info.innerHTML=_infoWormhole(); }
   else if(name==='blackhole'){ _buildBlackhole(); hud.innerHTML='<b style="color:#a78bfa">🕳️ Gargantua</b><br>Buco nero supermassiccio con disco di accrescimento. Trascina per ruotare, rotella per zoom.'; info.innerHTML=_infoBlackhole(); }
+  else if(name==='pulsar'){ _buildPulsar(); hud.innerHTML='<b style="color:#88ccff">💫 Pulsar</b><br>Stella di neutroni in rotazione rapidissima: i fasci magnetici spazzano lo spazio come un faro cosmico.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #88ccff;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#88ccff;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Pulsar</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Nucleo collassato di una supernova: ~1,4 masse solari in ~20 km. Ruota fino a centinaia di volte al secondo emettendo due fasci di onde radio dai poli magnetici. Se puntano verso di noi, li vediamo pulsare con regolarità da orologio atomico.</div></div>'; }
+  else if(name==='supernova'){ _buildSupernova(); hud.innerHTML='<b style="color:#ffd166">💥 Supernova</b><br>Esplosione di una stella massiccia: l\'onda d\'urto disperde gli elementi pesanti nello spazio.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ffd166;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ffd166;font-weight:800;font-size:1.1rem;margin-bottom:6px">💥 Supernova</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Quando il nucleo di una stella massiccia esaurisce il combustibile, collassa e rimbalza in un\'esplosione che per giorni brilla come un\'intera galassia. Forgia e disperde elementi pesanti (oro, ferro): la polvere che formerà nuove stelle e pianeti.</div></div>'; }
+  else if(name==='nebula'){ _buildNebula3D(); hud.innerHTML='<b style="color:#ff8fa8">☁️ Nebulosa</b><br>Nube di gas e polvere interstellare: culla dove nascono le stelle.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff8fa8;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff8fa8;font-weight:800;font-size:1.1rem;margin-bottom:6px">☁️ Nebulosa</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Immense nubi di idrogeno, elio e polvere. Dove il gas si addensa, la gravità innesca la fusione e accende nuove stelle. Le nebulose a emissione brillano per la radiazione delle stelle giovani che contengono.</div></div>'; }
+  else if(name==='collision'){ _buildCollision(); hud.innerHTML='<b style="color:#ff9d5c">💫 Collisione Galattica</b><br>Due galassie si attraversano: la gravità distorce i bracci a spirale.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff9d5c;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff9d5c;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Collisione tra galassie</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Le stelle quasi non si scontrano (troppo spazio vuoto), ma la gravità deforma le galassie in code di marea e ponti di stelle. La compressione del gas accende ondate di nuove stelle. Tra 4 miliardi di anni la Via Lattea si fonderà con Andromeda.</div></div>'; }
+  else if(name==='protodisk'){ _buildProtodisk(); hud.innerHTML='<b style="color:#c9a06a">🪐 Disco Protoplanetario</b><br>Disco di gas e polvere attorno a una stella neonata: qui nascono i pianeti.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #c9a06a;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#c9a06a;font-weight:800;font-size:1.1rem;margin-bottom:6px">🪐 Disco Protoplanetario</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Attorno alla giovane stella, il materiale residuo forma un disco rotante. Polvere e ghiaccio si aggregano in planetesimi e poi in pianeti. Le lacune nel disco (viste da ALMA) segnano dove i pianeti stanno già ripulendo la loro orbita.</div></div>'; }
   else if(name==='systems'){ _buildSystems(); hud.innerHTML='<b style="color:#ffcc44">🌟 Sistemi Planetari Reali</b><br>Scegli un sistema qui sotto. Orbite e periodi reali. 👆 Tocca un pianeta.'; }
   else if(name==='solar'){ _buildSolar(); hud.innerHTML='<b style="color:#f5a623">☀️ Sistema Solare</b><br>👆 Tocca un pianeta per chimica, termodinamica, cinetica e momento.'; info.innerHTML=_infoSolar(); }
   else if(name==='exo'){ _buildExo3D(); hud.innerHTML='<b style="color:#7c6fff">🪐 Esopianeti 3D</b><br>👆 Tocca un pianeta per la sua fisica completa. Verde = zona abitabile.'; info.innerHTML=_infoExo(); }
@@ -1263,6 +1268,55 @@ function _cosmoLoad(name){
   else if(name==='map'){ _buildMap(); hud.innerHTML='<b style="color:#34d399">🗺️ Mappa Interstellare</b><br>Stelle ed esopianeti vicini. Clicca i link sotto per le fonti ufficiali.'; info.innerHTML=_infoMap(); }
 }
 
+// ═══ PULSAR — stella di neutroni con fasci rotanti ═══
+function _buildPulsar(){
+  var sc=_cosmo.scene;
+  var star=new THREE.Mesh(new THREE.SphereGeometry(0.9,32,32),new THREE.MeshBasicMaterial({color:0xbfe3ff})); sc.add(star);_cosmo.objects.push(star);
+  var glow=new THREE.Mesh(new THREE.SphereGeometry(1.3,32,32),new THREE.MeshBasicMaterial({color:0x3aa0ff,transparent:true,opacity:0.28})); sc.add(glow);_cosmo.objects.push(glow);
+  var beamMat=new THREE.MeshBasicMaterial({color:0x9fd4ff,transparent:true,opacity:0.32,side:THREE.DoubleSide});
+  var pivot=new THREE.Group();
+  var b1=new THREE.Mesh(new THREE.ConeGeometry(2.6,15,26,1,true),beamMat); b1.position.y=7.5;
+  var b2=new THREE.Mesh(new THREE.ConeGeometry(2.6,15,26,1,true),beamMat); b2.position.y=-7.5; b2.rotation.z=Math.PI;
+  pivot.add(b1); pivot.add(b2); pivot.rotation.z=0.5; sc.add(pivot);_cosmo.objects.push(pivot);
+  var g=new THREE.BufferGeometry(),v=[]; for(var i=0;i<1200;i++){var a=Math.random()*6.28,r=2+Math.random()*4.5;v.push(Math.cos(a)*r,(Math.random()-0.5)*0.6,Math.sin(a)*r);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  var pts=new THREE.Points(g,new THREE.PointsMaterial({color:0x88ccff,size:0.06,transparent:true,opacity:0.7})); sc.add(pts);_cosmo.objects.push(pts);
+  var tt=0; _cosmo._tick=function(t){ pivot.rotation.y+=t*6; tt+=t*8; var s=1+Math.sin(tt)*0.15; glow.scale.setScalar(s); glow.material.opacity=0.2+Math.abs(Math.sin(tt))*0.25; pts.rotation.y+=t*0.5; };
+}
+// ═══ SUPERNOVA — esplosione a onde ═══
+function _buildSupernova(){
+  var sc=_cosmo.scene;
+  var core=new THREE.Mesh(new THREE.SphereGeometry(1.0,32,32),new THREE.MeshBasicMaterial({color:0xffffcc})); sc.add(core);_cosmo.objects.push(core);
+  var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<3200;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);v.push(Math.sin(ph)*Math.cos(th),Math.sin(ph)*Math.sin(th),Math.cos(ph));c.push(1,0.4+Math.random()*0.5,0.15);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
+  var p=new THREE.Points(g,new THREE.PointsMaterial({size:0.09,vertexColors:true,transparent:true,opacity:0.9})); sc.add(p);_cosmo.objects.push(p);
+  var ex=0.5; _cosmo._tick=function(t){ ex+=t*3.2; p.scale.setScalar(ex); p.material.opacity=Math.max(0,1-ex/16); if(ex>16){ex=0.5;} core.scale.setScalar(Math.max(0.15,1.5-ex*0.12)); };
+}
+// ═══ NEBULOSA — nube colorata con stelle giovani ═══
+function _buildNebula3D(){
+  var sc=_cosmo.scene; var cols=[[1,0.55,0.7],[0.6,0.5,1],[0.4,0.8,1],[1,0.8,0.5]];
+  var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<5200;i++){ var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1); var rr=(2+Math.random()*7)*(0.5+Math.random()*0.5); v.push(rr*Math.sin(ph)*Math.cos(th),rr*Math.sin(ph)*Math.sin(th)*0.62,rr*Math.cos(ph)); var col=cols[(Math.random()*cols.length)|0]; c.push(col[0],col[1],col[2]); }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
+  var neb=new THREE.Points(g,new THREE.PointsMaterial({size:0.13,vertexColors:true,transparent:true,opacity:0.55})); sc.add(neb);_cosmo.objects.push(neb);
+  for(var s=0;s<9;s++){ var st=new THREE.Mesh(new THREE.SphereGeometry(0.1+Math.random()*0.14,12,12),new THREE.MeshBasicMaterial({color:0xffffff})); st.position.set((Math.random()-0.5)*11,(Math.random()-0.5)*6,(Math.random()-0.5)*11); sc.add(st);_cosmo.objects.push(st); }
+  _cosmo._tick=function(t){ neb.rotation.y+=t*0.06; neb.rotation.z+=t*0.02; };
+}
+// ═══ COLLISIONE GALATTICA — due dischi che si attraversano ═══
+function _buildCollision(){
+  var sc=_cosmo.scene;
+  function disk(tint){ var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<1600;i++){ var a=Math.random()*6.28; var r=Math.pow(Math.random(),0.5)*4.5; var arm=Math.sin(a*2+r*0.8); v.push(Math.cos(a)*r,(Math.random()-0.5)*0.5+arm*0.25,Math.sin(a)*r); c.push(tint[0],tint[1],tint[2]); } g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); return new THREE.Points(g,new THREE.PointsMaterial({size:0.07,vertexColors:true,transparent:true,opacity:0.85})); }
+  var gA=disk([0.6,0.8,1]), gB=disk([1,0.7,0.5]); sc.add(gA);sc.add(gB);_cosmo.objects.push(gA);_cosmo.objects.push(gB);
+  var coreA=new THREE.Mesh(new THREE.SphereGeometry(0.4,16,16),new THREE.MeshBasicMaterial({color:0xbfe0ff})); var coreB=new THREE.Mesh(new THREE.SphereGeometry(0.4,16,16),new THREE.MeshBasicMaterial({color:0xffd0a0})); sc.add(coreA);sc.add(coreB);_cosmo.objects.push(coreA);_cosmo.objects.push(coreB);
+  var tt=0; _cosmo._tick=function(t){ tt+=t*0.5; var d=8*Math.cos(tt); gA.position.x=d;coreA.position.x=d; gB.position.x=-d;coreB.position.x=-d; gA.rotation.y+=t*0.5; gB.rotation.y-=t*0.5; };
+}
+// ═══ DISCO PROTOPLANETARIO — stella neonata con disco e lacuna ═══
+function _buildProtodisk(){
+  var sc=_cosmo.scene;
+  var star=new THREE.Mesh(new THREE.SphereGeometry(0.8,32,32),new THREE.MeshBasicMaterial({color:0xffe08a})); sc.add(star);_cosmo.objects.push(star);
+  var glow=new THREE.Mesh(new THREE.SphereGeometry(1.15,24,24),new THREE.MeshBasicMaterial({color:0xffb040,transparent:true,opacity:0.3})); sc.add(glow);_cosmo.objects.push(glow);
+  var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<4200;i++){ var a=Math.random()*6.28; var r=2+Math.random()*7; if(r>4.6&&r<5.4&&Math.random()<0.85) continue; v.push(Math.cos(a)*r,(Math.random()-0.5)*0.35,Math.sin(a)*r); var w=r<4?1:0.75; c.push(w,w*0.8,w*0.55); }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
+  var disk=new THREE.Points(g,new THREE.PointsMaterial({size:0.07,vertexColors:true,transparent:true,opacity:0.85})); disk.rotation.x=0.35; sc.add(disk);_cosmo.objects.push(disk);
+  _cosmo._tick=function(t){ disk.rotation.y+=t*0.5; };
+}
 // ═══ BUCO NERO GARGANTUA ═══
 function _buildBlackhole(){
   var sc=_cosmo.scene;
@@ -1422,9 +1476,10 @@ function _buildSolar(){
       m.userData.ph+=t*(0.5/m.userData.T);
       m.position.x=Math.cos(m.userData.ph)*m.userData.a;
       m.position.z=Math.sin(m.userData.ph)*m.userData.a;
-      m.rotation.y+=t*m.userData.spin; if(m.userData.moons){m.userData.moons.forEach(function(mn){mn.userData.ph+=t*(2.5/mn.userData.T);mn.position.x=Math.cos(mn.userData.ph)*mn.userData.d;mn.position.z=Math.sin(mn.userData.ph)*mn.userData.d;mn.position.y=Math.sin(mn.userData.ph)*0.1;});}
-      // lune orbitano attorno al pianeta
+      m.rotation.y+=t*m.userData.spin; if(m.userData.moons){m.userData.moons.forEach(function(mn){ if(!mn||!mn.userData||mn.userData.ph==null)return; mn.userData.ph+=t*(2.5/mn.userData.T);mn.position.x=Math.cos(mn.userData.ph)*mn.userData.d;mn.position.z=Math.sin(mn.userData.ph)*mn.userData.d;mn.position.y=Math.sin(mn.userData.ph)*0.1;});}
+      // lune orbitano attorno al pianeta (struttura {mesh,ph,d,T})
       m.userData.moons.forEach(function(mo){
+        if(!mo||!mo.mesh||mo.ph==null)return;
         mo.ph+=t*(1.5/mo.T);
         mo.mesh.position.x=Math.cos(mo.ph)*mo.d;
         mo.mesh.position.z=Math.sin(mo.ph)*mo.d;
