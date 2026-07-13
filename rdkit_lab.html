@@ -1,11 +1,53 @@
 <!doctype html>
 <html lang="it">
 <head>
+<script>
+/* ===== BSI GUARD v14 — localStorage sicuro (incognito / cookie bloccati / WebView) =====
+   Senza questa guardia, un accesso a localStorage in modalita' privata lancia
+   SecurityError e INTERROMPE l'intero script della pagina (sezioni vuote). */
+(function(){
+  var ok=false;
+  try{var t="__bsi_probe";window.localStorage.setItem(t,t);window.localStorage.removeItem(t);ok=true;}catch(e){ok=false;}
+  if(!ok){
+    var mem={};
+    try{
+      Object.defineProperty(window,"localStorage",{
+        value:{
+          getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+          setItem:function(k,v){mem[k]=String(v);},
+          removeItem:function(k){delete mem[k];},
+          clear:function(){mem={};},
+          key:function(i){return Object.keys(mem)[i]||null;},
+          get length(){return Object.keys(mem).length;}
+        },
+        configurable:true
+      });
+    }catch(e2){}
+  }
+  /* JSON.parse sicuro riutilizzabile */
+  window.bsiSafeParse=function(raw,fallback){
+    try{ var v=JSON.parse(raw); return (v===null||v===undefined)?fallback:v; }
+    catch(e){ return fallback; }
+  };
+  window.bsiLoadJSON=function(key,fallback){
+    try{ return window.bsiSafeParse(window.localStorage.getItem(key), fallback); }
+    catch(e){ return fallback; }
+  };
+  window.bsiSaveJSON=function(key,val){
+    try{ window.localStorage.setItem(key, JSON.stringify(val)); return true; }
+    catch(e){ return false; }
+  };
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RDKit Cheminformatics Lab — BioSpecInfo</title>
-<script src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@rdkit/rdkit@2024.3.1/Code/rdkit_minimal.js"></script>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d1522">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script src="smiles-drawer.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js';s.crossOrigin='anonymous';s.onerror=function(){var u=document.createElement('script');u.src='https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js';u.crossOrigin='anonymous';document.head.appendChild(u);};document.head.appendChild(s);"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0a1b2e;color:#d4e0ec;line-height:1.55;min-height:100vh}
@@ -225,6 +267,8 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 </style>
 </head>
 <body>
+
+
 <div id="app">
 
 <div id="topbar">
@@ -1683,6 +1727,59 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 
 <script>
 // ─── RDKit loader ────────────────────────────────────────────────────
+
+/* ============================================================================
+   BSI SAFETY NET v14 — nessun pannello puo' piu' restare vuoto in silenzio.
+   1) window.onerror mostra gli errori invece di lasciare la pagina muta
+   2) ogni pannello RDKit viene SEMPRE popolato all'apertura (RDKit o euristica)
+   ============================================================================ */
+(function(){
+  var _lastErr='';
+  window.addEventListener('error',function(e){
+    _lastErr=(e.message||'errore')+(e.lineno?(' [riga '+e.lineno+']'):'');
+    try{
+      var b=document.getElementById('bsi-errbar');
+      if(!b){
+        b=document.createElement('div'); b.id='bsi-errbar';
+        b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#3b1220;color:#ffb4c0;'+
+          'font:600 12px/1.4 monospace;padding:8px 34px 8px 12px;border-top:2px solid #ff6b6b';
+        var x=document.createElement('button');
+        x.textContent='✕'; x.setAttribute('aria-label','chiudi');
+        x.style.cssText='position:absolute;right:6px;top:5px;background:none;border:none;color:#ffb4c0;font-size:15px;cursor:pointer';
+        x.onclick=function(){b.style.display='none';};
+        b.appendChild(x); document.body.appendChild(b);
+      }
+      b.style.display='block';
+      b.firstChild.nodeValue=null;
+      b.insertBefore(document.createTextNode('⚠ '+_lastErr),b.firstChild);
+    }catch(_){}
+  });
+
+  // Fallback: se un pannello RDKit resta vuoto dopo l'apertura, lo popolo comunque.
+  window.bsiEnsurePanel=function(id){
+    var map={'p-desc':'desc-result','p-drug':'drug-result','p-qsar':'qsar-result'};
+    var rid=map[id]; if(!rid) return;
+    var el=document.getElementById(rid); if(!el) return;
+    if(el.innerHTML.replace(/\s/g,'').length>60) return;   // gia' popolato: non tocco
+    var smi='';
+    try{ smi=(window.curSMI||'')||'CC(=O)Oc1ccccc1C(=O)O'; }catch(e){ smi='CC(=O)Oc1ccccc1C(=O)O'; }
+    try{
+      var f=document.getElementById({'p-desc':'desc-smiles','p-drug':'drug-smiles','p-qsar':'qsar-smiles'}[id]);
+      if(f && !f.value.trim()) f.value=smi;
+      window.curSMI=smi;
+      if(id==='p-desc'&&typeof calcDescriptors==='function') calcDescriptors();
+      else if(id==='p-drug'&&typeof calcDrugLike==='function') calcDrugLike();
+      else if(id==='p-qsar'&&typeof calcQSAR==='function') calcQSAR();
+    }catch(err){
+      el.innerHTML='<div style="padding:16px;border-radius:10px;background:rgba(255,107,107,.08);'+
+        'border-left:3px solid #ff6b6b;color:#e8eef4;line-height:1.6">'+
+        '<b style="color:#ff6b6b">Impossibile calcolare</b><br>'+
+        '<span style="color:#9fb3c8;font-size:.82rem">'+String(err.message||err)+'</span><br>'+
+        '<button class="btn btn-sm" style="margin-top:10px" onclick="bsiEnsurePanel(\''+id+'\')">Riprova</button></div>';
+    }
+  };
+})();
+
 var RDKit=null, rdkReady=false;
 
 function setStatus(msg,type){
@@ -1693,43 +1790,42 @@ function setStatus(msg,type){
 
 function _rdkitReady(rdk){
   RDKit=rdk; rdkReady=true;
-  try{document.getElementById('rdk-ver').textContent='v'+rdk.version();}catch(e){}
-  setStatus('RDKit.js pronto ✔ — tutti i descrittori disponibili','ok');
-  ['btn-svg','btn-png','btn-cpsmi','btn-addlib','btn-runall'].forEach(function(id){
-    var b=document.getElementById(id);if(b)b.disabled=false;
-  });
-  // Analyze pending molecule — update all panels that showed heuristic estimates
-  var smiToAnalyze = window._pendingSMI || curSMI ||
-    (document.getElementById('smiles-input')||{value:''}).value.trim();
-  window._pendingSMI=null;
-  if(smiToAnalyze){
-    document.getElementById('smiles-input').value=smiToAnalyze;
-    curSMI=smiToAnalyze;
-    setTimeout(function(){
-      analyzeMol();
-      // Re-run any panels that were showing heuristic data
-      var active=document.querySelector('.panel.active');
-      if(active&&active.id==='p-drug'){calcDrugLike();}
-      if(active&&active.id==='p-qsar'){calcQSAR();}
-      if(active&&active.id==='p-desc'){calcDescriptors();}
-    },100);
-  }
+  try{ var v = RDKit.version ? RDKit.version() : '?';
+       setStatus('RDKit.js pronto ✓ — versione '+v+' · tutti i descrittori disponibili','ok');
+  }catch(e){ setStatus('RDKit.js pronto ✓','ok'); }
+  // sblocco i pulsanti che dipendono da RDKit
+  try{ ['btn-svg','btn-png','btn-cpsmi','btn-inchi'].forEach(function(id){ var b=document.getElementById(id); if(b)b.disabled=false; }); }catch(e){}
+  // carico e analizzo subito una molecola di esempio, così l'app non è mai "vuota"
+  try{
+    var si=document.getElementById('smiles-input');
+    if(si && !si.value.trim()){ si.value='CC(=O)OC1=CC=CC=C1C(=O)O'; }
+    if(!curSMI){ curSMI = si ? si.value.trim() : 'CC(=O)OC1=CC=CC=C1C(=O)O'; }
+    analyzeMol();
+  }catch(e){ console.log('auto-analyze',e); }
+  // se un pannello RDKit è già aperto, lo popolo subito
+  try{
+    var act=document.querySelector('.panel.active');
+    if(act && _RDKIT_PANELS.indexOf(act.id)!==-1){
+      _renderPanelFor ? _renderPanelFor(act.id, curDesc, curSMI) : null;
+    }
+  }catch(e){}
 }
 
 (function(){
   // CDN cascade: script-tag approach (più affidabile di fetch+blob in iframe)
   // Versioni stabili × CDN multipli = 8 tentativi
   var combos=[
+    {base:'./', js:'RDKit_minimal.js'},
     {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit/dist/', js:'RDKit_minimal.js'},
     {base:'https://unpkg.com/@rdkit/rdkit/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2025.3.4-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2025.3.4-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.5-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2024.3.5-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.9.2-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit@2023.9.2-1.0.0/dist/', js:'RDKit_minimal.js'},
-    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
-    {base:'https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/', js:'RDKit_minimal.js'}
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2023.9.6/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2022.9.5/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2024.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://cdn.jsdelivr.net/npm/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'},
+    {base:'https://unpkg.com/@rdkit/rdkit@2023.3.3/Code/MinimalLib/dist/', js:'RDKit_minimal.js'}
   ];
   var _tried=0;
   var _activeScript=null;
@@ -1737,7 +1833,7 @@ function _rdkitReady(rdk){
   function initWasm(base,onFail){
     if(typeof initRDKitModule!=='function'){onFail();return;}
     setStatus('WASM: inizializzazione…','loading');
-    var _t=setTimeout(function(){onFail();},40000);
+    var _t=setTimeout(function(){onFail();},25000);
     initRDKitModule({locateFile:function(f){return base+f;}})
     .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
     .catch(function(){clearTimeout(_t);onFail();});
@@ -1750,16 +1846,17 @@ function _rdkitReady(rdk){
     if(_activeScript&&_activeScript.parentNode){_activeScript.parentNode.removeChild(_activeScript);}
     var s=document.createElement('script');
     _activeScript=s;
-    s.crossOrigin='anonymous';
+    if(combo.base!=='./') s.crossOrigin='anonymous';  // solo per CDN
     // Timeout: se non carica in 20s prova il prossimo
     var to=setTimeout(function(){
       s.onload=s.onerror=null;
       if(s.parentNode)s.parentNode.removeChild(s);
       onFail();
-    },20000);
+    },(combo.base==='./')?12000:8000);
     s.onload=function(){clearTimeout(to);initWasm(combo.base,onFail);};
     s.onerror=function(){clearTimeout(to);onFail();};
-    s.src=combo.base+combo.js+'?v='+Date.now(); // cache-bust
+    // niente cache-bust sul file LOCALE: cosi' il Service Worker puo' servirlo offline
+    s.src = (combo.base==='./') ? (combo.base+combo.js) : (combo.base+combo.js+'?v='+Date.now());
     document.head.appendChild(s);
   }
 
@@ -1786,59 +1883,35 @@ function showPresetCat(el,id){
 }
 
 var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
-
-// Popola il pannello specifico con i descrittori (fix tab vuoti)
-function _renderPanelFor(id, desc, smi){
-  try{
-    // riempio il campo SMILES del pannello e chiamo la FUNZIONE VERA del pannello (quella dei pulsanti)
-    if(id==='p-desc'){
-      var f=document.getElementById('desc-smiles'); if(f)f.value=smi;
-      if(typeof calcDescriptors==='function') calcDescriptors();
-    } else if(id==='p-drug'){
-      var f2=document.getElementById('drug-smiles'); if(f2)f2.value=smi;
-      if(typeof calcDrugLike==='function') calcDrugLike();
-    } else if(id==='p-qsar'){
-      var f3=document.getElementById('qsar-smiles'); if(f3)f3.value=smi;
-      if(typeof calcQSAR==='function') calcQSAR();
-    } else if(id==='p-sim'){
-      var f4=document.getElementById('sim-smi1'); if(f4&&!f4.value)f4.value=smi;
-    } else if(id==='p-smarts'){
-      var f5=document.getElementById('smarts-smiles'); if(f5&&!f5.value)f5.value=smi;
-    } else if(id==='p-cmp'){
-      var f6=document.getElementById('cmp-smiles'); if(f6&&!f6.value)f6.value=smi;
-    }
-  }catch(e){ console.log('renderPanelFor',e); }
-}
-
 function showPanel(tab,id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
-  document.getElementById(id).classList.add('active');
-  tab.classList.add('active');
+  var _p=document.getElementById(id); if(_p)_p.classList.add('active');
+  if(tab&&tab.classList)tab.classList.add('active');
   if(_RDKIT_PANELS.indexOf(id)!==-1){
-    // se non c'è ancora una molecola, ne carico una di default (aspirina) così il tab non resta mai vuoto
-    if(!curSMI){ curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; }
-    // IMPORTANTE: analyzeMol() legge lo SMILES dal campo #smiles-input, quindi lo riempio prima
-    var _si=document.getElementById('smiles-input'); if(_si && !_si.value.trim()){ _si.value=curSMI; }
-    if(rdkReady){
-      if(!curDesc || !curDesc.MW){ try{ analyzeMol(); }catch(e){} }
-      // se analyzeMol non ha prodotto descrittori, uso l'euristica come rete di sicurezza
-      if(!curDesc || !curDesc.MW){ var hh=smilesDescHeuristic(curSMI); if(hh)curDesc=hh; }
-      _renderPanelFor(id, curDesc, curSMI);
-    } else {
-      var hd=smilesDescHeuristic(curSMI);
-      if(hd){
-        curDesc=hd;
-        try{ renderQuickDesc(hd); }catch(e){}
-        _renderPanelFor(id, hd, curSMI);
-        setStatus('Stima SMILES (RDKit in caricamento…)','loading');
-      } else {
-        setStatus('RDKit.js in caricamento — attendi qualche secondo…','loading');
+    try{
+      // molecola di default (aspirina) se non ne hai ancora caricata una: cosi i pannelli non restano mai vuoti
+      if(!curSMI){ curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; }
+      // riempio il campo SMILES del pannello corrente
+      var fmap={'p-desc':'desc-smiles','p-drug':'drug-smiles','p-qsar':'qsar-smiles','p-sim':'sim-smi1','p-smarts':'smarts-smiles'};
+      if(fmap[id]){ var fe=document.getElementById(fmap[id]); if(fe&&!fe.value.trim())fe.value=curSMI; }
+      // chiamo la funzione di calcolo VERA del pannello (quella dei pulsanti "Calcola")
+      if(id==='p-desc' && typeof calcDescriptors==='function'){ calcDescriptors(); }
+      else if(id==='p-drug' && typeof calcDrugLike==='function'){ calcDrugLike(); }
+      else if(id==='p-qsar' && typeof calcQSAR==='function'){ calcQSAR(); }
+    }catch(err){
+      var rr=document.getElementById(id)?document.getElementById(id).querySelector('[id$="-result"]'):null;
+      // mostro l'errore SOLO se il pannello è rimasto vuoto (non sovrascrivo contenuto già calcolato)
+      if(rr && rr.innerHTML.replace(/\s/g,'').length<40){
+        rr.innerHTML='<div style="padding:14px;color:#e8eef4;line-height:1.6">Inserisci uno SMILES qui sopra e premi <b>Calcola</b> per vedere i risultati.<br><span style="color:#9fb3c8;font-size:.75rem">('+String(err&&err.message?err.message:err)+')</span></div>';
       }
+      console.log('showPanel',err);
     }
   }
   if(id==='p-speclive'&&!window._spLivInit){try{SpectralLab.init();window._spLivInit=1;}catch(e){}}
-  if(id==='p-pharma'){ if(!curSMI)curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; var pf=document.getElementById('pharma-smiles');if(pf&&!pf.value)pf.value=curSMI; }
+  if(id==='p-pharma'){try{if(!curSMI)curSMI='CC(=O)OC1=CC=CC=C1C(=O)O';var pf=document.getElementById('pharma-smiles');if(pf&&!pf.value)pf.value=curSMI;}catch(e){}}
+  // RETE DI SICUREZZA: se il pannello e' rimasto vuoto, lo popolo comunque
+  try{ if(window.bsiEnsurePanel) setTimeout(function(){ window.bsiEnsurePanel(id); },90); }catch(e){}
 }
 function showPanelById(id){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -1859,7 +1932,8 @@ function toggleAcc(head){
 
 // ─── State ───────────────────────────────────────────────────────────
 var curSMI='', curCanon='', curDesc={};
-var library=(function(){try{return JSON.parse(localStorage.getItem('bsi_rdkit_lib2')||'[]');}catch(e){return [];}})();
+var library=(window.bsiLoadJSON?window.bsiLoadJSON('bsi_rdkit_lib2',[]):[]);
+if(!Array.isArray(library))library=[];
 
 // ─── Molecule analysis ───────────────────────────────────────────────
 var EXAMPLES=['CC(=O)Nc1ccc(O)cc1','CC(C)Cc1ccc(cc1)C(C)C(=O)O','CN1CCC[C@H]1c2cccnc2','O=C(O)c1ccccc1OC(C)=O','NCCc1ccc(O)c(O)c1'];
@@ -1987,6 +2061,30 @@ function showMolErr(msg){
 }
 
 // ─── Descriptor computation ──────────────────────────────────────────
+// Formula bruta calcolata dal molblock (RDKit get_descriptors non restituisce 'formula')
+function _formulaFromMol(mol){
+  try{
+    var mb=mol.get_molblock(); if(!mb) return '';
+    var lines=mb.split('\n'); if(lines.length<4) return '';
+    var counts=lines[3];
+    var nAt=parseInt(counts.substr(0,3),10);
+    if(!nAt||isNaN(nAt)) return '';
+    var c={},i,hTot=0;
+    for(i=0;i<nAt;i++){
+      var L=lines[4+i]; if(!L) break;
+      var sym=L.substr(31,3).trim();
+      if(!sym) continue;
+      c[sym]=(c[sym]||0)+1;
+    }
+    // idrogeni impliciti dai descrittori
+    try{ var r=JSON.parse(mol.get_descriptors()); hTot=(r.NumAtoms||0)-(r.NumHeavyAtoms||0); }catch(e){}
+    if(hTot>0) c['H']=(c['H']||0)+hTot;
+    var order=['C','H'], keys=Object.keys(c).filter(function(k){return k!=='C'&&k!=='H';}).sort();
+    var out='';
+    order.concat(keys).forEach(function(k){ if(c[k]) out+=k+(c[k]>1?c[k]:''); });
+    return out;
+  }catch(e){ return ''; }
+}
 function computeDesc(mol){
   var d={MW:0,LogP:0,TPSA:0,HBA:0,HBD:0,RotBonds:0,ArRings:0,Rings:0,FrCSP3:0,HeavyAtoms:0,Stereo:0,Formula:''};
   try{
@@ -1999,15 +2097,23 @@ function computeDesc(mol){
     d.HBD=raw.NumHBD||raw.NumHDonors||0;
     d.RotBonds=raw.NumRotatableBonds||0;
     d.ArRings=raw.NumAromaticRings||0;
-    d.Rings=raw.RingCount||0;
+    d.Rings=(raw.NumRings!==undefined?raw.NumRings:(raw.RingCount||0));
     d.FrCSP3=raw.FractionCSP3||0;
     d.HeavyAtoms=raw.NumHeavyAtoms||0;
-    d.Stereo=raw.NumChiralCenters||raw.NumStereocenters||0;
-    d.Formula=raw.formula||'';
+    d.Stereo=(raw.NumAtomStereoCenters!==undefined?raw.NumAtomStereoCenters:(raw.NumChiralCenters||raw.NumStereocenters||0));
+    d.UnspecStereo=raw.NumUnspecifiedAtomStereoCenters||0;
+    d.HeteroAtoms=raw.NumHeteroatoms||0;
+    d.AmideBonds=raw.NumAmideBonds||0;
+    d.SatRings=raw.NumSaturatedRings||0;
+    d.AliRings=raw.NumAliphaticRings||0;
+    d.Heterocycles=raw.NumHeterocycles||0;
+    d.LabuteASA=raw.labuteASA||0;
+    d.MolMR=raw.CrippenMR||0;
+    d.LipinskiHBA=raw.lipinskiHBA||0;
+    d.LipinskiHBD=raw.lipinskiHBD||0;
+    d.Formula=raw.formula||_formulaFromMol(mol);
     d.SMILES=mol.get_smiles();
   }catch(e){d.SMILES=mol.get_smiles();}
-  // normalizzo: ogni campo numerico deve essere un numero valido (evita undefined.toFixed)
-  ['MW','ExactMW','LogP','TPSA','HBA','HBD','RotBonds','ArRings','Rings','FrCSP3','HeavyAtoms','Stereo','MR','QED'].forEach(function(kk){ if(typeof d[kk]!=='number'||isNaN(d[kk])) d[kk]=0; });
   return d;
 }
 
@@ -2134,7 +2240,6 @@ function calcDescriptors(){
   _renderDescPanel(d);
 }
 function _renderDescPanel(d){
-  try{
 
   var fullItems=[
     {k:'Peso Molecolare (MW)',v:d.MW.toFixed(3),u:'Da',tip:'Media pesata isotopica. ≤ 500 Da per Lipinski.',
@@ -2164,12 +2269,6 @@ function _renderDescPanel(d){
   var banner=d._heuristic?_heuristicBanner():'';
   document.getElementById('desc-result').innerHTML=banner+html;
   document.getElementById('desc-export').style.display='flex';
-
-  }catch(_err){
-    var _r=document.getElementById("desc-result");
-    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
-    console.log("_renderDescPanel",_err);
-  }
 }
 
 // ─── Drug-likeness ───────────────────────────────────────────────────
@@ -2188,7 +2287,6 @@ function calcDrugLike(){
   _renderDrugLike(d);
 }
 function _renderDrugLike(d){
-  try{
   var mw=d.MW,lp=d.LogP,hba=d.HBA,hbd=d.HBD,rb=d.RotBonds,tpsa=d.TPSA,ha=d.HeavyAtoms;
 
   var rules=[
@@ -2282,7 +2380,7 @@ function _renderDrugLike(d){
     var qc=qr.score>=0.67?'#4caf80':(qr.score>=0.33?'#ffb454':'#ff6b6b');
     var ql=qr.score>=0.67?'Elevata drug-likeness':(qr.score>=0.33?'Drug-likeness moderata':'Bassa drug-likeness');
     var circ=2*Math.PI*40; // circumference for r=40
-    var barsHtml=qr.components.map(function(c){
+    var barsHtml=(qr&&qr.components?qr.components:[]).map(function(c){
       var cc=c.score>=0.67?'#4caf80':(c.score>=0.33?'#ffb454':'#ff6b6b');
       var pct=Math.round(c.score*100);
       return '<div class="qed-bar-row">'+
@@ -2311,12 +2409,6 @@ function _renderDrugLike(d){
       });
     });
   }
-
-  }catch(_err){
-    var _r=document.getElementById("drug-result");
-    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
-    console.log("_renderDrugLike",_err);
-  }
 }
 
 // ─── QSAR predictions ────────────────────────────────────────────────
@@ -2335,7 +2427,6 @@ function calcQSAR(){
   _renderQSAR(d);
 }
 function _renderQSAR(d){
-  try{
   var mw=d.MW,lp=d.LogP,tpsa=d.TPSA,hbd=d.HBD,hba=d.HBA,rb=d.RotBonds,ar=d.ArRings,fsp3=d.FrCSP3;
 
   // LogS (solubilità acquosa) — Delaney-like
@@ -2429,7 +2520,7 @@ function _renderQSAR(d){
 
   // Append QED compact detail
   html+='<div class="note" style="margin-top:8px;font-size:.79rem">'+
-    '<strong>QED breakdown:</strong> '+qr.components.map(function(c){
+    '<strong>QED breakdown:</strong> '+(qr&&qr.components?qr.components:[]).map(function(c){
       var cc=c.score>=0.67?'#4caf80':(c.score>=0.33?'#ffb454':'#ff6b6b');
       return '<span style="color:'+cc+'">'+c.name+' '+Math.round(c.score*100)+'%</span>';
     }).join(' · ')+'</div>';
@@ -2441,12 +2532,6 @@ function _renderQSAR(d){
       var w=el.style.width; el.style.width='0'; el.offsetWidth; el.style.width=w;
     });
   });
-
-  }catch(_err){
-    var _r=document.getElementById("qsar-result");
-    if(_r) _r.innerHTML='<div style="padding:12px;color:#e8eef4">Descrittori calcolati. Alcuni valori avanzati non disponibili per questa molecola.<br><span style="color:#9fb3c8;font-size:.8rem">'+String(_err.message||_err)+'</span></div>';
-    console.log("_renderQSAR",_err);
-  }
 }
 
 // ─── Similarity ──────────────────────────────────────────────────────
