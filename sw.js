@@ -1,8 +1,52 @@
-// BioSpecInfo Service Worker v10.4
-var CACHE='bsi-v10';
-self.addEventListener('install',function(e){self.skipWaiting();});
-self.addEventListener('activate',function(e){self.clients.claim();});
-self.addEventListener('fetch',function(e){
-  if(e.request.method!=='GET')return;
-  e.respondWith(fetch(e.request).catch(function(){return caches.match(e.request);}));
+// BioSpecInfo Service Worker v14 — network-first, precache dei file pesanti
+var CACHE = 'bsi-v14';
+var PRECACHE = [
+  './RDKit_minimal.js',
+  './RDKit_minimal.wasm',
+  './3Dmol-min.js',
+  './three.min.js'
+];
+
+self.addEventListener('install', function(e){
+  self.skipWaiting();
+  // pre-carico i file pesanti così l'app funziona anche offline
+  e.waitUntil(
+    caches.open(CACHE).then(function(c){
+      return Promise.all(PRECACHE.map(function(u){
+        return c.add(u).catch(function(){ /* se manca, non blocco l'installazione */ });
+      }));
+    })
+  );
+});
+
+self.addEventListener('activate', function(e){
+  e.waitUntil(
+    caches.keys().then(function(keys){
+      return Promise.all(keys.map(function(k){ if(k !== CACHE) return caches.delete(k); }));
+    }).then(function(){ return self.clients.claim(); })
+  );
+});
+
+self.addEventListener('fetch', function(e){
+  if(e.request.method !== 'GET') return;
+  var url = e.request.url;
+
+  // Non intercetto MAI le risorse esterne (NASA Eyes, immagini ESA/Hubble, CDN):
+  // altrimenti l'iframe della NASA e le foto dei telescopi non caricano.
+  if(url.indexOf(self.location.origin) !== 0) return;
+
+  // NETWORK-FIRST: prendo sempre la versione fresca; la cache serve solo offline.
+  e.respondWith(
+    fetch(e.request).then(function(resp){
+      if(resp && resp.status === 200 && resp.type === 'basic'){
+        var copy = resp.clone();
+        caches.open(CACHE).then(function(c){ try{ c.put(e.request, copy); }catch(_){} });
+      }
+      return resp;
+    }).catch(function(){
+      return caches.match(e.request).then(function(r){
+        return r || caches.match('./index.html');
+      });
+    })
+  );
 });
