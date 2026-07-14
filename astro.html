@@ -62,7 +62,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .tb.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
 .tb:hover:not(.active){border-color:var(--accent2);color:var(--accent2)}
 #content{flex:1;overflow:hidden;position:relative}
-.pane{display:none;width:100%;height:100%;overflow-y:auto;overflow-x:hidden}
+.pane{display:none;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;padding-bottom:180px}
 .pane.active{display:flex;flex-direction:column}
 /* 3D viewer */
 #vwrap{position:relative;width:100%;background:#000;flex-shrink:0;height:min(50vw,300px)}
@@ -1194,7 +1194,7 @@ function initCosmo(){
   }
   _cosmoLoad(_cosmo.curScene||'blackhole');
 }
-function _cosmoResize(){ if(!_cosmo.ren)return; var wrap=document.getElementById('cosmo-wrap'); var W=wrap.offsetWidth||900,H=wrap.offsetHeight||460; _cosmo.cam.aspect=W/H; _cosmo.cam.updateProjectionMatrix(); _cosmo.ren.setSize(W,H); }
+function _cosmoResize(){ if(!_cosmo.ren)return; var wrap=document.getElementById('cosmo-wrap'); if(!wrap)return; var W=wrap.clientWidth,H=wrap.clientHeight; if(W<2||H<2)return; var cv=_cosmo.ren.domElement; cv.style.width='100%'; cv.style.height='100%'; _cosmo.cam.aspect=W/H; _cosmo.cam.updateProjectionMatrix(); _cosmo.ren.setSize(W,H,false); _cosmo._w=W; _cosmo._h=H; }
 // Schermo intero per le animazioni Cosmo 3D (+ back). Funziona anche via 2D fallback.
 function _cosmoFullscreen(on){
   var wrap=document.getElementById('cosmo-wrap'); if(!wrap)return;
@@ -1291,6 +1291,9 @@ function _cosmoControls(canvas){
 }
 function _cosmoAnimate(){
   _cosmo.raf=requestAnimationFrame(_cosmoAnimate);
+  // auto-resize: appena la sezione diventa visibile (o cambia dimensione/schermo intero)
+  // adatta il renderer alla dimensione REALE del contenitore → scena sempre centrata
+  if(_cosmo.ren){ var _wr=document.getElementById('cosmo-wrap'); if(_wr){ var _w=_wr.clientWidth,_h=_wr.clientHeight; if(_w>1&&_h>1&&(_w!==_cosmo._w||_h!==_cosmo._h)){ _cosmoResize(); } } }
   // clamp del delta: evita salti/scatti quando la scheda torna in primo piano
   var dt=_cosmo.clock?Math.min(0.05,_cosmo.clock.getDelta()):0.016;
   var t=_cosmo.paused?0:dt*_cosmo.speed;
@@ -1395,21 +1398,22 @@ function _buildBlackhole(){
   // disco di accrescimento shader (migliorato)
   var discGeo=new THREE.RingGeometry(2.8,10,180,1);
   var discMat=new THREE.ShaderMaterial({
-    uniforms:{uTime:{value:0}}, transparent:true, side:THREE.DoubleSide, depthWrite:false,
+    uniforms:{uTime:{value:0}}, transparent:true, side:THREE.DoubleSide, depthWrite:false, blending:THREE.AdditiveBlending,
     vertexShader:'varying vec2 vUv; varying float vR; void main(){ vUv=uv; vR=length(position.xy); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
     fragmentShader:['varying vec2 vUv; varying float vR; uniform float uTime;',
-      'float hash(float n){return fract(sin(n)*43758.5453);}',
       'void main(){',
       ' float ang=atan(vUv.y-0.5,vUv.x-0.5);',
-      ' float r=(vR-2.8)/7.2;',
-      ' float turb=sin(ang*6.0+uTime*3.0-r*14.0)*0.5+0.5;',
-      ' float turb2=sin(ang*12.0-uTime*2.0+r*8.0)*0.5+0.5;',
-      ' vec3 hot=vec3(1.0,0.98,0.85); vec3 mid=vec3(1.0,0.6,0.2); vec3 cool=vec3(0.9,0.25,0.4);',
-      ' vec3 col=mix(hot,mid,smoothstep(0.0,0.45,r)); col=mix(col,cool,smoothstep(0.45,1.0,r));',
-      ' float bright=(1.0-r)*(0.5+0.3*turb+0.2*turb2);',
-      ' float doppler=0.5+0.7*cos(ang-1.3);',
-      ' float alpha=smoothstep(1.0,0.7,r)*bright*doppler*1.4;',
-      ' gl_FragColor=vec4(col*(1.4+doppler*0.8),alpha);',
+      ' float r=(vR-2.8)/7.2;',                                  // 0 bordo interno .. 1 esterno
+      ' float spiral=0.5+0.5*sin(ang*3.0-uTime*2.5+r*10.0);',    // streak a spirale morbide
+      ' float fine=0.5+0.5*sin(ang*22.0-uTime*4.0);',
+      ' float streak=mix(0.72,1.0,spiral)*mix(0.88,1.0,fine);',
+      ' vec3 hot=vec3(1.0,0.97,0.88); vec3 mid=vec3(1.0,0.55,0.15); vec3 cool=vec3(0.85,0.18,0.32);',
+      ' vec3 col=mix(hot,mid,smoothstep(0.0,0.5,r)); col=mix(col,cool,smoothstep(0.5,1.0,r));',
+      ' float bright=smoothstep(1.0,0.04,r)*pow(1.0-r,0.6);',    // brilla al bordo interno, sfuma fuori
+      ' float doppler=0.35+0.95*pow(max(0.0,cos(ang-1.2)),1.5);',// un lato molto più luminoso (beaming)
+      ' float alpha=smoothstep(1.03,0.85,r)*smoothstep(0.0,0.06,r)*bright*(0.5+doppler)*streak;',
+      ' col*=(1.05+doppler*1.15);',
+      ' gl_FragColor=vec4(col,clamp(alpha,0.0,1.0));',
       '}'].join('\n')
   });
   var disc=new THREE.Mesh(discGeo,discMat); disc.rotation.x=Math.PI/2.35; sc.add(disc);_cosmo.objects.push(disc);
