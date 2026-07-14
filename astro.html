@@ -434,6 +434,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
     <button class="cosmo-btn" data-scene="wormhole" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">🌀 Wormhole</button><button class="cosmo-btn" data-scene="pulsar" style="padding:6px 12px;border-radius:8px;border:1px solid #88ccff;background:rgba(136,204,255,.15);color:#88ccff;cursor:pointer;font-size:.78rem;font-weight:700">💫 Pulsar</button><button class="cosmo-btn" data-scene="supernova" style="padding:6px 12px;border-radius:8px;border:1px solid #ffd166;background:rgba(255,209,102,.15);color:#ffd166;cursor:pointer;font-size:.78rem;font-weight:700">💥 Supernova</button><button class="cosmo-btn" data-scene="nebula" style="padding:6px 12px;border-radius:8px;border:1px solid #ff8fa8;background:rgba(255,143,168,.15);color:#ff8fa8;cursor:pointer;font-size:.78rem;font-weight:700">☁️ Nebulosa</button><button class="cosmo-btn" data-scene="collision" style="padding:6px 12px;border-radius:8px;border:1px solid #ff9d5c;background:rgba(255,157,92,.15);color:#ff9d5c;cursor:pointer;font-size:.78rem;font-weight:700">💫 Collisione</button><button class="cosmo-btn" data-scene="protodisk" style="padding:6px 12px;border-radius:8px;border:1px solid #c9a06a;background:rgba(201,160,106,.15);color:#c9a06a;cursor:pointer;font-size:.78rem;font-weight:700">🪐 Disco Protoplanetario</button>
     <button class="cosmo-btn" data-scene="solar" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">☀️ Sistema Solare</button>
     <button class="cosmo-btn" data-scene="systems" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">🌟 Sistemi Planetari</button>
+    <button class="cosmo-btn" data-scene="starlab" style="padding:6px 12px;border-radius:8px;border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.22),rgba(255,120,89,.12));color:#f5c451;cursor:pointer;font-size:.78rem;font-weight:800">🌡️ Laboratorio Stellare</button>
     <button class="cosmo-btn" data-scene="exo" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">🪐 Esopianeti 3D</button>
     <button class="cosmo-btn" data-scene="galaxy" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">🌀 Galassie</button>
     <button class="cosmo-btn" data-scene="galaxies3d" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.78rem">🌌 Galassie Reali</button>
@@ -961,6 +962,113 @@ function _transSpectrum(p){
     '<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">lunghezza d\'onda (µm)</text>'+
     '</svg>';
 }
+// estrae molecole con banda nota da un testo chimico
+function _molsFromText(t){ if(!t)return []; var out=[]; ['H₂O','CO₂','CH₄','CO','SO₂','SiO','Na','K','O₂'].forEach(function(m){ if(String(t).indexOf(m)>=0 && out.indexOf(m)<0) out.push(m); }); return out; }
+// temperatura (K) dal tipo spettrale / descrizione stellare
+function _starTemp(t){ t=(t||'').toLowerCase();
+  if(/nana bianca|white dwarf/.test(t))return 12000;
+  if(/supergigante blu|blu|azzurr/.test(t))return 20000;
+  if(/gigante rossa|supergigante rossa|red giant/.test(t))return 3400;
+  if(/nana rossa|red dwarf|\bm[0-9]?\b/.test(t))return 3200;
+  if(/\bk[0-9]?\b|arancione|orange/.test(t))return 4300;
+  if(/\bg[0-9]?\b|gialla|yellow|come il sole|solare/.test(t))return 5600;
+  if(/\bf[0-9]?\b/.test(t))return 6800;
+  if(/\ba[0-9]?\b|bianca|white/.test(t))return 8800;
+  if(/\bb[0-9]?\b/.test(t))return 18000;
+  if(/\bo[0-9]?\b/.test(t))return 38000;
+  return 5600;
+}
+function _wienColor(T){ if(T>=15000)return '#9db4ff'; if(T>=8000)return '#cfe0ff'; if(T>=6500)return '#f7f4ea'; if(T>=5200)return '#fff3c9'; if(T>=4000)return '#ffd69a'; return '#ff9a5a'; }
+// ── Corpo nero (Planck) per le stelle ──
+function _blackbodyBlock(db){
+  var T=_starTemp((db.type||'')+' '+(db.phys||'')+' '+(db.chem||''));
+  var W=320,H=132,padT=16,padB=20,x0=0.12,x1=2.5; // µm
+  function xpix(w){ return 16+(w-x0)/(x1-x0)*(W-24); }
+  function B(w){ return (1/Math.pow(w,5))/(Math.exp(14388/(w*T))-1); }
+  var N=160,pts=[],maxB=0;
+  for(var i=0;i<=N;i++){ var w=x0+(x1-x0)*i/N; var v=B(w); pts.push([w,v]); if(v>maxB)maxB=v; }
+  function ypix(v){ return padT+(1-v/(maxB*1.05))*(H-padT-padB); }
+  var d='M '+xpix(pts[0][0]).toFixed(1)+' '+ypix(pts[0][1]).toFixed(1);
+  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(1)+' '+ypix(pts[i][1]).toFixed(1);
+  var lmax=2898/T/1000; // µm (Wien)
+  var vis0=xpix(0.38),vis1=xpix(0.75);
+  var col=_wienColor(T);
+  var axis=''; [0.5,1,1.5,2].forEach(function(t){ var px=xpix(t).toFixed(1); axis+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB+3)+'" stroke="#3a5169"/><text x="'+px+'" y="'+(H-padB+12)+'" fill="#7f92a6" font-size="8" text-anchor="middle">'+t+'</text>'; });
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌡️ SPETTRO DI CORPO NERO (Planck)</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
+      '<rect x="'+vis0.toFixed(1)+'" y="'+padT+'" width="'+(vis1-vis0).toFixed(1)+'" height="'+(H-padT-padB)+'" fill="url(#vg)" opacity="0.20"/>'+
+      '<defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8b5cff"/><stop offset="0.5" stop-color="#38d16b"/><stop offset="1" stop-color="#ff4b4b"/></linearGradient></defs>'+
+      '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.9"/>'+
+      '<line x1="'+xpix(lmax).toFixed(1)+'" y1="'+padT+'" x2="'+xpix(lmax).toFixed(1)+'" y2="'+(H-padB)+'" stroke="#ffd35a" stroke-dasharray="3 2" opacity="0.7"/>'+
+      '<text x="'+xpix(lmax).toFixed(1)+'" y="'+(padT+9)+'" fill="#ffd35a" font-size="8.5" text-anchor="middle">picco '+(lmax<1?Math.round(lmax*1000)+' nm':lmax.toFixed(2)+' µm')+'</text>'+
+      '<text x="'+vis0.toFixed(1)+'" y="'+(H-padB-3)+'" fill="#9fb3c8" font-size="8">visibile</text>'+
+      axis+'<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">µm</text>'+
+    '</svg>'+
+    '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">Temperatura ≈ <b style="color:'+col+'">'+T.toLocaleString('it')+' K</b>. La legge di Wien lega il picco alla temperatura: stelle più calde → picco verso il blu, più fredde → verso il rosso.</div>'+
+  '</div>';
+}
+// ── Curva di rotazione per le galassie (materia oscura) ──
+function _rotationBlock(db){
+  var W=320,H=132,padL=30,padR=10,padT=14,padB=20;
+  function xp(r){ return padL+(r/10)*(W-padL-padR); }
+  function yp(v){ return padT+(1-v/260)*(H-padT-padB); }
+  var obs='',kep=''; // osservata (piatta) vs kepleriana (cala)
+  for(var i=0;i<=60;i++){ var r=0.15+i/6; var vo=230*(1-Math.exp(-r/1.2)); var vk=(r<1.6)?230*(r/1.6):230/Math.sqrt(r/1.6);
+    obs+=(i?' L ':'M ')+xp(r).toFixed(1)+' '+yp(vo).toFixed(1); kep+=(i?' L ':'M ')+xp(r).toFixed(1)+' '+yp(vk).toFixed(1); }
+  var axis=''; [100,200].forEach(function(v){ axis+='<text x="'+(padL-4)+'" y="'+(yp(v)+3)+'" fill="#7f92a6" font-size="7.5" text-anchor="end">'+v+'</text><line x1="'+padL+'" y1="'+yp(v)+'" x2="'+(W-padR)+'" y2="'+yp(v)+'" stroke="#1c2f45" stroke-dasharray="2 3"/>'; });
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌀 CURVA DI ROTAZIONE</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+axis+
+      '<path d="'+kep+'" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+      '<path d="'+obs+'" fill="none" stroke="#4db6ff" stroke-width="2"/>'+
+      '<text x="'+(W-padR)+'" y="'+(yp(215))+'" fill="#4db6ff" font-size="8.5" text-anchor="end" font-weight="700">osservata (piatta)</text>'+
+      '<text x="'+(W-padR)+'" y="'+(yp(70))+'" fill="#ff7a59" font-size="8.5" text-anchor="end">attesa (Keplero)</text>'+
+      '<text x="'+padL+'" y="'+(H-6)+'" fill="#7f92a6" font-size="8">raggio →</text>'+
+      '<text x="6" y="'+(padT+6)+'" fill="#9fb3c8" font-size="8">km/s</text>'+
+    '</svg>'+
+    '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">La velocità delle stelle resta <b style="color:#4db6ff">costante</b> anche lontano dal centro, invece di calare come previsto dalla sola materia visibile: è la prova dinamica della <b>materia oscura</b>.</div>'+
+  '</div>';
+}
+// ── Spettro di emissione per le nebulose (righe reali) ──
+function _emissionBlock(db){
+  var W=320,H=118,padB=20,x0=400,x1=700; // nm (visibile)
+  var lines=[[486,'Hβ','#5ad1ff',0.6],[496,'OIII','#49e08a',0.5],[501,'OIII','#49e08a',0.9],[588,'He','#ffe08a',0.3],[656,'Hα','#ff5b6a',1.0],[658,'NII','#ff8a6a',0.35],[672,'SII','#ff6ad0',0.3]];
+  function xp(w){ return 12+(w-x0)/(x1-x0)*(W-22); }
+  var bars='',labels='';
+  lines.forEach(function(l){ var px=xp(l[0]).toFixed(1); var h=(H-padB-14)*l[3]; bars+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB-h).toFixed(1)+'" stroke="'+l[2]+'" stroke-width="2.2"/>';
+    if(l[3]>=0.5) labels+='<text x="'+px+'" y="'+(H-padB-h-3).toFixed(1)+'" fill="'+l[2]+'" font-size="8.5" text-anchor="middle" font-weight="700">'+l[1]+'</text>'; });
+  var axis=''; [450,500,550,600,650].forEach(function(t){ var px=xp(t).toFixed(1); axis+='<text x="'+px+'" y="'+(H-6)+'" fill="#7f92a6" font-size="7.5" text-anchor="middle">'+t+'</text>'; });
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌈 SPETTRO DI EMISSIONE</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#05070d" rx="8"/>'+bars+labels+axis+
+      '<text x="'+(W-8)+'" y="12" fill="#7f92a6" font-size="8" text-anchor="end">nm</text>'+
+    '</svg>'+
+    '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">Il gas ionizzato emette a lunghezze d\'onda precise: <b style="color:#ff5b6a">Hα</b> (idrogeno, rosso), <b style="color:#49e08a">OIII</b> (ossigeno, verde), <b style="color:#5ad1ff">Hβ</b>. Sono le righe che danno i colori alle nebulose.</div>'+
+  '</div>';
+}
+// blocco spettro di trasmissione da testo chimico (per pianeti/esopianeti del catalogo)
+function _planetSpecBlock(db){
+  var mols=_molsFromText((db.chem||'')+' '+(db.phys||''));
+  if(!mols.length) return '';
+  return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🔬 SPETTRO DI TRASMISSIONE · stile JWST</div>'+
+    _transSpectrum({mol:mols})+
+  '</div>';
+}
+function _sciBlock(db){
+  if(!db) return '';
+  try{
+    if(db.cat==='Stella') return _blackbodyBlock(db);
+    if(db.cat==='Galassia') return _rotationBlock(db);
+    if(db.cat==='Nebulosa') return _emissionBlock(db);
+    if(db.cat==='Esopianeta'||db.cat==='Pianeta'||db.cat==='Luna') return _planetSpecBlock(db);
+  }catch(e){}
+  return '';
+}
 function renderExo(){
   var g=document.getElementById('egrid');
   g.innerHTML=EXOPLANETS.map(function(p){
@@ -1443,6 +1551,7 @@ function _cosmoLoad(name){
   else if(name==='supernova'){ _buildSupernova(); hud.innerHTML='<b style="color:#ffd166">💥 Supernova</b><br>Esplosione di una stella massiccia: l\'onda d\'urto disperde gli elementi pesanti nello spazio.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ffd166;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ffd166;font-weight:800;font-size:1.1rem;margin-bottom:6px">💥 Supernova</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Quando il nucleo di una stella massiccia esaurisce il combustibile, collassa e rimbalza in un\'esplosione che per giorni brilla come un\'intera galassia. Forgia e disperde elementi pesanti (oro, ferro): la polvere che formerà nuove stelle e pianeti.</div></div>'; }
   else if(name==='nebula'){ _buildNebula3D(); hud.innerHTML='<b style="color:#ff8fa8">☁️ Nebulosa</b><br>Nube di gas e polvere interstellare: culla dove nascono le stelle.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff8fa8;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff8fa8;font-weight:800;font-size:1.1rem;margin-bottom:6px">☁️ Nebulosa</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Immense nubi di idrogeno, elio e polvere. Dove il gas si addensa, la gravità innesca la fusione e accende nuove stelle. Le nebulose a emissione brillano per la radiazione delle stelle giovani che contengono.</div></div>'; }
   else if(name==='collision'){ _buildCollision(); hud.innerHTML='<b style="color:#ff9d5c">💫 Collisione Galattica</b><br>Due galassie si attraversano: la gravità distorce i bracci a spirale.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff9d5c;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff9d5c;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Collisione tra galassie</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Le stelle quasi non si scontrano (troppo spazio vuoto), ma la gravità deforma le galassie in code di marea e ponti di stelle. La compressione del gas accende ondate di nuove stelle. Tra 4 miliardi di anni la Via Lattea si fonderà con Andromeda.</div></div>'; }
+  else if(name==='starlab'){ _buildStarLab(); hud.innerHTML='<b style="color:#f5c451">🌡️ Laboratorio Stellare</b><br>Muovi i cursori qui sotto: temperatura e dimensione cambiano il colore della stella.'; if(info) info.innerHTML=_starLabUI(); }
   else if(name==='protodisk'){ _buildProtodisk(); hud.innerHTML='<b style="color:#c9a06a">🪐 Disco Protoplanetario</b><br>Disco di gas e polvere attorno a una stella neonata: qui nascono i pianeti.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #c9a06a;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#c9a06a;font-weight:800;font-size:1.1rem;margin-bottom:6px">🪐 Disco Protoplanetario</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Attorno alla giovane stella, il materiale residuo forma un disco rotante. Polvere e ghiaccio si aggregano in planetesimi e poi in pianeti. Le lacune nel disco (viste da ALMA) segnano dove i pianeti stanno già ripulendo la loro orbita.</div></div>'; }
   else if(name==='systems'){ _buildSystems(); hud.innerHTML='<b style="color:#ffcc44">🌟 Sistemi Planetari Reali</b><br>Scegli un sistema qui sotto. Orbite e periodi reali. 👆 Tocca un pianeta.'; }
   else if(name==='solar'){ _buildSolar(); hud.innerHTML='<b style="color:#f5a623">☀️ Sistema Solare</b><br>👆 Tocca un pianeta per chimica, termodinamica, cinetica e momento.'; info.innerHTML=_infoSolar(); }
@@ -1504,6 +1613,130 @@ function _buildProtodisk(){
   var disk=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false})); disk.rotation.x=0.35; sc.add(disk);_cosmo.objects.push(disk);
   _cosmo._tick=function(t){ disk.rotation.y+=t*0.5; };
 }
+// ═══ LABORATORIO STELLARE — colore in funzione di temperatura e dimensione ═══
+// colore di corpo nero (approssimazione di Tanner Helland del locus di Planck)
+function _bbColorRGB(T){
+  var t=T/100, r,g,b, cl=function(x){return Math.max(0,Math.min(255,Math.round(x)));};
+  if(t<=66) r=255; else r=329.698727446*Math.pow(t-60,-0.1332047592);
+  if(t<=66) g=99.4708025861*Math.log(t)-161.1195681661; else g=288.1221695283*Math.pow(t-60,-0.0755148492);
+  if(t>=66) b=255; else if(t<=19) b=0; else b=138.5177312231*Math.log(t-10)-305.0447927307;
+  return [cl(r),cl(g),cl(b)];
+}
+function _bbHex(T){ var c=_bbColorRGB(T); return (c[0]<<16)+(c[1]<<8)+c[2]; }
+function _bbCss(T){ var c=_bbColorRGB(T); return 'rgb('+c[0]+','+c[1]+','+c[2]+')'; }
+function _specClass(T){
+  if(T>=30000) return {c:'O',n:'blu',col:'#9bb0ff'};
+  if(T>=10000) return {c:'B',n:'bianco-azzurra',col:'#aabfff'};
+  if(T>=7500)  return {c:'A',n:'bianca',col:'#e8eeff'};
+  if(T>=6000)  return {c:'F',n:'bianco-gialla',col:'#f8f7ef'};
+  if(T>=5200)  return {c:'G',n:'gialla (come il Sole)',col:'#ffe9a8'};
+  if(T>=3700)  return {c:'K',n:'arancione',col:'#ffcf9a'};
+  return {c:'M',n:'rossa',col:'#ff9a6a'};
+}
+var _starLab={T:5772,R:1.0};
+function _buildStarLab(){
+  var sc=_cosmo.scene; var hex=_bbHex(_starLab.T);
+  var core=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshBasicMaterial({color:hex})); sc.add(core);_cosmo.objects.push(core);
+  var glow=new THREE.Mesh(new THREE.SphereGeometry(1.16,48,48),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.35,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow);_cosmo.objects.push(glow);
+  var glow2=new THREE.Mesh(new THREE.SphereGeometry(1.55,40,40),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.13,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow2);_cosmo.objects.push(glow2);
+  var g=new THREE.BufferGeometry(),v=[]; for(var i=0;i<1600;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);var r=1.05+Math.pow(Math.random(),3)*1.7;v.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  var cor=new THREE.Points(g,new THREE.PointsMaterial({color:hex,size:0.05,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(cor);_cosmo.objects.push(cor);
+  _cosmo._star={core:core,glow:glow,glow2:glow2,cor:cor};
+  _starApplyScale();
+  var tt=0;
+  _cosmo._tick=function(t){ tt+=t; core.rotation.y+=t*0.15; cor.rotation.y-=t*0.05; var R=_cosmo._star._R||1; var p=1+Math.sin(tt*2.2)*0.02; glow.scale.setScalar(R*1.16*p); glow2.scale.setScalar(R*1.55*(1+Math.sin(tt*1.4)*0.035)); };
+}
+function _starRadiusScene(){ return Math.max(0.35,Math.min(4.6, 0.55+Math.log(_starLab.R+1)*0.95)); }
+function _starApplyScale(){ if(!_cosmo._star)return; var R=_starRadiusScene(); var s=_cosmo._star; s._R=R; s.core.scale.setScalar(R); s.glow.scale.setScalar(R*1.16); s.glow2.scale.setScalar(R*1.55); s.cor.scale.setScalar(R); }
+function _starApplyColor(){ if(!_cosmo._star)return; var hex=_bbHex(_starLab.T); var s=_cosmo._star; s.core.material.color.setHex(hex); s.glow.material.color.setHex(hex); s.glow2.material.color.setHex(hex); s.cor.material.color.setHex(hex); }
+// spettro di corpo nero live (Planck) colorato
+function _starSpectrumSVG(T){
+  var W=320,H=110,padT=12,padB=18,x0=0.12,x1=2.2;
+  function xpix(w){ return 14+(w-x0)/(x1-x0)*(W-24); }
+  function B(w){ return (1/Math.pow(w,5))/(Math.exp(14388/(w*T))-1); }
+  var N=150,pts=[],mx=0; for(var i=0;i<=N;i++){var w=x0+(x1-x0)*i/N;var v=B(w);pts.push([w,v]);if(v>mx)mx=v;}
+  function ypix(v){ return padT+(1-v/(mx*1.05))*(H-padT-padB); }
+  var d='M '+xpix(pts[0][0]).toFixed(1)+' '+ypix(pts[0][1]).toFixed(1);
+  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(1)+' '+ypix(pts[i][1]).toFixed(1);
+  var lmax=2898/T/1000, col=_bbCss(T), vis0=xpix(0.38),vis1=xpix(0.75);
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><linearGradient id="vgL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8b5cff"/><stop offset="0.5" stop-color="#38d16b"/><stop offset="1" stop-color="#ff4b4b"/></linearGradient></defs>'+
+    '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
+    '<rect x="'+vis0.toFixed(1)+'" y="'+padT+'" width="'+(vis1-vis0).toFixed(1)+'" height="'+(H-padT-padB)+'" fill="url(#vgL)" opacity="0.18"/>'+
+    '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2"/>'+
+    '<line x1="'+xpix(Math.max(x0,Math.min(x1,lmax))).toFixed(1)+'" y1="'+padT+'" x2="'+xpix(Math.max(x0,Math.min(x1,lmax))).toFixed(1)+'" y2="'+(H-padB)+'" stroke="#ffd35a" stroke-dasharray="3 2" opacity="0.7"/>'+
+    '<text x="6" y="10" fill="#9fb3c8" font-size="8">intensità</text>'+
+    '<text x="'+vis0.toFixed(1)+'" y="'+(H-padB-2)+'" fill="#9fb3c8" font-size="7.5">visibile</text>'+
+    '<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">µm</text>'+
+  '</svg>';
+}
+// slider log: 0..1000 → temperatura 2500..50000 K
+function _sTtoK(v){ return Math.round(2500*Math.pow(50000/2500, v/1000)); }
+function _sKtoT(K){ return Math.round(1000*Math.log(K/2500)/Math.log(50000/2500)); }
+function _sRtoV(v){ return Math.pow(10, -1 + (v/1000)*(Math.log10?Math.log10(30)+1:2.477)); } // 0.1..30 R⊙
+function _starLabUI(){
+  var sc=_specClass(_starLab.T), lmax=Math.round(2898000/_starLab.T);
+  var L=Math.pow(_starLab.R,2)*Math.pow(_starLab.T/5772,4);
+  return '<div style="background:rgba(255,255,255,.04);border-left:3px solid #f5c451;border-radius:0 10px 10px 0;padding:14px 16px">'+
+    '<div style="color:#f5c451;font-weight:800;font-size:1.15rem;margin-bottom:2px">🌡️ Laboratorio Stellare</div>'+
+    '<div style="color:#cdd9e6;font-size:.86rem;line-height:1.6;margin-bottom:12px">Il <b>colore</b> di una stella dipende dalla sua <b>temperatura</b> superficiale (corpo nero). Muovi i cursori: la stella 3D e i grafici si aggiornano in tempo reale, in modo scientificamente accurato.</div>'+
+    // temperatura
+    '<div style="display:flex;justify-content:space-between;font-size:.78rem;color:#9fb3c8;margin-bottom:3px"><span>Temperatura</span><span id="sl-tval" style="color:#f5c451;font-weight:800">'+_starLab.T.toLocaleString('it')+' K</span></div>'+
+    '<input type="range" id="sl-temp" min="0" max="1000" value="'+_sKtoT(_starLab.T)+'" oninput="_starSet(\'T\',this.value)" style="width:100%;accent-color:#f5c451">'+
+    '<div style="display:flex;justify-content:space-between;font-size:.62rem;color:#6f8397;margin:2px 2px 12px">'+['2500','3700','5200','6000','7500','10k','30k','50k'].map(function(x){return '<span>'+x+'</span>';}).join('')+'</div>'+
+    // raggio
+    '<div style="display:flex;justify-content:space-between;font-size:.78rem;color:#9fb3c8;margin-bottom:3px"><span>Raggio</span><span id="sl-rval" style="color:#6bcfff;font-weight:800">'+_starLab.R.toFixed(1).replace('.',',')+' R☉</span></div>'+
+    '<input type="range" id="sl-rad" min="0" max="1000" value="'+Math.round(1000*Math.log(_starLab.R/0.1)/Math.log(30/0.1))+'" oninput="_starSet(\'R\',this.value)" style="width:100%;accent-color:#6bcfff">'+
+    '<div style="display:flex;justify-content:space-between;font-size:.62rem;color:#6f8397;margin:2px 2px 12px"><span>nana</span><span>Sole</span><span>gigante</span><span>supergigante</span></div>'+
+    // readout
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'+
+      '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:9px 11px"><div style="font-size:.66rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">Classe · Colore</div><div id="sl-class" style="font-size:1rem;font-weight:800;margin-top:2px;color:'+sc.col+'">'+sc.c+' · '+sc.n+'</div></div>'+
+      '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:9px 11px"><div style="font-size:.66rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">Picco (Wien)</div><div id="sl-wien" style="font-size:1rem;font-weight:800;margin-top:2px;color:#e8eef4">'+lmax+' nm</div></div>'+
+      '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:9px 11px"><div style="font-size:.66rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">Luminosità</div><div id="sl-lum" style="font-size:1rem;font-weight:800;margin-top:2px;color:#f5c451">'+_fmtLum(L)+' L☉</div></div>'+
+      '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:9px 11px"><div style="font-size:.66rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">Anteprima colore</div><div id="sl-swatch" style="height:20px;border-radius:6px;margin-top:4px;background:'+_bbCss(_starLab.T)+';box-shadow:0 0 12px '+_bbCss(_starLab.T)+'"></div></div>'+
+    '</div>'+
+    '<div style="font-size:.72rem;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:5px">🌡️ SPETTRO DI CORPO NERO (Planck)</div>'+
+    '<div id="sl-spec">'+_starSpectrumSVG(_starLab.T)+'</div>'+
+    '<div style="font-size:.72rem;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin:12px 0 5px">📊 DIAGRAMMA H–R (posizione)</div>'+
+    '<div id="sl-hr">'+_hrDiagramSVG(_starLab.T,_starLab.R)+'</div>'+
+    '<div style="font-size:.75rem;color:#9fb3c8;margin-top:8px;line-height:1.55">Esempi: <b style="color:#ff9a6a">M</b> ~3000 K (Proxima) · <b style="color:#ffe9a8">G</b> ~5772 K (Sole) · <b style="color:#aabfff">B</b> ~20000 K (Rigel) · <b style="color:#9bb0ff">O</b> ~40000 K (stelle massicce).</div>'+
+  '</div>';
+}
+function _fmtLum(L){ if(L>=1000) return Math.round(L).toLocaleString('it'); if(L>=10) return Math.round(L); if(L>=1) return L.toFixed(1).replace('.',','); return L.toFixed(3).replace('.',','); }
+// diagramma H-R: temperatura (x, invertita) vs luminosità (y, log)
+function _hrDiagramSVG(T,R){
+  var W=320,H=150,padL=34,padR=10,padT=12,padB=22;
+  var L=Math.pow(R,2)*Math.pow(T/5772,4);
+  function xp(t){ var u=(Math.log(t)-Math.log(2500))/(Math.log(50000)-Math.log(2500)); return padL+(1-u)*(W-padL-padR); } // caldo a sinistra
+  function yp(l){ var u=(Math.log10?Math.log10(l):Math.log(l)/Math.LN10); u=(u+4)/8; return padT+(1-Math.max(0,Math.min(1,u)))*(H-padT-padB); }
+  // sequenza principale
+  var ms=''; for(var i=0;i<=40;i++){ var t=2500*Math.pow(50000/2500,i/40); var l=Math.pow(t/5772,4)*Math.pow(t/5772,0.6); ms+=(i?' L ':'M ')+xp(t).toFixed(1)+' '+yp(l).toFixed(1); }
+  var gx=''; [50000,10000,5000,2500].forEach(function(t){var px=xp(t).toFixed(1);gx+='<text x="'+px+'" y="'+(H-8)+'" fill="#7f92a6" font-size="7.5" text-anchor="middle">'+(t>=1000?(t/1000)+'k':t)+'</text>';});
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
+    '<path d="'+ms+'" fill="none" stroke="#3a5169" stroke-width="6" stroke-linecap="round" opacity="0.5"/>'+
+    '<text x="'+(padL+6)+'" y="'+(padT+10)+'" fill="#8fa3b8" font-size="7.5">giganti/supergiganti ↑</text>'+
+    '<text x="'+(padL+6)+'" y="'+(H-padB-2)+'" fill="#8fa3b8" font-size="7.5">nane ↓</text>'+
+    '<circle cx="'+xp(T).toFixed(1)+'" cy="'+yp(L).toFixed(1)+'" r="6" fill="'+_bbCss(T)+'" stroke="#fff" stroke-width="1.5"/>'+
+    gx+'<text x="'+((padL+W-padR)/2)+'" y="'+(H-1)+'" fill="#7f92a6" font-size="7.5" text-anchor="middle">← più calda   temperatura (K)   più fredda →</text>'+
+    '<text x="8" y="'+(padT+6)+'" fill="#9fb3c8" font-size="8">L (log)</text>'+
+  '</svg>';
+}
+window._starSet=function(which,val){
+  if(which==='T'){ _starLab.T=_sTtoK(+val); _starApplyColor(); }
+  else if(which==='R'){ _starLab.R=Math.max(0.1,Math.min(30, 0.1*Math.pow(30/0.1, (+val)/1000) )); _starApplyScale(); }
+  // aggiorno letture
+  var sc=_specClass(_starLab.T), lmax=Math.round(2898000/_starLab.T), L=Math.pow(_starLab.R,2)*Math.pow(_starLab.T/5772,4);
+  var q=function(id){return document.getElementById(id);};
+  if(q('sl-tval'))q('sl-tval').textContent=_starLab.T.toLocaleString('it')+' K';
+  if(q('sl-rval'))q('sl-rval').textContent=_starLab.R.toFixed(_starLab.R<10?1:0).replace('.',',')+' R☉';
+  if(q('sl-class')){q('sl-class').textContent=sc.c+' · '+sc.n;q('sl-class').style.color=sc.col;}
+  if(q('sl-wien'))q('sl-wien').textContent=lmax+' nm';
+  if(q('sl-lum'))q('sl-lum').textContent=_fmtLum(L)+' L☉';
+  if(q('sl-swatch')){var css=_bbCss(_starLab.T);q('sl-swatch').style.background=css;q('sl-swatch').style.boxShadow='0 0 12px '+css;}
+  if(q('sl-spec'))q('sl-spec').innerHTML=_starSpectrumSVG(_starLab.T);
+  if(q('sl-hr'))q('sl-hr').innerHTML=_hrDiagramSVG(_starLab.T,_starLab.R);
+};
 // ═══ BUCO NERO GARGANTUA ═══
 function _buildBlackhole(){
   var sc=_cosmo.scene;
@@ -4100,6 +4333,8 @@ function _showBodyDetail(name){
     h+='<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px;margin-bottom:10px"><div style="color:'+col+';font-weight:700">'+db.type+'</div><div style="color:#9fb3c8;font-size:.82rem;margin-top:2px">Distanza: '+db.dist+' · Categoria: '+db.cat+'</div></div>';
     h+='<div style="background:rgba(0,201,183,.08);border-left:3px solid #00c9b7;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px"><b style="color:#00c9b7">⚗️ Chimica</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-top:3px">'+db.chem+'</div></div>';
     if(db.phys) h+='<div style="background:rgba(245,166,35,.08);border-left:3px solid #f5a623;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px"><b style="color:#f5a623">🔭 Proprietà fisiche</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-top:3px">'+db.phys+'</div></div>';
+    // grafico scientifico specifico per tipo (stella→Planck, galassia→rotazione, nebulosa→emissione, pianeta→trasmissione)
+    if(typeof _sciBlock==='function') h+=_sciBlock(db);
   }
   if(phys){
     h+='<div style="background:rgba(245,166,35,.08);border-left:3px solid #f5a623;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px"><b style="color:#f5a623">🌡️ Termodinamica</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-top:3px">'+phys.thermo+'</div></div>';
