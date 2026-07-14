@@ -1634,21 +1634,44 @@ function _specClass(T){
   return {c:'M',n:'rossa',col:'#ff9a6a'};
 }
 var _starLab={T:5772,R:1.0};
+var _STAR_VERT='varying vec3 vN; varying vec3 vP; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vP=position; vec4 wp=modelViewMatrix*vec4(position,1.0); vV=-normalize(wp.xyz); gl_Position=projectionMatrix*wp; }';
+var _STAR_FRAG=[
+ 'uniform float uTime; uniform vec3 uColor;',
+ 'varying vec3 vN; varying vec3 vP; varying vec3 vV;',
+ 'float hash(vec3 p){ p=fract(p*0.3183099+0.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }',
+ 'float noise(vec3 x){ vec3 i=floor(x); vec3 f=fract(x); f=f*f*(3.0-2.0*f);',
+ ' return mix(mix(mix(hash(i+vec3(0,0,0)),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),',
+ '            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z); }',
+ 'float fbm(vec3 p){ float v=0.0,a=0.5; for(int i=0;i<5;i++){ v+=a*noise(p); p=p*2.03+vec3(1.7); a*=0.5; } return v; }',
+ 'void main(){',
+ ' vec3 p=normalize(vP)*3.2;',
+ ' float n=fbm(p+vec3(0.0,uTime*0.16,uTime*0.05));',
+ ' float n2=fbm(p*2.6-vec3(uTime*0.12,0.0,0.0));',
+ ' float gran=0.55+0.85*n*(0.6+0.6*n2);',
+ ' float limb=pow(max(0.0,dot(vN,vV)),0.5);',      // oscuramento al bordo
+ ' vec3 col=uColor*gran*(0.45+0.75*limb);',
+ ' col+=uColor*smoothstep(0.72,1.0,n)*0.7;',        // regioni piu calde (facole)
+ ' col+=uColor*pow(1.0-limb,3.0)*0.4;',             // bordo cromosferico luminoso
+ ' gl_FragColor=vec4(col,1.0);',
+ '}'].join('\n');
+function _starUColor(){ var c=_bbColorRGB(_starLab.T); return new THREE.Vector3(c[0]/255,c[1]/255,c[2]/255); }
 function _buildStarLab(){
   var sc=_cosmo.scene; var hex=_bbHex(_starLab.T);
-  var core=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshBasicMaterial({color:hex})); sc.add(core);_cosmo.objects.push(core);
-  var glow=new THREE.Mesh(new THREE.SphereGeometry(1.16,48,48),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.35,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow);_cosmo.objects.push(glow);
-  var glow2=new THREE.Mesh(new THREE.SphereGeometry(1.55,40,40),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.13,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow2);_cosmo.objects.push(glow2);
-  var g=new THREE.BufferGeometry(),v=[]; for(var i=0;i<1600;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);var r=1.05+Math.pow(Math.random(),3)*1.7;v.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
-  var cor=new THREE.Points(g,new THREE.PointsMaterial({color:hex,size:0.05,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(cor);_cosmo.objects.push(cor);
-  _cosmo._star={core:core,glow:glow,glow2:glow2,cor:cor};
+  var mat=new THREE.ShaderMaterial({ uniforms:{uTime:{value:0},uColor:{value:_starUColor()}}, vertexShader:_STAR_VERT, fragmentShader:_STAR_FRAG });
+  var core=new THREE.Mesh(new THREE.SphereGeometry(1,96,96),mat); sc.add(core);_cosmo.objects.push(core);
+  var glow=new THREE.Mesh(new THREE.SphereGeometry(1.18,48,48),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.38,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow);_cosmo.objects.push(glow);
+  var glow2=new THREE.Mesh(new THREE.SphereGeometry(1.7,40,40),new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:0.14,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(glow2);_cosmo.objects.push(glow2);
+  // corona di particelle (getti/flares)
+  var g=new THREE.BufferGeometry(),v=[]; for(var i=0;i<2000;i++){var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);var r=1.05+Math.pow(Math.random(),2.5)*2.0;v.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));
+  var cor=new THREE.Points(g,new THREE.PointsMaterial({color:hex,size:0.055,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)})); sc.add(cor);_cosmo.objects.push(cor);
+  _cosmo._star={core:core,glow:glow,glow2:glow2,cor:cor,mat:mat};
   _starApplyScale();
   var tt=0;
-  _cosmo._tick=function(t){ tt+=t; core.rotation.y+=t*0.15; cor.rotation.y-=t*0.05; var R=_cosmo._star._R||1; var p=1+Math.sin(tt*2.2)*0.02; glow.scale.setScalar(R*1.16*p); glow2.scale.setScalar(R*1.55*(1+Math.sin(tt*1.4)*0.035)); };
+  _cosmo._tick=function(t){ tt+=t; mat.uniforms.uTime.value=tt; core.rotation.y+=t*0.06; cor.rotation.y-=t*0.03; var R=_cosmo._star._R||1; var pu=1+Math.sin(tt*2.2)*0.03; glow.scale.setScalar(R*1.18*pu); glow2.scale.setScalar(R*1.7*(1+Math.sin(tt*1.4)*0.04)); };
 }
 function _starRadiusScene(){ return Math.max(0.35,Math.min(4.6, 0.55+Math.log(_starLab.R+1)*0.95)); }
 function _starApplyScale(){ if(!_cosmo._star)return; var R=_starRadiusScene(); var s=_cosmo._star; s._R=R; s.core.scale.setScalar(R); s.glow.scale.setScalar(R*1.16); s.glow2.scale.setScalar(R*1.55); s.cor.scale.setScalar(R); }
-function _starApplyColor(){ if(!_cosmo._star)return; var hex=_bbHex(_starLab.T); var s=_cosmo._star; s.core.material.color.setHex(hex); s.glow.material.color.setHex(hex); s.glow2.material.color.setHex(hex); s.cor.material.color.setHex(hex); }
+function _starApplyColor(){ if(!_cosmo._star)return; var s=_cosmo._star; var hex=_bbHex(_starLab.T); if(s.mat&&s.mat.uniforms) s.mat.uniforms.uColor.value=_starUColor(); if(s.glow)s.glow.material.color.setHex(hex); if(s.glow2)s.glow2.material.color.setHex(hex); if(s.cor)s.cor.material.color.setHex(hex); }
 // spettro di corpo nero live (Planck) colorato
 function _starSpectrumSVG(T){
   var W=320,H=110,padT=12,padB=18,x0=0.12,x1=2.2;
