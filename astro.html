@@ -63,7 +63,22 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .tb:hover:not(.active){border-color:var(--accent2);color:var(--accent2)}
 #content{flex:1;overflow:hidden;position:relative}
 .pane{display:none;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;padding-bottom:180px}
-.pane.active{display:flex;flex-direction:column}
+.pane.active{display:flex;flex-direction:column;animation:bsiPaneIn .4s cubic-bezier(.22,.9,.3,1) both}
+@keyframes bsiPaneIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* comparsa fluida delle schede */
+.ecard,.mcard{animation:bsiCardIn .42s cubic-bezier(.22,.9,.3,1) both}
+@keyframes bsiCardIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+/* micro-stagger sulle prime schede della griglia */
+.egrid>*:nth-child(1){animation-delay:.01s}.egrid>*:nth-child(2){animation-delay:.04s}.egrid>*:nth-child(3){animation-delay:.07s}.egrid>*:nth-child(4){animation-delay:.10s}.egrid>*:nth-child(5){animation-delay:.13s}.egrid>*:nth-child(6){animation-delay:.16s}.egrid>*:nth-child(7){animation-delay:.19s}.egrid>*:nth-child(8){animation-delay:.22s}
+/* feedback fluido dei pulsanti di scena e tab */
+.cosmo-btn{transition:transform .16s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,background .22s ease,border-color .22s ease}
+.cosmo-btn:hover{transform:translateY(-1px)}
+.cosmo-btn:active{transform:scale(.93)}
+.tb,.ov-tab,.neb-chip{transition:color .2s ease,background .25s ease,border-color .25s ease,transform .12s ease}
+.tb:active,.ov-tab:active,.neb-chip:active{transform:scale(.96)}
+.ecard,.mcard{transition:transform .18s ease,box-shadow .22s ease,border-color .22s ease}
+.ecard:hover,.mcard:hover{transform:translateY(-2px)}
+@media(prefers-reduced-motion:reduce){.pane.active,.ecard,.mcard{animation:none!important}}
 /* 3D viewer */
 #vwrap{position:relative;width:100%;background:#000;flex-shrink:0;height:min(50vw,300px)}
 #three-canvas{width:100%;height:100%;display:block}
