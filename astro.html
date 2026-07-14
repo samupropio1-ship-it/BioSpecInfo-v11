@@ -1589,6 +1589,11 @@ function _buildSupernova(){
 // ═══ NEBULOSA — nube colorata con stelle giovani ═══
 function _buildNebula3D(){
   var sc=_cosmo.scene; var cols=[[1,0.55,0.7],[0.6,0.5,1],[0.4,0.8,1],[1,0.8,0.5]];
+  // nubi volumetriche morbide (glow additivo) per profondità
+  [[0xff6fae,5.5,0.06,-2,1,1],[0x6a7bff,4.5,0.06,3,-1,-2],[0x59d0ff,4.0,0.05,-1,2,2]].forEach(function(gg){
+    var cloud=new THREE.Mesh(new THREE.SphereGeometry(gg[1],20,20),new THREE.MeshBasicMaterial({color:gg[0],transparent:true,opacity:gg[2],blending:THREE.AdditiveBlending,depthWrite:false}));
+    cloud.position.set(gg[3],gg[4],gg[5]); cloud.scale.y=0.7; sc.add(cloud);_cosmo.objects.push(cloud);
+  });
   var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<8000;i++){ var th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1); var rr=(2+Math.random()*7)*(0.45+Math.random()*0.55); v.push(rr*Math.sin(ph)*Math.cos(th),rr*Math.sin(ph)*Math.sin(th)*0.62,rr*Math.cos(ph)); var col=cols[(Math.random()*cols.length)|0]; var b=0.5+Math.random()*0.5; c.push(col[0]*b,col[1]*b,col[2]*b); }
   g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
   var neb=new THREE.Points(g,new THREE.PointsMaterial({size:0.16,vertexColors:true,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(neb);_cosmo.objects.push(neb);
@@ -1794,8 +1799,17 @@ function _buildBlackhole(){
   });
   var disc=new THREE.Mesh(discGeo,discMat); disc.rotation.x=Math.PI/2.35; sc.add(disc);_cosmo.objects.push(disc);
   // arco di lensing (parte superiore, illusione relativistica)
-  var lens=new THREE.Mesh(new THREE.TorusGeometry(3.2,0.5,16,80,Math.PI),new THREE.MeshBasicMaterial({color:0xffcc66,transparent:true,opacity:0.4,side:THREE.DoubleSide}));
+  var lens=new THREE.Mesh(new THREE.TorusGeometry(3.35,0.14,12,90,Math.PI),new THREE.MeshBasicMaterial({color:0xffcc66,transparent:true,opacity:0.5,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
   lens.rotation.x=Math.PI/2.35; lens.position.y=0.3; sc.add(lens);_cosmo.objects.push(lens);
+  // arco di lensing inferiore speculare — la luce del disco curvata SOTTO il buco nero (look Interstellar)
+  var lensB=new THREE.Mesh(new THREE.TorusGeometry(3.35,0.14,12,90,Math.PI),new THREE.MeshBasicMaterial({color:0xffcc66,transparent:true,opacity:0.5,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
+  lensB.rotation.x=Math.PI/2.35; lensB.rotation.z=Math.PI; lensB.position.y=-0.3; sc.add(lensB);_cosmo.objects.push(lensB);
+  // secondo disco lensato VERTICALE (immagine relativistica secondaria) con lo stesso shader del disco
+  var disc2=new THREE.Mesh(new THREE.RingGeometry(2.5,6.2,160,1),discMat);
+  disc2.rotation.y=Math.PI/2; disc2.rotation.z=Math.PI/2.35; sc.add(disc2);_cosmo.objects.push(disc2);
+  // anello di Einstein luminoso attorno all'ombra (fotoni in orbita)
+  var einstein=new THREE.Mesh(new THREE.TorusGeometry(2.36,0.045,20,140),new THREE.MeshBasicMaterial({color:0xfff4de,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false}));
+  einstein.rotation.x=Math.PI/2.35; sc.add(einstein);_cosmo.objects.push(einstein);
   // getti relativistici (jet)
   [1,-1].forEach(function(dir){
     var jetGeo=new THREE.BufferGeometry(),jv=[];
@@ -1974,6 +1988,11 @@ function _infoExo(){
 // ═══ GALASSIA ═══
 function _buildGalaxy(){
   var sc=_cosmo.scene;
+  // nucleo volumetrico luminoso (bulge) — glow additivo morbido
+  [[1.1,0.5,0xfff0c0],[2.0,0.22,0xffd27a],[3.2,0.10,0xffb060]].forEach(function(gg){
+    var core=new THREE.Mesh(new THREE.SphereGeometry(gg[0],28,28),new THREE.MeshBasicMaterial({color:gg[2],transparent:true,opacity:gg[1],blending:THREE.AdditiveBlending,depthWrite:false}));
+    sc.add(core);_cosmo.objects.push(core);
+  });
   var N=8000; var g=new THREE.BufferGeometry(); var pos=[],col=[];
   var arms=4;
   for(var i=0;i<N;i++){
