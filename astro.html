@@ -861,10 +861,78 @@ var _MOL_BANDS={
   'DMS':[[3.4,0.55,0.10]]
 };
 var _MOL_COL={'H₂O':'#4db6ff','CO₂':'#ff7a59','CO':'#ffb74d','CH₄':'#7c6fff','SO₂':'#ffd166','SiO':'#c9a06a','Na':'#ff5b8a','K':'#c792ea','O₂':'#4dd0e1','DMS':'#8bc34a'};
-// mappa nome esopianeta → molecole rilevate (da EXOPLANETS), per lo spettro nell'esploratore
-var _EXO_MOL_BY_NAME={};
-try{ if(typeof EXOPLANETS!=='undefined'){ EXOPLANETS.forEach(function(p){ _EXO_MOL_BY_NAME[String(p.n).toLowerCase().replace(/\s+/g,'')]=p.mol; }); } }catch(e){}
-function _exoMolFor(name){ if(!name)return null; var k=String(name).toLowerCase().replace(/\s+/g,''); if(_EXO_MOL_BY_NAME[k])return _EXO_MOL_BY_NAME[k]; k=k.replace('centauri','').replace('planet',''); return _EXO_MOL_BY_NAME[k]||null; }
+// mappa nome esopianeta → dati completi (da EXOPLANETS): molecole, habitability, ecc.
+var _EXO_BY_NAME={};
+try{ if(typeof EXOPLANETS!=='undefined'){ EXOPLANETS.forEach(function(p){ _EXO_BY_NAME[String(p.n).toLowerCase().replace(/\s+/g,'')]=p; }); } }catch(e){}
+function _exoDataFor(name){ if(!name)return null; var k=String(name).toLowerCase().replace(/\s+/g,''); if(_EXO_BY_NAME[k])return _EXO_BY_NAME[k]; k=k.replace('centauri','').replace('planet',''); return _EXO_BY_NAME[k]||null; }
+function _exoMolFor(name){ var p=_exoDataFor(name); return p?p.mol:null; }
+
+// ── Curva di luce del transito: forma schematica + profondità reale ΔF/F=(Rp/R⋆)² ──
+function _transitCurve(b){
+  if(!b) return '';
+  var rp=null, isJ=false;
+  (b.fatti||[]).forEach(function(f){ var k=String(f[0]).toUpperCase(); if(k.indexOf('RAGG')>=0){ var v=String(f[1]); var m=v.replace(',','.').match(/([\d.]+)/); if(m){ rp=parseFloat(m[1]); if(/gio|jup|♃|r\s*j/i.test(v)) isJ=true; } } });
+  if(rp==null) return '';
+  if(isJ) rp*=11.2;                       // R♃ → R⊕
+  var star=''; (b.fatti||[]).forEach(function(f){ if(String(f[0]).toUpperCase().indexOf('STELL')>=0) star=String(f[1]); }); star=(star||b.star||'').toLowerCase();
+  var rs=1.0;                             // R⊙ dal tipo spettrale
+  if(/nana rossa|red dwarf|\bm[0-9]?\b/.test(star)) rs=0.3;
+  else if(/nana arancione|\bk[0-9]?\b/.test(star)) rs=0.74;
+  else if(/nana gialla|\bg[0-9]?\b|sole|sun/.test(star)) rs=1.0;
+  else if(/\bf[0-9]?\b/.test(star)) rs=1.3;
+  else if(/\ba[0-9]?\b/.test(star)) rs=1.7;
+  else if(/gigante/.test(star)) rs=12;
+  var depth=Math.pow(rp*0.009168/rs,2);   // frazione di luce bloccata
+  var pct=depth*100;
+  var depthTxt = pct>=0.1 ? pct.toFixed(2).replace('.',',')+' %' : Math.round(depth*1e6)+' ppm';
+  var W=320,H=118,padB=20,padT=14,top=padT+6,bot=H-padB-6,vd=(bot-top)*0.55; // dip visivo schematico
+  var xa=30,xb=110,xc=140,xd=210,xe=240,xf=310; // fasi: fuori, ingresso, dentro, uscita, fuori
+  var d='M 10 '+top+' L '+xa+' '+top+' L '+xb+' '+(top+vd)+' L '+xc+' '+(top+vd)+' L '+xd+' '+(top+vd)+' L '+xe+' '+top+' L '+W+' '+top;
+  return '<div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">📉 CURVA DI LUCE DEL TRANSITO</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
+      '<line x1="10" y1="'+top+'" x2="'+W+'" y2="'+top+'" stroke="#243a52" stroke-dasharray="3 3"/>'+
+      '<path d="'+d+'" fill="none" stroke="#f5c451" stroke-width="1.8"/>'+
+      '<circle cx="'+((xb+xd)/2)+'" cy="'+(top+vd)+'" r="2.6" fill="#f5c451"/>'+
+      '<text x="12" y="'+(top-2)+'" fill="#9fb3c8" font-size="8.5">luminosità stella</text>'+
+      '<text x="'+((xb+xd)/2)+'" y="'+(top+vd+13)+'" fill="#f5c451" font-size="9" text-anchor="middle" font-weight="700">transito</text>'+
+      '<text x="'+(W-8)+'" y="'+(H-5)+'" fill="#7f92a6" font-size="8" text-anchor="end">tempo →</text>'+
+    '</svg>'+
+    '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">Quando il pianeta passa davanti alla stella, la luminosità cala di <b style="color:#f5c451">'+depthTxt+'</b> — la profondità del transito ΔF/F = (R<sub>p</sub>/R<sub>⋆</sub>)². È il momento in cui si misura anche lo spettro qui sopra.</div>'+
+  '</div>';
+}
+// ── Zona abitabile: posizione del corpo rispetto alla fascia abitabile della stella ──
+function _habZone(b){
+  var hs=null, hab=null;
+  if(typeof b.hs==='number'){ hs=b.hs; hab=b.hab; }
+  var ex=_exoDataFor(b.n); if(hs==null && ex){ hs=ex.hs; hab=ex.hab; }
+  // corpi del Sistema Solare noti (posizione qualitativa nella HZ del Sole)
+  var SOLAR={'venere':18,'terra':55,'marte':78,'mercurio':4,'giove':96,'saturno':98,'titano':97};
+  var pos=null;
+  var key=String(b.n||'').toLowerCase().replace(/\s+/g,'');
+  if(SOLAR[key]!=null) pos=SOLAR[key];
+  else if(hs!=null) pos=Math.max(4,Math.min(96, 12 + hs*0.76)); // hs alto → dentro la fascia verde
+  if(pos==null) return '';
+  var W=320,H=74,cy=34,x0=44,x1=W-14;
+  function xp(p){ return x0+(p/100)*(x1-x0); }
+  // fasce: 0-38 caldo(rosso), 38-70 abitabile(verde), 70-100 freddo(blu)
+  return '<div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">'+
+    '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌡️ ZONA ABITABILE</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs><linearGradient id="hz" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5b3a"/><stop offset="0.38" stop-color="#ffb24d"/><stop offset="0.5" stop-color="#4caf80"/><stop offset="0.68" stop-color="#4caf80"/><stop offset="0.82" stop-color="#4d8bff"/><stop offset="1" stop-color="#3050b0"/></linearGradient></defs>'+
+      '<circle cx="20" cy="'+cy+'" r="9" fill="#ffd35a"/><circle cx="20" cy="'+cy+'" r="13" fill="#ffd35a" opacity="0.25"/>'+
+      '<rect x="'+x0+'" y="'+(cy-6)+'" width="'+(x1-x0)+'" height="12" rx="6" fill="url(#hz)"/>'+
+      '<rect x="'+xp(38)+'" y="'+(cy-9)+'" width="'+(xp(70)-xp(38))+'" height="18" rx="4" fill="none" stroke="#eafff3" stroke-opacity="0.5" stroke-dasharray="3 2"/>'+
+      '<text x="'+((xp(38)+xp(70))/2)+'" y="'+(cy-12)+'" fill="#8fe6b8" font-size="8.5" text-anchor="middle" font-weight="700">fascia abitabile</text>'+
+      '<circle cx="'+xp(pos)+'" cy="'+cy+'" r="5.5" fill="#fff" stroke="#0a1424" stroke-width="1.5"/>'+
+      '<text x="'+xp(pos)+'" y="'+(cy+20)+'" fill="#e8eef4" font-size="9" text-anchor="middle" font-weight="700">'+String(b.n).replace(/[<>&]/g,'')+'</text>'+
+      '<text x="'+x0+'" y="'+(H-3)+'" fill="#ff8a6a" font-size="8">troppo caldo</text>'+
+      '<text x="'+x1+'" y="'+(H-3)+'" fill="#7fa6ff" font-size="8" text-anchor="end">troppo freddo</text>'+
+    '</svg>'+
+    (hab?'<div style="font-size:10px;color:#9fb3c8;margin-top:5px">Indice di abitabilità: <b style="color:#8fe6b8">'+(hs!=null?hs+'/100':'—')+'</b> · '+({yes:'nella zona abitabile',maybe:'al margine della zona abitabile',no:'fuori dalla zona abitabile'}[hab]||'')+'</div>':'')+
+  '</div>';
+}
 function _transSpectrum(p){
   var W=320,H=132,padL=8,padR=8,padT=20,padB=18,x0=0.6,x1=5.0;
   var mols=(p.mol||[]);
@@ -5779,6 +5847,8 @@ function _exAtmo(b, host){
         '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">Ogni picco = una molecola che assorbe la luce a lunghezze d\'onda caratteristiche, come nei transiti osservati da JWST/Hubble. Le molecole senza bande nell\'infrarosso vicino (es. N₂) non lasciano firma.</div>'+
       '</div>';
   }
+  var transitBlock = (b.cat==='Esopianeta' && typeof _transitCurve==='function') ? _transitCurve(b) : '';
+  var hzBlock = (typeof _habZone==='function') ? _habZone(b) : '';
   host.innerHTML =
     '<div class="ex-note">Composizione atmosferica (percentuali in volume). '+
       (b.atmoNote?'<b>'+esc(b.atmoNote)+'</b>':'')+'</div>'+
@@ -5791,6 +5861,8 @@ function _exAtmo(b, host){
         '</div>';
       }).join('') +'</div>'+
     specBlock+
+    transitBlock+
+    hzBlock+
     '<div class="dt-grid">'+ (b.fatti||[]).map(function(f){
         return '<div class="dt-cell"><div class="dt-k">'+esc(f[0])+'</div><div class="dt-v">'+esc(f[1])+'</div></div>';
       }).join('') +'</div>';
