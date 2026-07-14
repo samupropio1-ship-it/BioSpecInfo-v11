@@ -1219,6 +1219,29 @@ function _cosmoFullscreen(on){
   document.addEventListener('fullscreenchange',onFsChange);
   document.addEventListener('webkitfullscreenchange',onFsChange);
 })();
+// ── sprite morbido: trasforma i quadratini duri in punti luminosi tondi ──
+var _cosmoSpriteTex=null;
+function _cosmoSprite(){
+  if(_cosmoSpriteTex) return _cosmoSpriteTex;
+  var c=document.createElement('canvas'); c.width=c.height=64; var ctx=c.getContext('2d');
+  var g=ctx.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,'rgba(255,255,255,1)');
+  g.addColorStop(0.25,'rgba(255,255,255,0.9)');
+  g.addColorStop(0.55,'rgba(255,255,255,0.35)');
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
+  var t=new THREE.Texture(c); t.needsUpdate=true; _cosmoSpriteTex=t; return t;
+}
+// applica lo sprite a TUTTE le particelle della scena corrente (nuove e vecchie)
+function _cosmoBeautify(){
+  if(!_cosmo.scene) return; var tex=_cosmoSprite();
+  _cosmo.scene.traverse(function(o){
+    if(o.isPoints && o.material && !o.material._soft){
+      var m=o.material; m.map=tex; m.alphaTest=0.02; m.transparent=true; m.depthWrite=false;
+      m._soft=true; m.needsUpdate=true;
+    }
+  });
+}
 function _cosmoControls(canvas){
   // TARGET (dove vogliamo andare) e CORRENTE (smussato) → movimento fluido con inerzia
   var rotX=0.2,rotY=0,dist=18;
@@ -1306,6 +1329,7 @@ function _cosmoLoad(name){
   else if(name==='comet3d'){ _buildComet(); hud.innerHTML='<b style="color:#88ddff">☄️ Cometa</b><br>Nucleo di ghiaccio e polvere con coda che punta sempre lontano dal Sole.'; info.innerHTML=_infoComet(); }
   else if(name==='universe'){ hud.innerHTML='<b style="color:#00c9b7">🌌 Mappa dell\'Universo</b><br>Ogni corpo è cliccabile: apri la sua struttura 3D reale dalle fonti ufficiali NASA/ESA.'; _buildUniverse(); }
   else if(name==='map'){ _buildMap(); hud.innerHTML='<b style="color:#34d399">🗺️ Mappa Interstellare</b><br>Stelle ed esopianeti vicini. Clicca i link sotto per le fonti ufficiali.'; info.innerHTML=_infoMap(); }
+  try{ _cosmoBeautify(); }catch(e){}
 }
 
 // ═══ PULSAR — stella di neutroni con fasci rotanti ═══
