@@ -1786,6 +1786,17 @@ window._starSet=function(which,val){
   if(q('sl-spec'))q('sl-spec').innerHTML=_starSpectrumSVG(_starLab.T);
   if(q('sl-hr'))q('sl-hr').innerHTML=_hrDiagramSVG(_starLab.T,_starLab.R);
 };
+// atmosfera planetaria realistica (alone di Fresnel al bordo)
+function _atmoShell(r, colHex, power, opacity){
+  var c=new THREE.Color(colHex);
+  var m=new THREE.ShaderMaterial({
+    uniforms:{uColor:{value:new THREE.Vector3(c.r,c.g,c.b)},uPow:{value:power||3.2},uOp:{value:(opacity==null?1.0:opacity)}},
+    vertexShader:'varying vec3 vN; varying vec3 vV; void main(){ vN=normalize(normalMatrix*normal); vec4 wp=modelViewMatrix*vec4(position,1.0); vV=normalize(-wp.xyz); gl_Position=projectionMatrix*wp; }',
+    fragmentShader:'uniform vec3 uColor; uniform float uPow; uniform float uOp; varying vec3 vN; varying vec3 vV; void main(){ float f=pow(1.0-abs(dot(vN,vV)),uPow); gl_FragColor=vec4(uColor, f*uOp); }',
+    transparent:true, side:THREE.FrontSide, blending:THREE.AdditiveBlending, depthWrite:false
+  });
+  return new THREE.Mesh(new THREE.SphereGeometry(r,48,48), m);
+}
 // ═══ BUCO NERO GARGANTUA ═══
 function _buildBlackhole(){
   var sc=_cosmo.scene;
@@ -1917,9 +1928,11 @@ function _buildSolar(){
     }); }
     planets.push(m);
     // atmosfera
-    if(['Terra','Venere','Giove','Saturno','Urano','Nettuno'].indexOf(p.n)>=0){
-      var atmC=p.n==='Terra'?0x4488ff:p.n==='Venere'?0xd9a441:0x88aaff;
-      var atm=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.12,32,32),new THREE.MeshBasicMaterial({color:atmC,transparent:true,opacity:0.22,side:THREE.BackSide}));
+    if(['Terra','Venere','Marte','Giove','Saturno','Urano','Nettuno'].indexOf(p.n)>=0){
+      var atmC=p.n==='Terra'?0x66aaff:p.n==='Venere'?0xe6c07a:p.n==='Marte'?0xd98a5a:0x9cc0ff;
+      var atm;
+      try{ atm=_atmoShell(p.r*1.16, atmC, p.n==='Venere'?2.4:3.0, p.n==='Terra'?1.15:0.95); }
+      catch(e){ atm=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.12,32,32),new THREE.MeshBasicMaterial({color:atmC,transparent:true,opacity:0.22,side:THREE.BackSide})); }
       m.add(atm);
     }
     // anelli di Saturno
@@ -1996,7 +2009,7 @@ function _buildExo3D(){
     var tex=_makePlanetTex(p.tex);
     var m=new THREE.Mesh(new THREE.SphereGeometry(p.r,40,40),new THREE.MeshStandardMaterial({map:tex,roughness:0.9})); 
     var ph=Math.random()*6.28; m.position.set(Math.cos(ph)*p.a,0,Math.sin(ph)*p.a); m.userData={a:p.a,T:p.T,ph:ph,pname:p.n==="e"?"TRAPPIST-1e":("TRAPPIST-1"+p.n)};
-    if(p.hab){ var atm=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.14,24,24),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:0.25,side:THREE.BackSide})); m.add(atm); }
+    if(p.hab){ var atm; try{ atm=_atmoShell(p.r*1.17,0x66ccff,3.0,1.1); }catch(e){ atm=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.14,24,24),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:0.25,side:THREE.BackSide})); } m.add(atm); }
     sc.add(m);_cosmo.objects.push(m); ps.push(m);
   });
   _cosmo._tick=function(t){ star.rotation.y+=t*0.08; starTex.offset.x+=t*0.008; ps.forEach(function(m){ m.userData.ph+=t*(1.2/m.userData.T); m.position.x=Math.cos(m.userData.ph)*m.userData.a; m.position.z=Math.sin(m.userData.ph)*m.userData.a; m.rotation.y+=t*0.4; }); };
