@@ -846,6 +846,53 @@ function selMol(id){
 }
 
 // ─── EXOPLANETS ─────────────────────────────────────────────────────────────
+// ── Spettro di trasmissione stile JWST: bande di assorbimento per molecola (µm) ──
+// ogni banda = [centro µm, ampiezza, larghezza µm]
+var _MOL_BANDS={
+  'H₂O':[[1.4,1.0,0.12],[1.9,0.95,0.15],[2.7,0.8,0.17]],
+  'CO₂':[[4.3,1.35,0.13],[2.7,0.5,0.10],[2.0,0.35,0.08]],
+  'CO':[[4.65,0.75,0.10],[2.35,0.4,0.08]],
+  'CH₄':[[3.3,1.05,0.13],[2.3,0.55,0.10],[1.65,0.4,0.09]],
+  'SO₂':[[4.0,0.75,0.10]],
+  'SiO':[[4.1,0.8,0.15]],
+  'Na':[[0.59,0.95,0.05]],
+  'K':[[0.77,0.75,0.05]],
+  'O₂':[[0.76,0.65,0.04],[1.27,0.5,0.06]],
+  'DMS':[[3.4,0.55,0.10]]
+};
+var _MOL_COL={'H₂O':'#4db6ff','CO₂':'#ff7a59','CO':'#ffb74d','CH₄':'#7c6fff','SO₂':'#ffd166','SiO':'#c9a06a','Na':'#ff5b8a','K':'#c792ea','O₂':'#4dd0e1','DMS':'#8bc34a'};
+// mappa nome esopianeta → molecole rilevate (da EXOPLANETS), per lo spettro nell'esploratore
+var _EXO_MOL_BY_NAME={};
+try{ if(typeof EXOPLANETS!=='undefined'){ EXOPLANETS.forEach(function(p){ _EXO_MOL_BY_NAME[String(p.n).toLowerCase().replace(/\s+/g,'')]=p.mol; }); } }catch(e){}
+function _exoMolFor(name){ if(!name)return null; var k=String(name).toLowerCase().replace(/\s+/g,''); if(_EXO_MOL_BY_NAME[k])return _EXO_MOL_BY_NAME[k]; k=k.replace('centauri','').replace('planet',''); return _EXO_MOL_BY_NAME[k]||null; }
+function _transSpectrum(p){
+  var W=320,H=132,padL=8,padR=8,padT=20,padB=18,x0=0.6,x1=5.0;
+  var mols=(p.mol||[]);
+  function bandsOf(m){ return _MOL_BANDS[m.replace('?','')]; }
+  function xpix(w){ return padL+(w-x0)/(x1-x0)*(W-padL-padR); }
+  function absAt(w){ var a=0.18; mols.forEach(function(m){ var bd=bandsOf(m); if(bd) bd.forEach(function(b){ a+=b[1]*Math.exp(-Math.pow((w-b[0])/b[2],2)); }); }); return a; }
+  var N=150,pts=[],maxA=0;
+  for(var i=0;i<=N;i++){ var w=x0+(x1-x0)*i/N; var a=absAt(w); pts.push([w,a]); if(a>maxA)maxA=a; }
+  function ypix(a){ return padT+(1-a/(maxA*1.18))*(H-padT-padB); }
+  var d='M '+xpix(pts[0][0]).toFixed(1)+' '+ypix(pts[0][1]).toFixed(1);
+  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(1)+' '+ypix(pts[i][1]).toFixed(1);
+  var fill=d+' L '+xpix(x1).toFixed(1)+' '+(H-padB)+' L '+xpix(x0).toFixed(1)+' '+(H-padB)+' Z';
+  var labels='';
+  mols.forEach(function(m){ var bd=bandsOf(m); if(!bd)return; var c=bd[0][0]; if(c<x0||c>x1)return; var col=_MOL_COL[m.replace('?','')]||'#9fb3c8'; var px=xpix(c),py=ypix(absAt(c));
+    labels+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="2.4" fill="'+col+'"/>'+
+      '<text x="'+px.toFixed(1)+'" y="'+(py-4).toFixed(1)+'" fill="'+col+'" font-size="9" text-anchor="middle" font-weight="700">'+m+'</text>'; });
+  var axis='';
+  [1,2,3,4,5].forEach(function(t){ var px=xpix(t).toFixed(1); axis+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB+3)+'" stroke="#3a5169"/><text x="'+px+'" y="'+(H-padB+12)+'" fill="#7f92a6" font-size="8" text-anchor="middle">'+t+'</text>'; });
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;border-radius:8px" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00c9b7" stop-opacity="0.45"/><stop offset="1" stop-color="#00c9b7" stop-opacity="0"/></linearGradient></defs>'+
+    '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424"/>'+
+    '<path d="'+fill+'" fill="url(#sg)"/>'+
+    '<path d="'+d+'" fill="none" stroke="#00d6c2" stroke-width="1.7"/>'+
+    labels+axis+
+    '<text x="8" y="12" fill="#9fb3c8" font-size="8.5">Luce assorbita →</text>'+
+    '<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">lunghezza d\'onda (µm)</text>'+
+    '</svg>';
+}
 function renderExo(){
   var g=document.getElementById('egrid');
   g.innerHTML=EXOPLANETS.map(function(p){
@@ -858,6 +905,11 @@ function renderExo(){
       '<div class="ebar"><div class="ebl">Abitabilità: '+p.hs+'%</div>'+
         '<div class="ebt"><div class="ebf" style="width:'+p.hs+'%"></div></div></div>'+
       '<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.5">'+p.desc+'</div>'+
+      '<div style="margin-top:9px;border-top:1px solid rgba(255,255,255,.08);padding-top:7px">'+
+        '<div style="font-size:10px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:4px">🔬 SPETTRO DI TRASMISSIONE · stile JWST</div>'+
+        _transSpectrum(p)+
+        '<div style="font-size:9.5px;color:var(--muted);margin-top:4px;line-height:1.4">Ogni picco = una molecola che assorbe la luce stellare filtrata dall\'atmosfera del pianeta (spettroscopia di transito).</div>'+
+      '</div>'+
       '</div>';
   }).join('');
 }
@@ -5713,6 +5765,20 @@ function _exInner(b, host){
 function _exAtmo(b, host){
   var A = b.atmo || [];
   var max = A.reduce(function(m,x){ return Math.max(m, x[1]); }, 1);
+  // molecole con bande di assorbimento note (per lo spettro di trasmissione stile JWST)
+  var specMols = A.map(function(a){ return a[0]; }).filter(function(m){ return _MOL_BANDS && _MOL_BANDS[String(m).replace('?','')]; });
+  if(b.mol){ b.mol.forEach(function(m){ if(_MOL_BANDS[String(m).replace('?','')] && specMols.indexOf(m)<0) specMols.push(m); }); }
+  // fallback per gli esopianeti: molecole rilevate da JWST/Hubble (array EXOPLANETS)
+  if(!specMols.length && typeof _exoMolFor==='function'){ var em=_exoMolFor(b.n); if(em) em.forEach(function(m){ if(_MOL_BANDS[String(m).replace('?','')] && specMols.indexOf(m)<0) specMols.push(m); }); }
+  var specBlock = '';
+  if(typeof _transSpectrum==='function' && specMols.length){
+    specBlock =
+      '<div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">'+
+        '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🔬 SPETTRO DI TRASMISSIONE · stile JWST</div>'+
+        _transSpectrum({mol:specMols})+
+        '<div style="font-size:10px;color:#9fb3c8;margin-top:5px;line-height:1.5">Ogni picco = una molecola che assorbe la luce a lunghezze d\'onda caratteristiche, come nei transiti osservati da JWST/Hubble. Le molecole senza bande nell\'infrarosso vicino (es. N₂) non lasciano firma.</div>'+
+      '</div>';
+  }
   host.innerHTML =
     '<div class="ex-note">Composizione atmosferica (percentuali in volume). '+
       (b.atmoNote?'<b>'+esc(b.atmoNote)+'</b>':'')+'</div>'+
@@ -5724,6 +5790,7 @@ function _exAtmo(b, host){
           '<div class="av">'+(a[1]<0.01? '<0,01' : String(a[1]).replace('.', ','))+'%</div>'+
         '</div>';
       }).join('') +'</div>'+
+    specBlock+
     '<div class="dt-grid">'+ (b.fatti||[]).map(function(f){
         return '<div class="dt-cell"><div class="dt-k">'+esc(f[0])+'</div><div class="dt-v">'+esc(f[1])+'</div></div>';
       }).join('') +'</div>';
