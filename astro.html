@@ -1457,11 +1457,11 @@ function _cosmoBackdrop(opt){
   g.setAttribute('aColor',new THREE.BufferAttribute(col,3));
   var stars=null;
   try{
-    var mat=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uTex:{value:(typeof _cosmoSprite==='function'?_cosmoSprite():null)}},
+    var mat=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uTex:{value:(typeof _cosmoGlint==='function'?_cosmoGlint():null)}},
       vertexShader:_BG_STAR_VERT, fragmentShader:_BG_STAR_FRAG, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
     stars=new THREE.Points(g,mat);
   }catch(e){
-    stars=new THREE.Points(g,new THREE.PointsMaterial({size:1.1,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)}));
+    stars=new THREE.Points(g,new THREE.PointsMaterial({size:1.4,vertexColors:true,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,map:(typeof _cosmoGlint==='function'?_cosmoGlint():null)}));
   }
   stars.frustumCulled=false; sc.add(stars);_cosmo.objects.push(stars);
   // foschia nebulare colorata (sprite additivi morbidi lontani) — profondità e colore
@@ -1590,6 +1590,27 @@ function _cosmoSprite(){
   ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
   var t=new THREE.Texture(c); t.needsUpdate=true; _cosmoSpriteTex=t; return t;
 }
+// sprite "stella da telescopio": core nitido + punte di diffrazione (come JWST/Hubble) → stelle DEFINITE
+var _cosmoGlintTex=null;
+function _cosmoGlint(){
+  if(_cosmoGlintTex) return _cosmoGlintTex;
+  var S=128, c=document.createElement('canvas'); c.width=c.height=S; var ctx=c.getContext('2d');
+  ctx.translate(S/2,S/2); ctx.globalCompositeOperation='lighter';
+  function spike(len,wid,ang,a){ ctx.save(); ctx.rotate(ang);
+    var g=ctx.createLinearGradient(0,0,0,-len);
+    g.addColorStop(0,'rgba(255,255,255,'+a+')'); g.addColorStop(0.32,'rgba(255,255,255,'+(a*0.28).toFixed(3)+')'); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(-wid,0); ctx.lineTo(0,-len); ctx.lineTo(wid,0); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  // 4 punte cardinali lunghe + 4 diagonali corte (glint da telescopio)
+  [0,Math.PI/2,Math.PI,Math.PI*1.5].forEach(function(a){ spike(60,2.4,a,0.95); });
+  [Math.PI/4,Math.PI*0.75,Math.PI*1.25,Math.PI*1.75].forEach(function(a){ spike(30,1.7,a,0.5); });
+  // alone morbido + core brillante nitido
+  var hg=ctx.createRadialGradient(0,0,0,0,0,30); hg.addColorStop(0,'rgba(255,255,255,0.55)'); hg.addColorStop(0.5,'rgba(255,255,255,0.18)'); hg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(0,0,30,0,6.2832); ctx.fill();
+  var cg=ctx.createRadialGradient(0,0,0,0,0,12); cg.addColorStop(0,'rgba(255,255,255,1)'); cg.addColorStop(0.45,'rgba(255,255,255,0.9)'); cg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(0,0,12,0,6.2832); ctx.fill();
+  var t=new THREE.Texture(c); t.needsUpdate=true; _cosmoGlintTex=t; return t;
+}
 // applica lo sprite a TUTTE le particelle della scena corrente (nuove e vecchie)
 function _cosmoBeautify(){
   if(!_cosmo.scene) return; var tex=_cosmoSprite();
@@ -1712,15 +1733,19 @@ function _buildPulsar(){
     var m=new THREE.Mesh(new THREE.SphereGeometry(h[0],32,32),new THREE.MeshBasicMaterial({color:h[1],transparent:true,opacity:h[2],side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false}));
     sc.add(m);_cosmo.objects.push(m); halos.push({m:m,base:h[2],r:h[0]});
   });
-  // sprite di bagliore centrale (il "lampo" pulsante)
+  // core NITIDO con punte di diffrazione (stella da telescopio) — il "lampo" pulsante ben definito
   var flare=null;
-  if(typeof _cosmoSprite==='function'){ flare=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoSprite(),color:0xdcefff,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false})); flare.scale.setScalar(4.5); sc.add(flare);_cosmo.objects.push(flare); }
-  // due fasci magnetici SOTTILI (raggi di luce, non un rombo): additivi, sfumati, che lampeggiano col battito
-  var beamMat=new THREE.MeshBasicMaterial({color:0xbfe0ff,transparent:true,opacity:0.0,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+  if(typeof _cosmoGlint==='function'){ flare=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoGlint(),color:0xeaf4ff,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false})); flare.scale.setScalar(7); sc.add(flare);_cosmo.objects.push(flare); }
+  // due fasci magnetici SOTTILI e BRILLANTI (raggi di luce blu netti): additivi, che lampeggiano col battito
+  var beamMat=new THREE.MeshBasicMaterial({color:0x9fd0ff,transparent:true,opacity:0.0,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+  var beamCoreMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.0,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
   var pivot=new THREE.Group();
-  var b1=new THREE.Mesh(new THREE.ConeGeometry(0.5,13,24,1,true),beamMat); b1.position.y=6.5;
-  var b2=new THREE.Mesh(new THREE.ConeGeometry(0.5,13,24,1,true),beamMat); b2.position.y=-6.5; b2.rotation.z=Math.PI;
-  pivot.add(b1); pivot.add(b2); pivot.rotation.z=0.42; sc.add(pivot);_cosmo.objects.push(pivot);
+  var b1=new THREE.Mesh(new THREE.ConeGeometry(0.55,14,24,1,true),beamMat); b1.position.y=7;
+  var b2=new THREE.Mesh(new THREE.ConeGeometry(0.55,14,24,1,true),beamMat); b2.position.y=-7; b2.rotation.z=Math.PI;
+  // nucleo del fascio: raggio bianco sottile e nitido dentro il fascio blu
+  var b1c=new THREE.Mesh(new THREE.ConeGeometry(0.16,14,16,1,true),beamCoreMat); b1c.position.y=7;
+  var b2c=new THREE.Mesh(new THREE.ConeGeometry(0.16,14,16,1,true),beamCoreMat); b2c.position.y=-7; b2c.rotation.z=Math.PI;
+  pivot.add(b1); pivot.add(b2); pivot.add(b1c); pivot.add(b2c); pivot.rotation.z=0.42; sc.add(pivot);_cosmo.objects.push(pivot);
   // anello di plasma equatoriale (magnetosfera)
   var g=new THREE.BufferGeometry(),v=[],pc=[]; for(var i=0;i<2600;i++){var a=Math.random()*6.28,r=1.6+Math.random()*4.2;v.push(Math.cos(a)*r,(Math.random()-0.5)*0.5,Math.sin(a)*r); var w=0.5+Math.random()*0.5; pc.push(0.5*w,0.78*w,w);} g.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(pc,3));
   var pts=new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)})); sc.add(pts);_cosmo.objects.push(pts);
@@ -1731,9 +1756,10 @@ function _buildPulsar(){
     var beat=Math.pow(0.5+0.5*Math.sin(tt*7.0), 10.0);   // picchi stretti, periodo regolare
     var lvl=0.35+beat*0.9;
     star.scale.setScalar(1+beat*0.12);
-    if(flare){ flare.material.opacity=0.25+beat*0.75; flare.scale.setScalar(3.6+beat*2.4); }
+    if(flare){ flare.material.opacity=0.4+beat*0.6; flare.scale.setScalar(6+beat*3.5); }
     halos.forEach(function(o,i){ o.m.material.opacity=o.base*(0.5+beat*1.1); o.m.scale.setScalar(1+beat*0.10*(i+1)); });
-    beamMat.opacity=0.05+beat*0.45;                       // i fasci lampeggiano col battito
+    beamMat.opacity=0.12+beat*0.5;                        // fascio blu lampeggia col battito
+    beamCoreMat.opacity=0.2+beat*0.7;                     // raggio bianco centrale, più netto
     pivot.rotation.y+=t*1.1;                              // rotazione lenta ed elegante (niente rombo veloce)
     pts.rotation.y+=t*0.35;
   };
@@ -2284,21 +2310,21 @@ function _buildMap(){
   ];
   // campo stellare di sfondo per profondità
   var bgG=new THREE.BufferGeometry(),bv=[],bc=[]; for(var i=0;i<2500;i++){var r=18+Math.random()*40,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);bv.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));var w=0.6+Math.random()*0.4;bc.push(w,w,w*1.05);} bgG.setAttribute('position',new THREE.Float32BufferAttribute(bv,3));bgG.setAttribute('color',new THREE.Float32BufferAttribute(bc,3));
-  var bg=new THREE.Points(bgG,new THREE.PointsMaterial({size:0.14,vertexColors:true,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)})); sc.add(bg);_cosmo.objects.push(bg);
+  var bg=new THREE.Points(bgG,new THREE.PointsMaterial({size:0.32,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoGlint==='function'?_cosmoGlint():null)})); sc.add(bg);_cosmo.objects.push(bg);
   var _mapGlows=[];
   STARS.forEach(function(st){
     var m=new THREE.Mesh(new THREE.SphereGeometry(st.r,28,28),new THREE.MeshBasicMaterial({color:st.c}));
     m.position.set(st.x,st.y,st.z); sc.add(m);_cosmo.objects.push(m);
     // due aloni additivi per un bagliore stellare più definito
     var glow=new THREE.Mesh(new THREE.SphereGeometry(st.r*2.2,20,20),new THREE.MeshBasicMaterial({color:st.c,transparent:true,opacity:0.35,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); glow.position.copy(m.position); sc.add(glow);_cosmo.objects.push(glow);
-    var spr=null; if(typeof _cosmoSprite==='function'){ spr=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoSprite(),color:st.c,transparent:true,opacity:0.75,blending:THREE.AdditiveBlending,depthWrite:false})); spr.position.copy(m.position); spr.scale.setScalar(st.r*5.5); sc.add(spr);_cosmo.objects.push(spr); }
-    _mapGlows.push({g:glow,m:m,spr:spr,base:st.r*2.2,ph:Math.random()*6.28,y0:st.y});
+    var spr=null; if(typeof _cosmoGlint==='function'){ spr=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoGlint(),color:st.c,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false})); spr.position.copy(m.position); spr.scale.setScalar(st.r*8); sc.add(spr);_cosmo.objects.push(spr); }
+    _mapGlows.push({g:glow,m:m,spr:spr,base:st.r*8,ph:Math.random()*6.28,y0:st.y});
   });
   var _mt=0;
   _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.03; _mt+=t; bg.rotation.y-=t*0.006;
     _mapGlows.forEach(function(o){ var tw=Math.sin(_mt*2.4+o.ph);
       var s=1+tw*0.22; o.g.scale.setScalar(s); o.g.material.opacity=0.26+Math.abs(tw)*0.28;
-      if(o.spr){ o.spr.material.opacity=0.5+Math.abs(tw)*0.45; o.spr.scale.setScalar(o.base*2.4*(1+tw*0.12)); }
+      if(o.spr){ o.spr.material.opacity=0.55+Math.abs(tw)*0.4; o.spr.scale.setScalar(o.base*(1+tw*0.12)); }
       o.m.position.y=o.y0+Math.sin(_mt*0.7+o.ph)*0.12;                 // lieve deriva parallattica
       if(o.spr)o.spr.position.y=o.m.position.y; o.g.position.y=o.m.position.y;
     });
