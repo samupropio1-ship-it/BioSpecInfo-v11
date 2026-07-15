@@ -905,12 +905,17 @@ function _transitCurve(b){
   var W=320,H=118,padB=20,padT=14,top=padT+6,bot=H-padB-6,vd=(bot-top)*0.55; // dip visivo schematico
   var xa=30,xb=110,xc=140,xd=210,xe=240,xf=310; // fasi: fuori, ingresso, dentro, uscita, fuori
   var d='M 10 '+top+' L '+xa+' '+top+' L '+xb+' '+(top+vd)+' L '+xc+' '+(top+vd)+' L '+xd+' '+(top+vd)+' L '+xe+' '+top+' L '+W+' '+top;
+  var uid='tc'+Math.floor(Math.random()*1e6);
   return '<div style="margin-top:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px">'+
     '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">📉 CURVA DI LUCE DEL TRANSITO</div>'+
     '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<style>@keyframes '+uid+'d{to{stroke-dashoffset:0}}@keyframes '+uid+'m{0%{cx:10px;opacity:0}12%{opacity:1}88%{opacity:1}100%{cx:'+W+'px;opacity:0}}'+
+        '.'+uid+'-ln{stroke-dasharray:900;stroke-dashoffset:900;animation:'+uid+'d 2.2s ease-out forwards}'+
+        '.'+uid+'-pl{animation:'+uid+'m 5s linear infinite}</style>'+
       '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
       '<line x1="10" y1="'+top+'" x2="'+W+'" y2="'+top+'" stroke="#243a52" stroke-dasharray="3 3"/>'+
-      '<path d="'+d+'" fill="none" stroke="#f5c451" stroke-width="1.8"/>'+
+      '<path class="'+uid+'-ln" d="'+d+'" fill="none" stroke="#f5c451" stroke-width="1.8" stroke-linejoin="round"/>'+
+      '<circle class="'+uid+'-pl" cx="10" cy="'+(top-8)+'" r="3" fill="#0a1424" stroke="#f5c451" stroke-width="1.2"/>'+
       '<circle cx="'+((xb+xd)/2)+'" cy="'+(top+vd)+'" r="2.6" fill="#f5c451"/>'+
       '<text x="12" y="'+(top-2)+'" fill="#9fb3c8" font-size="8.5">luminosità stella</text>'+
       '<text x="'+((xb+xd)/2)+'" y="'+(top+vd+13)+'" fill="#f5c451" font-size="9" text-anchor="middle" font-weight="700">transito</text>'+
@@ -956,23 +961,27 @@ function _transSpectrum(p){
   function bandsOf(m){ return _MOL_BANDS[m.replace('?','')]; }
   function xpix(w){ return padL+(w-x0)/(x1-x0)*(W-padL-padR); }
   function absAt(w){ var a=0.18; mols.forEach(function(m){ var bd=bandsOf(m); if(bd) bd.forEach(function(b){ a+=b[1]*Math.exp(-Math.pow((w-b[0])/b[2],2)); }); }); return a; }
-  var N=150,pts=[],maxA=0;
+  var N=320,pts=[],maxA=0;
   for(var i=0;i<=N;i++){ var w=x0+(x1-x0)*i/N; var a=absAt(w); pts.push([w,a]); if(a>maxA)maxA=a; }
   function ypix(a){ return padT+(1-a/(maxA*1.18))*(H-padT-padB); }
-  var d='M '+xpix(pts[0][0]).toFixed(1)+' '+ypix(pts[0][1]).toFixed(1);
-  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(1)+' '+ypix(pts[i][1]).toFixed(1);
+  var d='M '+xpix(pts[0][0]).toFixed(2)+' '+ypix(pts[0][1]).toFixed(2);
+  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(2)+' '+ypix(pts[i][1]).toFixed(2);
   var fill=d+' L '+xpix(x1).toFixed(1)+' '+(H-padB)+' L '+xpix(x0).toFixed(1)+' '+(H-padB)+' Z';
+  var uid='sp'+Math.floor(Math.random()*1e6);
   var labels='';
   mols.forEach(function(m){ var bd=bandsOf(m); if(!bd)return; var c=bd[0][0]; if(c<x0||c>x1)return; var col=_MOL_COL[m.replace('?','')]||'#9fb3c8'; var px=xpix(c),py=ypix(absAt(c));
-    labels+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="2.4" fill="'+col+'"/>'+
+    labels+='<circle class="'+uid+'-mk" cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="2.4" fill="'+col+'"/>'+
       '<text x="'+px.toFixed(1)+'" y="'+(py-4).toFixed(1)+'" fill="'+col+'" font-size="9" text-anchor="middle" font-weight="700">'+m+'</text>'; });
   var axis='';
   [1,2,3,4,5].forEach(function(t){ var px=xpix(t).toFixed(1); axis+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB+3)+'" stroke="#3a5169"/><text x="'+px+'" y="'+(H-padB+12)+'" fill="#7f92a6" font-size="8" text-anchor="middle">'+t+'</text>'; });
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;border-radius:8px" xmlns="http://www.w3.org/2000/svg">'+
     '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00c9b7" stop-opacity="0.45"/><stop offset="1" stop-color="#00c9b7" stop-opacity="0"/></linearGradient></defs>'+
+    '<style>@keyframes '+uid+'d{to{stroke-dashoffset:0}}@keyframes '+uid+'f{from{opacity:0}to{opacity:1}}@keyframes '+uid+'p{0%,100%{opacity:.55}50%{opacity:1}}'+
+      '.'+uid+'-ln{stroke-dasharray:1400;stroke-dashoffset:1400;animation:'+uid+'d 1.6s cubic-bezier(.4,0,.2,1) forwards}'+
+      '.'+uid+'-fl{opacity:0;animation:'+uid+'f 1.2s .4s forwards}.'+uid+'-mk{animation:'+uid+'p 2.4s ease-in-out infinite}</style>'+
     '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424"/>'+
-    '<path d="'+fill+'" fill="url(#sg)"/>'+
-    '<path d="'+d+'" fill="none" stroke="#00d6c2" stroke-width="1.7"/>'+
+    '<path class="'+uid+'-fl" d="'+fill+'" fill="url(#sg)"/>'+
+    '<path class="'+uid+'-ln" d="'+d+'" fill="none" stroke="#00d6c2" stroke-width="1.7" stroke-linejoin="round"/>'+
     labels+axis+
     '<text x="8" y="12" fill="#9fb3c8" font-size="8.5">Luce assorbita →</text>'+
     '<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">lunghezza d\'onda (µm)</text>'+
@@ -1001,23 +1010,27 @@ function _blackbodyBlock(db){
   var W=320,H=132,padT=16,padB=20,x0=0.12,x1=2.5; // µm
   function xpix(w){ return 16+(w-x0)/(x1-x0)*(W-24); }
   function B(w){ return (1/Math.pow(w,5))/(Math.exp(14388/(w*T))-1); }
-  var N=160,pts=[],maxB=0;
+  var N=300,pts=[],maxB=0;
   for(var i=0;i<=N;i++){ var w=x0+(x1-x0)*i/N; var v=B(w); pts.push([w,v]); if(v>maxB)maxB=v; }
   function ypix(v){ return padT+(1-v/(maxB*1.05))*(H-padT-padB); }
-  var d='M '+xpix(pts[0][0]).toFixed(1)+' '+ypix(pts[0][1]).toFixed(1);
-  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(1)+' '+ypix(pts[i][1]).toFixed(1);
+  var d='M '+xpix(pts[0][0]).toFixed(2)+' '+ypix(pts[0][1]).toFixed(2);
+  for(var i=1;i<pts.length;i++) d+=' L '+xpix(pts[i][0]).toFixed(2)+' '+ypix(pts[i][1]).toFixed(2);
   var lmax=2898/T/1000; // µm (Wien)
   var vis0=xpix(0.38),vis1=xpix(0.75);
   var col=_wienColor(T);
+  var uid='bb'+Math.floor(Math.random()*1e6);
   var axis=''; [0.5,1,1.5,2].forEach(function(t){ var px=xpix(t).toFixed(1); axis+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB+3)+'" stroke="#3a5169"/><text x="'+px+'" y="'+(H-padB+12)+'" fill="#7f92a6" font-size="8" text-anchor="middle">'+t+'</text>'; });
   return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
     '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌡️ SPETTRO DI CORPO NERO (Planck)</div>'+
     '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<style>@keyframes '+uid+'d{to{stroke-dashoffset:0}}@keyframes '+uid+'f{from{opacity:0}to{opacity:.7}}'+
+        '.'+uid+'-ln{stroke-dasharray:1000;stroke-dashoffset:1000;animation:'+uid+'d 1.8s ease-out forwards}'+
+        '.'+uid+'-wien{opacity:0;animation:'+uid+'f 1s 1.2s forwards}</style>'+
       '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+
       '<rect x="'+vis0.toFixed(1)+'" y="'+padT+'" width="'+(vis1-vis0).toFixed(1)+'" height="'+(H-padT-padB)+'" fill="url(#vg)" opacity="0.20"/>'+
       '<defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8b5cff"/><stop offset="0.5" stop-color="#38d16b"/><stop offset="1" stop-color="#ff4b4b"/></linearGradient></defs>'+
-      '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.9"/>'+
-      '<line x1="'+xpix(lmax).toFixed(1)+'" y1="'+padT+'" x2="'+xpix(lmax).toFixed(1)+'" y2="'+(H-padB)+'" stroke="#ffd35a" stroke-dasharray="3 2" opacity="0.7"/>'+
+      '<path class="'+uid+'-ln" d="'+d+'" fill="none" stroke="'+col+'" stroke-width="1.9" stroke-linejoin="round"/>'+
+      '<line class="'+uid+'-wien" x1="'+xpix(lmax).toFixed(1)+'" y1="'+padT+'" x2="'+xpix(lmax).toFixed(1)+'" y2="'+(H-padB)+'" stroke="#ffd35a" stroke-dasharray="3 2" opacity="0.7"/>'+
       '<text x="'+xpix(lmax).toFixed(1)+'" y="'+(padT+9)+'" fill="#ffd35a" font-size="8.5" text-anchor="middle">picco '+(lmax<1?Math.round(lmax*1000)+' nm':lmax.toFixed(2)+' µm')+'</text>'+
       '<text x="'+vis0.toFixed(1)+'" y="'+(H-padB-3)+'" fill="#9fb3c8" font-size="8">visibile</text>'+
       axis+'<text x="'+(W-8)+'" y="'+(H-4)+'" fill="#7f92a6" font-size="8" text-anchor="end">µm</text>'+
@@ -1031,15 +1044,19 @@ function _rotationBlock(db){
   function xp(r){ return padL+(r/10)*(W-padL-padR); }
   function yp(v){ return padT+(1-v/260)*(H-padT-padB); }
   var obs='',kep=''; // osservata (piatta) vs kepleriana (cala)
-  for(var i=0;i<=60;i++){ var r=0.15+i/6; var vo=230*(1-Math.exp(-r/1.2)); var vk=(r<1.6)?230*(r/1.6):230/Math.sqrt(r/1.6);
-    obs+=(i?' L ':'M ')+xp(r).toFixed(1)+' '+yp(vo).toFixed(1); kep+=(i?' L ':'M ')+xp(r).toFixed(1)+' '+yp(vk).toFixed(1); }
+  for(var i=0;i<=120;i++){ var r=0.15+i/12; var vo=230*(1-Math.exp(-r/1.2)); var vk=(r<1.6)?230*(r/1.6):230/Math.sqrt(r/1.6);
+    obs+=(i?' L ':'M ')+xp(r).toFixed(2)+' '+yp(vo).toFixed(2); kep+=(i?' L ':'M ')+xp(r).toFixed(2)+' '+yp(vk).toFixed(2); }
+  var uid='rt'+Math.floor(Math.random()*1e6);
   var axis=''; [100,200].forEach(function(v){ axis+='<text x="'+(padL-4)+'" y="'+(yp(v)+3)+'" fill="#7f92a6" font-size="7.5" text-anchor="end">'+v+'</text><line x1="'+padL+'" y1="'+yp(v)+'" x2="'+(W-padR)+'" y2="'+yp(v)+'" stroke="#1c2f45" stroke-dasharray="2 3"/>'; });
   return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
     '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌀 CURVA DI ROTAZIONE</div>'+
     '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<style>@keyframes '+uid+'d{to{stroke-dashoffset:0}}@keyframes '+uid+'f{from{opacity:0}to{opacity:1}}'+
+        '.'+uid+'-o{stroke-dasharray:600;stroke-dashoffset:600;animation:'+uid+'d 1.8s ease-out forwards}'+
+        '.'+uid+'-k{opacity:0;animation:'+uid+'f 1s .9s forwards}</style>'+
       '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#0a1424" rx="8"/>'+axis+
-      '<path d="'+kep+'" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 3"/>'+
-      '<path d="'+obs+'" fill="none" stroke="#4db6ff" stroke-width="2"/>'+
+      '<path class="'+uid+'-k" d="'+kep+'" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+      '<path class="'+uid+'-o" d="'+obs+'" fill="none" stroke="#4db6ff" stroke-width="2" stroke-linejoin="round"/>'+
       '<text x="'+(W-padR)+'" y="'+(yp(215))+'" fill="#4db6ff" font-size="8.5" text-anchor="end" font-weight="700">osservata (piatta)</text>'+
       '<text x="'+(W-padR)+'" y="'+(yp(70))+'" fill="#ff7a59" font-size="8.5" text-anchor="end">attesa (Keplero)</text>'+
       '<text x="'+padL+'" y="'+(H-6)+'" fill="#7f92a6" font-size="8">raggio →</text>'+
@@ -1053,13 +1070,15 @@ function _emissionBlock(db){
   var W=320,H=118,padB=20,x0=400,x1=700; // nm (visibile)
   var lines=[[486,'Hβ','#5ad1ff',0.6],[496,'OIII','#49e08a',0.5],[501,'OIII','#49e08a',0.9],[588,'He','#ffe08a',0.3],[656,'Hα','#ff5b6a',1.0],[658,'NII','#ff8a6a',0.35],[672,'SII','#ff6ad0',0.3]];
   function xp(w){ return 12+(w-x0)/(x1-x0)*(W-22); }
+  var uid='em'+Math.floor(Math.random()*1e6);
   var bars='',labels='';
-  lines.forEach(function(l){ var px=xp(l[0]).toFixed(1); var h=(H-padB-14)*l[3]; bars+='<line x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB-h).toFixed(1)+'" stroke="'+l[2]+'" stroke-width="2.2"/>';
+  lines.forEach(function(l,li){ var px=xp(l[0]).toFixed(1); var h=(H-padB-14)*l[3]; bars+='<line class="'+uid+'-b" style="transform-origin:'+px+'px '+(H-padB)+'px;animation-delay:'+(li*0.08).toFixed(2)+'s" x1="'+px+'" y1="'+(H-padB)+'" x2="'+px+'" y2="'+(H-padB-h).toFixed(1)+'" stroke="'+l[2]+'" stroke-width="2.2"/>';
     if(l[3]>=0.5) labels+='<text x="'+px+'" y="'+(H-padB-h-3).toFixed(1)+'" fill="'+l[2]+'" font-size="8.5" text-anchor="middle" font-weight="700">'+l[1]+'</text>'; });
   var axis=''; [450,500,550,600,650].forEach(function(t){ var px=xp(t).toFixed(1); axis+='<text x="'+px+'" y="'+(H-6)+'" fill="#7f92a6" font-size="7.5" text-anchor="middle">'+t+'</text>'; });
   return '<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:8px">'+
     '<div style="font-size:11px;color:#8fa3b8;font-weight:800;letter-spacing:.04em;margin-bottom:6px">🌈 SPETTRO DI EMISSIONE</div>'+
     '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block" xmlns="http://www.w3.org/2000/svg">'+
+      '<style>@keyframes '+uid+'g{from{transform:scaleY(0)}to{transform:scaleY(1)}}.'+uid+'-b{transform:scaleY(0);animation:'+uid+'g .7s cubic-bezier(.2,.8,.3,1) forwards}</style>'+
       '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#05070d" rx="8"/>'+bars+labels+axis+
       '<text x="'+(W-8)+'" y="12" fill="#7f92a6" font-size="8" text-anchor="end">nm</text>'+
     '</svg>'+
@@ -2007,9 +2026,24 @@ function _buildExo3D(){
   var sc=_cosmo.scene;
   // stella TRAPPIST-1 (nana rossa) con texture e corona
   var starTex=_makePlanetTex('star_red');
-  var star=new THREE.Mesh(new THREE.SphereGeometry(1.6,48,48),new THREE.MeshBasicMaterial({map:starTex}));
+  // superficie della nana rossa con shader (granulazione + limb darkening) se disponibile
+  var star,starMat=null;
+  try{
+    if(typeof _STAR_VERT!=='undefined' && typeof _STAR_FRAG!=='undefined'){
+      starMat=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uColor:{value:new THREE.Vector3(1.0,0.42,0.20)}},vertexShader:_STAR_VERT,fragmentShader:_STAR_FRAG});
+      star=new THREE.Mesh(new THREE.SphereGeometry(1.6,64,64),starMat);
+    }
+  }catch(e){ starMat=null; }
+  if(!star) star=new THREE.Mesh(new THREE.SphereGeometry(1.6,48,48),new THREE.MeshBasicMaterial({map:starTex}));
   sc.add(star);_cosmo.objects.push(star);
-  [2,2.6].forEach(function(r,i){ var g=new THREE.Mesh(new THREE.SphereGeometry(r,32,32),new THREE.MeshBasicMaterial({color:i?0xff4422:0xff6644,transparent:true,opacity:0.2-i*0.08,side:THREE.BackSide})); sc.add(g);_cosmo.objects.push(g); });
+  // corona additiva a più strati con pulsazione morbida
+  var _coronas=[];
+  [[1.9,0.30,0xff6a3a],[2.4,0.18,0xff4a22],[3.1,0.09,0xff3818]].forEach(function(gg){
+    var gm=new THREE.Mesh(new THREE.SphereGeometry(gg[0],32,32),new THREE.MeshBasicMaterial({color:gg[2],transparent:true,opacity:gg[1],side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false}));
+    sc.add(gm);_cosmo.objects.push(gm); _coronas.push({m:gm,base:gg[1]});
+  });
+  // sprite di bagliore frontale
+  if(typeof _cosmoSprite==='function'){ var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoSprite(),color:0xff7a44,transparent:true,opacity:0.55,blending:THREE.AdditiveBlending,depthWrite:false})); sp.scale.setScalar(7.5); sc.add(sp);_cosmo.objects.push(sp); }
   sc.add(new THREE.PointLight(0xffaa88,2.5,200));
   var TRAPPIST=[
     {n:'b',tex:'rock',a:3.5,T:1.5,r:0.42,hab:false},{n:'c',tex:'venus',a:4.6,T:2.4,r:0.44,hab:false},
@@ -2027,7 +2061,10 @@ function _buildExo3D(){
     if(p.hab){ var atm; try{ atm=_atmoShell(p.r*1.17,0x66ccff,3.0,1.1); }catch(e){ atm=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.14,24,24),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:0.25,side:THREE.BackSide})); } m.add(atm); }
     sc.add(m);_cosmo.objects.push(m); ps.push(m);
   });
-  _cosmo._tick=function(t){ star.rotation.y+=t*0.08; starTex.offset.x+=t*0.008; ps.forEach(function(m){ m.userData.ph+=t*(1.2/m.userData.T); m.position.x=Math.cos(m.userData.ph)*m.userData.a; m.position.z=Math.sin(m.userData.ph)*m.userData.a; m.rotation.y+=t*0.4; }); };
+  var _et=0;
+  _cosmo._tick=function(t){ _et+=t; star.rotation.y+=t*0.05; if(starMat){ starMat.uniforms.uTime.value=_et; } else { starTex.offset.x+=t*0.008; }
+    _coronas.forEach(function(o,i){ o.m.material.opacity=o.base*(0.82+0.18*Math.sin(_et*(1.4+i*0.3))); });
+    ps.forEach(function(m){ m.userData.ph+=t*(1.2/m.userData.T); m.position.x=Math.cos(m.userData.ph)*m.userData.a; m.position.z=Math.sin(m.userData.ph)*m.userData.a; m.rotation.y+=t*0.4; }); };
   _cosmoBodyClick(ps);
   _cosmo.cam.position.set(0,6.6,14.4);
 }
@@ -2043,25 +2080,34 @@ function _buildGalaxy(){
     var core=new THREE.Mesh(new THREE.SphereGeometry(gg[0],28,28),new THREE.MeshBasicMaterial({color:gg[2],transparent:true,opacity:gg[1],blending:THREE.AdditiveBlending,depthWrite:false}));
     sc.add(core);_cosmo.objects.push(core);
   });
-  var N=8000; var g=new THREE.BufferGeometry(); var pos=[],col=[];
+  var N=9000; var g=new THREE.BufferGeometry();
+  var pos=new Float32Array(N*3),col=new Float32Array(N*3);
+  var rad=new Float32Array(N),ang0=new Float32Array(N),yy=new Float32Array(N);
   var arms=4;
   for(var i=0;i<N;i++){
     var r=Math.pow(Math.random(),0.5)*18;
     var arm=Math.floor(Math.random()*arms);
     var ang=(arm/arms)*Math.PI*2 + r*0.35 + (Math.random()-0.5)*0.5;
-    var x=Math.cos(ang)*r, z=Math.sin(ang)*r, y=(Math.random()-0.5)*(1.5-r*0.05);
-    pos.push(x,y,z);
-    var c=r<3?[1,0.9,0.7]:r<9?[0.7,0.8,1]:[0.5,0.6,1];
-    col.push(c[0],c[1],c[2]);
+    rad[i]=r; ang0[i]=ang; yy[i]=(Math.random()-0.5)*(1.5-r*0.05);
+    pos[i*3]=Math.cos(ang)*r; pos[i*3+1]=yy[i]; pos[i*3+2]=Math.sin(ang)*r;
+    // colore fisicamente motivato: bulge caldo (giallo), bracci HII blu, alone rosso tenue
+    var c=r<3?[1.0,0.92,0.72]:r<9?[0.68,0.80,1.0]:[0.55,0.60,0.95];
+    col[i*3]=c[0]; col[i*3+1]=c[1]; col[i*3+2]=c[2];
   }
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-  var gal=new THREE.Points(g,new THREE.PointsMaterial({size:0.13,vertexColors:true,transparent:true,opacity:0.9}));
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  var gal=new THREE.Points(g,new THREE.PointsMaterial({size:0.14,vertexColors:true,transparent:true,opacity:0.92,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)}));
   sc.add(gal);_cosmo.objects.push(gal);
-  // nucleo brillante
-  var core=new THREE.Mesh(new THREE.SphereGeometry(1.2,32,32),new THREE.MeshBasicMaterial({color:0xfff0cc,transparent:true,opacity:0.8}));
+  // nucleo brillante + sprite di bagliore
+  var core=new THREE.Mesh(new THREE.SphereGeometry(1.2,32,32),new THREE.MeshBasicMaterial({color:0xfff0cc,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false}));
   sc.add(core);_cosmo.objects.push(core);
-  _cosmo._tick=function(t){ gal.rotation.y+=t*0.05; };
+  if(typeof _cosmoSprite==='function'){ var gsp=new THREE.Sprite(new THREE.SpriteMaterial({map:_cosmoSprite(),color:0xffe0a0,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,depthWrite:false})); gsp.scale.setScalar(6); sc.add(gsp);_cosmo.objects.push(gsp); }
+  // rotazione DIFFERENZIALE: curva piatta (v≈cost) ⇒ ω∝1/r, il centro ruota più veloce
+  var _gt=0, patt=g.getAttribute('position');
+  _cosmo._tick=function(t){ _gt+=t;
+    for(var j=0;j<N;j++){ var om=1.1/(rad[j]+2.2); var a=ang0[j]+_gt*om; patt.array[j*3]=Math.cos(a)*rad[j]; patt.array[j*3+2]=Math.sin(a)*rad[j]; }
+    patt.needsUpdate=true;
+  };
   _cosmo.cam.position.set(0,8.4,14.4);
 }
 function _infoGalaxy(){
@@ -2081,14 +2127,24 @@ function _buildMap(){
     {n:'51 Pegasi',c:0xffee99,x:8,y:1,z:6,r:0.45},
     {n:'HD 209458',c:0xffcc77,x:-9,y:2,z:-2,r:0.4}
   ];
+  // campo stellare di sfondo per profondità
+  var bgG=new THREE.BufferGeometry(),bv=[],bc=[]; for(var i=0;i<2500;i++){var r=18+Math.random()*40,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);bv.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));var w=0.6+Math.random()*0.4;bc.push(w,w,w*1.05);} bgG.setAttribute('position',new THREE.Float32BufferAttribute(bv,3));bgG.setAttribute('color',new THREE.Float32BufferAttribute(bc,3));
+  var bg=new THREE.Points(bgG,new THREE.PointsMaterial({size:0.14,vertexColors:true,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)})); sc.add(bg);_cosmo.objects.push(bg);
+  var _mapGlows=[];
   STARS.forEach(function(st){
     var m=new THREE.Mesh(new THREE.SphereGeometry(st.r,24,24),new THREE.MeshBasicMaterial({color:st.c}));
     m.position.set(st.x,st.y,st.z); sc.add(m);_cosmo.objects.push(m);
-    var glow=new THREE.Mesh(new THREE.SphereGeometry(st.r*1.8,16,16),new THREE.MeshBasicMaterial({color:st.c,transparent:true,opacity:0.25,side:THREE.BackSide})); glow.position.copy(m.position); sc.add(glow);_cosmo.objects.push(glow);
+    var glow=new THREE.Mesh(new THREE.SphereGeometry(st.r*2.1,20,20),new THREE.MeshBasicMaterial({color:st.c,transparent:true,opacity:0.35,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); glow.position.copy(m.position); sc.add(glow);_cosmo.objects.push(glow);
+    _mapGlows.push({g:glow,base:st.r*2.1,ph:Math.random()*6.28});
   });
-  // linee di connessione dal Sole
-  STARS.slice(1).forEach(function(st){ var geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(st.x,st.y,st.z)]); var ln=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x225544,transparent:true,opacity:0.4})); sc.add(ln);_cosmo.objects.push(ln); });
-  _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.02; };
+  // linee di connessione dal Sole (verdi, luminose)
+  var _mapLines=[];
+  STARS.slice(1).forEach(function(st){ var geo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(st.x,st.y,st.z)]); var lm=new THREE.LineBasicMaterial({color:0x37e0a0,transparent:true,opacity:0.35,blending:THREE.AdditiveBlending}); var ln=new THREE.Line(geo,lm); sc.add(ln);_cosmo.objects.push(ln); _mapLines.push(lm); });
+  var _mt=0;
+  _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.02; _mt+=t; bg.rotation.y-=t*0.005;
+    _mapGlows.forEach(function(o){ var s=1+Math.sin(_mt*2.2+o.ph)*0.18; o.g.scale.setScalar(s); o.g.material.opacity=0.28+Math.abs(Math.sin(_mt*2.2+o.ph))*0.22; });
+    _mapLines.forEach(function(lm,i){ lm.opacity=0.22+Math.abs(Math.sin(_mt*1.5+i*0.6))*0.3; });
+  };
   _cosmo.cam.position.set(0,4.8,12.0);
 }
 function _infoMap(){
@@ -3192,6 +3248,10 @@ function _buildUniverse(){
   // dispongo i corpi in cluster per categoria su una sfera
   var cats={}; UNIVERSE_DB.forEach(function(b){ (cats[b.cat]=cats[b.cat]||[]).push(b); });
   var catNames=Object.keys(cats); var meshes=[];
+  // campo stellare cosmico di sfondo
+  var bgG=new THREE.BufferGeometry(),bv=[],bc=[]; for(var i=0;i<2200;i++){var rr=26+Math.random()*44,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);bv.push(rr*Math.sin(ph)*Math.cos(th),rr*Math.sin(ph)*Math.sin(th),rr*Math.cos(ph));var w=0.55+Math.random()*0.45;bc.push(w,w,w*1.06);} bgG.setAttribute('position',new THREE.Float32BufferAttribute(bv,3));bgG.setAttribute('color',new THREE.Float32BufferAttribute(bc,3));
+  var bg=new THREE.Points(bgG,new THREE.PointsMaterial({size:0.13,vertexColors:true,transparent:true,opacity:0.65,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)})); sc.add(bg);_cosmo.objects.push(bg);
+  var _uGlows=[];
   catNames.forEach(function(cat,ci){
     var baseAng=(ci/catNames.length)*Math.PI*2;
     cats[cat].forEach(function(b,bi){
@@ -3200,10 +3260,15 @@ function _buildUniverse(){
       var col=_CATCOL[cat]||0xffffff;
       var m=new THREE.Mesh(new THREE.SphereGeometry(cat==='Galassia'?0.9:cat==='Estremo'?0.7:0.5,24,24),new THREE.MeshBasicMaterial({color:col}));
       m.position.set(x,y,z); m.userData={body:b}; sc.add(m);_cosmo.objects.push(m); meshes.push(m);
-      var glow=new THREE.Mesh(new THREE.SphereGeometry((cat==='Galassia'?0.9:0.5)*1.9,16,16),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.22,side:THREE.BackSide})); glow.position.set(x,y,z); sc.add(glow);_cosmo.objects.push(glow);
+      var gr=(cat==='Galassia'?0.9:0.5)*2.0;
+      var glow=new THREE.Mesh(new THREE.SphereGeometry(gr,18,18),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.28,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); glow.position.set(x,y,z); sc.add(glow);_cosmo.objects.push(glow);
+      _uGlows.push({g:glow,ph:Math.random()*6.28});
     });
   });
-  _cosmo._tick=function(t){ _cosmo.scene.rotation.y+=t*0.03; };
+  var _ut=0;
+  _cosmo._tick=function(t){ _ut+=t; _cosmo.scene.rotation.y+=t*0.03; bg.rotation.y-=t*0.004;
+    _uGlows.forEach(function(o){ var s=1+Math.sin(_ut*1.8+o.ph)*0.16; o.g.scale.setScalar(s); o.g.material.opacity=0.20+Math.abs(Math.sin(_ut*1.8+o.ph))*0.20; });
+  };
   _cosmo.cam.position.set(0,3.6,18.0);
   // pannello di ricerca + lista (sotto il canvas)
   _renderUniversePanel();
@@ -3266,29 +3331,29 @@ function _buildComet(){
   var sc=_cosmo.scene;
   // Sole in lontananza
   var sun=new THREE.Mesh(new THREE.SphereGeometry(1.2,32,32),new THREE.MeshBasicMaterial({color:0xffdd44}));
-  sun.position.set(-16,0,0); sc.add(sun);_cosmo.objects.push(sun);
+  sun.position.set(-24,0,0); sc.add(sun);_cosmo.objects.push(sun);
   // nucleo della cometa
   var nucleus=new THREE.Mesh(new THREE.SphereGeometry(0.7,24,24),new THREE.MeshStandardMaterial({color:0x8899aa,roughness:1,emissive:0x223344,emissiveIntensity:0.3}));
-  nucleus.position.set(6,0,0); sc.add(nucleus);_cosmo.objects.push(nucleus);
+  nucleus.position.set(0,0,0); sc.add(nucleus);_cosmo.objects.push(nucleus);
   // chioma (coma) attorno al nucleo
   var coma=new THREE.Mesh(new THREE.SphereGeometry(1.5,24,24),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:0.2,side:THREE.BackSide}));
   coma.position.copy(nucleus.position); sc.add(coma);_cosmo.objects.push(coma);
-  // coda di ioni (blu, dritta, lontano dal Sole) + coda di polvere (curva, gialla)
-  var tailGeo=new THREE.BufferGeometry(), tv=[], tc=[];
-  for(var i=0;i<1500;i++){
-    var len=Math.random()*12;
-    var spread=len*0.12;
-    // direzione: lontano dal Sole (verso +x poiché Sole è a -x)
-    var x=6+len, y=(Math.random()-0.5)*spread, z=(Math.random()-0.5)*spread;
-    tv.push(x,y,z);
-    // ioni blu vicino, polvere gialla lontano
-    if(Math.random()>0.5){ tc.push(0.4,0.7,1.0); } else { tc.push(1.0,0.9,0.6); }
-  }
-  tailGeo.setAttribute('position',new THREE.Float32BufferAttribute(tv,3));
-  tailGeo.setAttribute('color',new THREE.Float32BufferAttribute(tc,3));
-  var tail=new THREE.Points(tailGeo,new THREE.PointsMaterial({size:0.12,vertexColors:true,transparent:true,opacity:0.7}));
+  // coda ANIMATA: ioni (blu, dritta) + polvere (gialla, curva) che fluiscono via dal Sole
+  var TN=2400, tailGeo=new THREE.BufferGeometry();
+  var tpos=new Float32Array(TN*3), tcol=new Float32Array(TN*3), tlife=new Float32Array(TN), tsp=new Float32Array(TN), tds=[], tw=new Float32Array(TN), tw2=new Float32Array(TN);
+  for(var i=0;i<TN;i++){ tlife[i]=Math.random(); tsp[i]=0.3+Math.random()*0.6; tds[i]=Math.random()>0.5; tw[i]=(Math.random()-0.5); tw2[i]=(Math.random()-0.5); }
+  function _tset(i){ var L=tlife[i]*13, w=L*0.10, dust=tds[i];
+    tpos[i*3]=L; tpos[i*3+1]=tw[i]*w+(dust?L*0.06:0); tpos[i*3+2]=tw2[i]*w;
+    var f=1-tlife[i]*0.55; if(dust){tcol[i*3]=1.0*f;tcol[i*3+1]=0.88*f;tcol[i*3+2]=0.5*f;} else {tcol[i*3]=0.4*f;tcol[i*3+1]=0.72*f;tcol[i*3+2]=1.0*f;} }
+  for(var i=0;i<TN;i++) _tset(i);
+  tailGeo.setAttribute('position',new THREE.BufferAttribute(tpos,3));
+  tailGeo.setAttribute('color',new THREE.BufferAttribute(tcol,3));
+  var tail=new THREE.Points(tailGeo,new THREE.PointsMaterial({size:0.15,vertexColors:true,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)}));
   sc.add(tail);_cosmo.objects.push(tail);
-  _cosmo._tick=function(t){ nucleus.rotation.y+=t*0.5; tail.rotation.x+=t*0.02; };
+  var ct=0;
+  _cosmo._tick=function(t){ nucleus.rotation.y+=t*0.5; ct+=t; if(coma)coma.scale.setScalar(1+Math.sin(ct*3)*0.05);
+    for(var i=0;i<TN;i++){ tlife[i]+=t*tsp[i]*0.45; if(tlife[i]>1)tlife[i]-=1; _tset(i); }
+    tail.geometry.attributes.position.needsUpdate=true; tail.geometry.attributes.color.needsUpdate=true; };
   _cosmo.cam.position.set(4,3.6,12.0);
 }
 function _infoComet(){
@@ -3598,12 +3663,14 @@ function _buildGalaxies3D(){
     }
     g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-    var pts=new THREE.Points(g,new THREE.PointsMaterial({size:0.09,vertexColors:true,transparent:true,opacity:0.85}));
+    var pts=new THREE.Points(g,new THREE.PointsMaterial({size:0.12,vertexColors:true,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false,map:(typeof _cosmoSprite==='function'?_cosmoSprite():null)}));
     sc.add(pts);_cosmo.objects.push(pts);
-    // nucleo
-    var core=new THREE.Mesh(new THREE.SphereGeometry(0.6,20,20),new THREE.MeshBasicMaterial({color:0xffeecc,transparent:true,opacity:0.7}));
+    // nucleo luminoso + alone
+    var core=new THREE.Mesh(new THREE.SphereGeometry(0.5,24,24),new THREE.MeshBasicMaterial({color:0xffeecc,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false}));
     core.position.set(gx.cx,gx.cy,0); sc.add(core);_cosmo.objects.push(core);
-    rotors.push({pts:pts,cx:gx.cx,cy:gx.cy,speed:gx.type==='spiral'?0.08:0.03});
+    var coreH=new THREE.Mesh(new THREE.SphereGeometry(1.15,20,20),new THREE.MeshBasicMaterial({color:0xffddaa,transparent:true,opacity:0.22,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.BackSide}));
+    coreH.position.set(gx.cx,gx.cy,0); sc.add(coreH);_cosmo.objects.push(coreH);
+    rotors.push({pts:pts,cx:gx.cx,cy:gx.cy,speed:gx.type==='spiral'?0.11:0.04});
   });
   _cosmo._tick=function(t){ rotors.forEach(function(r){ r.pts.rotation.y+=t*r.speed; }); };
   _cosmo.cam.position.set(0,2.4,16.8);
