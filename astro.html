@@ -1712,7 +1712,7 @@ function _cosmoLoad(name){
   else if(name==='pulsar'){ _buildPulsar(); hud.innerHTML='<b style="color:#88ccff">💫 Pulsar</b><br>Stella di neutroni in rotazione rapidissima: i fasci magnetici spazzano lo spazio come un faro cosmico.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #88ccff;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#88ccff;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Pulsar</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Nucleo collassato di una supernova: ~1,4 masse solari in ~20 km. Ruota fino a centinaia di volte al secondo emettendo due fasci di onde radio dai poli magnetici. Se puntano verso di noi, li vediamo pulsare con regolarità da orologio atomico.</div></div>'; }
   else if(name==='supernova'){ _buildSupernova(); hud.innerHTML='<b style="color:#ffd166">💥 Supernova</b><br>Esplosione di una stella massiccia: l\'onda d\'urto disperde gli elementi pesanti nello spazio.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ffd166;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ffd166;font-weight:800;font-size:1.1rem;margin-bottom:6px">💥 Supernova</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Quando il nucleo di una stella massiccia esaurisce il combustibile, collassa e rimbalza in un\'esplosione che per giorni brilla come un\'intera galassia. Forgia e disperde elementi pesanti (oro, ferro): la polvere che formerà nuove stelle e pianeti.</div></div>'; }
   else if(name==='nebula'){ _buildNebula3D(); hud.innerHTML='<b style="color:#ff8fa8">☁️ Nebulosa</b><br>Nube di gas e polvere interstellare: culla dove nascono le stelle.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff8fa8;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff8fa8;font-weight:800;font-size:1.1rem;margin-bottom:6px">☁️ Nebulosa</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Immense nubi di idrogeno, elio e polvere. Dove il gas si addensa, la gravità innesca la fusione e accende nuove stelle. Le nebulose a emissione brillano per la radiazione delle stelle giovani che contengono.</div></div>'; }
-  else if(name==='collision'){ _buildCollision(); hud.innerHTML='<b style="color:#ff9d5c">💫 Collisione Galattica</b><br>Due galassie si attraversano: la gravità distorce i bracci a spirale.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff9d5c;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff9d5c;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Collisione tra galassie</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Le stelle quasi non si scontrano (troppo spazio vuoto), ma la gravità deforma le galassie in code di marea e ponti di stelle. La compressione del gas accende ondate di nuove stelle. Tra 4 miliardi di anni la Via Lattea si fonderà con Andromeda.</div></div>'; }
+  else if(name==='collision'){ _buildCollision(); hud.innerHTML='<b style="color:#ff9d5c">💫 Collisione Galattica</b><br>Avvicinamento delle due spirali'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #ff9d5c;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#ff9d5c;font-weight:800;font-size:1.1rem;margin-bottom:6px">💫 Fusione galattica — la sequenza completa</div><div style="color:#cdd9e6;font-size:.88rem;line-height:1.7">Simulazione a <b>N-corpi ristretto</b> (meccanismo di Toomre): le stelle sono particelle-test sotto la gravità di <b>entrambi</b> i nuclei, così code e ponti nascono dalla fisica reale.<br><br><b style="color:#ffd0a0">1. Avvicinamento</b> — due spirali cadono l\'una verso l\'altra.<br><b style="color:#ffd0a0">2. Primo passaggio</b> — le stelle quasi non si urtano (troppo vuoto), ma la marea gravitazionale stira le galassie in <b>code di marea</b> e <b>ponti</b> (come le Antennae/Topi). Il <b>gas</b> invece si comprime → <b>starburst</b> (ondata di nuove stelle, bagliore rosa).<br><b style="color:#ffd0a0">3. Fusione</b> — l\'<b>attrito dinamico</b> (alone di materia oscura) fa decadere l\'orbita: i nuclei si fondono.<br><b style="color:#ffd0a0">4. Resto</b> — ne risulta una <b>galassia ellittica</b> con le stelle rimescolate. È il destino della Via Lattea + Andromeda tra ~4,5 miliardi di anni (\"<b>Milkomeda</b>\").</div></div>'; }
   else if(name==='starlab'){ _buildStarLab(); hud.innerHTML='<b style="color:#f5c451">🌡️ Laboratorio Stellare</b><br>Muovi i cursori qui sotto: temperatura e dimensione cambiano il colore della stella.'; if(info) info.innerHTML=_starLabUI(); }
   else if(name==='protodisk'){ _buildProtodisk(); hud.innerHTML='<b style="color:#c9a06a">🪐 Disco Protoplanetario</b><br>Disco di gas e polvere attorno a una stella neonata: qui nascono i pianeti.'; info.innerHTML='<div style="background:rgba(255,255,255,.04);border-left:3px solid #c9a06a;border-radius:0 10px 10px 0;padding:14px 16px"><div style="color:#c9a06a;font-weight:800;font-size:1.1rem;margin-bottom:6px">🪐 Disco Protoplanetario</div><div style="color:#cdd9e6;font-size:.9rem;line-height:1.7">Attorno alla giovane stella, il materiale residuo forma un disco rotante. Polvere e ghiaccio si aggregano in planetesimi e poi in pianeti. Le lacune nel disco (viste da ALMA) segnano dove i pianeti stanno già ripulendo la loro orbita.</div></div>'; }
   else if(name==='systems'){ _buildSystems(); hud.innerHTML='<b style="color:#ffcc44">🌟 Sistemi Planetari Reali</b><br>Scegli un sistema qui sotto. Orbite e periodi reali. 👆 Tocca un pianeta.'; }
@@ -1834,10 +1834,103 @@ function _buildNebula3D(){
 // ═══ COLLISIONE GALATTICA — due dischi che si attraversano ═══
 function _buildCollision(){
   var sc=_cosmo.scene;
-  function disk(tint){ var g=new THREE.BufferGeometry(),v=[],c=[]; for(var i=0;i<3000;i++){ var a=Math.random()*6.28; var r=Math.pow(Math.random(),0.5)*4.6; var arm=Math.sin(a*2+r*0.8); var b=0.55+Math.random()*0.45; v.push(Math.cos(a)*r,(Math.random()-0.5)*0.45+arm*0.25,Math.sin(a)*r); c.push(tint[0]*b,tint[1]*b,tint[2]*b); } g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3)); return new THREE.Points(g,new THREE.PointsMaterial({size:0.08,vertexColors:true,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false})); }
-  var gA=disk([0.6,0.8,1]), gB=disk([1,0.7,0.5]); sc.add(gA);sc.add(gB);_cosmo.objects.push(gA);_cosmo.objects.push(gB);
-  var coreA=new THREE.Mesh(new THREE.SphereGeometry(0.4,16,16),new THREE.MeshBasicMaterial({color:0xbfe0ff})); var coreB=new THREE.Mesh(new THREE.SphereGeometry(0.4,16,16),new THREE.MeshBasicMaterial({color:0xffd0a0})); sc.add(coreA);sc.add(coreB);_cosmo.objects.push(coreA);_cosmo.objects.push(coreB);
-  var tt=0; _cosmo._tick=function(t){ tt+=t*0.5; var d=8*Math.cos(tt); gA.position.x=d;coreA.position.x=d; gB.position.x=-d;coreB.position.x=-d; gA.rotation.y+=t*0.5; gB.rotation.y-=t*0.5; };
+  var sprite=(typeof _cosmoSprite==='function')?_cosmoSprite():null;
+  // ═══ FUSIONE GALATTICA a N-corpi RISTRETTO (meccanismo di Toomre & Toomre 1972) ═══
+  // due nuclei massicci + stelle come particelle-test sotto la gravità di ENTRAMBI:
+  // le code di marea e i ponti nascono dalla fisica reale, non sono disegnati a mano.
+  var G=1.0, soft=0.55;
+  var mA=24, mB=24;                                   // masse comparabili (come Via Lattea + Andromeda)
+  // stato iniziale (snapshot per il loop): si avvicinano lungo x con un piccolo parametro d'impatto in z
+  var IPA=new THREE.Vector3(-10,0,-1.6), IPB=new THREE.Vector3(10,0,1.6);
+  var IVA=new THREE.Vector3(0.42,0,0.20), IVB=new THREE.Vector3(-0.42,0,-0.20); // incontro radente prograda → code di marea
+  var posA=IPA.clone(),posB=IPB.clone(),velA=IVA.clone(),velB=IVB.clone();
+  var NA=1600, NB=1600, N=NA+NB;
+  var pos=new Float32Array(N*3), col=new Float32Array(N*3);
+  var vx=new Float32Array(N), vy=new Float32Array(N), vz=new Float32Array(N);
+  var host=new Uint8Array(N);
+  // snapshot iniziale per reset
+  var i_pos=new Float32Array(N*3), i_vx=new Float32Array(N), i_vy=new Float32Array(N), i_vz=new Float32Array(N);
+  function initDisk(i0,n,center,coreVel,mHost,tint,inc,spin){
+    for(var i=i0;i<i0+n;i++){
+      var r=0.5+Math.pow(Math.random(),0.55)*4.4;
+      var a=Math.random()*6.2832;
+      var x=Math.cos(a)*r, y=0, z=Math.sin(a)*r;
+      var yy=y*Math.cos(inc)-z*Math.sin(inc), zz=y*Math.sin(inc)+z*Math.cos(inc); // inclina il disco
+      pos[i*3]=center.x+x; pos[i*3+1]=center.y+yy; pos[i*3+2]=center.z+zz;
+      var vc=Math.sqrt(G*mHost/(r+0.35))*spin;        // velocità circolare kepleriana (spin ±)
+      var tx=-Math.sin(a)*vc, ty=0, tz=Math.cos(a)*vc;
+      var tyy=ty*Math.cos(inc)-tz*Math.sin(inc), tzz=ty*Math.sin(inc)+tz*Math.cos(inc);
+      vx[i]=coreVel.x+tx; vy[i]=coreVel.y+tyy; vz[i]=coreVel.z+tzz;
+      host[i]=(i0===0)?0:1;
+      var b=0.6+0.4*Math.random();
+      col[i*3]=tint[0]*b; col[i*3+1]=tint[1]*b; col[i*3+2]=tint[2]*b;
+    }
+  }
+  initDisk(0,NA,posA,velA,mA,[0.55,0.72,1.0],0.30,1);    // A: spirale blu, prograda (code lunghe)
+  initDisk(NA,NB,posB,velB,mB,[1.0,0.74,0.45],0.95,-1);  // B: spirale oro, inclinata/retrograda
+  for(var i=0;i<N;i++){ i_pos[i*3]=pos[i*3];i_pos[i*3+1]=pos[i*3+1];i_pos[i*3+2]=pos[i*3+2]; i_vx[i]=vx[i];i_vy[i]=vy[i];i_vz[i]=vz[i]; }
+  var g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  var pts=new THREE.Points(g,new THREE.PointsMaterial({size:0.12,vertexColors:true,transparent:true,opacity:0.92,blending:THREE.AdditiveBlending,depthWrite:false,map:sprite}));
+  sc.add(pts);_cosmo.objects.push(pts);
+  var patt=g.getAttribute('position');
+  // nuclei luminosi
+  var coreA=new THREE.Mesh(new THREE.SphereGeometry(0.42,20,20),new THREE.MeshBasicMaterial({color:0xcfe3ff,blending:THREE.AdditiveBlending,depthWrite:false}));
+  var coreB=new THREE.Mesh(new THREE.SphereGeometry(0.42,20,20),new THREE.MeshBasicMaterial({color:0xffe0b0,blending:THREE.AdditiveBlending,depthWrite:false}));
+  sc.add(coreA);sc.add(coreB);_cosmo.objects.push(coreA);_cosmo.objects.push(coreB);
+  // starburst: bagliore rosa da compressione del gas ai passaggi ravvicinati
+  var burst=null;
+  if(sprite){ burst=new THREE.Sprite(new THREE.SpriteMaterial({map:sprite,color:0xff5aa0,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false})); sc.add(burst);_cosmo.objects.push(burst); }
+  var merged=false, tsim=0, minSep=99, mergeT=0, phase='';
+  function setHud(ph){ if(ph===phase)return; phase=ph; var h=document.getElementById('cosmo-hud'); if(h) h.innerHTML='<b style="color:#ff9d5c">💫 Collisione Galattica</b><br>'+ph; }
+  _cosmo._tick=function(t){
+    var dt=Math.min(0.033,t)*2.4; var steps=3; dt/=steps;
+    for(var s=0;s<steps;s++){
+      tsim+=dt;
+      var dABx=posB.x-posA.x, dABy=posB.y-posA.y, dABz=posB.z-posA.z;
+      var sep=Math.sqrt(dABx*dABx+dABy*dABy+dABz*dABz);
+      if(!merged){
+        // gravità nucleo-nucleo
+        var inv=G/((sep*sep+soft)*Math.sqrt(sep*sep+soft));
+        var aAx=dABx*inv*mB, aAy=dABy*inv*mB, aAz=dABz*inv*mB;
+        var aBx=-dABx*inv*mA, aBy=-dABy*inv*mA, aBz=-dABz*inv*mA;
+        velA.x+=aAx*dt; velA.y+=aAy*dt; velA.z+=aAz*dt;
+        velB.x+=aBx*dt; velB.y+=aBy*dt; velB.z+=aBz*dt;
+        // ATTRITO DINAMICO (frizione dell'alone di materia oscura): smorza la velocità relativa
+        // → l'orbita decade a ogni passaggio e i nuclei finiscono per fondersi (fisica reale delle fusioni)
+        var kd=0.22*dt; var rvx=velB.x-velA.x, rvy=velB.y-velA.y, rvz=velB.z-velA.z;
+        velA.x+=kd*rvx; velA.y+=kd*rvy; velA.z+=kd*rvz;
+        velB.x-=kd*rvx; velB.y-=kd*rvy; velB.z-=kd*rvz;
+        posA.x+=velA.x*dt; posA.y+=velA.y*dt; posA.z+=velA.z*dt;
+        posB.x+=velB.x*dt; posB.y+=velB.y*dt; posB.z+=velB.z*dt;
+        if(sep<minSep)minSep=sep;
+        if(sep<1.25){ merged=true; mergeT=tsim; posA.set((posA.x+posB.x)/2,(posA.y+posB.y)/2,(posA.z+posB.z)/2); mA=mA+mB; }
+      }
+      // forze sulle stelle da entrambi i nuclei
+      for(var i=0;i<N;i++){
+        var px=pos[i*3],py=pos[i*3+1],pz=pos[i*3+2];
+        var dx=posA.x-px, dy=posA.y-py, dz=posA.z-pz;
+        var r2=dx*dx+dy*dy+dz*dz+soft; var f=G*mA/(r2*Math.sqrt(r2));
+        var ax=dx*f, ay=dy*f, az=dz*f;
+        if(!merged){ var ex=posB.x-px, ey=posB.y-py, ez=posB.z-pz; var e2=ex*ex+ey*ey+ez*ez+soft; var f2=G*mB/(e2*Math.sqrt(e2)); ax+=ex*f2; ay+=ey*f2; az+=ez*f2; }
+        vx[i]+=ax*dt; vy[i]+=ay*dt; vz[i]+=az*dt;
+        pos[i*3]=px+vx[i]*dt; pos[i*3+1]=py+vy[i]*dt; pos[i*3+2]=pz+vz[i]*dt;
+      }
+    }
+    patt.needsUpdate=true;
+    coreA.position.copy(posA); coreB.position.copy(posB); coreB.visible=!merged;
+    // starburst dalla compressione del gas: brilla quando i nuclei sono vicini
+    if(burst){ var sepNow=merged?0:posA.distanceTo(posB); var comp=merged?0:Math.max(0,1-sepNow/6); burst.material.opacity=comp*0.7*(0.7+0.3*Math.sin(tsim*8)); burst.scale.setScalar(2.5+comp*4); burst.position.set((posA.x+posB.x)/2,(posA.y+posB.y)/2,(posA.z+posB.z)/2); }
+    // fasi in base allo STATO (robusto): avvicinamento → code di marea → fusione → resto ellittico
+    if(merged){ coreA.scale.setScalar(1+0.15*Math.sin(tsim*3)); setHud(tsim>mergeT+7?'Galassia ellittica (resto) — le stelle si rimescolano':'Fusione dei nuclei → galassia ellittica'); }
+    else if(minSep<7) setHud('Passaggio ravvicinato — code di marea, ponti e starburst');
+    else setHud('Avvicinamento delle due spirali');
+    // reset del ciclo dopo il rilassamento del resto
+    if(merged && tsim>mergeT+16){ for(var i=0;i<N;i++){ pos[i*3]=i_pos[i*3];pos[i*3+1]=i_pos[i*3+1];pos[i*3+2]=i_pos[i*3+2]; vx[i]=i_vx[i];vy[i]=i_vy[i];vz[i]=i_vz[i]; }
+      posA.copy(IPA);posB.copy(IPB);velA.copy(IVA);velB.copy(IVB); mA=24;mB=24; merged=false;tsim=0;minSep=99; coreA.scale.setScalar(1); patt.needsUpdate=true; }
+  };
+  _cosmo.cam.position.set(0,11,21);
 }
 // ═══ DISCO PROTOPLANETARIO — stella neonata con disco e lacuna ═══
 function _buildProtodisk(){
