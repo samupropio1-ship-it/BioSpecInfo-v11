@@ -460,6 +460,13 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
   <style>
     #cosmo-wrap:fullscreen,#cosmo-wrap:-webkit-full-screen{width:100vw!important;height:100vh!important;max-width:none!important;border-radius:0!important;margin:0!important}
     #cosmo-wrap:fullscreen #cosmo-exit,#cosmo-wrap:-webkit-full-screen #cosmo-exit{display:flex!important}
+    /* schermo intero del visualizzatore 3D dei corpi (Mappa Universo / catalogo) */
+    #body3d-canvas-wrap:fullscreen,#body3d-canvas-wrap:-webkit-full-screen{width:100vw!important;height:100vh!important;max-width:none!important;border-radius:0!important}
+    #body3d-canvas-wrap:fullscreen canvas,#body3d-canvas-wrap:-webkit-full-screen canvas{width:100vw!important;height:100vh!important}
+    /* fallback CSS quando l'API Fullscreen è bloccata (WebView/iframe): riempi la finestra */
+    #body3d-ov.b3fs{padding:0}
+    #body3d-ov.b3fs #body3d-canvas-wrap{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;border-radius:0!important;z-index:100001}
+    #body3d-ov.b3fs #body3d-canvas-wrap canvas{width:100vw!important;height:100vh!important}
     #cosmo-jnav{position:absolute;left:0;right:0;bottom:0;display:none;gap:8px;padding:10px 12px;
       background:linear-gradient(0deg,rgba(0,0,10,.92),rgba(0,0,10,.55) 70%,transparent);z-index:6}
     #cosmo-jnav.on{display:flex}
@@ -3913,9 +3920,10 @@ function _showBody3D(name){
   var ov=document.getElementById('body3d-ov');
   if(!ov){
     ov=document.createElement('div'); ov.id='body3d-ov';
-    ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(2,5,12,.96);display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:12px';
-    ov.innerHTML='<div style="width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;padding:8px"><div id="body3d-title" style="color:#00c9b7;font-weight:800;font-size:1.3rem"></div><button onclick="_closeBody3D()" style="background:#1a2b3e;border:1px solid #00c9b7;color:#00c9b7;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700">✕ Chiudi</button></div>'
-      +'<div id="body3d-canvas-wrap" style="width:100%;max-width:600px;height:340px;background:#000005;border-radius:14px;overflow:hidden;position:relative"><canvas id="body3d-canvas" style="width:100%;height:100%;display:block"></canvas></div>'
+    ov.style.cssText='position:fixed;inset:0;z-index:100000;background:#02050c;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:12px';
+    ov.innerHTML='<div style="width:100%;max-width:600px;display:flex;justify-content:space-between;align-items:center;padding:8px;gap:8px"><div id="body3d-title" style="color:#00c9b7;font-weight:800;font-size:1.3rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div><button onclick="_closeBody3D()" style="background:#1a2b3e;border:1px solid #00c9b7;color:#00c9b7;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;flex:none">✕ Chiudi</button></div>'
+      +'<div id="body3d-canvas-wrap" style="width:100%;max-width:600px;height:340px;background:#000005;border-radius:14px;overflow:hidden;position:relative"><canvas id="body3d-canvas" style="width:100%;height:100%;display:block;touch-action:none"></canvas>'
+      +'<button id="body3d-fs" onclick="_body3dFullscreen()" title="Schermo intero" style="position:absolute;top:8px;right:8px;z-index:3;padding:6px 12px;border-radius:9px;border:1px solid rgba(0,201,183,.6);background:rgba(4,18,30,.82);color:#00c9b7;font-weight:800;font-size:.76rem;cursor:pointer">⛶ Schermo intero</button></div>'
       +'<div id="body3d-info" style="width:100%;max-width:600px;padding:12px"></div>';
     document.body.appendChild(ov);
   } else { ov.style.display='flex'; }
@@ -3932,7 +3940,38 @@ function _showBody3D(name){
   } else { info.innerHTML='<div style="color:#9fb3c8;text-align:center;padding:10px">Modello 3D interattivo. Trascina per ruotare.</div>'; }
   setTimeout(function(){ _initBody3D(b||{tex:'rock',r:1.3,type:'rocky'}); },60);
 }
-function _closeBody3D(){ var ov=document.getElementById('body3d-ov'); if(ov)ov.style.display='none'; if(_body3d.raf)cancelAnimationFrame(_body3d.raf); }
+function _closeBody3D(){ var ov=document.getElementById('body3d-ov'); if(ov){ ov.classList.remove('b3fs'); ov.style.display='none'; }
+  try{ if(document.fullscreenElement||document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); } }catch(e){}
+  var btn=document.getElementById('body3d-fs'); if(btn)btn.textContent='⛶ Schermo intero';
+  if(_body3d.raf)cancelAnimationFrame(_body3d.raf); }
+// schermo intero del visualizzatore 3D dei corpi: API reale dove permessa + fallback CSS (WebView)
+function _body3dFullscreen(){
+  var ov=document.getElementById('body3d-ov'), wrap=document.getElementById('body3d-canvas-wrap'); if(!ov||!wrap)return;
+  var on=!ov.classList.contains('b3fs');
+  ov.classList.toggle('b3fs',on);
+  var btn=document.getElementById('body3d-fs'); if(btn)btn.textContent=on?'✕ Esci da schermo intero':'⛶ Schermo intero';
+  try{
+    if(on){ var r=wrap.requestFullscreen||wrap.webkitRequestFullscreen; if(r)r.call(wrap); }
+    else if(document.fullscreenElement||document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); }
+  }catch(e){}
+  setTimeout(_body3dResize,80); setTimeout(_body3dResize,320);
+}
+function _body3dResize(){
+  var wrap=document.getElementById('body3d-canvas-wrap'); if(!wrap||!_body3d.ren||!_body3d.cam)return;
+  var W=wrap.clientWidth||wrap.offsetWidth||560, H=wrap.clientHeight||wrap.offsetHeight||340;
+  if(W<10||H<10)return;
+  try{ _body3d.ren.setSize(W,H,false); _body3d.cam.aspect=W/H; _body3d.cam.updateProjectionMatrix(); _body3d.ren.render(_body3d.scene,_body3d.cam); }catch(e){}
+}
+(function _body3dFsWire(){
+  function onFs(){ setTimeout(_body3dResize,60); setTimeout(_body3dResize,260);
+    // se l'utente esce dall'API reale (ESC) e non c'è fallback CSS, ripristina l'etichetta
+    var fsEl=document.fullscreenElement||document.webkitFullscreenElement;
+    var ov=document.getElementById('body3d-ov'); var btn=document.getElementById('body3d-fs');
+    if(!fsEl && ov && !ov.classList.contains('b3fs') && btn) btn.textContent='⛶ Schermo intero';
+  }
+  document.addEventListener('fullscreenchange',onFs); document.addEventListener('webkitfullscreenchange',onFs);
+  window.addEventListener('resize',function(){ var ov=document.getElementById('body3d-ov'); if(ov&&ov.style.display!=='none') _body3dResize(); });
+})();
 
 // genera parametri unici per ogni corpo dal suo nome (così non si ripetono)
 function _seedFromName(name){
@@ -4258,10 +4297,25 @@ function _initBody3D(b){
     var scene=new THREE.Scene();
     var _sd0=_seedFromName(b._name||'x');
     var cam=new THREE.PerspectiveCamera(50,W/H,0.1,100); cam.position.set(Math.sin(_sd0.camAngle)*b.r*_sd0.camDist,b.r*0.5*Math.sin(_sd0.camAngle),Math.cos(_sd0.camAngle)*b.r*_sd0.camDist);
+    cam.lookAt(0,0,0);
     var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
     if(!ren.getContext || !ren.getContext()){ throw new Error('no webgl'); }
     ren.setClearColor(0x000308,1);
     ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H);
+    // memorizzo per il resize (schermo intero) e per i controlli condivisi
+    _body3d.ren=ren; _body3d.cam=cam; _body3d.scene=scene; _body3d.wrap=wrap; _body3d.baseR=b.r;
+    _body3d.ry=0; _body3d.rx=0; _body3d.spin=(b.type==='galaxy'||b.type==='starcluster'||b.type==='nebula')?0.0016:0.0;
+    // DRAG condiviso: ruota la scena per QUALSIASI tipo di corpo (prima solo i pianeti rispondevano)
+    if(!canvas._b3dDragBound){
+      canvas._b3dDragBound=1; var _dr={on:false,x:0,y:0};
+      var _dn=function(e){ _dr.on=true; var p=e.touches?e.touches[0]:e; _dr.x=p.clientX; _dr.y=p.clientY; };
+      var _mv=function(e){ if(!_dr.on||!_body3d.scene)return; var p=e.touches?e.touches[0]:e;
+        _body3d.scene.rotation.y+=(p.clientX-_dr.x)*0.008; _body3d.scene.rotation.x+=(p.clientY-_dr.y)*0.008;
+        _dr.x=p.clientX; _dr.y=p.clientY; if(e.cancelable&&e.touches)e.preventDefault(); };
+      var _up=function(){ _dr.on=false; };
+      canvas.addEventListener('mousedown',_dn); canvas.addEventListener('mousemove',_mv); window.addEventListener('mouseup',_up);
+      canvas.addEventListener('touchstart',_dn,{passive:true}); canvas.addEventListener('touchmove',_mv,{passive:false}); canvas.addEventListener('touchend',_up);
+    }
     scene.add(new THREE.AmbientLight(0x668899, b.type==='star'?2.0:0.9));
     var dl=new THREE.DirectionalLight(0xffffff,1.6); dl.position.set(5,3,5); scene.add(dl);
     var dl2=new THREE.DirectionalLight(0x4466aa,0.5); dl2.position.set(-5,-2,-3); scene.add(dl2);
@@ -4278,7 +4332,7 @@ function _initBody3D(b){
       var photon=new THREE.Mesh(new THREE.TorusGeometry(b.r*0.75,0.03,16,80),new THREE.MeshBasicMaterial({color:0xfff0d0})); photon.rotation.x=Math.PI/2.3; scene.add(photon);
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
       function animBH(){ _body3d.raf=requestAnimationFrame(animBH); disc.rotation.z+=0.01; disc2.rotation.z+=0.015; scene.rotation.y+=0.001; ren.render(scene,cam); }
-      cam.position.set(0,b.r*1.5,b.r*4); animBH(); _body3d.ren=ren; return;
+      cam.position.set(0,b.r*1.5,b.r*4); cam.lookAt(0,0,0); animBH(); _body3d.ren=ren; return;
     }
     if(b.type==='neutron'){
       var ns=new THREE.Mesh(new THREE.SphereGeometry(b.r,48,48),new THREE.MeshBasicMaterial({color:0xaaccff})); scene.add(ns);
@@ -4297,7 +4351,7 @@ function _initBody3D(b){
       var core=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.3,20,20),new THREE.MeshBasicMaterial({color:0xffeecc,transparent:true,opacity:0.8})); scene.add(core);
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
       function animG(){ _body3d.raf=requestAnimationFrame(animG); gpts.rotation.y+=0.003; ren.render(scene,cam); }
-      cam.position.set(0,b.r*1.8,b.r*3.5); animG(); _body3d.ren=ren; return;
+      cam.position.set(0,b.r*1.8,b.r*3.5); cam.lookAt(0,0,0); animG(); _body3d.ren=ren; return;
     }
     if(b.type==='nebula'){
       // ── NEBULOSA POTENZIATA: nuvola volumetrica luminosa con nucleo e stelle ──
@@ -4369,7 +4423,7 @@ function _initBody3D(b){
       scene.add(new THREE.Points(cg,new THREE.PointsMaterial({size:0.1,vertexColors:true})));
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
       function animC(){ _body3d.raf=requestAnimationFrame(animC); scene.rotation.y+=0.002; ren.render(scene,cam); }
-      cam.position.set(0,0,b.r*6); animC(); _body3d.ren=ren; return;
+      cam.position.set(0,0,b.r*6); cam.lookAt(0,0,0); animC(); _body3d.ren=ren; return;
     }
     if(b.type==='supernova'){
       var core2=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.5,32,32),new THREE.MeshBasicMaterial({color:0xffffcc})); scene.add(core2);
@@ -4397,12 +4451,9 @@ function _initBody3D(b){
     if(b.type==='star'){ for(var g=0;g<3;g++){var glow=new THREE.Mesh(new THREE.SphereGeometry(b.r*(1.15+g*0.22),32,32),new THREE.MeshBasicMaterial({color:g===0?0xffdd44:0xff8822,transparent:true,opacity:0.2-g*0.05,side:THREE.BackSide}));scene.add(glow);} }
     if(b.atm){ var atm=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.1,32,32),new THREE.MeshBasicMaterial({color:b.atm,transparent:true,opacity:0.28,side:THREE.BackSide})); scene.add(atm); }
     if(b.ring){ var rg=new THREE.Mesh(new THREE.RingGeometry(b.r*1.4,b.r*2.3,64),new THREE.MeshBasicMaterial({color:0xd8c090,transparent:true,opacity:0.7,side:THREE.DoubleSide})); rg.rotation.x=Math.PI/2.3; scene.add(rg); }
-    var drag=false,px=0,py=0,ry=0,rx=0;
-    canvas.onpointerdown=function(e){drag=true;px=e.clientX;py=e.clientY;};
-    window.addEventListener('pointerup',function(){drag=false;});
-    canvas.onpointermove=function(e){ if(!drag)return; ry+=(e.clientX-px)*0.01; rx+=(e.clientY-py)*0.01; px=e.clientX;py=e.clientY; };
     _body3d.raf&&cancelAnimationFrame(_body3d.raf);
-    function anim(){ _body3d.raf=requestAnimationFrame(anim); mesh.rotation.y+=_sd.spin; scene.rotation.y=ry; scene.rotation.x=rx; ren.render(scene,cam); }
+    // la rotazione della scena è gestita dal drag condiviso; il pianeta gira comunque su sé stesso
+    function anim(){ _body3d.raf=requestAnimationFrame(anim); mesh.rotation.y+=_sd.spin; ren.render(scene,cam); }
     anim();
     _body3d.ren=ren;
   } catch(err){ if(_b2dStart(b._name||"", b)) return; _body3dNoGL(wrap); return; }
