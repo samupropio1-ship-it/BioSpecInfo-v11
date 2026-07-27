@@ -1376,6 +1376,42 @@ if(document.getElementById('specSimCanvas')){
       </div>
     </div>
   </div>
+  <div class="section-title">🧍 ATLANTE 3D — DOVE AGISCONO I FARMACI</div>
+  <div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:820px;margin-bottom:12px">Scegli una <b>zona del corpo</b>, una <b>malattia</b> e un <b>farmaco</b>: il modello 3D evidenzia l'organo bersaglio. Malattie <b>comuni</b>, <b>rare</b>, <b>autoimmuni</b> e <b>tumori</b> — ogni voce rimanda a <b>PubMed</b> per la verifica clinica.</div>
+  <div id="atlasWrap" style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:26px">
+    <div>
+      <div id="atlas3d-wrap" style="position:relative;height:400px;background:radial-gradient(circle at 50% 30%,#0b1524,#05070d);border:1px solid #1a3050;border-radius:14px;overflow:hidden">
+        <canvas id="atlas3d-canvas" style="width:100%;height:100%;display:block;touch-action:none"></canvas>
+        <div id="atlasLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#9fb3c8;font-size:.9rem;padding:20px">Caricamento del modello 3D…</div>
+        <div id="atlasLabel" style="position:absolute;left:10px;bottom:10px;background:rgba(4,18,30,.82);color:#5eead4;font-weight:700;font-size:.82rem;padding:5px 11px;border-radius:9px;display:none"></div>
+        <button id="atlasFsBtn" onclick="_atlasFullscreen()" title="Schermo intero" style="position:absolute;top:8px;right:8px;padding:6px 11px;border-radius:9px;border:1px solid rgba(94,234,212,.5);background:rgba(4,18,30,.82);color:#5eead4;font-weight:800;font-size:.74rem;cursor:pointer">⛶ Schermo intero</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="atlasLayers">
+        <button data-layer="bones" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🦴 Ossa</button>
+        <button data-layer="muscles" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">💪 Muscoli</button>
+        <button data-layer="nerves" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">⚡ Nervi</button>
+        <button data-layer="organs" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🫀 Organi</button>
+        <button data-layer="skin" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🧑 Pelle</button>
+      </div>
+    </div>
+    <div>
+      <div id="atlasTypeFp" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="atlas-ty on" data-ty="all" style="padding:5px 12px;border-radius:20px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">Tutte</button>
+        <button class="atlas-ty" data-ty="comune" style="padding:5px 12px;border-radius:20px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">Comuni</button>
+        <button class="atlas-ty" data-ty="rara" style="padding:5px 12px;border-radius:20px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">Rare</button>
+        <button class="atlas-ty" data-ty="autoimmune" style="padding:5px 12px;border-radius:20px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">Autoimmuni</button>
+        <button class="atlas-ty" data-ty="tumore" style="padding:5px 12px;border-radius:20px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">Tumori</button>
+      </div>
+      <label style="display:block;color:#8fa3b8;font-size:.74rem;font-weight:700;margin-bottom:3px">ZONA DEL CORPO</label>
+      <select id="atlasRegion" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#e9eef6;font-size:.88rem;margin-bottom:10px"></select>
+      <label style="display:block;color:#8fa3b8;font-size:.74rem;font-weight:700;margin-bottom:3px">MALATTIA</label>
+      <select id="atlasDisease" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#e9eef6;font-size:.88rem;margin-bottom:10px"></select>
+      <label style="display:block;color:#8fa3b8;font-size:.74rem;font-weight:700;margin-bottom:3px">FARMACO</label>
+      <select id="atlasDrug" style="width:100%;padding:9px 11px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#e9eef6;font-size:.88rem;margin-bottom:12px"></select>
+      <div id="atlasInfo"></div>
+    </div>
+  </div>
+
   <div class="section-title">💊 FARMACI PER CATEGORIA TERAPEUTICA</div>
   <div class="rxn-fp" id="farmFp">
     <button class="on" data-fc="all">Tutte</button>
@@ -3646,8 +3682,245 @@ var FARM_DATA=[
   {name:"Amlodipina",cat:"cardio",smi:"CCOC(=O)C1=C(COCCN)NC(C)=C(C(=O)OC)C1c1ccccc1Cl",mw:"408.88",moa:"Calcio-antagonista diidropiridinico: blocca canali Ca²⁺ L-type vascolari → vasodilatazione arteriolare.",indicaz:"Ipertensione, angina stabile e vasospastica",effetti:"Edema periferico (caviglie), cefalea, flushing",classe:"Calcio-antagonista (DHP III gen.)"},
 ];
 
+// ═══════════════════════════════════════════════════════════════════
+// ATLANTE 3D DEI FARMACI — corpo umano a strati (ossa/muscoli/nervi/organi),
+// selezione zona→malattia→farmaco, database clinico (comuni/rare/autoimmuni/
+// tumori) con link a PubMed per la verifica. Bartter inclusa tra le rare.
+// ═══════════════════════════════════════════════════════════════════
+var MED_REGIONS=[
+  {k:'testa',label:'🧠 Testa / Sistema nervoso'},
+  {k:'collo',label:'🦋 Collo / Tiroide'},
+  {k:'torace',label:'🫁 Torace (cuore, polmoni, mammella)'},
+  {k:'addome',label:'🫃 Addome (fegato, stomaco, intestino, pancreas)'},
+  {k:'rene',label:'🫘 Reni e vie urinarie'},
+  {k:'pelvi',label:'⚕️ Pelvi (vescica, prostata)'},
+  {k:'sangue',label:'🩸 Sangue / Sistema immunitario'},
+  {k:'muscoloscheletrico',label:'🦴 Ossa, articolazioni e muscoli'},
+  {k:'pelle',label:'🧑 Pelle'}
+];
+var MED_DB=[
+  // ═══ COMUNI ═══
+  {n:'Ipertensione arteriosa',region:'torace',organ:'heart',type:'comune',desc:'Pressione arteriosa cronicamente elevata; principale fattore di rischio cardiovascolare. Agisce su cuore, arterie e rene (sistema renina-angiotensina).',drugs:[{n:'Enalapril / Ramipril',cls:'ACE-inibitori',mech:'bloccano la conversione angiotensina I→II → vasodilatazione e ↓aldosterone'},{n:'Losartan / Valsartan',cls:'Sartani (ARB)',mech:'antagonisti del recettore AT₁ dell\'angiotensina II'},{n:'Amlodipina',cls:'Ca-antagonista',mech:'blocca i canali Ca²⁺ L nel muscolo liscio vascolare → vasodilatazione'},{n:'Idroclorotiazide',cls:'Diuretico tiazidico',mech:'inibisce il cotrasporto Na-Cl nel tubulo distale → ↓volemia'}],pubmed:'hypertension treatment guidelines'},
+  {n:'Diabete mellito tipo 2',region:'addome',organ:'pancreas',type:'comune',desc:'Insulino-resistenza + deficit relativo di insulina. Iperglicemia cronica con danno a rene, occhio, nervi e vasi.',drugs:[{n:'Metformina',cls:'Biguanide',mech:'↓gluconeogenesi epatica (via AMPK), ↑sensibilità all\'insulina'},{n:'Empagliflozin',cls:'SGLT2-inibitore',mech:'blocca il riassorbimento renale di glucosio → glicosuria'},{n:'Semaglutide',cls:'GLP-1 agonista',mech:'↑secrezione insulinica glucosio-dipendente, ↓svuotamento gastrico'},{n:'Insulina',cls:'Ormone',mech:'terapia sostitutiva nelle fasi avanzate'}],pubmed:'type 2 diabetes pharmacological treatment'},
+  {n:'Asma bronchiale',region:'torace',organ:'lungs',type:'comune',desc:'Infiammazione cronica e iperreattività delle vie aeree con broncocostrizione reversibile.',drugs:[{n:'Salbutamolo',cls:'β₂-agonista a breve durata (SABA)',mech:'rilassa la muscolatura liscia bronchiale (broncodilatazione rapida)'},{n:'Budesonide',cls:'Corticosteroide inalatorio',mech:'riduce l\'infiammazione delle vie aeree'},{n:'Formoterolo/Salmeterolo',cls:'β₂-agonista a lunga durata (LABA)',mech:'broncodilatazione prolungata (in associazione all\'ICS)'},{n:'Montelukast',cls:'Antileucotrieni',mech:'antagonista dei recettori dei cisteinil-leucotrieni'}],pubmed:'asthma management GINA'},
+  {n:'Malattia da reflusso (GERD)',region:'addome',organ:'stomach',type:'comune',desc:'Risalita di acido gastrico in esofago; pirosi e danno mucoso.',drugs:[{n:'Omeprazolo / Pantoprazolo',cls:'Inibitori di pompa protonica (IPP)',mech:'inibiscono irreversibilmente la H⁺/K⁺-ATPasi della cellula parietale'},{n:'Ranitidina / Famotidina',cls:'Anti-H₂',mech:'antagonisti del recettore H₂ istaminico gastrico'}],pubmed:'gastroesophageal reflux disease treatment'},
+  {n:'Depressione maggiore',region:'testa',organ:'brain',type:'comune',desc:'Disturbo dell\'umore con alterata neurotrasmissione serotoninergica/noradrenergica.',drugs:[{n:'Sertralina / Escitalopram',cls:'SSRI',mech:'inibiscono il trasportatore della serotonina (SERT) → ↑5-HT sinaptica'},{n:'Venlafaxina / Duloxetina',cls:'SNRI',mech:'inibiscono ricaptazione di serotonina e noradrenalina'}],pubmed:'major depressive disorder antidepressant'},
+  {n:'Ipercolesterolemia',region:'addome',organ:'liver',type:'comune',desc:'LDL elevate → aterosclerosi. Il fegato è il bersaglio principale della terapia.',drugs:[{n:'Atorvastatina / Rosuvastatina',cls:'Statine',mech:'inibiscono la HMG-CoA reduttasi → ↓sintesi di colesterolo, ↑recettori LDL'},{n:'Ezetimibe',cls:'Inibitore assorbimento',mech:'blocca la proteina NPC1L1 intestinale'},{n:'Evolocumab',cls:'Anti-PCSK9',mech:'anticorpo che aumenta i recettori LDL epatici'}],pubmed:'hypercholesterolemia statin therapy'},
+  {n:'Emicrania',region:'testa',organ:'brain',type:'comune',desc:'Cefalea primaria neurovascolare, spesso pulsante e unilaterale.',drugs:[{n:'Sumatriptan',cls:'Triptani',mech:'agonisti 5-HT₁B/₁D → vasocostrizione e ↓rilascio di CGRP'},{n:'Propranololo',cls:'β-bloccante (profilassi)',mech:'riduce la frequenza degli attacchi'},{n:'Erenumab',cls:'Anti-CGRP',mech:'anticorpo contro il recettore del CGRP'}],pubmed:'migraine acute preventive treatment'},
+  {n:'Ipotiroidismo',region:'collo',organ:'thyroid',type:'comune',desc:'Ridotta produzione di ormoni tiroidei (T3/T4).',drugs:[{n:'Levotiroxina',cls:'Ormone tiroideo sintetico',mech:'terapia sostitutiva con T4, convertito in T3 attivo nei tessuti'}],pubmed:'hypothyroidism levothyroxine'},
+  {n:'Epilessia',region:'testa',organ:'brain',type:'comune',desc:'Scariche neuronali sincrone anomale → crisi ricorrenti.',drugs:[{n:'Levetiracetam',cls:'Antiepilettico',mech:'lega la proteina vescicolare SV2A, modula il rilascio di neurotrasmettitori'},{n:'Valproato',cls:'Antiepilettico ad ampio spettro',mech:'↑GABA, blocca canali Na⁺ e Ca²⁺ T'},{n:'Carbamazepina',cls:'Bloccante Na⁺',mech:'stabilizza i canali del sodio inattivati'}],pubmed:'epilepsy antiseizure medication'},
+  {n:'Osteoartrosi',region:'muscoloscheletrico',organ:'joints',type:'comune',desc:'Degenerazione della cartilagine articolare con dolore e rigidità.',drugs:[{n:'Paracetamolo',cls:'Analgesico',mech:'analgesia centrale (COX centrale/via endocannabinoide)'},{n:'Ibuprofene / Diclofenac',cls:'FANS',mech:'inibiscono le COX → ↓prostaglandine (dolore e infiammazione)'}],pubmed:'osteoarthritis pharmacologic management'},
+  {n:'BPCO',region:'torace',organ:'lungs',type:'comune',desc:'Broncopneumopatia cronica ostruttiva: limitazione persistente del flusso aereo.',drugs:[{n:'Tiotropio',cls:'Anticolinergico a lunga durata (LAMA)',mech:'antagonista muscarinico → broncodilatazione'},{n:'Formoterolo',cls:'LABA',mech:'β₂-agonista a lunga durata'}],pubmed:'COPD GOLD bronchodilator'},
+  // ═══ RARE ═══
+  {n:'Sindrome di Bartter',region:'rene',organ:'kidneys',type:'rara',desc:'Tubulopatia ereditaria (autosomica recessiva) del tratto ascendente spesso dell\'ansa di Henle: difetti dei trasportatori NKCC2, ROMK o ClC-Kb. Provoca perdita renale di sali, ipokaliemia, alcalosi metabolica ipocloremica e iperreninemia con pressione normale. Simula l\'effetto di un diuretico dell\'ansa "endogeno".',drugs:[{n:'Supplementi di potassio (KCl)',cls:'Elettrolita',mech:'correggono l\'ipokaliemia da perdita renale'},{n:'Spironolattone / Amiloride',cls:'Diuretici risparmiatori di K⁺',mech:'riducono la perdita di potassio nel tubulo collettore'},{n:'Indometacina',cls:'FANS',mech:'inibisce le prostaglandine renali (elevate) che aggravano la perdita di sali'},{n:'Enalapril',cls:'ACE-inibitore',mech:'attenua l\'iperattivazione del sistema renina-angiotensina'}],pubmed:'Bartter syndrome management'},
+  {n:'Fibrosi cistica',region:'torace',organ:'lungs',type:'rara',desc:'Malattia autosomica recessiva del canale del cloro CFTR: muco denso in polmoni e pancreas, infezioni respiratorie ricorrenti.',drugs:[{n:'Ivacaftor + Lumacaftor/Tezacaftor',cls:'Modulatori del CFTR',mech:'correggono/potenziano il canale CFTR difettoso'},{n:'Dornase alfa',cls:'Mucolitico (DNasi)',mech:'degrada il DNA extracellulare del muco, fluidificandolo'},{n:'Enzimi pancreatici',cls:'Sostitutivi',mech:'suppliscono all\'insufficienza pancreatica esocrina'}],pubmed:'cystic fibrosis CFTR modulator'},
+  {n:'Malattia di Wilson',region:'addome',organ:'liver',type:'rara',desc:'Accumulo tossico di rame (mutazione ATP7B) in fegato e cervello.',drugs:[{n:'D-penicillamina / Trientina',cls:'Chelanti del rame',mech:'legano il rame favorendone l\'escrezione urinaria'},{n:'Zinco acetato',cls:'Inibitore assorbimento',mech:'induce metallotioneina intestinale che sequestra il rame'}],pubmed:'Wilson disease chelation treatment'},
+  {n:'Malattia di Fabry',region:'rene',organ:'kidneys',type:'rara',desc:'Deficit di α-galattosidasi A (X-linked): accumulo di globotriaosilceramide in rene, cuore e nervi.',drugs:[{n:'Agalsidasi α/β',cls:'Terapia enzimatica sostitutiva',mech:'fornisce l\'enzima mancante'},{n:'Migalastat',cls:'Chaperone farmacologico',mech:'stabilizza le forme mutate dell\'enzima'}],pubmed:'Fabry disease enzyme replacement'},
+  {n:'Malattia di Gaucher',region:'sangue',organ:'blood',type:'rara',desc:'Deficit di glucocerebrosidasi: accumulo di glucosilceramide in milza, fegato e ossa.',drugs:[{n:'Imiglucerasi',cls:'Terapia enzimatica sostitutiva',mech:'sostituisce l\'enzima carente'},{n:'Miglustat',cls:'Riduzione del substrato',mech:'inibisce la sintesi dei glicosfingolipidi'}],pubmed:'Gaucher disease enzyme replacement therapy'},
+  {n:'Fenilchetonuria (PKU)',region:'testa',organ:'brain',type:'rara',desc:'Deficit di fenilalanina idrossilasi: accumulo di fenilalanina tossica per il cervello.',drugs:[{n:'Sapropterina',cls:'Cofattore (BH₄)',mech:'potenzia l\'enzima residuo nelle forme responsive'},{n:'Dieta a basso contenuto di Phe',cls:'Dietetica',mech:'riduce l\'apporto di fenilalanina (cardine terapeutico)'}],pubmed:'phenylketonuria treatment sapropterin'},
+  {n:'Acromegalia',region:'testa',organ:'brain',type:'rara',desc:'Eccesso di GH (adenoma ipofisario) → crescita di mani, piedi, viso e organi.',drugs:[{n:'Octreotide / Lanreotide',cls:'Analoghi della somatostatina',mech:'inibiscono la secrezione di GH'},{n:'Pegvisomant',cls:'Antagonista recettore GH',mech:'blocca l\'azione periferica del GH'}],pubmed:'acromegaly medical therapy somatostatin'},
+  {n:'SLA (sclerosi laterale amiotrofica)',region:'testa',organ:'brain',type:'rara',desc:'Degenerazione dei motoneuroni superiori e inferiori → paralisi progressiva.',drugs:[{n:'Riluzolo',cls:'Anti-glutammatergico',mech:'riduce l\'eccitotossicità da glutammato'},{n:'Edaravone',cls:'Antiossidante',mech:'scavenger di radicali liberi che rallenta il declino'}],pubmed:'amyotrophic lateral sclerosis riluzole'},
+  {n:'Ipertensione polmonare',region:'torace',organ:'lungs',type:'rara',desc:'Aumento delle resistenze arteriose polmonari con sovraccarico del ventricolo destro.',drugs:[{n:'Bosentan',cls:'Antagonista endotelina',mech:'blocca i recettori dell\'endotelina-1 (vasocostrittore)'},{n:'Sildenafil',cls:'Inibitore PDE5',mech:'↑cGMP → vasodilatazione polmonare'},{n:'Epoprostenolo',cls:'Analogo prostaciclina',mech:'potente vasodilatatore e antiaggregante'}],pubmed:'pulmonary arterial hypertension treatment'},
+  // ═══ AUTOIMMUNI (spesso rare) ═══
+  {n:'Lupus eritematoso sistemico (LES)',region:'sangue',organ:'blood',type:'autoimmune',desc:'Malattia autoimmune sistemica con autoanticorpi (anti-dsDNA) e danno multi-organo (rene, cute, articolazioni, sangue).',drugs:[{n:'Idrossiclorochina',cls:'Antimalarico immunomodulante',mech:'interferisce con la segnalazione dei Toll-like receptor'},{n:'Prednisone',cls:'Corticosteroide',mech:'ampia soppressione dell\'infiammazione'},{n:'Micofenolato / Belimumab',cls:'Immunosoppressori/biologici',mech:'inibiscono i linfociti; belimumab blocca BLyS/BAFF'}],pubmed:'systemic lupus erythematosus treatment'},
+  {n:'Artrite reumatoide',region:'muscoloscheletrico',organ:'joints',type:'autoimmune',desc:'Poliartrite autoimmune con sinovite erosiva simmetrica.',drugs:[{n:'Metotrexato',cls:'DMARD (antifolato)',mech:'immunosoppressore, cardine della terapia'},{n:'Adalimumab / Etanercept',cls:'Biologici anti-TNF',mech:'neutralizzano il TNF-α pro-infiammatorio'},{n:'Tofacitinib',cls:'JAK-inibitore',mech:'blocca la via di segnale JAK-STAT delle citochine'}],pubmed:'rheumatoid arthritis DMARD biologic'},
+  {n:'Sclerosi multipla',region:'testa',organ:'brain',type:'autoimmune',desc:'Demielinizzazione autoimmune del sistema nervoso centrale.',drugs:[{n:'Interferone β',cls:'Immunomodulante',mech:'riduce l\'attivazione linfocitaria e le ricadute'},{n:'Natalizumab',cls:'Biologico anti-α4-integrina',mech:'impedisce l\'ingresso dei linfociti nel SNC'},{n:'Ocrelizumab',cls:'Anti-CD20',mech:'deplezione dei linfociti B'}],pubmed:'multiple sclerosis disease modifying therapy'},
+  {n:'Miastenia gravis',region:'muscoloscheletrico',organ:'muscles',type:'autoimmune',desc:'Autoanticorpi contro il recettore nicotinico dell\'acetilcolina alla giunzione neuromuscolare → debolezza muscolare.',drugs:[{n:'Piridostigmina',cls:'Inibitore acetilcolinesterasi',mech:'↑acetilcolina alla giunzione neuromuscolare'},{n:'Prednisone / Azatioprina',cls:'Immunosoppressori',mech:'riducono la produzione di autoanticorpi'}],pubmed:'myasthenia gravis pyridostigmine treatment'},
+  {n:'Morbo di Crohn',region:'addome',organ:'intestine',type:'autoimmune',desc:'Malattia infiammatoria cronica intestinale transmurale (autoimmune/immuno-mediata).',drugs:[{n:'Mesalazina',cls:'Aminosalicilato',mech:'antinfiammatorio locale sulla mucosa intestinale'},{n:'Infliximab / Adalimumab',cls:'Biologici anti-TNF',mech:'neutralizzano il TNF-α'},{n:'Azatioprina',cls:'Immunosoppressore',mech:'antimetabolita che riduce i linfociti attivati'}],pubmed:'Crohn disease biologic therapy'},
+  {n:'Tiroidite di Hashimoto',region:'collo',organ:'thyroid',type:'autoimmune',desc:'Distruzione autoimmune della tiroide (anti-TPO) → ipotiroidismo.',drugs:[{n:'Levotiroxina',cls:'Ormone tiroideo',mech:'terapia sostitutiva con T4'}],pubmed:'Hashimoto thyroiditis levothyroxine'},
+  {n:'Morbo di Graves',region:'collo',organ:'thyroid',type:'autoimmune',desc:'Ipertiroidismo autoimmune da autoanticorpi stimolanti il recettore del TSH.',drugs:[{n:'Metimazolo',cls:'Tionamide',mech:'inibisce la tireoperossidasi → ↓sintesi ormoni tiroidei'},{n:'Propranololo',cls:'β-bloccante',mech:'controlla i sintomi adrenergici (tachicardia, tremore)'}],pubmed:'Graves disease antithyroid drug'},
+  {n:'Psoriasi',region:'pelle',organ:'skin',type:'autoimmune',desc:'Malattia infiammatoria cronica della pelle immuno-mediata (asse IL-23/IL-17).',drugs:[{n:'Corticosteroidi topici / analoghi vit. D',cls:'Topici',mech:'riducono l\'infiammazione e la proliferazione cheratinocitaria'},{n:'Metotrexato',cls:'DMARD',mech:'immunosoppressore sistemico'},{n:'Secukinumab / Ustekinumab',cls:'Biologici anti-IL17/IL23',mech:'bloccano le citochine chiave della psoriasi'}],pubmed:'psoriasis biologic IL-17 IL-23'},
+  {n:'Diabete mellito tipo 1',region:'addome',organ:'pancreas',type:'autoimmune',desc:'Distruzione autoimmune delle β-cellule pancreatiche → carenza assoluta di insulina.',drugs:[{n:'Insulina',cls:'Ormone (basale + rapida)',mech:'terapia sostitutiva indispensabile'}],pubmed:'type 1 diabetes insulin therapy'},
+  {n:'Celiachia',region:'addome',organ:'intestine',type:'autoimmune',desc:'Enteropatia autoimmune scatenata dal glutine (anti-transglutaminasi) con atrofia dei villi.',drugs:[{n:'Dieta priva di glutine',cls:'Dietetica',mech:'unico trattamento efficace: rimuove l\'antigene scatenante'}],pubmed:'celiac disease gluten-free diet'},
+  // ═══ TUMORI ═══
+  {n:'Carcinoma mammario',region:'torace',organ:'breast',type:'tumore',desc:'Tumore maligno della mammella; la terapia dipende dai recettori (ER, PR, HER2).',drugs:[{n:'Tamoxifene',cls:'SERM',mech:'antagonista del recettore estrogenico nella mammella (tumori ER+)'},{n:'Anastrozolo',cls:'Inibitore aromatasi',mech:'↓sintesi periferica di estrogeni (post-menopausa)'},{n:'Trastuzumab',cls:'Anti-HER2',mech:'anticorpo contro il recettore HER2 (tumori HER2+)'}],pubmed:'breast cancer endocrine HER2 therapy'},
+  {n:'Leucemia mieloide cronica (LMC)',region:'sangue',organ:'blood',type:'tumore',desc:'Neoplasia mieloproliferativa con cromosoma Philadelphia e proteina di fusione BCR-ABL.',drugs:[{n:'Imatinib',cls:'Inibitore tirosin-chinasi',mech:'blocca selettivamente la chinasi BCR-ABL costitutivamente attiva'},{n:'Dasatinib / Nilotinib',cls:'TKI di 2ª generazione',mech:'più potenti, attivi su alcune mutazioni resistenti'}],pubmed:'chronic myeloid leukemia imatinib tyrosine kinase inhibitor'},
+  {n:'Carcinoma polmonare',region:'torace',organ:'lungs',type:'tumore',desc:'Tumore maligno del polmone (a piccole cellule o non a piccole cellule).',drugs:[{n:'Cisplatino',cls:'Chemioterapico al platino',mech:'forma addotti con il DNA → blocca la replicazione'},{n:'Osimertinib',cls:'Inibitore EGFR',mech:'target delle mutazioni attivanti di EGFR'},{n:'Pembrolizumab',cls:'Immunoterapia anti-PD-1',mech:'riattiva i linfociti T contro il tumore'}],pubmed:'non-small cell lung cancer targeted immunotherapy'},
+  {n:'Melanoma',region:'pelle',organ:'skin',type:'tumore',desc:'Tumore maligno dei melanociti; frequente mutazione BRAF V600E.',drugs:[{n:'Vemurafenib / Dabrafenib',cls:'Inibitori BRAF',mech:'bloccano la chinasi BRAF mutata (V600E)'},{n:'Nivolumab / Ipilimumab',cls:'Immunoterapia',mech:'checkpoint inibitori (anti-PD-1 / anti-CTLA-4)'}],pubmed:'melanoma BRAF inhibitor checkpoint'},
+  {n:'Carcinoma del colon-retto',region:'addome',organ:'intestine',type:'tumore',desc:'Tumore maligno del grosso intestino.',drugs:[{n:'5-Fluorouracile + Oxaliplatino',cls:'Chemioterapia (FOLFOX)',mech:'antimetabolita + agente al platino'},{n:'Cetuximab',cls:'Anti-EGFR',mech:'anticorpo contro EGFR (tumori RAS wild-type)'},{n:'Bevacizumab',cls:'Anti-VEGF',mech:'inibisce l\'angiogenesi tumorale'}],pubmed:'colorectal cancer chemotherapy targeted'},
+  {n:'Carcinoma prostatico',region:'pelvi',organ:'prostate',type:'tumore',desc:'Tumore maligno della prostata, spesso androgeno-dipendente.',drugs:[{n:'Leuprolide',cls:'Analogo GnRH',mech:'sopprime la produzione di testosterone (castrazione chimica)'},{n:'Bicalutamide / Enzalutamide',cls:'Antiandrogeni',mech:'bloccano il recettore degli androgeni'}],pubmed:'prostate cancer androgen deprivation therapy'}
+];
+
+var _atlas={raf:null,ren:null,scene:null,cam:null,organs:{},layers:{},ry:0,rx:0,hi:null,hiPh:0,built:false};
+// anchor + mappa organo→bersaglio 3D
+function _atlasBuildBody(){
+  if(typeof THREE==='undefined')return false;
+  var canvas=id('atlas3d-canvas'), wrap=id('atlas3d-wrap'); if(!canvas||!wrap)return false;
+  var W=wrap.clientWidth||600,H=wrap.clientHeight||400;
+  try{
+    var sc=new THREE.Scene();
+    var cam=new THREE.PerspectiveCamera(45,W/H,0.1,100); cam.position.set(0,0.3,10.5);
+    var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+    if(!ren.getContext||!ren.getContext())return false;
+    ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H); ren.setClearColor(0x000000,0);
+    sc.add(new THREE.AmbientLight(0x8899bb,0.9));
+    var dl=new THREE.DirectionalLight(0xffffff,0.9); dl.position.set(4,6,7); sc.add(dl);
+    var body=new THREE.Group(); sc.add(body);
+    var L={bones:new THREE.Group(),muscles:new THREE.Group(),nerves:new THREE.Group(),organs:new THREE.Group(),skin:new THREE.Group()};
+    Object.keys(L).forEach(function(k){ body.add(L[k]); });
+    var organs={};
+    function organ(key,geo,color,x,y,z,sy){ var m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:color,roughness:0.6,emissive:0x000000})); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.organs.add(m); (organs[key]=organs[key]||[]).push(m); m.userData.baseColor=color; return m; }
+    // ─ PELLE / silhouette (capsule schematiche) ─
+    var skinMat=new THREE.MeshStandardMaterial({color:0xffd9b8,transparent:true,opacity:0.16,roughness:1,side:THREE.DoubleSide});
+    function skinPart(geo,x,y,z,sy){ var m=new THREE.Mesh(geo,skinMat); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.skin.add(m); return m; }
+    skinPart(new THREE.SphereGeometry(0.62,20,20),0,2.75,0);                 // testa
+    skinPart(new THREE.CylinderGeometry(0.95,0.78,2.5,20),0,0.85,0);          // tronco
+    skinPart(new THREE.CylinderGeometry(0.55,0.6,1.2,16),0,-0.9,0);           // bacino
+    [[-1.15,1.1],[1.15,1.1]].forEach(function(a){ skinPart((THREE.CapsuleGeometry?new THREE.CapsuleGeometry(0.22,1.6,6,12):new THREE.CylinderGeometry(0.22,0.22,1.9,12)),a[0],a[1],0); });
+    [[-0.42,-2.6],[0.42,-2.6]].forEach(function(a){ skinPart(new THREE.CylinderGeometry(0.28,0.2,2.6,14),a[0],a[1],0); });
+    // ─ OSSA ─
+    var boneMat=new THREE.MeshStandardMaterial({color:0xeae3d0,roughness:0.7});
+    function bone(geo,x,y,z,rz){ var m=new THREE.Mesh(geo,boneMat); m.position.set(x,y,z); if(rz)m.rotation.z=rz; L.bones.add(m); return m; }
+    bone(new THREE.SphereGeometry(0.42,18,18),0,2.78,0);                       // cranio
+    bone(new THREE.CylinderGeometry(0.09,0.09,2.4,10),0,0.9,-0.05);            // colonna
+    for(var rr=0;rr<5;rr++){ var ry2=1.7-rr*0.28; var t=new THREE.Mesh(new THREE.TorusGeometry(0.55-rr*0.03,0.035,8,24,Math.PI*1.1),boneMat); t.position.set(0,ry2,0.05); t.rotation.x=Math.PI/2; t.rotation.z=Math.PI*0.95; L.bones.add(t); }
+    bone(new THREE.TorusGeometry(0.5,0.09,10,24),0,-0.7,0);                    // bacino
+    [[-1.15,1.05,0.16],[1.15,1.05,-0.16]].forEach(function(a){ bone(new THREE.CylinderGeometry(0.08,0.08,1.9,10),a[0],a[1],0,a[2]); });
+    [[-0.42,-2.6],[0.42,-2.6]].forEach(function(a){ bone(new THREE.CylinderGeometry(0.11,0.09,2.6,10),a[0],a[1],0); });
+    // ─ MUSCOLI ─
+    var muscMat=new THREE.MeshStandardMaterial({color:0xb2454a,roughness:0.75,transparent:true,opacity:0.9});
+    function musc(geo,x,y,z,sy){ var m=new THREE.Mesh(geo,muscMat); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.muscles.add(m); (organs.muscles=organs.muscles||[]).push(m); m.userData.baseColor=0xb2454a; return m; }
+    musc(new THREE.CylinderGeometry(0.8,0.62,2.3,18),0,0.9,0);                 // tronco muscolare
+    [[-1.15,1.1],[1.15,1.1]].forEach(function(a){ musc(new THREE.CylinderGeometry(0.2,0.17,1.7,12),a[0],a[1],0); });
+    [[-0.42,-2.5],[0.42,-2.5]].forEach(function(a){ musc(new THREE.CylinderGeometry(0.26,0.16,2.4,12),a[0],a[1],0); });
+    // ─ NERVI ─
+    var nerveMat=new THREE.LineBasicMaterial({color:0xffe066,transparent:true,opacity:0.85});
+    function nerve(pts){ var geo=new THREE.BufferGeometry().setFromPoints(pts.map(function(p){return new THREE.Vector3(p[0],p[1],p[2]);})); L.nerves.add(new THREE.Line(geo,nerveMat)); }
+    nerve([[0,2.6,0],[0,1.7,-0.05],[0,0.2,-0.05],[0,-0.6,-0.05]]);            // midollo
+    [-1,1].forEach(function(s){ nerve([[0,1.5,-0.05],[s*0.5,1.4,0],[s*1.1,0.6,0],[s*1.2,-0.2,0]]); nerve([[0,-0.5,-0.05],[s*0.4,-1.2,0],[s*0.42,-2.6,0],[s*0.42,-3.7,0]]); });
+    // ─ ORGANI ─
+    organ('brain',new THREE.SphereGeometry(0.42,20,20),0xf1a7c4,0,2.78,0.02);
+    organ('thyroid',new THREE.SphereGeometry(0.16,14,14),0x8ee0c0,0,1.75,0.3).scale.set(1.6,0.8,0.8);
+    organ('heart',new THREE.SphereGeometry(0.3,18,18),0xe4564f,-0.28,1.05,0.2);
+    organ('lungs',new THREE.SphereGeometry(0.42,16,16),0xa0c4e8,0.62,1.15,0.02,1.4); organ('lungs',new THREE.SphereGeometry(0.42,16,16),0xa0c4e8,-0.62,1.15,0.02,1.4);
+    organ('liver',new THREE.BoxGeometry(0.85,0.42,0.5),0x9c5b3a,0.42,0.5,0.18);
+    organ('stomach',new THREE.SphereGeometry(0.3,16,16),0xe0a165,-0.45,0.52,0.18).scale.set(0.9,1.2,0.8);
+    organ('pancreas',new THREE.BoxGeometry(0.7,0.14,0.18),0xd9b96b,0.02,0.28,0.05);
+    organ('kidneys',new THREE.SphereGeometry(0.2,16,16),0x8a5a9c,0.52,0.08,-0.28).scale.set(0.8,1.3,0.8); organ('kidneys',new THREE.SphereGeometry(0.2,16,16),0x8a5a9c,-0.52,0.08,-0.28).scale.set(0.8,1.3,0.8);
+    organ('intestine',new THREE.TorusKnotGeometry(0.32,0.12,64,8),0xe8b48a,0,-0.35,0.2);
+    organ('bladder',new THREE.SphereGeometry(0.24,16,16),0xf1e08a,0,-1.0,0.22);
+    organ('prostate',new THREE.SphereGeometry(0.16,14,14),0xc79bd6,0,-1.15,0.05);
+    organ('breast',new THREE.SphereGeometry(0.24,16,16),0xf3b8c6,0.32,0.95,0.55); organ('breast',new THREE.SphereGeometry(0.24,16,16),0xf3b8c6,-0.32,0.95,0.55);
+    organ('joints',new THREE.SphereGeometry(0.16,14,14),0xcfe8ff,-0.42,-1.55,0.12); organ('joints',new THREE.SphereGeometry(0.16,14,14),0xcfe8ff,0.42,-1.55,0.12); organ('joints',new THREE.SphereGeometry(0.13,14,14),0xcfe8ff,-1.2,0.1,0.05); organ('joints',new THREE.SphereGeometry(0.13,14,14),0xcfe8ff,1.2,0.1,0.05);
+    // "blood/immunità": evidenzia cuore + un alone diffuso (sistemico)
+    organ('blood',new THREE.SphereGeometry(0.3,18,18),0xd23b5a,-0.28,1.05,0.2);
+    _atlas.scene=sc; _atlas.cam=cam; _atlas.ren=ren; _atlas.organs=organs; _atlas.layers=L; _atlas.body=body; _atlas.built=true;
+    _atlasApplyLayers();
+    // drag per ruotare
+    if(!canvas._atlasDrag){ canvas._atlasDrag=1; var dr={on:false,x:0,y:0};
+      var dn=function(e){dr.on=true;var p=e.touches?e.touches[0]:e;dr.x=p.clientX;dr.y=p.clientY;};
+      var mv=function(e){if(!dr.on)return;var p=e.touches?e.touches[0]:e;_atlas.ry+=(p.clientX-dr.x)*0.008;_atlas.rx+=(p.clientY-dr.y)*0.008;_atlas.rx=Math.max(-1,Math.min(1,_atlas.rx));dr.x=p.clientX;dr.y=p.clientY;if(e.cancelable&&e.touches)e.preventDefault();};
+      var up=function(){dr.on=false;};
+      canvas.addEventListener('mousedown',dn);canvas.addEventListener('mousemove',mv);window.addEventListener('mouseup',up);
+      canvas.addEventListener('touchstart',dn,{passive:true});canvas.addEventListener('touchmove',mv,{passive:false});canvas.addEventListener('touchend',up);
+    }
+    if(_atlas.raf)cancelAnimationFrame(_atlas.raf);
+    function anim(){ _atlas.raf=requestAnimationFrame(anim); _atlas.ry+=0.0016; body.rotation.y=_atlas.ry; body.rotation.x=_atlas.rx;
+      if(_atlas.hi){ _atlas.hiPh+=0.08; var e=0.35+0.55*Math.abs(Math.sin(_atlas.hiPh)); _atlas.hi.forEach(function(m){ if(m.material&&m.material.emissive){ m.material.emissive.setHex(0x2affcc); m.material.emissiveIntensity=e; } }); }
+      ren.render(sc,cam);
+    }
+    anim();
+    var ld=id('atlasLoading'); if(ld)ld.style.display='none';
+    return true;
+  }catch(e){ var ld=id('atlasLoading'); if(ld){ld.textContent='Modello 3D non disponibile su questo dispositivo (WebGL assente). Le informazioni cliniche e i link PubMed funzionano comunque.';} return false; }
+}
+function _atlasApplyLayers(){ if(!_atlas.layers)return; document.querySelectorAll('.atlas-lyr').forEach(function(b){ var k=b.getAttribute('data-layer'); var on=b.classList.contains('on'); if(_atlas.layers[k])_atlas.layers[k].visible=on; }); }
+function _atlasHighlight(organKey){
+  if(_atlas.hi){ _atlas.hi.forEach(function(m){ if(m.material&&m.material.emissive){m.material.emissive.setHex(0x000000);m.material.emissiveIntensity=0;} }); }
+  _atlas.hi=null; _atlas.hiPh=0;
+  var arr=(_atlas.organs&&_atlas.organs[organKey])?_atlas.organs[organKey]:null;
+  if(arr&&arr.length){ _atlas.hi=arr;
+    // assicura che il layer organi sia visibile
+    var ob=document.querySelector('.atlas-lyr[data-layer="organs"]'); if(ob&&!ob.classList.contains('on'))ob.click();
+    var lab=id('atlasLabel'); if(lab){ lab.style.display='block'; lab.textContent='🎯 Bersaglio: '+_atlasOrganName(organKey); }
+  } else { var lab2=id('atlasLabel'); if(lab2)lab2.style.display='none'; }
+}
+function _atlasOrganName(k){ return {brain:'encefalo',thyroid:'tiroide',heart:'cuore',lungs:'polmoni',liver:'fegato',stomach:'stomaco',pancreas:'pancreas',kidneys:'reni',intestine:'intestino',bladder:'vescica',prostate:'prostata',breast:'mammella',joints:'articolazioni',muscles:'muscoli',blood:'sangue / sistema immunitario'}[k]||k; }
+function _atlasFullscreen(){
+  var wrap=id('atlas3d-wrap'); if(!wrap)return;
+  var fsEl=document.fullscreenElement||document.webkitFullscreenElement;
+  try{ if(!fsEl){ (wrap.requestFullscreen||wrap.webkitRequestFullscreen||function(){}).call(wrap); } else { (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); } }catch(e){}
+  setTimeout(_atlasResize,80); setTimeout(_atlasResize,320);
+}
+function _atlasResize(){ var wrap=id('atlas3d-wrap'); if(!wrap||!_atlas.ren||!_atlas.cam)return; var W=wrap.clientWidth||600,H=wrap.clientHeight||400; if(W<10||H<10)return; try{_atlas.ren.setSize(W,H,false);_atlas.cam.aspect=W/H;_atlas.cam.updateProjectionMatrix();}catch(e){} }
+document.addEventListener('fullscreenchange',function(){setTimeout(_atlasResize,60);setTimeout(_atlasResize,260);});
+window.addEventListener('resize',function(){ if(_atlas.built)_atlasResize(); });
+
+var _atlasTy='all';
+function _atlasFillRegions(){
+  var rs=id('atlasRegion'); if(!rs)return;
+  // solo regioni con almeno una malattia del tipo corrente
+  var avail={}; MED_DB.forEach(function(d){ if(_atlasTy==='all'||d.type===_atlasTy)avail[d.region]=1; });
+  var html='<option value="all">— Tutte le zone —</option>';
+  MED_REGIONS.forEach(function(r){ if(avail[r.k]) html+='<option value="'+r.k+'">'+r.label+'</option>'; });
+  rs.innerHTML=html;
+}
+function _atlasFillDiseases(){
+  var ds=id('atlasDisease'); if(!ds)return;
+  var reg=id('atlasRegion').value;
+  var list=MED_DB.filter(function(d){ return (_atlasTy==='all'||d.type===_atlasTy)&&(reg==='all'||d.region===reg); });
+  list.sort(function(a,b){return a.n.localeCompare(b.n);});
+  ds.innerHTML=list.map(function(d,i){ var idx=MED_DB.indexOf(d); return '<option value="'+idx+'">'+({comune:'●',rara:'◆',autoimmune:'✚',tumore:'✖'}[d.type]||'')+' '+d.n+'</option>'; }).join('');
+  _atlasFillDrugs();
+}
+function _atlasFillDrugs(){
+  var ds=id('atlasDisease'), dr=id('atlasDrug'); if(!ds||!dr)return;
+  var d=MED_DB[parseInt(ds.value,10)]; if(!d){dr.innerHTML='';return;}
+  dr.innerHTML=d.drugs.map(function(dg,i){return '<option value="'+i+'">'+dg.n+'</option>';}).join('');
+  _atlasRender();
+}
+function _atlasRender(){
+  var ds=id('atlasDisease'), dr=id('atlasDrug'), info=id('atlasInfo'); if(!ds||!info)return;
+  var d=MED_DB[parseInt(ds.value,10)]; if(!d){info.innerHTML='';return;}
+  var di=parseInt(dr.value,10)||0; var dg=d.drugs[di]||d.drugs[0];
+  if(_atlas.built)_atlasHighlight(d.organ);
+  var tyLab={comune:['Comune','#00c9b7'],rara:['Rara','#f5a623'],autoimmune:['Autoimmune','#a855f7'],tumore:['Tumore','#e4564f']}[d.type]||['',''];
+  var pmDis='https://pubmed.ncbi.nlm.nih.gov/?term='+encodeURIComponent(d.pubmed||d.n);
+  var pmDrug='https://pubmed.ncbi.nlm.nih.gov/?term='+encodeURIComponent((dg?dg.n.split('/')[0].trim()+' ':'')+d.n);
+  var html='<div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:14px 16px">';
+  html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span style="color:#e9eef6;font-weight:800;font-size:1.05rem">'+d.n+'</span><span style="font-size:.68rem;font-weight:800;color:'+tyLab[1]+';border:1px solid '+tyLab[1]+';border-radius:20px;padding:1px 9px">'+tyLab[0]+'</span></div>';
+  html+='<div style="color:#9fb3c8;font-size:.72rem;margin-bottom:6px">🎯 Bersaglio: <b style="color:#5eead4">'+_atlasOrganName(d.organ)+'</b></div>';
+  html+='<div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">'+d.desc+'</div>';
+  if(dg){ html+='<div style="background:rgba(94,234,212,.07);border-left:3px solid #5eead4;border-radius:0 8px 8px 0;padding:9px 12px;margin-bottom:10px">'
+    +'<div style="color:#5eead4;font-weight:800;font-size:.9rem">💊 '+dg.n+'</div>'
+    +'<div style="color:#8fa3b8;font-size:.74rem;margin:2px 0 4px">'+dg.cls+'</div>'
+    +'<div style="color:#cdd9e6;font-size:.83rem;line-height:1.55"><b>Meccanismo:</b> '+dg.mech+'</div></div>'; }
+  html+='<div style="color:#9fb3c8;font-size:.74rem;margin-bottom:6px">Altri farmaci: '+d.drugs.map(function(x){return x.n;}).join(' · ')+'</div>';
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +'<a href="'+pmDis+'" target="_blank" rel="noopener" style="background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.78rem;padding:7px 12px;border-radius:8px;text-decoration:none">🔎 PubMed: malattia ↗</a>'
+    +'<a href="'+pmDrug+'" target="_blank" rel="noopener" style="background:#123a55;color:#8fe6ff;font-weight:700;font-size:.78rem;padding:7px 12px;border-radius:8px;text-decoration:none">🔬 PubMed: farmaco+malattia ↗</a></div>';
+  html+='<div style="color:#6b7d90;font-size:.68rem;margin-top:8px">Fonte per la verifica clinica: PubMed (NIH/NLM). Contenuto a scopo didattico.</div>';
+  html+='</div>';
+  info.innerHTML=html;
+}
+var _atlasOk=false;
+function initMedAtlas(){
+  if(_atlasOk)return; _atlasOk=true;
+  // filtro tipo
+  document.querySelectorAll('.atlas-ty').forEach(function(b){ b.onclick=function(){ document.querySelectorAll('.atlas-ty').forEach(function(x){x.classList.remove('on');x.style.background='#0c1f33';x.style.color='#cdd9e6';x.style.borderColor='#1a3050';}); b.classList.add('on'); b.style.background='#0e3a34';b.style.color='#5eead4';b.style.borderColor='#5eead4'; _atlasTy=b.getAttribute('data-ty'); _atlasFillRegions(); _atlasFillDiseases(); }; });
+  // toggle strati
+  document.querySelectorAll('.atlas-lyr').forEach(function(b){ b.onclick=function(){ b.classList.toggle('on'); var on=b.classList.contains('on'); b.style.background=on?'#0e3a34':'#0c1f33'; b.style.color=on?'#5eead4':'#cdd9e6'; b.style.borderColor=on?'#5eead4':'#1a3050'; _atlasApplyLayers(); }; });
+  var rs=id('atlasRegion'), ds=id('atlasDisease'), dr=id('atlasDrug');
+  if(rs)rs.onchange=_atlasFillDiseases; if(ds)ds.onchange=_atlasFillDrugs; if(dr)dr.onchange=_atlasRender;
+  _atlasFillRegions(); _atlasFillDiseases();
+  // costruisci il 3D (lazy: carica three.js locale)
+  _atlasLoadThree(function(ok){
+    if(!ok){ var ld=id('atlasLoading'); if(ld)ld.textContent='Modello 3D non disponibile qui; le informazioni cliniche e i link PubMed funzionano comunque.'; return; }
+    try{ _atlasBuildBody(); var ds2=id('atlasDisease'); if(ds2&&ds2.value!==''){ var d=MED_DB[parseInt(ds2.value,10)]; if(d&&_atlas.built)_atlasHighlight(d.organ); } }catch(e){}
+  });
+}
+// loader indipendente di three.js (usa il file locale ./three.min.js)
+function _atlasLoadThree(cb){
+  if(typeof window.THREE!=='undefined'){ cb(true); return; }
+  var s=document.createElement('script'); s.src='./three.min.js';
+  s.onload=function(){ cb(typeof window.THREE!=='undefined'); };
+  s.onerror=function(){ cb(false); };
+  document.head.appendChild(s);
+}
+
 function initFarm(){
   if(_farmOk)return;_farmOk=true;
+  try{ initMedAtlas(); }catch(e){}
   var fp=id("farmFp");
   fp.querySelectorAll("button").forEach(function(b){
     b.onclick=function(){
