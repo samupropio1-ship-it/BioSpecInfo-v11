@@ -1391,7 +1391,7 @@ if(document.getElementById('specSimCanvas')){
         <button data-layer="muscles" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">💪 Muscoli</button>
         <button data-layer="nerves" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">⚡ Nervi</button>
         <button data-layer="organs" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🫀 Organi</button>
-        <button data-layer="skin" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🧑 Pelle</button>
+        <button data-layer="skin" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🧑 Pelle</button>
       </div>
     </div>
     <div>
@@ -3743,86 +3743,158 @@ var MED_DB=[
 
 var _atlas={raf:null,ren:null,scene:null,cam:null,organs:{},layers:{},ry:0,rx:0,hi:null,hiPh:0,built:false};
 // anchor + mappa organo→bersaglio 3D
+var _SPH=null;
 function _atlasBuildBody(){
   if(typeof THREE==='undefined')return false;
   var canvas=id('atlas3d-canvas'), wrap=id('atlas3d-wrap'); if(!canvas||!wrap)return false;
   var W=wrap.clientWidth||600,H=wrap.clientHeight||400;
   try{
+    if(!_SPH)_SPH=new THREE.SphereGeometry(1,22,16);
     var sc=new THREE.Scene();
-    var cam=new THREE.PerspectiveCamera(45,W/H,0.1,100); cam.position.set(0,0.3,10.5);
+    var cam=new THREE.PerspectiveCamera(42,W/H,0.1,100); cam.position.set(0,-0.15,11.6); cam.lookAt(0,-0.15,0);
     var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
     if(!ren.getContext||!ren.getContext())return false;
     ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H); ren.setClearColor(0x000000,0);
-    sc.add(new THREE.AmbientLight(0x8899bb,0.9));
-    var dl=new THREE.DirectionalLight(0xffffff,0.9); dl.position.set(4,6,7); sc.add(dl);
+    if('outputColorSpace' in ren && THREE.SRGBColorSpace)ren.outputColorSpace=THREE.SRGBColorSpace;
+    sc.add(new THREE.AmbientLight(0x8fa6c8,0.85));
+    var dl=new THREE.DirectionalLight(0xffffff,1.05); dl.position.set(4,6,8); sc.add(dl);
+    var dl2=new THREE.DirectionalLight(0x6688cc,0.4); dl2.position.set(-5,-2,-4); sc.add(dl2);
+    var rim=new THREE.PointLight(0x88ccff,0.5,40); rim.position.set(0,2,-6); sc.add(rim);
     var body=new THREE.Group(); sc.add(body);
     var L={bones:new THREE.Group(),muscles:new THREE.Group(),nerves:new THREE.Group(),organs:new THREE.Group(),skin:new THREE.Group()};
     Object.keys(L).forEach(function(k){ body.add(L[k]); });
-    var organs={};
-    function organ(key,geo,color,x,y,z,sy){ var m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:color,roughness:0.6,emissive:0x000000})); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.organs.add(m); (organs[key]=organs[key]||[]).push(m); m.userData.baseColor=color; return m; }
-    // ─ PELLE / silhouette (capsule schematiche) ─
-    var skinMat=new THREE.MeshStandardMaterial({color:0xffd9b8,transparent:true,opacity:0.16,roughness:1,side:THREE.DoubleSide});
-    function skinPart(geo,x,y,z,sy){ var m=new THREE.Mesh(geo,skinMat); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.skin.add(m); return m; }
-    skinPart(new THREE.SphereGeometry(0.62,20,20),0,2.75,0);                 // testa
-    skinPart(new THREE.CylinderGeometry(0.95,0.78,2.5,20),0,0.85,0);          // tronco
-    skinPart(new THREE.CylinderGeometry(0.55,0.6,1.2,16),0,-0.9,0);           // bacino
-    [[-1.15,1.1],[1.15,1.1]].forEach(function(a){ skinPart((THREE.CapsuleGeometry?new THREE.CapsuleGeometry(0.22,1.6,6,12):new THREE.CylinderGeometry(0.22,0.22,1.9,12)),a[0],a[1],0); });
-    [[-0.42,-2.6],[0.42,-2.6]].forEach(function(a){ skinPart(new THREE.CylinderGeometry(0.28,0.2,2.6,14),a[0],a[1],0); });
-    // ─ OSSA ─
-    var boneMat=new THREE.MeshStandardMaterial({color:0xeae3d0,roughness:0.7});
-    function bone(geo,x,y,z,rz){ var m=new THREE.Mesh(geo,boneMat); m.position.set(x,y,z); if(rz)m.rotation.z=rz; L.bones.add(m); return m; }
-    bone(new THREE.SphereGeometry(0.42,18,18),0,2.78,0);                       // cranio
-    bone(new THREE.CylinderGeometry(0.09,0.09,2.4,10),0,0.9,-0.05);            // colonna
-    for(var rr=0;rr<5;rr++){ var ry2=1.7-rr*0.28; var t=new THREE.Mesh(new THREE.TorusGeometry(0.55-rr*0.03,0.035,8,24,Math.PI*1.1),boneMat); t.position.set(0,ry2,0.05); t.rotation.x=Math.PI/2; t.rotation.z=Math.PI*0.95; L.bones.add(t); }
-    bone(new THREE.TorusGeometry(0.5,0.09,10,24),0,-0.7,0);                    // bacino
-    [[-1.15,1.05,0.16],[1.15,1.05,-0.16]].forEach(function(a){ bone(new THREE.CylinderGeometry(0.08,0.08,1.9,10),a[0],a[1],0,a[2]); });
-    [[-0.42,-2.6],[0.42,-2.6]].forEach(function(a){ bone(new THREE.CylinderGeometry(0.11,0.09,2.6,10),a[0],a[1],0); });
-    // ─ MUSCOLI ─
-    var muscMat=new THREE.MeshStandardMaterial({color:0xb2454a,roughness:0.75,transparent:true,opacity:0.9});
-    function musc(geo,x,y,z,sy){ var m=new THREE.Mesh(geo,muscMat); m.position.set(x,y,z); if(sy)m.scale.y=sy; L.muscles.add(m); (organs.muscles=organs.muscles||[]).push(m); m.userData.baseColor=0xb2454a; return m; }
-    musc(new THREE.CylinderGeometry(0.8,0.62,2.3,18),0,0.9,0);                 // tronco muscolare
-    [[-1.15,1.1],[1.15,1.1]].forEach(function(a){ musc(new THREE.CylinderGeometry(0.2,0.17,1.7,12),a[0],a[1],0); });
-    [[-0.42,-2.5],[0.42,-2.5]].forEach(function(a){ musc(new THREE.CylinderGeometry(0.26,0.16,2.4,12),a[0],a[1],0); });
-    // ─ NERVI ─
-    var nerveMat=new THREE.LineBasicMaterial({color:0xffe066,transparent:true,opacity:0.85});
-    function nerve(pts){ var geo=new THREE.BufferGeometry().setFromPoints(pts.map(function(p){return new THREE.Vector3(p[0],p[1],p[2]);})); L.nerves.add(new THREE.Line(geo,nerveMat)); }
-    nerve([[0,2.6,0],[0,1.7,-0.05],[0,0.2,-0.05],[0,-0.6,-0.05]]);            // midollo
-    [-1,1].forEach(function(s){ nerve([[0,1.5,-0.05],[s*0.5,1.4,0],[s*1.1,0.6,0],[s*1.2,-0.2,0]]); nerve([[0,-0.5,-0.05],[s*0.4,-1.2,0],[s*0.42,-2.6,0],[s*0.42,-3.7,0]]); });
-    // ─ ORGANI ─
-    organ('brain',new THREE.SphereGeometry(0.42,20,20),0xf1a7c4,0,2.78,0.02);
-    organ('thyroid',new THREE.SphereGeometry(0.16,14,14),0x8ee0c0,0,1.75,0.3).scale.set(1.6,0.8,0.8);
-    organ('heart',new THREE.SphereGeometry(0.3,18,18),0xe4564f,-0.28,1.05,0.2);
-    organ('lungs',new THREE.SphereGeometry(0.42,16,16),0xa0c4e8,0.62,1.15,0.02,1.4); organ('lungs',new THREE.SphereGeometry(0.42,16,16),0xa0c4e8,-0.62,1.15,0.02,1.4);
-    organ('liver',new THREE.BoxGeometry(0.85,0.42,0.5),0x9c5b3a,0.42,0.5,0.18);
-    organ('stomach',new THREE.SphereGeometry(0.3,16,16),0xe0a165,-0.45,0.52,0.18).scale.set(0.9,1.2,0.8);
-    organ('pancreas',new THREE.BoxGeometry(0.7,0.14,0.18),0xd9b96b,0.02,0.28,0.05);
-    organ('kidneys',new THREE.SphereGeometry(0.2,16,16),0x8a5a9c,0.52,0.08,-0.28).scale.set(0.8,1.3,0.8); organ('kidneys',new THREE.SphereGeometry(0.2,16,16),0x8a5a9c,-0.52,0.08,-0.28).scale.set(0.8,1.3,0.8);
-    organ('intestine',new THREE.TorusKnotGeometry(0.32,0.12,64,8),0xe8b48a,0,-0.35,0.2);
-    organ('bladder',new THREE.SphereGeometry(0.24,16,16),0xf1e08a,0,-1.0,0.22);
-    organ('prostate',new THREE.SphereGeometry(0.16,14,14),0xc79bd6,0,-1.15,0.05);
-    organ('breast',new THREE.SphereGeometry(0.24,16,16),0xf3b8c6,0.32,0.95,0.55); organ('breast',new THREE.SphereGeometry(0.24,16,16),0xf3b8c6,-0.32,0.95,0.55);
-    organ('joints',new THREE.SphereGeometry(0.16,14,14),0xcfe8ff,-0.42,-1.55,0.12); organ('joints',new THREE.SphereGeometry(0.16,14,14),0xcfe8ff,0.42,-1.55,0.12); organ('joints',new THREE.SphereGeometry(0.13,14,14),0xcfe8ff,-1.2,0.1,0.05); organ('joints',new THREE.SphereGeometry(0.13,14,14),0xcfe8ff,1.2,0.1,0.05);
-    // "blood/immunità": evidenzia cuore + un alone diffuso (sistemico)
-    organ('blood',new THREE.SphereGeometry(0.3,18,18),0xd23b5a,-0.28,1.05,0.2);
-    _atlas.scene=sc; _atlas.cam=cam; _atlas.ren=ren; _atlas.organs=organs; _atlas.layers=L; _atlas.body=body; _atlas.built=true;
+    var organs={}, anim={lungs:[],heart:[],intestine:[],chest:[]};
+    // ── helper geometrici organici ──
+    function ell(layer,mat,x,y,z,rx,ry,rz){ var m=new THREE.Mesh(_SPH,mat); m.position.set(x,y,z); m.scale.set(rx,ry,rz); layer.add(m); return m; }
+    function limb(layer,mat,a,b,r,r2){ var A=new THREE.Vector3(a[0],a[1],a[2]),B=new THREE.Vector3(b[0],b[1],b[2]); var len=A.distanceTo(B);
+      var g=new THREE.CylinderGeometry(r2||r,r,len,14); var m=new THREE.Mesh(g,mat); m.position.copy(A.clone().add(B).multiplyScalar(0.5));
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize()); layer.add(m);
+      var s2=new THREE.Mesh(_SPH,mat); s2.position.copy(B); s2.scale.setScalar(r); layer.add(s2); return m; }
+    function tube(layer,mat,pts,r,seg){ var cv=new THREE.CatmullRomCurve3(pts.map(function(p){return new THREE.Vector3(p[0],p[1],p[2]);})); var g=new THREE.TubeGeometry(cv,seg||Math.max(16,pts.length*8),r,8,false); var m=new THREE.Mesh(g,mat); layer.add(m); return m; }
+    // ═══ PELLE (traslucida, tutto il corpo) ═══
+    var skinMat=new THREE.MeshStandardMaterial({color:0xf3c6a8,transparent:true,opacity:0.14,roughness:1,metalness:0,side:THREE.DoubleSide,depthWrite:false});
+    ell(L.skin,skinMat,0,2.9,0,0.5,0.6,0.52);                    // testa
+    limb(L.skin,skinMat,[0,2.5,0],[0,2.25,0],0.2);               // collo
+    var chestSkin=ell(L.skin,skinMat,0,1.45,0,0.86,0.82,0.55);   // torace
+    ell(L.skin,skinMat,0,0.55,0,0.72,0.75,0.5);                  // addome
+    ell(L.skin,skinMat,0,-0.35,0,0.76,0.6,0.52);                 // bacino
+    anim.chest.push(chestSkin);
+    [-1,1].forEach(function(s){
+      ell(L.skin,skinMat,s*0.8,1.9,0,0.3,0.3,0.3);               // spalla
+      limb(L.skin,skinMat,[s*0.8,1.85,0],[s*1.05,0.95,0.05],0.19);  // braccio
+      limb(L.skin,skinMat,[s*1.05,0.95,0.05],[s*1.16,0.05,0.1],0.15); // avambraccio
+      ell(L.skin,skinMat,s*1.2,-0.15,0.12,0.14,0.2,0.1);          // mano
+      limb(L.skin,skinMat,[s*0.36,-0.8,0],[s*0.42,-2.0,0.02],0.26,0.2); // coscia
+      limb(L.skin,skinMat,[s*0.42,-2.0,0.02],[s*0.44,-3.2,0.04],0.19,0.13); // gamba
+      ell(L.skin,skinMat,s*0.44,-3.4,0.22,0.16,0.1,0.32);         // piede
+    });
+    // ═══ OSSA — scheletro completo ═══
+    var boneMat=new THREE.MeshStandardMaterial({color:0xe9e2cf,roughness:0.65,metalness:0.02});
+    ell(L.bones,boneMat,0,2.9,0,0.4,0.48,0.42);                  // cranio
+    ell(L.bones,boneMat,0,2.6,0.18,0.24,0.16,0.18);              // mandibola
+    tube(L.bones,boneMat,[[0,2.45,-0.05],[0,1.9,-0.09],[0,1.2,-0.1],[0,0.4,-0.08],[0,-0.3,-0.04],[0,-0.7,0]],0.06); // colonna
+    for(var v=0;v<14;v++){ var vy=2.3-v*0.22; ell(L.bones,boneMat,0,vy,-0.06-Math.max(0,(vy-0.4))*0.02,0.09,0.06,0.09); } // vertebre
+    // gabbia toracica: costole (archi) + sterno
+    for(var rr=0;rr<7;rr++){ var ry2=1.85-rr*0.16; var rad=0.42+Math.sin(rr/7*Math.PI)*0.28; [-1,1].forEach(function(s){ var t=new THREE.Mesh(new THREE.TorusGeometry(rad,0.028,6,20,Math.PI*0.92),boneMat); t.position.set(0,ry2,0.02); t.rotation.y=s>0?0:Math.PI; t.rotation.z=-Math.PI*0.5; t.scale.z=0.75; L.bones.add(t); }); }
+    ell(L.bones,boneMat,0,1.5,0.42,0.06,0.42,0.05);              // sterno
+    [-1,1].forEach(function(s){ limb(L.bones,boneMat,[0,1.95,0.12],[s*0.72,1.88,0.08],0.05); }); // clavicole
+    var pelv=new THREE.Mesh(new THREE.TorusGeometry(0.46,0.1,10,24),boneMat); pelv.position.set(0,-0.62,0); pelv.rotation.x=Math.PI/2; pelv.scale.z=0.7; L.bones.add(pelv);
+    [-1,1].forEach(function(s){
+      limb(L.bones,boneMat,[s*0.75,1.85,0.05],[s*1.0,0.98,0.05],0.06);  // omero
+      limb(L.bones,boneMat,[s*1.0,0.98,0.05],[s*1.14,0.1,0.1],0.05);    // radio/ulna
+      ell(L.bones,boneMat,s*1.2,-0.12,0.12,0.11,0.14,0.08);             // mano
+      limb(L.bones,boneMat,[s*0.32,-0.85,0],[s*0.42,-1.98,0.02],0.08);  // femore
+      limb(L.bones,boneMat,[s*0.42,-1.98,0.02],[s*0.44,-3.15,0.04],0.06);// tibia
+      ell(L.bones,boneMat,s*0.44,-3.38,0.2,0.13,0.08,0.28);             // piede
+    });
+    // ═══ MUSCOLI (rossi, traslucidi: gli organi restano visibili) ═══
+    var muscMat=new THREE.MeshStandardMaterial({color:0xb23a42,roughness:0.7,transparent:true,opacity:0.52,depthWrite:false});
+    function musc(x,y,z,rx,ry,rz){ var m=ell(L.muscles,muscMat,x,y,z,rx,ry,rz); (organs.muscles=organs.muscles||[]).push(m); m.userData.baseColor=0xb23a42; return m; }
+    musc(0,1.5,0.05,0.8,0.72,0.5);                              // pettorali/tronco
+    musc(0,0.55,0.05,0.66,0.66,0.44);                           // addominali
+    [-1,1].forEach(function(s){
+      musc(s*0.82,1.82,0,0.26,0.26,0.24);                       // deltoide
+      musc(s*0.92,1.4,0.04,0.17,0.4,0.16);                      // bicipite
+      musc(s*1.1,0.5,0.06,0.13,0.42,0.12);                      // avambraccio
+      musc(s*0.38,-1.35,0.02,0.24,0.6,0.22);                    // quadricipite
+      musc(s*0.43,-2.55,0.03,0.17,0.55,0.16);                   // polpaccio
+    });
+    // ═══ NERVI (sistema nervoso, giallo luminoso) ═══
+    var nerveMat=new THREE.MeshStandardMaterial({color:0xffe066,emissive:0xffcc22,emissiveIntensity:0.5,roughness:0.5});
+    tube(L.nerves,nerveMat,[[0,2.55,0],[0,1.9,-0.06],[0,1.0,-0.07],[0,0.1,-0.05],[0,-0.55,-0.02]],0.035); // midollo spinale
+    [-1,1].forEach(function(s){
+      tube(L.nerves,nerveMat,[[0,1.75,-0.05],[s*0.4,1.7,0],[s*0.85,1.2,0.03],[s*1.05,0.6,0.05],[s*1.14,0.05,0.08]],0.022); // plesso brachiale→braccio
+      tube(L.nerves,nerveMat,[[0,-0.5,-0.03],[s*0.3,-0.9,0],[s*0.4,-1.9,0.02],[s*0.44,-3.0,0.03]],0.024); // sciatico→gamba
+      tube(L.nerves,nerveMat,[[0,2.2,0],[s*0.2,2.5,0.1],[s*0.3,2.75,0.2]],0.016); // cranici
+    });
+    // ═══ ORGANI (anatomici, cliccabili) ═══
+    function organ(key,color,x,y,z,rx,ry,rz,rough){ var m=new THREE.Mesh(_SPH,new THREE.MeshStandardMaterial({color:color,roughness:rough==null?0.55:rough,emissive:0x000000})); m.position.set(x,y,z); m.scale.set(rx,ry,rz); m.userData.organKey=key; m.userData.baseColor=color; L.organs.add(m); (organs[key]=organs[key]||[]).push(m); return m; }
+    organ('brain',0xf2a9c6,0,2.9,0.02,0.4,0.42,0.42,0.45);
+    ell(L.organs,new THREE.MeshStandardMaterial({color:0xe98fb4,roughness:0.5}),0,2.9,0.02,0.41,0.05,0.43).userData.organKey='brain'; // solco
+    organ('thyroid',0x7fd8bd,-0.13,1.98,0.26,0.13,0.14,0.1); organ('thyroid',0x7fd8bd,0.13,1.98,0.26,0.13,0.14,0.1);
+    var heart=organ('heart',0xe0453f,-0.2,1.2,0.24,0.27,0.32,0.24,0.4); heart.rotation.z=0.35; anim.heart.push(heart);
+    var lungA=organ('lungs',0xa6c8ea,0.52,1.4,0.02,0.34,0.5,0.34); var lungB=organ('lungs',0xa6c8ea,-0.52,1.4,0.02,0.34,0.5,0.34); anim.lungs.push(lungA,lungB);
+    organ('liver',0x9c5b39,0.42,0.6,0.2,0.46,0.3,0.34,0.5);
+    organ('stomach',0xe0a165,-0.42,0.62,0.2,0.28,0.34,0.24);
+    organ('pancreas',0xd9b96b,0.05,0.32,0.02,0.34,0.1,0.12);
+    organ('kidneys',0x8a5a9c,0.5,0.15,-0.28,0.16,0.24,0.15); organ('kidneys',0x8a5a9c,-0.5,0.15,-0.28,0.16,0.24,0.15);
+    var intes=new THREE.Mesh(new THREE.TorusKnotGeometry(0.3,0.11,72,10),new THREE.MeshStandardMaterial({color:0xe8b48a,roughness:0.55})); intes.position.set(0,-0.35,0.2); intes.userData.organKey='intestine'; intes.userData.baseColor=0xe8b48a; L.organs.add(intes); (organs.intestine=[intes]); anim.intestine.push(intes);
+    organ('bladder',0xf1e08a,0,-1.0,0.24,0.22,0.2,0.2);
+    organ('prostate',0xc79bd6,0,-1.2,0.06,0.15,0.13,0.13);
+    organ('breast',0xf3b8c6,0.32,1.05,0.5,0.22,0.2,0.18); organ('breast',0xf3b8c6,-0.32,1.05,0.5,0.22,0.2,0.18);
+    [[-0.42,-2.02],[0.42,-2.02],[-1.0,0.98],[1.0,0.98],[-0.44,-3.15],[0.44,-3.15]].forEach(function(a){ organ('joints',0xbfe4ff,a[0],a[1],0.08,0.13,0.13,0.13,0.3); }); // articolazioni
+    // sangue / sistema cardiovascolare: aorta + grandi vasi (per malattie sistemiche)
+    var vesMat=new THREE.MeshStandardMaterial({color:0xd23b5a,roughness:0.4,emissive:0x300008});
+    var aorta=tube(L.organs,vesMat,[[-0.2,1.2,0.24],[0.0,1.55,0.15],[0.05,1.0,0.0],[0.05,0.2,-0.02],[0.05,-0.5,-0.02]],0.05); aorta.userData.organKey='blood'; (organs.blood=organs.blood||[]).push(aorta); (organs.blood.push(heart));
+    _atlas.scene=sc; _atlas.cam=cam; _atlas.ren=ren; _atlas.organs=organs; _atlas.layers=L; _atlas.body=body; _atlas.anim=anim; _atlas.built=true;
     _atlasApplyLayers();
-    // drag per ruotare
-    if(!canvas._atlasDrag){ canvas._atlasDrag=1; var dr={on:false,x:0,y:0};
-      var dn=function(e){dr.on=true;var p=e.touches?e.touches[0]:e;dr.x=p.clientX;dr.y=p.clientY;};
-      var mv=function(e){if(!dr.on)return;var p=e.touches?e.touches[0]:e;_atlas.ry+=(p.clientX-dr.x)*0.008;_atlas.rx+=(p.clientY-dr.y)*0.008;_atlas.rx=Math.max(-1,Math.min(1,_atlas.rx));dr.x=p.clientX;dr.y=p.clientY;if(e.cancelable&&e.touches)e.preventDefault();};
-      var up=function(){dr.on=false;};
+    // ── controlli: drag ruota, tap su un organo lo seleziona ──
+    if(!canvas._atlasDrag){ canvas._atlasDrag=1; var dr={on:false,x:0,y:0,moved:0,sx:0,sy:0};
+      var dn=function(e){dr.on=true;var p=e.touches?e.touches[0]:e;dr.x=p.clientX;dr.y=p.clientY;dr.sx=p.clientX;dr.sy=p.clientY;dr.moved=0;};
+      var mv=function(e){if(!dr.on)return;var p=e.touches?e.touches[0]:e;_atlas.ry+=(p.clientX-dr.x)*0.008;_atlas.rx+=(p.clientY-dr.y)*0.008;_atlas.rx=Math.max(-1,Math.min(1,_atlas.rx));dr.moved+=Math.abs(p.clientX-dr.x)+Math.abs(p.clientY-dr.y);dr.x=p.clientX;dr.y=p.clientY;if(e.cancelable&&e.touches)e.preventDefault();};
+      var up=function(e){ if(dr.on&&dr.moved<6){ var p=(e.changedTouches?e.changedTouches[0]:e); _atlasClickPick(p.clientX,p.clientY); } dr.on=false; };
       canvas.addEventListener('mousedown',dn);canvas.addEventListener('mousemove',mv);window.addEventListener('mouseup',up);
       canvas.addEventListener('touchstart',dn,{passive:true});canvas.addEventListener('touchmove',mv,{passive:false});canvas.addEventListener('touchend',up);
     }
     if(_atlas.raf)cancelAnimationFrame(_atlas.raf);
-    function anim(){ _atlas.raf=requestAnimationFrame(anim); _atlas.ry+=0.0016; body.rotation.y=_atlas.ry; body.rotation.x=_atlas.rx;
-      if(_atlas.hi){ _atlas.hiPh+=0.08; var e=0.35+0.55*Math.abs(Math.sin(_atlas.hiPh)); _atlas.hi.forEach(function(m){ if(m.material&&m.material.emissive){ m.material.emissive.setHex(0x2affcc); m.material.emissiveIntensity=e; } }); }
+    var clk=new THREE.Clock();
+    function loop(){ _atlas.raf=requestAnimationFrame(loop); var t=clk.getElapsedTime();
+      _atlas.ry+=0.0014; body.rotation.y=_atlas.ry; body.rotation.x=_atlas.rx; body.rotation.z=Math.sin(t*0.5)*0.012; // idle sway
+      // RESPIRO: torace e polmoni si dilatano ritmicamente
+      var br=1+Math.sin(t*1.5)*0.05;
+      anim.lungs.forEach(function(m){ m.scale.set(0.34*br,0.5*br,0.34*br); });
+      anim.chest.forEach(function(m){ m.scale.set(0.86*(0.6+0.4*br),0.82,0.55*br); });
+      // BATTITO cardiaco: doppio colpo (lub-dub) ~1.05s
+      var hp=(t%1.05)/1.05; var hb=Math.exp(-Math.pow((hp-0.12)/0.06,2))+0.6*Math.exp(-Math.pow((hp-0.32)/0.06,2)); var hs=1+hb*0.12;
+      anim.heart.forEach(function(m){ m.scale.set(0.27*hs,0.32*hs,0.24*hs); });
+      if(vesMat)vesMat.emissiveIntensity=0.15+hb*0.5;
+      // PERISTALSI intestinale
+      anim.intestine.forEach(function(m){ m.rotation.y+=0.004; m.rotation.x=Math.sin(t*0.9)*0.06; });
+      // evidenziazione bersaglio (pulsazione)
+      if(_atlas.hi){ _atlas.hiPh+=0.09; var e=0.35+0.6*Math.abs(Math.sin(_atlas.hiPh)); _atlas.hi.forEach(function(m){ if(m.material&&m.material.emissive){ m.material.emissive.setHex(0x2affcc); m.material.emissiveIntensity=e; } }); }
       ren.render(sc,cam);
     }
-    anim();
+    loop();
     var ld=id('atlasLoading'); if(ld)ld.style.display='none';
     return true;
   }catch(e){ var ld=id('atlasLoading'); if(ld){ld.textContent='Modello 3D non disponibile su questo dispositivo (WebGL assente). Le informazioni cliniche e i link PubMed funzionano comunque.';} return false; }
+}
+// click su un organo → seleziona la prima malattia di quell'organo
+function _atlasClickPick(cx,cy){
+  if(!_atlas.built||typeof THREE==='undefined')return;
+  var canvas=id('atlas3d-canvas'); var rect=canvas.getBoundingClientRect();
+  var mouse=new THREE.Vector2(((cx-rect.left)/rect.width)*2-1, -((cy-rect.top)/rect.height)*2+1);
+  var ray=new THREE.Raycaster(); ray.setFromCamera(mouse,_atlas.cam);
+  var meshes=[]; Object.keys(_atlas.organs).forEach(function(k){ _atlas.organs[k].forEach(function(m){ if(m.userData&&m.userData.organKey)meshes.push(m); }); });
+  var hit=ray.intersectObjects(meshes,false);
+  if(hit.length){ var key=hit[0].object.userData.organKey;
+    // porta il filtro su "Tutte" e seleziona la prima malattia di quell'organo
+    var tyAll=document.querySelector('.atlas-ty[data-ty="all"]'); if(tyAll&&!tyAll.classList.contains('on'))tyAll.click();
+    var idx=-1; for(var i=0;i<MED_DB.length;i++){ if(MED_DB[i].organ===key){ idx=i; break; } }
+    if(idx>=0){ var reg=MED_DB[idx].region; var rs=id('atlasRegion'); if(rs){ for(var o=0;o<rs.options.length;o++){ if(rs.options[o].value===reg){rs.value=reg;break;} } _atlasFillDiseases(); }
+      var ds=id('atlasDisease'); if(ds){ ds.value=String(idx); ds.dispatchEvent(new Event('change')); }
+    } else { _atlasHighlight(key); }
+  }
 }
 function _atlasApplyLayers(){ if(!_atlas.layers)return; document.querySelectorAll('.atlas-lyr').forEach(function(b){ var k=b.getAttribute('data-layer'); var on=b.classList.contains('on'); if(_atlas.layers[k])_atlas.layers[k].visible=on; }); }
 function _atlasHighlight(organKey){
@@ -3877,6 +3949,9 @@ function _atlasRender(){
   var tyLab={comune:['Comune','#00c9b7'],rara:['Rara','#f5a623'],autoimmune:['Autoimmune','#a855f7'],tumore:['Tumore','#e4564f']}[d.type]||['',''];
   var pmDis='https://pubmed.ncbi.nlm.nih.gov/?term='+encodeURIComponent(d.pubmed||d.n);
   var pmDrug='https://pubmed.ncbi.nlm.nih.gov/?term='+encodeURIComponent((dg?dg.n.split('/')[0].trim()+' ':'')+d.n);
+  var drugTok=dg?dg.n.split('/')[0].replace(/\([^)]*\)/g,'').trim():'';
+  var ctUrl='https://clinicaltrials.gov/search?term='+encodeURIComponent(d.pubmed||d.n);
+  var chemblUrl='https://www.ebi.ac.uk/chembl/g/#search_results/all/query='+encodeURIComponent(drugTok);
   var html='<div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:14px 16px">';
   html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span style="color:#e9eef6;font-weight:800;font-size:1.05rem">'+d.n+'</span><span style="font-size:.68rem;font-weight:800;color:'+tyLab[1]+';border:1px solid '+tyLab[1]+';border-radius:20px;padding:1px 9px">'+tyLab[0]+'</span></div>';
   html+='<div style="color:#9fb3c8;font-size:.72rem;margin-bottom:6px">🎯 Bersaglio: <b style="color:#5eead4">'+_atlasOrganName(d.organ)+'</b></div>';
@@ -3886,10 +3961,12 @@ function _atlasRender(){
     +'<div style="color:#8fa3b8;font-size:.74rem;margin:2px 0 4px">'+dg.cls+'</div>'
     +'<div style="color:#cdd9e6;font-size:.83rem;line-height:1.55"><b>Meccanismo:</b> '+dg.mech+'</div></div>'; }
   html+='<div style="color:#9fb3c8;font-size:.74rem;margin-bottom:6px">Altri farmaci: '+d.drugs.map(function(x){return x.n;}).join(' · ')+'</div>';
-  html+='<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    +'<a href="'+pmDis+'" target="_blank" rel="noopener" style="background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.78rem;padding:7px 12px;border-radius:8px;text-decoration:none">🔎 PubMed: malattia ↗</a>'
-    +'<a href="'+pmDrug+'" target="_blank" rel="noopener" style="background:#123a55;color:#8fe6ff;font-weight:700;font-size:.78rem;padding:7px 12px;border-radius:8px;text-decoration:none">🔬 PubMed: farmaco+malattia ↗</a></div>';
-  html+='<div style="color:#6b7d90;font-size:.68rem;margin-top:8px">Fonte per la verifica clinica: PubMed (NIH/NLM). Contenuto a scopo didattico.</div>';
+  html+='<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    +'<a href="'+pmDis+'" target="_blank" rel="noopener" style="background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🔎 PubMed: malattia ↗</a>'
+    +'<a href="'+pmDrug+'" target="_blank" rel="noopener" style="background:#123a55;color:#8fe6ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🔬 PubMed: farmaco ↗</a>'
+    +'<a href="'+ctUrl+'" target="_blank" rel="noopener" style="background:#0b4a3a;color:#8fe6c8;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🧪 Studi clinici (ClinicalTrials.gov) ↗</a>'
+    +(drugTok?'<a href="'+chemblUrl+'" target="_blank" rel="noopener" style="background:#3a2a5a;color:#c9b6ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">⚗️ ChEMBL: farmaco ↗</a>':'')+'</div>';
+  html+='<div style="color:#6b7d90;font-size:.68rem;margin-top:8px">Verifica su fonti ufficiali: <b>PubMed</b> (letteratura, NIH/NLM), <b>ClinicalTrials.gov</b> (studi clinici, NIH) e <b>ChEMBL</b> (EMBL-EBI, dati molecolari/meccanismo). Contenuto a scopo didattico.</div>';
   html+='</div>';
   info.innerHTML=html;
 }
