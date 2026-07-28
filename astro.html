@@ -4526,6 +4526,38 @@ function _initBody3D(b){
       function animSN(){ _body3d.raf=requestAnimationFrame(animSN); t0+=0.02; var sc2=1+Math.sin(t0)*0.15; shock.scale.set(sc2,sc2,sc2); ren.render(scene,cam); }
       animSN(); _body3d.ren=ren; return;
     }
+    if(b.type==='comet'){
+      // ── COMETA: nucleo irregolare di ghiaccio/polvere + chioma + due code (ioni + polvere) ──
+      var nucG=new THREE.IcosahedronGeometry(b.r,1);
+      var pa=nucG.attributes.position;                       // deforma per un nucleo irregolare
+      for(var i=0;i<pa.count;i++){ var f=0.78+0.42*Math.abs(Math.sin(i*12.9898)); pa.setXYZ(i, pa.getX(i)*f, pa.getY(i)*(0.85+0.3*Math.cos(i*7.13)), pa.getZ(i)*f); }
+      nucG.computeVertexNormals();
+      var nuc=new THREE.Mesh(nucG,new THREE.MeshStandardMaterial({color:0x70747d,roughness:1,metalness:0.04})); scene.add(nuc);
+      var coma=new THREE.Mesh(new THREE.SphereGeometry(b.r*2.3,24,24),new THREE.MeshBasicMaterial({color:0x9fe8ff,transparent:true,opacity:0.16,blending:THREE.AdditiveBlending,side:THREE.BackSide})); scene.add(coma);
+      // Sole verso -X → le code puntano verso +X
+      function _cTail(color,spread,len,count,size,op){ var g=new THREE.BufferGeometry(),v=[],c=[],col=new THREE.Color(color);
+        for(var i=0;i<count;i++){ var t=Math.random(); var x=b.r*1.1+t*len; var s=spread*(0.25+t);
+          v.push(x+(Math.random()-0.5)*s*0.4,(Math.random()-0.5)*s,(Math.random()-0.5)*s); var fd=1-t*0.9; c.push(col.r*fd,col.g*fd,col.b*fd); }
+        g.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));
+        return new THREE.Points(g,new THREE.PointsMaterial({size:size,vertexColors:true,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false})); }
+      var ion=_cTail(0x7fb8ff,b.r*0.5,b.r*11,650,0.10,0.9);   // coda di ioni: stretta, dritta, blu
+      var dust=_cTail(0xffe4a6,b.r*1.5,b.r*7.5,750,0.16,0.66); // coda di polvere: larga, gialla, curva
+      dust.rotation.z=0.2; scene.add(ion); scene.add(dust);
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      cam.position.set(b.r*2.2,b.r*2.4,b.r*9); cam.lookAt(b.r*2.6,0,0);
+      var ct=0;
+      function animCom(){ _body3d.raf=requestAnimationFrame(animCom); ct+=0.016; nuc.rotation.y+=0.012; nuc.rotation.x+=0.005;
+        coma.material.opacity=0.12+0.06*Math.sin(ct*2); ion.material.opacity=0.7+0.24*Math.abs(Math.sin(ct*3)); ren.render(scene,cam); }
+      animCom(); _body3d.ren=ren; return;
+    }
+    if(b.type==='whitedwarf'){
+      // ── NANA BIANCA: piccola sfera degenere brillante, azzurra, con forte alone ──
+      var wd=new THREE.Mesh(new THREE.SphereGeometry(b.r,48,48),new THREE.MeshBasicMaterial({color:0xe6f1ff})); scene.add(wd);
+      for(var g=0;g<4;g++){ var gl=new THREE.Mesh(new THREE.SphereGeometry(b.r*(1.25+g*0.55),24,24),new THREE.MeshBasicMaterial({color:g<2?0xbfe0ff:0x6aa0ff,transparent:true,opacity:0.24-g*0.05,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(gl); }
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      function animWD(){ _body3d.raf=requestAnimationFrame(animWD); wd.rotation.y+=0.02; scene.rotation.y+=0.001; ren.render(scene,cam); }
+      cam.position.set(0,0,b.r*5); cam.lookAt(0,0,0); animWD(); _body3d.ren=ren; return;
+    }
     // texture (async: forza re-render al load)
     var mat;
     if(b.type==='star'){
@@ -4714,6 +4746,12 @@ function _guessBody3D(name){
     if(/stella di neutroni|neutron|pulsar|magnetar|psr|sgr |geminga|vela|crab|vedova nera|4u /.test(low)) return {tex:'moon',r:0.8,type:'neutron',atm:0x88aaff};
     if(/supernova|grb|gamma|kilonova|gw|ipernova|superluminosa|mucca|at20|asassn|sn 19|sn 20/.test(low)) return {tex:'sun',r:1.4,type:'supernova'};
     if(/onde gravitazionali|fusione|frb|fast radio/.test(low)) return {tex:'sun',r:1.4,type:'supernova'};
+    // remnant/stellari classificati come "Estremo" — non sono buchi neri
+    if(/nana bianca|white dwarf/.test(low)) return {tex:'moon',r:0.9,type:'whitedwarf',atm:0xcce0ff};
+    if(/nana rossa|red dwarf/.test(low)) return {tex:'star_red',r:1.1,type:'star',atm:0xff6633};
+    if(/gigante rossa|red giant|supergigante rossa|ipergigante rossa|gigante arancione/.test(low)) return {tex:'star_red',r:2.4,type:'star',atm:0xff6633};
+    if(/supergigante blu|supergigante azzurra|blue supergiant|ipergigante blu|variabile luminosa blu|\blbv\b|wolf-?rayet/.test(low)) return {tex:'sun',r:2.5,type:'star',atm:0x88bbff};
+    if(/gigante|nana|stella|supergigante|ipergigante|subgigante|sequenza principale/.test(low)) return {tex:'sun',r:2.2,type:'star',atm:0xffaa44};
     return {tex:'sun',r:1.3,type:'blackhole'};
   }
   if(cat==='Stella'){
