@@ -1389,10 +1389,9 @@ if(document.getElementById('specSimCanvas')){
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label style="color:#c9b6ff;font-size:.74rem;font-weight:700">🧍 Modello realistico:</label>
         <select id="atlasPreset" onchange="_atlasLoadPreset(this)" style="flex:1;min-width:170px;padding:7px 10px;border-radius:9px;border:1px solid rgba(124,111,255,.5);background:#140f2a;color:#e9eef6;font-size:.82rem">
-          <option value="">— Modello schematico (predefinito) —</option>
           <optgroup label="Corpo intero">
+            <option value="./models/anatomy.glb" selected>🫀 Anatomia umana</option>
             <option value="./models/ecorche.glb">💪 Écorché — corpo intero (muscoli)</option>
-            <option value="./models/anatomy.glb">🫀 Anatomia umana</option>
             <option value="./models/skeleton.glb">🦴 Scheletro completo</option>
             <option value="./models/skull.glb">💀 Cranio (dettaglio)</option>
           </optgroup>
@@ -1411,9 +1410,9 @@ if(document.getElementById('specSimCanvas')){
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;border:1px dashed rgba(124,111,255,.6);background:rgba(124,111,255,.08);color:#c9b6ff;cursor:pointer;font-size:.76rem;font-weight:700">📥 …oppure carica un tuo file (.glb/.gltf)
           <input id="atlasModelFile" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" style="display:none" onchange="_atlasLoadModel(this.files[0])"></label>
-        <button id="atlasModelReset" onclick="_atlasResetModel()" style="display:none;padding:6px 12px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">↩ Modello schematico</button>
+        <button id="atlasModelReset" onclick="_atlasResetModel()" style="padding:6px 12px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🧍 Corpo intero</button>
       </div>
-      <div style="color:#6b7d90;font-size:.68rem;margin-top:5px;line-height:1.5">Modelli 3D realistici integrati. Il modello schematico resta quello interattivo con organi cliccabili ed evidenziazione della malattia. Puoi anche caricare un tuo file (resta sul dispositivo).</div>
+      <div style="color:#6b7d90;font-size:.68rem;margin-top:5px;line-height:1.5">Modelli 3D anatomici reali. Scegli un corpo intero, un organo o un apparato dal menù; dalla scheda della malattia puoi aprire direttamente l'<b>organo bersaglio in 3D</b>. Puoi anche caricare un tuo file .glb/.gltf (resta sul dispositivo). Trascina per ruotare · ⛶ per lo schermo intero.</div>
     </div>
     <div>
       <div id="atlasTypeFp" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
@@ -4013,6 +4012,7 @@ function _atlasApplyGLTF(gltf,lab){
   if(lab){lab.style.display='block';lab.textContent='✅ Modello realistico — trascina per ruotare, ⛶ per lo schermo intero';}
 }
 function _atlasLoadFromSource(src,isFile){
+  if(!isFile)_atlasSyncPreset(src);
   var lab=id('atlasLabel'); if(lab){lab.style.display='block';lab.textContent='⏳ Caricamento modello 3D…';}
   if(!_atlas.built){ if(typeof _atlasLoadThree==='function')_atlasLoadThree(function(ok){ if(ok){_atlasBuildBody(); _atlasLoadFromSource(src,isFile);} }); return; }
   _atlasLoadGLTFLib(function(ok){
@@ -4024,14 +4024,19 @@ function _atlasLoadFromSource(src,isFile){
   });
 }
 function _atlasLoadModel(file){ if(file)_atlasLoadFromSource(file,true); }
-function _atlasLoadPreset(sel){ var v=sel&&sel.value?sel.value:sel; if(!v){ _atlasResetModel(); return; } _atlasLoadFromSource(v,false); }
+function _atlasLoadPreset(sel){ var v=sel&&sel.value?sel.value:sel; if(!v){ v='./models/anatomy.glb'; } _atlasLoadFromSource(v,false); }
+// sincronizza il menù col modello mostrato (es. quando si apre un organo dalla scheda malattia)
+function _atlasSyncPreset(src){ var ps=id('atlasPreset'); if(!ps)return; for(var i=0;i<ps.options.length;i++){ if(ps.options[i].value===src){ ps.value=src; return; } } }
+// smonta solo l'eventuale modello caricato (usato prima di applicarne uno nuovo)
 function _atlasResetModel(keepLabel){
   if(_atlas.mixer){ try{_atlas.mixer.stopAllAction();}catch(e){} _atlas.mixer=null; }
   if(_atlas.modelGroup){ try{ _atlas.scene.remove(_atlas.modelGroup); _atlas.modelGroup.traverse(function(o){ if(o.geometry)o.geometry.dispose(); if(o.material){ (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){m.dispose&&m.dispose();}); } }); }catch(e){} _atlas.modelGroup=null; }
-  if(_atlas.body)_atlas.body.visible=true;
-  var rb=id('atlasModelReset'); if(rb)rb.style.display='none';
   var fi=id('atlasModelFile'); if(fi)fi.value='';
-  if(!keepLabel){ var ps=id('atlasPreset'); if(ps)ps.value=''; var lab=id('atlasLabel'); if(lab)lab.style.display='none'; }
+  // "keepLabel" = smontaggio interno prima di caricare un altro modello: non ripristinare il corpo intero
+  if(keepLabel)return;
+  // niente schematico: il pulsante "Corpo intero" ricarica il modello anatomico reale
+  _atlasSyncPreset('./models/anatomy.glb');
+  _atlasLoadFromSource('./models/anatomy.glb',false);
 }
 function _atlasApplyLayers(){ if(!_atlas.layers)return; document.querySelectorAll('.atlas-lyr').forEach(function(b){ var k=b.getAttribute('data-layer'); var on=b.classList.contains('on'); if(_atlas.layers[k])_atlas.layers[k].visible=on; }); }
 function _atlasHighlight(organKey){
@@ -4045,14 +4050,47 @@ function _atlasHighlight(organKey){
   } else { var lab2=id('atlasLabel'); if(lab2)lab2.style.display='none'; }
 }
 function _atlasOrganName(k){ return {brain:'encefalo',thyroid:'tiroide',heart:'cuore',lungs:'polmoni',liver:'fegato',stomach:'stomaco',pancreas:'pancreas',kidneys:'reni',intestine:'intestino',bladder:'vescica',prostate:'prostata',breast:'mammella',joints:'articolazioni',muscles:'muscoli',eye:'occhi',blood:'sangue / sistema immunitario'}[k]||k; }
+// ── SCHERMO INTERO: fullscreen nativo dove disponibile, fallback CSS su iOS/Safari ──
+function _atlasFsBtnLabel(on){ var b=id('atlasFsBtn'); if(!b)return; b.innerHTML=on?'✕ Esci':'⛶ Schermo intero'; b.style.borderColor=on?'rgba(244,120,120,.6)':'rgba(94,234,212,.5)'; b.style.color=on?'#ff9d9d':'#5eead4'; }
+function _atlasCssFs(on){
+  var w=id('atlas3d-wrap'); if(!w)return;
+  if(on){
+    w.setAttribute('data-cssfs','1');
+    w.style.position='fixed'; w.style.left='0'; w.style.top='0'; w.style.width='100vw'; w.style.height='100vh';
+    w.style.height='100dvh'; w.style.zIndex='99999'; w.style.borderRadius='0'; w.style.margin='0';
+    document.body.style.overflow='hidden';
+  } else {
+    w.removeAttribute('data-cssfs');
+    w.style.position='relative'; w.style.left=''; w.style.top=''; w.style.width=''; w.style.height='400px';
+    w.style.zIndex=''; w.style.borderRadius='14px'; w.style.margin='';
+    document.body.style.overflow='';
+  }
+  _atlasFsBtnLabel(on);
+  setTimeout(_atlasResize,50); setTimeout(_atlasResize,260); setTimeout(_atlasResize,520);
+}
 function _atlasFullscreen(){
   var wrap=id('atlas3d-wrap'); if(!wrap)return;
+  // se siamo nel fallback CSS, esci da quello
+  if(wrap.getAttribute('data-cssfs')==='1'){ _atlasCssFs(false); return; }
   var fsEl=document.fullscreenElement||document.webkitFullscreenElement;
-  try{ if(!fsEl){ (wrap.requestFullscreen||wrap.webkitRequestFullscreen||function(){}).call(wrap); } else { (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); } }catch(e){}
-  setTimeout(_atlasResize,80); setTimeout(_atlasResize,320);
+  if(fsEl){ try{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);}catch(e){} return; }
+  var req=wrap.requestFullscreen||wrap.webkitRequestFullscreen;
+  if(req){
+    try{
+      var r=req.call(wrap);
+      if(r&&r.catch)r.catch(function(){ _atlasCssFs(true); });   // se il nativo viene rifiutato → CSS
+      setTimeout(function(){ if(!(document.fullscreenElement||document.webkitFullscreenElement)&&wrap.getAttribute('data-cssfs')!=='1')_atlasCssFs(true); },350);
+      setTimeout(_atlasResize,90); setTimeout(_atlasResize,340);
+      return;
+    }catch(e){}
+  }
+  _atlasCssFs(true); // iOS Safari e browser senza Fullscreen API
 }
 function _atlasResize(){ var wrap=id('atlas3d-wrap'); if(!wrap||!_atlas.ren||!_atlas.cam)return; var W=wrap.clientWidth||600,H=wrap.clientHeight||400; if(W<10||H<10)return; try{_atlas.ren.setSize(W,H,false);_atlas.cam.aspect=W/H;_atlas.cam.updateProjectionMatrix();}catch(e){} }
-document.addEventListener('fullscreenchange',function(){setTimeout(_atlasResize,60);setTimeout(_atlasResize,260);});
+function _atlasOnFsChange(){ var on=!!(document.fullscreenElement||document.webkitFullscreenElement); _atlasFsBtnLabel(on); setTimeout(_atlasResize,60); setTimeout(_atlasResize,260); }
+document.addEventListener('fullscreenchange',_atlasOnFsChange);
+document.addEventListener('webkitfullscreenchange',_atlasOnFsChange);
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var w=id('atlas3d-wrap'); if(w&&w.getAttribute('data-cssfs')==='1')_atlasCssFs(false); } });
 window.addEventListener('resize',function(){ if(_atlas.built)_atlasResize(); });
 
 var _atlasTy='all';
@@ -4122,7 +4160,12 @@ function initMedAtlas(){
   // costruisci il 3D (lazy: carica three.js locale)
   _atlasLoadThree(function(ok){
     if(!ok){ var ld=id('atlasLoading'); if(ld)ld.textContent='Modello 3D non disponibile qui; le informazioni cliniche e i link PubMed funzionano comunque.'; return; }
-    try{ _atlasBuildBody(); var ds2=id('atlasDisease'); if(ds2&&ds2.value!==''){ var d=MED_DB[parseInt(ds2.value,10)]; if(d&&_atlas.built)_atlasHighlight(d.organ); } }catch(e){}
+    try{
+      _atlasBuildBody();
+      // niente modello schematico: si parte da un modello anatomico reale (corpo intero)
+      var ps=id('atlasPreset'); var def=(ps&&ps.value)?ps.value:'./models/anatomy.glb';
+      _atlasLoadFromSource(def,false);
+    }catch(e){}
   });
 }
 // loader indipendente di three.js (usa il file locale ./three.min.js)
