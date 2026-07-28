@@ -1393,6 +1393,12 @@ if(document.getElementById('specSimCanvas')){
         <button data-layer="organs" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🫀 Organi</button>
         <button data-layer="skin" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🧑 Pelle</button>
       </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;border:1px dashed rgba(124,111,255,.6);background:rgba(124,111,255,.08);color:#c9b6ff;cursor:pointer;font-size:.76rem;font-weight:700">📥 Carica un modello 3D realistico (.glb/.gltf)
+          <input id="atlasModelFile" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" style="display:none" onchange="_atlasLoadModel(this.files[0])"></label>
+        <button id="atlasModelReset" onclick="_atlasResetModel()" style="display:none;padding:6px 12px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">↩ Torna al modello integrato</button>
+      </div>
+      <div style="color:#6b7d90;font-size:.68rem;margin-top:5px;line-height:1.5">Puoi caricare un tuo file 3D (con licenza libera, es. <b>Z-Anatomy</b> open-source, o un modello che possiedi). Resta sul tuo dispositivo, non viene caricato online.</div>
     </div>
     <div>
       <div id="atlasTypeFp" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
@@ -3915,7 +3921,10 @@ function _atlasBuildBody(){
     if(_atlas.raf)cancelAnimationFrame(_atlas.raf);
     var clk=new THREE.Clock();
     function loop(){ _atlas.raf=requestAnimationFrame(loop); var t=clk.getElapsedTime();
-      _atlas.ry+=0.0014; body.rotation.y=_atlas.ry; body.rotation.x=_atlas.rx; body.rotation.z=Math.sin(t*0.5)*0.012; // idle sway
+      var dt=t-(_atlas._pt||t); _atlas._pt=t; if(_atlas.mixer)_atlas.mixer.update(dt);
+      _atlas.ry+=0.0014;
+      if(_atlas.modelGroup){ _atlas.modelGroup.rotation.y=_atlas.ry; _atlas.modelGroup.rotation.x=_atlas.rx; _atlas.modelGroup.rotation.z=Math.sin(t*0.5)*0.012; ren.render(sc,cam); return; }
+      body.rotation.y=_atlas.ry; body.rotation.x=_atlas.rx; body.rotation.z=Math.sin(t*0.5)*0.012; // idle sway
       // RESPIRO: torace e polmoni si dilatano ritmicamente
       var br=1+Math.sin(t*1.5)*0.05;
       anim.lungs.forEach(function(m){ m.scale.set(0.34*br,0.5*br,0.34*br); });
@@ -3951,6 +3960,48 @@ function _atlasClickPick(cx,cy){
       var ds=id('atlasDisease'); if(ds){ ds.value=String(idx); ds.dispatchEvent(new Event('change')); }
     } else { _atlasHighlight(key); }
   }
+}
+// ── caricamento di un modello 3D realistico (.glb/.gltf) fornito dall'utente ──
+function _atlasLoadGLTFLib(cb){
+  if(typeof THREE!=='undefined' && THREE.GLTFLoader){ cb(true); return; }
+  var s=document.createElement('script'); s.src='./gltf_loader.js';
+  s.onload=function(){ cb(!!(THREE&&THREE.GLTFLoader)); };
+  s.onerror=function(){ cb(false); };
+  document.head.appendChild(s);
+}
+function _atlasLoadModel(file){
+  if(!file)return; var lab=id('atlasLabel'); if(lab){lab.style.display='block';lab.textContent='⏳ Caricamento modello…';}
+  if(!_atlas.built){ if(typeof _atlasLoadThree==='function')_atlasLoadThree(function(ok){ if(ok){_atlasBuildBody(); _atlasLoadModel(file);} }); return; }
+  _atlasLoadGLTFLib(function(ok){
+    if(!ok){ if(lab)lab.textContent='Impossibile caricare il lettore 3D'; return; }
+    var url=URL.createObjectURL(file);
+    var loader=new THREE.GLTFLoader();
+    loader.load(url,function(gltf){
+      try{
+        _atlasResetModel(true);
+        var root=gltf.scene||gltf.scenes[0];
+        // centra e scala il modello per riempire l'inquadratura
+        var box=new THREE.Box3().setFromObject(root); var size=new THREE.Vector3(); box.getSize(size); var center=new THREE.Vector3(); box.getCenter(center);
+        var maxDim=Math.max(size.x,size.y,size.z)||1; var scl=7.0/maxDim; root.scale.setScalar(scl);
+        root.position.set(-center.x*scl, -center.y*scl+0.1, -center.z*scl);
+        var grp=new THREE.Group(); grp.add(root); _atlas.scene.add(grp); _atlas.modelGroup=grp;
+        if(_atlas.body)_atlas.body.visible=false;
+        // animazioni incorporate nel modello (se presenti)
+        if(gltf.animations&&gltf.animations.length){ _atlas.mixer=new THREE.AnimationMixer(root); gltf.animations.forEach(function(cl){ _atlas.mixer.clipAction(cl).play(); }); }
+        var rb=id('atlasModelReset'); if(rb)rb.style.display='inline-block';
+        if(lab){lab.textContent='✅ Modello realistico caricato — trascina per ruotare'; }
+        URL.revokeObjectURL(url);
+      }catch(e){ if(lab)lab.textContent='Errore nel modello caricato'; }
+    }, undefined, function(){ if(lab)lab.textContent='File non valido (usa .glb o .gltf)'; URL.revokeObjectURL(url); });
+  });
+}
+function _atlasResetModel(keepLabel){
+  if(_atlas.mixer){ try{_atlas.mixer.stopAllAction();}catch(e){} _atlas.mixer=null; }
+  if(_atlas.modelGroup){ try{ _atlas.scene.remove(_atlas.modelGroup); _atlas.modelGroup.traverse(function(o){ if(o.geometry)o.geometry.dispose(); if(o.material){ (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){m.dispose&&m.dispose();}); } }); }catch(e){} _atlas.modelGroup=null; }
+  if(_atlas.body)_atlas.body.visible=true;
+  var rb=id('atlasModelReset'); if(rb)rb.style.display='none';
+  var fi=id('atlasModelFile'); if(fi)fi.value='';
+  if(!keepLabel){ var lab=id('atlasLabel'); if(lab)lab.style.display='none'; }
 }
 function _atlasApplyLayers(){ if(!_atlas.layers)return; document.querySelectorAll('.atlas-lyr').forEach(function(b){ var k=b.getAttribute('data-layer'); var on=b.classList.contains('on'); if(_atlas.layers[k])_atlas.layers[k].visible=on; }); }
 function _atlasHighlight(organKey){
