@@ -1397,10 +1397,21 @@ if(document.getElementById('specSimCanvas')){
         <label style="color:#c9b6ff;font-size:.74rem;font-weight:700">🧍 Modello realistico:</label>
         <select id="atlasPreset" onchange="_atlasLoadPreset(this)" style="flex:1;min-width:170px;padding:7px 10px;border-radius:9px;border:1px solid rgba(124,111,255,.5);background:#140f2a;color:#e9eef6;font-size:.82rem">
           <option value="">— Modello schematico (predefinito) —</option>
-          <option value="./models/ecorche.glb">💪 Écorché — corpo intero (muscoli)</option>
-          <option value="./models/anatomy.glb">🫀 Anatomia umana</option>
-          <option value="./models/skeleton.glb">🦴 Scheletro completo</option>
-          <option value="./models/skull.glb">💀 Cranio (dettaglio)</option>
+          <optgroup label="Corpo intero">
+            <option value="./models/ecorche.glb">💪 Écorché — corpo intero (muscoli)</option>
+            <option value="./models/anatomy.glb">🫀 Anatomia umana</option>
+            <option value="./models/skeleton.glb">🦴 Scheletro completo</option>
+            <option value="./models/skull.glb">💀 Cranio (dettaglio)</option>
+          </optgroup>
+          <optgroup label="Organi e apparati">
+            <option value="./models/organs/heart.glb">❤️ Cuore (annotato)</option>
+            <option value="./models/organs/respiratory.glb">🫁 Apparato respiratorio</option>
+            <option value="./models/organs/digestive.glb">🍽️ Apparato digerente (animato)</option>
+            <option value="./models/organs/liver.glb">🟤 Fegato</option>
+            <option value="./models/organs/pancreas.glb">🔶 Pancreas (sezione)</option>
+            <option value="./models/organs/lymphatic.glb">🩸 Sistema linfatico/immunitario</option>
+            <option value="./models/organs/vision.glb">👁️ Sistema visivo</option>
+          </optgroup>
         </select>
       </div>
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -3758,6 +3769,14 @@ var MED_DB=[
 ];
 
 var _atlas={raf:null,ren:null,scene:null,cam:null,organs:{},layers:{},ry:0,rx:0,hi:null,hiPh:0,built:false};
+// modelli 3D reali per organo bersaglio (caricati su richiesta dalla scheda malattia)
+var _ATLAS_ORGAN_MODELS={
+  heart:'./models/organs/heart.glb', blood:'./models/organs/lymphatic.glb',
+  lungs:'./models/organs/respiratory.glb', liver:'./models/organs/liver.glb',
+  pancreas:'./models/organs/pancreas.glb', stomach:'./models/organs/digestive.glb',
+  intestine:'./models/organs/digestive.glb', eye:'./models/organs/vision.glb',
+  muscles:'./models/ecorche.glb'
+};
 // anchor + mappa organo→bersaglio 3D
 var _SPH=null;
 function _atlasBuildBody(){
@@ -4076,6 +4095,8 @@ function _atlasRender(){
     +'<div style="color:#5eead4;font-weight:800;font-size:.9rem">💊 '+dg.n+'</div>'
     +'<div style="color:#8fa3b8;font-size:.74rem;margin:2px 0 4px">'+dg.cls+'</div>'
     +'<div style="color:#cdd9e6;font-size:.83rem;line-height:1.55"><b>Meccanismo:</b> '+dg.mech+'</div></div>'; }
+  var organModel=_ATLAS_ORGAN_MODELS[d.organ];
+  if(organModel){ html+='<button onclick="_atlasLoadFromSource(\''+organModel+'\',false)" style="width:100%;margin-bottom:10px;padding:9px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">🔬 Vedi l\'organo bersaglio ('+_atlasOrganName(d.organ)+') in 3D reale</button>'; }
   html+='<div style="color:#9fb3c8;font-size:.74rem;margin-bottom:6px">Altri farmaci: '+d.drugs.map(function(x){return x.n;}).join(' · ')+'</div>';
   html+='<div style="display:flex;gap:7px;flex-wrap:wrap">'
     +'<a href="'+pmDis+'" target="_blank" rel="noopener" style="background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🔎 PubMed: malattia ↗</a>'
