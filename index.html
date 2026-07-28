@@ -1370,8 +1370,8 @@ if(document.getElementById('specSimCanvas')){
   <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:2px solid #f59e0b;border-left:6px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:22px;display:flex;align-items:flex-start;gap:14px;">
     <span style="font-size:1.6rem;flex-shrink:0;margin-top:2px;">⚕️</span>
     <div>
-      <div style="font-weight:700;color:#c9d3df;font-size:0.97rem;letter-spacing:0.02em;margin-bottom:5px;">AVVISO IMPORTANTE — USO ESCLUSIVAMENTE DIDATTICO</div>
-      <div style="color:#e9eef6;font-size:0.88rem;line-height:1.6;">
+      <div style="font-weight:800;color:#1a1a1a;font-size:0.97rem;letter-spacing:0.02em;margin-bottom:5px;">AVVISO IMPORTANTE — USO ESCLUSIVAMENTE DIDATTICO</div>
+      <div style="color:#2a2200;font-size:0.88rem;line-height:1.6;">
         Le informazioni contenute in questa sezione hanno finalità <strong>esclusivamente scientifiche e didattiche</strong> e non sostituiscono in alcun modo il parere, la diagnosi o la prescrizione di un medico o di un farmacista abilitato. Prima di assumere qualsiasi farmaco, modificare una terapia in corso o interrompere un trattamento, è <strong>indispensabile consultare un professionista sanitario qualificato</strong>. L'automedicazione non guidata può comportare rischi seri per la salute.
       </div>
     </div>
@@ -1385,13 +1385,6 @@ if(document.getElementById('specSimCanvas')){
         <div id="atlasLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#9fb3c8;font-size:.9rem;padding:20px">Caricamento del modello 3D…</div>
         <div id="atlasLabel" style="position:absolute;left:10px;bottom:10px;background:rgba(4,18,30,.82);color:#5eead4;font-weight:700;font-size:.82rem;padding:5px 11px;border-radius:9px;display:none"></div>
         <button id="atlasFsBtn" onclick="_atlasFullscreen()" title="Schermo intero" style="position:absolute;top:8px;right:8px;padding:6px 11px;border-radius:9px;border:1px solid rgba(94,234,212,.5);background:rgba(4,18,30,.82);color:#5eead4;font-weight:800;font-size:.74rem;cursor:pointer">⛶ Schermo intero</button>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="atlasLayers">
-        <button data-layer="bones" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🦴 Ossa</button>
-        <button data-layer="muscles" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">💪 Muscoli</button>
-        <button data-layer="nerves" class="atlas-lyr" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">⚡ Nervi</button>
-        <button data-layer="organs" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🫀 Organi</button>
-        <button data-layer="skin" class="atlas-lyr on" style="padding:5px 11px;border-radius:8px;border:1px solid #5eead4;background:#0e3a34;color:#5eead4;cursor:pointer;font-size:.76rem;font-weight:700">🧑 Pelle</button>
       </div>
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label style="color:#c9b6ff;font-size:.74rem;font-weight:700">🧍 Modello realistico:</label>
@@ -3804,6 +3797,8 @@ function _atlasBuildBody(){
     var body=new THREE.Group(); sc.add(body);
     var L={bones:new THREE.Group(),muscles:new THREE.Group(),nerves:new THREE.Group(),organs:new THREE.Group(),skin:new THREE.Group()};
     Object.keys(L).forEach(function(k){ body.add(L[k]); });
+    // strati predefiniti (i toggle sono stati rimossi): pelle + organi visibili
+    L.bones.visible=false; L.muscles.visible=false; L.nerves.visible=false; L.organs.visible=true; L.skin.visible=true;
     var organs={}, anim={lungs:[],heart:[],intestine:[],chest:[]};
     // ── helper geometrici organici ──
     function ell(layer,mat,x,y,z,rx,ry,rz){ var m=new THREE.Mesh(_SPH,mat); m.position.set(x,y,z); m.scale.set(rx,ry,rz); layer.add(m); return m; }
