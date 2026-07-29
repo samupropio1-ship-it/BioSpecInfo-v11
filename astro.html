@@ -4413,9 +4413,9 @@ function _initBody3D(b){
       canvas.addEventListener('mousedown',_dn); canvas.addEventListener('mousemove',_mv); window.addEventListener('mouseup',_up);
       canvas.addEventListener('touchstart',_dn,{passive:true}); canvas.addEventListener('touchmove',_mv,{passive:false}); canvas.addEventListener('touchend',_up);
     }
-    scene.add(new THREE.AmbientLight(0x668899, b.type==='star'?2.0:0.9));
-    var dl=new THREE.DirectionalLight(0xffffff,1.6); dl.position.set(5,3,5); scene.add(dl);
-    var dl2=new THREE.DirectionalLight(0x4466aa,0.5); dl2.position.set(-5,-2,-3); scene.add(dl2);
+    scene.add(new THREE.AmbientLight(0x668899, b.type==='star'?2.0:0.38));  // meno ambiente → terminatore giorno/notte visibile
+    var dl=new THREE.DirectionalLight(0xffffff,2.1); dl.position.set(5,3,5); scene.add(dl);
+    var dl2=new THREE.DirectionalLight(0x2a3a66,0.35); dl2.position.set(-5,-2,-3); scene.add(dl2);  // fill notturno freddo
     // starfield di sfondo
     var sg=new THREE.BufferGeometry(),sv=[];
     for(var i=0;i<600;i++){var r=25+Math.random()*30,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);sv.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));}
@@ -4423,13 +4423,26 @@ function _initBody3D(b){
     scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:0.12})));
     // ═══ RENDERING SPECIALE per tipo di corpo ═══
     if(b.type==='blackhole'){
-      var eh=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.7,48,48),new THREE.MeshBasicMaterial({color:0x000000})); scene.add(eh);
-      var disc=new THREE.Mesh(new THREE.RingGeometry(b.r*0.9,b.r*2.4,80,1),new THREE.MeshBasicMaterial({color:0xff8822,transparent:true,opacity:0.85,side:THREE.DoubleSide})); disc.rotation.x=Math.PI/2.3; scene.add(disc);
-      var disc2=new THREE.Mesh(new THREE.RingGeometry(b.r*0.9,b.r*1.6,64,1),new THREE.MeshBasicMaterial({color:0xffee88,transparent:true,opacity:0.6,side:THREE.DoubleSide})); disc2.rotation.x=Math.PI/2.3; scene.add(disc2);
-      var photon=new THREE.Mesh(new THREE.TorusGeometry(b.r*0.75,0.03,16,80),new THREE.MeshBasicMaterial({color:0xfff0d0})); photon.rotation.x=Math.PI/2.3; scene.add(photon);
+      // orizzonte degli eventi
+      var eh=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.62,48,48),new THREE.MeshBasicMaterial({color:0x000000})); scene.add(eh);
+      // disco di accrescimento con gradiente radiale (bianco→arancio→rosso scuro) e beaming Doppler
+      function _accDisk(ri,ro,segs,phi,op){
+        var g=new THREE.RingGeometry(ri,ro,segs,7), pos=g.attributes.position, col=[];
+        var cHot=new THREE.Color(0xfff6e6),cMid=new THREE.Color(0xff9a3c),cCool=new THREE.Color(0x7a1e08);
+        for(var i=0;i<pos.count;i++){ var x=pos.getX(i),y=pos.getY(i),rr=Math.sqrt(x*x+y*y),t=Math.max(0,Math.min(1,(rr-ri)/(ro-ri)));
+          var c=(t<0.5)?cHot.clone().lerp(cMid,t/0.5):cMid.clone().lerp(cCool,(t-0.5)/0.5);
+          var beam=0.4+0.6*Math.pow(0.5+0.5*Math.cos(Math.atan2(y,x)-phi),2.2);  // lato in avvicinamento più luminoso
+          col.push(c.r*beam,c.g*beam,c.b*beam); }
+        g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+        return new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:op,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
+      }
+      var disc=_accDisk(b.r*0.82,b.r*2.7,150,1.15,0.95); disc.rotation.x=Math.PI/2.4; scene.add(disc);
+      var halo=_accDisk(b.r*0.7,b.r*1.28,150,1.15,0.85); scene.add(halo);   // luce "piegata" dalla gravità: alone verticale sull'orizzonte
+      var photon=new THREE.Mesh(new THREE.TorusGeometry(b.r*0.66,0.02*b.r+0.012,20,150),new THREE.MeshBasicMaterial({color:0xfff2d6,transparent:true,blending:THREE.AdditiveBlending})); photon.rotation.x=Math.PI/2.4; scene.add(photon);
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
-      function animBH(){ _body3d.raf=requestAnimationFrame(animBH); disc.rotation.z+=0.01; disc2.rotation.z+=0.015; scene.rotation.y+=0.001; ren.render(scene,cam); }
-      cam.position.set(0,b.r*1.5,b.r*4); cam.lookAt(0,0,0); animBH(); _body3d.ren=ren; return;
+      cam.position.set(0,b.r*0.85,b.r*4.2); cam.lookAt(0,0,0);
+      function animBH(){ _body3d.raf=requestAnimationFrame(animBH); disc.rotation.z+=0.01; halo.rotation.z-=0.008; scene.rotation.y+=0.0008; ren.render(scene,cam); }
+      animBH(); _body3d.ren=ren; return;
     }
     if(b.type==='neutron'){
       var ns=new THREE.Mesh(new THREE.SphereGeometry(b.r,48,48),new THREE.MeshBasicMaterial({color:0xaaccff})); scene.add(ns);
@@ -4493,14 +4506,36 @@ function _initBody3D(b){
       animBD(); _body3d.ren=ren; return;
     }
     if(b.type==='galaxy'){
+      var glow2=(b._name||'').toLowerCase();
+      var ellipt=/ellittic|elliptical|nana|dwarf|sferoidal/.test(glow2);
+      var arms=ellipt?0:(2+Math.floor(_sd0.tint*2.99));   // 2–4 bracci (deterministico dal nome)
+      var N=7000, R=b.r*2.4;
       var gg=new THREE.BufferGeometry(),gv=[],gc=[];
-      for(var i=0;i<3000;i++){ var r=Math.pow(Math.random(),0.5)*b.r*2.2; var arm=Math.floor(Math.random()*2); var ang=(arm/2)*6.28+r*0.8+(Math.random()-0.5)*0.5; gv.push(Math.cos(ang)*r,(Math.random()-0.5)*(0.4-r*0.08),Math.sin(ang)*r); var br=1-r/(b.r*2.5); gc.push(0.7+br*0.3,0.75+br*0.25,1.0); }
+      var cCore=new THREE.Color(0xfff2c8),cArm=new THREE.Color(0x8fb4ff),cOut=new THREE.Color(0x39588f),cHII=new THREE.Color(0xff6a8a);
+      for(var i=0;i<N;i++){
+        var t=Math.pow(Math.random(),0.62), r=t*R, ang;
+        if(arms>0){ var arm=Math.floor(Math.random()*arms); ang=(arm/arms)*6.283 + t*4.3 + (Math.random()-0.5)*(0.55-t*0.32); }
+        else ang=Math.random()*6.283;
+        var sc2=(1-t)*0.12+0.02;
+        var x=Math.cos(ang)*r+(Math.random()-0.5)*R*sc2;
+        var z=Math.sin(ang)*r+(Math.random()-0.5)*R*sc2;
+        var y=(Math.random()-0.5)*(0.16-t*0.1)*R*(ellipt?2.4:1);   // bulge spesso al centro, disco sottile fuori
+        gv.push(x,y,z);
+        var col; if(t<0.16) col=cCore.clone().lerp(cArm,t/0.16);
+        else if(!ellipt&&Math.random()<0.06) col=cHII.clone();      // regioni HII rosa nei bracci
+        else col=cArm.clone().lerp(cOut,(t-0.16)/0.84);
+        var br=1-t*0.32; gc.push(col.r*br,col.g*br,col.b*br);
+      }
       gg.setAttribute('position',new THREE.Float32BufferAttribute(gv,3)); gg.setAttribute('color',new THREE.Float32BufferAttribute(gc,3));
-      var gpts=new THREE.Points(gg,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.9})); scene.add(gpts);
-      var core=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.3,20,20),new THREE.MeshBasicMaterial({color:0xffeecc,transparent:true,opacity:0.8})); scene.add(core);
+      var gpts=new THREE.Points(gg,new THREE.PointsMaterial({size:0.05,vertexColors:true,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false})); scene.add(gpts);
+      var core=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.3,24,24),new THREE.MeshBasicMaterial({color:0xffedc0,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false})); scene.add(core);
+      var coreGlow=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.66,24,24),new THREE.MeshBasicMaterial({color:0xffd98a,transparent:true,opacity:0.24,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); scene.add(coreGlow);
+      var hg=new THREE.BufferGeometry(),hv=[]; for(var j=0;j<500;j++){ var rr=R*(0.3+Math.random()*0.9),th=Math.random()*6.283,ph=Math.acos(2*Math.random()-1); hv.push(rr*Math.sin(ph)*Math.cos(th),rr*Math.cos(ph)*0.7,rr*Math.sin(ph)*Math.sin(th)); }
+      hg.setAttribute('position',new THREE.Float32BufferAttribute(hv,3)); scene.add(new THREE.Points(hg,new THREE.PointsMaterial({color:0xcbb890,size:0.035,transparent:true,opacity:0.4})));
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
-      function animG(){ _body3d.raf=requestAnimationFrame(animG); gpts.rotation.y+=0.003; ren.render(scene,cam); }
-      cam.position.set(0,b.r*1.8,b.r*3.5); cam.lookAt(0,0,0); animG(); _body3d.ren=ren; return;
+      cam.position.set(0,b.r*1.7,b.r*3.5); cam.lookAt(0,0,0);
+      function animG(){ _body3d.raf=requestAnimationFrame(animG); gpts.rotation.y+=0.0016; ren.render(scene,cam); }
+      animG(); _body3d.ren=ren; return;
     }
     if(b.type==='nebula'){
       // ── NEBULOSA POTENZIATA: nuvola volumetrica luminosa con nucleo e stelle ──
@@ -4631,8 +4666,17 @@ function _initBody3D(b){
     mesh.rotation.z=_sd.tilt;
     scene.add(mesh);
     if(b.type==='star'){ for(var g=0;g<3;g++){var glow=new THREE.Mesh(new THREE.SphereGeometry(b.r*(1.15+g*0.22),32,32),new THREE.MeshBasicMaterial({color:g===0?0xffdd44:0xff8822,transparent:true,opacity:0.2-g*0.05,side:THREE.BackSide}));scene.add(glow);} }
-    if(b.atm){ var atm=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.1,32,32),new THREE.MeshBasicMaterial({color:b.atm,transparent:true,opacity:0.28,side:THREE.BackSide})); scene.add(atm); }
-    if(b.ring){ var rg=new THREE.Mesh(new THREE.RingGeometry(b.r*1.4,b.r*2.3,64),new THREE.MeshBasicMaterial({color:0xd8c090,transparent:true,opacity:0.7,side:THREE.DoubleSide})); rg.rotation.x=Math.PI/2.3; scene.add(rg); }
+    if(b.atm){
+      var atm=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.05,32,32),new THREE.MeshBasicMaterial({color:b.atm,transparent:true,opacity:0.20,side:THREE.BackSide})); scene.add(atm);
+      var rim=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.17,32,32),new THREE.MeshBasicMaterial({color:b.atm,transparent:true,opacity:0.14,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(rim);  // alone atmosferico (rim glow)
+    }
+    if(b.ring){
+      // anelli di Saturno a bande: C, B, divisione di Cassini (vuota), A
+      [[1.28,1.50,0xb39a6e,0.45],[1.53,1.92,0xe8d6a8,0.82],[2.00,2.34,0xc9b487,0.62],[2.36,2.44,0xa89468,0.35]].forEach(function(rd){
+        var rg=new THREE.Mesh(new THREE.RingGeometry(b.r*rd[0],b.r*rd[1],96),new THREE.MeshBasicMaterial({color:rd[2],transparent:true,opacity:rd[3],side:THREE.DoubleSide}));
+        rg.rotation.x=Math.PI/2.3; scene.add(rg);
+      });
+    }
     _body3d.raf&&cancelAnimationFrame(_body3d.raf);
     // la rotazione della scena è gestita dal drag condiviso; il pianeta gira comunque su sé stesso
     function anim(){ _body3d.raf=requestAnimationFrame(anim); mesh.rotation.y+=_sd.spin; ren.render(scene,cam); }
