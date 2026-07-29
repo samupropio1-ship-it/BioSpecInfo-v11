@@ -3789,6 +3789,7 @@ function _atlasBuildBody(){
     if(!ren.getContext||!ren.getContext())return false;
     ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H); ren.setClearColor(0x000000,0);
     if('outputColorSpace' in ren && THREE.SRGBColorSpace)ren.outputColorSpace=THREE.SRGBColorSpace;
+    if(THREE.ACESFilmicToneMapping){ ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.12; }
     sc.add(new THREE.AmbientLight(0x8fa6c8,0.85));
     var dl=new THREE.DirectionalLight(0xffffff,1.05); dl.position.set(4,6,8); sc.add(dl);
     var dl2=new THREE.DirectionalLight(0x6688cc,0.4); dl2.position.set(-5,-2,-4); sc.add(dl2);
@@ -4035,6 +4036,7 @@ function _atlasResetModel(keepLabel){
   // "keepLabel" = smontaggio interno prima di caricare un altro modello: non ripristinare il corpo intero
   if(keepLabel)return;
   // niente schematico: il pulsante "Corpo intero" ricarica il modello anatomico reale
+  _atlas._curOrganSrc='./models/anatomy.glb';
   _atlasSyncPreset('./models/anatomy.glb');
   _atlasLoadFromSource('./models/anatomy.glb',false);
 }
@@ -4136,7 +4138,9 @@ function _atlasRender(){
     +'<div style="color:#8fa3b8;font-size:.74rem;margin:2px 0 4px">'+dg.cls+'</div>'
     +'<div style="color:#cdd9e6;font-size:.83rem;line-height:1.55"><b>Meccanismo:</b> '+dg.mech+'</div></div>'; }
   var organModel=_ATLAS_ORGAN_MODELS[d.organ];
-  if(organModel){ html+='<button onclick="_atlasLoadFromSource(\''+organModel+'\',false)" style="width:100%;margin-bottom:10px;padding:9px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">🔬 Vedi l\'organo bersaglio ('+_atlasOrganName(d.organ)+') in 3D reale</button>'; }
+  // caricamento AUTOMATICO dell'organo bersaglio quando si sceglie una malattia (dedup: non ricarica se già mostrato)
+  if(_atlas.built && _atlas._ready && organModel && _atlas._curOrganSrc!==organModel){ _atlas._curOrganSrc=organModel; _atlasLoadFromSource(organModel,false); }
+  if(organModel){ html+='<button onclick="_atlas._curOrganSrc=null;_atlasLoadFromSource(\''+organModel+'\',false)" style="width:100%;margin-bottom:10px;padding:9px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">🔬 Organo bersaglio ('+_atlasOrganName(d.organ)+') — mostrato in 3D · riapri</button>'; }
   html+='<div style="color:#9fb3c8;font-size:.74rem;margin-bottom:6px">Altri farmaci: '+d.drugs.map(function(x){return x.n;}).join(' · ')+'</div>';
   html+='<div style="display:flex;gap:7px;flex-wrap:wrap">'
     +'<a href="'+pmDis+'" target="_blank" rel="noopener" style="background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🔎 PubMed: malattia ↗</a>'
@@ -4164,7 +4168,8 @@ function initMedAtlas(){
       _atlasBuildBody();
       // niente modello schematico: si parte da un modello anatomico reale (corpo intero)
       var ps=id('atlasPreset'); var def=(ps&&ps.value)?ps.value:'./models/anatomy.glb';
-      _atlasLoadFromSource(def,false);
+      _atlas._curOrganSrc=def; _atlasLoadFromSource(def,false);
+      _atlas._ready=true;   // da ora la scelta di una malattia carica AUTOMATICAMENTE l'organo bersaglio
     }catch(e){}
   });
 }
