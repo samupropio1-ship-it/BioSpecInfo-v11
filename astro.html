@@ -4394,6 +4394,10 @@ function _initBody3D(b){
     var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
     if(!ren.getContext || !ren.getContext()){ throw new Error('no webgl'); }
     ren.setClearColor(0x000308,1);
+    // resa più cinematografica e nitida
+    if('outputColorSpace' in ren && THREE.SRGBColorSpace) ren.outputColorSpace=THREE.SRGBColorSpace;
+    if(THREE.ACESFilmicToneMapping){ ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.18; }
+    _body3d._maxAniso=(ren.capabilities&&ren.capabilities.getMaxAnisotropy)?ren.capabilities.getMaxAnisotropy():1;
     ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H);
     // memorizzo per il resize (schermo intero) e per i controlli condivisi
     _body3d.ren=ren; _body3d.cam=cam; _body3d.scene=scene; _body3d.wrap=wrap; _body3d.baseR=b.r;
@@ -4435,6 +4439,58 @@ function _initBody3D(b){
       _body3d.raf&&cancelAnimationFrame(_body3d.raf);
       function animN(){ _body3d.raf=requestAnimationFrame(animN); ns.rotation.y+=0.15; scene.rotation.y+=0.001; ren.render(scene,cam); }
       animN(); _body3d.ren=ren; return;
+    }
+    if(b.type==='quasar'){
+      // ── QUASAR / AGN: disco incandescente + getti relativistici bipolari + galassia ospite ──
+      var qcore=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.35,32,32),new THREE.MeshBasicMaterial({color:0xffffff})); scene.add(qcore);
+      var qglow=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.8,24,24),new THREE.MeshBasicMaterial({color:0x9fc4ff,transparent:true,opacity:0.4,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(qglow);
+      var qdisc=new THREE.Mesh(new THREE.RingGeometry(b.r*0.5,b.r*2.6,80,1),new THREE.MeshBasicMaterial({color:0xffcc66,transparent:true,opacity:0.85,side:THREE.DoubleSide,blending:THREE.AdditiveBlending})); qdisc.rotation.x=Math.PI/2.2; scene.add(qdisc);
+      var qdisc2=new THREE.Mesh(new THREE.RingGeometry(b.r*0.5,b.r*1.5,64,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,side:THREE.DoubleSide,blending:THREE.AdditiveBlending})); qdisc2.rotation.x=Math.PI/2.2; scene.add(qdisc2);
+      [1,-1].forEach(function(dir){ var jg=new THREE.BufferGeometry(),jv=[],jc=[],col=new THREE.Color(0x9fd0ff);
+        for(var i=0;i<420;i++){ var h=Math.pow(Math.random(),0.7)*b.r*7.5; var sp=(0.05+h*0.03)*b.r; jv.push((Math.random()-0.5)*sp,dir*h,(Math.random()-0.5)*sp); var fd=1-h/(b.r*7.5); jc.push(col.r,0.4+col.g*fd*0.6,col.b); }
+        jg.setAttribute('position',new THREE.Float32BufferAttribute(jv,3)); jg.setAttribute('color',new THREE.Float32BufferAttribute(jc,3));
+        scene.add(new THREE.Points(jg,new THREE.PointsMaterial({size:0.09,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}))); });
+      var hg=new THREE.BufferGeometry(),hv=[]; for(var i=0;i<900;i++){ var r=b.r*(1.2+Math.random()*4); var a=Math.random()*6.28; hv.push(Math.cos(a)*r,(Math.random()-0.5)*b.r*0.5,Math.sin(a)*r); }
+      hg.setAttribute('position',new THREE.Float32BufferAttribute(hv,3)); var host=new THREE.Points(hg,new THREE.PointsMaterial({color:0x8895b5,size:0.05,transparent:true,opacity:0.5})); host.rotation.x=Math.PI/2.2; scene.add(host);
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      cam.position.set(b.r*4,b.r*2.6,b.r*5.5); cam.lookAt(0,0,0);
+      var qt=0;
+      function animQ(){ _body3d.raf=requestAnimationFrame(animQ); qt+=0.02; qdisc.rotation.z+=0.02; qdisc2.rotation.z-=0.03; host.rotation.z+=0.0012; qcore.scale.setScalar(1+0.18*Math.sin(qt*4)); ren.render(scene,cam); }
+      animQ(); _body3d.ren=ren; return;
+    }
+    if(b.type==='magnetar'){
+      // ── MAGNETAR: stella di neutroni con campo magnetico estremo (anelli di campo pulsanti) ──
+      var mstar=new THREE.Mesh(new THREE.SphereGeometry(b.r,48,48),new THREE.MeshBasicMaterial({color:0xff9ad6})); scene.add(mstar);
+      var mglow=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.5,24,24),new THREE.MeshBasicMaterial({color:0xff4fb0,transparent:true,opacity:0.3,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(mglow);
+      var loops=[]; for(var k=0;k<8;k++){ var tor=new THREE.Mesh(new THREE.TorusGeometry(b.r*1.7,0.02*b.r+0.012,8,54),new THREE.MeshBasicMaterial({color:0xff66bb,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending}));
+        tor.scale.set(1,1.5,1); tor.rotation.y=(k/8)*Math.PI; loops.push(tor); scene.add(tor); }
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      cam.position.set(0,b.r*1.4,b.r*5.5); cam.lookAt(0,0,0);
+      var mt=0;
+      function animMag(){ _body3d.raf=requestAnimationFrame(animMag); mt+=0.03; mstar.rotation.y+=0.09; var pul=0.55+0.45*Math.abs(Math.sin(mt*3)); mglow.material.opacity=0.18+0.3*pul; loops.forEach(function(l){ l.material.opacity=0.5*pul; }); scene.rotation.y+=0.002; ren.render(scene,cam); }
+      animMag(); _body3d.ren=ren; return;
+    }
+    if(b.type==='wolfrayet'){
+      // ── WOLF-RAYET: stella caldissima che espelle gusci di vento stellare ──
+      var wrc=new THREE.Mesh(new THREE.SphereGeometry(b.r*0.7,40,40),new THREE.MeshBasicMaterial({color:0xcfeaff})); scene.add(wrc);
+      for(var g2=0;g2<3;g2++){ var gl=new THREE.Mesh(new THREE.SphereGeometry(b.r*(0.85+g2*0.28),24,24),new THREE.MeshBasicMaterial({color:g2<1?0x9fd0ff:0x6aa8ff,transparent:true,opacity:0.28-g2*0.07,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(gl); }
+      var shells=[]; for(var k=0;k<3;k++){ var sh=new THREE.Mesh(new THREE.SphereGeometry(b.r,24,24),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:0.22,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})); sh.userData.ph=k/3; shells.push(sh); scene.add(sh); }
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      cam.position.set(0,0,b.r*6); cam.lookAt(0,0,0);
+      var wt=0;
+      function animWR(){ _body3d.raf=requestAnimationFrame(animWR); wt+=0.01; wrc.rotation.y+=0.01;
+        shells.forEach(function(sh){ var p=(wt+sh.userData.ph)%1; var sc=1+p*2.5; sh.scale.setScalar(sc); sh.material.opacity=0.28*(1-p); }); ren.render(scene,cam); }
+      animWR(); _body3d.ren=ren; return;
+    }
+    if(b.type==='browndwarf'){
+      // ── NANA BRUNA: substellare, fredda, bande deboli, tenue bagliore infrarosso ──
+      var tlb=new THREE.TextureLoader(); var btx=tlb.load(_texUrl('jupiter'), function(){ ren.render(scene,cam); });
+      var bd=new THREE.Mesh(new THREE.SphereGeometry(b.r,48,48),new THREE.MeshStandardMaterial({map:btx,color:0x8a4a2c,emissive:0x2a0c02,emissiveIntensity:0.6,roughness:1,metalness:0})); scene.add(bd);
+      var bg=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.18,24,24),new THREE.MeshBasicMaterial({color:0x662200,transparent:true,opacity:0.22,side:THREE.BackSide,blending:THREE.AdditiveBlending})); scene.add(bg);
+      var _sdb=_seedFromName(b._name||'x'); bd.rotation.z=_sdb.tilt;
+      _body3d.raf&&cancelAnimationFrame(_body3d.raf);
+      function animBD(){ _body3d.raf=requestAnimationFrame(animBD); bd.rotation.y+=_sdb.spin; ren.render(scene,cam); }
+      animBD(); _body3d.ren=ren; return;
     }
     if(b.type==='galaxy'){
       var gg=new THREE.BufferGeometry(),gv=[],gc=[];
@@ -4560,13 +4616,14 @@ function _initBody3D(b){
     }
     // texture (async: forza re-render al load)
     var mat;
+    function _texTune(t){ try{ t.anisotropy=_body3d._maxAniso||1; if(THREE.SRGBColorSpace)t.colorSpace=THREE.SRGBColorSpace; }catch(e){} return t; }
     if(b.type==='star'){
       var tl=new THREE.TextureLoader();
-      var stex=tl.load(_texUrl(b.tex), function(){ ren.render(scene,cam); });
+      var stex=_texTune(tl.load(_texUrl(b.tex), function(){ ren.render(scene,cam); }));
       mat=new THREE.MeshBasicMaterial({map:stex,color:0xffffff});
     } else {
       var tl2=new THREE.TextureLoader();
-      var ptex=tl2.load(_texUrl(b.tex), function(){ ren.render(scene,cam); });
+      var ptex=_texTune(tl2.load(_texUrl(b.tex), function(){ ren.render(scene,cam); }));
       mat=new THREE.MeshStandardMaterial({map:ptex,color:0xffffff,roughness:0.9,metalness:0.05});
     }
     var _sd=_seedFromName(b._name||'x');
@@ -4727,6 +4784,12 @@ function _infoWormhole(){
 function _guessBody3D(name){
   var db=(typeof UNIVERSE_DB!=='undefined')?UNIVERSE_DB.filter(function(x){return x.n===name;})[0]:null;
   var cat=db?db.cat:'', type=db?(db.type||''):'';
+  // se non è nel catalogo principale, guarda nella galleria telescopi (JWST/Hubble): usa 'obj' come tipo
+  if(!db && typeof TELESCOPE_GALLERY!=='undefined'){
+    var g=TELESCOPE_GALLERY.filter(function(x){return x.n===name;})[0];
+    if(g){ var pm={'Stelle':'Stella','Galassie':'Galassia','Nebulose':'Nebulosa','Ammassi':'Ammasso','Sistema Solare':'Pianeta','Universo Profondo':'','Esopianeti':'Esopianeta'};
+      cat=(pm[g.cat]!==undefined?pm[g.cat]:g.cat); type=g.obj||''; }
+  }
   var low=(name+' '+type).toLowerCase();
   var typeLow=type.toLowerCase();
   // ═══ PRIORITÀ ALLA CATEGORIA REALE DAL DATABASE ═══
@@ -4742,11 +4805,15 @@ function _guessBody3D(name){
   }
   if(cat==='Ammasso') return {tex:'sun',r:0.5,type:'starcluster'};
   if(cat==='Estremo'){
-    if(/buco nero|black|quasar|blazar|nucleo attivo|seyfert|radiogalassia|tidal|distruzione mareale|holmberg|ton 618|sagittarius a|m87|cygnus x|3c |markarian|oj 287|phoenix a|s5 |cid-|swift j/.test(low)) return {tex:'sun',r:1.5,type:'blackhole'};
-    if(/stella di neutroni|neutron|pulsar|magnetar|psr|sgr |geminga|vela|crab|vedova nera|4u /.test(low)) return {tex:'moon',r:0.8,type:'neutron',atm:0x88aaff};
+    if(/quasar|blazar|nucleo attivo|nucleo galattico attivo|seyfert|radiogalassia|\bagn\b|ton 618|oj 287|3c 273|markarian/.test(low)) return {tex:'sun',r:1.2,type:'quasar'};
+    if(/buco nero|black|tidal|distruzione mareale|holmberg|sagittarius a|m87|cygnus x|3c |s5 |cid-|swift j|phoenix a/.test(low)) return {tex:'sun',r:1.5,type:'blackhole'};
+    if(/magnetar|sgr |soft gamma|repeater/.test(low)) return {tex:'moon',r:0.85,type:'magnetar'};
+    if(/stella di neutroni|neutron|pulsar|psr|geminga|vela|crab|vedova nera|4u /.test(low)) return {tex:'moon',r:0.8,type:'neutron',atm:0x88aaff};
     if(/supernova|grb|gamma|kilonova|gw|ipernova|superluminosa|mucca|at20|asassn|sn 19|sn 20/.test(low)) return {tex:'sun',r:1.4,type:'supernova'};
     if(/onde gravitazionali|fusione|frb|fast radio/.test(low)) return {tex:'sun',r:1.4,type:'supernova'};
     // remnant/stellari classificati come "Estremo" — non sono buchi neri
+    if(/wolf-?rayet/.test(low)) return {tex:'sun',r:2.0,type:'wolfrayet'};
+    if(/nana bruna|brown dwarf/.test(low)) return {tex:'jupiter',r:1.0,type:'browndwarf'};
     if(/nana bianca|white dwarf/.test(low)) return {tex:'moon',r:0.9,type:'whitedwarf',atm:0xcce0ff};
     if(/nana rossa|red dwarf/.test(low)) return {tex:'star_red',r:1.1,type:'star',atm:0xff6633};
     if(/gigante rossa|red giant|supergigante rossa|ipergigante rossa|gigante arancione/.test(low)) return {tex:'star_red',r:2.4,type:'star',atm:0xff6633};
@@ -4755,6 +4822,8 @@ function _guessBody3D(name){
     return {tex:'sun',r:1.3,type:'blackhole'};
   }
   if(cat==='Stella'){
+    if(/nana bruna|brown dwarf|luhman|wise |gliese 229b|t dwarf|y dwarf|l dwarf/.test(low)) return {tex:'jupiter',r:1.0,type:'browndwarf'};
+    if(/wolf-?rayet|\bwr \b|wr\d/.test(low)) return {tex:'sun',r:2.0,type:'wolfrayet'};
     if(/nana bianca|white dwarf|sirio b|procione b|van maanen|stein|wd |40 eri b/.test(low)) return {tex:'moon',r:0.9,type:'whitedwarf',atm:0xcce0ff};
     if(/ross|rossa|red|antares|betelgeuse|arturo|aldebaran|gacrux|mira|superba|granato|vy canis|uy scuti|stephenson|woh|mu cep/.test(low)) return {tex:'star_red',r:2.2,type:'star',atm:0xff6633};
     return {tex:'sun',r:2.2,type:'star',atm:0xffaa44};
@@ -4782,6 +4851,34 @@ function _guessBody3D(name){
     if(/terra|abitabile|super-terra|oceanic|rocciosa|mondo-acqua|hycean|mercurio/.test(low)) return {tex:'earth',r:1.3,type:'rocky',atm:0x4488ff};
     return {tex:'jupiter',r:1.6,type:'gas',atm:0x9a7ac0};
   }
+  // ── FALLBACK UNIVERSALE PER NOME/DESCRIZIONE (corpi non catalogati, gallerie, ecc.) ──
+  if(/quasar|blazar|nucleo galattico attivo|nucleo attivo|seyfert|\bagn\b/.test(low)) return {tex:'sun',r:1.2,type:'quasar'};
+  if(/buco nero|black hole|sagittarius a|\bm87\b|orizzonte degli eventi/.test(low)) return {tex:'sun',r:1.5,type:'blackhole'};
+  if(/magnetar|soft gamma/.test(low)) return {tex:'moon',r:0.85,type:'magnetar'};
+  if(/pulsar|stella di neutroni|neutron/.test(low)) return {tex:'moon',r:0.8,type:'neutron',atm:0x88aaff};
+  if(/wolf-?rayet|\bwr ?\d/.test(low)) return {tex:'sun',r:2.0,type:'wolfrayet'};
+  if(/nana bruna|brown dwarf/.test(low)) return {tex:'jupiter',r:1.0,type:'browndwarf'};
+  if(/nana bianca|white dwarf/.test(low)) return {tex:'moon',r:0.9,type:'whitedwarf',atm:0xcce0ff};
+  if(/resto di supernova|supernova|kilonova|ipernova/.test(low)) return {tex:'sun',r:1.4,type:'supernova'};
+  if(/cometa|comet|halley|neowise|hale-bopp|67p|churyumov|encke|borisov|oumuamua|lovejoy/.test(low)) return {tex:'moon',r:0.6,type:'comet'};
+  if(/ammasso|cluster|globulare|pleiadi|ammasso aperto|ammasso globulare/.test(low)) return {tex:'sun',r:0.5,type:'starcluster'};
+  if(/nebulosa|nebula|pilastri|pillars|proplyd|regione hii|vivaio|scogliere|carena|laguna|aquila|granchio|velo|elica/.test(low)){
+    var nt2='emission';
+    if(/planetaria|planetary|anello|elica|eschimese|manubrio|gufo|farfalla|clessidra/.test(low)) nt2='planetary';
+    else if(/resto|granchio|velo|cygnus|filament/.test(low)) nt2='supernova';
+    else if(/oscura|dark|cavallo|pipa|sacco|carbone/.test(low)) nt2='dark';
+    else if(/riflession|reflection|iris|witch/.test(low)) nt2='reflection';
+    return {tex:'exo',r:2,type:'nebula',nebType:nt2};
+  }
+  if(/galassia|galaxy|via lattea|andromeda|vortice|whirlpool|sombrero|magellano|deep field|campo profondo|ammasso di galassie|lente gravitazionale/.test(low)) return {tex:'sun',r:2.2,type:'galaxy'};
+  if(/gigante rossa|supergigante rossa|betelgeuse|antares|arturo|aldebaran|granato|\bross[ao]\b|red giant/.test(low)) return {tex:'star_red',r:2.2,type:'star',atm:0xff6633};
+  if(/saturno|saturn|con anelli/.test(low)) return {tex:'saturn',r:1.8,type:'gas',ring:true,atm:0xd8c090};
+  if(/giove|jupiter|gigante gassoso/.test(low)) return {tex:'jupiter',r:2,type:'gas',atm:0xd8a066};
+  if(/terra|earth/.test(low)) return {tex:'earth',r:1.3,type:'rocky',atm:0x4488ff};
+  if(/marte|mars|asteroide|cometa|bennu|ryugu/.test(low)) return {tex:'mars',r:1.1,type:'rocky',atm:0xc1662a};
+  if(/luna|moon|europa|encelado|titano|ganimede|callisto/.test(low)) return {tex:'moon',r:1.1,type:'rocky'};
+  if(/esopianeta|exoplanet|kepler|trappist|wasp|kelt|toi[- ]|k2-|gliese|proxima b|hot jupiter/.test(low)) return {tex:'jupiter',r:1.6,type:'gas',atm:0x9a7ac0};
+  if(/stella|star|sole|sun|nana gialla|nana arancione|sequenza principale|sirio|vega|rigel|deneb|spica|sole massiccio|massiccia/.test(low)) return {tex:'sun',r:2.2,type:'star',atm:0xffaa44};
   return {tex:'mars',r:1.2,type:'rocky'};
 }
 // Deduce una scheda fisica accademica per QUALSIASI corpo dal database
