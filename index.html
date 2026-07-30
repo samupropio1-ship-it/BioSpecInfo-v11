@@ -33468,6 +33468,7 @@ var _ITEMS=[
   {ic:'⚗️',nm:'Chimica Organica 1+2',ds:'17 moduli interattivi, meccanismi, stereochimica, molecole biologiche',key:'chimorga',hl:true},
   {ic:'🧪',nm:'RDKit Cheminformatics Lab',ds:'Visualizzatore SVG, descrittori, drug-likeness, similarità Tanimoto, libreria molecole',key:'rdkitlab',hl:true},
   {ic:'🌌',nm:'Astrochimica 3D PRO',ds:'Molecole ISM, esopianeti JWST, nebule, spettri stellari, nucleosintesi, chimica cometaria, quiz',key:'astro',hl:true},
+  {ic:'✨',nm:'Data Science — dalla chimica ai dati',ds:'Lab ML interattivi, CERN (bosone Z), Playground SQL, roadmap corsi, Toolkit GitHub — dal chimico al data scientist',key:'datasci',hl:true},
   {ic:'⚗️',nm:'PRO Hub — ML · QM · Fisica · Statistica',ds:'Machine Learning QSAR, Meccanica Quantistica, Chimica Fisica, Chimica Statistica, Tools avanzati',key:'pro',hl:true},
   {ic:'📁',nm:'File Manager PRO',ds:'Galleria foto, sezioni HTML personalizzate, note — accesso protetto da password',key:'filemanager',hl:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 10 simulazioni',key:'qlab',hl:true},
@@ -33517,6 +33518,7 @@ function _act(key){
     if(key==='chimorga'){ window.openChimOrga(); return; }
     if(key==='rdkitlab'){ window.openRDKitLab(); return; }
     if(key==='astro'){ window.openAstro(); return; }
+    if(key==='datasci'){ var b=document.querySelector('[data-s=sdatasci]'); if(b){ b.click(); } else { var sec=document.getElementById('sdatasci'); if(sec){ document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');}); sec.classList.add('on'); if(typeof window.initDataSci==='function') setTimeout(window.initDataSci,40); } } return; }
     if(key==='pro'){ window.openPro(); return; }
     if(key==='filemanager'){ window.openFileManager(); return; }
       if(key==='simulazioni'){ window.openSimulazioni(); return; }
