@@ -17,30 +17,36 @@ poi l'**AI**, e in parallelo la tua **marcia in più** (chimica + dati). L'ingle
    → sintassi, funzioni, OOP, e soprattutto **pandas**. È la base di tutto.
 2. **Python for Data Science & ML Bootcamp (Jose Portilla)**
    → NumPy, pandas, Matplotlib/Seaborn, prime pipeline **scikit-learn**.
-   *Obiettivo di fase:* saper caricare un CSV, pulirlo, fare grafici e un primo modello.
+3. **The Complete SQL Bootcamp: Go from Zero to Hero (Jose Portilla)**
+   → **SQL**: SELECT, WHERE, JOIN, GROUP BY, aggregazioni, subquery. Interrogare i database
+   è un'abilità richiestissima. *(Provalo subito nel **Playground SQL** dentro l'app!)*
+   *Obiettivo di fase:* saper caricare un CSV, pulirlo, interrogarlo con SQL, fare un grafico e un primo modello.
 
 ### Fase B — Data Science & Machine Learning (2–3 mesi)
-3. **The Data Science Course: Complete Bootcamp 2026 (365 Careers)**
+4. **The Data Science Course: Complete Bootcamp 2026 (365 Careers)**
    → statistica e probabilità (fondamentali!), regressione, cluster analysis, ML, DL con TensorFlow.
-4. **Machine Learning A-Z [2026] (Eremenko, de Ponteves)**
+5. **Python Data Visualization: Matplotlib & Seaborn Masterclass (Maven Analytics)**
+   → grafici efficaci: distribuzioni, correlazioni, heatmap, personalizzazione. Il **data storytelling**
+   che convince i selezionatori.
+6. **Machine Learning A-Z [2026] (Eremenko, de Ponteves)**
    → regressione, classificazione, clustering, riduzione di dimensionalità, XGBoost.
-5. **Data Science con Python e IA: dai dati grezzi agli insight (Sorrentino)**
+7. **Data Science con Python e IA: dai dati grezzi agli insight (Sorrentino)**
    → la **pipeline completa**, molto pratica.
-6. **Data Science A-Z: Hands-On Exercises**
-   → preparazione dati, **visualizzazione** e **data storytelling** (saper raccontare i risultati).
-   *Obiettivo di fase:* costruire e valutare regressione + classificazione + clustering da solo.
+8. **Data Science A-Z: Hands-On Exercises**
+   → preparazione dati, visualizzazione e **data storytelling** applicato.
+   *Obiettivo di fase:* costruire e valutare regressione + classificazione + clustering da solo, e presentarli con grafici chiari.
 
 ### Fase C — Deep Learning & AI (1–2 mesi)
-7. **Complete Data Science, ML, DL, NLP Bootcamp (Krish Naik)**
+9. **Complete Data Science, ML, DL, NLP Bootcamp (Krish Naik)**
    → deep learning, NLP e **deployment** (mettere un modello online).
-8. **The AI Engineer Course 2026 (365 Careers)**
-   → LLM, IA generativa, API di AI, AI engineering.
+10. **The AI Engineer Course 2026 (365 Careers)**
+    → LLM, IA generativa, API di AI, AI engineering.
 
 ### Fase D — Il tuo asso: Chimica + Dati (in parallelo dalla Fase B)
-9. **RDKit: Cheminformatics & Drug Discovery in Python** → manipolare molecole, descrittori, fingerprint, similarità.
-10. **Machine Learning in Drug Discovery and Cheminformatics** → QSAR, screening virtuale, ML sui farmaci.
-11. **Data Science in Chemistry** → applicare tutto a dati chimici reali.
-12. **Computational Chemistry: Concepts, Theories & Applications** → DFT, metodi quanto-meccanici (la teoria dietro i dati).
+11. **RDKit: Cheminformatics & Drug Discovery in Python** → manipolare molecole, descrittori, fingerprint, similarità.
+12. **Machine Learning in Drug Discovery and Cheminformatics** → QSAR, screening virtuale, ML sui farmaci.
+13. **Data Science in Chemistry** → applicare tutto a dati chimici reali.
+14. **Computational Chemistry: Concepts, Theories & Applications** → DFT, metodi quanto-meccanici (la teoria dietro i dati).
 
 ### Sempre, in parallelo
 - **English Intermediate (B2)+** → al CERN e nella ricerca internazionale l'inglese **è** la lingua di lavoro. 20 minuti al giorno.
@@ -62,6 +68,13 @@ notebook/script, la cartella `data/`. Il **Toolkit GitHub** nell'app ti genera i
 - **Passi:** carica un CSV (es. proprietà molecolari) → `df.head()`, `df.describe()`, `df.info()` →
   valori mancanti → istogrammi e scatter (Matplotlib/Seaborn) → 3 osservazioni scritte nel README.
 - **Impari:** pandas, visualizzazione, il 60% del vero lavoro (capire i dati).
+
+### 🗄️ Extra — Interroga un database con SQL
+- **Obiettivo:** rispondere a domande sui dati usando **SQL** (la skill del tuo nuovo corso).
+- **Passi:** carica un CSV in SQLite (`sqlite3`/`pandas.to_sql`) → scrivi query con **WHERE**,
+  **ORDER BY**, **GROUP BY**, funzioni di aggregazione (**COUNT/AVG/SUM**) e un **JOIN** →
+  esporta i risultati. *(Puoi allenarti subito nel **Playground SQL** dentro l'app.)*
+- **Impari:** SQL applicato, il linguaggio con cui si estraggono i dati ovunque.
 
 ### #3 — Classificazione: attività di un composto
 - **Obiettivo:** prevedere se una molecola è **attiva/inattiva** (o tossica/non tossica).

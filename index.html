@@ -1009,6 +1009,21 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 k-means ripete due passi: <b>assegna</b> ogni punto al centro più vicino, poi <b>sposta</b> ogni centro nel baricentro del suo gruppo — finché non si muovono più. È così che un algoritmo “trova ordine” senza sapere le risposte.</div>
   </div>
 
+  <!-- PLAYGROUND SQL -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#63d6a8;font-weight:800;font-size:.98rem;margin-bottom:4px">🗄️ Playground SQL — interroga un database di molecole</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Il tuo corso <b>SQL</b> in azione, qui e ora. C'è un piccolo database con la tabella <b>molecole</b> (nome, formula, peso, LogP, categoria, solubile). Scrivi una query, premi <b>Esegui</b> e vedi il risultato — tutto nel browser, niente da installare.</div>
+    <button id="dsSqlStart" onclick="window._dsSqlInit&&window._dsSqlInit()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#63d6a8,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">▶ Avvia il database SQL</button>
+    <div id="dsSqlUI" style="display:none">
+      <div style="color:#9fb3c8;font-size:.8rem;margin:10px 0 5px">Esempi (toccali per provarli):</div>
+      <div id="dsSqlPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"></div>
+      <textarea id="dsSqlQ" spellcheck="false" style="width:100%;min-height:74px;padding:10px 12px;border-radius:9px;border:1px solid #16273e;background:#070f1c;color:#8fe6c8;font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.5;resize:vertical"></textarea>
+      <div style="margin:8px 0"><button onclick="window._dsSqlRun&&window._dsSqlRun()" style="padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Esegui ▶</button></div>
+      <div id="dsSqlOut" style="overflow-x:auto"></div>
+    </div>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">📋 Colonne: <span style="font-family:ui-monospace,monospace;color:#8fa3b8">id, nome, formula, peso, logp, categoria, solubile</span>. Prova <span style="font-family:ui-monospace,monospace;color:#8fa3b8">GROUP BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">WHERE</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">ORDER BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">AVG()</span>…</div>
+  </div>
+
   <!-- GLOSSARIO -->
   <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:4px">📖 Glossario essenziale</div>
@@ -1032,7 +1047,10 @@ window.BSI_TELEMETRY_URL='';</script>
   <div style="background:linear-gradient(135deg,rgba(245,166,35,.1),rgba(124,111,255,.06));border:1px solid #3a3a5a;border-radius:12px;padding:14px 16px;margin-bottom:14px">
     <div style="color:#f5a623;font-weight:800;font-size:.95rem;margin-bottom:5px">⬇️ Guida completa (corsi + progetti) — da scaricare</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">L'ordine con cui affrontare i <b>tuoi corsi</b> e le <b>tracce di tutti i progetti</b> (tranne la Solubilità, guidata qui sotto) sono in un <b>file a parte</b>, da tenere sul telefono o sul PC.</div>
-    <a href="./docs/Guida-DataScience-Corsi-Progetti.md" download="Guida-DataScience-Corsi-Progetti.md" style="display:inline-block;padding:9px 16px;border-radius:9px;background:linear-gradient(135deg,#f5a623,#7c6fff);color:#04121e;font-weight:800;text-decoration:none;font-size:.86rem">⬇️ Scarica la guida (.md)</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="./docs/Guida-DataScience-Corsi-Progetti.pdf" download="Guida-DataScience-Corsi-Progetti.pdf" style="display:inline-block;padding:9px 16px;border-radius:9px;background:linear-gradient(135deg,#f5a623,#7c6fff);color:#04121e;font-weight:800;text-decoration:none;font-size:.86rem">⬇️ Scarica la guida (PDF)</a>
+      <a href="./docs/Guida-DataScience-Corsi-Progetti.md" download="Guida-DataScience-Corsi-Progetti.md" style="display:inline-block;padding:9px 16px;border-radius:9px;border:1px solid #3a3a5a;background:#0a1628;color:#cdd9e6;font-weight:700;text-decoration:none;font-size:.86rem">⬇️ versione .md</a>
+    </div>
   </div>
 
   <!-- PROGETTO GUIDATO: SOLUBILITÀ -->
@@ -1281,6 +1299,12 @@ window.BSI_TELEMETRY_URL='';</script>
       ['Python da Zero: Fondamenti, OOP e Data Analysis con Pandas','Sintassi, tipi, funzioni, programmazione a oggetti (OOP) e analisi dati con pandas.'],
       ['Python for Data Science & ML Bootcamp (J. Portilla)','NumPy, pandas, Matplotlib/Seaborn, scikit-learn, regressione, classificazione, k-means, PCA, basi di NLP e deep learning.']
     ]],
+    ['🗄️ Dati & SQL',[
+      ['The Complete SQL Bootcamp: Go from Zero to Hero (J. Portilla)','SQL da zero: SELECT, WHERE, JOIN, GROUP BY, funzioni di aggregazione, subquery. Interrogare i database è il pane quotidiano del data scientist. (Provalo nel Playground SQL qui sotto!)']
+    ]],
+    ['📈 Visualizzazione dati',[
+      ['Python Data Visualization: Matplotlib & Seaborn Masterclass (Maven Analytics)','Grafici efficaci con Matplotlib e Seaborn: distribuzioni, correlazioni, heatmap, personalizzazione. Il data storytelling che convince i selezionatori.']
+    ]],
     ['📊 Data Science completa',[
       ['The Data Science Course: Complete Bootcamp 2026 (365 Careers)','Statistica e probabilità, Python, regressione, cluster analysis, machine learning e deep learning con TensorFlow.'],
       ['Data Science A-Z: Hands-On Exercises','Preparazione dati, visualizzazione, modellazione, valutazione dei modelli e data storytelling.'],
@@ -1336,6 +1360,8 @@ window.BSI_TELEMETRY_URL='';</script>
     ['p7','Intro deep learning','una piccola rete neurale (Keras/PyTorch) su un dataset semplice.'],
     ['p8','Submission Kaggle','partecipa a una competizione e invia una previsione completa.'],
     ['p9','Repo riproducibile','notebook ordinato su GitHub: README, requirements, risultati.'],
+    ['p11','Query SQL su un database','carica un CSV in SQLite/pandas e rispondi a 5 domande con query SQL (filtri, GROUP BY, JOIN).'],
+    ['p12','Dashboard di visualizzazione','un notebook di grafici curati (Matplotlib/Seaborn): distribuzioni, correlazioni, una figura "da copertina".'],
     ['p10','CERN Open Data (bonus)','un mini-studio con un dataset pubblico del portale CERN Open Data.']
   ];
   function getProj(){ try{return JSON.parse(localStorage.getItem('bsi_ds_proj')||'{}');}catch(e){return {};} }
@@ -1415,6 +1441,40 @@ window.BSI_TELEMETRY_URL='';</script>
   window._dsGhDl=function(which){ if(which==='readme')dsDownload('README.md',ghReadme(_ghTpl)); else if(which==='req')dsDownload('requirements.txt',GH_TPL[_ghTpl].pkg); else if(which==='script')dsDownload(ghScriptName(_ghTpl),ghScript(_ghTpl)); else if(which==='gitignore')dsDownload('.gitignore',GH_IGNORE); else if(which==='notebook')dsDownload(ghSlug()+'.ipynb',ghNotebook(_ghTpl)); };
   window._dsGhZipAll=function(){ var fns=[['README.md',ghReadme(_ghTpl)],['requirements.txt',GH_TPL[_ghTpl].pkg],[ghScriptName(_ghTpl),ghScript(_ghTpl)],['.gitignore',GH_IGNORE]]; fns.forEach(function(f,i){ setTimeout(function(){dsDownload(f[0],f[1]);},i*350); }); };
   function initGh(){ renderGhTpl(); syncGit(); }
+  // ── Playground SQL (motore sql.js caricato al bisogno) ──
+  var _sqlDb=null, _sqlLoading=false;
+  var SQL_PRESETS=[
+    ['Tutte','SELECT * FROM molecole;'],
+    ['Le più pesanti','SELECT nome, peso FROM molecole\nORDER BY peso DESC\nLIMIT 5;'],
+    ['Idrofobe (LogP>2)','SELECT nome, logp FROM molecole\nWHERE logp > 2\nORDER BY logp DESC;'],
+    ['Conta per categoria','SELECT categoria, COUNT(*) AS n, ROUND(AVG(peso),1) AS peso_medio\nFROM molecole\nGROUP BY categoria\nORDER BY n DESC;'],
+    ['Acidi solubili','SELECT nome, formula FROM molecole\nWHERE categoria = "acido" AND solubile = 1;']
+  ];
+  function sqlRenderPresets(){ var h=document.getElementById('dsSqlPresets'); if(!h)return; h.innerHTML=''; SQL_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ var t=document.getElementById('dsSqlQ'); t.value=p[1]; window._dsSqlRun(); }; h.appendChild(b); }); }
+  function sqlBuild(SQL){ var db=new SQL.Database();
+    db.run("CREATE TABLE molecole (id INTEGER, nome TEXT, formula TEXT, peso REAL, logp REAL, categoria TEXT, solubile INTEGER);");
+    var rows=[[1,'Etanolo','C2H6O',46.07,-0.14,'alcol',1],[2,'Metanolo','CH4O',32.04,-0.52,'alcol',1],[3,'Acido acetico','C2H4O2',60.05,-0.17,'acido',1],[4,'Benzene','C6H6',78.11,2.13,'aromatico',0],[5,'Toluene','C7H8',92.14,2.73,'aromatico',0],[6,'Fenolo','C6H6O',94.11,1.46,'aromatico',1],[7,'Acido benzoico','C7H6O2',122.12,1.87,'acido',0],[8,'Glucosio','C6H12O6',180.16,-3.24,'zucchero',1],[9,'Caffeina','C8H10N4O2',194.19,-0.07,'alcaloide',1],[10,'Aspirina','C9H8O4',180.16,1.19,'acido',1],[11,'Acetone','C3H6O',58.08,-0.24,'chetone',1],[12,'Esano','C6H14',86.18,3.90,'alcano',0],[13,'Acido citrico','C6H8O7',192.12,-1.72,'acido',1],[14,'Anilina','C6H7N',93.13,0.90,'aromatico',1],[15,'Naftalene','C10H8',128.17,3.30,'aromatico',0]];
+    var stmt=db.prepare("INSERT INTO molecole VALUES (?,?,?,?,?,?,?)"); rows.forEach(function(r){ stmt.run(r); }); stmt.free();
+    return db; }
+  window._dsSqlRun=function(){ var out=document.getElementById('dsSqlOut'), q=document.getElementById('dsSqlQ'); if(!out||!q||!_sqlDb)return;
+    try{ var res=_sqlDb.exec(q.value); if(!res.length){ out.innerHTML='<div style="color:#63d6a8;font-size:.82rem;padding:6px 2px">✓ Eseguita (nessuna riga restituita).</div>'; return; }
+      var r=res[0], h='<table style="border-collapse:collapse;width:100%;font-size:.8rem"><thead><tr>';
+      r.columns.forEach(function(c){ h+='<th style="text-align:left;padding:6px 9px;border-bottom:1px solid #26406a;color:#5eead4;white-space:nowrap">'+esc(String(c))+'</th>'; }); h+='</tr></thead><tbody>';
+      r.values.forEach(function(row){ h+='<tr>'; row.forEach(function(v){ h+='<td style="padding:5px 9px;border-bottom:1px solid #12203a;color:#cdd9e6;white-space:nowrap">'+(v===null?'∅':esc(String(v)))+'</td>'; }); h+='</tr>'; }); h+='</tbody></table>';
+      h+='<div style="color:#6b7d90;font-size:.75rem;margin-top:5px">'+r.values.length+' righe</div>';
+      out.innerHTML=h;
+    }catch(e){ out.innerHTML='<div style="color:#f4788a;font-size:.82rem;padding:6px 2px">⚠️ Errore SQL: '+esc(String(e.message||e))+'</div>'; } };
+  window._dsSqlInit=function(){
+    var start=document.getElementById('dsSqlStart'), ui=document.getElementById('dsSqlUI');
+    if(_sqlDb){ if(ui)ui.style.display='block'; return; }
+    if(_sqlLoading)return; _sqlLoading=true; if(start)start.textContent='⏳ Carico il motore SQL…';
+    function boot(){ try{ initSqlJs({locateFile:function(f){return './lib/'+f;}}).then(function(SQL){ _sqlDb=sqlBuild(SQL); _sqlLoading=false;
+        if(start)start.style.display='none'; if(ui)ui.style.display='block'; sqlRenderPresets();
+        var t=document.getElementById('dsSqlQ'); if(t&&!t.value)t.value=SQL_PRESETS[0][1]; window._dsSqlRun();
+      }).catch(function(){ _sqlLoading=false; if(start)start.textContent='Motore SQL non disponibile'; }); }catch(e){ _sqlLoading=false; if(start)start.textContent='Motore SQL non disponibile'; } }
+    if(typeof initSqlJs!=='undefined'){ boot(); return; }
+    var s=document.createElement('script'); s.src='./lib/sql-wasm.js'; s.onload=boot; s.onerror=function(){ _sqlLoading=false; if(start)start.textContent='Impossibile caricare il motore SQL'; }; document.head.appendChild(s);
+  };
   window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); initGh(); };
 })();
 </script>
