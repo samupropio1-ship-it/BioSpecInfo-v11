@@ -4650,21 +4650,37 @@ function _initBody3D(b){
       cam.position.set(0,0,b.r*5); cam.lookAt(0,0,0); animWD(); _body3d.ren=ren; return;
     }
     // texture (async: forza re-render al load)
-    var mat;
+    var mat, _earthClouds=null;
     function _texTune(t){ try{ t.anisotropy=_body3d._maxAniso||1; if(THREE.SRGBColorSpace)t.colorSpace=THREE.SRGBColorSpace; }catch(e){} return t; }
     if(b.type==='star'){
       var tl=new THREE.TextureLoader();
       var stex=_texTune(tl.load(_texUrl(b.tex), function(){ ren.render(scene,cam); }));
       mat=new THREE.MeshBasicMaterial({map:stex,color:0xffffff});
+    } else if(b.tex==='earth'){
+      // TERRA FOTOREALISTICA: giorno + rilievo (normal) + oceani lucidi (specular) + luci delle città sul lato notturno
+      var tlE=new THREE.TextureLoader();
+      var eDay=_texTune(tlE.load('./textures/earth_day.jpg', function(){ ren.render(scene,cam); }));
+      var eNrm=tlE.load('./textures/earth_normal.jpg');
+      var eSpec=tlE.load('./textures/earth_specular.jpg');
+      var eLit=_texTune(tlE.load('./textures/earth_lights.png', function(){ ren.render(scene,cam); }));
+      mat=new THREE.MeshPhongMaterial({map:eDay,normalMap:eNrm,specularMap:eSpec,specular:0x556677,shininess:18,emissiveMap:eLit,emissive:0xffe08a,emissiveIntensity:1.15});
     } else {
       var tl2=new THREE.TextureLoader();
-      var ptex=_texTune(tl2.load(_texUrl(b.tex), function(){ ren.render(scene,cam); }));
-      mat=new THREE.MeshStandardMaterial({map:ptex,color:0xffffff,roughness:0.9,metalness:0.05});
+      var _src=(b.tex==='moon'||b.tex==='rock')?'./textures/moon.jpg':_texUrl(b.tex);
+      var ptex=_texTune(tl2.load(_src, function(){ ren.render(scene,cam); }));
+      mat=new THREE.MeshStandardMaterial({map:ptex,color:0xffffff,roughness:0.92,metalness:0.04});
     }
     var _sd=_seedFromName(b._name||'x');
     var mesh=new THREE.Mesh(new THREE.SphereGeometry(b.r,64,64),mat);
     mesh.rotation.z=_sd.tilt;
     scene.add(mesh);
+    if(b.tex==='earth'){
+      // strato di nuvole che ruota un po' più veloce del pianeta
+      var tlC=new THREE.TextureLoader();
+      var cloudTex=_texTune(tlC.load('./textures/earth_clouds.png', function(){ ren.render(scene,cam); }));
+      _earthClouds=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.015,64,64),new THREE.MeshPhongMaterial({map:cloudTex,transparent:true,opacity:0.88,depthWrite:false}));
+      _earthClouds.rotation.z=_sd.tilt; scene.add(_earthClouds);
+    }
     if(b.type==='star'){ for(var g=0;g<3;g++){var glow=new THREE.Mesh(new THREE.SphereGeometry(b.r*(1.15+g*0.22),32,32),new THREE.MeshBasicMaterial({color:g===0?0xffdd44:0xff8822,transparent:true,opacity:0.2-g*0.05,side:THREE.BackSide}));scene.add(glow);} }
     if(b.atm){
       var atm=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.05,32,32),new THREE.MeshBasicMaterial({color:b.atm,transparent:true,opacity:0.20,side:THREE.BackSide})); scene.add(atm);
@@ -4679,7 +4695,7 @@ function _initBody3D(b){
     }
     _body3d.raf&&cancelAnimationFrame(_body3d.raf);
     // la rotazione della scena è gestita dal drag condiviso; il pianeta gira comunque su sé stesso
-    function anim(){ _body3d.raf=requestAnimationFrame(anim); mesh.rotation.y+=_sd.spin; ren.render(scene,cam); }
+    function anim(){ _body3d.raf=requestAnimationFrame(anim); mesh.rotation.y+=_sd.spin; if(_earthClouds)_earthClouds.rotation.y+=_sd.spin*1.35; ren.render(scene,cam); }
     anim();
     _body3d.ren=ren;
   } catch(err){ if(_b2dStart(b._name||"", b)) return; _body3dNoGL(wrap); return; }

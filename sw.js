@@ -1,5 +1,5 @@
-// BioSpecInfo Service Worker v37 — network-first, precache dei file pesanti
-var CACHE = 'bsi-v37';
+// BioSpecInfo Service Worker v38 — network-first, precache dei file pesanti
+var CACHE = 'bsi-v38';
 var PRECACHE = [
   './RDKit_minimal.js',
   './RDKit_minimal.wasm',
@@ -7,7 +7,13 @@ var PRECACHE = [
   './three.min.js',
   './three_bloom.js',
   './gltf_loader.js',
-  './smiles-drawer.min.js'
+  './smiles-drawer.min.js',
+  './textures/earth_day.jpg',
+  './textures/earth_clouds.png',
+  './textures/earth_lights.png',
+  './textures/earth_normal.jpg',
+  './textures/earth_specular.jpg',
+  './textures/moon.jpg'
 ];
 
 self.addEventListener('install', function(e){
