@@ -959,6 +959,28 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">👀 Nota da scienziato: i punti non sono <i>perfettamente</i> in linea — la retta è un'<b>approssimazione</b>. R² dice quanto è buona. Vedere i limiti di un modello è metà del mestiere.</div>
   </div>
 
+  <!-- MINI-LAB 2: CLASSIFICAZIONE k-NN -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🎯 Secondo modello — classificazione (k-NN)</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Se la regressione prevede <i>numeri</i>, la <b>classificazione</b> prevede <i>categorie</i>. Domanda a tema farmaci: <b>una molecola attraversa la membrana cellulare?</b> Dipende da <b>idrofobicità</b> (LogP) e <b>peso molecolare</b>. <b>Tocca il grafico</b> per inserire una nuova molecola: il modello guarda i <b>k=5 vicini più simili</b> (k-Nearest Neighbors) e vota.</div>
+    <canvas id="dsKnn" width="600" height="360" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block;cursor:crosshair;touch-action:none"></canvas>
+    <div id="dsKnnOut" style="text-align:center;font-weight:800;font-size:.9rem;margin:9px 0;min-height:20px;color:#9fb3c8">👆 Tocca il grafico per classificare una molecola</div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;align-items:center">
+      <span style="color:#63d6a8;font-size:.8rem;font-weight:700">🟢 attraversa</span>
+      <span style="color:#f4788a;font-size:.8rem;font-weight:700">🔴 non attraversa</span>
+      <span style="color:#f5c451;font-size:.8rem;font-weight:700">⭐ la tua molecola</span>
+      <button onclick="window._dsKnnReset&&window._dsKnnReset()" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">↺ Pulisci</button>
+    </div>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Il k-NN non "impara" una formula: classifica per <b>somiglianza</b>. È il modello più intuitivo — e in cheminformatica la somiglianza tra molecole è un concetto centrale.</div>
+  </div>
+
+  <!-- GLOSSARIO -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:4px">📖 Glossario essenziale</div>
+    <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:10px">I termini che sentirai ogni giorno — spiegati semplici.</div>
+    <div id="dsGloss" style="display:grid;grid-template-columns:1fr;gap:8px"></div>
+  </div>
+
   <!-- CERN -->
   <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:8px">⚛️ Come si entra al CERN</div>
@@ -1114,7 +1136,55 @@ window.BSI_TELEMETRY_URL='';</script>
     var eq=document.getElementById('dsEq'); if(eq)eq.innerHTML='modello:  T ≈ '+_m.toFixed(1)+' · n '+(_q>=0?'+ ':'− ')+Math.abs(_q).toFixed(1)+' °C   ·   R² = '+_r2.toFixed(3);
   }
   window._dsPredict=function(){ var inp=document.getElementById('dsPredIn'),out=document.getElementById('dsPredOut'); if(!inp||!out)return; var x=parseFloat(inp.value); if(isNaN(x)){out.textContent='';return;} out.textContent='→ ≈ '+(_m*x+_q).toFixed(0)+' °C'; };
-  window.initDataSci=function(){ renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); };
+  // ── mini-lab 2: classificazione k-NN (una molecola attraversa la membrana? da LogP e peso) ──
+  var KNN=[
+    {x:0.62,y:0.30,c:1},{x:0.72,y:0.24,c:1},{x:0.55,y:0.40,c:1},{x:0.80,y:0.35,c:1},{x:0.68,y:0.48,c:1},{x:0.60,y:0.22,c:1},{x:0.75,y:0.44,c:1},{x:0.50,y:0.30,c:1},
+    {x:0.22,y:0.55,c:0},{x:0.30,y:0.70,c:0},{x:0.18,y:0.40,c:0},{x:0.35,y:0.82,c:0},{x:0.45,y:0.72,c:0},{x:0.25,y:0.62,c:0},{x:0.40,y:0.88,c:0},{x:0.15,y:0.68,c:0},
+    {x:0.85,y:0.75,c:0},{x:0.90,y:0.85,c:0}
+  ];
+  var _knnQ=null;
+  function knnMap(cv){ var mL=54,mR=18,mT=16,mB=42; return {mL:mL,mR:mR,mT:mT,mB:mB,pw:cv.width-mL-mR,ph:cv.height-mT-mB,
+    X:function(x){return mL+x*(cv.width-mL-mR);}, Y:function(y){return mT+(1-y)*(cv.height-mT-mB);} }; }
+  function knnClassify(q){ var ds=KNN.map(function(p){return {d:Math.sqrt((p.x-q.x)*(p.x-q.x)+(p.y-q.y)*(p.y-q.y)),c:p.c,p:p};}).sort(function(a,b){return a.d-b.d;}); var k=ds.slice(0,5); var v=k.reduce(function(s,e){return s+e.c;},0); return {cls:v>=3?1:0,votes:v,nb:k.map(function(e){return e.p;})}; }
+  function drawKnn(){
+    var cv=document.getElementById('dsKnn'); if(!cv)return; var ctx=cv.getContext('2d'),W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+    var m=knnMap(cv);
+    ctx.strokeStyle='#16273e';ctx.lineWidth=1;ctx.strokeRect(m.mL,m.mT,m.pw,m.ph);
+    ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';
+    ctx.fillText('idrofobicità (LogP) →',(m.mL+W-m.mR)/2,H-10);
+    ctx.save();ctx.translate(16,(m.mT+H-m.mB)/2);ctx.rotate(-Math.PI/2);ctx.fillText('peso molecolare →',0,0);ctx.restore();
+    if(_knnQ){ var rc=knnClassify(_knnQ); rc.nb.forEach(function(p){ ctx.strokeStyle='rgba(245,196,81,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.X(_knnQ.x),m.Y(_knnQ.y));ctx.lineTo(m.X(p.x),m.Y(p.y));ctx.stroke(); }); }
+    KNN.forEach(function(p){ ctx.fillStyle=p.c?'#63d6a8':'#f4788a';ctx.beginPath();ctx.arc(m.X(p.x),m.Y(p.y),5,0,6.283);ctx.fill(); });
+    if(_knnQ){ var rr=knnClassify(_knnQ),col=rr.cls?'#63d6a8':'#f4788a';
+      ctx.fillStyle='#f5c451';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(m.X(_knnQ.x),m.Y(_knnQ.y),7,0,6.283);ctx.fill();ctx.stroke();
+      var out=document.getElementById('dsKnnOut'); if(out){ out.style.color='#e9eef6'; out.innerHTML='Predizione: <span style="color:'+col+'">'+(rr.cls?'🟢 ATTRAVERSA la membrana':'🔴 NON attraversa')+'</span> <span style="color:#6b7d90;font-weight:600">('+rr.votes+'/5 vicini “attraversa”)</span>'; }
+    }
+  }
+  function knnClick(ev){ var cv=document.getElementById('dsKnn'); if(!cv)return; var rect=cv.getBoundingClientRect(); var px=ev.touches?ev.touches[0].clientX:ev.clientX, py=ev.touches?ev.touches[0].clientY:ev.clientY;
+    var m=knnMap(cv),sx=cv.width/rect.width,sy=cv.height/rect.height; var cx=(px-rect.left)*sx, cy=(py-rect.top)*sy;
+    var x=(cx-m.mL)/m.pw, y=1-(cy-m.mT)/m.ph; x=Math.max(0,Math.min(1,x)); y=Math.max(0,Math.min(1,y));
+    _knnQ={x:x,y:y}; drawKnn(); if(ev.cancelable)ev.preventDefault(); }
+  window._dsKnnReset=function(){ _knnQ=null; var o=document.getElementById('dsKnnOut'); if(o){o.style.color='#9fb3c8';o.textContent='👆 Tocca il grafico per classificare una molecola';} drawKnn(); };
+  function initKnn(){ var cv=document.getElementById('dsKnn'); if(!cv)return; if(!cv._bound){ cv._bound=1; cv.addEventListener('click',knnClick); cv.addEventListener('touchstart',knnClick,{passive:false}); } drawKnn(); }
+  var GLOSS=[
+    ['Feature (variabile)','Un dato in ingresso al modello (es. il peso molecolare).'],
+    ['Target (etichetta)','Ciò che vuoi prevedere (es. solubile: sì/no).'],
+    ['Modello','Una funzione che mappa le feature nel target, appresa dai dati.'],
+    ['Supervisionato','Impari da esempi con la risposta nota (regressione, classificazione).'],
+    ['Non supervisionato','Trovi struttura senza etichette (es. clustering).'],
+    ['Regressione','Prevedi un numero continuo (es. una temperatura).'],
+    ['Classificazione','Prevedi una categoria (es. tossico / non tossico).'],
+    ['Training / Test set','Dati per allenare il modello / per valutarlo su casi mai visti.'],
+    ['Overfitting','Il modello “memorizza” i dati e sbaglia sui casi nuovi.'],
+    ['Cross-validation','Valuti il modello su più suddivisioni per fidarti del risultato.'],
+    ['R²','Quanto una regressione spiega la variabilità dei dati (1 = perfetta).'],
+    ['Accuratezza / Precision / Recall','Metriche che misurano quanto bene classifica un modello.'],
+    ['Gradient descent','Come il modello “impara”: minimizza l\'errore a piccoli passi.'],
+    ['Rete neurale','Modello a strati, potente su dati complessi (immagini, spettri).'],
+    ['Descrittore molecolare','Un numero che riassume una proprietà della molecola: input tipico in chimica.']
+  ];
+  function renderGloss(){ var h=document.getElementById('dsGloss'); if(!h)return; h.innerHTML=GLOSS.map(function(g){return '<div style="background:#0a1628;border:1px solid #16273e;border-radius:9px;padding:9px 12px"><b style="color:#a78bfa;font-size:.85rem">'+g[0]+'</b><div style="color:#cdd9e6;font-size:.82rem;line-height:1.5;margin-top:2px">'+g[1]+'</div></div>';}).join(''); }
+  window.initDataSci=function(){ renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); renderGloss(); };
 })();
 </script>
 
