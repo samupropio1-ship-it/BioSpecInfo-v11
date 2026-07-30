@@ -1090,6 +1090,20 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Flusso: <b>crea un repo vuoto</b> su github.com → scarica i file qui → mettili nella cartella → esegui i comandi git. In 2 minuti hai un progetto online.</div>
   </div>
 
+  <!-- CERN LAB: massa invariante -->
+  <div style="background:linear-gradient(135deg,rgba(107,207,255,.1),rgba(124,111,255,.06));border:1px solid #26506a;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:4px">🔬 Cimentati come al CERN — riscopri una particella</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Dati <b>reali</b> dell'esperimento <b>CMS</b> al CERN (100.000 collisioni protone-protone, qui un campione di 9.000). Quando da una collisione escono due <b>muoni</b>, la loro <b>massa invariante</b> rivela la particella da cui provengono: appare come un <b>picco</b>. È esattamente così che si scoprono le particelle (incluso il <b>bosone di Higgs</b>). Carica i dati e trovale tu.</div>
+    <button id="dsCernStart" onclick="window._dsCernInit&&window._dsCernInit()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#6bcfff,#7c6fff);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">▶ Carica i dati del CERN (CMS Open Data)</button>
+    <div id="dsCernUI" style="display:none">
+      <div style="color:#9fb3c8;font-size:.8rem;margin:10px 0 5px">Zoom su una regione (tocca):</div>
+      <div id="dsCernPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"></div>
+      <canvas id="dsCernCv" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
+      <div id="dsCernOut" style="text-align:center;font-weight:800;font-size:.9rem;margin-top:9px;min-height:20px;color:#9fb3c8"></div>
+    </div>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">📈 Asse X = massa invariante dei due muoni (GeV); asse Y = numero di collisioni. Un picco = una particella. Questo è <b>vero lavoro da data scientist al CERN</b>: cercare segnali dentro il rumore. Fonte: <b>CERN Open Data / CMS</b>.</div>
+  </div>
+
   <!-- CERN -->
   <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:8px">⚛️ Come si entra al CERN</div>
@@ -1474,6 +1488,47 @@ window.BSI_TELEMETRY_URL='';</script>
       }).catch(function(){ _sqlLoading=false; if(start)start.textContent='Motore SQL non disponibile'; }); }catch(e){ _sqlLoading=false; if(start)start.textContent='Motore SQL non disponibile'; } }
     if(typeof initSqlJs!=='undefined'){ boot(); return; }
     var s=document.createElement('script'); s.src='./lib/sql-wasm.js'; s.onload=boot; s.onerror=function(){ _sqlLoading=false; if(start)start.textContent='Impossibile caricare il motore SQL'; }; document.head.appendChild(s);
+  };
+  // ── Lab CERN: spettro di massa invariante dei dimuoni (dati reali CMS Open Data) ──
+  var _cern={data:null,loading:false,min:0,max:120,bins:120,log:true};
+  var CERN_PRESETS=[
+    ['Spettro completo',0,120,120,true],
+    ['J/ψ (~3.1)',2,4.2,44,false],
+    ['Υ Upsilon (~9.5)',8.5,11,50,false],
+    ['Bosone Z (~91)',60,120,60,false]
+  ];
+  var CERN_PARTS=[{n:'ρ / ω',m:0.78},{n:'φ',m:1.02},{n:'J/ψ',m:3.10},{n:'ψ(2S)',m:3.69},{n:'Υ (Upsilon)',m:9.46},{n:'Z⁰ (bosone Z)',m:91.19}];
+  function cernPresets(){ var h=document.getElementById('dsCernPresets'); if(!h)return; h.innerHTML=''; CERN_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ _cern.min=p[1];_cern.max=p[2];_cern.bins=p[3];_cern.log=p[4]; cernDraw(); }; h.appendChild(b); }); }
+  function cernDraw(){
+    var cv=document.getElementById('dsCernCv'); if(!cv||!_cern.data)return; var ctx=cv.getContext('2d'),W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+    var mL=52,mR=16,mT=18,mB=40,pw=W-mL-mR,ph=H-mT-mB;
+    var lo=_cern.min,hi=_cern.max,nb=_cern.bins,bw=(hi-lo)/nb;
+    var counts=new Array(nb).fill(0);
+    for(var i=0;i<_cern.data.length;i++){ var m=_cern.data[i]; if(m>=lo&&m<hi){ var bi=Math.floor((m-lo)/bw); if(bi>=0&&bi<nb)counts[bi]++; } }
+    var maxc=Math.max.apply(null,counts)||1;
+    function X(x){return mL+(x-lo)/(hi-lo)*pw;}
+    function Yv(c){ if(_cern.log){ return mT+ph-(Math.log10(c+1)/Math.log10(maxc+1))*ph; } return mT+ph-(c/maxc)*ph; }
+    ctx.strokeStyle='#16273e';ctx.lineWidth=1; ctx.strokeRect(mL,mT,pw,ph);
+    ctx.fillStyle='#6b7d90';ctx.font='11px system-ui';ctx.textAlign='center';
+    var step=(hi-lo)/6; for(var t=0;t<=6;t++){ var xv=lo+step*t; ctx.fillText((xv>=10?xv.toFixed(0):xv.toFixed(1)),X(xv),H-mB+15); }
+    ctx.save();ctx.translate(15,mT+ph/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.fillText('n. collisioni'+(_cern.log?' (log)':''),0,0);ctx.restore();
+    ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('massa invariante dei 2 muoni (GeV)',mL+pw/2,H-8);
+    var peakIdx=0; for(var i=0;i<nb;i++) if(counts[i]>counts[peakIdx]) peakIdx=i;
+    for(var i=0;i<nb;i++){ if(!counts[i])continue; var x0=X(lo+i*bw),x1=X(lo+(i+1)*bw),y=Yv(counts[i]); ctx.fillStyle=(i===peakIdx)?'#6bcfff':'#3f5f8f'; ctx.fillRect(x0,y,Math.max(1,x1-x0-1),mT+ph-y); }
+    CERN_PARTS.forEach(function(p){ if(p.m>lo&&p.m<hi){ var px=X(p.m); ctx.strokeStyle='rgba(245,196,81,.45)';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,mT);ctx.lineTo(px,mT+ph);ctx.stroke();ctx.setLineDash([]); ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText(p.n,px,mT-4); } });
+    var peakM=lo+(peakIdx+0.5)*bw, best=null,bd=1e9; CERN_PARTS.forEach(function(p){ var d=Math.abs(p.m-peakM); if(d<bd){bd=d;best=p;} });
+    var out=document.getElementById('dsCernOut');
+    if(out){ var tol=Math.max(0.4,best.m*0.06); if(best&&bd<=tol){ out.style.color='#6bcfff'; out.innerHTML='🎯 Picco a ~'+peakM.toFixed(peakM<10?2:1)+' GeV → hai riscoperto <b>'+best.n+'</b>!'; } else { out.style.color='#9fb3c8'; out.innerHTML='Picco più alto a ~'+peakM.toFixed(peakM<10?2:1)+' GeV — zooma su una regione per identificare la particella.'; } }
+  }
+  window._dsCernInit=function(){
+    var start=document.getElementById('dsCernStart'), ui=document.getElementById('dsCernUI');
+    if(_cern.data){ if(ui)ui.style.display='block'; return; }
+    if(_cern.loading)return; _cern.loading=true; if(start)start.textContent='⏳ Carico i dati…';
+    function boot(){ _cern.data=(typeof window.DIMUON!=='undefined')?window.DIMUON:null; _cern.loading=false;
+      if(!_cern.data){ if(start)start.textContent='Dati non disponibili'; return; }
+      if(start)start.style.display='none'; if(ui)ui.style.display='block'; cernPresets(); cernDraw(); }
+    if(typeof window.DIMUON!=='undefined'){ boot(); return; }
+    var s=document.createElement('script'); s.src='./lib/dimuon.js'; s.onload=boot; s.onerror=function(){ _cern.loading=false; if(start)start.textContent='Impossibile caricare i dati'; }; document.head.appendChild(s);
   };
   window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); initGh(); };
 })();
