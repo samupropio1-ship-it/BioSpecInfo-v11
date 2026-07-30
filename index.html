@@ -842,6 +842,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="squiz">❓ Quiz</button>
     <button class="nav-btn" data-s="sexam">🎓 Esame UniBA</button>
     <button class="nav-btn" data-s="sstudypath">📚 Percorsi</button>
+    <button class="nav-btn" data-s="sdatasci">📊 Data Science</button>
     <button class="nav-btn" data-s="stheory">📖 Teoria</button>
     <button class="nav-btn" data-s="scustomflash">🃏 Flashcard</button>
   <button class="nav-btn" data-s="sguida">📖 Guida all'uso</button><button class="nav-btn" data-s="sbiochimx">🎓 Biochimica d'esame</button><button class="nav-btn" data-s="sinorgx">⚗️ Inorganica d'esame</button></div>
@@ -864,6 +865,258 @@ window.BSI_TELEMETRY_URL='';</script>
 
 <!-- ═══════════════ MAIN ═══════════════ -->
 <div id="main">
+
+<!-- ══ SECTION: DATA SCIENCE ══ -->
+<div id="sdatasci" class="section">
+  <style>
+    #sdatasci .ds-step{background:#0a1628;border:1px solid #26406a;color:#bcd0e6;font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:20px}
+    #sdatasci .ds-chip{background:rgba(124,111,255,.1);border:1px solid rgba(124,111,255,.4);color:#c9b6ff;font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:9px}
+    #sdatasci .ds-link{background:#0b3a6b;color:#bfe0ff;font-weight:700;font-size:.78rem;padding:7px 12px;border-radius:8px;text-decoration:none}
+    #sdatasci .ds-link:hover{background:#0e4a86}
+    #sdatasci .ds-res{display:flex;flex-direction:column;gap:2px;background:#0a1628;border:1px solid #1a3050;border-radius:10px;padding:9px 11px;text-decoration:none;transition:border-color .15s}
+    #sdatasci .ds-res:hover{border-color:#5eead4}
+    #sdatasci .ds-res b{color:#e9eef6;font-size:.84rem}
+    #sdatasci .ds-res span{color:#8fa3b8;font-size:.72rem}
+    #sdatasci .ds-sk{display:flex;align-items:flex-start;gap:9px;padding:7px 0;cursor:pointer}
+    #sdatasci .ds-sk input{margin-top:3px;width:16px;height:16px;accent-color:#5eead4;flex:none}
+    #sdatasci .ds-sk .l{color:#cdd9e6;font-size:.85rem;line-height:1.45}
+    #sdatasci .ds-sk .l b{color:#e9eef6}
+    #sdatasci .ds-grp{color:#7c6fff;font-weight:800;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 2px}
+    #sdatasci .ds-grp:first-child{margin-top:2px}
+    #sdatasci .ds-tl{display:flex;gap:11px;padding:8px 0}
+    #sdatasci .ds-tl .n{flex:none;width:26px;height:26px;border-radius:50%;background:#0a1628;border:1px solid #5eead4;color:#5eead4;font-weight:800;font-size:.8rem;display:grid;place-items:center}
+    #sdatasci .ds-tl .c b{color:#e9eef6}
+    #sdatasci .ds-tl .c{color:#cdd9e6;font-size:.85rem;line-height:1.55}
+  </style>
+  <div class="section-title">📊 DATA SCIENCE — dalla chimica ai dati</div>
+  <div style="background:linear-gradient(135deg,rgba(124,111,255,.12),rgba(94,234,212,.08));border:1px solid #26406a;border-radius:14px;padding:16px 18px;margin-bottom:16px">
+    <div style="color:#e9eef6;font-weight:800;font-size:1.05rem;margin-bottom:6px">Vuoi diventare data scientist partendo dalla chimica? Sei nel posto giusto.</div>
+    <div style="color:#cdd9e6;font-size:.9rem;line-height:1.65">Un <b>data scientist</b> trasforma i dati in decisioni e scoperte: li raccoglie, li pulisce, costruisce <b>modelli</b> (statistica + machine learning) e ne <b>comunica</b> i risultati. La tua laurea in chimica non è un ostacolo: è un <b>vantaggio raro</b>. Chi capisce <i>sia</i> la scienza <i>sia</i> i dati è prezioso in ricerca (CERN, CNR, INFN) e nell'industria (farma, energia, materiali). Questa sezione è la tua mappa: competenze da spuntare, un primo modello da toccare con mano, e le vie reali verso CERN e CNR.</div>
+  </div>
+
+  <!-- COS'È -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:8px">🧭 Cosa fa davvero un data scientist</div>
+    <div style="color:#cdd9e6;font-size:.87rem;line-height:1.6;margin-bottom:8px">Il lavoro segue un ciclo (spesso chiamato <b>CRISP-DM</b>):</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">
+      <span class="ds-step">1 · Capire il problema</span><span class="ds-step">2 · Raccogliere i dati</span>
+      <span class="ds-step">3 · Pulire & esplorare (EDA)</span><span class="ds-step">4 · Modellare (ML)</span>
+      <span class="ds-step">5 · Valutare</span><span class="ds-step">6 · Comunicare & mettere in produzione</span>
+    </div>
+    <div style="color:#9fb3c8;font-size:.82rem;line-height:1.6;margin-top:9px">In pratica: ~<b>60-70% del tempo</b> è pulire e capire i dati, non addestrare modelli. Serve rigore scientifico — proprio ciò che impari in laboratorio.</div>
+  </div>
+
+  <!-- PUBBLICO VS PRIVATO -->
+  <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px" id="dsPubPriv">
+    <div style="background:#0d1b2e;border:1px solid #1a3050;border-left:3px solid #5eead4;border-radius:0 12px 12px 0;padding:14px 16px">
+      <div style="color:#5eead4;font-weight:800;margin-bottom:6px">🏛️ Pubblico / Ricerca <span style="color:#6b7d90;font-weight:600;font-size:.8rem">— CERN, CNR, INFN, INAF, ISS, università</span></div>
+      <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6">Obiettivo: <b>rispondere a domande scientifiche</b> e pubblicare. Dati enormi e complessi (collisioni di particelle, spettri, simulazioni). Tecnologie open (Python, ROOT, scikit-HEP). Stipendi più contenuti ma <b>stabilità</b>, <b>impatto scientifico</b>, spesso <b>lavoro agile</b>. Si entra per <b>bandi, borse, dottorati, concorsi</b>.</div>
+    </div>
+    <div style="background:#0d1b2e;border:1px solid #1a3050;border-left:3px solid #a78bfa;border-radius:0 12px 12px 0;padding:14px 16px">
+      <div style="color:#a78bfa;font-weight:800;margin-bottom:6px">🏢 Privato / Industria <span style="color:#6b7d90;font-weight:600;font-size:.8rem">— farma, energia, materiali, finance, consulting, tech</span></div>
+      <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6">Obiettivo: <b>valore di business</b> (prodotti, efficienza, previsioni). Ritmi più rapidi, <b>stipendi più alti</b>, forte uso di <b>cloud/MLOps</b>. Nel <b>drug discovery</b> e nei <b>materiali</b> un chimico-data scientist è ricercatissimo. Si entra per <b>candidatura + portfolio</b> (GitHub, Kaggle).</div>
+    </div>
+  </div>
+
+  <!-- CHIMICA SUPERPOTERE -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#f5a623;font-weight:800;font-size:.98rem;margin-bottom:8px">⚗️ Perché la chimica è un superpotere (non un limite)</div>
+    <div style="color:#cdd9e6;font-size:.86rem;line-height:1.6;margin-bottom:9px">Esistono campi dove serve <b>dominio scientifico + dati</b>, e lì un chimico batte un informatico puro:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">
+      <span class="ds-chip">🔬 Chemiometria (PCA, PLS su spettri)</span>
+      <span class="ds-chip">💊 Cheminformatica & QSAR (RDKit, ChEMBL)</span>
+      <span class="ds-chip">🧱 Materials informatics (Materials Project)</span>
+      <span class="ds-chip">📈 Spettroscopia + ML</span>
+      <span class="ds-chip">🧪 Drug discovery</span>
+      <span class="ds-chip">⚛️ Chimica computazionale</span>
+    </div>
+    <div style="color:#9fb3c8;font-size:.82rem;line-height:1.6;margin-top:9px">💡 Lo stai già facendo: questa app usa <b>RDKit</b> (la libreria n°1 di cheminformatica) per analizzare molecole. È esattamente lo stack di un data scientist in chimica.</div>
+  </div>
+
+  <!-- CHECKLIST COMPETENZE -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <div style="color:#5eead4;font-weight:800;font-size:.98rem">🗺️ Roadmap delle competenze</div>
+      <div style="color:#9fb3c8;font-size:.78rem">Spunta ciò che sai — il progresso resta salvato sul dispositivo</div>
+    </div>
+    <div style="height:10px;background:#0a1628;border-radius:6px;overflow:hidden;margin:8px 0 4px;border:1px solid #1a3050"><div id="dsProgBar" style="height:100%;width:0%;background:linear-gradient(90deg,#7c6fff,#5eead4);transition:width .3s"></div></div>
+    <div id="dsProgTxt" style="color:#9fb3c8;font-size:.8rem;margin-bottom:10px">0 / 0 competenze</div>
+    <div id="dsSkills"></div>
+  </div>
+
+  <!-- MINI-LAB -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🧪 Il tuo primo modello — regressione lineare</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Un modello di ML nella sua forma più semplice. Dati <b>reali</b>: il punto di ebollizione degli <b>alcani lineari</b> cresce con il numero di atomi di carbonio. Il modello impara la retta che meglio approssima i punti (minimi quadrati) e può <b>predire</b>.</div>
+    <canvas id="dsCanvas" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
+    <div id="dsEq" style="color:#5eead4;font-family:ui-monospace,monospace;font-size:.84rem;margin:9px 0;text-align:center"></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
+      <label style="color:#cdd9e6;font-size:.84rem">Predici per <b>n</b> atomi di C:</label>
+      <input id="dsPredIn" type="number" min="1" max="30" value="12" style="width:76px;padding:6px 9px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.85rem">
+      <button onclick="window._dsPredict&&window._dsPredict()" style="padding:6px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Predici →</button>
+      <span id="dsPredOut" style="color:#f5a623;font-weight:800;font-size:.9rem"></span>
+    </div>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">👀 Nota da scienziato: i punti non sono <i>perfettamente</i> in linea — la retta è un'<b>approssimazione</b>. R² dice quanto è buona. Vedere i limiti di un modello è metà del mestiere.</div>
+  </div>
+
+  <!-- CERN -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:8px">⚛️ Come si entra al CERN</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.65;margin-bottom:8px">Al CERN si lavora con dataset colossali (miliardi di collisioni): serve <b>Python, C++, statistica, machine learning</b> e strumenti come <b>ROOT</b> e <b>scikit-HEP</b>. I programmi ufficiali:</div>
+    <ul style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin:0 0 8px;padding-left:18px">
+      <li><b>Summer Student Programme</b> — per studenti di laurea/magistrale: settimane a Ginevra tra fisica e computing.</li>
+      <li><b>Technical Student Programme</b> — 4-14 mesi, anche per la <b>tesi</b>: c'è l'ambito <b>ICT/data</b>.</li>
+      <li><b>Doctoral Student</b> e <b>Fellowship</b> — dopo la magistrale/dottorato.</li>
+      <li><b>CERN openlab</b> — collaborazione CERN-industria su calcolo e <b>ML</b>: ha un summer student dedicato.</li>
+    </ul>
+    <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-radius:9px;padding:9px 12px;color:#cdd9e6;font-size:.82rem;line-height:1.55;margin-bottom:9px">⚠️ <b>Sul “smart working”</b>: il CERN è a Ginevra ed è prevalentemente <b>in presenza</b>. Molta analisi dati si fa da remoto tramite la griglia mondiale (WLCG), ma i programmi ufficiali richiedono presenza. Con una <b>triennale</b> si entra tipicamente come <b>summer student</b>; per un ruolo da data scientist serve di norma la <b>magistrale</b> + portfolio.</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <a href="https://careers.cern/students" target="_blank" rel="noopener" class="ds-link">CERN · Students ↗</a>
+      <a href="https://openlab.cern" target="_blank" rel="noopener" class="ds-link">CERN openlab ↗</a>
+      <a href="https://opendata.cern.ch" target="_blank" rel="noopener" class="ds-link">CERN Open Data ↗</a>
+      <a href="https://home.infn.it" target="_blank" rel="noopener" class="ds-link">INFN (Italia) ↗</a>
+    </div>
+  </div>
+
+  <!-- CNR -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#63d6a8;font-weight:800;font-size:.98rem;margin-bottom:8px">🇮🇹 Come si entra al CNR</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.65;margin-bottom:8px">Il CNR è il maggiore ente pubblico di ricerca italiano, con istituti dove <b>chimica e dati</b> si incontrano. Le vie d'ingresso:</div>
+    <ul style="color:#cdd9e6;font-size:.85rem;line-height:1.7;margin:0 0 8px;padding-left:18px">
+      <li><b>Assegni di ricerca</b> e <b>borse</b> — la porta più comune dopo la laurea (bandi periodici).</li>
+      <li><b>Dottorato di ricerca</b> — in convenzione con le università, spesso su temi computazionali.</li>
+      <li><b>Concorsi</b> da <b>Ricercatore/Tecnologo</b> — posizioni strutturate.</li>
+    </ul>
+    <div style="color:#9fb3c8;font-size:.83rem;line-height:1.6;margin-bottom:8px">Istituti interessanti per te: <b>SCITEC</b> (Scienze e Tecnologie Chimiche “Giulio Natta”), <b>ICCOM</b>, <b>IPCF</b>. Nel pubblico italiano il <b>lavoro agile</b> è più diffuso, ma dipende dal bando/istituto.</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <a href="https://www.cnr.it/it/lavora-con-noi" target="_blank" rel="noopener" class="ds-link">CNR · Lavora con noi ↗</a>
+      <a href="https://www.scitec.cnr.it" target="_blank" rel="noopener" class="ds-link">CNR SCITEC ↗</a>
+      <a href="https://www.cnr.it" target="_blank" rel="noopener" class="ds-link">CNR ↗</a>
+    </div>
+  </div>
+
+  <!-- RISORSE -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:9px">📚 Risorse gratuite per iniziare oggi</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+      <a href="https://www.kaggle.com/learn" target="_blank" rel="noopener" class="ds-res"><b>Kaggle Learn</b><span>Micro-corsi Python/ML gratis</span></a>
+      <a href="https://www.kaggle.com" target="_blank" rel="noopener" class="ds-res"><b>Kaggle</b><span>Competizioni + dataset + portfolio</span></a>
+      <a href="https://www.freecodecamp.org/learn/data-analysis-with-python/" target="_blank" rel="noopener" class="ds-res"><b>freeCodeCamp</b><span>Data Analysis with Python</span></a>
+      <a href="https://www.fast.ai" target="_blank" rel="noopener" class="ds-res"><b>fast.ai</b><span>Deep learning pratico, gratis</span></a>
+      <a href="https://jakevdp.github.io/PythonDataScienceHandbook/" target="_blank" rel="noopener" class="ds-res"><b>Python DS Handbook</b><span>Libro completo online gratis</span></a>
+      <a href="https://scikit-learn.org/stable/" target="_blank" rel="noopener" class="ds-res"><b>scikit-learn</b><span>La libreria ML di riferimento</span></a>
+      <a href="https://www.rdkit.org/docs/" target="_blank" rel="noopener" class="ds-res"><b>RDKit</b><span>Cheminformatica (già in quest'app)</span></a>
+      <a href="https://scikit-hep.org" target="_blank" rel="noopener" class="ds-res"><b>scikit-HEP · ROOT</b><span>Stack dati della fisica (CERN)</span></a>
+      <a href="https://www.youtube.com/@statquest" target="_blank" rel="noopener" class="ds-res"><b>StatQuest</b><span>Statistica/ML spiegati semplici</span></a>
+      <a href="https://www.youtube.com/@3blue1brown" target="_blank" rel="noopener" class="ds-res"><b>3Blue1Brown</b><span>Algebra lineare & calcolo, visuale</span></a>
+      <a href="https://materialsproject.org" target="_blank" rel="noopener" class="ds-res"><b>Materials Project</b><span>Dataset di materiali</span></a>
+      <a href="https://www.ebi.ac.uk/chembl/" target="_blank" rel="noopener" class="ds-res"><b>ChEMBL · PubChem</b><span>Dataset di molecole/farmaci</span></a>
+    </div>
+  </div>
+
+  <!-- PERCORSO -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:8px">
+    <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:10px">🚀 Il tuo percorso, passo per passo</div>
+    <div id="dsTimeline"></div>
+    <div style="background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.3);border-radius:9px;padding:10px 13px;color:#cdd9e6;font-size:.83rem;line-height:1.6;margin-top:10px">🌟 <b>La verità onesta e incoraggiante:</b> la triennale in chimica <b>da sola</b> raramente basta per un ruolo da data scientist al CERN/CNR — ma è un <b>ottimo punto di partenza</b>. La via realistica è: triennale → costruisci competenze dati + portfolio → <b>magistrale</b> orientata (Data Science, Chemiometria, Physics of Data, o chimica con tesi computazionale) → summer/technical student CERN o assegno/dottorato CNR. Ci puoi arrivare. Un passo alla volta.</div>
+  </div>
+</div>
+<script>
+(function(){
+  var DS_SKILLS=[
+    ['Fondamenta',[
+      ['py','<b>Python</b> — il linguaggio n°1 della data science'],
+      ['pn','<b>pandas & NumPy</b> — manipolare tabelle e array'],
+      ['viz','<b>Visualizzazione</b> — matplotlib / seaborn / plotly'],
+      ['jup','<b>Jupyter Notebook</b> — l\'ambiente di lavoro']
+    ]],
+    ['Matematica di base',[
+      ['stat','<b>Statistica & probabilità</b> — media, varianza, distribuzioni, test'],
+      ['lin','<b>Algebra lineare</b> — vettori e matrici (basi)'],
+      ['cal','<b>Calcolo</b> — derivate, gradiente (basi)']
+    ]],
+    ['Dati',[
+      ['sql','<b>SQL & database</b> — interrogare i dati'],
+      ['clean','<b>Data wrangling</b> — pulizia e trasformazione'],
+      ['eda','<b>EDA</b> — analisi esplorativa dei dati']
+    ]],
+    ['Machine Learning',[
+      ['reg','<b>Regressione</b> — prevedere valori continui'],
+      ['clf','<b>Classificazione</b> — prevedere categorie'],
+      ['clus','<b>Clustering</b> — trovare gruppi (non supervisionato)'],
+      ['val','<b>Validazione</b> — train/test, cross-validation'],
+      ['over','<b>Overfitting & regolarizzazione</b>'],
+      ['skl','<b>scikit-learn</b> — la cassetta degli attrezzi ML']
+    ]],
+    ['Avanzato',[
+      ['dl','<b>Deep learning</b> — reti neurali (PyTorch/TensorFlow, basi)']
+    ]],
+    ['Strumenti del mestiere',[
+      ['git','<b>Git & GitHub</b> — versioning e portfolio'],
+      ['lin2','<b>Linux / terminale</b>'],
+      ['env','<b>Ambienti</b> — conda / venv, Docker (basi)']
+    ]],
+    ['Il tuo vantaggio: chimica + dati',[
+      ['rdkit','<b>RDKit & descrittori molecolari</b>'],
+      ['chemo','<b>Chemiometria</b> — PCA, PLS sugli spettri'],
+      ['dbchem','<b>Dataset chimici</b> — ChEMBL, PubChem, Materials Project']
+    ]],
+    ['Per la ricerca (CERN/CNR)',[
+      ['root','<b>ROOT / scikit-HEP</b> — analisi dati della fisica'],
+      ['big','<b>Big data</b> — Dask/Spark, cloud (basi)']
+    ]]
+  ];
+  function getProg(){ try{return JSON.parse(localStorage.getItem('bsi_ds_prog')||'{}');}catch(e){return {};} }
+  function setProg(p){ try{localStorage.setItem('bsi_ds_prog',JSON.stringify(p));}catch(e){} }
+  function total(){ var n=0; DS_SKILLS.forEach(function(g){n+=g[1].length;}); return n; }
+  function updateBar(){ var p=getProg(),done=0; DS_SKILLS.forEach(function(g){g[1].forEach(function(s){if(p[s[0]])done++;});}); var t=total();
+    var bar=document.getElementById('dsProgBar'),txt=document.getElementById('dsProgTxt');
+    if(bar)bar.style.width=(t?Math.round(done/t*100):0)+'%';
+    if(txt)txt.textContent=done+' / '+t+' competenze'+(t&&done===t?' — completato! 🎉':''); }
+  function renderSkills(){
+    var host=document.getElementById('dsSkills'); if(!host)return; var p=getProg(),h='';
+    DS_SKILLS.forEach(function(g){ h+='<div class="ds-grp">'+g[0]+'</div>';
+      g[1].forEach(function(s){ h+='<label class="ds-sk"><input type="checkbox" data-sk="'+s[0]+'"'+(p[s[0]]?' checked':'')+'><span class="l">'+s[1]+'</span></label>'; });
+    });
+    host.innerHTML=h;
+    host.querySelectorAll('input[data-sk]').forEach(function(cb){ cb.onchange=function(){ var pr=getProg(); if(cb.checked)pr[cb.getAttribute('data-sk')]=1; else delete pr[cb.getAttribute('data-sk')]; setProg(pr); updateBar(); }; });
+    updateBar();
+  }
+  var TL=[
+    ['1','<b>Adesso (triennale)</b> — impara Python + pandas su <b>Kaggle Learn</b> e completa un piccolo progetto con dati reali.'],
+    ['2','<b>Tesi triennale</b> — se puoi, orientala su <b>dati/chemiometria</b> (RDKit lo usi già in questa app).'],
+    ['3','<b>Portfolio</b> — apri un <b>GitHub</b>, pubblica 2-3 progetti, prova una competizione <b>Kaggle</b>.'],
+    ['4','<b>Magistrale mirata</b> — Data Science, Chemiometria, <i>Physics of Data</i>, o chimica con tesi computazionale.'],
+    ['5','<b>Esperienze</b> — <b>CERN Summer/Technical Student</b>, tirocini, assegni; continua a costruire il portfolio.'],
+    ['6','<b>Ingresso</b> — Technical Student/Fellowship al <b>CERN</b> · assegno o dottorato al <b>CNR</b> · oppure il <b>privato</b> (farma/energia/materiali).']
+  ];
+  function renderTL(){ var host=document.getElementById('dsTimeline'); if(!host)return; host.innerHTML=TL.map(function(t){return '<div class="ds-tl"><div class="n">'+t[0]+'</div><div class="c">'+t[1]+'</div></div>';}).join(''); }
+  // ── mini-lab: regressione lineare sui punti di ebollizione degli n-alcani (dati reali) ──
+  var DATA=[[1,-161.5],[2,-88.6],[3,-42.1],[4,-0.5],[5,36.1],[6,68.7],[7,98.4],[8,125.7],[9,150.8],[10,174.1]];
+  var _m=0,_q=0,_r2=0;
+  function fit(){ var n=DATA.length,sx=0,sy=0,sxy=0,sxx=0; DATA.forEach(function(d){sx+=d[0];sy+=d[1];sxy+=d[0]*d[1];sxx+=d[0]*d[0];});
+    _m=(n*sxy-sx*sy)/(n*sxx-sx*sx); _q=(sy-_m*sx)/n;
+    var my=sy/n,ssr=0,sst=0; DATA.forEach(function(d){var pr=_m*d[0]+_q; ssr+=(d[1]-pr)*(d[1]-pr); sst+=(d[1]-my)*(d[1]-my);}); _r2=1-ssr/sst; }
+  function draw(){
+    var cv=document.getElementById('dsCanvas'); if(!cv)return; var ctx=cv.getContext('2d'); var W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
+    var mL=54,mR=18,mT=16,mB=42,pw=W-mL-mR,ph=H-mT-mB; var xmin=0,xmax=11,ymin=-200,ymax=220;
+    function X(x){return mL+(x-xmin)/(xmax-xmin)*pw;} function Y(y){return mT+(1-(y-ymin)/(ymax-ymin))*ph;}
+    ctx.strokeStyle='#16273e';ctx.lineWidth=1;ctx.fillStyle='#6b7d90';ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+    for(var yy=-200;yy<=200;yy+=100){ ctx.beginPath();ctx.moveTo(mL,Y(yy));ctx.lineTo(W-mR,Y(yy));ctx.stroke(); ctx.fillText(yy+'°',mL-6,Y(yy)); }
+    ctx.textAlign='center';ctx.textBaseline='alphabetic';
+    for(var xx=2;xx<=10;xx+=2){ ctx.fillText(xx,X(xx),H-mB+16); }
+    ctx.strokeStyle='#2a3f5f';ctx.beginPath();ctx.moveTo(mL,Y(0));ctx.lineTo(W-mR,Y(0));ctx.stroke();
+    ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.fillText('n° atomi di carbonio',(mL+W-mR)/2,H-8);
+    ctx.save();ctx.translate(15,(mT+H-mB)/2);ctx.rotate(-Math.PI/2);ctx.fillText('T di ebollizione (°C)',0,0);ctx.restore();
+    ctx.strokeStyle='rgba(245,166,35,.55)';ctx.lineWidth=1; DATA.forEach(function(d){var pr=_m*d[0]+_q;ctx.beginPath();ctx.moveTo(X(d[0]),Y(d[1]));ctx.lineTo(X(d[0]),Y(pr));ctx.stroke();});
+    ctx.strokeStyle='#5eead4';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(X(0),Y(_q));ctx.lineTo(X(11),Y(_m*11+_q));ctx.stroke();
+    DATA.forEach(function(d){ ctx.fillStyle='#7c6fff';ctx.beginPath();ctx.arc(X(d[0]),Y(d[1]),4.5,0,6.283);ctx.fill(); ctx.strokeStyle='#c9b6ff';ctx.lineWidth=1;ctx.stroke();});
+    var eq=document.getElementById('dsEq'); if(eq)eq.innerHTML='modello:  T ≈ '+_m.toFixed(1)+' · n '+(_q>=0?'+ ':'− ')+Math.abs(_q).toFixed(1)+' °C   ·   R² = '+_r2.toFixed(3);
+  }
+  window._dsPredict=function(){ var inp=document.getElementById('dsPredIn'),out=document.getElementById('dsPredOut'); if(!inp||!out)return; var x=parseFloat(inp.value); if(isNaN(x)){out.textContent='';return;} out.textContent='→ ≈ '+(_m*x+_q).toFixed(0)+' °C'; };
+  window.initDataSci=function(){ renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); };
+})();
+</script>
 
 <!-- ══ SECTION: MOLECOLA ══ -->
 <div id="scentro" class="section"><div class="section-title">🌈 CENTRO SPETTROSCOPICO</div><div class="ctr-search"><input id="ctrSmiles" type="text" placeholder="Nome, SMILES, formula o CID… (es. aspirina, CCO, C9H8O4)" autocomplete="off"><button id="ctrGo">Analizza</button><button id="ctrFromEditor" title="Usa la molecola disegnata nell'editor">↩ Editor</button></div><div id="ctrStatus" class="ctr-status"></div><div id="ctrMolHead" class="ctr-molhead"></div><div class="ctr-bar"><button class="ctrb on" data-ctr="edit">✏️ Editor</button><button class="ctrb" data-ctr="ir">📊 IR</button><button class="ctrb" data-ctr="nmr">〰 ¹H-NMR</button><button class="ctrb" data-ctr="c13">📐 ¹³C-NMR</button><button class="ctrb" data-ctr="d3">🧊 Struttura 3D</button><button class="ctrb" data-ctr="map">🗺️ Mappa</button><button class="ctrb" data-ctr="real">🔬 Spettri reali</button><button class="ctrb" data-ctr="cmp">⚖️ Confronto</button><button class="ctrb" data-ctr="more">➕ Altre</button></div><div id="ctrEdit" class="ctrp on">
@@ -1874,6 +2127,7 @@ window.onload = function(){
       if(sec==='serrori' && typeof window.initErroriComuni==='function') window.initErroriComuni();
       if(sec==='ssteich' && typeof window.initStechio==='function') window.initStechio();
       if(sec==='spubchem' && typeof window.initPubChem==='function') window.initPubChem();
+      if(sec==='sdatasci' && typeof window.initDataSci==='function') window.initDataSci();
       if(typeof initMap!=='undefined'&&initMap[sec]&&typeof window[initMap[sec]]==='function'){window[initMap[sec]]();}
     };
   });
