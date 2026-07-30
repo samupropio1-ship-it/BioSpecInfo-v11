@@ -887,6 +887,18 @@ window.BSI_TELEMETRY_URL='';</script>
     #sdatasci .ds-tl .n{flex:none;width:26px;height:26px;border-radius:50%;background:#0a1628;border:1px solid #5eead4;color:#5eead4;font-weight:800;font-size:.8rem;display:grid;place-items:center}
     #sdatasci .ds-tl .c b{color:#e9eef6}
     #sdatasci .ds-tl .c{color:#cdd9e6;font-size:.85rem;line-height:1.55}
+    #sdatasci .ds-gh-b{padding:7px 11px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.78rem;font-weight:700}
+    #sdatasci .ds-gh-b:hover{border-color:#a78bfa}
+    #sdatasci .ds-gh-t{padding:5px 11px;border-radius:20px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700}
+    #sdatasci .ds-gh-t.on{background:#241a45;border-color:#a78bfa;color:#c9b6ff}
+    #sdatasci .ds-scode{position:relative;background:#070f1c;border:1px solid #16273e;border-radius:9px;margin:6px 0 2px}
+    #sdatasci .ds-scode pre{margin:0;padding:11px 12px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.5;overflow-x:auto;white-space:pre}
+    #sdatasci .ds-scode button{position:absolute;top:6px;right:6px;padding:3px 9px;border-radius:6px;border:1px solid #26406a;background:#0a1628;color:#8fe6c8;cursor:pointer;font-size:.7rem;font-weight:700}
+    #sdatasci .ds-scode button.ok{border-color:#63d6a8;color:#63d6a8}
+    #sdatasci .ds-sstep{display:flex;gap:10px;margin:12px 0 2px}
+    #sdatasci .ds-sstep .n{flex:none;width:24px;height:24px;border-radius:7px;background:#0a1628;border:1px solid #5eead4;color:#5eead4;font-weight:800;font-size:.78rem;display:grid;place-items:center}
+    #sdatasci .ds-sstep .t{color:#e9eef6;font-weight:700;font-size:.88rem}
+    #sdatasci .ds-sstep .t small{display:block;color:#9fb3c8;font-weight:500;font-size:.8rem;line-height:1.5;margin-top:2px}
   </style>
   <div class="section-title">📊 DATA SCIENCE — dalla chimica ai dati</div>
   <div style="background:linear-gradient(135deg,rgba(124,111,255,.12),rgba(94,234,212,.08));border:1px solid #26406a;border-radius:14px;padding:16px 18px;margin-bottom:16px">
@@ -1014,6 +1026,43 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="height:10px;background:#0a1628;border-radius:6px;overflow:hidden;margin:6px 0 4px;border:1px solid #1a3050"><div id="dsProjBar" style="height:100%;width:0%;background:linear-gradient(90deg,#63d6a8,#5eead4);transition:width .3s"></div></div>
     <div id="dsProjTxt" style="color:#9fb3c8;font-size:.8rem;margin-bottom:10px">0 / 0 progetti</div>
     <div id="dsProjects"></div>
+  </div>
+
+  <!-- SCARICA GUIDA -->
+  <div style="background:linear-gradient(135deg,rgba(245,166,35,.1),rgba(124,111,255,.06));border:1px solid #3a3a5a;border-radius:12px;padding:14px 16px;margin-bottom:14px">
+    <div style="color:#f5a623;font-weight:800;font-size:.95rem;margin-bottom:5px">⬇️ Guida completa (corsi + progetti) — da scaricare</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">L'ordine con cui affrontare i <b>tuoi corsi</b> e le <b>tracce di tutti i progetti</b> (tranne la Solubilità, guidata qui sotto) sono in un <b>file a parte</b>, da tenere sul telefono o sul PC.</div>
+    <a href="./docs/Guida-DataScience-Corsi-Progetti.md" download="Guida-DataScience-Corsi-Progetti.md" style="display:inline-block;padding:9px 16px;border-radius:9px;background:linear-gradient(135deg,#f5a623,#7c6fff);color:#04121e;font-weight:800;text-decoration:none;font-size:.86rem">⬇️ Scarica la guida (.md)</a>
+  </div>
+
+  <!-- PROGETTO GUIDATO: SOLUBILITÀ -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:4px">🧪 Progetto guidato: predici la solubilità (RDKit + Machine Learning)</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Il progetto perfetto per unire i tuoi corsi: da una molecola (SMILES) ai suoi <b>descrittori</b>, fino a un <b>modello</b> che predice la solubilità. Segui i passi in ordine — ogni blocco di <b>codice si copia con un tocco</b> ed è pronto da incollare in un notebook.</div>
+    <div id="dsSolub"></div>
+  </div>
+
+  <!-- TOOLKIT GITHUB -->
+  <div style="background:#0d1b2e;border:1px solid #7c6fff;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🛠️ Toolkit GitHub — il tuo braccio destro</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Non solo una guida: qui l'app ti <b>genera i file di partenza</b> di un progetto (README, requirements, script Python <b>reale</b>), pronti da mettere su GitHub. Scegli il tipo, dai un nome al repo, <b>scarica i file</b> e lancia i comandi git.</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
+      <label style="color:#9fb3c8;font-size:.82rem">nome repo:</label>
+      <input id="dsGhName" value="solubilita-ml" oninput="window._dsGhSync&&window._dsGhSync()" style="flex:1;min-width:150px;padding:7px 10px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.84rem;font-family:ui-monospace,monospace">
+    </div>
+    <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:5px">tipo di progetto:</div>
+    <div id="dsGhTpl" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+      <button onclick="window._dsGhDl&&window._dsGhDl('readme')" class="ds-gh-b">⬇️ README.md</button>
+      <button onclick="window._dsGhDl&&window._dsGhDl('req')" class="ds-gh-b">⬇️ requirements.txt</button>
+      <button onclick="window._dsGhDl&&window._dsGhDl('script')" class="ds-gh-b">⬇️ starter.py</button>
+      <button onclick="window._dsGhDl&&window._dsGhDl('gitignore')" class="ds-gh-b">⬇️ .gitignore</button>
+      <button onclick="window._dsGhZipAll&&window._dsGhZipAll()" class="ds-gh-b" style="border-color:#5eead4;color:#5eead4">⬇️ tutti i file</button>
+    </div>
+    <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:4px">comandi git (crea il repo su GitHub, poi):</div>
+    <pre id="dsGitOut" style="background:#070f1c;border:1px solid #16273e;border-radius:9px;padding:11px 12px;color:#8fe6c8;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.55;overflow-x:auto;white-space:pre;margin:0"></pre>
+    <button onclick="window._dsGhCopyGit&&window._dsGhCopyGit()" style="margin-top:7px;padding:6px 12px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.78rem;font-weight:700">📋 Copia i comandi git</button>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Flusso: <b>crea un repo vuoto</b> su github.com → scarica i file qui → mettili nella cartella → esegui i comandi git. In 2 minuti hai un progetto online.</div>
   </div>
 
   <!-- CERN -->
@@ -1291,7 +1340,63 @@ window.BSI_TELEMETRY_URL='';</script>
     host.querySelectorAll('input[data-pj]').forEach(function(cb){ cb.onchange=function(){ var pr=getProj(); if(cb.checked)pr[cb.getAttribute('data-pj')]=1; else delete pr[cb.getAttribute('data-pj')]; setProjS(pr); updateProjBar(); }; });
     updateProjBar();
   }
-  window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); };
+  // ── helper: copia testo, scarica file, escape HTML ──
+  function dsFallbackCopy(t){ try{var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}catch(e){} }
+  function dsCopy(text,btn){ var ok=function(){ if(btn){var o=btn.textContent;btn.textContent='copiato ✓';btn.classList.add('ok');setTimeout(function(){btn.textContent=o;btn.classList.remove('ok');},1200);} };
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,function(){dsFallbackCopy(text);ok();});} else {dsFallbackCopy(text);ok();} }catch(e){} }
+  function dsDownload(fn,text){ try{var blob=new Blob([text],{type:'text/plain;charset=utf-8'});var u=URL.createObjectURL(blob);var a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u);},120);}catch(e){} }
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  // ── progetto guidato: solubilità ──
+  var SOLUB=[
+    ['Prepara l\'ambiente','Installa le librerie (una volta sola). RDKit per la chimica, scikit-learn per il modello.',
+     'pip install rdkit scikit-learn pandas matplotlib'],
+    ['Carica i dati (ESOL / Delaney)','Un dataset classico: molecole (SMILES) con la loro solubilità misurata (logS).',
+     'import pandas as pd\nurl = "https://raw.githubusercontent.com/deepchem/deepchem/master/datasets/delaney-processed.csv"\ndf = pd.read_csv(url).rename(columns={\n    "measured log solubility in mols per litre": "logS",\n    "smiles": "SMILES"})\nprint(df.shape)\ndf[["SMILES", "logS"]].head()'],
+    ['Calcola i descrittori con RDKit','Ogni SMILES diventa numeri (feature): peso, LogP, area polare, legami a idrogeno, ecc.',
+     'from rdkit import Chem\nfrom rdkit.Chem import Descriptors, Crippen\n\ndef descrittori(smiles):\n    m = Chem.MolFromSmiles(smiles)\n    if m is None:\n        return None\n    return {\n        "MolWt": Descriptors.MolWt(m),\n        "LogP": Crippen.MolLogP(m),\n        "TPSA": Descriptors.TPSA(m),\n        "HBD": Descriptors.NumHDonors(m),\n        "HBA": Descriptors.NumHAcceptors(m),\n        "RotB": Descriptors.NumRotatableBonds(m),\n        "AromRings": Descriptors.NumAromaticRings(m),\n    }\n\nfeat = df["SMILES"].apply(descrittori).apply(pd.Series)\ndata = pd.concat([feat, df["logS"]], axis=1).dropna()\nX = data.drop(columns="logS")\ny = data["logS"]\nX.head()'],
+    ['Dividi in training e test','Alleni su una parte, valuti su dati mai visti: cosi sai se il modello generalizza.',
+     'from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42)'],
+    ['Allena il modello','Un Random Forest: robusto e ottimo come primo modello di regressione.',
+     'from sklearn.ensemble import RandomForestRegressor\nmodel = RandomForestRegressor(n_estimators=300, random_state=42)\nmodel.fit(X_train, y_train)'],
+    ['Valuta e visualizza','R2 e RMSE dicono quanto e buono; il grafico predetto-vs-reale lo mostra a colpo d\'occhio.',
+     'import numpy as np, matplotlib.pyplot as plt\nfrom sklearn.metrics import r2_score, mean_squared_error\n\npred = model.predict(X_test)\nprint("R2  :", round(r2_score(y_test, pred), 3))\nprint("RMSE:", round(np.sqrt(mean_squared_error(y_test, pred)), 3))\n\nplt.scatter(y_test, pred, alpha=.6)\nlims = [y_test.min(), y_test.max()]\nplt.plot(lims, lims, "r--")\nplt.xlabel("logS reale"); plt.ylabel("logS predetto")\nplt.title("Solubilita: predetto vs reale")\nplt.tight_layout(); plt.savefig("risultato.png", dpi=120); plt.show()\n\n# quali feature contano di piu\nimp = pd.Series(model.feature_importances_, index=X.columns)\nprint(imp.sort_values(ascending=False))'],
+    ['Pubblica su GitHub','Il tocco finale: un README chiaro e il push. Ora e un progetto mostrabile.',
+     'git init\ngit add .\ngit commit -m "Predizione della solubilita (RDKit + RandomForest)"\ngit branch -M main\ngit remote add origin https://github.com/TUO-UTENTE/solubilita-ml.git\ngit push -u origin main']
+  ];
+  function renderSolub(){ var h=document.getElementById('dsSolub'); if(!h)return; var out='';
+    SOLUB.forEach(function(s,i){ out+='<div class="ds-sstep"><div class="n">'+(i+1)+'</div><div class="t">'+s[0]+'<small>'+s[1]+'</small></div></div>'
+      +'<div class="ds-scode"><button data-code="'+encodeURIComponent(s[2])+'">copia</button><pre>'+esc(s[2])+'</pre></div>'; });
+    h.innerHTML=out;
+    h.querySelectorAll('.ds-scode button').forEach(function(b){ b.onclick=function(){ dsCopy(decodeURIComponent(b.getAttribute('data-code')),b); }; });
+  }
+  // ── Toolkit GitHub: genera file di partenza reali per tipo di progetto ──
+  var GH_TPL={
+    regressione:{ label:'Regressione (solubilità)', pkg:'rdkit\nscikit-learn\npandas\nnumpy\nmatplotlib\n', desc:'Predizione di una proprietà continua (es. solubilità) da descrittori molecolari.' },
+    classificazione:{ label:'Classificazione (attività)', pkg:'rdkit\nscikit-learn\npandas\nnumpy\nmatplotlib\n', desc:'Predizione di una categoria (es. attivo/inattivo) da descrittori molecolari.' },
+    clustering:{ label:'Clustering molecolare', pkg:'rdkit\nscikit-learn\npandas\nnumpy\nmatplotlib\n', desc:'Raggruppamento non supervisionato di molecole simili (fingerprint + KMeans).' },
+    eda:{ label:'EDA (analisi dati)', pkg:'pandas\nnumpy\nmatplotlib\nseaborn\n', desc:'Analisi esplorativa di un dataset: statistiche e grafici.' }
+  };
+  var GH_IGNORE='__pycache__/\n*.pyc\n.ipynb_checkpoints/\n.venv/\nvenv/\nenv/\n.DS_Store\n*.log\n';
+  var _ghTpl='regressione';
+  function ghScript(tpl){
+    if(tpl==='classificazione') return '"""Classificazione: attivo/inattivo da descrittori RDKit."""\nimport pandas as pd\nfrom rdkit import Chem\nfrom rdkit.Chem import Descriptors, Crippen\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import classification_report, roc_auc_score\n\n# Atteso: un CSV con colonne "SMILES" e "label" (0/1). Es. da ChEMBL / MoleculeNet.\ndf = pd.read_csv("dataset.csv")\n\ndef feats(smi):\n    m = Chem.MolFromSmiles(smi)\n    if m is None: return None\n    return {"MolWt":Descriptors.MolWt(m),"LogP":Crippen.MolLogP(m),"TPSA":Descriptors.TPSA(m),\n            "HBD":Descriptors.NumHDonors(m),"HBA":Descriptors.NumHAcceptors(m),\n            "RotB":Descriptors.NumRotatableBonds(m),"AromRings":Descriptors.NumAromaticRings(m)}\n\nX = df["SMILES"].apply(feats).apply(pd.Series)\ndata = pd.concat([X, df["label"]], axis=1).dropna()\nX, y = data.drop(columns="label"), data["label"].astype(int)\nXtr,Xte,ytr,yte = train_test_split(X,y,test_size=0.2,random_state=42,stratify=y)\nclf = RandomForestClassifier(n_estimators=300,random_state=42).fit(Xtr,ytr)\npred = clf.predict(Xte); proba = clf.predict_proba(Xte)[:,1]\nprint(classification_report(yte,pred))\nprint("ROC-AUC:", round(roc_auc_score(yte,proba),3))\n';
+    if(tpl==='clustering') return '"""Clustering molecolare: fingerprint Morgan + KMeans + PCA."""\nimport pandas as pd, numpy as np, matplotlib.pyplot as plt\nfrom rdkit import Chem\nfrom rdkit.Chem import AllChem\nfrom rdkit.DataStructs import ConvertToNumpyArray\nfrom sklearn.cluster import KMeans\nfrom sklearn.decomposition import PCA\n\n# Atteso: un CSV con colonna "SMILES".\ndf = pd.read_csv("dataset.csv")\n\ndef fp(smi):\n    m = Chem.MolFromSmiles(smi)\n    if m is None: return None\n    arr = np.zeros((2048,), dtype=int)\n    ConvertToNumpyArray(AllChem.GetMorganFingerprintAsBitVect(m,2,2048), arr)\n    return arr\n\nfps = [fp(s) for s in df["SMILES"]]\nX = np.array([f for f in fps if f is not None])\nlabels = KMeans(n_clusters=4, random_state=42, n_init=10).fit_predict(X)\ncoords = PCA(n_components=2).fit_transform(X)\nplt.scatter(coords[:,0], coords[:,1], c=labels, cmap="tab10", s=12)\nplt.title("Clustering molecolare (PCA 2D)")\nplt.tight_layout(); plt.savefig("clusters.png", dpi=120)\nprint("Molecole per cluster:", np.bincount(labels))\n';
+    if(tpl==='eda') return '"""EDA: analisi esplorativa di un dataset."""\nimport pandas as pd, matplotlib.pyplot as plt, seaborn as sns\n\ndf = pd.read_csv("dataset.csv")\nprint(df.shape)\nprint(df.info())\nprint(df.describe())\nprint("Valori mancanti:\\n", df.isna().sum())\n\ndf.select_dtypes("number").hist(figsize=(10,8), bins=30)\nplt.tight_layout(); plt.savefig("istogrammi.png", dpi=120)\n\nplt.figure(figsize=(8,6))\nsns.heatmap(df.select_dtypes("number").corr(), cmap="viridis")\nplt.tight_layout(); plt.savefig("correlazioni.png", dpi=120)\n';
+    return '"""Regressione: predizione della solubilita da descrittori RDKit."""\nimport pandas as pd, numpy as np, matplotlib.pyplot as plt\nfrom rdkit import Chem\nfrom rdkit.Chem import Descriptors, Crippen\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestRegressor\nfrom sklearn.metrics import r2_score, mean_squared_error\n\nURL = "https://raw.githubusercontent.com/deepchem/deepchem/master/datasets/delaney-processed.csv"\ndf = pd.read_csv(URL).rename(columns={\n    "measured log solubility in mols per litre": "logS", "smiles": "SMILES"})\n\ndef feats(smi):\n    m = Chem.MolFromSmiles(smi)\n    if m is None: return None\n    return {"MolWt":Descriptors.MolWt(m),"LogP":Crippen.MolLogP(m),"TPSA":Descriptors.TPSA(m),\n            "HBD":Descriptors.NumHDonors(m),"HBA":Descriptors.NumHAcceptors(m),\n            "RotB":Descriptors.NumRotatableBonds(m),"AromRings":Descriptors.NumAromaticRings(m)}\n\nX = df["SMILES"].apply(feats).apply(pd.Series)\ndata = pd.concat([X, df["logS"]], axis=1).dropna()\nX, y = data.drop(columns="logS"), data["logS"]\nXtr,Xte,ytr,yte = train_test_split(X,y,test_size=0.2,random_state=42)\nmodel = RandomForestRegressor(n_estimators=300,random_state=42).fit(Xtr,ytr)\npred = model.predict(Xte)\nprint("R2:", round(r2_score(yte,pred),3), " RMSE:", round(np.sqrt(mean_squared_error(yte,pred)),3))\nplt.scatter(yte,pred,alpha=.6); plt.plot([yte.min(),yte.max()],[yte.min(),yte.max()],"r--")\nplt.xlabel("logS reale"); plt.ylabel("logS predetto")\nplt.tight_layout(); plt.savefig("risultato.png", dpi=120)\n';
+  }
+  function ghName(){ var i=document.getElementById('dsGhName'); var v=(i&&i.value?i.value:'progetto').trim(); return v||'progetto'; }
+  function ghSlug(){ return ghName().replace(/\s+/g,'-').replace(/[^a-zA-Z0-9._-]/g,''); }
+  function ghReadme(tpl){ var t=GH_TPL[tpl];
+    return '# '+ghName()+'\n\n'+t.desc+'\n\n## Obiettivo\nDescrivi in una frase cosa fa il progetto.\n\n## Dati\n- Fonte del dataset (es. ESOL/Delaney, ChEMBL, MoleculeNet).\n\n## Come eseguire\n```bash\npip install -r requirements.txt\npython starter.py\n```\n\n## Metodo\n- '+t.label+'\n- Feature: descrittori RDKit (o pandas per l\'EDA)\n- Modello: vedi `starter.py`\n\n## Risultati\n- Metriche principali (es. R2/RMSE o accuratezza/ROC-AUC) e un grafico (`risultato.png`).\n\n## Autore\nAspirante data scientist (background in chimica).\n'; }
+  function ghGit(){ var s=ghSlug(); return 'git init\ngit add .\ngit commit -m "Primo commit: '+s+'"\ngit branch -M main\ngit remote add origin https://github.com/TUO-UTENTE/'+s+'.git\ngit push -u origin main'; }
+  function renderGhTpl(){ var host=document.getElementById('dsGhTpl'); if(!host)return; host.innerHTML=''; Object.keys(GH_TPL).forEach(function(k){ var b=document.createElement('button'); b.className='ds-gh-t'+(k===_ghTpl?' on':''); b.textContent=GH_TPL[k].label; b.onclick=function(){ _ghTpl=k; renderGhTpl(); }; host.appendChild(b); }); }
+  function syncGit(){ var o=document.getElementById('dsGitOut'); if(o)o.textContent=ghGit(); }
+  window._dsGhSync=syncGit;
+  window._dsGhCopyGit=function(){ dsCopy(ghGit()); };
+  window._dsGhDl=function(which){ if(which==='readme')dsDownload('README.md',ghReadme(_ghTpl)); else if(which==='req')dsDownload('requirements.txt',GH_TPL[_ghTpl].pkg); else if(which==='script')dsDownload('starter.py',ghScript(_ghTpl)); else if(which==='gitignore')dsDownload('.gitignore',GH_IGNORE); };
+  window._dsGhZipAll=function(){ var fns=[['README.md',ghReadme(_ghTpl)],['requirements.txt',GH_TPL[_ghTpl].pkg],['starter.py',ghScript(_ghTpl)],['.gitignore',GH_IGNORE]]; fns.forEach(function(f,i){ setTimeout(function(){dsDownload(f[0],f[1]);},i*350); }); };
+  function initGh(){ renderGhTpl(); syncGit(); }
+  window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); initGh(); };
 })();
 </script>
 
