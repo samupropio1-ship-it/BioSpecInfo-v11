@@ -933,6 +933,14 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#9fb3c8;font-size:.82rem;line-height:1.6;margin-top:9px">💡 Lo stai già facendo: questa app usa <b>RDKit</b> (la libreria n°1 di cheminformatica) per analizzare molecole. È esattamente lo stack di un data scientist in chimica.</div>
   </div>
 
+  <!-- I TUOI CORSI UDEMY -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#f5a623;font-weight:800;font-size:.98rem;margin-bottom:4px">🎓 I tuoi corsi Udemy — cosa coprono</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Hai già una base <b>solida e ben bilanciata</b>: Python, data science, ML/DL/AI e — la tua marcia in più — <b>chimica computazionale e cheminformatica</b>. Ecco gli argomenti di ognuno.</div>
+    <div id="dsCourses"></div>
+    <div style="background:rgba(94,234,212,.07);border:1px solid rgba(94,234,212,.3);border-radius:9px;padding:10px 13px;color:#cdd9e6;font-size:.83rem;line-height:1.6;margin-top:10px">✅ <b>Con questi corsi copri quasi tutta la roadmap qui sotto.</b> Il passo che fa la differenza ora è <b>trasformarli in progetti</b> (vedi “Progetti portfolio”) e curare l'<b>inglese</b> (già in corso, B2+): al CERN è la lingua di lavoro.</div>
+  </div>
+
   <!-- CHECKLIST COMPETENZE -->
   <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
@@ -974,11 +982,38 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Il k-NN non "impara" una formula: classifica per <b>somiglianza</b>. È il modello più intuitivo — e in cheminformatica la somiglianza tra molecole è un concetto centrale.</div>
   </div>
 
+  <!-- MINI-LAB 3: CLUSTERING k-means -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🧬 Terzo modello — clustering (k-means)</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Regressione e classificazione imparano da esempi <i>con risposta</i> (supervisionato). Il <b>clustering</b> è <b>non supervisionato</b>: nessuna etichetta, il modello scopre <b>da solo</b> i gruppi. Qui raggruppa molecole simili in “famiglie” da due descrittori. Scegli quanti gruppi (k) e premi <b>Raggruppa</b>: guarda <b>k-means</b> spostare i centri fino a stabilizzarsi.</div>
+    <canvas id="dsKmeans" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
+    <div id="dsKmOut" style="text-align:center;font-weight:700;font-size:.84rem;margin:9px 0;min-height:18px;color:#9fb3c8">Scegli k e premi “Raggruppa”</div>
+    <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap;align-items:center">
+      <span style="color:#9fb3c8;font-size:.8rem">gruppi k:</span>
+      <span id="dsKmK" style="display:inline-flex;gap:4px"></span>
+      <button onclick="window._dsKmRun&&window._dsKmRun()" style="padding:6px 13px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.8rem">▶ Raggruppa</button>
+      <button onclick="window._dsKmNew&&window._dsKmNew()" style="padding:6px 11px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.78rem;font-weight:700">↺ Nuovi dati</button>
+    </div>
+    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 k-means ripete due passi: <b>assegna</b> ogni punto al centro più vicino, poi <b>sposta</b> ogni centro nel baricentro del suo gruppo — finché non si muovono più. È così che un algoritmo “trova ordine” senza sapere le risposte.</div>
+  </div>
+
   <!-- GLOSSARIO -->
   <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:4px">📖 Glossario essenziale</div>
     <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:10px">I termini che sentirai ogni giorno — spiegati semplici.</div>
     <div id="dsGloss" style="display:grid;grid-template-columns:1fr;gap:8px"></div>
+  </div>
+
+  <!-- PROGETTI PORTFOLIO -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <div style="color:#63d6a8;font-weight:800;font-size:.98rem">💼 Progetti portfolio</div>
+      <div style="color:#9fb3c8;font-size:.78rem">Mettili su GitHub — è ciò che i selezionatori guardano davvero</div>
+    </div>
+    <div style="color:#cdd9e6;font-size:.84rem;line-height:1.6;margin-bottom:8px">La teoria dei corsi si dimostra con i <b>progetti</b>. Ecco 10 idee a tema chimico che compongono un portfolio da data scientist. Spuntale man mano.</div>
+    <div style="height:10px;background:#0a1628;border-radius:6px;overflow:hidden;margin:6px 0 4px;border:1px solid #1a3050"><div id="dsProjBar" style="height:100%;width:0%;background:linear-gradient(90deg,#63d6a8,#5eead4);transition:width .3s"></div></div>
+    <div id="dsProjTxt" style="color:#9fb3c8;font-size:.8rem;margin-bottom:10px">0 / 0 progetti</div>
+    <div id="dsProjects"></div>
   </div>
 
   <!-- CERN -->
@@ -1184,7 +1219,79 @@ window.BSI_TELEMETRY_URL='';</script>
     ['Descrittore molecolare','Un numero che riassume una proprietà della molecola: input tipico in chimica.']
   ];
   function renderGloss(){ var h=document.getElementById('dsGloss'); if(!h)return; h.innerHTML=GLOSS.map(function(g){return '<div style="background:#0a1628;border:1px solid #16273e;border-radius:9px;padding:9px 12px"><b style="color:#a78bfa;font-size:.85rem">'+g[0]+'</b><div style="color:#cdd9e6;font-size:.82rem;line-height:1.5;margin-top:2px">'+g[1]+'</div></div>';}).join(''); }
-  window.initDataSci=function(){ renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); renderGloss(); };
+  // ── i corsi Udemy dell'utente ──
+  var COURSES=[
+    ['🐍 Fondamenti Python',[
+      ['Python da Zero: Fondamenti, OOP e Data Analysis con Pandas','Sintassi, tipi, funzioni, programmazione a oggetti (OOP) e analisi dati con pandas.'],
+      ['Python for Data Science & ML Bootcamp (J. Portilla)','NumPy, pandas, Matplotlib/Seaborn, scikit-learn, regressione, classificazione, k-means, PCA, basi di NLP e deep learning.']
+    ]],
+    ['📊 Data Science completa',[
+      ['The Data Science Course: Complete Bootcamp 2026 (365 Careers)','Statistica e probabilità, Python, regressione, cluster analysis, machine learning e deep learning con TensorFlow.'],
+      ['Data Science A-Z: Hands-On Exercises','Preparazione dati, visualizzazione, modellazione, valutazione dei modelli e data storytelling.'],
+      ['Data Science con Python e IA: dai dati grezzi agli insight','La pipeline completa: dai dati grezzi alla pulizia, all\'analisi, ai modelli, agli insight.'],
+      ['Complete Data Science, ML, DL, NLP Bootcamp (K. Naik)','Machine learning, deep learning, elaborazione del linguaggio naturale (NLP) e messa in produzione.']
+    ]],
+    ['🤖 Machine Learning & AI',[
+      ['Machine Learning A-Z [2026] (Eremenko, de Ponteves)','Regressione, classificazione, clustering, riduzione di dimensionalità, NLP, deep learning, XGBoost — in Python e R.'],
+      ['The AI Engineer Course 2026 (365 Careers)','LLM e IA generativa, NLP, uso di API di AI e deployment: costruire applicazioni intelligenti.']
+    ]],
+    ['⚗️ Chimica + dati (il tuo asso)',[
+      ['Data Science in Chemistry (M. El Soudy)','Applicare la data science a dati chimici: descrittori e modelli predittivi sulle molecole.'],
+      ['Computational Chemistry: Concepts, Theories & Applications','Metodi quanto-meccanici, DFT, modellazione molecolare: la teoria dietro i dati chimici.'],
+      ['ML in Drug Discovery and Cheminformatics (K. Mostafa)','QSAR, fingerprint molecolari, screening virtuale e ML applicato alla scoperta di farmaci.'],
+      ['RDKit: Cheminformatics & Drug Discovery in Python','Manipolare molecole, calcolare descrittori e fingerprint, misurare similarità: RDKit in pratica (lo usi già qui).']
+    ]],
+    ['🌍 Inglese (indispensabile per CERN)',[
+      ['English Intermediate (B2)+ Listenings & Readings','Comprensione all\'ascolto e alla lettura: la lingua di lavoro della ricerca internazionale.']
+    ]]
+  ];
+  function renderCourses(){ var h=document.getElementById('dsCourses'); if(!h)return; var out=''; COURSES.forEach(function(g){ out+='<div class="ds-grp">'+g[0]+'</div>'; g[1].forEach(function(c){ out+='<div style="background:#0a1628;border:1px solid #16273e;border-radius:9px;padding:8px 11px;margin-bottom:6px"><b style="color:#e9eef6;font-size:.84rem">'+c[0]+'</b><div style="color:#9fb3c8;font-size:.8rem;line-height:1.5;margin-top:2px">'+c[1]+'</div></div>'; }); }); h.innerHTML=out; }
+  // ── mini-lab 3: clustering k-means (non supervisionato) ──
+  var _km={pts:[],cent:[],K:3,timer:null};
+  var KMPAL=['#5eead4','#a78bfa','#f5c451','#f4788a','#6bcfff'];
+  function kmMap(cv){ var mL=16,mR=16,mT=16,mB=16; return {X:function(x){return mL+x*(cv.width-mL-mR);},Y:function(y){return mT+(1-y)*(cv.height-mT-mB);}}; }
+  function kmDraw(){ var cv=document.getElementById('dsKmeans'); if(!cv)return; var ctx=cv.getContext('2d'); ctx.clearRect(0,0,cv.width,cv.height); var m=kmMap(cv);
+    _km.pts.forEach(function(p){ ctx.fillStyle=p.cl<0?'#5b6b82':KMPAL[p.cl%KMPAL.length]; ctx.beginPath();ctx.arc(m.X(p.x),m.Y(p.y),5,0,6.283);ctx.fill(); });
+    _km.cent.forEach(function(c,i){ var cx=m.X(c.x),cy=m.Y(c.y),s=9; ctx.strokeStyle=KMPAL[i%KMPAL.length];ctx.lineWidth=3.5; ctx.beginPath();ctx.moveTo(cx-s,cy-s);ctx.lineTo(cx+s,cy+s);ctx.moveTo(cx+s,cy-s);ctx.lineTo(cx-s,cy+s);ctx.stroke(); });
+  }
+  function kmData(){ if(_km.timer){clearTimeout(_km.timer);_km.timer=null;} _km.pts=[]; var centers=[[0.28,0.30],[0.70,0.35],[0.50,0.76]]; centers.forEach(function(c){ for(var i=0;i<16;i++){ _km.pts.push({x:Math.min(0.97,Math.max(0.03,c[0]+(Math.random()-0.5)*0.26)),y:Math.min(0.97,Math.max(0.03,c[1]+(Math.random()-0.5)*0.26)),cl:-1}); } }); _km.cent=[]; kmDraw(); var o=document.getElementById('dsKmOut'); if(o){o.style.color='#9fb3c8';o.textContent='Scegli k e premi “Raggruppa”';} }
+  function kmStep(iter){
+    _km.pts.forEach(function(p){ var best=0,bd=1e9; _km.cent.forEach(function(c,i){ var d=(c.x-p.x)*(c.x-p.x)+(c.y-p.y)*(c.y-p.y); if(d<bd){bd=d;best=i;} }); p.cl=best; });
+    kmDraw();
+    var moved=0; _km.cent=_km.cent.map(function(c,i){ var xs=0,ys=0,n=0; _km.pts.forEach(function(p){if(p.cl===i){xs+=p.x;ys+=p.y;n++;}}); if(!n)return c; var nc={x:xs/n,y:ys/n}; moved+=Math.abs(nc.x-c.x)+Math.abs(nc.y-c.y); return nc; });
+    var o=document.getElementById('dsKmOut'); if(o){o.style.color='#e9eef6';o.textContent='Iterazione '+iter+' — k-means sposta i centri…';}
+    if(iter<12 && moved>0.002){ _km.timer=setTimeout(function(){ kmDraw(); kmStep(iter+1); },520); }
+    else { kmDraw(); if(o){o.style.color='#63d6a8';o.textContent='✓ Gruppi trovati in '+iter+' iterazioni — i centri si sono stabilizzati.';} }
+  }
+  window._dsKmRun=function(){ if(!_km.pts.length)kmData(); if(_km.timer){clearTimeout(_km.timer);_km.timer=null;}
+    var idx=[],cent=[],guard=0; while(cent.length<_km.K && guard++<500){ var j=Math.floor(Math.random()*_km.pts.length); if(idx.indexOf(j)<0){idx.push(j);cent.push({x:_km.pts[j].x,y:_km.pts[j].y});} }
+    _km.cent=cent; kmStep(1); };
+  window._dsKmNew=function(){ kmData(); };
+  function renderKmK(){ var host=document.getElementById('dsKmK'); if(!host)return; host.innerHTML=''; [2,3,4].forEach(function(k){ var b=document.createElement('button'); b.textContent=k; b.style.cssText='width:28px;height:28px;border-radius:7px;border:1px solid '+(k===_km.K?'#5eead4':'#1a3050')+';background:'+(k===_km.K?'#0e3a34':'#0a1628')+';color:'+(k===_km.K?'#5eead4':'#cdd9e6')+';cursor:pointer;font-weight:800;font-size:.8rem'; b.onclick=function(){ _km.K=k; renderKmK(); }; host.appendChild(b); }); }
+  function initKmeans(){ renderKmK(); if(!_km.pts.length)kmData(); else kmDraw(); }
+  // ── checklist progetti portfolio ──
+  var PROJECTS=[
+    ['p1','EDA con pandas','pulisci ed esplora un dataset di molecole: statistiche e grafici.'],
+    ['p2','Regressione: solubilità','predici la solubilità (dataset ESOL) o il punto di ebollizione da descrittori RDKit.'],
+    ['p3','Classificazione: attività','attivo/inattivo o tossico/non tossico da dati ChEMBL con scikit-learn.'],
+    ['p4','Clustering molecolare','raggruppa molecole simili con fingerprint + similarità di Tanimoto.'],
+    ['p5','Visualizzazione','una dashboard (matplotlib/plotly) di uno spettro o di un dataset.'],
+    ['p6','Mini-QSAR','modello struttura-attività con descrittori RDKit + scikit-learn.'],
+    ['p7','Intro deep learning','una piccola rete neurale (Keras/PyTorch) su un dataset semplice.'],
+    ['p8','Submission Kaggle','partecipa a una competizione e invia una previsione completa.'],
+    ['p9','Repo riproducibile','notebook ordinato su GitHub: README, requirements, risultati.'],
+    ['p10','CERN Open Data (bonus)','un mini-studio con un dataset pubblico del portale CERN Open Data.']
+  ];
+  function getProj(){ try{return JSON.parse(localStorage.getItem('bsi_ds_proj')||'{}');}catch(e){return {};} }
+  function setProjS(p){ try{localStorage.setItem('bsi_ds_proj',JSON.stringify(p));}catch(e){} }
+  function updateProjBar(){ var p=getProj(),done=0; PROJECTS.forEach(function(x){if(p[x[0]])done++;}); var t=PROJECTS.length; var bar=document.getElementById('dsProjBar'),txt=document.getElementById('dsProjTxt'); if(bar)bar.style.width=(t?Math.round(done/t*100):0)+'%'; if(txt)txt.textContent=done+' / '+t+' progetti'+(t&&done===t?' — portfolio completo! 🎉':''); }
+  function renderProjects(){ var host=document.getElementById('dsProjects'); if(!host)return; var p=getProj(),h='';
+    PROJECTS.forEach(function(x){ h+='<label class="ds-sk"><input type="checkbox" data-pj="'+x[0]+'"'+(p[x[0]]?' checked':'')+'><span class="l"><b>'+x[1]+'</b> — <span style="color:#9fb3c8">'+x[2]+'</span></span></label>'; });
+    host.innerHTML=h;
+    host.querySelectorAll('input[data-pj]').forEach(function(cb){ cb.onchange=function(){ var pr=getProj(); if(cb.checked)pr[cb.getAttribute('data-pj')]=1; else delete pr[cb.getAttribute('data-pj')]; setProjS(pr); updateProjBar(); }; });
+    updateProjBar();
+  }
+  window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); };
 })();
 </script>
 
