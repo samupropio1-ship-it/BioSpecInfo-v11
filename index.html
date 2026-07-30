@@ -1517,7 +1517,7 @@ window.BSI_TELEMETRY_URL='';</script>
     ['Υ Upsilon (~9.5)',8.5,11,50,false],
     ['Bosone Z (~91)',60,120,60,false]
   ];
-  var CERN_PARTS=[{n:'ρ / ω',m:0.78},{n:'φ',m:1.02},{n:'J/ψ',m:3.10},{n:'ψ(2S)',m:3.69},{n:'Υ (Upsilon)',m:9.46},{n:'Z⁰ (bosone Z)',m:91.19}];
+  var CERN_PARTS=[{n:'ρ / ω',s:'ρ/ω',m:0.78,pri:1},{n:'φ',s:'φ',m:1.02,pri:1},{n:'J/ψ',s:'J/ψ',m:3.10,pri:3},{n:'ψ(2S)',s:'ψ(2S)',m:3.69,pri:2},{n:'Υ (Upsilon)',s:'Υ',m:9.46,pri:3},{n:'Z⁰ (bosone Z)',s:'Z⁰',m:91.19,pri:3}];
   function cernPresets(){ var h=document.getElementById('dsCernPresets'); if(!h)return; h.innerHTML=''; CERN_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ _cern.min=p[1];_cern.max=p[2];_cern.bins=p[3];_cern.log=p[4]; cernDraw(); }; h.appendChild(b); }); }
   function cernDraw(){
     var cv=document.getElementById('dsCernCv'); if(!cv||!_cern.data)return; var ctx=cv.getContext('2d'),W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
@@ -1535,7 +1535,13 @@ window.BSI_TELEMETRY_URL='';</script>
     ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('massa invariante dei 2 muoni (GeV)',mL+pw/2,H-8);
     var peakIdx=0; for(var i=0;i<nb;i++) if(counts[i]>counts[peakIdx]) peakIdx=i;
     for(var i=0;i<nb;i++){ if(!counts[i])continue; var x0=X(lo+i*bw),x1=X(lo+(i+1)*bw),y=Yv(counts[i]); ctx.fillStyle=(i===peakIdx)?'#6bcfff':'#3f5f8f'; ctx.fillRect(x0,y,Math.max(1,x1-x0-1),mT+ph-y); }
-    CERN_PARTS.forEach(function(p){ if(p.m>lo&&p.m<hi){ var px=X(p.m); ctx.strokeStyle='rgba(245,196,81,.45)';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,mT);ctx.lineTo(px,mT+ph);ctx.stroke();ctx.setLineDash([]); ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText(p.n,px,mT-4); } });
+    CERN_PARTS.forEach(function(p){ if(p.m>lo&&p.m<hi){ var px=X(p.m); ctx.strokeStyle='rgba(245,196,81,.4)';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,mT);ctx.lineTo(px,mT+ph);ctx.stroke(); } });
+    ctx.setLineDash([]);
+    // etichette senza sovrapposizioni: priorità alle particelle principali (J/ψ, Υ, Z)
+    var _inr=CERN_PARTS.filter(function(p){return p.m>lo&&p.m<hi;}).map(function(p){return {n:p.s||p.n,x:X(p.m),pri:p.pri||1};});
+    _inr.sort(function(a,b){return b.pri-a.pri;});
+    var _drawn=[]; ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';
+    _inr.forEach(function(l){ if(_drawn.every(function(dx){return Math.abs(dx-l.x)>24;})){ ctx.fillText(l.n,Math.max(mL+12,Math.min(W-mR-12,l.x)),mT-5); _drawn.push(l.x); } });
     var peakM=lo+(peakIdx+0.5)*bw, best=null,bd=1e9; CERN_PARTS.forEach(function(p){ var d=Math.abs(p.m-peakM); if(d<bd){bd=d;best=p;} });
     var out=document.getElementById('dsCernOut');
     if(out){ var tol=Math.max(0.4,best.m*0.06); if(best&&bd<=tol){ out.style.color='#6bcfff'; out.innerHTML='🎯 Picco a ~'+peakM.toFixed(peakM<10?2:1)+' GeV → hai riscoperto <b>'+best.n+'</b>!'; } else { out.style.color='#9fb3c8'; out.innerHTML='Picco più alto a ~'+peakM.toFixed(peakM<10?2:1)+' GeV — zooma su una regione per identificare la particella.'; } }
