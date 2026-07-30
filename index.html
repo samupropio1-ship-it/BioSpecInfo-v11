@@ -842,7 +842,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="squiz">❓ Quiz</button>
     <button class="nav-btn" data-s="sexam">🎓 Esame UniBA</button>
     <button class="nav-btn" data-s="sstudypath">📚 Percorsi</button>
-    <button class="nav-btn" data-s="sdatasci">📊 Data Science</button>
+    <button class="nav-btn" data-s="sdatasci" style="border:1px solid #7c6fff;background:linear-gradient(135deg,rgba(124,111,255,.18),rgba(94,234,212,.12));box-shadow:0 0 10px rgba(124,111,255,.35)">✨ Data Science</button>
     <button class="nav-btn" data-s="stheory">📖 Teoria</button>
     <button class="nav-btn" data-s="scustomflash">🃏 Flashcard</button>
   <button class="nav-btn" data-s="sguida">📖 Guida all'uso</button><button class="nav-btn" data-s="sbiochimx">🎓 Biochimica d'esame</button><button class="nav-btn" data-s="sinorgx">⚗️ Inorganica d'esame</button></div>
@@ -900,7 +900,7 @@ window.BSI_TELEMETRY_URL='';</script>
     #sdatasci .ds-sstep .t{color:#e9eef6;font-weight:700;font-size:.88rem}
     #sdatasci .ds-sstep .t small{display:block;color:#9fb3c8;font-weight:500;font-size:.8rem;line-height:1.5;margin-top:2px}
   </style>
-  <div class="section-title">📊 DATA SCIENCE — dalla chimica ai dati</div>
+  <div class="section-title">✨ DATA SCIENCE — dalla chimica ai dati</div>
   <div style="background:linear-gradient(135deg,rgba(124,111,255,.12),rgba(94,234,212,.08));border:1px solid #26406a;border-radius:14px;padding:16px 18px;margin-bottom:16px">
     <div style="color:#e9eef6;font-weight:800;font-size:1.05rem;margin-bottom:6px">Vuoi diventare data scientist partendo dalla chimica? Sei nel posto giusto.</div>
     <div style="color:#cdd9e6;font-size:.9rem;line-height:1.65">Un <b>data scientist</b> trasforma i dati in decisioni e scoperte: li raccoglie, li pulisce, costruisce <b>modelli</b> (statistica + machine learning) e ne <b>comunica</b> i risultati. La tua laurea in chimica non è un ostacolo: è un <b>vantaggio raro</b>. Chi capisce <i>sia</i> la scienza <i>sia</i> i dati è prezioso in ricerca (CERN, CNR, INFN) e nell'industria (farma, energia, materiali). Questa sezione è la tua mappa: competenze da spuntare, un primo modello da toccare con mano, e le vie reali verso CERN e CNR.</div>
@@ -1517,7 +1517,7 @@ window.BSI_TELEMETRY_URL='';</script>
     ['Υ Upsilon (~9.5)',8.5,11,50,false],
     ['Bosone Z (~91)',60,120,60,false]
   ];
-  var CERN_PARTS=[{n:'ρ / ω',m:0.78},{n:'φ',m:1.02},{n:'J/ψ',m:3.10},{n:'ψ(2S)',m:3.69},{n:'Υ (Upsilon)',m:9.46},{n:'Z⁰ (bosone Z)',m:91.19}];
+  var CERN_PARTS=[{n:'ρ / ω',s:'ρ/ω',m:0.78,pri:1},{n:'φ',s:'φ',m:1.02,pri:1},{n:'J/ψ',s:'J/ψ',m:3.10,pri:3},{n:'ψ(2S)',s:'ψ(2S)',m:3.69,pri:2},{n:'Υ (Upsilon)',s:'Υ',m:9.46,pri:3},{n:'Z⁰ (bosone Z)',s:'Z⁰',m:91.19,pri:3}];
   function cernPresets(){ var h=document.getElementById('dsCernPresets'); if(!h)return; h.innerHTML=''; CERN_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ _cern.min=p[1];_cern.max=p[2];_cern.bins=p[3];_cern.log=p[4]; cernDraw(); }; h.appendChild(b); }); }
   function cernDraw(){
     var cv=document.getElementById('dsCernCv'); if(!cv||!_cern.data)return; var ctx=cv.getContext('2d'),W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
@@ -1535,7 +1535,13 @@ window.BSI_TELEMETRY_URL='';</script>
     ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('massa invariante dei 2 muoni (GeV)',mL+pw/2,H-8);
     var peakIdx=0; for(var i=0;i<nb;i++) if(counts[i]>counts[peakIdx]) peakIdx=i;
     for(var i=0;i<nb;i++){ if(!counts[i])continue; var x0=X(lo+i*bw),x1=X(lo+(i+1)*bw),y=Yv(counts[i]); ctx.fillStyle=(i===peakIdx)?'#6bcfff':'#3f5f8f'; ctx.fillRect(x0,y,Math.max(1,x1-x0-1),mT+ph-y); }
-    CERN_PARTS.forEach(function(p){ if(p.m>lo&&p.m<hi){ var px=X(p.m); ctx.strokeStyle='rgba(245,196,81,.45)';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,mT);ctx.lineTo(px,mT+ph);ctx.stroke();ctx.setLineDash([]); ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText(p.n,px,mT-4); } });
+    CERN_PARTS.forEach(function(p){ if(p.m>lo&&p.m<hi){ var px=X(p.m); ctx.strokeStyle='rgba(245,196,81,.4)';ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,mT);ctx.lineTo(px,mT+ph);ctx.stroke(); } });
+    ctx.setLineDash([]);
+    // etichette senza sovrapposizioni: priorità alle particelle principali (J/ψ, Υ, Z)
+    var _inr=CERN_PARTS.filter(function(p){return p.m>lo&&p.m<hi;}).map(function(p){return {n:p.s||p.n,x:X(p.m),pri:p.pri||1};});
+    _inr.sort(function(a,b){return b.pri-a.pri;});
+    var _drawn=[]; ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';
+    _inr.forEach(function(l){ if(_drawn.every(function(dx){return Math.abs(dx-l.x)>24;})){ ctx.fillText(l.n,Math.max(mL+12,Math.min(W-mR-12,l.x)),mT-5); _drawn.push(l.x); } });
     var peakM=lo+(peakIdx+0.5)*bw, best=null,bd=1e9; CERN_PARTS.forEach(function(p){ var d=Math.abs(p.m-peakM); if(d<bd){bd=d;best=p;} });
     var out=document.getElementById('dsCernOut');
     if(out){ var tol=Math.max(0.4,best.m*0.06); if(best&&bd<=tol){ out.style.color='#6bcfff'; out.innerHTML='🎯 Picco a ~'+peakM.toFixed(peakM<10?2:1)+' GeV → hai riscoperto <b>'+best.n+'</b>!'; } else { out.style.color='#9fb3c8'; out.innerHTML='Picco più alto a ~'+peakM.toFixed(peakM<10?2:1)+' GeV — zooma su una regione per identificare la particella.'; } }
@@ -33462,6 +33468,7 @@ var _ITEMS=[
   {ic:'⚗️',nm:'Chimica Organica 1+2',ds:'17 moduli interattivi, meccanismi, stereochimica, molecole biologiche',key:'chimorga',hl:true},
   {ic:'🧪',nm:'RDKit Cheminformatics Lab',ds:'Visualizzatore SVG, descrittori, drug-likeness, similarità Tanimoto, libreria molecole',key:'rdkitlab',hl:true},
   {ic:'🌌',nm:'Astrochimica 3D PRO',ds:'Molecole ISM, esopianeti JWST, nebule, spettri stellari, nucleosintesi, chimica cometaria, quiz',key:'astro',hl:true},
+  {ic:'✨',nm:'Data Science — dalla chimica ai dati',ds:'Lab ML interattivi, CERN (bosone Z), Playground SQL, roadmap corsi, Toolkit GitHub — dal chimico al data scientist',key:'datasci',hl:true},
   {ic:'⚗️',nm:'PRO Hub — ML · QM · Fisica · Statistica',ds:'Machine Learning QSAR, Meccanica Quantistica, Chimica Fisica, Chimica Statistica, Tools avanzati',key:'pro',hl:true},
   {ic:'📁',nm:'File Manager PRO',ds:'Galleria foto, sezioni HTML personalizzate, note — accesso protetto da password',key:'filemanager',hl:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 10 simulazioni',key:'qlab',hl:true},
@@ -33511,6 +33518,7 @@ function _act(key){
     if(key==='chimorga'){ window.openChimOrga(); return; }
     if(key==='rdkitlab'){ window.openRDKitLab(); return; }
     if(key==='astro'){ window.openAstro(); return; }
+    if(key==='datasci'){ var b=document.querySelector('[data-s=sdatasci]'); if(b){ b.click(); } else { var sec=document.getElementById('sdatasci'); if(sec){ document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');}); sec.classList.add('on'); if(typeof window.initDataSci==='function') setTimeout(window.initDataSci,40); } } return; }
     if(key==='pro'){ window.openPro(); return; }
     if(key==='filemanager'){ window.openFileManager(); return; }
       if(key==='simulazioni'){ window.openSimulazioni(); return; }
