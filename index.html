@@ -906,8 +906,16 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#cdd9e6;font-size:.9rem;line-height:1.65">Un <b>data scientist</b> trasforma i dati in decisioni e scoperte: li raccoglie, li pulisce, costruisce <b>modelli</b> (statistica + machine learning) e ne <b>comunica</b> i risultati. La tua laurea in chimica non è un ostacolo: è un <b>vantaggio raro</b>. Chi capisce <i>sia</i> la scienza <i>sia</i> i dati è prezioso in ricerca (CERN, CNR, INFN) e nell'industria (farma, energia, materiali). Questa sezione è la tua mappa: competenze da spuntare, un primo modello da toccare con mano, e le vie reali verso CERN e CNR.</div>
   </div>
 
+  <!-- COME USARE QUESTA SEZIONE -->
+  <div style="background:linear-gradient(135deg,rgba(94,234,212,.1),rgba(124,111,255,.07));border:1px solid #2a4a5a;border-radius:14px;padding:16px 18px;margin-bottom:16px">
+    <div style="color:#5eead4;font-weight:800;font-size:1rem;margin-bottom:6px">🧭 Come usare questa sezione</div>
+    <div style="color:#cdd9e6;font-size:.87rem;line-height:1.6;margin-bottom:11px">Non è una lezione da leggere: è un <b>percorso da fare</b>. Segui i 6 passi (<b>toccali per saltare</b> al punto) e <b>impara facendo</b>.</div>
+    <div id="dsNav" style="display:grid;grid-template-columns:1fr;gap:8px"></div>
+    <div style="background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.3);border-radius:9px;padding:10px 13px;color:#cdd9e6;font-size:.82rem;line-height:1.55;margin-top:11px">💡 <b>Consiglio:</b> parti dal passo <b>3 · Provi</b> — apri il lab del CERN e "riscopri" il bosone Z in 10 secondi. Toccare con mano il risultato è la scintilla che ti fa venir voglia di studiare il resto. ✨</div>
+  </div>
+
   <!-- COS'È -->
-  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-capisci" style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:8px">🧭 Cosa fa davvero un data scientist</div>
     <div style="color:#cdd9e6;font-size:.87rem;line-height:1.6;margin-bottom:8px">Il lavoro segue un ciclo (spesso chiamato <b>CRISP-DM</b>):</div>
     <div style="display:flex;flex-wrap:wrap;gap:7px">
@@ -946,7 +954,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
 
   <!-- I TUOI CORSI UDEMY -->
-  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-impari" style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#f5a623;font-weight:800;font-size:.98rem;margin-bottom:4px">🎓 I tuoi corsi Udemy — cosa coprono</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Hai già una base <b>solida e ben bilanciata</b>: Python, data science, ML/DL/AI e — la tua marcia in più — <b>chimica computazionale e cheminformatica</b>. Ecco gli argomenti di ognuno.</div>
     <div id="dsCourses"></div>
@@ -965,7 +973,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
 
   <!-- MINI-LAB -->
-  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-provi" style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🧪 Il tuo primo modello — regressione lineare</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Un modello di ML nella sua forma più semplice. Dati <b>reali</b>: il punto di ebollizione degli <b>alcani lineari</b> cresce con il numero di atomi di carbonio. Il modello impara la retta che meglio approssima i punti (minimi quadrati) e può <b>predire</b>.</div>
     <canvas id="dsCanvas" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
@@ -1054,7 +1062,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
 
   <!-- PROGETTO GUIDATO: SOLUBILITÀ -->
-  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-costruisci" style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:4px">🧪 Progetto guidato: predici la solubilità (RDKit + Machine Learning)</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Il progetto perfetto per unire i tuoi corsi: da una molecola (SMILES) ai suoi <b>descrittori</b>, fino a un <b>modello</b> che predice la solubilità. Segui i passi in ordine — ogni blocco di <b>codice si copia con un tocco</b> ed è pronto da incollare in un notebook.</div>
     <div id="dsSolub"></div>
@@ -1066,7 +1074,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
 
   <!-- TOOLKIT GITHUB -->
-  <div style="background:#0d1b2e;border:1px solid #7c6fff;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-lavori" style="background:#0d1b2e;border:1px solid #7c6fff;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#a78bfa;font-weight:800;font-size:.98rem;margin-bottom:4px">🛠️ Toolkit GitHub — il tuo braccio destro</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Non solo una guida: qui l'app ti <b>genera i file di partenza</b> di un progetto (README, requirements, script Python <b>reale</b>), pronti da mettere su GitHub. Scegli il tipo, dai un nome al repo, <b>scarica i file</b> e lancia i comandi git.</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
@@ -1091,7 +1099,7 @@ window.BSI_TELEMETRY_URL='';</script>
   </div>
 
   <!-- CERN LAB: massa invariante -->
-  <div style="background:linear-gradient(135deg,rgba(107,207,255,.1),rgba(124,111,255,.06));border:1px solid #26506a;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+  <div id="ds-cern" style="background:linear-gradient(135deg,rgba(107,207,255,.1),rgba(124,111,255,.06));border:1px solid #26506a;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:4px">🔬 Cimentati come al CERN — riscopri una particella</div>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Dati <b>reali</b> dell'esperimento <b>CMS</b> al CERN (100.000 collisioni protone-protone, qui un campione di 9.000). Quando da una collisione escono due <b>muoni</b>, la loro <b>massa invariante</b> rivela la particella da cui provengono: appare come un <b>picco</b>. È esattamente così che si scoprono le particelle (incluso il <b>bosone di Higgs</b>). Carica i dati e trovale tu.</div>
     <button id="dsCernStart" onclick="window._dsCernInit&&window._dsCernInit()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#6bcfff,#7c6fff);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">▶ Carica i dati del CERN (CMS Open Data)</button>
@@ -1102,6 +1110,18 @@ window.BSI_TELEMETRY_URL='';</script>
       <div id="dsCernOut" style="text-align:center;font-weight:800;font-size:.9rem;margin-top:9px;min-height:20px;color:#9fb3c8"></div>
     </div>
     <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">📈 Asse X = massa invariante dei due muoni (GeV); asse Y = numero di collisioni. Un picco = una particella. Questo è <b>vero lavoro da data scientist al CERN</b>: cercare segnali dentro il rumore. Fonte: <b>CERN Open Data / CMS</b>.</div>
+  </div>
+
+  <!-- PROGETTO GUIDATO CERN -->
+  <div style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
+    <div style="color:#6bcfff;font-weight:800;font-size:.98rem;margin-bottom:4px">🔭 Progetto guidato: analisi dati del CERN (riscopri il bosone Z)</div>
+    <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Il progetto che fa <b>colpo</b> per una candidatura da summer student: scarichi i dati <b>reali</b> del CMS, calcoli la massa invariante, trovi il <b>bosone Z</b> e lo <b>misuri con un fit</b>. Ogni blocco di codice si copia con un tocco.</div>
+    <div id="dsCernGuide"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px">
+      <button onclick="window._dsCernNb&&window._dsCernNb()" style="padding:8px 14px;border-radius:9px;border:1px solid #6bcfff;background:#0a1628;color:#6bcfff;cursor:pointer;font-weight:800;font-size:.82rem">⬇️ Scarica come notebook .ipynb</button>
+      <a href="https://colab.research.google.com/" target="_blank" rel="noopener" style="padding:8px 14px;border-radius:9px;border:1px solid #f5a623;background:#0a1628;color:#f5c451;text-decoration:none;font-weight:800;font-size:.82rem">▶ Apri Google Colab</a>
+    </div>
+    <div style="color:#6b7d90;font-size:.77rem;line-height:1.5;margin-top:7px">Scarica il <b>.ipynb</b>, aprilo in Colab, <i>Esegui tutto</i>: in pochi minuti hai riscoperto il bosone Z dai dati veri del CERN. Poi mettilo su GitHub — è oro per il CV.</div>
   </div>
 
   <!-- CERN -->
@@ -1530,7 +1550,53 @@ window.BSI_TELEMETRY_URL='';</script>
     if(typeof window.DIMUON!=='undefined'){ boot(); return; }
     var s=document.createElement('script'); s.src='./lib/dimuon.js'; s.onload=boot; s.onerror=function(){ _cern.loading=false; if(start)start.textContent='Impossibile caricare i dati'; }; document.head.appendChild(s);
   };
-  window.initDataSci=function(){ renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); initGh(); };
+  // ── progetto guidato: analisi dati del CERN (riscoperta del bosone Z) ──
+  var CERN_GUIDE=[
+    ['Prepara l\'ambiente','Le librerie per l\'analisi dati della fisica delle particelle.',
+     'pip install pandas numpy matplotlib scipy'],
+    ['Scarica i dati REALI del CERN','Collisioni del rilevatore CMS (CERN Open Data): 100.000 eventi con due muoni.',
+     'import pandas as pd\nurl = "https://raw.githubusercontent.com/cms-opendata-education/cms-jupyter-materials-english/master/Data/Dimuon_DoubleMu.csv"\ndf = pd.read_csv(url)\nprint(df.shape)          # ~100.000 collisioni reali\ndf[["Run", "Event", "M"]].head()'],
+    ['Calcola la massa invariante','Dai quadrimomenti (E, px, py, pz) dei due muoni: la formula chiave della fisica delle particelle.',
+     'import numpy as np\nE  = df["E1"]  + df["E2"]\npx = df["px1"] + df["px2"]\npy = df["py1"] + df["py2"]\npz = df["pz1"] + df["pz2"]\ndf["M_calc"] = np.sqrt(E**2 - (px**2 + py**2 + pz**2))\nprint(df[["M", "M_calc"]].head())   # coincide con la colonna M'],
+    ['Disegna lo spettro completo','Istogramma della massa invariante in scala logaritmica: i picchi sono le particelle.',
+     'import matplotlib.pyplot as plt\nplt.hist(df["M"], bins=300, range=(0, 120), log=True, color="#3f5f8f")\nplt.xlabel("massa invariante dei 2 muoni (GeV)")\nplt.ylabel("n. collisioni (log)")\nplt.title("Spettro dimuonico - CMS Open Data")\nplt.tight_layout(); plt.savefig("spettro.png", dpi=120); plt.show()'],
+    ['Zoom sul bosone Z','Restringi la finestra attorno a 91 GeV: emerge un picco netto.',
+     'z = df[(df["M"] > 60) & (df["M"] < 120)]\nplt.hist(z["M"], bins=60, color="#6bcfff")\nplt.axvline(91.19, color="r", ls="--", label="Z atteso (91.19 GeV)")\nplt.xlabel("massa invariante (GeV)"); plt.ylabel("collisioni")\nplt.title("Il bosone Z"); plt.legend()\nplt.tight_layout(); plt.savefig("bosone_z.png", dpi=120); plt.show()'],
+    ['Misura la massa del Z con un fit','Adatta una gaussiana al picco per estrarre massa e larghezza: analisi quantitativa vera.',
+     'from scipy.optimize import curve_fit\ncounts, edges = np.histogram(z["M"], bins=60)\ncenters = 0.5 * (edges[:-1] + edges[1:])\n\ndef gauss(x, A, mu, sigma, b):\n    return A * np.exp(-(x - mu)**2 / (2 * sigma**2)) + b\n\np0 = [counts.max(), 91.0, 3.0, counts.min()]\npopt, _ = curve_fit(gauss, centers, counts, p0=p0)\nprint("Massa del bosone Z =", round(popt[1], 2), "GeV  (valore noto: 91.19)")\nprint("Larghezza (sigma)  =", round(abs(popt[2]), 2), "GeV")'],
+    ['Pubblica su GitHub','Il progetto perfetto per una candidatura da summer student al CERN.',
+     'git init\ngit add .\ngit commit -m "Analisi dimuonica CMS Open Data: riscoperta del bosone Z"\ngit branch -M main\ngit remote add origin https://github.com/TUO-UTENTE/cern-dimuon-analysis.git\ngit push -u origin main']
+  ];
+  function renderCernGuide(){ var h=document.getElementById('dsCernGuide'); if(!h)return; var out='';
+    CERN_GUIDE.forEach(function(s,i){ out+='<div class="ds-sstep"><div class="n">'+(i+1)+'</div><div class="t">'+s[0]+'<small>'+s[1]+'</small></div></div>'
+      +'<div class="ds-scode"><button data-code="'+encodeURIComponent(s[2])+'">copia</button><pre>'+esc(s[2])+'</pre></div>'; });
+    h.innerHTML=out;
+    h.querySelectorAll('.ds-scode button').forEach(function(b){ b.onclick=function(){ dsCopy(decodeURIComponent(b.getAttribute('data-code')),b); }; });
+  }
+  function cernNotebook(){ var cells=[ nbCell('markdown','# Analisi dati del CERN — riscoperta del bosone Z\n\nDati reali del rilevatore CMS (CERN Open Data): dalla massa invariante di coppie di muoni al bosone Z, misurato con un fit.') ];
+    CERN_GUIDE.forEach(function(s,i){ cells.push(nbCell('markdown','## '+(i+1)+'. '+s[0]+'\n\n'+s[1])); var code=s[2];
+      if(/^git /.test(code)){ cells.push(nbCell('markdown','```bash\n'+code+'\n```')); }
+      else { if(/^pip /.test(code))code='!'+code; cells.push(nbCell('code',code)); } });
+    return nbBuild(cells); }
+  window._dsCernNb=function(){ dsDownload('cern-dimuon-analysis.ipynb', cernNotebook()); };
+  // ── guida d'uso: indice cliccabile che salta ai 6 passi ──
+  var DS_NAV=[
+    ['ds-capisci','1','Capisci','cos\'è il mestiere, pubblico vs privato, perché la chimica è un vantaggio'],
+    ['ds-impari','2','Impari','i tuoi corsi in ordine, la roadmap di competenze e il glossario'],
+    ['ds-provi','3','Provi','5 mini-lab interattivi: regressione, k-NN, k-means, SQL e dati del CERN'],
+    ['ds-costruisci','4','Costruisci','i progetti guidati (Solubilità e CERN), passo per passo col codice'],
+    ['ds-lavori','5','Lavori','il Toolkit genera i file pronti per GitHub: .py, notebook, README, git'],
+    ['ds-cern','6','Punta in alto','riscopri una particella coi dati veri del CERN, poi scopri come entrarci']
+  ];
+  window._dsGo=function(id){ var el=document.getElementById(id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); };
+  function renderNav(){ var h=document.getElementById('dsNav'); if(!h)return; h.innerHTML='';
+    DS_NAV.forEach(function(n){ var b=document.createElement('button');
+      b.style.cssText='display:flex;align-items:center;gap:10px;text-align:left;width:100%;background:#0a1628;border:1px solid #1a3050;border-radius:10px;padding:9px 12px;color:#cdd9e6;cursor:pointer;font-size:.84rem;transition:border-color .15s';
+      b.onmouseover=function(){b.style.borderColor='#5eead4';}; b.onmouseout=function(){b.style.borderColor='#1a3050';};
+      b.onclick=function(){ window._dsGo(n[0]); };
+      b.innerHTML='<span style="flex:none;width:22px;height:22px;border-radius:6px;background:#0e2a3a;border:1px solid #5eead4;color:#5eead4;font-weight:800;font-size:.76rem;display:grid;place-items:center">'+n[1]+'</span><span><b style="color:#e9eef6">'+n[2]+'</b> — '+n[3]+'</span>';
+      h.appendChild(b); }); }
+  window.initDataSci=function(){ renderNav(); renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); renderCernGuide(); initGh(); };
 })();
 </script>
 
