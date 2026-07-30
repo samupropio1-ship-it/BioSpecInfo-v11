@@ -2224,8 +2224,19 @@ function _buildSolar(){
     // orbita del pianeta
     var orb=new THREE.Mesh(new THREE.RingGeometry(p.a-0.015,p.a+0.015,128),new THREE.MeshBasicMaterial({color:0x4a6a8a,transparent:true,opacity:0.35,side:THREE.DoubleSide}));
     orb.rotation.x=Math.PI/2; sc.add(orb);_cosmo.objects.push(orb);
-    var tex=_makePlanetTex(texMap[p.n]||'rock');
-    var m=new THREE.Mesh(new THREE.SphereGeometry(p.r,48,48),new THREE.MeshStandardMaterial({map:tex,roughness:0.85,metalness:0.1}));
+    var m;
+    if(p.n==='Terra'){
+      // TERRA fotorealistica anche nella scena: mappa diurna + luci città (lato notte) + oceani + nuvole
+      var _tlE=new THREE.TextureLoader();
+      m=new THREE.Mesh(new THREE.SphereGeometry(p.r,48,48),new THREE.MeshPhongMaterial({
+        map:_tlE.load('./textures/earth_day.jpg'), specularMap:_tlE.load('./textures/earth_specular.jpg'),
+        specular:0x445566, shininess:15, emissiveMap:_tlE.load('./textures/earth_lights.png'), emissive:0xffe08a, emissiveIntensity:1.0}));
+      var _clouds=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.02,32,32),new THREE.MeshPhongMaterial({map:_tlE.load('./textures/earth_clouds.png'),transparent:true,opacity:0.85,depthWrite:false}));
+      m.add(_clouds); m._cloudLayer=_clouds;
+    } else {
+      var tex=_makePlanetTex(texMap[p.n]||'rock');
+      m=new THREE.Mesh(new THREE.SphereGeometry(p.r,48,48),new THREE.MeshStandardMaterial({map:tex,roughness:0.85,metalness:0.1}));
+    }
     var ph=Math.random()*Math.PI*2;
     m.position.set(Math.cos(ph)*p.a,0,Math.sin(ph)*p.a);
     m.userData={a:p.a,T:p.T,ph:ph,spin:0.3+Math.random()*0.5,pname:p.n,moons:[]};
@@ -2258,7 +2269,7 @@ function _buildSolar(){
     // LUNE orbitanti attorno al pianeta
     if(MOONS[p.n]){
       MOONS[p.n].forEach(function(mo){
-        var mtex=_makePlanetTex(mo.tex);
+        var mtex=(mo.n==='Luna')?new THREE.TextureLoader().load('./textures/moon.jpg'):_makePlanetTex(mo.tex);
         var moon=new THREE.Mesh(new THREE.SphereGeometry(mo.r,24,24),new THREE.MeshStandardMaterial({map:mtex,roughness:0.95}));
         var mph=Math.random()*Math.PI*2;
         var moonDist=p.r+mo.d;
@@ -2284,7 +2295,7 @@ function _buildSolar(){
       m.userData.ph+=t*(0.5/m.userData.T);
       m.position.x=Math.cos(m.userData.ph)*m.userData.a;
       m.position.z=Math.sin(m.userData.ph)*m.userData.a;
-      m.rotation.y+=t*m.userData.spin; if(m.userData.moons){m.userData.moons.forEach(function(mn){ if(!mn||!mn.userData||mn.userData.ph==null)return; mn.userData.ph+=t*(2.5/mn.userData.T);mn.position.x=Math.cos(mn.userData.ph)*mn.userData.d;mn.position.z=Math.sin(mn.userData.ph)*mn.userData.d;mn.position.y=Math.sin(mn.userData.ph)*0.1;});}
+      m.rotation.y+=t*m.userData.spin; if(m._cloudLayer)m._cloudLayer.rotation.y+=t*m.userData.spin*0.45; if(m.userData.moons){m.userData.moons.forEach(function(mn){ if(!mn||!mn.userData||mn.userData.ph==null)return; mn.userData.ph+=t*(2.5/mn.userData.T);mn.position.x=Math.cos(mn.userData.ph)*mn.userData.d;mn.position.z=Math.sin(mn.userData.ph)*mn.userData.d;mn.position.y=Math.sin(mn.userData.ph)*0.1;});}
       // lune orbitano attorno al pianeta (struttura {mesh,ph,d,T})
       m.userData.moons.forEach(function(mo){
         if(!mo||!mo.mesh||mo.ph==null)return;
