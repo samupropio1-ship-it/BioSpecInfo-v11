@@ -1538,12 +1538,22 @@ function initCosmo(){
     }catch(e){ _cosmo.composer=null; }
     _cosmo.clock=new THREE.Clock();
     _cosmo.scene.add(new THREE.AmbientLight(0x223344,0.6));
-    // starfield di sfondo
-    var sg=new THREE.BufferGeometry(),sv=[];
-    for(var i=0;i<3000;i++){ var r=400+Math.random()*400; var th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1); sv.push(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph)); }
-    sg.setAttribute('position',new THREE.Float32BufferAttribute(sv,3));
-    var stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.2,sizeAttenuation:false}));
-    stars.name='_stars'; _cosmo.scene.add(stars);
+    // starfield di base TWINKLE (spettrale) — sempre presente, con scintillio soffuso
+    var NG=3000, gp=new Float32Array(NG*3), gph=new Float32Array(NG), gsz=new Float32Array(NG), gcl=new Float32Array(NG*3);
+    var GPAL=[[0.66,0.75,1.0],[0.80,0.87,1.0],[1.0,1.0,1.0],[1.0,0.96,0.86],[1.0,0.86,0.66],[1.0,0.72,0.58]];
+    for(var i=0;i<NG;i++){ var r=400+Math.random()*400, th=Math.random()*6.2832, cph=Math.acos(2*Math.random()-1);
+      gp[i*3]=r*Math.sin(cph)*Math.cos(th); gp[i*3+1]=r*Math.sin(cph)*Math.sin(th); gp[i*3+2]=r*Math.cos(cph);
+      gph[i]=Math.random()*6.2832; gsz[i]=0.5+Math.pow(Math.random(),3.0)*3.0;
+      var gc=GPAL[Math.min(GPAL.length-1,Math.floor(Math.pow(Math.random(),1.6)*GPAL.length))]; gcl[i*3]=gc[0];gcl[i*3+1]=gc[1];gcl[i*3+2]=gc[2]; }
+    var sg=new THREE.BufferGeometry();
+    sg.setAttribute('position',new THREE.Float32BufferAttribute(gp,3));
+    sg.setAttribute('aPhase',new THREE.Float32BufferAttribute(gph,1));
+    sg.setAttribute('aSize',new THREE.Float32BufferAttribute(gsz,1));
+    sg.setAttribute('aColor',new THREE.Float32BufferAttribute(gcl,3));
+    var stars,_gm=null;
+    try{ _gm=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uTex:{value:(typeof _cosmoGlint==='function'?_cosmoGlint():null)}}, vertexShader:_BG_STAR_VERT, fragmentShader:_BG_STAR_FRAG, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false}); stars=new THREE.Points(sg,_gm); }
+    catch(e){ stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.2,sizeAttenuation:false,vertexColors:true})); }
+    stars.frustumCulled=false; stars.name='_stars'; _cosmo._gstars=_gm; _cosmo._gstarsObj=stars; _cosmo.scene.add(stars);
     // controlli drag+zoom
     _cosmoControls(canvas);
     _cosmoResize();
@@ -1683,6 +1693,7 @@ function _cosmoAnimate(){
   // clamp del delta: evita salti/scatti quando la scheda torna in primo piano
   var dt=_cosmo.clock?Math.min(0.05,_cosmo.clock.getDelta()):0.016;
   var t=_cosmo.paused?0:dt*_cosmo.speed;
+  if(_cosmo._gstars){ _cosmo._gstars.uniforms.uTime.value+=t; if(_cosmo._gstarsObj)_cosmo._gstarsObj.rotation.y+=t*0.004; }
   if(_cosmo._bgTick) _cosmo._bgTick(t);
   if(_cosmo._tick) _cosmo._tick(t);
   if(_cosmo._updCam) _cosmo._updCam();
