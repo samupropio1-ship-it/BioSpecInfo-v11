@@ -1947,6 +1947,8 @@ window.BSI_TELEMETRY_URL='';</script>
     return {assign:assign,cent:cent,inertia:inertia};
   }
   function _dsKmeansBest(Z,k,restarts){ var best=null; for(var r=0;r<restarts;r++){ var km=_dsKmeans(Z,k,25); if(!best||km.inertia<best.inertia)best=km; } return best; }
+  function _dsElbowK(iner){ var n=iner.length; if(n<3)return 2; var x0=1,y0=iner[0],x1=n,y1=iner[n-1],dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy)||1,best=2,bd=-1; for(var i=1;i<n-1;i++){ var px=i+1,py=iner[i]; var d=Math.abs(dy*px-dx*py+x1*y0-y1*x0)/len; if(d>bd){bd=d;best=i+1;} } return best; }
+  function _dsDrawElbow(iner,curK,suggK){ var cv=document.getElementById('dsMlElbow'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2); var W=cv.clientWidth||300,H=cv.clientHeight||120; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H); var n=iner.length,mx=Math.max.apply(null,iner)||1,mn=Math.min.apply(null,iner),pad=24; function sx(k){return pad+(k-1)/(n-1)*(W-pad-8);} function sy(v){return pad-6+(1-(v-mn)/((mx-mn)||1))*(H-pad-14);} x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H-pad+2); x.lineTo(W-6,H-pad+2); x.stroke(); x.strokeStyle='#6bcfff'; x.lineWidth=2; x.beginPath(); for(var i=0;i<n;i++){ var px=sx(i+1),py=sy(iner[i]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); } x.stroke(); x.lineWidth=1; for(var i=0;i<n;i++){ var k=i+1; x.fillStyle=(k===suggK)?'#f5c451':(k===curK?'#5eead4':'#6bcfff'); x.beginPath(); x.arc(sx(k),sy(iner[i]),(k===suggK||k===curK)?4:2.5,0,6.2832); x.fill(); x.fillStyle='#6b7d90'; x.font='9px ui-monospace,monospace'; x.textAlign='center'; x.fillText(''+k,sx(k),H-8); } x.fillStyle='#8fa3b8'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('inerzia',pad,10); }
   function _dsPCA2(Z){ var n=Z.length,m=Z[0].length,C=[]; for(var a=0;a<m;a++)C.push(new Array(m).fill(0));
     for(var i=0;i<n;i++)for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++)C[a][bb]+=Z[i][a]*Z[i][bb];
     for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++){ C[a][bb]/=n; C[bb][a]=C[a][bb]; }
@@ -1963,14 +1965,22 @@ window.BSI_TELEMETRY_URL='';</script>
     if(X.length<6){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Poche righe valide ('+X.length+').</div>'; return; }
     var k=Math.max(2,Math.min(8,parseInt((document.getElementById('dsMlK')||{}).value,10)||3));
     var Z=_dsStdz(X).Z; var km=_dsKmeansBest(Z,k,5); var pca=_dsPCA2(Z);
+    // metodo del gomito: inerzia per k=1..maxK → k suggerito
+    var maxK=Math.min(8,X.length-1),iner=[]; for(var kk=1;kk<=maxK;kk++){ iner.push(_dsKmeansBest(Z,kk,3).inertia); }
+    var sugg=_dsElbowK(iner);
     var sizes=new Array(k).fill(0); km.assign.forEach(function(c){sizes[c]++;});
     var PAL=['#5eead4','#a78bfa','#f5c451','#ff6f8a','#6bcfff','#63d6a8','#ff9d5c','#c9b6ff'];
     var chips=sizes.map(function(sz,c){ return '<span style="display:inline-flex;align-items:center;gap:5px;background:#0a1628;border:1px solid #1a3050;border-radius:20px;padding:3px 10px;font-size:.74rem;color:#cdd9e6"><span style="width:10px;height:10px;border-radius:50%;background:'+PAL[c%PAL.length]+'"></span>Cluster '+(c+1)+': '+sz+'</span>'; }).join(' ');
-    o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 8px">'+_dsMetricCard('cluster (k)',k)+_dsMetricCard('punti',X.length)+_dsMetricCard('feature',numFeats.length)+_dsMetricCard('PCA var. spiegata',pca.explained.toFixed(0)+'%')+'</div>'+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px">'+chips+'</div>'+
-      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">proiezione PCA 2D (i colori sono i cluster trovati)</div><canvas id="dsMlCluCv" style="width:100%;height:230px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">Clustering <b>k-means</b> (non supervisionato) su feature standardizzate, visualizzato con <b>PCA</b> (le 2 direzioni di massima varianza). Gruppi ben separati = struttura reale nei dati.</div>';
-    _dsDrawClusters(pca.pts,km.assign,PAL);
+    o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 8px">'+_dsMetricCard('cluster (k)',k)+_dsMetricCard('punti',X.length)+_dsMetricCard('feature',numFeats.length)+_dsMetricCard('PCA var. spiegata',pca.explained.toFixed(0)+'%')+_dsMetricCard('k suggerito',sugg,'#f5c451')+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+chips+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<div><div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">proiezione PCA 2D (colori = cluster)</div><canvas id="dsMlCluCv" style="width:100%;height:200px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
+        '<div><div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">metodo del gomito (inerzia vs k)</div><canvas id="dsMlElbow" style="width:100%;height:200px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
+      '</div>'+
+      '<div style="margin-top:7px"><button id="dsMlUseSugg" class="ds-gh-b" style="border-color:#f5c451;color:#f5c451">Usa k suggerito ('+sugg+')</button></div>'+
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Clustering <b>k-means</b> su feature standardizzate, visualizzato con <b>PCA</b>. Il <b>gomito</b> (punto giallo) è dove aggiungere cluster smette di ridurre molto l\'inerzia: il numero "naturale" di gruppi.</div>';
+    _dsDrawClusters(pca.pts,km.assign,PAL); _dsDrawElbow(iner,k,sugg);
+    var us=document.getElementById('dsMlUseSugg'); if(us)us.onclick=function(){ var ki=document.getElementById('dsMlK'); if(ki)ki.value=sugg; _dsCluster(data,feats,stats); };
   }
   function _dsDrawClusters(pts,assign,PAL){
     var cv=document.getElementById('dsMlCluCv'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
