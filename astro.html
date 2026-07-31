@@ -490,6 +490,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
     <button id="cosmo-speed" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.76rem">⏩ Velocità: 1×</button>
     <button id="cosmo-pause" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.76rem">⏸ Pausa moti</button>
     <button id="cosmo-reset" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(0,201,183,.3);background:#0c1f33;color:#e9eef6;cursor:pointer;font-size:.76rem">🎯 Centra vista</button>
+    <button id="cosmo-tour" style="padding:5px 12px;border-radius:8px;border:1px solid #a78bfa;background:rgba(124,111,255,.14);color:#c9b6ff;cursor:pointer;font-size:.76rem;font-weight:700">🎬 Tour guidato</button>
   </div>
   <div id="cosmo-info" style="padding:12px 16px;max-width:960px;margin:0 auto"></div>
 </div>
@@ -1573,6 +1574,7 @@ function initCosmo(){
     var sp=document.getElementById('cosmo-speed'); if(sp&&!sp._w){sp._w=1;sp.onclick=function(){ var sq=[1,2,5,10,0.25,0.5]; var idx=sq.indexOf(_cosmo.speed); _cosmo.speed=sq[(idx+1)%sq.length]; sp.textContent='⏩ Velocità: '+_cosmo.speed+'×'; };}
     var pa=document.getElementById('cosmo-pause'); if(pa&&!pa._w){pa._w=1;pa.onclick=function(){ _cosmo.paused=!_cosmo.paused; pa.textContent=_cosmo.paused?'▶ Riprendi moti':'⏸ Pausa moti'; };}
     var rs=document.getElementById('cosmo-reset'); if(rs&&!rs._w){rs._w=1;rs.onclick=function(){ if(typeof _cosmo._resetView==='function')_cosmo._resetView(); };}
+    var tb=document.getElementById('cosmo-tour'); if(tb&&!tb._w){tb._w=1;tb.onclick=function(){ if(_cosmo._tourTimer)_cosmoTourStop(); else _cosmoTourStart(); };}
   }
   _cosmoLoad(_cosmo.curScene||'blackhole');
 }
@@ -1713,6 +1715,19 @@ function _cosmoAdaptQuality(now){
   if(fps<42){ f.lo++; f.hi=0; } else if(fps>56){ f.hi++; f.lo=0; } else { f.lo=0; f.hi=0; }
   if(f.lo>=2 && pr>0.85){ _cosmoSetPR(pr-0.35); f.lo=0; }
   else if(f.hi>=5 && pr<(_cosmo._prMax||2)){ _cosmoSetPR(pr+0.25); f.hi=0; }
+}
+// ─── Tour guidato: scorre automaticamente una selezione di corpi ───
+var _COSMO_TOUR=['solar','blackhole','quasar','magnetar','kilonova','hypergiant','wolfrayet','nebula','globular','einsteinring','snr','cosmicweb','oceanworld','comet3d','galaxy','tde','fermibubbles','pulsar','whitedwarf'];
+function _cosmoTourGo(name){ var b=document.querySelector('.cosmo-btn[data-scene="'+name+'"]'); if(b){ b.click(); } else { try{ _cosmoLoad(name); }catch(e){} } }
+function _cosmoTourStart(){
+  if(_cosmo._tourTimer)return; _cosmo._tourIdx=0;
+  var tb=document.getElementById('cosmo-tour'); if(tb){ tb.textContent='⏹ Ferma tour'; tb.style.background='rgba(255,90,90,.16)'; tb.style.borderColor='#ff6f6f'; tb.style.color='#ffb0b0'; }
+  _cosmoTourGo(_COSMO_TOUR[0]);
+  _cosmo._tourTimer=setInterval(function(){ if(document.hidden)return; _cosmo._tourIdx=(_cosmo._tourIdx+1)%_COSMO_TOUR.length; _cosmoTourGo(_COSMO_TOUR[_cosmo._tourIdx]); },8000);
+}
+function _cosmoTourStop(){
+  if(_cosmo._tourTimer){ clearInterval(_cosmo._tourTimer); _cosmo._tourTimer=null; }
+  var tb=document.getElementById('cosmo-tour'); if(tb){ tb.textContent='🎬 Tour guidato'; tb.style.background='rgba(124,111,255,.14)'; tb.style.borderColor='#a78bfa'; tb.style.color='#c9b6ff'; }
 }
 function _cosmoAnimate(ts){
   _cosmo.raf=requestAnimationFrame(_cosmoAnimate);
