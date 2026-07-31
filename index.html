@@ -815,7 +815,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sstruct">🧬 Strutture 3D</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
-  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button></div>
+  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button></div>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
@@ -836,7 +836,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="ssteich">⚗️ Stechiometria</button>
     <button class="nav-btn" data-s="scalcav">🧮 Calc. Avanz.</button>
     <button class="nav-btn" data-s="scalc">🔢 Calcolatore</button>
-  <button class="nav-btn" data-s="sdistr">📊 Diagrammi Distribuz.</button><button class="nav-btn" data-s="sbuffer">📉 Henderson & Tamponi</button><button class="nav-btn" data-s="sthermoadv">🌡️ Termodinamica Avanz.</button></div>
+  <button class="nav-btn" data-s="sdistr">📊 Diagrammi Distribuz.</button><button class="nav-btn" data-s="sbuffer">📉 Henderson & Tamponi</button><button class="nav-btn" data-s="sthermoadv">🌡️ Termodinamica Avanz.</button><button class="nav-btn" data-s="scfgraf" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">📈 Grafici Interattivi</button></div>
   <div id="navGroup5" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="serrori">🗺️ Riassunti</button>
     <button class="nav-btn" data-s="squiz">❓ Quiz</button>
@@ -3175,6 +3175,8 @@ window.onload = function(){
       if(sec==='smorb' && typeof window.initMOViewer==='function') window.initMOViewer();
       if(sec==='sinorg' && typeof window.initInorganic==='function') window.initInorganic();
       if(sec==='sretro' && typeof window.initRetro==='function') window.initRetro();
+      if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
+      if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='scustomflash' && typeof window.initCustomFlash==='function') window.initCustomFlash();
       if(sec==='sphase' && typeof window.initPhase==='function') window.initPhase();
       if(sec==='smap' && typeof window.initConceptMap==='function') window.initConceptMap();
@@ -27770,6 +27772,8 @@ window.calcMolProps = function() {
 <div id="sfilemanager" class="section"></div>
 <div id="s3dpro" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
+<div id="scfgraf" class="section"></div>
+<div id="sglic" class="section"></div>
 
 
 <script>
@@ -39862,5 +39866,408 @@ window.bsiLoadRDKit=function(cb){
   }
   attempt(0);
 };
-</script></body>
+</script>
+<script>
+/* ============================================================
+   CHIMICA FISICA — GRAFICI INTERATTIVI (canvas + slider live)
+   ============================================================ */
+window.initCFGraf=function(){
+  var sec=document.getElementById('scfgraf');
+  if(!sec||sec._init)return; sec._init=true;
+  sec.innerHTML=
+   '<div class="section-title">📈 GRAFICI INTERATTIVI — Chimica Fisica</div>'
+  +'<div style="color:#9fb3c8;font-size:.92rem;margin-bottom:16px;max-width:760px;line-height:1.6">Modelli fisici reali resi <b>vivi</b>: muovi gli slider e le curve si ridisegnano in tempo reale. Ogni pannello mostra le formule, i parametri e i punti caratteristici — utile per capire davvero il comportamento fisico, non solo memorizzarlo.</div>'
+  +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px" id="cfgTabs"></div>'
+  +'<div id="cfgBody"></div>';
+
+  var TABS=[
+    {id:'mm', t:'🧪 Michaelis–Menten'},
+    {id:'arr',t:'🔥 Arrhenius'},
+    {id:'vdw',t:'💨 Van der Waals'},
+    {id:'boltz',t:'📊 Boltzmann'},
+    {id:'first',t:'⏳ Cinetica 1° ordine'}
+  ];
+  var tabsEl=sec.querySelector('#cfgTabs'), bodyEl=sec.querySelector('#cfgBody'), cur='mm';
+  function paintTabs(){
+    tabsEl.innerHTML='';
+    TABS.forEach(function(T){
+      var b=document.createElement('button');
+      b.textContent=T.t;
+      b.style.cssText='border:1px solid '+(cur===T.id?'#5eead4':'rgba(148,163,184,.35)')+';background:'+(cur===T.id?'linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.14))':'transparent')+';color:'+(cur===T.id?'#e6fffb':'#9fb3c8')+';border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:.9rem';
+      b.onclick=function(){cur=T.id;paintTabs();render();};
+      tabsEl.appendChild(b);
+    });
+  }
+  function slider(label,id,min,max,val,step,unit){
+    return '<label style="display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:#9fb3c8;min-width:190px;flex:1">'
+      +'<span>'+label+': <b id="'+id+'v" style="color:#5eead4">'+val+'</b> '+(unit||'')+'</span>'
+      +'<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" style="width:100%;accent-color:#5eead4"></label>';
+  }
+  function panel(canvasId,controlsHTML,infoHTML){
+    return '<div style="background:#0c1f33;border:1px solid rgba(94,234,212,.25);border-radius:14px;padding:18px">'
+      +'<canvas id="'+canvasId+'" width="760" height="380" style="width:100%;max-width:760px;background:#081522;border-radius:10px;display:block;margin-bottom:14px"></canvas>'
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">'+controlsHTML+'</div>'
+      +'<div id="'+canvasId+'info" style="font-size:.86rem;color:#cbd5e1;line-height:1.6;background:#081522;border-radius:8px;padding:12px;border-left:3px solid #5eead4">'+(infoHTML||'')+'</div></div>';
+  }
+  // canvas plot helper: fn(x)->y over [x0,x1], autoscale y
+  function plot(cv,series,opts){
+    opts=opts||{};
+    var W=cv.width,H=cv.height,ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    var pad={l:60,r:20,t:20,b:44};
+    var x0=opts.x0,x1=opts.x1,y0=opts.y0,y1=opts.y1;
+    if(y0==null||y1==null){
+      var lo=Infinity,hi=-Infinity;
+      series.forEach(function(s){s.pts.forEach(function(p){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1];});});
+      if(!isFinite(lo)){lo=0;hi=1;} if(hi===lo)hi=lo+1;
+      y0=(opts.y0!=null?opts.y0:lo-(hi-lo)*0.06); y1=(opts.y1!=null?opts.y1:hi+(hi-lo)*0.08);
+    }
+    function X(x){return pad.l+(x-x0)/(x1-x0)*(W-pad.l-pad.r);}
+    function Y(y){return H-pad.b-(y-y0)/(y1-y0)*(H-pad.t-pad.b);}
+    // grid
+    ctx.strokeStyle='rgba(148,163,184,.12)';ctx.lineWidth=1;ctx.fillStyle='#7891a8';ctx.font='11px system-ui';
+    for(var i=0;i<=5;i++){
+      var gy=y0+(y1-y0)*i/5, py=Y(gy);
+      ctx.beginPath();ctx.moveTo(pad.l,py);ctx.lineTo(W-pad.r,py);ctx.stroke();
+      ctx.textAlign='right';ctx.fillText(gy.toPrecision(3),pad.l-6,py+3);
+      var gx=x0+(x1-x0)*i/5, px=X(gx);
+      ctx.beginPath();ctx.moveTo(px,pad.t);ctx.lineTo(px,H-pad.b);ctx.stroke();
+      ctx.textAlign='center';ctx.fillText(gx.toPrecision(3),px,H-pad.b+16);
+    }
+    // axes labels
+    ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';
+    if(opts.xl){ctx.textAlign='center';ctx.fillText(opts.xl,pad.l+(W-pad.l-pad.r)/2,H-8);}
+    if(opts.yl){ctx.save();ctx.translate(16,pad.t+(H-pad.t-pad.b)/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText(opts.yl,0,0);ctx.restore();}
+    // series
+    series.forEach(function(s){
+      ctx.strokeStyle=s.color;ctx.lineWidth=s.w||2.4;ctx.beginPath();
+      s.pts.forEach(function(p,i){var px=X(p[0]),py=Y(p[1]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});
+      ctx.stroke();
+      if(s.dash){/* handled by caller */}
+    });
+    // markers
+    (opts.marks||[]).forEach(function(m){
+      var px=X(m.x),py=Y(m.y);
+      ctx.fillStyle=m.color||'#f5c451';ctx.beginPath();ctx.arc(px,py,4.5,0,7);ctx.fill();
+      if(m.label){ctx.fillStyle=m.color||'#f5c451';ctx.font='11px system-ui';ctx.textAlign='left';ctx.fillText(m.label,px+7,py-6);}
+    });
+    // guide lines
+    (opts.guides||[]).forEach(function(g){
+      ctx.strokeStyle=g.color||'rgba(245,196,81,.5)';ctx.setLineDash([5,4]);ctx.lineWidth=1.2;ctx.beginPath();
+      if(g.x!=null){ctx.moveTo(X(g.x),pad.t);ctx.lineTo(X(g.x),H-pad.b);}
+      if(g.y!=null){ctx.moveTo(pad.l,Y(g.y));ctx.lineTo(W-pad.r,Y(g.y));}
+      ctx.stroke();ctx.setLineDash([]);
+    });
+    // legend
+    if(opts.legend){
+      var lx=W-pad.r-160,ly=pad.t+6;
+      opts.legend.forEach(function(L,i){
+        ctx.fillStyle=L.color;ctx.fillRect(lx,ly+i*18,14,4);
+        ctx.fillStyle='#cbd5e1';ctx.font='11px system-ui';ctx.textAlign='left';ctx.fillText(L.t,lx+20,ly+i*18+5);
+      });
+    }
+    return {X:X,Y:Y};
+  }
+  function on(id,cb){var el=sec.querySelector('#'+id);if(el)el.oninput=cb;}
+  function val(id){return parseFloat(sec.querySelector('#'+id).value);}
+  function setv(id,v){var e=sec.querySelector('#'+id+'v');if(e)e.textContent=v;}
+
+  function render(){
+    if(cur==='mm')renderMM();
+    else if(cur==='arr')renderArr();
+    else if(cur==='vdw')renderVDW();
+    else if(cur==='boltz')renderBoltz();
+    else if(cur==='first')renderFirst();
+  }
+
+  // --- Michaelis-Menten con inibizione ---
+  function renderMM(){
+    bodyEl.innerHTML=panel('cfgMM',
+      slider('V<sub>max</sub>','mmVmax',10,200,100,1,'µmol/min')
+      +slider('K<sub>M</sub>','mmKm',1,50,10,0.5,'mM')
+      +slider('[I] inibitore','mmI',0,50,0,1,'mM')
+      +slider('K<sub>i</sub>','mmKi',1,50,10,0.5,'mM')
+      +'<label style="min-width:170px;flex:1;font-size:.85rem;color:#9fb3c8">Tipo inibizione<br><select id="mmType" style="width:100%;margin-top:4px;padding:6px;background:#081522;color:#e6fffb;border:1px solid rgba(94,234,212,.3);border-radius:6px"><option value="none">Nessuna</option><option value="comp">Competitiva</option><option value="uncomp">Incompetitiva</option><option value="noncomp">Non competitiva</option></select></label>',
+      '');
+    function upd(){
+      var Vmax=val('mmVmax'),Km=val('mmKm'),I=val('mmI'),Ki=val('mmKi'),type=sec.querySelector('#mmType').value;
+      setv('mmVmax',Vmax);setv('mmKm',Km);setv('mmI',I);setv('mmKi',Ki);
+      var a=1+I/Ki; // fattore
+      var Vm2=Vmax,Km2=Km;
+      if(type==='comp'){Km2=Km*a;}
+      else if(type==='uncomp'){Vm2=Vmax/a;Km2=Km/a;}
+      else if(type==='noncomp'){Vm2=Vmax/a;}
+      var S1=Km*10;
+      var base=[],inh=[];
+      for(var s=0;s<=S1;s+=S1/160){
+        base.push([s, Vmax*s/(Km+s)]);
+        inh.push([s, Vm2*s/(Km2+s)]);
+      }
+      var cv=sec.querySelector('#cfgMM');
+      var series=[{pts:base,color:'#5eead4'}];
+      if(type!=='none')series.push({pts:inh,color:'#ff7859'});
+      plot(cv,series,{x0:0,x1:S1,y0:0,y1:Vmax*1.05,xl:'[S] substrato (mM)',yl:'v (µmol/min)',
+        guides:[{y:Vmax,color:'rgba(94,234,212,.4)'},{x:Km,color:'rgba(245,196,81,.4)'}],
+        marks:[{x:Km,y:Vmax/2,color:'#f5c451',label:'½Vmax @ Km'}],
+        legend:(type!=='none'?[{color:'#5eead4',t:'senza inibitore'},{color:'#ff7859',t:'con inibitore'}]:[{color:'#5eead4',t:'v(S)'}])});
+      var kmApp=(type==='comp'?Km2:(type==='uncomp'?Km2:Km)).toFixed(1);
+      sec.querySelector('#cfgMMinfo').innerHTML=
+        '<b>v = V<sub>max</sub>·[S] / (K<sub>M</sub> + [S])</b> — equazione di Michaelis–Menten.<br>'
+        +'A [S]=K<sub>M</sub> la velocità è esattamente <b>½V<sub>max</sub></b>. K<sub>M</sub> misura l\'affinità (basso = alta affinità).<br>'
+        +(type==='none'?'Nessun inibitore: curva iperbolica pura.':
+          type==='comp'?'<b>Competitiva</b>: l\'inibitore compete col substrato → K<sub>M</sub> apparente ↑ ('+kmApp+' mM), V<sub>max</sub> invariata (si può vincere con [S] alto).':
+          type==='uncomp'?'<b>Incompetitiva</b>: lega solo il complesso ES → V<sub>max</sub> ↓ e K<sub>M</sub> ↓ (rapporto Vmax/Km costante).':
+          '<b>Non competitiva</b>: lega enzima e complesso ES → V<sub>max</sub> ↓ ('+Vm2.toFixed(0)+'), K<sub>M</sub> invariata.');
+    }
+    ['mmVmax','mmKm','mmI','mmKi'].forEach(function(id){on(id,upd);});
+    sec.querySelector('#mmType').onchange=upd;
+    upd();
+  }
+
+  // --- Arrhenius: k vs T e ln k vs 1/T ---
+  function renderArr(){
+    bodyEl.innerHTML=panel('cfgArr',
+      slider('E<sub>a</sub> energia attiv.','arrEa',10,200,60,1,'kJ/mol')
+      +slider('A (pre-esp., log₁₀)','arrA',8,15,12,0.1,'')
+      +slider('T max','arrTmax',300,900,600,10,'K'),
+      '');
+    function upd(){
+      var Ea=val('arrEa')*1000,logA=val('arrA'),A=Math.pow(10,logA),Tmax=val('arrTmax'),R=8.314;
+      setv('arrEa',val('arrEa'));setv('arrA',val('arrA').toFixed(1));setv('arrTmax',Tmax);
+      var Tmin=250;
+      var kT=[];
+      for(var T=Tmin;T<=Tmax;T+=(Tmax-Tmin)/180){ kT.push([T, A*Math.exp(-Ea/(R*T))]); }
+      var cv=sec.querySelector('#cfgArr');
+      // log scale on y for k: plot log10(k)
+      var kL=kT.map(function(p){return [p[0], Math.log10(Math.max(p[1],1e-30))];});
+      plot(cv,[{pts:kL,color:'#5eead4'}],{x0:Tmin,x1:Tmax,xl:'T (K)',yl:'log₁₀ k',
+        legend:[{color:'#5eead4',t:'log k(T)'}]});
+      var k298=A*Math.exp(-Ea/(R*298));
+      var k310=A*Math.exp(-Ea/(R*310));
+      sec.querySelector('#cfgArrinfo').innerHTML=
+        '<b>k = A·e<sup>−E<sub>a</sub>/RT</sup></b> — legge di Arrhenius.<br>'
+        +'E<sub>a</sub> alta ⇒ forte dipendenza dalla temperatura (curva ripida). Il grafico ln k vs 1/T sarebbe una retta di pendenza −E<sub>a</sub>/R.<br>'
+        +'A 298 K: k ≈ <b>'+k298.toExponential(2)+'</b> s⁻¹. Salendo a 310 K (+12 K, febbre/corpo): k ≈ <b>'+k310.toExponential(2)+'</b> s⁻¹ → ×'+(k310/k298).toFixed(2)+'.';
+    }
+    ['arrEa','arrA','arrTmax'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  // --- Van der Waals isoterme P(V) ---
+  function renderVDW(){
+    bodyEl.innerHTML=panel('cfgVDW',
+      slider('Temperatura','vdwT',150,500,300,5,'K')
+      +slider('a (attrazione)','vdwA',0,6,3.6,0.1,'L²·atm/mol²')
+      +slider('b (volume proprio)','vdwB',0.01,0.1,0.043,0.001,'L/mol'),
+      '');
+    function upd(){
+      var T=val('vdwT'),a=val('vdwA'),b=val('vdwB'),R=0.08206;
+      setv('vdwT',T);setv('vdwA',a.toFixed(1));setv('vdwB',b.toFixed(3));
+      var Vmin=b*1.15,Vmax=0.8;
+      var vdw=[],ideal=[];
+      for(var V=Vmin;V<=Vmax;V+=(Vmax-Vmin)/240){
+        var P=R*T/(V-b)-a/(V*V);
+        vdw.push([V, Math.max(-20,Math.min(120,P))]);
+        ideal.push([V, R*T/V]);
+      }
+      var cv=sec.querySelector('#cfgVDW');
+      plot(cv,[{pts:ideal,color:'#7c6fff'},{pts:vdw,color:'#5eead4'}],
+        {x0:0,x1:Vmax,y0:0,y1:80,xl:'V molare (L/mol)',yl:'P (atm)',
+         legend:[{color:'#7c6fff',t:'gas ideale'},{color:'#5eead4',t:'Van der Waals'}]});
+      // critical point
+      var Vc=3*b,Tc=8*a/(27*R*b),Pc=a/(27*b*b);
+      sec.querySelector('#cfgVDWinfo').innerHTML=
+        '<b>(P + a/V²)(V − b) = RT</b> — equazione di Van der Waals.<br>'
+        +'<b>a</b> corregge le attrazioni intermolecolari (abbassa P), <b>b</b> il volume proprio delle molecole.<br>'
+        +'Punto critico: T<sub>c</sub>=8a/27Rb ≈ <b>'+Tc.toFixed(0)+' K</b>, P<sub>c</sub>=a/27b² ≈ <b>'+Pc.toFixed(1)+' atm</b>, V<sub>c</sub>=3b ≈ '+Vc.toFixed(3)+' L/mol. '
+        +(T<Tc?'Sei <b>sotto</b> T<sub>c</sub>: compare l\'oscillazione (transizione liquido-gas).':'Sei sopra T<sub>c</sub>: fluido supercritico, curva monotona.');
+    }
+    ['vdwT','vdwA','vdwB'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  // --- Distribuzione di Maxwell-Boltzmann delle velocità ---
+  function renderBoltz(){
+    bodyEl.innerHTML=panel('cfgBoltz',
+      slider('Temperatura','bzT',100,1500,300,10,'K')
+      +slider('Massa molare','bzM',2,220,32,1,'g/mol'),
+      '');
+    function upd(){
+      var T=val('bzT'),M=val('bzM')/1000,R=8.314;
+      setv('bzT',T);setv('bzM',val('bzM'));
+      var pts=[],vmax=Math.sqrt(2*R*T/M)*3.2;
+      var pref=4*Math.PI*Math.pow(M/(2*Math.PI*R*T),1.5);
+      for(var v=0;v<=vmax;v+=vmax/240){
+        pts.push([v, pref*v*v*Math.exp(-M*v*v/(2*R*T))]);
+      }
+      var cv=sec.querySelector('#cfgBoltz');
+      var vp=Math.sqrt(2*R*T/M),vmean=Math.sqrt(8*R*T/(Math.PI*M)),vrms=Math.sqrt(3*R*T/M);
+      var fvp=pref*vp*vp*Math.exp(-M*vp*vp/(2*R*T));
+      plot(cv,[{pts:pts,color:'#5eead4'}],{x0:0,x1:vmax,y0:0,xl:'velocità v (m/s)',yl:'f(v)',
+        guides:[{x:vp,color:'rgba(245,196,81,.5)'},{x:vrms,color:'rgba(255,120,89,.5)'}],
+        marks:[{x:vp,y:fvp,color:'#f5c451',label:'v più probabile'}],
+        legend:[{color:'#5eead4',t:'f(v)'}]});
+      sec.querySelector('#cfgBoltzinfo').innerHTML=
+        '<b>f(v) = 4π(M/2πRT)<sup>3/2</sup> v² e<sup>−Mv²/2RT</sup></b> — distribuzione di Maxwell–Boltzmann.<br>'
+        +'v<sub>p</sub> (più probabile) = <b>'+vp.toFixed(0)+' m/s</b>, ⟨v⟩ (media) = '+vmean.toFixed(0)+' m/s, v<sub>rms</sub> = <b>'+vrms.toFixed(0)+' m/s</b>.<br>'
+        +'Alzando T o abbassando M la curva si allarga e si sposta a destra (molecole più veloci). Gas leggeri (H₂, He) sono molto più veloci a parità di T.';
+    }
+    ['bzT','bzM'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  // --- Cinetica: 1° ordine (decadimento) + confronto ordine 0 e 2 ---
+  function renderFirst(){
+    bodyEl.innerHTML=panel('cfgFirst',
+      slider('[A]₀ iniziale','fA0',0.2,5,1,0.1,'mol/L')
+      +slider('k costante','fK',0.05,2,0.4,0.01,'s⁻¹')
+      +slider('t max','fT',2,40,15,1,'s'),
+      '');
+    function upd(){
+      var A0=val('fA0'),k=val('fK'),tmax=val('fT');
+      setv('fA0',A0.toFixed(1));setv('fK',k.toFixed(2));setv('fT',tmax);
+      var o0=[],o1=[],o2=[];
+      for(var t=0;t<=tmax;t+=tmax/220){
+        o0.push([t, Math.max(0,A0-k*t)]);
+        o1.push([t, A0*Math.exp(-k*t)]);
+        o2.push([t, A0/(1+k*A0*t)]);
+      }
+      var cv=sec.querySelector('#cfgFirst');
+      var thalf=Math.log(2)/k;
+      plot(cv,[{pts:o0,color:'#7c6fff'},{pts:o1,color:'#5eead4'},{pts:o2,color:'#ff7859'}],
+        {x0:0,x1:tmax,y0:0,y1:A0*1.05,xl:'tempo (s)',yl:'[A] (mol/L)',
+         guides:[{y:A0/2,color:'rgba(245,196,81,.4)'},{x:thalf,color:'rgba(245,196,81,.4)'}],
+         marks:[{x:thalf,y:A0/2,color:'#f5c451',label:'t½ (1°ord)'}],
+         legend:[{color:'#7c6fff',t:'ordine 0'},{color:'#5eead4',t:'ordine 1'},{color:'#ff7859',t:'ordine 2'}]});
+      sec.querySelector('#cfgFirstinfo').innerHTML=
+        '<b>1° ordine:</b> [A] = [A]₀·e<sup>−kt</sup>, tempo di dimezzamento <b>t½ = ln2/k = '+thalf.toFixed(2)+' s</b> (indipendente da [A]₀!).<br>'
+        +'<b>Ordine 0:</b> [A] = [A]₀ − kt (retta, t½ dipende da [A]₀). <b>Ordine 2:</b> 1/[A] = 1/[A]₀ + kt.<br>'
+        +'Per un 1° ordine il grafico ln[A] vs t è una retta di pendenza −k: è il test diagnostico dell\'ordine di reazione.';
+    }
+    ['fA0','fK','fT'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  paintTabs();render();
+};
+
+/* ============================================================
+   BIOCHIMICA — GLICOLISI ANIMATA (10 tappe, play passo-passo)
+   ============================================================ */
+window.initGlic=function(){
+  var sec=document.getElementById('sglic');
+  if(!sec||sec._init)return; sec._init=true;
+  var STEPS=[
+    {n:1,sub:'Glucosio',prod:'Glucosio-6-P',enz:'Esochinasi / Glucochinasi',atp:-1,nadh:0,irrev:true,
+     note:'Fosforilazione del C6. Consuma 1 ATP. <b>Tappa irreversibile</b> e regolata (inibita da G6P). Intrappola il glucosio nella cellula.'},
+    {n:2,sub:'Glucosio-6-P',prod:'Fruttosio-6-P',enz:'Fosfoglucosio isomerasi',atp:0,nadh:0,
+     note:'Isomerizzazione aldoso→chetoso. Sposta il carbonile per preparare la seconda fosforilazione. Reversibile.'},
+    {n:3,sub:'Fruttosio-6-P',prod:'Fruttosio-1,6-bisP',enz:'Fosfofruttochinasi-1 (PFK-1)',atp:-1,nadh:0,irrev:true,
+     note:'Seconda fosforilazione, consuma 1 ATP. <b>Tappa chiave della regolazione</b> (committed step): attivata da AMP/F-2,6-bisP, inibita da ATP/citrato.'},
+    {n:4,sub:'Fruttosio-1,6-bisP',prod:'DHAP + Gliceraldeide-3-P',enz:'Aldolasi',atp:0,nadh:0,
+     note:'Scissione del C6 in due trioso-fosfati (DHAP + G3P). Da qui in poi tutto è ×2.'},
+    {n:5,sub:'DHAP',prod:'Gliceraldeide-3-P',enz:'Triosofosfato isomerasi',atp:0,nadh:0,
+     note:'Il DHAP viene convertito in G3P: così entrambi i trioso proseguono. Fine della <b>fase preparatoria</b> (investimento di 2 ATP).'},
+    {n:6,sub:'Gliceraldeide-3-P (×2)',prod:'1,3-bisfosfoglicerato',enz:'G3P deidrogenasi',atp:0,nadh:2,
+     note:'Ossidazione + fosforilazione con Pi inorganico. <b>Produce 2 NADH</b> (uno per trioso). Inizio della <b>fase di rendimento</b>.'},
+    {n:7,sub:'1,3-bisfosfoglicerato (×2)',prod:'3-fosfoglicerato',enz:'Fosfoglicerato chinasi',atp:2,nadh:0,
+     note:'<b>Fosforilazione a livello del substrato</b>: produce 2 ATP. Recupera i 2 ATP investiti all\'inizio.'},
+    {n:8,sub:'3-fosfoglicerato (×2)',prod:'2-fosfoglicerato',enz:'Fosfoglicerato mutasi',atp:0,nadh:0,
+     note:'Spostamento del gruppo fosfato dal C3 al C2. Prepara la disidratazione successiva.'},
+    {n:9,sub:'2-fosfoglicerato (×2)',prod:'Fosfoenolpiruvato (PEP)',enz:'Enolasi',atp:0,nadh:0,
+     note:'Disidratazione: crea il legame ad alta energia dell\'enolo-fosfato (PEP). Inibita dal fluoruro.'},
+    {n:10,sub:'Fosfoenolpiruvato (×2)',prod:'Piruvato',enz:'Piruvato chinasi',atp:2,nadh:0,irrev:true,
+     note:'Seconda fosforilazione a livello del substrato: <b>2 ATP</b>. <b>Tappa irreversibile</b> e regolata. Prodotto finale: 2 piruvato.'}
+  ];
+  sec.innerHTML=
+   '<div class="section-title">🔄 GLICOLISI ANIMATA — le 10 tappe passo-passo</div>'
+  +'<div style="color:#9fb3c8;font-size:.92rem;margin-bottom:14px;max-width:800px;line-height:1.6">La via che demolisce il glucosio in 2 piruvato. Premi <b>▶ Play</b> e segui una tappa alla volta: enzima, substrato→prodotto, bilancio di ATP e NADH. Bilancio netto per glucosio: <b>2 ATP + 2 NADH + 2 piruvato</b> (investi 2 ATP, ne recuperi 4).</div>'
+  +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">'
+    +'<button id="glPlay" style="border:none;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#f5c451,#ff7859);color:#1a1000">▶ Play</button>'
+    +'<button id="glPrev" style="border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:transparent;color:#f5c451">◀ Prec</button>'
+    +'<button id="glNext" style="border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:transparent;color:#f5c451">Succ ▶</button>'
+    +'<button id="glReset" style="border:1px solid rgba(148,163,184,.35);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;background:transparent;color:#9fb3c8">↺ Reset</button>'
+    +'<div style="margin-left:auto;display:flex;gap:14px;font-size:.9rem;font-weight:700">'
+      +'<span style="color:#ff7859">ATP: <span id="glATP">0</span></span>'
+      +'<span style="color:#5eead4">NADH: <span id="glNADH">0</span></span>'
+    +'</div>'
+  +'</div>'
+  +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px" id="glDots"></div>'
+  +'<div id="glStage" style="background:#0c1f33;border:1px solid rgba(245,196,81,.28);border-radius:16px;padding:22px;min-height:220px;position:relative;overflow:hidden"></div>'
+  +'<div style="margin-top:16px;font-size:.82rem;color:#7891a8;line-height:1.6">💡 <b>Fase preparatoria</b> (tappe 1–5): investi 2 ATP. <b>Fase di rendimento</b> (tappe 6–10): produci 4 ATP + 2 NADH. Le tappe <b style="color:#ff7859">1, 3 e 10</b> sono irreversibili e sono i punti di controllo della via.</div>'
+  +'<style>@keyframes glPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}@keyframes glFlow{0%{transform:translateX(-14px);opacity:0}100%{transform:translateX(0);opacity:1}}@keyframes glGlow{0%,100%{box-shadow:0 0 0 rgba(245,196,81,0)}50%{box-shadow:0 0 22px rgba(245,196,81,.55)}}.glReveal{animation:glPop .5s cubic-bezier(.2,.9,.3,1.2) both}.glArrowA{animation:glFlow .6s ease .15s both}@media(prefers-reduced-motion:reduce){.glReveal,.glArrowA{animation:none!important}}</style>';
+
+  var dotsEl=sec.querySelector('#glDots'), stage=sec.querySelector('#glStage');
+  var atpEl=sec.querySelector('#glATP'), nadhEl=sec.querySelector('#glNADH');
+  var idx=-1, playing=false, timer=null;
+
+  function dots(){
+    dotsEl.innerHTML='';
+    STEPS.forEach(function(S,i){
+      var d=document.createElement('button');
+      d.textContent=S.n;
+      var active=(i===idx), done=(i<idx);
+      d.style.cssText='width:34px;height:34px;border-radius:50%;font-weight:700;cursor:pointer;font-size:.85rem;border:2px solid '+(S.irrev?'#ff7859':'rgba(245,196,81,.5)')+';background:'+(active?'#f5c451':(done?'rgba(94,234,212,.25)':'transparent'))+';color:'+(active?'#1a1000':(done?'#5eead4':'#9fb3c8'))+';transition:all .2s';
+      if(active)d.style.boxShadow='0 0 14px rgba(245,196,81,.7)';
+      d.onclick=function(){stop();goto(i);};
+      dotsEl.appendChild(d);
+    });
+  }
+  function tally(){
+    var atp=0,nadh=0;
+    for(var i=0;i<=idx;i++){atp+=STEPS[i].atp;nadh+=STEPS[i].nadh;}
+    atpEl.textContent=(atp>=0?'+':'')+atp; atpEl.style.color=atp<0?'#ff7859':(atp>0?'#5eead4':'#9fb3c8');
+    nadhEl.textContent='+'+nadh;
+  }
+  function badge(txt,col){return '<span style="display:inline-block;background:'+col+';color:#081522;font-weight:800;font-size:.78rem;padding:3px 10px;border-radius:20px;margin-right:6px">'+txt+'</span>';}
+  function draw(){
+    if(idx<0){
+      stage.innerHTML='<div style="text-align:center;color:#9fb3c8;padding:40px 10px"><div style="font-size:2.4rem;margin-bottom:10px">🍬</div><div style="font-size:1.15rem;font-weight:700;color:#f5c451;margin-bottom:6px">Glucosio (C₆H₁₂O₆)</div><div>Premi <b>▶ Play</b> per iniziare la demolizione in 10 tappe.</div></div>';
+      return;
+    }
+    var S=STEPS[idx];
+    var eBadges='';
+    if(S.atp<0)eBadges+=badge((-S.atp)+' ATP consumato'+(S.atp<-1?'i':''),'#ff7859');
+    if(S.atp>0)eBadges+=badge('+'+S.atp+' ATP','#5eead4');
+    if(S.nadh>0)eBadges+=badge('+'+S.nadh+' NADH','#5eead4');
+    if(S.irrev)eBadges+=badge('irreversibile ⚑','#f5c451');
+    stage.innerHTML=
+      '<div class="glReveal" style="display:flex;flex-direction:column;gap:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+        +'<div style="font-size:1.5rem;font-weight:800;color:#f5c451">Tappa '+S.n+' / 10</div>'
+        +'<div>'+eBadges+'</div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:1.05rem">'
+        +'<div style="background:#081522;border:1px solid rgba(94,234,212,.3);border-radius:10px;padding:12px 16px;font-weight:700;color:#e6fffb">'+S.sub+'</div>'
+        +'<div class="glArrowA" style="display:flex;flex-direction:column;align-items:center;color:#f5c451;min-width:120px">'
+          +'<div style="font-size:.8rem;color:#9fb3c8;margin-bottom:2px">'+S.enz+'</div>'
+          +'<div style="font-size:1.6rem;line-height:1">→</div>'
+        +'</div>'
+        +'<div style="background:linear-gradient(135deg,rgba(245,196,81,.18),rgba(255,120,89,.12));border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:12px 16px;font-weight:800;color:#f5c451">'+S.prod+'</div>'
+      +'</div>'
+      +'<div style="font-size:.9rem;color:#cbd5e1;line-height:1.6;background:#081522;border-radius:8px;padding:12px;border-left:3px solid #f5c451">'+S.note+'</div>'
+      +'</div>';
+    if(S.irrev)stage.style.animation='glGlow 1.4s ease';else stage.style.animation='';
+  }
+  function goto(i){
+    idx=Math.max(-1,Math.min(STEPS.length-1,i));
+    dots();tally();draw();
+  }
+  function next(){ if(idx>=STEPS.length-1){stop();return;} goto(idx+1); }
+  function stop(){ playing=false; if(timer){clearTimeout(timer);timer=null;} var b=sec.querySelector('#glPlay'); if(b){b.textContent='▶ Play';} }
+  function play(){
+    if(playing){stop();return;}
+    if(idx>=STEPS.length-1)goto(-1);
+    playing=true; sec.querySelector('#glPlay').textContent='⏸ Pausa';
+    (function tick(){
+      if(!playing)return;
+      next();
+      if(idx<STEPS.length-1){ timer=setTimeout(tick,2200); }
+      else { stop(); }
+    })();
+  }
+  sec.querySelector('#glPlay').onclick=play;
+  sec.querySelector('#glNext').onclick=function(){stop();next();};
+  sec.querySelector('#glPrev').onclick=function(){stop();goto(idx-1);};
+  sec.querySelector('#glReset').onclick=function(){stop();goto(-1);};
+  goto(-1);
+};
+</script>
+</body>
 </html>
