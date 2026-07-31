@@ -7198,10 +7198,16 @@ function structRotY(d){_structRY+=d;}
 function structReset(){_structRX=0.3;_structRY=0;}
 
 function _structAnimate(){
-  _structT+=0.008;
-  if(!_structDrag)_structRY+=0.008;
-  _structDraw();
   _structFrame=requestAnimationFrame(_structAnimate);
+  // fluidità: non disegnare quando la sezione non è visibile (loop sempre vivo, GPU/CPU a riposo)
+  if(document.hidden || !_structCanvas || _structCanvas.offsetParent===null) return;
+  _structT+=0.008;
+  if(!_structDrag){
+    _structRY+=0.011;                                                   // rotazione automatica fluida
+    // oscillazione dolce del tilt che si ricentra da sola (nessuno scatto dopo il drag)
+    _structRX += (0.3 + Math.sin(_structT*0.5)*0.07 - _structRX)*0.03;
+  }
+  _structDraw();
 }
 
 // 3D projection helpers
