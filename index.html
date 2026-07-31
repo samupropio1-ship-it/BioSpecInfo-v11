@@ -913,6 +913,25 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.3);border-radius:9px;padding:10px 13px;color:#cdd9e6;font-size:.82rem;line-height:1.55;margin-top:11px">💡 <b>Consiglio:</b> parti dal passo <b>3 · Provi</b> — apri il lab del CERN e "riscopri" il bosone Z in 10 secondi. Toccare con mano il risultato è la scintilla che ti fa venir voglia di studiare il resto. ✨</div>
   </div>
 
+  <!-- ═══ BANCO DI LAVORO DATI — strumento professionale reale ═══ -->
+  <div id="ds-workbench" style="background:linear-gradient(135deg,rgba(124,111,255,.14),rgba(94,234,212,.08));border:1px solid #3a3466;border-radius:14px;padding:16px 17px;margin-bottom:16px;box-shadow:0 0 18px rgba(124,111,255,.12)">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+      <div style="color:#c9b6ff;font-weight:800;font-size:1.05rem">🧪 Banco di Lavoro Dati</div>
+      <span style="background:#241a45;border:1px solid #a78bfa;color:#c9b6ff;font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em">strumento · non una guida</span>
+    </div>
+    <div style="color:#cdd9e6;font-size:.86rem;line-height:1.6;margin-bottom:11px">Incolla o carica i <b>tuoi dati reali</b> (CSV/TSV) e ottieni subito l'analisi esplorativa che faresti in <code>pandas</code>: forma del dataset, tipi, valori mancanti, statistiche <code>describe()</code>, <b>outlier</b>, <b>matrice di correlazione</b> e <b>istogrammi</b>. Tutto in locale nel browser — i dati <b>non lasciano il tuo dispositivo</b>. Esporta il report per la relazione o il repo.</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+      <button id="dsWbAnalyze" class="ds-gh-b" style="border-color:#a78bfa;background:#241a45;color:#c9b6ff">▶ Analizza</button>
+      <button id="dsWbSample" class="ds-gh-b">🧬 Carica esempio (solubilità)</button>
+      <label class="ds-gh-b" style="cursor:pointer">📁 Apri file… <input id="dsWbFile" type="file" accept=".csv,.tsv,.txt" style="display:none"></label>
+      <button id="dsWbClear" class="ds-gh-b">✕ Pulisci</button>
+      <button id="dsWbExport" class="ds-gh-b" style="display:none">⬇️ Esporta report (.md)</button>
+      <button id="dsWbPy" class="ds-gh-b" style="display:none">🐍 Genera codice pandas</button>
+    </div>
+    <textarea id="dsWbInput" spellcheck="false" placeholder="Incolla qui il CSV (con intestazione), es:&#10;smiles,mw,logp,solubility&#10;CCO,46.07,-0.31,1.10&#10;c1ccccc1,78.11,2.13,-2.20&#10;..." style="width:100%;min-height:96px;background:#070f1c;border:1px solid #26406a;border-radius:9px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.5;padding:9px 11px;resize:vertical;box-sizing:border-box"></textarea>
+    <div id="dsWbOut" style="margin-top:12px"></div>
+  </div>
+
   <!-- COS'È -->
   <div id="ds-capisci" style="background:#0d1b2e;border:1px solid #1a3050;border-radius:12px;padding:15px 16px;margin-bottom:14px">
     <div style="color:#5eead4;font-weight:800;font-size:.98rem;margin-bottom:8px">🧭 Cosa fa davvero un data scientist</div>
@@ -1601,7 +1620,175 @@ window.BSI_TELEMETRY_URL='';</script>
       b.onclick=function(){ window._dsGo(n[0]); };
       b.innerHTML='<span style="flex:none;width:22px;height:22px;border-radius:6px;background:#0e2a3a;border:1px solid #5eead4;color:#5eead4;font-weight:800;font-size:.76rem;display:grid;place-items:center">'+n[1]+'</span><span><b style="color:#e9eef6">'+n[2]+'</b> — '+n[3]+'</span>';
       h.appendChild(b); }); }
-  window.initDataSci=function(){ renderNav(); renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); renderCernGuide(); initGh(); };
+  // ═══════════════ BANCO DI LAVORO DATI — EDA reale, in locale ═══════════════
+  var _DSWB={data:null,cols:null};
+  function _dsWbDL(name,content,mime){ try{ var b=new Blob([content],{type:mime||'text/plain'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u);},100); }catch(e){} }
+  function _dsWbSampleCSV(){
+    return ['nome,mw,logp,tpsa,hbd,hba,solubility_logS',
+      'etanolo,46.07,-0.31,20.23,1,1,1.10','benzene,78.11,2.13,0.00,0,0,-1.64','fenolo,94.11,1.46,20.23,1,1,0.00',
+      'aspirina,180.16,1.19,63.60,1,4,-1.72','caffeina,194.19,-0.07,58.44,0,6,-0.62','glucosio,180.16,-3.24,110.38,5,6,0.74',
+      'acido acetico,60.05,-0.17,37.30,1,2,1.22','anilina,93.13,0.90,26.02,1,1,-0.41','naftalene,128.17,3.30,0.00,0,0,-3.61',
+      'paracetamolo,151.16,0.46,49.33,2,3,-1.03','toluene,92.14,2.73,0.00,0,0,-2.21','acetone,58.08,-0.24,17.07,0,1,0.77',
+      'urea,60.06,-2.11,69.11,2,3,0.96','ibuprofene,206.28,3.97,37.30,1,2,-3.62','saccarosio,342.30,-3.70,189.53,8,11,0.79',
+      'piridina,79.10,0.65,12.89,0,1,0.76','acido benzoico,122.12,1.87,37.30,1,2,-1.55','morfina,285.34,0.89,52.93,2,4,-1.54',
+      'nicotina,162.23,1.17,16.13,0,2,0.11','clorobenzene,112.56,2.84,0.00,0,0,-2.38','glicerolo,92.09,-1.76,60.69,3,3,1.12',
+      'acido citrico,192.12,-1.72,,4,7,0.64','dopamina,153.18,,66.48,3,3,'].join('\n');
+  }
+  function _dsSplitLine(line,delim){
+    var out=[],cur='',q=false;
+    for(var i=0;i<line.length;i++){ var ch=line[i];
+      if(q){ if(ch==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+      else { if(ch==='"')q=true; else if(ch===delim){ out.push(cur); cur=''; } else cur+=ch; } }
+    out.push(cur); return out;
+  }
+  function _dsParseCSV(text){
+    text=(text||'').replace(/\r\n?/g,'\n').replace(/\n+$/,''); if(!text.trim())return null;
+    var lines=text.split('\n').filter(function(l){return l.length>0;}); if(lines.length<2)return null;
+    var head=lines[0], cands=[',',';','\t','|'], delim=',', best=-1;
+    cands.forEach(function(d){ var n=head.split(d).length; if(n>best){best=n;delim=d;} });
+    var cols=_dsSplitLine(head,delim).map(function(s){return s.trim();});
+    var rows=[]; for(var i=1;i<lines.length;i++){ var r=_dsSplitLine(lines[i],delim).map(function(s){return s.trim();}); while(r.length<cols.length)r.push(''); rows.push(r); }
+    return {cols:cols,rows:rows,delim:delim};
+  }
+  function _dsNum(v){ if(v==null)return NaN; v=(''+v).trim().replace(',', '.'); if(v==='')return NaN; var n=Number(v); return isFinite(n)?n:NaN; }
+  function _dsColStats(data,ci){
+    var vals=[],missing=0,nums=[],numOK=0,tot=data.rows.length;
+    for(var i=0;i<tot;i++){ var raw=data.rows[i][ci]; if(raw==null||raw===''){missing++;continue;} vals.push(raw); var n=_dsNum(raw); if(!isNaN(n)){nums.push(n);numOK++;} }
+    var nonEmpty=vals.length;
+    var isNum = nonEmpty>0 && (numOK/nonEmpty)>=0.8;
+    var s={name:data.cols[ci],missing:missing,count:nonEmpty,isNum:isNum};
+    if(isNum && nums.length){ nums.sort(function(a,b){return a-b;});
+      var sum=0; nums.forEach(function(x){sum+=x;}); var mean=sum/nums.length;
+      var v=0; nums.forEach(function(x){v+=(x-mean)*(x-mean);}); var sd=Math.sqrt(v/Math.max(1,nums.length-1));
+      function q(p){ var idx=p*(nums.length-1); var lo=Math.floor(idx),hi=Math.ceil(idx); return nums[lo]+(nums[hi]-nums[lo])*(idx-lo); }
+      var q1=q(0.25),q3=q(0.75),iqr=q3-q1; var lof=q1-1.5*iqr,hif=q3+1.5*iqr,out=0;
+      nums.forEach(function(x){ if(x<lof||x>hif)out++; });
+      s.mean=mean;s.std=sd;s.min=nums[0];s.q1=q1;s.median=q(0.5);s.q3=q3;s.max=nums[nums.length-1];s.outliers=out;s._nums=nums;
+    } else { var freq={},top='',tc=0; vals.forEach(function(x){ freq[x]=(freq[x]||0)+1; if(freq[x]>tc){tc=freq[x];top=x;} }); s.unique=Object.keys(freq).length; s.top=top; s.topFreq=tc; }
+    return s;
+  }
+  function _dsPearson(a,b){ // usa solo righe dove entrambe numeriche
+    var xs=[],ys=[]; for(var i=0;i<a.length;i++){ if(!isNaN(a[i])&&!isNaN(b[i])){xs.push(a[i]);ys.push(b[i]);} }
+    var n=xs.length; if(n<3)return NaN; var mx=0,my=0; for(var i=0;i<n;i++){mx+=xs[i];my+=ys[i];} mx/=n;my/=n;
+    var sxy=0,sxx=0,syy=0; for(var i=0;i<n;i++){ var dx=xs[i]-mx,dy=ys[i]-my; sxy+=dx*dy;sxx+=dx*dx;syy+=dy*dy; }
+    if(sxx===0||syy===0)return NaN; return sxy/Math.sqrt(sxx*syy);
+  }
+  function _dsWbAnalyze(){
+    var ta=document.getElementById('dsWbInput'); var out=document.getElementById('dsWbOut'); if(!ta||!out)return;
+    var data=_dsParseCSV(ta.value);
+    if(!data){ out.innerHTML='<div style="background:#2a1420;border:1px solid #5a2436;border-radius:9px;padding:11px 13px;color:#ffb0be;font-size:.83rem">⚠️ Nessun dato valido. Serve un CSV con <b>riga di intestazione</b> e almeno una riga di dati. Prova <b>🧬 Carica esempio</b>.</div>'; return; }
+    _DSWB.data=data; var stats=data.cols.map(function(_,ci){ return _dsColStats(data,ci); });
+    _DSWB.stats=stats;
+    var numCols=stats.filter(function(s){return s.isNum;});
+    var totMiss=0; stats.forEach(function(s){totMiss+=s.missing;});
+    var html='';
+    // header shape
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'+
+      '<span class="ds-step" style="border-color:#5eead4;color:#5eead4">'+data.rows.length+' righe × '+data.cols.length+' colonne</span>'+
+      '<span class="ds-step">'+numCols.length+' numeriche · '+(stats.length-numCols.length)+' categoriche</span>'+
+      '<span class="ds-step" style="'+(totMiss>0?'border-color:#f5a623;color:#f5c451':'')+'">'+totMiss+' valori mancanti</span>'+
+      '<span class="ds-step">delimitatore: "'+(data.delim==='\t'?'\\t':data.delim)+'"</span></div>';
+    // tabella colonne (describe)
+    html+='<div style="overflow-x:auto;border:1px solid #16273e;border-radius:10px;margin-bottom:12px"><table style="border-collapse:collapse;width:100%;font-size:.75rem;min-width:560px">'+
+      '<thead><tr style="background:#0c1f33;color:#8fa3b8;text-align:right">'+
+      '<th style="text-align:left;padding:7px 9px">colonna</th><th style="padding:7px 9px">tipo</th><th style="padding:7px 9px">mancanti</th><th style="padding:7px 9px">media</th><th style="padding:7px 9px">std</th><th style="padding:7px 9px">min</th><th style="padding:7px 9px">mediana</th><th style="padding:7px 9px">max</th><th style="padding:7px 9px">outlier</th></tr></thead><tbody>';
+    stats.forEach(function(s){ var mp=data.rows.length?Math.round(100*s.missing/data.rows.length):0;
+      function f(x){ return (x==null||isNaN(x))?'—':(Math.abs(x)>=1000||(Math.abs(x)<0.01&&x!==0)?x.toExponential(2):x.toFixed(2)); }
+      html+='<tr style="border-top:1px solid #16273e;text-align:right;color:#cdd9e6">'+
+        '<td style="text-align:left;padding:6px 9px;color:#e9eef6;font-weight:700">'+s.name+'</td>'+
+        '<td style="padding:6px 9px"><span style="color:'+(s.isNum?'#5eead4':'#c9b6ff')+'">'+(s.isNum?'num':'cat')+'</span></td>'+
+        '<td style="padding:6px 9px;color:'+(mp>0?'#f5c451':'#6b7d90')+'">'+s.missing+(mp>0?' ('+mp+'%)':'')+'</td>';
+      if(s.isNum){ html+='<td style="padding:6px 9px">'+f(s.mean)+'</td><td style="padding:6px 9px">'+f(s.std)+'</td><td style="padding:6px 9px">'+f(s.min)+'</td><td style="padding:6px 9px">'+f(s.median)+'</td><td style="padding:6px 9px">'+f(s.max)+'</td><td style="padding:6px 9px;color:'+(s.outliers>0?'#f5a623':'#6b7d90')+'">'+s.outliers+'</td>'; }
+      else { html+='<td colspan="6" style="padding:6px 9px;text-align:left;color:#9fb3c8">'+s.unique+' valori unici · più frequente: <b style="color:#cdd9e6">'+(s.top||'—')+'</b> ('+s.topFreq+'×)</td>'; }
+      html+='</tr>'; });
+    html+='</tbody></table></div>';
+    // istogramma (colonna numerica selezionabile)
+    if(numCols.length){ html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">📊 ISTOGRAMMA</b><select id="dsWbHistSel" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+numCols.map(function(s,i){return '<option value="'+s.name+'">'+s.name+'</option>';}).join('')+'</select></div><canvas id="dsWbHist" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'; }
+    // matrice di correlazione
+    if(numCols.length>=2){ html+='<div style="margin-top:12px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🔗 MATRICE DI CORRELAZIONE (Pearson)</b><canvas id="dsWbCorr" style="width:100%;height:'+(40+numCols.length*30)+'px;background:#070f1c;border:1px solid #16273e;border-radius:9px;margin-top:6px"></canvas><div style="font-size:.72rem;color:#6b7d90;margin-top:4px">Rosso = correlazione positiva, blu = negativa. Coppie |r|&gt;0.7 sono forti candidate per il modello (o multicollinearità da gestire).</div></div>'; }
+    out.innerHTML=html;
+    document.getElementById('dsWbExport').style.display='';
+    document.getElementById('dsWbPy').style.display='';
+    // disegna istogramma + correlazione
+    var sel=document.getElementById('dsWbHistSel');
+    function drawHist(){ var name=sel?sel.value:numCols[0].name; var s=stats.filter(function(x){return x.name===name;})[0]; if(!s||!s._nums)return; _dsDrawHist(s); }
+    if(sel){ sel.onchange=drawHist; } drawHist();
+    if(numCols.length>=2) _dsDrawCorr(numCols, data);
+  }
+  function _dsDrawHist(s){
+    var cv=document.getElementById('dsWbHist'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.clientWidth||520,H=cv.clientHeight||150; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H);
+    var nums=s._nums, n=nums.length, mn=s.min, mx=s.max, rng=(mx-mn)||1; var B=Math.max(6,Math.min(24,Math.round(Math.sqrt(n)))); var bins=new Array(B).fill(0);
+    nums.forEach(function(v){ var b=Math.min(B-1,Math.floor((v-mn)/rng*B)); bins[b]++; }); var bmax=Math.max.apply(null,bins)||1;
+    var pad=26,bw=(W-pad*1.4)/B;
+    for(var i=0;i<B;i++){ var bh=(bins[i]/bmax)*(H-pad-14); var bx=pad+i*bw, by=H-pad-bh;
+      var g=x.createLinearGradient(0,by,0,H-pad); g.addColorStop(0,'#7c6fff'); g.addColorStop(1,'#5eead4'); x.fillStyle=g; x.fillRect(bx+1,by,bw-2,bh); }
+    x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
+    x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText(mn.toFixed(1),pad,H-10); x.textAlign='right'; x.fillText(mx.toFixed(1),W-8,H-10);
+    x.textAlign='left'; x.fillStyle='#8fa3b8'; x.fillText('μ='+s.mean.toFixed(2)+'  σ='+s.std.toFixed(2)+'  n='+n,pad,14);
+  }
+  function _dsDrawCorr(numCols, data){
+    var cv=document.getElementById('dsWbCorr'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.clientWidth||520,H=cv.clientHeight||200; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H);
+    var names=numCols.map(function(s){return s.name;}); var K=names.length;
+    var seriesArr=numCols.map(function(s,i){ var ci=data.cols.indexOf(s.name); return data.rows.map(function(r){return _dsNum(r[ci]);}); });
+    var lab=90, cell=Math.min(34,(W-lab-8)/K), gy=18;
+    for(var i=0;i<K;i++){ for(var j=0;j<K;j++){ var r=(i===j)?1:_dsPearson(seriesArr[i],seriesArr[j]);
+      var cx=lab+j*cell, cyy=gy+i*cell; var col;
+      if(isNaN(r)){ col='#1a2536'; } else { var t=Math.abs(r); if(r>=0){ col='rgba('+Math.round(120+135*t)+','+Math.round(90-40*t)+','+Math.round(110-60*t)+',1)'; } else { col='rgba('+Math.round(70-30*t)+','+Math.round(120+40*t)+','+Math.round(150+90*t)+',1)'; } }
+      x.fillStyle=col; x.fillRect(cx,cyy,cell-2,cell-2);
+      if(!isNaN(r)){ x.fillStyle=Math.abs(r)>0.5?'#fff':'#9fb3c8'; x.font='9px ui-monospace,monospace'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(r.toFixed(2),cx+(cell-2)/2,cyy+(cell-2)/2); }
+    } }
+    x.fillStyle='#8fa3b8'; x.font='9px ui-monospace,monospace'; x.textBaseline='middle';
+    for(var i=0;i<K;i++){ x.textAlign='right'; x.fillText((names[i].length>13?names[i].slice(0,12)+'…':names[i]),lab-4,gy+i*cell+(cell-2)/2); }
+  }
+  function _dsWbExport(){
+    var data=_DSWB.data, stats=_DSWB.stats; if(!data)return; var L=[];
+    L.push('# Report EDA — '+new Date().toLocaleString('it'));
+    L.push(''); L.push('**Dataset:** '+data.rows.length+' righe × '+data.cols.length+' colonne');
+    var numCols=stats.filter(function(s){return s.isNum;});
+    L.push(''); L.push('## Statistiche colonne'); L.push('');
+    L.push('| colonna | tipo | mancanti | media | std | min | mediana | max | outlier |');
+    L.push('|---|---|---|---|---|---|---|---|---|');
+    stats.forEach(function(s){ function f(x){return (x==null||isNaN(x))?'—':(''+(Math.round(x*1000)/1000));}
+      if(s.isNum) L.push('| '+s.name+' | num | '+s.missing+' | '+f(s.mean)+' | '+f(s.std)+' | '+f(s.min)+' | '+f(s.median)+' | '+f(s.max)+' | '+s.outliers+' |');
+      else L.push('| '+s.name+' | cat | '+s.missing+' | '+s.unique+' unici | | | top: '+s.top+' | | |'); });
+    if(numCols.length>=2){ L.push(''); L.push('## Correlazioni forti (|r| > 0.7)'); L.push('');
+      var series=numCols.map(function(s){ var ci=data.cols.indexOf(s.name); return data.rows.map(function(r){return _dsNum(r[ci]);}); });
+      var found=false; for(var i=0;i<numCols.length;i++){ for(var j=i+1;j<numCols.length;j++){ var r=_dsPearson(series[i],series[j]); if(!isNaN(r)&&Math.abs(r)>0.7){ L.push('- **'+numCols[i].name+'** ↔ **'+numCols[j].name+'**: r = '+r.toFixed(3)); found=true; } } }
+      if(!found)L.push('_Nessuna coppia con |r| > 0.7._'); }
+    L.push(''); L.push('_Generato con BioSpecInfo · Banco di Lavoro Dati._');
+    _dsWbDL('report_eda.md', L.join('\n'), 'text/markdown');
+  }
+  function _dsWbGenPy(){
+    var data=_DSWB.data, stats=_DSWB.stats; if(!data)return;
+    var numCols=stats.filter(function(s){return s.isNum;}).map(function(s){return s.name;});
+    var py=['# EDA generata dal Banco di Lavoro Dati (BioSpecInfo)',
+      'import pandas as pd','import matplotlib.pyplot as plt','import seaborn as sns','',
+      'df = pd.read_csv("dati.csv")   # <-- il tuo file','',
+      'print(df.shape)','print(df.info())','print(df.describe())','print("Valori mancanti:\\n", df.isna().sum())','',
+      '# Outlier con la regola IQR',
+      'for c in df.select_dtypes("number").columns:',
+      '    q1, q3 = df[c].quantile([.25, .75]); iqr = q3 - q1',
+      '    mask = (df[c] < q1 - 1.5*iqr) | (df[c] > q3 + 1.5*iqr)',
+      '    print(c, "outlier:", int(mask.sum()))','',
+      '# Istogrammi',
+      'df['+JSON.stringify(numCols)+'].hist(bins=20, figsize=(10, 6)); plt.tight_layout(); plt.show()','',
+      '# Matrice di correlazione',
+      'corr = df['+JSON.stringify(numCols)+'].corr()',
+      'sns.heatmap(corr, annot=True, cmap="coolwarm", center=0); plt.tight_layout(); plt.show()'].join('\n');
+    _dsWbDL('eda.py', py, 'text/x-python');
+  }
+  function _dsWbInit(){
+    var a=document.getElementById('dsWbAnalyze'); if(!a||a._w)return; a._w=1;
+    a.onclick=_dsWbAnalyze;
+    var smp=document.getElementById('dsWbSample'); if(smp)smp.onclick=function(){ document.getElementById('dsWbInput').value=_dsWbSampleCSV(); _dsWbAnalyze(); };
+    var clr=document.getElementById('dsWbClear'); if(clr)clr.onclick=function(){ document.getElementById('dsWbInput').value=''; document.getElementById('dsWbOut').innerHTML=''; document.getElementById('dsWbExport').style.display='none'; document.getElementById('dsWbPy').style.display='none'; };
+    var exp=document.getElementById('dsWbExport'); if(exp)exp.onclick=_dsWbExport;
+    var pyb=document.getElementById('dsWbPy'); if(pyb)pyb.onclick=_dsWbGenPy;
+    var fi=document.getElementById('dsWbFile'); if(fi)fi.onchange=function(e){ var f=e.target.files&&e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ document.getElementById('dsWbInput').value=rd.result; _dsWbAnalyze(); }; rd.readAsText(f); };
+  }
+  window.initDataSci=function(){ renderNav(); renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); renderCernGuide(); initGh(); _dsWbInit(); };
 })();
 </script>
 
