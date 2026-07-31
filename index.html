@@ -4941,7 +4941,9 @@ function _atlasBuildBody(){
     var cam=new THREE.PerspectiveCamera(42,W/H,0.1,100); cam.position.set(0,-0.15,11.6); cam.lookAt(0,-0.15,0);
     var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
     if(!ren.getContext||!ren.getContext())return false;
-    ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H); ren.setClearColor(0x000000,0);
+    _atlas._prMax=Math.min(devicePixelRatio||1,2); _atlas._pr=_atlas._prMax; _atlas._fps={t:0,n:0};
+    ren.setPixelRatio(_atlas._pr); ren.setSize(W,H); ren.setClearColor(0x000000,0);
+    try{ ren.powerPreference='high-performance'; }catch(e){}
     if('outputColorSpace' in ren && THREE.SRGBColorSpace)ren.outputColorSpace=THREE.SRGBColorSpace;
     if(THREE.ACESFilmicToneMapping){ ren.toneMapping=THREE.ACESFilmicToneMapping; ren.toneMappingExposure=1.12; }
     sc.add(new THREE.AmbientLight(0x8fa6c8,0.85));
@@ -5109,6 +5111,8 @@ function _atlasBuildBody(){
     function loop(){ _atlas.raf=requestAnimationFrame(loop);
       // fluidità: non rendere il 3D quando l'Atlante non è visibile (altra sezione, scheda in background)
       if(document.hidden || !canvas || canvas.offsetParent===null){ if(_atlas._pt!=null)_atlas._pt=clk.getElapsedTime(); return; }
+      // qualità adattiva: se il frame rate cala, riduce la risoluzione per restare scorrevole
+      var _now=performance.now(),_f=_atlas._fps; _f.n++; if(!_f.t){_f.t=_now;} else if(_now-_f.t>=1000){ var _fps=_f.n*1000/(_now-_f.t); _f.t=_now; _f.n=0; if(_fps<45 && _atlas._pr>0.85){ _atlas._pr=Math.max(0.85,_atlas._pr-0.35); ren.setPixelRatio(_atlas._pr); ren.setSize(wrap.clientWidth||W, wrap.clientHeight||H, false); } else if(_fps>57 && _atlas._pr<_atlas._prMax){ _atlas._pr=Math.min(_atlas._prMax,_atlas._pr+0.25); ren.setPixelRatio(_atlas._pr); ren.setSize(wrap.clientWidth||W, wrap.clientHeight||H, false); } }
       var t=clk.getElapsedTime();
       var dt=t-(_atlas._pt||t); _atlas._pt=t; if(_atlas.mixer)_atlas.mixer.update(dt);
       _atlas.ry+=0.0014;
