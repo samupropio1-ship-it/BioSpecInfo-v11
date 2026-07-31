@@ -1706,6 +1706,11 @@ window.BSI_TELEMETRY_URL='';</script>
     if(numCols.length){ html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">📊 ISTOGRAMMA</b><select id="dsWbHistSel" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+numCols.map(function(s,i){return '<option value="'+s.name+'">'+s.name+'</option>';}).join('')+'</select></div><canvas id="dsWbHist" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'; }
     // matrice di correlazione
     if(numCols.length>=2){ html+='<div style="margin-top:12px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🔗 MATRICE DI CORRELAZIONE (Pearson)</b><canvas id="dsWbCorr" style="width:100%;height:'+(40+numCols.length*30)+'px;background:#070f1c;border:1px solid #16273e;border-radius:9px;margin-top:6px"></canvas><div style="font-size:.72rem;color:#6b7d90;margin-top:4px">Rosso = correlazione positiva, blu = negativa. Coppie |r|&gt;0.7 sono forti candidate per il modello (o multicollinearità da gestire).</div></div>'; }
+    // pulizia dati
+    if(totMiss>0){ html+='<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:12px 0 2px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🧹 PULIZIA</b><button id="dsWbImpute" class="ds-gh-b">Imputa mancanti (mediana/moda)</button><button id="dsWbCsv" class="ds-gh-b">⬇️ CSV pulito</button></div>'; }
+    else { html+='<div style="margin:12px 0 2px"><button id="dsWbCsv" class="ds-gh-b">⬇️ Esporta CSV</button></div>'; }
+    // Model Lab
+    if(numCols.length>=2){ html+=_dsModelUI(stats,data); }
     out.innerHTML=html;
     document.getElementById('dsWbExport').style.display='';
     document.getElementById('dsWbPy').style.display='';
@@ -1714,6 +1719,109 @@ window.BSI_TELEMETRY_URL='';</script>
     function drawHist(){ var name=sel?sel.value:numCols[0].name; var s=stats.filter(function(x){return x.name===name;})[0]; if(!s||!s._nums)return; _dsDrawHist(s); }
     if(sel){ sel.onchange=drawHist; } drawHist();
     if(numCols.length>=2) _dsDrawCorr(numCols, data);
+    var imp=document.getElementById('dsWbImpute'); if(imp)imp.onclick=_dsWbImpute;
+    var csvb=document.getElementById('dsWbCsv'); if(csvb)csvb.onclick=_dsWbExportClean;
+    if(numCols.length>=2) _dsModelWire(stats,data);
+  }
+  function _dsToCSV(data){ var L=[data.cols.join(',')]; data.rows.forEach(function(r){ L.push(r.map(function(c){ c=(c==null?'':''+c); return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(',')); }); return L.join('\n'); }
+  function _dsWbExportClean(){ if(_DSWB.data)_dsWbDL('dati_puliti.csv',_dsToCSV(_DSWB.data),'text/csv'); }
+  function _dsWbImpute(){
+    var data=_DSWB.data; if(!data)return;
+    data.cols.forEach(function(name,ci){ var s=_dsColStats(data,ci); var fill=s.isNum?s.median:s.top; if(fill==null)return;
+      data.rows.forEach(function(r){ if(r[ci]==null||r[ci]===''){ r[ci]=s.isNum?(''+(Math.round(fill*1000)/1000)):fill; } }); });
+    var ta=document.getElementById('dsWbInput'); if(ta)ta.value=_dsToCSV(data); _dsWbAnalyze();
+  }
+  // ── Model Lab: addestra un modello reale sui dati caricati ──
+  function _dsModelUI(stats,data){
+    var cols=stats.map(function(s){return s.name;});
+    var numNames=stats.filter(function(s){return s.isNum;}).map(function(s){return s.name;});
+    var opts=cols.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+    var feats=numNames.map(function(c){return '<label style="display:inline-flex;align-items:center;gap:4px;background:#0a1628;border:1px solid #1a3050;border-radius:7px;padding:3px 8px;font-size:.74rem;color:#cdd9e6;cursor:pointer"><input type="checkbox" class="dsMlFeat" value="'+c+'" checked style="accent-color:#5eead4"> '+c+'</label>';}).join('');
+    return '<div style="margin-top:14px;border-top:1px solid #16273e;padding-top:12px">'+
+      '<b style="color:#c9b6ff;font-size:.92rem">🤖 Model Lab — addestra un modello sui tuoi dati</b>'+
+      '<div style="color:#9fb3c8;font-size:.8rem;line-height:1.5;margin:4px 0 9px">Scegli il <b>target</b> (cosa prevedere) e le <b>feature</b>. Target numerico → <b>regressione lineare</b>; categorico → <b>classificazione kNN</b>. Split train/test 75/25, metriche sul test.</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
+        '<span style="color:#8fa3b8;font-size:.78rem">target</span><select id="dsMlTarget" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+opts+'</select>'+
+        '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button></div>'+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+feats+'</div>'+
+      '<div id="dsMlOut"></div></div>';
+  }
+  function _dsModelWire(stats,data){
+    var btn=document.getElementById('dsMlTrain'); if(!btn)return;
+    btn.onclick=function(){
+      var target=document.getElementById('dsMlTarget').value;
+      var feats=[].slice.call(document.querySelectorAll('.dsMlFeat:checked')).map(function(c){return c.value;}).filter(function(f){return f!==target;});
+      var o=document.getElementById('dsMlOut');
+      if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
+      var tstat=stats.filter(function(s){return s.name===target;})[0];
+      if(tstat && tstat.isNum) _dsTrainReg(data,target,feats); else _dsTrainClf(data,target,feats);
+    };
+  }
+  function _dsBuildXY(data,target,feats,tNum){
+    var ti=data.cols.indexOf(target), fi=feats.map(function(f){return data.cols.indexOf(f);});
+    var X=[],y=[];
+    data.rows.forEach(function(r){ var xs=[],ok=true; for(var j=0;j<fi.length;j++){ var v=_dsNum(r[fi[j]]); if(isNaN(v)){ok=false;break;} xs.push(v); } if(!ok)return;
+      if(tNum){ var yv=_dsNum(r[ti]); if(isNaN(yv))return; y.push(yv); } else { var yc=r[ti]; if(yc==null||yc==='')return; y.push(yc); }
+      X.push(xs); });
+    return {X:X,y:y};
+  }
+  function _dsStdz(X){ var n=X.length,m=X[0].length,mu=[],sd=[]; for(var j=0;j<m;j++){ var s=0; for(var i=0;i<n;i++)s+=X[i][j]; mu[j]=s/n; var v=0; for(var i=0;i<n;i++)v+=(X[i][j]-mu[j])*(X[i][j]-mu[j]); sd[j]=Math.sqrt(v/n)||1; }
+    var Z=X.map(function(r){return r.map(function(v,j){return (v-mu[j])/sd[j];});}); return {Z:Z,mu:mu,sd:sd}; }
+  function _dsMetricCard(lbl,val,col){ return '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:8px 11px;min-width:82px"><div style="font-size:.64rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">'+lbl+'</div><div style="font-size:1.05rem;font-weight:800;margin-top:2px;color:'+(col||'#e8eef4')+'">'+val+'</div></div>'; }
+  function _dsTrainReg(data,target,feats){
+    var o=document.getElementById('dsMlOut'); var d=_dsBuildXY(data,target,feats,true); var X=d.X,y=d.y; var n=X.length,m=feats.length;
+    if(n<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide (trovate '+n+').</div>'; return; }
+    var st=_dsStdz(X), Z=st.Z; var ymu=0; for(var i=0;i<n;i++)ymu+=y[i]; ymu/=n; var yv=0; for(var i=0;i<n;i++)yv+=(y[i]-ymu)*(y[i]-ymu); var ysd=Math.sqrt(yv/n)||1;
+    var ys=y.map(function(v){return (v-ymu)/ysd;});
+    var tr=[],te=[]; for(var i=0;i<n;i++){ (i%4===0?te:tr).push(i); } if(!te.length){te=tr.slice(0,1);}
+    var w=new Array(m).fill(0),b=0,lr=0.12;
+    for(var it=0;it<4000;it++){ var gw=new Array(m).fill(0),gb=0; tr.forEach(function(i){ var p=b; for(var j=0;j<m;j++)p+=w[j]*Z[i][j]; var e=p-ys[i]; gb+=e; for(var j=0;j<m;j++)gw[j]+=e*Z[i][j]; }); var N=tr.length; b-=lr*gb/N; for(var j=0;j<m;j++)w[j]-=lr*gw[j]/N; }
+    function pred(i){ var p=b; for(var j=0;j<m;j++)p+=w[j]*Z[i][j]; return p*ysd+ymu; }
+    var ssr=0,sst=0,mae=0,ytmu=0; te.forEach(function(i){ytmu+=y[i];}); ytmu/=te.length; var pts=[];
+    te.forEach(function(i){ var p=pred(i); pts.push([y[i],p]); ssr+=(y[i]-p)*(y[i]-p); sst+=(y[i]-ytmu)*(y[i]-ytmu); mae+=Math.abs(y[i]-p); });
+    var r2=sst>0?1-ssr/sst:0, rmse=Math.sqrt(ssr/te.length); mae/=te.length;
+    var maxw=Math.max.apply(null,w.map(Math.abs))||1;
+    var bars=feats.map(function(f,j){ var pct=Math.round(Math.abs(w[j])/maxw*100); return '<div style="display:flex;align-items:center;gap:6px;margin:2px 0"><span style="width:96px;font-size:.72rem;color:#cdd9e6;text-align:right;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f+'</span><span style="flex:1;height:12px;background:#0a1628;border-radius:6px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:'+(w[j]>=0?'#5eead4':'#ff6f8a')+'"></span></span><span style="width:46px;font-size:.7rem;color:#8fa3b8;text-align:right">'+w[j].toFixed(2)+'</span></div>'; }).join('');
+    o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px">'+
+      _dsMetricCard('R²',r2.toFixed(3),(r2>0.7?'#5eead4':r2>0.4?'#f5c451':'#ff6f8a'))+
+      _dsMetricCard('RMSE',rmse.toFixed(3))+_dsMetricCard('MAE',mae.toFixed(3))+
+      _dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">coefficienti standardizzati (importanza · verde=+, rosso=−)</div>'+bars+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">previsto vs reale (test)</div><canvas id="dsMlScatter" style="width:100%;height:170px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'+
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">R² = frazione di varianza spiegata (1 = perfetto). I punti sulla diagonale = previsioni accurate.</div>';
+    _dsDrawScatter(pts);
+  }
+  function _dsDrawScatter(pts){
+    var cv=document.getElementById('dsMlScatter'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.clientWidth||520,H=cv.clientHeight||170; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H);
+    var mn=Infinity,mx=-Infinity; pts.forEach(function(p){ mn=Math.min(mn,p[0],p[1]); mx=Math.max(mx,p[0],p[1]); }); if(mn===mx){mx=mn+1;} var pad=30;
+    function sx(v){ return pad+(v-mn)/(mx-mn)*(W-pad-10); } function sy(v){ return H-pad-(v-mn)/(mx-mn)*(H-pad-10); }
+    x.strokeStyle='#26406a'; x.lineWidth=1; x.beginPath(); x.moveTo(sx(mn),sy(mn)); x.lineTo(sx(mx),sy(mx)); x.stroke(); // diagonale ideale
+    x.fillStyle='#7c6fff'; pts.forEach(function(p){ x.beginPath(); x.arc(sx(p[0]),sy(p[1]),3,0,6.2832); x.fill(); });
+    x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,10); x.lineTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
+    x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText('reale →',pad+2,H-10); x.save(); x.translate(11,H-pad); x.rotate(-Math.PI/2); x.fillText('previsto →',0,0); x.restore();
+  }
+  function _dsTrainClf(data,target,feats){
+    var o=document.getElementById('dsMlOut'); var d=_dsBuildXY(data,target,feats,false); var X=d.X,y=d.y; var n=X.length,m=feats.length;
+    if(n<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide per la classificazione (trovate '+n+').</div>'; return; }
+    var classes=[]; y.forEach(function(c){ if(classes.indexOf(c)<0)classes.push(c); });
+    if(classes.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Il target ha una sola classe: niente da classificare.</div>'; return; }
+    var Z=_dsStdz(X).Z; var tr=[],te=[]; for(var i=0;i<n;i++){ (i%4===0?te:tr).push(i); } if(!te.length){te=tr.slice(0,1);}
+    var k=Math.min(5,tr.length);
+    function classify(zi){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<m;j++){ var dd=Z[zi][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];});
+      var votes={}; for(var q=0;q<k;q++){ var c=ds[q][1]; votes[c]=(votes[c]||0)+1; } var best='',bc=-1; for(var c in votes){ if(votes[c]>bc){bc=votes[c];best=c;} } return best; }
+    var correct=0; var cm={}; classes.forEach(function(a){ cm[a]={}; classes.forEach(function(b){ cm[a][b]=0; }); });
+    te.forEach(function(i){ var pr=classify(i); cm[y[i]][pr]++; if(pr===y[i])correct++; });
+    var acc=correct/te.length;
+    // confusion matrix table
+    var cmH='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.72rem;margin-top:4px"><thead><tr><th style="padding:4px 7px;color:#8fa3b8;font-size:.66rem">reale＼previsto</th>'+classes.map(function(c){return '<th style="padding:4px 7px;color:#cdd9e6">'+c+'</th>';}).join('')+'</tr></thead><tbody>';
+    classes.forEach(function(a){ cmH+='<tr><td style="padding:4px 7px;color:#cdd9e6;font-weight:700">'+a+'</td>'+classes.map(function(b){ var v=cm[a][b]; var hit=a===b; return '<td style="padding:4px 7px;text-align:center;background:'+(v>0?(hit?'rgba(94,234,212,.18)':'rgba(255,111,138,.15)'):'transparent')+';color:'+(v>0?(hit?'#5eead4':'#ff9db0'):'#3a4a5a')+'">'+v+'</td>'; }).join('')+'</tr>'; });
+    cmH+='</tbody></table></div>';
+    o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px">'+
+      _dsMetricCard('accuratezza',(acc*100).toFixed(1)+'%',(acc>0.8?'#5eead4':acc>0.6?'#f5c451':'#ff6f8a'))+
+      _dsMetricCard('classi',classes.length)+_dsMetricCard('k (vicini)',k)+_dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>';
   }
   function _dsDrawHist(s){
     var cv=document.getElementById('dsWbHist'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
