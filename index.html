@@ -2301,6 +2301,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button onclick="window._synReplay&&window._synReplay()" style="background:#241a45;border:1px solid #a78bfa;color:#c9b6ff;border-radius:8px;padding:6px 13px;font-size:.8rem;font-weight:700;cursor:pointer">▶ Rigioca meccanismi</button>
     <span style="color:#8fa3b8;font-size:.76rem">Le frecce curve mostrano il <b>flusso degli elettroni</b>: si disegnano passo dopo passo come il meccanismo reale.</span>
   </div>
+  <div id="synTheater"></div>
   <div class="syn-sr"><input type="text" id="synQ" placeholder="Cerca in italiano/inglese: aldol, riduzione, Suzuki, Wittig, biosintesi, epossidazione…"/><button class="syn-go" id="synBtn">→</button></div>
   <div class="rxn-fp" id="rxnFp">
     <button class="on" data-c="all">Tutte</button>
@@ -4659,6 +4660,7 @@ function initSyn(){
   id("synBtn").onclick=function(){showRxns(activeSynCat(),id("synQ").value.trim());};
   id("synQ").onkeydown=function(e){if(e.key==="Enter")showRxns(activeSynCat(),this.value.trim());};
   showRxns("all","");
+  try{ if(window.initSynTheater) window.initSynTheater(); }catch(e){}
 }
 function activeSynCat(){var p=document.querySelector("#rxnFp button.on");return p?p.getAttribute("data-c"):"all";}
 function showRxns(cat,q){
@@ -35804,6 +35806,7 @@ window.initRetro = function(){
   var cards=all.map(_mkRetroCard).join('');
   sec.innerHTML='<div style="max-width:1000px;margin:0 auto;padding:16px">'
     +'<div id="retroUniversal" style="background:#0a1628;border:1.5px solid #1fd39a;border-radius:14px;padding:16px;margin-bottom:18px">'+'<div style="color:#1fd39a;font-weight:800;font-size:1.05rem;margin-bottom:6px">🔄 Retrosintesi Universale — qualsiasi molecola</div>'+'<div style="color:#9fb3c8;font-size:.85rem;line-height:1.6;margin-bottom:12px">Inserisci una molecola (nome, SMILES o CID): struttura, gruppi funzionali con disconnessioni, e motori IA per le vie complete.</div>'+'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><input type="text" id="rtQuery" placeholder="es. paracetamolo · ibuprofene · CC(=O)Nc1ccc(O)cc1 · 1983" style="flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(31,211,154,.4);background:#0c1f33;color:#e9eef6;font-size:.9rem"/><button id="rtGo" style="padding:10px 20px;border-radius:10px;border:none;background:#1fd39a;color:#06141f;font-weight:700;cursor:pointer;font-size:.9rem">Analizza</button></div>'+'<div id="rtStatus" style="color:#9fb3c8;font-size:.85rem;margin-bottom:8px"></div>'+'<div id="rtResult" style="display:none"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px"><div style="background:#0c1f33;border:1px solid #1a3050;border-radius:10px;padding:12px"><div style="color:#6bcfff;font-weight:700;font-size:.85rem;margin-bottom:6px">Molecola target</div><img id="rtImg" style="width:100%;background:#fff;border-radius:8px" alt="target"/><div id="rtName" style="color:#cdd9e6;font-size:.82rem;margin-top:6px"></div><div id="rtRdkitInfo" style="margin-top:6px"></div></div><div style="background:#0c1f33;border:1px solid #1a3050;border-radius:10px;padding:12px"><div style="color:#6bcfff;font-weight:700;font-size:.85rem;margin-bottom:6px">Gruppi funzionali → disconnessioni</div><div id="rtFG" style="color:#cdd9e6;font-size:.82rem;line-height:1.7"></div></div></div><div id="rtTree" style="margin-top:12px"></div><div id="rtEngines" style="margin-top:12px"></div></div>'+'</div>'
+    +(window._retroDisconnHTML?window._retroDisconnHTML():'')
     +'<div style="text-align:center;margin-bottom:18px">'
     +'<div style="font-size:36px">🔄</div>'
     +'<h2 style="color:#e9eef6;margin:6px 0 4px">Analisi Retrosintetica</h2>'
@@ -40524,6 +40527,271 @@ window.initETC=function(){
   sec.querySelector('#etcReset').onclick=function(){stop();pumpedTotal=0;reset();};
   sec.querySelector('#etcSub').onchange=function(){sub=this.value;stop();pumpedTotal=0;reset();};
   reset();
+};
+
+/* ============================================================
+   SINTESI — TEATRO DEI MECCANISMI (player animato passo-passo)
+   ============================================================ */
+window.initSynTheater=function(){
+  var host=document.getElementById('synTheater');
+  if(!host||host._init)return; host._init=true;
+
+  // ---- helper di disegno SVG ----
+  function A(x,y,t,c,fs){return '<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="'+(fs||17)+'" font-weight="700" fill="'+(c||'#0f172a')+'" font-family="Arial,sans-serif">'+t+'</text>';}
+  function bd(x1,y1,x2,y2,o){ // o: 1 single,2 double,'p' partial(dashed)
+    if(o==='p')return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#64748b" stroke-width="2.4" stroke-dasharray="4 3"/>';
+    if(o===2){
+      var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ox=-dy/L*3,oy=dx/L*3;
+      return '<line x1="'+(x1+ox)+'" y1="'+(y1+oy)+'" x2="'+(x2+ox)+'" y2="'+(y2+oy)+'" stroke="#0f172a" stroke-width="2"/>'
+            +'<line x1="'+(x1-ox)+'" y1="'+(y1-oy)+'" x2="'+(x2-ox)+'" y2="'+(y2-oy)+'" stroke="#0f172a" stroke-width="2"/>';
+    }
+    return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#0f172a" stroke-width="2"/>';
+  }
+  function arr(d,delay){ // freccia curva di flusso elettronico
+    return '<path class="thArrow" style="animation-delay:'+(delay||0)+'s" d="'+d+'" fill="none" stroke="#d97706" stroke-width="2.2" stroke-dasharray="260" stroke-dashoffset="260" marker-end="url(#thH)"/>';
+  }
+  function chg(x,y,s,c){return '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+(c||'#b91c1c')+'" font-family="Arial">'+s+'</text>';}
+  function lp(x,y){return '<circle cx="'+(x-2)+'" cy="'+y+'" r="1.5" fill="#0f172a"/><circle cx="'+(x+2)+'" cy="'+y+'" r="1.5" fill="#0f172a"/>';}
+  function frame(inner){
+    return '<svg viewBox="0 0 480 210" width="100%" style="max-width:520px;background:#fff;border-radius:10px;display:block;margin:0 auto">'
+      +'<defs><marker id="thH" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#d97706" stroke-width="1.6"/></marker></defs>'
+      +inner+'</svg>';
+  }
+
+  // ---- meccanismi (ogni stage: {t:testo, f:()=>svg inner}) ----
+  var MECH={
+    sn2:{name:'SN2 — sostituzione nucleofila bimolecolare',type:'Sostituzione',cat:'#0ea5e9',
+      note:'Il nucleofilo attacca dal lato opposto al gruppo uscente (attacco dorsale) → <b>inversione di Walden</b> della configurazione. Un solo stadio, stato di transizione a 5 legami. Velocità = k·[Nu]·[substrato].',
+      stages:[
+        {t:'① Il nucleofilo HO⁻ si avvicina dal lato opposto al bromo. La sua coppia solitaria punta verso il carbonio elettrofilo.',
+         f:function(){return A(60,105,'HO',' #0f172a')+chg(40,98,'⁻')+lp(78,105)
+           +bd(95,105,175,105,'p')+A(190,105,'C')+bd(205,105,285,105,1)+A(300,105,'Br')+lp(300,86)
+           +A(190,60,'H','#0f172a',13)+A(190,150,'H','#0f172a',13)+bd(190,120,190,140,1)+bd(190,90,190,70,1)
+           +arr('M78,100 Q120,85 172,102',0)}},
+        {t:'② Stato di transizione: HO e Br sono entrambi parzialmente legati al carbonio (legami tratteggiati), che è planare. I tre H si "ribaltano" come un ombrello.',
+         f:function(){return A(60,105,'HO','#0f172a')+chg(46,90,'δ⁻')+bd(80,105,175,105,'p')+A(190,105,'C')
+           +bd(205,105,300,105,'p')+A(320,105,'Br')+chg(340,90,'δ⁻')
+           +bd(190,105,190,68,1)+A(190,58,'H','#0f172a',13)+bd(178,112,150,140,1)+A(145,150,'H','#0f172a',13)+bd(202,112,230,140,1)+A(235,150,'H','#0f172a',13)
+           +'<text x="240" y="185" text-anchor="middle" font-size="11" fill="#b45309" font-family="Arial">stato di transizione ‡</text>'}},
+        {t:'③ Il bromuro esce con la coppia di legame; si forma il legame C–O. La configurazione è invertita: prodotto CH₃OH + Br⁻.',
+         f:function(){return A(120,105,'HO','#0f172a')+bd(140,105,195,105,1)+A(210,105,'C')
+           +A(210,60,'H','#0f172a',13)+A(210,150,'H','#0f172a',13)+A(255,105,'H','#0f172a',13)+bd(210,120,210,140,1)+bd(210,90,210,70,1)+bd(222,105,245,105,1)
+           +A(360,105,'Br','#0f172a')+chg(382,98,'⁻')+lp(360,86)
+           +arr('M300,105 Q330,105 348,105',0)}}
+      ]},
+    e2:{name:'E2 — eliminazione bimolecolare',type:'Eliminazione',cat:'#8b5cf6',
+      note:'La base strappa l\'H in <b>β</b> mentre il gruppo uscente parte: concertato, geometria <b>anti-periplanare</b>. Si forma un alchene. Favorito da basi forti/ingombrate e calore (regola di Zaitsev/Hofmann).',
+      stages:[
+        {t:'① La base B⁻ afferra l\'idrogeno sul carbonio β; sul carbonio α c\'è il gruppo uscente Br in posizione anti.',
+         f:function(){return A(50,60,'B','#0f172a')+chg(34,52,'⁻')+lp(66,60)
+           +A(120,80,'H','#0f172a',14)+bd(120,92,150,120,1)+A(160,130,'C')+bd(178,130,262,130,1)+A(280,130,'C')
+           +bd(160,115,160,80,1)+A(160,70,'H',' #0f172a',12)+bd(280,145,280,180,1)+A(280,192,'Br','#0f172a',13)+lp(295,192)
+           +arr('M66,64 Q95,72 116,78',0)
+           +arr('M150,118 Q175,100 200,120',0.15)
+           +arr('M275,145 Q270,165 278,178',0.3)}},
+        {t:'② Concertato: il legame C–H si rompe (elettroni verso il nuovo legame π), il C–Br si rompe (elettroni sul bromo). Nasce il doppio legame C=C.',
+         f:function(){return A(70,80,'B–H','#0f172a')+A(180,120,'C')+bd(198,116,262,116,2)+A(280,120,'C')
+           +A(180,80,'H','#0f172a',12)+bd(180,105,180,90,1)+A(300,120,'H','#0f172a',12)+bd(292,120,300,120,1)
+           +A(360,120,'Br','#0f172a')+chg(382,113,'⁻')+lp(360,101)
+           +'<text x="240" y="180" text-anchor="middle" font-size="11" fill="#6d28d9" font-family="Arial">formazione dell\'alchene</text>'}},
+        {t:'③ Prodotti: alchene + base protonata (B–H) + Br⁻. In un solo passo si sono rotti due legami σ e formato un legame π.',
+         f:function(){return A(120,110,'C')+bd(138,106,222,106,2)+A(240,110,'C')
+           +A(120,70,'H','#0f172a',12)+A(120,150,'H','#0f172a',12)+A(240,70,'H','#0f172a',12)+A(240,150,'H','#0f172a',12)
+           +bd(120,95,120,82,1)+bd(120,125,120,138,1)+bd(240,95,240,82,1)+bd(240,125,240,138,1)
+           +A(360,110,'Br','#0f172a')+chg(382,103,'⁻')}}
+      ]},
+    grig:{name:'Addizione di Grignard al carbonile',type:'Addizione nucleofila',cat:'#10b981',
+      note:'Il carbanione R⁻ (da R–MgBr) attacca il carbonio carbonilico elettrofilo; gli elettroni π vanno sull\'ossigeno → <b>alcossido</b>, poi protonato in <b>alcol</b>. Aldeidi→2°, chetoni→3° alcol.',
+      stages:[
+        {t:'① Il reattivo di Grignard fornisce un carbanione R⁻ nucleofilo. Il carbonio del C=O è elettrofilo (δ+), l\'ossigeno δ−.',
+         f:function(){return A(60,120,'R','#0f172a')+A(88,120,'MgBr','#0f172a',12)+chg(60,100,'δ⁻')
+           +A(230,120,'C')+chg(215,142,'δ⁺')+bd(230,105,230,60,2)+A(230,48,'O','#0f172a')+chg(252,44,'δ⁻')+lp(214,44)
+           +A(190,140,'R','#0f172a',13)+A(270,140,'H','#0f172a',13)+bd(220,132,196,146,1)+bd(240,132,264,146,1)
+           +arr('M70,112 Q140,120 214,118',0)}},
+        {t:'② Il carbanione forma il legame C–R; gli elettroni del doppio legame C=O si spostano sull\'ossigeno, che diventa un alcossido (O⁻).',
+         f:function(){return A(120,120,'R','#0f172a')+bd(134,120,205,120,1)+A(220,120,'C')+bd(220,105,220,62,1)+A(220,50,'O','#0f172a')+chg(242,44,'⁻')+lp(204,44)
+           +A(180,150,'R','#0f172a',13)+A(260,150,'H','#0f172a',13)+bd(210,132,186,148,1)+bd(230,132,254,148,1)
+           +arr('M228,66 Q244,54 236,46',0)}},
+        {t:'③ Lavorazione acida (H₃O⁺): l\'alcossido viene protonato → alcol. Da un chetone si ottiene un alcol terziario.',
+         f:function(){return A(120,120,'R','#0f172a')+bd(134,120,205,120,1)+A(220,120,'C')+bd(220,105,220,62,1)+A(220,50,'O','#0f172a')+bd(232,44,255,44,1)+A(268,44,'H','#0f172a',13)
+           +A(180,150,'R','#0f172a',13)+A(260,150,'H','#0f172a',13)+bd(210,132,186,148,1)+bd(230,132,254,148,1)
+           +'<text x="240" y="192" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">alcol</text>'}}
+      ]},
+    aldol:{name:'Condensazione aldolica',type:'Formazione C–C',cat:'#f59e0b',
+      note:'La base rimuove un <b>H in α</b> → enolato risonante; il carbonio nucleofilo attacca il carbonile di una seconda molecola → <b>β-idrossi-carbonile</b> (aldolo). Con calore/acido: disidratazione a enone (condensazione).',
+      stages:[
+        {t:'① La base HO⁻ rimuove un protone in α (accanto al C=O). Quel carbonio è acido perché l\'anione risultante è stabilizzato.',
+         f:function(){return A(45,70,'HO','#0f172a')+chg(28,62,'⁻')+A(150,110,'C')+bd(150,95,150,55,2)+A(150,44,'O','#0f172a')+lp(134,40)
+           +A(110,120,'H','#0f172a',13)+A(100,90,'H','#0f172a',13)+bd(126,112,112,118,1)+A(200,110,'R','#0f172a',13)+bd(164,110,188,110,1)
+           +arr('M60,72 Q85,90 106,110',0)
+           +arr('M118,116 Q135,110 146,100',0.2)}},
+        {t:'② Si forma l\'enolato: la carica negativa è delocalizzata tra il carbonio α e l\'ossigeno (due strutture di risonanza).',
+         f:function(){return A(120,110,'C')+bd(138,106,182,106,2)+A(200,110,'C')+bd(200,95,200,55,1)+A(200,44,'O','#0f172a')+chg(222,40,'⁻')+lp(184,40)
+           +A(120,150,'H','#0f172a',12)+A(120,70,'H','#0f172a',12)+bd(120,95,120,82,1)+bd(120,125,120,138,1)+A(250,110,'R','#0f172a',13)+bd(214,110,238,110,1)
+           +'<text x="240" y="185" text-anchor="middle" font-size="11" fill="#b45309" font-family="Arial">enolato (nucleofilo in α)</text>'}},
+        {t:'③ Il carbonio α nucleofilo attacca il carbonile di una seconda aldeide; gli elettroni π vanno sull\'ossigeno → nuovo legame C–C.',
+         f:function(){return A(70,120,'enolato','#0f172a',12)+A(150,120,'C')+chg(150,150,'δ⁻')
+           +bd(164,120,225,120,'p')+A(245,120,'C')+bd(245,105,245,60,2)+A(245,48,'O','#0f172a')+lp(229,44)+A(290,130,'H','#0f172a',12)+A(210,140,'R','#0f172a',12)
+           +arr('M150,132 Q195,150 232,128',0)
+           +arr('M252,64 Q268,52 260,44',0.2)}},
+        {t:'④ Prodotto: β-idrossi-carbonile (aldolo). Con riscaldamento perde acqua (E1cb) dando un\'enone α,β-insaturo — la "condensazione".',
+         f:function(){return A(70,120,'R','#0f172a',13)+bd(84,120,120,120,1)+A(135,120,'C')+bd(150,120,215,120,1)+A(235,120,'C')+bd(235,105,235,62,1)+A(235,50,'O','#0f172a')+bd(247,44,270,44,1)+A(283,44,'H','#0f172a',12)
+           +A(135,80,'OH','#0f172a',13)+bd(135,105,135,92,1)+A(300,120,'R','#0f172a',12)+bd(249,120,285,120,1)
+           +'<text x="200" y="188" text-anchor="middle" font-size="11" fill="#b45309" font-family="Arial">β-idrossi-carbonile (aldolo)</text>'}}
+      ]},
+    fischer:{name:'Esterificazione di Fischer',type:'Sostituzione acilica',cat:'#ef4444',
+      note:'Acido carbossilico + alcol, catalisi acida, in equilibrio → estere + acqua. Meccanismo <b>PADPED</b> (protonazione–addizione–deprotonazione–protonazione–eliminazione–deprotonazione). Si sposta l\'equilibrio togliendo acqua.',
+      stages:[
+        {t:'① Protonazione: H⁺ si lega all\'ossigeno carbonilico → il carbonio diventa molto più elettrofilo (catione ossocarbenio).',
+         f:function(){return A(120,120,'R','#0f172a')+bd(134,120,175,120,1)+A(195,120,'C')+bd(195,105,195,60,2)+A(195,48,'O','#0f172a')+chg(217,44,'⁺')+bd(207,42,228,30,1)+A(240,26,'H','#0f172a',12)
+           +A(235,140,'OH','#0f172a',13)+bd(210,128,224,138,1)
+           +arr('M300,60 Q250,40 210,44',0)+'<text x="320" y="60" font-size="12" fill="#b91c1c" font-family="Arial">H⁺</text>'}},
+        {t:'② Addizione: l\'ossigeno dell\'alcol (nucleofilo) attacca il carbonio carbonilico attivato → intermedio tetraedrico.',
+         f:function(){return A(80,120,'R','#0f172a')+bd(94,120,135,120,1)+A(155,120,'C')+bd(155,105,155,62,1)+A(155,50,'O','#0f172a')+A(175,44,'H','#0f172a',12)+bd(163,48,172,46,1)
+           +A(195,140,'OH','#0f172a',13)+bd(170,128,184,138,1)
+           +A(300,120,'O','#0f172a')+A(320,120,'R','#0f172a',12)+A(300,100,'H','#0f172a',11)+lp(284,120)
+           +arr('M286,120 Q235,120 172,120',0)}},
+        {t:'③ Dopo trasferimenti di protone, una molecola d\'acqua se ne va (l\'ossidrile protonato è un buon gruppo uscente).',
+         f:function(){return A(80,120,'R','#0f172a')+bd(94,120,135,120,1)+A(155,120,'C')+bd(155,105,155,62,2)+A(155,50,'O','#0f172a')
+           +bd(170,120,235,120,1)+A(250,120,'O','#0f172a')+A(270,120,'R','#0f172a',12)
+           +A(160,160,'OH₂','#0f172a',12)+chg(190,150,'⁺')+bd(150,134,158,150,'p')
+           +arr('M150,132 Q135,120 150,112',0)
+           +'<text x="250" y="185" text-anchor="middle" font-size="11" fill="#b91c1c" font-family="Arial">– H₂O</text>'}},
+        {t:'④ Deprotonazione finale → estere + acqua. Tutti i passaggi sono reversibili: è un vero equilibrio spostabile.',
+         f:function(){return A(110,120,'R','#0f172a')+bd(124,120,165,120,1)+A(185,120,'C')+bd(185,105,185,62,2)+A(185,50,'O','#0f172a')
+           +bd(200,120,255,120,1)+A(270,120,'O','#0f172a')+A(292,120,'R','#0f172a',12)+A(230,150,'estere','#047857',13)
+           +A(370,110,'+ H₂O','#0f172a',13)}}
+      ]},
+    sear:{name:'Sostituzione elettrofila aromatica (nitrazione)',type:'Aromatica',cat:'#e11d48',
+      note:'Il benzene reagisce con l\'elettrofilo NO₂⁺ (da HNO₃/H₂SO₄). Gli elettroni π attaccano l\'elettrofilo → <b>ione arenio</b> (complesso σ) → riaromatizzazione con perdita di H⁺. Il prodotto è nitrobenzene.',
+      stages:[
+        {t:'① Generazione dell\'elettrofilo: HNO₃ + H₂SO₄ producono lo ione nitronio NO₂⁺, molto elettrofilo.',
+         f:function(){return '<text x="150" y="110" text-anchor="middle" font-size="15" font-family="Arial" fill="#0f172a">HNO₃ + H₂SO₄ →</text>'
+           +A(340,105,'NO₂','#0f172a')+chg(378,98,'⁺')+'<text x="340" y="140" text-anchor="middle" font-size="11" fill="#b91c1c" font-family="Arial">ione nitronio</text>';},},
+        {t:'② Attacco: una coppia di elettroni π dell\'anello attacca NO₂⁺. L\'aromaticità si rompe → ione arenio (carbocatione stabilizzato per risonanza).',
+         f:function(){return '<g transform="translate(150,105)"><polygon points="0,-42 36,-21 36,21 0,42 -36,21 -36,-21" fill="none" stroke="#0f172a" stroke-width="2"/><circle r="18" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="3 3"/></g>'
+           +A(330,105,'NO₂','#0f172a')+chg(366,98,'⁺')
+           +arr('M186,90 Q250,70 315,100',0);},},
+        {t:'③ Ione arenio (complesso σ): il carbonio legato a NO₂ è sp³, la carica positiva è delocalizzata sugli altri carboni. Manca l\'aromaticità.',
+         f:function(){return '<g transform="translate(150,105)"><polygon points="0,-42 36,-21 36,21 0,42 -36,21 -36,-21" fill="none" stroke="#0f172a" stroke-width="2"/></g>'
+           +chg(150,80,'+','#b91c1c')+A(210,80,'H','#0f172a',13)+A(228,60,'NO₂','#0f172a',12)+bd(186,84,205,80,1)
+           +'<text x="150" y="185" text-anchor="middle" font-size="11" fill="#b91c1c" font-family="Arial">ione arenio (complesso σ)</text>';},},
+        {t:'④ Riaromatizzazione: una base rimuove l\'H⁺ dal carbonio sp³ → gli elettroni tornano nell\'anello ripristinando l\'aromaticità → nitrobenzene.',
+         f:function(){return '<g transform="translate(150,105)"><polygon points="0,-42 36,-21 36,21 0,42 -36,21 -36,-21" fill="none" stroke="#0f172a" stroke-width="2"/><circle r="20" fill="none" stroke="#0f172a" stroke-width="1.6"/></g>'
+           +bd(186,84,210,72,1)+A(228,66,'NO₂','#0f172a',13)+A(360,110,'+ H⁺','#0f172a',13)
+           +'<text x="150" y="185" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">nitrobenzene</text>';},}
+      ]}
+  };
+  var ORDER=['sn2','e2','grig','aldol','fischer','sear'];
+
+  host.innerHTML=
+    '<div style="background:linear-gradient(135deg,#1a1430,#0c1424);border:1px solid #a78bfa;border-radius:14px;padding:16px;margin:6px 0 14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px">'
+      +'<div style="color:#c9b6ff;font-weight:800;font-size:1.05rem">🎬 Teatro dei Meccanismi — animazione passo-passo</div>'
+      +'<div style="color:#8fa3b8;font-size:.74rem;max-width:340px">Scegli un meccanismo e premi ▶: le frecce curve del flusso elettronico si disegnano stadio per stadio, con la spiegazione di ogni passaggio.</div>'
+    +'</div>'
+    +'<div id="thTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>'
+    +'<div id="thNote" style="color:#cdd9e6;font-size:.82rem;line-height:1.55;background:#0b1220;border-radius:8px;padding:9px 12px;margin-bottom:12px;border-left:3px solid #a78bfa"></div>'
+    +'<div id="thStage"></div>'
+    +'<div id="thCap" style="min-height:52px;color:#e7eefb;font-size:.9rem;line-height:1.5;background:#0b1220;border-radius:8px;padding:11px 13px;margin:12px 0;border-left:3px solid #d97706"></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      +'<button id="thPlay" style="border:none;border-radius:9px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#a78bfa,#7c6fff);color:#0b0620">▶ Play</button>'
+      +'<button id="thPrev" style="border:1px solid #a78bfa;border-radius:9px;padding:8px 13px;font-weight:700;cursor:pointer;background:transparent;color:#c9b6ff">◀</button>'
+      +'<button id="thNext" style="border:1px solid #a78bfa;border-radius:9px;padding:8px 13px;font-weight:700;cursor:pointer;background:transparent;color:#c9b6ff">▶</button>'
+      +'<div id="thDots" style="display:flex;gap:6px;margin-left:6px"></div>'
+      +'<div id="thStep" style="margin-left:auto;color:#8fa3b8;font-size:.8rem;font-weight:700"></div>'
+    +'</div>'
+    +'<style>#synTheater .thArrow{animation:bsiEfDraw 1.15s cubic-bezier(.55,0,.3,1) forwards}@media(prefers-reduced-motion:reduce){#synTheater .thArrow{stroke-dashoffset:0!important;animation:none}}</style>'
+    +'</div>';
+
+  var tabsEl=host.querySelector('#thTabs'),noteEl=host.querySelector('#thNote'),stageEl=host.querySelector('#thStage'),
+      capEl=host.querySelector('#thCap'),dotsEl=host.querySelector('#thDots'),stepEl=host.querySelector('#thStep');
+  var curKey='sn2', idx=0, playing=false, timer=null;
+
+  function paintTabs(){
+    tabsEl.innerHTML='';
+    ORDER.forEach(function(k){
+      var M=MECH[k], on=(k===curKey);
+      var b=document.createElement('button');
+      b.textContent=M.type;
+      b.title=M.name;
+      b.style.cssText='border:1px solid '+(on?M.cat:'rgba(148,163,184,.35)')+';background:'+(on?M.cat:'transparent')+';color:'+(on?'#06141f':'#9fb3c8')+';border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:.78rem';
+      b.onclick=function(){stop();curKey=k;idx=0;paintTabs();render();};
+      tabsEl.appendChild(b);
+    });
+  }
+  function dots(){
+    var M=MECH[curKey];dotsEl.innerHTML='';
+    M.stages.forEach(function(s,i){
+      var d=document.createElement('span');
+      d.style.cssText='width:9px;height:9px;border-radius:50%;background:'+(i===idx?M.cat:(i<idx?'rgba(148,163,184,.6)':'rgba(148,163,184,.25)'))+';display:inline-block;cursor:pointer';
+      d.onclick=function(){stop();idx=i;render();};
+      dotsEl.appendChild(d);
+    });
+  }
+  function render(){
+    var M=MECH[curKey];
+    noteEl.innerHTML='<b style="color:'+M.cat+'">'+M.name+'</b> — '+M.note;
+    var st=M.stages[idx];
+    stageEl.innerHTML=frame(st.f());
+    capEl.innerHTML=st.t;
+    stepEl.textContent='Stadio '+(idx+1)+' / '+M.stages.length;
+    dots();
+  }
+  function next(){var M=MECH[curKey];if(idx>=M.stages.length-1){stop();return;}idx++;render();}
+  function stop(){playing=false;if(timer){clearTimeout(timer);timer=null;}var b=host.querySelector('#thPlay');if(b)b.textContent='▶ Play';}
+  function play(){
+    if(playing){stop();return;}
+    var M=MECH[curKey];
+    if(idx>=M.stages.length-1)idx=0;
+    playing=true;host.querySelector('#thPlay').textContent='⏸ Pausa';render();
+    (function tick(){if(!playing)return;
+      if(idx<MECH[curKey].stages.length-1){timer=setTimeout(function(){next();tick();},2600);}
+      else{stop();}
+    })();
+  }
+  host.querySelector('#thPlay').onclick=play;
+  host.querySelector('#thNext').onclick=function(){stop();next();};
+  host.querySelector('#thPrev').onclick=function(){stop();if(idx>0){idx--;render();}};
+  paintTabs();render();
+};
+
+/* ============================================================
+   RETROSINTESI — Guida alle disconnessioni (sintoni → reagenti)
+   ============================================================ */
+window._retroDisconnHTML=function(){
+  var D=[
+    {b:'C–C in α all\'OH (alcol 2°/3°)',t:'R–CH(OH)–R\'',syn:'acile/carbonile (a⁺) + carbanione (d⁻)',reag:'aldeide o chetone + reattivo di Grignard/organolitio',fwd:'Addizione di Grignard',note:'La disconnessione più usata: taglia il legame accanto al carbinolo. Il carbonio che porta l\'OH viene dal carbonile; l\'altro frammento dal nucleofilo organometallico.'},
+    {b:'C–C del β-idrossi-carbonile',t:'R–CH(OH)–CH₂–C(=O)R\'',syn:'enolato (d⁻) + aldeide (a⁺)',reag:'due composti carbonilici + base',fwd:'Condensazione aldolica',note:'Riconosci il pattern 1,3 (OH e C=O a distanza di un carbonio): taglia tra Cα e Cβ. Con doppio legame α,β-insaturo → aldolica con disidratazione.'},
+    {b:'C–C dell\'1,3-dicarbonile',t:'R–C(=O)–CH₂–C(=O)–R\'',syn:'estere (a⁺) + enolato (d⁻)',reag:'due esteri (o estere + chetone) + base forte',fwd:'Condensazione di Claisen',note:'Pattern 1,3-dicarbonile → disconnessione di Claisen. La forza motrice in avanti è la deprotonazione del prodotto (β-chetoestere molto acido).'},
+    {b:'C–C dell\'1,5-dicarbonile',t:'O=C–C–C–C–C=O',syn:'enolato (d⁻) + enone (a⁺, addizione 1,4)',reag:'nucleofilo + composto α,β-insaturo',fwd:'Addizione di Michael',note:'Relazione 1,5 fra due carbonili → disconnessione di Michael. Combinata con un\'aldolica intramolecolare dà l\'anellazione di Robinson.'},
+    {b:'C–N dell\'ammina',t:'R–CH₂–NR\'₂',syn:'carbonile (a⁺) + ammina (d⁻)',reag:'aldeide/chetone + ammina + riducente (NaBH₃CN)',fwd:'Amminazione riduttiva',note:'Preferita all\'alchilazione diretta (che sovra-alchila). In alternativa SN2: alogenuro alchilico 1° + ammina.'},
+    {b:'C–O dell\'etere',t:'R–O–R\'',syn:'alcossido (d⁻) + alogenuro (a⁺)',reag:'alcossido di sodio + alogenuro alchilico 1°',fwd:'Sintesi di Williamson',note:'Disconnetti al legame C–O. Scegli il lato meno ingombrato come alogenuro (SN2): 1° >> 2°; mai 3° (elimina).'},
+    {b:'C=C dell\'alchene',t:'R₂C=CR\'₂',syn:'carbonile (a⁺) + ilide (d⁻)',reag:'aldeide/chetone + sale di fosfonio + base',fwd:'Reazione di Wittig',note:'Taglia il doppio legame: un frammento diventa il carbonile, l\'altro l\'ilide del fosforo. Posizione del C=C garantita (a differenza dell\'eliminazione).'},
+    {b:'C–C aril–alchile',t:'Ar–C(=O)–R / Ar–R',syn:'arene (d⁻) + acilio/carbocatione (a⁺)',reag:'arene + cloruro acilico (o alogenuro) + AlCl₃',fwd:'Acilazione/alchilazione di Friedel–Crafts',note:'Per catene aril-chetoniche usa l\'acilazione (niente riarrangiamenti). Poi eventuale riduzione di Clemmensen/Wolff-Kishner per l\'alchile.'},
+    {b:'C–C in α all\'acido/estere',t:'R–CH₂–COOH',syn:'enolato del malonato (d⁻) + alogenuro (a⁺)',reag:'estere malonico + base + R–X, poi idrolisi/decarbossilazione',fwd:'Sintesi malonica',note:'Introduce un frammento –CH₂–COOH. Analoga: sintesi acetoacetica per metilchetoni sostituiti.'},
+    {b:'C–C biarile / arile–vinile',t:'Ar–Ar\' / Ar–CH=CH₂',syn:'Ar (d⁻ come organometallo) + Ar\'–X (a⁺)',reag:'Ar–B(OH)₂ + Ar\'–X + Pd(0)  ·  oppure Ar–X + alchene + Pd',fwd:'Suzuki / Heck (cross-coupling)',note:'La disconnessione moderna per eccellenza in farmaceutica: tollera moltissimi gruppi funzionali, condizioni blande, alta chemoselettività.'}
+  ];
+  var html='';
+  D.forEach(function(x,i){
+    html+='<details style="background:#0c1f33;border:1px solid #1a3050;border-radius:10px;margin:7px 0;padding:0">'
+      +'<summary style="cursor:pointer;padding:11px 13px;font-weight:700;color:#e9eef6;font-size:.9rem;list-style:none">'
+        +'<span style="color:#6bcfff">'+(i+1)+'.</span> '+x.b
+        +'<span style="float:right;color:#8fa3b8;font-size:.78rem;font-weight:600">'+x.fwd+' ↓</span></summary>'
+      +'<div style="padding:2px 14px 13px;font-size:.84rem;color:#cdd9e6;line-height:1.65">'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#0a1628;border-radius:8px;padding:9px 12px;margin-bottom:8px;font-family:monospace;font-size:.82rem">'
+          +'<span style="color:#e9eef6">'+x.t+'</span>'
+          +'<span style="color:#1fd39a;font-weight:800;font-size:1rem">⇒</span>'
+          +'<span style="color:#ffd93d">'+x.syn+'</span></div>'
+        +'<div style="margin:4px 0"><b style="color:#6bcfff">Reagenti reali:</b> '+x.reag+'</div>'
+        +'<div style="margin:4px 0"><b style="color:#1fd39a">Reazione in avanti:</b> '+x.fwd+'</div>'
+        +'<div style="margin:6px 0 0;color:#9fb3c8;font-size:.82rem">'+x.note+'</div>'
+      +'</div></details>';
+  });
+  return '<div id="retroDisconn" style="background:#0a1628;border:1.5px solid #6bcfff;border-radius:14px;padding:16px;margin-bottom:18px">'
+    +'<div style="color:#6bcfff;font-weight:800;font-size:1.05rem;margin-bottom:4px">🧩 Guida alle disconnessioni — la logica retrosintetica</div>'
+    +'<div style="color:#9fb3c8;font-size:.84rem;line-height:1.6;margin-bottom:12px">Il cuore della retrosintesi: taglia il legame giusto (⇒) e ottieni i <b>sintoni</b> (frammenti carichi ideali), poi traducili nei <b>reagenti reali</b> equivalenti. Ogni disconnessione corrisponde a una reazione in avanti. Clicca per espandere.</div>'
+    +'<div id="rdList">'+html+'</div></div>';
 };
 </script>
 </body>
