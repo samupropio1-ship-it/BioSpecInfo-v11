@@ -2289,7 +2289,18 @@ window.BSI_TELEMETRY_URL='';</script>
 
 <!-- ══ SECTION: SINTESI ORGANICA ══ -->
 <div id="ssyn" class="section">
-  <div class="section-title">SINTESI ORGANICA · 170+ REAZIONI · FRECCE ELETTRONI · DATABASE</div>
+  <style>
+    @keyframes bsiEfDraw{to{stroke-dashoffset:0}}
+    @keyframes bsiEfHead{0%,55%{opacity:0}100%{opacity:1}}
+    #rxnList .ef-arrow{animation:bsiEfDraw 1.25s cubic-bezier(.55,0,.3,1) forwards}
+    #rxnList .ef-head{animation:bsiEfHead 1.45s ease forwards}
+    @media(prefers-reduced-motion:reduce){#rxnList .ef-arrow{stroke-dashoffset:0!important;animation:none}#rxnList .ef-head{opacity:1!important;animation:none}}
+  </style>
+  <div class="section-title">SINTESI ORGANICA · 170+ REAZIONI · MECCANISMO ANIMATO · FRECCE ELETTRONI</div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <button onclick="window._synReplay&&window._synReplay()" style="background:#241a45;border:1px solid #a78bfa;color:#c9b6ff;border-radius:8px;padding:6px 13px;font-size:.8rem;font-weight:700;cursor:pointer">▶ Rigioca meccanismi</button>
+    <span style="color:#8fa3b8;font-size:.76rem">Le frecce curve mostrano il <b>flusso degli elettroni</b>: si disegnano passo dopo passo come il meccanismo reale.</span>
+  </div>
   <div class="syn-sr"><input type="text" id="synQ" placeholder="Cerca in italiano/inglese: aldol, riduzione, Suzuki, Wittig, biosintesi, epossidazione…"/><button class="syn-go" id="synBtn">→</button></div>
   <div class="rxn-fp" id="rxnFp">
     <button class="on" data-c="all">Tutte</button>
@@ -4066,9 +4077,11 @@ function _ca(x1,y1,x2,y2,col){
   var mx=(x1+x2)/2-(y2-y1)*0.3,my=(y1+y2)/2+(x2-x1)*0.3;
   var dx=x2-mx,dy=y2-my,len=Math.sqrt(dx*dx+dy*dy)||1;
   var nx=dx/len,ny=dy/len,hs=7;
-  return'<path d="M '+x1+','+y1+' Q '+mx+','+my+' '+x2+','+y2+'" fill="none" stroke="'+(col||'#ffd93d')+'" stroke-width="1.4" stroke-dasharray="none"/>'
-    +'<polygon points="'+x2+','+y2+' '+(x2-hs*nx-hs*0.4*ny)+','+(y2-hs*ny+hs*0.4*nx)+' '+(x2-hs*nx+hs*0.4*ny)+','+(y2-hs*ny-hs*0.4*nx)+'" fill="'+(col||'#ffd93d')+'"/>';
+  return'<path class="ef-arrow" d="M '+x1+','+y1+' Q '+mx+','+my+' '+x2+','+y2+'" fill="none" stroke="'+(col||'#ffd93d')+'" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="240" stroke-dashoffset="240"/>'
+    +'<polygon class="ef-head" points="'+x2+','+y2+' '+(x2-hs*nx-hs*0.4*ny)+','+(y2-hs*ny+hs*0.4*nx)+' '+(x2-hs*nx+hs*0.4*ny)+','+(y2-hs*ny-hs*0.4*nx)+'" fill="'+(col||'#ffd93d')+'"/>';
 }
+// riavvia le animazioni del meccanismo (frecce elettroniche che si ridisegnano)
+window._synReplay=function(){ var l=document.getElementById('rxnList'); if(!l)return; l.querySelectorAll('.ef-arrow,.ef-head').forEach(function(el){ el.style.animation='none'; void el.getBBox; el.getBoundingClientRect(); el.style.animation=''; }); };
 // Lone pair dots
 function _lp(x,y,col){return'<circle cx="'+(x-4)+'" cy="'+y+'" r="1.5" fill="'+(col||'#ffd93d')+'"/><circle cx="'+(x+4)+'" cy="'+y+'" r="1.5" fill="'+(col||'#ffd93d')+'"/>';}
 // Bond electrons (dots on bond)
