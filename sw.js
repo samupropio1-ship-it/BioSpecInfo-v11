@@ -1,5 +1,5 @@
-// BioSpecInfo Service Worker v66 — network-first, precache dei file pesanti
-var CACHE = 'bsi-v66';
+// BioSpecInfo Service Worker v67 — network-first, precache dei file pesanti
+var CACHE = 'bsi-v67';
 var PRECACHE = [
   './RDKit_minimal.js',
   './RDKit_minimal.wasm',
