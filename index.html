@@ -1771,28 +1771,44 @@ window.BSI_TELEMETRY_URL='';</script>
   // ── Model Lab: addestra un modello reale sui dati caricati ──
   function _dsModelUI(stats,data){
     var cols=stats.map(function(s){return s.name;});
-    var numNames=stats.filter(function(s){return s.isNum;}).map(function(s){return s.name;});
     var opts=cols.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
-    var feats=numNames.map(function(c){return '<label style="display:inline-flex;align-items:center;gap:4px;background:#0a1628;border:1px solid #1a3050;border-radius:7px;padding:3px 8px;font-size:.74rem;color:#cdd9e6;cursor:pointer"><input type="checkbox" class="dsMlFeat" value="'+c+'" checked style="accent-color:#5eead4"> '+c+'</label>';}).join('');
+    var feats=stats.map(function(s){ return '<label style="display:inline-flex;align-items:center;gap:4px;background:#0a1628;border:1px solid #1a3050;border-radius:7px;padding:3px 8px;font-size:.74rem;color:#cdd9e6;cursor:pointer"><input type="checkbox" class="dsMlFeat" value="'+s.name+'"'+(s.isNum?' checked':'')+' style="accent-color:#5eead4"> '+s.name+(s.isNum?'':' <span style="color:#c9b6ff;font-size:.66rem">(cat)</span>')+'</label>'; }).join('');
     return '<div style="margin-top:14px;border-top:1px solid #16273e;padding-top:12px">'+
       '<b style="color:#c9b6ff;font-size:.92rem">🤖 Model Lab — addestra un modello sui tuoi dati</b>'+
-      '<div style="color:#9fb3c8;font-size:.8rem;line-height:1.5;margin:4px 0 9px">Scegli il <b>target</b> (cosa prevedere) e le <b>feature</b>. Target numerico → <b>regressione lineare</b>; categorico → <b>classificazione kNN</b>. Split train/test 75/25, metriche sul test.</div>'+
+      '<div style="color:#9fb3c8;font-size:.8rem;line-height:1.5;margin:4px 0 9px">Scegli il <b>target</b> (cosa prevedere) e le <b>feature</b>. Target numerico → <b>regressione lineare</b>; categorico → <b>classificazione kNN</b>. Le feature categoriche vengono <b>one-hot encoded</b> e quelle numeriche <b>standardizzate</b> automaticamente. Split 75/25 + <b>cross-validation 5-fold</b>.</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
         '<span style="color:#8fa3b8;font-size:.78rem">target</span><select id="dsMlTarget" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+opts+'</select>'+
-        '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button></div>'+
+        '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button>'+
+        '<button id="dsMlPreview" class="ds-gh-b">🔎 Anteprima trasformazione</button></div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+feats+'</div>'+
       '<div id="dsMlOut"></div></div>';
   }
   function _dsModelWire(stats,data){
     var btn=document.getElementById('dsMlTrain'); if(!btn)return;
+    function pickFeats(target){ return [].slice.call(document.querySelectorAll('.dsMlFeat:checked')).map(function(c){return c.value;}).filter(function(f){return f!==target;}); }
     btn.onclick=function(){
-      var target=document.getElementById('dsMlTarget').value;
-      var feats=[].slice.call(document.querySelectorAll('.dsMlFeat:checked')).map(function(c){return c.value;}).filter(function(f){return f!==target;});
-      var o=document.getElementById('dsMlOut');
+      var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
       if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
       var tstat=stats.filter(function(s){return s.name===target;})[0];
-      if(tstat && tstat.isNum) _dsTrainReg(data,target,feats); else _dsTrainClf(data,target,feats);
+      if(tstat && tstat.isNum) _dsTrainReg(data,target,feats,stats); else _dsTrainClf(data,target,feats,stats);
     };
+    var pv=document.getElementById('dsMlPreview'); if(pv)pv.onclick=function(){
+      var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
+      if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature.</div>'; return; }
+      _dsShowPreview(data,feats,stats);
+    };
+  }
+  function _dsShowPreview(data,feats,stats){
+    var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var names=_dsFeatNames(meta);
+    // encoda tutte le righe valide, poi standardizza le colonne per l'anteprima
+    var rows=[]; data.rows.forEach(function(r){ var xs=_dsEncodeRow(r,meta); if(xs)rows.push(xs); });
+    if(!rows.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Nessuna riga valida da mostrare.</div>'; return; }
+    var st=_dsStdz(rows), Z=st.Z, N=Math.min(6,Z.length);
+    var h='<div style="color:#8fa3b8;font-size:.78rem;margin:2px 0 4px">🔎 Cosa riceve il modello: <b>'+names.length+' colonne</b> (numeriche standardizzate z-score, categoriche one-hot). Prime '+N+' righe:</div>';
+    h+='<div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;font-size:.72rem;min-width:'+Math.max(300,names.length*70)+'px"><thead><tr style="background:#0c1f33;color:#8fa3b8">'+names.map(function(n){return '<th style="padding:5px 8px;white-space:nowrap;text-align:right">'+n+'</th>';}).join('')+'</tr></thead><tbody>';
+    for(var i=0;i<N;i++){ h+='<tr style="border-top:1px solid #16273e">'+Z[i].map(function(v){ var c=v>0.05?'#5eead4':(v<-0.05?'#ff9db0':'#8fa3b8'); return '<td style="padding:4px 8px;text-align:right;color:'+c+'">'+v.toFixed(2)+'</td>'; }).join('')+'</tr>'; }
+    h+='</tbody></table></div><div style="font-size:.72rem;color:#6b7d90;margin-top:5px">Verde = sopra la media, rosa = sotto. Le colonne <code>nome=valore</code> sono le variabili one-hot (1 se la riga ha quel valore).</div>';
+    o.innerHTML=h;
   }
   function _dsBuildXY(data,target,feats,tNum){
     var ti=data.cols.indexOf(target), fi=feats.map(function(f){return data.cols.indexOf(f);});
@@ -1802,6 +1818,22 @@ window.BSI_TELEMETRY_URL='';</script>
       X.push(xs); });
     return {X:X,y:y};
   }
+  // meta delle feature: numerica → 1 colonna; categorica → one-hot (una colonna per valore)
+  function _dsFeatMeta(data,feats,stats){
+    return feats.map(function(f){ var s=stats.filter(function(x){return x.name===f;})[0]; var ci=data.cols.indexOf(f);
+      if(s&&s.isNum) return {name:f,ci:ci,num:true};
+      var cats=[]; data.rows.forEach(function(r){ var v=r[ci]; if(v==null||v==='')v='(mancante)'; if(cats.indexOf(v)<0)cats.push(v); });
+      return {name:f,ci:ci,num:false,cats:cats}; });
+  }
+  function _dsFeatNames(meta){ var names=[]; meta.forEach(function(m){ if(m.num)names.push(m.name); else m.cats.forEach(function(c){ names.push(m.name+'='+c); }); }); return names; }
+  function _dsEncodeRow(r,meta){ var xs=[],ok=true; meta.forEach(function(m){ if(!ok)return; if(m.num){ var v=_dsNum(r[m.ci]); if(isNaN(v)){ok=false;return;} xs.push(v); } else { var v=r[m.ci]; if(v==null||v==='')v='(mancante)'; m.cats.forEach(function(c){ xs.push(v===c?1:0); }); } }); return ok?xs:null; }
+  function _dsBuildXY2(data,target,meta,tNum){
+    var ti=data.cols.indexOf(target),X=[],y=[];
+    data.rows.forEach(function(r){ var xs=_dsEncodeRow(r,meta); if(!xs)return;
+      if(tNum){ var yv=_dsNum(r[ti]); if(isNaN(yv))return; y.push(yv); } else { var yc=r[ti]; if(yc==null||yc==='')return; y.push(yc); }
+      X.push(xs); });
+    return {X:X,y:y,names:_dsFeatNames(meta)};
+  }
   function _dsStdz(X){ var n=X.length,m=X[0].length,mu=[],sd=[]; for(var j=0;j<m;j++){ var s=0; for(var i=0;i<n;i++)s+=X[i][j]; mu[j]=s/n; var v=0; for(var i=0;i<n;i++)v+=(X[i][j]-mu[j])*(X[i][j]-mu[j]); sd[j]=Math.sqrt(v/n)||1; }
     var Z=X.map(function(r){return r.map(function(v,j){return (v-mu[j])/sd[j];});}); return {Z:Z,mu:mu,sd:sd}; }
   function _dsGDFit(Z,y,idx,iters){ var m=Z[0].length,w=new Array(m).fill(0),b=0,lr=0.12; for(var it=0;it<iters;it++){ var gw=new Array(m).fill(0),gb=0; idx.forEach(function(i){ var p=b; for(var j=0;j<m;j++)p+=w[j]*Z[i][j]; var e=p-y[i]; gb+=e; for(var j=0;j<m;j++)gw[j]+=e*Z[i][j]; }); var N=idx.length; b-=lr*gb/N; for(var j=0;j<m;j++)w[j]-=lr*gw[j]/N; } return {w:w,b:b}; }
@@ -1809,8 +1841,8 @@ window.BSI_TELEMETRY_URL='';</script>
   function _dsCVReg(Z,ys,folds){ var n=Z.length,r2=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(te.length<1||tr.length<3)continue; var fit=_dsGDFit(Z,ys,tr,2500); var ssr=0,sst=0,mu=0; te.forEach(function(i){mu+=ys[i];}); mu/=te.length; te.forEach(function(i){ var p=fit.b; for(var j=0;j<Z[i].length;j++)p+=fit.w[j]*Z[i][j]; ssr+=(ys[i]-p)*(ys[i]-p); sst+=(ys[i]-mu)*(ys[i]-mu); }); r2.push(sst>0?1-ssr/sst:0); } return r2; }
   function _dsCVClf(Z,y,folds){ var n=Z.length,accs=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(!te.length||tr.length<3)continue; var k=Math.min(5,tr.length),correct=0; te.forEach(function(i){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<Z[i].length;j++){ var dd=Z[i][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];}); var v={}; for(var q=0;q<k;q++){var c=ds[q][1];v[c]=(v[c]||0)+1;} var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} if(best===y[i])correct++; }); accs.push(correct/te.length); } return accs; }
   function _dsMetricCard(lbl,val,col){ return '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:8px 11px;min-width:82px"><div style="font-size:.64rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">'+lbl+'</div><div style="font-size:1.05rem;font-weight:800;margin-top:2px;color:'+(col||'#e8eef4')+'">'+val+'</div></div>'; }
-  function _dsTrainReg(data,target,feats){
-    var o=document.getElementById('dsMlOut'); var d=_dsBuildXY(data,target,feats,true); var X=d.X,y=d.y; var n=X.length,m=feats.length;
+  function _dsTrainReg(data,target,feats,stats){
+    var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,true); var X=d.X,y=d.y,featNames=d.names; var n=X.length,m=featNames.length;
     if(n<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide (trovate '+n+').</div>'; return; }
     var st=_dsStdz(X), Z=st.Z; var ymu=0; for(var i=0;i<n;i++)ymu+=y[i]; ymu/=n; var yv=0; for(var i=0;i<n;i++)yv+=(y[i]-ymu)*(y[i]-ymu); var ysd=Math.sqrt(yv/n)||1;
     var ys=y.map(function(v){return (v-ymu)/ysd;});
@@ -1823,7 +1855,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var r2=sst>0?1-ssr/sst:0, rmse=Math.sqrt(ssr/te.length); mae/=te.length;
     var cv=_dsMeanStd(_dsCVReg(Z,ys,5)); var cvStr=cv[0].toFixed(2)+' ± '+cv[1].toFixed(2);
     var maxw=Math.max.apply(null,w.map(Math.abs))||1;
-    var bars=feats.map(function(f,j){ var pct=Math.round(Math.abs(w[j])/maxw*100); return '<div style="display:flex;align-items:center;gap:6px;margin:2px 0"><span style="width:96px;font-size:.72rem;color:#cdd9e6;text-align:right;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f+'</span><span style="flex:1;height:12px;background:#0a1628;border-radius:6px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:'+(w[j]>=0?'#5eead4':'#ff6f8a')+'"></span></span><span style="width:46px;font-size:.7rem;color:#8fa3b8;text-align:right">'+w[j].toFixed(2)+'</span></div>'; }).join('');
+    var bars=featNames.map(function(f,j){ var pct=Math.round(Math.abs(w[j])/maxw*100); return '<div style="display:flex;align-items:center;gap:6px;margin:2px 0"><span style="width:96px;font-size:.72rem;color:#cdd9e6;text-align:right;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f+'</span><span style="flex:1;height:12px;background:#0a1628;border-radius:6px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:'+(w[j]>=0?'#5eead4':'#ff6f8a')+'"></span></span><span style="width:46px;font-size:.7rem;color:#8fa3b8;text-align:right">'+w[j].toFixed(2)+'</span></div>'; }).join('');
     o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px">'+
       _dsMetricCard('R²',r2.toFixed(3),(r2>0.7?'#5eead4':r2>0.4?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('RMSE',rmse.toFixed(3))+_dsMetricCard('MAE',mae.toFixed(3))+
@@ -1844,8 +1876,8 @@ window.BSI_TELEMETRY_URL='';</script>
     x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,10); x.lineTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
     x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText('reale →',pad+2,H-10); x.save(); x.translate(11,H-pad); x.rotate(-Math.PI/2); x.fillText('previsto →',0,0); x.restore();
   }
-  function _dsTrainClf(data,target,feats){
-    var o=document.getElementById('dsMlOut'); var d=_dsBuildXY(data,target,feats,false); var X=d.X,y=d.y; var n=X.length,m=feats.length;
+  function _dsTrainClf(data,target,feats,stats){
+    var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,false); var X=d.X,y=d.y; var n=X.length,m=d.names.length;
     if(n<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide per la classificazione (trovate '+n+').</div>'; return; }
     var classes=[]; y.forEach(function(c){ if(classes.indexOf(c)<0)classes.push(c); });
     if(classes.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Il target ha una sola classe: niente da classificare.</div>'; return; }
