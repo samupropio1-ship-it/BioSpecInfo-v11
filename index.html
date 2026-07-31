@@ -1779,6 +1779,7 @@ window.BSI_TELEMETRY_URL='';</script>
       '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
         '<span style="color:#8fa3b8;font-size:.78rem">target</span><select id="dsMlTarget" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+opts+'</select>'+
         '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button>'+
+        '<button id="dsMlCompare" class="ds-gh-b" style="border-color:#a78bfa;color:#c9b6ff">🏆 Confronta modelli</button>'+
         '<button id="dsMlPreview" class="ds-gh-b">🔎 Anteprima trasformazione</button></div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+feats+'</div>'+
       '<div id="dsMlOut"></div></div>';
@@ -1796,6 +1797,11 @@ window.BSI_TELEMETRY_URL='';</script>
       var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
       if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature.</div>'; return; }
       _dsShowPreview(data,feats,stats);
+    };
+    var cmp=document.getElementById('dsMlCompare'); if(cmp)cmp.onclick=function(){
+      var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
+      if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
+      _dsCompare(data,target,feats,stats);
     };
   }
   function _dsShowPreview(data,feats,stats){
@@ -1841,6 +1847,27 @@ window.BSI_TELEMETRY_URL='';</script>
   function _dsCVReg(Z,ys,folds){ var n=Z.length,r2=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(te.length<1||tr.length<3)continue; var fit=_dsGDFit(Z,ys,tr,2500); var ssr=0,sst=0,mu=0; te.forEach(function(i){mu+=ys[i];}); mu/=te.length; te.forEach(function(i){ var p=fit.b; for(var j=0;j<Z[i].length;j++)p+=fit.w[j]*Z[i][j]; ssr+=(ys[i]-p)*(ys[i]-p); sst+=(ys[i]-mu)*(ys[i]-mu); }); r2.push(sst>0?1-ssr/sst:0); } return r2; }
   function _dsCVClf(Z,y,folds){ var n=Z.length,accs=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(!te.length||tr.length<3)continue; var k=Math.min(5,tr.length),correct=0; te.forEach(function(i){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<Z[i].length;j++){ var dd=Z[i][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];}); var v={}; for(var q=0;q<k;q++){var c=ds[q][1];v[c]=(v[c]||0)+1;} var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} if(best===y[i])correct++; }); accs.push(correct/te.length); } return accs; }
   function _dsMetricCard(lbl,val,col){ return '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:8px 11px;min-width:82px"><div style="font-size:.64rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">'+lbl+'</div><div style="font-size:1.05rem;font-weight:800;margin-top:2px;color:'+(col||'#e8eef4')+'">'+val+'</div></div>'; }
+  // ── confronto modelli (AutoML-lite): cross-validation su più algoritmi + leaderboard ──
+  function _dsCVBaseReg(ys,folds){ var n=ys.length,r2=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){(i%folds===f?te:tr).push(i);} if(!te.length||!tr.length)continue; var mt=0; tr.forEach(function(i){mt+=ys[i];}); mt/=tr.length; var ssr=0,sst=0,mu=0; te.forEach(function(i){mu+=ys[i];}); mu/=te.length; te.forEach(function(i){ ssr+=(ys[i]-mt)*(ys[i]-mt); sst+=(ys[i]-mu)*(ys[i]-mu); }); r2.push(sst>0?1-ssr/sst:0); } return r2; }
+  function _dsCVKnnReg(Z,ys,k,folds){ var n=Z.length,r2=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){(i%folds===f?te:tr).push(i);} if(te.length<1||tr.length<k)continue; var ssr=0,sst=0,mu=0; te.forEach(function(i){mu+=ys[i];}); mu/=te.length; te.forEach(function(i){ var ds=tr.map(function(ti){var s=0;for(var j=0;j<Z[i].length;j++){var dd=Z[i][j]-Z[ti][j];s+=dd*dd;}return[s,ys[ti]];}); ds.sort(function(a,b){return a[0]-b[0];}); var p=0; for(var q=0;q<k;q++)p+=ds[q][1]; p/=k; ssr+=(ys[i]-p)*(ys[i]-p); sst+=(ys[i]-mu)*(ys[i]-mu); }); r2.push(sst>0?1-ssr/sst:0); } return r2; }
+  function _dsCVBaseClf(y,folds){ var n=y.length,acc=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){(i%folds===f?te:tr).push(i);} if(!te.length||!tr.length)continue; var v={}; tr.forEach(function(i){v[y[i]]=(v[y[i]]||0)+1;}); var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} var correct=0; te.forEach(function(i){if(y[i]===best)correct++;}); acc.push(correct/te.length); } return acc; }
+  function _dsRenderLeaderboard(o,models,metricLabel,isReg){
+    models.sort(function(a,b){return b[1][0]-a[1][0];});
+    var fmt=function(ms){ return isReg? ms[0].toFixed(3) : (ms[0]*100).toFixed(1)+'%'; };
+    var errfmt=function(ms){ return isReg? ('± '+ms[1].toFixed(2)) : ('± '+(ms[1]*100).toFixed(0)+'%'); };
+    var rows=models.map(function(m,i){ var win=i===0; return '<tr style="border-top:1px solid #16273e;'+(win?'background:rgba(94,234,212,.1)':'')+'"><td style="padding:7px 11px;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:'+(win?'800':'600')+'">'+(win?'🏆 ':'')+m[0]+'</td><td style="padding:7px 11px;text-align:right;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:700">'+fmt(m[1])+' <span style="color:#6b7d90;font-weight:400;font-size:.9em">'+errfmt(m[1])+'</span></td></tr>'; }).join('');
+    o.innerHTML='<div style="color:#c9b6ff;font-weight:800;font-size:.92rem;margin:6px 0 7px">🏆 Confronto modelli — '+metricLabel+'</div><div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;width:100%;font-size:.82rem"><thead><tr style="background:#0c1f33;color:#8fa3b8"><th style="text-align:left;padding:7px 11px">modello</th><th style="text-align:right;padding:7px 11px">'+metricLabel+'</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:.73rem;color:#6b7d90;margin-top:6px">Il modello in cima vince sulla cross-validation. Regola d\'oro: <b>batti sempre la baseline</b> — se non la superi, le feature non sono informative.</div>';
+  }
+  function _dsCompare(data,target,feats,stats){
+    var o=document.getElementById('dsMlOut'); var tstat=stats.filter(function(s){return s.name===target;})[0]; var meta=_dsFeatMeta(data,feats,stats);
+    if(tstat && tstat.isNum){ var d=_dsBuildXY2(data,target,meta,true); if(d.X.length<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide.</div>'; return; }
+      var st=_dsStdz(d.X),Z=st.Z; var ymu=0; d.y.forEach(function(v){ymu+=v;}); ymu/=d.y.length; var yv=0; d.y.forEach(function(v){yv+=(v-ymu)*(v-ymu);}); var ysd=Math.sqrt(yv/d.y.length)||1; var ys=d.y.map(function(v){return (v-ymu)/ysd;});
+      _dsRenderLeaderboard(o,[['Baseline (media)',_dsMeanStd(_dsCVBaseReg(ys,5))],['Regressione lineare',_dsMeanStd(_dsCVReg(Z,ys,5))],['kNN regressore (k=5)',_dsMeanStd(_dsCVKnnReg(Z,ys,5,5))]],'CV R² (5-fold)',true);
+    } else { var d2=_dsBuildXY2(data,target,meta,false); if(d2.X.length<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide.</div>'; return; }
+      var Z2=_dsStdz(d2.X).Z;
+      _dsRenderLeaderboard(o,[['Baseline (classe frequente)',_dsMeanStd(_dsCVBaseClf(d2.y,5))],['kNN classificatore (k=5)',_dsMeanStd(_dsCVClf(Z2,d2.y,5))]],'CV accuratezza (5-fold)',false);
+    }
+  }
   function _dsTrainReg(data,target,feats,stats){
     var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,true); var X=d.X,y=d.y,featNames=d.names; var n=X.length,m=featNames.length;
     if(n<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide (trovate '+n+').</div>'; return; }
