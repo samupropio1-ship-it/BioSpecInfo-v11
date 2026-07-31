@@ -1834,7 +1834,8 @@ window.BSI_TELEMETRY_URL='';</script>
         '<span style="color:#8fa3b8;font-size:.78rem">target</span><select id="dsMlTarget" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+opts+'</select>'+
         '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button>'+
         '<button id="dsMlCompare" class="ds-gh-b" style="border-color:#a78bfa;color:#c9b6ff">🏆 Confronta modelli</button>'+
-        '<button id="dsMlPreview" class="ds-gh-b">🔎 Anteprima trasformazione</button></div>'+
+        '<button id="dsMlPreview" class="ds-gh-b">🔎 Anteprima trasformazione</button>'+
+        '<span style="display:inline-flex;align-items:center;gap:4px"><button id="dsMlCluster" class="ds-gh-b" style="border-color:#6bcfff;color:#6bcfff">🔵 Clustering</button><span style="color:#8fa3b8;font-size:.72rem">k</span><input id="dsMlK" type="number" min="2" max="8" value="3" style="width:46px;background:#0a1628;border:1px solid #26406a;border-radius:6px;color:#cdd9e6;font-size:.76rem;padding:3px 5px"></span></div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+feats+'</div>'+
       '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.76rem;color:#cdd9e6;cursor:pointer;margin-bottom:9px"><input type="checkbox" id="dsMlPoly" style="accent-color:#a78bfa"> ➕ Aggiungi termini <b>quadratici e interazioni</b> (cattura le relazioni non-lineari)</label>'+
       '<div id="dsMlOut"></div></div>';
@@ -1858,6 +1859,11 @@ window.BSI_TELEMETRY_URL='';</script>
       var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
       if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
       _dsCompare(data,target,feats,stats,poly());
+    };
+    var clu=document.getElementById('dsMlCluster'); if(clu)clu.onclick=function(){
+      var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
+      if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno 2 feature numeriche.</div>'; return; }
+      _dsCluster(data,feats,stats);
     };
   }
   function _dsShowPreview(data,feats,stats){
@@ -1928,6 +1934,51 @@ window.BSI_TELEMETRY_URL='';</script>
       var Z2=_dsStdz(d2.X).Z;
       _dsRenderLeaderboard(o,[['Baseline (classe frequente)',_dsMeanStd(_dsCVBaseClf(d2.y,5))],['kNN classificatore (k=5)',_dsMeanStd(_dsCVClf(Z2,d2.y,5))]],'CV accuratezza (5-fold)',false);
     }
+  }
+  // ── Clustering non supervisionato (k-means) + PCA 2D ──
+  function _dsKmeans(Z,k,iters){ var n=Z.length,m=Z[0].length,cent=[],used={};
+    for(var c=0;c<k;c++){ var idx; var tries=0; do{ idx=Math.floor(Math.random()*n); tries++; }while(used[idx]&&tries<50); used[idx]=1; cent.push(Z[idx].slice()); }
+    var assign=new Array(n).fill(0);
+    for(var it=0;it<iters;it++){ for(var i=0;i<n;i++){ var best=0,bd=1e18; for(var c=0;c<k;c++){ var s=0; for(var j=0;j<m;j++){var dd=Z[i][j]-cent[c][j];s+=dd*dd;} if(s<bd){bd=s;best=c;} } assign[i]=best; }
+      var sum=[],cnt=new Array(k).fill(0); for(var c=0;c<k;c++)sum.push(new Array(m).fill(0));
+      for(var i=0;i<n;i++){ var c=assign[i]; cnt[c]++; for(var j=0;j<m;j++)sum[c][j]+=Z[i][j]; }
+      for(var c=0;c<k;c++){ if(cnt[c]>0)for(var j=0;j<m;j++)cent[c][j]=sum[c][j]/cnt[c]; } }
+    var inertia=0; for(var i=0;i<n;i++){ var c=assign[i],s=0; for(var j=0;j<m;j++){var dd=Z[i][j]-cent[c][j];s+=dd*dd;} inertia+=s; }
+    return {assign:assign,cent:cent,inertia:inertia};
+  }
+  function _dsKmeansBest(Z,k,restarts){ var best=null; for(var r=0;r<restarts;r++){ var km=_dsKmeans(Z,k,25); if(!best||km.inertia<best.inertia)best=km; } return best; }
+  function _dsPCA2(Z){ var n=Z.length,m=Z[0].length,C=[]; for(var a=0;a<m;a++)C.push(new Array(m).fill(0));
+    for(var i=0;i<n;i++)for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++)C[a][bb]+=Z[i][a]*Z[i][bb];
+    for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++){ C[a][bb]/=n; C[bb][a]=C[a][bb]; }
+    function pit(M){ var v=[]; for(var a=0;a<m;a++)v.push(Math.random()-0.5); for(var it=0;it<80;it++){ var w=new Array(m).fill(0); for(var a=0;a<m;a++)for(var bb=0;bb<m;bb++)w[a]+=M[a][bb]*v[bb]; var nn=Math.sqrt(w.reduce(function(s,x){return s+x*x;},0))||1; v=w.map(function(x){return x/nn;}); } var Mv=new Array(m).fill(0); for(var a=0;a<m;a++)for(var bb=0;bb<m;bb++)Mv[a]+=M[a][bb]*v[bb]; var lam=0; for(var a=0;a<m;a++)lam+=v[a]*Mv[a]; return {v:v,lam:lam}; }
+    var e1=pit(C),C2=[]; for(var a=0;a<m;a++){ C2.push(new Array(m)); for(var bb=0;bb<m;bb++)C2[a][bb]=C[a][bb]-e1.lam*e1.v[a]*e1.v[bb]; }
+    var e2=pit(C2); var pts=Z.map(function(r){ var x=0,y=0; for(var j=0;j<m;j++){x+=r[j]*e1.v[j];y+=r[j]*e2.v[j];} return [x,y]; });
+    var tot=0; for(var a=0;a<m;a++)tot+=C[a][a]; return {pts:pts,explained:tot>0?((e1.lam+e2.lam)/tot*100):0};
+  }
+  function _dsCluster(data,feats,stats){
+    var o=document.getElementById('dsMlOut');
+    var numFeats=feats.filter(function(f){ var s=stats.filter(function(x){return x.name===f;})[0]; return s&&s.isNum; });
+    if(numFeats.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno <b>2 feature numeriche</b> per il clustering.</div>'; return; }
+    var fi=numFeats.map(function(f){return data.cols.indexOf(f);}); var X=[]; data.rows.forEach(function(r){ var xs=[],ok=true; for(var j=0;j<fi.length;j++){var v=_dsNum(r[fi[j]]);if(isNaN(v)){ok=false;break;}xs.push(v);} if(ok)X.push(xs); });
+    if(X.length<6){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Poche righe valide ('+X.length+').</div>'; return; }
+    var k=Math.max(2,Math.min(8,parseInt((document.getElementById('dsMlK')||{}).value,10)||3));
+    var Z=_dsStdz(X).Z; var km=_dsKmeansBest(Z,k,5); var pca=_dsPCA2(Z);
+    var sizes=new Array(k).fill(0); km.assign.forEach(function(c){sizes[c]++;});
+    var PAL=['#5eead4','#a78bfa','#f5c451','#ff6f8a','#6bcfff','#63d6a8','#ff9d5c','#c9b6ff'];
+    var chips=sizes.map(function(sz,c){ return '<span style="display:inline-flex;align-items:center;gap:5px;background:#0a1628;border:1px solid #1a3050;border-radius:20px;padding:3px 10px;font-size:.74rem;color:#cdd9e6"><span style="width:10px;height:10px;border-radius:50%;background:'+PAL[c%PAL.length]+'"></span>Cluster '+(c+1)+': '+sz+'</span>'; }).join(' ');
+    o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 8px">'+_dsMetricCard('cluster (k)',k)+_dsMetricCard('punti',X.length)+_dsMetricCard('feature',numFeats.length)+_dsMetricCard('PCA var. spiegata',pca.explained.toFixed(0)+'%')+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px">'+chips+'</div>'+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">proiezione PCA 2D (i colori sono i cluster trovati)</div><canvas id="dsMlCluCv" style="width:100%;height:230px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'+
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">Clustering <b>k-means</b> (non supervisionato) su feature standardizzate, visualizzato con <b>PCA</b> (le 2 direzioni di massima varianza). Gruppi ben separati = struttura reale nei dati.</div>';
+    _dsDrawClusters(pca.pts,km.assign,PAL);
+  }
+  function _dsDrawClusters(pts,assign,PAL){
+    var cv=document.getElementById('dsMlCluCv'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.clientWidth||520,H=cv.clientHeight||230; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H);
+    var xmn=Infinity,xmx=-Infinity,ymn=Infinity,ymx=-Infinity; pts.forEach(function(p){ xmn=Math.min(xmn,p[0]);xmx=Math.max(xmx,p[0]);ymn=Math.min(ymn,p[1]);ymx=Math.max(ymx,p[1]); }); if(xmn===xmx)xmx=xmn+1; if(ymn===ymx)ymx=ymn+1; var pad=16;
+    function sx(v){return pad+(v-xmn)/(xmx-xmn)*(W-pad*2);} function sy(v){return H-pad-(v-ymn)/(ymx-ymn)*(H-pad*2);}
+    pts.forEach(function(p,i){ x.fillStyle=PAL[assign[i]%PAL.length]; x.globalAlpha=0.85; x.beginPath(); x.arc(sx(p[0]),sy(p[1]),4,0,6.2832); x.fill(); });
+    x.globalAlpha=1; x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.fillText('PC1 →',pad,H-4); x.save(); x.translate(11,pad+30); x.rotate(-Math.PI/2); x.fillText('PC2 →',0,0); x.restore();
   }
   function _dsTrainReg(data,target,feats,stats,poly){
     var o=document.getElementById('dsMlOut'); var dm=_dsDesign(data,target,feats,stats,true,poly); var meta=dm.meta; var X=dm.X,y=dm.y,featNames=dm.names; var n=X.length,m=featNames.length;
