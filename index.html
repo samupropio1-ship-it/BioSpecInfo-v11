@@ -928,6 +928,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button id="dsWbRdkit" class="ds-gh-b" style="border-color:#5eead4;color:#5eead4">🧪 Descrittori RDKit (da SMILES)</button>
       <button id="dsWbClear" class="ds-gh-b">✕ Pulisci</button>
       <button id="dsWbExport" class="ds-gh-b" style="display:none">⬇️ Esporta report (.md)</button>
+      <button id="dsWbHtml" class="ds-gh-b" style="display:none;border-color:#a78bfa;color:#c9b6ff">📄 Report HTML</button>
       <button id="dsWbPy" class="ds-gh-b" style="display:none">🐍 Genera codice pandas</button>
     </div>
     <textarea id="dsWbInput" spellcheck="false" placeholder="Incolla qui il CSV (con intestazione), es:&#10;smiles,mw,logp,solubility&#10;CCO,46.07,-0.31,1.10&#10;c1ccccc1,78.11,2.13,-2.20&#10;..." style="width:100%;min-height:96px;background:#070f1c;border:1px solid #26406a;border-radius:9px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.5;padding:9px 11px;resize:vertical;box-sizing:border-box"></textarea>
@@ -1753,6 +1754,7 @@ window.BSI_TELEMETRY_URL='';</script>
     out.innerHTML=html;
     document.getElementById('dsWbExport').style.display='';
     document.getElementById('dsWbPy').style.display='';
+    var _hb=document.getElementById('dsWbHtml'); if(_hb)_hb.style.display='';
     // disegna istogramma + correlazione
     var sel=document.getElementById('dsWbHistSel');
     function drawHist(){ var name=sel?sel.value:numCols[0].name; var s=stats.filter(function(x){return x.name===name;})[0]; if(!s||!s._nums)return; _dsDrawHist(s); }
@@ -1789,6 +1791,31 @@ window.BSI_TELEMETRY_URL='';</script>
     });
   }
   function _dsWbExportClean(){ if(_DSWB.data)_dsWbDL('dati_puliti.csv',_dsToCSV(_DSWB.data),'text/csv'); }
+  function _dsWbReportHTML(){
+    var data=_DSWB.data, stats=_DSWB.stats; if(!data||!stats)return;
+    var numCols=stats.filter(function(s){return s.isNum;});
+    var histImg='',corrImg='';
+    var hc=document.getElementById('dsWbHist'); if(hc){ try{ histImg=hc.toDataURL('image/png'); }catch(e){} }
+    var cc=document.getElementById('dsWbCorr'); if(cc){ try{ corrImg=cc.toDataURL('image/png'); }catch(e){} }
+    function esc(s){ return (''+s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+    function f(x){ return (x==null||isNaN(x))?'—':(''+(Math.round(x*1000)/1000)); }
+    var rows=stats.map(function(s){ return '<tr><td>'+esc(s.name)+'</td><td>'+(s.isNum?'num':'cat')+'</td><td>'+s.missing+'</td><td>'+(s.isNum?f(s.mean):(s.unique+' unici'))+'</td><td>'+(s.isNum?f(s.std):'—')+'</td><td>'+(s.isNum?f(s.min):'—')+'</td><td>'+(s.isNum?f(s.median):(s.top?esc(s.top):'—'))+'</td><td>'+(s.isNum?f(s.max):'—')+'</td><td>'+(s.isNum?s.outliers:'—')+'</td></tr>'; }).join('');
+    var corrRows='';
+    if(numCols.length>=2){ var series=numCols.map(function(s){ var ci=data.cols.indexOf(s.name); return data.rows.map(function(r){return _dsNum(r[ci]);}); });
+      for(var i=0;i<numCols.length;i++)for(var j=i+1;j<numCols.length;j++){ var r=_dsPearson(series[i],series[j]); if(!isNaN(r)&&Math.abs(r)>0.7)corrRows+='<li><b>'+esc(numCols[i].name)+'</b> ↔ <b>'+esc(numCols[j].name)+'</b>: r = '+r.toFixed(3)+'</li>'; } }
+    var html='<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report EDA — BioSpecInfo</title>'+
+      '<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#0a1220;color:#e9eef6;margin:0;padding:26px;line-height:1.6;max-width:900px;margin:auto}h1{color:#7c6fff;margin-bottom:2px}h2{color:#5eead4;border-bottom:1px solid #26406a;padding-bottom:5px;margin-top:30px}table{border-collapse:collapse;width:100%;font-size:13.5px;overflow-x:auto;display:block}th,td{padding:6px 10px;border-bottom:1px solid #1a3050;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#8fa3b8;background:#0c1f33}img{max-width:100%;border:1px solid #16273e;border-radius:8px;background:#070f1c;margin-top:6px}.chip{display:inline-block;background:#0c2036;border:1px solid #1c3a57;border-radius:20px;padding:4px 12px;margin:3px 3px 3px 0;font-size:13px}.muted{color:#6b7d90;font-size:13px}li{margin:3px 0}</style></head><body>'+
+      '<h1>📊 Report di Analisi Esplorativa</h1>'+
+      '<p class="muted">Generato con <b>BioSpecInfo · Banco di Lavoro Dati</b> — '+new Date().toLocaleString('it')+'. Dati elaborati localmente nel browser.</p>'+
+      '<div><span class="chip">'+data.rows.length+' righe × '+data.cols.length+' colonne</span><span class="chip">'+numCols.length+' numeriche · '+(stats.length-numCols.length)+' categoriche</span></div>'+
+      '<h2>Statistiche delle colonne</h2><table><thead><tr><th>colonna</th><th>tipo</th><th>mancanti</th><th>media / unici</th><th>std</th><th>min</th><th>mediana / top</th><th>max</th><th>outlier</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      (corrRows?'<h2>Correlazioni forti (|r| &gt; 0.7)</h2><ul>'+corrRows+'</ul>':'')+
+      (histImg?'<h2>Distribuzione</h2><img src="'+histImg+'" alt="istogramma">':'')+
+      (corrImg?'<h2>Matrice di correlazione</h2><img src="'+corrImg+'" alt="correlazione">':'')+
+      '<p class="muted" style="margin-top:32px">Documento autonomo — apribile in qualsiasi browser, pronto da allegare a una relazione o a un repository.</p>'+
+      '</body></html>';
+    _dsWbDL('report_eda.html', html, 'text/html');
+  }
   function _dsWbImpute(){
     var data=_DSWB.data; if(!data)return;
     data.cols.forEach(function(name,ci){ var s=_dsColStats(data,ci); var fill=s.isNum?s.median:s.top; if(fill==null)return;
@@ -1808,17 +1835,19 @@ window.BSI_TELEMETRY_URL='';</script>
         '<button id="dsMlTrain" class="ds-gh-b" style="border-color:#5eead4;background:#0e2a2a;color:#5eead4">▶ Addestra</button>'+
         '<button id="dsMlCompare" class="ds-gh-b" style="border-color:#a78bfa;color:#c9b6ff">🏆 Confronta modelli</button>'+
         '<button id="dsMlPreview" class="ds-gh-b">🔎 Anteprima trasformazione</button></div>'+
-      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+feats+'</div>'+
+      '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">feature</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+feats+'</div>'+
+      '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.76rem;color:#cdd9e6;cursor:pointer;margin-bottom:9px"><input type="checkbox" id="dsMlPoly" style="accent-color:#a78bfa"> ➕ Aggiungi termini <b>quadratici e interazioni</b> (cattura le relazioni non-lineari)</label>'+
       '<div id="dsMlOut"></div></div>';
   }
   function _dsModelWire(stats,data){
     var btn=document.getElementById('dsMlTrain'); if(!btn)return;
     function pickFeats(target){ return [].slice.call(document.querySelectorAll('.dsMlFeat:checked')).map(function(c){return c.value;}).filter(function(f){return f!==target;}); }
+    function poly(){ var c=document.getElementById('dsMlPoly'); return !!(c&&c.checked); }
     btn.onclick=function(){
       var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
       if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
       var tstat=stats.filter(function(s){return s.name===target;})[0];
-      if(tstat && tstat.isNum) _dsTrainReg(data,target,feats,stats); else _dsTrainClf(data,target,feats,stats);
+      if(tstat && tstat.isNum) _dsTrainReg(data,target,feats,stats,poly()); else _dsTrainClf(data,target,feats,stats,poly());
     };
     var pv=document.getElementById('dsMlPreview'); if(pv)pv.onclick=function(){
       var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
@@ -1828,7 +1857,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var cmp=document.getElementById('dsMlCompare'); if(cmp)cmp.onclick=function(){
       var target=document.getElementById('dsMlTarget').value; var feats=pickFeats(target); var o=document.getElementById('dsMlOut');
       if(!feats.length){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Seleziona almeno una feature diversa dal target.</div>'; return; }
-      _dsCompare(data,target,feats,stats);
+      _dsCompare(data,target,feats,stats,poly());
     };
   }
   function _dsShowPreview(data,feats,stats){
@@ -1867,6 +1896,11 @@ window.BSI_TELEMETRY_URL='';</script>
       X.push(xs); });
     return {X:X,y:y,names:_dsFeatNames(meta)};
   }
+  // espansione polinomiale: quadrati + interazioni delle sole colonne numeriche (per catturare non-linearità)
+  function _dsPolyNumIdx(meta){ var idx=[],nm=[],pos=0; meta.forEach(function(m){ if(m.num){ idx.push(pos); nm.push(m.name); pos++; } else { pos+=m.cats.length; } }); return {idx:idx,nm:nm}; }
+  function _dsApplyPoly(X,meta){ var pi=_dsPolyNumIdx(meta),ni=pi.idx; return X.map(function(r){ var e=r.slice(); ni.forEach(function(a){ e.push(r[a]*r[a]); }); for(var i=0;i<ni.length;i++)for(var j=i+1;j<ni.length;j++){ e.push(r[ni[i]]*r[ni[j]]); } return e; }); }
+  function _dsPolyNames(names,meta){ var pi=_dsPolyNumIdx(meta),out=names.slice(); pi.nm.forEach(function(n){ out.push(n+'²'); }); for(var i=0;i<pi.nm.length;i++)for(var j=i+1;j<pi.nm.length;j++){ out.push(pi.nm[i]+'×'+pi.nm[j]); } return out; }
+  function _dsDesign(data,target,feats,stats,tNum,poly){ var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,tNum); var X=d.X,names=d.names; if(poly){ X=_dsApplyPoly(X,meta); names=_dsPolyNames(names,meta); } return {X:X,y:d.y,names:names,meta:meta}; }
   function _dsStdz(X){ var n=X.length,m=X[0].length,mu=[],sd=[]; for(var j=0;j<m;j++){ var s=0; for(var i=0;i<n;i++)s+=X[i][j]; mu[j]=s/n; var v=0; for(var i=0;i<n;i++)v+=(X[i][j]-mu[j])*(X[i][j]-mu[j]); sd[j]=Math.sqrt(v/n)||1; }
     var Z=X.map(function(r){return r.map(function(v,j){return (v-mu[j])/sd[j];});}); return {Z:Z,mu:mu,sd:sd}; }
   function _dsGDFit(Z,y,idx,iters){ var m=Z[0].length,w=new Array(m).fill(0),b=0,lr=0.12; for(var it=0;it<iters;it++){ var gw=new Array(m).fill(0),gb=0; idx.forEach(function(i){ var p=b; for(var j=0;j<m;j++)p+=w[j]*Z[i][j]; var e=p-y[i]; gb+=e; for(var j=0;j<m;j++)gw[j]+=e*Z[i][j]; }); var N=idx.length; b-=lr*gb/N; for(var j=0;j<m;j++)w[j]-=lr*gw[j]/N; } return {w:w,b:b}; }
@@ -1885,18 +1919,18 @@ window.BSI_TELEMETRY_URL='';</script>
     var rows=models.map(function(m,i){ var win=i===0; return '<tr style="border-top:1px solid #16273e;'+(win?'background:rgba(94,234,212,.1)':'')+'"><td style="padding:7px 11px;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:'+(win?'800':'600')+'">'+(win?'🏆 ':'')+m[0]+'</td><td style="padding:7px 11px;text-align:right;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:700">'+fmt(m[1])+' <span style="color:#6b7d90;font-weight:400;font-size:.9em">'+errfmt(m[1])+'</span></td></tr>'; }).join('');
     o.innerHTML='<div style="color:#c9b6ff;font-weight:800;font-size:.92rem;margin:6px 0 7px">🏆 Confronto modelli — '+metricLabel+'</div><div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;width:100%;font-size:.82rem"><thead><tr style="background:#0c1f33;color:#8fa3b8"><th style="text-align:left;padding:7px 11px">modello</th><th style="text-align:right;padding:7px 11px">'+metricLabel+'</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:.73rem;color:#6b7d90;margin-top:6px">Il modello in cima vince sulla cross-validation. Regola d\'oro: <b>batti sempre la baseline</b> — se non la superi, le feature non sono informative.</div>';
   }
-  function _dsCompare(data,target,feats,stats){
-    var o=document.getElementById('dsMlOut'); var tstat=stats.filter(function(s){return s.name===target;})[0]; var meta=_dsFeatMeta(data,feats,stats);
-    if(tstat && tstat.isNum){ var d=_dsBuildXY2(data,target,meta,true); if(d.X.length<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide.</div>'; return; }
+  function _dsCompare(data,target,feats,stats,poly){
+    var o=document.getElementById('dsMlOut'); var tstat=stats.filter(function(s){return s.name===target;})[0];
+    if(tstat && tstat.isNum){ var d=_dsDesign(data,target,feats,stats,true,poly); if(d.X.length<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide.</div>'; return; }
       var st=_dsStdz(d.X),Z=st.Z; var ymu=0; d.y.forEach(function(v){ymu+=v;}); ymu/=d.y.length; var yv=0; d.y.forEach(function(v){yv+=(v-ymu)*(v-ymu);}); var ysd=Math.sqrt(yv/d.y.length)||1; var ys=d.y.map(function(v){return (v-ymu)/ysd;});
       _dsRenderLeaderboard(o,[['Baseline (media)',_dsMeanStd(_dsCVBaseReg(ys,5))],['Regressione lineare',_dsMeanStd(_dsCVReg(Z,ys,5))],['kNN regressore (k=5)',_dsMeanStd(_dsCVKnnReg(Z,ys,5,5))]],'CV R² (5-fold)',true);
-    } else { var d2=_dsBuildXY2(data,target,meta,false); if(d2.X.length<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide.</div>'; return; }
+    } else { var d2=_dsDesign(data,target,feats,stats,false,poly); if(d2.X.length<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide.</div>'; return; }
       var Z2=_dsStdz(d2.X).Z;
       _dsRenderLeaderboard(o,[['Baseline (classe frequente)',_dsMeanStd(_dsCVBaseClf(d2.y,5))],['kNN classificatore (k=5)',_dsMeanStd(_dsCVClf(Z2,d2.y,5))]],'CV accuratezza (5-fold)',false);
     }
   }
-  function _dsTrainReg(data,target,feats,stats){
-    var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,true); var X=d.X,y=d.y,featNames=d.names; var n=X.length,m=featNames.length;
+  function _dsTrainReg(data,target,feats,stats,poly){
+    var o=document.getElementById('dsMlOut'); var dm=_dsDesign(data,target,feats,stats,true,poly); var meta=dm.meta; var X=dm.X,y=dm.y,featNames=dm.names; var n=X.length,m=featNames.length;
     if(n<8){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 8 righe valide (trovate '+n+').</div>'; return; }
     var st=_dsStdz(X), Z=st.Z; var ymu=0; for(var i=0;i<n;i++)ymu+=y[i]; ymu/=n; var yv=0; for(var i=0;i<n;i++)yv+=(y[i]-ymu)*(y[i]-ymu); var ysd=Math.sqrt(yv/n)||1;
     var ys=y.map(function(v){return (v-ymu)/ysd;});
@@ -1922,7 +1956,7 @@ window.BSI_TELEMETRY_URL='';</script>
       '</div>'+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">R² = varianza spiegata. Scatter: punti sulla diagonale = accurati. Residui: sparsi attorno allo zero senza struttura = buon modello.</div>'+
       _dsPredictUI(meta,target);
-    _DSWB.model={type:'reg',meta:meta,w:w,b:b,mu:st.mu,sd:st.sd,ymu:ymu,ysd:ysd,target:target};
+    _DSWB.model={type:'reg',meta:meta,poly:poly,w:w,b:b,mu:st.mu,sd:st.sd,ymu:ymu,ysd:ysd,target:target};
     _dsDrawScatter(pts); _dsDrawResid(pts);
     var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
   }
@@ -1938,6 +1972,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var xs=[],ok=true;
     m.meta.forEach(function(mt){ if(!ok)return; if(mt.num){ var v=Number(vals[mt.name]); if(vals[mt.name]===''||isNaN(v)){ok=false;return;} xs.push(v); } else { var v=vals[mt.name]; mt.cats.forEach(function(c){ xs.push(v===c?1:0); }); } });
     if(!ok){ out.style.color='#ffb0be'; out.textContent='Inserisci un valore numerico valido in ogni campo.'; return; }
+    if(m.poly) xs=_dsApplyPoly([xs],m.meta)[0];
     var z=xs.map(function(v,j){ return (v-m.mu[j])/m.sd[j]; });
     if(m.type==='reg'){ var p=m.b; for(var j=0;j<z.length;j++)p+=m.w[j]*z[j]; p=p*m.ysd+m.ymu; out.style.color='#5eead4'; out.innerHTML='→ '+m.target+' previsto: <b>'+p.toFixed(3)+'</b>'; }
     else { var ds=m.Z.map(function(zr,i){ var s=0; for(var j=0;j<z.length;j++){var dd=z[j]-zr[j];s+=dd*dd;} return [s,m.y[i]]; }); ds.sort(function(a,b){return a[0]-b[0];}); var v={}; for(var q=0;q<m.k;q++){var c=ds[q][1];v[c]=(v[c]||0)+1;} var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} out.style.color='#5eead4'; out.innerHTML='→ '+m.target+' previsto: <b>'+best+'</b>'; }
@@ -1962,8 +1997,8 @@ window.BSI_TELEMETRY_URL='';</script>
     x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,10); x.lineTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
     x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText('reale →',pad+2,H-10); x.save(); x.translate(11,H-pad); x.rotate(-Math.PI/2); x.fillText('previsto →',0,0); x.restore();
   }
-  function _dsTrainClf(data,target,feats,stats){
-    var o=document.getElementById('dsMlOut'); var meta=_dsFeatMeta(data,feats,stats); var d=_dsBuildXY2(data,target,meta,false); var X=d.X,y=d.y; var n=X.length,m=d.names.length;
+  function _dsTrainClf(data,target,feats,stats,poly){
+    var o=document.getElementById('dsMlOut'); var dm=_dsDesign(data,target,feats,stats,false,poly); var meta=dm.meta; var X=dm.X,y=dm.y; var n=X.length,m=dm.names.length;
     if(n<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide per la classificazione (trovate '+n+').</div>'; return; }
     var classes=[]; y.forEach(function(c){ if(classes.indexOf(c)<0)classes.push(c); });
     if(classes.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Il target ha una sola classe: niente da classificare.</div>'; return; }
@@ -1986,7 +2021,7 @@ window.BSI_TELEMETRY_URL='';</script>
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
       _dsPredictUI(meta,target);
-    _DSWB.model={type:'clf',meta:meta,mu:st.mu,sd:st.sd,Z:Z,y:y,k:k,target:target};
+    _DSWB.model={type:'clf',meta:meta,poly:poly,mu:st.mu,sd:st.sd,Z:Z,y:y,k:k,target:target};
     var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
   }
   function _dsDrawHist(s){
@@ -2061,6 +2096,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var exp=document.getElementById('dsWbExport'); if(exp)exp.onclick=_dsWbExport;
     var pyb=document.getElementById('dsWbPy'); if(pyb)pyb.onclick=_dsWbGenPy;
     var rdk=document.getElementById('dsWbRdkit'); if(rdk)rdk.onclick=_dsWbRDKit;
+    var hb=document.getElementById('dsWbHtml'); if(hb)hb.onclick=_dsWbReportHTML;
     var fi=document.getElementById('dsWbFile'); if(fi)fi.onchange=function(e){ var f=e.target.files&&e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ document.getElementById('dsWbInput').value=rd.result; _dsWbAnalyze(); }; rd.readAsText(f); };
     var ub=document.getElementById('dsWbUrl'); if(ub)ub.onclick=function(){
       var url=prompt('Incolla l\'URL di un CSV pubblico (es. raw.githubusercontent.com/…/dati.csv):'); if(!url)return;
