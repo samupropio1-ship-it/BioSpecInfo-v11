@@ -443,6 +443,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <div class="pane" id="p-timeline"><div id="timeline-container" style="padding:16px;max-width:860px;margin:0 auto"></div></div>
 <div class="pane" id="p-resources"><div id="resources-container" style="padding:16px;max-width:900px;margin:0 auto"></div></div>
 <div class="pane" id="p-cosmo">
+  <div style="display:flex;gap:6px;padding:8px 8px 0;justify-content:center;align-items:center;flex-wrap:wrap">
+    <input id="cosmo-search" type="text" placeholder="🔍 Cerca un corpo… (es. quasar, luna, oceano)" style="flex:1;min-width:180px;max-width:420px;background:#0a1628;border:1px solid #26406a;border-radius:8px;color:#e9eef6;font-size:.8rem;padding:6px 11px">
+    <button id="cosmo-random" style="padding:6px 12px;border-radius:8px;border:1px solid #f5c451;background:rgba(245,196,81,.14);color:#f5c451;cursor:pointer;font-size:.78rem;font-weight:700">🎲 Sorpresa</button>
+    <span id="cosmo-count" style="color:#6b7d90;font-size:.72rem"></span>
+  </div>
   <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px;justify-content:center">
     <button class="cosmo-btn" data-scene="journey" style="padding:6px 12px;border-radius:8px;border:1px solid #ffcc44;background:linear-gradient(135deg,rgba(255,204,68,.2),rgba(124,111,255,.1));color:#ffcc44;cursor:pointer;font-size:.78rem;font-weight:800">🎬 Viaggio Cosmico</button>
     <button class="cosmo-btn" data-scene="blackhole" style="padding:6px 12px;border-radius:8px;border:1px solid #a78bfa;background:#a78bfa;color:#0a0a1a;font-weight:700;cursor:pointer;font-size:.78rem">🕳️ Gargantua</button>
@@ -1575,6 +1580,8 @@ function initCosmo(){
     var pa=document.getElementById('cosmo-pause'); if(pa&&!pa._w){pa._w=1;pa.onclick=function(){ _cosmo.paused=!_cosmo.paused; pa.textContent=_cosmo.paused?'▶ Riprendi moti':'⏸ Pausa moti'; };}
     var rs=document.getElementById('cosmo-reset'); if(rs&&!rs._w){rs._w=1;rs.onclick=function(){ if(typeof _cosmo._resetView==='function')_cosmo._resetView(); };}
     var tb=document.getElementById('cosmo-tour'); if(tb&&!tb._w){tb._w=1;tb.onclick=function(){ if(_cosmo._tourTimer)_cosmoTourStop(); else _cosmoTourStart(); };}
+    var srch=document.getElementById('cosmo-search'); if(srch&&!srch._w){srch._w=1; srch.oninput=function(){ var q=(srch.value||'').toLowerCase().trim(); var all=document.querySelectorAll('.cosmo-btn'); var vis=0; all.forEach(function(b){ var show=!q||(b.textContent||'').toLowerCase().indexOf(q)>-1; b.style.display=show?'':'none'; if(show)vis++; }); var c=document.getElementById('cosmo-count'); if(c)c.textContent=q?(vis+' corpi'):''; }; }
+    var rnd=document.getElementById('cosmo-random'); if(rnd&&!rnd._w){rnd._w=1; rnd.onclick=function(){ var vv=[].slice.call(document.querySelectorAll('.cosmo-btn')).filter(function(b){return b.style.display!=='none';}); if(!vv.length)vv=[].slice.call(document.querySelectorAll('.cosmo-btn')); var pick=vv[Math.floor(Math.random()*vv.length)]; if(pick){ pick.click(); try{pick.scrollIntoView({block:'nearest',inline:'center'});}catch(e){} } }; }
   }
   _cosmoLoad(_cosmo.curScene||'blackhole');
 }
