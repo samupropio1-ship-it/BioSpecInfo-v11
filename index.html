@@ -924,6 +924,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button id="dsWbAnalyze" class="ds-gh-b" style="border-color:#a78bfa;background:#241a45;color:#c9b6ff">▶ Analizza</button>
       <button id="dsWbSample" class="ds-gh-b">🧬 Carica esempio (solubilità)</button>
       <label class="ds-gh-b" style="cursor:pointer">📁 Apri file… <input id="dsWbFile" type="file" accept=".csv,.tsv,.txt" style="display:none"></label>
+      <button id="dsWbUrl" class="ds-gh-b">🔗 Da URL…</button>
       <button id="dsWbClear" class="ds-gh-b">✕ Pulisci</button>
       <button id="dsWbExport" class="ds-gh-b" style="display:none">⬇️ Esporta report (.md)</button>
       <button id="dsWbPy" class="ds-gh-b" style="display:none">🐍 Genera codice pandas</button>
@@ -1123,7 +1124,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button id="dsCernStart" onclick="window._dsCernInit&&window._dsCernInit()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#6bcfff,#7c6fff);color:#04121e;font-weight:800;cursor:pointer;font-size:.84rem">▶ Carica i dati del CERN (CMS Open Data)</button>
     <div id="dsCernUI" style="display:none">
       <div style="color:#9fb3c8;font-size:.8rem;margin:10px 0 5px">Zoom su una regione (tocca):</div>
-      <div id="dsCernPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"></div>
+      <div id="dsCernPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"><button id="dsCernFit" class="ds-gh-b" style="border-color:#f5c451;color:#f5c451">🔬 Fit del picco (gaussiana + fondo)</button><button id="dsCernFitClr" class="ds-gh-b" style="display:none">✕ Rimuovi fit</button></div>
       <canvas id="dsCernCv" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
       <div id="dsCernOut" style="text-align:center;font-weight:800;font-size:.9rem;margin-top:9px;min-height:20px;color:#9fb3c8"></div>
     </div>
@@ -1528,7 +1530,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var s=document.createElement('script'); s.src='./lib/sql-wasm.js'; s.onload=boot; s.onerror=function(){ _sqlLoading=false; if(start)start.textContent='Impossibile caricare il motore SQL'; }; document.head.appendChild(s);
   };
   // ── Lab CERN: spettro di massa invariante dei dimuoni (dati reali CMS Open Data) ──
-  var _cern={data:null,loading:false,min:0,max:120,bins:120,log:true};
+  var _cern={data:null,loading:false,min:0,max:120,bins:120,log:true,fit:null};
   var CERN_PRESETS=[
     ['Spettro completo',0,120,120,true],
     ['J/ψ (~3.1)',2,4.2,44,false],
@@ -1536,7 +1538,27 @@ window.BSI_TELEMETRY_URL='';</script>
     ['Bosone Z (~91)',60,120,60,false]
   ];
   var CERN_PARTS=[{n:'ρ / ω',s:'ρ/ω',m:0.78,pri:1},{n:'φ',s:'φ',m:1.02,pri:1},{n:'J/ψ',s:'J/ψ',m:3.10,pri:3},{n:'ψ(2S)',s:'ψ(2S)',m:3.69,pri:2},{n:'Υ (Upsilon)',s:'Υ',m:9.46,pri:3},{n:'Z⁰ (bosone Z)',s:'Z⁰',m:91.19,pri:3}];
-  function cernPresets(){ var h=document.getElementById('dsCernPresets'); if(!h)return; h.innerHTML=''; CERN_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ _cern.min=p[1];_cern.max=p[2];_cern.bins=p[3];_cern.log=p[4]; cernDraw(); }; h.appendChild(b); }); }
+  function cernPresets(){ var h=document.getElementById('dsCernPresets'); if(!h)return; h.innerHTML=''; CERN_PRESETS.forEach(function(p){ var b=document.createElement('button'); b.className='ds-gh-t'; b.textContent=p[0]; b.onclick=function(){ _cern.min=p[1];_cern.max=p[2];_cern.bins=p[3];_cern.log=p[4]; _cern.fit=null; var fc=document.getElementById('dsCernFitClr'); if(fc)fc.style.display='none'; cernDraw(); }; h.appendChild(b); }); }
+  function cernFit(){
+    if(!_cern.data)return; var lo=_cern.min,hi=_cern.max,nb=_cern.bins,bw=(hi-lo)/nb;
+    var counts=new Array(nb).fill(0);
+    for(var i=0;i<_cern.data.length;i++){ var m=_cern.data[i]; if(m>=lo&&m<hi){ var bi=Math.floor((m-lo)/bw); if(bi>=0&&bi<nb)counts[bi]++; } }
+    var xc=counts.map(function(_,i){return lo+(i+0.5)*bw;});
+    // fondo lineare stimato dai bordi (primo/ultimo 20% dei bin) via minimi quadrati
+    var edge=Math.max(2,Math.floor(nb*0.2)), ex=[],ey=[];
+    for(var i=0;i<edge;i++){ex.push(xc[i]);ey.push(counts[i]);} for(var i=nb-edge;i<nb;i++){ex.push(xc[i]);ey.push(counts[i]);}
+    var n=ex.length,sx=0,sy=0,sxx=0,sxy=0; for(var i=0;i<n;i++){sx+=ex[i];sy+=ey[i];sxx+=ex[i]*ex[i];sxy+=ex[i]*ey[i];}
+    var den=(n*sxx-sx*sx)||1, b=(n*sxy-sx*sy)/den, a=(sy-b*sx)/n;
+    // residuo (segnale) = conteggi − fondo, momenti pesati → μ e σ della gaussiana
+    var res=counts.map(function(c,i){ return Math.max(0,c-(a+b*xc[i])); });
+    var S=0,Sx=0; for(var i=0;i<nb;i++){S+=res[i];Sx+=res[i]*xc[i];}
+    if(S<=0){ _cern.fit=null; cernDraw(); return; }
+    var mu=Sx/S,Sv=0; for(var i=0;i<nb;i++){Sv+=res[i]*(xc[i]-mu)*(xc[i]-mu);} var sigma=Math.sqrt(Sv/S)||bw;
+    var A=Math.max.apply(null,res)||1;
+    _cern.fit={mu:mu,sigma:sigma,A:A,a:a,b:b,lo:lo,hi:hi};
+    var fc=document.getElementById('dsCernFitClr'); if(fc)fc.style.display='';
+    cernDraw();
+  }
   function cernDraw(){
     var cv=document.getElementById('dsCernCv'); if(!cv||!_cern.data)return; var ctx=cv.getContext('2d'),W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
     var mL=52,mR=16,mT=18,mB=40,pw=W-mL-mR,ph=H-mT-mB;
@@ -1560,9 +1582,21 @@ window.BSI_TELEMETRY_URL='';</script>
     _inr.sort(function(a,b){return b.pri-a.pri;});
     var _drawn=[]; ctx.fillStyle='#f5c451';ctx.font='10px system-ui';ctx.textAlign='center';
     _inr.forEach(function(l){ if(_drawn.every(function(dx){return Math.abs(dx-l.x)>24;})){ ctx.fillText(l.n,Math.max(mL+12,Math.min(W-mR-12,l.x)),mT-5); _drawn.push(l.x); } });
+    // overlay del fit gaussiano+fondo (se calcolato per questa regione)
+    if(_cern.fit && Math.abs(_cern.fit.lo-lo)<1e-6 && Math.abs(_cern.fit.hi-hi)<1e-6){
+      var F=_cern.fit; ctx.strokeStyle='#f5c451'; ctx.lineWidth=2; ctx.beginPath();
+      for(var px=0;px<=pw;px+=2){ var xv=lo+(px/pw)*(hi-lo); var g=F.A*Math.exp(-((xv-F.mu)*(xv-F.mu))/(2*F.sigma*F.sigma))+(F.a+F.b*xv); var yv=Yv(g); if(px===0)ctx.moveTo(mL+px,yv); else ctx.lineTo(mL+px,yv); }
+      ctx.stroke(); ctx.lineWidth=1;
+      var mux=X(F.mu); ctx.strokeStyle='#ffd35a'; ctx.setLineDash([2,2]); ctx.beginPath(); ctx.moveTo(mux,mT); ctx.lineTo(mux,mT+ph); ctx.stroke(); ctx.setLineDash([]);
+    }
     var peakM=lo+(peakIdx+0.5)*bw, best=null,bd=1e9; CERN_PARTS.forEach(function(p){ var d=Math.abs(p.m-peakM); if(d<bd){bd=d;best=p;} });
     var out=document.getElementById('dsCernOut');
-    if(out){ var tol=Math.max(0.4,best.m*0.06); if(best&&bd<=tol){ out.style.color='#6bcfff'; out.innerHTML='🎯 Picco a ~'+peakM.toFixed(peakM<10?2:1)+' GeV → hai riscoperto <b>'+best.n+'</b>!'; } else { out.style.color='#9fb3c8'; out.innerHTML='Picco più alto a ~'+peakM.toFixed(peakM<10?2:1)+' GeV — zooma su una regione per identificare la particella.'; } }
+    if(out && _cern.fit && Math.abs(_cern.fit.lo-lo)<1e-6 && Math.abs(_cern.fit.hi-hi)<1e-6){
+      var F2=_cern.fit, fwhm=2.3548*F2.sigma, dp=F2.mu<10?3:2; var idBest=null,ibd=1e9; CERN_PARTS.forEach(function(p){ var d=Math.abs(p.m-F2.mu); if(d<ibd){ibd=d;idBest=p;} });
+      var idTxt=(idBest&&ibd<=Math.max(0.5,F2.mu*0.06))?(' → <b>'+idBest.n+'</b>'):'';
+      out.style.color='#f5c451'; out.innerHTML='🔬 Fit gaussiano: massa <b>μ = '+F2.mu.toFixed(dp)+' GeV</b> · FWHM = <b>'+fwhm.toFixed(dp)+' GeV</b> (σ='+F2.sigma.toFixed(2)+')'+idTxt;
+    }
+    else if(out){ var tol=Math.max(0.4,best.m*0.06); if(best&&bd<=tol){ out.style.color='#6bcfff'; out.innerHTML='🎯 Picco a ~'+peakM.toFixed(peakM<10?2:1)+' GeV → hai riscoperto <b>'+best.n+'</b>!'; } else { out.style.color='#9fb3c8'; out.innerHTML='Picco più alto a ~'+peakM.toFixed(peakM<10?2:1)+' GeV — zooma su una regione per identificare la particella.'; } }
   }
   window._dsCernInit=function(){
     var start=document.getElementById('dsCernStart'), ui=document.getElementById('dsCernUI');
@@ -1570,7 +1604,10 @@ window.BSI_TELEMETRY_URL='';</script>
     if(_cern.loading)return; _cern.loading=true; if(start)start.textContent='⏳ Carico i dati…';
     function boot(){ _cern.data=(typeof window.DIMUON!=='undefined')?window.DIMUON:null; _cern.loading=false;
       if(!_cern.data){ if(start)start.textContent='Dati non disponibili'; return; }
-      if(start)start.style.display='none'; if(ui)ui.style.display='block'; cernPresets(); cernDraw(); }
+      if(start)start.style.display='none'; if(ui)ui.style.display='block'; cernPresets(); cernDraw();
+      var fb=document.getElementById('dsCernFit'); if(fb&&!fb._w){fb._w=1;fb.onclick=cernFit;}
+      var fc=document.getElementById('dsCernFitClr'); if(fc&&!fc._w){fc._w=1;fc.onclick=function(){ _cern.fit=null; fc.style.display='none'; cernDraw(); };}
+    }
     if(typeof window.DIMUON!=='undefined'){ boot(); return; }
     var s=document.createElement('script'); s.src='./lib/dimuon.js'; s.onload=boot; s.onerror=function(){ _cern.loading=false; if(start)start.textContent='Impossibile caricare i dati'; }; document.head.appendChild(s);
   };
@@ -1767,6 +1804,10 @@ window.BSI_TELEMETRY_URL='';</script>
   }
   function _dsStdz(X){ var n=X.length,m=X[0].length,mu=[],sd=[]; for(var j=0;j<m;j++){ var s=0; for(var i=0;i<n;i++)s+=X[i][j]; mu[j]=s/n; var v=0; for(var i=0;i<n;i++)v+=(X[i][j]-mu[j])*(X[i][j]-mu[j]); sd[j]=Math.sqrt(v/n)||1; }
     var Z=X.map(function(r){return r.map(function(v,j){return (v-mu[j])/sd[j];});}); return {Z:Z,mu:mu,sd:sd}; }
+  function _dsGDFit(Z,y,idx,iters){ var m=Z[0].length,w=new Array(m).fill(0),b=0,lr=0.12; for(var it=0;it<iters;it++){ var gw=new Array(m).fill(0),gb=0; idx.forEach(function(i){ var p=b; for(var j=0;j<m;j++)p+=w[j]*Z[i][j]; var e=p-y[i]; gb+=e; for(var j=0;j<m;j++)gw[j]+=e*Z[i][j]; }); var N=idx.length; b-=lr*gb/N; for(var j=0;j<m;j++)w[j]-=lr*gw[j]/N; } return {w:w,b:b}; }
+  function _dsMeanStd(a){ if(!a.length)return[0,0]; var m=0; a.forEach(function(x){m+=x;}); m/=a.length; var v=0; a.forEach(function(x){v+=(x-m)*(x-m);}); return [m,Math.sqrt(v/a.length)]; }
+  function _dsCVReg(Z,ys,folds){ var n=Z.length,r2=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(te.length<1||tr.length<3)continue; var fit=_dsGDFit(Z,ys,tr,2500); var ssr=0,sst=0,mu=0; te.forEach(function(i){mu+=ys[i];}); mu/=te.length; te.forEach(function(i){ var p=fit.b; for(var j=0;j<Z[i].length;j++)p+=fit.w[j]*Z[i][j]; ssr+=(ys[i]-p)*(ys[i]-p); sst+=(ys[i]-mu)*(ys[i]-mu); }); r2.push(sst>0?1-ssr/sst:0); } return r2; }
+  function _dsCVClf(Z,y,folds){ var n=Z.length,accs=[]; for(var f=0;f<folds;f++){ var tr=[],te=[]; for(var i=0;i<n;i++){ (i%folds===f?te:tr).push(i); } if(!te.length||tr.length<3)continue; var k=Math.min(5,tr.length),correct=0; te.forEach(function(i){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<Z[i].length;j++){ var dd=Z[i][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];}); var v={}; for(var q=0;q<k;q++){var c=ds[q][1];v[c]=(v[c]||0)+1;} var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} if(best===y[i])correct++; }); accs.push(correct/te.length); } return accs; }
   function _dsMetricCard(lbl,val,col){ return '<div style="background:#0c2036;border:1px solid #1c3a57;border-radius:10px;padding:8px 11px;min-width:82px"><div style="font-size:.64rem;color:#8fa3b8;text-transform:uppercase;letter-spacing:.5px">'+lbl+'</div><div style="font-size:1.05rem;font-weight:800;margin-top:2px;color:'+(col||'#e8eef4')+'">'+val+'</div></div>'; }
   function _dsTrainReg(data,target,feats){
     var o=document.getElementById('dsMlOut'); var d=_dsBuildXY(data,target,feats,true); var X=d.X,y=d.y; var n=X.length,m=feats.length;
@@ -1780,11 +1821,13 @@ window.BSI_TELEMETRY_URL='';</script>
     var ssr=0,sst=0,mae=0,ytmu=0; te.forEach(function(i){ytmu+=y[i];}); ytmu/=te.length; var pts=[];
     te.forEach(function(i){ var p=pred(i); pts.push([y[i],p]); ssr+=(y[i]-p)*(y[i]-p); sst+=(y[i]-ytmu)*(y[i]-ytmu); mae+=Math.abs(y[i]-p); });
     var r2=sst>0?1-ssr/sst:0, rmse=Math.sqrt(ssr/te.length); mae/=te.length;
+    var cv=_dsMeanStd(_dsCVReg(Z,ys,5)); var cvStr=cv[0].toFixed(2)+' ± '+cv[1].toFixed(2);
     var maxw=Math.max.apply(null,w.map(Math.abs))||1;
     var bars=feats.map(function(f,j){ var pct=Math.round(Math.abs(w[j])/maxw*100); return '<div style="display:flex;align-items:center;gap:6px;margin:2px 0"><span style="width:96px;font-size:.72rem;color:#cdd9e6;text-align:right;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+f+'</span><span style="flex:1;height:12px;background:#0a1628;border-radius:6px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:'+(w[j]>=0?'#5eead4':'#ff6f8a')+'"></span></span><span style="width:46px;font-size:.7rem;color:#8fa3b8;text-align:right">'+w[j].toFixed(2)+'</span></div>'; }).join('');
     o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px">'+
       _dsMetricCard('R²',r2.toFixed(3),(r2>0.7?'#5eead4':r2>0.4?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('RMSE',rmse.toFixed(3))+_dsMetricCard('MAE',mae.toFixed(3))+
+      _dsMetricCard('CV R² (5-fold)',cvStr,(cv[0]>0.7?'#5eead4':cv[0]>0.4?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">coefficienti standardizzati (importanza · verde=+, rosso=−)</div>'+bars+
       '<div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">previsto vs reale (test)</div><canvas id="dsMlScatter" style="width:100%;height:170px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'+
@@ -1813,12 +1856,14 @@ window.BSI_TELEMETRY_URL='';</script>
     var correct=0; var cm={}; classes.forEach(function(a){ cm[a]={}; classes.forEach(function(b){ cm[a][b]=0; }); });
     te.forEach(function(i){ var pr=classify(i); cm[y[i]][pr]++; if(pr===y[i])correct++; });
     var acc=correct/te.length;
+    var cv=_dsMeanStd(_dsCVClf(Z,y,5)); var cvStr=(cv[0]*100).toFixed(0)+'% ± '+(cv[1]*100).toFixed(0)+'%';
     // confusion matrix table
     var cmH='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.72rem;margin-top:4px"><thead><tr><th style="padding:4px 7px;color:#8fa3b8;font-size:.66rem">reale＼previsto</th>'+classes.map(function(c){return '<th style="padding:4px 7px;color:#cdd9e6">'+c+'</th>';}).join('')+'</tr></thead><tbody>';
     classes.forEach(function(a){ cmH+='<tr><td style="padding:4px 7px;color:#cdd9e6;font-weight:700">'+a+'</td>'+classes.map(function(b){ var v=cm[a][b]; var hit=a===b; return '<td style="padding:4px 7px;text-align:center;background:'+(v>0?(hit?'rgba(94,234,212,.18)':'rgba(255,111,138,.15)'):'transparent')+';color:'+(v>0?(hit?'#5eead4':'#ff9db0'):'#3a4a5a')+'">'+v+'</td>'; }).join('')+'</tr>'; });
     cmH+='</tbody></table></div>';
     o.innerHTML='<div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px">'+
       _dsMetricCard('accuratezza',(acc*100).toFixed(1)+'%',(acc>0.8?'#5eead4':acc>0.6?'#f5c451':'#ff6f8a'))+
+      _dsMetricCard('CV acc. (5-fold)',cvStr,(cv[0]>0.8?'#5eead4':cv[0]>0.6?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('classi',classes.length)+_dsMetricCard('k (vicini)',k)+_dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>';
@@ -1895,6 +1940,12 @@ window.BSI_TELEMETRY_URL='';</script>
     var exp=document.getElementById('dsWbExport'); if(exp)exp.onclick=_dsWbExport;
     var pyb=document.getElementById('dsWbPy'); if(pyb)pyb.onclick=_dsWbGenPy;
     var fi=document.getElementById('dsWbFile'); if(fi)fi.onchange=function(e){ var f=e.target.files&&e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ document.getElementById('dsWbInput').value=rd.result; _dsWbAnalyze(); }; rd.readAsText(f); };
+    var ub=document.getElementById('dsWbUrl'); if(ub)ub.onclick=function(){
+      var url=prompt('Incolla l\'URL di un CSV pubblico (es. raw.githubusercontent.com/…/dati.csv):'); if(!url)return;
+      var o=document.getElementById('dsWbOut'); o.innerHTML='<div style="color:#8fa3b8;font-size:.83rem;padding:6px 0">⏳ Scarico i dati…</div>';
+      fetch(url).then(function(r){ if(!r.ok)throw new Error('HTTP '+r.status); return r.text(); }).then(function(txt){ document.getElementById('dsWbInput').value=txt; _dsWbAnalyze(); })
+      .catch(function(e){ o.innerHTML='<div style="background:#2a1420;border:1px solid #5a2436;border-radius:9px;padding:11px 13px;color:#ffb0be;font-size:.83rem">⚠️ Impossibile scaricare (CORS o URL non valido): '+e.message+'.<br>Suggerimento: usa un URL "raw" (es. raw.githubusercontent.com) o scarica il file e usa <b>📁 Apri file</b>.</div>'; });
+    };
   }
   window.initDataSci=function(){ renderNav(); renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); renderCernGuide(); initGh(); _dsWbInit(); };
 })();
