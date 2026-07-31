@@ -925,6 +925,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button id="dsWbSample" class="ds-gh-b">🧬 Carica esempio (solubilità)</button>
       <label class="ds-gh-b" style="cursor:pointer">📁 Apri file… <input id="dsWbFile" type="file" accept=".csv,.tsv,.txt" style="display:none"></label>
       <button id="dsWbUrl" class="ds-gh-b">🔗 Da URL…</button>
+      <button id="dsWbRdkit" class="ds-gh-b" style="border-color:#5eead4;color:#5eead4">🧪 Descrittori RDKit (da SMILES)</button>
       <button id="dsWbClear" class="ds-gh-b">✕ Pulisci</button>
       <button id="dsWbExport" class="ds-gh-b" style="display:none">⬇️ Esporta report (.md)</button>
       <button id="dsWbPy" class="ds-gh-b" style="display:none">🐍 Genera codice pandas</button>
@@ -1661,15 +1662,16 @@ window.BSI_TELEMETRY_URL='';</script>
   var _DSWB={data:null,cols:null};
   function _dsWbDL(name,content,mime){ try{ var b=new Blob([content],{type:mime||'text/plain'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u);},100); }catch(e){} }
   function _dsWbSampleCSV(){
-    return ['nome,mw,logp,tpsa,hbd,hba,solubility_logS',
-      'etanolo,46.07,-0.31,20.23,1,1,1.10','benzene,78.11,2.13,0.00,0,0,-1.64','fenolo,94.11,1.46,20.23,1,1,0.00',
-      'aspirina,180.16,1.19,63.60,1,4,-1.72','caffeina,194.19,-0.07,58.44,0,6,-0.62','glucosio,180.16,-3.24,110.38,5,6,0.74',
-      'acido acetico,60.05,-0.17,37.30,1,2,1.22','anilina,93.13,0.90,26.02,1,1,-0.41','naftalene,128.17,3.30,0.00,0,0,-3.61',
-      'paracetamolo,151.16,0.46,49.33,2,3,-1.03','toluene,92.14,2.73,0.00,0,0,-2.21','acetone,58.08,-0.24,17.07,0,1,0.77',
-      'urea,60.06,-2.11,69.11,2,3,0.96','ibuprofene,206.28,3.97,37.30,1,2,-3.62','saccarosio,342.30,-3.70,189.53,8,11,0.79',
-      'piridina,79.10,0.65,12.89,0,1,0.76','acido benzoico,122.12,1.87,37.30,1,2,-1.55','morfina,285.34,0.89,52.93,2,4,-1.54',
-      'nicotina,162.23,1.17,16.13,0,2,0.11','clorobenzene,112.56,2.84,0.00,0,0,-2.38','glicerolo,92.09,-1.76,60.69,3,3,1.12',
-      'acido citrico,192.12,-1.72,,4,7,0.64','dopamina,153.18,,66.48,3,3,'].join('\n');
+    // dataset di cheminformatica: struttura (SMILES) → solubilità. Usa 🧪 Descrittori RDKit per generare le feature.
+    return ['nome,smiles,solubility_logS',
+      'etanolo,CCO,1.10','benzene,c1ccccc1,-1.64','fenolo,Oc1ccccc1,0.00',
+      'aspirina,CC(=O)Oc1ccccc1C(=O)O,-1.72','caffeina,Cn1cnc2c1c(=O)n(C)c(=O)n2C,-0.62','acido acetico,CC(=O)O,1.22',
+      'anilina,Nc1ccccc1,-0.41','naftalene,c1ccc2ccccc2c1,-3.61','paracetamolo,CC(=O)Nc1ccc(O)cc1,-1.03',
+      'toluene,Cc1ccccc1,-2.21','acetone,CC(C)=O,0.77','urea,NC(N)=O,0.96',
+      'ibuprofene,CC(C)Cc1ccc(cc1)C(C)C(=O)O,-3.62','piridina,c1ccncc1,0.76','acido benzoico,OC(=O)c1ccccc1,-1.55',
+      'nicotina,CN1CCCC1c1cccnc1,0.11','clorobenzene,Clc1ccccc1,-2.38','glicerolo,OCC(O)CO,1.12',
+      'acido citrico,OC(=O)CC(O)(CC(=O)O)C(=O)O,0.64','glucosio,OCC1OC(O)C(O)C(O)C1O,0.74','anisolo,COc1ccccc1,-1.85',
+      'etile acetato,CCOC(=O)C,0.18','dopamina,NCCc1ccc(O)c(O)c1,0.30','acido salicilico,OC(=O)c1ccccc1O,-1.05'].join('\n');
   }
   function _dsSplitLine(line,delim){
     var out=[],cur='',q=false;
@@ -1761,6 +1763,31 @@ window.BSI_TELEMETRY_URL='';</script>
     if(numCols.length>=2) _dsModelWire(stats,data);
   }
   function _dsToCSV(data){ var L=[data.cols.join(',')]; data.rows.forEach(function(r){ L.push(r.map(function(c){ c=(c==null?'':''+c); return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(',')); }); return L.join('\n'); }
+  // ── ponte chimica↔dati: calcola i descrittori molecolari (RDKit) da una colonna SMILES ──
+  function _dsWbRDKit(){
+    var o=document.getElementById('dsWbOut'); var data=_DSWB.data;
+    if(!data){ data=_dsParseCSV(document.getElementById('dsWbInput').value); if(data)_DSWB.data=data; }
+    if(!data){ o.innerHTML='<div style="background:#2a1420;border:1px solid #5a2436;border-radius:9px;padding:11px 13px;color:#ffb0be;font-size:.83rem">⚠️ Prima carica dei dati (con una colonna SMILES). Prova 🧬 Carica esempio.</div>'; return; }
+    var sc=-1; for(var i=0;i<data.cols.length;i++){ if(/^smiles?$|smiles/i.test(data.cols[i])){ sc=i; break; } }
+    if(sc<0){ o.innerHTML='<div style="background:#2a1420;border:1px solid #5a2436;border-radius:9px;padding:11px 13px;color:#ffb0be;font-size:.83rem">⚠️ Nessuna colonna <b>SMILES</b> trovata. Rinomina la colonna con le stringhe SMILES in "smiles" e riprova.</div>'; return; }
+    if(typeof window.bsiLoadRDKit!=='function'){ o.innerHTML='<div style="color:#ffb0be;font-size:.83rem;padding:6px 0">RDKit non disponibile in questa build.</div>'; return; }
+    o.innerHTML='<div style="color:#8fa3b8;font-size:.85rem;padding:6px 0">⏳ Carico RDKit e calcolo i descrittori molecolari…</div>';
+    window.bsiLoadRDKit(function(rd){
+      if(!rd){ o.innerHTML='<div style="color:#ffb0be;font-size:.83rem;padding:6px 0">Impossibile caricare RDKit qui (serve connessione la prima volta).</div>'; return; }
+      var keys=[['MW','amw'],['LogP','CrippenClogP'],['TPSA','tpsa'],['HBD','NumHBD'],['HBA','NumHBA'],['RotBonds','NumRotatableBonds'],['Rings','NumRings'],['AromRings','NumAromaticRings'],['FracCSP3','FractionCSP3']];
+      var newCols=keys.map(function(k){return k[0];}).filter(function(nm){return data.cols.indexOf(nm)<0;});
+      var ok=0,bad=0;
+      data.rows.forEach(function(r){ var sm=(r[sc]||'').trim(); var vals={};
+        if(sm){ try{ var m=rd.get_mol(sm); if(m){ var d=JSON.parse(m.get_descriptors()); keys.forEach(function(k){ var v=d[k[1]]; vals[k[0]]=(v!=null)?(''+(Math.round(v*1000)/1000)):''; }); m.delete(); ok++; } else bad++; }catch(e){ bad++; } } else bad++;
+        newCols.forEach(function(nm){ r.push(vals[nm]!=null?vals[nm]:''); }); });
+      newCols.forEach(function(nm){ data.cols.push(nm); });
+      document.getElementById('dsWbInput').value=_dsToCSV(data);
+      _dsWbAnalyze();
+      var note=document.createElement('div'); note.style.cssText='background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.3);border-radius:9px;padding:9px 12px;color:#cdd9e6;font-size:.82rem;margin-top:10px';
+      note.innerHTML='🧪 Aggiunte <b>'+newCols.length+'</b> colonne di descrittori RDKit ('+newCols.join(', ')+') — calcolati per <b>'+ok+'</b> molecole'+(bad?(' · '+bad+' SMILES non validi'):'')+'. Ora puoi correlare/modellare le proprietà molecolari (es. prevedere la solubilità dai descrittori). Questo è il ponte <b>chimica ↔ dati</b>.';
+      var out=document.getElementById('dsWbOut'); if(out)out.appendChild(note);
+    });
+  }
   function _dsWbExportClean(){ if(_DSWB.data)_dsWbDL('dati_puliti.csv',_dsToCSV(_DSWB.data),'text/csv'); }
   function _dsWbImpute(){
     var data=_DSWB.data; if(!data)return;
@@ -2033,6 +2060,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var clr=document.getElementById('dsWbClear'); if(clr)clr.onclick=function(){ document.getElementById('dsWbInput').value=''; document.getElementById('dsWbOut').innerHTML=''; document.getElementById('dsWbExport').style.display='none'; document.getElementById('dsWbPy').style.display='none'; };
     var exp=document.getElementById('dsWbExport'); if(exp)exp.onclick=_dsWbExport;
     var pyb=document.getElementById('dsWbPy'); if(pyb)pyb.onclick=_dsWbGenPy;
+    var rdk=document.getElementById('dsWbRdkit'); if(rdk)rdk.onclick=_dsWbRDKit;
     var fi=document.getElementById('dsWbFile'); if(fi)fi.onchange=function(e){ var f=e.target.files&&e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ document.getElementById('dsWbInput').value=rd.result; _dsWbAnalyze(); }; rd.readAsText(f); };
     var ub=document.getElementById('dsWbUrl'); if(ub)ub.onclick=function(){
       var url=prompt('Incolla l\'URL di un CSV pubblico (es. raw.githubusercontent.com/…/dati.csv):'); if(!url)return;
