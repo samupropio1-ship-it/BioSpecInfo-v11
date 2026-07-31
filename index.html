@@ -4455,7 +4455,7 @@ function runCh3D(cv,subs,isR,ac){
   cv.addEventListener("touchstart",function(e){e.preventDefault();var t=e.touches[0],r=cv.getBoundingClientRect();oD(t.clientX-r.left,t.clientY-r.top);},{passive:false});
   cv.addEventListener("touchmove",function(e){e.preventDefault();var t=e.touches[0],r=cv.getBoundingClientRect();oM(t.clientX-r.left,t.clientY-r.top);},{passive:false});
   cv.addEventListener("touchend",oU);
-  (function loop(){requestAnimationFrame(loop);if(!drag)ry+=ay;frame();})();
+  (function loop(){requestAnimationFrame(loop);if(document.hidden||!cv||cv.offsetParent===null)return;if(!drag)ry+=ay;frame();})();
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -4936,7 +4936,7 @@ function _atlasBuildBody(){
   var canvas=id('atlas3d-canvas'), wrap=id('atlas3d-wrap'); if(!canvas||!wrap)return false;
   var W=wrap.clientWidth||600,H=wrap.clientHeight||400;
   try{
-    if(!_SPH)_SPH=new THREE.SphereGeometry(1,22,16);
+    if(!_SPH)_SPH=new THREE.SphereGeometry(1,40,28);
     var sc=new THREE.Scene();
     var cam=new THREE.PerspectiveCamera(42,W/H,0.1,100); cam.position.set(0,-0.15,11.6); cam.lookAt(0,-0.15,0);
     var ren=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
@@ -5093,6 +5093,7 @@ function _atlasBuildBody(){
     // sangue / sistema cardiovascolare: aorta + grandi vasi (per malattie sistemiche)
     var vesMat=new THREE.MeshStandardMaterial({color:0xd23b5a,roughness:0.4,emissive:0x300008});
     var aorta=tube(L.organs,vesMat,[[-0.2,1.2,0.24],[0.0,1.55,0.15],[0.05,1.0,0.0],[0.05,0.2,-0.02],[0.05,-0.5,-0.02]],0.05); aorta.userData.organKey='blood'; (organs.blood=organs.blood||[]).push(aorta); (organs.blood.push(heart));
+    body.visible=false; // il corpo procedurale è solo un fallback: nascosto finché non serve (si mostra il modello .glb reale)
     _atlas.scene=sc; _atlas.cam=cam; _atlas.ren=ren; _atlas.organs=organs; _atlas.layers=L; _atlas.body=body; _atlas.anim=anim; _atlas.built=true;
     _atlasApplyLayers();
     // ── controlli: drag ruota, tap su un organo lo seleziona ──
@@ -5105,7 +5106,10 @@ function _atlasBuildBody(){
     }
     if(_atlas.raf)cancelAnimationFrame(_atlas.raf);
     var clk=new THREE.Clock();
-    function loop(){ _atlas.raf=requestAnimationFrame(loop); var t=clk.getElapsedTime();
+    function loop(){ _atlas.raf=requestAnimationFrame(loop);
+      // fluidità: non rendere il 3D quando l'Atlante non è visibile (altra sezione, scheda in background)
+      if(document.hidden || !canvas || canvas.offsetParent===null){ if(_atlas._pt!=null)_atlas._pt=clk.getElapsedTime(); return; }
+      var t=clk.getElapsedTime();
       var dt=t-(_atlas._pt||t); _atlas._pt=t; if(_atlas.mixer)_atlas.mixer.update(dt);
       _atlas.ry+=0.0014;
       if(_atlas.modelGroup){ _atlas.modelGroup.rotation.y=_atlas.ry; _atlas.modelGroup.rotation.x=_atlas.rx; _atlas.modelGroup.rotation.z=Math.sin(t*0.5)*0.012; ren.render(sc,cam); return; }
@@ -5173,9 +5177,9 @@ function _atlasLoadFromSource(src,isFile){
   _atlasLoadGLTFLib(function(ok){
     if(!ok){ if(lab)lab.textContent='Impossibile caricare il lettore 3D'; return; }
     var url=isFile?URL.createObjectURL(src):src;
-    new THREE.GLTFLoader().load(url,function(gltf){ try{ _atlasApplyGLTF(gltf,lab); }catch(e){ if(lab)lab.textContent='Errore nel modello'; } if(isFile)URL.revokeObjectURL(url); },
-      function(p){ if(lab&&p&&p.total){ lab.textContent='⏳ Caricamento… '+Math.round(p.loaded/p.total*100)+'%'; } },
-      function(){ if(lab)lab.textContent='File non valido (usa .glb o .gltf)'; if(isFile)URL.revokeObjectURL(url); });
+    new THREE.GLTFLoader().load(url,function(gltf){ try{ _atlasApplyGLTF(gltf,lab); }catch(e){ if(_atlas.body)_atlas.body.visible=true; if(lab)lab.textContent='Modello non compatibile — mostro il corpo di riferimento'; } if(isFile)URL.revokeObjectURL(url); },
+      function(p){ if(lab&&p&&p.total){ lab.textContent='⏳ Caricamento modello 3D… '+Math.round(p.loaded/p.total*100)+'%'; } },
+      function(){ if(_atlas.body)_atlas.body.visible=true; if(lab)lab.textContent=isFile?'File non valido (usa .glb o .gltf)':'Modello non raggiungibile — mostro il corpo di riferimento'; if(isFile)URL.revokeObjectURL(url); });
   });
 }
 function _atlasLoadModel(file){ if(file)_atlasLoadFromSource(file,true); }
@@ -30749,6 +30753,7 @@ function bsi3d_init(){
 
 function bsi3d_animate(){
   bsi3d.raf = requestAnimationFrame(bsi3d_animate);
+  var _c3=bsi3d.renderer&&bsi3d.renderer.domElement; if(document.hidden||(_c3&&_c3.offsetParent===null))return;
   if(!bsi3d.drag) bsi3d.rotY += 0.0035;
   var grp = [bsi3d.points, bsi3d.axes, bsi3d.nucleus];
   grp.forEach(function(o){ if(o){ o.rotation.x=bsi3d.rotX; o.rotation.y=bsi3d.rotY; } });
