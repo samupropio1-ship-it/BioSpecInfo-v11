@@ -351,7 +351,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
     <button class="tb" onclick="ST('exo')">🪐 Corpi Celesti</button>
     <button class="tb" onclick="ST('neb')">🌠 Nebulose</button>
     <button class="tb" onclick="ST('spec')">📊 Spettri</button>
-    <button class="tb" onclick="ST('nuc')">💥 Nucleosintesi</button><button class="tb" onclick="ST('theory')">📐 Teoria &amp; Formule</button><button class="tb" onclick="ST('phenomena')">🌋 Fenomeni Cosmici</button><button class="tb" onclick="ST('extreme')">💫 Corpi Estremi</button><button class="tb" onclick="ST('reactions')">🔬 Reazioni Astrochimiche</button><button class="tb" onclick="ST('missions')">🛰️ Missioni &amp; Telescopi</button><button class="tb" onclick="ST('timeline')">⏳ Timeline Cosmica</button><button class="tb" onclick="ST('resources')">🔗 Risorse Ufficiali</button>
+    <button class="tb" onclick="ST('nuc')">💥 Nucleosintesi</button><button class="tb" onclick="ST('theory')">📐 Teoria &amp; Formule</button><button class="tb" onclick="ST('phenomena')">🌋 Fenomeni Cosmici</button><button class="tb" onclick="ST('extreme')">💫 Corpi Estremi</button><button class="tb" onclick="ST('reactions')">🔬 Reazioni Astrochimiche</button><button class="tb" onclick="ST('missions')">🛰️ Missioni &amp; Telescopi</button><button class="tb" onclick="ST('timeline')">⏳ Timeline Cosmica</button><button class="tb" onclick="ST('resources')">🔗 Risorse Ufficiali</button><button class="tb" onclick="ST('calc')">🧮 Calcolatori</button>
     <button class="tb" onclick="ST('com')">☄️ Comete</button>
     <button class="tb" onclick="ST('quiz')">🎯 Quiz</button>
   </div>
@@ -442,6 +442,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <div class="pane" id="p-missions"><div id="missions-container" style="padding:16px;max-width:960px;margin:0 auto"></div></div>
 <div class="pane" id="p-timeline"><div id="timeline-container" style="padding:16px;max-width:860px;margin:0 auto"></div></div>
 <div class="pane" id="p-resources"><div id="resources-container" style="padding:16px;max-width:900px;margin:0 auto"></div></div>
+<div class="pane" id="p-calc"><div id="calc-container" style="padding:16px;max-width:960px;margin:0 auto"></div></div>
 <div class="pane" id="p-cosmo">
   <div style="display:flex;gap:6px;padding:8px 8px 0;justify-content:center;align-items:center;flex-wrap:wrap">
     <input id="cosmo-search" type="text" placeholder="🔍 Cerca un corpo… (es. quasar, luna, oceano)" style="flex:1;min-width:180px;max-width:420px;background:#0a1628;border:1px solid #26406a;border-radius:8px;color:#e9eef6;font-size:.8rem;padding:6px 11px">
@@ -1288,6 +1289,36 @@ function ansQ(i){
 }
 function nextQ(){_qi++;showQ();}
 
+// ─── CALCOLATORI ASTROFISICI (formule reali, risultato live) ─────────────────
+function renderCalc(){
+  var c=document.getElementById('calc-container'); if(!c||c._done)return; c._done=true;
+  var G=6.674e-11, C=2.998e8, Msun=1.989e30, Rsun=6.957e8, AU=1.496e11, H0=70;
+  var CALCS=[
+    {t:'☀️ Legge di Wien',f:'λpicco = 2,898·10⁻³ / T',in:[['Temperatura (K)','5772']],out:function(v){ var T=v[0]; if(!(T>0))return '—'; var lp=2.898e-3/T*1e9; return lp.toFixed(0)+' nm · '+(lp<380?'UV':lp>750?'infrarosso':'visibile'); }},
+    {t:'🕳️ Raggio di Schwarzschild',f:'Rs = 2GM / c²',in:[['Massa (masse solari)','1']],out:function(v){ var M=v[0]*Msun; if(!(M>0))return '—'; var rs=2*G*M/(C*C); return rs<1000?rs.toFixed(1)+' m':(rs/1000).toFixed(rs<1e7?3:0)+' km'; }},
+    {t:'🚀 Velocità di fuga',f:'v = √(2GM / R)',in:[['Massa (M☉)','1'],['Raggio (R☉)','1']],out:function(v){ var M=v[0]*Msun,R=v[1]*Rsun; if(!(M>0&&R>0))return '—'; return (Math.sqrt(2*G*M/R)/1000).toFixed(1)+' km/s'; }},
+    {t:'🪐 3ª legge di Keplero',f:'T² = a³ / M',in:[['Semiasse a (UA)','1'],['Massa stella (M☉)','1']],out:function(v){ var a=v[0],M=v[1]; if(!(a>0&&M>0))return '—'; return Math.sqrt(a*a*a/M).toFixed(2)+' anni'; }},
+    {t:'🌌 Redshift → velocità e distanza',f:'v ≈ cz · d ≈ v / H₀',in:[['Redshift z','0.1']],out:function(v){ var z=v[0]; if(z==null||isNaN(z))return '—'; var vel=C*z/1000; var d=vel/H0; return vel.toFixed(0)+' km/s · '+(d>=1000?(d/1000).toFixed(2)+' Gpc':d.toFixed(0)+' Mpc'); }},
+    {t:'💡 Modulo di distanza',f:'d = 10^((m−M+5)/5) pc',in:[['Magnitudine app. m','15'],['Magnitudine ass. M','5']],out:function(v){ var m=v[0],M=v[1]; if(isNaN(m)||isNaN(M))return '—'; var d=Math.pow(10,(m-M+5)/5); return d>=1000?(d/1000).toFixed(2)+' kpc':d.toFixed(1)+' pc'; }},
+    {t:'⚡ Energia di riposo E=mc²',f:'E = mc²',in:[['Massa (kg)','0.001']],out:function(v){ var m=v[0]; if(!(m>=0))return '—'; return (m*C*C).toExponential(3)+' J'; }},
+    {t:'🌱 Zona abitabile',f:'√(L/1,1) — √(L/0,53) UA',in:[['Luminosità (L☉)','1']],out:function(v){ var L=v[0]; if(!(L>0))return '—'; return Math.sqrt(L/1.1).toFixed(2)+' – '+Math.sqrt(L/0.53).toFixed(2)+' UA'; }},
+    {t:'⭐ Luminosità stellare',f:'L = 4πR²σT⁴',in:[['Raggio (R☉)','1'],['Temperatura (K)','5772']],out:function(v){ var R=v[0]*Rsun,T=v[1]; if(!(R>0&&T>0))return '—'; var L=4*Math.PI*R*R*5.67e-8*Math.pow(T,4); return (L/3.828e26).toFixed(2)+' L☉'; }},
+    {t:'⏳ Tempo-luce',f:'t = d / c',in:[['Distanza (UA)','1']],out:function(v){ var d=v[0]*AU; if(!(d>0))return '—'; var s=d/C; return s<60?s.toFixed(1)+' s':s<3600?(s/60).toFixed(1)+' min':(s/86400).toFixed(2)+' giorni'; }}
+  ];
+  var h='<div style="color:#00c9b7;font-weight:800;font-size:1.2rem;margin-bottom:4px">🧮 Calcolatori Astrofisici</div>'+
+    '<div style="color:#9fb3c8;font-size:.88rem;line-height:1.5;margin-bottom:14px;max-width:760px">Le <b>formule reali</b> dell\'astrofisica, pronte all\'uso: inserisci i valori e ottieni il risultato in tempo reale. Costanti: G, c, σ, M☉, R☉, H₀=70.</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">';
+  CALCS.forEach(function(k,idx){ h+='<div style="background:#0c1f33;border:1px solid #1c3a57;border-radius:12px;padding:13px 14px">'+
+    '<div style="color:#00c9b7;font-weight:800;font-size:.92rem">'+k.t+'</div>'+
+    '<div style="color:#7f92a6;font-size:.72rem;font-family:ui-monospace,monospace;margin:3px 0 9px">'+k.f+'</div>'+
+    k.in.map(function(inp,ii){ return '<label style="display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:#8fa3b8;margin-bottom:7px">'+inp[0]+'<input class="calc-in" data-c="'+idx+'" data-i="'+ii+'" type="number" step="any" value="'+inp[1]+'" style="background:#071221;border:1px solid #26406a;border-radius:7px;color:#e9eef6;font-size:.82rem;padding:5px 8px"></label>'; }).join('')+
+    '<div class="calc-out" data-c="'+idx+'" style="background:#071221;border:1px solid #16324a;border-radius:8px;padding:7px 10px;color:#5eead4;font-weight:800;font-size:.95rem;text-align:center;margin-top:2px">—</div></div>'; });
+  h+='</div><div style="color:#6b7d90;font-size:.72rem;margin-top:12px">A scopo didattico · formule standard (approssimazioni non-relativistiche dove indicato). H₀ e cosmologia semplificate per basso redshift.</div>';
+  c.innerHTML=h;
+  function recompute(idx){ var card=CALCS[idx]; var vals=card.in.map(function(_,ii){ var el=c.querySelector('.calc-in[data-c="'+idx+'"][data-i="'+ii+'"]'); return el?parseFloat(el.value):NaN; }); var out=c.querySelector('.calc-out[data-c="'+idx+'"]'); if(out)out.textContent=card.out(vals); }
+  c.querySelectorAll('.calc-in').forEach(function(el){ el.oninput=function(){ recompute(parseInt(el.getAttribute('data-c'),10)); }; });
+  CALCS.forEach(function(_,idx){ recompute(idx); });
+}
 // ─── TAB SWITCH ──────────────────────────────────────────────────────────────
 var _init={};
 function ST(id){
@@ -1306,6 +1337,7 @@ function ST(id){
     else if(id==='extreme')renderExtreme();
     else if(id==='phenomena')renderPhenomena();
     else if(id==='reactions')renderReactions();
+    else if(id==='calc')renderCalc();
     else if(id==='missions')renderMissions();
     else if(id==='timeline')renderTimeline();
     else if(id==='catalog')renderCatalog();
