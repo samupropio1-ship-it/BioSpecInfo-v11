@@ -1862,9 +1862,41 @@ window.BSI_TELEMETRY_URL='';</script>
       _dsMetricCard('CV R² (5-fold)',cvStr,(cv[0]>0.7?'#5eead4':cv[0]>0.4?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">coefficienti standardizzati (importanza · verde=+, rosso=−)</div>'+bars+
-      '<div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">previsto vs reale (test)</div><canvas id="dsMlScatter" style="width:100%;height:170px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">R² = frazione di varianza spiegata (1 = perfetto). I punti sulla diagonale = previsioni accurate.</div>';
-    _dsDrawScatter(pts);
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<div><div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">previsto vs reale (test)</div><canvas id="dsMlScatter" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
+        '<div><div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">residui vs previsto</div><canvas id="dsMlResid" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
+      '</div>'+
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">R² = varianza spiegata. Scatter: punti sulla diagonale = accurati. Residui: sparsi attorno allo zero senza struttura = buon modello.</div>'+
+      _dsPredictUI(meta,target);
+    _DSWB.model={type:'reg',meta:meta,w:w,b:b,mu:st.mu,sd:st.sd,ymu:ymu,ysd:ysd,target:target};
+    _dsDrawScatter(pts); _dsDrawResid(pts);
+    var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
+  }
+  function _dsPredictUI(meta,target){
+    var fields=meta.map(function(m){ if(m.num){ return '<label style="display:inline-flex;flex-direction:column;gap:2px;font-size:.68rem;color:#8fa3b8">'+m.name+'<input class="dsPredF" data-name="'+m.name+'" type="number" step="any" style="width:84px;background:#0a1628;border:1px solid #26406a;border-radius:6px;color:#cdd9e6;font-size:.76rem;padding:4px 6px"></label>'; }
+      var op=m.cats.map(function(c){return '<option>'+c+'</option>';}).join('');
+      return '<label style="display:inline-flex;flex-direction:column;gap:2px;font-size:.68rem;color:#8fa3b8">'+m.name+'<select class="dsPredF" data-name="'+m.name+'" style="background:#0a1628;border:1px solid #26406a;border-radius:6px;color:#cdd9e6;font-size:.76rem;padding:4px 6px">'+op+'</select></label>'; }).join('');
+    return '<div style="margin-top:12px;border-top:1px dashed #16273e;padding-top:10px"><div style="color:#8fa3b8;font-size:.76rem;margin-bottom:6px">🔮 Prevedi <b style="color:#c9b6ff">'+target+'</b> per un nuovo caso (usa il modello appena addestrato)</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">'+fields+'<button id="dsPredBtn" class="ds-gh-b" style="border-color:#5eead4;color:#5eead4">Prevedi</button></div><div id="dsPredOut" style="margin-top:8px;font-weight:800;font-size:.95rem;color:#5eead4;min-height:18px"></div></div>';
+  }
+  function _dsPredictRow(){
+    var m=_DSWB.model; if(!m)return; var out=document.getElementById('dsPredOut'); var vals={};
+    [].slice.call(document.querySelectorAll('.dsPredF')).forEach(function(f){ vals[f.getAttribute('data-name')]=f.value; });
+    var xs=[],ok=true;
+    m.meta.forEach(function(mt){ if(!ok)return; if(mt.num){ var v=Number(vals[mt.name]); if(vals[mt.name]===''||isNaN(v)){ok=false;return;} xs.push(v); } else { var v=vals[mt.name]; mt.cats.forEach(function(c){ xs.push(v===c?1:0); }); } });
+    if(!ok){ out.style.color='#ffb0be'; out.textContent='Inserisci un valore numerico valido in ogni campo.'; return; }
+    var z=xs.map(function(v,j){ return (v-m.mu[j])/m.sd[j]; });
+    if(m.type==='reg'){ var p=m.b; for(var j=0;j<z.length;j++)p+=m.w[j]*z[j]; p=p*m.ysd+m.ymu; out.style.color='#5eead4'; out.innerHTML='→ '+m.target+' previsto: <b>'+p.toFixed(3)+'</b>'; }
+    else { var ds=m.Z.map(function(zr,i){ var s=0; for(var j=0;j<z.length;j++){var dd=z[j]-zr[j];s+=dd*dd;} return [s,m.y[i]]; }); ds.sort(function(a,b){return a[0]-b[0];}); var v={}; for(var q=0;q<m.k;q++){var c=ds[q][1];v[c]=(v[c]||0)+1;} var best='',bc=-1; for(var c in v){if(v[c]>bc){bc=v[c];best=c;}} out.style.color='#5eead4'; out.innerHTML='→ '+m.target+' previsto: <b>'+best+'</b>'; }
+  }
+  function _dsDrawResid(pts){
+    var cv=document.getElementById('dsMlResid'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
+    var W=cv.clientWidth||260,H=cv.clientHeight||150; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H);
+    var res=pts.map(function(p){return [p[1],p[0]-p[1]];}); // [predetto, residuo]
+    var pmn=Infinity,pmx=-Infinity,rm=0; res.forEach(function(p){ pmn=Math.min(pmn,p[0]); pmx=Math.max(pmx,p[0]); rm=Math.max(rm,Math.abs(p[1])); }); if(pmn===pmx)pmx=pmn+1; if(rm===0)rm=1; var pad=26;
+    function sx(v){ return pad+(v-pmn)/(pmx-pmn)*(W-pad-8); } function sy(v){ return H/2-(v/rm)*(H/2-14); }
+    x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H/2); x.lineTo(W-6,H/2); x.stroke(); // linea zero
+    x.fillStyle='#f5a623'; res.forEach(function(p){ x.beginPath(); x.arc(sx(p[0]),sy(p[1]),3,0,6.2832); x.fill(); });
+    x.fillStyle='#6b7d90'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('residuo=0',pad+2,H/2-3);
   }
   function _dsDrawScatter(pts){
     var cv=document.getElementById('dsMlScatter'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
@@ -1881,7 +1913,7 @@ window.BSI_TELEMETRY_URL='';</script>
     if(n<10){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Servono almeno 10 righe valide per la classificazione (trovate '+n+').</div>'; return; }
     var classes=[]; y.forEach(function(c){ if(classes.indexOf(c)<0)classes.push(c); });
     if(classes.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Il target ha una sola classe: niente da classificare.</div>'; return; }
-    var Z=_dsStdz(X).Z; var tr=[],te=[]; for(var i=0;i<n;i++){ (i%4===0?te:tr).push(i); } if(!te.length){te=tr.slice(0,1);}
+    var st=_dsStdz(X), Z=st.Z; var tr=[],te=[]; for(var i=0;i<n;i++){ (i%4===0?te:tr).push(i); } if(!te.length){te=tr.slice(0,1);}
     var k=Math.min(5,tr.length);
     function classify(zi){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<m;j++){ var dd=Z[zi][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];});
       var votes={}; for(var q=0;q<k;q++){ var c=ds[q][1]; votes[c]=(votes[c]||0)+1; } var best='',bc=-1; for(var c in votes){ if(votes[c]>bc){bc=votes[c];best=c;} } return best; }
@@ -1898,7 +1930,10 @@ window.BSI_TELEMETRY_URL='';</script>
       _dsMetricCard('CV acc. (5-fold)',cvStr,(cv[0]>0.8?'#5eead4':cv[0]>0.6?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('classi',classes.length)+_dsMetricCard('k (vicini)',k)+_dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>';
+      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
+      _dsPredictUI(meta,target);
+    _DSWB.model={type:'clf',meta:meta,mu:st.mu,sd:st.sd,Z:Z,y:y,k:k,target:target};
+    var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
   }
   function _dsDrawHist(s){
     var cv=document.getElementById('dsWbHist'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
