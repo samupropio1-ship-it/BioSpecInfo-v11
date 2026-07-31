@@ -815,7 +815,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sstruct">🧬 Strutture 3D</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
-  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button></div>
+  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button></div>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
@@ -3177,6 +3177,8 @@ window.onload = function(){
       if(sec==='sretro' && typeof window.initRetro==='function') window.initRetro();
       if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
+      if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
+      if(sec==='setc' && typeof window.initETC==='function') window.initETC();
       if(sec==='scustomflash' && typeof window.initCustomFlash==='function') window.initCustomFlash();
       if(sec==='sphase' && typeof window.initPhase==='function') window.initPhase();
       if(sec==='smap' && typeof window.initConceptMap==='function') window.initConceptMap();
@@ -27774,6 +27776,8 @@ window.calcMolProps = function() {
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="sglic" class="section"></div>
+<div id="skrebs" class="section"></div>
+<div id="setc" class="section"></div>
 
 
 <script>
@@ -40267,6 +40271,259 @@ window.initGlic=function(){
   sec.querySelector('#glPrev').onclick=function(){stop();goto(idx-1);};
   sec.querySelector('#glReset').onclick=function(){stop();goto(-1);};
   goto(-1);
+};
+
+/* ============================================================
+   Motore generico per vie metaboliche animate a tappe
+   ============================================================ */
+function _bsiPathwayAnim(sec, opt){
+  // opt: {title, intro, steps:[{n,sub,prod,enz,atp,nadh,fadh2,gtp,co2,irrev,note}], footer, accent}
+  var A=opt.accent||'#f5c451';
+  var STEPS=opt.steps;
+  sec.innerHTML=
+   '<div class="section-title">'+opt.title+'</div>'
+  +'<div style="color:#9fb3c8;font-size:.92rem;margin-bottom:14px;max-width:820px;line-height:1.6">'+opt.intro+'</div>'
+  +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">'
+    +'<button class="pwPlay" style="border:none;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,'+A+',#ff7859);color:#1a1000">▶ Play</button>'
+    +'<button class="pwPrev" style="border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:transparent;color:'+A+'">◀ Prec</button>'
+    +'<button class="pwNext" style="border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:transparent;color:'+A+'">Succ ▶</button>'
+    +'<button class="pwReset" style="border:1px solid rgba(148,163,184,.35);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;background:transparent;color:#9fb3c8">↺ Reset</button>'
+    +'<div style="margin-left:auto;display:flex;gap:12px;font-size:.88rem;font-weight:700;flex-wrap:wrap">'
+      +'<span style="color:#5eead4">NADH: <span class="pwN">0</span></span>'
+      +'<span style="color:#7c6fff">FADH₂: <span class="pwF">0</span></span>'
+      +'<span style="color:#f5c451">GTP/ATP: <span class="pwG">0</span></span>'
+      +'<span style="color:#ff7859">CO₂: <span class="pwC">0</span></span>'
+    +'</div>'
+  +'</div>'
+  +'<div class="pwDots" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px"></div>'
+  +'<div class="pwStage" style="background:#0c1f33;border:1px solid rgba(245,196,81,.28);border-radius:16px;padding:22px;min-height:220px;position:relative;overflow:hidden"></div>'
+  +'<div style="margin-top:16px;font-size:.82rem;color:#7891a8;line-height:1.6">'+opt.footer+'</div>'
+  +'<style>@keyframes glPop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}@keyframes glFlow{0%{transform:translateX(-14px);opacity:0}100%{transform:translateX(0);opacity:1}}@keyframes glGlow{0%,100%{box-shadow:0 0 0 rgba(245,196,81,0)}50%{box-shadow:0 0 22px rgba(245,196,81,.55)}}.glReveal{animation:glPop .5s cubic-bezier(.2,.9,.3,1.2) both}.glArrowA{animation:glFlow .6s ease .15s both}@media(prefers-reduced-motion:reduce){.glReveal,.glArrowA{animation:none!important}}</style>';
+  var dotsEl=sec.querySelector('.pwDots'), stage=sec.querySelector('.pwStage');
+  var nEl=sec.querySelector('.pwN'),fEl=sec.querySelector('.pwF'),gEl=sec.querySelector('.pwG'),cEl=sec.querySelector('.pwC');
+  var idx=-1, playing=false, timer=null;
+  function dots(){
+    dotsEl.innerHTML='';
+    STEPS.forEach(function(S,i){
+      var d=document.createElement('button');
+      d.textContent=S.n;
+      var active=(i===idx), done=(i<idx);
+      d.style.cssText='width:34px;height:34px;border-radius:50%;font-weight:700;cursor:pointer;font-size:.85rem;border:2px solid '+(S.irrev?'#ff7859':'rgba(245,196,81,.5)')+';background:'+(active?A:(done?'rgba(94,234,212,.25)':'transparent'))+';color:'+(active?'#1a1000':(done?'#5eead4':'#9fb3c8'))+';transition:all .2s';
+      if(active)d.style.boxShadow='0 0 14px rgba(245,196,81,.7)';
+      d.onclick=function(){stop();goto(i);};
+      dotsEl.appendChild(d);
+    });
+  }
+  function tally(){
+    var n=0,f=0,g=0,c=0;
+    for(var i=0;i<=idx;i++){var S=STEPS[i];n+=(S.nadh||0);f+=(S.fadh2||0);g+=(S.gtp||0)+(S.atp||0);c+=(S.co2||0);}
+    nEl.textContent='+'+n;fEl.textContent='+'+f;gEl.textContent='+'+g;cEl.textContent='+'+c;
+  }
+  function badge(txt,col){return '<span style="display:inline-block;background:'+col+';color:#081522;font-weight:800;font-size:.78rem;padding:3px 10px;border-radius:20px;margin-right:6px;margin-bottom:4px">'+txt+'</span>';}
+  function draw(){
+    if(idx<0){
+      stage.innerHTML='<div style="text-align:center;color:#9fb3c8;padding:40px 10px"><div style="font-size:2.4rem;margin-bottom:10px">'+opt.startEmoji+'</div><div style="font-size:1.15rem;font-weight:700;color:'+A+';margin-bottom:6px">'+opt.startLabel+'</div><div>Premi <b>▶ Play</b> per iniziare.</div></div>';
+      return;
+    }
+    var S=STEPS[idx], b='';
+    if(S.nadh)b+=badge('+'+S.nadh+' NADH','#5eead4');
+    if(S.fadh2)b+=badge('+'+S.fadh2+' FADH₂','#7c6fff');
+    if(S.gtp)b+=badge('+'+S.gtp+' GTP','#f5c451');
+    if(S.atp)b+=badge('+'+S.atp+' ATP','#f5c451');
+    if(S.co2)b+=badge('+'+S.co2+' CO₂','#ff7859');
+    if(S.irrev)b+=badge('irreversibile ⚑','#f5c451');
+    stage.innerHTML=
+      '<div class="glReveal" style="display:flex;flex-direction:column;gap:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+        +'<div style="font-size:1.5rem;font-weight:800;color:'+A+'">Tappa '+S.n+' / '+STEPS.length+'</div><div>'+b+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:1.05rem">'
+        +'<div style="background:#081522;border:1px solid rgba(94,234,212,.3);border-radius:10px;padding:12px 16px;font-weight:700;color:#e6fffb">'+S.sub+'</div>'
+        +'<div class="glArrowA" style="display:flex;flex-direction:column;align-items:center;color:'+A+';min-width:130px"><div style="font-size:.8rem;color:#9fb3c8;margin-bottom:2px;text-align:center">'+S.enz+'</div><div style="font-size:1.6rem;line-height:1">→</div></div>'
+        +'<div style="background:linear-gradient(135deg,rgba(245,196,81,.18),rgba(255,120,89,.12));border:1px solid rgba(245,196,81,.4);border-radius:10px;padding:12px 16px;font-weight:800;color:'+A+'">'+S.prod+'</div>'
+      +'</div>'
+      +'<div style="font-size:.9rem;color:#cbd5e1;line-height:1.6;background:#081522;border-radius:8px;padding:12px;border-left:3px solid '+A+'">'+S.note+'</div></div>';
+    stage.style.animation=S.irrev?'glGlow 1.4s ease':'';
+  }
+  function goto(i){idx=Math.max(-1,Math.min(STEPS.length-1,i));dots();tally();draw();}
+  function next(){if(idx>=STEPS.length-1){stop();return;}goto(idx+1);}
+  function stop(){playing=false;if(timer){clearTimeout(timer);timer=null;}var b=sec.querySelector('.pwPlay');if(b)b.textContent='▶ Play';}
+  function play(){
+    if(playing){stop();return;}
+    if(idx>=STEPS.length-1)goto(-1);
+    playing=true;sec.querySelector('.pwPlay').textContent='⏸ Pausa';
+    (function tick(){if(!playing)return;next();if(idx<STEPS.length-1){timer=setTimeout(tick,2200);}else{stop();}})();
+  }
+  sec.querySelector('.pwPlay').onclick=play;
+  sec.querySelector('.pwNext').onclick=function(){stop();next();};
+  sec.querySelector('.pwPrev').onclick=function(){stop();goto(idx-1);};
+  sec.querySelector('.pwReset').onclick=function(){stop();goto(-1);};
+  goto(-1);
+}
+
+/* ============================================================
+   BIOCHIMICA — CICLO DI KREBS ANIMATO (8 tappe)
+   ============================================================ */
+window.initKrebs=function(){
+  var sec=document.getElementById('skrebs');
+  if(!sec||sec._init)return; sec._init=true;
+  _bsiPathwayAnim(sec,{
+    title:'♻️ CICLO DI KREBS (acido citrico) — 8 tappe animate',
+    intro:'Nella matrice mitocondriale l\'acetil-CoA (2C) entra nel ciclo e viene ossidato completamente a 2 CO₂, generando i coenzimi ridotti che alimenteranno la catena respiratoria. Premi <b>▶ Play</b>. Resa per giro: <b>3 NADH + 1 FADH₂ + 1 GTP + 2 CO₂</b> (×2 per glucosio).',
+    startEmoji:'🧬', startLabel:'Acetil-CoA (2C) + Ossalacetato (4C)',
+    accent:'#f5c451',
+    footer:'💡 Il ciclo <b>rigenera l\'ossalacetato</b> a ogni giro (via catalitica). I 3 NADH e 1 FADH₂ portano gli elettroni alla catena respiratoria (⚡ Catena Respiratoria) dove si produce la maggior parte dell\'ATP. Tappe regolate: <b style="color:#ff7859">citrato sintasi, isocitrato deidrogenasi, α-chetoglutarato deidrogenasi</b>.',
+    steps:[
+      {n:1,sub:'Ossalacetato + Acetil-CoA',prod:'Citrato (6C)',enz:'Citrato sintasi',irrev:true,note:'Condensazione: l\'acetile (2C) si unisce all\'ossalacetato (4C). <b>Tappa regolata</b>, inibita da ATP e NADH. Libera il CoA.'},
+      {n:2,sub:'Citrato',prod:'Isocitrato',enz:'Aconitasi',note:'Isomerizzazione (via cis-aconitato): sposta l\'OH per rendere possibile l\'ossidazione successiva. Inibita dal fluoroacetato.'},
+      {n:3,sub:'Isocitrato',prod:'α-chetoglutarato (5C)',enz:'Isocitrato deidrogenasi',co2:1,nadh:1,irrev:true,note:'Prima decarbossilazione ossidativa: <b>1 NADH + 1 CO₂</b>. Principale punto di controllo, attivata da ADP, inibita da ATP/NADH.'},
+      {n:4,sub:'α-chetoglutarato',prod:'Succinil-CoA (4C)',enz:'α-chetoglutarato deidrogenasi',co2:1,nadh:1,irrev:true,note:'Seconda decarbossilazione ossidativa: <b>1 NADH + 1 CO₂</b>. Complesso analogo alla piruvato deidrogenasi.'},
+      {n:5,sub:'Succinil-CoA',prod:'Succinato',enz:'Succinil-CoA sintetasi',gtp:1,note:'<b>Fosforilazione a livello del substrato</b>: il legame tioestere ad alta energia produce 1 GTP (≡ 1 ATP).'},
+      {n:6,sub:'Succinato',prod:'Fumarato',enz:'Succinato deidrogenasi (Complesso II)',fadh2:1,note:'Ossidazione: <b>1 FADH₂</b>. L\'enzima è incastonato nella membrana interna — è il <b>Complesso II</b> della catena respiratoria.'},
+      {n:7,sub:'Fumarato',prod:'Malato',enz:'Fumarasi',note:'Idratazione stereospecifica del doppio legame: aggiunge H₂O producendo L-malato.'},
+      {n:8,sub:'Malato',prod:'Ossalacetato',enz:'Malato deidrogenasi',nadh:1,note:'Ossidazione finale: <b>1 NADH</b>. Rigenera l\'ossalacetato → il ciclo può ricominciare. Reazione endoergonica tirata avanti dalla tappa 1.'}
+    ]
+  });
+};
+
+/* ============================================================
+   BIOCHIMICA — CATENA RESPIRATORIA / FOSFORILAZIONE OSSIDATIVA
+   ============================================================ */
+window.initETC=function(){
+  var sec=document.getElementById('setc');
+  if(!sec||sec._init)return; sec._init=true;
+  sec.innerHTML=
+   '<div class="section-title">⚡ CATENA RESPIRATORIA — fosforilazione ossidativa animata</div>'
+  +'<div style="color:#9fb3c8;font-size:.92rem;margin-bottom:14px;max-width:840px;line-height:1.6">Nella membrana mitocondriale interna gli elettroni di NADH e FADH₂ scendono lungo i complessi I→IV liberando energia che <b>pompa protoni</b> nello spazio intermembrana. Il gradiente elettrochimico fa girare l\'<b>ATP sintasi</b> (chemiosmosi di Mitchell). Premi <b>▶ Play</b> e guarda gli elettroni (●) e i protoni (H⁺) muoversi.</div>'
+  +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">'
+    +'<button id="etcPlay" style="border:none;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#5eead4,#7c6fff);color:#081522">▶ Play</button>'
+    +'<button id="etcReset" style="border:1px solid rgba(148,163,184,.35);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;background:transparent;color:#9fb3c8">↺ Reset</button>'
+    +'<label style="font-size:.85rem;color:#9fb3c8;display:flex;align-items:center;gap:6px">Substrato: <select id="etcSub" style="padding:6px;background:#081522;color:#e6fffb;border:1px solid rgba(94,234,212,.3);border-radius:6px"><option value="nadh">NADH (entra al Complesso I)</option><option value="fadh2">FADH₂ (entra al Complesso II)</option></select></label>'
+    +'<div style="margin-left:auto;font-size:.9rem;font-weight:700;color:#f5c451">H⁺ pompati: <span id="etcH">0</span> · ATP stimati: <span id="etcATP" style="color:#5eead4">0</span></div>'
+  +'</div>'
+  +'<canvas id="etcCv" width="900" height="440" style="width:100%;max-width:900px;background:#081522;border-radius:12px;display:block;border:1px solid rgba(94,234,212,.2)"></canvas>'
+  +'<div id="etcInfo" style="margin-top:14px;font-size:.88rem;color:#cbd5e1;line-height:1.6;background:#0c1f33;border-radius:10px;padding:14px;border-left:3px solid #5eead4"></div>'
+  +'<div style="margin-top:12px;font-size:.82rem;color:#7891a8;line-height:1.6">💡 Resa reale (P/O): ogni <b>NADH ≈ 2,5 ATP</b>, ogni <b>FADH₂ ≈ 1,5 ATP</b> (il FADH₂ salta il Complesso I, pompa meno protoni). Accettore finale: <b>O₂ → H₂O</b> al Complesso IV. Inibitori classici: rotenone (I), antimicina A (III), cianuro/CO (IV), oligomicina (ATP sintasi).</div>';
+
+  var cv=sec.querySelector('#etcCv'),ctx=cv.getContext('2d');
+  var W=cv.width,H=cv.height;
+  var hEl=sec.querySelector('#etcH'),atpEl=sec.querySelector('#etcATP'),infoEl=sec.querySelector('#etcInfo');
+  var comps=[
+    {x:120,name:'I',full:'NADH deidrogenasi',pumps:4,col:'#5eead4'},
+    {x:300,name:'II',full:'Succinato deidrog.',pumps:0,col:'#7c6fff'},
+    {x:460,name:'III',full:'Citocromo bc₁',pumps:4,col:'#f5c451'},
+    {x:640,name:'IV',full:'Citocromo c ossidasi',pumps:2,col:'#ff7859'},
+    {x:800,name:'V',full:'ATP sintasi',pumps:0,col:'#4ade80'}
+  ];
+  var memTop=170,memBot=250;
+  var phase=0, playing=false, raf=null, sub='nadh', protons=[], rotor=0;
+  function reset(){ phase=0; protons=[]; rotor=0; hEl.textContent='0'; atpEl.textContent='0'; infoEl.innerHTML='Premi <b>▶ Play</b>. Gli elettroni entreranno '+(sub==='nadh'?'dal <b>Complesso I</b> (NADH)':'dal <b>Complesso II</b> (FADH₂, salta il Complesso I)')+'.'; draw(); }
+  function drawMembrane(){
+    ctx.clearRect(0,0,W,H);
+    // regions
+    ctx.fillStyle='rgba(124,111,255,.06)';ctx.fillRect(0,0,W,memTop);
+    ctx.fillStyle='rgba(94,234,212,.05)';ctx.fillRect(0,memBot,W,H-memBot);
+    ctx.fillStyle='#7891a8';ctx.font='13px system-ui';ctx.textAlign='left';
+    ctx.fillText('Spazio intermembrana (↑ H⁺, acido)',14,22);
+    ctx.fillText('Matrice mitocondriale',14,H-14);
+    // lipid bilayer
+    ctx.strokeStyle='rgba(148,163,184,.25)';ctx.lineWidth=1;
+    for(var i=0;i<2;i++){var yy=(i===0?memTop:memBot);ctx.beginPath();ctx.moveTo(0,yy);ctx.lineTo(W,yy);ctx.stroke();}
+    ctx.fillStyle='rgba(148,163,184,.12)';ctx.fillRect(0,memTop,W,memBot-memTop);
+  }
+  function drawComplexes(active){
+    comps.forEach(function(c,ci){
+      var on=(ci<=active);
+      ctx.fillStyle=on?c.col:'rgba(100,116,139,.35)';
+      ctx.strokeStyle=on?'#fff':'rgba(148,163,184,.3)';ctx.lineWidth=on?1.5:1;
+      if(c.name==='V'){
+        // ATP synthase: stalk + rotor head
+        ctx.beginPath();ctx.roundRect(c.x-26,memTop-8,52,memBot-memTop+16,8);ctx.fill();ctx.stroke();
+        // rotor knob in matrix
+        ctx.save();ctx.translate(c.x,memBot+34);ctx.rotate(rotor);
+        ctx.fillStyle=on?'#4ade80':'rgba(100,116,139,.4)';
+        ctx.beginPath();ctx.arc(0,0,20,0,7);ctx.fill();
+        ctx.strokeStyle='#081522';ctx.lineWidth=2;
+        for(var a=0;a<3;a++){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a*2.09)*18,Math.sin(a*2.09)*18);ctx.stroke();}
+        ctx.restore();
+      }else{
+        ctx.beginPath();ctx.roundRect(c.x-30,memTop-6,60,memBot-memTop+12,8);ctx.fill();ctx.stroke();
+      }
+      ctx.fillStyle=on?'#081522':'#94a3b8';ctx.font='bold 16px system-ui';ctx.textAlign='center';
+      ctx.fillText(c.name,c.x,(memTop+memBot)/2+6);
+      ctx.fillStyle=on?c.col:'#64748b';ctx.font='10px system-ui';
+      ctx.fillText(c.full,c.x,memBot+(c.name==='V'?70:22));
+    });
+    // O2 at complex IV
+    ctx.fillStyle='#ff7859';ctx.font='12px system-ui';ctx.textAlign='center';
+    ctx.fillText('½O₂→H₂O',comps[3].x,memBot+40);
+  }
+  function drawProtons(){
+    protons.forEach(function(p){
+      ctx.fillStyle='rgba(245,196,81,'+(p.a||1)+')';
+      ctx.beginPath();ctx.arc(p.x,p.y,5,0,7);ctx.fill();
+      ctx.fillStyle='#081522';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('+',p.x,p.y+3);
+    });
+  }
+  function drawElectron(active){
+    // electron dot travelling along chain top of membrane
+    var seq=(sub==='nadh')?[0,2,3]:[1,2,3]; // complexes it passes (indices)
+    var pos=Math.min(active,seq.length-1);
+    if(active>=0 && active<seq.length){
+      var cx=comps[seq[active]].x, t=(phase%1);
+      var nx=(active<seq.length-1)?comps[seq[active+1]].x:cx;
+      var ex=cx+(nx-cx)*t;
+      ctx.fillStyle='#38bdf8';ctx.shadowColor='#38bdf8';ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(ex,memTop-16,7,0,7);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='#38bdf8';ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillText('e⁻',ex,memTop-30);
+    }
+  }
+  function draw(active){
+    active=(active==null?-1:active);
+    drawMembrane();
+    // update protons animation
+    protons.forEach(function(p){p.y-=p.vy; p.a=Math.max(0,1-(memBot-p.y)/(memBot-40));});
+    protons=protons.filter(function(p){return p.y>30;});
+    drawComplexes(active);
+    drawProtons();
+    drawElectron(active);
+  }
+  var pumpedTotal=0;
+  function step(){
+    if(!playing)return;
+    phase+=0.03; rotor+=0.14;
+    var seq=(sub==='nadh')?[0,2,3]:[1,2,3];
+    var active=Math.floor(phase);
+    if(active<seq.length){
+      // emit protons when passing a pumping complex
+      var c=comps[seq[active]];
+      if(c.pumps>0 && Math.random()<0.25){
+        protons.push({x:c.x+(Math.random()*30-15),y:memBot,vy:2.4+Math.random()});
+        pumpedTotal++; hEl.textContent=pumpedTotal;
+      }
+      draw(active);
+      raf=requestAnimationFrame(step);
+    }else{
+      // reached end: pump done, ATP synthase spins
+      draw(seq.length-1);
+      var atp=(sub==='nadh')?2.5:1.5;
+      atpEl.textContent=atp;
+      infoEl.innerHTML='✅ Gli elettroni hanno raggiunto <b>O₂</b> al Complesso IV (→ H₂O). Il gradiente di <b>'+pumpedTotal+' H⁺</b> ha fatto girare l\'ATP sintasi: '
+        +(sub==='nadh'?'da 1 NADH ≈ <b>2,5 ATP</b> (pompa a I, III, IV).':'da 1 FADH₂ ≈ <b>1,5 ATP</b> (entra a II, salta il Complesso I → meno protoni).');
+      // keep rotor spinning a bit
+      var spins=0;(function spin(){ if(spins++>90||!playing){stop();return;} rotor+=0.2; draw(seq.length-1); raf=requestAnimationFrame(spin);})();
+    }
+  }
+  function stop(){playing=false;if(raf){cancelAnimationFrame(raf);raf=null;}var b=sec.querySelector('#etcPlay');if(b)b.textContent='▶ Play';}
+  function play(){
+    if(playing){stop();return;}
+    reset(); pumpedTotal=0; playing=true; sec.querySelector('#etcPlay').textContent='⏸ Pausa';
+    infoEl.innerHTML='⚡ Trasporto in corso: gli elettroni scendono lungo i complessi e l\'energia pompa H⁺ verso l\'alto…';
+    raf=requestAnimationFrame(step);
+  }
+  sec.querySelector('#etcPlay').onclick=play;
+  sec.querySelector('#etcReset').onclick=function(){stop();pumpedTotal=0;reset();};
+  sec.querySelector('#etcSub').onchange=function(){sub=this.value;stop();pumpedTotal=0;reset();};
+  reset();
 };
 </script>
 </body>
