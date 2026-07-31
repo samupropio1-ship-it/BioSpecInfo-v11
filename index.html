@@ -40552,15 +40552,50 @@ window.initSynTheater=function(){
   }
   function chg(x,y,s,c){return '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="13" font-weight="800" fill="'+(c||'#b91c1c')+'" font-family="Arial">'+s+'</text>';}
   function lp(x,y){return '<circle cx="'+(x-2)+'" cy="'+y+'" r="1.5" fill="#0f172a"/><circle cx="'+(x+2)+'" cy="'+y+'" r="1.5" fill="#0f172a"/>';}
+  function farr(d,delay){ // fishhook: freccia a mezza punta per singolo elettrone (radicali)
+    return '<path class="thArrow" style="animation-delay:'+(delay||0)+'s" d="'+d+'" fill="none" stroke="#0891b2" stroke-width="2.2" stroke-dasharray="260" stroke-dashoffset="260" marker-end="url(#thF)"/>';
+  }
+  function rad(x,y){return '<circle cx="'+x+'" cy="'+y+'" r="2" fill="#0891b2"/>';} // elettrone spaiato
   function frame(inner){
     return '<svg viewBox="0 0 480 210" width="100%" style="max-width:520px;background:#fff;border-radius:10px;display:block;margin:0 auto">'
-      +'<defs><marker id="thH" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#d97706" stroke-width="1.6"/></marker></defs>'
+      +'<defs><marker id="thH" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#d97706" stroke-width="1.6"/></marker>'
+      +'<marker id="thF" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3" fill="none" stroke="#0891b2" stroke-width="1.6"/></marker></defs>'
       +inner+'</svg>';
+  }
+  // diagramma energetico: profilo (array 0..1) con nodo evidenziato allo stadio corrente
+  function energyDiagram(prof,cur,color){
+    var W=480,H=132,padL=42,padR=16,padT=14,padB=26;
+    if(!prof||!prof.length)return '';
+    var n=prof.length, iw=W-padL-padR, ih=H-padT-padB;
+    function X(i){return padL+(n===1?iw/2:i/(n-1)*iw);}
+    function Y(v){return padT+(1-v)*ih;}
+    // curva liscia (Catmull-Rom → path)
+    var pts=prof.map(function(v,i){return [X(i),Y(v)];});
+    var dd='M'+pts[0][0]+','+pts[0][1];
+    for(var i=0;i<n-1;i++){
+      var p0=pts[i>0?i-1:0],p1=pts[i],p2=pts[i+1],p3=pts[i+2<n?i+2:n-1];
+      var c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6;
+      var c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;
+      dd+=' C'+c1x+','+c1y+' '+c2x+','+c2y+' '+p2[0]+','+p2[1];
+    }
+    var svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:520px;background:#0b1220;border-radius:8px;display:block;margin:8px auto 0">';
+    // assi
+    svg+='<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(H-padB)+'" stroke="#334155" stroke-width="1"/>';
+    svg+='<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="#334155" stroke-width="1"/>';
+    svg+='<text x="10" y="'+(padT+ih/2)+'" fill="#7891a8" font-size="10" font-family="Arial" transform="rotate(-90 12 '+(padT+ih/2)+')" text-anchor="middle">Energia</text>';
+    svg+='<text x="'+(padL+iw/2)+'" y="'+(H-6)+'" fill="#7891a8" font-size="10" font-family="Arial" text-anchor="middle">coordinata di reazione →</text>';
+    svg+='<path d="'+dd+'" fill="none" stroke="'+color+'" stroke-width="2.4"/>';
+    // nodi
+    pts.forEach(function(p,i){
+      var on=(i===cur);
+      svg+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(on?6:3.5)+'" fill="'+(on?color:'#475569')+'"'+(on?' stroke="#fff" stroke-width="1.5"':'')+'/>';
+    });
+    return svg+'</svg>';
   }
 
   // ---- meccanismi (ogni stage: {t:testo, f:()=>svg inner}) ----
   var MECH={
-    sn2:{name:'SN2 — sostituzione nucleofila bimolecolare',type:'Sostituzione',cat:'#0ea5e9',
+    sn2:{name:'SN2 — sostituzione nucleofila bimolecolare',type:'Sostituzione',cat:'#0ea5e9',prof:[0.15,0.85,0.1],
       note:'Il nucleofilo attacca dal lato opposto al gruppo uscente (attacco dorsale) → <b>inversione di Walden</b> della configurazione. Un solo stadio, stato di transizione a 5 legami. Velocità = k·[Nu]·[substrato].',
       stages:[
         {t:'① Il nucleofilo HO⁻ si avvicina dal lato opposto al bromo. La sua coppia solitaria punta verso il carbonio elettrofilo.',
@@ -40579,7 +40614,7 @@ window.initSynTheater=function(){
            +A(360,105,'Br','#0f172a')+chg(382,98,'⁻')+lp(360,86)
            +arr('M300,105 Q330,105 348,105',0)}}
       ]},
-    e2:{name:'E2 — eliminazione bimolecolare',type:'Eliminazione',cat:'#8b5cf6',
+    e2:{name:'E2 — eliminazione bimolecolare',type:'Eliminazione',cat:'#8b5cf6',prof:[0.18,0.82,0.1],
       note:'La base strappa l\'H in <b>β</b> mentre il gruppo uscente parte: concertato, geometria <b>anti-periplanare</b>. Si forma un alchene. Favorito da basi forti/ingombrate e calore (regola di Zaitsev/Hofmann).',
       stages:[
         {t:'① La base B⁻ afferra l\'idrogeno sul carbonio β; sul carbonio α c\'è il gruppo uscente Br in posizione anti.',
@@ -40600,7 +40635,7 @@ window.initSynTheater=function(){
            +bd(120,95,120,82,1)+bd(120,125,120,138,1)+bd(240,95,240,82,1)+bd(240,125,240,138,1)
            +A(360,110,'Br','#0f172a')+chg(382,103,'⁻')}}
       ]},
-    grig:{name:'Addizione di Grignard al carbonile',type:'Addizione nucleofila',cat:'#10b981',
+    grig:{name:'Addizione di Grignard al carbonile',type:'Addizione nucleofila',cat:'#10b981',prof:[0.25,0.72,0.15],
       note:'Il carbanione R⁻ (da R–MgBr) attacca il carbonio carbonilico elettrofilo; gli elettroni π vanno sull\'ossigeno → <b>alcossido</b>, poi protonato in <b>alcol</b>. Aldeidi→2°, chetoni→3° alcol.',
       stages:[
         {t:'① Il reattivo di Grignard fornisce un carbanione R⁻ nucleofilo. Il carbonio del C=O è elettrofilo (δ+), l\'ossigeno δ−.',
@@ -40617,7 +40652,7 @@ window.initSynTheater=function(){
            +A(180,150,'R','#0f172a',13)+A(260,150,'H','#0f172a',13)+bd(210,132,186,148,1)+bd(230,132,254,148,1)
            +'<text x="240" y="192" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">alcol</text>'}}
       ]},
-    aldol:{name:'Condensazione aldolica',type:'Formazione C–C',cat:'#f59e0b',
+    aldol:{name:'Condensazione aldolica',type:'Formazione C–C',cat:'#f59e0b',prof:[0.3,0.5,0.72,0.2],
       note:'La base rimuove un <b>H in α</b> → enolato risonante; il carbonio nucleofilo attacca il carbonile di una seconda molecola → <b>β-idrossi-carbonile</b> (aldolo). Con calore/acido: disidratazione a enone (condensazione).',
       stages:[
         {t:'① La base HO⁻ rimuove un protone in α (accanto al C=O). Quel carbonio è acido perché l\'anione risultante è stabilizzato.',
@@ -40639,7 +40674,7 @@ window.initSynTheater=function(){
            +A(135,80,'OH','#0f172a',13)+bd(135,105,135,92,1)+A(300,120,'R','#0f172a',12)+bd(249,120,285,120,1)
            +'<text x="200" y="188" text-anchor="middle" font-size="11" fill="#b45309" font-family="Arial">β-idrossi-carbonile (aldolo)</text>'}}
       ]},
-    fischer:{name:'Esterificazione di Fischer',type:'Sostituzione acilica',cat:'#ef4444',
+    fischer:{name:'Esterificazione di Fischer',type:'Sostituzione acilica',cat:'#ef4444',prof:[0.32,0.55,0.68,0.25],
       note:'Acido carbossilico + alcol, catalisi acida, in equilibrio → estere + acqua. Meccanismo <b>PADPED</b> (protonazione–addizione–deprotonazione–protonazione–eliminazione–deprotonazione). Si sposta l\'equilibrio togliendo acqua.',
       stages:[
         {t:'① Protonazione: H⁺ si lega all\'ossigeno carbonilico → il carbonio diventa molto più elettrofilo (catione ossocarbenio).',
@@ -40662,7 +40697,7 @@ window.initSynTheater=function(){
            +bd(200,120,255,120,1)+A(270,120,'O','#0f172a')+A(292,120,'R','#0f172a',12)+A(230,150,'estere','#047857',13)
            +A(370,110,'+ H₂O','#0f172a',13)}}
       ]},
-    sear:{name:'Sostituzione elettrofila aromatica (nitrazione)',type:'Aromatica',cat:'#e11d48',
+    sear:{name:'Sostituzione elettrofila aromatica (nitrazione)',type:'Aromatica',cat:'#e11d48',prof:[0.28,0.88,0.55,0.12],
       note:'Il benzene reagisce con l\'elettrofilo NO₂⁺ (da HNO₃/H₂SO₄). Gli elettroni π attaccano l\'elettrofilo → <b>ione arenio</b> (complesso σ) → riaromatizzazione con perdita di H⁺. Il prodotto è nitrobenzene.',
       stages:[
         {t:'① Generazione dell\'elettrofilo: HNO₃ + H₂SO₄ producono lo ione nitronio NO₂⁺, molto elettrofilo.',
@@ -40680,9 +40715,104 @@ window.initSynTheater=function(){
          f:function(){return '<g transform="translate(150,105)"><polygon points="0,-42 36,-21 36,21 0,42 -36,21 -36,-21" fill="none" stroke="#0f172a" stroke-width="2"/><circle r="20" fill="none" stroke="#0f172a" stroke-width="1.6"/></g>'
            +bd(186,84,210,72,1)+A(228,66,'NO₂','#0f172a',13)+A(360,110,'+ H⁺','#0f172a',13)
            +'<text x="150" y="185" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">nitrobenzene</text>';},}
+      ]},
+    sn1:{name:'SN1 — sostituzione nucleofila monomolecolare',type:'SN1',cat:'#0284c7',prof:[0.25,0.9,0.6,0.15],
+      note:'Due stadi: prima <b>ionizzazione lenta</b> (stadio determinante) a carbocatione, poi attacco veloce del nucleofilo. Il carbocatione è planare → il nucleofilo entra da entrambe le facce → <b>racemizzazione</b>. Favorita da substrati 3°, solventi polari protici. v = k·[substrato].',
+      stages:[
+        {t:'① Ionizzazione (stadio lento, RDS): il legame C–Br si rompe eteroliticamente. Gli elettroni vanno sul bromo.',
+         f:function(){return A(150,105,'R₃C','#0f172a',15)+bd(185,105,255,105,'p')+A(275,105,'Br')+lp(275,86)
+           +arr('M222,100 Q248,80 270,96',0)
+           +'<text x="180" y="175" text-anchor="middle" font-size="11" fill="#0369a1" font-family="Arial">ionizzazione (lenta)</text>';}},
+        {t:'② Si forma un carbocatione planare (sp²), tanto più stabile quanto più sostituito (3° ≫ 2° ≫ 1°). Il bromuro se ne va.',
+         f:function(){return A(150,105,'R₃C','#0f172a',15)+chg(186,93,'+')+A(330,105,'Br','#0f172a')+chg(352,98,'⁻')
+           +'<text x="150" y="175" text-anchor="middle" font-size="11" fill="#0369a1" font-family="Arial">carbocatione planare sp²</text>';}},
+        {t:'③ Il nucleofilo (H₂O) attacca velocemente il carbocatione da entrambe le facce → miscela racemica.',
+         f:function(){return A(150,105,'R₃C','#0f172a',15)+chg(186,93,'+')+A(60,70,'H₂O','#0f172a',13)+lp(80,74)+A(60,145,'OH₂','#0f172a',13)
+           +arr('M82,76 Q118,90 150,100',0)+arr('M82,140 Q118,120 150,112',0.15)
+           +'<text x="150" y="180" text-anchor="middle" font-size="11" fill="#0369a1" font-family="Arial">attacco su 2 facce → racemo</text>';}},
+        {t:'④ Deprotonazione dell\'ossonio → alcol. La velocità dipende solo dal substrato (1° ordine), non dal nucleofilo.',
+         f:function(){return A(130,105,'R₃C','#0f172a',15)+bd(165,105,205,105,1)+A(222,105,'OH','#0f172a')
+           +'<text x="180" y="175" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">alcol · v = k[substrato]</text>';}}
+      ]},
+    e1:{name:'E1 — eliminazione monomolecolare',type:'E1',cat:'#7c3aed',prof:[0.3,0.85,0.15],
+      note:'Come l\'SN1 parte da una <b>ionizzazione lenta</b> a carbocatione; poi una base debole strappa un H in <b>β</b> e si forma l\'alchene. Segue <b>Zaitsev</b> (alchene più sostituito). Compete sempre con l\'SN1.',
+      stages:[
+        {t:'① Ionizzazione lenta (RDS), identica all\'SN1: il gruppo uscente parte → carbocatione + X⁻.',
+         f:function(){return A(150,110,'C','#0f172a')+bd(150,95,150,60,1)+A(150,50,'R','#0f172a',13)+A(115,130,'H','#0f172a',12)+bd(138,120,120,128,1)
+           +bd(165,110,235,110,'p')+A(255,110,'Br')+lp(255,91)+arr('M202,105 Q228,86 250,101',0);}},
+        {t:'② Il carbocatione ha un H sul carbonio β adiacente. Una base debole (solvente) lo rimuove.',
+         f:function(){return A(60,70,'B','#0f172a')+lp(76,70)+A(180,110,'C','#0f172a')+chg(180,92,'+')+A(120,110,'C','#0f172a')+bd(120,95,120,62,1)+A(120,52,'H','#0f172a',12)
+           +arr('M74,74 Q95,90 116,100',0)+arr('M120,90 Q140,95 160,104',0.2);}},
+        {t:'③ Gli elettroni del legame C–H formano il nuovo legame π: alchene (il più sostituito, regola di Zaitsev).',
+         f:function(){return A(120,110,'C')+bd(138,106,222,106,2)+A(240,110,'C')+A(300,110,'+ BH','#0f172a',13)
+           +'<text x="180" y="178" text-anchor="middle" font-size="11" fill="#6d28d9" font-family="Arial">alchene (Zaitsev)</text>';}}
+      ]},
+    eadd:{name:'Addizione elettrofila HX (Markovnikov)',type:'Addizione elettrofila',cat:'#059669',prof:[0.3,0.75,0.2],
+      note:'L\'alchene, ricco di elettroni π, attacca l\'elettrofilo H⁺. Il protone si lega in modo da dare il <b>carbocatione più stabile</b> → l\'alogeno finisce sul carbonio più sostituito (<b>regola di Markovnikov</b>).',
+      stages:[
+        {t:'① Gli elettroni π del doppio legame attaccano il protone di H–Br. Si forma il carbocatione più stabile.',
+         f:function(){return A(120,110,'C')+bd(138,106,202,106,2)+A(220,110,'C')+A(120,150,'H','#0f172a',12)+A(120,70,'H','#0f172a',12)
+           +A(320,70,'H','#0f172a',13)+A(320,110,'Br','#0f172a',13)+bd(320,82,320,98,1)
+           +arr('M170,96 Q240,60 312,72',0);}},
+        {t:'② Carbocatione sul carbonio più sostituito (Markovnikov: "il ricco si arricchisce"), Br⁻ libero.',
+         f:function(){return A(120,110,'CH₃','#0f172a',13)+A(200,110,'C','#0f172a')+chg(200,92,'+')+A(150,110,'','#0f172a')+bd(140,110,182,110,1)
+           +A(340,110,'Br','#0f172a')+chg(362,103,'⁻')+lp(340,91)
+           +'<text x="180" y="178" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">carbocatione 3° (più stabile)</text>';}},
+        {t:'③ Il bromuro attacca il carbocatione → alogenuro alchilico. Con H₂O/H⁺ si ottiene l\'alcol (stessa regioselettività).',
+         f:function(){return A(120,110,'CH₃','#0f172a',13)+A(200,110,'C','#0f172a')+bd(214,110,250,110,1)+A(268,110,'Br','#0f172a')+bd(155,110,186,110,1)
+           +'<text x="190" y="178" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">alogenuro (Markovnikov)</text>';}}
+      ]},
+    hydrob:{name:'Idroborazione-ossidazione (anti-Markovnikov)',type:'Idroborazione',cat:'#0d9488',prof:[0.3,0.5,0.15],
+      note:'BH₃ si addiziona in modo <b>syn</b> e concertato (stato di transizione a 4 centri): il boro va sul carbonio <b>meno</b> ingombrato. L\'ossidazione con H₂O₂/OH⁻ sostituisce il boro con OH mantenendo la posizione → alcol <b>anti-Markovnikov e syn</b>.',
+      stages:[
+        {t:'① Addizione syn concertata: nel TS a 4 centri il boro (elettrofilo, δ+) si lega al C meno sostituito, l\'idruro all\'altro.',
+         f:function(){return A(120,90,'C')+bd(138,90,202,90,2)+A(220,90,'C')
+           +A(120,140,'H₂B','#0f172a',13)+A(230,140,'H','#0f172a',13)+bd(128,128,124,104,'p')+bd(224,128,222,104,'p')
+           +'<text x="175" y="185" text-anchor="middle" font-size="11" fill="#0f766e" font-family="Arial">TS a 4 centri (syn)</text>';}},
+        {t:'② Dopo tre addizioni si ottiene un trialchilborano: il boro sul carbonio primario (meno sostituito).',
+         f:function(){return A(120,105,'R–CH₂','#0f172a',13)+A(200,105,'CH₂','#0f172a',13)+bd(160,105,178,105,1)+A(255,105,'BR₂','#0f172a',13)+bd(222,105,238,105,1)
+           +'<text x="190" y="175" text-anchor="middle" font-size="11" fill="#0f766e" font-family="Arial">alchilborano</text>';}},
+        {t:'③ Ossidazione (H₂O₂, OH⁻): il legame C–B diventa C–OH con ritenzione → alcol primario, anti-Markovnikov e syn.',
+         f:function(){return A(120,105,'R–CH₂','#0f172a',13)+A(200,105,'CH₂','#0f172a',13)+bd(160,105,178,105,1)+A(250,105,'OH','#0f172a')+bd(222,105,236,105,1)
+           +'<text x="190" y="175" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">alcol anti-Markovnikov</text>';}}
+      ]},
+    ozon:{name:'Ozonolisi dell\'alchene',type:'Ozonolisi',cat:'#c026d3',prof:[0.25,0.6,0.15],
+      note:'L\'ozono O₃ taglia il doppio legame C=C. Cicloaddizione 1,3-dipolare → <b>molozonide</b> → riarrangia in <b>ozonide</b> → riduzione (Zn/AcOH o Me₂S) dà due composti <b>carbonilici</b>. Serve a localizzare la posizione del doppio legame.',
+      stages:[
+        {t:'① L\'ozono (1,3-dipolo) fa una cicloaddizione all\'alchene → molozonide (anello a 5 con tre ossigeni).',
+         f:function(){return A(120,120,'C')+bd(138,116,202,116,2)+A(220,120,'C')
+           +A(170,55,'O','#0f172a',13)+A(140,80,'O','#0f172a',13)+A(200,80,'O','#0f172a',13)
+           +arr('M150,105 Q160,88 168,70',0)+arr('M190,105 Q182,88 175,70',0.15)
+           +'<text x="170" y="185" text-anchor="middle" font-size="11" fill="#a21caf" font-family="Arial">molozonide</text>';}},
+        {t:'② Il molozonide instabile si riarrangia (apertura/richiusura) nell\'ozonide, più stabile.',
+         f:function(){return '<g transform="translate(170,105)"><polygon points="0,-34 32,-10 20,30 -20,30 -32,-10" fill="none" stroke="#0f172a" stroke-width="2"/></g>'
+           +A(150,95,'O','#0f172a',12)+A(190,95,'O','#0f172a',12)+A(170,135,'O','#0f172a',12)
+           +'<text x="170" y="185" text-anchor="middle" font-size="11" fill="#a21caf" font-family="Arial">ozonide</text>';}},
+        {t:'③ Riduzione (Zn/AcOH o Me₂S): l\'ozonide si scinde → due composti carbonilici. Il C=C originale è "tagliato".',
+         f:function(){return A(90,110,'R','#0f172a',13)+bd(104,110,140,110,1)+A(155,110,'C')+bd(155,95,155,62,2)+A(155,50,'O','#0f172a')+A(115,140,'R','#0f172a',12)+bd(145,122,124,140,1)
+           +A(300,110,'O','#0f172a')+bd(288,110,272,110,2)+A(255,110,'C')+A(230,90,'R','#0f172a',12)+A(230,135,'H','#0f172a',12)
+           +'<text x="200" y="188" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">due carbonili</text>';}}
+      ]},
+    radbrom:{name:'Alogenazione radicalica (allilica/benzilica)',type:'Radicalica',cat:'#ea580c',prof:[0.2,0.65,0.2],
+      note:'Meccanismo <b>a catena radicalica</b> (frecce a mezza punta = singolo elettrone). <b>Inizio</b>: omolisi di Br₂/NBS per luce o calore. <b>Propagazione</b>: il radicale strappa un H allilico/benzilico (posizione stabilizzata per risonanza) e poi prende Br. La selettività è dovuta alla stabilità del radicale intermedio.',
+      stages:[
+        {t:'① Inizio: la luce (hν) scinde omoliticamente il legame Br–Br. Ogni atomo prende un elettrone (frecce a mezza punta) → 2 radicali Br•.',
+         f:function(){return A(150,105,'Br','#0f172a')+bd(168,105,232,105,1)+A(250,105,'Br','#0f172a')
+           +farr('M188,100 Q178,80 168,98',0)+farr('M212,100 Q222,80 232,98',0.1)
+           +'<text x="200" y="60" text-anchor="middle" font-size="12" fill="#c2410c" font-family="Arial">hν</text>'
+           +'<text x="200" y="175" text-anchor="middle" font-size="11" fill="#c2410c" font-family="Arial">omolisi → 2 Br•</text>';}},
+        {t:'② Propagazione (a): Br• strappa un idrogeno allilico/benzilico. Nasce un radicale carbonio stabilizzato per risonanza + HBr.',
+         f:function(){return A(60,105,'Br','#0f172a')+rad(78,98)+A(150,105,'C','#0f172a')+A(150,70,'H','#0f172a',12)+bd(150,90,150,80,1)
+           +bd(165,105,230,105,1)+A(250,105,'(π)','#0f172a',12)
+           +farr('M138,95 Q110,78 90,92',0)+farr('M150,88 Q135,80 122,90',0.15)
+           +'<text x="170" y="178" text-anchor="middle" font-size="11" fill="#c2410c" font-family="Arial">radicale allilico + HBr</text>';}},
+        {t:'③ Propagazione (b): il radicale C prende un Br da Br₂ → prodotto bromurato + nuovo Br• che continua la catena.',
+         f:function(){return A(120,105,'C','#0f172a')+rad(120,86)+bd(138,105,175,105,1)+A(195,105,'Br','#0f172a')+bd(213,105,240,105,1)+A(258,105,'Br','#0f172a')+rad(276,98)
+           +farr('M150,98 Q170,84 190,96',0)
+           +'<text x="190" y="178" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">prodotto + Br• (catena)</text>';}}
       ]}
   };
-  var ORDER=['sn2','e2','grig','aldol','fischer','sear'];
+  var ORDER=['sn2','sn1','e2','e1','eadd','hydrob','grig','aldol','fischer','sear','ozon','radbrom'];
 
   host.innerHTML=
     '<div style="background:linear-gradient(135deg,#1a1430,#0c1424);border:1px solid #a78bfa;border-radius:14px;padding:16px;margin:6px 0 14px">'
@@ -40693,6 +40823,7 @@ window.initSynTheater=function(){
     +'<div id="thTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>'
     +'<div id="thNote" style="color:#cdd9e6;font-size:.82rem;line-height:1.55;background:#0b1220;border-radius:8px;padding:9px 12px;margin-bottom:12px;border-left:3px solid #a78bfa"></div>'
     +'<div id="thStage"></div>'
+    +'<div id="thEnergy"></div>'
     +'<div id="thCap" style="min-height:52px;color:#e7eefb;font-size:.9rem;line-height:1.5;background:#0b1220;border-radius:8px;padding:11px 13px;margin:12px 0;border-left:3px solid #d97706"></div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
       +'<button id="thPlay" style="border:none;border-radius:9px;padding:8px 16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#a78bfa,#7c6fff);color:#0b0620">▶ Play</button>'
@@ -40705,7 +40836,7 @@ window.initSynTheater=function(){
     +'</div>';
 
   var tabsEl=host.querySelector('#thTabs'),noteEl=host.querySelector('#thNote'),stageEl=host.querySelector('#thStage'),
-      capEl=host.querySelector('#thCap'),dotsEl=host.querySelector('#thDots'),stepEl=host.querySelector('#thStep');
+      energyEl=host.querySelector('#thEnergy'),capEl=host.querySelector('#thCap'),dotsEl=host.querySelector('#thDots'),stepEl=host.querySelector('#thStep');
   var curKey='sn2', idx=0, playing=false, timer=null;
 
   function paintTabs(){
@@ -40734,6 +40865,7 @@ window.initSynTheater=function(){
     noteEl.innerHTML='<b style="color:'+M.cat+'">'+M.name+'</b> — '+M.note;
     var st=M.stages[idx];
     stageEl.innerHTML=frame(st.f());
+    energyEl.innerHTML=M.prof?energyDiagram(M.prof,idx,M.cat):'';
     capEl.innerHTML=st.t;
     stepEl.textContent='Stadio '+(idx+1)+' / '+M.stages.length;
     dots();
@@ -40770,7 +40902,13 @@ window._retroDisconnHTML=function(){
     {b:'C=C dell\'alchene',t:'R₂C=CR\'₂',syn:'carbonile (a⁺) + ilide (d⁻)',reag:'aldeide/chetone + sale di fosfonio + base',fwd:'Reazione di Wittig',note:'Taglia il doppio legame: un frammento diventa il carbonile, l\'altro l\'ilide del fosforo. Posizione del C=C garantita (a differenza dell\'eliminazione).'},
     {b:'C–C aril–alchile',t:'Ar–C(=O)–R / Ar–R',syn:'arene (d⁻) + acilio/carbocatione (a⁺)',reag:'arene + cloruro acilico (o alogenuro) + AlCl₃',fwd:'Acilazione/alchilazione di Friedel–Crafts',note:'Per catene aril-chetoniche usa l\'acilazione (niente riarrangiamenti). Poi eventuale riduzione di Clemmensen/Wolff-Kishner per l\'alchile.'},
     {b:'C–C in α all\'acido/estere',t:'R–CH₂–COOH',syn:'enolato del malonato (d⁻) + alogenuro (a⁺)',reag:'estere malonico + base + R–X, poi idrolisi/decarbossilazione',fwd:'Sintesi malonica',note:'Introduce un frammento –CH₂–COOH. Analoga: sintesi acetoacetica per metilchetoni sostituiti.'},
-    {b:'C–C biarile / arile–vinile',t:'Ar–Ar\' / Ar–CH=CH₂',syn:'Ar (d⁻ come organometallo) + Ar\'–X (a⁺)',reag:'Ar–B(OH)₂ + Ar\'–X + Pd(0)  ·  oppure Ar–X + alchene + Pd',fwd:'Suzuki / Heck (cross-coupling)',note:'La disconnessione moderna per eccellenza in farmaceutica: tollera moltissimi gruppi funzionali, condizioni blande, alta chemoselettività.'}
+    {b:'C–C biarile / arile–vinile',t:'Ar–Ar\' / Ar–CH=CH₂',syn:'Ar (d⁻ come organometallo) + Ar\'–X (a⁺)',reag:'Ar–B(OH)₂ + Ar\'–X + Pd(0)  ·  oppure Ar–X + alchene + Pd',fwd:'Suzuki / Heck (cross-coupling)',note:'La disconnessione moderna per eccellenza in farmaceutica: tollera moltissimi gruppi funzionali, condizioni blande, alta chemoselettività.'},
+    {b:'C–N dell\'ammide (legame peptidico)',t:'R–C(=O)–NR\'₂',syn:'acile (a⁺) + ammina (d⁻)',reag:'acido carbossilico attivato (cloruro acilico o + agente accoppiante EDC/DCC) + ammina',fwd:'Ammidazione / accoppiamento peptidico',note:'La disconnessione dell\'ammide è quasi sempre la prima da fare: taglia il C(=O)–N. In sintesi peptidica servono gruppi protettori e attivanti per evitare la racemizzazione.'},
+    {b:'C–O dell\'estere',t:'R–C(=O)–O–R\'',syn:'acile (a⁺) + alcossido (d⁻)',reag:'acido carbossilico + alcol (H⁺) oppure cloruro acilico + alcol',fwd:'Esterificazione di Fischer / acilazione',note:'Disconnetti il legame acile–O. In avanti: Fischer (equilibrio, togli acqua) o via cloruro acilico (irreversibile, con base).'},
+    {b:'C–C dell\'1,2-diolo',t:'R–CH(OH)–CH(OH)–R\'',syn:'due frammenti (da alchene)',reag:'alchene + OsO₄ (o KMnO₄ freddo)',fwd:'Diidrossilazione syn',note:'Il pattern 1,2-diolo suggerisce un alchene precursore diidrossilato syn. Relazione ossigenata "1,2" = FGI verso l\'alchene.'},
+    {b:'C–C dell\'1,3-diolo / composto β-idrossi',t:'HO–C–C–C–OH',syn:'aldolo → riduzione',reag:'prodotto aldolico + riduzione (NaBH₄)',fwd:'Aldolica + FGI',note:'Relazione 1,3 di ossigeni = firma dell\'aldolica. Riconoscere le "relazioni ossigenate" (1,2 · 1,3 · 1,5) è il trucco chiave dell\'analisi retrosintetica di Corey.'},
+    {b:'Anello a 6 (cicloesene)',t:'cicloesene sostituito',syn:'diene + dienofilo',reag:'1,3-diene + alchene/alchino povero di elettroni',fwd:'Diels–Alder [4+2]',note:'Ogni cicloesene con un doppio legame nell\'anello grida "Diels-Alder": disconnetti i due legami σ formati nella cicloaddizione (transform, non semplice disconnessione).'},
+    {b:'Epossido → 1,2-difunzionale',t:'anello a 3 con O',syn:'alchene',reag:'alchene + mCPBA (peracido)',fwd:'Epossidazione',note:'L\'epossido è un sintone elettrofilo versatile: apribile da nucleofili con inversione al carbonio meno ingombrato (basico) o più sostituito (acido).'}
   ];
   var html='';
   D.forEach(function(x,i){
@@ -40791,8 +40929,65 @@ window._retroDisconnHTML=function(){
   return '<div id="retroDisconn" style="background:#0a1628;border:1.5px solid #6bcfff;border-radius:14px;padding:16px;margin-bottom:18px">'
     +'<div style="color:#6bcfff;font-weight:800;font-size:1.05rem;margin-bottom:4px">🧩 Guida alle disconnessioni — la logica retrosintetica</div>'
     +'<div style="color:#9fb3c8;font-size:.84rem;line-height:1.6;margin-bottom:12px">Il cuore della retrosintesi: taglia il legame giusto (⇒) e ottieni i <b>sintoni</b> (frammenti carichi ideali), poi traducili nei <b>reagenti reali</b> equivalenti. Ogni disconnessione corrisponde a una reazione in avanti. Clicca per espandere.</div>'
-    +'<div id="rdList">'+html+'</div></div>';
+    +'<div id="rdList">'+html+'</div>'
+    +_retroSynthonRef()
+    +_retroWorked()
+    +'</div>';
 };
+/* Tabella dei sintoni: polarità e loro equivalenti reali (concetto di umpolung) */
+function _retroSynthonRef(){
+  var A=[
+    ['Acile',      'R–C⁺=O',        'a¹',"cloruro acilico, estere, aldeide"],
+    ['α-carbonile','⁺CH₂–C=O',      'a²',"α-alogeno chetone"],
+    ['β-carbonile','⁺CH–C–C=O',     'a³',"enone (accettore di Michael)"],
+    ['Alchile',    'R⁺',            '—',"alogenuro alchilico (SN2)"],
+    ['Arile/vinile','Ar⁺',          '—',"Ar–X + catalisi Pd"]
+  ];
+  var Dd=[
+    ['Acil-anione','R–C⁻=O',        'd¹',"ditiano litiato (umpolung!)"],
+    ['α-carbonile','⁻CH₂–C=O',      'd²',"enolato / enammina"],
+    ['β-carbonile','⁻CH–C–C=O',     'd³',"omoenolato"],
+    ['Carbanione', 'R⁻',            '—',"Grignard / organolitio"],
+    ['Arile/vinile','Ar⁻',          '—',"Ar–B(OH)₂, Ar–MgBr"]
+  ];
+  function tbl(rows,head,col){
+    var h='<table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-top:6px"><thead><tr>'
+      +'<th style="text-align:left;color:'+col+';padding:4px 6px;border-bottom:1px solid #1a3050">'+head+'</th>'
+      +'<th style="text-align:left;color:'+col+';padding:4px 6px;border-bottom:1px solid #1a3050">sintone</th>'
+      +'<th style="text-align:left;color:'+col+';padding:4px 6px;border-bottom:1px solid #1a3050">reagente reale</th></tr></thead><tbody>';
+    rows.forEach(function(r){h+='<tr><td style="padding:4px 6px;color:#cdd9e6;border-bottom:1px solid #12233a">'+r[0]+' <span style="color:#8fa3b8">'+(r[2]!=='—'?r[2]:'')+'</span></td><td style="padding:4px 6px;font-family:monospace;color:'+col+';border-bottom:1px solid #12233a">'+r[1]+'</td><td style="padding:4px 6px;color:#9fb3c8;border-bottom:1px solid #12233a">'+r[3]+'</td></tr>';});
+    return h+'</tbody></table>';
+  }
+  return '<details style="margin-top:14px;background:#0c1f33;border:1px solid #ffd93d;border-radius:10px;padding:0">'
+    +'<summary style="cursor:pointer;padding:11px 13px;font-weight:800;color:#ffd93d;font-size:.92rem;list-style:none">⚡ Polarità dei sintoni & umpolung <span style="float:right;color:#8fa3b8;font-size:.76rem;font-weight:600">a⁺ accettori · d⁻ donatori</span></summary>'
+    +'<div style="padding:0 14px 14px;color:#cdd9e6;font-size:.83rem;line-height:1.6">'
+      +'<p style="margin:6px 0">Ogni disconnessione produce due sintoni con <b>polarità opposta</b>: un <b style="color:#ff9d5c">accettore a⁺</b> e un <b style="color:#6bcfff">donatore d⁻</b>. La numerazione (a¹, a², a³ / d¹, d², d³) indica la distanza dal carbonile. La <b>polarità naturale</b> di un carbonile è: carbonio a¹ (elettrofilo), α d² (nucleofilo come enolato).</p>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">'
+        +'<div><div style="color:#ff9d5c;font-weight:700;font-size:.82rem">Sintoni accettori (a⁺, elettrofili)</div>'+tbl(A,'tipo','#ff9d5c')+'</div>'
+        +'<div><div style="color:#6bcfff;font-weight:700;font-size:.82rem">Sintoni donatori (d⁻, nucleofili)</div>'+tbl(Dd,'tipo','#6bcfff')+'</div>'
+      +'</div>'
+      +'<div style="margin-top:10px;background:#0a1628;border-left:3px solid #ffd93d;border-radius:0 8px 8px 0;padding:9px 12px;font-size:.82rem"><b style="color:#ffd93d">Umpolung (inversione di polarità):</b> a volte serve un sintone "innaturale" (es. un acil-anione d¹, mentre l\'acile è naturalmente a¹). Si realizza con reagenti speciali: il <b>ditiano</b> (Corey-Seebach) rende nucleofilo un carbonio che sarebbe elettrofilo; la <b>cianidrina</b> e le <b>enammine</b> sono altri classici trucchi di umpolung.</div>'
+    +'</div></details>';
+}
+/* Esempio guidato: retrosintesi multi-step di un target reale */
+function _retroWorked(){
+  var steps=[
+    ['🎯 Target','1-fenil-1-propanolo  (Ph–CH(OH)–CH₂CH₃)','Alcol secondario benzilico.'],
+    ['⇒ Disconnessione 1','Ph–CH(OH) | CH₂CH₃  →  benzaldeide (a¹) + etil⁻ (d)','Taglia il C–C accanto al carbinolo: sintone acile dal PhCHO, carbanione etilico.'],
+    ['Reagenti','PhCHO + CH₃CH₂MgBr','Addizione di Grignard, poi lavorazione acida.'],
+    ['⇒ Alternativa','Ph⁻ + propanale (a¹)','Oppure: PhMgBr + CH₃CH₂CHO — stessa logica, frammenti scambiati. Scegli in base a ciò che è disponibile/economico.'],
+    ['✅ Sintesi in avanti','PhCHO + EtMgBr → (H₃O⁺) → 1-fenil-1-propanolo','Una sola tappa. La retrosintesi ha trasformato un alcol in "carbonile + organometallo".']
+  ];
+  var h='<details style="margin-top:12px;background:#0c1f33;border:1px solid #1fd39a;border-radius:10px;padding:0">'
+    +'<summary style="cursor:pointer;padding:11px 13px;font-weight:800;color:#1fd39a;font-size:.92rem;list-style:none">🧪 Esempio guidato — retrosintesi passo-passo <span style="float:right;color:#8fa3b8;font-size:.76rem;font-weight:600">alcol secondario</span></summary>'
+    +'<div style="padding:2px 14px 14px">';
+  steps.forEach(function(s){
+    h+='<div style="display:flex;gap:10px;margin:8px 0;align-items:flex-start">'
+      +'<div style="min-width:120px;color:#6bcfff;font-weight:700;font-size:.8rem">'+s[0]+'</div>'
+      +'<div style="flex:1"><div style="font-family:monospace;color:#e9eef6;font-size:.82rem">'+s[1]+'</div><div style="color:#9fb3c8;font-size:.79rem;margin-top:2px">'+s[2]+'</div></div></div>';
+  });
+  return h+'</div></details>';
+}
 </script>
 </body>
 </html>
