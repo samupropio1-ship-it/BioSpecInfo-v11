@@ -798,6 +798,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sform">📐 Formule</button>
     <button class="nav-btn" data-s="sconst">⚛️ Costanti</button>
     <button class="nav-btn" data-s="sinorg">⚗️ Inorganica</button>
+    <button class="nav-btn" data-s="scft" style="border:1px solid #b388ff;background:linear-gradient(135deg,rgba(179,136,255,.16),rgba(94,234,212,.08))">🔶 Campo Cristallino</button>
+    <button class="nav-btn" data-s="sdistrib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">📊 Distribuzioni & Statistica</button>
     <button class="nav-btn" data-s="srxnbal">⚖️ Bilancia Rz.</button>
   <button class="nav-btn" data-s="sdbe">📐 Insaturazioni (DBE)</button></div>
   <div id="navGroup1" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
@@ -3259,6 +3261,8 @@ window.onload = function(){
       if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
       if(sec==='selucid' && typeof window.initElucid==='function') window.initElucid();
       if(sec==='spkcurve' && typeof window.initPKcurve==='function') window.initPKcurve();
+      if(sec==='scft' && typeof window.initCFT==='function') window.initCFT();
+      if(sec==='sdistrib' && typeof window.initDistrib==='function') window.initDistrib();
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
@@ -27865,6 +27869,8 @@ window.calcMolProps = function() {
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
 <div id="spkcurve" class="section"></div>
+<div id="scft" class="section"></div>
+<div id="sdistrib" class="section"></div>
 <div id="sglic" class="section"></div>
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
@@ -41529,6 +41535,212 @@ function _retroWorked(){
   });
   return h+'</div></details>';
 }
+
+/* ============================================================
+   CHIMICA INORGANICA — Teoria del Campo Cristallino (CFT)
+   ============================================================ */
+window.initCFT=function(){
+  var sec=document.getElementById('scft'); if(!sec||sec._init)return; sec._init=true;
+  var METALS=[
+    {n:'Ti³⁺',d:1,g:20300,P:0},{n:'V³⁺',d:2,g:18000,P:0},{n:'Cr³⁺',d:3,g:17400,P:0},
+    {n:'Mn²⁺',d:5,g:8000,P:25500},{n:'Fe²⁺',d:6,g:10000,P:17600},{n:'Fe³⁺',d:5,g:14000,P:30000},
+    {n:'Co³⁺',d:6,g:18200,P:21000},{n:'Co²⁺',d:7,g:9300,P:22500},{n:'Ni²⁺',d:8,g:8700,P:0},{n:'Cu²⁺',d:9,g:12000,P:0}
+  ];
+  var LIGS=[{n:'Br⁻',f:0.72},{n:'Cl⁻',f:0.78},{n:'F⁻',f:0.90},{n:'OH⁻',f:0.94},{n:'H₂O',f:1.00},{n:'NH₃',f:1.25},{n:'en',f:1.28},{n:'CN⁻',f:1.70},{n:'CO',f:1.90}];
+  sec.innerHTML=
+    '<div class="section-title">🔶 TEORIA DEL CAMPO CRISTALLINO — complessi dei metalli di transizione</div>'
+    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:840px;margin-bottom:14px">I leganti spezzano la degenerazione degli orbitali <b>d</b>. L\'entità dello splitting <b>Δ</b> dipende da geometria, metallo e forza del legante (serie spettrochimica). Se Δ supera l\'energia di appaiamento <b>P</b> → <b>basso spin</b>; altrimenti <b>alto spin</b>. Il Δ determina anche il <b>colore</b> del complesso.</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px">'
+      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Geometria<br><select id="cftGeo" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px"><option value="oct">Ottaedrica</option><option value="tet">Tetraedrica</option><option value="sp">Quadrato planare</option></select></label>'
+      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Ione metallico<br><select id="cftMet" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px">'+METALS.map(function(m,i){return '<option value="'+i+'"'+(i===6?' selected':'')+'>'+m.n+' (d'+m.d+')</option>';}).join('')+'</select></label>'
+      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Legante<br><select id="cftLig" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px">'+LIGS.map(function(l,i){return '<option value="'+i+'"'+(l.n==='H₂O'?' selected':'')+'>'+l.n+(l.f<0.95?' (campo debole)':l.f>1.4?' (campo forte)':'')+'</option>';}).join('')+'</select></label>'
+    +'</div>'
+    +'<div id="cftDiag" style="text-align:center;margin-bottom:12px"></div>'
+    +'<div id="cftInfo" style="font-size:.88rem;color:#e7eefb;line-height:1.6;background:#0c1f33;border-radius:10px;padding:14px;border-left:3px solid #b388ff"></div>';
+  function orb(x,y,w,cnt){ // livello orbitale con elettroni (cnt 0,1,2)
+    var s='<line x1="'+x+'" y1="'+y+'" x2="'+(x+w)+'" y2="'+y+'" stroke="#cbd5e1" stroke-width="3"/>';
+    if(cnt>=1)s+='<text x="'+(x+w/2-6)+'" y="'+(y-3)+'" font-size="17" fill="#5eead4" text-anchor="middle" font-family="Arial">↑</text>';
+    if(cnt>=2)s+='<text x="'+(x+w/2+6)+'" y="'+(y+9)+'" font-size="17" fill="#ff7859" text-anchor="middle" font-family="Arial">↓</text>';
+    return s;
+  }
+  function absToObs(nm){
+    if(nm<400||nm>700)return ['—','#6b7d90','incolore / pallido (assorbe fuori dal visibile)'];
+    var map=[[430,'giallo-verde','#c8d900'],[480,'giallo','#ffe600'],[490,'arancione','#ff8a00'],[500,'rosso','#ff2d2d'],[560,'magenta','#e0189a'],[580,'violetto','#7c3aed'],[595,'blu','#2563eb'],[620,'verde-azzurro','#00b3a4'],[700,'verde-blu','#0ea5e9']];
+    for(var i=0;i<map.length;i++){ if(nm<=map[i][0])return [map[i][1],map[i][2],'assorbe a ~'+nm.toFixed(0)+' nm ('+ (nm<450?'violetto':nm<490?'blu':nm<560?'verde':nm<590?'giallo':'rosso') +')']; }
+    return ['verde-blu','#0ea5e9','assorbe nel rosso'];
+  }
+  function render(){
+    var geo=sec.querySelector('#cftGeo').value, M=METALS[+sec.querySelector('#cftMet').value], Lg=LIGS[+sec.querySelector('#cftLig').value];
+    var Do=M.g*Lg.f; // cm-1 (ottaedrico)
+    var W=420,H=250, svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:440px;background:#081522;border-radius:10px">';
+    var d=M.d, info='', unpaired=0, cfse=0, spin='', deltaTxt='', lambda=0;
+    if(geo==='oct'){
+      var lowSpin=(d>=4&&d<=7&&Do>M.P);
+      var order=lowSpin?[0,1,2,0,1,2,3,4,3,4]:[0,1,2,3,4,0,1,2,3,4];
+      var oc=[0,0,0,0,0]; for(var e=0;e<d;e++)oc[order[e]]++;
+      var yT=170,yE=70,x0=90,ow=70,gap=26;
+      // t2g (3) e eg (2)
+      svg+=orb(x0,yE,ow,oc[3])+orb(x0+ow+gap,yE,ow,oc[4]);
+      svg+=orb(x0-10,yT,ow,oc[0])+orb(x0+ow-4,yT,ow,oc[1])+orb(x0+2*ow+2,yT,ow,oc[2]);
+      svg+='<text x="'+(x0+ow)+'" y="55" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">e_g</text>';
+      svg+='<text x="'+(x0+ow)+'" y="200" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">t_2g</text>';
+      svg+='<line x1="300" y1="'+yE+'" x2="300" y2="'+yT+'" stroke="#f5c451" stroke-width="1" stroke-dasharray="4 3"/><text x="330" y="'+((yE+yT)/2)+'" fill="#f5c451" font-size="13" font-family="Arial">Δ_o</text>';
+      var nT=oc[0]+oc[1]+oc[2], nE=oc[3]+oc[4]; cfse=(-0.4*nT+0.6*nE);
+      unpaired=oc.filter(function(c){return c===1;}).length;
+      spin=(d>=4&&d<=7)?(lowSpin?'BASSO spin':'ALTO spin'):'(unico)';
+      deltaTxt='Δ_o = f·g = '+Lg.f+'×'+M.g+' = <b>'+Do.toFixed(0)+' cm⁻¹</b>';
+      lambda=1e7/Do;
+    } else if(geo==='tet'){
+      var Dt=Do*4/9;
+      var order=[0,1,2,3,4,0,1,2,3,4]; var oc=[0,0,0,0,0]; for(var e=0;e<d;e++)oc[order[e]]++;
+      // e (2, basso), t2 (3, alto)
+      var yE=175,yT=70,x0=90,ow=70,gap=26;
+      svg+=orb(x0-10,yT,ow,oc[2])+orb(x0+ow-4,yT,ow,oc[3])+orb(x0+2*ow+2,yT,ow,oc[4]);
+      svg+=orb(x0+ow*0.5,yE,ow,oc[0])+orb(x0+ow*1.5+gap,yE,ow,oc[1]);
+      svg+='<text x="'+(x0+ow)+'" y="205" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">e</text>';
+      svg+='<text x="'+(x0+ow)+'" y="55" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">t_2</text>';
+      svg+='<text x="330" y="120" fill="#f5c451" font-size="13" font-family="Arial">Δ_t</text>';
+      var nE=oc[0]+oc[1], nT=oc[2]+oc[3]+oc[4]; cfse=(-0.6*nE+0.4*nT);
+      unpaired=oc.filter(function(c){return c===1;}).length; spin='ALTO spin (sempre)';
+      deltaTxt='Δ_t = 4/9·Δ_o ≈ <b>'+Dt.toFixed(0)+' cm⁻¹</b> (troppo piccolo per basso spin)';
+      lambda=1e7/Dt;
+    } else { // square planar
+      // livelli (dal basso): dxz,dyz (2 orb), dz2, dxy, dx2-y2
+      var levels=[{lab:'d_xz,d_yz',y:180,n:2},{lab:'d_z²',y:150,n:1},{lab:'d_xy',y:110,n:1},{lab:'d_x²-y²',y:55,n:1}];
+      var caps=[4,2,2,2], oc=[0,0,0,0], rem=d;
+      for(var i=0;i<levels.length&&rem>0;i++){ var take=Math.min(caps[i],rem); oc[i]=take; rem-=take; }
+      var x0=110,ow=80;
+      svg+=orb(x0,levels[0].y,ow*0.7,Math.min(2,oc[0]))+orb(x0+ow,levels[0].y,ow*0.7,Math.max(0,oc[0]-2));
+      for(var i=1;i<4;i++){ svg+=orb(x0+ow*0.4,levels[i].y,ow,oc[i]); svg+='<text x="'+(x0-4)+'" y="'+(levels[i].y+4)+'" fill="#b388ff" font-size="11" text-anchor="end" font-family="Arial">'+levels[i].lab+'</text>'; }
+      svg+='<text x="'+(x0-4)+'" y="184" fill="#b388ff" font-size="11" text-anchor="end" font-family="Arial">d_xz,d_yz</text>';
+      unpaired=oc.reduce(function(a,c,i){ var cap=caps[i]; if(i===0){return a+(c%2);} return a+(c===1?1:0); },0);
+      spin=(d===8?'basso spin (diamagnetico se forte campo)':''); cfse=0;
+      deltaTxt='Splitting a 4 livelli, tipico dei <b>d8</b> con leganti forti (es. [Ni(CN)₄]²⁻, complessi di Pt/Pd)';
+      lambda=1e7/(Do*1.3);
+    }
+    svg+='</svg>';
+    sec.querySelector('#cftDiag').innerHTML=svg;
+    var col=absToObs(lambda);
+    sec.querySelector('#cftInfo').innerHTML=
+      '<b style="color:#b388ff">'+M.n+' con '+Lg.n+' ('+({oct:'ottaedrico',tet:'tetraedrico',sp:'quadrato planare'})[geo]+')</b><br>'
+      +deltaTxt+'<br>'
+      +'Elettroni d: <b>'+d+'</b> · elettroni spaiati: <b>'+unpaired+'</b> ('+(unpaired>0?'paramagnetico':'diamagnetico')+') · stato: <b>'+spin+'</b>'
+      +(geo!=='sp'?'<br>CFSE ≈ <b>'+cfse.toFixed(1)+' Δ</b>'+((geo==='oct'&&d>=4&&d<=7)?' + eventuale energia di appaiamento (P = '+M.P.toLocaleString('it')+' cm⁻¹, '+(Do>M.P?'Δ&gt;P → basso spin':'Δ&lt;P → alto spin')+')':''):'')
+      +'<br>Colore: <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:'+col[1]+';vertical-align:middle;border:1px solid #333"></span> <b>'+col[0]+'</b> — '+col[2]+' (colore osservato = complementare dell\'assorbito).';
+  }
+  ['cftGeo','cftMet','cftLig'].forEach(function(id){sec.querySelector('#'+id).onchange=render;});
+  render();
+};
+
+/* ============================================================
+   DATA SCIENCE — Distribuzioni di probabilità & statistica
+   ============================================================ */
+window.initDistrib=function(){
+  var sec=document.getElementById('sdistrib'); if(!sec||sec._init)return; sec._init=true;
+  sec.innerHTML=
+    '<div class="section-title">📊 DISTRIBUZIONI DI PROBABILITÀ & STATISTICA INFERENZIALE</div>'
+    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:840px;margin-bottom:14px">Le distribuzioni che stanno dietro a ogni analisi dati. Scegli una distribuzione, regola i parametri e osserva la funzione di densità/massa (PDF/PMF) e cumulativa (CDF), con media, varianza e le probabilità chiave.</div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="dbTabs"></div>'
+    +'<div id="dbCtrls" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px"></div>'
+    +'<canvas id="dbCv" width="900" height="360" style="width:100%;max-width:900px;background:#081522;border-radius:12px;display:block;border:1px solid rgba(107,207,255,.2)"></canvas>'
+    +'<div id="dbInfo" style="margin-top:12px;font-size:.86rem;color:#cdd9e6;line-height:1.6;background:#0c1f33;border-radius:10px;padding:12px 14px;border-left:3px solid #6bcfff"></div>'
+    +'<div style="margin-top:20px;background:#0c1f33;border:1px solid #a78bfa;border-radius:12px;padding:16px">'
+      +'<div style="color:#c9b6ff;font-weight:800;font-size:1.05rem;margin-bottom:2px">🧪 Teorema di Bayes — il paradosso del test diagnostico</div>'
+      +'<div style="color:#9fb3c8;font-size:.82rem;line-height:1.5;margin-bottom:10px;max-width:760px">Un test "affidabile" può ingannare: se la malattia è rara, la maggior parte dei positivi sono <b>falsi positivi</b>. Bayes calcola la vera probabilità di essere malati dato un test positivo (valore predittivo positivo).</div>'
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px">'
+        +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.76rem;color:#9fb3c8;min-width:170px;flex:1">Prevalenza malattia: <b id="byPrev" style="color:#a78bfa">1.0%</b><input id="byP" type="range" min="0.1" max="50" step="0.1" value="1" style="accent-color:#a78bfa"></label>'
+        +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.76rem;color:#9fb3c8;min-width:170px;flex:1">Sensibilità (veri pos.): <b id="bySens" style="color:#a78bfa">95%</b><input id="bySe" type="range" min="50" max="100" step="1" value="95" style="accent-color:#a78bfa"></label>'
+        +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.76rem;color:#9fb3c8;min-width:170px;flex:1">Specificità (veri neg.): <b id="bySpec" style="color:#a78bfa">95%</b><input id="bySp" type="range" min="50" max="100" step="1" value="95" style="accent-color:#a78bfa"></label>'
+      +'</div>'
+      +'<canvas id="byCv" width="880" height="150" style="width:100%;max-width:880px;background:#081522;border-radius:8px;display:block"></canvas>'
+      +'<div id="byInfo" style="font-size:.86rem;color:#cdd9e6;line-height:1.6;margin-top:10px"></div>'
+    +'</div>';
+  var DIST=[
+    {id:'norm',t:'🔔 Normale',ctrls:[['μ media','dbMu',-5,5,0,0.5],['σ dev.std','dbSig',0.3,4,1,0.1]],disc:false},
+    {id:'binom',t:'🎲 Binomiale',ctrls:[['n prove','dbN',1,40,20,1],['p successo','dbP',0.05,0.95,0.5,0.05]],disc:true},
+    {id:'pois',t:'📮 Poisson',ctrls:[['λ media','dbLam',0.5,20,4,0.5]],disc:true},
+    {id:'exp',t:'⏱️ Esponenziale',ctrls:[['λ tasso','dbRate',0.2,3,1,0.1]],disc:false},
+    {id:'unif',t:'▬ Uniforme',ctrls:[['a','dbA',-5,3,0,0.5],['b','dbB',1,8,4,0.5]],disc:false}
+  ];
+  var tabsEl=sec.querySelector('#dbTabs'), ctrlsEl=sec.querySelector('#dbCtrls'), cur='norm';
+  var cv=sec.querySelector('#dbCv'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  function erf(x){ var t=1/(1+0.3275911*Math.abs(x)); var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x); return x>=0?y:-y; }
+  function normPDF(x,mu,s){ return Math.exp(-(x-mu)*(x-mu)/(2*s*s))/(s*Math.sqrt(2*Math.PI)); }
+  function normCDF(x,mu,s){ return 0.5*(1+erf((x-mu)/(s*Math.sqrt(2)))); }
+  function fact(n){ var r=1; for(var i=2;i<=n;i++)r*=i; return r; }
+  function comb(n,k){ return fact(n)/(fact(k)*fact(n-k)); }
+  function paintTabs(){ tabsEl.innerHTML=''; DIST.forEach(function(D){ var on=D.id===cur; var b=document.createElement('button'); b.textContent=D.t; b.style.cssText='border:1px solid '+(on?'#6bcfff':'rgba(148,163,184,.3)')+';background:'+(on?'rgba(107,207,255,.18)':'transparent')+';color:'+(on?'#dff3ff':'#9fb3c8')+';border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:.82rem'; b.onclick=function(){cur=D.id;paintTabs();buildCtrls();draw();}; tabsEl.appendChild(b); }); }
+  function buildCtrls(){ var D=DIST.filter(function(d){return d.id===cur;})[0]; ctrlsEl.innerHTML=D.ctrls.map(function(c){ return '<label style="display:flex;flex-direction:column;gap:2px;font-size:.78rem;color:#9fb3c8;min-width:170px;flex:1">'+c[0]+': <b id="'+c[1]+'v" style="color:#6bcfff">'+c[4]+'</b><input type="range" id="'+c[1]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[5]+'" value="'+c[4]+'" style="accent-color:#6bcfff"></label>'; }).join(''); D.ctrls.forEach(function(c){ sec.querySelector('#'+c[1]).oninput=draw; }); }
+  function val(id){return parseFloat(sec.querySelector('#'+id).value);}
+  function draw(){
+    var pad={l:50,r:16,t:16,b:34}, plotW=W-pad.l-pad.r, plotH=H-pad.t-pad.b;
+    ctx.clearRect(0,0,W,H);
+    var D=DIST.filter(function(d){return d.id===cur;})[0];
+    var xs=[],pdf=[],cdf=[],mean,varr,info='',x0,x1;
+    if(cur==='norm'){ var mu=val('dbMu'),s=val('dbSig'); sec.querySelector('#dbMuv').textContent=mu.toFixed(1); sec.querySelector('#dbSigv').textContent=s.toFixed(1);
+      x0=mu-4*s;x1=mu+4*s; for(var i=0;i<=200;i++){var x=x0+(x1-x0)*i/200;xs.push(x);pdf.push(normPDF(x,mu,s));cdf.push(normCDF(x,mu,s));} mean=mu;varr=s*s;
+      info='<b>Normale N(μ='+mu.toFixed(1)+', σ='+s.toFixed(1)+')</b>. Regola <b>68–95–99,7</b>: il 68% dei dati cade in μ±σ, il 95% in μ±2σ, il 99,7% in μ±3σ. È la distribuzione del teorema del limite centrale.'; }
+    else if(cur==='binom'){ var n=Math.round(val('dbN')),p=val('dbP'); sec.querySelector('#dbNv').textContent=n; sec.querySelector('#dbPv').textContent=p.toFixed(2);
+      x0=0;x1=n; var cum=0; for(var k=0;k<=n;k++){var pk=comb(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k);xs.push(k);pdf.push(pk);cum+=pk;cdf.push(cum);} mean=n*p;varr=n*p*(1-p);
+      info='<b>Binomiale B(n='+n+', p='+p.toFixed(2)+')</b>: numero di successi in n prove indipendenti. Per n grande e p non estremo tende alla normale.'; }
+    else if(cur==='pois'){ var lam=val('dbLam'); sec.querySelector('#dbLamv').textContent=lam.toFixed(1);
+      x0=0;x1=Math.max(10,Math.ceil(lam+4*Math.sqrt(lam))); var cum=0; for(var k=0;k<=x1;k++){var pk=Math.pow(lam,k)*Math.exp(-lam)/fact(k);xs.push(k);pdf.push(pk);cum+=pk;cdf.push(cum);} mean=lam;varr=lam;
+      info='<b>Poisson(λ='+lam.toFixed(1)+')</b>: numero di eventi rari in un intervallo (media = varianza = λ). Es. conteggi radioattivi, mutazioni, arrivi.'; }
+    else if(cur==='exp'){ var r=val('dbRate'); sec.querySelector('#dbRatev').textContent=r.toFixed(1);
+      x0=0;x1=6/r; for(var i=0;i<=200;i++){var x=x0+(x1-x0)*i/200;xs.push(x);pdf.push(r*Math.exp(-r*x));cdf.push(1-Math.exp(-r*x));} mean=1/r;varr=1/(r*r);
+      info='<b>Esponenziale(λ='+r.toFixed(1)+')</b>: tempo di attesa tra eventi di Poisson. È <b>senza memoria</b>. Media = 1/λ.'; }
+    else { var a=val('dbA'),b=val('dbB'); if(b<=a)b=a+0.5; sec.querySelector('#dbAv').textContent=a.toFixed(1); sec.querySelector('#dbBv').textContent=b.toFixed(1);
+      x0=a-1;x1=b+1; for(var i=0;i<=200;i++){var x=x0+(x1-x0)*i/200;xs.push(x);pdf.push((x>=a&&x<=b)?1/(b-a):0);cdf.push(x<a?0:x>b?1:(x-a)/(b-a));} mean=(a+b)/2;varr=(b-a)*(b-a)/12;
+      info='<b>Uniforme U('+a.toFixed(1)+', '+b.toFixed(1)+')</b>: ogni valore nell\'intervallo è equiprobabile. Media = (a+b)/2.'; }
+    var pmax=Math.max.apply(null,pdf)||1;
+    function X(x){return pad.l+(x-x0)/((x1-x0)||1)*plotW;} function Y(v){return pad.t+plotH-v/(pmax*1.12)*plotH;} function Yc(v){return pad.t+plotH-v*plotH;}
+    // assi
+    ctx.strokeStyle='#26406a';ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,pad.t+plotH);ctx.lineTo(W-pad.r,pad.t+plotH);ctx.stroke();
+    ctx.fillStyle='#7f92a6';ctx.font='11px system-ui';ctx.textAlign='center';
+    for(var g=0;g<=5;g++){var xv=x0+(x1-x0)*g/5;ctx.fillText((D.disc?Math.round(xv):xv.toFixed(1)),X(xv),pad.t+plotH+16);}
+    // CDF
+    ctx.strokeStyle='rgba(245,196,81,.8)';ctx.lineWidth=1.6;ctx.beginPath();xs.forEach(function(x,i){var px=X(x),py=Yc(cdf[i]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+    // PDF/PMF
+    if(D.disc){ var bw=Math.max(2,plotW/(xs.length)*0.8); xs.forEach(function(x,i){var px=X(x),py=Y(pdf[i]); ctx.fillStyle='#6bcfff'; ctx.fillRect(px-bw/2,py,bw,pad.t+plotH-py);}); }
+    else { ctx.strokeStyle='#6bcfff';ctx.lineWidth=2.4;ctx.beginPath();xs.forEach(function(x,i){var px=X(x),py=Y(pdf[i]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+      ctx.lineTo(X(x1),pad.t+plotH);ctx.lineTo(X(x0),pad.t+plotH);ctx.closePath();ctx.fillStyle='rgba(107,207,255,.10)';ctx.fill(); }
+    // media
+    ctx.strokeStyle='rgba(255,120,89,.7)';ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(X(mean),pad.t);ctx.lineTo(X(mean),pad.t+plotH);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#ff7859';ctx.textAlign='left';ctx.fillText('μ',X(mean)+3,pad.t+10);
+    ctx.fillStyle='#6bcfff';ctx.fillText('■ PDF/PMF',pad.l+4,pad.t+10);ctx.fillStyle='#f5c451';ctx.fillText('■ CDF',pad.l+80,pad.t+10);
+    sec.querySelector('#dbInfo').innerHTML=info+'<br><b>Media = '+mean.toFixed(2)+'</b> · <b>Varianza = '+varr.toFixed(2)+'</b> · deviazione standard = '+Math.sqrt(varr).toFixed(2)+'.';
+  }
+  // --- Bayes / test diagnostico ---
+  function drawBayes(){
+    var prev=val('byP')/100, se=val('bySe')/100, sp=val('bySp')/100;
+    sec.querySelector('#byPrev').textContent=(prev*100).toFixed(1)+'%';
+    sec.querySelector('#bySens').textContent=(se*100).toFixed(0)+'%';
+    sec.querySelector('#bySpec').textContent=(sp*100).toFixed(0)+'%';
+    var N=10000, sick=N*prev, well=N-sick;
+    var TP=sick*se, FN=sick-TP, TN=well*sp, FP=well-TN;
+    var PPV=TP+FP>0?TP/(TP+FP):0, NPV=TN+FN>0?TN/(TN+FN):0;
+    var bc=sec.querySelector('#byCv'), x=bc.getContext('2d'), W=bc.width, H=bc.height;
+    x.clearRect(0,0,W,H);
+    // barra proporzionale dei 4 gruppi
+    var y=30,h=60,total=N,xx=20,bw=W-40;
+    var segs=[['TP',TP,'#5eead4'],['FP',FP,'#ff7859'],['FN',FN,'#f5c451'],['TN',FP+TP+FN<total?TN:TN,'#334155']];
+    var cx=xx;
+    segs.forEach(function(s){ var w=s[1]/total*bw; x.fillStyle=s[2]; x.fillRect(cx,y,w,h);
+      if(w>34){ x.fillStyle='#081522'; x.font='bold 12px system-ui'; x.textAlign='center'; x.fillText(s[0],cx+w/2,y+h/2+4); } cx+=w; });
+    x.fillStyle='#9fb3c8'; x.font='11px system-ui'; x.textAlign='left';
+    x.fillText('Su '+N.toLocaleString('it')+' persone: '+Math.round(TP)+' veri pos · '+Math.round(FP)+' falsi pos · '+Math.round(FN)+' falsi neg · '+Math.round(TN)+' veri neg',xx,20);
+    // legenda
+    x.textAlign='left'; var lx=xx,ly=y+h+22;
+    [['■ TP veri positivi','#5eead4'],['■ FP falsi positivi','#ff7859'],['■ FN falsi negativi','#f5c451'],['■ TN veri negativi','#94a3b8']].forEach(function(l,i){ x.fillStyle=l[1]; x.fillText(l[0],lx,ly); lx+=170; });
+    sec.querySelector('#byInfo').innerHTML=
+      'Se il test è <b>positivo</b>, la probabilità di essere davvero malato (VPP) è solo <b style="color:'+(PPV<0.5?'#ff7859':'#5eead4')+'">'+(PPV*100).toFixed(1)+'%</b>'
+      +(PPV<0.5?' — cioè la maggioranza dei positivi sono <b>falsi allarmi</b>! È il "paradosso del test": con malattia rara anche un ottimo test genera tanti falsi positivi.':'.')
+      +'<br>Se il test è <b>negativo</b>, la probabilità di essere sano (VPN) è <b>'+(NPV*100).toFixed(2)+'%</b>. '
+      +'<span style="color:#7f92a6">Formula di Bayes: P(malato|+) = [Se·prev] / [Se·prev + (1−Sp)·(1−prev)].</span>';
+  }
+  ['byP','bySe','bySp'].forEach(function(id){ var el=sec.querySelector('#'+id); if(el)el.oninput=drawBayes; });
+  paintTabs();buildCtrls();draw();drawBayes();
+};
 
 /* ============================================================
    FARMACI — Curve farmacocinetiche interattive (C vs t)
