@@ -807,7 +807,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="snoe">🔗 NMR 2D/NOE</button>
     <button class="nav-btn" data-s="suvvis">🌈 UV-Vis</button>
     <button class="nav-btn" data-s="snmrpred">📡 NMR Pred.</button>
-  <button class="nav-btn" data-s="squizspec">🎯 Quiz Spettri</button></div>
+  <button class="nav-btn" data-s="squizspec">🎯 Quiz Spettri</button><button class="nav-btn" data-s="selucid" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">🧩 Elucidazione Strutturale</button></div>
   <div id="navGroup2" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="saa">🧬 Amminoacidi</button>
     <button class="nav-btn" data-s="sbio">🧫 Biomolecole</button>
@@ -2090,7 +2090,12 @@ window.BSI_TELEMETRY_URL='';</script>
           +_dsMetricCard('recall (sensib.)',(rec*100).toFixed(0)+'%')
           +_dsMetricCard('F1',f1.toFixed(2))
           +'<div style="font-size:.72rem;color:#6b7d90;line-height:1.5;margin-top:4px">La <b>ROC</b> traccia il tasso di veri positivi contro i falsi positivi al variare della soglia. <b>AUC</b>=1 è perfetto, 0,5 è il caso.</div>'
-        +'</div></div>';
+        +'</div></div>'
+        +'<div style="margin-top:12px;background:#0a1628;border:1px solid #16273e;border-radius:10px;padding:11px 13px">'
+          +'<div style="color:#8fa3b8;font-size:.76rem;margin-bottom:6px">🎚️ Soglia di decisione interattiva — sposta per vedere il compromesso precisione/recall</div>'
+          +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><input id="dsThr" type="range" min="0" max="1" step="0.05" value="0.5" style="flex:1;min-width:160px;accent-color:#5eead4"><span style="color:#5eead4;font-weight:700;font-size:.82rem;font-family:ui-monospace,monospace">t=<span id="dsThrV">0.50</span></span></div>'
+          +'<div id="dsThrOut" style="font-size:.8rem;color:#cdd9e6;margin-top:8px"></div>'
+        +'</div>';
     }
     // confusion matrix table
     var cmH='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.72rem;margin-top:4px"><thead><tr><th style="padding:4px 7px;color:#8fa3b8;font-size:.66rem">reale＼previsto</th>'+classes.map(function(c){return '<th style="padding:4px 7px;color:#cdd9e6">'+c+'</th>';}).join('')+'</tr></thead><tbody>';
@@ -2104,7 +2109,17 @@ window.BSI_TELEMETRY_URL='';</script>
       binExtra+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
       _dsPredictUI(meta,target);
-    if(classes.length===2){ try{ _dsDrawROC('dsRoc',_dsROC(teScores,teLab)); }catch(e){} }
+    if(classes.length===2){ try{ _dsDrawROC('dsRoc',_dsROC(teScores,teLab)); }catch(e){}
+      (function(){ var thr=document.getElementById('dsThr'); if(!thr)return;
+        function upd(){ var t=+thr.value; document.getElementById('dsThrV').textContent=t.toFixed(2);
+          var tp=0,fp=0,tn=0,fn=0;
+          for(var i=0;i<teScores.length;i++){ var pred=teScores[i]>=t?1:0; if(pred===1&&teLab[i]===1)tp++; else if(pred===1)fp++; else if(teLab[i]===1)fn++; else tn++; }
+          var pr=tp+fp>0?tp/(tp+fp):0, rc=tp+fn>0?tp/(tp+fn):0, f=pr+rc>0?2*pr*rc/(pr+rc):0, ac=teScores.length?(tp+tn)/teScores.length:0;
+          document.getElementById('dsThrOut').innerHTML='TP '+tp+' · FP '+fp+' · FN '+fn+' · TN '+tn+' &nbsp;→&nbsp; precisione <b style="color:#5eead4">'+(pr*100).toFixed(0)+'%</b> · recall <b style="color:#5eead4">'+(rc*100).toFixed(0)+'%</b> · F1 <b style="color:#5eead4">'+f.toFixed(2)+'</b> · accuratezza <b style="color:#5eead4">'+(ac*100).toFixed(0)+'%</b>';
+        }
+        thr.oninput=upd; upd();
+      })();
+    }
     _DSWB.model={type:'clf',meta:meta,poly:poly,mu:st.mu,sd:st.sd,Z:Z,y:y,k:k,target:target};
     var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
   }
@@ -3227,6 +3242,7 @@ window.onload = function(){
       if(sec==='sinorg' && typeof window.initInorganic==='function') window.initInorganic();
       if(sec==='sretro' && typeof window.initRetro==='function') window.initRetro();
       if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
+      if(sec==='selucid' && typeof window.initElucid==='function') window.initElucid();
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
@@ -27827,6 +27843,7 @@ window.calcMolProps = function() {
 <div id="s3dpro" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
+<div id="selucid" class="section"></div>
 <div id="sglic" class="section"></div>
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
@@ -37116,7 +37133,7 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
 <body>
 <div class="wrap">
   <div class="brand">Laboratorio Quantistico &amp; Fisico</div>
-  <div class="sub">Dieci moduli interattivi a matematica esatta · BioSpecInfo</div>
+  <div class="sub">Quattordici moduli interattivi a matematica esatta · BioSpecInfo</div>
   <div class="tabs" id="tabs">
     <div class="tab on" data-m="orb"><span class="ic">🔮</span>Orbitali idrogeno 3D</div>
     <div class="tab" data-m="hyd"><span class="ic">⚛️</span>Emissione idrogeno</div>
@@ -37130,6 +37147,8 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
     <div class="tab" data-m="mb"><span class="ic">🌡️</span>Maxwell–Boltzmann</div>
     <div class="tab" data-m="jab"><span class="ic">✨</span>Diagramma di Jablonski</div>
     <div class="tab" data-m="kin2"><span class="ic">📈</span>Cinetica avanzata</div>
+    <div class="tab" data-m="tunnel"><span class="ic">🚧</span>Effetto tunnel</div>
+    <div class="tab" data-m="black"><span class="ic">🔥</span>Corpo nero (Planck)</div>
   </div>
 
   <div class="mod on" id="m-orb"><div class="panel">
@@ -37227,7 +37246,26 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
 <div class="mod" id="m-jab"><div class="ctrl"><span class="lbl">Transizione:</span><div class="chips" id="jabSel"><div class="chip on" data-j="abs">Assorbimento</div><div class="chip" data-j="fluo">Fluorescenza</div><div class="chip" data-j="phos">Fosforescenza</div><div class="chip" data-j="ic">Conversione interna</div><div class="chip" data-j="isc">Incrocio intersistema</div></div></div><canvas id="cJab" width="1000" height="440"></canvas><div class="info" id="jabInfo"></div></div>
 <div class="mod" id="m-kin2"><div class="panel"><div class="mtitle">Cinetica avanzata · ordini di reazione, enzimi, inibizione</div><div class="mdesc">Seleziona il grafico: gli ordini di reazione mostrano come varia [A] nel tempo; Michaelis-Menten la velocità in funzione del substrato; l'inibizione confronta i tipi; lo stato di transizione il profilo energetico del complesso attivato.</div><div class="ctrl"><span class="lbl">Grafico:</span><div class="chips" id="kin2Sel"><div class="chip on" data-k="ord">Ordini di reazione</div><div class="chip" data-k="mm">Michaelis-Menten</div><div class="chip" data-k="inh">Inibizione enzimatica</div><div class="chip" data-k="ts">Stato di transizione</div></div></div><canvas id="cKin2" width="1000" height="440"></canvas><div class="info" id="kin2Info"></div></div></div>
 
-  
+  <div class="mod" id="m-tunnel"><div class="panel">
+    <div class="mtitle">Effetto tunnel quantistico</div>
+    <div class="mdesc">Una particella con energia E &lt; V₀ ha una probabilità <b>non nulla</b> di attraversare una barriera: la funzione d'onda decade esponenzialmente dentro la barriera e riemerge dall'altra parte. È la base del decadimento α, della fusione stellare e del microscopio a effetto tunnel (STM).</div>
+    <canvas id="cTunnel" width="1000" height="440"></canvas>
+    <div class="ctrls"><span class="lab">energia E</span><input type="range" id="tunE" min="0.2" max="9.8" step="0.1" value="3"><span id="tunEval" style="color:var(--teal)">3.0 eV</span>
+      <span class="lab" style="margin-left:8px">altezza V₀</span><input type="range" id="tunV" min="1" max="10" step="0.1" value="5"><span id="tunVval" style="color:var(--teal)">5.0 eV</span>
+      <span class="lab" style="margin-left:8px">larghezza</span><input type="range" id="tunA" min="0.1" max="1.5" step="0.05" value="0.5"><span id="tunAval" style="color:var(--teal)">0.50 nm</span></div>
+    <div class="info" id="tunInfo"></div>
+  </div></div>
+
+  <div class="mod" id="m-black"><div class="panel">
+    <div class="mtitle">Radiazione del corpo nero · legge di Planck</div>
+    <div class="mdesc">Lo spettro di emissione termica di un corpo nero. La curva di <b>Planck</b> (quantistica) risolve la "catastrofe ultravioletta" della fisica classica (Rayleigh–Jeans, tratteggiata), che divergeva alle basse lunghezze d'onda. Il picco si sposta con la temperatura (legge di Wien).</div>
+    <canvas id="cBlack" width="1000" height="440"></canvas>
+    <div class="ctrls"><span class="lab">temperatura</span><input type="range" id="bbT" min="2000" max="12000" step="100" value="5772"><span id="bbTval" style="color:var(--teal)">5772 K</span>
+      <span class="lab" style="margin-left:8px"><input type="checkbox" id="bbRJ" checked> mostra Rayleigh–Jeans</span></div>
+    <div class="info" id="bbInfo"></div>
+  </div></div>
+
+
 
   
 </div>
@@ -37810,6 +37848,51 @@ function bindVsepr(){if(vseprBound)return;vseprBound=true;
   cv.addEventListener('touchmove',function(e){if(dg&&e.touches.length===1){vseprYaw+=(e.touches[0].clientX-lx)*0.01;vseprPitch+=(e.touches[0].clientY-ly)*0.01;vseprPitch=Math.max(-1.4,Math.min(1.4,vseprPitch));lx=e.touches[0].clientX;ly=e.touches[0].clientY;}},{passive:true});
   cv.addEventListener('touchend',function(){dg=false;});}
 
+var tunT=0;
+function drawTunnel(){
+   var o=ctx2('cTunnel'); if(!o)return; var x=o.x,w=o.w,h=o.h; bg(x,w,h);
+   var E=+document.getElementById('tunE').value, V0=+document.getElementById('tunV').value, a=+document.getElementById('tunA').value;
+   document.getElementById('tunEval').textContent=E.toFixed(1)+' eV';
+   document.getElementById('tunVval').textContent=V0.toFixed(1)+' eV';
+   document.getElementById('tunAval').textContent=a.toFixed(2)+' nm';
+   var L=50,R=w-30,T=30,B=h-40, mid=(L+R)/2, pxPerNm=(R-L)/3, bw=a*pxPerNm, bx0=mid-bw/2, bx1=mid+bw/2;
+   function Ey(ev){ return B-(ev/10)*(B-T); }
+   x.fillStyle='rgba(247,127,0,.18)'; x.fillRect(bx0,Ey(V0),bw,B-Ey(V0));
+   x.strokeStyle='rgba(247,127,0,.75)'; x.lineWidth=2; x.strokeRect(bx0,Ey(V0),bw,B-Ey(V0));
+   ax(x,L,R,T,B);
+   x.strokeStyle='#5eead4'; x.setLineDash([6,4]); x.lineWidth=1.4; x.beginPath(); x.moveTo(L,Ey(E)); x.lineTo(R,Ey(E)); x.stroke(); x.setLineDash([]);
+   x.fillStyle='#5eead4'; x.font='12px system-ui'; x.fillText('E = '+E.toFixed(1)+' eV',L+6,Ey(E)-6);
+   x.fillStyle='rgba(247,127,0,.95)'; x.fillText('V₀ = '+V0.toFixed(1)+' eV',bx0+4,Ey(V0)-6);
+   var me=9.109e-31,e=1.602e-19,hbar=1.055e-34,am=a*1e-9,Tc;
+   if(E<V0){ var kap=Math.sqrt(2*me*(V0-E)*e)/hbar,sh=Math.sinh(kap*am); Tc=1/(1+(V0*V0*sh*sh)/(4*E*(V0-E))); }
+   else if(E>V0){ var kk=Math.sqrt(2*me*(E-V0)*e)/hbar,sn=Math.sin(kk*am); Tc=1/(1+(V0*V0*sn*sn)/(4*E*(E-V0))); }
+   else Tc=1/(1+(me*e*V0*am*am)/(2*hbar*hbar));
+   var base=Ey(E), amp=24; x.lineWidth=2;
+   x.strokeStyle='#38bdf8'; x.beginPath(); for(var px=L;px<=bx0;px+=2){ var y=base-amp*Math.sin((px-L)/21-tunT); if(px===L)x.moveTo(px,y); else x.lineTo(px,y);} x.stroke();
+   x.strokeStyle='#f59e0b'; x.beginPath(); for(var px=bx0;px<=bx1;px+=2){ var fr=(px-bx0)/(bw||1); var en=amp*Math.pow(Math.max(Tc,1e-5),fr*0.5); var y=base-en*Math.sin((px-L)/21-tunT); if(px===bx0)x.moveTo(px,y); else x.lineTo(px,y);} x.stroke();
+   var ampR=amp*Math.sqrt(Math.max(Tc,1e-6));
+   x.strokeStyle='#4ade80'; x.beginPath(); for(var px=bx1;px<=R;px+=2){ var y=base-ampR*Math.sin((px-L)/21-tunT); if(px===bx1)x.moveTo(px,y); else x.lineTo(px,y);} x.stroke();
+   document.getElementById('tunInfo').innerHTML='Coefficiente di trasmissione <b>T ≈ '+(Tc*100<0.01?Tc.toExponential(2):(Tc*100).toFixed(Tc*100<1?3:1)+' %')+'</b> — probabilità di attraversare la barriera. '+(E<V0?'Con E &lt; V₀ la fisica classica darebbe 0: il passaggio è puramente quantistico (onda evanescente).':'Con E &gt; V₀ compaiono risonanze di trasmissione (T=1 a certe energie).');
+   tunT+=0.06;
+}
+function drawBlack(){
+   var o=ctx2('cBlack'); if(!o)return; var x=o.x,w=o.w,h=o.h; bg(x,w,h);
+   var Tk=+document.getElementById('bbT').value; document.getElementById('bbTval').textContent=Tk+' K';
+   var showRJ=document.getElementById('bbRJ').checked;
+   var L=60,R=w-20,Tp=25,B=h-48, h_=6.626e-34,c=3e8,k=1.381e-23, lmax=2000;
+   function planck(lnm){ var l=lnm*1e-9; return (2*h_*c*c)/Math.pow(l,5)/(Math.exp(h_*c/(l*k*Tk))-1); }
+   function rj(lnm){ var l=lnm*1e-9; return 2*c*k*Tk/Math.pow(l,4); }
+   var pk=2.898e-3/Tk*1e9, pmax=planck(pk);
+   function X(lnm){ return L+(lnm/lmax)*(R-L); } function Y(v){ return B-(v/pmax)*(B-Tp)*0.92; }
+   for(var lnm=380;lnm<=750;lnm+=5){ x.fillStyle='hsl('+(280-(lnm-380)/370*280)+',85%,55%)'; x.globalAlpha=.13; x.fillRect(X(lnm),Tp,(5/lmax)*(R-L)+1,B-Tp);} x.globalAlpha=1;
+   ax(x,L,R,Tp,B);
+   if(showRJ){ x.strokeStyle='rgba(255,111,138,.85)'; x.setLineDash([5,4]); x.lineWidth=2; x.beginPath(); var st=false; for(var lnm=60;lnm<=lmax;lnm+=4){ var y=Y(rj(lnm)); if(y<Tp)y=Tp; if(!st){x.moveTo(X(lnm),y);st=true;}else x.lineTo(X(lnm),y);} x.stroke(); x.setLineDash([]); x.fillStyle='rgba(255,111,138,.9)'; x.font='11px system-ui'; x.fillText('Rayleigh–Jeans (classico)',X(120),Tp+14); }
+   x.strokeStyle='#5eead4'; x.lineWidth=2.6; x.beginPath(); for(var lnm=1;lnm<=lmax;lnm+=3){ var y=Y(planck(lnm)); if(lnm===1)x.moveTo(X(lnm),y); else x.lineTo(X(lnm),y);} x.stroke();
+   x.strokeStyle='rgba(245,196,81,.6)'; x.setLineDash([4,4]); x.beginPath(); x.moveTo(X(pk),Tp); x.lineTo(X(pk),B); x.stroke(); x.setLineDash([]);
+   x.fillStyle='#f5c451'; x.font='12px system-ui'; x.fillText('picco '+pk.toFixed(0)+' nm',Math.min(X(pk)+6,R-110),Tp+30);
+   x.fillStyle='#9fb3c8'; x.font='12px system-ui'; x.textAlign='center'; x.fillText('λ (nm)',(L+R)/2,B+32); x.textAlign='left'; x.fillText('0',L-2,B+16); x.fillText('2000',R-32,B+16);
+   document.getElementById('bbInfo').innerHTML='A '+Tk+' K il picco è a <b>'+pk.toFixed(0)+' nm</b> ('+(pk<380?'UV':pk>750?'infrarosso':'visibile')+'). Legge di Wien: λ_max·T = 2,898×10⁻³ m·K. La potenza totale irraggiata cresce come T⁴ (Stefan–Boltzmann).';
+}
 function setModule(m){stopAnim();document.querySelectorAll('.mod').forEach(function(z){z.classList.remove('on');});document.getElementById('m-'+m).classList.add('on');
   if(m==='orb'){orbUI();if(!oCloud)oSample();loop(drawOrb);}
   else if(m==='hyd'){hydSerieUI();hydTransUI();loop(drawHyd);}
@@ -37820,7 +37903,9 @@ function setModule(m){stopAnim();document.querySelectorAll('.mod').forEach(funct
   else if(m==='jab'){jabUI();loop(drawJab);}
   else if(m==='kin2'){kin2UI();loop(drawKin2);}
   else if(m==='spec'){specUI();loop(drawSpec);}
-  else if(m==='kin'){if(typeof kinParticles!=='undefined'&&!kinParticles.length&&typeof kinInit==='function')kinInit();loop(drawKin);}}
+  else if(m==='kin'){if(typeof kinParticles!=='undefined'&&!kinParticles.length&&typeof kinInit==='function')kinInit();loop(drawKin);}
+   else if(m==='tunnel'){['tunE','tunV','tunA'].forEach(function(id){var el=document.getElementById(id);if(el)el.oninput=drawTunnel;});loop(drawTunnel);}
+   else if(m==='black'){var bt=document.getElementById('bbT');if(bt)bt.oninput=drawBlack;var rj=document.getElementById('bbRJ');if(rj)rj.onchange=drawBlack;drawBlack();}}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){document.querySelectorAll('.tab').forEach(function(z){z.classList.remove('on');});this.classList.add('on');setModule(this.dataset.m);};});
 document.getElementById('mbGas').onchange=drawMB;document.getElementById('mbT').oninput=drawMB;
 window.addEventListener('resize',function(){const on=document.querySelector('.mod.on').id.slice(2);if(on==='ho')drawHO();else if(on==='box')drawBox();else if(on==='mb')drawMB();});
@@ -40910,8 +40995,9 @@ window.initSynTheater=function(){
       +'<div id="thDots" style="display:flex;gap:6px;margin-left:6px"></div>'
       +'<div id="thStep" style="margin-left:auto;color:#8fa3b8;font-size:.8rem;font-weight:700"></div>'
     +'</div>'
-    +'<style>#synTheater .thArrow{animation:bsiEfDraw 1.15s cubic-bezier(.55,0,.3,1) forwards}@media(prefers-reduced-motion:reduce){#synTheater .thArrow{stroke-dashoffset:0!important;animation:none}}</style>'
-    +'</div>';
+    +'<style>#synTheater .thArrow{animation:bsiEfDraw 1.15s cubic-bezier(.55,0,.3,1) forwards}#synTheater .ef-arrow{animation:bsiEfDraw 1.2s cubic-bezier(.55,0,.3,1) forwards}#synTheater .ef-head{animation:bsiEfHead 1.4s ease forwards}@media(prefers-reduced-motion:reduce){#synTheater .thArrow,#synTheater .ef-arrow{stroke-dashoffset:0!important;animation:none}#synTheater .ef-head{opacity:1!important;animation:none}}</style>'
+    +'</div>'
+    +'<div id="synCatalog"></div>';
 
   var tabsEl=host.querySelector('#thTabs'),noteEl=host.querySelector('#thNote'),stageEl=host.querySelector('#thStage'),
       energyEl=host.querySelector('#thEnergy'),capEl=host.querySelector('#thCap'),dotsEl=host.querySelector('#thDots'),stepEl=host.querySelector('#thStep');
@@ -40964,7 +41050,82 @@ window.initSynTheater=function(){
   host.querySelector('#thNext').onclick=function(){stop();next();};
   host.querySelector('#thPrev').onclick=function(){stop();if(idx>0){idx--;render();}};
   paintTabs();render();
+  try{ _synCatalog(host); }catch(e){}
 };
+/* ============================================================
+   SINTESI — Catalogo completo: tutte le reazioni della banca RXN
+   con playback animato del meccanismo (frecce elettroni)
+   ============================================================ */
+function _synCatalog(host){
+  var cont=host.querySelector('#synCatalog'); if(!cont)return;
+  var RX=(typeof window.RXN!=='undefined'&&window.RXN)?window.RXN:(typeof RXN!=='undefined'?RXN:[]);
+  if(!RX.length)return;
+  var CATLAB={cc:'C–C',red:'Riduzioni',ox:'Ossidazioni',sub:'Sostituzioni',aro:'Aromatiche',rar:'Riarrangiamenti',per:'Periciclici',pg:'Gr. Protettori',bio:'Biosintesi',pep:'Peptidi',asy:'Asimmetrica',org:'Organometallici',het:'Eterocicli',carb:'Carboidrati',lip:'Lipidi',nuc:'Nucleofile',aa:'Amminoacidi',nt:'Nucleotidi'};
+  var cats=[]; RX.forEach(function(r){ if(cats.indexOf(r.c)<0)cats.push(r.c); });
+  cont.innerHTML=
+    '<div style="background:linear-gradient(135deg,#0c1424,#141a30);border:1px solid #5eead4;border-radius:14px;padding:16px;margin:14px 0 6px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
+      +'<div style="color:#5eead4;font-weight:800;font-size:1.05rem">📚 Catalogo completo — tutte le '+RX.length+' reazioni animate</div>'
+      +'<div style="color:#8fa3b8;font-size:.74rem;max-width:330px">Cerca o filtra, poi clicca una reazione: il meccanismo si ridisegna con le frecce del flusso elettronico.</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><input id="scatQ" type="text" placeholder="Cerca: aldol, Suzuki, epossid, Nobel…" style="flex:1;min-width:200px;background:#070f1c;border:1px solid #26406a;border-radius:8px;color:#e9eef6;font-size:.84rem;padding:8px 11px"><span id="scatCount" style="color:#8fa3b8;font-size:.76rem;align-self:center"></span></div>'
+    +'<div id="scatCats" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>'
+    +'<div style="display:grid;grid-template-columns:minmax(180px,260px) 1fr;gap:12px;align-items:start">'
+      +'<div id="scatList" style="max-height:360px;overflow-y:auto;background:#0a1628;border:1px solid #16273e;border-radius:10px;padding:5px"></div>'
+      +'<div id="scatView" style="background:#0a1628;border:1px solid #16273e;border-radius:10px;padding:12px;min-height:220px"><div style="color:#8fa3b8;font-size:.85rem;padding:30px 10px;text-align:center">Seleziona una reazione dall\'elenco per vederne il meccanismo animato.</div></div>'
+    +'</div></div>'
+    +'<style>@media(max-width:640px){#synCatalog [style*="grid-template-columns:minmax"]{grid-template-columns:1fr!important}}#scatList .scatItem:hover{background:#12233a}</style>';
+  var qEl=cont.querySelector('#scatQ'),catsEl=cont.querySelector('#scatCats'),listEl=cont.querySelector('#scatList'),
+      viewEl=cont.querySelector('#scatView'),countEl=cont.querySelector('#scatCount');
+  var curCat='all';
+  function paintCats(){
+    catsEl.innerHTML='';
+    [['all','Tutte']].concat(cats.map(function(c){return [c,CATLAB[c]||c];})).forEach(function(p){
+      var on=(p[0]===curCat), b=document.createElement('button');
+      b.textContent=p[1];
+      b.style.cssText='border:1px solid '+(on?'#5eead4':'rgba(148,163,184,.3)')+';background:'+(on?'#0e2a2a':'transparent')+';color:'+(on?'#5eead4':'#9fb3c8')+';border-radius:7px;padding:4px 9px;font-size:.72rem;font-weight:600;cursor:pointer';
+      b.onclick=function(){curCat=p[0];paintCats();paintList();};
+      catsEl.appendChild(b);
+    });
+  }
+  function filtered(){
+    var q=(qEl.value||'').toLowerCase();
+    return RX.filter(function(r){
+      if(curCat!=='all'&&r.c!==curCat)return false;
+      if(!q)return true;
+      return ((r.t||'')+'|'+(r.d||'')+'|'+(r.cond||'')+'|'+(r.it||'')).toLowerCase().indexOf(q)!==-1;
+    });
+  }
+  function show(r){
+    var svg='';
+    try{ svg=r.fn?r.fn():''; }catch(e){ svg=''; }
+    viewEl.innerHTML=
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><div style="color:#5eead4;font-weight:800;font-size:1rem">'+r.t+'</div>'
+      +'<button id="scatReplay" style="border:1px solid #a78bfa;background:#241a45;color:#c9b6ff;border-radius:7px;padding:4px 10px;font-size:.74rem;font-weight:700;cursor:pointer">▶ Rigioca</button></div>'
+      +'<div style="background:#fff;border-radius:9px;padding:6px;margin:8px 0;text-align:center;overflow-x:auto">'+(svg||'<span style="color:#64748b;font-size:.8rem">meccanismo non disponibile</span>')+'</div>'
+      +'<div style="color:#cdd9e6;font-size:.84rem;line-height:1.55;margin-bottom:6px">'+(r.d||'')+'</div>'
+      +'<div style="color:#8fa3b8;font-size:.78rem"><b style="color:#f5c451">⚗ Condizioni:</b> '+(r.cond||'—')+'</div>'
+      +'<div style="color:#6b7d90;font-size:.72rem;margin-top:6px">Categoria: '+(CATLAB[r.c]||r.c)+'</div>';
+    var rb=viewEl.querySelector('#scatReplay');
+    if(rb)rb.onclick=function(){ show(r); }; // ridisegna → rilancia le animazioni CSS
+    try{ if(window.bsiAddMolLinks)window.bsiAddMolLinks(viewEl,r.t); }catch(e){}
+  }
+  function paintList(){
+    var fl=filtered();
+    countEl.textContent=fl.length+' reazioni';
+    listEl.innerHTML='';
+    fl.slice(0,400).forEach(function(r){
+      var it=document.createElement('div');
+      it.className='scatItem';
+      it.style.cssText='padding:6px 8px;border-radius:6px;cursor:pointer;font-size:.8rem;color:#cdd9e6;border-bottom:1px solid #0f1c30';
+      it.innerHTML='<span style="color:#5eead4;font-size:.66rem">■</span> '+r.t;
+      it.onclick=function(){ [].forEach.call(listEl.children,function(x){x.style.background='';}); it.style.background='#12233a'; show(r); };
+      listEl.appendChild(it);
+    });
+  }
+  qEl.oninput=paintList;
+  paintCats(); paintList();
+}
 
 /* ============================================================
    RETROSINTESI — Guida alle disconnessioni (sintoni → reagenti)
@@ -41066,6 +41227,137 @@ function _retroWorked(){
   });
   return h+'</div></details>';
 }
+
+/* ============================================================
+   SPETTRI — Elucidazione strutturale guidata (IR+NMR+MS insieme)
+   ============================================================ */
+window.initElucid=function(){
+  var sec=document.getElementById('selucid');
+  if(!sec||sec._init)return; sec._init=true;
+  var MOL=[
+    {n:'Etanolo',formula:'C₂H₆O',mw:46,dbe:0,
+     ir:[['3300 (largo)','O–H alcol'],['2970','C–H sp³'],['1050','C–O']],
+     h1:[['1.2','3H','tripletto','CH₃'],['2.6','1H','singolo (scambiab.)','OH'],['3.7','2H','quartetto','CH₂']],
+     c13:'2 segnali (CH₃ ~18, CH₂–O ~58)',
+     ms:[['46','M⁺'],['31','CH₂OH⁺ (perdita di CH₃)'],['45','M–H']],
+     why:'DBE=0 → nessun anello/insaturazione. O–H largo nell\'IR + segnale scambiabile → alcol. Il pattern tripletto(3H)/quartetto(2H) è il classico etile –CH₂–CH₃. Frammento m/z 31 (CH₂OH⁺) conferma l\'alcol primario.',
+     opt:['Dimetiletere','Acido acetico','Acetaldeide']},
+    {n:'Acido acetico',formula:'C₂H₄O₂',mw:60,dbe:1,
+     ir:[['3000–2500 (largo)','O–H acido'],['1710','C=O'],['1290','C–O']],
+     h1:[['2.1','3H','singolo','CH₃'],['11.4','1H','singolo (largo)','COOH']],
+     c13:'2 segnali (CH₃ ~21, C=O ~178)',
+     ms:[['60','M⁺'],['45','COOH⁺ / M–CH₃'],['43','CH₃CO⁺'],['15','CH₃⁺']],
+     why:'DBE=1 (il C=O). O–H larghissimo 3000–2500 sovrapposto ai C–H + C=O a 1710 → acido carbossilico. Protone molto deschermato a 11.4 ppm = COOH. Il C=O a 178 ppm è tipico degli acidi. m/z 45 (COOH⁺) e 43 (acilio) confermano.',
+     opt:['Etile formiato','Glicolaldeide','Etanolo']},
+    {n:'Acetone',formula:'C₃H₆O',mw:58,dbe:1,
+     ir:[['1715','C=O chetone'],['2960','C–H'],['1360','CH₃']],
+     h1:[['2.1','6H','singolo','2×CH₃ equivalenti']],
+     c13:'2 segnali (CH₃ ~30, C=O ~206)',
+     ms:[['58','M⁺'],['43','CH₃CO⁺ (acilio, picco base)'],['15','CH₃⁺']],
+     why:'DBE=1. C=O a 1715 senza O–H → chetone o aldeide; assenza delle bande aldeidiche (~2720/2820) e di H aldeidico → chetone. Un solo singoletto 6H → due metili equivalenti attorno al C=O = acetone. C=O a 206 ppm e acilio m/z 43 dominante confermano.',
+     opt:['Propanale','Ossido di propilene','Alcol allilico']},
+    {n:'Benzaldeide',formula:'C₇H₆O',mw:106,dbe:5,
+     ir:[['1700','C=O coniugato'],['2820 e 2740','C–H aldeidico (Fermi)'],['1600,1580','C=C aromatico']],
+     h1:[['9.9','1H','singolo','CHO'],['7.5–7.9','5H','multipletto','aromatici']],
+     c13:'C=O ~192 + 4 segnali aromatici',
+     ms:[['106','M⁺'],['105','M–H (acilio arom.)'],['77','C₆H₅⁺ (fenile)'],['51','C₄H₃⁺']],
+     why:'DBE=5 → 4 dall\'anello benzenico + 1 dal C=O. Due bande a 2820/2740 (risonanza di Fermi) + H a 9.9 ppm = aldeide. 5H aromatici + perdita di 29 (CHO) e m/z 77 (fenile) → benzaldeide. C=O a 192 (aldeide coniugata).',
+     opt:['Acetofenone','Alcol benzilico','Acido benzoico']},
+    {n:'Acetato di etile',formula:'C₄H₈O₂',mw:88,dbe:1,
+     ir:[['1740','C=O estere'],['1240,1050','C–O–C (due bande)']],
+     h1:[['1.25','3H','tripletto','CH₃ dell\'etile'],['2.0','3H','singolo','CH₃CO'],['4.1','2H','quartetto','OCH₂']],
+     c13:'C=O ~171 + OCH₂ ~60 + 2 CH₃',
+     ms:[['88','M⁺'],['43','CH₃CO⁺'],['61','M–27'],['29','C₂H₅⁺']],
+     why:'DBE=1 (il C=O). C=O a 1740 (più alto dei chetoni) + due bande C–O forti → estere. OCH₂ deschermato a 4.1 (quartetto) + CH₃ estere singoletto a 2.0. L\'acilio m/z 43 (CH₃CO⁺) indica l\'acetile. Etile + acetile = acetato di etile.',
+     opt:['Acido butirrico','Butanone','1,4-diossano']},
+    {n:'Toluene',formula:'C₇H₈',mw:92,dbe:4,
+     ir:[['3030','C–H aromatico'],['2920','C–H alifatico'],['1605,1495','C=C aromatico'],['730,695','sostituzione mono']],
+     h1:[['2.3','3H','singolo','CH₃'],['7.2','5H','multipletto','aromatici']],
+     c13:'CH₃ ~21 + 4 segnali aromatici',
+     ms:[['92','M⁺'],['91','tropilio C₇H₇⁺ (picco base!)'],['65','C₅H₅⁺']],
+     why:'DBE=4 = anello benzenico, nessun C=O (niente bande ~1700). Solo C e H. Singoletto 3H a 2.3 (CH₃ benzilico) + 5H aromatici. La firma è m/z 91 (catione tropilio C₇H₇⁺) dominante dopo la perdita di H dal metile → toluene.',
+     opt:['Stirene','Cicloeptatriene','Etilbenzene']}
+  ];
+  function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  sec.innerHTML=
+    '<div class="section-title">🧩 ELUCIDAZIONE STRUTTURALE — deduci la molecola dagli spettri</div>'
+    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:820px;margin-bottom:14px">L\'abilità chiave dell\'esame: mettere insieme <b>IR + ¹H/¹³C-NMR + spettro di massa + DBE</b> per arrivare alla struttura. In <b>Studio</b> vedi tutti gli spettri annotati e il ragionamento; in <b>Sfida</b> deduci la molecola dagli indizi.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">'
+      +'<div style="display:flex;gap:4px;background:#0c1f33;border-radius:10px;padding:3px">'
+        +'<button id="elModeStudy" style="border:none;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;background:#0e2a2a;color:#5eead4">📖 Studio</button>'
+        +'<button id="elModeChal" style="border:none;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;background:transparent;color:#9fb3c8">🎯 Sfida</button>'
+      +'</div>'
+      +'<select id="elSel" style="background:#0c1f33;border:1px solid #26406a;border-radius:8px;color:#cdd9e6;font-size:.85rem;padding:7px 10px">'+MOL.map(function(m,i){return '<option value="'+i+'">'+m.n+'</option>';}).join('')+'</select>'
+      +'<button id="elRandom" style="border:1px solid #a78bfa;background:#241a45;color:#c9b6ff;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer">🎲 Casuale</button>'
+      +'<div id="elScore" style="margin-left:auto;color:#5eead4;font-weight:700;font-size:.85rem;display:none">Sfida: <span id="elS">0</span>/<span id="elT">0</span></div>'
+    +'</div>'
+    +'<div id="elBody"></div>';
+  var body=sec.querySelector('#elBody'), mode='study', cur=0, sc=0, tot=0;
+  function tbl(title,rows,col){
+    var h='<div style="background:#0c1f33;border:1px solid #16273e;border-radius:10px;padding:11px 13px"><div style="color:'+col+';font-weight:700;font-size:.86rem;margin-bottom:6px">'+title+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:.8rem">';
+    rows.forEach(function(r){ h+='<tr>'+r.map(function(cell,i){return '<td style="padding:3px 6px;border-bottom:1px solid #12233a;color:'+(i===r.length-1?'#9fb3c8':'#cdd9e6')+(i===0?';font-family:ui-monospace,monospace':'')+'">'+cell+'</td>';}).join('')+'</tr>'; });
+    return h+'</table></div>';
+  }
+  function spectraHTML(m){
+    return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:12px">'
+      +tbl('📊 IR (cm⁻¹)',m.ir,'#f5c451')
+      +tbl('〰 ¹H-NMR (δ ppm)',m.h1.map(function(r){return [r[0],r[1]+' '+r[2],r[3]];}),'#6bcfff')
+      +tbl('⚗️ MS (m/z)',m.ms,'#ff9d5c')
+      +'<div style="background:#0c1f33;border:1px solid #16273e;border-radius:10px;padding:11px 13px"><div style="color:#a78bfa;font-weight:700;font-size:.86rem;margin-bottom:6px">🔢 Dati chiave</div>'
+        +'<div style="font-size:.82rem;color:#cdd9e6;line-height:1.9"><b>Formula:</b> '+m.formula+'<br><b>MW:</b> '+m.mw+' g/mol<br><b>DBE:</b> '+m.dbe+'<br><b>¹³C:</b> '+m.c13+'</div></div>'
+    +'</div>';
+  }
+  function renderStudy(){
+    var m=MOL[cur];
+    body.innerHTML=
+      '<div style="background:linear-gradient(135deg,#0e2a2a,#0c1424);border:1px solid #5eead4;border-radius:12px;padding:14px;margin-bottom:12px">'
+        +'<div style="font-size:1.3rem;font-weight:800;color:#5eead4">'+m.n+' <span style="font-size:.9rem;color:#8fa3b8;font-weight:600">'+m.formula+'</span></div></div>'
+      +spectraHTML(m)
+      +'<div style="background:#0a1628;border-left:3px solid #5eead4;border-radius:0 10px 10px 0;padding:12px 14px;font-size:.88rem;color:#e7eefb;line-height:1.6"><b style="color:#5eead4">🔍 Ragionamento:</b> '+m.why+'</div>';
+  }
+  function renderChallenge(){
+    var m=MOL[cur];
+    var opts=shuffle([m.n].concat(m.opt));
+    var hidden={n:'?',formula:m.formula,mw:m.mw,dbe:m.dbe,ir:m.ir,h1:m.h1,c13:m.c13,ms:m.ms};
+    body.innerHTML=
+      '<div style="color:#c9b6ff;font-weight:700;font-size:.95rem;margin-bottom:8px">Dagli spettri, qual è la molecola? (formula '+m.formula+', DBE '+m.dbe+')</div>'
+      +spectraHTML(hidden)
+      +'<div id="elOpts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:10px"></div>'
+      +'<div id="elFb" style="font-size:.88rem;min-height:20px"></div>';
+    var box=body.querySelector('#elOpts');
+    opts.forEach(function(o){
+      var bb=document.createElement('button');
+      bb.textContent=o;
+      bb.style.cssText='padding:11px;border-radius:10px;border:1.5px solid rgba(94,234,212,.3);background:#0c1f33;color:#e9eef6;font-weight:600;cursor:pointer;font-size:.9rem';
+      bb.onclick=function(){ answer(o,bb,m); };
+      box.appendChild(bb);
+    });
+  }
+  function answer(o,bb,m){
+    tot++; document.getElementById('elT').textContent=tot;
+    var fb=body.querySelector('#elFb');
+    [].forEach.call(body.querySelectorAll('#elOpts button'),function(x){x.disabled=true;x.style.cursor='default';});
+    if(o===m.n){ sc++; bb.style.background='#0a4d3c'; bb.style.borderColor='#00c9b7';
+      fb.innerHTML='<div style="background:rgba(0,201,183,.12);border-radius:8px;padding:10px 12px;color:#a7f3d0">✓ Corretto: <b>'+m.n+'</b>. '+m.why+'</div>'; }
+    else { bb.style.background='#5c1a1a'; bb.style.borderColor='#e06666';
+      fb.innerHTML='<div style="background:rgba(224,102,102,.12);border-radius:8px;padding:10px 12px;color:#ffc4c4">✗ Era <b>'+m.n+'</b>. '+m.why+'</div>'; }
+    document.getElementById('elS').textContent=sc;
+  }
+  function render(){ if(mode==='study')renderStudy(); else renderChallenge(); }
+  function setMode(mm){ mode=mm;
+    var st=sec.querySelector('#elModeStudy'), ch=sec.querySelector('#elModeChal');
+    st.style.background=mm==='study'?'#0e2a2a':'transparent'; st.style.color=mm==='study'?'#5eead4':'#9fb3c8';
+    ch.style.background=mm==='chal'?'#241a45':'transparent'; ch.style.color=mm==='chal'?'#c9b6ff':'#9fb3c8';
+    sec.querySelector('#elScore').style.display=mm==='chal'?'block':'none';
+    render();
+  }
+  sec.querySelector('#elModeStudy').onclick=function(){setMode('study');};
+  sec.querySelector('#elModeChal').onclick=function(){setMode('chal');};
+  sec.querySelector('#elSel').onchange=function(){cur=+this.value;render();};
+  sec.querySelector('#elRandom').onclick=function(){cur=Math.floor(Math.random()*MOL.length);sec.querySelector('#elSel').value=cur;render();};
+  render();
+};
 </script>
 </body>
 </html>
