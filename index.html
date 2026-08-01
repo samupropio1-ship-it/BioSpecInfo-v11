@@ -815,7 +815,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sstruct">🧬 Strutture 3D</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
-  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button></div>
+  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button></div>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
@@ -3246,6 +3246,7 @@ window.onload = function(){
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
+      if(sec==='sbeta' && typeof window.initBeta==='function') window.initBeta();
       if(sec==='scustomflash' && typeof window.initCustomFlash==='function') window.initCustomFlash();
       if(sec==='sphase' && typeof window.initPhase==='function') window.initPhase();
       if(sec==='smap' && typeof window.initConceptMap==='function') window.initConceptMap();
@@ -27847,6 +27848,7 @@ window.calcMolProps = function() {
 <div id="sglic" class="section"></div>
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
+<div id="sbeta" class="section"></div>
 
 
 <script>
@@ -37133,7 +37135,7 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
 <body>
 <div class="wrap">
   <div class="brand">Laboratorio Quantistico &amp; Fisico</div>
-  <div class="sub">Quattordici moduli interattivi a matematica esatta · BioSpecInfo</div>
+  <div class="sub">Sedici moduli interattivi a matematica esatta · BioSpecInfo</div>
   <div class="tabs" id="tabs">
     <div class="tab on" data-m="orb"><span class="ic">🔮</span>Orbitali idrogeno 3D</div>
     <div class="tab" data-m="hyd"><span class="ic">⚛️</span>Emissione idrogeno</div>
@@ -37149,6 +37151,8 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
     <div class="tab" data-m="kin2"><span class="ic">📈</span>Cinetica avanzata</div>
     <div class="tab" data-m="tunnel"><span class="ic">🚧</span>Effetto tunnel</div>
     <div class="tab" data-m="black"><span class="ic">🔥</span>Corpo nero (Planck)</div>
+    <div class="tab" data-m="photo"><span class="ic">💡</span>Effetto fotoelettrico</div>
+    <div class="tab" data-m="dslit"><span class="ic">🌊</span>Doppia fenditura</div>
   </div>
 
   <div class="mod on" id="m-orb"><div class="panel">
@@ -37265,9 +37269,28 @@ console.log('BioSpecInfo v17 — Questionario & Feedback ✔');
     <div class="info" id="bbInfo"></div>
   </div></div>
 
+  <div class="mod" id="m-photo"><div class="panel">
+    <div class="mtitle">Effetto fotoelettrico</div>
+    <div class="mdesc">La luce espelle elettroni da un metallo solo se la frequenza supera una soglia: l'energia cinetica è <b>KE = hν − φ</b> (φ = lavoro di estrazione). Non dipende dall'intensità — la prova che la luce è fatta di <b>quanti</b> (Einstein, Nobel 1921).</div>
+    <canvas id="cPhoto" width="1000" height="440"></canvas>
+    <div class="ctrls"><span class="lab">λ luce</span><input type="range" id="phLam" min="200" max="750" step="5" value="400"><span id="phLamVal" style="color:var(--teal)">400 nm</span>
+      <span class="lab" style="margin-left:8px">metallo (φ)</span>
+      <select id="phMet"><option value="2.3">Sodio (2.3 eV)</option><option value="2.9" selected>Calcio (2.9 eV)</option><option value="4.3">Zinco (4.3 eV)</option><option value="5.1">Oro (5.1 eV)</option></select></div>
+    <div class="info" id="phInfo"></div>
+  </div></div>
+
+  <div class="mod" id="m-dslit"><div class="panel">
+    <div class="mtitle">Interferenza da doppia fenditura</div>
+    <div class="mdesc">Onde (o particelle quantistiche) che passano da due fenditure creano frange di interferenza sullo schermo: massimi dove <b>d·sinθ = mλ</b>. È l'esperimento che mostra la natura ondulatoria della materia (dualismo onda-particella).</div>
+    <canvas id="cDslit" width="1000" height="440"></canvas>
+    <div class="ctrls"><span class="lab">λ</span><input type="range" id="dsLam" min="20" max="90" step="2" value="45"><span id="dsLamVal" style="color:var(--teal)">45</span>
+      <span class="lab" style="margin-left:8px">separazione fenditure d</span><input type="range" id="dsD" min="40" max="180" step="5" value="90"><span id="dsDVal" style="color:var(--teal)">90</span></div>
+    <div class="info" id="dsInfo"></div>
+  </div></div>
 
 
-  
+
+
 </div>
 
 <script>
@@ -37893,6 +37916,66 @@ function drawBlack(){
    x.fillStyle='#9fb3c8'; x.font='12px system-ui'; x.textAlign='center'; x.fillText('λ (nm)',(L+R)/2,B+32); x.textAlign='left'; x.fillText('0',L-2,B+16); x.fillText('2000',R-32,B+16);
    document.getElementById('bbInfo').innerHTML='A '+Tk+' K il picco è a <b>'+pk.toFixed(0)+' nm</b> ('+(pk<380?'UV':pk>750?'infrarosso':'visibile')+'). Legge di Wien: λ_max·T = 2,898×10⁻³ m·K. La potenza totale irraggiata cresce come T⁴ (Stefan–Boltzmann).';
 }
+var phPhotons=[], phElectrons=[], phT=0;
+function drawPhoto(){
+   var o=ctx2('cPhoto'); if(!o)return; var x=o.x,w=o.w,h=o.h; bg(x,w,h);
+   var lam=+document.getElementById('phLam').value, phi=+document.getElementById('phMet').value;
+   document.getElementById('phLamVal').textContent=lam+' nm';
+   var h_=6.626e-34,c=3e8,e=1.602e-19, Eph=h_*c/(lam*1e-9)/e, KE=Eph-phi, ejects=KE>0;
+   var lam0=h_*c/(phi*e)*1e9; // soglia nm
+   var plateX=w*0.62, plateW=26, plateTop=90, plateBot=h-60;
+   // colore luce
+   function wl2col(l){ if(l<380)return '#8a2be2'; if(l<440)return '#7c3aed'; if(l<490)return '#3b82f6'; if(l<560)return '#22c55e'; if(l<590)return '#eab308'; if(l<635)return '#f97316'; if(l<750)return '#ef4444'; return '#7f1d1d'; }
+   var col=wl2col(lam);
+   // metallo
+   x.fillStyle='#334155'; x.fillRect(plateX,plateTop,plateW,plateBot-plateTop);
+   x.fillStyle='#64748b'; x.fillRect(plateX,plateTop,4,plateBot-plateTop);
+   x.fillStyle='#9fb3c8'; x.font='12px system-ui'; x.textAlign='center'; x.fillText('metallo (φ='+phi+' eV)',plateX+plateW/2,plateBot+18); x.textAlign='left';
+   // fotoni in arrivo
+   if(phT%3===0) phPhotons.push({x:20,y:plateTop+Math.random()*(plateBot-plateTop)});
+   phPhotons=phPhotons.filter(function(p){return p.x<plateX;});
+   phPhotons.forEach(function(p){ p.x+=7; x.strokeStyle=col; x.lineWidth=2; x.beginPath(); for(var s=0;s<18;s+=2){x.lineTo(p.x-s,p.y+Math.sin((p.x-s)/3)*3);} x.stroke();
+     if(p.x>=plateX-10 && ejects){ phElectrons.push({x:plateX,y:p.y,vx:-(1.5+Math.sqrt(Math.max(KE,0))*1.4),vy:(Math.random()-0.5)*2}); p.x=plateX; } });
+   // elettroni espulsi
+   phElectrons=phElectrons.filter(function(el){return el.x>0&&el.y>0&&el.y<h;});
+   phElectrons.forEach(function(el){ el.x+=el.vx; el.y+=el.vy; x.fillStyle='#38bdf8'; x.shadowColor='#38bdf8'; x.shadowBlur=8; x.beginPath(); x.arc(el.x,el.y,4,0,7); x.fill(); x.shadowBlur=0; x.fillStyle='#38bdf8'; x.font='9px system-ui'; x.fillText('e⁻',el.x-10,el.y-6); });
+   // grafico KE vs frequenza (inset in alto a destra)
+   var gx=w-260,gy=20,gw=230,gh=120;
+   x.strokeStyle='rgba(159,179,200,.4)'; x.strokeRect(gx,gy,gw,gh);
+   x.fillStyle='#9fb3c8'; x.font='10px system-ui'; x.fillText('KE',gx+4,gy+12); x.fillText('ν',gx+gw-12,gy+gh-4);
+   // linea KE=h(ν-ν0): sopra soglia
+   var nu=c/(lam*1e-9), nu0=phi*e/h_, numax=c/(200e-9);
+   function GX(n){ return gx+ (n/numax)*gw; } function GY(k){ return gy+gh - Math.min(k,6)/6*gh; }
+   x.strokeStyle='#5eead4'; x.lineWidth=2; x.beginPath(); x.moveTo(GX(nu0),GY(0)); x.lineTo(GX(numax),GY((h_*numax/e)-phi)); x.stroke();
+   x.fillStyle='#f59e0b'; x.beginPath(); x.arc(GX(nu),GY(Math.max(KE,0)),4,0,7); x.fill();
+   x.fillStyle='rgba(245,196,81,.6)'; x.fillText('ν₀',GX(nu0)-4,gy+gh+2);
+   document.getElementById('phInfo').innerHTML='Energia del fotone <b>hν = '+Eph.toFixed(2)+' eV</b>. Soglia λ₀ = '+lam0.toFixed(0)+' nm. '+(ejects?'✅ Emissione: <b>KE = '+KE.toFixed(2)+' eV</b> (velocità ∝ √KE).':'❌ Nessuna emissione: hν &lt; φ. Aumentare l\'intensità <b>non</b> aiuta — serve λ più corta (frequenza maggiore).');
+   phT++;
+}
+var dsT=0;
+function drawDSlit(){
+   var o=ctx2('cDslit'); if(!o)return; var x=o.x,w=o.w,h=o.h; bg(x,w,h);
+   var lam=+document.getElementById('dsLam').value, d=+document.getElementById('dsD').value;
+   document.getElementById('dsLamVal').textContent=lam; document.getElementById('dsDVal').textContent=d;
+   var barX=w*0.30, screenX=w*0.9, cy=h/2, s1=cy-d/2, s2=cy+d/2;
+   dsT+=0.13;
+   // onde circolari dalle due fenditure
+   x.lineWidth=1;
+   [s1,s2].forEach(function(sy){ for(var r=(dsT*8)%lam; r<(screenX-barX); r+=lam){ var a=Math.max(0,0.5-r/(screenX-barX)*0.5); x.strokeStyle='rgba(94,234,212,'+a+')'; x.beginPath(); x.arc(barX,sy,r,-Math.PI/2.2,Math.PI/2.2); x.stroke(); } });
+   // barriera con due fenditure
+   x.fillStyle='#1e293b'; x.fillRect(barX-5,20,10,(s1-8)-20); x.fillRect(barX-5,s1+8,10,(s2-8)-(s1+8)); x.fillRect(barX-5,s2+8,10,(h-20)-(s2+8));
+   // pattern di interferenza sullo schermo
+   var Dsx=screenX-barX;
+   x.strokeStyle='#f5c451'; x.lineWidth=2; x.beginPath();
+   var maxI=1;
+   for(var y=20;y<h-20;y+=2){ var path1=Math.hypot(Dsx,y-s1), path2=Math.hypot(Dsx,y-s2); var phase=Math.PI*(path1-path2)/lam*2; var I=Math.pow(Math.cos(phase/2),2); var px=screenX+I*70; if(y===20)x.moveTo(px,y); else x.lineTo(px,y); }
+   x.stroke();
+   // schermo
+   x.fillStyle='#0f172a'; x.fillRect(screenX,20,3,h-40);
+   for(var y=20;y<h-20;y+=2){ var path1=Math.hypot(Dsx,y-s1), path2=Math.hypot(Dsx,y-s2); var I=Math.pow(Math.cos(Math.PI*(path1-path2)/lam),2); x.fillStyle='rgba(245,196,81,'+I+')'; x.fillRect(screenX+3,y,10,2); }
+   x.fillStyle='#9fb3c8'; x.font='12px system-ui'; x.fillText('sorgente',10,cy); x.fillText('fenditure',barX-24,14); x.fillText('schermo',screenX-20,14);
+   document.getElementById('dsInfo').innerHTML='Le frange nascono dalla differenza di cammino tra le due fenditure. Massimi luminosi dove d·sinθ = mλ; riducendo λ o aumentando d le frange si infittiscono. Con particelle singole (elettroni) il pattern emerge lo stesso: è il dualismo onda-particella.';
+}
 function setModule(m){stopAnim();document.querySelectorAll('.mod').forEach(function(z){z.classList.remove('on');});document.getElementById('m-'+m).classList.add('on');
   if(m==='orb'){orbUI();if(!oCloud)oSample();loop(drawOrb);}
   else if(m==='hyd'){hydSerieUI();hydTransUI();loop(drawHyd);}
@@ -37905,7 +37988,9 @@ function setModule(m){stopAnim();document.querySelectorAll('.mod').forEach(funct
   else if(m==='spec'){specUI();loop(drawSpec);}
   else if(m==='kin'){if(typeof kinParticles!=='undefined'&&!kinParticles.length&&typeof kinInit==='function')kinInit();loop(drawKin);}
    else if(m==='tunnel'){['tunE','tunV','tunA'].forEach(function(id){var el=document.getElementById(id);if(el)el.oninput=drawTunnel;});loop(drawTunnel);}
-   else if(m==='black'){var bt=document.getElementById('bbT');if(bt)bt.oninput=drawBlack;var rj=document.getElementById('bbRJ');if(rj)rj.onchange=drawBlack;drawBlack();}}
+   else if(m==='black'){var bt=document.getElementById('bbT');if(bt)bt.oninput=drawBlack;var rj=document.getElementById('bbRJ');if(rj)rj.onchange=drawBlack;drawBlack();}
+   else if(m==='photo'){phPhotons=[];phElectrons=[];['phLam','phMet'].forEach(function(id){var el=document.getElementById(id);if(el)el[id==='phMet'?'onchange':'oninput']=function(){};});loop(drawPhoto);}
+   else if(m==='dslit'){['dsLam','dsD'].forEach(function(id){var el=document.getElementById(id);if(el)el.oninput=function(){};});loop(drawDSlit);}}
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){document.querySelectorAll('.tab').forEach(function(z){z.classList.remove('on');});this.classList.add('on');setModule(this.dataset.m);};});
 document.getElementById('mbGas').onchange=drawMB;document.getElementById('mbT').oninput=drawMB;
 window.addEventListener('resize',function(){const on=document.querySelector('.mod.on').id.slice(2);if(on==='ho')drawHO();else if(on==='box')drawBox();else if(on==='mb')drawMB();});
@@ -40412,6 +40497,27 @@ window.initGlic=function(){
 };
 
 /* ============================================================
+   BIOCHIMICA — β-OSSIDAZIONE ANIMATA (un giro della spirale)
+   ============================================================ */
+window.initBeta=function(){
+  var sec=document.getElementById('sbeta');
+  if(!sec||sec._init)return; sec._init=true;
+  _bsiPathwayAnim(sec,{
+    title:'🔥 β-OSSIDAZIONE — un giro della spirale (accorcia di 2 C)',
+    intro:'Nella matrice mitocondriale gli acidi grassi (come acil-CoA) vengono demoliti 2 carboni alla volta. Ogni giro produce <b>1 FADH₂ + 1 NADH + 1 acetil-CoA</b> e restituisce un acil-CoA più corto di 2C, pronto per il giro successivo. Premi <b>▶ Play</b>. (Prima serve la <b>navetta della carnitina</b> per entrare nel mitocondrio.)',
+    startEmoji:'🧈', startLabel:'Acil-CoA (catena a n carboni)',
+    accent:'#ff9d5c',
+    footer:'💡 Il palmitato (C16) fa <b>7 giri</b> → 8 acetil-CoA + 7 FADH₂ + 7 NADH ≈ 106 ATP netti. Gli acetil-CoA entrano nel Ciclo di Krebs, i coenzimi ridotti nella Catena Respiratoria. Regolazione: la <b>CPT-1</b> (ingresso carnitina) è inibita dal malonil-CoA — così sintesi e demolizione dei grassi non avvengono insieme.',
+    steps:[
+      {n:1,sub:'Acil-CoA',prod:'trans-Δ²-enoil-CoA',enz:'Acil-CoA deidrogenasi (FAD)',fadh2:1,note:'<b>Ossidazione</b>: si crea un doppio legame trans tra Cα e Cβ. Il FAD si riduce a FADH₂ (entra all\'ubichinone → ~1,5 ATP).'},
+      {n:2,sub:'trans-Δ²-enoil-CoA',prod:'L-3-idrossiacil-CoA',enz:'Enoil-CoA idratasi',note:'<b>Idratazione</b> stereospecifica del doppio legame: si aggiunge H₂O dando l\'L-3-idrossiacile. Prepara la seconda ossidazione.'},
+      {n:3,sub:'L-3-idrossiacil-CoA',prod:'3-chetoacil-CoA',enz:'3-idrossiacil-CoA deidrogenasi (NAD⁺)',nadh:1,note:'<b>Seconda ossidazione</b>: l\'OH in β diventa un chetone. NAD⁺ → NADH (→ ~2,5 ATP).'},
+      {n:4,sub:'3-chetoacil-CoA + CoA',prod:'Acetil-CoA + Acil-CoA (−2C)',enz:'β-chetotiolasi',note:'<b>Tiolisi</b>: il CoA taglia il legame Cα–Cβ liberando 1 acetil-CoA e un acil-CoA accorciato di 2 carboni → ricomincia la spirale.'}
+    ]
+  });
+};
+
+/* ============================================================
    Motore generico per vie metaboliche animate a tappe
    ============================================================ */
 function _bsiPathwayAnim(sec, opt){
@@ -41276,7 +41382,35 @@ window.initElucid=function(){
      c13:'CH₃ ~21 + 4 segnali aromatici',
      ms:[['92','M⁺'],['91','tropilio C₇H₇⁺ (picco base!)'],['65','C₅H₅⁺']],
      why:'DBE=4 = anello benzenico, nessun C=O (niente bande ~1700). Solo C e H. Singoletto 3H a 2.3 (CH₃ benzilico) + 5H aromatici. La firma è m/z 91 (catione tropilio C₇H₇⁺) dominante dopo la perdita di H dal metile → toluene.',
-     opt:['Stirene','Cicloeptatriene','Etilbenzene']}
+     opt:['Stirene','Cicloeptatriene','Etilbenzene']},
+    {n:'Etilammina',formula:'C₂H₇N',mw:45,dbe:0,
+     ir:[['3350,3280','N–H primaria (2 bande)'],['2960','C–H'],['1090','C–N']],
+     h1:[['1.1','3H','tripletto','CH₃'],['1.2','2H','singolo (largo)','NH₂'],['2.7','2H','quartetto','CH₂–N']],
+     c13:'2 segnali (CH₃ ~19, CH₂–N ~44)',
+     ms:[['45','M⁺'],['30','CH₂=NH₂⁺ (picco base, perdita CH₃)'],['44','M–H']],
+     why:'DBE=0. Due bande N–H (3350/3280) = ammina <b>primaria</b>. Pattern etile (tripletto+quartetto) con CH₂ a 2.7 (accanto a N, poco deschermato) + NH₂ largo scambiabile. Il frammento chiave m/z 30 (immonio CH₂=NH₂⁺) è la firma delle ammine primarie.',
+     opt:['Dimetilammina','Etanolo','Acetaldeide']},
+    {n:'Acetammide',formula:'C₂H₅NO',mw:59,dbe:1,
+     ir:[['3350,3180','N–H ammide (2 bande)'],['1670','C=O ammide (banda I)'],['1600','N–H bending (banda II)']],
+     h1:[['2.0','3H','singolo','CH₃'],['6–7','2H','largo','NH₂ (2 segnali per rotazione ristretta)']],
+     c13:'CH₃ ~23 + C=O ~172',
+     ms:[['59','M⁺'],['44','M–CH₃ / CONH₂⁺'],['15','CH₃⁺']],
+     why:'DBE=1 (il C=O). C=O basso a 1670 (coniugazione con N) + due bande N–H → <b>ammide primaria</b>. Il C=O a 172 ppm e la rotazione ristretta del legame ammidico (che sdoppia gli NH) sono diagnostici. Distinzione da acido: niente O–H largo 3000–2500 né COOH a 11 ppm.',
+     opt:['Acido acetico','Glicina','Nitroetano']},
+    {n:'Acetonitrile',formula:'C₂H₃N',mw:41,dbe:2,
+     ir:[['2250','C≡N stiramento (netto, debole)'],['2940','C–H']],
+     h1:[['2.0','3H','singolo','CH₃']],
+     c13:'CH₃ ~1 + C≡N ~118',
+     ms:[['41','M⁺'],['40','M–H'],['39','C₂HN'],['38']],
+     why:'DBE=2 → entrambe dal triplo legame C≡N. La banda netta a 2250 cm⁻¹ è la firma del nitrile. Un solo singoletto 3H (CH₃ isolato). Formula con N dispari e MW 41 dispari (regola dell\'azoto). Il carbonio del nitrile a ~118 ppm.',
+     opt:['Acetaldeide','Etilammina','Chetene']},
+    {n:'1-Propanolo',formula:'C₃H₈O',mw:60,dbe:0,
+     ir:[['3330 (largo)','O–H'],['2960','C–H'],['1050','C–O 1°']],
+     h1:[['0.9','3H','tripletto','CH₃'],['1.6','2H','sestetto','CH₂ centrale'],['2.3','1H','largo','OH'],['3.6','2H','tripletto','CH₂–O']],
+     c13:'3 segnali (10, 25, 64)',
+     ms:[['60','M⁺ (debole)'],['31','CH₂OH⁺ (picco base)'],['59','M–H'],['42','M–H₂O']],
+     why:'DBE=0. O–H largo → alcol. La catena propilica dà il pattern: CH₂–O tripletto a 3.6 (deschermato), CH₂ centrale <b>sestetto</b> (accoppia con 5 H: 3+2), CH₃ tripletto a 0.9. Il CH₂OH⁺ a m/z 31 conferma l\'alcol primario. La perdita d\'acqua (m/z 42) è tipica.',
+     opt:['2-Propanolo','Acido propanoico','Etere dietilico']}
   ];
   function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
   sec.innerHTML=
@@ -41291,7 +41425,14 @@ window.initElucid=function(){
       +'<button id="elRandom" style="border:1px solid #a78bfa;background:#241a45;color:#c9b6ff;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer">🎲 Casuale</button>'
       +'<div id="elScore" style="margin-left:auto;color:#5eead4;font-weight:700;font-size:.85rem;display:none">Sfida: <span id="elS">0</span>/<span id="elT">0</span></div>'
     +'</div>'
-    +'<div id="elBody"></div>';
+    +'<div id="elBody"></div>'
+    +'<div style="margin-top:18px;background:#0c1f33;border:1px solid #6bcfff;border-radius:12px;padding:14px">'
+      +'<div style="color:#6bcfff;font-weight:800;font-size:1rem;margin-bottom:2px">🎼 Simulatore di molteplicità ¹H-NMR — regola dell\'n+1</div>'
+      +'<div style="color:#9fb3c8;font-size:.82rem;line-height:1.5;margin-bottom:10px">Un protone accoppia con i vicini: <b>n</b> idrogeni equivalenti adiacenti danno <b>n+1</b> righe, con intensità del triangolo di Pascal. Muovi lo slider.</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px"><span style="color:#8fa3b8;font-size:.82rem">H vicini (n):</span><input id="elN" type="range" min="0" max="7" step="1" value="3" style="flex:1;min-width:160px;accent-color:#6bcfff"><span id="elNv" style="color:#6bcfff;font-weight:700;font-family:ui-monospace,monospace">3</span></div>'
+      +'<canvas id="elNmrCv" width="820" height="200" style="width:100%;max-width:820px;background:#081522;border-radius:8px;display:block"></canvas>'
+      +'<div id="elNmrInfo" style="color:#cdd9e6;font-size:.84rem;margin-top:8px"></div>'
+    +'</div>';
   var body=sec.querySelector('#elBody'), mode='study', cur=0, sc=0, tot=0;
   function tbl(title,rows,col){
     var h='<div style="background:#0c1f33;border:1px solid #16273e;border-radius:10px;padding:11px 13px"><div style="color:'+col+';font-weight:700;font-size:.86rem;margin-bottom:6px">'+title+'</div>'
@@ -41356,7 +41497,28 @@ window.initElucid=function(){
   sec.querySelector('#elModeChal').onclick=function(){setMode('chal');};
   sec.querySelector('#elSel').onchange=function(){cur=+this.value;render();};
   sec.querySelector('#elRandom').onclick=function(){cur=Math.floor(Math.random()*MOL.length);sec.querySelector('#elSel').value=cur;render();};
-  render();
+  // simulatore molteplicità
+  var NAMES=['singoletto','doppietto','tripletto','quartetto','quintetto','sestetto','settetto','ottetto'];
+  function binom(n){ var row=[1]; for(var k=0;k<n;k++){ row.push(row[k]*(n-k)/(k+1)); } return row; }
+  function drawNmr(){
+    var n=+sec.querySelector('#elN').value; sec.querySelector('#elNv').textContent=n;
+    var cv=sec.querySelector('#elNmrCv'); if(!cv)return; var x=cv.getContext('2d'); var W=cv.width,H=cv.height;
+    x.clearRect(0,0,W,H);
+    var coef=binom(n), mx=Math.max.apply(null,coef), lines=n+1;
+    var cx=W/2, spread=Math.min(W*0.7,lines*46), x0=cx-spread/2, dx=lines>1?spread/(lines-1):0, base=H-34;
+    // baseline
+    x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(30,base); x.lineTo(W-30,base); x.stroke();
+    coef.forEach(function(c,i){
+      var px=lines>1?x0+i*dx:cx, hh=(c/mx)*(H-70);
+      x.strokeStyle='#6bcfff'; x.lineWidth=3; x.beginPath(); x.moveTo(px,base); x.lineTo(px,base-hh); x.stroke();
+      x.fillStyle='#9fb3c8'; x.font='11px ui-monospace,monospace'; x.textAlign='center'; x.fillText(c,px,base-hh-6);
+    });
+    x.fillStyle='#6bcfff'; x.font='bold 13px system-ui'; x.textAlign='center';
+    x.fillText((n+1)+' righe · '+(NAMES[n]||(n+1)+'-etto'),cx,22);
+    sec.querySelector('#elNmrInfo').innerHTML='<b>n = '+n+'</b> H vicini → <b>'+(n+1)+' righe</b> ('+(NAMES[n]||'')+'). Rapporto delle intensità (Pascal): <b>'+coef.join(' : ')+'</b>. Esempio: il CH₂ di un etile (–CH₂–CH₃) vede 3 H → quartetto; il CH₃ vede 2 H → tripletto.';
+  }
+  sec.querySelector('#elN').oninput=drawNmr;
+  render(); drawNmr();
 };
 </script>
 </body>

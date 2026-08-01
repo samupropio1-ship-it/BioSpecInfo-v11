@@ -1333,11 +1333,66 @@ function renderCalc(){
     +'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:#8fa3b8">'
       +'<span>🔵 O/B calde</span><span>⚪ A/F</span><span>🟡 G (come il Sole)</span><span>🟠 K</span><span>🔴 M fredde</span>'
     +'</div></div>';
+  // ── Transito di esopianeta ──
+  h+='<div style="margin-top:20px;background:#0c1f33;border:1px solid #1c3a57;border-radius:14px;padding:16px">'
+    +'<div style="color:#00c9b7;font-weight:800;font-size:1.05rem;margin-bottom:2px">🪐 Transito di esopianeta — curva di luce</div>'
+    +'<div style="color:#9fb3c8;font-size:.82rem;line-height:1.5;margin-bottom:10px;max-width:760px">Il metodo dei transiti (Kepler, TESS): quando un pianeta passa davanti alla stella, ne oscura una frazione e la luce cala. La <b>profondità</b> del calo = (R_pianeta/R_stella)² rivela il raggio del pianeta. Muovi gli slider.</div>'
+    +'<canvas id="trCv" width="880" height="320" style="width:100%;max-width:880px;background:#050b16;border-radius:10px;display:block"></canvas>'
+    +'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">'
+      +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.74rem;color:#8fa3b8">R pianeta / R stella: <b id="trRv" style="color:#00c9b7">0.10</b><input id="trR" type="range" min="0.02" max="0.3" step="0.01" value="0.1" style="accent-color:#00c9b7"></label>'
+      +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.74rem;color:#8fa3b8">parametro d\'impatto b: <b id="trBv" style="color:#00c9b7">0.0</b><input id="trB" type="range" min="0" max="1.1" step="0.05" value="0" style="accent-color:#00c9b7"></label>'
+      +'<label style="display:flex;flex-direction:column;gap:2px;font-size:.74rem;color:#8fa3b8">velocità: <b id="trSv" style="color:#00c9b7">1.0×</b><input id="trS" type="range" min="0.3" max="3" step="0.1" value="1" style="accent-color:#00c9b7"></label>'
+    +'</div><div id="trInfo" style="color:#cdd9e6;font-size:.82rem;margin-top:8px"></div></div>';
   c.innerHTML=h;
   function recompute(idx){ var card=CALCS[idx]; var vals=card.in.map(function(_,ii){ var el=c.querySelector('.calc-in[data-c="'+idx+'"][data-i="'+ii+'"]'); return el?parseFloat(el.value):NaN; }); var out=c.querySelector('.calc-out[data-c="'+idx+'"]'); if(out)out.textContent=card.out(vals); }
   c.querySelectorAll('.calc-in').forEach(function(el){ el.oninput=function(){ recompute(parseInt(el.getAttribute('data-c'),10)); }; });
   CALCS.forEach(function(_,idx){ recompute(idx); });
   _renderHR(c);
+  _renderTransit(c);
+}
+function _renderTransit(c){
+  var cv=c.querySelector('#trCv'); if(!cv)return; var ctx=cv.getContext('2d'); var W=cv.width,H=cv.height;
+  var rR=0.1, b=0, spd=1, phase=-1.4, raf=null;
+  var skyTop=18, skyH=150, starCx=W/2, starCy=skyTop+skyH/2, starR=52;
+  var lcTop=skyTop+skyH+16, lcH=H-lcTop-26, lcL=60, lcR=W-20;
+  function overlapArea(d,r1,r2){ // area di intersezione di due cerchi
+    if(d>=r1+r2)return 0; if(d<=Math.abs(r1-r2))return Math.PI*Math.min(r1,r2)*Math.min(r1,r2);
+    var a1=Math.acos((d*d+r1*r1-r2*r2)/(2*d*r1)), a2=Math.acos((d*d+r2*r2-r1*r1)/(2*d*r2));
+    return r1*r1*(a1-Math.sin(2*a1)/2)+r2*r2*(a2-Math.sin(2*a2)/2);
+  }
+  function flux(px){ // px = posizione x del pianeta in unità di raggi stellari da centro
+    var rp=rR, dd=Math.hypot(px, b); var ov=overlapArea(dd,1,rp); return 1-ov/Math.PI;
+  }
+  function draw(){
+    rR=+c.querySelector('#trR').value; b=+c.querySelector('#trB').value; spd=+c.querySelector('#trS').value;
+    c.querySelector('#trRv').textContent=rR.toFixed(2); c.querySelector('#trBv').textContent=b.toFixed(1); c.querySelector('#trSv').textContent=spd.toFixed(1)+'×';
+    ctx.clearRect(0,0,W,H);
+    // stella
+    var g=ctx.createRadialGradient(starCx,starCy,4,starCx,starCy,starR); g.addColorStop(0,'#fff7e0'); g.addColorStop(.6,'#ffd36b'); g.addColorStop(1,'#e8971f');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(starCx,starCy,starR,0,7); ctx.fill();
+    // pianeta
+    var planX=starCx+phase*starR, planY=starCy+b*starR, planR=rR*starR;
+    ctx.fillStyle='#0a0e14'; ctx.strokeStyle='rgba(94,234,212,.5)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(planX,planY,planR,0,7); ctx.fill(); ctx.stroke();
+    // curva di luce
+    ctx.strokeStyle='#26406a'; ctx.beginPath(); ctx.moveTo(lcL,lcTop); ctx.lineTo(lcL,lcTop+lcH); ctx.lineTo(lcR,lcTop+lcH); ctx.stroke();
+    var depth=rR*rR;
+    function LX(ph){ return lcL+(ph+1.6)/3.2*(lcR-lcL); } function LY(f){ return lcTop+ (1-f)/(depth*1.6||1)*lcH*0.5 + 6; }
+    ctx.strokeStyle='#5eead4'; ctx.lineWidth=2; ctx.beginPath();
+    for(var ph=-1.6;ph<=1.6;ph+=0.02){ var f=flux(ph); var yy=lcTop+lcH - (f-(1-depth*1.3))/(depth*1.3||1)*lcH*0.86; if(ph===-1.6)ctx.moveTo(LX(ph),yy); else ctx.lineTo(LX(ph),yy); }
+    ctx.stroke();
+    // marcatore posizione attuale
+    var fnow=flux(phase); var ynow=lcTop+lcH - (fnow-(1-depth*1.3))/(depth*1.3||1)*lcH*0.86;
+    ctx.fillStyle='#f5c451'; ctx.beginPath(); ctx.arc(LX(phase),ynow,4,0,7); ctx.fill();
+    ctx.fillStyle='#9fb3c8'; ctx.font='11px system-ui'; ctx.textAlign='left'; ctx.fillText('flusso',lcL-4,lcTop-2); ctx.fillText('tempo →',(lcL+lcR)/2,lcTop+lcH+18);
+    var transiting=(fnow<0.9999);
+    c.querySelector('#trInfo').innerHTML='Profondità del transito ≈ <b>'+(depth*100).toFixed(2)+'%</b> (= (Rp/R★)²). '+(b>1?'Con b &gt; 1 il pianeta <b>manca</b> il disco: nessun transito.':'Un pianeta come la Terra sul Sole darebbe solo lo 0,008%.')+' Flusso attuale: '+(fnow*100).toFixed(2)+'%.';
+    phase+=0.012*spd; if(phase>1.6)phase=-1.6;
+    raf=requestAnimationFrame(draw);
+  }
+  ['trR','trB','trS'].forEach(function(id){ var el=c.querySelector('#'+id); if(el)el.oninput=function(){}; });
+  if(cv._raf)cancelAnimationFrame(cv._raf);
+  draw();
 }
 function _tempColor(T){
   // colore stellare approssimato dalla temperatura
