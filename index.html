@@ -34461,6 +34461,7 @@ window.openChemDraw=function(){
       try{ if(inchi&&typeof RD.get_inchikey_for_inchi==='function')inchikey=RD.get_inchikey_for_inchi(inchi); }catch(e){}
       var inchiFormula=''; try{ var _fm=inchi.match(/^InChI=1S?\/([A-Za-z0-9]+)/); if(_fm)inchiFormula=_fm[1]; }catch(e){}
       try{ svg=mol.get_svg(360,280); }catch(e){}
+      var fgroups=detectFG(RD,mol);
       if(mol.delete)mol.delete();
       var mw=desc.exactmw||desc.amw||0;
       var nChi=(canon.match(/@+/g)||[]).length, hasEZ=/[\/\\]/.test(canon);
@@ -34489,6 +34490,16 @@ window.openChemDraw=function(){
           +'<div id="cd3dNote" style="color:#8fa3b8;font-size:.75rem;margin-top:4px"></div>'
         +'</div>'
       +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:14px">'
+        +'<div style="background:#0c1f33;border:1px solid #2e7d5b;border-radius:12px;padding:14px">'
+          +'<div style="color:#6ee7b7;font-weight:800;font-size:1rem;margin-bottom:8px">🧪 Gruppi funzionali & sotto-strutture</div>'
+          +'<div id="cdFG" style="display:flex;flex-wrap:wrap;gap:6px"></div>'
+        +'</div>'
+        +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px">'
+          +'<div style="color:#c4b5fd;font-weight:800;font-size:1rem;margin-bottom:8px">💊 Drug-likeness · ADMET · indici</div>'
+          +'<div id="cdADMET"></div>'
+        +'</div>'
+      +'</div>'
       +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px;margin-top:14px">'
         +'<div style="color:#9d8cff;font-weight:800;font-size:1rem;margin-bottom:4px">🌐 Linguaggi chimici — tutte le notazioni</div>'
         +'<div style="color:#8fa3b8;font-size:.76rem;margin-bottom:6px">SMILES, InChI, InChIKey, SMARTS, formula, mol block, nomi comune/IUPAC e numero CAS. Premi 📋 per copiare.</div>'
@@ -34510,6 +34521,29 @@ window.openChemDraw=function(){
       +'</div>';
       res.innerHTML=html;
       renderSpectra(canon,desc,inchiFormula);
+      // Gruppi funzionali
+      (function(){ var host=document.getElementById('cdFG'); if(!host)return;
+        if(!fgroups.length){ host.innerHTML='<span style="color:#8fa3b8;font-size:.82rem">Nessun gruppo funzionale comune rilevato (idrocarburo o struttura semplice).</span>'; return; }
+        host.innerHTML=''; fgroups.forEach(function(g){ var t=document.createElement('span'); t.innerHTML=esc(g.name)+(g.n>1?' <b>×'+g.n+'</b>':''); t.style.cssText='border:1px solid '+g.col+';background:'+g.col+'22;color:'+g.col+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700'; host.appendChild(t); });
+      })();
+      // Drug-likeness / ADMET / indici
+      (function(){ var host=document.getElementById('cdADMET'); if(!host)return;
+        function f2(x){ return x==null?'—':(Math.round(x*100)/100); }
+        var dou=douOf(inchiFormula||myFormula());
+        var arom=desc.NumAromaticRings, aliph=desc.NumAliphaticRings, fsp3=desc.FractionCSP3, heavy=desc.NumHeavyAtoms, mr=desc.CrippenMR;
+        var idx=[['Massa esatta (monoisotopica)',(desc.exactmw!=null?desc.exactmw.toFixed(4)+' Da':'—')],['Insaturazioni (DoU)',dou==null?'—':dou],['Atomi pesanti',heavy!=null?heavy:'—'],['Anelli (arom./alif.)',(arom!=null?arom:'—')+' / '+(aliph!=null?aliph:'—')],['Frazione Csp³',fsp3!=null?f2(fsp3):'—'],['Rifrattività molare (MR)',mr!=null?f2(mr):'—'],['Carica formale netta',(canon.match(/\+/g)||[]).length-(canon.match(/-/g)||[]).length]];
+        var h='<div style="display:grid;grid-template-columns:1fr;gap:3px;font-size:.82rem;color:#cdd9e6;margin-bottom:10px">';
+        idx.forEach(function(r){ h+='<div style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #14273e;padding:3px 0"><span style="color:#9fb3c8">'+r[0]+'</span><b>'+r[1]+'</b></div>'; });
+        h+='</div>';
+        var rules=drugRules(desc);
+        h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+        rules.forEach(function(r){ var c=r.ok?'#5eead4':'#f5a35e'; h+='<span title="'+esc(r.detail)+'" style="border:1px solid '+c+';background:'+c+'1f;color:'+c+';border-radius:8px;padding:4px 9px;font-size:.76rem;font-weight:700">'+(r.ok?'✓ ':'✗ ')+esc(r.name)+'</span>'; });
+        h+='</div>';
+        var logS=esolLogS(desc,canon);
+        h+='<div style="font-size:.82rem;color:#cdd9e6"><b style="color:#7fd4ff">Solubilità stimata (ESOL):</b> '+(logS==null?'—':('logS ≈ '+logS.toFixed(2)+' mol/L — <b>'+solClass(logS)+'</b>'))+'</div>';
+        h+='<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">Regole: Lipinski (<i>Adv. Drug Deliv. Rev.</i> 46, 2001), Veber (<i>J. Med. Chem.</i> 45, 2002), Egan (2000), Ghose (1998), Muegge (2001); solubilità ESOL: Delaney (<i>J. Chem. Inf. Comput. Sci.</i> 44, 2004). Descrittori calcolati da RDKit.</div>';
+        host.innerHTML=h;
+      })();
       // Linguaggi chimici — tutte le notazioni
       (function(){ var host=document.getElementById('cdNotations'); if(!host)return; host.innerHTML='';
         function add(label,val,multi){ if(val==null||val==='')return; var row=document.createElement('div'); row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid #14273e'; var lab=document.createElement('div'); lab.textContent=label; lab.style.cssText='min-width:160px;color:#9d8cff;font-weight:700;font-size:.8rem;flex-shrink:0'; var vw=document.createElement('div'); vw.style.cssText='flex:1;min-width:0'; vw.innerHTML=multi?('<pre style="margin:0;max-height:130px;overflow:auto;white-space:pre;font-size:.66rem;color:#cfe;background:#081522;border-radius:6px;padding:6px">'+esc(val)+'</pre>'):('<code style="font-size:.78rem;color:#d7e6ff;word-break:break-all">'+esc(val)+'</code>'); var b=document.createElement('button'); b.textContent='📋'; b.style.cssText='border:1px solid #26406a;background:#16273e;color:#cfe;border-radius:7px;padding:4px 8px;font-size:.8rem;cursor:pointer;flex-shrink:0'; b.onclick=function(){ var c=vw.querySelector('code,pre'); cdCopy(c?c.textContent:val,b); }; row.appendChild(lab);row.appendChild(vw);row.appendChild(b); host.appendChild(row); }
@@ -34567,6 +34601,7 @@ window.openChemDraw=function(){
     h1:'<b>¹H-NMR</b> — spostamenti chimici e molteplicità da Pretsch/Bühlmann/Badertscher (Springer 2009); Hesse, Meier, Zeeh, <i>Spectroscopic Methods in Organic Chemistry</i>, Thieme; banche dati SDBS (AIST) e BMRB.',
     c13:'<b>¹³C-NMR</b> — δ(¹³C) da Pretsch/Bühlmann/Badertscher (Springer 2009); nmrshiftdb2 (Kuhn et al., <i>J. Chem. Inf. Model.</i> 2015).',
     ms:'<b>Spettrometria di massa</b> — regole di frammentazione da McLafferty & Tureček, <i>Interpretation of Mass Spectra</i>, 4ª ed., University Science Books 1993; NIST/EPA/NIH Mass Spectral Library (NIST 20).',
+    iso:'<b>Pattern isotopico</b> — abbondanze isotopiche naturali IUPAC (Meija et al., <i>Pure Appl. Chem.</i> 88, 2016, 293); convoluzione delle distribuzioni per elemento (analogo a Yergey, <i>Int. J. Mass Spectrom.</i> 1983).',
     uv:'<b>UV-Vis</b> — stime dei cromofori con regole di Woodward–Fieser; Silverstein, Webster, Kiemle, <i>Spectrometric Identification of Organic Compounds</i>, 8ª ed., Wiley 2014.',
     raman:'<b>Raman</b> — frequenze caratteristiche da Socrates (Wiley 2001); Larkin, <i>IR and Raman Spectroscopy: Principles and Spectral Interpretation</i>, 2ª ed., Elsevier 2018.'
   };
@@ -34586,6 +34621,53 @@ window.openChemDraw=function(){
     ];
     return '<div style="display:grid;gap:5px">'+refs.map(function(r){ return '<div style="font-size:.76rem;color:#c4d2e2;line-height:1.5">• '+r[0]+', '+r[1]+' — <a href="'+r[2]+'" target="_blank" rel="noopener" style="color:#7fb0ff">fonte ↗</a></div>'; }).join('')+'</div>';
   }
+  // ---- rilevamento gruppi funzionali (SMARTS via RDKit) ----
+  var FG_LIST=[
+    ['Acido carbossilico','[CX3](=O)[OX2H1]','#e57373'],['Carbossilato','[CX3](=O)[O-]','#e57373'],
+    ['Estere','[#6][CX3](=O)[OX2H0][#6]','#f0a35e'],['Ammide','[NX3][CX3](=[OX1])','#a5d6a7'],
+    ['Aldeide','[CX3H1](=O)[#6]','#ffb74d'],['Chetone','[#6][CX3](=[OX1])[#6]','#ffcc80'],
+    ['Alcol','[#6;!$(C=O)][OX2H]','#81d4fa'],['Fenolo','[OX2H][c]','#4fc3f7'],
+    ['Etere','[OD2;!$(OC=O)]([#6])[#6]','#b0bec5'],['Ammina primaria','[NX3;H2;!$(NC=O)][#6]','#ce93d8'],
+    ['Ammina secondaria','[NX3;H1;!$(NC=O)]([#6])[#6]','#ba68c8'],['Ammina terziaria','[NX3;H0;!$(NC=O)]([#6])([#6])[#6]','#ab47bc'],
+    ['Nitrile','[NX1]#[CX2]','#7986cb'],['Nitro','[$([NX3](=O)=O),$([NX3+](=O)[O-])]','#9575cd'],
+    ['Alogenuro','[#6][F,Cl,Br,I]','#4db6ac'],['Alchene','[CX3]=[CX3]','#aed581'],
+    ['Alchino','[CX2]#[CX2]','#8bc34a'],['Anello aromatico','c1ccccc1','#90caf9'],
+    ['Acido solfonico','[SX4](=[OX1])(=[OX1])[OX2H]','#fff176'],['Solfonammide','[SX4](=[OX1])(=[OX1])[NX3]','#fdd835'],
+    ['Tiolo','[#16X2H]','#dce775'],['Tioetere','[#16X2]([#6])[#6]','#c0ca33'],
+    ['Fosfato/estere fosf.','[PX4](=[OX1])([OX2,OX1-])[OX2,OX1-]','#ffab91'],['Immina','[CX3]=[NX2]','#80cbc4'],
+    ['Urea','[NX3][CX3](=[OX1])[NX3]','#bcaaa4'],['Carbammato','[NX3][CX3](=[OX1])[OX2]','#a1887f'],
+    ['Anidride','[CX3](=[OX1])[OX2][CX3](=[OX1])','#ff8a65'],['Epossido','[OX2r3]','#4dd0e1'],
+    ['Alogenuro acilico','[CX3](=[OX1])[F,Cl,Br,I]','#f06292'],['Guanidina','[NX3][CX3](=[NX2])[NX3]','#9fa8da']
+  ];
+  function detectFG(RD,mol){ var out=[]; if(!RD||!mol||typeof RD.get_qmol!=='function'||typeof mol.get_substruct_matches!=='function')return out;
+    FG_LIST.forEach(function(f){ var q=null; try{ q=RD.get_qmol(f[1]); }catch(e){ q=null; } if(!q)return;
+      try{ var arr=JSON.parse(mol.get_substruct_matches(q)||'[]'); if(arr&&arr.length)out.push({name:f[0],n:arr.length,col:f[2]}); }catch(e){}
+      if(q&&q.delete)q.delete(); });
+    return out; }
+  // ---- indici molecolari & drug-likeness ----
+  function parseFormula(f){ var c={}; if(!f)return c; var re=/([A-Z][a-z]?)(\d*)/g,m; while((m=re.exec(f))){ if(!m[1])continue; c[m[1]]=(c[m[1]]||0)+(m[2]?parseInt(m[2],10):1); } return c; }
+  function douOf(f){ var c=parseFormula(f); var C=(c.C||0)+(c.Si||0),H=(c.H||0),N=(c.N||0)+(c.P||0),X=(c.F||0)+(c.Cl||0)+(c.Br||0)+(c.I||0); var d=(2*C+2+N-H-X)/2; return isFinite(d)?d:null; }
+  function aromProp(canon,heavy){ var m=canon?canon.match(/[cnops]/g):null; var ar=m?m.length:0; return heavy?ar/heavy:0; }
+  function esolLogS(desc,canon){ var logp=desc.CrippenClogP,mw=desc.amw,rb=desc.NumRotatableBonds,heavy=desc.NumHeavyAtoms; if(logp==null||mw==null)return null; var ap=aromProp(canon,heavy); return 0.16-0.63*logp-0.0062*mw+0.066*(rb||0)-0.74*ap; }
+  function solClass(logS){ if(logS==null)return '—'; if(logS>0)return 'molto solubile'; if(logS>-2)return 'solubile'; if(logS>-4)return 'poco solubile'; if(logS>-6)return 'scarsamente solubile'; return 'insolubile'; }
+  function drugRules(desc){
+    var mw=desc.amw,logp=desc.CrippenClogP,hbd=desc.NumHBD,hba=desc.NumHBA,tpsa=desc.tpsa,rb=desc.NumRotatableBonds,mr=desc.CrippenMR,rings=desc.NumRings,heavy=desc.NumHeavyAtoms;
+    function R(name,ok,detail){ return {name:name,ok:ok,detail:detail}; }
+    var out=[];
+    if(mw!=null&&logp!=null){ var lipV=(mw>500)+(logp>5)+(hbd>5)+(hba>10); out.push(R('Lipinski (regola del 5)',lipV<=1,lipV+' violazioni')); }
+    if(rb!=null&&tpsa!=null){ out.push(R('Veber (biodisp. orale)',rb<=10&&tpsa<=140,'RotB '+rb+', TPSA '+tpsa.toFixed(0))); }
+    if(tpsa!=null&&logp!=null){ out.push(R('Egan (assorbimento)',tpsa<=131.6&&logp<=5.88,'TPSA '+tpsa.toFixed(0)+', LogP '+logp.toFixed(1))); }
+    if(mw!=null&&logp!=null&&mr!=null&&heavy!=null){ out.push(R('Ghose',mw>=160&&mw<=480&&logp>=-0.4&&logp<=5.6&&mr>=40&&mr<=130&&heavy>=20&&heavy<=70,'MW/LogP/MR/atomi')); }
+    if(mw!=null&&logp!=null&&tpsa!=null){ out.push(R('Muegge (drug-like)',mw>=200&&mw<=600&&logp>=-2&&logp<=5&&tpsa<=150&&(rings==null||rings<=7)&&(hba==null||hba<=10)&&(hbd==null||hbd<=5)&&(rb==null||rb<=15),'multiparametro')); }
+    return out;
+  }
+  // ---- distribuzione isotopica (MS ad alta accuratezza) ----
+  var ISO={H:[[0,0.999885],[1,0.000115]],C:[[0,0.9893],[1,0.0107]],N:[[0,0.99636],[1,0.00364]],O:[[0,0.99757],[1,0.00038],[2,0.00205]],F:[[0,1]],Si:[[0,0.92223],[1,0.04685],[2,0.03092]],P:[[0,1]],S:[[0,0.9499],[1,0.0075],[2,0.0425],[4,0.0001]],Cl:[[0,0.7576],[2,0.2424]],Br:[[0,0.5069],[2,0.4931]],I:[[0,1]],B:[[0,0.199],[1,0.801]],Se:[[0,0.0089],[2,0.0937],[3,0.0763],[4,0.2377],[6,0.4961]]};
+  function convolve(a,b){ var out=[]; for(var i=0;i<a.length;i++){ if(!a[i])continue; for(var j=0;j<b.length;j++){ if(!b[j])continue; out[i+j]=(out[i+j]||0)+a[i]*b[j]; } } return out; }
+  function isotopeDist(formula){ var c=parseFormula(formula); var dist=[1];
+    Object.keys(c).forEach(function(el){ var iso=ISO[el]; if(!iso)return; var single=[]; iso.forEach(function(p){ single[p[0]]=(single[p[0]]||0)+p[1]; }); for(var s=0;s<single.length;s++)if(!single[s])single[s]=0;
+      for(var k=0;k<c[el];k++){ dist=convolve(dist,single); if(dist.length>16)dist=dist.slice(0,16); } });
+    var mx=Math.max.apply(null,dist.map(function(x){return x||0;}))||1; return dist.map(function(x){return (x||0)/mx*100;}); }
   function init3D(canon){
     var host=document.getElementById('cd3d'), btns=document.getElementById('cd3dBtns'), note=document.getElementById('cd3dNote'); if(!host)return;
     if(typeof $3Dmol==='undefined'){ note.textContent='Libreria 3D non caricata.'; return; }
@@ -34604,7 +34686,7 @@ window.openChemDraw=function(){
   // ---- spettroscopia predetta (micro-sezioni) ----
   function renderSpectra(smi,desc,formula){
     var tabsEl=document.getElementById('cdSpecTabs'), body=document.getElementById('cdSpecBody'); if(!tabsEl)return;
-    var TABS=[['ir','📊 IR'],['h1','〰 ¹H-NMR'],['c13','📐 ¹³C-NMR'],['ms','⚗️ Massa'],['uv','🌈 UV-Vis'],['raman','🔴 Raman']];
+    var TABS=[['ir','📊 IR'],['h1','〰 ¹H-NMR'],['c13','📐 ¹³C-NMR'],['ms','⚗️ Massa'],['iso','⚛️ Isotopi'],['uv','🌈 UV-Vis'],['raman','🔴 Raman']];
     var cur='ir';
     function paint(){ tabsEl.innerHTML=''; TABS.forEach(function(t){ var on=t[0]===cur; var b=document.createElement('button'); b.textContent=t[1]; b.style.cssText='border:1px solid '+(on?'#f5c451':'rgba(148,163,184,.3)')+';background:'+(on?'#3a2f10':'transparent')+';color:'+(on?'#f5c451':'#9fb3c8')+';border-radius:7px;padding:5px 11px;font-weight:700;cursor:pointer;font-size:.8rem'; b.onclick=function(){cur=t[0];paint();show();}; tabsEl.appendChild(b); }); }
     function wrap(svg,legend){ return '<div style="background:#fff;border-radius:10px;overflow:hidden">'+svg+'</div>'+(legend?'<div style="font-size:.8rem;color:#cdd9e6;line-height:1.7;margin-top:6px">'+legend+'</div>':''); }
@@ -34614,10 +34696,24 @@ window.openChemDraw=function(){
         else if(cur==='h1'){ var pk=(typeof nmrPeakList==='function')?nmrPeakList(smi):[]; var svg=(typeof makeNMRsvg==='function')?makeNMRsvg(pk,'#6a1b9a'):''; body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#6a1b9a">'+p.ppm+' ppm</b> '+p.lbl+' ('+p.mult+', '+p.nH+'H)</span>';}).join('')); }
         else if(cur==='c13'){ var pk=cd13C(smi); var svg=cd13Csvg(pk); body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#0a8f7a">'+p.ppm+' ppm</b> '+p.lbl+'</span>';}).join('')); }
         else if(cur==='ms'){ body.innerHTML=wrap(msSVG(smi,formula), 'Ione molecolare M⁺ e frammenti principali (perdite neutre tipiche dai gruppi presenti).'); }
+        else if(cur==='iso'){ body.innerHTML=wrap(isoSVG(formula||myFormula()), 'Distribuzione isotopica del picco molecolare calcolata dalle <b>abbondanze naturali</b> (M, M+1, M+2…). Pattern diagnostici: <b>Cl</b> ≈ 3:1 (M:M+2), <b>Br</b> ≈ 1:1, <b>S</b> ≈ +4,4% a M+2.'); }
         else if(cur==='uv'){ body.innerHTML=wrap(uvSVG(smi), 'Bande di assorbimento elettronico stimate dai cromofori (transizioni π→π* e n→π*).'); }
         else { var bands=(typeof irBandList==='function')?irBandList(smi):[]; body.innerHTML=wrap(ramanSVG(bands), 'Raman è <b>complementare</b> all\'IR: i legami <b>simmetrici/apolari</b> (C=C, C≡C, S–S, respiro degli anelli) danno righe intense, deboli in IR.'); }
       }catch(e){ body.innerHTML='<div style="color:#f59e0b;padding:10px">Spettro non disponibile per questa struttura.</div>'; }
       var ce=document.getElementById('cdSpecCite'); if(ce)ce.innerHTML='📖 '+(SPEC_CITE[cur]||'');
+    }
+    function isoSVG(formula){
+      var dist=isotopeDist(formula); var M=(desc&&desc.exactmw)?Math.round(desc.exactmw):(nominalMass(formula)||0);
+      var W=800,H=250,PL=48,PR=14,PT=18,PB=42,CW=W-PL-PR,CH=H-PT-PB;
+      var maxShift=0; for(var i=0;i<dist.length;i++)if(dist[i]>=0.1)maxShift=i; var span=Math.max(4,maxShift+1);
+      var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+      s+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(W-PR)+'" y2="'+(PT+CH)+'" stroke="#333"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#333"/>';
+      for(var g=0;g<=5;g++){ var iv=Math.round(g/5*100); s+='<text x="'+(PL-6)+'" y="'+(PT+CH-g/5*CH+3)+'" font-size="9" fill="#555" text-anchor="end">'+iv+'</text>'; }
+      s+='<text x="12" y="'+(PT+CH/2)+'" font-size="10" fill="#333" transform="rotate(-90 12 '+(PT+CH/2)+')" text-anchor="middle">Intensità rel. (%)</text>';
+      for(var k=0;k<=span;k++){ var x=PL+CW*(k+0.5)/(span+1); s+='<text x="'+x+'" y="'+(H-14)+'" font-size="10" fill="#555" text-anchor="middle">'+(M+k)+'</text>'; }
+      s+='<text x="'+(PL+CW/2)+'" y="'+H+'" font-size="10" fill="#333" text-anchor="middle">m/z</text>';
+      for(var k2=0;k2<=span;k2++){ var inten=dist[k2]||0; if(inten<0.05)continue; var x2=PL+CW*(k2+0.5)/(span+1); var y1=PT+CH-inten/100*CH*0.94; s+='<line x1="'+x2+'" y1="'+y1+'" x2="'+x2+'" y2="'+(PT+CH)+'" stroke="#1565c0" stroke-width="3"/>'; s+='<text x="'+x2+'" y="'+(y1-4)+'" font-size="9" fill="#1565c0" text-anchor="middle">'+(inten>=1?inten.toFixed(inten>=10?0:1):'')+'</text>'; }
+      return s+'</svg>';
     }
     function msSVG(smi,formula){
       var W=800,H=240,PL=44,PR=14,PT=16,PB=40,CW=W-PL-PR,CH=H-PT-PB;
