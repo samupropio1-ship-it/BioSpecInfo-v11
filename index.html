@@ -40118,7 +40118,10 @@ window.initCFGraf=function(){
     {id:'arr',t:'🔥 Arrhenius'},
     {id:'vdw',t:'💨 Van der Waals'},
     {id:'boltz',t:'📊 Boltzmann'},
-    {id:'first',t:'⏳ Cinetica 1° ordine'}
+    {id:'first',t:'⏳ Cinetica 1° ordine'},
+    {id:'titr',t:'⚗️ Titolazione acido-base'},
+    {id:'eq',t:'⚖️ Le Chatelier'},
+    {id:'nernst',t:'🔋 Nernst (elettrochimica)'}
   ];
   var tabsEl=sec.querySelector('#cfgTabs'), bodyEl=sec.querySelector('#cfgBody'), cur='mm';
   function paintTabs(){
@@ -40211,6 +40214,9 @@ window.initCFGraf=function(){
     else if(cur==='vdw')renderVDW();
     else if(cur==='boltz')renderBoltz();
     else if(cur==='first')renderFirst();
+    else if(cur==='titr')renderTitr();
+    else if(cur==='eq')renderEq();
+    else if(cur==='nernst')renderNernst();
   }
 
   // --- Michaelis-Menten con inibizione ---
@@ -40375,6 +40381,103 @@ window.initCFGraf=function(){
         +'Per un 1° ordine il grafico ln[A] vs t è una retta di pendenza −k: è il test diagnostico dell\'ordine di reazione.';
     }
     ['fA0','fK','fT'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  // --- Titolazione acido-base (curva di pH) ---
+  function renderTitr(){
+    bodyEl.innerHTML=panel('cfgTitr',
+      slider('Conc. acido C<sub>a</sub>','tC',0.01,1,0.1,0.01,'M')
+      +slider('Volume acido','tV',10,100,50,5,'mL')
+      +slider('pK<sub>a</sub> acido','tpKa',-1,12,-1,0.5,'')
+      +slider('Conc. base C<sub>b</sub>','tCb',0.01,1,0.1,0.01,'M'),
+      '');
+    function upd(){
+      var Ca=val('tC'),Va=val('tV'),pKa=val('tpKa'),Cb=val('tCb');
+      setv('tC',Ca.toFixed(2));setv('tV',Va);setv('tpKa',pKa<0?'forte':pKa.toFixed(1));setv('tCb',Cb.toFixed(2));
+      var strong=(pKa<0), Ka=Math.pow(10,-pKa), n0=Ca*Va/1000, Veq=n0/Cb*1000;
+      var Vmax=Veq*2, pts=[];
+      for(var Vb=0;Vb<=Vmax;Vb+=Vmax/300){
+        var nB=Cb*Vb/1000, Vtot=(Va+Vb)/1000, pH;
+        if(strong){
+          if(nB<n0){ var Hp=(n0-nB)/Vtot; pH=-Math.log10(Math.max(Hp,1e-14)); }
+          else if(nB>n0){ var OH=(nB-n0)/Vtot; pH=14+Math.log10(Math.max(OH,1e-14)); }
+          else pH=7;
+        } else {
+          if(nB<=0){ var Hp=Math.sqrt(Ka*Ca); pH=-Math.log10(Math.max(Hp,1e-14)); }
+          else if(nB<n0){ pH=pKa+Math.log10(nB/(n0-nB)); }
+          else if(nB===n0 || Math.abs(nB-n0)<1e-9){ var conjA=n0/Vtot,Kb=1e-14/Ka,OHe=Math.sqrt(Kb*conjA); pH=14+Math.log10(Math.max(OHe,1e-14)); }
+          else { var OH=(nB-n0)/Vtot; pH=14+Math.log10(Math.max(OH,1e-14)); }
+        }
+        pts.push([Vb, Math.max(0,Math.min(14,pH))]);
+      }
+      var cv=sec.querySelector('#cfgTitr');
+      var pHeq=strong?7:( function(){var conjA=n0/((Va+Veq)/1000),Kb=1e-14/Ka;return 14+Math.log10(Math.sqrt(Kb*conjA));}() );
+      plot(cv,[{pts:pts,color:'#5eead4'}],{x0:0,x1:Vmax,y0:0,y1:14,xl:'Volume di base aggiunto (mL)',yl:'pH',
+        guides:[{x:Veq,color:'rgba(245,196,81,.5)'},{y:7,color:'rgba(148,163,184,.3)'}].concat(strong?[]:[{x:Veq/2,color:'rgba(124,111,255,.4)'},{y:pKa,color:'rgba(124,111,255,.4)'}]),
+        marks:[{x:Veq,y:pHeq,color:'#f5c451',label:'punto equiv.'}].concat(strong?[]:[{x:Veq/2,y:pKa,color:'#7c6fff',label:'pH=pKa (½ eq)'}]),
+        legend:[{color:'#5eead4',t:'curva di pH'}]});
+      sec.querySelector('#cfgTitrinfo').innerHTML=
+        'Punto di equivalenza a <b>V = '+Veq.toFixed(1)+' mL</b> (moli base = moli acido). '
+        +(strong?'Acido <b>forte</b> + base forte: salto netto attorno a pH 7, equivalenza neutra.':'Acido <b>debole</b> (pK<sub>a</sub>='+pKa.toFixed(1)+'): a metà equivalenza <b>pH = pK<sub>a</sub></b> (zona tampone, plateau); l\'equivalenza è <b>basica</b> (pH '+pHeq.toFixed(1)+') per idrolisi della base coniugata.');
+    }
+    ['tC','tV','tpKa','tCb'].forEach(function(id){on(id,upd);});upd();
+  }
+
+  // --- Equilibrio & Le Chatelier ---
+  function renderEq(){
+    bodyEl.innerHTML=panel('cfgEq',
+      slider('K<sub>eq</sub>','eK',0.05,20,2,0.05,'')
+      +slider('Perturbazione [A]₀','eA',0.1,3,1,0.1,'M')
+      +'<label style="min-width:200px;flex:1;font-size:.85rem;color:#9fb3c8">Reazione A ⇌ B (Δn, ΔH)<br><select id="eType" style="width:100%;margin-top:4px;padding:6px;background:#081522;color:#e6fffb;border:1px solid rgba(94,234,212,.3);border-radius:6px"><option value="iso">A ⇌ B (semplice)</option><option value="exo">esotermica (ΔH<0)</option><option value="endo">endotermica (ΔH>0)</option></select></label>',
+      '');
+    function upd(){
+      var K=val('eK'),A0=val('eA'),type=sec.querySelector('#eType').value;
+      setv('eK',K.toFixed(2));setv('eA',A0.toFixed(1));
+      // A ⇌ B, K=[B]/[A]; approccio all'equilibrio nel tempo (cinetica di rilassamento)
+      var kf=0.6, kr=kf/K, Aeq=A0/(1+K), Beq=A0*K/(1+K);
+      var pA=[],pB=[];
+      for(var t=0;t<=12;t+=0.05){
+        var A=Aeq+(A0-Aeq)*Math.exp(-(kf+kr)*t), B=A0-A;
+        pA.push([t,A]); pB.push([t,B]);
+      }
+      var cv=sec.querySelector('#cfgEq');
+      plot(cv,[{pts:pA,color:'#ff7859'},{pts:pB,color:'#5eead4'}],
+        {x0:0,x1:12,y0:0,y1:A0,xl:'tempo →',yl:'concentrazione (M)',
+         guides:[{y:Aeq,color:'rgba(255,120,89,.3)'},{y:Beq,color:'rgba(94,234,212,.3)'}],
+         legend:[{color:'#ff7859',t:'[A]'},{color:'#5eead4',t:'[B]'}]});
+      sec.querySelector('#cfgEqinfo').innerHTML=
+        'All\'equilibrio: <b>[A]='+Aeq.toFixed(2)+' M</b>, <b>[B]='+Beq.toFixed(2)+' M</b> (K=[B]/[A]='+K.toFixed(2)+'). '
+        +'K>1 favorisce i prodotti. <b>Le Chatelier</b>: aggiungere A sposta a destra; '
+        +(type==='exo'?'reazione <b>esotermica</b> → <b>scaldare abbassa K</b> (sposta verso i reagenti).':type==='endo'?'reazione <b>endotermica</b> → <b>scaldare aumenta K</b> (sposta verso i prodotti).':'la temperatura sposta l\'equilibrio secondo il segno di ΔH.')
+        +' Un catalizzatore accelera l\'arrivo ma <b>non</b> cambia le concentrazioni finali.';
+    }
+    ['eK','eA'].forEach(function(id){on(id,upd);});sec.querySelector('#eType').onchange=upd;upd();
+  }
+
+  // --- Equazione di Nernst (potenziale di cella) ---
+  function renderNernst(){
+    bodyEl.innerHTML=panel('cfgNernst',
+      slider('E° cella','nE0',-1,3,1.1,0.05,'V')
+      +slider('n (elettroni)','nN',1,4,2,1,'')
+      +slider('Temperatura','nT',273,373,298,1,'K'),
+      '');
+    function upd(){
+      var E0=val('nE0'),n=val('nN'),T=val('nT'),R=8.314,F=96485;
+      setv('nE0',E0.toFixed(2));setv('nN',n);setv('nT',T);
+      var pts=[]; // E vs log10(Q)
+      for(var lQ=-6;lQ<=6;lQ+=0.05){ var E=E0-(2.303*R*T/(n*F))*lQ; pts.push([lQ,E]); }
+      var slope=2.303*R*T/(n*F);
+      var cv=sec.querySelector('#cfgNernst');
+      plot(cv,[{pts:pts,color:'#5eead4'}],{x0:-6,x1:6,xl:'log₁₀ Q (quoziente di reazione)',yl:'E cella (V)',
+        guides:[{x:0,color:'rgba(245,196,81,.5)'},{y:E0,color:'rgba(245,196,81,.3)'}],
+        marks:[{x:0,y:E0,color:'#f5c451',label:'E=E° (Q=1)'}],
+        legend:[{color:'#5eead4',t:'E = E° − (RT/nF)·lnQ'}]});
+      var Ecell=E0, Keq=Math.pow(10,n*E0/slope*1);
+      sec.querySelector('#cfgNernstinfo').innerHTML=
+        '<b>E = E° − (RT/nF)·lnQ</b>. A '+T+' K il termine vale <b>'+(slope*1000).toFixed(1)+' mV per decade</b> di Q (≈59 mV a 25 °C, n=1). '
+        +'Quando Q=1, E=E°='+E0.toFixed(2)+' V. All\'equilibrio E=0 e Q=K: log K = nE°/'+ (slope).toFixed(4) +' → <b>K ≈ '+(Keq>1e6?Keq.toExponential(1):Keq.toFixed(0))+'</b>. E°>0 ⇒ reazione spontanea (ΔG°=−nFE°<0).';
+    }
+    ['nE0','nN','nT'].forEach(function(id){on(id,upd);});upd();
   }
 
   paintTabs();render();
