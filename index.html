@@ -2081,15 +2081,22 @@ window.BSI_TELEMETRY_URL='';</script>
       FN=cm[POS][NEG]; FP=cm[NEG][POS]; TN=cm[NEG][NEG];
       var prec=TP+FP>0?TP/(TP+FP):0, rec=TP+FN>0?TP/(TP+FN):0, f1=prec+rec>0?2*prec*rec/(prec+rec):0;
       var roc=_dsROC(teScores,teLab);
+      // regressione logistica per confronto
+      var _rocLR=null;
+      try{ var Ztr=tr.map(function(i){return Z[i];}), ytr01=tr.map(function(i){return y[i]===POS?1:0;});
+        var wlog=_dsLogisticFit(Ztr,ytr01); var lrScores=te.map(function(i){return _dsLogisticProb(wlog,Z[i]);});
+        _rocLR=_dsROC(lrScores,teLab); }catch(e){}
       binExtra='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">'
         +'<div><div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">curva ROC · classe positiva = <b style="color:#5eead4">'+POS+'</b></div>'
-          +'<canvas id="dsRoc" width="260" height="260" style="width:260px;max-width:100%;background:#081522;border-radius:8px"></canvas></div>'
+          +'<canvas id="dsRoc" width="260" height="260" style="width:260px;max-width:100%;background:#081522;border-radius:8px"></canvas>'
+          +'<div style="font-size:.7rem;color:#8fa3b8;margin-top:3px"><span style="color:#5eead4">■</span> kNN'+(_rocLR?' &nbsp;<span style="color:#a78bfa">■</span> regressione logistica':'')+'</div></div>'
         +'<div style="display:flex;gap:7px;flex-wrap:wrap;align-content:flex-start;max-width:320px">'
-          +_dsMetricCard('AUC',roc.auc.toFixed(3),(roc.auc>0.85?'#5eead4':roc.auc>0.7?'#f5c451':'#ff6f8a'))
+          +_dsMetricCard('AUC kNN',roc.auc.toFixed(3),(roc.auc>0.85?'#5eead4':roc.auc>0.7?'#f5c451':'#ff6f8a'))
+          +(_rocLR?_dsMetricCard('AUC LogReg',_rocLR.auc.toFixed(3),(_rocLR.auc>0.85?'#a78bfa':_rocLR.auc>0.7?'#f5c451':'#ff6f8a')):'')
           +_dsMetricCard('precisione',(prec*100).toFixed(0)+'%')
           +_dsMetricCard('recall (sensib.)',(rec*100).toFixed(0)+'%')
           +_dsMetricCard('F1',f1.toFixed(2))
-          +'<div style="font-size:.72rem;color:#6b7d90;line-height:1.5;margin-top:4px">La <b>ROC</b> traccia il tasso di veri positivi contro i falsi positivi al variare della soglia. <b>AUC</b>=1 è perfetto, 0,5 è il caso.</div>'
+          +'<div style="font-size:.72rem;color:#6b7d90;line-height:1.5;margin-top:4px">La <b>ROC</b> confronta i due modelli: area sotto la curva (<b>AUC</b>) più alta = classificatore migliore. La regressione logistica è lineare, il kNN no.</div>'
         +'</div></div>'
         +'<div style="margin-top:12px;background:#0a1628;border:1px solid #16273e;border-radius:10px;padding:11px 13px">'
           +'<div style="color:#8fa3b8;font-size:.76rem;margin-bottom:6px">🎚️ Soglia di decisione interattiva — sposta per vedere il compromesso precisione/recall</div>'
@@ -2109,7 +2116,7 @@ window.BSI_TELEMETRY_URL='';</script>
       binExtra+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
       _dsPredictUI(meta,target);
-    if(classes.length===2){ try{ _dsDrawROC('dsRoc',_dsROC(teScores,teLab)); }catch(e){}
+    if(classes.length===2){ try{ var _curves=[{roc:_dsROC(teScores,teLab),color:'#5eead4',label:'kNN'}]; if(_rocLR)_curves.push({roc:_rocLR,color:'#a78bfa',label:'LogReg'}); _dsDrawROC('dsRoc',_curves); }catch(e){}
       (function(){ var thr=document.getElementById('dsThr'); if(!thr)return;
         function upd(){ var t=+thr.value; document.getElementById('dsThrV').textContent=t.toFixed(2);
           var tp=0,fp=0,tn=0,fn=0;
@@ -2134,21 +2141,29 @@ window.BSI_TELEMETRY_URL='';</script>
     for(var i=1;i<pts.length;i++){ auc+=(pts[i][0]-pts[i-1][0])*(pts[i][1]+pts[i-1][1])/2; }
     return {pts:pts, auc:auc};
   }
-  function _dsDrawROC(id,roc){
+  function _dsSigmoid(z){ return 1/(1+Math.exp(-Math.max(-30,Math.min(30,z)))); }
+  function _dsLogisticFit(Xr,y01){
+    var n=Xr.length, m=n?Xr[0].length:0, w=new Array(m+1).fill(0), lr=0.3, iters=400;
+    for(var it=0;it<iters;it++){ var grad=new Array(m+1).fill(0);
+      for(var i=0;i<n;i++){ var z=w[0]; for(var j=0;j<m;j++)z+=w[j+1]*Xr[i][j]; var err=_dsSigmoid(z)-y01[i]; grad[0]+=err; for(var j2=0;j2<m;j2++)grad[j2+1]+=err*Xr[i][j2]; }
+      for(var k=0;k<=m;k++)w[k]-=lr*grad[k]/(n||1);
+    }
+    return w;
+  }
+  function _dsLogisticProb(w,xrow){ var z=w[0]; for(var j=0;j<xrow.length;j++)z+=w[j+1]*xrow[j]; return _dsSigmoid(z); }
+  function _dsDrawROC(id,curves){
+    if(curves&&curves.pts)curves=[{roc:curves,color:'#5eead4',label:''}];
     var cv=document.getElementById(id); if(!cv)return; var x=cv.getContext('2d'); var W=cv.width,H=cv.height,pad=30;
     x.clearRect(0,0,W,H);
     function X(v){return pad+v*(W-pad-8);} function Y(v){return H-pad-v*(H-pad-8);}
     x.strokeStyle='#26406a';x.lineWidth=1;x.beginPath();x.moveTo(pad,8);x.lineTo(pad,H-pad);x.lineTo(W-8,H-pad);x.stroke();
-    // diagonale casuale
     x.strokeStyle='rgba(148,163,184,.4)';x.setLineDash([4,4]);x.beginPath();x.moveTo(X(0),Y(0));x.lineTo(X(1),Y(1));x.stroke();x.setLineDash([]);
-    // curva
-    x.strokeStyle='#5eead4';x.lineWidth=2.2;x.beginPath();
-    roc.pts.forEach(function(p,i){ var px=X(p[0]),py=Y(p[1]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); }); x.stroke();
-    // riempimento leggero
-    x.lineTo(X(1),Y(0));x.closePath();x.fillStyle='rgba(94,234,212,.10)';x.fill();
+    curves.forEach(function(cu){ x.strokeStyle=cu.color;x.lineWidth=2.2;x.beginPath();
+      cu.roc.pts.forEach(function(p,i){ var px=X(p[0]),py=Y(p[1]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); }); x.stroke(); });
     x.fillStyle='#8fa3b8';x.font='10px ui-monospace,monospace';x.textAlign='center';
     x.fillText('FPR',pad+(W-pad)/2,H-8); x.save();x.translate(11,pad+(H-pad)/2);x.rotate(-Math.PI/2);x.fillText('TPR',0,0);x.restore();
-    x.fillStyle='#5eead4';x.textAlign='right';x.font='bold 12px system-ui';x.fillText('AUC '+roc.auc.toFixed(3),W-12,20);
+    x.textAlign='right';x.font='bold 11px system-ui';
+    curves.forEach(function(cu,i){ x.fillStyle=cu.color; x.fillText((cu.label?cu.label+' ':'')+'AUC '+cu.roc.auc.toFixed(3),W-12,20+i*15); });
   }
   function _dsDrawHist(s){
     var cv=document.getElementById('dsWbHist'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
