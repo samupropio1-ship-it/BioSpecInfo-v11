@@ -41914,6 +41914,16 @@ window.initDistrib=function(){
       +'</div>'
       +'<canvas id="byCv" width="880" height="150" style="width:100%;max-width:880px;background:#081522;border-radius:8px;display:block"></canvas>'
       +'<div id="byInfo" style="font-size:.86rem;color:#cdd9e6;line-height:1.6;margin-top:10px"></div>'
+    +'</div>'
+    +'<div style="margin-top:20px;background:#0c1f33;border:1px solid #5eead4;border-radius:12px;padding:16px">'
+      +'<div style="color:#5eead4;font-weight:800;font-size:1.05rem;margin-bottom:2px">🧾 Test statistici — confronto tra due gruppi (t-test)</div>'
+      +'<div style="color:#9fb3c8;font-size:.82rem;line-height:1.5;margin-bottom:10px;max-width:760px">Incolla due serie di misure (numeri separati da virgola/spazio/a-capo): il t-test di Welch dice se le loro medie differiscono in modo <b>statisticamente significativo</b> — lo strumento base di ogni confronto sperimentale (trattato vs controllo, prima vs dopo…).</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">'
+        +'<div><div style="color:#5eead4;font-size:.78rem;margin-bottom:3px">Gruppo A</div><textarea id="ttA" style="width:100%;min-height:70px;background:#070f1c;border:1px solid #26406a;border-radius:8px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.8rem;padding:8px">5.1, 4.9, 5.3, 5.0, 4.8, 5.2, 5.4, 4.7</textarea></div>'
+        +'<div><div style="color:#ff9d5c;font-size:.78rem;margin-bottom:3px">Gruppo B</div><textarea id="ttB" style="width:100%;min-height:70px;background:#070f1c;border:1px solid #26406a;border-radius:8px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.8rem;padding:8px">5.6, 5.8, 5.5, 6.0, 5.7, 5.9, 5.4, 6.1</textarea></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><button id="ttGo" style="border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;background:#0e2a2a;color:#5eead4;border:1px solid #5eead4">▶ Calcola t-test</button><span style="color:#8fa3b8;font-size:.75rem">α = 0.05 (due code)</span></div>'
+      +'<div id="ttOut" style="font-size:.86rem;color:#cdd9e6;line-height:1.7"></div>'
     +'</div>';
   var DIST=[
     {id:'norm',t:'🔔 Normale',ctrls:[['μ media','dbMu',-5,5,0,0.5],['σ dev.std','dbSig',0.3,4,1,0.1]],disc:false},
@@ -41999,7 +42009,29 @@ window.initDistrib=function(){
       +'<span style="color:#7f92a6">Formula di Bayes: P(malato|+) = [Se·prev] / [Se·prev + (1−Sp)·(1−prev)].</span>';
   }
   ['byP','bySe','bySp'].forEach(function(id){ var el=sec.querySelector('#'+id); if(el)el.oninput=drawBayes; });
-  paintTabs();buildCtrls();draw();drawBayes();
+  // --- t-test (Welch) con p-value esatto via beta incompleta ---
+  function gammln(xx){ var cof=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5]; var x=xx,y=xx,tmp=x+5.5; tmp-=(x+0.5)*Math.log(tmp); var ser=1.000000000190015; for(var j=0;j<6;j++){y++;ser+=cof[j]/y;} return -tmp+Math.log(2.5066282746310005*ser/x); }
+  function betacf(a,b,x){ var MAXIT=200,EPS=3e-12,FPMIN=1e-30; var qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap; if(Math.abs(d)<FPMIN)d=FPMIN; d=1/d; var h=d; for(var m=1;m<=MAXIT;m++){ var m2=2*m; var aa=m*(b-m)*x/((qam+m2)*(a+m2)); d=1+aa*d; if(Math.abs(d)<FPMIN)d=FPMIN; c=1+aa/c; if(Math.abs(c)<FPMIN)c=FPMIN; d=1/d; h*=d*c; aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2)); d=1+aa*d; if(Math.abs(d)<FPMIN)d=FPMIN; c=1+aa/c; if(Math.abs(c)<FPMIN)c=FPMIN; d=1/d; var del=d*c; h*=del; if(Math.abs(del-1)<EPS)break; } return h; }
+  function betai(a,b,x){ if(x<=0)return 0; if(x>=1)return 1; var bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a*Math.log(x)+b*Math.log(1-x)); return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b; }
+  function tCDF(t,df){ var x=df/(df+t*t); var ib=0.5*betai(df/2,0.5,x); return t>0?1-ib:ib; }
+  function parseNums(s){ return (s||'').split(/[\s,;]+/).map(function(v){return parseFloat(v);}).filter(function(v){return !isNaN(v);}); }
+  function stats1(a){ var n=a.length, m=a.reduce(function(x,y){return x+y;},0)/n, v=a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/(n-1); return {n:n,mean:m,var:v,sd:Math.sqrt(v)}; }
+  function runTtest(){
+    var A=parseNums(sec.querySelector('#ttA').value), B=parseNums(sec.querySelector('#ttB').value), o=sec.querySelector('#ttOut');
+    if(A.length<2||B.length<2){ o.innerHTML='<span style="color:#ffb0be">Servono almeno 2 valori per gruppo.</span>'; return; }
+    var sa=stats1(A), sb=stats1(B);
+    var se=Math.sqrt(sa.var/sa.n+sb.var/sb.n), t=(sa.mean-sb.mean)/se;
+    var df=Math.pow(sa.var/sa.n+sb.var/sb.n,2)/(Math.pow(sa.var/sa.n,2)/(sa.n-1)+Math.pow(sb.var/sb.n,2)/(sb.n-1));
+    var p=2*(1-tCDF(Math.abs(t),df));
+    var pooledSD=Math.sqrt(((sa.n-1)*sa.var+(sb.n-1)*sb.var)/(sa.n+sb.n-2)), cohend=(sa.mean-sb.mean)/pooledSD;
+    var sig=p<0.05;
+    o.innerHTML='Gruppo A: media <b>'+sa.mean.toFixed(3)+'</b> (n='+sa.n+', sd='+sa.sd.toFixed(3)+') · Gruppo B: media <b>'+sb.mean.toFixed(3)+'</b> (n='+sb.n+', sd='+sb.sd.toFixed(3)+')<br>'
+      +'Statistica <b>t = '+t.toFixed(3)+'</b> · gradi di libertà (Welch) ≈ <b>'+df.toFixed(1)+'</b> · <b>p-value = '+(p<0.0001?p.toExponential(2):p.toFixed(4))+'</b> (due code)<br>'
+      +'Dimensione dell\'effetto (Cohen\'s d) = <b>'+cohend.toFixed(2)+'</b> ('+(Math.abs(cohend)<0.2?'trascurabile':Math.abs(cohend)<0.5?'piccola':Math.abs(cohend)<0.8?'media':'grande')+')<br>'
+      +'<span style="color:'+(sig?'#5eead4':'#f5c451')+';font-weight:700">'+(sig?'✅ Differenza statisticamente significativa (p < 0.05): si rifiuta l\'ipotesi nulla di medie uguali.':'⚠️ Differenza NON significativa (p ≥ 0.05): i dati non bastano a distinguere le medie.')+'</span>';
+  }
+  var ttBtn=sec.querySelector('#ttGo'); if(ttBtn)ttBtn.onclick=runTtest;
+  paintTabs();buildCtrls();draw();drawBayes();runTtest();
 };
 
 /* ============================================================
