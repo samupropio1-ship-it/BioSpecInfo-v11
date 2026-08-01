@@ -815,7 +815,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sstruct">🧬 Strutture 3D</button>
     <button class="nav-btn" data-s="s3dpro">🧬 Viewer 3D PRO</button>
     <button class="nav-btn" data-s="sglyc">⚡ Metabolismo</button>
-  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button></div>
+  <button class="nav-btn" data-s="squizmet">🧬 Quiz Vie Metab.</button><button class="nav-btn" data-s="smacro3d">🧬 Macromolecole 3D</button><button class="nav-btn" data-s="sguidabio">📚 Guida Biochimica</button><button class="nav-btn" data-s="sglic" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Glicolisi Animata</button><button class="nav-btn" data-s="skrebs" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">♻️ Ciclo di Krebs</button><button class="nav-btn" data-s="setc" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">⚡ Catena Respiratoria</button><button class="nav-btn" data-s="sbeta" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔥 β-ossidazione</button><button class="nav-btn" data-s="sppp" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔀 Pentosi Fosfati</button><button class="nav-btn" data-s="surea" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">💧 Ciclo dell'Urea</button><button class="nav-btn" data-s="sgluco" style="border:1px solid #f5c451;background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(255,120,89,.1))">🔄 Gluconeogenesi</button></div>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
@@ -3247,6 +3247,9 @@ window.onload = function(){
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
       if(sec==='sbeta' && typeof window.initBeta==='function') window.initBeta();
+      if(sec==='sppp' && typeof window.initPPP==='function') window.initPPP();
+      if(sec==='surea' && typeof window.initUrea==='function') window.initUrea();
+      if(sec==='sgluco' && typeof window.initGluco==='function') window.initGluco();
       if(sec==='scustomflash' && typeof window.initCustomFlash==='function') window.initCustomFlash();
       if(sec==='sphase' && typeof window.initPhase==='function') window.initPhase();
       if(sec==='smap' && typeof window.initConceptMap==='function') window.initConceptMap();
@@ -27849,6 +27852,9 @@ window.calcMolProps = function() {
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
 <div id="sbeta" class="section"></div>
+<div id="sppp" class="section"></div>
+<div id="surea" class="section"></div>
+<div id="sgluco" class="section"></div>
 
 
 <script>
@@ -40518,12 +40524,77 @@ window.initBeta=function(){
 };
 
 /* ============================================================
+   BIOCHIMICA — VIA DEI PENTOSI FOSFATI (fase ossidativa)
+   ============================================================ */
+window.initPPP=function(){
+  var sec=document.getElementById('sppp');
+  if(!sec||sec._init)return; sec._init=true;
+  _bsiPathwayAnim(sec,{
+    title:'🔀 VIA DEI PENTOSI FOSFATI — fase ossidativa',
+    intro:'Una deviazione dal glucosio-6-fosfato che <b>non produce ATP</b> ma <b>NADPH</b> (potere riducente per le biosintesi e la difesa antiossidante) e <b>ribosio-5-fosfato</b> (per i nucleotidi). Avviene nel citosol, attiva in fegato, tessuto adiposo e globuli rossi. Premi <b>▶ Play</b>. Resa: <b>2 NADPH + 1 CO₂ + ribulosio-5-P</b> per G6P.',
+    startEmoji:'🍬', startLabel:'Glucosio-6-fosfato (G6P)',
+    accent:'#22c55e',
+    footer:'💡 Il <b>NADPH</b> è chimicamente identico al NADH ma tenuto in un pool separato: serve a <b>costruire</b> (sintesi di acidi grassi, colesterolo) e a rigenerare il <b>glutatione</b> ridotto (antiossidante). Deficit di <b>G6PD</b> (prima tappa) → favismo: i globuli rossi non reggono lo stress ossidativo. La fase non ossidativa (transchetolasi/transaldolasi) interconverte poi gli zuccheri C3–C7 in modo reversibile.',
+    steps:[
+      {n:1,sub:'Glucosio-6-P',prod:'6-fosfogluconolattone',enz:'Glucosio-6-P deidrogenasi (G6PD)',nadph:1,irrev:true,note:'<b>Tappa regolata e irreversibile</b> (committed step), controllata dal rapporto NADP⁺/NADPH. Prima ossidazione → <b>1 NADPH</b>. È l\'enzima carente nel favismo.'},
+      {n:2,sub:'6-fosfogluconolattone',prod:'6-fosfogluconato',enz:'Lattonasi',note:'Idrolisi dell\'estere ciclico (lattone): apre l\'anello dando l\'acido 6-fosfogluconico.'},
+      {n:3,sub:'6-fosfogluconato',prod:'Ribulosio-5-P + CO₂',enz:'6-fosfogluconato deidrogenasi',nadph:1,co2:1,note:'Decarbossilazione ossidativa: <b>1 NADPH + 1 CO₂</b>. Si perde un carbonio → zucchero a 5 atomi (pentoso).'},
+      {n:4,sub:'Ribulosio-5-P',prod:'Ribosio-5-P',enz:'Fosfopentoso isomerasi',note:'Isomerizzazione a ribosio-5-fosfato, il precursore dei <b>nucleotidi</b> (DNA, RNA, ATP, coenzimi). Fine della fase ossidativa.'}
+    ]
+  });
+};
+
+/* ============================================================
+   BIOCHIMICA — CICLO DELL'UREA (smaltimento dell'azoto)
+   ============================================================ */
+window.initUrea=function(){
+  var sec=document.getElementById('surea');
+  if(!sec||sec._init)return; sec._init=true;
+  _bsiPathwayAnim(sec,{
+    title:'💧 CICLO DELL\'UREA — smaltimento dell\'ammoniaca',
+    intro:'Nel fegato l\'ammoniaca tossica (NH₄⁺) viene convertita in <b>urea</b>, atossica ed eliminabile con le urine. I due atomi di azoto dell\'urea vengono uno dall\'NH₄⁺ libero e uno dall\'<b>aspartato</b>. Il ciclo attraversa mitocondrio e citosol e <b>consuma energia</b> (3 ATP → 4 legami ad alta energia). Premi <b>▶ Play</b>.',
+    startEmoji:'🫧', startLabel:'NH₄⁺ + HCO₃⁻ (ammoniaca da smaltire)',
+    accent:'#38bdf8',
+    footer:'💡 Bilancio: 2 NH₃ + CO₂ + 3 ATP → urea + 2 ADP + AMP (equivalgono a 4 legami fosfoanidridici spesi). Le tappe mitocondriali (1–2) e citosoliche (3–5) sono collegate dai trasportatori ornitina/citrullina. Difetti enzimatici → <b>iperammoniemia</b> (l\'ammoniaca è neurotossica). Collegamento: il fumarato prodotto rientra nel <b>ciclo di Krebs</b>.',
+    steps:[
+      {n:1,sub:'NH₄⁺ + HCO₃⁻',prod:'Carbamil-fosfato',enz:'Carbamil-fosfato sintetasi I (mitocondrio)',atp:-2,irrev:true,note:'<b>Tappa regolata</b> (attivata da N-acetilglutammato), consuma <b>2 ATP</b>. Fissa il primo azoto. Avviene nella matrice mitocondriale.'},
+      {n:2,sub:'Carbamil-P + Ornitina',prod:'Citrullina',enz:'Ornitina transcarbamilasi',note:'La citrullina esce dal mitocondrio verso il citosol tramite un trasportatore specifico.'},
+      {n:3,sub:'Citrullina + Aspartato',prod:'Argininosuccinato',enz:'Argininosuccinato sintetasi',atp:-1,note:'Consuma <b>1 ATP</b> (→ AMP + PPi, cioè 2 legami ad alta energia). L\'<b>aspartato</b> porta il secondo azoto dell\'urea.'},
+      {n:4,sub:'Argininosuccinato',prod:'Arginina + Fumarato',enz:'Argininosuccinasi (liasi)',note:'Scissione: libera <b>fumarato</b> (che rientra nel ciclo di Krebs, collegando i due cicli) e arginina.'},
+      {n:5,sub:'Arginina',prod:'Urea + Ornitina',enz:'Arginasi',note:'Idrolisi finale: rilascia l\'<b>urea</b> e rigenera l\'<b>ornitina</b>, che rientra nel mitocondrio per ricominciare il ciclo.'}
+    ]
+  });
+};
+
+/* ============================================================
+   BIOCHIMICA — GLUCONEOGENESI (i 4 bypass)
+   ============================================================ */
+window.initGluco=function(){
+  var sec=document.getElementById('sgluco');
+  if(!sec||sec._init)return; sec._init=true;
+  _bsiPathwayAnim(sec,{
+    title:'🔄 GLUCONEOGENESI — sintesi di glucosio (i 4 bypass)',
+    intro:'La sintesi di glucosio <i>ex novo</i> (da lattato, alanina, glicerolo) nel digiuno. Non è la semplice inversione della glicolisi: le <b>3 tappe irreversibili</b> della glicolisi vengono aggirate con enzimi diversi (4 reazioni di bypass). Avviene soprattutto nel fegato e <b>consuma energia</b>. Premi <b>▶ Play</b> per seguire i bypass dal piruvato al glucosio.',
+    startEmoji:'🥩', startLabel:'Piruvato (da lattato / alanina)',
+    accent:'#a78bfa',
+    footer:'💡 Costo: 2 piruvato → glucosio consuma <b>4 ATP + 2 GTP + 2 NADH</b>. Regolazione reciproca con la glicolisi tramite il <b>fruttosio-2,6-bisfosfato</b>: il glucagone lo abbassa → favorisce la gluconeogenesi. Le tappe reversibili della glicolisi (7 su 10) sono condivise e qui percorse al contrario.',
+    steps:[
+      {n:1,sub:'Piruvato + CO₂',prod:'Ossalacetato',enz:'Piruvato carbossilasi (mitocondrio)',atp:-1,irrev:true,note:'<b>Bypass 1a</b>: consuma <b>1 ATP</b>, richiede biotina. Attivata dall\'acetil-CoA (segnale che c\'è energia). Aggira la piruvato chinasi.'},
+      {n:2,sub:'Ossalacetato',prod:'Fosfoenolpiruvato (PEP)',enz:'PEP carbossichinasi (PEPCK)',gtp:-1,irrev:true,note:'<b>Bypass 1b</b>: consuma <b>1 GTP</b> e rilascia CO₂. Ora il flusso risale come la glicolisi al contrario fino al fruttosio-1,6-bisP.'},
+      {n:3,sub:'Fruttosio-1,6-bisP',prod:'Fruttosio-6-P',enz:'Fruttosio-1,6-bisfosfatasi',irrev:true,note:'<b>Bypass 2</b>: idrolisi (non produce ATP). <b>Punto di controllo chiave</b>: inibito dall\'AMP e dal fruttosio-2,6-bisP (aggira la PFK-1).'},
+      {n:4,sub:'Glucosio-6-P',prod:'Glucosio',enz:'Glucosio-6-fosfatasi (reticolo endoplasmatico)',irrev:true,note:'<b>Bypass 3</b>: idrolisi finale che libera glucosio nel sangue. Presente <b>solo nel fegato e rene</b> — per questo il muscolo non può rilasciare glucosio.'}
+    ]
+  });
+};
+
+/* ============================================================
    Motore generico per vie metaboliche animate a tappe
    ============================================================ */
 function _bsiPathwayAnim(sec, opt){
   // opt: {title, intro, steps:[{n,sub,prod,enz,atp,nadh,fadh2,gtp,co2,irrev,note}], footer, accent}
   var A=opt.accent||'#f5c451';
   var STEPS=opt.steps;
+  var hasNADPH=STEPS.some(function(s){return s.nadph;});
   sec.innerHTML=
    '<div class="section-title">'+opt.title+'</div>'
   +'<div style="color:#9fb3c8;font-size:.92rem;margin-bottom:14px;max-width:820px;line-height:1.6">'+opt.intro+'</div>'
@@ -40534,6 +40605,7 @@ function _bsiPathwayAnim(sec, opt){
     +'<button class="pwReset" style="border:1px solid rgba(148,163,184,.35);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;background:transparent;color:#9fb3c8">↺ Reset</button>'
     +'<div style="margin-left:auto;display:flex;gap:12px;font-size:.88rem;font-weight:700;flex-wrap:wrap">'
       +'<span style="color:#5eead4">NADH: <span class="pwN">0</span></span>'
+      +(hasNADPH?'<span style="color:#22c55e">NADPH: <span class="pwNP">0</span></span>':'')
       +'<span style="color:#7c6fff">FADH₂: <span class="pwF">0</span></span>'
       +'<span style="color:#f5c451">GTP/ATP: <span class="pwG">0</span></span>'
       +'<span style="color:#ff7859">CO₂: <span class="pwC">0</span></span>'
@@ -40558,10 +40630,12 @@ function _bsiPathwayAnim(sec, opt){
       dotsEl.appendChild(d);
     });
   }
+  var npEl=sec.querySelector('.pwNP');
   function tally(){
-    var n=0,f=0,g=0,c=0;
-    for(var i=0;i<=idx;i++){var S=STEPS[i];n+=(S.nadh||0);f+=(S.fadh2||0);g+=(S.gtp||0)+(S.atp||0);c+=(S.co2||0);}
-    nEl.textContent='+'+n;fEl.textContent='+'+f;gEl.textContent='+'+g;cEl.textContent='+'+c;
+    var n=0,f=0,g=0,c=0,np=0;
+    for(var i=0;i<=idx;i++){var S=STEPS[i];n+=(S.nadh||0);f+=(S.fadh2||0);g+=(S.gtp||0)+(S.atp||0);c+=(S.co2||0);np+=(S.nadph||0);}
+    nEl.textContent='+'+n;fEl.textContent='+'+f;gEl.textContent=(g>=0?'+':'')+g;cEl.textContent='+'+c;
+    if(npEl)npEl.textContent='+'+np;
   }
   function badge(txt,col){return '<span style="display:inline-block;background:'+col+';color:#081522;font-weight:800;font-size:.78rem;padding:3px 10px;border-radius:20px;margin-right:6px;margin-bottom:4px">'+txt+'</span>';}
   function draw(){
@@ -40571,9 +40645,11 @@ function _bsiPathwayAnim(sec, opt){
     }
     var S=STEPS[idx], b='';
     if(S.nadh)b+=badge('+'+S.nadh+' NADH','#5eead4');
+    if(S.nadph)b+=badge('+'+S.nadph+' NADPH','#22c55e');
     if(S.fadh2)b+=badge('+'+S.fadh2+' FADH₂','#7c6fff');
     if(S.gtp)b+=badge('+'+S.gtp+' GTP','#f5c451');
-    if(S.atp)b+=badge('+'+S.atp+' ATP','#f5c451');
+    if(S.atp>0)b+=badge('+'+S.atp+' ATP','#f5c451');
+    if(S.atp<0)b+=badge((-S.atp)+' ATP consumat'+(S.atp<-1?'i':'o'),'#ff7859');
     if(S.co2)b+=badge('+'+S.co2+' CO₂','#ff7859');
     if(S.irrev)b+=badge('irreversibile ⚑','#f5c451');
     stage.innerHTML=
