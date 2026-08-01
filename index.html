@@ -33600,7 +33600,7 @@ var SHEET_ITEMS=[
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Percorsi di sintesi + analisi retrosintetica',key:'sr',hi:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali, spettri, Jablonski — 11 moduli interattivi',key:'qlab',hi:true},
-  {ic:'🌈',nm:'Centro Spettri',ds:'IR · NMR · ¹³C · 3D · mappa · confronto',key:'scentro',hi:true},
+  {ic:'🌈',nm:'Centro Spettri',ds:'Editor + tutti gli spettri, 2D/3D, gruppi funzionali, drug-likeness, mappa e confronto',key:'scentro',hi:true},
   {sec:'⚙️ Strumenti'},
   {ic:'📸',nm:'Esporta figure',ds:'PNG/SVG ad alta risoluzione',key:'export'},
   {ic:'🎯',nm:'Sfida spettroscopica',ds:'Quiz su spettri NMR / IR / MS',key:'challenge'},
@@ -33634,6 +33634,8 @@ function doAction13(key){
   closeSheet13();
   setTimeout(function(){
     if(key==='sr')       { window.openSR13(); return; }
+    if(key==='scentro'||key==='chemdraw'){ if(typeof window.openChemDraw==='function')window.openChemDraw(); return; }
+    if(key==='qlab')     { if(typeof window.openQuantumLab==='function')window.openQuantumLab(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
     if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
     if(key==='export')   { triggerOldItem('Esporta');   return; }
@@ -34155,7 +34157,8 @@ window.openChemDraw=function(){
   ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column;overflow:auto';
   ov.innerHTML=
     '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0a1b2e;border-bottom:1px solid #1a3050;position:sticky;top:0;z-index:5">'
-      +'<span style="color:#00c9b7;font-weight:800;font-size:1rem;flex:1">✏️ ChemDraw — Editor Molecolare Avanzato</span>'
+      +'<span style="color:#00c9b7;font-weight:800;font-size:1rem;flex:1">🌈 Centro Spettri — Editor & Analisi Molecolare</span>'
+      +'<button id="cdLegacy" title="Mappa spettrale · Confronto · Spettri reali (Centro classico)" style="background:#132a2a;border:1px solid #2e7d5b;color:#6ee7b7;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer">🗺️ Mappa &amp; Confronto</button>'
       +'<button id="cdBack" style="background:#16273e;border:1px solid #26406a;color:#e9eef6;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer">↩ Indietro</button>'
     +'</div>'
     +'<div style="padding:14px;max-width:1200px;margin:0 auto;width:100%">'
@@ -34181,6 +34184,7 @@ window.openChemDraw=function(){
   var cv=document.getElementById('cdCanvas'), ctx=cv.getContext('2d');
   var atoms=[], bonds=[], sel=-1, curEl='C', curOrder=1, curCharge=0, tool='draw', history=[];
   var _cdSmi='', _cdSvg='', _cdName='', cd3dHighlight=null;
+  var CD_LIBG=[], CD_LIBRARY=[], _libFPcache={};
   // Colori CPK (standard Jmol/PyMOL) per ogni elemento
   var COLORS={H:'#5a5a5a',He:'#00b5b5',Li:'#cc80ff',Be:'#c2ff00',B:'#d97706',C:'#222',N:'#2563eb',O:'#dc2626',F:'#16a34a',Ne:'#00b5b5',Na:'#ab5cf2',Mg:'#3fb53f',Al:'#a8a8b0',Si:'#7d7d55',P:'#d97706',S:'#b59500',Cl:'#16a34a',Ar:'#00b5b5',K:'#8f40d4',Ca:'#3dc73d',Sc:'#7a8a94',Ti:'#7a8a94',V:'#7a8a94',Cr:'#8a99a6',Mn:'#9c7ac2',Fe:'#c0611f',Co:'#c05a7a',Ni:'#3f9040',Cu:'#b46a2a',Zn:'#6a7fa0',Ga:'#8f6a6a',Ge:'#5a7d7d',As:'#8f52c2',Se:'#b59500',Br:'#7c2d12',Kr:'#00a0a0',Rb:'#7a2fb0',Sr:'#2fb02f',Y:'#6aa6a6',Zr:'#6aa6c0',Nb:'#5a9aa6',Mo:'#4a9aa0',Tc:'#3a9090',Ru:'#2f8a8a',Rh:'#2a7a86',Pd:'#2a6a7a',Ag:'#8a9aa6',Cd:'#a68a6a',In:'#9a6a6a',Sn:'#6a7a7a',Sb:'#8f6ab0',Te:'#a68a2a',I:'#6b21a8',Xe:'#3aa0b0',Cs:'#6a1f9a',Ba:'#2f9a2f',La:'#6aa6c0',Ce:'#7ac2a6',Pr:'#7ac290',Nd:'#7ac27a',Pm:'#7ac26a',Sm:'#7ac25a',Eu:'#5ac26a',Gd:'#45c28a',Tb:'#35c27a',Dy:'#2fc26a',Ho:'#2fc25a',Er:'#2fc24a',Tm:'#2fb53a',Yb:'#2fb52a',Lu:'#2fa62a',Hf:'#5ac2ff',Ta:'#4a9ad4',W:'#3a86c0',Re:'#3a75b0',Os:'#2a689a',Ir:'#2a5f86',Pt:'#8a95a6',Au:'#c09a2a',Hg:'#8a8a99',Tl:'#a66a6a',Pb:'#5a5a66',Bi:'#9a5ab0',Po:'#ab5c00',At:'#754a45',Rn:'#428296',Fr:'#420066',Ra:'#2f8f2f',Ac:'#6ab3c0',Th:'#4aa6c0',Pa:'#3aa0d4',U:'#2f95e0',Np:'#2a86e0',Pu:'#2a76e0',Am:'#5a66d4',Cm:'#785ac0',Bk:'#8a55b0',Cf:'#9a4aa6',Es:'#b23a86'};
   function elColor(e){ return COLORS[e]||'#3050c0'; }
@@ -34462,6 +34466,7 @@ window.openChemDraw=function(){
       var inchiFormula=''; try{ var _fm=inchi.match(/^InChI=1S?\/([A-Za-z0-9]+)/); if(_fm)inchiFormula=_fm[1]; }catch(e){}
       try{ svg=mol.get_svg(360,280); }catch(e){}
       var fgroups=detectFG(RD,mol);
+      var props=detectProps(RD,mol);
       if(mol.delete)mol.delete();
       var mw=desc.exactmw||desc.amw||0;
       var nChi=(canon.match(/@+/g)||[]).length, hasEZ=/[\/\\]/.test(canon);
@@ -34498,6 +34503,12 @@ window.openChemDraw=function(){
         +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px">'
           +'<div style="color:#c4b5fd;font-weight:800;font-size:1rem;margin-bottom:8px">💊 Drug-likeness · ADMET · indici</div>'
           +'<div id="cdADMET"></div>'
+          +'<div style="text-align:center;margin-top:6px"><div id="cdRadar" style="max-width:340px;margin:0 auto"></div></div>'
+        +'</div>'
+        +'<div style="background:#0c1f33;border:1px solid #00c9b7;border-radius:12px;padding:14px">'
+          +'<div style="color:#5eead4;font-weight:800;font-size:1rem;margin-bottom:8px">🔍 Similarità con la libreria (Tanimoto)</div>'
+          +'<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:8px">Impronta di Morgan (ECFP4, 1024 bit) — clicca una molecola per caricarla.</div>'
+          +'<div id="cdSim"></div>'
         +'</div>'
       +'</div>'
       +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px;margin-top:14px">'
@@ -34528,7 +34539,11 @@ window.openChemDraw=function(){
         function setActive(btn){ chips.forEach(function(b){ b.style.background=b===btn?b._col:(b._col+'22'); b.style.color=b===btn?'#04121a':b._col; }); }
         fgroups.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+(g.n>1?' <b>×'+g.n+'</b>':''); t.style.cssText='border:1px solid '+g.col+';background:'+g.col+'22;color:'+g.col+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
         var rst=document.createElement('button'); rst.textContent='✕ reset'; rst.style.cssText='border:1px solid #26406a;background:#16273e;color:#cdd9e6;border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; rst.onclick=function(){ setActive(null); highlight2D(canon,null); if(cd3dHighlight)cd3dHighlight(null); }; host.appendChild(rst);
-        var hint=document.createElement('div'); hint.style.cssText='width:100%;color:#8fa3b8;font-size:.72rem;margin-top:2px'; hint.textContent='👆 Clicca un gruppo per evidenziarne gli atomi sulla struttura 2D e 3D.'; host.appendChild(hint);
+        // chip proprietà (donatori/accettori H, aromatici, rotabili, stereocentri)
+        if(props&&props.length){ var br=document.createElement('div'); br.style.cssText='width:100%;color:#8fa3b8;font-size:.72rem;margin:4px 0 0'; br.textContent='🎯 Proprietà evidenziabili:'; host.appendChild(br);
+          props.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+' <b>×'+g.n+'</b>'; t.style.cssText='border:1px dashed '+g.col+';background:'+g.col+'22;color:'+g.col+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
+        }
+        var hint=document.createElement('div'); hint.style.cssText='width:100%;color:#8fa3b8;font-size:.72rem;margin-top:2px'; hint.textContent='👆 Clicca un gruppo o una proprietà per evidenziarne gli atomi sulla struttura 2D e 3D.'; host.appendChild(hint);
       })();
       // Drug-likeness / ADMET / indici
       (function(){ var host=document.getElementById('cdADMET'); if(!host)return;
@@ -34547,7 +34562,10 @@ window.openChemDraw=function(){
         h+='<div style="font-size:.82rem;color:#cdd9e6"><b style="color:#7fd4ff">Solubilità stimata (ESOL):</b> '+(logS==null?'—':('logS ≈ '+logS.toFixed(2)+' mol/L — <b>'+solClass(logS)+'</b>'))+'</div>';
         h+='<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">Regole: Lipinski (<i>Adv. Drug Deliv. Rev.</i> 46, 2001), Veber (<i>J. Med. Chem.</i> 45, 2002), Egan (2000), Ghose (1998), Muegge (2001); solubilità ESOL: Delaney (<i>J. Chem. Inf. Comput. Sci.</i> 44, 2004). Descrittori calcolati da RDKit.</div>';
         host.innerHTML=h;
+        var rad=document.getElementById('cdRadar'); if(rad){ try{ rad.innerHTML=radarSVG(desc); }catch(e){} }
       })();
+      // Similarità di Tanimoto con la libreria
+      try{ buildSimilarity(RD,canon); }catch(e){}
       // Linguaggi chimici — tutte le notazioni
       (function(){ var host=document.getElementById('cdNotations'); if(!host)return; host.innerHTML='';
         function add(label,val,multi){ if(val==null||val==='')return; var row=document.createElement('div'); row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid #14273e'; var lab=document.createElement('div'); lab.textContent=label; lab.style.cssText='min-width:160px;color:#9d8cff;font-weight:700;font-size:.8rem;flex-shrink:0'; var vw=document.createElement('div'); vw.style.cssText='flex:1;min-width:0'; vw.innerHTML=multi?('<pre style="margin:0;max-height:130px;overflow:auto;white-space:pre;font-size:.66rem;color:#cfe;background:#081522;border-radius:6px;padding:6px">'+esc(val)+'</pre>'):('<code style="font-size:.78rem;color:#d7e6ff;word-break:break-all">'+esc(val)+'</code>'); var b=document.createElement('button'); b.textContent='📋'; b.style.cssText='border:1px solid #26406a;background:#16273e;color:#cfe;border-radius:7px;padding:4px 8px;font-size:.8rem;cursor:pointer;flex-shrink:0'; b.onclick=function(){ var c=vw.querySelector('code,pre'); cdCopy(c?c.textContent:val,b); }; row.appendChild(lab);row.appendChild(vw);row.appendChild(b); host.appendChild(row); }
@@ -34657,6 +34675,48 @@ window.openChemDraw=function(){
       var svg=''; try{ svg=m.get_svg_with_highlights(JSON.stringify(det)); }catch(e){ try{ svg=m.get_svg(360,280); }catch(_){} }
       if(m.delete)m.delete(); if(svg)host.innerHTML=svg;
     });
+  }
+  // ---- proprietà evidenziabili (donatori/accettori H, aromatici, rotabili, stereocentri) ----
+  var PROP_LIST=[
+    ['Donatori legame H','[$([O;H1]),$([N;!H0]),$([n;H1]),$([S;H1])]','#22d3ee'],
+    ['Accettori legame H','[$([O;H0;v2]),$([O;H1;v2]),$([N;v3;H0;!$(N=*);!$([N]C=O)]),$([n;H0;X2])]','#f472b6'],
+    ['Atomi aromatici','[a]','#a3e635'],
+    ['Legami rotabili','[!$(*#*)&!D1&!$([CX3](=[OX1]))]-!@[!$(*#*)&!D1]','#fbbf24'],
+    ['Stereocentri (assegnati)','[$([C@]),$([C@@])]','#e879f9']
+  ];
+  function detectProps(RD,mol){ var out=[]; if(!RD||!mol||typeof RD.get_qmol!=='function')return out;
+    PROP_LIST.forEach(function(f){ var q=null; try{ q=RD.get_qmol(f[1]); }catch(e){ q=null; } if(!q)return;
+      try{ var arr=JSON.parse(mol.get_substruct_matches(q)||'[]'); if(arr&&arr.length){ var A={},Bd={}; arr.forEach(function(m){ (m.atoms||[]).forEach(function(a){A[a]=1;}); (m.bonds||[]).forEach(function(bb){Bd[bb]=1;}); }); out.push({name:f[0],n:arr.length,col:f[2],smarts:f[1],atoms:Object.keys(A).map(Number),bonds:Object.keys(Bd).map(Number)}); } }catch(e){}
+      if(q&&q.delete)q.delete(); });
+    return out; }
+  // ---- impronte molecolari & similarità di Tanimoto ----
+  function morganFP(RD,smi){ var m; try{ m=RD.get_mol(smi); }catch(e){ m=null; } if(!m)return null; var fp=null; try{ fp=m.get_morgan_fp(JSON.stringify({radius:2,nBits:1024})); }catch(e){ try{ fp=m.get_morgan_fp(); }catch(_){ fp=null; } } if(m.delete)m.delete(); return fp; }
+  function tanimoto(a,b){ if(!a||!b||a.length!==b.length)return 0; var inter=0,uni=0; for(var i=0;i<a.length;i++){ var x=a.charCodeAt(i)===49,y=b.charCodeAt(i)===49; if(x&&y)inter++; if(x||y)uni++; } return uni?inter/uni:0; }
+  function buildSimilarity(RD,canon){ var host=document.getElementById('cdSim'); if(!host)return;
+    var qfp=morganFP(RD,canon); if(!qfp){ host.innerHTML='<span style="color:#8fa3b8;font-size:.82rem">Impronta molecolare non calcolabile.</span>'; return; }
+    var scored=CD_LIBRARY.map(function(mm){ var fp=_libFPcache[mm.smiles]; if(fp===undefined){ fp=morganFP(RD,mm.smiles); _libFPcache[mm.smiles]=fp; } return {name:mm.name,smiles:mm.smiles,sim:tanimoto(qfp,fp)}; });
+    scored.sort(function(a,b){ return b.sim-a.sim; });
+    var top=scored.filter(function(s){ return s.sim>0.01; }).slice(0,8);
+    if(!top.length){ host.innerHTML='<span style="color:#8fa3b8;font-size:.82rem">Nessuna molecola simile in libreria.</span>'; return; }
+    host.innerHTML=''; top.forEach(function(s){ var pct=Math.round(s.sim*100); var row=document.createElement('button'); row.style.cssText='display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid #26406a;background:#0c1f33;color:#cdd9e6;border-radius:8px;padding:6px 10px;cursor:pointer;margin-bottom:5px';
+      row.innerHTML='<span style="flex:0 0 130px;font-weight:700;font-size:.82rem">'+esc(s.name)+'</span><span style="flex:1;height:8px;background:#0a1626;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:linear-gradient(90deg,#00c9b7,#7c6fff)"></span></span><span style="flex:0 0 42px;text-align:right;font-weight:800;color:#7fd4ff;font-size:.82rem">'+pct+'%</span>';
+      row.onclick=function(){ document.getElementById('cdSmiles').value=s.smiles; loadSmiles(s.smiles); };
+      host.appendChild(row);
+    });
+  }
+  // ---- profilo fisico-chimico (radar) ----
+  function radarSVG(desc){
+    var axes=[['MW',desc.amw,500],['LogP',desc.CrippenClogP,5],['TPSA',desc.tpsa,140],['HBD',desc.NumHBD,5],['HBA',desc.NumHBA,10],['RotB',desc.NumRotatableBonds,10],['Csp³',desc.FractionCSP3!=null?desc.FractionCSP3*100:null,100],['Anelli',desc.NumRings,6]];
+    var W=340,H=300,cx=W/2,cy=H/2+6,R=104,n=axes.length;
+    var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+    for(var g=1;g<=4;g++){ var rr=R*g/4; var pts=[]; for(var i=0;i<n;i++){ var a=-Math.PI/2+i*2*Math.PI/n; pts.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1)); } s+='<polygon points="'+pts.join(' ')+'" fill="none" stroke="#26406a" stroke-width="1"/>'; }
+    var poly=[]; for(var i=0;i<n;i++){ var a=-Math.PI/2+i*2*Math.PI/n; var v=axes[i][1]; var frac=(v==null||!isFinite(v))?0:Math.max(0,Math.min(1.15,v/axes[i][2])); var rr=R*Math.min(1,frac);
+      s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*Math.cos(a)).toFixed(1)+'" y2="'+(cy+R*Math.sin(a)).toFixed(1)+'" stroke="#1a3050" stroke-width="1"/>';
+      poly.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1));
+      var lx=cx+(R+16)*Math.cos(a), ly=cy+(R+16)*Math.sin(a); var over=(v!=null&&isFinite(v)&&v>axes[i][2]);
+      s+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" font-size="10" fill="'+(over?'#f5a35e':'#9fb3c8')+'" text-anchor="middle" dominant-baseline="middle">'+axes[i][0]+'</text>'; }
+    s+='<polygon points="'+poly.join(' ')+'" fill="rgba(0,201,183,.22)" stroke="#00c9b7" stroke-width="2"/>';
+    return s+'</svg>';
   }
   // ---- indici molecolari & drug-likeness ----
   function parseFormula(f){ var c={}; if(!f)return c; var re=/([A-Z][a-z]?)(\d*)/g,m; while((m=re.exec(f))){ if(!m[1])continue; c[m[1]]=(c[m[1]]||0)+(m[2]?parseInt(m[2],10):1); } return c; }
@@ -34819,21 +34879,28 @@ window.openChemDraw=function(){
   document.getElementById('cdSmiles').addEventListener('keydown',function(e){ if(e.key==='Enter'){ loadSmiles(this.value.trim()); } });
   // libreria molecole (carica con un clic → più molecole, disegno più veloce)
   (function(){ var lib=document.getElementById('cdLib'); if(!lib)return;
-    var LIBG=[
+    CD_LIBG=[
       ['Comuni',[['Acqua','O'],['Anidride carbonica','O=C=O'],['Diossido di zolfo','O=S=O'],['Ammoniaca','N'],['Metano','C'],['Etanolo','CCO'],['Acido acetico','CC(=O)O'],['Acetone','CC(C)=O'],['Formaldeide','C=O'],['Glucosio','OCC1OC(O)C(O)C(O)C1O'],['Saccarosio','OCC1OC(OC2(CO)OC(CO)C(O)C2O)C(O)C(O)C1O'],['Benzene','c1ccccc1'],['Caffeina','Cn1cnc2c1c(=O)n(C)c(=O)n2C'],['Aspirina','CC(=O)Oc1ccccc1C(=O)O']]],
       ['Farmaci',[['Paracetamolo','CC(=O)Nc1ccc(O)cc1'],['Ibuprofene','CC(C)Cc1ccc(cc1)C(C)C(=O)O'],['Penicillina G','CC1(C)SC2C(NC(=O)Cc3ccccc3)C(=O)N2C1C(=O)O'],['Dopamina','NCCc1ccc(O)c(O)c1'],['Adrenalina','CNCC(O)c1ccc(O)c(O)c1'],['Nicotina','CN1CCCC1c1cccnc1'],['Serotonina','NCCc1c[nH]c2ccc(O)cc12'],['Testosterone','CC12CCC3C(CCC4=CC(=O)CCC34C)C1CCC2O'],['Colesterolo','CC(C)CCCC(C)C1CCC2C1(C)CCC1C2CC=C2CC(O)CCC12C'],['Warfarin','CC(=O)CC(c1ccccc1)c1c(O)c2ccccc2oc1=O']]],
       ['Amminoacidi',[['Glicina','NCC(=O)O'],['Alanina','CC(N)C(=O)O'],['Valina','CC(C)C(N)C(=O)O'],['Leucina','CC(C)CC(N)C(=O)O'],['Fenilalanina','NC(Cc1ccccc1)C(=O)O'],['Triptofano','NC(Cc1c[nH]c2ccccc12)C(=O)O'],['Cisteina','NC(CS)C(=O)O'],['Tirosina','NC(Cc1ccc(O)cc1)C(=O)O'],['Acido glutammico','NC(CCC(=O)O)C(=O)O'],['Lisina','NCCCCC(N)C(=O)O'],['Prolina','OC(=O)C1CCCN1'],['Istidina','NC(Cc1c[nH]cn1)C(=O)O']]],
       ['Aromatici & eterocicli',[['Toluene','Cc1ccccc1'],['Fenolo','Oc1ccccc1'],['Anilina','Nc1ccccc1'],['Acido benzoico','OC(=O)c1ccccc1'],['Piridina','c1ccncc1'],['Pirrolo','c1cc[nH]c1'],['Furano','c1ccoc1'],['Tiofene','c1ccsc1'],['Imidazolo','c1c[nH]cn1'],['Indolo','c1ccc2[nH]ccc2c1'],['Naftalene','c1ccc2ccccc2c1'],['Antracene','c1ccc2cc3ccccc3cc2c1'],['Pirimidina','c1cncnc1'],['Chinolina','c1ccc2ncccc2c1']]],
       ['Bio & vitamine',[['Acido citrico','OC(=O)CC(O)(CC(=O)O)C(=O)O'],['Acido lattico','CC(O)C(=O)O'],['Urea','NC(=O)N'],['Vitamina C','OCC(O)C1OC(=O)C(O)=C1O'],['Adenina','Nc1ncnc2[nH]cnc12'],['Guanina','Nc1nc2[nH]cnc2c(=O)[nH]1'],['Timina','Cc1c[nH]c(=O)[nH]c1=O'],['Citosina','Nc1cc[nH]c(=O)n1'],['Uracile','O=c1cc[nH]c(=O)[nH]1'],['Colina','C[N+](C)(C)CCO'],['Acido palmitico','CCCCCCCCCCCCCCCC(=O)O'],['Acido oleico','CCCCCCCCC=CCCCCCCCC(=O)O']]]
     ];
-    var total=0; LIBG.forEach(function(g){total+=g[1].length;});
+    CD_LIBRARY=[]; CD_LIBG.forEach(function(g){ g[1].forEach(function(m){ CD_LIBRARY.push({name:m[0],smiles:m[1]}); }); });
+    var total=CD_LIBRARY.length;
     lib.innerHTML='<option value="">📚 Libreria ('+total+' molecole)…</option>';
-    LIBG.forEach(function(g){ var og=document.createElement('optgroup'); og.label=g[0]; g[1].forEach(function(m){ var o=document.createElement('option'); o.value=m[1]; o.textContent=m[0]; og.appendChild(o); }); lib.appendChild(og); });
+    CD_LIBG.forEach(function(g){ var og=document.createElement('optgroup'); og.label=g[0]; g[1].forEach(function(m){ var o=document.createElement('option'); o.value=m[1]; o.textContent=m[0]; og.appendChild(o); }); lib.appendChild(og); });
     lib.onchange=function(){ if(this.value){ document.getElementById('cdSmiles').value=this.value; loadSmiles(this.value); } };
   })();
   // scorciatoie tastiera: Esc = deseleziona, Canc/Backspace = elimina atomo selezionato
   document.addEventListener('keydown',function(e){ var o=document.getElementById('bsi-chemdraw-ov'); if(!o||o.style.display==='none')return; var t=e.target; if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return; if(e.key==='Escape'){ sel=-1; reqDraw(); } else if((e.key==='Delete'||e.key==='Backspace')&&sel>=0){ pushHist(); delAtom(sel); reqDraw(); } });
+  // pulsante "strumenti classici" (mappa · confronto · spettri reali del vecchio Centro Spettri)
+  var clsBtn=document.getElementById('cdLegacy'); if(clsBtn)clsBtn.onclick=function(){ ov.style.display='none'; window.openLegacyCentro(); };
 };
+// apre la sezione Centro Spettri "classica" (mappa, confronto, spettri reali) preservata
+window.openLegacyCentro=function(){ var sec=document.getElementById('scentro'); if(!sec)return; document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');}); sec.classList.add('on'); sec.style.display='block'; try{ window.scrollTo(0,0); }catch(e){} if(typeof window.initCentro==='function') setTimeout(window.initCentro,50); };
+// apre il Centro Spettri (ChemDraw) caricando direttamente uno SMILES/nome
+window.openChemDrawWith=function(smi){ window.openChemDraw(); setTimeout(function(){ var inp=document.getElementById('cdSmiles'); if(inp&&smi){ inp.value=smi; var b=document.getElementById('cdLoadSmi'); if(b)b.click(); } },160); };
 window.openRDKitLab=function(){var ov=document.getElementById('bsi-rdkitlab-ov');if(!ov){ov=document.createElement('div');ov.id='bsi-rdkitlab-ov';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';var tb=document.createElement('div');tb.style.cssText=_BSI_TB_STYLE;tb.innerHTML='<span style="color:#00c9b7;font-weight:800;font-size:.9rem;flex:1">🧪 RDKit Cheminformatics Lab</span>';var fr=document.createElement('iframe');fr.src='rdkit_lab.html?v='+Date.now();fr.style.cssText='flex:1;border:none;width:100%;height:100%';var cb=document.createElement('button');cb.setAttribute('style',_BSI_BACK_BTN);cb.innerHTML='↩ Indietro';cb.onclick=function(){ov.style.display='none';};ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);document.body.appendChild(ov);}else{ov.style.display='flex';}};
 window.openAccademia=function(){var ov=document.getElementById('bsi-accademia-ov');if(!ov){ov=document.createElement('div');ov.id='bsi-accademia-ov';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';var tb=document.createElement('div');tb.style.cssText=_BSI_TB_STYLE;tb.innerHTML='<span style="color:#00c9b7;font-weight:800;font-size:.9rem;flex:1">🎓 Accademia BioSpecInfo</span>';var fr=document.createElement('iframe');fr.src='accademia.html?v='+Date.now();fr.style.cssText='flex:1;border:none;width:100%;height:100%';var cb=document.createElement('button');cb.setAttribute('style',_BSI_BACK_BTN);cb.innerHTML='↩ Indietro';cb.onclick=function(){ov.style.display='none';};ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);document.body.appendChild(ov);}else{ov.style.display='flex';}};
 window.openChimOrga=function(){var ov=document.getElementById('bsi-chimorga-ov');if(!ov){ov=document.createElement('div');ov.id='bsi-chimorga-ov';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';var tb=document.createElement('div');tb.style.cssText=_BSI_TB_STYLE;tb.innerHTML='<span style="color:#00c9b7;font-weight:800;font-size:.9rem;flex:1">⚗️ Chimica Organica 1+2</span>';var fr=document.createElement('iframe');fr.id='bsi-chimorga-fr';fr.src='chimorga.html?v='+Date.now();fr.style.cssText='flex:1;border:none;width:100%;height:100%';var cb2=document.createElement('button');cb2.setAttribute('style',_BSI_BACK_BTN);cb2.innerHTML='↩ Indietro';cb2.onclick=function(){ov.style.display='none';};ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb2);document.body.appendChild(ov);}else{ov.style.display='flex';}};
@@ -34859,13 +34926,12 @@ var _ITEMS=[
   {ic:'🎓',nm:'Accademia Chimica',ds:'Quiz gamificati · XP · livelli · streak · 83 domande su 6 materie',key:'accademia',hl:true},
   {ic:'⚗️',nm:'Chimica Organica 1+2',ds:'17 moduli interattivi, meccanismi, stereochimica, molecole biologiche',key:'chimorga',hl:true},
   {ic:'🧪',nm:'RDKit Cheminformatics Lab',ds:'Visualizzatore SVG, descrittori, drug-likeness, similarità Tanimoto, libreria molecole',key:'rdkitlab',hl:true},
-  {ic:'✏️',nm:'ChemDraw — Editor Molecolare',ds:'Disegna molecole da zero → nome IUPAC/comune, formula, proprietà e modelli 2D/3D (ball&stick, spacefill…)',key:'chemdraw',hl:true},
+  {ic:'🌈',nm:'Centro Spettri',ds:'Disegna/carica molecole → tutti gli spettri (IR · ¹H/¹³C-NMR · MS · isotopi · UV-Vis · Raman), 2D/3D, gruppi funzionali, drug-likeness, similarità, mappa e confronto',key:'chemdraw',hl:true},
   {ic:'🌌',nm:'Astrochimica 3D PRO',ds:'Molecole ISM, esopianeti JWST, nebule, spettri stellari, nucleosintesi, chimica cometaria, quiz',key:'astro',hl:true},
   {ic:'✨',nm:'Data Science — dalla chimica ai dati',ds:'Lab ML interattivi, CERN (bosone Z), Playground SQL, roadmap corsi, Toolkit GitHub — dal chimico al data scientist',key:'datasci',hl:true},
   {ic:'⚗️',nm:'PRO Hub — ML · QM · Fisica · Statistica',ds:'Machine Learning QSAR, Meccanica Quantistica, Chimica Fisica, Chimica Statistica, Tools avanzati',key:'pro',hl:true},
   {ic:'📁',nm:'File Manager PRO',ds:'Galleria foto, sezioni HTML personalizzate, note — accesso protetto da password',key:'filemanager',hl:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 10 simulazioni',key:'qlab',hl:true},
-  {ic:'🌈',nm:'Centro Spettri',ds:'IR · ¹H/¹³C-NMR · 3D · mappa · confronto · guida',key:'scentro',hl:true},
   {ic:'🧪',nm:'Simulazioni Interattive',ds:'pH · titolazione · tamponi · Beer-Lambert · gas ideali · cinetica — esperimenti in tempo reale',key:'simulazioni',hl:true},
 
   {ic:'📋',nm:'Questionario & Feedback',ds:'Vota l\'app, segnala bug o idee',key:'feedback',hl:true},
@@ -34919,7 +34985,7 @@ function _act(key){
 
 
     if(key==='qlab')     { if(typeof window.openQuantumLab==='function') window.openQuantumLab(); return; }
-    if(key==='scentro')  { var b=document.querySelector('[data-s=scentro]'); if(b){b.click();} else if(typeof window.initCentro==='function'){var sec=document.getElementById('scentro');if(sec){document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');});sec.classList.add('on');setTimeout(window.initCentro,40);}} return; }
+    if(key==='scentro')  { window.openChemDraw(); return; }
     if(key==='feedback') { if(typeof window.openFeedback21==='function') window.openFeedback21(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
     if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
@@ -40538,11 +40604,9 @@ window.initInorgX=function(){
     $('pcSpectra').innerHTML=spec;
     var toSpec=$('pcToSpectra');
     if(toSpec){ toSpec.onclick=function(){
-      var b=document.querySelector('[data-s="scentro"]');
-      if(b){ b.click(); }
-      else { var sec=document.getElementById('scentro'); if(sec){ document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');}); sec.classList.add('on'); sec.style.display='block'; if(typeof window.initCentro==='function') setTimeout(window.initCentro,40); } }
-      // precompilo il campo del centro spettri se esiste
-      setTimeout(function(){ var ci=document.getElementById('ctrSmiles')||document.querySelector('#scentro input[type=text]'); if(ci){ ci.value=toSpec.getAttribute('data-smiles')||toSpec.getAttribute('data-name'); } },120);
+      var smi=toSpec.getAttribute('data-smiles')||toSpec.getAttribute('data-name')||'';
+      if(typeof window.openChemDrawWith==='function'){ window.openChemDrawWith(smi); return; }
+      if(typeof window.openChemDraw==='function'){ window.openChemDraw(); }
     }; }
 
     $('pcLinks').innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap">'+
