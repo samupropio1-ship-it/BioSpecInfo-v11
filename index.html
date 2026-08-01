@@ -41541,94 +41541,177 @@ function _retroWorked(){
    ============================================================ */
 window.initCFT=function(){
   var sec=document.getElementById('scft'); if(!sec||sec._init)return; sec._init=true;
-  var METALS=[
-    {n:'Ti³⁺',d:1,g:20300,P:0},{n:'V³⁺',d:2,g:18000,P:0},{n:'Cr³⁺',d:3,g:17400,P:0},
-    {n:'Mn²⁺',d:5,g:8000,P:25500},{n:'Fe²⁺',d:6,g:10000,P:17600},{n:'Fe³⁺',d:5,g:14000,P:30000},
-    {n:'Co³⁺',d:6,g:18200,P:21000},{n:'Co²⁺',d:7,g:9300,P:22500},{n:'Ni²⁺',d:8,g:8700,P:0},{n:'Cu²⁺',d:9,g:12000,P:0}
+  // g (metallo, cm-1) e P (energia di appaiamento, cm-1) approssimati
+  var gM={Ti3:20300,V3:18000,Cr3:17400,Mn2:8000,Fe2:10000,Fe3:14000,Co3:18200,Co2:9300,Ni2:8700,Cu2:12000,Zn2:8000,Pt2:29000};
+  // P = energia di appaiamento efficace nel complesso (ridotta dall'effetto nefelauxetico), cm-1
+  var pM={Fe2:15000,Fe3:19000,Co3:19000,Co2:19000,Mn2:23000,Ni2:0,Cr3:0,V3:0,Ti3:0,Cu2:0,Zn2:0,Pt2:15000};
+  var CX=[
+    {f:'[Ti(H₂O)₆]³⁺',m:'Ti',Z:22,conf:'[Ar]3d²4s²',grp:4,ox:3,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[V(H₂O)₆]³⁺',m:'V',Z:23,conf:'[Ar]3d³4s²',grp:5,ox:3,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Cr(H₂O)₆]³⁺',m:'Cr',Z:24,conf:'[Ar]3d⁵ 4s¹',grp:6,ox:3,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Cr(NH₃)₆]³⁺',m:'Cr',Z:24,conf:'[Ar]3d⁵ 4s¹',grp:6,ox:3,cn:6,geo:'oct',lig:'NH₃',lf:1.25,pi:'solo σ-donatore'},
+    {f:'[Mn(H₂O)₆]²⁺',m:'Mn',Z:25,conf:'[Ar]3d⁵ 4s²',grp:7,ox:2,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Fe(H₂O)₆]²⁺',m:'Fe',Z:26,conf:'[Ar]3d⁶ 4s²',grp:8,ox:2,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Fe(H₂O)₆]³⁺',m:'Fe',Z:26,conf:'[Ar]3d⁶ 4s²',grp:8,ox:3,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Fe(CN)₆]⁴⁻',m:'Fe',Z:26,conf:'[Ar]3d⁶ 4s²',grp:8,ox:2,cn:6,geo:'oct',lig:'CN⁻',lf:1.70,pi:'π-accettore (retrodonazione)'},
+    {f:'[Fe(CN)₆]³⁻',m:'Fe',Z:26,conf:'[Ar]3d⁶ 4s²',grp:8,ox:3,cn:6,geo:'oct',lig:'CN⁻',lf:1.70,pi:'π-accettore (retrodonazione)'},
+    {f:'[CoF₆]³⁻',m:'Co',Z:27,conf:'[Ar]3d⁷ 4s²',grp:9,ox:3,cn:6,geo:'oct',lig:'F⁻',lf:0.90,pi:'π-donatore'},
+    {f:'[Co(NH₃)₆]³⁺',m:'Co',Z:27,conf:'[Ar]3d⁷ 4s²',grp:9,ox:3,cn:6,geo:'oct',lig:'NH₃',lf:1.25,pi:'solo σ-donatore'},
+    {f:'[Co(H₂O)₆]²⁺',m:'Co',Z:27,conf:'[Ar]3d⁷ 4s²',grp:9,ox:2,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Ni(H₂O)₆]²⁺',m:'Ni',Z:28,conf:'[Ar]3d⁸ 4s²',grp:10,ox:2,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[Ni(CN)₄]²⁻',m:'Ni',Z:28,conf:'[Ar]3d⁸ 4s²',grp:10,ox:2,cn:4,geo:'sp',lig:'CN⁻',lf:1.70,pi:'π-accettore (retrodonazione)'},
+    {f:'[NiCl₄]²⁻',m:'Ni',Z:28,conf:'[Ar]3d⁸ 4s²',grp:10,ox:2,cn:4,geo:'tet',lig:'Cl⁻',lf:0.78,pi:'π-donatore'},
+    {f:'[Cu(H₂O)₆]²⁺',m:'Cu',Z:29,conf:'[Ar]3d¹⁰ 4s¹',grp:11,ox:2,cn:6,geo:'oct',lig:'H₂O',lf:1.00,pi:'π-donatore (debole)'},
+    {f:'[PtCl₄]²⁻',m:'Pt',Z:78,conf:'[Xe]4f¹⁴ 5d⁹ 6s¹',grp:10,ox:2,cn:4,geo:'sp',lig:'Cl⁻',lf:0.78,pi:'π-donatore'},
+    {f:'[Zn(NH₃)₄]²⁺',m:'Zn',Z:30,conf:'[Ar]3d¹⁰ 4s²',grp:12,ox:2,cn:4,geo:'tet',lig:'NH₃',lf:1.25,pi:'solo σ-donatore'}
   ];
-  var LIGS=[{n:'Br⁻',f:0.72},{n:'Cl⁻',f:0.78},{n:'F⁻',f:0.90},{n:'OH⁻',f:0.94},{n:'H₂O',f:1.00},{n:'NH₃',f:1.25},{n:'en',f:1.28},{n:'CN⁻',f:1.70},{n:'CO',f:1.90}];
   sec.innerHTML=
-    '<div class="section-title">🔶 TEORIA DEL CAMPO CRISTALLINO — complessi dei metalli di transizione</div>'
-    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:840px;margin-bottom:14px">I leganti spezzano la degenerazione degli orbitali <b>d</b>. L\'entità dello splitting <b>Δ</b> dipende da geometria, metallo e forza del legante (serie spettrochimica). Se Δ supera l\'energia di appaiamento <b>P</b> → <b>basso spin</b>; altrimenti <b>alto spin</b>. Il Δ determina anche il <b>colore</b> del complesso.</div>'
+    '<div class="section-title">🔶 COMPLESSI DEI METALLI DI TRANSIZIONE — dall\'atomo al colore</div>'
+    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:860px;margin-bottom:12px">Scegli un complesso reale: ricostruiamo tutta la catena teorica che porta al suo campo cristallino, allo stato di spin e al colore — <b>teoria atomica</b> (configurazione → dⁿ), <b>VSEPR</b> (geometria e ibridazione), <b>campo cristallino</b> (splitting, Δ, CFSE) e <b>orbitale molecolare</b> (perché quel legante dà quel Δ).</div>'
     +'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px">'
-      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Geometria<br><select id="cftGeo" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px"><option value="oct">Ottaedrica</option><option value="tet">Tetraedrica</option><option value="sp">Quadrato planare</option></select></label>'
-      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Ione metallico<br><select id="cftMet" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px">'+METALS.map(function(m,i){return '<option value="'+i+'"'+(i===6?' selected':'')+'>'+m.n+' (d'+m.d+')</option>';}).join('')+'</select></label>'
-      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Legante<br><select id="cftLig" style="padding:6px 8px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.4);border-radius:7px">'+LIGS.map(function(l,i){return '<option value="'+i+'"'+(l.n==='H₂O'?' selected':'')+'>'+l.n+(l.f<0.95?' (campo debole)':l.f>1.4?' (campo forte)':'')+'</option>';}).join('')+'</select></label>'
+      +'<label style="font-size:.8rem;color:#8fa3b8;display:flex;flex-direction:column;gap:3px">Complesso<br><select id="cftCx" style="padding:7px 10px;background:#0c1f33;color:#e6fffb;border:1px solid rgba(179,136,255,.5);border-radius:8px;font-size:.95rem;font-weight:700">'+CX.map(function(c,i){return '<option value="'+i+'"'+(c.f.indexOf('Fe(CN)₆]³')>=0?' selected':'')+'>'+c.f+'</option>';}).join('')+'</select></label>'
     +'</div>'
-    +'<div id="cftDiag" style="text-align:center;margin-bottom:12px"></div>'
-    +'<div id="cftInfo" style="font-size:.88rem;color:#e7eefb;line-height:1.6;background:#0c1f33;border-radius:10px;padding:14px;border-left:3px solid #b388ff"></div>';
-  function orb(x,y,w,cnt){ // livello orbitale con elettroni (cnt 0,1,2)
+    +'<div id="cftPanels"></div>';
+  function orb(x,y,w,cnt){
     var s='<line x1="'+x+'" y1="'+y+'" x2="'+(x+w)+'" y2="'+y+'" stroke="#cbd5e1" stroke-width="3"/>';
-    if(cnt>=1)s+='<text x="'+(x+w/2-6)+'" y="'+(y-3)+'" font-size="17" fill="#5eead4" text-anchor="middle" font-family="Arial">↑</text>';
-    if(cnt>=2)s+='<text x="'+(x+w/2+6)+'" y="'+(y+9)+'" font-size="17" fill="#ff7859" text-anchor="middle" font-family="Arial">↓</text>';
+    if(cnt>=1)s+='<text x="'+(x+w/2-6)+'" y="'+(y-3)+'" font-size="16" fill="#5eead4" text-anchor="middle" font-family="Arial">↑</text>';
+    if(cnt>=2)s+='<text x="'+(x+w/2+6)+'" y="'+(y+9)+'" font-size="16" fill="#ff7859" text-anchor="middle" font-family="Arial">↓</text>';
     return s;
   }
   function absToObs(nm){
-    if(nm<400||nm>700)return ['—','#6b7d90','incolore / pallido (assorbe fuori dal visibile)'];
-    var map=[[430,'giallo-verde','#c8d900'],[480,'giallo','#ffe600'],[490,'arancione','#ff8a00'],[500,'rosso','#ff2d2d'],[560,'magenta','#e0189a'],[580,'violetto','#7c3aed'],[595,'blu','#2563eb'],[620,'verde-azzurro','#00b3a4'],[700,'verde-blu','#0ea5e9']];
-    for(var i=0;i<map.length;i++){ if(nm<=map[i][0])return [map[i][1],map[i][2],'assorbe a ~'+nm.toFixed(0)+' nm ('+ (nm<450?'violetto':nm<490?'blu':nm<560?'verde':nm<590?'giallo':'rosso') +')']; }
+    if(nm<400||nm>750)return ['incolore','#20313f','assorbe fuori dal visibile (UV o IR)'];
+    var map=[[430,'giallo-verde','#c8d900'],[480,'giallo','#ffe600'],[490,'arancione','#ff8a00'],[500,'rosso','#ff2d2d'],[560,'magenta','#e0189a'],[580,'violetto','#7c3aed'],[595,'blu','#2563eb'],[620,'verde-azzurro','#00b3a4'],[750,'verde-blu','#0ea5e9']];
+    for(var i=0;i<map.length;i++){ if(nm<=map[i][0])return [map[i][1],map[i][2],'assorbe ~'+nm.toFixed(0)+' nm']; }
     return ['verde-blu','#0ea5e9','assorbe nel rosso'];
   }
-  function render(){
-    var geo=sec.querySelector('#cftGeo').value, M=METALS[+sec.querySelector('#cftMet').value], Lg=LIGS[+sec.querySelector('#cftLig').value];
-    var Do=M.g*Lg.f; // cm-1 (ottaedrico)
+  function panel(icon,title,body,accent){
+    return '<div style="background:#0c1f33;border:1px solid '+accent+';border-radius:12px;padding:14px 16px;margin-bottom:12px">'
+      +'<div style="color:'+accent+';font-weight:800;font-size:1rem;margin-bottom:8px">'+icon+' '+title+'</div>'+body+'</div>';
+  }
+  function fillOct(d,lowSpin){ var order=lowSpin?[0,1,2,0,1,2,3,4,3,4]:[0,1,2,3,4,0,1,2,3,4]; var oc=[0,0,0,0,0]; for(var e=0;e<d;e++)oc[order[e]]++; return oc; }
+  function cftDiagram(geo,d,Do,P){
     var W=420,H=250, svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:440px;background:#081522;border-radius:10px">';
-    var d=M.d, info='', unpaired=0, cfse=0, spin='', deltaTxt='', lambda=0;
+    var unpaired=0,cfse=0,spin='(unico)',lowSpin=false;
     if(geo==='oct'){
-      var lowSpin=(d>=4&&d<=7&&Do>M.P);
-      var order=lowSpin?[0,1,2,0,1,2,3,4,3,4]:[0,1,2,3,4,0,1,2,3,4];
-      var oc=[0,0,0,0,0]; for(var e=0;e<d;e++)oc[order[e]]++;
-      var yT=170,yE=70,x0=90,ow=70,gap=26;
-      // t2g (3) e eg (2)
+      lowSpin=(d>=4&&d<=7&&Do>P);
+      var oc=fillOct(d,lowSpin), yT=175,yE=70,x0=90,ow=68,gap=24;
       svg+=orb(x0,yE,ow,oc[3])+orb(x0+ow+gap,yE,ow,oc[4]);
-      svg+=orb(x0-10,yT,ow,oc[0])+orb(x0+ow-4,yT,ow,oc[1])+orb(x0+2*ow+2,yT,ow,oc[2]);
-      svg+='<text x="'+(x0+ow)+'" y="55" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">e_g</text>';
-      svg+='<text x="'+(x0+ow)+'" y="200" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">t_2g</text>';
-      svg+='<line x1="300" y1="'+yE+'" x2="300" y2="'+yT+'" stroke="#f5c451" stroke-width="1" stroke-dasharray="4 3"/><text x="330" y="'+((yE+yT)/2)+'" fill="#f5c451" font-size="13" font-family="Arial">Δ_o</text>';
-      var nT=oc[0]+oc[1]+oc[2], nE=oc[3]+oc[4]; cfse=(-0.4*nT+0.6*nE);
-      unpaired=oc.filter(function(c){return c===1;}).length;
-      spin=(d>=4&&d<=7)?(lowSpin?'BASSO spin':'ALTO spin'):'(unico)';
-      deltaTxt='Δ_o = f·g = '+Lg.f+'×'+M.g+' = <b>'+Do.toFixed(0)+' cm⁻¹</b>';
-      lambda=1e7/Do;
+      svg+=orb(x0-12,yT,ow,oc[0])+orb(x0+ow-6,yT,ow,oc[1])+orb(x0+2*ow,yT,ow,oc[2]);
+      svg+='<text x="'+(x0+ow)+'" y="56" fill="#b388ff" font-size="13" text-anchor="middle">e_g</text>';
+      svg+='<text x="'+(x0+ow)+'" y="205" fill="#b388ff" font-size="13" text-anchor="middle">t₂g</text>';
+      svg+='<line x1="305" y1="'+yE+'" x2="305" y2="'+yT+'" stroke="#f5c451" stroke-width="1" stroke-dasharray="4 3"/><text x="335" y="'+((yE+yT)/2)+'" fill="#f5c451" font-size="13">Δₒ</text>';
+      var nT=oc[0]+oc[1]+oc[2], nE=oc[3]+oc[4]; cfse=(-0.4*nT+0.6*nE); unpaired=oc.filter(function(c){return c===1;}).length;
+      spin=(d>=4&&d<=7)?(lowSpin?'basso spin':'alto spin'):'(unico)';
     } else if(geo==='tet'){
-      var Dt=Do*4/9;
-      var order=[0,1,2,3,4,0,1,2,3,4]; var oc=[0,0,0,0,0]; for(var e=0;e<d;e++)oc[order[e]]++;
-      // e (2, basso), t2 (3, alto)
-      var yE=175,yT=70,x0=90,ow=70,gap=26;
-      svg+=orb(x0-10,yT,ow,oc[2])+orb(x0+ow-4,yT,ow,oc[3])+orb(x0+2*ow+2,yT,ow,oc[4]);
+      var oc=fillOct(d,false), yE=178,yT=68,x0=90,ow=68,gap=24;
+      svg+=orb(x0-12,yT,ow,oc[2])+orb(x0+ow-6,yT,ow,oc[3])+orb(x0+2*ow,yT,ow,oc[4]);
       svg+=orb(x0+ow*0.5,yE,ow,oc[0])+orb(x0+ow*1.5+gap,yE,ow,oc[1]);
-      svg+='<text x="'+(x0+ow)+'" y="205" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">e</text>';
-      svg+='<text x="'+(x0+ow)+'" y="55" fill="#b388ff" font-size="13" text-anchor="middle" font-family="Arial">t_2</text>';
-      svg+='<text x="330" y="120" fill="#f5c451" font-size="13" font-family="Arial">Δ_t</text>';
-      var nE=oc[0]+oc[1], nT=oc[2]+oc[3]+oc[4]; cfse=(-0.6*nE+0.4*nT);
-      unpaired=oc.filter(function(c){return c===1;}).length; spin='ALTO spin (sempre)';
-      deltaTxt='Δ_t = 4/9·Δ_o ≈ <b>'+Dt.toFixed(0)+' cm⁻¹</b> (troppo piccolo per basso spin)';
-      lambda=1e7/Dt;
-    } else { // square planar
-      // livelli (dal basso): dxz,dyz (2 orb), dz2, dxy, dx2-y2
-      var levels=[{lab:'d_xz,d_yz',y:180,n:2},{lab:'d_z²',y:150,n:1},{lab:'d_xy',y:110,n:1},{lab:'d_x²-y²',y:55,n:1}];
-      var caps=[4,2,2,2], oc=[0,0,0,0], rem=d;
-      for(var i=0;i<levels.length&&rem>0;i++){ var take=Math.min(caps[i],rem); oc[i]=take; rem-=take; }
-      var x0=110,ow=80;
-      svg+=orb(x0,levels[0].y,ow*0.7,Math.min(2,oc[0]))+orb(x0+ow,levels[0].y,ow*0.7,Math.max(0,oc[0]-2));
-      for(var i=1;i<4;i++){ svg+=orb(x0+ow*0.4,levels[i].y,ow,oc[i]); svg+='<text x="'+(x0-4)+'" y="'+(levels[i].y+4)+'" fill="#b388ff" font-size="11" text-anchor="end" font-family="Arial">'+levels[i].lab+'</text>'; }
-      svg+='<text x="'+(x0-4)+'" y="184" fill="#b388ff" font-size="11" text-anchor="end" font-family="Arial">d_xz,d_yz</text>';
-      unpaired=oc.reduce(function(a,c,i){ var cap=caps[i]; if(i===0){return a+(c%2);} return a+(c===1?1:0); },0);
-      spin=(d===8?'basso spin (diamagnetico se forte campo)':''); cfse=0;
-      deltaTxt='Splitting a 4 livelli, tipico dei <b>d8</b> con leganti forti (es. [Ni(CN)₄]²⁻, complessi di Pt/Pd)';
-      lambda=1e7/(Do*1.3);
+      svg+='<text x="'+(x0+ow)+'" y="208" fill="#b388ff" font-size="13" text-anchor="middle">e</text><text x="'+(x0+ow)+'" y="54" fill="#b388ff" font-size="13" text-anchor="middle">t₂</text>';
+      svg+='<text x="335" y="123" fill="#f5c451" font-size="13">Δₜ</text>';
+      var nE=oc[0]+oc[1], nT=oc[2]+oc[3]+oc[4]; cfse=(-0.6*nE+0.4*nT); unpaired=oc.filter(function(c){return c===1;}).length; spin='alto spin (sempre)';
+    } else {
+      var caps=[4,2,2,2], oc=[0,0,0,0], rem=d, lv=[184,150,110,55];
+      for(var i=0;i<4&&rem>0;i++){ var t=Math.min(caps[i],rem); oc[i]=t; rem-=t; }
+      var x0=120,ow=80;
+      svg+=orb(x0,lv[0],ow*0.65,Math.min(2,oc[0]))+orb(x0+ow*0.8,lv[0],ow*0.65,Math.max(0,oc[0]-2));
+      for(var i=1;i<4;i++)svg+=orb(x0+ow*0.35,lv[i],ow,oc[i]);
+      var labs=['d_xz,d_yz','d_z²','d_xy','d_x²-y²'];
+      for(var i=0;i<4;i++)svg+='<text x="'+(x0-6)+'" y="'+(lv[i]+4)+'" fill="#b388ff" font-size="11" text-anchor="end">'+labs[i]+'</text>';
+      unpaired=(function(){var u=0;if(oc[0]===1||oc[0]===3)u++;for(var i=1;i<4;i++)if(oc[i]===1)u++;return u;})();
+      spin=(d===8?'basso spin (diamag. se campo forte)':''); cfse=0;
     }
     svg+='</svg>';
-    sec.querySelector('#cftDiag').innerHTML=svg;
-    var col=absToObs(lambda);
-    sec.querySelector('#cftInfo').innerHTML=
-      '<b style="color:#b388ff">'+M.n+' con '+Lg.n+' ('+({oct:'ottaedrico',tet:'tetraedrico',sp:'quadrato planare'})[geo]+')</b><br>'
-      +deltaTxt+'<br>'
-      +'Elettroni d: <b>'+d+'</b> · elettroni spaiati: <b>'+unpaired+'</b> ('+(unpaired>0?'paramagnetico':'diamagnetico')+') · stato: <b>'+spin+'</b>'
-      +(geo!=='sp'?'<br>CFSE ≈ <b>'+cfse.toFixed(1)+' Δ</b>'+((geo==='oct'&&d>=4&&d<=7)?' + eventuale energia di appaiamento (P = '+M.P.toLocaleString('it')+' cm⁻¹, '+(Do>M.P?'Δ&gt;P → basso spin':'Δ&lt;P → alto spin')+')':''):'')
-      +'<br>Colore: <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:'+col[1]+';vertical-align:middle;border:1px solid #333"></span> <b>'+col[0]+'</b> — '+col[2]+' (colore osservato = complementare dell\'assorbito).';
+    return {svg:svg,unpaired:unpaired,cfse:cfse,spin:spin,lowSpin:lowSpin};
   }
-  ['cftGeo','cftMet','cftLig'].forEach(function(id){sec.querySelector('#'+id).onchange=render;});
+  function geomShape(geo){
+    var s='<svg viewBox="0 0 200 160" width="150" style="background:#081522;border-radius:8px">';
+    var M='<circle cx="100" cy="80" r="12" fill="#b388ff"/><text x="100" y="84" font-size="10" fill="#081522" text-anchor="middle" font-weight="bold">M</text>';
+    function L(x,y){return '<line x1="100" y1="80" x2="'+x+'" y2="'+y+'" stroke="#5eead4" stroke-width="2"/><circle cx="'+x+'" cy="'+y+'" r="7" fill="#5eead4"/>';}
+    if(geo==='oct')s+=L(100,20)+L(100,140)+L(40,80)+L(160,80)+L(60,50)+L(140,110)+M;
+    else if(geo==='tet')s+=L(100,25)+L(45,120)+L(155,120)+L(100,105)+M;
+    else s+=L(40,80)+L(160,80)+L(100,25)+L(100,135)+M;
+    return s+'</svg>';
+  }
+  function moDiagram(geo,d,Do,P,pi){
+    // MO ottaedrico schematico
+    var W=440,H=300, s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:460px;background:#081522;border-radius:10px">';
+    var mx=70, mox=370, cx=220;
+    function lvl(x,y,w,lab,col){ return '<line x1="'+x+'" y1="'+y+'" x2="'+(x+w)+'" y2="'+y+'" stroke="'+(col||'#64748b')+'" stroke-width="2.5"/><text x="'+(x+w+4)+'" y="'+(y+4)+'" font-size="10" fill="'+(col||'#9fb3c8')+'">'+lab+'</text>'; }
+    // metallo (sinistra)
+    s+='<text x="'+mx+'" y="20" font-size="11" fill="#b388ff" font-weight="bold">metallo</text>';
+    s+=lvl(mx,60,36,'4p',' #b388ff')+lvl(mx,90,36,'4s','#b388ff')+lvl(mx,150,36,'3d','#b388ff');
+    // leganti (destra)
+    s+='<text x="'+(mox-40)+'" y="20" font-size="11" fill="#5eead4" font-weight="bold">6 σ leganti</text>';
+    s+=lvl(mox,210,36,'σ_L','#5eead4');
+    // MO centrali
+    var lowSpin=(d>=4&&d<=7&&Do>P), oc=fillOct(d,lowSpin);
+    var nT=oc[0]+oc[1]+oc[2], nE=oc[3]+oc[4];
+    // t2g (non legante / π) e eg* (σ*)
+    var yT=180, yE=110;
+    // eg* (antilegante): due tratti
+    s+='<line x1="'+(cx-30)+'" y1="'+yE+'" x2="'+(cx-2)+'" y2="'+yE+'" stroke="#ff7859" stroke-width="2.5"/><line x1="'+(cx+8)+'" y1="'+yE+'" x2="'+(cx+36)+'" y2="'+yE+'" stroke="#ff7859" stroke-width="2.5"/><text x="'+(cx+42)+'" y="'+(yE+4)+'" font-size="10" fill="#ff7859">e_g* (σ*)</text>';
+    // t2g: tre tratti
+    s+='<line x1="'+(cx-40)+'" y1="'+yT+'" x2="'+(cx-16)+'" y2="'+yT+'" stroke="#f5c451" stroke-width="2.5"/><line x1="'+(cx-8)+'" y1="'+yT+'" x2="'+(cx+16)+'" y2="'+yT+'" stroke="#f5c451" stroke-width="2.5"/><line x1="'+(cx+24)+'" y1="'+yT+'" x2="'+(cx+48)+'" y2="'+yT+'" stroke="#f5c451" stroke-width="2.5"/><text x="'+(cx+54)+'" y="'+(yT+4)+'" font-size="10" fill="#f5c451">t₂g</text>';
+    // elettroni d nei t2g/eg*
+    function eOn(x,y,c){ var t=''; if(c>=1)t+='<text x="'+(x-4)+'" y="'+(y-4)+'" font-size="13" fill="#5eead4" text-anchor="middle">↑</text>'; if(c>=2)t+='<text x="'+(x+5)+'" y="'+(y+8)+'" font-size="13" fill="#ff7859" text-anchor="middle">↓</text>'; return t; }
+    var t2c=[oc[0],oc[1],oc[2]], egc=[oc[3],oc[4]];
+    s+=eOn(cx-28,yT,t2c[0])+eOn(cx+4,yT,t2c[1])+eOn(cx+36,yT,t2c[2]);
+    s+=eOn(cx-16,yE,egc[0])+eOn(cx+22,yE,egc[1]);
+    // legami σ (bassi, pieni di elettroni dei leganti)
+    s+='<line x1="'+(cx-40)+'" y1="245" x2="'+(cx+48)+'" y2="245" stroke="#334155" stroke-width="2.5"/><text x="'+(cx+54)+'" y="249" font-size="10" fill="#8fa3b8">MO σ leganti (pieni)</text>';
+    // Δo
+    s+='<line x1="'+(cx+70)+'" y1="'+yE+'" x2="'+(cx+70)+'" y2="'+yT+'" stroke="#f5c451" stroke-width="1.2" stroke-dasharray="4 3"/><text x="'+(cx+74)+'" y="'+((yE+yT)/2)+'" font-size="12" fill="#f5c451">Δₒ</text>';
+    // linee di correlazione tenui
+    s+='<line x1="'+(mx+36)+'" y1="150" x2="'+(cx-40)+'" y2="'+yT+'" stroke="#334155" stroke-dasharray="2 2"/><line x1="'+(mx+36)+'" y1="150" x2="'+(cx-30)+'" y2="'+yE+'" stroke="#334155" stroke-dasharray="2 2"/><line x1="'+mox+'" y1="210" x2="'+(cx+48)+'" y2="245" stroke="#334155" stroke-dasharray="2 2"/>';
+    s+='</svg>';
+    return s;
+  }
+  function render(){
+    var C=CX[+sec.querySelector('#cftCx').value];
+    var key=C.m+C.ox, g=gM[key]||10000, P=pM[key]||0, d=C.grp-C.ox;
+    var Do=g*C.lf, Dt=Do*4/9;
+    var dia=cftDiagram(C.geo,d,Do,P);
+    var Deff=(C.geo==='tet')?Dt:(C.geo==='sp'?Do*1.3:Do);
+    var lambda=1e7/Deff, col=absToObs(d===0||d===10?9999:lambda);
+    var mu=Math.sqrt(dia.unpaired*(dia.unpaired+2));
+    var geoName={oct:'ottaedrica',tet:'tetraedrica',sp:'quadrato planare'}[C.geo];
+    var hyb={oct:(dia.lowSpin?'d²sp³ (inner-orbital, usa i 3d interni)':'sp³d² (outer-orbital, usa i 4d)'),tet:'sp³',sp:'dsp²'}[C.geo];
+    // Pannello 1 - Teoria atomica
+    var p1=panel('⚛️','1. Teoria atomica — dalla configurazione al dⁿ',''
+      +'<div style="font-size:.87rem;line-height:1.7;color:#cdd9e6">'
+      +'<b>'+C.m+'</b> (Z='+C.Z+'): '+C.conf+'.<br>'
+      +'Nello ione <b>'+C.m+'<sup>'+C.ox+'+</sup></b> si rimuovono prima gli elettroni <b>s</b> più esterni, poi i <b>d</b>: numero di ossidazione +'+C.ox+' → configurazione <b style="color:#b388ff">d'+d+'</b>.<br>'
+      +'<span style="color:#7f92a6">Regola: il conteggio dⁿ = (gruppo del metallo) − (stato di ossidazione) = '+C.grp+' − '+C.ox+' = '+d+'.</span></div>','#b388ff');
+    // Pannello 2 - VSEPR
+    var p2=panel('🔷','2. VSEPR — geometria e ibridazione',''
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">'+geomShape(C.geo)
+      +'<div style="flex:1;min-width:220px;font-size:.87rem;line-height:1.7;color:#cdd9e6">Numero di coordinazione <b>'+C.cn+'</b> → geometria <b>'+geoName+'</b>'
+      +(C.cn===6?' (VSEPR AX₆, angoli 90°).':C.cn===4?(C.geo==='tet'?' (VSEPR AX₄ tetraedrico, 109,5° — tipico di campo debole / d⁰,d⁵,d¹⁰).':' (quadrato planare, tipico dei d⁸ con campo forte).'):'.')
+      +'<br>Ibridazione del metallo: <b style="color:#5eead4">'+hyb+'</b>.'
+      +(C.geo==='sp'?' Nei d⁸ forti l’orbitale d_x²-y² resta vuoto e la geometria collassa da ottaedrica a quadrato planare.':'')
+      +'</div></div>','#5eead4');
+    // Pannello 3 - Campo cristallino
+    var p3=panel('🔶','3. Teoria del campo cristallino — splitting e riempimento',''
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">'+dia.svg
+      +'<div style="flex:1;min-width:230px;font-size:.86rem;line-height:1.7;color:#cdd9e6">'
+      +'Δ'+(C.geo==='tet'?'ₜ':'ₒ')+' = f·g = '+C.lf+'×'+g+' '+(C.geo==='tet'?'×4/9 ':'')+'≈ <b>'+Deff.toFixed(0)+' cm⁻¹</b>.<br>'
+      +(C.geo==='oct'&&d>=4&&d<=7?'Confronto con l’appaiamento P='+P.toLocaleString('it')+': Δ'+(Do>P?'&gt;':'&lt;')+'P → <b>'+dia.spin+'</b>.<br>':'Stato di spin: <b>'+dia.spin+'</b>.<br>')
+      +'Elettroni spaiati: <b>'+dia.unpaired+'</b> → '+(dia.unpaired>0?'paramagnetico':'diamagnetico')+', momento magnetico μ = √(n(n+2)) = <b>'+mu.toFixed(2)+' BM</b>.<br>'
+      +(C.geo!=='sp'?'CFSE ≈ <b>'+dia.cfse.toFixed(1)+' Δ</b>'+(dia.lowSpin?' (+ energia di appaiamento)':'')+'.<br>':'')
+      +'Colore: <span style="display:inline-block;width:15px;height:15px;border-radius:4px;background:'+col[1]+';vertical-align:middle;border:1px solid #333"></span> <b>'+(d===0||d===10?'incolore':col[0])+'</b> — '+(d===0||d===10?'nessuna transizione d-d possibile':col[2]+' (osservato = complementare)')+'.'
+      +'</div></div>','#f5c451');
+    // Pannello 4 - MO
+    var p4=panel('🔗','4. Teoria dell’orbitale molecolare — origine di Δ e serie spettrochimica',''
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">'+(C.geo==='oct'?moDiagram(C.geo,d,Do,P,C.pi):'<div style="color:#8fa3b8;font-size:.84rem;min-width:200px">Il diagramma MO per la geometria '+geoName+' è analogo: i 4 (o 6) orbitali σ dei leganti si combinano con gli orbitali del metallo dando MO leganti (pieni) e i frontier d‑based che generano lo splitting mostrato sopra.</div>')
+      +'<div style="flex:1;min-width:240px;font-size:.85rem;line-height:1.7;color:#cdd9e6">'
+      +'Gli orbitali σ dei leganti si combinano con 3d/4s/4p del metallo. I 6 MO leganti (bassi) si riempiono con le coppie dei leganti = i legami M–L. I <b>frontier</b> sono il set <b style="color:#f5c451">t₂g</b> (quasi non-legante) e <b style="color:#ff7859">e_g*</b> (σ-antilegante): il loro dislivello è proprio <b>Δₒ</b>. Gli elettroni d del metallo li riempiono.<br>'
+      +'<b>Perché questo legante dà quel Δ?</b> Effetto π — questo legante è <b>'+C.pi+'</b>:<br>'
+      +(C.pi.indexOf('accettore')>=0?'ha orbitali π* vuoti che si abbassano accettando densità dai t₂g (<b>retrodonazione</b>) → i t₂g scendono → <b>Δ grande</b> (campo forte).':C.pi.indexOf('donatore (debole)')>=0||C.pi.indexOf('π-donatore')>=0?'ha coppie π piene che alzano i t₂g (repulsione) → <b>Δ piccolo</b> (campo debole).':'è solo σ-donatore: nessun effetto π sui t₂g → Δ <b>intermedio</b>.')
+      +'<br><span style="color:#7f92a6">È questa la spiegazione MO della <b>serie spettrochimica</b>: I⁻&lt;Br⁻&lt;Cl⁻&lt;F⁻&lt;OH⁻&lt;H₂O&lt;NH₃&lt;en&lt;NO₂⁻&lt;CN⁻&lt;CO.</span>'
+      +'</div></div>','#7c6fff');
+    sec.querySelector('#cftPanels').innerHTML=p1+p2+p3+p4;
+  }
+  sec.querySelector('#cftCx').onchange=render;
   render();
 };
 
