@@ -819,7 +819,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <div id="navGroup3" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sfarm">💊 Farmaci</button>
     <button class="nav-btn" data-s="sdint">⚠️ Interazioni</button>
-    <button class="nav-btn" data-s="spkcalc">📐 Farmacocin.</button>
+    <button class="nav-btn" data-s="spkcalc">📐 Farmacocin.</button><button class="nav-btn" data-s="spkcurve" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">📉 Curve PK</button>
     <button class="nav-btn" data-s="sclinical">🏥 Casi Clinici</button>
     <button class="nav-btn" data-s="smorb">🏥 Patologie</button>
   </div>
@@ -3243,6 +3243,7 @@ window.onload = function(){
       if(sec==='sretro' && typeof window.initRetro==='function') window.initRetro();
       if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
       if(sec==='selucid' && typeof window.initElucid==='function') window.initElucid();
+      if(sec==='spkcurve' && typeof window.initPKcurve==='function') window.initPKcurve();
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
@@ -27848,6 +27849,7 @@ window.calcMolProps = function() {
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
+<div id="spkcurve" class="section"></div>
 <div id="sglic" class="section"></div>
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
@@ -41512,6 +41514,104 @@ function _retroWorked(){
   });
   return h+'</div></details>';
 }
+
+/* ============================================================
+   FARMACI — Curve farmacocinetiche interattive (C vs t)
+   ============================================================ */
+window.initPKcurve=function(){
+  var sec=document.getElementById('spkcurve');
+  if(!sec||sec._init)return; sec._init=true;
+  sec.innerHTML=
+    '<div class="section-title">📉 CURVE FARMACOCINETICHE — concentrazione plasmatica nel tempo</div>'
+    +'<div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:840px;margin-bottom:14px">Modello a <b>un compartimento</b>: come varia la concentrazione di un farmaco nel sangue. Scegli la via (bolo <b>EV</b> o <b>orale</b>), regola dose, volume di distribuzione, emivita e assorbimento, e osserva l\'accumulo con le dosi ripetute rispetto alla <b>finestra terapeutica</b>.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">'
+      +'<div style="display:flex;gap:4px;background:#0c1f33;border-radius:10px;padding:3px">'
+        +'<button id="pkIV" style="border:none;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;background:#0e2a2a;color:#5eead4">💉 EV (bolo)</button>'
+        +'<button id="pkPO" style="border:none;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;background:transparent;color:#9fb3c8">💊 Orale</button>'
+      +'</div>'
+      +'<label style="display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:#cdd9e6"><input type="checkbox" id="pkMulti" style="accent-color:#5eead4"> dosi ripetute</label>'
+    +'</div>'
+    +'<canvas id="pkCv" width="900" height="420" style="width:100%;max-width:900px;background:#081522;border-radius:12px;display:block;border:1px solid rgba(94,234,212,.2)"></canvas>'
+    +'<div id="pkCtrls" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px"></div>'
+    +'<div id="pkInfo" style="margin-top:12px;font-size:.86rem;color:#cdd9e6;line-height:1.6;background:#0c1f33;border-radius:10px;padding:12px 14px;border-left:3px solid #5eead4"></div>';
+  function sl(label,id,min,max,v,step,unit){
+    return '<label style="display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:#9fb3c8">'+label+': <b id="'+id+'v" style="color:#5eead4">'+v+'</b> '+unit
+      +'<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+v+'" style="accent-color:#5eead4"></label>';
+  }
+  sec.querySelector('#pkCtrls').innerHTML=
+    sl('Dose','pkD',50,1000,500,10,'mg')
+    +sl('V<sub>d</sub> distribuzione','pkVd',5,100,35,1,'L')
+    +sl('Emivita t½','pkTh',0.5,24,6,0.5,'h')
+    +sl('k<sub>a</sub> assorbimento','pkKa',0.2,3,1,0.1,'h⁻¹')
+    +sl('Biodisp. F','pkF',0.1,1,0.8,0.05,'')
+    +sl('Intervallo τ','pkTau',2,24,8,1,'h')
+    +sl('MEC (min efficace)','pkMEC',1,20,4,0.5,'mg/L')
+    +sl('MTC (max tollerata)','pkMTC',5,40,15,0.5,'mg/L');
+  var cv=sec.querySelector('#pkCv'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+  var route='iv';
+  function val(id){return parseFloat(sec.querySelector('#'+id).value);}
+  function setv(id,v){sec.querySelector('#'+id+'v').textContent=v;}
+  function conc(t,D,Vd,ke,ka,F){
+    if(route==='iv'){ return (D/Vd)*Math.exp(-ke*t); }
+    if(Math.abs(ka-ke)<1e-6)ka=ke+1e-3;
+    return (F*D*ka)/(Vd*(ka-ke))*(Math.exp(-ke*t)-Math.exp(-ka*t));
+  }
+  function draw(){
+    var D=val('pkD'),Vd=val('pkVd'),th=val('pkTh'),ka=val('pkKa'),F=val('pkF'),tau=val('pkTau'),MEC=val('pkMEC'),MTC=val('pkMTC');
+    setv('pkD',D);setv('pkVd',Vd);setv('pkTh',th);setv('pkKa',ka.toFixed(1));setv('pkF',F.toFixed(2));setv('pkTau',tau);setv('pkMEC',MEC.toFixed(1));setv('pkMTC',MTC.toFixed(1));
+    var ke=Math.log(2)/th, multi=sec.querySelector('#pkMulti').checked;
+    var Tmax=multi?tau*6:Math.min(th*6,72), N=600;
+    var pts=[], cmax=0;
+    for(var i=0;i<=N;i++){
+      var t=i/N*Tmax, c=0;
+      if(multi){ for(var d=0; d*tau<=t; d++){ c+=conc(t-d*tau,D,Vd,ke,ka,F); } }
+      else c=conc(t,D,Vd,ke,ka,F);
+      pts.push([t,c]); if(c>cmax)cmax=c;
+    }
+    var ymax=Math.max(cmax*1.1,MTC*1.15), pad={l:56,r:16,t:18,b:40};
+    function X(t){return pad.l+t/Tmax*(W-pad.l-pad.r);}
+    function Y(c){return H-pad.b-c/ymax*(H-pad.t-pad.b);}
+    ctx.clearRect(0,0,W,H);
+    // finestra terapeutica
+    ctx.fillStyle='rgba(94,234,212,.09)'; ctx.fillRect(pad.l,Y(MTC),W-pad.l-pad.r,Y(MEC)-Y(MTC));
+    ctx.strokeStyle='rgba(94,234,212,.5)'; ctx.setLineDash([5,4]); ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,Y(MEC));ctx.lineTo(W-pad.r,Y(MEC));ctx.stroke();
+    ctx.strokeStyle='rgba(255,120,89,.6)';ctx.beginPath();ctx.moveTo(pad.l,Y(MTC));ctx.lineTo(W-pad.r,Y(MTC));ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#5eead4';ctx.font='11px system-ui';ctx.textAlign='left';ctx.fillText('MEC (efficacia)',pad.l+4,Y(MEC)-4);
+    ctx.fillStyle='#ff7859';ctx.fillText('MTC (tossicità)',pad.l+4,Y(MTC)+12);
+    // assi + griglia
+    ctx.strokeStyle='#26406a';ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+    ctx.fillStyle='#7f92a6';ctx.font='11px system-ui';
+    for(var g=0;g<=5;g++){ var cc=ymax*g/5,yy=Y(cc); ctx.textAlign='right';ctx.fillText(cc.toFixed(1),pad.l-6,yy+3); ctx.strokeStyle='rgba(148,163,184,.08)';ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(W-pad.r,yy);ctx.stroke(); }
+    for(var g=0;g<=6;g++){ var tt=Tmax*g/6; ctx.textAlign='center';ctx.fillText(tt.toFixed(0),X(tt),H-pad.b+16); }
+    ctx.fillStyle='#9fb3c8';ctx.textAlign='center';ctx.fillText('tempo (ore)',pad.l+(W-pad.l-pad.r)/2,H-6);
+    ctx.save();ctx.translate(14,pad.t+(H-pad.t-pad.b)/2);ctx.rotate(-Math.PI/2);ctx.fillText('C plasmatica (mg/L)',0,0);ctx.restore();
+    // curva
+    ctx.strokeStyle='#5eead4';ctx.lineWidth=2.4;ctx.beginPath();
+    pts.forEach(function(p,i){var px=X(p[0]),py=Y(p[1]);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+    // info
+    var C0=D/Vd, tmaxPO=Math.log(ka/ke)/(ka-ke), CL=ke*Vd;
+    var inWindow=pts.some(function(p){return p[1]>=MEC&&p[1]<=MTC;});
+    var overToxic=pts.some(function(p){return p[1]>MTC;});
+    sec.querySelector('#pkInfo').innerHTML=
+      '<b>k<sub>e</sub> = '+ke.toFixed(3)+' h⁻¹</b> · clearance CL = k<sub>e</sub>·V<sub>d</sub> = <b>'+CL.toFixed(1)+' L/h</b> · emivita t½ = <b>'+th+' h</b>. '
+      +(route==='iv'?'EV: picco immediato <b>C₀ = D/V<sub>d</sub> = '+C0.toFixed(1)+' mg/L</b>, poi declino esponenziale.':'Orale: assorbimento + eliminazione (Bateman); picco a t<sub>max</sub> ≈ <b>'+(tmaxPO>0?tmaxPO.toFixed(1):'—')+' h</b>. Con F='+F.toFixed(2)+' solo una frazione entra in circolo.')
+      +(multi?' A regime le dosi si accumulano ogni τ='+tau+' h (steady state dopo ~4–5 emivite).':'')
+      +'<br><span style="color:'+(overToxic?'#ff7859':inWindow?'#5eead4':'#f5c451')+'">'+(overToxic?'⚠️ Supera la MTC: rischio di tossicità — ridurre la dose o allungare τ.':inWindow?'✅ La concentrazione entra nella finestra terapeutica.':'⚠️ Non raggiunge la MEC: dose insufficiente per l\'efficacia.')+'</span>';
+  }
+  function setRoute(r){ route=r;
+    sec.querySelector('#pkIV').style.background=r==='iv'?'#0e2a2a':'transparent'; sec.querySelector('#pkIV').style.color=r==='iv'?'#5eead4':'#9fb3c8';
+    sec.querySelector('#pkPO').style.background=r==='po'?'#0e2a2a':'transparent'; sec.querySelector('#pkPO').style.color=r==='po'?'#5eead4':'#9fb3c8';
+    var kaWrap=sec.querySelector('#pkKa').parentElement, fWrap=sec.querySelector('#pkF').parentElement;
+    kaWrap.style.opacity=r==='po'?'1':'.35'; fWrap.style.opacity=r==='po'?'1':'.35';
+    draw();
+  }
+  sec.querySelector('#pkIV').onclick=function(){setRoute('iv');};
+  sec.querySelector('#pkPO').onclick=function(){setRoute('po');};
+  sec.querySelector('#pkMulti').onchange=draw;
+  ['pkD','pkVd','pkTh','pkKa','pkF','pkTau','pkMEC','pkMTC'].forEach(function(id){sec.querySelector('#'+id).oninput=draw;});
+  setRoute('iv');
+};
 
 /* ============================================================
    SPETTRI — Elucidazione strutturale guidata (IR+NMR+MS insieme)
