@@ -34363,8 +34363,15 @@ window.openChemDraw=function(){
           +'<div id="cd3dBtns" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px"></div>'
           +'<div id="cd3dNote" style="color:#8fa3b8;font-size:.75rem;margin-top:4px"></div>'
         +'</div>'
+      +'</div>'
+      +'<div style="background:#0c1f33;border:1px solid #f5c451;border-radius:12px;padding:14px;margin-top:14px">'
+        +'<div style="color:#f5c451;font-weight:800;font-size:1rem;margin-bottom:8px">🌈 Spettri predetti — ogni spettroscopia</div>'
+        +'<div id="cdSpecTabs" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>'
+        +'<div id="cdSpecBody"></div>'
+        +'<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">Spettri simulati da regole strutturali (qualitativi/didattici). Per spettri sperimentali reali usa i link a SDBS/SpectraBase/MassBank.</div>'
       +'</div>';
       res.innerHTML=html;
+      renderSpectra(canon,desc,inchiFormula);
       // Lipinski
       var lip=[]; if(desc.amw>500)lip.push('MW>500'); if(desc.CrippenClogP>5)lip.push('LogP>5'); if(desc.NumHBD>5)lip.push('HBD>5'); if(desc.NumHBA>10)lip.push('HBA>10');
       document.getElementById('cdLipinski').innerHTML='<b style="color:'+(lip.length<=1?'#5eead4':'#f5c451')+'">Regola del 5 di Lipinski:</b> '+(lip.length===0?'✅ rispettata (druglike orale)':lip.length+' violazione/i ('+lip.join(', ')+')');
@@ -34398,6 +34405,97 @@ window.openChemDraw=function(){
     .catch(function(){ note.innerHTML='3D non disponibile per questa molecola (serve connessione a PubChem o struttura nel database).'; });
   }
 
+  // ---- spettroscopia predetta (micro-sezioni) ----
+  function renderSpectra(smi,desc,formula){
+    var tabsEl=document.getElementById('cdSpecTabs'), body=document.getElementById('cdSpecBody'); if(!tabsEl)return;
+    var TABS=[['ir','📊 IR'],['h1','〰 ¹H-NMR'],['c13','📐 ¹³C-NMR'],['ms','⚗️ Massa'],['uv','🌈 UV-Vis'],['raman','🔴 Raman']];
+    var cur='ir';
+    function paint(){ tabsEl.innerHTML=''; TABS.forEach(function(t){ var on=t[0]===cur; var b=document.createElement('button'); b.textContent=t[1]; b.style.cssText='border:1px solid '+(on?'#f5c451':'rgba(148,163,184,.3)')+';background:'+(on?'#3a2f10':'transparent')+';color:'+(on?'#f5c451':'#9fb3c8')+';border-radius:7px;padding:5px 11px;font-weight:700;cursor:pointer;font-size:.8rem'; b.onclick=function(){cur=t[0];paint();show();}; tabsEl.appendChild(b); }); }
+    function wrap(svg,legend){ return '<div style="background:#fff;border-radius:10px;overflow:hidden">'+svg+'</div>'+(legend?'<div style="font-size:.8rem;color:#cdd9e6;line-height:1.7;margin-top:6px">'+legend+'</div>':''); }
+    function show(){
+      try{
+        if(cur==='ir'){ var bands=(typeof irBandList==='function')?irBandList(smi):[]; var svg=(typeof makeIRsvg==='function')?makeIRsvg(bands,'#c62828'):''; body.innerHTML=wrap(svg, bands.map(function(x){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#c62828">'+x.pk+'</b> '+x.n+'</span>';}).join('')); }
+        else if(cur==='h1'){ var pk=(typeof nmrPeakList==='function')?nmrPeakList(smi):[]; var svg=(typeof makeNMRsvg==='function')?makeNMRsvg(pk,'#6a1b9a'):''; body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#6a1b9a">'+p.ppm+' ppm</b> '+p.lbl+' ('+p.mult+', '+p.nH+'H)</span>';}).join('')); }
+        else if(cur==='c13'){ var pk=cd13C(smi); var svg=cd13Csvg(pk); body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#0a8f7a">'+p.ppm+' ppm</b> '+p.lbl+'</span>';}).join('')); }
+        else if(cur==='ms'){ body.innerHTML=wrap(msSVG(smi,formula), 'Ione molecolare M⁺ e frammenti principali (perdite neutre tipiche dai gruppi presenti).'); }
+        else if(cur==='uv'){ body.innerHTML=wrap(uvSVG(smi), 'Bande di assorbimento elettronico stimate dai cromofori (transizioni π→π* e n→π*).'); }
+        else { var bands=(typeof irBandList==='function')?irBandList(smi):[]; body.innerHTML=wrap(ramanSVG(bands), 'Raman è <b>complementare</b> all\'IR: i legami <b>simmetrici/apolari</b> (C=C, C≡C, S–S, respiro degli anelli) danno righe intense, deboli in IR.'); }
+      }catch(e){ body.innerHTML='<div style="color:#f59e0b;padding:10px">Spettro non disponibile per questa struttura.</div>'; }
+    }
+    function msSVG(smi,formula){
+      var W=800,H=240,PL=44,PR=14,PT=16,PB=40,CW=W-PL-PR,CH=H-PT-PB;
+      var M=nominalMass(formula)|| (desc&&desc.amw?Math.round(desc.amw):100);
+      var peaks=[[M,100,'M⁺']]; function has(re){return re.test(smi);}
+      function frag(loss,intens,lbl){ if(M-loss>10)peaks.push([M-loss,intens,lbl]); }
+      if(has(/C\(=O\)O[H\]]|C\(=O\)O$/)){frag(17,40,'−OH');frag(45,60,'−COOH');}
+      if(has(/C\(=O\)OC/)){frag(31,45,'−OCH₃');frag(59,35,'−CO₂CH₃');}
+      if(has(/C\(=O\)[H\]]|[CH]=O/)){frag(1,30,'−H');frag(29,55,'−CHO');}
+      if(has(/C\(=O\)C|CC\(=O\)/)){frag(15,40,'−CH₃');frag(43,70,'CH₃CO⁺/−C₂H₃O');}
+      if(has(/O[H\]]|CO/)&&!has(/C\(=O\)/)){frag(18,50,'−H₂O');frag(17,25,'−OH');}
+      if(has(/N/)&&!has(/C\(=O\)N/)){frag(30,45,'CH₂=NH₂⁺');}
+      if(has(/c1ccccc1|c1ccc/)){frag(M-77,0,''); if(M-77>10)peaks.push([77,60,'C₆H₅⁺']); if(M-91>10)peaks.push([91,80,'C₇H₇⁺ tropilio']);}
+      if(has(/CC/)){frag(15,30,'−CH₃');frag(29,35,'−C₂H₅');}
+      peaks.push([M+1,6,'M+1']);
+      var mx=Math.max.apply(null,peaks.map(function(p){return p[0];}))*1.08, mxI=100;
+      var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+      s+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(W-PR)+'" y2="'+(PT+CH)+'" stroke="#333"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#333"/>';
+      for(var g=0;g<=5;g++){var mz=mx*g/5;s+='<text x="'+(PL+CW*g/5)+'" y="'+(H-14)+'" font-size="10" fill="#555" text-anchor="middle">'+Math.round(mz)+'</text>';}
+      s+='<text x="'+(PL+CW/2)+'" y="'+H+'" font-size="10" fill="#333" text-anchor="middle">m/z</text>';
+      peaks.forEach(function(p){ if(p[1]<=0)return; var x=PL+CW*p[0]/mx, y2=PT+CH, y1=PT+CH-(p[1]/mxI)*CH; s+='<line x1="'+x+'" y1="'+y1+'" x2="'+x+'" y2="'+y2+'" stroke="#4527a0" stroke-width="2"/>'; if(p[2])s+='<text x="'+x+'" y="'+(y1-3)+'" font-size="9" fill="#333" text-anchor="middle">'+p[0]+(p[2]?' '+p[2]:'')+'</text>'; });
+      return s+'</svg>';
+    }
+    function uvSVG(smi){
+      var W=800,H=230,PL=48,PR=14,PT=16,PB=40,CW=W-PL-PR,CH=H-PT-PB, l0=180,l1=700;
+      function has(re){return re.test(smi);}
+      var bands=[];
+      var arom=has(/c1ccccc1|c1ccc|c2ccc/); var nCC=(smi.match(/C=C/g)||[]).length + (arom?3:0);
+      if(arom){ bands.push([255,0.4,'π→π* aromatico']); bands.push([205,0.9,'π→π*']); }
+      if(has(/C\(=O\)|C=O/)){ bands.push([280,0.15,'n→π* (C=O)']); bands.push([190,0.7,'π→π* (C=O)']); }
+      if(has(/\[N\+\]\(=O\)\[O-\]|N\(=O\)=O/)){ bands.push([330,0.5,'nitro']); }
+      if(nCC>=4){ var lmax=217+30*(nCC-2); bands.push([Math.min(lmax,600),0.8,'polieni coniugati']); }
+      if(!bands.length)bands.push([175,0.5,'σ→σ* (nessun cromoforo forte, assorbe nell\'UV lontano)']);
+      var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+      // visible band
+      for(var l=380;l<=700;l+=3){ var t=(l-380)/320; var hue=280-t*280; s+='<rect x="'+(PL+CW*(l-l0)/(l1-l0))+'" y="'+(PT+CH-8)+'" width="'+(CW*3/(l1-l0)+1)+'" height="8" fill="hsl('+hue+',80%,55%)" opacity="0.5"/>'; }
+      s+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(W-PR)+'" y2="'+(PT+CH)+'" stroke="#333"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#333"/>';
+      for(var g=0;g<=5;g++){var l=l0+(l1-l0)*g/5;s+='<text x="'+(PL+CW*g/5)+'" y="'+(H-14)+'" font-size="10" fill="#555" text-anchor="middle">'+Math.round(l)+'</text>';}
+      s+='<text x="'+(PL+CW/2)+'" y="'+H+'" font-size="10" fill="#333" text-anchor="middle">λ (nm)</text><text x="12" y="'+(PT+CH/2)+'" font-size="10" fill="#333" transform="rotate(-90 12 '+(PT+CH/2)+')" text-anchor="middle">Assorbanza</text>';
+      var pts=[]; for(var px=0;px<=CW;px+=3){ var l=l0+(l1-l0)*px/CW, A=0; bands.forEach(function(bd){ A+=bd[1]*Math.exp(-(l-bd[0])*(l-bd[0])/(2*22*22)); }); pts.push([PL+px, PT+CH-Math.min(A,1)*CH*0.92]); }
+      s+='<path d="M'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' L')+'" fill="none" stroke="#7c3aed" stroke-width="2"/>';
+      bands.forEach(function(bd){ if(bd[0]>=l0&&bd[0]<=l1){ var x=PL+CW*(bd[0]-l0)/(l1-l0); s+='<text x="'+x+'" y="'+(PT+CH-Math.min(bd[1],1)*CH*0.92-4)+'" font-size="9" fill="#7c3aed" text-anchor="middle">'+bd[0]+'nm</text>'; } });
+      return s+'</svg>';
+    }
+    function ramanSVG(bands){
+      var W=800,H=230,PL=44,PR=14,PT=16,PB=40,CW=W-PL-PR,CH=H-PT-PB, w0=200,w1=3600;
+      var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+      s+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(W-PR)+'" y2="'+(PT+CH)+'" stroke="#333"/>';
+      for(var g=0;g<=5;g++){var w=w1-(w1-w0)*g/5;s+='<text x="'+(PL+CW*g/5)+'" y="'+(H-14)+'" font-size="10" fill="#555" text-anchor="middle">'+Math.round(w)+'</text>';}
+      s+='<text x="'+(PL+CW/2)+'" y="'+H+'" font-size="10" fill="#333" text-anchor="middle">spostamento Raman (cm⁻¹)</text>';
+      bands.forEach(function(b){ var sym=/C=C|C#C|C#N|S–S|arom|respir/i.test(b.n)?1:0.35; var x=PL+CW*(1-(b.pk-w0)/(w1-w0)); var h=(0.3+sym*0.7)*CH*0.9; s+='<line x1="'+x+'" y1="'+(PT+CH)+'" x2="'+x+'" y2="'+(PT+CH-h)+'" stroke="#c2185b" stroke-width="2"/>'; if(sym>0.5)s+='<text x="'+x+'" y="'+(PT+CH-h-3)+'" font-size="8" fill="#333" text-anchor="middle">'+b.pk+'</text>'; });
+      return s+'</svg>';
+    }
+    function nominalMass(f){ if(!f)return 0; var m={H:1,B:11,C:12,N:14,O:16,F:19,Si:28,P:31,S:32,Cl:35,Se:80,Br:79,I:127}, tot=0, re=/([A-Z][a-z]?)(\d*)/g, mm; while((mm=re.exec(f))){ if(m[mm[1]]!=null)tot+=m[mm[1]]*(mm[2]?parseInt(mm[2]):1); } return tot; }
+    function cd13C(smi){ var p=[]; function has(re){return re.test(smi);}
+      if(has(/C\(=O\)O|OC\(=O\)/))p.push({ppm:172,lbl:'C=O acido/estere'});
+      if(has(/C\(=O\)N|NC\(=O\)/))p.push({ppm:169,lbl:'C=O ammide'});
+      if(has(/C\(=O\)/)&&!has(/C\(=O\)[ON]/))p.push({ppm:205,lbl:'C=O chetone/aldeide'});
+      if(has(/c1ccc|c1cccc|c2ccc|c1ccncc1/))p.push({ppm:129,lbl:'C aromatici'});
+      if(has(/C#N/))p.push({ppm:118,lbl:'C≡N nitrile'});
+      if(has(/C=C/)&&!has(/c1/))p.push({ppm:130,lbl:'C=C alchenici'});
+      if((has(/CO[^)]/)||has(/OC/))&&!has(/C\(=O\)/))p.push({ppm:62,lbl:'C–O (alcol/etere)'});
+      p.push({ppm:22,lbl:'C alifatici sp³'});
+      var seen={}; return p.filter(function(x){var k=Math.round(x.ppm/2);return seen[k]?false:(seen[k]=true);}).sort(function(a,b){return b.ppm-a.ppm;});
+    }
+    function cd13Csvg(peaks){ var W=800,H=210,PL=40,PR=14,PT=16,PB=34,CW=W-PL-PR,CH=H-PT-PB,PMAX=220;
+      var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#fff"/>';
+      s+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(W-PR)+'" y2="'+(PT+CH)+'" stroke="#333"/>';
+      for(var v=0;v<=PMAX;v+=40){var x=PL+CW*(1-v/PMAX);s+='<text x="'+x+'" y="'+(H-12)+'" font-size="10" fill="#555" text-anchor="middle">'+v+'</text>';}
+      s+='<text x="'+(PL+CW/2)+'" y="'+H+'" font-size="10" fill="#333" text-anchor="middle">δ (ppm) ¹³C</text>';
+      peaks.forEach(function(p){var x=PL+CW*(1-p.ppm/PMAX);s+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+CH)+'" stroke="#0a8f7a" stroke-width="2"/><text x="'+x+'" y="'+(PT-2)+'" font-size="8" fill="#0a8f7a" text-anchor="middle">'+p.ppm+'</text>';});
+      return s+'</svg>';
+    }
+    paint(); show();
+  }
   document.getElementById('cdAnalyze').onclick=function(){ analyze(); };
   document.getElementById('cdClear').onclick=function(){ pushHist(); atoms=[]; bonds=[]; sel=-1; draw(); res.innerHTML=''; document.getElementById('cdSmiles').value=''; };
   document.getElementById('cdUndo').onclick=function(){ if(history.length){ var s=JSON.parse(history.pop()); atoms=s.a; bonds=s.b; sel=-1; draw(); } };
