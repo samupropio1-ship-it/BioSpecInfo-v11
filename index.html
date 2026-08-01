@@ -18849,6 +18849,7 @@ var RETRO_STRATEGIES = [
     color:'#33691E'
   },
 ];
+window.RETRO_STRATEGIES = RETRO_STRATEGIES;
 
 window.initRetro = function(){
   var sec = document.getElementById('sretro');
@@ -18875,6 +18876,7 @@ window.initRetro = function(){
       +'<div style="font-size:12px;margin-bottom:6px"><strong>Sintoni:</strong> '+s.synthons.join(' + ')+'</div>'
       +'<div style="font-size:12px;margin-bottom:6px;color:#e9eef6"><strong>Reagenti:</strong> '+s.reagents+'</div>'
       +'<div style="background:'+s.color+'11;border-left:3px solid '+s.color+';padding:8px;border-radius:0 6px 6px 0;font-size:11px;font-family:monospace;color:#e9eef6">'+s.example+'</div>'
+      +'<button onclick="window.openMechAnim(\''+s.name.replace(/'/g,"\\'")+'\')" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+s.color+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
       +'</div>';
   }).join('');
 
@@ -18909,8 +18911,149 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.innerHTML = '🔄 Retrosintesi';
     nav.appendChild(btn);
   }
-  
+
 });
+})();
+
+// ── ANIMAZIONE MECCANISMI DI REAZIONE (spostamento elettroni · intermedi · sintoni) ──
+(function(){
+  'use strict';
+  var NS='http://www.w3.org/2000/svg';
+  var ELC={C:'#e9eef6',H:'#9fb3c8',O:'#ff5a5a',N:'#5a8dff',Br:'#c0642a',Cl:'#4ad06a',P:'#e0902a',Mg:'#3fc79a',S:'#e0c02a',R:'#b9a6ff',"R'":'#b9a6ff',Nu:'#5eead4',LG:'#ff8a5a',Ph:'#b9a6ff'};
+  function col(e){ return ELC[e]||'#e9eef6'; }
+  // ── dati meccanismi: frame statici; l'engine interpola e disegna le frecce curve degli elettroni ──
+  function A(e,x,y,c,lp){ return {e:e,x:x,y:y,c:c||0,lp:lp||0}; }
+  var MECH={
+    'Disconnessione C–X (SN2)':{color:'#DC2626',
+      fwd:[
+        {cap:'Reagenti: nucleofilo Nu⁻ e substrato R–LG. Il Nu attacca il C dal lato opposto al gruppo uscente (back-side).',at:{Nu:A('Nu',60,150,-1,3),C:A('C',220,150),R:A('R',220,70),LG:A('LG',360,150,0,3)},bo:[['C','R',1],['C','LG',1]],ar:[{f:[86,150],t:[196,150],bow:-1},{f:[248,150],t:[344,150],bow:1}]},
+        {cap:'Stato di transizione pentacoordinato: legami Nu···C···LG parziali, inversione di Walden.',at:{Nu:A('Nu',120,150),C:A('C',235,150),R:A('R',235,70),LG:A('LG',350,150)},bo:[['C','R',1],['Nu','C',0],['C','LG',0]],ar:[]},
+        {cap:'Prodotto R–Nu con configurazione invertita + gruppo uscente LG⁻.',at:{Nu:A('Nu',150,150),C:A('C',250,150),R:A('R',250,70),LG:A('LG',390,150,-1,4)},bo:[['Nu','C',1],['C','R',1]],ar:[]}
+      ],
+      retro:[
+        {cap:'Molecola target R–Nu.',at:{Nu:A('Nu',170,150),C:A('C',250,150),R:A('R',250,70)},bo:[['Nu','C',1],['C','R',1]],ar:[{f:[210,150],t:[188,150],bow:-1}]},
+        {cap:'Disconnessione C–Nu ⇒ sintoni: carbocatione R⁺ (equivalente reale R–LG) + nucleofilo Nu⁻.',at:{Nu:A('Nu',110,150,-1,3),C:A('C',290,150,1),R:A('R',290,70)},bo:[['C','R',1]],ar:[]}
+      ]},
+    'Disconnessione C–C (Grignard)':{color:'#0d1522',
+      fwd:[
+        {cap:'Carbanione R–MgBr + chetone. Il carbanione attacca il C carbonilico; gli elettroni π del C=O migrano sull\'ossigeno.',at:{Nu:A('C',70,150,-1),C:A('C',235,150),O:A('O',235,60,0,2),M1:A('C',165,205),M2:A('C',305,205)},bo:[['C','O',2],['C','M1',1],['C','M2',1]],ar:[{f:[96,150],t:[209,150],bow:-1},{f:[235,88],t:[258,58],bow:1}]},
+        {cap:'Intermedio alcossido tetraedrico: il C diventa sp³, l\'ossigeno porta la carica negativa (O⁻).',at:{Nu:A('C',120,135),C:A('C',235,150),O:A('O',235,55,-1,3),M1:A('C',155,205),M2:A('C',315,205)},bo:[['C','O',1],['C','M1',1],['C','M2',1],['C','Nu',1]],ar:[]},
+        {cap:'Work-up acido (H₃O⁺): protonazione dell\'alcossido → alcol terziario.',at:{Nu:A('C',120,135),C:A('C',235,150),O:A('O',235,55,0,2),H:A('H',290,40),M1:A('C',155,205),M2:A('C',315,205)},bo:[['C','O',1],['O','H',1],['C','M1',1],['C','M2',1],['C','Nu',1]],ar:[]}
+      ],
+      retro:[
+        {cap:'Alcol terziario target.',at:{Nu:A('C',120,135),C:A('C',235,150),O:A('O',235,55,0,2),H:A('H',290,40),M1:A('C',155,205),M2:A('C',315,205)},bo:[['C','O',1],['O','H',1],['C','M1',1],['C','M2',1],['C','Nu',1]],ar:[{f:[180,142],t:[140,138],bow:-1}]},
+        {cap:'Disconnessione C–C ⇒ sintoni: carbonile (accettore di e⁻) + carbanione R⁻ (equivalente reale R–MgBr).',at:{Nu:A('C',80,135,-1),C:A('C',235,150),O:A('O',235,60,0,2),M1:A('C',165,205),M2:A('C',305,205)},bo:[['C','O',2],['C','M1',1],['C','M2',1]],ar:[]}
+      ]},
+    'Disconnessione C–C (Aldol)':{color:'#1565C0',
+      fwd:[
+        {cap:'Enolato (nucleofilo in Cα) + aldeide/chetone. Il Cα attacca il carbonile elettrofilo; π C=O → O.',at:{Ca:A('C',90,175),Cb:A('C',150,120),Oe:A('O',150,50,-1,3),C2:A('C',285,150),O2:A('O',285,60,0,2),R2:A("R'",345,190)},bo:[['Ca','Cb',2],['Cb','Oe',1],['C2','O2',2],['C2','R2',1]],ar:[{f:[112,168],t:[262,155],bow:-1},{f:[285,88],t:[308,58],bow:1}]},
+        {cap:'Nuovo legame C–C; intermedio β-alcossido (l\'enolato è collassato a carbonile).',at:{Ca:A('C',150,175),Cb:A('C',150,105),Oe:A('O',150,40,0,2),C2:A('C',265,155),O2:A('O',265,70,-1,3),R2:A("R'",325,195)},bo:[['Ca','Cb',1],['Cb','Oe',2],['Ca','C2',1],['C2','O2',1],['C2','R2',1]],ar:[]},
+        {cap:'Protonazione → β-idrossicarbonile (aldolo).',at:{Ca:A('C',150,175),Cb:A('C',150,105),Oe:A('O',150,40,0,2),C2:A('C',265,155),O2:A('O',265,70,0,2),H:A('H',320,55),R2:A("R'",325,195)},bo:[['Ca','Cb',1],['Cb','Oe',2],['Ca','C2',1],['C2','O2',1],['O2','H',1],['C2','R2',1]],ar:[]}
+      ],
+      retro:[
+        {cap:'β-idrossicarbonile target.',at:{Ca:A('C',150,175),Cb:A('C',150,105),Oe:A('O',150,40,0,2),C2:A('C',265,155),O2:A('O',265,70,0,2),H:A('H',320,55),R2:A("R'",325,195)},bo:[['Ca','Cb',1],['Cb','Oe',2],['Ca','C2',1],['C2','O2',1],['O2','H',1],['C2','R2',1]],ar:[{f:[210,166],t:[240,160],bow:-1}]},
+        {cap:'Disconnessione Cα–Cβ ⇒ due componenti carboniliche: donatore enolizzabile + accettore (aldeide/chetone).',at:{Ca:A('C',90,175),Cb:A('C',150,120),Oe:A('O',150,50,0,2),C2:A('C',285,150,0,0),O2:A('O',285,60,0,2),R2:A("R'",345,190)},bo:[['Ca','Cb',2],['Cb','Oe',1],['C2','O2',2],['C2','R2',1]],ar:[]}
+      ]},
+    'Disconnessione C=C (Wittig)':{color:'#7C3AED',
+      fwd:[
+        {cap:'Ilide di fosforo (R₂C=PPh₃) + carbonile. Il C dell\'ilide attacca il carbonile; l\'ossigeno attacca il fosforo.',at:{P:A('P',80,185),Cy:A('C',160,150,-1),C2:A('C',290,150),O2:A('O',290,60,0,2)},bo:[['P','Cy',2],['C2','O2',2]],ar:[{f:[186,150],t:[264,150],bow:-1},{f:[290,86],t:[108,175],bow:1}]},
+        {cap:'Intermedio ciclico a 4 termini: oxafosfetano (P–C–C–O).',at:{P:A('P',150,190),Cy:A('C',150,120),C2:A('C',250,120),O2:A('O',250,190,0,2)},bo:[['P','Cy',1],['Cy','C2',1],['C2','O2',1],['O2','P',1]],ar:[]},
+        {cap:'Retro-[2+2]: si formano l\'alchene (C=C) e l\'ossido di fosfina O=PPh₃ (il forte legame P=O è la forza motrice).',at:{P:A('P',90,195),O2:A('O',150,195,0,2),Cy:A('C',250,130),C2:A('C',330,130)},bo:[['P','O2',2],['Cy','C2',2]],ar:[]}
+      ],
+      retro:[
+        {cap:'Alchene target R₂C=CR\'₂.',at:{Cy:A('C',180,150),C2:A('C',280,150)},bo:[['Cy','C2',2]],ar:[{f:[230,135],t:[230,110],bow:-1}]},
+        {cap:'Disconnessione C=C ⇒ sintoni: carbonile R\'₂C=O + ilide R₂C=PPh₃ (fosforano).',at:{Cy:A('C',150,150),P:A('P',150,215),C2:A('C',300,150),O2:A('O',300,70,0,2)},bo:[['Cy','P',2],['C2','O2',2]],ar:[]}
+      ]}
+  };
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function bez(f,c,t2,p){ var x=(1-p)*(1-p)*f[0]+2*(1-p)*p*c[0]+p*p*t2[0]; var y=(1-p)*(1-p)*f[1]+2*(1-p)*p*c[1]+p*p*t2[1]; return [x,y]; }
+  function ctrl(f,t,bow){ var mx=(f[0]+t[0])/2, my=(f[1]+t[1])/2; var dx=t[0]-f[0], dy=t[1]-f[1]; var L=Math.hypot(dx,dy)||1; return [mx - dy/L*38*(bow||1), my + dx/L*38*(bow||1)]; }
+
+  function renderFrame(svg, fA, fB, t){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    // defs
+    var defs=document.createElementNS(NS,'defs');
+    defs.innerHTML='<marker id="mhead" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#ffd166"/></marker>';
+    svg.appendChild(defs);
+    var ids={}; Object.keys(fA.at).forEach(function(k){ids[k]=1;}); Object.keys(fB.at).forEach(function(k){ids[k]=1;});
+    function pos(id){ var a=fA.at[id],b=fB.at[id]; if(a&&b)return [lerp(a.x,b.x,t),lerp(a.y,b.y,t)]; if(a)return [a.x,a.y]; return [b.x,b.y]; }
+    function opacityOf(id){ var a=fA.at[id],b=fB.at[id]; if(a&&b)return 1; if(a)return 1-t; return t; }
+    var near=(t<0.5?fA:fB);
+    // bonds (union)
+    var bset={}; function bkey(x){return x[0]<x[1]?x[0]+'|'+x[1]:x[1]+'|'+x[0];}
+    function drawBonds(fr,fade){ fr.bo.forEach(function(bd){ var k=bkey(bd); if(bset[k])return; bset[k]=1; var p1=pos(bd[0]),p2=pos(bd[1]); if(!p1||!p2)return; var o=Math.min(opacityOf(bd[0]),opacityOf(bd[1])); if(fade!=null)o=fade; var dx=p2[0]-p1[0],dy=p2[1]-p1[1],L=Math.hypot(dx,dy)||1,ox=-dy/L,oy=dx/L; var order=bd[2];
+      function seg(off,dash){ var ln=document.createElementNS(NS,'line'); ln.setAttribute('x1',p1[0]+ox*off);ln.setAttribute('y1',p1[1]+oy*off);ln.setAttribute('x2',p2[0]+ox*off);ln.setAttribute('y2',p2[1]+oy*off); ln.setAttribute('stroke','#c7d2e0');ln.setAttribute('stroke-width','2.4');ln.setAttribute('opacity',o); if(dash)ln.setAttribute('stroke-dasharray','4 4'); svg.appendChild(ln); }
+      if(order===0){ seg(0,true); } else if(order===2){ seg(-3.5); seg(3.5); } else if(order===3){ seg(-5);seg(0);seg(5); } else seg(0);
+    }); }
+    drawBonds(fA); drawBonds(fB);
+    // atoms
+    Object.keys(ids).forEach(function(id){ var p=pos(id); var o=opacityOf(id); var src=(fA.at[id]&&(t<0.5||!fB.at[id]))?fA.at[id]:(fB.at[id]||fA.at[id]);
+      var g=document.createElementNS(NS,'g'); g.setAttribute('opacity',o);
+      var lbl=src.e; var r=(lbl.length>1?15:13);
+      var c=document.createElementNS(NS,'circle'); c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',r); c.setAttribute('fill','#0a1830');c.setAttribute('stroke',col(src.e));c.setAttribute('stroke-width','2'); g.appendChild(c);
+      var tx=document.createElementNS(NS,'text'); tx.setAttribute('x',p[0]);tx.setAttribute('y',p[1]+0.5);tx.setAttribute('text-anchor','middle');tx.setAttribute('dominant-baseline','central');tx.setAttribute('font-size','13');tx.setAttribute('font-weight','800');tx.setAttribute('fill',col(src.e)); tx.textContent=lbl; g.appendChild(tx);
+      if(src.c){ var cs=document.createElementNS(NS,'text'); cs.setAttribute('x',p[0]+r-1);cs.setAttribute('y',p[1]-r+3);cs.setAttribute('font-size','12');cs.setAttribute('font-weight','800');cs.setAttribute('fill',src.c>0?'#ffd166':'#5eead4'); cs.textContent=src.c>0?'+':'−'; g.appendChild(cs); }
+      if(src.lp){ for(var i=0;i<src.lp;i++){ var ang=-Math.PI/2+i*(2*Math.PI/Math.max(2,src.lp)); var d=document.createElementNS(NS,'circle'); d.setAttribute('cx',p[0]+Math.cos(ang)*(r+5));d.setAttribute('cy',p[1]+Math.sin(ang)*(r+5));d.setAttribute('r','1.7');d.setAttribute('fill','#8fb3ff'); g.appendChild(d); } }
+      svg.appendChild(g);
+    });
+    // electron-pushing arrows (dai frame di partenza fA) + elettroni in movimento
+    (fA.ar||[]).forEach(function(a){ var c=ctrl(a.f,a.t,a.bow); var path=document.createElementNS(NS,'path'); var d='M'+a.f[0]+','+a.f[1]+' Q'+c[0]+','+c[1]+' '+a.t[0]+','+a.t[1]; path.setAttribute('d',d); path.setAttribute('fill','none'); path.setAttribute('stroke','#ffd166'); path.setAttribute('stroke-width','2.2'); path.setAttribute('marker-end','url(#mhead)'); path.setAttribute('opacity',0.35+0.65*(1-Math.abs(0.5-t)*2)); svg.appendChild(path);
+      var ep=bez(a.f,c,a.t,Math.min(1,t)); [-3,3].forEach(function(off){ var e=document.createElementNS(NS,'circle'); e.setAttribute('cx',ep[0]+off);e.setAttribute('cy',ep[1]);e.setAttribute('r','2.6');e.setAttribute('fill','#ffe08a'); svg.appendChild(e); }); });
+  }
+
+  document.addEventListener('click',function(e){ var b=e.target&&e.target.closest&&e.target.closest('.rv16-mech'); if(b){ e.preventDefault(); try{ window.openMechAnim(decodeURIComponent(b.getAttribute('data-mech')||'')); }catch(_){} } });
+  window.openMechAnim=function(name){
+    try{
+    var pool=(window.RETRO_STRATEGIES||[]).concat(window._newStrats||[]);
+    var strat=pool.filter(function(s){return s.name===name;})[0];
+    var m=MECH[name];
+    var ov=document.getElementById('mechAnimOv');
+    if(ov)ov.remove();
+    ov=document.createElement('div'); ov.id='mechAnimOv';
+    ov.style.cssText='position:fixed;inset:0;z-index:10001;background:rgba(3,10,20,.82);display:flex;align-items:center;justify-content:center;padding:14px';
+    var card=document.createElement('div'); card.style.cssText='background:#0a1b2e;border:1px solid #26406a;border-radius:16px;padding:16px;max-width:720px;width:100%;max-height:94vh;overflow:auto';
+    var accent=(m&&m.color)||(strat&&strat.color)||'#00c9b7';
+    card.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="color:#e9eef6;font-weight:800;flex:1;font-size:1rem">🎬 '+(name)+'</span><button id="mechX" style="background:#16273e;border:1px solid #26406a;color:#e9eef6;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer">✕</button></div>'
+      +'<div style="display:flex;gap:6px;margin-bottom:8px"><button id="mDir0" class="mdir" style="flex:1;padding:7px;border-radius:8px;border:1px solid '+accent+';background:'+accent+';color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Sintesi (meccanismo)</button><button id="mDir1" class="mdir" style="flex:1;padding:7px;border-radius:8px;border:1px solid #26406a;background:#0c1f33;color:#cdd9e6;font-weight:800;cursor:pointer;font-size:.82rem">⇐ Retrosintesi (sintoni)</button></div>'
+      +'<div style="background:#071322;border:1px solid #14273e;border-radius:12px;padding:6px"><svg id="mechSvg" viewBox="0 0 440 260" style="width:100%;height:auto;display:block"></svg></div>'
+      +'<div id="mechCap" style="color:#cdd9e6;font-size:.86rem;line-height:1.5;min-height:44px;margin:10px 2px;padding:8px 10px;background:#0c1f33;border-left:3px solid '+accent+';border-radius:0 8px 8px 0"></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><button id="mReset" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">⏮</button><button id="mPrev" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">◀ passo</button><button id="mPlay" style="padding:7px 16px;border:none;background:linear-gradient(135deg,'+accent+',#00c9b7);color:#04121e;border-radius:8px;font-weight:800;cursor:pointer">▶ Play</button><button id="mNext" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">passo ▶</button><span style="flex:1"></span><span id="mStep" style="color:#8fa3b8;font-size:.8rem"></span></div>'
+      +'<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">🟡 Le frecce curve gialle mostrano lo <b>spostamento del doppietto di elettroni</b>; i pallini gialli sono gli elettroni in moto. I frame intermedi sono gli <b>intermedi di reazione</b>. In modalità retrosintesi la molecola si scompone nei <b>sintoni</b>.</div>';
+    ov.appendChild(card); document.body.appendChild(ov);
+    var svg=card.querySelector('#mechSvg'), capEl=card.querySelector('#mechCap'), stepEl=card.querySelector('#mStep');
+
+    // costruisci i frame per direzione (fallback generico se manca il meccanismo dettagliato)
+    function genericFrames(dir){
+      if(!strat)return [{cap:'—',at:{X:A('C',220,130)},bo:[],ar:[]}];
+      function pills(items,cap){ var at={},n=items.length; items.forEach(function(it,i){ at['P'+i]=A(it,60+ i*(320/Math.max(1,n)),130); }); return {cap:cap,at:at,bo:[],ar:[],pill:items}; }
+      if(dir===1){ var syn=strat.synthons||[]; return [ {cap:'Molecola target: '+strat.target,at:{T:A('C',220,130)},bo:[],ar:[],pill:[strat.target]}, {cap:'Disconnessione ⇒ sintoni. '+strat.disconnection,pill:syn,at:{},bo:[],ar:[]} ]; }
+      return [ {cap:'Reagenti: '+strat.reagents,pill:[strat.reagents],at:{},bo:[],ar:[]}, {cap:'Prodotto: '+strat.target,pill:[strat.target],at:{},bo:[],ar:[]} ];
+    }
+    // rendering "pill" per i frame generici
+    function renderPill(frame){ while(svg.firstChild)svg.removeChild(svg.firstChild); var items=frame.pill||['—']; var n=items.length; items.forEach(function(it,i){ var x=40+(i+0.5)*(360/n); var g=document.createElementNS(NS,'g'); var w=Math.min(150, Math.max(70, it.length*7)); var rect=document.createElementNS(NS,'rect'); rect.setAttribute('x',x-w/2);rect.setAttribute('y',110);rect.setAttribute('width',w);rect.setAttribute('height',40);rect.setAttribute('rx',10);rect.setAttribute('fill','#0f2740');rect.setAttribute('stroke',accent);rect.setAttribute('stroke-width','1.5'); g.appendChild(rect); var tx=document.createElementNS(NS,'text'); tx.setAttribute('x',x);tx.setAttribute('y',131);tx.setAttribute('text-anchor','middle');tx.setAttribute('font-size','11');tx.setAttribute('fill','#e9eef6'); tx.textContent=(it.length>22?it.slice(0,21)+'…':it); g.appendChild(tx); svg.appendChild(g); if(i<n-1){ var ar=document.createElementNS(NS,'text'); ar.setAttribute('x',x+ (360/n)/2);ar.setAttribute('y',134);ar.setAttribute('text-anchor','middle');ar.setAttribute('font-size','20');ar.setAttribute('fill',accent); ar.textContent='⇒'; svg.appendChild(ar); } }); }
+
+    var dir=0, frames, idx=0, lt=0, playing=false, raf=null, dur=1500, isPill=false;
+    function setDir(d){ dir=d; frames=(m?(d?m.retro:m.fwd):genericFrames(d)); isPill=!m; idx=0; lt=0; playing=false; card.querySelector('#mDir0').style.background=d?'#0c1f33':accent; card.querySelector('#mDir0').style.color=d?'#cdd9e6':'#04121e'; card.querySelector('#mDir1').style.background=d?accent:'#0c1f33'; card.querySelector('#mDir1').style.color=d?'#04121e':'#cdd9e6'; draw(); }
+    function draw(){
+      if(isPill){ var fr=frames[Math.min(frames.length-1, Math.round(idx+lt))]; renderPill(fr); capEl.textContent=fr.cap; stepEl.textContent=(Math.min(frames.length,idx+1))+' / '+frames.length; return; }
+      var fA=frames[idx], fB=frames[Math.min(frames.length-1,idx+1)]; renderFrame(svg,fA,fB,fA===fB?1:lt);
+      var capFrame=frames[Math.min(frames.length-1, idx+(lt>=0.5?1:0))]; capEl.textContent=capFrame.cap; stepEl.textContent=(idx+1)+(lt>0&&idx<frames.length-1?'→'+(idx+2):'')+' / '+frames.length;
+    }
+    function tick(ts){ if(!playing){return;} if(!tick._last)tick._last=ts; var dt=ts-tick._last; tick._last=ts; lt+=dt/dur; if(lt>=1){ lt=0; idx++; if(idx>=frames.length-1){ idx=frames.length-1; lt=0; playing=false; card.querySelector('#mPlay').textContent='▶ Replay'; draw(); return; } } draw(); raf=requestAnimationFrame(tick); }
+    function play(){ if(idx>=frames.length-1){ idx=0; lt=0; } playing=true; tick._last=0; card.querySelector('#mPlay').textContent='⏸ Pausa'; raf=requestAnimationFrame(tick); }
+    function pause(){ playing=false; if(raf)cancelAnimationFrame(raf); card.querySelector('#mPlay').textContent='▶ Play'; }
+    card.querySelector('#mPlay').onclick=function(){ playing?pause():play(); };
+    card.querySelector('#mReset').onclick=function(){ pause(); idx=0; lt=0; draw(); };
+    card.querySelector('#mPrev').onclick=function(){ pause(); lt=0; idx=Math.max(0,idx-1); draw(); };
+    card.querySelector('#mNext').onclick=function(){ pause(); lt=0; idx=Math.min(frames.length-1,idx+1); draw(); };
+    card.querySelector('#mDir0').onclick=function(){ pause(); setDir(0); };
+    card.querySelector('#mDir1').onclick=function(){ pause(); setDir(1); };
+    function close(){ pause(); ov.remove(); }
+    card.querySelector('#mechX').onclick=close; ov.addEventListener('click',function(e){ if(e.target===ov)close(); });
+    setDir(0);
+    }catch(e){ console.error('mechAnim',e); }
+  };
 })();
 
 
@@ -36725,8 +36868,10 @@ function _mkRetroCard(s){
     +'<div class="rv16-disc"><span style="font-weight:700;color:'+col+'">⇒ </span>'+s.disconnection+'</div>'
     +'<div class="rv16-reagents">⚗ '+s.reagents+'</div>'
     +'<div class="rv16-example">'+s.example+'</div>'
+    +'<button class="rv16-mech" data-mech="'+encodeURIComponent(s.name)+'" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+col+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
     +'</div></div>';
 }
+window._newStrats = _newStrats;
 
 // ══ 3. Override initRetro ════════════════════════════════════════════════════
 window.initRetro = function(){
