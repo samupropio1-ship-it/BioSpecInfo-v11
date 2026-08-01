@@ -800,6 +800,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sinorg">⚗️ Inorganica</button>
     <button class="nav-btn" data-s="scft" style="border:1px solid #b388ff;background:linear-gradient(135deg,rgba(179,136,255,.16),rgba(94,234,212,.08))">🔶 Campo Cristallino</button>
     <button class="nav-btn" data-s="sdistrib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">📊 Distribuzioni & Statistica</button>
+    <button class="nav-btn" data-s="sqm" style="border:1px solid #7c6fff;background:linear-gradient(135deg,rgba(124,111,255,.18),rgba(94,234,212,.08))">🌌 Meccanica Quantistica</button>
     <button class="nav-btn" data-s="srxnbal">⚖️ Bilancia Rz.</button>
   <button class="nav-btn" data-s="sdbe">📐 Insaturazioni (DBE)</button></div>
   <div id="navGroup1" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
@@ -3263,6 +3264,7 @@ window.onload = function(){
       if(sec==='spkcurve' && typeof window.initPKcurve==='function') window.initPKcurve();
       if(sec==='scft' && typeof window.initCFT==='function') window.initCFT();
       if(sec==='sdistrib' && typeof window.initDistrib==='function') window.initDistrib();
+      if(sec==='sqm' && typeof window.initQM==='function') window.initQM();
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
@@ -27871,6 +27873,7 @@ window.calcMolProps = function() {
 <div id="spkcurve" class="section"></div>
 <div id="scft" class="section"></div>
 <div id="sdistrib" class="section"></div>
+<div id="sqm" class="section"></div>
 <div id="sglic" class="section"></div>
 <div id="skrebs" class="section"></div>
 <div id="setc" class="section"></div>
@@ -41537,6 +41540,157 @@ function _retroWorked(){
 }
 
 /* ============================================================
+   FISICA — MECCANICA QUANTISTICA (teoria completa + derivazioni)
+   ============================================================ */
+window.initQM=function(){
+  var sec=document.getElementById('sqm'); if(!sec||sec._init)return; sec._init=true;
+  function eq(s){ return '<div style="background:#081522;border:1px solid #1a3050;border-radius:8px;padding:10px 14px;margin:8px 0;font-size:1.05rem;color:#e6fffb;text-align:center;font-family:\'Cambria Math\',Georgia,serif;overflow-x:auto">'+s+'</div>'; }
+  function step(n,s){ return '<div style="display:flex;gap:10px;margin:6px 0"><div style="min-width:26px;height:26px;border-radius:7px;background:#7c6fff;color:#0b0620;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem">'+n+'</div><div style="flex:1;font-size:.9rem;line-height:1.6;color:#cdd9e6">'+s+'</div></div>'; }
+  function box(title,body,col){ return '<div style="background:#0a1628;border-left:3px solid '+(col||'#7c6fff')+';border-radius:0 8px 8px 0;padding:10px 13px;margin:10px 0"><b style="color:'+(col||'#a78bfa')+'">'+title+'</b><br><span style="font-size:.9rem;color:#cdd9e6;line-height:1.6">'+body+'</span></div>'; }
+  var TOPICS=[
+    {id:'post',t:'📜 Postulati',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">La meccanica quantistica poggia su pochi postulati. Tutto il resto ne discende matematicamente.</p>'
+      +step(1,'<b>Stato</b>: un sistema è descritto completamente da una <b>funzione d\'onda</b> Ψ(x,t) ∈ ℂ. Il modulo quadro è una densità di probabilità (regola di <b>Born</b>): '+eq('P(x) dx = |Ψ(x,t)|² dx,   ∫ |Ψ|² dx = 1')+' (normalizzazione).')
+      +step(2,'<b>Osservabili</b>: a ogni grandezza fisica corrisponde un <b>operatore hermitiano</b> Â. I principali: '+eq('x̂ = x    p̂ = −iħ ∂/∂x    Ê = iħ ∂/∂t    Ĥ = −(ħ²/2m)∇² + V(x)'))
+      +step(3,'<b>Misura</b>: i soli risultati possibili di una misura di A sono gli <b>autovalori</b> aₙ dell\'equazione agli autovalori '+eq('Â ψₙ = aₙ ψₙ')+' Gli autovalori di un operatore hermitiano sono reali.')
+      +step(4,'<b>Valore di aspettazione</b> (media su molte misure): '+eq('⟨A⟩ = ∫ Ψ* Â Ψ dx'))
+      +step(5,'<b>Collasso</b>: subito dopo una misura che dà aₙ, lo stato collassa nell\'autostato ψₙ.')
+      +step(6,'<b>Evoluzione temporale</b>: tra due misure lo stato evolve in modo deterministico secondo l\'equazione di Schrödinger dipendente dal tempo.')
+      +box('Principio di sovrapposizione','Se ψ₁ e ψ₂ sono stati possibili, lo è anche ogni combinazione lineare Ψ = c₁ψ₁ + c₂ψ₂. |c₁|² è la probabilità di misurare lo stato 1. È l\'origine dell\'interferenza quantistica.');}},
+    {id:'schr',t:'🌊 Eq. di Schrödinger',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">L\'equazione fondamentale della dinamica quantistica.</p>'
+      +box('Dipendente dal tempo (TDSE)',eq('iħ ∂Ψ(x,t)/∂t = Ĥ Ψ(x,t)')+'Descrive come lo stato evolve nel tempo.','#5eead4')
+      +'<p style="color:#cdd9e6;line-height:1.7"><b>Separazione delle variabili</b> per potenziali indipendenti dal tempo, Ψ(x,t) = ψ(x)·φ(t):</p>'
+      +step(1,'Sostituendo e dividendo per ψφ si separano le dipendenze da x e da t → entrambe uguali a una costante E (l\'energia).')
+      +step(2,'Parte temporale: '+eq('φ(t) = e^(−iEt/ħ)')+' → gli <b>stati stazionari</b> hanno |Ψ|² costante nel tempo.')
+      +step(3,'Parte spaziale = <b>equazione di Schrödinger indipendente dal tempo (TISE)</b>: '+eq('−(ħ²/2m) d²ψ/dx² + V(x) ψ = E ψ'))
+      +box('Interpretazione','È un\'equazione agli autovalori Ĥψ = Eψ: le soluzioni ψₙ sono gli stati stazionari, gli En i livelli energetici <b>quantizzati</b>. Il confinamento (V che intrappola) è ciò che rende discreto lo spettro.','#f5c451');}},
+    {id:'oper',t:'🔧 Operatori',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Le osservabili sono operatori. La loro algebra determina cosa si può misurare simultaneamente.</p>'
+      +box('Commutatore',eq('[Â, B̂] = ÂB̂ − B̂Â')+'Se [Â,B̂]=0 le due osservabili sono <b>compatibili</b> (misurabili insieme, condividono autostati). Se ≠0 sono <b>incompatibili</b>.','#5eead4')
+      +'<p style="color:#cdd9e6;line-height:1.7">La relazione fondamentale posizione-impulso:</p>'
+      +eq('[x̂, p̂] = iħ')
+      +step(1,'Applicando [x,p]ψ = x(−iħψ\') − (−iħ)(xψ)\' = x(−iħψ\') + iħ(ψ + xψ\') = iħψ.')
+      +step(2,'Poiché ≠ 0, posizione e impulso <b>non</b> sono misurabili simultaneamente con precisione arbitraria → principio di indeterminazione.')
+      +box('Operatore hermitiano','Â è hermitiano se ∫f*(Âg) = ∫(Âf)*g. Garantisce autovalori <b>reali</b> (le misure sono numeri reali) e autostati ortogonali. Tutte le osservabili fisiche sono operatori hermitiani.','#f5c451');}},
+    {id:'unc',t:'📏 Indeterminazione',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Non un limite tecnologico, ma una proprietà della natura ondulatoria.</p>'
+      +box('Principio di Heisenberg',eq('Δx · Δp ≥ ħ/2')+'Più localizzi una particella (Δx piccolo), più il suo impulso è indeterminato (Δp grande), e viceversa.','#ff7859')
+      +'<p style="color:#cdd9e6;line-height:1.7"><b>Derivazione</b> (disuguaglianza di Robertson):</p>'
+      +eq('ΔA · ΔB ≥ ½ |⟨[Â, B̂]⟩|')
+      +step(1,'Con Â=x̂, B̂=p̂ e [x,p]=iħ: Δx·Δp ≥ ½|⟨iħ⟩| = ħ/2.')
+      +step(2,'Il minimo (uguaglianza) è raggiunto dai <b>pacchetti gaussiani</b>: sotto vedi il compromesso.')
+      +'<canvas id="qmUnc" width="820" height="200" style="width:100%;max-width:820px;background:#081522;border-radius:8px;display:block;margin:10px 0"></canvas>'
+      +'<label style="font-size:.82rem;color:#9fb3c8;display:block">Larghezza in posizione Δx: <input id="qmUncS" type="range" min="0.3" max="4" step="0.1" value="1" style="width:60%;accent-color:#7c6fff"> <span id="qmUncV" style="color:#7c6fff"></span></label>'
+      +box('Energia-tempo',eq('ΔE · Δt ≥ ħ/2')+'Stati a vita breve (Δt piccolo) hanno energia mal definita (ΔE grande) → allargamento delle righe spettrali.','#5eead4');}},
+    {id:'box',t:'📦 Particella in scatola',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Il modello risolvibile più semplice: una particella confinata in [0, L] con pareti infinite (V=0 dentro, ∞ fuori). Deriva la quantizzazione.</p>'
+      +step(1,'Dentro la scatola V=0, la TISE diventa '+eq('d²ψ/dx² = −k² ψ,   k² = 2mE/ħ²')+' → soluzione generale ψ = A sin(kx) + B cos(kx).')
+      +step(2,'<b>Condizioni al contorno</b>: ψ(0)=0 → B=0. ψ(L)=0 → A sin(kL)=0 → kL = nπ, con n=1,2,3,…')
+      +step(3,'Quindi k è <b>quantizzato</b>: k=nπ/L. Sostituendo in E: '+eq('Eₙ = n²π²ħ²/(2mL²) = n² h²/(8mL²),   n = 1,2,3,…'))
+      +step(4,'Normalizzando ∫₀ᴸ|ψ|²=1 → A=√(2/L): '+eq('ψₙ(x) = √(2/L) · sin(nπx/L)'))
+      +box('Cosa insegna','• L\'energia è <b>quantizzata</b> per il confinamento. • E₁ ≠ 0: <b>energia di punto zero</b> (Heisenberg vieta la quiete). • ψₙ ha <b>n−1 nodi</b>. • Eₙ ∝ 1/L²: più stringi, più le energie salgono (spiega il colore dei coloranti coniugati, i quantum dot).','#5eead4')
+      +'<canvas id="qmBox" width="820" height="260" style="width:100%;max-width:820px;background:#081522;border-radius:8px;display:block;margin:10px 0"></canvas>'
+      +'<div style="display:flex;gap:16px;flex-wrap:wrap"><label style="font-size:.82rem;color:#9fb3c8">livello n: <input id="qmBoxN" type="range" min="1" max="6" step="1" value="3" style="accent-color:#7c6fff"> <span id="qmBoxNv" style="color:#7c6fff">3</span></label><span style="font-size:.8rem;color:#7f92a6">🔗 Versione 3D animata nel Lab Quantistico (menu ✨)</span></div>';}},
+    {id:'ho',t:'〰️ Oscillatore armonico',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Il modello di ogni vibrazione (legami molecolari, fononi, campi). Potenziale V=½mω²x².</p>'
+      +eq('Eₙ = (n + ½) ħω,   n = 0,1,2,…')
+      +box('Punto zero',eq('E₀ = ½ ħω ≠ 0')+'Anche allo zero assoluto un oscillatore vibra: energia di punto zero. Conseguenza diretta dell\'indeterminazione.','#ff7859')
+      +step(1,'I livelli sono <b>equispaziati</b> di ħω (a differenza della scatola, dove crescono come n²).')
+      +step(2,'Le funzioni d\'onda sono <b>polinomi di Hermite</b> × una gaussiana: ψₙ ∝ Hₙ(αx) e^(−α²x²/2).')
+      +step(3,'La molecola reale è <b>anarmonica</b> (potenziale di Morse): i livelli si infittiscono avvicinandosi alla dissociazione → base della spettroscopia IR/Raman.')
+      +box('Spettroscopia vibrazionale','Regola di selezione Δn=±1 e serve un momento di dipolo che varia con la vibrazione (attività IR). L\'energia ħω dipende da costante di forza k e massa ridotta μ: ω=√(k/μ).','#5eead4');}},
+    {id:'hyd',t:'⚛️ Atomo di idrogeno',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">L\'unico atomo risolubile esattamente. Da qui nascono gli orbitali e i numeri quantici.</p>'
+      +eq('Ĥ = −(ħ²/2m)∇² − e²/(4πε₀ r)')
+      +step(1,'Con simmetria sferica si separa ψ(r,θ,φ) = R(r)·Y(θ,φ): parte <b>radiale</b> e parte <b>angolare</b> (armoniche sferiche).')
+      +step(2,'La quantizzazione fa emergere <b>tre numeri quantici</b> (+ lo spin):')
+      +'<div style="font-size:.9rem;color:#cdd9e6;line-height:1.9;margin:6px 0 6px 8px">'
+      +'• <b>n</b> principale = 1,2,3,… → energia e dimensione<br>'
+      +'• <b>ℓ</b> azimutale = 0,1,…,n−1 → forma (s,p,d,f) e momento angolare<br>'
+      +'• <b>mℓ</b> magnetico = −ℓ,…,+ℓ → orientazione (2ℓ+1 valori)<br>'
+      +'• <b>mₛ</b> spin = ±½ → spin dell\'elettrone</div>'
+      +box('Livelli energetici',eq('Eₙ = −13,6 eV / n²   (Rydberg)')+'Dipendono solo da n (nell\'idrogeno): degenerazione n². Le transizioni tra livelli danno le <b>serie spettrali</b> (Lyman, Balmer, Paschen). ΔE = hν = hcR(1/n₁²−1/n₂²).','#f5c451')
+      +box('Momento angolare',eq('|L| = ħ√(ℓ(ℓ+1)),   Lz = ħ mℓ')+'Il momento angolare è quantizzato in modulo e proiezione. 🔗 Gli orbitali 3D sono nel Lab Quantistico.','#5eead4');}},
+    {id:'spin',t:'🧲 Spin & Pauli',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Lo spin è un momento angolare intrinseco, senza analogo classico.</p>'
+      +eq('S² → ħ² s(s+1),   Sz = ħ mₛ,   elettrone: s = ½, mₛ = ±½')
+      +box('Principio di esclusione di Pauli','In un atomo <b>due elettroni non possono avere gli stessi quattro numeri quantici</b> (n, ℓ, mℓ, mₛ). Ogni orbitale ospita al massimo 2 elettroni con spin opposti (↑↓).','#ff7859')
+      +box('Antisimmetria','Più in generale la funzione d\'onda totale di fermioni (spin semi-intero) è <b>antisimmetrica</b> per scambio di due particelle: Ψ(1,2) = −Ψ(2,1). È la ragione profonda del principio di Pauli e della struttura della tavola periodica.','#5eead4')
+      +box('Fermioni vs Bosoni','Fermioni (elettroni, protoni, s=½): antisimmetrici, obbediscono a Pauli → statistica di Fermi-Dirac. Bosoni (fotoni, s intero): simmetrici, possono accumularsi nello stesso stato → statistica di Bose-Einstein (laser, superfluidità).','#f5c451');}},
+    {id:'multi',t:'🧬 Atomi multielettronici',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Con più elettroni la repulsione rompe la degenerazione: l\'energia dipende da n e ℓ.</p>'
+      +box('Le tre regole di riempimento','<b>Aufbau</b>: si riempie dal livello più basso. <b>Pauli</b>: max 2 e⁻ per orbitale, spin opposti. <b>Hund</b>: negli orbitali degeneri si mette prima un elettrone in ciascuno con spin parallelo (massima molteplicità).','#5eead4')
+      +box('Ordine energetico (regola n+ℓ)',eq('minore (n+ℓ) → minore energia;  a parità, minore n')+'Es. il 4s (n+ℓ=4) si riempie prima del 3d (n+ℓ=5). Spiega la struttura a blocchi s,p,d,f della tavola periodica.','#f5c451')
+      +box('Carica nucleare efficace','Gli elettroni interni <b>schermano</b> il nucleo: quelli esterni sentono Z_eff = Z − σ (Slater). Cresce lungo un periodo → raggio ↓, energia di ionizzazione ↑, elettronegatività ↑.','#a78bfa')
+      +box('Simboli di termine','Lo stato di un atomo si scrive ²ˢ⁺¹L_J (S=spin totale, L=momento angolare totale, J=L+S). Le regole di Hund ne scelgono il fondamentale. Alla base della spettroscopia atomica.','#5eead4');}},
+    {id:'tun',t:'🚧 Tunnel & applicazioni',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Una particella può attraversare una barriera più alta della sua energia — impossibile in fisica classica.</p>'
+      +step(1,'Dentro una barriera V₀ > E la TISE dà una soluzione <b>evanescente</b> (non oscillante): '+eq('ψ ∝ e^(−κx),   κ = √(2m(V₀−E))/ħ'))
+      +step(2,'La probabilità di attraversare (barriera larga a) decade esponenzialmente: '+eq('T ≈ e^(−2κa)'))
+      +box('Dove conta','• <b>Decadimento α</b> (Gamow): la particella α esce dal nucleo per tunnel. • <b>Fusione stellare</b>: i protoni superano la barriera coulombiana per tunnel. • <b>STM</b>: il microscopio a effetto tunnel vede i singoli atomi. • <b>Diodo tunnel</b>, memorie flash.','#f5c451')
+      +'<div style="font-size:.8rem;color:#7f92a6">🔗 Simulazione interattiva della barriera e del coefficiente di trasmissione nel Lab Quantistico (menu ✨).</div>';}},
+    {id:'sel',t:'🌈 Transizioni & selezione',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">La spettroscopia misura salti tra livelli quantici. Non tutti i salti sono permessi.</p>'
+      +eq('ΔE = E_f − E_i = h ν = h c / λ')
+      +box('Regole di selezione (dipolo elettrico)','Una transizione è permessa se il <b>momento di dipolo di transizione</b> ⟨ψ_f| μ̂ |ψ_i⟩ ≠ 0. Per l\'atomo idrogenoide: <b>Δℓ = ±1</b>, <b>Δmℓ = 0, ±1</b>. Il fotone porta via una unità di momento angolare (spin 1).','#5eead4')
+      +box('Tipi di spettroscopia','<b>Rotazionale</b> (microonde, ΔJ=±1), <b>vibrazionale</b> (IR, Δv=±1), <b>elettronica</b> (UV-Vis, transizioni tra orbitali), <b>NMR</b> (spin nucleari in campo magnetico), <b>di massa</b> (rapporto m/z). Ognuna sonda una scala di energia diversa.','#f5c451')
+      +box('Principio di corrispondenza','Per grandi numeri quantici (n→∞) la meccanica quantistica riproduce quella classica: i livelli si infittiscono e la distribuzione di probabilità tende a quella classica. Il ponte tra i due mondi.','#a78bfa');}}
+  ];
+  sec.innerHTML=
+    '<div class="section-title">🌌 MECCANICA QUANTISTICA — teoria completa con derivazioni</div>'
+    +'<div style="color:#9fb3c8;font-size:.92rem;line-height:1.6;max-width:860px;margin-bottom:14px">Dai postulati alle applicazioni: la struttura logica della meccanica quantistica, con le equazioni e le derivazioni chiave. Le simulazioni interattive 3D (orbitali, tunnel, scatola, oscillatore…) sono nel <b>Lab Quantistico</b> (menu ✨).</div>'
+    +'<div id="qmTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px"></div>'
+    +'<div id="qmBody"></div>';
+  var tabsEl=sec.querySelector('#qmTabs'), bodyEl=sec.querySelector('#qmBody'), cur='post';
+  function paintTabs(){ tabsEl.innerHTML=''; TOPICS.forEach(function(T){ var on=T.id===cur; var b=document.createElement('button'); b.innerHTML=T.t; b.style.cssText='border:1px solid '+(on?'#7c6fff':'rgba(148,163,184,.3)')+';background:'+(on?'rgba(124,111,255,.2)':'transparent')+';color:'+(on?'#dcd6ff':'#9fb3c8')+';border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:.8rem'; b.onclick=function(){cur=T.id;paintTabs();render();}; tabsEl.appendChild(b); }); }
+  function render(){ var T=TOPICS.filter(function(t){return t.id===cur;})[0]; bodyEl.innerHTML='<div style="background:#0c1f33;border:1px solid rgba(124,111,255,.3);border-radius:14px;padding:18px">'+T.html()+'</div>';
+    if(cur==='box')wireBox(); if(cur==='unc')wireUnc(); }
+  function wireBox(){
+    var cv=sec.querySelector('#qmBox'); if(!cv)return; var x=cv.getContext('2d'),W=cv.width,H=cv.height;
+    function draw(){ var n=+sec.querySelector('#qmBoxN').value; sec.querySelector('#qmBoxNv').textContent=n;
+      x.clearRect(0,0,W,H); var L=60,R=W-160,T=20,B=H-30;
+      // pareti
+      x.strokeStyle='#ff7859';x.lineWidth=3;x.beginPath();x.moveTo(L,T);x.lineTo(L,B);x.moveTo(R,T);x.lineTo(R,B);x.stroke();
+      x.strokeStyle='#26406a';x.lineWidth=1;x.beginPath();x.moveTo(L,B);x.lineTo(R,B);x.stroke();
+      // livelli energetici (scala En ~ n^2) a destra
+      var Emax=36, lx=R+20, lw=110;
+      for(var k=1;k<=6;k++){ var E=k*k; var y=B-(E/Emax)*(B-T); var on=(k===n);
+        x.strokeStyle=on?'#5eead4':'rgba(148,163,184,.35)';x.lineWidth=on?2.5:1.2;x.beginPath();x.moveTo(lx,y);x.lineTo(lx+lw,y);x.stroke();
+        x.fillStyle=on?'#5eead4':'#7f92a6';x.font=(on?'bold ':'')+'11px system-ui';x.textAlign='left';x.fillText('n='+k+' (E∝'+(k*k)+')',lx+lw+4,y+3); }
+      x.fillStyle='#9fb3c8';x.font='11px system-ui';x.textAlign='center';x.fillText('livelli Eₙ ∝ n²',lx+lw/2,T-6);
+      // funzione d'onda ψn
+      var mid=(T+B)/2, amp=(B-T)/2.4;
+      x.strokeStyle='#7c6fff';x.lineWidth=2.4;x.beginPath();
+      for(var i=0;i<=300;i++){ var xx=i/300, px=L+xx*(R-L), py=mid-amp*Math.sin(n*Math.PI*xx); if(i===0)x.moveTo(px,py);else x.lineTo(px,py);} x.stroke();
+      // nodi
+      x.fillStyle='#f5c451';for(var no=1;no<n;no++){var xx=no/n,px=L+xx*(R-L);x.beginPath();x.arc(px,mid,3,0,7);x.fill();}
+      x.fillStyle='#7c6fff';x.font='12px system-ui';x.textAlign='left';x.fillText('ψ'+n+'(x) — '+(n-1)+' nodi',L,T+12);
+      x.fillStyle='#7f92a6';x.textAlign='center';x.fillText('0',L,B+14);x.fillText('L',R,B+14);
+    }
+    sec.querySelector('#qmBoxN').oninput=draw; draw();
+  }
+  function wireUnc(){
+    var cv=sec.querySelector('#qmUnc'); if(!cv)return; var x=cv.getContext('2d'),W=cv.width,H=cv.height;
+    function draw(){ var dx=+sec.querySelector('#qmUncS').value; var dp=0.5/dx; // ħ/2 con ħ=1
+      sec.querySelector('#qmUncV').textContent='Δx='+dx.toFixed(1)+' → Δp≥'+dp.toFixed(2)+' (ΔxΔp='+(dx*dp).toFixed(2)+'ħ)';
+      x.clearRect(0,0,W,H); var midY=H/2;
+      // pacchetto in posizione (sinistra)
+      x.strokeStyle='#5eead4';x.lineWidth=2;x.beginPath();
+      for(var i=0;i<=200;i++){ var xx=(i/200-0.5)*10; var px=40+(i/200)*(W/2-60); var g=Math.exp(-xx*xx/(2*dx*dx)); var py=H-20-g*(H-50); if(i===0)x.moveTo(px,py);else x.lineTo(px,py);} x.stroke();
+      x.fillStyle='#5eead4';x.font='12px system-ui';x.textAlign='center';x.fillText('|Ψ(x)|²  (posizione, largh. Δx)',W/4,18);
+      // pacchetto in impulso (destra) - larghezza dp inversa
+      x.strokeStyle='#ff7859';x.lineWidth=2;x.beginPath();
+      for(var i=0;i<=200;i++){ var xx=(i/200-0.5)*10; var px=W/2+40+(i/200)*(W/2-60); var g=Math.exp(-xx*xx/(2*dp*dp*25)); var py=H-20-g*(H-50); if(i===0)x.moveTo(px,py);else x.lineTo(px,py);} x.stroke();
+      x.fillStyle='#ff7859';x.textAlign='center';x.fillText('|Φ(p)|²  (impulso, largh. Δp)',3*W/4,18);
+      x.strokeStyle='#26406a';x.beginPath();x.moveTo(W/2,10);x.lineTo(W/2,H-10);x.stroke();
+    }
+    sec.querySelector('#qmUncS').oninput=draw; draw();
+  }
+  paintTabs();render();
+};
+
+/* ============================================================
    CHIMICA INORGANICA — Teoria del Campo Cristallino (CFT)
    ============================================================ */
 window.initCFT=function(){
@@ -41691,15 +41845,27 @@ window.initCFT=function(){
       +(C.geo==='sp'?' Nei d⁸ forti l’orbitale d_x²-y² resta vuoto e la geometria collassa da ottaedrica a quadrato planare.':'')
       +'</div></div>','#5eead4');
     // Pannello 3 - Campo cristallino
-    var p3=panel('🔶','3. Teoria del campo cristallino — splitting e riempimento',''
+    // Jahn-Teller
+    var jt='';
+    if(C.geo==='oct'){ var ocj=fillOct(d,dia.lowSpin);
+      var egUn=(ocj[3]!==ocj[4]); var t2Un=!(ocj[0]===ocj[1]&&ocj[1]===ocj[2]);
+      if(egUn) jt='<b style="color:#ff7859">⚠️ Jahn-Teller FORTE</b>: gli e_g (puntano verso i leganti) sono riempiti in modo disuguale → distorsione tetragonale marcata (allungamento assiale): d_z² scende, d_x²-y² sale. Tipico dei <b>d⁹</b> (Cu²⁺) e d⁴ alto spin — spiega la geometria distorta e la banda larga di Cu²⁺.';
+      else if(t2Un) jt='Jahn-Teller <b>debole</b>: asimmetria nei t₂g (lontani dai leganti) → distorsione piccola, di solito non osservabile.';
+      else jt='Nessuna distorsione Jahn-Teller: orbitali degeneri riempiti simmetricamente.';
+    }
+    var showUV=(d>0&&d<10&&lambda>=350&&lambda<=950);
+    var p3=panel('🔶','3. Teoria del campo cristallino — splitting, spin e transizione d-d',''
       +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">'+dia.svg
       +'<div style="flex:1;min-width:230px;font-size:.86rem;line-height:1.7;color:#cdd9e6">'
       +'Δ'+(C.geo==='tet'?'ₜ':'ₒ')+' = f·g = '+C.lf+'×'+g+' '+(C.geo==='tet'?'×4/9 ':'')+'≈ <b>'+Deff.toFixed(0)+' cm⁻¹</b>.<br>'
       +(C.geo==='oct'&&d>=4&&d<=7?'Confronto con l’appaiamento P='+P.toLocaleString('it')+': Δ'+(Do>P?'&gt;':'&lt;')+'P → <b>'+dia.spin+'</b>.<br>':'Stato di spin: <b>'+dia.spin+'</b>.<br>')
       +'Elettroni spaiati: <b>'+dia.unpaired+'</b> → '+(dia.unpaired>0?'paramagnetico':'diamagnetico')+', momento magnetico μ = √(n(n+2)) = <b>'+mu.toFixed(2)+' BM</b>.<br>'
       +(C.geo!=='sp'?'CFSE ≈ <b>'+dia.cfse.toFixed(1)+' Δ</b>'+(dia.lowSpin?' (+ energia di appaiamento)':'')+'.<br>':'')
-      +'Colore: <span style="display:inline-block;width:15px;height:15px;border-radius:4px;background:'+col[1]+';vertical-align:middle;border:1px solid #333"></span> <b>'+(d===0||d===10?'incolore':col[0])+'</b> — '+(d===0||d===10?'nessuna transizione d-d possibile':col[2]+' (osservato = complementare)')+'.'
-      +'</div></div>','#f5c451');
+      +'Transizione <b>d-d</b>: un elettrone assorbe un fotone e salta t₂g→e_g. λ = 10⁷/Δ ≈ <b>'+(d===0||d===10?'—':lambda.toFixed(0)+' nm')+'</b>.<br>'
+      +'Colore: <span style="display:inline-block;width:15px;height:15px;border-radius:4px;background:'+col[1]+';vertical-align:middle;border:1px solid #333"></span> <b>'+(d===0||d===10?'incolore':col[0])+'</b> — '+(d===0||d===10?'nessuna transizione d-d (d⁰ o d¹⁰)':col[2]+' (osservato = complementare)')+'.'
+      +(showUV?'<br><canvas id="cftUV" width="360" height="110" style="width:100%;max-width:360px;background:#050b16;border-radius:6px;margin-top:6px"></canvas>':'')
+      +'</div></div>'
+      +(jt?'<div style="margin-top:10px;font-size:.83rem;color:#cdd9e6;background:#0a1628;border-left:3px solid #ff7859;border-radius:0 8px 8px 0;padding:9px 12px">🔻 <b>Effetto Jahn-Teller:</b> '+jt+'</div>':''),'#f5c451');
     // Pannello 4 - MO
     var p4=panel('🔗','4. Teoria dell’orbitale molecolare — origine di Δ e serie spettrochimica',''
       +'<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">'+(C.geo==='oct'?moDiagram(C.geo,d,Do,P,C.pi):'<div style="color:#8fa3b8;font-size:.84rem;min-width:200px">Il diagramma MO per la geometria '+geoName+' è analogo: i 4 (o 6) orbitali σ dei leganti si combinano con gli orbitali del metallo dando MO leganti (pieni) e i frontier d‑based che generano lo splitting mostrato sopra.</div>')
@@ -41710,6 +41876,17 @@ window.initCFT=function(){
       +'<br><span style="color:#7f92a6">È questa la spiegazione MO della <b>serie spettrochimica</b>: I⁻&lt;Br⁻&lt;Cl⁻&lt;F⁻&lt;OH⁻&lt;H₂O&lt;NH₃&lt;en&lt;NO₂⁻&lt;CN⁻&lt;CO.</span>'
       +'</div></div>','#7c6fff');
     sec.querySelector('#cftPanels').innerHTML=p1+p2+p3+p4;
+    if(showUV)drawUV(lambda);
+  }
+  function wl2rgb(l){ var r=0,g=0,b=0; if(l>=380&&l<440){r=-(l-440)/60;b=1;}else if(l<490){g=(l-440)/50;b=1;}else if(l<510){g=1;b=-(l-510)/20;}else if(l<580){r=(l-510)/70;g=1;}else if(l<645){r=1;g=-(l-645)/65;}else if(l<=780){r=1;} return 'rgb('+Math.round(r*255)+','+Math.round(g*255)+','+Math.round(b*255)+')'; }
+  function drawUV(lambda){
+    var cv=sec.querySelector('#cftUV'); if(!cv)return; var x=cv.getContext('2d'),W=cv.width,H=cv.height,l0=350,l1=950,pad=6;
+    x.clearRect(0,0,W,H); function X(l){return pad+(l-l0)/(l1-l0)*(W-2*pad);}
+    for(var l=380;l<=750;l+=2){ x.fillStyle=wl2rgb(l); x.globalAlpha=.30; x.fillRect(X(l),H-14,(2/(l1-l0))*(W-2*pad)+1,10);} x.globalAlpha=1;
+    x.strokeStyle='#5eead4';x.lineWidth=2;x.beginPath();
+    for(var l=l0;l<=l1;l+=2){ var A=Math.exp(-Math.pow((l-lambda)/48,2)); var y=18+(1-A)*(H-40); if(l===l0)x.moveTo(X(l),y);else x.lineTo(X(l),y);} x.stroke();
+    x.fillStyle='#f5c451';x.font='10px system-ui';x.textAlign='center';x.fillText('assorbimento d-d @ '+lambda.toFixed(0)+' nm',X(lambda),13);
+    x.fillStyle='#7f92a6';x.textAlign='left';x.fillText('350',X(360),H-1);x.textAlign='right';x.fillText('950 nm',W-3,H-1);
   }
   sec.querySelector('#cftCx').onchange=render;
   render();
