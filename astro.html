@@ -1303,7 +1303,12 @@ function renderCalc(){
     {t:'⚡ Energia di riposo E=mc²',f:'E = mc²',in:[['Massa (kg)','0.001']],out:function(v){ var m=v[0]; if(!(m>=0))return '—'; return (m*C*C).toExponential(3)+' J'; }},
     {t:'🌱 Zona abitabile',f:'√(L/1,1) — √(L/0,53) UA',in:[['Luminosità (L☉)','1']],out:function(v){ var L=v[0]; if(!(L>0))return '—'; return Math.sqrt(L/1.1).toFixed(2)+' – '+Math.sqrt(L/0.53).toFixed(2)+' UA'; }},
     {t:'⭐ Luminosità stellare',f:'L = 4πR²σT⁴',in:[['Raggio (R☉)','1'],['Temperatura (K)','5772']],out:function(v){ var R=v[0]*Rsun,T=v[1]; if(!(R>0&&T>0))return '—'; var L=4*Math.PI*R*R*5.67e-8*Math.pow(T,4); return (L/3.828e26).toFixed(2)+' L☉'; }},
-    {t:'⏳ Tempo-luce',f:'t = d / c',in:[['Distanza (UA)','1']],out:function(v){ var d=v[0]*AU; if(!(d>0))return '—'; var s=d/C; return s<60?s.toFixed(1)+' s':s<3600?(s/60).toFixed(1)+' min':(s/86400).toFixed(2)+' giorni'; }}
+    {t:'⏳ Tempo-luce',f:'t = d / c',in:[['Distanza (UA)','1']],out:function(v){ var d=v[0]*AU; if(!(d>0))return '—'; var s=d/C; return s<60?s.toFixed(1)+' s':s<3600?(s/60).toFixed(1)+' min':(s/86400).toFixed(2)+' giorni'; }},
+    {t:'💥 Luminosità di Eddington',f:'L = 4πGMm_p c / σ_T',in:[['Massa (M☉)','1']],out:function(v){ var M=v[0]*Msun; if(!(M>0))return '—'; var L=4*Math.PI*G*M*1.673e-27*C/6.652e-29; return (L/3.828e26).toExponential(2)+' L☉'; }},
+    {t:'🧊 Massa di Jeans',f:'M_J ≈ (5kT/Gμm)^{3/2}·(3/4πρ)^{1/2}',in:[['Temperatura (K)','10'],['Densità n (cm⁻³)','1000']],out:function(v){ var T=v[0],n=v[1]; if(!(T>0&&n>0))return '—'; var mu=2.3, m=mu*1.673e-27, rho=n*1e6*m, k=1.381e-23; var MJ=Math.pow(5*k*T/(G*m),1.5)*Math.pow(3/(4*Math.PI*rho),0.5); return (MJ/Msun).toFixed(1)+' M☉'; }},
+    {t:'🌀 Velocità orbitale',f:'v = √(GM / r)',in:[['Massa (M☉)','1'],['Raggio (UA)','1']],out:function(v){ var M=v[0]*Msun,r=v[1]*AU; if(!(M>0&&r>0))return '—'; return (Math.sqrt(G*M/r)/1000).toFixed(1)+' km/s'; }},
+    {t:'⏱️ Tempo di Hubble',f:'t = 1 / H₀',in:[['H₀ (km/s/Mpc)','70']],out:function(v){ var h=v[0]; if(!(h>0))return '—'; var Mpc=3.086e19; var t=1/(h/Mpc)/(3.156e7*1e9); return t.toFixed(2)+' Gyr'; }},
+    {t:'🕰️ Dilatazione temporale grav.',f:'Δt/t = √(1 − Rs/r)',in:[['Massa (M☉)','1'],['Raggio r (km)','10']],out:function(v){ var M=v[0]*Msun,r=v[1]*1000; if(!(M>0&&r>0))return '—'; var rs=2*G*M/(C*C); if(r<=rs)return 'dentro l\'orizzonte!'; return (Math.sqrt(1-rs/r)).toFixed(6)+' × (rallenta)'; }}
   ];
   var h='<div style="color:#00c9b7;font-weight:800;font-size:1.2rem;margin-bottom:4px">🧮 Calcolatori Astrofisici</div>'+
     '<div style="color:#9fb3c8;font-size:.88rem;line-height:1.5;margin-bottom:14px;max-width:760px">Le <b>formule reali</b> dell\'astrofisica, pronte all\'uso: inserisci i valori e ottieni il risultato in tempo reale. Costanti: G, c, σ, M☉, R☉, H₀=70.</div>'+
@@ -1314,10 +1319,101 @@ function renderCalc(){
     k.in.map(function(inp,ii){ return '<label style="display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:#8fa3b8;margin-bottom:7px">'+inp[0]+'<input class="calc-in" data-c="'+idx+'" data-i="'+ii+'" type="number" step="any" value="'+inp[1]+'" style="background:#071221;border:1px solid #26406a;border-radius:7px;color:#e9eef6;font-size:.82rem;padding:5px 8px"></label>'; }).join('')+
     '<div class="calc-out" data-c="'+idx+'" style="background:#071221;border:1px solid #16324a;border-radius:8px;padding:7px 10px;color:#5eead4;font-weight:800;font-size:.95rem;text-align:center;margin-top:2px">—</div></div>'; });
   h+='</div><div style="color:#6b7d90;font-size:.72rem;margin-top:12px">A scopo didattico · formule standard (approssimazioni non-relativistiche dove indicato). H₀ e cosmologia semplificate per basso redshift.</div>';
+  // ── Diagramma HR interattivo ──
+  h+='<div style="margin-top:22px;background:#0c1f33;border:1px solid #1c3a57;border-radius:14px;padding:16px">'
+    +'<div style="color:#00c9b7;font-weight:800;font-size:1.05rem;margin-bottom:2px">📊 Diagramma di Hertzsprung–Russell interattivo</div>'
+    +'<div style="color:#9fb3c8;font-size:.82rem;line-height:1.5;margin-bottom:10px;max-width:760px">La mappa fondamentale delle stelle: <b>temperatura</b> (calda a sinistra) vs <b>luminosità</b> (scala log). La diagonale è la <b>sequenza principale</b> dove le stelle passano la vita fondendo idrogeno; in alto a destra le <b>giganti/supergiganti</b>, in basso a sinistra le <b>nane bianche</b>. Passa sopra o clicca una stella.</div>'
+    +'<canvas id="hrCv" width="880" height="520" style="width:100%;max-width:880px;background:#050b16;border-radius:10px;display:block;cursor:crosshair"></canvas>'
+    +'<div id="hrInfo" style="margin-top:10px;min-height:44px;font-size:.85rem;color:#cdd9e6;background:#071221;border-radius:8px;padding:10px 12px;border-left:3px solid #00c9b7">Passa il mouse su una stella per i dettagli.</div>'
+    +'<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.72rem;color:#8fa3b8">'
+      +'<span>🔵 O/B calde</span><span>⚪ A/F</span><span>🟡 G (come il Sole)</span><span>🟠 K</span><span>🔴 M fredde</span>'
+    +'</div></div>';
   c.innerHTML=h;
   function recompute(idx){ var card=CALCS[idx]; var vals=card.in.map(function(_,ii){ var el=c.querySelector('.calc-in[data-c="'+idx+'"][data-i="'+ii+'"]'); return el?parseFloat(el.value):NaN; }); var out=c.querySelector('.calc-out[data-c="'+idx+'"]'); if(out)out.textContent=card.out(vals); }
   c.querySelectorAll('.calc-in').forEach(function(el){ el.oninput=function(){ recompute(parseInt(el.getAttribute('data-c'),10)); }; });
   CALCS.forEach(function(_,idx){ recompute(idx); });
+  _renderHR(c);
+}
+function _tempColor(T){
+  // colore stellare approssimato dalla temperatura
+  if(T>=30000)return '#9bb0ff'; if(T>=10000)return '#aabfff'; if(T>=7500)return '#cad7ff';
+  if(T>=6000)return '#f8f7ff'; if(T>=5200)return '#fff4e8'; if(T>=3700)return '#ffd2a1'; return '#ffab6b';
+}
+function _renderHR(c){
+  var cv=c.querySelector('#hrCv'); if(!cv)return; var ctx=cv.getContext('2d');
+  var info=c.querySelector('#hrInfo');
+  var W=cv.width,H=cv.height,pad={l:70,r:20,t:20,b:52};
+  // stelle: [nome, T(K), L(Lsun), classe, nota]
+  var STARS=[
+    ['Sole',5772,1,'G2V','La nostra stella, sequenza principale.'],
+    ['Sirio A',9940,25.4,'A1V','La stella più brillante del cielo notturno.'],
+    ['Sirio B',25000,0.056,'DA2','Nana bianca compagna di Sirio A.'],
+    ['Proxima Centauri',3042,0.0017,'M5.5Ve','La stella più vicina al Sole (nana rossa).'],
+    ['Betelgeuse',3500,126000,'M1-2Ia','Supergigante rossa, prossima supernova.'],
+    ['Rigel',12100,120000,'B8Ia','Supergigante blu in Orione.'],
+    ['Vega',9602,40.1,'A0V','Stella di riferimento fotometrico.'],
+    ['Aldebaran',3910,439,'K5III','Gigante arancione, occhio del Toro.'],
+    ['Antares',3660,75000,'M1.5Iab','Supergigante rossa nello Scorpione.'],
+    ['Arturo',4286,170,'K1.5III','Gigante arancione, Boote.'],
+    ['Spica',22400,20500,'B1V','Stella calda della Vergine (binaria).'],
+    ['Deneb',8525,196000,'A2Ia','Supergigante bianca, molto lontana.'],
+    ['Altair',7550,10.6,'A7V','Stella a rotazione rapida, Aquila.'],
+    ['Polaris',6015,1260,'F7Ib','La stella polare, una Cefeide.'],
+    ['Barnard',3134,0.0035,'M4Ve','Nana rossa con altissimo moto proprio.'],
+    ['Pollux',4586,43,'K0III','Gigante arancione più vicina.'],
+    ['Regolo',12460,316,'B8IVn','Stella blu-bianca nel Leone.'],
+    ['Bellatrix',22000,9900,'B2III','Gigante blu in Orione.'],
+    ['Procione A',6530,6.9,'F5IV','Vicina, in fase di subgigante.'],
+    ['Van Maanen',6220,0.0017,'DZ7','Nana bianca isolata vicina.'],
+    ['Mira',3000,8400,'M7III','Gigante variabile pulsante (Cetus).'],
+    ['Achernar',15000,3150,'B6V','Stella molto schiacciata dalla rotazione.']
+  ];
+  var Tmin=2500,Tmax=42000,Lmin=1e-4,Lmax=5e5;
+  function X(T){ // log in T, invertito (caldo a sinistra)
+    var f=(Math.log10(Tmax)-Math.log10(T))/(Math.log10(Tmax)-Math.log10(Tmin));
+    return pad.l+f*(W-pad.l-pad.r);
+  }
+  function Y(L){ var f=(Math.log10(L)-Math.log10(Lmin))/(Math.log10(Lmax)-Math.log10(Lmin)); return H-pad.b-f*(H-pad.t-pad.b); }
+  function draw(hi){
+    ctx.clearRect(0,0,W,H);
+    // griglia + assi
+    ctx.strokeStyle='rgba(148,163,184,.13)';ctx.fillStyle='#7f92a6';ctx.font='11px system-ui';ctx.lineWidth=1;
+    [40000,20000,10000,7000,5000,3500,2500].forEach(function(T){ var x=X(T); ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke(); ctx.textAlign='center';ctx.fillText(T>=1000?(T/1000)+'k':T,x,H-pad.b+16); });
+    var lums=[[1e5,'10⁵'],[1e3,'10³'],[10,'10'],[1,'1'],[1e-2,'10⁻²'],[1e-4,'10⁻⁴']];
+    lums.forEach(function(p){ var y=Y(p[0]); ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke(); ctx.textAlign='right';ctx.fillText(p[1],pad.l-6,y+3); });
+    ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';
+    ctx.fillText('Temperatura (K) — calda ← → fredda',pad.l+(W-pad.l-pad.r)/2,H-8);
+    ctx.save();ctx.translate(18,pad.t+(H-pad.t-pad.b)/2);ctx.rotate(-Math.PI/2);ctx.fillText('Luminosità (L☉, log)',0,0);ctx.restore();
+    // fascia sequenza principale (da O calda/luminosa a M fredda/debole)
+    ctx.strokeStyle='rgba(94,234,212,.25)';ctx.lineWidth=26;ctx.lineCap='round';ctx.beginPath();
+    ctx.moveTo(X(40000),Y(1e5));ctx.lineTo(X(3000),Y(3e-3));ctx.stroke();
+    ctx.fillStyle='rgba(94,234,212,.5)';ctx.font='italic 11px system-ui';ctx.textAlign='left';
+    ctx.save();ctx.translate(X(9000),Y(50));ctx.rotate(0.62);ctx.fillText('sequenza principale',0,0);ctx.restore();
+    // etichette regioni
+    ctx.fillStyle='rgba(255,171,107,.6)';ctx.fillText('giganti / supergiganti',X(6000),Y(2e4));
+    ctx.fillStyle='rgba(170,191,255,.6)';ctx.fillText('nane bianche',X(15000),Y(3e-3));
+    // stelle
+    STARS.forEach(function(s,i){
+      var x=X(s[1]),y=Y(s[2]),on=(hi===i);
+      ctx.beginPath();ctx.arc(x,y,on?7:4.5,0,7);ctx.fillStyle=_tempColor(s[1]);
+      ctx.shadowColor=_tempColor(s[1]);ctx.shadowBlur=on?14:5;ctx.fill();ctx.shadowBlur=0;
+      if(on||s[0]==='Sole'){ ctx.fillStyle=on?'#fff':'#cdd9e6';ctx.font=(on?'bold ':'')+'11px system-ui';ctx.textAlign='left';ctx.fillText(s[0],x+9,y+3); }
+    });
+    cv._pts=STARS.map(function(s){return {x:X(s[1]),y:Y(s[2])};});
+  }
+  function pick(ev){
+    var r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height;
+    var mx=(ev.clientX-r.left)*sx,my=(ev.clientY-r.top)*sy;
+    var best=-1,bd=1e9; (cv._pts||[]).forEach(function(p,i){ var d=(p.x-mx)*(p.x-mx)+(p.y-my)*(p.y-my); if(d<bd){bd=d;best=i;} });
+    if(bd<400){ var s=STARS[best]; draw(best);
+      info.innerHTML='<b style="color:'+_tempColor(s[1])+'">'+s[0]+'</b> · classe <b>'+s[3]+'</b> — T ≈ <b>'+s[1].toLocaleString('it')+' K</b>, L ≈ <b>'+(s[2]>=1?s[2].toLocaleString('it'):s[2])+' L☉</b>. '+s[4];
+      return true;
+    }
+    return false;
+  }
+  cv.onmousemove=function(e){ if(!pick(e)){ draw(-1); } };
+  cv.onclick=pick;
+  draw(-1);
 }
 // ─── TAB SWITCH ──────────────────────────────────────────────────────────────
 var _init={};

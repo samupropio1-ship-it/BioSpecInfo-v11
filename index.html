@@ -2065,12 +2065,33 @@ window.BSI_TELEMETRY_URL='';</script>
     if(classes.length<2){ o.innerHTML='<div style="color:#ffb0be;font-size:.82rem;padding:6px 0">Il target ha una sola classe: niente da classificare.</div>'; return; }
     var st=_dsStdz(X), Z=st.Z; var tr=[],te=[]; for(var i=0;i<n;i++){ (i%4===0?te:tr).push(i); } if(!te.length){te=tr.slice(0,1);}
     var k=Math.min(5,tr.length);
-    function classify(zi){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<m;j++){ var dd=Z[zi][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];});
-      var votes={}; for(var q=0;q<k;q++){ var c=ds[q][1]; votes[c]=(votes[c]||0)+1; } var best='',bc=-1; for(var c in votes){ if(votes[c]>bc){bc=votes[c];best=c;} } return best; }
+    var POS=classes[classes.length-1]; // classe "positiva" per ROC/PRF binaria
+    function classifyF(zi){ var ds=tr.map(function(ti){ var s=0; for(var j=0;j<m;j++){ var dd=Z[zi][j]-Z[ti][j]; s+=dd*dd; } return [s,y[ti]]; }); ds.sort(function(a,b){return a[0]-b[0];});
+      var votes={},pv=0; for(var q=0;q<k;q++){ var c=ds[q][1]; votes[c]=(votes[c]||0)+1; if(c===POS)pv++; } var best='',bc=-1; for(var c in votes){ if(votes[c]>bc){bc=votes[c];best=c;} } return {label:best,p:pv/k}; }
+    function classify(zi){ return classifyF(zi).label; }
     var correct=0; var cm={}; classes.forEach(function(a){ cm[a]={}; classes.forEach(function(b){ cm[a][b]=0; }); });
-    te.forEach(function(i){ var pr=classify(i); cm[y[i]][pr]++; if(pr===y[i])correct++; });
+    var teScores=[],teLab=[];
+    te.forEach(function(i){ var r=classifyF(i); cm[y[i]][r.label]++; if(r.label===y[i])correct++; teScores.push(r.p); teLab.push(y[i]===POS?1:0); });
     var acc=correct/te.length;
     var cv=_dsMeanStd(_dsCVClf(Z,y,5)); var cvStr=(cv[0]*100).toFixed(0)+'% ± '+(cv[1]*100).toFixed(0)+'%';
+    // metriche binarie: precision/recall/F1 (classe positiva = POS) + ROC/AUC
+    var binExtra='';
+    if(classes.length===2){
+      var TP=cm[POS][POS], FN=0, FP=0, TN=0, NEG=classes[0];
+      FN=cm[POS][NEG]; FP=cm[NEG][POS]; TN=cm[NEG][NEG];
+      var prec=TP+FP>0?TP/(TP+FP):0, rec=TP+FN>0?TP/(TP+FN):0, f1=prec+rec>0?2*prec*rec/(prec+rec):0;
+      var roc=_dsROC(teScores,teLab);
+      binExtra='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">'
+        +'<div><div style="color:#8fa3b8;font-size:.74rem;margin-bottom:4px">curva ROC · classe positiva = <b style="color:#5eead4">'+POS+'</b></div>'
+          +'<canvas id="dsRoc" width="260" height="260" style="width:260px;max-width:100%;background:#081522;border-radius:8px"></canvas></div>'
+        +'<div style="display:flex;gap:7px;flex-wrap:wrap;align-content:flex-start;max-width:320px">'
+          +_dsMetricCard('AUC',roc.auc.toFixed(3),(roc.auc>0.85?'#5eead4':roc.auc>0.7?'#f5c451':'#ff6f8a'))
+          +_dsMetricCard('precisione',(prec*100).toFixed(0)+'%')
+          +_dsMetricCard('recall (sensib.)',(rec*100).toFixed(0)+'%')
+          +_dsMetricCard('F1',f1.toFixed(2))
+          +'<div style="font-size:.72rem;color:#6b7d90;line-height:1.5;margin-top:4px">La <b>ROC</b> traccia il tasso di veri positivi contro i falsi positivi al variare della soglia. <b>AUC</b>=1 è perfetto, 0,5 è il caso.</div>'
+        +'</div></div>';
+    }
     // confusion matrix table
     var cmH='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:.72rem;margin-top:4px"><thead><tr><th style="padding:4px 7px;color:#8fa3b8;font-size:.66rem">reale＼previsto</th>'+classes.map(function(c){return '<th style="padding:4px 7px;color:#cdd9e6">'+c+'</th>';}).join('')+'</tr></thead><tbody>';
     classes.forEach(function(a){ cmH+='<tr><td style="padding:4px 7px;color:#cdd9e6;font-weight:700">'+a+'</td>'+classes.map(function(b){ var v=cm[a][b]; var hit=a===b; return '<td style="padding:4px 7px;text-align:center;background:'+(v>0?(hit?'rgba(94,234,212,.18)':'rgba(255,111,138,.15)'):'transparent')+';color:'+(v>0?(hit?'#5eead4':'#ff9db0'):'#3a4a5a')+'">'+v+'</td>'; }).join('')+'</tr>'; });
@@ -2080,10 +2101,39 @@ window.BSI_TELEMETRY_URL='';</script>
       _dsMetricCard('CV acc. (5-fold)',cvStr,(cv[0]>0.8?'#5eead4':cv[0]>0.6?'#f5c451':'#ff6f8a'))+
       _dsMetricCard('classi',classes.length)+_dsMetricCard('k (vicini)',k)+_dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
+      binExtra+
       '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
       _dsPredictUI(meta,target);
+    if(classes.length===2){ try{ _dsDrawROC('dsRoc',_dsROC(teScores,teLab)); }catch(e){} }
     _DSWB.model={type:'clf',meta:meta,poly:poly,mu:st.mu,sd:st.sd,Z:Z,y:y,k:k,target:target};
     var pb=document.getElementById('dsPredBtn'); if(pb)pb.onclick=_dsPredictRow;
+  }
+  function _dsROC(scores,labels){
+    // ordina per score decrescente, sweep soglie
+    var idx=scores.map(function(_,i){return i;}).sort(function(a,b){return scores[b]-scores[a];});
+    var P=labels.reduce(function(a,b){return a+b;},0), N=labels.length-P;
+    var pts=[[0,0]], tp=0, fp=0, auc=0, prevFpr=0;
+    if(P===0||N===0){ return {pts:[[0,0],[1,1]], auc:0.5}; }
+    idx.forEach(function(i){ if(labels[i]===1)tp++; else fp++; var tpr=tp/P, fpr=fp/N; pts.push([fpr,tpr]); });
+    // trapezoidi per AUC
+    for(var i=1;i<pts.length;i++){ auc+=(pts[i][0]-pts[i-1][0])*(pts[i][1]+pts[i-1][1])/2; }
+    return {pts:pts, auc:auc};
+  }
+  function _dsDrawROC(id,roc){
+    var cv=document.getElementById(id); if(!cv)return; var x=cv.getContext('2d'); var W=cv.width,H=cv.height,pad=30;
+    x.clearRect(0,0,W,H);
+    function X(v){return pad+v*(W-pad-8);} function Y(v){return H-pad-v*(H-pad-8);}
+    x.strokeStyle='#26406a';x.lineWidth=1;x.beginPath();x.moveTo(pad,8);x.lineTo(pad,H-pad);x.lineTo(W-8,H-pad);x.stroke();
+    // diagonale casuale
+    x.strokeStyle='rgba(148,163,184,.4)';x.setLineDash([4,4]);x.beginPath();x.moveTo(X(0),Y(0));x.lineTo(X(1),Y(1));x.stroke();x.setLineDash([]);
+    // curva
+    x.strokeStyle='#5eead4';x.lineWidth=2.2;x.beginPath();
+    roc.pts.forEach(function(p,i){ var px=X(p[0]),py=Y(p[1]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); }); x.stroke();
+    // riempimento leggero
+    x.lineTo(X(1),Y(0));x.closePath();x.fillStyle='rgba(94,234,212,.10)';x.fill();
+    x.fillStyle='#8fa3b8';x.font='10px ui-monospace,monospace';x.textAlign='center';
+    x.fillText('FPR',pad+(W-pad)/2,H-8); x.save();x.translate(11,pad+(H-pad)/2);x.rotate(-Math.PI/2);x.fillText('TPR',0,0);x.restore();
+    x.fillStyle='#5eead4';x.textAlign='right';x.font='bold 12px system-ui';x.fillText('AUC '+roc.auc.toFixed(3),W-12,20);
   }
   function _dsDrawHist(s){
     var cv=document.getElementById('dsWbHist'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
@@ -40810,9 +40860,37 @@ window.initSynTheater=function(){
          f:function(){return A(120,105,'C','#0f172a')+rad(120,86)+bd(138,105,175,105,1)+A(195,105,'Br','#0f172a')+bd(213,105,240,105,1)+A(258,105,'Br','#0f172a')+rad(276,98)
            +farr('M150,98 Q170,84 190,96',0)
            +'<text x="190" y="178" text-anchor="middle" font-size="11" fill="#047857" font-family="Arial">prodotto + Br• (catena)</text>';}}
+      ]},
+    wittig:{name:'Reazione di Wittig',type:'Olefinazione',cat:'#db2777',prof:[0.3,0.5,0.12],
+      note:'Un\'<b>ilide</b> di fosforo (R₃P⁺–CR\'⁻) reagisce con un\'aldeide/chetone dando un <b>alchene</b> in posizione definita. La forza motrice è la formazione del fortissimo legame P=O dell\'ossido di trifenilfosfina. Nobel 1979.',
+      stages:[
+        {t:'① Il carbonio nucleofilo dell\'ilide (stabilizzata dal fosforo) attacca il carbonio carbonilico elettrofilo.',
+         f:function(){return A(70,110,'Ph₃P','#0f172a',13)+chg(70,90,'+')+A(120,120,'C','#0f172a')+chg(120,142,'⁻')+bd(88,116,108,118,1)
+           +bd(134,120,205,120,'p')+A(225,120,'C')+bd(225,105,225,60,2)+A(225,48,'O','#0f172a')+lp(209,44)
+           +arr('M120,132 Q170,150 210,128',0);}},
+        {t:'② Si forma un anello a quattro (ossafosfetano): P–C–C–O. Gli elettroni del C=O sono passati sull\'ossigeno, legato al fosforo.',
+         f:function(){return '<g transform="translate(180,105)"><polygon points="-40,-26 40,-26 40,26 -40,26" fill="none" stroke="#0f172a" stroke-width="2"/></g>'
+           +A(140,79,'Ph₃P','#0f172a',12)+A(220,79,'C','#0f172a',13)+A(140,131,'O','#0f172a',13)+A(220,131,'C','#0f172a',13)
+           +'<text x="180" y="180" text-anchor="middle" font-size="11" fill="#be185d" font-family="Arial">ossafosfetano</text>';}},
+        {t:'③ L\'anello collassa: si formano il doppio legame C=C (alchene) e l\'ossido di trifenilfosfina O=PPh₃ — la forza motrice.',
+         f:function(){return A(110,110,'C')+bd(128,106,192,106,2)+A(210,110,'C')+A(300,110,'O=PPh₃','#0f172a',13)+A(150,150,'alchene','#047857',13);}}
+      ]},
+    da:{name:'Diels–Alder [4+2]',type:'Cicloaddizione',cat:'#7c3aed',prof:[0.32,0.82,0.12],
+      note:'Cicloaddizione <b>concertata</b> fra un <b>diene</b> (s-cis, ricco di elettroni) e un <b>dienofilo</b> (alchene povero di elettroni): 6 elettroni π si riorganizzano in un solo passo formando <b>due legami σ</b> e un anello a sei. Stereospecifica (endo), suprafacciale. Nobel 1950.',
+      stages:[
+        {t:'① Il diene in conformazione s-cis e il dienofilo si avvicinano. Sei elettroni π sono pronti a muoversi in cerchio.',
+         f:function(){return A(90,70,'C')+bd(104,70,150,70,2)+A(165,70,'C')+bd(178,76,178,110,1)+A(90,110,'C')+bd(104,110,150,110,1)+A(165,110,'C')+bd(90,84,90,100,2)
+           +A(120,165,'C')+bd(138,165,200,165,2)+A(218,165,'C')
+           +arr('M96,84 Q80,100 96,112',0)+arr('M170,80 Q185,100 172,118',0.1)+arr('M150,150 Q170,135 175,120',0.2);}},
+        {t:'② Stato di transizione "aromatico" a 6 elettroni: i due nuovi legami σ si formano simultaneamente (concertato).',
+         f:function(){return '<g transform="translate(175,105)"><polygon points="0,-46 40,-23 40,23 0,46 -40,23 -40,-23" fill="none" stroke="#64748b" stroke-width="2.2" stroke-dasharray="5 4"/></g>'
+           +'<text x="175" y="185" text-anchor="middle" font-size="11" fill="#6d28d9" font-family="Arial">TS ciclico a 6 elettroni ‡</text>';}},
+        {t:'③ Prodotto: un cicloesene. Due nuovi legami σ, un legame π residuo nell\'anello, fino a 4 stereocentri controllati (regola endo).',
+         f:function(){return '<g transform="translate(175,105)"><polygon points="0,-46 40,-23 40,23 0,46 -40,23 -40,-23" fill="none" stroke="#0f172a" stroke-width="2"/><line x1="-40" y1="-23" x2="0" y2="-46" stroke="#0f172a" stroke-width="3.5"/></g>'
+           +A(175,175,'cicloesene','#047857',13);}}
       ]}
   };
-  var ORDER=['sn2','sn1','e2','e1','eadd','hydrob','grig','aldol','fischer','sear','ozon','radbrom'];
+  var ORDER=['sn2','sn1','e2','e1','eadd','hydrob','grig','aldol','wittig','da','fischer','sear','ozon','radbrom'];
 
   host.innerHTML=
     '<div style="background:linear-gradient(135deg,#1a1430,#0c1424);border:1px solid #a78bfa;border-radius:14px;padding:16px;margin:6px 0 14px">'
