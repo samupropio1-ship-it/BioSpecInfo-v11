@@ -34499,6 +34499,12 @@ window.openChemDraw=function(){
         +'<div style="background:#0c1f33;border:1px solid #2e7d5b;border-radius:12px;padding:14px">'
           +'<div style="color:#6ee7b7;font-weight:800;font-size:1rem;margin-bottom:8px">🧪 Gruppi funzionali & sotto-strutture</div>'
           +'<div id="cdFG" style="display:flex;flex-wrap:wrap;gap:6px"></div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px;border-top:1px solid #14273e;padding-top:10px">'
+            +'<span style="color:#8fa3b8;font-size:.76rem">🔎 Cerca sottostruttura:</span>'
+            +'<input id="cdSmartsIn" placeholder="SMARTS o SMILES (es. c1ccccc1, [OH])" style="flex:1;min-width:150px;background:#0c1f33;border:1px solid #26406a;border-radius:8px;color:#e6fffb;font-family:ui-monospace,monospace;font-size:.8rem;padding:6px 9px">'
+            +'<button id="cdSmartsBtn" style="border:1px solid #38bdf8;background:#0b2536;color:#7fd4ff;border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer;font-size:.78rem">Evidenzia</button>'
+            +'<span id="cdSmartsInfo" style="font-size:.76rem;width:100%"></span>'
+          +'</div>'
         +'</div>'
         +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px">'
           +'<div style="color:#c4b5fd;font-weight:800;font-size:1rem;margin-bottom:8px">💊 Drug-likeness · ADMET · indici</div>'
@@ -34508,7 +34514,11 @@ window.openChemDraw=function(){
         +'<div style="background:#0c1f33;border:1px solid #00c9b7;border-radius:12px;padding:14px">'
           +'<div style="color:#5eead4;font-weight:800;font-size:1rem;margin-bottom:8px">🔍 Similarità con la libreria (Tanimoto)</div>'
           +'<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:8px">Impronta di Morgan (ECFP4, 1024 bit) — clicca una molecola per caricarla.</div>'
-          +'<div id="cdSim"></div>'
+          +'<div id="cdSim"><span style="color:#8fa3b8;font-size:.82rem">⏳ calcolo…</span></div>'
+        +'</div>'
+        +'<div style="background:#0c1f33;border:1px solid #f0a35e;border-radius:12px;padding:14px">'
+          +'<div style="color:#f5c451;font-weight:800;font-size:1rem;margin-bottom:8px">🧾 Analisi elementare & masse MS</div>'
+          +'<div id="cdElem"></div>'
         +'</div>'
       +'</div>'
       +'<div style="background:#0c1f33;border:1px solid #7c6fff;border-radius:12px;padding:14px;margin-top:14px">'
@@ -34564,8 +34574,27 @@ window.openChemDraw=function(){
         host.innerHTML=h;
         var rad=document.getElementById('cdRadar'); if(rad){ try{ rad.innerHTML=radarSVG(desc); }catch(e){} }
       })();
-      // Similarità di Tanimoto con la libreria
-      try{ buildSimilarity(RD,canon); }catch(e){}
+      // Analisi elementare & masse degli addotti MS
+      (function(){ var host=document.getElementById('cdElem'); if(!host)return;
+        var comp=elemComposition(inchiFormula||myFormula());
+        var h='';
+        if(comp){ h+='<div style="color:#9fb3c8;font-size:.76rem;margin-bottom:4px">Composizione elementare (% in peso)</div>';
+          comp.parts.forEach(function(p){ h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="flex:0 0 34px;font-weight:800;color:'+elColor(p.el)+'">'+p.el+'</span><span style="flex:1;height:9px;background:#0a1626;border-radius:5px;overflow:hidden"><span style="display:block;height:100%;width:'+p.pct.toFixed(1)+'%;background:'+elColor(p.el)+'"></span></span><span style="flex:0 0 88px;text-align:right;font-size:.8rem;color:#cdd9e6">'+p.pct.toFixed(2)+'% ·'+p.n+'×</span></div>'; });
+        }
+        var M=desc.exactmw; var ad=adductMasses(M);
+        if(ad.length){ h+='<div style="color:#9fb3c8;font-size:.76rem;margin:10px 0 4px">Ioni & addotti (m/z monoisotopici)</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;font-size:.8rem">';
+          ad.forEach(function(a){ h+='<div style="display:flex;justify-content:space-between;border-bottom:1px solid #14273e;padding:2px 0"><span style="color:#f5c451;font-weight:700">'+a[0]+'</span><b style="color:#e6fffb">'+a[1].toFixed(4)+'</b></div>'; });
+          h+='</div>';
+        }
+        host.innerHTML=h||'<span style="color:#8fa3b8;font-size:.82rem">—</span>';
+      })();
+      // Ricerca sottostruttura (SMARTS) con evidenziazione
+      (function(){ var inp=document.getElementById('cdSmartsIn'), btn=document.getElementById('cdSmartsBtn'); if(!btn||!inp)return;
+        function run(){ searchSMARTS(canon, inp.value.trim()); }
+        btn.onclick=run; inp.addEventListener('keydown',function(e){ if(e.key==='Enter')run(); });
+      })();
+      // Similarità di Tanimoto con la libreria (differita per non bloccare il rendering)
+      setTimeout(function(){ try{ buildSimilarity(RD,canon); }catch(e){ var h=document.getElementById('cdSim'); if(h)h.innerHTML='<span style="color:#8fa3b8;font-size:.82rem">Similarità non disponibile.</span>'; } },40);
       // Linguaggi chimici — tutte le notazioni
       (function(){ var host=document.getElementById('cdNotations'); if(!host)return; host.innerHTML='';
         function add(label,val,multi){ if(val==null||val==='')return; var row=document.createElement('div'); row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid #14273e'; var lab=document.createElement('div'); lab.textContent=label; lab.style.cssText='min-width:160px;color:#9d8cff;font-weight:700;font-size:.8rem;flex-shrink:0'; var vw=document.createElement('div'); vw.style.cssText='flex:1;min-width:0'; vw.innerHTML=multi?('<pre style="margin:0;max-height:130px;overflow:auto;white-space:pre;font-size:.66rem;color:#cfe;background:#081522;border-radius:6px;padding:6px">'+esc(val)+'</pre>'):('<code style="font-size:.78rem;color:#d7e6ff;word-break:break-all">'+esc(val)+'</code>'); var b=document.createElement('button'); b.textContent='📋'; b.style.cssText='border:1px solid #26406a;background:#16273e;color:#cfe;border-radius:7px;padding:4px 8px;font-size:.8rem;cursor:pointer;flex-shrink:0'; b.onclick=function(){ var c=vw.querySelector('code,pre'); cdCopy(c?c.textContent:val,b); }; row.appendChild(lab);row.appendChild(vw);row.appendChild(b); host.appendChild(row); }
@@ -34742,6 +34771,27 @@ window.openChemDraw=function(){
     Object.keys(c).forEach(function(el){ var iso=ISO[el]; if(!iso)return; var single=[]; iso.forEach(function(p){ single[p[0]]=(single[p[0]]||0)+p[1]; }); for(var s=0;s<single.length;s++)if(!single[s])single[s]=0;
       for(var k=0;k<c[el];k++){ dist=convolve(dist,single); if(dist.length>16)dist=dist.slice(0,16); } });
     var mx=Math.max.apply(null,dist.map(function(x){return x||0;}))||1; return dist.map(function(x){return (x||0)/mx*100;}); }
+  // ---- analisi elementare (% in peso) ----
+  var ATW={H:1.008,He:4.0026,Li:6.94,Be:9.0122,B:10.81,C:12.011,N:14.007,O:15.999,F:18.998,Ne:20.180,Na:22.990,Mg:24.305,Al:26.982,Si:28.085,P:30.974,S:32.06,Cl:35.45,Ar:39.948,K:39.098,Ca:40.078,Fe:55.845,Cu:63.546,Zn:65.38,Br:79.904,Se:78.971,Ag:107.87,I:126.90,Pt:195.08,Au:196.97,Hg:200.59,B:10.81};
+  function elemComposition(formula){ var c=parseFormula(formula); var tot=0,parts=[]; Object.keys(c).forEach(function(el){ var w=(ATW[el]||0)*c[el]; tot+=w; parts.push({el:el,n:c[el],w:w}); }); if(!tot)return null; parts.forEach(function(p){ p.pct=p.w/tot*100; }); parts.sort(function(a,b){ return b.pct-a.pct; }); return {parts:parts,mw:tot}; }
+  // ---- masse degli addotti per MS (da massa monoisotopica) ----
+  function adductMasses(M){ if(!M||!isFinite(M))return []; var e=0.000549, p=1.007276; return [
+    ['[M+H]⁺', M+p],['[M+Na]⁺', M+22.989770-e],['[M+K]⁺', M+38.963707-e],['[M+NH₄]⁺', M+18.034374-e],
+    ['[M+H−H₂O]⁺', M+p-18.010565],['[M−H]⁻', M-p],['[M+Cl]⁻', M+34.968853+e],['[M+HCOO]⁻', M+44.998201+e]
+  ]; }
+  // ---- ricerca per sottostruttura (SMARTS) con evidenziazione ----
+  function searchSMARTS(canon,smarts){ var info=document.getElementById('cdSmartsInfo');
+    if(!smarts){ if(info)info.textContent=''; highlight2D(canon,null); if(cd3dHighlight)cd3dHighlight(null); return; }
+    if(typeof window.bsiLoadRDKit!=='function')return;
+    window.bsiLoadRDKit(function(RD){ var m; try{ m=RD.get_mol(canon); }catch(e){ m=null; } if(!m){ if(info)info.textContent='—'; return; }
+      var q=null; try{ q=RD.get_qmol(smarts); }catch(e){ q=null; } if(!q){ if(m.delete)m.delete(); if(info)info.innerHTML='<span style="color:#f5a35e">SMARTS non valido</span>'; return; }
+      var A={},Bd={},cnt=0; try{ var arr=JSON.parse(m.get_substruct_matches(q)||'[]'); cnt=arr.length; arr.forEach(function(mm){ (mm.atoms||[]).forEach(function(a){A[a]=1;}); (mm.bonds||[]).forEach(function(bb){Bd[bb]=1;}); }); }catch(e){}
+      if(q.delete)q.delete(); if(m.delete)m.delete();
+      if(info)info.innerHTML=cnt?('<span style="color:#5eead4">'+cnt+' corrispondenza/e evidenziata/e</span>'):'<span style="color:#8fa3b8">nessuna corrispondenza</span>';
+      var grp={name:'SMARTS',col:'#38bdf8',smarts:smarts,atoms:Object.keys(A).map(Number),bonds:Object.keys(Bd).map(Number)};
+      highlight2D(canon,grp); if(cd3dHighlight)cd3dHighlight(grp);
+    });
+  }
   function init3D(canon){
     cd3dHighlight=null;
     var host=document.getElementById('cd3d'), btns=document.getElementById('cd3dBtns'), note=document.getElementById('cd3dNote'); if(!host)return;
