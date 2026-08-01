@@ -41896,7 +41896,30 @@ window.initQM=function(){
       +eq('ΔE = E_f − E_i = h ν = h c / λ')
       +box('Regole di selezione (dipolo elettrico)','Una transizione è permessa se il <b>momento di dipolo di transizione</b> ⟨ψ_f| μ̂ |ψ_i⟩ ≠ 0. Per l\'atomo idrogenoide: <b>Δℓ = ±1</b>, <b>Δmℓ = 0, ±1</b>. Il fotone porta via una unità di momento angolare (spin 1).','#5eead4')
       +box('Tipi di spettroscopia','<b>Rotazionale</b> (microonde, ΔJ=±1), <b>vibrazionale</b> (IR, Δv=±1), <b>elettronica</b> (UV-Vis, transizioni tra orbitali), <b>NMR</b> (spin nucleari in campo magnetico), <b>di massa</b> (rapporto m/z). Ognuna sonda una scala di energia diversa.','#f5c451')
-      +box('Principio di corrispondenza','Per grandi numeri quantici (n→∞) la meccanica quantistica riproduce quella classica: i livelli si infittiscono e la distribuzione di probabilità tende a quella classica. Il ponte tra i due mondi.','#a78bfa');}}
+      +box('Principio di corrispondenza','Per grandi numeri quantici (n→∞) la meccanica quantistica riproduce quella classica: i livelli si infittiscono e la distribuzione di probabilità tende a quella classica. Il ponte tra i due mondi.','#a78bfa');}},
+    {id:'pert',t:'📐 Perturbazioni',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Pochissimi problemi hanno soluzione esatta. La <b>teoria delle perturbazioni</b> parte da un problema noto Ĥ₀ e aggiunge una piccola correzione λV̂.</p>'
+      +eq('Ĥ = Ĥ₀ + λ V̂,   con Ĥ₀ φₙ = Eₙ⁽⁰⁾ φₙ')
+      +box('Correzione al 1° ordine (energia)',eq('Eₙ⁽¹⁾ = ⟨φₙ| V̂ |φₙ⟩')+'La correzione all\'energia è semplicemente il valore di aspettazione della perturbazione sullo stato imperturbato.','#5eead4')
+      +box('Correzione al 2° ordine',eq('Eₙ⁽²⁾ = Σ_{m≠n} |⟨φₘ|V̂|φₙ⟩|² / (Eₙ⁽⁰⁾ − Eₘ⁽⁰⁾)')+'Gli stati vicini in energia contribuiscono di più. Il livello fondamentale è sempre <b>abbassato</b> dal 2° ordine.','#f5c451')
+      +step(1,'<b>Effetto Stark</b>: un atomo in campo elettrico → gli orbitali si spostano/spezzano.')
+      +step(2,'<b>Effetto Zeeman</b>: in campo magnetico i livelli con diverso mℓ si separano (righe spettrali multiple).')
+      +step(3,'<b>Struttura fine</b>: accoppiamento <b>spin-orbita</b> (L·S) e correzioni relativistiche spezzano i livelli — es. il doppietto D del sodio (589,0 / 589,6 nm).')
+      +box('Perturbazioni dipendenti dal tempo','La regola d\'oro di Fermi dà la probabilità di transizione per unità di tempo indotta da una perturbazione oscillante: alla base dell\'assorbimento/emissione della radiazione e delle regole di selezione.','#a78bfa');}},
+    {id:'var',t:'🎯 Metodo variazionale',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Il metodo più potente per stimare lo stato fondamentale quando non c\'è soluzione esatta (base della chimica quantistica computazionale).</p>'
+      +box('Principio variazionale',eq('E[ψ] = ⟨ψ|Ĥ|ψ⟩ / ⟨ψ|ψ⟩  ≥  E₀')+'<b>Qualunque</b> funzione di prova dà un\'energia che è sempre un <b>limite superiore</b> all\'energia esatta del fondamentale. Si minimizza rispetto ai parametri della funzione di prova → si avvicina a E₀.','#5eead4')
+      +step(1,'Si sceglie una funzione di prova ψ(α) con parametri regolabili α.')
+      +step(2,'Si calcola E(α) e si minimizza: dE/dα = 0. Più parametri → stima migliore.')
+      +step(3,'<b>Metodo LCAO</b>: gli orbitali molecolari si costruiscono come combinazioni lineari di orbitali atomici; i coefficienti si ottimizzano variazionalmente.')
+      +box('Hartree-Fock & DFT','Il metodo <b>Hartree-Fock</b> risolve variazionalmente il problema multielettronico con un singolo determinante di Slater (campo medio). La <b>DFT</b> (teoria del funzionale densità) usa la densità elettronica invece della funzione d\'onda: è il metodo standard per calcolare molecole reali (energie, geometrie, spettri).','#f5c451');}},
+    {id:'ent',t:'🔗 Entanglement',html:function(){return ''
+      +'<p style="color:#cdd9e6;line-height:1.7">Il fenomeno più controintuitivo: due particelle possono formare uno stato <b>non separabile</b>, correlato istantaneamente a qualsiasi distanza.</p>'
+      +box('Stato entangled (Bell)',eq('|Ψ⟩ = (|↑↓⟩ − |↓↑⟩) / √2')+'Non si può scrivere come prodotto di due stati singoli: misurando lo spin di una particella si conosce <b>immediatamente</b> quello dell\'altra, ovunque sia.','#a78bfa')
+      +step(1,'<b>Paradosso EPR</b> (Einstein-Podolsky-Rosen, 1935): sembrava violare la località → "azione spettrale a distanza".')
+      +step(2,'<b>Disuguaglianze di Bell</b>: se esistessero "variabili nascoste" locali, certe correlazioni sarebbero limitate. Gli esperimenti (Aspect, e Nobel 2022 a Clauser-Aspect-Zeilinger) le <b>violano</b> → la natura è davvero quantistica e non-locale.')
+      +box('Perché non trasmette informazione','L\'esito di ogni singola misura è casuale: l\'entanglement correla i risultati ma non permette di inviare segnali più veloci della luce (no-communication theorem). La relatività è salva.','#5eead4')
+      +box('Applicazioni','• <b>Computer quantistici</b>: i qubit entangled danno il parallelismo. • <b>Crittografia quantistica</b> (QKD): comunicazione a sicurezza garantita dalla fisica. • <b>Teletrasporto quantistico</b> dello stato.','#f5c451');}}
   ];
   sec.innerHTML=
     '<div class="section-title">🌌 MECCANICA QUANTISTICA — teoria completa con derivazioni</div>'
@@ -42136,7 +42159,17 @@ window.initCFT=function(){
       +(C.pi.indexOf('accettore')>=0?'ha orbitali π* vuoti che si abbassano accettando densità dai t₂g (<b>retrodonazione</b>) → i t₂g scendono → <b>Δ grande</b> (campo forte).':C.pi.indexOf('donatore (debole)')>=0||C.pi.indexOf('π-donatore')>=0?'ha coppie π piene che alzano i t₂g (repulsione) → <b>Δ piccolo</b> (campo debole).':'è solo σ-donatore: nessun effetto π sui t₂g → Δ <b>intermedio</b>.')
       +'<br><span style="color:#7f92a6">È questa la spiegazione MO della <b>serie spettrochimica</b>: I⁻&lt;Br⁻&lt;Cl⁻&lt;F⁻&lt;OH⁻&lt;H₂O&lt;NH₃&lt;en&lt;NO₂⁻&lt;CN⁻&lt;CO.</span>'
       +'</div></div>','#7c6fff');
-    sec.querySelector('#cftPanels').innerHTML=p1+p2+p3+p4;
+    // Pannello 5 - termini & spin-orbita
+    var TERMS={0:'¹S',1:'²D',2:'³F',3:'⁴F',4:'⁵D',5:'⁶S',6:'⁵D',7:'⁴F',8:'³F',9:'²D',10:'¹S'};
+    var gt=TERMS[d]||'—', mult=(dia.unpaired+1);
+    var p5=panel('🌗','5. Termini spettroscopici & accoppiamento spin-orbita',''
+      +'<div style="font-size:.86rem;line-height:1.7;color:#cdd9e6">'
+      +'Termine fondamentale dello ione libero d'+d+' (regole di Hund): <b style="color:#a78bfa">'+gt+'</b> — la molteplicità di spin ²ˢ⁺¹ = '+mult+' riflette gli '+dia.unpaired+' elettroni spaiati.<br>'
+      +'Nel campo dei leganti il termine si <b>spezza</b> in componenti (es. il ⁵D del d⁶ → ⁵T₂g + ⁵E g in ottaedrico). L\'intensità dello splitting è Δ.<br>'
+      +'<b>Accoppiamento spin-orbita</b> (L·S): il momento orbitale e quello di spin interagiscono, spezzando ulteriormente i livelli (struttura fine, es. il doppietto del sodio). Cresce con Z⁴ → dominante nei metalli 4d/5d (Pt), trascurabile nei 3d leggeri.<br>'
+      +'I <b>diagrammi di Tanabe-Sugano</b> tracciano l\'energia dei termini in funzione di Δ/B (B = parametro di Racah): predicono numero e posizione delle bande d-d e il punto di transizione alto-spin↔basso-spin. Alla base dell\'interpretazione quantitativa degli spettri UV-Vis dei complessi.'
+      +'</div>','#a78bfa');
+    sec.querySelector('#cftPanels').innerHTML=p1+p2+p3+p4+p5;
     if(showUV)drawUV(lambda);
   }
   function wl2rgb(l){ var r=0,g=0,b=0; if(l>=380&&l<440){r=-(l-440)/60;b=1;}else if(l<490){g=(l-440)/50;b=1;}else if(l<510){g=1;b=-(l-510)/20;}else if(l<580){r=(l-510)/70;g=1;}else if(l<645){r=1;g=-(l-645)/65;}else if(l<=780){r=1;} return 'rgb('+Math.round(r*255)+','+Math.round(g*255)+','+Math.round(b*255)+')'; }
@@ -42185,6 +42218,13 @@ window.initDistrib=function(){
       +'</div>'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><button id="ttGo" style="border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;background:#0e2a2a;color:#5eead4;border:1px solid #5eead4">▶ Calcola t-test</button><span style="color:#8fa3b8;font-size:.75rem">α = 0.05 (due code)</span></div>'
       +'<div id="ttOut" style="font-size:.86rem;color:#cdd9e6;line-height:1.7"></div>'
+    +'</div>'
+    +'<div style="margin-top:20px;background:#0c1f33;border:1px solid #f5c451;border-radius:12px;padding:16px">'
+      +'<div style="color:#f5c451;font-weight:800;font-size:1.05rem;margin-bottom:6px">📐 Test avanzati — ANOVA · Chi-quadro · Regressione</div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px" id="avTabs"></div>'
+      +'<div id="avCtrls"></div>'
+      +'<button id="avGo" style="border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;background:#3a2f10;color:#f5c451;border:1px solid #f5c451;margin-top:6px">▶ Calcola</button>'
+      +'<div id="avOut" style="font-size:.86rem;color:#cdd9e6;line-height:1.7;margin-top:10px"></div>'
     +'</div>';
   var DIST=[
     {id:'norm',t:'🔔 Normale',ctrls:[['μ media','dbMu',-5,5,0,0.5],['σ dev.std','dbSig',0.3,4,1,0.1]],disc:false},
@@ -42292,6 +42332,39 @@ window.initDistrib=function(){
       +'<span style="color:'+(sig?'#5eead4':'#f5c451')+';font-weight:700">'+(sig?'✅ Differenza statisticamente significativa (p < 0.05): si rifiuta l\'ipotesi nulla di medie uguali.':'⚠️ Differenza NON significativa (p ≥ 0.05): i dati non bastano a distinguere le medie.')+'</span>';
   }
   var ttBtn=sec.querySelector('#ttGo'); if(ttBtn)ttBtn.onclick=runTtest;
+  // --- test avanzati: ANOVA, chi-quadro, regressione ---
+  function gser(a,x){ var ap=a,sum=1/a,del=sum; for(var n=0;n<200;n++){ ap++; del*=x/ap; sum+=del; if(Math.abs(del)<Math.abs(sum)*1e-12)break; } return sum*Math.exp(-x+a*Math.log(x)-gammln(a)); }
+  function gcf(a,x){ var FPMIN=1e-30,b=x+1-a,c=1/FPMIN,d=1/b,h=d; for(var i=1;i<200;i++){ var an=-i*(i-a); b+=2; d=an*d+b; if(Math.abs(d)<FPMIN)d=FPMIN; c=b+an/c; if(Math.abs(c)<FPMIN)c=FPMIN; d=1/d; var del=d*c; h*=del; if(Math.abs(del-1)<1e-12)break; } return Math.exp(-x+a*Math.log(x)-gammln(a))*h; }
+  function gammq(a,x){ if(x<0||a<=0)return 1; if(x<a+1)return 1-gser(a,x); return gcf(a,x); }
+  function fCDFq(F,d1,d2){ if(F<=0)return 1; return betai(d2/2,d1/2,d2/(d2+d1*F)); } // P(F' > F)
+  var avTests=[{id:'anova',t:'ANOVA (1 via)'},{id:'chi',t:'Chi-quadro'},{id:'reg',t:'Regressione + IC'}], avCur='anova';
+  function avPaintTabs(){ var el=sec.querySelector('#avTabs'); el.innerHTML=''; avTests.forEach(function(T){ var on=T.id===avCur; var b=document.createElement('button'); b.textContent=T.t; b.style.cssText='border:1px solid '+(on?'#f5c451':'rgba(148,163,184,.3)')+';background:'+(on?'#3a2f10':'transparent')+';color:'+(on?'#f5c451':'#9fb3c8')+';border-radius:7px;padding:5px 10px;font-weight:700;cursor:pointer;font-size:.78rem'; b.onclick=function(){avCur=T.id;avPaintTabs();avBuild();}; el.appendChild(b); }); }
+  function avBuild(){ var c=sec.querySelector('#avCtrls'), ta='width:100%;min-height:60px;background:#070f1c;border:1px solid #26406a;border-radius:8px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.8rem;padding:7px';
+    if(avCur==='anova')c.innerHTML='<div style="color:#8fa3b8;font-size:.78rem;margin-bottom:4px">Un gruppo per riga (numeri separati da virgola/spazio):</div><textarea id="avA" style="'+ta+';min-height:80px">20, 22, 19, 21, 23\n28, 27, 30, 29, 26\n24, 25, 23, 26, 24</textarea>';
+    else if(avCur==='chi')c.innerHTML='<div style="color:#8fa3b8;font-size:.78rem;margin-bottom:4px">Tabella di contingenza (una riga per riga, valori separati da virgola):</div><textarea id="avA" style="'+ta+'">30, 10\n18, 22</textarea>';
+    else c.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="color:#5eead4;font-size:.78rem">x</div><textarea id="avX" style="'+ta+'">1,2,3,4,5,6,7,8</textarea></div><div><div style="color:#ff9d5c;font-size:.78rem">y</div><textarea id="avY" style="'+ta+'">2.1,3.9,6.2,7.8,10.1,12.2,13.8,16.1</textarea></div></div>';
+  }
+  function nums(s){ return (s||'').split(/[\s,;]+/).map(parseFloat).filter(function(v){return !isNaN(v);}); }
+  function runAv(){ var o=sec.querySelector('#avOut');
+    if(avCur==='anova'){ var rows=sec.querySelector('#avA').value.trim().split(/\n+/).map(nums).filter(function(r){return r.length>1;}); if(rows.length<2){o.innerHTML='<span style="color:#ffb0be">Servono almeno 2 gruppi.</span>';return;}
+      var all=[].concat.apply([],rows), N=all.length, k=rows.length, grand=all.reduce(function(a,b){return a+b;},0)/N;
+      var ssb=0,ssw=0; rows.forEach(function(r){ var m=r.reduce(function(a,b){return a+b;},0)/r.length; ssb+=r.length*(m-grand)*(m-grand); r.forEach(function(v){ssw+=(v-m)*(v-m);}); });
+      var df1=k-1, df2=N-k, msb=ssb/df1, msw=ssw/df2, F=msb/msw, p=fCDFq(F,df1,df2);
+      o.innerHTML='k='+k+' gruppi, N='+N+'. <b>F('+df1+','+df2+') = '+F.toFixed(3)+'</b> · <b>p = '+(p<1e-4?p.toExponential(2):p.toFixed(4))+'</b><br>SS_between='+ssb.toFixed(2)+', SS_within='+ssw.toFixed(2)+'.<br><span style="color:'+(p<0.05?'#5eead4':'#f5c451')+';font-weight:700">'+(p<0.05?'✅ Almeno una media differisce significativamente (p<0.05).':'⚠️ Nessuna differenza significativa tra le medie.')+'</span>';
+    } else if(avCur==='chi'){ var rows=sec.querySelector('#avA').value.trim().split(/\n+/).map(nums).filter(function(r){return r.length;}); var R=rows.length, C=rows[0].length; var rt=rows.map(function(r){return r.reduce(function(a,b){return a+b;},0);}); var ct=[]; for(var j=0;j<C;j++){var s=0;for(var i=0;i<R;i++)s+=rows[i][j];ct.push(s);} var tot=rt.reduce(function(a,b){return a+b;},0);
+      var chi=0; for(var i=0;i<R;i++)for(var j=0;j<C;j++){var e=rt[i]*ct[j]/tot; if(e>0)chi+=(rows[i][j]-e)*(rows[i][j]-e)/e;} var df=(R-1)*(C-1), p=gammq(df/2,chi/2);
+      o.innerHTML='Tabella '+R+'×'+C+'. <b>χ² = '+chi.toFixed(3)+'</b> · df='+df+' · <b>p = '+(p<1e-4?p.toExponential(2):p.toFixed(4))+'</b><br><span style="color:'+(p<0.05?'#5eead4':'#f5c451')+';font-weight:700">'+(p<0.05?'✅ Associazione significativa tra le variabili (p<0.05).':'⚠️ Nessuna associazione significativa (variabili indipendenti).')+'</span>';
+    } else { var X=nums(sec.querySelector('#avX').value), Y=nums(sec.querySelector('#avY').value), n=Math.min(X.length,Y.length); if(n<3){o.innerHTML='<span style="color:#ffb0be">Servono almeno 3 punti.</span>';return;} X=X.slice(0,n);Y=Y.slice(0,n);
+      var mx=X.reduce(function(a,b){return a+b;},0)/n, my=Y.reduce(function(a,b){return a+b;},0)/n, sxx=0,sxy=0,syy=0; for(var i=0;i<n;i++){sxx+=(X[i]-mx)*(X[i]-mx);sxy+=(X[i]-mx)*(Y[i]-my);syy+=(Y[i]-my)*(Y[i]-my);}
+      var slope=sxy/sxx, intc=my-slope*mx, r2=sxy*sxy/(sxx*syy); var sse=syy-slope*sxy, se2=sse/(n-2), seSlope=Math.sqrt(se2/sxx); var tcrit=2.0; // approx; usa t 0.975
+      // t critico 0.975 con df=n-2 via inversione grezza: cerca t tale che tCDF(t,df)=0.975
+      var df=n-2,lo=0,hi=12; for(var it=0;it<40;it++){var mid=(lo+hi)/2; if(tCDF(mid,df)<0.975)lo=mid;else hi=mid;} tcrit=(lo+hi)/2;
+      var ciL=slope-tcrit*seSlope, ciH=slope+tcrit*seSlope, tstat=slope/seSlope, pv=2*(1-tCDF(Math.abs(tstat),df));
+      o.innerHTML='Retta: <b>y = '+slope.toFixed(4)+'·x + '+intc.toFixed(4)+'</b> · <b>R² = '+r2.toFixed(4)+'</b><br>Pendenza: '+slope.toFixed(4)+' ± '+(tcrit*seSlope).toFixed(4)+' → <b>IC 95%: ['+ciL.toFixed(4)+', '+ciH.toFixed(4)+']</b><br>t = '+tstat.toFixed(2)+' (df='+df+'), p = '+(pv<1e-4?pv.toExponential(2):pv.toFixed(4))+'.<br><span style="color:'+(pv<0.05?'#5eead4':'#f5c451')+';font-weight:700">'+(pv<0.05?'✅ Pendenza significativamente diversa da 0: relazione lineare reale.':'⚠️ Pendenza non significativa.')+'</span>';
+    }
+  }
+  var avBtn=sec.querySelector('#avGo'); if(avBtn)avBtn.onclick=runAv;
+  avPaintTabs();avBuild();
   paintTabs();buildCtrls();draw();drawBayes();runTtest();
 };
 
