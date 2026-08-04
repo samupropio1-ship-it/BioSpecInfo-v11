@@ -34683,6 +34683,7 @@ window.openChemDraw=function(){
       try{ svg=mol.get_svg(360,280); }catch(e){}
       var fgroups=detectFG(RD,mol);
       var props=detectProps(RD,mol);
+      var alerts=detectAlerts(RD,mol);
       if(mol.delete)mol.delete();
       var mw=desc.exactmw||desc.amw||0;
       var nChi=(canon.match(/@+/g)||[]).length, hasEZ=/[\/\\]/.test(canon);
@@ -34786,7 +34787,13 @@ window.openChemDraw=function(){
         h+='</div>';
         var logS=esolLogS(desc,canon);
         h+='<div style="font-size:.82rem;color:#cdd9e6"><b style="color:#7fd4ff">Solubilità stimata (ESOL):</b> '+(logS==null?'—':('logS ≈ '+logS.toFixed(2)+' mol/L — <b>'+solClass(logS)+'</b>'))+'</div>';
-        h+='<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">Regole: Lipinski (<i>Adv. Drug Deliv. Rev.</i> 46, 2001), Veber (<i>J. Med. Chem.</i> 45, 2002), Egan (2000), Ghose (1998), Muegge (2001); solubilità ESOL: Delaney (<i>J. Chem. Inf. Comput. Sci.</i> 44, 2004). Descrittori calcolati da RDKit.</div>';
+        if(desc.qed!=null){ var qv=desc.qed; var qc=qv>=0.67?'#5eead4':(qv>=0.34?'#f5c451':'#f5a35e'); h+='<div style="font-size:.82rem;color:#cdd9e6;margin-top:4px"><b style="color:#7fd4ff">QED (drug-likeness):</b> <b style="color:'+qc+'">'+qv.toFixed(3)+'</b> <span style="color:#8fa3b8">(0=scarso · 1=ottimo)</span></div>'; }
+        // Alert strutturali (Brenk / PAINS)
+        h+='<div style="margin-top:10px"><b style="color:#7fd4ff;font-size:.82rem">⚠️ Alert strutturali (Brenk/PAINS):</b><div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">';
+        if(alerts&&alerts.length){ alerts.forEach(function(al){ h+='<span title="gruppo reattivo/interferente" style="border:1px solid #f5715a;background:#f5715a1f;color:#ff9d88;border-radius:8px;padding:3px 9px;font-size:.75rem;font-weight:700">⚠ '+esc(al.name)+(al.n>1?' ×'+al.n:'')+'</span>'; }); }
+        else { h+='<span style="border:1px solid #5eead4;background:#5eead41f;color:#5eead4;border-radius:8px;padding:3px 9px;font-size:.75rem;font-weight:700">✓ nessun alert rilevato</span>'; }
+        h+='</div></div>';
+        h+='<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">Regole: Lipinski (<i>Adv. Drug Deliv. Rev.</i> 46, 2001), Veber (<i>J. Med. Chem.</i> 45, 2002), Egan (2000), Ghose (1998), Muegge (2001); ESOL: Delaney (<i>J. Chem. Inf. Comput. Sci.</i> 44, 2004)'+(desc.qed!=null?'; QED: Bickerton (<i>Nat. Chem.</i> 4, 2012)':'')+'; alert: Brenk (<i>ChemMedChem</i> 3, 2008) e PAINS Baell–Holloway (<i>J. Med. Chem.</i> 53, 2010). Descrittori RDKit.</div>';
         host.innerHTML=h;
         var rad=document.getElementById('cdRadar'); if(rad){ try{ rad.innerHTML=radarSVG(desc); }catch(e){} }
       })();
@@ -34932,6 +34939,32 @@ window.openChemDraw=function(){
   function detectProps(RD,mol){ var out=[]; if(!RD||!mol||typeof RD.get_qmol!=='function')return out;
     PROP_LIST.forEach(function(f){ var q=null; try{ q=RD.get_qmol(f[1]); }catch(e){ q=null; } if(!q)return;
       try{ var arr=JSON.parse(mol.get_substruct_matches(q)||'[]'); if(arr&&arr.length){ var A={},Bd={}; arr.forEach(function(m){ (m.atoms||[]).forEach(function(a){A[a]=1;}); (m.bonds||[]).forEach(function(bb){Bd[bb]=1;}); }); out.push({name:f[0],n:arr.length,col:f[2],smarts:f[1],atoms:Object.keys(A).map(Number),bonds:Object.keys(Bd).map(Number)}); } }catch(e){}
+      if(q&&q.delete)q.delete(); });
+    return out; }
+  // ---- alert strutturali (Brenk / PAINS) — gruppi reattivi/tossici/interferenti ----
+  var ALERTS=[
+    ['Nitro aromatico (mutageno)','[$([NX3](=O)=O),$([NX3+](=O)[O-])]-[c]'],
+    ['Alogenuro alchilico (alchilante)','[CX4][Cl,Br,I]'],
+    ['Aldeide (reattiva)','[CX3H1](=O)[#6]'],
+    ['Michael acceptor (α,β-insaturo)','[CX3]=[CX3][CX3]=[OX1]'],
+    ['Epossido (elettrofilo)','[OX2r3]'],
+    ['Azide','[NX1]~[NX2]~[NX2,NX1]'],
+    ['Diazo / diazonio','[NX2]=[NX2,NX1]'],
+    ['Isocianato / isotiocianato','[NX2]=[CX2]=[OX1,SX1]'],
+    ['Anidride','[CX3](=[OX1])[OX2][CX3](=[OX1])'],
+    ['Alogenuro acilico','[CX3](=[OX1])[F,Cl,Br,I]'],
+    ['Tiolo libero','[#16X2H]'],
+    ['Perossido','[OX2][OX2]'],
+    ['Chinone (PAINS)','O=C1C=CC(=O)C=C1'],
+    ['Catecolo (PAINS)','c1cc(O)c(O)cc1'],
+    ['Idrazina/idrazone','[NX3][NX3]'],
+    ['Immina/base di Schiff','[CX3]=[NX2][#6]'],
+    ['Fosfato/fosfonato reattivo','[PX4](=[OX1])([F,Cl,Br,I])'],
+    ['Solfonil alogenuro','[SX4](=[OX1])(=[OX1])[F,Cl,Br,I]']
+  ];
+  function detectAlerts(RD,mol){ var out=[]; if(!RD||!mol||typeof RD.get_qmol!=='function')return out;
+    ALERTS.forEach(function(f){ var q=null; try{ q=RD.get_qmol(f[1]); }catch(e){ q=null; } if(!q)return;
+      try{ var arr=JSON.parse(mol.get_substruct_matches(q)||'[]'); if(arr&&arr.length)out.push({name:f[0],n:arr.length}); }catch(e){}
       if(q&&q.delete)q.delete(); });
     return out; }
   // ---- impronte molecolari & similarità di Tanimoto ----
