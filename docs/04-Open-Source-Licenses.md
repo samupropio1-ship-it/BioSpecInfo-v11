@@ -50,12 +50,14 @@ pacchetto): il loro uso è soggetto ai rispettivi termini.
 - **Nessun codice sotto licenza copyleft** è incorporato nel sorgente
   proprietario: l'autore mantiene piena libertà di licenza sul proprio codice.
 
-### 3.1 Raccomandazione
-Il repository non contiene ancora un file `LICENSE` che dichiari esplicitamente
-i termini del codice proprietario. Si raccomanda di aggiungerlo scegliendo la
-licenza desiderata (ad es. **MIT** per massima adozione, oppure una licenza
-proprietaria "all rights reserved" se si vuole limitarne il riuso), e un file
-`THIRD_PARTY_NOTICES.md` che raccolga gli avvisi di copyright delle librerie.
+### 3.1 Licenza del progetto
+Il repository include un file [`LICENSE`](../LICENSE) **proprietario — "All
+rights reserved"**: il codice è visibile e valutabile (studio personale e
+valutazione professionale/accademica), ma **copia, modifica, ridistribuzione e
+uso commerciale richiedono l'autorizzazione scritta dell'Autore**. Questa scelta
+protegge il progetto da riusi non autorizzati pur mantenendolo mostrabile a
+recruiter e aziende. I componenti di terze parti restano soggetti alle loro
+licenze permissive.
 
 ---
 
@@ -67,4 +69,4 @@ proprietaria "all rights reserved" se si vuole limitarne il riuso), e un file
 | Licenze delle dipendenze | Permissive (MIT / BSD-3-Clause) |
 | Obbligo di conservare gli avvisi di copyright | Sì (nei file di libreria / NOTICES) |
 | Libertà di licenza sul codice proprietario | Piena |
-| File `LICENSE` del progetto | ⚠️ Da aggiungere (raccomandato) |
+| File `LICENSE` del progetto | ✅ Presente — proprietaria «All rights reserved» |

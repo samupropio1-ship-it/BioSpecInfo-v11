@@ -49,12 +49,14 @@ the package); their use is subject to the respective terms.
 - **No copyleft-licensed code** is embedded in the proprietary source: the author
   retains full licensing freedom over their own code.
 
-### 3.1 Recommendation
-The repository does not yet contain a `LICENSE` file explicitly stating the terms
-of the proprietary code. It is recommended to add one, choosing the desired
-license (e.g. **MIT** for maximum adoption, or a proprietary "all rights
-reserved" license to restrict reuse), together with a `THIRD_PARTY_NOTICES.md`
-file collecting the copyright notices of the libraries.
+### 3.1 Project license
+The repository includes a **proprietary — "All rights reserved"**
+[`LICENSE`](../../LICENSE) file: the code is viewable and assessable (personal
+study and professional/academic evaluation), but **copying, modification,
+redistribution and commercial use require the Author's written permission**.
+This choice protects the project from unauthorised reuse while keeping it
+presentable to recruiters and companies. Third-party components remain governed
+by their permissive licenses.
 
 ---
 
@@ -66,4 +68,4 @@ file collecting the copyright notices of the libraries.
 | Dependency licenses | Permissive (MIT / BSD-3-Clause) |
 | Obligation to keep copyright notices | Yes (in library files / NOTICES) |
 | Licensing freedom over proprietary code | Full |
-| Project `LICENSE` file | ⚠️ To be added (recommended) |
+| Project `LICENSE` file | ✅ Present — proprietary "All rights reserved" |

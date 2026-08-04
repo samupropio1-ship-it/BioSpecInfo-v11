@@ -1,0 +1,89 @@
+BioSpecInfo — Proprietary Software License
+Copyright (c) 2025 Samuele Pio Provenzano. All rights reserved.
+Tutti i diritti riservati.
+
+================================================================================
+ENGLISH
+================================================================================
+
+1. OWNERSHIP
+   BioSpecInfo (the "Software"), including its source code, design, algorithms,
+   visual assets, textual content and databases, is the exclusive intellectual
+   property of Samuele Pio Provenzano (the "Author"), except for the third-party
+   open-source components listed in `docs/04-Open-Source-Licenses.md`, which
+   remain governed by their own respective licenses.
+
+2. GRANT (LIMITED)
+   Permission is granted only to VIEW and EVALUATE the Software for the purposes
+   of personal study and professional/academic assessment (e.g. recruiters,
+   companies, research institutions evaluating the Author's work).
+
+3. RESTRICTIONS
+   Without the prior written permission of the Author, you MAY NOT:
+     (a) copy, reproduce or store the Software or substantial parts of it, other
+         than the transient copy required to view it in a web browser;
+     (b) modify, adapt, translate or create derivative works;
+     (c) redistribute, publish, sublicense, sell or otherwise make the Software
+         available to third parties;
+     (d) use the Software or any part of it for commercial purposes;
+     (e) remove or alter this notice or any copyright/attribution notices.
+
+4. THIRD-PARTY COMPONENTS
+   The Software bundles open-source libraries (RDKit, 3Dmol.js, three.js,
+   SmilesDrawer, sql.js) under permissive licenses (BSD-3-Clause / MIT). Those
+   components are and remain licensed under their original terms; nothing in this
+   license restricts rights granted by those licenses to those components.
+
+5. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. THE PREDICTED SPECTRA
+   AND ESTIMATED PROPERTIES ARE QUALITATIVE/EDUCATIONAL AND MUST NOT BE USED AS
+   A SUBSTITUTE FOR CERTIFIED EXPERIMENTAL DATA. IN NO EVENT SHALL THE AUTHOR BE
+   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE
+   SOFTWARE.
+
+6. PERMISSIONS & CONTACT
+   For any use beyond the limited grant above (collaboration, licensing,
+   commercial use), contact the Author to obtain written permission.
+
+================================================================================
+ITALIANO (traduzione di cortesia; in caso di divergenza prevale il testo inglese)
+================================================================================
+
+1. TITOLARITÀ
+   BioSpecInfo (il "Software"), incluso codice sorgente, design, algoritmi,
+   contenuti grafici e testuali e database, è proprietà intellettuale esclusiva
+   di Samuele Pio Provenzano (l'"Autore"), fatta eccezione per i componenti
+   open-source di terze parti elencati in `docs/04-Open-Source-Licenses.md`, che
+   restano regolati dalle rispettive licenze.
+
+2. CONCESSIONE (LIMITATA)
+   È concesso solo di VISUALIZZARE e VALUTARE il Software per studio personale e
+   valutazione professionale/accademica (es. recruiter, aziende, enti di ricerca
+   che valutano il lavoro dell'Autore).
+
+3. DIVIETI
+   Senza previa autorizzazione scritta dell'Autore NON è consentito:
+     (a) copiare, riprodurre o memorizzare il Software o sue parti sostanziali,
+         oltre alla copia transitoria necessaria a visualizzarlo nel browser;
+     (b) modificare, adattare, tradurre o creare opere derivate;
+     (c) ridistribuire, pubblicare, concedere in sublicenza, vendere o rendere
+         altrimenti disponibile il Software a terzi;
+     (d) usare il Software o sue parti a fini commerciali;
+     (e) rimuovere o alterare questo avviso o le note di copyright/attribuzione.
+
+4. COMPONENTI DI TERZE PARTI
+   Il Software include librerie open-source (RDKit, 3Dmol.js, three.js,
+   SmilesDrawer, sql.js) con licenze permissive (BSD-3-Clause / MIT), che
+   restano soggette ai loro termini originali.
+
+5. ASSENZA DI GARANZIA
+   IL SOFTWARE È FORNITO "COSÌ COM'È", SENZA GARANZIE DI ALCUN TIPO. GLI SPETTRI
+   PREDETTI E LE PROPRIETÀ STIMATE SONO QUALITATIVI/DIDATTICI E NON SOSTITUISCONO
+   DATI SPERIMENTALI CERTIFICATI. L'AUTORE NON È RESPONSABILE PER ALCUN DANNO
+   DERIVANTE DALL'USO DEL SOFTWARE.
+
+6. PERMESSI & CONTATTI
+   Per qualsiasi uso oltre la concessione limitata sopra (collaborazione,
+   licenza, uso commerciale) contattare l'Autore per ottenere permesso scritto.
