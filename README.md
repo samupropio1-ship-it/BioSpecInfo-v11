@@ -5,6 +5,11 @@ Carica **TUTTI** i file nel repository. Nessuna configurazione necessaria.
 > 📄 **Documentazione tecnica per aziende / audit:** vedi la cartella
 > [`docs/`](docs/README.md) — Software Architecture Document, Validation &
 > Benchmark Report, Security/Privacy/Compliance e Open-Source Licensing Matrix.
+>
+> ©️ **Licenza:** codice proprietario — *All rights reserved* (vedi
+> [`LICENSE`](LICENSE)). Visibile e valutabile; copia/riuso/uso commerciale solo
+> con autorizzazione scritta dell'Autore. Le librerie di terze parti restano
+> sotto le rispettive licenze permissive (MIT / BSD-3-Clause).
 
 ---
 
