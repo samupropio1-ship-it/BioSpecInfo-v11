@@ -19016,10 +19016,12 @@ document.addEventListener('DOMContentLoaded', function(){
     var accent=(m&&m.color)||(strat&&strat.color)||'#00c9b7';
     card.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="color:#e9eef6;font-weight:800;flex:1;font-size:1rem">🎬 '+(name)+'</span><button id="mechX" style="background:#16273e;border:1px solid #26406a;color:#e9eef6;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer">✕</button></div>'
       +'<div style="display:flex;gap:6px;margin-bottom:8px"><button id="mDir0" class="mdir" style="flex:1;padding:7px;border-radius:8px;border:1px solid '+accent+';background:'+accent+';color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Sintesi (meccanismo)</button><button id="mDir1" class="mdir" style="flex:1;padding:7px;border-radius:8px;border:1px solid #26406a;background:#0c1f33;color:#cdd9e6;font-weight:800;cursor:pointer;font-size:.82rem">⇐ Retrosintesi (sintoni)</button></div>'
-      +'<div style="background:#071322;border:1px solid #14273e;border-radius:12px;padding:6px"><svg id="mechSvg" viewBox="0 0 440 260" style="width:100%;height:auto;display:block"></svg></div>'
+      +'<div style="display:flex;gap:6px;margin-bottom:8px"><button id="mMode2" style="flex:1;padding:6px;border-radius:8px;border:1px solid '+accent+';background:'+accent+';color:#04121e;font-weight:800;cursor:pointer;font-size:.8rem">📄 2D · elettroni</button><button id="mMode3" style="flex:1;padding:6px;border-radius:8px;border:1px solid #26406a;background:#0c1f33;color:#cdd9e6;font-weight:800;cursor:pointer;font-size:.8rem">🧊 3D · atomi</button></div>'
+      +'<div id="mech2d" style="background:#071322;border:1px solid #14273e;border-radius:12px;padding:6px"><svg id="mechSvg" viewBox="0 0 440 260" style="width:100%;height:auto;display:block"></svg></div>'
+      +'<div id="mech3d" style="display:none;background:#050e18;border:1px solid #14273e;border-radius:12px;height:300px;position:relative;overflow:hidden;cursor:grab;touch-action:none"></div>'
       +'<div id="mechCap" style="color:#cdd9e6;font-size:.86rem;line-height:1.5;min-height:44px;margin:10px 2px;padding:8px 10px;background:#0c1f33;border-left:3px solid '+accent+';border-radius:0 8px 8px 0"></div>'
       +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><button id="mReset" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">⏮</button><button id="mPrev" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">◀ passo</button><button id="mPlay" style="padding:7px 16px;border:none;background:linear-gradient(135deg,'+accent+',#00c9b7);color:#04121e;border-radius:8px;font-weight:800;cursor:pointer">▶ Play</button><button id="mNext" style="padding:7px 12px;border:1px solid #26406a;background:#16273e;color:#e9eef6;border-radius:8px;font-weight:700;cursor:pointer">passo ▶</button><span style="flex:1"></span><span id="mStep" style="color:#8fa3b8;font-size:.8rem"></span></div>'
-      +'<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">🟡 Le frecce curve gialle mostrano lo <b>spostamento del doppietto di elettroni</b>; i pallini gialli sono gli elettroni in moto. I frame intermedi sono gli <b>intermedi di reazione</b>. In modalità retrosintesi la molecola si scompone nei <b>sintoni</b>.</div>';
+      +'<div style="color:#7a8aa0;font-size:.72rem;margin-top:8px">🟡 Le frecce curve gialle mostrano lo <b>spostamento del doppietto di elettroni</b>; i pallini gialli sono gli elettroni in moto. I frame intermedi sono gli <b>intermedi di reazione</b>; in retrosintesi la molecola si scompone nei <b>sintoni</b>. Passa a <b>🧊 3D</b> per vedere gli <b>atomi come sfere</b> che si riorganizzano (trascina per ruotare).</div>';
     ov.appendChild(card); document.body.appendChild(ov);
     var svg=card.querySelector('#mechSvg'), capEl=card.querySelector('#mechCap'), stepEl=card.querySelector('#mStep');
 
@@ -19033,11 +19035,51 @@ document.addEventListener('DOMContentLoaded', function(){
     // rendering "pill" per i frame generici
     function renderPill(frame){ while(svg.firstChild)svg.removeChild(svg.firstChild); var items=frame.pill||['—']; var n=items.length; items.forEach(function(it,i){ var x=40+(i+0.5)*(360/n); var g=document.createElementNS(NS,'g'); var w=Math.min(150, Math.max(70, it.length*7)); var rect=document.createElementNS(NS,'rect'); rect.setAttribute('x',x-w/2);rect.setAttribute('y',110);rect.setAttribute('width',w);rect.setAttribute('height',40);rect.setAttribute('rx',10);rect.setAttribute('fill','#0f2740');rect.setAttribute('stroke',accent);rect.setAttribute('stroke-width','1.5'); g.appendChild(rect); var tx=document.createElementNS(NS,'text'); tx.setAttribute('x',x);tx.setAttribute('y',131);tx.setAttribute('text-anchor','middle');tx.setAttribute('font-size','11');tx.setAttribute('fill','#e9eef6'); tx.textContent=(it.length>22?it.slice(0,21)+'…':it); g.appendChild(tx); svg.appendChild(g); if(i<n-1){ var ar=document.createElementNS(NS,'text'); ar.setAttribute('x',x+ (360/n)/2);ar.setAttribute('y',134);ar.setAttribute('text-anchor','middle');ar.setAttribute('font-size','20');ar.setAttribute('fill',accent); ar.textContent='⇒'; svg.appendChild(ar); } }); }
 
+    // ── motore 3D (three.js): atomi come sfere che si riorganizzano + elettroni in moto ──
+    var mode3d=false, three=null;
+    function colHex(e){ return ELC[e]||'#e9eef6'; }
+    function map3(x,y){ return new THREE.Vector3((x-220)/34, -(y-140)/34, 0); }
+    function init3D(){ if(three||typeof THREE==='undefined')return three; var host=card.querySelector('#mech3d'); var W=host.clientWidth||640,H=host.clientHeight||300;
+      var scene=new THREE.Scene(); var cam=new THREE.PerspectiveCamera(45,W/H,0.1,100); cam.position.set(0,0,13);
+      var ren=new THREE.WebGLRenderer({antialias:true,alpha:true}); if(!ren.getContext||!ren.getContext())return null; ren.setPixelRatio(Math.min(devicePixelRatio||1,2)); ren.setSize(W,H); host.appendChild(ren.domElement);
+      scene.add(new THREE.AmbientLight(0x8fa6c8,0.95)); var d=new THREE.DirectionalLight(0xffffff,0.9); d.position.set(4,6,8); scene.add(d); var d2=new THREE.PointLight(0x88ccff,0.6,60); d2.position.set(-6,-3,7); scene.add(d2);
+      var grp=new THREE.Group(); scene.add(grp);
+      three={scene:scene,cam:cam,ren:ren,grp:grp,host:host,ry:0.3,rx:0.15,drag:false,px:0,py:0,raf:null};
+      host.addEventListener('pointerdown',function(e){ three.drag=true; three.px=e.clientX; three.py=e.clientY; host.style.cursor='grabbing'; host.setPointerCapture&&host.setPointerCapture(e.pointerId); });
+      host.addEventListener('pointerup',function(){ if(three){three.drag=false; host.style.cursor='grab';} });
+      host.addEventListener('pointermove',function(e){ if(three&&three.drag){ three.ry+=(e.clientX-three.px)*0.01; three.rx+=(e.clientY-three.py)*0.01; three.px=e.clientX; three.py=e.clientY; } });
+      (function loop(){ if(!three)return; if(!three.drag)three.ry+=0.004; three.grp.rotation.y=three.ry; three.grp.rotation.x=three.rx; try{three.ren.render(three.scene,three.cam);}catch(e){} three.raf=requestAnimationFrame(loop); })();
+      return three;
+    }
+    function render3D(fA,fB,t){ var T=init3D(); if(!T)return; var g=T.grp;
+      for(var i=g.children.length-1;i>=0;i--){ var c=g.children[i]; g.remove(c); if(c.geometry)c.geometry.dispose(); if(c.material)c.material.dispose&&c.material.dispose(); }
+      var ids={}; Object.keys(fA.at).forEach(function(k){ids[k]=1;}); Object.keys(fB.at).forEach(function(k){ids[k]=1;});
+      function pos(id){ var a=fA.at[id],b=fB.at[id]; if(a&&b)return map3(lerp(a.x,b.x,t),lerp(a.y,b.y,t)); if(a)return map3(a.x,a.y); return map3(b.x,b.y); }
+      function op(id){ var a=fA.at[id],b=fB.at[id]; if(a&&b)return 1; if(a)return 1-t; return t; }
+      var P={};
+      Object.keys(ids).forEach(function(id){ var p=pos(id); P[id]=p; var o=op(id); if(o<0.05)return; var src=(fA.at[id]&&(t<0.5||!fB.at[id]))?fA.at[id]:(fB.at[id]||fA.at[id]); var r=(src.e.length>1?0.44:0.36);
+        var mat=new THREE.MeshStandardMaterial({color:new THREE.Color(colHex(src.e)),roughness:0.32,metalness:0.12,transparent:o<1,opacity:o,emissive:new THREE.Color(src.c>0?0x552200:(src.c<0?0x004a3a:0x000000)),emissiveIntensity:src.c?0.7:0});
+        var s=new THREE.Mesh(new THREE.SphereGeometry(r,26,20),mat); s.position.copy(p); g.add(s); });
+      var bset={}; function bkey(x){return x[0]<x[1]?x[0]+'|'+x[1]:x[1]+'|'+x[0];}
+      function addBonds(fr){ fr.bo.forEach(function(bd){ var k=bkey(bd); if(bset[k])return; bset[k]=1; var p1=P[bd[0]],p2=P[bd[1]]; if(!p1||!p2)return; var o=Math.min(op(bd[0]),op(bd[1])); var order=bd[2]||0; var dir=new THREE.Vector3().subVectors(p2,p1); var len=dir.length(); if(len<0.02)return; var q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize()); var perp=new THREE.Vector3().crossVectors(dir.clone().normalize(),new THREE.Vector3(0,0,1)).normalize(); var mid=new THREE.Vector3().addVectors(p1,p2).multiplyScalar(0.5); var offs=(bd[2]===2)?[-0.13,0.13]:(bd[2]===3?[-0.18,0,0.18]:[0]); var rad=(bd[2]===0)?0.045:0.07;
+        offs.forEach(function(off){ var cyl=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,len,14),new THREE.MeshStandardMaterial({color:0xc7d2e0,roughness:0.5,transparent:(o<1||bd[2]===0),opacity:(bd[2]===0?0.45*o:o)})); cyl.position.copy(mid).addScaledVector(perp,off); cyl.setRotationFromQuaternion(q); g.add(cyl); }); }); }
+      addBonds(fA); addBonds(fB);
+      (fA.ar||[]).forEach(function(a){ var f=map3(a.f[0],a.f[1]), tt=map3(a.t[0],a.t[1]); var mid=new THREE.Vector3().addVectors(f,tt).multiplyScalar(0.5); mid.z+=1.7*(a.bow||1); mid.y+=0.35*(a.bow||1); var curve=new THREE.QuadraticBezierCurve3(f,mid,tt); var pts=curve.getPoints(26); var geo=new THREE.BufferGeometry().setFromPoints(pts); g.add(new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xffd166,transparent:true,opacity:0.75}))); var ep=curve.getPoint(Math.min(1,t)); var es=new THREE.Mesh(new THREE.SphereGeometry(0.14,14,12),new THREE.MeshBasicMaterial({color:0xffe08a})); es.position.copy(ep); g.add(es); });
+    }
+    function dispose3D(){ if(three){ if(three.raf)cancelAnimationFrame(three.raf); try{ three.ren.forceContextLoss&&three.ren.forceContextLoss(); }catch(e){} try{ three.ren.dispose&&three.ren.dispose(); if(three.ren.domElement&&three.ren.domElement.parentNode)three.ren.domElement.parentNode.removeChild(three.ren.domElement); }catch(e){} three=null; } }
+
     var dir=0, frames, idx=0, lt=0, playing=false, raf=null, dur=1500, isPill=false;
-    function setDir(d){ dir=d; frames=(m?(d?m.retro:m.fwd):genericFrames(d)); isPill=!m; idx=0; lt=0; playing=false; card.querySelector('#mDir0').style.background=d?'#0c1f33':accent; card.querySelector('#mDir0').style.color=d?'#cdd9e6':'#04121e'; card.querySelector('#mDir1').style.background=d?accent:'#0c1f33'; card.querySelector('#mDir1').style.color=d?'#04121e':'#cdd9e6'; draw(); }
+    function setDir(d){ dir=d; frames=(m?(d?m.retro:m.fwd):genericFrames(d)); isPill=!m; idx=0; lt=0; playing=false; card.querySelector('#mDir0').style.background=d?'#0c1f33':accent; card.querySelector('#mDir0').style.color=d?'#cdd9e6':'#04121e'; card.querySelector('#mDir1').style.background=d?accent:'#0c1f33'; card.querySelector('#mDir1').style.color=d?'#04121e':'#cdd9e6'; var m3=card.querySelector('#mMode3'); if(m3){ m3.style.opacity=isPill?'0.45':'1'; m3.style.pointerEvents=isPill?'none':'auto'; if(isPill&&mode3d)setMode(false); } draw(); }
+    function applyMode(on){ mode3d=on; var b2=card.querySelector('#mMode2'), b3=card.querySelector('#mMode3'); b2.style.background=on?'#0c1f33':accent; b2.style.color=on?'#cdd9e6':'#04121e'; b3.style.background=on?accent:'#0c1f33'; b3.style.color=on?'#04121e':'#cdd9e6'; b3.textContent='🧊 3D · atomi'; card.querySelector('#mech2d').style.display=on?'none':''; card.querySelector('#mech3d').style.display=on?'block':'none'; if(on)init3D(); draw(); }
+    function setMode(on){ if(on&&isPill)on=false;
+      if(on&&typeof THREE==='undefined'){ var loader=window.bsi3d_loadThree||window._atlasLoadThree; if(loader){ var b3=card.querySelector('#mMode3'); if(b3)b3.textContent='⏳ carico 3D…'; loader(function(ok){ applyMode(!!ok&&typeof THREE!=='undefined'); }); return; } on=false; }
+      applyMode(on);
+    }
     function draw(){
+      if(isPill||!mode3d){ card.querySelector('#mech2d').style.display=(isPill||!mode3d)?'':'none'; card.querySelector('#mech3d').style.display=(isPill||!mode3d)?'none':'block'; }
       if(isPill){ var fr=frames[Math.min(frames.length-1, Math.round(idx+lt))]; renderPill(fr); capEl.textContent=fr.cap; stepEl.textContent=(Math.min(frames.length,idx+1))+' / '+frames.length; return; }
-      var fA=frames[idx], fB=frames[Math.min(frames.length-1,idx+1)]; renderFrame(svg,fA,fB,fA===fB?1:lt);
+      var fA=frames[idx], fB=frames[Math.min(frames.length-1,idx+1)]; var tt=(fA===fB?1:lt);
+      if(mode3d)render3D(fA,fB,tt); else renderFrame(svg,fA,fB,tt);
       var capFrame=frames[Math.min(frames.length-1, idx+(lt>=0.5?1:0))]; capEl.textContent=capFrame.cap; stepEl.textContent=(idx+1)+(lt>0&&idx<frames.length-1?'→'+(idx+2):'')+' / '+frames.length;
     }
     function tick(ts){ if(!playing){return;} if(!tick._last)tick._last=ts; var dt=ts-tick._last; tick._last=ts; lt+=dt/dur; if(lt>=1){ lt=0; idx++; if(idx>=frames.length-1){ idx=frames.length-1; lt=0; playing=false; card.querySelector('#mPlay').textContent='▶ Replay'; draw(); return; } } draw(); raf=requestAnimationFrame(tick); }
@@ -19049,7 +19091,9 @@ document.addEventListener('DOMContentLoaded', function(){
     card.querySelector('#mNext').onclick=function(){ pause(); lt=0; idx=Math.min(frames.length-1,idx+1); draw(); };
     card.querySelector('#mDir0').onclick=function(){ pause(); setDir(0); };
     card.querySelector('#mDir1').onclick=function(){ pause(); setDir(1); };
-    function close(){ pause(); ov.remove(); }
+    card.querySelector('#mMode2').onclick=function(){ setMode(false); };
+    card.querySelector('#mMode3').onclick=function(){ setMode(true); };
+    function close(){ pause(); dispose3D(); ov.remove(); }
     card.querySelector('#mechX').onclick=close; ov.addEventListener('click',function(e){ if(e.target===ov)close(); });
     setDir(0);
     }catch(e){ console.error('mechAnim',e); }
