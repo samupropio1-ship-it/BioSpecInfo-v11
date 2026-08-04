@@ -2,6 +2,10 @@
 
 Carica **TUTTI** i file nel repository. Nessuna configurazione necessaria.
 
+> 📄 **Documentazione tecnica per aziende / audit:** vedi la cartella
+> [`docs/`](docs/README.md) — Software Architecture Document, Validation &
+> Benchmark Report, Security/Privacy/Compliance e Open-Source Licensing Matrix.
+
 ---
 
 ## Cosa era rotto e cosa e' stato corretto
