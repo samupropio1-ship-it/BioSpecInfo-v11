@@ -10,6 +10,9 @@ valutazione tecnica da parte di aziende, centri di ricerca e audit.
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Modello privacy local-first, OWASP/XSS, allineamento GDPR e GAMP 5 |
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Matrice dipendenze, licenze, proprietà intellettuale |
 
+**🌍 English version:** [`docs/en/`](en/README.md) — the same four documents in English.
+**📑 PDF (IT + EN):** [`docs/pdf/`](pdf/) — pronti da allegare a CV, email e audit.
+
 ## In sintesi
 
 - **Autore:** Samuele Pio Provenzano
