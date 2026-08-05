@@ -12,6 +12,9 @@ Per le candidature allega **un solo file**:
 
 In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossier.it.pdf) / [`00-Dossier.en.pdf`](pdf/00-Dossier.en.pdf).
 
+**🧑‍💼 Kit candidatura** (CV + lettera di presentazione, IT/EN, con PDF): cartella
+[`docs/candidatura/`](candidatura/) — completa i campi tra `[…]` prima di inviare.
+
 ---
 
 | # | Documento | Contenuto |
