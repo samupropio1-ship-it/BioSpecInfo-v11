@@ -3,8 +3,20 @@
 Documentazione ufficiale della piattaforma **BioSpecInfo**, pensata per la
 valutazione tecnica da parte di aziende, centri di ricerca e audit.
 
+## 📨 Da inviare ai colloqui
+
+Per le candidature allega **un solo file**:
+
+- 🇮🇹 **[`docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf`](pdf/BioSpecInfo-Dossier-Completo.it.pdf)** — dossier completo (copertina + SAD + Validazione + Sicurezza + Licenze), 19 pagine.
+- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — stesso dossier in inglese.
+
+In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossier.it.pdf) / [`00-Dossier.en.pdf`](pdf/00-Dossier.en.pdf).
+
+---
+
 | # | Documento | Contenuto |
 |---|-----------|-----------|
+| 00 | [Dossier Tecnico (copertina & sintesi)](00-Technical-Dossier.md) | Executive summary, factsheet, capacità, stack, dichiarazione dell'autore |
 | 01 | [Software Architecture Document (SAD)](01-Software-Architecture-Document.md) | Architettura, componenti, tecnologie, flussi dati |
 | 02 | [Verification & Validation & Benchmark Report](02-Verification-Validation-Report.md) | Metodo di test, benchmark spettrali, prestazioni, limiti dichiarati |
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Modello privacy local-first, OWASP/XSS, allineamento GDPR e GAMP 5 |
