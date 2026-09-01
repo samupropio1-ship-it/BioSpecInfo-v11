@@ -1137,9 +1137,15 @@ function goS(id){
 window.addEventListener('scroll',function(){
   var mid=window.scrollY+window.innerHeight/2;
   var active='s1';
-  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el&&el.offsetTop<=mid)active=id;
+  // Elenco generato dai link della sidenav stessa, cosi' non si disallinea
+  // più se in futuro si aggiungono altre sezioni (prima era una lista fissa
+  // ferma a s18, mentre le sezioni arrivano fino a s25).
+  document.querySelectorAll('.nav-s').forEach(function(navEl){
+    var m = (navEl.getAttribute('onclick')||'').match(/goS\('([^']+)'\)/);
+    if(!m) return;
+    var id = m[1];
+    var el = document.getElementById(id);
+    if(el && el.offsetTop <= mid) active = id;
   });
   document.querySelectorAll('.nav-s').forEach(function(el){
     el.classList.toggle('active',el.getAttribute('onclick')==="goS('"+active+"')");
@@ -1328,15 +1334,16 @@ function drawSmooth(ctx,pts,pl,gW,gH){
 window.addEventListener('load',function(){drawNm();drawCh();drawSN();});
 
 // Show floating back button when embedded in BioSpecInfo overlay
-(function(){
+// (rimandato a 'load': lo script gira prima che #bsi-co-back sia nel DOM,
+// quindi un accesso immediato restituiva sempre null e lanciava un errore)
+window.addEventListener('load', function(){
   try{
-    if(window.self!==window.top){
-      document.getElementById('bsi-co-back').style.display='block';
-    }
-  }catch(e){
-    document.getElementById('bsi-co-back').style.display='block';
-  }
-})();
+    var isEmbedded = true;
+    try{ isEmbedded = (window.self !== window.top); }catch(e){ isEmbedded = true; }
+    var btn = document.getElementById('bsi-co-back');
+    if(btn && isEmbedded) btn.style.display = 'block';
+  }catch(e){}
+});
 </script>
 
 <!-- ─── Section 18: Sintesi Animate ──────────────────────────────────── -->

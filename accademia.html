@@ -1550,6 +1550,7 @@ document.getElementById('start-all-btn').addEventListener('click', () => {
 ══════════════════════════════════════════════════ */
 let quizState     = null;
 let timerInterval = null;
+let levelUpTimer  = null;
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -1561,6 +1562,7 @@ function shuffle(arr) {
 }
 
 function startQuiz(pool, diff, catId) {
+  if (levelUpTimer) { clearTimeout(levelUpTimer); levelUpTimer = null; }
   if (!pool.length) { alert('Nessuna domanda disponibile per questa selezione!'); return; }
   const questions = shuffle(pool).slice(0, Math.min(10, pool.length));
   quizState = {
@@ -1711,7 +1713,8 @@ function answerQuestion(chosen, q) {
 
     if (newLv > prevLv) {
       const info = getLevelInfo(state.xp);
-      setTimeout(() => showLevelUp('Lv' + info.lv + ' ' + info.name), 600);
+      if (levelUpTimer) clearTimeout(levelUpTimer);
+      levelUpTimer = setTimeout(() => { levelUpTimer = null; showLevelUp('Lv' + info.lv + ' ' + info.name); }, 600);
     }
   } else {
     quizState.wrong++;
@@ -1736,6 +1739,7 @@ function showExplanation(text) {
 }
 
 document.getElementById('next-btn').addEventListener('click', () => {
+  if (levelUpTimer) { clearTimeout(levelUpTimer); levelUpTimer = null; }
   quizState.index++;
   if (quizState.index >= quizState.questions.length) endQuiz();
   else renderQuestion();

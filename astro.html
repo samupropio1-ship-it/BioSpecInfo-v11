@@ -503,8 +503,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <div class="pane" id="p-gallery">
   <div style="color:#00c9b7;font-weight:800;font-size:1.15rem;margin-bottom:4px">🔭 Galleria Telescopi</div>
   <div style="color:#9fb3c8;font-size:.85rem;margin-bottom:14px">Immagini reali di NASA, James Webb, Hubble ed ESO. Tocca un'immagine per ingrandirla (pinch per zoomare). Funziona sempre, anche senza 3D.</div>
-  <input type="text" id="gallery-search" placeholder="🔍 Cerca (es. Orione, buco nero, JWST...)" oninput="renderGallery()" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#e8eef4;font-size:.86rem;margin-bottom:10px;outline:none">
-  <input type="text" id="gallery-search" placeholder="🔍 Cerca (es. Orione, Saturno, supernova...)" oninput="renderGallery()"
+  <input type="text" id="gallery-search" placeholder="🔍 Cerca (es. Orione, Saturno, buco nero, JWST...)" oninput="renderGallery()"
     style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#e8eef4;font-size:.86rem;margin-bottom:10px;outline:none">
   <div id="gallery-filters" style="display:flex;flex-wrap:wrap;margin-bottom:10px"></div>
   <div id="gallery-count" style="color:#9fb3c8;font-size:.75rem;margin-bottom:10px"></div>
@@ -3843,13 +3842,19 @@ function _buildSolar(){
     var m;
     if(p.n==='Terra'){
       // TERRA fotorealistica anche nella scena: mappa diurna + luci città (lato notte) + oceani + nuvole
-      var _tlE=new THREE.TextureLoader();
-      m=new THREE.Mesh(new THREE.SphereGeometry(p.r,64,64),new THREE.MeshPhongMaterial({
-        map:_tlE.load('./textures/earth_day.jpg'), specularMap:_tlE.load('./textures/earth_specular.jpg'),
-        normalMap:_tlE.load('./textures/earth_normal.jpg'), normalScale:new THREE.Vector2(0.85,0.85),
-        specular:0x506882, shininess:22, emissiveMap:_tlE.load('./textures/earth_lights.png'), emissive:0xffdf8c, emissiveIntensity:1.05}));
+      var _eMat=new THREE.MeshPhongMaterial({
+        map:_texSafe('./textures/earth_day.jpg','earth'),
+        specularMap:_texSafe('./textures/earth_specular.jpg',null,null,function(){_eMat.specularMap=null;_eMat.needsUpdate=true;}),
+        normalMap:_texSafe('./textures/earth_normal.jpg',null,null,function(){_eMat.normalMap=null;_eMat.needsUpdate=true;}),
+        normalScale:new THREE.Vector2(0.85,0.85),
+        specular:0x506882, shininess:22,
+        emissiveMap:_texSafe('./textures/earth_lights.png',null,null,function(){_eMat.emissiveMap=null;_eMat.emissiveIntensity=0;_eMat.needsUpdate=true;}),
+        emissive:0xffdf8c, emissiveIntensity:1.05});
+      m=new THREE.Mesh(new THREE.SphereGeometry(p.r,64,64),_eMat);
       m.castShadow=true; m.receiveShadow=true;
-      var _clouds=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.02,48,48),new THREE.MeshPhongMaterial({map:_tlE.load('./textures/earth_clouds.png'),transparent:true,opacity:0.85,depthWrite:false}));
+      var _clouds=new THREE.Mesh(new THREE.SphereGeometry(p.r*1.02,48,48),new THREE.MeshPhongMaterial({
+        map:_texSafe('./textures/earth_clouds.png',null,null,function(){ if(_clouds)_clouds.visible=false; }),
+        transparent:true,opacity:0.85,depthWrite:false}));
       m.add(_clouds); m._cloudLayer=_clouds;
     } else {
       var tex=_makePlanetTex(texMap[p.n]||'rock');
@@ -3877,7 +3882,7 @@ function _buildSolar(){
     // LUNE orbitanti attorno al pianeta
     if(MOONS[p.n]){
       MOONS[p.n].forEach(function(mo){
-        var mtex=(mo.n==='Luna')?new THREE.TextureLoader().load('./textures/moon.jpg'):_makePlanetTex(mo.tex);
+        var mtex=(mo.n==='Luna')?_texSafe('./textures/moon.jpg','moon'):_makePlanetTex(mo.tex);
         var moon=new THREE.Mesh(new THREE.SphereGeometry(mo.r,24,24),new THREE.MeshStandardMaterial({map:mtex,roughness:0.95}));
         moon.castShadow=true; moon.receiveShadow=true;
         var mph=Math.random()*Math.PI*2;
@@ -5229,7 +5234,7 @@ function _showBodyCard(b){
   var btn3d=has3D?'<button onclick="_showBody3D(\''+b.n+'\')" style="width:100%;margin-bottom:8px;padding:9px;border-radius:8px;border:none;background:#00c9b7;color:#04121e;font-weight:800;cursor:pointer">🌐 Vedi modello 3D interattivo</button>':'';
   var linkBtns=b.links.map(function(l){ return '<a href="'+l[1]+'" target="_blank" style="display:inline-block;background:'+col+';color:#04121e;font-weight:700;font-size:.78rem;padding:6px 12px;border-radius:8px;margin:3px;text-decoration:none">🔭 '+l[0]+' ↗</a>'; }).join('');
   card.innerHTML='<div style="background:rgba(255,255,255,.04);border:1.5px solid '+col+';border-radius:12px;padding:16px;margin-top:12px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:start"><div><div style="color:'+col+';font-weight:800;font-size:1.15rem">'+b.n+'</div><div style="color:#9fb3c8;font-size:.82rem">'+b.cat+' · '+b.type+'</div></div><button onclick="document.getElementById(\'uni-card\').innerHTML=\'\'" style="background:none;border:none;color:#9fb3c8;font-size:20px;cursor:pointer">×</button></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:start"><div><div style="color:'+col+';font-weight:800;font-size:1.15rem">'+b.n+'</div><div style="color:#9fb3c8;font-size:.82rem">'+b.cat+' · '+b.type+'</div></div><button aria-label="Chiudi" onclick="document.getElementById(\'uni-card\').innerHTML=\'\'" style="background:none;border:none;color:#9fb3c8;font-size:20px;cursor:pointer">×</button></div>'
     +'<div style="margin-top:10px;color:#cdd9e6;font-size:.86rem;line-height:1.7">'
     +'<b style="color:'+col+'">📏 Distanza:</b> '+b.dist+'<br>'
     +'<b style="color:'+col+'">⚗️ Chimica:</b> '+b.chem+'<br>'
@@ -5467,6 +5472,35 @@ function _makePlanetTex(type){
   return _noiseTex(p.colors,p);
 }
 
+// Carica una texture da file locale con fallback: la cartella ./textures/ contiene
+// mappe pesanti (Terra/Luna in alta risoluzione) che possono mancare dal deploy.
+// Senza rete di sicurezza THREE.TextureLoader lascia il materiale con una mappa
+// vuota e il pianeta viene renderizzato NERO. Qui:
+//  - se il file manca e fbType e' valorizzato -> uso la mappa incorporata (REAL_TEX
+//    base64, foto NASA) o in ultima istanza quella procedurale su canvas;
+//  - se e' una mappa di dettaglio opzionale (normal/specular/luci/nuvole) fbType e'
+//    null e viene invocato onGone, cosi' il chiamante puo' semplicemente togliere
+//    quella mappa dal materiale invece di mostrarne una sbagliata.
+function _texSafe(url,fbType,onLoad,onGone){
+  var tex=new THREE.TextureLoader().load(url,onLoad,undefined,function(){
+    var src=(fbType&&typeof REAL_TEX!=='undefined'&&REAL_TEX[fbType])?REAL_TEX[fbType]:null;
+    if(src){
+      new THREE.TextureLoader().load(src,function(t){
+        tex.image=t.image; tex.needsUpdate=true; if(onLoad)onLoad(tex);
+      },undefined,function(){ if(onGone)onGone(); });
+      return;
+    }
+    if(fbType){
+      try{
+        var fb=_makePlanetTex(fbType);
+        if(fb&&fb.image){ tex.image=fb.image; tex.needsUpdate=true; if(onLoad)onLoad(tex); return; }
+      }catch(e){}
+    }
+    if(onGone)onGone();
+  });
+  return tex;
+}
+
 
 function renderResources(){
   var c=document.getElementById('resources-container'); if(!c) return;
@@ -5555,7 +5589,7 @@ function _showPhysCard(name){
   if(!p){ return; }
   info.innerHTML='<div style="background:rgba(0,201,183,.06);border:1.5px solid #00c9b7;border-radius:14px;padding:16px;margin-top:10px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center"><div style="color:#00c9b7;font-weight:800;font-size:1.2rem">🪐 '+name+'</div>'
-    +'<button onclick="document.getElementById(\'cosmo-info\').innerHTML=\'\'" style="background:none;border:none;color:#9fb3c8;font-size:20px;cursor:pointer">×</button></div>'
+    +'<button aria-label="Chiudi" onclick="document.getElementById(\'cosmo-info\').innerHTML=\'\'" style="background:none;border:none;color:#9fb3c8;font-size:20px;cursor:pointer">×</button></div>'
     +'<button onclick="_showBody3D(\''+name+'\')" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:none;background:#00c9b7;color:#04121e;font-weight:800;cursor:pointer;font-size:.9rem">🌐 Vedi modello 3D interattivo</button>'
     +'<div style="display:grid;gap:10px;margin-top:12px">'
     +'<div style="background:rgba(0,201,183,.08);border-left:3px solid #00c9b7;border-radius:0 8px 8px 0;padding:10px 12px"><b style="color:#00c9b7">⚗️ Chimica</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-top:3px">'+p.chem+'</div></div>'
@@ -5678,7 +5712,30 @@ function _showBody3D(name){
 function _closeBody3D(){ var ov=document.getElementById('body3d-ov'); if(ov){ ov.classList.remove('b3fs'); ov.style.display='none'; }
   try{ if(document.fullscreenElement||document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document); } }catch(e){}
   var btn=document.getElementById('body3d-fs'); if(btn)btn.textContent='⛶ Schermo intero';
-  if(_body3d.raf)cancelAnimationFrame(_body3d.raf); }
+  if(_body3d.raf)cancelAnimationFrame(_body3d.raf);
+  // libero le risorse GPU (geometrie/materiali/texture/renderer): senza questo, aprire e chiudere
+  // ripetutamente il visualizzatore 3D di un corpo accumula memoria video mai rilasciata.
+  try{
+    if(_body3d.scene) _body3d.scene.traverse(function(o){
+      if(o.geometry) o.geometry.dispose();
+      if(o.material){
+        var mats=Array.isArray(o.material)?o.material:[o.material];
+        mats.forEach(function(m){
+          if(!m) return;
+          ['map','normalMap','specularMap','emissiveMap','roughnessMap','metalnessMap','alphaMap','bumpMap','envMap'].forEach(function(k){
+            if(m[k]&&m[k].dispose) m[k].dispose();
+          });
+          if(m.dispose) m.dispose();
+        });
+      }
+    });
+  }catch(e){}
+  // NB: niente forceContextLoss() qui — il canvas #body3d-canvas viene RIUSATO ad ogni apertura
+  // successiva (non ricreato), e forzare la perdita del contesto WebGL lo renderebbe permanentemente
+  // inutilizzabile per le aperture seguenti senza un restoreContext esplicito. dispose() da solo
+  // libera già programmi/texture/buffer interni del renderer senza invalidare il contesto.
+  try{ if(_body3d.ren) _body3d.ren.dispose(); }catch(e){}
+  _body3d.scene=null; _body3d.ren=null; _body3d.cam=null; }
 // schermo intero del visualizzatore 3D dei corpi: API reale dove permessa + fallback CSS (WebView)
 function _body3dFullscreen(){
   var ov=document.getElementById('body3d-ov'), wrap=document.getElementById('body3d-canvas-wrap'); if(!ov||!wrap)return;
@@ -6300,16 +6357,16 @@ function _initBody3D(b){
       mat=new THREE.MeshBasicMaterial({map:stex,color:0xffffff});
     } else if(b.tex==='earth'){
       // TERRA FOTOREALISTICA: giorno + rilievo (normal) + oceani lucidi (specular) + luci delle città sul lato notturno
-      var tlE=new THREE.TextureLoader();
-      var eDay=_texTune(tlE.load('./textures/earth_day.jpg', function(){ ren.render(scene,cam); }));
-      var eNrm=tlE.load('./textures/earth_normal.jpg');
-      var eSpec=tlE.load('./textures/earth_specular.jpg');
-      var eLit=_texTune(tlE.load('./textures/earth_lights.png', function(){ ren.render(scene,cam); }));
+      var _rr=function(){ ren.render(scene,cam); };
+      var eDay=_texTune(_texSafe('./textures/earth_day.jpg','earth',_rr));
+      var eNrm=_texSafe('./textures/earth_normal.jpg',null,null,function(){ mat.normalMap=null; mat.needsUpdate=true; _rr(); });
+      var eSpec=_texSafe('./textures/earth_specular.jpg',null,null,function(){ mat.specularMap=null; mat.needsUpdate=true; _rr(); });
+      var eLit=_texTune(_texSafe('./textures/earth_lights.png',null,_rr,function(){ mat.emissiveMap=null; mat.emissiveIntensity=0; mat.needsUpdate=true; _rr(); }));
       mat=new THREE.MeshPhongMaterial({map:eDay,normalMap:eNrm,specularMap:eSpec,specular:0x556677,shininess:18,emissiveMap:eLit,emissive:0xffe08a,emissiveIntensity:1.15});
     } else {
-      var tl2=new THREE.TextureLoader();
-      var _src=(b.tex==='moon'||b.tex==='rock')?'./textures/moon.jpg':_texUrl(b.tex);
-      var ptex=_texTune(tl2.load(_src, function(){ ren.render(scene,cam); }));
+      var _isMoon=(b.tex==='moon'||b.tex==='rock');
+      var _src=_isMoon?'./textures/moon.jpg':_texUrl(b.tex);
+      var ptex=_texTune(_texSafe(_src,_isMoon?'moon':b.tex, function(){ ren.render(scene,cam); }));
       mat=new THREE.MeshStandardMaterial({map:ptex,color:0xffffff,roughness:0.92,metalness:0.04});
     }
     var _sd=_seedFromName(b._name||'x');
@@ -6318,8 +6375,9 @@ function _initBody3D(b){
     scene.add(mesh);
     if(b.tex==='earth'){
       // strato di nuvole che ruota un po' più veloce del pianeta
-      var tlC=new THREE.TextureLoader();
-      var cloudTex=_texTune(tlC.load('./textures/earth_clouds.png', function(){ ren.render(scene,cam); }));
+      var cloudTex=_texTune(_texSafe('./textures/earth_clouds.png',null,function(){ ren.render(scene,cam); },function(){
+        if(_earthClouds){ _earthClouds.visible=false; ren.render(scene,cam); }   // niente mappa nuvole: nascondo il guscio invece di mostrarlo opaco
+      }));
       _earthClouds=new THREE.Mesh(new THREE.SphereGeometry(b.r*1.015,64,64),new THREE.MeshPhongMaterial({map:cloudTex,transparent:true,opacity:0.88,depthWrite:false}));
       _earthClouds.rotation.z=_sd.tilt; scene.add(_earthClouds);
     }
@@ -6670,7 +6728,7 @@ function _showBodyDetail(name){
   var catColors={'Stella':'#ffcc44','Pianeta':'#6bcfff','Luna':'#cdd9e6','Esopianeta':'#7c6fff','Nebulosa':'#e0678b','Ammasso':'#88ffcc','Estremo':'#ff7744','Galassia':'#88bbff'};
   var col=db?(catColors[db.cat]||'#00c9b7'):'#00c9b7';
   var h='<div style="width:100%;max-width:600px">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="color:'+col+';font-weight:800;font-size:1.4rem">'+name+'</div><button onclick="document.getElementById(\'detail-ov\').style.display=\'none\'" style="background:#1a2b3e;border:1px solid '+col+';color:'+col+';border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700">✕</button></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="color:'+col+';font-weight:800;font-size:1.4rem">'+name+'</div><button aria-label="Chiudi" onclick="document.getElementById(\'detail-ov\').style.display=\'none\'" style="background:#1a2b3e;border:1px solid '+col+';color:'+col+';border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700">✕</button></div>';
   if(db){
     h+='<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:12px;margin-bottom:10px"><div style="color:'+col+';font-weight:700">'+db.type+'</div><div style="color:#9fb3c8;font-size:.82rem;margin-top:2px">Distanza: '+db.dist+' · Categoria: '+db.cat+'</div></div>';
     h+='<div style="background:rgba(0,201,183,.08);border-left:3px solid #00c9b7;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px"><b style="color:#00c9b7">⚗️ Chimica</b><div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-top:3px">'+db.chem+'</div></div>';
@@ -7745,8 +7803,8 @@ window.bsiNebOpen = function(name){
           '<img id="nv-photo" src="'+esc(n.img)+'" alt="'+esc(n.n)+'" draggable="false">'+
         '</div>'+
         '<div class="imgbar">'+
-          '<button onclick="bsiImgZoom(1.35)">＋</button>'+
-          '<button onclick="bsiImgZoom(0.74)">－</button>'+
+          '<button aria-label="Aumenta zoom" onclick="bsiImgZoom(1.35)">＋</button>'+
+          '<button aria-label="Riduci zoom" onclick="bsiImgZoom(0.74)">－</button>'+
           '<button onclick="bsiImgReset()">⟲ Reset</button>'+
           '<span class="imghint">Trascina per spostare · pizzica o rotella per zoomare</span>'+
         '</div>'+

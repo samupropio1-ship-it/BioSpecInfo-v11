@@ -1804,11 +1804,15 @@ function _rdkitReady(rdk){
     if(!curSMI){ curSMI = si ? si.value.trim() : 'CC(=O)OC1=CC=CC=C1C(=O)O'; }
     analyzeMol();
   }catch(e){ console.log('auto-analyze',e); }
-  // se un pannello RDKit è già aperto, lo popolo subito
+  // se un pannello RDKit è già aperto (l'utente non ha aspettato il caricamento), lo aggiorno
+  // subito con i valori precisi di RDKit al posto delle stime euristiche mostrate finora.
+  // NB: _renderPanelFor non esiste — riuso le stesse funzioni di calcolo che showPanel() chiama.
   try{
     var act=document.querySelector('.panel.active');
     if(act && _RDKIT_PANELS.indexOf(act.id)!==-1){
-      _renderPanelFor ? _renderPanelFor(act.id, curDesc, curSMI) : null;
+      if(act.id==='p-desc' && typeof calcDescriptors==='function') calcDescriptors();
+      else if(act.id==='p-drug' && typeof calcDrugLike==='function') calcDrugLike();
+      else if(act.id==='p-qsar' && typeof calcQSAR==='function') calcQSAR();
     }
   }catch(e){}
 }
@@ -1836,9 +1840,15 @@ function _rdkitReady(rdk){
     if(typeof initRDKitModule!=='function'){onFail();return;}
     setStatus('WASM: inizializzazione…','loading');
     var _t=setTimeout(function(){onFail();},25000);
-    initRDKitModule({locateFile:function(f){return base+f;}})
-    .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
-    .catch(function(){clearTimeout(_t);onFail();});
+    // initRDKitModule() può anche lanciare SINCRONAMENTE (bundle corrotto/troncato,
+    // browser senza WebAssembly) prima ancora di restituire una Promise: senza questo
+    // try/catch l'eccezione sfuggirebbe non gestita e la cascata di fallback CDN si
+    // fermerebbe per sempre con lo stato bloccato su "inizializzazione…".
+    try{
+      initRDKitModule({locateFile:function(f){return base+f;}})
+      .then(function(rdk){clearTimeout(_t);_rdkitReady(rdk);})
+      .catch(function(){clearTimeout(_t);onFail();});
+    }catch(e){ clearTimeout(_t); onFail(); }
   }
 
   function loadViaScriptTag(combo,onFail){
@@ -1868,7 +1878,18 @@ function _rdkitReady(rdk){
       var rb=document.getElementById('rdk-retry-btn');if(rb)rb.style.display='inline-flex';
       return;
     }
-    loadViaScriptTag(combos[i],function(){tryNext(i+1);});
+    var combo=combos[i];
+    // Il bundle locale e' composto da DUE file: RDKit_minimal.js + RDKit_minimal.wasm.
+    // Se il .wasm non e' stato deployato, Emscripten fallisce con un Aborted() rumoroso
+    // dopo aver scaricato 7 MB di JS inutilmente. Con una HEAD verifico prima che il
+    // binario ci sia davvero e, se manca, passo subito ai CDN.
+    if(combo.base==='./'){
+      fetch(combo.base+'RDKit_minimal.wasm',{method:'HEAD'})
+        .then(function(r){ if(r&&r.ok) loadViaScriptTag(combo,function(){tryNext(i+1);}); else tryNext(i+1); })
+        .catch(function(){ tryNext(i+1); });
+      return;
+    }
+    loadViaScriptTag(combo,function(){tryNext(i+1);});
   }
   tryNext(0);
   window._rdkInitFn=function(){_tried=0;tryNext(0);};
@@ -1886,6 +1907,12 @@ function showPresetCat(el,id){
 
 var _RDKIT_PANELS=['p-desc','p-drug','p-qsar','p-sim','p-smarts','p-cmp'];
 function showPanel(tab,id){
+  // se sto lasciando il pannello Quantum con l'animazione in corso, la fermo:
+  // altrimenti il loop requestAnimationFrame continua a ridisegnare un canvas ormai
+  // nascosto all'infinito, consumando CPU/batteria finché non si torna manualmente indietro.
+  if(id!=='p-quantum' && typeof _qPlaying!=='undefined' && _qPlaying){
+    try{ resetQuantum(); }catch(e){}
+  }
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   var _p=document.getElementById(id); if(_p)_p.classList.add('active');
@@ -1895,7 +1922,9 @@ function showPanel(tab,id){
       // molecola di default (aspirina) se non ne hai ancora caricata una: cosi i pannelli non restano mai vuoti
       if(!curSMI){ curSMI='CC(=O)OC1=CC=CC=C1C(=O)O'; }
       // riempio il campo SMILES del pannello corrente
-      var fmap={'p-desc':'desc-smiles','p-drug':'drug-smiles','p-qsar':'qsar-smiles','p-sim':'sim-smi1','p-smarts':'smarts-smiles'};
+      // NB: il campo molecola del pannello SMARTS si chiama 'smarts-mol', non 'smarts-smiles'
+      // (che non esiste) — con l'id sbagliato l'auto-riempimento non scattava mai in silenzio.
+      var fmap={'p-desc':'desc-smiles','p-drug':'drug-smiles','p-qsar':'qsar-smiles','p-sim':'sim-smi1','p-smarts':'smarts-mol'};
       if(fmap[id]){ var fe=document.getElementById(fmap[id]); if(fe&&!fe.value.trim())fe.value=curSMI; }
       // chiamo la funzione di calcolo VERA del pannello (quella dei pulsanti "Calcola")
       if(id==='p-desc' && typeof calcDescriptors==='function'){ calcDescriptors(); }
@@ -1916,6 +1945,9 @@ function showPanel(tab,id){
   try{ if(window.bsiEnsurePanel) setTimeout(function(){ window.bsiEnsurePanel(id); },90); }catch(e){}
 }
 function showPanelById(id){
+  if(id!=='p-quantum' && typeof _qPlaying!=='undefined' && _qPlaying){
+    try{ resetQuantum(); }catch(e){}
+  }
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
   document.getElementById(id).classList.add('active');
@@ -2017,7 +2049,10 @@ function analyzeMol(){
   curDesc=computeDesc(mol);
   var molInChI='', molInChIKey='';
   try{ molInChI=mol.get_inchi()||''; }catch(e){}
-  try{ molInChIKey=mol.get_inchikey()||''; }catch(e){}
+  // NB: get_inchikey() non esiste sull'oggetto molecola in RDKit.js — l'API reale è
+  // il metodo di modulo RDKit.get_inchikey_for_inchi(inchi), che va chiamato sulla
+  // stringa InChI appena calcolata sopra.
+  try{ molInChIKey=(molInChI&&typeof RDKit.get_inchikey_for_inchi==='function')?(RDKit.get_inchikey_for_inchi(molInChI)||''):''; }catch(e){}
   mol.delete();
 
   // Info panel
@@ -2717,8 +2752,8 @@ function exportPNG(){
 function copySMILES(){
   if(curCanon) navigator.clipboard.writeText(curCanon).then(function(){
     var b=document.getElementById('btn-cpsmi');
-    b.textContent='✔ Copiato!';setTimeout(function(){b.textContent='📋 Copia SMILES';},1500);
-  });
+    if(b){b.textContent='✔ Copiato!';setTimeout(function(){b.textContent='📋 Copia SMILES';},1500);}
+  }).catch(function(){});
 }
 function exportDescJSON(){dlBlob(new Blob([JSON.stringify(curDesc,null,2)],{type:'application/json'}),'descriptors.json');}
 function exportDescCSV(){
@@ -2849,7 +2884,9 @@ function calcSMARTS(){
   }
 
   var query=null;
-  try{query=RDKit.get_mol_from_smarts(smarts);}catch(e){}
+  // NB: RDKit.js non espone get_mol_from_smarts — l'API reale per compilare un pattern
+  // SMARTS in una query di sottostruttura è RDKit.get_qmol(smarts).
+  try{query=RDKit.get_qmol(smarts);}catch(e){}
   if(!query||!query.is_valid()){
     if(query)query.delete();mol.delete();
     document.getElementById('smarts-count').innerHTML='<span class="s-err">SMARTS non valido o non riconosciuto.</span>';
@@ -4264,15 +4301,16 @@ function animateSpectrum(smi,type){SpectralLab.animateSpectrum(smi,type);}
 // ─── End Spectral Lab ─────────────────────────────────────────────────
 
 // Show floating back button when embedded in BioSpecInfo overlay
-(function(){
+// (rimandato a 'load': lo script gira prima che #bsi-float-back sia nel
+// DOM, quindi un accesso immediato restituiva sempre null e lanciava un errore)
+window.addEventListener('load', function(){
   try{
-    if(window.self!==window.top){
-      document.getElementById('bsi-float-back').style.display='block';
-    }
-  }catch(e){
-    document.getElementById('bsi-float-back').style.display='block';
-  }
-})();
+    var isEmbedded = true;
+    try{ isEmbedded = (window.self !== window.top); }catch(e){ isEmbedded = true; }
+    var btn = document.getElementById('bsi-float-back');
+    if(btn && isEmbedded) btn.style.display = 'block';
+  }catch(e){}
+});
 </script>
 
 <!-- Floating back button — visible only inside the BioSpecInfo overlay -->

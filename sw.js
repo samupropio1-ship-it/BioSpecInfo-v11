@@ -1,16 +1,45 @@
-// BioSpecInfo Service Worker v109 — network-first, precache dei file pesanti
-var CACHE = 'bsi-v109';
+// BioSpecInfo Service Worker v117 — network-first + precache di pagine e librerie
+'use strict';
+
+var CACHE = 'bsi-v118';
+
+// Precarico solo file che esistono davvero nel deploy (una voce inesistente
+// costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
+// da soli pesano ~106 MB e verrebbero scaricati all'installazione; restano
+// comunque messi in cache su richiesta dal gestore fetch network-first.
 var PRECACHE = [
-  './RDKit_minimal.js',
-  './RDKit_minimal.wasm',
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  // pagine (overlay iframe): senza queste l'app offline mostrava iframe vuoti
+  './astro.html',
+  './pro.html',
+  './accademia.html',
+  './rdkit_lab.html',
+  './chimorga.html',
+  './guidaret.html',
+  './sr_completo.html',
+  './sr_essenziale.html',
+  './simulazioni.html',
+  './file_manager.html',
+  './changelog_tesi.html',
+  './Biochimica_Guida_Definitiva.html',
+  './download.html',
+  // librerie locali pesanti
+  './bsi-ai-hub.js',
   './3Dmol-min.js',
   './three.min.js',
   './three_bloom.js',
   './gltf_loader.js',
   './smiles-drawer.min.js',
   './lib/sql-wasm.js',
-  './lib/sql-wasm.wasm',
   './lib/dimuon.js',
+  // binari WASM: senza questi RDKit e il lab SQL non funzionano offline
+  './RDKit_minimal.wasm',
+  './lib/sql-wasm.wasm',
+  // texture dei corpi celesti (Terra fotorealistica + Luna)
   './textures/earth_day.jpg',
   './textures/earth_clouds.png',
   './textures/earth_lights.png',
@@ -21,7 +50,6 @@ var PRECACHE = [
 
 self.addEventListener('install', function(e){
   self.skipWaiting();
-  // pre-carico i file pesanti così l'app funziona anche offline
   e.waitUntil(
     caches.open(CACHE).then(function(c){
       return Promise.all(PRECACHE.map(function(u){
@@ -35,7 +63,15 @@ self.addEventListener('activate', function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
       return Promise.all(keys.map(function(k){ if(k !== CACHE) return caches.delete(k); }));
-    }).then(function(){ return self.clients.claim(); })
+    })
+    .then(function(){ return self.clients.claim(); })
+    .then(function(){ return self.clients.matchAll({type:'window'}); })
+    .then(function(clients){
+      // ricarico le pagine gia' aperte cosi' prendono subito la nuova versione
+      clients.forEach(function(c){
+        c.navigate(c.url).catch(function(){ c.postMessage({type:'BSI_SW_UPDATED'}); });
+      });
+    })
   );
 });
 
@@ -57,7 +93,12 @@ self.addEventListener('fetch', function(e){
       return resp;
     }).catch(function(){
       return caches.match(e.request).then(function(r){
-        return r || caches.match('./index.html');
+        if(r) return r;
+        // fallback solo per le navigazioni: per un asset mancante devo restituire
+        // un 404 vero, altrimenti il chiamante riceve HTML al posto di JS/immagini
+        // e il fallback applicativo (es. texture o CDN) non scatta mai.
+        if(e.request.mode === 'navigate') return caches.match('./index.html');
+        return new Response('', {status:504, statusText:'offline'});
       });
     })
   );

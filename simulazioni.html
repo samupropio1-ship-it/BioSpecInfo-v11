@@ -283,13 +283,20 @@
 /* ══════════════════════════════════════════════════════════
    SIMULAZIONE pH — chimica verificata (Kw = 1e-14)
    ══════════════════════════════════════════════════════════ */
+// Contatore di "generazione" per le simulazioni con loop ad animazione
+// continua (pH, Tamponi, Gas): ri-selezionare una tab già attiva toglie e
+// rimette subito la classe 'on', quindi il vecchio loop non vede mai lo
+// stato "spento" e continuava a girare in parallelo a uno nuovo. Ogni
+// avvio incrementa il contatore; un loop che non è più l'ultimo avviato
+// si ferma da solo al frame successivo, invece di accumularsi.
+var simGen = { ph: 0, buf: 0, gas: 0 };
 function switchSim(el,id){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.sim').forEach(function(s){s.classList.remove('on');});
   el.classList.add('on');
   document.getElementById('sim-'+id).classList.add('on');
-  if(id==='ph') drawPh(); else if(id==='titr') drawTitr(); else if(id==='buf') drawBuf();
-  else if(id==='beer') updateBeer(); else if(id==='gas'){ updateGas(); drawGas(); } else if(id==='kin'){ updateKin(); }
+  if(id==='ph'){ simGen.ph++; drawPh(); } else if(id==='titr') drawTitr(); else if(id==='buf'){ simGen.buf++; drawBuf(); }
+  else if(id==='beer') updateBeer(); else if(id==='gas'){ simGen.gas++; updateGas(); drawGas(); } else if(id==='kin'){ updateKin(); }
 }
 
 // formattazione notazione scientifica leggibile: 1.0×10⁻⁷
@@ -357,6 +364,7 @@ function updatePh(ph){
 }
 
 function drawPh(){
+  var myGen=simGen.ph;
   var w=phCanvas.width,h=phCanvas.height;
   phCtx.clearRect(0,0,w,h);
   // liquido colorato
@@ -380,7 +388,7 @@ function drawPh(){
     phCtx.fillStyle='#fff';phCtx.font='bold 9px sans-serif';phCtx.textAlign='center';
     phCtx.fillText(pt.type===0?'H⁺':'OH⁻',px,py-pt.r-2);
   });
-  requestAnimationFrame(function(){ if(document.getElementById('sim-ph').classList.contains('on')) drawPh(); });
+  requestAnimationFrame(function(){ if(myGen===simGen.ph && document.getElementById('sim-ph').classList.contains('on')) drawPh(); });
 }
 
 document.getElementById('phSlider').addEventListener('input',function(e){ updatePh(parseFloat(e.target.value)); });
@@ -522,6 +530,7 @@ function updateBuf(){
 }
 
 function drawBuf(){
+  var myGen=simGen.buf;
   var w=bufCanvas.width,h=bufCanvas.height;
   bufCtx.clearRect(0,0,w,h);
   bufCtx.fillStyle='#0c2036';bufCtx.fillRect(0,0,w,h);
@@ -536,7 +545,7 @@ function drawBuf(){
     bufCtx.fillStyle=grd;bufCtx.beginPath();bufCtx.arc(px,py,pt.r*3,0,7);bufCtx.fill();
     bufCtx.fillStyle=c;bufCtx.beginPath();bufCtx.arc(px,py,pt.r,0,7);bufCtx.fill();
   });
-  requestAnimationFrame(function(){ if(document.getElementById('sim-buf').classList.contains('on')) drawBuf(); });
+  requestAnimationFrame(function(){ if(myGen===simGen.buf && document.getElementById('sim-buf').classList.contains('on')) drawBuf(); });
 }
 
 document.getElementById('bufSlider').addEventListener('input',function(e){ bufLogRatio=parseFloat(e.target.value); updateBuf(); });
@@ -618,6 +627,7 @@ function updateGas(){
   gasCanvas._V=V; gasCanvas._T=T; gasCanvas._n=n;
 }
 function drawGas(){
+  var myGen=simGen.gas;
   var w=gasCanvas.width,h=gasCanvas.height;
   gasCtx.clearRect(0,0,w,h);
   var V=gasCanvas._V||10, T=gasCanvas._T||298, n=gasCanvas._n||1;
@@ -639,7 +649,7 @@ function drawGas(){
     gasCtx.fillStyle=grd;gasCtx.beginPath();gasCtx.arc(px,py,9,0,7);gasCtx.fill();
     gasCtx.fillStyle=col;gasCtx.beginPath();gasCtx.arc(px,py,3.5,0,7);gasCtx.fill();
   });
-  requestAnimationFrame(function(){ if(document.getElementById('sim-gas').classList.contains('on')) drawGas(); });
+  requestAnimationFrame(function(){ if(myGen===simGen.gas && document.getElementById('sim-gas').classList.contains('on')) drawGas(); });
 }
 ['gasV','gasT','gasN'].forEach(function(id){ document.getElementById(id).addEventListener('input',updateGas); });
 

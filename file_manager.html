@@ -504,9 +504,11 @@ async function updateStats(){
   var photos = await dbGetAll('photos');
   var sections = await dbGetAll('sections');
   var notes = await dbGetAll('notes');
+  var docs = await dbGetAll('docs');
   var el = document.getElementById('stat-grid');
   var totalSize = photos.reduce(function(a,p){return a+(p.size||0);},0)
-                + sections.reduce(function(a,s){return a+(s.size||0);},0);
+                + sections.reduce(function(a,s){return a+(s.size||0);},0)
+                + docs.reduce(function(a,d){return a+(d.size||0);},0);
   el.innerHTML=[
     {v:photos.length,l:'Foto'},
     {v:sections.length,l:'Sezioni HTML'},
@@ -579,7 +581,7 @@ async function renderPhotos(){
         '<div class="file-name">'+escHtml(p.name)+'</div>'+
         '<div class="file-meta">'+fmtSize(p.size)+'</div>'+
       '</div>'+
-      '<button class="file-del" onclick="event.stopPropagation();deletePhoto('+p.id+')">✕</button>'+
+      '<button aria-label="Chiudi" class="file-del" onclick="event.stopPropagation();deletePhoto('+p.id+')">✕</button>'+
       '</div>';
   }).join('');
 }
@@ -740,12 +742,17 @@ function handleQuickUpload(files){
 
 // ─── CLEAR ALL ────────────────────────────────────────────────────────────────
 async function clearAll(){
-  var stores=['photos','sections','notes','activity'];
+  var stores=['photos','sections','notes','activity','docs'];
   for(var s of stores){
     var items=await dbGetAll(s);
     for(var i of items) await dbDelete(s,i.id||i.key);
   }
   showToast('🗑️ Tutti i file eliminati');
+  // ri-renderizzo subito le tab già visitate, altrimenti mostrerebbero ancora
+  // i contenuti appena cancellati finché l'utente non ricarica la pagina
+  if(_tabInited['photos']) renderPhotos();
+  if(_tabInited['sections']) renderSections();
+  renderDocs();
   refreshAll();
 }
 
@@ -805,7 +812,7 @@ async function uploadDocs(files){
     try{
       var data=await readFileAsDataURL(f);
       await dbAdd('docs',{name:f.name,type:f.type||'file',size:f.size,data:data,date:Date.now()});
-      await logActivity('📄 Documento caricato: '+f.name);
+      await logActivity('📄','Documento caricato: '+f.name);
     }catch(e){ showToast('Errore caricando '+f.name); }
   }
   showToast('Documenti caricati'); renderDocs(); refreshAll&&refreshAll();
@@ -822,13 +829,13 @@ async function renderDocs(){
         +'<div style="flex:1;min-width:0"><div style="color:#e9eef6;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(d.name)+'</div>'
         +'<div style="color:#9fb3c8;font-size:.74rem">'+fmtSize(d.size)+' · '+new Date(d.date).toLocaleDateString()+'</div></div>'
         +'<a href="'+d.data+'" download="'+escHtml(d.name)+'" style="background:#00c9b7;color:#04121e;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:.78rem;font-weight:700">⬇</a>'
-        +'<button onclick="deleteDoc('+d.id+')" style="background:rgba(224,103,139,.2);color:#e0678b;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.78rem">🗑</button></div>';
+        +'<button aria-label="Elimina" onclick="deleteDoc('+d.id+')" style="background:rgba(224,103,139,.2);color:#e0678b;border:none;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.78rem">🗑</button></div>';
     }).join('');
   }catch(e){ list.innerHTML='<div style="color:#e0678b">Errore nel caricamento documenti.</div>'; }
 }
 async function deleteDoc(id){
   if(!confirm('Eliminare questo documento?')) return;
-  try{ await dbDelete('docs',id); await logActivity('🗑 Documento eliminato'); renderDocs(); refreshAll&&refreshAll(); }catch(e){}
+  try{ await dbDelete('docs',id); await logActivity('🗑','Documento eliminato'); renderDocs(); refreshAll&&refreshAll(); }catch(e){}
 }
 
 </script>
