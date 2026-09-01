@@ -9,88 +9,50 @@ Repository: samupropio1-ship-it/BioSpecInfo-v11
 GitHub Pages: https://samupropio1-ship-it.github.io/BioSpecInfo-v11/
 Branch di sviluppo: claude/app-layout-synthesis-features-97UCN
 Branch principale: main
-Tipo: Single-file HTML5 PWA (Progressive Web App) per chimica farmaceutica
+Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 
-## STRUTTURA FILE
-- index.html          (~37.850 righe) — App principale con tutte le sezioni
-- rdkit_lab.html      (~4.100 righe)  — Lab cheminformatica RDKit.js (iframe overlay)
-- accademia.html      (~1.329 righe)  — Piattaforma gamificata "Duolingo della chimica"
-- chimorga.html                       — Chimica organica 1+2
-- guidaret.html                       — Guida reazioni
-- sr_completo.html                    — Spettri completi
-- sr_essenziale.html                  — Spettri essenziali
-- changelog_tesi.html                 — Documentazione tecnica per tesi (dal 26/06/2026)
-- sw.js                               — Service Worker (cache PWA, versione corrente: 07b)
-- manifest.json                       — PWA manifest
-- download.html                       — Pagina download/install
-- prompt_sessione.txt                 — Questo file (contesto sessione AI)
+## STRUTTURA FILE (aggiornata)
 
-## STATO ATTUALE (1 luglio 2026)
+### Pagine applicative
+- index.html                       (~43.880 righe) — app principale, 84 sezioni
+- astro.html                       (~8.716 righe)  — Astrochimica 3D PRO, 18 tab
+- rdkit_lab.html                   (~4.322 righe)  — lab cheminformatica RDKit.js
+- sr_completo.html / sr_essenziale.html            — spettri (completo/essenziale)
+- chimorga.html                                    — chimica organica 1+2
+- accademia.html                   (323 domande)   — "Duolingo della chimica"
+- Biochimica_Guida_Definitiva.html                 — guida biochimica
+- simulazioni.html                                 — simulazioni interattive
+- pro.html                         (8 tab)         — PRO Hub (ML, QM, fisica...)
+- file_manager.html                                — area protetta da password
+- guidaret.html                                    — guida reazioni
+- changelog_tesi.html                              — documentazione tecnica/tesi
+- download.html                                    — pagina download/install
 
-### index.html — sezioni presenti:
-- NMR ¹H/¹³C/2D, IR, UV-Vis, MS, Raman (con quiz spettri)
-- Sintesi organica (324 reazioni, viewer SVG animato)
-- Retrosintesi interattiva
-- Biosintesi (26 vie metaboliche)
-- Viewer 3D molecolare (3Dmol.js + Three.js)
-- Farmaci, biomolecole, steroidi
-- Quiz NMR, IR, metaboliche, SMILES
-- Accademia Chimica (overlay iframe → accademia.html)
-- RDKit Lab (overlay iframe → rdkit_lab.html)
-- Chimica Organica 1+2 (overlay iframe → chimorga.html)
-- Documentazione Tecnica/Tesi (overlay iframe → changelog_tesi.html) [key='tesi']
-- Navbar con bottoni: Sintesi, Organica 1+2, Accademia, Retrosintesi, Biosintesi
+### Librerie locali
+- three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
+- 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
+- RDKit_minimal.js                              — stub RDKit (vedi NOTE)
+- bsi-ai-hub.js                                 — hub funzioni AI
+- lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 
-### index.html — overlay functions:
-- window.openRDKitLab()  → 'bsi-rdkitlab-ov'  → rdkit_lab.html
-- window.openAccademia() → 'bsi-accademia-ov'  → accademia.html
-- window.openChimOrga()  → 'bsi-chimorga-ov'   → chimorga.html
-- window.openTesi()      → 'bsi-tesi-ov'       → changelog_tesi.html
-- window.openGuidaRet()  → 'bsi-guidaret-ov'   → guidaret.html
-Tutte usano _BSI_TB_STYLE (topbar) e _BSI_BACK_BTN (pulsante ↩ Indietro).
-Disponibili nel Bottom Sheet (key: 'rdkitlab', 'accademia', 'chimorga', 'tesi', 'guidaret').
+### Infrastruttura
+- sw.js            — Service Worker (network-first). Cache: bsi-v117
+- manifest.json    — PWA manifest
+- docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
+- LICENSE, README.md, THIRD_PARTY_NOTICES.md
 
-### rdkit_lab.html — tab presenti (13 tab):
-1.  📋 Intro     — guida teorica completa
-2.  🔬 Molecola  — input SMILES, struttura 2D (RDKit + SmilesDrawer fallback)
-    - Preset: Farmaci, Organica, Biochimica, Naturali, Solventi, Chimica Fisica
-3.  📊 Descrittori — 12 descrittori con export JSON/CSV
-4.  💊 Drug-likeness — Lipinski/Veber/Ghose/Egan/Lead-like/Fragment + QED gauge + Radar
-5.  🔮 QSAR      — LogS, pIC50, BBB, hERG, ADMET, biodisponibilità
-6.  🔗 Similarità — Tanimoto Fingerprint Morgan + visualizzatore bit 2048
-7.  🔍 SMARTS    — ricerca sottostruttura con highlight giallo
-8.  ⚖️ Confronto — side-by-side due molecole + tabella delta
-9.  📚 Libreria  — salva/esporta JSON/CSV molecole personali
-10. 📖 Guida     — accordion completo con SMILES, regole, FAQ
-11. 🎬 Spettri   — NMR¹H/IR/UV/MS/Raman animati con SpectralLab canvas
-12. 🔬 Pharma Pro — ADME/BBB/CYP3A4/P-gp, Radar 5 assi, Docking score,
-    Alert PAINS, Confronto 8 farmaci ref, Export Report HTML
-    AUTO-POPOLA lo SMILES corrente quando si apre il tab
-13. ⚛️ Quantum Lab — orbitali 1s/2s/2p/3d/sp/sp²/sp³ animati, 25 elementi,
-    nuvola elettronica (cloud mode), livelli energetici (energy mode),
-    configurazione elettronica, proprietà atomiche
-
-### accademia.html — Duolingo della chimica:
-- 10 livelli (Molecola → Maestro) con soglie XP
-- 83 domande in 6 categorie: biochimica(20), organica(20), spettri(15),
-  termodinamica(10), cinetica(10), stechiometria(8)
-- 3 difficoltà con timer (45s/30s/20s)
-- Streak giornaliero con moltiplicatori (×1.5 ≥3gg, ×2.0 ≥7gg)
-- Confetti, level-up overlay, XP popup animati
-- localStorage: bsi_academy_v2
-
-### changelog_tesi.html — Documentazione tecnica per tesi:
-- Dark theme (#071221 bg, #00c9b7 accent), responsive
-- Statistiche progetto (8 stat card): 4 file HTML, 43K+ righe, 13 tab RDKit, 83 domande...
-- Timeline delle modifiche dal 26/06/2026 con entry per ogni deploy
-- Dettaglio release per ogni PR/commit con tag NEW/FIX/IMP/PERF
-- Tabella architettura tecnica
-- Accessibile dal Bottom Sheet (key='tesi') → overlay iframe
-- Da aggiornare ad ogni deploy significativo
+## astro.html — 18 tab
+catalog (Catalogo Corpi) - cosmo (Cosmo 3D) - gallery (Galleria telescopi) -
+mol (Molecole ISM) - exo (Corpi Celesti) - neb (Nebulose) - spec (Spettri) -
+nuc (Nucleosintesi) - theory (Teoria & Formule) - phenomena (Fenomeni Cosmici) -
+extreme (Corpi Estremi) - reactions (Reazioni Astrochimiche) -
+missions (Missioni & Telescopi) - timeline (Timeline Cosmica) -
+resources (Risorse Ufficiali) - calc (Calcolatori) - com (Comete) - quiz
 
 ## PATTERN DI SVILUPPO
 
-### Overlay iframe (pattern standard):
+### Overlay iframe (pattern standard)
+Ogni pagina secondaria si apre come overlay a tutto schermo dentro index.html:
 ```javascript
 window.openTesi=function(){
   var ov=document.getElementById('bsi-tesi-ov');
@@ -98,29 +60,21 @@ window.openTesi=function(){
     ov=document.createElement('div');
     ov.id='bsi-tesi-ov';
     ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';
-    var tb=document.createElement('div');
-    tb.style.cssText=_BSI_TB_STYLE; // topbar con safe-area-inset-top
-    var fr=document.createElement('iframe');
-    fr.src='changelog_tesi.html';
+    var tb=document.createElement('div'); tb.style.cssText=_BSI_TB_STYLE;
+    var fr=document.createElement('iframe'); fr.src='changelog_tesi.html?v='+Date.now();
     fr.style.cssText='flex:1;border:none;width:100%;height:100%';
-    var cb=document.createElement('button');
-    cb.setAttribute('style',_BSI_BACK_BTN); // bottom:calc(20px + env(safe-area-inset-bottom,0px))
-    cb.innerHTML='↩ Indietro';
-    cb.onclick=function(){ov.style.display='none';};
+    var cb=document.createElement('button'); cb.setAttribute('style',_BSI_BACK_BTN);
+    cb.innerHTML='&#8617; Indietro'; cb.onclick=function(){ov.style.display='none';};
     ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);
     document.body.appendChild(ov);
   } else ov.style.display='flex';
 };
 ```
+Funzioni disponibili: openAstro, openPro, openFileManager, openAccademia,
+openRDKitLab, openChimOrga, openGuidaRet, openSimulazioni, openTesi, openSR14.
+Voci del Bottom Sheet nell'array _ITEMS, smistate da _act(key).
 
-### SW cache bump (ogni deploy):
-In sw.js: cambia CACHE_VERSION da 'biospecinfo-v99-2026-07a' a '...-07b' ecc.
-Se aggiungi nuovi file: aggiungili all'array STATIC_FILES in sw.js.
-STATIC_FILES include: index.html, manifest.json, icon-192/512.png, 3Dmol-min.js,
-three.min.js, guidaret.html, sr_completo.html, sr_essenziale.html, chimorga.html,
-rdkit_lab.html, accademia.html, changelog_tesi.html, prompt_sessione.txt
-
-### Mobile safe-area:
+### Mobile safe-area
 ```javascript
 var _BSI_TB_STYLE='display:flex;align-items:flex-end;background:#071221;border-bottom:1px solid #1c3a57;'+
   'padding:env(safe-area-inset-top,12px) 10px 8px 10px;'+
@@ -131,55 +85,49 @@ var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,
   'display:inline-flex;align-items:center;gap:5px';
 ```
 
-### RDKit loading (robusto):
-- 6 CDN (jsdelivr + unpkg, 3 versioni) con retry automatico
-- Fallback immediato con SmilesDrawer per strutture 2D
-- smilesDescHeuristic(smi): stima descrittori da SMILES senza RDKit
-- Pulsante "↺ Ricarica" se tutti i CDN falliscono
-- initRDKitRobust() / window._rdkInitFn() per retry
+### SW cache bump (ad ogni deploy)
+In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
+Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
-## AGGIORNARE IL CHANGELOG TESI
-Ogni volta che si fa un deploy significativo, aggiornare changelog_tesi.html:
-1. Aggiungere entry nella sezione timeline (.tl-item) con la data
-2. Aggiungere blocco .release con tag NEW/FIX/IMP/PERF
-3. Aggiornare le stat card se cambiano i numeri
-4. Fare commit + push + PR merge
+## NOTE IMPORTANTI (bug gia' risolti — non reintrodurli)
 
-## POSSIBILI MIGLIORAMENTI FUTURI
+1) TEXTURE MANCANTI — la cartella ./textures/ NON e' nel deploy. astro.html usa
+   _texSafe(url, fbType, onLoad, onGone) invece di TextureLoader.load() diretto:
+   se il file manca ricade sulle texture NASA incorporate in REAL_TEX (base64) o
+   su quelle procedurali. Le mappe di dettaglio (normal/specular/luci/nuvole)
+   vengono rimosse dal materiale. Senza questo i pianeti erano NERI.
 
-### Priorità ALTA:
-- [ ] Modalità offline completa per RDKit.js (cache WASM nel SW)
-- [ ] Editor SMILES drag-and-drop canvas (disegno struttura)
-- [ ] Integrazione PubChem autocomplete per ricerca molecole per nome
-- [ ] Sezione "Chimica Computazionale" con ottimizzazione geometria 3D
-- [ ] Accademia: modalità multiplayer/sfida amici (via URL share)
+2) WASM MANCANTI — RDKit_minimal.wasm e lib/sql-wasm.wasm non sono nel deploy.
+   Entrambi i loader fanno una HEAD sul .wasm prima di inizializzare e passano
+   al CDN se manca. Serve perche' Emscripten chiama abort() senza mai respingere
+   la promise: un .catch() da solo lascerebbe la cascata appesa per sempre.
 
-### Priorità MEDIA:
-- [ ] Dark/light mode toggle per rdkit_lab.html
-- [ ] Esportazione dati in formato SDF/MOL2 per uso in software esterni
-- [ ] Sezione "Farmacologia Clinica" con tabelle farmaci approvati FDA/EMA
-- [ ] NMR 2D avanzato (COSY, HSQC, HMBC) nella sezione Spettri
-- [ ] Animazione reazioni chimiche (arrow-pushing mechanism)
+3) SERVICE WORKER — in caso di fetch fallito restituisce index.html SOLO per le
+   navigazioni. Per gli asset restituisce 504, altrimenti il chiamante riceve
+   HTML al posto di JS/immagini e i fallback applicativi non scattano.
 
-### Priorità BASSA:
-- [ ] Tema "neon" per Quantum Lab
-- [ ] Tabella periodica interattiva integrata in Quantum Lab
-- [ ] Export report in PDF (jsPDF o html2canvas)
-- [ ] Condivisione molecola via QR code generato in-app
+4) ID DUPLICATI — in index.html alcuni id compaiono due volte (markup statico +
+   template JS che fa innerHTML sulla stessa sezione). A runtime ne resta uno
+   solo: e' un code smell noto, non un bug.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
-git push -u origin claude/app-layout-synthesis-features-97UCN
+  git push -u origin claude/app-layout-synthesis-features-97UCN
 
-Se il branch ha già un PR merged, ripartire da main:
+Se il branch ha gia' un PR merged, ripartire da main:
   git fetch origin main
   git checkout -B claude/app-layout-synthesis-features-97UCN origin/main
 
-Merge conflicts → sempre: git merge origin/main -X ours --no-edit
+PR: creare via GitHub MCP (mcp__github__create_pull_request) e fare merge con
+    mcp__github__merge_pull_request — owner: samupropio1-ship-it
 
-PR: creare via GitHub MCP (mcp__github__create_pull_request) e fare merge
-    con mcp__github__merge_pull_request — owner: samupropio1-ship-it
+## COME VERIFICARE PRIMA DI FARE DEPLOY
+```bash
+python3 -m http.server 8899 &          # server locale
+npm i playwright-core                  # test con browser reale
+# controlla: errori JS in console, 404, e che tutti i tab si aprano
+```
 
 ================================================================================
-  Fine prompt — versione aggiornata al 01/07/2026
+  Fine prompt — versione aggiornata al 01/09/2026
 ================================================================================

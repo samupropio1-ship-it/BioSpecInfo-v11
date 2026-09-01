@@ -1,9 +1,52 @@
 <!doctype html>
 <html lang="it">
 <head>
+<script>
+/* ===== BSI GUARD v14 — localStorage sicuro (incognito / cookie bloccati / WebView) =====
+   Senza questa guardia, un accesso a localStorage in modalita' privata lancia
+   SecurityError e INTERROMPE l'intero script della pagina (sezioni vuote). */
+(function(){
+  var ok=false;
+  try{var t="__bsi_probe";window.localStorage.setItem(t,t);window.localStorage.removeItem(t);ok=true;}catch(e){ok=false;}
+  if(!ok){
+    var mem={};
+    try{
+      Object.defineProperty(window,"localStorage",{
+        value:{
+          getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+          setItem:function(k,v){mem[k]=String(v);},
+          removeItem:function(k){delete mem[k];},
+          clear:function(){mem={};},
+          key:function(i){return Object.keys(mem)[i]||null;},
+          get length(){return Object.keys(mem).length;}
+        },
+        configurable:true
+      });
+    }catch(e2){}
+  }
+  /* JSON.parse sicuro riutilizzabile */
+  window.bsiSafeParse=function(raw,fallback){
+    try{ var v=JSON.parse(raw); return (v===null||v===undefined)?fallback:v; }
+    catch(e){ return fallback; }
+  };
+  window.bsiLoadJSON=function(key,fallback){
+    try{ return window.bsiSafeParse(window.localStorage.getItem(key), fallback); }
+    catch(e){ return fallback; }
+  };
+  window.bsiSaveJSON=function(key,val){
+    try{ window.localStorage.setItem(key, JSON.stringify(val)); return true; }
+    catch(e){ return false; }
+  };
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chimica Organica 1+2 — BioSpecInfo</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d1522">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0a1b2e;color:#d4e0ec;line-height:1.55}
@@ -62,6 +105,7 @@ select{background:#0d2236;color:#e8eef4;border:1px solid #1c3a57;border-radius:4
 </style>
 </head>
 <body>
+<style>/* spazio in fondo: i pulsanti flottanti dell'hub non coprono il contenuto */body{padding-bottom:172px}</style>
 <div id="layout">
 <nav id="sidenav">
   <div class="logo">⚗️ Chimica Organica</div>
@@ -83,10 +127,17 @@ select{background:#0d2236;color:#e8eef4;border:1px solid #1c3a57;border-radius:4
   <a class="nav-s" onclick="goS('s16')"><span class="nav-num">16</span>Lipidi</a>
   <a class="nav-s" onclick="goS('s17')"><span class="nav-num">17</span>Nucleosidi &amp; Nucleotidi</a>
   <a class="nav-s" onclick="goS('s18')"><span class="nav-num">18</span>Sintesi Animate ✨</a>
+  <a class="nav-s" onclick="goS('s19')"><span class="nav-num">19</span>Reazioni Nominali 📖</a>
+  <a class="nav-s" onclick="goS('s20')"><span class="nav-num">20</span>Eterocicli 🧬</a>
+  <a class="nav-s" onclick="goS('s21')"><span class="nav-num">21</span>Pericicliche &amp; W–H</a>
+  <a class="nav-s" onclick="goS('s22')"><span class="nav-num">22</span>Organometallici &amp; Coupling</a>
+  <a class="nav-s" onclick="goS('s23')"><span class="nav-num">23</span>Radicali</a>
+  <a class="nav-s" onclick="goS('s24')"><span class="nav-num">24</span>Spettroscopia 🔬</a>
+  <a class="nav-s" onclick="goS('s25')"><span class="nav-num">25</span>Retrosintesi &amp; PG</a>
 </nav>
 <div id="main">
 <h1>⚗️ Chimica Organica 1 + 2</h1>
-<p style="color:#9fb3c8;font-size:.85rem;margin-bottom:16px">Guida completa · 17 moduli · meccanismi interattivi · stereochimica · molecole biologiche</p>
+<p style="color:#9fb3c8;font-size:.85rem;margin-bottom:16px">Guida completa · 25 moduli · meccanismi interattivi · stereochimica · eterocicli · pericicliche · spettroscopia · retrosintesi</p>
 
 <!-- S1 ─────────────────────────────────────────────────────── -->
 <section class="sec" id="s1">
@@ -1086,9 +1137,15 @@ function goS(id){
 window.addEventListener('scroll',function(){
   var mid=window.scrollY+window.innerHeight/2;
   var active='s1';
-  ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12','s13','s14','s15','s16','s17','s18'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el&&el.offsetTop<=mid)active=id;
+  // Elenco generato dai link della sidenav stessa, cosi' non si disallinea
+  // più se in futuro si aggiungono altre sezioni (prima era una lista fissa
+  // ferma a s18, mentre le sezioni arrivano fino a s25).
+  document.querySelectorAll('.nav-s').forEach(function(navEl){
+    var m = (navEl.getAttribute('onclick')||'').match(/goS\('([^']+)'\)/);
+    if(!m) return;
+    var id = m[1];
+    var el = document.getElementById(id);
+    if(el && el.offsetTop <= mid) active = id;
   });
   document.querySelectorAll('.nav-s').forEach(function(el){
     el.classList.toggle('active',el.getAttribute('onclick')==="goS('"+active+"')");
@@ -1277,15 +1334,16 @@ function drawSmooth(ctx,pts,pl,gW,gH){
 window.addEventListener('load',function(){drawNm();drawCh();drawSN();});
 
 // Show floating back button when embedded in BioSpecInfo overlay
-(function(){
+// (rimandato a 'load': lo script gira prima che #bsi-co-back sia nel DOM,
+// quindi un accesso immediato restituiva sempre null e lanciava un errore)
+window.addEventListener('load', function(){
   try{
-    if(window.self!==window.top){
-      document.getElementById('bsi-co-back').style.display='block';
-    }
-  }catch(e){
-    document.getElementById('bsi-co-back').style.display='block';
-  }
-})();
+    var isEmbedded = true;
+    try{ isEmbedded = (window.self !== window.top); }catch(e){ isEmbedded = true; }
+    var btn = document.getElementById('bsi-co-back');
+    if(btn && isEmbedded) btn.style.display = 'block';
+  }catch(e){}
+});
 </script>
 
 <!-- ─── Section 18: Sintesi Animate ──────────────────────────────────── -->
@@ -1672,6 +1730,209 @@ window.addEventListener('load',function(){drawNm();drawCh();drawSN();});
   <span style="color:#c9a0f5">Viola</span> = atomo di Br
 </div>
 </section>
+
+<!-- ══════════════════════════════════ -->
+<section class="sec" id="s19">
+<h2>19 · Reazioni Nominali (Named Reactions)</h2>
+<p style="opacity:.8;margin-bottom:12px">Riferimento rapido delle reazioni nominali più importanti per la sintesi organica e gli esami. Organizzate per tipo di trasformazione.</p>
+<h3>Formazione di legami C–C</h3><div class="card"><table><tr><th>Reazione</th><th>Trasformazione</th><th>Descrizione</th></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Grignard</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">R–MgX + C=O → alcol</td><td style="font-size:.9em">Reattivo di Grignard (organomagnesiaco) addiziona a carbonili → alcoli. Fondamentale per allungare catene.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Wittig</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">R₃P=CR₂ + C=O → C=C</td><td style="font-size:.9em">Ilide di fosforo + aldeide/chetone → alchene. Controllo della posizione del doppio legame.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Aldolica</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">2 carbonili → β-idrossicarbonile</td><td style="font-size:.9em">Enolato attacca un secondo carbonile. Con disidratazione → enone (condensazione aldolica).</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Diels-Alder</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">diene + dienofilo → cicloesene</td><td style="font-size:.9em">Cicloaddizione [4+2] concertata. Crea due legami C–C e un anello a 6 in un colpo.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Michael</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">nucleofilo + enone → addotto 1,4</td><td style="font-size:.9em">Addizione coniugata di un nucleofilo a un sistema α,β-insaturo.</td></tr></table></div><h3>Cross-coupling (Pd)</h3><div class="card"><table><tr><th>Reazione</th><th>Trasformazione</th><th>Descrizione</th></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Suzuki</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">R–B(OH)₂ + R'–X → R–R'</td><td style="font-size:.9em">Accoppiamento con acido boronico. Premio Nobel 2010. Cardine della sintesi moderna.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Heck</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alchene + R–X → alchene sostituito</td><td style="font-size:.9em">Arilazione/vinilazione di alcheni catalizzata da Pd.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Stille</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">R–SnR₃ + R'–X → R–R'</td><td style="font-size:.9em">Accoppiamento con organostannani. Tollera molti gruppi funzionali.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Negishi</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">R–ZnX + R'–X → R–R'</td><td style="font-size:.9em">Con organozinco. Alta selettività.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Sonogashira</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alchino terminale + R–X → alchino interno</td><td style="font-size:.9em">Accoppiamento Pd/Cu per formare legami C(sp)–C(sp²).</td></tr></table></div><h3>Ossidazioni e Riduzioni</h3><div class="card"><table><tr><th>Reazione</th><th>Trasformazione</th><th>Descrizione</th></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Jones/PCC</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alcol → aldeide/chetone/acido</td><td style="font-size:.9em">PCC ferma all'aldeide; Jones (CrO₃) ossida fino ad acido.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Swern</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alcol → aldeide (blando)</td><td style="font-size:.9em">Ossidazione con DMSO attivato, condizioni delicate.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Wacker</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alchene → chetone</td><td style="font-size:.9em">Ossidazione Pd-catalizzata di alcheni terminali a metilchetoni.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Idroborazione</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">alchene → alcol anti-Markovnikov</td><td style="font-size:.9em">BH₃ poi H₂O₂/OH⁻. Regiochimica opposta all'idratazione acida.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Birch</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">arene → 1,4-cicloesadiene</td><td style="font-size:.9em">Riduzione con Na/NH₃. Riduce parzialmente gli aromatici.</td></tr></table></div><h3>Riarrangiamenti e altre</h3><div class="card"><table><tr><th>Reazione</th><th>Trasformazione</th><th>Descrizione</th></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">McMurry</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">2 C=O → C=C</td><td style="font-size:.9em">Accoppiamento riduttivo di due carbonili (Ti). Forma alcheni tetrasostituiti.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Nazarov</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">dienone → ciclopentenone</td><td style="font-size:.9em">Ciclizzazione elettrociclica 4π catalizzata da acidi.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Claisen</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">allil vinil etere → γ,δ-enone</td><td style="font-size:.9em">Riarrangiamento sigmatropico [3,3] concertato.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Mannich</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">ammina + CH₂O + enolo → β-amminochetone</td><td style="font-size:.9em">Amminometilazione, chiave nella sintesi di alcaloidi.</td></tr><tr><td style="font-weight:700;color:#00c9b7;white-space:nowrap">Fischer</td><td style="font-family:monospace;font-size:.85em;white-space:nowrap">fenilidrazina + chetone → indolo</td><td style="font-size:.9em">Sintesi classica dell'anello indolico.</td></tr></table></div>
+<div class="card" style="border-left:3px solid #f5a623">
+<b style="color:#f5a623">💡 Come usarle in retrosintesi:</b> per costruire un legame C–C pensa a Grignard, Wittig, aldolica, Diels-Alder o cross-coupling. Per introdurre gruppi funzionali usa ossidazioni/riduzioni. Ragiona a ritroso dal prodotto (disconnessioni) verso reagenti semplici.
+</div>
+</section>
+
+<!-- S20 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s20">
+<h2>20 · Chimica Eterociclica</h2>
+<p style="opacity:.85;margin-bottom:12px">Anelli con almeno un eteroatomo (N, O, S). Sono lo scheletro della maggior parte dei farmaci e delle biomolecole (basi azotate, emo, clorofilla, vitamine).</p>
+<h3>20.1 Aromaticità e doppietti</h3>
+<div class="card">
+<table>
+<tr><th>Eterociclo</th><th>Anello</th><th>Doppietto N/O nell'aromaticità?</th><th>Carattere</th></tr>
+<tr><td><strong>Pirrolo</strong></td><td>5, 1 N–H</td><td>Sì (il doppietto di N è nel sistema π)</td><td><span class="badge">π-eccessivo</span> · N poco basico</td></tr>
+<tr><td><strong>Furano</strong></td><td>5, 1 O</td><td>Sì (un doppietto di O)</td><td>π-eccessivo · meno aromatico</td></tr>
+<tr><td><strong>Tiofene</strong></td><td>5, 1 S</td><td>Sì</td><td>Il più aromatico dei 5-membri</td></tr>
+<tr><td><strong>Imidazolo</strong></td><td>5, 2 N</td><td>Uno sì (N–H), uno no (=N–)</td><td>Anfotero (istidina)</td></tr>
+<tr><td><strong>Piridina</strong></td><td>6, 1 N</td><td>No (doppietto in un sp² nel piano)</td><td><span class="badge badge-r">π-deficiente</span> · N basico (pKₐH ≈ 5,2)</td></tr>
+</table>
+<div class="tip">Regola: se il doppietto serve a completare i 6 elettroni π (pirrolo) l'azoto <b>non</b> è basico; se il doppietto è in un orbitale sp² nel piano (piridina) l'azoto <b>è</b> basico e nucleofilo.</div>
+</div>
+<h3>20.2 Reattività</h3>
+<div class="card">
+<p><strong>π-eccessivi (pirrolo, furano, tiofene):</strong> reagiscono con la <b>sostituzione elettrofila aromatica</b>, molto più veloci del benzene; l'attacco è preferenziale in <b>C2 (α)</b> perché l'intermedio è più stabilizzato.</p>
+<p><strong>π-deficiente (piridina):</strong> la SEA è difficile e avviene in C3 (β); reagisce invece con la <b>sostituzione nucleofila aromatica</b> in C2/C4 (es. Chichibabin con NaNH₂). L'azoto può essere ossidato a <b>N-ossido</b> per invertire la regiochimica.</p>
+<p><strong>Indolo:</strong> benzo[b]pirrolo; la SEA avviene in <b>C3</b>. Scheletro del triptofano, serotonina, molti alcaloidi.</p>
+</div>
+<h3>20.3 Eterocicli biologici</h3>
+<div class="card">
+<p><b>Purine</b> (adenina, guanina) e <b>pirimidine</b> (citosina, timina, uracile) → basi del DNA/RNA. <b>Imidazolo</b> → istidina, catalisi acido-base enzimatica. <b>Porfirina</b> (4 pirroli) → eme, clorofilla, citocromi. <b>Tiazolo</b> → vitamina B1. <b>β-lattame</b> (anello a 4 con N) → penicilline, cefalosporine.</p>
+</div>
+</section>
+
+<!-- S21 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s21">
+<h2>21 · Reazioni Pericicliche &amp; Regole di Woodward–Hoffmann</h2>
+<p style="opacity:.85;margin-bottom:12px">Reazioni <b>concertate</b> (un solo stato di transizione ciclico, nessun intermedio) controllate dalla simmetria degli orbitali molecolari di frontiera (HOMO/LUMO).</p>
+<h3>21.1 Le tre famiglie</h3>
+<div class="card">
+<table>
+<tr><th>Tipo</th><th>Cosa fa</th><th>Esempio</th></tr>
+<tr><td><strong>Cicloaddizioni</strong></td><td>Due π si uniscono formando un anello (2 nuovi σ)</td><td>Diels-Alder [4+2], 1,3-dipolare</td></tr>
+<tr><td><strong>Elettrocicliche</strong></td><td>Apertura/chiusura di anello (1 π ↔ 1 σ)</td><td>butadiene ⇌ ciclobutene; Nazarov</td></tr>
+<tr><td><strong>Sigmatropiche</strong></td><td>Un legame σ migra lungo un sistema π</td><td>Cope [3,3], Claisen [3,3], [1,5]-H</td></tr>
+</table>
+</div>
+<h3>21.2 Diels-Alder [4+2]</h3>
+<div class="card">
+<div class="formula">diene (s-cis) + dienofilo (C=C povero di e⁻)  →  cicloesene</div>
+<p>Cicloaddizione <b>[4+2] suprafacciale-suprafacciale</b>, termica e <b>concertata</b>. Stereospecifica: <i>cis</i>-dienofilo → prodotto <i>cis</i>. Regola <b>endo</b> (Alder): il TS endo è favorito cineticamente per interazioni orbitaliche secondarie. Il dienofilo è più reattivo con EWG (–CHO, –COOR, –CN); domanda inversa con dieni poveri + dienofili ricchi.</p>
+<div class="tip">La <b>catalisi con acidi di Lewis</b> (AlCl₃) abbassa la LUMO del dienofilo → accelera e aumenta l'endo/regioselettività.</div>
+</div>
+<h3>21.3 Regole di Woodward–Hoffmann</h3>
+<div class="card">
+<table>
+<tr><th>Processo</th><th>Termico (Δ)</th><th>Fotochimico (hν)</th></tr>
+<tr><td>Elettrociclica 4n e⁻ (es. butadiene, 4π)</td><td><b>Conrotatorio</b></td><td>Disrotatorio</td></tr>
+<tr><td>Elettrociclica 4n+2 e⁻ (es. esatriene, 6π)</td><td><b>Disrotatorio</b></td><td>Conrotatorio</td></tr>
+<tr><td>Cicloaddizione (m+n) con 4n+2 e⁻</td><td><b>Permessa</b> supra-supra</td><td>Permessa supra-antara</td></tr>
+</table>
+<div class="tip">Regola mnemonica: si guarda il numero di elettroni π coinvolti; termico e 4n+2 elettroni → processo "aromatico nel TS" (permesso, disrotatorio per le elettrocicliche).</div>
+</div>
+</section>
+
+<!-- S22 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s22">
+<h2>22 · Composti Organometallici &amp; Cross-Coupling</h2>
+<h3>22.1 Reattivi al carbonio nucleofilo</h3>
+<div class="card">
+<table>
+<tr><th>Reattivo</th><th>Polarità C</th><th>Uso tipico</th></tr>
+<tr><td><strong>R–MgX</strong> (Grignard)</td><td>C<sup>δ−</sup> (carbanione)</td><td>addizione a C=O → alcoli; a CO₂ → acidi</td></tr>
+<tr><td><strong>R–Li</strong> (organolitio)</td><td>C<sup>δ−</sup> più reattivo</td><td>basi fortissime, addizioni, orto-metalazione</td></tr>
+<tr><td><strong>R₂CuLi</strong> (Gilman)</td><td>C<sup>δ−</sup> "morbido"</td><td>addizione 1,4 agli enoni; accoppiamento con R–X</td></tr>
+<tr><td><strong>R–ZnX</strong></td><td>C<sup>δ−</sup> tollerante</td><td>Reformatsky, Negishi coupling</td></tr>
+</table>
+<div class="tip">Grignard e organolitio sono <b>incompatibili</b> con OH, NH, C=O acidi e acqua (si protonano). Servono gruppi protettivi o l'uso di reagenti più selettivi (Gilman per l'1,4).</div>
+</div>
+<h3>22.2 Cross-coupling catalizzati da Pd (ciclo catalitico)</h3>
+<div class="card">
+<p>Meccanismo generale: <b>1) Addizione ossidativa</b> di Pd(0) nel legame R–X → R–Pd(II)–X. <b>2) Transmetallazione</b>: il partner organometallico (boronico/zinco/stagno) trasferisce il suo gruppo al Pd. <b>3) Eliminazione riduttiva</b>: si forma R–R' e si rigenera Pd(0).</p>
+<table>
+<tr><th>Reazione</th><th>Partner nucleofilo</th><th>Nobel</th></tr>
+<tr><td><strong>Suzuki–Miyaura</strong></td><td>acido/estere boronico R–B(OH)₂</td><td>2010</td></tr>
+<tr><td><strong>Negishi</strong></td><td>organozinco R–ZnX</td><td>2010</td></tr>
+<tr><td><strong>Heck</strong></td><td>alchene (inserzione migratoria)</td><td>2010</td></tr>
+<tr><td><strong>Sonogashira</strong></td><td>alchino terminale (co-cat. Cu)</td><td>—</td></tr>
+<tr><td><strong>Stille</strong></td><td>organostannano R–SnBu₃</td><td>—</td></tr>
+<tr><td><strong>Buchwald–Hartwig</strong></td><td>ammina (formazione C–N)</td><td>—</td></tr>
+</table>
+<div class="tip">👉 Vedi il player animato "▶ Anima meccanismo" nella sezione <b>Retrosintesi</b> dell'app per l'electron-pushing di Grignard, Wittig, aldolica e SN2.</div>
+</div>
+</section>
+
+<!-- S23 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s23">
+<h2>23 · Chimica Radicalica</h2>
+<p style="opacity:.85;margin-bottom:12px">I radicali hanno un elettrone spaiato: le frecce sono a <b>mezza punta</b> (movimento di un solo elettrone). Reazioni a catena in tre fasi.</p>
+<h3>23.1 Meccanismo a catena</h3>
+<div class="card">
+<table>
+<tr><th>Fase</th><th>Cosa succede</th></tr>
+<tr><td><strong>Inizio</strong></td><td>omolisi (hν o Δ) di un iniziatore: Cl₂ → 2 Cl•, oppure AIBN/perossidi → 2 R•</td></tr>
+<tr><td><strong>Propagazione</strong></td><td>il radicale strappa un H o si addiziona; genera un nuovo radicale (la catena continua)</td></tr>
+<tr><td><strong>Terminazione</strong></td><td>due radicali si combinano (R• + R• → R–R) o disproporzionano</td></tr>
+</table>
+</div>
+<h3>23.2 Reazioni chiave</h3>
+<div class="card">
+<p><strong>Alogenazione radicalica</strong> degli alcani: selettività Br₂ &gt; Cl₂ (Br più selettivo per C 3°). Ordine di stabilità del radicale: <span class="badge">3° &gt; 2° &gt; 1° &gt; CH₃•</span> (come i carbocationi, per iperconiugazione).</p>
+<p><strong>Allilica/benzilica (NBS):</strong> l'N-bromosuccinimmide fornisce basse concentrazioni di Br₂ → bromurazione selettiva in posizione allilica/benzilica (radicale stabilizzato per risonanza).</p>
+<p><strong>Addizione anti-Markovnikov di HBr</strong> (effetto perossido, Kharasch): con perossidi il Br• si addiziona prima al C meno sostituito → radicale più stabile → regiochimica opposta all'addizione ionica.</p>
+<p><strong>Polimerizzazione radicalica:</strong> etene, stirene, cloruro di vinile (PVC), metilmetacrilato (PMMA) → polimeri di addizione.</p>
+<p><strong>Autossidazione &amp; antiossidanti:</strong> O₂ genera perossidi radicalici (irrancidimento dei lipidi); vitamina E e BHT sono <b>scavenger</b> che interrompono la catena.</p>
+</div>
+</section>
+
+<!-- S24 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s24">
+<h2>24 · Spettroscopia per l'Identificazione</h2>
+<p style="opacity:.85;margin-bottom:12px">Come dedurre una struttura dai dati. Strategia: 1) formula &amp; <b>gradi di insaturazione</b>, 2) IR (gruppi funzionali), 3) ¹H-NMR (idrogeni), 4) ¹³C-NMR (carboni), 5) MS (massa &amp; frammenti).</p>
+<h3>24.1 Gradi di insaturazione (DoU)</h3>
+<div class="card">
+<div class="formula">DoU = (2C + 2 + N − H − X) / 2</div>
+<p>Ogni unità = un anello <b>oppure</b> un legame π. Es. benzene C₆H₆ → DoU = 4 (3 doppi legami + 1 anello). Un C=O o C=C = 1; un triplo legame = 2.</p>
+</div>
+<h3>24.2 IR — bande diagnostiche (cm⁻¹)</h3>
+<div class="card">
+<table>
+<tr><th>Gruppo</th><th>Banda</th><th>Note</th></tr>
+<tr><td>O–H (alcol)</td><td>3200–3550 (larga)</td><td>stretch, legame H</td></tr>
+<tr><td>O–H (acido)</td><td>2500–3300 (molto larga)</td><td>sovrapposta a C–H</td></tr>
+<tr><td>N–H</td><td>3300–3500</td><td>1 banda (2°), 2 bande (1°)</td></tr>
+<tr><td><b>C=O</b></td><td>1680–1750</td><td>aldeidi/chetoni ~1715; esteri ~1735; ammidi ~1650</td></tr>
+<tr><td>C≡N / C≡C</td><td>2100–2260</td><td>debole/media</td></tr>
+<tr><td>C=C aromatico</td><td>1450–1600</td><td>più bande</td></tr>
+</table>
+</div>
+<h3>24.3 ¹H-NMR — spostamenti chimici (δ, ppm)</h3>
+<div class="card">
+<table>
+<tr><th>Protone</th><th>δ (ppm)</th></tr>
+<tr><td>alchile R–CH₃</td><td>0,9</td></tr>
+<tr><td>–CH₂– / allilico</td><td>1,3–2,1</td></tr>
+<tr><td>α a C=O (CH₃CO)</td><td>2,1–2,6</td></tr>
+<tr><td>C–H legato a O/N</td><td>3,3–4,5</td></tr>
+<tr><td>vinilico C=C–H</td><td>4,5–6,5</td></tr>
+<tr><td>aromatico Ar–H</td><td>6,5–8,0</td></tr>
+<tr><td>aldeide –CHO</td><td>9,5–10</td></tr>
+<tr><td>acido –COOH</td><td>10–12</td></tr>
+</table>
+<div class="tip">Regola n+1: un protone con <b>n</b> vicini equivalenti dà un multipletto con <b>n+1</b> righe. L'area (integrale) è proporzionale al numero di H. In ¹³C i valori tipici: sp³ 10–50, C–O 50–90, aromatici/vinilici 110–150, C=O 160–220 ppm.</div>
+</div>
+<h3>24.4 Spettrometria di massa</h3>
+<div class="card">
+<p>Lo ione molecolare <b>M⁺·</b> dà la massa. Perdite neutre tipiche: −15 (CH₃), −18 (H₂O), −28 (CO/C₂H₄), −29 (CHO), −45 (COOH). <b>Pattern isotopici</b>: Cl ≈ 3:1 (M:M+2), Br ≈ 1:1. La <b>regola dell'azoto</b>: massa dispari di M⁺ ⇒ numero dispari di atomi di N.</p>
+<div class="tip">👉 Nel <b>Centro Spettri</b> dell'app puoi disegnare una molecola e ottenere IR, ¹H/¹³C-NMR, MS con pattern isotopico e masse degli addotti, tutti predetti.</div>
+</div>
+</section>
+
+<!-- S25 ─────────────────────────────────────────────────────── -->
+<section class="sec" id="s25">
+<h2>25 · Strategia Retrosintetica &amp; Gruppi Protettivi</h2>
+<h3>25.1 Il linguaggio della retrosintesi</h3>
+<div class="card">
+<p>La freccia <b>⇒</b> (di disconnessione) va dal <b>target</b> ai <b>precursori</b>. Un <b>sintone</b> è un frammento idealizzato (spesso ionico); il <b>reagente equivalente</b> (synthetic equivalent) è la molecola reale che lo rappresenta.</p>
+<table>
+<tr><th>Sintone</th><th>Equivalente reale</th></tr>
+<tr><td>acile catione R–C⁺=O</td><td>cloruro acilico R–COCl / estere</td></tr>
+<tr><td>carbanione R⁻</td><td>R–MgBr, R–Li</td></tr>
+<tr><td>d¹ "acile anione" (⁻C=O)</td><td>ditiano (umpolung, Corey–Seebach)</td></tr>
+<tr><td>a² "omoenolato"</td><td>enolato/enammina in posizione β</td></tr>
+</table>
+<div class="tip"><b>Umpolung</b> = inversione di polarità: normalmente il C del carbonile è elettrofilo (a¹); il ditiano lo rende nucleofilo (d¹), permettendo disconnessioni altrimenti impossibili.</div>
+</div>
+<h3>25.2 Regole pratiche di disconnessione</h3>
+<div class="card">
+<ol>
+<li>Disconnetti vicino ai <b>gruppi funzionali</b> (C–X, C–O, C–N, α a C=O).</li>
+<li>Cerca <b>relazioni 1,3</b> (aldolica), <b>1,5-dicarbonile</b> (Michael), <b>1,2-diolo/idrossichetone</b> (benzoino/pinacolo).</li>
+<li>Semplifica la <b>simmetria</b> e riconosci gli anelli (Diels-Alder per cicloeseni; Robinson per cicloesenoni).</li>
+<li>Preferisci disconnessioni che portano a <b>building block commerciali</b>.</li>
+</ol>
+</div>
+<h3>25.3 Gruppi protettivi (PG)</h3>
+<div class="card">
+<table>
+<tr><th>Gruppo</th><th>Protezione</th><th>Deprotezione</th></tr>
+<tr><td>Alcol –OH</td><td>TBS (TBSCl/imidazolo), THP, acetile, benzile</td><td>TBAF (F⁻); H₃O⁺; H₂/Pd</td></tr>
+<tr><td>Ammina –NH₂</td><td>Boc (Boc₂O), Cbz, Fmoc</td><td>TFA; H₂/Pd; base (piperidina)</td></tr>
+<tr><td>Aldeide/chetone C=O</td><td>acetale/diossolano (glicole etilenico)</td><td>H₃O⁺</td></tr>
+<tr><td>Acido –COOH</td><td>estere metilico/benzilico</td><td>NaOH; H₂/Pd</td></tr>
+</table>
+<div class="tip">Un buon PG è: facile da mettere, <b>stabile</b> nelle condizioni della reazione, rimovibile <b>selettivamente</b> senza toccare il resto della molecola (ortogonalità, es. Fmoc/Boc nella sintesi peptidica).</div>
+</div>
+</section>
+
 
 <script>
 // Generic animation controller for chimorga section 18

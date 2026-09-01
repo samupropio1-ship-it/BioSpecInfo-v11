@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BioSpecInfo v11 — Changelog & Documentazione Tecnica</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d1522">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#071221;color:#d4e0ec;line-height:1.6;padding:20px 16px}
@@ -71,10 +75,10 @@ a{color:#00c9b7;text-decoration:none}a:hover{text-decoration:underline}
 <!-- STATISTICHE GENERALI -->
 <h2>📊 Statistiche Progetto</h2>
 <div class="stat-grid">
-  <div class="stat"><span class="stat-val">4</span><span class="stat-lbl">File HTML principali</span></div>
-  <div class="stat"><span class="stat-val">43K+</span><span class="stat-lbl">Righe di codice totali</span></div>
-  <div class="stat"><span class="stat-val">13</span><span class="stat-lbl">Tab nel RDKit Lab</span></div>
-  <div class="stat"><span class="stat-val">83</span><span class="stat-lbl">Domande quiz chimica</span></div>
+  <div class="stat"><span class="stat-val">14</span><span class="stat-lbl">Pagine HTML</span></div>
+  <div class="stat"><span class="stat-val">88K+</span><span class="stat-lbl">Righe di codice totali</span></div>
+  <div class="stat"><span class="stat-val">18</span><span class="stat-lbl">Tab in Astrochimica 3D</span></div>
+  <div class="stat"><span class="stat-val">323</span><span class="stat-lbl">Domande quiz chimica</span></div>
   <div class="stat"><span class="stat-val">10</span><span class="stat-lbl">Livelli Accademia</span></div>
   <div class="stat"><span class="stat-val">25</span><span class="stat-lbl">Elementi Quantum Lab</span></div>
   <div class="stat"><span class="stat-val">8</span><span class="stat-lbl">Farmaci riferimento (Pharma)</span></div>
@@ -119,6 +123,13 @@ a{color:#00c9b7;text-decoration:none}a:hover{text-decoration:underline}
     <div class="tl-dot"></div>
     <div class="tl-date">01/07/2026</div>
     <div class="tl-desc"><strong>🔬 Pharma Pro + ⚛️ Quantum Lab</strong> — Due nuovi tab in RDKit Lab (+738 righe). Pharma Pro: ADME completo, radar 5 regole, docking score stimato per 6 target, alert PAINS, confronto Tanimoto con 8 farmaci, export report HTML. Quantum Lab: visualizzatore canvas orbitali atomici (1s/2s/2p/3d/sp/sp²/sp³), nuvola elettronica, diagramma livelli energetici, 25 elementi con configurazione elettronica. SW bump a 07a.</div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-date">01/09/2026</div>
+    <div class="tl-desc"><strong>🌌 Astrochimica 3D completa + stabilizzazione</strong> — astro.html sale a 18 tab (~8.700 righe): Catalogo Corpi, Cosmo 3D, Galleria telescopi, Molecole ISM, Nebulose, Spettri, Nucleosintesi, Teoria &amp; Formule, Fenomeni Cosmici, Corpi Estremi, Reazioni Astrochimiche, Missioni, Timeline Cosmica, Calcolatori, Comete, Quiz. Aggiunte le pagine simulazioni.html e Biochimica_Guida_Definitiva.html e il dossier tecnico in docs/ (13 documenti + 12 PDF, IT/EN).
+    <br><br><strong>Bug risolti in questa release:</strong> pianeti 3D neri per la cartella ./textures/ assente (nuovo helper <code>_texSafe()</code> con fallback sulle texture NASA incorporate); lab SQL bloccato per sql-wasm.wasm mancante (cascata locale→CDN con probe HEAD); RDKit che abortiva rumorosamente prima di passare ai CDN; <code>exportPDF()</code> richiamata dal menu ma mai definita; doppio campo di ricerca nella Galleria (id duplicato); changelog_tesi.html non più raggiungibile dal menu; favicon mancante in download.html. Service Worker riscritto (bsi-v117): precache di tutte le pagine per l'uso offline e 404 reali sugli asset invece del fallback HTML.</div>
   </div>
 
 </div>

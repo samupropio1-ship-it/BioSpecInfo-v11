@@ -1,9 +1,52 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+/* ===== BSI GUARD v14 — localStorage sicuro (incognito / cookie bloccati / WebView) =====
+   Senza questa guardia, un accesso a localStorage in modalita' privata lancia
+   SecurityError e INTERROMPE l'intero script della pagina (sezioni vuote). */
+(function(){
+  var ok=false;
+  try{var t="__bsi_probe";window.localStorage.setItem(t,t);window.localStorage.removeItem(t);ok=true;}catch(e){ok=false;}
+  if(!ok){
+    var mem={};
+    try{
+      Object.defineProperty(window,"localStorage",{
+        value:{
+          getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+          setItem:function(k,v){mem[k]=String(v);},
+          removeItem:function(k){delete mem[k];},
+          clear:function(){mem={};},
+          key:function(i){return Object.keys(mem)[i]||null;},
+          get length(){return Object.keys(mem).length;}
+        },
+        configurable:true
+      });
+    }catch(e2){}
+  }
+  /* JSON.parse sicuro riutilizzabile */
+  window.bsiSafeParse=function(raw,fallback){
+    try{ var v=JSON.parse(raw); return (v===null||v===undefined)?fallback:v; }
+    catch(e){ return fallback; }
+  };
+  window.bsiLoadJSON=function(key,fallback){
+    try{ return window.bsiSafeParse(window.localStorage.getItem(key), fallback); }
+    catch(e){ return fallback; }
+  };
+  window.bsiSaveJSON=function(key,val){
+    try{ window.localStorage.setItem(key, JSON.stringify(val)); return true; }
+    catch(e){ return false; }
+  };
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accademia BioSpecInfo</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d1522">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -357,6 +400,7 @@ body {
 </style>
 </head>
 <body>
+<style>/* spazio in fondo: i pulsanti flottanti dell'hub non coprono il contenuto */body{padding-bottom:172px}</style>
 
 <!-- TOP BAR -->
 <div id="topbar">
@@ -960,7 +1004,7 @@ const QUESTIONS = [
   {cat:'analitica',diff:'facile',q:'Cosa si intende per "soluzione tampone" e quali componenti la costituiscono?',opts:['Una soluzione che precipita a qualsiasi pH','Una soluzione che resiste alle variazioni di pH: costituita da un acido debole e il suo sale (base coniugata), o una base debole e il suo sale (acido coniugato)','Una soluzione salina neutra di NaCl','Una soluzione con eccesso di acido forte'],ans:1,exp:'Una soluzione tampone contiene un acido debole HA e la sua base coniugata A⁻ (es. CH₃COOH/CH₃COO⁻). Quando si aggiunge H⁺, viene consumato da A⁻ (HA); aggiungendo OH⁻, viene consumato da HA (→ A⁻). Capacità tampone massima a pH = pKa ± 1.'},
   {cat:'analitica',diff:'medio',q:'Cosa descrive l\'equazione di Henderson-Hasselbalch per un tampone?',opts:['pH = pKa × [A⁻]/[HA]','pH = pKa + log([A⁻]/[HA])','pH = pKa − log([HA]/[A⁻])','pH = 2 × pKa − [HA]'],ans:1,exp:'pH = pKa + log([A⁻]/[HA]) è la base per il calcolo dei tamponi: a [A⁻] = [HA] → pH = pKa (massima capacità tamponante). Permette di scegliere il rapporto acido/base per ottenere il pH desiderato nell\'intervallo pKa ± 1.'},
   {cat:'analitica',diff:'difficile',q:'In cromatografia GC, quali proprietà molecolari determinano l\'ordine di eluizione dei composti?',opts:['Principalmente il peso molecolare','Il punto di ebollizione (volatilità) e le interazioni con la fase stazionaria (polare o apolare): i composti meno volatili e/o con più affinità per la fase stazionaria eluiscono più tardi','Solo la polarità','Solo la struttura cristallina'],ans:1,exp:'In GC la separazione dipende dalla volatilità (punto di ebollizione) e dalle interazioni con la fase stazionaria. In colonne apolari (polidimetilsilossano) separazione prevalentemente per p.e.; in colonne polari (PEG) i composti polari sono trattenuti più a lungo. La temperatura del programma GC regola l\'eluizione.'},
-  {cat:'analitica',diff:'medio',q:'Cosa si intende per "recupero" (recovery) in un metodo analitico?',opts:['La quantità di analita recuperata dalla memoria dell\'analizzatore','La percentuale di analita che viene estratto e misurato rispetto alla quantità realmente presente nel campione: recovery ideale = 100%','La riproducibilità delle misure','La velocità dell\'analisi'],ans:1,exp:'Il recovery % = (concentrazione trovata / concentrazione reale) × 100. Un recovery < 100% indica perdite durante l\'estrazione o il trattamento del campione. Un recovery > 100% indica effetti di matrice con enhancement del segnale. Si misura con campioni a cui si aggiunge una quantità nota di analita (spike recovery).'}
+  {cat:'analitica',diff:'medio',q:'Cosa si intende per "recupero" (recovery) in un metodo analitico?',opts:['La quantità di analita recuperata dalla memoria dell\'analizzatore','La percentuale di analita che viene estratto e misurato rispetto alla quantità realmente presente nel campione: recovery ideale = 100%','La riproducibilità delle misure','La velocità dell\'analisi'],ans:1,exp:'Il recovery % = (concentrazione trovata / concentrazione reale) × 100. Un recovery < 100% indica perdite durante l\'estrazione o il trattamento del campione. Un recovery > 100% indica effetti di matrice con enhancement del segnale. Si misura con campioni a cui si aggiunge una quantità nota di analita (spike recovery).'},
 
   /* ── CHIMICA INORGANICA extra ── */
   {cat:'inorganica',diff:'facile',
@@ -1506,6 +1550,7 @@ document.getElementById('start-all-btn').addEventListener('click', () => {
 ══════════════════════════════════════════════════ */
 let quizState     = null;
 let timerInterval = null;
+let levelUpTimer  = null;
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -1517,6 +1562,7 @@ function shuffle(arr) {
 }
 
 function startQuiz(pool, diff, catId) {
+  if (levelUpTimer) { clearTimeout(levelUpTimer); levelUpTimer = null; }
   if (!pool.length) { alert('Nessuna domanda disponibile per questa selezione!'); return; }
   const questions = shuffle(pool).slice(0, Math.min(10, pool.length));
   quizState = {
@@ -1533,6 +1579,24 @@ function startQuiz(pool, diff, catId) {
   showView('quiz-view');
   renderQuestion();
 }
+
+// ── Modalità Esame: 20 domande miste da tutte le categorie, a tempo ──
+function startExam(){
+  var pool=shuffle(QUESTIONS.slice());
+  var questions=pool.slice(0,Math.min(20,pool.length));
+  if(!questions.length){alert('Nessuna domanda disponibile!');return;}
+  quizState={questions:questions,catId:'exam',diff:'esame',index:0,correct:0,wrong:0,totalXP:0,answered:false,isExam:true};
+  recordPlay(); showView('quiz-view'); renderQuestion();
+}
+// ── Sfida Veloce: 5 domande difficili, tempo ridotto ──
+function startChallenge(){
+  var hard=QUESTIONS.filter(function(q){return q.diff==='difficile'||q.diff==='media';});
+  if(hard.length<5) hard=QUESTIONS.slice();
+  var questions=shuffle(hard).slice(0,5);
+  quizState={questions:questions,catId:'challenge',diff:'sfida',index:0,correct:0,wrong:0,totalXP:0,answered:false,isChallenge:true};
+  recordPlay(); showView('quiz-view'); renderQuestion();
+}
+
 
 function renderQuestion() {
   const q     = quizState.questions[quizState.index];
@@ -1649,7 +1713,8 @@ function answerQuestion(chosen, q) {
 
     if (newLv > prevLv) {
       const info = getLevelInfo(state.xp);
-      setTimeout(() => showLevelUp('Lv' + info.lv + ' ' + info.name), 600);
+      if (levelUpTimer) clearTimeout(levelUpTimer);
+      levelUpTimer = setTimeout(() => { levelUpTimer = null; showLevelUp('Lv' + info.lv + ' ' + info.name); }, 600);
     }
   } else {
     quizState.wrong++;
@@ -1674,6 +1739,7 @@ function showExplanation(text) {
 }
 
 document.getElementById('next-btn').addEventListener('click', () => {
+  if (levelUpTimer) { clearTimeout(levelUpTimer); levelUpTimer = null; }
   quizState.index++;
   if (quizState.index >= quizState.questions.length) endQuiz();
   else renderQuestion();

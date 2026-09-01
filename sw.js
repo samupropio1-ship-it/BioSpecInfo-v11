@@ -1,131 +1,95 @@
-// BioSpecInfo Service Worker — cache file singolo HTML + risorse + API PubChem/RCSB
+// BioSpecInfo Service Worker v117 — network-first + precache di pagine e librerie
 'use strict';
 
-const CACHE_VERSION = 'biospecinfo-v99-2026-07h';
-const STATIC_CACHE = CACHE_VERSION + '-static';
-const API_CACHE = CACHE_VERSION + '-api';
+var CACHE = 'bsi-v117';
 
-const STATIC_FILES = [
+// Precarico SOLO file che esistono davvero nel deploy: le voci fantasma
+// (RDKit_minimal.wasm, lib/sql-wasm.wasm, textures/*) generavano 8 richieste
+// fallite ad ogni install. Le loro controparti hanno gia' un fallback su CDN
+// nel codice applicativo, quindi non serve elencarle qui.
+var PRECACHE = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './3Dmol-min.js',
-  './three.min.js',
+  // pagine (overlay iframe): senza queste l'app offline mostrava iframe vuoti
+  './astro.html',
+  './pro.html',
+  './accademia.html',
+  './rdkit_lab.html',
+  './chimorga.html',
   './guidaret.html',
   './sr_completo.html',
   './sr_essenziale.html',
-  './chimorga.html',
-  './rdkit_lab.html',
-  './accademia.html',
-  './astro.html',
-  './pro.html',
+  './simulazioni.html',
   './file_manager.html',
   './changelog_tesi.html',
-  './prompt_sessione.txt'
+  './Biochimica_Guida_Definitiva.html',
+  './download.html',
+  // librerie locali pesanti
+  './bsi-ai-hub.js',
+  './3Dmol-min.js',
+  './three.min.js',
+  './three_bloom.js',
+  './gltf_loader.js',
+  './smiles-drawer.min.js',
+  './lib/sql-wasm.js',
+  './lib/dimuon.js'
 ];
 
-// Install: precarica i file statici
 self.addEventListener('install', function(e){
   self.skipWaiting();
   e.waitUntil(
-    caches.open(STATIC_CACHE).then(function(c){
-      return c.addAll(STATIC_FILES).catch(function(err){
-        console.warn('[SW] Pre-cache fallita:', err);
-      });
+    caches.open(CACHE).then(function(c){
+      return Promise.all(PRECACHE.map(function(u){
+        return c.add(u).catch(function(){ /* se manca, non blocco l'installazione */ });
+      }));
     })
   );
 });
 
-// Activate: rimuove cache vecchie, poi forza reload di tutti i client aperti
 self.addEventListener('activate', function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
-      return Promise.all(keys.map(function(k){
-        if(k.indexOf('biospecinfo-') === 0 && k.indexOf(CACHE_VERSION) !== 0){
-          return caches.delete(k);
-        }
-      }));
+      return Promise.all(keys.map(function(k){ if(k !== CACHE) return caches.delete(k); }));
     })
     .then(function(){ return self.clients.claim(); })
     .then(function(){ return self.clients.matchAll({type:'window'}); })
     .then(function(clients){
+      // ricarico le pagine gia' aperte cosi' prendono subito la nuova versione
       clients.forEach(function(c){
-        // navigate() forces a full reload with new cached resources — works on old pages too
-        c.navigate(c.url).catch(function(){
-          // Fallback: postMessage if navigate isn't supported
-          c.postMessage({type:'BSI_SW_UPDATED'});
-        });
+        c.navigate(c.url).catch(function(){ c.postMessage({type:'BSI_SW_UPDATED'}); });
       });
     })
   );
 });
 
-// Fetch: strategie diverse per tipo di risorsa
 self.addEventListener('fetch', function(e){
-  var req = e.request;
-  if(req.method !== 'GET') return;
-  var url = new URL(req.url);
+  if(e.request.method !== 'GET') return;
+  var url = e.request.url;
 
-  // PubChem: stale-while-revalidate
-  if(url.hostname.indexOf('pubchem.ncbi.nlm.nih.gov') !== -1){
-    e.respondWith(staleWhileRevalidate(req, API_CACHE));
-    return;
-  }
-  // RCSB PDB: cache-first
-  if(url.hostname.indexOf('rcsb.org') !== -1 || url.hostname.indexOf('files.rcsb.org') !== -1){
-    e.respondWith(cacheFirst(req, API_CACHE));
-    return;
-  }
-  // Same-origin: network-first per index.html (sempre aggiornato), cache-first per il resto
-  if(url.origin === self.location.origin){
-    if(url.pathname.endsWith('/') || url.pathname.endsWith('/index.html') || url.pathname === ''){
-      e.respondWith(networkFirst(req, STATIC_CACHE));
-    } else {
-      e.respondWith(cacheFirst(req, STATIC_CACHE));
-    }
-    return;
-  }
-  // Altre cross-origin: network-first
-  e.respondWith(networkFirst(req, API_CACHE));
-});
+  // Non intercetto MAI le risorse esterne (NASA Eyes, immagini ESA/Hubble, CDN):
+  // altrimenti l'iframe della NASA e le foto dei telescopi non caricano.
+  if(url.indexOf(self.location.origin) !== 0) return;
 
-function cacheFirst(req, cacheName){
-  return caches.match(req).then(function(cached){
-    if(cached) return cached;
-    return fetch(req).then(function(r){
-      if(r && r.ok){
-        var clone = r.clone();
-        caches.open(cacheName).then(function(c){ c.put(req, clone); });
+  // NETWORK-FIRST: prendo sempre la versione fresca; la cache serve solo offline.
+  e.respondWith(
+    fetch(e.request).then(function(resp){
+      if(resp && resp.status === 200 && resp.type === 'basic'){
+        var copy = resp.clone();
+        caches.open(CACHE).then(function(c){ try{ c.put(e.request, copy); }catch(_){} });
       }
-      return r;
+      return resp;
     }).catch(function(){
-      return caches.match('./index.html');
-    });
-  });
-}
-
-function networkFirst(req, cacheName){
-  return fetch(req).then(function(r){
-    if(r && r.ok){
-      var clone = r.clone();
-      caches.open(cacheName).then(function(c){ c.put(req, clone); });
-    }
-    return r;
-  }).catch(function(){
-    return caches.match(req).then(function(cached){ return cached || caches.match('./index.html'); });
-  });
-}
-
-function staleWhileRevalidate(req, cacheName){
-  return caches.open(cacheName).then(function(c){
-    return c.match(req).then(function(cached){
-      var fetchPromise = fetch(req).then(function(r){
-        if(r && r.ok){ c.put(req, r.clone()); }
-        return r;
-      }).catch(function(){ return cached; });
-      return cached || fetchPromise;
-    });
-  });
-}
+      return caches.match(e.request).then(function(r){
+        if(r) return r;
+        // fallback solo per le navigazioni: per un asset mancante devo restituire
+        // un 404 vero, altrimenti il chiamante riceve HTML al posto di JS/immagini
+        // e il fallback applicativo (es. texture o CDN) non scatta mai.
+        if(e.request.mode === 'navigate') return caches.match('./index.html');
+        return new Response('', {status:504, statusText:'offline'});
+      });
+    })
+  );
+});

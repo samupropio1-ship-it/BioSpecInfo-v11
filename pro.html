@@ -1,9 +1,52 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+<script>
+/* ===== BSI GUARD v14 — localStorage sicuro (incognito / cookie bloccati / WebView) =====
+   Senza questa guardia, un accesso a localStorage in modalita' privata lancia
+   SecurityError e INTERROMPE l'intero script della pagina (sezioni vuote). */
+(function(){
+  var ok=false;
+  try{var t="__bsi_probe";window.localStorage.setItem(t,t);window.localStorage.removeItem(t);ok=true;}catch(e){ok=false;}
+  if(!ok){
+    var mem={};
+    try{
+      Object.defineProperty(window,"localStorage",{
+        value:{
+          getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+          setItem:function(k,v){mem[k]=String(v);},
+          removeItem:function(k){delete mem[k];},
+          clear:function(){mem={};},
+          key:function(i){return Object.keys(mem)[i]||null;},
+          get length(){return Object.keys(mem).length;}
+        },
+        configurable:true
+      });
+    }catch(e2){}
+  }
+  /* JSON.parse sicuro riutilizzabile */
+  window.bsiSafeParse=function(raw,fallback){
+    try{ var v=JSON.parse(raw); return (v===null||v===undefined)?fallback:v; }
+    catch(e){ return fallback; }
+  };
+  window.bsiLoadJSON=function(key,fallback){
+    try{ return window.bsiSafeParse(window.localStorage.getItem(key), fallback); }
+    catch(e){ return fallback; }
+  };
+  window.bsiSaveJSON=function(key,val){
+    try{ window.localStorage.setItem(key, JSON.stringify(val)); return true; }
+    catch(e){ return false; }
+  };
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>BioSpecInfo PRO Hub</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0d1522">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -29,7 +72,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
 /* CONTENT */
 #content{flex:1;overflow:hidden}
-.pane{display:none;width:100%;height:100%;overflow-y:auto;padding:14px}
+.pane{display:none;width:100%;height:100%;overflow-y:auto;padding:14px;padding-bottom:180px}
 .pane.active{display:block}
 
 /* Common */
@@ -194,6 +237,23 @@ canvas{display:block}
 
     <!-- ═══ MECCANICA QUANTISTICA ═══ -->
     <div class="pane" id="pane-qm">
+      <div class="sec" id="qm-theory-block">
+        <div class="sec-h">⚛️ Fondamenti di Meccanica Quantistica</div>
+        <div class="card" style="line-height:1.7;font-size:13px;color:#cdd9e6">
+          <b style="color:var(--accent)">I postulati fondamentali:</b><br>
+          1. Lo stato di un sistema è descritto da una <b>funzione d'onda ψ</b>; |ψ|² è la densità di probabilità.<br>
+          2. Ad ogni osservabile corrisponde un <b>operatore</b> (energia → Hamiltoniano Ĥ).<br>
+          3. I valori misurabili sono gli <b>autovalori</b>: Ĥψ = Eψ.<br>
+          4. L'evoluzione temporale segue l'equazione di Schrödinger dipendente dal tempo.<br><br>
+          <b style="color:var(--accent)">Equazione di Schrödinger (stazionaria):</b><br>
+          <span style="font-family:monospace;color:#e9eef6">[−(ℏ²/2m)∇² + V]ψ = Eψ</span><br>
+          Le soluzioni danno le energie permesse (quantizzate) e gli orbitali.<br><br>
+          <b style="color:var(--accent)">HOMO / LUMO — orbitali di frontiera:</b><br>
+          HOMO (occupato più alto) e LUMO (vuoto più basso) governano reattività, colore e conducibilità. Il loro <b>gap</b> piccolo → molecola più reattiva/colorata (teoria di Fukui).<br><br>
+          <b style="color:var(--accent)">Metodi di calcolo:</b><br>
+          <b>Hartree-Fock</b>: campo medio. <b>DFT</b>: usa la densità ρ(r), standard costo/accuratezza. <b>Post-HF</b> (MP2, CCSD): includono la correlazione elettronica.
+        </div>
+      </div>
       <div class="sec">
         <div class="sec-h">⚛️ Particle in a Box (1D)</div>
         <div class="card">
