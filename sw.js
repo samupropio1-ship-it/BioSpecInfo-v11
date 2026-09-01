@@ -1,12 +1,12 @@
 // BioSpecInfo Service Worker v117 — network-first + precache di pagine e librerie
 'use strict';
 
-var CACHE = 'bsi-v117';
+var CACHE = 'bsi-v118';
 
-// Precarico SOLO file che esistono davvero nel deploy: le voci fantasma
-// (RDKit_minimal.wasm, lib/sql-wasm.wasm, textures/*) generavano 8 richieste
-// fallite ad ogni install. Le loro controparti hanno gia' un fallback su CDN
-// nel codice applicativo, quindi non serve elencarle qui.
+// Precarico solo file che esistono davvero nel deploy (una voce inesistente
+// costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
+// da soli pesano ~106 MB e verrebbero scaricati all'installazione; restano
+// comunque messi in cache su richiesta dal gestore fetch network-first.
 var PRECACHE = [
   './',
   './index.html',
@@ -35,7 +35,17 @@ var PRECACHE = [
   './gltf_loader.js',
   './smiles-drawer.min.js',
   './lib/sql-wasm.js',
-  './lib/dimuon.js'
+  './lib/dimuon.js',
+  // binari WASM: senza questi RDKit e il lab SQL non funzionano offline
+  './RDKit_minimal.wasm',
+  './lib/sql-wasm.wasm',
+  // texture dei corpi celesti (Terra fotorealistica + Luna)
+  './textures/earth_day.jpg',
+  './textures/earth_clouds.png',
+  './textures/earth_lights.png',
+  './textures/earth_normal.jpg',
+  './textures/earth_specular.jpg',
+  './textures/moon.jpg'
 ];
 
 self.addEventListener('install', function(e){
