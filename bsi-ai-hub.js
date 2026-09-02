@@ -703,6 +703,252 @@ var TOOLS = [
 // commentarli, invece di inventarli.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// DISEGNO DELLE MAPPE CONCETTUALI
+// Renderer di grafi scritto qui dentro invece di caricare Mermaid da un CDN:
+// l'app e' offline-first e una mappa deve potersi disegnare anche senza rete.
+// Copre il sottoinsieme che serve davvero — graph/flowchart TD|LR, nodi con
+// forme, archi orientati con etichetta — non l'intera sintassi Mermaid.
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _formaNodo(sfx){
+  if(!sfx) return { forma:'rect', testo:null };
+  if(/^\(\(.*\)\)$/.test(sfx)) return { forma:'cerchio', testo:sfx.slice(2, -2) };
+  if(/^\[.*\]$/.test(sfx))     return { forma:'rect',    testo:sfx.slice(1, -1) };
+  if(/^\(.*\)$/.test(sfx))     return { forma:'tondo',   testo:sfx.slice(1, -1) };
+  if(/^\{.*\}$/.test(sfx))     return { forma:'rombo',   testo:sfx.slice(1, -1) };
+  return { forma:'rect', testo:null };
+}
+
+function parseGrafo(src){
+  var dir = 'TD', nodi = {}, ordine = [], archi = [];
+  function reg(txt){
+    txt = String(txt).trim();
+    var m = txt.match(/^([A-Za-z0-9_.-]+)\s*(\(\(.*\)\)|\[.*\]|\(.*\)|\{.*\})?\s*$/);
+    if(!m) return null;
+    var id = m[1], f = _formaNodo(m[2]);
+    if(!nodi[id]){ nodi[id] = { id:id, et:f.testo || id, forma:f.forma }; ordine.push(id); }
+    else if(f.testo){ nodi[id].et = f.testo; nodi[id].forma = f.forma; }
+    return id;
+  }
+  // Accetto solo graph/flowchart: le altre sintassi Mermaid (sequenceDiagram,
+  // classDiagram, gantt...) non sono coperte e vanno lasciate come codice.
+  if(!/^\s*(?:graph|flowchart)\s+(?:TD|TB|LR|RL|BT)\b/i.test(String(src))) return null;
+
+  String(src).split('\n').forEach(function(r){
+    r = r.trim();
+    if(!r || r.indexOf('%%') === 0) return;
+    var d = r.match(/^(?:graph|flowchart)\s+(TD|TB|LR|RL|BT)\b/i);
+    if(d){ dir = d[1].toUpperCase(); return; }
+    if(/^(?:graph|flowchart)\b/i.test(r)) return;
+    r = r.replace(/;\s*$/, '');
+
+    // Catene su una riga: "A --> B --> C" va spezzata in piu' archi, altrimenti
+    // solo il primo e l'ultimo nodo verrebbero registrati.
+    var OP = /(-\.->|-\.-|==>|-->|---)\s*(?:\|([^|]*)\|)?\s*/g;
+    var pezzi = [], ops = [], ultimo = 0, m2;
+    while((m2 = OP.exec(r)) !== null){
+      pezzi.push(r.slice(ultimo, m2.index));
+      ops.push({ op:m2[1], et:(m2[2] || '').trim() });
+      ultimo = OP.lastIndex;
+    }
+    pezzi.push(r.slice(ultimo));
+
+    if(!ops.length){ reg(r); return; }
+    var ids = pezzi.map(function(p){ return reg(p); });
+    for(var i = 0; i < ops.length; i++){
+      if(ids[i] && ids[i + 1])
+        archi.push({ da:ids[i], a:ids[i + 1], et:ops[i].et,
+                     tratteggio:/-\./.test(ops[i].op), freccia:/>/.test(ops[i].op) });
+    }
+  });
+  return { dir:dir, nodi:nodi, ordine:ordine, archi:archi };
+}
+
+// Testo a capo su piu' righe: la larghezza e' stimata dai caratteri, senza
+// misurare nel DOM, perche' l'SVG viene costruito come stringa.
+function _aCapo(t, maxCar){
+  var par = String(t).split(/\s+/), righe = [], cur = '';
+  par.forEach(function(p){
+    if(!cur) cur = p;
+    else if((cur + ' ' + p).length <= maxCar) cur += ' ' + p;
+    else { righe.push(cur); cur = p; }
+  });
+  if(cur) righe.push(cur);
+  return righe.length ? righe : [''];
+}
+
+// Assegna i livelli con il cammino piu' lungo dalle radici. I cicli vengono
+// spezzati tenendo traccia del percorso corrente: senza, un ciclo manderebbe
+// la ricorsione in stallo.
+function _livelli(g){
+  var entranti = {};
+  g.ordine.forEach(function(id){ entranti[id] = 0; });
+  g.archi.forEach(function(a){ if(entranti[a.a] !== undefined) entranti[a.a]++; });
+  var liv = {}, inCorso = {};
+  function calc(id){
+    if(liv[id] !== undefined) return liv[id];
+    if(inCorso[id]) return 0;             // ciclo: interrompo qui
+    inCorso[id] = true;
+    var max = 0;
+    g.archi.forEach(function(a){ if(a.a === id) max = Math.max(max, calc(a.da) + 1); });
+    inCorso[id] = false;
+    liv[id] = max;
+    return max;
+  }
+  g.ordine.forEach(calc);
+  return liv;
+}
+
+function grafoToSvg(src){
+  var g = parseGrafo(src);
+  if(!g || !g.ordine.length) return null;
+  var orizzontale = (g.dir === 'LR' || g.dir === 'RL');
+  var liv = _livelli(g);
+
+  // raggruppo per livello, mantenendo l'ordine di apparizione
+  var perLiv = {};
+  g.ordine.forEach(function(id){ (perLiv[liv[id]] = perLiv[liv[id]] || []).push(id); });
+  var livelli = Object.keys(perLiv).map(Number).sort(function(a, b){ return a - b; });
+
+  // Riordino dentro ogni livello con il baricentro dei predecessori: riduce
+  // sensibilmente gli incroci rispetto all'ordine di dichiarazione.
+  for(var pass = 0; pass < 3; pass++){
+    livelli.forEach(function(L){
+      if(L === livelli[0]) return;
+      var prec = perLiv[L - 1] || [];
+      perLiv[L].sort(function(x, y){
+        function bar(n){
+          var pos = [], i;
+          g.archi.forEach(function(a){
+            if(a.a === n){ i = prec.indexOf(a.da); if(i >= 0) pos.push(i); }
+          });
+          return pos.length ? pos.reduce(function(p, q){ return p + q; }, 0) / pos.length : 1e9;
+        }
+        return bar(x) - bar(y);
+      });
+    });
+  }
+
+  // geometria dei nodi
+  var CAR = 6.4, ALT_RIGA = 15, PADX = 14, PADY = 10, MAXCAR = 20;
+  var GAP_LIV = 78, GAP_NODO = 22;
+  var box = {};
+  g.ordine.forEach(function(id){
+    var righe = _aCapo(g.nodi[id].et, MAXCAR);
+    var w = Math.max(64, Math.round(Math.max.apply(null, righe.map(function(r){ return r.length; })) * CAR) + PADX * 2);
+    var h = righe.length * ALT_RIGA + PADY * 2;
+    if(g.nodi[id].forma === 'rombo'){ w += 22; h += 10; }
+    if(g.nodi[id].forma === 'cerchio'){ w = h = Math.max(w, h); }
+    box[id] = { w:w, h:h, righe:righe };
+  });
+
+  // posizione: i livelli scorrono lungo un asse, i nodi lungo l'altro
+  var cursore = 40, estensione = 0;
+  livelli.forEach(function(L){
+    var ids = perLiv[L];
+    var tot = ids.reduce(function(s, id){ return s + (orizzontale ? box[id].h : box[id].w) + GAP_NODO; }, -GAP_NODO);
+    var p = Math.max(30, (0 - tot) / 2) + 30;
+    var maxTrasv = 0;
+    ids.forEach(function(id){
+      var b = box[id];
+      if(orizzontale){ b.x = cursore; b.y = p; p += b.h + GAP_NODO; maxTrasv = Math.max(maxTrasv, b.w); }
+      else { b.x = p; b.y = cursore; p += b.w + GAP_NODO; maxTrasv = Math.max(maxTrasv, b.h); }
+    });
+    estensione = Math.max(estensione, p);
+    cursore += maxTrasv + GAP_LIV;
+  });
+  var W = Math.ceil(orizzontale ? cursore : estensione) + 30;
+  var H = Math.ceil(orizzontale ? estensione : cursore) + 20;
+
+  // centro ogni livello rispetto all'estensione totale
+  livelli.forEach(function(L){
+    var ids = perLiv[L];
+    var tot = ids.reduce(function(s, id){ return s + (orizzontale ? box[id].h : box[id].w) + GAP_NODO; }, -GAP_NODO);
+    var off = ((orizzontale ? H : W) - tot) / 2;
+    var p = off;
+    ids.forEach(function(id){
+      var b = box[id];
+      if(orizzontale){ b.y = p; p += b.h + GAP_NODO; }
+      else { b.x = p; p += b.w + GAP_NODO; }
+    });
+  });
+
+  var esc = function(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+  var out = [];
+  out.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img">');
+  out.push('<defs><marker id="bsiArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+           '<path d="M0 0 L10 5 L0 10 z" fill="#0f766e"/></marker></defs>');
+
+  // archi sotto ai nodi
+  var etichette = [];
+  g.archi.forEach(function(a){
+    var A = box[a.da], B = box[a.a];
+    if(!A || !B) return;
+    var x1, y1, x2, y2;
+    if(orizzontale){ x1 = A.x + A.w; y1 = A.y + A.h / 2; x2 = B.x; y2 = B.y + B.h / 2; }
+    else { x1 = A.x + A.w / 2; y1 = A.y + A.h; x2 = B.x + B.w / 2; y2 = B.y; }
+    var d = orizzontale
+      ? 'M' + x1 + ' ' + y1 + ' C' + (x1 + 34) + ' ' + y1 + ' ' + (x2 - 34) + ' ' + y2 + ' ' + x2 + ' ' + y2
+      : 'M' + x1 + ' ' + y1 + ' C' + x1 + ' ' + (y1 + 34) + ' ' + x2 + ' ' + (y2 - 34) + ' ' + x2 + ' ' + y2;
+    out.push('<path d="' + d + '" fill="none" stroke="#0f766e" stroke-width="1.6"' +
+             (a.tratteggio ? ' stroke-dasharray="5 4"' : '') +
+             (a.freccia ? ' marker-end="url(#bsiArrow)"' : '') + '/>');
+    if(a.et){
+      // L'etichetta va al 62% dell'arco, non a meta': su un bivio i rami sono
+      // ancora quasi sovrapposti a meta' strada e le scritte si accavallerebbero.
+      var t = 0.62;
+      etichette.push({ x:x1 + (x2 - x1) * t, y:y1 + (y2 - y1) * t,
+                       w:a.et.length * 5.6 + 10, testo:a.et });
+    }
+  });
+
+  // Se due etichette si sovrappongono comunque, le allontano lungo l'asse
+  // trasversale finche' non si liberano.
+  etichette.sort(function(p, q){ return orizzontale ? p.y - q.y : p.x - q.x; });
+  for(var it = 0; it < 4; it++){
+    for(var i1 = 0; i1 < etichette.length; i1++){
+      for(var j1 = i1 + 1; j1 < etichette.length; j1++){
+        var A1 = etichette[i1], B1 = etichette[j1];
+        var dx = Math.abs(A1.x - B1.x), dy = Math.abs(A1.y - B1.y);
+        var minx = (A1.w + B1.w) / 2 + 6;
+        if(dx < minx && dy < 18){
+          var spinta = (minx - dx) / 2 + 1;
+          if(A1.x <= B1.x){ A1.x -= spinta; B1.x += spinta; }
+          else { A1.x += spinta; B1.x -= spinta; }
+        }
+      }
+    }
+  }
+  etichette.forEach(function(L){
+    out.push('<rect x="' + (L.x - L.w / 2) + '" y="' + (L.y - 8) + '" width="' + L.w + '" height="16" rx="4" fill="#ffffff" stroke="#cfe3e0"/>');
+    out.push('<text x="' + L.x + '" y="' + (L.y + 4) + '" text-anchor="middle" font-size="9.5" fill="#125c55" font-family="system-ui,sans-serif">' + esc(L.testo) + '</text>');
+  });
+
+  // nodi
+  g.ordine.forEach(function(id){
+    var b = box[id], n = g.nodi[id];
+    var cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    if(n.forma === 'rombo'){
+      out.push('<polygon points="' + cx + ',' + b.y + ' ' + (b.x + b.w) + ',' + cy + ' ' + cx + ',' + (b.y + b.h) + ' ' + b.x + ',' + cy +
+               '" fill="#e6fffb" stroke="#0f766e" stroke-width="1.6"/>');
+    } else if(n.forma === 'cerchio'){
+      out.push('<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (b.w / 2) + '" ry="' + (b.h / 2) + '" fill="#e6fffb" stroke="#0f766e" stroke-width="1.6"/>');
+    } else {
+      var rx = n.forma === 'tondo' ? b.h / 2 : 8;
+      out.push('<rect x="' + b.x + '" y="' + b.y + '" width="' + b.w + '" height="' + b.h + '" rx="' + rx + '" fill="#e6fffb" stroke="#0f766e" stroke-width="1.6"/>');
+    }
+    var y0 = cy - (b.righe.length - 1) * ALT_RIGA / 2 + 4;
+    b.righe.forEach(function(r, i){
+      out.push('<text x="' + cx + '" y="' + (y0 + i * ALT_RIGA) + '" text-anchor="middle" font-size="11.5" fill="#0b3a45" ' +
+               'font-family="system-ui,sans-serif" font-weight="600">' + esc(r) + '</text>');
+    });
+  });
+  out.push('</svg>');
+  return out.join('');
+}
+window.bsiGrafoToSvg = grafoToSvg;
+
 // ── Lettura degli allegati ─────────────────────────────────────────────────
 // Le immagini vengono ridimensionate prima dell'invio: una foto da telefono
 // e' spesso 4000px e in base64 supererebbe i limiti di richiesta, oltre a
@@ -3739,45 +3985,31 @@ function buildChatPane(){
     return n;
   }
 
-  // Disegna i blocchi ```mermaid come diagrammi veri. La libreria viene
-  // caricata solo la prima volta che serve davvero: chi non chiede mai una
-  // mappa non paga il download.
-  var _mermaidStato = 'assente';   // assente | caricamento | pronto | fallito
+  // Disegna i blocchi ```mermaid come diagrammi, con il renderer interno.
+  // Nessun CDN: funziona anche senza rete, coerentemente con l'app offline-first.
+  // Se il diagramma usa una sintassi non coperta, il blocco resta come codice
+  // leggibile invece di sparire.
   function renderMermaid(root){
     if(!root) return;
-    var blocchi = [].slice.call(root.querySelectorAll('pre code.language-mermaid, pre code'))
-      .filter(function(c){ return /^\s*(graph|flowchart|mindmap|sequenceDiagram|classDiagram)\b/.test(c.textContent); });
-    if(!blocchi.length) return;
-
-    function disegna(){
-      blocchi.forEach(function(code, i){
-        var pre = code.closest('pre'); if(!pre || pre.dataset.reso) return;
+    [].slice.call(root.querySelectorAll('pre code'))
+      .filter(function(c){ return /^\s*(graph|flowchart)\s+(TD|TB|LR|RL|BT)\b/i.test(c.textContent); })
+      .forEach(function(code){
+        var pre = code.parentNode;
+        if(!pre || pre.dataset.reso) return;
+        var svg;
+        try{ svg = grafoToSvg(code.textContent); }catch(e){ svg = null; }
+        if(!svg) return;
         pre.dataset.reso = '1';
         var box = document.createElement('div');
         box.className = 'bsi-mermaid';
-        var id = 'mmd' + Date.now() + i;
-        try{
-          window.mermaid.render(id, code.textContent).then(function(res){
-            box.innerHTML = res.svg; pre.parentNode.replaceChild(box, pre);
-          }).catch(function(){ pre.dataset.reso = ''; });
-        }catch(e){ pre.dataset.reso = ''; }
+        box.innerHTML = svg;
+        // il codice resta consultabile, ripiegato sotto al disegno
+        var det = document.createElement('details');
+        det.innerHTML = '<summary>codice della mappa</summary>';
+        det.appendChild(pre.cloneNode(true));
+        box.appendChild(det);
+        pre.parentNode.replaceChild(box, pre);
       });
-    }
-    if(_mermaidStato === 'pronto'){ disegna(); return; }
-    if(_mermaidStato === 'caricamento' || _mermaidStato === 'fallito') return;
-    _mermaidStato = 'caricamento';
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-    s.crossOrigin = 'anonymous';
-    s.onload = function(){
-      try{
-        window.mermaid.initialize({ startOnLoad:false, theme:'default', securityLevel:'strict' });
-        _mermaidStato = 'pronto'; disegna();
-      }catch(e){ _mermaidStato = 'fallito'; }
-    };
-    // se il CDN non risponde il blocco resta come codice leggibile: nessun danno
-    s.onerror = function(){ _mermaidStato = 'fallito'; };
-    document.head.appendChild(s);
   }
 
   function renderMsgNode(m, idx, thread){
