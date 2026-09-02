@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 3,935 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 4,895 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v126` |
+| **Documented version** | Service Worker `bsi-v133` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 31 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 32 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (31 tools, all local except 3 network)     │
+│        └── tool executor (32 tools, all local except 3 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 31 tools → receive the streamed response → if it
+prompt and the schema of all 32 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -91,7 +91,7 @@ stays coherent even when switching models.
 
 ---
 
-## 3. The 31 tools
+## 3. The 32 tools
 
 | Area | Tools |
 |---|---|
@@ -105,6 +105,7 @@ stays coherent even when switching models.
 | **Internal data** | `cerca_nel_database` (9 datasets), `cerca_molecola` |
 | **App control** | `naviga_sezione` (84 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
+| **Animations** | `apri_animazione` (6 reaction mechanisms) |
 
 ### 3.1 Internal datasets exposed
 
@@ -175,7 +176,69 @@ from the API and their presence causes an error: none of the four sends them.
 Every parameter is therefore conditioned on the provider rather than set
 globally.
 
-### 4.5 Graceful degradation
+### 4.5 Multimodal input and material reading
+
+The agent accepts images, PDFs and text files, several at once, treated as
+consecutive pages of a single document. Three constraints shaped the
+implementation:
+
+- **Images are downscaled to 2000 px** and re-encoded as JPEG before sending.
+  A phone photo drops from roughly 1 MB to 440 KB: without this step a single
+  image would approach the request ceiling and multiply token cost. 2000 px is
+  the minimum for reading small handwriting — at 1600 px fine script became
+  illegible.
+- **The PDF page ceiling depends on the model**, it is not a constant: 600
+  pages for models with a 1M-token window, 100 for 200K ones. Page counting is
+  done by reading `/Type /Page` objects from the file bytes, without libraries.
+- **History stores a 160 px thumbnail**, not the image that was sent. Storing
+  the large one (440 KB each) filled `localStorage` within a dozen photos, and
+  once the quota is exceeded every subsequent write fails silently.
+
+Six quick actions turn the material into a study artefact (summary, concept
+map, outline, flashcards, exam questions, transcription) and two translate it.
+For transcriptions the agent is instructed to write `[illegible]` rather than
+guess: an invented chemical term is worse than a declared gap.
+
+### 4.6 In-house graph renderer, no CDN
+
+Concept maps are produced by the model as Mermaid diagrams and drawn by a
+renderer written into the application (~190 lines): longest-path layering from
+the roots with cycle breaking, barycentre reordering over three passes to
+reduce edge crossings, SVG output with Bézier curves.
+
+Not loading Mermaid from a CDN follows from the app's offline-first nature: a
+map must be drawable without a network. Unsupported syntaxes are recognised and
+left as a readable code block instead of being drawn badly.
+
+### 4.7 Voice command with wake word
+
+User-activated continuous listening: the phrase "Hey Spectra" followed by a
+command sends it automatically. Two non-obvious details:
+
+- the browser's speech recognition **stops on its own** after a few seconds of
+  silence and must be restarted, otherwise listening dies at the first pause;
+- **all transcription alternatives** are examined, not just the first, and the
+  most common phonetic variants are accepted: Italian recognition renders
+  "Spectra" in many different ways.
+
+Denying microphone permission stops the loop instead of retrying forever. The
+word "spettroscopia", extremely frequent in this domain, was verified as
+non-triggering.
+
+### 4.8 Guard against non-finite results
+
+A systematic audit revealed that, given legitimate degenerate inputs (zero
+wavelength, zero volume, zero half-life, a transition between identical
+levels), eight solvers returned `ok: true` with `Infinity` or `NaN` among their
+fields.
+
+This is the most insidious failure in this context: an exception is noticed, a
+formally valid but meaningless value is reported to the user as correct. The
+fix is a single check at the point where all results pass through: if a numeric
+field is not finite, the result becomes an explicit error naming the fields and
+stating the probable cause. It also covers tools added in the future.
+
+### 4.9 Graceful degradation
 
 - **Models without reliable function calling** (some free tiers): on the first
   tool-related error the request is retried once in text-only mode instead of
@@ -238,8 +301,8 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 3,935 lines |
-| Tools | 31 |
+| Component size | 4,895 lines |
+| Tools | 32 |
 | Model configurations | 8 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |

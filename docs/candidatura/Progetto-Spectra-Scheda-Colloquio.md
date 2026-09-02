@@ -8,23 +8,24 @@ Repository: `samupropio1-ship-it/BioSpecInfo-v11` · demo pubblica su GitHub Pag
 ## In una frase
 
 Un **agente conversazionale** che risolve problemi di chimica e fisica
-invocando 31 strumenti deterministici invece di rispondere a memoria, con
-ragionamento visibile e verificabile, funzionante su 8 configurazioni di
-modello di 4 fornitori diversi — senza alcun backend.
+invocando 32 strumenti deterministici invece di rispondere a memoria, legge
+foto di appunti e PDF, disegna mappe concettuali e risponde al comando vocale —
+con ragionamento visibile e verificabile, su 8 configurazioni di modello di 4
+fornitori diversi, senza alcun backend.
 
 ## Numeri
 
 | | |
 |---|---|
-| Componente | 3.935 righe, zero dipendenze runtime |
-| Strumenti | 31, su 13 aree scientifiche |
+| Componente | 4.895 righe, zero dipendenze runtime |
+| Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 4 (Anthropic, Groq, Google, OpenRouter/xAI) — 3 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
 | Copertura di test | 14 pagine, 84 sezioni, 18 tab — nessun errore JS |
 
 ---
 
-## Le tre domande che mi aspetto, e le risposte
+## Le domande che mi aspetto, e le risposte
 
 ### «Perché è un agente e non un chatbot?»
 
@@ -74,7 +75,7 @@ ripresa del turno.
 
 ---
 
-## Tre bug che ho trovato testando (e cosa insegnano)
+## Cinque bug che ho trovato testando (e cosa insegnano)
 
 **1. Il parser di formule sbagliava `Ca₃(PO₄)₂`** — dava 215 invece di 310. La
 prima implementazione gestiva le parentesi con una pila di moltiplicatori
@@ -98,13 +99,32 @@ messaggi salvati.
 *Lezione: una funzionalità non è finita quando funziona, ma quando sopravvive
 al ciclo di vita della UI.*
 
+**4. Otto risolutori restituivano `ok: true` con `Infinity` dentro.** Emerso da
+un audit in cui ho provato i valori limite che in chimica *ha senso* chiedere:
+lunghezza d'onda 0, volume 0, emivita 0. Il risultato era formalmente valido e
+l'agente avrebbe riportato «λmax = Infinity nm» come un dato buono.
+L'ho corretto con un controllo unico nel punto in cui passano tutti i
+risultati, invece di rattoppare quattordici casi.
+*Lezione: un'eccezione si nota, un numero sbagliato che sembra giusto no. Nei
+sistemi che producono numeri, il fallimento silenzioso è il nemico.*
+
+**5. Le miniature riempivano `localStorage`.** Salvavo l'anteprima degli
+allegati in cronologia, ma quell'anteprima era l'immagine intera: 444 KB
+l'una, dieci foto e la quota era andata. E a quota piena *ogni* scrittura
+successiva fallisce in silenzio — compresa quella della chiave API. Era lo
+stesso guasto che avevo già corretto mesi prima in un altro punto del codice.
+Ora la cronologia usa una miniatura da 5 KB.
+*Lezione: quando trovi una classe di bug, cercala altrove prima che ti trovi
+lei.*
+
 ---
 
 ## Competenze dimostrate
 
 - **Integrazione LLM in produzione**: function calling multi-fornitore, parsing
   di stream SSE, gestione dei blocchi di ragionamento con firma, ripresa di
-  turni sospesi lato server, configurazione per-modello dei parametri API.
+  turni sospesi lato server, configurazione per-modello dei parametri API,
+  ingresso multimodale (immagini, PDF, testo) con codifica per famiglia.
 - **Sicurezza applicativa**: modello di minaccia dell'iniezione via contenuti
   esterni, superficie di esecuzione ridotta al minimo, gestione della quota di
   storage come vettore di guasto silenzioso.
@@ -113,6 +133,9 @@ al ciclo di vita della UI.*
 - **Dominio scientifico**: 13 aree fra chimica, chimica fisica, biochimica,
   farmacologia, fisica nucleare e astrofisica, implementate come risolutori
   esatti e validate.
+- **Front-end senza dipendenze**: renderer di grafi SVG con algoritmo di
+  layering e riduzione degli incroci, parser Markdown con tabelle, comando
+  vocale con parola di attivazione, esportazione in PDF.
 
 ---
 

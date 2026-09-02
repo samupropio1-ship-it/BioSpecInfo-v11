@@ -32,11 +32,11 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — hub funzioni AI
+- bsi-ai-hub.js                                 — Spectra: agente AI (4.895 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v117
+- sw.js            — Service Worker (network-first). Cache: bsi-v133
 - manifest.json    — PWA manifest
 - docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
 - LICENSE, README.md, THIRD_PARTY_NOTICES.md
@@ -89,6 +89,15 @@ var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,
 In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
+## SPECTRA — l'agente AI (bsi-ai-hub.js)
+32 strumenti su 13 aree scientifiche; 8 configurazioni di modello (Claude Fable
+5.1 / Opus 5 / Sonnet 5 / Haiku 4.5, Groq, Gemini, OpenRouter, xAI), 3 gratuite.
+Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
+conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
+concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
+traduttore, esportazione in PDF.
+Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
+
 ## NOTE IMPORTANTI (bug gia' risolti — non reintrodurli)
 
 1) TEXTURE MANCANTI — la cartella ./textures/ NON e' nel deploy. astro.html usa
@@ -110,6 +119,24 @@ Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
    template JS che fa innerHTML sulla stessa sezione). A runtime ne resta uno
    solo: e' un code smell noto, non un bug.
 
+5) RISULTATI NON FINITI — i risolutori possono divergere con input degeneri
+   (lunghezza d'onda 0, volume 0, emivita 0). Una guardia in runToolCalls
+   (validaNumeri) trasforma qualunque risultato con Infinity/NaN in un errore
+   esplicito. NON aggirarla: un numero sbagliato che sembra giusto e' peggio
+   di un errore.
+
+6) QUOTA localStorage — nella cronologia va la MINIATURA da 160px degli
+   allegati, non l'immagine inviata al modello (440 KB l'una). A quota piena
+   ogni scrittura fallisce in silenzio, compresa quella della chiave API.
+
+7) BYTE NUL — usare sempre l'escape \u0000, mai il byte letterale: rende il
+   file binario per git e per gli strumenti di build. E' gia' successo due
+   volte.
+
+8) PARAMETRI PER MODELLO — effort e web_search NON sono supportati da Haiku
+   4.5; temperature/top_p/budget_tokens sono rimossi su tutti i modelli
+   recenti. Ogni parametro va condizionato al provider, mai globale.
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN
@@ -129,5 +156,5 @@ npm i playwright-core                  # test con browser reale
 ```
 
 ================================================================================
-  Fine prompt — versione aggiornata al 01/09/2026
+  Fine prompt — versione aggiornata al 02/09/2026
 ================================================================================
