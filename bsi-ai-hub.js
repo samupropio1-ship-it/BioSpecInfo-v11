@@ -2317,6 +2317,149 @@ TOOLS.push(
     }
   },
   {
+    name: 'cerca_nel_database',
+    description: "Interroga i database interni di BioSpecInfo: 297 reazioni di sintesi, 118 elementi, 67 amminoacidi, 143 farmaci, 36 interazioni farmacologiche, 29 potenziali redox, 39 strategie retrosintetiche, 29 vie metaboliche e 63 patologie. Sono i dati veri dell'app, curati dall'autore: usali PRIMA di rispondere a memoria su reazioni, elementi, amminoacidi o farmaci, e cita che vengono da BioSpecInfo.",
+    parameters: {
+      type: 'object',
+      properties: {
+        tipo: { type: 'string',
+                enum: ['reazione','elemento','amminoacido','farmaco','interazione','redox','retrosintesi','via_metabolica','patologia'],
+                description: 'Quale database interrogare.' },
+        query: { type: 'string', description: 'Testo da cercare: nome, simbolo, categoria o parola chiave. Lascia vuoto per avere l\'elenco completo (troncato).' },
+        max: { type: 'number', description: 'Numero massimo di risultati (default 8, massimo 25).' }
+      },
+      required: ['tipo']
+    },
+    execute: function(a){
+      a = a || {};
+      var tipo = String(a.tipo || '').toLowerCase();
+      var q = String(a.query || '').toLowerCase().trim();
+      var max = Math.max(1, Math.min(25, a.max || 8));
+      // I dataset vivono nello scope globale di index.html. Se Spectra gira in
+      // un'altra pagina non ci sono: lo dico invece di restituire un vuoto muto.
+      function G(n){ try{ return window[n]; }catch(e){ return undefined; } }
+      function match(hay){ return !q || String(hay).toLowerCase().indexOf(q) >= 0; }
+      // Ordina per pertinenza: la corrispondenza esatta prima di quella parziale.
+      // Senza questo, cercare "oro" restituiva "Boro" prima di "Oro".
+      function perTinenza(arr, campi){
+        if(!q) return arr;
+        var score = function(x){
+          var best = 3;
+          for(var i = 0; i < campi.length; i++){
+            var v = String(campi[i](x) || '').toLowerCase();
+            if(!v) continue;
+            if(v === q) best = Math.min(best, 0);                    // uguale
+            else if(v.indexOf(q) === 0) best = Math.min(best, 1);     // inizia con
+            else if(v.indexOf(q) >= 0) best = Math.min(best, 2);      // contiene
+          }
+          return best;
+        };
+        return arr.slice().sort(function(x, y){ return score(x) - score(y); });
+      }
+      function taglia(arr, tot, mapper){
+        return { ok:true, fonte:'database interno di BioSpecInfo', tipo:tipo, query:a.query || '(tutti)',
+                 trovati:arr.length, totale_nel_database:tot,
+                 risultati:arr.slice(0, max).map(mapper),
+                 nota: arr.length > max ? 'mostrati i primi ' + max + ' di ' + arr.length + ': restringi la ricerca per vederne altri' : undefined };
+      }
+      if(tipo === 'reazione'){
+        var RX = G('RXN');
+        if(!RX) return { ok:false, error:'database reazioni non disponibile in questa pagina' };
+        var CAT = { cc:'formazione C–C', ox:'ossidazione', red:'riduzione', sub:'sostituzione',
+                    add:'addizione', eli:'eliminazione', ar:'aromatica', rear:'trasposizione',
+                    prot:'gruppi protettori', het:'eterocicli', cat:'catalisi', pol:'polimerizzazione' };
+        var rr = RX.filter(function(x){ return match(x.t) || match(x.it) || match(x.d) || match(CAT[x.c] || x.c); });
+        rr = perTinenza(rr, [function(x){return x.t;}, function(x){return x.it;}]);
+        return taglia(rr, RX.length, function(x){
+          return { nome:x.t, categoria:CAT[x.c] || x.c, descrizione:x.d, condizioni:x.cond };
+        });
+      }
+      if(tipo === 'elemento'){
+        var EL = G('ELEMENTS');
+        if(!EL) return { ok:false, error:'tavola periodica non disponibile in questa pagina' };
+        var ee = EL.filter(function(x){
+          return !q || String(x[1]).toLowerCase() === q || match(x[2]) || String(x[0]) === q;
+        });
+        ee = perTinenza(ee, [function(x){return x[1];}, function(x){return x[2];}]);
+        return taglia(ee, EL.length, function(x){
+          return { numero_atomico:x[0], simbolo:x[1], nome:x[2], massa_atomica:x[3],
+                   periodo:x[4], gruppo:x[5], stati_ossidazione:x[7],
+                   configurazione_elettronica:x[8], elettronegativita_pauling:x[9],
+                   raggio_atomico_pm:x[10], energia_ionizzazione_eV:x[11],
+                   punto_fusione_C:x[12], note:x[13] };
+        });
+      }
+      if(tipo === 'amminoacido'){
+        var AA = G('AA_DATA');
+        if(!AA) return { ok:false, error:'database amminoacidi non disponibile in questa pagina' };
+        var aa = AA.filter(function(x){
+          return !q || match(x.name) || String(x.code1).toLowerCase() === q ||
+                 String(x.code3).toLowerCase() === q || match(x.cat) || match(x.desc);
+        });
+        aa = perTinenza(aa, [function(x){return x.code1;}, function(x){return x.code3;}, function(x){return x.name;}]);
+        return taglia(aa, AA.length, function(x){
+          return { nome:x.name, codice_3:x.code3, codice_1:x.code1, categoria:x.cat,
+                   massa:x.mw, pKa_COOH:x.pKa1, pKa_NH3:x.pKa2, pKa_catena_laterale:x.pKaR,
+                   smiles:x.smi, carica:x.charge, proprieta:x.prop, descrizione:x.desc };
+        });
+      }
+      if(tipo === 'farmaco'){
+        var FD = G('FARM_DATA');
+        if(!FD) return { ok:false, error:'database farmaci non disponibile in questa pagina' };
+        var ff = FD.filter(function(x){ return match(x.name) || match(x.cat) || match(x.classe) || match(x.indicaz) || match(x.moa); });
+        ff = perTinenza(ff, [function(x){return x.name;}, function(x){return x.classe;}, function(x){return x.cat;}]);
+        return taglia(ff, FD.length, function(x){
+          return { nome:x.name, categoria:x.cat, classe:x.classe, massa_molecolare:x.mw, smiles:x.smi,
+                   meccanismo_azione:x.moa, indicazioni:x.indicaz, effetti_avversi:x.effetti };
+        });
+      }
+      if(tipo === 'interazione'){
+        var DI = G('DI_DB');
+        if(!DI) return { ok:false, error:'database interazioni non disponibile in questa pagina' };
+        var ii = DI.filter(function(x){ return match(x.d1) || match(x.d2) || match(x.sev) || match(x.effetto); });
+        return taglia(ii, DI.length, function(x){
+          return { farmaco_1:x.d1, farmaco_2:x.d2, gravita:x.sev, meccanismo:x.mecco, effetto:x.effetto };
+        });
+      }
+      if(tipo === 'redox'){
+        var RD = G('REDOX_DATA');
+        if(!RD) return { ok:false, error:'tabella redox non disponibile in questa pagina' };
+        var dd = RD.filter(function(x){ return match(x.reaction) || match(x.cat); });
+        return taglia(dd, RD.length, function(x){
+          return { semireazione:x.reaction, E_standard_V:x.E, carattere:x.cat };
+        });
+      }
+      if(tipo === 'retrosintesi'){
+        var RS = G('RETRO_STRATEGIES');
+        if(!RS) return { ok:false, error:'strategie retrosintetiche non disponibili in questa pagina' };
+        var ss = RS.filter(function(x){ return match(x.name) || match(x.cat) || match(x.target) || match(x.disconnection); });
+        return taglia(ss, RS.length, function(x){
+          return { strategia:x.name, categoria:x.cat, target:x.target, disconnessione:x.disconnection,
+                   sintoni:x.synthons, reagenti:x.reagents, esempio:x.example };
+        });
+      }
+      if(tipo === 'via_metabolica'){
+        var BS = G('BIO_SYN');
+        if(!BS) return { ok:false, error:'vie metaboliche non disponibili in questa pagina' };
+        var bb = BS.filter(function(x){ return match(x.n) || match(x.d) || match(x.c) || match(x.refs); });
+        return taglia(bb, BS.length, function(x){
+          return { via:x.n, categoria:x.c, descrizione:x.d, condizioni:x.cond, note_regolazione:x.refs };
+        });
+      }
+      if(tipo === 'patologia'){
+        var MD = G('MED_DB');
+        if(!MD) return { ok:false, error:'database patologie non disponibile in questa pagina' };
+        var mm = MD.filter(function(x){ return match(x.n) || match(x.organ) || match(x.region) || match(x.desc) || match(x.type); });
+        return taglia(mm, MD.length, function(x){
+          return { patologia:x.n, organo:x.organ, regione:x.region, tipo:x.type, descrizione:x.desc,
+                   farmaci:(x.drugs || []).map(function(d){ return d.n + ' (' + d.cls + '): ' + d.mech; }) };
+        });
+      }
+      return { ok:false, error:'tipo non riconosciuto',
+               disponibili:['reazione','elemento','amminoacido','farmaco','interazione','redox','retrosintesi','via_metabolica','patologia'] };
+    }
+  },
+  {
     name: 'stato_app',
     description: "Dice dove si trova l'utente adesso nell'app e quali sezioni e laboratori sono disponibili. Usalo quando devi decidere dove portarlo o quando l'utente dice 'qui', 'questa sezione', 'quello che sto guardando'.",
     parameters: { type: 'object', properties: {} },
@@ -2490,6 +2633,7 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         case 'cerca_letteratura':  msg = '📚 PubMed: ' + (res.articoli || []).length + ' articoli su ' + (res.totale || 0); break;
         case 'ricorda':            msg = res.gia_presente ? '🧠 (lo sapevo gia\')' : '🧠 Ricordero\': ' + res.salvato; break;
         case 'ricordi':            msg = res.rimossi !== undefined ? '🧠 Dimenticati: ' + res.rimossi : '🧠 ' + res.totale + ' ricordi'; break;
+        case 'cerca_nel_database': msg = '📚 BioSpecInfo · ' + res.tipo + ': ' + res.trovati + ' risultati su ' + res.totale_nel_database; break;
         case 'stato_app':          msg = '🧭 Ho controllato dove ti trovi nell\'app'; break;
         default:                   msg = '🧭 Ho eseguito: ' + (res.label || er.name);
       }
@@ -2586,6 +2730,13 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
 "Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
 "utile.\n\n" +
+"CONOSCI QUESTA APP DALL'INTERNO: cerca_nel_database interroga i dati veri di BioSpecInfo — 297 " +
+"reazioni di sintesi con condizioni operative, 118 elementi, 67 amminoacidi con pKa e SMILES, 143 " +
+"farmaci con meccanismo d'azione ed effetti avversi, 36 interazioni farmacologiche, 29 potenziali " +
+"redox, 39 strategie retrosintetiche, 29 vie metaboliche e 63 patologie. Sono materiale curato " +
+"dall'autore dell'app: consultalo PRIMA di rispondere a memoria su una reazione, un elemento, un " +
+"amminoacido o un farmaco, e di' che viene da BioSpecInfo. Se il database e la tua memoria non " +
+"concordano, segnala la discrepanza invece di nasconderla.\n\n" +
 "REGOLA FONDAMENTALE SUI NUMERI: non citare mai a memoria una proprieta' numerica di un composto " +
 "(massa molecolare, logP, TPSA, donatori/accettori di legame idrogeno, formula, nome IUPAC). " +
 "Chiamai prima cerca_pubchem e riporta i valori che ti restituisce, citando PubChem come fonte. " +
