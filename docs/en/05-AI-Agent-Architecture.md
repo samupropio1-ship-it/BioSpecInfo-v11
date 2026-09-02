@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 4,895 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,053 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v133` |
+| **Documented version** | Service Worker `bsi-v135` |
 
 ---
 
@@ -88,6 +88,29 @@ Tools are declared once in JSON Schema and translated at runtime:
 The same applies to messages: turns containing tool calls are serialised into
 each provider's native form and kept in a `_native` field, so a conversation
 stays coherent even when switching models.
+
+### 2.4 Gemini model resolution
+
+Google retires models from the `v1beta` endpoint without notice: a name written
+into the URL eventually stops working and returns `404 — models/... is not
+found`. So `PROVIDERS.gemini.model` starts as `null` and is decided at runtime:
+
+1. **`ListModels`** — ask the API which models that key can actually see. Each
+   is scored: newer version first, `flash` family preferred, with penalties for
+   experimental, `preview` and `-lite` variants; models that do not expose
+   `streamGenerateContent` are discarded, as are non-conversational ones
+   (embedding, image, native audio, Live API).
+2. **Probe the candidates** — if `ListModels` is unreachable (restricted key,
+   network, CORS), issue a `GET` on each known name's metadata: a real check
+   that burns no generation quota.
+3. **First candidate** — last resort, so the real error from the generation
+   call speaks instead of one invented here.
+
+The choice is cached for seven days, keyed to a 32-bit FNV-1a fingerprint of
+the API key (different keys see different catalogues; the key itself is never
+duplicated). If the model is retired while cached, the `404` from the
+generation call invalidates the cache, re-resolves and retries **once** — a
+flag prevents an infinite loop when the new model 404s as well.
 
 ---
 
@@ -301,7 +324,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 4,895 lines |
+| Component size | 5,053 lines |
 | Tools | 32 |
 | Model configurations | 8 (3 free) |
 | Scientific areas covered | 13 |

@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 4.895 righe, zero dipendenze runtime |
+| Componente | 5.053 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 4 (Anthropic, Groq, Google, OpenRouter/xAI) — 3 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
@@ -75,7 +75,7 @@ ripresa del turno.
 
 ---
 
-## Cinque bug che ho trovato testando (e cosa insegnano)
+## Sei bug che ho trovato testando (e cosa insegnano)
 
 **1. Il parser di formule sbagliava `Ca₃(PO₄)₂`** — dava 215 invece di 310. La
 prima implementazione gestiva le parentesi con una pila di moltiplicatori
@@ -116,6 +116,28 @@ stesso guasto che avevo già corretto mesi prima in un altro punto del codice.
 Ora la cronologia usa una miniatura da 5 KB.
 *Lezione: quando trovi una classe di bug, cercala altrove prima che ti trovi
 lei.*
+
+**6. Un nome di modello scritto nel codice è una bomba a orologeria.** Gemini
+ha smesso di funzionare da un giorno all'altro: `HTTP 404 — models/gemini-1.5-flash
+is not found for API version v1beta`. Google aveva ritirato il modello, e
+l'URL lo conteneva alla lettera. La correzione ovvia era scriverci il nome
+nuovo: avrebbe funzionato fino al ritiro successivo.
+
+L'API però sa dire quali modelli esistono *per quella chiave*. Ora il nome non
+c'è più: `ListModels` restituisce il catalogo, un punteggio sceglie il migliore
+— versione più recente, famiglia `flash`, scartando varianti sperimentali e
+modelli non conversazionali (audio nativo, immagini, embedding) — e la scelta
+resta in cache per una settimana, legata a un'impronta della chiave perché
+chiavi diverse vedono cataloghi diversi. Se `ListModels` non risponde si
+sondano dei candidati noti con una GET sui metadati, che non consuma quota di
+generazione. E se il modello viene ritirato *mentre* è in cache, il 404 della
+chiamata vera invalida la cache e ritenta una volta sola.
+
+Verificato su 22 casi con l'API simulata, compreso «esce Gemini 3.0» (lo
+sceglie da solo), «resta solo `pro`», «rete completamente giù» e «404
+persistente» — che deve fermarsi, non entrare in ciclo.
+*Lezione: quando un guasto verrà di sicuro di nuovo, la correzione giusta non
+è il valore nuovo, è togliere il valore.*
 
 ---
 

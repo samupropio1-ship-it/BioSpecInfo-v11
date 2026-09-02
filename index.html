@@ -8672,9 +8672,9 @@ var _aiProviderInfo={
     authHeader:function(k){return{"Authorization":"Bearer "+k};}
   },
   gemini:{
-    name:"Google Gemini 1.5 Flash",
-    url:"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-    model:"gemini-1.5-flash",
+    name:"Google Gemini Flash",
+    url:"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+    model:"gemini-2.5-flash",
     keyLink:"aistudio.google.com → Get API key → Create API key",
     placeholder:"AIza...",
     authHeader:null
@@ -8864,21 +8864,32 @@ function sendAI(){
     Object.keys(ah).forEach(function(k){reqHeaders[k]=ah[k];});
   }
   var reqBody;
+  // Il nome del modello non e' piu' cablato nell'URL: Google ritira i modelli
+  // e un nome fisso finisce per dare 404. Se il motore di Spectra e' caricato
+  // (bsi-ai-hub.js) glielo si fa risolvere; altrimenti resta il nome statico.
+  var modelloPronto=Promise.resolve(provConf.model);
   if(_prov==="gemini"){
     // Gemini uses a different format
-    reqUrl+="?key="+_apiKey;
-    var gemContents=messages.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:[{text:m.content},{name:"CCDC · Cambridge Structural DB",desc:"Cambridge Crystallographic Data Centre · strutture cristallografiche (oltre 1,3 milioni)",href:"https://www.ccdc.cam.ac.uk/structures/?compound="+term,col:"#00838f"},{name:"3Dmol.js · Viewer 3D",desc:"Visualizzatore molecolare 3D WebGL · carica strutture da PubChem/PDB",href:"https://3dmol.org/viewer.html?url=https://files.rcsb.org/download/&type=pdb&select="+term,col:"#5e35b1"},{name:"PubChem",desc:"Il più grande database chimico (NIH) · proprietà, struttura, bioattività",href:"https://pubchem.ncbi.nlm.nih.gov/#query="+term,col:"#1565c0"},{name:"ChemSpider",desc:"Royal Society of Chemistry · 100M+ strutture",href:"https://www.chemspider.com/Search.aspx?q="+term,col:"#00897b"},{name:"ChEBI",desc:"Entità chimiche di interesse biologico (EMBL-EBI)",href:"https://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString="+term,col:"#6a1b9a"},{name:"DrugBank",desc:"Farmaci, bersagli, farmacologia",href:"https://go.drugbank.com/unearth/q?searcher=drugs&query="+term,col:"#0277bd"},{name:"RCSB PDB",desc:"Strutture 3D di proteine e macromolecole",href:"https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22full_text%22%2C%22parameters%22%3A%7B%22value%22%3A%22"+term+"%22%7D%7D%2C%22return_type%22%3A%22entry%22%7D",col:"#0d47a1"},{name:"KEGG",desc:"Vie metaboliche, enzimi, composti (Kyoto)",href:"https://www.genome.jp/dbget-bin/www_bfind_sub?dbkey=compound&keywords="+term,col:"#2e7d32"},{name:"UniProt",desc:"Sequenze e funzioni proteiche",href:"https://www.uniprot.org/uniprotkb?query="+term,col:"#0277bd"},{name:"Reaxys",desc:"Reazioni e proprietà (Elsevier, accesso istituzionale)",href:"https://www.reaxys.com",col:"#c62828"},{name:"PubMed",desc:"Letteratura biomedica (NIH)",href:"https://pubmed.ncbi.nlm.nih.gov/?term="+term,col:"#00695c"},{name:"Sigma-Aldrich",desc:"Schede prodotto, sicurezza, spettri",href:"https://www.sigmaaldrich.com/US/en/search/"+term,col:"#e65100"},{name:"Wikipedia",desc:"Voce enciclopedica",href:"https://it.wikipedia.org/wiki/Special:Search?search="+term,col:"#455a64"},{name:"nmrdb.org",desc:"Predizione e simulazione NMR",href:"https://www.nmrdb.org",col:"#ad1457"},{name:"MassBank",desc:"Database di spettri di massa",href:"https://massbank.eu/MassBank/Search?query="+term,col:"#4527a0"},{name:"SpectraBase (Bio-Rad)",desc:"IR, NMR, MS, Raman, UV-Vis · milioni di spettri",href:"https://spectrabase.com/search?q="+term,col:"#00838f"},{name:"HMDB · Human Metabolome",desc:"Spettri e dati di metaboliti umani (NMR/MS)",href:"https://hmdb.ca/unearth/q?query="+term+"&searcher=metabolites",col:"#2e7d32"},{name:"GNPS · MS/MS",desc:"Spettri di massa tandem, molecular networking",href:"https://gnps.ucsd.edu",col:"#4527a0"},{name:"SDBS (AIST)",desc:"Database spettrale giapponese · IR/NMR/MS/ESR",href:"https://sdbs.db.aist.go.jp/sdbs/cgi-bin/cre_search.cgi?COMPOUND="+term,col:"#c62828"},{name:"COD · Crystallography",desc:"Crystallography Open Database · strutture cristalline gratuite",href:"http://www.crystallography.net/cod/result.php?text="+term,col:"#5d4037"},{name:"BMRB · NMR proteine",desc:"Biological Magnetic Resonance Data Bank",href:"https://bmrb.io/search/query_grid/?term="+term,col:"#ad1457"},{name:"ChEMBL",desc:"Bioattività di molecole druglike (EMBL-EBI)",href:"https://www.ebi.ac.uk/chembl/g/#search_results/all/query="+term,col:"#1565c0"},{name:"UniProt",desc:"Sequenze e funzioni proteiche",href:"https://www.uniprot.org/uniprotkb?query="+term,col:"#0277bd"},{name:"PDBe (Europe)",desc:"Protein Data Bank in Europe · strutture 3D",href:"https://www.ebi.ac.uk/pdbe/entry/search/index?searchParams="+term,col:"#0d47a1"},{name:"Google Scholar",desc:"Letteratura scientifica accademica",href:"https://scholar.google.com/scholar?q="+term,col:"#455a64"},{name:"ChemRxiv / Preprint",desc:"Preprint di chimica",href:"https://chemrxiv.org/engage/chemrxiv/search-dashboard?text="+term,col:"#6a1b9a"},{name:"Common Chemistry (CAS)",desc:"Nomi, sinonimi, numeri CAS verificati",href:"https://commonchemistry.cas.org/results?q="+term,col:"#e65100"}]};});
+    reqUrl+="?key="+encodeURIComponent(_apiKey);
+    var gemContents=messages.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]};});
     reqBody=JSON.stringify({
       systemInstruction:{parts:[{text:_aiContext}]},
       contents:gemContents,
       generationConfig:{maxOutputTokens:1000,temperature:0.7}
     });
+    if(typeof window.bsiGeminiRisolvi==="function"){
+      modelloPronto=window.bsiGeminiRisolvi(_apiKey,false)
+        .catch(function(){return provConf.model;});
+    }
   } else {
     // OpenAI-compatible (Groq, OpenRouter)
     var apiMessages=[{role:"system",content:_aiContext}].concat(messages);
     reqBody=JSON.stringify({model:provConf.model,messages:apiMessages,max_tokens:1000,temperature:0.7});
   }
-  fetch(reqUrl,{method:"POST",headers:reqHeaders,body:reqBody})
+  modelloPronto.then(function(mod){
+    return fetch(reqUrl.replace("{model}",encodeURIComponent(mod||provConf.model)),
+                 {method:"POST",headers:reqHeaders,body:reqBody});
+  })
   .then(function(r){return r.json();})
   .then(function(data){
     var typEl=id("ai-typing");if(typEl)typEl.remove();
