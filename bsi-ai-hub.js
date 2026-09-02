@@ -63,6 +63,8 @@ var PROVIDERS = {
     // display:'summarized' e' voluto — con il valore predefinito ('omitted') il
     // modello pensa in silenzio e l'utente vede solo una lunga pausa.
     thinking: { type: 'adaptive', display: 'summarized' },
+    effort: 'high',
+    webSearch: true, webSearchMaxUses: 6,
     maxTokens: 16000,
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
@@ -126,8 +128,19 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     // NB: sui modelli recenti (Opus 5 e famiglia 4.6+) temperature/top_p sono
     // stati rimossi e farebbero fallire la richiesta con un 400: non inviarli.
     if(p.thinking) aBody.thinking = p.thinking;
+    // Profondita' di ragionamento: e' la leva che separa una risposta rapida da
+    // una ragionata. 'high' e' il punto di equilibrio fra qualita' e costo.
+    if(p.effort) aBody.output_config = { effort: p.effort };
     var aTools = toolsForFamily('anthropic', tools);
     if(aTools) aBody.tools = aTools;
+    // Ricerca web nativa di Anthropic: gira sui loro server, quindi non
+    // richiede una chiave in piu' ne' espone nulla dal browser. E' cio' che
+    // permette a Spectra di consultare fonti aggiornate oltre PubChem/PubMed.
+    if(p.webSearch){
+      aBody.tools = (aBody.tools || []).concat([{
+        type: 'web_search_20260209', name: 'web_search', max_uses: p.webSearchMaxUses || 5
+      }]);
+    }
     return { url: p.url, headers: h, body: aBody };
   }
   // famiglia 'openai'-compatibile: groq, openrouter, grok
@@ -212,6 +225,42 @@ function accumulateToolCall(family, json, state){
           }
           else th.signature = (th.signature || '') + (json.delta.signature || '');
         }
+      }
+      // ── Ricerca web (strumento lato server di Anthropic) ──────────────────
+      // Gira sui server di Anthropic: non riceve tool_result da noi, ma i suoi
+      // blocchi fanno parte del turno assistant e vanno conservati per poter
+      // riprendere un turno messo in pausa (stop_reason "pause_turn").
+      if(json.type === 'content_block_start' && json.content_block &&
+         json.content_block.type === 'server_tool_use'){
+        state.server = state.server || {};
+        state.server[json.index] = Object.assign({}, json.content_block, { _argsStr: '' });
+        if(state.onServerTool) state.onServerTool('search-start', json.content_block);
+      }
+      if(json.type === 'content_block_delta' && json.delta && json.delta.type === 'input_json_delta'){
+        var sv = state.server && state.server[json.index];
+        if(sv) sv._argsStr += (json.delta.partial_json || '');
+      }
+      if(json.type === 'content_block_start' && json.content_block &&
+         json.content_block.type === 'web_search_tool_result'){
+        // arriva gia' completo: nessun delta da accumulare
+        state.server = state.server || {};
+        state.server[json.index] = Object.assign({}, json.content_block);
+        // La query non e' nota all'apertura del blocco (arriva dopo, nei delta):
+        // la recupero ora dal server_tool_use con lo stesso id, cosi' l'utente
+        // vede cosa e' stato cercato davvero e non un generico "cerco…".
+        var q = '';
+        try{
+          for(var ik in state.server){
+            var sb = state.server[ik];
+            if(sb && sb.type === 'server_tool_use' && sb.id === json.content_block.tool_use_id){
+              q = JSON.parse(sb._argsStr || '{}').query || ''; break;
+            }
+          }
+        }catch(e){}
+        if(state.onServerTool) state.onServerTool('search-result', json.content_block, q);
+      }
+      if(json.type === 'message_delta' && json.delta && json.delta.stop_reason){
+        state.stopReason = json.delta.stop_reason;
       }
     } else if(family === 'gemini'){
       var cand = json.candidates && json.candidates[0];
@@ -298,7 +347,8 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     throw new Error('HTTP ' + res.status + ' — ' + errMsg);
   }
   var full = '';
-  var tcState = { toolCalls: {}, geminiCalls: [], onThinking: callbacks && callbacks.onThinking };
+  var tcState = { toolCalls: {}, geminiCalls: [], onThinking: callbacks && callbacks.onThinking,
+                  onServerTool: callbacks && callbacks.onServerTool };
   if(res.body && typeof res.body.getReader === 'function'){
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
@@ -348,7 +398,21 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     ? Object.keys(tcState.thinking).sort(function(a,b){ return a - b; })
         .map(function(k){ return tcState.thinking[k]; })
     : [];
-  return { text: full, toolCalls: toolCalls, thinking: thinkingBlocks };
+  // Blocchi degli strumenti lato server (ricerca web), nell'ordine in cui sono
+  // arrivati: servono tali e quali per riprendere un turno in pausa.
+  var serverBlocks = tcState.server
+    ? Object.keys(tcState.server).sort(function(a,b){ return a - b; })
+        .map(function(k){
+          var b = Object.assign({}, tcState.server[k]);
+          if(b._argsStr !== undefined){
+            try{ b.input = b._argsStr ? JSON.parse(b._argsStr) : {}; }catch(e){ b.input = {}; }
+            delete b._argsStr;
+          }
+          return b;
+        })
+    : [];
+  return { text: full, toolCalls: toolCalls, thinking: thinkingBlocks,
+           server: serverBlocks, stopReason: tcState.stopReason };
 }
 window.bsiStreamChat = function(providerId, apiKey, messages, systemPrompt, callbacks){
   // wrapper retro-compatibile: ignora eventuali tool-call e restituisce solo il testo,
@@ -2509,13 +2573,16 @@ async function runToolCalls(toolCalls){
 // Costruisce, per famiglia, il messaggio "assistant" (che contiene le
 // tool-call) e il messaggio "tool result" da riaggiungere alla history,
 // nella forma nativa richiesta da quel provider.
-function appendAgentTurn(family, history, assistantText, toolCalls, execResults, thinkingBlocks){
+function appendAgentTurn(family, history, assistantText, toolCalls, execResults, thinkingBlocks, serverBlocks){
   if(family === 'anthropic'){
     var contentBlocks = [];
     // I blocchi di pensiero vanno per primi e identici a come sono arrivati
     // (firma compresa), altrimenti il modello rifiuta il turno successivo.
     if(thinkingBlocks && thinkingBlocks.length) contentBlocks = contentBlocks.concat(thinkingBlocks);
     if(assistantText) contentBlocks.push({ type: 'text', text: assistantText });
+    // se nello stesso turno c'e' stata una ricerca web, i suoi blocchi vanno
+    // rimandati indietro insieme al resto o il turno risulta incoerente
+    if(serverBlocks && serverBlocks.length) contentBlocks = contentBlocks.concat(serverBlocks);
     toolCalls.forEach(function(tc){ contentBlocks.push({ type: 'tool_use', id: tc.id, name: tc.name, input: tc.args || {} }); });
     history.push({ role: 'assistant', content: assistantText, _native: { anthropic: { role: 'assistant', content: contentBlocks } } });
     var resultBlocks = execResults.map(function(r){
@@ -2570,6 +2637,16 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
       r = await streamChat(providerId, apiKey, history, systemPrompt, {
         onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
         onThinking: callbacks.onThinking,
+        onServerTool: function(fase, blk, query){
+          if(!callbacks.onToolUse) return;
+          if(fase === 'search-start'){ callbacks.onToolUse('🌐 Cerco sul web…'); return; }
+          if(fase === 'search-result'){
+            var n = 0;
+            try{ n = Array.isArray(blk.content) ? blk.content.length : 0; }catch(e){}
+            callbacks.onToolUse('🌐 Web' + (query ? ' « ' + query + ' »' : '') + ': ' +
+                                (n ? n + ' risultati' : 'nessun risultato'));
+          }
+        },
         onDone: function(){}
       }, toolsDisabled ? undefined : TOOL_SCHEMA, abortSignal);
     }catch(err){
@@ -2586,6 +2663,21 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         continue;
       }
       throw err;
+    }
+    // Turno messo in pausa dal ciclo lato server (la ricerca web ha esaurito
+    // le sue iterazioni). Si riprende rimandando indietro il turno assistant
+    // COSI' COM'E', senza aggiungere un messaggio utente: il server riconosce
+    // il blocco server_tool_use in coda e riparte da li'.
+    if(r.stopReason === 'pause_turn' && p.family === 'anthropic'){
+      var pausedBlocks = (r.thinking || []).concat(
+        r.text ? [{ type: 'text', text: r.text }] : []
+      ).concat(r.server || []);
+      if(pausedBlocks.length){
+        history.push({ role: 'assistant', content: r.text || '',
+                       _native: { anthropic: { role: 'assistant', content: pausedBlocks } } });
+        if(callbacks.onToolUse) callbacks.onToolUse('🌐 Continuo la ricerca…');
+        continue;
+      }
     }
     if(!r.toolCalls || !r.toolCalls.length){
       callbacks.onDone(totalText);
@@ -2639,7 +2731,7 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
       }
       callbacks.onToolUse(msg);
     });
-    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults, r.thinking);
+    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults, r.thinking, r.server);
   }
   callbacks.onDone(totalText || '(limite di passaggi strumenti raggiunto)');
   return { text: totalText };
@@ -2786,6 +2878,11 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "FONTI: se l'utente chiede prove, o se stai per affermare qualcosa di clinicamente o " +
 "sperimentalmente rilevante, chiama cerca_letteratura e cita PMID e rivista. Distingui sempre " +
 "cio' che e' consolidato da cio' che e' ancora dibattuto.\n\n" +
+"RICERCA WEB: con Claude hai la ricerca web integrata. Usala quando serve qualcosa di aggiornato " +
+"o fuori dalla chimica pura (linee guida recenti, notizie scientifiche, dati di missioni spaziali, " +
+"normative), e cita sempre le fonti con il loro link. Per le proprieta' molecolari resta " +
+"preferibile PubChem, e per la letteratura biomedica PubMed: sono banche dati specializzate e " +
+"piu' affidabili di una ricerca generica.\n\n" +
 "MEMORIA: quando emerge qualcosa di duraturo sull'utente (esame che prepara, argomenti su cui " +
 "fatica, come preferisce le spiegazioni) chiama ricorda. Non annunciarlo ogni volta: fallo e basta.\n\n" +
 "ONESTA': se non sai, dillo. Se uno strumento fallisce, dillo e spiega cosa manca, invece di " +
@@ -3428,7 +3525,9 @@ function buildChatPane(){
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
 
     var sys = BASE_SYSTEM + memoryPrompt() + buildGrounding(text);
-    var history = t.messages.slice(-12).map(function(m){ return { role: m.role, content: m.content }; });
+    // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
+    // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
+    var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });
 
     stopBtn.onclick = function(){ abortFlag.stop = true; if(abortCtrl) abortCtrl.abort(); };
 
