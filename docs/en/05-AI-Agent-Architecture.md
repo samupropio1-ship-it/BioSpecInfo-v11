@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 6,189 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 6,265 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v143` |
+| **Documented version** | Service Worker `bsi-v144` |
 
 ---
 
@@ -365,6 +365,45 @@ than looking:
   has a purpose.
 - The core's orbitals, when rotating, escaped their box and overlapped the name.
 
+### 2.9 Using what the provider actually offers
+
+Three things the Anthropic API provides that were not being used. Checked
+against the official reference rather than recalled — two of the three carry a
+constraint that would not have been guessed.
+
+**Prompt caching.** The fixed cost of every request is about 8,150 tokens:
+2,000 of system prompt plus 6,128 of tool definitions, identical every turn.
+Marked for caching they are paid once and then read back at a fraction of the
+price.
+
+The constraint is that caching works by *prefix*: one differing byte at the
+start invalidates all of it. But Spectra's prompt also carries user memory and
+question context, which change every message. Concatenated into one string the
+cache **would never have hit**. The prompt now travels in two blocks — stable
+and marked, volatile and not — and the marker also goes on the last tool,
+because composition order is `tools` → `system` → `messages`.
+
+**The Python sandbox, and why it excludes web search.** `code_execution` gives
+the model an environment with sympy, numpy, scipy and matplotlib: numerical
+integration, symbolic algebra, matrix diagonalisation — things the 32 solvers
+do not cover because they cannot all be anticipated.
+
+But the new-generation web search **already carries an execution environment**
+(it filters results by writing code), and declaring `code_execution` as well
+would create a second one, confusing the model. They are alternatives, not
+complements. The choice follows Core Mode: normally web search and page
+fetching, in Core Mode the sandbox — because when maximum power is requested
+the problem is computational, not documentary. A test verifies the two never
+appear together.
+
+**Page fetching.** `web_fetch` joins search: if the user pastes an article
+link, Spectra reads it instead of merely searching for its title.
+
+Sandbox results arrive as `bash_code_execution_tool_result` and
+`text_editor_code_execution_tool_result` — not a generic
+`code_execution_tool_result` — and must be kept in the assistant turn like the
+web-search blocks, or a server-paused turn cannot be resumed.
+
 ---
 
 ## 3. The 32 tools
@@ -577,7 +616,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 6,189 lines |
+| Component size | 6,265 lines |
 | Tools | 32 |
 | Model configurations | 13 (5 free) |
 | Scientific areas covered | 13 |

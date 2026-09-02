@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.189 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.265 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v143
+- sw.js            — Service Worker (network-first). Cache: bsi-v144
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -295,6 +295,28 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
      troncava: ora c'e' solo il nome, e il resto sta nella riga di stato.
    - gli orbitali del nucleo uscivano dal riquadro e finivano sopra il testo:
      overflow:hidden sull'svg e raggi ridotti (rx 17, non 20).
+
+21) CAPACITA' ANTHROPIC — tre cose delicate, tutte verificate contro il
+   riferimento ufficiale (skill claude-api), non a memoria:
+   a) CACHE DEL PROMPT. Il prompt di sistema viaggia in DUE blocchi: la parte
+      stabile (~2.000 token, identica ad ogni richiesta) marcata
+      cache_control ephemeral, e quella volatile (memoria + grounding) FUORI
+      dalla cache. Concatenandole la cache non prenderebbe mai: qualunque
+      byte diverso nel prefisso la invalida tutta. L'ordine di composizione
+      e' tools -> system -> messages, quindi il marcatore va anche
+      sull'ULTIMO strumento. partiSistema()/testoSistema() adattano il
+      formato: Anthropic vuole l'array, Gemini e gli OpenAI-compatibili una
+      stringa sola.
+   b) RICERCA WEB E SANDBOX NON CONVIVONO. web_search_20260209 porta gia'
+      dentro un ambiente di esecuzione (filtra i risultati scrivendo codice);
+      aggiungere anche code_execution ne creerebbe un SECONDO e confonderebbe
+      il modello — lo dice la documentazione. Quindi: normalmente
+      web_search + web_fetch, in Modalita' Nucleo code_execution_20260521.
+      Mai insieme, c'e' un test apposta.
+   c) I risultati del sandbox arrivano come bash_code_execution_tool_result
+      e text_editor_code_execution_tool_result, NON come un generico
+      code_execution_tool_result. Vanno conservati nel turno assistant come i
+      blocchi della ricerca web, o un turno in pausa non si puo' riprendere.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

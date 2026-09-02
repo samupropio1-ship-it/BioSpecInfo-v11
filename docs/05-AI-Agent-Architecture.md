@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 6.189 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 6.265 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v143` |
+| **Versione documentata** | Service Worker `bsi-v144` |
 
 ---
 
@@ -377,6 +377,48 @@ misurando invece che guardando:
 - Gli orbitali del nucleo, ruotando, uscivano dal riquadro e finivano sopra il
   nome.
 
+### 2.9 Le capacità del fornitore, usate davvero
+
+Tre cose che l'API di Anthropic offre e che non erano sfruttate. Verificate
+contro il riferimento ufficiale, non a memoria — due delle tre hanno un
+vincolo che a memoria non si sarebbe indovinato.
+
+**La cache del prompt.** Il costo fisso di ogni richiesta è di circa 8.150
+token: 2.000 di prompt di sistema più 6.128 di definizioni degli strumenti,
+identici ad ogni turno. Marcandoli si pagano una volta e poi si rileggono a
+una frazione del prezzo.
+
+Il vincolo è che la cache funziona per *prefisso*: un solo byte diverso
+all'inizio la invalida tutta. Il prompt di Spectra però contiene anche la
+memoria dell'utente e il contesto della domanda, che cambiano ad ogni
+messaggio. Concatenandoli in un'unica stringa la cache **non avrebbe mai
+preso**. Ora il prompt viaggia in due blocchi — stabile e marcato, volatile e
+no — e il marcatore va anche sull'ultimo strumento, perché l'ordine di
+composizione è `tools` → `system` → `messages`.
+
+**Il sandbox Python, e perché esclude la ricerca web.** `code_execution` dà al
+modello un ambiente con sympy, numpy, scipy e matplotlib: integrazione
+numerica, algebra simbolica, diagonalizzazione di matrici — cose che i 32
+risolutori non coprono perché non si possono prevedere tutte.
+
+Ma la ricerca web di nuova generazione **porta già dentro un ambiente di
+esecuzione** (filtra i risultati scrivendo codice), e dichiarare anche
+`code_execution` ne creerebbe un secondo, confondendo il modello. Sono
+alternative, non complementari. La scelta segue la Modalità Nucleo: normalmente
+ricerca web e lettura di pagine, in Nucleo il sandbox — perché quando si chiede
+il massimo della potenza il problema è di calcolo, non di documentazione. Un
+test verifica che i due non compaiano mai insieme.
+
+**La lettura di pagine.** `web_fetch` affianca la ricerca: se l'utente incolla
+il link di un articolo, Spectra lo legge invece di limitarsi a cercarne il
+titolo.
+
+I risultati del sandbox arrivano come `bash_code_execution_tool_result` e
+`text_editor_code_execution_tool_result` — non come un generico
+`code_execution_tool_result` — e vanno conservati nel turno dell'assistente
+come i blocchi della ricerca web, altrimenti un turno messo in pausa dal server
+non si può riprendere.
+
 ---
 
 ## 3. I 32 strumenti
@@ -598,7 +640,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 6.189 |
+| Righe del componente | 6.265 |
 | Strumenti | 32 |
 | Configurazioni di modello | 13 (5 gratuite) |
 | Aree scientifiche coperte | 13 |

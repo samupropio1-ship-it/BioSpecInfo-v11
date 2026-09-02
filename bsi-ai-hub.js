@@ -795,7 +795,7 @@ function messaggioOrfano(m){
    due, e' il costo fisso a doversi stringere per primo. */
 function adattaAlBudget(p, messages, systemPrompt, tools){
   if(!p.maxInput) return { messages: messages, tools: tools, tagliato: false };
-  var fisso = stimaToken(systemPrompt);
+  var fisso = stimaToken(testoSistema(systemPrompt));
   var disponibile = p.maxInput - fisso - 400;   // margine per la risposta attesa
   if(disponibile < 500) disponibile = 500;
 
@@ -832,10 +832,19 @@ function toolsForFamily(family, tools){
   return tools.map(function(t){ return { type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }; });
 }
 
+/* Il prompt di sistema puo' arrivare come stringa (uso semplice) o come
+   coppia [stabile, volatile]. Serve alla cache di Anthropic: il primo pezzo
+   e' identico ad ogni richiesta e si puo' mettere in cache, il secondo no. */
+function partiSistema(sp){
+  if(Array.isArray(sp)) return [sp[0] || '', sp.slice(1).join('')];
+  return [String(sp || ''), ''];
+}
+function testoSistema(sp){ var q = partiSistema(sp); return q[0] + q[1]; }
+
 function buildRequest(p, apiKey, messages, systemPrompt, tools){
   if(p.family === 'gemini'){
     var body = {
-      systemInstruction: { parts: [{ text: systemPrompt }] },
+      systemInstruction: { parts: [{ text: testoSistema(systemPrompt) }] },
       contents: messages.map(geminiMsg),
       generationConfig: { temperature: 0.6 }
     };
@@ -860,8 +869,16 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     var h = aUrl
       ? { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' }
       : Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
+    // Il prompt di sistema viaggia in DUE blocchi: quello stabile (~2.000
+    // token, identico ad ogni richiesta) marcato per la cache, e quello
+    // volatile (memoria, contesto della domanda) fuori dalla cache.
+    // Concatenandoli in un'unica stringa la cache non prenderebbe mai:
+    // qualunque byte diverso nel prefisso la invalida tutta.
+    var parti = partiSistema(systemPrompt);
+    var aSystem = [{ type: 'text', text: parti[0], cache_control: { type: 'ephemeral' } }];
+    if(parti[1]) aSystem.push({ type: 'text', text: parti[1] });
     var aBody = {
-      model: p.model, max_tokens: p.maxTokens || 4000, stream: true, system: systemPrompt,
+      model: p.model, max_tokens: p.maxTokens || 4000, stream: true, system: aSystem,
       messages: messages.map(anthropicMsg)
     };
     // NB: sui modelli recenti (Opus 5 e famiglia 4.6+) temperature/top_p sono
@@ -874,13 +891,35 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     if(p.effort) aBody.output_config = { effort: nucleoAttivo() ? 'xhigh' : p.effort };
     var aTools = toolsForFamily('anthropic', tools);
     if(aTools) aBody.tools = aTools;
-    // Ricerca web nativa di Anthropic: gira sui loro server, quindi non
-    // richiede una chiave in piu' ne' espone nulla dal browser. E' cio' che
-    // permette a Spectra di consultare fonti aggiornate oltre PubChem/PubMed.
+    /* Strumenti lato server di Anthropic: girano sui loro server, quindi non
+       richiedono una chiave in piu' ne' espongono nulla dal browser.
+       ATTENZIONE: la ricerca web di nuova generazione porta gia' dentro un
+       ambiente di esecuzione (filtra i risultati scrivendo codice). Aggiungere
+       ANCHE code_execution creerebbe un SECONDO ambiente e confonderebbe il
+       modello — la documentazione lo dice esplicitamente. Quindi o l'uno o
+       l'altro, mai insieme:
+         · normalmente ricerca + lettura di pagine web;
+         · in Modalita' Nucleo il sandbox Python, che e' cio' che serve
+           davvero quando il problema e' di calcolo (sympy, numpy, scipy,
+           matplotlib) e non di documentazione. */
     if(p.webSearch){
-      aBody.tools = (aBody.tools || []).concat([{
-        type: 'web_search_20260209', name: 'web_search', max_uses: p.webSearchMaxUses || 5
-      }]);
+      if(nucleoAttivo()){
+        aBody.tools = (aBody.tools || []).concat([
+          { type: 'code_execution_20260521', name: 'code_execution' }
+        ]);
+      } else {
+        aBody.tools = (aBody.tools || []).concat([
+          { type: 'web_search_20260209', name: 'web_search', max_uses: p.webSearchMaxUses || 5 },
+          { type: 'web_fetch_20260209', name: 'web_fetch', max_uses: p.webSearchMaxUses || 5 }
+        ]);
+      }
+    }
+    // Il marcatore della cache va sull'ULTIMO strumento: l'ordine di
+    // composizione e' tools -> system -> messages, quindi cosi' entrano nella
+    // cache sia i 32 strumenti sia il prompt stabile.
+    if(aBody.tools && aBody.tools.length){
+      aBody.tools[aBody.tools.length - 1] =
+        Object.assign({}, aBody.tools[aBody.tools.length - 1], { cache_control: { type: 'ephemeral' } });
     }
     // Fallback in caso di rifiuto: richiedono sia l'intestazione beta sia il
     // campo nel corpo. Mandarne solo uno dei due produce un 400.
@@ -898,7 +937,7 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     // copre le chiamate diverse in cui la risoluzione non e' passata.
     model: p.model || (p.modelliCandidati && p.modelliCandidati[0]),
     stream: true, temperature: 0.6,
-    messages: [{ role: 'system', content: systemPrompt }].concat(messages.map(openaiMsg))
+    messages: [{ role: 'system', content: testoSistema(systemPrompt) }].concat(messages.map(openaiMsg))
   };
   var oTools = toolsForFamily('openai', tools);
   if(oTools) oBody.tools = oTools;
@@ -1058,6 +1097,25 @@ function accumulateToolCall(family, json, state){
           }
         }catch(e){}
         if(state.onServerTool) state.onServerTool('search-result', json.content_block, q);
+      }
+      /* Risultati del sandbox Python (Modalita' Nucleo). Vanno conservati
+         insieme al resto del turno come i blocchi della ricerca web: fanno
+         parte della risposta dell'assistente e servono tali e quali per
+         riprendere un turno messo in pausa. */
+      if(json.type === 'content_block_start' && json.content_block &&
+         (json.content_block.type === 'bash_code_execution_tool_result' ||
+          json.content_block.type === 'text_editor_code_execution_tool_result')){
+        state.server = state.server || {};
+        state.server[json.index] = Object.assign({}, json.content_block);
+        if(state.onServerTool){
+          var c = json.content_block.content || {};
+          // return_code diverso da zero significa che il codice e' fallito:
+          // dirlo e' piu' utile che mostrare un generico "eseguito".
+          var esito = (typeof c.return_code === 'number' && c.return_code !== 0)
+            ? 'errore (codice ' + c.return_code + ')'
+            : (String(c.stdout || '').trim().split('\n')[0] || 'fatto').slice(0, 60);
+          state.onServerTool('codice-risultato', json.content_block, esito);
+        }
       }
       if(json.type === 'message_delta' && json.delta && json.delta.stop_reason){
         state.stopReason = json.delta.stop_reason;
@@ -4020,7 +4078,7 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   // (Se lo chiama lo stesso, runToolCalls lo esegue: toolByName cerca nel
   // registro completo, non in quello ridotto.)
   if(p.maxInput){
-    var fisso0 = stimaToken(systemPrompt);
+    var fisso0 = stimaToken(testoSistema(systemPrompt));
     var perStrumenti = Math.floor(Math.max(500, p.maxInput - fisso0 - 400) * 0.55);
     TOOL_SCHEMA = selezionaStrumenti(TOOL_SCHEMA, testoRecente(messages), perStrumenti);
   }
@@ -4035,12 +4093,24 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
         onBudget: callbacks.onBudget,
         onServerTool: function(fase, blk, query){
           if(!callbacks.onToolUse) return;
-          if(fase === 'search-start'){ callbacks.onToolUse('🌐 Cerco sul web…'); return; }
+          if(fase === 'search-start'){
+            // Lo stesso blocco apre sia la ricerca web sia il sandbox: il nome
+            // dello strumento dice quale dei due.
+            var nome = (blk && blk.name) || '';
+            callbacks.onToolUse(nome === 'code_execution'
+              ? '🐍 Scrivo ed eseguo codice…'
+              : (nome === 'web_fetch' ? '🌐 Apro la pagina…' : '🌐 Cerco sul web…'));
+            return;
+          }
           if(fase === 'search-result'){
             var n = 0;
             try{ n = Array.isArray(blk.content) ? blk.content.length : 0; }catch(e){}
             callbacks.onToolUse('🌐 Web' + (query ? ' « ' + query + ' »' : '') + ': ' +
                                 (n ? n + ' risultati' : 'nessun risultato'));
+            return;
+          }
+          if(fase === 'codice-risultato'){
+            callbacks.onToolUse('🐍 Codice: ' + (query || 'fatto'));
           }
         },
         onDone: function(){}
@@ -5437,7 +5507,10 @@ function buildChatPane(){
     }
     var migliore = migliorProvider();
     var testo = '⚛ <b>Modalità Nucleo accesa.</b> Ragionamento al massimo, ' +
-                GIRI_NUCLEO + ' passaggi di strumenti invece di ' + GIRI_NORMALE + '.';
+                GIRI_NUCLEO + ' passaggi di strumenti invece di ' + GIRI_NORMALE + '.' +
+                ' Sui modelli Claude passo dalla ricerca web al <b>sandbox Python</b>' +
+                ' (sympy, numpy, scipy, matplotlib): meglio per i problemi di calcolo,' +
+                ' peggio per quelli che richiedono fonti aggiornate.';
     if(migliore && migliore !== provSel.value){
       provSel.value = migliore; setSavedProvider(migliore); refreshKeyBox();
       testo += ' Passo a <b>' + escapeHtml(PROVIDERS[migliore].name) + '</b>, il più capace fra quelli per cui hai una chiave' +
@@ -5791,7 +5864,10 @@ function buildChatPane(){
     abortFlag.stop = false;
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
 
-    var sys = BASE_SYSTEM + memoryPrompt() + buildGrounding(text) + (nucleoAttivo() ? PROMPT_NUCLEO : '');
+    // Due parti: la prima e' identica ad ogni richiesta e va in cache, la
+    // seconda cambia (memoria, contesto della domanda) e resta fuori.
+    var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
+               memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });
