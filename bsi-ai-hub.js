@@ -768,13 +768,23 @@ function parseGrafo(src){
 // Testo a capo su piu' righe: la larghezza e' stimata dai caratteri, senza
 // misurare nel DOM, perche' l'SVG viene costruito come stringa.
 function _aCapo(t, maxCar){
-  var par = String(t).split(/\s+/), righe = [], cur = '';
+  // Le parole troppo lunghe per stare su una riga (una stringa SMILES, un URL)
+  // vengono spezzate a forza: senza, il nodo si allargherebbe a dismisura
+  // trascinandosi dietro l'intero diagramma.
+  var par = [];
+  String(t).split(/\s+/).forEach(function(p){
+    while(p.length > maxCar){ par.push(p.slice(0, maxCar - 1) + '-'); p = p.slice(maxCar - 1); }
+    if(p) par.push(p);
+  });
+  var righe = [], cur = '';
   par.forEach(function(p){
     if(!cur) cur = p;
     else if((cur + ' ' + p).length <= maxCar) cur += ' ' + p;
     else { righe.push(cur); cur = p; }
   });
   if(cur) righe.push(cur);
+  // un nodo con decine di righe sbilancia il disegno: taglio con i puntini
+  if(righe.length > 6) righe = righe.slice(0, 6).concat(['…']);
   return righe.length ? righe : [''];
 }
 
@@ -3046,6 +3056,30 @@ function toolByName(name){
 // async: alcuni strumenti (es. cerca_molecola) restituiscono una Promise
 // perché devono aspettare che l'app finisca di renderizzare una sezione
 // prima di sapere se sono davvero riusciti.
+// Rete di sicurezza sui risultati numerici.
+// Un input a zero (lunghezza d'onda 0, volume 0, emivita 0...) fa divergere le
+// formule e il risolutore restituiva ok:true con Infinity o NaN dentro. E' il
+// guasto peggiore possibile qui: il modello lo riporterebbe come un valore
+// valido — "λmax = Infinity nm" — e chi studia potrebbe crederci.
+// Il controllo sta in un punto solo, cosi' vale anche per gli strumenti futuri.
+function validaNumeri(nome, r){
+  if(!r || r.ok !== true) return r;
+  var guasti = [];
+  (function scava(o, path){
+    if(o === null || o === undefined || guasti.length > 6) return;
+    if(typeof o === 'number'){ if(!isFinite(o)) guasti.push((path || 'risultato') + ' = ' + o); }
+    else if(typeof o === 'object'){ for(var k in o) scava(o[k], path ? path + '.' + k : k); }
+  })(r, '');
+  if(!guasti.length) return r;
+  return {
+    ok: false,
+    error: 'Il calcolo non ha un risultato finito: ' + guasti.join(', ') +
+           '. Di solito significa una divisione per zero — controlla i dati di partenza ' +
+           '(un volume, una concentrazione, una lunghezza d\'onda o un tempo di dimezzamento pari a zero).',
+    strumento: nome, valori_non_finiti: guasti
+  };
+}
+
 async function runToolCalls(toolCalls){
   var out = [];
   for(var i = 0; i < toolCalls.length; i++){
@@ -3055,10 +3089,11 @@ async function runToolCalls(toolCalls){
     try{
       result = tool ? await tool.execute(tc.args || {}) : { ok: false, error: 'tool sconosciuto: ' + tc.name };
     }catch(e){ result = { ok: false, error: e.message }; }
-    out.push({ id: tc.id, name: tc.name, args: tc.args, result: result });
+    out.push({ id: tc.id, name: tc.name, args: tc.args, result: validaNumeri(tc.name, result) });
   }
   return out;
 }
+window.bsiValidaNumeri = validaNumeri;
 
 // Costruisce, per famiglia, il messaggio "assistant" (che contiene le
 // tool-call) e il messaggio "tool result" da riaggiungere alla history,
