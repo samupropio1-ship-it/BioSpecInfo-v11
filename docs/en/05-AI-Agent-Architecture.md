@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,537 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,876 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v139` |
+| **Documented version** | Service Worker `bsi-v140` |
 
 ---
 
@@ -231,6 +231,56 @@ proxy covers, the resolved model per provider — otherwise it would stay valid
 until the page reloads, and Spectra would keep using a model chosen with a key
 that no longer exists.
 
+### 2.7 Making free keys carry real load
+
+Free tiers impose two different limits, and each needs a different answer.
+
+**The per-request ceiling.** GitHub Models accepts 8,000 input tokens.
+Spectra's fixed cost is ~8,150 — 2,009 for the system prompt plus **6,128 for
+tool definitions alone** — so that service would not even start: it would fail
+before the user typed a word. The measurement came before the fix, and changed
+what the fix had to be.
+
+The answer is not to trim history — it is to trim **the fixed cost**. Tools are
+paid on every turn; the conversation is the content. Of the two, the fixed cost
+must shrink first. `adattaAlBudget()` selects the tools **relevant** to the
+question instead of all 32, then shortens history with what remains.
+
+Relevance is scored against a keyword map kept **outside** the tool registry:
+the words people use to *ask* for something are not the words a tool is
+*documented* with. The description of `astrofisica` talks about Wien and
+Stefan-Boltzmann; the user writes "what temperature is this nebula". Matching
+the question against descriptions alone picked `farmacocinetica` for an
+astrochemistry question — measured, not assumed. Matching is by stem (first
+five characters) because Italian inflects: "nebulosa" and "nebulose" must
+count as the same word.
+
+**Rate limits.** A `429` on a free tier is almost always the *per-minute*
+limit, not an exhausted quota: waiting a few seconds clears it. The provider
+says how long in `Retry-After`, or in the error text ("*Please try again in
+7.5s*"); when it says nothing, exponential backoff with a little jitter, so
+every open tab does not retry at the same instant. If the requested wait is
+absurd, it does not wait at all: better to say "quota exhausted" than to leave
+the user watching an hourglass for an hour.
+
+**Provider fallback.** When a quota really is exhausted, the turn is redone on
+another service the user holds a key for. This is why several free keys
+together carry load that none of them carries alone.
+
+Two non-negotiable constraints:
+
+- It restarts from the **original** messages, not from half-finished history.
+  Turns containing tool calls are stored in the previous provider's native
+  format and cannot be handed to another. The turn's work is lost; a correct
+  answer is gained.
+- Fallback uses **free services only**. Silently moving to a paid one would
+  spend the user's money without their say-so; if the chosen service was paid,
+  it still gets the first attempt.
+
+And it moves on **only** for exhausted quota. A `401` or a malformed request
+would repeat identically everywhere: trying all providers and then reporting a
+random last error would hide the real cause.
+
 ---
 
 ## 3. The 32 tools
@@ -443,7 +493,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,537 lines |
+| Component size | 5,876 lines |
 | Tools | 32 |
 | Model configurations | 11 (6 free) |
 | Scientific areas covered | 13 |

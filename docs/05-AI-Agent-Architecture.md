@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.537 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.876 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v139` |
+| **Versione documentata** | Service Worker `bsi-v140` |
 
 ---
 
@@ -233,6 +233,58 @@ elenco dei fornitori coperti dal proxy, modello risolto per ciascun provider —
 altrimenti resterebbe valido fino al ricaricamento della pagina, e Spectra
 continuerebbe a usare un modello scelto con una chiave che non esiste più.
 
+### 2.7 Far reggere un carico vero alle chiavi gratuite
+
+I piani gratuiti hanno due limiti diversi, e vanno affrontati in modo diverso.
+
+**Il tetto per richiesta.** GitHub Models accetta 8.000 token in ingresso.
+Il costo fisso di Spectra è ~8.150 — 2.009 di prompt di sistema più **6.128 di
+sole definizioni degli strumenti** — quindi quel servizio non partirebbe
+nemmeno: fallirebbe prima che l'utente scriva una parola. La misura è stata
+fatta prima di scrivere il rimedio, e ha cambiato la soluzione.
+
+Il rimedio non è tagliare la cronologia — è tagliare **il costo fisso**. Gli
+strumenti si pagano ad ogni turno, la conversazione è il contenuto: fra i due,
+è il costo fisso a doversi stringere per primo. `adattaAlBudget()` seleziona i
+**strumenti pertinenti** alla domanda invece di tutti e 32, poi accorcia la
+cronologia con quel che resta.
+
+La pertinenza si misura su una mappa di parole chiave tenuta **fuori** dal
+registro degli strumenti: le parole con cui la gente *chiede* una cosa non sono
+quelle con cui lo strumento è *documentato*. La descrizione di `astrofisica`
+parla di Wien e Stefan-Boltzmann; l'utente scrive «che temperatura ha questa
+nebulosa». Confrontando la domanda con la sola descrizione, su una domanda di
+astrochimica veniva scelto `farmacocinetica` — misurato, non ipotizzato. Il
+confronto è per radice (primi cinque caratteri) perché l'italiano flette:
+«nebulosa» e «nebulose» devono coincidere.
+
+**I limiti di frequenza.** Un `429` sui piani gratuiti è quasi sempre il limite
+*al minuto*, non la quota esaurita: aspettare pochi secondi lo risolve. Il
+fornitore lo dice in `Retry-After`, oppure nel testo dell'errore («*Please try
+again in 7.5s*»); quando non lo dice si usa una crescita esponenziale con un
+po' di casualità, per non far ripartire tutte le schede aperte nello stesso
+istante. Se l'attesa richiesta è assurda non si aspetta affatto: meglio dire
+«quota finita» che lasciare l'utente davanti a una clessidra per un'ora.
+
+**La riserva fra fornitori.** Quando una quota è davvero esaurita, il turno
+viene rifatto su un altro servizio per cui l'utente ha una chiave. È il motivo
+per cui più chiavi gratuite messe insieme reggono un carico che nessuna
+reggerebbe da sola.
+
+Due vincoli non negoziabili:
+
+- Si riparte dai messaggi **originali**, non dalla cronologia a metà. I turni
+  con chiamate a strumenti sono salvati nel formato nativo del fornitore
+  precedente e non si possono passare a un altro. Si perde il lavoro del turno,
+  si guadagna una risposta corretta.
+- La riserva usa **solo servizi gratuiti**. Passare da solo a uno a pagamento
+  spenderebbe i soldi dell'utente senza che li abbia stanziati; se il servizio
+  scelto era a pagamento resta comunque il primo tentativo.
+
+E si passa oltre **soltanto** per quota esaurita. Un `401` o una richiesta
+malformata si ripeterebbero identici su ogni fornitore: provarli tutti per poi
+riportare l'ultimo errore a caso nasconderebbe la causa vera.
+
 ---
 
 ## 3. I 32 strumenti
@@ -454,7 +506,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.537 |
+| Righe del componente | 5.876 |
 | Strumenti | 32 |
 | Configurazioni di modello | 11 (6 gratuite) |
 | Aree scientifiche coperte | 13 |

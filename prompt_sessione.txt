@@ -32,14 +32,15 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.537 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.876 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v139
+- sw.js            — Service Worker (network-first). Cache: bsi-v140
 - manifest.json    — PWA manifest
-- docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
+- docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
+                     Guida-Chiavi-API.md per l'utente finale)
 - LICENSE, README.md, THIRD_PARTY_NOTICES.md
 
 ## astro.html — 18 tab
@@ -197,6 +198,32 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
    Dopo la cancellazione va azzerato anche lo stato in memoria (elenco dei
    fornitori del proxy, p.model risolto), altrimenti resta valido fino al
    ricaricamento della pagina.
+
+13) BUDGET E RISERVA — tre meccanismi che vanno capiti insieme (sezione 1c
+   e conProviderDiRiserva):
+   a) BUDGET. p.maxInput e' il tetto di token IN INGRESSO del fornitore.
+      GitHub Models ne accetta 8.000 e il costo fisso di Spectra e' ~8.150
+      (2.009 di prompt + 6.128 di definizioni dei 32 strumenti): senza
+      budget quel servizio NON parte. adattaAlBudget() stringe prima gli
+      strumenti (costo fisso ripetuto ogni turno) e poi la cronologia.
+      Se aggiungi strumenti o allunghi BASE_SYSTEM, RIMISURA: il margine
+      su GitHub Models e' di poche centinaia di token.
+   b) SELEZIONE STRUMENTI. La pertinenza si misura su PAROLE_STRUMENTO, una
+      mappa fuori dal registro TOOLS — le parole con cui la gente CHIEDE,
+      non quelle con cui lo strumento e' documentato. Misurato: usando solo
+      le descrizioni, su una domanda di astrochimica veniva scelta
+      'farmacocinetica'. Il confronto e' per RADICE (primi 5 caratteri):
+      l'italiano flette e "nebulosa"/"nebulose" devono coincidere.
+      PAROLE_STRUMENTO non deve MAI finire nello schema mandato al modello.
+      Se aggiungi uno strumento, aggiungi la sua riga di parole chiave.
+   c) RISERVA. conProviderDiRiserva rifa' il turno su un altro fornitore
+      quando il primo esaurisce (err.esaurito). Si riparte dai messaggi
+      ORIGINALI, non dalla cronologia a meta': i turni con strumenti sono
+      salvati nel formato nativo del fornitore precedente e NON si possono
+      passare a un altro. Solo fornitori GRATUITI vanno in riserva: passare
+      da solo a uno a pagamento spenderebbe i soldi dell'utente.
+      Si passa oltre SOLO per quota esaurita: un 401 si ripeterebbe identico
+      su tutti e va riportato subito.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

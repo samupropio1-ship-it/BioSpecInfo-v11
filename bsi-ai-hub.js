@@ -75,6 +75,10 @@ var PROVIDERS = {
     // Il catalogo NON sta sotto /inference: e' l'unico caso finora in cui
     // l'elenco dei modelli non si ricava dall'endpoint della chat.
     urlModelli: 'https://models.github.ai/catalog/models',
+    // Tetto del piano gratuito: 8.000 token IN INGRESSO per richiesta. Il
+    // costo fisso di Spectra (prompt + 32 strumenti) e' ~8.150, quindi senza
+    // budget questo servizio non partirebbe nemmeno. Vedi adattaAlBudget().
+    maxInput: 8000,
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'github.com → Settings → Developer settings → Personal access tokens (permesso "Models: read")',
     placeholder: 'github_pat_... oppure ghp_...',
@@ -99,6 +103,7 @@ var PROVIDERS = {
     modelliCandidati: ['mistral-large-latest', 'mistral-medium-latest',
                        'mistral-small-latest', 'open-mistral-nemo'],
     preferisci: /large|medium/,
+    maxInput: 28000,
     url: 'https://api.mistral.ai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'console.mistral.ai → API Keys (piano "Experiment")',
@@ -520,6 +525,199 @@ window.bsiGeminiRisolvi = risolviModelloGemini;
 window.bsiRisolviModello = risolviModello;
 window.bsiGeminiReset = function(provId){ modelloCacheInvalida(provId); };
 
+/* ---------------------------------------------------------------------
+   1c. BUDGET DELLA RICHIESTA
+   Alcuni gratuiti hanno un tetto di token IN INGRESSO molto basso: GitHub
+   Models ne accetta 8.000 per richiesta. Il costo fisso di Spectra e' gia'
+   circa 8.150 — 2.000 di prompt di sistema piu' 6.128 di definizioni dei
+   32 strumenti — quindi senza budget quel servizio fallirebbe al primo
+   messaggio, prima ancora che l'utente scriva.
+   Con il budget si spende dove serve: si mandano gli strumenti PERTINENTI
+   alla domanda invece di tutti e 32, e si taglia la cronologia piu' vecchia.
+   Sui provider senza tetto stretto non cambia niente.
+--------------------------------------------------------------------- */
+
+// Stima, non conteggio: circa 4 caratteri per token. Basta per decidere cosa
+// tagliare, e non richiede un tokenizzatore da 300 KB nella pagina.
+function stimaToken(x){
+  if(x == null) return 0;
+  var s = (typeof x === 'string') ? x : JSON.stringify(x);
+  return Math.ceil(s.length / 4);
+}
+
+// Strumenti che restano SEMPRE, anche col budget piu' stretto: senza questi
+// Spectra smette di essere un copilota e torna a essere una chat.
+var STRUMENTI_SEMPRE = ['calcola', 'naviga_sezione', 'cerca_nel_database'];
+
+/* Parole con cui la gente CHIEDE una cosa, che non sono quelle con cui lo
+   strumento e' documentato. La descrizione di 'astrofisica' parla di Wien e
+   Stefan-Boltzmann; l'utente scrive "che temperatura ha questa nebulosa".
+   Confrontare la domanda con la sola descrizione non trova nulla — misurato:
+   su una domanda di astrochimica veniva scelta 'farmacocinetica'.
+   Questa mappa sta FUORI dal registro TOOLS di proposito: non deve finire
+   nello schema mandato al modello, che descrive gli strumenti, non come si
+   chiedono. */
+var PAROLE_STRUMENTO = {
+  naviga_sezione: 'apri vai mostra sezione pagina schermata portami',
+  apri_strumento: 'apri avvia lancia strumento laboratorio simulatore visualizzatore',
+  cerca_molecola: 'molecola composto sostanza struttura formula smiles cerca trova',
+  calcola: 'calcola quanto risultato conto espressione numero valore',
+  risolvi_equazione: 'risolvi equazione incognita sistema radici grado',
+  analisi_dati: 'dati serie media deviazione regressione correlazione grafico tabella',
+  spettroscopia: 'spettro spettri infrarosso segnale picco banda assorbimento risonanza chimico',
+  biochimica: 'proteina enzima amminoacido dna rna peptide metabolismo glicolisi krebs cellula',
+  farmacocinetica: 'farmaco dose posologia clearance emivita plasma somministrazione paziente terapia',
+  termodinamica: 'entalpia entropia energia gibbs calore lavoro spontaneo reazione temperatura',
+  equilibrio_acido_base: 'acido base tampone titolazione neutro alcalino idrolisi dissociazione',
+  cinetica: 'velocita ordine reazione costante arrhenius attivazione catalisi meccanismo',
+  gas_e_soluzioni: 'gas pressione volume mole ideale molarita concentrazione diluizione osmotica solubilita',
+  quantistica_e_spettroscopia: 'orbitale elettrone onda fotone livello energia atomo quantico idrogeno bohr planck',
+  elettrochimica: 'pila cella elettrodo potenziale redox nernst corrente elettrolisi ossidazione riduzione',
+  astrofisica: 'stella stellare nebulosa galassia cosmo universo pianeta astro spaziale luminosita temperatura corpo nero interstellare cometa',
+  nucleare: 'nucleo radioattivo decadimento isotopo fissione fusione neutrone protone becquerel legame nucleone',
+  statistica_inferenziale: 'test ipotesi significativo campione media confronto student chi quadro intervallo confidenza',
+  cristallografia: 'cristallo reticolo cella diffrazione bragg miller simmetria solido raggi',
+  bilancia_equazione: 'bilancia bilanciare equazione reazione coefficiente reagente prodotto',
+  stechiometria: 'quanti grammi resa reagente limitante moli prodotto reazione quantita',
+  cerca_pubchem: 'pubchem banca dati proprieta composto cerca scheda',
+  massa_molecolare: 'massa molecolare peso formula bruta molare grammi mole',
+  valuta_druglikeness: 'farmaco druglike lipinski assorbimento orale biodisponibile candidato',
+  converti_unita: 'converti conversione unita misura equivale trasforma',
+  costante_fisica: 'costante avogadro planck boltzmann gas universale valore',
+  cerca_letteratura: 'articolo paper studio ricerca letteratura pubmed pubblicazione bibliografia fonte',
+  ricorda: 'ricorda segna memorizza appunta nota tieni presente',
+  ricordi: 'ricordi sai cosa avevo detto memoria precedente',
+  cerca_nel_database: 'database interno app dataset elenco scheda archivio biospecinfo',
+  apri_animazione: 'animazione video meccanismo mostrami visualizza movimento',
+  stato_app: 'dove sono adesso schermata corrente stato apertura'
+};
+
+/* Radice di una parola: i primi 5 caratteri. Serve perche' l'italiano
+   flette — "nebulosa" e "nebulose", "temperatura" e "temperature" devono
+   contare come la stessa cosa, e un confronto esatto le mancherebbe. */
+function _radice(w){ return w.slice(0, 5); }
+function _radici(testo){
+  var out = {};
+  (String(testo).toLowerCase().match(/[a-zàèéìòùç]{4,}/g) || []).forEach(function(w){
+    out[_radice(w)] = 1;
+  });
+  return out;
+}
+
+/* Quanto uno strumento c'entra con quello che si sta dicendo. Pesa di piu'
+   le parole con cui lo si chiede, di meno quelle con cui e' documentato.
+   Tutto locale: nessun giro in piu' al modello per scegliere gli strumenti. */
+function rilevanzaStrumento(t, radiciTesto){
+  var punti = 0;
+  var chiavi = PAROLE_STRUMENTO[t.name] || '';
+  var viste = {};
+  (chiavi.match(/[a-zàèéìòùç]{4,}/g) || []).forEach(function(w){
+    var r = _radice(w);
+    if(viste[r]) return; viste[r] = 1;
+    if(radiciTesto[r]) punti += 3;                 // come si chiede: peso pieno
+  });
+  var desc = (t.name.replace(/_/g, ' ') + ' ' + (t.description || '')).toLowerCase();
+  (desc.match(/[a-zàèéìòùç]{5,}/g) || []).forEach(function(w){
+    var r = _radice(w);
+    if(viste[r]) return; viste[r] = 1;
+    if(radiciTesto[r]) punti += 1;                 // come e' documentato: peso ridotto
+  });
+  return punti;
+}
+
+/* Sceglie gli strumenti che stanno nel budget, i piu' pertinenti prima.
+   Restituisce l'elenco completo quando il budget basta per tutti. */
+function selezionaStrumenti(tools, testo, budget){
+  if(!tools || !tools.length) return tools;
+  var costoTotale = stimaToken(tools);
+  if(!budget || costoTotale <= budget) return tools;
+
+  var radici = _radici(testo);
+  var ordinati = tools.map(function(t, i){
+    return { t: t, i: i, costo: stimaToken(t),
+             sempre: STRUMENTI_SEMPRE.indexOf(t.name) >= 0,
+             punti: rilevanzaStrumento(t, radici) };
+  }).sort(function(a, b){
+    if(a.sempre !== b.sempre) return a.sempre ? -1 : 1;
+    if(b.punti !== a.punti) return b.punti - a.punti;
+    return a.costo - b.costo;          // a pari merito, prima i piu' economici
+  });
+
+  var scelti = [], speso = 0;
+  for(var k = 0; k < ordinati.length; k++){
+    var o = ordinati[k];
+    // I "sempre" entrano anche se sforano: senza, il copilota si spegne.
+    if(!o.sempre && speso + o.costo > budget) continue;
+    scelti.push(o);
+    speso += o.costo;
+  }
+  // Rimessi nell'ordine originale: l'ordine del registro e' quello in cui
+  // sono documentati, e cambiarlo ad ogni turno confonderebbe la cache del
+  // prompt lato fornitore.
+  return scelti.sort(function(a, b){ return a.i - b.i; }).map(function(o){ return o.t; });
+}
+
+/* Taglia la cronologia dal fondo (i messaggi piu' vecchi) finche' non entra
+   nel budget. L'ULTIMO messaggio non si tocca mai: e' la domanda a cui si
+   deve rispondere. Un turno con chiamate a strumenti e il suo risultato
+   vengono tolti insieme — separarli fa rifiutare la richiesta dall'API. */
+function tagliaCronologia(messages, budget){
+  if(!messages || !messages.length) return messages;
+  var msgs = messages.slice();
+  if(!budget || stimaToken(msgs) <= budget) return msgs;
+
+  while(msgs.length > 1 && stimaToken(msgs) > budget){
+    msgs.shift();
+    // Se in testa e' rimasto un risultato di strumento orfano (il turno che
+    // lo aveva richiesto se n'e' andato), si toglie anche quello.
+    while(msgs.length > 1 && messaggioOrfano(msgs[0])) msgs.shift();
+  }
+  return msgs;
+}
+// Un messaggio che ha senso solo insieme a quello che lo precede.
+function messaggioOrfano(m){
+  if(!m) return false;
+  if(m.role === 'tool') return true;
+  if(m.content === '[risultati strumenti]') return true;
+  if(m._native){
+    var g = m._native.gemini;
+    if(g && g.parts && g.parts.some(function(p){ return p.functionResponse; })) return true;
+    var a = m._native.anthropic;
+    if(Array.isArray(a) && a.some(function(b){ return b.type === 'tool_result'; })) return true;
+  }
+  return false;
+}
+
+/* Applica il budget del provider. Ordine voluto: prima si tagliano gli
+   strumenti, poi la cronologia. Gli strumenti sono un costo fisso ripetuto
+   ad ogni turno, la cronologia e' il contenuto della conversazione: fra i
+   due, e' il costo fisso a doversi stringere per primo. */
+function adattaAlBudget(p, messages, systemPrompt, tools){
+  if(!p.maxInput) return { messages: messages, tools: tools, tagliato: false };
+  var fisso = stimaToken(systemPrompt);
+  var disponibile = p.maxInput - fisso - 400;   // margine per la risposta attesa
+  if(disponibile < 500) disponibile = 500;
+
+  // Agli strumenti al massimo il 55% di cio' che resta: oltre, non rimarrebbe
+  // spazio per una conversazione di piu' di due battute.
+  var tools2 = selezionaStrumenti(tools, testoRecente(messages), Math.floor(disponibile * 0.55));
+  var perChat = disponibile - stimaToken(tools2);
+  var messages2 = tagliaCronologia(messages, perChat);
+  return {
+    messages: messages2, tools: tools2,
+    tagliato: (tools2 && tools && tools2.length < tools.length) || messages2.length < messages.length
+  };
+}
+
+// Il testo su cui si misura la pertinenza: gli ultimi turni, non tutta la
+// conversazione — altrimenti uno strumento nominato mezz'ora fa peserebbe
+// quanto la domanda di adesso.
+function testoRecente(messages){
+  return (messages || []).slice(-4).map(function(m){
+    return typeof m.content === 'string' ? m.content : '';
+  }).join(' ');
+}
+
 // Converte il registro TOOLS (comune) nel formato richiesto da ciascuna famiglia
 function toolsForFamily(family, tools){
   if(!tools || !tools.length) return undefined;
@@ -801,13 +999,57 @@ async function readErrorBody(res){
    mano che arrivano pezzi di risposta, poi callbacks.onDone(fullText).
    Se lo stream non è leggibile (browser/rete), fa fallback a lettura
    intera della risposta. */
-async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, _giaRiprovato){
+/* Quanto aspettare dopo un 429. Retry-After puo' essere in secondi o una
+   data; alcuni fornitori (Groq, Gemini) mettono l'attesa nel testo
+   dell'errore. Se l'attesa e' assurda non si aspetta affatto: meglio dire
+   "quota finita" che lasciare l'utente davanti a una clessidra per un'ora. */
+var ATTESA_MAX_MS = 60000;
+function attesaDaRisposta(res, testo, tentativo){
+  var s = null;
+  try{ s = res.headers && res.headers.get && res.headers.get('Retry-After'); }catch(e){}
+  var ms = null;
+  if(s){
+    if(/^\d+(\.\d+)?$/.test(s.trim())) ms = parseFloat(s) * 1000;
+    else { var d = Date.parse(s); if(!isNaN(d)) ms = d - Date.now(); }
+  }
+  if(ms === null && testo){
+    // "Please try again in 7.5s" (Groq) / "retry after 23 seconds"
+    var m = testo.match(/(?:in|after)\s+(\d+(?:\.\d+)?)\s*(ms|s|sec|seconds|secondi|m|min|minutes)/i);
+    if(m){
+      var v = parseFloat(m[1]), u = m[2].toLowerCase();
+      ms = u === 'ms' ? v : (u[0] === 'm' && u !== 'ms' ? v * 60000 : v * 1000);
+    }
+  }
+  // Nessuna indicazione: crescita esponenziale, con un pizzico di casualita'
+  // per non far ripartire tutte le schede aperte nello stesso istante.
+  if(ms === null) ms = Math.pow(2, tentativo) * 1500 + Math.random() * 500;
+  if(ms > ATTESA_MAX_MS) return null;
+  return Math.max(500, Math.round(ms));
+}
+function pausa(ms, abortSignal){
+  return new Promise(function(risolvi, rifiuta){
+    var t = setTimeout(risolvi, ms);
+    if(abortSignal){
+      abortSignal.addEventListener('abort', function(){
+        clearTimeout(t);
+        var e = new Error('Interrotto'); e.name = 'AbortError'; rifiuta(e);
+      }, { once: true });
+    }
+  });
+}
+
+async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, _giaRiprovato, _tentativi){
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   // Gemini: il nome del modello si decide adesso, non e' scritto nel codice.
   // Il nome del modello si decide adesso: non e' scritto nel codice per
   // nessun fornitore che ne abbia dei candidati (vedi sezione 1a).
   if(p.modelliCandidati) p.model = await risolviModello(p, apiKey, false);
+  // Sui provider con un tetto stretto in ingresso si stringono strumenti e
+  // cronologia PRIMA di partire, invece di farsi rifiutare la richiesta.
+  var ad = adattaAlBudget(p, messages, systemPrompt, tools);
+  messages = ad.messages; tools = ad.tools;
+  if(ad.tagliato && callbacks && callbacks.onBudget) callbacks.onBudget(ad);
   var req = buildRequest(p, apiKey, messages, systemPrompt, tools);
 
   // Timeout di INATTIVITÀ (non sul totale della risposta): si azzera ad ogni
@@ -861,7 +1103,26 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
         return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, true);
       }
     }
-    throw new Error('HTTP ' + res.status + ' — ' + errMsg);
+    // ── Limite di frequenza ────────────────────────────────────────────────
+    // Sui piani gratuiti il 429 e' quasi sempre il limite AL MINUTO, non la
+    // quota esaurita: aspettare qualche secondo lo risolve. Il fornitore lo
+    // dice con Retry-After; quando non lo dice si usa una crescita esponenziale.
+    if(res.status === 429 && (_tentativi || 0) < 3){
+      var attesa = attesaDaRisposta(res, errMsg, _tentativi || 0);
+      if(attesa !== null){
+        if(callbacks && callbacks.onAttesa) callbacks.onAttesa(attesa, p.name);
+        await pausa(attesa, abortSignal);
+        return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
+                          abortSignal, _giaRiprovato, (_tentativi || 0) + 1);
+      }
+    }
+    var e = new Error('HTTP ' + res.status + ' — ' + errMsg);
+    e.stato = res.status;
+    // Marca gli esaurimenti veri, cosi' chi chiama puo' passare a un altro
+    // fornitore invece di arrendersi (vedi conProviderDiRiserva).
+    e.esaurito = res.status === 429 || res.status === 402 ||
+                 (res.status === 403 && /quota|limit|exceed/i.test(errMsg || ''));
+    throw e;
   }
   var full = '';
   var tcState = { toolCalls: {}, geminiCalls: [], onThinking: callbacks && callbacks.onThinking,
@@ -3588,6 +3849,57 @@ function appendAgentTurn(family, history, assistantText, toolCalls, execResults,
    fino a una risposta finale in linguaggio naturale.
    callbacks: { onToken(tok, full), onToolUse(label), onDone(full) } */
 async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callbacks, abortSignal){
+  return conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, callbacks, abortSignal);
+}
+
+/* I fornitori utilizzabili adesso, il preferito per primo.
+   Solo quelli GRATUITI vanno in riserva: passare da solo a un servizio a
+   pagamento spenderebbe i soldi dell'utente senza che li abbia stanziati.
+   Se il preferito e' a pagamento resta comunque il primo della lista. */
+function providerUtilizzabili(preferito){
+  var lista = [];
+  if(preferito && PROVIDERS[preferito]) lista.push(preferito);
+  Object.keys(PROVIDERS).forEach(function(id){
+    if(id === preferito) return;
+    if(!PROVIDERS[id].free) return;              // mai a pagamento in automatico
+    if(!chiaveDaUsare(id)) return;               // niente chiave e niente proxy
+    lista.push(id);
+  });
+  return lista;
+}
+
+/* Esegue il turno; se il fornitore esaurisce la quota, lo rifa' da capo su un
+   altro fra quelli per cui l'utente ha una chiave. E' il motivo per cui piu'
+   chiavi gratuite messe insieme reggono un carico che nessuna reggerebbe da
+   sola: quando Groq finisce il minuto, si continua su Gemini.
+   Si riparte dai messaggi ORIGINALI, non dalla cronologia a meta': i turni
+   con chiamate a strumenti sono salvati nel formato nativo del fornitore
+   precedente e non si possono passare a un altro. Si perde il lavoro del
+   turno, si guadagna una risposta giusta. */
+async function conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, callbacks, abortSignal){
+  var candidati = providerUtilizzabili(providerId);
+  var ultimo = null;
+  for(var i = 0; i < candidati.length; i++){
+    var id = candidati[i];
+    var chiave = (i === 0) ? apiKey : chiaveDaUsare(id);
+    if(i > 0 && callbacks && callbacks.onRiserva){
+      callbacks.onRiserva(PROVIDERS[candidati[i - 1]].name, PROVIDERS[id].name);
+    }
+    try{
+      return await _unTurno(id, chiave, messages, systemPrompt, callbacks, abortSignal);
+    }catch(err){
+      if(err && err.name === 'AbortError') throw err;
+      // Si passa oltre SOLO per quota esaurita. Un errore di richiesta o una
+      // chiave sbagliata si ripeterebbero identici su ogni fornitore: meglio
+      // dirlo subito che provarli tutti e riportare l'ultimo errore a caso.
+      if(!err || !err.esaurito || i === candidati.length - 1) throw err;
+      ultimo = err;
+    }
+  }
+  throw ultimo || new Error('Nessun fornitore disponibile.');
+}
+
+async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, abortSignal){
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   var history = messages.slice();
@@ -3605,6 +3917,8 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
       r = await streamChat(providerId, apiKey, history, systemPrompt, {
         onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
         onThinking: callbacks.onThinking,
+        onAttesa: callbacks.onAttesa,
+        onBudget: callbacks.onBudget,
         onServerTool: function(fase, blk, query){
           if(!callbacks.onToolUse) return;
           if(fase === 'search-start'){ callbacks.onToolUse('🌐 Cerco sul web…'); return; }
@@ -5180,7 +5494,7 @@ function buildChatPane(){
 
     try{
       var acc = '';
-      var thinkNode = null, thinkAcc = '', toolLog = [];
+      var thinkNode = null, thinkAcc = '', toolLog = [], _budgetDetto = false;
       await runAgentTurn(provId, apiKey, history, sys, {
         onToken: function(tok, full){
           if(abortFlag.stop) return;
@@ -5220,6 +5534,31 @@ function buildChatPane(){
           toolLog.push(label);
           var note = el('div', { class: 'bsi-msg tool-note' }, escapeHtml(label));
           box.insertBefore(note, liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
+        // Le tre note qui sotto raccontano cosa sta facendo Spectra quando
+        // non sta scrivendo: senza, l'utente vede solo una pausa e pensa
+        // che si sia bloccato.
+        onAttesa: function(ms, nome){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '⏳ ' + escapeHtml(nome) + ' ha raggiunto il limite al minuto: aspetto ' +
+            (ms / 1000).toFixed(1).replace('.0', '') + 's e riprovo'), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
+        onRiserva: function(da, a){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '🔄 ' + escapeHtml(da) + ' ha esaurito la quota: continuo su ' +
+            escapeHtml(a)), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
+        onBudget: function(ad){
+          if(abortFlag.stop || _budgetDetto) return;
+          _budgetDetto = true;    // una volta per turno, non ad ogni giro
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '📐 Questo modello accetta richieste piccole: uso i ' + ad.tools.length +
+            ' strumenti più adatti alla domanda invece di tutti e ' + TOOLS.length), liveNode);
           box.scrollTop = box.scrollHeight;
         },
         onDone: function(full){}
