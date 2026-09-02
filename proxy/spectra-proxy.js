@@ -29,11 +29,10 @@ var FORNITORI = {
   anthropic:  { base: 'https://api.anthropic.com',                 segreto: 'ANTHROPIC_KEYS',  modo: 'header-x-api-key' },
   gemini:     { base: 'https://generativelanguage.googleapis.com', segreto: 'GEMINI_KEYS',     modo: 'query-key' },
   groq:       { base: 'https://api.groq.com',                      segreto: 'GROQ_KEYS',       modo: 'bearer' },
-  openrouter: { base: 'https://openrouter.ai',                     segreto: 'OPENROUTER_KEYS', modo: 'bearer' },
   xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' },
   github:     { base: 'https://models.github.ai',                  segreto: 'GITHUB_KEYS',     modo: 'bearer' },
   nvidia:     { base: 'https://integrate.api.nvidia.com',          segreto: 'NVIDIA_KEYS',     modo: 'bearer' },
-  mistral:    { base: 'https://api.mistral.ai',                    segreto: 'MISTRAL_KEYS',    modo: 'bearer' }
+  zai:        { base: 'https://api.z.ai',                          segreto: 'ZAI_KEYS',        modo: 'bearer' }
 };
 
 /* --- Limiti (sovrascrivibili da variabili d'ambiente) --------------- */
@@ -193,10 +192,6 @@ export default {
         var v = request.headers.get(k);
         if(v) h.set(k, v);
       });
-      if(nome === 'openrouter'){
-        h.set('HTTP-Referer', env.SITO || origin || 'https://biospecinfo');
-        h.set('X-Title', 'BioSpecInfo — Spectra');
-      }
       conChiave(f.modo, dest, h, chiavi[i]);
 
       var r;

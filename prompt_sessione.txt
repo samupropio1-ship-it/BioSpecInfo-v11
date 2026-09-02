@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.876 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.883 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v140
+- sw.js            — Service Worker (network-first). Cache: bsi-v141
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,10 +92,13 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 11 configurazioni di modello, 6 gratuite:
-Groq, Gemini, GitHub Models (GPT-4.1/o4-mini/DeepSeek), NVIDIA NIM (DeepSeek R1,
-Llama 4, Qwen), Mistral Large, OpenRouter; a pagamento Claude Fable 5.1 / Opus 5
-/ Sonnet 5 / Haiku 4.5 e Grok.
+32 strumenti su 13 aree scientifiche; 10 configurazioni di modello, 5 gratuite
+scelte una per una: Groq (cavallo da tiro, 131K), Gemini (1M di contesto),
+GitHub Models (qualita' massima, tetto 8K/richiesta), NVIDIA NIM (DeepSeek R1),
+Z.AI GLM (gratuito senza scadenza); a pagamento Claude Fable 5.1 / Opus 5 /
+Sonnet 5 / Haiku 4.5 e Grok.
+Tolti di proposito Mistral (consenso all'addestramento) e OpenRouter (modelli
+piccoli e id instabili) — vedi docs/Guida-Chiavi-API.md per il perche'.
 Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
 conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
 concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
@@ -224,6 +227,23 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
       da solo a uno a pagamento spenderebbe i soldi dell'utente.
       Si passa oltre SOLO per quota esaurita: un 401 si ripeterebbe identico
       su tutti e va riportato subito.
+
+14) TOGLIERE UN PROVIDER — getSavedProvider() DEVE validare contro
+   PROVIDERS: chi aveva selezionato il servizio rimosso si ritroverebbe
+   PROVIDERS[undefined] e Spectra non si aprirebbe piu'. E' gia' coperto,
+   non toglierlo. Le chiavi orfane in bsi_api_keys restano innocue e le
+   pulisce il pulsante "Cancella tutto".
+   Da aggiornare insieme, se si tocca l'elenco: PROVIDERS, UPSTREAM,
+   FORNITORI nel Worker, i segreti in wrangler.toml e nel README del proxy,
+   docs/Guida-Chiavi-API.md.
+
+15) SELEZIONE STRUMENTI UNA VOLTA PER TURNO — si fa in _unTurno, PRIMA del
+   ciclo dei giri, non dentro streamChat. Rifacendola ad ogni giro
+   cambierebbe a meta' turno (la cronologia cresce e con lei il testo su cui
+   si misura la pertinenza) e il modello si vedrebbe sparire uno strumento
+   appena visto. La cronologia invece si taglia ad ogni giro, perche' cresce.
+   Se il modello chiama uno strumento non mandato, runToolCalls lo esegue
+   comunque: toolByName cerca nel registro completo.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

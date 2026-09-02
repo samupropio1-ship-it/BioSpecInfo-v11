@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.876 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.883 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v140` |
+| **Versione documentata** | Service Worker `bsi-v141` |
 
 ---
 
@@ -32,8 +32,8 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su undici configurazioni
-   di modello, sei delle quali gratuite.
+   Anthropic, Gemini), così l'agente funziona identico su dieci configurazioni
+   di modello, cinque delle quali gratuite.
 
 ---
 
@@ -49,7 +49,7 @@ una demo:
 │   ciclo agentico  (max 10 giri)                                     │
 │        │                                                            │
 │        ├── adattatore provider ──► API del modello (HTTPS diretto)  │
-│        │      · OpenAI-compatibile (Groq, OpenRouter, xAI)          │
+│        │      · OpenAI-compatibile (Groq, GitHub, NVIDIA, Z.AI, xAI)│
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
@@ -102,8 +102,9 @@ progetto:
 | Google | `models/gemini-1.5-flash is not found for API version v1beta` | ritiro da `v1beta` |
 | Groq | `The model llama-3.3-70b-versatile does not exist or you do not have access to it` | deprecato il 17/06/2026 |
 
-Su OpenRouter il problema è strutturale: gli id dei modelli gratuiti cambiano
-di continuo, per costruzione.
+Il problema è strutturale su alcuni servizi: gli id dei modelli gratuiti
+cambiano di continuo, per costruzione. (È il motivo per cui OpenRouter è stato
+poi tolto dall'elenco, vedi 2.4.)
 
 La correzione non è scrivere il nome nuovo — sarebbe la stessa bomba con la
 miccia più lunga — ma **togliere il nome** e chiederlo all'API, che sa quali
@@ -139,30 +140,46 @@ La scelta resta in cache sette giorni per fornitore, legata a un'impronta
 FNV-1a a 32 bit della chiave (chiavi diverse vedono cataloghi diversi; la
 chiave in chiaro non viene mai duplicata). Se il modello viene ritirato
 *mentre* è in cache, il `404` — o un `400` il cui testo parla di modello, come
-fa OpenRouter — invalida la cache, ririsolve e ritenta **una volta sola**: un
+fanno alcuni fornitori — invalida la cache, ririsolve e ritenta **una volta sola**: un
 flag impedisce il ciclo infinito quando anche il modello nuovo fallisce.
 
 Anthropic resta l'eccezione voluta: i suoi modelli sono a pagamento, scelti
 esplicitamente dall'utente e con deprecazioni annunciate con largo anticipo.
 
-#### I sei servizi gratuiti
+#### I cinque servizi gratuiti, scelti uno per uno
 
 La qualità gratuita non è tutta uguale, e la differenza conta: un modello da 8
 miliardi di parametri non regge un problema di chimica fisica in più passaggi.
+L'elenco è stato **ridotto**, non allungato — due servizi sono stati tolti
+perché peggioravano la risposta invece di migliorarla.
 
-| Servizio | Modelli | Il compromesso |
+| Servizio | Modelli | Il ruolo |
 |---|---|---|
-| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek, Llama 4 | Il più capace fra i gratuiti, e non richiede un account nuovo: basta un token del proprio GitHub. In cambio 10 richieste/minuto e 50 al giorno |
-| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B, Llama 4 | Modelli enormi, compresi quelli che ragionano. Crediti a esaurimento, non si rinnovano |
-| **Mistral** | Large, Medium | ~1 miliardo di token al mese. Richiede verifica telefonica e consenso all'uso dei dati per l'addestramento |
-| **Groq** | GPT-OSS 120B, Qwen3 | Il più veloce, generoso sui volumi |
-| **Google Gemini** | Gemini Flash | Buon contesto, generoso |
-| **OpenRouter** | instradatore automatico | Sceglie da solo fra i gratuiti che sanno usare gli strumenti |
+| **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
+| **Google Gemini** | Gemini Flash | Fino a 1M di contesto: documenti e PDF interi |
+| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | La qualità più alta, al prezzo del tetto più stretto: 8.000 token per richiesta, 50 al giorno |
+| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Ragionamento profondo. Crediti a esaurimento |
+| **Z.AI GLM** | GLM-4.7-Flash | Gratuito **senza scadenza**: la riserva che resta quando i crediti finiscono |
 
-Nessuno di questi eguaglia un modello di frontiera a pagamento sui problemi più
-difficili; GitHub Models e NVIDIA NIM ci vanno vicino, al prezzo di tetti di
-richieste bassi. Per questo l'elenco resta e la scelta è dell'utente, invece di
-imporre un solo servizio.
+**Tolti di proposito.** *Mistral*: qualità media e piano gratuito che richiede
+il consenso all'uso dei dati per l'addestramento — un prezzo che non vale la
+pena pagare per materiale di tesi non pubblicato, quando esistono cinque
+alternative senza quella clausola. *OpenRouter*: modelli gratuiti piccoli e id
+che cambiano di continuo, inadatti a un agente che concatena dieci chiamate a
+strumenti. *Cerebras*: dall'agosto 2026 niente più piano senza carta, e
+contesto gratuito limitato a 8K — Spectra manda 32 definizioni di strumenti
+oltre alla cronologia, non ci sta.
+
+Nessuno dei cinque eguaglia un modello di frontiera a pagamento sui problemi
+più difficili; GitHub Models e NVIDIA NIM ci vanno vicino, al prezzo di tetti
+di richieste bassi. Per questo la scelta resta dell'utente, invece di imporre
+un solo servizio.
+
+**Togliere un servizio dall'elenco è un'operazione che rompe le cose**, e
+merita una nota: chi lo aveva selezionato ha quel nome salvato in
+`localStorage`, e senza validazione si ritroverebbe `PROVIDERS[undefined]` —
+Spectra non si aprirebbe più. `getSavedProvider()` valida sempre contro il
+registro e ripiega su un servizio esistente.
 
 ### 2.5 Il proxy opzionale — Spectra senza chiave
 
@@ -506,9 +523,9 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.876 |
+| Righe del componente | 5.883 |
 | Strumenti | 32 |
-| Configurazioni di modello | 11 (6 gratuite) |
+| Configurazioni di modello | 10 (5 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |

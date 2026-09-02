@@ -27,12 +27,14 @@ Cloudflare. Lì la chiave sta al sicuro, e resta tutto gratuito.
 
 | Servizio | Dove | Cosa dà |
 |---|---|---|
-| **GitHub Models** | `github.com` → Settings → Developer settings → Personal access tokens, permesso *Models: read* | GPT-4.1, o4-mini, DeepSeek. Il più potente fra i gratuiti e **non serve un account nuovo**. Tetto basso: 10 richieste/minuto, 50 al giorno |
-| **Groq** | `console.groq.com` → API Keys | Veloce e generoso, modelli medi |
-| **Google Gemini** | `aistudio.google.com` → Get API key | Gemini Flash |
-| **NVIDIA NIM** | `build.nvidia.com` → Get API Key | DeepSeek R1, Llama 4, Qwen. Crediti a esaurimento |
-| **Mistral** | `console.mistral.ai` → API Keys | Mistral Large, ~1 miliardo di token/mese. Richiede verifica telefonica e consenso all'uso dei dati per l'addestramento |
-| **OpenRouter** | `openrouter.ai` → Keys | Instradatore automatico fra i modelli gratuiti |
+| **Groq** | `console.groq.com` → API Keys | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
+| **Google Gemini** | `aistudio.google.com` → Get API key | Fino a 1M di contesto: PDF e dispense intere |
+| **GitHub Models** | `github.com` → Settings → Developer settings → Personal access tokens, permesso *Models: read* | La qualità più alta (GPT-4.1, o4-mini). Tetto basso: 10/min, 50/giorno |
+| **NVIDIA NIM** | `build.nvidia.com` → Get API Key | DeepSeek R1, Qwen3 235B. Crediti a esaurimento |
+| **Z.AI GLM** | `z.ai` → profilo → API Keys | Gratuito senza scadenza, forte su ragionamento |
+
+Dettagli passo per passo, limiti reali e servizi scartati (con il perché):
+`docs/Guida-Chiavi-API.md`.
 
 Non servono carta di credito né dominio.
 
@@ -63,8 +65,8 @@ https://spectra-proxy.tuonome.workers.dev
 
 ```bash
 # 4. metti le chiavi come segreti (una alla volta, le incolli quando chiede)
-npx wrangler secret put GITHUB_KEYS
 npx wrangler secret put GROQ_KEYS
+npx wrangler secret put GEMINI_KEYS
 ```
 
 > **Più chiavi = più quota.** Ogni segreto accetta una **lista separata da
@@ -73,10 +75,9 @@ npx wrangler secret put GROQ_KEYS
 > stessa richiesta. È il modo pratico per avvicinarsi a un uso "senza limiti"
 > restando sul piano gratuito.
 
-Segreti disponibili: `GITHUB_KEYS`, `GROQ_KEYS`, `GEMINI_KEYS`, `NVIDIA_KEYS`,
-`MISTRAL_KEYS`, `OPENROUTER_KEYS`, `ANTHROPIC_KEYS`, `XAI_KEYS`. Metti solo
-quelli che hai — Spectra mostrerà come "senza chiave" soltanto i modelli
-davvero coperti.
+Segreti disponibili: `GROQ_KEYS`, `GEMINI_KEYS`, `GITHUB_KEYS`, `NVIDIA_KEYS`,
+`ZAI_KEYS`, `ANTHROPIC_KEYS`, `XAI_KEYS`. Metti solo quelli che hai — Spectra
+mostrerà come "senza chiave" soltanto i modelli davvero coperti.
 
 ```bash
 # 5. collega Spectra al proxy

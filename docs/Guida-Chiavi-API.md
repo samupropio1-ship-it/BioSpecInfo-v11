@@ -12,21 +12,30 @@ parte, e la inserisci **una volta sola** per servizio.
 
 ---
 
-## Da quale cominciare
+## I cinque servizi, e a cosa serve ciascuno
 
-| Se vuoi… | Usa | Perché |
-|---|---|---|
-| **La qualità più alta** | GitHub Models | GPT-4.1 e o4-mini. Non serve un account nuovo: hai già GitHub |
-| **Velocità e nessun pensiero** | Groq | Il più rapido, limiti generosi, chiave in 30 secondi |
-| **Documenti e PDF lunghi** | Google Gemini | Finestra di contesto molto ampia |
-| **Modelli che ragionano** | NVIDIA NIM | DeepSeek R1, Qwen3 235B |
+Sono stati scelti uno per uno. Nessuno è lì per fare numero: i servizi
+gratuiti che davano modelli piccoli o cataloghi imprevedibili sono stati
+**tolti**, perché su un problema di chimica in dieci passaggi non reggono e
+peggiorano la risposta invece di migliorarla.
 
-**Consiglio pratico:** fai **Groq + GitHub Models + Gemini**. Sono dieci
-minuti in tutto, coprono tutto, e insieme non li esaurisci facilmente.
+| Servizio | Modelli | A cosa serve davvero | Limite |
+|---|---|---|---|
+| **Groq** | GPT-OSS 120B, Qwen3 | **Il cavallo da tiro.** 131K di contesto, ~30 richieste/minuto: è quello che userai per l'80% del lavoro | Generoso |
+| **Google Gemini** | Gemini Flash | **I documenti enormi.** Fino a 1 milione di token di contesto: PDF interi, dispense, tesi | Generoso |
+| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | **La lama affilata.** La qualità più alta che puoi avere gratis. Tienilo per i problemi difficili | 10/min, 50/giorno |
+| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | **Il ragionamento profondo.** Modelli enormi che pensano prima di rispondere | Crediti a esaurimento |
+| **Z.AI GLM** | GLM-4.7-Flash | **Il rincalzo che non scade.** Gratuito senza limite di tempo, forte su ragionamento e codice | Limitato al minuto |
+
+### Se ne fai solo tre
+
+**Groq + Gemini + GitHub Models.** Dieci minuti in tutto, e coprono tutto:
+volume, documenti lunghi, qualità sui casi difficili. Gli altri due aggiungili
+dopo, come riserva.
 
 ---
 
-## 1. Groq — il più veloce da ottenere
+## 1. Groq — comincia da qui
 
 *30 secondi, nessuna verifica.*
 
@@ -37,11 +46,30 @@ minuti in tutto, coprono tutto, e insieme non li esaurisci facilmente.
 5. Copia la chiave: comincia con **`gsk_`**
 
 > ⚠️ La chiave si vede **una volta sola**. Se chiudi la finestra senza
-> copiarla, devi crearne un'altra — non è un problema, sono gratuite.
+> copiarla, creane un'altra — sono gratuite.
+
+**Perché è il cavallo da tiro:** 131.000 token di contesto e circa 30
+richieste al minuto. Non lo esaurisci studiando.
 
 ---
 
-## 2. GitHub Models — la più potente, e ce l'hai già
+## 2. Google Gemini — per i documenti enormi
+
+*1 minuto.*
+
+1. Vai su **`aistudio.google.com`**
+2. Accedi col tuo account Google
+3. In alto a sinistra → **Get API key**
+4. **Create API key** → scegli un progetto (o lascia che ne crei uno)
+5. Copia la chiave: comincia con **`AIza`**
+
+**Quando cambia tutto:** quando alleghi un PDF lungo. Arriva a **1 milione di
+token** di contesto — una tesi intera in una sola richiesta. Nessuno degli
+altri ci si avvicina.
+
+---
+
+## 3. GitHub Models — la qualità più alta
 
 *2 minuti. Non serve creare nessun account: usi quello di GitHub.*
 
@@ -52,7 +80,7 @@ minuti in tutto, coprono tutto, e insieme non li esaurisci facilmente.
 5. **Generate new token**
 6. Compila:
    - *Token name*: `spectra`
-   - *Expiration*: scegli la scadenza che preferisci (un anno va bene)
+   - *Expiration*: la scadenza che preferisci (un anno va bene)
 7. Scendi a **Account permissions** — non a *Repository permissions* —
    e cerca la voce **Models**: mettila su **Read-only**
 8. In fondo → **Generate token**
@@ -61,23 +89,12 @@ minuti in tutto, coprono tutto, e insieme non li esaurisci facilmente.
 > Il permesso da dare è **Models: Read-only** e sta fra i permessi
 > dell'*account*, non del repository. È il passaggio dove è facile sbagliare.
 
-**Limiti:** 10 richieste al minuto, 50 al giorno. Pochi, ma sono le richieste
-più capaci che hai: tienilo per le domande difficili e lascia il resto a Groq.
-
----
-
-## 3. Google Gemini — la finestra più ampia
-
-*1 minuto.*
-
-1. Vai su **`aistudio.google.com`**
-2. Accedi col tuo account Google
-3. In alto a sinistra → **Get API key**
-4. **Create API key** → scegli un progetto (o lascia che ne crei uno)
-5. Copia la chiave: comincia con **`AIza`**
-
-Utile soprattutto quando alleghi **PDF lunghi**: regge molte più pagine degli
-altri gratuiti.
+**Il compromesso, detto chiaro:** 10 richieste al minuto, 50 al giorno, e
+accetta al massimo 8.000 token per richiesta. Sono i limiti più stretti di
+tutti — ma sono le risposte migliori che puoi avere gratis. Spectra lo sa e si
+adatta da solo: su questo servizio manda gli strumenti pertinenti alla domanda
+invece di tutti e 32, così la richiesta ci sta. **Usalo per i problemi
+difficili, non per il lavoro di volume.**
 
 ---
 
@@ -93,37 +110,23 @@ altri gratuiti.
 5. Copia la chiave: comincia con **`nvapi-`**
 
 > I crediti gratuiti sono **a esaurimento**: non si rinnovano ogni mese.
-> Tienilo per quando serve un modello che ragiona a fondo.
+> Tienilo per quando serve un modello che ragiona a fondo su un problema
+> lungo.
 
 ---
 
-## 5. Mistral — tanti token, ma leggi prima
+## 5. Z.AI GLM — il rincalzo che non scade
 
-*5 minuti. Richiede il numero di telefono.*
+*2 minuti.*
 
-1. Vai su **`console.mistral.ai`** e registrati
-2. Ti chiede la **verifica del numero di telefono**
-3. Attiva il piano gratuito **Experiment**
-4. **API Keys** → **Create new key** → copia la chiave
+1. Vai su **`z.ai`** e registrati con l'email
+2. Apri il menu del **profilo** → **API Keys**
+3. **Create new key** → copia la chiave
 
-> ⚠️ **Da sapere prima di attivarlo:** il piano gratuito richiede il consenso
-> all'**uso dei tuoi dati per l'addestramento** dei modelli. Se ci lavori
-> materiale di tesi non pubblicato, dati di laboratorio o qualunque cosa
-> riservata, **usa un altro servizio**. Per lo studio normale non è un
-> problema.
-
----
-
-## 6. OpenRouter — il jolly
-
-*1 minuto.*
-
-1. Vai su **`openrouter.ai`** e accedi
-2. **Keys** → **Create Key** → copia
-3. Comincia con **`sk-or-v1-`**
-
-Sceglie da solo fra i modelli gratuiti del momento. Comodo come rincalzo,
-meno prevedibile degli altri.
+**Perché c'è:** è gratuito **senza scadenza** — non crediti a esaurimento, non
+una prova a tempo. GLM-4.7-Flash è forte su ragionamento e codice. È la
+riserva che trovi ancora lì fra sei mesi, quando i crediti NVIDIA saranno
+finiti.
 
 ---
 
@@ -154,6 +157,9 @@ Niente di drammatico, e soprattutto: **non devi fare niente**.
 - **Quota finita davvero**: passa a un altro servizio per cui hai una chiave e
   **rifà la domanda da lì**, dicendotelo — *«🔄 Groq ha esaurito la quota:
   continuo su Google Gemini»*.
+- **Richiesta troppo grande** per il servizio scelto: riduce gli strumenti a
+  quelli pertinenti e accorcia la cronologia più vecchia, invece di farsi
+  rifiutare — *«📐 uso i 19 strumenti più adatti invece di tutti e 32»*.
 - **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo
   servizi gratuiti. Se hai messo anche una chiave Claude o Grok, Spectra non
   ci passa da solo: quelli li scegli tu.
@@ -172,6 +178,26 @@ diventano una riserva sola.
 | `429` | Limite al minuto | Non fare niente: Spectra aspetta e riprova da solo |
 | `404 model not found` | Il servizio ha ritirato quel modello | Non fare niente: Spectra ne trova un altro da solo |
 | Spectra non risponde | Spesso è la chiave non salvata | Controlla che il riquadro 🔑 sia sparito dopo il Salva |
+
+---
+
+## Perché alcuni servizi non ci sono
+
+Non è una dimenticanza: sono stati provati e scartati.
+
+- **Mistral** — qualità media, e il piano gratuito richiede la verifica del
+  telefono **e il consenso all'uso dei tuoi dati per l'addestramento**. Per
+  materiale di tesi non pubblicato è un prezzo che non vale la pena pagare
+  quando esistono cinque alternative senza quella clausola.
+- **OpenRouter** — i modelli gratuiti sono piccoli e i loro nomi cambiano di
+  continuo. Come rincalzo occasionale andava; per un agente che deve
+  concatenare dieci chiamate a strumenti, no.
+- **Cerebras** — sarebbe stato il candidato ovvio per velocità, ma da agosto
+  2026 il piano senza carta non esiste più e il gratuito limita il contesto a
+  **8K token**: Spectra manda 32 definizioni di strumenti oltre alla
+  cronologia, non ci sta.
+- **Qwen / Alibaba** — la quota gratuita è una **prova a tempo** (circa 90
+  giorni), non un piano permanente.
 
 ---
 
