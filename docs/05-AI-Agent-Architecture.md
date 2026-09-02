@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.959 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 6.189 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v142` |
+| **Versione documentata** | Service Worker `bsi-v143` |
 
 ---
 
@@ -336,6 +336,47 @@ E si passa oltre **soltanto** per quota esaurita. Un `401` o una richiesta
 malformata si ripeterebbero identici su ogni fornitore: provarli tutti per poi
 riportare l'ultimo errore a caso nasconderebbe la causa vera.
 
+### 2.8 Modalità Nucleo, e dire cosa sta succedendo
+
+**La modalità.** Un interruttore che cambia quattro cose insieme, perché
+nessuna delle quattro da sola sposterebbe l'ago: passa alla configurazione più
+capace fra quelle per cui esiste una chiave, porta i giri del ciclo agentico da
+10 a 16 (una catena lunga di strumenti si esauriva a metà), chiede la
+profondità di ragionamento massima ai modelli che la espongono, e aggiunge al
+prompt l'istruzione di lavorare per passaggi verificati invece che per risposta
+rapida.
+
+Il cambio di modello viene **dichiarato in chat**, e se il nuovo è a pagamento
+lo dice: passare di nascosto a un servizio a consumo significherebbe spendere i
+soldi dell'utente senza dirglielo. Per lo stesso motivo è un interruttore e non
+il comportamento predefinito — costa più quota, e su un servizio a pagamento
+costa denaro.
+
+**Dire cosa sta succedendo.** Fra l'invio e la prima parola della risposta
+possono passare parecchi secondi: il modello ragiona, invoca strumenti, aspetta
+la rete. Prima l'utente vedeva una pausa muta e concludeva che si fosse
+bloccata.
+
+L'intestazione ha ora un nucleo atomico i cui orbitali cambiano velocità e
+colore con lo stato — lento e ciano a riposo, rapido quando ragiona, ambra
+quando sta usando uno strumento — accompagnato da una riga che dice la stessa
+cosa a parole, per chi non guarda l'animazione. Gli stati si agganciano ai
+callback che il ciclo agentico già emetteva: non è stato aggiunto nessun
+meccanismo, solo reso visibile quello che c'era.
+
+**Tre difetti di impaginazione corretti nello stesso passaggio**, tutti trovati
+misurando invece che guardando:
+
+- Il campo di scrittura divideva la riga con quattro pulsanti e restava largo
+  156 px: il testo del segnaposto andava a capo e veniva **tagliato**. Ora il
+  testo ha una riga propria e i comandi stanno sotto. La lunghezza del
+  segnaposto è stata scelta provandola a 360 px di larghezza, non a occhio.
+- Il titolo «Spectra — il copilota AI di BioSpecInfo» non entrava e si
+  troncava a metà. Resta il nome; il resto è diventato la riga di stato, che
+  ora ha un uso.
+- Gli orbitali del nucleo, ruotando, uscivano dal riquadro e finivano sopra il
+  nome.
+
 ---
 
 ## 3. I 32 strumenti
@@ -557,7 +598,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.959 |
+| Righe del componente | 6.189 |
 | Strumenti | 32 |
 | Configurazioni di modello | 13 (5 gratuite) |
 | Aree scientifiche coperte | 13 |

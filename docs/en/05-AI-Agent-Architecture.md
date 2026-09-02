@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,959 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 6,189 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v142` |
+| **Documented version** | Service Worker `bsi-v143` |
 
 ---
 
@@ -329,6 +329,42 @@ And it moves on **only** for exhausted quota. A `401` or a malformed request
 would repeat identically everywhere: trying all providers and then reporting a
 random last error would hide the real cause.
 
+### 2.8 Core Mode, and saying what is happening
+
+**The mode.** One switch that changes four things at once, because none of them
+alone would move the needle: it switches to the most capable configuration
+among those with a key, raises agentic rounds from 10 to 16 (a long tool chain
+ran out halfway), requests maximum reasoning depth from models that expose it,
+and adds a system-prompt instruction to work in verified steps rather than
+answer fast.
+
+The model switch is **announced in the chat**, and if the new one is paid it
+says so: switching silently to a metered service would spend the user's money
+without telling them. For the same reason it is a switch and not the default —
+it costs more quota, and on a paid service it costs money.
+
+**Saying what is happening.** Several seconds can pass between sending and the
+first word of the answer: the model reasons, calls tools, waits on the network.
+Before, the user saw a mute pause and concluded it had frozen.
+
+The header now carries an atomic core whose orbitals change speed and colour
+with state — slow and cyan at rest, fast while reasoning, amber while a tool
+runs — alongside a line saying the same thing in words, for anyone not watching
+the animation. The states hook into callbacks the agentic loop already emitted:
+no mechanism was added, only made visible.
+
+**Three layout defects fixed in the same pass**, all found by measuring rather
+than looking:
+
+- The input field shared its row with four buttons and stayed 156 px wide: the
+  placeholder wrapped and was **clipped**. The text now has its own row with
+  the controls below it. The placeholder length was chosen by testing at 360 px
+  width, not by eye.
+- The title "Spectra — il copilota AI di BioSpecInfo" did not fit and truncated
+  mid-word. Only the name remains; the rest became the status line, which now
+  has a purpose.
+- The core's orbitals, when rotating, escaped their box and overlapped the name.
+
 ---
 
 ## 3. The 32 tools
@@ -541,7 +577,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,959 lines |
+| Component size | 6,189 lines |
 | Tools | 32 |
 | Model configurations | 13 (5 free) |
 | Scientific areas covered | 13 |
