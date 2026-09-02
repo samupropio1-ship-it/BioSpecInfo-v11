@@ -937,6 +937,291 @@ TOOLS.push(
     }
   },
   {
+    name: 'spettroscopia',
+    description: "Interpretazione spettroscopica: gradi di insaturazione (DBE) da formula, pattern isotopico in massa (Cl, Br, S, C-13), tabelle di assorbimento IR, spostamenti chimici NMR ¹H e ¹³C tipici, e regole di Woodward-Fieser per UV-Vis. E' il cuore di BioSpecInfo: usalo ogni volta che si parla di spettri.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"dbe", "isotopi_ms", "ir", "nmr", "uv_woodward".' },
+        formula: { type: 'string', description: 'Formula bruta, per dbe e isotopi_ms. Es. "C7H7ClO".' },
+        gruppo: { type: 'string', description: 'Gruppo funzionale o tipo di protone/carbonio da cercare nelle tabelle IR/NMR.' },
+        nucleo: { type: 'string', description: 'Per nmr: "1H" oppure "13C" (default 1H).' },
+        base: { type: 'string', description: 'Per uv_woodward: "diene_aciclico", "diene_eteroanulare", "diene_omoanulare", "enone".' },
+        sostituenti: { type: 'number', description: 'Per uv_woodward: numero di sostituenti alchilici.' },
+        doppi_legami_coniugati: { type: 'number', description: 'Per uv_woodward: doppi legami che estendono la coniugazione.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {}; var c = String(a.calcolo || '').toLowerCase();
+      if(c === 'dbe'){
+        var cnt = parseFormula(a.formula || '');
+        if(!cnt) return { ok:false, error:'formula non interpretabile: ' + a.formula };
+        var C = cnt.C || 0, H = cnt.H || 0, N = cnt.N || 0;
+        var X = (cnt.F || 0) + (cnt.Cl || 0) + (cnt.Br || 0) + (cnt.I || 0);
+        var dbe = (2 * C + 2 + N - H - X) / 2;
+        return { ok:true, formula:a.formula, DBE:dbe,
+                 formula_usata:'DBE = (2C + 2 + N − H − alogeni)/2',
+                 conteggi:{ C:C, H:H, N:N, alogeni:X, O:(cnt.O || 0), S:(cnt.S || 0) },
+                 interpretazione: dbe < 0 ? 'valore negativo: la formula non e\' valida'
+                   : dbe === 0 ? 'nessun anello ne\' insaturazione: composto saturo aciclico'
+                   : dbe >= 4 ? dbe + ' insaturazioni: compatibile con un anello aromatico (4 DBE) piu\' altre insaturazioni'
+                   : dbe + ' insaturazioni: anelli e/o doppi legami (un triplo legame ne vale 2)',
+                 nota:'ossigeno e zolfo non entrano nel conteggio' };
+      }
+      if(c === 'isotopi_ms'){
+        var m = parseFormula(a.formula || '');
+        if(!m) return { ok:false, error:'formula non interpretabile: ' + a.formula };
+        var nCl = m.Cl || 0, nBr = m.Br || 0, nC = m.C || 0, nS = m.S || 0;
+        var pattern = [{ picco:'M', intensita:100 }];
+        var note = [];
+        if(nCl === 1){ pattern.push({ picco:'M+2', intensita:32.0 }); note.push('1 Cl: M:M+2 ≈ 3:1'); }
+        else if(nCl === 2){ pattern.push({ picco:'M+2', intensita:65.0 }, { picco:'M+4', intensita:10.6 }); note.push('2 Cl: M:M+2:M+4 ≈ 9:6:1'); }
+        else if(nCl === 3){ pattern.push({ picco:'M+2', intensita:98 }, { picco:'M+4', intensita:32 }, { picco:'M+6', intensita:3.5 }); note.push('3 Cl: 27:27:9:1'); }
+        if(nBr === 1){ pattern.push({ picco:'M+2', intensita:97.3 }); note.push('1 Br: M:M+2 ≈ 1:1 (firma inconfondibile)'); }
+        else if(nBr === 2){ pattern.push({ picco:'M+2', intensita:195 }, { picco:'M+4', intensita:95 }); note.push('2 Br: 1:2:1'); }
+        if(nS) note.push(nS + ' S: contributo M+2 di circa ' + (4.4 * nS).toFixed(1) + '%');
+        if(nC) note.push(nC + ' C: picco M+1 di circa ' + (1.1 * nC).toFixed(1) + '% per il ¹³C');
+        if(nC) pattern.push({ picco:'M+1', intensita:+(1.1 * nC).toFixed(1) });
+        return { ok:true, formula:a.formula, pattern_isotopico:pattern, note:note,
+                 alogeni:{ Cl:nCl, Br:nBr }, nota_generale:'intensita\' relative con M = 100' };
+      }
+      if(c === 'ir'){
+        var IR = [
+          { gruppo:'O–H alcol (legato)', range:'3200–3600', forma:'larga, intensa' },
+          { gruppo:'O–H acido carbossilico', range:'2500–3300', forma:'molto larga' },
+          { gruppo:'N–H ammina/ammide', range:'3300–3500', forma:'media; 2 bande se primaria' },
+          { gruppo:'C–H alchino terminale', range:'3300', forma:'stretta, intensa' },
+          { gruppo:'C–H aromatico/vinilico', range:'3000–3100', forma:'media' },
+          { gruppo:'C–H alifatico', range:'2850–3000', forma:'intensa' },
+          { gruppo:'C≡N nitrile', range:'2220–2260', forma:'stretta, media' },
+          { gruppo:'C≡C alchino', range:'2100–2260', forma:'debole' },
+          { gruppo:'C=O aldeide', range:'1720–1740', forma:'intensa (+ 2 bande C–H a 2720 e 2820)' },
+          { gruppo:'C=O chetone', range:'1705–1725', forma:'intensa' },
+          { gruppo:'C=O acido carbossilico', range:'1700–1725', forma:'intensa' },
+          { gruppo:'C=O estere', range:'1735–1750', forma:'intensa' },
+          { gruppo:'C=O ammide', range:'1630–1690', forma:'intensa' },
+          { gruppo:'C=O anidride', range:'1750 e 1820', forma:'due bande' },
+          { gruppo:'C=C alchene', range:'1620–1680', forma:'variabile' },
+          { gruppo:'C=C aromatico', range:'1450–1600', forma:'media, piu\' bande' },
+          { gruppo:'N–O nitro', range:'1350 e 1550', forma:'due bande intense' },
+          { gruppo:'C–O alcol/etere/estere', range:'1000–1300', forma:'intensa' }
+        ];
+        var q = (a.gruppo || '').toLowerCase();
+        var sel = q ? IR.filter(function(x){ return x.gruppo.toLowerCase().indexOf(q) >= 0; }) : IR;
+        return { ok:true, unita:'cm⁻¹', bande: sel.length ? sel : IR,
+                 nota: sel.length ? undefined : 'nessuna corrispondenza per "' + a.gruppo + '": restituita la tabella completa' };
+      }
+      if(c === 'nmr'){
+        var H1 = [
+          { tipo:'TMS (riferimento)', shift:'0' }, { tipo:'CH₃ alifatico', shift:'0.9' },
+          { tipo:'CH₂ alifatico', shift:'1.3' }, { tipo:'CH alifatico', shift:'1.5' },
+          { tipo:'CH₃ vicino a C=O', shift:'2.1–2.6' }, { tipo:'CH vicino ad aromatico (benzilico)', shift:'2.3–2.7' },
+          { tipo:'CH₃ vicino a N', shift:'2.2–2.9' }, { tipo:'CH vicino a O (etere/alcol)', shift:'3.3–4.0' },
+          { tipo:'CH₂ di estere (O–CH₂)', shift:'4.1–4.3' }, { tipo:'O–H alcol', shift:'1–5 (variabile, scambiabile)' },
+          { tipo:'alchene (=CH)', shift:'4.5–6.5' }, { tipo:'aromatico', shift:'6.5–8.0' },
+          { tipo:'aldeide (CHO)', shift:'9.5–10.1' }, { tipo:'acido carbossilico (COOH)', shift:'10–13' }
+        ];
+        var C13 = [
+          { tipo:'CH₃/CH₂/CH alifatici', shift:'0–50' }, { tipo:'C vicino a N', shift:'30–65' },
+          { tipo:'C vicino a O (alcol/etere)', shift:'50–90' }, { tipo:'alchino', shift:'65–90' },
+          { tipo:'alchene', shift:'100–150' }, { tipo:'aromatico', shift:'110–160' },
+          { tipo:'nitrile', shift:'115–125' }, { tipo:'estere/ammide (C=O)', shift:'160–185' },
+          { tipo:'acido carbossilico (C=O)', shift:'165–185' }, { tipo:'aldeide/chetone (C=O)', shift:'190–220' }
+        ];
+        var nuc = (a.nucleo || '1H').toUpperCase().replace('-', '');
+        var tab = nuc.indexOf('13') >= 0 ? C13 : H1;
+        var q2 = (a.gruppo || '').toLowerCase();
+        var sel2 = q2 ? tab.filter(function(x){ return x.tipo.toLowerCase().indexOf(q2) >= 0; }) : tab;
+        return { ok:true, nucleo: nuc.indexOf('13') >= 0 ? '¹³C' : '¹H', unita:'ppm (δ)',
+                 riferimento:'TMS = 0 ppm', valori: sel2.length ? sel2 : tab,
+                 regola_molteplicita:'n idrogeni sul carbonio adiacente danno n+1 picchi (regola n+1)' };
+      }
+      if(c === 'uv_woodward'){
+        var basi = { diene_aciclico:217, diene_eteroanulare:214, diene_omoanulare:253, enone:215 };
+        var b = basi[String(a.base || '').toLowerCase()];
+        if(b === undefined) return { ok:false, error:'base non riconosciuta', disponibili:Object.keys(basi) };
+        var lam = b, dett = ['base ' + a.base + ': ' + b + ' nm'];
+        if(a.sostituenti){ lam += 5 * a.sostituenti; dett.push('+5 nm × ' + a.sostituenti + ' sostituenti alchilici = +' + (5 * a.sostituenti)); }
+        if(a.doppi_legami_coniugati){ lam += 30 * a.doppi_legami_coniugati; dett.push('+30 nm × ' + a.doppi_legami_coniugati + ' doppi legami coniugati = +' + (30 * a.doppi_legami_coniugati)); }
+        return { ok:true, lambda_max_stimata_nm:lam, dettaglio:dett,
+                 nota:'regole di Woodward-Fieser: stima empirica, non un calcolo quantistico' };
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['dbe','isotopi_ms','ir','nmr','uv_woodward'] };
+    }
+  },
+  {
+    name: 'biochimica',
+    description: "Biochimica quantitativa: cinetica enzimatica di Michaelis-Menten (v, Km, Vmax, Lineweaver-Burk, inibizione competitiva/non competitiva), massa e punto isoelettrico di un peptide dalla sequenza, e resa energetica delle vie metaboliche.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"michaelis_menten", "peptide", "resa_atp".' },
+        Vmax: { type: 'number', description: 'Velocita\' massima.' },
+        Km: { type: 'number', description: 'Costante di Michaelis.' },
+        S: { type: 'number', description: 'Concentrazione di substrato.' },
+        I: { type: 'number', description: 'Concentrazione di inibitore.' },
+        Ki: { type: 'number', description: 'Costante di inibizione.' },
+        tipo_inibizione: { type: 'string', description: '"competitiva", "non_competitiva", "incompetitiva".' },
+        sequenza: { type: 'string', description: 'Sequenza peptidica a lettera singola, es. "MAKVIL".' },
+        via: { type: 'string', description: 'Per resa_atp: "glicolisi", "krebs", "beta_ossidazione", "completa".' },
+        n_carboni: { type: 'number', description: 'Per beta_ossidazione: numero di carboni dell\'acido grasso.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {}; var c = String(a.calcolo || '').toLowerCase();
+      if(c === 'michaelis_menten'){
+        if(a.Vmax === undefined || a.Km === undefined) return { ok:false, error:'servono Vmax e Km' };
+        var Km = a.Km, Vmax = a.Vmax, out = { ok:true, Vmax:Vmax, Km:Km, equazione:'v = Vmax·[S]/(Km + [S])' };
+        if(a.I !== undefined && a.Ki !== undefined){
+          var alpha = 1 + a.I / a.Ki, ti = String(a.tipo_inibizione || 'competitiva').toLowerCase();
+          if(ti === 'competitiva'){ Km = a.Km * alpha; out.effetto = 'Km apparente aumenta (×' + alpha.toFixed(3) + '), Vmax invariata'; }
+          else if(ti === 'non_competitiva'){ Vmax = a.Vmax / alpha; out.effetto = 'Vmax diminuisce (÷' + alpha.toFixed(3) + '), Km invariata'; }
+          else { Km = a.Km / alpha; Vmax = a.Vmax / alpha; out.effetto = 'Km e Vmax diminuiscono entrambe (÷' + alpha.toFixed(3) + ')'; }
+          out.inibizione = ti; out.alpha = +alpha.toFixed(4);
+          out.Km_apparente = +Km.toPrecision(6); out.Vmax_apparente = +Vmax.toPrecision(6);
+        }
+        if(a.S !== undefined){
+          var v = Vmax * a.S / (Km + a.S);
+          out.S = a.S; out.v = +v.toPrecision(6);
+          out.percento_di_Vmax = +(100 * v / a.Vmax).toPrecision(4);
+          out.nota_S_vs_Km = a.S < Km / 10 ? 'S ≪ Km: regime di primo ordine, v ≈ (Vmax/Km)·S'
+                            : a.S > 10 * Km ? 'S ≫ Km: enzima saturo, regime di ordine zero'
+                            : 'S confrontabile con Km: regione di transizione';
+        }
+        out.efficienza_catalitica = 'kcat/Km si ottiene dividendo Vmax per [E]totale e poi per Km';
+        out.lineweaver_burk = '1/v = (Km/Vmax)·(1/[S]) + 1/Vmax — intercetta 1/Vmax, pendenza Km/Vmax';
+        return out;
+      }
+      if(c === 'peptide'){
+        var seq = String(a.sequenza || '').toUpperCase().replace(/[^A-Z]/g, '');
+        if(!seq) return { ok:false, error:'sequenza mancante' };
+        // massa media dei residui (Da) e pKa dei gruppi ionizzabili
+        var RES = { A:71.08, R:156.19, N:114.10, D:115.09, C:103.14, E:129.12, Q:128.13, G:57.05,
+                    H:137.14, I:113.16, L:113.16, K:128.17, M:131.19, F:147.18, P:97.12, S:87.08,
+                    T:101.10, W:186.21, Y:163.18, V:99.13 };
+        var mass = 18.015, bad = [];
+        for(var i = 0; i < seq.length; i++){
+          if(RES[seq[i]] === undefined) bad.push(seq[i]);
+          else mass += RES[seq[i]];
+        }
+        if(bad.length) return { ok:false, error:'lettere non valide nella sequenza: ' + bad.join(', ') };
+        // pI per bisezione sulla carica netta
+        var pKaC = 3.65, pKaN = 8.2;
+        var SIDE = { D:[3.9,-1], E:[4.07,-1], C:[8.18,-1], Y:[10.46,-1], H:[6.04,1], K:[10.54,1], R:[12.48,1] };
+        function carica(pH){
+          var q = 1 / (1 + Math.pow(10, pH - pKaN)) - 1 / (1 + Math.pow(10, pKaC - pH));
+          for(var j = 0; j < seq.length; j++){
+            var s = SIDE[seq[j]];
+            if(!s) continue;
+            if(s[1] > 0) q += 1 / (1 + Math.pow(10, pH - s[0]));
+            else q -= 1 / (1 + Math.pow(10, s[0] - pH));
+          }
+          return q;
+        }
+        var lo = 0, hi = 14;
+        for(var it = 0; it < 100; it++){ var mid = (lo + hi) / 2; if(carica(mid) > 0) lo = mid; else hi = mid; }
+        var pI = (lo + hi) / 2;
+        var comp = {};
+        for(var k2 = 0; k2 < seq.length; k2++) comp[seq[k2]] = (comp[seq[k2]] || 0) + 1;
+        return { ok:true, sequenza:seq, lunghezza:seq.length,
+                 massa_media_Da:+mass.toFixed(2), pI:+pI.toFixed(2),
+                 carica_a_pH7:+carica(7).toFixed(2),
+                 composizione:comp,
+                 nota:'massa media (non monoisotopica); pI calcolato per bisezione sulla carica netta' };
+      }
+      if(c === 'resa_atp'){
+        var v2 = String(a.via || 'completa').toLowerCase();
+        var vie = {
+          glicolisi:{ ATP_netti:2, NADH:2, resa_totale_con_ossigeno:'circa 7 ATP (2 diretti + 2 NADH citosolici)',
+                      nota:'glucosio -> 2 piruvato; 2 ATP consumati e 4 prodotti' },
+          krebs:{ per_giro:{ ATP_GTP:1, NADH:3, FADH2:1 }, per_glucosio:{ giri:2, ATP_GTP:2, NADH:6, FADH2:2 },
+                  nota:'il ciclo parte da acetil-CoA: 2 giri per glucosio' },
+          beta_ossidazione:{ nota:'ogni ciclo accorcia di 2 carboni e produce 1 FADH₂, 1 NADH e 1 acetil-CoA' },
+          completa:{ ossidazione_glucosio:'circa 30-32 ATP',
+                     dettaglio:'glicolisi 2 ATP + 2 NADH; decarbossilazione 2 NADH; Krebs 2 GTP + 6 NADH + 2 FADH₂',
+                     stechiometria:'1 NADH ≈ 2.5 ATP, 1 FADH₂ ≈ 1.5 ATP (rapporti P/O moderni)',
+                     nota:'il vecchio valore di 36-38 ATP usava rapporti P/O interi, oggi superati' }
+        };
+        var r2 = vie[v2];
+        if(!r2) return { ok:false, error:'via non riconosciuta', disponibili:Object.keys(vie) };
+        var res = { ok:true, via:v2 };
+        for(var kk in r2) res[kk] = r2[kk];
+        if(v2 === 'beta_ossidazione' && a.n_carboni){
+          var n = a.n_carboni, cicli = n / 2 - 1;
+          res.cicli = cicli; res.acetil_CoA = n / 2;
+          res.FADH2 = cicli; res.NADH = cicli;
+          res.ATP_stimati = +(cicli * 1.5 + cicli * 2.5 + (n / 2) * 10 - 2).toFixed(1);
+          res.dettaglio_calcolo = cicli + ' cicli × (1.5 + 2.5) + ' + (n / 2) + ' acetil-CoA × 10 − 2 di attivazione';
+        }
+        return res;
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['michaelis_menten','peptide','resa_atp'] };
+    }
+  },
+  {
+    name: 'farmacocinetica',
+    description: "Farmacocinetica: volume di distribuzione, clearance, emivita, dose di carico e di mantenimento, accumulo allo stato stazionario, biodisponibilita' e concentrazione nel tempo.",
+    parameters: {
+      type: 'object',
+      properties: {
+        dose_mg: { type: 'number', description: 'Dose somministrata in mg.' },
+        Vd_L: { type: 'number', description: 'Volume di distribuzione in L.' },
+        CL_L_h: { type: 'number', description: 'Clearance in L/h.' },
+        t_mezza_h: { type: 'number', description: 'Emivita in ore.' },
+        C0_mg_L: { type: 'number', description: 'Concentrazione iniziale in mg/L.' },
+        C_target_mg_L: { type: 'number', description: 'Concentrazione bersaglio in mg/L.' },
+        intervallo_h: { type: 'number', description: 'Intervallo fra le dosi in ore.' },
+        F: { type: 'number', description: 'Biodisponibilita\' (0-1, default 1).' },
+        tempo_h: { type: 'number', description: 'Tempo per il calcolo della concentrazione.' }
+      }
+    },
+    execute: function(a){
+      a = a || {}; var out = { ok:true }, F = a.F !== undefined ? a.F : 1;
+      var Vd = a.Vd_L, CL = a.CL_L_h, t12 = a.t_mezza_h;
+      // le tre grandezze sono legate: t½ = ln2·Vd/CL
+      if(t12 === undefined && Vd !== undefined && CL !== undefined) t12 = Math.LN2 * Vd / CL;
+      if(CL === undefined && Vd !== undefined && t12 !== undefined) CL = Math.LN2 * Vd / t12;
+      if(Vd === undefined && CL !== undefined && t12 !== undefined) Vd = CL * t12 / Math.LN2;
+      if(Vd === undefined && a.dose_mg !== undefined && a.C0_mg_L !== undefined) Vd = F * a.dose_mg / a.C0_mg_L;
+      if(Vd !== undefined) out.Vd_L = +Vd.toPrecision(6);
+      if(CL !== undefined) out.CL_L_h = +CL.toPrecision(6);
+      if(t12 !== undefined){
+        out.t_mezza_h = +t12.toPrecision(6);
+        out.k_eliminazione_h = +(Math.LN2 / t12).toPrecision(6);
+        out.tempo_stato_stazionario_h = +(4.32 * t12).toPrecision(4);   // ~95% in 4.32 emivite
+        out.nota_steady_state = 'circa il 95% dello stato stazionario dopo 4-5 emivite';
+      }
+      if(a.dose_mg !== undefined && Vd !== undefined && out.C0_mg_L === undefined)
+        out.C0_mg_L = +(F * a.dose_mg / Vd).toPrecision(6);
+      if(a.tempo_h !== undefined && t12 !== undefined){
+        var C0 = out.C0_mg_L !== undefined ? out.C0_mg_L : a.C0_mg_L;
+        if(C0 !== undefined){
+          out.C_al_tempo_mg_L = +(C0 * Math.exp(-Math.LN2 / t12 * a.tempo_h)).toPrecision(6);
+          out.emivite_trascorse = +(a.tempo_h / t12).toPrecision(4);
+          out.frazione_residua_percento = +(100 * Math.pow(0.5, a.tempo_h / t12)).toPrecision(4);
+        }
+      }
+      if(a.C_target_mg_L !== undefined){
+        if(Vd !== undefined) out.dose_di_carico_mg = +(a.C_target_mg_L * Vd / F).toPrecision(6);
+        if(CL !== undefined){
+          out.velocita_infusione_mg_h = +(a.C_target_mg_L * CL / F).toPrecision(6);
+          if(a.intervallo_h !== undefined)
+            out.dose_mantenimento_mg = +(a.C_target_mg_L * CL * a.intervallo_h / F).toPrecision(6);
+        }
+      }
+      if(a.intervallo_h !== undefined && t12 !== undefined){
+        var R = 1 / (1 - Math.pow(0.5, a.intervallo_h / t12));
+        out.fattore_accumulo = +R.toPrecision(5);
+        out.nota_accumulo = 'con intervallo ' + a.intervallo_h + ' h ed emivita ' + t12.toFixed(2) + ' h il farmaco si accumula di ' + R.toFixed(2) + '×';
+      }
+      out.formule = 't½ = ln2·Vd/CL ; C₀ = F·D/Vd ; dose carico = C·Vd/F ; mantenimento = C·CL·τ/F';
+      if(Object.keys(out).length <= 2) return { ok:false, error:'dati insufficienti: servono almeno due fra Vd, CL ed emivita, oppure dose e concentrazione' };
+      return out;
+    }
+  },
+  {
     name: 'termodinamica',
     description: "Risolve problemi di termodinamica chimica: energia libera di Gibbs (ΔG = ΔH − TΔS), costante di equilibrio da ΔG° (ΔG° = −RT·lnK) e viceversa, equazione di van 't Hoff (K a due temperature), spontaneita' e temperatura di inversione.",
     parameters: {
@@ -1302,6 +1587,385 @@ TOOLS.push(
       }
       if(Object.keys(out).length <= 2) return { ok:false, error:'servono E0 e n, oppure corrente, tempo e n' };
       return out;
+    }
+  },
+  {
+    name: 'astrofisica',
+    description: "Astrofisica e astrochimica quantitativa, a supporto della sezione Astrochimica 3D: legge di Wien, Stefan-Boltzmann, luminosita' stellare, redshift e velocita' radiale, velocita' di fuga, legge di Hubble, terza legge di Keplero e zona abitabile.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"wien", "stefan_boltzmann", "luminosita", "redshift", "fuga", "hubble", "keplero", "zona_abitabile".' },
+        T_K: { type: 'number', description: 'Temperatura in kelvin.' },
+        lambda_max_nm: { type: 'number', description: 'Picco di emissione in nm.' },
+        raggio_m: { type: 'number', description: 'Raggio in metri (o raggi solari se raggio_solari).' },
+        raggio_solari: { type: 'number', description: 'Raggio in raggi solari.' },
+        massa_kg: { type: 'number', description: 'Massa in kg.' },
+        massa_solari: { type: 'number', description: 'Massa in masse solari.' },
+        lambda_osservata: { type: 'number', description: 'Lunghezza d\'onda osservata.' },
+        lambda_riposo: { type: 'number', description: 'Lunghezza d\'onda a riposo.' },
+        distanza_Mpc: { type: 'number', description: 'Distanza in megaparsec (Hubble).' },
+        semiasse_UA: { type: 'number', description: 'Semiasse maggiore in unita\' astronomiche.' },
+        luminosita_solari: { type: 'number', description: 'Luminosita\' in luminosita\' solari.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {};
+      var c = 299792458, sigma = 5.670374419e-8, G = 6.67430e-11, b = 2.897771955e-3;
+      var Msun = 1.98892e30, Rsun = 6.957e8, Lsun = 3.828e26, H0 = 70;
+      var t = String(a.calcolo || '').toLowerCase();
+      if(t === 'wien'){
+        if(a.T_K !== undefined){
+          var lam = b / a.T_K;
+          return { ok:true, T_K:a.T_K, lambda_max_nm:+(lam * 1e9).toPrecision(6),
+                   formula:'λmax·T = 2.898×10⁻³ m·K',
+                   regione: lam * 1e9 < 400 ? 'ultravioletto' : lam * 1e9 > 700 ? 'infrarosso' : 'visibile',
+                   colore_apparente: a.T_K > 10000 ? 'blu' : a.T_K > 7500 ? 'bianco-azzurro' : a.T_K > 6000 ? 'bianco' : a.T_K > 5000 ? 'giallo' : a.T_K > 3500 ? 'arancione' : 'rosso' };
+        }
+        if(a.lambda_max_nm !== undefined)
+          return { ok:true, lambda_max_nm:a.lambda_max_nm, T_K:+(b / (a.lambda_max_nm * 1e-9)).toPrecision(6), formula:'T = 2.898×10⁻³/λmax' };
+        return { ok:false, error:'serve T_K oppure lambda_max_nm' };
+      }
+      if(t === 'stefan_boltzmann'){
+        if(a.T_K === undefined) return { ok:false, error:'serve T_K' };
+        return { ok:true, T_K:a.T_K, flusso_W_m2:+(sigma * Math.pow(a.T_K, 4)).toExponential(6),
+                 formula:'j = σT⁴, σ = 5.670×10⁻⁸ W/(m²·K⁴)' };
+      }
+      if(t === 'luminosita'){
+        var R = a.raggio_m !== undefined ? a.raggio_m : (a.raggio_solari !== undefined ? a.raggio_solari * Rsun : undefined);
+        if(R === undefined || a.T_K === undefined) return { ok:false, error:'servono T_K e raggio (in metri o solari)' };
+        var L = 4 * Math.PI * R * R * sigma * Math.pow(a.T_K, 4);
+        return { ok:true, T_K:a.T_K, raggio_m:+R.toExponential(4), raggio_solari:+(R / Rsun).toPrecision(5),
+                 luminosita_W:+L.toExponential(6), luminosita_solari:+(L / Lsun).toPrecision(6),
+                 formula:'L = 4πR²σT⁴' };
+      }
+      if(t === 'redshift'){
+        if(a.lambda_osservata === undefined || a.lambda_riposo === undefined)
+          return { ok:false, error:'servono lambda_osservata e lambda_riposo' };
+        var z = (a.lambda_osservata - a.lambda_riposo) / a.lambda_riposo;
+        var vNR = z * c;
+        // per z non piccoli serve la formula relativistica
+        var vRel = c * ((Math.pow(1 + z, 2) - 1) / (Math.pow(1 + z, 2) + 1));
+        return { ok:true, z:+z.toPrecision(6),
+                 tipo: z > 0 ? 'redshift: la sorgente si allontana' : 'blueshift: la sorgente si avvicina',
+                 velocita_classica_km_s:+(vNR / 1000).toPrecision(6),
+                 velocita_relativistica_km_s:+(vRel / 1000).toPrecision(6),
+                 distanza_stimata_Mpc:z > 0 ? +(z * c / 1000 / H0).toPrecision(5) : null,
+                 nota: Math.abs(z) > 0.1 ? 'z elevato: usa il valore relativistico' : 'z piccolo: le due formule coincidono',
+                 formule:'z = Δλ/λ₀ ; v ≈ cz (piccoli z) ; d = v/H₀ con H₀ = 70 km/s/Mpc' };
+      }
+      if(t === 'fuga'){
+        var M = a.massa_kg !== undefined ? a.massa_kg : (a.massa_solari !== undefined ? a.massa_solari * Msun : undefined);
+        var Rf = a.raggio_m !== undefined ? a.raggio_m : (a.raggio_solari !== undefined ? a.raggio_solari * Rsun : undefined);
+        if(M === undefined || Rf === undefined) return { ok:false, error:'servono massa e raggio' };
+        var v = Math.sqrt(2 * G * M / Rf);
+        var rs = 2 * G * M / (c * c);
+        return { ok:true, velocita_fuga_km_s:+(v / 1000).toPrecision(6),
+                 frazione_di_c:+(v / c).toPrecision(5),
+                 raggio_Schwarzschild_km:+(rs / 1000).toPrecision(6),
+                 buco_nero: Rf <= rs,
+                 formula:'v = √(2GM/R) ; rs = 2GM/c²' };
+      }
+      if(t === 'hubble'){
+        if(a.distanza_Mpc === undefined) return { ok:false, error:'serve distanza_Mpc' };
+        return { ok:true, distanza_Mpc:a.distanza_Mpc, H0_km_s_Mpc:H0,
+                 velocita_recessione_km_s:+(H0 * a.distanza_Mpc).toPrecision(6),
+                 z_stimato:+(H0 * a.distanza_Mpc * 1000 / c).toPrecision(5),
+                 formula:'v = H₀·d' };
+      }
+      if(t === 'keplero'){
+        if(a.semiasse_UA === undefined) return { ok:false, error:'serve semiasse_UA' };
+        var Ms = a.massa_solari !== undefined ? a.massa_solari : 1;
+        var P = Math.sqrt(Math.pow(a.semiasse_UA, 3) / Ms);
+        return { ok:true, semiasse_UA:a.semiasse_UA, massa_stella_solari:Ms,
+                 periodo_anni:+P.toPrecision(6), periodo_giorni:+(P * 365.25).toPrecision(6),
+                 formula:'P² = a³/M (P in anni, a in UA, M in masse solari)' };
+      }
+      if(t === 'zona_abitabile'){
+        var L2 = a.luminosita_solari !== undefined ? a.luminosita_solari : 1;
+        return { ok:true, luminosita_solari:L2,
+                 bordo_interno_UA:+(0.95 * Math.sqrt(L2)).toPrecision(5),
+                 bordo_esterno_UA:+(1.67 * Math.sqrt(L2)).toPrecision(5),
+                 centro_UA:+(Math.sqrt(L2)).toPrecision(5),
+                 formula:'d = √(L/L☉) scalato sui bordi conservativi (Kopparapu)',
+                 nota:'intervallo in cui l\'acqua puo\' restare liquida in superficie' };
+      }
+      return { ok:false, error:'calcolo non riconosciuto',
+               disponibili:['wien','stefan_boltzmann','luminosita','redshift','fuga','hubble','keplero','zona_abitabile'] };
+    }
+  },
+  {
+    name: 'nucleare',
+    description: "Chimica nucleare e radioattivita': decadimento, attivita', datazione radiometrica (carbonio-14 e altri), difetto di massa ed energia di legame, dose residua.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"decadimento", "datazione", "energia_legame".' },
+        t_mezza: { type: 'number', description: 'Tempo di dimezzamento (nella stessa unita\' del tempo).' },
+        N0: { type: 'number', description: 'Quantita\' o attivita\' iniziale.' },
+        N: { type: 'number', description: 'Quantita\' o attivita\' residua.' },
+        tempo: { type: 'number', description: 'Tempo trascorso.' },
+        massa_atomica: { type: 'number', description: 'Massa atomica misurata in u.' },
+        Z: { type: 'number', description: 'Numero di protoni.' },
+        Nn: { type: 'number', description: 'Numero di neutroni.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {}; var c = String(a.calcolo || '').toLowerCase();
+      if(c === 'decadimento'){
+        if(a.t_mezza === undefined) return { ok:false, error:'serve t_mezza' };
+        var lam = Math.LN2 / a.t_mezza, out = { ok:true, t_mezza:a.t_mezza,
+          costante_decadimento:+lam.toPrecision(6), vita_media:+(1 / lam).toPrecision(6),
+          formule:'N = N₀·e^(−λt), λ = ln2/t½, A = λN' };
+        if(a.N0 !== undefined && a.tempo !== undefined){
+          out.N_residuo = +(a.N0 * Math.exp(-lam * a.tempo)).toPrecision(6);
+          out.frazione_residua = +Math.pow(0.5, a.tempo / a.t_mezza).toPrecision(6);
+          out.percento_decaduto = +(100 * (1 - Math.pow(0.5, a.tempo / a.t_mezza))).toPrecision(5);
+          out.emivite_trascorse = +(a.tempo / a.t_mezza).toPrecision(5);
+        }
+        return out;
+      }
+      if(c === 'datazione'){
+        var th = a.t_mezza !== undefined ? a.t_mezza : 5730;   // C-14
+        if(a.N0 === undefined || a.N === undefined) return { ok:false, error:'servono N0 e N (attivita\' o quantita\')' };
+        if(a.N <= 0 || a.N0 <= 0) return { ok:false, error:'i valori devono essere positivi' };
+        var eta = (th / Math.LN2) * Math.log(a.N0 / a.N);
+        return { ok:true, t_mezza_usata:th, rapporto_N_su_N0:+(a.N / a.N0).toPrecision(6),
+                 eta:+eta.toPrecision(6), unita:'stesse unita\' del tempo di dimezzamento',
+                 emivite_trascorse:+(eta / th).toPrecision(4),
+                 formula:'t = (t½/ln2)·ln(N₀/N)',
+                 nota: th === 5730 ? 'usato il ¹⁴C (t½ = 5730 anni): affidabile fino a circa 50.000 anni' : undefined };
+      }
+      if(c === 'energia_legame'){
+        if(a.massa_atomica === undefined || a.Z === undefined || a.Nn === undefined)
+          return { ok:false, error:'servono massa_atomica (u), Z e Nn' };
+        var mp = 1.00727646688, mn = 1.00866491595, me = 0.000548579909;
+        var attesa = a.Z * (mp + me) + a.Nn * mn;
+        var difetto = attesa - a.massa_atomica;
+        var E = difetto * 931.494;                       // MeV per u
+        var A = a.Z + a.Nn;
+        return { ok:true, A:A, Z:a.Z, N:a.Nn,
+                 massa_attesa_u:+attesa.toFixed(6), massa_misurata_u:a.massa_atomica,
+                 difetto_di_massa_u:+difetto.toFixed(6),
+                 energia_legame_MeV:+E.toFixed(4),
+                 energia_per_nucleone_MeV:+(E / A).toFixed(4),
+                 formula:'E = Δm·931.494 MeV/u',
+                 nota:'il massimo di energia per nucleone e\' intorno al ⁵⁶Fe (circa 8.8 MeV)' };
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['decadimento','datazione','energia_legame'] };
+    }
+  },
+  {
+    name: 'statistica_inferenziale',
+    description: "Statistica inferenziale con p-value esatti: test t di Student (a campioni indipendenti con correzione di Welch, o appaiati), test chi-quadro, e intervalli di confidenza. Usalo per dire se una differenza sperimentale e' significativa.",
+    parameters: {
+      type: 'object',
+      properties: {
+        test: { type: 'string', description: '"t_indipendenti", "t_appaiati", "chi_quadro", "intervallo_confidenza".' },
+        gruppo1: { type: 'array', items: { type: 'number' }, description: 'Primo campione.' },
+        gruppo2: { type: 'array', items: { type: 'number' }, description: 'Secondo campione.' },
+        osservati: { type: 'array', items: { type: 'number' }, description: 'Frequenze osservate (chi-quadro).' },
+        attesi: { type: 'array', items: { type: 'number' }, description: 'Frequenze attese (chi-quadro).' },
+        confidenza: { type: 'number', description: 'Livello di confidenza (default 0.95).' }
+      },
+      required: ['test']
+    },
+    execute: function(a){
+      a = a || {};
+      function gammaln(x){
+        var g = [76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+        var y = x, tmp = x + 5.5;
+        tmp -= (x + 0.5) * Math.log(tmp);
+        var ser = 1.000000000190015;
+        for(var j = 0; j < 6; j++) ser += g[j] / ++y;
+        return -tmp + Math.log(2.5066282746310005 * ser / x);
+      }
+      function betacf(p, q, x){
+        var MAX = 300, EPS = 3e-12, FPMIN = 1e-300;
+        var qab = p + q, qap = p + 1, qam = p - 1, cc = 1, d = 1 - qab * x / qap;
+        if(Math.abs(d) < FPMIN) d = FPMIN;
+        d = 1 / d; var h = d;
+        for(var m = 1; m <= MAX; m++){
+          var m2 = 2 * m;
+          var aa = m * (q - m) * x / ((qam + m2) * (p + m2));
+          d = 1 + aa * d; if(Math.abs(d) < FPMIN) d = FPMIN;
+          cc = 1 + aa / cc; if(Math.abs(cc) < FPMIN) cc = FPMIN;
+          d = 1 / d; h *= d * cc;
+          aa = -(p + m) * (qab + m) * x / ((p + m2) * (qap + m2));
+          d = 1 + aa * d; if(Math.abs(d) < FPMIN) d = FPMIN;
+          cc = 1 + aa / cc; if(Math.abs(cc) < FPMIN) cc = FPMIN;
+          d = 1 / d; var del = d * cc; h *= del;
+          if(Math.abs(del - 1) < EPS) break;
+        }
+        return h;
+      }
+      function betai(p, q, x){   // beta incompleta regolarizzata
+        if(x <= 0) return 0; if(x >= 1) return 1;
+        var bt = Math.exp(gammaln(p + q) - gammaln(p) - gammaln(q) + p * Math.log(x) + q * Math.log(1 - x));
+        return (x < (p + 1) / (p + q + 2)) ? bt * betacf(p, q, x) / p : 1 - bt * betacf(q, p, 1 - x) / q;
+      }
+      function pFromT(t, df){ return betai(df / 2, 0.5, df / (df + t * t)); }   // bilaterale
+      function gammap(s, x){    // gamma incompleta regolarizzata inferiore
+        if(x <= 0) return 0;
+        if(x < s + 1){
+          var ap = s, sum = 1 / s, del = sum;
+          for(var n = 1; n < 500; n++){ ap++; del *= x / ap; sum += del; if(Math.abs(del) < Math.abs(sum) * 1e-14) break; }
+          return sum * Math.exp(-x + s * Math.log(x) - gammaln(s));
+        }
+        var b = x + 1 - s, c2 = 1e300, d2 = 1 / b, h = d2;
+        for(var i = 1; i < 500; i++){
+          var an = -i * (i - s);
+          b += 2; d2 = an * d2 + b; if(Math.abs(d2) < 1e-300) d2 = 1e-300;
+          c2 = b + an / c2; if(Math.abs(c2) < 1e-300) c2 = 1e-300;
+          d2 = 1 / d2; var de = d2 * c2; h *= de;
+          if(Math.abs(de - 1) < 1e-14) break;
+        }
+        return 1 - Math.exp(-x + s * Math.log(x) - gammaln(s)) * h;
+      }
+      function stats(v){
+        var n = v.length, m = v.reduce(function(p, q){ return p + q; }, 0) / n;
+        var s2 = v.reduce(function(p, q){ return p + (q - m) * (q - m); }, 0) / (n - 1);
+        return { n:n, media:m, var:s2, sd:Math.sqrt(s2) };
+      }
+      var test = String(a.test || '').toLowerCase();
+      var giudizio = function(p){
+        return p < 0.001 ? 'differenza altamente significativa (p < 0.001)'
+             : p < 0.01 ? 'differenza molto significativa (p < 0.01)'
+             : p < 0.05 ? 'differenza significativa (p < 0.05)'
+             : 'differenza NON significativa (p ≥ 0.05): i dati non permettono di rifiutare l\'ipotesi nulla';
+      };
+      if(test === 't_indipendenti'){
+        var g1 = (a.gruppo1 || []).map(Number), g2 = (a.gruppo2 || []).map(Number);
+        if(g1.length < 2 || g2.length < 2) return { ok:false, error:'servono almeno 2 valori per gruppo' };
+        var s1 = stats(g1), s2b = stats(g2);
+        var se = Math.sqrt(s1.var / s1.n + s2b.var / s2b.n);
+        if(se === 0) return { ok:false, error:'varianza nulla in entrambi i gruppi' };
+        var t = (s1.media - s2b.media) / se;
+        // gradi di liberta' di Welch-Satterthwaite
+        var df = Math.pow(s1.var / s1.n + s2b.var / s2b.n, 2) /
+                 (Math.pow(s1.var / s1.n, 2) / (s1.n - 1) + Math.pow(s2b.var / s2b.n, 2) / (s2b.n - 1));
+        var p = pFromT(t, df);
+        var sp = Math.sqrt(((s1.n - 1) * s1.var + (s2b.n - 1) * s2b.var) / (s1.n + s2b.n - 2));
+        return { ok:true, test:'t di Welch (campioni indipendenti, varianze non assunte uguali)',
+                 gruppo1:{ n:s1.n, media:+s1.media.toPrecision(6), sd:+s1.sd.toPrecision(6) },
+                 gruppo2:{ n:s2b.n, media:+s2b.media.toPrecision(6), sd:+s2b.sd.toPrecision(6) },
+                 differenza_medie:+(s1.media - s2b.media).toPrecision(6),
+                 t:+t.toFixed(4), gradi_liberta:+df.toFixed(3), p_value:+p.toPrecision(5),
+                 cohen_d: sp ? +((s1.media - s2b.media) / sp).toFixed(4) : null,
+                 significativo: p < 0.05, giudizio: giudizio(p) };
+      }
+      if(test === 't_appaiati'){
+        var p1 = (a.gruppo1 || []).map(Number), p2 = (a.gruppo2 || []).map(Number);
+        if(p1.length !== p2.length || p1.length < 2) return { ok:false, error:'i due gruppi devono avere la stessa lunghezza (>= 2)' };
+        var d = p1.map(function(v, i){ return v - p2[i]; }), sd = stats(d);
+        if(sd.sd === 0) return { ok:false, error:'le differenze sono tutte identiche' };
+        var tp = sd.media / (sd.sd / Math.sqrt(sd.n)), dfp = sd.n - 1, pp = pFromT(tp, dfp);
+        return { ok:true, test:'t per campioni appaiati', n_coppie:sd.n,
+                 differenza_media:+sd.media.toPrecision(6), sd_differenze:+sd.sd.toPrecision(6),
+                 t:+tp.toFixed(4), gradi_liberta:dfp, p_value:+pp.toPrecision(5),
+                 significativo: pp < 0.05, giudizio: giudizio(pp) };
+      }
+      if(test === 'chi_quadro'){
+        var o = (a.osservati || []).map(Number), e = (a.attesi || []).map(Number);
+        if(o.length < 2 || o.length !== e.length) return { ok:false, error:'osservati e attesi devono avere la stessa lunghezza (>= 2)' };
+        if(e.some(function(v){ return v <= 0; })) return { ok:false, error:'le frequenze attese devono essere positive' };
+        var x2 = 0;
+        for(var i2 = 0; i2 < o.length; i2++) x2 += Math.pow(o[i2] - e[i2], 2) / e[i2];
+        var dfc = o.length - 1, pc = 1 - gammap(dfc / 2, x2 / 2);
+        return { ok:true, test:'chi-quadro di bonta\' di adattamento',
+                 chi_quadro:+x2.toFixed(4), gradi_liberta:dfc, p_value:+pc.toPrecision(5),
+                 significativo: pc < 0.05,
+                 giudizio: pc < 0.05 ? 'gli osservati si discostano significativamente dagli attesi'
+                                     : 'nessuno scostamento significativo dagli attesi',
+                 avviso: e.some(function(v){ return v < 5; }) ? 'attenzione: alcune frequenze attese sono < 5, il test perde affidabilita\'' : undefined };
+      }
+      if(test === 'intervallo_confidenza'){
+        var v2 = (a.gruppo1 || []).map(Number);
+        if(v2.length < 2) return { ok:false, error:'servono almeno 2 valori in gruppo1' };
+        var st = stats(v2), conf = a.confidenza !== undefined ? a.confidenza : 0.95;
+        // t critico per bisezione sulla CDF
+        var lo = 0, hi = 100, target = 1 - conf;
+        for(var k = 0; k < 200; k++){ var mid = (lo + hi) / 2; if(pFromT(mid, st.n - 1) > target) lo = mid; else hi = mid; }
+        var tc = (lo + hi) / 2, err = tc * st.sd / Math.sqrt(st.n);
+        return { ok:true, n:st.n, media:+st.media.toPrecision(6), sd:+st.sd.toPrecision(6),
+                 errore_standard:+(st.sd / Math.sqrt(st.n)).toPrecision(6),
+                 confidenza:conf, t_critico:+tc.toFixed(4),
+                 margine_errore:+err.toPrecision(6),
+                 intervallo:[+(st.media - err).toPrecision(6), +(st.media + err).toPrecision(6)],
+                 interpretazione:'con probabilita\' del ' + (conf * 100) + '% la media vera cade in questo intervallo' };
+      }
+      return { ok:false, error:'test non riconosciuto', disponibili:['t_indipendenti','t_appaiati','chi_quadro','intervallo_confidenza'] };
+    }
+  },
+  {
+    name: 'cristallografia',
+    description: "Cristallografia e stato solido: legge di Bragg, densita' da cella elementare, fattore di impacchettamento, e relazione fra parametro di cella e raggio atomico per le celle cubiche.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"bragg", "densita_cella", "impacchettamento".' },
+        lambda_pm: { type: 'number', description: 'Lunghezza d\'onda dei raggi X in pm (Cu Kα = 154.18).' },
+        d_pm: { type: 'number', description: 'Distanza interplanare in pm.' },
+        theta_gradi: { type: 'number', description: 'Angolo di Bragg in gradi.' },
+        n: { type: 'number', description: 'Ordine di diffrazione (default 1).' },
+        tipo_cella: { type: 'string', description: '"sc" (semplice), "bcc" (corpo centrato), "fcc" (facce centrate).' },
+        a_pm: { type: 'number', description: 'Parametro di cella in pm.' },
+        massa_molare: { type: 'number', description: 'Massa molare in g/mol.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {}; var c = String(a.calcolo || '').toLowerCase(), NA = 6.02214076e23;
+      var ATOMI = { sc:1, bcc:2, fcc:4 };
+      if(c === 'bragg'){
+        var n = a.n || 1;
+        if(a.lambda_pm !== undefined && a.d_pm !== undefined){
+          var sin = n * a.lambda_pm / (2 * a.d_pm);
+          if(Math.abs(sin) > 1) return { ok:false, error:'nessuna riflessione possibile: sinθ = ' + sin.toFixed(3) + ' > 1' };
+          return { ok:true, n:n, lambda_pm:a.lambda_pm, d_pm:a.d_pm,
+                   theta_gradi:+(Math.asin(sin) * 180 / Math.PI).toFixed(4),
+                   due_theta_gradi:+(2 * Math.asin(sin) * 180 / Math.PI).toFixed(4),
+                   formula:'nλ = 2d·sinθ' };
+        }
+        if(a.lambda_pm !== undefined && a.theta_gradi !== undefined){
+          var d = n * a.lambda_pm / (2 * Math.sin(a.theta_gradi * Math.PI / 180));
+          return { ok:true, n:n, d_pm:+d.toFixed(3), formula:'d = nλ/(2·sinθ)' };
+        }
+        return { ok:false, error:'servono lambda_pm piu\' d_pm oppure theta_gradi' };
+      }
+      if(c === 'densita_cella'){
+        var Z = ATOMI[String(a.tipo_cella || '').toLowerCase()];
+        if(!Z || a.a_pm === undefined || a.massa_molare === undefined)
+          return { ok:false, error:'servono tipo_cella (sc/bcc/fcc), a_pm e massa_molare' };
+        var aCm = a.a_pm * 1e-10, V = Math.pow(aCm, 3);
+        var rho = Z * a.massa_molare / (NA * V);
+        return { ok:true, tipo_cella:a.tipo_cella, atomi_per_cella:Z,
+                 a_pm:a.a_pm, volume_cella_cm3:+V.toExponential(5),
+                 densita_g_cm3:+rho.toPrecision(6),
+                 formula:'ρ = Z·M/(N_A·a³)' };
+      }
+      if(c === 'impacchettamento'){
+        var tc = String(a.tipo_cella || '').toLowerCase();
+        var dati = {
+          sc:{ atomi:1, APF:0.5236, relazione:'a = 2r', numero_coordinazione:6 },
+          bcc:{ atomi:2, APF:0.6802, relazione:'a = 4r/√3', numero_coordinazione:8 },
+          fcc:{ atomi:4, APF:0.7405, relazione:'a = 4r/√2 = 2√2·r', numero_coordinazione:12 }
+        };
+        var dd = dati[tc];
+        if(!dd) return { ok:false, error:'tipo_cella non riconosciuto', disponibili:Object.keys(dati) };
+        var out = { ok:true, tipo_cella:tc, atomi_per_cella:dd.atomi,
+                    fattore_impacchettamento:dd.APF, percento_spazio_occupato:+(dd.APF * 100).toFixed(2),
+                    relazione_a_r:dd.relazione, numero_coordinazione:dd.numero_coordinazione };
+        if(a.a_pm !== undefined){
+          out.raggio_atomico_pm = tc === 'sc' ? +(a.a_pm / 2).toFixed(2)
+            : tc === 'bcc' ? +(a.a_pm * Math.sqrt(3) / 4).toFixed(2)
+            : +(a.a_pm * Math.sqrt(2) / 4).toFixed(2);
+        }
+        return out;
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['bragg','densita_cella','impacchettamento'] };
     }
   },
   {
@@ -1814,6 +2478,13 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         case 'gas_e_soluzioni':    msg = '💨 ' + (res.V_L !== undefined ? 'V = ' + res.V_L + ' L' : res.P_atm !== undefined ? 'P = ' + res.P_atm + ' atm' : res.P_vanderwaals_atm !== undefined ? 'P(vdW) = ' + res.P_vanderwaals_atm + ' atm' : 'calcolato'); break;
         case 'quantistica_e_spettroscopia': msg = '⚛️ ' + (res.lambda_nm !== undefined ? 'λ = ' + res.lambda_nm + ' nm' : res.assorbanza !== undefined ? 'A = ' + res.assorbanza : 'calcolato'); break;
         case 'elettrochimica':     msg = '🔋 ' + (res.E_nernst_V !== undefined ? 'E = ' + res.E_nernst_V + ' V' : res.dG0_kJ_mol !== undefined ? 'ΔG° = ' + res.dG0_kJ_mol + ' kJ/mol' : 'calcolato'); break;
+        case 'spettroscopia':      msg = '📡 ' + (res.DBE !== undefined ? 'DBE = ' + res.DBE : res.pattern_isotopico ? 'pattern isotopico calcolato' : res.lambda_max_stimata_nm ? 'λmax ≈ ' + res.lambda_max_stimata_nm + ' nm' : 'tabella spettroscopica'); break;
+        case 'biochimica':         msg = '🧬 ' + (res.v !== undefined ? 'v = ' + res.v : res.pI !== undefined ? 'MM ' + res.massa_media_Da + ' Da · pI ' + res.pI : res.ATP_stimati !== undefined ? res.ATP_stimati + ' ATP' : 'calcolato'); break;
+        case 'farmacocinetica':    msg = '💊 ' + (res.t_mezza_h !== undefined ? 't½ = ' + res.t_mezza_h + ' h' : 'PK calcolata') + (res.dose_di_carico_mg !== undefined ? ' · carico ' + res.dose_di_carico_mg + ' mg' : ''); break;
+        case 'astrofisica':        msg = '🔭 ' + (res.lambda_max_nm !== undefined ? 'λmax = ' + res.lambda_max_nm + ' nm' : res.z !== undefined ? 'z = ' + res.z : res.velocita_fuga_km_s !== undefined ? 'v fuga = ' + res.velocita_fuga_km_s + ' km/s' : res.periodo_anni !== undefined ? 'P = ' + res.periodo_anni + ' anni' : 'calcolato'); break;
+        case 'nucleare':           msg = '☢️ ' + (res.eta !== undefined ? 'eta = ' + res.eta : res.energia_per_nucleone_MeV !== undefined ? res.energia_per_nucleone_MeV + ' MeV/nucleone' : 'decadimento calcolato'); break;
+        case 'statistica_inferenziale': msg = '📊 ' + (res.p_value !== undefined ? 'p = ' + res.p_value + (res.significativo ? ' (significativo)' : ' (non significativo)') : 'IC ' + (res.intervallo ? '[' + res.intervallo.join(', ') + ']' : '')); break;
+        case 'cristallografia':    msg = '💎 ' + (res.theta_gradi !== undefined ? 'θ = ' + res.theta_gradi + '°' : res.densita_g_cm3 !== undefined ? 'ρ = ' + res.densita_g_cm3 + ' g/cm³' : res.fattore_impacchettamento !== undefined ? 'APF = ' + res.fattore_impacchettamento : 'calcolato'); break;
         case 'bilancia_equazione': msg = '⚗️ ' + res.equazione_bilanciata; break;
         case 'stechiometria':      msg = '🧮 ' + res.moli_richieste + ' mol' + (res.massa_richiesta_g ? ' (' + res.massa_richiesta_g + ' g)' : ''); break;
         case 'cerca_letteratura':  msg = '📚 PubMed: ' + (res.articoli || []).length + ' articoli su ' + (res.totale || 0); break;
@@ -1949,6 +2620,16 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "tempi di dimezzamento, Arrhenius), gas_e_soluzioni (gas ideali e di van der Waals, proprieta' " +
 "colligative, diluizioni), quantistica_e_spettroscopia (fotoni, de Broglie, particella nella " +
 "scatola, atomo di idrogeno, Lambert-Beer), elettrochimica (Nernst, ΔG = −nFE°, Faraday).\n\n" +
+"ALTRI AMBITI, tutti coperti da uno strumento: spettroscopia (gradi di insaturazione, pattern " +
+"isotopico in massa, tabelle IR e NMR, Woodward-Fieser) — e' il cuore di BioSpecInfo, usala ogni " +
+"volta che si parla di spettri; biochimica (Michaelis-Menten con inibizioni, massa e pI di un " +
+"peptide dalla sequenza, rese in ATP delle vie metaboliche); farmacocinetica (Vd, clearance, " +
+"emivita, dosi di carico e mantenimento, accumulo); astrofisica (Wien, Stefan-Boltzmann, " +
+"luminosita', redshift, velocita' di fuga, Keplero, zona abitabile) a supporto della sezione " +
+"Astrochimica; nucleare (decadimento, datazione, energia di legame); statistica_inferenziale " +
+"(test t di Welch e appaiato, chi-quadro, intervalli di confidenza, con p-value ESATTI: non " +
+"stimare mai una significativita' a occhio); cristallografia (Bragg, densita' da cella, " +
+"impacchettamento).\n\n" +
 "Se un problema e' composto, scomponilo: piu' chiamate in sequenza, ognuna verificata, e poi la " +
 "sintesi. Dichiara sempre le unita' di misura e controlla che siano coerenti prima di concludere.\n\n" +
 "FONTI: se l'utente chiede prove, o se stai per affermare qualcosa di clinicamente o " +
