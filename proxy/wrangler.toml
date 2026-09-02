@@ -1,0 +1,21 @@
+name = "spectra-proxy"
+main = "spectra-proxy.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+# Origini ammesse, separate da virgola. Lasciarlo vuoto significa "chiunque":
+# sconsigliato, perche' chiunque scopra l'indirizzo consuma la tua quota.
+ORIGINI = "https://samupropio1-ship-it.github.io"
+
+# Tetti di sicurezza. Servono a non farti prosciugare la quota gratuita in
+# un pomeriggio se qualcuno trova l'indirizzo del proxy.
+LIMITE_IP = "20"        # richieste al minuto per singolo visitatore
+TETTO_GIORNO = "2000"   # richieste totali al giorno
+
+# Usato come HTTP-Referer per OpenRouter.
+SITO = "https://samupropio1-ship-it.github.io/BioSpecInfo-v11/"
+
+# ATTENZIONE: le chiavi NON vanno qui — questo file finisce su GitHub.
+# Si impostano come segreti, che restano solo su Cloudflare:
+#   npx wrangler secret put GROQ_KEYS
+#   npx wrangler secret put GEMINI_KEYS

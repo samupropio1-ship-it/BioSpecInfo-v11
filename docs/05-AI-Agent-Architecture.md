@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.053 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.165 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v135` |
+| **Versione documentata** | Service Worker `bsi-v136` |
 
 ---
 
@@ -113,6 +113,44 @@ viene duplicata). Se il modello viene ritirato mentre è in cache, il `404`
 della chiamata di generazione invalida la cache, ririsolve e ritenta **una
 volta sola** — un flag impedisce il ciclo infinito quando anche il modello
 nuovo dà 404.
+
+### 2.5 Il proxy opzionale — Spectra senza chiave
+
+La chiave API vive nel browser dell'utente: senza backend non c'e' alternativa,
+ed e' il limite dichiarato apertamente in fondo a questo documento. Ogni
+visitatore deve procurarsi la propria chiave gratuita e incollarla.
+
+`proxy/spectra-proxy.js` e' la via d'uscita, e sta **fuori** dalla pagina: un
+Worker Cloudflare (piano gratuito) che tiene le chiavi come segreti lato
+server. Quando e' configurato, il browser non contiene nessuna chiave e chi
+apre BioSpecInfo usa Spectra senza inserire niente.
+
+Non e' un semplice inoltro:
+
+- **Il percorso passa tale e quale.** La rotta e' `/<fornitore>/<percorso>`, e
+  il resto viene inoltrato come arriva: il proxy non conosce i formati delle
+  API e continua a funzionare quando Spectra cambia modello o parametri.
+- **Piu' chiavi per fornitore, con subentro automatico.** Ogni segreto e' una
+  lista separata da virgole; su `429` (quota) o `401/403` (chiave revocata) si
+  passa alla successiva nella stessa richiesta. Su `400` no: e' un errore
+  nella richiesta e si ripeterebbe identico.
+- **Lo streaming non viene bufferizzato**: il corpo della risposta passa
+  direttamente, altrimenti le risposte comparirebbero tutte insieme alla fine.
+- **Non e' un relay aperto.** Credenziali che arrivano dal client
+  (`Authorization`, `x-api-key`, `?key=`) vengono scartate e sostituite:
+  nessuno puo' usare il proxy per far viaggiare una chiave propria.
+- **Tre freni** contro l'abuso: elenco di origini ammesse, limite per IP e
+  tetto giornaliero.
+
+Lato Spectra l'innesto e' in un punto solo. `GET /stato` dice quali fornitori
+il proxy copre davvero, cosi' non viene offerto come "senza chiave" un modello
+per cui manca il segreto; `buildRequest` instrada al proxy **e omette del tutto
+l'autenticazione**; `chiaveDaUsare()` restituisce un segnaposto perche' i
+controlli "manca la chiave" non blocchino l'invio — segnaposto che non lascia
+mai il browser.
+
+Le due strade convivono: senza `PROXY_URL` tutto funziona come prima, e per i
+fornitori non coperti dal proxy Spectra continua a usare la chiave locale.
 
 ---
 
@@ -335,7 +373,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.053 |
+| Righe del componente | 5.165 |
 | Strumenti | 32 |
 | Configurazioni di modello | 8 (di cui 3 gratuite) |
 | Aree scientifiche coperte | 13 |
@@ -350,10 +388,12 @@ del turno.
 
 Documentati per onestà tecnica; sono scelte consapevoli, non omissioni.
 
-- **La chiave API risiede nel browser.** È l'unica opzione senza backend: la
-  chiave non lascia il dispositivo, ma è accessibile a chi ha accesso a quel
-  browser. Una chiave condivisa richiederebbe un proxy server con quota, fuori
-  dal perimetro di un'applicazione statica.
+- **La chiave API risiede nel browser** — a meno di pubblicare il proxy.
+  Nella configurazione predefinita la chiave non lascia il dispositivo, ma è
+  accessibile a chi ha accesso a quel browser, e ogni utente deve procurarsi la
+  propria. Il Worker della sezione 2.5 toglie questo limite spostando le chiavi
+  su un server, al prezzo di un componente da mantenere fuori dalla pagina: è
+  una scelta di distribuzione, non un requisito.
 - **Gli strumenti di rete dipendono dalla disponibilità dei servizi.** PubChem
   e PubMed sono interrogati direttamente dal browser; in caso di
   irraggiungibilità lo strumento restituisce un errore esplicito e l'agente ha

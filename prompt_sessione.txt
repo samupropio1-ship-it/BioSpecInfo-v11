@@ -32,11 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.053 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.165 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
+- proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v135
+- sw.js            — Service Worker (network-first). Cache: bsi-v136
 - manifest.json    — PWA manifest
 - docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
 - LICENSE, README.md, THIRD_PARTY_NOTICES.md
@@ -154,6 +155,23 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
    initAI() non viene mai chiamata. E' rimasto in piedi ma non e' il codice
    che gira: prima di "correggere un bug" li' dentro, verificare che sia
    davvero il percorso attivo.
+
+11) PROXY OPZIONALE — proxy/spectra-proxy.js e' un Worker Cloudflare che
+   tiene le chiavi sul server, cosi' chi apre il sito usa Spectra senza
+   inserirne nessuna. Si attiva SOLO riempiendo PROXY_URL in bsi-ai-hub.js
+   (di serie e' ''), oppure con localStorage 'bsi_proxy_url' per provarlo.
+   Regole da non rompere:
+   - buildRequest, quando passa dal proxy, NON deve aggiungere l'header di
+     autenticazione ne' il parametro key= nell'URL: la chiave la mette il
+     Worker. Se ne mandi una da qui, la esponi di nuovo nella pagina.
+   - proxyCopre() e' sincrona e vale solo DOPO che proxyStato() ha risposto:
+     lo stato arriva da GET /stato del Worker. Chi lo usa prima ottiene
+     false, e la UI chiede la chiave come sempre — comportamento voluto.
+   - chiaveDaUsare() restituisce il segnaposto CHIAVE_VIA_PROXY quando il
+     proxy copre il provider: serve solo a non far scattare i controlli
+     "manca la chiave". NON deve mai finire in una richiesta.
+   - i metadati Gemini (ListModels e la sonda) passano da geminiMetaUrl():
+     via proxy se c'e', altrimenti diretti con la chiave.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

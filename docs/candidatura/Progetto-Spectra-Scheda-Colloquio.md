@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 5.053 righe, zero dipendenze runtime |
+| Componente | 5.165 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 4 (Anthropic, Groq, Google, OpenRouter/xAI) — 3 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
@@ -163,8 +163,11 @@ persistente» — che deve fermarsi, non entrare in ciclo.
 
 ## Limiti che dichiaro apertamente
 
-La chiave API risiede nel browser: senza backend non c'è alternativa, e per un
-uso condiviso servirebbe un proxy con quota. I risolutori usano modelli
+La chiave API risiede nel browser: dentro una pagina statica non c'è
+alternativa. Per l'uso condiviso ho scritto un Worker Cloudflare che tiene le
+chiavi lato server — con subentro automatico fra più chiavi quando una esaurisce
+la quota — ma resta un componente in più da mantenere, e i suoi limiti per IP
+sono in memoria, quindi approssimativi: frenano l'abuso, non lo azzerano. I risolutori usano modelli
 semplificati dove la letteratura ne ha di più raffinati, e ogni strumento
 dichiara il metodo che ha usato. La verifica è funzionale e numerica, non
 formale: non c'è prova di correttezza, c'è un insieme di casi di riferimento.
