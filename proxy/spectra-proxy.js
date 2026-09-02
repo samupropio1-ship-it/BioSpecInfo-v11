@@ -30,7 +30,10 @@ var FORNITORI = {
   gemini:     { base: 'https://generativelanguage.googleapis.com', segreto: 'GEMINI_KEYS',     modo: 'query-key' },
   groq:       { base: 'https://api.groq.com',                      segreto: 'GROQ_KEYS',       modo: 'bearer' },
   openrouter: { base: 'https://openrouter.ai',                     segreto: 'OPENROUTER_KEYS', modo: 'bearer' },
-  xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' }
+  xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' },
+  github:     { base: 'https://models.github.ai',                  segreto: 'GITHUB_KEYS',     modo: 'bearer' },
+  nvidia:     { base: 'https://integrate.api.nvidia.com',          segreto: 'NVIDIA_KEYS',     modo: 'bearer' },
+  mistral:    { base: 'https://api.mistral.ai',                    segreto: 'MISTRAL_KEYS',    modo: 'bearer' }
 };
 
 /* --- Limiti (sovrascrivibili da variabili d'ambiente) --------------- */

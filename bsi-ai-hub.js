@@ -62,6 +62,49 @@ var PROVIDERS = {
     keyLink: 'aistudio.google.com → Get API key', placeholder: 'AIza...',
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
+  // ── Gratuiti "seri": modelli di fascia alta senza pagare nulla ──────────
+  // Groq e OpenRouter free danno modelli piccoli; questi tre no. In cambio
+  // hanno tetti di richieste piu' bassi, dichiarati nelle note.
+  github: {
+    name: 'GitHub Models — GPT-4.1, o4-mini, DeepSeek', family: 'openai', free: true,
+    model: null,
+    modelliCandidati: ['openai/gpt-4.1', 'openai/o4-mini', 'deepseek/DeepSeek-V3-0324',
+                       'meta/Llama-4-Maverick-17B-128E-Instruct-FP8', 'openai/gpt-4o'],
+    preferisci: /^(openai|deepseek)\//,
+    url: 'https://models.github.ai/inference/chat/completions',
+    // Il catalogo NON sta sotto /inference: e' l'unico caso finora in cui
+    // l'elenco dei modelli non si ricava dall'endpoint della chat.
+    urlModelli: 'https://models.github.ai/catalog/models',
+    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
+    keyLink: 'github.com → Settings → Developer settings → Personal access tokens (permesso "Models: read")',
+    placeholder: 'github_pat_... oppure ghp_...',
+    note: 'Il più potente fra i gratuiti e non serve un account nuovo: basta un token del tuo GitHub. In cambio il tetto è basso — 10 richieste al minuto e 50 al giorno — quindi tienilo per le domande difficili.'
+  },
+  nvidia: {
+    name: 'NVIDIA NIM — DeepSeek R1, Llama 4, Qwen', family: 'openai', free: true,
+    model: null,
+    modelliCandidati: ['deepseek-ai/deepseek-r1', 'qwen/qwen3-235b-a22b',
+                       'meta/llama-4-maverick-17b-128e-instruct',
+                       'nvidia/llama-3.3-nemotron-super-49b-v1', 'meta/llama-3.3-70b-instruct'],
+    preferisci: /deepseek|qwen3|llama-4|nemotron/,
+    url: 'https://integrate.api.nvidia.com/v1/chat/completions',
+    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
+    keyLink: 'build.nvidia.com → Get API Key (programma sviluppatori, senza carta)',
+    placeholder: 'nvapi-...',
+    note: 'Oltre 100 modelli, compresi quelli enormi che ragionano (DeepSeek R1). I crediti gratuiti sono a esaurimento, non si rinnovano da soli.'
+  },
+  mistral: {
+    name: 'Mistral — Large e Medium', family: 'openai', free: true,
+    model: null,
+    modelliCandidati: ['mistral-large-latest', 'mistral-medium-latest',
+                       'mistral-small-latest', 'open-mistral-nemo'],
+    preferisci: /large|medium/,
+    url: 'https://api.mistral.ai/v1/chat/completions',
+    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
+    keyLink: 'console.mistral.ai → API Keys (piano "Experiment")',
+    placeholder: 'chiave alfanumerica',
+    note: 'Circa un miliardo di token al mese, Mistral Large incluso. Attenzione: il piano gratuito richiede la verifica del telefono e il consenso all\'uso dei tuoi dati per l\'addestramento — se il contenuto è sensibile, usa un altro servizio.'
+  },
   openrouter: {
     name: 'OpenRouter', family: 'openai', free: true,
     // Su OpenRouter gli id dei modelli gratuiti cambiano di continuo, quindi
@@ -97,7 +140,7 @@ var PROVIDERS = {
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
     keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
-    note: 'Il modello piu\' capace, per i problemi piu\' difficili. Anche il piu\' costoso.'
+    note: 'Il modello più capace, per i problemi più difficili. Anche il più costoso.'
   },
   claude: {
     name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
@@ -125,7 +168,7 @@ var PROVIDERS = {
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
     keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
-    note: 'Quasi la qualita\' di Opus a meno della meta\' del costo: la scelta di tutti i giorni.'
+    note: 'Quasi la qualità di Opus a meno della metà del costo: la scelta di tutti i giorni.'
   },
   claude_haiku: {
     name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
@@ -136,7 +179,7 @@ var PROVIDERS = {
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
     keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
-    note: 'Stessa chiave di Claude Opus 5, ma molto piu\' economico.'
+    note: 'Stessa chiave di Claude Opus 5, ma molto più economico.'
   },
   grok: {
     name: 'Grok (xAI)', family: 'openai', free: false,
@@ -169,6 +212,7 @@ var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
 // Da quale fornitore reale dipende ciascuna configurazione di modello.
 var UPSTREAM = {
   groq: 'groq', gemini: 'gemini', openrouter: 'openrouter', grok: 'xai',
+  github: 'github', nvidia: 'nvidia', mistral: 'mistral',
   claude_fable: 'anthropic', claude: 'anthropic',
   claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
 };
@@ -374,9 +418,11 @@ async function risolviModelloGemini(apiKey, forzaRefresh){
    "qwen/qwen3.6-27b"), quindi l'ordine dei candidati E' la preferenza, e
    l'elenco serve a saltare quelli spariti. */
 
-// L'endpoint dei modelli si ricava da quello della chat: stessa base.
+// L'endpoint dei modelli si ricava da quello della chat, quando seguono la
+// convenzione OpenAI. Chi non la segue (GitHub Models tiene il catalogo su un
+// percorso diverso dall'inferenza) lo dichiara con urlModelli.
 function urlModelliOpenai(p){
-  var diretto = p.url.replace(/\/chat\/completions$/, '/models');
+  var diretto = p.urlModelli || p.url.replace(/\/chat\/completions$/, '/models');
   try{
     var viaP = viaProxy(p.id, new URL(diretto).pathname);
     if(viaP) return viaP;
@@ -398,8 +444,13 @@ async function listaModelliOpenai(p, apiKey){
   } finally { if(t) clearTimeout(t); }
   if(!r.ok) throw new Error('models HTTP ' + r.status);
   var j = await r.json();
-  var dati = (j && (j.data || j.models)) || [];
-  return dati.map(function(m){ return (m && (m.id || m.name)) || ''; }).filter(Boolean);
+  // Tre forme in circolazione: {data:[...]} (OpenAI), {models:[...]} e la
+  // lista nuda (il catalogo di GitHub Models).
+  var dati = Array.isArray(j) ? j : ((j && (j.data || j.models)) || []);
+  return dati.map(function(m){
+    if(typeof m === 'string') return m;
+    return (m && (m.id || m.name)) || '';
+  }).filter(Boolean);
 }
 
 /* Usato solo quando NESSUN candidato esiste piu': fra i modelli disponibili

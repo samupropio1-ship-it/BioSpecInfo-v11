@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,486 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,537 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v138` |
+| **Documented version** | Service Worker `bsi-v139` |
 
 ---
 
@@ -31,8 +31,8 @@ demo:
    agent's work is auditable after the fact.
 3. **Provider portability** — a single tool registry is translated into the
    three function-calling formats in use today (OpenAI-compatible, Anthropic,
-   Gemini), so the agent behaves identically across eight model configurations,
-   three of them free.
+   Gemini), so the agent behaves identically across eleven model configurations,
+   six of them free.
 
 ---
 
@@ -142,6 +142,25 @@ when the new model fails too.
 
 Anthropic is the deliberate exception: its models are paid, explicitly chosen
 by the user, and deprecated with long notice.
+
+#### The six free services
+
+Free quality is not all alike, and the difference matters: an 8-billion-parameter
+model does not hold up on a multi-step physical-chemistry problem.
+
+| Service | Models | The trade-off |
+|---|---|---|
+| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek, Llama 4 | The most capable free option, and it needs no new account: a token from the user's own GitHub is enough. In exchange, 10 requests/minute and 50 per day |
+| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B, Llama 4 | Very large models, reasoning ones included. Credits run out and do not renew |
+| **Mistral** | Large, Medium | ~1 billion tokens per month. Requires phone verification and opting into data training |
+| **Groq** | GPT-OSS 120B, Qwen3 | The fastest, generous on volume |
+| **Google Gemini** | Gemini Flash | Good context, generous |
+| **OpenRouter** | automatic router | Picks among free models that support tool calling |
+
+None of these matches a paid frontier model on the hardest problems; GitHub
+Models and NVIDIA NIM come closest, at the cost of low request ceilings. That is
+why the list stays and the choice is the user's, rather than imposing one
+service.
 
 ### 2.5 The optional proxy — Spectra without a key
 
@@ -424,9 +443,9 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,486 lines |
+| Component size | 5,537 lines |
 | Tools | 32 |
-| Model configurations | 8 (3 free) |
+| Model configurations | 11 (6 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
 | Max agentic loop rounds | 10 |
