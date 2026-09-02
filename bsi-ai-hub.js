@@ -2988,6 +2988,32 @@ TOOLS.push(
     }
   },
   {
+    name: 'apri_animazione',
+    description: "Apre l'animazione passo-passo di un meccanismo di reazione dentro BioSpecInfo: si vedono gli elettroni spostarsi, gli intermedi e lo stato di transizione. Usalo quando spieghi uno di questi meccanismi — vedere il movimento vale piu' di una descrizione.",
+    parameters: {
+      type: 'object',
+      properties: {
+        meccanismo: { type: 'string',
+                      enum: ['sn2','sn1','e2','markovnikov','diels_alder','aldol'],
+                      description: 'sn2 = sostituzione nucleofila SN2; sn1 = SN1; e2 = eliminazione E2; markovnikov = addizione di HBr; diels_alder = cicloaddizione [4+2]; aldol = condensazione aldolica.' }
+      },
+      required: ['meccanismo']
+    },
+    execute: function(a){
+      var NOMI = { sn2:'Sostituzione Nucleofila SN2', sn1:'Sostituzione Nucleofila SN1',
+                   e2:'Eliminazione E2 (Bimolecolare)', markovnikov:'Addizione di HBr: regola di Markovnikov',
+                   diels_alder:'Diels-Alder [4+2]', aldol:'Condensazione Aldolica' };
+      var id = a && a.meccanismo;
+      if(!NOMI[id]) return { ok:false, error:'meccanismo non disponibile', disponibili:Object.keys(NOMI) };
+      if(typeof window.showMechanism !== 'function')
+        return { ok:false, error:'le animazioni sono disponibili solo dalla pagina principale dell\'app' };
+      try{ closeHub(); }catch(e){}
+      try{ window.showMechanism(id); }catch(e){ return { ok:false, error:'non riesco ad avviare l\'animazione' }; }
+      return { ok:true, label:NOMI[id], animazione:id,
+               nota:'animazione avviata: descrivi all\'utente cosa sta guardando, passo per passo' };
+    }
+  },
+  {
     name: 'stato_app',
     description: "Dice dove si trova l'utente adesso nell'app e quali sezioni e laboratori sono disponibili. Usalo quando devi decidere dove portarlo o quando l'utente dice 'qui', 'questa sezione', 'quello che sto guardando'.",
     parameters: { type: 'object', properties: {} },
@@ -3197,6 +3223,7 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         case 'ricorda':            msg = res.gia_presente ? '🧠 (lo sapevo gia\')' : '🧠 Ricordero\': ' + res.salvato; break;
         case 'ricordi':            msg = res.rimossi !== undefined ? '🧠 Dimenticati: ' + res.rimossi : '🧠 ' + res.totale + ' ricordi'; break;
         case 'cerca_nel_database': msg = '📚 BioSpecInfo · ' + res.tipo + ': ' + res.trovati + ' risultati su ' + res.totale_nel_database; break;
+        case 'apri_animazione':   msg = '🎬 Animazione: ' + res.label; break;
         case 'stato_app':          msg = '🧭 Ho controllato dove ti trovi nell\'app'; break;
         default:                   msg = '🧭 Ho eseguito: ' + (res.label || er.name);
       }
@@ -3330,6 +3357,12 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "come lo affronti (per esempio 'lo divido in " +
 "quattro blocchi tematici'), poi procedi in modo ordinato senza saltare sezioni. Se qualcosa e' " +
 "fuori dalla parte che hai potuto leggere, dillo apertamente.\n\n" +
+"ANIMAZIONI: per SN1, SN2, E2, addizione di Markovnikov, Diels-Alder e condensazione aldolica " +
+"esiste un'animazione passo-passo: chiamala con apri_animazione e poi commenta cosa si vede " +
+"mentre scorre. Vedere gli elettroni muoversi insegna piu' di una descrizione.\n\n" +
+"TRADUZIONI: quando ti viene chiesto di tradurre, usa la terminologia scientifica in uso nella " +
+"lingua di arrivo, non una traduzione letterale; lascia invariati formule, sigle consolidate e " +
+"nomi propri, e conserva la struttura del documento.\n\n" +
 "MAPPE CONCETTUALI: rispondi con un diagramma Mermaid dentro un blocco ```mermaid usando graph TD " +
 "(o graph LR se la struttura e' sequenziale), con le relazioni etichettate sugli archi: l'app lo " +
 "disegna davvero. Sono supportati nodi [rettangolari], (arrotondati), {a rombo} e ((circolari)).\n\n" +
@@ -3613,6 +3646,11 @@ var CSS = [
 '.bsi-md-table th{background:#0e2a3a;color:#7fe3d6;text-align:left;padding:6px 8px;border:1px solid #1d4a5e;font-weight:700;}',
 '.bsi-md-table td{padding:6px 8px;border:1px solid #17324a;color:#cfe0ee;vertical-align:top;}',
 '.bsi-md-table tr:nth-child(even) td{background:#0c1b2a;}',
+/* ascolto continuo */
+'.bsi-wake.on{background:#0e3a34!important;border-color:#5eead4!important;color:#5eead4!important;'
++'animation:bsiWakePulse 1.6s ease-in-out infinite;}',
+'@keyframes bsiWakePulse{0%,100%{box-shadow:0 0 0 0 rgba(94,234,212,.45)}50%{box-shadow:0 0 0 6px rgba(94,234,212,0)}}',
+'@media (prefers-reduced-motion:reduce){.bsi-wake.on{animation:none;}}',
 '@media (prefers-reduced-motion:reduce){.bsi-think-dot{animation:none;}}',
 '#bsi-hub-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #14283c;background:#071120;flex-shrink:0;align-items:flex-end;}',
 '#bsi-hub-input{flex:1;resize:none;max-height:120px;padding:10px 12px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e8f4ff;font-size:.9rem;font-family:inherit;outline:none;}',
@@ -3818,6 +3856,118 @@ function speak(text){
   }catch(e){}
 }
 
+// Distingue italiano e inglese contando le parole grammaticali tipiche di
+// ciascuna lingua. Cercare solo gli accenti non bastava: una frase come
+// "La costante di Michaelis rappresenta la concentrazione di substrato" non ne
+// contiene nemmeno uno e veniva scambiata per inglese.
+var _PAROLE_IT = ['che','non','della','degli','delle','nella','nel','sono','viene','vengono',
+                  'questo','questa','come','anche','per','con','una','gli','dei','dal','alla',
+                  'essere','quindi','inoltre','ogni','piu','molto','stato','sua','suo'];
+var _PAROLE_EN = ['the','of','and','is','are','to','in','with','that','this','from','by',
+                  'for','as','it','be','which','can','has','have','was','were','on','an'];
+function rilevaLingua(t){
+  var s = ' ' + String(t).toLowerCase().replace(/[^a-zàèéìòù\s]/g, ' ').replace(/\s+/g, ' ') + ' ';
+  var conta = function(lista){
+    var n = 0;
+    lista.forEach(function(p){
+      var i = 0;
+      while((i = s.indexOf(' ' + p + ' ', i)) !== -1){ n++; i += p.length; }
+    });
+    return n;
+  };
+  var it = conta(_PAROLE_IT) + (/[àèéìòù]/.test(t) ? 2 : 0);
+  var en = conta(_PAROLE_EN);
+  if(it !== en) return it > en ? 'it' : 'en';
+  // Pareggio: nelle frasi tecniche corte le parole grammaticali possono
+  // mancare del tutto. Ricado sulla morfologia — in italiano quasi tutte le
+  // parole finiscono per vocale, in inglese circa una su tre.
+  var parole = s.trim().split(' ').filter(function(p){ return p.length > 2; });
+  if(!parole.length) return 'it';
+  var vocale = parole.filter(function(p){ return /[aeiouàèéìòù]$/.test(p); }).length;
+  return (vocale / parole.length) >= 0.6 ? 'it' : 'en';
+}
+window.bsiRilevaLingua = rilevaLingua;
+
+// ── Comando vocale "Hey Spectra" ────────────────────────────────────────────
+// Ascolto continuo con parola di attivazione. Il riconoscimento del browser si
+// ferma da solo dopo qualche secondo di silenzio, quindi va riavviato: senza
+// il riavvio automatico l'ascolto morirebbe dopo la prima pausa.
+var _wake = { rec:null, attivo:false, btn:null, ferma:false };
+
+function normalizzaWake(t){
+  return String(t).toLowerCase()
+    .replace(/[àá]/g, 'a').replace(/[èé]/g, 'e').replace(/[ìí]/g, 'i')
+    .replace(/[òó]/g, 'o').replace(/[ùú]/g, 'u')
+    .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Riconosce la parola di attivazione e restituisce il comando che segue.
+// Accetta le storpiature piu' comuni: il riconoscimento vocale italiano
+// trascrive "Spectra" in molti modi diversi.
+function estraiComando(testo){
+  var t = normalizzaWake(testo);
+  var m = t.match(/\b(?:hey|ehi|ei|ok|hei)\s+(?:spectra|spettra|spekt(?:r)?a|spectre|specra|spetra|spectrum)\b[\s,]*(.*)$/);
+  if(m) return m[1].trim();
+  // pronunciato senza "hey"
+  var m2 = t.match(/^(?:spectra|spettra|spekt(?:r)?a|spetra)\b[\s,]*(.+)$/);
+  if(m2) return m2[1].trim();
+  return null;
+}
+window.bsiEstraiComando = estraiComando;
+
+function avviaWake(onComando){
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Rec) return false;
+  if(_wake.rec){ try{ _wake.rec.stop(); }catch(e){} }
+  var rec = new Rec();
+  rec.lang = 'it-IT'; rec.continuous = true; rec.interimResults = false; rec.maxAlternatives = 2;
+  rec.onresult = function(e){
+    for(var i = e.resultIndex; i < e.results.length; i++){
+      if(!e.results[i].isFinal) continue;
+      // provo tutte le alternative: la parola di attivazione puo' finire
+      // nella seconda trascrizione anche quando la prima non la contiene
+      for(var k = 0; k < e.results[i].length; k++){
+        var cmd = estraiComando(e.results[i][k].transcript);
+        if(cmd){ onComando(cmd); return; }
+      }
+    }
+  };
+  rec.onend = function(){
+    // riavvio finche' l'utente non spegne: il browser interrompe da solo
+    if(!_wake.ferma && _wake.attivo){ try{ rec.start(); }catch(e){} }
+    else { _wake.attivo = false; if(_wake.btn) _wake.btn.classList.remove('on'); }
+  };
+  rec.onerror = function(ev){
+    // "not-allowed" significa microfono negato: inutile insistere
+    if(ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed')){
+      _wake.ferma = true; _wake.attivo = false;
+      if(_wake.btn){ _wake.btn.classList.remove('on'); _wake.btn.title = 'Microfono negato dal browser'; }
+    }
+  };
+  _wake.rec = rec; _wake.ferma = false; _wake.attivo = true;
+  try{ rec.start(); }catch(e){ _wake.attivo = false; return false; }
+  return true;
+}
+
+function fermaWake(){
+  _wake.ferma = true; _wake.attivo = false;
+  if(_wake.rec){ try{ _wake.rec.stop(); }catch(e){} }
+  if(_wake.btn) _wake.btn.classList.remove('on');
+}
+
+function makeWakeButton(onComando){
+  var btn = el('button', { class:'bsi-hub-mic bsi-wake', type:'button',
+                           title:'Ascolto continuo: di\' "Hey Spectra" seguito dal comando' }, '👂');
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Rec){ btn.disabled = true; btn.title = 'Riconoscimento vocale non supportato su questo browser'; return btn; }
+  _wake.btn = btn;
+  btn.onclick = function(){
+    if(_wake.attivo){ fermaWake(); return; }
+    if(avviaWake(onComando)) btn.classList.add('on');
+  };
+  return btn;
+}
+
 function makeMicButton(onResult){
   var btn = el('button', { class: 'bsi-hub-mic', type: 'button', title: 'Parla' }, '🎤');
   var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -3855,7 +4005,10 @@ var AZIONI_STUDIO = [
   { ic:'🃏', nm:'Flashcard', p:'Genera 10 flashcard dal materiale allegato, in formato tabella con due colonne: Domanda e Risposta. Le domande devono verificare la comprensione, non la memoria letterale.' },
   { ic:'🎓', nm:'Domande d\'esame', p:'Formula 6 domande d\'esame universitario sul materiale allegato, di difficolta\' crescente, e per ciascuna indica in due righe cosa dovrebbe contenere una risposta completa.' },
   { ic:'🔍', nm:'Spiega',  p:'Analizza il materiale allegato e spiegamelo passo per passo come farebbe un docente, partendo dai prerequisiti. Se contiene formule, strutture o spettri, interpretali esplicitamente.' },
-  { ic:'✍️', nm:'Trascrivi', p:'Trascrivi fedelmente il contenuto del materiale allegato, comprese le parti scritte a mano, rispettando la struttura originale (titoli, elenchi, formule). Riporta le formule chimiche e matematiche in forma corretta. Se una parola o un simbolo non e\' leggibile con certezza, scrivi [illeggibile] invece di indovinare, e alla fine elenca i punti dubbi.' }
+  { ic:'✍️', nm:'Trascrivi', p:'Trascrivi fedelmente il contenuto del materiale allegato, comprese le parti scritte a mano, rispettando la struttura originale (titoli, elenchi, formule). Riporta le formule chimiche e matematiche in forma corretta. Se una parola o un simbolo non e\' leggibile con certezza, scrivi [illeggibile] invece di indovinare, e alla fine elenca i punti dubbi.' },
+  { ic:'🇮🇹', nm:'In italiano', p:'Traduci integralmente in italiano il materiale allegato, mantenendo la struttura originale (titoli, elenchi, tabelle, formule). Usa la terminologia scientifica italiana corretta: non tradurre alla lettera i termini tecnici, usa quelli in uso nella letteratura italiana. Lascia invariati nomi propri, sigle riconosciute (DNA, NMR, ATP) e le formule chimiche. Dove un termine inglese non ha un equivalente consolidato, riportalo fra parentesi dopo la traduzione.' },
+  { ic:'🇬🇧', nm:'In inglese', p:'Translate the attached material into English in full, keeping the original structure (headings, lists, tables, formulas). Use correct scientific English terminology as used in the international literature, not a literal translation. Leave proper nouns, established acronyms and chemical formulas unchanged. Where an Italian term has no standard English equivalent, give the closest term and add the original in brackets.' },
+  { ic:'🔗', nm:'Collega all\'app', p:'Analizza il materiale allegato e collegalo a BioSpecInfo. Nello specifico: (1) indica quali sezioni dell\'app trattano questi argomenti, chiamando stato_app se serve per orientarti, e per ognuna spiega in una riga cosa ci trovera\'; (2) cerca nei database interni con cerca_nel_database le reazioni, gli amminoacidi, i farmaci o le vie metaboliche citati nel materiale, e riporta i dati trovati; (3) cerca con cerca_letteratura 3-4 articoli scientifici reali e pertinenti, citando PMID, rivista e anno. Chiudi con un percorso di studio ordinato che unisca le tre cose.' }
 ];
 
 function buildAttachUI(inputRow){
@@ -3981,6 +4134,19 @@ function buildChatPane(){
     inp.value = (inp.value ? inp.value + ' ' : '') + text;
   }), document.getElementById('bsi-hub-input'));
   buildAttachUI(inputRow);
+  // "Hey Spectra ..." — il comando riconosciuto viene mostrato e inviato da solo
+  inputRow.insertBefore(makeWakeButton(function(comando){
+    var inp = document.getElementById('bsi-hub-input');
+    if(!inp || !comando) return;
+    inp.value = comando;
+    var box = document.getElementById('bsi-hub-msgs');
+    if(box){
+      var n = el('div', { class:'bsi-msg system-note' }, '👂 « ' + escapeHtml(comando) + ' »');
+      box.appendChild(n); box.scrollTop = box.scrollHeight;
+    }
+    var s = document.getElementById('bsi-hub-send');
+    if(s) s.click();
+  }), document.getElementById('bsi-hub-input'));
   var sendBtn = el('button', { class: 'bsi-hub-btn primary', id: 'bsi-hub-send' }, 'Invia →');
   inputRow.appendChild(sendBtn);
   var stopBtn = el('button', { class: 'bsi-hub-btn ghost', id: 'bsi-hub-stop', style: 'display:none' }, '■ Stop');
@@ -4197,7 +4363,21 @@ function buildChatPane(){
             ? thread.messages[idx - 1].content : '';
           esportaPdf(m.content, domanda, body);
         };
-        actions.appendChild(copyBtn); actions.appendChild(speakBtn); actions.appendChild(pinBtn); actions.appendChild(pdfBtn);
+        // traduce la risposta gia' ricevuta, senza doverla riscrivere a mano
+        var trBtn = el('button', {}, '🌍 Traduci');
+        trBtn.title = 'Traduci questa risposta in italiano o in inglese';
+        trBtn.onclick = function(){
+          var verso = (rilevaLingua(m.content) === 'it') ? 'inglese' : 'italiano';
+          var inp = document.getElementById('bsi-hub-input');
+          if(!inp) return;
+          inp.value = (verso === 'inglese'
+            ? 'Translate your previous answer into English in full, keeping the structure, tables and formulas. Use correct scientific terminology.'
+            : 'Traduci integralmente in italiano la tua risposta precedente, mantenendo struttura, tabelle e formule. Usa la terminologia scientifica italiana corretta.');
+          var s = document.getElementById('bsi-hub-send');
+          if(s) s.click();
+        };
+        actions.appendChild(copyBtn); actions.appendChild(speakBtn); actions.appendChild(pinBtn);
+        actions.appendChild(trBtn); actions.appendChild(pdfBtn);
         body.appendChild(actions);
       }
       node.appendChild(body);
