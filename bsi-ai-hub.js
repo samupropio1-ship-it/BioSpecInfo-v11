@@ -56,11 +56,27 @@ var PROVIDERS = {
     keyLink: 'openrouter.ai → Keys', placeholder: 'sk-or-v1-...'
   },
   claude: {
-    name: 'Claude (Anthropic)', family: 'anthropic', free: false,
-    model: 'claude-3-5-haiku-20241022',
+    name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
+    model: 'claude-opus-5',
+    // Opus 5 ragiona di suo (adaptive thinking sempre attivo): e' il modello
+    // piu' capace nell'incatenare strumenti, quindi il migliore per il Copilota.
+    // display:'summarized' e' voluto — con il valore predefinito ('omitted') il
+    // modello pensa in silenzio e l'utente vede solo una lunga pausa.
+    thinking: { type: 'adaptive', display: 'summarized' },
+    maxTokens: 16000,
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
-    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...'
+    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
+    note: 'A pagamento e separato dall\'abbonamento di claude.ai: serve credito API su console.anthropic.com.'
+  },
+  claude_haiku: {
+    name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
+    model: 'claude-haiku-4-5',
+    maxTokens: 8000,
+    url: 'https://api.anthropic.com/v1/messages',
+    authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
+    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
+    note: 'Stessa chiave di Claude Opus 5, ma molto piu\' economico.'
   },
   grok: {
     name: 'Grok (xAI)', family: 'openai', free: false,
@@ -104,9 +120,12 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
   if(p.family === 'anthropic'){
     var h = Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
     var aBody = {
-      model: p.model, max_tokens: 1200, stream: true, system: systemPrompt,
+      model: p.model, max_tokens: p.maxTokens || 4000, stream: true, system: systemPrompt,
       messages: messages.map(anthropicMsg)
     };
+    // NB: sui modelli recenti (Opus 5 e famiglia 4.6+) temperature/top_p sono
+    // stati rimossi e farebbero fallire la richiesta con un 400: non inviarli.
+    if(p.thinking) aBody.thinking = p.thinking;
     var aTools = toolsForFamily('anthropic', tools);
     if(aTools) aBody.tools = aTools;
     return { url: p.url, headers: h, body: aBody };
@@ -168,9 +187,27 @@ function accumulateToolCall(family, json, state){
     } else if(family === 'anthropic'){
       if(json.type === 'content_block_start' && json.content_block && json.content_block.type === 'tool_use'){
         state.toolCalls[json.index] = { id: json.content_block.id, name: json.content_block.name, argsStr: '' };
+      } else if(json.type === 'content_block_start' && json.content_block &&
+                (json.content_block.type === 'thinking' || json.content_block.type === 'redacted_thinking')){
+        // Sui modelli che ragionano (Opus 5 e famiglia 4.6+) i blocchi di
+        // pensiero fanno parte del turno assistant e vanno rimandati indietro
+        // TALI E QUALI nel giro successivo di tool-use, firma inclusa:
+        // scartarli fa rifiutare la richiesta.
+        state.thinking = state.thinking || {};
+        state.thinking[json.index] = Object.assign({}, json.content_block);
+        if(json.content_block.type === 'thinking' && state.thinking[json.index].thinking === undefined){
+          state.thinking[json.index].thinking = '';
+        }
       } else if(json.type === 'content_block_delta' && json.delta && json.delta.type === 'input_json_delta'){
         var slot = state.toolCalls[json.index];
         if(slot) slot.argsStr += (json.delta.partial_json || '');
+      } else if(json.type === 'content_block_delta' && json.delta &&
+                (json.delta.type === 'thinking_delta' || json.delta.type === 'signature_delta')){
+        var th = state.thinking && state.thinking[json.index];
+        if(th){
+          if(json.delta.type === 'thinking_delta') th.thinking = (th.thinking || '') + (json.delta.thinking || '');
+          else th.signature = (th.signature || '') + (json.delta.signature || '');
+        }
       }
     } else if(family === 'gemini'){
       var cand = json.candidates && json.candidates[0];
@@ -302,7 +339,12 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   stopIdle();
   var toolCalls = finalizeToolCalls(p.family, tcState);
   callbacks.onDone(full, toolCalls);
-  return { text: full, toolCalls: toolCalls };
+  // i blocchi di pensiero servono a ricostruire il turno assistant nel giro dopo
+  var thinkingBlocks = tcState.thinking
+    ? Object.keys(tcState.thinking).sort(function(a,b){ return a - b; })
+        .map(function(k){ return tcState.thinking[k]; })
+    : [];
+  return { text: full, toolCalls: toolCalls, thinking: thinkingBlocks };
 }
 window.bsiStreamChat = function(providerId, apiKey, messages, systemPrompt, callbacks){
   // wrapper retro-compatibile: ignora eventuali tool-call e restituisce solo il testo,
@@ -496,6 +538,280 @@ var TOOLS = [
     }
   }
 ];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STRUMENTI CONOSCITIVI
+// I tre strumenti qui sopra sanno solo APRIRE cose: restituiscono {ok:true} e
+// basta, quindi il modello non impara mai nulla da cio' che apre. Quelli qui
+// sotto RESTITUISCONO DATI, e sono la differenza fra un navigatore e un
+// assistente che ragiona: puo' cercare valori reali, calcolarli e poi
+// commentarli, invece di inventarli.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Masse atomiche standard IUPAC (u). Servono per calcolare la massa molecolare
+// da formula in modo esatto, invece di stimarla.
+var ATOMIC_MASS = {
+  H:1.008, He:4.0026, Li:6.94, Be:9.0122, B:10.81, C:12.011, N:14.007, O:15.999,
+  F:18.998, Ne:20.180, Na:22.990, Mg:24.305, Al:26.982, Si:28.085, P:30.974,
+  S:32.06, Cl:35.45, Ar:39.948, K:39.098, Ca:40.078, Sc:44.956, Ti:47.867,
+  V:50.942, Cr:51.996, Mn:54.938, Fe:55.845, Co:58.933, Ni:58.693, Cu:63.546,
+  Zn:65.38, Ga:69.723, Ge:72.630, As:74.922, Se:78.971, Br:79.904, Kr:83.798,
+  Rb:85.468, Sr:87.62, Y:88.906, Zr:91.224, Nb:92.906, Mo:95.95, Ag:107.87,
+  Cd:112.41, In:114.82, Sn:118.71, Sb:121.76, Te:127.60, I:126.90, Xe:131.29,
+  Cs:132.91, Ba:137.33, La:138.91, Ce:140.12, W:183.84, Pt:195.08, Au:196.97,
+  Hg:200.59, Tl:204.38, Pb:207.2, Bi:208.98, Ra:226.03, Th:232.04, U:238.03
+};
+
+// Analizza una formula bruta con parentesi e idrati, es. "C9H8O4",
+// "Ca3(PO4)2", "CuSO4.5H2O".
+// Pila di mappe: ogni parentesi aperta crea un nuovo livello, alla chiusura il
+// gruppo viene moltiplicato per il suo pedice e fuso nel livello sottostante.
+// Gestisce anche l'annidamento, es. K4[Fe(CN)6].
+function parseSegment(seg){
+  var stack = [{}];
+  var i = 0;
+  while(i < seg.length){
+    var ch = seg[i];
+    if(ch === '(' || ch === '['){ stack.push({}); i++; continue; }
+    if(ch === ')' || ch === ']'){
+      if(stack.length < 2) return null;                 // parentesi chiusa senza apertura
+      var grp = stack.pop();
+      var m = seg.slice(i + 1).match(/^(\d+)/);
+      var k = m ? parseInt(m[1], 10) : 1;
+      var top = stack[stack.length - 1];
+      for(var e in grp) top[e] = (top[e] || 0) + grp[e] * k;
+      i += 1 + (m ? m[1].length : 0);
+      continue;
+    }
+    var el = seg.slice(i).match(/^([A-Z][a-z]?)(\d*)/);
+    if(!el || !el[1] || !ATOMIC_MASS[el[1]]) return null;
+    var cur = stack[stack.length - 1];
+    cur[el[1]] = (cur[el[1]] || 0) + (el[2] ? parseInt(el[2], 10) : 1);
+    i += el[0].length;
+  }
+  if(stack.length !== 1) return null;                   // parentesi non bilanciate
+  return stack[0];
+}
+
+function parseFormula(f){
+  var counts = {};
+  var segments = String(f).split(/[.·]/);   // idrati: le parti si sommano
+  for(var s = 0; s < segments.length; s++){
+    var seg = segments[s].trim();
+    if(!seg) continue;
+    var lead = seg.match(/^(\d+)/);          // es. "5H2O" -> 5 unita'
+    var segMult = 1;
+    if(lead){ segMult = parseInt(lead[1], 10); seg = seg.slice(lead[1].length); }
+    var part = parseSegment(seg);
+    if(!part) return null;
+    for(var e in part) counts[e] = (counts[e] || 0) + part[e] * segMult;
+  }
+  return Object.keys(counts).length ? counts : null;
+}
+
+var PHYS_CONST = {
+  'costante di avogadro': { v: '6.02214076e23', u: 'mol⁻¹', note: 'esatta per definizione (SI 2019)' },
+  'costante di planck':   { v: '6.62607015e-34', u: 'J·s', note: 'esatta per definizione' },
+  'costante di boltzmann':{ v: '1.380649e-23', u: 'J/K', note: 'esatta per definizione' },
+  'costante dei gas':     { v: '8.314462618', u: 'J/(mol·K)', note: 'R = N_A · k_B' },
+  'carica elementare':    { v: '1.602176634e-19', u: 'C', note: 'esatta per definizione' },
+  'velocita della luce':  { v: '299792458', u: 'm/s', note: 'esatta per definizione' },
+  'costante di faraday':  { v: '96485.332', u: 'C/mol', note: 'F = N_A · e' },
+  'massa elettrone':      { v: '9.1093837015e-31', u: 'kg', note: '' },
+  'massa protone':        { v: '1.67262192369e-27', u: 'kg', note: '' },
+  'costante di rydberg':  { v: '1.0973731568160e7', u: 'm⁻¹', note: '' },
+  'zero assoluto':        { v: '-273.15', u: '°C', note: '0 K' },
+  'volume molare gas':    { v: '22.414', u: 'L/mol', note: 'a 0 °C e 1 atm' }
+};
+
+// Fattori verso un'unita' di riferimento per ciascuna famiglia.
+var UNIT_FAMILIES = {
+  energia:     { ref:'J',   u:{ 'J':1, 'kJ':1e3, 'cal':4.184, 'kcal':4184, 'eV':1.602176634e-19,
+                                'kJ/mol':1/6.02214076e20, 'kcal/mol':4184/6.02214076e23, 'cm-1':1.98644586e-23 } },
+  lunghezza:   { ref:'m',   u:{ 'm':1, 'cm':1e-2, 'mm':1e-3, 'um':1e-6, 'nm':1e-9, 'pm':1e-12, 'A':1e-10 } },
+  massa:       { ref:'g',   u:{ 'g':1, 'kg':1e3, 'mg':1e-3, 'ug':1e-6, 'u':1.66053906660e-24 } },
+  pressione:   { ref:'Pa',  u:{ 'Pa':1, 'kPa':1e3, 'bar':1e5, 'atm':101325, 'mmHg':133.322, 'torr':133.322, 'psi':6894.76 } },
+  volume:      { ref:'L',   u:{ 'L':1, 'mL':1e-3, 'uL':1e-6, 'm3':1e3, 'cm3':1e-3 } },
+  temperatura: { ref:'K',   u:{ 'K':1, 'C':1, 'F':1 } }   // gestita a parte (offset)
+};
+
+TOOLS.push(
+  {
+    name: 'cerca_pubchem',
+    description: "Recupera i DATI REALI di un composto dal database PubChem (NIH): formula, massa molecolare, SMILES, nome IUPAC, XLogP, TPSA, donatori/accettori di legame idrogeno, legami ruotabili. USA SEMPRE questo strumento prima di citare proprieta' numeriche di una molecola, invece di andare a memoria.",
+    parameters: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome del composto (italiano o inglese) oppure formula, es. "caffeina", "aspirin", "C9H8O4".' }
+      },
+      required: ['nome']
+    },
+    execute: function(args){
+      var nome = (args && args.nome || '').trim();
+      if(!nome) return Promise.resolve({ ok:false, error:'nome mancante' });
+      var DESC = 'MolecularFormula,MolecularWeight,IUPACName,XLogP,TPSA,HBondDonorCount,HBondAcceptorCount,RotatableBondCount,Charge';
+      // PubChem ha rinominato CanonicalSMILES in SMILES: provo prima il nome
+      // nuovo, poi quello storico, e solo come ultima spiaggia rinuncio allo
+      // SMILES — cosi' i descrittori (XLogP, TPSA, HBD/HBA) non si perdono per
+      // colpa di un singolo campo rinominato.
+      var TENTATIVI = ['SMILES,' + DESC, 'CanonicalSMILES,' + DESC, DESC];
+      var base = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/' + encodeURIComponent(nome) + '/property/';
+      function ask(list){
+        return fetch(base + list + '/JSON').then(function(r){
+          if(!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        });
+      }
+      function tryFrom(i){
+        return ask(TENTATIVI[i]).catch(function(e){
+          if(i + 1 < TENTATIVI.length) return tryFrom(i + 1);
+          throw e;
+        });
+      }
+      return tryFrom(0)
+        .then(function(j){
+          var p = j && j.PropertyTable && j.PropertyTable.Properties && j.PropertyTable.Properties[0];
+          if(!p) return { ok:false, error:'composto non trovato su PubChem: ' + nome };
+          return {
+            ok: true, fonte: 'PubChem (NIH)', query: nome, cid: p.CID,
+            formula: p.MolecularFormula, massa_molecolare: p.MolecularWeight,
+            smiles: p.CanonicalSMILES || p.SMILES || null, nome_iupac: p.IUPACName || null,
+            xlogp: (p.XLogP !== undefined ? p.XLogP : null), tpsa: (p.TPSA !== undefined ? p.TPSA : null),
+            donatori_H: (p.HBondDonorCount !== undefined ? p.HBondDonorCount : null),
+            accettori_H: (p.HBondAcceptorCount !== undefined ? p.HBondAcceptorCount : null),
+            legami_ruotabili: (p.RotatableBondCount !== undefined ? p.RotatableBondCount : null),
+            carica: (p.Charge !== undefined ? p.Charge : null)
+          };
+        })
+        .catch(function(e){ return { ok:false, error:'PubChem non raggiungibile: ' + (e && e.message) }; });
+    }
+  },
+  {
+    name: 'massa_molecolare',
+    description: 'Calcola la massa molecolare esatta da una formula bruta, con composizione percentuale per elemento. Gestisce parentesi e idrati, es. "C9H8O4", "Ca3(PO4)2", "CuSO4.5H2O".',
+    parameters: {
+      type: 'object',
+      properties: { formula: { type: 'string', description: 'Formula bruta del composto.' } },
+      required: ['formula']
+    },
+    execute: function(args){
+      var f = (args && args.formula || '').trim();
+      var c = parseFormula(f);
+      if(!c) return { ok:false, error:'formula non interpretabile (o elemento sconosciuto): ' + f };
+      var mm = 0, k;
+      for(k in c) mm += ATOMIC_MASS[k] * c[k];
+      var comp = {};
+      for(k in c) comp[k] = { atomi: c[k], percento_massa: +(100 * ATOMIC_MASS[k] * c[k] / mm).toFixed(2) };
+      return { ok:true, formula:f, massa_molecolare:+mm.toFixed(4), unita:'g/mol', composizione:comp };
+    }
+  },
+  {
+    name: 'valuta_druglikeness',
+    description: "Applica le regole di Lipinski (Rule of Five) e Veber a valori numerici gia' noti, per dire se un composto e' drug-like. Recupera prima i valori con cerca_pubchem, poi passali qui.",
+    parameters: {
+      type: 'object',
+      properties: {
+        massa_molecolare: { type: 'number', description: 'MW in g/mol' },
+        logp: { type: 'number', description: 'LogP / XLogP' },
+        donatori_H: { type: 'number', description: 'Donatori di legame idrogeno' },
+        accettori_H: { type: 'number', description: 'Accettori di legame idrogeno' },
+        tpsa: { type: 'number', description: 'Area polare topologica in Å²' },
+        legami_ruotabili: { type: 'number', description: 'Numero di legami ruotabili' }
+      },
+      required: ['massa_molecolare']
+    },
+    execute: function(a){
+      a = a || {};
+      var v = [], lip = [];
+      function chk(cond, txt){ if(cond !== null) { lip.push({ regola: txt, rispettata: cond }); if(!cond) v.push(txt); } }
+      chk(a.massa_molecolare != null ? a.massa_molecolare <= 500 : null, 'MW ≤ 500');
+      chk(a.logp != null ? a.logp <= 5 : null, 'LogP ≤ 5');
+      chk(a.donatori_H != null ? a.donatori_H <= 5 : null, 'donatori H ≤ 5');
+      chk(a.accettori_H != null ? a.accettori_H <= 10 : null, 'accettori H ≤ 10');
+      var veber = [];
+      if(a.tpsa != null) veber.push({ regola: 'TPSA ≤ 140 Å²', rispettata: a.tpsa <= 140 });
+      if(a.legami_ruotabili != null) veber.push({ regola: 'legami ruotabili ≤ 10', rispettata: a.legami_ruotabili <= 10 });
+      return {
+        ok: true, lipinski: lip, violazioni_lipinski: v.length, dettaglio_violazioni: v,
+        veber: veber,
+        verdetto: v.length === 0 ? 'drug-like: nessuna violazione di Lipinski'
+                : v.length === 1 ? 'accettabile: 1 violazione (Lipinski ne tollera 1)'
+                : 'non drug-like per via orale: ' + v.length + ' violazioni',
+        nota: 'Regole empiriche per la biodisponibilita\' orale, non una previsione di attivita\'.'
+      };
+    }
+  },
+  {
+    name: 'converti_unita',
+    description: 'Converte un valore fra unita\' di misura (energia, lunghezza, massa, pressione, volume, temperatura). Usalo invece di fare la conversione a mente.',
+    parameters: {
+      type: 'object',
+      properties: {
+        valore: { type: 'number', description: 'Il valore numerico da convertire.' },
+        da: { type: 'string', description: 'Unita\' di partenza, es. "kcal/mol", "nm", "atm", "C".' },
+        a:  { type: 'string', description: 'Unita\' di arrivo, es. "kJ/mol", "A", "Pa", "K".' }
+      },
+      required: ['valore', 'da', 'a']
+    },
+    execute: function(a){
+      var val = Number(a && a.valore), da = (a && a.da || '').trim(), to = (a && a.a || '').trim();
+      if(!isFinite(val)) return { ok:false, error:'valore non numerico' };
+      var norm = function(u){ return u.replace(/µ/g,'u').replace(/Å/gi,'A').replace(/°/g,'').replace(/\^/g,''); };
+      da = norm(da); to = norm(to);
+      if(['K','C','F'].indexOf(da) >= 0 && ['K','C','F'].indexOf(to) >= 0){
+        var kelvin = da === 'K' ? val : da === 'C' ? val + 273.15 : (val - 32) * 5/9 + 273.15;
+        var out = to === 'K' ? kelvin : to === 'C' ? kelvin - 273.15 : (kelvin - 273.15) * 9/5 + 32;
+        return { ok:true, valore:val, da:da, a:to, risultato:+out.toFixed(6), famiglia:'temperatura' };
+      }
+      for(var fam in UNIT_FAMILIES){
+        var u = UNIT_FAMILIES[fam].u;
+        if(u[da] !== undefined && u[to] !== undefined){
+          var res = val * u[da] / u[to];
+          return { ok:true, valore:val, da:da, a:to, risultato:res, famiglia:fam };
+        }
+      }
+      return { ok:false, error:'unita\' non riconosciute o di famiglie diverse: ' + da + ' -> ' + to,
+               famiglie_disponibili: Object.keys(UNIT_FAMILIES) };
+    }
+  },
+  {
+    name: 'costante_fisica',
+    description: 'Restituisce il valore ufficiale di una costante fisica o chimica fondamentale (CODATA/SI).',
+    parameters: {
+      type: 'object',
+      properties: { nome: { type: 'string', description: 'es. "costante di Avogadro", "costante dei gas", "carica elementare".' } },
+      required: ['nome']
+    },
+    execute: function(a){
+      var q = (a && a.nome || '').toLowerCase().replace(/[àá]/g,'a').replace(/[èé]/g,'e').trim();
+      for(var k in PHYS_CONST){
+        if(k.indexOf(q) >= 0 || q.indexOf(k) >= 0 || k.split(' ').pop() === q)
+          return { ok:true, costante:k, valore:PHYS_CONST[k].v, unita:PHYS_CONST[k].u, nota:PHYS_CONST[k].note };
+      }
+      return { ok:false, error:'costante non trovata', disponibili:Object.keys(PHYS_CONST) };
+    }
+  },
+  {
+    name: 'stato_app',
+    description: "Dice dove si trova l'utente adesso nell'app e quali sezioni e laboratori sono disponibili. Usalo quando devi decidere dove portarlo o quando l'utente dice 'qui', 'questa sezione', 'quello che sto guardando'.",
+    parameters: { type: 'object', properties: {} },
+    execute: function(){
+      var active = null;
+      try{
+        var el = document.querySelector('.section.on');
+        if(el) active = { id: el.id, titolo: (el.querySelector('.section-title') || {}).textContent || null };
+      }catch(e){}
+      return {
+        ok: true,
+        sezione_attiva: active,
+        sezioni_navigabili: Object.keys(NAV_SECTIONS).length,
+        laboratori: Object.keys(FAB_TOOLS),
+        nota: 'Per aprire una sezione usa naviga_sezione; per un laboratorio usa apri_strumento.'
+      };
+    }
+  }
+);
+
 window.BSI_AI_TOOLS = TOOLS;
 
 function toolByName(name){
@@ -525,9 +841,12 @@ async function runToolCalls(toolCalls){
 // Costruisce, per famiglia, il messaggio "assistant" (che contiene le
 // tool-call) e il messaggio "tool result" da riaggiungere alla history,
 // nella forma nativa richiesta da quel provider.
-function appendAgentTurn(family, history, assistantText, toolCalls, execResults){
+function appendAgentTurn(family, history, assistantText, toolCalls, execResults, thinkingBlocks){
   if(family === 'anthropic'){
     var contentBlocks = [];
+    // I blocchi di pensiero vanno per primi e identici a come sono arrivati
+    // (firma compresa), altrimenti il modello rifiuta il turno successivo.
+    if(thinkingBlocks && thinkingBlocks.length) contentBlocks = contentBlocks.concat(thinkingBlocks);
     if(assistantText) contentBlocks.push({ type: 'text', text: assistantText });
     toolCalls.forEach(function(tc){ contentBlocks.push({ type: 'tool_use', id: tc.id, name: tc.name, input: tc.args || {} }); });
     history.push({ role: 'assistant', content: assistantText, _native: { anthropic: { role: 'assistant', content: contentBlocks } } });
@@ -570,7 +889,10 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   var history = messages.slice();
   var totalText = '';
-  var MAX_ROUNDS = 4;
+  // Con soli 4 giri l'agente non riusciva a incatenare piu' di un paio di
+  // strumenti: cercare un composto, valutarlo e poi aprirne la scheda esauriva
+  // il budget. Ora ha spazio per una vera catena di ragionamento.
+  var MAX_ROUNDS = 10;
   var toolsDisabled = false;
   var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
   for(var round = 0; round < MAX_ROUNDS; round++){
@@ -609,11 +931,24 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
     }
     var execResults = await runToolCalls(r.toolCalls);
     execResults.forEach(function(er){
-      var tool = toolByName(er.name);
-      var label = (tool && er.result && er.result.label) ? er.result.label : (tool ? tool.name : er.name);
-      if(callbacks.onToolUse) callbacks.onToolUse('🧭 Ho eseguito: ' + label);
+      if(!callbacks.onToolUse) return;
+      var res = er.result || {};
+      // Gli strumenti di navigazione hanno una "label"; quelli conoscitivi
+      // restituiscono dati, quindi mostro cosa hanno trovato invece del nome.
+      if(res.ok === false){ callbacks.onToolUse('⚠️ ' + er.name + ': ' + (res.error || 'non riuscito')); return; }
+      var msg;
+      switch(er.name){
+        case 'cerca_pubchem':      msg = '🔍 PubChem: ' + (res.formula || '?') + ' · MM ' + (res.massa_molecolare || '?') + ' g/mol'; break;
+        case 'massa_molecolare':   msg = '⚖️ ' + (res.formula || '') + ' = ' + res.massa_molecolare + ' g/mol'; break;
+        case 'valuta_druglikeness':msg = '💊 ' + (res.verdetto || 'valutazione completata'); break;
+        case 'converti_unita':     msg = '🔁 ' + res.valore + ' ' + res.da + ' = ' + res.risultato + ' ' + res.a; break;
+        case 'costante_fisica':    msg = '📐 ' + res.costante + ' = ' + res.valore + ' ' + res.unita; break;
+        case 'stato_app':          msg = '🧭 Ho controllato dove ti trovi nell\'app'; break;
+        default:                   msg = '🧭 Ho eseguito: ' + (res.label || er.name);
+      }
+      callbacks.onToolUse(msg);
     });
-    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults);
+    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults, r.thinking);
   }
   callbacks.onDone(totalText || '(limite di passaggi strumenti raggiunto)');
   return { text: totalText };
@@ -703,7 +1038,19 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "davvero navigare l'app per l'utente (aprire sezioni, strumenti, cercare molecole) invece di limitarti a " +
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
 "Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
-"utile. Se non sei sicuro di un dato numerico, dillo esplicitamente invece di inventarlo.";
+"utile.\n\n" +
+"REGOLA FONDAMENTALE SUI NUMERI: non citare mai a memoria una proprieta' numerica di un composto " +
+"(massa molecolare, logP, TPSA, donatori/accettori di legame idrogeno, formula, nome IUPAC). " +
+"Chiamai prima cerca_pubchem e riporta i valori che ti restituisce, citando PubChem come fonte. " +
+"Per la massa molecolare da una formula bruta usa massa_molecolare; per qualsiasi conversione di " +
+"unita' usa converti_unita; per una costante fisica usa costante_fisica. Sono strumenti esatti: " +
+"usarli e' sempre meglio che stimare. Se uno strumento fallisce, dillo apertamente invece di " +
+"rimpiazzarne il risultato con un valore inventato.\n\n" +
+"AUTONOMIA: incatena piu' strumenti di tua iniziativa per arrivare a una risposta completa. " +
+"Esempio: se ti chiedono se un farmaco e' drug-like, chiama cerca_pubchem per i descrittori, poi " +
+"valuta_druglikeness sui valori ottenuti, e infine commenta il risultato. Se l'utente dice 'qui' " +
+"o 'questa sezione', chiama stato_app per capire dove si trova prima di rispondere. Non chiedere " +
+"il permesso di usare uno strumento: usalo e poi spiega cosa hai trovato.";
 
 /* ---------------------------------------------------------------------
    5. Thread di chat (multipli, con cronologia) — bsi_ai_threads
