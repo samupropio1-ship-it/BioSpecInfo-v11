@@ -77,7 +77,7 @@ a{color:#00c9b7;text-decoration:none}a:hover{text-decoration:underline}
 <div class="stat-grid">
   <div class="stat"><span class="stat-val">14</span><span class="stat-lbl">Pagine HTML</span></div>
   <div class="stat"><span class="stat-val">88K+</span><span class="stat-lbl">Righe di codice totali</span></div>
-  <div class="stat"><span class="stat-val">18</span><span class="stat-lbl">Tab in Astrochimica 3D</span></div>
+  <div class="stat"><span class="stat-val">32</span><span class="stat-lbl">Strumenti dell'agente AI</span></div>
   <div class="stat"><span class="stat-val">323</span><span class="stat-lbl">Domande quiz chimica</span></div>
   <div class="stat"><span class="stat-val">10</span><span class="stat-lbl">Livelli Accademia</span></div>
   <div class="stat"><span class="stat-val">25</span><span class="stat-lbl">Elementi Quantum Lab</span></div>
@@ -123,6 +123,15 @@ a{color:#00c9b7;text-decoration:none}a:hover{text-decoration:underline}
     <div class="tl-dot"></div>
     <div class="tl-date">01/07/2026</div>
     <div class="tl-desc"><strong>🔬 Pharma Pro + ⚛️ Quantum Lab</strong> — Due nuovi tab in RDKit Lab (+738 righe). Pharma Pro: ADME completo, radar 5 regole, docking score stimato per 6 target, alert PAINS, confronto Tanimoto con 8 farmaci, export report HTML. Quantum Lab: visualizzatore canvas orbitali atomici (1s/2s/2p/3d/sp/sp²/sp³), nuvola elettronica, diagramma livelli energetici, 25 elementi con configurazione elettronica. SW bump a 07a.</div>
+  </div>
+
+  <div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-date">02/09/2026</div>
+    <div class="tl-desc"><strong>🤖 Spectra — agente AI completo</strong> — bsi-ai-hub.js sale a 4.895 righe e <b>32 strumenti</b> su 13 aree scientifiche: motore di calcolo proprio (parser a discesa ricorsiva, senza <code>eval()</code>), risolutori di chimica fisica, spettroscopia, biochimica, farmacocinetica, astrofisica, nucleare, statistica inferenziale e cristallografia, piu' l'accesso ai 9 database interni dell'app (oltre 800 record).
+    <br><br>Otto configurazioni di modello (Claude Fable 5.1 / Opus 5 / Sonnet 5 / Haiku 4.5, Groq, Gemini, OpenRouter, xAI), ragionamento mostrato in diretta e conservato, memoria persistente, ricerca web nativa con ripresa dei turni sospesi, allegati multimodali (immagini, PDF fino a 600 pagine, testo), mappe concettuali disegnate da un renderer SVG interno senza CDN, comando vocale "Hey Spectra", traduttore ed esportazione in PDF.
+    <br><br><strong>Bug corretti in questa fase:</strong> otto risolutori restituivano <code>ok:true</code> con Infinity su input degeneri (corretto con una guardia unica su tutti i risultati); le miniature degli allegati saturavano localStorage a 444 KB l'una (ora 5 KB); nodi delle mappe larghi 2060px per parole non spezzabili; dieci <code>calc()</code> CSS silenziosamente invalidi; <code>exportPDF()</code> mai definita; tabelle Markdown non renderizzate.
+    <br><br>Documentazione: <code>docs/05-AI-Agent-Architecture.md</code> (IT/EN + PDF) e scheda progetto per i colloqui.</div>
   </div>
 
   <div class="tl-item">

@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 3.935 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 4.895 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v126` |
+| **Versione documentata** | Service Worker `bsi-v133` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 31 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 32 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -53,7 +53,7 @@ una demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── esecutore strumenti (31, tutti locali salvo 3 di rete)   │
+│        └── esecutore strumenti (32, tutti locali salvo 3 di rete)   │
 │               ├── motore di calcolo (parser proprio, no eval)       │
 │               ├── risolutori di dominio (13 aree scientifiche)      │
 │               ├── dataset interni dell'app (9 basi dati)            │
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 31 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 32 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -92,7 +92,7 @@ serializzati nella forma nativa di ciascun fornitore e conservati in un campo
 
 ---
 
-## 3. I 31 strumenti
+## 3. I 32 strumenti
 
 | Area | Strumenti |
 |---|---|
@@ -106,6 +106,7 @@ serializzati nella forma nativa di ciascun fornitore e conservati in un campo
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
 | **Controllo app** | `naviga_sezione` (84 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
+| **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
 
 ### 3.1 Dataset interni esposti
 
@@ -179,7 +180,72 @@ rimossi dall'API e la loro presenza causa un errore: nessuno dei quattro li
 invia. Ogni parametro è quindi condizionato al fornitore, non impostato
 globalmente.
 
-### 4.5 Degradazione controllata
+### 4.5 Ingresso multimodale e lettura dei materiali
+
+L'agente accetta immagini, PDF e file di testo, anche molti insieme, trattati
+come pagine consecutive di un unico documento. Tre vincoli hanno guidato
+l'implementazione:
+
+- **Le immagini vengono ridimensionate a 2000 px** e ricompresse in JPEG prima
+  dell'invio. Una foto da telefono passa da circa 1 MB a 440 KB: senza questo
+  passaggio una singola immagine avvicinerebbe il tetto di richiesta e
+  moltiplicherebbe il costo in token. 2000 px sono il minimo per leggere una
+  grafia minuta — a 1600 px la scrittura piccola diventava illeggibile.
+- **Il tetto di pagine dei PDF dipende dal modello**, non è una costante: 600
+  pagine per i modelli con finestra da 1M, 100 per quelli da 200K. Il conteggio
+  avviene leggendo gli oggetti `/Type /Page` nei byte del file, senza librerie.
+- **Nella cronologia va una miniatura da 160 px**, non l'immagine inviata.
+  Salvare quella grande (440 KB l'una) riempiva `localStorage` in una decina di
+  foto, e a quota piena ogni scrittura successiva fallisce in silenzio.
+
+Sei azioni rapide trasformano il materiale in un prodotto di studio (riassunto,
+mappa concettuale, schema, flashcard, domande d'esame, trascrizione) e due lo
+traducono. Per le trascrizioni l'agente ha istruzione di scrivere
+`[illeggibile]` invece di indovinare: un termine chimico inventato è peggio di
+una lacuna dichiarata.
+
+### 4.6 Renderer di grafi proprio, senza CDN
+
+Le mappe concettuali sono prodotte dal modello come diagrammi Mermaid e
+disegnate da un renderer scritto nell'applicazione (~190 righe): livelli per
+cammino più lungo dalle radici con interruzione dei cicli, riordino per
+baricentro dei predecessori su tre passate per ridurre gli incroci, output SVG
+con archi di Bézier.
+
+La scelta di non caricare Mermaid da CDN nasce dalla natura offline-first
+dell'app: una mappa deve potersi disegnare anche senza rete. Le sintassi non
+coperte vengono riconosciute e lasciate come blocco di codice leggibile,
+invece di essere disegnate male.
+
+### 4.7 Comando vocale con parola di attivazione
+
+Ascolto continuo attivabile dall'utente: la frase «Hey Spectra» seguita dal
+comando lo invia automaticamente. Due dettagli non ovvi:
+
+- il riconoscimento vocale del browser **termina da solo** dopo qualche secondo
+  di silenzio e va riavviato, altrimenti l'ascolto muore alla prima pausa;
+- vengono esaminate **tutte le alternative di trascrizione**, non solo la
+  prima, e sono accettate le varianti fonetiche più comuni: il riconoscimento
+  italiano rende "Spectra" in molti modi diversi.
+
+Il rifiuto del permesso al microfono interrompe il ciclo invece di ritentare
+all'infinito. Il termine "spettroscopia", frequentissimo in questo dominio, è
+stato verificato come non attivante.
+
+### 4.8 Guardia sui risultati non finiti
+
+Un audit sistematico ha rivelato che, con input degeneri legittimi (lunghezza
+d'onda nulla, volume nullo, emivita nulla, transizione fra livelli identici),
+otto risolutori restituivano `ok: true` con `Infinity` o `NaN` fra i campi.
+
+È il guasto più insidioso in questo contesto: un'eccezione si nota, un valore
+formalmente valido ma privo di senso viene riportato all'utente come corretto.
+La correzione è un controllo unico nel punto in cui transitano tutti i
+risultati: se un campo numerico non è finito, il risultato diventa un errore
+esplicito che nomina i campi e indica la causa probabile. Vale anche per gli
+strumenti aggiunti in futuro.
+
+### 4.9 Degradazione controllata
 
 - **Modelli senza *function calling* affidabile** (alcuni gratuiti): al primo
   errore riconducibile agli strumenti, la richiesta viene ripetuta una volta in
@@ -245,8 +311,8 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 3.935 |
-| Strumenti | 31 |
+| Righe del componente | 4.895 |
+| Strumenti | 32 |
 | Configurazioni di modello | 8 (di cui 3 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
