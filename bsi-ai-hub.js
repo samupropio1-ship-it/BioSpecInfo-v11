@@ -1069,8 +1069,21 @@ function leggiAllegato(file){
             cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
             // JPEG per le foto: molto piu' leggero del PNG a parita' di leggibilita'
             var url = cv.toDataURL('image/jpeg', 0.85);
+            // Miniatura separata e minuscola per la cronologia. Salvare
+            // l'immagine grande (circa 440 KB l'una) riempirebbe localStorage in
+            // una decina di foto, e a quota piena OGNI scrittura successiva
+            // fallisce in silenzio, compreso il salvataggio della chiave API.
+            var mini = url;
+            try{
+              var sm = Math.min(1, 160 / Math.max(cv.width, cv.height));
+              var tc = document.createElement('canvas');
+              tc.width = Math.max(1, Math.round(cv.width * sm));
+              tc.height = Math.max(1, Math.round(cv.height * sm));
+              tc.getContext('2d').drawImage(cv, 0, 0, tc.width, tc.height);
+              mini = tc.toDataURL('image/jpeg', 0.7);
+            }catch(e){}
             resolve({ kind:'image', name:file.name, mime:'image/jpeg',
-                      data:url.split(',')[1], anteprima:url,
+                      data:url.split(',')[1], anteprima:url, miniatura:mini,
                       size:file.size, dimensioni:cv.width + '×' + cv.height });
           }catch(e){
             // se il canvas fallisce (immagine enorme, memoria) uso l'originale
@@ -4493,7 +4506,8 @@ function buildChatPane(){
       // nella cronologia salvo solo i metadati: le immagini in base64
       // riempirebbero localStorage in pochi messaggi
       msgUtente.allegati = allegatiInvio.map(function(a){
-        return { name:a.name, kind:a.kind, anteprima:a.kind === 'image' ? a.anteprima : null };
+        // nella cronologia va la MINIATURA, non l'immagine inviata al modello
+        return { name:a.name, kind:a.kind, anteprima:a.kind === 'image' ? (a.miniatura || a.anteprima) : null };
       });
     }
     t.messages.push(msgUtente);
