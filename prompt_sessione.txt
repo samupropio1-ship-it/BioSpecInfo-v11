@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.283 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.486 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v137
+- sw.js            — Service Worker (network-first). Cache: bsi-v138
 - manifest.json    — PWA manifest
 - docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
 - LICENSE, README.md, THIRD_PARTY_NOTICES.md
@@ -181,6 +181,20 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
      "manca la chiave". NON deve mai finire in una richiesta.
    - i metadati Gemini (ListModels e la sonda) passano da geminiMetaUrl():
      via proxy se c'e', altrimenti diretti con la chiave.
+
+12) CANCELLAZIONE DATI — l'elenco di TUTTO cio' che l'app scrive sta in
+   DATI_CANCELLABILI (bsi-ai-hub.js, sezione 4b), diviso in cinque gruppi.
+   Aggiungendo una chiave di localStorage da qualche parte, aggiungerla
+   anche li': e' l'unico punto che il pulsante "Cancella tutto" consulta.
+   Trappola gia' incontrata: cancellare bsi_api_keys senza cancellare
+   bsi_api_key (il formato vecchio a chiave singola) fa RIAPPARIRE la
+   chiave, perche' getKeysMap() la rimigra al primo accesso. Vanno tolte
+   entrambe. Idem per bsi_gemini_modello, il vecchio nome della cache.
+   Restano fuori DI PROPOSITO: bsi_pro_license, bsi_trial_start,
+   bsi_device_id, bsi_user_email — una licenza non si cancella per sbaglio.
+   Dopo la cancellazione va azzerato anche lo stato in memoria (elenco dei
+   fornitori del proxy, p.model risolto), altrimenti resta valido fino al
+   ricaricamento della pagina.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

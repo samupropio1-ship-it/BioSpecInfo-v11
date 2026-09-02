@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,283 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,486 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v137` |
+| **Documented version** | Service Worker `bsi-v138` |
 
 ---
 
@@ -180,6 +180,37 @@ browser.
 
 Both paths coexist: without `PROXY_URL` everything works as before, and for
 providers the proxy does not cover Spectra keeps using the local key.
+
+### 2.6 Starting over
+
+Everything Spectra remembers lives in `localStorage`: chats, history, API keys,
+persistent memory, review cards. A "clear history" button that removed only the
+conversations would not start over — reopening the app would restore the same
+state.
+
+The delicate part is that keys exist in **two formats**: the current map
+(`bsi_api_keys`, one key per provider) and the single-key format of earlier
+versions (`bsi_api_key`). `getKeysMap()` migrates the latter into the former,
+so clearing only the map **brings the old key back** on the next access. Both
+must go — along with the resolved-model caches, which mean nothing without a
+key.
+
+That is why the list of everything the application writes lives in one place,
+`DATI_CANCELLABILI`, split into five groups with a label and a description. The
+confirmation panel is built from it: it shows how many entries actually exist
+per group, disables the empty ones and requires a second explicit click. Only
+chats and keys are pre-selected; memory, review scheduling and the rest of the
+app's progress must be chosen deliberately, because they erase work unrelated
+to starting the conversation over.
+
+Deliberately excluded: the PRO licence, the trial period and the device
+identity — data a user does not expect to lose by emptying a chat, and a
+licence must never be deleted by accident. The panel says so.
+
+After deletion the in-process state is reset too — the list of providers the
+proxy covers, the resolved model per provider — otherwise it would stay valid
+until the page reloads, and Spectra would keep using a model chosen with a key
+that no longer exists.
 
 ---
 
@@ -393,7 +424,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,283 lines |
+| Component size | 5,486 lines |
 | Tools | 32 |
 | Model configurations | 8 (3 free) |
 | Scientific areas covered | 13 |
