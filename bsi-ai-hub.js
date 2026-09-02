@@ -205,7 +205,11 @@ function accumulateToolCall(family, json, state){
                 (json.delta.type === 'thinking_delta' || json.delta.type === 'signature_delta')){
         var th = state.thinking && state.thinking[json.index];
         if(th){
-          if(json.delta.type === 'thinking_delta') th.thinking = (th.thinking || '') + (json.delta.thinking || '');
+          if(json.delta.type === 'thinking_delta'){
+            th.thinking = (th.thinking || '') + (json.delta.thinking || '');
+            // il ragionamento non deve restare nascosto: lo mando alla UI mentre arriva
+            if(state.onThinking) state.onThinking(json.delta.thinking || '');
+          }
           else th.signature = (th.signature || '') + (json.delta.signature || '');
         }
       }
@@ -294,7 +298,7 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     throw new Error('HTTP ' + res.status + ' — ' + errMsg);
   }
   var full = '';
-  var tcState = { toolCalls: {}, geminiCalls: [] };
+  var tcState = { toolCalls: {}, geminiCalls: [], onThinking: callbacks && callbacks.onThinking };
   if(res.body && typeof res.body.getReader === 'function'){
     var reader = res.body.getReader();
     var decoder = new TextDecoder();
@@ -548,6 +552,24 @@ var TOOLS = [
 // commentarli, invece di inventarli.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ── Memoria persistente ────────────────────────────────────────────────────
+// Un assistente che riparte da zero ad ogni sessione non e' un agente: questi
+// fatti vengono riletti e iniettati nel prompt di sistema ad ogni turno, cosi'
+// Spectra sa con chi sta parlando e a che punto e' il suo studio.
+var MAX_MEMORIE = 40;
+function loadMemory(){
+  var m = loadJSON('bsi_ai_memory', null);
+  return Array.isArray(m) ? m : [];
+}
+function saveMemory(m){ saveJSON('bsi_ai_memory', m); }
+function memoryPrompt(){
+  var m = loadMemory();
+  if(!m.length) return '';
+  return '\n\nCOSA SAI GIA\' DI QUESTO UTENTE (da sessioni precedenti, usalo senza rinfacciarlo):\n' +
+    m.map(function(x){ return '- [' + x.categoria + '] ' + x.fatto; }).join('\n');
+}
+window.bsiMemory = { load: loadMemory, save: saveMemory };
+
 // Masse atomiche standard IUPAC (u). Servono per calcolare la massa molecolare
 // da formula in modo esatto, invece di stimarla.
 var ATOMIC_MASS = {
@@ -635,7 +657,175 @@ var UNIT_FAMILIES = {
   temperatura: { ref:'K',   u:{ 'K':1, 'C':1, 'F':1 } }   // gestita a parte (offset)
 };
 
+// ── Aritmetica razionale esatta ────────────────────────────────────────────
+// Il bilanciamento si risolve con l'eliminazione di Gauss; farla in virgola
+// mobile produce coefficienti tipo 2.0000000000000004 e falsi "non bilanciabile".
+// Con le frazioni il risultato e' esatto o non e' niente.
+function _gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ var t = b; b = a % b; a = t; } return a || 1; }
+function _fr(n, d){
+  d = (d === undefined) ? 1 : d;
+  if(d < 0){ n = -n; d = -d; }
+  var g = _gcd(n, d);
+  return [n / g, d / g];
+}
+function _frAdd(a, b){ return _fr(a[0] * b[1] + b[0] * a[1], a[1] * b[1]); }
+function _frMul(a, b){ return _fr(a[0] * b[0], a[1] * b[1]); }
+function _frSub(a, b){ return _frAdd(a, [-b[0], b[1]]); }
+function _frDiv(a, b){ return _fr(a[0] * b[1], a[1] * b[0]); }
+function _frZero(a){ return a[0] === 0; }
+
+// Risolve A·x = 0 restituendo il vettore di interi positivi piu' piccolo.
+function _nullSpaceIntegers(rows, ncols){
+  var M = rows.map(function(r){ return r.map(function(v){ return _fr(v, 1); }); });
+  var pivots = [], r = 0, c;
+  for(c = 0; c < ncols && r < M.length; c++){
+    var p = -1;
+    for(var i = r; i < M.length; i++) if(!_frZero(M[i][c])){ p = i; break; }
+    if(p < 0) continue;
+    var tmp = M[r]; M[r] = M[p]; M[p] = tmp;
+    var pv = M[r][c];
+    for(var j = 0; j < ncols; j++) M[r][j] = _frDiv(M[r][j], pv);
+    for(var k = 0; k < M.length; k++){
+      if(k === r || _frZero(M[k][c])) continue;
+      var f = M[k][c];
+      for(var j2 = 0; j2 < ncols; j2++) M[k][j2] = _frSub(M[k][j2], _frMul(f, M[r][j2]));
+    }
+    pivots.push(c); r++;
+  }
+  var free = [];
+  for(c = 0; c < ncols; c++) if(pivots.indexOf(c) < 0) free.push(c);
+  // Una sola variabile libera = soluzione unica a meno di un fattore di scala.
+  // Zero variabili libere significa che l'unica soluzione e' quella nulla.
+  if(free.length !== 1) return null;
+  var x = new Array(ncols);
+  for(c = 0; c < ncols; c++) x[c] = _fr(0, 1);
+  x[free[0]] = _fr(1, 1);
+  for(var pi = 0; pi < pivots.length; pi++){
+    var pc = pivots[pi];
+    var acc = _fr(0, 1);
+    for(var cc = 0; cc < ncols; cc++){
+      if(cc === pc) continue;
+      acc = _frAdd(acc, _frMul(M[pi][cc], x[cc]));
+    }
+    x[pc] = [-acc[0], acc[1]];
+  }
+  var lcm = 1;
+  for(c = 0; c < ncols; c++) lcm = lcm / _gcd(lcm, x[c][1]) * x[c][1];
+  var ints = x.map(function(v){ return v[0] * (lcm / v[1]); });
+  var g = 0;
+  for(c = 0; c < ncols; c++) g = _gcd(g, ints[c]);
+  if(g) ints = ints.map(function(v){ return v / g; });
+  if(ints.some(function(v){ return v < 0; })) ints = ints.map(function(v){ return -v; });
+  if(ints.some(function(v){ return v <= 0; })) return null;
+  return ints;
+}
+
 TOOLS.push(
+  {
+    name: 'bilancia_equazione',
+    description: "Bilancia un'equazione chimica calcolando i coefficienti stechiometrici esatti. Usalo SEMPRE per bilanciare, non farlo a mente. Esempio di input: \"C3H8 + O2 -> CO2 + H2O\".",
+    parameters: {
+      type: 'object',
+      properties: {
+        equazione: { type: 'string', description: 'Equazione non bilanciata, con "+" fra le specie e "->" (oppure "=") fra reagenti e prodotti.' }
+      },
+      required: ['equazione']
+    },
+    execute: function(a){
+      var eq = (a && a.equazione || '').trim();
+      var sides = eq.split(/->|=>|→|=/);
+      if(sides.length !== 2) return { ok:false, error:'serve una freccia fra reagenti e prodotti, es. "H2 + O2 -> H2O"' };
+      var split = function(s){ return s.split('+').map(function(x){ return x.trim(); }).filter(Boolean); };
+      var L = split(sides[0]), R = split(sides[1]);
+      if(!L.length || !R.length) return { ok:false, error:'reagenti o prodotti mancanti' };
+      var species = L.concat(R), counts = [], elements = {};
+      for(var i = 0; i < species.length; i++){
+        // tolgo un eventuale coefficiente gia' presente: lo ricalcolo io
+        var f = species[i].replace(/^\s*\d+\s*/, '');
+        var c = parseFormula(f);
+        if(!c) return { ok:false, error:'formula non interpretabile: ' + species[i] };
+        counts.push(c);
+        for(var e in c) elements[e] = true;
+      }
+      var els = Object.keys(elements);
+      var rows = els.map(function(el){
+        return species.map(function(_, idx){
+          var n = counts[idx][el] || 0;
+          return idx < L.length ? n : -n;      // prodotti col segno opposto
+        });
+      });
+      var x = _nullSpaceIntegers(rows, species.length);
+      if(!x) return { ok:false, error:'equazione non bilanciabile con queste specie (controlla le formule o se ne manca una)' };
+      var fmt = function(off, arr){
+        return arr.map(function(s, i){
+          var k = x[off + i];
+          return (k === 1 ? '' : k + ' ') + s.replace(/^\s*\d+\s*/, '');
+        }).join(' + ');
+      };
+      var bilanciata = fmt(0, L) + ' → ' + fmt(L.length, R);
+      // verifica: ogni elemento deve tornare da entrambe le parti
+      var verifica = {};
+      els.forEach(function(el){
+        var sx = 0, dx = 0;
+        for(var i2 = 0; i2 < species.length; i2++){
+          var n2 = (counts[i2][el] || 0) * x[i2];
+          if(i2 < L.length) sx += n2; else dx += n2;
+        }
+        verifica[el] = { reagenti: sx, prodotti: dx, ok: sx === dx };
+      });
+      return {
+        ok: true, equazione_bilanciata: bilanciata,
+        coefficienti: species.map(function(s, i){ return { specie: s.replace(/^\s*\d+\s*/, ''), coefficiente: x[i] }; }),
+        verifica_atomi: verifica
+      };
+    }
+  },
+  {
+    name: 'stechiometria',
+    description: "Risolve un problema stechiometrico: da una quantita' di un reagente calcola quella di un prodotto, usando i coefficienti di un'equazione bilanciata. Bilancia prima con bilancia_equazione.",
+    parameters: {
+      type: 'object',
+      properties: {
+        equazione: { type: 'string', description: 'Equazione (verra\' bilanciata automaticamente).' },
+        specie_nota: { type: 'string', description: 'Formula della specie di cui conosci la quantita\', es. "C3H8".' },
+        quantita: { type: 'number', description: 'Quantita\' nota.' },
+        unita: { type: 'string', description: '"mol" oppure "g".' },
+        specie_richiesta: { type: 'string', description: 'Formula della specie da calcolare, es. "CO2".' }
+      },
+      required: ['equazione', 'specie_nota', 'quantita', 'specie_richiesta']
+    },
+    execute: function(a){
+      a = a || {};
+      var bal = toolByName('bilancia_equazione').execute({ equazione: a.equazione });
+      if(!bal.ok) return bal;
+      var find = function(f){
+        var norm = String(f).replace(/\s/g, '');
+        for(var i = 0; i < bal.coefficienti.length; i++)
+          if(bal.coefficienti[i].specie.replace(/\s/g, '') === norm) return bal.coefficienti[i];
+        return null;
+      };
+      var A = find(a.specie_nota), B = find(a.specie_richiesta);
+      if(!A) return { ok:false, error:'specie non presente nell\'equazione: ' + a.specie_nota };
+      if(!B) return { ok:false, error:'specie non presente nell\'equazione: ' + a.specie_richiesta };
+      var mmA = null, mmB = null;
+      var cA = parseFormula(A.specie), cB = parseFormula(B.specie), k;
+      if(cA){ mmA = 0; for(k in cA) mmA += ATOMIC_MASS[k] * cA[k]; }
+      if(cB){ mmB = 0; for(k in cB) mmB += ATOMIC_MASS[k] * cB[k]; }
+      var unita = (a.unita || 'mol').toLowerCase();
+      var molA = unita === 'g' ? (mmA ? a.quantita / mmA : null) : a.quantita;
+      if(molA === null) return { ok:false, error:'non riesco a calcolare la massa molare di ' + A.specie };
+      var molB = molA * (B.coefficiente / A.coefficiente);
+      return {
+        ok: true,
+        equazione_bilanciata: bal.equazione_bilanciata,
+        rapporto_molare: B.coefficiente + ':' + A.coefficiente + ' (' + B.specie + ':' + A.specie + ')',
+        moli_note: +molA.toFixed(6), moli_richieste: +molB.toFixed(6),
+        massa_richiesta_g: mmB ? +(molB * mmB).toFixed(4) : null,
+        massa_molare_nota: mmA ? +mmA.toFixed(4) : null,
+        massa_molare_richiesta: mmB ? +mmB.toFixed(4) : null
+      };
+    }
+  },
   {
     name: 'cerca_pubchem',
     description: "Recupera i DATI REALI di un composto dal database PubChem (NIH): formula, massa molecolare, SMILES, nome IUPAC, XLogP, TPSA, donatori/accettori di legame idrogeno, legami ruotabili. USA SEMPRE questo strumento prima di citare proprieta' numeriche di una molecola, invece di andare a memoria.",
@@ -792,6 +982,94 @@ TOOLS.push(
     }
   },
   {
+    name: 'cerca_letteratura',
+    description: "Cerca articoli scientifici reali su PubMed (NIH) e restituisce titolo, rivista, anno, autori e PMID. Usalo quando serve una fonte, quando l'utente chiede 'cosa dice la letteratura', o per verificare un'affermazione prima di darla per buona.",
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Termini di ricerca, meglio se in inglese, es. "aspirin COX-1 inhibition mechanism".' },
+        max: { type: 'number', description: 'Quanti articoli restituire (1-8, default 5).' }
+      },
+      required: ['query']
+    },
+    execute: function(a){
+      var q = (a && a.query || '').trim();
+      if(!q) return Promise.resolve({ ok:false, error:'query mancante' });
+      var n = Math.max(1, Math.min(8, a.max || 5));
+      var E = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+      return fetch(E + 'esearch.fcgi?db=pubmed&retmode=json&retmax=' + n + '&term=' + encodeURIComponent(q))
+        .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(j){
+          var ids = j && j.esearchresult && j.esearchresult.idlist || [];
+          if(!ids.length) return { ok:true, query:q, totale:0, articoli:[], nota:'nessun articolo trovato su PubMed' };
+          return fetch(E + 'esummary.fcgi?db=pubmed&retmode=json&id=' + ids.join(','))
+            .then(function(r2){ if(!r2.ok) throw new Error('HTTP ' + r2.status); return r2.json(); })
+            .then(function(s){
+              var res = s && s.result || {};
+              var arts = ids.map(function(id){
+                var d = res[id] || {};
+                var au = (d.authors || []).slice(0, 3).map(function(x){ return x.name; });
+                if((d.authors || []).length > 3) au.push('et al.');
+                return {
+                  pmid: id, titolo: d.title || null, autori: au.join(', ') || null,
+                  rivista: d.fulljournalname || d.source || null,
+                  anno: (d.pubdate || '').slice(0, 4) || null,
+                  doi: (d.elocationid || '').replace(/^doi:\s*/i, '') || null,
+                  url: 'https://pubmed.ncbi.nlm.nih.gov/' + id + '/'
+                };
+              });
+              return { ok:true, fonte:'PubMed (NIH)', query:q,
+                       totale: parseInt((j.esearchresult && j.esearchresult.count) || arts.length, 10),
+                       articoli: arts };
+            });
+        })
+        .catch(function(e){ return { ok:false, error:'PubMed non raggiungibile: ' + (e && e.message) }; });
+    }
+  },
+  {
+    name: 'ricorda',
+    description: "Salva in modo permanente un fatto sull'utente o sul suo percorso di studio (es. 'sta preparando l'esame di Chimica Organica 2', 'fatica con i meccanismi SN1/SN2', 'preferisce spiegazioni brevi'). Usalo di tua iniziativa quando emerge qualcosa di utile da ricordare nelle sessioni future. Non salvare dati sensibili.",
+    parameters: {
+      type: 'object',
+      properties: {
+        fatto: { type: 'string', description: 'Il fatto da ricordare, in una frase breve.' },
+        categoria: { type: 'string', description: 'Es. "esame", "difficolta", "preferenza", "obiettivo".' }
+      },
+      required: ['fatto']
+    },
+    execute: function(a){
+      var f = (a && a.fatto || '').trim();
+      if(!f) return { ok:false, error:'fatto mancante' };
+      var mem = loadMemory();
+      // evito di riscrivere lo stesso fatto ad ogni sessione
+      var dup = mem.filter(function(m){ return m.fatto.toLowerCase() === f.toLowerCase(); });
+      if(dup.length) return { ok:true, gia_presente:true, fatto:f, totale_ricordi:mem.length };
+      mem.push({ fatto: f, categoria: (a.categoria || 'generale'), quando: new Date().toISOString().slice(0, 10) });
+      if(mem.length > MAX_MEMORIE) mem = mem.slice(-MAX_MEMORIE);
+      saveMemory(mem);
+      return { ok:true, salvato:f, totale_ricordi:mem.length };
+    }
+  },
+  {
+    name: 'ricordi',
+    description: "Elenca cio' che hai gia' memorizzato sull'utente. Serve anche per dimenticare: passa 'dimentica' con il testo del ricordo da rimuovere.",
+    parameters: {
+      type: 'object',
+      properties: { dimentica: { type: 'string', description: 'Testo (anche parziale) del ricordo da eliminare.' } }
+    },
+    execute: function(a){
+      var mem = loadMemory();
+      if(a && a.dimentica){
+        var q = a.dimentica.toLowerCase();
+        var prima = mem.length;
+        mem = mem.filter(function(m){ return m.fatto.toLowerCase().indexOf(q) < 0; });
+        saveMemory(mem);
+        return { ok:true, rimossi: prima - mem.length, ricordi: mem };
+      }
+      return { ok:true, totale: mem.length, ricordi: mem };
+    }
+  },
+  {
     name: 'stato_app',
     description: "Dice dove si trova l'utente adesso nell'app e quali sezioni e laboratori sono disponibili. Usalo quando devi decidere dove portarlo o quando l'utente dice 'qui', 'questa sezione', 'quello che sto guardando'.",
     parameters: { type: 'object', properties: {} },
@@ -901,6 +1179,7 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
     try{
       r = await streamChat(providerId, apiKey, history, systemPrompt, {
         onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
+        onThinking: callbacks.onThinking,
         onDone: function(){}
       }, toolsDisabled ? undefined : TOOL_SCHEMA, abortSignal);
     }catch(err){
@@ -943,6 +1222,11 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         case 'valuta_druglikeness':msg = '💊 ' + (res.verdetto || 'valutazione completata'); break;
         case 'converti_unita':     msg = '🔁 ' + res.valore + ' ' + res.da + ' = ' + res.risultato + ' ' + res.a; break;
         case 'costante_fisica':    msg = '📐 ' + res.costante + ' = ' + res.valore + ' ' + res.unita; break;
+        case 'bilancia_equazione': msg = '⚗️ ' + res.equazione_bilanciata; break;
+        case 'stechiometria':      msg = '🧮 ' + res.moli_richieste + ' mol' + (res.massa_richiesta_g ? ' (' + res.massa_richiesta_g + ' g)' : ''); break;
+        case 'cerca_letteratura':  msg = '📚 PubMed: ' + (res.articoli || []).length + ' articoli su ' + (res.totale || 0); break;
+        case 'ricorda':            msg = res.gia_presente ? '🧠 (lo sapevo gia\')' : '🧠 Ricordero\': ' + res.salvato; break;
+        case 'ricordi':            msg = res.rimossi !== undefined ? '🧠 Dimenticati: ' + res.rimossi : '🧠 ' + res.totale + ' ricordi'; break;
         case 'stato_app':          msg = '🧭 Ho controllato dove ti trovi nell\'app'; break;
         default:                   msg = '🧭 Ho eseguito: ' + (res.label || er.name);
       }
@@ -1050,7 +1334,26 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "Esempio: se ti chiedono se un farmaco e' drug-like, chiama cerca_pubchem per i descrittori, poi " +
 "valuta_druglikeness sui valori ottenuti, e infine commenta il risultato. Se l'utente dice 'qui' " +
 "o 'questa sezione', chiama stato_app per capire dove si trova prima di rispondere. Non chiedere " +
-"il permesso di usare uno strumento: usalo e poi spiega cosa hai trovato.";
+"il permesso di usare uno strumento: usalo e poi spiega cosa hai trovato.\n\n" +
+"COME LAVORI (in quest'ordine):\n" +
+"1. CAPISCI cosa serve davvero. Se la domanda e' ambigua su un punto che cambia la risposta, " +
+"chiedi; altrimenti procedi con l'interpretazione piu' sensata e dichiarala.\n" +
+"2. PIANIFICA: per una richiesta in piu' passaggi, decidi la sequenza di strumenti prima di partire.\n" +
+"3. ESEGUI usando gli strumenti, mai la memoria, per qualunque numero.\n" +
+"4. VERIFICA prima di rispondere: i conti tornano? l'ordine di grandezza e' plausibile? " +
+"il risultato risponde davvero alla domanda posta? Se uno strumento contraddice quello che stavi " +
+"per dire, vince lo strumento.\n" +
+"5. RISPONDI in modo compatto e ragionato: prima la conclusione, poi il perche', citando le fonti " +
+"(PubChem, PubMed) quando le hai usate.\n\n" +
+"BILANCIAMENTO E STECHIOMETRIA: usa sempre bilancia_equazione e stechiometria. Sono risolutori " +
+"esatti e non sbagliano; bilanciare a occhio sì.\n\n" +
+"FONTI: se l'utente chiede prove, o se stai per affermare qualcosa di clinicamente o " +
+"sperimentalmente rilevante, chiama cerca_letteratura e cita PMID e rivista. Distingui sempre " +
+"cio' che e' consolidato da cio' che e' ancora dibattuto.\n\n" +
+"MEMORIA: quando emerge qualcosa di duraturo sull'utente (esame che prepara, argomenti su cui " +
+"fatica, come preferisce le spiegazioni) chiama ricorda. Non annunciarlo ogni volta: fallo e basta.\n\n" +
+"ONESTA': se non sai, dillo. Se uno strumento fallisce, dillo e spiega cosa manca, invece di " +
+"riempire il buco con un valore verosimile. Un dato inventato in chimica puo' essere pericoloso.";
 
 /* ---------------------------------------------------------------------
    5. Thread di chat (multipli, con cronologia) — bsi_ai_threads
@@ -1216,6 +1519,23 @@ var CSS = [
 '.bsi-msg-actions{display:flex;gap:8px;margin-top:6px;}',
 '.bsi-msg-actions button{background:none;border:none;color:#3d6280;font-size:.72rem;cursor:pointer;padding:2px 4px;}',
 '.bsi-msg-actions button:hover{color:#00c9b7;}',
+/* pannello del ragionamento in diretta */
+'.bsi-think{align-self:flex-start;max-width:88%;background:#0b1622;border:1px solid #17324a;',
+'border-left:2px solid #5eead4;border-radius:10px;padding:7px 10px;margin:2px 0;}',
+'.bsi-think-h{display:flex;align-items:center;gap:7px;}',
+'.bsi-think-dot{width:7px;height:7px;border-radius:50%;background:#5eead4;flex-shrink:0;',
+'animation:bsiThinkPulse 1.2s ease-in-out infinite;}',
+'@keyframes bsiThinkPulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}',
+'.bsi-think-t{color:#5eead4;font-size:.78rem;font-weight:700;flex:1;}',
+'.bsi-think-x{background:none;border:none;color:#3d6280;font-size:.72rem;cursor:pointer;padding:2px 4px;}',
+'.bsi-think-x:hover{color:#5eead4;}',
+/* chiuso di default: il ragionamento e' disponibile ma non invade la lettura */
+'.bsi-think-b{display:none;margin-top:6px;max-height:190px;overflow-y:auto;color:#93b0c8;',
+'font-size:.79rem;line-height:1.5;white-space:pre-wrap;border-top:1px solid #17324a;padding-top:6px;}',
+'.bsi-think.open .bsi-think-b{display:block;}',
+'.bsi-think.done .bsi-think-dot{animation:none;opacity:.5;}',
+'.bsi-turn{display:flex;flex-direction:column;gap:4px;align-items:flex-start;width:100%;}',
+'@media (prefers-reduced-motion:reduce){.bsi-think-dot{animation:none;}}',
 '#bsi-hub-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #14283c;background:#071120;flex-shrink:0;align-items:flex-end;}',
 '#bsi-hub-input{flex:1;resize:none;max-height:120px;padding:10px 12px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e8f4ff;font-size:.9rem;font-family:inherit;outline:none;}',
 '#bsi-hub-input:focus{border-color:#00c9b7;}',
@@ -1566,7 +1886,36 @@ function buildChatPane(){
     box.scrollTop = box.scrollHeight;
   }
 
+  // Ricostruisce il pannello del ragionamento a partire dal testo salvato.
+  // Serve perche' a fine turno renderMessages() ricostruisce tutta la chat dai
+  // messaggi memorizzati: senza questo, il ragionamento mostrato in diretta
+  // sparirebbe appena finita la risposta.
+  function thinkNodeFor(text){
+    var n = el('div', { class: 'bsi-think done' });
+    n.innerHTML = '<div class="bsi-think-h"><span class="bsi-think-dot"></span>' +
+      '<span class="bsi-think-t">Ragionamento</span>' +
+      '<button class="bsi-think-x" type="button">mostra</button></div>' +
+      '<div class="bsi-think-b"></div>';
+    n.querySelector('.bsi-think-b').textContent = text;
+    var tog = n.querySelector('.bsi-think-x');
+    tog.onclick = function(){
+      var open = n.classList.toggle('open');
+      tog.textContent = open ? 'nascondi' : 'mostra';
+    };
+    return n;
+  }
+
   function renderMsgNode(m, idx, thread){
+    if(m.role === 'assistant' && (m.thinking || (m.tools && m.tools.length))){
+      // avvolgo ragionamento + strumenti usati + risposta, cosi' restano associati
+      var wrap = el('div', { class: 'bsi-turn' });
+      if(m.thinking) wrap.appendChild(thinkNodeFor(m.thinking));
+      (m.tools || []).forEach(function(lbl){
+        wrap.appendChild(el('div', { class: 'bsi-msg tool-note' }, escapeHtml(lbl)));
+      });
+      wrap.appendChild(renderMsgNode({ role: m.role, content: m.content }, idx, thread));
+      return wrap;
+    }
     var node = el('div', { class: 'bsi-msg ' + m.role });
     if(m.role === 'assistant'){
       node.appendChild(el('div', { class: 'bsi-msg-ava' }, spectraIcon(16)));
@@ -1642,13 +1991,14 @@ function buildChatPane(){
     abortFlag.stop = false;
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
 
-    var sys = BASE_SYSTEM + buildGrounding(text);
+    var sys = BASE_SYSTEM + memoryPrompt() + buildGrounding(text);
     var history = t.messages.slice(-12).map(function(m){ return { role: m.role, content: m.content }; });
 
     stopBtn.onclick = function(){ abortFlag.stop = true; if(abortCtrl) abortCtrl.abort(); };
 
     try{
       var acc = '';
+      var thinkNode = null, thinkAcc = '', toolLog = [];
       await runAgentTurn(provId, apiKey, history, sys, {
         onToken: function(tok, full){
           if(abortFlag.stop) return;
@@ -1656,8 +2006,36 @@ function buildChatPane(){
           liveBody.innerHTML = mdToHtml(acc);
           box.scrollTop = box.scrollHeight;
         },
+        onThinking: function(chunk){
+          if(abortFlag.stop || !chunk) return;
+          // Pannello del ragionamento: compare al primo token di pensiero e si
+          // riempie in diretta. Senza, con un modello che ragiona l'utente vede
+          // solo una lunga pausa e sembra che Spectra sia bloccato.
+          if(!thinkNode){
+            thinkNode = el('div', { class: 'bsi-think' });
+            thinkNode.innerHTML =
+              '<div class="bsi-think-h"><span class="bsi-think-dot"></span>' +
+              '<span class="bsi-think-t">Sto ragionando…</span>' +
+              '<button class="bsi-think-x" type="button">mostra</button></div>' +
+              '<div class="bsi-think-b"></div>';
+            var body = thinkNode.querySelector('.bsi-think-b');
+            var tog = thinkNode.querySelector('.bsi-think-x');
+            tog.onclick = function(){
+              var open = thinkNode.classList.toggle('open');
+              tog.textContent = open ? 'nascondi' : 'mostra';
+              if(open) body.scrollTop = body.scrollHeight;
+            };
+            box.insertBefore(thinkNode, liveNode);
+          }
+          thinkAcc += chunk;
+          var b = thinkNode.querySelector('.bsi-think-b');
+          b.textContent = thinkAcc;
+          b.scrollTop = b.scrollHeight;
+          box.scrollTop = box.scrollHeight;
+        },
         onToolUse: function(label){
           if(abortFlag.stop) return;
+          toolLog.push(label);
           var note = el('div', { class: 'bsi-msg tool-note' }, escapeHtml(label));
           box.insertBefore(note, liveNode);
           box.scrollTop = box.scrollHeight;
@@ -1665,7 +2043,11 @@ function buildChatPane(){
         onDone: function(full){}
       }, abortCtrl ? abortCtrl.signal : undefined);
       var d2 = loadThreads(); var t2 = getActiveThread(d2);
-      t2.messages.push({ role: 'assistant', content: acc || '(nessuna risposta)' });
+      var msg2 = { role: 'assistant', content: acc || '(nessuna risposta)' };
+      // conservo il ragionamento accanto alla risposta: resta consultabile dopo
+      if(thinkAcc) msg2.thinking = thinkAcc.slice(0, 4000);
+      if(toolLog.length) msg2.tools = toolLog.slice(0, 20);
+      t2.messages.push(msg2);
       saveThreads(d2);
       renderMessages();
       refreshThreadSel();
