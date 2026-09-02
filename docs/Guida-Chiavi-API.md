@@ -12,7 +12,19 @@ parte, e la inserisci **una volta sola** per servizio.
 
 ---
 
-## I cinque servizi, e a cosa serve ciascuno
+## Due livelli: i gratuiti e la frontiera
+
+Spectra ha **cinque servizi gratuiti** e **cinque a pagamento**. I gratuiti
+bastano per studiare; i secondi servono quando un problema è davvero
+difficile.
+
+Il banco che conta per quest'app si chiama **GPQA Diamond**: domande di
+livello dottorato in fisica, chimica e biologia. Non è il benchmark del
+marketing, è esattamente ciò che le chiedi tu.
+
+---
+
+## I cinque servizi gratuiti, e a cosa serve ciascuno
 
 Sono stati scelti uno per uno. Nessuno è lì per fare numero: i servizi
 gratuiti che davano modelli piccoli o cataloghi imprevedibili sono stati
@@ -130,6 +142,83 @@ finiti.
 
 ---
 
+---
+
+# La frontiera — quando serve il massimo
+
+Questi si pagano a consumo, e non poco. Ma sono un'altra categoria: su un
+problema di chimica fisica in dieci passaggi la differenza si vede.
+
+## GPT-5.6 — il più forte sulle domande scientifiche
+
+**È il numero uno su GPQA Diamond: 94,6%.** Sul banco che misura esattamente
+il tipo di domande che fai tu, oggi non c'è niente di meglio.
+
+1. Vai su **`platform.openai.com`** → accedi
+2. **API keys** → **Create new secret key**
+3. Copia la chiave: comincia con **`sk-proj-`**
+4. Serve credito sul conto (**Billing** → aggiungi un importo, anche 5 $)
+
+Circa **4 $ per milione di token** in ingresso. Una conversazione di studio
+costa centesimi.
+
+> Il modello di punta (*Sol*) è ad accesso limitato e la tua chiave potrebbe
+> non vederlo. Non è un problema: Spectra chiede all'API cosa può usare e
+> scala da solo a *Terra* e poi a *Luna*, senza che tu debba saperlo.
+
+## Gemini 3 Pro — la finestra più ampia
+
+**Stessa chiave del Gemini gratuito**: la incolli una volta e vale per
+entrambi. Cambia solo che serve la fatturazione attiva sul progetto Google.
+
+1. **`aistudio.google.com`** → la chiave che hai già
+2. Attiva la fatturazione sul progetto (Google Cloud → Billing)
+
+Oltre **1 milione di token** di contesto: una tesi intera in una sola
+richiesta. Circa 2 $ per milione in ingresso.
+
+## DeepSeek V4 — il miglior rapporto qualità/prezzo
+
+Ragionamento di fascia alta a **una frazione** del costo: circa **0,66 $ per
+milione** di token in ingresso fuori dalle ore di punta — sei volte meno di
+GPT-5.6.
+
+1. **`platform.deepseek.com`** → registrati
+2. **API keys** → **Create API key** → copia (comincia con `sk-`)
+3. Ricarica un piccolo credito
+
+**Se paghi di tasca tua e vuoi spendere poco, comincia da qui.**
+
+## Grok 4 — 2 milioni di token
+
+La finestra più ampia in circolazione e un ottimo rapporto prezzo/GPQA.
+
+1. **`console.x.ai`** → **API Keys** → crea (comincia con `xai-`)
+
+## Claude — Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5
+
+1. **`console.anthropic.com`** → **API Keys** → **Create Key**
+2. Copia (comincia con `sk-ant-`) e aggiungi credito
+
+**Una chiave sola per tutti e quattro:** la incolli su uno qualsiasi dei
+modelli Claude e vale automaticamente per gli altri tre.
+
+> È separato dall'abbonamento di claude.ai: quello non dà accesso all'API.
+
+---
+
+## Quale scegliere, in pratica
+
+| Se… | Usa |
+|---|---|
+| Studio quotidiano, tante domande | **Groq** (gratis) |
+| Un PDF lungo da leggere | **Gemini** (gratis) o **Gemini 3 Pro** |
+| Una domanda difficile, poche volte al giorno | **GitHub Models** (gratis) |
+| Un problema scientifico davvero tosto | **GPT-5.6** |
+| Vuoi potenza ma spendere poco | **DeepSeek V4** |
+
+---
+
 ## Come inserirle in Spectra
 
 1. Apri BioSpecInfo → pulsante **Spectra** (il simbolo dell'atomo)
@@ -139,6 +228,10 @@ finiti.
 
 La chiave sparisce dalla vista e **non te la richiede più**: resta salvata in
 questo browser finché non la togli tu.
+
+> **Le chiavi condivise.** I quattro modelli Claude usano un solo account
+> Anthropic, e Gemini Flash e Gemini 3 Pro una sola chiave di AI Studio:
+> incollala su uno qualsiasi e vale per i gemelli. Non devi ripeterla.
 
 ### Toglierle o ricominciare da capo
 
