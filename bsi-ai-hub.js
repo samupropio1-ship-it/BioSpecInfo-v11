@@ -216,10 +216,43 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   var req = buildRequest(p, apiKey, messages, systemPrompt, tools);
+
+  // Timeout di INATTIVITÀ (non sul totale della risposta): si azzera ad ogni
+  // byte ricevuto, così una risposta lunga ma attiva non viene mai troncata,
+  // mentre una connessione che non risponde più (provider giù, CORS bloccato
+  // in silenzio, rete instabile) viene segnalata subito con un messaggio
+  // chiaro invece di lasciare per sempre i tre puntini "…" a video — prima
+  // sembrava che "Spectra non risponde" senza alcun modo per capire perché.
+  var IDLE_TIMEOUT_MS = 45000;
+  var idleCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var idleTimer = null;
+  var timedOut = false;
+  function bumpIdle(){
+    if(!idleCtrl) return;
+    if(idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(function(){ timedOut = true; try{ idleCtrl.abort(); }catch(e){} }, IDLE_TIMEOUT_MS);
+  }
+  function stopIdle(){ if(idleTimer){ clearTimeout(idleTimer); idleTimer = null; } }
+  var signal = idleCtrl ? idleCtrl.signal : abortSignal;
+  if(idleCtrl && abortSignal){
+    if(abortSignal.aborted) idleCtrl.abort();
+    else abortSignal.addEventListener('abort', function(){ try{ idleCtrl.abort(); }catch(e){} });
+  }
+  bumpIdle();
+
   var fetchOpts = { method: 'POST', headers: req.headers, body: JSON.stringify(req.body) };
-  if(abortSignal) fetchOpts.signal = abortSignal;
-  var res = await fetch(req.url, fetchOpts);
+  if(signal) fetchOpts.signal = signal;
+  var res;
+  try{
+    res = await fetch(req.url, fetchOpts);
+  }catch(networkErr){
+    stopIdle();
+    if(timedOut) throw new Error('⏱ ' + p.name + ' non ha risposto entro ' + (IDLE_TIMEOUT_MS/1000) + 's. Riprova o scegli un altro provider.');
+    if(networkErr && networkErr.name === 'AbortError') throw networkErr;
+    throw new Error('Impossibile contattare ' + p.name + '. Controlla la connessione oppure prova un altro provider (alcuni non permettono chiamate dirette dal browser).');
+  }
   if(!res.ok){
+    stopIdle();
     var errMsg = await readErrorBody(res);
     throw new Error('HTTP ' + res.status + ' — ' + errMsg);
   }
@@ -230,7 +263,15 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     var decoder = new TextDecoder();
     var buf = '';
     while(true){
-      var chunk = await reader.read();
+      var chunk;
+      try{
+        chunk = await reader.read();
+      }catch(readErr){
+        stopIdle();
+        if(timedOut) throw new Error('⏱ ' + p.name + ' si è interrotto (nessun dato per ' + (IDLE_TIMEOUT_MS/1000) + 's). Riprova.');
+        throw readErr;
+      }
+      bumpIdle();
       if(chunk.done) break;
       buf += decoder.decode(chunk.value, { stream: true });
       var lines = buf.split('\n');
@@ -258,6 +299,7 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     }catch(e){ full = text; }
     if(full) callbacks.onToken(full, full);
   }
+  stopIdle();
   var toolCalls = finalizeToolCalls(p.family, tcState);
   callbacks.onDone(full, toolCalls);
   return { text: full, toolCalls: toolCalls };
@@ -529,12 +571,31 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
   var history = messages.slice();
   var totalText = '';
   var MAX_ROUNDS = 4;
+  var toolsDisabled = false;
+  var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
   for(var round = 0; round < MAX_ROUNDS; round++){
     var roundText = '';
-    var r = await streamChat(providerId, apiKey, history, systemPrompt, {
-      onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
-      onDone: function(){}
-    }, TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; }), abortSignal);
+    var r;
+    try{
+      r = await streamChat(providerId, apiKey, history, systemPrompt, {
+        onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
+        onDone: function(){}
+      }, toolsDisabled ? undefined : TOOL_SCHEMA, abortSignal);
+    }catch(err){
+      // Alcuni modelli gratuiti/leggeri (es. Mistral 7B free su OpenRouter)
+      // non gestiscono bene il function-calling e rispondono con un errore
+      // invece di una risposta normale: invece di far fallire tutta la
+      // richiesta (percepito come "Spectra non risponde"), riprovo UNA
+      // volta in modalità solo-testo, senza strumenti.
+      var errMsg = ((err && err.message) || '').toLowerCase();
+      var looksToolRelated = !toolsDisabled && /tool|function.?call|function_call|strument/.test(errMsg);
+      if(looksToolRelated && round === 0){
+        toolsDisabled = true;
+        round--;
+        continue;
+      }
+      throw err;
+    }
     if(!r.toolCalls || !r.toolCalls.length){
       callbacks.onDone(totalText);
       return { text: totalText };
@@ -573,7 +634,7 @@ function mdToHtml(src){
   s = s.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, function(_, lang, code){
     var idx = codeBlocks.length;
     codeBlocks.push('<pre class="bsi-md-code"><code>' + code.replace(/\n$/,'') + '</code></pre>');
-    return ' CODEBLOCK' + idx + ' ';
+    return '\u0000CODEBLOCK' + idx + '\u0000';
   });
   // codice inline `x`
   s = s.replace(/`([^`\n]+)`/g, '<code class="bsi-md-inline">$1</code>');
@@ -601,7 +662,7 @@ function mdToHtml(src){
     return '<p class="bsi-md-p">' + p.replace(/\n/g,'<br>') + '</p>';
   }).join('');
   // reinserisco i blocchi di codice
-  s = s.replace(/ CODEBLOCK(\d+) /g, function(_, idx){ return codeBlocks[+idx]; });
+  s = s.replace(/\u0000CODEBLOCK(\d+)\u0000/g, function(_, idx){ return codeBlocks[+idx]; });
   return s;
 }
 window.bsiMarkdownToHtml = mdToHtml;
@@ -655,7 +716,54 @@ function loadThreads(){
   }
   return d;
 }
-function saveThreads(d){ saveJSON('bsi_ai_threads', d); }
+// Senza un limite, lo storico chat cresce all'infinito in localStorage:
+// prima o poi si supera la quota del browser (in genere 5-10MB) e OGNI
+// scrittura successiva — incluso il salvataggio della chiave API — fallisce
+// in silenzio (era la causa più probabile di "la chiave non si salva").
+// Teniamo al massimo le ultime chat/messaggi, ben oltre il necessario per
+// l'uso normale, e riproviamo in modo sempre più aggressivo se anche così
+// il salvataggio fallisse (storage quasi pieno per altri motivi).
+var MAX_THREADS = 30;
+var MAX_MSGS_PER_THREAD = 100;
+function saveThreads(d){
+  try{
+    if(d && Array.isArray(d.threads)){
+      if(d.threads.length > MAX_THREADS) d.threads = d.threads.slice(0, MAX_THREADS);
+      d.threads.forEach(function(t){
+        if(t && Array.isArray(t.messages) && t.messages.length > MAX_MSGS_PER_THREAD){
+          t.messages = t.messages.slice(-MAX_MSGS_PER_THREAD);
+        }
+      });
+    }
+  }catch(e){}
+  var ok = saveJSON('bsi_ai_threads', d);
+  if(!ok){
+    // Fallback estremo: la scrittura è comunque fallita (storage quasi
+    // pieno). Tengo solo la chat attiva, ridotta ai 15 messaggi più
+    // recenti, per liberare spazio senza far perdere l'ultima conversazione.
+    try{
+      var t2 = getActiveThread(d);
+      if(t2){
+        var slim = { threads: [{ id: t2.id, title: t2.title, messages: (t2.messages||[]).slice(-15), createdAt: t2.createdAt }], activeId: t2.id };
+        ok = saveJSON('bsi_ai_threads', slim);
+      }
+    }catch(e){}
+  }
+  return ok;
+}
+// Libera spazio riducendo drasticamente lo storico chat salvato: usato come
+// ultima risorsa quando anche salvare la chiave API fallisce per storage
+// pieno (la chiave, piccolissima, non deve MAI perdersi per colpa della
+// cronologia chat).
+function pruneThreadsForSpace(){
+  try{
+    var d = loadThreads();
+    d.threads = d.threads.slice(0, 3).map(function(t){
+      return { id: t.id, title: t.title, messages: (t.messages||[]).slice(-10), createdAt: t.createdAt };
+    });
+    saveJSON('bsi_ai_threads', d);
+  }catch(e){}
+}
 function getActiveThread(d){
   var t = d.threads.find(function(x){ return x.id === d.activeId; });
   if(!t){ t = d.threads[0]; d.activeId = t ? t.id : null; }
@@ -884,6 +992,14 @@ function closeHub(){
 window.bsiOpenAIHub = function(tab){
   buildShell();
   document.getElementById('bsi-hub-ov').classList.add('open');
+  // Difensivo: se la chiave è stata salvata/rimossa da un'altra scheda o
+  // dalle Impostazioni mentre l'hub era già stato costruito in questa
+  // pagina, il riquadro chiave potrebbe mostrare uno stato non aggiornato
+  // alla riapertura. buildShell() è un no-op dopo la prima chiamata, quindi
+  // risincronizziamo esplicitamente qui.
+  if(window._bsiHubChatInternal && typeof window._bsiHubChatInternal.refreshKeyBox === 'function'){
+    try{ window._bsiHubChatInternal.refreshKeyBox(); }catch(e){}
+  }
   selectTab(tab || STATE.currentTab || 'chat');
 };
 
@@ -917,7 +1033,16 @@ function setSavedKey(k, providerId){
   var prov = providerId || getSavedProvider();
   var map = getKeysMap();
   map[prov] = k;
-  saveJSON('bsi_api_keys', map);
+  var ok = saveJSON('bsi_api_keys', map);
+  if(!ok){
+    // La chiave API pesa pochi byte: se il salvataggio fallisce è quasi
+    // sempre perché lo storage del browser è pieno per colpa di altri dati
+    // (tipicamente lo storico chat di Spectra). Libero spazio e riprovo:
+    // la chiave non deve MAI andare persa in silenzio.
+    try{ pruneThreadsForSpace(); }catch(e){}
+    ok = saveJSON('bsi_api_keys', map);
+  }
+  return ok;
 }
 function clearSavedKey(providerId){
   var prov = providerId || getSavedProvider();
@@ -1025,9 +1150,21 @@ function buildChatPane(){
   document.getElementById('bsi-hub-savekey').onclick = function(){
     var v = document.getElementById('bsi-hub-keyinput').value.trim();
     if(!v) return;
-    setSavedKey(v, provSel.value); setSavedProvider(provSel.value);
+    var savedOk = setSavedKey(v, provSel.value); setSavedProvider(provSel.value);
     document.getElementById('bsi-hub-keyinput').value = '';
     refreshKeyBox();
+    if(!savedOk){
+      // Non nascondo un fallimento: senza questo avviso l'utente crede di
+      // aver salvato la chiave e si ritrova a doverla reinserire ogni volta.
+      var note = document.getElementById('bsi-hub-keybox');
+      if(note){
+        var warn = document.createElement('div');
+        warn.className = 'bsi-hub-note';
+        warn.style.color = '#ff9d9d';
+        warn.textContent = '⚠ Impossibile salvare la chiave: la memoria del browser è piena. Prova a liberare spazio (Impostazioni → Esporta/Cancella dati) o usa una scheda di navigazione normale (non in incognito).';
+        note.appendChild(warn);
+      }
+    }
   };
   document.getElementById('bsi-hub-clearkey').onclick = function(){ clearSavedKey(provSel.value); refreshKeyBox(); };
 
@@ -1121,7 +1258,24 @@ function buildChatPane(){
     if(!text) return;
     var provId = provSel.value;
     var apiKey = getSavedKey(provId);
-    if(!apiKey){ refreshKeyBox(); return; }
+    if(!apiKey){
+      // Prima: usciva senza dire nulla — sembrava che Spectra "non
+      // rispondesse", mentre in realtà mancava solo la chiave API (magari
+      // il riquadro era scomparso dalla vista sullo schermo). Ora lo
+      // segnaliamo chiaramente, sia riaprendo il riquadro sia con un
+      // messaggio in chat.
+      refreshKeyBox();
+      var keyBoxEl = document.getElementById('bsi-hub-keybox');
+      if(keyBoxEl && keyBoxEl.scrollIntoView) keyBoxEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var msgsBox0 = document.getElementById('bsi-hub-msgs');
+      if(msgsBox0){
+        var warnNode = el('div', { class: 'bsi-msg system-note' },
+          '⚠ Inserisci prima la tua API key di <b>' + escapeHtml(PROVIDERS[provId].name) + '</b> qui sopra: senza chiave Spectra non può rispondere.');
+        msgsBox0.appendChild(warnNode);
+        msgsBox0.scrollTop = msgsBox0.scrollHeight;
+      }
+      return;
+    }
     input.value = '';
     var d = loadThreads();
     var t = getActiveThread(d);
@@ -1197,7 +1351,7 @@ function buildChatPane(){
   });
 
   renderMessages();
-  window._bsiHubChatInternal = { renderMessages: renderMessages, refreshThreadSel: refreshThreadSel, send: send };
+  window._bsiHubChatInternal = { renderMessages: renderMessages, refreshThreadSel: refreshThreadSel, send: send, refreshKeyBox: refreshKeyBox };
 }
 
 /* ========================= TAB: ESAME ORALE ========================= */
