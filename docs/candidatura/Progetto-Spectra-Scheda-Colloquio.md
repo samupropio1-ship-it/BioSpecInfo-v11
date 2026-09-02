@@ -10,16 +10,16 @@ Repository: `samupropio1-ship-it/BioSpecInfo-v11` · demo pubblica su GitHub Pag
 Un **agente conversazionale** che risolve problemi di chimica e fisica
 invocando 32 strumenti deterministici invece di rispondere a memoria, legge
 foto di appunti e PDF, disegna mappe concettuali e risponde al comando vocale —
-con ragionamento visibile e verificabile, su 8 configurazioni di modello di 4
+con ragionamento visibile e verificabile, su 11 configurazioni di modello di 8
 fornitori diversi, senza alcun backend.
 
 ## Numeri
 
 | | |
 |---|---|
-| Componente | 5.486 righe, zero dipendenze runtime |
+| Componente | 5.537 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
-| Fornitori supportati | 4 (Anthropic, Groq, Google, OpenRouter/xAI) — 3 configurazioni gratuite |
+| Fornitori supportati | 8 (Anthropic, GitHub Models, NVIDIA, Mistral, Groq, Google, OpenRouter, xAI) — 6 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
 | Copertura di test | 14 pagine, 84 sezioni, 18 tab — nessun errore JS |
 

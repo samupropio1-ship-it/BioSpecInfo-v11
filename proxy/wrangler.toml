@@ -17,5 +17,8 @@ SITO = "https://samupropio1-ship-it.github.io/BioSpecInfo-v11/"
 
 # ATTENZIONE: le chiavi NON vanno qui — questo file finisce su GitHub.
 # Si impostano come segreti, che restano solo su Cloudflare:
+#   npx wrangler secret put GITHUB_KEYS      (il piu' potente fra i gratuiti)
 #   npx wrangler secret put GROQ_KEYS
 #   npx wrangler secret put GEMINI_KEYS
+#   npx wrangler secret put NVIDIA_KEYS
+#   npx wrangler secret put MISTRAL_KEYS

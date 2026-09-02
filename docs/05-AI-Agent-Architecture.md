@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.486 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.537 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v138` |
+| **Versione documentata** | Service Worker `bsi-v139` |
 
 ---
 
@@ -32,8 +32,8 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su otto configurazioni
-   di modello, incluse tre gratuite.
+   Anthropic, Gemini), così l'agente funziona identico su undici configurazioni
+   di modello, sei delle quali gratuite.
 
 ---
 
@@ -144,6 +144,25 @@ flag impedisce il ciclo infinito quando anche il modello nuovo fallisce.
 
 Anthropic resta l'eccezione voluta: i suoi modelli sono a pagamento, scelti
 esplicitamente dall'utente e con deprecazioni annunciate con largo anticipo.
+
+#### I sei servizi gratuiti
+
+La qualità gratuita non è tutta uguale, e la differenza conta: un modello da 8
+miliardi di parametri non regge un problema di chimica fisica in più passaggi.
+
+| Servizio | Modelli | Il compromesso |
+|---|---|---|
+| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek, Llama 4 | Il più capace fra i gratuiti, e non richiede un account nuovo: basta un token del proprio GitHub. In cambio 10 richieste/minuto e 50 al giorno |
+| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B, Llama 4 | Modelli enormi, compresi quelli che ragionano. Crediti a esaurimento, non si rinnovano |
+| **Mistral** | Large, Medium | ~1 miliardo di token al mese. Richiede verifica telefonica e consenso all'uso dei dati per l'addestramento |
+| **Groq** | GPT-OSS 120B, Qwen3 | Il più veloce, generoso sui volumi |
+| **Google Gemini** | Gemini Flash | Buon contesto, generoso |
+| **OpenRouter** | instradatore automatico | Sceglie da solo fra i gratuiti che sanno usare gli strumenti |
+
+Nessuno di questi eguaglia un modello di frontiera a pagamento sui problemi più
+difficili; GitHub Models e NVIDIA NIM ci vanno vicino, al prezzo di tetti di
+richieste bassi. Per questo l'elenco resta e la scelta è dell'utente, invece di
+imporre un solo servizio.
 
 ### 2.5 Il proxy opzionale — Spectra senza chiave
 
@@ -435,9 +454,9 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.486 |
+| Righe del componente | 5.537 |
 | Strumenti | 32 |
-| Configurazioni di modello | 8 (di cui 3 gratuite) |
+| Configurazioni di modello | 11 (6 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |
