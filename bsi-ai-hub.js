@@ -196,9 +196,58 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
 // è quasi identico; per i turni interni dell'agente (tool_use/tool_result) i
 // messaggi arrivano già nella forma nativa del provider (oggetto _native) e
 // vengono passati così come sono.
-function openaiMsg(m){ return m._native && m._native.openai ? m._native.openai : { role: m.role, content: m.content }; }
-function anthropicMsg(m){ return m._native && m._native.anthropic ? m._native.anthropic : { role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }; }
-function geminiMsg(m){ return m._native && m._native.gemini ? m._native.gemini : { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }; }
+// ── Allegati ────────────────────────────────────────────────────────────────
+// Un messaggio puo' portare file (m.files): immagini, PDF o testo. Ogni
+// famiglia di provider li vuole in una forma diversa, e non tutte supportano
+// tutto: i PDF nativi valgono solo per Anthropic e Gemini, altrove il file
+// viene descritto a parole invece di essere silenziosamente ignorato.
+function filesToAnthropic(files){
+  var out = [];
+  (files || []).forEach(function(f){
+    if(f.kind === 'image') out.push({ type:'image', source:{ type:'base64', media_type:f.mime, data:f.data } });
+    else if(f.kind === 'pdf') out.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:f.data } });
+    else if(f.kind === 'text') out.push({ type:'text', text:'--- contenuto di ' + f.name + ' ---\n' + f.text });
+  });
+  return out;
+}
+function filesToGemini(files){
+  var out = [];
+  (files || []).forEach(function(f){
+    if(f.kind === 'image' || f.kind === 'pdf') out.push({ inline_data:{ mime_type:f.mime, data:f.data } });
+    else if(f.kind === 'text') out.push({ text:'--- contenuto di ' + f.name + ' ---\n' + f.text });
+  });
+  return out;
+}
+function filesToOpenai(files){
+  var out = [];
+  (files || []).forEach(function(f){
+    if(f.kind === 'image') out.push({ type:'image_url', image_url:{ url:'data:' + f.mime + ';base64,' + f.data } });
+    else if(f.kind === 'text') out.push({ type:'text', text:'--- contenuto di ' + f.name + ' ---\n' + f.text });
+    else out.push({ type:'text', text:'[allegato "' + f.name + '" non leggibile da questo provider: i PDF sono supportati solo da Claude e Gemini]' });
+  });
+  return out;
+}
+
+function openaiMsg(m){
+  if(m._native && m._native.openai) return m._native.openai;
+  if(m.files && m.files.length)
+    return { role:m.role, content: filesToOpenai(m.files).concat([{ type:'text', text:m.content || '' }]) };
+  return { role: m.role, content: m.content };
+}
+function anthropicMsg(m){
+  if(m._native && m._native.anthropic) return m._native.anthropic;
+  var role = m.role === 'assistant' ? 'assistant' : 'user';
+  if(m.files && m.files.length)
+    return { role:role, content: filesToAnthropic(m.files).concat([{ type:'text', text:m.content || '' }]) };
+  return { role: role, content: m.content };
+}
+function geminiMsg(m){
+  if(m._native && m._native.gemini) return m._native.gemini;
+  var role = m.role === 'assistant' ? 'model' : 'user';
+  if(m.files && m.files.length)
+    return { role:role, parts: filesToGemini(m.files).concat([{ text:m.content || '' }]) };
+  return { role: role, parts: [{ text: m.content }] };
+}
 
 function extractToken(family, json){
   try{
@@ -653,6 +702,73 @@ var TOOLS = [
 // assistente che ragiona: puo' cercare valori reali, calcolarli e poi
 // commentarli, invece di inventarli.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// ── Lettura degli allegati ─────────────────────────────────────────────────
+// Le immagini vengono ridimensionate prima dell'invio: una foto da telefono
+// e' spesso 4000px e in base64 supererebbe i limiti di richiesta, oltre a
+// costare molto in token. 1600px sul lato lungo bastano ampiamente per leggere
+// appunti, uno spettro o una lavagna.
+var MAX_LATO_IMG = 1600;
+var MAX_FILE_MB = 12;
+
+function leggiAllegato(file){
+  return new Promise(function(resolve, reject){
+    if(file.size > MAX_FILE_MB * 1024 * 1024){
+      reject(new Error('"' + file.name + '" supera ' + MAX_FILE_MB + ' MB'));
+      return;
+    }
+    var mime = file.type || '';
+    // testo: lo mando come testo, non come immagine
+    if(/^text\/|application\/(json|xml|csv)/.test(mime) || /\.(txt|md|csv|json|xml|smi|mol|sdf)$/i.test(file.name)){
+      var rt = new FileReader();
+      rt.onload = function(){ resolve({ kind:'text', name:file.name, mime:mime || 'text/plain',
+                                        text:String(rt.result).slice(0, 200000), size:file.size }); };
+      rt.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
+      rt.readAsText(file);
+      return;
+    }
+    if(mime === 'application/pdf' || /\.pdf$/i.test(file.name)){
+      var rp = new FileReader();
+      rp.onload = function(){
+        resolve({ kind:'pdf', name:file.name, mime:'application/pdf',
+                  data:String(rp.result).split(',')[1], size:file.size });
+      };
+      rp.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
+      rp.readAsDataURL(file);
+      return;
+    }
+    if(/^image\//.test(mime)){
+      var ri = new FileReader();
+      ri.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          try{
+            var w = img.width, h = img.height, scala = Math.min(1, MAX_LATO_IMG / Math.max(w, h));
+            var cv = document.createElement('canvas');
+            cv.width = Math.round(w * scala); cv.height = Math.round(h * scala);
+            cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+            // JPEG per le foto: molto piu' leggero del PNG a parita' di leggibilita'
+            var url = cv.toDataURL('image/jpeg', 0.85);
+            resolve({ kind:'image', name:file.name, mime:'image/jpeg',
+                      data:url.split(',')[1], anteprima:url,
+                      size:file.size, dimensioni:cv.width + '×' + cv.height });
+          }catch(e){
+            // se il canvas fallisce (immagine enorme, memoria) uso l'originale
+            resolve({ kind:'image', name:file.name, mime:mime,
+                      data:String(ri.result).split(',')[1], anteprima:String(ri.result), size:file.size });
+          }
+        };
+        img.onerror = function(){ reject(new Error('"' + file.name + '" non e\' un\'immagine leggibile')); };
+        img.src = String(ri.result);
+      };
+      ri.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
+      ri.readAsDataURL(file);
+      return;
+    }
+    reject(new Error('tipo non supportato: "' + file.name + '" (usa immagini, PDF o file di testo)'));
+  });
+}
+window.bsiLeggiAllegato = leggiAllegato;
 
 // ── Memoria persistente ────────────────────────────────────────────────────
 // Un assistente che riparte da zero ad ogni sessione non e' un agente: questi
@@ -2867,6 +2983,12 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
 "Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
 "utile.\n\n" +
+"MATERIALI DELL'UTENTE: puo' allegarti foto di appunti o della lavagna, pagine di libro, PDF di " +
+"dispense, spettri, strutture e file di testo. Leggili con attenzione e lavoraci sopra: riassunti " +
+"strutturati, schemi gerarchici, mappe concettuali, flashcard, domande d'esame, spiegazioni passo " +
+"passo. Per una MAPPA CONCETTUALE rispondi con un diagramma Mermaid dentro un blocco ```mermaid " +
+"(graph TD, relazioni etichettate sugli archi): l'app lo disegna davvero. Se un'immagine e' poco " +
+"leggibile dillo invece di indovinare, e se contiene formule o spettri interpretali esplicitamente.\n\n" +
 "CONOSCI QUESTA APP DALL'INTERNO: cerca_nel_database interroga i dati veri di BioSpecInfo — 297 " +
 "reazioni di sintesi con condizioni operative, 118 elementi, 67 amminoacidi con pKa e SMILES, 143 " +
 "farmaci con meccanismo d'azione ed effetti avversi, 36 interazioni farmacologiche, 29 potenziali " +
@@ -3113,6 +3235,33 @@ var CSS = [
 '.bsi-think.open .bsi-think-b{display:block;}',
 '.bsi-think.done .bsi-think-dot{animation:none;opacity:.5;}',
 '.bsi-turn{display:flex;flex-direction:column;gap:4px;align-items:flex-start;width:100%;}',
+/* allegati */
+'#bsi-hub-attrow{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px;}',
+'#bsi-hub-attrow:not(:empty){padding:8px 12px 0;}',
+'.bsi-att{display:flex;align-items:center;gap:6px;background:#0d1b2e;border:1px solid #1a3550;',
+'border-radius:9px;padding:4px 6px 4px 4px;max-width:190px;}',
+'.bsi-att img{width:30px;height:30px;object-fit:cover;border-radius:5px;flex-shrink:0;}',
+'.bsi-att-ic{width:30px;height:30px;display:flex;align-items:center;justify-content:center;',
+'background:#122437;border-radius:5px;font-size:15px;flex-shrink:0;}',
+'.bsi-att-n{font-size:.74rem;color:#9fb8cf;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+'.bsi-att-x{background:none;border:none;color:#5b7d99;cursor:pointer;font-size:.8rem;padding:0 2px;flex-shrink:0;}',
+'.bsi-att-x:hover{color:#ff8a9a;}',
+'.bsi-att.err{background:#2a1520;border-color:#5c2436;color:#ffb3c0;font-size:.76rem;padding:6px 9px;max-width:none;}',
+'#bsi-hub-msgs.drop{outline:2px dashed #5eead4;outline-offset:-8px;background:#08202a;}',
+/* azioni rapide sugli allegati */
+'#bsi-hub-actions{display:none;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 12px 0;}',
+'.bsi-act-lbl{font-size:.74rem;color:#5b7d99;margin-right:2px;}',
+'.bsi-act{background:#0e2a3a;border:1px solid #1d4a5e;color:#7fe3d6;border-radius:14px;',
+'padding:5px 11px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;}',
+'.bsi-act:hover{background:#12384c;border-color:#5eead4;}',
+/* miniature degli allegati dentro il messaggio inviato */
+'.bsi-msg-att{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;}',
+'.bsi-msg-att img{width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #2a4a63;}',
+'.bsi-msg-att .f{background:#0d2036;border:1px solid #2a4a63;border-radius:6px;padding:5px 8px;',
+'font-size:.72rem;color:#9fb8cf;display:flex;align-items:center;gap:5px;}',
+/* mappe concettuali */
+'.bsi-mermaid{background:#f7fbfa;border:1px solid #1a3550;border-radius:10px;padding:10px;margin:8px 0;overflow-x:auto;}',
+'.bsi-mermaid svg{max-width:100%;height:auto;}',
 '@media (prefers-reduced-motion:reduce){.bsi-think-dot{animation:none;}}',
 '#bsi-hub-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #14283c;background:#071120;flex-shrink:0;align-items:flex-end;}',
 '#bsi-hub-input{flex:1;resize:none;max-height:120px;padding:10px 12px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e8f4ff;font-size:.9rem;font-family:inherit;outline:none;}',
@@ -3342,6 +3491,110 @@ function makeMicButton(onResult){
 }
 
 /* ============================ TAB: CHAT ============================ */
+// ── Allegati: interfaccia ───────────────────────────────────────────────────
+var _allegati = [];   // in attesa di essere inviati con il prossimo messaggio
+
+// Azioni rapide: trasformano un allegato in un prodotto di studio con un tocco.
+// Ognuna e' solo un prompt ben scritto, ma toglie all'utente il peso di doverlo
+// formulare ogni volta.
+var AZIONI_STUDIO = [
+  { ic:'📝', nm:'Riassunto', p:'Riassumi il materiale allegato in modo strutturato: titolo, 5-8 punti chiave con le definizioni essenziali, e una riga finale di sintesi. Mantieni la terminologia scientifica esatta.' },
+  { ic:'🗺️', nm:'Mappa concettuale', p:'Costruisci una mappa concettuale del materiale allegato. Rispondi con un diagramma Mermaid in un blocco di codice ```mermaid usando "graph TD", con i concetti come nodi e relazioni etichettate sugli archi. Dopo il diagramma aggiungi due righe che spiegano la logica della mappa.' },
+  { ic:'📊', nm:'Schema', p:'Trasforma il materiale allegato in uno schema gerarchico a punti e sottopunti, pronto da studiare. Usa il grassetto per i concetti portanti e mantieni le formule esatte.' },
+  { ic:'🃏', nm:'Flashcard', p:'Genera 10 flashcard dal materiale allegato, in formato tabella con due colonne: Domanda e Risposta. Le domande devono verificare la comprensione, non la memoria letterale.' },
+  { ic:'🎓', nm:'Domande d\'esame', p:'Formula 6 domande d\'esame universitario sul materiale allegato, di difficolta\' crescente, e per ciascuna indica in due righe cosa dovrebbe contenere una risposta completa.' },
+  { ic:'🔍', nm:'Spiega',  p:'Analizza il materiale allegato e spiegamelo passo per passo come farebbe un docente, partendo dai prerequisiti. Se contiene formule, strutture o spettri, interpretali esplicitamente.' }
+];
+
+function buildAttachUI(inputRow){
+  var inp = el('input', { type:'file', multiple:'multiple', style:'display:none',
+                          accept:'image/*,application/pdf,text/*,.md,.csv,.json,.mol,.sdf,.smi' });
+  var btn = el('button', { class:'bsi-hub-btn ghost', id:'bsi-hub-attach', title:'Allega foto, PDF o appunti' }, '📎');
+  btn.onclick = function(e){ e.preventDefault(); inp.click(); };
+  inp.onchange = function(){ aggiungiAllegati(inp.files); inp.value = ''; };
+  inputRow.insertBefore(btn, document.getElementById('bsi-hub-input'));
+  inputRow.appendChild(inp);
+
+  // Trascinamento sull'intera area della chat: e' il gesto piu' naturale su desktop
+  var zona = document.getElementById('bsi-hub-msgs');
+  if(zona){
+    ['dragenter','dragover'].forEach(function(ev){
+      zona.addEventListener(ev, function(e){ e.preventDefault(); zona.classList.add('drop'); });
+    });
+    ['dragleave','drop'].forEach(function(ev){
+      zona.addEventListener(ev, function(e){ e.preventDefault(); zona.classList.remove('drop'); });
+    });
+    zona.addEventListener('drop', function(e){
+      if(e.dataTransfer && e.dataTransfer.files) aggiungiAllegati(e.dataTransfer.files);
+    });
+  }
+  // Incolla direttamente uno screenshot dagli appunti
+  var ta = document.getElementById('bsi-hub-input');
+  if(ta) ta.addEventListener('paste', function(e){
+    var it = (e.clipboardData && e.clipboardData.items) || [];
+    var imgs = [];
+    for(var i = 0; i < it.length; i++) if(it[i].type && it[i].type.indexOf('image/') === 0){
+      var f = it[i].getAsFile(); if(f) imgs.push(f);
+    }
+    if(imgs.length){ e.preventDefault(); aggiungiAllegati(imgs); }
+  });
+  renderAzioni();
+}
+
+function aggiungiAllegati(fileList){
+  var arr = Array.prototype.slice.call(fileList || []);
+  arr.forEach(function(f){
+    leggiAllegato(f).then(function(a){
+      _allegati.push(a);
+      renderAllegati(); renderAzioni();
+    }).catch(function(err){
+      var row = document.getElementById('bsi-hub-attrow');
+      if(row){
+        var e2 = el('div', { class:'bsi-att err' }, '⚠️ ' + escapeHtml(err.message));
+        row.appendChild(e2);
+        setTimeout(function(){ if(e2.parentNode) e2.parentNode.removeChild(e2); }, 6000);
+      }
+    });
+  });
+}
+
+function renderAllegati(){
+  var row = document.getElementById('bsi-hub-attrow');
+  if(!row) return;
+  row.innerHTML = '';
+  _allegati.forEach(function(a, i){
+    var chip = el('div', { class:'bsi-att' });
+    var icona = a.kind === 'image' ? '' : (a.kind === 'pdf' ? '📄' : '📃');
+    chip.innerHTML =
+      (a.anteprima ? '<img src="' + a.anteprima + '" alt="">' : '<span class="bsi-att-ic">' + icona + '</span>') +
+      '<span class="bsi-att-n">' + escapeHtml(a.name.length > 22 ? a.name.slice(0, 20) + '…' : a.name) + '</span>' +
+      '<button class="bsi-att-x" title="Rimuovi">✕</button>';
+    chip.querySelector('.bsi-att-x').onclick = function(){
+      _allegati.splice(i, 1); renderAllegati(); renderAzioni();
+    };
+    row.appendChild(chip);
+  });
+}
+
+function renderAzioni(){
+  var box = document.getElementById('bsi-hub-actions');
+  if(!box) return;
+  // le azioni compaiono solo quando c'e' qualcosa da elaborare
+  if(!_allegati.length){ box.innerHTML = ''; box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  box.innerHTML = '<span class="bsi-act-lbl">Cosa ne faccio?</span>';
+  AZIONI_STUDIO.forEach(function(a){
+    var c = el('button', { class:'bsi-act' }, a.ic + ' ' + a.nm);
+    c.onclick = function(){
+      var t = document.getElementById('bsi-hub-input');
+      t.value = a.p;
+      var s = document.getElementById('bsi-hub-send');
+      if(s) s.click();
+    };
+    box.appendChild(c);
+  });
+}
+
 function buildChatPane(){
   var pane = document.getElementById('bsi-pane-chat');
   pane.innerHTML =
@@ -3362,8 +3615,10 @@ function buildChatPane(){
       '<div class="bsi-hub-note">La chiave resta solo in questo browser (localStorage): non viene mai inviata a server di BioSpecInfo, solo al provider scelto.</div>' +
     '</div>' +
     '<div id="bsi-hub-msgs"></div>' +
+    '<div id="bsi-hub-attrow"></div>' +
+    '<div id="bsi-hub-actions"></div>' +
     '<div id="bsi-hub-inputrow">' +
-      '<textarea id="bsi-hub-input" rows="1" placeholder="Chiedi qualsiasi cosa di chimica, biochimica, spettroscopia…"></textarea>' +
+      '<textarea id="bsi-hub-input" rows="1" placeholder="Chiedi qualsiasi cosa, oppure allega foto, appunti o un PDF…"></textarea>' +
     '</div>';
 
   var provSel = document.getElementById('bsi-hub-provsel');
@@ -3373,6 +3628,7 @@ function buildChatPane(){
     var inp = document.getElementById('bsi-hub-input');
     inp.value = (inp.value ? inp.value + ' ' : '') + text;
   }), document.getElementById('bsi-hub-input'));
+  buildAttachUI(inputRow);
   var sendBtn = el('button', { class: 'bsi-hub-btn primary', id: 'bsi-hub-send' }, 'Invia →');
   inputRow.appendChild(sendBtn);
   var stopBtn = el('button', { class: 'bsi-hub-btn ghost', id: 'bsi-hub-stop', style: 'display:none' }, '■ Stop');
@@ -3483,6 +3739,47 @@ function buildChatPane(){
     return n;
   }
 
+  // Disegna i blocchi ```mermaid come diagrammi veri. La libreria viene
+  // caricata solo la prima volta che serve davvero: chi non chiede mai una
+  // mappa non paga il download.
+  var _mermaidStato = 'assente';   // assente | caricamento | pronto | fallito
+  function renderMermaid(root){
+    if(!root) return;
+    var blocchi = [].slice.call(root.querySelectorAll('pre code.language-mermaid, pre code'))
+      .filter(function(c){ return /^\s*(graph|flowchart|mindmap|sequenceDiagram|classDiagram)\b/.test(c.textContent); });
+    if(!blocchi.length) return;
+
+    function disegna(){
+      blocchi.forEach(function(code, i){
+        var pre = code.closest('pre'); if(!pre || pre.dataset.reso) return;
+        pre.dataset.reso = '1';
+        var box = document.createElement('div');
+        box.className = 'bsi-mermaid';
+        var id = 'mmd' + Date.now() + i;
+        try{
+          window.mermaid.render(id, code.textContent).then(function(res){
+            box.innerHTML = res.svg; pre.parentNode.replaceChild(box, pre);
+          }).catch(function(){ pre.dataset.reso = ''; });
+        }catch(e){ pre.dataset.reso = ''; }
+      });
+    }
+    if(_mermaidStato === 'pronto'){ disegna(); return; }
+    if(_mermaidStato === 'caricamento' || _mermaidStato === 'fallito') return;
+    _mermaidStato = 'caricamento';
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function(){
+      try{
+        window.mermaid.initialize({ startOnLoad:false, theme:'default', securityLevel:'strict' });
+        _mermaidStato = 'pronto'; disegna();
+      }catch(e){ _mermaidStato = 'fallito'; }
+    };
+    // se il CDN non risponde il blocco resta come codice leggibile: nessun danno
+    s.onerror = function(){ _mermaidStato = 'fallito'; };
+    document.head.appendChild(s);
+  }
+
   function renderMsgNode(m, idx, thread){
     if(m.role === 'assistant' && (m.thinking || (m.tools && m.tools.length))){
       // avvolgo ragionamento + strumenti usati + risposta, cosi' restano associati
@@ -3514,7 +3811,19 @@ function buildChatPane(){
         body.appendChild(actions);
       }
       node.appendChild(body);
+      renderMermaid(body);
     } else {
+      // miniature degli allegati sopra il testo del messaggio inviato
+      if(m.allegati && m.allegati.length){
+        var att = el('div', { class:'bsi-msg-att' });
+        m.allegati.forEach(function(a){
+          if(a.anteprima) att.appendChild(el('img', { src:a.anteprima, alt:escapeHtml(a.name) }));
+          else att.appendChild(el('div', { class:'f' }, (a.kind === 'pdf' ? '📄 ' : '📃 ') + escapeHtml(a.name)));
+        });
+        node.appendChild(att);
+        node.appendChild(el('div', {}, escapeHtml(m.content)));
+        return node;
+      }
       node.textContent = m.content;
     }
     return node;
@@ -3554,8 +3863,19 @@ function buildChatPane(){
     var d = loadThreads();
     var t = getActiveThread(d);
     if(t.title === 'Nuova chat') t.title = text.slice(0, 40);
-    t.messages.push({ role: 'user', content: text });
+    // gli allegati in attesa partono con questo messaggio e poi la barra si svuota
+    var allegatiInvio = _allegati.slice();
+    var msgUtente = { role: 'user', content: text };
+    if(allegatiInvio.length){
+      // nella cronologia salvo solo i metadati: le immagini in base64
+      // riempirebbero localStorage in pochi messaggi
+      msgUtente.allegati = allegatiInvio.map(function(a){
+        return { name:a.name, kind:a.kind, anteprima:a.kind === 'image' ? a.anteprima : null };
+      });
+    }
+    t.messages.push(msgUtente);
     saveThreads(d);
+    _allegati = []; renderAllegati(); renderAzioni();
     renderMessages();
 
     var box = document.getElementById('bsi-hub-msgs');
@@ -3573,6 +3893,9 @@ function buildChatPane(){
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });
+    // I file completi vengono allegati solo all'ultimo messaggio: rimandare le
+    // immagini ad ogni turno moltiplicherebbe i costi senza aggiungere nulla.
+    if(allegatiInvio.length && history.length) history[history.length - 1].files = allegatiInvio;
 
     stopBtn.onclick = function(){ abortFlag.stop = true; if(abortCtrl) abortCtrl.abort(); };
 
