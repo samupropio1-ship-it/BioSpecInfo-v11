@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.959 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.189 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v142
+- sw.js            — Service Worker (network-first). Cache: bsi-v143
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -106,6 +106,9 @@ conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
 concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
 traduttore, esportazione in PDF.
 Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
+Interfaccia: nucleo atomico animato in intestazione che cambia velocita' e
+colore con lo stato (riposo/pensa/strumenti/scrive) piu' una riga di stato a
+parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
 
 ## NOTE IMPORTANTI (bug gia' risolti — non reintrodurli)
 
@@ -267,6 +270,31 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
       e gemini_pro preferisci=/pro/, e i due non si sovrappongono.
    punteggioGemini prende il provider come secondo argomento: NON rimetterlo
    a uno solo, o le due configurazioni Gemini tornano a risolvere uguale.
+
+18) MODALITA' NUCLEO — non e' un interruttore decorativo: cambia quattro
+   cose insieme (giri del ciclo 10->16, effort 'xhigh' dove esiste, prompt
+   di sistema aggiuntivo, e passaggio alla configurazione di rango piu' alto
+   fra quelle con una chiave). Il passaggio di modello viene DETTO in chat,
+   e se il nuovo e' a pagamento lo dichiara: cambiare modello di nascosto a
+   chi paga a consumo sarebbe spendere i suoi soldi senza dirglielo.
+   Il campo 'rango' su ogni provider serve solo a questo.
+
+19) STATO DEL NUCLEO — statoNucleo(nome, dettaglio) mette data-stato
+   sull'overlay e il CSS fa il resto. E' agganciato ai callback che gia'
+   esistevano (onThinking/onToolUse/onToken) piu' l'inizio e la fine di
+   send(). Serviva perche' fra "invio" e "prima parola" l'utente vedeva una
+   pausa muta e pensava fosse bloccata.
+
+20) DIFETTI DI LAYOUT gia' corretti — non reintrodurli:
+   - il campo di scrittura divideva la riga con quattro pulsanti e restava
+     largo 156px: il segnaposto andava a capo e veniva TAGLIATO. Ora il testo
+     ha una riga sua e i comandi stanno sotto (#bsi-hub-cmdrow). Se cambi il
+     segnaposto, verifica a 360px di larghezza che scrollHeight non superi
+     l'altezza.
+   - il titolo "Spectra — il copilota AI di BioSpecInfo" non ci stava e si
+     troncava: ora c'e' solo il nome, e il resto sta nella riga di stato.
+   - gli orbitali del nucleo uscivano dal riquadro e finivano sopra il testo:
+     overflow:hidden sull'svg e raggi ridotti (rx 17, non 20).
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

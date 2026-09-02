@@ -36,6 +36,7 @@ function saveJSON(key, val){
 --------------------------------------------------------------------- */
 var PROVIDERS = {
   groq: {
+    rango: 50,
     name: 'Groq — velocissimo', family: 'openai', free: true,
     // Nome NON cablato: Groq ha ritirato llama-3.3-70b-versatile il 17/06/2026
     // e l'app rispondeva "The model does not exist or you do not have access
@@ -50,6 +51,7 @@ var PROVIDERS = {
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero.'
   },
   gemini: {
+    rango: 40,
     name: 'Google Gemini Flash', family: 'gemini', free: true,
     // Il nome del modello NON e' cablato. Google ritira i modelli dall'endpoint
     // e un nome fisso prima o poi restituisce 404 ("models/gemini-1.5-flash is
@@ -71,6 +73,7 @@ var PROVIDERS = {
   // Groq e OpenRouter free danno modelli piccoli; questi tre no. In cambio
   // hanno tetti di richieste piu' bassi, dichiarati nelle note.
   github: {
+    rango: 60,
     name: 'GitHub Models — GPT-4.1, o4-mini, DeepSeek', family: 'openai', free: true,
     model: null,
     modelliCandidati: ['openai/gpt-4.1', 'openai/o4-mini', 'deepseek/DeepSeek-V3-0324',
@@ -90,6 +93,7 @@ var PROVIDERS = {
     note: 'Il più potente fra i gratuiti e non serve un account nuovo: basta un token del tuo GitHub. In cambio il tetto è basso — 10 richieste al minuto e 50 al giorno — quindi tienilo per le domande difficili.'
   },
   nvidia: {
+    rango: 55,
     name: 'NVIDIA NIM — DeepSeek R1, Llama 4, Qwen', family: 'openai', free: true,
     model: null,
     modelliCandidati: ['deepseek-ai/deepseek-r1', 'qwen/qwen3-235b-a22b',
@@ -103,6 +107,7 @@ var PROVIDERS = {
     note: 'Oltre 100 modelli, compresi quelli enormi che ragionano (DeepSeek R1). I crediti gratuiti sono a esaurimento, non si rinnovano da soli.'
   },
   zai: {
+    rango: 45,
     name: 'Z.AI GLM-4.7-Flash', family: 'openai', free: true,
     // Gratuito SENZA scadenza (non crediti a esaurimento) e con function
     // calling vero: la combinazione che serve a un agente come Spectra.
@@ -120,6 +125,7 @@ var PROVIDERS = {
   // GPQA Diamond: domande di livello dottorato in fisica, chimica e biologia.
   // E' l'unico banco che misura davvero cio' che serve a quest'app.
   openai: {
+    rango: 98,
     name: 'OpenAI GPT-5.6 — record su GPQA', family: 'openai', free: false,
     model: null,
     // Sol e' in accesso limitato: se la chiave non lo vede, il risolutore
@@ -134,6 +140,7 @@ var PROVIDERS = {
     note: 'Il punteggio piu' + "'" + ' alto al mondo su GPQA Diamond (94,6%), il banco di domande scientifiche di livello dottorato: e' + "'" + ' il piu' + "'" + ' adatto a questa app. Circa 4$ per milione di token in ingresso.'
   },
   gemini_pro: {
+    rango: 90,
     name: 'Google Gemini 3 Pro', family: 'gemini', free: false,
     model: null,
     modelliCandidati: ['gemini-3-pro', 'gemini-3.1-pro-preview', 'gemini-2.5-pro'],
@@ -146,6 +153,7 @@ var PROVIDERS = {
     note: 'Frontiera con la finestra piu' + "'" + ' ampia: oltre 1 milione di token, quindi tesi intere in una sola richiesta. Usa la stessa chiave del Gemini gratuito.'
   },
   deepseek: {
+    rango: 78,
     name: 'DeepSeek V4 — potenza a poco', family: 'openai', free: false,
     model: null,
     modelliCandidati: ['deepseek-v4-pro', 'deepseek-reasoner', 'deepseek-v4-flash',
@@ -162,6 +170,7 @@ var PROVIDERS = {
   // supporta significa 400 secco. In particolare Haiku 4.5 NON accetta
   // output_config.effort e non ha la ricerca web di nuova generazione.
   claude_fable: {
+    rango: 100,
     name: 'Claude Fable 5.1 — il massimo', family: 'anthropic', free: false,
     model: 'claude-fable-5-1',
     // Su Fable il ragionamento e' sempre attivo: si controlla solo la profondita'.
@@ -179,6 +188,7 @@ var PROVIDERS = {
     note: 'Il modello più capace, per i problemi più difficili. Anche il più costoso.'
   },
   claude: {
+    rango: 95,
     name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
     model: 'claude-opus-5',
     chiaveCondivisaCon: 'claude_fable',
@@ -196,6 +206,7 @@ var PROVIDERS = {
     note: 'A pagamento e separato dall\'abbonamento di claude.ai: serve credito API su console.anthropic.com.'
   },
   claude_sonnet: {
+    rango: 85,
     name: 'Claude Sonnet 5 — equilibrato', family: 'anthropic', free: false,
     model: 'claude-sonnet-5',
     chiaveCondivisaCon: 'claude_fable',
@@ -209,6 +220,7 @@ var PROVIDERS = {
     note: 'Quasi la qualità di Opus a meno della metà del costo: la scelta di tutti i giorni.'
   },
   claude_haiku: {
+    rango: 35,
     name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
     model: 'claude-haiku-4-5',
     chiaveCondivisaCon: 'claude_fable',
@@ -221,6 +233,7 @@ var PROVIDERS = {
     note: 'Stessa chiave di Claude Opus 5, ma molto più economico.'
   },
   grok: {
+    rango: 80,
     name: 'Grok 4 (xAI) — 2M di contesto', family: 'openai', free: false,
     model: null,
     modelliCandidati: ['grok-4-fast', 'grok-4', 'grok-3-mini', 'grok-3'],
@@ -574,6 +587,46 @@ window.bsiRisolviModello = risolviModello;
 window.bsiGeminiReset = function(provId){ modelloCacheInvalida(provId); };
 
 /* ---------------------------------------------------------------------
+   1b-bis. MODALITA' NUCLEO — quando serve tutta la potenza disponibile
+   Non e' un interruttore decorativo: cambia quattro cose insieme, che da
+   sole non basterebbero.
+     · sceglie la configurazione piu' capace fra quelle per cui c'e' una
+       chiave (rango), e lo DICE — non si cambia modello di nascosto a
+       qualcuno che potrebbe pagare a consumo;
+     · alza i giri del ciclo agentico da 10 a 16: una catena lunga di
+       strumenti si esauriva a meta';
+     · porta il ragionamento al massimo sui modelli che lo espongono;
+     · aggiunge al prompt di sistema l'istruzione di lavorare per passaggi
+       verificati invece che per risposta rapida.
+   Costa piu' quota, e su un servizio a pagamento costa piu' soldi: per
+   questo e' un interruttore e non il comportamento predefinito.
+--------------------------------------------------------------------- */
+var GIRI_NORMALE = 10, GIRI_NUCLEO = 16;
+function nucleoAttivo(){
+  try{ return localStorage.getItem('bsi_nucleo') === '1'; }catch(e){ return false; }
+}
+function setNucleo(v){
+  try{ localStorage.setItem('bsi_nucleo', v ? '1' : '0'); }catch(e){}
+}
+/* La configurazione piu' capace fra quelle utilizzabili adesso. */
+function migliorProvider(){
+  var best = null, bestR = -1;
+  Object.keys(PROVIDERS).forEach(function(id){
+    if(!chiaveDaUsare(id)) return;
+    var r = PROVIDERS[id].rango || 0;
+    if(r > bestR){ bestR = r; best = id; }
+  });
+  return best;
+}
+var PROMPT_NUCLEO = "\n\nMODALITA' APPROFONDITA. Hai piu' passaggi a disposizione del solito: " +
+  "usali. Prima di rispondere scomponi il problema nei suoi passaggi, invoca uno strumento per " +
+  "OGNI quantita' numerica invece di stimarne qualcuna a memoria, e confronta i risultati fra loro " +
+  "per coerenza dimensionale e ordine di grandezza. Se due strade portano a numeri diversi, dillo " +
+  "e spiega quale e' affidabile e perche'. Meglio una risposta lenta e verificata che una rapida " +
+  "e plausibile.";
+window.bsiNucleo = { attivo: nucleoAttivo, imposta: setNucleo, migliore: migliorProvider };
+
+/* ---------------------------------------------------------------------
    1c. BUDGET DELLA RICHIESTA
    Alcuni gratuiti hanno un tetto di token IN INGRESSO molto basso: GitHub
    Models ne accetta 8.000 per richiesta. Il costo fisso di Spectra e' gia'
@@ -816,7 +869,9 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     if(p.thinking) aBody.thinking = p.thinking;
     // Profondita' di ragionamento: e' la leva che separa una risposta rapida da
     // una ragionata. 'high' e' il punto di equilibrio fra qualita' e costo.
-    if(p.effort) aBody.output_config = { effort: p.effort };
+    // In Modalita' Nucleo si chiede la profondita' massima al modello che la
+    // espone; sugli altri il campo non esiste e non va inviato.
+    if(p.effort) aBody.output_config = { effort: nucleoAttivo() ? 'xhigh' : p.effort };
     var aTools = toolsForFamily('anthropic', tools);
     if(aTools) aBody.tools = aTools;
     // Ricerca web nativa di Anthropic: gira sui loro server, quindi non
@@ -3955,7 +4010,7 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   // Con soli 4 giri l'agente non riusciva a incatenare piu' di un paio di
   // strumenti: cercare un composto, valutarlo e poi aprirne la scheda esauriva
   // il budget. Ora ha spazio per una vera catena di ragionamento.
-  var MAX_ROUNDS = 10;
+  var MAX_ROUNDS = nucleoAttivo() ? GIRI_NUCLEO : GIRI_NORMALE;
   var toolsDisabled = false;
   var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
   // La selezione per budget si fa UNA volta per turno, non ad ogni giro.
@@ -4519,23 +4574,112 @@ window.bsiSRSSeed = srsSeedFromQuiz;
 /* ======================================================================
    7. UI — shell con tab, iniettata una sola volta
 ====================================================================== */
+/* Il nucleo: tre orbitali e un centro. Non e' decorazione — la velocita' e
+   il colore dicono cosa sta facendo Spectra mentre non scrive, che prima
+   era invisibile (l'utente vedeva una pausa e pensava fosse bloccata). */
+function nucleoSvg(){
+  return '<div id="bsi-nucleo" aria-hidden="true"><svg viewBox="0 0 48 48">' +
+    '<defs><radialGradient id="spAlone"><stop offset="0" stop-color="#5eead4" stop-opacity=".55"/>' +
+    '<stop offset="1" stop-color="#5eead4" stop-opacity="0"/></radialGradient></defs>' +
+    '<circle class="alone" cx="24" cy="24" r="21" fill="url(#spAlone)"/>' +
+    '<ellipse class="orb" cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="#5eead4" stroke-width="1.7" opacity=".85"/>' +
+    '<ellipse class="orb" cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="#38bdf8" stroke-width="1.7" opacity=".7" transform="rotate(60 24 24)"/>' +
+    '<ellipse class="orb" cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="#a78bfa" stroke-width="1.7" opacity=".6" transform="rotate(120 24 24)"/>' +
+    '<circle class="cuore" cx="24" cy="24" r="5.2" fill="#5eead4"/>' +
+    '</svg></div>';
+}
+/* Stati: riposo · pensa · strumenti · scrive. Il testo accanto al nome dice
+   la stessa cosa a parole, per chi non guarda l'animazione. */
+var _STATI = { riposo:'pronto', pensa:'sto ragionando…', strumenti:'sto usando gli strumenti…', scrive:'sto rispondendo…' };
+function statoNucleo(nome, dettaglio){
+  var ov = document.getElementById('bsi-hub-ov');
+  if(ov) ov.setAttribute('data-stato', nome || 'riposo');
+  var e = document.getElementById('bsi-hub-stato');
+  if(e) e.textContent = dettaglio || _STATI[nome] || _STATI.riposo;
+}
+
 var CSS = [
-'#bsi-hub-ov{position:fixed;inset:0;z-index:2147483645;display:none;background:#050b14;}',
+/* ── Identita' visiva ───────────────────────────────────────────────────
+   Un solo insieme di colori, dichiarato una volta: prima erano una
+   trentina di esadecimali ripetuti a mano, e cambiarne uno significava
+   cercarlo in venti punti. */
+':root{--sp-fondo:#050a12;--sp-fondo2:#0a1220;--sp-vetro:rgba(18,32,50,.72);',
+'--sp-bordo:#1a3550;--sp-linea:rgba(94,234,212,.14);--sp-ciano:#5eead4;--sp-verde:#1fd39a;',
+'--sp-testo:#e6f1fb;--sp-tenue:#7e9bb5;--sp-viola:#a78bfa;}',
+'#bsi-hub-ov{position:fixed;inset:0;z-index:2147483645;display:none;',
+'background:radial-gradient(1200px 700px at 12% -8%,#0d2f42 0%,transparent 58%),',
+'radial-gradient(900px 600px at 92% 102%,#1a1740 0%,transparent 55%),#050a12;}',
 '#bsi-hub-ov.open{display:flex;flex-direction:column;}',
-'#bsi-hub-top{display:flex;align-items:center;gap:0;background:#071221;border-bottom:2px solid #1a3050;height:50px;padding:0 8px 0 14px;flex-shrink:0;}',
-'#bsi-hub-top .ttl{color:#00c9b7;font-weight:800;font-size:.98rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}',
-'#bsi-hub-close{background:#0f1e2e;border:1px solid rgba(255,107,107,.35);color:#ff6b6b;border-radius:8px;padding:6px 12px;font-size:.85rem;font-weight:700;cursor:pointer;}',
-'#bsi-hub-tabs{display:flex;background:#061019;border-bottom:1px solid #14283c;overflow-x:auto;flex-shrink:0;}',
-'.bsi-hub-tab{flex:1;min-width:92px;text-align:center;padding:10px 8px;color:#5a7a94;font-size:.78rem;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}',
-'.bsi-hub-tab.on{color:#00c9b7;border-bottom-color:#00c9b7;}',
-'#bsi-hub-body{flex:1;overflow-y:auto;position:relative;background:#0a1420;}',
+/* Intestazione: il nucleo, il nome, lo stato. Niente titolo lungo che si
+   tronca — il nome sta su una riga e lo stato su quella sotto. */
+'#bsi-hub-top{display:flex;align-items:center;gap:11px;flex-shrink:0;padding:9px 10px 9px 13px;',
+'background:linear-gradient(180deg,rgba(10,22,38,.96),rgba(6,14,26,.9));',
+'border-bottom:1px solid rgba(94,234,212,.16);backdrop-filter:blur(14px);}',
+'#bsi-hub-top .idb{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}',
+'#bsi-hub-top .ttl{font-weight:800;font-size:1.12rem;letter-spacing:.3px;',
+'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}',
+'#bsi-hub-top .ttl b{background:linear-gradient(96deg,#5eead4,#38bdf8 55%,#a78bfa);',
+'-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#5eead4;}',
+'#bsi-hub-stato{font-size:.7rem;color:var(--sp-tenue);white-space:nowrap;overflow:hidden;',
+'text-overflow:ellipsis;letter-spacing:.3px;}',
+'#bsi-hub-close{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.3);color:#ff8b8b;',
+'border-radius:10px;padding:7px 12px;font-size:.8rem;font-weight:700;cursor:pointer;flex-shrink:0;}',
+'#bsi-hub-close:hover{background:rgba(255,107,107,.16);}',
+/* Il nucleo: orbitali che ruotano. La velocita' e il colore dicono cosa
+   sta facendo Spectra, senza bisogno di leggere niente. */
+'#bsi-nucleo{width:36px;height:36px;flex-shrink:0;position:relative;}',
+/* overflow:hidden e raggi ridotti: ruotando, gli orbitali uscivano dal
+   riquadro e finivano sopra il testo accanto. */
+'#bsi-nucleo svg{width:100%;height:100%;overflow:hidden;display:block;}',
+'#bsi-nucleo .orb{transform-origin:24px 24px;animation:spOrb 9s linear infinite;}',
+'#bsi-nucleo .orb:nth-of-type(2){animation-duration:13s;animation-direction:reverse;}',
+'#bsi-nucleo .orb:nth-of-type(3){animation-duration:17s;}',
+'#bsi-nucleo .cuore{transform-origin:24px 24px;animation:spCuore 3s ease-in-out infinite;}',
+'#bsi-nucleo .alone{opacity:0;transition:opacity .4s;}',
+'@keyframes spOrb{to{transform:rotate(360deg)}}',
+'@keyframes spCuore{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.13);opacity:1}}',
+/* stati */
+'#bsi-hub-ov[data-stato="pensa"] #bsi-nucleo .orb{animation-duration:2.2s;}',
+'#bsi-hub-ov[data-stato="pensa"] #bsi-nucleo .orb:nth-of-type(2){animation-duration:3s;}',
+'#bsi-hub-ov[data-stato="pensa"] #bsi-nucleo .orb:nth-of-type(3){animation-duration:3.8s;}',
+'#bsi-hub-ov[data-stato="pensa"] #bsi-nucleo .alone{opacity:.85;}',
+'#bsi-hub-ov[data-stato="strumenti"] #bsi-nucleo .orb{animation-duration:1.2s;stroke:#fbbf24;}',
+'#bsi-hub-ov[data-stato="strumenti"] #bsi-nucleo .cuore{fill:#fbbf24;}',
+'#bsi-hub-ov[data-stato="strumenti"] #bsi-nucleo .alone{opacity:.9;}',
+'#bsi-hub-ov[data-stato="scrive"] #bsi-nucleo .orb{animation-duration:4s;}',
+'#bsi-hub-ov[data-stato="scrive"] #bsi-nucleo .alone{opacity:.6;}',
+'@media (prefers-reduced-motion:reduce){#bsi-nucleo .orb,#bsi-nucleo .cuore{animation:none!important;}}',
+/* Tab: prima si accavallavano e il testo usciva dal bordo. */
+'#bsi-hub-tabs{display:flex;gap:2px;flex-shrink:0;padding:0 8px;overflow-x:auto;',
+'background:rgba(5,11,20,.6);border-bottom:1px solid rgba(94,234,212,.1);',
+'scrollbar-width:none;-ms-overflow-style:none;}',
+'#bsi-hub-tabs::-webkit-scrollbar{display:none;}',
+/* Le tab scorrono. Senza la sfumatura sul bordo sembravano tagliate per
+   errore, invece che scorrevoli. */
+'#bsi-hub-tabwrap{position:relative;flex-shrink:0;}',
+'#bsi-hub-tabwrap::after{content:"";position:absolute;top:0;right:0;bottom:1px;width:34px;',
+'pointer-events:none;background:linear-gradient(90deg,rgba(5,11,20,0),rgba(5,11,20,.92));}',
+'.bsi-hub-tab{flex:0 0 auto;padding:11px 13px;color:var(--sp-tenue);font-size:.79rem;font-weight:700;',
+'cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s;}',
+'.bsi-hub-tab:hover{color:#b9d3e6;}',
+'.bsi-hub-tab.on{color:var(--sp-ciano);border-bottom-color:var(--sp-ciano);',
+'text-shadow:0 0 18px rgba(94,234,212,.5);}',
+'#bsi-hub-body{flex:1;overflow-y:auto;position:relative;background:transparent;}',
 '.bsi-hub-pane{display:none;height:100%;flex-direction:column;}',
 '.bsi-hub-pane.on{display:flex;}',
 /* chat */
-'#bsi-hub-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}',
-'.bsi-msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:.9rem;line-height:1.55;}',
-'.bsi-msg.user{align-self:flex-end;background:#0d3b52;color:#e8f4ff;border-bottom-right-radius:3px;}',
-'.bsi-msg.assistant{align-self:flex-start;background:#101f30;color:#dbe7f3;border:1px solid #17293c;border-bottom-left-radius:3px;display:flex;gap:9px;align-items:flex-start;padding-left:11px;}',
+'#bsi-hub-msgs{flex:1;overflow-y:auto;padding:16px 14px 20px;display:flex;flex-direction:column;gap:13px;}',
+'.bsi-msg{max-width:90%;padding:11px 14px;border-radius:14px;font-size:.9rem;line-height:1.6;}',
+'.bsi-msg.user{align-self:flex-end;color:#eaf6ff;border-bottom-right-radius:4px;',
+'background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(94,234,212,.13));',
+'border:1px solid rgba(94,234,212,.26);box-shadow:0 6px 20px -10px rgba(56,189,248,.5);}',
+/* La risposta ha una barra a sinistra: e' cio' che la distingue a colpo
+   d'occhio dalla domanda, anche scorrendo veloce. */
+'.bsi-msg.assistant{align-self:flex-start;color:#dce9f6;border-bottom-left-radius:4px;',
+'background:linear-gradient(180deg,rgba(17,31,49,.88),rgba(12,23,38,.88));',
+'border:1px solid rgba(94,234,212,.13);border-left:2px solid var(--sp-ciano);',
+'display:flex;gap:10px;align-items:flex-start;padding-left:12px;',
+'box-shadow:0 10px 30px -18px rgba(0,0,0,.9);}',
 '.bsi-msg-ava{flex-shrink:0;margin-top:2px;}',
 '.bsi-msg-ava.pulse{animation:bsiSpPulse 1.4s ease-in-out infinite;}',
 '@keyframes bsiSpPulse{0%,100%{opacity:.55;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}',
@@ -4607,24 +4751,55 @@ var CSS = [
 '@keyframes bsiWakePulse{0%,100%{box-shadow:0 0 0 0 rgba(94,234,212,.45)}50%{box-shadow:0 0 0 6px rgba(94,234,212,0)}}',
 '@media (prefers-reduced-motion:reduce){.bsi-wake.on{animation:none;}}',
 '@media (prefers-reduced-motion:reduce){.bsi-think-dot{animation:none;}}',
-'#bsi-hub-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #14283c;background:#071120;flex-shrink:0;align-items:flex-end;}',
-'#bsi-hub-input{flex:1;resize:none;max-height:120px;padding:10px 12px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e8f4ff;font-size:.9rem;font-family:inherit;outline:none;}',
-'#bsi-hub-input:focus{border-color:#00c9b7;}',
-'.bsi-hub-btn{padding:10px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:.85rem;}',
-'.bsi-hub-btn.primary{background:linear-gradient(135deg,#1fd39a,#1aa97a);color:#04241a;}',
-'.bsi-hub-btn.ghost{background:#0f1e2e;color:#9fb8d0;border:1px solid #1a3550;}',
+'#bsi-hub-inputrow{display:flex;flex-direction:column;gap:9px;padding:11px 12px;flex-shrink:0;',
+'border-top:1px solid rgba(94,234,212,.13);background:linear-gradient(180deg,rgba(7,17,32,.7),rgba(5,11,20,.96));',
+'backdrop-filter:blur(12px);padding-bottom:calc(11px + env(safe-area-inset-bottom, 0px));}',
+/* min-height e line-height espliciti: con una riga sola il testo veniva
+   tagliato in basso, e il segnaposto si vedeva a meta'. */
+'#bsi-hub-cmdrow{display:flex;gap:8px;align-items:center;}',
+'#bsi-hub-cmdrow .spazio{flex:1;}',
+'#bsi-hub-input{width:100%;box-sizing:border-box;resize:none;min-height:46px;max-height:150px;padding:12px 13px;',
+'line-height:1.4;background:rgba(13,27,46,.85);border:1px solid rgba(94,234,212,.18);',
+'border-radius:13px;color:var(--sp-testo);font-size:.9rem;font-family:inherit;outline:none;',
+'transition:border-color .18s,box-shadow .18s;}',
+'#bsi-hub-input::placeholder{color:#5f7d97;}',
+'#bsi-hub-input:focus{border-color:var(--sp-ciano);box-shadow:0 0 0 3px rgba(94,234,212,.13);}',
+'.bsi-hub-btn{padding:11px 15px;border-radius:12px;border:none;font-weight:700;cursor:pointer;',
+'font-size:.85rem;font-family:inherit;transition:transform .12s,box-shadow .18s;}',
+'.bsi-hub-btn:active{transform:translateY(1px);}',
+'.bsi-hub-btn.compatto{padding:6px 11px;border-radius:20px;font-size:.82rem;}',
+'.bsi-hub-btn.primary{background:linear-gradient(135deg,#5eead4,#1fd39a 55%,#14b88a);color:#04241a;',
+'box-shadow:0 8px 22px -10px rgba(31,211,154,.8);}',
+'.bsi-hub-btn.ghost{background:rgba(15,30,46,.8);color:#a8c2d8;border:1px solid rgba(94,234,212,.16);}',
+'.bsi-hub-btn.ghost:hover{border-color:rgba(94,234,212,.4);color:var(--sp-ciano);}',
 '.bsi-hub-btn:disabled{opacity:.5;cursor:not-allowed;}',
-'#bsi-hub-topbar2{display:flex;gap:8px;padding:8px 12px;align-items:center;border-bottom:1px solid #101f30;flex-wrap:wrap;}',
-'#bsi-hub-provsel{background:#0d1b2e;color:#cdd9e6;border:1px solid #1a3550;border-radius:8px;padding:6px 8px;font-size:.8rem;}',
-'.bsi-copilot-toggle{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#0f1e2e;border:1px solid #1a3550;border-radius:20px;font-size:.76rem;color:#9fb8d0;user-select:none;white-space:nowrap;}',
+'#bsi-hub-topbar2{display:flex;gap:7px;padding:9px 12px;align-items:center;flex-wrap:wrap;',
+'border-bottom:1px solid rgba(94,234,212,.09);background:rgba(6,13,24,.5);}',
+'#bsi-hub-provsel{background:rgba(13,27,46,.85);color:#cdd9e6;border:1px solid rgba(94,234,212,.16);',
+'border-radius:9px;padding:6px 8px;font-size:.78rem;flex:1 1 150px;min-width:0;}',
+'.bsi-copilot-toggle{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;',
+'background:rgba(15,30,46,.8);border:1px solid rgba(94,234,212,.16);font-size:.74rem;color:#9fb8d0;',
+'user-select:none;white-space:nowrap;}',
 '.bsi-copilot-toggle.on{background:linear-gradient(135deg,#1fd39a33,#1aa97a33);border-color:#1fd39a;color:#5eead4;}',
 '.bsi-copilot-toggle .dot{width:8px;height:8px;border-radius:50%;background:#3d6280;flex-shrink:0;}',
 '.bsi-copilot-toggle.on .dot{background:#1fd39a;box-shadow:0 0 6px #1fd39a;}',
-'.bsi-msg.tool-note{align-self:center;background:#0f2a24;color:#5eead4;font-size:.76rem;padding:6px 12px;border-radius:20px;border:1px solid #17453a;}',
+'.bsi-msg.tool-note{align-self:center;color:var(--sp-ciano);font-size:.76rem;padding:6px 13px;',
+'border-radius:20px;background:rgba(15,42,36,.75);border:1px solid rgba(94,234,212,.22);}',
+/* Interruttore della Modalita' Nucleo */
+'#bsi-nucleo-sw{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;',
+'font-size:.74rem;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;',
+'background:rgba(15,30,46,.8);border:1px solid rgba(94,234,212,.16);color:#8fa9c0;',
+'transition:all .2s;}',
+'#bsi-nucleo-sw .pt{width:8px;height:8px;border-radius:50%;background:#3d6280;flex-shrink:0;transition:all .2s;}',
+'#bsi-nucleo-sw.on{color:#fde68a;border-color:rgba(251,191,36,.55);',
+'background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(167,139,250,.14));',
+'box-shadow:0 0 22px -6px rgba(251,191,36,.6);}',
+'#bsi-nucleo-sw.on .pt{background:#fbbf24;box-shadow:0 0 9px #fbbf24;}',
 '.bsi-suggest-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:4px 8px 12px;}',
 '.bsi-suggest-chip{background:#0f1e2e;border:1px solid #1a3550;color:#9fb8d0;font-size:.8rem;padding:8px 13px;border-radius:16px;cursor:pointer;transition:border-color .15s,color .15s;}',
 '.bsi-suggest-chip:hover{border-color:#00c9b7;color:#5eead4;}',
-'#bsi-hub-threadsel{background:#0d1b2e;color:#cdd9e6;border:1px solid #1a3550;border-radius:8px;padding:6px 8px;font-size:.8rem;flex:1;min-width:0;}',
+'#bsi-hub-threadsel{background:rgba(13,27,46,.85);color:#cdd9e6;border:1px solid rgba(94,234,212,.16);',
+'border-radius:9px;padding:6px 8px;font-size:.78rem;flex:1 1 110px;min-width:0;max-width:170px;}',
 '.bsi-hub-mic{background:#0f1e2e;border:1px solid #1a3550;color:#9fb8d0;border-radius:10px;padding:9px 12px;cursor:pointer;}',
 '.bsi-hub-mic.rec{background:#3a1e1e;border-color:#ff6b6b;color:#ff6b6b;}',
 '#bsi-hub-keybox{margin:12px;padding:14px;background:#0f1e2e;border:1px solid #1a3550;border-radius:12px;}',
@@ -4682,9 +4857,9 @@ function spectraIcon(size, opts){
   return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 48 48" style="' + style + '"' + cls + ' aria-hidden="true">' +
     '<defs><linearGradient id="' + gid + '" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">' +
     '<stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#00c9b7"/></linearGradient></defs>' +
-    '<ellipse cx="24" cy="24" rx="20" ry="7.5" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6"/>' +
-    '<ellipse cx="24" cy="24" rx="20" ry="7.5" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6" transform="rotate(60 24 24)"/>' +
-    '<ellipse cx="24" cy="24" rx="20" ry="7.5" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6" transform="rotate(120 24 24)"/>' +
+    '<ellipse cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6"/>' +
+    '<ellipse cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6" transform="rotate(60 24 24)"/>' +
+    '<ellipse cx="24" cy="24" rx="17" ry="6.2" fill="none" stroke="url(#' + gid + ')" stroke-width="2.6" transform="rotate(120 24 24)"/>' +
     '<path d="M24 16.5 L26.6 21.4 L31.5 24 L26.6 26.6 L24 31.5 L21.4 26.6 L16.5 24 L21.4 21.4 Z" fill="url(#' + gid + ')"/>' +
     '<circle cx="42.5" cy="24" r="2.6" fill="#5eead4"/>' +
     '</svg>';
@@ -4698,13 +4873,18 @@ function buildShell(){
   ensureStyle();
   var ov = el('div', { id: 'bsi-hub-ov' });
   ov.innerHTML =
-    '<div id="bsi-hub-top"><span class="ttl">' + spectraIcon(21, { style: 'margin-right:7px' }) + 'Spectra — il copilota AI di BioSpecInfo</span><button id="bsi-hub-close">✕ Chiudi</button></div>' +
-    '<div id="bsi-hub-tabs">' +
+    '<div id="bsi-hub-top">' + nucleoSvg() +
+      '<div class="idb">' +
+        '<div class="ttl"><b>Spectra</b></div>' +
+        '<div id="bsi-hub-stato">pronto</div>' +
+      '</div>' +
+      '<button id="bsi-hub-close">✕ Chiudi</button></div>' +
+    '<div id="bsi-hub-tabwrap"><div id="bsi-hub-tabs">' +
       '<div class="bsi-hub-tab" data-tab="chat">💬 Chat</div>' +
       '<div class="bsi-hub-tab" data-tab="exam">🎓 Esame Orale</div>' +
       '<div class="bsi-hub-tab" data-tab="srs">🔁 Ripassa Oggi</div>' +
       '<div class="bsi-hub-tab" data-tab="guide">📘 Genera Guida</div>' +
-    '</div>' +
+    '</div></div>' +
     '<div id="bsi-hub-body">' +
       '<div class="bsi-hub-pane" id="bsi-pane-chat"></div>' +
       '<div class="bsi-hub-pane" id="bsi-pane-exam"></div>' +
@@ -5020,7 +5200,7 @@ function buildAttachUI(inputRow){
   var btn = el('button', { class:'bsi-hub-btn ghost', id:'bsi-hub-attach', title:'Allega foto, PDF o appunti' }, '📎');
   btn.onclick = function(e){ e.preventDefault(); inp.click(); };
   inp.onchange = function(){ aggiungiAllegati(inp.files); inp.value = ''; };
-  inputRow.insertBefore(btn, document.getElementById('bsi-hub-input'));
+  inputRow.appendChild(btn);
   inputRow.appendChild(inp);
 
   // Trascinamento sull'intera area della chat: e' il gesto piu' naturale su desktop
@@ -5108,10 +5288,11 @@ function buildChatPane(){
   pane.innerHTML =
     '<div id="bsi-hub-topbar2">' +
       '<select id="bsi-hub-threadsel"></select>' +
-      '<button class="bsi-hub-btn ghost" id="bsi-hub-newchat">＋ Nuova</button>' +
+      '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-newchat">＋ Nuova</button>' +
       '<select id="bsi-hub-provsel">' + providerSelectHtml(getSavedProvider()) + '</select>' +
       '<div class="bsi-copilot-toggle on" id="bsi-copilot-toggle" title="Spectra puo\' sempre aprire sezioni, strumenti e cercare molecole per te — nessuna attivazione necessaria"><span class="dot"></span><span>🧭 Copilota attivo</span></div>' +
-      '<button class="bsi-hub-btn ghost" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑 Cancella tutto</button>' +
+      '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
+      '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-keybox" style="display:none">' +
@@ -5129,19 +5310,23 @@ function buildChatPane(){
     '<div id="bsi-hub-attrow"></div>' +
     '<div id="bsi-hub-actions"></div>' +
     '<div id="bsi-hub-inputrow">' +
-      '<textarea id="bsi-hub-input" rows="1" placeholder="Chiedi qualsiasi cosa, oppure allega foto, appunti o un PDF…"></textarea>' +
+      '<textarea id="bsi-hub-input" rows="1" placeholder="Chiedi qualsiasi cosa, o allega un file…"></textarea>' +
+      '<div id="bsi-hub-cmdrow"></div>' +
     '</div>';
 
   var provSel = document.getElementById('bsi-hub-provsel');
   var keyBox = document.getElementById('bsi-hub-keybox');
   var inputRow = document.getElementById('bsi-hub-inputrow');
-  inputRow.insertBefore(makeMicButton(function(text){
+  // I comandi stanno SOTTO il testo, non accanto: dividendo la riga il campo
+  // restava largo 156px, il segnaposto andava a capo e veniva tagliato.
+  var cmdRow = document.getElementById('bsi-hub-cmdrow');
+  cmdRow.appendChild(makeMicButton(function(text){
     var inp = document.getElementById('bsi-hub-input');
     inp.value = (inp.value ? inp.value + ' ' : '') + text;
-  }), document.getElementById('bsi-hub-input'));
-  buildAttachUI(inputRow);
+  }));
+  buildAttachUI(cmdRow);
   // "Hey Spectra ..." — il comando riconosciuto viene mostrato e inviato da solo
-  inputRow.insertBefore(makeWakeButton(function(comando){
+  cmdRow.appendChild(makeWakeButton(function(comando){
     var inp = document.getElementById('bsi-hub-input');
     if(!inp || !comando) return;
     inp.value = comando;
@@ -5152,11 +5337,12 @@ function buildChatPane(){
     }
     var s = document.getElementById('bsi-hub-send');
     if(s) s.click();
-  }), document.getElementById('bsi-hub-input'));
+  }));
+  cmdRow.appendChild(el('div', { class: 'spazio' }));
   var sendBtn = el('button', { class: 'bsi-hub-btn primary', id: 'bsi-hub-send' }, 'Invia →');
-  inputRow.appendChild(sendBtn);
+  cmdRow.appendChild(sendBtn);
   var stopBtn = el('button', { class: 'bsi-hub-btn ghost', id: 'bsi-hub-stop', style: 'display:none' }, '■ Stop');
-  inputRow.appendChild(stopBtn);
+  cmdRow.appendChild(stopBtn);
 
   // Ogni provider ricorda la propria chiave per sempre (bsi_api_keys):
   // una volta salvata non viene più richiesta, anche cambiando provider.
@@ -5230,6 +5416,45 @@ function buildChatPane(){
      — chat, cronologia, chiavi — e sono spuntate di partenza; le altre due
      restano da spuntare a mano perche' cancellano lavoro che non c'entra
      con il "ricominciare da capo" della chat. */
+  /* --- Modalità Nucleo ------------------------------------------------
+     Accendendola si passa alla configurazione piu' capace fra quelle per cui
+     c'e' una chiave, e lo si DICE: cambiare modello di nascosto a qualcuno
+     che paga a consumo sarebbe spendere i suoi soldi senza dirglielo. */
+  var swNucleo = document.getElementById('bsi-nucleo-sw');
+  function pingNucleo(){
+    if(swNucleo) swNucleo.classList.toggle('on', nucleoAttivo());
+  }
+  pingNucleo();
+  function commutaNucleo(){
+    var ora = !nucleoAttivo();
+    setNucleo(ora);
+    pingNucleo();
+    var box = document.getElementById('bsi-hub-msgs');
+    if(!ora){
+      if(box) box.appendChild(el('div', { class: 'bsi-msg system-note' },
+        '⚛ Modalità Nucleo spenta: si torna ai passaggi normali.'));
+      return;
+    }
+    var migliore = migliorProvider();
+    var testo = '⚛ <b>Modalità Nucleo accesa.</b> Ragionamento al massimo, ' +
+                GIRI_NUCLEO + ' passaggi di strumenti invece di ' + GIRI_NORMALE + '.';
+    if(migliore && migliore !== provSel.value){
+      provSel.value = migliore; setSavedProvider(migliore); refreshKeyBox();
+      testo += ' Passo a <b>' + escapeHtml(PROVIDERS[migliore].name) + '</b>, il più capace fra quelli per cui hai una chiave' +
+               (PROVIDERS[migliore].free ? '.' : ' — <b>a pagamento</b>, quindi consuma credito.');
+    }
+    if(box){
+      box.appendChild(el('div', { class: 'bsi-msg system-note' }, testo));
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+  if(swNucleo){
+    swNucleo.onclick = commutaNucleo;
+    swNucleo.onkeydown = function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); commutaNucleo(); }
+    };
+  }
+
   var resetBox = document.getElementById('bsi-hub-resetbox');
   var PREDEFINITI = ['chat', 'chiavi'];
   function disegnaReset(){
@@ -5562,10 +5787,11 @@ function buildChatPane(){
     box.appendChild(liveNode); box.scrollTop = box.scrollHeight;
 
     sendBtn.disabled = true; sendBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+    statoNucleo('pensa');
     abortFlag.stop = false;
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
 
-    var sys = BASE_SYSTEM + memoryPrompt() + buildGrounding(text);
+    var sys = BASE_SYSTEM + memoryPrompt() + buildGrounding(text) + (nucleoAttivo() ? PROMPT_NUCLEO : '');
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });
@@ -5581,11 +5807,13 @@ function buildChatPane(){
       await runAgentTurn(provId, apiKey, history, sys, {
         onToken: function(tok, full){
           if(abortFlag.stop) return;
+          if(!acc) statoNucleo('scrive');
           acc = full;
           liveBody.innerHTML = mdToHtml(acc);
           box.scrollTop = box.scrollHeight;
         },
         onThinking: function(chunk){
+          statoNucleo('pensa');
           if(abortFlag.stop || !chunk) return;
           // Pannello del ragionamento: compare al primo token di pensiero e si
           // riempie in diretta. Senza, con un modello che ragiona l'utente vede
@@ -5614,6 +5842,7 @@ function buildChatPane(){
         },
         onToolUse: function(label){
           if(abortFlag.stop) return;
+          statoNucleo('strumenti', label.replace(/^[^\w\sàèéìòù]+\s*/, '').slice(0, 46));
           toolLog.push(label);
           var note = el('div', { class: 'bsi-msg tool-note' }, escapeHtml(label));
           box.insertBefore(note, liveNode);
@@ -5676,6 +5905,7 @@ function buildChatPane(){
       }catch(e2){}
     } finally {
       sendBtn.disabled = false; sendBtn.style.display = 'inline-block'; stopBtn.style.display = 'none';
+      statoNucleo('riposo');
     }
   }
   sendBtn.onclick = send;
