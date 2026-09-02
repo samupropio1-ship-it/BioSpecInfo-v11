@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.283 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.486 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v137` |
+| **Versione documentata** | Service Worker `bsi-v138` |
 
 ---
 
@@ -182,6 +182,37 @@ mai il browser.
 
 Le due strade convivono: senza `PROXY_URL` tutto funziona come prima, e per i
 fornitori non coperti dal proxy Spectra continua a usare la chiave locale.
+
+### 2.6 Ricominciare da capo
+
+Tutto ciò che Spectra ricorda vive in `localStorage`: chat, cronologia, chiavi
+API, memoria persistente, schede di ripasso. Un pulsante "cancella cronologia"
+che togliesse solo le conversazioni non farebbe ripartire da capo — alla
+riapertura si ritroverebbe lo stesso stato.
+
+Il punto delicato è che le chiavi hanno **due formati**: la mappa attuale
+(`bsi_api_keys`, una chiave per fornitore) e il formato singolo delle versioni
+precedenti (`bsi_api_key`). `getKeysMap()` migra automaticamente il secondo nel
+primo, quindi cancellare solo la mappa **fa riapparire la chiave vecchia** al
+primo accesso successivo. Vanno tolti entrambi — e con loro le cache dei
+modelli risolti, che senza chiave non hanno più significato.
+
+Per questo l'elenco di ciò che l'applicazione scrive sta in un punto solo,
+`DATI_CANCELLABILI`, diviso in cinque gruppi con etichetta e descrizione. Il
+pannello di conferma si costruisce da lì: mostra quante voci esistono davvero
+per ciascun gruppo, disattiva quelli già vuoti e richiede un secondo clic
+esplicito. Spuntati di partenza solo chat e chiavi; memoria, ripasso e
+progressi del resto dell'app restano da scegliere a mano, perché cancellano
+lavoro che non c'entra con il ripartire da capo della conversazione.
+
+Restano fuori di proposito la licenza PRO, il periodo di prova e l'identità del
+dispositivo: sono dati che l'utente non si aspetta di perdere svuotando una
+chat, e una licenza non si cancella per sbaglio. Il pannello lo dichiara.
+
+Dopo la cancellazione viene azzerato anche lo stato in memoria del processo —
+elenco dei fornitori coperti dal proxy, modello risolto per ciascun provider —
+altrimenti resterebbe valido fino al ricaricamento della pagina, e Spectra
+continuerebbe a usare un modello scelto con una chiave che non esiste più.
 
 ---
 
@@ -404,7 +435,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.283 |
+| Righe del componente | 5.486 |
 | Strumenti | 32 |
 | Configurazioni di modello | 8 (di cui 3 gratuite) |
 | Aree scientifiche coperte | 13 |

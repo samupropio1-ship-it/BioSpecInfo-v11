@@ -36,7 +36,7 @@ function saveJSON(key, val){
 --------------------------------------------------------------------- */
 var PROVIDERS = {
   groq: {
-    name: 'Groq · gratis e velocissimo', family: 'openai', free: true,
+    name: 'Groq — velocissimo', family: 'openai', free: true,
     // Nome NON cablato: Groq ha ritirato llama-3.3-70b-versatile il 17/06/2026
     // e l'app rispondeva "The model does not exist or you do not have access
     // to it". I candidati sono solo un ripiego: il modello vero lo sceglie
@@ -50,7 +50,7 @@ var PROVIDERS = {
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero.'
   },
   gemini: {
-    name: 'Google Gemini Flash · gratis', family: 'gemini', free: true,
+    name: 'Google Gemini Flash', family: 'gemini', free: true,
     // Il nome del modello NON e' cablato. Google ritira i modelli dall'endpoint
     // e un nome fisso prima o poi restituisce 404 ("models/gemini-1.5-flash is
     // not found for API version v1beta"): e' esattamente cio' che e' successo.
@@ -63,7 +63,7 @@ var PROVIDERS = {
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
   openrouter: {
-    name: 'OpenRouter · gratis', family: 'openai', free: true,
+    name: 'OpenRouter', family: 'openai', free: true,
     // Su OpenRouter gli id dei modelli gratuiti cambiano di continuo, quindi
     // cablarne uno e' garanzia di rottura. 'openrouter/free' e' un instradatore
     // che sceglie da solo fra i gratuiti e filtra quelli che sanno usare gli
@@ -3860,6 +3860,110 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "riempire il buco con un valore verosimile. Un dato inventato in chimica puo' essere pericoloso.";
 
 /* ---------------------------------------------------------------------
+   4b. RIPARTIRE DA CAPO — cancellazione completa
+   Un "cancella cronologia" che lascia in giro le chiavi vecchie non fa
+   ripartire da capo: alla riapertura si ritrova lo stesso stato. Peggio,
+   cancellare bsi_api_keys senza cancellare bsi_api_key (il formato vecchio,
+   a chiave singola) fa RIAPPARIRE la chiave: getKeysMap() la rimigra al
+   primo accesso. Per questo l'elenco di cio' che l'app scrive sta qui, in
+   un punto solo — aggiungendo una voce ci si ricorda di pulirla.
+--------------------------------------------------------------------- */
+var DATI_CANCELLABILI = {
+  chat: {
+    etichetta: 'Chat e cronologia',
+    dettaglio: 'tutte le conversazioni salvate e le domande passate',
+    chiavi: ['bsi_ai_threads', 'bsi_ai_history']
+  },
+  chiavi: {
+    etichetta: 'Chiavi API e provider',
+    dettaglio: 'le chiavi salvate di tutti i servizi, comprese quelle vecchie',
+    // bsi_api_key e' il formato a chiave singola delle versioni precedenti:
+    // va tolto qui, altrimenti torna da solo. bsi_modello_* sono le scelte
+    // di modello in cache, che senza chiave non hanno piu' senso.
+    chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url'],
+    prefissi: ['bsi_modello_', 'bsi_gemini_']
+  },
+  memoria: {
+    etichetta: 'Memoria persistente',
+    dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra',
+    chiavi: ['bsi_ai_memory']
+  },
+  ripasso: {
+    etichetta: 'Ripasso programmato',
+    dettaglio: 'le schede di "Ripassa Oggi" e le date di ripetizione',
+    chiavi: ['bsi_srs', 'bsi_sm2']
+  },
+  app: {
+    etichetta: 'Progressi del resto dell\'app',
+    dettaglio: 'quiz, appunti, percorso di studio, progetti di data science',
+    // NON compaiono qui, di proposito: bsi_pro_license e bsi_trial_start
+    // (una licenza non si cancella per sbaglio), bsi_device_id e
+    // bsi_user_email (identita' del dispositivo).
+    chiavi: ['bsi_quiz_history', 'bsi_quiz_progress', 'bsi_studypath', 'bsi_notes',
+             'bsi_ds_prog', 'bsi_ds_proj', 'bsi_guide_v3', 'bsi_section'],
+    prefissi: ['bsi_note_']
+  }
+};
+
+// Espande i prefissi leggendo cio' che c'e' davvero in localStorage.
+function chiaviDelGruppo(g){
+  var out = (g.chiavi || []).slice();
+  (g.prefissi || []).forEach(function(pre){
+    try{
+      for(var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf(pre) === 0 && out.indexOf(k) < 0) out.push(k);
+      }
+    }catch(e){}
+  });
+  return out;
+}
+
+// Quante voci esistono davvero per un gruppo: serve a non promettere di
+// cancellare cose che non ci sono.
+function contaGruppo(nome){
+  var g = DATI_CANCELLABILI[nome];
+  if(!g) return 0;
+  var n = 0;
+  chiaviDelGruppo(g).forEach(function(k){
+    try{ if(localStorage.getItem(k) !== null) n++; }catch(e){}
+  });
+  return n;
+}
+
+/* Cancella i gruppi indicati. Le chiavi si raccolgono PRIMA di rimuoverle:
+   rimuovere durante un ciclo su localStorage.key(i) fa saltare voci. */
+function cancellaDati(nomi){
+  var daTogliere = [];
+  (nomi || []).forEach(function(n){
+    var g = DATI_CANCELLABILI[n];
+    if(g) chiaviDelGruppo(g).forEach(function(k){
+      if(daTogliere.indexOf(k) < 0) daTogliere.push(k);
+    });
+  });
+  var tolte = 0;
+  daTogliere.forEach(function(k){
+    try{
+      if(localStorage.getItem(k) !== null){ localStorage.removeItem(k); tolte++; }
+    }catch(e){}
+  });
+  // Anche la memoria del processo va azzerata, altrimenti l'elenco dei
+  // fornitori del proxy o il modello risolto resterebbero validi fino al
+  // prossimo caricamento della pagina.
+  if((nomi || []).indexOf('chiavi') >= 0){
+    try{
+      _proxyAtteso = null; _proxyFornitori = null;
+      Object.keys(PROVIDERS).forEach(function(k){
+        if(PROVIDERS[k].modelliCandidati) PROVIDERS[k].model = null;
+      });
+    }catch(e){}
+  }
+  return tolte;
+}
+window.bsiDati = { gruppi: DATI_CANCELLABILI, conta: contaGruppo, cancella: cancellaDati };
+window.bsiCancellaDati = cancellaDati;
+
+/* ---------------------------------------------------------------------
    5. Thread di chat (multipli, con cronologia) — bsi_ai_threads
 --------------------------------------------------------------------- */
 function loadThreads(){
@@ -4101,6 +4205,15 @@ var CSS = [
 '.bsi-hub-mic.rec{background:#3a1e1e;border-color:#ff6b6b;color:#ff6b6b;}',
 '#bsi-hub-keybox{margin:12px;padding:14px;background:#0f1e2e;border:1px solid #1a3550;border-radius:12px;}',
 '#bsi-hub-proxybadge{margin:12px 12px 0;padding:9px 12px;background:#08251f;border:1px solid #14614f;border-radius:10px;color:#5eead4;font-size:.78rem;font-weight:600;}',
+'#bsi-hub-resetbox{margin:12px;padding:14px;background:#1e1015;border:1px solid #5c2733;border-radius:12px;}',
+'#bsi-hub-resetbox .tit{color:#ff9d9d;font-weight:700;font-size:.88rem;margin-bottom:6px;}',
+'#bsi-hub-resetbox label{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer;font-size:.82rem;color:#e8f4ff;border-top:1px solid #3a1c24;}',
+'#bsi-hub-resetbox label:first-of-type{border-top:none;}',
+'#bsi-hub-resetbox label.vuoto{opacity:.45;cursor:default;}',
+'#bsi-hub-resetbox input[type=checkbox]{margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#ff6b6b;}',
+'#bsi-hub-resetbox .det{display:block;color:#9fb3c8;font-size:.74rem;font-weight:400;margin-top:1px;}',
+'#bsi-hub-resetbox .btn-danger{background:#8f2436;border:1px solid #b8354a;color:#fff;}',
+'#bsi-hub-resetbox .btn-danger:disabled{opacity:.4;cursor:not-allowed;}',
 '#bsi-hub-keybox input{width:100%;box-sizing:border-box;padding:9px 10px;background:#0d1b2e;border:1px solid #1a3550;border-radius:8px;color:#e8f4ff;font-size:.85rem;margin-top:8px;}',
 '.bsi-hub-note{color:#3d6280;font-size:.76rem;margin-top:8px;line-height:1.5;}',
 /* srs */
@@ -4550,7 +4663,9 @@ function buildChatPane(){
       '<button class="bsi-hub-btn ghost" id="bsi-hub-newchat">＋ Nuova</button>' +
       '<select id="bsi-hub-provsel">' + providerSelectHtml(getSavedProvider()) + '</select>' +
       '<div class="bsi-copilot-toggle on" id="bsi-copilot-toggle" title="Spectra puo\' sempre aprire sezioni, strumenti e cercare molecole per te — nessuna attivazione necessaria"><span class="dot"></span><span>🧭 Copilota attivo</span></div>' +
+      '<button class="bsi-hub-btn ghost" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑 Cancella tutto</button>' +
     '</div>' +
+    '<div id="bsi-hub-resetbox" style="display:none"></div>' +
     '<div id="bsi-hub-keybox" style="display:none">' +
       '<div style="color:#00d4aa;font-weight:700;font-size:.85rem">🔑 Configura ' + '<span id="bsi-hub-provname"></span></div>' +
       '<div class="bsi-hub-note" id="bsi-hub-keylink"></div>' +
@@ -4658,6 +4773,77 @@ function buildChatPane(){
     var t = { id: 't' + Date.now(), title: 'Nuova chat', messages: [], createdAt: Date.now() };
     d.threads.unshift(t); d.activeId = t.id; saveThreads(d);
     refreshThreadSel(); renderMessages();
+  };
+
+  /* --- Cancella tutto ------------------------------------------------
+     E' irreversibile e non c'e' copia da nessuna parte, quindi: si mostra
+     PRIMA cosa verra' tolto (e cosa no), le voci vuote sono disattivate, e
+     serve un secondo clic esplicito. Le prime tre voci sono quelle chieste
+     — chat, cronologia, chiavi — e sono spuntate di partenza; le altre due
+     restano da spuntare a mano perche' cancellano lavoro che non c'entra
+     con il "ricominciare da capo" della chat. */
+  var resetBox = document.getElementById('bsi-hub-resetbox');
+  var PREDEFINITI = ['chat', 'chiavi'];
+  function disegnaReset(){
+    var righe = Object.keys(DATI_CANCELLABILI).map(function(nome){
+      var g = DATI_CANCELLABILI[nome];
+      var n = contaGruppo(nome);
+      var vuoto = n === 0;
+      return '<label class="' + (vuoto ? 'vuoto' : '') + '">' +
+        '<input type="checkbox" data-g="' + nome + '"' +
+          (vuoto ? ' disabled' : (PREDEFINITI.indexOf(nome) >= 0 ? ' checked' : '')) + '>' +
+        '<span><b>' + escapeHtml(g.etichetta) + '</b>' +
+          (vuoto ? ' <span style="color:#6b8299">(già vuoto)</span>' : '') +
+          '<span class="det">' + escapeHtml(g.dettaglio) + '</span></span></label>';
+    }).join('');
+    resetBox.innerHTML =
+      '<div class="tit">🗑 Cancellare e ricominciare da capo?</div>' +
+      '<div class="bsi-hub-note" style="margin-bottom:8px">Scegli cosa togliere. ' +
+        'L\'operazione è <b>definitiva</b>: questi dati stanno solo in questo browser e non esiste una copia.</div>' +
+      righe +
+      '<div class="bsi-hub-note" style="margin-top:9px">Non vengono toccati: la licenza PRO, ' +
+        'il periodo di prova e l\'identità del dispositivo.</div>' +
+      '<div style="display:flex;gap:8px;margin-top:11px">' +
+        '<button class="bsi-hub-btn btn-danger" id="bsi-reset-vai">Sì, cancella</button>' +
+        '<button class="bsi-hub-btn ghost" id="bsi-reset-annulla">Annulla</button>' +
+      '</div>';
+
+    var vai = document.getElementById('bsi-reset-vai');
+    function aggiornaVai(){
+      vai.disabled = !resetBox.querySelector('input[type=checkbox]:checked');
+    }
+    Array.prototype.forEach.call(resetBox.querySelectorAll('input[type=checkbox]'),
+      function(c){ c.onchange = aggiornaVai; });
+    aggiornaVai();
+
+    document.getElementById('bsi-reset-annulla').onclick = function(){
+      resetBox.style.display = 'none';
+    };
+    vai.onclick = function(){
+      var scelti = Array.prototype.map.call(
+        resetBox.querySelectorAll('input[type=checkbox]:checked'),
+        function(c){ return c.getAttribute('data-g'); });
+      var tolte = cancellaDati(scelti);
+      resetBox.style.display = 'none';
+      // Lo stato a video va ricostruito subito: senza, resterebbero a
+      // schermo chat che non esistono piu' in memoria.
+      refreshThreadSel(); renderMessages(); refreshKeyBox();
+      provSel.value = getSavedProvider();
+      proxyStato().then(function(){ try{ refreshKeyBox(); }catch(e){} });
+      var box = document.getElementById('bsi-hub-msgs');
+      if(box){
+        box.appendChild(el('div', { class: 'bsi-msg system-note' },
+          '🗑 Fatto: ' + tolte + (tolte === 1 ? ' voce rimossa' : ' voci rimosse') +
+          '. Spectra riparte da capo.'));
+        box.scrollTop = box.scrollHeight;
+      }
+    };
+  }
+  document.getElementById('bsi-hub-reset').onclick = function(){
+    if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }
+    disegnaReset();                 // ridisegnato ogni volta: i conteggi cambiano
+    resetBox.style.display = 'block';
+    if(resetBox.scrollIntoView) resetBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   var SUGGESTED_PROMPTS = [
