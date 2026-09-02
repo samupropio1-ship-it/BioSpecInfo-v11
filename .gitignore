@@ -1,2 +1,6 @@
+# BioSpecInfo e' una PWA statica senza dipendenze runtime: qui non deve finire
+# nulla di npm. Questi file compaiono solo quando si installa playwright-core
+# per i test in browser reale (vedi prompt_sessione.txt, "COME VERIFICARE").
 node_modules/
+package.json
 package-lock.json
