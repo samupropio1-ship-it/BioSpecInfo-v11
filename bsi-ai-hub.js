@@ -954,8 +954,28 @@ window.bsiGrafoToSvg = grafoToSvg;
 // e' spesso 4000px e in base64 supererebbe i limiti di richiesta, oltre a
 // costare molto in token. 1600px sul lato lungo bastano ampiamente per leggere
 // appunti, uno spettro o una lavagna.
-var MAX_LATO_IMG = 1600;
-var MAX_FILE_MB = 12;
+// 2000px sul lato lungo: 1600 bastavano per una lavagna, ma su una pagina di
+// appunti a mano fitti la scrittura piccola diventava illeggibile.
+var MAX_LATO_IMG = 2000;
+// 30 MB: il limite della richiesta e' 32 MB e il base64 gonfia di circa un
+// terzo, quindi il file grezzo utile si ferma intorno a questa soglia.
+var MAX_FILE_MB = 30;
+// Oltre questa soglia il documento non entra in una sola richiesta.
+var MAX_PAGINE_PDF = 100;
+
+// Conta le pagine leggendo gli oggetti /Type /Page nel PDF, senza librerie.
+// E' una stima: alcuni PDF compressi (object streams) espongono meno oggetti
+// in chiaro, quindi il valore puo' risultare piu' basso del reale.
+function contaPaginePdf(buf){
+  try{
+    var txt = new TextDecoder('latin1').decode(new Uint8Array(buf));
+    var m = txt.match(/\/Count\s+(\d+)/g);
+    var perCount = 0;
+    if(m) m.forEach(function(c){ perCount = Math.max(perCount, parseInt(c.replace(/\D/g, ''), 10) || 0); });
+    var perTipo = (txt.match(/\/Type\s*\/Page[^s]/g) || []).length;
+    return Math.max(perCount, perTipo) || null;
+  }catch(e){ return null; }
+}
 
 function leggiAllegato(file){
   return new Promise(function(resolve, reject){
@@ -974,13 +994,24 @@ function leggiAllegato(file){
       return;
     }
     if(mime === 'application/pdf' || /\.pdf$/i.test(file.name)){
-      var rp = new FileReader();
-      rp.onload = function(){
-        resolve({ kind:'pdf', name:file.name, mime:'application/pdf',
-                  data:String(rp.result).split(',')[1], size:file.size });
+      var rb = new FileReader();
+      rb.onload = function(){
+        var pagine = contaPaginePdf(rb.result);
+        if(pagine && pagine > MAX_PAGINE_PDF){
+          reject(new Error('"' + file.name + '" ha circa ' + pagine + ' pagine: il limite per una singola ' +
+                           'richiesta e\' ' + MAX_PAGINE_PDF + '. Allega il capitolo che ti serve, oppure dividi il file.'));
+          return;
+        }
+        var rp = new FileReader();
+        rp.onload = function(){
+          resolve({ kind:'pdf', name:file.name, mime:'application/pdf',
+                    data:String(rp.result).split(',')[1], size:file.size, pagine:pagine });
+        };
+        rp.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
+        rp.readAsDataURL(file);
       };
-      rp.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
-      rp.readAsDataURL(file);
+      rb.onerror = function(){ reject(new Error('non riesco a leggere "' + file.name + '"')); };
+      rb.readAsArrayBuffer(file);
       return;
     }
     if(/^image\//.test(mime)){
@@ -3163,6 +3194,29 @@ function mdToHtml(src){
   });
   // codice inline `x`
   s = s.replace(/`([^`\n]+)`/g, '<code class="bsi-md-inline">$1</code>');
+  // Tabelle: riassunti comparativi e flashcard escono quasi sempre in questa
+  // forma, e senza il supporto restavano righe di pipe illeggibili. Le estraggo
+  // come i blocchi di codice, prima che la formattazione dei paragrafi le rompa.
+  var tabelle = [];
+  s = s.replace(/(^|\n)((?:[^\n]*\|[^\n]*\n)(?:[ \t]*\|?[ \t:*-]*\|[ \t:|*-]*\n)(?:[^\n]*\|[^\n]*(?:\n|$))+)/g,
+    function(tutto, pre, blocco){
+      var righe = blocco.trim().split('\n');
+      var cella = function(r){
+        return r.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(function(c){ return c.trim(); });
+      };
+      var intest = cella(righe[0]);
+      var corpo = righe.slice(2).map(cella);
+      // se le colonne non tornano non e' una tabella: lascio il testo com'e'
+      if(intest.length < 2) return tutto;
+      var html = '<table class="bsi-md-table"><thead><tr>' +
+        intest.map(function(h){ return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        corpo.map(function(r){
+          while(r.length < intest.length) r.push('');
+          return '<tr>' + r.slice(0, intest.length).map(function(c){ return '<td>' + c + '</td>'; }).join('') + '</tr>';
+        }).join('') + '</tbody></table>';
+      tabelle.push(html);
+      return pre + '\u0000TABELLA' + (tabelle.length - 1) + '\u0000';
+    });
   // titoli
   s = s.replace(/^###\s+(.+)$/gm, '<h4 class="bsi-md-h">$1</h4>');
   s = s.replace(/^##\s+(.+)$/gm, '<h3 class="bsi-md-h">$1</h3>');
@@ -3186,8 +3240,10 @@ function mdToHtml(src){
     if(/^<(h2|h3|h4|ul|ol|pre)/.test(p.trim())) return p;
     return '<p class="bsi-md-p">' + p.replace(/\n/g,'<br>') + '</p>';
   }).join('');
-  // reinserisco i blocchi di codice
+  // reinserisco i blocchi di codice e le tabelle
   s = s.replace(/\u0000CODEBLOCK(\d+)\u0000/g, function(_, idx){ return codeBlocks[+idx]; });
+  s = s.replace(/(?:<p class="bsi-md-p">)?\u0000TABELLA(\d+)\u0000(?:<\/p>)?/g,
+                function(_, idx){ return tabelle[+idx]; });
   return s;
 }
 window.bsiMarkdownToHtml = mdToHtml;
@@ -3230,11 +3286,19 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
 "utile.\n\n" +
 "MATERIALI DELL'UTENTE: puo' allegarti foto di appunti o della lavagna, pagine di libro, PDF di " +
-"dispense, spettri, strutture e file di testo. Leggili con attenzione e lavoraci sopra: riassunti " +
-"strutturati, schemi gerarchici, mappe concettuali, flashcard, domande d'esame, spiegazioni passo " +
-"passo. Per una MAPPA CONCETTUALE rispondi con un diagramma Mermaid dentro un blocco ```mermaid " +
-"(graph TD, relazioni etichettate sugli archi): l'app lo disegna davvero. Se un'immagine e' poco " +
-"leggibile dillo invece di indovinare, e se contiene formule o spettri interpretali esplicitamente.\n\n" +
+"dispense, spettri, strutture e file di testo, anche molti insieme. Leggili con attenzione e " +
+"lavoraci sopra: riassunti strutturati, schemi gerarchici, mappe concettuali, flashcard, domande " +
+"d'esame, trascrizioni, spiegazioni passo passo.\n\n" +
+"APPUNTI SCRITTI A MANO: leggili davvero, non limitarti a descriverli. Se la grafia e' incerta su " +
+"una parola scrivi [illeggibile] invece di inventare: un termine chimico sbagliato e' peggio di " +
+"una lacuna dichiarata. Quando trovi formule, strutture o spettri interpretali esplicitamente. Se " +
+"ricevi piu' immagini, trattale come pagine consecutive di un unico documento e mantieni l'ordine.\n\n" +
+"PDF LUNGHI: se il documento e' esteso, dichiara prima come lo affronti (per esempio 'lo divido in " +
+"quattro blocchi tematici'), poi procedi in modo ordinato senza saltare sezioni. Se qualcosa e' " +
+"fuori dalla parte che hai potuto leggere, dillo apertamente.\n\n" +
+"MAPPE CONCETTUALI: rispondi con un diagramma Mermaid dentro un blocco ```mermaid usando graph TD " +
+"(o graph LR se la struttura e' sequenziale), con le relazioni etichettate sugli archi: l'app lo " +
+"disegna davvero. Sono supportati nodi [rettangolari], (arrotondati), {a rombo} e ((circolari)).\n\n" +
 "CONOSCI QUESTA APP DALL'INTERNO: cerca_nel_database interroga i dati veri di BioSpecInfo — 297 " +
 "reazioni di sintesi con condizioni operative, 118 elementi, 67 amminoacidi con pKa e SMILES, 143 " +
 "farmaci con meccanismo d'azione ed effetti avversi, 36 interazioni farmacologiche, 29 potenziali " +
@@ -3508,6 +3572,13 @@ var CSS = [
 /* mappe concettuali */
 '.bsi-mermaid{background:#f7fbfa;border:1px solid #1a3550;border-radius:10px;padding:10px;margin:8px 0;overflow-x:auto;}',
 '.bsi-mermaid svg{max-width:100%;height:auto;}',
+'.bsi-mermaid details{margin-top:8px;font-size:.72rem;color:#5b7d99;}',
+'.bsi-mermaid details summary{cursor:pointer;}',
+/* tabelle nelle risposte */
+'.bsi-md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.82rem;display:block;overflow-x:auto;}',
+'.bsi-md-table th{background:#0e2a3a;color:#7fe3d6;text-align:left;padding:6px 8px;border:1px solid #1d4a5e;font-weight:700;}',
+'.bsi-md-table td{padding:6px 8px;border:1px solid #17324a;color:#cfe0ee;vertical-align:top;}',
+'.bsi-md-table tr:nth-child(even) td{background:#0c1b2a;}',
 '@media (prefers-reduced-motion:reduce){.bsi-think-dot{animation:none;}}',
 '#bsi-hub-inputrow{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #14283c;background:#071120;flex-shrink:0;align-items:flex-end;}',
 '#bsi-hub-input{flex:1;resize:none;max-height:120px;padding:10px 12px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e8f4ff;font-size:.9rem;font-family:inherit;outline:none;}',
@@ -3749,7 +3820,8 @@ var AZIONI_STUDIO = [
   { ic:'📊', nm:'Schema', p:'Trasforma il materiale allegato in uno schema gerarchico a punti e sottopunti, pronto da studiare. Usa il grassetto per i concetti portanti e mantieni le formule esatte.' },
   { ic:'🃏', nm:'Flashcard', p:'Genera 10 flashcard dal materiale allegato, in formato tabella con due colonne: Domanda e Risposta. Le domande devono verificare la comprensione, non la memoria letterale.' },
   { ic:'🎓', nm:'Domande d\'esame', p:'Formula 6 domande d\'esame universitario sul materiale allegato, di difficolta\' crescente, e per ciascuna indica in due righe cosa dovrebbe contenere una risposta completa.' },
-  { ic:'🔍', nm:'Spiega',  p:'Analizza il materiale allegato e spiegamelo passo per passo come farebbe un docente, partendo dai prerequisiti. Se contiene formule, strutture o spettri, interpretali esplicitamente.' }
+  { ic:'🔍', nm:'Spiega',  p:'Analizza il materiale allegato e spiegamelo passo per passo come farebbe un docente, partendo dai prerequisiti. Se contiene formule, strutture o spettri, interpretali esplicitamente.' },
+  { ic:'✍️', nm:'Trascrivi', p:'Trascrivi fedelmente il contenuto del materiale allegato, comprese le parti scritte a mano, rispettando la struttura originale (titoli, elenchi, formule). Riporta le formule chimiche e matematiche in forma corretta. Se una parola o un simbolo non e\' leggibile con certezza, scrivi [illeggibile] invece di indovinare, e alla fine elenca i punti dubbi.' }
 ];
 
 function buildAttachUI(inputRow){
@@ -4012,6 +4084,51 @@ function buildChatPane(){
       });
   }
 
+  // Esporta una risposta in PDF aprendo una finestra impaginata e chiamando la
+  // stampa del browser: da li' si sceglie "Salva come PDF". E' lo stesso
+  // meccanismo gia' usato altrove nell'app, funziona su desktop e su mobile e
+  // non richiede alcuna libreria.
+  function esportaPdf(testo, domanda, nodoReso){
+    var corpo = nodoReso ? nodoReso.cloneNode(true) : null;
+    if(corpo){
+      // tolgo i pulsanti e apro le mappe ripiegate: in stampa devono vedersi
+      var az = corpo.querySelector('.bsi-msg-actions');
+      if(az) az.remove();
+      [].slice.call(corpo.querySelectorAll('details')).forEach(function(d){ d.remove(); });
+    }
+    var html = corpo ? corpo.innerHTML : escapeHtml(testo).replace(/\n/g, '<br>');
+    var data = new Date().toLocaleDateString('it-IT', { day:'2-digit', month:'long', year:'numeric' });
+    var w = window.open('', '_blank');
+    if(!w){ alert('Il browser ha bloccato la finestra. Consenti i popup per esportare in PDF.'); return; }
+    w.document.write(
+      '<!doctype html><html lang="it"><head><meta charset="utf-8">' +
+      '<title>' + escapeHtml((domanda || 'Spectra').slice(0, 60)) + '</title><style>' +
+      '@page{size:A4;margin:18mm 16mm}' +
+      'body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11pt;line-height:1.6;color:#16232e;margin:0}' +
+      '.tit{font-size:16pt;font-weight:800;color:#0b5f57;border-bottom:2px solid #00c9b7;padding-bottom:6px;margin-bottom:4px}' +
+      '.meta{font-size:8.5pt;color:#7b93a4;margin-bottom:16px}' +
+      'h1,h2,h3{color:#0b5f57;margin:14px 0 6px} h1{font-size:15pt} h2{font-size:13pt} h3{font-size:11.5pt}' +
+      'table{border-collapse:collapse;width:100%;margin:10px 0;font-size:10pt;page-break-inside:avoid}' +
+      'th{background:#e8f6f4;color:#0b5f57;text-align:left;padding:5px 7px;border:1px solid #bfe0dc}' +
+      'td{padding:5px 7px;border:1px solid #d8e4e2;vertical-align:top}' +
+      'code{background:#f0f4f6;padding:1px 4px;border-radius:3px;font-size:9.5pt}' +
+      'pre{background:#f4f7f8;border:1px solid #dde7ea;padding:9px;border-radius:6px;font-size:9pt;white-space:pre-wrap}' +
+      'ul,ol{margin:6px 0 6px 20px} li{margin:3px 0}' +
+      'svg{max-width:100%;height:auto;page-break-inside:avoid}' +
+      '.bsi-mermaid{border:1px solid #cfe3e0;border-radius:8px;padding:8px;margin:10px 0;background:#f7fbfa}' +
+      '.foot{margin-top:22px;padding-top:8px;border-top:1px solid #dde7ea;font-size:8pt;color:#8aa3b2}' +
+      '</style></head><body>' +
+      (domanda ? '<div class="tit">' + escapeHtml(domanda.slice(0, 120)) + '</div>' : '<div class="tit">Spectra</div>') +
+      '<div class="meta">BioSpecInfo · Spectra — ' + data + '</div>' +
+      html +
+      '<div class="foot">Generato da Spectra, il copilota AI di BioSpecInfo. ' +
+      'Verifica sempre i contenuti prima di usarli per uno studio formale.</div>' +
+      '</body></html>');
+    w.document.close();
+    // il ritardo lascia impaginare il contenuto (e disegnare gli SVG) prima della stampa
+    setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 350);
+  }
+
   function renderMsgNode(m, idx, thread){
     if(m.role === 'assistant' && (m.thinking || (m.tools && m.tools.length))){
       // avvolgo ragionamento + strumenti usati + risposta, cosi' restano associati
@@ -4039,7 +4156,14 @@ function buildChatPane(){
           srsUpsertCard('chat_' + thread.id + '_' + idx, q, m.content, 'chat');
           pinBtn.textContent = '✓ Aggiunta';
         };
-        actions.appendChild(copyBtn); actions.appendChild(speakBtn); actions.appendChild(pinBtn);
+        var pdfBtn = el('button', {}, '📄 PDF');
+        pdfBtn.title = 'Apri una versione stampabile: dal dialogo scegli "Salva come PDF"';
+        pdfBtn.onclick = function(){
+          var domanda = (thread.messages[idx - 1] && thread.messages[idx - 1].role === 'user')
+            ? thread.messages[idx - 1].content : '';
+          esportaPdf(m.content, domanda, body);
+        };
+        actions.appendChild(copyBtn); actions.appendChild(speakBtn); actions.appendChild(pinBtn); actions.appendChild(pdfBtn);
         body.appendChild(actions);
       }
       node.appendChild(body);
