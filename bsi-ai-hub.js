@@ -97,34 +97,18 @@ var PROVIDERS = {
     placeholder: 'nvapi-...',
     note: 'Oltre 100 modelli, compresi quelli enormi che ragionano (DeepSeek R1). I crediti gratuiti sono a esaurimento, non si rinnovano da soli.'
   },
-  mistral: {
-    name: 'Mistral — Large e Medium', family: 'openai', free: true,
+  zai: {
+    name: 'Z.AI GLM-4.7-Flash', family: 'openai', free: true,
+    // Gratuito SENZA scadenza (non crediti a esaurimento) e con function
+    // calling vero: la combinazione che serve a un agente come Spectra.
     model: null,
-    modelliCandidati: ['mistral-large-latest', 'mistral-medium-latest',
-                       'mistral-small-latest', 'open-mistral-nemo'],
-    preferisci: /large|medium/,
-    maxInput: 28000,
-    url: 'https://api.mistral.ai/v1/chat/completions',
+    modelliCandidati: ['glm-4.7-flash', 'glm-4.5-flash', 'glm-4-flash'],
+    preferisci: /flash/,
+    url: 'https://api.z.ai/api/paas/v4/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
-    keyLink: 'console.mistral.ai → API Keys (piano "Experiment")',
+    keyLink: 'z.ai → profilo → API Keys',
     placeholder: 'chiave alfanumerica',
-    note: 'Circa un miliardo di token al mese, Mistral Large incluso. Attenzione: il piano gratuito richiede la verifica del telefono e il consenso all\'uso dei tuoi dati per l\'addestramento — se il contenuto è sensibile, usa un altro servizio.'
-  },
-  openrouter: {
-    name: 'OpenRouter', family: 'openai', free: true,
-    // Su OpenRouter gli id dei modelli gratuiti cambiano di continuo, quindi
-    // cablarne uno e' garanzia di rottura. 'openrouter/free' e' un instradatore
-    // che sceglie da solo fra i gratuiti e filtra quelli che sanno usare gli
-    // strumenti: e' il candidato giusto per un agente come Spectra.
-    model: null,
-    modelliCandidati: ['openrouter/free', 'openrouter/auto'],
-    // Preferenza usata quando nessun candidato esiste piu': fra i modelli
-    // gratuiti disponibili si sceglie in base a questa regola.
-    preferisci: /:free$/,
-    url: 'https://openrouter.ai/api/v1/chat/completions',
-    authHeader: function(k){ return { Authorization: 'Bearer ' + k, 'HTTP-Referer': (location && location.href) || 'https://biospecinfo', 'X-Title': 'BioSpecInfo' }; },
-    keyLink: 'openrouter.ai → Keys', placeholder: 'sk-or-v1-...',
-    note: 'Sceglie da solo un modello gratuito che sappia usare gli strumenti.'
+    note: 'Gratuito e senza scadenza, forte su ragionamento e codice. Buon rincalzo quando gli altri hanno finito il minuto.'
   },
   // ── Gamma Claude, dal massimo all'economico ──────────────────────────────
   // Ogni modello ha vincoli API diversi: mandare a uno un parametro che non
@@ -216,8 +200,8 @@ var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
 
 // Da quale fornitore reale dipende ciascuna configurazione di modello.
 var UPSTREAM = {
-  groq: 'groq', gemini: 'gemini', openrouter: 'openrouter', grok: 'xai',
-  github: 'github', nvidia: 'nvidia', mistral: 'mistral',
+  groq: 'groq', gemini: 'gemini', grok: 'xai',
+  github: 'github', nvidia: 'nvidia', zai: 'zai',
   claude_fable: 'anthropic', claude: 'anthropic',
   claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
 };
@@ -784,7 +768,7 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     if(p.fallbacks && p.beta){ h['anthropic-beta'] = p.beta; aBody.fallbacks = p.fallbacks; }
     return { url: aUrl || p.url, headers: h, body: aBody };
   }
-  // famiglia 'openai'-compatibile: groq, openrouter, grok
+  // famiglia 'openai'-compatibile: groq, github, nvidia, zai, grok
   var oUrl = null;
   try{ oUrl = viaProxy(p.id, new URL(p.url).pathname); }catch(e){}
   var h2 = oUrl
@@ -3831,7 +3815,7 @@ function appendAgentTurn(family, history, assistantText, toolCalls, execResults,
     history.push({ role: 'user', content: '[risultati strumenti]', _native: { gemini: { role: 'user', parts: respParts } } });
     return;
   }
-  // openai-compatibile (groq, openrouter, grok)
+  // openai-compatibile (groq, github, nvidia, zai, grok)
   var oaToolCalls = toolCalls.map(function(tc){
     return { id: tc.id, type: 'function', function: { name: tc.name, arguments: JSON.stringify(tc.args || {}) } };
   });
@@ -3910,6 +3894,17 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   var MAX_ROUNDS = 10;
   var toolsDisabled = false;
   var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
+  // La selezione per budget si fa UNA volta per turno, non ad ogni giro.
+  // Rifacendola ogni volta cambierebbe a meta' turno — la cronologia cresce
+  // ad ogni giro e con lei il testo su cui si misura la pertinenza — e il
+  // modello si vedrebbe sparire uno strumento che aveva appena visto.
+  // (Se lo chiama lo stesso, runToolCalls lo esegue: toolByName cerca nel
+  // registro completo, non in quello ridotto.)
+  if(p.maxInput){
+    var fisso0 = stimaToken(systemPrompt);
+    var perStrumenti = Math.floor(Math.max(500, p.maxInput - fisso0 - 400) * 0.55);
+    TOOL_SCHEMA = selezionaStrumenti(TOOL_SCHEMA, testoRecente(messages), perStrumenti);
+  }
   for(var round = 0; round < MAX_ROUNDS; round++){
     var roundText = '';
     var r;
@@ -4711,7 +4706,18 @@ function getKeysMap(){
   }catch(e){}
   return map;
 }
-function getSavedProvider(){ try{ return localStorage.getItem('bsi_ai_provider') || 'groq'; }catch(e){ return 'groq'; } }
+/* Il provider salvato va SEMPRE validato contro il registro: quando un
+   servizio viene tolto dall'app, chi ce l'aveva selezionato si ritroverebbe
+   PROVIDERS[undefined] e la schermata di Spectra non si aprirebbe piu'.
+   Ci si riporta sul primo gratuito disponibile invece di rompersi. */
+var PROVIDER_DEFAULT = 'groq';
+function getSavedProvider(){
+  var p;
+  try{ p = localStorage.getItem('bsi_ai_provider'); }catch(e){}
+  if(p && PROVIDERS[p]) return p;
+  if(PROVIDERS[PROVIDER_DEFAULT]) return PROVIDER_DEFAULT;
+  return Object.keys(PROVIDERS)[0];
+}
 function setSavedProvider(p){ try{ localStorage.setItem('bsi_ai_provider', p); }catch(e){} }
 function getSavedKey(providerId){
   var prov = providerId || getSavedProvider();
@@ -4758,6 +4764,7 @@ function chiaveDaUsare(providerId){
 }
 function serveChiave(providerId){ return !proxyCopre(providerId) && !getSavedKey(providerId); }
 window.bsiHasAnySavedKey = hasAnySavedKey;
+window.bsiProviderSalvato = getSavedProvider;
 
 function providerSelectHtml(selected){
   return Object.keys(PROVIDERS).map(function(id){

@@ -12,13 +12,10 @@ ORIGINI = "https://samupropio1-ship-it.github.io"
 LIMITE_IP = "20"        # richieste al minuto per singolo visitatore
 TETTO_GIORNO = "2000"   # richieste totali al giorno
 
-# Usato come HTTP-Referer per OpenRouter.
-SITO = "https://samupropio1-ship-it.github.io/BioSpecInfo-v11/"
-
 # ATTENZIONE: le chiavi NON vanno qui — questo file finisce su GitHub.
 # Si impostano come segreti, che restano solo su Cloudflare:
-#   npx wrangler secret put GITHUB_KEYS      (il piu' potente fra i gratuiti)
-#   npx wrangler secret put GROQ_KEYS
-#   npx wrangler secret put GEMINI_KEYS
-#   npx wrangler secret put NVIDIA_KEYS
-#   npx wrangler secret put MISTRAL_KEYS
+#   npx wrangler secret put GROQ_KEYS        (il cavallo da tiro)
+#   npx wrangler secret put GEMINI_KEYS      (documenti lunghi)
+#   npx wrangler secret put GITHUB_KEYS      (la qualita' piu' alta)
+#   npx wrangler secret put NVIDIA_KEYS      (modelli che ragionano)
+#   npx wrangler secret put ZAI_KEYS         (rincalzo senza scadenza)

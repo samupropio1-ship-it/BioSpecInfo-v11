@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,876 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,883 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v140` |
+| **Documented version** | Service Worker `bsi-v141` |
 
 ---
 
@@ -31,8 +31,8 @@ demo:
    agent's work is auditable after the fact.
 3. **Provider portability** — a single tool registry is translated into the
    three function-calling formats in use today (OpenAI-compatible, Anthropic,
-   Gemini), so the agent behaves identically across eleven model configurations,
-   six of them free.
+   Gemini), so the agent behaves identically across ten model configurations,
+   five of them free.
 
 ---
 
@@ -48,7 +48,7 @@ demo:
 │   agentic loop  (max 10 rounds)                                     │
 │        │                                                            │
 │        ├── provider adapter ──► model API (direct HTTPS)            │
-│        │      · OpenAI-compatible (Groq, OpenRouter, xAI)           │
+│        │      · OpenAI-compatible (Groq, GitHub, NVIDIA, Z.AI, xAI) │
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
@@ -100,8 +100,8 @@ fix. It has happened twice in this project:
 | Google | `models/gemini-1.5-flash is not found for API version v1beta` | removed from `v1beta` |
 | Groq | `The model llama-3.3-70b-versatile does not exist or you do not have access to it` | deprecated 17/06/2026 |
 
-On OpenRouter the problem is structural: free model ids change constantly, by
-design.
+On some services the problem is structural: free model ids change constantly,
+by design. (That is why OpenRouter was later dropped from the list, see 2.4.)
 
 The fix is not to write the new name — that would be the same bomb with a
 longer fuse — but to **remove the name** and ask the API, which knows what
@@ -136,31 +136,45 @@ inventing one.
 The choice is cached for seven days per provider, keyed to a 32-bit FNV-1a
 fingerprint of the API key (different keys see different catalogues; the key
 itself is never duplicated). If the model is retired *while* cached, the `404`
-— or a `400` whose text mentions the model, as OpenRouter returns — invalidates
+— or a `400` whose text mentions the model, as some providers return — invalidates
 the cache, re-resolves and retries **once**: a flag prevents an infinite loop
 when the new model fails too.
 
 Anthropic is the deliberate exception: its models are paid, explicitly chosen
 by the user, and deprecated with long notice.
 
-#### The six free services
+#### The five free services, chosen one by one
 
 Free quality is not all alike, and the difference matters: an 8-billion-parameter
-model does not hold up on a multi-step physical-chemistry problem.
+model does not hold up on a multi-step physical-chemistry problem. The list has
+been **shortened**, not extended — two services were removed because they made
+answers worse, not better.
 
-| Service | Models | The trade-off |
+| Service | Models | Its role |
 |---|---|---|
-| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek, Llama 4 | The most capable free option, and it needs no new account: a token from the user's own GitHub is enough. In exchange, 10 requests/minute and 50 per day |
-| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B, Llama 4 | Very large models, reasoning ones included. Credits run out and do not renew |
-| **Mistral** | Large, Medium | ~1 billion tokens per month. Requires phone verification and opting into data training |
-| **Groq** | GPT-OSS 120B, Qwen3 | The fastest, generous on volume |
-| **Google Gemini** | Gemini Flash | Good context, generous |
-| **OpenRouter** | automatic router | Picks among free models that support tool calling |
+| **Groq** | GPT-OSS 120B, Qwen3 | The workhorse: 131K context, ~30 requests/minute |
+| **Google Gemini** | Gemini Flash | Up to 1M context: whole documents and PDFs |
+| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | The highest quality, at the price of the tightest ceiling: 8,000 tokens per request, 50 per day |
+| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Deep reasoning. Credits run out |
+| **Z.AI GLM** | GLM-4.7-Flash | Free **with no expiry**: the reserve still there when credits are gone |
 
-None of these matches a paid frontier model on the hardest problems; GitHub
-Models and NVIDIA NIM come closest, at the cost of low request ceilings. That is
-why the list stays and the choice is the user's, rather than imposing one
-service.
+**Deliberately removed.** *Mistral*: mid-tier quality and a free plan requiring
+consent to data training — not worth paying for unpublished thesis material
+when five alternatives carry no such clause. *OpenRouter*: small free models
+with ids that change constantly, unsuited to an agent chaining ten tool calls.
+*Cerebras*: since August 2026 there is no card-free plan, and free context is
+capped at 8K — Spectra sends 32 tool definitions on top of history, which does
+not fit.
+
+None of the five matches a paid frontier model on the hardest problems; GitHub
+Models and NVIDIA NIM come closest, at the cost of low request ceilings. That
+is why the choice stays the user's rather than imposing one service.
+
+**Removing a service from the list is a breaking operation**, and deserves a
+note: whoever had it selected has that name saved in `localStorage`, and
+without validation would hit `PROVIDERS[undefined]` — Spectra would no longer
+open. `getSavedProvider()` always validates against the registry and falls back
+to an existing service.
 
 ### 2.5 The optional proxy — Spectra without a key
 
@@ -493,9 +507,9 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,876 lines |
+| Component size | 5,883 lines |
 | Tools | 32 |
-| Model configurations | 11 (6 free) |
+| Model configurations | 10 (5 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
 | Max agentic loop rounds | 10 |
