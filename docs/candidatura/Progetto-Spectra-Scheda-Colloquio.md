@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 5.165 righe, zero dipendenze runtime |
+| Componente | 5.283 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 4 (Anthropic, Groq, Google, OpenRouter/xAI) — 3 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
@@ -133,11 +133,24 @@ sondano dei candidati noti con una GET sui metadati, che non consuma quota di
 generazione. E se il modello viene ritirato *mentre* è in cache, il 404 della
 chiamata vera invalida la cache e ritenta una volta sola.
 
-Verificato su 22 casi con l'API simulata, compreso «esce Gemini 3.0» (lo
-sceglie da solo), «resta solo `pro`», «rete completamente giù» e «404
-persistente» — che deve fermarsi, non entrare in ciclo.
+**E poi è successo di nuovo, su un altro fornitore.** Groq ha ritirato
+`llama-3.3-70b-versatile` il 17 giugno, e l'app si è fermata allo stesso modo:
+avevo corretto Gemini e lasciato la stessa bomba in Groq, OpenRouter e xAI. La
+seconda volta ho generalizzato invece di ripetermi — con una strategia diversa
+per famiglia, perché i nomi lo sono: su Gemini si può ordinare per versione,
+sui fornitori OpenAI-compatibili no (`openai/gpt-oss-120b` contro
+`qwen/qwen3.6-27b` non si confrontano), quindi l'ordine dei candidati *è* la
+preferenza e l'elenco serve solo a saltare quelli spariti.
+
+Verificato su 51 casi con l'API simulata: «esce Gemini 3.0» (lo sceglie da
+solo), «il candidato preferito sparisce» (scala al successivo), «nessun
+candidato sopravvive» (punteggio sui disponibili, scartando trascrizione e
+classificatori), «rete giù», «ritiro a caldo» (ririsolve e ritenta una volta) e
+«404 persistente» — che deve fermarsi, non entrare in ciclo.
+
 *Lezione: quando un guasto verrà di sicuro di nuovo, la correzione giusta non
-è il valore nuovo, è togliere il valore.*
+è il valore nuovo, è togliere il valore. E quando lo correggi, cercalo subito
+in tutti i posti dove vale — io la prima volta non l'ho fatto.*
 
 ---
 
