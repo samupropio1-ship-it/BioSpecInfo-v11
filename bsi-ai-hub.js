@@ -55,6 +55,27 @@ var PROVIDERS = {
     authHeader: function(k){ return { Authorization: 'Bearer ' + k, 'HTTP-Referer': (location && location.href) || 'https://biospecinfo', 'X-Title': 'BioSpecInfo' }; },
     keyLink: 'openrouter.ai → Keys', placeholder: 'sk-or-v1-...'
   },
+  // ── Gamma Claude, dal massimo all'economico ──────────────────────────────
+  // Ogni modello ha vincoli API diversi: mandare a uno un parametro che non
+  // supporta significa 400 secco. In particolare Haiku 4.5 NON accetta
+  // output_config.effort e non ha la ricerca web di nuova generazione.
+  claude_fable: {
+    name: 'Claude Fable 5.1 — il massimo', family: 'anthropic', free: false,
+    model: 'claude-fable-5-1',
+    // Su Fable il ragionamento e' sempre attivo: si controlla solo la profondita'.
+    thinking: { type: 'adaptive', display: 'summarized' },
+    effort: 'xhigh',                 // il livello consigliato per il lavoro agentico
+    webSearch: true, webSearchMaxUses: 8,
+    // I classificatori di sicurezza possono declinare una richiesta (HTTP 200 con
+    // stop_reason "refusal"). Con i fallback la stessa richiesta viene ripresa da
+    // un altro modello nella stessa chiamata, invece di interrompersi e basta.
+    fallbacks: 'default', beta: 'server-side-fallback-2026-07-01',
+    maxTokens: 32000,
+    url: 'https://api.anthropic.com/v1/messages',
+    authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
+    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
+    note: 'Il modello piu\' capace, per i problemi piu\' difficili. Anche il piu\' costoso.'
+  },
   claude: {
     name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
     model: 'claude-opus-5',
@@ -71,9 +92,23 @@ var PROVIDERS = {
     keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
     note: 'A pagamento e separato dall\'abbonamento di claude.ai: serve credito API su console.anthropic.com.'
   },
+  claude_sonnet: {
+    name: 'Claude Sonnet 5 — equilibrato', family: 'anthropic', free: false,
+    model: 'claude-sonnet-5',
+    thinking: { type: 'adaptive', display: 'summarized' },
+    effort: 'high',
+    webSearch: true, webSearchMaxUses: 5,
+    maxTokens: 16000,
+    url: 'https://api.anthropic.com/v1/messages',
+    authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
+    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
+    note: 'Quasi la qualita\' di Opus a meno della meta\' del costo: la scelta di tutti i giorni.'
+  },
   claude_haiku: {
     name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
     model: 'claude-haiku-4-5',
+    // NIENTE effort e NIENTE web_search di nuova generazione: su Haiku 4.5
+    // non sono supportati e la richiesta verrebbe rifiutata.
     maxTokens: 8000,
     url: 'https://api.anthropic.com/v1/messages',
     authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
@@ -141,6 +176,9 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
         type: 'web_search_20260209', name: 'web_search', max_uses: p.webSearchMaxUses || 5
       }]);
     }
+    // Fallback in caso di rifiuto: richiedono sia l'intestazione beta sia il
+    // campo nel corpo. Mandarne solo uno dei due produce un 400.
+    if(p.fallbacks && p.beta){ h['anthropic-beta'] = p.beta; aBody.fallbacks = p.fallbacks; }
     return { url: p.url, headers: h, body: aBody };
   }
   // famiglia 'openai'-compatibile: groq, openrouter, grok
@@ -2678,6 +2716,13 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         if(callbacks.onToolUse) callbacks.onToolUse('🌐 Continuo la ricerca…');
         continue;
       }
+    }
+    // Rifiuto dei classificatori di sicurezza: arriva come HTTP 200, quindi
+    // senza questo controllo l'utente vedrebbe una risposta vuota e non
+    // capirebbe perche'.
+    if(r.stopReason === 'refusal'){
+      callbacks.onDone(totalText || '');
+      throw new Error('La richiesta e\' stata declinata dai filtri di sicurezza del modello. Riformulala, oppure prova un altro provider.');
     }
     if(!r.toolCalls || !r.toolCalls.length){
       callbacks.onDone(totalText);
