@@ -131,7 +131,71 @@ var PROVIDERS = {
     note: 'Alcuni provider bloccano le chiamate dirette dal browser: se Grok non risponde, prova Claude, Gemini o Groq.'
   }
 };
+// Ogni configurazione porta la propria chiave di registro: serve a sapere,
+// dato il solo oggetto provider, verso quale fornitore reale instradare.
+Object.keys(PROVIDERS).forEach(function(k){ PROVIDERS[k].id = k; });
 window.BSI_AI_PROVIDERS = PROVIDERS;
+
+/* ---------------------------------------------------------------------
+   1a-bis. PROXY OPZIONALE — Spectra senza chiave
+   Se PROXY_URL punta a un Worker (vedi proxy/spectra-proxy.js), le chiavi
+   stanno sul server e il browser non ne vede nessuna: chi apre il sito usa
+   Spectra e basta. Se non e' configurato, tutto funziona come prima, con la
+   chiave dell'utente salvata in locale — le due strade convivono.
+   L'indirizzo del proxy NON e' un segreto: e' solo un URL. Il segreto e' la
+   chiave, e quella resta su Cloudflare.
+--------------------------------------------------------------------- */
+var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
+                      //     es. 'https://spectra-proxy.tuonome.workers.dev'
+
+// Da quale fornitore reale dipende ciascuna configurazione di modello.
+var UPSTREAM = {
+  groq: 'groq', gemini: 'gemini', openrouter: 'openrouter', grok: 'xai',
+  claude_fable: 'anthropic', claude: 'anthropic',
+  claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
+};
+
+function proxyUrl(){
+  var u = '';
+  // L'override locale serve a provare un proxy senza ripubblicare il sito.
+  try{ u = localStorage.getItem('bsi_proxy_url') || ''; }catch(e){}
+  if(!u) u = window.BSI_PROXY_URL || PROXY_URL || '';
+  return String(u).replace(/\/+$/, '');
+}
+
+/* Quali fornitori il proxy copre davvero. Lo dice lui stesso da /stato: cosi'
+   Spectra non offre come "senza chiave" un modello per cui il proxy non ha
+   una chiave, che fallirebbe solo al primo messaggio. In attesa della
+   risposta si assume nessuno, e la UI chiede la chiave come sempre. */
+var _proxyFornitori = null;
+var _proxyAtteso = null;
+function proxyStato(){
+  if(_proxyAtteso) return _proxyAtteso;
+  var base = proxyUrl();
+  if(!base){ _proxyFornitori = []; return Promise.resolve([]); }
+  _proxyAtteso = fetch(base + '/stato', { method: 'GET' })
+    .then(function(r){ return r.ok ? r.json() : { fornitori: [] }; })
+    .then(function(j){ _proxyFornitori = (j && j.fornitori) || []; return _proxyFornitori; })
+    .catch(function(){ _proxyFornitori = []; return []; });
+  return _proxyAtteso;
+}
+// Sincrona: usata dove non si puo' aspettare (costruzione richiesta, UI).
+// Vale solo dopo che proxyStato() ha risposto almeno una volta.
+function proxyCopre(providerId){
+  if(!proxyUrl() || !_proxyFornitori) return false;
+  return _proxyFornitori.indexOf(UPSTREAM[providerId]) >= 0;
+}
+// Rotta verso il proxy per un percorso del fornitore, oppure null se il
+// proxy non e' attivo per questo provider (allora si chiama diretto).
+function viaProxy(providerId, percorso){
+  if(!proxyCopre(providerId)) return null;
+  return proxyUrl() + '/' + UPSTREAM[providerId] + percorso;
+}
+/* Rilegge lo stato del proxy. Serve quando l'indirizzo cambia a pagina gia'
+   aperta (override in localStorage): senza, resterebbe valido l'elenco di
+   fornitori del proxy precedente. */
+function proxyRicarica(){ _proxyAtteso = null; _proxyFornitori = null; return proxyStato(); }
+window.bsiProxy = { url: proxyUrl, stato: proxyStato, copre: proxyCopre, ricarica: proxyRicarica };
 
 /* ---------------------------------------------------------------------
    1a. RISOLUZIONE DEL MODELLO GEMINI
@@ -185,11 +249,20 @@ async function _getConTimeout(url){
   } finally { if(t) clearTimeout(t); }
 }
 
+/* Percorso dei metadati Gemini: via proxy quando c'e' (nessuna chiave nel
+   browser), altrimenti diretto con la chiave dell'utente. */
+function geminiMetaUrl(percorso, apiKey){
+  var p = viaProxy('gemini', '/v1beta' + percorso);
+  if(p) return p;
+  return GEMINI_ROOT + percorso +
+         (percorso.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(apiKey);
+}
+
 async function geminiListModels(apiKey){
   var out = [], token = '', giri = 0;
   while(giri++ < 5){
-    var u = GEMINI_ROOT + '/models?pageSize=200&key=' + encodeURIComponent(apiKey) +
-            (token ? '&pageToken=' + encodeURIComponent(token) : '');
+    var u = geminiMetaUrl('/models?pageSize=200' +
+            (token ? '&pageToken=' + encodeURIComponent(token) : ''), apiKey);
     var r = await _getConTimeout(u);
     if(!r.ok) throw new Error('ListModels HTTP ' + r.status);
     var j = await r.json();
@@ -202,8 +275,7 @@ async function geminiListModels(apiKey){
 
 async function geminiEsiste(apiKey, nome){
   try{
-    var r = await _getConTimeout(GEMINI_ROOT + '/models/' + encodeURIComponent(nome) +
-                                 '?key=' + encodeURIComponent(apiKey));
+    var r = await _getConTimeout(geminiMetaUrl('/models/' + encodeURIComponent(nome), apiKey));
     return !!(r && r.ok);
   }catch(e){ return false; }
 }
@@ -236,7 +308,10 @@ function punteggioGemini(m){
 
 async function risolviModelloGemini(apiKey, forzaRefresh){
   var riserva = PROVIDERS.gemini.modelliCandidati;
-  if(!apiKey) return riserva[0];
+  // Col proxy la chiave non c'e' (sta sul server) ma la risoluzione funziona
+  // lo stesso, passando di li'. Senza ne' chiave ne' proxy non c'e' niente da
+  // interrogare: si torna subito la riserva.
+  if(!apiKey && !proxyCopre('gemini')) return riserva[0];
   if(!forzaRefresh){
     var c = geminiCacheLeggi(apiKey);
     if(c) return c;
@@ -293,15 +368,22 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     // p.model e' stato risolto da streamChat; il fallback copre le chiamate
     // diverse (test, uso diretto) in cui la risoluzione non e' passata.
     var gMod = p.model || p.modelliCandidati[0];
+    var gCoda = '/models/' + encodeURIComponent(gMod) + ':streamGenerateContent?alt=sse';
     return {
-      url: GEMINI_ROOT + '/models/' + encodeURIComponent(gMod) +
-           ':streamGenerateContent?alt=sse&key=' + encodeURIComponent(apiKey),
+      // Col proxy la chiave non compare: la mette il server.
+      url: viaProxy('gemini', '/v1beta' + gCoda) ||
+           (GEMINI_ROOT + gCoda + '&key=' + encodeURIComponent(apiKey)),
       headers: { 'Content-Type': 'application/json' },
       body: body
     };
   }
   if(p.family === 'anthropic'){
-    var h = Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
+    var aUrl = viaProxy(p.id, '/v1/messages');
+    // anthropic-version resta obbligatoria anche via proxy (il Worker la
+    // inoltra); x-api-key invece la aggiunge il Worker, non il browser.
+    var h = aUrl
+      ? { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' }
+      : Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
     var aBody = {
       model: p.model, max_tokens: p.maxTokens || 4000, stream: true, system: systemPrompt,
       messages: messages.map(anthropicMsg)
@@ -325,17 +407,21 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     // Fallback in caso di rifiuto: richiedono sia l'intestazione beta sia il
     // campo nel corpo. Mandarne solo uno dei due produce un 400.
     if(p.fallbacks && p.beta){ h['anthropic-beta'] = p.beta; aBody.fallbacks = p.fallbacks; }
-    return { url: p.url, headers: h, body: aBody };
+    return { url: aUrl || p.url, headers: h, body: aBody };
   }
   // famiglia 'openai'-compatibile: groq, openrouter, grok
-  var h2 = Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
+  var oUrl = null;
+  try{ oUrl = viaProxy(p.id, new URL(p.url).pathname); }catch(e){}
+  var h2 = oUrl
+    ? { 'Content-Type': 'application/json' }
+    : Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
   var oBody = {
     model: p.model, stream: true, temperature: 0.6,
     messages: [{ role: 'system', content: systemPrompt }].concat(messages.map(openaiMsg))
   };
   var oTools = toolsForFamily('openai', tools);
   if(oTools) oBody.tools = oTools;
-  return { url: p.url, headers: h2, body: oBody };
+  return { url: oUrl || p.url, headers: h2, body: oBody };
 }
 
 // Conversione messaggi: per turni semplici {role,content:string} il passthrough
@@ -3879,6 +3965,7 @@ var CSS = [
 '.bsi-hub-mic{background:#0f1e2e;border:1px solid #1a3550;color:#9fb8d0;border-radius:10px;padding:9px 12px;cursor:pointer;}',
 '.bsi-hub-mic.rec{background:#3a1e1e;border-color:#ff6b6b;color:#ff6b6b;}',
 '#bsi-hub-keybox{margin:12px;padding:14px;background:#0f1e2e;border:1px solid #1a3550;border-radius:12px;}',
+'#bsi-hub-proxybadge{margin:12px 12px 0;padding:9px 12px;background:#08251f;border:1px solid #14614f;border-radius:10px;color:#5eead4;font-size:.78rem;font-weight:600;}',
 '#bsi-hub-keybox input{width:100%;box-sizing:border-box;padding:9px 10px;background:#0d1b2e;border:1px solid #1a3550;border-radius:8px;color:#e8f4ff;font-size:.85rem;margin-top:8px;}',
 '.bsi-hub-note{color:#3d6280;font-size:.76rem;margin-top:8px;line-height:1.5;}',
 /* srs */
@@ -4040,9 +4127,23 @@ function clearSavedKey(providerId){
   saveJSON('bsi_api_keys', map);
 }
 function hasAnySavedKey(){
+  // Col proxy Spectra e' utilizzabile anche senza nessuna chiave salvata.
+  if(_proxyFornitori && _proxyFornitori.length) return true;
   var map = getKeysMap();
   return Object.keys(map).some(function(k){ return !!map[k]; });
 }
+
+/* La chiave da usare per un provider. Col proxy attivo non ne serve nessuna:
+   la mette il server. Qui basta un segnaposto perche' i controlli "manca la
+   chiave" non blocchino l'invio. Il segnaposto NON viaggia mai: quando la
+   richiesta passa dal proxy, buildRequest omette del tutto l'intestazione di
+   autenticazione e non infila la chiave nell'URL. */
+var CHIAVE_VIA_PROXY = '(sul server)';
+function chiaveDaUsare(providerId){
+  if(proxyCopre(providerId)) return CHIAVE_VIA_PROXY;
+  return getSavedKey(providerId);
+}
+function serveChiave(providerId){ return !proxyCopre(providerId) && !getSavedKey(providerId); }
 window.bsiHasAnySavedKey = hasAnySavedKey;
 
 function providerSelectHtml(selected){
@@ -4325,6 +4426,7 @@ function buildChatPane(){
       '</div>' +
       '<div class="bsi-hub-note">La chiave resta solo in questo browser (localStorage): non viene mai inviata a server di BioSpecInfo, solo al provider scelto.</div>' +
     '</div>' +
+    '<div id="bsi-hub-proxybadge" style="display:none"></div>' +
     '<div id="bsi-hub-msgs"></div>' +
     '<div id="bsi-hub-attrow"></div>' +
     '<div id="bsi-hub-actions"></div>' +
@@ -4362,14 +4464,24 @@ function buildChatPane(){
   // una volta salvata non viene più richiesta, anche cambiando provider.
   function refreshKeyBox(){
     var prov = provSel.value;
-    var hasKey = !!getSavedKey(prov);
-    keyBox.style.display = hasKey ? 'none' : 'block';
+    // Col proxy la chiave sta sul server: non va chiesta, e dirlo evita che
+    // l'utente pensi di doverne inserire una comunque.
+    var viaServer = proxyCopre(prov);
+    keyBox.style.display = (viaServer || getSavedKey(prov)) ? 'none' : 'block';
+    var badge = document.getElementById('bsi-hub-proxybadge');
+    if(badge){
+      badge.style.display = viaServer ? 'block' : 'none';
+      badge.textContent = '🔓 ' + PROVIDERS[prov].name + ' — nessuna chiave necessaria: la mette il server.';
+    }
     document.getElementById('bsi-hub-provname').textContent = PROVIDERS[prov].name;
     document.getElementById('bsi-hub-keylink').textContent = 'Ottieni una chiave gratuita su ' + PROVIDERS[prov].keyLink + (PROVIDERS[prov].note ? ' — ' + PROVIDERS[prov].note : '');
     document.getElementById('bsi-hub-keyinput').placeholder = PROVIDERS[prov].placeholder;
   }
   provSel.value = getSavedProvider();
   refreshKeyBox();
+  // Il proxy risponde in un attimo, ma non subito: quando si sa quali
+  // fornitori copre, il riquadro si aggiorna da solo.
+  proxyStato().then(function(){ try{ refreshKeyBox(); }catch(e){} });
   provSel.onchange = function(){ setSavedProvider(provSel.value); refreshKeyBox(); };
 
   document.getElementById('bsi-hub-savekey').onclick = function(){
@@ -4616,7 +4728,7 @@ function buildChatPane(){
     var text = input.value.trim();
     if(!text) return;
     var provId = provSel.value;
-    var apiKey = getSavedKey(provId);
+    var apiKey = chiaveDaUsare(provId);
     if(!apiKey){
       // Prima: usciva senza dire nulla — sembrava che Spectra "non
       // rispondesse", mentre in realtà mancava solo la chiave API (magari
@@ -4824,7 +4936,7 @@ function buildExamPane(){
 
   document.getElementById('bsi-exam-start').onclick = async function(){
     var examProvId = document.getElementById('bsi-hub-provsel') ? document.getElementById('bsi-hub-provsel').value : getSavedProvider();
-    var apiKey = getSavedKey(examProvId);
+    var apiKey = chiaveDaUsare(examProvId);
     if(!apiKey){ selectTab('chat'); return; }
     var subject = document.getElementById('bsi-exam-subj').value;
     var topics = document.getElementById('bsi-exam-topics').value.trim();
@@ -4857,7 +4969,7 @@ function buildExamPane(){
 
   async function examTurn(userText){
     var provId = document.getElementById('bsi-hub-provsel') ? document.getElementById('bsi-hub-provsel').value : getSavedProvider();
-    var apiKey = getSavedKey(provId);
+    var apiKey = chiaveDaUsare(provId);
     if(userText !== "Inizia l'esame con la prima domanda.") { addExamMsg('user', userText); }
     examState.history.push({ role: 'user', content: userText });
     var live = addExamMsg('assistant', '…');
@@ -4979,7 +5091,7 @@ function buildGuidePane(){
 
   document.getElementById('bsi-guide-gen').onclick = async function(){
     var provId = document.getElementById('bsi-hub-provsel') ? document.getElementById('bsi-hub-provsel').value : getSavedProvider();
-    var apiKey = getSavedKey(provId);
+    var apiKey = chiaveDaUsare(provId);
     if(!apiKey){ selectTab('chat'); return; }
     if(!selected.length){ document.getElementById('bsi-guide-status').textContent = 'Scegli almeno un argomento.'; return; }
     var log = document.getElementById('bsi-guide-log'); log.style.display = 'block'; log.textContent = '';

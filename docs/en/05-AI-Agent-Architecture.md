@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,053 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,165 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v135` |
+| **Documented version** | Service Worker `bsi-v136` |
 
 ---
 
@@ -111,6 +111,44 @@ the API key (different keys see different catalogues; the key itself is never
 duplicated). If the model is retired while cached, the `404` from the
 generation call invalidates the cache, re-resolves and retries **once** — a
 flag prevents an infinite loop when the new model 404s as well.
+
+### 2.5 The optional proxy — Spectra without a key
+
+The API key lives in the user's browser: with no backend there is no
+alternative, and it is the limitation stated openly at the end of this
+document. Every visitor has to obtain their own free key and paste it in.
+
+`proxy/spectra-proxy.js` is the way out, and it sits **outside** the page: a
+Cloudflare Worker (free plan) holding the keys as server-side secrets. When it
+is configured the browser carries no key at all, and anyone opening BioSpecInfo
+uses Spectra without entering anything.
+
+It is not a plain forwarder:
+
+- **The path passes through untouched.** The route is `/<provider>/<path>` and
+  the rest is relayed as received: the proxy knows nothing about API shapes and
+  keeps working when Spectra changes model or parameters.
+- **Several keys per provider, with automatic takeover.** Each secret is a
+  comma-separated list; on `429` (quota) or `401/403` (revoked key) it moves to
+  the next one within the same request. Not on `400` — that is a bad request
+  and would fail identically.
+- **Streaming is never buffered**: the response body is passed straight
+  through, otherwise answers would appear all at once at the end.
+- **It is not an open relay.** Credentials arriving from the client
+  (`Authorization`, `x-api-key`, `?key=`) are discarded and replaced: nobody
+  can use the proxy to push a key of their own.
+- **Three brakes** against abuse: an allowed-origins list, a per-IP limit and a
+  daily cap.
+
+On the Spectra side the graft is in one place. `GET /stato` reports which
+providers the proxy actually covers, so a model whose secret is missing is
+never offered as "no key needed"; `buildRequest` routes to the proxy **and
+omits authentication entirely**; `chiaveDaUsare()` returns a placeholder so the
+"missing key" guards do not block sending — a placeholder that never leaves the
+browser.
+
+Both paths coexist: without `PROXY_URL` everything works as before, and for
+providers the proxy does not cover Spectra keeps using the local key.
 
 ---
 
@@ -324,7 +362,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,053 lines |
+| Component size | 5,165 lines |
 | Tools | 32 |
 | Model configurations | 8 (3 free) |
 | Scientific areas covered | 13 |
@@ -339,10 +377,12 @@ search, turn suspension and resumption was simulated.
 
 Documented for technical honesty; these are deliberate choices, not omissions.
 
-- **The API key lives in the browser.** It is the only option without a
-  backend: the key never leaves the device, but it is accessible to anyone with
-  access to that browser. A shared key would require a server-side proxy with
-  quota enforcement, outside the scope of a static application.
+- **The API key lives in the browser** — unless the proxy is deployed. In
+  the default configuration the key never leaves the device, but it is
+  accessible to anyone with access to that browser, and every user must obtain
+  their own. The Worker in section 2.5 removes this limitation by moving keys
+  to a server, at the cost of one component to maintain outside the page: a
+  distribution choice, not a requirement.
 - **Network tools depend on service availability.** PubChem and PubMed are
   queried directly from the browser; when unreachable, the tool returns an
   explicit error and the agent is instructed to say so rather than substituting
