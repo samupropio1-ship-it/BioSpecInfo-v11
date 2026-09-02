@@ -32,11 +32,11 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (4.895 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.053 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v133
+- sw.js            — Service Worker (network-first). Cache: bsi-v135
 - manifest.json    — PWA manifest
 - docs/            — 13 documenti .md + 12 PDF (dossier tecnico IT/EN, candidatura)
 - LICENSE, README.md, THIRD_PARTY_NOTICES.md
@@ -136,6 +136,24 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
 8) PARAMETRI PER MODELLO — effort e web_search NON sono supportati da Haiku
    4.5; temperature/top_p/budget_tokens sono rimossi su tutti i modelli
    recenti. Ogni parametro va condizionato al provider, mai globale.
+
+9) MODELLO GEMINI — non scrivere MAI un nome di modello Gemini nell'URL.
+   Google ritira i modelli da v1beta senza preavviso (gemini-1.5-flash e'
+   sparito e dava "HTTP 404 — models/gemini-1.5-flash is not found").
+   PROVIDERS.gemini.model parte a null e viene risolto da
+   risolviModelloGemini(): ListModels -> punteggio -> cache 7 giorni legata
+   all'impronta della chiave; se ListModels non risponde si sondano i
+   modelliCandidati con una GET sui metadati. Un 404 sulla generazione
+   invalida la cache e ritenta UNA volta (flag _giaRiprovato: senza, ciclo
+   infinito). Aggiungere un nome nuovo a modelliCandidati non serve quasi
+   mai — la risoluzione trova da sola le versioni piu' recenti.
+
+10) CODICE MORTO IN index.html — il vecchio blocco chat (_aiProviderInfo,
+   setAIProvider, saveAIKey, initAI, sendAI, ~ righe 8660-8930) NON e' piu'
+   raggiungibile: Spectra lo ha sostituito, il markup #aiInput non esiste e
+   initAI() non viene mai chiamata. E' rimasto in piedi ma non e' il codice
+   che gira: prima di "correggere un bug" li' dentro, verificare che sia
+   davvero il percorso attivo.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

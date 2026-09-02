@@ -43,10 +43,17 @@ var PROVIDERS = {
     keyLink: 'console.groq.com → API Keys', placeholder: 'gsk_...'
   },
   gemini: {
-    name: 'Google Gemini 1.5 Flash', family: 'gemini', free: true,
-    model: 'gemini-1.5-flash',
-    urlBase: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash',
-    keyLink: 'aistudio.google.com → Get API key', placeholder: 'AIza...'
+    name: 'Google Gemini Flash · gratis', family: 'gemini', free: true,
+    // Il nome del modello NON e' cablato. Google ritira i modelli dall'endpoint
+    // e un nome fisso prima o poi restituisce 404 ("models/gemini-1.5-flash is
+    // not found for API version v1beta"): e' esattamente cio' che e' successo.
+    // Viene risolto a runtime interrogando ListModels (vedi
+    // risolviModelloGemini), con una cascata statica di riserva.
+    model: null,
+    modelliCandidati: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest',
+                       'gemini-2.5-flash-lite', 'gemini-1.5-flash'],
+    keyLink: 'aistudio.google.com → Get API key', placeholder: 'AIza...',
+    note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
   openrouter: {
     name: 'OpenRouter — Mistral 7B', family: 'openai', free: true,
@@ -126,6 +133,141 @@ var PROVIDERS = {
 };
 window.BSI_AI_PROVIDERS = PROVIDERS;
 
+/* ---------------------------------------------------------------------
+   1a. RISOLUZIONE DEL MODELLO GEMINI
+   Google ritira i modelli dall'endpoint v1beta senza preavviso: un nome
+   scritto nel codice funziona finche' non smette, e allora l'utente vede
+   solo "HTTP 404 — models/... is not found". L'API pero' sa dire quali
+   modelli esistono per QUELLA chiave, quindi glielo si chiede.
+   Tre livelli, dal migliore al peggiore:
+     1. ListModels  -> si sceglie il migliore fra quelli realmente esposti
+     2. sonda i candidati uno per uno (GET sui metadati, non consuma quota)
+     3. primo candidato: la chiamata vera dara' l'errore vero
+   La scelta viene messa in cache per una settimana, legata all'impronta
+   della chiave (chiavi diverse possono vedere modelli diversi).
+--------------------------------------------------------------------- */
+var GEMINI_ROOT = 'https://generativelanguage.googleapis.com/v1beta';
+var GEMINI_CACHE_KEY = 'bsi_gemini_modello';
+var GEMINI_CACHE_TTL = 7 * 24 * 3600 * 1000;
+var GEMINI_META_TIMEOUT = 12000;
+
+// Impronta a 32 bit (FNV-1a) della chiave: serve solo a non riusare la cache
+// di una chiave per un'altra. La chiave in chiaro non viene mai duplicata qui.
+function _improntaChiave(k){
+  var h = 0x811c9dc5;
+  for(var i = 0; i < k.length; i++){
+    h ^= k.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h.toString(16);
+}
+
+function geminiCacheLeggi(apiKey){
+  var c = loadJSON(GEMINI_CACHE_KEY, null);
+  if(!c || !c.model || c.k !== _improntaChiave(apiKey)) return null;
+  if(!c.ts || (Date.now() - c.ts) > GEMINI_CACHE_TTL) return null;
+  return c.model;
+}
+function geminiCacheScrivi(apiKey, model){
+  saveJSON(GEMINI_CACHE_KEY, { model: model, k: _improntaChiave(apiKey), ts: Date.now() });
+}
+function geminiCacheInvalida(){
+  try{ localStorage.removeItem(GEMINI_CACHE_KEY); }catch(e){}
+}
+
+// GET con timeout: senza, una richiesta appesa bloccherebbe l'invio del
+// messaggio per sempre, prima ancora che parta il timeout di inattivita'.
+async function _getConTimeout(url){
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var t = ctrl ? setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, GEMINI_META_TIMEOUT) : null;
+  try{
+    return await fetch(url, ctrl ? { method: 'GET', signal: ctrl.signal } : { method: 'GET' });
+  } finally { if(t) clearTimeout(t); }
+}
+
+async function geminiListModels(apiKey){
+  var out = [], token = '', giri = 0;
+  while(giri++ < 5){
+    var u = GEMINI_ROOT + '/models?pageSize=200&key=' + encodeURIComponent(apiKey) +
+            (token ? '&pageToken=' + encodeURIComponent(token) : '');
+    var r = await _getConTimeout(u);
+    if(!r.ok) throw new Error('ListModels HTTP ' + r.status);
+    var j = await r.json();
+    if(j && j.models && j.models.length) out = out.concat(j.models);
+    token = (j && j.nextPageToken) || '';
+    if(!token) break;
+  }
+  return out;
+}
+
+async function geminiEsiste(apiKey, nome){
+  try{
+    var r = await _getConTimeout(GEMINI_ROOT + '/models/' + encodeURIComponent(nome) +
+                                 '?key=' + encodeURIComponent(apiKey));
+    return !!(r && r.ok);
+  }catch(e){ return false; }
+}
+
+/* Punteggio di un modello restituito da ListModels. -1 = da scartare.
+   Criteri, in ordine di peso: versione piu' recente, famiglia flash
+   (gratuita e veloce), niente varianti sperimentali o specializzate. */
+function punteggioGemini(m){
+  if(!m || !m.name) return -1;
+  var n = String(m.name).replace(/^models\//, '');
+  if(!/^gemini-/.test(n)) return -1;
+  var meth = m.supportedGenerationMethods || [];
+  // Spectra parla solo in streaming: un modello che non lo espone e' inutile.
+  if(meth.indexOf('streamGenerateContent') < 0) return -1;
+  // Modelli non conversazionali o con protocollo diverso (audio nativo, Live
+  // API, generazione di immagini/video): risponderebbero, ma non a noi.
+  if(/embedding|aqa|imagen|veo|tts|image-generation|native-audio|live-|learnlm|gemma/.test(n)) return -1;
+  var s = 0;
+  var v = n.match(/^gemini-(\d+)\.(\d+)/);
+  if(v) s += parseInt(v[1], 10) * 100 + parseInt(v[2], 10) * 10;
+  else s += 150;                       // alias tipo 'gemini-flash-latest'
+  if(/flash/.test(n)) s += 40;
+  else if(/pro/.test(n)) s += 10;
+  if(/-lite/.test(n)) s -= 15;
+  if(/(exp|preview|-\d{3,})/.test(n)) s -= 30;
+  if(/thinking/.test(n)) s -= 5;
+  if(/-8b/.test(n)) s -= 20;
+  return s;
+}
+
+async function risolviModelloGemini(apiKey, forzaRefresh){
+  var riserva = PROVIDERS.gemini.modelliCandidati;
+  if(!apiKey) return riserva[0];
+  if(!forzaRefresh){
+    var c = geminiCacheLeggi(apiKey);
+    if(c) return c;
+  }
+  var scelto = null;
+  try{
+    var lista = await geminiListModels(apiKey);
+    var best = null, bestS = -1;
+    for(var i = 0; i < lista.length; i++){
+      var s = punteggioGemini(lista[i]);
+      if(s > bestS){ bestS = s; best = lista[i]; }
+    }
+    if(best && bestS >= 0) scelto = String(best.name).replace(/^models\//, '');
+  }catch(e){ /* ListModels non raggiungibile: si passa alla cascata */ }
+
+  if(!scelto){
+    for(var j = 0; j < riserva.length; j++){
+      if(await geminiEsiste(apiKey, riserva[j])){ scelto = riserva[j]; break; }
+    }
+  }
+  // Se anche le sonde falliscono (rete giu', chiave non valida) si usa il primo
+  // candidato: meglio l'errore vero della chiamata di generazione — "API key
+  // not valid" — di un errore inventato qui che nasconde la causa.
+  if(!scelto) return riserva[0];
+  geminiCacheScrivi(apiKey, scelto);
+  return scelto;
+}
+// esposti per i test e per un eventuale "ricontrolla i modelli" dalla UI
+window.bsiGeminiRisolvi = risolviModelloGemini;
+window.bsiGeminiReset = geminiCacheInvalida;
+
 // Converte il registro TOOLS (comune) nel formato richiesto da ciascuna famiglia
 function toolsForFamily(family, tools){
   if(!tools || !tools.length) return undefined;
@@ -148,8 +290,12 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     };
     var gTools = toolsForFamily('gemini', tools);
     if(gTools) body.tools = gTools;
+    // p.model e' stato risolto da streamChat; il fallback copre le chiamate
+    // diverse (test, uso diretto) in cui la risoluzione non e' passata.
+    var gMod = p.model || p.modelliCandidati[0];
     return {
-      url: p.urlBase + ':streamGenerateContent?alt=sse&key=' + encodeURIComponent(apiKey),
+      url: GEMINI_ROOT + '/models/' + encodeURIComponent(gMod) +
+           ':streamGenerateContent?alt=sse&key=' + encodeURIComponent(apiKey),
       headers: { 'Content-Type': 'application/json' },
       body: body
     };
@@ -389,9 +535,11 @@ async function readErrorBody(res){
    mano che arrivano pezzi di risposta, poi callbacks.onDone(fullText).
    Se lo stream non è leggibile (browser/rete), fa fallback a lettura
    intera della risposta. */
-async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal){
+async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, _giaRiprovato){
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
+  // Gemini: il nome del modello si decide adesso, non e' scritto nel codice.
+  if(p.family === 'gemini') p.model = await risolviModelloGemini(apiKey, false);
   var req = buildRequest(p, apiKey, messages, systemPrompt, tools);
 
   // Timeout di INATTIVITÀ (non sul totale della risposta): si azzera ad ogni
@@ -431,6 +579,16 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   if(!res.ok){
     stopIdle();
     var errMsg = await readErrorBody(res);
+    // Il modello e' stato ritirato mentre era in cache: si ririsolve e si
+    // ritenta UNA volta sola (il flag impedisce il ciclo infinito).
+    if(p.family === 'gemini' && res.status === 404 && !_giaRiprovato){
+      var vecchio = p.model;
+      geminiCacheInvalida();
+      var nuovo = await risolviModelloGemini(apiKey, true);
+      if(nuovo && nuovo !== vecchio){
+        return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, true);
+      }
+    }
     throw new Error('HTTP ' + res.status + ' — ' + errMsg);
   }
   var full = '';

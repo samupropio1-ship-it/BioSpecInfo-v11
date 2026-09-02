@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 4.895 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.053 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v133` |
+| **Versione documentata** | Service Worker `bsi-v135` |
 
 ---
 
@@ -89,6 +89,30 @@ Gli strumenti sono definiti una sola volta in JSON-Schema e tradotti a runtime:
 Lo stesso vale per i messaggi: i turni con chiamate a strumenti vengono
 serializzati nella forma nativa di ciascun fornitore e conservati in un campo
 `_native`, così una conversazione resta coerente anche cambiando modello.
+
+### 2.4 Risoluzione del modello Gemini
+
+Google ritira i modelli dall'endpoint `v1beta` senza preavviso: un nome scritto
+nell'URL smette di funzionare e restituisce `404 — models/... is not found`.
+Per questo `PROVIDERS.gemini.model` parte a `null` e viene deciso a runtime:
+
+1. **`ListModels`** — si chiede all'API quali modelli quella chiave vede
+   davvero. Ognuno riceve un punteggio: versione più recente, famiglia `flash`,
+   con penalità per varianti sperimentali, `preview` e `-lite`; sono scartati i
+   modelli che non espongono `streamGenerateContent` e quelli non
+   conversazionali (embedding, immagini, audio nativo, Live API).
+2. **Sonda dei candidati** — se `ListModels` non risponde (chiave limitata,
+   rete, CORS), si prova una `GET` sui metadati di ogni nome noto: verifica
+   reale, senza consumare quota di generazione.
+3. **Primo candidato** — ultima riserva, per lasciar parlare l'errore vero
+   della chiamata di generazione invece di inventarne uno qui.
+
+La scelta è in cache per sette giorni, legata a un'impronta FNV-1a a 32 bit
+della chiave (chiavi diverse vedono cataloghi diversi; la chiave in chiaro non
+viene duplicata). Se il modello viene ritirato mentre è in cache, il `404`
+della chiamata di generazione invalida la cache, ririsolve e ritenta **una
+volta sola** — un flag impedisce il ciclo infinito quando anche il modello
+nuovo dà 404.
 
 ---
 
@@ -311,7 +335,7 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 4.895 |
+| Righe del componente | 5.053 |
 | Strumenti | 32 |
 | Configurazioni di modello | 8 (di cui 3 gratuite) |
 | Aree scientifiche coperte | 13 |
