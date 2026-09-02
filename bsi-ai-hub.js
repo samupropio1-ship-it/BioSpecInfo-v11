@@ -957,11 +957,38 @@ window.bsiGrafoToSvg = grafoToSvg;
 // 2000px sul lato lungo: 1600 bastavano per una lavagna, ma su una pagina di
 // appunti a mano fitti la scrittura piccola diventava illeggibile.
 var MAX_LATO_IMG = 2000;
-// 30 MB: il limite della richiesta e' 32 MB e il base64 gonfia di circa un
-// terzo, quindi il file grezzo utile si ferma intorno a questa soglia.
-var MAX_FILE_MB = 30;
-// Oltre questa soglia il documento non entra in una sola richiesta.
-var MAX_PAGINE_PDF = 100;
+// Il limite della richiesta e' 32 MB, ma il base64 gonfia di 4/3: un file
+// grezzo da 30 MB ne produrrebbe 40 e verrebbe rifiutato dall'API. Il grezzo
+// deve quindi stare sotto 24 MB; 22 lascia margine per il resto del messaggio.
+var MAX_FILE_MB = 22;
+
+// Il tetto di pagine dipende dalla finestra di contesto del modello: 600 per
+// quelli da 1M (Opus 5, Sonnet 5, Fable 5.1), 100 per Haiku 4.5 che ne ha 200K.
+// Applicare 100 a tutti, com'era prima, rifiutava documenti che i modelli
+// grandi avrebbero gestito benissimo.
+var PAGINE_PDF = { claude_fable:600, claude:600, claude_sonnet:600, claude_haiku:100, gemini:300 };
+var PAGINE_PDF_DEFAULT = 100;
+
+function limitePagine(provId){
+  var p = PAGINE_PDF[provId || (typeof getSavedProvider === 'function' ? getSavedProvider() : '')];
+  return p || PAGINE_PDF_DEFAULT;
+}
+// Cerca il provider che regge piu' pagine fra quelli capaci di N.
+function _migliorePer(n){
+  var best = null;
+  Object.keys(PAGINE_PDF).forEach(function(k){
+    if(PAGINE_PDF[k] >= n && (!best || PAGINE_PDF[k] > PAGINE_PDF[best])) best = k;
+  });
+  return best;
+}
+function provinciaAdatta(n){
+  var k = _migliorePer(n);
+  return k && PROVIDERS[k] ? PROVIDERS[k].name : null;
+}
+function provinciaMax(n){
+  var k = _migliorePer(n);
+  return k ? PAGINE_PDF[k] : PAGINE_PDF_DEFAULT;
+}
 
 // Conta le pagine leggendo gli oggetti /Type /Page nel PDF, senza librerie.
 // E' una stima: alcuni PDF compressi (object streams) espongono meno oggetti
@@ -997,9 +1024,15 @@ function leggiAllegato(file){
       var rb = new FileReader();
       rb.onload = function(){
         var pagine = contaPaginePdf(rb.result);
-        if(pagine && pagine > MAX_PAGINE_PDF){
-          reject(new Error('"' + file.name + '" ha circa ' + pagine + ' pagine: il limite per una singola ' +
-                           'richiesta e\' ' + MAX_PAGINE_PDF + '. Allega il capitolo che ti serve, oppure dividi il file.'));
+        var tetto = limitePagine();
+        if(pagine && pagine > tetto){
+          // se un altro modello reggerebbe il documento, dillo invece di
+          // limitarsi a rifiutarlo: spesso basta cambiare provider
+          var alt = provinciaAdatta(pagine);
+          reject(new Error('"' + file.name + '" ha circa ' + pagine + ' pagine, oltre il limite di ' + tetto +
+            ' del modello selezionato.' +
+            (alt ? ' Passa a ' + alt + ', che arriva a ' + provinciaMax(pagine) + ' pagine.'
+                 : ' Allega il capitolo che ti serve, oppure dividi il file.')));
           return;
         }
         var rp = new FileReader();
@@ -3293,7 +3326,8 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "una parola scrivi [illeggibile] invece di inventare: un termine chimico sbagliato e' peggio di " +
 "una lacuna dichiarata. Quando trovi formule, strutture o spettri interpretali esplicitamente. Se " +
 "ricevi piu' immagini, trattale come pagine consecutive di un unico documento e mantieni l'ordine.\n\n" +
-"PDF LUNGHI: se il documento e' esteso, dichiara prima come lo affronti (per esempio 'lo divido in " +
+"PDF LUNGHI: puoi ricevere documenti fino a 600 pagine. Se il documento e' esteso, dichiara prima " +
+"come lo affronti (per esempio 'lo divido in " +
 "quattro blocchi tematici'), poi procedi in modo ordinato senza saltare sezioni. Se qualcosa e' " +
 "fuori dalla parte che hai potuto leggere, dillo apertamente.\n\n" +
 "MAPPE CONCETTUALI: rispondi con un diagramma Mermaid dentro un blocco ```mermaid usando graph TD " +
@@ -4221,6 +4255,24 @@ function buildChatPane(){
     if(t.title === 'Nuova chat') t.title = text.slice(0, 40);
     // gli allegati in attesa partono con questo messaggio e poi la barra si svuota
     var allegatiInvio = _allegati.slice();
+    // Il tetto di pagine dipende dal modello: se e' stato cambiato DOPO aver
+    // allegato, un PDF prima valido puo' non esserlo piu'. Meglio dirlo qui che
+    // lasciar fallire la richiesta con un errore dell'API.
+    var tettoOra = limitePagine(provId);
+    var troppoLungo = allegatiInvio.filter(function(a){ return a.kind === 'pdf' && a.pagine && a.pagine > tettoOra; });
+    if(troppoLungo.length){
+      var alt2 = provinciaAdatta(troppoLungo[0].pagine);
+      var box0 = document.getElementById('bsi-hub-msgs');
+      if(box0){
+        box0.appendChild(el('div', { class:'bsi-msg system-note' },
+          '⚠ "' + escapeHtml(troppoLungo[0].name) + '" ha ' + troppoLungo[0].pagine + ' pagine: ' +
+          escapeHtml(PROVIDERS[provId].name) + ' ne regge ' + tettoOra + '.' +
+          (alt2 ? ' Passa a <b>' + escapeHtml(alt2) + '</b> per inviarlo.' : '')));
+        box0.scrollTop = box0.scrollHeight;
+      }
+      input.value = text;   // non perdo quello che aveva scritto
+      return;
+    }
     var msgUtente = { role: 'user', content: text };
     if(allegatiInvio.length){
       // nella cronologia salvo solo i metadati: le immagini in base64
