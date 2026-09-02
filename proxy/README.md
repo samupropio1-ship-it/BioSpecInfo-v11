@@ -75,8 +75,9 @@ npx wrangler secret put GEMINI_KEYS
 > stessa richiesta. È il modo pratico per avvicinarsi a un uso "senza limiti"
 > restando sul piano gratuito.
 
-Segreti disponibili: `GROQ_KEYS`, `GEMINI_KEYS`, `GITHUB_KEYS`, `NVIDIA_KEYS`,
-`ZAI_KEYS`, `ANTHROPIC_KEYS`, `XAI_KEYS`. Metti solo quelli che hai — Spectra
+Segreti disponibili — gratuiti: `GROQ_KEYS`, `GEMINI_KEYS`, `GITHUB_KEYS`,
+`NVIDIA_KEYS`, `ZAI_KEYS`; a pagamento: `OPENAI_KEYS`, `DEEPSEEK_KEYS`,
+`ANTHROPIC_KEYS`, `XAI_KEYS` (`GEMINI_KEYS` copre anche Gemini 3 Pro). Metti solo quelli che hai — Spectra
 mostrerà come "senza chiave" soltanto i modelli davvero coperti.
 
 ```bash

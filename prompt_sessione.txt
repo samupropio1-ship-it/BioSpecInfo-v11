@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (5.883 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (5.959 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v141
+- sw.js            — Service Worker (network-first). Cache: bsi-v142
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,11 +92,13 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 10 configurazioni di modello, 5 gratuite
-scelte una per una: Groq (cavallo da tiro, 131K), Gemini (1M di contesto),
+32 strumenti su 13 aree scientifiche; 13 configurazioni di modello.
+GRATUITE (5): Groq (cavallo da tiro, 131K), Gemini Flash (1M di contesto),
 GitHub Models (qualita' massima, tetto 8K/richiesta), NVIDIA NIM (DeepSeek R1),
-Z.AI GLM (gratuito senza scadenza); a pagamento Claude Fable 5.1 / Opus 5 /
-Sonnet 5 / Haiku 4.5 e Grok.
+Z.AI GLM (gratuito senza scadenza).
+A PAGAMENTO (8): GPT-5.6 (record su GPQA Diamond, 94,6%), Gemini 3 Pro,
+DeepSeek V4 (miglior qualita'/prezzo), Grok 4 (2M di contesto), e la gamma
+Claude Fable 5.1 / Opus 5 / Sonnet 5 / Haiku 4.5.
 Tolti di proposito Mistral (consenso all'addestramento) e OpenRouter (modelli
 piccoli e id instabili) — vedi docs/Guida-Chiavi-API.md per il perche'.
 Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
@@ -244,6 +246,27 @@ Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
    appena visto. La cronologia invece si taglia ad ogni giro, perche' cresce.
    Se il modello chiama uno strumento non mandato, runToolCalls lo esegue
    comunque: toolByName cerca nel registro completo.
+
+16) CHIAVI CONDIVISE — chiaveCondivisaCon fa puntare piu' configurazioni
+   alla stessa voce di bsi_api_keys: i quattro Claude sono un solo account
+   Anthropic, e i due Gemini una sola chiave di AI Studio. get/set/clear la
+   normalizzano tutte e tre, e clearSavedKey toglie SIA la voce specifica SIA
+   quella canonica — lasciarne una farebbe "riapparire" la chiave sul gemello.
+
+17) PUNTEGGIO GEMINI, DUE TRAPPOLE gia' pagate
+   a) Il numero minore nel nome e' OPZIONALE. Dalla generazione 3 Google lo
+      ha tolto ("gemini-3-pro", non "gemini-3.0-pro"): con la regex che
+      pretendeva il punto, i modelli PIU' NUOVI valevano quanto un alias
+      generico e perdevano contro i vecchi. L'auto-aggiornamento non sarebbe
+      mai scattato.
+   b) La preferenza va DICHIARATA con p.preferisci, non lasciata al bonus
+      implicito su "flash". Con il solo bonus, un modello di generazione
+      successiva ma A PAGAMENTO (gemini-3-pro, 310) batteva il flash
+      gratuito (290): la configurazione gratuita avrebbe scelto un modello
+      che la chiave gratuita non puo' usare. Ora gemini ha preferisci=/flash/
+      e gemini_pro preferisci=/pro/, e i due non si sovrappongono.
+   punteggioGemini prende il provider come secondo argomento: NON rimetterlo
+   a uno solo, o le due configurazioni Gemini tornano a risolvere uguale.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

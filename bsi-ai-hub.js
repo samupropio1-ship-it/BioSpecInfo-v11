@@ -59,6 +59,11 @@ var PROVIDERS = {
     model: null,
     modelliCandidati: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest',
                        'gemini-2.5-flash-lite', 'gemini-1.5-flash'],
+    // La preferenza va DICHIARATA, non lasciata al bonus implicito: senza,
+    // un modello di generazione successiva ma a pagamento (gemini-3-pro)
+    // batterebbe il flash gratuito, e questa configurazione sceglierebbe un
+    // modello che la chiave gratuita non puo' usare.
+    preferisci: /flash/,
     keyLink: 'aistudio.google.com → Get API key', placeholder: 'AIza...',
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
@@ -110,6 +115,48 @@ var PROVIDERS = {
     placeholder: 'chiave alfanumerica',
     note: 'Gratuito e senza scadenza, forte su ragionamento e codice. Buon rincalzo quando gli altri hanno finito il minuto.'
   },
+  // ── Frontiera, a pagamento ───────────────────────────────────────────────
+  // Qui non si scelgono i modelli "grandi" ma quelli che vanno meglio su
+  // GPQA Diamond: domande di livello dottorato in fisica, chimica e biologia.
+  // E' l'unico banco che misura davvero cio' che serve a quest'app.
+  openai: {
+    name: 'OpenAI GPT-5.6 — record su GPQA', family: 'openai', free: false,
+    model: null,
+    // Sol e' in accesso limitato: se la chiave non lo vede, il risolutore
+    // scala a Terra e poi a Luna senza che l'utente debba saperlo.
+    modelliCandidati: ['gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna',
+                       'gpt-5.5', 'gpt-5.1'],
+    preferisci: /^gpt-5/,
+    url: 'https://api.openai.com/v1/chat/completions',
+    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
+    keyLink: 'platform.openai.com → API keys',
+    placeholder: 'sk-proj-...',
+    note: 'Il punteggio piu' + "'" + ' alto al mondo su GPQA Diamond (94,6%), il banco di domande scientifiche di livello dottorato: e' + "'" + ' il piu' + "'" + ' adatto a questa app. Circa 4$ per milione di token in ingresso.'
+  },
+  gemini_pro: {
+    name: 'Google Gemini 3 Pro', family: 'gemini', free: false,
+    model: null,
+    modelliCandidati: ['gemini-3-pro', 'gemini-3.1-pro-preview', 'gemini-2.5-pro'],
+    preferisci: /pro/,
+    // Stessa chiave di AI Studio del Gemini gratuito: cambia solo che serve
+    // la fatturazione attiva sul progetto.
+    chiaveCondivisaCon: 'gemini',
+    keyLink: 'aistudio.google.com → Get API key (serve la fatturazione attiva)',
+    placeholder: 'AIza...',
+    note: 'Frontiera con la finestra piu' + "'" + ' ampia: oltre 1 milione di token, quindi tesi intere in una sola richiesta. Usa la stessa chiave del Gemini gratuito.'
+  },
+  deepseek: {
+    name: 'DeepSeek V4 — potenza a poco', family: 'openai', free: false,
+    model: null,
+    modelliCandidati: ['deepseek-v4-pro', 'deepseek-reasoner', 'deepseek-v4-flash',
+                       'deepseek-chat'],
+    preferisci: /pro|reasoner/,
+    url: 'https://api.deepseek.com/v1/chat/completions',
+    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
+    keyLink: 'platform.deepseek.com → API keys',
+    placeholder: 'sk-...',
+    note: 'Ragionamento di fascia alta a una frazione del costo: circa 0,66$ per milione di token in ingresso fuori dalle ore di punta. Il miglior rapporto qualita' + "'" + '/prezzo se paghi a consumo.'
+  },
   // ── Gamma Claude, dal massimo all'economico ──────────────────────────────
   // Ogni modello ha vincoli API diversi: mandare a uno un parametro che non
   // supporta significa 400 secco. In particolare Haiku 4.5 NON accetta
@@ -134,6 +181,7 @@ var PROVIDERS = {
   claude: {
     name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
     model: 'claude-opus-5',
+    chiaveCondivisaCon: 'claude_fable',
     // Opus 5 ragiona di suo (adaptive thinking sempre attivo): e' il modello
     // piu' capace nell'incatenare strumenti, quindi il migliore per il Copilota.
     // display:'summarized' e' voluto — con il valore predefinito ('omitted') il
@@ -150,6 +198,7 @@ var PROVIDERS = {
   claude_sonnet: {
     name: 'Claude Sonnet 5 — equilibrato', family: 'anthropic', free: false,
     model: 'claude-sonnet-5',
+    chiaveCondivisaCon: 'claude_fable',
     thinking: { type: 'adaptive', display: 'summarized' },
     effort: 'high',
     webSearch: true, webSearchMaxUses: 5,
@@ -162,6 +211,7 @@ var PROVIDERS = {
   claude_haiku: {
     name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
     model: 'claude-haiku-4-5',
+    chiaveCondivisaCon: 'claude_fable',
     // NIENTE effort e NIENTE web_search di nuova generazione: su Haiku 4.5
     // non sono supportati e la richiesta verrebbe rifiutata.
     maxTokens: 8000,
@@ -171,14 +221,14 @@ var PROVIDERS = {
     note: 'Stessa chiave di Claude Opus 5, ma molto più economico.'
   },
   grok: {
-    name: 'Grok (xAI)', family: 'openai', free: false,
+    name: 'Grok 4 (xAI) — 2M di contesto', family: 'openai', free: false,
     model: null,
     modelliCandidati: ['grok-4-fast', 'grok-4', 'grok-3-mini', 'grok-3'],
     preferisci: /^grok-/,
     url: 'https://api.x.ai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'console.x.ai → API Keys', placeholder: 'xai-...',
-    note: 'Alcuni provider bloccano le chiamate dirette dal browser: se Grok non risponde, prova Claude, Gemini o Groq.'
+    note: 'La finestra piu\' ampia in circolazione (fino a 2 milioni di token) e il miglior rapporto prezzo/GPQA fra i modelli di punta. Nota: alcuni fornitori bloccano le chiamate dirette dal browser — se non risponde, prova un altro.'
   }
 };
 // Ogni configurazione porta la propria chiave di registro: serve a sapere,
@@ -202,6 +252,7 @@ var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
 var UPSTREAM = {
   groq: 'groq', gemini: 'gemini', grok: 'xai',
   github: 'github', nvidia: 'nvidia', zai: 'zai',
+  openai: 'openai', deepseek: 'deepseek', gemini_pro: 'gemini',
   claude_fable: 'anthropic', claude: 'anthropic',
   claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
 };
@@ -344,7 +395,7 @@ async function geminiEsiste(apiKey, nome){
 /* Punteggio di un modello restituito da ListModels. -1 = da scartare.
    Criteri, in ordine di peso: versione piu' recente, famiglia flash
    (gratuita e veloce), niente varianti sperimentali o specializzate. */
-function punteggioGemini(m){
+function punteggioGemini(m, p){
   if(!m || !m.name) return -1;
   var n = String(m.name).replace(/^models\//, '');
   if(!/^gemini-/.test(n)) return -1;
@@ -355,9 +406,18 @@ function punteggioGemini(m){
   // API, generazione di immagini/video): risponderebbero, ma non a noi.
   if(/embedding|aqa|imagen|veo|tts|image-generation|native-audio|live-|learnlm|gemma/.test(n)) return -1;
   var s = 0;
-  var v = n.match(/^gemini-(\d+)\.(\d+)/);
-  if(v) s += parseInt(v[1], 10) * 100 + parseInt(v[2], 10) * 10;
+  // Il numero minore e' OPZIONALE: dalla generazione 3 Google lo ha tolto dai
+  // nomi ("gemini-3-pro", non "gemini-3.0-pro"). Pretendendo il punto, i
+  // modelli PIU' NUOVI non venivano riconosciuti come versioni e valevano
+  // quanto un alias generico — quindi perdevano contro i vecchi, e
+  // l'aggiornamento automatico non sarebbe mai scattato.
+  var v = n.match(/^gemini-(\d+)(?:\.(\d+))?/);
+  if(v) s += parseInt(v[1], 10) * 100 + (v[2] ? parseInt(v[2], 10) * 10 : 0);
   else s += 150;                       // alias tipo 'gemini-flash-latest'
+  // La preferenza dichiarata dalla configurazione vince su tutto: e' cio' che
+  // distingue "Gemini Flash" da "Gemini 3 Pro", che condividono famiglia,
+  // endpoint e chiave ma vogliono modelli opposti.
+  if(p && p.preferisci && p.preferisci.test(n)) s += 200;
   if(/flash/.test(n)) s += 40;
   else if(/pro/.test(n)) s += 10;
   if(/-lite/.test(n)) s -= 15;
@@ -367,14 +427,18 @@ function punteggioGemini(m){
   return s;
 }
 
-async function risolviModelloGemini(apiKey, forzaRefresh){
-  var riserva = PROVIDERS.gemini.modelliCandidati;
+async function risolviModelloGemini(p, apiKey, forzaRefresh){
+  // p era cablato a PROVIDERS.gemini: con due configurazioni sulla stessa
+  // famiglia (Flash gratuito e 3 Pro a pagamento) avrebbe risolto entrambe
+  // sui candidati del Flash.
+  if(!p) p = PROVIDERS.gemini;
+  var riserva = p.modelliCandidati || [p.model];
   // Col proxy la chiave non c'e' (sta sul server) ma la risoluzione funziona
   // lo stesso, passando di li'. Senza ne' chiave ne' proxy non c'e' niente da
   // interrogare: si torna subito la riserva.
-  if(!apiKey && !proxyCopre('gemini')) return riserva[0];
+  if(!apiKey && !proxyCopre(p.id)) return riserva[0];
   if(!forzaRefresh){
-    var c = geminiCacheLeggi(apiKey);
+    var c = modelloCacheLeggi(p.id, apiKey);
     if(c) return c;
   }
   var scelto = null;
@@ -382,7 +446,7 @@ async function risolviModelloGemini(apiKey, forzaRefresh){
     var lista = await geminiListModels(apiKey);
     var best = null, bestS = -1;
     for(var i = 0; i < lista.length; i++){
-      var s = punteggioGemini(lista[i]);
+      var s = punteggioGemini(lista[i], p);
       if(s > bestS){ bestS = s; best = lista[i]; }
     }
     if(best && bestS >= 0) scelto = String(best.name).replace(/^models\//, '');
@@ -397,7 +461,7 @@ async function risolviModelloGemini(apiKey, forzaRefresh){
   // candidato: meglio l'errore vero della chiamata di generazione — "API key
   // not valid" — di un errore inventato qui che nasconde la causa.
   if(!scelto) return riserva[0];
-  geminiCacheScrivi(apiKey, scelto);
+  modelloCacheScrivi(p.id, apiKey, scelto);
   return scelto;
 }
 /* --- Fornitori OpenAI-compatibili (Groq, OpenRouter, xAI) ------------
@@ -500,12 +564,12 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
    (sono a pagamento), quindi restano come sono. */
 async function risolviModello(p, apiKey, forzaRefresh){
   if(!p.modelliCandidati) return p.model;
-  if(p.family === 'gemini') return risolviModelloGemini(apiKey, forzaRefresh);
+  if(p.family === 'gemini') return risolviModelloGemini(p, apiKey, forzaRefresh);
   return risolviModelloOpenai(p, apiKey, forzaRefresh);
 }
 
 // esposti per i test e per un eventuale "ricontrolla i modelli" dalla UI
-window.bsiGeminiRisolvi = risolviModelloGemini;
+window.bsiGeminiRisolvi = function(apiKey, forza){ return risolviModelloGemini(PROVIDERS.gemini, apiKey, forza); };
 window.bsiRisolviModello = risolviModello;
 window.bsiGeminiReset = function(provId){ modelloCacheInvalida(provId); };
 
@@ -4719,13 +4783,22 @@ function getSavedProvider(){
   return Object.keys(PROVIDERS)[0];
 }
 function setSavedProvider(p){ try{ localStorage.setItem('bsi_ai_provider', p); }catch(e){} }
+/* Configurazioni diverse possono usare la STESSA chiave: i quattro Claude
+   sono un solo account Anthropic, e Gemini Flash e Gemini 3 Pro una sola
+   chiave di AI Studio. Farla reinserire per ogni modello era solo fastidio,
+   e chi non la reinseriva vedeva "manca la chiave" su un servizio che in
+   realta' aveva gia' pagato. */
+function chiaveCanonica(providerId){
+  var p = PROVIDERS[providerId];
+  return (p && p.chiaveCondivisaCon) ? p.chiaveCondivisaCon : providerId;
+}
 function getSavedKey(providerId){
   var prov = providerId || getSavedProvider();
   var map = getKeysMap();
-  return map[prov] || '';
+  return map[prov] || map[chiaveCanonica(prov)] || '';
 }
 function setSavedKey(k, providerId){
-  var prov = providerId || getSavedProvider();
+  var prov = chiaveCanonica(providerId || getSavedProvider());
   var map = getKeysMap();
   map[prov] = k;
   var ok = saveJSON('bsi_api_keys', map);
@@ -4742,7 +4815,10 @@ function setSavedKey(k, providerId){
 function clearSavedKey(providerId){
   var prov = providerId || getSavedProvider();
   var map = getKeysMap();
+  // Si toglie sia la voce specifica sia quella condivisa: lasciarne una
+  // farebbe "riapparire" la chiave sul modello gemello.
   delete map[prov];
+  delete map[chiaveCanonica(prov)];
   saveJSON('bsi_api_keys', map);
 }
 function hasAnySavedKey(){

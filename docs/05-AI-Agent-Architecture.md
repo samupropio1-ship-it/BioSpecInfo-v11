@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 5.883 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 5.959 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v141` |
+| **Versione documentata** | Service Worker `bsi-v142` |
 
 ---
 
@@ -32,7 +32,7 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su dieci configurazioni
+   Anthropic, Gemini), così l'agente funziona identico su tredici configurazioni
    di modello, cinque delle quali gratuite.
 
 ---
@@ -174,6 +174,40 @@ Nessuno dei cinque eguaglia un modello di frontiera a pagamento sui problemi
 più difficili; GitHub Models e NVIDIA NIM ci vanno vicino, al prezzo di tetti
 di richieste bassi. Per questo la scelta resta dell'utente, invece di imporre
 un solo servizio.
+
+#### La frontiera, a pagamento
+
+I gratuiti bastano per studiare; per un problema difficile no. Il criterio di
+scelta è stato **GPQA Diamond** — domande di livello dottorato in fisica,
+chimica e biologia — perché è l'unico banco che misura ciò che quest'app
+chiede davvero.
+
+| Servizio | Perché c'è |
+|---|---|
+| **GPT-5.6** | 94,6% su GPQA Diamond: il punteggio più alto oggi disponibile. ~4 $/M in ingresso |
+| **Gemini 3 Pro** | Oltre 1M di contesto, e **la stessa chiave** del Gemini gratuito. ~2 $/M |
+| **DeepSeek V4** | Ragionamento di fascia alta a ~0,66 $/M: il miglior rapporto qualità/prezzo |
+| **Grok 4** | Fino a 2M di contesto |
+| **Claude** (Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5) | Già presenti; una sola chiave per tutti e quattro |
+
+Due configurazioni possono usare **la stessa chiave**: i quattro Claude sono un
+solo account Anthropic, e Gemini Flash e Gemini 3 Pro una sola chiave di AI
+Studio. `chiaveCondivisaCon` le fa puntare alla stessa voce, così l'utente la
+incolla una volta. Chi la cancella la cancella per tutti i gemelli — lasciarne
+una la farebbe riapparire sull'altro.
+
+Il caso dei due Gemini ha richiesto di generalizzare il punteggio: condividono
+famiglia, endpoint e chiave ma vogliono modelli **opposti**. La preferenza è
+ora dichiarata in configurazione (`/flash/` contro `/pro/`) e vince sul resto
+del punteggio. Senza, la configurazione gratuita avrebbe scelto
+`gemini-3-pro`: una generazione più avanti, quindi con punteggio più alto, ma
+**a pagamento** — un modello che la chiave gratuita non può usare.
+
+Nello stesso passaggio è emersa una seconda cosa: il numero minore nel nome è
+**opzionale**. Dalla generazione 3 Google lo ha tolto (`gemini-3-pro`, non
+`gemini-3.0-pro`), e la regex che pretendeva il punto valutava i modelli *più
+nuovi* come alias generici — quindi perdevano contro i vecchi, e
+l'aggiornamento automatico descritto in 2.4 non sarebbe mai scattato.
 
 **Togliere un servizio dall'elenco è un'operazione che rompe le cose**, e
 merita una nota: chi lo aveva selezionato ha quel nome salvato in
@@ -523,9 +557,9 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 5.883 |
+| Righe del componente | 5.959 |
 | Strumenti | 32 |
-| Configurazioni di modello | 10 (5 gratuite) |
+| Configurazioni di modello | 13 (5 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |

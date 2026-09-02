@@ -32,7 +32,9 @@ var FORNITORI = {
   xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' },
   github:     { base: 'https://models.github.ai',                  segreto: 'GITHUB_KEYS',     modo: 'bearer' },
   nvidia:     { base: 'https://integrate.api.nvidia.com',          segreto: 'NVIDIA_KEYS',     modo: 'bearer' },
-  zai:        { base: 'https://api.z.ai',                          segreto: 'ZAI_KEYS',        modo: 'bearer' }
+  zai:        { base: 'https://api.z.ai',                          segreto: 'ZAI_KEYS',        modo: 'bearer' },
+  openai:     { base: 'https://api.openai.com',                    segreto: 'OPENAI_KEYS',     modo: 'bearer' },
+  deepseek:   { base: 'https://api.deepseek.com',                  segreto: 'DEEPSEEK_KEYS',   modo: 'bearer' }
 };
 
 /* --- Limiti (sovrascrivibili da variabili d'ambiente) --------------- */
