@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 5,165 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 5,283 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v136` |
+| **Documented version** | Service Worker `bsi-v137` |
 
 ---
 
@@ -89,28 +89,59 @@ The same applies to messages: turns containing tool calls are serialised into
 each provider's native form and kept in a `_native` field, so a conversation
 stays coherent even when switching models.
 
-### 2.4 Gemini model resolution
+### 2.4 No hard-coded model names
 
-Google retires models from the `v1beta` endpoint without notice: a name written
-into the URL eventually stops working and returns `404 — models/... is not
-found`. So `PROVIDERS.gemini.model` starts as `null` and is decided at runtime:
+A model name written into the code is a time bomb: it works until the provider
+retires that model, and then the application stops with a 404 the user cannot
+fix. It has happened twice in this project:
 
-1. **`ListModels`** — ask the API which models that key can actually see. Each
-   is scored: newer version first, `flash` family preferred, with penalties for
-   experimental, `preview` and `-lite` variants; models that do not expose
-   `streamGenerateContent` are discarded, as are non-conversational ones
-   (embedding, image, native audio, Live API).
-2. **Probe the candidates** — if `ListModels` is unreachable (restricted key,
-   network, CORS), issue a `GET` on each known name's metadata: a real check
-   that burns no generation quota.
-3. **First candidate** — last resort, so the real error from the generation
-   call speaks instead of one invented here.
+| Provider | Error | When |
+|---|---|---|
+| Google | `models/gemini-1.5-flash is not found for API version v1beta` | removed from `v1beta` |
+| Groq | `The model llama-3.3-70b-versatile does not exist or you do not have access to it` | deprecated 17/06/2026 |
 
-The choice is cached for seven days, keyed to a 32-bit FNV-1a fingerprint of
-the API key (different keys see different catalogues; the key itself is never
-duplicated). If the model is retired while cached, the `404` from the
-generation call invalidates the cache, re-resolves and retries **once** — a
-flag prevents an infinite loop when the new model 404s as well.
+On OpenRouter the problem is structural: free model ids change constantly, by
+design.
+
+The fix is not to write the new name — that would be the same bomb with a
+longer fuse — but to **remove the name** and ask the API, which knows what
+exists *for that key*. This also resolves the ambiguity in Groq's message:
+"does not exist" **or** "you do not have access" are different cases, and a
+per-key listing tells them apart.
+
+Every configuration with `modelliCandidati` starts at `model: null` and is
+resolved at runtime. The two families use different strategies because their
+names are different:
+
+**Gemini — version scoring.** Names follow a regular scheme
+(`gemini-<major>.<minor>-<family>`), so they can be ordered: newest version
+first, `flash` family preferred, with penalties for experimental, `preview`
+and `-lite` variants; models without `streamGenerateContent` are discarded, as
+are non-conversational ones (embedding, image, native audio, Live API). When
+Gemini 3.0 ships it will be picked automatically.
+
+**OpenAI family — candidates in preference order.** Here names are not
+comparable to each other (`openai/gpt-oss-120b` versus `qwen/qwen3.6-27b`) and
+automatic scoring would choose badly. `GET /models` is queried and the **first
+candidate that still exists** wins: the order of the list *is* the preference,
+and the listing serves to skip the ones that vanished. Only if no candidate
+survives does a generic score run over the available models — discarding
+transcription, speech, embedding and guard models, and preferring the larger
+model all else being equal.
+
+Three fallback levels in both cases: model listing → candidate probing → first
+candidate, letting the real error from the generation call speak instead of
+inventing one.
+
+The choice is cached for seven days per provider, keyed to a 32-bit FNV-1a
+fingerprint of the API key (different keys see different catalogues; the key
+itself is never duplicated). If the model is retired *while* cached, the `404`
+— or a `400` whose text mentions the model, as OpenRouter returns — invalidates
+the cache, re-resolves and retries **once**: a flag prevents an infinite loop
+when the new model fails too.
+
+Anthropic is the deliberate exception: its models are paid, explicitly chosen
+by the user, and deprecated with long notice.
 
 ### 2.5 The optional proxy — Spectra without a key
 
@@ -362,7 +393,7 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 5,165 lines |
+| Component size | 5,283 lines |
 | Tools | 32 |
 | Model configurations | 8 (3 free) |
 | Scientific areas covered | 13 |

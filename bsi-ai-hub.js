@@ -36,11 +36,18 @@ function saveJSON(key, val){
 --------------------------------------------------------------------- */
 var PROVIDERS = {
   groq: {
-    name: 'Groq — Llama 3.3 70B', family: 'openai', free: true,
-    model: 'llama-3.3-70b-versatile',
+    name: 'Groq · gratis e velocissimo', family: 'openai', free: true,
+    // Nome NON cablato: Groq ha ritirato llama-3.3-70b-versatile il 17/06/2026
+    // e l'app rispondeva "The model does not exist or you do not have access
+    // to it". I candidati sono solo un ripiego: il modello vero lo sceglie
+    // risolviModelloOpenai() interrogando GET /models.
+    model: null,
+    modelliCandidati: ['openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b',
+                       'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'],
     url: 'https://api.groq.com/openai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
-    keyLink: 'console.groq.com → API Keys', placeholder: 'gsk_...'
+    keyLink: 'console.groq.com → API Keys', placeholder: 'gsk_...',
+    note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero.'
   },
   gemini: {
     name: 'Google Gemini Flash · gratis', family: 'gemini', free: true,
@@ -56,11 +63,20 @@ var PROVIDERS = {
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
   openrouter: {
-    name: 'OpenRouter — Mistral 7B', family: 'openai', free: true,
-    model: 'mistralai/mistral-7b-instruct:free',
+    name: 'OpenRouter · gratis', family: 'openai', free: true,
+    // Su OpenRouter gli id dei modelli gratuiti cambiano di continuo, quindi
+    // cablarne uno e' garanzia di rottura. 'openrouter/free' e' un instradatore
+    // che sceglie da solo fra i gratuiti e filtra quelli che sanno usare gli
+    // strumenti: e' il candidato giusto per un agente come Spectra.
+    model: null,
+    modelliCandidati: ['openrouter/free', 'openrouter/auto'],
+    // Preferenza usata quando nessun candidato esiste piu': fra i modelli
+    // gratuiti disponibili si sceglie in base a questa regola.
+    preferisci: /:free$/,
     url: 'https://openrouter.ai/api/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k, 'HTTP-Referer': (location && location.href) || 'https://biospecinfo', 'X-Title': 'BioSpecInfo' }; },
-    keyLink: 'openrouter.ai → Keys', placeholder: 'sk-or-v1-...'
+    keyLink: 'openrouter.ai → Keys', placeholder: 'sk-or-v1-...',
+    note: 'Sceglie da solo un modello gratuito che sappia usare gli strumenti.'
   },
   // ── Gamma Claude, dal massimo all'economico ──────────────────────────────
   // Ogni modello ha vincoli API diversi: mandare a uno un parametro che non
@@ -124,7 +140,9 @@ var PROVIDERS = {
   },
   grok: {
     name: 'Grok (xAI)', family: 'openai', free: false,
-    model: 'grok-3-mini',
+    model: null,
+    modelliCandidati: ['grok-4-fast', 'grok-4', 'grok-3-mini', 'grok-3'],
+    preferisci: /^grok-/,
     url: 'https://api.x.ai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'console.x.ai → API Keys', placeholder: 'xai-...',
@@ -198,21 +216,23 @@ function proxyRicarica(){ _proxyAtteso = null; _proxyFornitori = null; return pr
 window.bsiProxy = { url: proxyUrl, stato: proxyStato, copre: proxyCopre, ricarica: proxyRicarica };
 
 /* ---------------------------------------------------------------------
-   1a. RISOLUZIONE DEL MODELLO GEMINI
-   Google ritira i modelli dall'endpoint v1beta senza preavviso: un nome
-   scritto nel codice funziona finche' non smette, e allora l'utente vede
-   solo "HTTP 404 — models/... is not found". L'API pero' sa dire quali
-   modelli esistono per QUELLA chiave, quindi glielo si chiede.
-   Tre livelli, dal migliore al peggiore:
-     1. ListModels  -> si sceglie il migliore fra quelli realmente esposti
-     2. sonda i candidati uno per uno (GET sui metadati, non consuma quota)
-     3. primo candidato: la chiamata vera dara' l'errore vero
-   La scelta viene messa in cache per una settimana, legata all'impronta
-   della chiave (chiavi diverse possono vedere modelli diversi).
+   1a. RISOLUZIONE DEL MODELLO — nessun nome cablato, per NESSUN fornitore
+   I fornitori ritirano i modelli senza preavviso e l'app si ferma con un
+   404. E' successo due volte:
+     · Google: "models/gemini-1.5-flash is not found for API version v1beta"
+     · Groq:   "The model llama-3.3-70b-versatile does not exist or you do
+                not have access to it" (ritirato il 17/06/2026)
+   Su OpenRouter e' anche peggio: gli id dei modelli gratuiti cambiano di
+   continuo per costruzione.
+   La correzione non e' scrivere il nome nuovo — sarebbe la stessa bomba a
+   orologeria con la miccia piu' lunga — ma togliere il nome e chiederlo
+   all'API, che sa quali modelli esistono per QUELLA chiave. (Il che risolve
+   anche l'ambiguita' del messaggio di Groq: "non esiste" OPPURE "non ci hai
+   accesso" sono casi diversi, e l'elenco per chiave li distingue.)
+   La scelta va in cache una settimana, legata all'impronta della chiave.
 --------------------------------------------------------------------- */
 var GEMINI_ROOT = 'https://generativelanguage.googleapis.com/v1beta';
-var GEMINI_CACHE_KEY = 'bsi_gemini_modello';
-var GEMINI_CACHE_TTL = 7 * 24 * 3600 * 1000;
+var MODELLO_CACHE_TTL = 7 * 24 * 3600 * 1000;
 var GEMINI_META_TIMEOUT = 12000;
 
 // Impronta a 32 bit (FNV-1a) della chiave: serve solo a non riusare la cache
@@ -226,18 +246,26 @@ function _improntaChiave(k){
   return h.toString(16);
 }
 
-function geminiCacheLeggi(apiKey){
-  var c = loadJSON(GEMINI_CACHE_KEY, null);
-  if(!c || !c.model || c.k !== _improntaChiave(apiKey)) return null;
-  if(!c.ts || (Date.now() - c.ts) > GEMINI_CACHE_TTL) return null;
+function _cacheKey(provId){ return 'bsi_modello_' + provId; }
+function modelloCacheLeggi(provId, apiKey){
+  var c = loadJSON(_cacheKey(provId), null);
+  if(!c || !c.model || c.k !== _improntaChiave(apiKey || '')) return null;
+  if(!c.ts || (Date.now() - c.ts) > MODELLO_CACHE_TTL) return null;
   return c.model;
 }
-function geminiCacheScrivi(apiKey, model){
-  saveJSON(GEMINI_CACHE_KEY, { model: model, k: _improntaChiave(apiKey), ts: Date.now() });
+function modelloCacheScrivi(provId, apiKey, model){
+  saveJSON(_cacheKey(provId), { model: model, k: _improntaChiave(apiKey || ''), ts: Date.now() });
 }
-function geminiCacheInvalida(){
-  try{ localStorage.removeItem(GEMINI_CACHE_KEY); }catch(e){}
+function modelloCacheInvalida(provId){
+  try{
+    if(provId) localStorage.removeItem(_cacheKey(provId));
+    else Object.keys(PROVIDERS).forEach(function(k){ localStorage.removeItem(_cacheKey(k)); });
+  }catch(e){}
 }
+// nomi storici, mantenuti per non toccare i richiami esistenti
+function geminiCacheLeggi(apiKey){ return modelloCacheLeggi('gemini', apiKey); }
+function geminiCacheScrivi(apiKey, model){ modelloCacheScrivi('gemini', apiKey, model); }
+function geminiCacheInvalida(){ modelloCacheInvalida('gemini'); }
 
 // GET con timeout: senza, una richiesta appesa bloccherebbe l'invio del
 // messaggio per sempre, prima ancora che parta il timeout di inattivita'.
@@ -339,9 +367,107 @@ async function risolviModelloGemini(apiKey, forzaRefresh){
   geminiCacheScrivi(apiKey, scelto);
   return scelto;
 }
+/* --- Fornitori OpenAI-compatibili (Groq, OpenRouter, xAI) ------------
+   Tutti espongono GET <base>/models con l'elenco di cio' che la chiave
+   vede. Qui i candidati contano di piu' che su Gemini: i nomi non seguono
+   uno schema di versione confrontabile ("openai/gpt-oss-120b" contro
+   "qwen/qwen3.6-27b"), quindi l'ordine dei candidati E' la preferenza, e
+   l'elenco serve a saltare quelli spariti. */
+
+// L'endpoint dei modelli si ricava da quello della chat: stessa base.
+function urlModelliOpenai(p){
+  var diretto = p.url.replace(/\/chat\/completions$/, '/models');
+  try{
+    var viaP = viaProxy(p.id, new URL(diretto).pathname);
+    if(viaP) return viaP;
+  }catch(e){}
+  return diretto;
+}
+
+async function listaModelliOpenai(p, apiKey){
+  var h = {};
+  // Col proxy l'autenticazione la mette il Worker: non va aggiunta qui.
+  if(!proxyCopre(p.id)) h = p.authHeader(apiKey);
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var t = ctrl ? setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, GEMINI_META_TIMEOUT) : null;
+  var r;
+  try{
+    var opz = { method: 'GET', headers: h };
+    if(ctrl) opz.signal = ctrl.signal;
+    r = await fetch(urlModelliOpenai(p), opz);
+  } finally { if(t) clearTimeout(t); }
+  if(!r.ok) throw new Error('models HTTP ' + r.status);
+  var j = await r.json();
+  var dati = (j && (j.data || j.models)) || [];
+  return dati.map(function(m){ return (m && (m.id || m.name)) || ''; }).filter(Boolean);
+}
+
+/* Usato solo quando NESSUN candidato esiste piu': fra i modelli disponibili
+   se ne sceglie uno plausibile per una chat con strumenti. */
+function punteggioOpenai(id, p){
+  var n = String(id).toLowerCase();
+  // Modelli che non servono a una conversazione: trascrizione, sintesi vocale,
+  // classificatori di sicurezza, embedding, immagini.
+  if(/whisper|tts|audio|embed|guard|moderat|rerank|image|vision-only|dall-e|sdxl|flux/.test(n)) return -1;
+  var s = 0;
+  if(p.preferisci && p.preferisci.test(id)) s += 100;
+  // A parita' d'altro un modello piu' grande ragiona meglio: 120b > 70b > 8b.
+  var b = n.match(/(\d+(?:\.\d+)?)\s*b(?![a-z0-9])/);
+  if(b) s += Math.min(parseFloat(b[1]), 200) / 2;
+  if(/instruct|chat|-it\b/.test(n)) s += 10;
+  if(/preview|alpha|beta|experimental|-exp/.test(n)) s -= 20;
+  return s;
+}
+
+async function risolviModelloOpenai(p, apiKey, forzaRefresh){
+  var riserva = p.modelliCandidati || [p.model];
+  if(!apiKey && !proxyCopre(p.id)) return riserva[0];
+  if(!forzaRefresh){
+    var c = modelloCacheLeggi(p.id, apiKey);
+    if(c) return c;
+  }
+  var scelto = null;
+  try{
+    var disponibili = await listaModelliOpenai(p, apiKey);
+    var insieme = {};
+    disponibili.forEach(function(id){ insieme[id] = true; });
+    // 1. il primo candidato ancora esistente
+    for(var i = 0; i < riserva.length && !scelto; i++){
+      if(insieme[riserva[i]]) scelto = riserva[i];
+    }
+    // 2. nessun candidato sopravvissuto: si sceglie fra cio' che c'e'
+    if(!scelto){
+      // bestS parte da -1, non da 0: solo -1 significa "da scartare". Un
+      // modello valido ma senza indizi nel nome (nessuna taglia, nessun
+      // "instruct") vale 0, e va comunque preso se e' l'unico rimasto.
+      var best = null, bestS = -1;
+      for(var j = 0; j < disponibili.length; j++){
+        var s = punteggioOpenai(disponibili[j], p);
+        if(s > bestS){ bestS = s; best = disponibili[j]; }
+      }
+      scelto = best;
+    }
+  }catch(e){ /* elenco non raggiungibile: si usa la riserva */ }
+  // 3. si lascia parlare l'errore vero della chiamata di generazione, invece
+  //    di inventarne uno qui che nasconderebbe la causa.
+  if(!scelto) return riserva[0];
+  modelloCacheScrivi(p.id, apiKey, scelto);
+  return scelto;
+}
+
+/* Punto unico: dato un provider, restituisce il modello da usare. Per
+   Anthropic i nomi sono stabili e scelti esplicitamente dall'utente
+   (sono a pagamento), quindi restano come sono. */
+async function risolviModello(p, apiKey, forzaRefresh){
+  if(!p.modelliCandidati) return p.model;
+  if(p.family === 'gemini') return risolviModelloGemini(apiKey, forzaRefresh);
+  return risolviModelloOpenai(p, apiKey, forzaRefresh);
+}
+
 // esposti per i test e per un eventuale "ricontrolla i modelli" dalla UI
 window.bsiGeminiRisolvi = risolviModelloGemini;
-window.bsiGeminiReset = geminiCacheInvalida;
+window.bsiRisolviModello = risolviModello;
+window.bsiGeminiReset = function(provId){ modelloCacheInvalida(provId); };
 
 // Converte il registro TOOLS (comune) nel formato richiesto da ciascuna famiglia
 function toolsForFamily(family, tools){
@@ -416,7 +542,10 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     ? { 'Content-Type': 'application/json' }
     : Object.assign({ 'Content-Type': 'application/json' }, p.authHeader(apiKey));
   var oBody = {
-    model: p.model, stream: true, temperature: 0.6,
+    // come per Gemini: p.model e' stato risolto da streamChat; il ripiego
+    // copre le chiamate diverse in cui la risoluzione non e' passata.
+    model: p.model || (p.modelliCandidati && p.modelliCandidati[0]),
+    stream: true, temperature: 0.6,
     messages: [{ role: 'system', content: systemPrompt }].concat(messages.map(openaiMsg))
   };
   var oTools = toolsForFamily('openai', tools);
@@ -625,7 +754,9 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   // Gemini: il nome del modello si decide adesso, non e' scritto nel codice.
-  if(p.family === 'gemini') p.model = await risolviModelloGemini(apiKey, false);
+  // Il nome del modello si decide adesso: non e' scritto nel codice per
+  // nessun fornitore che ne abbia dei candidati (vedi sezione 1a).
+  if(p.modelliCandidati) p.model = await risolviModello(p, apiKey, false);
   var req = buildRequest(p, apiKey, messages, systemPrompt, tools);
 
   // Timeout di INATTIVITÀ (non sul totale della risposta): si azzera ad ogni
@@ -667,10 +798,14 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     var errMsg = await readErrorBody(res);
     // Il modello e' stato ritirato mentre era in cache: si ririsolve e si
     // ritenta UNA volta sola (il flag impedisce il ciclo infinito).
-    if(p.family === 'gemini' && res.status === 404 && !_giaRiprovato){
+    // Groq risponde 404, Gemini 404, OpenRouter a volte 400 dicendo che il
+    // modello non e' valido: si guarda anche il testo, non solo il codice.
+    var modelloSparito = res.status === 404 ||
+      (res.status === 400 && /model|not found|does not exist|not a valid/i.test(errMsg || ''));
+    if(p.modelliCandidati && modelloSparito && !_giaRiprovato){
       var vecchio = p.model;
-      geminiCacheInvalida();
-      var nuovo = await risolviModelloGemini(apiKey, true);
+      modelloCacheInvalida(providerId);
+      var nuovo = await risolviModello(p, apiKey, true);
       if(nuovo && nuovo !== vecchio){
         return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, true);
       }
