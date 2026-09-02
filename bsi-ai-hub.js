@@ -720,7 +720,590 @@ function _nullSpaceIntegers(rows, ncols){
   return ints;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MOTORE DI CALCOLO
+// Non si puo' prevedere uno strumento per ogni problema di chimica fisica o di
+// matematica: serve un valutatore generale. NON uso eval(): il modello legge
+// dati esterni (PubChem, PubMed) e un'iniezione in quei contenuti potrebbe
+// far eseguire codice arbitrario nella pagina, dove vive anche la chiave API.
+// Questo e' un parser a discesa ricorsiva con un insieme chiuso di funzioni:
+// puo' solo fare matematica, non puo' toccare nulla del resto.
+// ═══════════════════════════════════════════════════════════════════════════
+var MATH_FN = {
+  sin: Math.sin, cos: Math.cos, tan: Math.tan,
+  asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
+  sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+  exp: Math.exp, sqrt: Math.sqrt, cbrt: Math.cbrt, abs: Math.abs,
+  ln: Math.log, log: function(x){ return Math.log10(x); },
+  log10: Math.log10, log2: Math.log2,
+  floor: Math.floor, ceil: Math.ceil, round: Math.round, sign: Math.sign,
+  min: Math.min, max: Math.max, pow: Math.pow,
+  fact: function(n){ if(n < 0 || n !== Math.floor(n)) return NaN; var r = 1; for(var i = 2; i <= n; i++) r *= i; return r; }
+};
+var MATH_CONST = {
+  pi: Math.PI, PI: Math.PI, e: Math.E,
+  R: 8.314462618, NA: 6.02214076e23, kB: 1.380649e-23, h: 6.62607015e-34,
+  c: 299792458, F: 96485.332, me: 9.1093837015e-31, qe: 1.602176634e-19
+};
+
+function mathEval(expr, vars){
+  vars = vars || {};
+  var s = String(expr), i = 0;
+
+  function ws(){ while(i < s.length && /\s/.test(s[i])) i++; }
+  function fail(m){ throw new Error(m + ' (posizione ' + i + ')'); }
+
+  function parseExpr(){
+    var v = parseTerm();
+    for(;;){
+      ws();
+      if(s[i] === '+'){ i++; v += parseTerm(); }
+      else if(s[i] === '-'){ i++; v -= parseTerm(); }
+      else return v;
+    }
+  }
+  function parseTerm(){
+    var v = parseUnary();
+    for(;;){
+      ws();
+      if(s[i] === '*'){ i++; v *= parseUnary(); }
+      else if(s[i] === '/'){ i++; v /= parseUnary(); }
+      else if(s[i] === '%'){ i++; v %= parseUnary(); }
+      // moltiplicazione implicita: 2pi, 3(x+1), 2sin(x)
+      else if(/[A-Za-z(]/.test(s[i] || '')) v *= parseUnary();
+      else return v;
+    }
+  }
+  function parseUnary(){
+    ws();
+    if(s[i] === '-'){ i++; return -parseUnary(); }
+    if(s[i] === '+'){ i++; return parseUnary(); }
+    return parsePower();
+  }
+  function parsePower(){
+    var base = parseAtom();
+    ws();
+    if(s[i] === '^' || (s[i] === '*' && s[i + 1] === '*')){
+      i += (s[i] === '^') ? 1 : 2;
+      return Math.pow(base, parseUnary());   // associativo a destra
+    }
+    return base;
+  }
+  function parseAtom(){
+    ws();
+    if(s[i] === '('){
+      i++; var v = parseExpr(); ws();
+      if(s[i] !== ')') fail('manca una parentesi chiusa');
+      i++; return v;
+    }
+    // numero, con notazione scientifica
+    var m = /^\d+(\.\d+)?([eE][+-]?\d+)?|^\.\d+([eE][+-]?\d+)?/.exec(s.slice(i));
+    if(m){ i += m[0].length; return parseFloat(m[0]); }
+    // identificatore: funzione, costante o variabile
+    var id = /^[A-Za-z_][A-Za-z_0-9]*/.exec(s.slice(i));
+    if(id){
+      var name = id[0];
+      i += name.length; ws();
+      if(s[i] === '('){
+        if(!Object.prototype.hasOwnProperty.call(MATH_FN, name)) fail('funzione sconosciuta: ' + name);
+        i++;
+        var args = [];
+        ws();
+        if(s[i] !== ')'){
+          for(;;){ args.push(parseExpr()); ws(); if(s[i] === ','){ i++; continue; } break; }
+        }
+        if(s[i] !== ')') fail('manca una parentesi chiusa in ' + name + '()');
+        i++;
+        return MATH_FN[name].apply(null, args);
+      }
+      if(Object.prototype.hasOwnProperty.call(vars, name)) return Number(vars[name]);
+      if(Object.prototype.hasOwnProperty.call(MATH_CONST, name)) return MATH_CONST[name];
+      fail('simbolo sconosciuto: ' + name);
+    }
+    fail('espressione non valida');
+  }
+
+  var out = parseExpr();
+  ws();
+  if(i < s.length) fail('carattere inatteso: "' + s[i] + '"');
+  return out;
+}
+
+// Cerca uno zero di f(x) nell'intervallo dato: prima campiona per trovare un
+// cambio di segno, poi bisezione (robusta, non diverge come Newton).
+function findRoots(fn, lo, hi, want){
+  var roots = [], N = 2000, prev = null, prevX = lo;
+  for(var k = 0; k <= N; k++){
+    var x = lo + (hi - lo) * k / N, y;
+    try{ y = fn(x); }catch(e){ y = NaN; }
+    if(!isFinite(y)){ prev = null; prevX = x; continue; }
+    if(Math.abs(y) < 1e-12){
+      if(!roots.some(function(r){ return Math.abs(r - x) < (hi - lo) * 1e-6; })) roots.push(x);
+    } else if(prev !== null && prev * y < 0){
+      var a = prevX, b = x, fa = prev;
+      for(var it = 0; it < 200; it++){
+        var mid = (a + b) / 2, fm = fn(mid);
+        if(fa * fm <= 0) b = mid; else { a = mid; fa = fm; }
+      }
+      var r0 = (a + b) / 2;
+      if(!roots.some(function(r){ return Math.abs(r - r0) < (hi - lo) * 1e-6; })) roots.push(r0);
+    }
+    prev = y; prevX = x;
+    if(want && roots.length >= want) break;
+  }
+  return roots;
+}
+
 TOOLS.push(
+  {
+    name: 'calcola',
+    description: "Valuta un'espressione matematica qualsiasi con precisione numerica. Supporta + - * / ^ , parentesi, notazione scientifica (1.5e-3), funzioni (sin cos tan asin acos atan sinh cosh tanh exp ln log log10 log2 sqrt cbrt abs min max pow fact floor ceil round sign) e costanti (pi, e, R, NA, kB, h, c, F, me, qe). Puoi definire variabili. USA SEMPRE questo strumento per qualunque calcolo numerico, anche semplice: e' esatto, la tua stima no.",
+    parameters: {
+      type: 'object',
+      properties: {
+        espressione: { type: 'string', description: 'Es. "(-1.2e3)/(8.314*298)" oppure "exp(-Ea/(R*T))".' },
+        variabili: { type: 'object', description: 'Valori delle variabili usate, es. {"Ea": 50000, "T": 298}.' }
+      },
+      required: ['espressione']
+    },
+    execute: function(a){
+      try{
+        var v = mathEval(a.espressione, a.variabili || {});
+        if(!isFinite(v)) return { ok:false, error:'risultato non finito (divisione per zero o dominio non valido)', espressione:a.espressione };
+        return { ok:true, espressione:a.espressione, variabili:a.variabili || {}, risultato:v,
+                 notazione_scientifica: (Math.abs(v) !== 0 && (Math.abs(v) < 1e-3 || Math.abs(v) >= 1e6)) ? v.toExponential(6) : null };
+      }catch(e){ return { ok:false, error:e.message, espressione:a.espressione }; }
+    }
+  },
+  {
+    name: 'risolvi_equazione',
+    description: "Risolve numericamente un'equazione in una incognita, anche non lineare (polinomi di grado qualsiasi, equazioni trascendenti, equilibri chimici). Scrivi l'equazione come espressione da azzerare, oppure con '='.",
+    parameters: {
+      type: 'object',
+      properties: {
+        equazione: { type: 'string', description: 'Es. "x^2 - 5*x + 6" oppure "x^2 = 5*x - 6". Incognita di default: x.' },
+        incognita: { type: 'string', description: 'Nome dell\'incognita (default "x").' },
+        min: { type: 'number', description: 'Estremo inferiore di ricerca (default -1000).' },
+        max: { type: 'number', description: 'Estremo superiore (default 1000).' },
+        variabili: { type: 'object', description: 'Eventuali altri parametri noti.' }
+      },
+      required: ['equazione']
+    },
+    execute: function(a){
+      var v = (a && a.incognita) || 'x';
+      var eq = String(a.equazione || '');
+      var parts = eq.split('=');
+      var expr = parts.length === 2 ? '(' + parts[0] + ') - (' + parts[1] + ')' : eq;
+      var lo = (a.min !== undefined) ? a.min : -1000, hi = (a.max !== undefined) ? a.max : 1000;
+      var base = a.variabili || {};
+      var f = function(x){ var vars = {}; for(var k in base) vars[k] = base[k]; vars[v] = x; return mathEval(expr, vars); };
+      try{ f((lo + hi) / 2); }catch(e){ return { ok:false, error:e.message }; }
+      var roots = findRoots(f, lo, hi);
+      if(!roots.length) return { ok:true, soluzioni:[], nota:'nessuna soluzione reale trovata fra ' + lo + ' e ' + hi + ': prova ad allargare l\'intervallo' };
+      return { ok:true, incognita:v, equazione:eq, intervallo:[lo, hi],
+               soluzioni: roots.map(function(r){ return +r.toPrecision(10); }),
+               verifica: roots.map(function(r){ return { x:+r.toPrecision(10), residuo:+Math.abs(f(r)).toExponential(2) }; }) };
+    }
+  },
+  {
+    name: 'analisi_dati',
+    description: 'Statistica descrittiva e regressione lineare su una serie di dati: media, deviazione standard, retta dei minimi quadrati con R². Utile per cinetica (ln[A] vs t), Beer-Lambert, tarature.',
+    parameters: {
+      type: 'object',
+      properties: {
+        x: { type: 'array', items: { type: 'number' }, description: 'Valori della variabile indipendente (per la regressione).' },
+        y: { type: 'array', items: { type: 'number' }, description: 'Valori della variabile dipendente. Se ometti x, calcolo solo la statistica di y.' }
+      },
+      required: ['y']
+    },
+    execute: function(a){
+      var y = (a && a.y || []).map(Number).filter(isFinite);
+      if(y.length < 2) return { ok:false, error:'servono almeno 2 valori' };
+      var n = y.length, sum = y.reduce(function(p, q){ return p + q; }, 0), mean = sum / n;
+      var varc = y.reduce(function(p, q){ return p + (q - mean) * (q - mean); }, 0) / (n - 1);
+      var out = { ok:true, n:n, media:+mean.toPrecision(8), deviazione_standard:+Math.sqrt(varc).toPrecision(8),
+                  minimo:Math.min.apply(null, y), massimo:Math.max.apply(null, y), somma:+sum.toPrecision(8) };
+      var x = a.x && a.x.map(Number);
+      if(x && x.length === n){
+        var mx = x.reduce(function(p, q){ return p + q; }, 0) / n;
+        var sxy = 0, sxx = 0, syy = 0;
+        for(var i = 0; i < n; i++){ sxy += (x[i] - mx) * (y[i] - mean); sxx += (x[i] - mx) * (x[i] - mx); syy += (y[i] - mean) * (y[i] - mean); }
+        if(sxx === 0) return out;
+        var m = sxy / sxx, q0 = mean - m * mx, r2 = syy === 0 ? 1 : (sxy * sxy) / (sxx * syy);
+        out.regressione = { pendenza:+m.toPrecision(8), intercetta:+q0.toPrecision(8), R2:+r2.toPrecision(6),
+                            equazione:'y = ' + m.toPrecision(6) + '·x + ' + q0.toPrecision(6) };
+      }
+      return out;
+    }
+  },
+  {
+    name: 'termodinamica',
+    description: "Risolve problemi di termodinamica chimica: energia libera di Gibbs (ΔG = ΔH − TΔS), costante di equilibrio da ΔG° (ΔG° = −RT·lnK) e viceversa, equazione di van 't Hoff (K a due temperature), spontaneita' e temperatura di inversione.",
+    parameters: {
+      type: 'object',
+      properties: {
+        dH: { type: 'number', description: 'ΔH in kJ/mol.' },
+        dS: { type: 'number', description: 'ΔS in J/(mol·K).' },
+        dG: { type: 'number', description: 'ΔG in kJ/mol (se noto).' },
+        T: { type: 'number', description: 'Temperatura in K (default 298.15).' },
+        K: { type: 'number', description: 'Costante di equilibrio (se nota).' },
+        T2: { type: 'number', description: 'Seconda temperatura in K, per van \'t Hoff.' }
+      }
+    },
+    execute: function(a){
+      a = a || {};
+      var R = 8.314462618, T = (a.T !== undefined) ? a.T : 298.15, out = { ok:true, T_K:T };
+      var dG = a.dG;
+      if(dG === undefined && a.dH !== undefined && a.dS !== undefined){
+        dG = a.dH - T * a.dS / 1000;                       // dS in J -> kJ
+        out.dG_kJ_mol = +dG.toFixed(4);
+        out.formula = 'ΔG = ΔH − TΔS = ' + a.dH + ' − ' + T + '·(' + a.dS + '/1000)';
+      }
+      if(dG === undefined && a.K !== undefined){
+        dG = -R * T * Math.log(a.K) / 1000;
+        out.dG_kJ_mol = +dG.toFixed(4);
+        out.formula = 'ΔG° = −RT·lnK';
+      }
+      if(dG !== undefined){
+        out.dG_kJ_mol = +Number(dG).toFixed(4);
+        out.spontanea = dG < 0;
+        out.giudizio = dG < 0 ? 'spontanea nelle condizioni date (ΔG < 0)'
+                     : dG > 0 ? 'non spontanea nelle condizioni date (ΔG > 0)'
+                              : 'sistema all\'equilibrio (ΔG = 0)';
+        if(a.K === undefined){
+          var K = Math.exp(-dG * 1000 / (R * T));
+          out.K_equilibrio = (K < 1e-4 || K > 1e4) ? K.toExponential(4) : +K.toPrecision(6);
+        }
+      }
+      if(a.K !== undefined) out.K_equilibrio = a.K;
+      // temperatura oltre la quale il segno di ΔG si inverte
+      if(a.dH !== undefined && a.dS !== undefined && a.dS !== 0){
+        var Tinv = a.dH * 1000 / a.dS;
+        if(Tinv > 0){
+          out.T_inversione_K = +Tinv.toFixed(2);
+          out.nota_inversione = (a.dH > 0 && a.dS > 0) ? 'spontanea sopra ' + Tinv.toFixed(1) + ' K'
+                             : (a.dH < 0 && a.dS < 0) ? 'spontanea sotto ' + Tinv.toFixed(1) + ' K'
+                             : 'segno di ΔG indipendente da T in questo caso';
+        } else {
+          out.nota_inversione = (a.dH < 0 && a.dS > 0) ? 'spontanea a ogni temperatura'
+                                                       : 'non spontanea a ogni temperatura';
+        }
+      }
+      // van 't Hoff: K a una seconda temperatura
+      if(a.T2 !== undefined && a.dH !== undefined && out.K_equilibrio !== undefined){
+        var K1 = Number(out.K_equilibrio);
+        var lnRatio = -(a.dH * 1000 / R) * (1 / a.T2 - 1 / T);
+        var K2 = K1 * Math.exp(lnRatio);
+        out.vant_Hoff = { T2_K: a.T2, K2: (K2 < 1e-4 || K2 > 1e4) ? K2.toExponential(4) : +K2.toPrecision(6),
+                          formula: 'ln(K2/K1) = −ΔH/R · (1/T2 − 1/T1)' };
+      }
+      if(Object.keys(out).length <= 2) return { ok:false, error:'servono almeno ΔH e ΔS, oppure ΔG, oppure K' };
+      return out;
+    }
+  },
+  {
+    name: 'equilibrio_acido_base',
+    description: "Calcola pH, pOH e concentrazioni all'equilibrio per acidi/basi forti e deboli e per soluzioni tampone. Per gli acidi deboli risolve l'equazione di secondo grado esatta, non l'approssimazione.",
+    parameters: {
+      type: 'object',
+      properties: {
+        tipo: { type: 'string', description: '"acido_forte", "base_forte", "acido_debole", "base_debole", "tampone".' },
+        concentrazione: { type: 'number', description: 'Concentrazione analitica in mol/L.' },
+        Ka: { type: 'number', description: 'Costante di dissociazione acida (per acido debole o tampone).' },
+        Kb: { type: 'number', description: 'Costante di dissociazione basica (per base debole).' },
+        pKa: { type: 'number', description: 'In alternativa a Ka.' },
+        c_acido: { type: 'number', description: 'Tampone: concentrazione della forma acida.' },
+        c_base: { type: 'number', description: 'Tampone: concentrazione della base coniugata.' }
+      },
+      required: ['tipo']
+    },
+    execute: function(a){
+      a = a || {};
+      var Kw = 1e-14, t = String(a.tipo || '').toLowerCase();
+      var Ka = a.Ka !== undefined ? a.Ka : (a.pKa !== undefined ? Math.pow(10, -a.pKa) : undefined);
+      var C = a.concentrazione, H = null, out = { ok:true, tipo:t };
+      if(t === 'acido_forte'){
+        if(C === undefined) return { ok:false, error:'serve la concentrazione' };
+        H = C; out.metodo = 'dissociazione completa: [H⁺] = C';
+      } else if(t === 'base_forte'){
+        if(C === undefined) return { ok:false, error:'serve la concentrazione' };
+        H = Kw / C; out.OH = C; out.metodo = 'dissociazione completa: [OH⁻] = C';
+      } else if(t === 'acido_debole'){
+        if(C === undefined || Ka === undefined) return { ok:false, error:'servono concentrazione e Ka (o pKa)' };
+        // x² + Ka·x − Ka·C = 0 risolta esattamente
+        H = (-Ka + Math.sqrt(Ka * Ka + 4 * Ka * C)) / 2;
+        out.metodo = 'ICE esatta: x² + Ka·x − Ka·C = 0';
+        out.approssimazione_semplificata = +Math.sqrt(Ka * C).toExponential(4);
+        out.grado_dissociazione_percento = +(100 * H / C).toPrecision(4);
+        out.approssimazione_valida = (H / C) < 0.05;
+      } else if(t === 'base_debole'){
+        var Kb = a.Kb !== undefined ? a.Kb : (Ka !== undefined ? Kw / Ka : undefined);
+        if(C === undefined || Kb === undefined) return { ok:false, error:'servono concentrazione e Kb (o Ka)' };
+        var OH = (-Kb + Math.sqrt(Kb * Kb + 4 * Kb * C)) / 2;
+        H = Kw / OH; out.OH = +OH.toExponential(4); out.Kb = Kb;
+        out.metodo = 'ICE esatta sulla base: x² + Kb·x − Kb·C = 0';
+      } else if(t === 'tampone'){
+        if(Ka === undefined || a.c_acido === undefined || a.c_base === undefined)
+          return { ok:false, error:'servono Ka (o pKa), c_acido e c_base' };
+        H = Ka * a.c_acido / a.c_base;
+        out.metodo = 'Henderson–Hasselbalch: pH = pKa + log([base]/[acido])';
+        out.rapporto_base_acido = +(a.c_base / a.c_acido).toPrecision(6);
+      } else {
+        return { ok:false, error:'tipo non riconosciuto', tipi:['acido_forte','base_forte','acido_debole','base_debole','tampone'] };
+      }
+      out.H_molL = +H.toExponential(4);
+      out.pH = +(-Math.log10(H)).toFixed(3);
+      out.pOH = +(14 + Math.log10(H)).toFixed(3);
+      if(out.OH === undefined) out.OH = +(Kw / H).toExponential(4);
+      if(Ka !== undefined){ out.Ka = Ka; out.pKa = +(-Math.log10(Ka)).toFixed(3); }
+      out.carattere = out.pH < 7 ? 'acida' : out.pH > 7 ? 'basica' : 'neutra';
+      return out;
+    }
+  },
+  {
+    name: 'cinetica',
+    description: "Cinetica chimica: ordine 0, 1 e 2 (concentrazione nel tempo, tempo di dimezzamento), equazione di Arrhenius (k da Ea e T, oppure Ea da due k), e fattore di accelerazione fra due temperature.",
+    parameters: {
+      type: 'object',
+      properties: {
+        ordine: { type: 'number', description: 'Ordine di reazione: 0, 1 oppure 2.' },
+        k: { type: 'number', description: 'Costante cinetica.' },
+        C0: { type: 'number', description: 'Concentrazione iniziale.' },
+        t: { type: 'number', description: 'Tempo trascorso.' },
+        Ea: { type: 'number', description: 'Energia di attivazione in kJ/mol (per Arrhenius).' },
+        A: { type: 'number', description: 'Fattore pre-esponenziale.' },
+        T: { type: 'number', description: 'Temperatura in K.' },
+        T2: { type: 'number', description: 'Seconda temperatura in K.' },
+        k2: { type: 'number', description: 'Costante alla seconda temperatura (per ricavare Ea).' }
+      }
+    },
+    execute: function(a){
+      a = a || {}; var R = 8.314462618, out = { ok:true };
+      if(a.ordine !== undefined && a.k !== undefined && a.C0 !== undefined){
+        var n = a.ordine, k = a.k, C0 = a.C0, t = a.t;
+        out.ordine = n;
+        out.tempo_dimezzamento = n === 0 ? C0 / (2 * k) : n === 1 ? Math.LN2 / k : n === 2 ? 1 / (k * C0) : null;
+        out.legge_integrata = n === 0 ? '[A] = [A]₀ − kt' : n === 1 ? 'ln[A] = ln[A]₀ − kt' : '1/[A] = 1/[A]₀ + kt';
+        if(t !== undefined){
+          var C = n === 0 ? Math.max(0, C0 - k * t) : n === 1 ? C0 * Math.exp(-k * t) : C0 / (1 + k * C0 * t);
+          out.concentrazione_a_t = +C.toPrecision(6);
+          out.frazione_residua = +(C / C0).toPrecision(6);
+          out.conversione_percento = +(100 * (1 - C / C0)).toPrecision(4);
+        }
+        if(out.tempo_dimezzamento !== null) out.tempo_dimezzamento = +out.tempo_dimezzamento.toPrecision(6);
+      }
+      // Arrhenius
+      if(a.Ea !== undefined && a.T !== undefined && a.A !== undefined){
+        out.arrhenius_k = +(a.A * Math.exp(-a.Ea * 1000 / (R * a.T))).toExponential(6);
+        out.formula = 'k = A·exp(−Ea/RT)';
+      }
+      if(a.k !== undefined && a.k2 !== undefined && a.T !== undefined && a.T2 !== undefined){
+        var Ea = R * Math.log(a.k2 / a.k) / (1 / a.T - 1 / a.T2) / 1000;
+        out.Ea_kJ_mol = +Ea.toFixed(3);
+        out.formula_Ea = 'ln(k2/k1) = −Ea/R · (1/T2 − 1/T1)';
+      }
+      if(a.Ea !== undefined && a.T !== undefined && a.T2 !== undefined && a.k2 === undefined){
+        var rap = Math.exp(-a.Ea * 1000 / R * (1 / a.T2 - 1 / a.T));
+        out.rapporto_k2_su_k1 = +rap.toPrecision(6);
+        out.nota = 'passando da ' + a.T + ' K a ' + a.T2 + ' K la reazione va ' + rap.toPrecision(4) + '× ' + (rap > 1 ? 'piu\' veloce' : 'piu\' lenta');
+      }
+      if(Object.keys(out).length === 1) return { ok:false, error:'dati insufficienti: servono (ordine, k, C0) oppure parametri di Arrhenius' };
+      return out;
+    }
+  },
+  {
+    name: 'gas_e_soluzioni',
+    description: "Gas ideali (PV = nRT), gas reali di van der Waals, e proprieta' colligative (innalzamento ebullioscopico, abbassamento crioscopico, pressione osmotica, diluizione).",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"ideale", "vanderwaals", "colligative", "diluizione".' },
+        P: { type: 'number', description: 'Pressione in atm.' },
+        V: { type: 'number', description: 'Volume in L.' },
+        n: { type: 'number', description: 'Moli.' },
+        T: { type: 'number', description: 'Temperatura in K.' },
+        a: { type: 'number', description: 'van der Waals a (L²·atm/mol²).' },
+        b: { type: 'number', description: 'van der Waals b (L/mol).' },
+        molalita: { type: 'number', description: 'Colligative: molalita\' (mol/kg).' },
+        i: { type: 'number', description: 'Colligative: fattore di van \'t Hoff (default 1).' },
+        Kb_eb: { type: 'number', description: 'Costante ebullioscopica (acqua: 0.512).' },
+        Kf_cr: { type: 'number', description: 'Costante crioscopica (acqua: 1.86).' },
+        M1: { type: 'number', description: 'Diluizione: concentrazione iniziale.' },
+        V1: { type: 'number', description: 'Diluizione: volume iniziale.' },
+        M2: { type: 'number', description: 'Diluizione: concentrazione finale.' },
+        V2: { type: 'number', description: 'Diluizione: volume finale.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {}; var Ratm = 0.082057366, c = String(a.calcolo || '').toLowerCase();
+      if(c === 'ideale'){
+        var known = ['P','V','n','T'].filter(function(k){ return a[k] !== undefined; });
+        if(known.length !== 3) return { ok:false, error:'per PV=nRT servono esattamente 3 valori fra P, V, n, T (ne hai ' + known.length + ')' };
+        var r = { ok:true, legge:'PV = nRT', R:'0.082057 L·atm/(mol·K)' };
+        if(a.P === undefined) r.P_atm = +(a.n * Ratm * a.T / a.V).toPrecision(6);
+        else if(a.V === undefined) r.V_L = +(a.n * Ratm * a.T / a.P).toPrecision(6);
+        else if(a.n === undefined) r.n_mol = +(a.P * a.V / (Ratm * a.T)).toPrecision(6);
+        else r.T_K = +(a.P * a.V / (a.n * Ratm)).toPrecision(6);
+        return r;
+      }
+      if(c === 'vanderwaals'){
+        if(a.n === undefined || a.V === undefined || a.T === undefined || a.a === undefined || a.b === undefined)
+          return { ok:false, error:'servono n, V, T, a, b' };
+        var Pvdw = a.n * Ratm * a.T / (a.V - a.n * a.b) - a.a * a.n * a.n / (a.V * a.V);
+        var Pid = a.n * Ratm * a.T / a.V;
+        return { ok:true, legge:'(P + an²/V²)(V − nb) = nRT',
+                 P_vanderwaals_atm:+Pvdw.toPrecision(6), P_ideale_atm:+Pid.toPrecision(6),
+                 scostamento_percento:+(100 * (Pvdw - Pid) / Pid).toPrecision(4),
+                 nota: Pvdw < Pid ? 'le attrazioni intermolecolari abbassano la pressione' : 'il volume escluso alza la pressione' };
+      }
+      if(c === 'colligative'){
+        if(a.molalita === undefined) return { ok:false, error:'serve la molalita\'' };
+        var i = a.i !== undefined ? a.i : 1, m = a.molalita, o = { ok:true, molalita:m, fattore_vant_Hoff:i };
+        if(a.Kb_eb !== undefined) o.innalzamento_ebullioscopico_C = +(i * a.Kb_eb * m).toPrecision(6);
+        if(a.Kf_cr !== undefined) o.abbassamento_crioscopico_C = +(i * a.Kf_cr * m).toPrecision(6);
+        if(a.T !== undefined) o.pressione_osmotica_atm = +(i * m * Ratm * a.T).toPrecision(6);
+        o.formule = 'ΔTeb = i·Kb·m ; ΔTcr = i·Kf·m ; π = i·M·R·T';
+        return o;
+      }
+      if(c === 'diluizione'){
+        var v = ['M1','V1','M2','V2'].filter(function(k){ return a[k] !== undefined; });
+        if(v.length !== 3) return { ok:false, error:'per M1V1 = M2V2 servono esattamente 3 valori' };
+        var res = { ok:true, legge:'M₁V₁ = M₂V₂' };
+        if(a.M1 === undefined) res.M1 = +(a.M2 * a.V2 / a.V1).toPrecision(6);
+        else if(a.V1 === undefined) res.V1 = +(a.M2 * a.V2 / a.M1).toPrecision(6);
+        else if(a.M2 === undefined) res.M2 = +(a.M1 * a.V1 / a.V2).toPrecision(6);
+        else res.V2 = +(a.M1 * a.V1 / a.M2).toPrecision(6);
+        return res;
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['ideale','vanderwaals','colligative','diluizione'] };
+    }
+  },
+  {
+    name: 'quantistica_e_spettroscopia',
+    description: "Meccanica quantistica e spettroscopia: energia del fotone da lunghezza d'onda (e viceversa), lunghezza d'onda di de Broglie, particella nella scatola, atomo di idrogeno (Rydberg/Bohr), e legge di Lambert–Beer.",
+    parameters: {
+      type: 'object',
+      properties: {
+        calcolo: { type: 'string', description: '"fotone", "debroglie", "particella_scatola", "idrogeno", "beer_lambert".' },
+        lambda_nm: { type: 'number', description: 'Lunghezza d\'onda in nm.' },
+        energia_J: { type: 'number', description: 'Energia in J.' },
+        massa_kg: { type: 'number', description: 'Massa in kg (de Broglie).' },
+        velocita: { type: 'number', description: 'Velocita\' in m/s (de Broglie).' },
+        n: { type: 'number', description: 'Numero quantico (scatola) o livello iniziale (idrogeno).' },
+        n2: { type: 'number', description: 'Livello finale per la transizione dell\'idrogeno.' },
+        L_nm: { type: 'number', description: 'Larghezza della buca in nm.' },
+        A: { type: 'number', description: 'Assorbanza.' },
+        epsilon: { type: 'number', description: 'Coefficiente di estinzione molare (L/(mol·cm)).' },
+        cammino_cm: { type: 'number', description: 'Cammino ottico in cm (default 1).' },
+        concentrazione: { type: 'number', description: 'Concentrazione in mol/L.' }
+      },
+      required: ['calcolo']
+    },
+    execute: function(a){
+      a = a || {};
+      var h = 6.62607015e-34, c = 299792458, me = 9.1093837015e-31, NA = 6.02214076e23;
+      var t = String(a.calcolo || '').toLowerCase();
+      if(t === 'fotone'){
+        var E, lam;
+        if(a.lambda_nm !== undefined){ lam = a.lambda_nm * 1e-9; E = h * c / lam; }
+        else if(a.energia_J !== undefined){ E = a.energia_J; lam = h * c / E; }
+        else return { ok:false, error:'serve lambda_nm oppure energia_J' };
+        return { ok:true, lambda_nm:+(lam * 1e9).toPrecision(6), energia_J:+E.toExponential(6),
+                 energia_eV:+(E / 1.602176634e-19).toPrecision(6),
+                 energia_kJ_mol:+(E * NA / 1000).toPrecision(6),
+                 frequenza_Hz:+(c / lam).toExponential(6),
+                 numero_onda_cm1:+(1 / (lam * 100)).toPrecision(6),
+                 formula:'E = hc/λ' };
+      }
+      if(t === 'debroglie'){
+        var m = a.massa_kg !== undefined ? a.massa_kg : me;
+        if(a.velocita === undefined) return { ok:false, error:'serve la velocita\'' };
+        var l = h / (m * a.velocita);
+        return { ok:true, lambda_m:+l.toExponential(6), lambda_nm:+(l * 1e9).toPrecision(6),
+                 massa_kg:m, velocita_m_s:a.velocita, formula:'λ = h/(mv)' };
+      }
+      if(t === 'particella_scatola'){
+        if(a.L_nm === undefined) return { ok:false, error:'serve L_nm' };
+        var n = a.n || 1, L = a.L_nm * 1e-9, mm = a.massa_kg !== undefined ? a.massa_kg : me;
+        var En = n * n * h * h / (8 * mm * L * L);
+        var E1 = h * h / (8 * mm * L * L);
+        return { ok:true, n:n, L_nm:a.L_nm, E_J:+En.toExponential(6), E_eV:+(En / 1.602176634e-19).toPrecision(6),
+                 E_livello_fondamentale_eV:+(E1 / 1.602176634e-19).toPrecision(6),
+                 salto_n_a_n1_eV:+(((n + 1) * (n + 1) - n * n) * E1 / 1.602176634e-19).toPrecision(6),
+                 formula:'Eₙ = n²h²/(8mL²)' };
+      }
+      if(t === 'idrogeno'){
+        if(a.n === undefined || a.n2 === undefined) return { ok:false, error:'servono n (iniziale) e n2 (finale)' };
+        var Eev = -13.605693 * (1 / (a.n2 * a.n2) - 1 / (a.n * a.n));
+        var dE = Math.abs(Eev) * 1.602176634e-19;
+        var lamH = h * c / dE;
+        var serie = { 1:'Lyman (UV)', 2:'Balmer (visibile)', 3:'Paschen (IR)', 4:'Brackett (IR)', 5:'Pfund (IR)' };
+        return { ok:true, transizione:'n=' + a.n + ' → n=' + a.n2,
+                 E_livello_n_eV:+(-13.605693 / (a.n * a.n)).toPrecision(6),
+                 E_livello_n2_eV:+(-13.605693 / (a.n2 * a.n2)).toPrecision(6),
+                 delta_E_eV:+Eev.toPrecision(6),
+                 lambda_nm:+(lamH * 1e9).toPrecision(6),
+                 tipo: a.n > a.n2 ? 'emissione' : 'assorbimento',
+                 serie: serie[Math.min(a.n, a.n2)] || null,
+                 formula:'Eₙ = −13.6 eV/n²' };
+      }
+      if(t === 'beer_lambert'){
+        var l2 = a.cammino_cm !== undefined ? a.cammino_cm : 1;
+        var known = ['A','epsilon','concentrazione'].filter(function(k){ return a[k] !== undefined; });
+        if(known.length < 2) return { ok:false, error:'servono almeno 2 fra A, epsilon e concentrazione' };
+        var o2 = { ok:true, legge:'A = ε·l·c', cammino_cm:l2 };
+        if(a.A === undefined) o2.assorbanza = +(a.epsilon * l2 * a.concentrazione).toPrecision(6);
+        else if(a.concentrazione === undefined) o2.concentrazione_molL = +(a.A / (a.epsilon * l2)).toExponential(6);
+        else o2.epsilon = +(a.A / (l2 * a.concentrazione)).toPrecision(6);
+        var Aval = a.A !== undefined ? a.A : o2.assorbanza;
+        o2.trasmittanza_percento = +(100 * Math.pow(10, -Aval)).toPrecision(4);
+        return o2;
+      }
+      return { ok:false, error:'calcolo non riconosciuto', disponibili:['fotone','debroglie','particella_scatola','idrogeno','beer_lambert'] };
+    }
+  },
+  {
+    name: 'elettrochimica',
+    description: "Elettrochimica: potenziale di cella, equazione di Nernst a condizioni non standard, relazione ΔG° = −nFE°, costante di equilibrio da E°, e legge di Faraday per l'elettrolisi.",
+    parameters: {
+      type: 'object',
+      properties: {
+        E0: { type: 'number', description: 'Potenziale standard di cella in V.' },
+        n: { type: 'number', description: 'Numero di elettroni scambiati.' },
+        Q: { type: 'number', description: 'Quoziente di reazione (per Nernst).' },
+        T: { type: 'number', description: 'Temperatura in K (default 298.15).' },
+        corrente_A: { type: 'number', description: 'Corrente in ampere (Faraday).' },
+        tempo_s: { type: 'number', description: 'Tempo in secondi (Faraday).' },
+        massa_molare: { type: 'number', description: 'Massa molare della specie depositata (g/mol).' }
+      }
+    },
+    execute: function(a){
+      a = a || {};
+      var R = 8.314462618, F = 96485.332, T = a.T !== undefined ? a.T : 298.15, out = { ok:true, T_K:T };
+      if(a.E0 !== undefined && a.n !== undefined){
+        out.E0_V = a.E0; out.n_elettroni = a.n;
+        out.dG0_kJ_mol = +(-a.n * F * a.E0 / 1000).toFixed(3);
+        out.spontanea = a.E0 > 0;
+        var K = Math.exp(a.n * F * a.E0 / (R * T));
+        out.K_equilibrio = (K < 1e-4 || K > 1e4) ? K.toExponential(4) : +K.toPrecision(6);
+        out.formule = 'ΔG° = −nFE° ; lnK = nFE°/RT';
+        if(a.Q !== undefined){
+          out.E_nernst_V = +(a.E0 - (R * T / (a.n * F)) * Math.log(a.Q)).toFixed(5);
+          out.Q = a.Q;
+          out.formula_nernst = 'E = E° − (RT/nF)·lnQ';
+        }
+      }
+      if(a.corrente_A !== undefined && a.tempo_s !== undefined && a.n !== undefined){
+        var q = a.corrente_A * a.tempo_s, mol = q / (a.n * F);
+        out.faraday = { carica_C:+q.toPrecision(6), moli_depositate:+mol.toExponential(6) };
+        if(a.massa_molare !== undefined) out.faraday.massa_g = +(mol * a.massa_molare).toPrecision(6);
+        out.faraday.formula = 'm = (I·t·M)/(n·F)';
+      }
+      if(Object.keys(out).length <= 2) return { ok:false, error:'servono E0 e n, oppure corrente, tempo e n' };
+      return out;
+    }
+  },
   {
     name: 'bilancia_equazione',
     description: "Bilancia un'equazione chimica calcolando i coefficienti stechiometrici esatti. Usalo SEMPRE per bilanciare, non farlo a mente. Esempio di input: \"C3H8 + O2 -> CO2 + H2O\".",
@@ -1222,6 +1805,15 @@ async function runAgentTurn(providerId, apiKey, messages, systemPrompt, callback
         case 'valuta_druglikeness':msg = '💊 ' + (res.verdetto || 'valutazione completata'); break;
         case 'converti_unita':     msg = '🔁 ' + res.valore + ' ' + res.da + ' = ' + res.risultato + ' ' + res.a; break;
         case 'costante_fisica':    msg = '📐 ' + res.costante + ' = ' + res.valore + ' ' + res.unita; break;
+        case 'calcola':            msg = '🔢 ' + res.espressione + ' = ' + (res.notazione_scientifica || res.risultato); break;
+        case 'risolvi_equazione':  msg = '🧩 ' + (res.soluzioni && res.soluzioni.length ? res.incognita + ' = ' + res.soluzioni.join(' , ') : 'nessuna soluzione reale'); break;
+        case 'analisi_dati':       msg = '📈 ' + (res.regressione ? res.regressione.equazione + ' (R²=' + res.regressione.R2 + ')' : 'media ' + res.media + ' ± ' + res.deviazione_standard); break;
+        case 'termodinamica':      msg = '🔥 ΔG = ' + res.dG_kJ_mol + ' kJ/mol' + (res.K_equilibrio !== undefined ? ' · K = ' + res.K_equilibrio : ''); break;
+        case 'equilibrio_acido_base': msg = '🧪 pH = ' + res.pH + ' (' + res.carattere + ')'; break;
+        case 'cinetica':           msg = '⏱️ ' + (res.tempo_dimezzamento !== undefined ? 't½ = ' + res.tempo_dimezzamento : res.Ea_kJ_mol !== undefined ? 'Ea = ' + res.Ea_kJ_mol + ' kJ/mol' : 'cinetica calcolata'); break;
+        case 'gas_e_soluzioni':    msg = '💨 ' + (res.V_L !== undefined ? 'V = ' + res.V_L + ' L' : res.P_atm !== undefined ? 'P = ' + res.P_atm + ' atm' : res.P_vanderwaals_atm !== undefined ? 'P(vdW) = ' + res.P_vanderwaals_atm + ' atm' : 'calcolato'); break;
+        case 'quantistica_e_spettroscopia': msg = '⚛️ ' + (res.lambda_nm !== undefined ? 'λ = ' + res.lambda_nm + ' nm' : res.assorbanza !== undefined ? 'A = ' + res.assorbanza : 'calcolato'); break;
+        case 'elettrochimica':     msg = '🔋 ' + (res.E_nernst_V !== undefined ? 'E = ' + res.E_nernst_V + ' V' : res.dG0_kJ_mol !== undefined ? 'ΔG° = ' + res.dG0_kJ_mol + ' kJ/mol' : 'calcolato'); break;
         case 'bilancia_equazione': msg = '⚗️ ' + res.equazione_bilanciata; break;
         case 'stechiometria':      msg = '🧮 ' + res.moli_richieste + ' mol' + (res.massa_richiesta_g ? ' (' + res.massa_richiesta_g + ' g)' : ''); break;
         case 'cerca_letteratura':  msg = '📚 PubMed: ' + (res.articoli || []).length + ' articoli su ' + (res.totale || 0); break;
@@ -1347,6 +1939,18 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "(PubChem, PubMed) quando le hai usate.\n\n" +
 "BILANCIAMENTO E STECHIOMETRIA: usa sempre bilancia_equazione e stechiometria. Sono risolutori " +
 "esatti e non sbagliano; bilanciare a occhio sì.\n\n" +
+"CALCOLO: hai un motore di calcolo completo. Per QUALUNQUE conto, anche una moltiplicazione, usa " +
+"calcola: e' esatto e mostra il passaggio. Per equazioni in una incognita (anche non lineari, " +
+"trascendenti, o equilibri con ICE) usa risolvi_equazione. Per medie, deviazioni standard e " +
+"regressioni lineari (cinetica ln[A] vs t, rette di taratura, Lambert-Beer) usa analisi_dati.\n\n" +
+"CHIMICA FISICA: non limitarti a citare la formula, RISOLVI il problema con lo strumento giusto — " +
+"termodinamica (ΔG, K, van 't Hoff, temperatura di inversione), equilibrio_acido_base (pH di acidi " +
+"e basi forti/deboli e tamponi, con l'equazione di secondo grado esatta), cinetica (ordini 0/1/2, " +
+"tempi di dimezzamento, Arrhenius), gas_e_soluzioni (gas ideali e di van der Waals, proprieta' " +
+"colligative, diluizioni), quantistica_e_spettroscopia (fotoni, de Broglie, particella nella " +
+"scatola, atomo di idrogeno, Lambert-Beer), elettrochimica (Nernst, ΔG = −nFE°, Faraday).\n\n" +
+"Se un problema e' composto, scomponilo: piu' chiamate in sequenza, ognuna verificata, e poi la " +
+"sintesi. Dichiara sempre le unita' di misura e controlla che siano coerenti prima di concludere.\n\n" +
 "FONTI: se l'utente chiede prove, o se stai per affermare qualcosa di clinicamente o " +
 "sperimentalmente rilevante, chiama cerca_letteratura e cita PMID e rivista. Distingui sempre " +
 "cio' che e' consolidato da cio' che e' ancora dibattuto.\n\n" +
