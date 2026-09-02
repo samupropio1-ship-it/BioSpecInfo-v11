@@ -15,6 +15,9 @@ In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossie
 **🧑‍💼 Kit candidatura** (CV + lettera di presentazione, IT/EN, con PDF): cartella
 [`docs/candidatura/`](candidatura/) — completa i campi tra `[…]` prima di inviare.
 
+**🤖 Scheda progetto Spectra** (agente AI, pronta per il colloquio):
+[`docs/candidatura/pdf/Progetto-Spectra-Colloquio.pdf`](candidatura/pdf/Progetto-Spectra-Colloquio.pdf) — 3 pagine.
+
 ---
 
 | # | Documento | Contenuto |
@@ -24,8 +27,9 @@ In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossie
 | 02 | [Verification & Validation & Benchmark Report](02-Verification-Validation-Report.md) | Metodo di test, benchmark spettrali, prestazioni, limiti dichiarati |
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Modello privacy local-first, OWASP/XSS, allineamento GDPR e GAMP 5 |
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Matrice dipendenze, licenze, proprietà intellettuale |
+| 05 | [Architettura dell'Agente AI "Spectra"](05-AI-Agent-Architecture.md) | Ciclo agentico, 31 strumenti, decisioni ingegneristiche, verifica numerica |
 
-**🌍 English version:** [`docs/en/`](en/README.md) — the same four documents in English.
+**🌍 English version:** [`docs/en/`](en/README.md) — the same documents in English.
 **📑 PDF (IT + EN):** [`docs/pdf/`](pdf/) — pronti da allegare a CV, email e audit.
 
 ## In sintesi
