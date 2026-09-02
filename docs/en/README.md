@@ -21,6 +21,7 @@ Or the summary cover only: [`00-Dossier.en.pdf`](../pdf/00-Dossier.en.pdf).
 | 02 | [Verification & Validation & Benchmark Report](02-Verification-Validation-Report.md) | Test method, spectral benchmarks, performance, declared limitations |
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Local-first privacy model, OWASP/XSS, GDPR and GAMP 5 alignment |
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Dependency matrix, licenses, intellectual property |
+| 05 | [AI Agent Architecture "Spectra"](05-AI-Agent-Architecture.md) | Agentic loop, 31 tools, engineering decisions, numeric verification |
 
 ## At a glance
 
