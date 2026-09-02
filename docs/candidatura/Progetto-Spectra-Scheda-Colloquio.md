@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 5.537 righe, zero dipendenze runtime |
+| Componente | 5.876 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 8 (Anthropic, GitHub Models, NVIDIA, Mistral, Groq, Google, OpenRouter, xAI) — 6 configurazioni gratuite |
 | Dataset interni esposti | 9, oltre 800 record |
