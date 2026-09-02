@@ -1,7 +1,7 @@
-// BioSpecInfo Service Worker v126 — network-first + precache di pagine e librerie
+// BioSpecInfo Service Worker v127 — network-first + precache di pagine e librerie
 'use strict';
 
-var CACHE = 'bsi-v126';
+var CACHE = 'bsi-v127';
 
 // Precarico solo file che esistono davvero nel deploy (una voce inesistente
 // costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
