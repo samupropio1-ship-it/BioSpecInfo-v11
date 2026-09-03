@@ -649,6 +649,82 @@ window.bsiIrraggiungibili = {
 };
 
 /* ---------------------------------------------------------------------
+   1b-quater. LA PROVA — misurare invece di scoprirlo per sbaglio
+   Aspettare il primo messaggio per sapere se un fornitore risponde e' il
+   modo peggiore: si scopre DOPO aver creato l'account e la chiave, e si
+   paga con 45 secondi di attesa.
+   La cosa si puo' misurare in anticipo, e per giunta SENZA CHIAVE: la
+   domanda «questo browser riesce a contattare il server?» ha risposta
+   affermativa anche quando il server risponde 401. Se la fetch si conclude
+   in qualunque modo, il vincolo CORS e' passato; se viene respinta prima,
+   no. Con una chiave finta si prova esattamente lo stesso.
+   Si usa la STESSA url e le STESSE intestazioni della chiamata vera
+   (buildRequest, quindi anche il proxy quando c'e'): il preflight dipende
+   da quelle, e provare un indirizzo diverso non dimostrerebbe niente. Il
+   corpo invece e' minimo — un token — perche' su una chiave valida la
+   prova non deve costare quota.
+--------------------------------------------------------------------- */
+var PROVA_TIMEOUT_MS = 12000;
+
+function corpoMinimo(p){
+  var mod = p.model || (p.modelliCandidati && p.modelliCandidati[0]) || '';
+  if(p.family === 'gemini') return { contents: [{ role: 'user', parts: [{ text: 'ping' }] }] };
+  if(p.family === 'anthropic') return { model: mod, max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] };
+  return { model: mod, messages: [{ role: 'user', content: 'ping' }], max_tokens: 1 };
+}
+
+/* esiti: 'ok' (risponde), 'chiave' (risponde ma la chiave non va),
+          'bloccato' (il browser non ci arriva), 'lento' (nessuna risposta) */
+async function provaFornitore(id){
+  var p = PROVIDERS[id];
+  if(!p) return { id: id, nome: id, esito: 'bloccato' };
+  var t0 = Date.now();
+  var chiaveVera = chiaveDaUsare(id);
+  var chiave = (!chiaveVera || chiaveVera === CHIAVE_VIA_PROXY) ? 'prova-senza-chiave' : chiaveVera;
+  var req;
+  try{
+    req = buildRequest(p, chiave, [{ role: 'user', content: 'ping' }], '', null);
+  }catch(e){
+    return { id: id, nome: p.name, esito: 'bloccato', ms: 0 };
+  }
+  req.body = corpoMinimo(p);
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  var scaduto = false;
+  var tm = setTimeout(function(){ scaduto = true; if(ctrl){ try{ ctrl.abort(); }catch(e){} } }, PROVA_TIMEOUT_MS);
+  try{
+    var res = await fetch(req.url, { method: 'POST', headers: req.headers,
+      body: JSON.stringify(req.body), signal: ctrl ? ctrl.signal : undefined });
+    clearTimeout(tm);
+    // Ha risposto: il browser ci arriva. E' l'unica cosa che la prova
+    // vuole sapere, e vale anche se la risposta e' un errore.
+    segnaRaggiungibile(id);
+    var chiaveNo = (res.status === 401 || res.status === 403) && chiaveVera && chiaveVera !== CHIAVE_VIA_PROXY;
+    return { id: id, nome: p.name, esito: chiaveNo ? 'chiave' : 'ok',
+             stato: res.status, ms: Date.now() - t0,
+             conChiave: !!chiaveVera };
+  }catch(e){
+    clearTimeout(tm);
+    segnaIrraggiungibile(id);
+    return { id: id, nome: p.name, esito: scaduto ? 'lento' : 'bloccato',
+             ms: Date.now() - t0, conChiave: !!chiaveVera };
+  }
+}
+
+/* Prova tutti insieme: in parallelo ci vogliono i secondi del piu' lento,
+   non la somma. onEsito riceve ogni risultato appena arriva, cosi' la
+   schermata si riempie mentre la prova va avanti. */
+function provaTuttiIFornitori(onEsito){
+  var ids = Object.keys(PROVIDERS);
+  return Promise.all(ids.map(function(id){
+    return provaFornitore(id).then(function(r){
+      if(onEsito){ try{ onEsito(r); }catch(e){} }
+      return r;
+    });
+  }));
+}
+window.bsiProva = { uno: provaFornitore, tutti: provaTuttiIFornitori };
+
+/* ---------------------------------------------------------------------
    1b-bis. MODALITA' NUCLEO — quando serve tutta la potenza disponibile
    Non e' un interruttore decorativo: cambia quattro cose insieme, che da
    sole non basterebbero.
@@ -4989,6 +5065,21 @@ var CSS = [
 '#bsi-hub-proxybadge{margin:12px 12px 0;padding:9px 12px;background:#08251f;border:1px solid #14614f;border-radius:10px;color:#5eead4;font-size:.78rem;font-weight:600;}',
 '#bsi-hub-kobadge{margin:12px 12px 0;padding:9px 12px;background:#2a1a08;border:1px solid #7a4a12;border-radius:10px;color:#fbbf6e;font-size:.78rem;line-height:1.45;}',
 '#bsi-hub-kobadge b{color:#ffd9a0;}',
+'#bsi-hub-provabox{margin:12px;padding:14px;background:#0b1a26;border:1px solid #1c3a57;border-radius:12px;}',
+'#bsi-hub-provabox .tit{color:#5eead4;font-weight:700;font-size:.88rem;margin-bottom:2px;}',
+'#bsi-hub-provabox .sub{color:#9fb3c8;font-size:.75rem;margin-bottom:9px;}',
+// Undici righe su un telefono spingono la conclusione — la parte che dice
+// cosa fare — sotto il bordo dello schermo. L'elenco scorre dentro di se',
+// cosi' il consiglio resta sempre visibile.
+'#bsi-prova-righe{max-height:38vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
+'#bsi-hub-provabox .riga{display:flex;gap:9px;align-items:baseline;padding:6px 0;border-top:1px solid #16304a;font-size:.82rem;color:#e8f4ff;}',
+'#bsi-hub-provabox .riga:first-of-type{border-top:none;}',
+'#bsi-hub-provabox .riga .n{flex:1;min-width:0;}',
+'#bsi-hub-provabox .riga .ms{color:#7d93a8;font-size:.72rem;flex-shrink:0;}',
+'#bsi-hub-provabox .riga.ko{opacity:.62;}',
+'#bsi-hub-provabox .esito{margin-top:11px;padding:9px 11px;border-radius:9px;font-size:.79rem;line-height:1.5;}',
+'#bsi-hub-provabox .esito.buono{background:#08251f;border:1px solid #14614f;color:#5eead4;}',
+'#bsi-hub-provabox .esito.brutto{background:#2a1a08;border:1px solid #7a4a12;color:#fbbf6e;}',
 '#bsi-hub-resetbox{margin:12px;padding:14px;background:#1e1015;border:1px solid #5c2733;border-radius:12px;}',
 '#bsi-hub-resetbox .tit{color:#ff9d9d;font-weight:700;font-size:.88rem;margin-bottom:6px;}',
 '#bsi-hub-resetbox label{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer;font-size:.82rem;color:#e8f4ff;border-top:1px solid #3a1c24;}',
@@ -5482,9 +5573,11 @@ function buildChatPane(){
       '<select id="bsi-hub-provsel">' + providerSelectHtml(getSavedProvider()) + '</select>' +
       '<div class="bsi-copilot-toggle on" id="bsi-copilot-toggle" title="Spectra puo\' sempre aprire sezioni, strumenti e cercare molecole per te — nessuna attivazione necessaria"><span class="dot"></span><span>🧭 Copilota attivo</span></div>' +
       '<div id="bsi-nucleo-sw" role="button" tabindex="0" title="Piu\' passaggi, ragionamento al massimo e il modello piu\' capace fra quelli per cui hai una chiave. Costa piu\' quota."><span class="pt"></span><span>⚛ Modalità Nucleo</span></div>' +
+      '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-prova" title="Prova quali fornitori il tuo browser riesce davvero a contattare — bastano pochi secondi e non serve una chiave">🔌 Prova</button>' +
       '<button class="bsi-hub-btn ghost compatto" id="bsi-hub-reset" title="Cancella chat, cronologia e chiavi API salvate">🗑</button>' +
     '</div>' +
     '<div id="bsi-hub-resetbox" style="display:none"></div>' +
+    '<div id="bsi-hub-provabox" style="display:none"></div>' +
     '<div id="bsi-hub-keybox" style="display:none">' +
       '<div style="color:#00d4aa;font-weight:700;font-size:.85rem">🔑 Configura ' + '<span id="bsi-hub-provname"></span></div>' +
       '<div class="bsi-hub-note" id="bsi-hub-keylink"></div>' +
@@ -5581,8 +5674,12 @@ function buildChatPane(){
       ko.innerHTML = '⚠ <b>' + escapeHtml(PROVIDERS[prov].name) + '</b> non ha risposto ' +
         (volte === 1 ? 'poco fa' : volte + ' volte nelle ultime 24 ore') +
         '. Può essere la rete, oppure il servizio non accetta chiamate diritte dal browser. ' +
-        (alt ? 'Alternativa già funzionante: <b>' + escapeHtml(PROVIDERS[alt].name) + '</b>.'
-             : 'Con il proxy la chiamata parte da un server e questo vincolo non c\'è (docs/Guida-Chiavi-API.md).') +
+        // Il consiglio deve essere una cosa che si può fare DA QUESTA
+        // schermata: rimandare a un file del repository, su un telefono,
+        // equivale a non dire niente.
+        (alt ? 'Alternativa già funzionante: <b>' + escapeHtml(PROVIDERS[alt].name) + '</b>, scegliala qui sopra.'
+             : 'Tocca <b>🔌 Prova</b> qui sopra: in pochi secondi scopri quali fornitori il tuo ' +
+               'telefono riesce davvero a contattare, e non serve creare nessuna chiave per saperlo.') +
         ' Riprovo comunque da solo fra 24 ore.';
     }catch(e){}
   }
@@ -5742,6 +5839,81 @@ function buildChatPane(){
       }
     };
   }
+  /* ── La prova dei fornitori ────────────────────────────────────────────
+     Risponde alla domanda che finora si poteva scoprire solo sbagliando:
+     «quali di questi il MIO telefono riesce a contattare?». Le righe si
+     riempiono man mano, cosi' si vede che sta lavorando. */
+  var provaBox = document.getElementById('bsi-hub-provabox');
+  var provaInCorso = false;
+  var ICONA = { ok: '✅', chiave: '🔑', bloccato: '⛔', lento: '🐌' };
+  function descrizioneEsito(r){
+    // Senza chiave la riga direbbe "(chiave non ancora inserita)" otto volte
+    // su undici: rumore che nasconde l'unica differenza che conta, ✅ o ⛔.
+    if(r.esito === 'ok') return r.conChiave ? 'risponde, chiave a posto' : 'risponde';
+    if(r.esito === 'chiave') return 'risponde, ma la chiave non è valida';
+    if(r.esito === 'lento') return 'nessuna risposta in ' + (PROVA_TIMEOUT_MS/1000) + 's';
+    return 'il tuo browser non riesce a contattarlo';
+  }
+  async function eseguiProva(){
+    if(provaInCorso) return;
+    provaInCorso = true;
+    var ids = Object.keys(PROVIDERS);
+    provaBox.innerHTML = '<div class="tit">🔌 Prova dei fornitori</div>' +
+      '<div class="sub">Chiamo tutti e ' + ids.length + ' da questo browser. ' +
+      'Non serve una chiave: basta sapere se la chiamata parte.</div>' +
+      '<div id="bsi-prova-righe"></div><div id="bsi-prova-esito"></div>';
+    provaBox.style.display = 'block';
+    if(provaBox.scrollIntoView) provaBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    var righe = document.getElementById('bsi-prova-righe');
+    ids.forEach(function(id){
+      var r = el('div', { class: 'riga', id: 'bsi-prova-' + id });
+      r.innerHTML = '<span>⏳</span><span class="n">' + escapeHtml(PROVIDERS[id].name) + '</span>';
+      righe.appendChild(r);
+    });
+    var esiti = await provaTuttiIFornitori(function(r){
+      var n = document.getElementById('bsi-prova-' + r.id);
+      if(!n) return;
+      n.className = 'riga' + (r.esito === 'ok' || r.esito === 'chiave' ? '' : ' ko');
+      n.innerHTML = '<span>' + ICONA[r.esito] + '</span><span class="n">' +
+        escapeHtml(r.nome.split(' — ')[0]) + ' · ' + descrizioneEsito(r) +
+        '</span><span class="ms">' + (r.ms ? r.ms + ' ms' : '') + '</span>';
+    });
+    // La conclusione conta piu' dell'elenco: dice cosa fare adesso.
+    var buoni = esiti.filter(function(r){ return r.esito === 'ok' || r.esito === 'chiave'; });
+    var pronti = esiti.filter(function(r){ return r.esito === 'ok' && r.conChiave; });
+    var box = document.getElementById('bsi-prova-esito');
+    if(pronti.length){
+      box.className = 'esito buono';
+      box.innerHTML = '✅ Puoi usare subito: <b>' +
+        pronti.map(function(r){ return escapeHtml(r.nome.split(' — ')[0]); }).join(', ') +
+        '</b>. Scegline uno dal menù qui sopra.';
+    }else if(buoni.length){
+      // Il caso di Samuele: il browser passa, manca solo la chiave.
+      var liberi = buoni.filter(function(r){ return PROVIDERS[r.id].free; });
+      var cons = (liberi.length ? liberi : buoni).slice(0, 3);
+      box.className = 'esito buono';
+      box.innerHTML = '🔑 Il tuo browser <b>arriva</b> a questi: <b>' +
+        cons.map(function(r){ return escapeHtml(r.nome.split(' — ')[0]); }).join(', ') +
+        '</b>. Manca solo la chiave: selezionane uno qui sopra e comparirà il riquadro 🔑 con il link giusto.';
+    }else{
+      box.className = 'esito brutto';
+      box.innerHTML = '⛔ Da questo browser non parte nessuna chiamata. Se sei sotto una rete ' +
+        'aziendale o scolastica, o hai un blocco pubblicità molto aggressivo, prova con un\'altra ' +
+        'connessione. Se succede ovunque, la soluzione definitiva è il proxy: la chiamata parte ' +
+        'da un server e nessun fornitore può rifiutarla.';
+    }
+    var chiudi = el('button', { class: 'bsi-hub-btn ghost', style: 'margin-top:10px' }, 'Chiudi');
+    chiudi.onclick = function(){ provaBox.style.display = 'none'; };
+    provaBox.appendChild(chiudi);
+    provaInCorso = false;
+    // La prova ha appena aggiornato cio' che si sa: il menu' lo deve mostrare.
+    try{ aggiornaSegnaliKo(); }catch(e){}
+  }
+  document.getElementById('bsi-hub-prova').onclick = function(){
+    if(provaBox.style.display === 'block' && !provaInCorso){ provaBox.style.display = 'none'; return; }
+    eseguiProva();
+  };
+
   document.getElementById('bsi-hub-reset').onclick = function(){
     if(resetBox.style.display === 'block'){ resetBox.style.display = 'none'; return; }
     disegnaReset();                 // ridisegnato ogni volta: i conteggi cambiano
