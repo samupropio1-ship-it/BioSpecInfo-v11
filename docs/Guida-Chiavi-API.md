@@ -229,6 +229,11 @@ risolutori non coprono perché non si possono prevedere tutte.
 > ⚠️ È **separato** dall'abbonamento di claude.ai. Pagare quello non dà
 > accesso all'API: serve credito su `console.anthropic.com`.
 
+> **Non devi scegliere fra le versioni.** Se un giorno Opus 5 non fosse
+> disponibile sulla tua chiave, Spectra passa da sola a Opus 4.8 e poi a 4.7 —
+> costano uguale e sono la stessa fascia. Per questo non li trovi in tendina:
+> sceglierli a mano non darebbe mai un vantaggio.
+
 ---
 
 # Parte 3 — usarle

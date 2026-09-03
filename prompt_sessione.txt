@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.254 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.271 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v147
+- sw.js            — Service Worker (network-first). Cache: bsi-v148
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -104,6 +104,9 @@ TOLTI e perche': GitHub Models (RITIRATO il 30/07/2026), Mistral (consenso
 all'addestramento), OpenRouter (id instabili), Claude Haiku 4.5 (dominato da
 Sonnet 5: meta' prezzo ma un quinto del contesto e niente ragionamento esteso
 ne' ricerca web).
+NON in tendina ma usati come RISERVA automatica: Opus 4.8 e 4.7 (costano
+quanto Opus 5 e sono una generazione indietro — come scelta non convengono
+mai, come riserva valgono quanto lui), Fable 5, Sonnet 4.6.
 Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
 conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
 concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
@@ -362,6 +365,21 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
                   (grok-4-fast, grok-3): il vertice e' grok-4.6 dal 12/08/2026.
    Un fornitore morto con un rango alto non rompe solo la tendina: diventa la
    scelta automatica della Modalita' Nucleo.
+
+26) ANCHE ANTHROPIC HA LA RISERVA — era l'ULTIMO fornitore col nome del
+   modello cablato, quindi l'unico punto in cui l'app poteva fermarsi se un
+   modello spariva o la chiave non lo vedeva. Ora i tre Claude hanno
+   modelliCandidati e urlModelli ('https://api.anthropic.com/v1/models', che
+   NON si ricava da /v1/messages con la sostituzione usata per gli altri).
+   Le catene: Fable 5.1 -> Fable 5 -> Opus 5; Opus 5 -> Opus 4.8 -> Opus 4.7;
+   Sonnet 5 -> Sonnet 4.6.
+   IL PUNTO DELICATO e' 'preferisci', diverso per ciascuno (/fable/, /opus/,
+   /sonnet/): senza, il punteggio generico farebbe ripiegare l'Opus su un
+   Sonnet perche' e' comunque un modello valido — cioe' darebbe all'utente un
+   modello piu' debole di quello che ha scelto, in silenzio. C'e' un test
+   apposta.
+   Opus 4.8 sta QUI e non in tendina: stesso prezzo di Opus 5 e una
+   generazione indietro, quindi come scelta non conviene mai.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
