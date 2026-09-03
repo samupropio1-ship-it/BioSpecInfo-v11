@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.265 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.262 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v144
+- sw.js            — Service Worker (network-first). Cache: bsi-v145
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,15 +92,14 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 13 configurazioni di modello.
-GRATUITE (5): Groq (cavallo da tiro, 131K), Gemini Flash (1M di contesto),
-GitHub Models (qualita' massima, tetto 8K/richiesta), NVIDIA NIM (DeepSeek R1),
+32 strumenti su 13 aree scientifiche; 12 configurazioni di modello.
+GRATUITE (4): Groq (cavallo da tiro, 131K), Gemini Flash (1M di contesto — e'
+QUELLO giusto per i riassunti di documenti lunghi), NVIDIA NIM (DeepSeek R1),
 Z.AI GLM (gratuito senza scadenza).
-A PAGAMENTO (8): GPT-5.6 (record su GPQA Diamond, 94,6%), Gemini 3 Pro,
-DeepSeek V4 (miglior qualita'/prezzo), Grok 4 (2M di contesto), e la gamma
-Claude Fable 5.1 / Opus 5 / Sonnet 5 / Haiku 4.5.
-Tolti di proposito Mistral (consenso all'addestramento) e OpenRouter (modelli
-piccoli e id instabili) — vedi docs/Guida-Chiavi-API.md per il perche'.
+A PAGAMENTO (8): GPT-5.6 (record su GPQA Diamond), Gemini 3 Pro, DeepSeek V4,
+Grok 4, e la gamma Claude Fable 5.1 / Opus 5 / Sonnet 5 / Haiku 4.5.
+Tolti: GitHub Models (RITIRATO da GitHub il 30/07/2026), Mistral (consenso
+all'addestramento), OpenRouter (modelli piccoli e id instabili).
 Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
 conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
 concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
@@ -317,6 +316,30 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
       e text_editor_code_execution_tool_result, NON come un generico
       code_execution_tool_result. Vanno conservati nel turno assistant come i
       blocchi della ricerca web, o un turno in pausa non si puo' riprendere.
+
+22) VERIFICARE CHE UN SERVIZIO SIA VIVO, non solo che sia documentato.
+   GitHub Models e' stato aggiunto e consigliato come "il piu' capace fra i
+   gratuiti" quando era gia' RITIRATO (30/07/2026): le pagine trovate cercando
+   descrivevano il servizio ancora attivo. Prima di aggiungere un fornitore,
+   cercare esplicitamente "<nome> retired|shutdown|deprecated <anno>".
+   Il rango che gli era stato dato faceva anche si' che la Modalita' Nucleo lo
+   scegliesse da sola: un fornitore morto in cima alla classifica rompe la
+   selezione automatica, non solo la voce in tendina.
+
+23) IRRAGGIUNGIBILE = SI CAMBIA FORNITORE. Un fetch che fallisce PRIMA di
+   ricevere una risposta (rete, CORS, servizio ritirato) ora marca l'errore
+   con .irraggiungibile, e conProviderDiRiserva lo tratta come la quota
+   esaurita: si passa al fornitore successivo invece di fermarsi. Il browser
+   non permette di distinguere quale dei tre casi sia — per sicurezza non lo
+   dice — quindi la risposta giusta e' la stessa per tutti e tre.
+   NON restringere la riserva ai soli errori di quota: era il motivo per cui
+   un servizio ritirato bloccava tutto.
+
+24) IL BUDGET E' DORMIENTE — nessun fornitore attuale dichiara maxInput
+   (l'unico che lo aveva era GitHub Models, 8.000 token). Il codice resta
+   perche' e' la difesa pronta per il prossimo con un tetto stretto, e i test
+   lo provano con una configurazione sintetica. Non attribuire un maxInput a
+   un servizio senza averlo verificato.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

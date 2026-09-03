@@ -30,7 +30,6 @@ var FORNITORI = {
   gemini:     { base: 'https://generativelanguage.googleapis.com', segreto: 'GEMINI_KEYS',     modo: 'query-key' },
   groq:       { base: 'https://api.groq.com',                      segreto: 'GROQ_KEYS',       modo: 'bearer' },
   xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' },
-  github:     { base: 'https://models.github.ai',                  segreto: 'GITHUB_KEYS',     modo: 'bearer' },
   nvidia:     { base: 'https://integrate.api.nvidia.com',          segreto: 'NVIDIA_KEYS',     modo: 'bearer' },
   zai:        { base: 'https://api.z.ai',                          segreto: 'ZAI_KEYS',        modo: 'bearer' },
   openai:     { base: 'https://api.openai.com',                    segreto: 'OPENAI_KEYS',     modo: 'bearer' },

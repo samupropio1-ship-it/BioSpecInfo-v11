@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 6.265 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 6.262 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v144` |
+| **Versione documentata** | Service Worker `bsi-v145` |
 
 ---
 
@@ -32,8 +32,8 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su tredici configurazioni
-   di modello, cinque delle quali gratuite.
+   Anthropic, Gemini), così l'agente funziona identico su dodici configurazioni
+   di modello, quattro delle quali gratuite.
 
 ---
 
@@ -146,7 +146,7 @@ flag impedisce il ciclo infinito quando anche il modello nuovo fallisce.
 Anthropic resta l'eccezione voluta: i suoi modelli sono a pagamento, scelti
 esplicitamente dall'utente e con deprecazioni annunciate con largo anticipo.
 
-#### I cinque servizi gratuiti, scelti uno per uno
+#### I quattro servizi gratuiti, scelti uno per uno
 
 La qualità gratuita non è tutta uguale, e la differenza conta: un modello da 8
 miliardi di parametri non regge un problema di chimica fisica in più passaggi.
@@ -157,11 +157,19 @@ perché peggioravano la risposta invece di migliorarla.
 |---|---|---|
 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
 | **Google Gemini** | Gemini Flash | Fino a 1M di contesto: documenti e PDF interi |
-| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | La qualità più alta, al prezzo del tetto più stretto: 8.000 token per richiesta, 50 al giorno |
 | **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Ragionamento profondo. Crediti a esaurimento |
 | **Z.AI GLM** | GLM-4.7-Flash | Gratuito **senza scadenza**: la riserva che resta quando i crediti finiscono |
 
-**Tolti di proposito.** *Mistral*: qualità media e piano gratuito che richiede
+**Tolti.** *GitHub Models*: c'era, ed è stato tolto perché GitHub lo ha
+**ritirato del tutto il 30 luglio 2026** — playground, catalogo e API di
+inferenza spenti per tutti. Era stato aggiunto due giorni prima sulla base di
+pagine che descrivevano il servizio ancora attivo: la lezione è che verificare
+*che una cosa esista* non è verificare *che sia ancora viva*, e la ricerca da
+fare è «<nome> retired / shutdown / deprecated <anno>». Il guasto non si è
+fermato alla voce in tendina: il rango che gli era stato assegnato lo rendeva
+anche la scelta automatica della Modalità Nucleo.
+
+*Mistral*: qualità media e piano gratuito che richiede
 il consenso all'uso dei dati per l'addestramento — un prezzo che non vale la
 pena pagare per materiale di tesi non pubblicato, quando esistono cinque
 alternative senza quella clausola. *OpenRouter*: modelli gratuiti piccoli e id
@@ -208,6 +216,23 @@ Nello stesso passaggio è emersa una seconda cosa: il numero minore nel nome è
 `gemini-3.0-pro`), e la regex che pretendeva il punto valutava i modelli *più
 nuovi* come alias generici — quindi perdevano contro i vecchi, e
 l'aggiornamento automatico descritto in 2.4 non sarebbe mai scattato.
+
+#### Quando un fornitore non risponde
+
+Un `fetch` che fallisce **prima** di ricevere una risposta significa una di tre
+cose: rete assente, il servizio non accetta chiamate dirette dal browser
+(CORS), oppure il servizio non esiste più. Il browser, per ragioni di
+sicurezza, non permette di distinguere quale — l'errore è volutamente generico.
+
+Prima questo fermava il turno. Ma se le tre cause non si distinguono, la
+risposta giusta è la stessa per tutte e tre: **passare a un altro fornitore**
+per cui l'utente ha una chiave, esattamente come per la quota esaurita. È il
+comportamento che avrebbe mascherato del tutto il ritiro di GitHub Models,
+invece di lasciare ogni richiesta bloccata su un servizio spento.
+
+Restano fuori dalla riserva gli errori che si ripeterebbero identici ovunque —
+una chiave sbagliata, una richiesta malformata: provarli su tutti i fornitori
+per poi riportare l'ultimo errore a caso nasconderebbe la causa vera.
 
 **Togliere un servizio dall'elenco è un'operazione che rompe le cose**, e
 merita una nota: chi lo aveva selezionato ha quel nome salvato in
@@ -640,9 +665,9 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 6.265 |
+| Righe del componente | 6.262 |
 | Strumenti | 32 |
-| Configurazioni di modello | 13 (5 gratuite) |
+| Configurazioni di modello | 12 (4 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |

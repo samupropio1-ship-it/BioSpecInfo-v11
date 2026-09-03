@@ -14,7 +14,7 @@ parte, e la inserisci **una volta sola** per servizio.
 
 ## Due livelli: i gratuiti e la frontiera
 
-Spectra ha **cinque servizi gratuiti** e **cinque a pagamento**. I gratuiti
+Spectra ha **quattro servizi gratuiti** e **cinque a pagamento**. I gratuiti
 bastano per studiare; i secondi servono quando un problema è davvero
 difficile.
 
@@ -24,7 +24,7 @@ marketing, è esattamente ciò che le chiedi tu.
 
 ---
 
-## I cinque servizi gratuiti, e a cosa serve ciascuno
+## I quattro servizi gratuiti, e a cosa serve ciascuno
 
 Sono stati scelti uno per uno. Nessuno è lì per fare numero: i servizi
 gratuiti che davano modelli piccoli o cataloghi imprevedibili sono stati
@@ -35,15 +35,23 @@ peggiorano la risposta invece di migliorarla.
 |---|---|---|---|
 | **Groq** | GPT-OSS 120B, Qwen3 | **Il cavallo da tiro.** 131K di contesto, ~30 richieste/minuto: è quello che userai per l'80% del lavoro | Generoso |
 | **Google Gemini** | Gemini Flash | **I documenti enormi.** Fino a 1 milione di token di contesto: PDF interi, dispense, tesi | Generoso |
-| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | **La lama affilata.** La qualità più alta che puoi avere gratis. Tienilo per i problemi difficili | 10/min, 50/giorno |
 | **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | **Il ragionamento profondo.** Modelli enormi che pensano prima di rispondere | Crediti a esaurimento |
 | **Z.AI GLM** | GLM-4.7-Flash | **Il rincalzo che non scade.** Gratuito senza limite di tempo, forte su ragionamento e codice | Limitato al minuto |
 
-### Se ne fai solo tre
+### Se ne fai solo due
 
-**Groq + Gemini + GitHub Models.** Dieci minuti in tutto, e coprono tutto:
-volume, documenti lunghi, qualità sui casi difficili. Gli altri due aggiungili
+**Groq + Gemini.** Due minuti in tutto, e coprono il grosso: Groq per il
+volume quotidiano, Gemini per i documenti lunghi. NVIDIA e Z.AI aggiungili
 dopo, come riserva.
+
+### Per i riassunti di documenti lunghi: **Gemini**
+
+È la domanda che riceve più spesso una risposta sbagliata. Un riassunto di una
+dispensa o di un capitolo non richiede il modello *più intelligente*: richiede
+quello che **ci sta dentro**. Gemini arriva a 1 milione di token di contesto —
+centinaia di pagine in una sola richiesta. Gli altri gratuiti si fermano molto
+prima e ti restituiscono un riassunto della prima parte, senza dirti che il
+resto non l'hanno letto.
 
 ---
 
@@ -81,36 +89,7 @@ altri ci si avvicina.
 
 ---
 
-## 3. GitHub Models — la qualità più alta
-
-*2 minuti. Non serve creare nessun account: usi quello di GitHub.*
-
-1. Vai su **`github.com`** e accedi
-2. Clicca la tua **foto profilo** in alto a destra → **Settings**
-3. Scorri il menu di sinistra fino in fondo → **Developer settings**
-4. **Personal access tokens** → **Fine-grained tokens**
-5. **Generate new token**
-6. Compila:
-   - *Token name*: `spectra`
-   - *Expiration*: la scadenza che preferisci (un anno va bene)
-7. Scendi a **Account permissions** — non a *Repository permissions* —
-   e cerca la voce **Models**: mettila su **Read-only**
-8. In fondo → **Generate token**
-9. Copia il token: comincia con **`github_pat_`**
-
-> Il permesso da dare è **Models: Read-only** e sta fra i permessi
-> dell'*account*, non del repository. È il passaggio dove è facile sbagliare.
-
-**Il compromesso, detto chiaro:** 10 richieste al minuto, 50 al giorno, e
-accetta al massimo 8.000 token per richiesta. Sono i limiti più stretti di
-tutti — ma sono le risposte migliori che puoi avere gratis. Spectra lo sa e si
-adatta da solo: su questo servizio manda gli strumenti pertinenti alla domanda
-invece di tutti e 32, così la richiesta ci sta. **Usalo per i problemi
-difficili, non per il lavoro di volume.**
-
----
-
-## 4. NVIDIA NIM — i modelli che ragionano
+## 3. NVIDIA NIM — i modelli che ragionano
 
 *3 minuti, senza carta di credito.*
 
@@ -127,7 +106,7 @@ difficili, non per il lavoro di volume.**
 
 ---
 
-## 5. Z.AI GLM — il rincalzo che non scade
+## 4. Z.AI GLM — il rincalzo che non scade
 
 *2 minuti.*
 
@@ -212,8 +191,7 @@ modelli Claude e vale automaticamente per gli altri tre.
 | Se… | Usa |
 |---|---|
 | Studio quotidiano, tante domande | **Groq** (gratis) |
-| Un PDF lungo da leggere | **Gemini** (gratis) o **Gemini 3 Pro** |
-| Una domanda difficile, poche volte al giorno | **GitHub Models** (gratis) |
+| Un PDF lungo da leggere, o un riassunto | **Gemini** (gratis) o **Gemini 3 Pro** |
 | Un problema scientifico davvero tosto | **GPT-5.6** |
 | Vuoi potenza ma spendere poco | **DeepSeek V4** |
 
@@ -244,7 +222,7 @@ togliere — chat, chiavi, memoria — prima di cancellare davvero.
 
 Niente di drammatico, e soprattutto: **non devi fare niente**.
 
-- **Limite al minuto** (capita con GitHub Models): Spectra legge quanto deve
+- **Limite al minuto**: Spectra legge quanto deve
   aspettare, te lo dice — *«⏳ ha raggiunto il limite al minuto: aspetto 7s»* —
   e riprova da solo. Fino a tre volte.
 - **Quota finita davvero**: passa a un altro servizio per cui hai una chiave e
@@ -267,7 +245,7 @@ diventano una riserva sola.
 | Messaggio | Cosa significa | Cosa fare |
 |---|---|---|
 | `401` / `Invalid API Key` | Chiave sbagliata o incollata a metà | Ricreala e reincollala per intero |
-| `403` con *Models* | Token GitHub senza il permesso giusto | Rifallo con **Models: Read-only** fra i permessi *account* |
+| «Impossibile contattare…» | Rete assente, oppure quel servizio non accetta chiamate dirette dal browser | Non fare niente: Spectra passa da sola a un altro servizio per cui hai una chiave |
 | `429` | Limite al minuto | Non fare niente: Spectra aspetta e riprova da solo |
 | `404 model not found` | Il servizio ha ritirato quel modello | Non fare niente: Spectra ne trova un altro da solo |
 | Spectra non risponde | Spesso è la chiave non salvata | Controlla che il riquadro 🔑 sia sparito dopo il Salva |
@@ -277,6 +255,11 @@ diventano una riserva sola.
 ## Perché alcuni servizi non ci sono
 
 Non è una dimenticanza: sono stati provati e scartati.
+
+- **GitHub Models** — c'era, ed è stato tolto: GitHub lo ha **ritirato del
+  tutto il 30 luglio 2026**. Playground, catalogo, API di inferenza: tutto
+  spento, per tutti. Qualunque guida che lo consigli ancora è più vecchia di
+  quella data.
 
 - **Mistral** — qualità media, e il piano gratuito richiede la verifica del
   telefono **e il consenso all'uso dei tuoi dati per l'addestramento**. Per
