@@ -314,7 +314,37 @@ codice dell'app può distinguerli.
 
 Per questo l'elenco «funziona / non funziona» non è scritto qui: sarebbe una
 fotografia sbagliata il mese dopo, e comunque dipende anche dalla tua rete e
-dalle estensioni installate nel tuo browser. **Lo impara Spectra, sul campo:**
+dalle estensioni installate nel tuo browser.
+
+### Il pulsante 🔌 Prova — la risposta in cinque secondi
+
+Non c'è bisogno di scoprirlo sbagliando. Nella barra in alto di Spectra, il
+pulsante **🔌 Prova** chiama tutti e undici i fornitori dal tuo browser e ti
+dice in pochi secondi quali risponde:
+
+```
+✅ Groq · risponde                              14 ms
+✅ Google Gemini Flash · risponde               13 ms
+⛔ NVIDIA NIM · il tuo browser non riesce a contattarlo
+✅ Z.AI GLM-4.7-Flash · risponde                16 ms
+```
+
+**Non serve avere una chiave.** La domanda «il mio browser riesce a
+contattare questo server?» ha risposta *sì* anche quando il server rifiuta la
+chiave: se la chiamata si conclude in qualunque modo, il vincolo CORS è
+passato. Quindi puoi sapere **prima** di aprire un account se quel fornitore
+ti servirà a qualcosa.
+
+La prova usa lo stesso indirizzo e le stesse intestazioni della chiamata vera
+(proxy compreso, se lo hai configurato), ma un corpo minimo: su una chiave
+valida costa un token, non la tua quota.
+
+In fondo trovi la conclusione, che dice cosa fare adesso — quale scegliere,
+oppure che il problema è la tua rete e non i fornitori.
+
+### Cosa fa da sola, senza che tu chieda niente
+
+
 
 | | |
 |---|---|

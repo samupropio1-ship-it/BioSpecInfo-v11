@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.427 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.599 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v149
+- sw.js            — Service Worker (network-first). Cache: bsi-v150
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -402,7 +402,28 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    Un AbortError (l'utente che preme Stop) NON va annotato.
    bsi_prov_ko sta nel gruppo 'chiavi' di DATI_CANCELLABILI: "ricominciare
    da capo" deve azzerare anche cio' che l'app ha imparato.
-   Test: test_ko.js (35) e browser_ko.js (35, con la rete negata davvero).
+   Test: test_ko.js (35) e browser_ko.js (36, con la rete negata davvero).
+
+28) LA PROVA SI PUO' FARE SENZA CHIAVE — pulsante 🔌 Prova (sezione 1b-quater).
+   Il punto non ovvio: per sapere se il browser RAGGIUNGE un fornitore basta
+   che la fetch si concluda, anche con 401. Quindi si puo' misurare PRIMA di
+   aprire un account, ed e' l'unica risposta onesta a "quale fornitore
+   scelgo?".
+   La prova DEVE usare buildRequest (stessa url e stesse intestazioni, proxy
+   compreso): il preflight CORS dipende da quelle, provare un indirizzo
+   diverso non dimostrerebbe niente. Il corpo invece e' minimo
+   (corpoMinimo()), altrimenti su una chiave valida la prova costerebbe
+   quota.
+   401/403 CON chiave salvata = 'chiave' (chiave sbagliata), NON
+   irraggiungibile: sono due guasti diversi e vanno detti diversamente.
+   NEI TEST: pageerror va contato, ma "Failed to load resource" NO — e'
+   Chromium che riporta lo stato HTTP e i blocchi CORS, cioe' proprio il
+   dato che la prova sta misurando.
+   L'elenco (#bsi-prova-righe) scorre dentro di se' con max-height:38vh:
+   undici righe su un telefono spingono la conclusione sotto il bordo, ed e'
+   la conclusione la parte che dice cosa fare.
+   Test: browser_prova.js (24) e shot_prova.js (misura che la conclusione
+   sia dentro il viewport a 360x760).
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
