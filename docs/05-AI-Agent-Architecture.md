@@ -5,10 +5,10 @@
 | **Progetto** | BioSpecInfo — componente Spectra (copilota AI agentico) |
 | **Autore** | Samuele Pio Provenzano |
 | **Relatore tesi** | Prof. Savino Longo — Università degli Studi di Bari Aldo Moro |
-| **Componente** | `bsi-ai-hub.js` — 6.262 righe, nessuna dipendenza runtime |
+| **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v145` |
+| **Versione documentata** | Service Worker `bsi-v146` |
 
 ---
 
@@ -32,7 +32,7 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su dodici configurazioni
+   Anthropic, Gemini), così l'agente funziona identico su undici configurazioni
    di modello, quattro delle quali gratuite.
 
 ---
@@ -195,8 +195,8 @@ chiede davvero.
 | **GPT-5.6** | 94,6% su GPQA Diamond: il punteggio più alto oggi disponibile. ~4 $/M in ingresso |
 | **Gemini 3 Pro** | Oltre 1M di contesto, e **la stessa chiave** del Gemini gratuito. ~2 $/M |
 | **DeepSeek V4** | Ragionamento di fascia alta a ~0,66 $/M: il miglior rapporto qualità/prezzo |
-| **Grok 4** | Fino a 2M di contesto |
-| **Claude** (Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5) | Già presenti; una sola chiave per tutti e quattro |
+| **Grok 4.6** | Primo su *tool calling* agentico e con il minor tasso di allucinazione — esattamente il profilo che serve a un agente che concatena strumenti. ~2 $/M |
+| **Claude** (Fable 5.1, Opus 5, Sonnet 5) | Una sola chiave per tutti e tre; gli unici con il sandbox Python in Modalità Nucleo |
 
 Due configurazioni possono usare **la stessa chiave**: i quattro Claude sono un
 solo account Anthropic, e Gemini Flash e Gemini 3 Pro una sola chiave di AI
@@ -216,6 +216,31 @@ Nello stesso passaggio è emersa una seconda cosa: il numero minore nel nome è
 `gemini-3.0-pro`), e la regex che pretendeva il punto valutava i modelli *più
 nuovi* come alias generici — quindi perdevano contro i vecchi, e
 l'aggiornamento automatico descritto in 2.4 non sarebbe mai scattato.
+
+#### L'audit dei fornitori, e perché va rifatto
+
+Il sistema si ripara da solo sui **nomi dei modelli** — interroga il catalogo
+e sceglie fra ciò che esiste. Non si ripara su un **servizio morto**: quello va
+verificato a mano, e il ritiro di GitHub Models ha mostrato cosa costa non
+farlo.
+
+Verifica di settembre 2026, fornitore per fornitore:
+
+| Fornitore | Esito |
+|---|---|
+| Groq | Attivo. `llama-3.3-70b-versatile` **non è più servito** da agosto 2026 e `llama-3.1-8b-instant` è deprecato: tolti dai candidati, restano i sostituti indicati da Groq |
+| Google Gemini | Attivo |
+| NVIDIA NIM | Attivo, piano gratuito permanente |
+| Z.AI | Attivo, GLM-4.7-Flash e 4.5-Flash ancora gratuiti |
+| OpenAI, DeepSeek, Anthropic | Attivi |
+| xAI | Attivo, ma i candidati erano di **due generazioni** precedenti: il vertice è `grok-4.6` dal 12/08/2026 |
+
+Due trappole registrate perché non si ripetano. La prima: non mettere un
+modello a pagamento fra i candidati di una configurazione gratuita — vale per
+`glm-5.x` su Z.AI come valeva per `gemini-3-pro`, e la configurazione
+sceglierebbe qualcosa che la chiave gratuita non può usare. La seconda: un
+fornitore morto con un rango alto non rompe solo la voce in tendina, **diventa
+la scelta automatica** della Modalità Nucleo.
 
 #### Quando un fornitore non risponde
 
@@ -665,9 +690,9 @@ del turno.
 
 | Metrica | Valore |
 |---|---|
-| Righe del componente | 6.262 |
+| Righe del componente | 6.254 |
 | Strumenti | 32 |
-| Configurazioni di modello | 12 (4 gratuite) |
+| Configurazioni di modello | 11 (4 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |

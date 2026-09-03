@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.262 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.254 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v145
+- sw.js            — Service Worker (network-first). Cache: bsi-v146
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,14 +92,18 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 12 configurazioni di modello.
-GRATUITE (4): Groq (cavallo da tiro, 131K), Gemini Flash (1M di contesto — e'
-QUELLO giusto per i riassunti di documenti lunghi), NVIDIA NIM (DeepSeek R1),
-Z.AI GLM (gratuito senza scadenza).
-A PAGAMENTO (8): GPT-5.6 (record su GPQA Diamond), Gemini 3 Pro, DeepSeek V4,
-Grok 4, e la gamma Claude Fable 5.1 / Opus 5 / Sonnet 5 / Haiku 4.5.
-Tolti: GitHub Models (RITIRATO da GitHub il 30/07/2026), Mistral (consenso
-all'addestramento), OpenRouter (modelli piccoli e id instabili).
+32 strumenti su 13 aree scientifiche; 11 configurazioni di modello, tutte
+VERIFICATE ATTIVE a settembre 2026.
+GRATUITE (4): Groq (volume, 131K), Gemini Flash (1M — quello giusto per i
+riassunti lunghi), NVIDIA NIM (DeepSeek R1, piano gratuito permanente),
+Z.AI GLM-4.7-Flash (gratuito senza scadenza).
+A PAGAMENTO (7): GPT-5.6 (record su GPQA Diamond), Gemini 3 Pro, DeepSeek V4
+(miglior qualita'/prezzo), Grok 4.6 (primo sugli agenti), Claude Fable 5.1 /
+Opus 5 / Sonnet 5.
+TOLTI e perche': GitHub Models (RITIRATO il 30/07/2026), Mistral (consenso
+all'addestramento), OpenRouter (id instabili), Claude Haiku 4.5 (dominato da
+Sonnet 5: meta' prezzo ma un quinto del contesto e niente ragionamento esteso
+ne' ricerca web).
 Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
 conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
 concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
@@ -340,6 +344,24 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    perche' e' la difesa pronta per il prossimo con un tetto stretto, e i test
    lo provano con una configurazione sintetica. Non attribuire un maxInput a
    un servizio senza averlo verificato.
+
+25) AUDIT PERIODICO DEI FORNITORI — il sistema si auto-ripara sui NOMI DEI
+   MODELLI (interroga il catalogo) ma NON su un servizio morto. Verifiche
+   fatte a settembre 2026, da rifare ogni pochi mesi cercando
+   "<nome> retired|shutdown|deprecated <anno>":
+     · Groq       attivo. llama-3.3-70b-versatile NON e' piu' servito da
+                  agosto 2026 e llama-3.1-8b-instant e' deprecato: tolti dai
+                  candidati, restano i sostituti indicati da Groq.
+     · Gemini     attivo.
+     · NVIDIA NIM attivo, piano gratuito permanente.
+     · Z.AI       attivo, GLM-4.7-Flash e 4.5-Flash ancora gratuiti. NON
+                  mettere glm-5.x fra i candidati del provider gratuito: sono
+                  a pagamento, sarebbe lo stesso errore di gemini-3-pro.
+     · OpenAI, DeepSeek, Anthropic  attivi.
+     · xAI        attivo, ma i candidati erano di DUE generazioni prima
+                  (grok-4-fast, grok-3): il vertice e' grok-4.6 dal 12/08/2026.
+   Un fornitore morto con un rango alto non rompe solo la tendina: diventa la
+   scelta automatica della Modalita' Nucleo.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
