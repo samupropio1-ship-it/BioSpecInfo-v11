@@ -576,6 +576,79 @@ window.bsiRisolviModello = risolviModello;
 window.bsiGeminiReset = function(provId){ modelloCacheInvalida(provId); };
 
 /* ---------------------------------------------------------------------
+   1b-ter. MEMORIA DEI FORNITORI IRRAGGIUNGIBILI
+   Un servizio puo' esistere, essere attivo, avere una chiave valida ed
+   essere comunque inutilizzabile QUI: dentro una pagina web la chiamata
+   parte solo se il fornitore manda gli header CORS. Il browser, per non
+   dare informazioni a chi sonda la rete, non dice mai PERCHE' un fetch e'
+   fallito: rete assente, CORS negato e servizio ritirato arrivano tutti
+   come lo stesso "failed".
+   Non basta cercarlo una volta e scriverlo in un elenco: la risposta cambia
+   senza preavviso, e comunque vale per quella rete, quel browser, quella
+   estensione che blocca le richieste. Quindi non lo decido io: lo impara
+   l'app, sul campo, per l'utente che la sta usando.
+     · ogni fallimento di rete viene annotato con data e conteggio;
+     · una risposta HTTP qualsiasi — anche un 401 — cancella l'annotazione,
+       perche' dimostra che il browser al server ci arriva;
+     · gli annotati finiscono in fondo alla lista di riserva e Modalita'
+       Nucleo non li sceglie piu';
+     · dopo 24 ore si ritentano lo stesso: una rete giu' per un minuto non
+       e' un servizio incompatibile, e cancellare per sempre un fornitore
+       per un guasto passeggero sarebbe peggio del problema.
+   Non vengono MAI rimossi dall'elenco: se e' l'unico fornitore configurato
+   dev'essere provato comunque.
+--------------------------------------------------------------------- */
+var KO_MEMORIA = 'bsi_prov_ko';
+var KO_TTL_MS = 24 * 60 * 60 * 1000;
+
+function koLeggi(){
+  try{
+    var m = JSON.parse(localStorage.getItem(KO_MEMORIA) || '{}');
+    return (m && typeof m === 'object') ? m : {};
+  }catch(e){ return {}; }
+}
+function koScrivi(m){
+  try{
+    if(Object.keys(m).length) localStorage.setItem(KO_MEMORIA, JSON.stringify(m));
+    else localStorage.removeItem(KO_MEMORIA);   // niente voci = niente chiave
+  }catch(e){}
+}
+/* Annota il fallimento. Si conta anche quante volte di fila e' successo:
+   una volta puo' essere la rete, tre volte e' il servizio. */
+function segnaIrraggiungibile(id){
+  if(!id || !PROVIDERS[id]) return;
+  var m = koLeggi();
+  var v = (m[id] && typeof m[id] === 'object') ? m[id] : null;
+  // Il conteggio riparte se l'ultimo fallimento e' vecchio: sommare episodi
+  // lontani mesi farebbe sembrare cronico un guasto capitato due volte.
+  var n = (v && v.t && (Date.now() - v.t) <= KO_TTL_MS) ? (v.n || 1) : 0;
+  m[id] = { t: Date.now(), n: n + 1 };
+  koScrivi(m);
+}
+function segnaRaggiungibile(id){
+  var m = koLeggi();
+  if(m[id] === undefined) return;
+  delete m[id];
+  koScrivi(m);
+}
+function irraggiungibileDaPoco(id){
+  var v = koLeggi()[id];
+  return !!(v && v.t && (Date.now() - v.t) <= KO_TTL_MS);
+}
+/* Quante volte di fila, dentro la finestra. Da 2 in su vale la pena dirlo
+   all'utente invece di limitarsi a scavalcare il fornitore in silenzio. */
+function volteIrraggiungibile(id){
+  var v = koLeggi()[id];
+  if(!v || !v.t || (Date.now() - v.t) > KO_TTL_MS) return 0;
+  return v.n || 1;
+}
+window.bsiIrraggiungibili = {
+  segna: segnaIrraggiungibile, ok: segnaRaggiungibile,
+  recente: irraggiungibileDaPoco, volte: volteIrraggiungibile,
+  elenco: koLeggi
+};
+
+/* ---------------------------------------------------------------------
    1b-bis. MODALITA' NUCLEO — quando serve tutta la potenza disponibile
    Non e' un interruttore decorativo: cambia quattro cose insieme, che da
    sole non basterebbero.
@@ -599,10 +672,17 @@ function setNucleo(v){
 }
 /* La configurazione piu' capace fra quelle utilizzabili adesso. */
 function migliorProvider(){
-  var best = null, bestR = -1;
+  // -Infinity e non -1: con la penalita' qui sotto un rango puo' diventare
+  // negativo, e partendo da -1 l'unico fornitore configurato non verrebbe
+  // scelto — Modalita' Nucleo resterebbe senza modello.
+  var best = null, bestR = -Infinity;
   Object.keys(PROVIDERS).forEach(function(id){
     if(!chiaveDaUsare(id)) return;
     var r = PROVIDERS[id].rango || 0;
+    // Un fornitore che da questo browser non risponde non e' "il piu'
+    // capace": e' il piu' capace sulla carta e zero nei fatti. Va dietro a
+    // tutti, ma resta eleggibile se non c'e' altro.
+    if(irraggiungibileDaPoco(id)) r -= 1000;
     if(r > bestR){ bestR = r; best = id; }
   });
   return best;
@@ -1230,14 +1310,21 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   var res;
   try{
     res = await fetch(req.url, fetchOpts);
+    // Siamo arrivati al server: qualunque risposta HTTP lo dimostra, anche
+    // un 401. Da qui in poi un errore e' applicativo, non di raggiungibilita'.
+    segnaRaggiungibile(providerId);
   }catch(networkErr){
     stopIdle();
     if(timedOut){
       var eTimeout = new Error('⏱ ' + p.name + ' non ha risposto entro ' + (IDLE_TIMEOUT_MS/1000) + 's.');
       eTimeout.irraggiungibile = true;
+      segnaIrraggiungibile(providerId);
       throw eTimeout;
     }
+    // L'annullamento chiesto dall'utente non e' un guasto del fornitore:
+    // annotarlo lo farebbe scendere in fondo per aver premuto "Stop".
     if(networkErr && networkErr.name === 'AbortError') throw networkErr;
+    segnaIrraggiungibile(providerId);
     /* Un fetch che fallisce PRIMA di ricevere una risposta significa quasi
        sempre una di tre cose: rete assente, il fornitore non permette
        chiamate diritte dal browser (CORS), oppure il servizio non esiste
@@ -1245,8 +1332,18 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
        dice. In tutti e tre i casi la cosa giusta e' passare a un altro
        fornitore, non fermarsi: e' esattamente cio' che serviva quando GitHub
        Models e' stato ritirato e ogni richiesta finiva qui. */
-    var eRete = new Error('Impossibile contattare ' + p.name +
-      '. Puo\' essere la rete, oppure il servizio non accetta chiamate dirette dal browser.');
+    var testoRete = 'Impossibile contattare ' + p.name +
+      '. Puo\' essere la rete, oppure il servizio non accetta chiamate dirette dal browser.';
+    /* Alla prima volta l'ipotesi "rete" e' plausibile; alla seconda non piu'.
+       Dirlo cambia cosa fa l'utente: smette di ricaricare la pagina e va a
+       cambiare fornitore. */
+    if(volteIrraggiungibile(providerId) >= 2){
+      testoRete += ' È già la ' + volteIrraggiungibile(providerId) +
+        'ª volta oggi: quasi certamente è il secondo caso. Scegli un altro ' +
+        'fornitore dal menù in alto, oppure configura il proxy (docs/Guida-Chiavi-API.md) ' +
+        'che inoltra la chiamata da un server invece che dal browser.';
+    }
+    var eRete = new Error(testoRete);
     eRete.irraggiungibile = true;
     throw eRete;
   }
@@ -4029,7 +4126,14 @@ function providerUtilizzabili(preferito){
     if(!chiaveDaUsare(id)) return;               // niente chiave e niente proxy
     lista.push(id);
   });
-  return lista;
+  /* I fornitori che di recente non hanno risposto vanno in fondo — compreso
+     il preferito. Insistere su un servizio che questo browser non raggiunge
+     costa 45 secondi di attesa PRIMA di ogni risposta, ogni volta. Restano
+     comunque nella lista: il guasto puo' essere passeggero, e se e' l'unico
+     configurato dev'essere provato lo stesso. */
+  var buoni = [], ko = [];
+  lista.forEach(function(id){ (irraggiungibileDaPoco(id) ? ko : buoni).push(id); });
+  return buoni.concat(ko);
 }
 
 /* Esegue il turno; se il fornitore esaurisce la quota, lo rifa' da capo su un
@@ -4434,7 +4538,11 @@ var DATI_CANCELLABILI = {
     // bsi_api_key e' il formato a chiave singola delle versioni precedenti:
     // va tolto qui, altrimenti torna da solo. bsi_modello_* sono le scelte
     // di modello in cache, che senza chiave non hanno piu' senso.
-    chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url'],
+    // bsi_prov_ko e' cio' che l'app ha imparato su quali fornitori questo
+    // browser raggiunge: "ricominciare da capo" deve azzerare anche quello,
+    // altrimenti un fornitore resterebbe marcato ⚠ per una chiave che non
+    // c'e' piu'.
+    chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url', 'bsi_prov_ko'],
     prefissi: ['bsi_modello_', 'bsi_gemini_']
   },
   memoria: {
@@ -4879,6 +4987,8 @@ var CSS = [
 '.bsi-hub-mic.rec{background:#3a1e1e;border-color:#ff6b6b;color:#ff6b6b;}',
 '#bsi-hub-keybox{margin:12px;padding:14px;background:#0f1e2e;border:1px solid #1a3550;border-radius:12px;}',
 '#bsi-hub-proxybadge{margin:12px 12px 0;padding:9px 12px;background:#08251f;border:1px solid #14614f;border-radius:10px;color:#5eead4;font-size:.78rem;font-weight:600;}',
+'#bsi-hub-kobadge{margin:12px 12px 0;padding:9px 12px;background:#2a1a08;border:1px solid #7a4a12;border-radius:10px;color:#fbbf6e;font-size:.78rem;line-height:1.45;}',
+'#bsi-hub-kobadge b{color:#ffd9a0;}',
 '#bsi-hub-resetbox{margin:12px;padding:14px;background:#1e1015;border:1px solid #5c2733;border-radius:12px;}',
 '#bsi-hub-resetbox .tit{color:#ff9d9d;font-weight:700;font-size:.88rem;margin-bottom:6px;}',
 '#bsi-hub-resetbox label{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:pointer;font-size:.82rem;color:#e8f4ff;border-top:1px solid #3a1c24;}',
@@ -5100,7 +5210,12 @@ window.bsiProviderSalvato = getSavedProvider;
 function providerSelectHtml(selected){
   return Object.keys(PROVIDERS).map(function(id){
     var p = PROVIDERS[id];
-    return '<option value="' + id + '"' + (id === selected ? ' selected' : '') + '>' + p.name + (p.free ? ' · gratis' : '') + '</option>';
+    // Il ⚠ davanti al nome e' l'unico posto dove l'utente vede l'esito prima
+    // di sceglierlo: senza, riproverebbe lo stesso fornitore che ieri non
+    // rispondeva, e aspetterebbe di nuovo 45 secondi per scoprirlo.
+    var avviso = irraggiungibileDaPoco(id) ? '⚠ ' : '';
+    return '<option value="' + id + '"' + (id === selected ? ' selected' : '') + '>' +
+           avviso + p.name + (p.free ? ' · gratis' : '') + '</option>';
   }).join('');
 }
 
@@ -5381,6 +5496,7 @@ function buildChatPane(){
       '<div class="bsi-hub-note">La chiave resta solo in questo browser (localStorage): non viene mai inviata a server di BioSpecInfo, solo al provider scelto.</div>' +
     '</div>' +
     '<div id="bsi-hub-proxybadge" style="display:none"></div>' +
+    '<div id="bsi-hub-kobadge" style="display:none"></div>' +
     '<div id="bsi-hub-msgs"></div>' +
     '<div id="bsi-hub-attrow"></div>' +
     '<div id="bsi-hub-actions"></div>' +
@@ -5435,7 +5551,43 @@ function buildChatPane(){
     document.getElementById('bsi-hub-provname').textContent = PROVIDERS[prov].name;
     document.getElementById('bsi-hub-keylink').textContent = 'Ottieni una chiave gratuita su ' + PROVIDERS[prov].keyLink + (PROVIDERS[prov].note ? ' — ' + PROVIDERS[prov].note : '');
     document.getElementById('bsi-hub-keyinput').placeholder = PROVIDERS[prov].placeholder;
+    aggiornaSegnaliKo();
   }
+
+  /* Riporta a video quello che l'app ha imparato sul campo. Le etichette del
+     menu' si riscrivono una per una invece di ricostruire il select: sostituire
+     l'innerHTML azzererebbe la scelta corrente. */
+  function aggiornaSegnaliKo(){
+    try{
+      for(var i = 0; i < provSel.options.length; i++){
+        var o = provSel.options[i], pp = PROVIDERS[o.value];
+        if(!pp) continue;
+        o.textContent = (irraggiungibileDaPoco(o.value) ? '⚠ ' : '') + pp.name +
+                        (pp.free ? ' · gratis' : '');
+      }
+      var ko = document.getElementById('bsi-hub-kobadge');
+      if(!ko) return;
+      var prov = provSel.value, volte = volteIrraggiungibile(prov);
+      if(!volte){ ko.style.display = 'none'; return; }
+      // L'alternativa suggerita e' calcolata, non scritta: e' il fornitore
+      // piu' capace fra quelli che da QUESTO browser hanno gia' risposto.
+      var alt = null, altR = -Infinity;
+      Object.keys(PROVIDERS).forEach(function(id){
+        if(id === prov || !chiaveDaUsare(id) || irraggiungibileDaPoco(id)) return;
+        var r = PROVIDERS[id].rango || 0;
+        if(r > altR){ altR = r; alt = id; }
+      });
+      ko.style.display = 'block';
+      ko.innerHTML = '⚠ <b>' + escapeHtml(PROVIDERS[prov].name) + '</b> non ha risposto ' +
+        (volte === 1 ? 'poco fa' : volte + ' volte nelle ultime 24 ore') +
+        '. Può essere la rete, oppure il servizio non accetta chiamate diritte dal browser. ' +
+        (alt ? 'Alternativa già funzionante: <b>' + escapeHtml(PROVIDERS[alt].name) + '</b>.'
+             : 'Con il proxy la chiamata parte da un server e questo vincolo non c\'è (docs/Guida-Chiavi-API.md).') +
+        ' Riprovo comunque da solo fra 24 ore.';
+    }catch(e){}
+  }
+  window.bsiAggiornaSegnaliKo = aggiornaSegnaliKo;
+
   provSel.value = getSavedProvider();
   refreshKeyBox();
   // Il proxy risponde in un attimo, ma non subito: quando si sa quali
@@ -5988,6 +6140,10 @@ function buildChatPane(){
     } finally {
       sendBtn.disabled = false; sendBtn.style.display = 'inline-block'; stopBtn.style.display = 'none';
       statoNucleo('riposo');
+      // Il turno puo' aver cambiato cio' che si sa sui fornitori — sia in
+      // male (un fetch fallito) sia in bene (uno che ha ripreso a
+      // rispondere): il menu' e l'avviso si riallineano ad ogni turno.
+      try{ aggiornaSegnaliKo(); }catch(e3){}
     }
   }
   sendBtn.onclick = send;

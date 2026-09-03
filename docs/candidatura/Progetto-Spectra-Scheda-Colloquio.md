@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 6.254 righe, zero dipendenze runtime |
+| Componente | 6.427 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 8 (Anthropic, OpenAI, Google, DeepSeek, xAI, NVIDIA, Z.AI, Groq) — 11 configurazioni, 4 gratuite, tutte verificate attive |
 | Dataset interni esposti | 9, oltre 800 record |
@@ -75,7 +75,7 @@ ripresa del turno.
 
 ---
 
-## Sei bug che ho trovato testando (e cosa insegnano)
+## Sette bug che ho trovato testando (e cosa insegnano)
 
 **1. Il parser di formule sbagliava `Ca₃(PO₄)₂`** — dava 215 invece di 310. La
 prima implementazione gestiva le parentesi con una pila di moltiplicatori
@@ -151,6 +151,42 @@ classificatori), «rete giù», «ritiro a caldo» (ririsolve e ritenta una volt
 *Lezione: quando un guasto verrà di sicuro di nuovo, la correzione giusta non
 è il valore nuovo, è togliere il valore. E quando lo correggi, cercalo subito
 in tutti i posti dove vale — io la prima volta non l'ho fatto.*
+
+**7. «Il servizio è attivo» non vuol dire «funziona».** Avevo controllato uno
+per uno che tutti gli undici modelli fossero ancora vivi. NVIDIA NIM lo era:
+servizio attivo, piano gratuito, chiave valida, modello giusto nel catalogo.
+E dal browser dell'utente non partiva una chiamata.
+
+Perché avevo verificato la dimensione sbagliata. Una pagina statica chiama i
+fornitori **dal browser**, e il browser lascia partire la richiesta solo se il
+fornitore manda gli header CORS — una proprietà indipendente dall'essere vivo,
+che ogni fornitore decide da sé e cambia senza annunci. Peggio: quando la
+richiesta viene bloccata il browser *non dice perché*. Rete assente, CORS
+negato e servizio spento arrivano come lo stesso `TypeError: Failed to fetch`.
+
+La correzione ovvia era cercare quali fornitori supportano CORS e scriverlo in
+un elenco. Sarebbe stata la terza volta che scrivo un valore destinato a
+scadere — e per giunta un valore che non è nemmeno lo stesso per tutti, perché
+dipende anche dalla rete e dalle estensioni di chi usa l'app.
+
+Così la risposta non la do io: la **misura l'app**. Ogni fetch fallito annota
+il fornitore con data e conteggio; ogni risposta HTTP ricevuta — anche un
+`401`, che dimostra di essere arrivati al server — cancella l'annotazione. Gli
+annotati prendono un `⚠` nella tendina, scendono in fondo alla catena di
+riserva e non vengono più scelti dalla modalità ad alta potenza, ma **non
+spariscono**: dopo 24 ore si ritentano da soli, perché una rete giù per un
+minuto non è un servizio incompatibile, e se è l'unico fornitore configurato
+va provato comunque.
+
+Verificato su 70 casi, di cui 35 in un browser vero con la rete negata a quel
+solo dominio: l'annotazione compare, il `⚠` appare senza ricaricare la pagina,
+il secondo fallimento cambia il messaggio da «può essere la rete» a «scegli un
+altro fornitore», e un `401` finto la fa sparire.
+
+*Lezione: verificare la proprietà giusta. «Esiste» e «funziona nel contesto in
+cui gira davvero» sono due domande diverse, e avevo risposto solo alla prima.
+Quando nemmeno la seconda ha una risposta stabile, la cosa onesta non è
+indovinarla: è costruire il sistema che la misura da sé.*
 
 ---
 
