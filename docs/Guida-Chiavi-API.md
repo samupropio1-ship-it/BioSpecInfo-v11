@@ -1,4 +1,4 @@
-# Le chiavi API di Spectra — guida pratica
+# Le chiavi API di Spectra — guida passo passo
 
 Spectra non ha un server: parla direttamente con il servizio AI che scegli,
 usando **la tua** chiave. La chiave resta nel browser, non passa da nessuna
@@ -6,302 +6,341 @@ parte, e la inserisci **una volta sola** per servizio.
 
 > **La cosa più importante di questa guida:** non fermarti alla prima chiave.
 > Spectra mette in comune tutte quelle che hai — quando un servizio esaurisce
-> il limite, continua da solo sul successivo, senza che tu debba fare niente.
-> Tre chiavi gratuite reggono un carico che nessuna delle tre reggerebbe da
-> sola.
+> il limite o non risponde, continua da solo sul successivo, senza che tu
+> debba fare niente. Tre chiavi gratuite reggono un carico che nessuna delle
+> tre reggerebbe da sola.
 
 ---
 
-## Due livelli: i gratuiti e la frontiera
+## Da dove cominciare — in due minuti
 
-Spectra ha **quattro servizi gratuiti** e **sette configurazioni a pagamento**.
-Ogni fornitore in questo elenco è stato verificato attivo a **settembre 2026**:
-nessuno è lì per fare numero, e nessuno è scaduto. I gratuiti
-bastano per studiare; i secondi servono quando un problema è davvero
-difficile.
+Se leggi solo questo riquadro, fai questo:
 
-Il banco che conta per quest'app si chiama **GPQA Diamond**: domande di
-livello dottorato in fisica, chimica e biologia. Non è il benchmark del
-marketing, è esattamente ciò che le chiedi tu.
+1. Vai su **`console.groq.com`** → accedi con Google → **API Keys** →
+   **Create API Key** → copia
+2. Apri BioSpecInfo → pulsante **Spectra** → incolla nella casella 🔑 → **Salva**
+3. Scrivi qualcosa. Funziona.
+
+Poi, quando hai altri cinque minuti, aggiungi **Gemini** (§2): serve per i
+riassunti di documenti lunghi, e Groq da solo non ci arriva.
 
 ---
 
-## I quattro servizi gratuiti, e a cosa serve ciascuno
+## L'elenco completo
 
-Sono stati scelti uno per uno. Nessuno è lì per fare numero: i servizi
-gratuiti che davano modelli piccoli o cataloghi imprevedibili sono stati
-**tolti**, perché su un problema di chimica in dieci passaggi non reggono e
-peggiorano la risposta invece di migliorarla.
+Undici configurazioni, otto fornitori, **tutti verificati attivi a settembre
+2026**. Nessuno è lì per fare numero.
 
-| Servizio | Modelli | A cosa serve davvero | Limite |
+### Gratuiti
+
+| # | Servizio | Modelli | A cosa serve | Limite |
+|---|---|---|---|---|
+| 1 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: l'80% del lavoro | ~30 richieste/min |
+| 2 | **Google Gemini** | Gemini Flash | Documenti lunghi e **riassunti** (1M di contesto) | Generoso |
+| 3 | **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Ragionamento profondo | Crediti a esaurimento |
+| 4 | **Z.AI GLM** | GLM-4.7-Flash | Rincalzo che non scade mai | Limitato al minuto |
+
+### A pagamento — la frontiera
+
+| # | Servizio | Perché | Costo indicativo |
 |---|---|---|---|
-| **Groq** | GPT-OSS 120B, Qwen3 | **Il cavallo da tiro.** 131K di contesto, ~30 richieste/minuto: è quello che userai per l'80% del lavoro | Generoso |
-| **Google Gemini** | Gemini Flash | **I documenti enormi.** Fino a 1 milione di token di contesto: PDF interi, dispense, tesi | Generoso |
-| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | **Il ragionamento profondo.** Modelli enormi che pensano prima di rispondere | Crediti a esaurimento |
-| **Z.AI GLM** | GLM-4.7-Flash | **Il rincalzo che non scade.** Gratuito senza limite di tempo, forte su ragionamento e codice | Limitato al minuto |
-
-### Se ne fai solo due
-
-**Groq + Gemini.** Due minuti in tutto, e coprono il grosso: Groq per il
-volume quotidiano, Gemini per i documenti lunghi. NVIDIA e Z.AI aggiungili
-dopo, come riserva.
-
-### Per i riassunti di documenti lunghi: **Gemini**
-
-È la domanda che riceve più spesso una risposta sbagliata. Un riassunto di una
-dispensa o di un capitolo non richiede il modello *più intelligente*: richiede
-quello che **ci sta dentro**. Gemini arriva a 1 milione di token di contesto —
-centinaia di pagine in una sola richiesta. Gli altri gratuiti si fermano molto
-prima e ti restituiscono un riassunto della prima parte, senza dirti che il
-resto non l'hanno letto.
+| 5 | **OpenAI GPT-5.6** | **94,6% su GPQA Diamond**: il primo al mondo sulle domande scientifiche di livello dottorato | ~4 $/M in ingresso |
+| 6 | **Grok 4.6** (xAI) | Primo sul *tool calling agentico* e minor tasso di allucinazione | ~2 $/M |
+| 7 | **Google Gemini 3 Pro** | Oltre 1M di contesto. **Stessa chiave** del Gemini gratuito | ~2 $/M |
+| 8 | **DeepSeek V4** | Ragionamento di fascia alta al prezzo più basso | ~0,66 $/M |
+| 9–11 | **Claude** Fable 5.1 · Opus 5 · Sonnet 5 | Gli unici con il **sandbox Python** in Modalità Nucleo. **Una chiave per tutti e tre** | 2–10 $/M |
 
 ---
+
+# Parte 1 — i quattro gratuiti
 
 ## 1. Groq — comincia da qui
 
-*30 secondi, nessuna verifica.*
+**Tempo: 30 secondi. Nessuna verifica, nessuna carta.**
 
-1. Vai su **`console.groq.com`**
-2. Accedi con Google o GitHub
-3. Menu a sinistra → **API Keys**
-4. **Create API Key** → dai un nome qualsiasi (es. `spectra`) → **Submit**
-5. Copia la chiave: comincia con **`gsk_`**
+1. Apri **`console.groq.com`**
+2. **Sign in** → scegli Google o GitHub
+3. Nel menu di sinistra clicca **API Keys**
+4. Pulsante **Create API Key**
+5. Nel campo *Name* scrivi `spectra` → **Submit**
+6. Clicca l'icona **copia** accanto alla chiave
 
-> ⚠️ La chiave si vede **una volta sola**. Se chiudi la finestra senza
-> copiarla, creane un'altra — sono gratuite.
+La chiave comincia con **`gsk_`**.
+
+> ⚠️ **Si vede una volta sola.** Se chiudi la finestra senza copiarla non c'è
+> modo di rivederla: creane un'altra, sono gratuite e illimitate.
 
 **Perché è il cavallo da tiro:** 131.000 token di contesto e circa 30
-richieste al minuto. Non lo esaurisci studiando.
+richieste al minuto. Studiando non lo esaurisci.
 
 ---
 
-## 2. Google Gemini — per i documenti enormi
+## 2. Google Gemini — per i documenti lunghi
 
-*1 minuto.*
+**Tempo: 1 minuto.**
 
-1. Vai su **`aistudio.google.com`**
-2. Accedi col tuo account Google
-3. In alto a sinistra → **Get API key**
-4. **Create API key** → scegli un progetto (o lascia che ne crei uno)
-5. Copia la chiave: comincia con **`AIza`**
+1. Apri **`aistudio.google.com`**
+2. Accedi con il tuo account Google
+3. In alto a sinistra, pulsante **Get API key**
+4. **Create API key**
+5. Ti chiede un progetto: scegline uno o lascia che ne crei uno nuovo
+6. Copia la chiave
 
-**Quando cambia tutto:** quando alleghi un PDF lungo. Arriva a **1 milione di
-token** di contesto — una tesi intera in una sola richiesta. Nessuno degli
-altri ci si avvicina.
+La chiave comincia con **`AIza`**.
+
+> **Quando cambia tutto:** quando alleghi un PDF lungo o chiedi un riassunto.
+> Arriva a **1 milione di token** — centinaia di pagine in una richiesta sola.
+> Gli altri gratuiti si fermano molto prima e ti danno il riassunto della
+> prima parte *senza dirti* che il resto non l'hanno letto.
 
 ---
 
 ## 3. NVIDIA NIM — i modelli che ragionano
 
-*3 minuti, senza carta di credito.*
+**Tempo: 3 minuti. Nessuna carta di credito.**
 
-1. Vai su **`build.nvidia.com`**
-2. **Sign in** → crea un account NVIDIA se non ce l'hai (Developer Program,
-   gratuito)
-3. Apri un modello qualsiasi dall'elenco (per esempio *DeepSeek R1*)
-4. Nel pannello a destra → **Get API Key** → **Generate Key**
-5. Copia la chiave: comincia con **`nvapi-`**
+1. Apri **`build.nvidia.com`**
+2. **Sign in** in alto a destra → crea un account NVIDIA se non ce l'hai
+   (è il Developer Program, gratuito)
+3. Dall'elenco dei modelli aprine uno qualsiasi — per esempio **DeepSeek R1**
+4. Nel pannello a destra cerca **Get API Key**
+5. **Generate Key** → copia
 
-> I crediti gratuiti sono **a esaurimento**: non si rinnovano ogni mese.
+La chiave comincia con **`nvapi-`**.
+
+> I crediti gratuiti sono **a esaurimento**, non si rinnovano ogni mese.
 > Tienilo per quando serve un modello che ragiona a fondo su un problema
-> lungo.
+> lungo, non per il lavoro di tutti i giorni.
 
 ---
 
 ## 4. Z.AI GLM — il rincalzo che non scade
 
-*2 minuti.*
+**Tempo: 2 minuti.**
 
-1. Vai su **`z.ai`** e registrati con l'email
-2. Apri il menu del **profilo** → **API Keys**
-3. **Create new key** → copia la chiave
+1. Apri **`z.ai`** e registrati con la tua email
+2. Clicca sul tuo **profilo** in alto a destra
+3. **API Keys** → **Create new key**
+4. Copia
 
-**Perché c'è:** è gratuito **senza scadenza** — non crediti a esaurimento, non
+**Perché c'è:** è gratuito **senza scadenza** — non crediti che finiscono, non
 una prova a tempo. GLM-4.7-Flash è forte su ragionamento e codice. È la
-riserva che trovi ancora lì fra sei mesi, quando i crediti NVIDIA saranno
-finiti.
+riserva che troverai ancora lì fra sei mesi, quando i crediti NVIDIA saranno
+esauriti.
 
 ---
 
----
+# Parte 2 — la frontiera
 
-# La frontiera — quando serve il massimo
+Questi si pagano a consumo. Ma su un problema di chimica fisica in dieci
+passaggi la differenza si vede, e una sessione di studio costa centesimi.
 
-Questi si pagano a consumo, e non poco. Ma sono un'altra categoria: su un
-problema di chimica fisica in dieci passaggi la differenza si vede.
+## 5. OpenAI GPT-5.6 — il primo sulle domande scientifiche
 
-## GPT-5.6 — il più forte sulle domande scientifiche
+**Tempo: 3 minuti. Serve una carta.**
 
-**È il numero uno su GPQA Diamond: 94,6%.** Sul banco che misura esattamente
-il tipo di domande che fai tu, oggi non c'è niente di meglio.
+1. Apri **`platform.openai.com`** e accedi
+2. Menu di sinistra → **API keys**
+3. **Create new secret key** → dai un nome → **Create**
+4. Copia subito: comincia con **`sk-proj-`** e non si rivede
+5. Vai su **Billing** → **Add payment method** → aggiungi un credito
+   (bastano 5 $)
 
-1. Vai su **`platform.openai.com`** → accedi
-2. **API keys** → **Create new secret key**
-3. Copia la chiave: comincia con **`sk-proj-`**
-4. Serve credito sul conto (**Billing** → aggiungi un importo, anche 5 $)
-
-Circa **4 $ per milione di token** in ingresso. Una conversazione di studio
-costa centesimi.
+**È il numero uno su GPQA Diamond: 94,6%.** Su domande di chimica, fisica e
+biologia di livello dottorato — cioè esattamente quello che chiedi tu — oggi
+non c'è niente di meglio.
 
 > Il modello di punta (*Sol*) è ad accesso limitato e la tua chiave potrebbe
-> non vederlo. Non è un problema: Spectra chiede all'API cosa può usare e
-> scala da solo a *Terra* e poi a *Luna*, senza che tu debba saperlo.
-
-## Gemini 3 Pro — la finestra più ampia
-
-**Stessa chiave del Gemini gratuito**: la incolli una volta e vale per
-entrambi. Cambia solo che serve la fatturazione attiva sul progetto Google.
-
-1. **`aistudio.google.com`** → la chiave che hai già
-2. Attiva la fatturazione sul progetto (Google Cloud → Billing)
-
-Oltre **1 milione di token** di contesto: una tesi intera in una sola
-richiesta. Circa 2 $ per milione in ingresso.
-
-## DeepSeek V4 — il miglior rapporto qualità/prezzo
-
-Ragionamento di fascia alta a **una frazione** del costo: circa **0,66 $ per
-milione** di token in ingresso fuori dalle ore di punta — sei volte meno di
-GPT-5.6.
-
-1. **`platform.deepseek.com`** → registrati
-2. **API keys** → **Create API key** → copia (comincia con `sk-`)
-3. Ricarica un piccolo credito
-
-**Se paghi di tasca tua e vuoi spendere poco, comincia da qui.**
-
-## Grok 4.6 — il migliore sugli agenti
-
-Uscito il 12 agosto 2026. È il primo su **tool calling agentico** — cioè
-esattamente quello che fa Spectra quando concatena dieci strumenti — e ha il
-tasso di allucinazione più basso in circolazione. Circa **2 $ per milione** di
-token in ingresso: meno della metà di GPT-5.6.
-
-1. **`console.x.ai`** → **API Keys** → crea (comincia con `xai-`)
-
-Le versioni precedenti restano raggiungibili e arrivano a 1–2 milioni di token
-di contesto: se la 4.6 non è disponibile sulla tua chiave, Spectra scala da
-sola.
-
-## Claude — Fable 5.1, Opus 5, Sonnet 5
-
-1. **`console.anthropic.com`** → **API Keys** → **Create Key**
-2. Copia (comincia con `sk-ant-`) e aggiungi credito
-
-**Una chiave sola per tutti e tre:** la incolli su uno qualsiasi dei modelli
-Claude e vale automaticamente per gli altri due.
-
-Sono gli unici che, in Modalità Nucleo, ottengono il **sandbox Python**
-(sympy, numpy, scipy, matplotlib) per fare calcolo vero invece di ricordarselo.
-
-> È separato dall'abbonamento di claude.ai: quello non dà accesso all'API.
+> non vederlo. Non devi fare niente: Spectra chiede all'API cosa può usare e
+> scala da solo a *Terra*, poi a *Luna*.
 
 ---
 
-## Quale scegliere, in pratica
+## 6. Grok 4.6 (xAI) — il migliore sugli agenti
+
+**Tempo: 3 minuti. Serve una carta.**
+
+1. Apri **`console.x.ai`** e accedi (serve un account X/xAI)
+2. Sezione **API Keys**
+3. **Create API Key** → dai un nome → conferma
+4. Copia: comincia con **`xai-`**
+5. Aggiungi un credito dalla sezione **Billing**
+
+Uscito il 12 agosto 2026. È **primo su tool calling agentico** — cioè
+esattamente quello che fa Spectra quando concatena dieci strumenti per
+risolvere un problema — e ha il **tasso di allucinazione più basso** in
+circolazione. Circa 2 $ per milione: meno della metà di GPT-5.6.
+
+Se la 4.6 non è disponibile sulla tua chiave, Spectra scala da sola alle
+versioni precedenti, che arrivano a 1–2 milioni di token di contesto.
+
+---
+
+## 7. Google Gemini 3 Pro — la finestra più ampia
+
+**Tempo: 2 minuti se hai già fatto il §2.**
+
+**Usa la stessa chiave del Gemini gratuito.** La incolli una volta e vale per
+entrambi: cambia solo che serve la fatturazione attiva.
+
+1. Apri **`console.cloud.google.com`** → **Fatturazione**
+2. Collega un account di fatturazione al progetto che hai usato al §2
+3. Torna in Spectra e scegli **Google Gemini 3 Pro** dalla tendina — la chiave
+   c'è già
+
+Oltre **1 milione di token** di contesto: una tesi intera in una richiesta.
+
+---
+
+## 8. DeepSeek V4 — potenza al prezzo più basso
+
+**Tempo: 3 minuti.**
+
+1. Apri **`platform.deepseek.com`** e registrati
+2. **API keys** → **Create API key** → dai un nome
+3. Copia: comincia con **`sk-`**
+4. **Top up** → ricarica un credito piccolo (bastano 2 $)
+
+Ragionamento di fascia alta a circa **0,66 $ per milione** fuori dalle ore di
+punta: **sei volte meno di GPT-5.6**.
+
+> **Se paghi di tasca tua e vuoi spendere poco, comincia da qui.** È il
+> miglior rapporto qualità/prezzo dell'intero elenco.
+
+---
+
+## 9–11. Claude — Fable 5.1, Opus 5, Sonnet 5
+
+**Tempo: 3 minuti. Una chiave sola per tutti e tre.**
+
+1. Apri **`console.anthropic.com`** e accedi
+2. **Settings** → **API Keys** → **Create Key**
+3. Dai un nome → **Create Key** → copia (comincia con **`sk-ant-`**)
+4. **Plans & Billing** → aggiungi un credito
+
+**La incolli su uno qualsiasi dei tre modelli Claude e vale automaticamente
+per gli altri due.**
+
+Sono gli unici che, in **⚛ Modalità Nucleo**, ottengono il **sandbox Python**
+— sympy, numpy, scipy, matplotlib. Il modello scrive ed esegue codice vero
+per integrare, diagonalizzare matrici, fare algebra simbolica: cose che i 32
+risolutori non coprono perché non si possono prevedere tutte.
+
+> ⚠️ È **separato** dall'abbonamento di claude.ai. Pagare quello non dà
+> accesso all'API: serve credito su `console.anthropic.com`.
+
+---
+
+# Parte 3 — usarle
+
+## Inserire una chiave
+
+1. Apri BioSpecInfo → pulsante **Spectra** (il simbolo dell'atomo)
+2. Nella tendina in alto scegli il servizio
+3. Compare il riquadro **🔑 Configura** → incolla → **Salva**
+4. Il riquadro sparisce: **non te la richiede più**
+
+Ripeti per ogni servizio che hai. Restano salvate in questo browser finché
+non le togli tu.
+
+> **Chiavi condivise.** I tre modelli Claude usano un solo account Anthropic,
+> e Gemini Flash e Gemini 3 Pro una sola chiave di AI Studio: incollala su uno
+> qualsiasi e vale per i gemelli.
+
+## Verificare che funzioni davvero
+
+1. Scrivi: **«Calcola il pH di una soluzione di acido acetico 0,1 M»**
+2. Devi vedere una nota **🧪 Equilibrio acido-base** comparire sopra la
+   risposta, e il risultato **pH ≈ 2,875**
+
+Se vedi la nota dello strumento, tutto funziona: significa che il modello sta
+**invocando i risolutori** invece di rispondere a memoria. È la differenza fra
+Spectra e una chat qualunque.
+
+## Toglierle o ricominciare
+
+Pulsante **🗑** nella barra di Spectra. Ti fa scegliere cosa togliere — chat,
+chiavi, memoria — prima di cancellare davvero.
+
+---
+
+## Quale usare, in pratica
 
 | Se… | Usa |
 |---|---|
 | Studio quotidiano, tante domande | **Groq** (gratis) |
-| Un PDF lungo da leggere, o un riassunto | **Gemini** (gratis) o **Gemini 3 Pro** |
+| Un PDF lungo, o un riassunto | **Gemini** (gratis) |
 | Un problema scientifico davvero tosto | **GPT-5.6** |
 | Una catena lunga di strumenti | **Grok 4.6** |
 | Calcolo simbolico o numerico vero | **Claude** + ⚛ Modalità Nucleo |
-| Vuoi potenza ma spendere poco | **DeepSeek V4** |
+| Potenza spendendo poco | **DeepSeek V4** |
 
 ---
 
-## Come inserirle in Spectra
+## Cosa succede quando qualcosa va storto
 
-1. Apri BioSpecInfo → pulsante **Spectra** (il simbolo dell'atomo)
-2. Nella tendina in alto scegli il servizio
-3. Compare il riquadro **🔑 Configura** → incolla la chiave → **Salva**
-4. Ripeti per ogni servizio che hai
+**Non devi fare niente.** Spectra gestisce da sola i quattro casi:
 
-La chiave sparisce dalla vista e **non te la richiede più**: resta salvata in
-questo browser finché non la togli tu.
+| Cosa succede | Cosa fa Spectra |
+|---|---|
+| Limite al minuto (`429`) | Legge quanto deve aspettare, te lo dice, riprova. Fino a 3 volte |
+| Quota finita | Passa a un altro servizio per cui hai una chiave e **rifà la domanda da lì** |
+| Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua |
+| Modello ritirato dal fornitore | Ne cerca un altro nel catalogo e riprova |
 
-> **Le chiavi condivise.** I quattro modelli Claude usano un solo account
-> Anthropic, e Gemini Flash e Gemini 3 Pro una sola chiave di AI Studio:
-> incollala su uno qualsiasi e vale per i gemelli. Non devi ripeterla.
+**Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
+gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
 
-### Toglierle o ricominciare da capo
+## Se invece è colpa della chiave
 
-Pulsante **🗑 Cancella tutto** nella barra di Spectra. Ti fa scegliere cosa
-togliere — chat, chiavi, memoria — prima di cancellare davvero.
-
----
-
-## Cosa succede quando finisci una quota
-
-Niente di drammatico, e soprattutto: **non devi fare niente**.
-
-- **Limite al minuto**: Spectra legge quanto deve
-  aspettare, te lo dice — *«⏳ ha raggiunto il limite al minuto: aspetto 7s»* —
-  e riprova da solo. Fino a tre volte.
-- **Quota finita davvero**: passa a un altro servizio per cui hai una chiave e
-  **rifà la domanda da lì**, dicendotelo — *«🔄 Groq ha esaurito la quota:
-  continuo su Google Gemini»*.
-- **Richiesta troppo grande** per il servizio scelto: riduce gli strumenti a
-  quelli pertinenti e accorcia la cronologia più vecchia, invece di farsi
-  rifiutare — *«📐 uso i 19 strumenti più adatti invece di tutti e 32»*.
-- **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo
-  servizi gratuiti. Se hai messo anche una chiave Claude o Grok, Spectra non
-  ci passa da solo: quelli li scegli tu.
-
-Ecco perché conviene metterne più di una: da sole hanno limiti bassi, insieme
-diventano una riserva sola.
-
----
-
-## Se qualcosa non va
-
-| Messaggio | Cosa significa | Cosa fare |
+| Messaggio | Significato | Cosa fare |
 |---|---|---|
-| `401` / `Invalid API Key` | Chiave sbagliata o incollata a metà | Ricreala e reincollala per intero |
-| «Impossibile contattare…» | Rete assente, oppure quel servizio non accetta chiamate dirette dal browser | Non fare niente: Spectra passa da sola a un altro servizio per cui hai una chiave |
-| `429` | Limite al minuto | Non fare niente: Spectra aspetta e riprova da solo |
-| `404 model not found` | Il servizio ha ritirato quel modello | Non fare niente: Spectra ne trova un altro da solo |
-| Spectra non risponde | Spesso è la chiave non salvata | Controlla che il riquadro 🔑 sia sparito dopo il Salva |
+| `401` / `Invalid API Key` | Chiave sbagliata o incollata a metà | Ricreala e reincollala **per intero** |
+| `402` / *insufficient credit* | Credito finito | Ricarica sul sito del fornitore |
+| Il riquadro 🔑 non sparisce dopo il Salva | La memoria del browser è piena | Usa **🗑** per liberare, oppure esci dalla navigazione in incognito |
 
 ---
 
 ## Perché alcuni servizi non ci sono
 
-Non è una dimenticanza: sono stati provati e scartati.
+Non è una dimenticanza: sono stati valutati e scartati, uno per uno.
 
-- **GitHub Models** — c'era, ed è stato tolto: GitHub lo ha **ritirato del
-  tutto il 30 luglio 2026**. Playground, catalogo, API di inferenza: tutto
-  spento, per tutti. Qualunque guida che lo consigli ancora è più vecchia di
-  quella data.
-- **Claude Haiku 4.5** — c'era fra i modelli Claude. Non è scaduto, ma è
-  *dominato*: Sonnet 5 costa il doppio e in cambio dà cinque volte il contesto,
-  il ragionamento esteso e la ricerca web, che Haiku non ha. Quando un'opzione
-  è peggiore di un'altra su tutto tranne il prezzo, e ci sono già quattro
-  servizi gratuiti per chi non vuole spendere, tenerla è solo una voce in più
-  da leggere.
-
+- **GitHub Models** — GitHub lo ha **ritirato del tutto il 30 luglio 2026**.
+  Playground, catalogo e API di inferenza spenti per tutti. Qualunque guida
+  che lo consigli ancora è più vecchia di quella data.
+- **Claude Haiku 4.5** — non è scaduto, è *dominato*: Sonnet 5 costa il doppio
+  e dà cinque volte il contesto, il ragionamento esteso e la ricerca web, che
+  Haiku non ha.
 - **Mistral** — qualità media, e il piano gratuito richiede la verifica del
   telefono **e il consenso all'uso dei tuoi dati per l'addestramento**. Per
-  materiale di tesi non pubblicato è un prezzo che non vale la pena pagare
-  quando esistono cinque alternative senza quella clausola.
-- **OpenRouter** — i modelli gratuiti sono piccoli e i loro nomi cambiano di
-  continuo. Come rincalzo occasionale andava; per un agente che deve
-  concatenare dieci chiamate a strumenti, no.
-- **Cerebras** — sarebbe stato il candidato ovvio per velocità, ma da agosto
-  2026 il piano senza carta non esiste più e il gratuito limita il contesto a
-  **8K token**: Spectra manda 32 definizioni di strumenti oltre alla
-  cronologia, non ci sta.
-- **Qwen / Alibaba** — la quota gratuita è una **prova a tempo** (circa 90
-  giorni), non un piano permanente.
+  materiale di tesi non pubblicato non vale la pena.
+- **OpenRouter** — i modelli gratuiti sono piccoli e i loro id cambiano di
+  continuo: inadatti a un agente che concatena dieci chiamate.
+- **Cerebras** — da agosto 2026 niente più piano senza carta, e il gratuito
+  limita il contesto a 8K token: Spectra manda 32 definizioni di strumenti
+  oltre alla cronologia, non ci sta.
+- **Moonshot Kimi, MiniMax, Qwen** — sono frontiera veri, ma non superano
+  GPT-5.6 su GPQA Diamond (il banco che conta per la chimica) e duplicano
+  capacità già coperte da Gemini 3 Pro e DeepSeek. Aggiungerli allungherebbe
+  la tendina senza darti una scelta migliore.
+- **Qwen / Alibaba** (quota diretta) — la parte gratuita è una **prova a
+  tempo** di circa 90 giorni, non un piano permanente. I modelli Qwen restano
+  comunque raggiungibili tramite Groq e NVIDIA.
 
 ---
 
 ## Una cosa da non fare
 
 **Non incollare mai una chiave dentro il codice del sito.** GitHub Pages serve
-file statici: finirebbe visibile a chiunque apra la pagina, e i bot che
-scandagliano GitHub la troverebbero in poche ore, facendotela revocare.
+file statici: finirebbe visibile a chiunque apra la pagina con `Ctrl+U`, e i
+bot che scandagliano GitHub la troverebbero in poche ore, facendotela
+revocare.
 
 Se vuoi che il sito funzioni **per chiunque lo apra**, senza che nessuno debba
 inserire niente, la strada c'è ed è un'altra: `proxy/README.md`.
+
+---
+
+*Verifica dei fornitori: settembre 2026. Se leggi questa guida molto più
+tardi, ricontrolla — i servizi chiudono, e un elenco è vecchio dal giorno dopo
+che lo scrivi.*
