@@ -43,8 +43,11 @@ var PROVIDERS = {
     // to it". I candidati sono solo un ripiego: il modello vero lo sceglie
     // risolviModelloOpenai() interrogando GET /models.
     model: null,
-    modelliCandidati: ['openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b',
-                       'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'],
+    // Verificato 09/2026 sulla pagina delle dismissioni di Groq:
+    // llama-3.3-70b-versatile NON e' piu' servito da agosto 2026 e
+    // llama-3.1-8b-instant e' deprecato. Restano solo i sostituti indicati
+    // da Groq stesso.
+    modelliCandidati: ['openai/gpt-oss-120b', 'qwen/qwen3.6-27b', 'openai/gpt-oss-20b'],
     url: 'https://api.groq.com/openai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'console.groq.com → API Keys', placeholder: 'gsk_...',
@@ -199,29 +202,18 @@ var PROVIDERS = {
     keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
     note: 'Quasi la qualità di Opus a meno della metà del costo: la scelta di tutti i giorni.'
   },
-  claude_haiku: {
-    rango: 35,
-    name: 'Claude Haiku 4.5 (economico)', family: 'anthropic', free: false,
-    model: 'claude-haiku-4-5',
-    chiaveCondivisaCon: 'claude_fable',
-    // NIENTE effort e NIENTE web_search di nuova generazione: su Haiku 4.5
-    // non sono supportati e la richiesta verrebbe rifiutata.
-    maxTokens: 8000,
-    url: 'https://api.anthropic.com/v1/messages',
-    authHeader: function(k){ return { 'x-api-key': k, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' }; },
-    keyLink: 'console.anthropic.com → API Keys', placeholder: 'sk-ant-...',
-    note: 'Stessa chiave di Claude Opus 5, ma molto più economico.'
-  },
   grok: {
     rango: 80,
-    name: 'Grok 4 (xAI) — 2M di contesto', family: 'openai', free: false,
+    name: 'Grok 4.6 (xAI) — il migliore sugli agenti', family: 'openai', free: false,
     model: null,
-    modelliCandidati: ['grok-4-fast', 'grok-4', 'grok-3-mini', 'grok-3'],
-    preferisci: /^grok-/,
+    // Aggiornati 09/2026: la 4.6 e' uscita il 12/08/2026 e i candidati
+    // precedenti (grok-4-fast, grok-3...) erano di due generazioni prima.
+    modelliCandidati: ['grok-4.6', 'grok-4.5', 'grok-4.3', 'grok-4.1-fast', 'grok-4'],
+    preferisci: /^grok-4/,
     url: 'https://api.x.ai/v1/chat/completions',
     authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
     keyLink: 'console.x.ai → API Keys', placeholder: 'xai-...',
-    note: 'La finestra piu\' ampia in circolazione (fino a 2 milioni di token) e il miglior rapporto prezzo/GPQA fra i modelli di punta. Nota: alcuni fornitori bloccano le chiamate dirette dal browser — se non risponde, prova un altro.'
+    note: 'Il migliore sugli agenti che concatenano strumenti — cioè esattamente ciò che fa Spectra — e con il tasso di allucinazione più basso. Circa 2$ per milione di token in ingresso. Le versioni precedenti restano raggiungibili e arrivano a 1-2 milioni di token di contesto.'
   }
 };
 // Ogni configurazione porta la propria chiave di registro: serve a sapere,
@@ -247,7 +239,7 @@ var UPSTREAM = {
   nvidia: 'nvidia', zai: 'zai',
   openai: 'openai', deepseek: 'deepseek', gemini_pro: 'gemini',
   claude_fable: 'anthropic', claude: 'anthropic',
-  claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
+  claude_sonnet: 'anthropic'
 };
 
 function proxyUrl(){
@@ -1822,7 +1814,7 @@ var MAX_FILE_MB = 22;
 // quelli da 1M (Opus 5, Sonnet 5, Fable 5.1), 100 per Haiku 4.5 che ne ha 200K.
 // Applicare 100 a tutti, com'era prima, rifiutava documenti che i modelli
 // grandi avrebbero gestito benissimo.
-var PAGINE_PDF = { claude_fable:600, claude:600, claude_sonnet:600, claude_haiku:100, gemini:300 };
+var PAGINE_PDF = { claude_fable:600, claude:600, claude_sonnet:600, gemini:300, gemini_pro:600 };
 var PAGINE_PDF_DEFAULT = 100;
 
 function limitePagine(provId){

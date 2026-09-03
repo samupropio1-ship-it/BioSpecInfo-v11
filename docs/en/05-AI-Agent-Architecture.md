@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 6,262 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v145` |
+| **Documented version** | Service Worker `bsi-v146` |
 
 ---
 
@@ -31,7 +31,7 @@ demo:
    agent's work is auditable after the fact.
 3. **Provider portability** — a single tool registry is translated into the
    three function-calling formats in use today (OpenAI-compatible, Anthropic,
-   Gemini), so the agent behaves identically across twelve model configurations,
+   Gemini), so the agent behaves identically across eleven model configurations,
    four of them free.
 
 ---
@@ -190,8 +190,8 @@ app actually asks.
 | **GPT-5.6** | 94.6% on GPQA Diamond: the highest score available today. ~$4/M input |
 | **Gemini 3 Pro** | Over 1M context, and **the same key** as free Gemini. ~$2/M |
 | **DeepSeek V4** | High-tier reasoning at ~$0.66/M: the best quality/price ratio |
-| **Grok 4** | Up to 2M context |
-| **Claude** (Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5) | Already present; one key for all four |
+| **Grok 4.6** | First on agentic tool calling and lowest hallucination rate — exactly the profile an agent chaining tools needs. ~$2/M |
+| **Claude** (Fable 5.1, Opus 5, Sonnet 5) | One key for all three; the only ones with the Python sandbox in Core Mode |
 
 Two configurations can use **the same key**: the four Claude models are one
 Anthropic account, and Gemini Flash and Gemini 3 Pro one AI Studio key.
@@ -211,6 +211,30 @@ The same pass surfaced a second issue: the minor version in the name is
 `gemini-3.0-pro`), and the regex requiring the dot scored the *newest* models
 as generic aliases — so they lost to older ones, and the automatic upgrade
 described in 2.4 would never have triggered.
+
+#### The provider audit, and why it must be repeated
+
+The system repairs itself on **model names** — it queries the catalogue and
+picks among what exists. It does not repair itself against a **dead service**:
+that must be checked by hand, and GitHub Models' retirement showed what not
+doing so costs.
+
+September 2026 check, provider by provider:
+
+| Provider | Result |
+|---|---|
+| Groq | Active. `llama-3.3-70b-versatile` **is no longer served** as of August 2026 and `llama-3.1-8b-instant` is deprecated: removed from candidates, leaving Groq's own replacements |
+| Google Gemini | Active |
+| NVIDIA NIM | Active, permanent free plan |
+| Z.AI | Active, GLM-4.7-Flash and 4.5-Flash still free |
+| OpenAI, DeepSeek, Anthropic | Active |
+| xAI | Active, but candidates were **two generations** behind: the top is `grok-4.6` since 12/08/2026 |
+
+Two traps recorded so they are not repeated. First: never put a paid model
+among a free configuration's candidates — true for `glm-5.x` on Z.AI as it was
+for `gemini-3-pro`, or the configuration picks something the free key cannot
+use. Second: a dead provider with a high rank does not merely break a dropdown
+entry, it **becomes Core Mode's automatic choice**.
 
 #### When a provider does not answer
 
@@ -641,9 +665,9 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 6,262 lines |
+| Component size | 6,254 lines |
 | Tools | 32 |
-| Model configurations | 12 (4 free) |
+| Model configurations | 11 (4 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
 | Max agentic loop rounds | 10 |

@@ -14,7 +14,9 @@ parte, e la inserisci **una volta sola** per servizio.
 
 ## Due livelli: i gratuiti e la frontiera
 
-Spectra ha **quattro servizi gratuiti** e **cinque a pagamento**. I gratuiti
+Spectra ha **quattro servizi gratuiti** e **sette configurazioni a pagamento**.
+Ogni fornitore in questo elenco è stato verificato attivo a **settembre 2026**:
+nessuno è lì per fare numero, e nessuno è scaduto. I gratuiti
 bastano per studiare; i secondi servono quando un problema è davvero
 difficile.
 
@@ -168,19 +170,29 @@ GPT-5.6.
 
 **Se paghi di tasca tua e vuoi spendere poco, comincia da qui.**
 
-## Grok 4 — 2 milioni di token
+## Grok 4.6 — il migliore sugli agenti
 
-La finestra più ampia in circolazione e un ottimo rapporto prezzo/GPQA.
+Uscito il 12 agosto 2026. È il primo su **tool calling agentico** — cioè
+esattamente quello che fa Spectra quando concatena dieci strumenti — e ha il
+tasso di allucinazione più basso in circolazione. Circa **2 $ per milione** di
+token in ingresso: meno della metà di GPT-5.6.
 
 1. **`console.x.ai`** → **API Keys** → crea (comincia con `xai-`)
 
-## Claude — Fable 5.1, Opus 5, Sonnet 5, Haiku 4.5
+Le versioni precedenti restano raggiungibili e arrivano a 1–2 milioni di token
+di contesto: se la 4.6 non è disponibile sulla tua chiave, Spectra scala da
+sola.
+
+## Claude — Fable 5.1, Opus 5, Sonnet 5
 
 1. **`console.anthropic.com`** → **API Keys** → **Create Key**
 2. Copia (comincia con `sk-ant-`) e aggiungi credito
 
-**Una chiave sola per tutti e quattro:** la incolli su uno qualsiasi dei
-modelli Claude e vale automaticamente per gli altri tre.
+**Una chiave sola per tutti e tre:** la incolli su uno qualsiasi dei modelli
+Claude e vale automaticamente per gli altri due.
+
+Sono gli unici che, in Modalità Nucleo, ottengono il **sandbox Python**
+(sympy, numpy, scipy, matplotlib) per fare calcolo vero invece di ricordarselo.
 
 > È separato dall'abbonamento di claude.ai: quello non dà accesso all'API.
 
@@ -193,6 +205,8 @@ modelli Claude e vale automaticamente per gli altri tre.
 | Studio quotidiano, tante domande | **Groq** (gratis) |
 | Un PDF lungo da leggere, o un riassunto | **Gemini** (gratis) o **Gemini 3 Pro** |
 | Un problema scientifico davvero tosto | **GPT-5.6** |
+| Una catena lunga di strumenti | **Grok 4.6** |
+| Calcolo simbolico o numerico vero | **Claude** + ⚛ Modalità Nucleo |
 | Vuoi potenza ma spendere poco | **DeepSeek V4** |
 
 ---
@@ -260,6 +274,12 @@ Non è una dimenticanza: sono stati provati e scartati.
   tutto il 30 luglio 2026**. Playground, catalogo, API di inferenza: tutto
   spento, per tutti. Qualunque guida che lo consigli ancora è più vecchia di
   quella data.
+- **Claude Haiku 4.5** — c'era fra i modelli Claude. Non è scaduto, ma è
+  *dominato*: Sonnet 5 costa il doppio e in cambio dà cinque volte il contesto,
+  il ragionamento esteso e la ricerca web, che Haiku non ha. Quando un'opzione
+  è peggiore di un'altra su tutto tranne il prezzo, e ci sono già quattro
+  servizi gratuiti per chi non vuole spendere, tenerla è solo una voce in più
+  da leggere.
 
 - **Mistral** — qualità media, e il piano gratuito richiede la verifica del
   telefono **e il consenso all'uso dei tuoi dati per l'addestramento**. Per
