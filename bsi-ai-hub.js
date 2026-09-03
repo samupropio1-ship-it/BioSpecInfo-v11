@@ -155,7 +155,14 @@ var PROVIDERS = {
   claude_fable: {
     rango: 100,
     name: 'Claude Fable 5.1 — il massimo', family: 'anthropic', free: false,
-    model: 'claude-fable-5-1',
+    // Anthropic era l'UNICO fornitore col nome cablato: se un giorno ritira
+    // questo modello, o la chiave non lo vede, non c'e' riserva. Ora ha i
+    // candidati come tutti gli altri — costa una GET in piu', in cache 7
+    // giorni, e toglie l'ultimo punto in cui l'app poteva fermarsi.
+    model: null,
+    modelliCandidati: ['claude-fable-5-1', 'claude-fable-5', 'claude-opus-5'],
+    preferisci: /fable/,
+    urlModelli: 'https://api.anthropic.com/v1/models',
     // Su Fable il ragionamento e' sempre attivo: si controlla solo la profondita'.
     thinking: { type: 'adaptive', display: 'summarized' },
     effort: 'xhigh',                 // il livello consigliato per il lavoro agentico
@@ -173,7 +180,14 @@ var PROVIDERS = {
   claude: {
     rango: 95,
     name: 'Claude Opus 5 (Anthropic)', family: 'anthropic', free: false,
-    model: 'claude-opus-5',
+    model: null,
+    // Opus 4.8 e 4.7 stanno QUI e non nella tendina: costano quanto Opus 5
+    // e sono una generazione indietro, quindi come scelta non convengono
+    // mai — ma come riserva, se Opus 5 sparisce o la chiave non lo vede,
+    // valgono esattamente quanto lui.
+    modelliCandidati: ['claude-opus-5', 'claude-opus-4-8', 'claude-opus-4-7'],
+    preferisci: /opus/,
+    urlModelli: 'https://api.anthropic.com/v1/models',
     chiaveCondivisaCon: 'claude_fable',
     // Opus 5 ragiona di suo (adaptive thinking sempre attivo): e' il modello
     // piu' capace nell'incatenare strumenti, quindi il migliore per il Copilota.
@@ -191,7 +205,10 @@ var PROVIDERS = {
   claude_sonnet: {
     rango: 85,
     name: 'Claude Sonnet 5 — equilibrato', family: 'anthropic', free: false,
-    model: 'claude-sonnet-5',
+    model: null,
+    modelliCandidati: ['claude-sonnet-5', 'claude-sonnet-4-6'],
+    preferisci: /sonnet/,
+    urlModelli: 'https://api.anthropic.com/v1/models',
     chiaveCondivisaCon: 'claude_fable',
     thinking: { type: 'adaptive', display: 'summarized' },
     effort: 'high',
