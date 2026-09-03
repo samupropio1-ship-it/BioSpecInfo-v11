@@ -32,7 +32,7 @@ una demo:
    effettivamente invocati. L'operato dell'agente è verificabile a posteriori.
 3. **Portabilità fra fornitori** — un unico registro di strumenti viene
    tradotto nei tre formati di *function calling* oggi in uso (OpenAI-compatibile,
-   Anthropic, Gemini), così l'agente funziona identico su undici configurazioni
+   Anthropic, Gemini), così l'agente funziona identico su dieci configurazioni
    di modello, quattro delle quali gratuite.
 
 ---
@@ -49,7 +49,7 @@ una demo:
 │   ciclo agentico  (max 10 giri)                                     │
 │        │                                                            │
 │        ├── adattatore provider ──► API del modello (HTTPS diretto)  │
-│        │      · OpenAI-compatibile (Groq, GitHub, NVIDIA, Z.AI, xAI)│
+│        │      · OpenAI-compatibile (Groq, Z.AI, xAI, DeepSeek) │
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
@@ -157,7 +157,6 @@ perché peggioravano la risposta invece di migliorarla.
 |---|---|---|
 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
 | **Google Gemini** | Gemini Flash | Fino a 1M di contesto: documenti e PDF interi |
-| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Ragionamento profondo. Crediti a esaurimento |
 | **Z.AI GLM** | GLM-4.7-Flash | Gratuito **senza scadenza**: la riserva che resta quando i crediti finiscono |
 
 **Tolti.** *GitHub Models*: c'era, ed è stato tolto perché GitHub lo ha
@@ -179,7 +178,7 @@ contesto gratuito limitato a 8K — Spectra manda 32 definizioni di strumenti
 oltre alla cronologia, non ci sta.
 
 Nessuno dei cinque eguaglia un modello di frontiera a pagamento sui problemi
-più difficili; GitHub Models e NVIDIA NIM ci vanno vicino, al prezzo di tetti
+più difficili; Z.AI GLM ci va vicino, al prezzo di tetti
 di richieste bassi. Per questo la scelta resta dell'utente, invece di imporre
 un solo servizio.
 
@@ -230,7 +229,7 @@ Verifica di settembre 2026, fornitore per fornitore:
 |---|---|
 | Groq | Attivo. `llama-3.3-70b-versatile` **non è più servito** da agosto 2026 e `llama-3.1-8b-instant` è deprecato: tolti dai candidati, restano i sostituti indicati da Groq |
 | Google Gemini | Attivo |
-| NVIDIA NIM | Attivo, piano gratuito permanente |
+| NVIDIA NIM | Rimosso 09/2026: attivo, ma senza header CORS non è chiamabile da una pagina web |
 | Z.AI | Attivo, GLM-4.7-Flash e 4.5-Flash ancora gratuiti |
 | OpenAI, DeepSeek, Anthropic | Attivi |
 | xAI | Attivo, ma i candidati erano di **due generazioni** precedenti: il vertice è `grok-4.6` dal 12/08/2026 |
@@ -692,7 +691,7 @@ del turno.
 |---|---|
 | Righe del componente | 6.254 |
 | Strumenti | 32 |
-| Configurazioni di modello | 11 (4 gratuite) |
+| Configurazioni di modello | 10 (3 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
 | Giri massimi del ciclo agentico | 10 |

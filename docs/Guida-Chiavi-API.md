@@ -28,8 +28,8 @@ riassunti di documenti lunghi, e Groq da solo non ci arriva.
 
 ## L'elenco completo
 
-Undici configurazioni, otto fornitori, **tutti verificati attivi a settembre
-2026**. Nessuno è lì per fare numero.
+Dieci configurazioni, sette fornitori, **tutti verificati attivi a settembre
+2026 e raggiungibili dal browser**. Nessuno è lì per fare numero.
 
 ### Gratuiti
 
@@ -37,22 +37,21 @@ Undici configurazioni, otto fornitori, **tutti verificati attivi a settembre
 |---|---|---|---|---|
 | 1 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: l'80% del lavoro | ~30 richieste/min |
 | 2 | **Google Gemini** | Gemini Flash | Documenti lunghi e **riassunti** (1M di contesto) | Generoso |
-| 3 | **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Ragionamento profondo | Crediti a esaurimento |
-| 4 | **Z.AI GLM** | GLM-4.7-Flash | Rincalzo che non scade mai | Limitato al minuto |
+| 3 | **Z.AI GLM** | GLM-4.7-Flash | Rincalzo che non scade mai | Limitato al minuto |
 
 ### A pagamento — la frontiera
 
 | # | Servizio | Perché | Costo indicativo |
 |---|---|---|---|
-| 5 | **OpenAI GPT-5.6** | **94,6% su GPQA Diamond**: il primo al mondo sulle domande scientifiche di livello dottorato | ~4 $/M in ingresso |
-| 6 | **Grok 4.6** (xAI) | Primo sul *tool calling agentico* e minor tasso di allucinazione | ~2 $/M |
-| 7 | **Google Gemini 3 Pro** | Oltre 1M di contesto. **Stessa chiave** del Gemini gratuito | ~2 $/M |
-| 8 | **DeepSeek V4** | Ragionamento di fascia alta al prezzo più basso | ~0,66 $/M |
-| 9–11 | **Claude** Fable 5.1 · Opus 5 · Sonnet 5 | Gli unici con il **sandbox Python** in Modalità Nucleo. **Una chiave per tutti e tre** | 2–10 $/M |
+| 4 | **OpenAI GPT-5.6** | **94,6% su GPQA Diamond**: il primo al mondo sulle domande scientifiche di livello dottorato | ~4 $/M in ingresso |
+| 5 | **Grok 4.6** (xAI) | Primo sul *tool calling agentico* e minor tasso di allucinazione | ~2 $/M |
+| 6 | **Google Gemini 3 Pro** | Oltre 1M di contesto. **Stessa chiave** del Gemini gratuito | ~2 $/M |
+| 7 | **DeepSeek V4** | Ragionamento di fascia alta al prezzo più basso | ~0,66 $/M |
+| 8–10 | **Claude** Fable 5.1 · Opus 5 · Sonnet 5 | Gli unici con il **sandbox Python** in Modalità Nucleo. **Una chiave per tutti e tre** | 2–10 $/M |
 
 ---
 
-# Parte 1 — i quattro gratuiti
+# Parte 1 — i tre gratuiti
 
 ## 1. Groq — comincia da qui
 
@@ -95,26 +94,7 @@ La chiave comincia con **`AIza`**.
 
 ---
 
-## 3. NVIDIA NIM — i modelli che ragionano
-
-**Tempo: 3 minuti. Nessuna carta di credito.**
-
-1. Apri **`build.nvidia.com`**
-2. **Sign in** in alto a destra → crea un account NVIDIA se non ce l'hai
-   (è il Developer Program, gratuito)
-3. Dall'elenco dei modelli aprine uno qualsiasi — per esempio **DeepSeek R1**
-4. Nel pannello a destra cerca **Get API Key**
-5. **Generate Key** → copia
-
-La chiave comincia con **`nvapi-`**.
-
-> I crediti gratuiti sono **a esaurimento**, non si rinnovano ogni mese.
-> Tienilo per quando serve un modello che ragiona a fondo su un problema
-> lungo, non per il lavoro di tutti i giorni.
-
----
-
-## 4. Z.AI GLM — il rincalzo che non scade
+## 3. Z.AI GLM — il rincalzo che non scade
 
 **Tempo: 2 minuti.**
 
@@ -125,8 +105,8 @@ La chiave comincia con **`nvapi-`**.
 
 **Perché c'è:** è gratuito **senza scadenza** — non crediti che finiscono, non
 una prova a tempo. GLM-4.7-Flash è forte su ragionamento e codice. È la
-riserva che troverai ancora lì fra sei mesi, quando i crediti NVIDIA saranno
-esauriti.
+riserva che troverai ancora lì fra sei mesi, quando le prove a tempo degli
+altri saranno scadute.
 
 ---
 
@@ -135,7 +115,7 @@ esauriti.
 Questi si pagano a consumo. Ma su un problema di chimica fisica in dieci
 passaggi la differenza si vede, e una sessione di studio costa centesimi.
 
-## 5. OpenAI GPT-5.6 — il primo sulle domande scientifiche
+## 4. OpenAI GPT-5.6 — il primo sulle domande scientifiche
 
 **Tempo: 3 minuti. Serve una carta.**
 
@@ -156,7 +136,7 @@ non c'è niente di meglio.
 
 ---
 
-## 6. Grok 4.6 (xAI) — il migliore sugli agenti
+## 5. Grok 4.6 (xAI) — il migliore sugli agenti
 
 **Tempo: 3 minuti. Serve una carta.**
 
@@ -176,7 +156,7 @@ versioni precedenti, che arrivano a 1–2 milioni di token di contesto.
 
 ---
 
-## 7. Google Gemini 3 Pro — la finestra più ampia
+## 6. Google Gemini 3 Pro — la finestra più ampia
 
 **Tempo: 2 minuti se hai già fatto il §2.**
 
@@ -192,7 +172,7 @@ Oltre **1 milione di token** di contesto: una tesi intera in una richiesta.
 
 ---
 
-## 8. DeepSeek V4 — potenza al prezzo più basso
+## 7. DeepSeek V4 — potenza al prezzo più basso
 
 **Tempo: 3 minuti.**
 
@@ -209,7 +189,7 @@ punta: **sei volte meno di GPT-5.6**.
 
 ---
 
-## 9–11. Claude — Fable 5.1, Opus 5, Sonnet 5
+## 8–10. Claude — Fable 5.1, Opus 5, Sonnet 5
 
 **Tempo: 3 minuti. Una chiave sola per tutti e tre.**
 
@@ -280,6 +260,29 @@ chiavi, memoria — prima di cancellare davvero.
 | Calcolo simbolico o numerico vero | **Claude** + ⚛ Modalità Nucleo |
 | Potenza spendendo poco | **DeepSeek V4** |
 
+### Per i lavori grossi
+
+«Grosso» non vuol dire una cosa sola, e i fornitori migliori sono diversi a
+seconda di quale delle tre cose intendi.
+
+| Il lavoro è grosso perché… | Gratis | A pagamento |
+|---|---|---|
+| **Il testo è lungo** — dispense, PDF, tesi da riassumere | **Gemini Flash**, 1M di token: centinaia di pagine in una richiesta | **Gemini 3 Pro**, stessa finestra ma di frontiera |
+| **Le domande sono tante** — una sessione di studio intera | **Groq**, ~30 richieste/min, e le altre due chiavi lo coprono quando finisce il minuto | **DeepSeek V4**, ~0,66 $/M: il volume costa poco |
+| **Il problema è difficile** — dieci passaggi concatenati | **Z.AI GLM** + ⚛ Modalità Nucleo | **Claude Opus 5**, il più capace a incatenare strumenti. **Grok 4.6** se conta più la precisione |
+
+**Sui gratuiti la risposta vera non è "quale", è "tutte e tre".** Nessuna delle
+tre regge da sola un carico grosso: hanno tutte un tetto al minuto. Ma Spectra
+le mette in comune — quando Groq esaurisce il minuto la domanda riparte su
+Gemini, e da lì su Z.AI. Tre chiavi messe insieme reggono quello che nessuna
+delle tre reggerebbe, e non devi fare niente perché succeda: basta averle
+salvate tutte e tre.
+
+> **Un avvertimento onesto sui documenti lunghi.** Solo Gemini arriva davvero
+> a centinaia di pagine. Gli altri gratuiti tagliano quello che non ci sta e
+> ti danno il riassunto della prima parte — Spectra te lo dice con la nota
+> 📐, ma la nota si legge, il riassunto monco no. Per le dispense usa Gemini.
+
 ---
 
 ## Cosa succede quando qualcosa va storto
@@ -325,7 +328,7 @@ dice in pochi secondi quali risponde:
 ```
 ✅ Groq · risponde                              14 ms
 ✅ Google Gemini Flash · risponde               13 ms
-⛔ NVIDIA NIM · il tuo browser non riesce a contattarlo
+⛔ Un fornitore qualsiasi · il tuo browser non riesce a contattarlo
 ✅ Z.AI GLM-4.7-Flash · risponde                16 ms
 ```
 
@@ -380,6 +383,16 @@ esattamente quello che l'app fa per te.
 
 Non è una dimenticanza: sono stati valutati e scartati, uno per uno.
 
+- **NVIDIA NIM** — tolto a settembre 2026, ed è il caso più istruttivo: **non
+  è scaduto e non è peggiorato.** Il servizio è vivo, il piano gratuito pure,
+  DeepSeek R1 e Qwen3 235B sono ottimi modelli. Semplicemente **non manda gli
+  header CORS**: dentro una pagina web la chiamata non parte proprio, e non
+  c'è nessuna correzione lato app che possa cambiarlo — lo decide il server
+  di NVIDIA. Restava in tendina solo per far perdere 45 secondi a chi lo
+  sceglieva. **Con il proxy tornerebbe utilizzabile** (lì la chiamata parte da
+  un server, non dal browser): la rotta nel Worker è rimasta apposta, basta
+  rimettere la voce in `PROVIDERS`.
+
 - **GitHub Models** — GitHub lo ha **ritirato del tutto il 30 luglio 2026**.
   Playground, catalogo e API di inferenza spenti per tutti. Qualunque guida
   che lo consigli ancora è più vecchia di quella data.
@@ -400,7 +413,7 @@ Non è una dimenticanza: sono stati valutati e scartati, uno per uno.
   la tendina senza darti una scelta migliore.
 - **Qwen / Alibaba** (quota diretta) — la parte gratuita è una **prova a
   tempo** di circa 90 giorni, non un piano permanente. I modelli Qwen restano
-  comunque raggiungibili tramite Groq e NVIDIA.
+  comunque raggiungibili tramite Groq.
 
 ---
 

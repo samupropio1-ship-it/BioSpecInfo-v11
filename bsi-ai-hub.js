@@ -72,23 +72,13 @@ var PROVIDERS = {
     keyLink: 'aistudio.google.com → Get API key', placeholder: 'AIza...',
     note: 'Il modello viene scelto da solo fra quelli che la tua chiave vede davvero: se Google ne ritira uno, Spectra passa al successivo senza che tu debba fare niente.'
   },
-  // ── Gratuiti "seri": modelli di fascia alta senza pagare nulla ──────────
-  // Groq e OpenRouter free danno modelli piccoli; questi tre no. In cambio
-  // hanno tetti di richieste piu' bassi, dichiarati nelle note.
-  nvidia: {
-    rango: 55,
-    name: 'NVIDIA NIM — DeepSeek R1, Llama 4, Qwen', family: 'openai', free: true,
-    model: null,
-    modelliCandidati: ['deepseek-ai/deepseek-r1', 'qwen/qwen3-235b-a22b',
-                       'meta/llama-4-maverick-17b-128e-instruct',
-                       'nvidia/llama-3.3-nemotron-super-49b-v1', 'meta/llama-3.3-70b-instruct'],
-    preferisci: /deepseek|qwen3|llama-4|nemotron/,
-    url: 'https://integrate.api.nvidia.com/v1/chat/completions',
-    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
-    keyLink: 'build.nvidia.com → Get API Key (programma sviluppatori, senza carta)',
-    placeholder: 'nvapi-...',
-    note: 'Oltre 100 modelli, compresi quelli enormi che ragionano (DeepSeek R1). I crediti gratuiti sono a esaurimento, non si rinnovano da soli.'
-  },
+  // ── Gratuito "serio": fascia alta senza pagare nulla ────────────────────
+  // NB: qui c'era anche NVIDIA NIM, tolta a settembre 2026. Il servizio e'
+  // vivo e i modelli pure, ma non manda gli header CORS: dentro una pagina
+  // web la chiamata non parte proprio, e nessuna correzione lato app puo'
+  // cambiarlo — lo decide il server di NVIDIA. Restava in tendina solo per
+  // far perdere 45 secondi a chi la sceglieva. Torna utile solo dietro il
+  // proxy, dove la chiamata parte da un server (vedi proxy/README.md).
   zai: {
     rango: 45,
     name: 'Z.AI GLM-4.7-Flash', family: 'openai', free: true,
@@ -252,8 +242,7 @@ var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
 
 // Da quale fornitore reale dipende ciascuna configurazione di modello.
 var UPSTREAM = {
-  groq: 'groq', gemini: 'gemini', grok: 'xai',
-  nvidia: 'nvidia', zai: 'zai',
+  groq: 'groq', gemini: 'gemini', grok: 'xai', zai: 'zai',
   openai: 'openai', deepseek: 'deepseek', gemini_pro: 'gemini',
   claude_fable: 'anthropic', claude: 'anthropic',
   claude_sonnet: 'anthropic'
@@ -1071,7 +1060,7 @@ function buildRequest(p, apiKey, messages, systemPrompt, tools){
     if(p.fallbacks && p.beta){ h['anthropic-beta'] = p.beta; aBody.fallbacks = p.fallbacks; }
     return { url: aUrl || p.url, headers: h, body: aBody };
   }
-  // famiglia 'openai'-compatibile: groq, github, nvidia, zai, grok
+  // famiglia 'openai'-compatibile: groq, zai, grok, openai, deepseek
   var oUrl = null;
   try{ oUrl = viaProxy(p.id, new URL(p.url).pathname); }catch(e){}
   var h2 = oUrl
@@ -4168,7 +4157,7 @@ function appendAgentTurn(family, history, assistantText, toolCalls, execResults,
     history.push({ role: 'user', content: '[risultati strumenti]', _native: { gemini: { role: 'user', parts: respParts } } });
     return;
   }
-  // openai-compatibile (groq, github, nvidia, zai, grok)
+  // openai-compatibile (groq, zai, grok, openai, deepseek)
   var oaToolCalls = toolCalls.map(function(tc){
     return { id: tc.id, type: 'function', function: { name: tc.name, arguments: JSON.stringify(tc.args || {}) } };
   });
