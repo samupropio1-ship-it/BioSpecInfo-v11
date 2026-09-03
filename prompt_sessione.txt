@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.271 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.427 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v148
+- sw.js            — Service Worker (network-first). Cache: bsi-v149
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -381,6 +381,29 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    Opus 4.8 sta QUI e non in tendina: stesso prezzo di Opus 5 e una
    generazione indietro, quindi come scelta non conviene mai.
 
+27) UN FORNITORE ATTIVO PUO' ESSERE INUTILIZZABILE DAL BROWSER — e' una
+   dimensione DIVERSA da "il modello esiste" e da "il servizio esiste".
+   Verificare che un servizio sia attivo NON dimostra che sia chiamabile da
+   dentro una pagina web: serve che mandi gli header CORS. NVIDIA NIM era
+   attiva, la chiave valida, il modello giusto — e la chiamata non partiva.
+   Il browser NON dice perche' un fetch fallisce (rete, CORS e servizio
+   spento sono lo stesso errore), quindi non e' distinguibile dal codice.
+   NON scrivere un elenco "questi funzionano dal browser": e' una fotografia
+   sbagliata il mese dopo, e dipende anche dalla rete e dalle estensioni
+   dell'utente. Ci pensa bsi_prov_ko (sezione 1b-ter di bsi-ai-hub.js):
+   segnaIrraggiungibile() su fetch fallito, segnaRaggiungibile() appena
+   arriva una risposta HTTP QUALSIASI — anche un 401, che dimostra di essere
+   arrivati al server. TTL 24 ore.
+   I marcati NON vengono mai rimossi dall'elenco: vanno in fondo in
+   providerUtilizzabili() e prendono -1000 in migliorProvider(), ma se sono
+   gli unici configurati si provano lo stesso. Per questo migliorProvider()
+   parte da -Infinity e non da -1: con la penalita' un rango diventa
+   negativo e con -1 l'unico fornitore disponibile non verrebbe scelto.
+   Un AbortError (l'utente che preme Stop) NON va annotato.
+   bsi_prov_ko sta nel gruppo 'chiavi' di DATI_CANCELLABILI: "ricominciare
+   da capo" deve azzerare anche cio' che l'app ha imparato.
+   Test: test_ko.js (35) e browser_ko.js (35, con la rete negata davvero).
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN
@@ -400,5 +423,5 @@ npm i playwright-core                  # test con browser reale
 ```
 
 ================================================================================
-  Fine prompt — versione aggiornata al 02/09/2026
+  Fine prompt — versione aggiornata al 03/09/2026
 ================================================================================

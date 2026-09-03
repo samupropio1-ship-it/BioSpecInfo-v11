@@ -290,11 +290,51 @@ chiavi, memoria — prima di cancellare davvero.
 |---|---|
 | Limite al minuto (`429`) | Legge quanto deve aspettare, te lo dice, riprova. Fino a 3 volte |
 | Quota finita | Passa a un altro servizio per cui hai una chiave e **rifà la domanda da lì** |
-| Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua |
+| Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua — **e se lo segna**, vedi qui sotto |
 | Modello ritirato dal fornitore | Ne cerca un altro nel catalogo e riprova |
 
 **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
 gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
+
+## Se un servizio non risponde *dal browser*
+
+C'è un guasto che non dipende né da te né dalla chiave, e vale la pena
+capirlo perché è l'unico che una guida non può risolverti in anticipo.
+
+BioSpecInfo è una pagina web. Quando Spectra chiama un fornitore, la chiamata
+parte **dal tuo browser**, e il browser la lascia partire solo se il fornitore
+risponde «sì, accetto chiamate da altri siti» (si chiama CORS). Alcuni
+fornitori lo fanno apposta, altri no, e la scelta può cambiare da un mese
+all'altro senza che nessuno lo annunci.
+
+Peggio: quando la chiamata viene bloccata, **il browser non dice perché**. Per
+non dare informazioni a chi sonda la rete, rete assente, CORS negato e
+servizio spento arrivano tutti come lo stesso identico errore. Nemmeno il
+codice dell'app può distinguerli.
+
+Per questo l'elenco «funziona / non funziona» non è scritto qui: sarebbe una
+fotografia sbagliata il mese dopo, e comunque dipende anche dalla tua rete e
+dalle estensioni installate nel tuo browser. **Lo impara Spectra, sul campo:**
+
+| | |
+|---|---|
+| Un fornitore non risponde | Viene annotato, e la volta dopo compare **⚠** accanto al nome nella tendina |
+| Lo hai selezionato lo stesso | Un avviso ti dice quante volte è successo e ti propone un'alternativa **fra quelle che da qui hanno già risposto** |
+| Serve una risposta subito | Nella riserva automatica i marcati passano in fondo: non ti fanno più aspettare |
+| Era solo la rete di ieri sera | Dopo 24 ore il fornitore viene ritentato da solo, senza che tu faccia niente |
+| Torna a rispondere | L'annotazione sparisce alla prima risposta ricevuta — anche un `401` basta, perché dimostra che al server ci si arriva |
+
+L'annotazione sta solo nel tuo browser e si cancella col pulsante **🗑**
+(gruppo *Chiavi API e provider*).
+
+**Se un fornitore ti serve e da qui non risponde**, la soluzione definitiva è
+il proxy: la chiamata parte da un server invece che dal browser, e il vincolo
+CORS non esiste più. Sta in `proxy/README.md`.
+
+Una nota di merito: **Claude è l'unico dei tre grandi che ha una modalità
+browser dichiarata** (l'header `anthropic-dangerous-direct-browser-access`,
+che Spectra manda già). Sugli altri la risposta va scoperta provando — ed è
+esattamente quello che l'app fa per te.
 
 ## Se invece è colpa della chiave
 
