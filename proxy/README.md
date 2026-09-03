@@ -29,7 +29,6 @@ Cloudflare. Lì la chiave sta al sicuro, e resta tutto gratuito.
 |---|---|---|
 | **Groq** | `console.groq.com` → API Keys | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
 | **Google Gemini** | `aistudio.google.com` → Get API key | Fino a 1M di contesto: PDF e dispense intere |
-| **GitHub Models** | `github.com` → Settings → Developer settings → Personal access tokens, permesso *Models: read* | La qualità più alta (GPT-4.1, o4-mini). Tetto basso: 10/min, 50/giorno |
 | **NVIDIA NIM** | `build.nvidia.com` → Get API Key | DeepSeek R1, Qwen3 235B. Crediti a esaurimento |
 | **Z.AI GLM** | `z.ai` → profilo → API Keys | Gratuito senza scadenza, forte su ragionamento |
 
@@ -75,8 +74,8 @@ npx wrangler secret put GEMINI_KEYS
 > stessa richiesta. È il modo pratico per avvicinarsi a un uso "senza limiti"
 > restando sul piano gratuito.
 
-Segreti disponibili — gratuiti: `GROQ_KEYS`, `GEMINI_KEYS`, `GITHUB_KEYS`,
-`NVIDIA_KEYS`, `ZAI_KEYS`; a pagamento: `OPENAI_KEYS`, `DEEPSEEK_KEYS`,
+Segreti disponibili — gratuiti: `GROQ_KEYS`, `GEMINI_KEYS`, `NVIDIA_KEYS`,
+`ZAI_KEYS`; a pagamento: `OPENAI_KEYS`, `DEEPSEEK_KEYS`,
 `ANTHROPIC_KEYS`, `XAI_KEYS` (`GEMINI_KEYS` copre anche Gemini 3 Pro). Metti solo quelli che hai — Spectra
 mostrerà come "senza chiave" soltanto i modelli davvero coperti.
 

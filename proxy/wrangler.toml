@@ -16,6 +16,5 @@ TETTO_GIORNO = "2000"   # richieste totali al giorno
 # Si impostano come segreti, che restano solo su Cloudflare:
 #   npx wrangler secret put GROQ_KEYS        (il cavallo da tiro)
 #   npx wrangler secret put GEMINI_KEYS      (documenti lunghi)
-#   npx wrangler secret put GITHUB_KEYS      (la qualita' piu' alta)
 #   npx wrangler secret put NVIDIA_KEYS      (modelli che ragionano)
 #   npx wrangler secret put ZAI_KEYS         (rincalzo senza scadenza)

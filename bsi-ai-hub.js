@@ -72,26 +72,6 @@ var PROVIDERS = {
   // ── Gratuiti "seri": modelli di fascia alta senza pagare nulla ──────────
   // Groq e OpenRouter free danno modelli piccoli; questi tre no. In cambio
   // hanno tetti di richieste piu' bassi, dichiarati nelle note.
-  github: {
-    rango: 60,
-    name: 'GitHub Models — GPT-4.1, o4-mini, DeepSeek', family: 'openai', free: true,
-    model: null,
-    modelliCandidati: ['openai/gpt-4.1', 'openai/o4-mini', 'deepseek/DeepSeek-V3-0324',
-                       'meta/Llama-4-Maverick-17B-128E-Instruct-FP8', 'openai/gpt-4o'],
-    preferisci: /^(openai|deepseek)\//,
-    url: 'https://models.github.ai/inference/chat/completions',
-    // Il catalogo NON sta sotto /inference: e' l'unico caso finora in cui
-    // l'elenco dei modelli non si ricava dall'endpoint della chat.
-    urlModelli: 'https://models.github.ai/catalog/models',
-    // Tetto del piano gratuito: 8.000 token IN INGRESSO per richiesta. Il
-    // costo fisso di Spectra (prompt + 32 strumenti) e' ~8.150, quindi senza
-    // budget questo servizio non partirebbe nemmeno. Vedi adattaAlBudget().
-    maxInput: 8000,
-    authHeader: function(k){ return { Authorization: 'Bearer ' + k }; },
-    keyLink: 'github.com → Settings → Developer settings → Personal access tokens (permesso "Models: read")',
-    placeholder: 'github_pat_... oppure ghp_...',
-    note: 'Il più potente fra i gratuiti e non serve un account nuovo: basta un token del tuo GitHub. In cambio il tetto è basso — 10 richieste al minuto e 50 al giorno — quindi tienilo per le domande difficili.'
-  },
   nvidia: {
     rango: 55,
     name: 'NVIDIA NIM — DeepSeek R1, Llama 4, Qwen', family: 'openai', free: true,
@@ -264,7 +244,7 @@ var PROXY_URL = '';   // <-- incolla qui l'indirizzo del Worker dopo il deploy
 // Da quale fornitore reale dipende ciascuna configurazione di modello.
 var UPSTREAM = {
   groq: 'groq', gemini: 'gemini', grok: 'xai',
-  github: 'github', nvidia: 'nvidia', zai: 'zai',
+  nvidia: 'nvidia', zai: 'zai',
   openai: 'openai', deepseek: 'deepseek', gemini_pro: 'gemini',
   claude_fable: 'anthropic', claude: 'anthropic',
   claude_sonnet: 'anthropic', claude_haiku: 'anthropic'
@@ -1243,9 +1223,23 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     res = await fetch(req.url, fetchOpts);
   }catch(networkErr){
     stopIdle();
-    if(timedOut) throw new Error('⏱ ' + p.name + ' non ha risposto entro ' + (IDLE_TIMEOUT_MS/1000) + 's. Riprova o scegli un altro provider.');
+    if(timedOut){
+      var eTimeout = new Error('⏱ ' + p.name + ' non ha risposto entro ' + (IDLE_TIMEOUT_MS/1000) + 's.');
+      eTimeout.irraggiungibile = true;
+      throw eTimeout;
+    }
     if(networkErr && networkErr.name === 'AbortError') throw networkErr;
-    throw new Error('Impossibile contattare ' + p.name + '. Controlla la connessione oppure prova un altro provider (alcuni non permettono chiamate dirette dal browser).');
+    /* Un fetch che fallisce PRIMA di ricevere una risposta significa quasi
+       sempre una di tre cose: rete assente, il fornitore non permette
+       chiamate diritte dal browser (CORS), oppure il servizio non esiste
+       piu'. Il browser non ci fa distinguere quale — per sicurezza non lo
+       dice. In tutti e tre i casi la cosa giusta e' passare a un altro
+       fornitore, non fermarsi: e' esattamente cio' che serviva quando GitHub
+       Models e' stato ritirato e ogni richiesta finiva qui. */
+    var eRete = new Error('Impossibile contattare ' + p.name +
+      '. Puo\' essere la rete, oppure il servizio non accetta chiamate dirette dal browser.');
+    eRete.irraggiungibile = true;
+    throw eRete;
   }
   if(!res.ok){
     stopIdle();
@@ -4044,16 +4038,18 @@ async function conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, 
     var id = candidati[i];
     var chiave = (i === 0) ? apiKey : chiaveDaUsare(id);
     if(i > 0 && callbacks && callbacks.onRiserva){
-      callbacks.onRiserva(PROVIDERS[candidati[i - 1]].name, PROVIDERS[id].name);
+      callbacks.onRiserva(PROVIDERS[candidati[i - 1]].name, PROVIDERS[id].name,
+                          ultimo && ultimo.irraggiungibile ? 'irraggiungibile' : 'quota');
     }
     try{
       return await _unTurno(id, chiave, messages, systemPrompt, callbacks, abortSignal);
     }catch(err){
       if(err && err.name === 'AbortError') throw err;
-      // Si passa oltre SOLO per quota esaurita. Un errore di richiesta o una
-      // chiave sbagliata si ripeterebbero identici su ogni fornitore: meglio
-      // dirlo subito che provarli tutti e riportare l'ultimo errore a caso.
-      if(!err || !err.esaurito || i === candidati.length - 1) throw err;
+      /* Si passa oltre per quota esaurita O per fornitore irraggiungibile
+         (rete, CORS, servizio ritirato). Un errore di richiesta o una chiave
+         sbagliata invece si ripeterebbero identici su ogni fornitore: meglio
+         dirlo subito che provarli tutti e riportare l'ultimo errore a caso. */
+      if(!err || !(err.esaurito || err.irraggiungibile) || i === candidati.length - 1) throw err;
       ultimo = err;
     }
   }
@@ -5934,10 +5930,11 @@ function buildChatPane(){
             (ms / 1000).toFixed(1).replace('.0', '') + 's e riprovo'), liveNode);
           box.scrollTop = box.scrollHeight;
         },
-        onRiserva: function(da, a){
+        onRiserva: function(da, a, motivo){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
-            '🔄 ' + escapeHtml(da) + ' ha esaurito la quota: continuo su ' +
+            '🔄 ' + escapeHtml(da) + (motivo === 'irraggiungibile'
+              ? ' non risponde: continuo su ' : ' ha esaurito la quota: continuo su ') +
             escapeHtml(a)), liveNode);
           box.scrollTop = box.scrollHeight;
         },

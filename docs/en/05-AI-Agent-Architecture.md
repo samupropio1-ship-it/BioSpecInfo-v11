@@ -5,10 +5,10 @@
 | **Project** | BioSpecInfo — Spectra component (agentic AI copilot) |
 | **Author** | Samuele Pio Provenzano |
 | **Thesis supervisor** | Prof. Savino Longo — University of Bari Aldo Moro |
-| **Component** | `bsi-ai-hub.js` — 6,265 lines, zero runtime dependencies |
+| **Component** | `bsi-ai-hub.js` — 6,262 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v144` |
+| **Documented version** | Service Worker `bsi-v145` |
 
 ---
 
@@ -31,8 +31,8 @@ demo:
    agent's work is auditable after the fact.
 3. **Provider portability** — a single tool registry is translated into the
    three function-calling formats in use today (OpenAI-compatible, Anthropic,
-   Gemini), so the agent behaves identically across thirteen model configurations,
-   five of them free.
+   Gemini), so the agent behaves identically across twelve model configurations,
+   four of them free.
 
 ---
 
@@ -143,7 +143,7 @@ when the new model fails too.
 Anthropic is the deliberate exception: its models are paid, explicitly chosen
 by the user, and deprecated with long notice.
 
-#### The five free services, chosen one by one
+#### The four free services, chosen one by one
 
 Free quality is not all alike, and the difference matters: an 8-billion-parameter
 model does not hold up on a multi-step physical-chemistry problem. The list has
@@ -154,11 +154,19 @@ answers worse, not better.
 |---|---|---|
 | **Groq** | GPT-OSS 120B, Qwen3 | The workhorse: 131K context, ~30 requests/minute |
 | **Google Gemini** | Gemini Flash | Up to 1M context: whole documents and PDFs |
-| **GitHub Models** | GPT-4.1, o4-mini, DeepSeek | The highest quality, at the price of the tightest ceiling: 8,000 tokens per request, 50 per day |
 | **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Deep reasoning. Credits run out |
 | **Z.AI GLM** | GLM-4.7-Flash | Free **with no expiry**: the reserve still there when credits are gone |
 
-**Deliberately removed.** *Mistral*: mid-tier quality and a free plan requiring
+**Removed.** *GitHub Models*: it was here, and was removed because GitHub
+**retired it entirely on 30 July 2026** — playground, catalogue and inference
+API switched off for everyone. It had been added two days earlier on the
+strength of pages describing the still-live service: the lesson is that
+verifying *a thing exists* is not verifying *it is still alive*, and the search
+to run is "<name> retired / shutdown / deprecated <year>". The failure did not
+stop at the dropdown entry: the rank assigned to it also made it Core Mode's
+automatic choice.
+
+*Mistral*: mid-tier quality and a free plan requiring
 consent to data training — not worth paying for unpublished thesis material
 when five alternatives carry no such clause. *OpenRouter*: small free models
 with ids that change constantly, unsuited to an agent chaining ten tool calls.
@@ -203,6 +211,23 @@ The same pass surfaced a second issue: the minor version in the name is
 `gemini-3.0-pro`), and the regex requiring the dot scored the *newest* models
 as generic aliases — so they lost to older ones, and the automatic upgrade
 described in 2.4 would never have triggered.
+
+#### When a provider does not answer
+
+A `fetch` that fails **before** receiving a response means one of three things:
+no network, the service does not accept direct browser calls (CORS), or the
+service no longer exists. The browser, for security reasons, does not let you
+tell which — the error is deliberately generic.
+
+This used to stop the turn. But if the three causes cannot be told apart, the
+right response is the same for all three: **move to another provider** the user
+holds a key for, exactly as for exhausted quota. It is the behaviour that would
+have masked GitHub Models' retirement entirely, instead of leaving every
+request stuck on a dead service.
+
+Errors that would repeat identically everywhere stay out of the fallback — a
+wrong key, a malformed request: trying them on every provider and then
+reporting a random last error would hide the real cause.
 
 **Removing a service from the list is a breaking operation**, and deserves a
 note: whoever had it selected has that name saved in `localStorage`, and
@@ -616,9 +641,9 @@ search, turn suspension and resumption was simulated.
 
 | Metric | Value |
 |---|---|
-| Component size | 6,265 lines |
+| Component size | 6,262 lines |
 | Tools | 32 |
-| Model configurations | 13 (5 free) |
+| Model configurations | 12 (4 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
 | Max agentic loop rounds | 10 |
