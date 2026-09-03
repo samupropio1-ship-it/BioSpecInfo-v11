@@ -31,7 +31,7 @@ demo:
    agent's work is auditable after the fact.
 3. **Provider portability** — a single tool registry is translated into the
    three function-calling formats in use today (OpenAI-compatible, Anthropic,
-   Gemini), so the agent behaves identically across eleven model configurations,
+   Gemini), so the agent behaves identically across ten model configurations,
    four of them free.
 
 ---
@@ -48,7 +48,7 @@ demo:
 │   agentic loop  (max 10 rounds)                                     │
 │        │                                                            │
 │        ├── provider adapter ──► model API (direct HTTPS)            │
-│        │      · OpenAI-compatible (Groq, GitHub, NVIDIA, Z.AI, xAI) │
+│        │      · OpenAI-compatible (Groq, Z.AI, xAI, DeepSeek)    │
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
@@ -143,7 +143,7 @@ when the new model fails too.
 Anthropic is the deliberate exception: its models are paid, explicitly chosen
 by the user, and deprecated with long notice.
 
-#### The four free services, chosen one by one
+#### The three free services, chosen one by one
 
 Free quality is not all alike, and the difference matters: an 8-billion-parameter
 model does not hold up on a multi-step physical-chemistry problem. The list has
@@ -154,7 +154,6 @@ answers worse, not better.
 |---|---|---|
 | **Groq** | GPT-OSS 120B, Qwen3 | The workhorse: 131K context, ~30 requests/minute |
 | **Google Gemini** | Gemini Flash | Up to 1M context: whole documents and PDFs |
-| **NVIDIA NIM** | DeepSeek R1, Qwen3 235B | Deep reasoning. Credits run out |
 | **Z.AI GLM** | GLM-4.7-Flash | Free **with no expiry**: the reserve still there when credits are gone |
 
 **Removed.** *GitHub Models*: it was here, and was removed because GitHub
@@ -175,7 +174,7 @@ capped at 8K — Spectra sends 32 tool definitions on top of history, which does
 not fit.
 
 None of the five matches a paid frontier model on the hardest problems; GitHub
-Models and NVIDIA NIM come closest, at the cost of low request ceilings. That
+Models come closest, at the cost of low request ceilings. That
 is why the choice stays the user's rather than imposing one service.
 
 #### The paid frontier
@@ -225,7 +224,7 @@ September 2026 check, provider by provider:
 |---|---|
 | Groq | Active. `llama-3.3-70b-versatile` **is no longer served** as of August 2026 and `llama-3.1-8b-instant` is deprecated: removed from candidates, leaving Groq's own replacements |
 | Google Gemini | Active |
-| NVIDIA NIM | Active, permanent free plan |
+| NVIDIA NIM | Removed 09/2026: alive, but without CORS headers it cannot be called from a web page |
 | Z.AI | Active, GLM-4.7-Flash and 4.5-Flash still free |
 | OpenAI, DeepSeek, Anthropic | Active |
 | xAI | Active, but candidates were **two generations** behind: the top is `grok-4.6` since 12/08/2026 |
@@ -667,7 +666,7 @@ search, turn suspension and resumption was simulated.
 |---|---|
 | Component size | 6,254 lines |
 | Tools | 32 |
-| Model configurations | 11 (4 free) |
+| Model configurations | 10 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
 | Max agentic loop rounds | 10 |

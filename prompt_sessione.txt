@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.599 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.588 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v150
+- sw.js            — Service Worker (network-first). Cache: bsi-v151
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,15 +92,17 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 11 configurazioni di modello, tutte
-VERIFICATE ATTIVE a settembre 2026.
-GRATUITE (4): Groq (volume, 131K), Gemini Flash (1M — quello giusto per i
-riassunti lunghi), NVIDIA NIM (DeepSeek R1, piano gratuito permanente),
-Z.AI GLM-4.7-Flash (gratuito senza scadenza).
+32 strumenti su 13 aree scientifiche; 10 configurazioni di modello, tutte
+attive a settembre 2026 E RAGGIUNGIBILI DAL BROWSER (due requisiti diversi,
+vedi nota 29).
+GRATUITE (3): Groq (volume, 131K), Gemini Flash (1M — quello giusto per i
+riassunti lunghi), Z.AI GLM-4.7-Flash (gratuito senza scadenza).
 A PAGAMENTO (7): GPT-5.6 (record su GPQA Diamond), Gemini 3 Pro, DeepSeek V4
 (miglior qualita'/prezzo), Grok 4.6 (primo sugli agenti), Claude Fable 5.1 /
 Opus 5 / Sonnet 5.
-TOLTI e perche': GitHub Models (RITIRATO il 30/07/2026), Mistral (consenso
+TOLTI e perche': NVIDIA NIM (attiva ma senza CORS, 09/2026 — vedi nota 29;
+la rotta resta nel Worker perche' dal server funziona), GitHub Models
+(RITIRATO il 30/07/2026), Mistral (consenso
 all'addestramento), OpenRouter (id instabili), Claude Haiku 4.5 (dominato da
 Sonnet 5: meta' prezzo ma un quinto del contesto e niente ragionamento esteso
 ne' ricerca web).
@@ -356,7 +358,8 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
                   agosto 2026 e llama-3.1-8b-instant e' deprecato: tolti dai
                   candidati, restano i sostituti indicati da Groq.
      · Gemini     attivo.
-     · NVIDIA NIM attivo, piano gratuito permanente.
+     · NVIDIA NIM attivo, MA senza header CORS: rimosso 09/2026 dalla
+                  tendina (vedi nota 29). La rotta resta nel Worker.
      · Z.AI       attivo, GLM-4.7-Flash e 4.5-Flash ancora gratuiti. NON
                   mettere glm-5.x fra i candidati del provider gratuito: sono
                   a pagamento, sarebbe lo stesso errore di gemini-3-pro.
@@ -424,6 +427,31 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    la conclusione la parte che dice cosa fare.
    Test: browser_prova.js (24) e shot_prova.js (misura che la conclusione
    sia dentro il viewport a 360x760).
+
+29) NVIDIA NIM RIMOSSA (09/2026) — "attivo" e "chiamabile da una pagina web"
+   sono DUE requisiti diversi, e il secondo non e' verificabile leggendo il
+   sito del fornitore. NVIDIA e' viva, il piano gratuito pure, i modelli
+   sono ottimi: semplicemente non manda gli header CORS, quindi dal browser
+   la chiamata non parte e nessuna correzione lato app puo' cambiarlo.
+   Restava in tendina solo per far perdere 45 secondi a chi la sceglieva.
+   LA ROTTA NEL WORKER (proxy/spectra-proxy.js) E' RIMASTA APPOSTA: il
+   Worker non e' un browser, quindi da li' NVIDIA funziona. Per rimetterla
+   basta riaggiungere la voce in PROVIDERS e usare il proxy.
+   Restano 10 configurazioni, 3 gratuite (Groq, Gemini Flash, Z.AI).
+   QUANDO SI TOGLIE UN FORNITORE, i punti da toccare sono NOVE:
+   PROVIDERS, UPSTREAM, i commenti "famiglia openai-compatibile",
+   docs/Guida-Chiavi-API.md (tabelle + sezione passo passo + RINUMERAZIONE
+   delle intestazioni, che le sostituzioni automatiche non fanno),
+   proxy/README.md, docs/05-AI-Agent-Architecture.md, la scheda colloquio,
+   questo file, e i test che contano i fornitori o usano quell'id come
+   soggetto (verifica_guida, browser_frontiera, browser_prov, test_carico,
+   test_nucleo, test_openai, test_ko, browser_ko, browser_prova).
+   ATTENZIONE alle sostituzioni cieche di id nei test: rendono asserzioni
+   contraddittorie (in test_carico "include zai" e "NON include zai" nello
+   stesso blocco). Vanno riscritte a mano conservando l'INTENTO.
+   In test_nucleo NON usare una chiave Gemini per provare lo scambio fra
+   gratuiti: gemini_pro condivide la chiave (chiaveCondivisaCon) e vince
+   col rango 90. Usare groq+zai.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

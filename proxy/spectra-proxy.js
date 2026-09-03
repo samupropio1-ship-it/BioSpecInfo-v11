@@ -30,6 +30,10 @@ var FORNITORI = {
   gemini:     { base: 'https://generativelanguage.googleapis.com', segreto: 'GEMINI_KEYS',     modo: 'query-key' },
   groq:       { base: 'https://api.groq.com',                      segreto: 'GROQ_KEYS',       modo: 'bearer' },
   xai:        { base: 'https://api.x.ai',                          segreto: 'XAI_KEYS',        modo: 'bearer' },
+  // NVIDIA e' stata tolta dalla tendina dell'app perche' dal browser non
+  // risponde (non manda gli header CORS). QUI resta apposta: il Worker non
+  // e' un browser, quindi da qui funziona. Serve a chi vuole rimetterla
+  // usando il proxy — basta riaggiungere la voce in PROVIDERS.
   nvidia:     { base: 'https://integrate.api.nvidia.com',          segreto: 'NVIDIA_KEYS',     modo: 'bearer' },
   zai:        { base: 'https://api.z.ai',                          segreto: 'ZAI_KEYS',        modo: 'bearer' },
   openai:     { base: 'https://api.openai.com',                    segreto: 'OPENAI_KEYS',     modo: 'bearer' },

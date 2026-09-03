@@ -29,7 +29,7 @@ Cloudflare. Lì la chiave sta al sicuro, e resta tutto gratuito.
 |---|---|---|
 | **Groq** | `console.groq.com` → API Keys | Il cavallo da tiro: 131K di contesto, ~30 richieste/minuto |
 | **Google Gemini** | `aistudio.google.com` → Get API key | Fino a 1M di contesto: PDF e dispense intere |
-| **NVIDIA NIM** | `build.nvidia.com` → Get API Key | DeepSeek R1, Qwen3 235B. Crediti a esaurimento |
+| **NVIDIA NIM** | `build.nvidia.com` → Get API Key | DeepSeek R1, Qwen3 235B. **Solo qui:** dal browser non risponde, dal Worker sì |
 | **Z.AI GLM** | `z.ai` → profilo → API Keys | Gratuito senza scadenza, forte su ragionamento |
 
 Dettagli passo per passo, limiti reali e servizi scartati (con il perché):
