@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (7.243 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (7.329 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v154
+- sw.js            — Service Worker (network-first). Cache: bsi-v155
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -565,6 +565,38 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
       SMILES: la "n" di "xyzynonesiste" diventava un'ammina, cioe'
       un'analisi inventata per una molecola inesistente. Ora senza SMILES
       si fallisce dichiarandolo.
+
+36) LA FIRMA DEL PENSIERO DI GEMINI — quinto modo di essere piantati, e il
+   piu' subdolo: il PRIMO giro di strumenti riesce, il SECONDO da'
+     400 — Function call is missing a thought_signature in functionCall parts
+   I modelli Gemini che ragionano allegano a ogni parte un 'thoughtSignature'
+   opaco e lo rivogliono IDENTICO quando la conversazione torna indietro. Lo
+   buttavamo via al parsing.
+   Due grafie: thoughtSignature (JSON REST) e thought_signature (nome proto,
+   quello che compare nell'errore). Si raccolgono entrambe.
+   La firma sta sulla PARTE, non dentro functionCall: va rimessa sulla parte
+   (anche su quella di testo, se l'aveva).
+   STESSA CLASSE della firma dei blocchi di pensiero di Anthropic, che era
+   gia' risolta: quando un fornitore ti da' un campo opaco, RIMANDALO
+   INDIETRO. Cercarlo negli altri fornitori prima che ti trovi lui.
+   TRE LIVELLI DI RECUPERO, in quest'ordine (l'ordine e' il punto):
+     a) firma vera rimandata indietro — il caso normale;
+     b) se il fornitore rifiuta lo stesso, si rifa' il turno da capo col
+        marcatore 'skip_thought_signature_validator'. MAI a priori: un
+        modello che non ragiona non emette firme e non ne vuole, e
+        inviargliene una finta trasformerebbe un turno sano in un 400;
+     c) se anche quello viene rifiutato, si riparte SENZA STRUMENTI dai
+        messaggi originali e LO SI DICE (onSenzaStrumenti). Prima questa
+        rete valeva solo al giro 0, cioe' proprio non copriva questo caso.
+   Test: test_firma.js (31).
+
+37) ALTRI DUE SUL FORMATO GEMINI, dalla stessa revisione:
+   · functionResponse.response DEVE essere un oggetto (Struct). Un valore
+     nudo fa fallire il turno: si incarta in { risultato: ... }.
+   · lo stream puo' ripetere la stessa parte in piu' chunk -> lo strumento
+     verrebbe eseguito DUE volte. Si scarta il duplicato ESATTO (nome +
+     argomenti), NON "si tiene solo l'ultimo chunk": chiamate diverse
+     possono arrivare separate e buttarle sarebbe peggio del problema.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
