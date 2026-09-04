@@ -7085,12 +7085,9 @@ function buildChatPane(){
         // cosa e' ancora piu' interessante di un errore.
         // Il turno e' ripartito senza strumenti perche' il fornitore aveva
         // rifiutato il formato: e' un cambio di comportamento, va detto.
-        // Con il ragionamento al massimo il modello resta muto per minuti
-        // prima di scrivere: senza questa nota sembra bloccato, e l'utente
-        // ricarica la pagina proprio mentre la risposta sta per arrivare.
         // Il fornitore ha detto qual e' il suo tetto: da ora Spectra ci sta
         // dentro da sola. Vale la pena dirlo, perche' spiega perche' da
-        // adesso userà meno strumenti per volta.
+        // adesso usera' meno strumenti per volta.
         onTetto: function(nome, tetto){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
@@ -7098,6 +7095,9 @@ function buildChatPane(){
             'me ne ricordo e da ora mando solo gli strumenti utili alla domanda. Riprovo.'), liveNode);
           box.scrollTop = box.scrollHeight;
         },
+        // Con il ragionamento al massimo il modello resta muto per minuti
+        // prima di scrivere: senza questa nota sembra bloccato, e l'utente
+        // ricarica la pagina proprio mentre la risposta sta per arrivare.
         onPensieroLungo: function(nome, secondi){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
