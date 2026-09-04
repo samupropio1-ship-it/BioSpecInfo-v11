@@ -1410,6 +1410,17 @@ function _renderTransit(c){
     var rp=rR, dd=Math.hypot(px, b); var ov=overlapArea(dd,1,rp); return 1-ov/Math.PI;
   }
   function draw(){
+    /* Stessa guardia che hanno gia' animate() e _cosmoAnimate(): se il
+       pannello non e' a schermo si tiene vivo il ciclo ma si salta il lavoro.
+       Senza, questo simulatore ridisegnava il canvas E riscriveva innerHTML
+       (che costa un ricalcolo di layout) 60 volte al secondo per sempre,
+       anche con la scheda in un'altra tab. Era l'unico dei tre cicli di
+       astro.html a non averla — misurato: +60 fotogrammi/s a vuoto dopo aver
+       aperto una volta la scheda Esopianeti. */
+    if(document.hidden || cv.offsetParent === null){
+      raf = requestAnimationFrame(draw);
+      return;
+    }
     rR=+c.querySelector('#trR').value; b=+c.querySelector('#trB').value; spd=+c.querySelector('#trS').value;
     c.querySelector('#trRv').textContent=rR.toFixed(2); c.querySelector('#trBv').textContent=b.toFixed(1); c.querySelector('#trSv').textContent=spd.toFixed(1)+'×';
     ctx.clearRect(0,0,W,H);

@@ -1534,6 +1534,9 @@ document.getElementById('cat-back').addEventListener('click', () => {
 
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    // currentCat e' null finche' l'utente non sceglie una categoria: senza
+    // questa guardia il gestore muore con "Cannot read properties of null".
+    if (!currentCat) return;
     const diff = btn.dataset.diff;
     const pool = QUESTIONS.filter(q => q.cat === currentCat.id && q.diff === diff);
     startQuiz(pool, diff, currentCat.id);
@@ -1541,6 +1544,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 });
 
 document.getElementById('start-all-btn').addEventListener('click', () => {
+  if (!currentCat) return;
   const pool = QUESTIONS.filter(q => q.cat === currentCat.id);
   startQuiz(pool, 'misto', currentCat.id);
 });
@@ -1599,6 +1603,9 @@ function startChallenge(){
 
 
 function renderQuestion() {
+  // Chiamata senza un quiz in corso (o a quiz finito): meglio non fare
+  // niente che spezzare la catena dei gestori con un errore.
+  if (!quizState || !quizState.questions || !quizState.questions[quizState.index]) return;
   const q     = quizState.questions[quizState.index];
   const total = quizState.questions.length;
   quizState.answered = false;
@@ -1668,6 +1675,9 @@ function startTimer(diff) {
 }
 
 function timeOut() {
+  // Arriva da un timer: il quiz puo' essere gia' finito o abbandonato
+  // quando scocca, e allora non c'e' piu' niente da segnare.
+  if (!quizState || !quizState.questions || !quizState.questions[quizState.index]) return;
   quizState.answered = true;
   quizState.wrong++;
   const q    = quizState.questions[quizState.index];
@@ -1740,6 +1750,7 @@ function showExplanation(text) {
 
 document.getElementById('next-btn').addEventListener('click', () => {
   if (levelUpTimer) { clearTimeout(levelUpTimer); levelUpTimer = null; }
+  if (!quizState) return;          // nessun quiz in corso: niente da avanzare
   quizState.index++;
   if (quizState.index >= quizState.questions.length) endQuiz();
   else renderQuestion();

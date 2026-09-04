@@ -2858,6 +2858,25 @@ var PHYS_CONST = {
   'volume molare gas':    { v: '22.414', u: 'L/mol', note: 'a 0 °C e 1 atm' }
 };
 
+/* I SIMBOLI, che sono il modo in cui una costante si scrive davvero su un
+   foglio. Senza, "quanto vale R?" finiva nella ricerca per sottostringa e
+   restituiva Avogadro — perche' "avogadro" contiene una "r". Un numero
+   sbagliato dato con sicurezza, cioe' il guasto peggiore in un'app che si
+   usa per studiare. */
+var PHYS_SIMBOLI = {
+  'na': 'costante di avogadro', 'n_a': 'costante di avogadro', 'l': 'costante di avogadro',
+  'h': 'costante di planck', 'ħ': 'costante di planck',
+  'k': 'costante di boltzmann', 'kb': 'costante di boltzmann', 'k_b': 'costante di boltzmann',
+  'r': 'costante dei gas',
+  'e': 'carica elementare',
+  'c': 'velocita della luce',
+  'f': 'costante di faraday',
+  'me': 'massa elettrone', 'm_e': 'massa elettrone',
+  'mp': 'massa protone', 'm_p': 'massa protone',
+  'rh': 'costante di rydberg', 'r_h': 'costante di rydberg', 'r∞': 'costante di rydberg',
+  'vm': 'volume molare gas', 'v_m': 'volume molare gas'
+};
+
 // Fattori verso un'unita' di riferimento per ciascuna famiglia.
 var UNIT_FAMILIES = {
   energia:     { ref:'J',   u:{ 'J':1, 'kJ':1e3, 'cal':4.184, 'kcal':4184, 'eV':1.602176634e-19,
@@ -4432,12 +4451,56 @@ TOOLS.push(
       required: ['nome']
     },
     execute: function(a){
-      var q = (a && a.nome || '').toLowerCase().replace(/[àá]/g,'a').replace(/[èé]/g,'e').trim();
-      for(var k in PHYS_CONST){
-        if(k.indexOf(q) >= 0 || q.indexOf(k) >= 0 || k.split(' ').pop() === q)
-          return { ok:true, costante:k, valore:PHYS_CONST[k].v, unita:PHYS_CONST[k].u, nota:PHYS_CONST[k].note };
+      var q = (a && a.nome || '').toLowerCase()
+        .replace(/[àá]/g,'a').replace(/[èé]/g,'e').replace(/[ìí]/g,'i')
+        .replace(/[òó]/g,'o').replace(/[ùú]/g,'u').replace(/['’]/g,' ')
+        .replace(/[^a-z0-9_∞ ]/g,' ').replace(/\s+/g,' ').trim();
+      function risp(k){
+        return { ok:true, costante:k, valore:PHYS_CONST[k].v,
+                 unita:PHYS_CONST[k].u, nota:PHYS_CONST[k].note };
       }
-      return { ok:false, error:'costante non trovata', disponibili:Object.keys(PHYS_CONST) };
+      /* Articoli e preposizioni non distinguono niente: "massa dell'elettrone"
+         e "massa elettrone" sono la stessa domanda, e senza toglierli la
+         prima non trovava niente. */
+      var VUOTE = { di:1, del:1, dell:1, della:1, dello:1, dei:1, degli:1, delle:1,
+                    la:1, il:1, lo:1, le:1, un:1, una:1, uno:1, a:1, in:1, per:1 };
+      function utili(t){
+        return t.split(' ').filter(function(w){ return w && !VUOTE[w]; });
+      }
+      var qp = utili(q);
+      if(!qp.length) return { ok:false, error:'nome mancante', disponibili:Object.keys(PHYS_CONST) };
+
+      // 1. corrispondenza esatta
+      if(PHYS_CONST[q]) return risp(q);
+      // 2. simbolo, che e' come una costante si scrive davvero (R, k, h, c…)
+      if(PHYS_SIMBOLI[q] && PHYS_CONST[PHYS_SIMBOLI[q]]) return risp(PHYS_SIMBOLI[q]);
+
+      /* 3. tutte le parole significative della domanda devono comparire nel
+         nome. Si raccolgono TUTTE le candidate e si risponde solo se e' una
+         sola: prima si rispondeva con la prima trovata, e "costante" — che
+         corrisponde a cinque voci — restituiva Avogadro senza dirlo. */
+      var cand = [], k;
+      for(k in PHYS_CONST){
+        var kp = utili(k);
+        var tutte = qp.every(function(w){
+          return kp.some(function(x){ return x === w || (w.length >= 4 && x.indexOf(w) === 0); });
+        });
+        if(tutte) cand.push(k);
+      }
+      // 4. solo da 4 caratteri in su si scende alla sottostringa: sotto quella
+      //    soglia una lettera sola pesca a caso (era il bug di "R" e "k").
+      if(!cand.length && q.length >= 4){
+        for(k in PHYS_CONST){ if(k.indexOf(q) >= 0 || q.indexOf(k) >= 0) cand.push(k); }
+      }
+      if(cand.length === 1) return risp(cand[0]);
+      if(cand.length > 1)
+        return { ok:false, error:'nome ambiguo: "' + q + '" corrisponde a ' + cand.length +
+                 ' costanti, precisa quale', candidate:cand };
+      return { ok:false,
+               error: q.length < 4
+                 ? 'nome troppo corto per essere sicuro: usa il nome per esteso (es. "costante dei gas") o un simbolo riconosciuto (R, k, h, c, e, F, NA)'
+                 : 'costante non trovata',
+               disponibili: Object.keys(PHYS_CONST) };
     }
   },
   {
