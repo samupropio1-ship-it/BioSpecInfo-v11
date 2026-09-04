@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 7.329 righe, zero dipendenze runtime |
+| Componente | 7.462 righe, zero dipendenze runtime |
 | Strumenti | 35, su 13 aree scientifiche |
 | Fornitori supportati | 7 (Anthropic, OpenAI, Google, DeepSeek, xAI, Z.AI, Groq) — 10 configurazioni, 3 gratuite, tutte attive **e raggiungibili dal browser** |
 | Dataset interni esposti | 9, oltre 800 record |

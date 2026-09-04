@@ -35,7 +35,7 @@ Dieci configurazioni, sette fornitori, **tutti verificati attivi a settembre
 
 | # | Servizio | Modelli | A cosa serve | Limite |
 |---|---|---|---|---|
-| 1 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: l'80% del lavoro | ~30 richieste/min |
+| 1 | **Groq** | GPT-OSS 120B, Qwen3 | Il cavallo da tiro: l'80% del lavoro | ~30 richieste/min, **8.000 token/min** |
 | 2 | **Google Gemini** | Gemini Flash | Documenti lunghi e **riassunti** (1M di contesto) | Generoso |
 | 3 | **Z.AI GLM** | GLM-4.7-Flash | Rincalzo che non scade mai | Limitato al minuto |
 
@@ -71,6 +71,13 @@ La chiave comincia con **`gsk_`**.
 
 **Perché è il cavallo da tiro:** 131.000 token di contesto e circa 30
 richieste al minuto. Studiando non lo esaurisci.
+
+> **Attenzione a due numeri diversi.** I 131.000 token sono la *finestra di
+> contesto*; il piano gratuito però lascia passare **8.000 token al minuto**
+> (TPM), ed è quello il limite che incontri per primo. Spectra se ne accorge
+> da sola: alla prima richiesta troppo grande legge il tetto dal messaggio di
+> Groq, se lo ricorda e da lì in poi manda solo gli strumenti pertinenti alla
+> domanda invece di tutti e 35. Vedi la nota 📏 in chat quando succede.
 
 ---
 
@@ -320,6 +327,8 @@ salvate tutte e tre.
 | Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua — **e se lo segna**, vedi qui sotto |
 | Modello ritirato dal fornitore | Lo boccia, **legge il sostituto dal messaggio del fornitore** e rifà la domanda |
 | Il fornitore rifiuta il *formato* del turno | Tre tentativi di recupero prima di arrendersi, l'ultimo senza strumenti — e te lo dice |
+| Richiesta troppo grande (`413`) | **Legge il tetto dal messaggio**, se lo ricorda e rimanda la domanda con meno strumenti |
+| Il modello sta ragionando e non risponde | Aspetta fino a 3 minuti (5 in ⚛ Modalità Nucleo) invece di 45 s, e ti dice che sta pensando |
 
 **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
 gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
