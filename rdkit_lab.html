@@ -3896,8 +3896,13 @@ var SpectralLab=(function(){
     draw();
   }
 
+  // Etichette gia' scritte in QUESTO fotogramma, per non accavallarle.
+  // Si azzera ad ogni draw(): tenerle fra un fotogramma e l'altro le
+  // farebbe salire all'infinito durante l'animazione.
+  var _etich = [];
   function draw(){
     if(!cv||!ctx)return;
+    _etich = [];
     ctx.clearRect(0,0,W,H);
     ctx.fillStyle='#07111f';ctx.fillRect(0,0,W,H);
     var s=SPEC[_type];
@@ -4032,7 +4037,18 @@ var SpectralLab=(function(){
     var topY=s.ir?yCV(1-p.h*prog*0.88):yCV(p.h*prog);
     if(prog>0.5&&p.label&&p.h>(s.ir?0.28:0.1)){
       ctx.fillStyle=col;ctx.font=(hov?'bold ':'')+Math.max(8,Math.min(10,Math.round(sig*0.7)))+'px monospace';
-      ctx.textAlign='center';ctx.fillText(p.label,cx,topY-5);
+      ctx.textAlign='center';
+      /* Picchi vicini producevano etichette una sopra l'altra, illeggibili
+         proprio nella zona affollata (1400–1600 cm-1). Si tiene traccia di
+         cosa e' gia' scritto e si sale di riga finche' c'e' posto: meglio
+         una scaletta che un groviglio. */
+      var largh = ctx.measureText(p.label).width;
+      var y = topY - 5, riga = 0;
+      while(riga < 4 && _etich.some(function(e){
+        return Math.abs(e.y - y) < 11 && Math.abs(e.cx - cx) < (e.w + largh) / 2 + 4;
+      })){ y -= 12; riga++; }
+      _etich.push({ cx: cx, y: y, w: largh });
+      ctx.fillText(p.label, cx, y);
     }
     ctx.restore();
   }
@@ -4082,7 +4098,23 @@ var SpectralLab=(function(){
   // SMILES feature detection
   function feat(smi){
     var f={smi:smi};
+    /* nC conta TUTTI i carboni (serve per la massa). nCsp3 conta solo quelli
+       ALIFATICI, ed e' quello che deve governare le bande alifatiche.
+       Prima si usava nC anche li', con /C/gi: la "i" faceva contare pure le
+       "c" minuscole, cioe' gli aromatici. Risultato: il benzene — che di
+       carboni sp3 non ne ha nemmeno uno — veniva mostrato con CH2 str, CH2
+       bend, CH3 bend e perfino un metile a 0,90 ppm in 1H. Per chi studia
+       non e' un difetto estetico: e' una banda che impara a cercare e non
+       c'e'.
+       In SMILES la maiuscola C e' alifatica, la minuscola c e' aromatica.
+       L'unica insidia e' Cl, che comincia per C ma non e' carbonio. */
     f.nC=(smi.match(/C/gi)||[]).length;
+    f.nCsp3=(smi.match(/C(?!l)/g)||[]).length;
+    /* Metile terminale: una C alifatica legata a UNA sola cosa. All'inizio
+       della stringa (ma non se segue una chiusura d'anello, altrimenti il
+       cicloesano C1CCCCC1 risulterebbe avere un CH3 che non ha), dentro una
+       diramazione (C), o in fondo. */
+    f.me=/^C(?![l0-9])/.test(smi)||/\(C\)/.test(smi)||/[^(]C$/.test(smi);
     f.ar=(smi.match(/c/g)||[]).length>=4;
     f.benz=/c1ccccc1/.test(smi)||((smi.match(/c/g)||[]).length>=6&&f.ar);
     f.amide=/C\(=O\)N|NC\(=O\)/.test(smi);
@@ -4133,9 +4165,13 @@ var SpectralLab=(function(){
     if(f.alc&&!f.acid)pk(3.55,0.30,0.30,'O-H','Alcol O-H (variabile, 2–5 ppm)');
     if(f.nme)pk(2.88,0.62,0.08,'N-CH₃','N-metile (2.2–3.1 ppm)');
     if(f.co&&!f.ald)pk(2.34,0.73,0.07,'CO-CH₃','CH₃ adiacente C=O (2.0–2.6 ppm)');
-    if(f.benz&&f.nC>6)pk(2.72,0.63,0.11,'Ar-CH₂','Benzilico ArCH₂ (2.5–3.2 ppm)');
-    if(f.nC>5&&!f.ar)pk(1.60,0.52,0.15,'CH₂','Metilene -CH₂- (1.2–1.8 ppm)');
-    if(f.nC>3)pk(0.90,0.68,0.09,'CH₃','Metile terminale (0.8–1.5 ppm)');
+    if(f.benz&&f.nCsp3>=2)pk(2.72,0.63,0.11,'Ar-CH₂','Benzilico ArCH₂ (2.5–3.2 ppm)');
+    if(f.nCsp3>=3&&!f.ar)pk(1.60,0.52,0.15,'CH₂','Metilene -CH₂- (1.2–1.8 ppm)');
+    /* Un metile attaccato a un anello aromatico NON cade a 0,9: e'
+       deschermato dalla corrente d'anello e sta intorno a 2,3 (toluene:
+       2,36). Mandarci uno studente a cercarlo a 0,9 e' un errore vero. */
+    if(f.me&&f.benz&&f.nCsp3<=2)pk(2.34,0.70,0.07,'Ar-CH₃','Metile su anello aromatico (2.2–2.5 ppm)');
+    else if(f.me&&!f.benz)pk(0.90,0.68,0.09,'CH₃','Metile terminale (0.8–1.5 ppm)');
     var mx=ps.reduce(function(a,b){return a>b.h?a:b.h;},0.01);
     ps.forEach(function(p){p.h=p.h/mx;});return ps;
   }
@@ -4152,13 +4188,15 @@ var SpectralLab=(function(){
     if(f.triple){pk(3310,0.72,17,'≡C-H','≡C-H stretch (3300 cm⁻¹, tagliente)');pk(2120,0.84,26,'C≡C','C≡C stretch (2100–2260 cm⁻¹)');}
     if(f.nitrile)pk(2225,0.88,20,'C≡N','Nitrile C≡N stretch (2200–2260 cm⁻¹)');
     if(f.ald){pk(2820,0.54,17,'CHO H','Aldeide C-H stretch (2820 cm⁻¹)');pk(2720,0.50,17,'CHO H','Aldeide C-H stretch (2720 cm⁻¹)');pk(1730,0.95,22,'C=O (CHO)','Aldeide C=O stretch (1720–1740 cm⁻¹)');}
-    if(f.nC>2){pk(2965,0.55,21,'C-H str','C-H alifatico stretch (~2960 cm⁻¹)');pk(2870,0.44,17,'CH₂ str','CH₂ stretch (~2860 cm⁻¹)');}
+    if(f.nCsp3>=1)pk(2965,0.55,21,'C-H str','C-H alifatico stretch (~2960 cm⁻¹)');
+    if(f.nCsp3>=2)pk(2870,0.44,17,'CH₂ str','CH₂ stretch (~2860 cm⁻¹)');
     if(f.ester){pk(1735,0.95,22,'C=O (est.)','Estere C=O stretch (1735–1750 cm⁻¹)');pk(1250,0.80,36,'C-O str','Estere C-O stretch (1200–1300 cm⁻¹)');}
     if(f.acid&&!f.amide)pk(1710,0.93,27,'C=O (COOH)','Acido C=O stretch (1700–1725 cm⁻¹)');
     if(f.ket)pk(1715,0.92,24,'C=O (chet.)','Chetone C=O stretch (1705–1725 cm⁻¹)');
     if(f.ar){pk(1600,0.68,17,'C=C Ar','C=C aromatico (1600 cm⁻¹)');pk(1500,0.62,15,'C=C Ar','C=C aromatico (1500 cm⁻¹)');pk(750,0.80,27,'=C-H oop','C-H out-of-plane aromatico (650–900 cm⁻¹)');}
     if(f.alkene){pk(1640,0.60,19,'C=C str','Alchene C=C stretch (1620–1680 cm⁻¹)');pk(900,0.74,21,'=CH₂ oop','=CH₂ wag (890 cm⁻¹)');}
-    if(f.nC>2){pk(1465,0.54,17,'CH₂ bend','CH₂ scissor (1450–1470 cm⁻¹)');pk(1375,0.49,13,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');}
+    if(f.nCsp3>=2)pk(1465,0.54,17,'CH₂ bend','CH₂ scissor (1450–1470 cm⁻¹)');
+    if(f.me)pk(1375,0.49,13,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');
     if(f.ether)pk(1090,0.74,36,'C-O-C str','Etere C-O stretch (1050–1150 cm⁻¹)');
     if(f.cl)pk(730,0.80,27,'C-Cl str','C-Cl stretch (600–800 cm⁻¹)');
     if(f.br)pk(620,0.75,23,'C-Br str','C-Br stretch (500–700 cm⁻¹)');
@@ -4209,14 +4247,16 @@ var SpectralLab=(function(){
   function ramanPk(smi,f){
     var ps=[],id=0;
     function pk(x,h,w,lb,as){ps.push({id:id++,x:x,h:h,w:w,label:lb,assign:as});}
-    if(f.nC>2){pk(2920,0.75,17,'C-H str','C-H stretch alifatico (2850–3000 cm⁻¹)');pk(2850,0.65,15,'CH₂ str','CH₂ stretch simmetrico (2850 cm⁻¹)');}
+    if(f.nCsp3>=1)pk(2920,0.75,17,'C-H str','C-H stretch alifatico (2850–3000 cm⁻¹)');
+    if(f.nCsp3>=2)pk(2850,0.65,15,'CH₂ str','CH₂ stretch simmetrico (2850 cm⁻¹)');
     if(f.ar){pk(3060,0.52,13,'=C-H Ar','Aromatico C-H stretch (3060 cm⁻¹)');pk(1600,0.95,15,'C=C (Ar)','C=C aromatico 1600 cm⁻¹ — molto intenso in Raman');pk(1580,0.78,13,'C=C (Ar)','C=C aromatico 1580 cm⁻¹');pk(1000,0.90,10,'Ring breath.','Benzene ring breathing (1000 cm⁻¹) — diagnostico Raman');}
     if(f.triple)pk(2150,0.96,13,'C≡C','C≡C stretch (2100–2200 cm⁻¹) — molto intenso in Raman');
     if(f.alkene)pk(1640,0.78,15,'C=C','C=C stretch alchene (intenso in Raman)');
     if(f.co&&!f.ald)pk(1720,0.43,17,'C=O','C=O stretch (debole in Raman rispetto a IR)');
     if(f.s){pk(2555,0.84,10,'S-H str','S-H stretch (2550–2580 cm⁻¹) — caratteristico');pk(650,0.70,17,'C-S str','C-S stretch (600–700 cm⁻¹)');}
-    if(f.nC>3){pk(1050,0.57,21,'C-C str','C-C stretch scheletrico (900–1100 cm⁻¹)');pk(870,0.48,17,'C-C str','C-C stretch (800–900 cm⁻¹)');}
-    if(f.nC>2){pk(1445,0.54,13,'CH₂ sciss.','CH₂ scissors (1440–1460 cm⁻¹)');pk(1375,0.44,10,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');}
+    if(f.nCsp3>=3){pk(1050,0.57,21,'C-C str','C-C stretch scheletrico (900–1100 cm⁻¹)');pk(870,0.48,17,'C-C str','C-C stretch (800–900 cm⁻¹)');}
+    if(f.nCsp3>=2)pk(1445,0.54,13,'CH₂ sciss.','CH₂ scissors (1440–1460 cm⁻¹)');
+    if(f.me)pk(1375,0.44,10,'CH₃ bend','CH₃ sym bend (1375 cm⁻¹)');
     if(f.ether)pk(1100,0.66,22,'C-O-C str','C-O-C stretch etere (intenso in Raman)');
     if(f.cl)pk(700,0.86,17,'C-Cl str','C-Cl stretch (intenso in Raman)');
     if(f.br)pk(580,0.88,15,'C-Br str','C-Br stretch (intenso in Raman)');
@@ -4307,6 +4347,16 @@ window.addEventListener('load', function(){
   try{
     var isEmbedded = true;
     try{ isEmbedded = (window.self !== window.top); }catch(e){ isEmbedded = true; }
+    /* Dentro BioSpecInfo l'overlay mette GIA' il suo "↩ Indietro" in basso a
+       sinistra: mostrando anche questo se ne vedevano due, con la stessa
+       etichetta e due comportamenti identici. Si tiene solo quando chi ci
+       incorpora NON ne offre uno — cioe' quando l'overlay dell'app non c'e'. */
+    var genitoreHaIlSuo = false;
+    try{
+      genitoreHaIlSuo = !!(window.parent && window.parent !== window &&
+                           window.parent.document.getElementById('bsi-rdkitlab-ov'));
+    }catch(e){ genitoreHaIlSuo = false; }   // origine diversa: non lo sappiamo, lo mostriamo
+    if(genitoreHaIlSuo) isEmbedded = false;
     var btn = document.getElementById('bsi-float-back');
     if(btn && isEmbedded) btn.style.display = 'block';
   }catch(e){}

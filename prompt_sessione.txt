@@ -37,7 +37,7 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v156
+- sw.js            — Service Worker (network-first). Cache: bsi-v157
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -633,6 +633,50 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    blocco, e l'utente ricarica la pagina proprio mentre la risposta arriva.
    Test: test_attesa.js (11), con un orologio finto — si misurano le
    DECISIONI, non si aspettano minuti veri.
+
+40) IL SIMULATORE DI SPETTRI DAVA IL BENZENE CON CH2 E CH3 — errore di
+   CHIMICA, il piu' grave dei quattro trovati nel lab, perche' uno studente
+   impara a cercare una banda che non esiste.
+   LA CAUSA: f.nC=(smi.match(/C/gi)||[]).length — la "i" faceva contare anche
+   le "c" minuscole, cioe' gli AROMATICI. In SMILES maiuscola = alifatica,
+   minuscola = aromatica. Il benzene c1ccccc1 risultava con 6 carboni e
+   riceveva tutte le bande alifatiche: CH2 str, CH2 bend, CH3 bend, e in 1H
+   perfino un metile a 0,90 ppm.
+   Ora f.nCsp3 conta SOLO /C(?!l)/g (l'insidia e' Cl, che comincia per C ma
+   non e' carbonio) e governa tutte le bande alifatiche in IR, Raman e NMR.
+   f.nC resta per la stima della massa.
+   f.me (metile terminale): ^C(?![l0-9]) oppure (C) oppure [^(]C$. Il veto
+   sulla cifra serve al cicloesano C1CCCCC1, che altrimenti risulterebbe con
+   un CH3 che non ha.
+   AGGIUNTO Ar-CH3 a 2,34 ppm: un metile su anello aromatico e' deschermato
+   dalla corrente d'anello (toluene 2,36), mandarlo a cercare a 0,9 e' un
+   errore vero.
+   Test: browser_lab.js (21) — benzene, toluene e cicloesano, letti dalla
+   LEGENDA nel DOM, cioe' da cio' che vede l'utente (feat/irPk stanno dentro
+   la chiusura di SpectralLab e non sono raggiungibili dai test).
+
+41) I FAB COPRIVANO GLI OVERLAY — _bsiOverlayOpen() guardava SOLO
+   #bsi-hub-ov (Spectra). Aprendo RDKit Lab, Astro o PRO i due pulsanti
+   flottanti restavano sopra la pagina figlia: nel lab finivano sulla
+   casella "Auto-play" e sulla legenda.
+   Ora si guardano TUTTI gli overlay con [id^="bsi-"][id$="-ov"], invece di
+   elencarli a mano e dimenticarne uno al prossimo che si aggiunge.
+   ATTENZIONE: avevo prima aggiunto una regola CSS con !important, e NON
+   funzionava — un watchdog scrive display:flex !important INLINE, e
+   l'inline con !important batte il foglio di stile. E' la stessa pezza gia'
+   documentata nella scheda colloquio (bug 2): quando trovi una pezza, cerca
+   la ferita. La ferita era _bsiOverlayOpen.
+   _bsiSyncFabs ora scrive SOLO se il valore cambia: l'osservatore guarda
+   anche gli attributi, e riscrivere lo stesso valore lo risveglierebbe in
+   un ciclo infinito.
+
+42) DUE PULSANTI "INDIETRO" NEL LAB — rdkit_lab.html mostra il suo
+   #bsi-float-back quando e' incorporato, ma l'overlay di index.html ne
+   aggiunge gia' uno. Ora il lab lo mostra solo se il genitore NON ne offre
+   uno (controlla window.parent.document.getElementById('bsi-rdkitlab-ov')),
+   cosi' resta utile per un embed diverso.
+   E le etichette dei picchi si accavallavano nella zona affollata: ora
+   salgono di riga finche' c'e' posto (_etich, azzerato ad ogni draw()).
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
