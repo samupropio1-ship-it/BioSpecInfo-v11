@@ -319,9 +319,30 @@ salvate tutte e tre.
 | Quota finita | Passa a un altro servizio per cui hai una chiave e **rifà la domanda da lì** |
 | Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua — **e se lo segna**, vedi qui sotto |
 | Modello ritirato dal fornitore | Lo boccia, **legge il sostituto dal messaggio del fornitore** e rifà la domanda |
+| Il fornitore rifiuta il *formato* del turno | Tre tentativi di recupero prima di arrendersi, l'ultimo senza strumenti — e te lo dice |
 
 **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
 gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
+
+## Se Gemini si ferma al secondo strumento
+
+C'era un guasto con una firma inconfondibile: il primo strumento partiva,
+vedevi la nota verde «Ho eseguito…», e subito dopo
+
+> `HTTP 400 — Function call is missing a thought_signature in functionCall parts`
+
+I modelli Gemini che ragionano allegano a ogni pezzo della loro risposta una
+**firma** — una stringa opaca — e pretendono di riaverla identica quando la
+conversazione torna indietro per il secondo giro. Spectra la buttava via.
+
+Per questo il primo giro riusciva e il secondo no: il modo più confondente di
+fallire, perché sembra che il problema sia lo strumento appena eseguito.
+
+**Ora la firma viene conservata e rimandata indietro**, ed è risolto. Se un
+giorno un fornitore rifiutasse comunque il formato del turno, Spectra prova
+tre strade in ordine prima di arrendersi — l'ultima è rifare la domanda
+**senza strumenti**, e in quel caso te lo scrive in chat: una risposta senza
+risolutori è una risposta diversa, non la stessa un po' peggio.
 
 ## Se il servizio è sovraccarico
 

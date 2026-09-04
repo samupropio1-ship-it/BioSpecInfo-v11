@@ -1364,9 +1364,37 @@ function accumulateToolCall(family, json, state){
       var parts = cand && cand.content && cand.content.parts;
       if(parts){
         parts.forEach(function(part){
+          /* LA FIRMA DEL PENSIERO. I modelli Gemini che ragionano allegano a
+             ogni parte un 'thoughtSignature' opaco, e pretendono di
+             riaverlo IDENTICO quando la conversazione torna indietro:
+             altrimenti il giro dopo rispondono
+               400 — Function call is missing a thought_signature in
+               functionCall parts.
+             Cioe' il primo giro funziona e il secondo no, che e' il modo
+             piu' confondente di fallire. Va conservata qui e rimessa al
+             suo posto in aggiungiTurnoStrumenti().
+             Due grafie in circolazione: camelCase nel JSON REST, snake_case
+             nel nome proto (che e' quello che compare nell'errore). */
+          var firma = part.thoughtSignature || part.thought_signature || null;
           if(part.functionCall){
             state.geminiCalls = state.geminiCalls || [];
-            state.geminiCalls.push({ id: 'call_' + state.geminiCalls.length, name: part.functionCall.name, args: part.functionCall.args || {} });
+            /* Lo stream puo' ripetere la stessa parte in piu' chunk: senza
+               controllo lo strumento verrebbe eseguito due volte, con doppio
+               consumo di quota e due note identiche in chat.
+               Si scarta il DUPLICATO ESATTO (stesso nome e stessi argomenti),
+               non "tutto tranne l'ultimo chunk": chiamate diverse possono
+               arrivare separate, e buttarle sarebbe peggio del problema. */
+            var impronta = part.functionCall.name + '|' +
+                           JSON.stringify(part.functionCall.args || {});
+            var gia = state.geminiCalls.some(function(c){
+              return (c.name + '|' + JSON.stringify(c.args || {})) === impronta;
+            });
+            if(!gia) state.geminiCalls.push({ id: 'call_' + state.geminiCalls.length,
+              name: part.functionCall.name, args: part.functionCall.args || {},
+              firma: firma });
+          }else if(firma && typeof part.text === 'string'){
+            // firma allegata alla parte di testo: si conserva a parte
+            state.geminiFirmaTesto = firma;
           }
         });
       }
@@ -1680,7 +1708,8 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
         })
     : [];
   return { text: full, toolCalls: toolCalls, thinking: thinkingBlocks,
-           server: serverBlocks, stopReason: tcState.stopReason };
+           server: serverBlocks, stopReason: tcState.stopReason,
+           firmaTesto: tcState.geminiFirmaTesto || null };
 }
 window.bsiStreamChat = function(providerId, apiKey, messages, systemPrompt, callbacks){
   // wrapper retro-compatibile: ignora eventuali tool-call e restituisce solo il testo,
@@ -4633,7 +4662,7 @@ window.bsiValidaNumeri = validaNumeri;
 // Costruisce, per famiglia, il messaggio "assistant" (che contiene le
 // tool-call) e il messaggio "tool result" da riaggiungere alla history,
 // nella forma nativa richiesta da quel provider.
-function appendAgentTurn(family, history, assistantText, toolCalls, execResults, thinkingBlocks, serverBlocks){
+function appendAgentTurn(family, history, assistantText, toolCalls, execResults, thinkingBlocks, serverBlocks, firmaTesto, firmaRipiego){
   if(family === 'anthropic'){
     var contentBlocks = [];
     // I blocchi di pensiero vanno per primi e identici a come sono arrivati
@@ -4653,11 +4682,33 @@ function appendAgentTurn(family, history, assistantText, toolCalls, execResults,
   }
   if(family === 'gemini'){
     var parts = [];
-    if(assistantText) parts.push({ text: assistantText });
-    toolCalls.forEach(function(tc){ parts.push({ functionCall: { name: tc.name, args: tc.args || {} } }); });
+    if(assistantText){
+      var pT = { text: assistantText };
+      if(firmaTesto) pT.thoughtSignature = firmaTesto;
+      parts.push(pT);
+    }
+    toolCalls.forEach(function(tc){
+      var pF = { functionCall: { name: tc.name, args: tc.args || {} } };
+      // Senza questa riga il turno successivo viene rifiutato con 400:
+      // Gemini vuole indietro la firma che ha emesso, non una a caso.
+      if(tc.firma) pF.thoughtSignature = tc.firma;
+      /* Marcatore di salto. NON si manda mai a priori: i modelli che non
+         ragionano non emettono firme e non ne vogliono: inviargliene una
+         finta trasformerebbe un turno sano in un 400. Si usa SOLO dopo che
+         il fornitore ha gia' rifiutato il turno per firma mancante — cioe'
+         quando l'alternativa non e' "funziona", e' "non funziona". */
+      else if(firmaRipiego) pF.thoughtSignature = 'skip_thought_signature_validator';
+      parts.push(pF);
+    });
     history.push({ role: 'assistant', content: assistantText, _native: { gemini: { role: 'model', parts: parts } } });
     var respParts = execResults.map(function(r){
-      return { functionResponse: { name: r.name, response: r.result } };
+      /* 'response' deve essere un OGGETTO: Gemini lo attende come Struct e
+         un valore nudo (stringa, numero, null) fa fallire la richiesta. Oggi
+         tutti gli strumenti restituiscono oggetti, ma basta che uno cambi
+         perche' il turno si rompa senza motivo apparente. */
+      var risp = (r.result && typeof r.result === 'object' && !Array.isArray(r.result))
+        ? r.result : { risultato: r.result };
+      return { functionResponse: { name: r.name, response: risp } };
     });
     history.push({ role: 'user', content: '[risultati strumenti]', _native: { gemini: { role: 'user', parts: respParts } } });
     return;
@@ -4751,6 +4802,7 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   // il budget. Ora ha spazio per una vera catena di ragionamento.
   var MAX_ROUNDS = nucleoAttivo() ? GIRI_NUCLEO : GIRI_NORMALE;
   var toolsDisabled = false;
+  var firmaRipiego = false;      // vedi il recupero sul 400 da firma mancante
   var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
   // La selezione per budget si fa UNA volta per turno, non ad ogni giro.
   // Rifacendola ogni volta cambierebbe a meta' turno — la cronologia cresce
@@ -4803,10 +4855,34 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
       // richiesta (percepito come "Spectra non risponde"), riprovo UNA
       // volta in modalità solo-testo, senza strumenti.
       var errMsg = ((err && err.message) || '').toLowerCase();
-      var looksToolRelated = !toolsDisabled && /tool|function.?call|function_call|strument/.test(errMsg);
-      if(looksToolRelated && round === 0){
+      /* RETE DI SICUREZZA sul formato del turno. Se il fornitore rifiuta la
+         conversazione per come e' costruita — una firma mancante, una
+         chiamata a strumento che non gli torna — insistere e' inutile: lo
+         stesso corpo verrebbe rifiutato identico.
+         Si riparte allora dai messaggi ORIGINALI e senza strumenti: si
+         perde il lavoro del turno, ma l'utente riceve una risposta invece
+         di un codice HTTP. E glielo si dice, perche' una risposta senza
+         strumenti e' una risposta diversa, non la stessa un po' peggio.
+         Prima questo ripiego valeva SOLO al primo giro: proprio il caso di
+         Gemini — dove il primo giro riesce e il secondo viene rifiutato per
+         la firma mancante — non era coperto. */
+      /* Primo tentativo di recupero, PRIMA di rinunciare agli strumenti: se
+         il rifiuto e' proprio per la firma mancante, si rifa' il turno da
+         capo usando il marcatore di salto. Se funziona, l'utente conserva
+         gli strumenti; se non funziona, resta la rete qui sotto. */
+      if(/thought_signature|thoughtsignature/i.test(errMsg) && !firmaRipiego && !toolsDisabled){
+        firmaRipiego = true;
+        history = messages.slice();
+        round = -1;
+        continue;
+      }
+      var looksToolRelated = !toolsDisabled &&
+        /tool|function.?call|function_call|strument|thought_signature|thoughtsignature/.test(errMsg);
+      if(looksToolRelated){
         toolsDisabled = true;
-        round--;
+        history = messages.slice();     // via il turno che il fornitore rifiuta
+        if(callbacks && callbacks.onSenzaStrumenti) callbacks.onSenzaStrumenti(p.name);
+        round = -1;
         continue;
       }
       throw err;
@@ -4886,7 +4962,7 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
       }
       callbacks.onToolUse(msg);
     });
-    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults, r.thinking, r.server);
+    appendAgentTurn(p.family, history, roundText, r.toolCalls, execResults, r.thinking, r.server, r.firmaTesto, firmaRipiego);
   }
   callbacks.onDone(totalText || '(limite di passaggi strumenti raggiunto)');
   return { text: totalText };
@@ -6895,6 +6971,16 @@ function buildChatPane(){
         // Va detto: l'utente ha diritto di sapere con cosa gli si sta
         // rispondendo, e se il fornitore ha suggerito lui il sostituto la
         // cosa e' ancora piu' interessante di un errore.
+        // Il turno e' ripartito senza strumenti perche' il fornitore aveva
+        // rifiutato il formato: e' un cambio di comportamento, va detto.
+        onSenzaStrumenti: function(nome){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '🔧 ' + escapeHtml(nome) + ' ha rifiutato il formato del turno: rifaccio la domanda ' +
+            '<b>senza strumenti</b>, così almeno una risposta arriva. Calcoli e ricerche di questo ' +
+            'giro non saranno verificati con i risolutori.'), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
         onModello: function(vecchio, nuovo, nome, suggerito){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
