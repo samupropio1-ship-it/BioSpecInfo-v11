@@ -314,13 +314,32 @@ salvate tutte e tre.
 
 | Cosa succede | Cosa fa Spectra |
 |---|---|
-| Limite al minuto (`429`) | Legge quanto deve aspettare, te lo dice, riprova. Fino a 3 volte |
+| Limite al minuto (`429`) | Legge quanto deve aspettare, te lo dice, riprova. Fino a 4 volte |
+| **Servizio sovraccarico** (`503`, `500`, `502`, `504`, `529`) | Non è la tua chiave: è il fornitore sotto pressione. Aspetta e riprova fino a 4 volte, poi passa a un altro servizio |
 | Quota finita | Passa a un altro servizio per cui hai una chiave e **rifà la domanda da lì** |
 | Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua — **e se lo segna**, vedi qui sotto |
 | Modello ritirato dal fornitore | Lo boccia, **legge il sostituto dal messaggio del fornitore** e rifà la domanda |
 
 **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
 gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
+
+## Se il servizio è sovraccarico
+
+Nelle ore di punta capita di leggere questo:
+
+> `HTTP 503 — This model is currently experiencing high demand. Spikes in
+> demand are usually temporary. Please try again later.`
+
+**Non è la tua chiave, e non è il tuo modello.** È il fornitore sotto
+pressione, e la stessa identica domanda fra qualche secondo passa. Spectra
+aspetta e riprova fino a quattro volte, con pause crescenti — e se il
+fornitore dice *quanto* aspettare (`Retry-After`), rispetta quello invece di
+tirare a indovinare.
+
+Se dopo i quattro tentativi è ancora giù, **passa a un altro servizio per cui
+hai una chiave** e rifà la domanda da lì. È il caso in cui la seconda chiave
+gratuita si ripaga da sola: con una sola chiave non c'è dove andare, e devi
+solo aspettare qualche minuto.
 
 ## Se un modello viene ritirato
 

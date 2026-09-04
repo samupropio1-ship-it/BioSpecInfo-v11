@@ -1401,6 +1401,21 @@ async function readErrorBody(res){
    dell'errore. Se l'attesa e' assurda non si aspetta affatto: meglio dire
    "quota finita" che lasciare l'utente davanti a una clessidra per un'ora. */
 var ATTESA_MAX_MS = 60000;
+var TENTATIVI_TEMPORANEO = 4;
+
+/* Guasti TEMPORANEI del fornitore: la stessa identica richiesta, fra
+   qualche secondo, funziona. Sono una cosa diversa sia da una quota finita
+   sia da una richiesta sbagliata, e vanno trattati diversamente da
+   entrambe — finora solo il 429 veniva riconosciuto, e un 503 «This model
+   is currently experiencing high demand. Please try again later» finiva
+   a video come errore definitivo. Il fornitore diceva esattamente cosa
+   fare e non lo ascoltavamo.
+     503 sovraccarico · 529 sovraccarico (Anthropic) · 500/502/504 guasti
+     passeggeri del lato server · 429 limite di frequenza. */
+function erroreTemporaneo(stato){
+  return stato === 429 || stato === 500 || stato === 502 ||
+         stato === 503 || stato === 504 || stato === 529;
+}
 function attesaDaRisposta(res, testo, tentativo){
   var s = null;
   try{ s = res.headers && res.headers.get && res.headers.get('Retry-After'); }catch(e){}
@@ -1527,8 +1542,14 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
        nuovo === vecchio e ci si fermava. Ora si boccia il nome fallito, il
        che rende ogni tentativo diverso dal precedente e la ricerca finita:
        i candidati sono pochi e la lista dei bocciati cresce sempre. */
-    var modelloSparito = res.status === 404 ||
-      (res.status === 400 && /model|not found|does not exist|not a valid/i.test(errMsg || ''));
+    /* La prova deve essere FORTE. Prima bastava che il testo contenesse la
+       parola "model", e finche' la bocciatura durava un turno il costo di un
+       falso positivo era nullo. Ora dura sette giorni: un 503 che dice
+       "This MODEL is currently experiencing high demand" farebbe escludere
+       per una settimana un modello perfettamente sano. Si cercano quindi le
+       frasi con cui i fornitori dicono davvero che il modello non c'e'. */
+    var diceModelloAssente = /not found|does not exist|not a valid|no longer available|unknown model|invalid model|model_not_found|has been (?:deprecated|retired|removed)|decommissioned/i.test(errMsg || '');
+    var modelloSparito = res.status === 404 || (res.status === 400 && diceModelloAssente);
     if(p.modelliCandidati && modelloSparito && (_giaRiprovato || 0) < TENTATIVI_MODELLO){
       var vecchio = p.model;
       if(vecchio) bocciaModello(providerId, apiKey, vecchio);
@@ -1554,10 +1575,14 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     // Sui piani gratuiti il 429 e' quasi sempre il limite AL MINUTO, non la
     // quota esaurita: aspettare qualche secondo lo risolve. Il fornitore lo
     // dice con Retry-After; quando non lo dice si usa una crescita esponenziale.
-    if(res.status === 429 && (_tentativi || 0) < 3){
-      var attesa = attesaDaRisposta(res, errMsg, _tentativi || 0);
+    if(erroreTemporaneo(res.status) && (_tentativi || 0) < TENTATIVI_TEMPORANEO){
+      // Un sovraccarico non si sblocca in un secondo e mezzo come un limite
+      // al minuto: quando il fornitore non dice quanto aspettare, si parte
+      // da un gradino piu' in alto della scala esponenziale.
+      var giro = (_tentativi || 0) + (res.status === 429 ? 0 : 1);
+      var attesa = attesaDaRisposta(res, errMsg, giro);
       if(attesa !== null){
-        if(callbacks && callbacks.onAttesa) callbacks.onAttesa(attesa, p.name);
+        if(callbacks && callbacks.onAttesa) callbacks.onAttesa(attesa, p.name, res.status);
         await pausa(attesa, abortSignal);
         return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
                           abortSignal, _giaRiprovato, (_tentativi || 0) + 1);
@@ -1569,6 +1594,21 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
     // fornitore invece di arrendersi (vedi conProviderDiRiserva).
     e.esaurito = res.status === 429 || res.status === 402 ||
                  (res.status === 403 && /quota|limit|exceed/i.test(errMsg || ''));
+    // Sovraccarico che non e' passato nemmeno dopo i ritentativi: NON e' un
+    // guasto della chiave, e su un altro fornitore la stessa domanda
+    // passerebbe. Va segnato perche' la riserva scatti anche qui.
+    e.sovraccarico = erroreTemporaneo(res.status) && !e.esaurito;
+    if(e.sovraccarico){
+      // Il messaggio grezzo ("HTTP 503 — This model is currently
+      // experiencing high demand") dice cos'e' successo ma non cosa fare, e
+      // lascia credere che sia colpa della chiave appena inserita.
+      e.message = '⏳ ' + p.name + ' è sovraccarico in questo momento — ho già ' +
+        'riprovato ' + TENTATIVI_TEMPORANEO + ' volte aspettando fra un tentativo e l\'altro. ' +
+        'Non è un problema della tua chiave: succede nelle ore di punta. Riprova fra ' +
+        'qualche minuto, oppure aggiungi una seconda chiave gratuita (Groq o Z.AI) ' +
+        'così Spectra passa da sola all\'altro servizio invece di fermarsi. ' +
+        '[' + res.status + ': ' + String(errMsg || '').slice(0, 120) + ']';
+    }
     throw e;
   }
   var full = '';
@@ -4338,7 +4378,8 @@ async function conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, 
     var chiave = (i === 0) ? apiKey : chiaveDaUsare(id);
     if(i > 0 && callbacks && callbacks.onRiserva){
       callbacks.onRiserva(PROVIDERS[candidati[i - 1]].name, PROVIDERS[id].name,
-                          ultimo && ultimo.irraggiungibile ? 'irraggiungibile' : 'quota');
+                          ultimo && ultimo.irraggiungibile ? 'irraggiungibile' :
+                          (ultimo && ultimo.sovraccarico ? 'sovraccarico' : 'quota'));
     }
     try{
       return await _unTurno(id, chiave, messages, systemPrompt, callbacks, abortSignal);
@@ -4348,7 +4389,8 @@ async function conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, 
          (rete, CORS, servizio ritirato). Un errore di richiesta o una chiave
          sbagliata invece si ripeterebbero identici su ogni fornitore: meglio
          dirlo subito che provarli tutti e riportare l'ultimo errore a caso. */
-      if(!err || !(err.esaurito || err.irraggiungibile) || i === candidati.length - 1) throw err;
+      if(!err || !(err.esaurito || err.irraggiungibile || err.sovraccarico) ||
+         i === candidati.length - 1) throw err;
       ultimo = err;
     }
   }
@@ -6484,10 +6526,15 @@ function buildChatPane(){
         // Le tre note qui sotto raccontano cosa sta facendo Spectra quando
         // non sta scrivendo: senza, l'utente vede solo una pausa e pensa
         // che si sia bloccato.
-        onAttesa: function(ms, nome){
+        onAttesa: function(ms, nome, stato){
           if(abortFlag.stop) return;
+          // Il motivo cambia la diagnosi: dire "limite al minuto" davanti a
+          // un 503 manderebbe l'utente a cercare un problema che non ha.
+          var perche = (stato && stato !== 429)
+            ? ' è sovraccarico (' + stato + '): aspetto '
+            : ' ha raggiunto il limite al minuto: aspetto ';
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
-            '⏳ ' + escapeHtml(nome) + ' ha raggiunto il limite al minuto: aspetto ' +
+            '⏳ ' + escapeHtml(nome) + perche +
             (ms / 1000).toFixed(1).replace('.0', '') + 's e riprovo'), liveNode);
           box.scrollTop = box.scrollHeight;
         },
@@ -6508,7 +6555,10 @@ function buildChatPane(){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
             '🔄 ' + escapeHtml(da) + (motivo === 'irraggiungibile'
-              ? ' non risponde: continuo su ' : ' ha esaurito la quota: continuo su ') +
+              ? ' non risponde: continuo su '
+              : motivo === 'sovraccarico'
+                ? ' è sovraccarico: continuo su '
+                : ' ha esaurito la quota: continuo su ') +
             escapeHtml(a)), liveNode);
           box.scrollTop = box.scrollHeight;
         },
