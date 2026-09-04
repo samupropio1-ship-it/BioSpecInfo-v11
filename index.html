@@ -35749,27 +35749,40 @@ document.head.appendChild(_s);
 // anche ai pannelli a tutto schermo (Spectra ha z-index 2147483645) e finiva per
 // coprirne i contenuti. Un !important inline non e' sovrascrivibile da CSS, per
 // cui l'unico modo pulito e' non forzarlo mentre un overlay e' aperto.
+/* Conosceva SOLO l'overlay di Spectra (#bsi-hub-ov). Aprendo RDKit Lab,
+   Astro o PRO i due pulsanti flottanti restavano sopra la pagina figlia e ne
+   coprivano i comandi — nel lab finivano proprio sulla casella "Auto-play" e
+   sulla legenda dei picchi.
+   Gli overlay si chiamano tutti #bsi-<qualcosa>-ov: si guardano tutti,
+   invece di elencarli a mano e dimenticarne uno al prossimo che si aggiunge. */
 window._bsiOverlayOpen = function(){
-  var o = document.getElementById('bsi-hub-ov');
-  return !!(o && getComputedStyle(o).display !== 'none');
+  var ovs = document.querySelectorAll('[id^="bsi-"][id$="-ov"]');
+  for(var i = 0; i < ovs.length; i++){
+    if(getComputedStyle(ovs[i]).display !== 'none') return true;
+  }
+  return false;
 };
 window._bsiSyncFabs = function(){
-  var open = window._bsiOverlayOpen();
+  var vuole = window._bsiOverlayOpen() ? 'none' : 'flex';
   ['bsi14-fab','bsi-spectra-fab'].forEach(function(id){
     var e = document.getElementById(id);
     if(!e) return;
-    e.style.setProperty('display', open ? 'none' : 'flex', 'important');
+    // Si scrive SOLO se cambia: l'osservatore qui sotto guarda anche gli
+    // attributi, e riscrivere lo stesso valore lo risveglierebbe in un ciclo
+    // infinito che mangia la batteria del telefono.
+    if(e.style.display !== vuole) e.style.setProperty('display', vuole, 'important');
   });
 };
-// Event-driven invece di polling: reagisco a quando l'overlay compare o cambia stato.
+// Event-driven invece di polling: reagisco a quando un overlay compare o
+// cambia stato — compreso il pulsante "Indietro" che sta DENTRO un iframe e
+// scrive ov.style.display da solo.
 (function(){
   var mo = new MutationObserver(function(){ window._bsiSyncFabs(); });
-  mo.observe(document.body, {childList:true});
-  var attach = setInterval(function(){
-    var o = document.getElementById('bsi-hub-ov');
-    if(o){ clearInterval(attach); mo.observe(o, {attributes:true, attributeFilter:['style','class']}); }
-  }, 500);
-  setTimeout(function(){ clearInterval(attach); }, 60000);
+  try{
+    mo.observe(document.body, { childList:true, subtree:true,
+                                attributes:true, attributeFilter:['style'] });
+  }catch(e){ mo.observe(document.body, { childList:true }); }
+  window._bsiSyncFabs();
 })();
 
 var _fabTimer = setInterval(function(){
