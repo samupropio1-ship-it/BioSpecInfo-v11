@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.840 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.890 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v152
+- sw.js            — Service Worker (network-first). Cache: bsi-v153
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -495,6 +495,38 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    salvare un indirizzo morto spegne la richiesta della chiave e lascia
    Spectra muta. Se non risponde si RIPRISTINA l'indirizzo precedente.
    Test: browser_proxyui.js (17).
+
+32) UN 503 NON E' UN ERRORE, E' UN "RIPROVA FRA POCO" — quarto modo in cui un
+   fornitore ti pianta. "HTTP 503 — This model is currently experiencing high
+   demand. Please try again later." Il fornitore dice ESATTAMENTE cosa fare e
+   noi lo ignoravamo: solo il 429 veniva ritentato, quindi un sovraccarico
+   finiva a video come errore definitivo, senza nemmeno provare un altro
+   fornitore, e sembrava colpa della chiave appena inserita.
+   erroreTemporaneo(): 429, 500, 502, 503, 504, 529 (il 529 e' il
+   sovraccarico di Anthropic). Ritentativi = TENTATIVI_TEMPORANEO (4), con
+   attesa esponenziale che parte un gradino piu' in alto per i non-429 (un
+   sovraccarico non si sblocca in 1,5 s). Retry-After del fornitore vince
+   sempre sulla stima.
+   Esauriti i tentativi si marca e.sovraccarico, e conProviderDiRiserva
+   scatta anche su quello: NON e' esaurito (la quota c'e') e NON e'
+   irraggiungibile (il server risponde), serviva un terzo flag.
+   Il messaggio finale dice che non e' colpa della chiave e cosa fare,
+   conservando [503: ...] per la diagnosi.
+   onAttesa riceve lo STATO: dire "limite al minuto" davanti a un 503
+   manderebbe l'utente a cercare un problema che non ha.
+
+33) IL RICONOSCIMENTO DI "MODELLO SPARITO" VA TENUTO STRETTO — trovato
+   scrivendo test_503.js, ed e' un difetto che ho introdotto io alla nota 30.
+   La regola era: 404 OPPURE 400 col testo che contiene /model/. Finche' la
+   bocciatura durava un turno, un falso positivo non costava niente. Ora dura
+   SETTE GIORNI, e un 503 che dice "This MODEL is currently experiencing high
+   demand" avrebbe escluso per una settimana un modello sano.
+   Ora serve una frase che dica davvero che non c'e': not found / does not
+   exist / not a valid / no longer available / unknown model / invalid model
+   / model_not_found / has been deprecated|retired|removed / decommissioned.
+   REGOLA GENERALE: quando si allunga la vita di una decisione automatica,
+   ricontrollare quanto e' forte la prova che la fa scattare.
+   Test: test_503.js (39), sezione 6b.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
