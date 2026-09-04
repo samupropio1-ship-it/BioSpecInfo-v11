@@ -1126,6 +1126,69 @@ CH₂–O–PO₃⁻–O–CH₂CH₂N⁺(CH₃)₃
 </div><!-- #main -->
 </div><!-- #layout -->
 <script>
+
+/* ── Canvas nitido sugli schermi ad alta densita' ─────────────────────────
+   Un canvas con width=480 su un telefono a 3× viene ingrandito dal browser
+   di tre volte: linee e testo escono sfocati. La soluzione NON e' alzare
+   l'attributo width, perche' il codice di disegno usa raggi e corpi di
+   carattere in pixel fissi (R=72, font 11px) e verrebbe fuori un disegno
+   piccolo dentro una tela grande.
+   Si ingrandisce il BUFFER lasciando intatto il sistema di coordinate:
+   setTransform(d,...) scala tutto, e width/height continuano a riportare le
+   misure logiche a chi le legge — cosi' nessuna riga di disegno cambia.
+   Restituisce il contesto gia' pronto. */
+function bsiNitido(c){
+  if(!c) return null;
+  var d = Math.min(window.devicePixelRatio || 1, 3);
+  if(c.__nit) return c.getContext('2d');
+  var box = c.getBoundingClientRect();
+  var lw = c.width, lh = c.height;
+  if(!lw || !lh) return c.getContext('2d');
+  /* Se il canvas non e' ancora impaginato (disegnato con la scheda chiusa,
+     che qui capita spesso) getBoundingClientRect da' zero: si prende come
+     riferimento la dimensione logica. Meglio 3× di quella che rinunciare —
+     era il difetto della prima stesura di questa funzione, che usciva
+     proprio sui canvas che dovevano essere corretti. */
+  var refW = box.width || lw, refH = box.height || lh;
+  /* Si punta a una risoluzione pari a d volte la dimensione A SCHERMO,
+     qualunque sia il punto di partenza. Cosi' un canvas gia' fitto (molti
+     qui lo sono: 900 px interni su 410 a schermo) NON viene ingrandito una
+     seconda volta — sarebbero megabyte di memoria per niente — e uno a 1×
+     recupera esattamente cio' che gli manca. */
+  /* Il buffer conserva il RAPPORTO DEL DISEGNO, non quello misurato a
+     schermo: usando quello misurato si cambiava la proporzione intrinseca
+     dell'elemento e il disegno usciva schiacciato di qualche punto
+     percentuale (visto su moCanvas). Con una scala sola non c'e' modo di
+     stirare niente. */
+  var bufW = Math.round(refW * d);
+  var bufH = Math.round(bufW * lh / lw);
+  var k = bufW / lw;
+  if(k <= 1.05) return c.getContext('2d');                  // gia' abbastanza nitido
+  /* Congelare la dimensione a schermo serve perche' cambiare gli attributi
+     width/height cambia anche la dimensione intrinseca dell'elemento. Ma
+     l'ALTEZZA si ricava dalle proporzioni del disegno, non si copia da
+     quella misurata: copiarla introduceva uno stiramento di qualche punto
+     percentuale (misurato su moCanvas). Cosi' il rapporto a schermo resta
+     esattamente quello del disegno. */
+  /* Si congela la sola LARGHEZZA a schermo (cambiare gli attributi cambia
+     la dimensione intrinseca dell'elemento). L'altezza NON si tocca: ora
+     che il rapporto intrinseco e' invariato, la calcola il browser da sola
+     ed e' giusta per costruzione. */
+  if(box.width && !c.style.width) c.style.width = box.width + 'px';
+  var natW = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'width');
+  var natH = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'height');
+  natW.set.call(c, bufW); natH.set.call(c, bufH);
+  function applica(){ var x = c.getContext('2d'); x.setTransform(k,0,0,k,0,0); return x; }
+  Object.defineProperty(c, 'width', { configurable:true, get:function(){ return lw; },
+    // c.width = X azzera il canvas ed e' un modo comune di pulirlo: deve
+    // continuare a funzionare, e la trasformazione va riapplicata.
+    set:function(v){ lw = v; k = bufW / v; natW.set.call(c, bufW); applica(); } });
+  Object.defineProperty(c, 'height', { configurable:true, get:function(){ return lh; },
+    set:function(v){ lh = v; natH.set.call(c, Math.round(bufW * v / lw)); applica(); } });
+  c.__nit = d;
+  return applica();
+}
+
 // Navigation
 function goS(id){
   var el=document.getElementById(id);
@@ -1154,7 +1217,7 @@ window.addEventListener('scroll',function(){
 
 // ── Newman Projection ───────────────────────────────────────────
 function drawNm(){
-  var c=document.getElementById('nmC'),ctx=c.getContext('2d');
+  var c=document.getElementById('nmC'),ctx=bsiNitido(c);
   var mol=document.getElementById('nmMol').value;
   var phi=parseFloat(document.getElementById('nmPhi').value);
   document.getElementById('nmPhiV').textContent=Math.round(phi)+'°';
@@ -1208,7 +1271,7 @@ function drawNm(){
 }
 
 function drawNmEnergy(){
-  var c=document.getElementById('nmEn'),ctx=c.getContext('2d');
+  var c=document.getElementById('nmEn'),ctx=bsiNitido(c);
   var mol=document.getElementById('nmMol').value;
   var phi=parseFloat(document.getElementById('nmPhi').value);
   var W=c.width,H=c.height;
@@ -1236,7 +1299,7 @@ function drawNmEnergy(){
 
 // ── Chair ───────────────────────────────────────────────────────
 function drawCh(){
-  var c=document.getElementById('chC'),ctx=c.getContext('2d');
+  var c=document.getElementById('chC'),ctx=bsiNitido(c);
   var mode=document.getElementById('chMode').value;
   var W=c.width,H=c.height;
   ctx.clearRect(0,0,W,H);
@@ -1274,7 +1337,7 @@ function drawCh(){
 
 // ── SN Energy ───────────────────────────────────────────────────
 function drawSN(){
-  var c=document.getElementById('snC'),ctx=c.getContext('2d');
+  var c=document.getElementById('snC'),ctx=bsiNitido(c);
   var mech=document.getElementById('snM').value,sub=document.getElementById('snS').value;
   var W=c.width,H=c.height;
   ctx.clearRect(0,0,W,H);

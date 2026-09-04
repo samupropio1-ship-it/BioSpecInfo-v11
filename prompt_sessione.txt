@@ -37,7 +37,7 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v158
+- sw.js            — Service Worker (network-first). Cache: bsi-v159
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -732,6 +732,49 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
      di marker SVG ('ah', 'ahb'), e url(#ah) risolve sempre al primo. Oggi si
      vedevano uguali perche' i marker sono identici; cambiare il colore di
      uno avrebbe cambiato gli altri due in silenzio. Ora ah1/ah2/ah3.
+
+48) AUDIT GRAFICO (09/2026) — 40 canvas visibili esaminati su tutte le pagine,
+   sezione per sezione (i canvas vivono dentro schede da aprire: guardarli
+   tutti insieme alla fine ne mostra uno solo). Da 20 difetti a 2, e i 2 che
+   restano NON sono difetti: pkcCanvas e mdCanvas sono vuoti perche'
+   aspettano che l'utente prema un pulsante o disegni.
+
+49) CANVAS SFOCATI SU SCHERMO AD ALTA DENSITA' — 13 canvas avevano il buffer
+   a 1× su un telefono a 3×: il browser li ingrandisce e linee e testo
+   escono morbidi. Molti altri erano gia' a 2-2,5×, quindi era una svista,
+   non una scelta.
+   LA SOLUZIONE NON E' alzare l'attributo width: il codice di disegno usa
+   raggi e corpi di carattere in pixel fissi (R=72, font 11px) e verrebbe
+   fuori un disegno piccolo in una tela grande. Si usa bsiNitido(canvas),
+   presente in index/astro/rdkit_lab/chimorga: ingrandisce il BUFFER e
+   lascia intatto il sistema di coordinate con setTransform, ombreggiando
+   width/height perche' continuino a riportare le misure logiche.
+   TRE TRAPPOLE, tutte incontrate scrivendola:
+   a) esce subito se getBoundingClientRect da' zero -> proprio i canvas
+      disegnati a scheda chiusa (quasi tutti) restavano sfocati. Si usa la
+      dimensione logica come riferimento quando il box non e' ancora noto.
+   b) il buffer deve conservare il RAPPORTO DEL DISEGNO, non quello
+      misurato a schermo: col secondo si stira l'immagine di qualche punto
+      percentuale (visto su moCanvas). Con una scala sola non si stira.
+   c) e' AUTO-LIMITANTE: punta a d volte la dimensione a schermo, quindi su
+      un canvas gia' fitto non fa niente. Senza, si sarebbero moltiplicati
+      buffer da megabyte per niente.
+   MISURARE: c.width ora riporta le misure LOGICHE. La nitidezza vera si
+   legge col getter nativo,
+   Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'width').get.
+   Un audit che legge c.width non vede piu' niente (ci sono cascato).
+
+50) L'EDITOR MOLECOLARE ERA INUSABILE SU TELEFONO — il contenitore era
+   grid-template-columns:1fr 280px. Su 392 px di larghezza la colonna fissa
+   ne prende 280 e all'editor restano 102: un francobollo su cui si dovrebbe
+   disegnare col dito. Ora repeat(auto-fit,minmax(min(100%,280px),1fr)):
+   collassa a una colonna quando non ce ne stanno due, senza media query.
+   Misurato: 102x71 -> 392x270 su telefono, due colonne intatte su desktop.
+   Corrette anche le altre due griglie con colonna fissa (220px, 200px).
+
+51) COME SI CONTA UN CANVAS "VUOTO" — campionando TUTTO il buffer, non
+   l'angolo in alto a sinistra: molti disegni sono centrati e guardando solo
+   l'angolo risultano vuoti (mi e' successo con chC, che disegna benissimo).
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
