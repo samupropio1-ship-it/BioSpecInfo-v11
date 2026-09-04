@@ -4311,6 +4311,115 @@ window.addEventListener('load', function(){
     if(btn && isEmbedded) btn.style.display = 'block';
   }catch(e){}
 });
+
+/* ─── Ponte con Spectra ────────────────────────────────────────────────
+   Il lab gira in un iframe: Spectra gli parla da fuori. Il punto delicato
+   NON e' il canale, e' il tempo: RDKit e' WebAssembly e ci mette qualche
+   secondo, mentre il messaggio arriva subito dopo l'apertura. Un listener
+   che chiamasse analyzeMol() all'istante fallirebbe quasi sempre — e in
+   silenzio, perche' requireRDKit() si limita a mostrare un avviso.
+   Quindi le richieste che dipendono da RDKit si mettono in CODA e partono
+   appena rdkReady diventa vero.
+   Gli spettri invece NON dipendono da RDKit (SpectralLab.analyze lavora
+   sulle euristiche di feat() a partire dallo SMILES): quelli si possono
+   servire subito, ed e' giusto farlo — sono la parte che l'utente aspetta.
+--------------------------------------------------------------------- */
+(function(){
+  var _coda = [], _attesaAvviata = false;
+  var ATTESA_MAX = 40000, PASSO = 200;
+
+  function _rdkitPronto(){ return typeof rdkReady !== 'undefined' && !!rdkReady; }
+
+  function _quandoPronto(f){
+    if(_rdkitPronto()){ try{ f(); }catch(e){} return; }
+    _coda.push(f);
+    if(_attesaAvviata) return;
+    _attesaAvviata = true;
+    var t0 = Date.now();
+    (function giro(){
+      if(_rdkitPronto()){
+        var c = _coda.slice(); _coda = []; _attesaAvviata = false;
+        c.forEach(function(f){ try{ f(); }catch(e){} });
+        return;
+      }
+      // Se RDKit non arriva proprio (WASM assente, rete giu'), la coda va
+      // svuotata: tenerla appesa lascerebbe l'utente davanti a un pannello
+      // vuoto senza sapere perche'.
+      if(Date.now() - t0 > ATTESA_MAX){ _coda = []; _attesaAvviata = false; return; }
+      setTimeout(giro, PASSO);
+    })();
+  }
+
+  function _scriviSmiles(smi){
+    var inp = document.getElementById('smiles-input');
+    if(inp) inp.value = smi;
+  }
+
+  function caricaSmiles(smi, nome){
+    if(!smi) return { ok:false, errore:'smiles mancante' };
+    _scriviSmiles(smi);
+    try{ showPanelById('p-mol'); }catch(e){}
+    _quandoPronto(function(){ _scriviSmiles(smi); analyzeMol(); });
+    return { ok:true, smiles:smi, nome:nome||'', inCoda:!_rdkitPronto() };
+  }
+
+  // I tipi sono quelli dei pulsanti reali del pannello (data-spt).
+  var TIPI = ['nmr','ir','uv','ms','raman'];
+  function mostraSpettri(smi, tipo, nome){
+    tipo = String(tipo || 'nmr').toLowerCase();
+    if(tipo === 'tutti' || TIPI.indexOf(tipo) < 0) tipo = 'nmr';
+    if(smi) _scriviSmiles(smi);
+    // showPanelById inizializza SpectralLab la prima volta: va chiamato
+    // PRIMA di toccare qualunque funzione spec*.
+    try{ showPanelById('p-speclive'); }catch(e){}
+    var btn = document.querySelector('[data-spt="' + tipo + '"]');
+    try{ if(btn && typeof specSetType === 'function') specSetType(btn, tipo); }catch(e){}
+    try{
+      if(smi && typeof specLoadPreset === 'function') specLoadPreset(smi, nome || '');
+      else if(typeof specLoadFromMol === 'function') specLoadFromMol();
+    }catch(e){}
+    // La molecola si disegna comunque, quando RDKit e' pronto: cosi' chi
+    // chiede gli spettri trova anche la struttura al suo posto.
+    if(smi) _quandoPronto(function(){ _scriviSmiles(smi); analyzeMol(); });
+    return { ok:true, smiles:smi||'', tipo:tipo, tipiDisponibili:TIPI };
+  }
+
+  function analisiCorrente(){
+    var out = { smiles: (typeof curSMI !== 'undefined' && curSMI) || '', pronto:_rdkitPronto() };
+    try{ if(typeof curDesc !== 'undefined' && curDesc) out.descrittori = curDesc; }catch(e){}
+    return out;
+  }
+
+  window.bsiRDKitAPI = {
+    loadSMILES: caricaSmiles,
+    runSpectra: function(smi, tipo, nome){ return mostraSpettri(smi, tipo, nome); },
+    getAnalysis: analisiCorrente,
+    pronto: _rdkitPronto,
+    tipiSpettro: TIPI
+  };
+
+  /* Canale di riserva. Sulla stessa origine (GitHub Pages) Spectra chiama
+     bsiRDKitAPI direttamente, che e' piu' semplice e da' una risposta;
+     postMessage serve se un giorno l'accesso diretto fosse bloccato.
+     Si accettano SOLO messaggi dal proprio genitore: il lab non deve
+     obbedire a una pagina qualsiasi che lo incorpori. */
+  window.addEventListener('message', function(ev){
+    if(ev.source !== window.parent) return;
+    var d = ev.data;
+    if(!d || typeof d !== 'object' || typeof d.type !== 'string') return;
+    var esito = null;
+    if(d.type === 'bsi-load-smiles') esito = caricaSmiles(d.smiles, d.name || d.nome);
+    else if(d.type === 'bsi-load-spectra') esito = mostraSpettri(d.smiles, d.specType || d.tipo, d.name || d.nome);
+    else return;
+    try{ ev.source.postMessage({ type:'bsi-rdkit-esito', per:d.type, esito:esito }, '*'); }catch(e){}
+  });
+
+  // Annuncio al genitore: gli evita di sondare a vuoto se il lab e' gia' su.
+  try{
+    if(window.parent && window.parent !== window)
+      window.parent.postMessage({ type:'bsi-rdkit-pronto' }, '*');
+  }catch(e){}
+})();
 </script>
 
 <!-- Floating back button — visible only inside the BioSpecInfo overlay -->

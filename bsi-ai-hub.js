@@ -898,6 +898,9 @@ var PAROLE_STRUMENTO = {
   naviga_sezione: 'apri vai mostra sezione pagina schermata portami',
   apri_strumento: 'apri avvia lancia strumento laboratorio simulatore visualizzatore',
   cerca_molecola: 'molecola composto sostanza struttura formula smiles cerca trova',
+  disegna_molecola: 'disegna struttura molecola smiles mostra visualizza scheletro formula',
+  mostra_spettri: 'spettro spettri nmr infrarosso massa raman ultravioletto diagramma picchi mostra',
+  analizza_molecola: 'analizza molecola picchi banda gruppo funzionale interpretazione spettro nmr infrarosso massa',
   calcola: 'calcola quanto risultato conto espressione numero valore',
   risolvi_equazione: 'risolvi equazione incognita sistema radici grado',
   analisi_dati: 'dati serie media deviazione regressione correlazione grafico tabella',
@@ -1796,6 +1799,238 @@ var FAB_TOOLS = {
 };
 
 // Registro strumenti in formato JSON-Schema comune (poi convertito per famiglia)
+/* ---------------------------------------------------------------------
+   PONTE VERSO RDKIT LAB
+   Il lab e' un iframe della STESSA origine, quindi la strada semplice
+   c'e' e va usata: si chiama window.bsiRDKitAPI dentro l'iframe. Torna
+   un valore, non "speriamo sia arrivato".
+   Il problema vero e' il tempo. openRDKitLab() crea l'iframe e ritorna
+   subito, ma la pagina dentro deve ancora caricarsi e installare l'API.
+   Percio' si aspetta che l'API compaia, invece di sparare un messaggio
+   nel vuoto 150 ms dopo. Se dopo il tempo massimo non c'e', si ripiega
+   su postMessage — e se non c'e' nemmeno quello, si dice che non e'
+   riuscito, invece di riportare un successo falso.
+--------------------------------------------------------------------- */
+var RDKIT_ATTESA_MS = 20000;
+
+function _rdkitIframe(){
+  return document.querySelector('#bsi-rdkitlab-ov iframe');
+}
+function _apriLab(){
+  try{ closeHub(); }catch(e){}
+  if(typeof window.openRDKitLab === 'function') window.openRDKitLab();
+  else if(FAB_TOOLS && FAB_TOOLS.rdkitlab) FAB_TOOLS.rdkitlab.exec();
+}
+/* Aspetta che l'API del lab esista. Risolve con l'API, o con null. */
+function conRDKitAPI(){
+  return new Promise(function(risolvi){
+    var t0 = Date.now();
+    (function giro(){
+      var fr = _rdkitIframe(), api = null;
+      try{ api = fr && fr.contentWindow && fr.contentWindow.bsiRDKitAPI; }catch(e){}
+      if(api){ risolvi(api); return; }
+      if(Date.now() - t0 > RDKIT_ATTESA_MS){ risolvi(null); return; }
+      setTimeout(giro, 200);
+    })();
+  });
+}
+/* Riserva: il canale a messaggi. Non sa dire se e' andata, quindi si usa
+   solo quando l'accesso diretto non e' possibile. */
+function _rdkitPostMessage(msg){
+  var fr = _rdkitIframe();
+  try{
+    if(fr && fr.contentWindow){ fr.contentWindow.postMessage(msg, '*'); return true; }
+  }catch(e){}
+  return false;
+}
+
+/* ---------------------------------------------------------------------
+   MOLECOLE D'ESAME — valori di riferimento, non previsioni
+   Sono i numeri che si trovano nei testi e che un docente si aspetta di
+   sentire: bande IR in cm-1, spostamenti chimici in ppm, frammenti m/z.
+   NON sono calcolati: sono tabulati, quindi affidabili — ma dipendono dal
+   solvente e dalle condizioni, e lo strumento lo dichiara nella risposta
+   invece di lasciar credere a una precisione che non c'e'.
+   Per le molecole fuori elenco resta l'analisi per gruppi funzionali:
+   meno precisa, ma onesta su cosa sta facendo.
+--------------------------------------------------------------------- */
+var MOLECOLE_ESAME = {
+  'etanolo': { smiles:'CCO', formula:'C2H6O', mw:46.07, sin:['alcol etilico','ethanol'],
+    gruppi:['alcol primario'],
+    ir:['3300 larga (O–H st)','2970 (C–H sp3)','1050 (C–O st)'],
+    nmr_h:['1.22 (t, 3H, CH3)','2.6 (s largo, 1H, OH)','3.70 (q, 2H, CH2)'],
+    nmr_c:['18.4 (CH3)','58.4 (CH2)'],
+    ms:['46 (M+•)','45 (M–H)','31 (CH2=OH+, picco base)','29'] },
+  'acido acetico': { smiles:'CC(=O)O', formula:'C2H4O2', mw:60.05, sin:['acido etanoico'],
+    gruppi:['acido carbossilico'],
+    ir:['3000 larghissima (O–H acido)','1710 (C=O)','1290 (C–O)'],
+    nmr_h:['2.10 (s, 3H, CH3)','11.4 (s, 1H, COOH)'],
+    nmr_c:['20.8 (CH3)','178.1 (COOH)'],
+    ms:['60 (M+•)','45 (COOH+)','43 (CH3CO+, picco base)','15'] },
+  'acetone': { smiles:'CC(C)=O', formula:'C3H6O', mw:58.08, sin:['propanone','dimetilchetone'],
+    gruppi:['chetone'],
+    ir:['1715 (C=O forte)','2970 (C–H)'],
+    nmr_h:['2.10 (s, 6H, 2×CH3) — un solo segnale: i due metili sono equivalenti'],
+    nmr_c:['30.8 (CH3)','206.0 (C=O)'],
+    ms:['58 (M+•)','43 (CH3CO+, picco base)','15 (CH3+)'] },
+  'benzene': { smiles:'c1ccccc1', formula:'C6H6', mw:78.11, sin:[],
+    gruppi:['aromatico'],
+    ir:['3030 (=C–H)','1600 e 1480 (C=C aromatici)','670 (C–H fuori dal piano)'],
+    nmr_h:['7.26 (s, 6H) — un solo segnale'],
+    nmr_c:['128.5 — un solo segnale'],
+    ms:['78 (M+•, picco base)','77','51'] },
+  'toluene': { smiles:'Cc1ccccc1', formula:'C7H8', mw:92.14, sin:['metilbenzene'],
+    gruppi:['aromatico','alchile'],
+    ir:['3030 (=C–H)','2920 (C–H sp3)','1605 e 1495','730 e 695 (monosostituito)'],
+    nmr_h:['2.36 (s, 3H, CH3)','7.15–7.30 (m, 5H, aromatici)'],
+    nmr_c:['21.4 (CH3)','125.3','128.2','129.0','137.8 (C ipso)'],
+    ms:['92 (M+•)','91 (catione tropilio, picco base)','65'] },
+  'fenolo': { smiles:'Oc1ccccc1', formula:'C6H6O', mw:94.11, sin:['idrossibenzene'],
+    gruppi:['fenolo','aromatico'],
+    ir:['3300 larga (O–H fenolico)','1595','1230 (C–O)','750 e 690'],
+    nmr_h:['5.5 (s largo, 1H, OH)','6.80–7.30 (m, 5H)'],
+    nmr_c:['115.5','121.0','129.7','155.0 (C–OH)'],
+    ms:['94 (M+•, picco base)','66 (–CO)','65','39'] },
+  'anilina': { smiles:'Nc1ccccc1', formula:'C6H7N', mw:93.13, sin:['amminobenzene','fenilammina'],
+    gruppi:['ammina primaria aromatica','aromatico'],
+    ir:['3430 e 3350 (N–H2: DUE bande, e\' la firma dell\'ammina primaria)','1620','1280 (C–N)'],
+    nmr_h:['3.6 (s largo, 2H, NH2)','6.60–7.20 (m, 5H)'],
+    nmr_c:['115.1','118.5','129.3','146.5 (C–N)'],
+    ms:['93 (M+•, picco base)','66','65'] },
+  'acido benzoico': { smiles:'OC(=O)c1ccccc1', formula:'C7H6O2', mw:122.12, sin:[],
+    gruppi:['acido carbossilico','aromatico'],
+    ir:['3000 larghissima (O–H)','1685 (C=O coniugato: piu\' basso di un acido alifatico)','1290','710'],
+    nmr_h:['7.45 (t, 2H)','7.60 (t, 1H)','8.10 (d, 2H)','12.0 (s largo, 1H, COOH)'],
+    nmr_c:['128.5','129.4','130.2','133.8','172.6 (COOH)'],
+    ms:['122 (M+•)','105 (C6H5CO+, picco base)','77 (C6H5+)','51'] },
+  'acetato di etile': { smiles:'CCOC(C)=O', formula:'C4H8O2', mw:88.11, sin:['etil acetato'],
+    gruppi:['estere'],
+    ir:['1740 (C=O estere: piu\' ALTO di chetone e acido)','1240 e 1040 (C–O)'],
+    nmr_h:['1.26 (t, 3H)','2.04 (s, 3H, CH3CO)','4.12 (q, 2H, OCH2)'],
+    nmr_c:['14.2','21.0','60.5 (OCH2)','171.0 (C=O)'],
+    ms:['88 (M+•)','61','43 (CH3CO+, picco base)','29'] },
+  'acetaldeide': { smiles:'CC=O', formula:'C2H4O', mw:44.05, sin:['etanale'],
+    gruppi:['aldeide'],
+    ir:['2820 e 2720 (C–H aldeidico: doppietto di Fermi, la firma dell\'aldeide)','1725 (C=O)'],
+    nmr_h:['2.20 (d, 3H, CH3)','9.80 (q, 1H, CHO)'],
+    nmr_c:['31.2 (CH3)','200.5 (CHO)'],
+    ms:['44 (M+•)','43','29 (CHO+, picco base)','15'] },
+  'cicloesano': { smiles:'C1CCCCC1', formula:'C6H12', mw:84.16, sin:[],
+    gruppi:['alcano ciclico'],
+    ir:['2930 e 2860 (C–H sp3)','1450 (bending)','NESSUNA banda C=O ne\' O–H: e\' il dato diagnostico'],
+    nmr_h:['1.43 (s, 12H) — un solo segnale'],
+    nmr_c:['26.9 — un solo segnale'],
+    ms:['84 (M+•)','56','41 (picco base)'] },
+  'acido salicilico': { smiles:'OC(=O)c1ccccc1O', formula:'C7H6O3', mw:138.12, sin:['acido 2-idrossibenzoico'],
+    gruppi:['acido carbossilico','fenolo','aromatico'],
+    ir:['3200 larga (O–H, legame a idrogeno INTRAmolecolare)','1655 (C=O, abbassato dal legame H)','1610'],
+    nmr_h:['6.90–7.90 (m, 4H)','10.4 (s, 1H, OH fenolico)','~13 (s largo, 1H, COOH)'],
+    nmr_c:['117.5','119.0','130.5','136.0','162.0 (C–OH)','174.5 (COOH)'],
+    ms:['138 (M+•)','120 (–H2O)','92','64'] },
+  'aspirina': { smiles:'CC(=O)Oc1ccccc1C(O)=O', formula:'C9H8O4', mw:180.16,
+    sin:['acido acetilsalicilico','asa'],
+    gruppi:['estere','acido carbossilico','aromatico'],
+    ir:['1750 (C=O estere)','1690 (C=O acido)','DUE bande carboniliche: e\' la prova dell\'acetilazione','1605','1190'],
+    nmr_h:['2.35 (s, 3H, CH3CO)','7.10–8.10 (m, 4H)','~11 (s largo, 1H, COOH)'],
+    nmr_c:['21.0 (CH3)','122–134 (aromatici)','151.2 (C–O)','169.8 (estere)','170.5 (acido)'],
+    ms:['180 (M+•)','138 (perdita di chetene, C2H2O)','120','92','43 (CH3CO+, picco base)'] },
+  'paracetamolo': { smiles:'CC(=O)Nc1ccc(O)cc1', formula:'C8H9NO2', mw:151.16,
+    sin:['acetaminofene','tachipirina'],
+    gruppi:['ammide','fenolo','aromatico'],
+    ir:['3320 (N–H e O–H)','1650 (C=O ammidico, ammide I)','1560 (ammide II)','1510'],
+    nmr_h:['1.99 (s, 3H, CH3) [DMSO-d6]','6.68 (d, 2H)','7.35 (d, 2H)','9.14 (s, 1H, OH)','9.65 (s, 1H, NH)'],
+    nmr_c:['23.8','115.1','121.0','131.2','153.2 (C–OH)','167.9 (C=O)'],
+    ms:['151 (M+•)','109 (perdita di chetene, picco base)','80','43'] },
+  'caffeina': { smiles:'Cn1cnc2c1c(=O)n(C)c(=O)n2C', formula:'C8H10N4O2', mw:194.19,
+    sin:['1,3,7-trimetilxantina'],
+    gruppi:['ammide ciclica','eterociclo azotato'],
+    ir:['1700 e 1660 (DUE C=O ammidici)','1550','745'],
+    nmr_h:['3.41 (s, 3H, N3-CH3) [CDCl3]','3.58 (s, 3H, N1-CH3)','4.00 (s, 3H, N7-CH3)','7.52 (s, 1H, H-8)'],
+    nmr_c:['27.9','29.7','33.6','107.6','141.5 (C-8)','148.7','151.7','155.4'],
+    ms:['194 (M+•, picco base)','109','82','67','55'] },
+  'glucosio': { smiles:'OC[C@H]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O', formula:'C6H12O6', mw:180.16,
+    sin:['destrosio','d-glucosio'],
+    gruppi:['aldoso','alcol multiplo','emiacetale ciclico'],
+    ir:['3300 larghissima (O–H multipli)','1030 (C–O)','NESSUN C=O: in soluzione e\' quasi tutto ciclico'],
+    nmr_h:['3.20–3.90 (m, 6H) [D2O]','4.64 (d, J≈8 Hz, H-1 anomerico β)','5.23 (d, J≈3.7 Hz, H-1 anomerico α)'],
+    nmr_c:['61.6 (C-6)','70–77 (C-2…C-5)','92.9 (C-1 α) e 96.7 (C-1 β)'],
+    ms:['M+• 180 debolissimo in EI: si deriva (TMS) o si usa ESI','frammenti 73, 60, 43'] },
+  'glicina': { smiles:'NCC(O)=O', formula:'C2H5NO2', mw:75.07, sin:['acido amminoacetico'],
+    gruppi:['amminoacido','zwitterione'],
+    ir:['3170 (NH3+)','1600 e 1410 (COO– asimmetrico e simmetrico)','NESSUNA banda a 1710: allo stato solido e\' zwitterione, non acido libero'],
+    nmr_h:['3.55 (s, 2H, CH2) [D2O]'],
+    nmr_c:['42.5 (CH2)','173.5 (COO–)'],
+    ms:['75 (M+•)','30 (CH2=NH2+, picco base)'] },
+  'naftalene': { smiles:'c1ccc2ccccc2c1', formula:'C10H8', mw:128.17, sin:[],
+    gruppi:['aromatico policiclico'],
+    ir:['3050 (=C–H)','1600','780 (4 H adiacenti)'],
+    nmr_h:['7.45 (m, 4H, H-2,3,6,7)','7.82 (m, 4H, H-1,4,5,8)'],
+    nmr_c:['125.8','127.9','133.5 — solo 3 segnali per la simmetria'],
+    ms:['128 (M+•, picco base)','127','102','64'] },
+  'dietiletere': { smiles:'CCOCC', formula:'C4H10O', mw:74.12, sin:['etere etilico','etossietano'],
+    gruppi:['etere'],
+    ir:['2970 (C–H)','1120 (C–O–C forte)','NESSUN O–H e nessun C=O: e\' cosi\' che si distingue da un alcol'],
+    nmr_h:['1.20 (t, 6H)','3.48 (q, 4H)'],
+    nmr_c:['15.2 (CH3)','65.9 (OCH2)'],
+    ms:['74 (M+•)','59','45','31 (picco base)'] },
+  'acetonitrile': { smiles:'CC#N', formula:'C2H3N', mw:41.05, sin:['etanonitrile'],
+    gruppi:['nitrile'],
+    ir:['2250 (C≡N: banda stretta e media, in una zona dove non c\'e\' quasi nient\'altro)','2940'],
+    nmr_h:['1.97 (s, 3H)'],
+    nmr_c:['1.3 (CH3)','117.7 (C≡N)'],
+    ms:['41 (M+•, picco base)','40','39'] }
+};
+
+/* Riconoscimento dei gruppi funzionali dallo SMILES: serve solo per le
+   molecole fuori tabella. E' volutamente grossolano — riconosce il gruppo,
+   non la molecola — e chi lo usa lo dichiara. */
+var GRUPPI_SMILES = [
+  // L'ordine conta: i gruppi che CONSUMANO il carbonile vengono prima, e
+  // 'consuma' toglie dalla stringa cio' che hanno gia' spiegato. Senza,
+  // l'ossigeno con doppio legame di un estere veniva riletto come alcol e
+  // l'analisi diceva "estere + alcol" per una molecola che l'alcol non ce
+  // l'ha: a chi studia serve la banda giusta, non una in piu'.
+  { re: /C\(=O\)O(?![a-zA-Z])|C\(O\)=O/, consuma: /C\(=O\)O(?![a-zA-Z])|C\(O\)=O/g,
+    nome: 'acido carbossilico',
+    ir: ['3000 larghissima (O–H)', '1710 (C=O)'], h: ['10–13 (s largo, COOH)'] },
+  { re: /C\(=O\)O[Cc]|[Cc]OC\(=O\)/, consuma: /C\(=O\)O|OC\(=O\)/g,
+    nome: 'estere',
+    ir: ['1740 (C=O estere)', '1200 (C–O)'], h: ['3.6–4.3 (OCH2/OCH3)'] },
+  { re: /C\(=O\)N|NC\(=O\)/, consuma: /C\(=O\)N|NC\(=O\)/g,
+    nome: 'ammide',
+    ir: ['1650 (ammide I)', '1550 (ammide II)', '3300 (N–H)'], h: ['5–8 (NH, largo)'] },
+  { re: /C=O/, consuma: /C=O/g, nome: 'carbonile (chetone o aldeide)',
+    ir: ['1715 (C=O)'], h: ['9.5–10 se aldeide (CHO)'] },
+  { re: /C#N/, consuma: /C#N/g, nome: 'nitrile', ir: ['2250 (C≡N)'], h: [] },
+  { re: /\[N\+\]\(=O\)\[O-\]|N\(=O\)=O/, consuma: /\[N\+\]\(=O\)\[O-\]|N\(=O\)=O/g,
+    nome: 'nitro', ir: ['1520 e 1350 (NO2)'], h: [] },
+  { re: /S\(=O\)\(=O\)/, consuma: /S\(=O\)\(=O\)/g, nome: 'solfone/solfonammide',
+    ir: ['1350 e 1150 (SO2)'], h: [] },
+  { re: /c1ccccc1|c1ccc|c2ccc/, nome: 'aromatico',
+    ir: ['3030 (=C–H)', '1600 e 1480 (C=C)'], h: ['6.5–8.5 (aromatici)'] },
+  { re: /C#C/, nome: 'alchino', ir: ['2120 (C≡C)', '3300 (≡C–H terminale)'], h: ['1.8–3 (≡CH)'] },
+  { re: /C=C/, nome: 'alchene', ir: ['1650 (C=C)', '3080 (=C–H)'], h: ['4.5–6.5 (vinilici)'] },
+  // Qui in fondo, sul residuo: un O o un N rimasti dopo aver tolto tutti i
+  // gruppi sopra sono davvero un alcol o un'ammina.
+  { re: /O/, nome: 'alcol o fenolo',
+    ir: ['3300 larga (O–H)', '1050–1250 (C–O)'], h: ['1–5 (OH, largo e scambiabile)'] },
+  { re: /N|n/, nome: 'ammina o azoto basico',
+    ir: ['3350 e 3430 se ammina primaria (due bande N–H)'], h: ['1–4 (NH, largo)'] }
+];
+function gruppiDaSmiles(smi){
+  var resto = String(smi || ''), gruppi = [], ir = [], h = [];
+  GRUPPI_SMILES.forEach(function(g){
+    if(!g.re.test(resto)) return;
+    gruppi.push(g.nome);
+    g.ir.forEach(function(b){ if(ir.indexOf(b) < 0) ir.push(b); });
+    (g.h || []).forEach(function(b){ if(h.indexOf(b) < 0) h.push(b); });
+    // Tolgo dalla stringa cio' che questo gruppo ha gia' spiegato, cosi' i
+    // gruppi generici piu' avanti non lo contano una seconda volta.
+    if(g.consuma) resto = resto.replace(g.consuma, '');
+  });
+  return { gruppi: gruppi, ir: ir, nmr_h: h };
+}
+
 var TOOLS = [
   {
     name: 'naviga_sezione',
@@ -1832,6 +2067,115 @@ var TOOLS = [
       try{ closeHub(); }catch(e){}
       tool.exec();
       return { ok: true, label: tool.label };
+    }
+  },
+
+  {
+    name: 'disegna_molecola',
+    description: "Apre RDKit Lab e disegna la struttura di una molecola a partire dal suo SMILES. Usalo quando l'utente chiede di vedere, disegnare o mostrare la struttura di un composto.",
+    parameters: {
+      type: 'object',
+      properties: {
+        smiles: { type: 'string', description: 'SMILES della molecola, es. "CCO" per l\'etanolo.' },
+        nome: { type: 'string', description: 'Nome leggibile della molecola, per l\'etichetta.' }
+      },
+      required: ['smiles']
+    },
+    execute: function(args){
+      var smi = args && args.smiles, nome = (args && args.nome) || '';
+      if(!smi) return { ok: false, error: 'smiles mancante' };
+      _apriLab();
+      return conRDKitAPI().then(function(api){
+        if(api){
+          var r = api.loadSMILES(smi, nome);
+          return { ok: !!(r && r.ok !== false), label: nome || smi, smiles: smi,
+                   nota: (r && r.inCoda) ? 'RDKit sta ancora caricando: la struttura compare fra un istante.' : undefined };
+        }
+        if(_rdkitPostMessage({ type: 'bsi-load-smiles', smiles: smi, name: nome }))
+          return { ok: true, label: nome || smi, smiles: smi, nota: 'inviato al lab (canale di riserva)' };
+        return { ok: false, error: 'RDKit Lab non ha risposto: riprova fra qualche secondo.' };
+      });
+    }
+  },
+  {
+    name: 'mostra_spettri',
+    description: "Apre il simulatore di spettri in RDKit Lab su una molecola: NMR protonico, IR, UV-Vis, MS o Raman, con diagramma a picchi. Usalo quando l'utente chiede di VEDERE uno spettro. Per la sola interpretazione a parole usa invece analizza_molecola.",
+    parameters: {
+      type: 'object',
+      properties: {
+        smiles: { type: 'string', description: 'SMILES della molecola. Se manca si usa quella gia\' caricata nel lab.' },
+        tipo: { type: 'string', enum: ['nmr','ir','uv','ms','raman'], description: 'Tipo di spettro da mostrare. Il pannello mostra un tipo per volta.' },
+        nome: { type: 'string', description: 'Nome leggibile della molecola.' }
+      },
+      required: []
+    },
+    execute: function(args){
+      var smi = (args && args.smiles) || '', tipo = (args && args.tipo) || 'nmr',
+          nome = (args && args.nome) || '';
+      _apriLab();
+      return conRDKitAPI().then(function(api){
+        if(api){
+          var r = api.runSpectra(smi, tipo, nome);
+          return { ok: true, label: (nome || smi || 'molecola corrente') + ' — ' + (r ? r.tipo : tipo),
+                   tipo: r ? r.tipo : tipo, tipiDisponibili: (r && r.tipiDisponibili) || ['nmr','ir','uv','ms','raman'],
+                   nota: 'Il pannello mostra un tipo per volta: per gli altri richiama lo strumento cambiando "tipo".' };
+        }
+        if(_rdkitPostMessage({ type: 'bsi-load-spectra', smiles: smi, specType: tipo, name: nome }))
+          return { ok: true, label: (nome || smi) + ' — ' + tipo, nota: 'inviato al lab (canale di riserva)' };
+        return { ok: false, error: 'RDKit Lab non ha risposto: riprova fra qualche secondo.' };
+      });
+    }
+  },
+  {
+    name: 'analizza_molecola',
+    description: "Dati spettroscopici di riferimento di una molecola: gruppi funzionali, bande IR, spostamenti NMR 1H e 13C, frammenti MS. Sono valori TABULATI da letteratura per le molecole d'esame piu' comuni; per le altre restituisce un'analisi per gruppi funzionali, meno precisa. Usalo PRIMA di disegnare o mostrare gli spettri, cosi' puoi commentare i picchi.",
+    parameters: {
+      type: 'object',
+      properties: {
+        nome: { type: 'string', description: 'Nome della molecola, es. "aspirina", "toluene".' },
+        smiles: { type: 'string', description: 'In alternativa al nome, lo SMILES.' }
+      },
+      required: []
+    },
+    execute: function(args){
+      var nome = ((args && args.nome) || '').toLowerCase().trim();
+      var smi = (args && args.smiles) || '';
+      if(!nome && !smi) return { ok: false, error: 'serve il nome o lo SMILES' };
+      var voce = null, chiave = null;
+      if(nome){
+        if(MOLECOLE_ESAME[nome]){ voce = MOLECOLE_ESAME[nome]; chiave = nome; }
+        else Object.keys(MOLECOLE_ESAME).forEach(function(k){
+          if(voce) return;
+          var v = MOLECOLE_ESAME[k];
+          if(k.indexOf(nome) >= 0 || nome.indexOf(k) >= 0 ||
+             (v.sin || []).some(function(s){ return s === nome; })){ voce = v; chiave = k; }
+        });
+      }
+      if(!voce && smi) Object.keys(MOLECOLE_ESAME).forEach(function(k){
+        if(!voce && MOLECOLE_ESAME[k].smiles === smi){ voce = MOLECOLE_ESAME[k]; chiave = k; }
+      });
+      if(voce){
+        return { ok: true, fonte: 'tabulato', nome: chiave, smiles: voce.smiles,
+                 formula: voce.formula, mw: voce.mw, gruppi: voce.gruppi,
+                 ir: voce.ir, nmr_h: voce.nmr_h, nmr_c: voce.nmr_c, ms: voce.ms,
+                 avvertenza: 'Valori di riferimento da letteratura. Gli spostamenti NMR dipendono dal solvente e le bande IR dallo stato fisico: usali come attesa, non come misura.' };
+      }
+      /* Fuori elenco: si dice quello che si puo' dedurre DALLO SMILES, e si
+         dichiara che e' un'altra cosa. Meglio "meno preciso" che "inventato".
+         Il nome NON si passa al riconoscitore: e' un parser di SMILES, e su
+         una parola qualsiasi trova lettere che sembrano atomi — la "n" di
+         "xyzynonesiste" diventava un'ammina, cioe' un'analisi inventata di
+         sana pianta per una molecola che non esiste. */
+      if(!smi)
+        return { ok: false, fonte: 'sconosciuta',
+                 error: 'Non e\' fra le ' + Object.keys(MOLECOLE_ESAME).length + ' molecole tabulate. Passami lo SMILES per un\'analisi per gruppi funzionali, oppure usa cerca_pubchem per i dati sperimentali.' };
+      var g = gruppiDaSmiles(smi);
+      if(!g.gruppi.length)
+        return { ok: false, fonte: 'sconosciuta',
+                 error: 'Dallo SMILES non riconosco gruppi funzionali. Prova con cerca_pubchem per i dati sperimentali.' };
+      return { ok: true, fonte: 'dedotto dai gruppi funzionali', smiles: smi,
+               gruppi: g.gruppi, ir: g.ir, nmr_h: g.nmr_h,
+               avvertenza: 'Questa molecola NON e\' fra le ' + Object.keys(MOLECOLE_ESAME).length + ' tabulate: le bande sono quelle tipiche dei gruppi riconosciuti nello SMILES, non valori misurati per questo composto.' };
     }
   },
   {
@@ -4658,6 +5002,15 @@ var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, u
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
 "Rispondi sempre in italiano, in modo preciso, scientifico e didattico, con formule e simboli chimici quando " +
 "utile.\n\n" +
+"MOLECOLE E SPETTRI — lavora in tre passi, in quest'ordine. 1) analizza_molecola per avere i dati " +
+"(gruppi funzionali, bande IR, spostamenti NMR, frammenti MS); 2) disegna_molecola per far comparire la " +
+"struttura in RDKit Lab; 3) mostra_spettri per il diagramma a picchi. Poi COMMENTA in chat i picchi " +
+"diagnostici, non limitarti ad annunciare che hai aperto qualcosa: il valore per chi studia sta nel " +
+"perche' una banda a 1740 e' un estere e non un chetone. Il pannello degli spettri mostra un tipo per " +
+"volta (nmr, ir, uv, ms, raman): se l'utente li vuole tutti, richiama mostra_spettri per ciascuno " +
+"cambiando il parametro 'tipo', e spiega ognuno mentre lo apri. Se analizza_molecola risponde " +
+"fonte:'dedotto dai gruppi funzionali' DILLO all'utente: quei numeri sono tipici del gruppo, non " +
+"misurati su quella molecola.\n\n" +
 "MATERIALI DELL'UTENTE: puo' allegarti foto di appunti o della lavagna, pagine di libro, PDF di " +
 "dispense, spettri, strutture e file di testo, anche molti insieme. Leggili con attenzione e " +
 "lavoraci sopra: riassunti strutturati, schemi gerarchici, mappe concettuali, flashcard, domande " +

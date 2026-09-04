@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.890 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (7.243 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v153
+- sw.js            — Service Worker (network-first). Cache: bsi-v154
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -92,7 +92,7 @@ In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
 Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
 
 ## SPECTRA — l'agente AI (bsi-ai-hub.js)
-32 strumenti su 13 aree scientifiche; 10 configurazioni di modello, tutte
+35 strumenti su 13 aree scientifiche (3 nuovi: molecole e spettri via RDKit Lab); 10 configurazioni di modello, tutte
 attive a settembre 2026 E RAGGIUNGIBILI DAL BROWSER (due requisiti diversi,
 vedi nota 29).
 GRATUITE (3): Groq (volume, 131K), Gemini Flash (1M — quello giusto per i
@@ -527,6 +527,44 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    REGOLA GENERALE: quando si allunga la vita di una decisione automatica,
    ricontrollare quanto e' forte la prova che la fa scattare.
    Test: test_503.js (39), sezione 6b.
+
+34) PONTE SPECTRA -> RDKIT LAB (strumenti disegna_molecola, mostra_spettri,
+   analizza_molecola). Il lab e' un iframe della STESSA origine: la strada
+   giusta e' chiamare iframe.contentWindow.bsiRDKitAPI, che RESTITUISCE un
+   valore. postMessage resta come riserva (non sa dire se e' andata).
+   IL PUNTO DELICATO E' IL TEMPO, non il canale:
+     · openRDKitLab() crea l'iframe e torna subito, ma la pagina dentro deve
+       ancora caricarsi -> conRDKitAPI() ASPETTA che l'API compaia (20 s),
+       invece di sparare un messaggio 150 ms dopo;
+     · dentro il lab, RDKit e' WebAssembly e ci mette secondi -> le
+       richieste che ne dipendono vanno in CODA (_quandoPronto) e partono a
+       rdkReady. Senza, analyzeMol() fallisce in silenzio (requireRDKit si
+       limita a un avviso).
+   GLI SPETTRI NON DIPENDONO DA RDKIT: SpectralLab.analyze lavora sulle
+   euristiche di feat() dallo SMILES, quindi si servono subito. E' la parte
+   che l'utente aspetta: non metterla in coda per sbaglio.
+   ID REALI (una guida esterna li dava sbagliati): pannello molecola
+   'p-mol', pannello spettri 'p-speclive' (NON 'p-spec'). showPanelById
+   inizializza SpectralLab la prima volta: chiamarlo PRIMA delle spec*.
+   Tipi spettro: nmr, ir, uv, ms, raman (attributo data-spt). Uno per volta.
+   Il listener nel lab accetta SOLO ev.source === window.parent.
+   NEI TEST: il contesto va aperto con serviceWorkers:'block', altrimenti il
+   SW intercetta prima di page.route e si misura il file NON patchato senza
+   accorgersene (ci ho perso un giro).
+   Test: browser_rdkit.js (31).
+
+35) analizza_molecola: 20 molecole TABULATE + ripiego per gruppi funzionali.
+   Le due fonti vanno DICHIARATE ('tabulato' / 'dedotto dai gruppi
+   funzionali'): sono cose diverse e lo studente deve saperlo.
+   DUE TRAPPOLE, entrambe trovate testando:
+   a) l'ossigeno carbonilico di un estere veniva riletto come alcol e
+      prometteva una banda O–H inesistente. Ora i gruppi CONSUMANO dalla
+      stringa cio' che hanno gia' spiegato (campo 'consuma'), e l'ordine
+      dell'elenco conta: prima i carbonilici, in fondo alcol e ammine.
+   b) senza SMILES passavo il NOME al riconoscitore, che e' un parser di
+      SMILES: la "n" di "xyzynonesiste" diventava un'ammina, cioe'
+      un'analisi inventata per una molecola inesistente. Ora senza SMILES
+      si fallisce dichiarandolo.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
