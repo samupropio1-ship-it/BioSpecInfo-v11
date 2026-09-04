@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (7.329 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (7.462 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v155
+- sw.js            — Service Worker (network-first). Cache: bsi-v156
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -597,6 +597,42 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
      verrebbe eseguito DUE volte. Si scarta il duplicato ESATTO (nome +
      argomenti), NON "si tiene solo l'ultimo chunk": chiamate diverse
      possono arrivare separate e buttarle sarebbe peggio del problema.
+
+38) IL TETTO DI TOKEN NON E' LA FINESTRA DI CONTESTO — sesto modo di essere
+   piantati. Groq gratuito:
+     413 — Request too large ... tokens per minute (TPM):
+     Limit 8000, Requested 9568
+   Groq dichiara 131.000 token di CONTESTO ed e' vero; il piano gratuito ne
+   lascia passare 8.000 AL MINUTO. Due numeri diversi, e quello che incontri
+   per primo e' il secondo. Il costo fisso di Spectra (prompt + 35 strumenti)
+   e' 8.782 stimati: da solo non ci sta.
+   adattaAlBudget ESISTEVA GIA' (scritto per GitHub Models) ma era spento:
+   nessun fornitore dichiarava maxInput. Scrivere 8000 a mano sarebbe
+   l'ennesimo valore destinato a scadere — i piani cambiano, e per
+   organizzazione. Si LEGGE DALL'ERRORE (tettoDaErrore) e si ricorda in
+   bsi_tetti, legato all'impronta della chiave perche' dipende dal piano di
+   quella chiave. Poi si ritenta UNA volta.
+   MARGINE_TETTO = 0.7, ed e' MISURATO non scelto: sullo stesso corpo Groq
+   ha contato 9.568 dove stimaToken() dava 6.887. La stima a 4 caratteri per
+   token sottovaluta del ~30% sugli schemi degli strumenti (JSON fitto di
+   parentesi e virgolette, ogni simbolo un token). Puntare al tetto pieno
+   farebbe ricadere nello stesso 413 credendo di starci dentro.
+   Il filtro su tettoDaErrore accetta solo 1.000–2.000.000: un "Limit 3"
+   raccolto da una frase a caso renderebbe l'app inutilizzabile.
+   Test: test_tetto.js (32).
+
+39) IL TIMEOUT DI INATTIVITA' ERA UNO SOLO E ANDAVA SPEZZATO — dopo tre
+   strumenti andati a buon fine: "non ha risposto entro 45s". Il modello
+   stava ragionando sulla risposta finale, e MENTRE PENSA NON MANDA NIENTE.
+   45 s valevano sia per "aspetto il primo byte" sia per "buco a meta'
+   stream": sono due situazioni diverse.
+   Ora ATTESA_PRIMO_BYTE_MS = 180 s (300 in Modalita' Nucleo) e
+   ATTESA_FRA_BYTE_MS = 45 s, con primoByteArrivato a fare da interruttore.
+   A stream avviato 45 s di nulla e' un guasto vero; prima del primo byte no.
+   Dopo 20 s parte onPensieroLungo: minuti di schermo fermo sembrano un
+   blocco, e l'utente ricarica la pagina proprio mentre la risposta arriva.
+   Test: test_attesa.js (11), con un orologio finto — si misurano le
+   DECISIONI, non si aspettano minuti veri.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

@@ -365,6 +365,69 @@ function modelloCacheInvalida(provId){
 // garantito diverso dal precedente (il fallito viene bocciato), quindi il
 // numero e' un tetto di lavoro, non una protezione da un ciclo infinito.
 var TENTATIVI_MODELLO = 4;
+/* ---------------------------------------------------------------------
+   IL TETTO DI TOKEN, LETTO DAL FORNITORE
+   Groq sul piano gratuito risponde:
+     413 — Request too large ... on tokens per minute (TPM):
+     Limit 8000, Requested 9568
+   Il TETTO NON E' LA FINESTRA DI CONTESTO. Groq dichiara 131.000 token di
+   contesto ed e' vero, ma il piano gratuito ne lascia passare 8.000 AL
+   MINUTO: due numeri diversi, e quello che conta e' il secondo. Il costo
+   fisso di Spectra — prompt di sistema piu' 35 definizioni di strumenti —
+   supera gia' quel tetto da solo.
+   Il budget per stringere la richiesta esisteva gia', ma era spento perche'
+   nessun fornitore dichiarava un tetto. Scriverci 8000 a mano sarebbe
+   l'ennesimo valore destinato a scadere: i piani cambiano, e cambiano per
+   organizzazione. Il numero lo dice il fornitore nell'errore — si legge da
+   li' e si ricorda, legato all'impronta della chiave perche' dipende dal
+   piano di QUELLA chiave.
+--------------------------------------------------------------------- */
+var TETTI = 'bsi_tetti';
+var TETTI_TTL = 30 * 24 * 60 * 60 * 1000;
+/* MISURATO, non scelto a caso. Sullo stesso corpo Groq ha contato 9.568
+   token dove stimaToken() ne dava 6.887: la stima a 4 caratteri per token
+   sottovaluta di circa il 30% sugli schemi degli strumenti, che sono JSON
+   fitto di parentesi e virgolette — ogni simbolo un token.
+   Quindi il tetto dichiarato dal fornitore NON si usa tal quale: si punta al
+   70%, altrimenti si ricadrebbe nello stesso 413 credendo di starci dentro.
+   Meglio qualche strumento in meno di un turno che fallisce. */
+var MARGINE_TETTO = 0.7;
+function tettoUtile(t){ return t ? Math.floor(t * MARGINE_TETTO) : null; }
+
+function tettoLeggi(provId, apiKey){
+  var m = loadJSON(TETTI, {}) || {}, v = m[provId];
+  if(!v || v.k !== _improntaChiave(apiKey || '')) return null;
+  if(!v.ts || (Date.now() - v.ts) > TETTI_TTL) return null;
+  return v.max || null;
+}
+function tettoScrivi(provId, apiKey, max){
+  var m = loadJSON(TETTI, {}) || {};
+  m[provId] = { k: _improntaChiave(apiKey || ''), max: max, ts: Date.now() };
+  saveJSON(TETTI, m);
+}
+/* Estrae il tetto dal messaggio d'errore. Si accetta solo un numero
+   plausibile: un "Limit 3" preso da una frase a caso renderebbe l'app
+   inutilizzabile in modo molto peggiore del problema che risolve. */
+function tettoDaErrore(msg){
+  if(!msg) return null;
+  var s = String(msg), m;
+  var schemi = [
+    /limit\s+(\d{3,7})[,\s]+requested/i,                 // Groq: "Limit 8000, Requested 9568"
+    /maximum\s+(?:context\s+length|input)\s+is\s+(\d{3,7})/i,
+    /tokens?\s+per\s+minute[^0-9]{0,40}(\d{3,7})/i,
+    /reduce\s+(?:your\s+)?(?:message|input)[^0-9]{0,40}(\d{3,7})/i
+  ];
+  for(var i = 0; i < schemi.length; i++){
+    m = s.match(schemi[i]);
+    if(m && m[1]){
+      var n = parseInt(m[1], 10);
+      if(n >= 1000 && n <= 2000000) return n;
+    }
+  }
+  return null;
+}
+window.bsiTetti = { leggi: tettoLeggi, scrivi: tettoScrivi, daErrore: tettoDaErrore, utile: tettoUtile };
+
 var MODELLI_KO = 'bsi_modelli_ko';
 var MODELLI_KO_TTL = 7 * 24 * 60 * 60 * 1000;
 
@@ -1032,10 +1095,12 @@ function messaggioOrfano(m){
    strumenti, poi la cronologia. Gli strumenti sono un costo fisso ripetuto
    ad ogni turno, la cronologia e' il contenuto della conversazione: fra i
    due, e' il costo fisso a doversi stringere per primo. */
-function adattaAlBudget(p, messages, systemPrompt, tools){
-  if(!p.maxInput) return { messages: messages, tools: tools, tagliato: false };
+function adattaAlBudget(p, messages, systemPrompt, tools, tetto){
+  // il tetto imparato dall'errore vale quanto uno dichiarato nel registro
+  var max = tetto || p.maxInput;
+  if(!max) return { messages: messages, tools: tools, tagliato: false };
   var fisso = stimaToken(testoSistema(systemPrompt));
-  var disponibile = p.maxInput - fisso - 400;   // margine per la risposta attesa
+  var disponibile = max - fisso - 400;          // margine per la risposta attesa
   if(disponibile < 500) disponibile = 500;
 
   // Agli strumenti al massimo il 55% di cio' che resta: oltre, non rimarrebbe
@@ -1481,7 +1546,7 @@ function pausa(ms, abortSignal){
   });
 }
 
-async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, _giaRiprovato, _tentativi){
+async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, _giaRiprovato, _tentativi, _tettoRiprovato){
   var p = PROVIDERS[providerId];
   if(!p) throw new Error('Provider sconosciuto: ' + providerId);
   // Gemini: il nome del modello si decide adesso, non e' scritto nel codice.
@@ -1490,7 +1555,8 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   if(p.modelliCandidati) p.model = await risolviModello(p, apiKey, false);
   // Sui provider con un tetto stretto in ingresso si stringono strumenti e
   // cronologia PRIMA di partire, invece di farsi rifiutare la richiesta.
-  var ad = adattaAlBudget(p, messages, systemPrompt, tools);
+  var tettoAppreso = p.maxInput || tettoUtile(tettoLeggi(providerId, apiKey));
+  var ad = adattaAlBudget(p, messages, systemPrompt, tools, tettoAppreso);
   messages = ad.messages; tools = ad.tools;
   if(ad.tagliato && callbacks && callbacks.onBudget) callbacks.onBudget(ad);
   var req = buildRequest(p, apiKey, messages, systemPrompt, tools);
@@ -1501,22 +1567,48 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   // in silenzio, rete instabile) viene segnalata subito con un messaggio
   // chiaro invece di lasciare per sempre i tre puntini "…" a video — prima
   // sembrava che "Spectra non risponde" senza alcun modo per capire perché.
-  var IDLE_TIMEOUT_MS = 45000;
+  /* DUE finestre, non una. Prima erano 45 s per tutto, ed era sbagliato:
+     "aspetto il primo byte" e "buco in mezzo allo stream" sono situazioni
+     diverse. Un modello che ragiona NON manda niente mentre pensa: dopo tre
+     chiamate a strumenti, col ragionamento al massimo, restare in silenzio
+     oltre il minuto e' normale — e l'app troncava proprio quando stava per
+     rispondere, buttando via il lavoro di tutti i giri precedenti.
+     A stream avviato, invece, 45 s di nulla vogliono dire che si e'
+     piantato davvero. */
+  var ATTESA_PRIMO_BYTE_MS = nucleoAttivo() ? 300000 : 180000;
+  var ATTESA_FRA_BYTE_MS = 45000;
   var idleCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
   var idleTimer = null;
   var timedOut = false;
+  var primoByteArrivato = false;
+  var avvisoLento = null;
   function bumpIdle(){
     if(!idleCtrl) return;
     if(idleTimer) clearTimeout(idleTimer);
-    idleTimer = setTimeout(function(){ timedOut = true; try{ idleCtrl.abort(); }catch(e){} }, IDLE_TIMEOUT_MS);
+    var quanto = primoByteArrivato ? ATTESA_FRA_BYTE_MS : ATTESA_PRIMO_BYTE_MS;
+    idleTimer = setTimeout(function(){ timedOut = true; try{ idleCtrl.abort(); }catch(e){} }, quanto);
   }
-  function stopIdle(){ if(idleTimer){ clearTimeout(idleTimer); idleTimer = null; } }
+  function stopIdle(){
+    if(idleTimer){ clearTimeout(idleTimer); idleTimer = null; }
+    if(avvisoLento){ clearTimeout(avvisoLento); avvisoLento = null; }
+  }
+  /* Minuti di schermo fermo sembrano un blocco anche quando non lo sono:
+     dopo 20 s si dice che sta ragionando, cosi' l'utente aspetta invece di
+     ricaricare la pagina proprio mentre la risposta sta arrivando. */
+  function avvisaSeLento(){
+    if(avvisoLento) clearTimeout(avvisoLento);
+    avvisoLento = setTimeout(function(){
+      if(!primoByteArrivato && callbacks && callbacks.onPensieroLungo)
+        callbacks.onPensieroLungo(p.name, Math.round(ATTESA_PRIMO_BYTE_MS / 1000));
+    }, 20000);
+  }
   var signal = idleCtrl ? idleCtrl.signal : abortSignal;
   if(idleCtrl && abortSignal){
     if(abortSignal.aborted) idleCtrl.abort();
     else abortSignal.addEventListener('abort', function(){ try{ idleCtrl.abort(); }catch(e){} });
   }
   bumpIdle();
+  avvisaSeLento();
 
   var fetchOpts = { method: 'POST', headers: req.headers, body: JSON.stringify(req.body) };
   if(signal) fetchOpts.signal = signal;
@@ -1529,7 +1621,9 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   }catch(networkErr){
     stopIdle();
     if(timedOut){
-      var eTimeout = new Error('⏱ ' + p.name + ' non ha risposto entro ' + (IDLE_TIMEOUT_MS/1000) + 's.');
+      var eTimeout = new Error('⏱ ' + p.name + ' non ha risposto entro ' +
+        Math.round(ATTESA_PRIMO_BYTE_MS/1000) + 's. Col ragionamento al massimo puo\' volerci ' +
+        'molto: riprova, oppure spegni ⚛ Modalità Nucleo per una risposta più rapida.');
       eTimeout.irraggiungibile = true;
       segnaIrraggiungibile(providerId);
       throw eTimeout;
@@ -1599,13 +1693,26 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
         p.model = nuovo;
         if(callbacks && callbacks.onModello) callbacks.onModello(vecchio, nuovo, p.name, !!suggerito);
         return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
-                          abortSignal, (_giaRiprovato || 0) + 1);
+                          abortSignal, (_giaRiprovato || 0) + 1, _tentativi, _tettoRiprovato);
       }
     }
     // ── Limite di frequenza ────────────────────────────────────────────────
     // Sui piani gratuiti il 429 e' quasi sempre il limite AL MINUTO, non la
     // quota esaurita: aspettare qualche secondo lo risolve. Il fornitore lo
     // dice con Retry-After; quando non lo dice si usa una crescita esponenziale.
+    /* RICHIESTA TROPPO GRANDE. Non e' un guasto passeggero e non e' un
+       modello sparito: e' un tetto di token che non conoscevamo. Il
+       fornitore ce lo dice nel messaggio — si impara, si stringe la
+       richiesta e si riprova UNA volta. Se anche cosi' non ci sta, l'errore
+       vero arriva all'utente invece di un ciclo. */
+    var tettoDetto = (res.status === 413 || /too large|reduce your message|tokens per minute/i.test(errMsg || ''))
+      ? tettoDaErrore(errMsg) : null;
+    if(tettoDetto && !_tettoRiprovato){
+      tettoScrivi(providerId, apiKey, tettoDetto);
+      if(callbacks && callbacks.onTetto) callbacks.onTetto(p.name, tettoDetto);
+      return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
+                        abortSignal, _giaRiprovato, _tentativi, true);
+    }
     if(erroreTemporaneo(res.status) && (_tentativi || 0) < TENTATIVI_TEMPORANEO){
       // Un sovraccarico non si sblocca in un secondo e mezzo come un limite
       // al minuto: quando il fornitore non dice quanto aspettare, si parte
@@ -1616,7 +1723,7 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
         if(callbacks && callbacks.onAttesa) callbacks.onAttesa(attesa, p.name, res.status);
         await pausa(attesa, abortSignal);
         return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
-                          abortSignal, _giaRiprovato, (_tentativi || 0) + 1);
+                          abortSignal, _giaRiprovato, (_tentativi || 0) + 1, _tettoRiprovato);
       }
     }
     var e = new Error('HTTP ' + res.status + ' — ' + errMsg);
@@ -1655,9 +1762,12 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
         chunk = await reader.read();
       }catch(readErr){
         stopIdle();
-        if(timedOut) throw new Error('⏱ ' + p.name + ' si è interrotto (nessun dato per ' + (IDLE_TIMEOUT_MS/1000) + 's). Riprova.');
+        if(timedOut) throw new Error('⏱ ' + p.name + ' si è interrotto a metà risposta (nessun dato per ' + (ATTESA_FRA_BYTE_MS/1000) + 's). Riprova.');
         throw readErr;
       }
+      // Da qui in poi vale il metro stretto: lo stream ha cominciato a dare
+      // segni di vita, quindi un buco lungo e' un guasto, non un pensiero.
+      primoByteArrivato = true;
       bumpIdle();
       if(chunk.done) break;
       buf += decoder.decode(chunk.value, { stream: true });
@@ -4810,9 +4920,10 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   // modello si vedrebbe sparire uno strumento che aveva appena visto.
   // (Se lo chiama lo stesso, runToolCalls lo esegue: toolByName cerca nel
   // registro completo, non in quello ridotto.)
-  if(p.maxInput){
+  var tettoTurno = p.maxInput || tettoUtile(tettoLeggi(providerId, apiKey));
+  if(tettoTurno){
     var fisso0 = stimaToken(testoSistema(systemPrompt));
-    var perStrumenti = Math.floor(Math.max(500, p.maxInput - fisso0 - 400) * 0.55);
+    var perStrumenti = Math.floor(Math.max(500, tettoTurno - fisso0 - 400) * 0.55);
     TOOL_SCHEMA = selezionaStrumenti(TOOL_SCHEMA, testoRecente(messages), perStrumenti);
   }
   for(var round = 0; round < MAX_ROUNDS; round++){
@@ -4823,6 +4934,7 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
         onToken: function(tok, full){ roundText = full; totalText += tok; callbacks.onToken(tok, totalText); },
         onThinking: callbacks.onThinking,
         onAttesa: callbacks.onAttesa,
+        onTetto: callbacks.onTetto,
         onBudget: callbacks.onBudget,
         onServerTool: function(fase, blk, query){
           if(!callbacks.onToolUse) return;
@@ -5200,7 +5312,7 @@ var DATI_CANCELLABILI = {
     // altrimenti un fornitore resterebbe marcato ⚠ per una chiave che non
     // c'e' piu'.
     chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url',
-             'bsi_prov_ko', 'bsi_modelli_ko'],
+             'bsi_prov_ko', 'bsi_modelli_ko', 'bsi_tetti'],
     prefissi: ['bsi_modello_', 'bsi_gemini_']
   },
   memoria: {
@@ -6973,6 +7085,27 @@ function buildChatPane(){
         // cosa e' ancora piu' interessante di un errore.
         // Il turno e' ripartito senza strumenti perche' il fornitore aveva
         // rifiutato il formato: e' un cambio di comportamento, va detto.
+        // Il fornitore ha detto qual e' il suo tetto: da ora Spectra ci sta
+        // dentro da sola. Vale la pena dirlo, perche' spiega perche' da
+        // adesso usera' meno strumenti per volta.
+        onTetto: function(nome, tetto){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '📏 ' + escapeHtml(nome) + ' accetta ' + tetto + ' token per richiesta: ' +
+            'me ne ricordo e da ora mando solo gli strumenti utili alla domanda. Riprovo.'), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
+        // Con il ragionamento al massimo il modello resta muto per minuti
+        // prima di scrivere: senza questa nota sembra bloccato, e l'utente
+        // ricarica la pagina proprio mentre la risposta sta per arrivare.
+        onPensieroLungo: function(nome, secondi){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '🧠 ' + escapeHtml(nome) + ' sta ragionando sulla risposta: mentre pensa non ' +
+            'manda niente, quindi lo schermo resta fermo. Aspetto fino a ' +
+            Math.round(secondi / 60) + ' minuti prima di rinunciare.'), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
         onSenzaStrumenti: function(nome){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
