@@ -62,8 +62,15 @@ var PROVIDERS = {
     // Viene risolto a runtime interrogando ListModels (vedi
     // risolviModelloGemini), con una cascata statica di riserva.
     model: null,
-    modelliCandidati: ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest',
-                       'gemini-2.5-flash-lite', 'gemini-1.5-flash'],
+    // Ordine scelto per DURATA, non per potenza: 'gemini-flash-latest' e' un
+    // alias, e un alias non viene ritirato — segue Google da solo. Sta primo
+    // apposta. Poi il nome che l'API stessa ha indicato quando ha ritirato il
+    // 2.5 ("Please update your code to use models/gemini-3.6-flash"): non e'
+    // una mia congettura, e' cio' che ha risposto il fornitore.
+    // I vecchi restano in coda: se un giorno la chiave vede solo quelli,
+    // meglio un modello sorpassato che nessun modello.
+    modelliCandidati: ['gemini-flash-latest', 'gemini-3.6-flash', 'gemini-2.5-flash',
+                       'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-1.5-flash'],
     // La preferenza va DICHIARATA, non lasciata al bonus implicito: senza,
     // un modello di generazione successiva ma a pagamento (gemini-3-pro)
     // batterebbe il flash gratuito, e questa configurazione sceglierebbe un
@@ -116,7 +123,9 @@ var PROVIDERS = {
     rango: 90,
     name: 'Google Gemini 3 Pro', family: 'gemini', free: false,
     model: null,
-    modelliCandidati: ['gemini-3-pro', 'gemini-3.1-pro-preview', 'gemini-2.5-pro'],
+    // Stesso criterio del Flash: l'alias per primo, perche' non scade.
+    modelliCandidati: ['gemini-pro-latest', 'gemini-3-pro', 'gemini-3.1-pro-preview',
+                       'gemini-2.5-pro'],
     preferisci: /pro/,
     // Stessa chiave di AI Studio del Gemini gratuito: cambia solo che serve
     // la fatturazione attiva sul progetto.
@@ -337,6 +346,79 @@ function modelloCacheInvalida(provId){
     else Object.keys(PROVIDERS).forEach(function(k){ localStorage.removeItem(_cacheKey(k)); });
   }catch(e){}
 }
+/* ---------------------------------------------------------------------
+   MODELLI BOCCIATI — l'unica prova che un modello si puo' usare davvero
+   Il catalogo NON basta. Google ha risposto:
+     «This model models/gemini-2.5-flash is no longer available to new
+      users. Please update your code to use models/gemini-3.6-flash»
+   cioe' il modello ESISTE, i metadati rispondono, ListModels lo elenca —
+   e generare da' 404. "Esiste" e "lo puoi usare tu, con questa chiave"
+   sono due cose diverse, e solo la chiamata vera distingue.
+   Senza memoria, la ri-risoluzione dopo il 404 ridava lo STESSO nome
+   (il punteggio e' deterministico), quindi nuovo === vecchio e l'app si
+   arrendeva. Ora il nome che ha fallito viene escluso: ogni tentativo
+   prova per forza un modello diverso, e la ricerca termina.
+   Legato all'impronta della chiave come la cache: "non disponibile per i
+   nuovi utenti" dipende dalla chiave, non dal modello.
+--------------------------------------------------------------------- */
+// Quanti modelli diversi provare prima di arrendersi. Ogni tentativo e'
+// garantito diverso dal precedente (il fallito viene bocciato), quindi il
+// numero e' un tetto di lavoro, non una protezione da un ciclo infinito.
+var TENTATIVI_MODELLO = 4;
+var MODELLI_KO = 'bsi_modelli_ko';
+var MODELLI_KO_TTL = 7 * 24 * 60 * 60 * 1000;
+
+function _bocciatiTutti(){ return loadJSON(MODELLI_KO, {}) || {}; }
+function bocciatiDi(provId, apiKey){
+  var v = _bocciatiTutti()[provId];
+  if(!v || v.k !== _improntaChiave(apiKey || '')) return {};
+  var m = v.m || {}, ora = Date.now(), out = {};
+  // Scadono: un modello puo' tornare disponibile, e tenerlo escluso per
+  // sempre significherebbe perdere il migliore per un guasto di un giorno.
+  Object.keys(m).forEach(function(n){ if(ora - m[n] <= MODELLI_KO_TTL) out[n] = m[n]; });
+  return out;
+}
+function bocciaModello(provId, apiKey, nome){
+  if(!provId || !nome) return;
+  var tutti = _bocciatiTutti();
+  var m = bocciatiDi(provId, apiKey);
+  m[nome] = Date.now();
+  tutti[provId] = { k: _improntaChiave(apiKey || ''), m: m };
+  saveJSON(MODELLI_KO, tutti);
+}
+function modelloBocciato(provId, apiKey, nome){
+  return !!bocciatiDi(provId, apiKey)[nome];
+}
+window.bsiModelliBocciati = { elenco: bocciatiDi, boccia: bocciaModello, e: modelloBocciato };
+
+/* Il fornitore a volte dice QUALE usare al suo posto. E' la fonte piu'
+   attendibile che esista — piu' di qualunque punteggio scritto da me,
+   perche' viene dal fornitore, e' aggiornata al momento e non puo'
+   scadere. Va letta prima di provare a indovinare. */
+function modelloSuggeritoDaErrore(msg){
+  if(!msg) return null;
+  var s = String(msg);
+  var schemi = [
+    /use\s+models\/([A-Za-z0-9._\-]+)/i,          // Gemini: "use models/gemini-3.6-flash"
+    /use\s+`([^`]+)`/i,                            // "use `gpt-5.6` instead"
+    /use\s+([A-Za-z0-9._\/\-]+)\s+instead/i,
+    /switch\s+to\s+([A-Za-z0-9._\/\-]+)/i,
+    /replaced\s+by\s+([A-Za-z0-9._\/\-]+)/i
+  ];
+  for(var i = 0; i < schemi.length; i++){
+    var m = s.match(schemi[i]);
+    if(!m || !m[1]) continue;
+    var nome = m[1].replace(/^models\//, '').replace(/[.,;:'")\]]+$/, '');
+    // Un nome di modello ha sempre una cifra o un trattino. Senza questo
+    // filtro "We recommend you to use the Interactions API" diventerebbe
+    // un modello chiamato "the".
+    if(!/[0-9]/.test(nome) && nome.indexOf('-') < 0) continue;
+    if(/^[A-Za-z0-9][A-Za-z0-9._\/\-]{2,60}$/.test(nome)) return nome;
+  }
+  return null;
+}
+window.bsiModelloSuggerito = modelloSuggeritoDaErrore;
+
 // nomi storici, mantenuti per non toccare i richiami esistenti
 function geminiCacheLeggi(apiKey){ return modelloCacheLeggi('gemini', apiKey); }
 function geminiCacheScrivi(apiKey, model){ modelloCacheScrivi('gemini', apiKey, model); }
@@ -437,6 +519,10 @@ async function risolviModelloGemini(p, apiKey, forzaRefresh){
     var lista = await geminiListModels(apiKey);
     var best = null, bestS = -1;
     for(var i = 0; i < lista.length; i++){
+      var nomeI = String(lista[i] && lista[i].name || '').replace(/^models\//, '');
+      // Gia' bocciato dalla chiamata vera: il catalogo lo elenca ancora, ma
+      // generare da' 404. Il catalogo dice cosa esiste, non cosa e' usabile.
+      if(modelloBocciato(p.id, apiKey, nomeI)) continue;
       var s = punteggioGemini(lista[i], p);
       if(s > bestS){ bestS = s; best = lista[i]; }
     }
@@ -445,7 +531,15 @@ async function risolviModelloGemini(p, apiKey, forzaRefresh){
 
   if(!scelto){
     for(var j = 0; j < riserva.length; j++){
+      if(modelloBocciato(p.id, apiKey, riserva[j])) continue;
       if(await geminiEsiste(apiKey, riserva[j])){ scelto = riserva[j]; break; }
+    }
+  }
+  // Ultimo ripiego: il primo candidato NON bocciato. Restituire uno gia'
+  // fallito manderebbe la ri-risoluzione a sbattere sullo stesso 404.
+  if(!scelto){
+    for(var q = 0; q < riserva.length; q++){
+      if(!modelloBocciato(p.id, apiKey, riserva[q])) return riserva[q];
     }
   }
   // Se anche le sonde falliscono (rete giu', chiave non valida) si usa il primo
@@ -526,9 +620,9 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
     var disponibili = await listaModelliOpenai(p, apiKey);
     var insieme = {};
     disponibili.forEach(function(id){ insieme[id] = true; });
-    // 1. il primo candidato ancora esistente
+    // 1. il primo candidato ancora esistente e non gia' bocciato
     for(var i = 0; i < riserva.length && !scelto; i++){
-      if(insieme[riserva[i]]) scelto = riserva[i];
+      if(insieme[riserva[i]] && !modelloBocciato(p.id, apiKey, riserva[i])) scelto = riserva[i];
     }
     // 2. nessun candidato sopravvissuto: si sceglie fra cio' che c'e'
     if(!scelto){
@@ -537,6 +631,7 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
       // "instruct") vale 0, e va comunque preso se e' l'unico rimasto.
       var best = null, bestS = -1;
       for(var j = 0; j < disponibili.length; j++){
+        if(modelloBocciato(p.id, apiKey, disponibili[j])) continue;
         var s = punteggioOpenai(disponibili[j], p);
         if(s > bestS){ bestS = s; best = disponibili[j]; }
       }
@@ -544,8 +639,15 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
     }
   }catch(e){ /* elenco non raggiungibile: si usa la riserva */ }
   // 3. si lascia parlare l'errore vero della chiamata di generazione, invece
-  //    di inventarne uno qui che nasconderebbe la causa.
-  if(!scelto) return riserva[0];
+  //    di inventarne uno qui che nasconderebbe la causa. Si parte pero' dal
+  //    primo candidato NON bocciato: tornare uno gia' fallito manderebbe la
+  //    ri-risoluzione a sbattere sullo stesso 404, all'infinito.
+  if(!scelto){
+    for(var q = 0; q < riserva.length; q++){
+      if(!modelloBocciato(p.id, apiKey, riserva[q])) return riserva[q];
+    }
+    return riserva[0];
+  }
   modelloCacheScrivi(p.id, apiKey, scelto);
   return scelto;
 }
@@ -1415,18 +1517,37 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   if(!res.ok){
     stopIdle();
     var errMsg = await readErrorBody(res);
-    // Il modello e' stato ritirato mentre era in cache: si ririsolve e si
-    // ritenta UNA volta sola (il flag impedisce il ciclo infinito).
-    // Groq risponde 404, Gemini 404, OpenRouter a volte 400 dicendo che il
-    // modello non e' valido: si guarda anche il testo, non solo il codice.
+    /* Il modello non e' utilizzabile: ritirato, oppure "non piu' disponibile
+       per i nuovi utenti" — che e' peggio, perche' resta nel catalogo e
+       supera le sonde sui metadati. Groq risponde 404, Gemini 404,
+       OpenRouter a volte 400 dicendo che il modello non e' valido: si
+       guarda anche il testo, non solo il codice.
+       Prima si ritentava UNA volta e quasi sempre a vuoto: la
+       ri-risoluzione e' deterministica e ridava lo stesso nome, quindi
+       nuovo === vecchio e ci si fermava. Ora si boccia il nome fallito, il
+       che rende ogni tentativo diverso dal precedente e la ricerca finita:
+       i candidati sono pochi e la lista dei bocciati cresce sempre. */
     var modelloSparito = res.status === 404 ||
       (res.status === 400 && /model|not found|does not exist|not a valid/i.test(errMsg || ''));
-    if(p.modelliCandidati && modelloSparito && !_giaRiprovato){
+    if(p.modelliCandidati && modelloSparito && (_giaRiprovato || 0) < TENTATIVI_MODELLO){
       var vecchio = p.model;
+      if(vecchio) bocciaModello(providerId, apiKey, vecchio);
       modelloCacheInvalida(providerId);
-      var nuovo = await risolviModello(p, apiKey, true);
-      if(nuovo && nuovo !== vecchio){
-        return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools, abortSignal, true);
+      // Il fornitore spesso dice quale usare al suo posto. Vale piu' di
+      // qualunque punteggio scritto da me: viene da lui, ed e' aggiornato
+      // al momento in cui parla.
+      var suggerito = modelloSuggeritoDaErrore(errMsg);
+      var nuovo = (suggerito && !modelloBocciato(providerId, apiKey, suggerito))
+        ? suggerito
+        : await risolviModello(p, apiKey, true);
+      if(nuovo && nuovo !== vecchio && !modelloBocciato(providerId, apiKey, nuovo)){
+        // Scritto in cache PRIMA di ricorrere: streamChat ririsolve dall'alto,
+        // e senza questo il suggerimento del fornitore andrebbe perso.
+        modelloCacheScrivi(providerId, apiKey, nuovo);
+        p.model = nuovo;
+        if(callbacks && callbacks.onModello) callbacks.onModello(vecchio, nuovo, p.name, !!suggerito);
+        return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
+                          abortSignal, (_giaRiprovato || 0) + 1);
       }
     }
     // ── Limite di frequenza ────────────────────────────────────────────────
@@ -4607,7 +4728,8 @@ var DATI_CANCELLABILI = {
     // browser raggiunge: "ricominciare da capo" deve azzerare anche quello,
     // altrimenti un fornitore resterebbe marcato ⚠ per una chiave che non
     // c'e' piu'.
-    chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url', 'bsi_prov_ko'],
+    chiavi: ['bsi_api_keys', 'bsi_api_key', 'bsi_ai_provider', 'bsi_proxy_url',
+             'bsi_prov_ko', 'bsi_modelli_ko'],
     prefissi: ['bsi_modello_', 'bsi_gemini_']
   },
   memoria: {
@@ -5052,6 +5174,13 @@ var CSS = [
 '.bsi-hub-mic.rec{background:#3a1e1e;border-color:#ff6b6b;color:#ff6b6b;}',
 '#bsi-hub-keybox{margin:12px;padding:14px;background:#0f1e2e;border:1px solid #1a3550;border-radius:12px;}',
 '#bsi-hub-proxybadge{margin:12px 12px 0;padding:9px 12px;background:#08251f;border:1px solid #14614f;border-radius:10px;color:#5eead4;font-size:.78rem;font-weight:600;}',
+'#bsi-hub-proxybox{margin:0 12px 12px;background:#0b1a26;border:1px solid #1a3550;border-radius:12px;overflow:hidden;}',
+'#bsi-hub-proxyhead{display:flex;align-items:center;gap:8px;padding:10px 13px;cursor:pointer;color:#9fb8d0;font-size:.79rem;font-weight:600;}',
+'#bsi-hub-proxyhead .frec{margin-left:auto;opacity:.6;}',
+'#bsi-hub-proxyhead.aperto .frec{transform:rotate(180deg);}',
+'#bsi-hub-proxyhead.attivo{color:#5eead4;}',
+'#bsi-hub-proxybody{padding:0 13px 13px;}',
+'#bsi-hub-proxybody input{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:9px;border:1px solid #1a3550;background:#071221;color:#e8f4ff;font-size:.82rem;}',
 '#bsi-hub-kobadge{margin:12px 12px 0;padding:9px 12px;background:#2a1a08;border:1px solid #7a4a12;border-radius:10px;color:#fbbf6e;font-size:.78rem;line-height:1.45;}',
 '#bsi-hub-kobadge b{color:#ffd9a0;}',
 '#bsi-hub-provabox{margin:12px;padding:14px;background:#0b1a26;border:1px solid #1c3a57;border-radius:12px;}',
@@ -5577,6 +5706,24 @@ function buildChatPane(){
       '</div>' +
       '<div class="bsi-hub-note">La chiave resta solo in questo browser (localStorage): non viene mai inviata a server di BioSpecInfo, solo al provider scelto.</div>' +
     '</div>' +
+    // Fino a ieri l'indirizzo del proxy si poteva mettere solo a mano in
+    // localStorage o ricompilando il file: la strada "senza chiavi" esisteva
+    // ma da un telefono era irraggiungibile. Sta FUORI dal riquadro della
+    // chiave di proposito: quello sparisce appena una chiave c'e', e il
+    // proxy sarebbe rimasto nascosto proprio a chi puo' usarlo.
+    '<div id="bsi-hub-proxybox">' +
+      '<div id="bsi-hub-proxyhead" role="button" tabindex="0">🔓 <span id="bsi-hub-proxysum">Senza chiavi: collega un proxy</span><span class="frec">▾</span></div>' +
+      '<div id="bsi-hub-proxybody" style="display:none">' +
+        '<div class="bsi-hub-note">Se hai pubblicato il proxy (cartella <code>proxy/</code>, tre comandi) ' +
+        'incolla qui il suo indirizzo: da lì in poi le chiavi stanno sul server e non devi più inserirne.</div>' +
+        '<input type="text" id="bsi-hub-proxyinput" placeholder="https://spectra-proxy.tuonome.workers.dev"/>' +
+        '<div style="display:flex;gap:8px;margin-top:8px">' +
+          '<button class="bsi-hub-btn ghost" id="bsi-hub-saveproxy">Collega</button>' +
+          '<button class="bsi-hub-btn ghost" id="bsi-hub-clearproxy">Scollega</button>' +
+        '</div>' +
+        '<div class="bsi-hub-note" id="bsi-hub-proxyesito"></div>' +
+      '</div>' +
+    '</div>' +
     '<div id="bsi-hub-proxybadge" style="display:none"></div>' +
     '<div id="bsi-hub-kobadge" style="display:none"></div>' +
     '<div id="bsi-hub-msgs"></div>' +
@@ -5701,6 +5848,98 @@ function buildChatPane(){
     }
   };
   document.getElementById('bsi-hub-clearkey').onclick = function(){ clearSavedKey(provSel.value); refreshKeyBox(); };
+
+  /* Collegare il proxy: si SALVA solo se risponde davvero. Accettare un
+     indirizzo qualsiasi vorrebbe dire spegnere la richiesta della chiave e
+     lasciare Spectra muta, con l'utente convinto di aver fatto la cosa
+     giusta — un guasto peggiore di quello che si voleva risolvere. */
+  var proxyEsito = document.getElementById('bsi-hub-proxyesito');
+  var proxyHead = document.getElementById('bsi-hub-proxyhead');
+  var proxyBody = document.getElementById('bsi-hub-proxybody');
+  function diciProxy(testo, buono){
+    proxyEsito.innerHTML = testo;
+    proxyEsito.style.color = buono ? '#5eead4' : '#ff9d9d';
+  }
+  // La riga chiusa dice gia' lo stato: aprirla per scoprirlo sarebbe un clic
+  // sprecato, e chi non ha un proxy non deve nemmeno accorgersene.
+  function riassuntoProxy(){
+    var base = proxyUrl();
+    var copre = (typeof _proxyFornitori !== 'undefined' && _proxyFornitori) || [];
+    var sum = document.getElementById('bsi-hub-proxysum');
+    if(base && copre.length){
+      proxyHead.className = 'attivo' + (proxyBody.style.display === 'block' ? ' aperto' : '');
+      sum.textContent = 'Proxy collegato — copre ' + copre.join(', ') + ': niente chiavi';
+    }else if(base){
+      proxyHead.className = (proxyBody.style.display === 'block' ? 'aperto' : '');
+      sum.textContent = 'Proxy impostato ma senza chiavi sul server';
+    }else{
+      proxyHead.className = (proxyBody.style.display === 'block' ? 'aperto' : '');
+      sum.textContent = 'Senza chiavi: collega un proxy';
+    }
+  }
+  function apriChiudiProxy(){
+    var aperto = proxyBody.style.display === 'block';
+    proxyBody.style.display = aperto ? 'none' : 'block';
+    riassuntoProxy();
+  }
+  proxyHead.onclick = apriChiudiProxy;
+  proxyHead.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); apriChiudiProxy(); } };
+  try{ document.getElementById('bsi-hub-proxyinput').value = proxyUrl(); }catch(e){}
+  riassuntoProxy();
+  proxyStato().then(function(){ try{ riassuntoProxy(); }catch(e){} });
+  document.getElementById('bsi-hub-saveproxy').onclick = async function(){
+    var v = document.getElementById('bsi-hub-proxyinput').value.trim().replace(/\/+$/, '');
+    if(!v) return;
+    if(!/^https:\/\/[^\s/]+\./.test(v)){
+      diciProxy('Dev\'essere un indirizzo https completo, come <code>https://spectra-proxy.tuonome.workers.dev</code>.', false);
+      return;
+    }
+    diciProxy('Sto provando a contattarlo…', true);
+    var vecchio = proxyUrl();
+    try{
+      /* La sonda si fa QUI e non con proxyStato(): quella, di proposito,
+         non distingue "non risponde" da "risponde senza chiavi" — a
+         runtime deve essere indulgente e ripiegare sulle chiavi locali.
+         Qui invece la differenza e' tutta: salvare un indirizzo morto
+         spegnerebbe la richiesta della chiave e lascerebbe Spectra muta,
+         con l'utente convinto di aver fatto la cosa giusta. */
+      var ctrlP = (typeof AbortController === 'function') ? new AbortController() : null;
+      var tP = ctrlP ? setTimeout(function(){ try{ ctrlP.abort(); }catch(e){} }, 10000) : null;
+      var risp;
+      try{
+        risp = await fetch(v + '/stato', ctrlP ? { method:'GET', signal: ctrlP.signal } : { method:'GET' });
+      } finally { if(tP) clearTimeout(tP); }
+      if(!risp || !risp.ok) throw new Error('stato HTTP ' + (risp && risp.status));
+      var corpo = await risp.json();
+      var fornitori = (corpo && corpo.fornitori) || [];
+      localStorage.setItem('bsi_proxy_url', v);
+      await proxyRicarica();
+      if(fornitori.length){
+        diciProxy('✅ Collegato. Copre: <b>' + fornitori.map(escapeHtml).join(', ') +
+                  '</b> — per questi non serve più nessuna chiave.', true);
+      }else{
+        // Risponde ma senza chiavi configurate: il Worker c'e', mancano i
+        // segreti. Dirlo con precisione evita mezz'ora di tentativi ciechi.
+        diciProxy('⚠ Il proxy risponde ma non ha ancora nessuna chiave. Sul server: ' +
+                  '<code>npx wrangler secret put GROQ_KEYS</code> (o GEMINI_KEYS, ZAI_KEYS).', false);
+      }
+    }catch(err){
+      try{ if(vecchio) localStorage.setItem('bsi_proxy_url', vecchio);
+           else localStorage.removeItem('bsi_proxy_url'); }catch(e2){}
+      await proxyRicarica();
+      diciProxy('⛔ Non risponde. Controlla l\'indirizzo, e che <code>npx wrangler deploy</code> sia andato a buon fine.', false);
+    }
+    riassuntoProxy();
+    refreshKeyBox();
+  };
+  document.getElementById('bsi-hub-clearproxy').onclick = async function(){
+    try{ localStorage.removeItem('bsi_proxy_url'); }catch(e){}
+    document.getElementById('bsi-hub-proxyinput').value = '';
+    await proxyRicarica();
+    diciProxy('Proxy scollegato: si torna alle chiavi salvate in questo browser.', true);
+    riassuntoProxy();
+    refreshKeyBox();
+  };
 
   // thread select
   function refreshThreadSel(){
@@ -6250,6 +6489,19 @@ function buildChatPane(){
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
             '⏳ ' + escapeHtml(nome) + ' ha raggiunto il limite al minuto: aspetto ' +
             (ms / 1000).toFixed(1).replace('.0', '') + 's e riprovo'), liveNode);
+          box.scrollTop = box.scrollHeight;
+        },
+        // Il modello scelto non era utilizzabile e ne e' stato preso un altro.
+        // Va detto: l'utente ha diritto di sapere con cosa gli si sta
+        // rispondendo, e se il fornitore ha suggerito lui il sostituto la
+        // cosa e' ancora piu' interessante di un errore.
+        onModello: function(vecchio, nuovo, nome, suggerito){
+          if(abortFlag.stop) return;
+          box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
+            '🔁 ' + escapeHtml(nome) + ': <b>' + escapeHtml(String(vecchio || '?')) +
+            '</b> non è più utilizzabile' +
+            (suggerito ? ', e il fornitore indica <b>' : ', passo a <b>') +
+            escapeHtml(nuovo) + '</b>. Riprovo.'), liveNode);
           box.scrollTop = box.scrollHeight;
         },
         onRiserva: function(da, a, motivo){
