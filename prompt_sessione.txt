@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (7.462 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (7.525 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v157
+- sw.js            — Service Worker (network-first). Cache: bsi-v158
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -677,6 +677,61 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    cosi' resta utile per un embed diverso.
    E le etichette dei picchi si accavallavano nella zona affollata: ora
    salgono di riga finche' c'e' posto (_etich, azzerato ad ogni draw()).
+
+43) AUDIT COMPLETO (09/2026) — cosa e' stato cercato e cosa si e' trovato.
+   METODO: statico su tutti i file, poi a RUNTIME su tutte e 14 le pagine
+   (errori JS, 404, id duplicati NEL DOM VIVO, gestori onclick che puntano a
+   funzioni inesistenti), poi clic su ogni pulsante, poi i dati scientifici
+   contro valori di letteratura, poi timer/animazioni, poi sicurezza.
+   FALSI POSITIVI DA NON RINCORRERE LA PROSSIMA VOLTA:
+   · i calc() "senza spazi": e' il regex che inciampa sui trattini di
+     safe-area-inset-bottom. Gli spazi ci sono, le regole sono valide.
+   · <script> "sbilanciati" in index.html (82 vs 81): dentro il template
+     #bsiQ-src-lab c'e' un <\/script> sfuggito apposta. E' la tecnica giusta.
+   · gli id duplicati nel SORGENTE di index.html (vdwN, dsPredOut...) stanno
+     dentro template JS: nel DOM vivo non esistono. Verificato, non supposto.
+   · target=_blank senza rel=noopener (75 casi): dal 2021 i browser lo
+     applicano da soli. Non e' valso 75 modifiche.
+   TROVATI VERI E CORRETTI: vedi note 44-47.
+
+44) COSTANTE FISICA: "R" RESTITUIVA AVOGADRO — la ricerca era
+   k.indexOf(q)>=0 || q.indexOf(k)>=0, e "avogadro" contiene una "r".
+   Cosi' "R" dava 6,022e23 CHIAMANDOLO costante dei gas, "k" dava Planck,
+   "e" dava Avogadro. Numeri sbagliati dati con sicurezza: la classe di
+   guasto peggiore per un'app di studio.
+   Ora: tabella PHYS_SIMBOLI (R, k, h, c, e, F, NA, me, mp, kB...), e la
+   ricerca va dal preciso al vago — esatta, simbolo, tutte le parole
+   significative, e solo da 4 caratteri la sottostringa. In ogni caso si
+   raccolgono TUTTE le candidate e si risponde solo se e' una sola:
+   "costante" ne trova cinque e ora lo DICE invece di sceglierne una.
+   Tolte articoli e preposizioni, cosi' "massa dell'elettrone" funziona.
+   Test: test_costanti.js (45).
+
+45) LA PASSWORD IN CHIARO STAVA NEL COMMENTO — file_manager.html conservava
+   correttamente solo l'impronta SHA-256, ma la riga sopra diceva
+   // SHA-256 of "SamuEle25". Con Ctrl+U si leggeva in un secondo, e tutto il
+   lavoro di non salvarla in chiaro non serviva a niente. Rimossa.
+   NB: resta nella storia di git. L'unico rimedio vero e' cambiarla.
+
+46) astro.html: UN CICLO DI ANIMAZIONE SENZA GUARDIA — _renderTransit.draw()
+   ridisegnava il canvas e riscriveva innerHTML 60 volte al secondo PER
+   SEMPRE, anche a scheda chiusa. Misurato: 483 disegni/s + 60 innerHTML/s a
+   vuoto dopo aver aperto una volta i Calcolatori. Dopo la correzione: 0.
+   animate() e _cosmoAnimate() la guardia ce l'avevano gia': era l'unico dei
+   tre a non averla. ATTENZIONE ALLA METRICA: contare i requestAnimationFrame
+   NON misura il lavoro — un ciclo con la guardia chiede il fotogramma e poi
+   esce. Va strumentato il canvas (stroke/fillText) e il setter di innerHTML.
+   Test: audit_lavoro.js.
+
+47) DUE ALTRI DIFETTI MINORI, corretti:
+   · accademia.html: cinque gestori leggevano currentCat/quizState quando
+     sono ancora null. NON erano raggiungibili cliccando (stanno in una vista
+     nascosta): li ho trovati premendo i pulsanti da codice. Guardie messe
+     comunque — un crash spezza la catena dei gestori.
+   · Biochimica_Guida_Definitiva.html: tre diagrammi definivano lo STESSO id
+     di marker SVG ('ah', 'ahb'), e url(#ah) risolve sempre al primo. Oggi si
+     vedevano uguali perche' i marker sono identici; cambiare il colore di
+     uno avrebbe cambiato gli altri due in silenzio. Ora ah1/ah2/ah3.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN

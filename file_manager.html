@@ -368,7 +368,12 @@ var _safeSession={
 'use strict';
 
 // ─── PASSWORD AUTH (SHA-256) ──────────────────────────────────────────────────
-// SHA-256 of "SamuEle25"
+/* Impronta SHA-256 della password. La password IN CHIARO non va scritta qui:
+   stava nel commento qui sopra, e con Ctrl+U si leggeva in un secondo —
+   il che rendeva inutile tutto il lavoro di non salvarla in chiaro.
+   Ricorda comunque che su GitHub Pages non c'e' un server: chi conosce
+   l'impronta puo' provarla offline quanto vuole. E' una serratura contro
+   chi passa, non contro chi vuole entrare davvero. */
 var CORRECT_HASH = '5513fe48cae75fbece575572c97767e1f9bfc3ce01af8b8877c9fe740db03a7c';
 var SESSION_KEY = 'bsi_fm_session_v1';
 
