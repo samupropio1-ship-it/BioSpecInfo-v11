@@ -242,6 +242,29 @@ Se vedi la nota dello strumento, tutto funziona: significa che il modello sta
 **invocando i risolutori** invece di rispondere a memoria. È la differenza fra
 Spectra e una chat qualunque.
 
+## Farne a meno del tutto — il proxy
+
+Se non vuoi inserire nessuna chiave, la strada c'è ed è definitiva: un piccolo
+programma su Cloudflare tiene le chiavi **sul server**. La pagina non ne
+contiene nessuna, chi apre il sito usa Spectra e basta, e cade anche il
+vincolo CORS — quindi tornano utilizzabili anche i fornitori che dal browser
+non rispondono.
+
+Tre comandi, account Cloudflare gratuito, niente carta né dominio:
+
+```bash
+cd proxy
+npx wrangler login
+npx wrangler deploy
+```
+
+Poi in Spectra apri la riga **🔓 Senza chiavi: collega un proxy**, incolla
+l'indirizzo che `wrangler` ha stampato e premi **Collega**. Spectra lo
+contatta subito: se non risponde **non lo salva** e te lo dice, invece di
+lasciarti con l'app muta e la convinzione di aver fatto la cosa giusta.
+
+Dettagli e come mettere le chiavi sul server: `proxy/README.md`.
+
 ## Toglierle o ricominciare
 
 Pulsante **🗑** nella barra di Spectra. Ti fa scegliere cosa togliere — chat,
@@ -294,10 +317,35 @@ salvate tutte e tre.
 | Limite al minuto (`429`) | Legge quanto deve aspettare, te lo dice, riprova. Fino a 3 volte |
 | Quota finita | Passa a un altro servizio per cui hai una chiave e **rifà la domanda da lì** |
 | Servizio non raggiungibile | Stessa cosa: cambia fornitore e continua — **e se lo segna**, vedi qui sotto |
-| Modello ritirato dal fornitore | Ne cerca un altro nel catalogo e riprova |
+| Modello ritirato dal fornitore | Lo boccia, **legge il sostituto dal messaggio del fornitore** e rifà la domanda |
 
 **Mai a pagamento senza chiedertelo.** La riserva automatica usa solo servizi
 gratuiti: se hai anche una chiave Claude o GPT, quelle le scegli tu.
+
+## Se un modello viene ritirato
+
+Succede, e più spesso di quanto sembri. A settembre 2026 Google ha risposto
+così a una chiave perfettamente valida:
+
+> `HTTP 404 — This model models/gemini-2.5-flash is no longer available to new
+> users. Please update your code to use models/gemini-3.6-flash`
+
+Il modello **esisteva ancora** nel catalogo, e i controlli sui metadati lo
+trovavano: solo la chiamata vera diceva che non si poteva usare. «Esiste» e
+«lo puoi usare tu, con la tua chiave» sono due cose diverse.
+
+**Non devi fare niente**, e in particolare non devi cambiare chiave:
+
+1. Spectra si annota che quel modello ha fallito, così non lo riproverà;
+2. **legge il nome del sostituto dal messaggio del fornitore** — è la fonte
+   più attendibile che esista, perché arriva da lui ed è aggiornata al
+   momento in cui parla;
+3. se il fornitore non lo dice, ricerca nel catalogo *escludendo* quello
+   bocciato — così ogni tentativo è per forza diverso dal precedente;
+4. rifà la domanda e te lo dice in chat con la nota 🔁.
+
+Dopo sette giorni i modelli bocciati vengono riprovati: uno può tornare
+disponibile, ed escluderlo per sempre sarebbe peggio.
 
 ## Se un servizio non risponde *dal browser*
 

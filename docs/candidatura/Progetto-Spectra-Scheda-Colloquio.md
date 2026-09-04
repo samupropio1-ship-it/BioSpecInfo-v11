@@ -17,7 +17,7 @@ fornitori diversi, senza alcun backend.
 
 | | |
 |---|---|
-| Componente | 6.588 righe, zero dipendenze runtime |
+| Componente | 6.840 righe, zero dipendenze runtime |
 | Strumenti | 32, su 13 aree scientifiche |
 | Fornitori supportati | 7 (Anthropic, OpenAI, Google, DeepSeek, xAI, Z.AI, Groq) — 10 configurazioni, 3 gratuite, tutte attive **e raggiungibili dal browser** |
 | Dataset interni esposti | 9, oltre 800 record |
@@ -75,7 +75,7 @@ ripresa del turno.
 
 ---
 
-## Sette bug che ho trovato testando (e cosa insegnano)
+## Otto bug che ho trovato testando (e cosa insegnano)
 
 **1. Il parser di formule sbagliava `Ca₃(PO₄)₂`** — dava 215 invece di 310. La
 prima implementazione gestiva le parentesi con una pila di moltiplicatori
@@ -131,7 +131,8 @@ resta in cache per una settimana, legata a un'impronta della chiave perché
 chiavi diverse vedono cataloghi diversi. Se `ListModels` non risponde si
 sondano dei candidati noti con una GET sui metadati, che non consuma quota di
 generazione. E se il modello viene ritirato *mentre* è in cache, il 404 della
-chiamata vera invalida la cache e ritenta una volta sola.
+chiamata vera invalida la cache e fa ripartire la ricerca (vedi il bug 8: la
+prima versione ritentava una volta sola, e non bastava).
 
 **E poi è successo di nuovo, su un altro fornitore.** Groq ha ritirato
 `llama-3.3-70b-versatile` il 17 giugno, e l'app si è fermata allo stesso modo:
@@ -187,6 +188,44 @@ altro fornitore», e un `401` finto la fa sparire.
 cui gira davvero» sono due domande diverse, e avevo risposto solo alla prima.
 Quando nemmeno la seconda ha una risposta stabile, la cosa onesta non è
 indovinarla: è costruire il sistema che la misura da sé.*
+
+---
+
+**8. Il ritentativo c'era, e non poteva funzionare.** Il meccanismo del bug 6
+sembrava chiuso finché Google non ha risposto questo a una chiave valida:
+
+> `This model models/gemini-2.5-flash is no longer available to new users.
+> Please update your code to use models/gemini-3.6-flash`
+
+Non «ritirato»: **non disponibile per i nuovi utenti**. Il modello esisteva
+ancora — `ListModels` lo elencava, la GET sui metadati rispondeva 200 — e solo
+la chiamata di generazione dava 404. Tutte le mie verifiche guardavano
+l'esistenza; l'esistenza non era la proprietà giusta.
+
+Il guasto vero però era un altro, ed era mio. Il codice, preso il 404,
+invalidava la cache e ri-risolveva. Ma **la ri-risoluzione è deterministica**:
+stesso catalogo, stesso punteggio, stesso nome. La condizione `nuovo !== vecchio`
+era falsa e l'app si arrendeva. Avevo scritto un ritentativo che non poteva
+riuscire, e nessun test lo aveva mostrato perché tutti i miei casi
+presupponevano che il modello sostitutivo fosse *nel catalogo*.
+
+Tre pezzi, e servono tutti e tre. **Il nome fallito viene bocciato** e escluso
+dalle risoluzioni successive: è questo a rendere ogni tentativo diverso dal
+precedente, cioè a far *terminare* la ricerca invece di girare a vuoto.
+**Il sostituto si legge dal messaggio del fornitore** — «use
+models/gemini-3.6-flash» — che è la fonte migliore possibile: viene da lui, è
+aggiornata all'istante e non può scadere come un valore che scriverei io. E fra
+i candidati di riserva ora c'è per primo un **alias** (`gemini-flash-latest`),
+che per costruzione non viene mai ritirato.
+
+Verificato su 36 casi, fra cui i due che contano: il turno che prima si fermava
+adesso *riesce* usando il modello che il fornitore stesso ha indicato, e il caso
+in cui non funziona niente termina senza mai ripetere due volte lo stesso nome.
+
+*Lezione: un meccanismo di recupero va testato sul caso in cui deve scattare,
+non solo su quello in cui è comodo simularlo. Il mio girava a vuoto da mesi e
+sembrava a posto. E quando un sistema esterno ti dice cosa fare, ascoltarlo
+batte qualsiasi euristica che puoi scrivere tu.*
 
 ---
 

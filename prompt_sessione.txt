@@ -32,12 +32,12 @@ Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
 - three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
 - 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
 - RDKit_minimal.js                              — stub RDKit (vedi NOTE)
-- bsi-ai-hub.js                                 — Spectra: agente AI (6.588 righe)
+- bsi-ai-hub.js                                 — Spectra: agente AI (6.840 righe)
 - lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
 - proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
 
 ### Infrastruttura
-- sw.js            — Service Worker (network-first). Cache: bsi-v151
+- sw.js            — Service Worker (network-first). Cache: bsi-v152
 - manifest.json    — PWA manifest
 - docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
                      Guida-Chiavi-API.md per l'utente finale)
@@ -452,6 +452,49 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    In test_nucleo NON usare una chiave Gemini per provare lo scambio fra
    gratuiti: gemini_pro condivide la chiave (chiaveCondivisaCon) e vince
    col rango 90. Usare groq+zai.
+
+30) IL CATALOGO NON DIMOSTRA CHE UN MODELLO SI POSSA USARE — terzo modo in
+   cui un fornitore ti pianta, dopo "modello ritirato" e "servizio senza
+   CORS". Google 09/2026:
+     "This model models/gemini-2.5-flash is no longer available to NEW
+      USERS. Please update your code to use models/gemini-3.6-flash"
+   Il modello ESISTE: ListModels lo elenca, la GET sui metadati risponde
+   200. Solo generare da' 404. "Esiste" e "lo puoi usare TU, con QUESTA
+   chiave" sono cose diverse, e solo la chiamata vera le distingue.
+   PERCHE' L'APP SI ARRENDEVA: la ri-risoluzione dopo il 404 e'
+   deterministica, quindi ridava lo stesso nome; nuovo === vecchio e ci si
+   fermava. Il ritentativo esisteva ma non poteva funzionare.
+   TRE PEZZI, e servono tutti e tre:
+   a) modelloSuggeritoDaErrore() legge il sostituto DAL MESSAGGIO del
+      fornitore. E' la fonte migliore che esista: viene da lui, e' aggiornata
+      al momento e non puo' scadere. Il filtro "deve contenere una cifra o un
+      trattino" evita di scambiare "use the Interactions API" per un modello.
+   b) bocciaModello()/bsi_modelli_ko esclude il nome fallito dalla
+      risoluzione (catalogo E candidati E ultimo ripiego). Rende ogni
+      tentativo DIVERSO dal precedente: e' cio' che fa terminare la ricerca.
+      Legato all'impronta della chiave, TTL 7 giorni.
+   c) TENTATIVI_MODELLO = 4: _giaRiprovato e' un CONTATORE, non piu' un
+      booleano. Attenzione se si tocca: passare `true` renderebbe
+      (true||0)<4 vero e cambierebbe la semantica.
+   I candidati Gemini ora hanno l'ALIAS PER PRIMO ('gemini-flash-latest',
+   'gemini-pro-latest'): un alias non viene ritirato. I test che
+   codificavano il vecchio primo candidato sono stati aggiornati.
+   NON riscrivere i test come "un solo tentativo": ora scende lungo i
+   candidati. Cio' che deve restare vero e' che TERMINA e che non ripete
+   due volte lo stesso nome.
+   Test: test_404.js (36).
+
+31) IL CAMPO DEL PROXY STA FUORI DAL RIQUADRO DELLA CHIAVE — #bsi-hub-proxybox,
+   non dentro #bsi-hub-keybox. Quello sparisce appena una chiave c'e'
+   (refreshKeyBox), quindi il proxy sarebbe stato invisibile proprio a chi
+   puo' usarlo. E' una riga ripiegata che dice gia' lo stato.
+   IL SALVATAGGIO SONDA DA SE' con fetch(v + '/stato'): NON usare
+   proxyStato(), che ha un .catch() e restituisce [] sia quando il proxy non
+   risponde sia quando risponde senza chiavi. A runtime e' giusto cosi'
+   (indulgente, ripiega sulle chiavi locali), ma qui la differenza e' tutta:
+   salvare un indirizzo morto spegne la richiesta della chiave e lascia
+   Spectra muta. Se non risponde si RIPRISTINA l'indirizzo precedente.
+   Test: browser_proxyui.js (17).
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
