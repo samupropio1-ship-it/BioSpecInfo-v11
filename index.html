@@ -798,7 +798,12 @@ input::placeholder, textarea::placeholder { color: #888888; }
 </style>
 </head>
 <body>
-<script>window.BSI_EDITION='pro';window.BSI_APP_VERSION='biospecinfo-v140-2026-06';
+<script>window.BSI_EDITION='pro';
+/* Questa stringa era ferma a "v140-2026-06" mentre il service worker era
+   arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
+   leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
+   (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
+window.BSI_APP_VERSION='bsi-v162';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -27396,6 +27401,16 @@ function ctrRender(){
       h+='<div style="margin-top:14px">'+ctrInterpret(smi)+'</div>';
       ir.innerHTML=h;
     }
+    /* Le bande vengono da RDKit, che al primo utilizzo deve ancora
+       caricarsi: in quell'attimo si disegna con il metodo di ripiego. Qui
+       ci si mette in ascolto una volta sola, e quando l'analisi vera e'
+       pronta lo spettro si ridisegna da solo con i dati buoni. */
+    if(window.BSISpettri && !window._ctrInAscolto){
+      window._ctrInAscolto = true;
+      window.BSISpettri.quandoPronto(function(s){
+        if(s === _ctrSmiles) ctrRender();
+      });
+    }
     if(nm&&typeof nmrPeakList==='function'&&typeof makeNMRsvg==='function'){
       var peaks=nmrPeakList(smi);
       if(peaks&&peaks.length){
@@ -30317,6 +30332,7 @@ window.initFileManager = function(){
 
 <!-- 3Dmol.js v2.4.0 BSD-License (file esterno per upload affidabile) -->
 <script src="./3Dmol-min.js"></script>
+<script src="./bsi-spettri.js" defer></script>
 <script src="./bsi-ai-hub.js" defer></script>
 <script>
 
@@ -32979,6 +32995,7 @@ function addBtn(){
   acts.insertBefore(b, acts.firstChild);
 }
 addBtn(); setTimeout(addBtn,600); setTimeout(addBtn,1500);
+
 console.log('BioSpecInfo v17.3 \u2014 controllo aggiornamenti attivo \u2714 (locale '+LOCAL+')');
 })();
 </script>
@@ -35656,6 +35673,12 @@ var _ITEMS=[
   {ic:'⚛️',nm:'Costanti J',ds:'Tabella accoppiamenti NMR',key:'jconst'},
   {ic:'🖨️',nm:'Stampa pagina',ds:'',key:'print'},
   {sec:'⚙️ Impostazioni'},
+  /* AGGIORNAMENTI — la finestra esisteva gia' (bsiOpenUpdate, v17.3) ma il
+     suo unico pulsante stava in #hdr-actions, che un foglio di stile
+     successivo nasconde con display:none!important: nessuno poteva aprirla.
+     Anche il menu ✨ della v10.5 dove le icone erano state spostate e'
+     nascosto a sua volta. Il menu vivo e' questo, quindi la voce va qui. */
+  {ic:'🔄',nm:'Aggiornamenti',ds:'Versione installata e controllo nuove versioni',key:'aggiorna',hl:true},
   {ic:'⚙️',nm:'Impostazioni',ds:'Testo, contrasto, movimento, dati salvati, assistente AI',key:'settings',hl:true},
   {sec:'📱 App & Schermo'},
   {ic:'⛶',nm:'Schermo intero',ds:'Nasconde barra navigazione Android',key:'fs'},
@@ -35687,6 +35710,10 @@ function _act(key){
   _closeAllSpecial();
   setTimeout(function(){
     _closeAllSpecial();
+    if(key==='aggiorna'){
+      if(typeof window.bsiOpenUpdate==='function') window.bsiOpenUpdate();
+      return;
+    }
     if(key==='sr')       { window.openSR14(); return; }
     if(key==='guidaret'){ window.openGuidaRet(); return; }
     if(key==='accademia'){ window.openAccademia(); return; }

@@ -399,7 +399,10 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    arrivati al server. TTL 24 ore.
    I marcati NON vengono mai rimossi dall'elenco: vanno in fondo in
    providerUtilizzabili() e prendono -1000 in migliorProvider(), ma se sono
-   gli unici configurati si provano lo stesso. Per questo migliorProvider()
+   gli unici configurati si provano lo stesso. Nella tendina finiscono in un
+   <optgroup> in fondo, "Non hanno risposto da questo dispositivo", con
+   l'etichetta "· non risponde": prima portavano solo un ⚠ davanti al nome e
+   restavano in mezzo agli altri, quindi si continuavano a scegliere. Per questo migliorProvider()
    parte da -Infinity e non da -1: con la penalita' un rango diventa
    negativo e con -1 l'unico fornitore disponibile non verrebbe scelto.
    Un AbortError (l'utente che preme Stop) NON va annotato.
@@ -861,6 +864,76 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
      la crescita del DOM va misurata dal secondo giro in poi, altrimenti si
      scambia la costruzione per una perdita. Misurato: +26876 nodi al primo
      giro, +0 nei quattro successivi.
+
+61) LE REGEX SULLO SMILES NON SANNO DI CHIMICA — era la radice di due difetti
+   gravi negli spettri, nascosti nella stessa riga in IR e in NMR:
+   has(smi,/C\(=O\)O/) && !has(smi,/C\(=O\)O[Cc]/) per dire "e' un acido".
+   Nell'aspirina, CC(=O)Oc1ccccc1C(=O)O, il "C(=O)O" e' seguito da una "c":
+   l'acido spariva. In piu' le catene di else if lasciavano passare UN SOLO
+   gruppo funzionale, quindi l'aspirina — estere E acido — usciva senza
+   l'O–H largo, senza il C=O acido a 1690 e, nell'NMR, senza il protone del
+   COOH a 11,6 ppm. Su una molecola che sta in ogni libro di testo.
+   Ora bsi-spettri.js usa SMARTS via RDKit, che legge il grafo molecolare:
+   additivo per costruzione e cieco a come lo SMILES e' scritto.
+
+62) LA CONIUGAZIONE VA APPLICATA A UN CARBONILE PER VOLTA — un unico flag
+   "c'e' qualcosa di coniugato" li abbassava tutti insieme. Nell'aspirina
+   l'acido e' attaccato all'anello e scende a 1690, mentre l'estere resta a
+   1760 (estere fenolico: SALE): sono proprio le due bande che identificano
+   la molecola, e uno sconto unico le avrebbe spostate in blocco.
+   Verificato anche su acetofenone (chetone coniugato, 1690) e acetato di
+   etile (estere non coniugato, 1735).
+
+63) UNO SPETTRO IR SI DISEGNA IN TRASMITTANZA — bande verso il BASSO, linea
+   di base in alto al 100%. Il grafico precedente mostrava l'assorbanza
+   verso l'alto: un chimico capisce che e' sbagliato prima ancora di leggere
+   i numeri. E soprattutto: NIENTE Math.random() nella traccia. Ce n'era un
+   pizzico ad ogni ridisegno, quindi la stessa molecola dava ogni volta uno
+   spettro diverso e due spettri non erano confrontabili.
+
+64) LE INTENSITA' DIPENDONO DA QUANTI GRUPPI CI SONO — non dal fatto che ce
+   ne sia almeno uno. Con un valore fisso, le tre bande C–H sommate
+   scavavano da 3600 a 2500 un burrone che sotterrava perfino i carbonili:
+   misurato sull'aspirina, C–H al 5% di trasmittanza contro il ~40% reale,
+   quando l'aspirina ha un solo CH₃. Stessa cosa per l'integrazione ¹H: gli
+   SMARTS si contengono a vicenda (ogni CH₃ in α a un carbonile e' anche un
+   CH₃ alifatico) e senza sottrarli i rapporti — l'unica cosa che in un ¹H
+   NMR si legge davvero — vengono sbagliati.
+
+65) SEI PUNTI, DUE FUNZIONI — l'app disegna spettri IR in sei posti diversi,
+   tutti attraverso irBandList() e makeIRsvg(). Conveniva sostituire le due
+   funzioni invece di ricablare sei chiamanti: sei occasioni in meno di
+   dimenticarne uno. Le versioni vecchie restano come ripiego finche' RDKit
+   non e' caricato, e quando l'analisi vera arriva un ascoltatore fa
+   ridisegnare (BSISpettri.quandoPronto).
+
+66) SEGNARE NON BASTA, BISOGNA SPOSTARE — i fornitori irraggiungibili
+   portavano un ⚠ davanti al nome ma restavano in mezzo agli altri, alla
+   stessa distanza dal dito: si continuavano a scegliere e si aspettava di
+   nuovo il timeout. Ora finiscono in un <optgroup> in fondo, "Non hanno
+   risposto da questo dispositivo". Non si cancellano: un blocco puo'
+   dipendere dalla rete di oggi.
+
+67) "NON CI SONO AGGIORNAMENTI IN APP" ERA VERO ALLA LETTERA — e non per un
+   difetto del service worker. La finestra degli aggiornamenti esisteva
+   (bsiOpenUpdate, v17.3) e funzionava, ma il suo unico pulsante veniva
+   inserito in #hdr-actions, che un foglio di stile piu' avanti nel file
+   nasconde con display:none!important: nessuna porta per entrarci. In piu'
+   BSI_APP_VERSION era ferma a "v140-2026-06" mentre sw.js era alla v161,
+   quindi il confronto con GitHub partiva da un numero sbagliato.
+   Ora la voce sta nel pannello ✨ (#bsi14-sheet, chiave 'aggiorna') e la
+   versione e' allineata. BSI_APP_VERSION VA CAMBIATA INSIEME a CACHE in
+   sw.js ad ogni pubblicazione: sono due righe, vanno sempre in coppia.
+
+68) TRE MENU ✨, DUE MORTI — cercando dove mettere la voce ho trovato tre
+   generazioni sovrapposte: #hdr-actions (nascosto), #bsi105-menu della
+   v10.5 (nascosto pure lui, verificato display:none sia su desktop sia a
+   390px) e #bsi14-sheet della v14, che e' l'unico vivo insieme a
+   #bsi-spectra-fab. Avevo gia' scritto la voce nel secondo prima di
+   accorgermene: sarebbe stata irraggiungibile esattamente come quella che
+   stavo correggendo. Prima di aggiungere un comando a un menu, MISURARE che
+   quel menu si apra davvero — l'elemento esiste nel DOM in tutti e tre i
+   casi, e cercarlo con getElementById non distingue il vivo dai morti.
 
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
