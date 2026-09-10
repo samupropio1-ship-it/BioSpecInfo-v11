@@ -1498,6 +1498,10 @@ async function readErrorBody(res){
    "quota finita" che lasciare l'utente davanti a una clessidra per un'ora. */
 var ATTESA_MAX_MS = 60000;
 var TENTATIVI_TEMPORANEO = 4;
+/* Oltre questa attesa conviene cambiare fornitore invece di stare fermi,
+   sempre che ce ne sia un altro pronto. Dieci secondi e' la soglia oltre la
+   quale un utente pensa che l'app si sia bloccata. */
+var ATTESA_TROPPO_LUNGA_MS = 10000;
 
 /* Guasti TEMPORANEI del fornitore: la stessa identica richiesta, fra
    qualche secondo, funziona. Sono una cosa diversa sia da una quota finita
@@ -1719,6 +1723,23 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
       // da un gradino piu' in alto della scala esponenziale.
       var giro = (_tentativi || 0) + (res.status === 429 ? 0 : 1);
       var attesa = attesaDaRisposta(res, errMsg, giro);
+      /* Se l'attesa e' lunga e c'e' un ALTRO fornitore utilizzabile, non ha
+         senso restare fermi: Gemini 3 Pro che dice "aspetta 37 secondi"
+         mentre Groq risponde in mezzo secondo e' mezzo minuto di schermo
+         fermo per niente. Si passa oltre subito.
+         Solo se non c'e' alternativa si aspetta davvero — meglio 37 secondi
+         di un errore. */
+      if(attesa !== null && attesa >= ATTESA_TROPPO_LUNGA_MS){
+        var altri = providerUtilizzabili(providerId).filter(function(id){ return id !== providerId; });
+        if(altri.length){
+          var eLunga = new Error(p.name + ' chiede di aspettare ' +
+            (attesa/1000).toFixed(0) + 's: passo a un altro fornitore invece di stare fermo.');
+          eLunga.stato = res.status;
+          eLunga.esaurito = true;          // fa scattare la riserva
+          eLunga.attesaLunga = Math.round(attesa/1000);
+          throw eLunga;
+        }
+      }
       if(attesa !== null){
         if(callbacks && callbacks.onAttesa) callbacks.onAttesa(attesa, p.name, res.status);
         await pausa(attesa, abortSignal);
@@ -4947,7 +4968,8 @@ async function conProviderDiRiserva(providerId, apiKey, messages, systemPrompt, 
     if(i > 0 && callbacks && callbacks.onRiserva){
       callbacks.onRiserva(PROVIDERS[candidati[i - 1]].name, PROVIDERS[id].name,
                           ultimo && ultimo.irraggiungibile ? 'irraggiungibile' :
-                          (ultimo && ultimo.sovraccarico ? 'sovraccarico' : 'quota'));
+                          (ultimo && ultimo.attesaLunga ? 'attesa:' + ultimo.attesaLunga :
+                          (ultimo && ultimo.sovraccarico ? 'sovraccarico' : 'quota')));
     }
     try{
       return await _unTurno(id, chiave, messages, systemPrompt, callbacks, abortSignal);
@@ -6757,10 +6779,21 @@ function buildChatPane(){
     var pronti = esiti.filter(function(r){ return r.esito === 'ok' && r.conChiave; });
     var box = document.getElementById('bsi-prova-esito');
     if(pronti.length){
+      /* Gratis e a pagamento vanno DETTI separati. Prima l'elenco li
+         mescolava, e "puoi usare subito Gemini 3 Pro" mandava l'utente su
+         una configurazione a consumo che, senza fatturazione attiva, sbatte
+         sul limite al minuto alla prima domanda. */
+      var gratis = pronti.filter(function(r){ return PROVIDERS[r.id] && PROVIDERS[r.id].free; });
+      var paga   = pronti.filter(function(r){ return !(PROVIDERS[r.id] && PROVIDERS[r.id].free); });
+      var nomi = function(l){ return l.map(function(r){ return escapeHtml(r.nome.split(' — ')[0]); }).join(', '); };
       box.className = 'esito buono';
-      box.innerHTML = '✅ Puoi usare subito: <b>' +
-        pronti.map(function(r){ return escapeHtml(r.nome.split(' — ')[0]); }).join(', ') +
-        '</b>. Scegline uno dal menù qui sopra.';
+      box.innerHTML = gratis.length
+        ? '✅ Puoi usare subito, <b>gratis</b>: <b>' + nomi(gratis) + '</b>. Scegline uno dal menù qui sopra.' +
+          (paga.length ? '<br><span style="opacity:.85">Rispondono anche ' + nomi(paga) +
+            ', ma sono <b>a pagamento</b>: consumano credito, e senza fatturazione attiva ' +
+            'incontrerai subito il limite al minuto.</span>' : '')
+        : '💳 Rispondono: <b>' + nomi(paga) + '</b> — ma sono tutti <b>a pagamento</b>. ' +
+          'Per un gratuito aggiungi una chiave Groq (30 secondi, nessuna carta).';
     }else if(buoni.length){
       // Il caso di Samuele: il browser passa, manca solo la chiave.
       var liberi = buoni.filter(function(r){ return PROVIDERS[r.id].free; });
@@ -7193,7 +7226,9 @@ function buildChatPane(){
               ? ' non risponde: continuo su '
               : motivo === 'sovraccarico'
                 ? ' è sovraccarico: continuo su '
-                : ' ha esaurito la quota: continuo su ') +
+                : /^attesa:/.test(motivo || '')
+                  ? ' chiedeva ' + motivo.slice(7) + 's di attesa: continuo subito su '
+                  : ' ha esaurito la quota: continuo su ') +
             escapeHtml(a)), liveNode);
           box.scrollTop = box.scrollHeight;
         },
