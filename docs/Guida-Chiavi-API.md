@@ -448,7 +448,7 @@ oppure che il problema è la tua rete e non i fornitori.
 
 | | |
 |---|---|
-| Un fornitore non risponde | Viene annotato, e la volta dopo compare **⚠** accanto al nome nella tendina |
+| Un fornitore non risponde | Viene annotato e spostato in fondo alla tendina, nel gruppo **⚠ Non hanno risposto da questo dispositivo**, con l'etichetta *· non risponde* |
 | Lo hai selezionato lo stesso | Un avviso ti dice quante volte è successo e ti propone un'alternativa **fra quelle che da qui hanno già risposto** |
 | Serve una risposta subito | Nella riserva automatica i marcati passano in fondo: non ti fanno più aspettare |
 | Era solo la rete di ieri sera | Dopo 24 ore il fornitore viene ritentato da solo, senza che tu faccia niente |

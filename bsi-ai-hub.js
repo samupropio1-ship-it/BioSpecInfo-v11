@@ -6084,16 +6084,35 @@ function serveChiave(providerId){ return !proxyCopre(providerId) && !getSavedKey
 window.bsiHasAnySavedKey = hasAnySavedKey;
 window.bsiProviderSalvato = getSavedProvider;
 
+/* I FORNITORI CHE NON RISPONDONO VANNO MESSI DA PARTE, NON SOLO SEGNATI.
+   Prima portavano un ⚠ davanti al nome ma restavano in mezzo agli altri,
+   alla stessa distanza dal dito: chi scorreva l'elenco continuava a
+   incontrarli e a sceglierli, e poi aspettava il timeout per riscoprire
+   quello che l'app sapeva gia'. Ora finiscono in un gruppo separato in
+   fondo, sotto un'intestazione che dice chiaramente cosa sono. Non vengono
+   cancellati — un blocco puo' dipendere dalla rete di oggi, e domani lo
+   stesso fornitore puo' tornare a funzionare — ma smettono di stare fra i
+   piedi. */
 function providerSelectHtml(selected){
-  return Object.keys(PROVIDERS).map(function(id){
+  var buoni = [], guasti = [];
+  Object.keys(PROVIDERS).forEach(function(id){
+    (irraggiungibileDaPoco(id) ? guasti : buoni).push(id);
+  });
+  var voce = function(id){
     var p = PROVIDERS[id];
-    // Il ⚠ davanti al nome e' l'unico posto dove l'utente vede l'esito prima
-    // di sceglierlo: senza, riproverebbe lo stesso fornitore che ieri non
-    // rispondeva, e aspetterebbe di nuovo 45 secondi per scoprirlo.
-    var avviso = irraggiungibileDaPoco(id) ? '⚠ ' : '';
+    var volte = volteIrraggiungibile(id);
+    var coda = irraggiungibileDaPoco(id)
+      ? (volte > 1 ? ' · non risponde (' + volte + ' volte)' : ' · non risponde')
+      : (p.free ? ' · gratis' : '');
     return '<option value="' + id + '"' + (id === selected ? ' selected' : '') + '>' +
-           avviso + p.name + (p.free ? ' · gratis' : '') + '</option>';
-  }).join('');
+           p.name + coda + '</option>';
+  };
+  var html = buoni.map(voce).join('');
+  if(guasti.length){
+    html += '<optgroup label="⚠ Non hanno risposto da questo dispositivo">' +
+            guasti.map(voce).join('') + '</optgroup>';
+  }
+  return html;
 }
 
 function speak(text){
@@ -6456,12 +6475,12 @@ function buildChatPane(){
      l'innerHTML azzererebbe la scelta corrente. */
   function aggiornaSegnaliKo(){
     try{
-      for(var i = 0; i < provSel.options.length; i++){
-        var o = provSel.options[i], pp = PROVIDERS[o.value];
-        if(!pp) continue;
-        o.textContent = (irraggiungibileDaPoco(o.value) ? '⚠ ' : '') + pp.name +
-                        (pp.free ? ' · gratis' : '');
-      }
+      /* Si ricostruisce l'elenco invece di riscrivere le etichette: un
+         fornitore che ha appena smesso di rispondere deve SPOSTARSI nel
+         gruppo in fondo, e per farlo non basta cambiargli il nome. */
+      var scelto = provSel.value;
+      provSel.innerHTML = providerSelectHtml(scelto);
+      if(provSel.value !== scelto) provSel.value = scelto;
       var ko = document.getElementById('bsi-hub-kobadge');
       if(!ko) return;
       var prov = provSel.value, volte = volteIrraggiungibile(prov);
