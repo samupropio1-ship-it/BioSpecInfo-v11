@@ -428,54 +428,104 @@ var db = null;
 var DB_NAME = 'bsi_filemanager_v1';
 var DB_VER = 2;
 
+/* L'apertura di IndexedDB e' asincrona: fra showApp() e req.onsuccess passano
+   decine di millisecondi, e in quella finestra `db` vale ancora null. Chi
+   cliccava un pulsante subito otteneva "Cannot read properties of null
+   (reading 'transaction')". Peggio: in Safari in navigazione privata il
+   database non si apre MAI, e allora ogni operazione falliva cosi' per
+   sempre. Ora si aspetta una promessa invece di leggere una variabile che
+   forse non c'e' ancora. */
+var _dbAttesa = null;
+var _dbGuasto = false;
+
 function initDB(){
-  var req = indexedDB.open(DB_NAME, DB_VER);
-  req.onupgradeneeded = function(e){
-    var d = e.target.result;
-    if(!d.objectStoreNames.contains('photos')) d.createObjectStore('photos',{keyPath:'id',autoIncrement:true});
-    if(!d.objectStoreNames.contains('sections')) d.createObjectStore('sections',{keyPath:'id',autoIncrement:true});
-    if(!d.objectStoreNames.contains('notes')) d.createObjectStore('notes',{keyPath:'key'});
-    if(!d.objectStoreNames.contains('activity')) d.createObjectStore('activity',{keyPath:'id',autoIncrement:true});
-        if(!d.objectStoreNames.contains('docs')) d.createObjectStore('docs',{keyPath:'id',autoIncrement:true});
-  };
-  req.onsuccess = function(e){
-    db = e.target.result;
-    refreshAll();
-  };
-  req.onerror = function(){ showToast('❌ IndexedDB non disponibile.'); };
+  if(_dbAttesa) return _dbAttesa;
+  _dbAttesa = new Promise(function(res, rej){
+    var req;
+    // In alcuni browser open() lancia subito invece di chiamare onerror.
+    try { req = indexedDB.open(DB_NAME, DB_VER); }
+    catch(e){ return rej(e); }
+    req.onupgradeneeded = function(e){
+      var d = e.target.result;
+      if(!d.objectStoreNames.contains('photos')) d.createObjectStore('photos',{keyPath:'id',autoIncrement:true});
+      if(!d.objectStoreNames.contains('sections')) d.createObjectStore('sections',{keyPath:'id',autoIncrement:true});
+      if(!d.objectStoreNames.contains('notes')) d.createObjectStore('notes',{keyPath:'key'});
+      if(!d.objectStoreNames.contains('activity')) d.createObjectStore('activity',{keyPath:'id',autoIncrement:true});
+      if(!d.objectStoreNames.contains('docs')) d.createObjectStore('docs',{keyPath:'id',autoIncrement:true});
+    };
+    req.onsuccess = function(e){
+      db = e.target.result;
+      // Se un'altra scheda chiede un aggiornamento di versione, questa deve
+      // farsi da parte: tenendo la connessione aperta bloccherebbe entrambe.
+      db.onversionchange = function(){ try{ db.close(); }catch(_e){} db = null; _dbAttesa = null; };
+      res(db);
+      refreshAll();
+    };
+    req.onerror = function(){ rej(req.error || new Error('IndexedDB non disponibile')); };
+    req.onblocked = function(){ rej(new Error('database occupato da un\'altra scheda')); };
+  });
+  _dbAttesa.catch(function(e){
+    _dbGuasto = true;
+    mostraGuastoDB(e && e.message ? e.message : 'IndexedDB non disponibile');
+  });
+  return _dbAttesa;
+}
+
+/* Un avviso che RESTA. Un toast di tre secondi qui non basta: se lo spazio
+   non e' disponibile, niente di quel che l'utente carica viene salvato, e
+   deve poterlo vedere in qualsiasi momento, non solo nei tre secondi dopo
+   il guasto. */
+function mostraGuastoDB(motivo){
+  if(document.getElementById('db-guasto')) return;
+  var main = document.getElementById('main-screen');
+  if(!main) return;
+  var d = document.createElement('div');
+  d.id = 'db-guasto';
+  d.setAttribute('role','alert');
+  d.style.cssText = 'background:#5a1f1f;color:#ffd9d9;border:1px solid #a33;'+
+    'border-radius:10px;padding:10px 14px;margin:10px;font-size:13px;line-height:1.5';
+  d.innerHTML = '<b>⚠️ Archivio non disponibile</b><br>Il browser non permette di salvare i file '+
+    '('+escHtml(String(motivo))+'). Puoi consultare la pagina, ma <b>nulla verrà conservato</b>. '+
+    'Di solito succede in navigazione privata o con i dati dei siti bloccati.';
+  main.insertBefore(d, main.firstChild);
 }
 
 function dbStore(storeName, mode){
-  return db.transaction(storeName, mode).objectStore(storeName);
+  return (db ? Promise.resolve(db) : initDB()).then(function(d){
+    return d.transaction(storeName, mode).objectStore(storeName);
+  });
 }
 
-function dbGetAll(storeName){
-  return new Promise(function(res,rej){
-    var req = dbStore(storeName,'readonly').getAll();
-    req.onsuccess=function(){ res(req.result); };
-    req.onerror=function(){ rej(req.error); };
+/* Una richiesta IndexedDB puo' fallire in tre modi: la connessione non c'e',
+   la transazione viene annullata, oppure la singola richiesta va in errore.
+   Il terzo caso era l'unico gestito. */
+function _dbRichiesta(storeName, mode, azione){
+  return dbStore(storeName, mode).then(function(st){
+    return new Promise(function(res,rej){
+      var req = azione(st);
+      req.onsuccess = function(){ res(req.result); };
+      req.onerror   = function(){ rej(req.error || new Error('richiesta fallita')); };
+      req.transaction.onabort = function(){ rej(req.transaction.error || new Error('transazione annullata')); };
+    });
   });
+}
+
+/* In LETTURA un archivio assente non e' un motivo per far esplodere la
+   pagina: si mostra "ancora niente" e l'avviso in cima spiega il perche'.
+   In SCRITTURA invece l'errore deve arrivare a chi ha cliccato, altrimenti
+   l'utente crede di aver salvato qualcosa che non esiste. */
+function dbGetAll(storeName){
+  return _dbRichiesta(storeName,'readonly',function(st){ return st.getAll(); })
+    .catch(function(){ return []; });
 }
 function dbAdd(storeName, obj){
-  return new Promise(function(res,rej){
-    var req = dbStore(storeName,'readwrite').add(obj);
-    req.onsuccess=function(){ res(req.result); };
-    req.onerror=function(){ rej(req.error); };
-  });
+  return _dbRichiesta(storeName,'readwrite',function(st){ return st.add(obj); });
 }
 function dbDelete(storeName, id){
-  return new Promise(function(res,rej){
-    var req = dbStore(storeName,'readwrite').delete(id);
-    req.onsuccess=function(){ res(); };
-    req.onerror=function(){ rej(req.error); };
-  });
+  return _dbRichiesta(storeName,'readwrite',function(st){ return st.delete(id); });
 }
 function dbPut(storeName, obj){
-  return new Promise(function(res,rej){
-    var req = dbStore(storeName,'readwrite').put(obj);
-    req.onsuccess=function(){ res(); };
-    req.onerror=function(){ rej(req.error); };
-  });
+  return _dbRichiesta(storeName,'readwrite',function(st){ return st.put(obj); });
 }
 
 // ─── ACTIVITY LOG ─────────────────────────────────────────────────────────────
@@ -546,21 +596,35 @@ async function uploadPhotos(files){
   var prog=document.getElementById('photo-prog');
   var fill=document.getElementById('photo-fill');
   prog.style.display='block';
-  var total=files.length, done=0;
-  for(var i=0;i<files.length;i++){
-    var file=files[i];
-    if(!file.type.startsWith('image/')){ done++;fill.style.width=(done/total*100)+'%';continue; }
-    if(file.size>20*1024*1024){ showToast('⚠️ '+file.name+' troppo grande (max 20MB)'); done++;continue; }
-    var dataUrl = await readFileAsDataURL(file);
-    var obj={name:file.name,type:file.type,size:file.size,data:dataUrl,added:Date.now()};
-    await dbAdd('photos',obj);
-    logActivity('🖼️','Foto caricata: '+file.name);
-    done++; fill.style.width=(done/total*100)+'%';
+  var total=files.length, done=0, falliti=0;
+  // try/finally: se una scrittura fallisce a meta' elenco, la barra di
+  // avanzamento deve comunque sparire. Prima restava li' bloccata al 40%,
+  // e l'utente aspettava un caricamento gia' morto.
+  try {
+    for(var i=0;i<files.length;i++){
+      var file=files[i];
+      if(!file.type.startsWith('image/')){ done++;fill.style.width=(done/total*100)+'%';continue; }
+      if(file.size>20*1024*1024){ showToast('⚠️ '+file.name+' troppo grande (max 20MB)'); done++;continue; }
+      try {
+        var dataUrl = await readFileAsDataURL(file);
+        var obj={name:file.name,type:file.type,size:file.size,data:dataUrl,added:Date.now()};
+        await dbAdd('photos',obj);
+        logActivity('🖼️','Foto caricata: '+file.name);
+      } catch(e){
+        // Un file rotto o lo spazio esaurito non devono fermare gli altri.
+        falliti++;
+        showToast('❌ '+file.name+' non salvata: '+(e && e.name==='QuotaExceededError'
+          ? 'spazio esaurito' : (e && e.message) || 'errore'));
+      }
+      done++; fill.style.width=(done/total*100)+'%';
+    }
+  } finally {
+    prog.style.display='none';
+    fill.style.width='0';
+    renderPhotos();
+    updateStats();
   }
-  prog.style.display='none';
-  fill.style.width='0';
-  renderPhotos();
-  updateStats();
+  if(falliti && falliti<total) showToast('⚠️ '+falliti+' di '+total+' non salvate');
 }
 
 function readFileAsDataURL(file){
@@ -601,9 +665,18 @@ async function openPhoto(id){
 function closePhotoViewer(){ document.getElementById('photo-overlay').style.display='none'; }
 
 async function deletePhoto(id){
-  await dbDelete('photos',id);
+  try { await dbDelete('photos',id); }
+  catch(e){ showToast('❌ Non riesco a eliminare: '+erroreLeggibile(e)); return; }
   logActivity('🗑️','Foto eliminata');
   renderPhotos(); updateStats();
+}
+
+/* Il nome tecnico di un errore IndexedDB non dice niente a nessuno. */
+function erroreLeggibile(e){
+  if(!e) return 'errore sconosciuto';
+  if(e.name === 'QuotaExceededError') return 'spazio esaurito sul dispositivo';
+  if(e.name === 'InvalidStateError') return 'archivio chiuso, ricarica la pagina';
+  return e.message || e.name || 'errore sconosciuto';
 }
 
 // ─── HTML SECTIONS ────────────────────────────────────────────────────────────
@@ -634,7 +707,10 @@ async function saveSection(){
   if(!name){ showToast('⚠️ Inserisci un nome per la sezione'); return; }
   if(!html){ showToast('⚠️ Inserisci il contenuto HTML'); return; }
   var obj={name:name,icon:icon,html:html,size:html.length,added:Date.now()};
-  await dbAdd('sections',obj);
+  // Solo se il salvataggio riesce si svuotano i campi: altrimenti l'utente
+  // perderebbe l'HTML appena incollato insieme al salvataggio fallito.
+  try { await dbAdd('sections',obj); }
+  catch(e){ showToast('❌ Sezione non salvata: '+erroreLeggibile(e)); return; }
   logActivity('📄','Sezione salvata: '+name);
   document.getElementById('sec-name').value='';
   document.getElementById('sec-html').value='';
@@ -684,7 +760,8 @@ function closeViewer(){
 
 async function deleteSection(id){
   if(!confirm('Eliminare questa sezione? Azione irreversibile.')) return;
-  await dbDelete('sections',id);
+  try { await dbDelete('sections',id); }
+  catch(e){ showToast('❌ Non riesco a eliminare: '+erroreLeggibile(e)); return; }
   logActivity('🗑️','Sezione eliminata');
   renderSections(); updateStats();
 }
@@ -697,7 +774,10 @@ async function loadNote(){
 }
 async function saveNote(){
   var text=document.getElementById('notes-area').value;
-  await dbPut('notes',{key:'main',text:text,updated:Date.now()});
+  // "✅ Nota salvata!" va detto solo se e' vero: prima l'errore restava
+  // silenzioso e l'utente chiudeva la pagina convinto di aver salvato.
+  try { await dbPut('notes',{key:'main',text:text,updated:Date.now()}); }
+  catch(e){ showToast('❌ Nota NON salvata: '+erroreLeggibile(e)); return; }
   showToast('✅ Nota salvata!');
   logActivity('📝','Nota aggiornata');
   updateStats();
@@ -737,22 +817,35 @@ function handleQuickUpload(files){
       var fr=new FileReader();
       fr.onload=function(){
         dbAdd('sections',{name:f.name.replace(/\.\w+$/,''),icon:'📄',html:fr.result,size:fr.result.length,added:Date.now()})
-          .then(function(){logActivity('📄','Sezione caricata: '+f.name);renderSections();updateStats();});
+          .then(function(){logActivity('📄','Sezione caricata: '+f.name);renderSections();updateStats();})
+          .catch(function(e){ showToast('❌ '+f.name+' non salvato: '+erroreLeggibile(e)); });
       };
+      fr.onerror=function(){ showToast('❌ Non riesco a leggere '+f.name); };
       fr.readAsText(f);
     });
   }
-  showToast('📤 '+(photos.length+htmls.length)+' file caricati!');
+  // "presi in carico", non "caricati": la lettura e la scrittura sono ancora
+  // in corso e possono fallire — l'esito vero arriva dai messaggi qui sopra.
+  showToast('📤 '+(photos.length+htmls.length)+' file in arrivo…');
 }
 
 // ─── CLEAR ALL ────────────────────────────────────────────────────────────────
 async function clearAll(){
   var stores=['photos','sections','notes','activity','docs'];
+  var rimasti=0;
   for(var s of stores){
     var items=await dbGetAll(s);
-    for(var i of items) await dbDelete(s,i.id||i.key);
+    // Una cancellazione che fallisce a meta' non deve interrompere le altre,
+    // altrimenti "elimina tutto" lascia dietro di se' meta' archivio senza
+    // dirlo a nessuno.
+    for(var i of items){
+      try { await dbDelete(s,i.id||i.key); }
+      catch(e){ rimasti++; }
+    }
   }
-  showToast('🗑️ Tutti i file eliminati');
+  showToast(rimasti
+    ? '⚠️ '+rimasti+' elementi non eliminati'
+    : '🗑️ Tutti i file eliminati');
   // ri-renderizzo subito le tab già visitate, altrimenti mostrerebbero ancora
   // i contenuti appena cancellati finché l'utente non ricarica la pagina
   if(_tabInited['photos']) renderPhotos();
@@ -812,15 +905,21 @@ function setupDocsDrop(){
 }
 async function uploadDocs(files){
   if(!files||!files.length) return;
+  var riusciti=0;
   for(var i=0;i<files.length;i++){
     var f=files[i];
     try{
       var data=await readFileAsDataURL(f);
       await dbAdd('docs',{name:f.name,type:f.type||'file',size:f.size,data:data,date:Date.now()});
       await logActivity('📄','Documento caricato: '+f.name);
-    }catch(e){ showToast('Errore caricando '+f.name); }
+      riusciti++;
+    }catch(e){ showToast('❌ '+f.name+': '+erroreLeggibile(e)); }
   }
-  showToast('Documenti caricati'); renderDocs(); refreshAll&&refreshAll();
+  // Prima diceva "Documenti caricati" anche quando NON ne era entrato uno.
+  showToast(riusciti
+    ? '✅ '+riusciti+' di '+files.length+' documenti caricati'
+    : '❌ Nessun documento salvato');
+  renderDocs(); refreshAll&&refreshAll();
 }
 async function renderDocs(){
   var list=document.getElementById('docs-list'); if(!list) return;
