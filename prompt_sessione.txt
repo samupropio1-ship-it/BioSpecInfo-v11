@@ -776,6 +776,24 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    l'angolo in alto a sinistra: molti disegni sono centrati e guardando solo
    l'angolo risultano vuoti (mi e' successo con chC, che disegna benissimo).
 
+52) ASPETTARE NON E' GRATIS — un 429 con Retry-After di 37 secondi non e' un
+   guasto, ma davanti a uno schermo fermo l'utente crede che l'app sia morta
+   (dieci secondi bastano). Se il fornitore chiede >= ATTESA_TROPPO_LUNGA_MS
+   *e* c'e' un altro fornitore utilizzabile, si lancia un errore con
+   .esaurito e .attesaLunga: scatta il failover e la risposta arriva subito.
+   Se invece non c'e' alternativa si aspetta lo stesso — 37 s di attesa
+   valgono piu' di un errore. Attenzione: questa regola precede quella dei
+   tentativi temporanei (503), quindi in test_503 il motivo del cambio ora
+   e' "attesa:NN" e non piu' "sovraccarico". E' un miglioramento, non una
+   regressione: il fornitore cambia prima, non dopo quattro attese.
+
+53) "RAGGIUNGIBILE" NON VUOL DIRE "USABILE GRATIS" — la Prova misura se il
+   browser arriva al fornitore, non quanto costa. Consigliare "puoi usare
+   subito Gemini 3 Pro" manda l'utente su un modello a consumo che senza
+   fatturazione attiva sbatte sul limite al minuto alla prima domanda. La
+   conclusione ora divide con PROVIDERS[id].free: prima i gratuiti, poi i
+   restanti con l'avviso esplicito che consumano credito.
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN
