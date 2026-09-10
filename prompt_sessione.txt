@@ -935,6 +935,38 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    quel menu si apra davvero — l'elemento esiste nel DOM in tutti e tre i
    casi, e cercarlo con getElementById non distingue il vivo dai morti.
 
+69) LE CONVENZIONI DEGLI ASSI NON SONO TUTTE UGUALI — e sbagliarne una sola
+   rende lo spettro irriconoscibile a chi lo sa leggere:
+     · IR      → numero d'onda DECRESCENTE da sinistra (4000 … 400 cm⁻¹)
+     · ¹H NMR  → δ DECRESCENTE da sinistra (14 … 0 ppm), TMS a destra
+     · UV-Vis  → lunghezza d'onda CRESCENTE (200 … 400 nm)
+     · MS      → m/z CRESCENTE
+   Misurate tutte e cinque (l'IR esiste in due versioni, SVG e canvas):
+   nessuna era al contrario. Il banco non legge il codice, estrae le tacche
+   dal disegno e guarda se i numeri crescono o calano andando verso destra.
+
+70) ALTEZZA CASUALE IN UN NMR = DATO INVENTATO — il predittore della sezione
+   dedicata disegnava i picchi con 0.55+Math.random()*0.38, commentato
+   "simulate random height". In un ¹H NMR l'altezza E' l'informazione
+   quantitativa (l'integrazione): inventarla e' peggio che non disegnarla.
+   In piu' quelle predizioni sono INTERVALLI ("6.5–8.5 ppm") e parseFloat
+   prendeva solo il primo numero, piazzando il segnale all'estremo basso di
+   una finestra larga due ppm mentre il tipico era 7,2. Ora si disegna la
+   fascia dell'intervallo con una riga sul valore tipico, altezza uniforme:
+   dice DOVE cade il segnale e non pretende di dire quanto e' alto.
+   Dove invece il numero di protoni si conosce (makeNMRsvg) l'altezza e'
+   l'integrazione vera e l'etichetta la riporta: "7.26 (4H)".
+
+71) COME SI MISURA UN GRAFICO SU CANVAS — non ha <text> da leggere. Si
+   intercetta CanvasRenderingContext2D.prototype.fillText e si raccolgono
+   etichette e coordinate: e' l'equivalente dei <text> di un SVG. Due
+   trappole prese entrambe: (a) "la riga piu' in basso" non sono le tacche
+   ma il TITOLO dell'asse, quindi si raggruppa per y e si prende la riga
+   piu' popolosa; (b) le tacche non sono sempre numeri nudi — l'asse UV
+   scrive "200 nm", e un filtro solo-numerico le scartava tutte lasciando
+   la misura vuota (cioe' un successo regalato, se non si controlla che il
+   numero di tacche trovate sia > 0).
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN

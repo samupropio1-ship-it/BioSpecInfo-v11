@@ -803,7 +803,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v162';
+window.BSI_APP_VERSION='bsi-v163';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -3899,7 +3899,10 @@ function makeNMRsvg(peaks,color){
   var VW=800,VH=240,PL=14,PR=14,PT=20,PB=40,CW=VW-PL-PR,CH=VH-PT-PB;
   var PMAX=14,PMIN=-0.5,PRANGE=PMAX-PMIN,GAMMA=0.045;
   var NPTS=900,specPts=[];
-  for(var i=0;i<=NPTS;i++){var ppm=PMAX-PRANGE*i/NPTS;var intensity=0;for(var j=0;j<peaks.length;j++){var dp=ppm-peaks[j].ppm;intensity+=peaks[j].nH*(GAMMA*GAMMA)/(dp*dp+GAMMA*GAMMA);}intensity+=0.002*(Math.random()-0.5);if(intensity<0)intensity=0;specPts.push({ppm:ppm,I:intensity});}
+  // Niente Math.random(): c'era un pizzico di rumore aggiunto ad ogni
+  // ridisegno, quindi la stessa molecola dava ogni volta uno spettro diverso
+  // e due spettri non erano confrontabili. Stesso difetto che c'era in IR.
+  for(var i=0;i<=NPTS;i++){var ppm=PMAX-PRANGE*i/NPTS;var intensity=0;for(var j=0;j<peaks.length;j++){var dp=ppm-peaks[j].ppm;intensity+=peaks[j].nH*(GAMMA*GAMMA)/(dp*dp+GAMMA*GAMMA);}if(intensity<0)intensity=0;specPts.push({ppm:ppm,I:intensity});}
   var maxI=0;for(var i=0;i<specPts.length;i++)if(specPts[i].I>maxI)maxI=specPts[i].I;if(maxI<0.001)maxI=1;
   function xOf(ppm){return PL+((PMAX-ppm)/PRANGE)*CW;}
   function yOf(I){return PT+CH*(1-I/maxI*0.88);}
@@ -3910,9 +3913,25 @@ function makeNMRsvg(peaks,color){
   var grid="",xlbl="";
   for(var p=0;p<=14;p+=2){var px=+xOf(p).toFixed(1);grid+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="#182840" stroke-width="0.6" stroke-dasharray="4 6"/>';xlbl+='<text x="'+px+'" y="'+(VH-6)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">'+p+'</text>';}
   grid+='<line x1="'+PL+'" y1="'+(PT+CH)+'" x2="'+(PL+CW)+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1.5"/>';
-  var pLabels="";peaks.forEach(function(pk){var px=+xOf(pk.ppm).toFixed(1);pLabels+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="'+color+'" stroke-width="0.7" stroke-dasharray="3 6" opacity="0.5"/><text x="'+px+'" y="'+(PT+10)+'" text-anchor="middle" fill="'+color+'" font-size="8.5" font-family="monospace">'+pk.ppm.toFixed(2)+'</text>';});
-  var bars="";for(var bi=0;bi<peaks.length;bi++){var bpx=+xOf(peaks[bi].ppm).toFixed(1);var bh=Math.max(10,CH*0.62*Math.min(1,(peaks[bi].nH||1)/3));bars+='<rect x="'+(bpx-1.6)+'" y="'+(PT+CH-bh).toFixed(1)+'" width="3.2" height="'+bh.toFixed(1)+'" fill="'+color+'"/>';}  var verTag='<text x="'+(VW-8)+'" y="13" text-anchor="end" fill="#1fd39a" font-size="9" font-family="monospace">v20</text>';  var emptyMsg=(peaks.length===0)?'<text x="'+(PL+CW/2)+'" y="'+(PT+CH/2)+'" text-anchor="middle" fill="#c0392b" font-size="13" font-family="sans-serif">Nessun picco rilevato per questa struttura</text>':'';
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+VW+'" height="'+VH+'" viewBox="0 0 '+VW+' '+VH+'" style="background:#f9fbf9;display:block">'+grid+pLabels+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.12"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1"/>'+xlbl+'<text x="'+(PL+CW/2)+'" y="'+(VH-20)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">δ (ppm) — 14 ← → 0</text>'+bars+verTag+emptyMsg+'</svg>';
+  /* Etichette: prima venivano scritte tutte, e i segnali vicini finivano coi
+     numeri uno sopra l'altro. Ora chi e' troppo stretto cede il posto, e chi
+     resta porta anche l'INTEGRAZIONE — in un ¹H NMR il numero di protoni e'
+     quanto lo spostamento chimico, spesso di piu'. */
+  var pLabels="", presiX=[];
+  peaks.slice().sort(function(a,b){ return (b.nH||0)-(a.nH||0); }).forEach(function(pk){
+    var px=+xOf(pk.ppm).toFixed(1);
+    pLabels+='<line x1="'+px+'" y1="'+PT+'" x2="'+px+'" y2="'+(PT+CH)+'" stroke="'+color+'" stroke-width="0.7" stroke-dasharray="3 6" opacity="0.5"/>';
+    for(var k=0;k<presiX.length;k++) if(Math.abs(presiX[k]-px)<34) return;
+    presiX.push(px);
+    var eti=pk.ppm.toFixed(2)+(pk.nH?' ('+pk.nH+'H)':'');
+    pLabels+='<text x="'+px+'" y="'+(PT+10)+'" text-anchor="middle" fill="'+color+'" font-size="8.5" font-family="monospace">'+eti+'</text>';
+  });
+  var bars="";for(var bi=0;bi<peaks.length;bi++){var bpx=+xOf(peaks[bi].ppm).toFixed(1);var bh=Math.max(10,CH*0.62*Math.min(1,(peaks[bi].nH||1)/3));bars+='<rect x="'+(bpx-1.6)+'" y="'+(PT+CH-bh).toFixed(1)+'" width="3.2" height="'+bh.toFixed(1)+'" fill="'+color+'"/>';}  // Il tag "v20" in un angolo era un residuo di lavorazione: in uno spettro
+  // che finisce in una relazione non ci deve stare. Al suo posto il
+  // riferimento TMS a 0 ppm, che in uno spettro vero c'e' sempre.
+  var verTag='<line x1="'+xOf(0).toFixed(1)+'" y1="'+(PT+CH)+'" x2="'+xOf(0).toFixed(1)+'" y2="'+(PT+CH-CH*0.22).toFixed(1)+'" stroke="#7b8fa3" stroke-width="1.6"/>'
+    +'<text x="'+(xOf(0)-3).toFixed(1)+'" y="'+(PT+CH-CH*0.24).toFixed(1)+'" text-anchor="end" fill="#7b8fa3" font-size="8" font-family="monospace">TMS</text>';  var emptyMsg=(peaks.length===0)?'<text x="'+(PL+CW/2)+'" y="'+(PT+CH/2)+'" text-anchor="middle" fill="#c0392b" font-size="13" font-family="sans-serif">Nessun picco rilevato per questa struttura</text>':'';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+VW+'" height="'+VH+'" viewBox="0 0 '+VW+' '+VH+'" style="background:#f9fbf9;display:block">'+grid+pLabels+'<polygon points="'+fillStr+'" fill="'+color+'" fill-opacity="0.12"/><polyline points="'+ptStr+'" fill="none" stroke="'+color+'" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="round"/><line x1="'+PL+'" y1="'+PT+'" x2="'+PL+'" y2="'+(PT+CH)+'" stroke="#2a4a6a" stroke-width="1"/>'+xlbl+'<text x="'+(PL+CW/2)+'" y="'+(VH-20)+'" text-anchor="middle" fill="#3a6080" font-size="10" font-family="monospace">δ (ppm) — valori alti a sinistra (convenzione NMR)</text>'+bars+verTag+emptyMsg+'</svg>';
 }
 
 function buildNMR(d){
@@ -37565,22 +37584,53 @@ function _nmrSvg(predictions, maxPpm, colorLine, colorLabel, bgColor){
   out+='<text x="10" y="'+(padT+plotH/2)+'" fill="#8899aa" font-size="7" text-anchor="middle" transform="rotate(-90,10,'+(padT+plotH/2)+')">Int.</text>';
   // X label
   out+='<text x="'+(padL+plotW/2)+'" y="'+(H-1)+'" fill="#8899aa" font-size="7" text-anchor="middle">δ (ppm)</text>';
-  // Peaks
+  /* QUESTE PREDIZIONI SONO INTERVALLI, NON VALORI.
+     delta vale "6.5–8.5 ppm": disegnare una riga sola a 6,5 (il primo numero
+     che parseFloat incontra) metteva il segnale all'estremo basso di una
+     finestra larga due ppm, mentre il valore tipico e' 7,2. E l'altezza era
+     0.55+Math.random()*0.38 — "simulate random height": in un ¹H NMR
+     l'altezza E' l'informazione quantitativa, e inventarla e' peggio che
+     non disegnarla. Qui si disegna cio' che il dato dice davvero: la fascia
+     dell'intervallo, con una riga sul valore tipico. Altezza uniforme,
+     perche' l'intensita' non e' nota: la barra dice DOVE cade il segnale,
+     e non pretende di dire quanto e' alto. */
+  function _leggiPpm(s){
+    var m = String(s||'').match(/-?\d+(?:[.,]\d+)?/g);
+    return m ? m.map(function(x){ return parseFloat(x.replace(',','.')); }) : [];
+  }
+  var presi=[];
   predictions.forEach(function(p){
-    var dVal=parseFloat(p.delta)||0;
-    if(dVal<0||dVal>maxPpm) return;
-    var px=padL+plotW*(1-dVal/maxPpm);
-    var intensity=0.55+Math.random()*0.38; // simulate random height
-    var peakH=plotH*intensity;
+    var estremi=_leggiPpm(p.delta);
+    if(!estremi.length) return;
+    var lo=Math.min.apply(null,estremi), hi=Math.max.apply(null,estremi);
+    var tip=_leggiPpm(p.typical);
+    var centro = tip.length ? (tip.reduce(function(a,b){return a+b;},0)/tip.length) : (lo+hi)/2;
+    if(centro<0||centro>maxPpm) return;
+    var xDi=function(v){ return padL+plotW*(1-Math.max(0,Math.min(maxPpm,v))/maxPpm); };
+    var x1=xDi(hi), x2=xDi(lo);            // hi sta a SINISTRA: asse invertito
+    var px=xDi(centro);
+    var peakH=plotH*0.72;
     var py=padT+plotH-2-peakH;
-    // Lorentzian shape approximation using a thin tall rect + broadening
-    out+='<line x1="'+px+'" y1="'+(padT+plotH-2)+'" x2="'+px+'" y2="'+py+'" stroke="'+colorLine+'" stroke-width="2.5"/>';
-    // Label
-    var lbl=(p.group||p.type||'').replace(/['"<>]/g,'').substring(0,12);
-    var lblY=py-5;
-    if(lblY<padT+6) lblY=padT+6;
-    out+='<text x="'+px+'" y="'+lblY+'" fill="'+colorLabel+'" font-size="6.5" text-anchor="middle">'+dVal+'</text>';
+    if(x2-x1>1.5){
+      out+='<rect x="'+x1.toFixed(1)+'" y="'+py.toFixed(1)+'" width="'+(x2-x1).toFixed(1)+
+           '" height="'+peakH.toFixed(1)+'" fill="'+colorLine+'" opacity="0.16"/>';
+    }
+    out+='<line x1="'+px.toFixed(1)+'" y1="'+(padT+plotH-2)+'" x2="'+px.toFixed(1)+
+         '" y2="'+py.toFixed(1)+'" stroke="'+colorLine+'" stroke-width="2.5"/>';
+    // Etichette: mai una sopra l'altra
+    var vicino=false;
+    for(var k=0;k<presi.length;k++) if(Math.abs(presi[k]-px)<20) vicino=true;
+    if(!vicino){
+      presi.push(px);
+      out+='<text x="'+px.toFixed(1)+'" y="'+(py-4).toFixed(1)+'" fill="'+colorLabel+
+           '" font-size="6.5" text-anchor="middle">'+centro.toFixed(1)+'</text>';
+    }
   });
+  // Il riferimento a 0 ppm (TMS) c'e' in ogni spettro reale.
+  var xTms=padL+plotW;
+  out+='<line x1="'+xTms+'" y1="'+(padT+plotH-2)+'" x2="'+xTms+'" y2="'+(padT+plotH-2-plotH*0.3)+
+       '" stroke="#94a3b8" stroke-width="1.5"/>';
+  out+='<text x="'+(xTms-2)+'" y="'+(padT+10)+'" fill="#94a3b8" font-size="6" text-anchor="end">TMS</text>';
   out+='</svg>';
   return out;
 }
