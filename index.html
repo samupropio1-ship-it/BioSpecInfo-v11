@@ -27507,22 +27507,48 @@ function ctrMake13Csvg(peaks){
     s+='<line x1="'+x+'" y1="'+PT+'" x2="'+x+'" y2="'+(PT+CH)+'" stroke="#0a8f7a" stroke-width="2"/>';});
   s+='</svg>';return s;
 }
+/* UN SOLO VISORE, RIUSATO.
+   Prima ogni molecola ricominciava da capo: box.innerHTML='' e un
+   createViewer nuovo. Misurato, sfogliare dieci molecole costruiva sette
+   visori — e ognuno si porta dietro un contesto WebGL, di cui il browser ne
+   concede una quindicina in tutto. Superata la soglia spegne i piu' vecchi e
+   le viste 3D aperte altrove diventano nere: il classico guasto che arriva
+   solo dopo un'ora di studio. Qui si riusa il visore, come gia' fanno il
+   visore delle proteine e quello Pro poco piu' avanti in questo stesso file. */
+var _ctrViewer=null;
 function ctrShow3D(){
   var box=document.getElementById('ctrD3box'),st=document.getElementById('ctrD3status');
   if(!box)return;
+  var dillo=function(m){ if(st) st.textContent=m; };   // st puo' non esserci
   if(box._loaded===_ctrSmiles)return; // già caricato per questa molecola
-  box.innerHTML='';st.textContent='⏳ Caricamento struttura 3D…';
-  if(typeof $3Dmol==='undefined'){st.textContent='Viewer 3D non disponibile (manca la libreria 3Dmol).';return;}
+  dillo('⏳ Caricamento struttura 3D…');
+  if(typeof $3Dmol==='undefined'){
+    box.innerHTML='';_ctrViewer=null;
+    dillo('Viewer 3D non disponibile (manca la libreria 3Dmol).');return;
+  }
   try{
-    var v=$3Dmol.createViewer(box,{backgroundColor:'#060d1a'});
-    // provo a costruire da SMILES via 3Dmol (se supporta) o messaggio
+    // Se il riquadro e' stato svuotato da qualcun altro il visore che avevo
+    // non e' piu' attaccato a niente: va ricostruito.
+    if(_ctrViewer && !box.querySelector('canvas')) _ctrViewer=null;
+    if(!_ctrViewer){ box.innerHTML=''; _ctrViewer=$3Dmol.createViewer(box,{backgroundColor:'#060d1a'}); }
+    else { _ctrViewer.clear(); }
+    var v=_ctrViewer;
     var smi=_ctrSmiles;
     // 3Dmol non genera 3D da SMILES senza coordinate; uso PubChem SDF se ho internet
     fetch('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/'+encodeURIComponent(smi)+'/SDF?record_type=3d')
       .then(function(r){if(!r.ok)throw new Error('no 3d');return r.text();})
-      .then(function(sdf){v.addModel(sdf,'sdf');v.setStyle({},{stick:{radius:0.15},sphere:{scale:0.25}});v.zoomTo();v.render();st.textContent='Trascina per ruotare · rotella per zoom';box._loaded=_ctrSmiles;})
-      .catch(function(){st.textContent='Struttura 3D non disponibile offline o per questa molecola. Richiede connessione a PubChem.';});
-  }catch(e){st.textContent='La struttura 3D si carica nel browser (richiede WebGL e connessione a PubChem).';}
+      .then(function(sdf){
+        // Nel frattempo l'utente puo' aver chiesto un'altra molecola: questa
+        // risposta e' vecchia e sovrascriverebbe quella giusta.
+        if(smi!==_ctrSmiles)return;
+        v.addModel(sdf,'sdf');v.setStyle({},{stick:{radius:0.15},sphere:{scale:0.25}});v.zoomTo();v.render();
+        dillo('Trascina per ruotare · rotella per zoom');box._loaded=_ctrSmiles;
+      })
+      .catch(function(){
+        if(smi!==_ctrSmiles)return;
+        dillo('Struttura 3D non disponibile offline o per questa molecola. Richiede connessione a PubChem.');
+      });
+  }catch(e){_ctrViewer=null;dillo('La struttura 3D si carica nel browser (richiede WebGL e connessione a PubChem).');}
 }
 function ctrShowReal(){
   var box=document.getElementById('ctrReal');if(!box)return;
@@ -29969,14 +29995,60 @@ window.exportPDF=function(){
 </script>
 <script>(function(){
   var _evt = null;
+
+  /* AGGIORNAMENTO SENZA PERDERE IL LAVORO
+     Quando esce una versione nuova la pagina si ricaricava dopo 800 ms, punto.
+     Se in quel momento Spectra stava scrivendo una risposta, o c'era una nota
+     lunga a meta', spariva tutto senza un avviso. Ora: se non c'e' niente in
+     corso ci si aggiorna da soli (com'era prima, e non si accorge nessuno);
+     se invece c'e' lavoro aperto si mostra una barra e decide l'utente. */
+  function _bsiPaginaOccupata(){
+    try{
+      // Spectra sta rispondendo? Il pulsante Stop e' visibile solo allora.
+      var stop = document.getElementById('bsi-hub-stop');
+      if(stop && getComputedStyle(stop).display !== 'none') return true;
+      // Testo scritto e non ancora consegnato da nessuna parte.
+      var aree = document.getElementsByTagName('textarea');
+      for(var i=0;i<aree.length;i++){
+        var v = aree[i].value || '';
+        if(v.trim().length > 20) return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  var _barraAgg = false;
+  window._bsiAggiornamentoPronto = function(){
+    if(_barraAgg) return;
+    if(!_bsiPaginaOccupata()){ setTimeout(function(){ location.reload(); }, 800); return; }
+    _barraAgg = true;
+    var bar = document.createElement('div');
+    bar.id = 'bsi-agg-bar';
+    bar.setAttribute('role','status');
+    bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));'+
+      'z-index:100000;background:#0d2a3a;color:#e9eef6;border:1px solid #00c9b7;border-radius:12px;'+
+      'padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;'+
+      'box-shadow:0 8px 24px rgba(0,0,0,.45);font-size:13px;max-width:640px;margin:0 auto';
+    bar.innerHTML = '<span style="flex:1;min-width:180px">🔄 <b>Nuova versione disponibile.</b> '+
+      'Hai del lavoro aperto: aggiorno quando vuoi tu.</span>';
+    var ora = document.createElement('button');
+    ora.textContent = 'Aggiorna ora';
+    ora.style.cssText = 'background:#00c9b7;color:#04121e;border:none;border-radius:8px;padding:7px 14px;font-weight:800;cursor:pointer';
+    ora.onclick = function(){ location.reload(); };
+    var poi = document.createElement('button');
+    poi.textContent = 'Più tardi';
+    poi.style.cssText = 'background:transparent;color:#9fb3c8;border:1px solid #395;border-radius:8px;padding:7px 12px;cursor:pointer';
+    poi.onclick = function(){ if(bar.parentNode) bar.parentNode.removeChild(bar); _barraAgg = false; };
+    bar.appendChild(ora); bar.appendChild(poi);
+    document.body.appendChild(bar);
+  };
+
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{scope:'./'})
       .then(function(r){console.log('SW ok');})
       .catch(function(e){console.warn('SW:',e.message);});
     navigator.serviceWorker.addEventListener('message',function(e){
-      if(e.data&&e.data.type==='BSI_SW_UPDATED'){
-        setTimeout(function(){ location.reload(true); },800);
-      }
+      if(e.data&&e.data.type==='BSI_SW_UPDATED') _bsiAggiornamentoPronto();
     });
   }
   window.addEventListener('beforeinstallprompt', function(e){
@@ -34677,7 +34749,7 @@ window.openChemDraw=function(){
 
   var cv=document.getElementById('cdCanvas'), ctx=cv.getContext('2d');
   var atoms=[], bonds=[], sel=-1, curEl='C', curOrder=1, curCharge=0, tool='draw', history=[];
-  var _cdSmi='', _cdSvg='', _cdName='', cd3dHighlight=null;
+  var _cdSmi='', _cdSvg='', _cdName='', cd3dHighlight=null, cd3dViewer=null;
   var CD_LIBG=[], CD_LIBRARY=[], _libFPcache={};
   // Colori CPK (standard Jmol/PyMOL) per ogni elemento
   var COLORS={H:'#5a5a5a',He:'#00b5b5',Li:'#cc80ff',Be:'#c2ff00',B:'#d97706',C:'#222',N:'#2563eb',O:'#dc2626',F:'#16a34a',Ne:'#00b5b5',Na:'#ab5cf2',Mg:'#3fb53f',Al:'#a8a8b0',Si:'#7d7d55',P:'#d97706',S:'#b59500',Cl:'#16a34a',Ar:'#00b5b5',K:'#8f40d4',Ca:'#3dc73d',Sc:'#7a8a94',Ti:'#7a8a94',V:'#7a8a94',Cr:'#8a99a6',Mn:'#9c7ac2',Fe:'#c0611f',Co:'#c05a7a',Ni:'#3f9040',Cu:'#b46a2a',Zn:'#6a7fa0',Ga:'#8f6a6a',Ge:'#5a7d7d',As:'#8f52c2',Se:'#b59500',Br:'#7c2d12',Kr:'#00a0a0',Rb:'#7a2fb0',Sr:'#2fb02f',Y:'#6aa6a6',Zr:'#6aa6c0',Nb:'#5a9aa6',Mo:'#4a9aa0',Tc:'#3a9090',Ru:'#2f8a8a',Rh:'#2a7a86',Pd:'#2a6a7a',Ag:'#8a9aa6',Cd:'#a68a6a',In:'#9a6a6a',Sn:'#6a7a7a',Sb:'#8f6ab0',Te:'#a68a2a',I:'#6b21a8',Xe:'#3aa0b0',Cs:'#6a1f9a',Ba:'#2f9a2f',La:'#6aa6c0',Ce:'#7ac2a6',Pr:'#7ac290',Nd:'#7ac27a',Pm:'#7ac26a',Sm:'#7ac25a',Eu:'#5ac26a',Gd:'#45c28a',Tb:'#35c27a',Dy:'#2fc26a',Ho:'#2fc25a',Er:'#2fc24a',Tm:'#2fb53a',Yb:'#2fb52a',Lu:'#2fa62a',Hf:'#5ac2ff',Ta:'#4a9ad4',W:'#3a86c0',Re:'#3a75b0',Os:'#2a689a',Ir:'#2a5f86',Pt:'#8a95a6',Au:'#c09a2a',Hg:'#8a8a99',Tl:'#a66a6a',Pb:'#5a5a66',Bi:'#9a5ab0',Po:'#ab5c00',At:'#754a45',Rn:'#428296',Fr:'#420066',Ra:'#2f8f2f',Ac:'#6ab3c0',Th:'#4aa6c0',Pa:'#3aa0d4',U:'#2f95e0',Np:'#2a86e0',Pu:'#2a76e0',Am:'#5a66d4',Cm:'#785ac0',Bk:'#8a55b0',Cf:'#9a4aa6',Es:'#b23a86'};
@@ -35373,7 +35445,13 @@ window.openChemDraw=function(){
     cd3dHighlight=null;
     var host=document.getElementById('cd3d'), btns=document.getElementById('cd3dBtns'), note=document.getElementById('cd3dNote'); if(!host)return;
     if(typeof $3Dmol==='undefined'){ note.textContent='Libreria 3D non caricata.'; return; }
-    var viewer=$3Dmol.createViewer(host,{backgroundColor:'#081522'}); var loaded=false;
+    // Riuso anche qui: init3D viene richiamata ad ogni molecola analizzata, e
+    // costruire un visore nuovo ogni volta consumava un contesto WebGL a
+    // testa (il browser ne concede circa quindici in tutto).
+    if(cd3dViewer && !host.querySelector('canvas')) cd3dViewer=null;
+    if(!cd3dViewer){ host.innerHTML=''; cd3dViewer=$3Dmol.createViewer(host,{backgroundColor:'#081522'}); }
+    else { cd3dViewer.clear(); }
+    var viewer=cd3dViewer; var loaded=false;
     var PUB='https://pubchem.ncbi.nlm.nih.gov/rest/pug';
     var curStyle;
     function styleIt(st){ curStyle=st; viewer.setStyle({}, st); viewer.render(); }
@@ -41291,14 +41369,19 @@ window.initInorgX=function(){
 
   function show3D(cid){
     var box=$('pc3d'); if(!box) return;
-    box.innerHTML='';
+    // Il riquadro NON si svuota piu' ad ogni composto: buttare via la tela
+    // costringeva a costruire un visore nuovo — e con lui un contesto WebGL
+    // nuovo — per ogni molecola guardata. Si riusa, come nel visore del
+    // centro di analisi e in quello delle proteine.
     // scarico l'SDF 3D (conformer) e lo carico in 3Dmol
     fetch(PUG+'/compound/cid/'+cid+'/record/SDF/?record_type=3d')
       .then(function(r){ if(!r.ok) throw new Error('no 3d'); return r.text(); })
       .then(function(sdf){
         pc3dData=sdf;
-        if(typeof $3Dmol==='undefined'){ box.innerHTML='<div style="color:#9fb3c8;padding:20px;font-size:.8rem">Libreria 3D non caricata. Apri da connessione internet.</div>'; return; }
-        pc3dViewer=$3Dmol.createViewer(box,{backgroundColor:'#060d1a'});
+        if(typeof $3Dmol==='undefined'){ box.innerHTML='<div style="color:#9fb3c8;padding:20px;font-size:.8rem">Libreria 3D non caricata. Apri da connessione internet.</div>'; pc3dViewer=null; return; }
+        if(pc3dViewer && !box.querySelector('canvas')) pc3dViewer=null;
+        if(!pc3dViewer){ box.innerHTML=''; pc3dViewer=$3Dmol.createViewer(box,{backgroundColor:'#060d1a'}); }
+        else { pc3dViewer.clear(); }
         pc3dViewer.addModel(sdf,'sdf');
         pc3dViewer.setStyle({},{stick:{radius:0.15},sphere:{scale:0.25}});
         pc3dViewer.zoomTo(); pc3dViewer.render();

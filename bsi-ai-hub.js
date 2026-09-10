@@ -7026,10 +7026,30 @@ function buildChatPane(){
   // uno stato informativo, non un interruttore.
 
   var abortFlag = { stop: false };
+  /* Un turno alla volta.
+     sendBtn.disabled ferma il pulsante, ma NON il tasto Invio: il gestore di
+     keydown chiama send() direttamente, quindi chi batte Invio due volte di
+     fila faceva partire due turni sovrapposti sulla stessa chat. Il risultato
+     misurato era una cronologia 'user,user,assistant,assistant' — proprio la
+     forma che Claude rifiuta al turno successivo, costringendo ad aprire una
+     chat nuova. Il testo NON viene consumato: resta nella casella, cosi'
+     basta ripremere Invio quando la risposta e' arrivata. */
+  var _turnoInCorso = false;
   async function send(){
     var input = document.getElementById('bsi-hub-input');
     var text = input.value.trim();
     if(!text) return;
+    if(_turnoInCorso){
+      var msgsBoxOcc = document.getElementById('bsi-hub-msgs');
+      if(msgsBoxOcc && !document.getElementById('bsi-hub-occupato')){
+        var nota = el('div', { class: 'bsi-msg system-note', id: 'bsi-hub-occupato' },
+          '⏳ Sto ancora rispondendo. Aspetta la fine, oppure premi <b>Stop</b> per interrompere.');
+        msgsBoxOcc.appendChild(nota);
+        msgsBoxOcc.scrollTop = msgsBoxOcc.scrollHeight;
+        setTimeout(function(){ if(nota.parentNode) nota.parentNode.removeChild(nota); }, 4000);
+      }
+      return;
+    }
     var provId = provSel.value;
     var apiKey = chiaveDaUsare(provId);
     if(!apiKey){
@@ -7096,6 +7116,7 @@ function buildChatPane(){
     box.appendChild(liveNode); box.scrollTop = box.scrollHeight;
 
     sendBtn.disabled = true; sendBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+    _turnoInCorso = true;
     statoNucleo('pensa');
     abortFlag.stop = false;
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
@@ -7271,6 +7292,7 @@ function buildChatPane(){
         refreshThreadSel();
       }catch(e2){}
     } finally {
+      _turnoInCorso = false;
       sendBtn.disabled = false; sendBtn.style.display = 'inline-block'; stopBtn.style.display = 'none';
       statoNucleo('riposo');
       // Il turno puo' aver cambiato cio' che si sa sui fornitori — sia in

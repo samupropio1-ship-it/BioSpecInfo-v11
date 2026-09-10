@@ -794,6 +794,74 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    conclusione ora divide con PROVIDERS[id].free: prima i gratuiti, poi i
    restanti con l'avviso esplicito che consumano credito.
 
+54) INDEXEDDB SI APRE CON CALMA — fra showApp() e req.onsuccess `db` vale
+   null, e chi cliccava in quella finestra otteneva "Cannot read properties
+   of null (reading 'transaction')". In Safari in navigazione privata il
+   database non si apre MAI e l'errore era per sempre. Non si legge una
+   variabile che forse non c'e': si aspetta una promessa (dbStore ora fa
+   cosi'). In lettura un archivio assente restituisce [] — la pagina mostra
+   "ancora niente"; in scrittura invece l'errore DEVE arrivare a chi ha
+   cliccato, piu' un avviso fisso in cima: se nulla viene salvato, l'utente
+   deve poterlo vedere in qualsiasi momento, non per tre secondi.
+
+55) NON DIRE "SALVATO" SE NON LO SAI — saveNote mostrava "✅ Nota salvata!"
+   sulla fede, senza catch: a scrittura fallita il messaggio non compariva
+   e basta, e uploadDocs annunciava "Documenti caricati" anche quando non ne
+   era entrato uno. Ogni scrittura ora ha il suo esito, e ogni barra di
+   avanzamento sta in un try/finally — altrimenti resta accesa al 40% su un
+   caricamento gia' morto.
+
+56) L'AGGIORNAMENTO NON DEVE RUBARE IL LAVORO — il service worker faceva
+   c.navigate(c.url) su tutte le schede aperte: ad ogni deploy le pagine si
+   ricaricavano di colpo, portandosi via una risposta di Spectra a meta' o
+   una nota lunga. Ora manda solo un messaggio; decide la pagina: se non c'e'
+   niente in corso si ricarica da sola (come prima, e non se ne accorge
+   nessuno), altrimenti mostra "Aggiorna ora / Più tardi".
+
+57) OFFLINE E RETE PESSIMA SONO DUE COSE DIVERSE — e la seconda capita molto
+   piu' spesso. Con una tacca di segnale il fetch non fallisce: resta appeso
+   finche' il browser non si arrende, anche mezzo minuto, e in quel mezzo
+   minuto l'app e' bianca pur avendo tutto in cache. Il network-first ora
+   aspetta la rete al massimo 3,5 s: se c'e' una copia la serve, e la copia
+   viene aggiornata dopo con calma (e.waitUntil tiene sveglio il worker).
+   Senza una copia si aspetta fino in fondo, non c'e' alternativa.
+
+58) UN TURNO ALLA VOLTA — sendBtn.disabled ferma il pulsante ma NON il tasto
+   Invio, che chiama send() direttamente. Due Invio di fila facevano partire
+   due turni sovrapposti sulla stessa chat: cronologia misurata
+   'user,user,assistant,assistant', cioe' proprio la forma che Claude rifiuta
+   al turno dopo. Ora c'e' _turnoInCorso, e il testo rifiutato RESTA nella
+   casella invece di sparire.
+
+59) UN VISORE, NON UNO PER MOLECOLA — il browser concede una quindicina di
+   contesti WebGL per scheda e poi spegne i piu' vecchi in silenzio. Tre
+   punti su cinque ricostruivano il visore 3D ad ogni molecola: misurate 7
+   costruzioni per 10 molecole sfogliate, ora 1. Il modello giusto era gia'
+   in questo stesso file (ensureViewer e il visore delle proteine): riusare
+   e chiamare .clear(), non svuotare il riquadro e ricominciare.
+
+60) COME UN BANCO DI PROVA PUO' MENTIRE — tutte inciampate in questa
+   sessione, tutte con lo stesso sintomo: il banco passa e non ha misurato
+   niente.
+   · page.route NON intercetta le richieste del service worker: serve
+     context.route. Con la prima, "rete morta" era una rete sanissima e la
+     misura tornava in 16 ms invece dei 3,5 s attesi.
+   · Un intercettore va CONTATO: se non scatta mai, il banco deve fallire,
+     non passare.
+   · Sondare la quota con un byte non prova niente: dopo aver saturato lo
+     spazio un byte ci sta sempre. Si prova con una scrittura delle
+     dimensioni vere dell'app.
+   · Una var dentro una IIFE non e' window.qualcosa: assegnarla da fuori crea
+     una variabile diversa e la funzione continua a vedere la sua.
+   · Una sonda messa su una libreria caricata DOPO viene rimpiazzata insieme
+     alla libreria: si sonda la primitiva del browser, non l'oggetto.
+   · Cercare [data-tab] dove la navigazione usa [data-s] trova zero schede: e
+     zero schede significa zero misure, non zero difetti.
+   · Il primo giro COSTRUISCE (le sezioni si disegnano solo quando le apri):
+     la crescita del DOM va misurata dal secondo giro in poi, altrimenti si
+     scambia la costruzione per una perdita. Misurato: +26876 nodi al primo
+     giro, +0 nei quattro successivi.
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN

@@ -1,7 +1,7 @@
 // BioSpecInfo Service Worker v134 — network-first + precache di pagine e librerie
 'use strict';
 
-var CACHE = 'bsi-v160';
+var CACHE = 'bsi-v161';
 
 // Precarico solo file che esistono davvero nel deploy (una voce inesistente
 // costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
@@ -67,9 +67,15 @@ self.addEventListener('activate', function(e){
     .then(function(){ return self.clients.claim(); })
     .then(function(){ return self.clients.matchAll({type:'window'}); })
     .then(function(clients){
-      // ricarico le pagine gia' aperte cosi' prendono subito la nuova versione
+      /* AVVISO, non ricarica forzata.
+         Prima qui c'era c.navigate(c.url): ad ogni nuova versione le schede
+         aperte venivano ricaricate di colpo. Se in quel momento Spectra stava
+         rispondendo, o c'era una nota lunga scritta a meta', quel lavoro
+         spariva senza una parola. Ora si avvisa e basta: e' la pagina a
+         decidere se ricaricarsi subito (nessun lavoro in corso) o mostrare
+         "Aggiorna" e lasciar scegliere. */
       clients.forEach(function(c){
-        c.navigate(c.url).catch(function(){ c.postMessage({type:'BSI_SW_UPDATED'}); });
+        try{ c.postMessage({type:'BSI_SW_UPDATED', cache: CACHE}); }catch(_e){}
       });
     })
   );
@@ -83,23 +89,50 @@ self.addEventListener('fetch', function(e){
   // altrimenti l'iframe della NASA e le foto dei telescopi non caricano.
   if(url.indexOf(self.location.origin) !== 0) return;
 
-  // NETWORK-FIRST: prendo sempre la versione fresca; la cache serve solo offline.
+  /* NETWORK-FIRST CON PAZIENZA LIMITATA.
+     "Offline" e "rete pessima" non sono la stessa cosa, e la seconda e' molto
+     piu' frequente: in treno, in ascensore, con una tacca di segnale, il
+     fetch non fallisce — resta appeso finche' il browser non si arrende, e
+     possono passare anche trenta secondi. In quei trenta secondi l'app e'
+     bianca, pur avendo in cache tutto il necessario. Quindi: si aspetta la
+     rete SOLO per qualche secondo; se non risponde e una copia c'e', si
+     serve quella e non si fa aspettare nessuno. La copia in cache viene
+     comunque aggiornata quando la rete arriva, con calma, dopo. */
+  var ATTESA_RETE_MS = 3500;
+
+  var dallaRete = fetch(e.request).then(function(resp){
+    if(resp && resp.status === 200 && resp.type === 'basic'){
+      var copy = resp.clone();
+      caches.open(CACHE).then(function(c){ try{ c.put(e.request, copy); }catch(_){} });
+    }
+    return resp;
+  });
+
+  // Se rispondo dalla cache, il service worker potrebbe essere spento prima
+  // che la rete arrivi: waitUntil lo tiene sveglio finche' la copia nuova
+  // e' stata riposta, altrimenti l'aggiornamento non avverrebbe mai.
+  e.waitUntil(dallaRete.catch(function(){}));
+
   e.respondWith(
-    fetch(e.request).then(function(resp){
-      if(resp && resp.status === 200 && resp.type === 'basic'){
-        var copy = resp.clone();
-        caches.open(CACHE).then(function(c){ try{ c.put(e.request, copy); }catch(_){} });
+    caches.match(e.request).then(function(inCache){
+      // Senza una copia non c'e' scelta: si aspetta la rete fino in fondo.
+      if(!inCache){
+        return dallaRete.catch(function(){
+          // fallback solo per le navigazioni: per un asset mancante devo restituire
+          // un 404 vero, altrimenti il chiamante riceve HTML al posto di JS/immagini
+          // e il fallback applicativo (es. texture o CDN) non scatta mai.
+          if(e.request.mode === 'navigate') return caches.match('./index.html');
+          return new Response('', {status:504, statusText:'offline'});
+        });
       }
-      return resp;
-    }).catch(function(){
-      return caches.match(e.request).then(function(r){
-        if(r) return r;
-        // fallback solo per le navigazioni: per un asset mancante devo restituire
-        // un 404 vero, altrimenti il chiamante riceve HTML al posto di JS/immagini
-        // e il fallback applicativo (es. texture o CDN) non scatta mai.
-        if(e.request.mode === 'navigate') return caches.match('./index.html');
-        return new Response('', {status:504, statusText:'offline'});
+      // Con una copia in mano: vince chi arriva prima fra rete e cronometro.
+      var cronometro = new Promise(function(res){
+        setTimeout(function(){ res(inCache); }, ATTESA_RETE_MS);
       });
+      return Promise.race([
+        dallaRete.catch(function(){ return inCache; }),
+        cronometro
+      ]);
     })
   );
 });
