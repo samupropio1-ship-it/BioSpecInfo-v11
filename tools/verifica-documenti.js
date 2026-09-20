@@ -84,8 +84,15 @@ const disallineati = [];
 documenti().forEach(function(doc){
   const testo = fs.readFileSync(path.join(RADICE, doc), 'utf8');
   const versioni = [...new Set((testo.match(/bsi-v\d+/g) || []))];
-  // il changelog cita di proposito tutte le versioni passate
-  if (/CHANGELOG/.test(doc)) return;
+  // Il changelog cita di proposito tutte le versioni passate.
+  /* I documenti GENERATI sono fotografie di un'esecuzione: dichiarano la
+     versione a cui sono stati prodotti, ed e' corretto che sia cosi'. In piu'
+     il rapporto di verifica viene scritto DOPO i controlli, quindi durante la
+     batteria conterrebbe sempre la versione precedente: controllarlo li'
+     sarebbe circolare, e faceva fallire la verifica a ogni cambio di
+     versione. Che il rapporto sia aggiornato si vede dal commit che dichiara,
+     non dal numero di versione. */
+  if (/CHANGELOG|RAPPORTO-VERIFICA|07-SBOM/.test(doc)) return;
   const altre = versioni.filter(v => v !== ver);
   if (altre.length) disallineati.push(doc + ' cita ' + altre.join(', '));
 });
