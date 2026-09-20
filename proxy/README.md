@@ -89,7 +89,7 @@ Apri `bsi-ai-hub.js` e incolla l'indirizzo del passo 3:
 var PROXY_URL = 'https://spectra-proxy.tuonome.workers.dev';
 ```
 
-Poi incrementa `CACHE` in `sw.js` (es. `bsi-v166` → `bsi-v166`) e pubblica.
+Poi incrementa `CACHE` in `sw.js` (es. `bsi-v167` → `bsi-v167`) e pubblica.
 
 **Fatto.** Chi apre BioSpecInfo trova Spectra già funzionante.
 

@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v166` |
-| Commit | `ca9e6e5a1e1fbb9edbade744ec90d4af29850a70` |
-| Generato (UTC) | `2026-09-20T17:49:58.292Z` |
+| Versione applicazione | `bsi-v167` |
+| Commit | `ca7391b70fa7a7ab4bb24e3f3c2195eae7a89be1` |
+| Generato (UTC) | `2026-09-20T18:49:36.987Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,7 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4404 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4426 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 419 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -69,13 +69,13 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `8b62597d3aee51c5801a88bc93ea368500da2b4eed73435a4e8c5a67b8d3e1fc` |
+| `index.html` | `132f15270560ead70a4b62154c2841e8329967949545a4603d781ae1df85a5bf` |
 | `bsi-ai-hub.js` | `3cbd068dc5e3a9045b7f39e819f174f7edb732771c3e3f25b1474fae777d3640` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | `cd7b82e8fb219f6b8bcc453e6288f11aeaa8c950f01aa9ecd6ae54d440597e2f` |
-| `rdkit_lab.html` | `ecd1ac77e85f165f25fb61a5240c45a21e0a9e2e59a1f9d90d0914d24501cb14` |
-| `astro.html` | `349f0b8b6d89431c00eaa6675acceeaaf93cc6f98c478bc1b904a86023a09a0f` |
-| `chimorga.html` | `66b1fff055589cfc219c02ced0d72e9afdf9cc86a86194ea7d7e162cefd73009` |
+| `sw.js` | `a4089b6523f004ee8611185dbc20ed41723519cb727759149910256a15111f7f` |
+| `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
+| `astro.html` | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
+| `chimorga.html` | `a5e3efc121c7d479f47ec0ec3fc500ac543d54d36607c8f4e1b19d2fce238c31` |
 | `proxy/spectra-proxy.js` | `808c0a12891ae9c6f45cf0c676b033075089e064df9047be844f03badf940962` |
 
 ---
@@ -125,4 +125,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-20T17:49:58.292Z._
+_Generato il 2026-09-20T18:49:36.987Z._

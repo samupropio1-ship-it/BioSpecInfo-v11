@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v166` |
+| **Versione descritta** | `bsi-v167` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -32,6 +32,7 @@
 | **SCI-07** | La coniugazione deve agire sul singolo carbonile | SMARTS `acidoConiug`, `estereConiug`, `chetoneConiug`, `aldeideConiug` | `test_spettri` §1 — aspirina 1760/1690; acetofenone 1690 |
 | **SCI-08** | Una costante fisica ambigua non deve essere risolta arbitrariamente | `costante_fisica` in `bsi-ai-hub.js` — raccoglie tutte le candidate | `test_costanti` — 45 controlli, compresi i rifiuti per ambiguità |
 | **SCI-09** | I limiti dei predittori devono essere dichiarati all'utente | intestazione dei grafici; `docs/06` §3.5 | `verifica_guida` — coerenza fra promesse e codice |
+| **SCI-10** | La simmetria molecolare deve determinare correttamente le regole di selezione | sezione `ssimm` in `index.html` | `test_simmetria` — 26 controlli: modi normali, centro di inversione, esclusione mutua |
 
 ---
 
@@ -83,9 +84,9 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `verifica_guida` — ispezione dei file tracciati |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | ispezione documentale (`docs/03`) |
-| **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | ispezione documentale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 77 file tracciati, 8 forme di credenziale |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `tools/verifica-sicurezza.js` — `BSI_TELEMETRY_URL` vuoto, nessuno script esterno |
+| **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
 > **SEC-03 — limite dichiarato.** GitHub Pages serve file statici: qualunque
@@ -103,8 +104,8 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA su tutte le sezioni | contrasto e ruoli ARIA verificati a campione |
-| **SEC-02** | Assenza di trasmissione dati non richiesta | ispezione del codice, nessun banco dedicato |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è ora automatizzata (`tools/verifica-accessibilita.js`, 13 pagine); restano fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
+
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-10** | Strutture di 6 farmaci ad alta complessità | **non verificate** — voci lasciate senza struttura, vedi `docs/06` §2.4 |
 
@@ -118,8 +119,8 @@ manuale, e la loro automazione è in programma.
 | Agente AI | 10 | 10 | 100 % |
 | Stabilità | 8 | 8 | 100 % |
 | Interfaccia | 5 | 5 | 100 % |
-| Sicurezza | 4 | 2 | 50 % |
-| **Totale dichiarato** | **36** | **34** | **94 %** |
+| Sicurezza | 4 | 4 | 100 % |
+| **Totale dichiarato** | **36** | **36** | **100 %** |
 | Non automatizzati (§6) | 4 | 0 | — |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
@@ -128,4 +129,4 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v166`._
+_Documento aggiornato alla versione `bsi-v167`._
