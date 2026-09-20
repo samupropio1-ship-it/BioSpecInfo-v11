@@ -1,0 +1,293 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-09-20T17:02:27.056Z",
+    "component": {
+      "type": "application",
+      "name": "BioSpecInfo",
+      "version": "bsi-v165",
+      "description": "Piattaforma di chemioinformatica interattiva client-side",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "git.commit",
+        "value": "273d9e604c50e808bdd32f51897f00e6da3d43f5"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "RDKit MinimalLib (JS glue)",
+      "publisher": "RDKit / Greg Landrum",
+      "description": "Chemioinformatica: interpretazione SMILES, SMARTS, descrittori, disegno 2D.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rdkit/rdkit"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "58d3c996ade7e0b0137d4f9363ff6c204b545689428fa0898eeaed579ef788d9"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "RDKit MinimalLib (WebAssembly)",
+      "publisher": "RDKit / Greg Landrum",
+      "description": "Binario WebAssembly del motore chemioinformatico.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rdkit/rdkit"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e0967d44fed59e44a2d07bfc08f3a86821c54a14c95bb7e6e392fe867333b8c8"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "three.js",
+      "publisher": "mrdoob e collaboratori",
+      "description": "Motore di rendering WebGL per le scene 3D.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://threejs.org"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "three.js — UnrealBloomPass",
+      "publisher": "mrdoob e collaboratori",
+      "description": "Effetto di post-produzione per le visualizzazioni astronomiche.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://threejs.org"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "42e0ff40b00ea1ba4fe53baeb3726834a3ac3db46e9cfb80856baebf01611090"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "three.js — GLTFLoader",
+      "publisher": "mrdoob e collaboratori",
+      "description": "Caricamento dei modelli anatomici e molecolari in formato glTF.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://threejs.org"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "3Dmol.js",
+      "publisher": "University of Pittsburgh / David Koes",
+      "description": "Visualizzazione molecolare 3D (PDB, SDF, superfici).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://3dmol.csb.pitt.edu"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06b6d2fc7d418e8bef62a32cca44373ff21b2b787bd377613dd4039394a4e9ff"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "SmilesDrawer",
+      "publisher": "Daniel Probst",
+      "description": "Disegno 2D delle strutture a partire da SMILES.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/reymond-group/smilesDrawer"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "955285fac52a7017b3c3658e2cb84bef7f1f76732f3f7cd565d1bb0903232dc2"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "sql.js (JS glue)",
+      "publisher": "sql.js / SQLite",
+      "description": "Database SQLite in-browser per le esercitazioni sui dati.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sql-js/sql.js"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "77d6435bac506af0e3c59636dce9d22b1b14156348bc327f41a1577f3212360f"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "SQLite (WebAssembly)",
+      "publisher": "SQLite Consortium",
+      "description": "Motore SQLite compilato in WebAssembly.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sqlite.org"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "name": "Public Domain"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Dataset dimuoni (CERN Open Data)",
+      "publisher": "CERN Open Data Portal",
+      "description": "Dati sperimentali per l'esercitazione di fisica delle particelle.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://opendata.cern.ch"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC0-1.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "playwright-core",
+      "version": "1.62.1",
+      "scope": "excluded",
+      "description": "Dipendenza di sviluppo: esecuzione dei banchi di prova.",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    }
+  ]
+}

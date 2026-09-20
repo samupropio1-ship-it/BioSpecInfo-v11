@@ -29,6 +29,19 @@ In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossie
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Matrice dipendenze, licenze, proprietà intellettuale |
 | 05 | [Architettura dell'Agente AI "Spectra"](05-AI-Agent-Architecture.md) | Ciclo agentico, 35 strumenti, decisioni ingegneristiche, verifica numerica |
 | 06 | [Accuratezza scientifica e provenienza dei dati](06-Scientific-Accuracy-Data-Provenance.md) | Come sono verificati i dati chimici, metodo struttura⟷peso molecolare, limiti dichiarati dei predittori |
+| 07 | [Distinta dei componenti software (SBOM)](07-SBOM.md) | Componenti, licenze, impronte SHA-256; CycloneDX 1.5 in `evidence/` |
+| 08 | [Matrice di tracciabilità](08-Traceability-Matrix.md) | Requisito → implementazione → banco di verifica, con le lacune dichiarate |
+| 09 | [Dichiarazione di conformità di rilascio](09-Release-Conformance-Statement.md) | Destinazione d'uso, esclusioni, difformità note, criteri di accettazione |
+
+### 🔍 Evidenza di verifica
+
+| Documento | Contenuto |
+|---|---|
+| [`evidence/RAPPORTO-VERIFICA.md`](evidence/RAPPORTO-VERIFICA.md) | **Generato automaticamente**: uscita integrale di ogni banco, ambiente, commit, impronte SHA-256, procedura di riproduzione |
+| [`evidence/deviazioni-note.json`](evidence/deviazioni-note.json) | Registro delle deviazioni accettate, con il motivo di ciascuna |
+| [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) | SBOM in formato CycloneDX 1.5 |
+
+Gli strumenti che li producono sono in [`tools/`](../tools/) e sono eseguibili da chiunque disponga del repository.
 
 **🌍 English version:** [`docs/en/`](en/README.md) — the same documents in English.
 **📑 PDF (IT + EN):** [`docs/pdf/`](pdf/) — pronti da allegare a CV, email e audit.
