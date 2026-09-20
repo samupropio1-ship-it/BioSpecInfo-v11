@@ -73,7 +73,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 
 | # | Difformità | Impatto | Trattamento |
 |---|---|---|---|
-| **D-01** | 6 farmaci ad alta complessità molecolare (digossina, vincristina, tacrolimus ×2, ivermectina, artemetere/lumefantrina) senza struttura verificata | Per queste voci non è disponibile la rappresentazione 2D/3D né la predizione spettrale | Voci lasciate **senza SMILES**: i dati farmacologici restano, la struttura non è mostrata. Preferito all'inserimento di una struttura non verificata. |
+| **D-01** | 6 farmaci ad alta complessità molecolare senza struttura verificata (elencati in `evidence/deviazioni-note.json`) | Per queste voci non è disponibile la rappresentazione 2D/3D né la predizione spettrale | Voci lasciate **senza SMILES**: i dati farmacologici restano, la struttura non è mostrata. Preferito all'inserimento di una struttura non verificata. |
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
 | **D-03** | Copertura automatica dei requisiti di sicurezza al 50 % | SEC-02 e parte di SEC-03 coperti da ispezione documentale, non da banco | Dichiarato in `docs/08` §6 |
 | **D-04** | Password del File Manager presente nella cronologia git antecedente alla rimozione | Il deterrente è noto a chi consulti la cronologia | Documentato; rimedio effettivo: sostituzione della password |
@@ -86,7 +86,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 Una versione è pubblicata solo se **tutti** i criteri seguenti sono soddisfatti.
 
 - [x] Nessun errore JavaScript non di rete su tutte le pagine
-- [x] `audit_farmaci` — nessun nuovo scarto fra struttura e peso molecolare
+- [x] `tools/verifica-farmaci.js` — nessun difetto; ogni deviazione registrata
 - [x] `verifica_guida` — nessuna promessa della documentazione priva di riscontro nel codice
 - [x] Nessun marcatore di conflitto nei file tracciati
 - [x] Versione della cache del Service Worker incrementata e allineata a `BSI_APP_VERSION`

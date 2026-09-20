@@ -112,12 +112,12 @@ In coerenza con il principio di trasparenza scientifica:
 - ✅ Test E2E Playwright: 0 errori JS non di rete.
 - ✅ Nessuna regressione visibile nelle sezioni toccate.
 - ✅ Versione della cache del Service Worker incrementata.
-- ✅ `audit_farmaci`: nessun nuovo scarto fra struttura e peso molecolare.
+- ✅ `tools/verifica-farmaci.js`: nessun difetto; ogni deviazione registrata con il motivo.
 - ✅ `verifica_guida`: ciò che la documentazione promette esiste nel codice.
 
 ---
 
-## 7. Batteria di verifica — stato alla versione `bsi-v164`
+## 7. Batteria di verifica — stato alla versione `bsi-v165`
 
 La verifica non è più solo end-to-end funzionale: comprende banchi dedicati alle
 proprietà che un test funzionale non osserva (stabilità nel tempo, degrado di
@@ -127,7 +127,7 @@ rete, accuratezza dei dati).
 
 | Famiglia | Banchi | Oggetto |
 |---|---|---|
-| **Dati scientifici** | `audit_farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche |
+| **Dati scientifici** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche |
 | **Agente AI** | `test_ko`, `test_404`, `test_503`, `test_firma`, `test_attesa`, `test_attesalunga`, `test_tetto`, `test_nucleo`, `browser_ko`, `browser_prova` | modello ritirato, CORS, sovraccarico, firme di ragionamento, tetto di token, attese prolungate, memoria dei fornitori irraggiungibili |
 | **Stabilità** | `audit_stabilita`, `audit_promesse`, `audit_quota`, `test_filemanager`, `test_doppioinvio`, `test_sw`, `test_visore3d` | sessioni lunghe, promesse rifiutate, memoria esaurita, archivio non disponibile, invii sovrapposti, rete degradata, contesti WebGL |
 | **Interfaccia** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_guidaproxy` | pannelli, proxy, laboratorio RDKit, aggiornamenti |
