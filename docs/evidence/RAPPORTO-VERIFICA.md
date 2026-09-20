@@ -13,10 +13,10 @@
 
 | | |
 |---|---|
-| **Banchi superati** | 33 |
-| **Banchi falliti** | 1 |
+| **Banchi superati** | 34 |
+| **Banchi falliti** | 0 |
 | **Durata totale** | 514 s |
-| **Esito** | ⚠️ **NON CONFORME** — vedere §3 |
+| **Esito** | ✅ **CONFORME** |
 
 ---
 
@@ -24,11 +24,11 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-09-20T16:51:41.140Z` |
-| Commit | `273d9e604c50e808bdd32f51897f00e6da3d43f5` |
+| Istante (UTC) | `2026-09-20T17:03:01.314Z` |
+| Commit | `e0a3ca1a33426fbf4fd9151881c7950a5fa10af2` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
-| Albero di lavoro pulito | NO — sono presenti modifiche non registrate |
-| Versione applicazione | `bsi-v164` |
+| Albero di lavoro pulito | sì (nessuna modifica non registrata) |
+| Versione applicazione | `bsi-v165` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |
@@ -40,10 +40,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.510.225 | `8f066a5530a81d6d06affbe8c8a1d8f9f4d95965b9974c5407260414a2099295` |
+| `index.html` | 4.510.090 | `aadb28e85e42aaabd0d5d039252c1dc46e3293c3eff7205224b6eb4be906b936` |
 | `bsi-ai-hub.js` | 427.610 | `891e05092a47c617c6f33c0130e6b07fd0fb0ccf39b541505e1c9c9388ea8ca7` |
 | `bsi-spettri.js` | 33.021 | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | 5261 | `e710d57fe17ead2d77796eb36849121effcf69d1f8ba44b14b7dec0ab816efd2` |
+| `sw.js` | 5261 | `52bbea24c611611ef55a79d35cc559f6a6b8913e4a5c338da0d630a4574ddd92` |
 | `rdkit_lab.html` | 262.799 | `ecd1ac77e85f165f25fb61a5240c45a21e0a9e2e59a1f9d90d0914d24501cb14` |
 | `astro.html` | 2.729.922 | `349f0b8b6d89431c00eaa6675acceeaaf93cc6f98c478bc1b904a86023a09a0f` |
 | `chimorga.html` | 198.834 | `66b1fff055589cfc219c02ced0d72e9afdf9cc86a86194ea7d7e162cefd73009` |
@@ -52,18 +52,18 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 ## 3. Esiti per famiglia
 
-### Dati scientifici  ⚠️
+### Dati scientifici
 
 _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_farmaci` | ❌ FALLITO | 4.6 s | 178 farmaci controllati — ✗ 9 ERRORI, 19 avvisi |
+| `@verifica-farmaci` | ✅ SUPERATO | 4.4 s | ✓ CONFORME |
 | `test_spettri` | ✅ SUPERATO | 4.1 s | 36 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 10.8 s | 16 passati |
+| `test_spettri_ui` | ✅ SUPERATO | 10.7 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 5.9 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 8.9 s | 6 passati |
-| `test_costanti` | ✅ SUPERATO | 0.2 s | ✓ tutti passati — 45 controlli |
+| `test_assi_canvas` | ✅ SUPERATO | 8.8 s | 6 passati |
+| `test_costanti` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.0 s | ✓ 29 controlli superati |
 
 ### Agente AI
@@ -72,18 +72,18 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 5.3 s | 13 passati |
+| `test_nucleo` | ✅ SUPERATO | 5.2 s | 13 passati |
 | `test_ko` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 35 controlli |
-| `test_404` | ✅ SUPERATO | 0.2 s | ✓ tutti passati — 36 controlli |
+| `test_404` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 36 controlli |
 | `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
 | `test_firma` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 31 controlli |
-| `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
+| `test_attesa` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 11 controlli |
 | `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
 | `browser_ko` | ✅ SUPERATO | 38.1 s | 37 passati |
 | `browser_prova` | ✅ SUPERATO | 51.4 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 4.8 s | 7 passati |
-| `test_doppioinvio` | ✅ SUPERATO | 11.2 s | 7 passati |
+| `browser_prov` | ✅ SUPERATO | 4.7 s | 7 passati |
+| `test_doppioinvio` | ✅ SUPERATO | 11.3 s | 7 passati |
 
 ### Stabilita
 
@@ -91,12 +91,12 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 101.5 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 116.5 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 41.1 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 28.3 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 10.9 s | 15 passati |
-| `test_visore3d` | ✅ SUPERATO | 8.8 s | 5 passati |
+| `audit_stabilita` | ✅ SUPERATO | 102.7 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 116.4 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 41.0 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 28.4 s | 22 passati |
+| `test_filemanager` | ✅ SUPERATO | 10.8 s | 15 passati |
+| `test_visore3d` | ✅ SUPERATO | 9.0 s | 5 passati |
 
 ### Interfaccia
 
@@ -104,13 +104,13 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 10.0 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 8.2 s | 15 passati |
-| `browser_proxyui` | ✅ SUPERATO | 11.7 s | 17 passati |
+| `browser_reset` | ✅ SUPERATO | 9.8 s | 24 passati |
+| `browser_proxy` | ✅ SUPERATO | 8.3 s | 15 passati |
+| `browser_proxyui` | ✅ SUPERATO | 11.6 s | 17 passati |
 | `browser_rdkit` | ✅ SUPERATO | 3.9 s | 31 passati |
 | `browser_lab` | ✅ SUPERATO | 10.7 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 5.9 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.4 s | 9 passati |
+| `browser_frontiera` | ✅ SUPERATO | 5.8 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.3 s | 9 passati |
 | `test_guidaproxy` | ✅ SUPERATO | 5.1 s | 12 passati |
 
 ### Coerenza documentazione/codice
@@ -128,46 +128,47 @@ _Cio che la documentazione promette esiste davvero nel codice._
 Trascrizione non filtrata, nell'ordine di esecuzione.
 
 <details>
-<summary><code>audit_farmaci</code> — FALLITO (codice di uscita 1)</summary>
+<summary><code>@verifica-farmaci</code> — SUPERATO (codice di uscita 0)</summary>
 
 ```
+Verifica della banca dati farmacologica
+Metodo: peso ricalcolato da RDKit sulla struttura ⟷ peso dichiarato
+Tolleranza: 0.6 u
 
-── SMILES mancanti o non validi ──
-  ✗ Vancomicina — SMILES non interpretabile
-  ✗ Rifampicina — SMILES non interpretabile
-  ⚠ Semaglutide — SMILES non interpretabile  (biologico/peptide: atteso)
-  ⚠ Insulina (umana ricombinante) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Ciclosporina A — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Sacubitril/Valsartan (Entresto) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Trastuzumab (Herceptin) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Pembrolizumab (Keytruda) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Rituximab (MabThera) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Natalizumab (Tysabri) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Liraglutide (Victoza/Saxenda) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Octreotide — nessuno SMILES  (biologico/peptide: atteso)
-  ✗ Artemetere/Lumefantrina (Coartem) — nessuno SMILES
-  ✗ Ivermectina — nessuno SMILES
-  ⚠ Adalimumab (Humira) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Infliximab (Remicade) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Secukinumab (Cosentyx) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Dupilumab (Dupixent) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Caspofungina — nessuno SMILES  (biologico/peptide: atteso)
-  ✗ Tacrolimus topico (Protopic) — nessuno SMILES
-  ⚠ Tocilizumab (Actemra) — nessuno SMILES  (biologico/peptide: atteso)
-  ✗ Tacrolimus sistemico (Prograf) — nessuno SMILES
-  ⚠ Palivizumab (Synagis) — nessuno SMILES  (biologico/peptide: atteso)
-  ✗ Venetoclax (Venclexta) — nessuno SMILES
-  ⚠ Eculizumab (Soliris) — nessuno SMILES  (biologico/peptide: atteso)
-  ⚠ Benralizumab (Fasenra) — nessuno SMILES  (biologico/peptide: atteso)
-  ✗ Vincristina — nessuno SMILES
+Voci esaminate: 178  (con struttura: 153)
 
-── Peso dichiarato vs calcolato dalla struttura ──
-  ✗ Digossina                  dichiarato 780.94  calcolato 454.52  (Δ 326.42)
+── Difetti ──
+  ✓ nessuno
 
-── Doppioni ──
-  ✓ nessun farmaco ripetuto
+── Deviazioni dichiarate e accettate ──
+  ▪ [D-01] Digossina                         glicoside cardioattivo con tre unita' di digitossosio: ogni struttura provata si discosta di 14-30 u dal peso di letteratura (780,94)
+  ▪ [D-02] Semaglutide                       analogo peptidico del GLP-1: 31 residui piu' catena lipidica, non rappresentabile in SMILES
+  ▪ [D-02] Insulina (umana ricombinante)     proteina, 51 residui
+  ▪ [D-02] Ciclosporina A                    undecapeptide ciclico
+  ▪ [D-02] Sacubitril/Valsartan (Entresto)   complesso supramolecolare di due principi attivi
+  ▪ [D-02] Trastuzumab (Herceptin)           anticorpo monoclonale
+  ▪ [D-02] Pembrolizumab (Keytruda)          anticorpo monoclonale
+  ▪ [D-02] Rituximab (MabThera)              anticorpo monoclonale
+  ▪ [D-02] Natalizumab (Tysabri)             anticorpo monoclonale
+  ▪ [D-02] Liraglutide (Victoza/Saxenda)     analogo peptidico del GLP-1
+  ▪ [D-02] Octreotide                        octapeptide ciclico
+  ▪ [D-01] Artemetere/Lumefantrina (Coartem) associazione di due principi attivi: una singola notazione SMILES non rappresenta la voce
+  ▪ [D-01] Ivermectina                       lattone macrociclico a 16 termini con due unita' di oleandrosio: le strutture provate non sono risultate interpretabili da RDKit
+  ▪ [D-02] Adalimumab (Humira)               anticorpo monoclonale
+  ▪ [D-02] Infliximab (Remicade)             anticorpo monoclonale chimerico
+  ▪ [D-02] Secukinumab (Cosentyx)            anticorpo monoclonale
+  ▪ [D-02] Dupilumab (Dupixent)              anticorpo monoclonale
+  ▪ [D-02] Caspofungina                      lipopeptide echinocandinico
+  ▪ [D-01] Tacrolimus topico (Protopic)      macrolide a 23 termini; scarto residuo di 82 u sulla struttura provata
+  ▪ [D-02] Tocilizumab (Actemra)             anticorpo monoclonale
+  ▪ [D-01] Tacrolimus sistemico (Prograf)    stessa molecola della voce topica, stessa deviazione
+  ▪ [D-02] Palivizumab (Synagis)             anticorpo monoclonale
+  ▪ [D-02] Eculizumab (Soliris)              anticorpo monoclonale
+  ▪ [D-02] Benralizumab (Fasenra)            anticorpo monoclonale
+  ▪ [D-01] Vincristina                       alcaloide bisindolico: lo scarto residuo di 130 u indica un frammento dimerico non risolto
 
-178 farmaci controllati — ✗ 9 ERRORI, 19 avvisi
+178 voci · 0 difetti · 25 deviazioni dichiarate · 0 non registrate
+✓ CONFORME
 ```
 
 </details>
@@ -1054,10 +1055,10 @@ Due Invio di fila, a mezzo secondo di distanza
 
 ═══ 1. SESSIONE LUNGA: aprire e chiudere ogni scheda 5 volte ═══
     · schede trovate: 84 (sdashboard, smol, spt, ssyn, sretro, sanimmech…)
-    · nodi DOM per giro: 6620 → 34421 → 34421 → 34421 → 34421 → 34421
+    · nodi DOM per giro: 6620 → 34417 → 34417 → 34417 → 34417 → 34417
     · canvas   per giro: 24 → 37 → 37 → 37 → 37 → 37
     · setInterval vivi (creati-cancellati): -3
-    · costruzione (giro 1): +27801 nodi
+    · costruzione (giro 1): +27797 nodi
     · dopo la costruzione (giri 2-5): +0 nodi  (0/giro)
   ✓ il DOM smette di crescere a costruzione finita (< 150/giro)  → true
   ✓ i canvas non si moltiplicano dopo il primo giro  → true
@@ -1166,17 +1167,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v164 con 36 voci
+    · cache: bsi-v165 con 36 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 5985 nodi in 393 ms — "BioSpecInfo · v8"
+    · 5995 nodi in 416 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7339 ms con 6055 nodi — rete bloccata 5 volte
+    · caricata in 7369 ms con 6055 nodi — rete bloccata 5 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -1184,7 +1185,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3519 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3509 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -1524,8 +1525,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v164   ·  sw.js: bsi-v164
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v164
+    · app: bsi-v165   ·  sw.js: bsi-v165
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v165
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -1538,7 +1539,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v164Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v165Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -1674,7 +1675,7 @@ Chiave condivisa nella UI
 
 12) Nessun marcatore di conflitto e' finito nei file
   ✓ file con marcatori di conflitto  → 0
-   (60 file di testo controllati)
+   (69 file di testo controllati)
 
 71 controlli passati
 ```
@@ -1687,7 +1688,7 @@ Chiave condivisa nella UI
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 273d9e604c50
+git checkout e0a3ca1a3342
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -1718,4 +1719,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-09-20T16:51:41.140Z._
+_Generato il 2026-09-20T17:03:01.314Z._
