@@ -1,0 +1,117 @@
+{
+  "_scopo": "Registro delle deviazioni note e accettate. Una voce elencata qui viene riportata dai controlli automatici come DEVIAZIONE DICHIARATA e non fa fallire la verifica; una voce NON elencata che presenta lo stesso problema la fa fallire. Aggiungere una voce qui e' una decisione consapevole, tracciata in git, non un modo per silenziare un controllo: il motivo e' obbligatorio e viene stampato nel rapporto.",
+  "_riferimento": "docs/09-Release-Conformance-Statement.md §4",
+  "_versione": "bsi-v165",
+  "farmaci_senza_struttura": {
+    "_regola": "Voci prive di SMILES per cui non e' stato possibile produrre una struttura che superasse il confronto con il peso molecolare di letteratura. La voce resta nell'applicazione con i dati farmacologici; la struttura non viene mostrata.",
+    "_difformita": "D-01",
+    "voci": [
+      {
+        "nome": "Digossina",
+        "motivo": "glicoside cardioattivo con tre unita' di digitossosio: ogni struttura provata si discosta di 14-30 u dal peso di letteratura (780,94)"
+      },
+      {
+        "nome": "Vincristina",
+        "motivo": "alcaloide bisindolico: lo scarto residuo di 130 u indica un frammento dimerico non risolto"
+      },
+      {
+        "nome": "Tacrolimus topico (Protopic)",
+        "motivo": "macrolide a 23 termini; scarto residuo di 82 u sulla struttura provata"
+      },
+      {
+        "nome": "Tacrolimus sistemico (Prograf)",
+        "motivo": "stessa molecola della voce topica, stessa deviazione"
+      },
+      {
+        "nome": "Ivermectina",
+        "motivo": "lattone macrociclico a 16 termini con due unita' di oleandrosio: le strutture provate non sono risultate interpretabili da RDKit"
+      },
+      {
+        "nome": "Artemetere/Lumefantrina (Coartem)",
+        "motivo": "associazione di due principi attivi: una singola notazione SMILES non rappresenta la voce"
+      }
+    ]
+  },
+  "farmaci_biologici": {
+    "_regola": "Anticorpi monoclonali, proteine e peptidi per i quali la notazione SMILES non e' la rappresentazione appropriata. L'assenza e' corretta, non una lacuna.",
+    "_difformita": "D-02",
+    "voci": [
+      {
+        "nome": "Insulina (umana ricombinante)",
+        "motivo": "proteina, 51 residui"
+      },
+      {
+        "nome": "Ciclosporina A",
+        "motivo": "undecapeptide ciclico"
+      },
+      {
+        "nome": "Sacubitril/Valsartan (Entresto)",
+        "motivo": "complesso supramolecolare di due principi attivi"
+      },
+      {
+        "nome": "Trastuzumab (Herceptin)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Pembrolizumab (Keytruda)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Rituximab (MabThera)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Natalizumab (Tysabri)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Adalimumab (Humira)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Infliximab (Remicade)",
+        "motivo": "anticorpo monoclonale chimerico"
+      },
+      {
+        "nome": "Secukinumab (Cosentyx)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Dupilumab (Dupixent)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Tocilizumab (Actemra)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Palivizumab (Synagis)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Eculizumab (Soliris)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Benralizumab (Fasenra)",
+        "motivo": "anticorpo monoclonale"
+      },
+      {
+        "nome": "Liraglutide (Victoza/Saxenda)",
+        "motivo": "analogo peptidico del GLP-1"
+      },
+      {
+        "nome": "Octreotide",
+        "motivo": "octapeptide ciclico"
+      },
+      {
+        "nome": "Caspofungina",
+        "motivo": "lipopeptide echinocandinico"
+      },
+      {
+        "nome": "Semaglutide",
+        "motivo": "analogo peptidico del GLP-1: 31 residui piu' catena lipidica, non rappresentabile in SMILES"
+      }
+    ]
+  }
+}

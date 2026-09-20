@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v164` |
+| **Versione descritta** | `bsi-v165` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -52,7 +52,8 @@ Uno scarto superiore a **0,6 u** (tolleranza che copre gli arrotondamenti e le
 piccole differenze fra tabelle di masse atomiche, ma non un errore reale, che
 vale decine di unità) indica che almeno una delle due affermazioni è sbagliata.
 
-Il controllo è automatizzato (`audit_farmaci.js`) e non richiede giudizio umano:
+Il controllo è automatizzato (`tools/verifica-farmaci.js`, eseguibile da chiunque
+disponga del repository) e non richiede giudizio umano:
 non chiede di fidarsi di nessuna fonte, confronta due numeri.
 
 ### 2.2 Cosa ha trovato
@@ -95,24 +96,36 @@ proposta conteneva la base sbagliata. Il numero ha indicato dove guardare.
 | | |
 |---|---|
 | Farmaci in banca dati | **178** (erano 143) |
-| Con struttura verificata | 154 |
-| Errori residui | **9** |
+| Con struttura verificata | **155** |
+| Difetti | **0** |
+| Deviazioni dichiarate e accettate | **25** |
 
-I 9 errori residui riguardano **molecole grandi** — vancomicina, rifampicina,
-digossina, ciclosporina A, vincristina, tacrolimus, ivermectina, venetoclax —
-per le quali non è stato possibile produrre una struttura che superasse il
-controllo. Queste voci sono state lasciate **senza SMILES** anziché con una
-struttura non verificata: nell'applicazione compaiono con i dati farmacologici
-(meccanismo, indicazioni, effetti avversi) ma senza rappresentazione strutturale.
+La verifica è **conforme**: nessuna voce presenta una struttura che contraddica
+il proprio peso molecolare. Le 25 deviazioni sono voci **prive di struttura**,
+ciascuna registrata con il proprio motivo in
+[`evidence/deviazioni-note.json`](evidence/deviazioni-note.json) e riportata nel
+rapporto di verifica.
+
+**Difetto contro deviazione.** Il controllo distingue due situazioni che non
+vanno confuse:
+
+- una struttura che **contraddice** il proprio peso è un difetto, e fa fallire
+  la verifica;
+- una struttura **assente** può essere una deviazione accettabile — ma solo se
+  registrata esplicitamente, con il motivo. Una voce priva di struttura e **non**
+  registrata fa fallire la verifica come qualunque altro difetto.
+
+Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
+visibile nel rapporto, non un modo per silenziare un controllo.
+
+| Gruppo | Voci | Natura |
+|---|---:|---|
+| **D-01** — complessità molecolare | 6 | digossina, vincristina, tacrolimus (topico e sistemico), ivermectina, artemetere/lumefantrina. Per queste non è stato possibile produrre una struttura che superasse il confronto; sono rimaste senza, con i dati farmacologici intatti. |
+| **D-02** — non rappresentabili in SMILES | 19 | anticorpi monoclonali, proteine e peptidi (trastuzumab, pembrolizumab, insulina, semaglutide, ciclosporina A…). L'assenza è corretta, non una lacuna. |
 
 > La scelta è deliberata: un dato sbagliato sostituito da un altro dato
 > sbagliato non è un progresso, e l'assenza dichiarata è preferibile a una
 > presenza non verificata.
-
-I **19 avvisi** ulteriori riguardano anticorpi monoclonali e peptidi
-(trastuzumab, pembrolizumab, rituximab, insulina, liraglutide, ciclosporina…):
-per queste molecole la notazione SMILES non è la rappresentazione appropriata, e
-la sua assenza è corretta, non una lacuna.
 
 ---
 
@@ -225,7 +238,7 @@ stesura la batteria comprende, fra gli altri:
 
 | Banco | Oggetto | Controlli |
 |---|---|---|
-| `audit_farmaci` | struttura vs peso molecolare, duplicati, campi vuoti | 178 voci |
+| `tools/verifica-farmaci.js` | struttura ⟷ peso molecolare, duplicati, deviazioni registrate | 178 voci |
 | `test_spettri` | riconoscimento gruppi su molecole di riferimento | 36 |
 | `test_assi` / `test_assi_canvas` | convenzioni degli assi (SVG e canvas) | 19 |
 | `test_costanti` | ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
@@ -251,4 +264,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v164`._
+_Documento aggiornato alla versione `bsi-v165`._

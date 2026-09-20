@@ -803,7 +803,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v164';
+window.BSI_APP_VERSION='bsi-v165';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -5322,7 +5322,7 @@ var FARM_DATA=[
   {name:"Cisplatino",cat:"chemo",smi:"N.N.Cl[Pt]Cl",mw:"300.05",moa:"Forma addotti covalenti intrastrand con N7 della guanina. Blocca la replicazione del DNA. Apoptosi p53-dipendente.",indicaz:"Tumori testicolo, ovaio, polmone, vescica",effetti:"Nefrotossicità, neurotossicità, ototossicità, emetogenico",classe:"Platino-coordinato"},
   {name:"Tamoxifene",cat:"chemo",smi:"CCC(=C(c1ccccc1)c1ccc(OCCN(C)C)cc1)c1ccccc1",mw:"371.51",moa:"SERM: modulatore selettivo recettori estrogeni. Antagonista in mammella (blocca ER-α) → inibisce proliferazione.",indicaz:"Carcinoma mammario ER+ (pre- e post-menopausa)",effetti:"Trombosi venosa, flush, endometrio (agonista uterino)",classe:"SERM (modulatore estrogeni)"},
   // CARDIOATTIVI
-  {name:"Digossina",cat:"cardio",smi:"O=C1CC[C@]2(O)[C@@H](C[C@@H]3[C@]4(CC[C@H](O[C@@H]5O[C@@H]([C@@H](O)[C@H](O)[C@H]5O)C)CC4=O)[C@H](O)[C@H]23)[C@@H]1C",mw:"780.94",moa:"Inibisce Na⁺/K⁺-ATPasi → ↑Ca²⁺ intracellulare → inotropo positivo. Cronotropo negativo (vagale).",indicaz:"Fibrillazione atriale, scompenso cardiaco (sempre meno usata)",effetti:"Finestra terapeutica stretta: aritmie tossiche, nausea, visione gialla",classe:"Glicoside cardiaco"},
+  {name:"Digossina",cat:"cardio",smi:"",mw:"780.94",moa:"Inibisce Na⁺/K⁺-ATPasi → ↑Ca²⁺ intracellulare → inotropo positivo. Cronotropo negativo (vagale).",indicaz:"Fibrillazione atriale, scompenso cardiaco (sempre meno usata)",effetti:"Finestra terapeutica stretta: aritmie tossiche, nausea, visione gialla",classe:"Glicoside cardiaco"},
   {name:"Metoprololo",cat:"cardio",smi:"COCCc1ccc(OCC(O)CNC(C)C)cc1",mw:"267.36",moa:"β₁-bloccante selettivo (cardioselettivo): ↓FC, ↓PA, ↓contrattilità. Riduce rimodellamento post-infarto.",indicaz:"Ipertensione, angina, scompenso cardiaco, infarto",effetti:"Bradicardia, broncocostrizione (meno che β1+β2), disfunzione erettile",classe:"β-bloccante selettivo β₁"},
   {name:"Amlodipina",cat:"cardio",smi:"CCOC(=O)C1=C(COCCN)NC(C)=C(C(=O)OC)C1c1ccccc1Cl",mw:"408.88",moa:"Calcio-antagonista diidropiridinico: blocca canali Ca²⁺ L-type vascolari → vasodilatazione arteriolare.",indicaz:"Ipertensione, angina stabile e vasospastica",effetti:"Edema periferico (caviglie), cefalea, flushing",classe:"Calcio-antagonista (DHP III gen.)"},
 ];
@@ -9138,7 +9138,7 @@ var FARM_EXTRA=[
    indicaz:"Polmoniti atipiche (Mycoplasma, Chlamydia, Legionella), faringiti streptococciche, ITS, MAC in HIV",
    effetti:"QT prolungato (↑rischio aritmie in associazione con altri QT-allunganti), diarrea, ototossicità (rare)",
    classe:"Macrolide (azalide)"},
-  {name:"Vancomicina",cat:"antibio2",smi:"O=C(N[C@H](c1ccc(Oc2cc3cc(Oc4cc(C[C@H](NC(=O)[C@@H]5N...)...)ccc4...)c(Cl)c(O)c3c(Cl)c2O)cc1)C(=O)N...)...",mw:"1449.26",
+  {name:"Vancomicina",cat:"antibio2",smi:"CN[C@H](CC(C)C)C(=O)N[C@H]1[C@H](O)c2ccc(Oc3cc4cc(Oc5ccc(cc5Cl)[C@@H](O)[C@@H]5NC(=O)[C@H](NC(=O)[C@@H]4NC(=O)[C@H](CC(N)=O)NC1=O)c1ccc(O)c(c1)-c1c(O)cc(O)cc1[C@H](NC5=O)C(=O)O)c3O[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O[C@H]1C[C@](C)(N)[C@H](O)[C@H](C)O1)c(Cl)c2",mw:"1449.26",
    moa:"Glicopeptide: lega il dipeptide D-Ala-D-Ala della mureina batterica → blocca la transpeptidasi e la transglicosilasi → inibizione della sintesi del peptidoglicano. Battericida lento. Resistenza VRE: D-Ala-D-Lac (↓affinità 1000×).",
    indicaz:"MRSA, Clostridioides difficile (orale), endocarditi da Gram+, meningite",
    effetti:"Nefrotossicità, ototossicità (dosaggio-dipendenti), 'Red Man Syndrome' (infusione rapida → istamina)",
@@ -9153,7 +9153,7 @@ var FARM_EXTRA=[
    indicaz:"C. difficile (colite pseudomembranosa), Giardia, Trichomonas, Entamoeba, anaerobi (Bacteroides), H. pylori",
    effetti:"Effetto antabuse (nausea/vomito con alcol), neuropatia periferica (uso prolungato), metallic taste",
    classe:"Nitroimidazolo"},
-  {name:"Rifampicina",cat:"antibio2",smi:"[H][C@@]12OC3=C(C(=O)C(=C([C@@H](OC(=O)C)[C@]([H])(OC)CC3=O)NC(=O)c3c(O)c(NC(=O)OC)c(OC)c(OC)c3OC)/C=C/[C@H](C)[C@@H](OC(=O)C)[C@H](C)[C@H](OC(=O)C)[C@]1([H])...",mw:"822.95",
+  {name:"Rifampicina",cat:"antibio2",smi:"CO[C@H]1/C=C/O[C@@]2(C)Oc3c(C)c(O)c4c(O)c(/C=N/N5CCN(C)CC5)c(NC(=O)/C(C)=C\\C=C\\[C@H](C)[C@H](O)[C@@H](C)[C@@H](O)[C@@H](C)[C@H](OC(C)=O)[C@@H]1C)c(O)c4c3C2=O",mw:"822.95",
    moa:"Inibisce selettivamente la RNA polimerasi batterica (subunità β, rpoB) → blocca la trascrizione. Non agisce sull'RNA pol eucariotica (diversa struttura). Resistenza rapida con mono-terapia (mutazioni rpoB).",
    indicaz:"TBC (prima linea in combinazione HRZE), lebbra, endocarditi stafilococciche, profilassi meningococcica",
    effetti:"Colorazione rossa di urine/secrezioni/lacrime/lenti contact, epatotossicità, inducer CYP3A4 forte",
@@ -9169,7 +9169,7 @@ var FARM_EXTRA=[
    indicaz:"DM tipo 2 (prima linea WHO), prevenzione DM (prediabete), PCOS, insulino-resistenza",
    effetti:"Diarrea, nausea (dose-dipendenti, migliorano nel tempo), rarissima acidosi lattica (controindicata in IR grave, epatopatia, alcolismo)",
    classe:"Biguanide (prima linea DM2)"},
-  {name:"Semaglutide",cat:"antidiab",smi:"CC[C@H](C)[C@@H]...",mw:"4113.57",
+  {name:"Semaglutide",cat:"antidiab",smi:"",mw:"4113.57",
    moa:"GLP-1 receptor agonista (a lunga azione, t½ ~168h per versione sc). Lega e attiva il recettore GLP-1 → ↑secrezione insulina (glucosio-dipendente), ↓glucagone, ↓svuotamento gastrico, ↑sazietà (recettori cerebrali). Wegovy (2.4mg/settimana): ↓peso corporeo ~15% in 68 settimane.",
    indicaz:"DM tipo 2 (Ozempic), obesità (Wegovy), riduzione rischio cardiovascolare (SUSTAIN/PIONEER)",
    effetti:"Nausea, vomito, diarrea (soprattutto all'inizio), raramente pancreatite. Controindicato in MEN2/carcinoma tiroideo midollare",
@@ -12059,7 +12059,7 @@ FARM_DATA=FARM_DATA.concat([
    indicaz:"Ca mammario HR+/HER2- avanzato/metastatico in combinazione con letrozolo (prima linea) o fulvestrant (seconda linea). PALOMA trials.",
    effetti:"Neutropenia (dose-limitante, monitoraggio emocromo), fatigue, nausea, stomatite, alopecia lieve. Neutropenia febbrile <1% nonostante neutropenia comune",
    classe:"CDK4/6 inibitore (cell cycle)"},
-  {name:"Venetoclax (Venclexta)",cat:"chemo3",smi:"",mw:"868.44",
+  {name:"Venetoclax (Venclexta)",cat:"chemo3",smi:"CC1(C)CCC(CN2CCN(c3ccc(C(=O)NS(=O)(=O)c4ccc(NCC5CCOCC5)c([N+](=O)[O-])c4)cc3Oc3cnc4[nH]ccc4c3)CC2)=C(c2ccc(Cl)cc2)C1",mw:"868.44",
    moa:"Inibitore BH3-mimetico di BCL-2 (B-cell lymphoma 2): si lega direttamente al dominio BH3-binding di BCL-2 → sposta i peptidi BH3 pro-apoptotici (Bim, Noxa) → ↑BAX/BAK liberi → permeabilizzazione membrana mitocondriale → rilascio citocromo c → apoptosi. CLL overesprime BCL-2 per traslocazione t(14;18).",
    indicaz:"LLC (leucemia linfocitica cronica) con del(17p) o mutazione TP53, LLC non trattata in anziani (in combo con obinutuzumab), LMA anziani (in combo con azacitidina o LDAC)",
    effetti:"Sindrome da lisi tumorale (TLS, potenzialmente fatale → schema di ramp-up 5 settimane obbligatorio + profilassi), neutropenia, diarrea, nausea",
