@@ -967,6 +967,36 @@ parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
    la misura vuota (cioe' un successo regalato, se non si controlla che il
    numero di tacche trovate sia > 0).
 
+72) UN DATO CHE SI CONTROLLA DA SOLO — ogni farmaco dichiara uno SMILES E un
+   peso molecolare: due affermazioni indipendenti sulla stessa molecola.
+   RDKit ricalcola il peso dalla struttura e, se non coincide, almeno uno dei
+   due e' sbagliato. Non serve fidarsi di nessuno. Applicato ai 143 farmaci
+   esistenti ha trovato 89 errori: i PESI erano giusti (presi dalla
+   letteratura), le STRUTTURE no. La ketamina era un pirrolidinone qualunque,
+   la morfina non era morfina, il lorazepam aveva perso l'ossidrile che lo
+   definisce, l'atorvastatina l'anilide. Ora 178 farmaci, 9 errori residui —
+   tutti su molecole grandi (vancomicina, rifampicina, digossina,
+   ciclosporina) di cui non sono riuscito a verificare la struttura: sono
+   rimaste SENZA, perche' un dato sbagliato sostituito da un altro dato
+   sbagliato non e' un progresso.
+
+73) LO SCARTO DICE COSA MANCA — non e' solo un allarme, e' una diagnosi. Δ
+   28,05 = C₂H₄; Δ 16,00 = un ossigeno; Δ 14,02 = un CH₂; Δ 2,02 = un doppio
+   legame mancante (era il Δ⁴ del testosterone). E Δ 0,98 sul sofosbuvir era
+   esattamente la differenza fra citosina e uracile: il sofosbuvir e' un
+   analogo dell'URIDINA, e avevo messo la base sbagliata. Il numero mi ha
+   detto dove guardare.
+
+74) LE ISTRUZIONI DEVONO STARE DOVE NASCE IL PROBLEMA — il proxy risolve
+   definitivamente sia i blocchi CORS sia i limiti al minuto, e non era
+   difficile da attivare: era difficile da TROVARE, perche' i quattro passi
+   stavano in proxy/README.md, cioe' su GitHub, cioe' fuori dal telefono su
+   cui Spectra smette di rispondere. Ora sono dentro il pannello del proxy,
+   con i comandi e un pulsante "copia" ciascuno (scriverli a mano su un
+   telefono e' il punto esatto in cui si rinuncia). Nota: il README dice
+   ancora di modificare PROXY_URL in bsi-ai-hub.js, ma da tempo basta
+   incollare l'indirizzo nel campo dell'app.
+
 ## ISTRUZIONI GIT
 Branch: claude/app-layout-synthesis-features-97UCN
   git push -u origin claude/app-layout-synthesis-features-97UCN

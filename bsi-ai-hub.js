@@ -6409,6 +6409,17 @@ function buildChatPane(){
           '<button class="bsi-hub-btn ghost" id="bsi-hub-clearproxy">Scollega</button>' +
         '</div>' +
         '<div class="bsi-hub-note" id="bsi-hub-proxyesito"></div>' +
+        /* LA GUIDA STA DOVE STA IL PROBLEMA.
+           Finora per attivare il proxy — l'unica soluzione DEFINITIVA ai
+           blocchi CORS e ai limiti al minuto — bisognava aprire un README
+           su GitHub. Su un telefono, mentre Spectra non risponde, e'
+           come non averlo scritto. Qui ci sono gli stessi quattro passi,
+           con i comandi gia' pronti da copiare. */
+        '<div style="margin-top:12px;border-top:1px solid #16304a;padding-top:10px">' +
+          '<button class="bsi-hub-btn ghost" id="bsi-hub-comefare" ' +
+            'style="width:100%;text-align:left">🛠 Non ce l\'hai? Come si attiva, in 4 passi</button>' +
+          '<div id="bsi-hub-guidaproxy" style="display:none;margin-top:10px"></div>' +
+        '</div>' +
       '</div>' +
     '</div>' +
     '<div id="bsi-hub-proxybadge" style="display:none"></div>' +
@@ -6569,6 +6580,98 @@ function buildChatPane(){
     proxyBody.style.display = aperto ? 'none' : 'block';
     riassuntoProxy();
   }
+  /* I QUATTRO PASSI, DENTRO L'APP.
+     Il proxy e' l'unica risposta definitiva a due problemi che tornano di
+     continuo: i fornitori che dal browser non rispondono (CORS) e i limiti
+     al minuto del piano gratuito. Non era difficile da attivare — era
+     difficile da TROVARE: le istruzioni stavano in un README del
+     repository, cioe' fuori dal telefono su cui il problema si presenta.
+     Ogni comando ha il suo pulsante "copia": scriverli a mano su un
+     telefono e' il punto in cui si rinuncia. */
+  var PASSI_PROXY = [
+    { t: 'Crea un account Cloudflare',
+      d: 'Gratuito, due minuti, senza carta di credito.',
+      link: 'https://dash.cloudflare.com/sign-up', linkT: 'dash.cloudflare.com' },
+    { t: 'Prendi una chiave gratuita',
+      d: 'Basta una. Groq è la più semplice e la più veloce; Gemini serve se vuoi allegare PDF lunghi.',
+      link: 'https://console.groq.com/keys', linkT: 'console.groq.com' },
+    { t: 'Pubblica il proxy',
+      d: 'Dal computer, nella cartella <code>proxy/</code> del progetto. Al terzo comando Cloudflare stampa l\'indirizzo del tuo proxy: <b>copialo</b>.',
+      cmd: ['cd proxy', 'npx wrangler login', 'npx wrangler deploy'] },
+    { t: 'Metti la chiave sul server e collega',
+      d: 'Il segreto accetta anche più chiavi separate da virgola: quando una esaurisce la quota il proxy passa alla successiva da solo. Poi incolla l\'indirizzo qui sopra e premi <b>Collega</b>.',
+      cmd: ['npx wrangler secret put GROQ_KEYS'] }
+  ];
+
+  function disegnaGuidaProxy(){
+    var box = document.getElementById('bsi-hub-guidaproxy');
+    if(!box || box.dataset.pronto) return;
+    box.dataset.pronto = '1';
+    var h = '<div class="bsi-hub-note" style="margin-bottom:10px">Con il proxy le chiavi stanno ' +
+            '<b>sul server</b>: su questo dispositivo non ne inserisci più nessuna, i fornitori ' +
+            'che dal browser non rispondono cominciano a rispondere, e i limiti al minuto si ' +
+            'sommano fra tutte le chiavi che ci metti.</div>';
+    PASSI_PROXY.forEach(function(p, i){
+      h += '<div style="display:flex;gap:9px;padding:9px 0;border-top:1px solid #16304a">' +
+           '<span style="flex:0 0 22px;height:22px;border-radius:50%;background:#134e4a;color:#5eead4;' +
+           'font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center">' + (i+1) + '</span>' +
+           '<div style="flex:1;min-width:0">' +
+           '<div style="color:#e8f4ff;font-weight:700;font-size:.82rem">' + p.t + '</div>' +
+           '<div style="color:#9fb3c8;font-size:.76rem;line-height:1.5;margin-top:2px">' + p.d + '</div>';
+      if(p.link){
+        h += '<a href="' + p.link + '" target="_blank" rel="noopener" ' +
+             'style="display:inline-block;margin-top:6px;color:#5eead4;font-size:.76rem">↗ ' + p.linkT + '</a>';
+      }
+      (p.cmd || []).forEach(function(c, j){
+        var id = 'bsi-cmd-' + i + '-' + j;
+        h += '<div style="display:flex;gap:6px;align-items:center;margin-top:6px">' +
+             '<code id="' + id + '" style="flex:1;min-width:0;overflow-x:auto;white-space:nowrap;' +
+             'background:#071221;border:1px solid #1a3550;border-radius:7px;padding:6px 9px;' +
+             'color:#a5f3e4;font-size:.75rem">' + escapeHtml(c) + '</code>' +
+             '<button class="bsi-hub-btn ghost bsi-copia" data-cmd="' + escapeHtml(c) + '" ' +
+             'style="flex:0 0 auto;padding:5px 9px;font-size:.72rem">copia</button></div>';
+      });
+      h += '</div></div>';
+    });
+    h += '<div class="bsi-hub-note" style="margin-top:10px;border-top:1px solid #16304a;padding-top:9px">' +
+         'Il proxy resta <b>tuo</b> e gratuito: gira sul piano free di Cloudflare, ' +
+         'e l\'indirizzo non è un segreto — il segreto è la chiave, che non esce mai dal server.</div>';
+    box.innerHTML = h;
+    box.querySelectorAll('.bsi-copia').forEach(function(b){
+      b.onclick = function(){
+        var testo = b.getAttribute('data-cmd');
+        var fine = function(ok){
+          b.textContent = ok ? '✓ copiato' : 'copia a mano';
+          setTimeout(function(){ b.textContent = 'copia'; }, 2000);
+        };
+        // navigator.clipboard non c'e' su http:// e in qualche browser vecchio:
+        // senza ripiego il pulsante non farebbe niente, in silenzio.
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(testo).then(function(){ fine(true); }, function(){ fine(false); });
+        } else {
+          try{
+            var ta = document.createElement('textarea');
+            ta.value = testo; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            var ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            fine(ok);
+          }catch(e){ fine(false); }
+        }
+      };
+    });
+  }
+
+  var btnCome = document.getElementById('bsi-hub-comefare');
+  if(btnCome) btnCome.onclick = function(){
+    var g = document.getElementById('bsi-hub-guidaproxy');
+    if(!g) return;
+    disegnaGuidaProxy();
+    var apri = g.style.display !== 'block';
+    g.style.display = apri ? 'block' : 'none';
+    btnCome.textContent = apri ? '🛠 Nascondi i passi' : '🛠 Non ce l\'hai? Come si attiva, in 4 passi';
+  };
+
   proxyHead.onclick = apriChiudiProxy;
   proxyHead.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); apriChiudiProxy(); } };
   try{ document.getElementById('bsi-hub-proxyinput').value = proxyUrl(); }catch(e){}
