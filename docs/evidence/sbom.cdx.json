@@ -3,7 +3,7 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-09-20T17:02:27.056Z",
+    "timestamp": "2026-09-20T17:16:26.344Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
@@ -12,7 +12,7 @@
       "licenses": [
         {
           "license": {
-            "id": "MIT"
+            "name": "Proprietary — All rights reserved (Samuele Pio Provenzano)"
           }
         }
       ]
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "273d9e604c50e808bdd32f51897f00e6da3d43f5"
+        "value": "aa00ac5685e997a6ad7db01dfa6b7c618a326123"
       }
     ]
   },

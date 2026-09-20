@@ -13,9 +13,9 @@
 
 | | |
 |---|---|
-| **Banchi superati** | 34 |
+| **Banchi superati** | 35 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 514 s |
+| **Durata totale** | 518 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,8 +24,8 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-09-20T17:03:01.314Z` |
-| Commit | `e0a3ca1a33426fbf4fd9151881c7950a5fa10af2` |
+| Istante (UTC) | `2026-09-20T17:25:08.818Z` |
+| Commit | `09bb032d01be809f90a31b98cf048eb151b9e7cd` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
 | Versione applicazione | `bsi-v165` |
@@ -58,11 +58,11 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-farmaci` | ✅ SUPERATO | 4.4 s | ✓ CONFORME |
+| `@verifica-farmaci` | ✅ SUPERATO | 4.8 s | ✓ CONFORME |
 | `test_spettri` | ✅ SUPERATO | 4.1 s | 36 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 10.7 s | 16 passati |
+| `test_spettri_ui` | ✅ SUPERATO | 10.8 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 5.9 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 8.8 s | 6 passati |
+| `test_assi_canvas` | ✅ SUPERATO | 8.9 s | 6 passati |
 | `test_costanti` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.0 s | ✓ 29 controlli superati |
 
@@ -72,18 +72,18 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 5.2 s | 13 passati |
+| `test_nucleo` | ✅ SUPERATO | 5.3 s | 13 passati |
 | `test_ko` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 35 controlli |
-| `test_404` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 36 controlli |
+| `test_404` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 36 controlli |
 | `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
 | `test_firma` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 31 controlli |
-| `test_attesa` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 11 controlli |
-| `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
+| `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
+| `test_attesalunga` | ✅ SUPERATO | 0.0 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 38.1 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 51.4 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 4.7 s | 7 passati |
-| `test_doppioinvio` | ✅ SUPERATO | 11.3 s | 7 passati |
+| `browser_ko` | ✅ SUPERATO | 38.7 s | 37 passati |
+| `browser_prova` | ✅ SUPERATO | 51.6 s | 29 passati |
+| `browser_prov` | ✅ SUPERATO | 4.8 s | 7 passati |
+| `test_doppioinvio` | ✅ SUPERATO | 11.2 s | 7 passati |
 
 ### Stabilita
 
@@ -91,10 +91,10 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 102.7 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 116.4 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 41.0 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 28.4 s | 22 passati |
+| `audit_stabilita` | ✅ SUPERATO | 103.5 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 116.8 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 41.3 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 28.6 s | 22 passati |
 | `test_filemanager` | ✅ SUPERATO | 10.8 s | 15 passati |
 | `test_visore3d` | ✅ SUPERATO | 9.0 s | 5 passati |
 
@@ -104,14 +104,14 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 9.8 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 8.3 s | 15 passati |
-| `browser_proxyui` | ✅ SUPERATO | 11.6 s | 17 passati |
-| `browser_rdkit` | ✅ SUPERATO | 3.9 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 10.7 s | 21 passati |
+| `browser_reset` | ✅ SUPERATO | 10.1 s | 24 passati |
+| `browser_proxy` | ✅ SUPERATO | 8.5 s | 15 passati |
+| `browser_proxyui` | ✅ SUPERATO | 11.7 s | 17 passati |
+| `browser_rdkit` | ✅ SUPERATO | 4.0 s | 31 passati |
+| `browser_lab` | ✅ SUPERATO | 10.8 s | 21 passati |
 | `browser_frontiera` | ✅ SUPERATO | 5.8 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.3 s | 9 passati |
-| `test_guidaproxy` | ✅ SUPERATO | 5.1 s | 12 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.4 s | 9 passati |
+| `test_guidaproxy` | ✅ SUPERATO | 5.2 s | 12 passati |
 
 ### Coerenza documentazione/codice
 
@@ -120,6 +120,7 @@ _Cio che la documentazione promette esiste davvero nel codice._
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
 | `verifica_guida` | ✅ SUPERATO | 0.1 s | 71 controlli passati |
+| `@verifica-documenti` | ✅ SUPERATO | 0.1 s | 11 controlli passati |
 
 ---
 
@@ -1173,11 +1174,11 @@ Due Invio di fila, a mezzo secondo di distanza
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 5995 nodi in 416 ms — "BioSpecInfo · v8"
+    · 5985 nodi in 455 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7369 ms con 6055 nodi — rete bloccata 5 volte
+    · caricata in 7374 ms con 6055 nodi — rete bloccata 5 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -1185,7 +1186,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3509 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3510 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -1675,9 +1676,47 @@ Chiave condivisa nella UI
 
 12) Nessun marcatore di conflitto e' finito nei file
   ✓ file con marcatori di conflitto  → 0
-   (69 file di testo controllati)
+   (78 file di testo controllati)
 
 71 controlli passati
+```
+
+</details>
+
+<details>
+<summary><code>@verifica-documenti</code> — SUPERATO (codice di uscita 0)</summary>
+
+```
+Verifica della documentazione
+
+Versione del codice (sw.js): bsi-v165
+
+── Collegamenti interni ──
+  ✓ nessun collegamento interno rotto
+
+── Versione dichiarata nei documenti ──
+  ✓ nessun documento cita una versione superata
+
+── Le due righe della versione ──
+  ✓ BSI_APP_VERSION coincide con CACHE
+
+── Strumenti citati ──
+  ✓ esiste tools/genera-evidenza.js
+  ✓ esiste tools/genera-sbom.js
+  ✓ esiste tools/verifica-farmaci.js
+  ✓ esiste docs/evidence/deviazioni-note.json
+  ✓ esiste docs/evidence/sbom.cdx.json
+  ✓ esiste docs/evidence/RAPPORTO-VERIFICA.md
+
+── Coerenza dell'indice ──
+  ✓ ogni documento numerato è nell'indice
+      (16 documenti numerati)
+
+── Registro delle deviazioni ──
+  ✓ ogni deviazione porta un motivo scritto
+      (25 deviazioni registrate)
+
+11 controlli passati
 ```
 
 </details>
@@ -1688,7 +1727,7 @@ Chiave condivisa nella UI
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout e0a3ca1a3342
+git checkout 09bb032d01be
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -1719,4 +1758,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-09-20T17:03:01.314Z._
+_Generato il 2026-09-20T17:25:08.818Z._
