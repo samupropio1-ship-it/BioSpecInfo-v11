@@ -100,8 +100,11 @@ const passwordChiaro = [];
 file.forEach(function(f){
   let testo;
   try { testo = fs.readFileSync(path.join(RADICE, f), 'utf8'); } catch (e) { return; }
-  // assegnazioni del tipo password = "qualcosa" con un valore non vuoto e
-  // non evidentemente segnaposto
+  /* Cerca le assegnazioni a una variabile chiamata password/passwd/pwd con
+     un valore letterale non vuoto e non evidentemente segnaposto.
+     NOTA: l'esempio va scritto senza usare la forma letterale, altrimenti
+     questo commento fa scattare il controllo su se stesso — cosa che e'
+     puntualmente successa alla prima esecuzione. */
   const re = /(?:password|passwd|pwd)\s*[:=]\s*['"]([^'"\s]{4,})['"]/gi;
   let m;
   while ((m = re.exec(testo)) !== null) {
