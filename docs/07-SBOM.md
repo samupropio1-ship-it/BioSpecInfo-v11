@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v165` |
-| Commit | `273d9e604c50e808bdd32f51897f00e6da3d43f5` |
-| Generato (UTC) | `2026-09-20T17:02:27.056Z` |
+| Commit | `aa00ac5685e997a6ad7db01dfa6b7c618a326123` |
+| Generato (UTC) | `2026-09-20T17:16:26.344Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -118,4 +118,11 @@ ridistribuzione del codice proprio del progetto.
 Gli obblighi residui sono di **attribuzione**: le note di licenza dei progetti a
 monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 
-_Generato il 2026-09-20T17:02:27.056Z._
+> **La licenza dell'applicazione è distinta da quelle dei componenti.**
+> Il codice proprio di BioSpecInfo è **proprietario** — *All rights reserved*
+> (vedi [`LICENSE`](../LICENSE)): visibile e valutabile, ma copia, riuso e uso
+> commerciale richiedono autorizzazione scritta dell'Autore. Le licenze
+> permissive elencate sopra riguardano **soltanto** le librerie di terze parti
+> incluse, e non si estendono all'applicazione.
+
+_Generato il 2026-09-20T17:16:26.344Z._

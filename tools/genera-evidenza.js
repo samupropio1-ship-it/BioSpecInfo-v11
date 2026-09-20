@@ -57,7 +57,7 @@ const FAMIGLIE = [
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
-    banchi: ['verifica_guida'] }
+    banchi: ['verifica_guida', '@verifica-documenti'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

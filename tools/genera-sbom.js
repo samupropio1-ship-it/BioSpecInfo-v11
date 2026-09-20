@@ -174,6 +174,12 @@ function main(){
   m += 'ridistribuzione del codice proprio del progetto.\n\n';
   m += 'Gli obblighi residui sono di **attribuzione**: le note di licenza dei progetti a\n';
   m += 'monte sono riportate in `THIRD_PARTY_NOTICES.md`.\n\n';
+  m += '> **La licenza dell\'applicazione è distinta da quelle dei componenti.**\n';
+  m += '> Il codice proprio di BioSpecInfo è **proprietario** — *All rights reserved*\n';
+  m += '> (vedi [`LICENSE`](../LICENSE)): visibile e valutabile, ma copia, riuso e uso\n';
+  m += '> commerciale richiedono autorizzazione scritta dell\'Autore. Le licenze\n';
+  m += '> permissive elencate sopra riguardano **soltanto** le librerie di terze parti\n';
+  m += '> incluse, e non si estendono all\'applicazione.\n\n';
   m += '_Generato il ' + istante + '._\n';
 
   fs.writeFileSync(path.join(RADICE, 'docs', '07-SBOM.md'), m);
@@ -183,9 +189,14 @@ function main(){
     bomFormat: 'CycloneDX', specVersion: '1.5', version: 1,
     metadata: {
       timestamp: istante,
+      /* La licenza dell'APPLICAZIONE e' proprietaria (vedi LICENSE): non va
+         confusa con quelle permissive dei componenti di terze parti. Una
+         prima stesura di questo generatore dichiarava MIT anche per
+         l'applicazione — un errore che in una SBOM consegnata a un cliente
+         avrebbe comunicato diritti d'uso che non esistono. */
       component: { type: 'application', name: 'BioSpecInfo', version: versione,
                    description: 'Piattaforma di chemioinformatica interattiva client-side',
-                   licenses: [{ license: { id: 'MIT' } }] },
+                   licenses: [{ license: { name: 'Proprietary — All rights reserved (Samuele Pio Provenzano)' } }] },
       properties: [{ name: 'git.commit', value: commit }]
     },
     components: COMPONENTI.map(function(c){
