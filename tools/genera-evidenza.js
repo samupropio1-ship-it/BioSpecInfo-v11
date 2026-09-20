@@ -41,7 +41,7 @@ const FAMIGLIE = [
   { nome: 'Dati scientifici',
     scopo: 'I dati chimici mostrati sono verificati contro una fonte indipendente.',
     banchi: ['@verifica-farmaci', 'test_spettri', 'test_spettri_ui', 'test_assi',
-             'test_assi_canvas', 'test_costanti', 'audit_dati'] },
+             'test_assi_canvas', 'test_costanti', 'audit_dati', 'test_simmetria'] },
   { nome: 'Agente AI',
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',
@@ -55,6 +55,9 @@ const FAMIGLIE = [
     scopo: 'I pannelli e i comandi rispondono come documentato.',
     banchi: ['browser_reset', 'browser_proxy', 'browser_proxyui', 'browser_rdkit',
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy'] },
+  { nome: 'Sicurezza e accessibilita',
+    scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
+    banchi: ['@verifica-sicurezza', '@verifica-accessibilita'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
     banchi: ['verifica_guida', '@verifica-documenti'] }

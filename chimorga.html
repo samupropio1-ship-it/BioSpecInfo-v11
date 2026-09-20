@@ -68,7 +68,7 @@ tr:nth-child(even) td{background:rgba(7,18,33,.4)}
 .nav-s{display:block;padding:5px 12px;color:#9fb3c8;font-size:.8rem;cursor:pointer;border-left:2px solid transparent;transition:all .15s}
 .nav-s:hover{color:#e2e8f0;background:rgba(0,201,183,.06)}
 .nav-s.active{color:#00c9b7;border-left-color:#00c9b7;background:rgba(0,201,183,.08)}
-.nav-num{display:inline-block;width:20px;color:#1c3a57;font-size:.73rem;font-weight:700}
+.nav-num{display:inline-block;width:20px;color:#8aa6c0;font-size:.73rem;font-weight:700}
 #main{flex:1;padding:16px 22px;max-width:850px}
 .sec{margin-bottom:24px}
 .card{background:#0d2236;border:1px solid #1c3a57;border-radius:7px;padding:12px 14px;margin:.6em 0}
@@ -203,9 +203,9 @@ CH₃–C(CH₃)₂–CH₂–CH₃  →  2,2-dimetilbutano</div>
   <canvas id="nmC" width="480" height="210"></canvas>
   <div class="cr">
     <label>Molecola:</label>
-    <select id="nmMol" onchange="drawNm()"><option value="eth">Etano</option><option value="but">Butano C2–C3</option></select>
+    <select id="nmMol" aria-label="Molecola di cui simulare lo spettro NMR" onchange="drawNm()"><option value="eth">Etano</option><option value="but">Butano C2–C3</option></select>
     <label>φ:</label>
-    <input type="range" id="nmPhi" min="0" max="360" value="60" oninput="drawNm()">
+    <input type="range" id="nmPhi" aria-label="Angolo diedro φ in gradi" min="0" max="360" value="60" oninput="drawNm()">
     <span class="vd" id="nmPhiV">60°</span>
   </div>
   <canvas id="nmEn" width="480" height="120"></canvas>
@@ -226,7 +226,7 @@ CH₃–C(CH₃)₂–CH₂–CH₃  →  2,2-dimetilbutano</div>
   <canvas id="chC" width="480" height="190"></canvas>
   <div class="cr">
     <label>Visualizza:</label>
-    <select id="chMode" onchange="drawCh()">
+    <select id="chMode" aria-label="Modalità di visualizzazione" onchange="drawCh()">
       <option value="plain">Sedia semplice</option>
       <option value="ae">Assiale / Equatoriale</option>
       <option value="meq">Metilcicloesano — Me equatoriale</option>
@@ -386,9 +386,9 @@ R–C≡C⁻ + R'–X (1°)  →  R–C≡C–R'  (allungamento catena)</div>
   <div class="wt">⚡ Profilo Energetico — SN1 vs SN2</div>
   <div class="cr" style="margin-bottom:9px">
     <label>Meccanismo:</label>
-    <select id="snM" onchange="drawSN()"><option value="sn2">SN2 — un passaggio</option><option value="sn1">SN1 — due stadi</option></select>
+    <select id="snM" aria-label="Substrato della reazione" onchange="drawSN()"><option value="sn2">SN2 — un passaggio</option><option value="sn1">SN1 — due stadi</option></select>
     <label>Substrato:</label>
-    <select id="snS" onchange="drawSN()"><option value="p">1° (primario)</option><option value="s">2° (secondario)</option><option value="t">3° (terziario)</option></select>
+    <select id="snS" aria-label="Solvente della reazione" onchange="drawSN()"><option value="p">1° (primario)</option><option value="s">2° (secondario)</option><option value="t">3° (terziario)</option></select>
   </div>
   <canvas id="snC" width="480" height="200"></canvas>
 </div>

@@ -803,7 +803,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v166';
+window.BSI_APP_VERSION='bsi-v167';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -924,6 +924,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smm">⚗️ Cinetica Enz.</button>
     <button class="nav-btn" data-s="snernst">⚡ Elettrochimica</button>
     <button class="nav-btn" data-s="svsepr">🔷 VSEPR</button>
+    <button class="nav-btn" data-s="ssimm">🔱 Simmetria</button>
     <button class="nav-btn" data-s="stitr">🧪 Titolazione</button>
     <button class="nav-btn" data-s="skin">⏱️ Cinetica</button>
     <button class="nav-btn" data-s="sphase">📊 Fasi</button>
@@ -26115,6 +26116,79 @@ function showClinCase(id){
 </div>
 
 <!-- ══ SECTION: MICHAELIS-MENTEN ════════════════════════════════════════ -->
+<div id="ssimm" class="section">
+  <div class="section-title">🔱 SIMMETRIA MOLECOLARE — Gruppi puntuali e regole di selezione</div>
+  <div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:840px;margin-bottom:16px">
+    La simmetria di una molecola non è un fatto estetico: <b>decide quali vibrazioni si vedono
+    nell'IR e quali nel Raman</b>, se la molecola può avere un momento di dipolo, e se può essere
+    otticamente attiva. Qui si determina il gruppo puntuale, si leggono le tavole dei caratteri
+    e si ricavano le regole di selezione.
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;margin-bottom:22px">
+
+    <!-- ── Determinazione del gruppo puntuale ── -->
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">🧭 Che gruppo puntuale ha?</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:10px">
+          Scegli una molecola, oppure rispondi alle domande dell'albero decisionale.
+        </div>
+        <select id="simmSel" style="width:100%;box-sizing:border-box;padding:9px 11px;border-radius:9px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.86rem;margin-bottom:10px">
+          <option value="">— scegli una molecola —</option>
+        </select>
+        <div id="simmEsito" style="min-height:120px"></div>
+      </div>
+    </div>
+
+    <!-- ── Albero decisionale ── -->
+    <div class="panel">
+      <div class="ph" style="color:#6bcfff">🌳 Albero decisionale</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:10px">
+          Il procedimento standard, nell'ordine in cui va applicato.
+        </div>
+        <div id="simmAlbero" style="font-size:.84rem;line-height:1.7;color:#cfe2f5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tavole dei caratteri ── -->
+  <div class="section-title" style="font-size:1rem;margin-top:8px">📋 Tavole dei caratteri</div>
+  <div style="color:#9fb3c8;font-size:.85rem;line-height:1.6;max-width:840px;margin-bottom:12px">
+    Ogni riga è una <b>rappresentazione irriducibile</b> (una «specie di simmetria»): dice come si
+    comporta quella vibrazione sotto ciascuna operazione. Le ultime due colonne sono la chiave
+    pratica — una specie è <b>attiva in IR</b> se si trasforma come x, y o z (cioè come un dipolo),
+    e <b>attiva in Raman</b> se si trasforma come un prodotto quadratico (x², xy, …).
+  </div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px" id="simmGruppiBtn"></div>
+  <div id="simmTavola" style="overflow-x:auto;margin-bottom:22px"></div>
+
+  <!-- ── Regole di selezione ── -->
+  <div class="section-title" style="font-size:1rem">🔬 Dalla simmetria allo spettro</div>
+  <div id="simmRegole" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-bottom:20px"></div>
+
+  <div class="panel" style="max-width:860px">
+    <div class="ph" style="color:#f59e0b">⚖️ La regola di esclusione mutua</div>
+    <div class="pb" style="font-size:.86rem;line-height:1.7;color:#cfe2f5">
+      In una molecola <b>centrosimmetrica</b> (che possiede un centro di inversione <i>i</i>) nessuna
+      vibrazione può essere attiva sia in IR sia in Raman: le specie <i>gerade</i> (g, simmetriche
+      rispetto a <i>i</i>) sono attive solo in Raman, le <i>ungerade</i> (u) solo in IR.
+      <div style="background:#0a1628;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 13px;margin-top:11px">
+        <b style="color:#f5d99e">Perché è utile in laboratorio.</b> Se una banda compare in
+        <i>entrambi</i> gli spettri, la molecola <b>non</b> ha centro di inversione. È una
+        conclusione strutturale ottenuta senza risolvere una struttura: per questo si registrano
+        IR e Raman sullo stesso campione.
+      </div>
+      <div style="margin-top:11px">
+        <b style="color:#5eead4">Esempio.</b> CO₂ (D<sub>∞h</sub>, centrosimmetrica): lo stiramento
+        simmetrico a 1388 cm⁻¹ si vede solo in Raman, l'asimmetrico a 2349 cm⁻¹ solo in IR.
+        In H₂O (C<sub>2v</sub>, senza centro) tutte e tre le vibrazioni sono attive in entrambi.
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="smm" class="section">
   <div class="section-title">⚗️ CINETICA ENZIMATICA — Michaelis-Menten</div>
   <div class="rxn-fp" id="mmFp">
@@ -29996,7 +30070,7 @@ console.log('Protein 3D Canvas viewer loaded ✓');
         active.innerHTML = '<div class="section-title">' + secId.toUpperCase() + '</div>'
           + '<div style="background:var(--g50);border-radius:12px;padding:24px;text-align:center;color:var(--text2)">'
           + '<div style="font-size:3rem;margin-bottom:12px">🚧</div>'
-          + '<div style="font-weight:700;color:var(--g900);margin-bottom:8px">Sezione in costruzione</div>'
+          + '<div style="font-weight:700;color:var(--text);margin-bottom:8px">Sezione in costruzione</div>'
           + '<div style="font-size:.85rem;margin-bottom:14px">Questa sezione (' + secId + ') sarà disponibile in una prossima versione.</div>'
           + '<button onclick="document.querySelector(\'[data-s=&quot;smol&quot;]\').click()" style="background:var(--g900);color:#fff;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;font-weight:700">🏠 Torna a Home</button>'
           + '</div>';
@@ -30307,7 +30381,7 @@ window.initFileManager = function(){
       var byCat = {};
       files.forEach(function(f){ if(!byCat[f.cat]) byCat[f.cat]=[]; byCat[f.cat].push(f); });
 
-      var html = '<div style="background:var(--g100);padding:10px 14px;border-radius:10px;margin-bottom:14px;font-weight:700;color:var(--g900)">📊 '+files.length+' file · '+totalMB+' MB totali</div>';
+      var html = '<div style="background:var(--g100);padding:10px 14px;border-radius:10px;margin-bottom:14px;font-weight:700;color:var(--text)">📊 '+files.length+' file · '+totalMB+' MB totali</div>';
       Object.keys(byCat).forEach(function(cat){
         html += '<div style="background:var(--white);border:1px solid var(--g200);border-radius:10px;padding:10px;margin-bottom:10px">';
         html += '<div style="font-weight:700;color:var(--g700);font-size:.88rem;margin-bottom:8px">📂 '+cat+' ('+byCat[cat].length+')</div>';
@@ -30370,6 +30444,298 @@ window.initFileManager = function(){
 
 <!-- 3Dmol.js v2.4.0 BSD-License (file esterno per upload affidabile) -->
 <script src="./3Dmol-min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   SIMMETRIA MOLECOLARE — gruppi puntuali, tavole dei caratteri,
+   regole di selezione IR/Raman
+   ═══════════════════════════════════════════════════════════════════════
+   La simmetria decide quali vibrazioni sono osservabili e con quale tecnica:
+   e' il collegamento fra struttura e spettro che il resto dell'app gia'
+   sfrutta senza dichiararlo. I dati sono quelli delle tavole standard
+   (Cotton, "Chemical Applications of Group Theory"). */
+(function(){
+'use strict';
+
+/* Molecole con il loro gruppo puntuale, gli elementi di simmetria e il
+   numero di modi normali. Per una molecola non lineare i modi sono 3N-6,
+   per una lineare 3N-5. */
+var MOLECOLE = [
+  { f:'H₂O',    g:'C₂ᵥ',  n:3,  lin:false, el:'E, C₂, 2σᵥ',
+    nota:'Angolare. Nessun centro di inversione: tutte e tre le vibrazioni sono attive sia in IR sia in Raman.' },
+  { f:'CO₂',    g:'D∞ₕ',  n:3,  lin:true,  el:'E, C∞, ∞σᵥ, i, S∞, ∞C₂',
+    nota:'Lineare e centrosimmetrica: vale la regola di esclusione mutua. Lo stiramento simmetrico e\' solo Raman, l\'asimmetrico solo IR.' },
+  { f:'NH₃',    g:'C₃ᵥ',  n:4,  lin:false, el:'E, 2C₃, 3σᵥ',
+    nota:'Piramidale. Momento di dipolo permanente lungo l\'asse C₃.' },
+  { f:'CH₄',    g:'Tᵈ',   n:5,  lin:false, el:'E, 8C₃, 3C₂, 6S₄, 6σᵈ',
+    nota:'Tetraedrica. Nessun dipolo permanente, ma vibrazioni IR-attive esistono (specie T₂).' },
+  { f:'BF₃',    g:'D₃ₕ',  n:4,  lin:false, el:'E, 2C₃, 3C₂, σₕ, 2S₃, 3σᵥ',
+    nota:'Trigonale planare. La σₕ rende lo stiramento simmetrico inattivo in IR.' },
+  { f:'SF₆',    g:'Oₕ',   n:7,  lin:false, el:'E, 8C₃, 6C₂, 6C₄, 3C₂, i, 6S₄, 8S₆, 3σₕ, 6σᵈ',
+    nota:'Ottaedrica e centrosimmetrica: esclusione mutua.' },
+  { f:'C₆H₆',   g:'D₆ₕ',  n:12, lin:false, el:'E, 2C₆, 2C₃, C₂, 3C₂\', 3C₂\'\', i, 2S₃, 2S₆, σₕ, 3σᵈ, 3σᵥ',
+    nota:'Benzene: centrosimmetrico. Le bande a 1600 e 1500 cm⁻¹ che l\'app mostra sono modi Eₗᵤ, IR-attivi.' },
+  { f:'HCl',    g:'C∞ᵥ',  n:2,  lin:true,  el:'E, C∞, ∞σᵥ',
+    nota:'Biatomica eteronucleare: l\'unico stiramento e\' attivo in IR e in Raman.' },
+  { f:'N₂',     g:'D∞ₕ',  n:2,  lin:true,  el:'E, C∞, ∞σᵥ, i, S∞, ∞C₂',
+    nota:'Biatomica omonucleare: lo stiramento e\' Raman-attivo e IR-INATTIVO. Per questo l\'azoto atmosferico non interferisce negli spettri IR.' },
+  { f:'CHCl₃',  g:'C₃ᵥ',  n:9,  lin:false, el:'E, 2C₃, 3σᵥ',
+    nota:'Cloroformio. Tutte le specie A₁ ed E sono attive in entrambe le tecniche.' },
+  { f:'trans-C₂H₂Cl₂', g:'C₂ₕ', n:12, lin:false, el:'E, C₂, i, σₕ',
+    nota:'L\'isomero TRANS e\' centrosimmetrico, il CIS (C₂ᵥ) no: gli spettri IR/Raman li distinguono senza ambiguita\'.' },
+  { f:'XeF₄',   g:'D₄ₕ',  n:9,  lin:false, el:'E, 2C₄, C₂, 2C₂\', 2C₂\'\', i, 2S₄, σₕ, 2σᵥ, 2σᵈ',
+    nota:'Quadrata planare, centrosimmetrica. La planarita\' fu dimostrata proprio confrontando IR e Raman.' },
+  { f:'NH₂Cl',  g:'Cₛ',   n:6,  lin:false, el:'E, σ',
+    nota:'Solo un piano di simmetria: tutte le vibrazioni sono attive in entrambe le tecniche.' },
+  { f:'CHFClBr',g:'C₁',   n:9,  lin:false, el:'E',
+    nota:'Nessuna simmetria oltre l\'identita\': e\' chirale, e tutte le vibrazioni sono attive ovunque.' }
+];
+
+/* Tavole dei caratteri. Per ogni specie: caratteri sotto le operazioni,
+   funzioni lineari (attivita' IR) e quadratiche (attivita' Raman). */
+var TAVOLE = {
+  'C₂ᵥ': {
+    op: ['E','C₂','σᵥ(xz)','σᵥ\'(yz)'],
+    righe: [
+      { s:'A₁', c:[1,1,1,1],     lin:'z',      quad:'x², y², z²' },
+      { s:'A₂', c:[1,1,-1,-1],   lin:'—',      quad:'xy' },
+      { s:'B₁', c:[1,-1,1,-1],   lin:'x',      quad:'xz' },
+      { s:'B₂', c:[1,-1,-1,1],   lin:'y',      quad:'yz' }
+    ],
+    nota:'Gruppo dell\'acqua. Nessun centro di inversione: nessuna esclusione mutua.'
+  },
+  'C₃ᵥ': {
+    op: ['E','2C₃','3σᵥ'],
+    righe: [
+      { s:'A₁', c:[1,1,1],   lin:'z',        quad:'x²+y², z²' },
+      { s:'A₂', c:[1,1,-1],  lin:'—',        quad:'—' },
+      { s:'E',  c:[2,-1,0],  lin:'(x, y)',   quad:'(x²−y², xy), (xz, yz)' }
+    ],
+    nota:'Gruppo dell\'ammoniaca. La specie E e\' doppiamente degenere.'
+  },
+  'C₂ₕ': {
+    op: ['E','C₂','i','σₕ'],
+    righe: [
+      { s:'Aₗ', c:[1,1,1,1],    lin:'—',        quad:'x², y², z², xy' },
+      { s:'Bₗ', c:[1,-1,1,-1],  lin:'—',        quad:'xz, yz' },
+      { s:'Aᵤ', c:[1,1,-1,-1],  lin:'z',        quad:'—' },
+      { s:'Bᵤ', c:[1,-1,-1,1],  lin:'(x, y)',   quad:'—' }
+    ],
+    nota:'Centrosimmetrico: le specie g sono SOLO Raman, le u SOLO IR. Esclusione mutua.'
+  },
+  'D₃ₕ': {
+    op: ['E','2C₃','3C₂','σₕ','2S₃','3σᵥ'],
+    righe: [
+      { s:'A₁\'',  c:[1,1,1,1,1,1],      lin:'—',      quad:'x²+y², z²' },
+      { s:'A₂\'',  c:[1,1,-1,1,1,-1],    lin:'—',      quad:'—' },
+      { s:'E\'',   c:[2,-1,0,2,-1,0],    lin:'(x, y)', quad:'(x²−y², xy)' },
+      { s:'A₁\'\'',c:[1,1,1,-1,-1,-1],   lin:'—',      quad:'—' },
+      { s:'A₂\'\'',c:[1,1,-1,-1,-1,1],   lin:'z',      quad:'—' },
+      { s:'E\'\'', c:[2,-1,0,-2,1,0],    lin:'—',      quad:'(xz, yz)' }
+    ],
+    nota:'Gruppo del BF₃. Non centrosimmetrico, ma la σₕ impone comunque forti restrizioni.'
+  },
+  'Tᵈ': {
+    op: ['E','8C₃','3C₂','6S₄','6σᵈ'],
+    righe: [
+      { s:'A₁', c:[1,1,1,1,1],      lin:'—',         quad:'x²+y²+z²' },
+      { s:'A₂', c:[1,1,1,-1,-1],    lin:'—',         quad:'—' },
+      { s:'E',  c:[2,-1,2,0,0],     lin:'—',         quad:'(2z²−x²−y², x²−y²)' },
+      { s:'T₁', c:[3,0,-1,1,-1],    lin:'—',         quad:'—' },
+      { s:'T₂', c:[3,0,-1,-1,1],    lin:'(x, y, z)', quad:'(xy, xz, yz)' }
+    ],
+    nota:'Gruppo del metano. Solo la specie T₂ e\' attiva in IR — ed e\' anche Raman-attiva: niente centro di inversione.'
+  },
+  'D∞ₕ': {
+    op: ['E','2C∞','∞σᵥ','i','2S∞','∞C₂'],
+    righe: [
+      { s:'Σg⁺', c:[1,1,1,1,1,1],       lin:'—',      quad:'x²+y², z²' },
+      { s:'Σu⁺', c:[1,1,1,-1,-1,-1],    lin:'z',      quad:'—' },
+      { s:'Πg',  c:[2,'2cosΦ',0,2,'−2cosΦ',0], lin:'—', quad:'(xz, yz)' },
+      { s:'Πu',  c:[2,'2cosΦ',0,-2,'2cosΦ',0], lin:'(x, y)', quad:'—' }
+    ],
+    nota:'Lineari centrosimmetriche (CO₂, N₂). Esclusione mutua rigorosa.'
+  },
+  'Oₕ': {
+    op: ['E','8C₃','6C₂','6C₄','3C₂','i','6S₄','8S₆','3σₕ','6σᵈ'],
+    righe: [
+      { s:'Aₗg', c:[1,1,1,1,1,1,1,1,1,1],           lin:'—',         quad:'x²+y²+z²' },
+      { s:'Eg',  c:[2,-1,0,0,2,2,0,-1,2,0],         lin:'—',         quad:'(2z²−x²−y², x²−y²)' },
+      { s:'T₂g', c:[3,0,-1,-1,-1,3,-1,0,-1,1],      lin:'—',         quad:'(xz, yz, xy)' },
+      { s:'Tₗᵤ', c:[3,0,-1,1,-1,-3,-1,0,1,1],       lin:'(x, y, z)', quad:'—' },
+      { s:'T₂ᵤ', c:[3,0,1,-1,-1,-3,1,0,1,-1],       lin:'—',         quad:'—' }
+    ],
+    nota:'Ottaedrico. Tavola ridotta alle specie piu\' ricorrenti nella spettroscopia dei complessi.'
+  },
+  'Cₛ': {
+    op: ['E','σₕ'],
+    righe: [
+      { s:'A\'',   c:[1,1],  lin:'(x, y)', quad:'x², y², z², xy' },
+      { s:'A\'\'', c:[1,-1], lin:'z',      quad:'xz, yz' }
+    ],
+    nota:'Un solo piano. Ogni vibrazione e\' attiva sia in IR sia in Raman.'
+  }
+};
+
+var ALBERO = [
+  { d:'La molecola e\' lineare?',            si:'→ ha centro di inversione? Sì: <b>D∞ₕ</b> · No: <b>C∞ᵥ</b>', no:'prosegui' },
+  { d:'Ha due o più assi Cₙ con n &gt; 2?',  si:'→ gruppo ad alta simmetria: <b>Tᵈ</b>, <b>Oₕ</b> o <b>Iₕ</b>', no:'prosegui' },
+  { d:'Esiste un asse principale Cₙ?',       si:'prosegui col punto 4', no:'→ c\'è un piano σ? Sì: <b>Cₛ</b> · C\'è un centro i? Sì: <b>Cᵢ</b> · Altrimenti <b>C₁</b>' },
+  { d:'Ci sono n assi C₂ perpendicolari a Cₙ?', si:'→ famiglia <b>D</b>: con σₕ è <b>Dₙₕ</b>, con nσᵈ è <b>Dₙᵈ</b>, senza è <b>Dₙ</b>',
+    no:'→ famiglia <b>C</b>: con σₕ è <b>Cₙₕ</b>, con nσᵥ è <b>Cₙᵥ</b>, senza è <b>Cₙ</b>' }
+];
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* Una specie e' attiva in IR se si trasforma come una coordinata lineare
+   (cioe' come una componente del momento di dipolo), in Raman se si
+   trasforma come un prodotto quadratico (componente del tensore di
+   polarizzabilita'). E' la regola di selezione, non una convenzione. */
+function attivaIR(r){    return r.lin  && r.lin  !== '—'; }
+function attivaRaman(r){ return r.quad && r.quad !== '—'; }
+
+function disegnaTavola(nome){
+  var t = TAVOLE[nome];
+  var box = document.getElementById('simmTavola');
+  if(!t || !box) return;
+  var h = '<table style="border-collapse:collapse;width:100%;min-width:520px;font-size:.82rem">';
+  h += '<thead><tr>' +
+       '<th style="text-align:left;padding:7px 10px;border-bottom:2px solid #1e3a52;color:#00d4aa">' + esc(nome) + '</th>';
+  t.op.forEach(function(o){
+    h += '<th style="padding:7px 10px;border-bottom:2px solid #1e3a52;color:#9fb3c8;font-family:var(--font-mono,monospace)">' + esc(o) + '</th>';
+  });
+  h += '<th style="padding:7px 10px;border-bottom:2px solid #1e3a52;color:#9fb3c8">lineari</th>' +
+       '<th style="padding:7px 10px;border-bottom:2px solid #1e3a52;color:#9fb3c8">quadratiche</th>' +
+       '<th style="padding:7px 10px;border-bottom:2px solid #1e3a52;color:#9fb3c8;white-space:nowrap">attiva in</th></tr></thead><tbody>';
+  t.righe.forEach(function(r){
+    var ir = attivaIR(r), ra = attivaRaman(r);
+    h += '<tr><td style="padding:6px 10px;border-bottom:1px solid #16304a;color:#e9eef6;font-weight:600">' + esc(r.s) + '</td>';
+    r.c.forEach(function(v){
+      h += '<td style="padding:6px 10px;border-bottom:1px solid #16304a;text-align:center;color:#cfe2f5;font-family:var(--font-mono,monospace)">' + esc(v) + '</td>';
+    });
+    h += '<td style="padding:6px 10px;border-bottom:1px solid #16304a;color:#9fb3c8">' + esc(r.lin) + '</td>';
+    h += '<td style="padding:6px 10px;border-bottom:1px solid #16304a;color:#9fb3c8">' + esc(r.quad) + '</td>';
+    h += '<td style="padding:6px 10px;border-bottom:1px solid #16304a;white-space:nowrap">' +
+         (ir ? '<span style="background:rgba(198,40,40,.18);color:#f0a9a0;border-radius:5px;padding:2px 6px;font-size:.72rem;margin-right:4px">IR</span>' : '') +
+         (ra ? '<span style="background:rgba(14,101,92,.28);color:#7fd8cb;border-radius:5px;padding:2px 6px;font-size:.72rem">Raman</span>' : '') +
+         (!ir && !ra ? '<span style="color:#67808f;font-size:.74rem">inattiva</span>' : '') +
+         '</td></tr>';
+  });
+  h += '</tbody></table>';
+  h += '<div style="color:#9fb3c8;font-size:.8rem;line-height:1.6;margin-top:9px">' + esc(t.nota) + '</div>';
+  box.innerHTML = h;
+
+  Array.prototype.forEach.call(document.querySelectorAll('#simmGruppiBtn button'), function(b){
+    var scelto = b.dataset.g === nome;
+    b.style.background = scelto ? '#0e655c' : '#16273e';
+    b.style.color = scelto ? '#e9fffb' : '#cfe2f5';
+  });
+}
+
+function disegnaMolecola(f){
+  var m = null;
+  for(var i = 0; i < MOLECOLE.length; i++) if(MOLECOLE[i].f === f) m = MOLECOLE[i];
+  var box = document.getElementById('simmEsito');
+  if(!box) return;
+  if(!m){ box.innerHTML = '<div style="color:#67808f;font-size:.82rem;padding:14px 0">Scegli una molecola per vedere il gruppo puntuale, gli elementi di simmetria e il numero di modi normali.</div>'; return; }
+  var modi = m.lin ? (3 * m.n - 5) : (3 * m.n - 6);
+  var centro = /i(?:,|$)/.test(m.el) || m.el.indexOf(' i,') >= 0 || m.el.indexOf(', i') >= 0;
+  box.innerHTML =
+    '<div style="background:#0a1628;border:1px solid #1e3a52;border-radius:10px;padding:12px 14px">' +
+    '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
+      '<span style="font-size:1.5rem;color:#e9eef6;font-weight:700">' + esc(m.f) + '</span>' +
+      '<span style="font-size:1.15rem;color:#00d4aa;font-weight:700">' + esc(m.g) + '</span>' +
+    '</div>' +
+    '<div style="color:#9fb3c8;font-size:.78rem;margin-bottom:3px">Elementi di simmetria</div>' +
+    '<div style="color:#cfe2f5;font-size:.84rem;font-family:var(--font-mono,monospace);margin-bottom:9px">' + esc(m.el) + '</div>' +
+    '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:9px">' +
+      '<div><div style="color:#9fb3c8;font-size:.74rem">Atomi</div><div style="color:#e9eef6;font-weight:700">' + m.n + '</div></div>' +
+      '<div><div style="color:#9fb3c8;font-size:.74rem">Modi normali</div><div style="color:#e9eef6;font-weight:700">' + modi +
+        ' <span style="font-weight:400;color:#67808f;font-size:.76rem">(3N' + (m.lin ? '−5' : '−6') + ')</span></div></div>' +
+      '<div><div style="color:#9fb3c8;font-size:.74rem">Centro di inversione</div><div style="font-weight:700;color:' +
+        (centro ? '#f5a35e' : '#7fd8cb') + '">' + (centro ? 'sì → esclusione mutua' : 'no') + '</div></div>' +
+    '</div>' +
+    '<div style="color:#cfe2f5;font-size:.82rem;line-height:1.6;border-top:1px solid #16304a;padding-top:8px">' + esc(m.nota) + '</div>' +
+    '</div>';
+  if(TAVOLE[m.g]) disegnaTavola(m.g);
+}
+
+function disegnaRegole(){
+  var box = document.getElementById('simmRegole');
+  if(!box) return;
+  var carte = [
+    { t:'Attività in IR', c:'#c62828',
+      d:'Una vibrazione e\' attiva in IR se <b>modifica il momento di dipolo</b>. Nella tavola dei caratteri: se la sua specie si trasforma come x, y o z.',
+      e:'In CO₂ lo stiramento simmetrico lascia il dipolo nullo → inattivo. L\'asimmetrico lo crea → attivo a 2349 cm⁻¹.' },
+    { t:'Attività in Raman', c:'#0e655c',
+      d:'Una vibrazione e\' attiva in Raman se <b>modifica la polarizzabilità</b>. Nella tavola: se la sua specie si trasforma come un prodotto quadratico (x², xy, …).',
+      e:'In N₂ lo stiramento non crea dipolo (inattivo IR) ma cambia la polarizzabilità → visibile in Raman a 2331 cm⁻¹.' },
+    { t:'Momento di dipolo permanente', c:'#8a6212',
+      d:'Esiste solo se la molecola appartiene a <b>C₁, Cₛ, Cₙ o Cₙᵥ</b>. Ogni altro gruppo ha operazioni che lo annullano.',
+      e:'H₂O (C₂ᵥ) ha dipolo; CO₂ (D∞ₕ) e CH₄ (Tᵈ) no, nonostante i legami polari.' },
+    { t:'Attività ottica', c:'#6b3fa0',
+      d:'Una molecola e\' chirale — e quindi otticamente attiva — solo se <b>non possiede alcun asse improprio</b> Sₙ (e quindi né σ né i).',
+      e:'CHFClBr (C₁) e\' chirale. Basta un piano di simmetria perché non lo sia più.' }
+  ];
+  box.innerHTML = carte.map(function(c){
+    return '<div class="panel"><div class="ph" style="color:' + c.c + '">' + esc(c.t) + '</div>' +
+      '<div class="pb" style="font-size:.84rem;line-height:1.65;color:#cfe2f5">' + c.d +
+      '<div style="background:#0a1628;border-left:3px solid ' + c.c + ';border-radius:0 7px 7px 0;padding:8px 11px;margin-top:9px;font-size:.81rem;color:#9fb3c8">' +
+      esc(c.e) + '</div></div></div>';
+  }).join('');
+}
+
+function disegnaAlbero(){
+  var box = document.getElementById('simmAlbero');
+  if(!box) return;
+  box.innerHTML = ALBERO.map(function(p, i){
+    return '<div style="padding:8px 0;border-top:' + (i ? '1px solid #16304a' : 'none') + '">' +
+      '<div style="color:#e9eef6;font-weight:600;margin-bottom:3px">' + (i + 1) + '. ' + p.d + '</div>' +
+      '<div style="color:#7fd8cb;font-size:.8rem">Sì → ' + p.si + '</div>' +
+      '<div style="color:#f0a9a0;font-size:.8rem">No → ' + p.no + '</div></div>';
+  }).join('');
+}
+
+function init(){
+  var sel = document.getElementById('simmSel');
+  if(!sel || sel.dataset.pronto) return;
+  sel.dataset.pronto = '1';
+  MOLECOLE.forEach(function(m){
+    var o = document.createElement('option');
+    o.value = m.f; o.textContent = m.f + '  —  ' + m.g;
+    sel.appendChild(o);
+  });
+  sel.onchange = function(){ disegnaMolecola(sel.value); };
+
+  var btn = document.getElementById('simmGruppiBtn');
+  if(btn){
+    btn.innerHTML = '';
+    Object.keys(TAVOLE).forEach(function(g){
+      var b = document.createElement('button');
+      b.textContent = g; b.dataset.g = g;
+      b.style.cssText = 'background:#16273e;color:#cfe2f5;border:1px solid #1e3a52;border-radius:8px;' +
+                        'padding:6px 13px;font-size:.84rem;font-weight:600;cursor:pointer';
+      b.onclick = function(){ disegnaTavola(g); };
+      btn.appendChild(b);
+    });
+  }
+  disegnaMolecola(null);
+  disegnaTavola('C₂ᵥ');
+  disegnaRegole();
+  disegnaAlbero();
+}
+
+window.initSimmetria = init;
+// La sezione puo' essere gia' nel DOM all'avvio: si prova subito e alla fine
+// del caricamento, come fanno le altre sezioni dell'app.
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+window.addEventListener('load', init);
+
+})();
+
+</script>
 <script src="./bsi-spettri.js" defer></script>
 <script src="./bsi-ai-hub.js" defer></script>
 <script>
@@ -30540,18 +30906,18 @@ window.init3DViewerPro = function(){
     styles.forEach(function(s){
       var b=document.createElement('button');
       b.textContent=s[1];
-      b.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
+      b.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
       b.onclick=function(){ applyStyle(s[0]); };
       styleBar.appendChild(b);
     });
     var spin=document.createElement('button');
     spin.textContent='🔄 Rotazione';
-    spin.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
+    spin.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
     spin.onclick=function(){ if(viewer){ spinning=!spinning; viewer.spin(spinning?'y':false); spin.textContent=spinning?'⏸️ Stop':'🔄 Rotazione'; } };
     styleBar.appendChild(spin);
     var reset=document.createElement('button');
     reset.textContent='↩️ Reset';
-    reset.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
+    reset.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:7px 12px;border-radius:16px;cursor:pointer;font-size:.8rem;font-weight:600';
     reset.onclick=function(){ if(viewer){ viewer.zoomTo(); viewer.render(); } };
     styleBar.appendChild(reset);
   }
@@ -30583,7 +30949,7 @@ window.init3DViewerPro = function(){
       PRESET_MOL.forEach(function(m){
         var p=document.createElement('button');
         p.textContent=m.n;
-        p.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.78rem';
+        p.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.78rem';
         p.onclick=function(){ loadMolecule(m.q); };
         pills.appendChild(p);
       });
@@ -30602,7 +30968,7 @@ window.init3DViewerPro = function(){
       PRESET_PDB.forEach(function(m){
         var p=document.createElement('button');
         p.textContent=m.n;
-        p.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.78rem';
+        p.style.cssText='background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.78rem';
         p.onclick=function(){ loadProtein(m.p).then(function(){ setStatus('✅ '+m.n+' caricata'); }).catch(function(e){ setStatus('⚠️ '+e.message); }); };
         pills.appendChild(p);
       });
@@ -30619,8 +30985,8 @@ window.init3DViewerPro = function(){
         + '<div style="display:flex;gap:6px;margin-bottom:8px"><input id="alB" type="text" value="2HHB" placeholder="PDB B" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--g200);text-transform:uppercase"><span style="align-self:center;color:#FF8A65;font-weight:700">arancione</span></div>'
         + '<button id="algo" style="width:100%;background:var(--g900);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;cursor:pointer">🔗 Allinea le due strutture</button>'
         + '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">'
-        + '<button class="alpre" data-a="1HHO" data-b="2HHB" style="background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.76rem">Emoglobina ossi vs deossi</button>'
-        + '<button class="alpre" data-a="1AKI" data-b="1AKI" style="background:var(--g50);border:1px solid var(--g200);color:var(--g900);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.76rem">Lisozima (test)</button>'
+        + '<button class="alpre" data-a="1HHO" data-b="2HHB" style="background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.76rem">Emoglobina ossi vs deossi</button>'
+        + '<button class="alpre" data-a="1AKI" data-b="1AKI" style="background:var(--g50);border:1px solid var(--g200);color:var(--text);padding:5px 10px;border-radius:14px;cursor:pointer;font-size:.76rem">Lisozima (test)</button>'
         + '</div>';
       controls.appendChild(box);
       document.getElementById('algo').onclick=function(){
@@ -30653,7 +31019,7 @@ window.init3DViewerPro = function(){
     return '<div data-goto="'+target+'" class="dash-tile" '
       + 'style="background:#16273e;border:1px solid var(--g200);border-radius:12px;padding:14px;cursor:pointer">'
       + '<div style="font-size:1.8rem;margin-bottom:6px">'+icon+'</div>'
-      + '<div style="font-weight:800;color:var(--g900);font-size:.92rem">'+title+'</div>'
+      + '<div style="font-weight:800;color:var(--text);font-size:.92rem">'+title+'</div>'
       + '<div style="font-size:.75rem;color:var(--text2);margin-top:2px">'+sub+'</div>'
       + '</div>';
   }
@@ -31039,7 +31405,7 @@ window.init3DViewerPro = function(){
       var svgHtml = inner.indexOf('<svg')>=0 ? inner.replace('<svg ','<svg id="atlasSvgEl" ') : '<svg id="atlasSvgEl" viewBox="0 0 440 360" style="width:100%;max-width:480px;height:auto">'+inner+'</svg>';
       view.innerHTML='<div style="background:#16273e;border:1px solid var(--g200);border-radius:12px;padding:10px;margin-bottom:12px;text-align:center">'+svgHtml+'</div>'
         +'<button id="atDl" style="width:100%;background:var(--g900);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;margin-bottom:14px">Scarica illustrazione (PNG)</button>'
-        +'<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-weight:800;color:var(--g900);margin-bottom:6px">'+k+'</div><div style="font-size:.9rem;line-height:1.5">'+d.desc+'</div></div>'
+        +'<div style="background:var(--g50);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-weight:800;color:var(--text);margin-bottom:6px">'+k+'</div><div style="font-size:.9rem;line-height:1.5">'+d.desc+'</div></div>'
         +'<div style="background:#16273e;border:1px solid var(--g200);border-radius:10px;padding:14px"><div style="font-weight:800;color:var(--g700);margin-bottom:8px">PUNTI CHIAVE</div><ul style="margin:0;padding-left:20px;font-size:.88rem;line-height:1.5">'+pts+'</ul></div>';
       id('atDl').onclick=function(){ var svgEl=id('atlasSvgEl'); var vb=svgEl.getAttribute('viewBox').split(' '); var ww=+vb[2],hh=+vb[3]; var full='<svg xmlns="http://www.w3.org/2000/svg" width="'+(ww*1.5)+'" height="'+(hh*1.5)+'" viewBox="0 0 '+ww+' '+hh+'"><rect width="'+ww+'" height="'+hh+'" fill="white"/>'+svgEl.innerHTML+'</svg>'; var img=new Image(); var url=URL.createObjectURL(new Blob([full],{type:'image/svg+xml'})); img.onload=function(){ var cv=document.createElement('canvas'); cv.width=ww*1.5; cv.height=hh*1.5; var ctx=cv.getContext('2d');if(!ctx)return; ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); ctx.drawImage(img,0,0,cv.width,cv.height); cv.toBlob(function(b){ var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=k.replace(/[^a-zA-Z0-9]/g,'_')+'.png'; a.click(); }); URL.revokeObjectURL(url); }; img.src=url; };
     }
@@ -35138,7 +35504,7 @@ window.openChemDraw=function(){
           +'<div id="cdLipinski" style="margin-top:8px;font-size:.82rem"></div>'
           +'<div id="cdExport" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"></div>'
         +'</div>'
-        +'<div style="background:#fff;border-radius:12px;padding:8px;text-align:center"><div style="color:#0f172a;font-weight:700;font-size:.82rem;margin:4px">Struttura 2D</div><div id="cd2dHost">'+(svg||'<span style="color:#64748b">—</span>')+'</div></div>'
+        +'<div style="background:#fff;border-radius:12px;padding:8px;text-align:center"><div style="color:#0f172a;font-weight:700;font-size:.82rem;margin:4px">Struttura 2D</div><div id="cd2dHost">'+(svg||'<span style="color:#94a3b8">—</span>')+'</div></div>'
         +'<div style="background:#0c1f33;border:1px solid #1a3050;border-radius:12px;padding:10px">'
           +'<div style="color:#00c9b7;font-weight:800;font-size:.9rem;margin-bottom:6px">🧊 Modello 3D</div>'
           +'<div id="cd3d" style="width:100%;height:240px;position:relative;background:#081522;border-radius:8px"></div>'
@@ -43091,7 +43457,7 @@ function _synCatalog(host){
     viewEl.innerHTML=
       '<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><div style="color:#5eead4;font-weight:800;font-size:1rem">'+r.t+'</div>'
       +'<button id="scatReplay" style="border:1px solid #a78bfa;background:#241a45;color:#c9b6ff;border-radius:7px;padding:4px 10px;font-size:.74rem;font-weight:700;cursor:pointer">▶ Rigioca</button></div>'
-      +'<div style="background:#fff;border-radius:9px;padding:6px;margin:8px 0;text-align:center;overflow-x:auto">'+(svg||'<span style="color:#64748b;font-size:.8rem">meccanismo non disponibile</span>')+'</div>'
+      +'<div style="background:#fff;border-radius:9px;padding:6px;margin:8px 0;text-align:center;overflow-x:auto">'+(svg||'<span style="color:#94a3b8;font-size:.8rem">meccanismo non disponibile</span>')+'</div>'
       +'<div style="color:#cdd9e6;font-size:.84rem;line-height:1.55;margin-bottom:6px">'+(r.d||'')+'</div>'
       +'<div style="color:#8fa3b8;font-size:.78rem"><b style="color:#f5c451">⚗ Condizioni:</b> '+(r.cond||'—')+'</div>'
       +'<div style="color:#6b7d90;font-size:.72rem;margin-top:6px">Categoria: '+(CATLAB[r.c]||r.c)+'</div>';

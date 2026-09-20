@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v166` |
+| **Versione descritta** | `bsi-v167` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -77,7 +77,7 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 
 ## 3. Composizione della batteria
 
-**36 banchi**, raggruppati per ciò che dimostrano.
+**39 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -90,6 +90,7 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 | `test_assi_canvas` | Convenzioni degli assi negli spettri su canvas | 6 |
 | `test_costanti` | Ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | Coerenza dei dati tabulati | 29 |
+| `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
 
 ### 3.2 Agente AI
 
@@ -122,7 +123,19 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy`
 
-### 3.5 Coerenza
+### 3.5 Sicurezza e accessibilità
+
+| Banco | Verifica |
+|---|---|
+| `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
+| `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
+
+> **Cosa non copre la verifica di accessibilità**, e va detto: il testo dentro
+> gli SVG (il colore viene da `fill`, lo sfondo è una forma disegnata) e il
+> testo su sfondi a gradiente (non hanno *un* colore). Gli elementi saltati
+> vengono contati e riportati, non nascosti.
+
+### 3.6 Coerenza
 
 | Banco | Verifica |
 |---|---|
@@ -144,6 +157,7 @@ funzionale non osserva.
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine | da **156** difetti a **0** |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -237,4 +251,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v166`._
+_Documento aggiornato alla versione `bsi-v167`._

@@ -125,7 +125,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 .di{background:#071221;border:1px solid #1c3a57;border-radius:6px;padding:8px 10px;position:relative}
 .di .dv{font-size:1.15rem;font-weight:700;color:#00c9b7}
 .di .dk{font-size:.73rem;color:#9fb3c8;margin-top:2px}
-.di .dh{font-size:.68rem;color:#1c3a57;font-style:italic;margin-top:1px;line-height:1.3}
+.di .dh{font-size:.68rem;color:#8aa6c0;font-style:italic;margin-top:1px;line-height:1.3}
 .di.ok{border-color:#4caf80}.di.ok .dv{color:#4caf80}
 .di.warn{border-color:#ffb454}.di.warn .dv{color:#ffb454}
 .di.bad{border-color:#ff6b6b}.di.bad .dv{color:#ff6b6b}
@@ -163,7 +163,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 .pred-item{background:#071221;border:1px solid #1c3a57;border-radius:7px;padding:10px 12px}
 .pred-item .pv{font-size:1.1rem;font-weight:700;margin-bottom:3px}
 .pred-item .pk{font-size:.75rem;color:#9fb3c8}
-.pred-item .pe{font-size:.72rem;color:#1c3a57;margin-top:3px;line-height:1.3}
+.pred-item .pe{font-size:.72rem;color:#8aa6c0;margin-top:3px;line-height:1.3}
 .meter{height:8px;background:#1c3a57;border-radius:4px;overflow:hidden;margin:5px 0 2px}
 .meter-fill{height:100%;border-radius:4px}
 
@@ -294,7 +294,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 <div id="rdkit-status">
   <div class="spinner" id="rdk-spin"></div>
   <span id="rdk-msg" class="s-loading">Caricamento RDKit.js…</span>
-  <span id="rdk-ver" style="color:#1c3a57;font-size:.73rem;margin-left:auto"></span>
+  <span id="rdk-ver" style="color:#8aa6c0;font-size:.73rem;margin-left:auto"></span>
   <button id="rdk-retry-btn" class="btn btn-outline btn-sm" style="display:none;margin-left:8px;font-size:.73rem" onclick="retryRDKit()">↺ Ricarica</button>
 </div>
 </div>
@@ -403,7 +403,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
     <button class="btn btn-outline btn-sm" onclick="loadExample()">Esempio</button>
   </div>
 <div style="font-size:.76rem;color:#9fb3c8;margin-top:4px">
-  Molecole per categoria — clicca per caricare <span style="color:#1c3a57"> · <kbd>Enter</kbd> per analizzare</span>
+  Molecole per categoria — clicca per caricare <span style="color:#8aa6c0"> · <kbd>Enter</kbd> per analizzare</span>
 </div>
 <div style="display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #1c3a57;margin-top:6px;padding-bottom:0">
   <div class="ptab active" onclick="showPresetCat(this,'pcat-farmaci')">💊 Farmaci</div>
@@ -934,7 +934,7 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 
 <div id="mol-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
   <div>
-    <h3>Struttura 2D <span style="color:#1c3a57;font-size:.7rem">(generata da RDKit)</span></h3>
+    <h3>Struttura 2D <span style="color:#8aa6c0;font-size:.7rem">(generata da RDKit)</span></h3>
     <div id="mol-svg-box"><div class="placeholder">Inserisci uno SMILES e premi Analizza<br>oppure clicca su un farmaco qui sopra</div></div>
     <div class="export-row">
       <button class="btn btn-sm btn-outline" id="btn-svg" onclick="exportSVG()" disabled>⬇ SVG</button>
@@ -2789,7 +2789,7 @@ function renderLib(){
   el.innerHTML=library.map(function(it,i){
     var dt=new Date(it.ts).toLocaleDateString('it-IT');
     return '<div class="lib-item"><div class="li-name">'+escH(it.name)+'<br>'+
-      '<span style="font-size:.7rem;color:#1c3a57">'+dt+'</span></div>'+
+      '<span style="font-size:.7rem;color:#8aa6c0">'+dt+'</span></div>'+
       '<div class="li-smi">'+escH(it.smiles)+'</div>'+
       '<button class="btn btn-sm btn-outline" onclick="loadIntoMol(\''+escH(it.smiles)+'\')">Carica</button>'+
       '<button class="btn btn-sm btn-danger" onclick="removeFromLib('+i+')">✕</button></div>';
@@ -3897,7 +3897,7 @@ function updateQProps(el){
     {k:'Shell Valenza',v:'n = '+el.shells.length,c:'#9fb3c8'},
   ];
   grid.innerHTML=props.map(function(p){
-    return '<div class="di" style="border-color:#1c3a57"><div class="dv" style="color:'+p.c+';font-size:.95rem">'+p.v+'</div><div class="dk">'+p.k+'</div></div>';
+    return '<div class="di" style="border-color:#8aa6c0"><div class="dv" style="color:'+p.c+';font-size:.95rem">'+p.v+'</div><div class="dk">'+p.k+'</div></div>';
   }).join('');
 }
 
