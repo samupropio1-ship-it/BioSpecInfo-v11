@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v165` |
-| Commit | `aa00ac5685e997a6ad7db01dfa6b7c618a326123` |
-| Generato (UTC) | `2026-09-20T17:16:26.344Z` |
+| Versione applicazione | `bsi-v166` |
+| Commit | `ca9e6e5a1e1fbb9edbade744ec90d4af29850a70` |
+| Generato (UTC) | `2026-09-20T17:49:58.292Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -57,7 +57,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | Dimensione | Ruolo |
 |---|---:|---|
 | `index.html` | 4404 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 418 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `bsi-ai-hub.js` | 419 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
 | `rdkit_lab.html` | 257 kB | Laboratorio di chemioinformatica. |
@@ -69,10 +69,10 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `aadb28e85e42aaabd0d5d039252c1dc46e3293c3eff7205224b6eb4be906b936` |
-| `bsi-ai-hub.js` | `891e05092a47c617c6f33c0130e6b07fd0fb0ccf39b541505e1c9c9388ea8ca7` |
+| `index.html` | `8b62597d3aee51c5801a88bc93ea368500da2b4eed73435a4e8c5a67b8d3e1fc` |
+| `bsi-ai-hub.js` | `3cbd068dc5e3a9045b7f39e819f174f7edb732771c3e3f25b1474fae777d3640` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | `52bbea24c611611ef55a79d35cc559f6a6b8913e4a5c338da0d630a4574ddd92` |
+| `sw.js` | `cd7b82e8fb219f6b8bcc453e6288f11aeaa8c950f01aa9ecd6ae54d440597e2f` |
 | `rdkit_lab.html` | `ecd1ac77e85f165f25fb61a5240c45a21e0a9e2e59a1f9d90d0914d24501cb14` |
 | `astro.html` | `349f0b8b6d89431c00eaa6675acceeaaf93cc6f98c478bc1b904a86023a09a0f` |
 | `chimorga.html` | `66b1fff055589cfc219c02ced0d72e9afdf9cc86a86194ea7d7e162cefd73009` |
@@ -125,4 +125,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-20T17:16:26.344Z._
+_Generato il 2026-09-20T17:49:58.292Z._

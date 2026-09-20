@@ -46,7 +46,7 @@ const FAMIGLIE = [
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',
              'test_attesa', 'test_attesalunga', 'test_tetto', 'browser_ko',
-             'browser_prova', 'browser_prov', 'test_doppioinvio'] },
+             'browser_prova', 'browser_prov', 'test_doppioinvio', 'caccia_ai'] },
   { nome: 'Stabilita',
     scopo: 'L\'applicazione regge sessioni lunghe, memoria esaurita e rete degradata.',
     banchi: ['audit_stabilita', 'audit_promesse', 'audit_quota', 'test_sw',

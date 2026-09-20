@@ -487,14 +487,41 @@ function geminiCacheLeggi(apiKey){ return modelloCacheLeggi('gemini', apiKey); }
 function geminiCacheScrivi(apiKey, model){ modelloCacheScrivi('gemini', apiKey, model); }
 function geminiCacheInvalida(){ modelloCacheInvalida('gemini'); }
 
+/* UN CONTROLLER CHE ASCOLTA DUE VOCI.
+   Le chiamate di servizio (elenco dei modelli, metadati) avevano ciascuna il
+   proprio timeout ma NON il segnale dell'utente: premere Stop mentre erano in
+   corso non faceva nulla, e si restava fermi fino allo scadere del loro
+   timeout. Misurato: Stop premuto a 1,5 s, pulsante Invia di nuovo
+   disponibile solo dopo ~10 s — cioe' la richiesta non si fermava affatto,
+   scadeva.
+   Questo aiutante fonde le due condizioni: annulla allo scadere del tempo
+   OPPURE quando l'utente lo chiede, quale che arrivi prima. */
+function _annullaCon(timeoutMs, abortSignal){
+  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+  if(!ctrl) return { signal: undefined, stop: function(){} };
+  var t = setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, timeoutMs);
+  var suAbort = function(){ try{ ctrl.abort(); }catch(e){} };
+  if(abortSignal){
+    if(abortSignal.aborted) suAbort();
+    else abortSignal.addEventListener('abort', suAbort);
+  }
+  return {
+    signal: ctrl.signal,
+    stop: function(){
+      clearTimeout(t);
+      if(abortSignal && abortSignal.removeEventListener)
+        abortSignal.removeEventListener('abort', suAbort);
+    }
+  };
+}
+
 // GET con timeout: senza, una richiesta appesa bloccherebbe l'invio del
 // messaggio per sempre, prima ancora che parta il timeout di inattivita'.
-async function _getConTimeout(url){
-  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-  var t = ctrl ? setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, GEMINI_META_TIMEOUT) : null;
+async function _getConTimeout(url, abortSignal){
+  var a = _annullaCon(GEMINI_META_TIMEOUT, abortSignal);
   try{
-    return await fetch(url, ctrl ? { method: 'GET', signal: ctrl.signal } : { method: 'GET' });
-  } finally { if(t) clearTimeout(t); }
+    return await fetch(url, a.signal ? { method: 'GET', signal: a.signal } : { method: 'GET' });
+  } finally { a.stop(); }
 }
 
 /* Percorso dei metadati Gemini: via proxy quando c'e' (nessuna chiave nel
@@ -506,12 +533,12 @@ function geminiMetaUrl(percorso, apiKey){
          (percorso.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(apiKey);
 }
 
-async function geminiListModels(apiKey){
+async function geminiListModels(apiKey, abortSignal){
   var out = [], token = '', giri = 0;
   while(giri++ < 5){
     var u = geminiMetaUrl('/models?pageSize=200' +
             (token ? '&pageToken=' + encodeURIComponent(token) : ''), apiKey);
-    var r = await _getConTimeout(u);
+    var r = await _getConTimeout(u, abortSignal);
     if(!r.ok) throw new Error('ListModels HTTP ' + r.status);
     var j = await r.json();
     if(j && j.models && j.models.length) out = out.concat(j.models);
@@ -521,9 +548,9 @@ async function geminiListModels(apiKey){
   return out;
 }
 
-async function geminiEsiste(apiKey, nome){
+async function geminiEsiste(apiKey, nome, abortSignal){
   try{
-    var r = await _getConTimeout(geminiMetaUrl('/models/' + encodeURIComponent(nome), apiKey));
+    var r = await _getConTimeout(geminiMetaUrl('/models/' + encodeURIComponent(nome), apiKey), abortSignal);
     return !!(r && r.ok);
   }catch(e){ return false; }
 }
@@ -563,7 +590,7 @@ function punteggioGemini(m, p){
   return s;
 }
 
-async function risolviModelloGemini(p, apiKey, forzaRefresh){
+async function risolviModelloGemini(p, apiKey, forzaRefresh, abortSignal){
   // p era cablato a PROVIDERS.gemini: con due configurazioni sulla stessa
   // famiglia (Flash gratuito e 3 Pro a pagamento) avrebbe risolto entrambe
   // sui candidati del Flash.
@@ -579,7 +606,7 @@ async function risolviModelloGemini(p, apiKey, forzaRefresh){
   }
   var scelto = null;
   try{
-    var lista = await geminiListModels(apiKey);
+    var lista = await geminiListModels(apiKey, abortSignal);
     var best = null, bestS = -1;
     for(var i = 0; i < lista.length; i++){
       var nomeI = String(lista[i] && lista[i].name || '').replace(/^models\//, '');
@@ -595,7 +622,7 @@ async function risolviModelloGemini(p, apiKey, forzaRefresh){
   if(!scelto){
     for(var j = 0; j < riserva.length; j++){
       if(modelloBocciato(p.id, apiKey, riserva[j])) continue;
-      if(await geminiEsiste(apiKey, riserva[j])){ scelto = riserva[j]; break; }
+      if(await geminiEsiste(apiKey, riserva[j], abortSignal)){ scelto = riserva[j]; break; }
     }
   }
   // Ultimo ripiego: il primo candidato NON bocciato. Restituire uno gia'
@@ -631,18 +658,17 @@ function urlModelliOpenai(p){
   return diretto;
 }
 
-async function listaModelliOpenai(p, apiKey){
+async function listaModelliOpenai(p, apiKey, abortSignal){
   var h = {};
   // Col proxy l'autenticazione la mette il Worker: non va aggiunta qui.
   if(!proxyCopre(p.id)) h = p.authHeader(apiKey);
-  var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-  var t = ctrl ? setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, GEMINI_META_TIMEOUT) : null;
+  var a = _annullaCon(GEMINI_META_TIMEOUT, abortSignal);
   var r;
   try{
     var opz = { method: 'GET', headers: h };
-    if(ctrl) opz.signal = ctrl.signal;
+    if(a.signal) opz.signal = a.signal;
     r = await fetch(urlModelliOpenai(p), opz);
-  } finally { if(t) clearTimeout(t); }
+  } finally { a.stop(); }
   if(!r.ok) throw new Error('models HTTP ' + r.status);
   var j = await r.json();
   // Tre forme in circolazione: {data:[...]} (OpenAI), {models:[...]} e la
@@ -671,7 +697,7 @@ function punteggioOpenai(id, p){
   return s;
 }
 
-async function risolviModelloOpenai(p, apiKey, forzaRefresh){
+async function risolviModelloOpenai(p, apiKey, forzaRefresh, abortSignal){
   var riserva = p.modelliCandidati || [p.model];
   if(!apiKey && !proxyCopre(p.id)) return riserva[0];
   if(!forzaRefresh){
@@ -680,7 +706,7 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
   }
   var scelto = null;
   try{
-    var disponibili = await listaModelliOpenai(p, apiKey);
+    var disponibili = await listaModelliOpenai(p, apiKey, abortSignal);
     var insieme = {};
     disponibili.forEach(function(id){ insieme[id] = true; });
     // 1. il primo candidato ancora esistente e non gia' bocciato
@@ -718,10 +744,10 @@ async function risolviModelloOpenai(p, apiKey, forzaRefresh){
 /* Punto unico: dato un provider, restituisce il modello da usare. Per
    Anthropic i nomi sono stabili e scelti esplicitamente dall'utente
    (sono a pagamento), quindi restano come sono. */
-async function risolviModello(p, apiKey, forzaRefresh){
+async function risolviModello(p, apiKey, forzaRefresh, abortSignal){
   if(!p.modelliCandidati) return p.model;
-  if(p.family === 'gemini') return risolviModelloGemini(p, apiKey, forzaRefresh);
-  return risolviModelloOpenai(p, apiKey, forzaRefresh);
+  if(p.family === 'gemini') return risolviModelloGemini(p, apiKey, forzaRefresh, abortSignal);
+  return risolviModelloOpenai(p, apiKey, forzaRefresh, abortSignal);
 }
 
 // esposti per i test e per un eventuale "ricontrolla i modelli" dalla UI
@@ -1556,7 +1582,7 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
   // Gemini: il nome del modello si decide adesso, non e' scritto nel codice.
   // Il nome del modello si decide adesso: non e' scritto nel codice per
   // nessun fornitore che ne abbia dei candidati (vedi sezione 1a).
-  if(p.modelliCandidati) p.model = await risolviModello(p, apiKey, false);
+  if(p.modelliCandidati) p.model = await risolviModello(p, apiKey, false, abortSignal);
   // Sui provider con un tetto stretto in ingresso si stringono strumenti e
   // cronologia PRIMA di partire, invece di farsi rifiutare la richiesta.
   var tettoAppreso = p.maxInput || tettoUtile(tettoLeggi(providerId, apiKey));
@@ -1689,7 +1715,7 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
       var suggerito = modelloSuggeritoDaErrore(errMsg);
       var nuovo = (suggerito && !modelloBocciato(providerId, apiKey, suggerito))
         ? suggerito
-        : await risolviModello(p, apiKey, true);
+        : await risolviModello(p, apiKey, true, abortSignal);
       if(nuovo && nuovo !== vecchio && !modelloBocciato(providerId, apiKey, nuovo)){
         // Scritto in cache PRIMA di ricorrere: streamChat ririsolve dall'alto,
         // e senza questo il suggerimento del fornitore andrebbe perso.
@@ -7400,6 +7426,14 @@ function buildChatPane(){
       if(!wasStopped){
         liveNode.innerHTML = '';
         liveNode.textContent = '⚠ ' + (err && err.message ? err.message : 'Errore di rete');
+      } else if(!acc){
+        /* Interrotto PRIMA che arrivasse una sola parola: la bolla restava
+           con i puntini di attesa per sempre, e l'utente vedeva Spectra
+           "che sta ancora pensando" dopo aver premuto Stop. Se qualcosa era
+           gia' arrivato (acc) lo si tiene: e' testo suo, non va buttato. */
+        liveBody.innerHTML = '';
+        liveBody.textContent = '(interrotto)';
+        liveBody.style.opacity = '0.6';
       }
       // Registriamo comunque un turno "assistant" nella cronologia salvata
       // (anche se l'utente ha premuto Stop): senza, il prossimo invio si
