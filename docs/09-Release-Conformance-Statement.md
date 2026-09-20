@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v165` |
+| **Versione** | `bsi-v166` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v165` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v166` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -146,4 +146,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v165`._
+_Versione `bsi-v166`._

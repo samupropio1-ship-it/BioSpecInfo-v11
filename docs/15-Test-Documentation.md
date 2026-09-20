@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v165` |
+| **Versione descritta** | `bsi-v166` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -77,7 +77,7 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 
 ## 3. Composizione della batteria
 
-**34 banchi**, raggruppati per ciò che dimostrano.
+**36 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -104,6 +104,7 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 | `test_doppioinvio` | Due invii sovrapposti |
 | `browser_prova` | Misura di raggiungibilità senza chiave |
 | `test_nucleo` · `browser_prov` | Ciclo agentico e selezione del fornitore |
+| `caccia_ai` | Risposte malformate, stream troncato, 502 con HTML, Stop durante la risposta, pannello chiuso a metà, testo ostile |
 
 ### 3.3 Stabilità
 
@@ -126,6 +127,7 @@ La cartella dei banchi E2E si indica con la variabile `BSI_BANCHI`.
 | Banco | Verifica |
 |---|---|
 | `verifica_guida` | Che le promesse della documentazione esistano nel codice; assenza di marcatori di conflitto su 58 file |
+| `verifica-documenti` | Collegamenti interni, allineamento delle versioni, coerenza dell'indice, motivazione delle deviazioni |
 
 ---
 
@@ -142,6 +144,7 @@ funzionale non osserva.
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
+| **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
 
@@ -234,4 +237,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v165`._
+_Documento aggiornato alla versione `bsi-v166`._
