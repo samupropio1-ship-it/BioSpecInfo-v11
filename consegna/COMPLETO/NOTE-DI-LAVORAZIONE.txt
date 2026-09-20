@@ -1,0 +1,1020 @@
+================================================================================
+  PROMPT SESSIONE — BioSpecInfo v11
+  Copia e incolla questo testo all'inizio di ogni nuova sessione Claude Code
+  per dare al modello il contesto completo del progetto.
+================================================================================
+
+## PROGETTO
+Repository: samupropio1-ship-it/BioSpecInfo-v11
+GitHub Pages: https://samupropio1-ship-it.github.io/BioSpecInfo-v11/
+Branch di sviluppo: claude/app-layout-synthesis-features-97UCN
+Branch principale: main
+Tipo: PWA HTML5 multi-pagina (single-file per pagina) per chimica e astrochimica
+
+## STRUTTURA FILE (aggiornata)
+
+### Pagine applicative
+- index.html                       (~43.880 righe) — app principale, 84 sezioni
+- astro.html                       (~8.716 righe)  — Astrochimica 3D PRO, 18 tab
+- rdkit_lab.html                   (~4.322 righe)  — lab cheminformatica RDKit.js
+- sr_completo.html / sr_essenziale.html            — spettri (completo/essenziale)
+- chimorga.html                                    — chimica organica 1+2
+- accademia.html                   (323 domande)   — "Duolingo della chimica"
+- Biochimica_Guida_Definitiva.html                 — guida biochimica
+- simulazioni.html                                 — simulazioni interattive
+- pro.html                         (8 tab)         — PRO Hub (ML, QM, fisica...)
+- file_manager.html                                — area protetta da password
+- guidaret.html                                    — guida reazioni
+- changelog_tesi.html                              — documentazione tecnica/tesi
+- download.html                                    — pagina download/install
+
+### Librerie locali
+- three.min.js, three_bloom.js, gltf_loader.js  — motore 3D
+- 3Dmol-min.js, smiles-drawer.min.js            — chimica 2D/3D
+- RDKit_minimal.js                              — stub RDKit (vedi NOTE)
+- bsi-ai-hub.js                                 — Spectra: agente AI (7.525 righe)
+- lib/sql-wasm.js, lib/dimuon.js                — SQL lab e dati CMS
+- proxy/                                        — Worker Cloudflare opzionale (vedi NOTA 11)
+
+### Infrastruttura
+- sw.js            — Service Worker (network-first). Cache: bsi-v159
+- manifest.json    — PWA manifest
+- docs/            — 14 documenti .md + 12 PDF (dossier IT/EN, candidatura,
+                     Guida-Chiavi-API.md per l'utente finale)
+- LICENSE, README.md, THIRD_PARTY_NOTICES.md
+
+## astro.html — 18 tab
+catalog (Catalogo Corpi) - cosmo (Cosmo 3D) - gallery (Galleria telescopi) -
+mol (Molecole ISM) - exo (Corpi Celesti) - neb (Nebulose) - spec (Spettri) -
+nuc (Nucleosintesi) - theory (Teoria & Formule) - phenomena (Fenomeni Cosmici) -
+extreme (Corpi Estremi) - reactions (Reazioni Astrochimiche) -
+missions (Missioni & Telescopi) - timeline (Timeline Cosmica) -
+resources (Risorse Ufficiali) - calc (Calcolatori) - com (Comete) - quiz
+
+## PATTERN DI SVILUPPO
+
+### Overlay iframe (pattern standard)
+Ogni pagina secondaria si apre come overlay a tutto schermo dentro index.html:
+```javascript
+window.openTesi=function(){
+  var ov=document.getElementById('bsi-tesi-ov');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='bsi-tesi-ov';
+    ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';
+    var tb=document.createElement('div'); tb.style.cssText=_BSI_TB_STYLE;
+    var fr=document.createElement('iframe'); fr.src='changelog_tesi.html?v='+Date.now();
+    fr.style.cssText='flex:1;border:none;width:100%;height:100%';
+    var cb=document.createElement('button'); cb.setAttribute('style',_BSI_BACK_BTN);
+    cb.innerHTML='&#8617; Indietro'; cb.onclick=function(){ov.style.display='none';};
+    ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);
+    document.body.appendChild(ov);
+  } else ov.style.display='flex';
+};
+```
+Funzioni disponibili: openAstro, openPro, openFileManager, openAccademia,
+openRDKitLab, openChimOrga, openGuidaRet, openSimulazioni, openTesi, openSR14.
+Voci del Bottom Sheet nell'array _ITEMS, smistate da _act(key).
+
+### Mobile safe-area
+```javascript
+var _BSI_TB_STYLE='display:flex;align-items:flex-end;background:#071221;border-bottom:1px solid #1c3a57;'+
+  'padding:env(safe-area-inset-top,12px) 10px 8px 10px;'+
+  'min-height:calc(44px + env(safe-area-inset-top,0px));flex-shrink:0';
+var _BSI_BACK_BTN='position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:16px;'+
+  'z-index:10000;height:40px;border-radius:20px;padding:0 16px;border:1.5px solid rgba(0,201,183,.6);'+
+  'background:rgba(7,18,33,.97);color:#00c9b7;font-size:13px;font-weight:700;cursor:pointer;'+
+  'display:inline-flex;align-items:center;gap:5px';
+```
+
+### SW cache bump (ad ogni deploy)
+In sw.js incrementa CACHE (es. 'bsi-v117' -> 'bsi-v118').
+Se aggiungi una pagina o una libreria locale, inseriscila anche in PRECACHE.
+
+## SPECTRA — l'agente AI (bsi-ai-hub.js)
+35 strumenti su 13 aree scientifiche (3 nuovi: molecole e spettri via RDKit Lab); 10 configurazioni di modello, tutte
+attive a settembre 2026 E RAGGIUNGIBILI DAL BROWSER (due requisiti diversi,
+vedi nota 29).
+GRATUITE (3): Groq (volume, 131K), Gemini Flash (1M — quello giusto per i
+riassunti lunghi), Z.AI GLM-4.7-Flash (gratuito senza scadenza).
+A PAGAMENTO (7): GPT-5.6 (record su GPQA Diamond), Gemini 3 Pro, DeepSeek V4
+(miglior qualita'/prezzo), Grok 4.6 (primo sugli agenti), Claude Fable 5.1 /
+Opus 5 / Sonnet 5.
+TOLTI e perche': NVIDIA NIM (attiva ma senza CORS, 09/2026 — vedi nota 29;
+la rotta resta nel Worker perche' dal server funziona), GitHub Models
+(RITIRATO il 30/07/2026), Mistral (consenso
+all'addestramento), OpenRouter (id instabili), Claude Haiku 4.5 (dominato da
+Sonnet 5: meta' prezzo ma un quinto del contesto e niente ragionamento esteso
+ne' ricerca web).
+NON in tendina ma usati come RISERVA automatica: Opus 4.8 e 4.7 (costano
+quanto Opus 5 e sono una generazione indietro — come scelta non convengono
+mai, come riserva valgono quanto lui), Fable 5, Sonnet 4.6.
+Ciclo agentico a 10 giri, cronologia di 40 turni, ragionamento mostrato e
+conservato, memoria persistente, allegati (immagini/PDF/testo), mappe
+concettuali disegnate da un renderer interno, comando vocale "Hey Spectra",
+traduttore, esportazione in PDF.
+Pulsante dedicato #bsi-spectra-fab, sopra il FAB delle sezioni.
+Interfaccia: nucleo atomico animato in intestazione che cambia velocita' e
+colore con lo stato (riposo/pensa/strumenti/scrive) piu' una riga di stato a
+parole; Modalita' Nucleo (interruttore ambra) per il massimo della potenza.
+
+## NOTE IMPORTANTI (bug gia' risolti — non reintrodurli)
+
+1) TEXTURE MANCANTI — la cartella ./textures/ NON e' nel deploy. astro.html usa
+   _texSafe(url, fbType, onLoad, onGone) invece di TextureLoader.load() diretto:
+   se il file manca ricade sulle texture NASA incorporate in REAL_TEX (base64) o
+   su quelle procedurali. Le mappe di dettaglio (normal/specular/luci/nuvole)
+   vengono rimosse dal materiale. Senza questo i pianeti erano NERI.
+
+2) WASM MANCANTI — RDKit_minimal.wasm e lib/sql-wasm.wasm non sono nel deploy.
+   Entrambi i loader fanno una HEAD sul .wasm prima di inizializzare e passano
+   al CDN se manca. Serve perche' Emscripten chiama abort() senza mai respingere
+   la promise: un .catch() da solo lascerebbe la cascata appesa per sempre.
+
+3) SERVICE WORKER — in caso di fetch fallito restituisce index.html SOLO per le
+   navigazioni. Per gli asset restituisce 504, altrimenti il chiamante riceve
+   HTML al posto di JS/immagini e i fallback applicativi non scattano.
+
+4) ID DUPLICATI — in index.html alcuni id compaiono due volte (markup statico +
+   template JS che fa innerHTML sulla stessa sezione). A runtime ne resta uno
+   solo: e' un code smell noto, non un bug.
+
+5) RISULTATI NON FINITI — i risolutori possono divergere con input degeneri
+   (lunghezza d'onda 0, volume 0, emivita 0). Una guardia in runToolCalls
+   (validaNumeri) trasforma qualunque risultato con Infinity/NaN in un errore
+   esplicito. NON aggirarla: un numero sbagliato che sembra giusto e' peggio
+   di un errore.
+
+6) QUOTA localStorage — nella cronologia va la MINIATURA da 160px degli
+   allegati, non l'immagine inviata al modello (440 KB l'una). A quota piena
+   ogni scrittura fallisce in silenzio, compresa quella della chiave API.
+
+7) BYTE NUL — usare sempre l'escape \u0000, mai il byte letterale: rende il
+   file binario per git e per gli strumenti di build. E' gia' successo due
+   volte.
+
+8) PARAMETRI PER MODELLO — effort e web_search NON sono supportati da Haiku
+   4.5; temperature/top_p/budget_tokens sono rimossi su tutti i modelli
+   recenti. Ogni parametro va condizionato al provider, mai globale.
+
+9) NOMI DEI MODELLI — non cablarne MAI nessuno, per NESSUN fornitore.
+   E' gia' successo due volte:
+     · Google ha tolto gemini-1.5-flash da v1beta;
+     · Groq ha ritirato llama-3.3-70b-versatile il 17/06/2026
+       ("does not exist or you do not have access to it").
+   Su OpenRouter gli id dei modelli gratuiti cambiano per costruzione.
+   Chi ha modelliCandidati parte con model:null e viene risolto a runtime da
+   risolviModello():
+     · gemini -> ListModels + punteggio per versione (auto-aggiorna a 3.0)
+     · openai-compatibili -> GET /models, poi il PRIMO CANDIDATO ancora
+       esistente (l'ordine dei candidati E' la preferenza, perche' i nomi non
+       sono confrontabili fra loro); se nessuno sopravvive, punteggio
+       generico sui disponibili.
+   Cache 7 giorni per provider, legata all'impronta della chiave. Un 404
+   (o un 400 che parla di modello) invalida la cache e ritenta UNA volta:
+   il flag _giaRiprovato impedisce il ciclo infinito.
+   In punteggioOpenai bestS parte da -1, NON da 0: solo -1 vuol dire
+   "scartare", e un modello valido senza indizi nel nome vale 0.
+   Anthropic resta cablato apposta: e' a pagamento e lo sceglie l'utente.
+
+10) CODICE MORTO IN index.html — il vecchio blocco chat (_aiProviderInfo,
+   setAIProvider, saveAIKey, initAI, sendAI, ~ righe 8660-8930) NON e' piu'
+   raggiungibile: Spectra lo ha sostituito, il markup #aiInput non esiste e
+   initAI() non viene mai chiamata. E' rimasto in piedi ma non e' il codice
+   che gira: prima di "correggere un bug" li' dentro, verificare che sia
+   davvero il percorso attivo.
+
+11) PROXY OPZIONALE — proxy/spectra-proxy.js e' un Worker Cloudflare che
+   tiene le chiavi sul server, cosi' chi apre il sito usa Spectra senza
+   inserirne nessuna. Si attiva SOLO riempiendo PROXY_URL in bsi-ai-hub.js
+   (di serie e' ''), oppure con localStorage 'bsi_proxy_url' per provarlo.
+   Regole da non rompere:
+   - buildRequest, quando passa dal proxy, NON deve aggiungere l'header di
+     autenticazione ne' il parametro key= nell'URL: la chiave la mette il
+     Worker. Se ne mandi una da qui, la esponi di nuovo nella pagina.
+   - proxyCopre() e' sincrona e vale solo DOPO che proxyStato() ha risposto:
+     lo stato arriva da GET /stato del Worker. Chi lo usa prima ottiene
+     false, e la UI chiede la chiave come sempre — comportamento voluto.
+   - chiaveDaUsare() restituisce il segnaposto CHIAVE_VIA_PROXY quando il
+     proxy copre il provider: serve solo a non far scattare i controlli
+     "manca la chiave". NON deve mai finire in una richiesta.
+   - i metadati Gemini (ListModels e la sonda) passano da geminiMetaUrl():
+     via proxy se c'e', altrimenti diretti con la chiave.
+
+12) CANCELLAZIONE DATI — l'elenco di TUTTO cio' che l'app scrive sta in
+   DATI_CANCELLABILI (bsi-ai-hub.js, sezione 4b), diviso in cinque gruppi.
+   Aggiungendo una chiave di localStorage da qualche parte, aggiungerla
+   anche li': e' l'unico punto che il pulsante "Cancella tutto" consulta.
+   Trappola gia' incontrata: cancellare bsi_api_keys senza cancellare
+   bsi_api_key (il formato vecchio a chiave singola) fa RIAPPARIRE la
+   chiave, perche' getKeysMap() la rimigra al primo accesso. Vanno tolte
+   entrambe. Idem per bsi_gemini_modello, il vecchio nome della cache.
+   Restano fuori DI PROPOSITO: bsi_pro_license, bsi_trial_start,
+   bsi_device_id, bsi_user_email — una licenza non si cancella per sbaglio.
+   Dopo la cancellazione va azzerato anche lo stato in memoria (elenco dei
+   fornitori del proxy, p.model risolto), altrimenti resta valido fino al
+   ricaricamento della pagina.
+
+13) BUDGET E RISERVA — tre meccanismi che vanno capiti insieme (sezione 1c
+   e conProviderDiRiserva):
+   a) BUDGET. p.maxInput e' il tetto di token IN INGRESSO del fornitore.
+      GitHub Models ne accetta 8.000 e il costo fisso di Spectra e' ~8.150
+      (2.009 di prompt + 6.128 di definizioni dei 32 strumenti): senza
+      budget quel servizio NON parte. adattaAlBudget() stringe prima gli
+      strumenti (costo fisso ripetuto ogni turno) e poi la cronologia.
+      Se aggiungi strumenti o allunghi BASE_SYSTEM, RIMISURA: il margine
+      su GitHub Models e' di poche centinaia di token.
+   b) SELEZIONE STRUMENTI. La pertinenza si misura su PAROLE_STRUMENTO, una
+      mappa fuori dal registro TOOLS — le parole con cui la gente CHIEDE,
+      non quelle con cui lo strumento e' documentato. Misurato: usando solo
+      le descrizioni, su una domanda di astrochimica veniva scelta
+      'farmacocinetica'. Il confronto e' per RADICE (primi 5 caratteri):
+      l'italiano flette e "nebulosa"/"nebulose" devono coincidere.
+      PAROLE_STRUMENTO non deve MAI finire nello schema mandato al modello.
+      Se aggiungi uno strumento, aggiungi la sua riga di parole chiave.
+   c) RISERVA. conProviderDiRiserva rifa' il turno su un altro fornitore
+      quando il primo esaurisce (err.esaurito). Si riparte dai messaggi
+      ORIGINALI, non dalla cronologia a meta': i turni con strumenti sono
+      salvati nel formato nativo del fornitore precedente e NON si possono
+      passare a un altro. Solo fornitori GRATUITI vanno in riserva: passare
+      da solo a uno a pagamento spenderebbe i soldi dell'utente.
+      Si passa oltre SOLO per quota esaurita: un 401 si ripeterebbe identico
+      su tutti e va riportato subito.
+
+14) TOGLIERE UN PROVIDER — getSavedProvider() DEVE validare contro
+   PROVIDERS: chi aveva selezionato il servizio rimosso si ritroverebbe
+   PROVIDERS[undefined] e Spectra non si aprirebbe piu'. E' gia' coperto,
+   non toglierlo. Le chiavi orfane in bsi_api_keys restano innocue e le
+   pulisce il pulsante "Cancella tutto".
+   Da aggiornare insieme, se si tocca l'elenco: PROVIDERS, UPSTREAM,
+   FORNITORI nel Worker, i segreti in wrangler.toml e nel README del proxy,
+   docs/Guida-Chiavi-API.md.
+
+15) SELEZIONE STRUMENTI UNA VOLTA PER TURNO — si fa in _unTurno, PRIMA del
+   ciclo dei giri, non dentro streamChat. Rifacendola ad ogni giro
+   cambierebbe a meta' turno (la cronologia cresce e con lei il testo su cui
+   si misura la pertinenza) e il modello si vedrebbe sparire uno strumento
+   appena visto. La cronologia invece si taglia ad ogni giro, perche' cresce.
+   Se il modello chiama uno strumento non mandato, runToolCalls lo esegue
+   comunque: toolByName cerca nel registro completo.
+
+16) CHIAVI CONDIVISE — chiaveCondivisaCon fa puntare piu' configurazioni
+   alla stessa voce di bsi_api_keys: i quattro Claude sono un solo account
+   Anthropic, e i due Gemini una sola chiave di AI Studio. get/set/clear la
+   normalizzano tutte e tre, e clearSavedKey toglie SIA la voce specifica SIA
+   quella canonica — lasciarne una farebbe "riapparire" la chiave sul gemello.
+
+17) PUNTEGGIO GEMINI, DUE TRAPPOLE gia' pagate
+   a) Il numero minore nel nome e' OPZIONALE. Dalla generazione 3 Google lo
+      ha tolto ("gemini-3-pro", non "gemini-3.0-pro"): con la regex che
+      pretendeva il punto, i modelli PIU' NUOVI valevano quanto un alias
+      generico e perdevano contro i vecchi. L'auto-aggiornamento non sarebbe
+      mai scattato.
+   b) La preferenza va DICHIARATA con p.preferisci, non lasciata al bonus
+      implicito su "flash". Con il solo bonus, un modello di generazione
+      successiva ma A PAGAMENTO (gemini-3-pro, 310) batteva il flash
+      gratuito (290): la configurazione gratuita avrebbe scelto un modello
+      che la chiave gratuita non puo' usare. Ora gemini ha preferisci=/flash/
+      e gemini_pro preferisci=/pro/, e i due non si sovrappongono.
+   punteggioGemini prende il provider come secondo argomento: NON rimetterlo
+   a uno solo, o le due configurazioni Gemini tornano a risolvere uguale.
+
+18) MODALITA' NUCLEO — non e' un interruttore decorativo: cambia quattro
+   cose insieme (giri del ciclo 10->16, effort 'xhigh' dove esiste, prompt
+   di sistema aggiuntivo, e passaggio alla configurazione di rango piu' alto
+   fra quelle con una chiave). Il passaggio di modello viene DETTO in chat,
+   e se il nuovo e' a pagamento lo dichiara: cambiare modello di nascosto a
+   chi paga a consumo sarebbe spendere i suoi soldi senza dirglielo.
+   Il campo 'rango' su ogni provider serve solo a questo.
+
+19) STATO DEL NUCLEO — statoNucleo(nome, dettaglio) mette data-stato
+   sull'overlay e il CSS fa il resto. E' agganciato ai callback che gia'
+   esistevano (onThinking/onToolUse/onToken) piu' l'inizio e la fine di
+   send(). Serviva perche' fra "invio" e "prima parola" l'utente vedeva una
+   pausa muta e pensava fosse bloccata.
+
+20) DIFETTI DI LAYOUT gia' corretti — non reintrodurli:
+   - il campo di scrittura divideva la riga con quattro pulsanti e restava
+     largo 156px: il segnaposto andava a capo e veniva TAGLIATO. Ora il testo
+     ha una riga sua e i comandi stanno sotto (#bsi-hub-cmdrow). Se cambi il
+     segnaposto, verifica a 360px di larghezza che scrollHeight non superi
+     l'altezza.
+   - il titolo "Spectra — il copilota AI di BioSpecInfo" non ci stava e si
+     troncava: ora c'e' solo il nome, e il resto sta nella riga di stato.
+   - gli orbitali del nucleo uscivano dal riquadro e finivano sopra il testo:
+     overflow:hidden sull'svg e raggi ridotti (rx 17, non 20).
+
+21) CAPACITA' ANTHROPIC — tre cose delicate, tutte verificate contro il
+   riferimento ufficiale (skill claude-api), non a memoria:
+   a) CACHE DEL PROMPT. Il prompt di sistema viaggia in DUE blocchi: la parte
+      stabile (~2.000 token, identica ad ogni richiesta) marcata
+      cache_control ephemeral, e quella volatile (memoria + grounding) FUORI
+      dalla cache. Concatenandole la cache non prenderebbe mai: qualunque
+      byte diverso nel prefisso la invalida tutta. L'ordine di composizione
+      e' tools -> system -> messages, quindi il marcatore va anche
+      sull'ULTIMO strumento. partiSistema()/testoSistema() adattano il
+      formato: Anthropic vuole l'array, Gemini e gli OpenAI-compatibili una
+      stringa sola.
+   b) RICERCA WEB E SANDBOX NON CONVIVONO. web_search_20260209 porta gia'
+      dentro un ambiente di esecuzione (filtra i risultati scrivendo codice);
+      aggiungere anche code_execution ne creerebbe un SECONDO e confonderebbe
+      il modello — lo dice la documentazione. Quindi: normalmente
+      web_search + web_fetch, in Modalita' Nucleo code_execution_20260521.
+      Mai insieme, c'e' un test apposta.
+   c) I risultati del sandbox arrivano come bash_code_execution_tool_result
+      e text_editor_code_execution_tool_result, NON come un generico
+      code_execution_tool_result. Vanno conservati nel turno assistant come i
+      blocchi della ricerca web, o un turno in pausa non si puo' riprendere.
+
+22) VERIFICARE CHE UN SERVIZIO SIA VIVO, non solo che sia documentato.
+   GitHub Models e' stato aggiunto e consigliato come "il piu' capace fra i
+   gratuiti" quando era gia' RITIRATO (30/07/2026): le pagine trovate cercando
+   descrivevano il servizio ancora attivo. Prima di aggiungere un fornitore,
+   cercare esplicitamente "<nome> retired|shutdown|deprecated <anno>".
+   Il rango che gli era stato dato faceva anche si' che la Modalita' Nucleo lo
+   scegliesse da sola: un fornitore morto in cima alla classifica rompe la
+   selezione automatica, non solo la voce in tendina.
+
+23) IRRAGGIUNGIBILE = SI CAMBIA FORNITORE. Un fetch che fallisce PRIMA di
+   ricevere una risposta (rete, CORS, servizio ritirato) ora marca l'errore
+   con .irraggiungibile, e conProviderDiRiserva lo tratta come la quota
+   esaurita: si passa al fornitore successivo invece di fermarsi. Il browser
+   non permette di distinguere quale dei tre casi sia — per sicurezza non lo
+   dice — quindi la risposta giusta e' la stessa per tutti e tre.
+   NON restringere la riserva ai soli errori di quota: era il motivo per cui
+   un servizio ritirato bloccava tutto.
+
+24) IL BUDGET E' DORMIENTE — nessun fornitore attuale dichiara maxInput
+   (l'unico che lo aveva era GitHub Models, 8.000 token). Il codice resta
+   perche' e' la difesa pronta per il prossimo con un tetto stretto, e i test
+   lo provano con una configurazione sintetica. Non attribuire un maxInput a
+   un servizio senza averlo verificato.
+
+25) AUDIT PERIODICO DEI FORNITORI — il sistema si auto-ripara sui NOMI DEI
+   MODELLI (interroga il catalogo) ma NON su un servizio morto. Verifiche
+   fatte a settembre 2026, da rifare ogni pochi mesi cercando
+   "<nome> retired|shutdown|deprecated <anno>":
+     · Groq       attivo. llama-3.3-70b-versatile NON e' piu' servito da
+                  agosto 2026 e llama-3.1-8b-instant e' deprecato: tolti dai
+                  candidati, restano i sostituti indicati da Groq.
+     · Gemini     attivo.
+     · NVIDIA NIM attivo, MA senza header CORS: rimosso 09/2026 dalla
+                  tendina (vedi nota 29). La rotta resta nel Worker.
+     · Z.AI       attivo, GLM-4.7-Flash e 4.5-Flash ancora gratuiti. NON
+                  mettere glm-5.x fra i candidati del provider gratuito: sono
+                  a pagamento, sarebbe lo stesso errore di gemini-3-pro.
+     · OpenAI, DeepSeek, Anthropic  attivi.
+     · xAI        attivo, ma i candidati erano di DUE generazioni prima
+                  (grok-4-fast, grok-3): il vertice e' grok-4.6 dal 12/08/2026.
+   Un fornitore morto con un rango alto non rompe solo la tendina: diventa la
+   scelta automatica della Modalita' Nucleo.
+
+26) ANCHE ANTHROPIC HA LA RISERVA — era l'ULTIMO fornitore col nome del
+   modello cablato, quindi l'unico punto in cui l'app poteva fermarsi se un
+   modello spariva o la chiave non lo vedeva. Ora i tre Claude hanno
+   modelliCandidati e urlModelli ('https://api.anthropic.com/v1/models', che
+   NON si ricava da /v1/messages con la sostituzione usata per gli altri).
+   Le catene: Fable 5.1 -> Fable 5 -> Opus 5; Opus 5 -> Opus 4.8 -> Opus 4.7;
+   Sonnet 5 -> Sonnet 4.6.
+   IL PUNTO DELICATO e' 'preferisci', diverso per ciascuno (/fable/, /opus/,
+   /sonnet/): senza, il punteggio generico farebbe ripiegare l'Opus su un
+   Sonnet perche' e' comunque un modello valido — cioe' darebbe all'utente un
+   modello piu' debole di quello che ha scelto, in silenzio. C'e' un test
+   apposta.
+   Opus 4.8 sta QUI e non in tendina: stesso prezzo di Opus 5 e una
+   generazione indietro, quindi come scelta non conviene mai.
+
+27) UN FORNITORE ATTIVO PUO' ESSERE INUTILIZZABILE DAL BROWSER — e' una
+   dimensione DIVERSA da "il modello esiste" e da "il servizio esiste".
+   Verificare che un servizio sia attivo NON dimostra che sia chiamabile da
+   dentro una pagina web: serve che mandi gli header CORS. NVIDIA NIM era
+   attiva, la chiave valida, il modello giusto — e la chiamata non partiva.
+   Il browser NON dice perche' un fetch fallisce (rete, CORS e servizio
+   spento sono lo stesso errore), quindi non e' distinguibile dal codice.
+   NON scrivere un elenco "questi funzionano dal browser": e' una fotografia
+   sbagliata il mese dopo, e dipende anche dalla rete e dalle estensioni
+   dell'utente. Ci pensa bsi_prov_ko (sezione 1b-ter di bsi-ai-hub.js):
+   segnaIrraggiungibile() su fetch fallito, segnaRaggiungibile() appena
+   arriva una risposta HTTP QUALSIASI — anche un 401, che dimostra di essere
+   arrivati al server. TTL 24 ore.
+   I marcati NON vengono mai rimossi dall'elenco: vanno in fondo in
+   providerUtilizzabili() e prendono -1000 in migliorProvider(), ma se sono
+   gli unici configurati si provano lo stesso. Nella tendina finiscono in un
+   <optgroup> in fondo, "Non hanno risposto da questo dispositivo", con
+   l'etichetta "· non risponde": prima portavano solo un ⚠ davanti al nome e
+   restavano in mezzo agli altri, quindi si continuavano a scegliere. Per questo migliorProvider()
+   parte da -Infinity e non da -1: con la penalita' un rango diventa
+   negativo e con -1 l'unico fornitore disponibile non verrebbe scelto.
+   Un AbortError (l'utente che preme Stop) NON va annotato.
+   bsi_prov_ko sta nel gruppo 'chiavi' di DATI_CANCELLABILI: "ricominciare
+   da capo" deve azzerare anche cio' che l'app ha imparato.
+   Test: test_ko.js (35) e browser_ko.js (36, con la rete negata davvero).
+
+28) LA PROVA SI PUO' FARE SENZA CHIAVE — pulsante 🔌 Prova (sezione 1b-quater).
+   Il punto non ovvio: per sapere se il browser RAGGIUNGE un fornitore basta
+   che la fetch si concluda, anche con 401. Quindi si puo' misurare PRIMA di
+   aprire un account, ed e' l'unica risposta onesta a "quale fornitore
+   scelgo?".
+   La prova DEVE usare buildRequest (stessa url e stesse intestazioni, proxy
+   compreso): il preflight CORS dipende da quelle, provare un indirizzo
+   diverso non dimostrerebbe niente. Il corpo invece e' minimo
+   (corpoMinimo()), altrimenti su una chiave valida la prova costerebbe
+   quota.
+   401/403 CON chiave salvata = 'chiave' (chiave sbagliata), NON
+   irraggiungibile: sono due guasti diversi e vanno detti diversamente.
+   NEI TEST: pageerror va contato, ma "Failed to load resource" NO — e'
+   Chromium che riporta lo stato HTTP e i blocchi CORS, cioe' proprio il
+   dato che la prova sta misurando.
+   L'elenco (#bsi-prova-righe) scorre dentro di se' con max-height:38vh:
+   undici righe su un telefono spingono la conclusione sotto il bordo, ed e'
+   la conclusione la parte che dice cosa fare.
+   Test: browser_prova.js (24) e shot_prova.js (misura che la conclusione
+   sia dentro il viewport a 360x760).
+
+29) NVIDIA NIM RIMOSSA (09/2026) — "attivo" e "chiamabile da una pagina web"
+   sono DUE requisiti diversi, e il secondo non e' verificabile leggendo il
+   sito del fornitore. NVIDIA e' viva, il piano gratuito pure, i modelli
+   sono ottimi: semplicemente non manda gli header CORS, quindi dal browser
+   la chiamata non parte e nessuna correzione lato app puo' cambiarlo.
+   Restava in tendina solo per far perdere 45 secondi a chi la sceglieva.
+   LA ROTTA NEL WORKER (proxy/spectra-proxy.js) E' RIMASTA APPOSTA: il
+   Worker non e' un browser, quindi da li' NVIDIA funziona. Per rimetterla
+   basta riaggiungere la voce in PROVIDERS e usare il proxy.
+   Restano 10 configurazioni, 3 gratuite (Groq, Gemini Flash, Z.AI).
+   QUANDO SI TOGLIE UN FORNITORE, i punti da toccare sono NOVE:
+   PROVIDERS, UPSTREAM, i commenti "famiglia openai-compatibile",
+   docs/Guida-Chiavi-API.md (tabelle + sezione passo passo + RINUMERAZIONE
+   delle intestazioni, che le sostituzioni automatiche non fanno),
+   proxy/README.md, docs/05-AI-Agent-Architecture.md, la scheda colloquio,
+   questo file, e i test che contano i fornitori o usano quell'id come
+   soggetto (verifica_guida, browser_frontiera, browser_prov, test_carico,
+   test_nucleo, test_openai, test_ko, browser_ko, browser_prova).
+   ATTENZIONE alle sostituzioni cieche di id nei test: rendono asserzioni
+   contraddittorie (in test_carico "include zai" e "NON include zai" nello
+   stesso blocco). Vanno riscritte a mano conservando l'INTENTO.
+   In test_nucleo NON usare una chiave Gemini per provare lo scambio fra
+   gratuiti: gemini_pro condivide la chiave (chiaveCondivisaCon) e vince
+   col rango 90. Usare groq+zai.
+
+30) IL CATALOGO NON DIMOSTRA CHE UN MODELLO SI POSSA USARE — terzo modo in
+   cui un fornitore ti pianta, dopo "modello ritirato" e "servizio senza
+   CORS". Google 09/2026:
+     "This model models/gemini-2.5-flash is no longer available to NEW
+      USERS. Please update your code to use models/gemini-3.6-flash"
+   Il modello ESISTE: ListModels lo elenca, la GET sui metadati risponde
+   200. Solo generare da' 404. "Esiste" e "lo puoi usare TU, con QUESTA
+   chiave" sono cose diverse, e solo la chiamata vera le distingue.
+   PERCHE' L'APP SI ARRENDEVA: la ri-risoluzione dopo il 404 e'
+   deterministica, quindi ridava lo stesso nome; nuovo === vecchio e ci si
+   fermava. Il ritentativo esisteva ma non poteva funzionare.
+   TRE PEZZI, e servono tutti e tre:
+   a) modelloSuggeritoDaErrore() legge il sostituto DAL MESSAGGIO del
+      fornitore. E' la fonte migliore che esista: viene da lui, e' aggiornata
+      al momento e non puo' scadere. Il filtro "deve contenere una cifra o un
+      trattino" evita di scambiare "use the Interactions API" per un modello.
+   b) bocciaModello()/bsi_modelli_ko esclude il nome fallito dalla
+      risoluzione (catalogo E candidati E ultimo ripiego). Rende ogni
+      tentativo DIVERSO dal precedente: e' cio' che fa terminare la ricerca.
+      Legato all'impronta della chiave, TTL 7 giorni.
+   c) TENTATIVI_MODELLO = 4: _giaRiprovato e' un CONTATORE, non piu' un
+      booleano. Attenzione se si tocca: passare `true` renderebbe
+      (true||0)<4 vero e cambierebbe la semantica.
+   I candidati Gemini ora hanno l'ALIAS PER PRIMO ('gemini-flash-latest',
+   'gemini-pro-latest'): un alias non viene ritirato. I test che
+   codificavano il vecchio primo candidato sono stati aggiornati.
+   NON riscrivere i test come "un solo tentativo": ora scende lungo i
+   candidati. Cio' che deve restare vero e' che TERMINA e che non ripete
+   due volte lo stesso nome.
+   Test: test_404.js (36).
+
+31) IL CAMPO DEL PROXY STA FUORI DAL RIQUADRO DELLA CHIAVE — #bsi-hub-proxybox,
+   non dentro #bsi-hub-keybox. Quello sparisce appena una chiave c'e'
+   (refreshKeyBox), quindi il proxy sarebbe stato invisibile proprio a chi
+   puo' usarlo. E' una riga ripiegata che dice gia' lo stato.
+   IL SALVATAGGIO SONDA DA SE' con fetch(v + '/stato'): NON usare
+   proxyStato(), che ha un .catch() e restituisce [] sia quando il proxy non
+   risponde sia quando risponde senza chiavi. A runtime e' giusto cosi'
+   (indulgente, ripiega sulle chiavi locali), ma qui la differenza e' tutta:
+   salvare un indirizzo morto spegne la richiesta della chiave e lascia
+   Spectra muta. Se non risponde si RIPRISTINA l'indirizzo precedente.
+   Test: browser_proxyui.js (17).
+
+32) UN 503 NON E' UN ERRORE, E' UN "RIPROVA FRA POCO" — quarto modo in cui un
+   fornitore ti pianta. "HTTP 503 — This model is currently experiencing high
+   demand. Please try again later." Il fornitore dice ESATTAMENTE cosa fare e
+   noi lo ignoravamo: solo il 429 veniva ritentato, quindi un sovraccarico
+   finiva a video come errore definitivo, senza nemmeno provare un altro
+   fornitore, e sembrava colpa della chiave appena inserita.
+   erroreTemporaneo(): 429, 500, 502, 503, 504, 529 (il 529 e' il
+   sovraccarico di Anthropic). Ritentativi = TENTATIVI_TEMPORANEO (4), con
+   attesa esponenziale che parte un gradino piu' in alto per i non-429 (un
+   sovraccarico non si sblocca in 1,5 s). Retry-After del fornitore vince
+   sempre sulla stima.
+   Esauriti i tentativi si marca e.sovraccarico, e conProviderDiRiserva
+   scatta anche su quello: NON e' esaurito (la quota c'e') e NON e'
+   irraggiungibile (il server risponde), serviva un terzo flag.
+   Il messaggio finale dice che non e' colpa della chiave e cosa fare,
+   conservando [503: ...] per la diagnosi.
+   onAttesa riceve lo STATO: dire "limite al minuto" davanti a un 503
+   manderebbe l'utente a cercare un problema che non ha.
+
+33) IL RICONOSCIMENTO DI "MODELLO SPARITO" VA TENUTO STRETTO — trovato
+   scrivendo test_503.js, ed e' un difetto che ho introdotto io alla nota 30.
+   La regola era: 404 OPPURE 400 col testo che contiene /model/. Finche' la
+   bocciatura durava un turno, un falso positivo non costava niente. Ora dura
+   SETTE GIORNI, e un 503 che dice "This MODEL is currently experiencing high
+   demand" avrebbe escluso per una settimana un modello sano.
+   Ora serve una frase che dica davvero che non c'e': not found / does not
+   exist / not a valid / no longer available / unknown model / invalid model
+   / model_not_found / has been deprecated|retired|removed / decommissioned.
+   REGOLA GENERALE: quando si allunga la vita di una decisione automatica,
+   ricontrollare quanto e' forte la prova che la fa scattare.
+   Test: test_503.js (39), sezione 6b.
+
+34) PONTE SPECTRA -> RDKIT LAB (strumenti disegna_molecola, mostra_spettri,
+   analizza_molecola). Il lab e' un iframe della STESSA origine: la strada
+   giusta e' chiamare iframe.contentWindow.bsiRDKitAPI, che RESTITUISCE un
+   valore. postMessage resta come riserva (non sa dire se e' andata).
+   IL PUNTO DELICATO E' IL TEMPO, non il canale:
+     · openRDKitLab() crea l'iframe e torna subito, ma la pagina dentro deve
+       ancora caricarsi -> conRDKitAPI() ASPETTA che l'API compaia (20 s),
+       invece di sparare un messaggio 150 ms dopo;
+     · dentro il lab, RDKit e' WebAssembly e ci mette secondi -> le
+       richieste che ne dipendono vanno in CODA (_quandoPronto) e partono a
+       rdkReady. Senza, analyzeMol() fallisce in silenzio (requireRDKit si
+       limita a un avviso).
+   GLI SPETTRI NON DIPENDONO DA RDKIT: SpectralLab.analyze lavora sulle
+   euristiche di feat() dallo SMILES, quindi si servono subito. E' la parte
+   che l'utente aspetta: non metterla in coda per sbaglio.
+   ID REALI (una guida esterna li dava sbagliati): pannello molecola
+   'p-mol', pannello spettri 'p-speclive' (NON 'p-spec'). showPanelById
+   inizializza SpectralLab la prima volta: chiamarlo PRIMA delle spec*.
+   Tipi spettro: nmr, ir, uv, ms, raman (attributo data-spt). Uno per volta.
+   Il listener nel lab accetta SOLO ev.source === window.parent.
+   NEI TEST: il contesto va aperto con serviceWorkers:'block', altrimenti il
+   SW intercetta prima di page.route e si misura il file NON patchato senza
+   accorgersene (ci ho perso un giro).
+   Test: browser_rdkit.js (31).
+
+35) analizza_molecola: 20 molecole TABULATE + ripiego per gruppi funzionali.
+   Le due fonti vanno DICHIARATE ('tabulato' / 'dedotto dai gruppi
+   funzionali'): sono cose diverse e lo studente deve saperlo.
+   DUE TRAPPOLE, entrambe trovate testando:
+   a) l'ossigeno carbonilico di un estere veniva riletto come alcol e
+      prometteva una banda O–H inesistente. Ora i gruppi CONSUMANO dalla
+      stringa cio' che hanno gia' spiegato (campo 'consuma'), e l'ordine
+      dell'elenco conta: prima i carbonilici, in fondo alcol e ammine.
+   b) senza SMILES passavo il NOME al riconoscitore, che e' un parser di
+      SMILES: la "n" di "xyzynonesiste" diventava un'ammina, cioe'
+      un'analisi inventata per una molecola inesistente. Ora senza SMILES
+      si fallisce dichiarandolo.
+
+36) LA FIRMA DEL PENSIERO DI GEMINI — quinto modo di essere piantati, e il
+   piu' subdolo: il PRIMO giro di strumenti riesce, il SECONDO da'
+     400 — Function call is missing a thought_signature in functionCall parts
+   I modelli Gemini che ragionano allegano a ogni parte un 'thoughtSignature'
+   opaco e lo rivogliono IDENTICO quando la conversazione torna indietro. Lo
+   buttavamo via al parsing.
+   Due grafie: thoughtSignature (JSON REST) e thought_signature (nome proto,
+   quello che compare nell'errore). Si raccolgono entrambe.
+   La firma sta sulla PARTE, non dentro functionCall: va rimessa sulla parte
+   (anche su quella di testo, se l'aveva).
+   STESSA CLASSE della firma dei blocchi di pensiero di Anthropic, che era
+   gia' risolta: quando un fornitore ti da' un campo opaco, RIMANDALO
+   INDIETRO. Cercarlo negli altri fornitori prima che ti trovi lui.
+   TRE LIVELLI DI RECUPERO, in quest'ordine (l'ordine e' il punto):
+     a) firma vera rimandata indietro — il caso normale;
+     b) se il fornitore rifiuta lo stesso, si rifa' il turno da capo col
+        marcatore 'skip_thought_signature_validator'. MAI a priori: un
+        modello che non ragiona non emette firme e non ne vuole, e
+        inviargliene una finta trasformerebbe un turno sano in un 400;
+     c) se anche quello viene rifiutato, si riparte SENZA STRUMENTI dai
+        messaggi originali e LO SI DICE (onSenzaStrumenti). Prima questa
+        rete valeva solo al giro 0, cioe' proprio non copriva questo caso.
+   Test: test_firma.js (31).
+
+37) ALTRI DUE SUL FORMATO GEMINI, dalla stessa revisione:
+   · functionResponse.response DEVE essere un oggetto (Struct). Un valore
+     nudo fa fallire il turno: si incarta in { risultato: ... }.
+   · lo stream puo' ripetere la stessa parte in piu' chunk -> lo strumento
+     verrebbe eseguito DUE volte. Si scarta il duplicato ESATTO (nome +
+     argomenti), NON "si tiene solo l'ultimo chunk": chiamate diverse
+     possono arrivare separate e buttarle sarebbe peggio del problema.
+
+38) IL TETTO DI TOKEN NON E' LA FINESTRA DI CONTESTO — sesto modo di essere
+   piantati. Groq gratuito:
+     413 — Request too large ... tokens per minute (TPM):
+     Limit 8000, Requested 9568
+   Groq dichiara 131.000 token di CONTESTO ed e' vero; il piano gratuito ne
+   lascia passare 8.000 AL MINUTO. Due numeri diversi, e quello che incontri
+   per primo e' il secondo. Il costo fisso di Spectra (prompt + 35 strumenti)
+   e' 8.782 stimati: da solo non ci sta.
+   adattaAlBudget ESISTEVA GIA' (scritto per GitHub Models) ma era spento:
+   nessun fornitore dichiarava maxInput. Scrivere 8000 a mano sarebbe
+   l'ennesimo valore destinato a scadere — i piani cambiano, e per
+   organizzazione. Si LEGGE DALL'ERRORE (tettoDaErrore) e si ricorda in
+   bsi_tetti, legato all'impronta della chiave perche' dipende dal piano di
+   quella chiave. Poi si ritenta UNA volta.
+   MARGINE_TETTO = 0.7, ed e' MISURATO non scelto: sullo stesso corpo Groq
+   ha contato 9.568 dove stimaToken() dava 6.887. La stima a 4 caratteri per
+   token sottovaluta del ~30% sugli schemi degli strumenti (JSON fitto di
+   parentesi e virgolette, ogni simbolo un token). Puntare al tetto pieno
+   farebbe ricadere nello stesso 413 credendo di starci dentro.
+   Il filtro su tettoDaErrore accetta solo 1.000–2.000.000: un "Limit 3"
+   raccolto da una frase a caso renderebbe l'app inutilizzabile.
+   Test: test_tetto.js (32).
+
+39) IL TIMEOUT DI INATTIVITA' ERA UNO SOLO E ANDAVA SPEZZATO — dopo tre
+   strumenti andati a buon fine: "non ha risposto entro 45s". Il modello
+   stava ragionando sulla risposta finale, e MENTRE PENSA NON MANDA NIENTE.
+   45 s valevano sia per "aspetto il primo byte" sia per "buco a meta'
+   stream": sono due situazioni diverse.
+   Ora ATTESA_PRIMO_BYTE_MS = 180 s (300 in Modalita' Nucleo) e
+   ATTESA_FRA_BYTE_MS = 45 s, con primoByteArrivato a fare da interruttore.
+   A stream avviato 45 s di nulla e' un guasto vero; prima del primo byte no.
+   Dopo 20 s parte onPensieroLungo: minuti di schermo fermo sembrano un
+   blocco, e l'utente ricarica la pagina proprio mentre la risposta arriva.
+   Test: test_attesa.js (11), con un orologio finto — si misurano le
+   DECISIONI, non si aspettano minuti veri.
+
+40) IL SIMULATORE DI SPETTRI DAVA IL BENZENE CON CH2 E CH3 — errore di
+   CHIMICA, il piu' grave dei quattro trovati nel lab, perche' uno studente
+   impara a cercare una banda che non esiste.
+   LA CAUSA: f.nC=(smi.match(/C/gi)||[]).length — la "i" faceva contare anche
+   le "c" minuscole, cioe' gli AROMATICI. In SMILES maiuscola = alifatica,
+   minuscola = aromatica. Il benzene c1ccccc1 risultava con 6 carboni e
+   riceveva tutte le bande alifatiche: CH2 str, CH2 bend, CH3 bend, e in 1H
+   perfino un metile a 0,90 ppm.
+   Ora f.nCsp3 conta SOLO /C(?!l)/g (l'insidia e' Cl, che comincia per C ma
+   non e' carbonio) e governa tutte le bande alifatiche in IR, Raman e NMR.
+   f.nC resta per la stima della massa.
+   f.me (metile terminale): ^C(?![l0-9]) oppure (C) oppure [^(]C$. Il veto
+   sulla cifra serve al cicloesano C1CCCCC1, che altrimenti risulterebbe con
+   un CH3 che non ha.
+   AGGIUNTO Ar-CH3 a 2,34 ppm: un metile su anello aromatico e' deschermato
+   dalla corrente d'anello (toluene 2,36), mandarlo a cercare a 0,9 e' un
+   errore vero.
+   Test: browser_lab.js (21) — benzene, toluene e cicloesano, letti dalla
+   LEGENDA nel DOM, cioe' da cio' che vede l'utente (feat/irPk stanno dentro
+   la chiusura di SpectralLab e non sono raggiungibili dai test).
+
+41) I FAB COPRIVANO GLI OVERLAY — _bsiOverlayOpen() guardava SOLO
+   #bsi-hub-ov (Spectra). Aprendo RDKit Lab, Astro o PRO i due pulsanti
+   flottanti restavano sopra la pagina figlia: nel lab finivano sulla
+   casella "Auto-play" e sulla legenda.
+   Ora si guardano TUTTI gli overlay con [id^="bsi-"][id$="-ov"], invece di
+   elencarli a mano e dimenticarne uno al prossimo che si aggiunge.
+   ATTENZIONE: avevo prima aggiunto una regola CSS con !important, e NON
+   funzionava — un watchdog scrive display:flex !important INLINE, e
+   l'inline con !important batte il foglio di stile. E' la stessa pezza gia'
+   documentata nella scheda colloquio (bug 2): quando trovi una pezza, cerca
+   la ferita. La ferita era _bsiOverlayOpen.
+   _bsiSyncFabs ora scrive SOLO se il valore cambia: l'osservatore guarda
+   anche gli attributi, e riscrivere lo stesso valore lo risveglierebbe in
+   un ciclo infinito.
+
+42) DUE PULSANTI "INDIETRO" NEL LAB — rdkit_lab.html mostra il suo
+   #bsi-float-back quando e' incorporato, ma l'overlay di index.html ne
+   aggiunge gia' uno. Ora il lab lo mostra solo se il genitore NON ne offre
+   uno (controlla window.parent.document.getElementById('bsi-rdkitlab-ov')),
+   cosi' resta utile per un embed diverso.
+   E le etichette dei picchi si accavallavano nella zona affollata: ora
+   salgono di riga finche' c'e' posto (_etich, azzerato ad ogni draw()).
+
+43) AUDIT COMPLETO (09/2026) — cosa e' stato cercato e cosa si e' trovato.
+   METODO: statico su tutti i file, poi a RUNTIME su tutte e 14 le pagine
+   (errori JS, 404, id duplicati NEL DOM VIVO, gestori onclick che puntano a
+   funzioni inesistenti), poi clic su ogni pulsante, poi i dati scientifici
+   contro valori di letteratura, poi timer/animazioni, poi sicurezza.
+   FALSI POSITIVI DA NON RINCORRERE LA PROSSIMA VOLTA:
+   · i calc() "senza spazi": e' il regex che inciampa sui trattini di
+     safe-area-inset-bottom. Gli spazi ci sono, le regole sono valide.
+   · <script> "sbilanciati" in index.html (82 vs 81): dentro il template
+     #bsiQ-src-lab c'e' un <\/script> sfuggito apposta. E' la tecnica giusta.
+   · gli id duplicati nel SORGENTE di index.html (vdwN, dsPredOut...) stanno
+     dentro template JS: nel DOM vivo non esistono. Verificato, non supposto.
+   · target=_blank senza rel=noopener (75 casi): dal 2021 i browser lo
+     applicano da soli. Non e' valso 75 modifiche.
+   TROVATI VERI E CORRETTI: vedi note 44-47.
+
+44) COSTANTE FISICA: "R" RESTITUIVA AVOGADRO — la ricerca era
+   k.indexOf(q)>=0 || q.indexOf(k)>=0, e "avogadro" contiene una "r".
+   Cosi' "R" dava 6,022e23 CHIAMANDOLO costante dei gas, "k" dava Planck,
+   "e" dava Avogadro. Numeri sbagliati dati con sicurezza: la classe di
+   guasto peggiore per un'app di studio.
+   Ora: tabella PHYS_SIMBOLI (R, k, h, c, e, F, NA, me, mp, kB...), e la
+   ricerca va dal preciso al vago — esatta, simbolo, tutte le parole
+   significative, e solo da 4 caratteri la sottostringa. In ogni caso si
+   raccolgono TUTTE le candidate e si risponde solo se e' una sola:
+   "costante" ne trova cinque e ora lo DICE invece di sceglierne una.
+   Tolte articoli e preposizioni, cosi' "massa dell'elettrone" funziona.
+   Test: test_costanti.js (45).
+
+45) LA PASSWORD IN CHIARO STAVA NEL COMMENTO — file_manager.html conservava
+   correttamente solo l'impronta SHA-256, ma la riga sopra diceva
+   // SHA-256 of "SamuEle25". Con Ctrl+U si leggeva in un secondo, e tutto il
+   lavoro di non salvarla in chiaro non serviva a niente. Rimossa.
+   NB: resta nella storia di git. L'unico rimedio vero e' cambiarla.
+
+46) astro.html: UN CICLO DI ANIMAZIONE SENZA GUARDIA — _renderTransit.draw()
+   ridisegnava il canvas e riscriveva innerHTML 60 volte al secondo PER
+   SEMPRE, anche a scheda chiusa. Misurato: 483 disegni/s + 60 innerHTML/s a
+   vuoto dopo aver aperto una volta i Calcolatori. Dopo la correzione: 0.
+   animate() e _cosmoAnimate() la guardia ce l'avevano gia': era l'unico dei
+   tre a non averla. ATTENZIONE ALLA METRICA: contare i requestAnimationFrame
+   NON misura il lavoro — un ciclo con la guardia chiede il fotogramma e poi
+   esce. Va strumentato il canvas (stroke/fillText) e il setter di innerHTML.
+   Test: audit_lavoro.js.
+
+47) DUE ALTRI DIFETTI MINORI, corretti:
+   · accademia.html: cinque gestori leggevano currentCat/quizState quando
+     sono ancora null. NON erano raggiungibili cliccando (stanno in una vista
+     nascosta): li ho trovati premendo i pulsanti da codice. Guardie messe
+     comunque — un crash spezza la catena dei gestori.
+   · Biochimica_Guida_Definitiva.html: tre diagrammi definivano lo STESSO id
+     di marker SVG ('ah', 'ahb'), e url(#ah) risolve sempre al primo. Oggi si
+     vedevano uguali perche' i marker sono identici; cambiare il colore di
+     uno avrebbe cambiato gli altri due in silenzio. Ora ah1/ah2/ah3.
+
+48) AUDIT GRAFICO (09/2026) — 40 canvas visibili esaminati su tutte le pagine,
+   sezione per sezione (i canvas vivono dentro schede da aprire: guardarli
+   tutti insieme alla fine ne mostra uno solo). Da 20 difetti a 2, e i 2 che
+   restano NON sono difetti: pkcCanvas e mdCanvas sono vuoti perche'
+   aspettano che l'utente prema un pulsante o disegni.
+
+49) CANVAS SFOCATI SU SCHERMO AD ALTA DENSITA' — 13 canvas avevano il buffer
+   a 1× su un telefono a 3×: il browser li ingrandisce e linee e testo
+   escono morbidi. Molti altri erano gia' a 2-2,5×, quindi era una svista,
+   non una scelta.
+   LA SOLUZIONE NON E' alzare l'attributo width: il codice di disegno usa
+   raggi e corpi di carattere in pixel fissi (R=72, font 11px) e verrebbe
+   fuori un disegno piccolo in una tela grande. Si usa bsiNitido(canvas),
+   presente in index/astro/rdkit_lab/chimorga: ingrandisce il BUFFER e
+   lascia intatto il sistema di coordinate con setTransform, ombreggiando
+   width/height perche' continuino a riportare le misure logiche.
+   TRE TRAPPOLE, tutte incontrate scrivendola:
+   a) esce subito se getBoundingClientRect da' zero -> proprio i canvas
+      disegnati a scheda chiusa (quasi tutti) restavano sfocati. Si usa la
+      dimensione logica come riferimento quando il box non e' ancora noto.
+   b) il buffer deve conservare il RAPPORTO DEL DISEGNO, non quello
+      misurato a schermo: col secondo si stira l'immagine di qualche punto
+      percentuale (visto su moCanvas). Con una scala sola non si stira.
+   c) e' AUTO-LIMITANTE: punta a d volte la dimensione a schermo, quindi su
+      un canvas gia' fitto non fa niente. Senza, si sarebbero moltiplicati
+      buffer da megabyte per niente.
+   MISURARE: c.width ora riporta le misure LOGICHE. La nitidezza vera si
+   legge col getter nativo,
+   Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'width').get.
+   Un audit che legge c.width non vede piu' niente (ci sono cascato).
+
+50) L'EDITOR MOLECOLARE ERA INUSABILE SU TELEFONO — il contenitore era
+   grid-template-columns:1fr 280px. Su 392 px di larghezza la colonna fissa
+   ne prende 280 e all'editor restano 102: un francobollo su cui si dovrebbe
+   disegnare col dito. Ora repeat(auto-fit,minmax(min(100%,280px),1fr)):
+   collassa a una colonna quando non ce ne stanno due, senza media query.
+   Misurato: 102x71 -> 392x270 su telefono, due colonne intatte su desktop.
+   Corrette anche le altre due griglie con colonna fissa (220px, 200px).
+
+51) COME SI CONTA UN CANVAS "VUOTO" — campionando TUTTO il buffer, non
+   l'angolo in alto a sinistra: molti disegni sono centrati e guardando solo
+   l'angolo risultano vuoti (mi e' successo con chC, che disegna benissimo).
+
+52) ASPETTARE NON E' GRATIS — un 429 con Retry-After di 37 secondi non e' un
+   guasto, ma davanti a uno schermo fermo l'utente crede che l'app sia morta
+   (dieci secondi bastano). Se il fornitore chiede >= ATTESA_TROPPO_LUNGA_MS
+   *e* c'e' un altro fornitore utilizzabile, si lancia un errore con
+   .esaurito e .attesaLunga: scatta il failover e la risposta arriva subito.
+   Se invece non c'e' alternativa si aspetta lo stesso — 37 s di attesa
+   valgono piu' di un errore. Attenzione: questa regola precede quella dei
+   tentativi temporanei (503), quindi in test_503 il motivo del cambio ora
+   e' "attesa:NN" e non piu' "sovraccarico". E' un miglioramento, non una
+   regressione: il fornitore cambia prima, non dopo quattro attese.
+
+53) "RAGGIUNGIBILE" NON VUOL DIRE "USABILE GRATIS" — la Prova misura se il
+   browser arriva al fornitore, non quanto costa. Consigliare "puoi usare
+   subito Gemini 3 Pro" manda l'utente su un modello a consumo che senza
+   fatturazione attiva sbatte sul limite al minuto alla prima domanda. La
+   conclusione ora divide con PROVIDERS[id].free: prima i gratuiti, poi i
+   restanti con l'avviso esplicito che consumano credito.
+
+54) INDEXEDDB SI APRE CON CALMA — fra showApp() e req.onsuccess `db` vale
+   null, e chi cliccava in quella finestra otteneva "Cannot read properties
+   of null (reading 'transaction')". In Safari in navigazione privata il
+   database non si apre MAI e l'errore era per sempre. Non si legge una
+   variabile che forse non c'e': si aspetta una promessa (dbStore ora fa
+   cosi'). In lettura un archivio assente restituisce [] — la pagina mostra
+   "ancora niente"; in scrittura invece l'errore DEVE arrivare a chi ha
+   cliccato, piu' un avviso fisso in cima: se nulla viene salvato, l'utente
+   deve poterlo vedere in qualsiasi momento, non per tre secondi.
+
+55) NON DIRE "SALVATO" SE NON LO SAI — saveNote mostrava "✅ Nota salvata!"
+   sulla fede, senza catch: a scrittura fallita il messaggio non compariva
+   e basta, e uploadDocs annunciava "Documenti caricati" anche quando non ne
+   era entrato uno. Ogni scrittura ora ha il suo esito, e ogni barra di
+   avanzamento sta in un try/finally — altrimenti resta accesa al 40% su un
+   caricamento gia' morto.
+
+56) L'AGGIORNAMENTO NON DEVE RUBARE IL LAVORO — il service worker faceva
+   c.navigate(c.url) su tutte le schede aperte: ad ogni deploy le pagine si
+   ricaricavano di colpo, portandosi via una risposta di Spectra a meta' o
+   una nota lunga. Ora manda solo un messaggio; decide la pagina: se non c'e'
+   niente in corso si ricarica da sola (come prima, e non se ne accorge
+   nessuno), altrimenti mostra "Aggiorna ora / Più tardi".
+
+57) OFFLINE E RETE PESSIMA SONO DUE COSE DIVERSE — e la seconda capita molto
+   piu' spesso. Con una tacca di segnale il fetch non fallisce: resta appeso
+   finche' il browser non si arrende, anche mezzo minuto, e in quel mezzo
+   minuto l'app e' bianca pur avendo tutto in cache. Il network-first ora
+   aspetta la rete al massimo 3,5 s: se c'e' una copia la serve, e la copia
+   viene aggiornata dopo con calma (e.waitUntil tiene sveglio il worker).
+   Senza una copia si aspetta fino in fondo, non c'e' alternativa.
+
+58) UN TURNO ALLA VOLTA — sendBtn.disabled ferma il pulsante ma NON il tasto
+   Invio, che chiama send() direttamente. Due Invio di fila facevano partire
+   due turni sovrapposti sulla stessa chat: cronologia misurata
+   'user,user,assistant,assistant', cioe' proprio la forma che Claude rifiuta
+   al turno dopo. Ora c'e' _turnoInCorso, e il testo rifiutato RESTA nella
+   casella invece di sparire.
+
+59) UN VISORE, NON UNO PER MOLECOLA — il browser concede una quindicina di
+   contesti WebGL per scheda e poi spegne i piu' vecchi in silenzio. Tre
+   punti su cinque ricostruivano il visore 3D ad ogni molecola: misurate 7
+   costruzioni per 10 molecole sfogliate, ora 1. Il modello giusto era gia'
+   in questo stesso file (ensureViewer e il visore delle proteine): riusare
+   e chiamare .clear(), non svuotare il riquadro e ricominciare.
+
+60) COME UN BANCO DI PROVA PUO' MENTIRE — tutte inciampate in questa
+   sessione, tutte con lo stesso sintomo: il banco passa e non ha misurato
+   niente.
+   · page.route NON intercetta le richieste del service worker: serve
+     context.route. Con la prima, "rete morta" era una rete sanissima e la
+     misura tornava in 16 ms invece dei 3,5 s attesi.
+   · Un intercettore va CONTATO: se non scatta mai, il banco deve fallire,
+     non passare.
+   · Sondare la quota con un byte non prova niente: dopo aver saturato lo
+     spazio un byte ci sta sempre. Si prova con una scrittura delle
+     dimensioni vere dell'app.
+   · Una var dentro una IIFE non e' window.qualcosa: assegnarla da fuori crea
+     una variabile diversa e la funzione continua a vedere la sua.
+   · Una sonda messa su una libreria caricata DOPO viene rimpiazzata insieme
+     alla libreria: si sonda la primitiva del browser, non l'oggetto.
+   · Cercare [data-tab] dove la navigazione usa [data-s] trova zero schede: e
+     zero schede significa zero misure, non zero difetti.
+   · Il primo giro COSTRUISCE (le sezioni si disegnano solo quando le apri):
+     la crescita del DOM va misurata dal secondo giro in poi, altrimenti si
+     scambia la costruzione per una perdita. Misurato: +26876 nodi al primo
+     giro, +0 nei quattro successivi.
+
+61) LE REGEX SULLO SMILES NON SANNO DI CHIMICA — era la radice di due difetti
+   gravi negli spettri, nascosti nella stessa riga in IR e in NMR:
+   has(smi,/C\(=O\)O/) && !has(smi,/C\(=O\)O[Cc]/) per dire "e' un acido".
+   Nell'aspirina, CC(=O)Oc1ccccc1C(=O)O, il "C(=O)O" e' seguito da una "c":
+   l'acido spariva. In piu' le catene di else if lasciavano passare UN SOLO
+   gruppo funzionale, quindi l'aspirina — estere E acido — usciva senza
+   l'O–H largo, senza il C=O acido a 1690 e, nell'NMR, senza il protone del
+   COOH a 11,6 ppm. Su una molecola che sta in ogni libro di testo.
+   Ora bsi-spettri.js usa SMARTS via RDKit, che legge il grafo molecolare:
+   additivo per costruzione e cieco a come lo SMILES e' scritto.
+
+62) LA CONIUGAZIONE VA APPLICATA A UN CARBONILE PER VOLTA — un unico flag
+   "c'e' qualcosa di coniugato" li abbassava tutti insieme. Nell'aspirina
+   l'acido e' attaccato all'anello e scende a 1690, mentre l'estere resta a
+   1760 (estere fenolico: SALE): sono proprio le due bande che identificano
+   la molecola, e uno sconto unico le avrebbe spostate in blocco.
+   Verificato anche su acetofenone (chetone coniugato, 1690) e acetato di
+   etile (estere non coniugato, 1735).
+
+63) UNO SPETTRO IR SI DISEGNA IN TRASMITTANZA — bande verso il BASSO, linea
+   di base in alto al 100%. Il grafico precedente mostrava l'assorbanza
+   verso l'alto: un chimico capisce che e' sbagliato prima ancora di leggere
+   i numeri. E soprattutto: NIENTE Math.random() nella traccia. Ce n'era un
+   pizzico ad ogni ridisegno, quindi la stessa molecola dava ogni volta uno
+   spettro diverso e due spettri non erano confrontabili.
+
+64) LE INTENSITA' DIPENDONO DA QUANTI GRUPPI CI SONO — non dal fatto che ce
+   ne sia almeno uno. Con un valore fisso, le tre bande C–H sommate
+   scavavano da 3600 a 2500 un burrone che sotterrava perfino i carbonili:
+   misurato sull'aspirina, C–H al 5% di trasmittanza contro il ~40% reale,
+   quando l'aspirina ha un solo CH₃. Stessa cosa per l'integrazione ¹H: gli
+   SMARTS si contengono a vicenda (ogni CH₃ in α a un carbonile e' anche un
+   CH₃ alifatico) e senza sottrarli i rapporti — l'unica cosa che in un ¹H
+   NMR si legge davvero — vengono sbagliati.
+
+65) SEI PUNTI, DUE FUNZIONI — l'app disegna spettri IR in sei posti diversi,
+   tutti attraverso irBandList() e makeIRsvg(). Conveniva sostituire le due
+   funzioni invece di ricablare sei chiamanti: sei occasioni in meno di
+   dimenticarne uno. Le versioni vecchie restano come ripiego finche' RDKit
+   non e' caricato, e quando l'analisi vera arriva un ascoltatore fa
+   ridisegnare (BSISpettri.quandoPronto).
+
+66) SEGNARE NON BASTA, BISOGNA SPOSTARE — i fornitori irraggiungibili
+   portavano un ⚠ davanti al nome ma restavano in mezzo agli altri, alla
+   stessa distanza dal dito: si continuavano a scegliere e si aspettava di
+   nuovo il timeout. Ora finiscono in un <optgroup> in fondo, "Non hanno
+   risposto da questo dispositivo". Non si cancellano: un blocco puo'
+   dipendere dalla rete di oggi.
+
+67) "NON CI SONO AGGIORNAMENTI IN APP" ERA VERO ALLA LETTERA — e non per un
+   difetto del service worker. La finestra degli aggiornamenti esisteva
+   (bsiOpenUpdate, v17.3) e funzionava, ma il suo unico pulsante veniva
+   inserito in #hdr-actions, che un foglio di stile piu' avanti nel file
+   nasconde con display:none!important: nessuna porta per entrarci. In piu'
+   BSI_APP_VERSION era ferma a "v140-2026-06" mentre sw.js era alla v161,
+   quindi il confronto con GitHub partiva da un numero sbagliato.
+   Ora la voce sta nel pannello ✨ (#bsi14-sheet, chiave 'aggiorna') e la
+   versione e' allineata. BSI_APP_VERSION VA CAMBIATA INSIEME a CACHE in
+   sw.js ad ogni pubblicazione: sono due righe, vanno sempre in coppia.
+
+68) TRE MENU ✨, DUE MORTI — cercando dove mettere la voce ho trovato tre
+   generazioni sovrapposte: #hdr-actions (nascosto), #bsi105-menu della
+   v10.5 (nascosto pure lui, verificato display:none sia su desktop sia a
+   390px) e #bsi14-sheet della v14, che e' l'unico vivo insieme a
+   #bsi-spectra-fab. Avevo gia' scritto la voce nel secondo prima di
+   accorgermene: sarebbe stata irraggiungibile esattamente come quella che
+   stavo correggendo. Prima di aggiungere un comando a un menu, MISURARE che
+   quel menu si apra davvero — l'elemento esiste nel DOM in tutti e tre i
+   casi, e cercarlo con getElementById non distingue il vivo dai morti.
+
+69) LE CONVENZIONI DEGLI ASSI NON SONO TUTTE UGUALI — e sbagliarne una sola
+   rende lo spettro irriconoscibile a chi lo sa leggere:
+     · IR      → numero d'onda DECRESCENTE da sinistra (4000 … 400 cm⁻¹)
+     · ¹H NMR  → δ DECRESCENTE da sinistra (14 … 0 ppm), TMS a destra
+     · UV-Vis  → lunghezza d'onda CRESCENTE (200 … 400 nm)
+     · MS      → m/z CRESCENTE
+   Misurate tutte e cinque (l'IR esiste in due versioni, SVG e canvas):
+   nessuna era al contrario. Il banco non legge il codice, estrae le tacche
+   dal disegno e guarda se i numeri crescono o calano andando verso destra.
+
+70) ALTEZZA CASUALE IN UN NMR = DATO INVENTATO — il predittore della sezione
+   dedicata disegnava i picchi con 0.55+Math.random()*0.38, commentato
+   "simulate random height". In un ¹H NMR l'altezza E' l'informazione
+   quantitativa (l'integrazione): inventarla e' peggio che non disegnarla.
+   In piu' quelle predizioni sono INTERVALLI ("6.5–8.5 ppm") e parseFloat
+   prendeva solo il primo numero, piazzando il segnale all'estremo basso di
+   una finestra larga due ppm mentre il tipico era 7,2. Ora si disegna la
+   fascia dell'intervallo con una riga sul valore tipico, altezza uniforme:
+   dice DOVE cade il segnale e non pretende di dire quanto e' alto.
+   Dove invece il numero di protoni si conosce (makeNMRsvg) l'altezza e'
+   l'integrazione vera e l'etichetta la riporta: "7.26 (4H)".
+
+71) COME SI MISURA UN GRAFICO SU CANVAS — non ha <text> da leggere. Si
+   intercetta CanvasRenderingContext2D.prototype.fillText e si raccolgono
+   etichette e coordinate: e' l'equivalente dei <text> di un SVG. Due
+   trappole prese entrambe: (a) "la riga piu' in basso" non sono le tacche
+   ma il TITOLO dell'asse, quindi si raggruppa per y e si prende la riga
+   piu' popolosa; (b) le tacche non sono sempre numeri nudi — l'asse UV
+   scrive "200 nm", e un filtro solo-numerico le scartava tutte lasciando
+   la misura vuota (cioe' un successo regalato, se non si controlla che il
+   numero di tacche trovate sia > 0).
+
+72) UN DATO CHE SI CONTROLLA DA SOLO — ogni farmaco dichiara uno SMILES E un
+   peso molecolare: due affermazioni indipendenti sulla stessa molecola.
+   RDKit ricalcola il peso dalla struttura e, se non coincide, almeno uno dei
+   due e' sbagliato. Non serve fidarsi di nessuno. Applicato ai 143 farmaci
+   esistenti ha trovato 89 errori: i PESI erano giusti (presi dalla
+   letteratura), le STRUTTURE no. La ketamina era un pirrolidinone qualunque,
+   la morfina non era morfina, il lorazepam aveva perso l'ossidrile che lo
+   definisce, l'atorvastatina l'anilide. Ora 178 farmaci, 9 errori residui —
+   tutti su molecole grandi (vancomicina, rifampicina, digossina,
+   ciclosporina) di cui non sono riuscito a verificare la struttura: sono
+   rimaste SENZA, perche' un dato sbagliato sostituito da un altro dato
+   sbagliato non e' un progresso.
+
+73) LO SCARTO DICE COSA MANCA — non e' solo un allarme, e' una diagnosi. Δ
+   28,05 = C₂H₄; Δ 16,00 = un ossigeno; Δ 14,02 = un CH₂; Δ 2,02 = un doppio
+   legame mancante (era il Δ⁴ del testosterone). E Δ 0,98 sul sofosbuvir era
+   esattamente la differenza fra citosina e uracile: il sofosbuvir e' un
+   analogo dell'URIDINA, e avevo messo la base sbagliata. Il numero mi ha
+   detto dove guardare.
+
+74) LE ISTRUZIONI DEVONO STARE DOVE NASCE IL PROBLEMA — il proxy risolve
+   definitivamente sia i blocchi CORS sia i limiti al minuto, e non era
+   difficile da attivare: era difficile da TROVARE, perche' i quattro passi
+   stavano in proxy/README.md, cioe' su GitHub, cioe' fuori dal telefono su
+   cui Spectra smette di rispondere. Ora sono dentro il pannello del proxy,
+   con i comandi e un pulsante "copia" ciascuno (scriverli a mano su un
+   telefono e' il punto esatto in cui si rinuncia). Nota: il README dice
+   ancora di modificare PROXY_URL in bsi-ai-hub.js, ma da tempo basta
+   incollare l'indirizzo nel campo dell'app.
+
+## ISTRUZIONI GIT
+Branch: claude/app-layout-synthesis-features-97UCN
+  git push -u origin claude/app-layout-synthesis-features-97UCN
+
+Se il branch ha gia' un PR merged, ripartire da main:
+  git fetch origin main
+  git checkout -B claude/app-layout-synthesis-features-97UCN origin/main
+
+PR: creare via GitHub MCP (mcp__github__create_pull_request) e fare merge con
+    mcp__github__merge_pull_request — owner: samupropio1-ship-it
+
+## COME VERIFICARE PRIMA DI FARE DEPLOY
+```bash
+python3 -m http.server 8899 &          # server locale
+npm i playwright-core                  # test con browser reale
+# controlla: errori JS in console, 404, e che tutti i tab si aprano
+```
+
+================================================================================
+  Fine prompt — versione aggiornata al 03/09/2026
+================================================================================

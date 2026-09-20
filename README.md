@@ -17,7 +17,7 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 ## Che cos'è
 
 Uno strumento di studio per chimica, biochimica, farmacologia e astrochimica,
-rivolto a studenti universitari. **70 sezioni** fra calcolatori, visualizzatori,
+rivolto a studenti universitari. **87 sezioni** fra calcolatori, visualizzatori,
 banche dati e quiz, più un assistente AI che può interrogare l'applicazione
 stessa.
 
@@ -122,8 +122,17 @@ npx wrangler secret put GROQ_KEYS     # MAI in wrangler.toml: quel file è versi
 
 ## Comandi disponibili
 
-Non esiste un `package.json` con script, perché non esiste una build. I comandi
-utili sono questi:
+L'applicazione non ha una build: i file del repository *sono* l'applicazione.
+Il `package.json` esiste solo per i banchi di prova, che usano
+`playwright-core`.
+
+```bash
+git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
+cd BioSpecInfo-v11
+npm install                      # solo playwright-core, per i banchi
+python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
+node tools/genera-evidenza.js    # 39 banchi, rapporto di verifica completo
+```
 
 | Comando | Cosa fa |
 |---|---|
@@ -131,8 +140,17 @@ utili sono questi:
 | `node tools/genera-evidenza.js` | Esegue tutta la batteria e produce il rapporto di verifica |
 | `node tools/genera-evidenza.js --veloce` | Come sopra, saltando i banchi con browser |
 | `node tools/verifica-farmaci.js` | Verifica struttura ⟷ peso molecolare sui 178 farmaci |
+| `node tools/verifica-sicurezza.js` | Credenziali, password in chiaro, script esterni |
+| `node tools/verifica-accessibilita.js` | Contrasto WCAG AA e nomi accessibili, sezione per sezione |
+| `node tools/verifica-documenti.js` | Collegamenti, versioni, coerenza della matrice |
 | `node tools/genera-sbom.js` | Rigenera la distinta dei componenti |
-| `npm install` | Installa `playwright-core` (solo per i test) |
+| `node tools/genera-pdf.js` | Rigenera i 26 PDF da `docs/*.md` |
+| `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
+
+I 39 banchi stanno in [`tools/banchi/`](tools/banchi/) e sono versionati:
+non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
+vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
+c'è non è un banco superato.
 
 ---
 
@@ -140,7 +158,7 @@ utili sono questi:
 
 ```
 BioSpecInfo-v11/
-├── index.html              Applicazione principale — 70 sezioni, dati chimici
+├── index.html              Applicazione principale — 87 sezioni, dati chimici
 ├── bsi-ai-hub.js           Agente «Spectra»: ciclo agentico, 35 strumenti
 ├── bsi-spettri.js          Motore di predizione spettrale IR/NMR
 ├── sw.js                   Service Worker: offline e strategia di rete

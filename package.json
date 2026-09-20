@@ -1,0 +1,22 @@
+{
+  "name": "biospecinfo",
+  "version": "11.168.0",
+  "private": true,
+  "description": "BioSpecInfo — strumenti di verifica e generazione dell'evidenza. L'applicazione e' fatta di file statici e non richiede build: questo manifesto serve soltanto ai banchi di prova.",
+  "author": "Samuele Pio Provenzano",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "playwright-core": "^1.62.1"
+  },
+  "scripts": {
+    "server": "python3 -m http.server 8899",
+    "evidenza": "node tools/genera-evidenza.js",
+    "sbom": "node tools/genera-sbom.js",
+    "pacchetti": "node tools/genera-pacchetti.js",
+    "pdf": "node tools/genera-pdf.js",
+    "verifica:farmaci": "node tools/verifica-farmaci.js",
+    "verifica:sicurezza": "node tools/verifica-sicurezza.js",
+    "verifica:documenti": "node tools/verifica-documenti.js",
+    "verifica:accessibilita": "node tools/verifica-accessibilita.js"
+  }
+}

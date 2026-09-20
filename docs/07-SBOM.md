@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v167` |
-| Commit | `ca7391b70fa7a7ab4bb24e3f3c2195eae7a89be1` |
-| Generato (UTC) | `2026-09-20T18:49:36.987Z` |
+| Versione applicazione | `bsi-v168` |
+| Commit | `630705ea980c0d0f322d51d420ece6d777391bb9` |
+| Generato (UTC) | `2026-09-20T22:02:46.810Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,8 +56,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4426 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 419 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `index.html` | 4518 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
 | `rdkit_lab.html` | 257 kB | Laboratorio di chemioinformatica. |
@@ -69,10 +69,10 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `132f15270560ead70a4b62154c2841e8329967949545a4603d781ae1df85a5bf` |
-| `bsi-ai-hub.js` | `3cbd068dc5e3a9045b7f39e819f174f7edb732771c3e3f25b1474fae777d3640` |
+| `index.html` | `cdcf185fb01ec4aada46da794b3d7899c4dfb31524c2c34db1256c6bb4087fd9` |
+| `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | `a4089b6523f004ee8611185dbc20ed41723519cb727759149910256a15111f7f` |
+| `sw.js` | `14c9faa6ec45e7612e101a5f8dc7b37094b898b894afc94908bfcda3cadabf84` |
 | `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
 | `chimorga.html` | `a5e3efc121c7d479f47ec0ec3fc500ac543d54d36607c8f4e1b19d2fce238c31` |
@@ -125,4 +125,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-20T18:49:36.987Z._
+_Generato il 2026-09-20T22:02:46.810Z._

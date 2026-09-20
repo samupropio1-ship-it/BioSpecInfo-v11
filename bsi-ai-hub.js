@@ -4830,6 +4830,61 @@ TOOLS.push(
 
 window.BSI_AI_TOOLS = TOOLS;
 
+/* ═══════════════════════════════════════════════════════════════════════
+   L'elenco delle sezioni navigabili si prende dall'app, non da una copia
+   ═══════════════════════════════════════════════════════════════════════
+
+   NAV_SECTIONS era scritto a mano, e a mano invecchia. Al momento di
+   scrivere questo commento l'app aveva 85 sezioni raggiungibili dalla
+   barra di navigazione e l'elenco ne conteneva 84, di cui una non piu'
+   esistente: Simmetria e Cromatografia non c'erano. L'agente rispondeva
+   «sezione sconosciuta» a chi gliele chiedeva, mentre la documentazione
+   dichiarava che sapeva aprirle tutte.
+
+   E' lo stesso errore, in piccolo, delle liste di modelli codificate a
+   mano che si e' gia' scelto di non tenere: quando esiste una fonte
+   autorevole — qui i pulsanti realmente presenti nella pagina — copiarla
+   a mano significa garantire che prima o poi le due divergano, senza che
+   nessuno se ne accorga.
+
+   Le etichette scritte a mano restano: sono migliori del testo grezzo di
+   un pulsante. Sincronizzare aggiunge solo cio' che manca.
+   ═══════════════════════════════════════════════════════════════════════ */
+function sincronizzaSezioni(){
+  if(typeof document === 'undefined') return 0;
+  var aggiunte = 0;
+  try{
+    var bottoni = document.querySelectorAll('.nav-btn[data-s]');
+    for(var i = 0; i < bottoni.length; i++){
+      var id = bottoni[i].getAttribute('data-s');
+      if(!id || NAV_SECTIONS[id]) continue;
+      var testo = (bottoni[i].textContent || '').trim().replace(/\s+/g, ' ');
+      NAV_SECTIONS[id] = testo || id;
+      aggiunte++;
+    }
+  }catch(e){}
+  if(aggiunte){
+    /* Lo schema dello strumento porta l'elenco come `enum`: se non lo si
+       aggiorna, il modello non sa che la sezione esiste e non la chiede
+       mai — l'aggiunta alla mappa da sola non basta. */
+    try{
+      for(var k = 0; k < TOOLS.length; k++){
+        if(TOOLS[k].name !== 'naviga_sezione') continue;
+        TOOLS[k].parameters.properties.sezione.enum = Object.keys(NAV_SECTIONS);
+        break;
+      }
+    }catch(e){}
+  }
+  return aggiunte;
+}
+window.bsiSincronizzaSezioni = sincronizzaSezioni;
+
+if(typeof document !== 'undefined'){
+  if(document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ sincronizzaSezioni(); });
+  else sincronizzaSezioni();
+}
+
 function toolByName(name){
   for(var i = 0; i < TOOLS.length; i++) if(TOOLS[i].name === name) return TOOLS[i];
   return null;
@@ -5024,6 +5079,9 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
   var MAX_ROUNDS = nucleoAttivo() ? GIRI_NUCLEO : GIRI_NORMALE;
   var toolsDisabled = false;
   var firmaRipiego = false;      // vedi il recupero sul 400 da firma mancante
+  // Una sezione puo' essere stata costruita dopo il caricamento: si
+  // risincronizza prima di fotografare lo schema, non una volta sola.
+  try{ sincronizzaSezioni(); }catch(e){}
   var TOOL_SCHEMA = TOOLS.map(function(t){ return { name: t.name, description: t.description, parameters: t.parameters }; });
   // La selezione per budget si fa UNA volta per turno, non ad ogni giro.
   // Rifacendola ogni volta cambierebbe a meta' turno — la cronologia cresce

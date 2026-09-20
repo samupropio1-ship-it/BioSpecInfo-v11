@@ -1,6 +1,25 @@
-# BioSpecInfo e' una PWA statica senza dipendenze runtime: qui non deve finire
-# nulla di npm. Questi file compaiono solo quando si installa playwright-core
-# per i test in browser reale (vedi prompt_sessione.txt, "COME VERIFICARE").
+# ═══════════════════════════════════════════════════════════════════════
+# Che cosa resta fuori dal repository, e perché
+# ═══════════════════════════════════════════════════════════════════════
+#
+# BioSpecInfo è una PWA statica: l'applicazione non ha dipendenze a runtime
+# e non richiede npm per funzionare. Le librerie che usa (RDKit, three.js,
+# SQLite) sono incluse come file, non installate.
+#
+# Da questo si era concluso che «qui non deve finire nulla di npm», e anche
+# `package.json` e `package-lock.json` erano esclusi. Era una conclusione
+# sbagliata, e per un motivo preciso: i BANCHI DI PROVA dipendono da
+# `playwright-core`, e la documentazione dice a chiunque voglia verificare
+# il lavoro di eseguire `npm install`. Senza i due manifesti quel comando
+# non installa nulla — `npm install` con il solo lock file risponde «up to
+# date» e prosegue — e la batteria fallisce al primo banco con
+# «Cannot find module 'playwright-core'».
+#
+# Dichiarare una dipendenza di sviluppo non rende l'applicazione dipendente
+# da npm: la distinzione è fra ciò che serve per USARE il software e ciò che
+# serve per VERIFICARLO. Il primo insieme è vuoto, il secondo no.
+#
+# Resta fuori solo ciò che si rigenera da sé.
+# ═══════════════════════════════════════════════════════════════════════
+
 node_modules/
-package.json
-package-lock.json

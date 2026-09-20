@@ -803,7 +803,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v167';
+window.BSI_APP_VERSION='bsi-v168';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -925,6 +925,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="snernst">⚡ Elettrochimica</button>
     <button class="nav-btn" data-s="svsepr">🔷 VSEPR</button>
     <button class="nav-btn" data-s="ssimm">🔱 Simmetria</button>
+    <button class="nav-btn" data-s="scroma">🧫 Cromatografia</button>
+    <button class="nav-btn" data-s="staratura">📏 Taratura</button>
     <button class="nav-btn" data-s="stitr">🧪 Titolazione</button>
     <button class="nav-btn" data-s="skin">⏱️ Cinetica</button>
     <button class="nav-btn" data-s="sphase">📊 Fasi</button>
@@ -26189,6 +26191,449 @@ function showClinCase(id){
   </div>
 </div>
 
+<div id="scroma" class="section">
+  <div class="section-title">🧫 CROMATOGRAFIA — Separazione, efficienza, risoluzione</div>
+  <div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:880px;margin-bottom:16px">
+    La spettroscopia dice <b>che cosa</b> c'è; la cromatografia serve a poterlo chiedere
+    di <b>una sostanza per volta</b>. Una miscela non separata dà uno spettro che è la somma
+    di spettri, e nessuno dei due si riconosce. Qui si calcola quanto bene due sostanze si
+    separano, da che cosa dipende, e che cosa cambiare quando non si separano abbastanza.
+  </div>
+
+  <!-- ══ 1. Il cromatogramma calcolato ══ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-bottom:22px">
+
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">📈 Cromatogramma — calcolato, non disegnato</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:12px;line-height:1.55">
+          I due picchi qui sotto non sono un'illustrazione: sono due gaussiane la cui
+          <b>larghezza è ricavata dal numero di piatti</b> (σ = t<sub>R</sub>/√N) e la cui
+          posizione viene dal fattore di ritenzione. Cambiando un parametro cambia la
+          risoluzione, ed è la stessa risoluzione che si misurerebbe sullo strumento.
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;margin-bottom:12px">
+          <label style="font-size:.78rem;color:#9fb3c8">
+            Piatti teorici N
+            <input type="range" id="crN" min="200" max="80000" step="200" value="5000"
+                   style="width:100%;margin-top:3px">
+            <span id="crNv" style="color:#5eead4;font-family:var(--font-mono);font-size:.8rem">5000</span>
+          </label>
+          <label style="font-size:.78rem;color:#9fb3c8">
+            Fattore di ritenzione k₁
+            <input type="range" id="crK" min="0.2" max="20" step="0.1" value="2.5"
+                   style="width:100%;margin-top:3px">
+            <span id="crKv" style="color:#5eead4;font-family:var(--font-mono);font-size:.8rem">2.50</span>
+          </label>
+          <label style="font-size:.78rem;color:#9fb3c8">
+            Selettività α
+            <input type="range" id="crA" min="1.00" max="1.60" step="0.005" value="1.08"
+                   style="width:100%;margin-top:3px">
+            <span id="crAv" style="color:#5eead4;font-family:var(--font-mono);font-size:.8rem">1.080</span>
+          </label>
+          <label style="font-size:.78rem;color:#9fb3c8">
+            Tempo morto t<sub>M</sub> (min)
+            <input type="range" id="crTm" min="0.3" max="4" step="0.1" value="1.2"
+                   style="width:100%;margin-top:3px">
+            <span id="crTmv" style="color:#5eead4;font-family:var(--font-mono);font-size:.8rem">1.20</span>
+          </label>
+        </div>
+
+        <div id="crGrafico" style="margin-bottom:10px"></div>
+        <div id="crEsito"></div>
+      </div>
+    </div>
+
+    <!-- ══ 2. van Deemter ══ -->
+    <div class="panel">
+      <div class="ph" style="color:#6bcfff">📉 Equazione di van Deemter</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:10px;line-height:1.55">
+          L'altezza di piatto <b>H</b> misura quanto una colonna allarga una banda per
+          ogni metro percorso: <b>più H è piccola, più i picchi sono stretti</b>.
+          Dipende dalla velocità del fluido, e non in modo monotòno — esiste una velocità
+          ottimale, e andare più veloci di così peggiora la separazione.
+        </div>
+        <div style="background:#0a1628;border-radius:9px;padding:11px 13px;margin-bottom:12px;
+                    font-family:var(--font-mono);font-size:.92rem;color:#e9eef6;text-align:center">
+          H = A + B/u + C·u
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+          <label style="font-size:.76rem;color:#9fb3c8">
+            A <span style="color:#8494a8">(mm)</span>
+            <input type="range" id="vdA" min="0" max="2" step="0.02" value="0.5"
+                   style="width:100%;margin-top:3px">
+            <span id="vdAv" style="color:#f59e0b;font-family:var(--font-mono);font-size:.78rem">0.50</span>
+          </label>
+          <label style="font-size:.76rem;color:#9fb3c8">
+            B <span style="color:#8494a8">(mm²/s)</span>
+            <input type="range" id="vdB" min="0" max="6" step="0.05" value="2.0"
+                   style="width:100%;margin-top:3px">
+            <span id="vdBv" style="color:#7c6fff;font-family:var(--font-mono);font-size:.78rem">2.00</span>
+          </label>
+          <label style="font-size:.76rem;color:#9fb3c8">
+            C <span style="color:#8494a8">(s)</span>
+            <input type="range" id="vdC" min="0" max="0.3" step="0.002" value="0.05"
+                   style="width:100%;margin-top:3px">
+            <span id="vdCv" style="color:#00d4aa;font-family:var(--font-mono);font-size:.78rem">0.050</span>
+          </label>
+        </div>
+
+        <div id="vdGrafico" style="margin-bottom:10px"></div>
+        <div id="vdEsito"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 3. I tre termini, spiegati ══ -->
+  <div class="section-title" style="font-size:1rem">🔍 Che cosa allarga un picco</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:13px;margin-bottom:22px">
+
+    <div class="panel">
+      <div class="ph" style="color:#f59e0b">A — Cammini multipli <span style="font-weight:400;font-size:.8rem">(diffusione di Eddy)</span></div>
+      <div class="pb" style="font-size:.84rem;line-height:1.65;color:#cfe2f5">
+        In una colonna riempita, due molecole che partono insieme trovano percorsi di
+        lunghezza diversa fra i granuli e arrivano in momenti diversi.
+        <div style="margin-top:9px;padding:9px 11px;background:#0a1628;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0">
+          <b style="color:#f5d99e">Non dipende dalla velocità.</b> È una costante additiva: si
+          riduce con granuli <b>più piccoli e più uniformi</b>, ed è il motivo per cui l'UHPLC
+          usa particelle sub-2 µm. In una colonna capillare (GC) non c'è riempimento:
+          <b>A = 0</b>, e l'equazione diventa quella di Golay.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph" style="color:#7c6fff">B/u — Diffusione longitudinale</div>
+      <div class="pb" style="font-size:.84rem;line-height:1.65;color:#cfe2f5">
+        Una banda ferma si allarga da sola, per diffusione. Più tempo passa in colonna,
+        più si allarga: per questo il termine è <b>diviso</b> per la velocità.
+        <div style="margin-top:9px;padding:9px 11px;background:#0a1628;border-left:3px solid #7c6fff;border-radius:0 8px 8px 0">
+          <b style="color:#c4bcff">Domina alle basse velocità.</b> In gascromatografia conta
+          molto (nei gas la diffusione è ~10⁴ volte più rapida che nei liquidi); in HPLC è
+          quasi trascurabile, ed è per questo che le due curve hanno forma diversa.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">C·u — Trasferimento di massa</div>
+      <div class="pb" style="font-size:.84rem;line-height:1.65;color:#cfe2f5">
+        L'equilibrio fra fase mobile e fase stazionaria non è istantaneo. Chi si trova
+        nella fase stazionaria quando il fronte passa resta indietro.
+        <div style="margin-top:9px;padding:9px 11px;background:#0a1628;border-left:3px solid #00d4aa;border-radius:0 8px 8px 0">
+          <b style="color:#5eead4">Domina alle alte velocità</b>, e cresce col quadrato dello
+          spessore del film stazionario. È il termine che punisce chi accelera: raddoppiare
+          il flusso per finire prima allarga i picchi e può far collassare una separazione
+          che era appena sufficiente.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 4. Le grandezze ══ -->
+  <div class="section-title" style="font-size:1rem">📐 Le grandezze e che cosa significano</div>
+  <div style="overflow-x:auto;margin-bottom:22px">
+    <table style="width:100%;border-collapse:collapse;font-size:.83rem;min-width:600px">
+      <thead>
+        <tr style="background:#0f2236;color:#5eead4">
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">Grandezza</th>
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">Formula</th>
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">Che cosa dice</th>
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">Valori usuali</th>
+        </tr>
+      </thead>
+      <tbody id="crTabella" style="color:#cfe2f5"></tbody>
+    </table>
+  </div>
+
+  <!-- ══ 5. L'equazione maestra ══ -->
+  <div class="panel" style="max-width:900px;margin-bottom:22px">
+    <div class="ph" style="color:#ff6b9d">🎯 L'equazione della risoluzione — dove conviene agire</div>
+    <div class="pb" style="font-size:.86rem;line-height:1.7;color:#cfe2f5">
+      <div style="background:#0a1628;border-radius:9px;padding:13px;margin-bottom:12px;text-align:center;
+                  font-family:var(--font-mono);font-size:.95rem;color:#e9eef6">
+        R<sub>s</sub> = (√N / 4) · ((α − 1) / α) · (k / (1 + k))
+      </div>
+      I tre fattori sono indipendenti, e <b>non costano la stessa fatica</b>. È la ragione per
+      cui l'ordine in cui si interviene non è arbitrario:
+      <div id="crLeve" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:11px;margin-top:13px"></div>
+      <div style="margin-top:13px;padding:10px 13px;background:#0a1628;border-left:3px solid #ff6b9d;border-radius:0 8px 8px 0">
+        <b style="color:#ffa8c5">Il conto che chiude la questione.</b> Raddoppiare R<sub>s</sub>
+        agendo solo su N richiede di <b>quadruplicare i piatti</b> — quattro volte la lunghezza,
+        quattro volte il tempo di analisi e quattro volte la contropressione. Ottenere lo stesso
+        risultato portando α da 1,05 a 1,10 richiede di cambiare fase stazionaria o solvente:
+        un pomeriggio di lavoro contro una colonna che non esiste.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 6. GC e HPLC ══ -->
+  <div class="section-title" style="font-size:1rem">⚖️ Gascromatografia e HPLC — quando l'una, quando l'altra</div>
+  <div style="overflow-x:auto;margin-bottom:18px">
+    <table style="width:100%;border-collapse:collapse;font-size:.83rem;min-width:620px">
+      <thead>
+        <tr style="background:#0f2236;color:#5eead4">
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">Aspetto</th>
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">GC</th>
+          <th style="padding:9px 11px;text-align:left;border-bottom:1px solid #1e3a52">HPLC</th>
+        </tr>
+      </thead>
+      <tbody id="crConfronto" style="color:#cfe2f5"></tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="max-width:900px;margin-bottom:22px">
+    <div class="ph" style="color:#f59e0b">🚧 Il limite che decide quasi sempre</div>
+    <div class="pb" style="font-size:.86rem;line-height:1.7;color:#cfe2f5">
+      La GC richiede che l'analita sia <b>volatile e termicamente stabile</b>: deve arrivare in
+      fase gassosa a 250-350 °C senza decomporsi. Questo esclude in blocco sali, zuccheri,
+      amminoacidi liberi, peptidi, nucleotidi e la maggior parte dei farmaci polari — cioè buona
+      parte di ciò che interessa in biochimica.
+      <div style="margin-top:10px;padding:10px 13px;background:#0a1628;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0">
+        <b style="color:#f5d99e">La scappatoia: la derivatizzazione.</b> Si sostituiscono gli
+        idrogeni attivi (−OH, −COOH, −NH₂) con gruppi che non formano legami a idrogeno,
+        tipicamente trimetilsilile (BSTFA, TMCS) o esteri metilici (FAME per gli acidi grassi).
+        Il glucosio non è gascromatografabile; il glucosio penta-TMS lo è.
+        <b>Attenzione:</b> la derivatizzazione cambia la massa molecolare, e uno spettro di massa
+        va interpretato sul derivato — +72 u per ogni TMS.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 7. Indice di Kováts ══ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:14px;margin-bottom:20px">
+    <div class="panel">
+      <div class="ph" style="color:#6bcfff">🔢 Indice di ritenzione di Kováts</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;line-height:1.6;margin-bottom:11px">
+          Un tempo di ritenzione non si può confrontare fra due laboratori: dipende da colonna,
+          flusso, temperatura. L'indice di Kováts lo rende <b>trasferibile</b>, ancorandolo a una
+          scala di n-alcani: per definizione l'n-esano vale 600, l'n-eptano 700, e così via.
+          Un composto che esce a metà strada, in scala logaritmica, vale 650.
+        </div>
+        <div style="background:#0a1628;border-radius:9px;padding:11px;margin-bottom:12px;text-align:center;
+                    font-family:var(--font-mono);font-size:.82rem;color:#e9eef6;line-height:1.7">
+          I = 100 · [ n + (log t′<sub>x</sub> − log t′<sub>n</sub>) / (log t′<sub>n+1</sub> − log t′<sub>n</sub>) ]
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:11px">
+          <label style="font-size:.78rem;color:#9fb3c8">t<sub>R</sub> incognito (min)
+            <input type="number" id="kvX" value="7.40" step="0.01" min="0"
+                   style="width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.84rem;margin-top:3px"></label>
+          <label style="font-size:.78rem;color:#9fb3c8">t<sub>M</sub> tempo morto (min)
+            <input type="number" id="kvM" value="1.10" step="0.01" min="0"
+                   style="width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.84rem;margin-top:3px"></label>
+          <label style="font-size:.78rem;color:#9fb3c8">n-alcano C<sub>n</sub>: n =
+            <input type="number" id="kvN" value="8" step="1" min="1" max="40"
+                   style="width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.84rem;margin-top:3px"></label>
+          <label style="font-size:.78rem;color:#9fb3c8">t<sub>R</sub> di C<sub>n</sub> (min)
+            <input type="number" id="kvTn" value="6.20" step="0.01" min="0"
+                   style="width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.84rem;margin-top:3px"></label>
+          <label style="font-size:.78rem;color:#9fb3c8;grid-column:1/-1">t<sub>R</sub> di C<sub>n+1</sub> (min)
+            <input type="number" id="kvTn1" value="9.05" step="0.01" min="0"
+                   style="width:100%;box-sizing:border-box;padding:7px 9px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.84rem;margin-top:3px"></label>
+        </div>
+        <div id="kvEsito"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">🔬 I rivelatori e che cosa vedono</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;line-height:1.6;margin-bottom:11px">
+          Un rivelatore non «vede il composto»: risponde a una proprietà. Sceglierlo male
+          significa non vedere ciò che si sta cercando anche quando la colonna lo ha separato
+          perfettamente.
+        </div>
+        <div id="crRivelatori" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 8. Diagnostica ══ -->
+  <div class="section-title" style="font-size:1rem">🩺 Il picco è storto: che cosa sta succedendo</div>
+  <div id="crDiagnosi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:13px;margin-bottom:20px"></div>
+
+  <div class="panel" style="max-width:900px">
+    <div class="ph" style="color:#8494a8">📋 Che cosa questa sezione calcola e che cosa no</div>
+    <div class="pb" style="font-size:.84rem;line-height:1.7;color:#9fb3c8">
+      Il cromatogramma qui sopra è <b>calcolato dai parametri inseriti</b>: date N, k e α, le
+      posizioni e le larghezze dei picchi seguono dalle definizioni, e la risoluzione mostrata
+      è quella che si misurerebbe su quei picchi. Le formule sono esatte.
+      <div style="margin-top:10px;padding:10px 13px;background:#0a1628;border-left:3px solid #8494a8;border-radius:0 8px 8px 0">
+        <b style="color:#cfe2f5">Quello che non fa:</b> non prevede il tempo di ritenzione di
+        una molecola da cui partire. Prevedere k da una struttura richiede parametri sperimentali
+        della fase stazionaria e della temperatura, e un modello che li usi — non è un calcolo
+        che si possa fare a partire dal solo SMILES senza dichiarare un'incertezza più grande
+        del risultato. I valori di k, α e N vanno <b>misurati</b> o presi dal metodo:
+        qui si risponde alla domanda «dati questi, che separazione ottengo, e che cosa conviene
+        cambiare».
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="staratura" class="section">
+  <div class="section-title">📏 TARATURA E INCERTEZZA — Dal segnale al numero, con il suo errore</div>
+  <div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:880px;margin-bottom:16px">
+    Uno strumento non misura concentrazioni: misura segnali. Il passaggio da un segnale a
+    una concentrazione è una <b>retta di taratura</b>, e una concentrazione dichiarata senza
+    la sua incertezza non è un risultato — è un numero. Qui si costruisce la retta, si ricava
+    la concentrazione di un incognito <b>con il suo intervallo di confidenza</b>, e si calcolano
+    limite di rivelabilità e di quantificazione.
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-bottom:22px">
+
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">📊 Retta di taratura — minimi quadrati</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;line-height:1.55;margin-bottom:11px">
+          Una coppia per riga: <b>concentrazione</b> e <b>segnale</b>, separate da spazio,
+          virgola o tabulazione. Si possono incollare direttamente da un foglio di calcolo.
+        </div>
+        <textarea id="tarDati" rows="8" spellcheck="false"
+          style="width:100%;box-sizing:border-box;padding:10px;border-radius:9px;border:1px solid #1e3a52;
+                 background:#0a1628;color:#e9eef6;font-family:var(--font-mono);font-size:.82rem;
+                 line-height:1.55;resize:vertical">0.00  0.003
+2.00  0.127
+4.00  0.251
+6.00  0.382
+8.00  0.501
+10.00 0.632</textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+          <button id="tarEsempio2" style="font-size:.78rem;padding:7px 12px;border-radius:8px;border:1px solid #1e3a52;background:#0f2236;color:#cfe2f5;cursor:pointer">
+            Esempio: taratura non lineare
+          </button>
+          <button id="tarEsempio3" style="font-size:.78rem;padding:7px 12px;border-radius:8px;border:1px solid #1e3a52;background:#0f2236;color:#cfe2f5;cursor:pointer">
+            Esempio: punto anomalo
+          </button>
+        </div>
+        <div id="tarGrafico" style="margin-bottom:10px"></div>
+        <div id="tarRetta"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph" style="color:#6bcfff">🎯 L'incognito, con il suo intervallo</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;line-height:1.55;margin-bottom:11px">
+          Invertire la retta è la parte facile. La parte che conta è <b>quanto vale
+          l'incertezza</b> sul risultato — e non è costante: cresce allontanandosi dal
+          centro della taratura.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <label style="font-size:.78rem;color:#9fb3c8">Segnale misurato (media)
+            <input type="number" id="tarY0" value="0.318" step="0.001"
+                   style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.86rem;margin-top:4px"></label>
+          <label style="font-size:.78rem;color:#9fb3c8">Repliche M dell'incognito
+            <input type="number" id="tarM" value="3" step="1" min="1" max="50"
+                   style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.86rem;margin-top:4px"></label>
+        </div>
+        <div id="tarIncognito" style="margin-bottom:14px"></div>
+
+        <div class="section-title" style="font-size:.92rem;margin:0 0 9px">Limiti di rivelabilità</div>
+        <div id="tarLimiti"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Perché l'incertezza non è costante ══ -->
+  <div class="panel" style="max-width:920px;margin-bottom:22px">
+    <div class="ph" style="color:#f59e0b">📐 Perché l'intervallo si allarga alle estremità</div>
+    <div class="pb" style="font-size:.86rem;line-height:1.7;color:#cfe2f5">
+      <div style="background:#0a1628;border-radius:9px;padding:13px;margin-bottom:12px;text-align:center;
+                  font-family:var(--font-mono);font-size:.84rem;color:#e9eef6;line-height:1.9">
+        s<sub>x₀</sub> = (s<sub>y/x</sub> / m) · √[ 1/M + 1/N + (ȳ₀ − ȳ)² / (m² · S<sub>xx</sub>) ]
+      </div>
+      I tre termini sotto radice sono tre sorgenti distinte, e si leggono una per una:
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:11px;margin:13px 0">
+        <div style="background:#0a1628;border-left:3px solid #00d4aa;border-radius:0 8px 8px 0;padding:10px 12px">
+          <b style="color:#5eead4;font-size:.83rem">1/M — le repliche dell'incognito</b>
+          <div style="font-size:.79rem;margin-top:5px;line-height:1.55">L'unico termine che si può
+          ridurre <b>a posteriori</b>: misurare tre volte invece di una lo taglia di un terzo.</div>
+        </div>
+        <div style="background:#0a1628;border-left:3px solid #6bcfff;border-radius:0 8px 8px 0;padding:10px 12px">
+          <b style="color:#6bcfff;font-size:.83rem">1/N — i punti della taratura</b>
+          <div style="font-size:.79rem;margin-top:5px;line-height:1.55">Va deciso <b>prima</b>.
+          Una taratura a tre punti porta un'incertezza che nessuna replica successiva recupera.</div>
+        </div>
+        <div style="background:#0a1628;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 12px">
+          <b style="color:#f5d99e;font-size:.83rem">(ȳ₀ − ȳ)² — la distanza dal centro</b>
+          <div style="font-size:.79rem;margin-top:5px;line-height:1.55">È zero al baricentro della
+          taratura e cresce col quadrato. <b>Estrapolare</b> fuori dall'intervallo tarato lo fa
+          esplodere: è la ragione per cui non si estrapola.</div>
+        </div>
+      </div>
+      <div style="padding:10px 13px;background:#0a1628;border-left:3px solid #ff6b9d;border-radius:0 8px 8px 0">
+        <b style="color:#ffa8c5">La conseguenza pratica.</b> Se un campione cade vicino a un
+        estremo della retta, <b>conviene diluirlo (o concentrarlo) per portarlo al centro</b>
+        piuttosto che ripetere la misura dieci volte: si agisce sul termine che pesa, non su
+        quello che si vede.
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Propagazione ══ -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:14px;margin-bottom:20px">
+    <div class="panel">
+      <div class="ph" style="color:#7c6fff">🔀 Propagazione dell'incertezza</div>
+      <div class="pb">
+        <div style="color:#9fb3c8;font-size:.82rem;line-height:1.55;margin-bottom:11px">
+          Le incertezze <b>non si sommano</b>: si sommano i loro quadrati. Due contributi
+          uguali non raddoppiano l'incertezza, la moltiplicano per √2 — ed è il motivo per cui
+          ridurre il contributo più piccolo non serve quasi a nulla.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:11px">
+          <label style="font-size:.78rem;color:#9fb3c8">a ± s<sub>a</sub>
+            <div style="display:flex;gap:5px;margin-top:4px">
+              <input type="number" id="ppA" value="10.00" step="0.01" style="width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.82rem">
+              <input type="number" id="ppSA" value="0.05" step="0.01" min="0" style="width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#5eead4;font-size:.82rem">
+            </div></label>
+          <label style="font-size:.78rem;color:#9fb3c8">b ± s<sub>b</sub>
+            <div style="display:flex;gap:5px;margin-top:4px">
+              <input type="number" id="ppB" value="2.00" step="0.01" style="width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#e9eef6;font-size:.82rem">
+              <input type="number" id="ppSB" value="0.01" step="0.01" min="0" style="width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border-radius:7px;border:1px solid #1e3a52;background:#0a1628;color:#5eead4;font-size:.82rem">
+            </div></label>
+        </div>
+        <div id="ppEsito"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph" style="color:#00d4aa">🔢 Cifre significative — non è estetica</div>
+      <div class="pb" style="font-size:.83rem;line-height:1.65;color:#cfe2f5">
+        <div style="color:#9fb3c8;margin-bottom:10px">
+          Scrivere una cifra in più significa <b>affermare</b> di conoscerla. È un'affermazione
+          falsa, e in un rapporto di prova è un difetto formale.
+        </div>
+        <div id="cifreRegole" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="max-width:920px">
+    <div class="ph" style="color:#8494a8">📋 Che cosa questa sezione calcola e che cosa no</div>
+    <div class="pb" style="font-size:.84rem;line-height:1.7;color:#9fb3c8">
+      La regressione è <b>ordinaria</b> ai minimi quadrati: assume che l'errore stia tutto
+      sulla y, che sia costante lungo tutta la retta (omoschedasticità) e che i punti siano
+      indipendenti. Sono le ipotesi della taratura di routine, e nella maggior parte dei casi
+      reggono.
+      <div style="margin-top:10px;padding:10px 13px;background:#0a1628;border-left:3px solid #8494a8;border-radius:0 8px 8px 0">
+        <b style="color:#cfe2f5">Quando non reggono</b> — e il calcolo qui sopra va allora
+        preso come indicativo: quando l'errore cresce con la concentrazione (frequente in
+        cromatografia e in spettrometria di massa) serve una regressione <b>pesata</b>;
+        quando la risposta satura, la retta va limitata all'intervallo lineare invece di
+        essere forzata su tutto. Il grafico dei <b>residui</b> qui a fianco serve esattamente
+        a vedere quale dei due casi si ha davanti: residui sparsi a caso attorno allo zero
+        vanno bene, residui a U o a imbuto no.
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="smm" class="section">
   <div class="section-title">⚗️ CINETICA ENZIMATICA — Michaelis-Menten</div>
   <div class="rxn-fp" id="mmFp">
@@ -30134,11 +30579,22 @@ window.exportPDF=function(){
       // Spectra sta rispondendo? Il pulsante Stop e' visibile solo allora.
       var stop = document.getElementById('bsi-hub-stop');
       if(stop && getComputedStyle(stop).display !== 'none') return true;
-      // Testo scritto e non ancora consegnato da nessuna parte.
+      // Testo scritto DALL'UTENTE e non ancora consegnato da nessuna parte.
+      //
+      // Il confronto con defaultValue non e' un dettaglio: alcune aree di
+      // testo nascono gia' piene di dati d'esempio (la taratura ne ha una
+      // con sei coppie di numeri). Contandole come lavoro aperto, la pagina
+      // risultava SEMPRE occupata e l'aggiornamento automatico non sarebbe
+      // piu' scattato su nessun dispositivo — ogni versione nuova avrebbe
+      // chiesto il permesso, per sempre. Il banco `test_sw` §4A l'ha visto
+      // subito; a occhio non si sarebbe notato, perche' la barra funziona.
+      //
+      // `defaultValue` e' il contenuto iniziale: se il valore coincide,
+      // l'utente non ha toccato nulla e non c'e' niente da perdere.
       var aree = document.getElementsByTagName('textarea');
       for(var i=0;i<aree.length;i++){
         var v = aree[i].value || '';
-        if(v.trim().length > 20) return true;
+        if(v.trim().length > 20 && v !== aree[i].defaultValue) return true;
       }
     }catch(e){}
     return false;
@@ -33215,12 +33671,34 @@ console.log('BioSpecInfo v17.9 \u2014 header rifinito \u2714');
 
 <script>
 // ─── BioSpecInfo v17.0 · Sicurezza leggibilità testi su tema scuro ───
+//
+// Questa regola nasce come rete di sicurezza: garantisce che un testo
+// lasciato senza colore, dentro una sezione, sia comunque leggibile sul
+// fondo scuro. Fin qui tutto bene.
+//
+// Il problema era la SPECIFICITA'. Scritta come `.section div{color:inherit}`
+// vale (0,1,1) e batte qualunque regola di componente scritta con una sola
+// classe — per esempio `.rv16-target{color:#1e293b}`, che colora di blu
+// scuro il testo dentro una scheda BIANCA. Risultato: il colore del
+// componente veniva scavalcato, la scheda restava bianca e il testo
+// diventava #d4dce6. Contrasto misurato: 1,38:1. Testo praticamente
+// invisibile, in una sezione usata per studiare.
+//
+// Che fosse un problema noto lo dice la riga successiva: `.spec-box *`
+// esisteva gia' per rimediare allo stesso effetto in un punto solo. Era
+// una toppa su un caso; i casi erano 1069, sparsi in 87 sezioni, e
+// nessuno li aveva visti perche' il banco di accessibilita' guardava una
+// sezione su 87.
+//
+// `:where()` ha specificita' ZERO. La rete di sicurezza continua a
+// funzionare per il testo che non ha un colore proprio, e smette di
+// combattere contro i componenti che ce l'hanno.
 (function(){
 'use strict';
 var s=document.createElement('style');
 s.textContent=[
-'.section,.nav-group-panel,#sdash-inner{color:#d4dce6}',
-'.section p,.section li,.section td,.section span,.section div,.section label,#sdash-inner p,#sdash-inner li,#sdash-inner td{color:inherit}',
+':where(.section,.nav-group-panel,#sdash-inner){color:#d4dce6}',
+':where(.section,#sdash-inner) :where(p,li,td,span,div,label){color:inherit}',
 // gli spettri restano col loro sfondo chiaro: testo scuro lì va bene
 '.spec-box,.spec-box *{color:initial}'
 ].join('\n');
@@ -44617,6 +45095,1194 @@ window.bsiOpenSettings = function(){
 };
 
 console.log('BioSpecInfo — pannello Impostazioni ✔');
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CROMATOGRAFIA — calcoli deterministici
+   ═══════════════════════════════════════════════════════════════════════
+   Ogni curva qui dentro e' calcolata dalle definizioni, non disegnata a
+   mano: la larghezza di un picco viene da sigma = tR/sqrt(N), la
+   risoluzione dal rapporto fra distanza e larghezze. Nessun Math.random:
+   gli stessi parametri danno sempre la stessa figura, e chi la confronta
+   con uno strumento trova gli stessi numeri.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  var C = {
+    bordo:  '#1e3a52',
+    assi:   '#5f7d99',
+    testo:  '#9fb3c8',
+    p1:     '#00d4aa',
+    p2:     '#6bcfff',
+    linea:  '#e9eef6',
+    fondo:  '#0a1628'
+  };
+
+  function el(id){ return document.getElementById(id); }
+  function num(v, d){ var x = parseFloat(v); return isFinite(x) ? x : d; }
+
+  /* ─────────────────────────────────────────────────────────────────
+     1. Cromatogramma
+     ───────────────────────────────────────────────────────────────── */
+
+  /* Due gaussiane la cui larghezza discende dal numero di piatti.
+     N = 16 (tR/W)^2  ⟹  W = 4 tR/sqrt(N)  ⟹  sigma = tR/sqrt(N).     */
+  function disegnaCromatogramma(){
+    var N  = num(el('crN').value, 5000);
+    var k1 = num(el('crK').value, 2.5);
+    var a  = num(el('crA').value, 1.08);
+    var tM = num(el('crTm').value, 1.2);
+
+    el('crNv').textContent  = N;
+    el('crKv').textContent  = k1.toFixed(2);
+    el('crAv').textContent  = a.toFixed(3);
+    el('crTmv').textContent = tM.toFixed(2);
+
+    var k2  = k1 * a;
+    var tR1 = tM * (1 + k1);
+    var tR2 = tM * (1 + k2);
+    var s1  = tR1 / Math.sqrt(N);
+    var s2  = tR2 / Math.sqrt(N);
+    var W1  = 4 * s1, W2 = 4 * s2;
+
+    /* Rs = Δt / media delle larghezze alla base */
+    var Rs = (tR2 - tR1) / ((W1 + W2) / 2);
+
+    /* le aree sono uguali: due sostanze in egual quantita'.
+       h = 1/(sigma*sqrt(2pi)) normalizzato al piu' alto dei due. */
+    var h1 = 1 / s1, h2 = 1 / s2;
+    var hmax = Math.max(h1, h2);
+    h1 /= hmax; h2 /= hmax;
+
+    function g(t, tr, s, h){
+      var z = (t - tr) / s;
+      return h * Math.exp(-0.5 * z * z);
+    }
+
+    /* ── Due viste, come su uno strumento vero ──
+       La corsa intera parte dall'iniezione e mostra dove cadono i picchi
+       rispetto al tempo morto. Ma con 5 000 piatti la larghezza di un picco
+       e' l'1 % del suo tempo di ritenzione: sulla corsa intera i due picchi
+       sono due linee sovrapposte, e la risoluzione non si vede. Per questo
+       ogni software di cromatografia affianca una vista espansa della
+       coppia — e' quella che si guarda per giudicare la separazione.
+       Le due viste disegnano le STESSE gaussiane: cambia solo la scala. */
+    function disegna(t0, t1, opz){
+      var L = 46, R = 14, T = 14, B = 34;
+      var Wsvg = 560, Hsvg = opz.alta ? 210 : 165;
+      var gw = Wsvg - L - R, gh = Hsvg - T - B;
+
+      function X(t){ return L + (t - t0) / (t1 - t0) * gw; }
+      function Y(v){ return T + gh - v * gh; }
+
+      var punti = 900, d1 = '', d2 = '', ds = '';
+      for (var i = 0; i <= punti; i++) {
+        var t = t0 + (t1 - t0) * i / punti;
+        var v1 = g(t, tR1, s1, h1), v2 = g(t, tR2, s2, h2);
+        var x = X(t).toFixed(2);
+        d1 += (i ? 'L' : 'M') + x + ',' + Y(v1 * 0.86).toFixed(2);
+        d2 += (i ? 'L' : 'M') + x + ',' + Y(v2 * 0.86).toFixed(2);
+        ds += (i ? 'L' : 'M') + x + ',' + Y((v1 + v2) * 0.86).toFixed(2);
+      }
+
+      var tacche = '';
+      for (var j = 0; j <= 6; j++) {
+        var tt = t0 + (t1 - t0) * j / 6, xx = X(tt);
+        tacche += '<line x1="' + xx.toFixed(1) + '" y1="' + (T + gh) + '" x2="' + xx.toFixed(1) +
+                  '" y2="' + (T + gh + 4) + '" stroke="' + C.assi + '" stroke-width="1"/>' +
+                  '<text x="' + xx.toFixed(1) + '" y="' + (T + gh + 15) +
+                  '" fill="' + C.testo + '" font-size="9" text-anchor="middle">' +
+                  tt.toFixed(opz.decimali) + '</text>';
+      }
+
+      /* il tempo morto si segna solo dove cade davvero */
+      var segnoTm = '';
+      if (tM >= t0 && tM <= t1) {
+        segnoTm =
+          '<line x1="' + X(tM).toFixed(1) + '" y1="' + T + '" x2="' + X(tM).toFixed(1) +
+            '" y2="' + (T + gh) + '" stroke="#8494a8" stroke-width="1" stroke-dasharray="3,3"/>' +
+          '<text x="' + (X(tM) + 3).toFixed(1) + '" y="' + (T + 10) +
+            '" fill="#8494a8" font-size="9">t<tspan baseline-shift="sub" font-size="7">M</tspan></text>';
+      }
+
+      /* nella vista espansa si mostra la larghezza alla base del primo picco:
+         e' la grandezza che entra nel calcolo della risoluzione */
+      var misura = '';
+      if (opz.misura) {
+        var y = T + gh - 0.12 * gh;
+        misura =
+          '<line x1="' + X(tR1 - 2 * s1).toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' +
+            X(tR1 + 2 * s1).toFixed(1) + '" y2="' + y.toFixed(1) +
+            '" stroke="' + C.p1 + '" stroke-width="1"/>' +
+          '<text x="' + X(tR1).toFixed(1) + '" y="' + (y - 4).toFixed(1) + '" fill="' + C.p1 +
+            '" font-size="8" text-anchor="middle">W₁ = ' + (W1 * 60).toFixed(1) + ' s</text>' +
+          '<line x1="' + X(tR1).toFixed(1) + '" y1="' + (T + gh) + '" x2="' + X(tR1).toFixed(1) +
+            '" y2="' + Y(h1 * 0.86).toFixed(1) + '" stroke="' + C.p1 +
+            '" stroke-width=".7" stroke-dasharray="2,3" opacity=".6"/>' +
+          '<line x1="' + X(tR2).toFixed(1) + '" y1="' + (T + gh) + '" x2="' + X(tR2).toFixed(1) +
+            '" y2="' + Y(h2 * 0.86).toFixed(1) + '" stroke="' + C.p2 +
+            '" stroke-width=".7" stroke-dasharray="2,3" opacity=".6"/>';
+      }
+
+      return '<svg viewBox="0 0 ' + Wsvg + ' ' + Hsvg + '" width="100%" ' +
+          'style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px" ' +
+          'role="img" aria-label="' + opz.descrizione + '">' +
+        /* asse x = tempo crescente verso destra, asse y = segnale verso l'alto:
+           e' la convenzione del cromatogramma, e non va invertita */
+        '<line x1="' + L + '" y1="' + (T + gh) + '" x2="' + (L + gw) + '" y2="' + (T + gh) +
+          '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+        '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + gh) +
+          '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+        tacche +
+        '<text x="' + (L + gw / 2) + '" y="' + (Hsvg - 4) + '" fill="' + C.testo +
+          '" font-size="10" text-anchor="middle">' + opz.etichettaX + '</text>' +
+        '<text x="11" y="' + (T + gh / 2) + '" fill="' + C.testo + '" font-size="10" ' +
+          'text-anchor="middle" transform="rotate(-90 11 ' + (T + gh / 2) + ')">segnale</text>' +
+        '<text x="' + (L + 6) + '" y="' + (T + 10) + '" fill="#5f7d99" font-size="8.5">' +
+          opz.titolo + '</text>' +
+        segnoTm + misura +
+        '<path d="' + ds + '" fill="none" stroke="' + C.linea + '" stroke-width="1.7"/>' +
+        '<path d="' + d1 + '" fill="none" stroke="' + C.p1 + '" stroke-width="1" stroke-dasharray="4,3" opacity=".75"/>' +
+        '<path d="' + d2 + '" fill="none" stroke="' + C.p2 + '" stroke-width="1" stroke-dasharray="4,3" opacity=".75"/>' +
+        '<text x="' + X(tR1).toFixed(1) + '" y="' + (T + 1) + '" fill="' + C.p1 +
+          '" font-size="9" text-anchor="middle">1</text>' +
+        '<text x="' + X(tR2).toFixed(1) + '" y="' + (T + 1) + '" fill="' + C.p2 +
+          '" font-size="9" text-anchor="middle">2</text>' +
+      '</svg>';
+    }
+
+    /* corsa intera: dall'iniezione a un po' oltre l'ultimo picco */
+    var corsaFine = tR2 + Math.max(6 * s2, 0.18 * tR2);
+    /* vista espansa: la coppia con un margine di 4 sigma per parte */
+    var zoomIn  = tR1 - 4.5 * s1;
+    var zoomOut = tR2 + 4.5 * s2;
+
+    el('crGrafico').innerHTML =
+      disegna(0, corsaFine, { alta: true, decimali: 1, titolo: 'corsa intera',
+        etichettaX: 'tempo (min)',
+        descrizione: 'Cromatogramma completo dall\'iniezione: tempo morto a ' +
+                     tM.toFixed(2) + ' minuti, due picchi a ' + tR1.toFixed(2) +
+                     ' e ' + tR2.toFixed(2) + ' minuti' }) +
+      '<div style="height:8px"></div>' +
+      disegna(zoomIn, zoomOut, { alta: false, decimali: 2, misura: true,
+        titolo: 'vista espansa della coppia',
+        etichettaX: 'tempo (min) — scala espansa',
+        descrizione: 'Vista espansa dei due picchi: risoluzione ' + Rs.toFixed(2) });
+
+    /* Il giudizio sulla risoluzione segue le soglie convenzionali:
+       Rs = 1,5 e' la separazione «alla linea di base» (sovrapposizione
+       delle aree circa 0,1 %); sotto 1,0 i picchi non si integrano
+       separatamente senza errore sistematico. */
+    var verdetto, colore;
+    if (Rs >= 1.5)      { verdetto = 'separazione alla linea di base — quantificabile'; colore = '#00d4aa'; }
+    else if (Rs >= 1.0) { verdetto = 'picchi distinguibili ma non risolti: l\'integrazione porta un errore'; colore = '#f59e0b'; }
+    else if (Rs >= 0.5) { verdetto = 'sovrapposizione grave — si vede una spalla, non due picchi'; colore = '#ff6b9d'; }
+    else                { verdetto = 'non separati: un picco solo'; colore = '#ff5470'; }
+
+    /* Che cosa servirebbe per arrivare a 1,5 agendo su N */
+    var Nnec = N * Math.pow(1.5 / Rs, 2);
+
+    el('crEsito').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:11px 13px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px">' +
+          '<span style="color:' + C.testo + ';font-size:.8rem">Risoluzione R<sub>s</sub></span>' +
+          '<b style="color:' + colore + ';font-size:1.3rem;font-family:var(--font-mono)">' + Rs.toFixed(2) + '</b>' +
+        '</div>' +
+        '<div style="color:' + colore + ';font-size:.81rem;line-height:1.5;margin-bottom:10px">' + verdetto + '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:7px;font-size:.76rem;color:' + C.testo + '">' +
+          riga('t<sub>R1</sub>', tR1.toFixed(2) + ' min') +
+          riga('t<sub>R2</sub>', tR2.toFixed(2) + ' min') +
+          riga('k₂', k2.toFixed(2)) +
+          riga('W₁ (base)', (W1 * 60).toFixed(1) + ' s') +
+          riga('W₂ (base)', (W2 * 60).toFixed(1) + ' s') +
+          riga('H (L=25 cm)', (250 / N).toFixed(3) + ' mm') +
+        '</div>' +
+        (Rs < 1.5
+          ? '<div style="margin-top:10px;padding:8px 10px;background:#1a1410;border-left:3px solid #f59e0b;' +
+            'border-radius:0 7px 7px 0;font-size:.78rem;color:#f5d99e;line-height:1.55">' +
+            'Per arrivare a R<sub>s</sub> = 1,5 servirebbero <b>' +
+            Math.round(Nnec).toLocaleString('it-IT') + ' piatti</b> (×' +
+            (Nnec / N).toFixed(1) + '): la colonna e il tempo di analisi crescono nella stessa ' +
+            'proporzione. Alzare α anche solo di 0,02 costa molto meno.</div>'
+          : '') +
+      '</div>';
+  }
+
+  function riga(et, v){
+    return '<div style="background:#0f2236;border-radius:7px;padding:6px 8px">' +
+             '<div style="color:#8494a8;font-size:.71rem">' + et + '</div>' +
+             '<div style="color:#e9eef6;font-family:var(--font-mono);font-size:.84rem">' + v + '</div>' +
+           '</div>';
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     2. van Deemter
+     ───────────────────────────────────────────────────────────────── */
+  function disegnaVanDeemter(){
+    var A = num(el('vdA').value, 0.5);
+    var B = num(el('vdB').value, 2.0);
+    var Cc = num(el('vdC').value, 0.05);
+
+    el('vdAv').textContent = A.toFixed(2);
+    el('vdBv').textContent = B.toFixed(2);
+    el('vdCv').textContent = Cc.toFixed(3);
+
+    /* H(u) = A + B/u + C u ; minimo dove dH/du = 0 ⟹ u = sqrt(B/C)
+       e H_min = A + 2 sqrt(BC). Entrambi esatti, non stimati. */
+    var uOpt = (B > 0 && Cc > 0) ? Math.sqrt(B / Cc) : null;
+    var Hmin = uOpt !== null ? A + 2 * Math.sqrt(B * Cc) : null;
+
+    var u0 = 0.05, u1 = 12;
+    var L = 46, R = 14, T = 12, Bm = 34;
+    var Wsvg = 560, Hsvg = 230;
+    var gw = Wsvg - L - R, gh = Hsvg - T - Bm;
+
+    function H(u){ return A + (u > 0 ? B / u : 0) + Cc * u; }
+
+    /* la scala verticale si adatta, ma sempre da zero: un asse che non
+       parte da zero fa sembrare grande una differenza piccola */
+    var hMax = 0;
+    for (var s = u0; s <= u1; s += 0.05) hMax = Math.max(hMax, H(s));
+    hMax = Math.min(hMax, (Hmin !== null ? Hmin : 1) * 6 + A + 1);
+    if (!(hMax > 0)) hMax = 1;
+
+    function X(u){ return L + (u - u0) / (u1 - u0) * gw; }
+    function Y(h){ return T + gh - Math.min(h / hMax, 1) * gh; }
+
+    var d = '', dA = '', dB = '', dC = '';
+    for (var i = 0; i <= 500; i++) {
+      var u = u0 + (u1 - u0) * i / 500;
+      var x = X(u).toFixed(2);
+      d  += (i ? 'L' : 'M') + x + ',' + Y(H(u)).toFixed(2);
+      dA += (i ? 'L' : 'M') + x + ',' + Y(A).toFixed(2);
+      dB += (i ? 'L' : 'M') + x + ',' + Y(B / u).toFixed(2);
+      dC += (i ? 'L' : 'M') + x + ',' + Y(Cc * u).toFixed(2);
+    }
+
+    var tacche = '';
+    for (var j = 0; j <= 6; j++) {
+      var uu = u0 + (u1 - u0) * j / 6, xx = X(uu);
+      tacche += '<line x1="' + xx.toFixed(1) + '" y1="' + (T + gh) + '" x2="' + xx.toFixed(1) +
+                '" y2="' + (T + gh + 4) + '" stroke="' + C.assi + '" stroke-width="1"/>' +
+                '<text x="' + xx.toFixed(1) + '" y="' + (T + gh + 15) + '" fill="' + C.testo +
+                '" font-size="9" text-anchor="middle">' + uu.toFixed(1) + '</text>';
+    }
+    var tacche2 = '';
+    for (var m = 0; m <= 4; m++) {
+      var hv = hMax * m / 4, yy = Y(hv);
+      tacche2 += '<line x1="' + (L - 4) + '" y1="' + yy.toFixed(1) + '" x2="' + L + '" y2="' +
+                 yy.toFixed(1) + '" stroke="' + C.assi + '" stroke-width="1"/>' +
+                 '<text x="' + (L - 7) + '" y="' + (yy + 3).toFixed(1) + '" fill="' + C.testo +
+                 '" font-size="9" text-anchor="end">' + hv.toFixed(1) + '</text>';
+    }
+
+    var marcatore = '';
+    if (uOpt !== null && uOpt > u0 && uOpt < u1) {
+      marcatore =
+        '<line x1="' + X(uOpt).toFixed(1) + '" y1="' + Y(Hmin).toFixed(1) + '" x2="' +
+          X(uOpt).toFixed(1) + '" y2="' + (T + gh) + '" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3"/>' +
+        '<circle cx="' + X(uOpt).toFixed(1) + '" cy="' + Y(Hmin).toFixed(1) +
+          '" r="3.5" fill="#f59e0b"/>' +
+        '<text x="' + (X(uOpt) + 6).toFixed(1) + '" y="' + (Y(Hmin) - 5).toFixed(1) +
+          '" fill="#f59e0b" font-size="9">u ottimale</text>';
+    }
+
+    el('vdGrafico').innerHTML =
+      '<svg viewBox="0 0 ' + Wsvg + ' ' + Hsvg + '" width="100%" ' +
+        'style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px" ' +
+        'role="img" aria-label="Curva di van Deemter: altezza di piatto in funzione della velocità lineare">' +
+      '<line x1="' + L + '" y1="' + (T + gh) + '" x2="' + (L + gw) + '" y2="' + (T + gh) +
+        '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+      '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + gh) +
+        '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+      tacche + tacche2 +
+      '<text x="' + (L + gw / 2) + '" y="' + (Hsvg - 4) + '" fill="' + C.testo +
+        '" font-size="10" text-anchor="middle">velocità lineare u (mm/s)</text>' +
+      '<text x="11" y="' + (T + gh / 2) + '" fill="' + C.testo + '" font-size="10" text-anchor="middle" ' +
+        'transform="rotate(-90 11 ' + (T + gh / 2) + ')">H (mm)</text>' +
+      '<path d="' + dA + '" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,4" opacity=".8"/>' +
+      '<path d="' + dB + '" fill="none" stroke="#7c6fff" stroke-width="1" stroke-dasharray="4,4" opacity=".8"/>' +
+      '<path d="' + dC + '" fill="none" stroke="#00d4aa" stroke-width="1" stroke-dasharray="4,4" opacity=".8"/>' +
+      '<path d="' + d + '" fill="none" stroke="' + C.linea + '" stroke-width="2"/>' +
+      marcatore +
+      '</svg>';
+
+    var note = '';
+    if (uOpt === null) {
+      note = 'Con B o C a zero la curva non ha minimo: con C = 0 conviene sempre andare ' +
+             'più veloci, con B = 0 sempre più piano. È il caso limite, non una colonna reale.';
+    } else {
+      note = 'Il minimo sta a <b>u = ' + uOpt.toFixed(2) + ' mm/s</b>, dove H vale <b>' +
+             Hmin.toFixed(3) + ' mm</b>. Su una colonna da 25 cm sono <b>' +
+             Math.round(250 / Hmin).toLocaleString('it-IT') + ' piatti</b>. ' +
+             'A velocità doppia H sale a ' + H(uOpt * 2).toFixed(3) + ' mm — ' +
+             'si finisce prima e si separa peggio.';
+    }
+
+    el('vdEsito').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:11px 13px">' +
+        '<div style="display:flex;gap:13px;flex-wrap:wrap;font-size:.74rem;margin-bottom:9px">' +
+          '<span style="color:#f59e0b">▬ A</span>' +
+          '<span style="color:#7c6fff">▬ B/u</span>' +
+          '<span style="color:#00d4aa">▬ C·u</span>' +
+          '<span style="color:#e9eef6">▬ somma (H)</span>' +
+        '</div>' +
+        '<div style="color:' + C.testo + ';font-size:.81rem;line-height:1.6">' + note + '</div>' +
+      '</div>';
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     3. Kováts
+     ───────────────────────────────────────────────────────────────── */
+  function calcolaKovats(){
+    var tx  = num(el('kvX').value, NaN);
+    var tm  = num(el('kvM').value, NaN);
+    var n   = Math.round(num(el('kvN').value, NaN));
+    var tn  = num(el('kvTn').value, NaN);
+    var tn1 = num(el('kvTn1').value, NaN);
+
+    function guasto(msg){
+      el('kvEsito').innerHTML =
+        '<div style="background:#1a1013;border-left:3px solid #ff6b9d;border-radius:0 8px 8px 0;' +
+        'padding:10px 12px;font-size:.81rem;color:#ffa8c5;line-height:1.55">' + msg + '</div>';
+    }
+
+    if (![tx, tm, n, tn, tn1].every(isFinite)) return guasto('Manca un valore.');
+
+    /* i tempi RIDOTTI: t' = tR − tM. Usare i tempi assoluti e' l'errore
+       classico, e sposta l'indice di decine di unita'. */
+    var px = tx - tm, pn = tn - tm, pn1 = tn1 - tm;
+    if (px <= 0 || pn <= 0 || pn1 <= 0)
+      return guasto('Un tempo di ritenzione non può essere minore del tempo morto: ' +
+                    'nessun composto esce prima di ciò che non è trattenuto. Controlla t<sub>M</sub>.');
+    if (pn1 <= pn)
+      return guasto('C<sub>n+1</sub> deve uscire <b>dopo</b> C<sub>n</sub>: in una serie omologa ' +
+                    'il tempo cresce con il numero di carboni.');
+
+    var I = 100 * (n + (Math.log(px) - Math.log(pn)) / (Math.log(pn1) - Math.log(pn)));
+    var dentro = px >= pn && px <= pn1;
+
+    el('kvEsito').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:12px 13px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">' +
+          '<span style="color:' + C.testo + ';font-size:.8rem">Indice di Kováts</span>' +
+          '<b style="color:#6bcfff;font-size:1.35rem;font-family:var(--font-mono)">' + I.toFixed(0) + '</b>' +
+        '</div>' +
+        '<div style="color:' + C.testo + ';font-size:.78rem;margin-top:8px;line-height:1.6">' +
+          'Tempi ridotti: t′<sub>x</sub> = ' + px.toFixed(2) + ', t′<sub>n</sub> = ' + pn.toFixed(2) +
+          ', t′<sub>n+1</sub> = ' + pn1.toFixed(2) + ' min.' +
+        '</div>' +
+        (dentro
+          ? '<div style="margin-top:9px;padding:8px 10px;background:#0f2236;border-radius:7px;' +
+            'font-size:.78rem;color:#9fb3c8;line-height:1.55">L\'incognito esce fra C<sub>' + n +
+            '</sub> e C<sub>' + (n + 1) + '</sub>: l\'indice è <b>interpolato</b>, ed è il caso in ' +
+            'cui la scala è affidabile.</div>'
+          : '<div style="margin-top:9px;padding:8px 10px;background:#1a1410;border-left:3px solid #f59e0b;' +
+            'border-radius:0 7px 7px 0;font-size:.78rem;color:#f5d99e;line-height:1.55">' +
+            '<b>Attenzione: valore estrapolato.</b> L\'incognito non esce fra i due alcani ' +
+            'indicati, quindi l\'indice è calcolato fuori dall\'intervallo di ancoraggio. ' +
+            'Scegli la coppia di n-alcani che lo racchiude davvero.</div>') +
+      '</div>';
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     4. Contenuti tabellari
+     ───────────────────────────────────────────────────────────────── */
+  var GRANDEZZE = [
+    ['Tempo morto t<sub>M</sub>',
+     't<sub>M</sub> = L / u',
+     'Quanto impiega qualcosa che <b>non</b> viene trattenuto. È lo zero della scala: tutto si misura da lì.',
+     '1-2 min (HPLC), 0,5-2 min (GC)'],
+    ['Fattore di ritenzione k',
+     'k = (t<sub>R</sub> − t<sub>M</sub>) / t<sub>M</sub>',
+     'Quante volte il tempo morto la sostanza passa <b>nella fase stazionaria</b>. Indipendente da lunghezza e flusso: è la grandezza che si confronta.',
+     '<b>1-10</b> è l\'intervallo utile; sotto 1 esce col fronte, sopra 20 si allarga e si perde'],
+    ['Selettività α',
+     'α = k₂ / k₁',
+     'Quanto la colonna <b>distingue</b> le due sostanze. Se α = 1 nessuna efficienza potrà separarle: sono indistinguibili per quella fase.',
+     '1,05-1,20 è già utile; α = 1 è separazione impossibile'],
+    ['Piatti teorici N',
+     'N = 16 (t<sub>R</sub>/W)² = 5,54 (t<sub>R</sub>/W<sub>½</sub>)²',
+     'L\'<b>efficienza</b>: quanto la colonna mantiene stretta una banda. Cresce con la lunghezza e col diminuire del diametro dei granuli.',
+     '5 000-25 000 (HPLC), 10⁵-10⁶ (GC capillare)'],
+    ['Altezza di piatto H',
+     'H = L / N',
+     'Quanto la banda si allarga per unità di lunghezza. È H che si ottimizza: N si ottiene poi allungando la colonna.',
+     '2-3 volte il diametro dei granuli, nel caso migliore'],
+    ['Risoluzione R<sub>s</sub>',
+     'R<sub>s</sub> = Δt<sub>R</sub> / [(W₁+W₂)/2]',
+     'Il numero che conta davvero: <b>1,5 = separazione alla linea di base</b>, integrabile senza errore. Sotto 1,0 le aree si contaminano.',
+     'obiettivo ≥ 1,5; ≥ 2,0 se si quantifica in matrice complessa'],
+    ['Fattore di coda T',
+     'T = W<sub>0,05</sub> / (2 f)',
+     'La simmetria del picco misurata al 5 % dell\'altezza. Un picco simmetrico vale 1.',
+     'accettabile 0,8-1,5 (farmacopea: ≤ 2,0)']
+  ];
+
+  var CONFRONTO = [
+    ['Fase mobile', 'Gas inerte (He, H₂, N₂) — <b>non interagisce</b>: trasporta e basta',
+     'Liquido (acqua/acetonitrile/metanolo) — <b>partecipa</b> alla separazione'],
+    ['La leva principale', 'La <b>temperatura</b> del forno (programmata nel tempo)',
+     'La <b>composizione</b> del solvente (gradiente nel tempo)'],
+    ['Requisito sull\'analita', 'Volatile e stabile fino a 250-350 °C', 'Solubile nella fase mobile — nessun requisito di volatilità'],
+    ['Efficienza tipica', '10⁵-10⁶ piatti (colonna capillare 30 m)', '5 000-25 000 piatti (colonna 15-25 cm)'],
+    ['Termine A di van Deemter', '<b>Zero</b>: la capillare non ha riempimento (equazione di Golay)', 'Presente: dipende dalla qualità dell\'impaccamento'],
+    ['Diffusione longitudinale', 'Dominante: nei gas D è ~10⁴ volte maggiore', 'Quasi trascurabile'],
+    ['Rivelatori comuni', 'FID, TCD, ECD, MS', 'UV-Vis (DAD), fluorescenza, indice di rifrazione, MS'],
+    ['Analisi tipiche', 'Solventi residui, acidi grassi (come FAME), oli essenziali, tossicologia', 'Farmaci, peptidi, vitamine, metaboliti, polimeri']
+  ];
+
+  var RIVELATORI = [
+    ['FID', '#00d4aa', 'GC', 'Brucia l\'analita e conta gli ioni prodotti. Risponde al <b>carbonio legato a idrogeno</b>: universale per gli organici, ma <b>cieco</b> ad acqua, CO₂, CO, CS₂ e ai gas permanenti. Distruttivo.'],
+    ['TCD', '#6bcfff', 'GC', 'Misura la conducibilità termica rispetto al gas di trasporto. Meno sensibile del FID di ~1000 volte, ma <b>vede tutto</b>, anche acqua e gas inorganici. Non distruttivo.'],
+    ['ECD', '#f59e0b', 'GC', 'Sensibile agli <b>alogeni</b> e ai gruppi elettron-attrattori, fino a 10⁻¹⁵ g. È il rivelatore dei pesticidi clorurati e dei PCB; ignora quasi tutto il resto.'],
+    ['UV-DAD', '#7c6fff', 'HPLC', 'Richiede un <b>cromoforo</b>: senza doppi legami coniugati o anelli aromatici non si vede nulla. Il DAD registra tutto lo spettro a ogni istante — l\'identità del picco si controlla dal suo spettro, non solo dal tempo.'],
+    ['Fluorescenza', '#ff6b9d', 'HPLC', 'Da 10 a 1000 volte più sensibile dell\'UV, ma <b>solo</b> per le molecole fluorescenti (o rese tali per derivatizzazione). Molto selettivo: vede poco, e proprio per questo vede bene.'],
+    ['MS', '#5eead4', 'entrambe', 'Rivelatore e <b>identificatore</b> insieme: dà massa e frammentazione. È ciò che trasforma un tempo di ritenzione in un\'identificazione. La GC-MS con ionizzazione a 70 eV ha librerie confrontabili fra laboratori.']
+  ];
+
+  var DIAGNOSI = [
+    ['📐 Coda (tailing)', '#f59e0b',
+     'Il picco scende più lentamente di quanto sia salito. <b>T > 1,5.</b>',
+     'Siti attivi non schermati (silanoli residui sulla silice) che trattengono le basi; oppure spazio morto nel sistema. Rimedi: tamponare il pH, aggiungere un modificatore, usare una colonna end-capped, controllare i raccordi.'],
+    ['📐 Fronte (fronting)', '#ff6b9d',
+     'Il picco sale piano e scende a picco. <b>T < 0,8.</b>',
+     'Quasi sempre <b>colonna sovraccarica</b>: l\'isoterma di adsorbimento non è più lineare. Rimedio: iniettare meno. Se persiste diluendo dieci volte, guardare al solvente d\'iniezione, più forte della fase mobile.'],
+    ['📐 Picco sdoppiato', '#7c6fff',
+     'Un picco solo che arriva con due cime.',
+     'Testa della colonna danneggiata o presenza di un vuoto, oppure solvente d\'iniezione incompatibile. Se <b>tutti</b> i picchi sono sdoppiati è la colonna; se lo è uno solo, sono due composti che coeluiscono quasi.'],
+    ['📐 Tempi che scivolano', '#00d4aa',
+     'Gli stessi campioni escono ogni volta un po\' più tardi (o prima).',
+     'Colonna non equilibrata, temperatura non controllata, o pompa che perde. In GC: perdita nel settore d\'iniezione. Prima di tarare qualunque cosa, verificare che t<sub>M</sub> sia stabile: se si muove quello, il problema è il flusso.'],
+    ['📐 Picchi fantasma', '#6bcfff',
+     'Segnali che compaiono anche iniettando solo solvente.',
+     'Contaminazione dall\'iniezione precedente (carry-over), o accumulo in testa alla colonna che si stacca al gradiente. Iniettare un bianco subito dopo un campione concentrato è il modo di accorgersene prima che diventi un dato.'],
+    ['📐 Linea di base che sale', '#8494a8',
+     'Il fondo cresce durante il gradiente.',
+     'In HPLC: assorbimento del solvente B che cresce (impurezze nell\'acetonitrile). In GC: <b>bleed</b> della fase stazionaria alle alte temperature. Un bianco con lo stesso programma lo mostra e permette di sottrarlo.']
+  ];
+
+  var LEVE = [
+    ['N — efficienza', '#6bcfff', '√N',
+     'Raddoppiare R<sub>s</sub> richiede <b>4× i piatti</b>: colonna quattro volte più lunga, analisi quattro volte più lenta, pressione quattro volte maggiore. È la leva più cara.'],
+    ['α — selettività', '#00d4aa', '(α−1)/α',
+     'La leva <b>più potente</b>, soprattutto quando α è vicino a 1: passare da 1,02 a 1,05 più che raddoppia il termine. Si agisce cambiando fase stazionaria, solvente organico, pH o temperatura.'],
+    ['k — ritenzione', '#f59e0b', 'k/(1+k)',
+     'Utile solo se k è <b>piccolo</b>: da k=1 a k=3 si guadagna il 50 %, da k=10 a k=20 quasi nulla (il termine satura a 1). Aumentare k oltre 10 allunga l\'analisi senza migliorare nulla.']
+  ];
+
+  /* ─────────────────────────────────────────────────────────────────
+     5. Costruzione
+     ───────────────────────────────────────────────────────────────── */
+  var costruito = false;
+
+  function costruisci(){
+    if (costruito) return;
+
+    el('crTabella').innerHTML = GRANDEZZE.map(function(g){
+      return '<tr style="border-bottom:1px solid #16293d">' +
+        '<td style="padding:9px 11px;vertical-align:top"><b style="color:#e9eef6">' + g[0] + '</b></td>' +
+        '<td style="padding:9px 11px;vertical-align:top;font-family:var(--font-mono);' +
+          'font-size:.8rem;color:#5eead4;white-space:nowrap">' + g[1] + '</td>' +
+        '<td style="padding:9px 11px;vertical-align:top;line-height:1.55">' + g[2] + '</td>' +
+        '<td style="padding:9px 11px;vertical-align:top;color:#9fb3c8;line-height:1.55">' + g[3] + '</td>' +
+      '</tr>';
+    }).join('');
+
+    el('crConfronto').innerHTML = CONFRONTO.map(function(c){
+      return '<tr style="border-bottom:1px solid #16293d">' +
+        '<td style="padding:9px 11px;vertical-align:top"><b style="color:#e9eef6">' + c[0] + '</b></td>' +
+        '<td style="padding:9px 11px;vertical-align:top;line-height:1.55">' + c[1] + '</td>' +
+        '<td style="padding:9px 11px;vertical-align:top;line-height:1.55">' + c[2] + '</td>' +
+      '</tr>';
+    }).join('');
+
+    el('crRivelatori').innerHTML = RIVELATORI.map(function(r){
+      return '<div style="background:#0a1628;border-left:3px solid ' + r[1] + ';border-radius:0 8px 8px 0;padding:9px 11px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px">' +
+          '<b style="color:' + r[1] + ';font-size:.86rem">' + r[0] + '</b>' +
+          '<span style="color:#8494a8;font-size:.72rem">' + r[2] + '</span>' +
+        '</div>' +
+        '<div style="color:#cfe2f5;font-size:.79rem;line-height:1.55">' + r[3] + '</div>' +
+      '</div>';
+    }).join('');
+
+    el('crDiagnosi').innerHTML = DIAGNOSI.map(function(d){
+      return '<div class="panel"><div class="ph" style="color:' + d[1] + '">' + d[0] + '</div>' +
+        '<div class="pb" style="font-size:.81rem;line-height:1.6;color:#cfe2f5">' +
+          '<div style="color:#9fb3c8;margin-bottom:7px">' + d[2] + '</div>' +
+          '<div style="padding:8px 10px;background:#0a1628;border-radius:7px">' + d[3] + '</div>' +
+        '</div></div>';
+    }).join('');
+
+    el('crLeve').innerHTML = LEVE.map(function(l){
+      return '<div style="background:#0a1628;border:1px solid ' + l[1] + '44;border-radius:9px;padding:10px 12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px">' +
+          '<b style="color:' + l[1] + ';font-size:.84rem">' + l[0] + '</b>' +
+          '<code style="color:#8494a8;font-size:.75rem">' + l[2] + '</code>' +
+        '</div>' +
+        '<div style="color:#cfe2f5;font-size:.79rem;line-height:1.55">' + l[3] + '</div>' +
+      '</div>';
+    }).join('');
+
+    ['crN', 'crK', 'crA', 'crTm'].forEach(function(id){
+      var e = el(id); if (e) e.addEventListener('input', disegnaCromatogramma);
+    });
+    ['vdA', 'vdB', 'vdC'].forEach(function(id){
+      var e = el(id); if (e) e.addEventListener('input', disegnaVanDeemter);
+    });
+    ['kvX', 'kvM', 'kvN', 'kvTn', 'kvTn1'].forEach(function(id){
+      var e = el(id); if (e) e.addEventListener('input', calcolaKovats);
+    });
+
+    costruito = true;
+  }
+
+  function avvia(){
+    if (!el('scroma')) return;
+    costruisci();
+    disegnaCromatogramma();
+    disegnaVanDeemter();
+    calcolaKovats();
+  }
+
+  /* La sezione si costruisce alla prima apertura, come le altre: costruire
+     tutto all'avvio allungherebbe il primo disegno per chi non la aprira'. */
+  window.bsiAvviaCromatografia = avvia;
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ if (el('scroma')) avvia(); });
+  else if (el('scroma')) avvia();
+})();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   TARATURA E INCERTEZZA — regressione lineare e statistica della taratura
+   ═══════════════════════════════════════════════════════════════════════
+   Tutte le formule sono quelle della regressione ordinaria ai minimi
+   quadrati. Nessuna e' approssimata, nessuna usa numeri casuali: gli
+   stessi dati danno sempre gli stessi coefficienti, e sono gli stessi
+   che darebbe un foglio di calcolo o un software di laboratorio.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  var C = { bordo:'#1e3a52', assi:'#5f7d99', testo:'#9fb3c8',
+            retta:'#00d4aa', punti:'#6bcfff', fondo:'#0a1628' };
+
+  function el(id){ return document.getElementById(id); }
+
+  /* t di Student a due code, 95 %, per gradi di liberta' 1..30.
+     Oltre 30 la differenza dal valore normale (1,960) e' sotto l'1 %,
+     e usarlo sarebbe una precisione finta: si riporta 30. */
+  var T95 = { 1:12.706, 2:4.303, 3:3.182, 4:2.776, 5:2.571, 6:2.447, 7:2.365,
+              8:2.306, 9:2.262, 10:2.228, 11:2.201, 12:2.179, 13:2.160,
+              14:2.145, 15:2.131, 16:2.120, 17:2.110, 18:2.101, 19:2.093,
+              20:2.086, 21:2.080, 22:2.074, 23:2.069, 24:2.064, 25:2.060,
+              26:2.056, 27:2.052, 28:2.048, 29:2.045, 30:2.042 };
+  function t95(gdl){
+    if (gdl < 1) return NaN;
+    if (gdl <= 30) return T95[gdl];
+    return 1.960 + (2.042 - 1.960) * 30 / gdl;   /* avvicinamento continuo alla normale */
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Lettura dei dati
+     ───────────────────────────────────────────────────────────────── */
+  function leggi(testo){
+    var punti = [], scartate = 0;
+    testo.split('\n').forEach(function(r){
+      var s = r.trim();
+      if (!s || /^[#\/]/.test(s)) return;
+      var p = s.split(/[\s,;\t]+/).filter(Boolean).map(parseFloat);
+      if (p.length >= 2 && isFinite(p[0]) && isFinite(p[1])) punti.push({ x:p[0], y:p[1] });
+      else scartate++;
+    });
+    return { punti: punti, scartate: scartate };
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Regressione ordinaria ai minimi quadrati
+     ───────────────────────────────────────────────────────────────── */
+  function regressione(p){
+    var N = p.length;
+    if (N < 3) return null;                 /* con 2 punti s(y/x) non esiste: gdl = 0 */
+
+    var sx = 0, sy = 0;
+    p.forEach(function(q){ sx += q.x; sy += q.y; });
+    var mx = sx / N, my = sy / N;
+
+    var Sxx = 0, Syy = 0, Sxy = 0, Sx2 = 0;
+    p.forEach(function(q){
+      var dx = q.x - mx, dy = q.y - my;
+      Sxx += dx * dx; Syy += dy * dy; Sxy += dx * dy; Sx2 += q.x * q.x;
+    });
+    if (Sxx === 0) return null;             /* tutte le x uguali: non c'e' retta */
+
+    var m = Sxy / Sxx;
+    var b = my - m * mx;
+    var r = (Syy > 0) ? Sxy / Math.sqrt(Sxx * Syy) : 1;
+
+    /* deviazione standard dei residui: N-2 perche' la retta consuma
+       due gradi di liberta' (pendenza e intercetta) */
+    var SSres = 0, residui = [];
+    p.forEach(function(q){
+      var res = q.y - (m * q.x + b);
+      residui.push(res); SSres += res * res;
+    });
+    var gdl = N - 2;
+    var syx = Math.sqrt(SSres / gdl);
+
+    return {
+      N:N, m:m, b:b, r:r, r2:r*r, Sxx:Sxx, Sx2:Sx2, mx:mx, my:my,
+      syx:syx, gdl:gdl, residui:residui,
+      sm: syx / Math.sqrt(Sxx),
+      sb: syx * Math.sqrt(Sx2 / (N * Sxx))
+    };
+  }
+
+  /* ── Adattamento quadratico, per il confronto fra modelli ──
+     Equazioni normali 3x3 risolte per eliminazione di Gauss. Serve una
+     cosa sola: la somma dei quadrati dei residui, da confrontare con
+     quella della retta. */
+  function quadratica(p){
+    var N = p.length;
+    if (N < 4) return null;                    /* gdl = N-3 deve essere >= 1 */
+    var S = [0,0,0,0,0], Sy = [0,0,0];
+    p.forEach(function(q){
+      var x = q.x, x2 = x*x;
+      S[0] += 1; S[1] += x; S[2] += x2; S[3] += x2*x; S[4] += x2*x2;
+      Sy[0] += q.y; Sy[1] += q.y*x; Sy[2] += q.y*x2;
+    });
+    var A = [[S[0],S[1],S[2],Sy[0]],
+             [S[1],S[2],S[3],Sy[1]],
+             [S[2],S[3],S[4],Sy[2]]];
+    for (var i = 0; i < 3; i++) {
+      var piv = i;
+      for (var r = i+1; r < 3; r++) if (Math.abs(A[r][i]) > Math.abs(A[piv][i])) piv = r;
+      if (Math.abs(A[piv][i]) < 1e-14) return null;   /* matrice singolare */
+      var tmp = A[i]; A[i] = A[piv]; A[piv] = tmp;
+      for (var r2 = 0; r2 < 3; r2++) {
+        if (r2 === i) continue;
+        var f = A[r2][i] / A[i][i];
+        for (var c = i; c < 4; c++) A[r2][c] -= f * A[i][c];
+      }
+    }
+    var c0 = A[0][3]/A[0][0], c1 = A[1][3]/A[1][1], c2 = A[2][3]/A[2][2];
+    var SS = 0;
+    p.forEach(function(q){
+      var d = q.y - (c0 + c1*q.x + c2*q.x*q.x);
+      SS += d*d;
+    });
+    return { SSres: SS, gdl: N - 3, c2: c2 };
+  }
+
+  /* F critico a 0,05 con 1 grado di liberta' al numeratore */
+  var F95 = { 1:161.4, 2:18.51, 3:10.13, 4:7.71, 5:6.61, 6:5.99, 7:5.59, 8:5.32,
+              9:5.12, 10:4.96, 11:4.84, 12:4.75, 13:4.67, 14:4.60, 15:4.54,
+              16:4.49, 17:4.45, 18:4.41, 19:4.38, 20:4.35, 25:4.24, 30:4.17 };
+  function f95(gdl){
+    if (gdl < 1) return Infinity;
+    if (F95[gdl]) return F95[gdl];
+    if (gdl > 30) return 3.84 + (4.17 - 3.84) * 30 / gdl;
+    var k = gdl; while (k > 1 && !F95[k]) k--;
+    return F95[k];
+  }
+
+  /* ── Ricerca di punti anomali col residuo CANCELLATO ──
+     Il criterio ingenuo — |residuo| > 3 s(y/x) — non funziona, e non per
+     una sottigliezza: il punto anomalo entra nel calcolo di s(y/x), lo
+     gonfia, e finisce sotto la propria soglia. Provato sull'esempio con
+     un punto spostato di 0,11 unita': residuo 0,0747 contro una soglia
+     di 0,1337. Il controllo sarebbe passato senza vedere nulla.
+
+     Il rimedio e' escludere il punto dalla retta con cui lo si giudica:
+     si rifa' la regressione sugli altri N-1 punti e si guarda se il
+     punto cade fuori dall'intervallo di PREVISIONE di quella retta. */
+  function anomali(p){
+    var N = p.length;
+    if (N < 5) return [];                    /* sotto 5 punti togliere uno lascia gdl = 2 */
+    var fuori = [];
+    for (var i = 0; i < N; i++) {
+      var altri = p.filter(function(_, j){ return j !== i; });
+      var Ri = regressione(altri);
+      if (!Ri || Ri.syx === 0) continue;
+      var previsto = Ri.m * p[i].x + Ri.b;
+      var sPrev = Ri.syx * Math.sqrt(1 + 1 / Ri.N + Math.pow(p[i].x - Ri.mx, 2) / Ri.Sxx);
+      var scarto = Math.abs(p[i].y - previsto);
+      if (scarto > t95(Ri.gdl) * sPrev)
+        fuori.push({ i: i, x: p[i].x, y: p[i].y, previsto: previsto,
+                     scarto: scarto, soglia: t95(Ri.gdl) * sPrev });
+    }
+    return fuori;
+  }
+
+  function fmt(v, cifre){
+    if (!isFinite(v)) return '—';
+    var a = Math.abs(v);
+    if (a !== 0 && (a < 1e-3 || a >= 1e6)) return v.toExponential(cifre === undefined ? 3 : cifre);
+    return v.toFixed(cifre === undefined ? 4 : cifre);
+  }
+
+  /* Il numero di decimali sensato per un valore, data la sua incertezza:
+     l'incertezza si scrive con una (o due) cifre significative, e il
+     valore si arrotonda alla stessa posizione decimale. */
+  function decimaliPer(incertezza){
+    if (!isFinite(incertezza) || incertezza <= 0) return 3;
+    var d = Math.ceil(-Math.log10(incertezza)) + 1;
+    return Math.max(0, Math.min(8, d));
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Grafici
+     ───────────────────────────────────────────────────────────────── */
+  function grafici(p, R, sospetti){
+    sospetti = sospetti || {};
+    var Wsvg = 560, Ht = 205, Hr = 120;
+    var L = 54, Rm = 14, T = 12, B = 32;
+
+    var xs = p.map(function(q){ return q.x; }), ys = p.map(function(q){ return q.y; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var mx = (x1 - x0) * 0.06 || 1, my = (y1 - y0) * 0.10 || 1;
+    x0 -= mx; x1 += mx; y0 -= my; y1 += my;
+
+    /* La banda di confidenza e' piu' larga dei punti agli estremi: se la
+       scala verticale si ricava dai soli punti, la banda esce dal
+       riquadro e viene tagliata proprio dove serve vederla — alle
+       estremita', che sono il motivo per cui la si disegna. */
+    if (R) {
+      var tB = t95(R.gdl);
+      [x0, x1].forEach(function(xv){
+        var d = R.syx * Math.sqrt(1 / R.N + Math.pow(xv - R.mx, 2) / R.Sxx) * tB;
+        var yv = R.m * xv + R.b;
+        y0 = Math.min(y0, yv - d);
+        y1 = Math.max(y1, yv + d);
+      });
+    }
+
+    function assi(gw, gh, X, Y, etx, ety, fx, fy){
+      var s = '<line x1="' + L + '" y1="' + (T + gh) + '" x2="' + (L + gw) + '" y2="' + (T + gh) +
+              '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+              '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + gh) +
+              '" stroke="' + C.assi + '" stroke-width="1.2"/>';
+      for (var i = 0; i <= 5; i++) {
+        var xx = L + gw * i / 5;
+        s += '<line x1="' + xx.toFixed(1) + '" y1="' + (T + gh) + '" x2="' + xx.toFixed(1) +
+             '" y2="' + (T + gh + 4) + '" stroke="' + C.assi + '" stroke-width="1"/>' +
+             '<text x="' + xx.toFixed(1) + '" y="' + (T + gh + 15) + '" fill="' + C.testo +
+             '" font-size="9" text-anchor="middle">' + fx(i / 5) + '</text>';
+      }
+      for (var j = 0; j <= 4; j++) {
+        var yy = T + gh - gh * j / 4;
+        s += '<line x1="' + (L - 4) + '" y1="' + yy.toFixed(1) + '" x2="' + L + '" y2="' +
+             yy.toFixed(1) + '" stroke="' + C.assi + '" stroke-width="1"/>' +
+             '<text x="' + (L - 7) + '" y="' + (yy + 3).toFixed(1) + '" fill="' + C.testo +
+             '" font-size="9" text-anchor="end">' + fy(j / 4) + '</text>';
+      }
+      s += '<text x="' + (L + gw / 2) + '" y="' + (T + gh + 29) + '" fill="' + C.testo +
+           '" font-size="10" text-anchor="middle">' + etx + '</text>' +
+           '<text x="12" y="' + (T + gh / 2) + '" fill="' + C.testo + '" font-size="10" ' +
+           'text-anchor="middle" transform="rotate(-90 12 ' + (T + gh / 2) + ')">' + ety + '</text>';
+      return s;
+    }
+
+    /* ── taratura ── */
+    var gw = Wsvg - L - Rm, gh = Ht - T - B;
+    function X(v){ return L + (v - x0) / (x1 - x0) * gw; }
+    function Y(v){ return T + gh - (v - y0) / (y1 - y0) * gh; }
+
+    var retta = '', banda = '';
+    if (R) {
+      retta = '<line x1="' + X(x0).toFixed(1) + '" y1="' + Y(R.m * x0 + R.b).toFixed(1) +
+              '" x2="' + X(x1).toFixed(1) + '" y2="' + Y(R.m * x1 + R.b).toFixed(1) +
+              '" stroke="' + C.retta + '" stroke-width="1.8"/>';
+      /* la banda di confidenza sulla retta: stretta al baricentro,
+         larga alle estremita'. E' la stessa (y0-ymedia)^2 di s(x0). */
+      var t = t95(R.gdl), su = '', giu = '';
+      for (var k = 0; k <= 60; k++) {
+        var xv = x0 + (x1 - x0) * k / 60;
+        var d = R.syx * Math.sqrt(1 / R.N + Math.pow(xv - R.mx, 2) / R.Sxx) * t;
+        var yv = R.m * xv + R.b;
+        su  += (k ? 'L' : 'M') + X(xv).toFixed(1) + ',' + Y(yv + d).toFixed(1);
+        giu = 'L' + X(xv).toFixed(1) + ',' + Y(yv - d).toFixed(1) + giu;
+      }
+      banda = '<path d="' + su + giu.replace(/^L/, 'L') + 'Z" fill="' + C.retta +
+              '" opacity=".10" stroke="none"/>';
+    }
+
+    var pt = p.map(function(q){
+      return '<circle cx="' + X(q.x).toFixed(1) + '" cy="' + Y(q.y).toFixed(1) +
+             '" r="3.2" fill="' + C.punti + '" stroke="#0a1628" stroke-width="1"/>';
+    }).join('');
+
+    var svg1 = '<svg viewBox="0 0 ' + Wsvg + ' ' + Ht + '" width="100%" ' +
+      'style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px" ' +
+      'role="img" aria-label="Retta di taratura con ' + p.length + ' punti sperimentali' +
+      (R ? ', pendenza ' + fmt(R.m) + ', r quadro ' + R.r2.toFixed(5) : '') + '">' +
+      assi(gw, gh, X, Y, 'concentrazione', 'segnale',
+           function(f){ return (x0 + (x1 - x0) * f).toPrecision(3); },
+           function(f){ return (y0 + (y1 - y0) * f).toPrecision(3); }) +
+      banda + retta + pt + '</svg>';
+
+    /* ── residui ── */
+    var svg2 = '';
+    if (R) {
+      var gh2 = Hr - T - B;
+      var rmax = Math.max.apply(null, R.residui.map(Math.abs)) * 1.35 || 1;
+      function Y2(v){ return T + gh2 / 2 - v / rmax * (gh2 / 2); }
+
+      var zero = '<line x1="' + L + '" y1="' + Y2(0).toFixed(1) + '" x2="' + (L + gw) +
+                 '" y2="' + Y2(0).toFixed(1) + '" stroke="' + C.assi +
+                 '" stroke-width="1" stroke-dasharray="4,3"/>';
+      var pr = p.map(function(q, i){
+        return '<line x1="' + X(q.x).toFixed(1) + '" y1="' + Y2(0).toFixed(1) + '" x2="' +
+               X(q.x).toFixed(1) + '" y2="' + Y2(R.residui[i]).toFixed(1) +
+               '" stroke="#8494a8" stroke-width=".8"/>' +
+               '<circle cx="' + X(q.x).toFixed(1) + '" cy="' + Y2(R.residui[i]).toFixed(1) +
+               '" r="3" fill="' + (sospetti[i] ? '#ff6b9d' : C.punti) + '"/>';
+      }).join('');
+
+      svg2 = '<svg viewBox="0 0 ' + Wsvg + ' ' + Hr + '" width="100%" ' +
+        'style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px" ' +
+        'role="img" aria-label="Grafico dei residui: scarti fra valore misurato e retta">' +
+        '<line x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T + gh2) +
+          '" stroke="' + C.assi + '" stroke-width="1.2"/>' +
+        '<text x="' + (L + 6) + '" y="' + (T + 9) + '" fill="#5f7d99" font-size="8.5">residui</text>' +
+        '<text x="' + (L - 7) + '" y="' + (Y2(rmax) + 3).toFixed(1) + '" fill="' + C.testo +
+          '" font-size="8.5" text-anchor="end">+' + fmt(rmax, 3) + '</text>' +
+        '<text x="' + (L - 7) + '" y="' + (Y2(-rmax) + 3).toFixed(1) + '" fill="' + C.testo +
+          '" font-size="8.5" text-anchor="end">−' + fmt(rmax, 3) + '</text>' +
+        '<text x="' + (L - 7) + '" y="' + (Y2(0) + 3).toFixed(1) + '" fill="' + C.testo +
+          '" font-size="8.5" text-anchor="end">0</text>' +
+        zero + pr +
+        '<text x="' + (L + gw / 2) + '" y="' + (Hr - 4) + '" fill="' + C.testo +
+          '" font-size="10" text-anchor="middle">concentrazione — i residui devono essere sparsi a caso</text>' +
+        '</svg>';
+    }
+
+    return svg1 + (svg2 ? '<div style="height:8px"></div>' + svg2 : '');
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Aggiornamento
+     ───────────────────────────────────────────────────────────────── */
+  function avviso(host, colore, testo){
+    el(host).innerHTML =
+      '<div style="background:' + (colore === '#ff6b9d' ? '#1a1013' : '#1a1410') +
+      ';border-left:3px solid ' + colore + ';border-radius:0 8px 8px 0;padding:10px 12px;' +
+      'font-size:.81rem;color:' + (colore === '#ff6b9d' ? '#ffa8c5' : '#f5d99e') +
+      ';line-height:1.55">' + testo + '</div>';
+  }
+
+  var ULTIMA = null;   /* la regressione corrente, condivisa dai pannelli */
+
+  function aggiorna(){
+    var d = leggi(el('tarDati').value);
+    var p = d.punti;
+
+    if (p.length < 3) {
+      el('tarGrafico').innerHTML = '';
+      avviso('tarRetta', '#ff6b9d',
+        'Servono <b>almeno tre punti</b>. Con due la retta ci passa esatta per costruzione, ' +
+        'i residui sono nulli e non esiste alcuna stima dell\'errore: i gradi di libertà sono zero. ' +
+        'Una taratura a due punti non è una taratura, è un\'interpolazione.');
+      el('tarIncognito').innerHTML = '';
+      el('tarLimiti').innerHTML = '';
+      ULTIMA = null;
+      return;
+    }
+
+    var R = regressione(p);
+    ULTIMA = R;
+
+    if (!R) {
+      el('tarGrafico').innerHTML = '';
+      avviso('tarRetta', '#ff6b9d', 'Le concentrazioni sono tutte uguali: non c\'è una retta da adattare.');
+      return;
+    }
+
+    var t = t95(R.gdl);
+    var dm = decimaliPer(R.sm), db = decimaliPer(R.sb);
+
+    /* Un r² alto non dimostra la linearità — e' l'errore piu' diffuso in
+       laboratorio. Si confrontano due modelli, retta e parabola, con un
+       test F: se il termine quadratico riduce i residui piu' di quanto
+       il caso spiegherebbe, la risposta non e' lineare. */
+    var Q = quadratica(p);
+    var curva = null;
+    if (Q && Q.gdl >= 1 && Q.SSres > 0) {
+      var SSlin = R.syx * R.syx * R.gdl;
+      var F = ((SSlin - Q.SSres) / 1) / (Q.SSres / Q.gdl);
+      if (F > f95(Q.gdl)) curva = { F: F, crit: f95(Q.gdl), c2: Q.c2 };
+    }
+    var fuori = anomali(p);
+    var sospetti = {};
+    fuori.forEach(function(a){ sospetti[a.i] = true; });
+    el('tarGrafico').innerHTML = grafici(p, R, sospetti);
+
+    el('tarRetta').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:12px 13px">' +
+        '<div style="font-family:var(--font-mono);font-size:.92rem;color:#e9eef6;text-align:center;margin-bottom:11px">' +
+          'y = ' + fmt(R.m, dm) + ' x ' + (R.b >= 0 ? '+ ' : '− ') + fmt(Math.abs(R.b), db) +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:7px;font-size:.76rem">' +
+          cella('Pendenza m', fmt(R.m, dm) + ' ± ' + fmt(R.sm, dm), '#5eead4') +
+          cella('Intercetta b', fmt(R.b, db) + ' ± ' + fmt(R.sb, db), '#6bcfff') +
+          cella('r²', R.r2.toFixed(5), '#e9eef6') +
+          cella('s<sub>y/x</sub>', fmt(R.syx, 5), '#e9eef6') +
+          cella('Punti N', String(R.N), '#e9eef6') +
+          cella('Gradi di libertà', String(R.gdl) + '  (t = ' + t.toFixed(3) + ')', '#8494a8') +
+        '</div>' +
+        (d.scartate ? '<div style="margin-top:9px;font-size:.76rem;color:#f5d99e">' +
+           d.scartate + ' riga/e ignorata/e perché non contenevano due numeri.</div>' : '') +
+        (curva
+          ? '<div style="margin-top:10px;padding:9px 11px;background:#1a1410;border-left:3px solid #f59e0b;' +
+            'border-radius:0 7px 7px 0;font-size:.78rem;color:#f5d99e;line-height:1.55">' +
+            '<b>La risposta non è lineare.</b> Un termine quadratico riduce i residui molto più ' +
+            'di quanto il caso spiegherebbe: <b>F = ' + curva.F.toFixed(1) + '</b> contro un ' +
+            'valore critico di ' + curva.crit.toFixed(2) + ' (95 %). ' +
+            'L\'r² vale ' + R.r2.toFixed(4) + ' — e <b>non lo esclude</b>: l\'r² misura quanta ' +
+            'varianza la retta spiega, non se la retta sia il modello giusto. ' +
+            'Va ristretto l\'intervallo alla parte lineare, o cambiato modello.</div>'
+          : '') +
+        (fuori.length
+          ? '<div style="margin-top:10px;padding:9px 11px;background:#1a1013;border-left:3px solid #ff6b9d;' +
+            'border-radius:0 7px 7px 0;font-size:.78rem;color:#ffa8c5;line-height:1.55">' +
+            '<b>' + fuori.length + ' punto/i anomalo/i</b> (in rosa nei residui): ' +
+            fuori.map(function(a){
+              return 'x = ' + a.x + ' misura ' + fmt(a.y, 4) + ' dove la retta degli altri punti ' +
+                     'prevede ' + fmt(a.previsto, 4) + ' (scarto ' + fmt(a.scarto, 4) +
+                     ', limite ' + fmt(a.soglia, 4) + ')';
+            }).join('; ') + '. ' +
+            'Il giudizio usa la retta costruita <b>senza</b> il punto giudicato: incluso, ' +
+            'gonfierebbe s<sub>y/x</sub> e si nasconderebbe sotto la propria soglia. ' +
+            'Prima di eliminarlo va cercata una causa — un punto scartato senza motivo ' +
+            'documentato è un dato manipolato.</div>'
+          : '') +
+      '</div>';
+
+    incognito();
+    limiti();
+  }
+
+  function cella(et, v, col){
+    return '<div style="background:#0f2236;border-radius:7px;padding:7px 9px">' +
+             '<div style="color:#8494a8;font-size:.71rem">' + et + '</div>' +
+             '<div style="color:' + col + ';font-family:var(--font-mono);font-size:.82rem;' +
+             'word-break:break-all">' + v + '</div></div>';
+  }
+
+  function incognito(){
+    var R = ULTIMA;
+    if (!R) { el('tarIncognito').innerHTML = ''; return; }
+
+    var y0 = parseFloat(el('tarY0').value);
+    var M  = Math.round(parseFloat(el('tarM').value));
+    if (!isFinite(y0) || !isFinite(M) || M < 1) {
+      return avviso('tarIncognito', '#ff6b9d', 'Segnale o numero di repliche non validi.');
+    }
+
+    var x0 = (y0 - R.b) / R.m;
+    var sx0 = (R.syx / Math.abs(R.m)) *
+              Math.sqrt(1 / M + 1 / R.N + Math.pow(y0 - R.my, 2) / (R.m * R.m * R.Sxx));
+    var t = t95(R.gdl);
+    var ic = t * sx0;
+    var dec = decimaliPer(ic);
+
+    /* si estrapola? il dato piu' importante da dire, e il piu' facile da tacere */
+    var xs = leggi(el('tarDati').value).punti.map(function(q){ return q.x; });
+    var xmin = Math.min.apply(null, xs), xmax = Math.max.apply(null, xs);
+    var fuori = x0 < xmin || x0 > xmax;
+
+    el('tarIncognito').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:12px 13px">' +
+        '<div style="text-align:center;margin-bottom:9px">' +
+          '<div style="color:' + C.testo + ';font-size:.78rem;margin-bottom:3px">Concentrazione (95 %)</div>' +
+          '<b style="color:#6bcfff;font-size:1.25rem;font-family:var(--font-mono)">' +
+            x0.toFixed(dec) + ' ± ' + ic.toFixed(dec) + '</b>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:7px;font-size:.76rem">' +
+          cella('s<sub>x₀</sub>', fmt(sx0, dec + 1), '#e9eef6') +
+          cella('Incertezza relativa', (Math.abs(ic / x0) * 100).toFixed(1) + ' %', '#e9eef6') +
+          cella('Intervallo', (x0 - ic).toFixed(dec) + ' … ' + (x0 + ic).toFixed(dec), '#8494a8') +
+        '</div>' +
+        (fuori
+          ? '<div style="margin-top:10px;padding:9px 11px;background:#1a1013;border-left:3px solid #ff6b9d;' +
+            'border-radius:0 7px 7px 0;font-size:.78rem;color:#ffa8c5;line-height:1.55">' +
+            '<b>Estrapolazione.</b> Il risultato cade fuori dall\'intervallo tarato (' +
+            xmin + '…' + xmax + '): la retta non è stata verificata lì, e l\'intervallo di ' +
+            'confidenza calcolato <b>sottostima</b> l\'incertezza reale perché non include ' +
+            'l\'errore di modello. Il campione va diluito o la taratura estesa.</div>'
+          : '<div style="margin-top:9px;font-size:.76rem;color:#8494a8;line-height:1.5">' +
+            'Il risultato cade dentro l\'intervallo tarato. L\'incertezza è minima al baricentro ' +
+            'della taratura (x̄ = ' + fmt(R.mx, 2) + ').</div>') +
+      '</div>';
+  }
+
+  function limiti(){
+    var R = ULTIMA;
+    if (!R) { el('tarLimiti').innerHTML = ''; return; }
+
+    /* Convenzione ICH Q2(R1): LOD = 3,3 sigma / S, LOQ = 10 sigma / S,
+       con sigma stimato dalla deviazione standard dell'intercetta. */
+    var LOD = 3.3 * R.sb / Math.abs(R.m);
+    var LOQ = 10 * R.sb / Math.abs(R.m);
+    var dec = decimaliPer(LOD / 3);
+
+    el('tarLimiti').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:11px 13px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">' +
+          cella('LOD (rivelabilità)', LOD.toFixed(dec), '#f59e0b') +
+          cella('LOQ (quantificazione)', LOQ.toFixed(dec), '#5eead4') +
+        '</div>' +
+        '<div style="font-size:.77rem;color:' + C.testo + ';line-height:1.6">' +
+          'Convenzione <b>ICH Q2(R1)</b>: LOD = 3,3 σ/S e LOQ = 10 σ/S, con σ stimato dalla ' +
+          'deviazione standard dell\'intercetta (' + fmt(R.sb, 5) + ') e S dalla pendenza.' +
+          '<div style="margin-top:8px;padding:8px 10px;background:#0f2236;border-radius:7px">' +
+          'Sotto il <b>LOD</b> si può dire «non rivelato», mai «zero». Fra LOD e LOQ si può ' +
+          'dire «presente», <b>non</b> quanto: dichiarare una cifra in quella regione è ' +
+          'attribuire una precisione che il metodo non ha.</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Propagazione
+     ───────────────────────────────────────────────────────────────── */
+  function propaga(){
+    var a = parseFloat(el('ppA').value), sa = Math.abs(parseFloat(el('ppSA').value));
+    var b = parseFloat(el('ppB').value), sb = Math.abs(parseFloat(el('ppSB').value));
+    if (![a, sa, b, sb].every(isFinite))
+      return avviso('ppEsito', '#ff6b9d', 'Valori non validi.');
+
+    var righe = [];
+
+    /* somma e differenza: si sommano gli errori ASSOLUTI in quadratura */
+    var sSomma = Math.sqrt(sa * sa + sb * sb);
+    righe.push(['a + b', a + b, sSomma, '√(s²ₐ + s²_b) — errori assoluti']);
+    righe.push(['a − b', a - b, sSomma, 'lo stesso errore assoluto, su un numero più piccolo']);
+
+    /* prodotto e quoziente: si sommano gli errori RELATIVI in quadratura */
+    var ra = (a !== 0) ? sa / Math.abs(a) : NaN;
+    var rb = (b !== 0) ? sb / Math.abs(b) : NaN;
+    var rel = Math.sqrt(ra * ra + rb * rb);
+    righe.push(['a × b', a * b, Math.abs(a * b) * rel, '√(s²ᵣₐ + s²ᵣ_b) — errori relativi']);
+    righe.push(['a / b', (b !== 0 ? a / b : NaN), (b !== 0 ? Math.abs(a / b) * rel : NaN),
+                'stesso errore relativo del prodotto']);
+    /* potenza: l'errore relativo si MOLTIPLICA per l'esponente */
+    righe.push(['a²', a * a, Math.abs(a * a) * 2 * ra, 's_rel × 2: elevare al quadrato raddoppia l\'errore relativo']);
+    righe.push(['√a', (a >= 0 ? Math.sqrt(a) : NaN), (a > 0 ? Math.sqrt(a) * 0.5 * ra : NaN),
+                's_rel × ½: la radice lo dimezza']);
+
+    var corpo = righe.map(function(r){
+      var dec = decimaliPer(r[2]);
+      return '<tr style="border-bottom:1px solid #16293d">' +
+        '<td style="padding:6px 8px;font-family:var(--font-mono);color:#5eead4">' + r[0] + '</td>' +
+        '<td style="padding:6px 8px;font-family:var(--font-mono);color:#e9eef6;white-space:nowrap">' +
+          (isFinite(r[1]) ? r[1].toFixed(dec) + ' ± ' + (isFinite(r[2]) ? r[2].toFixed(dec) : '—') : '—') +
+        '</td>' +
+        '<td style="padding:6px 8px;color:#8494a8;font-size:.73rem">' + r[3] + '</td></tr>';
+    }).join('');
+
+    /* quale dei due contributi domina: il messaggio piu' utile di tutti */
+    var dominante = '';
+    if (sa > 0 && sb > 0) {
+      var q = Math.max(sa, sb) / Math.min(sa, sb);
+      if (q >= 3) {
+        var grande = sa > sb ? 'a' : 'b', piccolo = sa > sb ? 'b' : 'a';
+        var senza = Math.max(sa, sb);
+        dominante =
+          '<div style="margin-top:10px;padding:9px 11px;background:#0f2236;border-radius:7px;' +
+          'font-size:.78rem;color:#cfe2f5;line-height:1.55">' +
+          '<b style="color:#5eead4">Domina ' + grande + '.</b> Azzerare del tutto l\'incertezza su <b>' +
+          piccolo + '</b> porterebbe la somma da ' + sSomma.toPrecision(3) + ' a ' +
+          senza.toPrecision(3) + ': un guadagno del ' +
+          ((1 - senza / sSomma) * 100).toFixed(1) + ' %. Il lavoro va speso su ' + grande + '.</div>';
+      }
+    }
+
+    el('ppEsito').innerHTML =
+      '<div style="background:' + C.fondo + ';border:1px solid ' + C.bordo + ';border-radius:9px;padding:10px 11px">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:.79rem">' +
+        '<thead><tr style="color:#5eead4;font-size:.73rem">' +
+        '<th style="padding:5px 8px;text-align:left">Operazione</th>' +
+        '<th style="padding:5px 8px;text-align:left">Risultato</th>' +
+        '<th style="padding:5px 8px;text-align:left">Regola</th></tr></thead>' +
+        '<tbody>' + corpo + '</tbody></table>' + dominante +
+      '</div>';
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Contenuti statici
+     ───────────────────────────────────────────────────────────────── */
+  var CIFRE = [
+    ['Somma e differenza', '#00d4aa',
+     'Conta la <b>posizione decimale</b>, non il numero di cifre. 12,11 + 0,4 = 12,5 — non 12,51: il secondo addendo non sa nulla dei centesimi.'],
+    ['Prodotto e quoziente', '#6bcfff',
+     'Conta il <b>numero di cifre significative</b>: il risultato ne ha quante il fattore che ne ha meno. 4,0 × 2,5748 = 10 (due cifre).'],
+    ['Logaritmi e pH', '#f59e0b',
+     'Solo i <b>decimali</b> del logaritmo sono significativi; la parte intera è l\'ordine di grandezza. [H⁺] = 3,7·10⁻⁵ → pH = 4,43, due cifre significative, non quattro.'],
+    ['Numeri esatti', '#7c6fff',
+     'Le definizioni e i conteggi non limitano nulla: i 1000 mL di un litro sono esatti, e non riducono le cifre del risultato.'],
+    ['Arrotondare una volta sola', '#ff6b9d',
+     'Si arrotonda <b>alla fine</b>. Arrotondare ogni passaggio intermedio accumula un errore che non esiste nei dati: è errore introdotto dal calcolo, non misurato.']
+  ];
+
+  var costruito = false;
+
+  function costruisci(){
+    if (costruito) return;
+
+    el('cifreRegole').innerHTML = CIFRE.map(function(c){
+      return '<div style="background:#0a1628;border-left:3px solid ' + c[1] +
+        ';border-radius:0 8px 8px 0;padding:9px 11px">' +
+        '<b style="color:' + c[1] + ';font-size:.82rem">' + c[0] + '</b>' +
+        '<div style="color:#cfe2f5;font-size:.78rem;line-height:1.55;margin-top:4px">' + c[2] + '</div>' +
+      '</div>';
+    }).join('');
+
+    var t = el('tarDati');
+    if (t) t.addEventListener('input', aggiorna);
+    ['tarY0', 'tarM'].forEach(function(id){
+      var e = el(id); if (e) e.addEventListener('input', incognito);
+    });
+    ['ppA', 'ppSA', 'ppB', 'ppSB'].forEach(function(id){
+      var e = el(id); if (e) e.addEventListener('input', propaga);
+    });
+
+    /* Gli esempi non sono decorativi: mostrano i due casi in cui un r²
+       alto inganna, che sono i due errori piu' comuni in laboratorio. */
+    var e2 = el('tarEsempio2');
+    if (e2) e2.addEventListener('click', function(){
+      el('tarDati').value =
+        '0.00  0.002\n2.00  0.128\n4.00  0.249\n6.00  0.361\n' +
+        '8.00  0.455\n10.00 0.531\n12.00 0.588';
+      aggiorna();
+    });
+    var e3 = el('tarEsempio3');
+    if (e3) e3.addEventListener('click', function(){
+      el('tarDati').value =
+        '0.00  0.003\n2.00  0.127\n4.00  0.251\n6.00  0.382\n' +
+        '8.00  0.612\n10.00 0.632';
+      aggiorna();
+    });
+
+    costruito = true;
+  }
+
+  function avvia(){
+    if (!el('staratura')) return;
+    costruisci();
+    aggiorna();
+    propaga();
+  }
+
+  window.bsiAvviaTaratura = avvia;
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', function(){ if (el('staratura')) avvia(); });
+  else if (el('staratura')) avvia();
 })();
 </script>
 </body>

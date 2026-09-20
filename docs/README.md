@@ -7,10 +7,17 @@ valutazione tecnica da parte di aziende, centri di ricerca e audit.
 
 Per le candidature allega **un solo file**:
 
-- 🇮🇹 **[`docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf`](pdf/BioSpecInfo-Dossier-Completo.it.pdf)** — dossier completo (copertina + SAD + Validazione + Sicurezza + Licenze), 19 pagine.
-- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — stesso dossier in inglese.
+- 🇮🇹 **[`docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf`](pdf/BioSpecInfo-Dossier-Completo.it.pdf)** — **tutti e sedici i documenti** in un file solo, con indice.
+- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — la traduzione inglese, che copre i documenti 00-05.
 
-In alternativa la sola copertina di sintesi: [`00-Dossier.it.pdf`](pdf/00-Dossier.it.pdf) / [`00-Dossier.en.pdf`](pdf/00-Dossier.en.pdf).
+In alternativa il solo dossier tecnico di sintesi:
+[`00-Technical-Dossier.pdf`](pdf/00-Technical-Dossier.pdf) /
+[`00-Technical-Dossier.en.pdf`](pdf/00-Technical-Dossier.en.pdf).
+
+> I PDF sono **generati** dai Markdown (`node tools/genera-pdf.js`) e portano
+> versione e commit in ogni piè di pagina: il testo e il suo allegato non
+> possono divergere, e un allegato non può essere scambiato per una versione
+> diversa da quella che descrive.
 
 **🧑‍💼 Kit candidatura** (CV + lettera di presentazione, IT/EN, con PDF): cartella
 [`docs/candidatura/`](candidatura/) — completa i campi tra `[…]` prima di inviare.
