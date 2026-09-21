@@ -15,7 +15,7 @@
 |---|---|
 | **Banchi superati** | 39 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 649 s |
+| **Durata totale** | 652 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,11 +24,11 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-09-20T22:27:37.556Z` |
-| Commit | `630705ea980c0d0f322d51d420ece6d777391bb9` |
+| Istante (UTC) | `2026-09-21T06:33:08.990Z` |
+| Commit | `288b4fb079a1a913a9023a81e818d1e8677c955b` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | NO — sono presenti modifiche non registrate |
-| Versione applicazione | `bsi-v168` |
+| Versione applicazione | `bsi-v169` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |
@@ -40,10 +40,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.628.154 | `f321f30acf0c3ae9b6a4744eca5b06bb380efcdc09152add2749ffb2d3005d35` |
+| `index.html` | 4.633.567 | `5e0a270861264beba80976f4f7a6e84eab86db501d140a5e3c94204f3f2ce5f1` |
 | `bsi-ai-hub.js` | 432.165 | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | 33.021 | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | 5261 | `14c9faa6ec45e7612e101a5f8dc7b37094b898b894afc94908bfcda3cadabf84` |
+| `sw.js` | 5261 | `8a4787f66a1d1c37ff67db920c2a8323a0382403c24a47083688953416eccfad` |
 | `rdkit_lab.html` | 262.799 | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | 2.729.915 | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
 | `chimorga.html` | 199.043 | `a5e3efc121c7d479f47ec0ec3fc500ac543d54d36607c8f4e1b19d2fce238c31` |
@@ -60,12 +60,12 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 |---|---|---:|---|
 | `@verifica-farmaci` | ✅ SUPERATO | 4.8 s | ✓ CONFORME |
 | `test_spettri` | ✅ SUPERATO | 4.4 s | 36 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 10.9 s | 16 passati |
+| `test_spettri_ui` | ✅ SUPERATO | 11.0 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 6.1 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 9.1 s | 6 passati |
+| `test_assi_canvas` | ✅ SUPERATO | 9.2 s | 6 passati |
 | `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.1 s | ✓ 29 controlli superati |
-| `test_simmetria` | ✅ SUPERATO | 3.7 s | 26 passati |
+| `test_simmetria` | ✅ SUPERATO | 3.8 s | 26 passati |
 
 ### Agente AI
 
@@ -81,11 +81,11 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 | `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
 | `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 38.8 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 52.0 s | 29 passati |
+| `browser_ko` | ✅ SUPERATO | 38.9 s | 37 passati |
+| `browser_prova` | ✅ SUPERATO | 52.1 s | 29 passati |
 | `browser_prov` | ✅ SUPERATO | 5.0 s | 7 passati |
 | `test_doppioinvio` | ✅ SUPERATO | 11.4 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 63.4 s | 22 passati |
+| `caccia_ai` | ✅ SUPERATO | 63.6 s | 22 passati |
 
 ### Stabilita
 
@@ -93,12 +93,12 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 107.5 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 117.8 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 41.6 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 29.0 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 10.9 s | 15 passati |
-| `test_visore3d` | ✅ SUPERATO | 9.1 s | 5 passati |
+| `audit_stabilita` | ✅ SUPERATO | 108.2 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 117.7 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 41.8 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 29.2 s | 22 passati |
+| `test_filemanager` | ✅ SUPERATO | 11.0 s | 15 passati |
+| `test_visore3d` | ✅ SUPERATO | 9.2 s | 5 passati |
 
 ### Interfaccia
 
@@ -106,14 +106,14 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 10.1 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 8.5 s | 15 passati |
-| `browser_proxyui` | ✅ SUPERATO | 11.8 s | 17 passati |
-| `browser_rdkit` | ✅ SUPERATO | 4.1 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 10.8 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 6.1 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.6 s | 9 passati |
-| `test_guidaproxy` | ✅ SUPERATO | 5.3 s | 12 passati |
+| `browser_reset` | ✅ SUPERATO | 10.2 s | 24 passati |
+| `browser_proxy` | ✅ SUPERATO | 8.6 s | 15 passati |
+| `browser_proxyui` | ✅ SUPERATO | 11.9 s | 17 passati |
+| `browser_rdkit` | ✅ SUPERATO | 4.2 s | 31 passati |
+| `browser_lab` | ✅ SUPERATO | 10.9 s | 21 passati |
+| `browser_frontiera` | ✅ SUPERATO | 6.2 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.7 s | 9 passati |
+| `test_guidaproxy` | ✅ SUPERATO | 5.4 s | 12 passati |
 
 ### Sicurezza e accessibilita
 
@@ -122,7 +122,7 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
 | `@verifica-sicurezza` | ✅ SUPERATO | 0.4 s | 9 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 53.9 s | 5 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 54.8 s | 5 controlli passati |
 
 ### Coerenza documentazione/codice
 
@@ -1272,17 +1272,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v168 con 36 voci
+    · cache: bsi-v169 con 36 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 6916 nodi in 494 ms — "BioSpecInfo · v8"
+    · 6916 nodi in 571 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7440 ms con 6986 nodi — rete bloccata 4 volte
+    · caricata in 7455 ms con 6986 nodi — rete bloccata 4 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -1290,7 +1290,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3509 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3511 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -1630,8 +1630,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v168   ·  sw.js: bsi-v168
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v168
+    · app: bsi-v169   ·  sw.js: bsi-v169
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v169
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -1644,7 +1644,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v168Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v169Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -1686,7 +1686,7 @@ Chiave condivisa nella UI
 ```
 Verifica di sicurezza
 
-File tracciati esaminati: 137
+File tracciati esaminati: 231
 
 ── SEC-01 · Chiavi API nei file tracciati ──
   ✓ nessuna chiave API in un file pubblicato
@@ -1719,7 +1719,7 @@ File tracciati esaminati: 137
 Verifica di accessibilità
 WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
-  · index                    87/87  sez · 19751 elementi di testo · contrasto 910 · comandi senza nome 0 · campi senza etichetta 40 · img senza alt 0 · 6757 in SVG · 892 su gradiente
+  · index                    87/87  sez · 19751 elementi di testo · contrasto 276 · comandi senza nome 0 · campi senza etichetta 40 · img senza alt 0 · 6759 in SVG · 892 su gradiente
   ✓ astro                             4997 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 3 su gradiente
   ✓ chimorga                          1701 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 469 in SVG
   ✓ accademia                         60 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 1 su gradiente
@@ -1738,14 +1738,14 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
   ✓ nessuna immagine priva di testo alternativo
   ✓ nessun salto nella gerarchia dei titoli
       (87 sezioni percorse oltre alla vista iniziale di ogni pagina)
-  ✓ contrasto sotto la soglia WCAG AA — invariato a 910 (debito dichiarato, non cresciuto)
+  ✓ contrasto sotto la soglia WCAG AA — invariato a 276 (debito dichiarato, non cresciuto)
   ✓ campi privi di etichetta — invariato a 40 (debito dichiarato, non cresciuto)
-      riferimento del 2026-09-20 — il debito è dichiarato in docs/09 §4, non tollerato in silenzio
+      riferimento del 2026-09-21 — il debito è dichiarato in docs/09 §4, non tollerato in silenzio
 
   Esempi:
-      ! index.html · div.el-mass  4.46:1 (serve 4.5:1)  «1.01»
-      ! index.html · div.el-sym  3.88:1 (serve 4.5:1)  «Be»
-      ! index.html · div.el-mass  3.88:1 (serve 4.5:1)  «9.01»
+      ! index.html · a  4.32:1 (serve 4.5:1)  «ChemSpider»
+      ! index.html · a  3.79:1 (serve 4.5:1)  «SDBS IR/NMR/MS»
+      ! index.html · div.sdb-dc  1:1 (serve 4.5:1)  «Standard industria: 100M+ reazioni»
 
 5 controlli passati
 ```
@@ -1852,7 +1852,7 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
 12) Nessun marcatore di conflitto e' finito nei file
   ✓ file con marcatori di conflitto  → 0
-   (138 file di testo controllati)
+   (232 file di testo controllati)
 
 71 controlli passati
 ```
@@ -1865,7 +1865,7 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v168
+Versione del codice (sw.js): bsi-v169
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -1910,7 +1910,7 @@ Versione del codice (sw.js): bsi-v168
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 630705ea980c
+git checkout 288b4fb079a1
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -1941,4 +1941,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-09-20T22:27:37.556Z._
+_Generato il 2026-09-21T06:33:08.990Z._

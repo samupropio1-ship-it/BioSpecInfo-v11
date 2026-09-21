@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v168` |
+| **Versione** | `bsi-v169` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v168` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v169` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -77,7 +77,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
 | **D-03** | Copertura automatica dei requisiti di sicurezza al 50 % | SEC-02 e parte di SEC-03 coperti da ispezione documentale, non da banco | Dichiarato in `docs/08` §6 |
 | **D-04** | Password del File Manager presente nella cronologia git antecedente alla rimozione | Il deterrente è noto a chi consulti la cronologia | Documentato; rimedio effettivo: sostituzione della password |
-| **D-05** | **910 difetti di contrasto e 40 campi privi di etichetta** in `index.html` | Testo sotto la soglia WCAG AA su fondo chiaro, in varie sezioni. Il caso peggiore misurato era 1:1 — testo dello stesso colore dello sfondo | Vedi il riquadro qui sotto: il numero è **registrato** in `evidence/accessibilita-riferimento.json` e il banco fallisce se cresce |
+| **D-05** | **276 difetti di contrasto e 40 campi privi di etichetta** in `index.html` | Testo sotto la soglia WCAG AA. Il caso peggiore residuo è 1:1 — testo dello stesso colore dello sfondo | Vedi il riquadro qui sotto: il numero è **registrato** in `evidence/accessibilita-riferimento.json` e il banco fallisce se cresce |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo negli SVG (6 758 elementi), quello su fondo a gradiente (892) e tutto ciò che richiede giudizio umano | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
 
 > ### D-05 — come è emerso, e perché il numero è quello che è
@@ -91,21 +91,30 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > Percorrendo tutte e 87 le sezioni sono emersi **1 069** difetti di contrasto.
 > Non erano comparsi: c'erano sempre stati.
 >
-> **159 sono stati corretti** individuandone la causa comune — una regola di
-> sicurezza sul tema scuro, iniettata a runtime, con specificità sufficiente a
-> scavalcare il colore dei singoli componenti. Il testo destinato alle schede
-> **bianche** veniva forzato a `#d4dce6`: contrasto 1,38:1, praticamente
-> invisibile. Riscritta con `:where()` — specificità zero — la rete di
-> sicurezza continua a proteggere il testo senza colore proprio e smette di
-> combattere contro quello che ce l'ha.
+> Oggi ne restano **276**: una riduzione del **74 %**, ottenuta risalendo alle
+> cause comuni invece di ritoccare i colori uno per uno.
 >
-> **910 restano.** Riguardano elementi senza classe, ciascuno con una causa
-> propria: vanno esaminati uno per uno, e una sostituzione di colore fatta in
-> blocco ne romperebbe altri — è già successo in questo progetto, con 997
+> | Causa | Difetti | Rimedio |
+> |---|---:|---|
+> | Rete di sicurezza del tema scuro con specificità superiore a quella dei componenti: il testo destinato alle schede **bianche** veniva forzato a `#d4dce6`, contrasto 1,38:1 | 159 | Riscritta con `:where()` (specificità zero): protegge il testo senza colore proprio e smette di combattere quello che ce l'ha |
+> | Accento per categoria usato come **testo** su intestazione scura, con ripiego `#0d1522` (quasi nero): 1,13:1 | ~400 | `bsiAccentoLeggibile()` conserva la tinta e alza la luminosità quanto basta. Applicata nei 14 punti in cui l'accento viene scelto — non nei dati, così vale anche per le voci future |
+> | Due tinte usate solo su fondo scuro, sotto soglia per poco (3,75:1 e 3,04:1) | 139 | Sostituite dopo aver **verificato** che non comparissero mai su fondo chiaro |
+> | Zebratura di tabella bianco/scurissimo con testo sempre chiaro: le righe bianche erano illeggibili | 57 | Due toni scuri, coerenti col tema |
+> | Celle della tavola periodica appena sotto soglia (4,46:1 e 3,88:1) | 43 | Testo a `#eceff4`, verificato su tutte e nove le categorie |
+> | `"#var(--text)"` — un `#` di troppo rende il colore invalido: in SVG ripiega sul nero, in canvas l'assegnazione viene **ignorata** e resta il colore precedente | 8 punti | Sostituito col valore reale |
+>
+> **Il verso della correzione dipende dalla superficie, non dal colore.** Il
+> primo tentativo schiariva sempre: ha tolto trenta difetti sull'intestazione
+> scura e ne ha messi diciotto sul riquadro chiaro che usa lo stesso accento.
+> La funzione ora scurisce sui fondi chiari e schiarisce su quelli scuri.
+>
+> I **276 restanti** sono una coda dispersa su 68 cause distinte, la più grande
+> delle quali vale 24 difetti. Vanno esaminati uno per uno, e una sostituzione
+> in blocco ne romperebbe altri — è già successo in questo progetto, con 997
 > nuovi difetti introdotti da una correzione automatica.
 >
-> Il numero è quindi **registrato come riferimento**. Il banco fallisce se
-> cresce, passa se resta uguale, e segnala il miglioramento se scende. Non è
+> Il numero è **registrato come riferimento**. Il banco fallisce se cresce,
+> passa se resta uguale, e segnala il miglioramento se scende. Non è
 > conformità: è la misura onesta di quanto manca, con la garanzia che non
 > peggiori di nascosto.
 | **D-06** | Nessuna copertura di codice strumentata | Non è noto quale frazione del codice i 39 banchi eseguano | Dichiarato in `docs/08` §8. Strumentare richiederebbe introdurre una build, che l'applicazione non ha |
@@ -200,4 +209,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v168`._
+_Versione `bsi-v169`._

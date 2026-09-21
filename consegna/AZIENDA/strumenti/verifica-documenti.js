@@ -93,7 +93,24 @@ documenti().forEach(function(doc){
      versione. Che il rapporto sia aggiornato si vede dal commit che dichiara,
      non dal numero di versione. */
   if (/CHANGELOG|RAPPORTO-VERIFICA|07-SBOM/.test(doc)) return;
-  const altre = versioni.filter(v => v !== ver);
+
+  /* ── Un riferimento al passato non e' una versione dimenticata ──
+     «Fino alla versione bsi-v168 il banco guardava una sezione su 87»
+     e' una frase che DEVE nominare una versione vecchia: e' il suo
+     contenuto. Trattarla come una dimenticanza obbligherebbe a
+     riscrivere la storia a ogni rilascio — cioe' a cancellarla, che e'
+     esattamente il contrario di quello che questi documenti servono a
+     fare.
+     L'esenzione e' stretta: vale solo per la versione nominata DENTRO
+     una formula che la colloca esplicitamente nel passato. Un
+     «Versione descritta: bsi-v167» rimasto indietro continua a
+     fallire. */
+  const storiche = new Set();
+  const reStoria = /(?:fino alla versione|fino a|antecedente(?:mente)? alla versione|prima della versione|nella versione)\s+`?(bsi-v\d+)`?/gi;
+  let ms;
+  while ((ms = reStoria.exec(testo)) !== null) storiche.add(ms[1]);
+
+  const altre = versioni.filter(v => v !== ver && !storiche.has(v));
   if (altre.length) disallineati.push(doc + ' cita ' + altre.join(', '));
 });
 att('nessun documento cita una versione superata', 0, disallineati.length);

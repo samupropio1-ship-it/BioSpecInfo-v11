@@ -1,6 +1,6 @@
 {
   "name": "biospecinfo",
-  "version": "11.168.0",
+  "version": "11.169.0",
   "private": true,
   "description": "BioSpecInfo — strumenti di verifica e generazione dell'evidenza. L'applicazione e' fatta di file statici e non richiede build: questo manifesto serve soltanto ai banchi di prova.",
   "author": "Samuele Pio Provenzano",

@@ -65,17 +65,33 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   percorse** — il primo tentativo ne percorreva zero (il clic di Playwright
   aspetta la visibilità, e i pulsanti stanno in gruppi richiusi) e il
   controllo l'ha detto invece di stampare un altro zero rassicurante.
-- **1 069 difetti di contrasto emersi, 159 corretti, 910 registrati.**
-  La causa dei 159: una regola di sicurezza sul tema scuro, iniettata a
-  runtime, con specificità sufficiente a scavalcare il colore dei componenti.
-  Il testo pensato per le schede **bianche** finiva a `#d4dce6` — contrasto
-  **1,38:1**, invisibile. Riscritta con `:where()` (specificità zero), la rete
-  di sicurezza protegge ancora il testo senza colore proprio e smette di
-  combattere quello che ce l'ha. I 910 restanti sono su elementi senza classe,
-  ognuno con una causa propria: sono **registrati** in
-  `docs/evidence/accessibilita-riferimento.json` e il banco fallisce se il
-  numero cresce. Una sostituzione in blocco ne romperebbe altri — è già
-  successo, con 997 nuovi difetti introdotti da una correzione automatica.
+- **1 069 difetti di contrasto emersi, 793 corretti, 276 registrati** (−74 %).
+  Non ritoccando i colori uno per uno, ma risalendo alle cause comuni:
+  - **159** — una rete di sicurezza del tema scuro, iniettata a runtime, con
+    specificità sufficiente a scavalcare il colore dei componenti: il testo
+    pensato per le schede **bianche** finiva a `#d4dce6`, contrasto **1,38:1**.
+    Riscritta con `:where()` (specificità zero).
+  - **~400** — l'accento per categoria usato come *testo* sull'intestazione
+    scura, col ripiego `#0d1522` (quasi nero): **1,13:1**. Introdotta
+    `bsiAccentoLeggibile()`, che conserva la tinta e alza la luminosità quanto
+    basta, applicata nei **14 punti in cui l'accento viene scelto** — non nei
+    dati, così vale anche per le voci aggiunte in futuro.
+  - **139** — due tinte sotto soglia per poco, sostituite **dopo aver
+    verificato** che non comparissero mai su fondo chiaro.
+  - **57** — una zebratura di tabella bianco/scurissimo con testo sempre
+    chiaro: le righe bianche erano illeggibili.
+  - **43** — celle della tavola periodica appena sotto soglia.
+  - **8 punti** con `"#var(--text)"`: un `#` di troppo rende il colore
+    invalido. In SVG ripiega sul nero, in canvas l'assegnazione viene
+    **ignorata** e il disegno continua col colore precedente.
+
+  **Il verso della correzione dipende dalla superficie, non dal colore.** Il
+  primo tentativo schiariva sempre: trenta difetti tolti sull'intestazione
+  scura, diciotto messi sul riquadro chiaro che usa lo stesso accento. La
+  funzione ora scurisce sui fondi chiari e schiarisce su quelli scuri.
+
+  I 276 restanti sono una coda dispersa su 68 cause, la maggiore da 24
+  difetti; sono **registrati** e il banco fallisce se crescono.
 - **L'aggiornamento automatico non sarebbe più scattato su nessun dispositivo.**
   `_bsiPaginaOccupata()` considera «lavoro aperto» qualunque area di testo con
   più di 20 caratteri; la nuova sezione Taratura ne porta una **già piena** di

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v168` |
+| **Versione descritta** | `bsi-v169` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -164,8 +164,9 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
 
 Percorrendo tutte le sezioni sono emersi **1 069** difetti di contrasto.
-159 sono stati corretti risalendo alla causa comune (vedi `docs/09` §4);
-**910 restano**, su elementi senza classe, ciascuno con una causa propria.
+**793 sono stati corretti** risalendo alle cause comuni (l'elenco è in
+`docs/09` §4): **276 restano**, dispersi su 68 cause di cui la maggiore vale
+24 difetti.
 
 Pretendere zero da subito lascerebbe due sole vie, entrambe cattive: la
 verifica rossa per sempre, oppure allentata finché torna verde. La terza via è
@@ -222,7 +223,7 @@ funzionale non osserva.
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, 159 corretti, **910 registrati** come debito che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **793 corretti**, **276 registrati** come debito che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -316,4 +317,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v168`._
+_Documento aggiornato alla versione `bsi-v169`._
