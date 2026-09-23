@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v170` |
+| **Versione descritta** | `bsi-v171` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -57,7 +57,7 @@ node tools/genera-evidenza.js          # deve chiudersi con 0 falliti
 
 # 3. rigenerare SBOM, PDF, pacchetti ed evidenza sulla versione nuova
 node tools/genera-sbom.js
-node tools/genera-pdf.js            # 26 PDF; ogni piè di pagina porta versione e commit
+node tools/genera-pdf.js            # 30 PDF; ogni piè di pagina porta versione e commit
 node tools/genera-pacchetti.js      # i tre pacchetti di consegna; fallisce se un link è rotto
 node tools/genera-evidenza.js
 
@@ -264,4 +264,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v170`._
+_Documento aggiornato alla versione `bsi-v171`._

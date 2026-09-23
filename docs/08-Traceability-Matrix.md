@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v170` |
+| **Versione descritta** | `bsi-v171` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -76,7 +76,7 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_stabilita`, viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 87 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 
@@ -86,8 +86,8 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 137 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `tools/verifica-sicurezza.js` — `BSI_TELEMETRY_URL` vuoto, nessuno script esterno |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 235 file tracciati, 8 forme di credenziale |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `tools/verifica-sicurezza.js` — `BSI_TELEMETRY_URL` vuoto, nessuno script esterno. **Verifica indiretta**: il banco controlla i due meccanismi di uscita, non il traffico reale (vedi `docs/09` D-03) |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
@@ -106,7 +106,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 19 751 elementi di testo). **Dei 1 069 difetti di contrasto emersi ne sono stati corretti 989; gli 80 residui sono misurati e registrati**, non risolti. I campi senza etichetta sono **zero**: vedi `docs/09` §4 D-05. Restano inoltre fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 19 751 elementi di testo). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 87 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano inoltre fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 6 farmaci ad alta complessità | **non verificate** — voci lasciate senza struttura, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **non misurata** — nessuno strumento di strumentazione è in uso; vedi §8 |
@@ -133,9 +133,9 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — 37 requisiti
-> verificati su 42 dichiarati — e i cinque che mancano sono elencati per nome
-> in §6, non riassunti in una percentuale.
+> automatizzare. Il numero che conta per chi valuta è il secondo — **39
+> requisiti verificati su 44 dichiarati** — e i cinque che mancano sono elencati
+> per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
 > identificativi realmente presenti nel documento e fallisce se i totali qui
@@ -153,7 +153,7 @@ possono essere affermate.
 
 | Lacuna | Che cosa comporta | Perché è così |
 |---|---|---|
-| **Nessuna copertura di codice** | Non è noto quale percentuale del codice i 40 banchi eseguano davvero | L'applicazione non ha un processo di build: strumentare il codice richiederebbe introdurne uno, e cambierebbe ciò che si sta misurando |
+| **Nessuna copertura di codice** | Non è noto quale percentuale del codice i 41 banchi eseguano davvero | L'applicazione non ha un processo di build: strumentare il codice richiederebbe introdurne uno, e cambierebbe ciò che si sta misurando |
 | **Solo Chromium** | Il comportamento su Firefox e WebKit è verificato a mano, non da banco | La batteria usa `playwright-core`, che scarica un motore solo |
 | **Nessuna regressione visiva** | Un cambiamento grafico involontario non verrebbe intercettato | Gli spettri sono deterministici e confrontabili byte a byte (SCI-05): il confronto esiste sulle tracce, non sull'intera pagina |
 | **6 strutture di farmaci** | Sei voci su 178 non hanno struttura verificata | Vedi `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
@@ -161,4 +161,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v170`._
+_Documento aggiornato alla versione `bsi-v171`._

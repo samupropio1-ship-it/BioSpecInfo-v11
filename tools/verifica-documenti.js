@@ -43,7 +43,11 @@ function documenti(){
     for (const f of fs.readdirSync(path.join(RADICE, dir), { withFileTypes: true })) {
       const rel = path.join(dir, f.name);
       if (f.isDirectory()) {
-        if (/node_modules|\.git|^docs\/(en|pdf|candidatura)$/.test(rel)) continue;
+        /* `docs/en` ENTRA: era escluso, e per questo la traduzione inglese
+           ha potuto restare ferma alla versione bsi-v146 per tre rilasci
+           senza che nessun banco se ne accorgesse. Restano fuori solo le
+           cartelle che non contengono prosa da controllare. */
+        if (/node_modules|\.git|^docs\/(pdf|candidatura)$/.test(rel)) continue;
         guarda(rel, prof + 1);
       } else if (f.name.endsWith('.md')) out.push(rel);
     }
@@ -106,7 +110,15 @@ documenti().forEach(function(doc){
      «Versione descritta: bsi-v167» rimasto indietro continua a
      fallire. */
   const storiche = new Set();
-  const reStoria = /(?:fino alla versione|fino a|antecedente(?:mente)? alla versione|prima della versione|nella versione)\s+`?(bsi-v\d+)`?/gi;
+  /* «rimasto a bsi-v146» colloca la versione nel passato tanto quanto
+     «fino alla versione bsi-v146»: e' la stessa frase con il verbo
+     dall'altra parte. Resta stretta — un'intestazione «Versione
+     descritta: bsi-v167» rimasta indietro non contiene nessuno di
+     questi verbi e continua a fallire. */
+  const reStoria = /(?:fino alla versione|fino a|antecedente(?:mente)? alla versione|prima della versione|nella versione|rimast[oa] a(?:lla versione)?|ferm[oa] a(?:lla versione)?|up to version|stuck at(?: version)?|left at(?: version)?|since version|in version)\s+>?\s*`?(bsi-v\d+)`?/gi;
+  /* `>?` perche' dentro una citazione Markdown la frase va a capo con un
+     `> ` davanti: «Up to version\n> `bsi-v168`». Senza, l'esenzione
+     dipendeva da dove cadeva l'a capo. */
   let ms;
   while ((ms = reStoria.exec(testo)) !== null) storiche.add(ms[1]);
 

@@ -66,7 +66,7 @@ const PACCHETTI = {
       ['12-Deploy-Guide.md',                   'Pubblicazione, ripristino, emergenze'],
       ['15-Test-Documentation.md',             'Come rieseguire le prove']
     ],
-    evidenza: true, strumenti: true, pdf: true, licenza: true,
+    evidenza: true, strumenti: true, pdf: true, licenza: true, inglese: true,
     percorso: [
       ['09-Release-Conformance-Statement.md', 'Che cosa è e che cosa NON è. Le esclusioni sono parte della dichiarazione.', '8 min'],
       ['evidence/RAPPORTO-VERIFICA.md',       'L\'evidenza: uscita integrale dei banchi, ambiente, commit, impronte.', '10 min'],
@@ -121,7 +121,7 @@ const PACCHETTI = {
             'guide pratiche, e le note di sessione con le trappole in cui si è ' +
             'già caduti — che sono la parte più difficile da ricostruire.',
     file: null,            // tutto docs/
-    evidenza: true, strumenti: true, pdf: true, licenza: true, extra: true,
+    evidenza: true, strumenti: true, pdf: true, licenza: true, extra: true, inglese: true,
     percorso: [
       ['DOCUMENTATION.md',                     'L\'indice generale, con i percorsi per ogni tipo di lettore.', '3 min'],
       ['15-Test-Documentation.md',             'Come si esegue la batteria e come si aggiunge un banco.', '12 min'],
@@ -207,7 +207,14 @@ function copiaCartella(da, a, filtro, dirPacchetto){
 /* Riscrive i collegamenti di un file Markdown copiato.
    `origine` è la cartella che il file occupava NEL REPOSITORY: è rispetto
    a quella che i suoi collegamenti relativi vanno risolti. */
-function riscrivi(fileNelPacchetto, origineNelRepo){
+/* `radicePacchetto` non è un dettaglio: i valori in `mappa` sono percorsi
+   RELATIVI ALLA RADICE del pacchetto, ma un collegamento in Markdown si
+   risolve rispetto alla cartella del file che lo contiene. Finché tutti i
+   documenti stavano nella radice le due cose coincidevano; con la
+   traduzione inglese in `en/` non più, e `[LICENSE](LICENSE)` dentro
+   `en/07-SBOM.md` puntava a `en/LICENSE`, che non esiste. */
+function riscrivi(fileNelPacchetto, origineNelRepo, radicePacchetto){
+  radicePacchetto = radicePacchetto || path.dirname(fileNelPacchetto);
   let t;
   try { t = fs.readFileSync(fileNelPacchetto, 'utf8'); } catch (e) { return 0; }
   let cambiati = 0;
@@ -226,7 +233,9 @@ function riscrivi(fileNelPacchetto, origineNelRepo){
                     .split(path.sep).join('/').replace(/^\.\//, '');
 
     if (Object.prototype.hasOwnProperty.call(mappa, rel)) {
-      const dentro = mappa[rel];
+      const dentro = path.relative(path.dirname(fileNelPacchetto),
+                                   path.join(radicePacchetto, mappa[rel]))
+                         .split(path.sep).join('/') || mappa[rel];
       if (dentro !== percorso) cambiati++;
       return pre + dentro + ancora + post;
     }
@@ -308,6 +317,14 @@ function copertina(nome, p){
   } else {
     m += 'Tutti i documenti del repository, più il manuale utente, le guide ' +
          'pratiche e le note di lavorazione.\n';
+  }
+  if (p.inglese) {
+    m += '\n### In inglese\n\n';
+    m += 'La cartella `en/` contiene la traduzione inglese dei documenti di ' +
+         'questo pacchetto, e `pdf/BioSpecInfo-Full-Dossier.en.pdf` li raccoglie ' +
+         'in un unico allegato. I numeri dichiarati nelle due lingue sono ' +
+         'confrontati con la misura dallo stesso banco (`verifica-affermazioni`): ' +
+         'se le due versioni dicono cose diverse, la batteria fallisce.\n\n';
   }
   if (p.pdf) {
     m += '\n### In PDF\n\n';
@@ -414,6 +431,33 @@ function main(){
         });
     }
 
+    /* La traduzione inglese, in `en/`.
+       Un dossier di valutazione aziendale consegnato solo in italiano
+       costringe un revisore straniero a fidarsi o a rinunciare. Si copiano
+       le traduzioni dei documenti che il pacchetto contiene DAVVERO: una
+       versione inglese di un documento assente rimetterebbe dentro
+       l'incoerenza appena tolta. */
+    if (p.inglese) {
+      const dirEn = path.join(RADICE, 'docs', 'en');
+      if (fs.existsSync(dirEn)) {
+        const nelPacchetto = new Set(Object.keys(mappa)
+          .map(rel => (rel.match(/^docs\/(\d\d-.+\.md)$/) || [])[1])
+          .filter(Boolean));
+        const scelti = fs.readdirSync(dirEn)
+          .filter(f => f.endsWith('.md'))
+          .filter(f => f === 'README.md' || !p.file || nelPacchetto.has(f))
+          .sort();
+        if (scelti.length) {
+          fs.mkdirSync(path.join(dir, 'en'), { recursive: true });
+          scelti.forEach(function(f){
+            const dest = path.join(dir, 'en', f);
+            copia(path.join(dirEn, f), dest, dir); n++;
+            daRiscrivere.push([dest, 'docs/en']);
+          });
+        }
+      }
+    }
+
     if (p.evidenza) {
       n += copiaCartella(path.join(RADICE, 'docs', 'evidence'),
                          path.join(dir, 'evidence'), null, dir);
@@ -435,6 +479,12 @@ function main(){
           if (m) voluti.add(m[1] + '.pdf');
         });
         voluti.add('BioSpecInfo-Dossier-Completo.it.pdf');
+        /* e i PDF inglesi dei soli documenti tradotti presenti */
+        Object.keys(mappa).forEach(function(rel){
+          const m = rel.match(/^docs\/en\/(.+)\.md$/);
+          if (m) voluti.add(m[1] + '.en.pdf');
+        });
+        if (p.inglese) voluti.add('BioSpecInfo-Full-Dossier.en.pdf');
         fs.mkdirSync(path.join(dir, 'pdf'), { recursive: true });
         fs.readdirSync(dirPdf).filter(f => voluti.has(f)).sort().forEach(function(f){
           copia(path.join(dirPdf, f), path.join(dir, 'pdf', f), dir); n++;
@@ -445,7 +495,7 @@ function main(){
     fs.writeFileSync(path.join(dir, 'LEGGIMI.md'), copertina(nome, p));
 
     let riscritti = 0;
-    daRiscrivere.forEach(function(r){ riscritti += riscrivi(r[0], r[1]); });
+    daRiscrivere.forEach(function(r){ riscritti += riscrivi(r[0], r[1], dir); });
 
     const esito = controllaLink(dir);
     rottiTotali += esito.rotti.length;

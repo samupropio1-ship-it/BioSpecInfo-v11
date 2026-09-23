@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v170` |
+| **Versione** | `bsi-v171` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v170` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v171` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -75,12 +75,14 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 |---|---|---|---|
 | **D-01** | 6 farmaci ad alta complessità molecolare senza struttura verificata (elencati in `evidence/deviazioni-note.json`) | Per queste voci non è disponibile la rappresentazione 2D/3D né la predizione spettrale | Voci lasciate **senza SMILES**: i dati farmacologici restano, la struttura non è mostrata. Preferito all'inserimento di una struttura non verificata. |
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
-| **D-03** | Copertura automatica dei requisiti di sicurezza al 50 % | SEC-02 e parte di SEC-03 coperti da ispezione documentale, non da banco | Dichiarato in `docs/08` §6 |
+| **D-03** | SEC-02 è verificato **per interposta proprietà**, non direttamente | Il banco non sa dire «nessun dato personale è uscito»: verifica che la variabile di telemetria sia vuota (SEC-05) e che nessuno script provenga da un dominio esterno (SEC-06), cioè i due meccanismi attraverso cui un dato potrebbe uscire. È evidenza automatica, ma indiretta | Dichiarato qui e in `docs/08` §5. Una verifica diretta richiederebbe l'osservazione del traffico di rete durante un uso reale |
 | **D-04** | Password del File Manager presente nella cronologia git antecedente alla rimozione | Il deterrente è noto a chi consulti la cronologia | Documentato; rimedio effettivo: sostituzione della password |
-| **D-05** | **80 difetti di contrasto** in `index.html`; i campi privi di etichetta sono **zero** | Testo sotto la soglia WCAG AA in 33 combinazioni residue, la maggiore da 10 difetti | Vedi il riquadro qui sotto: il numero è **registrato** in `evidence/accessibilita-riferimento.json` e il banco fallisce se cresce |
+| **D-06** | Nessuna copertura di codice strumentata | Non è noto quale frazione del codice i 41 banchi eseguano | Dichiarato in `docs/08` §8. Strumentare richiederebbe introdurre una build, che l'applicazione non ha |
+| **D-07** | Verifica su Chromium soltanto | Firefox e WebKit sono provati a mano | Dichiarato in `docs/08` §8 |
+| **D-08** | Traduzione inglese estesa a 10 documenti su 16 | Un valutatore non italofono legge 10 documenti su 16 | Dichiarato qui; i restanti sono disponibili in italiano. L'insieme tradotto copre l'intero percorso di due diligence: dossier, architettura, V&V, sicurezza, licenze, agente AI, SBOM, tracciabilità, questa dichiarazione e la documentazione di prova |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo negli SVG (6 758 elementi), quello su fondo a gradiente (892) e tutto ciò che richiede giudizio umano | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
 
-> ### D-05 — come è emerso, e perché il numero è quello che è
+> ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
 >
 > Fino alla versione `bsi-v168` questo documento dichiarava la conformità WCAG
 > «verificata a campione» e il banco riportava **0 difetti**. Erano due
@@ -91,9 +93,11 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > Percorrendo tutte e 87 le sezioni sono emersi **1 069** difetti di contrasto.
 > Non erano comparsi: c'erano sempre stati.
 >
-> Oggi ne restano **80**: una riduzione del **93 %**, ottenuta risalendo alle
-> cause comuni invece di ritoccare i colori uno per uno. I **40 campi privi di
-> etichetta** sono scesi a **zero**.
+> Oggi sono **zero**, misurati sulle stesse 87 sezioni con lo stesso banco. Non
+> per sostituzione in blocco — quella strada, tentata una volta, aveva
+> introdotto 997 difetti nuovi — ma risalendo ogni volta alla **causa comune** e
+> rimisurando dopo ogni modifica. I **40 campi privi di etichetta** sono
+> anch'essi scesi a **zero**.
 >
 > Le cause più gravi non erano colori sbagliati, ma **token del tema che
 > valevano lo stesso dello sfondo**:
@@ -124,18 +128,29 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > scura e ne ha messi diciotto sul riquadro chiaro che usa lo stesso accento.
 > La funzione ora scurisce sui fondi chiari e schiarisce su quelli scuri.
 >
-> Gli **80 restanti** sono una coda dispersa su 33 cause distinte, la più grande
-> delle quali vale 10 difetti. Vanno esaminati uno per uno, e una sostituzione
-> in blocco ne romperebbe altri — è già successo in questo progetto, con 997
-> nuovi difetti introdotti da una correzione automatica.
+> **La coda finale: 80 → 0.** Gli ultimi ottanta erano dispersi su 33 cause
+> distinte e sembravano lavoro di rifinitura. Non lo erano: sotto ce n'erano
+> ancora tre strutturali.
 >
-> Il numero è **registrato come riferimento**. Il banco fallisce se cresce,
-> passa se resta uguale, e segnala il miglioramento se scende. Non è
-> conformità: è la misura onesta di quanto manca, con la garanzia che non
-> peggiori di nascosto.
-| **D-06** | Nessuna copertura di codice strumentata | Non è noto quale frazione del codice i 40 banchi eseguano | Dichiarato in `docs/08` §8. Strumentare richiederebbe introdurre una build, che l'applicazione non ha |
-| **D-07** | Verifica su Chromium soltanto | Firefox e WebKit sono provati a mano | Dichiarato in `docs/08` §8 |
-| **D-08** | Traduzione inglese limitata ai documenti 00-05 | Un valutatore non italofono legge 6 documenti su 16 | Dichiarato qui; i restanti sono disponibili in italiano |
+> | Causa finale | Rimedio |
+> |---|---|
+> | **Il «correttore automatico di contrasto» produceva difetti invece di toglierli.** Usava la luminosità *percepita* al posto della luminanza WCAG, quindi le sue soglie non corrispondevano a nessun rapporto reale; **ignorava l'alfa**, così `rgba(255,180,84,.08)` su fondo scuro gli sembrava «fondo chiaro» e scuriva il testo a `#16273e` — creando un difetto a 1,21:1 sopra un sorgente che era già corretto; e guardava solo gli elementi con uno sfondo **proprio**, cioè mai il caso più comune | Riscritto: risale agli antenati **componendo l'alfa** per ottenere il fondo effettivo, misura il rapporto WCAG vero, e delega la correzione a `bsiAccentoLeggibile()` |
+> | `--g900` vale `#0d1522` — **lo stesso di `--bg`**, esattamente come `--g800`: l'eredità di una scala di grigi nata per il tema *chiaro*, dove `--g900` era «il testo più scuro». Capovolto il tema, quel ruolo non esiste più | Gli usi come **colore del testo** (oggi 30 regole) passano a `--testo-forte`; i 16 usi come **sfondo** restano dove sono |
+> | Un colore scelto dai dati usato come **sfondo** con il testo fissato a `#fff` nel codice: funziona finché la tinta è scura e smette appena qualcuno aggiunge `#e65100` | `bsiEtichettaLeggibile()` — il duale della funzione precedente: sceglie il testo guardando il fondo e, se nessuno dei due estremi basta, **scurisce il fondo conservando la tinta**, perché un'etichetta deve restare riconoscibile per colore |
+>
+> I passaggi misurati col banco ufficiale, non stimati: **80 → 27 → 26 → 10 → 4 → 0**.
+> Ogni scalino è una rimisura completa sulle 87 sezioni dopo un gruppo di
+> modifiche; nessuna cifra qui sopra è attribuita a una causa singola, perché
+> le cause non sono state misurate una per una.
+>
+> Il numero resta **registrato come riferimento** in
+> `evidence/accessibilita-riferimento.json`. Zero non è un traguardo da
+> archiviare: è il valore che il banco difende. Se una modifica futura ne
+> reintroduce anche uno solo, la batteria **fallisce**.
+>
+> Resta fuori ciò che l'automatismo non può giudicare: il testo dentro gli SVG
+> e quello su fondo a gradiente (D-09). Quegli elementi sono **contati** e
+> riportati a ogni esecuzione, non taciuti.
 
 ---
 
@@ -154,6 +169,8 @@ vale la carta su cui è scritta.
 | **S-05** | `SCI-10` era definito due volte nella matrice, e i totali di copertura erano errati (36 dichiarati su 37 definiti) | Il numero che un valutatore legge per primo era sbagliato. Un banco ora lo verifica |
 | **S-06** | 50 collegamenti rotti su 127 nei pacchetti di consegna | Documentazione consegnata a terzi con riferimenti che non portavano da nessuna parte |
 | **S-07** | 15 PDF allegabili fermi ai documenti 00-05 e a una versione precedente | Un allegato obsoleto afferma cose false con l'aria di essere autorevole |
+| **S-08** | Il banco sulle affermazioni numeriche guardava **solo i documenti italiani** | La serie inglese derivava indisturbata: `docs/en/05` dichiarava «84 sections» con 87 sezioni nell'app, ed è rimasto fermo alla versione `bsi-v146` mentre il codice era alla 171. Ora l'insieme inglese è confrontato con la misura come quello italiano, e un disaccordo fra le due lingue fa fallire il banco |
+| **S-09** | Il «correttore automatico di contrasto» **creava** i difetti che avrebbe dovuto togliere | Ignorava l'alfa: un fondo `rgba(255,180,84,.08)` su superficie scura gli sembrava chiaro, e scuriva con `!important` un testo che nel sorgente era già corretto. Uno strumento di rimedio che peggiora la cosa da rimediare è il difetto più difficile da vedere, perché si presenta come la soluzione |
 
 ---
 
@@ -225,4 +242,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v170`._
+_Versione `bsi-v171`._

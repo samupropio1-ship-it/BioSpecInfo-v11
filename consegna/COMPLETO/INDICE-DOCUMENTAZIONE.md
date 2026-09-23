@@ -8,11 +8,11 @@ valutazione tecnica da parte di aziende, centri di ricerca e audit.
 Per le candidature allega **un solo file**:
 
 - 🇮🇹 **[`docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf`](pdf/BioSpecInfo-Dossier-Completo.it.pdf)** — **tutti e sedici i documenti** in un file solo, con indice.
-- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/pdf/BioSpecInfo-Full-Dossier.en.pdf)** — la traduzione inglese, che copre i documenti 00-05.
+- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — la traduzione inglese: dieci documenti su sedici, scelti in modo da coprire l'intero percorso di due diligence (00-05, 07, 08, 09, 15).
 
 In alternativa il solo dossier tecnico di sintesi:
 [`00-Technical-Dossier.pdf`](pdf/00-Technical-Dossier.pdf) /
-[`00-Technical-Dossier.en.pdf`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/pdf/00-Technical-Dossier.en.pdf).
+[`00-Technical-Dossier.en.pdf`](pdf/00-Technical-Dossier.en.pdf).
 
 > I PDF sono **generati** dai Markdown (`node tools/genera-pdf.js`) e portano
 > versione e commit in ogni piè di pagina: il testo e il suo allegato non
@@ -50,7 +50,7 @@ In alternativa il solo dossier tecnico di sintesi:
 
 Gli strumenti che li producono sono in [`tools/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools) e sono eseguibili da chiunque disponga del repository.
 
-**🌍 English version:** [`docs/en/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/README.md) — the same documents in English.
+**🌍 English version:** [`docs/en/`](en/README.md) — dieci dei sedici documenti in inglese: dossier, architettura, V&V, sicurezza, licenze, agente AI, SBOM, tracciabilità, dichiarazione di conformità e documentazione di prova. I numeri dichiarati nell'insieme inglese sono confrontati con la misura dallo stesso banco che controlla quello italiano.
 **📑 PDF (IT + EN):** [`docs/pdf/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/pdf) — pronti da allegare a CV, email e audit.
 
 ## In sintesi

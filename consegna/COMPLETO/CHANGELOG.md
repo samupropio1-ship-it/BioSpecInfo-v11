@@ -8,6 +8,183 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
 
+## [bsi-v171] — 2026-09-23
+
+### Corretto — accessibilità: dagli 80 difetti di contrasto residui a **zero**
+
+Gli ultimi ottanta sembravano rifinitura. Non lo erano: sotto ce n'erano
+ancora tre cause strutturali.
+
+- **Il «correttore automatico di contrasto» produceva difetti invece di
+  toglierli.** Tre errori insieme:
+  usava la **luminosità percepita** (`0.299R+0.587G+0.114B`) al posto della
+  luminanza relativa WCAG, che è gamma-corretta, quindi le sue soglie — 115,
+  140, 190, 150 — non corrispondevano a nessun rapporto di contrasto;
+  **ignorava l'alfa**, così il distintivo con `background:rgba(255,180,84,.08)`
+  su superficie scura gli sembrava «fondo chiaro» e ne scuriva il testo a
+  `#16273e` con `!important`, **creando** un difetto a 1,21:1 sopra un sorgente
+  che era già corretto (`#ffb454`);
+  e guardava **solo gli elementi con uno sfondo proprio**, cioè mai il caso più
+  comune, che è testo scuro il quale eredita il fondo scuro del pannello.
+  Riscritto: risale agli antenati **componendo l'alfa** per ottenere il fondo
+  effettivo, rinuncia (invece di indovinare) sopra immagini e gradienti, misura
+  il rapporto WCAG vero e delega la correzione a `bsiAccentoLeggibile()`, che
+  conserva la tinta e sceglie il verso guardando la superficie.
+- **`--g900` vale `#0d1522`, lo stesso di `--bg`** — esattamente come `--g800`.
+  È l'eredità di una scala di grigi nata per il tema **chiaro**, dove `--g900`
+  era «il testo più scuro»; capovolto il tema, quel ruolo non esiste più. Le
+  regole che lo usavano come colore del testo scrivevano testo del colore dello
+  sfondo: `.rxn-fp button.on`, `.tb.on`, `.nav-btn.on` e altre, a **1,21:1**.
+  Gli usi come colore del testo (30 regole) passano a `--testo-forte`; i 16 usi
+  come **sfondo** restano dove sono.
+- **Sfondo dai dati, testo fissato nel codice.** Distintivi e intestazioni
+  prendevano la tinta dai dati e scrivevano `color:#fff`: funziona finché la
+  tinta è scura, e smette appena qualcuno aggiunge `#e65100` (bianco sopra:
+  3,79:1) o `#00897b` (4,32:1). Aggiunta `bsiEtichettaLeggibile()`, il duale di
+  `bsiAccentoLeggibile()`: sceglie il testo guardando il fondo e, se nessuno dei
+  due estremi basta, **scurisce il fondo conservando la tinta** — un'etichetta
+  deve restare riconoscibile per colore.
+- L'invariante è imposta **dove il colore viene scelto**, non nei dati: la
+  funzione `section()` delle schede biomolecola, il generatore dei distintivi
+  dei database, i colori per anno di corso, i chip dei gruppi funzionali. Così
+  vale anche per le voci aggiunte domani.
+- Tinte residue corrette dopo averne **verificata la superficie reale**:
+  `controindicata` da `#ef4444` a `#ff5c5c` (4,00 → 4,98:1), la spontaneità di
+  reazione da `#0d1522` (invisibile) a `#4ade80`, i pulsanti menta `#1fd39a`
+  con testo `#06141f` anziché `#e9eef6` (1,66 → oltre 9:1).
+
+Misurato col banco ufficiale sulle stesse 87 sezioni a ogni passo:
+**80 → 27 → 26 → 10 → 4 → 0**. Riferimento in
+`docs/evidence/accessibilita-riferimento.json` aggiornato a **0**: da qui in
+avanti anche un solo difetto reintrodotto fa **fallire** la batteria.
+
+Restano fuori dall'automatismo il testo dentro gli SVG e quello su fondo a
+gradiente, che il banco **conta e riporta** a ogni esecuzione: `docs/09` D-09.
+
+### Aggiunto — `audit_mobile`, il 41º banco: la pagina non deve scorrere in orizzontale
+
+UI-03 dice «l'app deve funzionare a 390 px», e la matrice lo dava per verificato
+da `audit_stabilita` — che in viewport telefono guarda però gli **errori
+JavaScript**. Una pagina può non averne uno solo e uscire lo stesso dallo
+schermo: il requisito era dichiarato coperto e non era misurato.
+
+Misurandolo, una sezione su 87 faceva scorrere il documento: `squiz`, di **163
+pixel**. Una griglia `1fr 1fr` con schede a contenuto non comprimibile — icona a
+larghezza fissa, distintivo «N da ripassare» che non si restringe — portava il
+documento a 553 px su 390. Corretta con `auto-fit` e `min-width:0` sui tre punti
+che impedivano la compressione: rimettendo solo la griglia il difetto **non**
+torna, servono tutti e tre.
+
+Il banco misura `scrollWidth` del documento, non «un elemento più largo dello
+schermo»: una tabella dentro un contenitore fatto per scorrere è corretta, e
+segnalarla riempirebbe l'uscita di rumore finché nessuno la legge più. Conta
+anche le sezioni percorse e fallisce se sono zero, perché un banco che non
+misura nulla passa. Verificato reintroducendo il difetto: fallisce, e nomina la
+sezione e i 163 pixel.
+
+I banchi passano da 40 a **41**.
+
+### Aggiunto — un badge sul contrasto, controllato come gli altri
+
+Il README porta ora `contrasto WCAG AA — 0 difetti su 87 sezioni`. È
+un'affermazione forte messa nel primo pixel della pagina, quindi
+`verifica-affermazioni` la confronta con
+`docs/evidence/accessibilita-riferimento.json`: se il debito risale, il badge
+diventa falso e il banco lo dice. Verificato alterando di proposito il
+riferimento.
+
+Corretto anche l'ordine degli argomenti nei tre controlli sui badge: stampavano
+«dichiarato» sul valore vero e «misurato» sul badge, cioè il contrario.
+
+### Aggiunto — la documentazione inglese passa da 6 a 10 documenti su 16
+
+La serie inglese si fermava a `docs/en/00-05`, e quei sei erano **derivati**: mai
+più ricontrollati. Cercando i numeri per questa versione ne sono usciti due
+fermi da tre rilasci — `docs/en/05` dichiarava «84 sections» mentre l'app ne ha
+87, e si diceva descritto dalla versione `bsi-v146` mentre siamo alla 171.
+
+- Tradotti **`07-SBOM`, `08-Traceability-Matrix`, `09-Release-Conformance-Statement`
+  e `15-Test-Documentation`**: insieme ai sei già presenti coprono l'intero
+  percorso che un revisore straniero segue in sede di due diligence — dossier,
+  architettura, V&V, sicurezza, licenze, agente AI, distinta dei componenti,
+  tracciabilità, dichiarazione di conformità e documentazione di prova.
+- **L'SBOM inglese non è tradotto a mano: è generato.** `tools/genera-sbom.js`
+  emette ora `docs/07-SBOM.md` e `docs/en/07-SBOM.md` dalla stessa sorgente, con
+  impronte, dimensioni e licenze calcolate una volta sola. Una distinta dei
+  componenti tradotta a mano diverge al primo aggiornamento di una libreria.
+- **`tools/verifica-affermazioni.js` legge anche l'insieme inglese.** Un
+  documento inglese che dichiara un numero diverso dall'italiano fa fallire il
+  banco con la stessa severità di due documenti italiani in disaccordo —
+  verificato reintroducendo di proposito una divergenza.
+- **Anche `tools/verifica-documenti.js` guarda ora `docs/en/`**, che era
+  escluso per nome: è per questo che la traduzione ha potuto restare indietro
+  senza che niente lo dicesse. Estendendolo sono usciti subito tre difetti veri:
+  un collegamento rotto nell'indice inglese (`00-Dossier.en.pdf`, file che non
+  esiste: si chiama `00-Technical-Dossier.en.pdf`) e due versioni storiche
+  citate in una forma che l'esenzione non riconosceva. L'esenzione per i
+  riferimenti al passato accetta ora anche le formule inglesi e tollera il `> `
+  di una citazione andata a capo, ma resta stretta: un'intestazione
+  «Version described» rimasta indietro continua a far fallire il banco —
+  verificato.
+
+### Corretto — numeri dichiarati che non corrispondevano più alla misura
+
+Tutti trovati confrontando con l'applicazione in esecuzione, non con il sorgente.
+
+- **`docs/05` dichiarava «32 strumenti» mentre l'agente ne espone 35**, e tre —
+  `analizza_molecola`, `disegna_molecola`, `mostra_spettri` — non comparivano
+  nell'elenco. Corretti elenco e conteggio in italiano e in inglese, e aggiunta
+  l'affermazione al banco: da qui in avanti il numero è **misurato** su
+  `window.BSI_AI_TOOLS`.
+- **La ricerca web era contata fra gli strumenti dell'applicazione.** Non lo è:
+  `web_search` e `web_fetch` sono eseguiti **dal fornitore**, e solo su quelli
+  che li offrono. Contarli insieme agli altri li faceva sembrare sempre
+  disponibili. Ora sono distinti.
+- **`docs/05` §3.1** dichiarava 143 farmaci e 39 strategie: sono 178 e 46.
+- **`docs/08`** dichiarava 137 file tracciati dal banco di sicurezza: sono 235.
+- **`docs/08` §7** scriveva nel testo «37 requisiti verificati su 42» mentre la
+  tabella sopra diceva 39 su 44. Il banco controllava la tabella, non la prosa.
+
+### Corretto — la copertura di SEC-02 era dichiarata in tre modi diversi
+
+`docs/09` D-03 diceva «copertura al 50 %», `docs/15` §6 «2 requisiti su 4»,
+`docs/08` §5 lo dava per coperto da banco. Eseguendo `verifica-sicurezza` si
+vede che sono 9 controlli su 235 file, e che SEC-02 — «nessun dato personale
+lascia il dispositivo» — è verificato **per interposta proprietà**: il banco
+controlla che la variabile di telemetria sia vuota e che nessuno script venga da
+un dominio esterno, cioè i due meccanismi attraverso cui un dato potrebbe
+uscire. È evidenza automatica ma indiretta, e ora i tre documenti lo dicono allo
+stesso modo. La verifica diretta richiederebbe l'osservazione del traffico
+durante un uso reale, ed è dichiarata come tale.
+
+### Aggiunto — i pacchetti di consegna portano anche la documentazione inglese
+
+`consegna/AZIENDA/` e `consegna/COMPLETO/` includono ora una cartella `en/` con
+la traduzione dei documenti che il pacchetto contiene **davvero** — allegare la
+versione inglese di un documento assente rimetterebbe dentro l'incoerenza appena
+tolta — e i corrispondenti `pdf/*.en.pdf`, più
+`BioSpecInfo-Full-Dossier.en.pdf`. Il pacchetto aziendale passa da 40 a 60 file.
+
+### Corretto — la riscrittura dei riferimenti sbagliava nelle sottocartelle
+
+I valori della mappa dei pacchetti sono percorsi relativi alla **radice** del
+pacchetto, ma un collegamento Markdown si risolve rispetto alla cartella del
+file che lo contiene. Finché ogni documento stava nella radice le due cose
+coincidevano; con `en/` non più, e `[LICENSE](LICENSE)` dentro `en/07-SBOM.md`
+puntava a `en/LICENSE`. Sono usciti **24 collegamenti rotti** alla prima
+costruzione — trovati dal controllo che era stato scritto proprio per questo, e
+che ha fatto fallire la generazione invece di consegnare un pacchetto rotto.
+Ora sono **192 collegamenti verificati, nessuno rotto**.
+
+### Corretto — la tabella delle difformità era spezzata a metà
+
+In `docs/09` §4 il riquadro su D-05 stava **fra due righe della tabella**: in
+Markdown questo chiude la tabella, e D-06, D-07 e D-08 venivano impaginate come
+una seconda tabella senza intestazione. Righe riunite e riordinate, riquadro
+spostato dopo.
+
+---
+
 ## [bsi-v170] — 2026-09-21
 
 ### Corretto — accessibilità: da 276 difetti a 80, campi senza etichetta a zero

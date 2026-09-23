@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v170` |
+| **Versione documentata** | Service Worker `bsi-v171` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 32 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 35 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -53,7 +53,7 @@ una demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── esecutore strumenti (32, tutti locali salvo 3 di rete)   │
+│        └── esecutore strumenti (35, tutti locali salvo 2 di rete)   │
 │               ├── motore di calcolo (parser proprio, no eval)       │
 │               ├── risolutori di dominio (13 aree scientifiche)      │
 │               ├── dataset interni dell'app (9 basi dati)            │
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 32 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 35 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,27 +470,43 @@ non si può riprendere.
 
 ---
 
-## 3. I 32 strumenti
+## 3. I 35 strumenti
+
+L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
+esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
+erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettri`
+— non comparivano affatto.
 
 | Area | Strumenti |
 |---|---|
 | **Calcolo generale** | `calcola`, `risolvi_equazione`, `analisi_dati` |
 | **Chimica generale** | `bilancia_equazione`, `stechiometria`, `massa_molecolare`, `converti_unita`, `costante_fisica` |
 | **Chimica fisica** | `termodinamica`, `equilibrio_acido_base`, `cinetica`, `gas_e_soluzioni`, `elettrochimica` |
-| **Struttura e spettri** | `spettroscopia`, `quantistica_e_spettroscopia`, `cristallografia` |
+| **Struttura e spettri** | `spettroscopia`, `quantistica_e_spettroscopia`, `cristallografia`, `analizza_molecola`, `disegna_molecola`, `mostra_spettri` |
 | **Scienze della vita** | `biochimica`, `farmacocinetica`, `valuta_druglikeness` |
 | **Fisica** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
-| **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed), ricerca web |
+| **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
 | **Controllo app** | `naviga_sezione` (87 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
 
+> **La ricerca web non è fra questi trentacinque**, ed è bene distinguerla. I
+> trentacinque sono eseguiti **dall'applicazione**, nel browser dell'utente.
+> Sui fornitori che li offrono, l'agente aggiunge allo schema due strumenti
+> eseguiti **dal fornitore** — `web_search` e `web_fetch`, con un tetto di usi
+> per turno. Contarli insieme agli altri li farebbe sembrare disponibili sempre,
+> mentre dipendono dal fornitore scelto.
+
 ### 3.1 Dataset interni esposti
 
-297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 143 farmaci ·
-63 patologie · 39 strategie retrosintetiche · 36 interazioni farmacologiche ·
+297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 178 farmaci ·
+63 patologie · 46 strategie retrosintetiche · 36 interazioni farmacologiche ·
 29 vie metaboliche · 29 potenziali redox.
+
+I farmaci e le strategie sono i due numeri che `tools/verifica-affermazioni.js`
+misura sull'applicazione in esecuzione a ogni batteria: qui erano rimasti a 143
+e 39 mentre l'app ne contava 178 e 46.
 
 Sono i dati curati dall'autore per l'applicazione: l'agente li consulta come
 fonte primaria e ha istruzione di **segnalare le discrepanze** fra database e

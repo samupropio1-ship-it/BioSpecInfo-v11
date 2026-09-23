@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v170` |
+| **Versione descritta** | `bsi-v171` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**40 banchi**, raggruppati per ciò che dimostrano.
+**41 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -141,6 +141,17 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 |---|---|
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 87 sezioni |
+
+> **Perché un banco sul traboccamento orizzontale.** UI-03 dice «l'app deve
+> funzionare a 390 px», e la matrice lo dava per verificato da
+> `audit_stabilita`, che però in viewport telefono guarda gli **errori
+> JavaScript**: una pagina può non averne uno solo e uscire lo stesso di
+> centosessantatré pixel dallo schermo. Era un requisito dichiarato coperto e
+> non misurato. Il banco misura `scrollWidth` del documento — esattamente ciò
+> che fa comparire la barra — e non un elemento più largo dello schermo, che
+> dentro un contenitore fatto per scorrere è corretto e riempirebbe l'uscita di
+> rumore finché nessuno la legge più.
 
 > **Cosa non copre la verifica di accessibilità**, e va detto: il testo dentro
 > gli SVG (il colore viene da `fill`, lo sfondo è una forma disegnata) e il
@@ -164,13 +175,15 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
 
 Percorrendo tutte le sezioni sono emersi **1 069** difetti di contrasto.
-**989 sono stati corretti** risalendo alle cause comuni (l'elenco è in
-`docs/09` §4): **80 restano**, dispersi su 33 cause di cui la maggiore vale
-10 difetti. I campi privi di etichetta sono scesi da 40 a **zero**.
+Oggi sono **zero** — l'elenco delle cause e dei rimedi è in `docs/09` §4 — e
+i campi privi di etichetta sono scesi da 40 a **zero**.
 
-Pretendere zero da subito lascerebbe due sole vie, entrambe cattive: la
+Il meccanismo descritto qui sotto resta, e conta più del numero che custodisce.
+Pretendere zero *da subito* avrebbe lasciato due sole vie, entrambe cattive: la
 verifica rossa per sempre, oppure allentata finché torna verde. La terza via è
-**dichiarare il numero**.
+**dichiarare il numero** e impedirgli di crescere, qualunque esso sia. È così
+che da 1 069 si è arrivati a zero: ogni scalino registrato, nessuno annullabile
+di nascosto.
 
 | File | Ruolo |
 |---|---|
@@ -180,15 +193,18 @@ verifica rossa per sempre, oppure allentata finché torna verde. La terza via è
 |---|---|
 | Il conteggio **sale** | ✗ FALLITO — è una regressione |
 | Il conteggio **scende** | ✓ passa, e chiede di aggiornare il riferimento |
-| Il conteggio è **uguale** | ✓ passa in silenzio: debito dichiarato, non cresciuto |
+| Il conteggio è **uguale** | ✓ passa in silenzio: debito dichiarato, non cresciuto — oggi quel valore è **0**, e il banco lo difende |
 
 ```bash
 node tools/verifica-accessibilita.js --aggiorna-riferimento
 ```
 
 Da usare **solo dopo aver ridotto** i difetti, mai per far tornare verde una
-regressione. Non è conformità WCAG: è la misura onesta di quanto manca, con la
-garanzia che non peggiori di nascosto.
+regressione. Anche a zero non è conformità WCAG piena: restano fuori il testo
+dentro gli SVG e quello su fondo a gradiente, che l'automatismo non sa
+giudicare e che il banco **conta e riporta** a ogni esecuzione (`docs/09` D-09).
+È la misura onesta di ciò che si può misurare, con la garanzia che non peggiori
+di nascosto.
 
 ### 3.6 Coerenza
 
@@ -198,7 +214,7 @@ garanzia che non peggiori di nascosto.
 | `verifica-documenti` | Collegamenti interni, allineamento delle versioni, coerenza dell'indice, motivazione delle deviazioni, **coerenza interna della matrice di tracciabilità** (identificativi non duplicati, totali di copertura pari agli identificativi realmente definiti) |
 | `genera-pacchetti` | Riscrive i riferimenti dei documenti estratti e **verifica che nessun collegamento resti rotto** nei tre pacchetti di consegna |
 | `genera-pdf` | Converte i documenti in PDF e fallisce se un file risulta sotto la soglia di plausibilità (conversione a vuoto) |
-| `verifica-affermazioni` | Confronta ogni numero dichiarato nei documenti — sezioni, farmaci, malattie, tumori, strategie, moduli — con quello **misurato nell'applicazione in esecuzione** |
+| `verifica-affermazioni` | Confronta ogni numero dichiarato nei documenti — sezioni, farmaci, malattie, tumori, strategie, moduli — con quello **misurato nell'applicazione in esecuzione**, in italiano *e* in inglese |
 
 > **Perché i numeri vanno misurati, non ricordati.** Il dossier tecnico si apre
 > con delle cifre: «63 malattie (23 tumori)», «46 strategie», «25 moduli». Sono
@@ -217,7 +233,9 @@ garanzia che non peggiori di nascosto.
 >
 > Controlla anche che i documenti concordino **fra loro**: due documenti che
 > dicono cose diverse sullo stesso oggetto sono un difetto anche quando uno dei
-> due ha ragione.
+> due ha ragione. La traduzione inglese conta come uno di quei documenti —
+> `docs/en/05` è rimasto a «84 sections» e fermo alla versione `bsi-v146` per tre rilasci, e
+> nessun banco se ne accorgeva perché nessuno guardava l'insieme inglese.
 
 > **Perché un controllo sulla matrice.** La matrice dichiarava `SCI-10` due
 > volte — una come requisito verificato al 100 %, una come requisito
@@ -243,7 +261,7 @@ funzionale non osserva.
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **989 corretti**, **80 registrati** come debito che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -317,8 +335,8 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Non strumentata: non si sa quali rami non vengano mai eseguiti | Introdurre `c8` o la copertura di Playwright, anche solo per misurare il punto di partenza |
-| **Accessibilità** | Verificata a campione | Automatizzare con `axe-core` su tutte le sezioni |
-| **Sicurezza** | 2 requisiti su 4 coperti da banco; gli altri per ispezione | Banco dedicato all'assenza di chiavi nei file versionati |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 87 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Sicurezza** | `verifica-sicurezza` esegue 9 controlli su 235 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -337,4 +355,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v170`._
+_Documento aggiornato alla versione `bsi-v171`._

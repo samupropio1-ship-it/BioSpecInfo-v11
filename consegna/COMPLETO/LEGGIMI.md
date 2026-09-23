@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Autore | Samuele Pio Provenzano |
-| Versione | `bsi-v170` |
-| Commit | `693ec66` |
+| Versione | `bsi-v171` |
+| Commit | `7a5dad2` |
 | Preparato il | 2026-09-23 |
 | Applicazione | https://samupropio1-ship-it.github.io/BioSpecInfo-v11/ |
 | Repository | github.com/samupropio1-ship-it/BioSpecInfo-v11 |
@@ -36,6 +36,11 @@ Questo pacchetto è per chi sviluppa l'applicazione. Contiene anche ciò che agl
 ## Contenuto
 
 Tutti i documenti del repository, più il manuale utente, le guide pratiche e le note di lavorazione.
+
+### In inglese
+
+La cartella `en/` contiene la traduzione inglese dei documenti di questo pacchetto, e `pdf/BioSpecInfo-Full-Dossier.en.pdf` li raccoglie in un unico allegato. I numeri dichiarati nelle due lingue sono confrontati con la misura dallo stesso banco (`verifica-affermazioni`): se le due versioni dicono cose diverse, la batteria fallisce.
+
 
 ### In PDF
 
@@ -74,4 +79,4 @@ Le note di lavorazione non sono documentazione formale: sono il registro di che 
 
 ---
 
-_Pacchetto **COMPLETO** · versione `bsi-v170` · commit `693ec66`._
+_Pacchetto **COMPLETO** · versione `bsi-v171` · commit `7a5dad2`._

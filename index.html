@@ -181,11 +181,15 @@
   --g400: #0bc79f; --g300: #34465f; --g200: #1d2f49; --g100: #16273e; --g50:  #101f33;
   --bg:   #0d1522; --white: #16273e;
   /* Testo in evidenza su superficie scura.
-     Serve perche' --g800 vale #0d1522, cioe' lo STESSO valore di --bg:
-     ogni regola che lo usava come colore del testo scriveva testo del
-     colore dello sfondo. Un link semplice risultava a contrasto 1:1 —
-     misurato, non supposto. Come colore di SFONDO --g800 va bene e
-     resta dov'e'. */
+     Serve perche' --g800 E --g900 valgono entrambi #0d1522, cioe' lo
+     STESSO valore di --bg: ogni regola che li usava come colore del testo
+     scriveva testo del colore dello sfondo. Un link semplice risultava a
+     contrasto 1:1 — misurato, non supposto.
+     E' l'eredita' di una scala di grigi nata per il tema CHIARO, dove
+     --g900 era «il testo piu' scuro»; capovolto il tema, quel ruolo non
+     esiste piu'. Come colore di SFONDO --g800 e --g900 vanno bene e
+     restano dove sono (16 regole con --g900): sostituiti sono solo gli
+     usi come colore del TESTO, oggi 30 regole. */
   --testo-forte: #c2cfdd;
   --text: #e9eef6; --text2: #aebccd; --text3: #8494a8;
   --err:  #c62828; --warn: #e65100; --info: #01579b;
@@ -266,7 +270,7 @@ a:hover { text-decoration: underline; }
   transition: var(--transition); flex-shrink: 0;
 }
 .nav-btn:hover  { color: var(--testo-forte); background: var(--g50); border-bottom-color: var(--g300); }
-.nav-btn.on     { color: var(--g900); background: var(--g50); border-bottom-color: var(--testo-forte); font-weight: 700; }
+.nav-btn.on     { color: var(--testo-forte); background: var(--g50); border-bottom-color: var(--testo-forte); font-weight: 700; }
 
 /* ══════════════════════════════════════════════════════
    MAIN + SECTION
@@ -278,7 +282,7 @@ a:hover { text-decoration: underline; }
 
 .section-title {
   font-size: 10px; font-weight: 800; letter-spacing: .22em;
-  color: var(--g900); text-transform: uppercase;
+  color: var(--testo-forte); text-transform: uppercase;
   padding: 6px 0 14px;
   border-bottom: 2px solid var(--g200); margin-bottom: 20px;
   display: flex; align-items: center; gap: 8px;
@@ -339,7 +343,7 @@ a:hover { text-decoration: underline; }
 .calc-result {
   background: var(--g50); border: 1.5px solid var(--g200);
   border-radius: var(--radius-sm); padding: 10px 14px;
-  margin-top: 8px; font-size: 13px; color: var(--g900); font-weight: 600;
+  margin-top: 8px; font-size: 13px; color: var(--testo-forte); font-weight: 600;
 }
 
 /* ══════════════════════════════════════════════════════
@@ -389,7 +393,7 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius-lg); padding: 16px; transition: var(--transition);
 }
 .aa-card:hover { border-color: var(--g500); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
-.aa-code  { font-family: var(--font); font-size: 30px; font-weight: 900; color: var(--g900); letter-spacing: -.01em; }
+.aa-code  { font-family: var(--font); font-size: 30px; font-weight: 900; color: var(--testo-forte); letter-spacing: -.01em; }
 .aa-code1 {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--g100); color: var(--testo-forte);
@@ -439,7 +443,7 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px;
   box-shadow: var(--shadow);
 }
-.calc-box h3 { font-size: 14px; font-weight: 700; color: var(--g900); margin-bottom: 12px; }
+.calc-box h3 { font-size: 14px; font-weight: 700; color: var(--testo-forte); margin-bottom: 12px; }
 .calc-input { margin-bottom: 8px; }
 
 /* ══════════════════════════════════════════════════════
@@ -454,7 +458,7 @@ a:hover { text-decoration: underline; }
 .formula-main {
   padding: 14px 18px; background: var(--g50);
   font-family: var(--font-mono); font-size: 13px; font-weight: 700;
-  color: var(--g900); letter-spacing: .02em; line-height: 1.7;
+  color: var(--testo-forte); letter-spacing: .02em; line-height: 1.7;
   word-break: break-word; border-bottom: 1px solid var(--g200);
 }
 .formula-vars { padding: 10px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 4px; }
@@ -521,7 +525,7 @@ a:hover { text-decoration: underline; }
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 12px 16px; margin: 12px 0; font-size: 12px; color: var(--text2);
 }
-.note-box strong { color: var(--g900); }
+.note-box strong { color: var(--testo-forte); }
 
 /* ══════════════════════════════════════════════════════
    RESPONSIVE
@@ -626,7 +630,7 @@ a:hover { text-decoration: underline; }
   transition: var(--transition); white-space: nowrap;
 }
 .tb:hover { color: var(--testo-forte); background: var(--g50); }
-.tb.on { color: var(--g900); border-bottom-color: var(--testo-forte); background: var(--g50); font-weight: 700; }
+.tb.on { color: var(--testo-forte); border-bottom-color: var(--testo-forte); background: var(--g50); font-weight: 700; }
 
 /* Tab panels */
 .tp { display: none; padding: 16px; }
@@ -641,7 +645,7 @@ a:hover { text-decoration: underline; }
 .ph {
   padding: 10px 14px; background: var(--g50);
   border-bottom: 1.5px solid var(--g200);
-  font-size: 12px; font-weight: 700; color: var(--g900);
+  font-size: 12px; font-weight: 700; color: var(--testo-forte);
   letter-spacing: .04em;
 }
 .pb { padding: 14px; }
@@ -762,7 +766,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 .go:hover { background: var(--g700); }
 .plbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--text3); text-transform: uppercase; padding: 4px 12px; margin-top: 4px; }
 .pills { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 10px 6px; }
-.pl { display: inline-block; padding: 4px 10px; background: var(--g100); border: 1px solid var(--g200); border-radius: 14px; color: var(--g900); font-size: 11px; font-weight: 600; cursor: pointer; }
+.pl { display: inline-block; padding: 4px 10px; background: var(--g100); border: 1px solid var(--g200); border-radius: 14px; color: var(--testo-forte); font-size: 11px; font-weight: 600; cursor: pointer; }
 .pl:hover { background: var(--g200); }
 .note { background: var(--g100); border-left: 3px solid var(--g600); border-radius: 0 8px 8px 0; padding: 8px 12px; color: var(--text2); font-size: 12px; margin: 6px 0; }
 .pv { color: var(--text2); font-size: 12px; }
@@ -798,7 +802,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
 .ox-badge { display: inline-block; padding: 1px 5px; background: var(--g100); border: 1px solid var(--g200); border-radius: 3px; font-size: 10px; }
 /* c-var aliases for light theme */
 .rxn-fp button { background: var(--white); border: 1px solid var(--g200); border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text2); }
-.rxn-fp button.on, .rxn-fp button:hover { background: var(--g100); border-color: var(--g700); color: var(--g900); }
+.rxn-fp button.on, .rxn-fp button:hover { background: var(--g100); border-color: var(--g700); color: var(--testo-forte); }
 
 
 #scentro .section-title{margin-bottom:16px}.ctr-search{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.ctr-search input{flex:1;min-width:200px;background:#0c1f33;color:#e9eef6;border:1.5px solid rgba(0,201,183,.3);border-radius:12px;padding:12px 15px;font-size:15px;outline:none;transition:border-color .2s}.ctr-search input:focus{border-color:#00c9b7}.ctr-search button{background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;font-size:14px;transition:transform .15s}.ctr-search button:hover{transform:translateY(-1px)}#ctrFromEditor{background:#102a44!important;color:#e9eef6!important;border:1px solid rgba(0,201,183,.3)!important}.ctr-status{font-size:.85rem;color:#9fb3c8;min-height:18px;margin-bottom:8px}.ctr-molhead{display:none;background:#0c1f33;border-radius:12px;padding:12px 16px;margin-bottom:14px;border-left:3px solid #00c9b7}.ctr-molhead.on{display:block}.ctr-molhead .mn{font-size:1.05rem;font-weight:700;color:#e9eef6;margin-bottom:4px}.ctr-molhead .mp{font-size:.82rem;color:#9fb3c8;font-family:monospace}.ctr-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.ctrb{padding:10px 16px;border:1px solid rgba(0,201,183,.25);background:#0c1f33;color:#e9eef6;border-radius:12px;cursor:pointer;font-size:.92rem;font-weight:600;transition:all .18s}.ctrb:hover{border-color:#00c9b7}.ctrb.on{background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border-color:#00c9b7}.ctrp{display:none;animation:ctrfade .3s ease}.ctrp.on{display:block}@keyframes ctrfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}#scentro svg{width:100%!important;height:auto!important;display:block;border-radius:10px}.ctr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.ctr-nav{background:#0c1f33;border:1px solid rgba(0,201,183,.2);border-radius:14px;padding:16px 12px;color:#e9eef6;cursor:pointer;text-align:center;transition:all .2s}.ctr-nav:hover{border-color:#00c9b7;transform:translateY(-2px);background:#143452}.ctr-nav .ci{font-size:1.7rem;margin-bottom:6px}.ctr-nav b{color:#00c9b7;font-size:.95rem;display:block;margin-bottom:3px}.ctr-nav span{color:#9fb3c8;font-size:.76rem}.specmap-reg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 13px;margin:6px 0;background:#0c1f33;border-left:4px solid #00c9b7;border-radius:10px;font-size:.86rem;cursor:pointer;transition:background .15s}.specmap-reg:hover{background:#143452}
@@ -810,7 +814,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v170';
+window.BSI_APP_VERSION='bsi-v171';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -1055,11 +1059,11 @@ window.BSI_TELEMETRY_URL='';</script>
   <!-- PUBBLICO VS PRIVATO -->
   <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px" id="dsPubPriv">
     <div style="background:#0d1b2e;border:1px solid #1a3050;border-left:3px solid #5eead4;border-radius:0 12px 12px 0;padding:14px 16px">
-      <div style="color:#5eead4;font-weight:800;margin-bottom:6px">🏛️ Pubblico / Ricerca <span style="color:#6b7d90;font-weight:600;font-size:.8rem">— CERN, CNR, INFN, INAF, ISS, università</span></div>
+      <div style="color:#5eead4;font-weight:800;margin-bottom:6px">🏛️ Pubblico / Ricerca <span style="color:#8194a8;font-weight:600;font-size:.8rem">— CERN, CNR, INFN, INAF, ISS, università</span></div>
       <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6">Obiettivo: <b>rispondere a domande scientifiche</b> e pubblicare. Dati enormi e complessi (collisioni di particelle, spettri, simulazioni). Tecnologie open (Python, ROOT, scikit-HEP). Stipendi più contenuti ma <b>stabilità</b>, <b>impatto scientifico</b>, spesso <b>lavoro agile</b>. Si entra per <b>bandi, borse, dottorati, concorsi</b>.</div>
     </div>
     <div style="background:#0d1b2e;border:1px solid #1a3050;border-left:3px solid #a78bfa;border-radius:0 12px 12px 0;padding:14px 16px">
-      <div style="color:#a78bfa;font-weight:800;margin-bottom:6px">🏢 Privato / Industria <span style="color:#6b7d90;font-weight:600;font-size:.8rem">— farma, energia, materiali, finance, consulting, tech</span></div>
+      <div style="color:#a78bfa;font-weight:800;margin-bottom:6px">🏢 Privato / Industria <span style="color:#8194a8;font-weight:600;font-size:.8rem">— farma, energia, materiali, finance, consulting, tech</span></div>
       <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6">Obiettivo: <b>valore di business</b> (prodotti, efficienza, previsioni). Ritmi più rapidi, <b>stipendi più alti</b>, forte uso di <b>cloud/MLOps</b>. Nel <b>drug discovery</b> e nei <b>materiali</b> un chimico-data scientist è ricercatissimo. Si entra per <b>candidatura + portfolio</b> (GitHub, Kaggle).</div>
     </div>
   </div>
@@ -1110,7 +1114,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button onclick="window._dsPredict&&window._dsPredict()" style="padding:6px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Predici →</button>
       <span id="dsPredOut" style="color:#f5a623;font-weight:800;font-size:.9rem"></span>
     </div>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">👀 Nota da scienziato: i punti non sono <i>perfettamente</i> in linea — la retta è un'<b>approssimazione</b>. R² dice quanto è buona. Vedere i limiti di un modello è metà del mestiere.</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">👀 Nota da scienziato: i punti non sono <i>perfettamente</i> in linea — la retta è un'<b>approssimazione</b>. R² dice quanto è buona. Vedere i limiti di un modello è metà del mestiere.</div>
   </div>
 
   <!-- MINI-LAB 2: CLASSIFICAZIONE k-NN -->
@@ -1125,7 +1129,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <span style="color:#f5c451;font-size:.8rem;font-weight:700">⭐ la tua molecola</span>
       <button onclick="window._dsKnnReset&&window._dsKnnReset()" style="padding:5px 11px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">↺ Pulisci</button>
     </div>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Il k-NN non "impara" una formula: classifica per <b>somiglianza</b>. È il modello più intuitivo — e in cheminformatica la somiglianza tra molecole è un concetto centrale.</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Il k-NN non "impara" una formula: classifica per <b>somiglianza</b>. È il modello più intuitivo — e in cheminformatica la somiglianza tra molecole è un concetto centrale.</div>
   </div>
 
   <!-- MINI-LAB 3: CLUSTERING k-means -->
@@ -1140,7 +1144,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button onclick="window._dsKmRun&&window._dsKmRun()" style="padding:6px 13px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.8rem">▶ Raggruppa</button>
       <button onclick="window._dsKmNew&&window._dsKmNew()" style="padding:6px 11px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.78rem;font-weight:700">↺ Nuovi dati</button>
     </div>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 k-means ripete due passi: <b>assegna</b> ogni punto al centro più vicino, poi <b>sposta</b> ogni centro nel baricentro del suo gruppo — finché non si muovono più. È così che un algoritmo “trova ordine” senza sapere le risposte.</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">💡 k-means ripete due passi: <b>assegna</b> ogni punto al centro più vicino, poi <b>sposta</b> ogni centro nel baricentro del suo gruppo — finché non si muovono più. È così che un algoritmo “trova ordine” senza sapere le risposte.</div>
   </div>
 
   <!-- PLAYGROUND SQL -->
@@ -1155,7 +1159,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap"><button onclick="window._dsSqlRun&&window._dsSqlRun()" style="padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Esegui ▶</button><button onclick="window._dsSqlReset&&window._dsSqlReset()" title="Ricrea il database da zero — usalo se una query come DROP TABLE ha rotto le tabelle" style="padding:8px 14px;border-radius:9px;border:1px solid #26406a;background:transparent;color:#9fb3c8;font-weight:700;cursor:pointer;font-size:.82rem">↺ Reset database</button></div>
       <div id="dsSqlOut" style="overflow-x:auto"></div>
     </div>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">📋 Colonne: <span style="font-family:ui-monospace,monospace;color:#8fa3b8">id, nome, formula, peso, logp, categoria, solubile</span>. Prova <span style="font-family:ui-monospace,monospace;color:#8fa3b8">GROUP BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">WHERE</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">ORDER BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">AVG()</span>…</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">📋 Colonne: <span style="font-family:ui-monospace,monospace;color:#8fa3b8">id, nome, formula, peso, logp, categoria, solubile</span>. Prova <span style="font-family:ui-monospace,monospace;color:#8fa3b8">GROUP BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">WHERE</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">ORDER BY</span>, <span style="font-family:ui-monospace,monospace;color:#8fa3b8">AVG()</span>…</div>
   </div>
 
   <!-- GLOSSARIO -->
@@ -1196,7 +1200,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button onclick="window._dsSolubNb&&window._dsSolubNb()" style="padding:8px 14px;border-radius:9px;border:1px solid #5eead4;background:#0a1628;color:#5eead4;cursor:pointer;font-weight:800;font-size:.82rem">⬇️ Scarica come notebook .ipynb</button>
       <a href="https://colab.research.google.com/" target="_blank" rel="noopener" style="padding:8px 14px;border-radius:9px;border:1px solid #f5a623;background:#0a1628;color:#f5c451;text-decoration:none;font-weight:800;font-size:.82rem">▶ Apri Google Colab</a>
     </div>
-    <div style="color:#6b7d90;font-size:.77rem;line-height:1.5;margin-top:7px">Flusso rapido: scarica il <b>.ipynb</b> → apri <b>Colab</b> → <i>File ▸ Carica notebook</i> → <b>Esegui tutto</b>. In 5 minuti hai il modello che gira, senza installare niente.</div>
+    <div style="color:#8194a8;font-size:.77rem;line-height:1.5;margin-top:7px">Flusso rapido: scarica il <b>.ipynb</b> → apri <b>Colab</b> → <i>File ▸ Carica notebook</i> → <b>Esegui tutto</b>. In 5 minuti hai il modello che gira, senza installare niente.</div>
   </div>
 
   <!-- TOOLKIT GITHUB -->
@@ -1221,7 +1225,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:4px">comandi git (crea il repo su GitHub, poi):</div>
     <pre id="dsGitOut" style="background:#070f1c;border:1px solid #16273e;border-radius:9px;padding:11px 12px;color:#8fe6c8;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.55;overflow-x:auto;white-space:pre;margin:0"></pre>
     <button onclick="window._dsGhCopyGit&&window._dsGhCopyGit()" style="margin-top:7px;padding:6px 12px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#cdd9e6;cursor:pointer;font-size:.78rem;font-weight:700">📋 Copia i comandi git</button>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Flusso: <b>crea un repo vuoto</b> su github.com → scarica i file qui → mettili nella cartella → esegui i comandi git. In 2 minuti hai un progetto online.</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">💡 Flusso: <b>crea un repo vuoto</b> su github.com → scarica i file qui → mettili nella cartella → esegui i comandi git. In 2 minuti hai un progetto online.</div>
   </div>
 
   <!-- CERN LAB: massa invariante -->
@@ -1236,7 +1240,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <canvas id="dsCernCv" width="600" height="340" style="width:100%;height:auto;background:#070f1c;border:1px solid #16273e;border-radius:10px;display:block"></canvas>
       <div id="dsCernOut" style="text-align:center;font-weight:800;font-size:.9rem;margin-top:9px;min-height:20px;color:#9fb3c8"></div>
     </div>
-    <div style="color:#6b7d90;font-size:.78rem;line-height:1.55;margin-top:10px">📈 Asse X = massa invariante dei due muoni (GeV); asse Y = numero di collisioni. Un picco = una particella. Questo è <b>vero lavoro da data scientist al CERN</b>: cercare segnali dentro il rumore. Fonte: <b>CERN Open Data / CMS</b>.</div>
+    <div style="color:#8194a8;font-size:.78rem;line-height:1.55;margin-top:10px">📈 Asse X = massa invariante dei due muoni (GeV); asse Y = numero di collisioni. Un picco = una particella. Questo è <b>vero lavoro da data scientist al CERN</b>: cercare segnali dentro il rumore. Fonte: <b>CERN Open Data / CMS</b>.</div>
   </div>
 
   <!-- PROGETTO GUIDATO CERN -->
@@ -1248,7 +1252,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button onclick="window._dsCernNb&&window._dsCernNb()" style="padding:8px 14px;border-radius:9px;border:1px solid #6bcfff;background:#0a1628;color:#6bcfff;cursor:pointer;font-weight:800;font-size:.82rem">⬇️ Scarica come notebook .ipynb</button>
       <a href="https://colab.research.google.com/" target="_blank" rel="noopener" style="padding:8px 14px;border-radius:9px;border:1px solid #f5a623;background:#0a1628;color:#f5c451;text-decoration:none;font-weight:800;font-size:.82rem">▶ Apri Google Colab</a>
     </div>
-    <div style="color:#6b7d90;font-size:.77rem;line-height:1.5;margin-top:7px">Scarica il <b>.ipynb</b>, aprilo in Colab, <i>Esegui tutto</i>: in pochi minuti hai riscoperto il bosone Z dai dati veri del CERN. Poi mettilo su GitHub — è oro per il CV.</div>
+    <div style="color:#8194a8;font-size:.77rem;line-height:1.5;margin-top:7px">Scarica il <b>.ipynb</b>, aprilo in Colab, <i>Esegui tutto</i>: in pochi minuti hai riscoperto il bosone Z dai dati veri del CERN. Poi mettilo su GitHub — è oro per il CV.</div>
   </div>
 
   <!-- CERN -->
@@ -1393,7 +1397,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var cv=document.getElementById('dsCanvas'); if(!cv)return; var ctx=cv.getContext('2d'); var W=cv.width,H=cv.height; ctx.clearRect(0,0,W,H);
     var mL=54,mR=18,mT=16,mB=42,pw=W-mL-mR,ph=H-mT-mB; var xmin=0,xmax=11,ymin=-200,ymax=220;
     function X(x){return mL+(x-xmin)/(xmax-xmin)*pw;} function Y(y){return mT+(1-(y-ymin)/(ymax-ymin))*ph;}
-    ctx.strokeStyle='#16273e';ctx.lineWidth=1;ctx.fillStyle='#6b7d90';ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.strokeStyle='#16273e';ctx.lineWidth=1;ctx.fillStyle='#8194a8';ctx.font='11px system-ui';ctx.textAlign='right';ctx.textBaseline='middle';
     for(var yy=-200;yy<=200;yy+=100){ ctx.beginPath();ctx.moveTo(mL,Y(yy));ctx.lineTo(W-mR,Y(yy));ctx.stroke(); ctx.fillText(yy+'°',mL-6,Y(yy)); }
     ctx.textAlign='center';ctx.textBaseline='alphabetic';
     for(var xx=2;xx<=10;xx+=2){ ctx.fillText(xx,X(xx),H-mB+16); }
@@ -1427,7 +1431,7 @@ window.BSI_TELEMETRY_URL='';</script>
     KNN.forEach(function(p){ ctx.fillStyle=p.c?'#63d6a8':'#f4788a';ctx.beginPath();ctx.arc(m.X(p.x),m.Y(p.y),5,0,6.283);ctx.fill(); });
     if(_knnQ){ var rr=knnClassify(_knnQ),col=rr.cls?'#63d6a8':'#f4788a';
       ctx.fillStyle='#f5c451';ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(m.X(_knnQ.x),m.Y(_knnQ.y),7,0,6.283);ctx.fill();ctx.stroke();
-      var out=document.getElementById('dsKnnOut'); if(out){ out.style.color='#e9eef6'; out.innerHTML='Predizione: <span style="color:'+col+'">'+(rr.cls?'🟢 ATTRAVERSA la membrana':'🔴 NON attraversa')+'</span> <span style="color:#6b7d90;font-weight:600">('+rr.votes+'/5 vicini “attraversa”)</span>'; }
+      var out=document.getElementById('dsKnnOut'); if(out){ out.style.color='#e9eef6'; out.innerHTML='Predizione: <span style="color:'+col+'">'+(rr.cls?'🟢 ATTRAVERSA la membrana':'🔴 NON attraversa')+'</span> <span style="color:#8194a8;font-weight:600">('+rr.votes+'/5 vicini “attraversa”)</span>'; }
     }
   }
   function knnClick(ev){ var cv=document.getElementById('dsKnn'); if(!cv)return; var rect=cv.getBoundingClientRect(); var px=ev.touches?ev.touches[0].clientX:ev.clientX, py=ev.touches?ev.touches[0].clientY:ev.clientY;
@@ -1643,7 +1647,7 @@ window.BSI_TELEMETRY_URL='';</script>
         h+='<table style="border-collapse:collapse;width:100%;font-size:.8rem;margin-bottom:8px"><thead><tr>';
         r.columns.forEach(function(c){ h+='<th style="text-align:left;padding:6px 9px;border-bottom:1px solid #26406a;color:#5eead4;white-space:nowrap">'+esc(String(c))+'</th>'; }); h+='</tr></thead><tbody>';
         shown.forEach(function(row){ h+='<tr>'; row.forEach(function(v){ h+='<td style="padding:5px 9px;border-bottom:1px solid #12203a;color:#cdd9e6;white-space:nowrap">'+(v===null?'∅':esc(String(v)))+'</td>'; }); h+='</tr>'; }); h+='</tbody></table>';
-        h+='<div style="color:#6b7d90;font-size:.75rem;margin-top:-4px;margin-bottom:6px">'+r.values.length+' righe'+(r.values.length>ROW_CAP?' (mostrate solo le prime '+ROW_CAP+' — aggiungi LIMIT alla query per un risultato più mirato)':'')+'</div>';
+        h+='<div style="color:#8194a8;font-size:.75rem;margin-top:-4px;margin-bottom:6px">'+r.values.length+' righe'+(r.values.length>ROW_CAP?' (mostrate solo le prime '+ROW_CAP+' — aggiungi LIMIT alla query per un risultato più mirato)':'')+'</div>';
       });
       out.innerHTML=h;
     }catch(e){ out.innerHTML='<div style="color:#f4788a;font-size:.82rem;padding:6px 2px">⚠️ Errore SQL: '+esc(String(e.message||e))+'</div>'; } };
@@ -1735,7 +1739,7 @@ window.BSI_TELEMETRY_URL='';</script>
     function X(x){return mL+(x-lo)/(hi-lo)*pw;}
     function Yv(c){ if(_cern.log){ return mT+ph-(Math.log10(c+1)/Math.log10(maxc+1))*ph; } return mT+ph-(c/maxc)*ph; }
     ctx.strokeStyle='#16273e';ctx.lineWidth=1; ctx.strokeRect(mL,mT,pw,ph);
-    ctx.fillStyle='#6b7d90';ctx.font='11px system-ui';ctx.textAlign='center';
+    ctx.fillStyle='#8194a8';ctx.font='11px system-ui';ctx.textAlign='center';
     var step=(hi-lo)/6; for(var t=0;t<=6;t++){ var xv=lo+step*t; ctx.fillText((xv>=10?xv.toFixed(0):xv.toFixed(1)),X(xv),H-mB+15); }
     ctx.save();ctx.translate(15,mT+ph/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.fillText('n. collisioni'+(_cern.log?' (log)':''),0,0);ctx.restore();
     ctx.fillStyle='#9fb3c8';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('massa invariante dei 2 muoni (GeV)',mL+pw/2,H-8);
@@ -1906,15 +1910,15 @@ window.BSI_TELEMETRY_URL='';</script>
       html+='<tr style="border-top:1px solid #16273e;text-align:right;color:#cdd9e6">'+
         '<td style="text-align:left;padding:6px 9px;color:#e9eef6;font-weight:700">'+s.name+'</td>'+
         '<td style="padding:6px 9px"><span style="color:'+(s.isNum?'#5eead4':'#c9b6ff')+'">'+(s.isNum?'num':'cat')+'</span></td>'+
-        '<td style="padding:6px 9px;color:'+(mp>0?'#f5c451':'#6b7d90')+'">'+s.missing+(mp>0?' ('+mp+'%)':'')+'</td>';
-      if(s.isNum){ html+='<td style="padding:6px 9px">'+f(s.mean)+'</td><td style="padding:6px 9px">'+f(s.std)+'</td><td style="padding:6px 9px">'+f(s.min)+'</td><td style="padding:6px 9px">'+f(s.median)+'</td><td style="padding:6px 9px">'+f(s.max)+'</td><td style="padding:6px 9px;color:'+(s.outliers>0?'#f5a623':'#6b7d90')+'">'+s.outliers+'</td>'; }
+        '<td style="padding:6px 9px;color:'+(mp>0?'#f5c451':'#8194a8')+'">'+s.missing+(mp>0?' ('+mp+'%)':'')+'</td>';
+      if(s.isNum){ html+='<td style="padding:6px 9px">'+f(s.mean)+'</td><td style="padding:6px 9px">'+f(s.std)+'</td><td style="padding:6px 9px">'+f(s.min)+'</td><td style="padding:6px 9px">'+f(s.median)+'</td><td style="padding:6px 9px">'+f(s.max)+'</td><td style="padding:6px 9px;color:'+(s.outliers>0?'#f5a623':'#8194a8')+'">'+s.outliers+'</td>'; }
       else { html+='<td colspan="6" style="padding:6px 9px;text-align:left;color:#9fb3c8">'+s.unique+' valori unici · più frequente: <b style="color:#cdd9e6">'+(s.top||'—')+'</b> ('+s.topFreq+'×)</td>'; }
       html+='</tr>'; });
     html+='</tbody></table></div>';
     // istogramma (colonna numerica selezionabile)
     if(numCols.length){ html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">📊 ISTOGRAMMA</b><select id="dsWbHistSel" style="background:#0a1628;border:1px solid #26406a;border-radius:7px;color:#cdd9e6;font-size:.78rem;padding:4px 8px">'+numCols.map(function(s,i){return '<option value="'+s.name+'">'+s.name+'</option>';}).join('')+'</select></div><canvas id="dsWbHist" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas>'; }
     // matrice di correlazione
-    if(numCols.length>=2){ html+='<div style="margin-top:12px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🔗 MATRICE DI CORRELAZIONE (Pearson)</b><canvas id="dsWbCorr" style="width:100%;height:'+(40+numCols.length*30)+'px;background:#070f1c;border:1px solid #16273e;border-radius:9px;margin-top:6px"></canvas><div style="font-size:.72rem;color:#6b7d90;margin-top:4px">Rosso = correlazione positiva, blu = negativa. Coppie |r|&gt;0.7 sono forti candidate per il modello (o multicollinearità da gestire).</div></div>'; }
+    if(numCols.length>=2){ html+='<div style="margin-top:12px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🔗 MATRICE DI CORRELAZIONE (Pearson)</b><canvas id="dsWbCorr" style="width:100%;height:'+(40+numCols.length*30)+'px;background:#070f1c;border:1px solid #16273e;border-radius:9px;margin-top:6px"></canvas><div style="font-size:.72rem;color:#8194a8;margin-top:4px">Rosso = correlazione positiva, blu = negativa. Coppie |r|&gt;0.7 sono forti candidate per il modello (o multicollinearità da gestire).</div></div>'; }
     // pulizia dati
     if(totMiss>0){ html+='<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:12px 0 2px"><b style="color:#8fa3b8;font-size:.78rem;letter-spacing:.03em">🧹 PULIZIA</b><button id="dsWbImpute" class="ds-gh-b">Imputa mancanti (mediana/moda)</button><button id="dsWbCsv" class="ds-gh-b">⬇️ CSV pulito</button></div>'; }
     else { html+='<div style="margin:12px 0 2px"><button id="dsWbCsv" class="ds-gh-b">⬇️ Esporta CSV</button></div>'; }
@@ -1973,7 +1977,7 @@ window.BSI_TELEMETRY_URL='';</script>
     if(numCols.length>=2){ var series=numCols.map(function(s){ var ci=data.cols.indexOf(s.name); return data.rows.map(function(r){return _dsNum(r[ci]);}); });
       for(var i=0;i<numCols.length;i++)for(var j=i+1;j<numCols.length;j++){ var r=_dsPearson(series[i],series[j]); if(!isNaN(r)&&Math.abs(r)>0.7)corrRows+='<li><b>'+esc(numCols[i].name)+'</b> ↔ <b>'+esc(numCols[j].name)+'</b>: r = '+r.toFixed(3)+'</li>'; } }
     var html='<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report EDA — BioSpecInfo</title>'+
-      '<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#0a1220;color:#e9eef6;margin:0;padding:26px;line-height:1.6;max-width:900px;margin:auto}h1{color:#7c6fff;margin-bottom:2px}h2{color:#5eead4;border-bottom:1px solid #26406a;padding-bottom:5px;margin-top:30px}table{border-collapse:collapse;width:100%;font-size:13.5px;overflow-x:auto;display:block}th,td{padding:6px 10px;border-bottom:1px solid #1a3050;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#8fa3b8;background:#0c1f33}img{max-width:100%;border:1px solid #16273e;border-radius:8px;background:#070f1c;margin-top:6px}.chip{display:inline-block;background:#0c2036;border:1px solid #1c3a57;border-radius:20px;padding:4px 12px;margin:3px 3px 3px 0;font-size:13px}.muted{color:#6b7d90;font-size:13px}li{margin:3px 0}</style></head><body>'+
+      '<style>body{font-family:system-ui,Segoe UI,Roboto,sans-serif;background:#0a1220;color:#e9eef6;margin:0;padding:26px;line-height:1.6;max-width:900px;margin:auto}h1{color:#7c6fff;margin-bottom:2px}h2{color:#5eead4;border-bottom:1px solid #26406a;padding-bottom:5px;margin-top:30px}table{border-collapse:collapse;width:100%;font-size:13.5px;overflow-x:auto;display:block}th,td{padding:6px 10px;border-bottom:1px solid #1a3050;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}th{color:#8fa3b8;background:#0c1f33}img{max-width:100%;border:1px solid #16273e;border-radius:8px;background:#070f1c;margin-top:6px}.chip{display:inline-block;background:#0c2036;border:1px solid #1c3a57;border-radius:20px;padding:4px 12px;margin:3px 3px 3px 0;font-size:13px}.muted{color:#8194a8;font-size:13px}li{margin:3px 0}</style></head><body>'+
       '<h1>📊 Report di Analisi Esplorativa</h1>'+
       '<p class="muted">Generato con <b>BioSpecInfo · Banco di Lavoro Dati</b> — '+new Date().toLocaleString('it')+'. Dati elaborati localmente nel browser.</p>'+
       '<div><span class="chip">'+data.rows.length+' righe × '+data.cols.length+' colonne</span><span class="chip">'+numCols.length+' numeriche · '+(stats.length-numCols.length)+' categoriche</span></div>'+
@@ -2044,7 +2048,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var h='<div style="color:#8fa3b8;font-size:.78rem;margin:2px 0 4px">🔎 Cosa riceve il modello: <b>'+names.length+' colonne</b> (numeriche standardizzate z-score, categoriche one-hot). Prime '+N+' righe:</div>';
     h+='<div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;font-size:.72rem;min-width:'+Math.max(300,names.length*70)+'px"><thead><tr style="background:#0c1f33;color:#8fa3b8">'+names.map(function(n){return '<th style="padding:5px 8px;white-space:nowrap;text-align:right">'+n+'</th>';}).join('')+'</tr></thead><tbody>';
     for(var i=0;i<N;i++){ h+='<tr style="border-top:1px solid #16273e">'+Z[i].map(function(v){ var c=v>0.05?'#5eead4':(v<-0.05?'#ff9db0':'#8fa3b8'); return '<td style="padding:4px 8px;text-align:right;color:'+c+'">'+v.toFixed(2)+'</td>'; }).join('')+'</tr>'; }
-    h+='</tbody></table></div><div style="font-size:.72rem;color:#6b7d90;margin-top:5px">Verde = sopra la media, rosa = sotto. Le colonne <code>nome=valore</code> sono le variabili one-hot (1 se la riga ha quel valore).</div>';
+    h+='</tbody></table></div><div style="font-size:.72rem;color:#8194a8;margin-top:5px">Verde = sopra la media, rosa = sotto. Le colonne <code>nome=valore</code> sono le variabili one-hot (1 se la riga ha quel valore).</div>';
     o.innerHTML=h;
   }
   function _dsBuildXY(data,target,feats,tNum){
@@ -2091,8 +2095,8 @@ window.BSI_TELEMETRY_URL='';</script>
     models.sort(function(a,b){return b[1][0]-a[1][0];});
     var fmt=function(ms){ return isReg? ms[0].toFixed(3) : (ms[0]*100).toFixed(1)+'%'; };
     var errfmt=function(ms){ return isReg? ('± '+ms[1].toFixed(2)) : ('± '+(ms[1]*100).toFixed(0)+'%'); };
-    var rows=models.map(function(m,i){ var win=i===0; return '<tr style="border-top:1px solid #16273e;'+(win?'background:rgba(94,234,212,.1)':'')+'"><td style="padding:7px 11px;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:'+(win?'800':'600')+'">'+(win?'🏆 ':'')+m[0]+'</td><td style="padding:7px 11px;text-align:right;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:700">'+fmt(m[1])+' <span style="color:#6b7d90;font-weight:400;font-size:.9em">'+errfmt(m[1])+'</span></td></tr>'; }).join('');
-    o.innerHTML='<div style="color:#c9b6ff;font-weight:800;font-size:.92rem;margin:6px 0 7px">🏆 Confronto modelli — '+metricLabel+'</div><div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;width:100%;font-size:.82rem"><thead><tr style="background:#0c1f33;color:#8fa3b8"><th style="text-align:left;padding:7px 11px">modello</th><th style="text-align:right;padding:7px 11px">'+metricLabel+'</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:.73rem;color:#6b7d90;margin-top:6px">Il modello in cima vince sulla cross-validation. Regola d\'oro: <b>batti sempre la baseline</b> — se non la superi, le feature non sono informative.</div>';
+    var rows=models.map(function(m,i){ var win=i===0; return '<tr style="border-top:1px solid #16273e;'+(win?'background:rgba(94,234,212,.1)':'')+'"><td style="padding:7px 11px;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:'+(win?'800':'600')+'">'+(win?'🏆 ':'')+m[0]+'</td><td style="padding:7px 11px;text-align:right;color:'+(win?'#5eead4':'#cdd9e6')+';font-weight:700">'+fmt(m[1])+' <span style="color:#8194a8;font-weight:400;font-size:.9em">'+errfmt(m[1])+'</span></td></tr>'; }).join('');
+    o.innerHTML='<div style="color:#c9b6ff;font-weight:800;font-size:.92rem;margin:6px 0 7px">🏆 Confronto modelli — '+metricLabel+'</div><div style="overflow-x:auto;border:1px solid #16273e;border-radius:9px"><table style="border-collapse:collapse;width:100%;font-size:.82rem"><thead><tr style="background:#0c1f33;color:#8fa3b8"><th style="text-align:left;padding:7px 11px">modello</th><th style="text-align:right;padding:7px 11px">'+metricLabel+'</th></tr></thead><tbody>'+rows+'</tbody></table></div><div style="font-size:.73rem;color:#8194a8;margin-top:6px">Il modello in cima vince sulla cross-validation. Regola d\'oro: <b>batti sempre la baseline</b> — se non la superi, le feature non sono informative.</div>';
   }
   function _dsCompare(data,target,feats,stats,poly){
     var o=document.getElementById('dsMlOut'); var tstat=stats.filter(function(s){return s.name===target;})[0];
@@ -2117,7 +2121,7 @@ window.BSI_TELEMETRY_URL='';</script>
   }
   function _dsKmeansBest(Z,k,restarts){ var best=null; for(var r=0;r<restarts;r++){ var km=_dsKmeans(Z,k,25); if(!best||km.inertia<best.inertia)best=km; } return best; }
   function _dsElbowK(iner){ var n=iner.length; if(n<3)return 2; var x0=1,y0=iner[0],x1=n,y1=iner[n-1],dx=x1-x0,dy=y1-y0,len=Math.hypot(dx,dy)||1,best=2,bd=-1; for(var i=1;i<n-1;i++){ var px=i+1,py=iner[i]; var d=Math.abs(dy*px-dx*py+x1*y0-y1*x0)/len; if(d>bd){bd=d;best=i+1;} } return best; }
-  function _dsDrawElbow(iner,curK,suggK){ var cv=document.getElementById('dsMlElbow'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2); var W=cv.clientWidth||300,H=cv.clientHeight||120; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H); var n=iner.length,mx=Math.max.apply(null,iner)||1,mn=Math.min.apply(null,iner),pad=24; function sx(k){return pad+(k-1)/(n-1)*(W-pad-8);} function sy(v){return pad-6+(1-(v-mn)/((mx-mn)||1))*(H-pad-14);} x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H-pad+2); x.lineTo(W-6,H-pad+2); x.stroke(); x.strokeStyle='#6bcfff'; x.lineWidth=2; x.beginPath(); for(var i=0;i<n;i++){ var px=sx(i+1),py=sy(iner[i]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); } x.stroke(); x.lineWidth=1; for(var i=0;i<n;i++){ var k=i+1; x.fillStyle=(k===suggK)?'#f5c451':(k===curK?'#5eead4':'#6bcfff'); x.beginPath(); x.arc(sx(k),sy(iner[i]),(k===suggK||k===curK)?4:2.5,0,6.2832); x.fill(); x.fillStyle='#6b7d90'; x.font='9px ui-monospace,monospace'; x.textAlign='center'; x.fillText(''+k,sx(k),H-8); } x.fillStyle='#8fa3b8'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('inerzia',pad,10); }
+  function _dsDrawElbow(iner,curK,suggK){ var cv=document.getElementById('dsMlElbow'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2); var W=cv.clientWidth||300,H=cv.clientHeight||120; cv.width=W*dpr; cv.height=H*dpr; var x=cv.getContext('2d'); x.scale(dpr,dpr); x.clearRect(0,0,W,H); var n=iner.length,mx=Math.max.apply(null,iner)||1,mn=Math.min.apply(null,iner),pad=24; function sx(k){return pad+(k-1)/(n-1)*(W-pad-8);} function sy(v){return pad-6+(1-(v-mn)/((mx-mn)||1))*(H-pad-14);} x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H-pad+2); x.lineTo(W-6,H-pad+2); x.stroke(); x.strokeStyle='#6bcfff'; x.lineWidth=2; x.beginPath(); for(var i=0;i<n;i++){ var px=sx(i+1),py=sy(iner[i]); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); } x.stroke(); x.lineWidth=1; for(var i=0;i<n;i++){ var k=i+1; x.fillStyle=(k===suggK)?'#f5c451':(k===curK?'#5eead4':'#6bcfff'); x.beginPath(); x.arc(sx(k),sy(iner[i]),(k===suggK||k===curK)?4:2.5,0,6.2832); x.fill(); x.fillStyle='#8194a8'; x.font='9px ui-monospace,monospace'; x.textAlign='center'; x.fillText(''+k,sx(k),H-8); } x.fillStyle='#8fa3b8'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('inerzia',pad,10); }
   function _dsPCA2(Z){ var n=Z.length,m=Z[0].length,C=[]; for(var a=0;a<m;a++)C.push(new Array(m).fill(0));
     for(var i=0;i<n;i++)for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++)C[a][bb]+=Z[i][a]*Z[i][bb];
     for(var a=0;a<m;a++)for(var bb=a;bb<m;bb++){ C[a][bb]/=n; C[bb][a]=C[a][bb]; }
@@ -2150,7 +2154,7 @@ window.BSI_TELEMETRY_URL='';</script>
         '<div><div style="color:#8fa3b8;font-size:.74rem;margin-bottom:3px">metodo del gomito (inerzia vs k)</div><canvas id="dsMlElbow" style="width:100%;height:200px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
       '</div>'+
       '<div style="margin-top:7px"><button id="dsMlUseSugg" class="ds-gh-b" style="border-color:#f5c451;color:#f5c451">Usa k suggerito ('+sugg+')</button></div>'+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Clustering <b>k-means</b> su feature standardizzate, visualizzato con <b>PCA</b>. Il <b>gomito</b> (punto giallo) è dove aggiungere cluster smette di ridurre molto l\'inerzia: il numero "naturale" di gruppi.</div>';
+      '<div style="font-size:.74rem;color:#8194a8;margin-top:6px">Clustering <b>k-means</b> su feature standardizzate, visualizzato con <b>PCA</b>. Il <b>gomito</b> (punto giallo) è dove aggiungere cluster smette di ridurre molto l\'inerzia: il numero "naturale" di gruppi.</div>';
     _dsDrawClusters(pca.pts,km.assign,PAL); _dsDrawElbow(iner,k,sugg);
     var us=document.getElementById('dsMlUseSugg'); if(us)us.onclick=function(){ var ki=document.getElementById('dsMlK'); if(ki)ki.value=sugg; _dsCluster(data,feats,stats); };
   }
@@ -2160,7 +2164,7 @@ window.BSI_TELEMETRY_URL='';</script>
     var xmn=Infinity,xmx=-Infinity,ymn=Infinity,ymx=-Infinity; pts.forEach(function(p){ xmn=Math.min(xmn,p[0]);xmx=Math.max(xmx,p[0]);ymn=Math.min(ymn,p[1]);ymx=Math.max(ymx,p[1]); }); if(xmn===xmx)xmx=xmn+1; if(ymn===ymx)ymx=ymn+1; var pad=16;
     function sx(v){return pad+(v-xmn)/(xmx-xmn)*(W-pad*2);} function sy(v){return H-pad-(v-ymn)/(ymx-ymn)*(H-pad*2);}
     pts.forEach(function(p,i){ x.fillStyle=PAL[assign[i]%PAL.length]; x.globalAlpha=0.85; x.beginPath(); x.arc(sx(p[0]),sy(p[1]),4,0,6.2832); x.fill(); });
-    x.globalAlpha=1; x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.fillText('PC1 →',pad,H-4); x.save(); x.translate(11,pad+30); x.rotate(-Math.PI/2); x.fillText('PC2 →',0,0); x.restore();
+    x.globalAlpha=1; x.fillStyle='#8194a8'; x.font='10px ui-monospace,monospace'; x.fillText('PC1 →',pad,H-4); x.save(); x.translate(11,pad+30); x.rotate(-Math.PI/2); x.fillText('PC2 →',0,0); x.restore();
   }
   function _dsTrainReg(data,target,feats,stats,poly){
     var o=document.getElementById('dsMlOut'); var dm=_dsDesign(data,target,feats,stats,true,poly); var meta=dm.meta; var X=dm.X,y=dm.y,featNames=dm.names; var n=X.length,m=featNames.length;
@@ -2187,7 +2191,7 @@ window.BSI_TELEMETRY_URL='';</script>
         '<div><div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">previsto vs reale (test)</div><canvas id="dsMlScatter" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
         '<div><div style="color:#8fa3b8;font-size:.74rem;margin:10px 0 3px">residui vs previsto</div><canvas id="dsMlResid" style="width:100%;height:150px;background:#070f1c;border:1px solid #16273e;border-radius:9px"></canvas></div>'+
       '</div>'+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:5px">R² = varianza spiegata. Scatter: punti sulla diagonale = accurati. Residui: sparsi attorno allo zero senza struttura = buon modello.</div>'+
+      '<div style="font-size:.74rem;color:#8194a8;margin-top:5px">R² = varianza spiegata. Scatter: punti sulla diagonale = accurati. Residui: sparsi attorno allo zero senza struttura = buon modello.</div>'+
       _dsPredictUI(meta,target);
     _DSWB.model={type:'reg',meta:meta,poly:poly,w:w,b:b,mu:st.mu,sd:st.sd,ymu:ymu,ysd:ysd,target:target};
     _dsDrawScatter(pts); _dsDrawResid(pts);
@@ -2218,7 +2222,7 @@ window.BSI_TELEMETRY_URL='';</script>
     function sx(v){ return pad+(v-pmn)/(pmx-pmn)*(W-pad-8); } function sy(v){ return H/2-(v/rm)*(H/2-14); }
     x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H/2); x.lineTo(W-6,H/2); x.stroke(); // linea zero
     x.fillStyle='#f5a623'; res.forEach(function(p){ x.beginPath(); x.arc(sx(p[0]),sy(p[1]),3,0,6.2832); x.fill(); });
-    x.fillStyle='#6b7d90'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('residuo=0',pad+2,H/2-3);
+    x.fillStyle='#8194a8'; x.font='9px ui-monospace,monospace'; x.textAlign='left'; x.fillText('residuo=0',pad+2,H/2-3);
   }
   function _dsDrawScatter(pts){
     var cv=document.getElementById('dsMlScatter'); if(!cv)return; var dpr=Math.min(window.devicePixelRatio||1,2);
@@ -2228,7 +2232,7 @@ window.BSI_TELEMETRY_URL='';</script>
     x.strokeStyle='#26406a'; x.lineWidth=1; x.beginPath(); x.moveTo(sx(mn),sy(mn)); x.lineTo(sx(mx),sy(mx)); x.stroke(); // diagonale ideale
     x.fillStyle='#7c6fff'; pts.forEach(function(p){ x.beginPath(); x.arc(sx(p[0]),sy(p[1]),3,0,6.2832); x.fill(); });
     x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,10); x.lineTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
-    x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText('reale →',pad+2,H-10); x.save(); x.translate(11,H-pad); x.rotate(-Math.PI/2); x.fillText('previsto →',0,0); x.restore();
+    x.fillStyle='#8194a8'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText('reale →',pad+2,H-10); x.save(); x.translate(11,H-pad); x.rotate(-Math.PI/2); x.fillText('previsto →',0,0); x.restore();
   }
   function _dsTrainClf(data,target,feats,stats,poly){
     var o=document.getElementById('dsMlOut'); var dm=_dsDesign(data,target,feats,stats,false,poly); var meta=dm.meta; var X=dm.X,y=dm.y; var n=X.length,m=dm.names.length;
@@ -2268,7 +2272,7 @@ window.BSI_TELEMETRY_URL='';</script>
           +_dsMetricCard('precisione',(prec*100).toFixed(0)+'%')
           +_dsMetricCard('recall (sensib.)',(rec*100).toFixed(0)+'%')
           +_dsMetricCard('F1',f1.toFixed(2))
-          +'<div style="font-size:.72rem;color:#6b7d90;line-height:1.5;margin-top:4px">La <b>ROC</b> confronta i due modelli: area sotto la curva (<b>AUC</b>) più alta = classificatore migliore. La regressione logistica è lineare, il kNN no.</div>'
+          +'<div style="font-size:.72rem;color:#8194a8;line-height:1.5;margin-top:4px">La <b>ROC</b> confronta i due modelli: area sotto la curva (<b>AUC</b>) più alta = classificatore migliore. La regressione logistica è lineare, il kNN no.</div>'
         +'</div></div>'
         +'<div style="margin-top:12px;background:#0a1628;border:1px solid #16273e;border-radius:10px;padding:11px 13px">'
           +'<div style="color:#8fa3b8;font-size:.76rem;margin-bottom:6px">🎚️ Soglia di decisione interattiva — sposta per vedere il compromesso precisione/recall</div>'
@@ -2286,7 +2290,7 @@ window.BSI_TELEMETRY_URL='';</script>
       _dsMetricCard('classi',classes.length)+_dsMetricCard('k (vicini)',k)+_dsMetricCard('train / test',tr.length+' / '+te.length)+'</div>'+
       '<div style="color:#8fa3b8;font-size:.74rem;margin-bottom:2px">matrice di confusione (diagonale = corretti)</div>'+cmH+
       binExtra+
-      '<div style="font-size:.74rem;color:#6b7d90;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
+      '<div style="font-size:.74rem;color:#8194a8;margin-top:6px">Classificatore <b>k-NN</b> (k='+k+') su feature standardizzate. La diagonale verde sono le previsioni corrette.</div>'+
       _dsPredictUI(meta,target);
     if(classes.length===2){ try{ var _curves=[{roc:_dsROC(teScores,teLab),color:'#5eead4',label:'kNN'}]; if(_rocLR)_curves.push({roc:_rocLR,color:'#a78bfa',label:'LogReg'}); _dsDrawROC('dsRoc',_curves); }catch(e){}
       (function(){ var thr=document.getElementById('dsThr'); if(!thr)return;
@@ -2346,7 +2350,7 @@ window.BSI_TELEMETRY_URL='';</script>
     for(var i=0;i<B;i++){ var bh=(bins[i]/bmax)*(H-pad-14); var bx=pad+i*bw, by=H-pad-bh;
       var g=x.createLinearGradient(0,by,0,H-pad); g.addColorStop(0,'#7c6fff'); g.addColorStop(1,'#5eead4'); x.fillStyle=g; x.fillRect(bx+1,by,bw-2,bh); }
     x.strokeStyle='#26406a'; x.beginPath(); x.moveTo(pad,H-pad); x.lineTo(W-6,H-pad); x.stroke();
-    x.fillStyle='#6b7d90'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText(mn.toFixed(1),pad,H-10); x.textAlign='right'; x.fillText(mx.toFixed(1),W-8,H-10);
+    x.fillStyle='#8194a8'; x.font='10px ui-monospace,monospace'; x.textAlign='left'; x.fillText(mn.toFixed(1),pad,H-10); x.textAlign='right'; x.fillText(mx.toFixed(1),W-8,H-10);
     x.textAlign='left'; x.fillStyle='#8fa3b8'; x.fillText('μ='+s.mean.toFixed(2)+'  σ='+s.std.toFixed(2)+'  n='+n,pad,14);
   }
   function _dsDrawCorr(numCols, data){
@@ -2471,7 +2475,7 @@ window.BSI_TELEMETRY_URL='';</script>
         <div class="ph" style="color:#00d4aa;font-size:0.85rem">SMILES Generato</div>
         <div class="pb">
           <div id="mdSmiles" style="font-family:monospace;font-size:0.88rem;color:#e2e8f0;word-break:break-all;min-height:40px;background:#0a1628;padding:8px;border-radius:6px"></div>
-          <button onclick="copySmiles()" style="margin-top:8px;width:100%;background:#00d4aa;color:#e9eef6;border:none;padding:7px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.85rem">📋 Copia SMILES</button>
+          <button onclick="copySmiles()" style="margin-top:8px;width:100%;background:#00d4aa;color:#06141f;border:none;padding:7px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.85rem">📋 Copia SMILES</button>
         </div>
       </div>
       <div class="panel" style="margin-bottom:10px">
@@ -2981,7 +2985,7 @@ if(document.getElementById('specSimCanvas')){
           <input id="atlasModelFile" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" style="display:none" onchange="_atlasLoadModel(this.files[0])"></label>
         <button id="atlasModelReset" onclick="_atlasResetModel()" style="padding:6px 12px;border-radius:9px;border:1px solid #1a3050;background:#0c1f33;color:#cdd9e6;cursor:pointer;font-size:.76rem;font-weight:700">🧍 Corpo intero</button>
       </div>
-      <div style="color:#6b7d90;font-size:.68rem;margin-top:5px;line-height:1.5">Modelli 3D anatomici reali. Scegli un corpo intero, un organo o un apparato dal menù; dalla scheda della malattia puoi aprire direttamente l'<b>organo bersaglio in 3D</b>. Puoi anche caricare un tuo file .glb/.gltf (resta sul dispositivo). Trascina per ruotare · ⛶ per lo schermo intero.</div>
+      <div style="color:#8194a8;font-size:.68rem;margin-top:5px;line-height:1.5">Modelli 3D anatomici reali. Scegli un corpo intero, un organo o un apparato dal menù; dalla scheda della malattia puoi aprire direttamente l'<b>organo bersaglio in 3D</b>. Puoi anche caricare un tuo file .glb/.gltf (resta sul dispositivo). Trascina per ruotare · ⛶ per lo schermo intero.</div>
     </div>
     <div>
       <div id="atlasTypeFp" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
@@ -3304,6 +3308,57 @@ function bsiAccentoLeggibile(col, sfondo, soglia){
   return aHex(daHsl(hsl[0], s, 0.92));
 }
 window.bsiAccentoLeggibile = bsiAccentoLeggibile;
+
+/* ── Il testo di un'etichetta colorata si decide DAL SUO FONDO ────────────
+   Il caso opposto al precedente: qui e' lo SFONDO a venire dai dati (la
+   tinta del database, della categoria, dell'anno di corso) e il testo era
+   fissato a #fff nel codice. Funziona finche' la tinta e' scura, e smette
+   di funzionare appena qualcuno aggiunge una voce con #e65100 o #00897b:
+   bianco su arancione misura 3,79:1, sotto la soglia.
+   Non si correggono le tinte una per una — la voce aggiunta domani
+   ricomincerebbe da capo. Si sceglie il testo guardando il fondo, e se
+   nessuno dei due estremi basta si SCURISCE il fondo conservando la tinta,
+   perche' un'etichetta deve restare riconoscibile per colore. */
+function bsiEtichettaLeggibile(sfondo, soglia){
+  soglia = soglia || 4.5;
+  function aRgb(h){
+    if(typeof h !== 'string') return null;
+    h = h.trim().replace(/^#/, '');
+    if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(!/^[0-9a-f]{6}$/i.test(h)) return null;
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+  function lum(rgb){
+    var c = rgb.map(function(v){ v = v/255;
+      return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+    return 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
+  }
+  function rapporto(a,b){
+    var la = lum(a), lb = lum(b);
+    return (Math.max(la,lb)+0.05)/(Math.min(la,lb)+0.05);
+  }
+  var sf = aRgb(sfondo);
+  if(!sf) return { sfondo: sfondo, testo: '#ffffff' };   // non un esadecimale: si lascia stare
+
+  var chiaro = [255,255,255], scuro = [6,20,31];
+  var rc = rapporto(chiaro, sf), rs = rapporto(scuro, sf);
+  if(Math.max(rc, rs) >= soglia)
+    return { sfondo: sfondo, testo: rc >= rs ? '#ffffff' : '#06141f' };
+
+  /* Nessuno dei due estremi basta: la tinta e' di mezzo tono. Si scurisce
+     il fondo a passi dell'8% finche' il bianco non ce la fa — la tinta
+     resta la stessa, cambia solo quanto e' profonda. */
+  var f = 1;
+  for(var i = 0; i < 12; i++){
+    f *= 0.92;
+    var g = [Math.round(sf[0]*f), Math.round(sf[1]*f), Math.round(sf[2]*f)];
+    if(rapporto(chiaro, g) >= soglia)
+      return { sfondo: '#' + g.map(function(v){ return v.toString(16).padStart(2,'0'); }).join(''),
+               testo: '#ffffff' };
+  }
+  return { sfondo: '#06141f', testo: '#ffffff' };
+}
+window.bsiEtichettaLeggibile = bsiEtichettaLeggibile;
 
 function bsiNitido(c){
   if(!c) return null;
@@ -5210,7 +5265,7 @@ function showAA(cat,q){
     var card=mk("div");card.style.cssText="background:#0d1b2e;border:1px solid #1a3050;border-radius:10px;overflow:hidden";
     // Header
     var hd=mk("div");hd.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #1d2f49;background:#163a2a";
-    var code=mk("div",a.code3);code.style.cssText="font-family:var(--font-mono);font-size:18px;font-weight:900;color:"+col+";min-width:42px";
+    var code=mk("div",a.code3);code.style.cssText="font-family:var(--font-mono);font-size:18px;font-weight:900;color:"+bsiAccentoLeggibile(col,"#163a2a")+";min-width:42px";
     var code1=mk("div",a.code1);code1.style.cssText="width:26px;height:26px;border-radius:50%;background:"+col+"22;border:1px solid "+col+"66;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:700;color:"+col;
     var nm=mk("div",a.name);nm.style.cssText="font-family:var(--font-mono);font-size:13px;font-weight:600;color:#e8f4ff;flex:1";
     var mwb=mk("div",a.mw+" g/mol");mwb.style.cssText="font-family:var(--font-mono);font-size:10px;color:#8aadcc";
@@ -5219,7 +5274,7 @@ function showAA(cat,q){
     var bd=mk("div");bd.style.cssText="padding:10px 14px";
     // pKa row
     var pkaRow=mk("div");pkaRow.style.cssText="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px";
-    [["pKa₁",a.pKa1,"#6f9dbd"],["pKa₂",a.pKa2,"#6f9dbd"],a.pKaR?["pKaᴿ",a.pKaR,col]:null].forEach(function(p){
+    [["pKa₁",a.pKa1,"#6f9dbd"],["pKa₂",a.pKa2,"#6f9dbd"],a.pKaR?["pKaᴿ",a.pKaR,bsiAccentoLeggibile(col,"#0d1b2e")]:null].forEach(function(p){
       if(!p)return;
       var chip=mk("span",p[0]+": "+p[1]);chip.style.cssText="padding:2px 8px;border-radius:10px;background:"+p[2]+"22;border:1px solid "+p[2]+"44;font-family:var(--font-mono);font-size:10px;color:"+p[2];
       pkaRow.appendChild(chip);
@@ -5937,7 +5992,7 @@ function _atlasRender(){
     +'<a href="'+pmDrug+'" target="_blank" rel="noopener" style="background:#123a55;color:#8fe6ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🔬 PubMed: farmaco ↗</a>'
     +'<a href="'+ctUrl+'" target="_blank" rel="noopener" style="background:#0b4a3a;color:#8fe6c8;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">🧪 Studi clinici (ClinicalTrials.gov) ↗</a>'
     +(drugTok?'<a href="'+chemblUrl+'" target="_blank" rel="noopener" style="background:#3a2a5a;color:#c9b6ff;font-weight:700;font-size:.76rem;padding:7px 11px;border-radius:8px;text-decoration:none">⚗️ ChEMBL: farmaco ↗</a>':'')+'</div>';
-  html+='<div style="color:#6b7d90;font-size:.68rem;margin-top:8px">Verifica su fonti ufficiali: <b>PubMed</b> (letteratura, NIH/NLM), <b>ClinicalTrials.gov</b> (studi clinici, NIH) e <b>ChEMBL</b> (EMBL-EBI, dati molecolari/meccanismo). Contenuto a scopo didattico.</div>';
+  html+='<div style="color:#8194a8;font-size:.68rem;margin-top:8px">Verifica su fonti ufficiali: <b>PubMed</b> (letteratura, NIH/NLM), <b>ClinicalTrials.gov</b> (studi clinici, NIH) e <b>ChEMBL</b> (EMBL-EBI, dati molecolari/meccanismo). Contenuto a scopo didattico.</div>';
   html+='</div>';
   info.innerHTML=html;
 }
@@ -6492,8 +6547,13 @@ function showBio(tab,q){
 
     function section(title,text,tcol){
       if(!text||!text.trim())return;
-      var w=mk("div");w.style.cssText="margin-bottom:10px;border-left:2px solid "+(tcol||col)+"44;padding-left:10px";
-      var t=mk("div","▸ "+title.toUpperCase());t.style.cssText="font-family:var(--font-mono);font-size:10px;font-weight:700;color:"+(tcol||col)+";margin-bottom:4px;letter-spacing:.05em";
+      /* L'accento passato dal chiamante finisce come COLORE DEL TESTO sul
+         corpo della scheda (#0d1b2e). Si impone qui l'invariante, una volta
+         per tutti i chiamanti: «Funzioni Biologiche» arrivava con #0d1522,
+         cioe' il fondo stesso — 1,06:1, invisibile. */
+      var tc=bsiAccentoLeggibile(tcol||col,"#0d1b2e");
+      var w=mk("div");w.style.cssText="margin-bottom:10px;border-left:2px solid "+tc+"44;padding-left:10px";
+      var t=mk("div","▸ "+title.toUpperCase());t.style.cssText="font-family:var(--font-mono);font-size:10px;font-weight:700;color:"+tc+";margin-bottom:4px;letter-spacing:.05em";
       var body=mk("div",text);body.style.cssText="font-size:11px;color:#e9eef6;line-height:1.6";
       w.appendChild(t);w.appendChild(body);bd.appendChild(w);
     }
@@ -14124,10 +14184,10 @@ function renderQuizHome(){
 
   var catHTML = catCards.map(function(c){
     var due = getDueCards(progress, c.key).length;
-    var badge = due > 0 ? '<span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700">'+due+' da ripassare</span>' : '<span style="background:#163a2a;color:#c9d3df;font-size:10px;padding:2px 6px;border-radius:10px">In pari \u2713</span>';
-    return '<div onclick="startSession(\''+c.key+'\')" style="background:#16273e;border:1px solid #e5e7eb;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px" onmouseover="this.style.borderColor=\''+c.color+'\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'#e5e7eb\';this.style.transform=\'\'">'
+    var badge = due > 0 ? '<span style="background:#dc2626;color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:1;min-width:0">'+due+' da ripassare</span>' : '<span style="background:#163a2a;color:#c9d3df;font-size:10px;padding:2px 6px;border-radius:10px">In pari \u2713</span>';
+    return '<div onclick="startSession(\''+c.key+'\')" style="background:#16273e;border:1px solid #e5e7eb;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;min-width:0" onmouseover="this.style.borderColor=\''+c.color+'\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'#e5e7eb\';this.style.transform=\'\'">'
       +'<div style="width:44px;height:44px;background:'+c.color+';border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0">'+c.icon+'</div>'
-      +'<div style="flex:1"><div style="font-weight:700;font-size:14px">'+c.label+'</div><div style="font-size:12px;color:#c9d3df;margin-top:2px">'+c.n+' domande</div></div>'
+      +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px">'+c.label+'</div><div style="font-size:12px;color:#c9d3df;margin-top:2px">'+c.n+' domande</div></div>'
       +badge+'</div>';
   }).join('');
 
@@ -14145,7 +14205,7 @@ function renderQuizHome(){
     +'<div><div style="font-size:28px;font-weight:800;color:#86efac">'+stats.learned+'</div><div style="font-size:12px;opacity:.85">Apprese</div></div>'
     +'</div>'
     +(dueAll>0 ? '<button onclick="startSession(\'all\')" style="width:100%;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:20px">\u26A1 Ripassa tutto ('+(dueAll)+' domande in scadenza)</button>' : '')
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">'+catHTML+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));gap:12px;margin-bottom:20px">'+catHTML+'</div>'
     +'<div style="text-align:center"><button onclick="resetQuiz()" style="background:transparent;color:#c9d3df;border:1px solid #e5e7eb;border-radius:8px;padding:6px 16px;font-size:12px;cursor:pointer">Azzera tutti i progressi</button></div>'
     +'</div>';
 }
@@ -14261,7 +14321,7 @@ function renderSessionEnd(){
     +'<div><div style="font-size:22px;font-weight:800;color:#fcd34d">'+stats.due+'</div><div style="font-size:11px;opacity:.85">Da ripassare</div></div>'
     +'<div><div style="font-size:22px;font-weight:800;color:#86efac">'+stats.learned+'</div><div style="font-size:11px;opacity:.85">Apprese</div></div>'
     +'</div>'
-    +'<button onclick="renderQuizHome()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer">\u2190 Torna ai quiz</button>'
+    +'<button onclick="renderQuizHome()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:12px;padding:12px 32px;font-size:15px;font-weight:700;cursor:pointer">\u2190 Torna ai quiz</button>'
     +'</div>';
 }
 
@@ -14362,7 +14422,7 @@ function renderActivePathPreview(courseId){
         return '<button onclick="goSection(\''+s+'\')" style="background:#16273e;border:1px solid #0d1522;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer;color:#e9eef6;font-weight:600">'+(labels[s]||s)+'</button>';
       }).join('')
     +'</div>'
-    +'<button onclick="startQuizForCourse(\''+courseId+'\')" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer">\uD83C\uDFC6 Quiz su questo esame</button>'
+    +'<button onclick="startQuizForCourse(\''+courseId+'\')" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer">\uD83C\uDFC6 Quiz su questo esame</button>'
     +'</div>';
 }
 
@@ -14688,7 +14748,7 @@ function createPomodoroWidget(){
   if(document.getElementById('pomoWidget')) return;
   var w = document.createElement('div');
   w.id = 'pomoWidget';
-  w.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--c-primary,#00c896);color:#e9eef6;border-radius:16px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.35);z-index:9000;min-width:180px;user-select:none;transition:all .3s';
+  w.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--c-primary,#00c896);color:#06141f;border-radius:16px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.35);z-index:9000;min-width:180px;user-select:none;transition:all .3s';
   w.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
     +'<span style="font-size:13px;font-weight:700;opacity:.85" id="pomoPhase">\uD83C\uDF45 Studio</span>'
     +'<div style="display:flex;gap:6px">'
@@ -15741,7 +15801,7 @@ window.initPomodoro = function(){
     +'</div>'
     +'</div>'
     +'<div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px">'
-    +'<button id="pomoBtnStart" onclick="pomoToggle()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:10px 28px;font-size:15px;font-weight:700;cursor:pointer">\u25B6 Avvia</button>'
+    +'<button id="pomoBtnStart" onclick="pomoToggle()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:10px 28px;font-size:15px;font-weight:700;cursor:pointer">\u25B6 Avvia</button>'
     +'<button onclick="pomoReset()" style="background:#16273e;color:#e9eef6;border:1px solid #e5e7eb;border-radius:10px;padding:10px 20px;font-size:15px;cursor:pointer">\u21BA Reset</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px">'
@@ -15763,7 +15823,7 @@ window.pomoToggle = function(){
     if(btn){ btn.textContent = '\u23F8 Pausa'; btn.style.background='#ef4444'; }
   } else {
     clearInterval(POMO.timer);
-    if(btn){ btn.textContent = '\u25B6 Riprendi'; btn.style.background='#0d1522'; }
+    if(btn){ btn.textContent = '\u25B6 Riprendi'; btn.style.background='#0d1522'; btn.style.color='#e9eef6'; }
     document.title = 'BioSpecInfo';
   }
 };
@@ -15772,7 +15832,7 @@ window.pomoReset = function(){
   POMO.running = false; clearInterval(POMO.timer);
   POMO.current = POMO.mode==='work'?POMO.work:POMO.mode==='short_break'?POMO.short_break:POMO.long_break;
   var btn = document.getElementById('pomoBtnStart');
-  if(btn){ btn.textContent = '\u25B6 Avvia'; btn.style.background='#0d1522'; }
+  if(btn){ btn.textContent = '\u25B6 Avvia'; btn.style.background='#0d1522'; btn.style.color='#e9eef6'; }
   document.title = 'BioSpecInfo';
   updateDisplay();
 };
@@ -15782,7 +15842,7 @@ window.pomoSetMode = function(mode){
   POMO.mode = mode;
   POMO.current = mode==='work'?POMO.work:mode==='short_break'?POMO.short_break:POMO.long_break;
   var btn = document.getElementById('pomoBtnStart');
-  if(btn){ btn.textContent = '\u25B6 Avvia'; btn.style.background='#0d1522'; }
+  if(btn){ btn.textContent = '\u25B6 Avvia'; btn.style.background='#0d1522'; btn.style.color='#e9eef6'; }
   document.title = 'BioSpecInfo';
   updateDisplay();
 };
@@ -16113,7 +16173,7 @@ window.runGlobalSearch = function(query){
   res.innerHTML = '<div style="padding:8px 12px;font-size:12px;color:#c9d3df;font-weight:600">'+results.length+' risultati'+(results.length>40?' (mostrando i primi 40)':'')+'</div>'
     + shown.map(function(r){
       return '<div onclick="('+r.action.toString()+')()" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;border-radius:10px;margin:2px 4px;transition:background .15s" onmouseover="this.style.background=\'#f3f4f6\'" onmouseout="this.style.background=\'\'">'
-        +'<span style="background:'+r.color+'22;color:'+r.color+';font-size:11px;padding:2px 8px;border-radius:8px;white-space:nowrap;font-weight:600;margin-top:2px">'+r.type+'</span>'
+        +'<span style="background:'+r.color+'22;color:'+bsiAccentoLeggibile(r.color,'#16273e')+';font-size:11px;padding:2px 8px;border-radius:8px;white-space:nowrap;font-weight:600;margin-top:2px">'+r.type+'</span>'
         +'<div style="flex:1;min-width:0">'
         +'<div style="font-weight:600;font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.title+'</div>'
         +(r.subtitle?'<div style="font-size:12px;color:#c9d3df">'+r.subtitle+'</div>':'')
@@ -16138,7 +16198,7 @@ document.addEventListener('DOMContentLoaded', function(){
     searchBtn.id = 'globalSearchBtn';
     searchBtn.onclick = openGlobalSearch;
     searchBtn.title = 'Ricerca globale (Ctrl+K)';
-    searchBtn.style.cssText = 'background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;display:flex;align-items:center;gap:6px';
+    searchBtn.style.cssText = 'background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;display:flex;align-items:center;gap:6px';
     searchBtn.innerHTML = '🔍 Cerca <span style="opacity:.7;font-size:11px">Ctrl+K</span>';
     shareBtn.parentNode.insertBefore(searchBtn, shareBtn);
   }
@@ -16334,7 +16394,7 @@ function renderBalancer(){
     +'<textarea id="rxnInput" rows="2" placeholder="Esempio: CH4 + O2 → CO2 + H2O" '
     +'style="flex:1;padding:10px 14px;border:1px solid #e5e7eb;border-radius:10px;font-size:15px;font-family:monospace;resize:vertical">'
     +'</textarea>'
-    +'<button onclick="doBalance()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">⚗️ Bilancia</button>'
+    +'<button onclick="doBalance()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">⚗️ Bilancia</button>'
     +'</div>'
     +'<div id="balancerResult" style="margin-top:16px"></div>'
     +'</div>'
@@ -16627,7 +16687,7 @@ window.initSmilesEditor = function(){
     +'<div style="font-size:11px;font-weight:700;color:#e9eef6;margin-bottom:6px">SMILES generato:</div>'
     +'<div id="smilesString" style="font-family:monospace;font-size:14px;color:#e9eef6;word-break:break-all">—</div>'
     +'<div style="display:flex;gap:8px;margin-top:8px">'
-    +'<button onclick="copySMILES()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">📋 Copia</button>'
+    +'<button onclick="copySMILES()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">📋 Copia</button>'
     +'<button onclick="sendToMolecola()" style="background:#1565C0;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">🔬 Cerca in Molecola</button>'
     +'</div>'
     +'</div>'
@@ -16938,7 +16998,7 @@ window.initLab = function(){
 
   var cats=[...new Set(LAB_TECHNIQUES.map(function(t){return t.cat;}))];
   var filterHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">'
-    +'<button onclick="filterLab(\'all\')" class="lb-filter" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">Tutte</button>'
+    +'<button onclick="filterLab(\'all\')" class="lb-filter" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">Tutte</button>'
     +cats.map(function(cat){
       return '<button onclick="filterLab(\''+cat+'\')" class="lb-filter" style="background:#16273e;color:#e9eef6;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer">'+cat+'</button>';
     }).join('')+'</div>';
@@ -17102,7 +17162,7 @@ function renderExamQuestion(){
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
     +'<span style="font-size:13px;color:#c9d3df">'+( examState.idx+1 )+' di '+total+'</span>'
     +'<span id="examTimer" style="font-size:14px;font-weight:600">⏱ '+String(Math.floor(examState.timeLeft/60)).padStart(2,'0')+':'+String(examState.timeLeft%60).padStart(2,'0')+'</span>'
-    +'<button onclick="finishExam(false)" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer">Consegna</button>'
+    +'<button onclick="finishExam(false)" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer">Consegna</button>'
     +'</div>'
     +'<div style="background:#0d1522;border-radius:3px;height:4px;margin-bottom:16px;overflow:hidden">'
     +'<div style="background:#1f6e4a;height:100%;width:'+Math.round(examState.idx/total*100)+'%;transition:width .3s"></div></div>'
@@ -17125,7 +17185,7 @@ function renderExamQuestion(){
   if(examState.answers[examState.idx]!==null){
     document.querySelectorAll('#examOptGrid button').forEach(function(btn){
       if(btn.dataset.opt===examState.answers[examState.idx]){
-        btn.style.background='#16273e';btn.style.borderColor='#0d1522';
+        btn.style.background='#16273e';btn.style.color='#e9eef6';btn.style.borderColor='#5eead4';
       }
     });
   }
@@ -17134,9 +17194,9 @@ function renderExamQuestion(){
 window.examAnswer=function(btn,answer){
   examState.answers[examState.idx]=answer;
   document.querySelectorAll('#examOptGrid button').forEach(function(b){
-    b.style.background='#16273e';b.style.borderColor='#e5e7eb';
+    b.style.background='#16273e';b.style.color='#e9eef6';b.style.borderColor='#26406a';
   });
-  btn.style.background='#16273e';btn.style.borderColor='#0d1522';
+  btn.style.background='#16273e';btn.style.color='#e9eef6';btn.style.borderColor='#5eead4';
   // Avanza automaticamente dopo 400ms
   setTimeout(function(){
     examState.idx++;
@@ -17191,7 +17251,7 @@ window.finishExam=function(timeUp){
     +'<div><div style="font-size:24px;font-weight:800;color:#fca5a5">'+wrong+'</div><div style="font-size:12px;opacity:.8">Errate</div></div>'
     +'<div><div style="font-size:24px;font-weight:800;color:#fcd34d">'+skip+'</div><div style="font-size:12px;opacity:.8">Saltate</div></div>'
     +'</div></div>'
-    +'<button onclick="renderExamHome()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px">← Nuovo Esame</button>'
+    +'<button onclick="renderExamHome()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px">← Nuovo Esame</button>'
     +'<div style="text-align:left">'
     +'<h3 style="color:#e9eef6;margin-bottom:12px">Revisione risposte:</h3>'
     +review.map(function(r,i){
@@ -17379,7 +17439,7 @@ function renderMechStep(){
     // Navigation
     +'<div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px">'
     +(mechState.step>0?'<button onclick="goMechStep('+(mechState.step-1)+')" style="background:#16273e;border:1px solid #e5e7eb;border-radius:10px;padding:10px 24px;font-size:14px;cursor:pointer">← Precedente</button>':'')
-    +(mechState.step<total-1?'<button onclick="goMechStep('+(mechState.step+1)+')" style="background:'+step.color+';color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Successivo →</button>':'<button onclick="showKeypoints()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">✅ Punti chiave</button>')
+    +(mechState.step<total-1?'<button onclick="goMechStep('+(mechState.step+1)+')" style="background:'+step.color+';color:#fff;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">Successivo →</button>':'<button onclick="showKeypoints()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer">✅ Punti chiave</button>')
     +'</div>'
     // Mini progress
     +'<div style="text-align:center;font-size:12px;color:#c9d3df">Clicca sui passi in alto per navigare liberamente</div>'
@@ -17406,7 +17466,7 @@ window.showKeypoints=function(){
     +'</ul>'
     +'<div style="display:flex;gap:10px;margin-top:20px">'
     +'<button onclick="this.closest(\'div[style*=z-index]\').remove()" style="flex:1;background:#16273e;border:none;border-radius:8px;padding:10px;cursor:pointer;font-size:13px">Chiudi</button>'
-    +'<button onclick="this.closest(\'div[style*=z-index]\').remove();renderMechHome()" style="flex:1;background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:10px;cursor:pointer;font-size:13px;font-weight:600">← Altri meccanismi</button>'
+    +'<button onclick="this.closest(\'div[style*=z-index]\').remove();renderMechHome()" style="flex:1;background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:10px;cursor:pointer;font-size:13px;font-weight:600">← Altri meccanismi</button>'
     +'</div></div>';
   document.body.appendChild(overlay);
 };
@@ -18064,7 +18124,7 @@ window.showCalcTool = function(id){
       +'</div>'
       +'<div style="display:flex;gap:8px;margin-bottom:12px">'
       +'<button onclick="addKmRow()" style="background:#16273e;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:12px">+ Riga</button>'
-      +'<button onclick="calcKm()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer">Calcola Km e Vmax</button>'
+      +'<button onclick="calcKm()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer">Calcola Km e Vmax</button>'
       +'</div>'
       +'<div id="kmResult"></div></div>';
     area.innerHTML = html;
@@ -18077,7 +18137,7 @@ window.showCalcTool = function(id){
       +'<div><label style="font-size:12px;font-weight:600">Temperatura T (°C):</label>'
       +'<input id="dgT" type="number" value="25" style="width:100%;margin-top:4px;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box"></div>'
       +'</div>'
-      +'<button onclick="calcDG()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola ΔG°</button>'
+      +'<button onclick="calcDG()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola ΔG°</button>'
       +'<div id="dgResult"></div>'
       +'<div style="margin-top:14px;font-size:12px;color:#c9d3df;background:#16273e;padding:10px;border-radius:8px">'
       +'ΔG° = −RT ln K &nbsp;·&nbsp; R = 8.314 J mol⁻¹K⁻¹ &nbsp;·&nbsp; T in Kelvin<br>'
@@ -18097,7 +18157,7 @@ window.showCalcTool = function(id){
       +'<div><label style="font-size:12px;font-weight:600">V (L):</label>'
       +'<input id="vdwV" type="number" value="22.4" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box"></div>'
       +'</div>'
-      +'<button onclick="calcVdW()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola P</button>'
+      +'<button onclick="calcVdW()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola P</button>'
       +'<div id="vdwResult"></div></div>';
     area.innerHTML = html;
   } else if(id==='ms_calc'){
@@ -18106,7 +18166,7 @@ window.showCalcTool = function(id){
       +'<p style="font-size:13px;color:#c9d3df;margin:0 0 12px">Inserisci una formula bruta per vedere il pattern isotopico atteso nello spettro di massa.</p>'
       +'<div style="display:flex;gap:10px;margin-bottom:14px">'
       +'<input id="msFormula" type="text" value="C₂H₅Cl" placeholder="Es: C₂H₅Cl, CHBr₃, C₆H₅Br" style="flex:1;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-family:monospace;font-size:14px">'
-      +'<button onclick="calcMSPattern()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">Calcola</button>'
+      +'<button onclick="calcMSPattern()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">Calcola</button>'
       +'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
       +['C₂H₅Cl','CHCl₃','C₆H₅Br','CH₂Br₂','CHBr₃','C₂H₄Cl₂'].map(function(ex){
@@ -18128,7 +18188,7 @@ window.showCalcTool = function(id){
       +'<div><label style="font-size:12px;font-weight:600">Volume finale (mL):</label>'
       +'<input id="bufVol" type="number" value="100" style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box"></div>'
       +'</div>'
-      +'<button onclick="calcBuffer()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola composizione</button>'
+      +'<button onclick="calcBuffer()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:14px">Calcola composizione</button>'
       +'<div id="bufResult"></div></div>';
     area.innerHTML = html;
     calcBuffer();
@@ -18982,7 +19042,7 @@ window.showMO = function(idx){
   var content = document.getElementById('moContent');
   document.querySelectorAll('[id^="mob_"]').forEach(function(b){ b.style.background='#fff'; b.style.borderColor='#e5e7eb'; });
   var activeBtn = document.getElementById('mob_'+idx);
-  if(activeBtn){ activeBtn.style.background='#16273e'; activeBtn.style.borderColor='#0d1522'; }
+  if(activeBtn){ activeBtn.style.background='#16273e'; activeBtn.style.color='#e9eef6'; activeBtn.style.borderColor='#5eead4'; }
 
   // Draw MO diagram on canvas
   var canvasHTML = '<canvas id="moCanvas" width="560" height="300" style="display:block;max-width:100%;border-radius:10px;background:#16273e;margin:0 auto"></canvas>';
@@ -19088,7 +19148,7 @@ window.initInorganic = function(){
       +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
       +'<span style="background:#16273e;color:#e9eef6;padding:2px 8px;border-radius:6px;font-size:11px">'+c.geometry+'</span>'
       +'<span style="background:#16273e;color:#e9eef6;padding:2px 8px;border-radius:6px;font-size:11px">'+c.d_config+'</span>'
-      +'<span style="background:'+(c.spin.includes('basso')?'#E3F2FD':'#FFF3E0')+';color:'+(c.spin.includes('basso')?'#1565C0':'#E65100')+';padding:2px 8px;border-radius:6px;font-size:11px">'+c.spin+'</span>'
+      +'<span style="background:'+(c.spin.includes('basso')?'#E3F2FD':'#FFF3E0')+';color:'+(c.spin.includes('basso')?'#0B4A8F':'#9A3412')+';padding:2px 8px;border-radius:6px;font-size:11px">'+c.spin+'</span>'
       +'<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:'+( c.color==='blu'?'#2196F3':c.color==='viola'?'#7B1FA2':c.color==='giallo'?'#FDD835':c.color==='giallo-arancio'?'#FF8F00':c.color==='rosso-arancio'?'#E53935':'#aaa' )+';margin-top:2px;border:1px solid #ccc"></span> <span style="font-size:11px;color:#e9eef6">'+c.color+'</span>'
       +'</div>'
       +'<div style="margin-bottom:10px">'
@@ -19246,7 +19306,7 @@ window.initRetro = function(){
 
   var cats = [...new Set(RETRO_STRATEGIES.map(function(s){ return s.cat; }))];
   var filterBtns = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">'
-    +'<button onclick="filterRetro(\'all\')" class="retro-filter" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer">Tutte</button>'
+    +'<button onclick="filterRetro(\'all\')" class="retro-filter" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer">Tutte</button>'
     +cats.map(function(cat){
       return '<button onclick="filterRetro(\''+cat+'\')" class="retro-filter" style="background:#16273e;color:#e9eef6;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer">'+cat+'</button>';
     }).join('')+'</div>';
@@ -19257,7 +19317,7 @@ window.initRetro = function(){
       +'<span style="font-size:22px">'+s.icon+'</span>'
       +'<div>'
       +'<div style="font-weight:700;font-size:14px;color:#e9eef6">'+s.name+'</div>'
-      +'<span style="background:'+s.color+'22;color:'+s.color+';font-size:10px;padding:1px 7px;border-radius:6px;font-weight:600">'+s.cat+'</span>'
+      +'<span style="background:'+s.color+'22;color:'+bsiAccentoLeggibile(s.color,'#16273e')+';font-size:10px;padding:1px 7px;border-radius:6px;font-weight:600">'+s.cat+'</span>'
       +'</div></div>'
       +'<div style="background:#16273e;border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">'
       +'<strong>Target:</strong> '+s.target+'</div>'
@@ -19558,7 +19618,7 @@ function renderCustomHome(){
     +'<div><label style="font-size:12px;font-weight:600;color:#e9eef6">Hint (opzionale):</label>'
     +'<input id="cfHint" type="text" placeholder="Suggerimento..." style="width:100%;margin-top:4px;padding:7px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box"></div>'
     +'</div>'
-    +'<button onclick="addCustomCard()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer">✅ Aggiungi Flashcard</button>'
+    +'<button onclick="addCustomCard()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer">✅ Aggiungi Flashcard</button>'
     +'</div>'
     +(cards.length>0?'<div style="background:#16273e;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.08)">'
     +'<h3 style="margin:0 0 12px;font-size:15px;color:#e9eef6">📋 Le tue flashcard ('+cards.length+')</h3>'
@@ -19639,7 +19699,7 @@ window.studyCustomCards = function(){
       +(card.subject?'<div style="font-size:11px;color:#c9d3df;font-weight:600;margin-bottom:12px;text-transform:uppercase">'+card.subject+'</div>':'')
       +'<div style="font-size:18px;font-weight:600;color:#e9eef6;line-height:1.5;margin-bottom:20px">'+card.q+'</div>'
       +'<div id="cfReveal"></div>'
-      +'<button onclick="revealAnswer()" id="cfRevBtn" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">👀 Mostra risposta</button>'
+      +'<button onclick="revealAnswer()" id="cfRevBtn" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">👀 Mostra risposta</button>'
       +'</div>'
       +'</div>';
 
@@ -19688,7 +19748,7 @@ window.studyCustomCards = function(){
       +'<h2 style="color:#e9eef6">Sessione completata!</h2>'
       +'<div style="font-size:48px;font-weight:800;color:#e9eef6;margin:12px 0">'+Math.round(correct/results.length*100)+'%</div>'
       +'<div style="color:#c9d3df;margin-bottom:20px">'+correct+' su '+results.length+' risposte buone/ottime</div>'
-      +'<button onclick="renderCustomHome()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer">← Torna alle flashcard</button>'
+      +'<button onclick="renderCustomHome()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer">← Torna alle flashcard</button>'
       +'</div>';
   }
 
@@ -19820,7 +19880,7 @@ window.drawPhase = function(idx){
 
   document.querySelectorAll('[id^="phbtn_"]').forEach(function(b){ b.style.background='#fff'; b.style.borderColor='#e5e7eb'; });
   var ab = document.getElementById('phbtn_'+idx);
-  if(ab){ ab.style.background='#16273e'; ab.style.borderColor='#0d1522'; }
+  if(ab){ ab.style.background='#16273e'; ab.style.color='#e9eef6'; ab.style.borderColor='#5eead4'; }
 
   var ctx = canvas.getContext('2d');if(!ctx)return;
   var W=canvas.width, H=canvas.height;
@@ -20017,7 +20077,7 @@ function renderCustomHome(){
     +'<div><label style="font-size:12px;font-weight:600;color:#e9eef6">Hint (opzionale):</label>'
     +'<input id="cfHint" type="text" placeholder="Suggerimento..." style="width:100%;margin-top:4px;padding:7px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box"></div>'
     +'</div>'
-    +'<button onclick="addCustomCard()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer">✅ Aggiungi Flashcard</button>'
+    +'<button onclick="addCustomCard()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer">✅ Aggiungi Flashcard</button>'
     +'</div>'
     +(cards.length>0?'<div style="background:#16273e;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.08)">'
     +'<h3 style="margin:0 0 12px;font-size:15px;color:#e9eef6">📋 Le tue flashcard ('+cards.length+')</h3>'
@@ -20098,7 +20158,7 @@ window.studyCustomCards = function(){
       +(card.subject?'<div style="font-size:11px;color:#c9d3df;font-weight:600;margin-bottom:12px;text-transform:uppercase">'+card.subject+'</div>':'')
       +'<div style="font-size:18px;font-weight:600;color:#e9eef6;line-height:1.5;margin-bottom:20px">'+card.q+'</div>'
       +'<div id="cfReveal"></div>'
-      +'<button onclick="revealAnswer()" id="cfRevBtn" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">👀 Mostra risposta</button>'
+      +'<button onclick="revealAnswer()" id="cfRevBtn" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">👀 Mostra risposta</button>'
       +'</div>'
       +'</div>';
 
@@ -20147,7 +20207,7 @@ window.studyCustomCards = function(){
       +'<h2 style="color:#e9eef6">Sessione completata!</h2>'
       +'<div style="font-size:48px;font-weight:800;color:#e9eef6;margin:12px 0">'+Math.round(correct/results.length*100)+'%</div>'
       +'<div style="color:#c9d3df;margin-bottom:20px">'+correct+' su '+results.length+' risposte buone/ottime</div>'
-      +'<button onclick="renderCustomHome()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer">← Torna alle flashcard</button>'
+      +'<button onclick="renderCustomHome()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer">← Torna alle flashcard</button>'
       +'</div>';
   }
 
@@ -20236,7 +20296,7 @@ window.drawPhase = function(idx){
 
   document.querySelectorAll('[id^="phbtn_"]').forEach(function(b){ b.style.background='#fff'; b.style.borderColor='#e5e7eb'; });
   var ab = document.getElementById('phbtn_'+idx);
-  if(ab){ ab.style.background='#16273e'; ab.style.borderColor='#0d1522'; }
+  if(ab){ ab.style.background='#16273e'; ab.style.color='#e9eef6'; ab.style.borderColor='#5eead4'; }
 
   var ctx = canvas.getContext('2d');if(!ctx)return;
   var W=canvas.width, H=canvas.height;
@@ -20629,7 +20689,7 @@ window.patchDrugCards = function(){
       var btn = document.createElement('button');
       btn.className = 'drug-clinical-btn';
       btn.textContent = '🏥 Info Cliniche';
-      btn.style.cssText = 'background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-top:6px;display:block';
+      btn.style.cssText = 'background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;margin-top:6px;display:block';
       btn.onclick = function(e){ e.stopPropagation(); window.showDrugClinical(name.trim()); };
       el.appendChild(btn);
     }
@@ -20859,7 +20919,7 @@ window.initConceptMap = function(){
     // Canvas for network graph
     +'<div style="position:relative;border:1px solid #e5e7eb;border-radius:14px;background:#16273e;overflow:hidden" id="mapContainer">'
     +'<canvas id="mapCanvas" style="display:block;cursor:pointer"></canvas>'
-    +'<div id="mapTooltip" style="display:none;position:absolute;background:var(--c-primary,#00c896);color:#e9eef6;padding:8px 12px;border-radius:8px;font-size:12px;max-width:200px;z-index:10;pointer-events:none"></div>'
+    +'<div id="mapTooltip" style="display:none;position:absolute;background:var(--c-primary,#00c896);color:#06141f;padding:8px 12px;border-radius:8px;font-size:12px;max-width:200px;z-index:10;pointer-events:none"></div>'
     +'</div>'
 
     // Quick access grid
@@ -21867,7 +21927,7 @@ window.initEnergyDiagrams=function(){
   if(!sec) return;
 
   var profileBtns=ENERGY_PROFILES.map(function(p,i){
-    return '<button onclick="showEnergyProfile('+i+')" id="epb_'+i+'" style="background:#16273e;border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;transition:all .2s;text-align:left" onmouseover="this.style.borderColor=\'#0d1522\'" onmouseout="if(this.id!==\'epb_active\')this.style.borderColor=\'#e5e7eb\'">'
+    return '<button onclick="showEnergyProfile('+i+')" id="epb_'+i+'" style="background:#16273e;color:#e9eef6;border:1px solid #26406a;border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;transition:all .2s;text-align:left" onmouseover="this.style.borderColor=\'#0d1522\'" onmouseout="if(this.id!==\'epb_active\')this.style.borderColor=\'#e5e7eb\'">'
       +'<div style="font-weight:600;font-size:12px">'+p.name+'</div>'
       +'<div style="font-size:10px;color:#c9d3df">'+p.reactants+' → '+p.products+'</div>'
       +'</button>';
@@ -22032,9 +22092,9 @@ window.showEnergyProfile=function(idx){
   if(info){
     var spontaneous=p.dG<0;
     info.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:10px">'
-      +'<div style="background:#16273e;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:800;color:'+(spontaneous?'#0d1522':'#DC2626')+'">'+(p.dG>0?'+':'')+p.dG+' kJ/mol</div><div style="font-size:11px">ΔG° reazione</div></div>'
+      +'<div style="background:#16273e;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:800;color:'+(spontaneous?'#4ade80':'#f87171')+'">'+(p.dG>0?'+':'')+p.dG+' kJ/mol</div><div style="font-size:11px">ΔG° reazione</div></div>'
       +(p.Ea?'<div style="background:#16273e;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:800;color:#c9d3df">'+p.Ea+' kJ/mol</div><div style="font-size:11px">Ea (attivazione)</div></div>':'')
-      +'<div style="background:#16273e;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:700;color:'+(spontaneous?'#0d1522':'#DC2626')+'">'+(spontaneous?'✅ Spontanea':'❌ Non spontanea')+'</div><div style="font-size:11px">A condizioni std.</div></div>'
+      +'<div style="background:#16273e;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:700;color:'+(spontaneous?'#4ade80':'#f87171')+'">'+(spontaneous?'✅ Spontanea':'❌ Non spontanea')+'</div><div style="font-size:11px">A condizioni std.</div></div>'
       +'</div>'
       +'<div style="font-size:12px;color:#e9eef6;margin-bottom:6px">'+p.desc+'</div>'
       +'<div style="font-size:11px;color:#c9d3df;background:#16273e;padding:8px;border-radius:8px">💡 '+p.notes+'</div>';
@@ -22377,7 +22437,7 @@ window.UNIBA_STUDY_PATHS_DATA = UNIBA_STUDY_PATHS;
 window.showStudyPath=function(id){
   var p=UNIBA_STUDY_PATHS.find(function(p){return p.id===id;});
   if(!p) return;
-  var col=bsiAccentoLeggibile(({'I Anno':'#0d1522','II Anno':'#7C3AED','III Anno':'#006064'})[p.anno]||'#374151','#16273e');
+  var col=bsiAccentoLeggibile(({'I Anno':'#00897B','II Anno':'#7C3AED','III Anno':'#006064'})[p.anno]||'#374151','#16273e');
 
   var overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:99999;overflow-y:auto;padding:20px;box-sizing:border-box';
@@ -22468,7 +22528,7 @@ function _buildExam(sec){
     sec.innerHTML='<div style="padding:40px;text-align:center;color:#c9d3df"><div style="font-size:36px">🎓</div><div style="margin-top:8px;color:#f87171">Configurazione esami non disponibile</div></div>';
     return;
   }
-  var ac={'I Anno':'#0d1522','II Anno':'#1565C0','III Anno':'#7C3AED','Laurea':'#C62828'};
+  var ac={'I Anno':'#00897B','II Anno':'#1565C0','III Anno':'#7C3AED','Laurea':'#C62828'};
   var uc=window.EXAM_CONFIGS.filter(function(c){return c.id&&c.id.indexOf('uniba_')===0&&c.id!=='uniba_triennale_completo';});
   var gc=window.EXAM_CONFIGS.filter(function(c){return !c.id||c.id.indexOf('uniba_')!==0;});
 
@@ -22496,7 +22556,7 @@ function _buildExam(sec){
   ['I Anno','II Anno','III Anno'].forEach(function(a){
     var cfgs=uc.filter(function(c){return c.anno===a;});
     if(!cfgs.length) return;
-    var col=ac[a];
+    var col=bsiAccentoLeggibile(ac[a],'#0d1522');
     html+='<div style="font-size:11px;font-weight:700;color:'+col+';margin:10px 0 6px;text-transform:uppercase">'+a+'</div>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:4px">'
       +cfgs.map(card).join('')+'</div>';
@@ -22536,15 +22596,16 @@ window.initStudyPath = function(){
 function _buildStudy(sec){
   var paths=(typeof UNIBA_STUDY_PATHS_DATA!=='undefined')?UNIBA_STUDY_PATHS_DATA:[];
   if(!paths.length){sec.innerHTML='<div style="padding:40px;text-align:center;color:#c9d3df">Percorsi non disponibili</div>';return;}
-  var ac={'I Anno':'#0d1522','II Anno':'#7C3AED','III Anno':'#006064'};
+  var ac={'I Anno':'#00897B','II Anno':'#7C3AED','III Anno':'#006064'};
   var html='<div style="max-width:1000px;margin:0 auto;padding:20px">'
     +'<div style="text-align:center;margin-bottom:16px"><div style="font-size:32px">\uD83D\uDCDA</div>'
     +'<h2 style="color:#e9eef6;margin:6px 0 4px">Percorsi di Studio</h2>'
     +'<p style="color:#c9d3df;font-size:12px;margin:0">Tutti i corsi del triennio UniBA Chimica \u2014 clicca per argomenti e risorse BioSpecInfo</p></div>';
   ['I Anno','II Anno','III Anno'].forEach(function(anno){
     var ap=paths.filter(function(p){return p.anno===anno;});
-    var col=ac[anno];
-    html+='<div style="background:'+col+';border-radius:10px;padding:10px 14px;margin-bottom:10px;color:#fff;display:flex;justify-content:space-between;align-items:center">'
+    var col=bsiAccentoLeggibile(ac[anno],'#0d1522');
+    var ban=bsiEtichettaLeggibile(ac[anno],7);
+    html+='<div style="background:'+ban.sfondo+';border-radius:10px;padding:10px 14px;margin-bottom:10px;color:'+ban.testo+';display:flex;justify-content:space-between;align-items:center">'
       +'<span style="font-weight:800;font-size:14px">'+anno+'</span>'
       +'<span style="font-size:11px;opacity:.8">'+ap.length+' corsi \u00b7 '+ap.reduce(function(s,p){return s+(p.cfu||0);},0)+' CFU</span></div>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-bottom:14px">'
@@ -22616,7 +22677,7 @@ document.addEventListener('click',function(e){
 <style>
 .md-tool{background:#1e3a5f;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:0.88rem;font-weight:600;transition:background 0.15s}
 .md-tool:hover{background:#2d4a7a}
-.md-tool.on{background:#00d4aa;color:#e9eef6;border-color:#00d4aa}
+.md-tool.on{background:#00d4aa;color:#06141f;border-color:#00d4aa}
 .md-atom{font-family:monospace}
 </style>
 
@@ -22919,14 +22980,14 @@ window.initTheory = function(){
   corsi.forEach(function(corso, i){
     var d = THEORY_DATA[corso];
     html += '<button onclick="document.getElementById(\'theory_'+i+'\').scrollIntoView({behavior:\'smooth\'})" '
-      +'style="background:'+d.color+'22;color:'+d.color+';border:1px solid '+d.color+'44;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600">'+corso+'</button>';
+      +'style="background:'+d.color+'22;color:'+bsiAccentoLeggibile(d.color,'#16273e')+';border:1px solid '+d.color+'44;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600">'+corso+'</button>';
   });
   html += '</div></div>';
 
   corsi.forEach(function(corso, ci){
     var d = THEORY_DATA[corso];
     html += '<div id="theory_'+ci+'" style="margin-bottom:28px">'
-      +'<div style="background:'+d.color+';border-radius:12px;padding:12px 16px;margin-bottom:12px;color:#fff">'
+      +'<div style="background:'+bsiEtichettaLeggibile(d.color,7).sfondo+';border-radius:12px;padding:12px 16px;margin-bottom:12px;color:'+bsiEtichettaLeggibile(d.color,7).testo+'">'
       +'<div style="font-weight:800;font-size:15px">'+corso+'</div>'
       +'<div style="font-size:11px;opacity:.8">'+d.anno+'</div>'
       +'</div>';
@@ -23369,7 +23430,7 @@ window.initNotes = function(){
     +'<option value="all">Tutte le categorie</option>'
     +categories.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
     +'</select>'
-    +'<button onclick="openNewNote()" style="background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Nuova Nota</button>'
+    +'<button onclick="openNewNote()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">+ Nuova Nota</button>'
     +'</div>'
     +'<div id="notes-list"></div>'
     +'</div>';
@@ -23392,7 +23453,7 @@ window.initNotes = function(){
       +'<textarea id="note-body" placeholder="Scrivi la tua nota..." '
       +'style="width:100%;height:200px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit">'+note.body+'</textarea>'
       +'<div style="display:flex;gap:8px;margin-top:12px">'
-      +'<button onclick="saveNote('+(idx!==undefined?idx:'undefined')+')" style="flex:1;background:var(--c-primary,#00c896);color:#e9eef6;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:700;cursor:pointer">Salva</button>'
+      +'<button onclick="saveNote('+(idx!==undefined?idx:'undefined')+')" style="flex:1;background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:700;cursor:pointer">Salva</button>'
       +'<button onclick="this.closest(\'[style*=position:fixed]\').remove()" style="background:#16273e;border:none;border-radius:10px;padding:10px 20px;font-size:14px;cursor:pointer">Annulla</button>'
       +'</div></div>';
     document.body.appendChild(overlay);
@@ -24665,7 +24726,7 @@ console.log('✅ DB farmaci completo: ' + Object.keys(D).length + ' schede');
             <input type="number" id="hhAcid" step="0.01" value="0.1" style="width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:8px;color:#e2e8f0;margin-top:4px">
           </div>
         </div>
-        <button onclick="calcHH()" style="background:#00d4aa;color:#e9eef6;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚗️ Calcola</button>
+        <button onclick="calcHH()" style="background:#00d4aa;color:#06141f;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚗️ Calcola</button>
         <div id="hhResult" style="margin-top:14px;display:none"></div>
         <canvas id="hhCanvas" width="700" height="200" style="width:100%;margin-top:12px;border-radius:8px;background:#0a1628;display:none"></canvas>
       </div>
@@ -24686,7 +24747,7 @@ console.log('✅ DB farmaci completo: ' + Object.keys(D).length + ' schede');
         <div><label style="color:#94a3b8;font-size:0.82rem">Farmaco 4 (opz.)</label><input id="di4" list="diList" placeholder="Es. Metformina" style="width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:9px;color:#e2e8f0;margin-top:4px"></div>
       </div>
       <datalist id="diList"></datalist>
-      <button onclick="checkInteractions()" style="background:#f87171;color:#fff;border:none;padding:11px 28px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚠️ Controlla Interazioni</button>
+      <button onclick="checkInteractions()" style="background:#f87171;color:#06141f;border:none;padding:11px 28px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚠️ Controlla Interazioni</button>
     </div>
   </div>
   <div id="diResults" style="display:none"></div>
@@ -25769,7 +25830,7 @@ function checkInteractions(){
     el.innerHTML='<div class="panel" style="border-color:#34d399"><div style="padding:14px;text-align:center;color:#34d399">✅ Nessuna interazione nota trovata nel database locale tra i farmaci selezionati.<br><small style="color:#c9d3df">Verificare sempre con un farmacista o con un database aggiornato (AIFA, Micromedex).</small></div></div>';
     return;
   }
-  var sevColor={grave:'#f87171',controindicata:'#ef4444',moderata:'#fbbf24',lieve:'#34d399'};
+  var sevColor={grave:'#f87171',controindicata:'#ff5c5c',moderata:'#fbbf24',lieve:'#34d399'};
   el.innerHTML=found.map(function(r){
     var col=sevColor[r.sev]||'#94a3b8';
     return '<div class="panel" style="border-left:5px solid '+col+';margin-bottom:10px">'
@@ -25791,7 +25852,7 @@ function filterDIDB(){
 
 function renderDIDB(filter){
   var data=filter?DI_DB.filter(function(r){return (r.d1+r.d2+r.effetto+r.sev+r.mecco).toLowerCase().indexOf(filter)>=0;}):DI_DB;
-  var sevColor={grave:'#f87171',controindicata:'#ef4444',moderata:'#fbbf24',lieve:'#34d399'};
+  var sevColor={grave:'#f87171',controindicata:'#ff5c5c',moderata:'#fbbf24',lieve:'#34d399'};
   document.getElementById('diDBTable').innerHTML=data.map(function(r){
     var col=sevColor[r.sev]||'#94a3b8';
     return '<div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #1e3a5f;font-size:0.85rem">'
@@ -25861,7 +25922,7 @@ function renderPKCInputs(mode){
         +'</select>'
       :'<input type="'+inp.type+'" id="'+inp.id+'" aria-label="'+inp.label+'" value="'+inp.val+'" step="'+inp.step+'" style="width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:9px;color:#e2e8f0;margin-top:4px" oninput="calcPKC(\''+mode+'\')">';
     return '<div style="margin-bottom:10px"><label style="color:#94a3b8;font-size:0.85rem">'+inp.label+'</label>'+ctrl+'</div>';
-  }).join('')+'<button onclick="calcPKC(\''+mode+'\')" style="background:#00d4aa;color:#e9eef6;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚗️ Calcola</button>';
+  }).join('')+'<button onclick="calcPKC(\''+mode+'\')" style="background:#00d4aa;color:#06141f;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚗️ Calcola</button>';
 }
 
 function g(id){var el=document.getElementById(id); return el?parseFloat(el.value)||0:0;}
@@ -26424,7 +26485,7 @@ function showClinCase(id){
             B <span style="color:#8494a8">(mm²/s)</span>
             <input type="range" id="vdB" min="0" max="6" step="0.05" value="2.0"
                    style="width:100%;margin-top:3px">
-            <span id="vdBv" style="color:#7c6fff;font-family:var(--font-mono);font-size:.78rem">2.00</span>
+            <span id="vdBv" style="color:#a5b4fc;font-family:var(--font-mono);font-size:.78rem">2.00</span>
           </label>
           <label style="font-size:.76rem;color:#9fb3c8">
             C <span style="color:#8494a8">(s)</span>
@@ -28801,7 +28862,7 @@ function initMolProps() {
     + '<div style="display:flex;gap:10px;margin-bottom:10px">'
     + '<input id="mpSMILES" placeholder="Es: CC(=O)Oc1ccccc1C(=O)O (Aspirina)" '
     + 'style="flex:1;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:10px;color:#e2e8f0;font-family:monospace">'
-    + '<button onclick="calcMolProps()" style="background:#00d4aa;color:#e9eef6;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700">⚗️ Calcola</button>'
+    + '<button onclick="calcMolProps()" style="background:#00d4aa;color:#06141f;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700">⚗️ Calcola</button>'
     + '</div>'
     + '<div style="display:flex;flex-wrap:wrap;gap:6px" id="mpExamples"></div>'
     + '</div></div>'
@@ -31248,7 +31309,7 @@ function disegnaMolecola(f){
   for(var i = 0; i < MOLECOLE.length; i++) if(MOLECOLE[i].f === f) m = MOLECOLE[i];
   var box = document.getElementById('simmEsito');
   if(!box) return;
-  if(!m){ box.innerHTML = '<div style="color:#67808f;font-size:.82rem;padding:14px 0">Scegli una molecola per vedere il gruppo puntuale, gli elementi di simmetria e il numero di modi normali.</div>'; return; }
+  if(!m){ box.innerHTML = '<div style="color:#8b9fb0;font-size:.82rem;padding:14px 0">Scegli una molecola per vedere il gruppo puntuale, gli elementi di simmetria e il numero di modi normali.</div>'; return; }
   var modi = m.lin ? (3 * m.n - 5) : (3 * m.n - 6);
   var centro = /i(?:,|$)/.test(m.el) || m.el.indexOf(' i,') >= 0 || m.el.indexOf(', i') >= 0;
   box.innerHTML =
@@ -32079,7 +32140,7 @@ css.textContent = [
 '.bsi105-dlbtn{position:absolute;top:6px;right:6px;z-index:50;padding:4px 10px;background:rgba(31,211,154,.92);border:none;border-radius:7px;color:#e9eef6;font-size:11px;font-weight:800;cursor:pointer;opacity:0;transition:.15s}',
 '.bsi105-wrap:hover .bsi105-dlbtn{opacity:1}',
 '.bsi105-score{text-align:center;padding:14px;font-size:1.1rem;font-weight:800;color:#1fd39a}',
-'.bsi105-next{display:block;margin:14px auto 0;padding:11px 28px;background:#1fd39a;border:none;border-radius:10px;color:#e9eef6;font-weight:800;font-size:14px;cursor:pointer}',
+'.bsi105-next{display:block;margin:14px auto 0;padding:11px 28px;background:#1fd39a;border:none;border-radius:10px;color:#06141f;font-weight:800;font-size:14px;cursor:pointer}',
 '@media print{#bsi105-fab,#bsi105-menu,#bsi105-modal{display:none!important}}',
 '.bsi105-hint{color:#7a96b0;font-size:11.5px;margin-top:10px;line-height:1.5}'
 ].join('\n');
@@ -32425,7 +32486,7 @@ css.textContent = [
 '#bsi3d-panel{position:absolute;left:12px;bottom:12px;right:12px;z-index:5;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(8,18,30,.82);backdrop-filter:blur(6px);border:1px solid #1e3a52;border-radius:12px;padding:10px 12px}',
 '.bsi3d-orb{padding:7px 12px;background:#11243a;border:1px solid #1e3a52;border-radius:8px;color:#cfe2f5;font-size:12px;font-weight:700;cursor:pointer;transition:.12s}',
 '.bsi3d-orb:hover{border-color:#1fd39a}',
-'.bsi3d-orb.active{background:#1fd39a;color:#e9eef6;border-color:#1fd39a}',
+'.bsi3d-orb.active{background:#1fd39a;color:#06141f;border-color:#1fd39a}',
 '#bsi3d-info{color:#9fb8d0;font-size:11.5px;margin-left:auto;line-height:1.4;max-width:46%}',
 '#bsi3d-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#1fd39a;font-size:15px;font-weight:700;background:#04080f;z-index:8;text-align:center;padding:20px}',
 '.bsi3d-legend{display:inline-flex;align-items:center;gap:4px;color:#9fb8d0;font-size:11px;margin-right:10px}',
@@ -32690,7 +32751,7 @@ css.textContent = [
 '#ssteich .bsi107-card p,#ssteich .bsi107-card li{color:#cfe2f5;font-size:13px;line-height:1.6}',
 '#ssteich .bsi107-f{font-family:monospace;background:#0a1628;padding:2px 7px;border-radius:5px;color:#7df5c5}',
 '#ssteich input{padding:9px;background:#0f2040;border:1px solid #2a4a6a;color:#e8f4ff;border-radius:7px;font-family:monospace;font-size:13px;outline:none}',
-'#ssteich .bsi107-btn{padding:9px 18px;background:#1fd39a;border:none;border-radius:7px;color:#e9eef6;font-weight:800;cursor:pointer;font-size:13px}',
+'#ssteich .bsi107-btn{padding:9px 18px;background:#1fd39a;border:none;border-radius:7px;color:#06141f;font-weight:800;cursor:pointer;font-size:13px}',
 '#ssteich .bsi107-out{margin-top:10px;padding:12px;background:#0a1628;border-radius:8px;color:#7df5c5;font-family:monospace;font-size:13px;min-height:20px;white-space:pre-line}'
 ].join('\n');
 document.head.appendChild(css);
@@ -33104,13 +33165,13 @@ css.textContent=[
 '.bsi110-calc{background:#0a1628;border:1px solid #2a4a6a;border-radius:10px;padding:14px;margin:10px 0}',
 '.bsi110-calc label{display:block;color:#9fb8d0;font-size:12px;margin:7px 0 3px}',
 '.bsi110-calc input,.bsi110-calc select{width:100%;padding:9px;background:#0c1828;border:1px solid #2a4a6a;color:#e8f4ff;border-radius:7px;font-size:13px;box-sizing:border-box}',
-'.bsi110-calc button{margin-top:10px;padding:10px 20px;background:#1fd39a;border:none;border-radius:8px;color:#e9eef6;font-weight:800;cursor:pointer;font-size:13px}',
+'.bsi110-calc button{margin-top:10px;padding:10px 20px;background:#1fd39a;border:none;border-radius:8px;color:#06141f;font-weight:800;cursor:pointer;font-size:13px}',
 '.bsi110-calc .out{margin-top:10px;padding:11px;background:#0c3a28;border-radius:7px;color:#7df5c5;font-family:monospace;font-size:14px;min-height:18px}',
 '.bsi110-proc{counter-reset:step}',
 '.bsi110-proc li{margin-bottom:8px}',
 '.bsi110-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}',
 '.bsi110-tab{padding:8px 14px;background:#11243a;border:1px solid #1e3a52;border-radius:8px;color:#cfe2f5;font-size:12.5px;font-weight:700;cursor:pointer}',
-'.bsi110-tab.active{background:#1fd39a;color:#e9eef6;border-color:#1fd39a}'
+'.bsi110-tab.active{background:#1fd39a;color:#06141f;border-color:#1fd39a}'
 ].join('\n');
 document.head.appendChild(css);
 
@@ -33893,31 +33954,108 @@ console.log('BioSpecInfo v17.1 \u2014 tavola scura + evidenziazione teal \u2714'
 
 
 <script>
-// ─── BioSpecInfo v17.2 · Correttore contrasto automatico (anti scuro-su-scuro) ───
+/* ─── BioSpecInfo v17.4 · Correttore contrasto automatico ──────────────────
+   QUESTO CORRETTORE PRODUCEVA DIFETTI INVECE DI TOGLIERLI.
+
+   La stesura precedente (v17.2) sbagliava in tre punti, e i tre errori si
+   sono visti tutti nella misura finale:
+
+   1. Usava la LUMINOSITA' PERCEPITA (0.299R+0.587G+0.114B su 0–255) al
+      posto della luminanza relativa WCAG, che e' gamma-corretta. Le sue
+      soglie — 115, 140, 190, 150 — non corrispondevano a nessun rapporto
+      di contrasto: correggeva coppie che andavano bene e ne lasciava
+      passare altre sotto 1,5:1.
+
+   2. Ignorava l'ALFA. Il distintivo «50 strutture SVG» ha
+      background rgba(255,180,84,.08): il correttore leggeva 255,180,84,
+      concludeva «fondo chiaro» e scuriva il testo a #16273e con
+      !important. Ma il fondo vero e' quell'arancione all'8% sopra una
+      superficie scura, cioe' quasi nero. Rapporto ottenuto: 1,21:1. Il
+      difetto lo ha creato lui, sopra un sorgente che era gia' corretto
+      (#ffb454).
+
+   3. Guardava solo gli elementi con uno SFONDO PROPRIO (`return` se
+      trasparente). Ma il caso piu' comune e' l'opposto: testo scuro che
+      eredita il fondo scuro del pannello. Quelli non li vedeva nemmeno.
+
+   Riscritto: si risale agli antenati componendo l'alfa per ottenere il
+   fondo EFFETTIVO, si misura il rapporto WCAG vero, e si corregge solo
+   sotto soglia — delegando a bsiAccentoLeggibile, che conserva la tinta e
+   decide il verso guardando la superficie. */
 (function(){
 'use strict';
-function lum(c){
-  if(!c) return 255;
-  var m=c.match(/\d+(\.\d+)?/g); if(!m||m.length<3) return 255;
-  return 0.299*+m[0]+0.587*+m[1]+0.114*+m[2];
+var SOGLIA_N = 4.5, SOGLIA_G = 3.0;
+
+function leggi(s){
+  var m = String(s||'').match(/rgba?\(([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s\/]+([\d.]+))?/);
+  return m ? { rgb:[+m[1],+m[2],+m[3]], a: m[4]===undefined ? 1 : +m[4] } : null;
+}
+function lumRel(rgb){
+  var c = rgb.map(function(v){ v = v/255;
+    return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+  return 0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2];
+}
+function rapporto(a,b){
+  var la = lumRel(a), lb = lumRel(b);
+  return (Math.max(la,lb)+0.05)/(Math.min(la,lb)+0.05);
+}
+function aHex(rgb){
+  return '#' + rgb.map(function(v){
+    return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');
+  }).join('');
+}
+/* Fondo effettivo: si compone ogni strato semitrasparente su quello sotto.
+   Su un'immagine o un gradiente non si sa dire quale sia il colore in quel
+   punto: si rinuncia, invece di indovinare. */
+function fondo(el){
+  var n = el, strati = [];
+  while(n && n !== document.documentElement){
+    var cs;
+    try{ cs = getComputedStyle(n); }catch(e){ return null; }
+    if(cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+    var c = leggi(cs.backgroundColor);
+    if(c && c.a > 0.004){
+      if(c.a >= 0.995) { strati.push(c); break; }
+      strati.push(c);
+    }
+    n = n.parentElement;
+  }
+  var base = [13,21,34];                       // --bg, il fondo della pagina
+  var ultimo = strati[strati.length-1];
+  if(ultimo && ultimo.a >= 0.995){ base = ultimo.rgb; strati.pop(); }
+  for(var i = strati.length-1; i >= 0; i--){
+    var s = strati[i];
+    base = [0,1,2].map(function(k){ return s.rgb[k]*s.a + base[k]*(1-s.a); });
+  }
+  return base;
 }
 function fixEl(el){
-  if(!el||el.nodeType!==1) return;
+  if(!el || el.nodeType !== 1) return;
   if(el.closest && el.closest('.spec-box')) return;        // spettri: fondo chiaro proprio
-  if(el.tagName==='SVG'||el.tagName==='PATH'||el.tagName==='CANVAS') return;
+  var t = el.tagName;
+  if(t==='SVG'||t==='PATH'||t==='CANVAS'||t==='SCRIPT'||t==='STYLE') return;
+  if(el.ownerSVGElement) return;
+  /* Solo elementi che portano testo PROPRIO: correggere un contenitore
+     significa imporre un colore a tutti i figli che non ne hanno uno. */
+  var proprio = '', k;
+  for(k = 0; k < el.childNodes.length; k++)
+    if(el.childNodes[k].nodeType === 3) proprio += el.childNodes[k].textContent;
+  if(proprio.trim().length < 2) return;
   var st;
-  try{ st=getComputedStyle(el); }catch(e){ return; }
-  var bg=st.backgroundColor;
-  if(!bg||bg==='rgba(0, 0, 0, 0)'||bg==='transparent') return;
-  if(lum(bg)<115){                       // sfondo scuro
-    if(lum(st.color)<140){               // testo scuro/medio-scuro
-      el.style.setProperty('color','#e9eef6','important');
-    }
-  } else if(lum(bg)>190){                // sfondo chiaro rimasto
-    if(lum(st.color)>150){               // testo chiaro -> scuriscilo per leggere
-      el.style.setProperty('color','#16273e','important');
-    }
-  }
+  try{ st = getComputedStyle(el); }catch(e){ return; }
+  if(st.display==='none'||st.visibility==='hidden'||+st.opacity===0) return;
+  var fg = leggi(st.color);
+  if(!fg || fg.a < 0.5) return;
+  var sf = fondo(el);
+  if(!sf) return;
+  var px = parseFloat(st.fontSize)||16;
+  var grassetto = (parseInt(st.fontWeight,10)||400) >= 700;
+  var soglia = (px >= 18.66 || (px >= 14 && grassetto)) ? SOGLIA_G : SOGLIA_N;
+  if(rapporto(fg.rgb, sf) >= soglia) return;
+  var nuovo = window.bsiAccentoLeggibile
+    ? bsiAccentoLeggibile(aHex(fg.rgb), aHex(sf), soglia)
+    : (lumRel(sf) > 0.5 ? '#06141f' : '#e9eef6');
+  el.style.setProperty('color', nuovo, 'important');
 }
 var pending=false, queue=[];
 function flush(){
@@ -33931,15 +34069,23 @@ function flush(){
 function schedule(n){ queue.push(n); if(!pending){ pending=true; setTimeout(flush,120); } }
 
 // scansione iniziale ampia
-setTimeout(function(){ var all=document.querySelectorAll('.section *'); for(var i=0;i<all.length;i++) fixEl(all[i]); }, 1200);
+/* Si guarda la sezione APERTA, non tutte e 87: su un elemento invisibile la
+   correzione non serve a nessuno e il calcolo del fondo effettivo (che
+   risale gli antenati) costerebbe centomila letture di stile all'avvio.
+   Alla sezione successiva ci pensa la ri-scansione sul click. */
+function scansiona(){
+  var all=document.querySelectorAll('.section.on *, #sdash-inner *');
+  for(var i=0;i<all.length;i++) fixEl(all[i]);
+}
+setTimeout(scansiona, 1200);
 // osserva i nodi aggiunti dinamicamente (es. liste molecole)
 var obs=new MutationObserver(function(muts){
   muts.forEach(function(m){ for(var i=0;i<m.addedNodes.length;i++){ schedule(m.addedNodes[i]); } });
 });
 try{ obs.observe(document.body,{childList:true,subtree:true}); }catch(e){}
 // ri-scansione su click (cambio sezione/scelta molecola)
-document.addEventListener('click',function(){ setTimeout(function(){ var a=document.querySelectorAll('.section *'); for(var i=0;i<a.length&&i<1500;i++) fixEl(a[i]); },200); });
-console.log('BioSpecInfo v17.2 \u2014 correttore contrasto attivo \u2714');
+document.addEventListener('click',function(){ setTimeout(scansiona,200); });
+console.log('BioSpecInfo v17.4 \u2014 correttore contrasto (WCAG, alfa composta) attivo \u2714');
 })();
 </script>
 
@@ -36195,12 +36341,12 @@ window.openChemDraw=function(){
       (function(){ var host=document.getElementById('cdFG'); if(!host)return;
         if(!fgroups.length){ host.innerHTML='<span style="color:#8fa3b8;font-size:.82rem">Nessun gruppo funzionale comune rilevato (idrocarburo o struttura semplice).</span>'; return; }
         host.innerHTML=''; var chips=[];
-        function setActive(btn){ chips.forEach(function(b){ b.style.background=b===btn?b._col:(b._col+'22'); b.style.color=b===btn?'#04121a':b._col; }); }
-        fgroups.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+(g.n>1?' <b>×'+g.n+'</b>':''); t.style.cssText='border:1px solid '+g.col+';background:'+g.col+'22;color:'+g.col+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
+        function setActive(btn){ chips.forEach(function(b){ var att=bsiEtichettaLeggibile(b._col); b.style.background=b===btn?att.sfondo:(b._col+'22'); b.style.color=b===btn?att.testo:bsiAccentoLeggibile(b._col,'#16273e'); }); }
+        fgroups.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+(g.n>1?' <b>×'+g.n+'</b>':''); t.style.cssText='border:1px solid '+g.col+';background:'+g.col+'22;color:'+bsiAccentoLeggibile(g.col,'#16273e')+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
         var rst=document.createElement('button'); rst.textContent='✕ reset'; rst.style.cssText='border:1px solid #26406a;background:#16273e;color:#cdd9e6;border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; rst.onclick=function(){ setActive(null); highlight2D(canon,null); if(cd3dHighlight)cd3dHighlight(null); }; host.appendChild(rst);
         // chip proprietà (donatori/accettori H, aromatici, rotabili, stereocentri)
         if(props&&props.length){ var br=document.createElement('div'); br.style.cssText='width:100%;color:#8fa3b8;font-size:.72rem;margin:4px 0 0'; br.textContent='🎯 Proprietà evidenziabili:'; host.appendChild(br);
-          props.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+' <b>×'+g.n+'</b>'; t.style.cssText='border:1px dashed '+g.col+';background:'+g.col+'22;color:'+g.col+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
+          props.forEach(function(g){ var t=document.createElement('button'); t._col=g.col; t.innerHTML=esc(g.name)+' <b>×'+g.n+'</b>'; t.style.cssText='border:1px dashed '+g.col+';background:'+g.col+'22;color:'+bsiAccentoLeggibile(g.col,'#16273e')+';border-radius:20px;padding:4px 11px;font-size:.8rem;font-weight:700;cursor:pointer'; t.onclick=function(){ setActive(t); highlight2D(canon,g); if(cd3dHighlight)cd3dHighlight(g); }; chips.push(t); host.appendChild(t); });
         }
         var hint=document.createElement('div'); hint.style.cssText='width:100%;color:#8fa3b8;font-size:.72rem;margin-top:2px'; hint.textContent='👆 Clicca un gruppo o una proprietà per evidenziarne gli atomi sulla struttura 2D e 3D.'; host.appendChild(hint);
       })();
@@ -38542,7 +38688,7 @@ window.initRetro = function(){
   var all = (typeof RETRO_STRATEGIES !== 'undefined' ? RETRO_STRATEGIES : []).concat(_newStrats);
   var cats=[...new Set(all.map(function(s){ return s.cat; }))];
   var filterBtns='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
-    +'<button onclick="window.filterRetro16(\'all\')" id="rf16_all" style="background:#1fd39a;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">Tutte ('+all.length+')</button>'
+    +'<button onclick="window.filterRetro16(\'all\')" id="rf16_all" style="background:#1fd39a;color:#06141f;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer">Tutte ('+all.length+')</button>'
     +cats.map(function(cat){
       return '<button onclick="window.filterRetro16(\''+cat+'\')" class="rf16-btn" style="background:#16273e;color:#e9eef6;border:1px solid #1e3a52;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer">'+cat+'</button>';
     }).join('')+'</div>';
@@ -42592,7 +42738,8 @@ window.bsiAddMolLinks=function(parent, nome){
     var box=document.createElement('div'); box.style.cssText='display:flex;flex-wrap:wrap;gap:5px';
     arr.forEach(function(d){
       var a=document.createElement('a'); a.href=d[1]; a.target='_blank'; a.textContent=d[0];
-      a.style.cssText='font-size:10px;padding:3px 8px;border-radius:6px;text-decoration:none;color:#fff;background:'+d[2];
+      var et=window.bsiEtichettaLeggibile?bsiEtichettaLeggibile(d[2]):{sfondo:d[2],testo:'#fff'};
+      a.style.cssText='font-size:10px;padding:3px 8px;border-radius:6px;text-decoration:none;color:'+et.testo+';background:'+et.sfondo;
       box.appendChild(a);
     });
     parent.appendChild(box);
@@ -44092,7 +44239,7 @@ function _synCatalog(host){
       +'<div style="background:#fff;border-radius:9px;padding:6px;margin:8px 0;text-align:center;overflow-x:auto">'+(svg||'<span style="color:#94a3b8;font-size:.8rem">meccanismo non disponibile</span>')+'</div>'
       +'<div style="color:#cdd9e6;font-size:.84rem;line-height:1.55;margin-bottom:6px">'+(r.d||'')+'</div>'
       +'<div style="color:#8fa3b8;font-size:.78rem"><b style="color:#f5c451">⚗ Condizioni:</b> '+(r.cond||'—')+'</div>'
-      +'<div style="color:#6b7d90;font-size:.72rem;margin-top:6px">Categoria: '+(CATLAB[r.c]||r.c)+'</div>';
+      +'<div style="color:#8194a8;font-size:.72rem;margin-top:6px">Categoria: '+(CATLAB[r.c]||r.c)+'</div>';
     var rb=viewEl.querySelector('#scatReplay');
     if(rb)rb.onclick=function(){ show(r); }; // ridisegna → rilancia le animazioni CSS
     try{ if(window.bsiAddMolLinks)window.bsiAddMolLinks(viewEl,r.t); }catch(e){}

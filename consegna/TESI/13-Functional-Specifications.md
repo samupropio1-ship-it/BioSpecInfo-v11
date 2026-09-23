@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v170` |
+| **Versione descritta** | `bsi-v171` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -262,7 +262,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
 | 6 | **Accessibilità verificata a campione** | La parte meccanica è automatizzata (contrasto, nomi accessibili, gerarchia dei titoli su 13 pagine); restano fuori il testo negli SVG, quello su fondo a gradiente e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
-| 8 | **Nessuna copertura di codice misurata** | Non è noto quale frazione del codice i 40 banchi eseguano; vedi `08-Traceability-Matrix.md` §8 |
+| 8 | **Nessuna copertura di codice misurata** | Non è noto quale frazione del codice i 41 banchi eseguano; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 
 ---
@@ -281,4 +281,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v170`._
+_Documento aggiornato alla versione `bsi-v171`._

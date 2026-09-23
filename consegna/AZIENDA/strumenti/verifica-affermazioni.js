@@ -76,6 +76,8 @@ const AFFERMAZIONI = [
     nome: 'malattie nell\'atlante 3D',
     cerca: /(\d+)\s+malattie/,
     dove: ['docs/00-Technical-Dossier.md'],
+    cercaEn: /(\d+)\s+diseases/,
+    doveEn: ['docs/en/00-Technical-Dossier.md', 'docs/en/01-Software-Architecture-Document.md'],
     misura: async (pg) => {
       await pg.evaluate(() => { const b = document.querySelector('.nav-btn[data-s="sfarm"]'); if (b) b.click(); });
       await pg.waitForTimeout(900);
@@ -89,6 +91,8 @@ const AFFERMAZIONI = [
     nome: 'malattie oncologiche',
     cerca: /\((\d+)\s+tumori\)/,
     dove: ['docs/00-Technical-Dossier.md'],
+    cercaEn: /(\d+)\s+tumou?rs/,
+    doveEn: ['docs/en/00-Technical-Dossier.md', 'docs/en/01-Software-Architecture-Document.md'],
     misura: async (pg) => {
       await pg.evaluate(() => { const b = document.querySelector('.nav-btn[data-s="sfarm"]'); if (b) b.click(); });
       await pg.waitForTimeout(900);
@@ -101,9 +105,23 @@ const AFFERMAZIONI = [
     }
   },
   {
+    /* Il documento 05 ne dichiarava 32 mentre erano 35, e tre strumenti
+       — analizza_molecola, disegna_molecola, mostra_spettri — non
+       comparivano nemmeno nell'elenco. Un lettore che voglia sapere di
+       cosa e' capace l'agente legge proprio quel numero. */
+    nome: 'strumenti dell\'agente',
+    cerca: /\*\*(\d+) strumenti\*\*|I (\d+) strumenti|schema dei (\d+) strumenti/,
+    dove: ['docs/05-AI-Agent-Architecture.md', 'docs/13-Functional-Specifications.md'],
+    cercaEn: /The (\d+) tools|schema of all (\d+) tools/,
+    doveEn: ['docs/en/05-AI-Agent-Architecture.md'],
+    misura: (pg) => pg.evaluate(() => (window.BSI_AI_TOOLS || []).length)
+  },
+  {
     nome: 'strategie di retrosintesi',
     cerca: /(\d+)\s+strategie/,
     dove: ['docs/00-Technical-Dossier.md', 'docs/01-Software-Architecture-Document.md'],
+    cercaEn: /(\d+)\s+strategies/,
+    doveEn: ['docs/en/00-Technical-Dossier.md'],
     misura: async (pg) => {
       await pg.evaluate(() => { const b = document.querySelector('.nav-btn[data-s="sretro"]'); if (b) b.click(); });
       await pg.waitForTimeout(1200);
@@ -119,6 +137,8 @@ const AFFERMAZIONI_ALTRE_PAGINE = [
     pagina: 'chimorga.html',
     cerca: /(\d+)\s+moduli/,
     dove: ['docs/00-Technical-Dossier.md'],
+    cercaEn: /(\d+)\s+modules/,
+    doveEn: ['docs/en/00-Technical-Dossier.md', 'docs/en/01-Software-Architecture-Document.md'],
     misura: (pg) => pg.evaluate(() => document.querySelectorAll('nav a').length)
   }
 ];
@@ -147,8 +167,11 @@ function verificaBadge(){
   } catch (e) {}
 
   const bv = t.match(/badge\/versione-(bsi--v\d+)-/);
+  /* L'ordine conta per il messaggio, non per l'esito: il BADGE è ciò che il
+     documento dichiara, il codice è la misura. Scritto al contrario, il banco
+     falliva dicendo «dichiarato: <il valore vero>». */
   att('il badge della versione è allineato al codice',
-      versioneCodice.replace('-', '--'), bv ? bv[1] : '(badge assente)');
+      bv ? bv[1] : '(badge assente)', versioneCodice.replace('-', '--'));
 
   /* Quanti banchi dichiara la batteria: si conta l'elenco reale, non si
      crede al numero scritto. */
@@ -165,23 +188,45 @@ function verificaBadge(){
 
   const bb = t.match(/badge\/banchi-(\d+)%20superati/);
   att('il badge dei banchi coincide con la batteria',
-      banchiReali, bb ? +bb[1] : '(badge assente)');
+      bb ? +bb[1] : '(badge assente)', banchiReali);
+
+  /* Un badge «0 difetti di contrasto» e' un'affermazione forte messa nel
+     primo pixel della pagina: deve venire dalla misura registrata, non
+     dalla memoria di chi ha scritto il README. Se il debito risale, il
+     badge diventa falso e questo controllo lo dice. */
+  let contrastoReale = '(riferimento non letto)';
+  try {
+    contrastoReale = JSON.parse(fs.readFileSync(
+      path.join(RADICE, 'docs', 'evidence', 'accessibilita-riferimento.json'), 'utf8')).contrasto;
+  } catch (e) {}
+  const bc = t.match(/badge\/contrasto%20WCAG%20AA-(\d+)%20difetti/);
+  att('il badge del contrasto coincide con la misura registrata',
+      bc ? +bc[1] : '(badge assente)', contrastoReale);
 }
 
 /* Estrae il numero dichiarato, e pretende che i documenti siano
    d'accordo fra loro: due documenti che dicono cose diverse sullo stesso
    oggetto sono un difetto anche se uno dei due ha ragione. */
+/* La traduzione inglese conta come gli altri documenti.
+   Non e' una cortesia verso il lettore non italofono: e' l'insieme di
+   documenti che un valutatore straniero legge PER INTERO, e se dice 84
+   sezioni mentre l'italiano ne dice 87 una delle due versioni sta
+   mentendo. La deriva c'era davvero — `docs/en/05` e' rimasto a «84
+   sections» e a `bsi-v146` per tre versioni, e nessun banco la vedeva
+   perche' guardava solo l'italiano. */
 function dichiarato(aff){
   const valori = new Map();
-  aff.dove.forEach(function(f){
+  const fonti = aff.dove.map(f => ({ file: f, re: aff.cerca }))
+    .concat((aff.doveEn || []).map(f => ({ file: f, re: aff.cercaEn || aff.cerca })));
+  fonti.forEach(function(s){
     let t;
-    try { t = fs.readFileSync(path.join(RADICE, f), 'utf8'); } catch (e) { return; }
-    const m = t.match(aff.cerca);
+    try { t = fs.readFileSync(path.join(RADICE, s.file), 'utf8'); } catch (e) { return; }
+    const m = t.match(s.re);
     if (!m) return;
     const v = m.slice(1).find(x => x !== undefined);
     if (v === undefined) return;
     if (!valori.has(v)) valori.set(v, []);
-    valori.get(v).push(f);
+    valori.get(v).push(s.file);
   });
   return valori;
 }

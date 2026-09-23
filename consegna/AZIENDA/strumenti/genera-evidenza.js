@@ -73,7 +73,7 @@ const FAMIGLIE = [
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
-    banchi: ['@verifica-sicurezza', '@verifica-accessibilita'] },
+    banchi: ['@verifica-sicurezza', '@verifica-accessibilita', 'audit_mobile'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
     banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni'] }

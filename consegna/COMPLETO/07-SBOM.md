@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v170` |
-| Commit | `693ec666c9a960e7fc14c78bd53a5a84bedd814d` |
-| Generato (UTC) | `2026-09-21T07:19:25.567Z` |
+| Versione applicazione | `bsi-v171` |
+| Commit | `7a5dad2aff38babd68882344a12a30d35cedcf16` |
+| Generato (UTC) | `2026-09-23T08:18:41.998Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,7 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4529 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4536 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -69,10 +69,10 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `9a8f87faf037287a77d16b42b48ba7ad0b64235e752469e0dad486a4d15ad7b2` |
+| `index.html` | `c6b330991918f9696ece6fe5fd691ed087c918768bb6c590bd52caa83d524506` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | `91b032c0f5e2649c2b3e2b4a48580ffd33b1d249759d4425dd2eaa9be5cd1e31` |
+| `sw.js` | `a30811f1ce60e648b40ecf2b0bf576341029b4c440f6934dc91bb85f9e531421` |
 | `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -125,4 +125,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-21T07:19:25.567Z._
+_Generato il 2026-09-23T08:18:41.998Z._

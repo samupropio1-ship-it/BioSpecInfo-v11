@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Autore | Samuele Pio Provenzano |
-| Versione | `bsi-v170` |
-| Commit | `693ec66` |
+| Versione | `bsi-v171` |
+| Commit | `7a5dad2` |
 | Preparato il | 2026-09-23 |
 | Applicazione | https://samupropio1-ship-it.github.io/BioSpecInfo-v11/ |
 | Repository | github.com/samupropio1-ship-it/BioSpecInfo-v11 |
@@ -51,6 +51,11 @@ Chi valuta in azienda deve poter rispondere a tre domande: come è fatto, come s
 | [`12-Deploy-Guide.md`](12-Deploy-Guide.md) | Pubblicazione, ripristino, emergenze |
 | [`15-Test-Documentation.md`](15-Test-Documentation.md) | Come rieseguire le prove |
 
+### In inglese
+
+La cartella `en/` contiene la traduzione inglese dei documenti di questo pacchetto, e `pdf/BioSpecInfo-Full-Dossier.en.pdf` li raccoglie in un unico allegato. I numeri dichiarati nelle due lingue sono confrontati con la misura dallo stesso banco (`verifica-affermazioni`): se le due versioni dicono cose diverse, la batteria fallisce.
+
+
 ### In PDF
 
 La cartella `pdf/` contiene gli stessi documenti già impaginati, pronti da allegare a un'email o da stampare. Ogni piè di pagina riporta versione e commit, così un allegato non può essere scambiato per una versione diversa da quella che descrive.
@@ -88,4 +93,4 @@ La dichiarazione di conformità (09) è firmata dall'autore e dichiara esplicita
 
 ---
 
-_Pacchetto **AZIENDA** · versione `bsi-v170` · commit `693ec66`._
+_Pacchetto **AZIENDA** · versione `bsi-v171` · commit `7a5dad2`._
