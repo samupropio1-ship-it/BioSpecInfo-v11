@@ -4,8 +4,8 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v171-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-41%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v172-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-43%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2087%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
@@ -132,7 +132,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 41 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 43 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -145,11 +145,14 @@ node tools/genera-evidenza.js    # 41 banchi, rapporto di verifica completo
 | `node tools/verifica-accessibilita.js` | Contrasto WCAG AA e nomi accessibili, sezione per sezione |
 | `node tools/verifica-documenti.js` | Collegamenti, versioni, coerenza della matrice |
 | `node tools/verifica-affermazioni.js` | Confronta ogni numero dichiarato nei documenti (IT e EN) con quello misurato nell'app viva |
+| `node tools/banchi/audit_rete.js` | Semina un valore spia nei dati dell'utente e verifica che non esca in nessuna richiesta |
+| `node tools/banchi/audit_mobile.js` | Verifica che a 390 px la pagina non scorra in orizzontale |
+| `node tools/banchi/audit_copertura.js` | Misura quanti byte di JavaScript vengono davvero eseguiti |
 | `node tools/genera-sbom.js` | Rigenera la distinta dei componenti, in italiano e in inglese |
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 41 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
+I 43 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.

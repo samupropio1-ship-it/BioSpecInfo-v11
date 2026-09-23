@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v171` |
+| **Versione descritta** | `bsi-v172` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -17,7 +17,7 @@
 | **Prove di stabilità** | ✅ | Sessioni lunghe, memoria esaurita, rete degradata |
 | **Coerenza documentazione/codice** | ✅ | Verifica che ciò che la documentazione promette esista davvero |
 | **Unit test isolati** | ❌ | Vedi §6 |
-| **Copertura di codice strumentata** | ❌ | Vedi §6 |
+| **Copertura di codice strumentata** | ✅ | `audit_copertura`, con il profilatore di Chromium: nessuna build, nessun sorgente riscritto. Vedi §6 |
 
 ### Perché E2E e non unit test
 
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**41 banchi**, raggruppati per ciò che dimostrano.
+**43 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -142,6 +142,52 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
 | `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 87 sezioni |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 87 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,79 %, registrato e difeso |
+
+> **L'ostacolo era dello strumento, non del problema.** Per tre versioni la
+> copertura di codice è stata dichiarata non misurabile, con questa
+> motivazione: «strumentare richiederebbe introdurre una build, che
+> l'applicazione non ha». Era vero per `c8` e `istanbul`, che riscrivono il
+> sorgente prima di eseguirlo. Ma **Chromium la raccoglie da solo**, dentro il
+> motore, senza toccare un byte del file servito: `Profiler.startPreciseCoverage`,
+> che Playwright espone come `page.coverage.startJSCoverage()`. Non serviva una
+> build: serviva accorgersi che il vincolo apparteneva agli strumenti scelti.
+>
+> **Il primo risultato è stato 100 % su ogni file**, compresi 3,6 MB di
+> `index.html`. Era il banco che non misurava niente, nella forma più
+> insidiosa: un numero perfetto. V8 emette per ogni funzione un intervallo
+> esterno con il conteggio degli ingressi, e dentro quello gli intervalli a
+> `count: 0` per ciò che non è stato eseguito. Sommando gli intervalli positivi
+> si somma l'intero file. Si fa il contrario: si parte dal totale e si sottrae
+> l'unione dei vuoti.
+>
+> Il numero vero è **49,79 %**, e regge lo stesso patto del debito di
+> accessibilità: registrato, e il banco fallisce se scende. Una soglia assoluta
+> («80 %») sarebbe una cifra inventata; «non deve peggiorare» è una promessa
+> mantenibile.
+
+> **Perché una spia e non un elenco di richieste.** SEC-02 — «nessun dato
+> personale lascia il dispositivo» — era verificato controllando i due
+> *meccanismi* di uscita: variabile di telemetria vuota, nessuno script da un
+> dominio esterno. È un'evidenza vera ma indiretta: dice «non vedo come
+> potrebbe uscire», che non è «non è uscito». Guardare invece l'elenco degli
+> ospiti contattati sarebbe altrettanto debole, perché conclude per assenza di
+> prove.
+>
+> La spia rovescia l'onere. Si scrive una stringa irripetibile dentro i dati
+> dell'utente — note, chat, chiavi API, impostazioni, progressi — poi si **usa**
+> l'applicazione, e ogni richiesta che esce viene aperta e letta. Se la stringa
+> non compare da nessuna parte, è perché davvero non è uscita.
+>
+> ```bash
+> BSI_PROVA_FUGA=1 node tools/banchi/audit_rete.js   # deve FALLIRE
+> ```
+>
+> Il banco porta con sé la prova di funzionare: con quella variabile provoca una
+> fuga di proposito, verso un ospite **dichiarato** — contattarlo è lecito,
+> mandargli i dati dell'utente no. Se in quel caso non fallisce, è lo strumento
+> a essere guasto.
 
 > **Perché un banco sul traboccamento orizzontale.** UI-03 dice «l'app deve
 > funzionare a 390 px», e la matrice lo dava per verificato da
@@ -334,7 +380,7 @@ due cose diverse e non vanno confuse.
 
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
-| **Copertura di codice** | Non strumentata: non si sa quali rami non vengano mai eseguiti | Introdurre `c8` o la copertura di Playwright, anche solo per misurare il punto di partenza |
+| **Copertura di codice** | Misurata: **49,79 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 87 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
 | **Sicurezza** | `verifica-sicurezza` esegue 9 controlli su 235 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
@@ -355,4 +401,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v171`._
+_Documento aggiornato alla versione `bsi-v172`._

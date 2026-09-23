@@ -814,7 +814,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v171';
+window.BSI_APP_VERSION='bsi-v172';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -5505,7 +5505,7 @@ var FARM_DATA=[
   {name:"Cisplatino",cat:"chemo",smi:"N.N.Cl[Pt]Cl",mw:"300.05",moa:"Forma addotti covalenti intrastrand con N7 della guanina. Blocca la replicazione del DNA. Apoptosi p53-dipendente.",indicaz:"Tumori testicolo, ovaio, polmone, vescica",effetti:"Nefrotossicità, neurotossicità, ototossicità, emetogenico",classe:"Platino-coordinato"},
   {name:"Tamoxifene",cat:"chemo",smi:"CCC(=C(c1ccccc1)c1ccc(OCCN(C)C)cc1)c1ccccc1",mw:"371.51",moa:"SERM: modulatore selettivo recettori estrogeni. Antagonista in mammella (blocca ER-α) → inibisce proliferazione.",indicaz:"Carcinoma mammario ER+ (pre- e post-menopausa)",effetti:"Trombosi venosa, flush, endometrio (agonista uterino)",classe:"SERM (modulatore estrogeni)"},
   // CARDIOATTIVI
-  {name:"Digossina",cat:"cardio",smi:"",mw:"780.94",moa:"Inibisce Na⁺/K⁺-ATPasi → ↑Ca²⁺ intracellulare → inotropo positivo. Cronotropo negativo (vagale).",indicaz:"Fibrillazione atriale, scompenso cardiaco (sempre meno usata)",effetti:"Finestra terapeutica stretta: aritmie tossiche, nausea, visione gialla",classe:"Glicoside cardiaco"},
+  {name:"Digossina",cat:"cardio",smi:"C[C@H]1O[C@@H](O[C@H]2[C@@H](O)C[C@H](O[C@H]3[C@@H](O)C[C@H](O[C@H]4CC[C@@]5(C)[C@H](CC[C@@H]6[C@@H]5C[C@@H](O)[C@]5(C)[C@@H](C7=CC(=O)OC7)CC[C@]65O)C4)O[C@@H]3C)O[C@@H]2C)C[C@H](O)[C@@H]1O",mw:"780.94",moa:"Inibisce Na⁺/K⁺-ATPasi → ↑Ca²⁺ intracellulare → inotropo positivo. Cronotropo negativo (vagale).",indicaz:"Fibrillazione atriale, scompenso cardiaco (sempre meno usata)",effetti:"Finestra terapeutica stretta: aritmie tossiche, nausea, visione gialla",classe:"Glicoside cardiaco"},
   {name:"Metoprololo",cat:"cardio",smi:"COCCc1ccc(OCC(O)CNC(C)C)cc1",mw:"267.36",moa:"β₁-bloccante selettivo (cardioselettivo): ↓FC, ↓PA, ↓contrattilità. Riduce rimodellamento post-infarto.",indicaz:"Ipertensione, angina, scompenso cardiaco, infarto",effetti:"Bradicardia, broncocostrizione (meno che β1+β2), disfunzione erettile",classe:"β-bloccante selettivo β₁"},
   {name:"Amlodipina",cat:"cardio",smi:"CCOC(=O)C1=C(COCCN)NC(C)=C(C(=O)OC)C1c1ccccc1Cl",mw:"408.88",moa:"Calcio-antagonista diidropiridinico: blocca canali Ca²⁺ L-type vascolari → vasodilatazione arteriolare.",indicaz:"Ipertensione, angina stabile e vasospastica",effetti:"Edema periferico (caviglie), cefalea, flushing",classe:"Calcio-antagonista (DHP III gen.)"},
 ];
@@ -12188,7 +12188,7 @@ FARM_DATA=FARM_DATA.concat([
    indicaz:"Acne grave (nodulo-cistica, conglobata, resistente), acne moderata recidivante",
    effetti:"TERATOGENICITÀ GRAVE (malformazioni fetali nel 25% se assunta in gravidanza → iPLEDGE program USA, gravidanza obbligatoriamente esclusa). Cheilite (100%), secchezza cute/mucose, iperlipidemia, ↑transaminasi, pseudotumor cerebri (con tetracicline → NO associazione)",
    classe:"Retinoide sistemico (anti-acne)"},
-  {name:"Tacrolimus topico (Protopic)",cat:"derm",smi:"",mw:"804.02",
+  {name:"Tacrolimus topico (Protopic)",cat:"derm",smi:"C=CC[C@@H]1/C=C(\\C)C[C@H](C)C[C@H](OC)[C@H]2O[C@@](O)(C(=O)C(=O)N3CCCC[C@H]3C(=O)O[C@H](/C(C)=C/[C@@H]3CC[C@@H](O)[C@H](OC)C3)[C@H](C)[C@@H](O)CC1=O)[C@H](C)C[C@@H]2OC",mw:"804.02",
    moa:"Macrolide immunosoppressore: lega FK506-binding protein (FKBP12) → complesso FKBP12-tacrolimus inibisce la calcineurina (come ciclosporina) → blocco defosforilazione NFAT → ↓trascrizione IL-2, IL-4, TNF-α, IFN-γ nei linfociti T. Topico: non assorbe significativamente → senza effetti sistemici.",
    indicaz:"Dermatite atopica moderata-severa (non risponde a cortisonici), vitiligo (off-label), dermatite seborroica (testa)",
    effetti:"Bruciore/prurito iniziale (si riduce con uso continuato), raramente infezioni cutanee (HSV, mollusco contagioso). FDA black box: non usare nei bambini <2 anni, possibile rischio linfoma cutaneo (dati non conclusivi)",
@@ -12215,7 +12215,7 @@ FARM_DATA=FARM_DATA.concat([
    effetti:"Infezioni (Herpes Zoster reattivazione, TB → screening), tromboembolismo (TVP/PE, preferire cautela in pazienti ad alto rischio vs tofacitinib che ha ↑rischio), dislipidemia, anemia",
    classe:"JAK1/2 inibitore (small molecule DMARD)"},
   // NEFROLOGIA
-  {name:"Tacrolimus sistemico (Prograf)",cat:"nefro",smi:"",mw:"804.02",
+  {name:"Tacrolimus sistemico (Prograf)",cat:"nefro",smi:"C=CC[C@@H]1/C=C(\\C)C[C@H](C)C[C@H](OC)[C@H]2O[C@@](O)(C(=O)C(=O)N3CCCC[C@H]3C(=O)O[C@H](/C(C)=C/[C@@H]3CC[C@@H](O)[C@H](OC)C3)[C@H](C)[C@@H](O)CC1=O)[C@H](C)C[C@@H]2OC",mw:"804.02",
    moa:"Stessa azione del topico ma sistemico (per os o EV). Inibisce calcineurina via FKBP12 → ↓IL-2 → ↓attivazione T-cell. 100× più potente della ciclosporina in vitro. Metabolismo CYP3A4 (ampio range terapeutico, monitoraggio livelli ematici necessario: C0=5-15 ng/mL per rene). T½ ~12h ma effetto più lungo.",
    indicaz:"Trapianto renale, epatico, cardiaco (prevenzione rigetto), malattia di Crohn e colite ulcerosa refrattarie (off-label), nefrotica sindrome steroidoresistente",
    effetti:"Nefrotossicità (dose-dipendente, reversibile se ridotta), neurotossicità (tremori, cefalea, insonnia), iperglicemia (new-onset diabetes after transplant, NODAT ~20%), ipertensione, iperkaliemia",
@@ -13623,7 +13623,7 @@ FARM_DATA=FARM_DATA.concat([
    indicaz:"Gotta acuta (crisi articolari, profilassi), pericardite acuta e ricorrente, febbre mediterranea familiare (FMF), SLE (pericardite)",
    effetti:"GI: nausea, diarrea, dolori addominali (dose-dipendente, miopatia GI). A dosi elevate: mielossoppressione, neuropatia, miopatia. Finestra terapeutica stretta. Interazione CYP3A4/Pgp (claritromicina, ciclosporina -> +colchicina -> tossicita grave). Teratogena",
    classe:"Alcaloide antimitotico (Colchicum autumnale) - inibitore tubulina/NLRP3"},
-  {name:"Vincristina",cat:"chemo4",smi:"",mw:"824.96",
+  {name:"Vincristina",cat:"chemo4",smi:"CC[C@]1(O)C[C@H]2CN(CCc3c([nH]c4ccccc34)[C@@](C(=O)OC)(c3cc4c(cc3OC)N(C=O)[C@H]3[C@@](O)(C(=O)OC)[C@H](OC(C)=O)[C@]5(CC)C=CCN6CC[C@]43[C@@H]65)C2)C1",mw:"824.96",
    moa:"Alcaloide della vinca (Catharanthus roseus). Lega la tubulina (sito diverso da colchicina, beta-tubulina) -> inibisce la formazione del fuso mitotico -> blocco in metafase -> apoptosi. Selettivamente citotossica per cellule in divisione rapida (ematologici, pediatrici). Non cross-resistente con antracicline.",
    indicaz:"Leucemia linfoblastica acuta (ALL, backbone del regime CHOP/CVP), linfoma di Hodgkin (ABVD), tumori solidi pediatrici (Wilms, neuroblastoma, rabdomiosarcoma)",
    effetti:"Neuropatia periferica (dose-limitante, assonopathy -> parestesie, debolezza, ileo paralitico, SIADH). ATTENZIONE: SOLO EV (intratecale = mortale). Non mielossoppressiva (vantaggio in combinazione). Alopecia. Stipsi severa.",
@@ -19325,7 +19325,7 @@ window.initRetro = function(){
       +'<div style="font-size:12px;margin-bottom:6px"><strong>Sintoni:</strong> '+s.synthons.join(' + ')+'</div>'
       +'<div style="font-size:12px;margin-bottom:6px;color:#e9eef6"><strong>Reagenti:</strong> '+s.reagents+'</div>'
       +'<div style="background:'+s.color+'11;border-left:3px solid '+s.color+';padding:8px;border-radius:0 6px 6px 0;font-size:11px;font-family:monospace;color:#e9eef6">'+s.example+'</div>'
-      +'<button onclick="window.openMechAnim(\''+s.name.replace(/'/g,"\\'")+'\')" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+s.color+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
+      +'<button onclick="window.openMechAnim(\''+s.name.replace(/'/g,"\\'")+'\')" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+bsiAccentoLeggibile(s.color,'#04121e',4.5)+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
       +'</div>';
   }).join('');
 
@@ -38675,7 +38675,7 @@ function _mkRetroCard(s){
     +'<div class="rv16-disc"><span style="font-weight:700;color:'+col+'">⇒ </span>'+s.disconnection+'</div>'
     +'<div class="rv16-reagents">⚗ '+s.reagents+'</div>'
     +'<div class="rv16-example">'+s.example+'</div>'
-    +'<button class="rv16-mech" data-mech="'+encodeURIComponent(s.name)+'" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+col+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
+    +'<button class="rv16-mech" data-mech="'+encodeURIComponent(s.name)+'" style="margin-top:10px;width:100%;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,'+bsiAccentoLeggibile(col,'#04121e',4.5)+',#00c9b7);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">▶ Anima meccanismo · elettroni · sintoni</button>'
     +'</div></div>';
 }
 window._newStrats = _newStrats;

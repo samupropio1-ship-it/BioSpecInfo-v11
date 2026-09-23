@@ -1,30 +1,14 @@
 {
   "_scopo": "Registro delle deviazioni note e accettate. Una voce elencata qui viene riportata dai controlli automatici come DEVIAZIONE DICHIARATA e non fa fallire la verifica; una voce NON elencata che presenta lo stesso problema la fa fallire. Aggiungere una voce qui e' una decisione consapevole, tracciata in git, non un modo per silenziare un controllo: il motivo e' obbligatorio e viene stampato nel rapporto.",
   "_riferimento": "docs/09-Release-Conformance-Statement.md §4",
-  "_versione": "bsi-v165",
+  "_versione": "bsi-v172",
   "farmaci_senza_struttura": {
-    "_regola": "Voci prive di SMILES per cui non e' stato possibile produrre una struttura che superasse il confronto con il peso molecolare di letteratura. La voce resta nell'applicazione con i dati farmacologici; la struttura non viene mostrata.",
+    "_regola": "Voci per cui non esiste UNA struttura che rappresenti la voce. Non e' un'assenza di dati: e' il rifiuto di mostrare una struttura che sarebbe falsa. La voce resta nell'applicazione con i dati farmacologici; la struttura non viene mostrata. Alla versione bsi-v172 le voci sono scese da sei a due: per Digossina, Vincristina e Tacrolimus (topico e sistemico) la struttura e' stata ripresa da ChEMBL e supera il confronto con il peso molecolare dichiarato. Le due che restano non sono molecole singole.",
     "_difformita": "D-01",
     "voci": [
       {
-        "nome": "Digossina",
-        "motivo": "glicoside cardioattivo con tre unita' di digitossosio: ogni struttura provata si discosta di 14-30 u dal peso di letteratura (780,94)"
-      },
-      {
-        "nome": "Vincristina",
-        "motivo": "alcaloide bisindolico: lo scarto residuo di 130 u indica un frammento dimerico non risolto"
-      },
-      {
-        "nome": "Tacrolimus topico (Protopic)",
-        "motivo": "macrolide a 23 termini; scarto residuo di 82 u sulla struttura provata"
-      },
-      {
-        "nome": "Tacrolimus sistemico (Prograf)",
-        "motivo": "stessa molecola della voce topica, stessa deviazione"
-      },
-      {
         "nome": "Ivermectina",
-        "motivo": "lattone macrociclico a 16 termini con due unita' di oleandrosio: le strutture provate non sono risultate interpretabili da RDKit"
+        "motivo": "non e' una molecola singola ma una MISCELA di omologhi: almeno 80 % di ivermectina B1a (C48H74O14) e non piu' del 20 % di B1b (C47H72O14). Il peso dichiarato, 875,10, e' quello del solo componente B1a. Una notazione SMILES descriverebbe un componente e non la voce: si e' preferito non mostrarne nessuna piuttosto che far passare l'omologo maggioritario per l'intero farmaco"
       },
       {
         "nome": "Artemetere/Lumefantrina (Coartem)",

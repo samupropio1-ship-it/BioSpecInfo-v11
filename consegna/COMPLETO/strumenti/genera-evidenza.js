@@ -73,10 +73,10 @@ const FAMIGLIE = [
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
-    banchi: ['@verifica-sicurezza', '@verifica-accessibilita', 'audit_mobile'] },
+    banchi: ['@verifica-sicurezza', 'audit_rete', '@verifica-accessibilita', 'audit_mobile'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
-    banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni'] }
+    banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni', 'audit_copertura'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

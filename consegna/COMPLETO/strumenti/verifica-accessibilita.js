@@ -104,22 +104,85 @@ const ISPEZIONE = function(soglie){
   /* Lo sfondo effettivo: si risale finche' non si trova un colore opaco.
      Un elemento trasparente eredita lo sfondo di chi lo contiene, e
      confrontare il testo con "rgba(0,0,0,0)" darebbe risultati senza senso. */
-  function sfondoEffettivo(el){
+  /* ── Un gradiente non ha UN colore, ma ha DEI colori ─────────────────
+     La stesura precedente rinunciava: «il contrasto varia lungo la
+     superficie, servirebbe leggere i pixel». Era vero a meta'. Un
+     `linear-gradient(135deg,#0d1522,#13233a)` non ha un colore medio —
+     inventarlo sarebbe peggio che non misurare — ma ha delle TAPPE, e
+     quelle sono note. Un testo leggibile su tutto il gradiente e' un
+     testo che supera la soglia su OGNI tappa: e' la condizione piu'
+     severa fra quelle vere, e non richiede di leggere un solo pixel.
+     Cio' che resta davvero fuori e' l'immagine di sfondo (`url(...)`):
+     li' non si sa niente, e si continua a dichiararlo.
+     Erano 892 elementi non misurati su 19 751. */
+  function tappeGradiente(bgImage){
+    if (!/gradient\(/i.test(bgImage)) return null;     // url(...) o altro
+    const tappe = [];
+    const re = /rgba?\(\s*[\d.]+\s*[,\s]\s*[\d.]+\s*[,\s]\s*[\d.]+(?:\s*[,\/]\s*[\d.]+)?\s*\)/gi;
+    let m;
+    while ((m = re.exec(bgImage)) !== null) {
+      const c = leggiRGB(m[0]);
+      /* una tappa semitrasparente lascia trasparire cio' che sta sotto:
+         non si sa che colore sia davvero, e si rinuncia. */
+      if (!c || c.a < 0.99) return null;
+      tappe.push(c.rgb);
+    }
+    return tappe.length ? tappe : null;
+  }
+
+  /* ── Il gradiente che NON e' uno sfondo ──────────────────────────────
+     `background-clip:text` con `-webkit-text-fill-color:transparent` e' la
+     ricetta del «testo colorato a gradiente»: il gradiente dipinge i
+     GLIFI, e lo sfondo vero e' quello dell'antenato. Trattarlo come uno
+     sfondo da' il colore del testo contro se stesso — 1:1 — e inventa un
+     difetto che non esiste: e' successo qui, su `.logo-name` e
+     `.app-title`, appena i gradienti sono entrati nella misura.
+     Quando e' cosi', sono le TAPPE a essere i colori del testo. */
+  function testoAGradiente(cs){
+    const clip = cs.webkitBackgroundClip || cs.backgroundClip || '';
+    const riemp = cs.webkitTextFillColor || '';
+    if (!/text/.test(clip)) return null;
+    if (riemp && !/transparent|rgba\(0,\s*0,\s*0,\s*0\)/.test(riemp)) return null;
+    return tappeGradiente(cs.backgroundImage || '');
+  }
+  /* Il ritaglio sul testo vale anche per i DISCENDENTI: lo `<span>` della
+     versione dentro `.logo-name` e' dipinto dallo stesso gradiente del
+     titolo. Guardando solo l'elemento si prendeva il gradiente del padre
+     per uno sfondo e si otteneva il colore contro se stesso — 1:1. */
+  function ritaglioSuTesto(el){
     let n = el;
+    for (let i = 0; i < 6 && n && n !== document.documentElement; i++) {
+      const cs = getComputedStyle(n);
+      const t = testoAGradiente(cs);
+      if (t) return { tappe: t, nodo: n };
+      n = n.parentElement;
+    }
+    return null;
+  }
+  /* Un testo fatto di sole emoji non ha un colore del testo: il glifo porta
+     i propri colori, e `color` non lo tocca. Misurarlo e' come misurare il
+     contrasto di un SVG leggendo `color` — l'errore gia' visto su 48 falsi
+     difetti nella Guida di Biochimica. Si contano e si dichiarano. */
+  const RE_SOLO_EMOJI = /^[\s\u200d\ufe0f\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}]+$/u;
+
+  /* Restituisce un ELENCO di colori di sfondo: uno solo nel caso normale,
+     tutte le tappe se il fondo e' un gradiente, null se non si sa.
+     `da` permette di saltare l'elemento stesso quando il suo gradiente
+     appartiene al testo e non al fondo. */
+  function sfondiEffettivi(el, da){
+    let n = da || el;
     while (n && n !== document.documentElement) {
       const cs = getComputedStyle(n);
-      /* Un gradiente o un'immagine di sfondo non hanno UN colore: il
-         contrasto varia lungo la superficie e servirebbe leggere i pixel.
-         Dichiararlo non misurabile e' corretto; fingere un valore no —
-         su download.html il confronto dava 1:1, cioe' il colore con se'
-         stesso, e segnalava un difetto inesistente. */
-      if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+      if (cs.backgroundImage && cs.backgroundImage !== 'none') {
+        const t = tappeGradiente(cs.backgroundImage);
+        return t;                                  // null se immagine vera
+      }
       const c = leggiRGB(cs.backgroundColor);
-      if (c && c.a > 0.85) return c.rgb;
+      if (c && c.a > 0.85) return [c.rgb];
       n = n.parentElement;
     }
     const b = leggiRGB(getComputedStyle(document.body).backgroundColor);
-    return b && b.a > 0.5 ? b.rgb : [255, 255, 255];
+    return [b && b.a > 0.5 ? b.rgb : [255, 255, 255]];
   }
   function rapporto(a, b){
     const la = luminanza(a), lb = luminanza(b);
@@ -139,7 +202,7 @@ const ISPEZIONE = function(soglie){
 
   const out = { contrasto: [], senzaNome: [], senzaEtichetta: [], senzaAlt: [],
                 lingua: document.documentElement.getAttribute('lang') || '',
-                titoli: [], focusInvisibile: [], esaminati: 0, svgSaltati: 0, gradienti: 0 };
+                titoli: [], focusInvisibile: [], esaminati: 0, svgSaltati: 0, gradienti: 0, immagini: 0, emoji: 0 };
 
   /* ── contrasto del testo ── */
   Array.prototype.forEach.call(document.querySelectorAll('body *'), function(el){
@@ -168,9 +231,23 @@ const ISPEZIONE = function(soglie){
     const grassetto = (parseInt(cs.fontWeight, 10) || 400) >= 700;
     const grande = px >= 18.66 || (px >= 14 && grassetto);
     const soglia = grande ? sogliaG : sogliaN;
-    const sf = sfondoEffettivo(el);
-    if (!sf) { out.gradienti++; out.esaminati--; return; }
-    const r = rapporto(fg.rgb, sf);
+    if (RE_SOLO_EMOJI.test(proprio)) { out.emoji++; return; }
+    const ritaglio = ritaglioSuTesto(el);
+    const tappeTesto = ritaglio ? ritaglio.tappe : null;
+    const sfondi = sfondiEffettivi(el, ritaglio ? ritaglio.nodo.parentElement : null);
+    if (!sfondi) { out.immagini++; out.esaminati--; return; }
+    if (sfondi.length > 1 || tappeTesto) out.gradienti++;
+    /* Sul gradiente vale la combinazione PEGGIORE: se il testo sparisce
+       anche solo su un'estremita', li' non si legge. Vale in entrambi i
+       versi — gradiente di sfondo o gradiente del testo. */
+    const coloriTesto = tappeTesto || [fg.rgb];
+    let r = Infinity, sf = sfondi[0];
+    coloriTesto.forEach(function(t){
+      sfondi.forEach(function(c){
+        const x = rapporto(t, c);
+        if (x < r) { r = x; sf = c; }
+      });
+    });
     if (r < soglia) {
       out.contrasto.push({ el: descrivi(el), r: +r.toFixed(2), soglia,
                            px: +px.toFixed(0), testo: proprio.slice(0, 40) });
@@ -326,7 +403,9 @@ const ISPEZIONE = function(soglie){
       ' · campi senza etichetta ' + r.senzaEtichetta.length +
       ' · img senza alt ' + r.senzaAlt.length +
       (r.svgSaltati ? ' · ' + r.svgSaltati + ' in SVG' : '') +
-      (r.gradienti ? ' · ' + r.gradienti + ' su gradiente' : '') +
+      (r.gradienti ? ' · ' + r.gradienti + ' su gradiente (misurati sulla tappa peggiore)' : '') +
+      (r.immagini ? ' · ' + r.immagini + ' su immagine, non misurabili' : '') +
+      (r.emoji ? ' · ' + r.emoji + ' di sole emoji' : '') +
       (r.lingua ? '' : ' · ⚠ manca lang'));
     if (!r.lingua) { ko++; console.log('      ✗ ' + p + ': manca l\'attributo lang sull\'elemento html'); }
     if (sezioni.length && percorse === 0) {

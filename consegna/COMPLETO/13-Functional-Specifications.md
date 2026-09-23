@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v171` |
+| **Versione descritta** | `bsi-v172` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -255,14 +255,14 @@ Dichiarate, non nascoste. Il dettaglio è in
 
 | # | Limitazione | Conseguenza pratica |
 |---|---|---|
-| 1 | **6 farmaci senza struttura verificata** | Per digossina, vincristina, tacrolimus, ivermectina e artemetere/lumefantrina mancano 2D/3D e spettri previsti |
+| 1 | **2 voci senza struttura da mostrare** (erano 6) | Ivermectina è una miscela di omologhi B1a/B1b e Coartem un'associazione di due principi attivi: una sola notazione SMILES non le rappresenta, e per queste due mancano 2D/3D e spettri previsti. Digossina, vincristina e tacrolimus (topico e sistemico) hanno ora la struttura, ripresa da ChEMBL e verificata contro il peso molecolare |
 | 2 | **Spettri predetti, non misurati** | Utili per riconoscere i gruppi funzionali; non per identificazione formale |
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
 | 6 | **Accessibilità verificata a campione** | La parte meccanica è automatizzata (contrasto, nomi accessibili, gerarchia dei titoli su 13 pagine); restano fuori il testo negli SVG, quello su fondo a gradiente e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
-| 8 | **Nessuna copertura di codice misurata** | Non è noto quale frazione del codice i 41 banchi eseguano; vedi `08-Traceability-Matrix.md` §8 |
+| 8 | **Nessuna copertura di codice misurata** | Non è noto quale frazione del codice i 43 banchi eseguano; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 
 ---
@@ -281,4 +281,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v171`._
+_Documento aggiornato alla versione `bsi-v172`._

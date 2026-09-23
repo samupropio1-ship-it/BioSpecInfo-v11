@@ -8,6 +8,163 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
 
+## [bsi-v172] — 2026-09-23
+
+Questa versione chiude difformità che erano **dichiarate**, non risolte. Ogni
+chiusura è una misura che prima non veniva presa.
+
+### Aggiunto — `audit_rete`: la verifica diretta che nessun dato esce
+
+SEC-02 dice «nessun dato personale lascia il dispositivo». Era verificato
+controllando i due *meccanismi* di uscita — variabile di telemetria vuota,
+nessuno script da dominio esterno — e la difformità **D-03** lo dichiarava come
+evidenza indiretta. Un controllo sui meccanismi dice «non vedo come potrebbe
+uscire», che non è «non è uscito».
+
+Il banco nuovo semina un **valore spia** irripetibile in 71 depositi dei dati
+dell'utente (note, chat, chiavi API, impostazioni, progressi), poi **usa**
+l'applicazione — 6 pagine, 87 sezioni, pannello dell'assistente — e ispeziona
+URL, intestazioni e corpo di **ogni** richiesta che esce. Controlla anche gli
+ospiti contattati: uno non dichiarato nella distinta è un difetto anche a mani
+vuote, perché il solo contatto rivela che quell'utente sta usando l'app.
+
+Porta con sé la prova di funzionare: `BSI_PROVA_FUGA=1` gli fa provocare una
+fuga di proposito, verso un ospite **dichiarato** — contattarlo è lecito,
+mandargli i dati no. Se in quel caso non fallisce, è lo strumento a essere
+guasto. Provato: fallisce, e nomina la richiesta.
+
+Misurato: 29 richieste ispezionate, **0 fughe**, ospiti contattati `127.0.0.1` e
+`pubchem.ncbi.nlm.nih.gov`. **D-03 è sanata.**
+
+### Corretto — il testo su gradiente non era «non misurabile»
+
+La difformità **D-09** dichiarava fuori misura 892 elementi «su fondo a
+gradiente», col motivo che «il contrasto varia lungo la superficie e servirebbe
+leggere i pixel». Era vero a metà: un gradiente non ha *un* colore — inventarne
+uno medio sarebbe peggio che non misurare — ma ha delle **tappe**, e quelle sono
+note. Un testo leggibile su tutto il gradiente è un testo che supera la soglia su
+**ogni** tappa: è la condizione più severa fra quelle vere, e non richiede di
+leggere un solo pixel.
+
+Entrando nella misura sono emersi **27 difetti mai visti prima**. Dieci erano un
+falso positivo del banco appena scritto: con `background-clip:text` il gradiente
+dipinge i **glifi**, non lo sfondo, e confrontarlo col colore del testo dava il
+colore contro se stesso — 1:1. Corretto: in quel caso sono le tappe a essere i
+colori del testo, e lo sfondo è quello dell'antenato. Vale anche per i
+discendenti, perché lo `<span>` della versione dentro `.logo-name` è dipinto
+dallo stesso gradiente.
+
+I 17 difetti reali erano distintivi e pulsanti con testo bianco su gradienti che
+a un'estremità sono chiari:
+
+- `.badge-pro`, `.pc-badge`, `.login-btn` — bianco su `#00c9b7`: **2,09:1**.
+  Testo a `#06141f`: passa su entrambe le estremità (4,94 e 8,90).
+- `#level-badge` di accademia — il gradiente andava da `#b794f6` a `#7c5cbf`, un
+  salto tale che **nessun** colore di testo passa su entrambi gli estremi:
+  bianco 2,45 sul chiaro, scuro 3,67 sullo scuro. Si è stretta la corsa del
+  gradiente conservando la tinta.
+- I due pulsanti «Anima meccanismo» prendevano una tappa dai dati e potevano
+  risultare a **1,03:1**: ora la tappa passa da `bsiAccentoLeggibile()`.
+
+Aggiunta anche l'esclusione del testo fatto di **sole emoji**: il glifo porta i
+propri colori e `color` non lo tocca, quindi misurarlo è come misurare un SVG
+leggendo `color` — l'errore che aveva già prodotto 48 falsi difetti. Sono 32
+elementi, contati e dichiarati.
+
+Gli elementi di testo esaminati passano da 19 751 a **33 642**. Restano fuori il
+testo dentro gli SVG (8 888) e quello su una vera immagine di sfondo (108),
+contati a ogni esecuzione. Il contrasto resta a **0 difetti**, ora su una
+superficie di misura molto più larga.
+
+### Corretto — quattro delle sei voci senza struttura ne hanno una, verificata
+
+La difformità **D-01** elencava sei farmaci «ad alta complessità molecolare
+senza struttura verificata». Per quattro la struttura esiste e si trova in
+**ChEMBL**, fonte indipendente da questo progetto:
+
+| Voce | ChEMBL | Peso dichiarato | Peso calcolato |
+|---|---|---:|---:|
+| Digossina | `CHEMBL1751` | 780,94 | 780,95 |
+| Vincristina | `CHEMBL90555` | 824,96 | 824,97 |
+| Tacrolimus topico (Protopic) | `CHEMBL269732` | 804,02 | 804,03 |
+| Tacrolimus sistemico (Prograf) | `CHEMBL269732` | 804,02 | 804,03 |
+
+Il motivo registrato per la digossina diceva «ogni struttura provata si discosta
+di 14-30 u dal peso di letteratura»: il peso dichiarato era giusto, erano le
+strutture provate a essere sbagliate. Le voci con struttura passano da 153 a
+**157**.
+
+Una trappola evitata scrivendole: in una stringa JavaScript `"\C"` vale `"C"`.
+Le barre rovesciate dello SMILES del tacrolimus — che sono **stereochimica** —
+sarebbero sparite cambiando la molecola in silenzio. Vanno raddoppiate.
+
+Che il confronto sia reale si vede aggiungendo un carbonio alla struttura
+corretta della digossina: il banco segnala **Δ 14,04** e fallisce.
+
+**Le due che restano non sono molecole singole**: Ivermectina è una miscela di
+omologhi (≥80 % B1a, ≤20 % B1b; il peso dichiarato è quello del solo B1a) e
+Coartem un'associazione di due principi attivi. Non manca una struttura: non ce
+n'è **una** da mostrare. Il motivo registrato lo dice ora in questi termini.
+
+### Aggiunto — la guardia opposta sul registro delle deviazioni
+
+Il registro esiste per non far fallire la verifica su una voce di cui si è
+deciso di non mostrare la struttura. Mancava il caso contrario: una voce che
+**ha** una struttura verificata e resta comunque elencata è un permesso che
+nessuno ha revocato, e domani coprirebbe in silenzio una struttura sbagliata
+messa al suo posto. Ora fa fallire il banco — verificato rimettendo una delle
+quattro voci sanate.
+
+### Aggiunto — `audit_copertura`: la copertura di codice esiste, ed è 49,79 %
+
+La difformità **D-06** diceva «nessuna copertura di codice strumentata», con
+questa motivazione: strumentare richiederebbe introdurre una build, che
+l'applicazione non ha. Era vero per `c8` e `istanbul`, che riscrivono il
+sorgente prima di eseguirlo — e falso per il problema: **Chromium la raccoglie
+da solo**, dentro il motore, senza toccare un byte del file servito
+(`Profiler.startPreciseCoverage`, che Playwright espone come
+`page.coverage.startJSCoverage()`). Il vincolo apparteneva agli strumenti
+scelti, non alla cosa da misurare.
+
+**Il primo risultato è stato 100 % su ogni file**, compresi 3,6 MB di
+`index.html`: il banco che non misura niente nella forma più insidiosa, un
+numero perfetto. V8 emette per ogni funzione un intervallo esterno col
+conteggio degli ingressi, e dentro quello gli intervalli a `count: 0` per ciò
+che **non** è stato eseguito; sommando i positivi si somma l'intero file. Si fa
+il contrario: si parte dal totale e si sottrae l'unione dei vuoti.
+
+Il numero vero: **49,79 %** complessivo — `index.html` 61,35 %, `bsi-ai-hub.js`
+32,90 %, `bsi-spettri.js` 71,82 %. È copertura di **istruzioni**, non di rami, e
+del percorso più ampio che un banco compie, non dell'intera batteria: entrambe
+le cose sono dichiarate. Il valore è registrato e regge lo stesso patto del
+debito di accessibilità — se scende, la batteria fallisce. Fra due esecuzioni
+consecutive oscilla di 0,01 punti.
+
+### Dichiarato meglio — D-07 ha ora un motivo verificabile
+
+«Verifica su Chromium soltanto» restava vero ma vago. Nell'ambiente di verifica
+il motivo si può controllare: la CDN da cui `playwright-core` scarica Firefox e
+WebKit risponde **403** alla politica di rete. Non è una scelta, è un vincolo
+dell'ambiente, e ora il documento lo dice così.
+
+### Una regressione intercettata da un banco, non da me
+
+Correggendo i due pulsanti «Anima meccanismo» ho lasciato due virgolette
+sfuggite dove non servivano: `bsiAccentoLeggibile(col,\'#04121e\',4.5)` in un
+punto che era già contesto di espressione, non di stringa. Risultato: *Invalid
+or unexpected token*, e l'intera sezione Retrosintesi non disegnava più niente.
+
+Non l'ho visto guardando il codice. L'ha detto `verifica-affermazioni`, che
+misura le strategie di retrosintesi **nell'applicazione viva** e ha riportato
+«dichiarato 46, misurato 0». È il motivo per cui quel banco esiste: un numero
+che scende a zero è una funzione che non c'è più.
+
+### Modificato
+
+I banchi passano da 41 a **43**.
+
+---
+
 ## [bsi-v171] — 2026-09-23
 
 ### Corretto — accessibilità: dagli 80 difetti di contrasto residui a **zero**

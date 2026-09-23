@@ -117,7 +117,7 @@ In coerenza con il principio di trasparenza scientifica:
 
 ---
 
-## 7. Batteria di verifica — stato alla versione `bsi-v171`
+## 7. Batteria di verifica — stato alla versione `bsi-v172`
 
 La verifica non è più solo end-to-end funzionale: comprende banchi dedicati alle
 proprietà che un test funzionale non osserva (stabilità nel tempo, degrado di

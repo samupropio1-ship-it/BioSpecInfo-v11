@@ -25,7 +25,7 @@ Or the summary cover only: [`00-Technical-Dossier.en.pdf`](../pdf/00-Technical-D
 | 07 | [Software Bill of Materials (SBOM)](07-SBOM.md) | Distributed components, licences, SHA-256 digests, CycloneDX 1.5 |
 | 08 | [Traceability Matrix](08-Traceability-Matrix.md) | Every requirement, its implementation and the bench that verifies it; declared coverage gaps |
 | 09 | [Release Conformance Statement](09-Release-Conformance-Statement.md) | Intended use, exclusions, known deviations, acceptance criteria, signature |
-| 15 | [Test Documentation](15-Test-Documentation.md) | How the 41 benches are organised and run, what they cover, where they leave gaps |
+| 15 | [Test Documentation](15-Test-Documentation.md) | How the 43 benches are organised and run, what they cover, where they leave gaps |
 
 > **Documents 06 and 10–14 are available in Italian only** (`docs/`). The ten
 > translated here cover the whole due-diligence path; the remaining six are the

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v171` |
+| **Version described** | `bsi-v172` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -17,7 +17,7 @@
 | **Stability tests** | ✅ | Long sessions, exhausted storage, degraded network |
 | **Documentation/code consistency** | ✅ | Verifies that what the documentation promises really exists |
 | **Isolated unit tests** | ❌ | See §6 |
-| **Instrumented code coverage** | ❌ | See §6 |
+| **Instrumented code coverage** | ✅ | `audit_copertura`, with Chromium's profiler: no build, no source rewritten. See §6 |
 
 ### Why E2E and not unit tests
 
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**41 benches**, grouped by what they demonstrate.
+**43 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -143,6 +143,50 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
 | `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 87 sections |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 87 sections, the URL, headers and body of every request inspected |
+| `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.79 %, recorded and defended |
+
+> **The obstacle belonged to the tool, not to the problem.** For three versions
+> code coverage was declared unmeasurable, with this reason: "instrumenting
+> would require introducing a build, which the application does not have". That
+> was true of `c8` and `istanbul`, which rewrite the source before running it.
+> But **Chromium collects it by itself**, inside the engine, without touching a
+> byte of the file served: `Profiler.startPreciseCoverage`, which Playwright
+> exposes as `page.coverage.startJSCoverage()`. No build was needed: what was
+> needed was noticing that the constraint belonged to the tools chosen.
+>
+> **The first result was 100 % on every file**, including 3.6 MB of
+> `index.html`. That was the bench measuring nothing, in its most insidious
+> form: a perfect number. V8 emits, for each function, an outer range with the
+> number of entries, and inside it ranges with `count: 0` for what was not
+> executed. Summing the positive ranges sums the whole file. One does the
+> opposite: start from the total and subtract the union of the empty ranges.
+>
+> The real number is **49.79 %**, and it holds the same pact as the
+> accessibility debt: recorded, and the bench fails if it falls. An absolute
+> threshold ("80 %") would be an invented figure; "it must not get worse" is a
+> promise that can be kept.
+
+> **Why a canary and not a list of requests.** SEC-02 — "no personal data
+> leaves the device" — was verified by checking the two *mechanisms* of exit:
+> empty telemetry variable, no script from an external domain. That is real
+> evidence but indirect: it says "I cannot see how it would leave", which is not
+> "it did not leave". Looking instead at the list of hosts contacted would be
+> just as weak, because it concludes from absence of evidence.
+>
+> The canary reverses the burden. An unrepeatable string is written into the
+> user's own data — notes, chats, API keys, settings, progress — then the
+> application is **used**, and every outgoing request is opened and read. If the
+> string appears nowhere, it is because it really did not leave.
+>
+> ```bash
+> BSI_PROVA_FUGA=1 node tools/banchi/audit_rete.js   # must FAIL
+> ```
+>
+> The bench carries its own proof of working: with that variable it causes a
+> leak on purpose, towards a **declared** host — contacting it is legitimate,
+> sending it the user's data is not. If it does not fail then, the instrument is
+> the thing that is broken.
 
 > **Why a bench on horizontal overflow.** UI-03 says "the app must work at
 > 390 px", and the matrix gave it as verified by `audit_stabilita`, which in a
@@ -333,7 +377,7 @@ two different things and must not be confused.
 
 | Gap | Current situation | Recommendation |
 |---|---|---|
-| **Code coverage** | Not instrumented: it is not known which branches are never executed | Introduce `c8` or Playwright's coverage, if only to measure the starting point |
+| **Code coverage** | Measured: **49.79 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 87 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
 | **Security** | `verifica-sicurezza` runs 9 checks over 235 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
@@ -354,4 +398,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v171`._
+_Document updated to version `bsi-v172`._

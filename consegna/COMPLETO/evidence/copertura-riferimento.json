@@ -1,0 +1,20 @@
+{
+  "nota": "Copertura di codice misurata da Chromium (Profiler.startPreciseCoverage), senza build e senza riscrivere il sorgente. E' copertura di ISTRUZIONI, non di rami. Il banco fallisce se scende: rigenerare con --aggiorna-riferimento solo dopo averla ALZATA.",
+  "aggiornato": "2026-09-23",
+  "complessiva": 49.79,
+  "perFile": {
+    "3Dmol-min.js": 24.4,
+    "Biochimica_Guida_Definitiva.html": 81.24,
+    "RDKit_minimal.js": 37.26,
+    "astro.html": 50.68,
+    "bsi-ai-hub.js": 32.9,
+    "bsi-spettri.js": 71.82,
+    "chimorga.html": 59.46,
+    "gltf_loader.js": 45.17,
+    "index.html": 61.35,
+    "rdkit_lab.html": 20.94,
+    "smiles-drawer.min.js": 10.9,
+    "three.min.js": 34.94,
+    "three_bloom.js": 76.83
+  }
+}

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v171` |
+| **Versione descritta** | `bsi-v172` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -96,12 +96,12 @@ proposta conteneva la base sbagliata. Il numero ha indicato dove guardare.
 | | |
 |---|---|
 | Farmaci in banca dati | **178** (erano 143) |
-| Con struttura verificata | **155** |
+| Con struttura verificata | **157** (erano 153) |
 | Difetti | **0** |
-| Deviazioni dichiarate e accettate | **25** |
+| Deviazioni dichiarate e accettate | **21** (erano 25) |
 
 La verifica è **conforme**: nessuna voce presenta una struttura che contraddica
-il proprio peso molecolare. Le 25 deviazioni sono voci **prive di struttura**,
+il proprio peso molecolare. Le 21 deviazioni sono voci **prive di struttura**,
 ciascuna registrata con il proprio motivo in
 [`evidence/deviazioni-note.json`](evidence/deviazioni-note.json) e riportata nel
 rapporto di verifica.
@@ -118,9 +118,46 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v172` il banco
+fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
+struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
+in silenzio una struttura sbagliata messa al suo posto.
+
+### 2.4-bis Quattro voci uscite dal registro
+
+Delle sei voci senza struttura, quattro sono state chiuse riprendendo la
+struttura da **ChEMBL** — una fonte indipendente da questo progetto — e
+verificandola con lo stesso confronto struttura ⟷ peso molecolare che vale per
+tutte le altre.
+
+| Voce | ChEMBL | Formula | Peso dichiarato | Peso calcolato |
+|---|---|---|---:|---:|
+| Digossina | `CHEMBL1751` | C₄₁H₆₄O₁₄ | 780,94 | 780,95 |
+| Vincristina | `CHEMBL90555` | C₄₆H₅₆N₄O₁₀ | 824,96 | 824,97 |
+| Tacrolimus topico (Protopic) | `CHEMBL269732` | C₄₄H₆₉NO₁₂ | 804,02 | 804,03 |
+| Tacrolimus sistemico (Prograf) | `CHEMBL269732` | C₄₄H₆₉NO₁₂ | 804,02 | 804,03 |
+
+Il motivo registrato per la digossina diceva «ogni struttura provata si discosta
+di 14-30 u dal peso di letteratura»: il peso dichiarato era giusto, erano le
+strutture provate a essere sbagliate. Che il confronto sia reale e non
+compiacente si vede aggiungendo un solo carbonio alla struttura corretta — il
+banco segnala **Δ 14,04** e fallisce.
+
+**Le due che restano non sono molecole singole**, e nessuna notazione SMILES le
+rappresenta:
+
+- **Ivermectina** è una miscela di omologhi: almeno 80 % di B1a (C₄₈H₇₄O₁₄) e non
+  più del 20 % di B1b (C₄₇H₇₂O₁₄). Il peso dichiarato, 875,10, è quello del solo
+  componente B1a. Mostrarne la struttura farebbe passare l'omologo maggioritario
+  per l'intero farmaco.
+- **Artemetere/Lumefantrina (Coartem)** è l'associazione di due principi attivi
+  distinti.
+
+In entrambi i casi non manca una struttura: non ce n'è una sola da mostrare.
+
 | Gruppo | Voci | Natura |
 |---|---:|---|
-| **D-01** — complessità molecolare | 6 | digossina, vincristina, tacrolimus (topico e sistemico), ivermectina, artemetere/lumefantrina. Per queste non è stato possibile produrre una struttura che superasse il confronto; sono rimaste senza, con i dati farmacologici intatti. |
+| **D-01** — non sono molecole singole | 2 | ivermectina (miscela di omologhi B1a/B1b) e artemetere/lumefantrina (associazione di due principi attivi). Erano sei: le altre quattro sono state chiuse con la struttura da ChEMBL, vedi §2.4-bis. |
 | **D-02** — non rappresentabili in SMILES | 19 | anticorpi monoclonali, proteine e peptidi (trastuzumab, pembrolizumab, insulina, semaglutide, ciclosporina A…). L'assenza è corretta, non una lacuna. |
 
 > La scelta è deliberata: un dato sbagliato sostituito da un altro dato
@@ -255,8 +292,10 @@ calcolo, e viene trattata come tale.
 ## 6. Dichiarazione di trasparenza
 
 Questo documento descrive controlli **effettivamente implementati ed
-eseguibili**, con i risultati realmente ottenuti, inclusi i 9 errori residui e i
-limiti dei predittori. Le percentuali di copertura e i conteggi riportati sono
+eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
+`bsi-v172` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+deviazioni che restano sono voci senza struttura, ciascuna con il proprio
+motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
 
 Dove un dato non è verificabile con gli strumenti a disposizione, lo si dichiara
@@ -264,4 +303,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v171`._
+_Documento aggiornato alla versione `bsi-v172`._

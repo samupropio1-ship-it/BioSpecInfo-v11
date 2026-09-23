@@ -110,6 +110,24 @@ function registro(){
     }
   });
 
+  /* ── L'esenzione che resta accesa a vuoto ──────────────────────────
+     Il registro serve a NON far fallire la verifica su una voce di cui
+     si e' deciso consapevolmente di non mostrare la struttura. Ma quando
+     quella voce una struttura ce l'ha — perche' nel frattempo e' stata
+     trovata e verificata — la riga nel registro non protegge piu'
+     niente: e' un permesso che nessuno ha revocato, e domani coprirebbe
+     in silenzio una struttura sbagliata inserita al suo posto.
+     Alla versione bsi-v172 ce n'erano quattro: Digossina, Vincristina e
+     Tacrolimus (topico e sistemico), le cui strutture sono state riprese
+     da ChEMBL e superano il confronto col peso molecolare. */
+  const conStrutturaOra = new Set(esiti.filter(e => !e.senzaStruttura)
+                                       .map(e => e.nome.toLowerCase().trim()));
+  const esenzioniInutili = [];
+  dev.forEach(function(reg, chiave){
+    if (conStrutturaOra.has(chiave))
+      esenzioniInutili.push(reg.nome || chiave);
+  });
+
   // doppioni
   const visti = new Set(), doppioni = [];
   esiti.forEach(function(e){
@@ -118,12 +136,13 @@ function registro(){
   });
   doppioni.forEach(function(n){ difetti.push({ nome: n, causa: 'voce ripetuta' }); });
 
-  const esito = (difetti.length + nonRegistrate.length) === 0;
+  const esito = (difetti.length + nonRegistrate.length + esenzioniInutili.length) === 0;
 
   if (JSON_OUT) {
     console.log(JSON.stringify({
       totale: esiti.length, conStruttura: esiti.filter(e => e.smi).length,
       difetti, deviazioniDichiarate: deviazioni, deviazioniNonRegistrate: nonRegistrate,
+      esenzioniInutili,
       tolleranza: TOLLERANZA, esito: esito ? 'CONFORME' : 'NON CONFORME'
     }, null, 2));
     process.exit(esito ? 0 : 1);
@@ -150,6 +169,12 @@ function registro(){
     console.log('  ▪ [' + d.difformita + '] ' + d.nome.padEnd(34) + d.motivo);
   });
 
+  if (esenzioniInutili.length) {
+    console.log('\n── Esenzioni che non servono piu\' ──');
+    console.log('  La voce ha una struttura verificata: la riga nel registro va tolta,');
+    console.log('  altrimenti resta un permesso acceso su una voce che non ne ha bisogno.');
+    esenzioniInutili.forEach(function(n){ console.log('  ✗ ' + n); });
+  }
   if (nonRegistrate.length) {
     console.log('\n── Voci prive di struttura NON registrate fra le deviazioni ──');
     console.log('  Vanno corrette, oppure registrate in docs/evidence/deviazioni-note.json');
@@ -159,7 +184,8 @@ function registro(){
 
   console.log('\n' + esiti.length + ' voci · ' + difetti.length + ' difetti · ' +
               deviazioni.length + ' deviazioni dichiarate · ' +
-              nonRegistrate.length + ' non registrate');
+              nonRegistrate.length + ' non registrate · ' +
+              esenzioniInutili.length + ' esenzioni inutili');
   console.log(esito ? '✓ CONFORME' : '✗ NON CONFORME');
   process.exit(esito ? 0 : 1);
 })();

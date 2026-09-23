@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v171` |
+| **Versione descritta** | `bsi-v172` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -87,7 +87,7 @@
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
 | **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 235 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `tools/verifica-sicurezza.js` — `BSI_TELEMETRY_URL` vuoto, nessuno script esterno. **Verifica indiretta**: il banco controlla i due meccanismi di uscita, non il traffico reale (vedi `docs/09` D-03) |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 87 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
@@ -106,10 +106,10 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 19 751 elementi di testo). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 87 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano inoltre fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 87 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
-| **SCI-11** | Strutture di 6 farmaci ad alta complessità | **non verificate** — voci lasciate senza struttura, vedi `docs/06` §2.4 |
-| **PERF-02** | Copertura di codice dei banchi di prova | **non misurata** — nessuno strumento di strumentazione è in uso; vedi §8 |
+| **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
+| **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,79 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
 | **UI-07** | Comportamento su Firefox e WebKit | **non verificato** — la batteria gira solo su Chromium; vedi §8 |
 
 ---
@@ -153,12 +153,12 @@ possono essere affermate.
 
 | Lacuna | Che cosa comporta | Perché è così |
 |---|---|---|
-| **Nessuna copertura di codice** | Non è noto quale percentuale del codice i 41 banchi eseguano davvero | L'applicazione non ha un processo di build: strumentare il codice richiederebbe introdurne uno, e cambierebbe ciò che si sta misurando |
-| **Solo Chromium** | Il comportamento su Firefox e WebKit è verificato a mano, non da banco | La batteria usa `playwright-core`, che scarica un motore solo |
+| **Copertura di codice parziale** | Misurata: **49,79 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami | Il profilatore di Chromium la raccoglie nel motore, senza build e senza riscrivere il sorgente: l'ostacolo era dello strumento (c8, istanbul), non del problema. Valore registrato, `audit_copertura` fallisce se scende |
+| **Solo Chromium** | Il comportamento su Firefox e WebKit è verificato a mano, non da banco | La batteria usa `playwright-core`, che scarica un motore solo. Nell'ambiente di verifica la CDN degli altri motori risponde **403** alla politica di rete: non sono installabili lì |
 | **Nessuna regressione visiva** | Un cambiamento grafico involontario non verrebbe intercettato | Gli spettri sono deterministici e confrontabili byte a byte (SCI-05): il confronto esiste sulle tracce, non sull'intera pagina |
-| **6 strutture di farmaci** | Sei voci su 178 non hanno struttura verificata | Vedi `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
+| **2 voci senza struttura** | Due voci su 178 non hanno una struttura da mostrare: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Erano sei | Vedi `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
 | **Prestazioni su dispositivi lenti** | Il tempo di primo disegno non è misurato su hardware di fascia bassa | Richiede dispositivi fisici; la prova è manuale |
 
 ---
 
-_Documento aggiornato alla versione `bsi-v171`._
+_Documento aggiornato alla versione `bsi-v172`._

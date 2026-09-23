@@ -116,7 +116,11 @@ body {
   font-size: 0.85rem; font-weight: 600; color: var(--amber);
 }
 #level-badge {
-  background: linear-gradient(135deg, var(--violet), #7c5cbf);
+  /* Il gradiente andava da #b794f6 a #7c5cbf: un salto di luminosita' tale
+     che nessun colore di testo passa su entrambe le estremita' — bianco
+     2,45:1 sulla chiara, scuro 3,67:1 sulla scura. Si stringe la corsa
+     conservando la tinta: il viola resta, il testo si legge ovunque. */
+  background: linear-gradient(135deg, #7c5cbf, #5b3f9e);
   border-radius: 20px; padding: 4px 12px;
   font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap;
 }

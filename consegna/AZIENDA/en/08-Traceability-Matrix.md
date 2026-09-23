@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v171` |
+| **Version described** | `bsi-v172` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -87,7 +87,7 @@
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
 | **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 235 tracked files, 8 credential shapes |
-| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `tools/verifica-sicurezza.js` — `BSI_TELEMETRY_URL` empty, no external script. **Indirect verification**: the bench checks the two exit mechanisms, not the real traffic (see `docs/09` D-03) |
+| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 87 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
 
@@ -106,10 +106,10 @@ manual testing, and their automation is planned.
 
 | ID | Requirement | Current coverage |
 |---|---|---|
-| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 87 sections** (`tools/verifica-accessibilita.js`, 19,751 text elements). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 87 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside automation is text inside SVGs, text over gradients, and everything that requires human judgement |
+| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 87 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 87 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
-| **SCI-11** | Structures of 6 highly complex drugs | **not verified** — entries left without a structure, see `docs/06` §2.4 |
-| **PERF-02** | Code coverage of the verification benches | **not measured** — no instrumentation tool is in use; see §8 |
+| **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
+| **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.79 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
 | **UI-07** | Behaviour on Firefox and WebKit | **not verified** — the battery runs on Chromium only; see §8 |
 
 ---
@@ -152,12 +152,12 @@ that therefore cannot be asserted.
 
 | Gap | What it entails | Why it is so |
 |---|---|---|
-| **No code coverage** | It is not known what percentage of the code the 41 benches actually execute | The application has no build process: instrumenting the code would require introducing one, and would change the very thing being measured |
-| **Chromium only** | Behaviour on Firefox and WebKit is verified by hand, not by a bench | The battery uses `playwright-core`, which downloads a single engine |
+| **Partial code coverage** | Measured: **49.79 %** of statements over the widest path a bench walks. It is not the coverage of the whole battery, and it is statements, not branches | Chromium's profiler collects it inside the engine, with no build and without rewriting the source: the obstacle belonged to the tool (c8, istanbul), not to the problem. Value recorded; `audit_copertura` fails if it falls |
+| **Chromium only** | Behaviour on Firefox and WebKit is verified by hand, not by a bench | The battery uses `playwright-core`, which downloads a single engine. In the verification environment the CDN for the other engines answers **403** to the network policy: they cannot be installed there |
 | **No visual regression** | An unintended graphical change would not be caught | Spectra are deterministic and comparable byte for byte (SCI-05): the comparison exists on the traces, not on the whole page |
-| **6 drug structures** | Six entries out of 178 have no verified structure | See `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
+| **2 entries without a structure** | Two entries out of 178 have no structure to show: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. It was six | See `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
 | **Performance on slow devices** | First-paint time is not measured on low-end hardware | It requires physical devices; the test is manual |
 
 ---
 
-_Document updated to version `bsi-v171`._
+_Document updated to version `bsi-v172`._
