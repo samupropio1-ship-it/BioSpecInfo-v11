@@ -4,8 +4,8 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v165-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-34%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v170-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-40%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
 👉 **[Provala](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/)** ·
@@ -131,7 +131,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 39 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 40 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -147,7 +147,7 @@ node tools/genera-evidenza.js    # 39 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i 26 PDF da `docs/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 39 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
+I 40 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.

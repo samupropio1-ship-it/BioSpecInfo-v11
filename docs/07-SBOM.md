@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v169` |
-| Commit | `288b4fb079a1a913a9023a81e818d1e8677c955b` |
-| Generato (UTC) | `2026-09-21T06:44:07.111Z` |
+| Versione applicazione | `bsi-v170` |
+| Commit | `693ec666c9a960e7fc14c78bd53a5a84bedd814d` |
+| Generato (UTC) | `2026-09-21T07:19:25.567Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,7 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4525 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4529 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -69,13 +69,13 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `5e0a270861264beba80976f4f7a6e84eab86db501d140a5e3c94204f3f2ce5f1` |
+| `index.html` | `9a8f87faf037287a77d16b42b48ba7ad0b64235e752469e0dad486a4d15ad7b2` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | `8a4787f66a1d1c37ff67db920c2a8323a0382403c24a47083688953416eccfad` |
+| `sw.js` | `91b032c0f5e2649c2b3e2b4a48580ffd33b1d249759d4425dd2eaa9be5cd1e31` |
 | `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
-| `chimorga.html` | `a5e3efc121c7d479f47ec0ec3fc500ac543d54d36607c8f4e1b19d2fce238c31` |
+| `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
 | `proxy/spectra-proxy.js` | `808c0a12891ae9c6f45cf0c676b033075089e064df9047be844f03badf940962` |
 
 ---
@@ -125,4 +125,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-21T06:44:07.111Z._
+_Generato il 2026-09-21T07:19:25.567Z._

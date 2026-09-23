@@ -13,9 +13,9 @@
 
 | | |
 |---|---|
-| **Banchi superati** | 39 |
+| **Banchi superati** | 40 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 652 s |
+| **Durata totale** | 663 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,11 +24,11 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-09-21T06:33:08.990Z` |
-| Commit | `288b4fb079a1a913a9023a81e818d1e8677c955b` |
+| Istante (UTC) | `2026-09-21T07:19:25.729Z` |
+| Commit | `693ec666c9a960e7fc14c78bd53a5a84bedd814d` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | NO — sono presenti modifiche non registrate |
-| Versione applicazione | `bsi-v169` |
+| Versione applicazione | `bsi-v170` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |
@@ -40,13 +40,13 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.633.567 | `5e0a270861264beba80976f4f7a6e84eab86db501d140a5e3c94204f3f2ce5f1` |
+| `index.html` | 4.637.408 | `9a8f87faf037287a77d16b42b48ba7ad0b64235e752469e0dad486a4d15ad7b2` |
 | `bsi-ai-hub.js` | 432.165 | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | 33.021 | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | 5261 | `8a4787f66a1d1c37ff67db920c2a8323a0382403c24a47083688953416eccfad` |
+| `sw.js` | 5261 | `91b032c0f5e2649c2b3e2b4a48580ffd33b1d249759d4425dd2eaa9be5cd1e31` |
 | `rdkit_lab.html` | 262.799 | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | 2.729.915 | `67c2dba963371ef5297a1239d0639717098807ac44174dee6ac8b592c095d45d` |
-| `chimorga.html` | 199.043 | `a5e3efc121c7d479f47ec0ec3fc500ac543d54d36607c8f4e1b19d2fce238c31` |
+| `chimorga.html` | 199.043 | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
 
 ---
 
@@ -62,7 +62,7 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 | `test_spettri` | ✅ SUPERATO | 4.4 s | 36 passati |
 | `test_spettri_ui` | ✅ SUPERATO | 11.0 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 6.1 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 9.2 s | 6 passati |
+| `test_assi_canvas` | ✅ SUPERATO | 9.1 s | 6 passati |
 | `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.1 s | ✓ 29 controlli superati |
 | `test_simmetria` | ✅ SUPERATO | 3.8 s | 26 passati |
@@ -85,7 +85,7 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 | `browser_prova` | ✅ SUPERATO | 52.1 s | 29 passati |
 | `browser_prov` | ✅ SUPERATO | 5.0 s | 7 passati |
 | `test_doppioinvio` | ✅ SUPERATO | 11.4 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 63.6 s | 22 passati |
+| `caccia_ai` | ✅ SUPERATO | 63.7 s | 22 passati |
 
 ### Stabilita
 
@@ -93,11 +93,11 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 108.2 s | 29 passati |
+| `audit_stabilita` | ✅ SUPERATO | 108.3 s | 29 passati |
 | `audit_promesse` | ✅ SUPERATO | 117.7 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 41.8 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 29.2 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 11.0 s | 15 passati |
+| `audit_quota` | ✅ SUPERATO | 41.6 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 29.3 s | 22 passati |
+| `test_filemanager` | ✅ SUPERATO | 10.9 s | 15 passati |
 | `test_visore3d` | ✅ SUPERATO | 9.2 s | 5 passati |
 
 ### Interfaccia
@@ -111,8 +111,8 @@ _I pannelli e i comandi rispondono come documentato._
 | `browser_proxyui` | ✅ SUPERATO | 11.9 s | 17 passati |
 | `browser_rdkit` | ✅ SUPERATO | 4.2 s | 31 passati |
 | `browser_lab` | ✅ SUPERATO | 10.9 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 6.2 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.7 s | 9 passati |
+| `browser_frontiera` | ✅ SUPERATO | 6.1 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.6 s | 9 passati |
 | `test_guidaproxy` | ✅ SUPERATO | 5.4 s | 12 passati |
 
 ### Sicurezza e accessibilita
@@ -121,8 +121,8 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-sicurezza` | ✅ SUPERATO | 0.4 s | 9 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 54.8 s | 5 controlli passati |
+| `@verifica-sicurezza` | ✅ SUPERATO | 0.5 s | 9 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 56.1 s | 5 controlli passati |
 
 ### Coerenza documentazione/codice
 
@@ -132,6 +132,7 @@ _Cio che la documentazione promette esiste davvero nel codice._
 |---|---|---:|---|
 | `verifica_guida` | ✅ SUPERATO | 0.2 s | 71 controlli passati |
 | `@verifica-documenti` | ✅ SUPERATO | 0.1 s | 15 controlli passati |
+| `@verifica-affermazioni` | ✅ SUPERATO | 10.2 s | 8 controlli passati |
 
 ---
 
@@ -1160,10 +1161,10 @@ Due Invio di fila, a mezzo secondo di distanza
 
 ═══ 1. SESSIONE LUNGA: aprire e chiudere ogni scheda 5 volte ═══
     · schede trovate: 87 (sdashboard, smol, spt, ssyn, sretro, sanimmech…)
-    · nodi DOM per giro: 7541 → 35338 → 35338 → 35338 → 35338 → 35338
+    · nodi DOM per giro: 7541 → 35344 → 35344 → 35344 → 35344 → 35344
     · canvas   per giro: 24 → 37 → 37 → 37 → 37 → 37
     · setInterval vivi (creati-cancellati): -3
-    · costruzione (giro 1): +27797 nodi
+    · costruzione (giro 1): +27803 nodi
     · dopo la costruzione (giri 2-5): +0 nodi  (0/giro)
   ✓ il DOM smette di crescere a costruzione finita (< 150/giro)  → true
   ✓ i canvas non si moltiplicano dopo il primo giro  → true
@@ -1195,7 +1196,7 @@ Due Invio di fila, a mezzo secondo di distanza
   ✓ rdkit_lab — nessun errore all'avvio (1522 nodi)  → 0
   ✓ simulazioni — nessun errore all'avvio (208 nodi)  → 0
   ✓ pro — nessun errore all'avvio (825 nodi)  → 0
-  ✓ sr_completo — nessun errore all'avvio (5942 nodi)  → 0
+  ✓ sr_completo — nessun errore all'avvio (5943 nodi)  → 0
   ✓ sr_essenziale — nessun errore all'avvio (1419 nodi)  → 0
   ✓ file_manager — nessun errore all'avvio (99 nodi)  → 0
   ✓ changelog_tesi — nessun errore all'avvio (252 nodi)  → 0
@@ -1272,17 +1273,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v169 con 36 voci
+    · cache: bsi-v170 con 36 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 6916 nodi in 571 ms — "BioSpecInfo · v8"
+    · 6916 nodi in 542 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7455 ms con 6986 nodi — rete bloccata 4 volte
+    · caricata in 7488 ms con 6986 nodi — rete bloccata 5 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -1290,7 +1291,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3511 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3516 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -1630,8 +1631,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v169   ·  sw.js: bsi-v169
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v169
+    · app: bsi-v170   ·  sw.js: bsi-v170
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v170
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -1644,7 +1645,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v169Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v170Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -1719,14 +1720,14 @@ File tracciati esaminati: 231
 Verifica di accessibilità
 WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
-  · index                    87/87  sez · 19751 elementi di testo · contrasto 276 · comandi senza nome 0 · campi senza etichetta 40 · img senza alt 0 · 6759 in SVG · 892 su gradiente
+  · index                    87/87  sez · 19751 elementi di testo · contrasto 80 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 6757 in SVG · 892 su gradiente
   ✓ astro                             4997 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 3 su gradiente
   ✓ chimorga                          1701 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 469 in SVG
   ✓ accademia                         60 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 1 su gradiente
   ✓ rdkit_lab                         118 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0
   ✓ simulazioni                       18 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 16 su gradiente
   ✓ pro                               66 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 14 su gradiente
-  ✓ sr_completo                       3004 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0
+  ✓ sr_completo                       3005 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0
   ✓ sr_essenziale                     716 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0
   ✓ file_manager                      7 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 3 su gradiente
   ✓ changelog_tesi                    181 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0
@@ -1738,14 +1739,14 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
   ✓ nessuna immagine priva di testo alternativo
   ✓ nessun salto nella gerarchia dei titoli
       (87 sezioni percorse oltre alla vista iniziale di ogni pagina)
-  ✓ contrasto sotto la soglia WCAG AA — invariato a 276 (debito dichiarato, non cresciuto)
-  ✓ campi privi di etichetta — invariato a 40 (debito dichiarato, non cresciuto)
+  ✓ contrasto sotto la soglia WCAG AA — invariato a 80 (debito dichiarato, non cresciuto)
+  ✓ campi privi di etichetta — invariato a 0 (debito dichiarato, non cresciuto)
       riferimento del 2026-09-21 — il debito è dichiarato in docs/09 §4, non tollerato in silenzio
 
   Esempi:
       ! index.html · a  4.32:1 (serve 4.5:1)  «ChemSpider»
       ! index.html · a  3.79:1 (serve 4.5:1)  «SDBS IR/NMR/MS»
-      ! index.html · div.sdb-dc  1:1 (serve 4.5:1)  «Standard industria: 100M+ reazioni»
+      ! index.html · button#rf16_all  1.94:1 (serve 4.5:1)  «Tutte (46)»
 
 5 controlli passati
 ```
@@ -1865,7 +1866,7 @@ WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v169
+Versione del codice (sw.js): bsi-v170
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -1904,13 +1905,40 @@ Versione del codice (sw.js): bsi-v169
 
 </details>
 
+<details>
+<summary><code>@verifica-affermazioni</code> — SUPERATO (codice di uscita 0)</summary>
+
+```
+Verifica delle affermazioni numeriche
+Ogni numero dichiarato nei documenti è confrontato con quello
+misurato nell'applicazione in esecuzione.
+
+  ✓ sezioni navigabili  → 87
+  ✓ farmaci in banca dati  → 178
+  ✓ malattie nell'atlante 3D  → 63
+  ✓ malattie oncologiche  → 23
+  ✓ strategie di retrosintesi  → 46
+  ✓ moduli di chimica organica  → 25
+
+── Badge del README ──
+  ✓ il badge della versione è allineato al codice  → bsi--v170
+  ✓ il badge dei banchi coincide con la batteria  → 40
+
+── Riepilogo ──
+  affermazioni confrontate con la misura: 6
+
+8 controlli passati
+```
+
+</details>
+
 ---
 
 ## 5. Come riprodurre questo rapporto
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 288b4fb079a1
+git checkout 693ec666c9a9
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -1941,4 +1969,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-09-21T06:33:08.990Z._
+_Generato il 2026-09-21T07:19:25.729Z._

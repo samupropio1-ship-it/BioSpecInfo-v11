@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v169` |
+| **Versione** | `bsi-v170` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v169` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v170` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -77,7 +77,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
 | **D-03** | Copertura automatica dei requisiti di sicurezza al 50 % | SEC-02 e parte di SEC-03 coperti da ispezione documentale, non da banco | Dichiarato in `docs/08` §6 |
 | **D-04** | Password del File Manager presente nella cronologia git antecedente alla rimozione | Il deterrente è noto a chi consulti la cronologia | Documentato; rimedio effettivo: sostituzione della password |
-| **D-05** | **276 difetti di contrasto e 40 campi privi di etichetta** in `index.html` | Testo sotto la soglia WCAG AA. Il caso peggiore residuo è 1:1 — testo dello stesso colore dello sfondo | Vedi il riquadro qui sotto: il numero è **registrato** in `evidence/accessibilita-riferimento.json` e il banco fallisce se cresce |
+| **D-05** | **80 difetti di contrasto** in `index.html`; i campi privi di etichetta sono **zero** | Testo sotto la soglia WCAG AA in 33 combinazioni residue, la maggiore da 10 difetti | Vedi il riquadro qui sotto: il numero è **registrato** in `evidence/accessibilita-riferimento.json` e il banco fallisce se cresce |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo negli SVG (6 758 elementi), quello su fondo a gradiente (892) e tutto ciò che richiede giudizio umano | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
 
 > ### D-05 — come è emerso, e perché il numero è quello che è
@@ -91,8 +91,24 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > Percorrendo tutte e 87 le sezioni sono emersi **1 069** difetti di contrasto.
 > Non erano comparsi: c'erano sempre stati.
 >
-> Oggi ne restano **276**: una riduzione del **74 %**, ottenuta risalendo alle
-> cause comuni invece di ritoccare i colori uno per uno.
+> Oggi ne restano **80**: una riduzione del **93 %**, ottenuta risalendo alle
+> cause comuni invece di ritoccare i colori uno per uno. I **40 campi privi di
+> etichetta** sono scesi a **zero**.
+>
+> Le cause più gravi non erano colori sbagliati, ma **token del tema che
+> valevano lo stesso dello sfondo**:
+>
+> | Difetto strutturale | Effetto misurato |
+> |---|---|
+> | `--g800` vale `#0d1522`, **identico a `--bg`** — e la regola `a { color: var(--g800) }` lo applicava a ogni link | Ogni link senza colore proprio era a contrasto **1:1**: invisibile |
+> | `--g700` vale `#16263d`, quasi identico a `--white` (`#16273e`) | Testo a **1,01:1** |
+> | Pulsanti che cambiavano **sfondo** senza cambiare **colore del testo** | Lo stato selezionato (o quello deselezionato, a seconda del pannello) diventava illeggibile: **1,39:1** |
+> | `lightenColor(hex,pct){ return hex; }` | Una funzione chiamata «schiarisci» che restituiva il colore **invariato**: uno stub mai finito, probabilmente nato proprio per questo problema |
+> | Pannello di risposta del quiz: fondo chiaro, testo chiaro | Lo studente **non poteva leggere la risposta corretta** |
+>
+> Il rimedio strutturale è stato un token esplicito — `--testo-forte` — per il
+> testo in evidenza su superficie scura, applicato ai soli usi come *colore
+> del testo*: `--g800` e `--g700` restano dove servono come sfondo o bordo.
 >
 > | Causa | Difetti | Rimedio |
 > |---|---:|---|
@@ -108,8 +124,8 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > scura e ne ha messi diciotto sul riquadro chiaro che usa lo stesso accento.
 > La funzione ora scurisce sui fondi chiari e schiarisce su quelli scuri.
 >
-> I **276 restanti** sono una coda dispersa su 68 cause distinte, la più grande
-> delle quali vale 24 difetti. Vanno esaminati uno per uno, e una sostituzione
+> Gli **80 restanti** sono una coda dispersa su 33 cause distinte, la più grande
+> delle quali vale 10 difetti. Vanno esaminati uno per uno, e una sostituzione
 > in blocco ne romperebbe altri — è già successo in questo progetto, con 997
 > nuovi difetti introdotti da una correzione automatica.
 >
@@ -117,7 +133,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > passa se resta uguale, e segnala il miglioramento se scende. Non è
 > conformità: è la misura onesta di quanto manca, con la garanzia che non
 > peggiori di nascosto.
-| **D-06** | Nessuna copertura di codice strumentata | Non è noto quale frazione del codice i 39 banchi eseguano | Dichiarato in `docs/08` §8. Strumentare richiederebbe introdurre una build, che l'applicazione non ha |
+| **D-06** | Nessuna copertura di codice strumentata | Non è noto quale frazione del codice i 40 banchi eseguano | Dichiarato in `docs/08` §8. Strumentare richiederebbe introdurre una build, che l'applicazione non ha |
 | **D-07** | Verifica su Chromium soltanto | Firefox e WebKit sono provati a mano | Dichiarato in `docs/08` §8 |
 | **D-08** | Traduzione inglese limitata ai documenti 00-05 | Un valutatore non italofono legge 6 documenti su 16 | Dichiarato qui; i restanti sono disponibili in italiano |
 
@@ -209,4 +225,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v169`._
+_Versione `bsi-v170`._

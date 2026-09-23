@@ -8,6 +8,63 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
 
+## [bsi-v170] — 2026-09-21
+
+### Corretto — accessibilità: da 276 difetti a 80, campi senza etichetta a zero
+
+Le cause peggiori non erano colori sbagliati ma **token del tema che
+valevano lo stesso dello sfondo**.
+
+- **Ogni link senza colore proprio era invisibile.** `--g800` vale
+  `#0d1522`, **identico a `--bg`**, e la regola `a { color: var(--g800) }`
+  lo applicava a tutti i collegamenti: contrasto **1:1**, misurato nel DOM.
+  Stessa storia per `--g700` (`#16263d`), quasi identico a `--white`: 1,01:1.
+  Introdotto `--testo-forte`, applicato ai **soli** usi come colore del
+  testo — come sfondo e bordo quei token restano dove servono.
+- **Pulsanti che cambiavano sfondo senza cambiare il testo.** Lo stato
+  selezionato (o quello deselezionato, secondo il pannello) diventava
+  illeggibile: **1,39:1**. Tre punti corretti; sfondo e colore ora si
+  decidono insieme.
+- **`lightenColor(hex,pct){ return hex; }`** — una funzione chiamata
+  «schiarisci» che restituiva il colore **invariato**. Uno stub mai finito,
+  con ogni probabilità nato proprio per questo problema. Ora fa quello che
+  il nome dice.
+- **Il pannello di risposta del quiz aveva fondo chiaro e testo chiaro**:
+  lo studente non poteva leggere la risposta corretta né il suggerimento.
+- **Tabella dei campi cristallini**: tre righe su quattro hanno fondo
+  chiaro, ma il testo era sempre chiaro. Il colore ora segue lo sfondo
+  della riga.
+- **40 campi privi di etichetta → 0.** Le etichette esistevano già come
+  testo visibile accanto al campo, solo non erano associate. Dove c'era un
+  `<label>` gli è stato dato il `for` (così resta cliccabile), altrove un
+  `aria-label` che **contiene il testo visibile** — WCAG 2.5.3 chiede che
+  il nome accessibile includa ciò che si legge, altrimenti il comando
+  vocale non trova il campo.
+
+### Aggiunto — `tools/verifica-affermazioni.js`
+
+Confronta ogni numero dichiarato nei documenti con quello **misurato
+nell'applicazione in esecuzione**: sezioni, farmaci, malattie, tumori,
+strategie, moduli, più i badge del README.
+
+I numeri del dossier — «63 malattie (23 tumori)», «46 strategie», «25
+moduli» — sono la prima cosa che legge chi valuta, e nessuno li
+controllava. Sono risultati **tutti esatti**, ma:
+
+- `chimorga.html` dichiarava «25 moduli» in cima e **«17 moduli»** più
+  sotto: due affermazioni sullo stesso oggetto, nello stesso file;
+- `sr_completo.html` diceva «98 esercizi» e **«87 esercizi»**. Ora il
+  totale si **conta** invece di essere ricordato;
+- i **badge del README** — la prima cosa che si vede su GitHub — erano
+  fermi a `bsi-v165` e «34 banchi» con versione 169 e 40 banchi.
+
+> **Una lezione pagata.** Avevo già concluso che «63 malattie» fosse falso:
+> nel sorgente avevo trovato un array `DISEASES` con 12 voci e stavo per
+> «correggere» il documento. Misurando nel DOM il menu ne elenca davvero
+> 63 — l'array era un altro, più piccolo. **Un conteggio sul sorgente non è
+> una misura: è un indizio.**
+
+
 ## [bsi-v168] — 2026-09-20
 
 ### Aggiunto

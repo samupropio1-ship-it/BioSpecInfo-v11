@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v169` |
+| **Versione descritta** | `bsi-v170` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -106,7 +106,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 19 751 elementi di testo). **Dei 1 069 difetti di contrasto emersi ne sono stati corretti 793; i 276 residui e i 40 campi senza etichetta sono misurati e registrati**, non risolti: vedi `docs/09` §4 D-05. Restano inoltre fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 19 751 elementi di testo). **Dei 1 069 difetti di contrasto emersi ne sono stati corretti 989; gli 80 residui sono misurati e registrati**, non risolti. I campi senza etichetta sono **zero**: vedi `docs/09` §4 D-05. Restano inoltre fuori il testo negli SVG, quello su gradienti e tutto ciò che richiede giudizio umano |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 6 farmaci ad alta complessità | **non verificate** — voci lasciate senza struttura, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **non misurata** — nessuno strumento di strumentazione è in uso; vedi §8 |
@@ -153,7 +153,7 @@ possono essere affermate.
 
 | Lacuna | Che cosa comporta | Perché è così |
 |---|---|---|
-| **Nessuna copertura di codice** | Non è noto quale percentuale del codice i 39 banchi eseguano davvero | L'applicazione non ha un processo di build: strumentare il codice richiederebbe introdurne uno, e cambierebbe ciò che si sta misurando |
+| **Nessuna copertura di codice** | Non è noto quale percentuale del codice i 40 banchi eseguano davvero | L'applicazione non ha un processo di build: strumentare il codice richiederebbe introdurne uno, e cambierebbe ciò che si sta misurando |
 | **Solo Chromium** | Il comportamento su Firefox e WebKit è verificato a mano, non da banco | La batteria usa `playwright-core`, che scarica un motore solo |
 | **Nessuna regressione visiva** | Un cambiamento grafico involontario non verrebbe intercettato | Gli spettri sono deterministici e confrontabili byte a byte (SCI-05): il confronto esiste sulle tracce, non sull'intera pagina |
 | **6 strutture di farmaci** | Sei voci su 178 non hanno struttura verificata | Vedi `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
@@ -161,4 +161,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v169`._
+_Documento aggiornato alla versione `bsi-v170`._

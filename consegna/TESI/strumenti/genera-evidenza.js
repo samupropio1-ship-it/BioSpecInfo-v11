@@ -76,7 +76,7 @@ const FAMIGLIE = [
     banchi: ['@verifica-sicurezza', '@verifica-accessibilita'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
-    banchi: ['verifica_guida', '@verifica-documenti'] }
+    banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

@@ -1,7 +1,7 @@
 {
   "nota": "Debito di accessibilità misurato, non tollerato: il banco fallisce se questi numeri crescono. Rigenerare con --aggiorna-riferimento solo dopo averli RIDOTTI.",
   "aggiornato": "2026-09-21",
-  "contrasto": 276,
-  "campiSenzaEtichetta": 40,
+  "contrasto": 80,
+  "campiSenzaEtichetta": 0,
   "sezioniPercorse": 87
 }

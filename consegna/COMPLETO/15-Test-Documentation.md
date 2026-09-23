@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v169` |
+| **Versione descritta** | `bsi-v170` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**39 banchi**, raggruppati per ciò che dimostrano.
+**40 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -164,9 +164,9 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
 
 Percorrendo tutte le sezioni sono emersi **1 069** difetti di contrasto.
-**793 sono stati corretti** risalendo alle cause comuni (l'elenco è in
-`docs/09` §4): **276 restano**, dispersi su 68 cause di cui la maggiore vale
-24 difetti.
+**989 sono stati corretti** risalendo alle cause comuni (l'elenco è in
+`docs/09` §4): **80 restano**, dispersi su 33 cause di cui la maggiore vale
+10 difetti. I campi privi di etichetta sono scesi da 40 a **zero**.
 
 Pretendere zero da subito lascerebbe due sole vie, entrambe cattive: la
 verifica rossa per sempre, oppure allentata finché torna verde. La terza via è
@@ -198,6 +198,26 @@ garanzia che non peggiori di nascosto.
 | `verifica-documenti` | Collegamenti interni, allineamento delle versioni, coerenza dell'indice, motivazione delle deviazioni, **coerenza interna della matrice di tracciabilità** (identificativi non duplicati, totali di copertura pari agli identificativi realmente definiti) |
 | `genera-pacchetti` | Riscrive i riferimenti dei documenti estratti e **verifica che nessun collegamento resti rotto** nei tre pacchetti di consegna |
 | `genera-pdf` | Converte i documenti in PDF e fallisce se un file risulta sotto la soglia di plausibilità (conversione a vuoto) |
+| `verifica-affermazioni` | Confronta ogni numero dichiarato nei documenti — sezioni, farmaci, malattie, tumori, strategie, moduli — con quello **misurato nell'applicazione in esecuzione** |
+
+> **Perché i numeri vanno misurati, non ricordati.** Il dossier tecnico si apre
+> con delle cifre: «63 malattie (23 tumori)», «46 strategie», «25 moduli». Sono
+> la prima cosa che legge chi valuta, e bastano perché tutto il resto venga
+> creduto o messo in dubbio. Nessuno le controllava: scritte una volta,
+> restavano, mentre l'applicazione cambiava. E infatti `chimorga.html`
+> dichiarava **«25 moduli»** in cima e **«17 moduli»** più sotto — due
+> affermazioni sullo stesso oggetto, nello stesso file, una delle due falsa.
+>
+> **Una lezione pagata scrivendo il banco.** Avevo già concluso che «63
+> malattie» fosse un'esagerazione: nel sorgente avevo trovato un array
+> `DISEASES` con 12 voci, e stavo per «correggere» il documento. Misurando nel
+> DOM ho visto che il menu ne elenca davvero 63 — l'array che avevo trovato era
+> un altro, più piccolo. **Un conteggio sul sorgente non è una misura: è un
+> indizio.** Per questo il banco apre la pagina, apre la sezione e conta.
+>
+> Controlla anche che i documenti concordino **fra loro**: due documenti che
+> dicono cose diverse sullo stesso oggetto sono un difetto anche quando uno dei
+> due ha ragione.
 
 > **Perché un controllo sulla matrice.** La matrice dichiarava `SCI-10` due
 > volte — una come requisito verificato al 100 %, una come requisito
@@ -223,7 +243,7 @@ funzionale non osserva.
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **793 corretti**, **276 registrati** come debito che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **989 corretti**, **80 registrati** come debito che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -317,4 +337,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v169`._
+_Documento aggiornato alla versione `bsi-v170`._
