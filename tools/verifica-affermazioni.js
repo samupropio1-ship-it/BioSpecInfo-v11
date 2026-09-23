@@ -60,12 +60,16 @@ const AFFERMAZIONI = [
     nome: 'sezioni navigabili',
     cerca: /\*\*(\d+)\s+sezioni\*\*|(\d+)\s+sezioni,\s+dati chimici|conta\s+\*\*(\d+)\s+sezioni\*\*/,
     dove: ['README.md', 'docs/13-Functional-Specifications.md'],
+    cercaEn: /\*\*(\d+)\s+sections\*\*/,
+    doveEn: ['docs/en/13-Functional-Specifications.md'],
     misura: (pg) => pg.evaluate(() => document.querySelectorAll('.nav-btn[data-s]').length)
   },
   {
     nome: 'farmaci in banca dati',
     cerca: /\*\*(\d+)\s+farmaci\*\*|(\d+)\s+farmaci,\s+atlante/,
     dove: ['docs/13-Functional-Specifications.md', 'README.md'],
+    cercaEn: /\*\*(\d+)\s+drugs\*\*/,
+    doveEn: ['docs/en/13-Functional-Specifications.md', 'docs/en/11-Data-Model.md'],
     misura: async (pg) => {
       await pg.evaluate(() => { const b = document.querySelector('.nav-btn[data-s="sfarm"]'); if (b) b.click(); });
       await pg.waitForTimeout(900);
@@ -112,8 +116,8 @@ const AFFERMAZIONI = [
     nome: 'strumenti dell\'agente',
     cerca: /\*\*(\d+) strumenti\*\*|I (\d+) strumenti|schema dei (\d+) strumenti/,
     dove: ['docs/05-AI-Agent-Architecture.md', 'docs/13-Functional-Specifications.md'],
-    cercaEn: /The (\d+) tools|schema of all (\d+) tools/,
-    doveEn: ['docs/en/05-AI-Agent-Architecture.md'],
+    cercaEn: /The (\d+) tools|schema of all (\d+) tools|\*\*(\d+) tools\*\*/,
+    doveEn: ['docs/en/05-AI-Agent-Architecture.md', 'docs/en/13-Functional-Specifications.md'],
     misura: (pg) => pg.evaluate(() => (window.BSI_AI_TOOLS || []).length)
   },
   {
@@ -138,7 +142,8 @@ const AFFERMAZIONI_ALTRE_PAGINE = [
     cerca: /(\d+)\s+moduli/,
     dove: ['docs/00-Technical-Dossier.md'],
     cercaEn: /(\d+)\s+modules/,
-    doveEn: ['docs/en/00-Technical-Dossier.md', 'docs/en/01-Software-Architecture-Document.md'],
+    doveEn: ['docs/en/00-Technical-Dossier.md', 'docs/en/01-Software-Architecture-Document.md',
+             'docs/en/13-Functional-Specifications.md'],
     misura: (pg) => pg.evaluate(() => document.querySelectorAll('nav a').length)
   }
 ];

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v172` |
+| **Versione descritta** | `bsi-v173` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -95,7 +95,10 @@
 > controllo di accesso lato pagina è aggirabile da chi legge il sorgente. La
 > protezione del File Manager è un deterrente, **non** un controllo di sicurezza,
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
-> cronologia git fino alla sua rimozione: l'unico rimedio effettivo è cambiarla.
+> cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
+> toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v173`.
+> Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
 
@@ -161,4 +164,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v172`._
+_Documento aggiornato alla versione `bsi-v173`._

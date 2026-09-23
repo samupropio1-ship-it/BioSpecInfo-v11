@@ -8,7 +8,7 @@ valutazione tecnica da parte di aziende, centri di ricerca e audit.
 Per le candidature allega **un solo file**:
 
 - 🇮🇹 **[`docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf`](pdf/BioSpecInfo-Dossier-Completo.it.pdf)** — **tutti e sedici i documenti** in un file solo, con indice.
-- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — la traduzione inglese: dieci documenti su sedici, scelti in modo da coprire l'intero percorso di due diligence (00-05, 07, 08, 09, 15).
+- 🇬🇧 **[`docs/pdf/BioSpecInfo-Full-Dossier.en.pdf`](pdf/BioSpecInfo-Full-Dossier.en.pdf)** — la traduzione inglese: **tutti e sedici i documenti**, come l'italiano.
 
 In alternativa il solo dossier tecnico di sintesi:
 [`00-Technical-Dossier.pdf`](pdf/00-Technical-Dossier.pdf) /
@@ -50,7 +50,7 @@ In alternativa il solo dossier tecnico di sintesi:
 
 Gli strumenti che li producono sono in [`tools/`](../tools/) e sono eseguibili da chiunque disponga del repository.
 
-**🌍 English version:** [`docs/en/`](en/README.md) — dieci dei sedici documenti in inglese: dossier, architettura, V&V, sicurezza, licenze, agente AI, SBOM, tracciabilità, dichiarazione di conformità e documentazione di prova. I numeri dichiarati nell'insieme inglese sono confrontati con la misura dallo stesso banco che controlla quello italiano.
+**🌍 English version:** [`docs/en/`](en/README.md) — **tutti e sedici** i documenti in inglese. I numeri dichiarati nell'insieme inglese sono confrontati con la misura dallo stesso banco che controlla quello italiano: se le due lingue dicono cose diverse, la batteria fallisce.
 **📑 PDF (IT + EN):** [`docs/pdf/`](pdf/) — pronti da allegare a CV, email e audit.
 
 ## In sintesi

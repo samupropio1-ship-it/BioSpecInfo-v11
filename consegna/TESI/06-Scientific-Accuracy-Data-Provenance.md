@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v172` |
+| **Versione descritta** | `bsi-v173` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v172` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v173` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -293,7 +293,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v172` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v173` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -303,4 +303,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v172`._
+_Documento aggiornato alla versione `bsi-v173`._

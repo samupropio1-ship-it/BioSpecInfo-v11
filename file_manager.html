@@ -373,8 +373,16 @@ var _safeSession={
    il che rendeva inutile tutto il lavoro di non salvarla in chiaro.
    Ricorda comunque che su GitHub Pages non c'e' un server: chi conosce
    l'impronta puo' provarla offline quanto vuole. E' una serratura contro
-   chi passa, non contro chi vuole entrare davvero. */
-var CORRECT_HASH = '5513fe48cae75fbece575572c97767e1f9bfc3ce01af8b8877c9fe740db03a7c';
+   chi passa, non contro chi vuole entrare davvero.
+
+   SOSTITUITA ALLA VERSIONE bsi-v173.
+   La password precedente era rimasta in chiaro nella cronologia git, da
+   prima che venisse tolta dal sorgente: la difformita' D-04 lo dichiarava,
+   e diceva anche che togliere un segreto dai file non lo toglie dalla
+   storia — `git log -p` lo restituisce a chiunque. L'unico rimedio
+   effettivo e' cambiare la password, ed e' stato fatto. Quella vecchia
+   resta leggibile nella cronologia e ora non apre piu' niente. */
+var CORRECT_HASH = '540870326f7ff394e7fe5f7dc9842d8cb18358b4cf794be4a77b49899e92dd03';
 var SESSION_KEY = 'bsi_fm_session_v1';
 
 async function sha256(str){

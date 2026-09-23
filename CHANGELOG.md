@@ -8,6 +8,70 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
 
+## [bsi-v173] — 2026-09-23
+
+Chiuse le ultime due difformità che restavano aperte per scelta o per lavoro:
+**D-04** (password nella cronologia) e **D-08** (traduzione inglese parziale).
+
+### Sicurezza — la password del File Manager è stata cambiata
+
+La difformità **D-04** diceva: la password precedente è rimasta in chiaro nella
+cronologia git, da prima che venisse tolta dal sorgente. Toglierla dai file non
+la toglie dalla storia — `git log -p` la restituisce a chiunque — e finché
+quella password è in uso il deterrente non deterre nessuno. L'unico rimedio
+effettivo è **cambiarla**.
+
+Cambiata. Nel sorgente c'è soltanto la nuova impronta SHA-256, mai la password;
+verificato nel browser che la nuova apra e la vecchia no. Quella vecchia resta
+leggibile nella cronologia e ora non apre più niente.
+
+> Resta vero ciò che il documento ha sempre detto: su un sito statico questa è
+> **una serratura contro chi passa, non contro chi vuole entrare davvero**. Chi
+> conosce l'impronta può provarla offline quanto vuole. Non va usato per
+> materiale riservato.
+
+### Documentazione — l'inglese passa da 10 a **16 documenti su 16**
+
+La difformità **D-08** dichiarava che un valutatore non italofono leggeva meno
+di due terzi della documentazione. La parte mancante era proprio quella
+operativa: chi deve capire *come funziona* e *come si manda in produzione*
+restava fuori.
+
+Tradotti gli ultimi sei: `06-Scientific-Accuracy-Data-Provenance`,
+`10-API-Reference`, `11-Data-Model`, `12-Deploy-Guide`,
+`13-Functional-Specifications`, `14-User-Manual`.
+
+Tre scelte di traduzione, dichiarate perché sono decisioni e non sviste:
+
+- **I nomi nel codice restano in italiano.** Il diagramma delle entità di
+  `docs/11`, le variabili del proxy (`ORIGINI`, `LIMITE_IP`) e le chiavi di
+  `localStorage` sono quello che sono nel codice: tradurle documenterebbe un
+  sistema che non esiste.
+- **I messaggi d'errore del proxy restano in italiano** negli esempi OpenAPI,
+  perché è ciò che il proxy risponde davvero.
+- **`verifica-affermazioni` controlla anche i documenti nuovi**: «87 sections»,
+  «178 drugs», «35 tools» e «25 modules» nell'insieme inglese sono confrontati
+  con la misura sull'app viva, e un disaccordo fra le due lingue fa fallire la
+  batteria.
+
+### Corretto — voci ormai false nei documenti italiani
+
+Le correzioni di ieri avevano lasciato indietro tre affermazioni:
+
+- `docs/06` §6 diceva «inclusi i 9 errori residui» mentre il banco ne riporta
+  **zero**;
+- `docs/06` aveva ancora la tabella con **sei** voci D-01, comprese le quattro
+  chiuse con ChEMBL;
+- `docs/13` §6 dichiarava l'accessibilità «verificata a campione» e la copertura
+  di codice «non misurata», entrambe superate.
+
+### Aggiunto alla lista di controllo del deploy
+
+«La copertura di codice **non è scesa**» — `audit_copertura` fallisce se lo è, e
+la lista che si legge prima di pubblicare deve dirlo.
+
+---
+
 ## [bsi-v172] — 2026-09-23
 
 Questa versione chiude difformità che erano **dichiarate**, non risolte. Ogni

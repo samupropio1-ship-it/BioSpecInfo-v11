@@ -22,15 +22,21 @@ Or the summary cover only: [`00-Technical-Dossier.en.pdf`](../pdf/00-Technical-D
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Local-first privacy model, OWASP/XSS, GDPR and GAMP 5 alignment |
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Dependency matrix, licenses, intellectual property |
 | 05 | [AI Agent Architecture "Spectra"](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/05-AI-Agent-Architecture.md) | Agentic loop, 35 tools, engineering decisions, numeric verification |
+| 06 | [Scientific Accuracy and Data Provenance](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/06-Scientific-Accuracy-Data-Provenance.md) | How the chemical data are verified, the structure ⟷ molecular weight method, declared limits of the predictors |
 | 07 | [Software Bill of Materials (SBOM)](07-SBOM.md) | Distributed components, licences, SHA-256 digests, CycloneDX 1.5 |
 | 08 | [Traceability Matrix](08-Traceability-Matrix.md) | Every requirement, its implementation and the bench that verifies it; declared coverage gaps |
 | 09 | [Release Conformance Statement](09-Release-Conformance-Statement.md) | Intended use, exclusions, known deviations, acceptance criteria, signature |
+| 10 | [Interface Reference](10-API-Reference.md) | The optional proxy with its OpenAPI spec, the external APIs consumed, the internal JavaScript APIs |
+| 11 | [Data Model](11-Data-Model.md) | Where the data live, with what structure and what lifecycle; there is no server database |
+| 12 | [Deploy Guide](12-Deploy-Guide.md) | Publishing, updating, rolling back; the two version lines |
+| 13 | [Functional Specifications](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/13-Functional-Specifications.md) | What the product does, for whom, under which rules, with which limits |
+| 14 | [User Manual](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/14-User-Manual.md) | A guide for the people who study, not for the people who program |
 | 15 | [Test Documentation](15-Test-Documentation.md) | How the 43 benches are organised and run, what they cover, where they leave gaps |
 
-> **Documents 06 and 10–14 are available in Italian only** (`docs/`). The ten
-> translated here cover the whole due-diligence path; the remaining six are the
-> data model, the API reference, the deploy guide, the functional
-> specifications, the user manual and the scientific-provenance report.
+> **All sixteen documents are now available in English.** The numbers declared
+> in the English set are compared against the running application by the same
+> bench that checks the Italian one, and a disagreement between the two
+> languages fails the battery.
 
 ## At a glance
 

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v172` |
+| **Versione** | `bsi-v173` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v172` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v173` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -76,10 +76,10 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-01** | **2 voci** (erano 6) che non sono molecole singole: Ivermectina, miscela di omologhi B1a/B1b, e Coartem, associazione di due principi attivi | Per queste due non è disponibile la rappresentazione 2D/3D né la predizione spettrale | Voci lasciate **senza SMILES**: i dati farmacologici restano, la struttura non è mostrata. Per Digossina, Vincristina e Tacrolimus (topico e sistemico) la struttura è stata ripresa da **ChEMBL** e supera il confronto col peso molecolare dichiarato: le quattro voci sono uscite dal registro. Le due che restano non hanno una struttura da mostrare, non una struttura mancante. |
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
 | **D-03** | ~~SEC-02 verificato solo per interposta proprietà~~ — **sanata**: vedi S-10 | — | `audit_rete` osserva il traffico durante un uso reale, con un valore spia seminato nei dati dell'utente |
-| **D-04** | Password del File Manager presente nella cronologia git antecedente alla rimozione | Il deterrente è noto a chi consulti la cronologia | Documentato; rimedio effettivo: sostituzione della password |
+| **D-04** | ~~Password del File Manager nella cronologia git~~ — **sanata**: vedi S-12 | — | La password è stata **cambiata** alla versione `bsi-v173`. Quella vecchia resta leggibile nella cronologia e non apre più niente |
 | **D-06** | Copertura di codice **misurata ma parziale**: 49,79 % di istruzioni, non di rami | È la copertura del percorso più ampio che un banco compie (87 sezioni più le altre pagine), non della batteria intera; e un `if` entrato da un solo lato conta come coperto | `audit_copertura` la misura con il profilatore di Chromium, senza build e senza riscrivere il sorgente. Il valore è **registrato**: se scende, la batteria fallisce |
 | **D-07** | Verifica su Chromium soltanto | Firefox e WebKit sono provati a mano | Dichiarato in `docs/08` §8. Nell'ambiente di verifica il motivo è verificabile: la CDN da cui `playwright-core` scarica gli altri motori risponde **403** alla politica di rete, quindi Firefox e WebKit non sono installabili lì |
-| **D-08** | Traduzione inglese estesa a 10 documenti su 16 | Un valutatore non italofono legge 10 documenti su 16 | Dichiarato qui; i restanti sono disponibili in italiano. L'insieme tradotto copre l'intero percorso di due diligence: dossier, architettura, V&V, sicurezza, licenze, agente AI, SBOM, tracciabilità, questa dichiarazione e la documentazione di prova |
+| **D-08** | ~~Traduzione inglese parziale~~ — **sanata**: vedi S-13 | — | Tutti e **16 i documenti** sono in inglese. `verifica-documenti` e `verifica-affermazioni` leggono `docs/en/` come l'italiano: un disaccordo fra le due lingue fa fallire la batteria |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo dentro gli SVG (8 888 elementi), quello su una vera **immagine** di sfondo (108) e tutto ciò che richiede giudizio umano. Il testo su **gradiente** è entrato nella misura: 591 elementi, valutati sulla tappa peggiore del gradiente | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
 
 > ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
@@ -170,6 +170,8 @@ vale la carta su cui è scritta.
 | **S-06** | 50 collegamenti rotti su 127 nei pacchetti di consegna | Documentazione consegnata a terzi con riferimenti che non portavano da nessuna parte |
 | **S-07** | 15 PDF allegabili fermi ai documenti 00-05 e a una versione precedente | Un allegato obsoleto afferma cose false con l'aria di essere autorevole |
 | **S-08** | Il banco sulle affermazioni numeriche guardava **solo i documenti italiani** | La serie inglese derivava indisturbata: `docs/en/05` dichiarava «84 sections» con 87 sezioni nell'app, ed è rimasto fermo alla versione `bsi-v146` mentre il codice era alla 171. Ora l'insieme inglese è confrontato con la misura come quello italiano, e un disaccordo fra le due lingue fa fallire il banco |
+| **S-13** | La traduzione inglese si fermava a 10 documenti su 16 | Un valutatore non italofono leggeva meno di due terzi della documentazione, e la parte mancante era quella operativa: modello dei dati, interfacce, deploy, specifiche funzionali, manuale. Tradotti tutti: l'insieme inglese è ora completo quanto l'italiano, e i due banchi sulla coerenza lo controllano allo stesso modo |
+| **S-12** | La password del File Manager era rimasta in chiaro nella cronologia git | Toglierla dai file non la toglie dalla storia: `git log -p` la restituisce a chiunque, e finché quella password è in uso il deterrente non deterre nessuno. L'unico rimedio è **cambiarla**, ed è stato fatto: nel sorgente c'è solo la nuova impronta SHA-256, la vecchia password resta nella cronologia e non apre più niente. Verificato nel browser: la nuova apre, la vecchia no |
 | **S-10** | SEC-02 — «nessun dato personale lascia il dispositivo» — era verificato controllando i due *meccanismi* di uscita, non l'uscita | Un controllo sui meccanismi dice «non vedo come potrebbe uscire», che non è «non è uscito». `audit_rete` semina un valore irripetibile in 71 depositi dei dati dell'utente, poi **usa** l'applicazione e ispeziona URL, intestazioni e corpo di ogni richiesta. Provato all'inverso con `BSI_PROVA_FUGA=1`, che provoca una fuga di proposito: il banco deve fallire, e fallisce |
 | **S-11** | Il registro delle deviazioni non aveva la guardia opposta: una voce dichiarata che **non devia più** restava | Un'esenzione che nessuno revoca è un permesso acceso a vuoto, e domani coprirebbe in silenzio una struttura sbagliata messa al suo posto. Il banco ora fallisce anche per questo — verificato rimettendo una voce sanata |
 | **S-09** | Il «correttore automatico di contrasto» **creava** i difetti che avrebbe dovuto togliere | Ignorava l'alfa: un fondo `rgba(255,180,84,.08)` su superficie scura gli sembrava chiaro, e scuriva con `!important` un testo che nel sorgente era già corretto. Uno strumento di rimedio che peggiora la cosa da rimediare è il difetto più difficile da vedere, perché si presenta come la soluzione |
@@ -244,4 +246,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v172`._
+_Versione `bsi-v173`._

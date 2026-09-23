@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v172` |
+| **Versione descritta** | `bsi-v173` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -258,11 +258,11 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 1 | **2 voci senza struttura da mostrare** (erano 6) | Ivermectina è una miscela di omologhi B1a/B1b e Coartem un'associazione di due principi attivi: una sola notazione SMILES non le rappresenta, e per queste due mancano 2D/3D e spettri previsti. Digossina, vincristina e tacrolimus (topico e sistemico) hanno ora la struttura, ripresa da ChEMBL e verificata contro il peso molecolare |
 | 2 | **Spettri predetti, non misurati** | Utili per riconoscere i gruppi funzionali; non per identificazione formale |
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
-| 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina |
+| 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità verificata a campione** | La parte meccanica è automatizzata (contrasto, nomi accessibili, gerarchia dei titoli su 13 pagine); restano fuori il testo negli SVG, quello su fondo a gradiente e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 87 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
-| 8 | **Nessuna copertura di codice misurata** | Non è noto quale frazione del codice i 43 banchi eseguano; vedi `08-Traceability-Matrix.md` §8 |
+| 8 | **Copertura di codice parziale** | Misurata: **49,79 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 
 ---
@@ -273,12 +273,12 @@ Non impegni: direzioni coerenti con l'architettura.
 
 | Area | Proposta | Perché |
 |---|---|---|
-| Dati | Verificare le 6 strutture residue | Chiude l'unica lacuna dichiarata sui dati |
+| Dati | Le 2 voci residue non hanno una struttura da mostrare | Non è una lacuna da chiudere: ivermectina è una miscela, Coartem un'associazione. Semmai si potrebbero mostrare i **componenti**, dichiarandoli tali |
 | Spettri | Confronto con database sperimentali (SDBS/NIST) dentro l'app | Renderebbe visibile la distanza fra predizione e misura |
-| Accessibilità | Verifica WCAG sistematica e automatizzata | Trasformerebbe un controllo a campione in un banco |
+| Accessibilità | Affiancare `axe-core` per le regole che il banco non implementa | Ruoli ARIA, ordine di tabulazione e gestione del fuoco restano fuori dalla misura attuale |
 | Esportazione | Esportazione completa dei dati utente | Unico rimedio possibile all'assenza di copie di sicurezza |
 | Assistente | Proxy preconfigurato per chi non vuole pubblicarne uno | Toglierebbe l'ultima barriera d'accesso all'AI |
 
 ---
 
-_Documento aggiornato alla versione `bsi-v172`._
+_Documento aggiornato alla versione `bsi-v173`._

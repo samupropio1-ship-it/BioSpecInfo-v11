@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v172` |
+| **Documented version** | Service Worker `bsi-v173` |
 
 ---
 

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v172` |
+| **Version** | `bsi-v173` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v172` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v173` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -77,10 +77,10 @@ pass.
 | **D-01** | **2 entries** (it was 6) that are not single molecules: Ivermectin, a mixture of B1a/B1b homologues, and Coartem, a combination of two active ingredients | For these two no 2D/3D representation and no spectral prediction is available | Entries left **without SMILES**: the pharmacological data remain, the structure is not shown. For Digoxin, Vincristine and Tacrolimus (topical and systemic) the structure was taken from **ChEMBL** and passes the comparison with the declared molecular weight: those four left the registry. The two that remain have no structure to show, not a missing one. |
 | **D-02** | 19 entries with no SMILES by their very nature (monoclonal antibodies, peptides) | None: for those molecules SMILES notation is not the appropriate representation | Not a substantive deviation; listed for completeness |
 | **D-03** | ~~SEC-02 verified only by proxy~~ — **remedied**: see S-10 | — | `audit_rete` observes the traffic during real use, with a canary value seeded into the user's own data |
-| **D-04** | The File Manager password is present in the git history predating its removal | The deterrent is known to anyone consulting the history | Documented; the effective remedy is to change the password |
+| **D-04** | ~~The File Manager password in the git history~~ — **remedied**: see S-12 | — | The password was **changed** at version `bsi-v173`. The old one is still readable in the history and no longer opens anything |
 | **D-06** | Code coverage **measured but partial**: 49.79 % of statements, not branches | It is the coverage of the widest path a bench walks (87 sections plus the other pages), not of the whole battery; and an `if` entered from one side only counts as covered | `audit_copertura` measures it with Chromium's profiler, with no build and without rewriting the source. The value is **recorded**: if it falls, the battery fails |
 | **D-07** | Verification on Chromium only | Firefox and WebKit are tested by hand | Declared in `docs/08` §8. In the verification environment the reason is checkable: the CDN from which `playwright-core` downloads the other engines answers **403** to the network policy, so Firefox and WebKit cannot be installed there |
-| **D-08** | English translation covering 10 of the 16 documents | A non-Italian-speaking assessor reads 10 documents out of 16 | Declared here; the remaining ones are available in Italian. The translated set covers the whole due-diligence path: dossier, architecture, V&V, security, licences, AI agent, SBOM, traceability, this statement and the test documentation |
+| **D-08** | ~~Partial English translation~~ — **remedied**: see S-13 | — | All **16 documents** are in English. `verifica-documenti` and `verifica-affermazioni` read `docs/en/` just like the Italian set: a disagreement between the two languages fails the battery |
 | **D-09** | Full WCAG 2.1 AA conformance not verifiable entirely by automation | What stays outside is text inside SVGs (8,888 elements), text over a real background **image** (108) and everything requiring human judgement. Text over a **gradient** has entered the measurement: 591 elements, judged against the worst stop of the gradient | The skipped elements are **counted** and reported on every run |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
@@ -171,6 +171,8 @@ evidence is not worth the paper it is written on.
 | **S-06** | 50 broken links out of 127 in the delivery packages | Documentation handed to third parties with references that led nowhere |
 | **S-07** | 15 attachable PDFs stuck at documents 00-05 and at an earlier version | An obsolete attachment states false things with an air of authority |
 | **S-08** | The numeric-claims bench looked at **the Italian documents only** | The English set drifted undisturbed: `docs/en/05` declared "84 sections" while the app has 87, and stayed stuck at version `bsi-v146` while the code was at 171. The English set is now compared against the measurement just like the Italian one, and a disagreement between the two languages fails the bench |
+| **S-13** | The English translation stopped at 10 documents out of 16 | A non-Italian-speaking assessor read less than two thirds of the documentation, and the missing part was the operational one: data model, interfaces, deploy, functional specifications, manual. All translated: the English set is now as complete as the Italian one, and the two consistency benches check it the same way |
+| **S-12** | The File Manager password had been left in clear text in the git history | Taking it out of the files does not take it out of the history: `git log -p` hands it to anyone, and as long as that password is in use the deterrent deters nobody. The only remedy is to **change it**, and that has been done: the source carries only the new SHA-256 digest, the old password remains in the history and no longer opens anything. Verified in the browser: the new one opens, the old one does not |
 | **S-10** | SEC-02 — "no personal data leaves the device" — was verified by checking the two *mechanisms* of exit, not the exit | A check on mechanisms says "I cannot see how it would leave", which is not "it did not leave". `audit_rete` seeds an unrepeatable value into 71 stores of the user's data, then **uses** the application and inspects the URL, headers and body of every request. Proved in reverse with `BSI_PROVA_FUGA=1`, which causes a leak on purpose: the bench must fail, and it does |
 | **S-11** | The deviations registry had no converse guard: an entry declared that **no longer deviates** simply stayed | An exemption nobody revokes is a permission left switched on, and tomorrow it would silently cover a wrong structure put in its place. The bench now fails for that too — verified by putting a remedied entry back |
 | **S-09** | The "automatic contrast corrector" **created** the defects it was meant to remove | It ignored alpha: a `rgba(255,180,84,.08)` background over a dark surface looked light to it, and it darkened with `!important` a text that was already correct in the source. A remedy tool that worsens the thing it remedies is the hardest kind of defect to see, because it presents itself as the solution |
@@ -244,4 +246,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v172`._
+_Version `bsi-v173`._

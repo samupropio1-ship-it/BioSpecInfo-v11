@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v172` |
+| **Version described** | `bsi-v173` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -95,7 +95,10 @@
 > page-side access control can be bypassed by whoever reads the source. The File
 > Manager's protection is a deterrent, **not** a security control, and the
 > documentation says so. Furthermore the password remained in clear text in the
-> git history until its removal: the only effective remedy is to change it.
+> git history until its removal, and taking a secret out of the files does not
+> take it out of the history: `git log -p` hands it to anyone. The only effective
+> remedy was to change it, and that **has been done** at version `bsi-v173`. The
+> old one remains in the history and no longer opens anything.
 
 ---
 
@@ -160,4 +163,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v172`._
+_Document updated to version `bsi-v173`._
