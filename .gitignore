@@ -23,3 +23,7 @@
 # ═══════════════════════════════════════════════════════════════════════
 
 node_modules/
+
+# Lo zip «TUTTO» è una copia del repository dentro il repository:
+# si rigenera quando serve, versionarlo sarebbe circolare.
+consegna/BioSpecInfo-TUTTO-*.zip
