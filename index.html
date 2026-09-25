@@ -814,7 +814,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v173';
+window.BSI_APP_VERSION='bsi-v174';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -938,6 +938,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="ssimm">🔱 Simmetria</button>
     <button class="nav-btn" data-s="scroma">🧫 Cromatografia</button>
     <button class="nav-btn" data-s="staratura">📏 Taratura</button>
+    <button class="nav-btn" data-s="scheminfo">🧬 Chemioinformatica</button>
     <button class="nav-btn" data-s="stitr">🧪 Titolazione</button>
     <button class="nav-btn" data-s="skin">⏱️ Cinetica</button>
     <button class="nav-btn" data-s="sphase">📊 Fasi</button>
@@ -26689,6 +26690,73 @@ function showClinCase(id){
   </div>
 </div>
 
+<div id="scheminfo" class="section">
+  <div class="section-title">🧬 BANCO DI LAVORO CHEMIOINFORMATICO</div>
+  <div style="color:#c9d3df;font-size:.9rem;margin-bottom:14px;max-width:760px;line-height:1.6">
+    Si incolla un insieme di molecole con l'attività misurata e si ottiene quello che
+    un gruppo di chemioinformatica produce in una giornata: pulizia, descrittori,
+    raggruppamento, spazio chimico, un modello QSAR — e il verdetto su quanto quel
+    modello valga. Tutto nel browser, nessun dato esce dal dispositivo.
+  </div>
+
+  <div style="background:#16273e;border:1px solid #26406a;border-radius:12px;padding:14px;margin-bottom:14px">
+    <div style="color:#5eead4;font-weight:800;font-size:.82rem;margin-bottom:8px">1 · L'INSIEME DI PARTENZA</div>
+    <label for="chemInput" style="display:block;color:#c9d3df;font-size:.82rem;margin-bottom:6px">
+      SMILES, uno per riga. Con un nome e un'attività separati da tabulazione o virgola, se ci sono.
+    </label>
+    <textarea id="chemInput" rows="7" aria-label="Insieme di molecole in formato SMILES"
+      style="width:100%;background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:9px;padding:10px;font-family:var(--font-mono);font-size:12px;box-sizing:border-box;min-width:0"
+      placeholder="smiles	nome	attivita
+CC(=O)Oc1ccccc1C(=O)O	aspirina	4.2"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">
+      <button id="chemEsInib" class="chem-b">Esempio: inibitori (28, con pIC₅₀)</button>
+      <button id="chemEsFarm" class="chem-b">Esempio: 40 farmaci dall'app</button>
+      <button id="chemPulisci" class="chem-b">Svuota</button>
+      <button id="chemVai" class="chem-p">▶ Analizza</button>
+    </div>
+    <div id="chemStato" style="margin-top:10px;font-size:.82rem;color:#8fa3b8;min-height:20px"></div>
+  </div>
+
+  <div id="chemCorpo" style="display:none">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="Sezioni dell'analisi">
+      <button class="chem-t chem-t-on" data-p="descr">Descrittori</button>
+      <button class="chem-t" data-p="simil">Similarità e gruppi</button>
+      <button class="chem-t" data-p="spazio">Spazio chimico</button>
+      <button class="chem-t" data-p="qsar">Modello QSAR</button>
+      <button class="chem-t" data-p="salti">Salti di attività</button>
+      <button class="chem-t" data-p="allarmi">Allarmi strutturali</button>
+    </div>
+
+    <div id="chemP-descr" class="chem-pan"></div>
+    <div id="chemP-simil" class="chem-pan" style="display:none"></div>
+    <div id="chemP-spazio" class="chem-pan" style="display:none"></div>
+    <div id="chemP-qsar" class="chem-pan" style="display:none"></div>
+    <div id="chemP-salti" class="chem-pan" style="display:none"></div>
+    <div id="chemP-allarmi" class="chem-pan" style="display:none"></div>
+  </div>
+
+  <style>
+    #scheminfo .chem-b{background:#0c1828;border:1px solid #26406a;color:#cdd9e6;border-radius:8px;padding:8px 13px;font-size:.8rem;font-weight:700;cursor:pointer}
+    #scheminfo .chem-b:hover{border-color:#5eead4}
+    #scheminfo .chem-p{background:#1fd39a;color:#06141f;border:none;border-radius:8px;padding:8px 18px;font-size:.8rem;font-weight:800;cursor:pointer}
+    #scheminfo .chem-t{background:#0c1828;border:1px solid #26406a;color:#cdd9e6;border-radius:20px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;min-width:0}
+    #scheminfo .chem-t-on{background:#1fd39a;color:#06141f;border-color:#1fd39a}
+    #scheminfo .chem-card{background:#16273e;border:1px solid #26406a;border-radius:12px;padding:14px;margin-bottom:12px}
+    #scheminfo .chem-h{color:#5eead4;font-weight:800;font-size:.82rem;margin-bottom:9px}
+    #scheminfo table{width:100%;border-collapse:collapse;font-size:.79rem}
+    #scheminfo th{color:#8fa3b8;text-align:left;font-weight:700;padding:5px 7px;border-bottom:1px solid #26406a;white-space:nowrap}
+    #scheminfo td{color:#e9eef6;padding:5px 7px;border-bottom:1px solid #1a3050}
+    #scheminfo .chem-tw{overflow-x:auto;max-width:100%}
+    #scheminfo .chem-ok{color:#4ade80;font-weight:700}
+    #scheminfo .chem-no{color:#ff6b6b;font-weight:700}
+    #scheminfo .chem-num{font-family:var(--font-mono);font-size:.78rem}
+    #scheminfo .chem-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:9px}
+    #scheminfo .chem-kpi>div{background:#0c1828;border:1px solid #1a3050;border-radius:9px;padding:10px;min-width:0}
+    #scheminfo .chem-kpi .v{font-size:1.25rem;font-weight:800;color:#e9eef6;font-family:var(--font-mono)}
+    #scheminfo .chem-kpi .l{font-size:.72rem;color:#8fa3b8;margin-top:2px}
+  </style>
+</div>
+
 <div id="staratura" class="section">
   <div class="section-title">📏 TARATURA E INCERTEZZA — Dal segnale al numero, con il suo errore</div>
   <div style="color:#9fb3c8;font-size:.9rem;line-height:1.6;max-width:880px;margin-bottom:16px">
@@ -31407,6 +31475,7 @@ window.addEventListener('load', init);
 })();
 
 </script>
+<script src="./bsi-cheminfo.js"></script>
 <script src="./bsi-spettri.js" defer></script>
 <script src="./bsi-ai-hub.js" defer></script>
 <script>
@@ -46584,6 +46653,405 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', function(){ if (el('staratura')) avvia(); });
   else if (el('staratura')) avvia();
+})();
+</script>
+<script>
+/* ═══ Banco di lavoro chemioinformatico — interfaccia ════════════════════
+   La matematica sta tutta in bsi-cheminfo.js, verificata dal banco
+   test_cheminfo.js contro valori calcolabili a mano. Qui c'e' solo il
+   collegamento fra quei numeri e lo schermo. */
+(function () {
+  'use strict';
+  var stato = { molecole: [], fps: [], scartate: [], modello: null };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+  function num(v, c) { return (v === null || v === undefined || !isFinite(v)) ? '—' : (+v).toFixed(c === undefined ? 2 : c); }
+
+  /* 28 inibitori sintetici con un segnale reale: l'attivita' cresce con la
+     lipofilia dell'anello sostituito. Non sono dati sperimentali e non si
+     spacciano per tali — servono a far vedere il percorso completo senza
+     chiedere a nessuno di incollare un file. */
+  var ES_INIB = 'smiles\tnome\tpIC50\n' + [
+    ['c1ccccc1C(=O)Nc1ccccc1', 'anilide-1', 5.1], ['c1ccccc1C(=O)Nc1ccc(C)cc1', 'anilide-2', 5.4],
+    ['c1ccccc1C(=O)Nc1ccc(CC)cc1', 'anilide-3', 5.8], ['c1ccccc1C(=O)Nc1ccc(CCC)cc1', 'anilide-4', 6.1],
+    ['c1ccccc1C(=O)Nc1ccc(Cl)cc1', 'anilide-5', 6.0], ['c1ccccc1C(=O)Nc1ccc(Br)cc1', 'anilide-6', 6.3],
+    ['c1ccccc1C(=O)Nc1ccc(F)cc1', 'anilide-7', 5.5], ['c1ccccc1C(=O)Nc1ccc(OC)cc1', 'anilide-8', 5.3],
+    ['c1ccccc1C(=O)Nc1ccc(O)cc1', 'anilide-9', 4.8], ['c1ccccc1C(=O)Nc1ccc(N)cc1', 'anilide-10', 4.6],
+    ['c1ccc2ccccc2c1C(=O)Nc1ccccc1', 'naftil-1', 6.4], ['c1ccc2ccccc2c1C(=O)Nc1ccc(C)cc1', 'naftil-2', 6.7],
+    ['c1ccc2ccccc2c1C(=O)Nc1ccc(Cl)cc1', 'naftil-3', 7.0], ['c1ccc2ccccc2c1C(=O)Nc1ccc(OC)cc1', 'naftil-4', 6.5],
+    ['c1ccncc1C(=O)Nc1ccccc1', 'piridil-1', 4.5], ['c1ccncc1C(=O)Nc1ccc(C)cc1', 'piridil-2', 4.8],
+    ['c1ccncc1C(=O)Nc1ccc(Cl)cc1', 'piridil-3', 5.2], ['c1ccncc1C(=O)Nc1ccc(CC)cc1', 'piridil-4', 5.0],
+    ['c1ccsc1C(=O)Nc1ccccc1', 'tienil-1', 5.3], ['c1ccsc1C(=O)Nc1ccc(C)cc1', 'tienil-2', 5.6],
+    ['c1ccsc1C(=O)Nc1ccc(Cl)cc1', 'tienil-3', 6.1], ['c1ccsc1C(=O)Nc1ccc(CCC)cc1', 'tienil-4', 6.4],
+    ['O=C(Nc1ccccc1)c1ccc(C(F)(F)F)cc1', 'CF3-1', 6.8], ['O=C(Nc1ccc(C)cc1)c1ccc(C(F)(F)F)cc1', 'CF3-2', 7.1],
+    ['O=C(Nc1ccccc1)c1ccc(S(=O)(=O)N)cc1', 'solfa-1', 4.2], ['O=C(Nc1ccc(C)cc1)c1ccc(S(=O)(=O)N)cc1', 'solfa-2', 4.4],
+    ['O=C(Nc1ccccc1)c1ccc(N(C)C)cc1', 'dimetilammino-1', 5.0],
+    ['O=C(Nc1ccc(Cl)cc1)c1ccc(N(C)C)cc1', 'dimetilammino-2', 5.4]
+  ].map(function (r) { return r[0] + '\t' + r[1] + '\t' + r[2]; }).join('\n');
+
+  function esempioFarmaci() {
+    var d = window.FARM_DATA || [];
+    var righe = ['smiles\tnome'];
+    for (var i = 0; i < d.length && righe.length <= 40; i++) {
+      if (d[i].smi) righe.push(d[i].smi + '\t' + String(d[i].name).replace(/\t/g, ' '));
+    }
+    return righe.join('\n');
+  }
+
+  function dillo(t, colore) {
+    var e = $('chemStato');
+    if (e) { e.textContent = t; e.style.color = colore || '#8fa3b8'; }
+  }
+
+  function analizza() {
+    var B = window.BSIChem;
+    if (!B) { dillo('Il modulo di chemioinformatica non è caricato.', '#ff6b6b'); return; }
+    if (!B.pronto()) {
+      dillo('RDKit si sta caricando: un momento…');
+      if (window.bsiLoadRDKit) window.bsiLoadRDKit(function () { setTimeout(analizza, 300); });
+      return;
+    }
+    var testo = ($('chemInput') || {}).value || '';
+    if (!testo.trim()) { dillo('Incolla delle molecole, oppure carica un esempio.', '#fbbf24'); return; }
+
+    dillo('Standardizzazione in corso…');
+    setTimeout(function () {
+      try {
+        var r = B.standardizza(B.leggiTesto(testo));
+        stato.molecole = r.molecole;
+        stato.scartate = r.scartate;
+        if (!stato.molecole.length) { dillo('Nessuna molecola interpretabile.', '#ff6b6b'); return; }
+        stato.fps = stato.molecole.map(function (m) { return B.fingerprint(m.smiles, 'morgan'); });
+        stato.modello = null;
+        $('chemCorpo').style.display = '';
+        dillo(stato.molecole.length + ' molecole accettate · ' + stato.scartate.length + ' righe scartate', '#4ade80');
+        disegnaTutto();
+      } catch (e) {
+        dillo('Errore: ' + e.message, '#ff6b6b');
+      }
+    }, 30);
+  }
+
+  function disegnaTutto() { ['descr','simil','spazio','qsar','salti','allarmi'].forEach(pannello); }
+
+  function pannello(p) {
+    var el = $('chemP-' + p);
+    if (!el) return;
+    try { el.innerHTML = COSTRUISCI[p](); } catch (e) { el.innerHTML = avviso('Errore nel pannello: ' + esc(e.message)); }
+    if (p === 'spazio') setTimeout(disegnaSpazio, 30);
+    if (p === 'qsar') setTimeout(disegnaQsar, 30);
+  }
+
+  function avviso(t) {
+    return '<div class="chem-card" style="border-color:#7a4a2a"><div style="color:#fbbf24;font-size:.85rem">' + t + '</div></div>';
+  }
+
+  var COSTRUISCI = {};
+
+  /* ── Descrittori ──────────────────────────────────────────────────── */
+  COSTRUISCI.descr = function () {
+    var B = window.BSIChem;
+    var h = '';
+    if (stato.scartate.length) {
+      h += '<div class="chem-card"><div class="chem-h">RIGHE SCARTATE, E PERCHÉ</div><div class="chem-tw"><table>' +
+           '<tr><th>riga</th><th>SMILES</th><th>motivo</th></tr>' +
+           stato.scartate.slice(0, 25).map(function (s) {
+             return '<tr><td>' + s.riga + '</td><td class="chem-num">' + esc(String(s.smiles).slice(0, 40)) + '</td><td>' + esc(s.motivo) + '</td></tr>';
+           }).join('') + '</table></div>' +
+           '<div style="color:#8fa3b8;font-size:.76rem;margin-top:7px">Una riga scartata in silenzio è un dato perso senza saperlo: qui sono elencate tutte, con il motivo.</div></div>';
+    }
+    var righe = stato.molecole.slice(0, 200).map(function (m) {
+      var d = B.descrittori(m.smiles);
+      if (!d) return '';
+      var vl = d.regole.lipinski.violazioni, vv = d.regole.veber.violazioni;
+      return '<tr><td>' + esc(m.nome) + '</td>' +
+        '<td class="chem-num">' + num(d.amw, 1) + '</td>' +
+        '<td class="chem-num">' + num(d.CrippenClogP, 2) + '</td>' +
+        '<td class="chem-num">' + num(d.tpsa, 1) + '</td>' +
+        '<td class="chem-num">' + d.lipinskiHBD + '/' + d.lipinskiHBA + '</td>' +
+        '<td class="chem-num">' + d.NumRotatableBonds + '</td>' +
+        '<td class="chem-num">' + num(d.FractionCSP3, 2) + '</td>' +
+        '<td class="' + (vl ? 'chem-no' : 'chem-ok') + '">' + vl + '</td>' +
+        '<td class="' + (vv ? 'chem-no' : 'chem-ok') + '">' + vv + '</td></tr>';
+    }).join('');
+    h += '<div class="chem-card"><div class="chem-h">DESCRITTORI E REGOLE DI DRUG-LIKENESS</div><div class="chem-tw"><table>' +
+      '<tr><th>molecola</th><th>MW</th><th>cLogP</th><th>TPSA</th><th>HBD/HBA</th><th>rot.</th><th>Fsp³</th>' +
+      '<th>viol. Lipinski</th><th>viol. Veber</th></tr>' + righe + '</table></div>' +
+      '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px">Le regole sono soglie empiriche pubblicate, non leggi: la ciclosporina ne viola tre ed è un farmaco. ' +
+      'Servono a ordinare una libreria, non a scartare — per questo qui si conta quante violazioni, non si dà un verdetto. ' +
+      '<b>QED non compare</b> perché RDKit MinimalLib non lo espone: riscriverlo senza poterlo confrontare con l\'originale avrebbe prodotto un numero plausibile e non controllato.</div></div>';
+    return h;
+  };
+
+  /* ── Similarità e gruppi ──────────────────────────────────────────── */
+  COSTRUISCI.simil = function () {
+    var B = window.BSIChem;
+    if (stato.fps.length < 2) return avviso('Servono almeno due molecole.');
+    var bu = B.butina(stato.fps, 0.65);
+    var div = B.maxmin(stato.fps, Math.min(8, stato.fps.length));
+    var scaff = {};
+    stato.molecole.forEach(function (m) {
+      var s = B.scaffoldMurcko(m.smiles);
+      var k = (s && s.smiles) || '(aciclica)';
+      (scaff[k] = scaff[k] || []).push(m.nome);
+    });
+    var elenco = Object.keys(scaff).map(function (k) { return { k: k, v: scaff[k] }; })
+      .sort(function (a, b) { return b.v.length - a.v.length; });
+
+    var h = '<div class="chem-card"><div class="chem-h">RAGGRUPPAMENTO DI BUTINA (soglia Tanimoto 0,65)</div>' +
+      '<div class="chem-kpi">' +
+      '<div><div class="v">' + bu.gruppi.length + '</div><div class="l">gruppi</div></div>' +
+      '<div><div class="v">' + bu.singoletti + '</div><div class="l">singoletti</div></div>' +
+      '<div><div class="v">' + elenco.length + '</div><div class="l">scheletri distinti</div></div>' +
+      '<div><div class="v">' + stato.molecole.length + '</div><div class="l">molecole</div></div></div>' +
+      '<div style="color:#8fa3b8;font-size:.76rem;margin-top:9px">Butina è deterministico e non chiede di sapere in anticipo quanti gruppi ci sono: per questo si preferisce a k-means su questi dati. ' +
+      'Molti singoletti significano un insieme diverso; pochi, una serie congenerica.</div></div>';
+
+    h += '<div class="chem-card"><div class="chem-h">SCHELETRI DI BEMIS-MURCKO</div><div class="chem-tw"><table>' +
+      '<tr><th>#</th><th>molecole con questo scheletro</th></tr>' +
+      elenco.slice(0, 15).map(function (e, i) {
+        return '<tr><td class="chem-num">' + (i + 1) + '</td><td>' + esc(e.v.slice(0, 10).join(', ')) +
+               (e.v.length > 10 ? ' <span style="color:#8fa3b8">… e altre ' + (e.v.length - 10) + '</span>' : '') + '</td></tr>';
+      }).join('') + '</table></div>' +
+      '<div style="color:#8fa3b8;font-size:.76rem;margin-top:7px">È su questi gruppi che si fa la divisione del modello: molecole con lo stesso scheletro finiscono tutte dalla stessa parte.</div></div>';
+
+    h += '<div class="chem-card"><div class="chem-h">SELEZIONE PER DIVERSITÀ (MaxMin)</div>' +
+      '<div style="color:#e9eef6;font-size:.84rem;line-height:1.7">' +
+      div.map(function (i) { return esc(stato.molecole[i].nome); }).join(' · ') + '</div>' +
+      '<div style="color:#8fa3b8;font-size:.76rem;margin-top:7px">Le molecole più lontane fra loro: è il sottoinsieme da provare per primo quando il budget sperimentale è limitato. Parte da un elemento fisso, quindi due esecuzioni danno lo stesso risultato.</div></div>';
+    return h;
+  };
+
+  /* ── Spazio chimico ───────────────────────────────────────────────── */
+  COSTRUISCI.spazio = function () {
+    if (stato.fps.length < 3) return avviso('Servono almeno tre molecole per una PCA.');
+    return '<div class="chem-card"><div class="chem-h">SPAZIO CHIMICO — PCA SUI FINGERPRINT</div>' +
+      '<canvas id="chemPca" width="720" height="440" style="width:100%;height:auto;background:#0c1828;border-radius:9px;border:1px solid #1a3050"></canvas>' +
+      '<div id="chemPcaLeg" style="color:#8fa3b8;font-size:.76rem;margin-top:8px"></div></div>';
+  };
+
+  function disegnaSpazio() {
+    var c = $('chemPca');
+    if (!c || !stato.fps.length) return;
+    var B = window.BSIChem;
+    var r = B.pca(stato.fps, 2);
+    var ctx = window.bsiNitido ? window.bsiNitido(c) : c.getContext('2d');
+    var W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+    var xs = r.punti.map(function (p) { return p[0]; }), ys = r.punti.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    var mx = (x1 - x0) * 0.1 || 1, my = (y1 - y0) * 0.1 || 1;
+    x0 -= mx; x1 += mx; y0 -= my; y1 += my;
+    var M = 46;
+    function X(v) { return M + (v - x0) / (x1 - x0) * (W - M - 20); }
+    function Y(v) { return H - M - (v - y0) / (y1 - y0) * (H - M - 22); }
+
+    ctx.strokeStyle = '#1a3050'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(M, H - M); ctx.lineTo(W - 20, H - M); ctx.moveTo(M, 22); ctx.lineTo(M, H - M); ctx.stroke();
+    ctx.fillStyle = '#8fa3b8'; ctx.font = '12px system-ui';
+    ctx.fillText('PC1 — ' + (r.varianzaSpiegata[0] * 100).toFixed(1) + ' % della varianza', M + 4, H - M + 18);
+    ctx.save(); ctx.translate(14, H / 2); ctx.rotate(-Math.PI / 2);
+    ctx.fillText('PC2 — ' + (r.varianzaSpiegata[1] * 100).toFixed(1) + ' %', 0, 0); ctx.restore();
+
+    var conY = stato.molecole.some(function (m) { return typeof m.attivita === 'number'; });
+    var vals = stato.molecole.map(function (m) { return m.attivita; }).filter(function (v) { return typeof v === 'number'; });
+    var vmin = vals.length ? Math.min.apply(null, vals) : 0, vmax = vals.length ? Math.max.apply(null, vals) : 1;
+    r.punti.forEach(function (p, i) {
+      var m = stato.molecole[i];
+      var col = '#5eead4';
+      if (conY && typeof m.attivita === 'number') {
+        var t = (vmax - vmin) ? (m.attivita - vmin) / (vmax - vmin) : 0.5;
+        /* scala da blu (bassa) a giallo (alta): entrambi leggibili sul fondo scuro */
+        col = 'rgb(' + Math.round(90 + 165 * t) + ',' + Math.round(150 + 60 * t) + ',' + Math.round(240 - 150 * t) + ')';
+      }
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 5, 0, 6.2832); ctx.fill();
+    });
+    var leg = $('chemPcaLeg');
+    if (leg) {
+      leg.innerHTML = 'Con 2048 bit e ' + stato.fps.length + ' molecole la matrice di covarianza sarebbe 2048×2048, ' +
+        'ma ha al massimo n−1 autovalori non nulli: si diagonalizza la matrice di Gram, che è ' + stato.fps.length + '×' + stato.fps.length + '. ' +
+        'Stesso risultato, calcolo possibile nel browser.' +
+        (conY ? ' <b>Colore</b>: dal blu (attività bassa) al giallo (alta).' : '');
+    }
+  }
+
+  /* ── Modello QSAR ─────────────────────────────────────────────────── */
+  COSTRUISCI.qsar = function () {
+    var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 10) {
+      return avviso('Per costruire un modello servono almeno 10 molecole con un\'attività misurata: ne sono arrivate ' +
+        conY.length + '. Carica l\'esempio «inibitori», che ne ha 28.');
+    }
+    return '<div class="chem-card">' +
+      '<div class="chem-h">COSTRUZIONE DEL MODELLO</div>' +
+      '<div style="display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">' +
+      '<div style="min-width:0"><label for="chemDiv" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">divisione</label>' +
+      '<select id="chemDiv" aria-label="Metodo di divisione fra addestramento e prova" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
+      '<option value="scaffold">per scaffold (onesta)</option><option value="casuale">casuale (ottimistica)</option></select></div>' +
+      '<div style="min-width:0"><label for="chemFp" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">fingerprint</label>' +
+      '<select id="chemFp" aria-label="Tipo di fingerprint" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
+      '<option value="morgan">Morgan / ECFP4</option><option value="rdkit">RDKit</option><option value="maccs">MACCS</option>' +
+      '<option value="atompair">coppie di atomi</option><option value="torsion">torsioni</option></select></div>' +
+      '<button id="chemAddestra" class="chem-p">Addestra</button></div>' +
+      '<div id="chemQsarOut" style="color:#8fa3b8;font-size:.82rem">Premi «Addestra»: il modello verrà confrontato con dieci sosia a etichette rimescolate.</div>' +
+      '</div>';
+  };
+
+  function disegnaQsar() {
+    var b = $('chemAddestra');
+    if (b) b.onclick = addestra;
+  }
+
+  function addestra() {
+    var B = window.BSIChem, out = $('chemQsarOut');
+    if (!out) return;
+    out.textContent = 'Addestramento e controllo nullo in corso…';
+    setTimeout(function () {
+      try {
+        var m = B.costruisciModello(stato.molecole, {
+          divisione: ($('chemDiv') || {}).value || 'scaffold',
+          fingerprint: ($('chemFp') || {}).value || 'morgan',
+          scramble: 10, seme: 42
+        });
+        stato.modello = m;
+        var cn = m.controlloNullo, reg = m.tipo === 'regressione';
+        var punteggio = reg ? m.metriche.r2 : m.metriche.auc;
+        var etichetta = reg ? 'R² sull\'insieme di prova' : 'ROC-AUC sull\'insieme di prova';
+
+        var verdetto = cn.superaIlCaso
+          ? '<div style="background:#0d2f22;border:1px solid #2f7d5a;border-radius:9px;padding:12px">' +
+            '<div style="color:#4ade80;font-weight:800;font-size:.9rem">✓ Il modello batte tutti i suoi sosia casuali</div>' +
+            '<div style="color:#c9d3df;font-size:.82rem;margin-top:5px;line-height:1.6">Su ' + cn.ripetizioni +
+            ' rimescolamenti delle etichette il caso non è mai arrivato a ' + num(punteggio, 3) +
+            '. Il migliore dei sosia si è fermato a ' + num(cn.massimo, 3) + ': margine ' + num(cn.margine, 3) + '.</div></div>'
+          : '<div style="background:#3a1e1e;border:1px solid #8a3a3a;border-radius:9px;padding:12px">' +
+            '<div style="color:#ff8787;font-weight:800;font-size:.9rem">✗ Il modello NON batte i suoi sosia casuali</div>' +
+            '<div style="color:#c9d3df;font-size:.82rem;margin-top:5px;line-height:1.6">Con le etichette rimescolate si arriva fino a ' +
+            num(cn.massimo, 3) + ', contro ' + num(punteggio, 3) + ' del modello vero. ' +
+            '<b>Questo non è un modello</b>: è un ricamo sul rumore. Serve più chimica, non più parametri.</div></div>';
+
+        var kpi = reg
+          ? [['R²', num(m.metriche.r2, 3)], ['RMSE', num(m.metriche.rmse, 3)], ['MAE', num(m.metriche.mae, 3)], ['Pearson r', num(m.metriche.pearson, 3)]]
+          : [['ROC-AUC', num(m.metriche.auc, 3)], ['MCC', num(m.metriche.mcc, 3)],
+             ['acc. bilanciata', num(m.metriche.accuratezzaBilanciata, 3)], ['sensibilità', num(m.metriche.sensibilita, 3)]];
+
+        out.innerHTML = verdetto +
+          '<div class="chem-kpi" style="margin-top:12px">' +
+          kpi.map(function (k) { return '<div><div class="v">' + k[1] + '</div><div class="l">' + k[0] + '</div></div>'; }).join('') +
+          '<div><div class="v">' + m.nAddestramento + '/' + m.nProva + '</div><div class="l">addestr./prova</div></div>' +
+          '<div><div class="v">' + m.nScaffold + '</div><div class="l">scheletri</div></div></div>' +
+          '<canvas id="chemDisp" width="640" height="380" style="width:100%;height:auto;background:#0c1828;border-radius:9px;border:1px solid #1a3050;margin-top:12px"></canvas>' +
+          '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px;line-height:1.6">' +
+          '<b>' + etichetta + '</b>, con divisione <b>' + esc(m.divisione) + '</b> e fingerprint <b>' + esc(m.fingerprint) + '</b>. ' +
+          'La divisione per scaffold dà sempre numeri più bassi di quella casuale, e sono quelli veri: in chimica le molecole vengono in serie, ' +
+          'e mettere una molecola in addestramento e la sua gemella in prova non misura la capacità di prevedere, misura quella di copiare.' +
+          (m.tipo === 'regressione' ? ' Il grafico mostra previsto contro osservato: la diagonale è la previsione perfetta.' : '') +
+          '</div>';
+        if (reg) setTimeout(function () { disegnaDispersione(m); }, 30);
+      } catch (e) {
+        out.innerHTML = avviso('Non è stato possibile costruire il modello: ' + esc(e.message));
+      }
+    }, 30);
+  }
+
+  function disegnaDispersione(m) {
+    var c = $('chemDisp');
+    if (!c) return;
+    var ctx = window.bsiNitido ? window.bsiNitido(c) : c.getContext('2d');
+    var W = c.width, H = c.height, M = 52;
+    ctx.clearRect(0, 0, W, H);
+    var tutti = m.veri.concat(m.previsti);
+    var lo = Math.min.apply(null, tutti), hi = Math.max.apply(null, tutti);
+    var pad = (hi - lo) * 0.1 || 1; lo -= pad; hi += pad;
+    function X(v) { return M + (v - lo) / (hi - lo) * (W - M - 22); }
+    function Y(v) { return H - M - (v - lo) / (hi - lo) * (H - M - 22); }
+    ctx.strokeStyle = '#1a3050';
+    ctx.beginPath(); ctx.moveTo(M, H - M); ctx.lineTo(W - 22, H - M); ctx.moveTo(M, 22); ctx.lineTo(M, H - M); ctx.stroke();
+    ctx.strokeStyle = '#3d5878'; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(X(lo), Y(lo)); ctx.lineTo(X(hi), Y(hi)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#5eead4';
+    m.veri.forEach(function (v, i) {
+      ctx.beginPath(); ctx.arc(X(v), Y(m.previsti[i]), 5, 0, 6.2832); ctx.fill();
+    });
+    ctx.fillStyle = '#8fa3b8'; ctx.font = '12px system-ui';
+    ctx.fillText('osservato', W / 2 - 28, H - M + 20);
+    ctx.save(); ctx.translate(15, H / 2 + 20); ctx.rotate(-Math.PI / 2); ctx.fillText('previsto', 0, 0); ctx.restore();
+  }
+
+  /* ── Salti di attività ────────────────────────────────────────────── */
+  COSTRUISCI.salti = function () {
+    var B = window.BSIChem;
+    var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 4) return avviso('Servono almeno quattro molecole con attività misurata.');
+    var s = B.saltiAttivita(stato.molecole, { sogliaSimilarita: 0.7, sogliaDelta: 0.5 });
+    if (!s.length) return '<div class="chem-card"><div class="chem-h">SALTI DI ATTIVITÀ</div>' +
+      '<div style="color:#c9d3df;font-size:.85rem">Nessuna coppia supera le soglie (Tanimoto ≥ 0,7 e Δ ≥ 0,5). ' +
+      'In un insieme diverso è normale: i salti si trovano nelle serie congeneriche.</div></div>';
+    return '<div class="chem-card"><div class="chem-h">SALTI DI ATTIVITÀ — DOVE LA SAR SI ROMPE</div><div class="chem-tw"><table>' +
+      '<tr><th>coppia</th><th>Tanimoto</th><th>Δ attività</th><th>SALI</th></tr>' +
+      s.slice(0, 20).map(function (x) {
+        return '<tr><td>' + esc(x.a.nome) + ' ⟷ ' + esc(x.b.nome) + '</td>' +
+          '<td class="chem-num">' + num(x.similarita, 3) + '</td>' +
+          '<td class="chem-num">' + num(x.delta, 2) + '</td>' +
+          '<td class="chem-num">' + num(x.sali, 1) + '</td></tr>';
+      }).join('') + '</table></div>' +
+      '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px">Coppie quasi identiche con attività molto diversa: è il punto in cui un piccolo cambiamento vale molto, ' +
+      'e per un chimico medicinale è la cosa più interessante dell\'intero insieme. <b>SALI</b> = Δattività / (1 − similarità): quanto è ripido il salto.</div></div>';
+  };
+
+  /* ── Allarmi ──────────────────────────────────────────────────────── */
+  COSTRUISCI.allarmi = function () {
+    var B = window.BSIChem;
+    var righe = [], conta = 0;
+    stato.molecole.slice(0, 200).forEach(function (m) {
+      var a = B.allarmi(m.smiles);
+      if (!a || !a.allarmi.length) return;
+      conta++;
+      righe.push('<tr><td>' + esc(m.nome) + '</td><td>' +
+        a.allarmi.map(function (x) {
+          return '<b style="color:#fbbf24">' + esc(x.id) + '</b> <span style="color:#8fa3b8">(' + esc(x.classe) + ') — ' + esc(x.perche) + '</span>';
+        }).join('<br>') + '</td></tr>');
+    });
+    var h = '<div class="chem-card"><div class="chem-h">ALLARMI STRUTTURALI</div>' +
+      '<div class="chem-kpi"><div><div class="v">' + conta + '</div><div class="l">molecole con allarmi</div></div>' +
+      '<div><div class="v">' + (stato.molecole.length - conta) + '</div><div class="l">senza allarmi</div></div>' +
+      '<div><div class="v">' + B.elencoAllarmi.length + '</div><div class="l">sottostrutture cercate</div></div></div>';
+    h += righe.length ? '<div class="chem-tw" style="margin-top:11px"><table><tr><th>molecola</th><th>allarmi</th></tr>' + righe.join('') + '</table></div>'
+                      : '<div style="color:#4ade80;font-size:.85rem;margin-top:11px">Nessuna molecola fa scattare allarmi.</div>';
+    h += '<div style="color:#8fa3b8;font-size:.76rem;margin-top:9px">L\'elenco è un <b>sottoinsieme</b> dei PAINS e dei filtri di Brenk più frequenti, non il catalogo completo: ' +
+      'dichiararlo è parte della misura. Un allarme non è un verdetto — è un invito a guardare.</div></div>';
+    return h;
+  };
+
+  /* ── Avvio ────────────────────────────────────────────────────────── */
+  function avvia() {
+    var i = $('chemInput'); if (!i) return;
+    if (i._bsiPronto) return;
+    i._bsiPronto = true;
+    var v = $('chemVai'); if (v) v.onclick = analizza;
+    var a = $('chemEsInib'); if (a) a.onclick = function () { i.value = ES_INIB; dillo('Esempio caricato: 28 inibitori con pIC₅₀. Premi «Analizza».'); };
+    var f = $('chemEsFarm'); if (f) f.onclick = function () { i.value = esempioFarmaci(); dillo('Caricati i farmaci dell\'app che hanno una struttura. Premi «Analizza».'); };
+    var p = $('chemPulisci'); if (p) p.onclick = function () { i.value = ''; $('chemCorpo').style.display = 'none'; dillo(''); };
+    Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (t) {
+      t.onclick = function () {
+        Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (x) { x.classList.remove('chem-t-on'); });
+        t.classList.add('chem-t-on');
+        Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-pan'), function (x) { x.style.display = 'none'; });
+        var el = $('chemP-' + t.getAttribute('data-p'));
+        if (el) {
+          el.style.display = '';
+          if (t.getAttribute('data-p') === 'spazio') setTimeout(disegnaSpazio, 30);
+          if (t.getAttribute('data-p') === 'qsar') setTimeout(disegnaQsar, 30);
+        }
+      };
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia);
+  else avvia();
+  document.addEventListener('click', function () { setTimeout(avvia, 60); });
 })();
 </script>
 </body>

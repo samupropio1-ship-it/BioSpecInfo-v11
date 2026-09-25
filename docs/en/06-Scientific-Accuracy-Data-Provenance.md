@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v173` |
+| **Version described** | `bsi-v174` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v173` the bench also fails in the opposite case: an entry listed in the
+`bsi-v174` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -249,6 +249,61 @@ polymorphism.
 
 ---
 
+## 3-bis. Cheminformatics and QSAR models
+
+### 3-bis.1 Where the methods come from
+
+None of the methods in the **Cheminformatics** section was invented for the
+occasion. They are the ones in use, with the references that define them.
+
+| Method | Reference | How it is implemented here |
+|---|---|---|
+| **Tanimoto coefficient** | Rogers & Tanimoto, 1960 | Bits in common over bits in union, with the 0/0 = 1 convention declared in the code |
+| **Morgan / ECFP fingerprints** | Rogers & Hahn, *J. Chem. Inf. Model.* 50 (2010) 742 | From RDKit MinimalLib, radius 2, 2048 bits |
+| **MACCS keys** | Durant *et al.*, *J. Chem. Inf. Comput. Sci.* 42 (2002) 1273 | From RDKit MinimalLib, 166 keys |
+| **Rule of five** | Lipinski *et al.*, *Adv. Drug Deliv. Rev.* 23 (1997) 3 | Over the RDKit descriptors, with the violation count |
+| **Veber filter** | Veber *et al.*, *J. Med. Chem.* 45 (2002) 2615 | Rotatable bonds ≤ 10, TPSA ≤ 140 Å² |
+| **QED** | Bickerton *et al.*, *Nat. Chem.* 4 (2012) 90 | **Recomputed**: MinimalLib exposes 43 descriptors but not QED. The desirability-function parameters are those of the paper |
+| **Butina clustering** | Butina, *J. Chem. Inf. Comput. Sci.* 39 (1999) 747 | Threshold on the Tanimoto distance, leaders chosen by neighbour count |
+| **Bemis–Murcko scaffolds** | Bemis & Murcko, *J. Med. Chem.* 39 (1996) 2887 | Ring systems plus the bonds that connect them |
+| **PAINS** | Baell & Holloway, *J. Med. Chem.* 53 (2010) 2719 | A subset of the SMARTS patterns, with the reason for the flag |
+| **Brenk alerts** | Brenk *et al.*, *ChemMedChem* 3 (2008) 435 | Likewise |
+| **SALI** | Guha & Van Drie, *J. Chem. Inf. Model.* 48 (2008) 646 | Δactivity / (1 − Tanimoto), over the pairs above the similarity threshold |
+
+### 3-bis.2 The three things that make a QSAR honest
+
+A QSAR model is extremely easy to make look good. The three precautions below
+are what separate a number from a measurement, and all three are verified by
+the `test_cheminfo` bench.
+
+**Scaffold split.** With a random split, close analogues from the same series
+end up on both sides: the model recovers what it has already seen. The scaffold
+split groups the molecules by Bemis–Murcko scaffold and assigns **whole
+scaffolds** to one side only. The R² that comes out is lower — and it is the one
+that survives the new molecule.
+
+**Null model by scrambling.** The same model is retrained eight times on
+shuffled labels. If the true score does not exceed the best of the twins, the
+model has learnt nothing transferable, and the panel says so in those words. It
+is the check most often missing: without it, an R² of 0.4 over thirty molecules
+is indistinguishable from chance.
+
+**Applicability domain.** A prediction on a molecule far from everything the
+model has seen is an extrapolation, not a prediction. The distance to the
+nearest training neighbour is shown next to every predicted value.
+
+### 3-bis.3 Declared limits
+
+| Limit | Consequence |
+|---|---|
+| The example sets are **small** (28 and 40 molecules) | They exist to show the method, not to produce a usable model. On sets that size, the null model is the only serious defence — which is why it is there |
+| The model is **linear in the kernel** (kernel ridge, Tanimoto kernel) or logistic | No neural network, no gradient boosting: on a few hundred molecules these give no demonstrable advantage, and the cost would be a model one cannot inspect |
+| **PAINS are not a verdict** | A PAINS pattern signals that the compound has often been a false positive in fluorescence assays, not that it is inactive. The panel writes this next to every flag |
+| The **PCA is on the descriptors**, not on the fingerprints | On binary fingerprints PCA is not very informative; loadings on descriptors can be read, and are shown |
+| There is no **large-scale substructure search** | The workbench is sized for the sets one pastes in by hand, not for a library of millions of compounds |
+
+---
+
 ## 4. Physical constants and tabulated data
 
 The lookup of physical constants proceeds by decreasing specificity (exact match
@@ -290,7 +345,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v173` the residual errors on the drug database are **zero**: the 21
+`bsi-v174` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -299,4 +354,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v173`._
+_Document updated to version `bsi-v174`._

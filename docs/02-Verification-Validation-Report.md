@@ -117,7 +117,7 @@ In coerenza con il principio di trasparenza scientifica:
 
 ---
 
-## 7. Batteria di verifica — stato alla versione `bsi-v173`
+## 7. Batteria di verifica — stato alla versione `bsi-v174`
 
 La verifica non è più solo end-to-end funzionale: comprende banchi dedicati alle
 proprietà che un test funzionale non osserva (stabilità nel tempo, degrado di
@@ -137,7 +137,7 @@ rete, accuratezza dei dati).
 
 | Proprietà | Metodo | Risultato misurato |
 |---|---|---|
-| Assenza di perdite di memoria | 87 sezioni aperte per 5 giri, conteggio nodi DOM per giro | costruzione +26 876 nodi al primo giro, **+0 nei quattro successivi** |
+| Assenza di perdite di memoria | 88 sezioni aperte per 5 giri, conteggio nodi DOM per giro | costruzione +26 876 nodi al primo giro, **+0 nei quattro successivi** |
 | Sopravvivenza a memoria esaurita | `localStorage.setItem` forzato a lanciare | 10 pagine su 10 restano operative |
 | Degrado di rete (≠ assenza di rete) | richieste sospese 20 s, intercettazione a livello di contesto | risposta dalla cache in **3 507 ms** (soglia 3 500 ms) |
 | Riproducibilità degli spettri | doppio disegno, confronto byte a byte | identici |

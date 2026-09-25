@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v173` |
+| **Versione descritta** | `bsi-v174` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **87 sezioni**, raggruppate per area di studio.
+L'applicazione conta **88 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -112,6 +112,41 @@ Due diagnostiche che un r² non fornisce:
 > **La seconda riga è una trappola incontrata scrivendo la sezione**, non un
 > caso di scuola: il criterio a 3 σ era già scritto, e l'esempio che doveva
 > dimostrarlo non veniva segnalato. Il controllo passava senza vedere nulla.
+
+### 3.2-quater Chemioinformatica e QSAR
+
+Sezione **Chemioinformatica**: un banco di lavoro che va dall'insieme grezzo
+al verdetto sul modello, interamente nel browser. Si incollano SMILES — con
+nome e attività, se ci sono — e si ottiene in sei pannelli ciò che un gruppo
+di chemioinformatica produce in una giornata.
+
+| Pannello | Cosa fa |
+|---|---|
+| **Descrittori** | Standardizzazione (frammento maggiore, SMILES canonico, deduplicazione), 43 descrittori RDKit, regola dei 5 di Lipinski, filtro di Veber, indice QED ricalcolato — MinimalLib non lo espone |
+| **Similarità e gruppi** | Impronte Morgan/ECFP4, RDKit, pattern e MACCS; Tanimoto e Dice; matrice di similarità; vicini più simili; **raggruppamento di Butina** e selezione **MaxMin** per la diversità |
+| **Spazio chimico** | PCA sui descrittori standardizzati, con varianza spiegata per componente e i **carichi** che dicono quale descrittore muove quale asse; scheletri di **Bemis–Murcko** con il conteggio delle molecole per scheletro |
+| **Modello QSAR** | Regressione kernel (kernel di Tanimoto sulle impronte) o regressione logistica; **divisione per scheletro** oltre a quella casuale; R², RMSE, MAE, Pearson per la regressione, ROC-AUC e MCC per la classificazione; **dominio di applicabilità** con la distanza dal vicino più prossimo nell'insieme di addestramento |
+| **Salti di attività** | Coppie strutturalmente vicine con attività lontane, ordinate per **SALI**: sono le coppie su cui ogni modello sbaglia, ed è onesto mostrarle |
+| **Allarmi strutturali** | PAINS e Brenk, con il frammento evidenziato e il motivo per cui è segnalato |
+
+Tre scelte che distinguono un banco di lavoro da una dimostrazione:
+
+| Scelta | Metodo | Perché |
+|---|---|---|
+| **Divisione per scheletro** | L'insieme di prova contiene **soltanto scheletri mai visti** in addestramento | La divisione casuale mette analoghi stretti da entrambe le parti: il modello riconosce, non predice, e l'R² che ne esce non sopravvive alla prima molecola nuova |
+| **Modello nullo per rimescolamento** | Lo stesso modello viene riaddestrato su **etichette mescolate**, otto volte; il verdetto è il confronto | Un R² di 0,4 può nascere dal caso quando le molecole sono poche. Se i sosia casuali arrivano allo stesso punteggio, il modello non ha imparato niente — e il pannello **lo dice**, invece di mostrare solo il numero buono |
+| **Deduplicazione sul canonico** | `OC(=O)C` e `CC(=O)O` sono la stessa molecola | La stessa molecola in addestramento e in prova è una fuga di informazione, e la stringa scritta non basta a vederla |
+
+> **Il verdetto è scritto a parole, non lasciato al lettore.** Il pannello QSAR
+> non si ferma alle metriche: dichiara se il modello ha battuto tutti i suoi
+> sosia casuali e di quanto. Misurato sull'esempio dei 28 inibitori: R² 0,861
+> contro un massimo di 0,574 fra gli otto sosia — margine 0,287. Sulle stesse
+> molecole con etichette casuali il modello **non** batte i sosia, e il pannello
+> lo dichiara allo stesso modo.
+
+Il motore sta in `bsi-cheminfo.js`, è esposto come `window.BSIChem` ed è
+verificato dal banco `test_cheminfo` (59 controlli) contro valori calcolabili a
+mano.
 
 ### 3.3 Chimica organica
 
@@ -260,7 +295,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 87 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 88 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,79 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
@@ -281,4 +316,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v173`._
+_Documento aggiornato alla versione `bsi-v174`._

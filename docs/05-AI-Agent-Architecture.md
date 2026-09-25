@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v173` |
+| **Versione documentata** | Service Worker `bsi-v174` |
 
 ---
 
@@ -487,7 +487,7 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 | **Fisica** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
-| **Controllo app** | `naviga_sezione` (87 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
+| **Controllo app** | `naviga_sezione` (88 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
 
@@ -694,7 +694,7 @@ nel motore di calcolo.
 
 Test automatizzati con Chromium *headless* su tutte le 14 pagine
 dell'applicazione: nessun errore JavaScript, nessuna risorsa mancante.
-Percorse una per una le 87 sezioni di `index.html` e i 18 tab della sezione
+Percorse una per una le 88 sezioni di `index.html` e i 18 tab della sezione
 Astrochimica. Ispezionato il corpo delle richieste per i quattro livelli
 Claude, e simulato un ciclo completo con ricerca web, sospensione e ripresa
 del turno.

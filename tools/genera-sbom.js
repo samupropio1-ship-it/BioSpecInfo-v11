@@ -78,6 +78,8 @@ const PROPRI = [
     ruoloEn: '«Spectra» AI agent: agentic loop, tools, provider management.' },
   { file: 'bsi-spettri.js', ruolo: 'Motore di predizione spettrale IR/NMR su grafo molecolare.',
     ruoloEn: 'IR/NMR spectral prediction engine over the molecular graph.' },
+  { file: 'bsi-cheminfo.js', ruolo: 'Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo.',
+    ruoloEn: 'Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model.' },
   { file: 'sw.js',          ruolo: 'Service Worker: funzionamento offline e strategia di rete.',
     ruoloEn: 'Service Worker: offline operation and network strategy.' },
   { file: 'rdkit_lab.html', ruolo: 'Laboratorio di chemioinformatica.', ruoloEn: 'Cheminformatics laboratory.' },

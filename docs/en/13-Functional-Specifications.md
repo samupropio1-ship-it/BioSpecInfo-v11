@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v173` |
+| **Version described** | `bsi-v174` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **87 sections**, grouped by area of study.
+The application has **88 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -111,6 +111,41 @@ Two diagnostics that an r² does not provide:
 > case: the 3 σ criterion was already written, and the example meant to
 > demonstrate it was not being flagged. The check passed without seeing
 > anything.
+
+### 3.2-quater Cheminformatics and QSAR
+
+**Cheminformatics** section: a workbench that goes from the raw set to a
+verdict on the model, entirely in the browser. SMILES are pasted in — with a
+name and an activity, where there are any — and six panels return what a
+cheminformatics group produces in a day.
+
+| Panel | What it does |
+|---|---|
+| **Descriptors** | Standardisation (largest fragment, canonical SMILES, deduplication), 43 RDKit descriptors, Lipinski's rule of five, Veber filter, QED recomputed — MinimalLib does not expose it |
+| **Similarity and groups** | Morgan/ECFP4, RDKit, pattern and MACCS fingerprints; Tanimoto and Dice; similarity matrix; nearest neighbours; **Butina clustering** and **MaxMin** selection for diversity |
+| **Chemical space** | PCA on the standardised descriptors, with explained variance per component and the **loadings** that say which descriptor moves which axis; **Bemis–Murcko** scaffolds with the molecule count per scaffold |
+| **QSAR model** | Kernel ridge (Tanimoto kernel over the fingerprints) or logistic regression; **scaffold split** alongside the random one; R², RMSE, MAE, Pearson for regression, ROC-AUC and MCC for classification; **applicability domain** by distance to the nearest training neighbour |
+| **Activity cliffs** | Structurally close pairs with distant activities, ranked by **SALI**: these are the pairs every model gets wrong, and it is honest to show them |
+| **Structural alerts** | PAINS and Brenk, with the matched fragment highlighted and the reason it is flagged |
+
+Three choices that separate a workbench from a demonstration:
+
+| Choice | Method | Why |
+|---|---|---|
+| **Scaffold split** | The test set contains **only scaffolds never seen** in training | A random split puts close analogues on both sides: the model recognises rather than predicts, and the R² that comes out does not survive the first new molecule |
+| **Null model by scrambling** | The same model is retrained on **shuffled labels**, eight times; the verdict is the comparison | An R² of 0.4 can arise by chance when the molecules are few. If the random twins reach the same score, the model has learnt nothing — and the panel **says so**, instead of showing only the good number |
+| **Deduplication on the canonical form** | `OC(=O)C` and `CC(=O)O` are the same molecule | The same molecule in training and in test is an information leak, and the written string is not enough to see it |
+
+> **The verdict is written out in words, not left to the reader.** The QSAR
+> panel does not stop at the metrics: it states whether the model beat all its
+> random twins, and by how much. Measured on the 28-inhibitor example: R² 0.861
+> against a maximum of 0.574 among the eight twins — margin 0.287. On the same
+> molecules with random labels the model does **not** beat the twins, and the
+> panel says so in the same way.
+
+The engine lives in `bsi-cheminfo.js`, is exposed as `window.BSIChem` and is
+verified by the `test_cheminfo` bench (59 checks) against hand-computable
+values.
 
 ### 3.3 Organic chemistry
 
@@ -259,7 +294,7 @@ Declared, not hidden. The detail is in
 | 3 | **No synchronisation** | Data do not pass from one device to another, and there are no copies on a server |
 | 4 | **File Manager: deterrent, not security** | On a static site, whoever reads the source bypasses any page-side control. The source carries only the SHA-256 digest of the password, never the password |
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
-| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 87 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
+| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 88 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
 | 8 | **Partial code coverage** | Measured: **49.79 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
@@ -280,4 +315,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v173`._
+_Document updated to version `bsi-v174`._

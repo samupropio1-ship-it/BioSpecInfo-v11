@@ -8,6 +8,80 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
 
+## [bsi-v174] — 2026-09-25
+
+Una sezione nuova: **Chemioinformatica**. Non un laboratorio dimostrativo — ce
+n'era già uno, e usava RDKit in superficie — ma il banco di lavoro che serve
+per dire qualcosa di difendibile su un insieme di molecole.
+
+### Aggiunto — `bsi-cheminfo.js`, il motore
+
+Un modulo autonomo, esposto come `window.BSIChem`, che copre il percorso
+intero: standardizzazione (frammento maggiore, SMILES canonico, deduplicazione
+sul canonico), 43 descrittori RDKit, regola dei 5 e filtro di Veber, **QED
+ricalcolato** perché MinimalLib non lo espone, impronte Morgan/RDKit/pattern/
+MACCS, Tanimoto e Dice, raggruppamento di **Butina**, selezione **MaxMin**,
+scheletri di **Bemis–Murcko**, PCA con i carichi, **regressione kernel** e
+logistica, **salti di attività** per SALI, allarmi **PAINS** e **Brenk**,
+dominio di applicabilità.
+
+L'algebra è scritta qui dentro — Jacobi per gli autovalori, eliminazione
+gaussiana per il sistema — perché una dipendenza in più per due funzioni non
+vale il peso, e perché un banco può verificare entrambe contro valori
+calcolabili a mano.
+
+### Aggiunto — la sezione, sei pannelli
+
+Descrittori · Similarità e gruppi · Spazio chimico · Modello QSAR · Salti di
+attività · Allarmi strutturali. Due insiemi di esempio già pronti (28
+inibitori con pIC₅₀, 40 farmaci presi dalla banca dati dell'app).
+
+### Le tre precauzioni che distinguono una misura da un numero
+
+- **Divisione per scheletro.** L'insieme di prova contiene soltanto scheletri
+  mai visti in addestramento. La divisione casuale mette analoghi stretti da
+  entrambe le parti: il modello riconosce invece di predire.
+- **Modello nullo per rimescolamento.** Lo stesso modello viene riaddestrato
+  otto volte su etichette mescolate, e il pannello **dichiara a parole** se il
+  punteggio vero ha battuto tutti i sosia e di quanto. Sui 28 inibitori:
+  R² 0,861 contro un massimo di 0,574, margine 0,287.
+- **Dominio di applicabilità.** La distanza dal vicino più prossimo
+  nell'insieme di addestramento, accanto a ogni valore predetto.
+
+### Aggiunto — il 44° banco
+
+`test_cheminfo`, 59 controlli contro valori calcolabili a mano. Verifica il
+modello nullo **nei due versi**: su un segnale apprendibile R² 0,394 batte
+tutti e otto i sosia; su etichette casuali R² −0,199 **non** li batte. Un
+controllo che verificasse solo il primo caso passerebbe anche con la guardia
+cablata su «vero». Il banco pretende inoltre di aver eseguito almeno 45
+controlli: una suite saltata in silenzio fallisce.
+
+### Corretto — RDKit non si caricava nella sezione nuova
+
+Il modulo cercava `window.RDKit`, ma l'applicazione principale mette l'istanza
+in `window.__rdkit` — è il suo caricatore `bsiLoadRDKit` a deciderlo. Su una
+pagina dove RDKit era già pronto, la sezione diceva «RDKit si sta caricando»
+per sempre. Ora si guardano tutti e tre i nomi in uso.
+
+### Verificato — i due zeri non si sono rotti
+
+La sezione nuova è stata rimisurata con gli stessi banchi: contrasto WCAG AA
+**0 difetti** su 88 sezioni, traboccamento orizzontale a 390 px **0 sezioni**,
+campi privi di etichetta **0**, errori JavaScript **0**.
+
+### Documentazione
+
+Tracciabilità: quattro requisiti nuovi (SCI-14…17), totale dichiarato da 44 a
+48, automatizzati da 39 a 43. `docs/06` §3-bis elenca i riferimenti
+bibliografici di ogni metodo e i limiti dichiarati. `docs/13` §3.2-quater
+descrive i sei pannelli. `docs/15` registra il banco. Tutto in italiano e in
+inglese.
+
+Batteria: **44 banchi, 0 falliti**.
+
+---
+
 ## [bsi-v173] — 2026-09-23
 
 Chiuse le ultime due difformità che restavano aperte per scelta o per lavoro:
