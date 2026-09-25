@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v173` |
+| **Versione descritta** | `bsi-v174` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**43 banchi**, raggruppati per ciò che dimostrano.
+**44 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -103,6 +103,15 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_costanti` | Ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | Coerenza dei dati tabulati | 29 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
+| `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette** | 59 |
+
+
+> **Un banco che verifica un modello deve verificarlo anche quando il modello
+> deve fallire.** `test_cheminfo` prova il modello nullo nei due versi: su un
+> segnale apprendibile l'R² vero (0,394) batte tutti e otto i sosia con
+> etichette rimescolate, con un margine di 0,287; sulle **stesse molecole con
+> etichette casuali** l'R² (−0,199) **non** li batte. Un controllo che verifica
+> solo il primo caso passerebbe anche se la guardia fosse cablata su «vero».
 
 ### 3.2 Agente AI
 
@@ -123,7 +132,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 | Banco | Cosa mette alla prova |
 |---|---|
-| `audit_stabilita` | 87 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
+| `audit_stabilita` | 88 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
 | `audit_promesse` | Promesse rifiutate e non gestite, con rete sana e con rete morta |
 | `audit_quota` | `localStorage.setItem` forzato a fallire su 10 pagine |
 | `test_sw` | Offline, rete degradata, aggiornamento durante il lavoro |
@@ -141,8 +150,8 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 |---|---|
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 87 sezioni |
-| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 87 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 88 sezioni |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 88 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,79 %, registrato e difeso |
 
 > **L'ostacolo era dello strumento, non del problema.** Per tre versioni la
@@ -206,7 +215,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 > **Una sezione per volta.** L'ispezione salta gli elementi non visibili — ed è
 > corretto: un elemento nascosto non ha contrasto da misurare. Ma `index.html`
-> alterna 87 sezioni e ne mostra una sola: su **19 751** elementi di testo il
+> alterna 88 sezioni e ne mostra una sola: su **19 751** elementi di testo il
 > banco ne guardava **41**, e stampava «0 difetti». Non era un risultato falso,
 > era un risultato su un campione che nessuno aveva dichiarato. Ora le sezioni
 > vengono aperte una per una, e **il numero di sezioni percorse viene
@@ -215,7 +224,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > Quel conteggio si è guadagnato lo stipendio alla prima esecuzione: il primo
 > tentativo ne percorreva **zero** — il clic di Playwright aspetta che
 > l'elemento sia visibile, e i pulsanti stanno dentro gruppi di navigazione
-> richiusi — e il banco l'ha detto («87 sezioni presenti, nessuna percorsa»)
+> richiusi — e il banco l'ha detto («88 sezioni presenti, nessuna percorsa»)
 > invece di stampare un altro zero rassicurante.
 
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
@@ -301,13 +310,13 @@ funzionale non osserva.
 
 | Caso | Metodo | Risultato misurato |
 |---|---|---|
-| **Perdite di memoria** | 87 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
+| **Perdite di memoria** | 88 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
 | **Memoria esaurita** | `setItem` sostituito con una funzione che lancia sempre | 10 pagine su 10 restano operative |
 | **Rete degradata ≠ assente** | Richieste sospese 20 s, intercettazione a livello di contesto | Risposta dalla cache in **3 507 ms** (soglia 3 500) |
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 87 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 88 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -381,7 +390,7 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,79 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
-| **Accessibilità** | Automatizzata su 13 pagine e tutte le 87 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 88 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
 | **Sicurezza** | `verifica-sicurezza` esegue 9 controlli su 235 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
@@ -401,4 +410,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v173`._
+_Documento aggiornato alla versione `bsi-v174`._

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v173` |
+| **Version described** | `bsi-v174` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -35,6 +35,10 @@
 | **SCI-10** | Molecular symmetry must determine the selection rules correctly | `ssimm` section in `index.html` | `test_simmetria` — 26 checks: normal modes, centre of inversion, mutual exclusion |
 | **SCI-12** | A chromatogram must follow from the parameters, not be drawn by hand | `scroma` section: σ = t<sub>R</sub>/√N, R<sub>s</sub> from distance and widths | `audit_stabilita` (opening and drawing), inspection of the values against the definitions |
 | **SCI-13** | A calibration line must declare the uncertainty of its coefficients and recognise the two ways it misleads | `staratura` section: ordinary least squares, F-test line⟷parabola, deleted residual | Verified on the three example sets included: linear (F = 0.3), non-linear (F = 186.6 > 7.71), with an outlier (1 detected) |
+| **SCI-14** | A QSAR model must be evaluated on scaffolds never seen, not on analogues from the same set | `bsi-cheminfo.js` §9 — `divisionePerScaffold()` alongside `divisioneCasuale()` | `test_cheminfo` — the scaffold split leaves no scaffold shared between training and test |
+| **SCI-15** | A model score must be compared against chance, not presented on its own | `bsi-cheminfo.js` §9 — retraining on scrambled labels, eight repetitions | `test_cheminfo` — verified **in both directions**: on a learnable signal R² 0.394 beats all eight twins (margin 0.287); on random labels R² −0.199 does **not** beat them |
+| **SCI-16** | Two spellings of the same molecule must not be counted twice, nor land on opposite sides of the split | `bsi-cheminfo.js` §1 — deduplication on the canonical SMILES after the largest fragment | `test_cheminfo` — `OC(=O)C` and `CC(=O)O` collapse into one entry; salts lose the counterion |
+| **SCI-17** | Similarity between molecules must be computed, not estimated | `bsi-cheminfo.js` §3 — Tanimoto and Dice over Morgan, RDKit, pattern and MACCS fingerprints | `test_cheminfo` — compared against hand-computable values, including the 0/0 = 1 convention |
 
 ---
 
@@ -59,7 +63,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 87 sections × 5 rounds |
+| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 88 sections × 5 rounds |
 | **STA-02** | Exhausting `localStorage` must not make the app unusable | guarded writes; persistent warning in the File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | No rejected promise may remain unhandled | systematic `.catch()` | `audit_promesse` — 22 checks, healthy network and dead network |
 | **STA-04** | Corrupted saved data must not prevent startup | `loadJSON()` with fallback | `audit_stabilita` §4 |
@@ -76,7 +80,7 @@
 |---|---|---|---|
 | **UI-01** | Every page must open without JavaScript errors | — | `audit_stabilita` §5 — 14 pages |
 | **UI-02** | Charts must be sharp on high-density screens | `bsiNitido()` on the canvas contexts | `audit_grafici` — 40 canvases |
-| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 87 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
+| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 88 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 
@@ -87,7 +91,7 @@
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
 | **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 235 tracked files, 8 credential shapes |
-| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 87 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
+| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 88 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
 
@@ -97,7 +101,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v173`. The
+> remedy was to change it, and that **has been done** at version `bsi-v174`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -109,7 +113,7 @@ manual testing, and their automation is planned.
 
 | ID | Requirement | Current coverage |
 |---|---|---|
-| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 87 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 87 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
+| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 88 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 88 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
 | **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.79 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
@@ -121,14 +125,14 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…13) | 12 | 12 | 100 % |
+| Scientific (SCI-01…17) | 16 | 16 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…05) | 5 | 5 | 100 % |
 | Security (SEC-01…04) | 4 | 4 | 100 % |
-| **Automated total** | **39** | **39** | **100 %** |
+| **Automated total** | **43** | **43** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **44** | **39** | **89 %** |
+| **Declared total** | **48** | **43** | **90 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -136,8 +140,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **39
-> requirements verified out of 44 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **43
+> requirements verified out of 48 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
@@ -163,4 +167,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v173`._
+_Document updated to version `bsi-v174`._

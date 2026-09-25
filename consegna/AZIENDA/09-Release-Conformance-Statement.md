@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v173` |
+| **Versione** | `bsi-v174` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v173` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v174` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -76,8 +76,8 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-01** | **2 voci** (erano 6) che non sono molecole singole: Ivermectina, miscela di omologhi B1a/B1b, e Coartem, associazione di due principi attivi | Per queste due non è disponibile la rappresentazione 2D/3D né la predizione spettrale | Voci lasciate **senza SMILES**: i dati farmacologici restano, la struttura non è mostrata. Per Digossina, Vincristina e Tacrolimus (topico e sistemico) la struttura è stata ripresa da **ChEMBL** e supera il confronto col peso molecolare dichiarato: le quattro voci sono uscite dal registro. Le due che restano non hanno una struttura da mostrare, non una struttura mancante. |
 | **D-02** | 19 voci prive di SMILES per natura (anticorpi monoclonali, peptidi) | Nessuno: per queste molecole la notazione SMILES non è la rappresentazione appropriata | Non è una difformità sostanziale; elencata per completezza |
 | **D-03** | ~~SEC-02 verificato solo per interposta proprietà~~ — **sanata**: vedi S-10 | — | `audit_rete` osserva il traffico durante un uso reale, con un valore spia seminato nei dati dell'utente |
-| **D-04** | ~~Password del File Manager nella cronologia git~~ — **sanata**: vedi S-12 | — | La password è stata **cambiata** alla versione `bsi-v173`. Quella vecchia resta leggibile nella cronologia e non apre più niente |
-| **D-06** | Copertura di codice **misurata ma parziale**: 49,79 % di istruzioni, non di rami | È la copertura del percorso più ampio che un banco compie (87 sezioni più le altre pagine), non della batteria intera; e un `if` entrato da un solo lato conta come coperto | `audit_copertura` la misura con il profilatore di Chromium, senza build e senza riscrivere il sorgente. Il valore è **registrato**: se scende, la batteria fallisce |
+| **D-04** | ~~Password del File Manager nella cronologia git~~ — **sanata**: vedi S-12 | — | La password è stata **cambiata** alla versione `bsi-v174`. Quella vecchia resta leggibile nella cronologia e non apre più niente |
+| **D-06** | Copertura di codice **misurata ma parziale**: 49,79 % di istruzioni, non di rami | È la copertura del percorso più ampio che un banco compie (88 sezioni più le altre pagine), non della batteria intera; e un `if` entrato da un solo lato conta come coperto | `audit_copertura` la misura con il profilatore di Chromium, senza build e senza riscrivere il sorgente. Il valore è **registrato**: se scende, la batteria fallisce |
 | **D-07** | Verifica su Chromium soltanto | Firefox e WebKit sono provati a mano | Dichiarato in `docs/08` §8. Nell'ambiente di verifica il motivo è verificabile: la CDN da cui `playwright-core` scarica gli altri motori risponde **403** alla politica di rete, quindi Firefox e WebKit non sono installabili lì |
 | **D-08** | ~~Traduzione inglese parziale~~ — **sanata**: vedi S-13 | — | Tutti e **16 i documenti** sono in inglese. `verifica-documenti` e `verifica-affermazioni` leggono `docs/en/` come l'italiano: un disaccordo fra le due lingue fa fallire la batteria |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo dentro gli SVG (8 888 elementi), quello su una vera **immagine** di sfondo (108) e tutto ciò che richiede giudizio umano. Il testo su **gradiente** è entrato nella misura: 591 elementi, valutati sulla tappa peggiore del gradiente | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
@@ -93,8 +93,8 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > Percorrendo tutte e 87 le sezioni sono emersi **1 069** difetti di contrasto.
 > Non erano comparsi: c'erano sempre stati.
 >
-> Oggi sono **zero**, misurati sulle stesse 87 sezioni con lo stesso banco. Non
-> per sostituzione in blocco — quella strada, tentata una volta, aveva
+> Oggi sono **zero**, misurati con lo stesso banco su tutte le sezioni — che
+> oggi sono 88. Non per sostituzione in blocco — quella strada, tentata una volta, aveva
 > introdotto 997 difetti nuovi — ma risalendo ogni volta alla **causa comune** e
 > rimisurando dopo ogni modifica. I **40 campi privi di etichetta** sono
 > anch'essi scesi a **zero**.
@@ -139,7 +139,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 > | Un colore scelto dai dati usato come **sfondo** con il testo fissato a `#fff` nel codice: funziona finché la tinta è scura e smette appena qualcuno aggiunge `#e65100` | `bsiEtichettaLeggibile()` — il duale della funzione precedente: sceglie il testo guardando il fondo e, se nessuno dei due estremi basta, **scurisce il fondo conservando la tinta**, perché un'etichetta deve restare riconoscibile per colore |
 >
 > I passaggi misurati col banco ufficiale, non stimati: **80 → 27 → 26 → 10 → 4 → 0**.
-> Ogni scalino è una rimisura completa sulle 87 sezioni dopo un gruppo di
+> Ogni scalino è una rimisura completa su tutte le sezioni dopo un gruppo di
 > modifiche; nessuna cifra qui sopra è attribuita a una causa singola, perché
 > le cause non sono state misurate una per una.
 >
@@ -246,4 +246,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v173`._
+_Versione `bsi-v174`._

@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v173` |
+| **Documented version** | Service Worker `bsi-v174` |
 
 ---
 
@@ -471,7 +471,7 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 | **Physics** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **External databases** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Internal data** | `cerca_nel_database` (9 datasets), `cerca_molecola` |
-| **App control** | `naviga_sezione` (87 sections), `apri_strumento` (12 labs), `stato_app` |
+| **App control** | `naviga_sezione` (88 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
 | **Animations** | `apri_animazione` (6 reaction mechanisms) |
 
@@ -669,7 +669,7 @@ database types, and the 10 injection attempts against the expression engine.
 ### 5.3 Integration — real browser
 
 Automated tests with headless Chromium across all 14 application pages: no
-JavaScript errors, no missing resources. All 87 sections of `index.html` and
+JavaScript errors, no missing resources. All 88 sections of `index.html` and
 the 18 tabs of the Astrochemistry module were traversed one by one. Request
 bodies were inspected for the four Claude tiers, and a full cycle with web
 search, turn suspension and resumption was simulated.

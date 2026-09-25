@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v173` |
+| **Versione descritta** | `bsi-v174` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -35,6 +35,10 @@
 | **SCI-10** | La simmetria molecolare deve determinare correttamente le regole di selezione | sezione `ssimm` in `index.html` | `test_simmetria` — 26 controlli: modi normali, centro di inversione, esclusione mutua |
 | **SCI-12** | Un cromatogramma deve discendere dai parametri, non essere disegnato | sezione `scroma`: σ = t<sub>R</sub>/√N, R<sub>s</sub> da distanza e larghezze | `audit_stabilita` (apertura e disegno), ispezione dei valori contro le definizioni |
 | **SCI-13** | Una retta di taratura deve dichiarare l'incertezza dei suoi coefficienti e riconoscere i due modi in cui inganna | sezione `staratura`: minimi quadrati ordinari, test F retta⟷parabola, residuo cancellato | Verificato sui tre insiemi di esempio inclusi: lineare (F = 0,3), non lineare (F = 186,6 > 7,71), con punto anomalo (1 rilevato) |
+| **SCI-14** | Un modello QSAR deve essere valutato su scheletri mai visti, non su analoghi dello stesso insieme | `bsi-cheminfo.js` §9 — `divisionePerScaffold()` accanto a `divisioneCasuale()` | `test_cheminfo` — la divisione per scheletro non lascia nessuno scheletro in comune fra addestramento e prova |
+| **SCI-15** | Un punteggio di modello deve essere confrontato con il caso, non presentato da solo | `bsi-cheminfo.js` §9 — riaddestramento su etichette rimescolate, otto ripetizioni | `test_cheminfo` — verificato **nei due versi**: su un segnale apprendibile R² 0,394 batte tutti gli otto sosia (margine 0,287); su etichette casuali R² −0,199 **non** li batte |
+| **SCI-16** | Due scritture della stessa molecola non devono contarsi due volte né finire da parti opposte della divisione | `bsi-cheminfo.js` §1 — deduplicazione sullo SMILES canonico dopo il frammento maggiore | `test_cheminfo` — `OC(=O)C` e `CC(=O)O` collassano in una voce; i sali perdono il controione |
+| **SCI-17** | La similarità fra molecole deve essere calcolata, non stimata | `bsi-cheminfo.js` §3 — Tanimoto e Dice su impronte Morgan, RDKit, pattern, MACCS | `test_cheminfo` — confronto con valori calcolabili a mano, compresa la convenzione 0/0 = 1 |
 
 ---
 
@@ -59,7 +63,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 87 sezioni × 5 giri |
+| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 88 sezioni × 5 giri |
 | **STA-02** | L'esaurimento di `localStorage` non deve rendere inutilizzabile l'app | scritture protette; avviso persistente nel File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | Nessuna promessa rifiutata deve restare non gestita | `.catch()` sistematici | `audit_promesse` — 22 controlli, rete sana e rete morta |
 | **STA-04** | Dati salvati corrotti non devono impedire l'avvio | `loadJSON()` con ripiego | `audit_stabilita` §4 |
@@ -76,7 +80,7 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 87 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 88 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 
@@ -87,7 +91,7 @@
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
 | **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 235 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 87 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 88 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
@@ -97,7 +101,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v173`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v174`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -109,7 +113,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 87 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 87 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 88 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 88 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,79 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
@@ -121,14 +125,14 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…13) | 12 | 12 | 100 % |
+| Scientifici (SCI-01…17) | 16 | 16 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…05) | 5 | 5 | 100 % |
 | Sicurezza (SEC-01…04) | 4 | 4 | 100 % |
-| **Totale automatizzato** | **39** | **39** | **100 %** |
+| **Totale automatizzato** | **43** | **43** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **44** | **39** | **89 %** |
+| **Totale dichiarato** | **48** | **43** | **90 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -136,8 +140,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **39
-> requisiti verificati su 44 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **43
+> requisiti verificati su 48 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
@@ -164,4 +168,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v173`._
+_Documento aggiornato alla versione `bsi-v174`._

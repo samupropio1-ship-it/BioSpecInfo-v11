@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v173` |
+| **Version described** | `bsi-v174` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**43 benches**, grouped by what they demonstrate.
+**44 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -104,6 +104,15 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_costanti` | Physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | Consistency of the tabulated data | 29 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
+| `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling** | 59 |
+
+
+> **A bench that verifies a model must also verify it when the model is
+> supposed to fail.** `test_cheminfo` exercises the null model in both
+> directions: on a learnable signal the true R² (0.394) beats all eight
+> label-scrambled twins, with a margin of 0.287; on the **same molecules with
+> random labels** the R² (−0.199) does **not** beat them. A check that verifies
+> only the first case would pass even if the guard were wired to "true".
 
 ### 3.2 AI agent
 
@@ -124,7 +133,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 87 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 88 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -142,8 +151,8 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 |---|---|
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 87 sections |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 87 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 88 sections |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 88 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.79 %, recorded and defended |
 
 > **The obstacle belonged to the tool, not to the problem.** For three versions
@@ -204,7 +213,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 87 sections and shows only one: out of **19,751** text
+> `index.html` alternates 88 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -298,13 +307,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 87 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 88 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 87 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 88 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -378,7 +387,7 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.79 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 87 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Accessibility** | Automated over 13 pages and all 88 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
 | **Security** | `verifica-sicurezza` runs 9 checks over 235 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
@@ -398,4 +407,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v173`._
+_Document updated to version `bsi-v174`._

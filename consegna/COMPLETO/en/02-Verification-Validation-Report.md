@@ -116,7 +116,7 @@ In line with the principle of scientific transparency:
 
 ---
 
-## 7. Verification battery — state at version `bsi-v173`
+## 7. Verification battery — state at version `bsi-v174`
 
 Verification is no longer only functional end-to-end testing: it includes
 benches dedicated to the properties a functional test does not observe
@@ -136,7 +136,7 @@ benches dedicated to the properties a functional test does not observe
 
 | Property | Method | Measured result |
 |---|---|---|
-| Absence of memory leaks | 87 sections opened for 5 rounds, DOM node count per round | construction +26,876 nodes on the first round, **+0 on the four that follow** |
+| Absence of memory leaks | 88 sections opened for 5 rounds, DOM node count per round | construction +26,876 nodes on the first round, **+0 on the four that follow** |
 | Survival of exhausted storage | `localStorage.setItem` forced to throw | 10 pages out of 10 stay operational |
 | Network degradation (≠ no network) | requests held for 20 s, interception at context level | answer served from cache in **3,507 ms** (threshold 3,500 ms) |
 | Spectrum reproducibility | drawn twice, compared byte for byte | identical |

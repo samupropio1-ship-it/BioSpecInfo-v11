@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v173` |
+| **Versione descritta** | `bsi-v174` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v173` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v174` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -252,6 +252,62 @@ polimorfismo allo stato solido.
 
 ---
 
+## 3-bis. Chemioinformatica e modelli QSAR
+
+### 3-bis.1 Da dove vengono i metodi
+
+Nessuno dei metodi della sezione **Chemioinformatica** è inventato per
+l'occasione. Sono quelli in uso, con i riferimenti che li definiscono.
+
+| Metodo | Riferimento | Come è implementato qui |
+|---|---|---|
+| **Coefficiente di Tanimoto** | Rogers & Tanimoto, 1960 | Bit in comune su bit in unione, con la convenzione 0/0 = 1 dichiarata nel codice |
+| **Impronte di Morgan / ECFP** | Rogers & Hahn, *J. Chem. Inf. Model.* 50 (2010) 742 | Da RDKit MinimalLib, raggio 2, 2048 bit |
+| **Chiavi MACCS** | Durant *et al.*, *J. Chem. Inf. Comput. Sci.* 42 (2002) 1273 | Da RDKit MinimalLib, 166 chiavi |
+| **Regola dei 5** | Lipinski *et al.*, *Adv. Drug Deliv. Rev.* 23 (1997) 3 | Sui descrittori RDKit, con il conteggio delle violazioni |
+| **Filtro di Veber** | Veber *et al.*, *J. Med. Chem.* 45 (2002) 2615 | Legami ruotabili ≤ 10, TPSA ≤ 140 Å² |
+| **QED** | Bickerton *et al.*, *Nat. Chem.* 4 (2012) 90 | **Ricalcolato**: MinimalLib espone 43 descrittori ma non il QED. I parametri delle funzioni desiderabilità sono quelli dell'articolo |
+| **Raggruppamento di Butina** | Butina, *J. Chem. Inf. Comput. Sci.* 39 (1999) 747 | Soglia sulla distanza di Tanimoto, capifila scelti per numero di vicini |
+| **Scheletri di Bemis–Murcko** | Bemis & Murcko, *J. Med. Chem.* 39 (1996) 2887 | Sistemi ad anello più i legami che li collegano |
+| **PAINS** | Baell & Holloway, *J. Med. Chem.* 53 (2010) 2719 | Sottoinsieme dei pattern SMARTS, con il motivo della segnalazione |
+| **Allarmi di Brenk** | Brenk *et al.*, *ChemMedChem* 3 (2008) 435 | Idem |
+| **SALI** | Guha & Van Drie, *J. Chem. Inf. Model.* 48 (2008) 646 | Δattività / (1 − Tanimoto), sulle coppie sopra la soglia di similarità |
+
+### 3-bis.2 Le tre cose che rendono un QSAR onesto
+
+Un modello QSAR è facilissimo da far sembrare buono. Le tre precauzioni qui
+sotto sono quelle che distinguono un numero da una misura, e sono tutte
+verificate dal banco `test_cheminfo`.
+
+**Divisione per scheletro.** Con una divisione casuale, analoghi stretti della
+stessa serie finiscono da entrambe le parti: il modello ritrova ciò che ha già
+visto. La divisione per scheletro raggruppa le molecole per scheletro di
+Bemis–Murcko e assegna **scheletri interi** a una sola parte. L'R² che ne esce
+è più basso — ed è quello che sopravvive alla molecola nuova.
+
+**Modello nullo per rimescolamento.** Lo stesso modello viene riaddestrato otto
+volte su etichette mescolate. Se il punteggio vero non supera il migliore dei
+sosia, il modello non ha imparato nulla di trasferibile, e il pannello lo
+dichiara con quelle parole. È il controllo che manca più spesso: senza di esso,
+un R² di 0,4 su trenta molecole è indistinguibile dal caso.
+
+**Dominio di applicabilità.** Una predizione su una molecola lontana da tutto
+ciò che il modello ha visto è un'estrapolazione, non una predizione. La
+distanza dal vicino più prossimo nell'insieme di addestramento è mostrata
+accanto a ogni valore predetto.
+
+### 3-bis.3 Limiti dichiarati
+
+| Limite | Conseguenza |
+|---|---|
+| Gli insiemi di esempio sono **piccoli** (28 e 40 molecole) | Servono a mostrare il metodo, non a produrre un modello utilizzabile. Su insiemi così, il modello nullo è la sola difesa seria — ed è il motivo per cui c'è |
+| Il modello è **lineare nel kernel** (kernel ridge, kernel di Tanimoto) o logistico | Nessuna rete neurale, nessun gradient boosting: sono metodi che su poche centinaia di molecole non danno un vantaggio dimostrabile, e il costo sarebbe un modello che non si può ispezionare |
+| I **PAINS non sono una condanna** | Un pattern PAINS segnala che il composto è stato spesso un falso positivo in saggi di fluorescenza, non che sia inattivo. Il pannello lo scrive accanto a ogni segnalazione |
+| La **PCA è sui descrittori**, non sulle impronte | Sulle impronte binarie la PCA è poco informativa; i carichi sui descrittori si leggono, e sono mostrati |
+| Non c'è **ricerca di sottostruttura su larga scala** | Il banco di lavoro è dimensionato per gli insiemi che si incollano a mano, non per una libreria da milioni di composti |
+
+---
+
 ## 4. Costanti fisiche e dati tabulati
 
 La ricerca delle costanti fisiche procede per livelli di specificità
@@ -293,7 +349,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v173` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v174` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -303,4 +359,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v173`._
+_Documento aggiornato alla versione `bsi-v174`._
