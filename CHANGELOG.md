@@ -64,6 +64,21 @@ in `window.__rdkit` — è il suo caricatore `bsiLoadRDKit` a deciderlo. Su una
 pagina dove RDKit era già pronto, la sezione diceva «RDKit si sta caricando»
 per sempre. Ora si guardano tutti e tre i nomi in uso.
 
+### Corretto — un banco incostante, che è il modo peggiore di fallire
+
+`test_nucleo` passava lanciato da solo e falliva dentro la batteria. Il motivo:
+Emscripten compila il `.wasm` di RDKit in streaming e, se il corpo della
+risposta viene troncato — succede quando la batteria fa girare più browser
+insieme sullo stesso server locale — scrive due righe in console e **ricade**
+sull'istanziazione da `ArrayBuffer`, che riesce. Il banco contava quelle due
+righe come errori JavaScript.
+
+Un banco che dipende dal carico della macchina insegna a rilanciarlo finché non
+diventa verde, e da quel momento non misura più niente. Le due righe della
+ricaduta sono ora escluse — solo quelle, in dieci banchi che guardano la
+console — e se la ricaduta stessa fallisse l'errore che ne segue non
+corrisponde al filtro e resta contato.
+
 ### Verificato — i due zeri non si sono rotti
 
 La sezione nuova è stata rimisurata con gli stessi banchi: contrasto WCAG AA

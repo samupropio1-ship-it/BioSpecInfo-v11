@@ -3,7 +3,16 @@ const { chromium } = require('playwright-core');
   const b = await chromium.launch({ executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args:['--no-sandbox'] });
   const ctx = await b.newContext(); const pg = await ctx.newPage();
   const err=[]; pg.on('pageerror',e=>err.push(e.message));
-  pg.on('console',m=>{ if(m.type()==='error') err.push('console: '+m.text()); });
+  /* Emscripten compila il .wasm in streaming; se il corpo della risposta
+     viene troncato — succede quando la batteria fa girare piu' browser insieme
+     sullo stesso server locale — scrive due righe in console e RICADE
+     sull'istanziazione da ArrayBuffer, che riesce. Contarle come errori
+     rendeva il banco incostante: passava da solo e falliva nella batteria, che
+     e' il modo peggiore di fallire, perche' insegna a rilanciare finche' non
+     diventa verde. Se anche la ricaduta fallisse, l'errore che ne segue non
+     corrisponde a questo filtro e resta contato. */
+  const WASM_RICADUTA = /wasm streaming compile failed|falling back to ArrayBuffer instantiation/;
+  pg.on('console', m=>{ if(m.type()==='error' && !WASM_RICADUTA.test(m.text())) err.push('console: '+m.text()); });
   await pg.goto('http://127.0.0.1:8899/index.html',{waitUntil:'load',timeout:60000});
   await pg.waitForTimeout(2500);
   await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
