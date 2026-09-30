@@ -323,6 +323,50 @@ risultato viene dato come **media ± deviazione**, non come cifra singola.
 
 ---
 
+### 3-bis.4 Due superfici, due ruoli — e un numero che era falso
+
+L'applicazione ha **due** luoghi in cui si fa chemioinformatica, e servono a
+cose diverse. La distinzione è scritta qui perché un valutatore che apra prima
+la pagina sbagliata si farebbe l'idea sbagliata.
+
+| | `rdkit_lab.html` — «RDKit Lab» | Sezione **Chemioinformatica** |
+|---|---|---|
+| **A chi serve** | Chi studia: una molecola alla volta, per vedere cosa RDKit sa dirne | Chi lavora: un insieme di molecole, per ricavarne un modello difendibile |
+| **Ingresso** | Uno SMILES | Un insieme incollato, con l'attività misurata |
+| **QSAR** | Stime **empiriche** dai descrittori, dichiarate tali nel pannello | Modello **addestrato** sui dati forniti, con divisione per scheletro, validazione incrociata e controllo nullo |
+| **Uscita** | Quello che si vede a schermo | CSV e rapporto di metodo |
+
+> **Un numero che era falso, e come se n'è accorto il banco.** Il pannello
+> «Pharma Pro» del laboratorio confrontava la molecola con otto farmaci di
+> riferimento e mostrava una percentuale di similarità. Quella percentuale non
+> veniva da un fingerprint: veniva da **otto bit di descrittori a soglia** —
+> «ha anelli aromatici», «HBA > 4», «peso fra 200 e 500» — di cui si calcolava
+> il Tanimoto. Misurato: **caffeina contro metformina dava 0,75**, mentre su
+> fingerprint di Morgan vale **0,024**. Due molecole senza frammenti in comune,
+> mostrate al 75 %, su una pagina che si chiama «RDKit Lab» e dove RDKit era
+> già caricato.
+>
+> Accanto a quello, tre delle otto impronte di riferimento erano **scritte a
+> mano** e avevano il bit «aromatico» sbagliato (caffeina, che ha due anelli
+> aromatici, morfina e amoxicillina che ne hanno uno), e lo **SMILES
+> dell'omeprazolo non era omeprazolo**: `COc1ccc2[nH]c(=S)cc2c1OC` è una
+> struttura che RDKit rifiuta.
+>
+> Corretto tutto: il confronto usa il fingerprint di Morgan con il Tanimoto del
+> motore condiviso, le impronte si calcolano invece di essere battute a
+> tastiera, e l'omeprazolo è l'omeprazolo (massa monoisotopica 345,11, tre
+> anelli aromatici — verificate). Le due funzioni della similarità finta sono
+> state **rimosse**, non scavalcate: lasciarle in giro le avrebbe rimesse in
+> uso alla prima modifica, e il banco controlla che non esistano più.
+
+**Una sola implementazione di Tanimoto.** Il laboratorio ne aveva una propria,
+che concordava con quella del motore sui casi normali ma rispondeva 0 dove il
+motore risponde 1 (il caso di due impronte vuote). Ora la pagina carica
+`bsi-cheminfo.js` e chiama quello: `test_cheminfo` confronta le due strade su
+tutte e 28 le coppie di riferimento e pretende scarto **esattamente zero**.
+
+---
+
 ## 4. Costanti fisiche e dati tabulati
 
 La ricerca delle costanti fisiche procede per livelli di specificità

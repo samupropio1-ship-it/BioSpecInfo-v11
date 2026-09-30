@@ -317,6 +317,49 @@ folds — and the result is given as **mean ± deviation**, not as a single figu
 
 ---
 
+### 3-bis.4 Two surfaces, two roles — and a number that was false
+
+The application has **two** places where cheminformatics happens, and they
+serve different purposes. The distinction is written here because an assessor
+who opens the wrong page first would form the wrong impression.
+
+| | `rdkit_lab.html` — "RDKit Lab" | **Cheminformatics** section |
+|---|---|---|
+| **Who it is for** | Someone studying: one molecule at a time, to see what RDKit can say about it | Someone working: a set of molecules, to derive a defensible model |
+| **Input** | One SMILES | A pasted set, with the measured activity |
+| **QSAR** | **Empirical** estimates from the descriptors, declared as such in the panel | A model **trained** on the supplied data, with scaffold split, cross-validation and null model |
+| **Output** | What is on screen | CSV and method report |
+
+> **A number that was false, and how the bench caught it.** The lab's "Pharma
+> Pro" panel compared the molecule against eight reference drugs and displayed
+> a similarity percentage. That percentage did not come from a fingerprint: it
+> came from **eight bits of thresholded descriptors** — "has aromatic rings",
+> "HBA > 4", "weight between 200 and 500" — over which a Tanimoto was computed.
+> Measured: **caffeine against metformin gave 0.75**, while on Morgan
+> fingerprints it is **0.024**. Two molecules with no fragments in common,
+> shown at 75 %, on a page called "RDKit Lab" where RDKit was already loaded.
+>
+> Alongside that, three of the eight reference fingerprints were **written by
+> hand** and had the "aromatic" bit wrong (caffeine, which has two aromatic
+> rings, morphine and amoxicillin which have one), and the **SMILES for
+> omeprazole was not omeprazole**: `COc1ccc2[nH]c(=S)cc2c1OC` is a structure
+> RDKit rejects.
+>
+> All corrected: the comparison uses the Morgan fingerprint with the shared
+> engine's Tanimoto, the fingerprints are computed rather than typed in, and
+> omeprazole is omeprazole (monoisotopic mass 345.11, three aromatic rings —
+> both verified). The two functions of the fake similarity were **removed**,
+> not bypassed: leaving them around would have put them back in use at the
+> first edit, and the bench checks that they no longer exist.
+
+**One implementation of Tanimoto.** The lab had its own, which agreed with the
+engine's on ordinary cases but answered 0 where the engine answers 1 (two empty
+fingerprints). The page now loads `bsi-cheminfo.js` and calls that:
+`test_cheminfo` compares the two routes over all 28 reference pairs and demands
+a deviation of **exactly zero**.
+
+---
+
 ## 4. Physical constants and tabulated data
 
 The lookup of physical constants proceeds by decreasing specificity (exact match

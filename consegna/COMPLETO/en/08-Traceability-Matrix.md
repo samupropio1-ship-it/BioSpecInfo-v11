@@ -42,6 +42,7 @@
 | **SCI-18** | A validation on a single split, over a small set, is a noisy number: it must come with its dispersion | `bsi-cheminfo.js` §9-bis — `validazioneIncrociata()` over **scaffold-grouped** folds | `test_cheminfo` — the folds cover every molecule once, **no scaffold sits in two folds**, and the same seed gives the same folds |
 | **SCI-19** | A result that changes on every run is verifiable by nobody | seeded mulberry32 generator for splits, scrambles and folds; the seed is written into the report | `test_cheminfo` — two calls with the same seed give identical folds; the method report declares the seed |
 | **SCI-20** | Results must be able to leave the tool, and the method must leave with them | `bsi-cheminfo.js` §9-ter — `esportaCsv()` and `rapportoMetodo()`, both formed in memory in the browser | `test_cheminfo` — columns consistent with the header, a name containing a comma quoted, residual computed, empty cell for missing activity; the report carries seed, fingerprint, verdict, limits |
+| **SCI-21** | A number presented as structural similarity must come from a fingerprint, and one implementation must compute it | `rdkit_lab.html` loads `bsi-cheminfo.js` and uses its `tanimoto()` and `fingerprint()`; the eight-bit similarity has been removed | `test_cheminfo` — page and engine give the same Tanimoto over all **28 pairs**, deviation **exactly 0**; the fake-similarity functions no longer exist; every reference structure is valid and carries the **monoisotopic mass** of the drug it names |
 
 ---
 
@@ -120,7 +121,7 @@ manual testing, and their automation is planned.
 | **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 88 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 88 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
-| **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.79 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
+| **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.81 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
 | **UI-07** | Behaviour on Firefox and WebKit | **not verified** — the battery runs on Chromium only; see §8 |
 
 ---
@@ -129,14 +130,14 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…20) | 19 | 19 | 100 % |
+| Scientific (SCI-01…21) | 20 | 20 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…08) | 6 | 6 | 100 % |
 | Security (SEC-01…04) | 4 | 4 | 100 % |
-| **Automated total** | **47** | **47** | **100 %** |
+| **Automated total** | **48** | **48** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **52** | **47** | **90 %** |
+| **Declared total** | **53** | **48** | **91 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -144,8 +145,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **47
-> requirements verified out of 52 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **48
+> requirements verified out of 53 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
@@ -163,7 +164,7 @@ that therefore cannot be asserted.
 
 | Gap | What it entails | Why it is so |
 |---|---|---|
-| **Partial code coverage** | Measured: **49.79 %** of statements over the widest path a bench walks. It is not the coverage of the whole battery, and it is statements, not branches | Chromium's profiler collects it inside the engine, with no build and without rewriting the source: the obstacle belonged to the tool (c8, istanbul), not to the problem. Value recorded; `audit_copertura` fails if it falls |
+| **Partial code coverage** | Measured: **49.81 %** of statements over the widest path a bench walks. It is not the coverage of the whole battery, and it is statements, not branches | Chromium's profiler collects it inside the engine, with no build and without rewriting the source: the obstacle belonged to the tool (c8, istanbul), not to the problem. Value recorded; `audit_copertura` fails if it falls |
 | **Chromium only** | Behaviour on Firefox and WebKit is verified by hand, not by a bench | The battery uses `playwright-core`, which downloads a single engine. In the verification environment the CDN for the other engines answers **403** to the network policy: they cannot be installed there |
 | **No visual regression** | An unintended graphical change would not be caught | Spectra are deterministic and comparable byte for byte (SCI-05): the comparison exists on the traces, not on the whole page |
 | **2 entries without a structure** | Two entries out of 178 have no structure to show: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. It was six | See `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |

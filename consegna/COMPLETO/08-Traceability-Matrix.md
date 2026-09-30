@@ -42,6 +42,7 @@
 | **SCI-18** | Una validazione su una divisione sola, su un insieme piccolo, è un numero rumoroso: va accompagnata dalla sua dispersione | `bsi-cheminfo.js` §9-bis — `validazioneIncrociata()` su pieghe **raggruppate per scheletro** | `test_cheminfo` — le pieghe coprono ogni molecola una volta sola, **nessuno scheletro sta in due pieghe**, e con lo stesso seme le pieghe sono le stesse |
 | **SCI-19** | Un risultato che cambia a ogni esecuzione non è verificabile da nessuno | generatore mulberry32 seminato per divisioni, rimescolamenti e pieghe; il seme è scritto nel rapporto | `test_cheminfo` — due chiamate con lo stesso seme danno pieghe identiche; il rapporto di metodo dichiara il seme |
 | **SCI-20** | I risultati devono poter uscire dallo strumento, e il metodo deve uscire con loro | `bsi-cheminfo.js` §9-ter — `esportaCsv()` e `rapportoMetodo()`, entrambi formati in memoria nel browser | `test_cheminfo` — colonne coerenti con l'intestazione, nome con virgola citato, residuo calcolato, cella vuota per l'attività mancante; il rapporto contiene seme, fingerprint, verdetto, limiti |
+| **SCI-21** | Un numero presentato come similarità strutturale deve venire da un fingerprint, e una sola implementazione deve calcolarlo | `rdkit_lab.html` carica `bsi-cheminfo.js` e ne usa `tanimoto()` e `fingerprint()`; la similarità a otto bit è stata rimossa | `test_cheminfo` — la pagina e il motore danno lo stesso Tanimoto su tutte e **28 le coppie**, scarto **esattamente 0**; le funzioni della similarità finta non esistono più; ogni struttura di riferimento è valida e ha la **massa monoisotopica** del farmaco che dichiara |
 
 ---
 
@@ -120,7 +121,7 @@ manuale, e la loro automazione è in programma.
 | **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 88 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 88 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
-| **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,79 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
+| **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,81 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
 | **UI-07** | Comportamento su Firefox e WebKit | **non verificato** — la batteria gira solo su Chromium; vedi §8 |
 
 ---
@@ -129,14 +130,14 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…20) | 19 | 19 | 100 % |
+| Scientifici (SCI-01…21) | 20 | 20 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…08) | 6 | 6 | 100 % |
 | Sicurezza (SEC-01…04) | 4 | 4 | 100 % |
-| **Totale automatizzato** | **47** | **47** | **100 %** |
+| **Totale automatizzato** | **48** | **48** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **52** | **47** | **90 %** |
+| **Totale dichiarato** | **53** | **48** | **91 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -144,8 +145,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **47
-> requisiti verificati su 52 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **48
+> requisiti verificati su 53 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
@@ -164,7 +165,7 @@ possono essere affermate.
 
 | Lacuna | Che cosa comporta | Perché è così |
 |---|---|---|
-| **Copertura di codice parziale** | Misurata: **49,79 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami | Il profilatore di Chromium la raccoglie nel motore, senza build e senza riscrivere il sorgente: l'ostacolo era dello strumento (c8, istanbul), non del problema. Valore registrato, `audit_copertura` fallisce se scende |
+| **Copertura di codice parziale** | Misurata: **49,81 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami | Il profilatore di Chromium la raccoglie nel motore, senza build e senza riscrivere il sorgente: l'ostacolo era dello strumento (c8, istanbul), non del problema. Valore registrato, `audit_copertura` fallisce se scende |
 | **Solo Chromium** | Il comportamento su Firefox e WebKit è verificato a mano, non da banco | La batteria usa `playwright-core`, che scarica un motore solo. Nell'ambiente di verifica la CDN degli altri motori risponde **403** alla politica di rete: non sono installabili lì |
 | **Nessuna regressione visiva** | Un cambiamento grafico involontario non verrebbe intercettato | Gli spettri sono deterministici e confrontabili byte a byte (SCI-05): il confronto esiste sulle tracce, non sull'intera pagina |
 | **2 voci senza struttura** | Due voci su 178 non hanno una struttura da mostrare: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Erano sei | Vedi `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |

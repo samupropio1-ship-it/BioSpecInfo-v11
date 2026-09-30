@@ -103,7 +103,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_costanti` | Ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | Coerenza dei dati tabulati | 29 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
-| `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni, **contrasto dei sei pannelli** | 98 |
+| `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni, **contrasto dei sei pannelli**, accordo fra laboratorio e motore | 106 |
 
 
 > **Un banco che verifica un modello deve verificarlo anche quando il modello
@@ -162,7 +162,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
 | `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 88 sezioni |
 | `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 88 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
-| `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,79 %, registrato e difeso |
+| `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,81 %, registrato e difeso |
 
 > **L'ostacolo era dello strumento, non del problema.** Per tre versioni la
 > copertura di codice è stata dichiarata non misurabile, con questa
@@ -181,7 +181,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > si somma l'intero file. Si fa il contrario: si parte dal totale e si sottrae
 > l'unione dei vuoti.
 >
-> Il numero vero è **49,79 %**, e regge lo stesso patto del debito di
+> Il numero vero è **49,81 %**, e regge lo stesso patto del debito di
 > accessibilità: registrato, e il banco fallisce se scende. Una soglia assoluta
 > («80 %») sarebbe una cifra inventata; «non deve peggiorare» è una promessa
 > mantenibile.
@@ -399,7 +399,7 @@ due cose diverse e non vanno confuse.
 
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
-| **Copertura di codice** | Misurata: **49,79 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
+| **Copertura di codice** | Misurata: **49,81 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 88 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
 | **Sicurezza** | `verifica-sicurezza` esegue 9 controlli su 235 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |

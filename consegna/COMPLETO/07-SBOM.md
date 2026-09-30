@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v175` |
-| Commit | `2b128b10e95bab6e94ebe2b048a5f73ee3d952a6` |
-| Generato (UTC) | `2026-09-30T15:27:30.538Z` |
+| Commit | `9d1ce87e8dd0b6d8b8340ce5abcd738b135ca3ec` |
+| Generato (UTC) | `2026-09-30T16:04:26.015Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -61,7 +61,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 65 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
-| `rdkit_lab.html` | 257 kB | Laboratorio di chemioinformatica. |
+| `rdkit_lab.html` | 260 kB | Laboratorio di chemioinformatica. |
 | `astro.html` | 2666 kB | Modulo di astrochimica. |
 | `chimorga.html` | 194 kB | Modulo di chimica organica. |
 | `proxy/spectra-proxy.js` | 10 kB | Proxy opzionale (Cloudflare Worker) per le chiamate all'AI. |
@@ -75,7 +75,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
 | `bsi-cheminfo.js` | `aefd53302644ef47f4cd78a6f531a8353e4952d9d4fc1eaf006a2f490e7fca9f` |
 | `sw.js` | `1a67ce07909476649180f62cbf7fe1b4bce3d8aa6dbcea49b5fd12532a05128e` |
-| `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
+| `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
 | `proxy/spectra-proxy.js` | `808c0a12891ae9c6f45cf0c676b033075089e064df9047be844f03badf940962` |
@@ -127,4 +127,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-30T15:27:30.538Z._
+_Generato il 2026-09-30T16:04:26.015Z._

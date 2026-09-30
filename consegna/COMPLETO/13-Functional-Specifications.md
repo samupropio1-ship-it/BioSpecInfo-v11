@@ -174,7 +174,7 @@ dall'applicazione: un banco che chiedesse al codice sotto esame quanto vale il
 proprio contrasto non misurerebbe niente.
 
 Il motore sta in `bsi-cheminfo.js`, è esposto come `window.BSIChem` ed è
-verificato dal banco `test_cheminfo` (98 controlli) contro valori calcolabili a
+verificato dal banco `test_cheminfo` (106 controlli) contro valori calcolabili a
 mano.
 
 ### 3.3 Chimica organica
@@ -326,7 +326,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
 | 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 88 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
-| 8 | **Copertura di codice parziale** | Misurata: **49,79 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
+| 8 | **Copertura di codice parziale** | Misurata: **49,81 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 
 ---
