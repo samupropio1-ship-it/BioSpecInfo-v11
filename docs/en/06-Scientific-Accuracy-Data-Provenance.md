@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v174` |
+| **Version described** | `bsi-v175` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v174` the bench also fails in the opposite case: an entry listed in the
+`bsi-v175` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -270,10 +270,10 @@ occasion. They are the ones in use, with the references that define them.
 | **Brenk alerts** | Brenk *et al.*, *ChemMedChem* 3 (2008) 435 | Likewise |
 | **SALI** | Guha & Van Drie, *J. Chem. Inf. Model.* 48 (2008) 646 | Δactivity / (1 − Tanimoto), over the pairs above the similarity threshold |
 
-### 3-bis.2 The three things that make a QSAR honest
+### 3-bis.2 The four things that make a QSAR honest
 
-A QSAR model is extremely easy to make look good. The three precautions below
-are what separate a number from a measurement, and all three are verified by
+A QSAR model is extremely easy to make look good. The four precautions below
+are what separate a number from a measurement, and all four are verified by
 the `test_cheminfo` bench.
 
 **Scaffold split.** With a random split, close analogues from the same series
@@ -291,6 +291,19 @@ is indistinguishable from chance.
 **Applicability domain.** A prediction on a molecule far from everything the
 model has seen is an extrapolation, not a prediction. The distance to the
 nearest training neighbour is shown next to every predicted value.
+
+**Scaffold-grouped cross-validation.** A single split, over a small set, is a
+noisy number: on 28 molecules at 25 % the test set holds seven, and moving one
+shifts the R² by tenths. The folds group by scaffold — no scaffold sits in two
+folds — and the result is given as **mean ± deviation**, not as a single figure.
+
+> **How much this matters, measured on the 28-inhibitor example.** The single
+> split gives R² **0.861**. Five-fold validation gives **0.605 ± 0.452**, with
+> the individual folds at 0.861 · 0.538 · 0.795 · **−0.150** · 0.980. The single
+> split had drawn the lucky fold. Together the two figures say what neither says
+> alone: the model works, but it depends appreciably on which molecules it gets
+> for training — and on a set of twenty-eight molecules that is exactly what one
+> should expect.
 
 ### 3-bis.3 Declared limits
 
@@ -345,7 +358,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v174` the residual errors on the drug database are **zero**: the 21
+`bsi-v175` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -354,4 +367,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v174`._
+_Document updated to version `bsi-v175`._

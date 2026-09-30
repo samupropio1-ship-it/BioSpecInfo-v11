@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v174` |
+| **Versione descritta** | `bsi-v175` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -39,6 +39,9 @@
 | **SCI-15** | Un punteggio di modello deve essere confrontato con il caso, non presentato da solo | `bsi-cheminfo.js` §9 — riaddestramento su etichette rimescolate, otto ripetizioni | `test_cheminfo` — verificato **nei due versi**: su un segnale apprendibile R² 0,394 batte tutti gli otto sosia (margine 0,287); su etichette casuali R² −0,199 **non** li batte |
 | **SCI-16** | Due scritture della stessa molecola non devono contarsi due volte né finire da parti opposte della divisione | `bsi-cheminfo.js` §1 — deduplicazione sullo SMILES canonico dopo il frammento maggiore | `test_cheminfo` — `OC(=O)C` e `CC(=O)O` collassano in una voce; i sali perdono il controione |
 | **SCI-17** | La similarità fra molecole deve essere calcolata, non stimata | `bsi-cheminfo.js` §3 — Tanimoto e Dice su impronte Morgan, RDKit, pattern, MACCS | `test_cheminfo` — confronto con valori calcolabili a mano, compresa la convenzione 0/0 = 1 |
+| **SCI-18** | Una validazione su una divisione sola, su un insieme piccolo, è un numero rumoroso: va accompagnata dalla sua dispersione | `bsi-cheminfo.js` §9-bis — `validazioneIncrociata()` su pieghe **raggruppate per scheletro** | `test_cheminfo` — le pieghe coprono ogni molecola una volta sola, **nessuno scheletro sta in due pieghe**, e con lo stesso seme le pieghe sono le stesse |
+| **SCI-19** | Un risultato che cambia a ogni esecuzione non è verificabile da nessuno | generatore mulberry32 seminato per divisioni, rimescolamenti e pieghe; il seme è scritto nel rapporto | `test_cheminfo` — due chiamate con lo stesso seme danno pieghe identiche; il rapporto di metodo dichiara il seme |
+| **SCI-20** | I risultati devono poter uscire dallo strumento, e il metodo deve uscire con loro | `bsi-cheminfo.js` §9-ter — `esportaCsv()` e `rapportoMetodo()`, entrambi formati in memoria nel browser | `test_cheminfo` — colonne coerenti con l'intestazione, nome con virgola citato, residuo calcolato, cella vuota per l'attività mancante; il rapporto contiene seme, fingerprint, verdetto, limiti |
 
 ---
 
@@ -83,6 +86,7 @@
 | **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 88 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
+| **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
 
 ---
 
@@ -101,7 +105,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v174`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v175`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -125,14 +129,14 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…17) | 16 | 16 | 100 % |
+| Scientifici (SCI-01…20) | 19 | 19 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…05) | 5 | 5 | 100 % |
+| Interfaccia (UI-01…08) | 6 | 6 | 100 % |
 | Sicurezza (SEC-01…04) | 4 | 4 | 100 % |
-| **Totale automatizzato** | **43** | **43** | **100 %** |
+| **Totale automatizzato** | **47** | **47** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **48** | **43** | **90 %** |
+| **Totale dichiarato** | **52** | **47** | **90 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -140,8 +144,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **43
-> requisiti verificati su 48 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **47
+> requisiti verificati su 52 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
@@ -168,4 +172,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v174`._
+_Documento aggiornato alla versione `bsi-v175`._

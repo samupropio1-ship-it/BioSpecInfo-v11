@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v174` |
+| **Version described** | `bsi-v175` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -104,7 +104,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_costanti` | Physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | Consistency of the tabulated data | 29 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
-| `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling** | 59 |
+| `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, exports, **contrast of the six panels** | 98 |
 
 
 > **A bench that verifies a model must also verify it when the model is
@@ -113,6 +113,16 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 > label-scrambled twins, with a margin of 0.287; on the **same molecules with
 > random labels** the R² (−0.199) does **not** beat them. A check that verifies
 > only the first case would pass even if the guard were wired to "true".
+
+> **A "contrast 0" that did not cover the new surface.**
+> `verifica-accessibilita` measures what is visible, and the six panels of the
+> Cheminformatics section stay hidden until the analysis has been run: it had
+> never seen them. `test_cheminfo` now runs the analysis, opens the panels in
+> turn and measures contrast over **460 text elements**, with the WCAG formulas
+> rewritten inside the bench — asking the code under test how good its own
+> contrast is, is not measuring. The bench also demands that more than 250 were
+> measured: if the panels failed to open, the zero would be empty and the check
+> would fail.
 
 ### 3.2 AI agent
 
@@ -407,4 +417,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v174`._
+_Document updated to version `bsi-v175`._

@@ -1086,6 +1086,364 @@
     };
   }
 
+  /* ═══ §9-bis · Validazione incrociata raggruppata per scheletro ══════════
+
+     Una divisione sola, su un insieme piccolo, produce un numero rumoroso:
+     su 28 molecole al 25 % l'insieme di prova ne contiene sette, e spostare
+     una molecola da una parte all'altra muove l'R² di decimi. Chi valuta il
+     modello lo sa, e la prima domanda che fa e' «quanto vale la deviazione
+     fra le pieghe?».
+
+     Le pieghe raggruppano per SCHELETRO, non per molecola: un analogo della
+     stessa serie in addestramento e in prova falsa la piega esattamente come
+     falsava la divisione singola. Questa e' la ragione per cui non si usa un
+     k-fold ordinario. */
+
+  function pieghePerScaffold(molecole, k, seme) {
+    k = k || 5;
+    var gruppi = Object.create(null);
+    molecole.forEach(function (m, i) {
+      var s = m._scaffold !== undefined ? m._scaffold : (scaffoldMurcko(m.smiles) || {}).smiles;
+      m._scaffold = s;
+      var chiave = s || ('aciclica#' + i);
+      (gruppi[chiave] = gruppi[chiave] || []).push(i);
+    });
+    var elenco = Object.keys(gruppi).map(function (c) { return gruppi[c]; });
+
+    /* Ordinati per dimensione decrescente e assegnati alla piega piu' scarica:
+       e' il modo piu' semplice di ottenere pieghe di dimensione simile senza
+       spezzare un gruppo. Con meno gruppi che pieghe si restituiscono tante
+       pieghe quanti sono i gruppi, e chi chiama lo vede dal risultato. */
+    elenco.sort(function (a, b) { return b.length - a.length; });
+    var r = rng((seme || 42) + 7);
+    /* A parita' di dimensione l'ordine e' arbitrario: lo si fissa col
+       generatore seminato, perche' due esecuzioni devono dare le stesse
+       pieghe. */
+    elenco.sort(function (a, b) {
+      return b.length - a.length || (r() - 0.5);
+    });
+    var nPieghe = Math.min(k, elenco.length);
+    var pieghe = [];
+    for (var i = 0; i < nPieghe; i++) pieghe.push([]);
+    elenco.forEach(function (g) {
+      var piuScarica = 0;
+      for (var j = 1; j < nPieghe; j++) {
+        if (pieghe[j].length < pieghe[piuScarica].length) piuScarica = j;
+      }
+      pieghe[piuScarica] = pieghe[piuScarica].concat(g);
+    });
+    return { pieghe: pieghe, nGruppi: elenco.length, nPieghe: nPieghe };
+  }
+
+  function mediaEScarto(v) {
+    var n = v.filter(function (x) { return typeof x === 'number' && isFinite(x); });
+    if (!n.length) return { media: null, scarto: null, n: 0 };
+    var mu = n.reduce(function (a, b) { return a + b; }, 0) / n.length;
+    if (n.length < 2) return { media: mu, scarto: null, n: 1 };
+    var s2 = n.reduce(function (a, b) { return a + (b - mu) * (b - mu); }, 0) / (n.length - 1);
+    return { media: mu, scarto: Math.sqrt(s2), n: n.length };
+  }
+
+  function validazioneIncrociata(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var tipoFp = opzioni.fingerprint || 'morgan';
+    var k = opzioni.pieghe || 5;
+    var seme = opzioni.seme || 42;
+
+    var conY = molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 10) {
+      throw new Error('servono almeno 10 molecole con attivita\' misurata: ne sono arrivate ' + conY.length);
+    }
+    var fps = [], mols = [];
+    conY.forEach(function (m) {
+      var f = fingerprint(m.smiles, tipoFp);
+      if (f) { fps.push(f); mols.push(m); }
+    });
+    if (mols.length < 10) {
+      throw new Error('meno di 10 molecole hanno prodotto un fingerprint valido');
+    }
+    var y = mols.map(function (m) { return m.attivita; });
+    var distinti = Array.from(new Set(y));
+    var classificazione = opzioni.classificazione !== undefined
+      ? opzioni.classificazione
+      : (distinti.length === 2 && distinti.every(function (v) { return v === 0 || v === 1; }));
+
+    var p = pieghePerScaffold(mols, k, seme);
+
+    /* Le predizioni di TUTTE le pieghe messe insieme: ogni molecola viene
+       predetta una volta sola, da un modello che non l'ha vista. E' la
+       tabella che si esporta, e l'unica che si puo' disegnare senza barare. */
+    var previstoDiTutti = new Array(mols.length);
+    var perPiega = [];
+    var salti = 0;
+
+    p.pieghe.forEach(function (prova, indice) {
+      var addestramento = [];
+      for (var i = 0; i < mols.length; i++) {
+        if (prova.indexOf(i) === -1) addestramento.push(i);
+      }
+      if (!prova.length || !addestramento.length) { salti++; return; }
+
+      var fpTr = addestramento.map(function (i) { return fps[i]; });
+      var yTr = addestramento.map(function (i) { return y[i]; });
+      var fpTe = prova.map(function (i) { return fps[i]; });
+      var yTe = prova.map(function (i) { return y[i]; });
+
+      /* Una piega in cui l'addestramento ha una sola classe non e'
+         addestrabile: la logistica non ha nulla da separare. Si salta, e il
+         conteggio dei salti finisce nel risultato: una validazione che ha
+         saltato metà delle pieghe non è una validazione a cinque pieghe. */
+      if (classificazione && new Set(yTr).size < 2) { salti++; return; }
+
+      var previsti;
+      if (classificazione) {
+        var mc = addestraLogistica(fpTr, yTr, opzioni);
+        previsti = fpTe.map(function (f) { return prediciLogistica(mc, f); });
+      } else {
+        var mr = addestraRidge(fpTr, yTr, opzioni.lambda);
+        previsti = fpTe.map(function (f) { return prediciRidge(mr, f); });
+      }
+      prova.forEach(function (i, j) { previstoDiTutti[i] = previsti[j]; });
+
+      perPiega.push({
+        piega: indice + 1,
+        nAddestramento: addestramento.length,
+        nProva: prova.length,
+        metriche: classificazione
+          ? metricheClassificazione(yTe, previsti)
+          : metricheRegressione(yTe, previsti)
+      });
+    });
+
+    if (!perPiega.length) throw new Error('nessuna piega utilizzabile');
+
+    var chiave = classificazione ? 'auc' : 'r2';
+    var punteggi = perPiega.map(function (f) { return f.metriche[chiave]; });
+    var agg = mediaEScarto(punteggi);
+
+    /* Il punteggio su tutte le predizioni fuori piega riunite. Non coincide
+       con la media delle pieghe — le pieghe hanno dimensioni diverse e
+       varianze diverse — e le due cose insieme dicono piu' di ognuna da sola:
+       se sono lontane, il modello dipende da quali molecole gli capitano. */
+    var iCompleti = [];
+    previstoDiTutti.forEach(function (v, i) { if (v !== undefined) iCompleti.push(i); });
+    var yFuori = iCompleti.map(function (i) { return y[i]; });
+    var pFuori = iCompleti.map(function (i) { return previstoDiTutti[i]; });
+    var riunito = classificazione
+      ? metricheClassificazione(yFuori, pFuori)
+      : metricheRegressione(yFuori, pFuori);
+
+    return {
+      tipo: classificazione ? 'classificazione' : 'regressione',
+      fingerprint: tipoFp,
+      metrica: chiave,
+      nTotali: mols.length,
+      nScaffold: p.nGruppi,
+      pieghieChieste: k,
+      pieghe: perPiega.length,
+      pieghieSaltate: salti,
+      perPiega: perPiega,
+      media: agg.media,
+      scarto: agg.scarto,
+      riunito: riunito,
+      previsti: previstoDiTutti,
+      molecole: mols
+    };
+  }
+
+  /* ═══ §9-ter · Esportazione ══════════════════════════════════════════════
+
+     Un banco di lavoro da cui i risultati non possono uscire non e' uno
+     strumento: e' una dimostrazione. Chi lavora davvero riprende la tabella
+     in un foglio di calcolo o in un notebook, e vuole accanto a ogni numero
+     il metodo che l'ha prodotto.
+
+     Tutto avviene nel browser: il file si forma in memoria e viene salvato
+     dall'utente. Nessun dato esce dal dispositivo, esattamente come per il
+     resto dell'applicazione. */
+
+  function campoCsv(v) {
+    if (v === null || v === undefined) return '';
+    var s = String(v);
+    /* Il punto e virgola come separatore e la virgola decimale sono ciò che
+       Excel in italiano si aspetta; ma il CSV deve restare leggibile anche
+       da pandas, quindi si usa la virgola come separatore e il punto
+       decimale, e si cita ogni campo che contenga un separatore. Uno SMILES
+       contiene virgole quasi mai e virgolette mai, ma un NOME sì. */
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function esportaCsv(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var colonneDesc = opzioni.descrittori ||
+      ['MolWt', 'CrippenClogP', 'tpsa', 'NumHBD', 'NumHBA', 'NumRotatableBonds',
+       'FractionCSP3', 'NumAromaticRings', 'exactmw'];
+    var intest = ['nome', 'smiles_canonico', 'smiles_originale', 'attivita'];
+    if (opzioni.scaffold !== false) intest.push('scaffold');
+    colonneDesc.forEach(function (c) { intest.push(c); });
+    if (opzioni.qed !== false) intest.push('qed');
+    if (opzioni.regole !== false) intest.push('violazioni_lipinski', 'veber_ok');
+    if (opzioni.allarmi) intest.push('allarmi');
+    if (opzioni.gruppo) intest.push('gruppo');
+    if (opzioni.previsto) intest.push('previsto', 'residuo');
+
+    var righe = [intest.map(campoCsv).join(',')];
+    molecole.forEach(function (m, i) {
+      var d = null;
+      try { d = descrittori(m.smiles); } catch (e) { d = null; }
+      var r = [m.nome, m.smiles, m.originale || m.smiles,
+               typeof m.attivita === 'number' ? m.attivita : ''];
+      if (opzioni.scaffold !== false) {
+        var s = m._scaffold !== undefined ? m._scaffold : (scaffoldMurcko(m.smiles) || {}).smiles;
+        r.push(s || '');
+      }
+      colonneDesc.forEach(function (c) {
+        var v = d ? d[c] : null;
+        r.push(typeof v === 'number' ? Math.round(v * 1e4) / 1e4 : (v === undefined ? '' : v));
+      });
+      if (opzioni.qed !== false) r.push(d && typeof d.qed === 'number' ? Math.round(d.qed * 1e4) / 1e4 : '');
+      if (opzioni.regole !== false) {
+        var L = d && d.regole && d.regole.lipinski, V = d && d.regole && d.regole.veber;
+        r.push(L ? L.violazioni : '');
+        r.push(V ? (V.violazioni === 0 ? 'si' : 'no') : '');
+      }
+      if (opzioni.allarmi) {
+        var a = null;
+        try { a = allarmi(m.smiles); } catch (e) { a = null; }
+        r.push(a && a.allarmi.length
+          ? a.allarmi.map(function (x) { return x.id; }).join(' | ')
+          : '');
+      }
+      if (opzioni.gruppo) r.push(opzioni.gruppo[i] === undefined ? '' : opzioni.gruppo[i]);
+      if (opzioni.previsto) {
+        var p = opzioni.previsto[i];
+        r.push(typeof p === 'number' ? Math.round(p * 1e4) / 1e4 : '');
+        r.push(typeof p === 'number' && typeof m.attivita === 'number'
+          ? Math.round((m.attivita - p) * 1e4) / 1e4 : '');
+      }
+      righe.push(r.map(campoCsv).join(','));
+    });
+    return righe.join('\n') + '\n';
+  }
+
+  function n4(v) { return typeof v === 'number' && isFinite(v) ? v.toFixed(4) : '—'; }
+
+  /* «R2» scritto cosi' e' il nome di una variabile, non di una metrica. */
+  function nomeMetrica(k) { return k === 'r2' ? 'R\u00b2' : (k === 'auc' ? 'ROC-AUC' : k); }
+
+  /* Il rapporto di metodo. Non e' un riassunto grazioso: e' l'insieme di cose
+     che servono a RIFARE la stessa analisi e ottenere gli stessi numeri —
+     compreso il seme, senza il quale «divisione casuale» non significa
+     niente. */
+  function rapportoMetodo(dati) {
+    dati = dati || {};
+    var m = dati.modello, cv = dati.cv, quando = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    var R = rdkit();
+    var L = [];
+    L.push('# Rapporto di metodo — analisi chemioinformatica');
+    L.push('');
+    L.push('| | |');
+    L.push('|---|---|');
+    L.push('| Prodotto da | BioSpecInfo, sezione Chemioinformatica |');
+    L.push('| Motore | `bsi-cheminfo.js` · `window.BSIChem` |');
+    L.push('| RDKit | ' + (R && R.version ? '`' + R.version() + '`' : 'non disponibile') + ' |');
+    L.push('| Data (UTC) | ' + quando + ' |');
+    L.push('| Dove è stato eseguito | interamente nel browser; nessun dato è uscito dal dispositivo |');
+    L.push('');
+    L.push('## Insieme di partenza');
+    L.push('');
+    L.push('- Molecole accettate: **' + (dati.nAccettate === undefined ? '—' : dati.nAccettate) + '**');
+    L.push('- Righe scartate: **' + (dati.nScartate === undefined ? '—' : dati.nScartate) + '**' +
+           (dati.motiviScarto && dati.motiviScarto.length
+             ? ' (' + dati.motiviScarto.slice(0, 4).join('; ') + ')' : ''));
+    L.push('- Standardizzazione: frammento con più atomi pesanti, SMILES canonico RDKit,');
+    L.push('  deduplicazione **sul canonico** (due scritture della stessa molecola sono una).');
+    L.push('');
+
+    if (m) {
+      L.push('## Modello — divisione singola');
+      L.push('');
+      L.push('| Parametro | Valore |');
+      L.push('|---|---|');
+      L.push('| Tipo | ' + m.tipo + ' |');
+      L.push('| Metodo | ' + (m.tipo === 'classificazione'
+        ? 'regressione logistica su fingerprint'
+        : 'regressione kernel (ridge nel duale, kernel di Tanimoto)') + ' |');
+      L.push('| Fingerprint | ' + m.fingerprint + ' |');
+      L.push('| Divisione | ' + (m.divisione === 'scaffold'
+        ? 'per scheletro di Bemis–Murcko (nessuno scheletro condiviso)'
+        : 'casuale') + ' |');
+      L.push('| Molecole | ' + m.nTotali + ' (' + m.nAddestramento + ' addestramento, ' +
+             m.nProva + ' prova) |');
+      L.push('| Scheletri distinti | ' + m.nScaffold + ' |');
+      L.push('| Seme | ' + (dati.seme === undefined ? 42 : dati.seme) + ' |');
+      L.push('');
+      if (m.tipo === 'regressione') {
+        L.push('R² ' + n4(m.metriche.r2) + ' · RMSE ' + n4(m.metriche.rmse) +
+               ' · MAE ' + n4(m.metriche.mae) + ' · Pearson r ' + n4(m.metriche.pearson));
+      } else {
+        L.push('ROC-AUC ' + n4(m.metriche.auc) + ' · MCC ' + n4(m.metriche.mcc) +
+               ' · accuratezza bilanciata ' + n4(m.metriche.accuratezzaBilanciata));
+      }
+      L.push('');
+      var cn = m.controlloNullo;
+      L.push('### Controllo nullo — rimescolamento delle etichette');
+      L.push('');
+      L.push('Lo stesso modello, riaddestrato ' + cn.ripetizioni +
+             ' volte su etichette mescolate.');
+      L.push('');
+      L.push('- punteggio vero: **' + n4(cn.punteggioVero) + '**');
+      L.push('- migliore dei sosia casuali: ' + n4(cn.massimo) +
+             ' · media dei sosia: ' + n4(cn.media));
+      L.push('- **verdetto: ' + (cn.superaIlCaso
+        ? 'il modello batte tutti i sosia, margine ' + n4(cn.margine)
+        : 'il modello NON batte il caso — il punteggio non è distinguibile dal rumore') + '**');
+      L.push('');
+    }
+
+    if (cv) {
+      L.push('## Validazione incrociata raggruppata per scheletro');
+      L.push('');
+      L.push('| Parametro | Valore |');
+      L.push('|---|---|');
+      L.push('| Pieghe chieste | ' + cv.pieghieChieste + ' |');
+      L.push('| Pieghe usate | ' + cv.pieghe +
+             (cv.pieghieSaltate ? ' (' + cv.pieghieSaltate + ' saltate: non addestrabili)' : '') + ' |');
+      L.push('| Raggruppamento | per scheletro: nessuno scheletro sta in due pieghe |');
+      L.push('| Scheletri distinti | ' + cv.nScaffold + ' su ' + cv.nTotali + ' molecole |');
+      L.push('');
+      L.push(nomeMetrica(cv.metrica) + ' per piega: ' +
+             cv.perPiega.map(function (f) { return n4(f.metriche[cv.metrica]); }).join(' · '));
+      L.push('');
+      L.push('- media fra le pieghe: **' + n4(cv.media) + '**' +
+             (cv.scarto === null ? '' : ' ± ' + n4(cv.scarto) + ' (deviazione standard)'));
+      L.push('- su tutte le predizioni fuori piega riunite: **' +
+             n4(cv.riunito[cv.metrica]) + '**');
+      L.push('');
+      L.push('> Le due cifre non coincidono, e non devono: le pieghe hanno dimensioni');
+      L.push('> diverse. Se sono lontane fra loro, il modello dipende da quali molecole');
+      L.push('> gli capitano in addestramento.');
+      L.push('');
+    }
+
+    L.push('## Limiti di questa analisi');
+    L.push('');
+    L.push('- I descrittori e i fingerprint vengono da RDKit MinimalLib: la stessa');
+    L.push('  libreria usata nella ricerca, compilata in WebAssembly.');
+    L.push('- Un R² alto su poche decine di molecole resta un R² su poche decine di');
+    L.push('  molecole. Il controllo nullo dice se è distinguibile dal caso, non se');
+    L.push('  il modello si trasferirà a una serie chimica diversa.');
+    L.push('- Gli allarmi PAINS segnalano composti che si sono comportati spesso da');
+    L.push('  falsi positivi in saggi di fluorescenza. Non sono una condanna.');
+    L.push('- Il dominio di applicabilità è misurato come similarità media ai vicini');
+    L.push('  più prossimi nell\'insieme di addestramento: è un indicatore, non una');
+    L.push('  soglia di validità.');
+    L.push('');
+    L.push('_Per rifare l\'analisi: stesso insieme, stesso fingerprint, stesso seme._');
+    return L.join('\n') + '\n';
+  }
+
   /* ═══ §10 · Superficie pubblica ══════════════════════════════════════════ */
   globale.BSIChem = {
     /* preparazione */
@@ -1112,9 +1470,15 @@
     divisionePerScaffold: divisionePerScaffold,
     divisioneCasuale: divisioneCasuale,
     costruisciModello: costruisciModello,
+    pieghePerScaffold: pieghePerScaffold,
+    validazioneIncrociata: validazioneIncrociata,
     saltiAttivita: saltiAttivita,
     dominioApplicabilita: dominioApplicabilita,
+    /* esportazione */
+    esportaCsv: esportaCsv,
+    rapportoMetodo: rapportoMetodo,
     /* metriche, esposte perche' un banco possa verificarle da sole */
+    mediaEScarto: mediaEScarto,
     metricheRegressione: metricheRegressione,
     metricheClassificazione: metricheClassificazione,
     rocAuc: rocAuc,

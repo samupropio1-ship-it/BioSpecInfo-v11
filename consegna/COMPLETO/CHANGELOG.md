@@ -7,12 +7,88 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v175] — 2026-09-30
+
+Il banco di lavoro chemioinformatico diventa uno strumento da cui i risultati
+escono, e con loro il metodo che li ha prodotti.
+
+### Aggiunto — validazione incrociata raggruppata per scheletro
+
+Una divisione sola, su un insieme piccolo, è un numero rumoroso: su 28 molecole
+al 25 % l'insieme di prova ne contiene sette, e spostarne una muove l'R² di
+decimi. Ora si può chiedere una validazione a 3, 5 o 10 pieghe, e le pieghe
+raggruppano **per scheletro**: nessuno scheletro sta in due pieghe, perché un
+analogo della stessa serie in addestramento e in prova falsa la piega
+esattamente come falsava la divisione singola.
+
+Il risultato che ne esce è la ragione per cui vale la pena averla. Sui 28
+inibitori dell'esempio:
+
+| | |
+|---|---|
+| Divisione singola | R² **0,861** |
+| Cinque pieghe | **0,605 ± 0,452** — le singole: 0,861 · 0,538 · 0,795 · **−0,150** · 0,980 |
+
+La divisione singola aveva pescato la piega fortunata. Il pannello ora mostra
+entrambe le cifre e dice, a parole, se distano più di una deviazione: quando
+succede, il modello dipende sensibilmente da quali molecole gli capitano in
+addestramento.
+
+### Aggiunto — i risultati si portano via
+
+Un banco di lavoro da cui i risultati non possono uscire è una dimostrazione,
+non uno strumento. Due esportazioni:
+
+- **tabella CSV** — nome, SMILES canonico e originale, attività, scheletro,
+  nove descrittori, QED, violazioni di Lipinski, esito di Veber, allarmi. Con
+  la validazione incrociata attiva si aggiungono *previsto* e *residuo*, e
+  **solo allora**: è l'unico schema che dia a ogni molecola una predizione da
+  un modello che non l'aveva vista;
+- **rapporto di metodo (.md)** — versione di RDKit, fingerprint, tipo di
+  divisione, molecole e scheletri, **il seme**, le metriche, il verdetto del
+  controllo nullo, le pieghe una per una, i limiti dichiarati.
+
+Entrambi si formano in memoria nel browser: non c'è nessuna richiesta di rete,
+ed è la ragione per cui la nota accanto ai pulsanti può dire che nessun dato
+esce dal dispositivo senza chiedere di crederci sulla parola.
+
+### Corretto — un «contrasto 0» che non copriva la superficie nuova
+
+`verifica-accessibilita` misura ciò che è **visibile**, e i sei pannelli della
+sezione Chemioinformatica restano `display:none` finché l'analisi non è stata
+eseguita: quel banco non li aveva mai visti, e il suo zero non parlava di loro.
+Un numero perfetto che non copre la superficie nuova è esattamente il caso già
+incontrato una volta in questo progetto.
+
+Ora `test_cheminfo` esegue l'analisi per davvero, apre i sei pannelli a turno e
+misura il contrasto WCAG su ogni testo che vi compare: **460 elementi, 0
+difetti**. Le formule sono riscritte dentro il banco e non prese
+dall'applicazione — chiedere al codice sotto esame quanto vale il proprio
+contrasto non è misurare. E il banco pretende di averne misurati più di 250: se
+i pannelli non si aprissero, lo zero sarebbe vuoto e il controllo fallirebbe.
+
+Una nota della barra di esportazione era `#64798f` su `#101f33`, cioè 3,69:1.
+Il correttore di contrasto dell'app l'aveva già alzata da sé a `#74889e`
+(4,54:1) — era il correttore che funziona. È stata comunque riscritta
+conforme all'origine, così resta leggibile anche se un giorno il correttore non
+passasse di lì.
+
+### Il banco passa da 59 a 98 controlli
+
+Oltre a quanto sopra: media e deviazione campionaria verificate su
+`[2,4,4,4,5,5,7,9]` — media 5, deviazione √(32/7) — le colonne del CSV contate
+una per una, un nome con la virgola che deve risultare citato, e la metrica
+scritta `R²` e non `R2`, perché «R2» è il nome di una variabile, non di una
+metrica.
+
+---
 
 ## [bsi-v174] — 2026-09-25
 
 Una sezione nuova: **Chemioinformatica**. Non un laboratorio dimostrativo — ce
 n'era già uno, e usava RDKit in superficie — ma il banco di lavoro che serve
 per dire qualcosa di difendibile su un insieme di molecole.
+
 
 ### Aggiunto — `bsi-cheminfo.js`, il motore
 

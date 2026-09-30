@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v174` |
-| Commit | `ae0609d0bd15b78bc3bacbe853ffaa7ffc317177` |
-| Generato (UTC) | `2026-09-25T21:19:44.998Z` |
+| Versione applicazione | `bsi-v175` |
+| Commit | `2b128b10e95bab6e94ebe2b048a5f73ee3d952a6` |
+| Generato (UTC) | `2026-09-30T15:27:30.538Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,10 +56,10 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4567 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4576 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 32 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
-| `bsi-cheminfo.js` | 49 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
+| `bsi-cheminfo.js` | 65 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
 | `rdkit_lab.html` | 257 kB | Laboratorio di chemioinformatica. |
 | `astro.html` | 2666 kB | Modulo di astrochimica. |
@@ -70,11 +70,11 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `4b436bd11e5c306887d3c3651487788f2871b5bf1129c865604977d4ce969332` |
+| `index.html` | `4c997c6e54949cc2f8a86b116b3469a5e1b71c80353b223bc0b754c0d1c08f40` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `bsi-cheminfo.js` | `20402b065bddd5936f4ddb75598ac77ebe5fe12d3185e63b841834078af9cd87` |
-| `sw.js` | `8f742e9ac65bb7878db42688bf06fff2f7b7da390de36738378e92dfc9c1a580` |
+| `bsi-cheminfo.js` | `aefd53302644ef47f4cd78a6f531a8353e4952d9d4fc1eaf006a2f490e7fca9f` |
+| `sw.js` | `1a67ce07909476649180f62cbf7fe1b4bce3d8aa6dbcea49b5fd12532a05128e` |
 | `rdkit_lab.html` | `e80356f161d82e35906dc40df5ec70158e6247d473682398d7b1c8a718fe175f` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-09-25T21:19:44.998Z._
+_Generato il 2026-09-30T15:27:30.538Z._

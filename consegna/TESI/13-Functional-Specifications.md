@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v174` |
+| **Versione descritta** | `bsi-v175` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -125,7 +125,7 @@ di chemioinformatica produce in una giornata.
 | **Descrittori** | Standardizzazione (frammento maggiore, SMILES canonico, deduplicazione), 43 descrittori RDKit, regola dei 5 di Lipinski, filtro di Veber, indice QED ricalcolato — MinimalLib non lo espone |
 | **Similarità e gruppi** | Impronte Morgan/ECFP4, RDKit, pattern e MACCS; Tanimoto e Dice; matrice di similarità; vicini più simili; **raggruppamento di Butina** e selezione **MaxMin** per la diversità |
 | **Spazio chimico** | PCA sui descrittori standardizzati, con varianza spiegata per componente e i **carichi** che dicono quale descrittore muove quale asse; scheletri di **Bemis–Murcko** con il conteggio delle molecole per scheletro |
-| **Modello QSAR** | Regressione kernel (kernel di Tanimoto sulle impronte) o regressione logistica; **divisione per scheletro** oltre a quella casuale; R², RMSE, MAE, Pearson per la regressione, ROC-AUC e MCC per la classificazione; **dominio di applicabilità** con la distanza dal vicino più prossimo nell'insieme di addestramento |
+| **Modello QSAR** | Regressione kernel (kernel di Tanimoto sulle impronte) o regressione logistica; **divisione per scheletro** oltre a quella casuale; **validazione incrociata a 3, 5 o 10 pieghe raggruppate per scheletro**; R², RMSE, MAE, Pearson per la regressione, ROC-AUC e MCC per la classificazione; **dominio di applicabilità** con la distanza dal vicino più prossimo nell'insieme di addestramento |
 | **Salti di attività** | Coppie strutturalmente vicine con attività lontane, ordinate per **SALI**: sono le coppie su cui ogni modello sbaglia, ed è onesto mostrarle |
 | **Allarmi strutturali** | PAINS e Brenk, con il frammento evidenziato e il motivo per cui è segnalato |
 
@@ -144,8 +144,37 @@ Tre scelte che distinguono un banco di lavoro da una dimostrazione:
 > molecole con etichette casuali il modello **non** batte i sosia, e il pannello
 > lo dichiara allo stesso modo.
 
+### I risultati si portano via
+
+Due esportazioni, entrambe formate in memoria dal browser: non c'è nessuna
+richiesta di rete, ed è la ragione per cui la nota accanto ai pulsanti può dire
+che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
+
+| Esportazione | Contenuto |
+|---|---|
+| **Tabella CSV** | Una riga per molecola: nome, SMILES canonico e originale, attività, scheletro, nove descrittori, QED, violazioni di Lipinski, esito di Veber, allarmi trovati. Con la validazione incrociata attiva si aggiungono **previsto** e **residuo** — e solo allora, perché la validazione incrociata è l'unica che dia a ogni molecola una predizione da un modello che non l'aveva vista |
+| **Rapporto di metodo (.md)** | Ciò che serve a **rifare** la stessa analisi: versione di RDKit, fingerprint, tipo di divisione, numero di molecole e scheletri, **il seme**, le metriche, il verdetto del controllo nullo, le pieghe una per una, e i limiti dichiarati |
+
+> **Perché il seme è nel rapporto.** Senza di esso «divisione casuale» e
+> «etichette rimescolate» non significano niente: due esecuzioni darebbero
+> numeri diversi e nessuno potrebbe dire quale sia quello giusto. Il generatore
+> è un mulberry32 seminato, e lo stesso seme dà le stesse pieghe.
+
+### Una misura che nessun altro banco poteva fare
+
+`verifica-accessibilita` percorre le 88 sezioni e misura ciò che è **visibile**.
+I sei pannelli di questa sezione stanno dentro un contenitore che resta
+`display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
+visti, e il suo «contrasto 0» non parlava di loro.
+
+`test_cheminfo` esegue l'analisi per davvero, apre i sei pannelli a turno e
+misura il contrasto WCAG su ogni testo che vi compare — **460 elementi, 0
+difetti**. Le formule sono riscritte dentro il banco e non prese
+dall'applicazione: un banco che chiedesse al codice sotto esame quanto vale il
+proprio contrasto non misurerebbe niente.
+
 Il motore sta in `bsi-cheminfo.js`, è esposto come `window.BSIChem` ed è
-verificato dal banco `test_cheminfo` (59 controlli) contro valori calcolabili a
+verificato dal banco `test_cheminfo` (98 controlli) contro valori calcolabili a
 mano.
 
 ### 3.3 Chimica organica
@@ -316,4 +345,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v174`._
+_Documento aggiornato alla versione `bsi-v175`._

@@ -4,7 +4,7 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v174-0e655c)](CHANGELOG.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v175-0e655c)](CHANGELOG.md)
 [![Verifica](https://img.shields.io/badge/banchi-44%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2088%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
@@ -46,7 +46,7 @@ promesso, ma perché non esiste un server che possa farlo.
 | **Biochimica** | Amminoacidi, vie metaboliche animate, cinetica enzimatica, macromolecole 3D |
 | **Farmacologia** | 178 farmaci, atlante 3D dei bersagli, interazioni, farmacocinetica, casi clinici |
 | **Astrochimica** | Molecole interstellari, esopianeti JWST, nebulose, spettri stellari, nucleosintesi |
-| **Chemioinformatica** | Banco di lavoro completo: standardizzazione, 43 descrittori, impronte Morgan/MACCS, Tanimoto, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, QSAR con **divisione per scheletro** e **modello nullo per rimescolamento**, salti di attività, allarmi PAINS e Brenk |
+| **Chemioinformatica** | Banco di lavoro completo: standardizzazione, 43 descrittori, impronte Morgan/MACCS, Tanimoto, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, QSAR con **divisione per scheletro**, **validazione incrociata raggruppata** e **modello nullo per rimescolamento**, salti di attività, allarmi PAINS e Brenk. I risultati escono in **CSV** e in un **rapporto di metodo** che porta il seme, così l'analisi si rifà |
 | **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale |
 | **Spectra** | Agente AI con 35 strumenti, dieci fornitori, ricaduta automatica sui guasti |
 

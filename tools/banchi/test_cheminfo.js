@@ -376,6 +376,315 @@ function vicino(d, atteso, avuto, tol){
   att('la coppia trovata e\' quella attesa', 'AB', cliff.primaCoppia);
   att('l\'indice SALI e\' positivo', true, cliff.saliPositivo);
 
+  /* ── §10-bis · Validazione incrociata raggruppata per scaffold ─────
+     Due promesse da verificare, e la seconda e' quella che conta:
+       · le pieghe coprono tutte le molecole una volta sola;
+       · NESSUNO SCHELETRO sta in due pieghe diverse. Se stesse, la
+         validazione sarebbe un k-fold ordinario con un nome piu' bello, e
+         l'analogo della stessa serie predirebbe se stesso. */
+  console.log('\n── Validazione incrociata per scheletro ──');
+  const cv = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    /* Sei serie chimiche distinte, tre membri ciascuna: diciotto molecole con
+       diciotto scheletri? No — i membri di una serie CONDIVIDONO lo
+       scheletro. E' esattamente il caso in cui un k-fold ordinario bara. */
+    const nuclei = ['c1ccccc1', 'c1ccncc1', 'c1ccc2ccccc2c1', 'C1CCCCC1',
+                    'c1cc[nH]c1', 'c1ccoc1'];
+    const set = [];
+    nuclei.forEach((nu, i) => {
+      ['CC', 'CCC', 'CCCC'].forEach((coda, j) => {
+        set.push({ smiles: nu + coda, nome: 'S' + i + '-' + j, attivita: 4 + i * 0.7 + j * 0.1 });
+      });
+    });
+
+    const p = B.pieghePerScaffold(set, 3, 42);
+    /* copertura: ogni indice una volta sola */
+    const tutti = [].concat.apply([], p.pieghe).sort((a, b) => a - b);
+    const attesi = set.map((_, i) => i);
+    const copertura = JSON.stringify(tutti) === JSON.stringify(attesi);
+
+    /* nessuno scheletro condiviso fra due pieghe */
+    const scafDiPiega = p.pieghe.map(g => new Set(g.map(i => set[i]._scaffold || ('ac' + i))));
+    let condivisi = 0;
+    for (let a = 0; a < scafDiPiega.length; a++) {
+      for (let b = a + 1; b < scafDiPiega.length; b++) {
+        scafDiPiega[a].forEach(s => { if (scafDiPiega[b].has(s)) condivisi++; });
+      }
+    }
+
+    /* riproducibilita': stesso seme, stesse pieghe */
+    const p2 = B.pieghePerScaffold(set.map(m => ({ smiles: m.smiles, nome: m.nome, attivita: m.attivita })), 3, 42);
+    const uguali = JSON.stringify(p.pieghe) === JSON.stringify(p2.pieghe);
+
+    const v = B.validazioneIncrociata(set, { pieghe: 3, seme: 42 });
+    return {
+      copertura, condivisi, uguali,
+      nPieghe: p.nPieghe, nGruppi: p.nGruppi,
+      pieghe: v.pieghe, saltate: v.pieghieSaltate,
+      perPiegaN: v.perPiega.length,
+      previstiCompleti: v.previsti.filter(x => x !== undefined).length,
+      mediaFinita: typeof v.media === 'number' && isFinite(v.media),
+      scartoFinito: typeof v.scarto === 'number' && isFinite(v.scarto),
+      metrica: v.metrica,
+      riunitoFinito: typeof v.riunito.r2 === 'number' && isFinite(v.riunito.r2)
+    };
+  });
+  att('le pieghe coprono ogni molecola una volta sola', true, cv.copertura);
+  att('nessuno scheletro sta in due pieghe', 0, cv.condivisi);
+  att('con lo stesso seme le pieghe sono le stesse', true, cv.uguali);
+  att('i gruppi trovati sono i sei nuclei', 6, cv.nGruppi);
+  att('le pieghe chieste sono tre', 3, cv.nPieghe);
+  att('tutte le pieghe sono utilizzabili', 0, cv.saltate);
+  att('ogni molecola ha una predizione fuori piega', 18, cv.previstiCompleti);
+  att('la media fra le pieghe e\' un numero', true, cv.mediaFinita);
+  att('la deviazione fra le pieghe e\' un numero', true, cv.scartoFinito);
+  att('la metrica di regressione e\' r2', 'r2', cv.metrica);
+  att('il punteggio sulle predizioni riunite e\' un numero', true, cv.riunitoFinito);
+
+  /* La media e lo scarto si verificano su valori calcolabili a mano, non
+     sul risultato del modello: cosi' un errore nella formula si vede. */
+  const ms = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const a = B.mediaEScarto([2, 4, 4, 4, 5, 5, 7, 9]);
+    const b = B.mediaEScarto([3]);
+    const c = B.mediaEScarto([]);
+    return { media: a.media, scarto: a.scarto, n: a.n,
+             unoSolo: b.scarto, vuotoMedia: c.media, vuotoN: c.n };
+  });
+  vicino('media di [2,4,4,4,5,5,7,9]', 5, ms.media, 1e-9);
+  /* deviazione CAMPIONARIA (n−1): 32/7 = 4,571428…, radice 2,13809… */
+  vicino('deviazione campionaria dello stesso insieme', Math.sqrt(32 / 7), ms.scarto, 1e-9);
+  att('un valore solo non ha deviazione', 'null', String(ms.unoSolo));
+  att('un insieme vuoto non ha media', 'null', String(ms.vuotoMedia));
+  att('un insieme vuoto conta zero valori', 0, ms.vuotoN);
+
+  /* ── §10-ter · Esportazione ────────────────────────────────────────
+     Un CSV sbagliato e' peggio di nessun CSV: chi lo apre non vede l'errore,
+     lo importa. Le due trappole sono il nome che contiene una virgola e la
+     colonna che manca. */
+  console.log('\n── Esportazione ──');
+  const exp = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const set = [
+      { smiles: 'CC(=O)Oc1ccccc1C(=O)O', originale: 'CC(=O)Oc1ccccc1C(=O)O',
+        nome: 'aspirina, acido', attivita: 4.2 },
+      { smiles: 'CCO', originale: 'CCO', nome: 'etanolo' }
+    ];
+    const csv = B.esportaCsv(set, { previsto: [4.0, undefined], allarmi: true, gruppo: [1, 2] });
+    const righe = csv.trim().split('\n');
+    const intest = righe[0].split(',');
+    return {
+      righe: righe.length,
+      colonne: intest.length,
+      colonneUguali: righe.every(r => {
+        /* conta i separatori fuori dalle virgolette */
+        let n = 1, dentro = false;
+        for (const ch of r) { if (ch === '"') dentro = !dentro; else if (ch === ',' && !dentro) n++; }
+        return n === intest.length;
+      }),
+      nomeCitato: /"aspirina, acido"/.test(csv),
+      haPrevisto: intest.indexOf('previsto') !== -1,
+      haResiduo: intest.indexOf('residuo') !== -1,
+      haScaffold: intest.indexOf('scaffold') !== -1,
+      haQed: intest.indexOf('qed') !== -1,
+      residuoAspirina: righe[1].split(',').slice(-1)[0],
+      attivitaVuotaEtanolo: righe[2].split(',')[3] === '',
+      finisceConNuovaRiga: csv.slice(-1) === '\n'
+    };
+  });
+  att('il CSV ha una riga per molecola più l\'intestazione', 3, exp.righe);
+  att('ogni riga ha lo stesso numero di colonne dell\'intestazione', true, exp.colonneUguali);
+  att('un nome con la virgola viene citato', true, exp.nomeCitato);
+  att('la colonna dello scaffold c\'e\'', true, exp.haScaffold);
+  att('la colonna del QED c\'e\'', true, exp.haQed);
+  att('le colonne del previsto e del residuo ci sono', true, exp.haPrevisto && exp.haResiduo);
+  att('il residuo dell\'aspirina e\' 4,2 − 4,0', '0.2', exp.residuoAspirina);
+  att('una molecola senza attivita\' lascia la cella vuota', true, exp.attivitaVuotaEtanolo);
+  att('il file finisce con una riga nuova', true, exp.finisceConNuovaRiga);
+
+  /* Il rapporto di metodo deve contenere cio' che serve a RIFARE l'analisi.
+     Verificato sul contenuto, non sulla lunghezza: un rapporto lungo e vuoto
+     passerebbe un controllo sulla lunghezza. */
+  const rap = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const set = [];
+    for (let n = 2; n <= 15; n++) {
+      set.push({ smiles: 'C'.repeat(n) + 'O', nome: 'a' + n, attivita: n * 0.5 });
+    }
+    const mod = B.costruisciModello(set, { scramble: 4, seme: 7 });
+    const cvv = B.validazioneIncrociata(set, { pieghe: 3, seme: 7 });
+    const md = B.rapportoMetodo({ modello: mod, cv: cvv, seme: 7,
+                                  nAccettate: set.length, nScartate: 0 });
+    return {
+      haSeme: /\| Seme \| 7 \|/.test(md),
+      haFingerprint: /\| Fingerprint \| morgan \|/.test(md),
+      haVerdetto: /verdetto:/.test(md),
+      haRipetizioni: /riaddestrato 4\s+volte/.test(md.replace(/\n/g, ' ')),
+      haVersioneRdkit: /\| RDKit \| `/.test(md),
+      haLimiti: /## Limiti di questa analisi/.test(md),
+      haPieghe: /## Validazione incrociata raggruppata per scheletro/.test(md),
+      /* «R2» e' il nome di una variabile, non di una metrica: nel rapporto
+         che un valutatore legge deve comparire R². */
+      metricaScrittaBene: /R\u00b2 per piega:/.test(md) && !/R2 per piega/.test(md),
+      diceCheNonEsceNiente: /nessun dato è uscito dal dispositivo/.test(md),
+      senzaModello: B.rapportoMetodo({}).indexOf('## Modello') === -1
+    };
+  });
+  att('il rapporto dichiara il seme', true, rap.haSeme);
+  att('il rapporto dichiara il fingerprint usato', true, rap.haFingerprint);
+  att('il rapporto porta il verdetto del controllo nullo', true, rap.haVerdetto);
+  att('il rapporto dice quante ripetizioni ha fatto', true, rap.haRipetizioni);
+  att('il rapporto dichiara la versione di RDKit', true, rap.haVersioneRdkit);
+  att('il rapporto elenca i limiti', true, rap.haLimiti);
+  att('il rapporto include la validazione incrociata', true, rap.haPieghe);
+  att('la metrica e\' scritta R² e non R2', true, rap.metricaScrittaBene);
+  att('il rapporto dichiara che nessun dato esce dal dispositivo', true, rap.diceCheNonEsceNiente);
+  att('senza modello il rapporto non inventa la sezione', true, rap.senzaModello);
+
+  /* ── §10-quater · Il contrasto dei pannelli, misurato dove nessun altro
+     banco arriva ────────────────────────────────────────────────────────
+     `verifica-accessibilita` percorre le 88 sezioni e misura ciò che è
+     VISIBILE. Ma i sei pannelli di questa sezione stanno dentro un
+     contenitore che resta `display:none` finché l'analisi non è stata
+     eseguita: quel banco non li ha mai visti, e il suo «contrasto 0» non
+     parla di loro. Un numero perfetto che non copre la superficie nuova è
+     esattamente il caso che questo progetto ha già incontrato una volta.
+
+     Qui l'analisi viene eseguita per davvero, e poi si misura. Le formule
+     sono riscritte in questo banco e non prese dall'applicazione: un banco
+     che chiedesse al codice sotto esame quanto vale il proprio contrasto non
+     misurerebbe niente. */
+  console.log('\n── Contrasto dei pannelli (dove l\'altro banco non arriva) ──');
+  const pg2 = await ctx.newPage();
+  const erroriUi = [];
+  pg2.on('pageerror', e => erroriUi.push(e.message));
+  await pg2.goto(BASE + 'index.html', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await pg2.waitForTimeout(2500);
+  await pg2.evaluate(() => { const g = document.getElementById('bsi-guide'); if (g) g.remove(); });
+  await pg2.evaluate(() => {
+    const n = document.querySelector('.nav-btn[data-s="scheminfo"]');
+    if (n) n.click();
+  });
+  await pg2.waitForTimeout(600);
+  await pg2.evaluate(() => {
+    document.getElementById('chemEsInib').click();
+    document.getElementById('chemVai').click();
+  });
+  /* L'analisi passa per RDKit in WebAssembly: si aspetta il risultato, non un
+     tempo fisso. */
+  await pg2.waitForFunction(
+    () => { const c = document.getElementById('chemCorpo'); return c && c.style.display !== 'none'; },
+    { timeout: 90000 });
+  await pg2.waitForTimeout(1200);
+
+  /* Si aprono tutti i pannelli a turno: quello nascosto non si misura, e
+     lasciarne uno chiuso rifarebbe lo stesso errore in piccolo. */
+  const pannelli = ['descr', 'simil', 'spazio', 'qsar', 'salti', 'allarmi'];
+  let difetti = [], misurati = 0, apertiOk = 0;
+  for (const nome of pannelli) {
+    const aperto = await pg2.evaluate((n) => {
+      const t = document.querySelector('#scheminfo .chem-t[data-p="' + n + '"]');
+      if (!t) return false;
+      t.click();
+      const el = document.getElementById('chemP-' + n);
+      return !!(el && el.style.display !== 'none' && el.textContent.trim().length > 20);
+    }, nome);
+    if (aperto) apertiOk++;
+    await pg2.waitForTimeout(350);
+
+    const esito = await pg2.evaluate(() => {
+      function canale(v){ v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+      function lum(c){ return 0.2126 * canale(c[0]) + 0.7152 * canale(c[1]) + 0.0722 * canale(c[2]); }
+      function rapporto(a, b){
+        const la = lum(a), lb = lum(b);
+        return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+      }
+      function rgb(s){
+        const m = String(s).match(/rgba?\(([^)]+)\)/);
+        if (!m) return null;
+        const p = m[1].split(',').map(x => parseFloat(x.trim()));
+        return { c: [p[0], p[1], p[2]], a: p.length > 3 ? p[3] : 1 };
+      }
+      /* Un colore con alfa non è il colore che si vede: va composto su ciò
+         che sta sotto, altrimenti si giudica una trasparenza come se fosse
+         una tinta piena. */
+      function fondoEffettivo(el){
+        let sopra = [], n = el;
+        while (n && n.nodeType === 1) {
+          const st = getComputedStyle(n);
+          /* Un gradiente ritagliato sul testo dipinge i GLIFI, non il fondo:
+             l'elemento non ha un fondo proprio da confrontare. */
+          if (st.webkitBackgroundClip === 'text' || st.backgroundClip === 'text') return null;
+          if (st.backgroundImage && st.backgroundImage !== 'none') return null;
+          const f = rgb(st.backgroundColor);
+          if (f && f.a > 0) {
+            sopra.push(f);
+            if (f.a >= 0.999) break;
+          }
+          n = n.parentElement;
+        }
+        let base = [13, 21, 34];          // il fondo della pagina
+        for (let i = sopra.length - 1; i >= 0; i--) {
+          const s = sopra[i];
+          base = [0, 1, 2].map(k => s.c[k] * s.a + base[k] * (1 - s.a));
+        }
+        return base;
+      }
+
+      const fuori = [];
+      let n = 0;
+      const radice = document.getElementById('scheminfo');
+      if (!radice) return { n: 0, fuori: [] };
+      const cam = document.createTreeWalker(radice, NodeFilter.SHOW_TEXT);
+      const visti = new Set();
+      let t;
+      while ((t = cam.nextNode())) {
+        const testo = t.nodeValue.trim();
+        if (!testo) continue;
+        /* Le sole emoji non sono testo da leggere. */
+        if (!/[0-9A-Za-zÀ-ÿ]/.test(testo)) continue;
+        const el = t.parentElement;
+        if (!el || visti.has(el)) continue;
+        visti.add(el);
+        const st = getComputedStyle(el);
+        if (st.display === 'none' || st.visibility === 'hidden' || +st.opacity === 0) continue;
+        const r = el.getBoundingClientRect();
+        if (!r.width || !r.height) continue;
+        const col = rgb(st.color);
+        const fondo = fondoEffettivo(el);
+        if (!col || !fondo) continue;
+        const grande = parseFloat(st.fontSize) >= 24 ||
+                       (parseFloat(st.fontSize) >= 18.66 && +st.fontWeight >= 700);
+        const soglia = grande ? 3 : 4.5;
+        const composto = [0, 1, 2].map(k => col.c[k] * col.a + fondo[k] * (1 - col.a));
+        n++;
+        const rap = rapporto(composto, fondo);
+        if (rap < soglia) {
+          fuori.push({
+            testo: testo.slice(0, 40), colore: st.color, fondo: 'rgb(' + fondo.map(Math.round).join(',') + ')',
+            rapporto: Math.round(rap * 100) / 100, soglia
+          });
+        }
+      }
+      return { n, fuori };
+    });
+    misurati += esito.n;
+    difetti = difetti.concat(esito.fuori.map(d => Object.assign({ pannello: nome }, d)));
+  }
+
+  att('tutti e sei i pannelli si aprono con del contenuto', 6, apertiOk);
+  /* Un banco che non misura nulla passa: se gli elementi misurati sono
+     pochi, i pannelli non si sono aperti e il «zero difetti» è vuoto. */
+  att('gli elementi di testo misurati sono molti', true, misurati > 250);
+  att('nessun testo dei pannelli sotto la soglia WCAG AA', 0, difetti.length);
+  console.log('      (' + misurati + ' elementi di testo misurati nei sei pannelli)');
+  difetti.slice(0, 12).forEach(d => console.log('      ! [' + d.pannello + '] ' +
+    d.rapporto + ':1 (serve ' + d.soglia + ') ' + d.colore + ' su ' + d.fondo + ' — «' + d.testo + '»'));
+
+  att('nessun errore JavaScript usando la sezione', 0, erroriUi.length);
+  erroriUi.slice(0, 4).forEach(e => console.log('      ! ' + e.slice(0, 140)));
+  await pg2.close();
+
   /* ── §11 · Nessun errore lungo la strada ──────────────────────────── */
   console.log('\n── Igiene ──');
   const soloVeri = erroriJs.filter(e => !/ERR_TUNNEL|ERR_NAME_NOT_RESOLVED|Failed to fetch/i.test(e));
@@ -386,9 +695,9 @@ function vicino(d, atteso, avuto, tol){
 
   /* Un banco che non misura nulla passa: se i controlli eseguiti sono
      pochi, qualcosa e' stato saltato in silenzio. */
-  if (eseguiti < 45) {
+  if (eseguiti < 83) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 83');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v174` |
+| **Versione descritta** | `bsi-v175` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -103,7 +103,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_costanti` | Ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | Coerenza dei dati tabulati | 29 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
-| `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette** | 59 |
+| `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni, **contrasto dei sei pannelli** | 98 |
 
 
 > **Un banco che verifica un modello deve verificarlo anche quando il modello
@@ -112,6 +112,16 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > etichette rimescolate, con un margine di 0,287; sulle **stesse molecole con
 > etichette casuali** l'R² (−0,199) **non** li batte. Un controllo che verifica
 > solo il primo caso passerebbe anche se la guardia fosse cablata su «vero».
+
+> **Un «contrasto 0» che non copriva la superficie nuova.**
+> `verifica-accessibilita` misura ciò che è visibile, e i sei pannelli della
+> sezione Chemioinformatica restano nascosti finché l'analisi non è stata
+> eseguita: non li aveva mai visti. Ora `test_cheminfo` esegue l'analisi, apre
+> i pannelli a turno e misura il contrasto su **460 elementi di testo**, con le
+> formule WCAG riscritte dentro il banco — chiedere al codice sotto esame
+> quanto vale il proprio contrasto non è misurare. Il banco pretende inoltre di
+> averne misurati più di 250: se i pannelli non si aprissero, lo zero sarebbe
+> vuoto e il controllo fallirebbe.
 
 ### 3.2 Agente AI
 
@@ -410,4 +420,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v174`._
+_Documento aggiornato alla versione `bsi-v175`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v174` |
+| **Version described** | `bsi-v175` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -124,7 +124,7 @@ cheminformatics group produces in a day.
 | **Descriptors** | Standardisation (largest fragment, canonical SMILES, deduplication), 43 RDKit descriptors, Lipinski's rule of five, Veber filter, QED recomputed — MinimalLib does not expose it |
 | **Similarity and groups** | Morgan/ECFP4, RDKit, pattern and MACCS fingerprints; Tanimoto and Dice; similarity matrix; nearest neighbours; **Butina clustering** and **MaxMin** selection for diversity |
 | **Chemical space** | PCA on the standardised descriptors, with explained variance per component and the **loadings** that say which descriptor moves which axis; **Bemis–Murcko** scaffolds with the molecule count per scaffold |
-| **QSAR model** | Kernel ridge (Tanimoto kernel over the fingerprints) or logistic regression; **scaffold split** alongside the random one; R², RMSE, MAE, Pearson for regression, ROC-AUC and MCC for classification; **applicability domain** by distance to the nearest training neighbour |
+| **QSAR model** | Kernel ridge (Tanimoto kernel over the fingerprints) or logistic regression; **scaffold split** alongside the random one; **cross-validation over 3, 5 or 10 scaffold-grouped folds**; R², RMSE, MAE, Pearson for regression, ROC-AUC and MCC for classification; **applicability domain** by distance to the nearest training neighbour |
 | **Activity cliffs** | Structurally close pairs with distant activities, ranked by **SALI**: these are the pairs every model gets wrong, and it is honest to show them |
 | **Structural alerts** | PAINS and Brenk, with the matched fragment highlighted and the reason it is flagged |
 
@@ -143,8 +143,37 @@ Three choices that separate a workbench from a demonstration:
 > molecules with random labels the model does **not** beat the twins, and the
 > panel says so in the same way.
 
+### The results can be taken away
+
+Two exports, both formed in memory by the browser: there is no network request,
+which is why the note beside the buttons can say that no data leaves the device
+without asking anyone to take it on trust.
+
+| Export | Content |
+|---|---|
+| **CSV table** | One row per molecule: name, canonical and original SMILES, activity, scaffold, nine descriptors, QED, Lipinski violations, Veber outcome, alerts found. With cross-validation active, **predicted** and **residual** are added — and only then, because cross-validation is the one scheme that gives every molecule a prediction from a model that had not seen it |
+| **Method report (.md)** | What is needed to **redo** the same analysis: RDKit version, fingerprint, split type, number of molecules and scaffolds, **the seed**, the metrics, the null-model verdict, the folds one by one, and the declared limits |
+
+> **Why the seed is in the report.** Without it, "random split" and "scrambled
+> labels" mean nothing: two runs would give different numbers and nobody could
+> say which was the right one. The generator is a seeded mulberry32, and the
+> same seed gives the same folds.
+
+### A measurement no other bench could make
+
+`verifica-accessibilita` walks the 88 sections and measures what is **visible**.
+The six panels of this section live inside a container that stays `display:none`
+until the analysis has been run: that bench never saw them, and its "contrast 0"
+was not speaking about them.
+
+`test_cheminfo` runs the analysis for real, opens the six panels in turn and
+measures WCAG contrast on every piece of text that appears there — **460
+elements, 0 defects**. The formulas are rewritten inside the bench rather than
+taken from the application: a bench that asked the code under test how good its
+own contrast was would be measuring nothing.
+
 The engine lives in `bsi-cheminfo.js`, is exposed as `window.BSIChem` and is
-verified by the `test_cheminfo` bench (59 checks) against hand-computable
+verified by the `test_cheminfo` bench (98 checks) against hand-computable
 values.
 
 ### 3.3 Organic chemistry
@@ -315,4 +344,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v174`._
+_Document updated to version `bsi-v175`._

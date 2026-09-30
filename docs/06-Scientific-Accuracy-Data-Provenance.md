@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v174` |
+| **Versione descritta** | `bsi-v175` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v174` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v175` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -273,9 +273,9 @@ l'occasione. Sono quelli in uso, con i riferimenti che li definiscono.
 | **Allarmi di Brenk** | Brenk *et al.*, *ChemMedChem* 3 (2008) 435 | Idem |
 | **SALI** | Guha & Van Drie, *J. Chem. Inf. Model.* 48 (2008) 646 | Δattività / (1 − Tanimoto), sulle coppie sopra la soglia di similarità |
 
-### 3-bis.2 Le tre cose che rendono un QSAR onesto
+### 3-bis.2 Le quattro cose che rendono un QSAR onesto
 
-Un modello QSAR è facilissimo da far sembrare buono. Le tre precauzioni qui
+Un modello QSAR è facilissimo da far sembrare buono. Le quattro precauzioni qui
 sotto sono quelle che distinguono un numero da una misura, e sono tutte
 verificate dal banco `test_cheminfo`.
 
@@ -295,6 +295,21 @@ un R² di 0,4 su trenta molecole è indistinguibile dal caso.
 ciò che il modello ha visto è un'estrapolazione, non una predizione. La
 distanza dal vicino più prossimo nell'insieme di addestramento è mostrata
 accanto a ogni valore predetto.
+
+**Validazione incrociata raggruppata per scheletro.** Una divisione sola, su un
+insieme piccolo, è un numero rumoroso: su 28 molecole al 25 % l'insieme di
+prova ne contiene sette, e spostarne una muove l'R² di decimi. Le pieghe
+raggruppano per scheletro — nessuno scheletro sta in due pieghe — e il
+risultato viene dato come **media ± deviazione**, non come cifra singola.
+
+> **Quanto conti, misurato sull'esempio dei 28 inibitori.** La divisione
+> singola dà R² **0,861**. La validazione a cinque pieghe dà **0,605 ± 0,452**,
+> con le singole pieghe a 0,861 · 0,538 · 0,795 · **−0,150** · 0,980. La
+> divisione singola aveva pescato la piega fortunata. Le due cifre insieme
+> dicono quello che nessuna delle due dice da sola: il modello funziona, ma
+> dipende sensibilmente da quali molecole gli capitano in addestramento —
+> e su un insieme di ventotto molecole è esattamente ciò che ci si deve
+> aspettare.
 
 ### 3-bis.3 Limiti dichiarati
 
@@ -349,7 +364,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v174` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v175` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -359,4 +374,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v174`._
+_Documento aggiornato alla versione `bsi-v175`._

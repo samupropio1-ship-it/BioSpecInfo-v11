@@ -814,7 +814,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v174';
+window.BSI_APP_VERSION='bsi-v175';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -26718,6 +26718,12 @@ CC(=O)Oc1ccccc1C(=O)O	aspirina	4.2"></textarea>
   </div>
 
   <div id="chemCorpo" style="display:none">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:#101f33;border:1px solid #1f3a5f;border-radius:10px">
+      <span style="color:#8fa3b8;font-size:.78rem;font-weight:700">PORTARE VIA I RISULTATI</span>
+      <button id="chemCsv" class="chem-b">⬇ Tabella CSV</button>
+      <button id="chemRapporto" class="chem-b">⬇ Rapporto di metodo (.md)</button>
+      <span id="chemExpNota" style="color:#7d93ab;font-size:.74rem">Si formano nel browser: nessun dato esce dal dispositivo.</span>
+    </div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px" role="tablist" aria-label="Sezioni dell'analisi">
       <button class="chem-t chem-t-on" data-p="descr">Descrittori</button>
       <button class="chem-t" data-p="simil">Similarità e gruppi</button>
@@ -46662,7 +46668,7 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
    collegamento fra quei numeri e lo schermo. */
 (function () {
   'use strict';
-  var stato = { molecole: [], fps: [], scartate: [], modello: null };
+  var stato = { molecole: [], fps: [], scartate: [], modello: null, cv: null, gruppi: null };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
@@ -46724,6 +46730,8 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
         if (!stato.molecole.length) { dillo('Nessuna molecola interpretabile.', '#ff6b6b'); return; }
         stato.fps = stato.molecole.map(function (m) { return B.fingerprint(m.smiles, 'morgan'); });
         stato.modello = null;
+        stato.cv = null;
+        stato.gruppi = null;
         $('chemCorpo').style.display = '';
         dillo(stato.molecole.length + ' molecole accettate · ' + stato.scartate.length + ' righe scartate', '#4ade80');
         disegnaTutto();
@@ -46734,6 +46742,89 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
   }
 
   function disegnaTutto() { ['descr','simil','spazio','qsar','salti','allarmi'].forEach(pannello); }
+
+  /* ── Esportazione ──────────────────────────────────────────────────
+     Il file si forma in memoria e viene consegnato al browser: non c'è
+     nessuna richiesta di rete, ed è la ragione per cui la nota accanto ai
+     pulsanti può dire che nessun dato esce dal dispositivo senza che sia una
+     promessa da credere sulla parola. */
+  function scarica(nome, testo, tipo) {
+    try {
+      var b = new Blob([testo], { type: tipo + ';charset=utf-8' });
+      var u = URL.createObjectURL(b);
+      var a = document.createElement('a');
+      a.href = u; a.download = nome;
+      document.body.appendChild(a); a.click(); a.remove();
+      /* Revocare subito l'URL annulla il download su qualche browser: si
+         aspetta che sia partito. */
+      setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function marcaTempo() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes());
+  }
+
+  function nota(t, colore) {
+    var e = $('chemExpNota');
+    /* Il grigio predefinito e' scelto per superare 4,5:1 sul fondo della
+       barra (#101f33) da solo, senza dipendere dal correttore di contrasto
+       che gira al caricamento: se un giorno quel correttore non passasse da
+       qui, la nota resterebbe leggibile comunque. */
+    if (e) { e.textContent = t; e.style.color = colore || '#7d93ab'; }
+  }
+
+  function esportaTabella() {
+    var B = window.BSIChem;
+    if (!stato.molecole.length) { nota('Non c\'è niente da esportare.', '#fbbf24'); return; }
+    nota('Preparazione della tabella…');
+    setTimeout(function () {
+      try {
+        /* Il previsto entra nel CSV solo se esiste: una colonna «previsto»
+           piena di celle vuote farebbe credere che il modello abbia girato. */
+        var opz = { allarmi: true };
+        if (stato.cv) {
+          /* La validazione incrociata e' la sola che dia una predizione per
+             OGNI molecola, e sempre da un modello che non l'aveva vista: e'
+             l'unica colonna «previsto» che si puo' esportare senza barare.
+             Con la divisione singola le predizioni esistono solo per le
+             molecole di prova, e una colonna mezza vuota accanto alle altre
+             le farebbe sembrare tutte della stessa natura: allora non si
+             esporta affatto, e i numeri del modello stanno nel rapporto. */
+          opz.previsto = stato.cv.previsti;
+        }
+        var csv = B.esportaCsv(stato.molecole, opz);
+        var ok = scarica('biospecinfo-chemioinfo-' + marcaTempo() + '.csv', csv, 'text/csv');
+        nota(ok ? 'Tabella scaricata: ' + stato.molecole.length + ' molecole.' : 'Il browser ha impedito il download.',
+             ok ? '#4ade80' : '#ff8787');
+      } catch (e) {
+        nota('Esportazione non riuscita: ' + e.message, '#ff8787');
+      }
+    }, 20);
+  }
+
+  function esportaRapporto() {
+    var B = window.BSIChem;
+    if (!stato.molecole.length) { nota('Non c\'è niente da esportare.', '#fbbf24'); return; }
+    try {
+      var md = B.rapportoMetodo({
+        modello: stato.modello,
+        cv: stato.cv,
+        seme: 42,
+        nAccettate: stato.molecole.length,
+        nScartate: stato.scartate.length,
+        motiviScarto: stato.scartate.slice(0, 4).map(function (s) { return s.motivo; })
+      });
+      var ok = scarica('biospecinfo-metodo-' + marcaTempo() + '.md', md, 'text/markdown');
+      nota(ok
+        ? (stato.modello ? 'Rapporto scaricato, modello compreso.' : 'Rapporto scaricato. Addestra un modello per includerne i numeri.')
+        : 'Il browser ha impedito il download.', ok ? '#4ade80' : '#ff8787');
+    } catch (e) {
+      nota('Rapporto non riuscito: ' + e.message, '#ff8787');
+    }
+  }
 
   function pannello(p) {
     var el = $('chemP-' + p);
@@ -46895,8 +46986,12 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
       '<select id="chemFp" aria-label="Tipo di fingerprint" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
       '<option value="morgan">Morgan / ECFP4</option><option value="rdkit">RDKit</option><option value="maccs">MACCS</option>' +
       '<option value="atompair">coppie di atomi</option><option value="torsion">torsioni</option></select></div>' +
+      '<div style="min-width:0"><label for="chemPieghe" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">pieghe</label>' +
+      '<select id="chemPieghe" aria-label="Numero di pieghe della validazione incrociata" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
+      '<option value="0">nessuna (divisione singola)</option><option value="3">3</option><option value="5" selected>5</option>' +
+      '<option value="10">10</option></select></div>' +
       '<button id="chemAddestra" class="chem-p">Addestra</button></div>' +
-      '<div id="chemQsarOut" style="color:#8fa3b8;font-size:.82rem">Premi «Addestra»: il modello verrà confrontato con dieci sosia a etichette rimescolate.</div>' +
+      '<div id="chemQsarOut" style="color:#8fa3b8;font-size:.82rem">Premi «Addestra»: il modello verrà confrontato con dieci sosia a etichette rimescolate, e validato su pieghe che non condividono nessuno scheletro.</div>' +
       '</div>';
   };
 
@@ -46950,6 +47045,55 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
           'e mettere una molecola in addestramento e la sua gemella in prova non misura la capacità di prevedere, misura quella di copiare.' +
           (m.tipo === 'regressione' ? ' Il grafico mostra previsto contro osservato: la diagonale è la previsione perfetta.' : '') +
           '</div>';
+        /* La validazione incrociata, se richiesta. Sta DOPO la divisione
+           singola e non la sostituisce: la divisione singola mostra il grafico
+           previsto-osservato su molecole mai viste, la validazione dice quanto
+           quel numero sia stabile. Chiedere l'una senza l'altra lascia sempre
+           una delle due domande senza risposta. */
+        var k = +(($('chemPieghe') || {}).value || 0);
+        if (k >= 3) {
+          try {
+            var cv = B.validazioneIncrociata(stato.molecole, {
+              fingerprint: ($('chemFp') || {}).value || 'morgan',
+              pieghe: k, seme: 42
+            });
+            stato.cv = cv;
+            var chiave = cv.metrica;
+            var perPiega = cv.perPiega.map(function (f) {
+              return '<span style="color:#e9eef6;font-weight:700">' + num(f.metriche[chiave], 3) + '</span>' +
+                     '<span style="color:#64798f;font-size:.72rem"> (n=' + f.nProva + ')</span>';
+            }).join('<span style="color:#3d5878"> · </span>');
+            var lontane = cv.scarto !== null && cv.riunito[chiave] !== null && cv.media !== null &&
+                          Math.abs(cv.media - cv.riunito[chiave]) > cv.scarto;
+            out.innerHTML += '<div class="chem-card" style="margin-top:14px">' +
+              '<div class="chem-h">VALIDAZIONE INCROCIATA, RAGGRUPPATA PER SCHELETRO</div>' +
+              '<div style="color:#c9d3df;font-size:.82rem;line-height:1.7">' +
+              (chiave === 'r2' ? 'R²' : 'ROC-AUC') + ' per piega: ' + perPiega + '</div>' +
+              '<div class="chem-kpi" style="margin-top:11px">' +
+              '<div><div class="v">' + num(cv.media, 3) + '</div><div class="l">media fra le pieghe</div></div>' +
+              '<div><div class="v">' + (cv.scarto === null ? '—' : '±' + num(cv.scarto, 3)) + '</div><div class="l">deviazione</div></div>' +
+              '<div><div class="v">' + num(cv.riunito[chiave], 3) + '</div><div class="l">predizioni riunite</div></div>' +
+              '<div><div class="v">' + cv.pieghe + '</div><div class="l">pieghe usate</div></div>' +
+              '<div><div class="v">' + cv.nScaffold + '</div><div class="l">scheletri</div></div></div>' +
+              (cv.pieghieSaltate
+                ? '<div style="color:#fbbf24;font-size:.78rem;margin-top:9px">' + cv.pieghieSaltate +
+                  ' pieghe sono state saltate perché non addestrabili: la validazione è su ' + cv.pieghe +
+                  ', non su ' + cv.pieghieChieste + '.</div>'
+                : '') +
+              '<div style="color:#8fa3b8;font-size:.76rem;margin-top:9px;line-height:1.6">' +
+              'Nessuno scheletro sta in due pieghe: un analogo della stessa serie in addestramento e in prova ' +
+              'falsa la piega esattamente come falsava la divisione singola. ' +
+              (lontane
+                ? '<b style="color:#fbbf24">La media fra le pieghe e il punteggio sulle predizioni riunite distano più di una deviazione</b>: ' +
+                  'il modello dipende sensibilmente da quali molecole gli capitano in addestramento.'
+                : 'La media fra le pieghe e il punteggio sulle predizioni riunite sono compatibili: il modello non dipende troppo da quali molecole gli capitano.') +
+              '</div></div>';
+          } catch (e2) {
+            out.innerHTML += avviso('Validazione incrociata non eseguibile: ' + esc(e2.message));
+          }
+        } else {
+          stato.cv = null;
+        }
         if (reg) setTimeout(function () { disegnaDispersione(m); }, 30);
       } catch (e) {
         out.innerHTML = avviso('Non è stato possibile costruire il modello: ' + esc(e.message));
@@ -47035,6 +47179,8 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     var a = $('chemEsInib'); if (a) a.onclick = function () { i.value = ES_INIB; dillo('Esempio caricato: 28 inibitori con pIC₅₀. Premi «Analizza».'); };
     var f = $('chemEsFarm'); if (f) f.onclick = function () { i.value = esempioFarmaci(); dillo('Caricati i farmaci dell\'app che hanno una struttura. Premi «Analizza».'); };
     var p = $('chemPulisci'); if (p) p.onclick = function () { i.value = ''; $('chemCorpo').style.display = 'none'; dillo(''); };
+    var ec = $('chemCsv'); if (ec) ec.onclick = esportaTabella;
+    var er = $('chemRapporto'); if (er) er.onclick = esportaRapporto;
     Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (t) {
       t.onclick = function () {
         Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (x) { x.classList.remove('chem-t-on'); });

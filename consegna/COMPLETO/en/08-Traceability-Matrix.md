@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v174` |
+| **Version described** | `bsi-v175` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -39,6 +39,9 @@
 | **SCI-15** | A model score must be compared against chance, not presented on its own | `bsi-cheminfo.js` §9 — retraining on scrambled labels, eight repetitions | `test_cheminfo` — verified **in both directions**: on a learnable signal R² 0.394 beats all eight twins (margin 0.287); on random labels R² −0.199 does **not** beat them |
 | **SCI-16** | Two spellings of the same molecule must not be counted twice, nor land on opposite sides of the split | `bsi-cheminfo.js` §1 — deduplication on the canonical SMILES after the largest fragment | `test_cheminfo` — `OC(=O)C` and `CC(=O)O` collapse into one entry; salts lose the counterion |
 | **SCI-17** | Similarity between molecules must be computed, not estimated | `bsi-cheminfo.js` §3 — Tanimoto and Dice over Morgan, RDKit, pattern and MACCS fingerprints | `test_cheminfo` — compared against hand-computable values, including the 0/0 = 1 convention |
+| **SCI-18** | A validation on a single split, over a small set, is a noisy number: it must come with its dispersion | `bsi-cheminfo.js` §9-bis — `validazioneIncrociata()` over **scaffold-grouped** folds | `test_cheminfo` — the folds cover every molecule once, **no scaffold sits in two folds**, and the same seed gives the same folds |
+| **SCI-19** | A result that changes on every run is verifiable by nobody | seeded mulberry32 generator for splits, scrambles and folds; the seed is written into the report | `test_cheminfo` — two calls with the same seed give identical folds; the method report declares the seed |
+| **SCI-20** | Results must be able to leave the tool, and the method must leave with them | `bsi-cheminfo.js` §9-ter — `esportaCsv()` and `rapportoMetodo()`, both formed in memory in the browser | `test_cheminfo` — columns consistent with the header, a name containing a comma quoted, residual computed, empty cell for missing activity; the report carries seed, fingerprint, verdict, limits |
 
 ---
 
@@ -83,6 +86,7 @@
 | **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 88 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
+| **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
 
 ---
 
@@ -101,7 +105,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v174`. The
+> remedy was to change it, and that **has been done** at version `bsi-v175`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -125,14 +129,14 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…17) | 16 | 16 | 100 % |
+| Scientific (SCI-01…20) | 19 | 19 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…05) | 5 | 5 | 100 % |
+| Interface (UI-01…08) | 6 | 6 | 100 % |
 | Security (SEC-01…04) | 4 | 4 | 100 % |
-| **Automated total** | **43** | **43** | **100 %** |
+| **Automated total** | **47** | **47** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **48** | **43** | **90 %** |
+| **Declared total** | **52** | **47** | **90 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -140,8 +144,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **43
-> requirements verified out of 48 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **47
+> requirements verified out of 52 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
@@ -167,4 +171,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v174`._
+_Document updated to version `bsi-v175`._
