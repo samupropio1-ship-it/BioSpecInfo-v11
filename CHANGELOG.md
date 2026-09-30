@@ -73,9 +73,77 @@ Il correttore di contrasto dell'app l'aveva già alzata da sé a `#74889e`
 conforme all'origine, così resta leggibile anche se un giorno il correttore non
 passasse di lì.
 
-### Il banco passa da 59 a 98 controlli
+### Corretto — una similarità che non era similarità
 
-Oltre a quanto sopra: media e deviazione campionaria verificate su
+Il pannello «Pharma Pro» di `rdkit_lab.html` confrontava la molecola con otto
+farmaci di riferimento e mostrava una percentuale con la barra. Quella
+percentuale non veniva da un fingerprint: veniva da **otto bit di descrittori a
+soglia** — «ha anelli aromatici», «HBA > 4», «peso fra 200 e 500» — di cui si
+calcolava il Tanimoto.
+
+Misurato, non supposto:
+
+| Coppia | A otto bit | Su Morgan vero |
+|---|---:|---:|
+| Caffeina · Metformina | **0,75** | **0,024** |
+| Paracetamolo · Amoxicillina | 0,60 | 0,218 |
+| Paracetamolo · Aspirina | 0,50 | 0,222 |
+
+Caffeina e metformina non hanno frammenti in comune, e il pannello le mostrava
+al 75 % — su una pagina che si chiama «RDKit Lab», con RDKit già caricato e in
+grado di calcolare il fingerprint vero.
+
+Accanto a quello, due difetti dello stesso genere:
+
+- tre delle otto impronte di riferimento erano **scritte a mano** e avevano il
+  bit «aromatico» sbagliato: caffeina (due anelli aromatici) segnata 0,
+  morfina e amoxicillina (uno ciascuna) segnate 0;
+- lo **SMILES dell'omeprazolo non era omeprazolo**: `COc1ccc2[nH]c(=S)cc2c1OC`
+  è una struttura che RDKit rifiuta, e stava in un elenco di farmaci di
+  riferimento.
+
+Corretto tutto. Il confronto usa il fingerprint di Morgan; le impronte si
+calcolano invece di essere battute a tastiera; l'omeprazolo è l'omeprazolo
+(massa monoisotopica 345,11, tre anelli aromatici, entrambe verificate). Le due
+funzioni della similarità finta sono state **rimosse**, non scavalcate —
+lasciarle in giro le avrebbe rimesse in uso alla prima modifica — e il banco
+controlla che non esistano più.
+
+### Corretto — due Tanimoto dove ne bastava uno
+
+Il laboratorio aveva la sua copia di Tanimoto. Concordava con quella del motore
+sui casi normali — verificato: scarto **esattamente 0** su tutte e 28 le coppie
+di riferimento — ma sul caso di due impronte vuote rispondeva 0 dove il motore
+risponde 1. Due implementazioni che nessuno confronta prima o poi divergono sul
+serio.
+
+Ora `rdkit_lab.html` carica `bsi-cheminfo.js` e chiama quello. Dove il motore
+non fosse disponibile la funzione restituisce **null**, non zero: uno zero
+verrebbe mostrato come «0 % — strutturalmente distinte», che è
+un'affermazione sbagliata detta con sicurezza.
+
+### Corretto — la copertura di codice puniva il codice nuovo invece di misurarlo
+
+Caricare `bsi-cheminfo.js` anche sul laboratorio ha fatto **scendere** la
+copertura complessiva da 49,79 % a 49,26 %, e il banco l'ha bloccato — la
+guardia che funziona. Ma la causa non era codice morto: era che il percorso
+della copertura apriva la sezione Chemioinformatica **senza mai premere
+«Analizza»**, e il motore parte solo allora. Centoventisette kilobyte contati
+come non eseguiti, cioè una misura che puniva l'aggiunta di codice verificato
+altrove.
+
+Ora il percorso carica l'esempio, preme, apre i sei pannelli e addestra il
+modello con tre pieghe: è quello che fa un utente. `bsi-cheminfo.js` passa dal
+**26,64 % al 49,89 %** di istruzioni eseguite, e la complessiva risale a
+**49,81 %**. Il riferimento è stato stretto a quel valore: una guardia che non
+si stringe mai scende da sola col tempo.
+
+### Il banco passa da 59 a 106 controlli
+
+Oltre a quanto sopra: la massa monoisotopica di ogni farmaco di riferimento —
+è il modo di accorgersi che sotto il nome giusto c'è la molecola sbagliata, un
+nome non si può confrontare con niente e una massa sì — media e deviazione
+campionaria verificate su
 `[2,4,4,4,5,5,7,9]` — media 5, deviazione √(32/7) — le colonne del CSV contate
 una per una, un nome con la virgola che deve risultare citato, e la metrica
 scritta `R²` e non `R2`, perché «R2» è il nome di una variabile, non di una

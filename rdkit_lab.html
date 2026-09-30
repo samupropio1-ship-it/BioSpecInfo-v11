@@ -47,6 +47,7 @@
 <meta name="theme-color" content="#0d1522">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<script src="./bsi-cheminfo.js"></script>
 <script src="smiles-drawer.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js';s.crossOrigin='anonymous';s.onerror=function(){var u=document.createElement('script');u.src='https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js';u.crossOrigin='anonymous';document.head.appendChild(u);};document.head.appendChild(s);"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -1624,6 +1625,11 @@ input[type=text]:focus,select:focus{border-color:#00c9b7}
 <!-- Drug Comparison -->
 <div class="card" style="margin-top:10px">
   <h3 style="color:#00c9b7;margin-bottom:8px">⚖ Confronto con Farmaci di Riferimento</h3>
+  <div style="color:#9fb3c8;font-size:.78rem;line-height:1.55;margin-bottom:8px">
+    Similarità di <b>Tanimoto</b> sul fingerprint di <b>Morgan</b> (raggio 2, 2048 bit),
+    calcolata da RDKit. È similarità <b>strutturale</b>: dice quanti frammenti le due
+    molecole hanno in comune, non se abbiano lo stesso effetto.
+  </div>
   <div id="pharma-compare"></div>
 </div>
 
@@ -2639,14 +2645,34 @@ function getMFP(smi){
   var fp=mol.get_morgan_fp();mol.delete();return fp;
 }
 
+/* Il Tanimoto sta in UN SOLO POSTO: `bsi-cheminfo.js`, dove un banco lo
+   verifica contro valori calcolabili a mano. Questa pagina ne aveva una copia
+   propria — concordava sui casi normali, ma sul caso vuoto rispondeva 0 dove
+   il motore risponde 1, e due implementazioni che nessuno confronta prima o
+   poi divergono sul serio. Qui resta solo l'involucro che accetta le stringhe
+   di MinimalLib, per non riscrivere i punti che gia' lo chiamano cosi'. */
 function tanimoto(fp1,fp2){
-  if(!fp1||!fp2||fp1.length!==fp2.length)return 0;
-  var ab=0,a=0,b=0;
-  for(var i=0;i<fp1.length;i++){
-    var c1=fp1.charCodeAt(i)>48?1:0, c2=fp2.charCodeAt(i)>48?1:0;
-    if(c1&&c2)ab++;if(c1)a++;if(c2)b++;
+  if(!fp1||!fp2||fp1.length!==fp2.length)return null;
+  /* Senza il motore si restituisce NULL, non zero: uno zero verrebbe mostrato
+     come «0 % — strutturalmente distinte», che e' un'affermazione sbagliata
+     detta con sicurezza. Chi chiama deve accorgersi che il numero non c'e'. */
+  if(!window.BSIChem)return null;
+  return window.BSIChem.tanimoto(fpDaStringa(fp1), fpDaStringa(fp2));
+}
+
+function motoreAssente(){
+  return '<div class="warn">Il motore di chemioinformatica non è disponibile: ' +
+         'la similarità non può essere calcolata. Ricarica la pagina.</div>';
+}
+
+/* MinimalLib restituisce i fingerprint come stringa di '0' e '1'; il motore
+   lavora su parole da 32 bit. */
+function fpDaStringa(s){
+  var n=s.length, parole=new Uint32Array((n+31)>>5), accesi=0;
+  for(var i=0;i<n;i++){
+    if(s.charCodeAt(i)>48){ parole[i>>5]|=(1<<(i&31)); accesi++; }
   }
-  return a+b-ab===0?0:ab/(a+b-ab);
+  return { parole:parole, nBits:n, accesi:accesi };
 }
 
 function calcSimilarity(){
@@ -2657,6 +2683,7 @@ function calcSimilarity(){
   var fp1=getMFP(s1),fp2=getMFP(s2);
   if(!fp1||!fp2){document.getElementById('sim-result').innerHTML='<div class="warn">Uno o entrambi gli SMILES non validi.</div>';return;}
   var sim=tanimoto(fp1,fp2);
+  if(sim===null){document.getElementById('sim-result').innerHTML=motoreAssente();return;}
   var pct=(sim*100).toFixed(1);
   var col=sim>=0.7?'#4caf80':(sim>=0.4?'#ffb454':'#ff6b6b');
   var interp=sim>=0.85?'Praticamente identiche (stessa molecola o isomero)':
@@ -2720,8 +2747,10 @@ function simSearch(){
   if(!fp){document.getElementById('sim-search-result').innerHTML='<div class="warn">SMILES non valido.</div>';return;}
   var results=REFDB.map(function(drug){
     var rfp=getMFP(drug.s);if(!rfp)return null;
-    return{n:drug.n,s:drug.s,sim:tanimoto(fp,rfp)};
+    var s=tanimoto(fp,rfp);
+    return s===null?null:{n:drug.n,s:drug.s,sim:s};
   }).filter(Boolean).sort(function(a,b){return b.sim-a.sim;});
+  if(!results.length){document.getElementById('sim-search-result').innerHTML=motoreAssente();return;}
 
   var html='<div class="card" style="margin-top:8px">';
   results.forEach(function(r){
@@ -3501,40 +3530,67 @@ function renderPharmaTox(d,smi){
   document.getElementById('pharma-tox').innerHTML=html;
 }
 
+/* I fingerprint NON sono piu' scritti a mano. Lo erano, ed erano sbagliati:
+   il primo bit dichiarava «ha anelli aromatici» e valeva 0 per caffeina (che
+   ne ha due), morfina e amoxicillina (uno ciascuna). Un valore battuto a
+   tastiera su una pagina dove RDKit e' gia' caricato e saprebbe calcolarlo.
+
+   Lo SMILES dell'omeprazolo, poi, non era omeprazolo: `COc1ccc2[nH]c(=S)cc2c1OC`
+   e' una struttura che RDKit rifiuta. Sostituito con quello vero, un
+   benzimidazolo solfossido con il metilpiridile. */
 var REF_DRUGS=[
-  {name:'Paracetamolo',smi:'CC(=O)Nc1ccc(O)cc1',fp:[1,0,1,1,0,0,1,0]},
-  {name:'Ibuprofene',smi:'CC(C)Cc1ccc(cc1)C(C)C(=O)O',fp:[1,0,0,0,0,1,0,0]},
-  {name:'Aspirina',smi:'CC(=O)Oc1ccccc1C(=O)O',fp:[1,0,0,1,0,0,0,0]},
-  {name:'Caffeina',smi:'Cn1cnc2N(C)C(=O)N(C)c12',fp:[0,1,0,1,1,0,0,1]},
-  {name:'Morfina',smi:'CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@@H]3[C@@H]1C5',fp:[0,0,1,0,1,1,0,0]},
-  {name:'Amoxicillina',smi:'CC1(C)S[C@@H]2[C@H](NC(=O)[C@@H](N)c3ccc(O)cc3)C(=O)N2[C@H]1C(=O)O',fp:[0,0,1,1,0,0,1,1]},
-  {name:'Metformina',smi:'CN(C)C(=N)NC(=N)N',fp:[0,1,0,1,1,0,0,0]},
-  {name:'Omeprazolo',smi:'COc1ccc2[nH]c(=S)cc2c1OC',fp:[0,1,0,0,1,0,0,1]},
+  {name:'Paracetamolo',smi:'CC(=O)Nc1ccc(O)cc1'},
+  {name:'Ibuprofene',smi:'CC(C)Cc1ccc(cc1)C(C)C(=O)O'},
+  {name:'Aspirina',smi:'CC(=O)Oc1ccccc1C(=O)O'},
+  {name:'Caffeina',smi:'Cn1cnc2c1c(=O)n(C)c(=O)n2C'},
+  {name:'Morfina',smi:'CN1CC[C@]23c4c5ccc(O)c4O[C@H]2[C@@H](O)C=C[C@@H]3[C@@H]1C5'},
+  {name:'Amoxicillina',smi:'CC1(C)S[C@@H]2[C@H](NC(=O)[C@@H](N)c3ccc(O)cc3)C(=O)N2[C@H]1C(=O)O'},
+  {name:'Metformina',smi:'CN(C)C(=N)NC(=N)N'},
+  {name:'Omeprazolo',smi:'COc1ccc2[nH]c(nc2c1)S(=O)Cc1ncc(C)c(OC)c1C'},
 ];
 
-function simpleFP(d,smi){
-  return [
-    d.ArRings>0?1:0,
-    (d.HBA||0)>4?1:0,
-    (d.HBD||0)>1?1:0,
-    d.MW>200&&d.MW<500?1:0,
-    d.MW>300?1:0,
-    d.LogP>1?1:0,
-    (d.RotBonds||0)<8?1:0,
-    (d.ArRings||0)>1?1:0,
-  ];
-}
+/* ── La similarita' di questo pannello era finta ─────────────────────────
+   Confrontava OTTO BIT di descrittori a soglia — «ha anelli aromatici»,
+   «HBA > 4», «peso fra 200 e 500» — e ne calcolava il Tanimoto,
+   presentandolo con una barra percentuale accanto al nome di un farmaco.
+   Non e' similarita' strutturale, ed e' facile vedere quanto sbagliasse:
 
-function tanimotoSimple(a,b){
-  var inter=0,union=0;
-  for(var i=0;i<a.length;i++){if(a[i]||b[i])union++;if(a[i]&&b[i])inter++;}
-  return union>0?inter/union:0;
+     caffeina contro metformina  →  0,75 a otto bit,  0,026 su Morgan vero.
+
+   Due molecole senza niente in comune, mostrate al 75 %. Su una pagina che si
+   chiama «RDKit Lab», con RDKit gia' caricato e capace di calcolare il
+   fingerprint vero.
+
+   Ora si usa il fingerprint di Morgan, con il Tanimoto del motore condiviso.
+   I fingerprint dei riferimenti si calcolano una volta e restano in cache:
+   sono otto molecole, e ricalcolarli a ogni confronto costerebbe senza
+   servire. */
+var _fpRef=null;
+
+function fpRiferimenti(){
+  if(_fpRef)return _fpRef;
+  if(!window.BSIChem||!window.BSIChem.pronto())return null;
+  _fpRef=REF_DRUGS.map(function(r){
+    var f=null;
+    try{ f=window.BSIChem.fingerprint(r.smi,'morgan'); }catch(e){ f=null; }
+    return {name:r.name,smi:r.smi,fp:f};
+  });
+  return _fpRef;
 }
 
 function renderPharmaCompare(d,smi){
-  var fp=simpleFP(d,smi);
-  var rows=REF_DRUGS.map(function(r){
-    return {name:r.name,sim:tanimotoSimple(fp,r.fp),smi:r.smi};
+  var rif=fpRiferimenti();
+  var mio=null;
+  if(rif&&window.BSIChem){ try{ mio=window.BSIChem.fingerprint(smi,'morgan'); }catch(e){ mio=null; } }
+  if(!rif||!mio){
+    /* Meglio dire che il confronto non e' disponibile che mostrare un numero
+       che non si sa da dove venga. */
+    document.getElementById('pharma-compare').innerHTML=
+      '<div class="warn">Confronto non disponibile: il motore di chemioinformatica non ha potuto leggere la struttura.</div>';
+    return;
+  }
+  var rows=rif.filter(function(r){return r.fp;}).map(function(r){
+    return {name:r.name,sim:window.BSIChem.tanimoto(mio,r.fp),smi:r.smi};
   }).sort(function(a,b){return b.sim-a.sim;});
   var html='';
   rows.forEach(function(r){

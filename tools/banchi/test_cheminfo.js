@@ -541,6 +541,90 @@ function vicino(d, atteso, avuto, tol){
   att('il rapporto dichiara che nessun dato esce dal dispositivo', true, rap.diceCheNonEsceNiente);
   att('senza modello il rapporto non inventa la sezione', true, rap.senzaModello);
 
+  /* ── §10-quinquies · Il laboratorio RDKit usa lo stesso motore ─────
+     Questa pagina aveva una propria copia di Tanimoto e, nel pannello
+     «Pharma Pro», una «similarita'» calcolata su OTTO BIT di descrittori a
+     soglia — «ha anelli aromatici», «peso fra 200 e 500» — presentata con una
+     barra percentuale accanto al nome di un farmaco. Caffeina contro
+     metformina dava 0,75; su fingerprint di Morgan vale 0,024.
+
+     I fingerprint dei riferimenti erano inoltre scritti a mano, e tre avevano
+     il bit «aromatico» sbagliato; lo SMILES dell'omeprazolo non era
+     omeprazolo e RDKit lo rifiutava.
+
+     Qui si verifica che non torni: una sola implementazione di Tanimoto, le
+     strutture di riferimento vere, e la similarita' che e' quella strutturale.
+     La massa monoisotopica e' il modo di accorgersi che sotto il nome giusto
+     c'e' la molecola sbagliata — un nome non si puo' confrontare con niente,
+     una massa si'. */
+  console.log('\n── Il laboratorio RDKit usa lo stesso motore ──');
+  const MASSE = {
+    'Paracetamolo': 151.0633, 'Ibuprofene': 206.1307, 'Aspirina': 180.0423,
+    'Caffeina': 194.0804, 'Morfina': 285.1365, 'Amoxicillina': 365.1045,
+    'Metformina': 129.1014, 'Omeprazolo': 345.1147
+  };
+  const lab = await pg.evaluate((masse) => {
+    const R = window.RDKit || window.RDKitModule, B = window.BSIChem;
+    if (!window.REF_DRUGS) return { assente: true };
+    const strutture = window.REF_DRUGS.map(r => {
+      let m = null;
+      try { m = R.get_mol(r.smi); } catch (e) { m = null; }
+      if (!m || !m.is_valid()) { if (m && m.delete) m.delete(); return { nome: r.name, valido: false }; }
+      const d = JSON.parse(m.get_descriptors());
+      m.delete();
+      const atteso = masse[r.name];
+      return { nome: r.name, valido: true, massa: d.exactmw,
+               scarto: atteso === undefined ? null : Math.abs(d.exactmw - atteso) };
+    });
+    /* L'involucro della pagina e il motore devono dare lo STESSO numero: se
+       divergono, una delle due risposte e' sbagliata e nessuno lo saprebbe. */
+    let maxScarto = 0, confronti = 0;
+    for (let i = 0; i < window.REF_DRUGS.length; i++) {
+      for (let j = i + 1; j < window.REF_DRUGS.length; j++) {
+        let m1 = null, m2 = null;
+        try { m1 = R.get_mol(window.REF_DRUGS[i].smi); m2 = R.get_mol(window.REF_DRUGS[j].smi); } catch (e) {}
+        if (!m1 || !m2) { if (m1 && m1.delete) m1.delete(); if (m2 && m2.delete) m2.delete(); continue; }
+        const viaPagina = window.tanimoto(m1.get_morgan_fp(), m2.get_morgan_fp());
+        m1.delete(); m2.delete();
+        const viaMotore = B.tanimoto(B.fingerprint(window.REF_DRUGS[i].smi, 'morgan'),
+                                     B.fingerprint(window.REF_DRUGS[j].smi, 'morgan'));
+        maxScarto = Math.max(maxScarto, Math.abs(viaPagina - viaMotore));
+        confronti++;
+      }
+    }
+    const trova = (n) => window.REF_DRUGS.find(r => r.name === n);
+    const simil = (a, b) => B.tanimoto(B.fingerprint(trova(a).smi, 'morgan'),
+                                       B.fingerprint(trova(b).smi, 'morgan'));
+    return {
+      assente: false,
+      n: strutture.length,
+      nonValide: strutture.filter(s => !s.valido).map(s => s.nome),
+      massaFuori: strutture.filter(s => s.valido && s.scarto !== null && s.scarto > 0.02)
+                           .map(s => s.nome + ' (' + s.massa.toFixed(3) + ')'),
+      confronti, maxScarto,
+      caffeinaMetformina: simil('Caffeina', 'Metformina'),
+      aspirinaParacetamolo: simil('Aspirina', 'Paracetamolo'),
+      /* Le due funzioni della similarita' finta non devono piu' esistere:
+         lasciarle in giro le rimetterebbe in uso alla prima modifica. */
+      restiDellaFinta: typeof window.simpleFP === 'function' ||
+                       typeof window.tanimotoSimple === 'function'
+    };
+  }, MASSE);
+
+  att('la pagina del laboratorio espone le strutture di riferimento', false, lab.assente);
+  att('ogni struttura di riferimento e\' leggibile da RDKit', '', (lab.nonValide || []).join(', '));
+  att('ogni struttura ha la massa del farmaco che dichiara', '', (lab.massaFuori || []).join(', '));
+  att('i confronti eseguiti sono tutte le coppie', 28, lab.confronti);
+  vicino('la pagina e il motore danno lo stesso Tanimoto', 0, lab.maxScarto, 1e-12);
+  /* Il numero che il pannello mostrava era 0,75. Su fingerprint veri due
+     molecole senza frammenti in comune stanno molto sotto. */
+  att('caffeina e metformina non si somigliano', true, lab.caffeinaMetformina < 0.1);
+  att('aspirina e paracetamolo si somigliano un po\'', true,
+      lab.aspirinaParacetamolo > 0.1 && lab.aspirinaParacetamolo < 0.6);
+  att('la similarita\' a otto bit e\' stata rimossa, non solo scavalcata', false, lab.restiDellaFinta);
+  console.log('      (caffeina/metformina ' + lab.caffeinaMetformina.toFixed(3) +
+              ' · aspirina/paracetamolo ' + lab.aspirinaParacetamolo.toFixed(3) + ')');
+
   /* ── §10-quater · Il contrasto dei pannelli, misurato dove nessun altro
      banco arriva ────────────────────────────────────────────────────────
      `verifica-accessibilita` percorre le 88 sezioni e misura ciò che è
@@ -695,9 +779,9 @@ function vicino(d, atteso, avuto, tol){
 
   /* Un banco che non misura nulla passa: se i controlli eseguiti sono
      pochi, qualcosa e' stato saltato in silenzio. */
-  if (eseguiti < 83) {
+  if (eseguiti < 91) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 83');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 91');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

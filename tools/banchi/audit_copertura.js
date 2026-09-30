@@ -88,6 +88,50 @@ function pct(a, b){ return b ? +(a / b * 100).toFixed(2) : 0; }
     sezioni++;
   }
 
+  /* ── Far lavorare davvero la chemioinformatica ────────────────────
+     Aprire la sezione non esegue `bsi-cheminfo.js`: il motore parte quando si
+     preme «Analizza». Percorrere la sezione senza premerlo contava 127 kB di
+     codice come non eseguito, e faceva SCENDERE la copertura complessiva ogni
+     volta che quel file cresceva — cioe' puniva l'aggiunta di codice
+     verificato altrove invece di misurarla.
+
+     Qui si carica l'esempio e si preme, poi si aprono i sei pannelli: e' il
+     percorso che un utente compie, ed e' l'unico modo di misurare quel file
+     per quello che fa. */
+  try {
+    await pg.evaluate(function(){
+      const g = document.getElementById('bsi-guide'); if (g) g.remove();
+      const n = document.querySelector('.nav-btn[data-s="scheminfo"]'); if (n) n.click();
+    });
+    await pg.waitForTimeout(400);
+    await pg.evaluate(function(){
+      const a = document.getElementById('chemEsInib'); if (a) a.click();
+      const v = document.getElementById('chemVai'); if (v) v.click();
+    });
+    await pg.waitForFunction(
+      () => { const c = document.getElementById('chemCorpo'); return c && c.style.display !== 'none'; },
+      { timeout: 90000 });
+    await pg.waitForTimeout(900);
+    for (const pan of ['descr', 'simil', 'spazio', 'qsar', 'salti', 'allarmi']) {
+      await pg.evaluate(function(n){
+        const b = document.querySelector('#scheminfo .chem-t[data-p="' + n + '"]');
+        if (b) b.click();
+      }, pan);
+      await pg.waitForTimeout(250);
+    }
+    /* Anche il modello e la validazione incrociata: sono la meta' del file. */
+    await pg.evaluate(function(){
+      const s = document.getElementById('chemPieghe'); if (s) s.value = '3';
+      const b = document.getElementById('chemAddestra'); if (b) b.click();
+    });
+    await pg.waitForTimeout(20000);
+  } catch (e) {
+    /* Un percorso in piu' che non riesce non deve far cadere la misura: la
+       copertura che ne esce sara' piu' bassa, e il confronto col riferimento
+       lo dira' da solo. */
+    console.log('  (percorso chemioinformatica non completato: ' + e.message.slice(0, 80) + ')');
+  }
+
   /* i pannelli che vivono fuori dalle sezioni */
   await pg.evaluate(function(){
     ['#bsiAiFab', '.bsi-ai-fab', '[data-bsi-ai]', '#bsiSettingsBtn'].forEach(function(sel){

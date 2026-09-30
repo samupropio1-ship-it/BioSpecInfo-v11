@@ -173,7 +173,7 @@ taken from the application: a bench that asked the code under test how good its
 own contrast was would be measuring nothing.
 
 The engine lives in `bsi-cheminfo.js`, is exposed as `window.BSIChem` and is
-verified by the `test_cheminfo` bench (98 checks) against hand-computable
+verified by the `test_cheminfo` bench (106 checks) against hand-computable
 values.
 
 ### 3.3 Organic chemistry
@@ -325,7 +325,7 @@ Declared, not hidden. The detail is in
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
 | 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 88 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
-| 8 | **Partial code coverage** | Measured: **49.79 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
+| 8 | **Partial code coverage** | Measured: **49.81 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
 
 ---
