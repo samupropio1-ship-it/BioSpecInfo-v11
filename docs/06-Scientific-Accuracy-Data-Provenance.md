@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v175` |
+| **Versione descritta** | `bsi-v176` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v175` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v176` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -367,6 +367,47 @@ tutte e 28 le coppie di riferimento e pretende scarto **esattamente zero**.
 
 ---
 
+## 3-ter. Il testo alternativo delle figure non si inventa
+
+La guida di biochimica porta **98 figure**. Sostituendola, il banco di
+accessibilità l'ha bocciata: nessuna aveva un attributo `alt`.
+
+La via comoda era `alt=""`, e il banco l'avrebbe accettata — il commento nel
+suo codice dice, correttamente, che per un'immagine **decorativa** è la cosa
+giusta: dice allo screen reader di saltarla. Ma queste sono figure di
+biochimica, cioè informazione. Marcarle come decorative avrebbe fatto passare
+il controllo dicendo a chi usa uno screen reader di ignorare 98 diagrammi: un
+verde vuoto, della stessa famiglia del «contrasto 0» che non copriva i pannelli
+nuovi (§3-bis) e del 100 % di copertura che sommava gli intervalli sbagliati.
+
+La via onesta era a disposizione: ogni immagine sta dentro un `<figure>` con la
+sua `<figcaption>`, e **le didascalie le ha scritte l'autore del documento**.
+
+| | |
+|---|---|
+| Figure | 62, per 98 immagini |
+| Figure con una sola immagine | 26 — l'alt è la didascalia, meno l'etichetta «Figura N.» |
+| Figure con due pannelli | 36 |
+| Didascalie di coppia divise fra i due pannelli | **33 su 36** |
+| Coppie con didascalia condivisa | 3 — non si dividono in modo inequivocabile |
+
+Le 36 didascalie di coppia distinguono tutte i due pannelli con «a sinistra» e
+«a destra»: dove la divisione è inequivocabile, ogni immagine riceve la propria
+metà della frase. Dove non lo è, le due immagini condividono la didascalia
+intera — verboso da ascoltare, ma **non può essere sbagliato**, e una
+descrizione sbagliata di una figura è peggio di una verbosa.
+
+> **Perché non tentare una divisione più aggressiva.** Si potevano spremere
+> anche le 3 restanti con espressioni regolari più elastiche. Una divisione che
+> sbaglia produce la frase «questa immagine mostra X» accanto a un'immagine che
+> mostra Y, e lo screen reader la legge con la stessa sicurezza di quelle
+> giuste. Il ripiego è rumoroso; l'errore è invisibile.
+
+Misurato dopo l'intervento: **98 su 98 con testo alternativo, nessuno vuoto**,
+contrasto **0** su 1 897 elementi di testo.
+
+---
+
 ## 4. Costanti fisiche e dati tabulati
 
 La ricerca delle costanti fisiche procede per livelli di specificità
@@ -408,7 +449,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v175` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v176` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -418,4 +459,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v175`._
+_Documento aggiornato alla versione `bsi-v176`._
