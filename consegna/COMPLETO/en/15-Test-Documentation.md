@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v175` |
+| **Version described** | `bsi-v176` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -163,7 +163,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
 | `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 88 sections |
 | `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 88 sections, the URL, headers and body of every request inspected |
-| `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.81 %, recorded and defended |
+| `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 > **The obstacle belonged to the tool, not to the problem.** For three versions
 > code coverage was declared unmeasurable, with this reason: "instrumenting
@@ -181,7 +181,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 > executed. Summing the positive ranges sums the whole file. One does the
 > opposite: start from the total and subtract the union of the empty ranges.
 >
-> The real number is **49.81 %**, and it holds the same pact as the
+> The real number is **49.89 %**, and it holds the same pact as the
 > accessibility debt: recorded, and the bench fails if it falls. An absolute
 > threshold ("80 %") would be an invented figure; "it must not get worse" is a
 > promise that can be kept.
@@ -396,7 +396,7 @@ two different things and must not be confused.
 
 | Gap | Current situation | Recommendation |
 |---|---|---|
-| **Code coverage** | Measured: **49.81 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
+| **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 88 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
 | **Security** | `verifica-sicurezza` runs 9 checks over 235 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
@@ -417,4 +417,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v175`._
+_Document updated to version `bsi-v176`._

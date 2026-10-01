@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v175` |
+| **Versione descritta** | `bsi-v176` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -189,6 +189,14 @@ Amminoacidi · biomolecole · vie metaboliche animate · cinetica enzimatica
 (Michaelis-Menten) · macromolecole 3D · strutture biologiche interattive ·
 guida di biochimica · biochimica d'esame.
 
+La **guida di biochimica** è un documento a sé (`Biochimica_Guida_Definitiva.html`,
+8,2 MB) caricato in un riquadro dalla sezione: 12 capitoli più l'indice, 78
+sottosezioni, 98 figure incorporate, e due capitoli dedicati all'esame — «Guida
+all'orale» e «Domande d'esame reali e risposte corrette». Non contiene **nessuno
+script e nessuna richiesta di rete**: non può generare errori JavaScript, e il
+testo alternativo delle 98 figure viene dalle didascalie scritte dall'autore,
+non da descrizioni inventate (vedi `docs/06` §3-ter).
+
 ### 3.5 Farmacologia
 
 | Funzione | Descrizione |
@@ -326,7 +334,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
 | 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 88 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
-| 8 | **Copertura di codice parziale** | Misurata: **49,81 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
+| 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 
 ---
@@ -345,4 +353,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v175`._
+_Documento aggiornato alla versione `bsi-v176`._

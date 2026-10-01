@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v175` |
+| **Version described** | `bsi-v176` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -106,7 +106,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v175`. The
+> remedy was to change it, and that **has been done** at version `bsi-v176`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -121,7 +121,7 @@ manual testing, and their automation is planned.
 | **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 88 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 88 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
-| **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.81 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
+| **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.89 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
 | **UI-07** | Behaviour on Firefox and WebKit | **not verified** — the battery runs on Chromium only; see §8 |
 
 ---
@@ -164,7 +164,7 @@ that therefore cannot be asserted.
 
 | Gap | What it entails | Why it is so |
 |---|---|---|
-| **Partial code coverage** | Measured: **49.81 %** of statements over the widest path a bench walks. It is not the coverage of the whole battery, and it is statements, not branches | Chromium's profiler collects it inside the engine, with no build and without rewriting the source: the obstacle belonged to the tool (c8, istanbul), not to the problem. Value recorded; `audit_copertura` fails if it falls |
+| **Partial code coverage** | Measured: **49.89 %** of statements over the widest path a bench walks. It is not the coverage of the whole battery, and it is statements, not branches | Chromium's profiler collects it inside the engine, with no build and without rewriting the source: the obstacle belonged to the tool (c8, istanbul), not to the problem. Value recorded; `audit_copertura` fails if it falls |
 | **Chromium only** | Behaviour on Firefox and WebKit is verified by hand, not by a bench | The battery uses `playwright-core`, which downloads a single engine. In the verification environment the CDN for the other engines answers **403** to the network policy: they cannot be installed there |
 | **No visual regression** | An unintended graphical change would not be caught | Spectra are deterministic and comparable byte for byte (SCI-05): the comparison exists on the traces, not on the whole page |
 | **2 entries without a structure** | Two entries out of 178 have no structure to show: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. It was six | See `06-Scientific-Accuracy-Data-Provenance.md` §2.4 |
@@ -172,4 +172,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v175`._
+_Document updated to version `bsi-v176`._

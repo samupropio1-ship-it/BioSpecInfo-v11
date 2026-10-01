@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v175` |
+| **Version described** | `bsi-v176` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v175` the bench also fails in the opposite case: an entry listed in the
+`bsi-v176` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -360,6 +360,47 @@ a deviation of **exactly zero**.
 
 ---
 
+## 3-ter. Alternative text for figures is not invented
+
+The biochemistry guide carries **98 figures**. On replacing it, the
+accessibility bench rejected it: none had an `alt` attribute.
+
+The easy way out was `alt=""`, and the bench would have accepted it — the
+comment in its code says, correctly, that for a **decorative** image this is
+the right thing: it tells the screen reader to skip it. But these are
+biochemistry figures, that is, information. Marking them decorative would have
+passed the check by telling screen-reader users to ignore 98 diagrams: a hollow
+green, of the same family as the "contrast 0" that did not cover the new panels
+(§3-bis) and the 100 % coverage that summed the wrong ranges.
+
+The honest way was available: every image sits inside a `<figure>` with its own
+`<figcaption>`, and **the captions were written by the document's author**.
+
+| | |
+|---|---|
+| Figures | 62, holding 98 images |
+| Single-image figures | 26 — the alt is the caption, minus the "Figura N." label |
+| Two-panel figures | 36 |
+| Pair captions split between the two panels | **33 out of 36** |
+| Pairs sharing one caption | 3 — they do not split unambiguously |
+
+All 36 pair captions distinguish the two panels with "a sinistra" (left) and
+"a destra" (right): where the split is unambiguous, each image receives its own
+half of the sentence. Where it is not, the two images share the whole caption —
+verbose to listen to, but **it cannot be wrong**, and a wrong description of a
+figure is worse than a verbose one.
+
+> **Why not attempt a more aggressive split.** The remaining 3 could have been
+> squeezed out with looser regular expressions. A split that goes wrong produces
+> "this image shows X" next to an image that shows Y, and the screen reader
+> reads it with the same confidence as the correct ones. The fallback is noisy;
+> the error is invisible.
+
+Measured after the change: **98 out of 98 with alternative text, none empty**,
+contrast **0** over 1,897 text elements.
+
+---
+
 ## 4. Physical constants and tabulated data
 
 The lookup of physical constants proceeds by decreasing specificity (exact match
@@ -401,7 +442,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v175` the residual errors on the drug database are **zero**: the 21
+`bsi-v176` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -410,4 +451,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v175`._
+_Document updated to version `bsi-v176`._

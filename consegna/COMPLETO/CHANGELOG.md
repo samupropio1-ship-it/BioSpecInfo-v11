@@ -7,6 +7,77 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v176] — 2026-10-01
+
+### Sostituita — la guida di biochimica
+
+Il documento passa da **1 MB a 8,2 MB** e cambia natura: da una pagina con un
+capitolo e 34 sottosezioni a **12 capitoli più l'indice**, 78 sottosezioni e
+**98 figure incorporate**, compresi due capitoli nuovi — «Guida all'orale» e
+«Domande d'esame reali e risposte corrette».
+
+Il file arriva **senza un solo script** e senza una sola richiesta di rete: non
+può generare errori JavaScript, e non ha bisogno della guardia su
+`localStorage` che serviva alla versione precedente (un accesso in modalità
+privata lanciava `SecurityError` e interrompeva l'intero script della pagina).
+È da lì che viene la stabilità in più.
+
+Nome del file invariato, `Biochimica_Guida_Definitiva.html`: lo citano `sw.js`,
+`index.html` e quattro banchi, e cambiarlo avrebbe significato toccare sei
+punti senza guadagnare niente.
+
+**Cosa si perde, dichiarato:** la guida precedente conteneva un quiz
+interattivo di **12 domande**, e il documento nuovo non ne ha. Il capitolo
+«Domande d'esame reali e risposte corrette» copre lo stesso bisogno in forma di
+testo, e l'app ha il proprio apparato di quiz altrove.
+
+### Corretto — 98 figure senza testo alternativo
+
+Il banco di accessibilità ha bocciato la sostituzione: **98 immagini prive di
+`alt`**. La via comoda era `alt=""`, che il banco accetta — il commento nel
+codice dice, giustamente, che per un'immagine *decorativa* è la cosa corretta.
+Ma queste sono figure di biochimica: marcarle come decorative avrebbe fatto
+passare il controllo dicendo agli screen reader di saltare 98 diagrammi. Un
+verde vuoto.
+
+Ogni immagine sta dentro un `<figure>` con la sua `<figcaption>`, e le
+didascalie le ha scritte l'autore. Da lì viene il testo alternativo, senza
+inventare niente: 62 figure, di cui 36 contengono due pannelli. **Trentatré
+delle 36 didascalie di coppia distinguono i pannelli** con «a sinistra» e «a
+destra», e sono state divise per dare a ciascuna immagine la propria
+descrizione; le 3 che non si dividono in modo inequivocabile condividono la
+didascalia intera — verboso, ma non può essere sbagliato.
+
+Risultato misurato: **98 su 98 con `alt`, nessuno vuoto**, contrasto che resta
+a **0** su 1 897 elementi di testo.
+
+### Corretto — la copertina faceva scorrere la pagina sul telefono
+
+A 390 px — la larghezza che il progetto dichiara come requisito — il documento
+era pulito. A **360 px**, larghezza comunissima, la pagina scorreva in
+orizzontale, mentre la guida precedente no: una regressione introdotta dalla
+sostituzione.
+
+Il sospetto erano le tabelle a quattro colonne, che chiedono 416 px. Sbagliato:
+l'autore aveva già messo `table.t{display:block;overflow-x:auto}`, e le tabelle
+contenevano il proprio scorrimento. Nascondendo i figli del corpo uno a uno, il
+colpevole è risultato il **titolo di copertina**: «Biochimica» a 46 pt è una
+parola sola, non può andare a capo, e misura circa 390 px.
+
+Reso fluido con `clamp(26pt,12vw,46pt)` **dentro `@media screen`**, così in
+stampa il formato A4 resta quello voluto. Verificato: nessuno scorrimento
+orizzontale a 390, 360 e 320 px.
+
+### Copertura di codice: 49,89 %
+
+Il riferimento portava `Biochimica_Guida_Definitiva.html: 81,24 %`, misura di
+un file che ora non ha più codice da eseguire. Rigenerato: la voce è sparita e
+la complessiva è **49,89 %**, in linea con la precedente. Un riferimento che
+dichiara una percentuale per un file senza script afferma qualcosa che non si
+può più verificare.
+
+---
+
 ## [bsi-v175] — 2026-09-30
 
 Il banco di lavoro chemioinformatico diventa uno strumento da cui i risultati
