@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v179` |
+| **Version described** | `bsi-v180` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -23,7 +23,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SCI-01** | Structural data for drugs must be consistent with the declared molecular weight | `FARM_DATA` in `index.html` | `tools/verifica-farmaci.js` — RDKit ⟷ literature comparison over 178 entries |
+| **SCI-01** | Structural data for drugs must be consistent with the declared molecular weight | `FARM_DATA` in `index.html` | `tools/verifica-farmaci.js` — RDKit ⟷ literature comparison over 233 entries |
 | **SCI-02** | Functional groups must be recognised on the structure, not on the text of the SMILES | `bsi-spettri.js` §1, SMARTS patterns via RDKit | `test_spettri` — 8 reference molecules, additive recognition |
 | **SCI-03** | A molecule with several functional groups must show them all | `bandeDaGruppi()`, additive construction | `test_spettri` §1 — acetylsalicylic acid: ester **and** acid |
 | **SCI-04** | Spectra must respect the conventions of their technique | `svgIR()`, `makeNMRsvg()`, `drawUVSpectrum()`, `drawMSSpectrum()` | `test_assi` (SVG), `test_assi_canvas` (canvas) |
@@ -106,7 +106,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v179`. The
+> remedy was to change it, and that **has been done** at version `bsi-v180`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -172,4 +172,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v179`._
+_Document updated to version `bsi-v180`._

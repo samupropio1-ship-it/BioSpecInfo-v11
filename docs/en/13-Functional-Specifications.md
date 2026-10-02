@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v179` |
+| **Version described** | `bsi-v180` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -213,7 +213,7 @@ printed copy does not lose the explanations.
 | Function | Description |
 |---|---|
 | **3D Atlas** | One chooses a body region, a disease and a drug: the model highlights the target organ |
-| **Database** | **178 drugs** with structure, molecular weight, mechanism, indications, adverse effects, class |
+| **Database** | **233 drugs** with structure, molecular weight, mechanism, indications, adverse effects, class |
 | **Interactions** | Checking interactions between active ingredients |
 | **Pharmacokinetics** | Calculator for half-life, clearance, volume of distribution |
 | **Clinical cases** | Diagnosis-therapy paths for teaching purposes |
@@ -364,4 +364,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v179`._
+_Document updated to version `bsi-v180`._

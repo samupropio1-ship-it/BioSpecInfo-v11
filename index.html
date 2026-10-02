@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v179';
+window.BSI_APP_VERSION='bsi-v180';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -6075,10 +6075,62 @@ function showFarm(cat){
     antivir:"Antivirali",antibio2:"Antibiotici Aggiuntivi",antidiab:"Antidiabetici",
     opioid:"Analgesici/Oppioidi",psych:"Psicofarmaci e Antiepilettici",
     ormoni:"Ormoni/Endocrinologia",diur:"Diuretici e Respiratori",
-    neuro2:"Neurofarmaci",immuno:"Immunosoppressori",anest:"Anestetici",gastro:"Gastroprotezione"};
+    neuro2:"Neurofarmaci",immuno:"Immunosoppressori",anest:"Anestetici",gastro:"Gastroprotezione",
+    /* ── Le 29 categorie che esistevano nei dati e NON in questa mappa ──
+       `cats` si costruiva con `Object.keys(catName)`: ogni farmaco la cui
+       categoria non figurava qui non veniva MAI disegnato nella vista
+       «tutti». Misurato: 115 voci su 233 invisibili — e 60 su 178 anche
+       prima che si aggiungessero farmaci nuovi. L'applicazione ne teneva in
+       memoria centinaia e ne mostrava una parte.
+       Le etichette che seguono coprono tutte le categorie presenti, e la
+       costruzione di `cats` non parte piu' da questa mappa ma dai DATI, cosi'
+       che una categoria aggiunta domani non possa sparire in silenzio. */
+    chemo2:"Oncologia — Inibitori di chinasi",
+    chemo3:"Oncologia — Terapie a bersaglio molecolare",
+    chemo4:"Oncologia — Agenti aggiuntivi",
+    neuro3:"Neurologia — Antiepilettici e antiparkinsoniani",
+    cardio2:"Cardiologia — Antitrombotici e sartani",
+    cardio3:"Cardiologia — Aggiuntivi",
+    derm:"Dermatologia e allergologia",
+    hiv:"Antiretrovirali (HIV)",
+    epatite:"Antivirali per le epatiti",
+    antidiab2:"Antidiabetici — Incretine e tiazolidinedioni",
+    pneumo:"Pneumologia",
+    metab:"Metabolismo, urologia e disfunzione erettile",
+    reuma:"Reumatologia",
+    reuma2:"Reumatologia — Immunomodulatori",
+    biologici:"Farmaci biologici",
+    gastro2:"Gastroenterologia — Antisecretivi e motilita'",
+    opioid2:"Oppioidi — Terapia delle dipendenze",
+    ormoni2:"Endocrinologia — Modulatori ormonali",
+    nefro:"Nefrologia e urologia",
+    psych2:"Psicostimolanti",
+    anest2:"Anestetici locali",
+    antipar:"Antiparassitari",
+    antipar2:"Antiparassitari — Antimalarici",
+    antifung:"Antifungini",
+    analg:"Analgesici non oppioidi",
+    neonato:"Neonatologia",
+    rare:"Malattie rare",
+    dipend:"Dipendenze",
+    urgenza:"Emergenza-urgenza"};
   var catCol={fans:"#bf360c",blattam:"#0277bd",statine:"#e65100",ace:"#0d1522",
     benzo:"#6a1b9a",ssri:"#880e4f",chemo:"#c62828",cardio:"#c62828"};
-  var cats=cat==="all"?Object.keys(catName):[cat];
+  /* Le categorie da mostrare vengono dai DATI, non dalla mappa delle
+     etichette: prima quelle di cui si conosce l'etichetta, nell'ordine in cui
+     sono scritte, poi tutte le altre presenti nell'insieme. Una categoria
+     senza etichetta mostra la propria chiave — brutto ma VISIBILE, che e'
+     meglio di invisibile. */
+  var cats;
+  if (cat === "all") {
+    var presenti = {};
+    FARM_DATA.forEach(function(d){ if (d && d.cat) presenti[d.cat] = 1; });
+    var note = Object.keys(catName).filter(function(c){ return presenti[c]; });
+    var altre = Object.keys(presenti).filter(function(c){ return !catName[c]; }).sort();
+    cats = note.concat(altre);
+  } else {
+    cats = [cat];
+  }
   cats.forEach(function(c){
     var drugs=FARM_DATA.filter(function(d){return d.cat===c;});
     if(!drugs.length)return;
@@ -9549,7 +9601,245 @@ function _mergeAllExtras(){
   AA_DATA=AA_DATA.concat(AA_EXTRA);
   // Aggiorna catMap per farmaci
   if(typeof FARM_DATA!=='undefined'){
+
+/* ══════════════════════════════════════════════════════════════════════
+   FARM_NUOVI — 55 voci aggiunte, ogni STRUTTURA presa da ChEMBL.
+
+   Nessuno SMILES e nessun peso e' stato scritto a memoria: la struttura
+   viene dal record ChEMBL del farmaco, il peso e' quello che ChEMBL
+   dichiara, e un controllo ha verificato che RDKit legga ogni struttura e
+   che la FORMULA MOLECOLARE calcolata dal grafo coincida con quella
+   dichiarata da ChEMBL — 55 su 55.
+
+   Serviva una fonte esterna: lo SMILES sbagliato dell'omeprazolo trovato
+   nel laboratorio RDKit era autoconsistente, e il banco non lo vedeva.
+   Un peso coerente con una struttura sbagliata passa qualunque controllo
+   interno.
+   ══════════════════════════════════════════════════════════════════════ */
+var FARM_NUOVI=[
+  {name:"Osimertinib (Tagrisso)",cat:"chemo2",smi:"C=CC(=O)Nc1cc(Nc2nccc(-c3cn(C)c4ccccc34)n2)c(OC)cc1N(C)CCN(C)C",mw:"499.62",
+   moa:"Inibitore EGFR di terza generazione, IRREVERSIBILE: il gruppo acrilammide forma un legame covalente con Cys797 nel sito ATP. Attivo sulla mutazione di resistenza T790M e risparmia l'EGFR nativo, che è la ragione della tossicità cutanea minore rispetto agli inibitori di prima generazione.",
+   indicaz:"NSCLC con mutazione EGFR, prima linea e dopo resistenza a gefitinib/erlotinib",
+   effetti:"Diarrea, rash, allungamento del QT, cardiomiopatia, raramente malattia interstiziale polmonare",classe:"Inibitore EGFR covalente"},
+  {name:"Gefitinib (Iressa)",cat:"chemo2",smi:"COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1",mw:"446.91",
+   moa:"Inibitore EGFR reversibile e competitivo con l'ATP. Primo della classe approvato: il beneficio dipende strettamente dalla presenza di mutazioni attivanti dell'esone 19/21, e questo fu il caso che insegnò all'oncologia a selezionare i pazienti per genotipo.",
+   indicaz:"NSCLC con mutazione attivante di EGFR",
+   effetti:"Rash acneiforme, diarrea, epatotossicità, malattia interstiziale polmonare",classe:"Inibitore EGFR"},
+  {name:"Sorafenib (Nexavar)",cat:"chemo2",smi:"CNC(=O)c1cc(Oc2ccc(NC(=O)Nc3ccc(Cl)c(C(F)(F)F)c3)cc2)ccn1",mw:"464.83",
+   moa:"Inibitore multichinasico: RAF-1 e B-RAF nella via MAPK, più VEGFR-2/3 e PDGFR-β sull'angiogenesi. Agisce quindi sia sulla proliferazione sia sul rifornimento vascolare del tumore.",
+   indicaz:"Carcinoma epatocellulare avanzato, carcinoma renale, tumore tiroideo refrattario allo iodio",
+   effetti:"Sindrome mano-piede, ipertensione, diarrea, astenia, emorragie",classe:"Inibitore multichinasico"},
+  {name:"Sunitinib (Sutent)",cat:"chemo2",smi:"CCN(CC)CCNC(=O)c1c(C)[nH]c(/C=C2\\C(=O)Nc3ccc(F)cc32)c1C",mw:"398.48",
+   moa:"Inibitore multichinasico di VEGFR, PDGFR, KIT, FLT3 e RET. Il blocco di KIT spiega l'attività nei GIST resistenti a imatinib.",
+   indicaz:"Carcinoma renale metastatico, GIST dopo imatinib, tumori neuroendocrini pancreatici",
+   effetti:"Ipertensione, ipotiroidismo, decolorazione dei capelli, cardiotossicità, mielosoppressione",classe:"Inibitore multichinasico"},
+  {name:"Ibrutinib (Imbruvica)",cat:"chemo3",smi:"C=CC(=O)N1CCC[C@@H](n2nc(-c3ccc(Oc4ccccc4)cc3)c3c(N)ncnc32)C1",mw:"440.51",
+   moa:"Inibitore IRREVERSIBILE della tirosin-chinasi di Bruton (BTK): l'acrilammide lega covalentemente Cys481, bloccando la segnalazione del recettore delle cellule B. Il blocco è permanente sulla proteina legata, quindi la durata d'azione non segue l'emivita plasmatica.",
+   indicaz:"Leucemia linfatica cronica, linfoma mantellare, macroglobulinemia di Waldenström",
+   effetti:"Fibrillazione atriale, emorragie (blocca anche la funzione piastrinica via BTK), ipertensione, infezioni",classe:"Inibitore BTK covalente"},
+  {name:"Olaparib (Lynparza)",cat:"chemo3",smi:"O=C(c1cc(Cc2n[nH]c(=O)c3ccccc23)ccc1F)N1CCN(C(=O)C2CC2)CC1",mw:"434.47",
+   moa:"Inibitore di PARP-1/2. In una cellula con BRCA1/2 mutato la riparazione per ricombinazione omologa è già persa: bloccando anche la riparazione PARP-dipendente si ottiene LETALITÀ SINTETICA, cioè morte selettiva della cellula tumorale e non di quella sana.",
+   indicaz:"Carcinoma ovarico, mammario, pancreatico e prostatico con mutazione BRCA",
+   effetti:"Anemia, nausea, astenia, raramente sindrome mielodisplastica",classe:"Inibitore PARP"},
+  {name:"Abiraterone (Zytiga)",cat:"ormoni",smi:"C[C@]12CC[C@H](O)CC1=CC[C@@H]1[C@@H]2CC[C@]2(C)C(c3cccnc3)=CC[C@@H]12",mw:"349.52",
+   moa:"Inibitore irreversibile del CYP17A1 (17α-idrossilasi/C17,20-liasi): blocca la sintesi degli androgeni nel testicolo, nel surrene E nel tumore stesso. Va somministrato con prednisone perché il blocco a monte accumula mineralcorticoidi.",
+   indicaz:"Carcinoma prostatico metastatico resistente alla castrazione",
+   effetti:"Ipertensione, ipokaliemia, ritenzione idrica, epatotossicità",classe:"Inibitore della biosintesi androgenica"},
+  {name:"Nilotinib (Tasigna)",cat:"chemo2",smi:"Cc1cn(-c2cc(NC(=O)c3ccc(C)c(Nc4nccc(-c5cccnc5)n4)c3)cc(C(F)(F)F)c2)cn1",mw:"529.53",
+   moa:"Inibitore BCR-ABL di seconda generazione, progettato sulla struttura cristallografica di imatinib per un adattamento migliore alla conformazione inattiva della chinasi: trenta volte più potente e attivo su molte mutazioni resistenti a imatinib (non su T315I).",
+   indicaz:"Leucemia mieloide cronica Ph+, in prima linea o dopo resistenza a imatinib",
+   effetti:"Allungamento del QT (richiede ECG e correzione elettrolitica), iperglicemia, eventi vascolari occlusivi, pancreatite",classe:"Inibitore BCR-ABL"},
+  {name:"Dasatinib (Sprycel)",cat:"chemo2",smi:"Cc1nc(Nc2ncc(C(=O)Nc3c(C)cccc3Cl)s2)cc(N2CCN(CCO)CC2)n1",mw:"488.02",
+   moa:"Inibitore BCR-ABL e della famiglia SRC. A differenza di imatinib lega ANCHE la conformazione attiva della chinasi, da cui la potenza maggiore e l'attività su quasi tutte le mutazioni tranne T315I.",
+   indicaz:"Leucemia mieloide cronica, leucemia linfoblastica acuta Ph+",
+   effetti:"Versamento pleurico, mielosoppressione, emorragie, ipertensione polmonare",classe:"Inibitore BCR-ABL/SRC"},
+  {name:"Ruxolitinib (Jakavi)",cat:"chemo3",smi:"N#CC[C@H](C1CCCC1)n1cc(-c2ncnc3[nH]ccc23)cn1",mw:"306.37",
+   moa:"Inibitore di JAK1 e JAK2. Nelle neoplasie mieloproliferative la mutazione JAK2 V617F rende la via costitutivamente attiva; il blocco riduce splenomegalia e sintomi costituzionali anche quando la mutazione non è presente, perché agisce sulla via e non sulla mutazione.",
+   indicaz:"Mielofibrosi, policitemia vera resistente all'idrossiurea, malattia da trapianto contro ospite",
+   effetti:"Anemia e trombocitopenia (prevedibili: JAK2 serve all'eritropoiesi), infezioni, riattivazione di herpes zoster",classe:"Inibitore JAK1/2"},
+  {name:"Vemurafenib (Zelboraf)",cat:"chemo3",smi:"CCCS(=O)(=O)Nc1ccc(F)c(C(=O)c2c[nH]c3ncc(-c4ccc(Cl)cc4)cc23)c1F",mw:"489.93",
+   moa:"Inibitore selettivo di B-RAF con mutazione V600E. Nelle cellule con B-RAF NATIVO provoca invece attivazione paradossa della via MAPK — ed è il motivo per cui si usa solo dopo conferma della mutazione e per cui compaiono carcinomi squamocellulari cutanei.",
+   indicaz:"Melanoma metastatico con mutazione BRAF V600",
+   effetti:"Fotosensibilità grave, artralgia, carcinomi squamocellulari cutanei, allungamento del QT",classe:"Inibitore B-RAF"},
+  {name:"Enzalutamide (Xtandi)",cat:"ormoni",smi:"CNC(=O)c1ccc(N2C(=S)N(c3ccc(C#N)c(C(F)(F)F)c3)C(=O)C2(C)C)cc1F",mw:"464.44",
+   moa:"Antagonista del recettore degli androgeni di seconda generazione: blocca il legame, la traslocazione nucleare E il reclutamento dei coattivatori. A differenza del bicalutamide non ha attività agonista parziale, quindi non dà la sindrome da sospensione dell'antiandrogeno.",
+   indicaz:"Carcinoma prostatico resistente alla castrazione, metastatico e non",
+   effetti:"Astenia, vampate, convulsioni (abbassa la soglia), ipertensione, cadute",classe:"Antiandrogeno non steroideo"},
+  {name:"Letrozolo (Femara)",cat:"ormoni",smi:"N#Cc1ccc(C(c2ccc(C#N)cc2)n2cncn2)cc1",mw:"285.31",
+   moa:"Inibitore non steroideo dell'aromatasi (CYP19): il triazolo coordina il ferro dell'eme bloccando la conversione degli androgeni in estrogeni. Nella donna in postmenopausa l'aromatasi periferica è la fonte principale di estrogeni, quindi l'effetto è profondo; nella premenopausa no, perché l'ovaio compensa.",
+   indicaz:"Carcinoma mammario con recettori ormonali positivi in postmenopausa",
+   effetti:"Artralgia, osteoporosi, vampate, ipercolesterolemia",classe:"Inibitore dell'aromatasi"},
+  {name:"Valsartan (Diovan)",cat:"cardio2",smi:"CCCCC(=O)N(Cc1ccc(-c2ccccc2-c2nnn[nH]2)cc1)[C@H](C(=O)O)C(C)C",mw:"435.53",
+   moa:"Antagonista selettivo del recettore AT1 dell'angiotensina II. Blocca il recettore invece dell'enzima: non interferisce con la degradazione della bradichinina, e per questo NON dà la tosse secca degli ACE-inibitori.",
+   indicaz:"Ipertensione, insufficienza cardiaca, post-infarto",
+   effetti:"Iperkaliemia, ipotensione, danno renale acuto in stenosi bilaterale; controindicato in gravidanza",classe:"Sartano (ARB)"},
+  {name:"Bisoprololo (Concor)",cat:"cardio",smi:"CC(C)NCC(O)COc1ccc(COCCOC(C)C)cc1",mw:"325.45",
+   moa:"β1-bloccante fra i più cardioselettivi, senza attività simpaticomimetica intrinseca. Nell'insufficienza cardiaca riduce la mortalità, con un meccanismo opposto all'intuizione: protegge dalla tossicità cronica delle catecolamine invece di sostenere la contrattilità.",
+   indicaz:"Insufficienza cardiaca cronica, ipertensione, angina",
+   effetti:"Bradicardia, affaticamento, broncospasmo a dosi alte, mascheramento dell'ipoglicemia",classe:"β1-bloccante selettivo"},
+  {name:"Ticagrelor (Brilique)",cat:"cardio2",smi:"CCCSc1nc(N[C@@H]2C[C@H]2c2ccc(F)c(F)c2)c2nnn([C@@H]3C[C@H](OCCO)[C@@H](O)[C@H]3O)c2n1",mw:"522.58",
+   moa:"Antagonista del recettore P2Y12 REVERSIBILE e non competitivo, attivo come tale senza bioattivazione: a differenza del clopidogrel non dipende dal CYP2C19, quindi non ha i non-responder genetici. L'inibizione cessa con la concentrazione plasmatica, da cui la doppia somministrazione giornaliera.",
+   indicaz:"Sindrome coronarica acuta, in doppia antiaggregazione con aspirina",
+   effetti:"Emorragie, dispnea (per accumulo di adenosina), bradiaritmie, iperuricemia",classe:"Antagonista P2Y12 reversibile"},
+  {name:"Dabigatran etexilato (Pradaxa)",cat:"cardio2",smi:"CCCCCCOC(=O)NC(=N)c1ccc(NCc2nc3cc(C(=O)N(CCC(=O)OCC)c4ccccn4)ccc3n2C)cc1",mw:"627.75",
+   moa:"Profarmaco del dabigatran, inibitore DIRETTO e reversibile della trombina (fattore IIa), libera e legata al coagulo. Non richiede monitoraggio dell'INR e ha un antidoto specifico, l'idarucizumab.",
+   indicaz:"Fibrillazione atriale non valvolare, trombosi venosa profonda, embolia polmonare",
+   effetti:"Emorragie, dispepsia (la formulazione è acida), controindicato nell'insufficienza renale grave perché è eliminato per l'80 % dal rene",classe:"Inibitore diretto della trombina"},
+  {name:"Ezetimibe (Zetia)",cat:"statine",smi:"O=C1[C@H](CC[C@H](O)c2ccc(F)cc2)[C@@H](c2ccc(O)cc2)N1c1ccc(F)cc1",mw:"409.43",
+   moa:"Inibitore della proteina NPC1L1 sull'orletto a spazzola dell'enterocita: blocca l'assorbimento intestinale del colesterolo, alimentare e biliare. Meccanismo COMPLEMENTARE a quello delle statine, che agiscono sulla sintesi, e per questo l'associazione dà una riduzione additiva.",
+   indicaz:"Ipercolesterolemia, in aggiunta alla statina o in intolleranza alle statine",
+   effetti:"Generalmente ben tollerato; mialgia, aumento delle transaminasi in associazione",classe:"Inibitore dell'assorbimento del colesterolo"},
+  {name:"Nifedipina (Adalat)",cat:"cardio",smi:"COC(=O)C1=C(C)NC(C)=C(C(=O)OC)C1c1ccccc1[N+](=O)[O-]",mw:"346.34",
+   moa:"Calcio-antagonista diidropiridinico, selettivo per la muscolatura liscia vasale: vasodilatazione arteriolare con effetto inotropo trascurabile. La formulazione a rilascio immediato è stata abbandonata nell'ipertensione perché il calo pressorio brusco provoca tachicardia riflessa e ischemia.",
+   indicaz:"Ipertensione, angina vasospastica, fenomeno di Raynaud",
+   effetti:"Edema delle caviglie, vampate, cefalea, tachicardia riflessa, ipertrofia gengivale",classe:"Calcio-antagonista diidropiridinico"},
+  {name:"Citalopram (Seropram)",cat:"ssri",smi:"CN(C)CCCC1(c2ccc(F)cc2)OCc2cc(C#N)ccc21",mw:"324.40",
+   moa:"Inibitore selettivo del reuptake della serotonina (SERT). È una miscela racemica: l'attività risiede nell'enantiomero S, che da solo è l'escitalopram.",
+   indicaz:"Depressione maggiore, disturbo di panico",
+   effetti:"Allungamento del QT dose-dipendente (dose massima 40 mg, 20 negli anziani), nausea, disfunzione sessuale, iponatriemia",classe:"SSRI"},
+  {name:"Mirtazapina (Remeron)",cat:"psych",smi:"CN1CCN2c3ncccc3Cc3ccccc3C2C1",mw:"265.36",
+   moa:"Antidepressivo noradrenergico e serotoninergico specifico: antagonista degli autorecettori α2 presinaptici (aumenta il rilascio di noradrenalina e serotonina) e dei recettori 5-HT2 e 5-HT3. Il blocco di 5-HT3 spiega l'assenza di nausea, quello H1 la sedazione e l'aumento dell'appetito — effetti sfruttati nel paziente anziano insonne e inappetente.",
+   indicaz:"Depressione maggiore, soprattutto con insonnia e perdita di peso",
+   effetti:"Sedazione, aumento di peso, aumento dell'appetito, raramente agranulocitosi",classe:"Antidepressivo NaSSA"},
+  {name:"Oxcarbazepina (Trileptal)",cat:"neuro3",smi:"NC(=O)N1c2ccccc2CC(=O)c2ccccc21",mw:"252.27",
+   moa:"Profarmaco: ridotto al derivato 10-monoidrossi, che blocca i canali del sodio voltaggio-dipendenti. La riduzione sostituisce l'ossidazione epossidica della carbamazepina, quindi non si forma il metabolita 10,11-epossido responsabile di buona parte della tossicità e delle interazioni.",
+   indicaz:"Epilessia focale, nevralgia del trigemino",
+   effetti:"Iponatriemia (più frequente che con carbamazepina), diplopia, sedazione, rash",classe:"Bloccante dei canali del sodio"},
+  {name:"Lacosamide (Vimpat)",cat:"neuro3",smi:"COC[C@@H](NC(C)=O)C(=O)NCc1ccccc1",mw:"250.30",
+   moa:"Potenzia l'inattivazione LENTA dei canali del sodio voltaggio-dipendenti, meccanismo distinto da quello dei bloccanti classici che agiscono sull'inattivazione rapida. Ne consegue un profilo di interazioni molto pulito.",
+   indicaz:"Epilessia focale, come monoterapia o in aggiunta",
+   effetti:"Vertigini, diplopia, allungamento del PR, atassia",classe:"Antiepilettico, modulatore del sodio"},
+  {name:"Pramipexolo (Mirapexin)",cat:"neuro3",smi:"CCCN[C@H]1CCc2nc(N)sc2C1",mw:"211.33",
+   moa:"Agonista dopaminergico non ergolinico con selettività per i recettori D2/D3. Non richiede conversione metabolica, quindi non dipende dai neuroni nigrostriatali residui come la levodopa: utile nelle fasi precoci per ritardare l'introduzione della levodopa.",
+   indicaz:"Malattia di Parkinson, sindrome delle gambe senza riposo",
+   effetti:"Attacchi di sonno improvvisi, disturbi del controllo degli impulsi (gioco d'azzardo, ipersessualità), allucinazioni, edema",classe:"Agonista dopaminergico D2/D3"},
+  {name:"Metilfenidato (Ritalin)",cat:"psych2",smi:"COC(=O)C(c1ccccc1)C1CCCCN1",mw:"233.31",
+   moa:"Inibitore del reuptake della dopamina e della noradrenalina (blocca DAT e NET). Nel disturbo da deficit di attenzione aumenta il tono catecolaminergico prefrontale, migliorando l'inibizione della risposta.",
+   indicaz:"ADHD nel bambino e nell'adulto, narcolessia",
+   effetti:"Insonnia, riduzione dell'appetito e della crescita, tachicardia, ipertensione; potenziale d'abuso",classe:"Psicostimolante"},
+  {name:"Levofloxacina (Levoxacin)",cat:"antibio2",smi:"C[C@H]1COc2c(N3CCN(C)CC3)c(F)cc3c(=O)c(C(=O)O)cn1c23",mw:"361.37",
+   moa:"Fluorochinolone: inibisce la DNA girasi (topoisomerasi II) e la topoisomerasi IV batteriche, bloccando il superavvolgimento e la separazione del DNA. È l'enantiomero L dell'ofloxacina, due volte più attivo del racemo.",
+   indicaz:"Polmonite acquisita in comunità, pielonefrite, prostatite, infezioni complicate delle vie urinarie",
+   effetti:"Tendinopatia e rottura del tendine d'Achille, neuropatia periferica, aneurisma aortico, allungamento del QT, disglicemia",classe:"Fluorochinolone"},
+  {name:"Meropenem (Merrem)",cat:"blattam",smi:"C[C@@H](O)[C@H]1C(=O)N2C(C(=O)O)=C(S[C@@H]3CN[C@H](C(=O)N(C)C)C3)[C@H](C)[C@H]12",mw:"383.47",
+   moa:"Carbapenemico: lega le transpeptidasi (PBP) bloccando la sintesi del peptidoglicano. Il metile in posizione 1 lo rende stabile alla deidropeptidasi renale, quindi NON richiede cilastatina a differenza dell'imipenem. Spettro fra i più ampi disponibili.",
+   indicaz:"Infezioni gravi da Gram-negativi multiresistenti, meningite, sepsi, infezioni intraddominali",
+   effetti:"Convulsioni (meno dell'imipenem), diarrea, eosinofilia; selezione di ceppi produttori di carbapenemasi",classe:"Carbapenemico"},
+  {name:"Clindamicina (Dalacin)",cat:"antibio2",smi:"CCC[C@@H]1C[C@@H](C(=O)N[C@@H]([C@H]2O[C@H](SC)[C@H](O)[C@@H](O)[C@H]2O)[C@H](C)Cl)N(C)C1",mw:"424.99",
+   moa:"Lincosamide: lega la subunità 50S del ribosoma sul sito A, inibendo la transpeptidazione. Blocca anche la sintesi delle tossine, ed è la ragione per cui si aggiunge nella fascite necrotizzante da streptococco.",
+   indicaz:"Infezioni da anaerobi, infezioni cutanee da MRSA comunitario, fascite necrotizzante, profilassi dell'endocardite in allergia alle penicilline",
+   effetti:"Colite da Clostridioides difficile (il rischio più alto fra gli antibiotici comuni), diarrea, rash",classe:"Lincosamide"},
+  {name:"Trimetoprim",cat:"antibio2",smi:"COc1cc(Cc2cnc(N)nc2N)cc(OC)c1OC",mw:"290.32",
+   moa:"Inibisce la diidrofolato reduttasi BATTERICA con selettività di circa 50 000 volte rispetto a quella umana. In associazione al sulfametossazolo blocca due tappe consecutive della sintesi dei folati, da cui la sinergia.",
+   indicaz:"Infezioni delle vie urinarie; in associazione, polmonite da Pneumocystis e toxoplasmosi",
+   effetti:"Iperkaliemia (blocca il canale ENaC come l'amiloride), aumento della creatinina, rash, anemia megaloblastica",classe:"Inibitore della diidrofolato reduttasi"},
+  {name:"Nitrofurantoina (Furadantin)",cat:"antibio2",smi:"O=C1CN(/N=C/c2ccc([N+](=O)[O-])o2)C(=O)N1",mw:"238.16",
+   moa:"Profarmaco: le nitroreduttasi batteriche lo riducono a intermedi reattivi che danneggiano ribosomi, DNA e metabolismo. L'attacco multiplo spiega la resistenza quasi assente dopo sessant'anni d'uso. Si concentra nelle urine e non raggiunge il parenchima renale.",
+   indicaz:"Cistite non complicata; NON la pielonefrite, perché non raggiunge il tessuto",
+   effetti:"Fibrosi polmonare e epatite nell'uso prolungato, neuropatia periferica, anemia emolitica in deficit di G6PD",classe:"Nitrofurano"},
+  {name:"Daptomicina (Cubicin)",cat:"antibio2",smi:"CCCCCCCCCC(=O)N[C@@H](Cc1c[nH]c2ccccc12)C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H]1C(=O)NCC(=O)N[C@@H](CCCN)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@H](C)C(=O)N[C@@H](CC(=O)O)C(=O)NCC(=O)N[C@H](CO)C(=O)N[C@@H]([C@H](C)CC(=O)O)C(=O)N[C@@H](CC(=O)c2ccccc2N)C(=O)O[C@@H]1C",mw:"1620.69",
+   moa:"Lipopeptide ciclico: in presenza di calcio si inserisce nella membrana dei Gram-positivi formando aggregati che la depolarizzano, con morte cellulare SENZA lisi — quindi senza il rilascio massivo di componenti parietali. È inattivata dal surfattante polmonare, e per questo non si usa nella polmonite.",
+   indicaz:"Batteriemia e endocardite da MRSA e da enterococco resistente alla vancomicina, infezioni cutanee complicate",
+   effetti:"Miopatia con aumento della CPK (da monitorare settimanalmente), polmonite eosinofila, neuropatia",classe:"Lipopeptide"},
+  {name:"Nirmatrelvir (Paxlovid)",cat:"antivir",smi:"CC(C)(C)[C@H](NC(=O)C(F)(F)F)C(=O)N1C[C@H]2[C@@H]([C@H]1C(=O)N[C@H](C#N)C[C@@H]1CCNC1=O)C2(C)C",mw:"499.53",
+   moa:"Inibitore peptidomimetico della proteasi principale 3CL (Mpro) di SARS-CoV-2: il nitrile forma un legame covalente reversibile con la cisteina catalitica Cys145, bloccando il taglio delle poliproteine virali. Si somministra con ritonavir come potenziatore farmacocinetico, non per attività antivirale propria.",
+   indicaz:"COVID-19 da lieve a moderato nel paziente a rischio di progressione, entro cinque giorni dai sintomi",
+   effetti:"Disgeusia (sapore metallico), diarrea, ipertensione; INTERAZIONI numerose e gravi dovute al ritonavir che inibisce il CYP3A4",classe:"Inibitore della proteasi 3CL"},
+  {name:"Valaciclovir (Zelitrex)",cat:"antivir",smi:"CC(C)[C@H](N)C(=O)OCCOCn1cnc2c(=O)nc(N)[nH]c21",mw:"324.34",
+   moa:"Profarmaco esterificato con L-valina dell'aciclovir: il trasportatore intestinale dei peptidi ne porta la biodisponibilità dal 15-20 % dell'aciclovir a circa il 55 %. L'attivazione resta affidata alla timidina chinasi virale, da cui la selettività.",
+   indicaz:"Herpes zoster, herpes labiale e genitale, profilassi da citomegalovirus nel trapiantato",
+   effetti:"Cefalea, nausea; nefrotossicità da cristallizzazione tubulare se disidratato, neurotossicità nell'insufficienza renale",classe:"Analogo nucleosidico, profarmaco"},
+  {name:"Emtricitabina (Emtriva)",cat:"hiv",smi:"Nc1nc(=O)n([C@@H]2CS[C@H](CO)O2)cc1F",mw:"247.25",
+   moa:"Analogo nucleosidico della citidina, fluorurato in posizione 5: fosforilato a trifosfato, è incorporato dalla trascrittasi inversa e ne provoca la terminazione della catena per assenza del 3'-OH.",
+   indicaz:"Infezione da HIV-1, in combinazione; profilassi pre-esposizione con tenofovir",
+   effetti:"Iperpigmentazione palmo-plantare, cefalea, nausea; riacutizzazione dell'epatite B alla sospensione",classe:"NRTI"},
+  {name:"Efavirenz (Sustiva)",cat:"hiv",smi:"O=C1Nc2ccc(Cl)cc2[C@@](C#CC2CC2)(C(F)(F)F)O1",mw:"315.68",
+   moa:"Inibitore NON nucleosidico della trascrittasi inversa: si lega a una tasca allosterica idrofobica adiacente al sito catalitico e ne blocca il movimento, senza competere con i nucleotidi e senza richiedere fosforilazione.",
+   indicaz:"Infezione da HIV-1, in combinazione",
+   effetti:"Sintomi del sistema nervoso centrale (sogni vividi, vertigini, disforia), rash, dislipidemia, teratogenicità nel primo trimestre",classe:"NNRTI"},
+  {name:"Bictegravir (Biktarvy)",cat:"hiv",smi:"O=C(NCc1c(F)cc(F)cc1F)c1cn2c(c(O)c1=O)C(=O)N1[C@H]3CC[C@H](C3)O[C@@H]1C2",mw:"449.39",
+   moa:"Inibitore del trasferimento di filamento dell'integrasi: chela i due ioni magnesio del sito catalitico impedendo l'inserimento del DNA virale nel genoma dell'ospite. Barriera alla resistenza elevata e nessun bisogno di potenziatore farmacocinetico.",
+   indicaz:"Infezione da HIV-1, in regime a compressa unica con emtricitabina e tenofovir alafenamide",
+   effetti:"Cefalea, nausea, aumento della creatinina (inibisce la secrezione tubulare senza ridurre la filtrazione), insonnia",classe:"Inibitore dell'integrasi"},
+  {name:"Entecavir (Baraclude)",cat:"epatite",smi:"C=C1[C@H](CO)[C@@H](O)C[C@@H]1n1cnc2c(=O)[nH]c(N)nc21",mw:"277.28",
+   moa:"Analogo nucleosidico carbociclico della guanosina: inibisce le tre attività della polimerasi del virus dell'epatite B — innesco, trascrizione inversa del filamento negativo e sintesi del positivo. Potenza elevatissima e barriera alla resistenza alta nel paziente naïve.",
+   indicaz:"Epatite B cronica con replicazione attiva",
+   effetti:"Cefalea, affaticamento; riacutizzazione grave alla sospensione, acidosi lattica, resistenza rapida se già esposto a lamivudina",classe:"Analogo nucleosidico anti-HBV"},
+  {name:"Linagliptin (Trajenta)",cat:"antidiab2",smi:"CC#CCn1c(N2CCC[C@@H](N)C2)nc2c1c(=O)n(Cc1nc(C)c3ccccc3n1)c(=O)n2C",mw:"472.55",
+   moa:"Inibitore della dipeptidil peptidasi-4: impedisce la degradazione di GLP-1 e GIP, prolungando l'incretina endogena. L'effetto è GLUCOSIO-DIPENDENTE, e per questo non provoca ipoglicemia da solo. Unico della classe a eliminazione prevalentemente biliare: non richiede aggiustamento nell'insufficienza renale.",
+   indicaz:"Diabete di tipo 2, in monoterapia o in associazione",
+   effetti:"Nasofaringite, pancreatite (rara), artralgia, pemfigoide bolloso",classe:"Inibitore DPP-4"},
+  {name:"Pioglitazone (Actos)",cat:"antidiab2",smi:"CCc1ccc(CCOc2ccc(CC3SC(=O)NC3=O)cc2)nc1",mw:"356.45",
+   moa:"Agonista del recettore nucleare PPAR-γ: riprogramma la trascrizione nell'adipocita aumentando la sensibilità periferica all'insulina. L'effetto richiede settimane perché passa dalla sintesi proteica, non dalla segnalazione acuta.",
+   indicaz:"Diabete di tipo 2 con insulino-resistenza marcata",
+   effetti:"Ritenzione idrica e scompenso cardiaco, aumento di peso, fratture nella donna, possibile carcinoma vescicale",classe:"Tiazolidinedione"},
+  {name:"Pantoprazolo (Pantorc)",cat:"gastro",smi:"COc1ccnc(C[S+]([O-])c2nc3cc(OC(F)F)ccc3[nH]2)c1OC",mw:"383.38",
+   moa:"Inibitore della pompa protonica: profarmaco che si accumula nel canalicolo acido della cellula parietale, dove protonato si trasforma in sulfenamide e lega covalentemente le cisteine della H+/K+-ATPasi. L'inibizione è IRREVERSIBILE: la secrezione riprende solo con la sintesi di nuove pompe, da cui l'effetto che dura oltre l'emivita plasmatica di un'ora.",
+   indicaz:"Malattia da reflusso, ulcera peptica, eradicazione di Helicobacter pylori, profilassi da FANS",
+   effetti:"Cefalea, diarrea, ipomagnesiemia e carenza di B12 nell'uso prolungato, nefrite interstiziale, fratture",classe:"Inibitore della pompa protonica"},
+  {name:"Famotidina (Famodil)",cat:"gastro2",smi:"NC(N)=Nc1nc(CSCC/C(N)=N/S(N)(=O)=O)cs1",mw:"337.46",
+   moa:"Antagonista competitivo dei recettori H2 dell'istamina sulla cellula parietale: riduce la secrezione acida basale e notturna. Meno potente degli inibitori di pompa ma a inizio d'azione più rapido, e non dà il rebound acido da ipergastrinemia alla sospensione.",
+   indicaz:"Dispepsia, malattia da reflusso, profilassi dell'ulcera da stress",
+   effetti:"Cefalea, stipsi; confusione negli anziani e nell'insufficienza renale",classe:"Antagonista H2"},
+  {name:"Arformoterolo (formoterolo R,R)",cat:"pneumo",smi:"COc1ccc(C[C@@H](C)NC[C@H](O)c2ccc(O)c(NC=O)c2)cc1",mw:"344.41",
+   moa:"β2-agonista a lunga durata d'azione, enantiomero (R,R) del formoterolo: è l'enantiomero attivo, mentre l'(S,S) contribuisce agli effetti indesiderati. Inizio d'azione rapido come un β2 a breve durata ma effetto di dodici ore. Non va MAI usato da solo nell'asma, perché il β2 a lunga durata senza corticosteroide aumenta la mortalità.",
+   indicaz:"BPCO; nell'asma solo in associazione fissa con un corticosteroide inalatorio",
+   effetti:"Tremore, tachicardia, ipokaliemia, iperglicemia, crampi",classe:"β2-agonista a lunga durata"},
+  {name:"Fluticasone propionato (Flixotide)",cat:"pneumo",smi:"CCC(=O)O[C@]1(C(=O)SCF)[C@H](C)C[C@H]2[C@@H]3C[C@H](F)C4=CC(=O)C=C[C@]4(C)[C@@]3(F)[C@@H](O)C[C@@]21C",mw:"500.58",
+   moa:"Corticosteroide inalatorio ad alta affinità per il recettore glucocorticoide: riduce la trascrizione delle citochine infiammatorie nelle vie aeree. La porzione deglutita subisce un effetto di primo passaggio quasi completo, che è ciò che limita l'esposizione sistemica.",
+   indicaz:"Asma persistente, BPCO con riacutizzazioni frequenti, rinite allergica",
+   effetti:"Candidosi orofaringea e disfonia (si prevengono sciacquando la bocca), soppressione surrenalica a dosi alte, polmonite nella BPCO",classe:"Corticosteroide inalatorio"},
+  {name:"Buprenorfina (Subutex)",cat:"opioid2",smi:"CO[C@@]12CC[C@@]3(C[C@@H]1[C@](C)(O)C(C)(C)C)[C@H]1Cc4ccc(O)c5c4[C@@]3(CCN1CC1CC1)[C@H]2O5",mw:"467.65",
+   moa:"AGONISTA PARZIALE del recettore μ e antagonista κ, con affinità altissima e dissociazione lentissima. L'effetto ha un tetto sulla depressione respiratoria — da cui la sicurezza relativa — e l'affinità elevata sposta gli altri oppioidi dal recettore, provocando sindrome d'astinenza se somministrata troppo presto.",
+   indicaz:"Terapia sostitutiva nella dipendenza da oppioidi, dolore cronico",
+   effetti:"Astinenza precipitata, stipsi, sedazione; il naloxone è meno efficace nel reverterla per l'affinità elevata",classe:"Agonista parziale μ"},
+  {name:"Metadone",cat:"opioid2",smi:"CCC(=O)C(CC(C)N(C)C)(c1ccccc1)c1ccccc1",mw:"309.45",
+   moa:"Agonista μ completo e, in più, antagonista del recettore NMDA e inibitore del reuptake di serotonina e noradrenalina — il che spiega l'efficacia nel dolore neuropatico. Emivita lunga e VARIABILISSIMA (da 8 a 60 ore): l'accumulo nei primi giorni è la causa delle morti in avvio di terapia.",
+   indicaz:"Dipendenza da oppioidi, dolore cronico oncologico e neuropatico",
+   effetti:"Allungamento del QT e torsione di punta, depressione respiratoria tardiva da accumulo, stipsi, interazioni via CYP3A4 e CYP2B6",classe:"Agonista oppioide μ, antagonista NMDA"},
+  {name:"Bupivacaina (Marcaina)",cat:"anest2",smi:"CCCCN1CCCCC1C(=O)Nc1c(C)cccc1C",mw:"288.44",
+   moa:"Anestetico locale amminoamidico: blocca i canali del sodio voltaggio-dipendenti dall'interno dell'assone, nella forma non protonata che attraversa la membrana. Lunga durata per l'alta liposolubilità e il legame proteico elevato.",
+   indicaz:"Anestesia spinale ed epidurale, blocchi nervosi periferici, analgesia del parto",
+   effetti:"CARDIOTOSSICITÀ da iniezione intravascolare accidentale, con aritmie refrattarie: l'antidoto è l'emulsione lipidica endovenosa. Convulsioni, ipotensione nel blocco simpatico",classe:"Anestetico locale amminoamidico"},
+  {name:"Tofacitinib (Xeljanz)",cat:"reuma2",smi:"C[C@@H]1CCN(C(=O)CC#N)C[C@@H]1N(C)c1ncnc2[nH]ccc12",mw:"312.38",
+   moa:"Inibitore di JAK1 e JAK3: blocca la trasduzione a valle dei recettori citochinici che usano la catena γ comune (IL-2, IL-4, IL-7, IL-15, IL-21), interrompendo la segnalazione STAT. Primo inibitore JAK orale approvato in reumatologia.",
+   indicaz:"Artrite reumatoide, artrite psoriasica, colite ulcerosa, artrite idiopatica giovanile",
+   effetti:"Infezioni gravi e tubercolosi, herpes zoster, eventi trombotici ed eventi cardiovascolari maggiori (avvertenza in scatola), neoplasie, dislipidemia",classe:"Inibitore JAK1/3"},
+  {name:"Azatioprina (Imuran)",cat:"immuno",smi:"Cn1cnc([N+](=O)[O-])c1Sc1ncnc2[nH]cnc12",mw:"277.27",
+   moa:"Profarmaco: convertito a 6-mercaptopurina e poi ai nucleotidi tioguaninici, che si incorporano nel DNA bloccando la proliferazione linfocitaria. L'attività della tiopurina metiltransferasi (TPMT) è geneticamente variabile: nel deficit la dose standard provoca mielosoppressione grave, e il genotipo va determinato prima di iniziare.",
+   indicaz:"Immunosoppressione nel trapianto, malattie infiammatorie intestinali, lupus, vasculiti",
+   effetti:"Mielosoppressione, epatotossicità, pancreatite, linfomi; interazione grave con allopurinolo e febuxostat, che bloccano la via di smaltimento",classe:"Antimetabolita tiopurinico"},
+  {name:"Tadalafil (Cialis)",cat:"metab",smi:"CN1CC(=O)N2[C@H](c3ccc4c(c3)OCO4)c3[nH]c4ccccc4c3C[C@@H]2C1=O",mw:"389.41",
+   moa:"Inibitore della fosfodiesterasi 5: impedisce la degradazione del GMP ciclico nella muscolatura liscia, prolungando la vasodilatazione mediata dall'ossido nitrico. Emivita di 17,5 ore, da cui la durata fino a 36 ore che lo distingue dal sildenafil.",
+   indicaz:"Disfunzione erettile, ipertrofia prostatica benigna, ipertensione arteriosa polmonare",
+   effetti:"Cefalea, dispepsia, mialgia, congestione nasale; CONTROINDICATO con i nitrati per ipotensione grave",classe:"Inibitore PDE5"},
+  {name:"Febuxostat (Adenuric)",cat:"reuma",smi:"Cc1nc(-c2ccc(OCC(C)C)c(C#N)c2)sc1C(=O)O",mw:"316.38",
+   moa:"Inibitore NON purinico della xantina ossidasi, selettivo e attivo su entrambe le forme ossidata e ridotta dell'enzima. A differenza dell'allopurinolo non è un analogo purinico, quindi non interferisce con le altre vie di quel metabolismo e si può usare in allergia all'allopurinolo.",
+   indicaz:"Iperuricemia cronica nella gotta, quando l'allopurinolo non è tollerato o è insufficiente",
+   effetti:"Mortalità cardiovascolare aumentata rispetto all'allopurinolo (avvertenza in scatola), riacutizzazioni di gotta all'avvio, epatotossicità",classe:"Inibitore della xantina ossidasi"},
+  {name:"Alendronato sodico (Fosamax)",cat:"metab",smi:"NCCCC(O)(P(=O)([O-])O)P(=O)(O)O.[Na+]",mw:"271.08",
+   moa:"Bisfosfonato azotato: si lega all'idrossiapatite e, internalizzato dall'osteoclasto durante il riassorbimento, inibisce la farnesil pirofosfato sintasi della via del mevalonato. Senza prenilazione le piccole GTPasi non funzionano e l'osteoclasto va in apoptosi.",
+   indicaz:"Osteoporosi postmenopausale e maschile, osteoporosi da corticosteroidi, malattia di Paget",
+   effetti:"Esofagite (va assunto in piedi con abbondante acqua e a digiuno), osteonecrosi della mandibola, fratture femorali atipiche, ipocalcemia",classe:"Bisfosfonato"},
+  {name:"Raloxifene (Evista)",cat:"ormoni2",smi:"O=C(c1ccc(OCCN2CCCCC2)cc1)c1c(-c2ccc(O)cc2)sc2cc(O)ccc12",mw:"473.59",
+   moa:"Modulatore selettivo del recettore estrogenico: AGONISTA sull'osso e sul metabolismo lipidico, ANTAGONISTA su mammella ed endometrio. La selettività nasce dalla conformazione che il recettore assume legando il farmaco e dai coregolatori disponibili in ciascun tessuto.",
+   indicaz:"Osteoporosi postmenopausale, riduzione del rischio di carcinoma mammario invasivo",
+   effetti:"Tromboembolia venosa, vampate, crampi agli arti inferiori; non riduce le fratture non vertebrali",classe:"SERM"},
+  {name:"Tamsulosina (Omnic)",cat:"nefro",smi:"CCOc1ccccc1OCCN[C@H](C)Cc1ccc(OC)c(S(N)(=O)=O)c1",mw:"408.52",
+   moa:"Antagonista α1-adrenergico con selettività per i sottotipi α1A e α1D, prevalenti nel collo vescicale e nella prostata rispetto a quelli vasali: rilassa la muscolatura liscia prostatica con ipotensione ortostatica minore rispetto agli α-bloccanti non selettivi.",
+   indicaz:"Sintomi del tratto urinario inferiore nell'ipertrofia prostatica benigna",
+   effetti:"Eiaculazione retrograda, vertigini, ipotensione alla prima dose, sindrome dell'iride flaccida durante la chirurgia della cataratta",classe:"α1A-antagonista selettivo"},
+  {name:"Fexofenadina (Telfast)",cat:"derm",smi:"CC(C)(C(=O)O)c1ccc(C(O)CCCN2CCC(C(O)(c3ccccc3)c3ccccc3)CC2)cc1",mw:"501.67",
+   moa:"Antistaminico H1 di terza generazione, metabolita attivo della terfenadina. Substrato della glicoproteina P e scarsamente liposolubile, non attraversa la barriera ematoencefalica: non è sedativo. A differenza della terfenadina non è cardiotossico, perché non necessita di attivazione via CYP3A4.",
+   indicaz:"Rinite allergica, orticaria cronica idiopatica",
+   effetti:"Cefalea; i succhi di frutta ne riducono l'assorbimento inibendo i trasportatori OATP",classe:"Antistaminico H1 non sedativo"},
+  {name:"Latanoprost (Xalatan)",cat:"derm",smi:"CC(C)OC(=O)CCC/C=C\\C[C@@H]1[C@@H](CC[C@@H](O)CCc2ccccc2)[C@H](O)C[C@@H]1O",mw:"432.60",
+   moa:"Profarmaco esterificato di un analogo della prostaglandina F2α: idrolizzato nella cornea all'acido libero, agonista del recettore FP. Aumenta il deflusso dell'umor acqueo per via trabecolare alternativa rimodellando la matrice extracellulare del corpo ciliare.",
+   indicaz:"Glaucoma ad angolo aperto e ipertensione oculare, in prima linea",
+   effetti:"Iperpigmentazione dell'iride e della cute periorbitale, allungamento e inscurimento delle ciglia, iperemia congiuntivale, raramente uveite",classe:"Analogo delle prostaglandine"}
+];
     FARM_DATA=FARM_DATA.concat(FARM_EXTRA);
+    FARM_DATA=FARM_DATA.concat(FARM_NUOVI);
   }
 }
 

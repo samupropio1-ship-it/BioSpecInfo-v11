@@ -4,8 +4,8 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v179-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-44%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v180-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-45%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2088%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
@@ -44,7 +44,7 @@ promesso, ma perché non esiste un server che possa farlo.
 | **Chimica generale** | Tavola periodica interattiva, bilanciamento, VSEPR, orbitali molecolari, termodinamica, elettrochimica, pKa e tamponi |
 | **Chimica organica** | Retrosintesi (98 esercizi), meccanismi animati con frecce elettroniche, 25 moduli avanzati |
 | **Biochimica** | Amminoacidi, vie metaboliche animate, cinetica enzimatica, macromolecole 3D |
-| **Farmacologia** | 178 farmaci, atlante 3D dei bersagli, interazioni, farmacocinetica, casi clinici |
+| **Farmacologia** | 233 farmaci, atlante 3D dei bersagli, interazioni, farmacocinetica, casi clinici |
 | **Astrochimica** | Molecole interstellari, esopianeti JWST, nebulose, spettri stellari, nucleosintesi |
 | **Chemioinformatica** | Banco di lavoro completo: standardizzazione, 43 descrittori, impronte Morgan/MACCS, Tanimoto, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, QSAR con **divisione per scheletro**, **validazione incrociata raggruppata** e **modello nullo per rimescolamento**, salti di attività, allarmi PAINS e Brenk. I risultati escono in **CSV** e in un **rapporto di metodo** che porta il seme, così l'analisi si rifà |
 | **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale |
@@ -133,7 +133,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 44 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 45 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -141,7 +141,7 @@ node tools/genera-evidenza.js    # 44 banchi, rapporto di verifica completo
 | `python3 -m http.server 8899` | Avvia l'applicazione in locale |
 | `node tools/genera-evidenza.js` | Esegue tutta la batteria e produce il rapporto di verifica |
 | `node tools/genera-evidenza.js --veloce` | Come sopra, saltando i banchi con browser |
-| `node tools/verifica-farmaci.js` | Verifica struttura ⟷ peso molecolare sui 178 farmaci |
+| `node tools/verifica-farmaci.js` | Verifica struttura ⟷ peso molecolare sui 233 farmaci |
 | `node tools/verifica-sicurezza.js` | Credenziali, password in chiaro, script esterni |
 | `node tools/verifica-accessibilita.js` | Contrasto WCAG AA e nomi accessibili, sezione per sezione |
 | `node tools/verifica-documenti.js` | Collegamenti, versioni, coerenza della matrice |
@@ -153,7 +153,7 @@ node tools/genera-evidenza.js    # 44 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 44 banchi stanno in [`tools/banchi/`](tools/banchi/) e sono versionati:
+I 45 banchi stanno in [`tools/banchi/`](tools/banchi/) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.
