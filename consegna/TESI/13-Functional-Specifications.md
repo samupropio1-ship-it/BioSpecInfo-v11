@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v177` |
+| **Versione descritta** | `bsi-v178` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -125,7 +125,10 @@ di chemioinformatica produce in una giornata.
 | **Descrittori** | Standardizzazione (frammento maggiore, SMILES canonico, deduplicazione), 43 descrittori RDKit, regola dei 5 di Lipinski, filtro di Veber, indice QED ricalcolato — MinimalLib non lo espone |
 | **Similarità e gruppi** | Impronte Morgan/ECFP4, RDKit, pattern e MACCS; Tanimoto e Dice; matrice di similarità; vicini più simili; **raggruppamento di Butina** e selezione **MaxMin** per la diversità |
 | **Spazio chimico** | PCA sui descrittori standardizzati, con varianza spiegata per componente e i **carichi** che dicono quale descrittore muove quale asse; scheletri di **Bemis–Murcko** con il conteggio delle molecole per scheletro |
-| **Modello QSAR** | Regressione kernel (kernel di Tanimoto sulle impronte) o regressione logistica; **divisione per scheletro** oltre a quella casuale; **validazione incrociata a 3, 5 o 10 pieghe raggruppate per scheletro**; R², RMSE, MAE, Pearson per la regressione, ROC-AUC e MCC per la classificazione; **dominio di applicabilità** con la distanza dal vicino più prossimo nell'insieme di addestramento |
+| **Modello QSAR** | Regressione kernel (kernel di Tanimoto), kNN su Tanimoto o regressione logistica; **divisione per scheletro**; **validazione incrociata raggruppata** a 3, 5 o 10 pieghe; **confronto fra modelli sulle stesse pieghe** con il riferimento banale in cima; iperparametri scelti per **validazione annidata**; **intervalli di predizione conformi**; **curva di apprendimento**; dominio di applicabilità |
+| **Ricerca** | Ricerca per sottostruttura su tutto l'insieme con `SubstructLibrary` di RDKit, query SMARTS o SMILES, conteggio delle occorrenze, otto query pronte |
+| **Tabella SAR** | Decomposizione in gruppi R attorno a un nucleo: una riga per molecola, una colonna per posizione di sostituzione, con l'attività mediana di ogni sostituente. Le molecole senza il nucleo sono **escluse**, non mostrate con celle vuote |
+| **Coppie corrispondenti** | Coppie che differiscono per **una sola** sostituzione, raggruppate per trasformazione con mediana, intervallo e **numero di coppie concordanti** |
 | **Salti di attività** | Coppie strutturalmente vicine con attività lontane, ordinate per **SALI**: sono le coppie su cui ogni modello sbaglia, ed è onesto mostrarle |
 | **Allarmi strutturali** | PAINS e Brenk, con il frammento evidenziato e il motivo per cui è segnalato |
 
@@ -153,6 +156,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 | Esportazione | Contenuto |
 |---|---|
 | **Tabella CSV** | Una riga per molecola: nome, SMILES canonico e originale, attività, scheletro, nove descrittori, QED, violazioni di Lipinski, esito di Veber, allarmi trovati. Con la validazione incrociata attiva si aggiungono **previsto** e **residuo** — e solo allora, perché la validazione incrociata è l'unica che dia a ogni molecola una predizione da un modello che non l'aveva vista |
+| **SDF** | Le strutture con **coordinate 2D generate**, il nome nella prima riga di ogni blocco e i campi dati attaccati: è il formato con cui si scambiano insiemi fra gruppi e programmi. Verificato col round-trip |
 | **Rapporto di metodo (.md)** | Ciò che serve a **rifare** la stessa analisi: versione di RDKit, fingerprint, tipo di divisione, numero di molecole e scheletri, **il seme**, le metriche, il verdetto del controllo nullo, le pieghe una per una, e i limiti dichiarati |
 
 > **Perché il seme è nel rapporto.** Senza di esso «divisione casuale» e
@@ -174,7 +178,7 @@ dall'applicazione: un banco che chiedesse al codice sotto esame quanto vale il
 proprio contrasto non misurerebbe niente.
 
 Il motore sta in `bsi-cheminfo.js`, è esposto come `window.BSIChem` ed è
-verificato dal banco `test_cheminfo` (106 controlli) contro valori calcolabili a
+verificato dal banco `test_cheminfo` (181 controlli) contro valori calcolabili a
 mano.
 
 ### 3.3 Chimica organica
@@ -360,4 +364,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v177`._
+_Documento aggiornato alla versione `bsi-v178`._

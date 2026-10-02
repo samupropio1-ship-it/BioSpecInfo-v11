@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v177` |
-| Commit | `5335a64af53f899d327c4229ae4549b66eee5e33` |
-| Generated (UTC) | `2026-10-02T03:36:09.460Z` |
+| Application version | `bsi-v178` |
+| Commit | `2c46a40a65ad855becf32502a253238c6f48b001` |
+| Generated (UTC) | `2026-10-02T04:27:53.470Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -56,10 +56,10 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4576 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4605 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 32 kB | IR/NMR spectral prediction engine over the molecular graph. |
-| `bsi-cheminfo.js` | 65 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
+| `bsi-cheminfo.js` | 111 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `sw.js` | 5 kB | Service Worker: offline operation and network strategy. |
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2666 kB | Astrochemistry module. |
@@ -70,11 +70,11 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `f7ab0ef19d436a6e3e43fd859f615f5eb7a0c66ffb2d44de30cfd518ada2894e` |
+| `index.html` | `4f0b3e854ff5054d3239336cf8084d6a72553aae7fc2a87851b3ddc36e6d4a0f` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `bsi-cheminfo.js` | `aefd53302644ef47f4cd78a6f531a8353e4952d9d4fc1eaf006a2f490e7fca9f` |
-| `sw.js` | `42d160e761326f00b0449580975262e0399b489cce16dbe8be92c2b0749498e3` |
+| `bsi-cheminfo.js` | `0d82b5d4d39c97dad40e2a56dd777952e8c1d162abdedf277bd55fbc14088027` |
+| `sw.js` | `5aaaadbdaeec8c97463844663014fe4b173c24356083b89a5043703278a3548d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-02T03:36:09.460Z._
+_Generated on 2026-10-02T04:27:53.470Z._

@@ -15,7 +15,7 @@
 |---|---|
 | **Banchi superati** | 44 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 784 s |
+| **Durata totale** | 790 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,11 +24,11 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-10-02T03:36:09.835Z` |
-| Commit | `5335a64af53f899d327c4229ae4549b66eee5e33` |
+| Istante (UTC) | `2026-10-02T04:27:53.814Z` |
+| Commit | `2c46a40a65ad855becf32502a253238c6f48b001` |
 | Ramo | `claude/app-layout-synthesis-features-97UCN` |
 | Albero di lavoro pulito | NO — sono presenti modifiche non registrate |
-| Versione applicazione | `bsi-v177` |
+| Versione applicazione | `bsi-v178` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |
@@ -40,10 +40,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.685.824 | `f7ab0ef19d436a6e3e43fd859f615f5eb7a0c66ffb2d44de30cfd518ada2894e` |
+| `index.html` | 4.715.801 | `4f0b3e854ff5054d3239336cf8084d6a72553aae7fc2a87851b3ddc36e6d4a0f` |
 | `bsi-ai-hub.js` | 432.165 | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | 33.021 | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `sw.js` | 5284 | `42d160e761326f00b0449580975262e0399b489cce16dbe8be92c2b0749498e3` |
+| `sw.js` | 5284 | `5aaaadbdaeec8c97463844663014fe4b173c24356083b89a5043703278a3548d` |
 | `rdkit_lab.html` | 266.265 | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | 2.729.918 | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | 199.043 | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -58,15 +58,15 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-farmaci` | ✅ SUPERATO | 5.1 s | ✓ CONFORME |
+| `@verifica-farmaci` | ✅ SUPERATO | 5.0 s | ✓ CONFORME |
 | `test_spettri` | ✅ SUPERATO | 4.5 s | 36 passati |
-| `test_spettri_ui` | ✅ SUPERATO | 11.2 s | 16 passati |
+| `test_spettri_ui` | ✅ SUPERATO | 11.1 s | 16 passati |
 | `test_assi` | ✅ SUPERATO | 6.3 s | 13 passati |
 | `test_assi_canvas` | ✅ SUPERATO | 9.4 s | 6 passati |
 | `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.1 s | ✓ 29 controlli superati |
-| `test_simmetria` | ✅ SUPERATO | 3.9 s | 26 passati |
-| `test_cheminfo` | ✅ SUPERATO | 10.7 s | 106 controlli passati |
+| `test_simmetria` | ✅ SUPERATO | 4.0 s | 26 passati |
+| `test_cheminfo` | ✅ SUPERATO | 12.5 s | 181 controlli passati |
 
 ### Agente AI
 
@@ -74,7 +74,7 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 5.6 s | 13 passati |
+| `test_nucleo` | ✅ SUPERATO | 5.7 s | 13 passati |
 | `test_ko` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 35 controlli |
 | `test_404` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 36 controlli |
 | `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
@@ -82,11 +82,11 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 | `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
 | `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 40.2 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 52.5 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 5.1 s | 7 passati |
+| `browser_ko` | ✅ SUPERATO | 40.7 s | 37 passati |
+| `browser_prova` | ✅ SUPERATO | 52.9 s | 29 passati |
+| `browser_prov` | ✅ SUPERATO | 5.2 s | 7 passati |
 | `test_doppioinvio` | ✅ SUPERATO | 11.7 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 64.2 s | 22 passati |
+| `caccia_ai` | ✅ SUPERATO | 64.3 s | 22 passati |
 
 ### Stabilita
 
@@ -94,12 +94,12 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 112.5 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 116.1 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 42.2 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 29.7 s | 22 passati |
+| `audit_stabilita` | ✅ SUPERATO | 112.6 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 116.3 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 42.4 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 29.8 s | 22 passati |
 | `test_filemanager` | ✅ SUPERATO | 11.1 s | 15 passati |
-| `test_visore3d` | ✅ SUPERATO | 9.3 s | 5 passati |
+| `test_visore3d` | ✅ SUPERATO | 9.4 s | 5 passati |
 
 ### Interfaccia
 
@@ -107,13 +107,13 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 10.4 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 8.9 s | 15 passati |
+| `browser_reset` | ✅ SUPERATO | 10.7 s | 24 passati |
+| `browser_proxy` | ✅ SUPERATO | 9.0 s | 15 passati |
 | `browser_proxyui` | ✅ SUPERATO | 12.0 s | 17 passati |
 | `browser_rdkit` | ✅ SUPERATO | 4.4 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 11.1 s | 21 passati |
+| `browser_lab` | ✅ SUPERATO | 11.2 s | 21 passati |
 | `browser_frontiera` | ✅ SUPERATO | 6.2 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.8 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.7 s | 9 passati |
 | `test_guidaproxy` | ✅ SUPERATO | 5.5 s | 12 passati |
 
 ### Sicurezza e accessibilita
@@ -123,8 +123,8 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
 | `@verifica-sicurezza` | ✅ SUPERATO | 0.4 s | 9 controlli passati |
-| `audit_rete` | ✅ SUPERATO | 26.7 s | 5 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 57.9 s | 5 controlli passati |
+| `audit_rete` | ✅ SUPERATO | 27.2 s | 5 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 59.3 s | 5 controlli passati |
 | `audit_mobile` | ✅ SUPERATO | 27.1 s | 3 controlli passati |
 
 ### Coerenza documentazione/codice
@@ -136,7 +136,7 @@ _Cio che la documentazione promette esiste davvero nel codice._
 | `verifica_guida` | ✅ SUPERATO | 0.2 s | 71 controlli passati |
 | `@verifica-documenti` | ✅ SUPERATO | 0.1 s | 15 controlli passati |
 | `@verifica-affermazioni` | ✅ SUPERATO | 10.8 s | 10 controlli passati |
-| `audit_copertura` | ✅ SUPERATO | 44.8 s | 4 controlli passati |
+| `audit_copertura` | ✅ SUPERATO | 44.9 s | 4 controlli passati |
 
 ---
 
@@ -660,17 +660,111 @@ Banco di lavoro chemioinformatico
   ✓ la similarita' a otto bit e' stata rimossa, non solo scavalcata  → false
       (caffeina/metformina 0.024 · aspirina/paracetamolo 0.222)
 
+── Frammentazione ──
+  ✓ con la regola fine l'etossibenzene da' tre tagli  → 3
+  ✓ i tre tagli sono quelli attesi  → *C + *COc1ccccc1 | *CC + *Oc1ccccc1 | *OCC + *c1ccccc1
+  ✓ con la regola grossa i tagli sono due  → 2
+  ✓ il benzene non ha legami aciclici da tagliare  → 0
+  ✓ il metano non ha legami da tagliare  → 0
+  ✓ la regola fine taglia il metile terminale del toluene  → 1
+  ✓ la regola grossa non lo taglia  → 0
+
+── Coppie molecolari corrispondenti ──
+  ✓ tutte e sei le molecole si frammentano  → 6
+  ✓ clorofenile→fenile vale −1,0 su 2 coppie  → 2|-1
+  ✓ le due coppie del cloro sono concordanti  → 2
+  ✓ metilfenile→fenile vale −0,5  → 2|-0.5
+  ✓ metile→cloro vale +0,5  → 2|0.5
+  ✓ etilammide→propilammide vale +0,2 su 3 coppie  → 3|0.2
+  ✓ la direzione è normalizzata, l'inversa non compare  → true
+  ✓ la soglia sul numero di coppie filtra davvero  → true
+
+── Ricerca per sottostruttura ──
+  ✓ il nucleo benzamidico corrisponde a quattro molecole su cinque  → 4
+  ✓ sono le quattro attese  → 0,1,2,3
+  ✓ il cloro corrisponde a due molecole  → 1,3
+  ✓ una query malformata viene DICHIARATA, non ignorata  → true
+  ✓ il diclorobenzene conta due occorrenze di Cl  → 2
+  ✓ il monoclorobenzene ne conta una  → 1
+  ✓ la frazione di corrispondenze è 0,8  → 0.8
+
+── Tabella SAR (decomposizione in gruppi R) ──
+  ✓ la tabella ha due colonne di sostituzione  → 2
+  ✓ quattro molecole portano il nucleo  → 4
+  ✓ la molecola estranea è esclusa, non messa con celle vuote  → 4
+  ✓ la molecola non sostituita mostra H  → H|*CC
+  ✓ il cloro compare nella colonna giusta  → *Cl|*CC
+  ✓ il metile compare nella colonna giusta  → *C|*CC
+  ✓ il propile compare nella seconda colonna  → *Cl|*CCC
+  ✓ la colonna 1 ordina i sostituenti per attività: Cl > Me > H  → *Cl > *C > H
+  ✓ le mediane della colonna 1 sono quelle dei dati  → 7.1,6.5,6
+  ✓ un nucleo che non c'è non produce righe  → 0
+  ✓ la chiave dello scaffold dichiara di non essere uno SMILES  → true
+  ✓ il campo chiave esiste ed e' pieno  → true
+  ✓ smiles resta come alias della chiave  → true
+  ✓ due molecole con lo stesso scheletro danno la stessa chiave  → true
+  ✓ scheletri diversi danno chiavi diverse  → true
+  ✓ la chiave NON si rilegge come SMILES: non va usata come query  → true
+
+── Arricchimento (EF, BEDROC) ──
+  ✓ ordinamento perfetto: AUC 1  → 1
+  ✓ il primo 20 % sono 2 composti  → 2
+  ✓ e contengono 2 attivi  → 2
+  ✓ a caso ne sarebbero attesi 0,4  → 0.400000
+  ✓ EF@20 % = 2/0,4 = 5  → 5
+  ✓ ed è il massimo possibile a quella frazione  → 5
+  ✓ BEDROC di un ordinamento perfetto vale 1  → 1
+  ✓ ordinamento pessimo: AUC 0  → 0
+  ✓ EF@20 % = 0  → 0
+  ✓ BEDROC di un ordinamento pessimo vale 0, non un negativo  → 0
+  ✓ attivi ai ranghi 2 e 5: AUC 12/16 = 0,75  → 0.75
+  ✓ EF@20 % = 1/0,4 = 2,5  → 2.5
+  ✓ EF@50 % = 2/1,0 = 2  → 2
+  ✓ un insieme senza inattivi viene rifiutato, non calcolato  → true
+
+── Confronto fra modelli ──
+  ✓ il confronto mette tre modelli a paragone  → 3
+  ✓ il primo dell'elenco è il riferimento banale  → true
+  ✓ tutti i modelli usano le stesse pieghe  → true
+  ✓ su un segnale VERO il migliore supera il riferimento  → true
+  ✓ su etichette CASUALI non lo supera  → false
+      (segnale vero: margine 0.969 · casuale: -0.052)
+
+── Intervalli di predizione conformi ──
+  ✓ la copertura sulla calibrazione raggiunge il livello richiesto  → true
+  ✓ al 50 % l'intervallo è più stretto che al 90 %  → true
+  ✓ l'intervallo è centrato sulla predizione  → true
+  ✓ la semiampiezza coincide con metà dell'intervallo  → true
+  ✓ uno SMILES illeggibile non produce un intervallo inventato  → true
+
+── Curva di apprendimento ──
+  ✓ la curva valuta tutti i punti chiesti  → 3
+  ✓ con più addestramento il punteggio non peggiora  → true
+  ✓ la pendenza finale è calcolata  → true
+  ✓ il verdetto «più dati aiuterebbero» viene espresso  → true
+
+── Esportazione SDF ──
+  ✓ le due molecole valide vengono scritte  → 2
+  ✓ lo SMILES illeggibile è DICHIARATO scartato  → 1
+  ✓ con il motivo scritto  → SMILES non interpretabile
+  ✓ il round-trip restituisce gli stessi SMILES canonici  → CC(=O)Oc1ccccc1C(=O)O | CCO
+  ✓ il nome sta nella prima riga del blocco  → aspirina, acido
+  ✓ il campo dell'attività c'è  → true
+  ✓ il residuo è 4,2 − 4,0  → true
+  ✓ nessun nome di campo contiene spazi  → true
+  ✓ le coordinate 2D sono state generate  → true
+
 ── Contrasto dei pannelli (dove l'altro banco non arriva) ──
-  ✓ tutti e sei i pannelli si aprono con del contenuto  → 6
+  ✓ tutti e nove i pannelli si aprono con del contenuto  → 9
   ✓ gli elementi di testo misurati sono molti  → true
   ✓ nessun testo dei pannelli sotto la soglia WCAG AA  → 0
-      (460 elementi di testo misurati nei sei pannelli)
+      (593 elementi di testo misurati nei nove pannelli)
   ✓ nessun errore JavaScript usando la sezione  → 0
 
 ── Igiene ──
   ✓ nessun errore JavaScript durante le prove  → 0
 
-106 controlli passati
+181 controlli passati
 ```
 
 </details>
@@ -1313,7 +1407,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 ═══ 1. SESSIONE LUNGA: aprire e chiudere ogni scheda 5 volte ═══
     · schede trovate: 88 (sdashboard, smol, spt, ssyn, sretro, sanimmech…)
-    · nodi DOM per giro: 7577 → 35378 → 35378 → 35378 → 35378 → 35378
+    · nodi DOM per giro: 7584 → 35385 → 35385 → 35385 → 35385 → 35385
     · canvas   per giro: 24 → 37 → 37 → 37 → 37 → 37
     · setInterval vivi (creati-cancellati): -3
     · costruzione (giro 1): +27801 nodi
@@ -1341,7 +1435,7 @@ Due Invio di fila, a mezzo secondo di distanza
   ✓ nessun errore JS  → 0
 
 ═══ 5. OGNI PAGINA SI APRE PULITA ═══
-  ✓ index — nessun errore all'avvio (7526 nodi)  → 0
+  ✓ index — nessun errore all'avvio (7533 nodi)  → 0
   ✓ astro — nessun errore all'avvio (6335 nodi)  → 0
   ✓ chimorga — nessun errore all'avvio (3309 nodi)  → 0
   ✓ accademia — nessun errore all'avvio (181 nodi)  → 0
@@ -1425,17 +1519,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v177 con 37 voci
+    · cache: bsi-v178 con 37 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 6953 nodi in 598 ms — "BioSpecInfo · v8"
+    · 6960 nodi in 600 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7577 ms con 7022 nodi — rete bloccata 5 volte
+    · caricata in 7575 ms con 7029 nodi — rete bloccata 5 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -1443,7 +1537,7 @@ Due Invio di fila, a mezzo secondo di distanza
 
 3-bis) La gara col cronometro, misurata sul singolo fetch
   ✓ la pagina e' davvero governata dal service worker  → true
-    · risposta in 3509 ms (stato 200, 603445 byte) — rete bloccata 1 volte
+    · risposta in 3506 ms (stato 200, 603445 byte) — rete bloccata 1 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ la copia in cache arriva senza aspettare la rete morta  → true
   ✓ ma il cronometro e' stato aspettato, non scavalcato  → true
@@ -1783,8 +1877,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v177   ·  sw.js: bsi-v177
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v177
+    · app: bsi-v178   ·  sw.js: bsi-v178
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v178
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -1797,7 +1891,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v177Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v178Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -2049,7 +2143,7 @@ Traboccamento orizzontale a 390 px
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v177
+Versione del codice (sw.js): bsi-v178
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -2105,7 +2199,7 @@ misurato nell'applicazione in esecuzione.
   ✓ moduli di chimica organica  → 25
 
 ── Badge del README ──
-  ✓ il badge della versione è allineato al codice  → bsi--v177
+  ✓ il badge della versione è allineato al codice  → bsi--v178
   ✓ il badge dei banchi coincide con la batteria  → 44
   ✓ il badge del contrasto coincide con la misura registrata  → 0
 
@@ -2129,22 +2223,22 @@ Copertura di codice — istruzioni eseguite, non rami
   · RDKit_minimal.js           37.99 %   (95 kB su 250 kB)
   · astro.html                 50.68 %   (876 kB su 1729 kB)
   · bsi-ai-hub.js               32.9 %   (137 kB su 418 kB)
-  · bsi-cheminfo.js            49.89 %   (63 kB su 127 kB)
+  · bsi-cheminfo.js            37.41 %   (81 kB su 216 kB)
   · bsi-spettri.js             71.83 %   (21 kB su 30 kB)
   · chimorga.html              59.46 %   (11 kB su 19 kB)
   · gltf_loader.js             45.17 %   (43 kB su 94 kB)
-  · index.html                 61.48 %   (2267 kB su 3687 kB)
+  · index.html                 61.23 %   (2275 kB su 3715 kB)
   · rdkit_lab.html             21.78 %   (30 kB su 138 kB)
   · smiles-drawer.min.js        10.9 %   (27 kB su 246 kB)
   · three.min.js               34.94 %   (206 kB su 589 kB)
   · three_bloom.js             76.83 %   (20 kB su 25 kB)
 
-  complessiva: 49.9 %
+  complessiva: 49.48 %
 
   ✓ sezioni percorse  → 88
   ✓ file di script raccolti  → true
   ✓ la copertura e' stata calcolata  → true
-  ✓ copertura di codice — stabile a 49.9 % (riferimento 49.89 %, tolleranza ±0.5)
+  ✓ copertura di codice — stabile a 49.48 % (riferimento 49.89 %, tolleranza ±0.5)
 
 4 controlli passati
 ```
@@ -2157,7 +2251,7 @@ Copertura di codice — istruzioni eseguite, non rami
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout 5335a64af53f
+git checkout 2c46a40a65ad
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -2188,4 +2282,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-10-02T03:36:09.835Z._
+_Generato il 2026-10-02T04:27:53.814Z._

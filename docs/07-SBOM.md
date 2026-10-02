@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v177` |
-| Commit | `94f39a246704525b9b1c01bf309f81bab7daeaff` |
-| Generato (UTC) | `2026-10-02T04:13:49.765Z` |
+| Versione applicazione | `bsi-v178` |
+| Commit | `2c46a40a65ad855becf32502a253238c6f48b001` |
+| Generato (UTC) | `2026-10-02T04:27:53.470Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -70,11 +70,11 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `a685e78aa45dc9a6ea76a6ce6586015cd0bd624e77f9f451f87caa0555d20159` |
+| `index.html` | `4f0b3e854ff5054d3239336cf8084d6a72553aae7fc2a87851b3ddc36e6d4a0f` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
 | `bsi-cheminfo.js` | `0d82b5d4d39c97dad40e2a56dd777952e8c1d162abdedf277bd55fbc14088027` |
-| `sw.js` | `42d160e761326f00b0449580975262e0399b489cce16dbe8be92c2b0749498e3` |
+| `sw.js` | `5aaaadbdaeec8c97463844663014fe4b173c24356083b89a5043703278a3548d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-02T04:13:49.765Z._
+_Generato il 2026-10-02T04:27:53.470Z._

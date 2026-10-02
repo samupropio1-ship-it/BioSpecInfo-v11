@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v177` |
+| **Version described** | `bsi-v178` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -124,7 +124,10 @@ cheminformatics group produces in a day.
 | **Descriptors** | Standardisation (largest fragment, canonical SMILES, deduplication), 43 RDKit descriptors, Lipinski's rule of five, Veber filter, QED recomputed — MinimalLib does not expose it |
 | **Similarity and groups** | Morgan/ECFP4, RDKit, pattern and MACCS fingerprints; Tanimoto and Dice; similarity matrix; nearest neighbours; **Butina clustering** and **MaxMin** selection for diversity |
 | **Chemical space** | PCA on the standardised descriptors, with explained variance per component and the **loadings** that say which descriptor moves which axis; **Bemis–Murcko** scaffolds with the molecule count per scaffold |
-| **QSAR model** | Kernel ridge (Tanimoto kernel over the fingerprints) or logistic regression; **scaffold split** alongside the random one; **cross-validation over 3, 5 or 10 scaffold-grouped folds**; R², RMSE, MAE, Pearson for regression, ROC-AUC and MCC for classification; **applicability domain** by distance to the nearest training neighbour |
+| **QSAR model** | Kernel ridge (Tanimoto kernel), kNN over Tanimoto or logistic regression; **scaffold split**; **grouped cross-validation** over 3, 5 or 10 folds; **model comparison on identical folds** with the trivial reference at the top; hyperparameters chosen by **nested validation**; **conformal prediction intervals**; **learning curve**; applicability domain |
+| **Search** | Substructure search across the whole set with RDKit's `SubstructLibrary`, SMARTS or SMILES query, occurrence counts, eight ready queries |
+| **SAR table** | R-group decomposition around a core: one row per molecule, one column per substitution position, with each substituent's median activity. Molecules without the core are **excluded**, not shown with empty cells |
+| **Matched pairs** | Pairs differing by a **single** substitution, grouped by transformation with median, range and **number of concordant pairs** |
 | **Activity cliffs** | Structurally close pairs with distant activities, ranked by **SALI**: these are the pairs every model gets wrong, and it is honest to show them |
 | **Structural alerts** | PAINS and Brenk, with the matched fragment highlighted and the reason it is flagged |
 
@@ -152,6 +155,7 @@ without asking anyone to take it on trust.
 | Export | Content |
 |---|---|
 | **CSV table** | One row per molecule: name, canonical and original SMILES, activity, scaffold, nine descriptors, QED, Lipinski violations, Veber outcome, alerts found. With cross-validation active, **predicted** and **residual** are added — and only then, because cross-validation is the one scheme that gives every molecule a prediction from a model that had not seen it |
+| **SDF** | The structures with **generated 2D coordinates**, the name on each block's first line and the data fields attached: it is the format in which sets are exchanged between groups and programs. Verified by round-trip |
 | **Method report (.md)** | What is needed to **redo** the same analysis: RDKit version, fingerprint, split type, number of molecules and scaffolds, **the seed**, the metrics, the null-model verdict, the folds one by one, and the declared limits |
 
 > **Why the seed is in the report.** Without it, "random split" and "scrambled
@@ -173,7 +177,7 @@ taken from the application: a bench that asked the code under test how good its
 own contrast was would be measuring nothing.
 
 The engine lives in `bsi-cheminfo.js`, is exposed as `window.BSIChem` and is
-verified by the `test_cheminfo` bench (106 checks) against hand-computable
+verified by the `test_cheminfo` bench (181 checks) against hand-computable
 values.
 
 ### 3.3 Organic chemistry
@@ -360,4 +364,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v177`._
+_Document updated to version `bsi-v178`._

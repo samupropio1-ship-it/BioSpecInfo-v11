@@ -213,4 +213,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v177`._
+_Guide updated to version `bsi-v178`._

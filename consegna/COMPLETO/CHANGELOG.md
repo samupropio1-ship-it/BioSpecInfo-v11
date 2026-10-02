@@ -7,6 +7,102 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v178] — 2026-10-02
+
+La chemioinformatica passa da **prototipo verificato** a **strumento di
+lavoro**. Il motore cresce da 1 450 a oltre 2 450 righe, il banco da 106 a
+**181 controlli**, e ogni capacità nuova è verificata contro valori calcolabili
+a mano — come negli spettri.
+
+### Sondata la libreria prima di progettare
+
+MinimalLib 2025.03.4 è stata interrogata all'esecuzione, non assunta. Tre
+capacità esistevano e non erano usate: **`SubstructLibrary`** (screening vero
+con pattern fingerprint), **`get_rxn`/`Reaction`** (trasformazioni, cioè la
+possibilità di tagliare un legame), **`generate_aligned_coords`**. Non ci sono
+`cleanup`, `neutralize`, `canonical_tautomer`, `FragmentOnBonds`, né la
+sottostruttura massima comune: dichiarato in `docs/06` §3-quater.1 con le
+conseguenze.
+
+### Aggiunto — frammentazione, con due regole
+
+Una reazione SMARTS spezza un legame marcando i capi con un atomo fittizio.
+Regola **fine** (predefinita, comprende i sostituenti terminali Cl, CH₃, OH) e
+**grossa** in stile BRICS. Verificato: l'etossibenzene dà tre tagli con la
+fine e due con la grossa, benzene e metano nessuno.
+
+### Aggiunto — coppie molecolari corrispondenti
+
+L'analisi con cui si legge una serie chimica: due molecole che differiscono per
+**una cosa sola**, e la differenza di attività attribuita a quella. Verificata
+su una serie costruita con effetti noti, che ritrova tutti:
+
+| Trasformazione | Attesa | Trovata |
+|---|---:|---:|
+| clorofenile → fenile | −1,0 | **−1,0** su 2 coppie concordanti |
+| metilfenile → fenile | −0,5 | **−0,5** |
+| metile → cloro | +0,5 | **+0,5** |
+| etilammide → propilammide | +0,2 | **+0,2** su 3 |
+
+Sui 28 inibitori ChEMBL: 449 coppie, 98 trasformazioni solide, 133 ms; in cima
+**CF₃ → SO₂NH₂ con Δ mediano −2,65**. La colonna «concordi» è quella che decide
+se fidarsi, e le trasformazioni viste una volta sola sono contate a parte: non
+sono scoperte, sono aneddoti.
+
+### Aggiunto — ricerca per sottostruttura e tabella SAR
+
+Ricerca con `SubstructLibrary`, query SMARTS o SMILES, conteggio delle
+occorrenze. Una query malformata viene **dichiarata**, non ignorata.
+
+La tabella SAR risolve il problema difficile — **in quale posizione** sta ogni
+sostituente — sfruttando il fatto che il frammento col nucleo porta l'atomo
+fittizio nel punto di attacco. Sui dati veri: 20 molecole col nucleo
+benzamidico, 2 posizioni, 8 escluse. Le escluse non compaiono: mostrarle con
+celle vuote le farebbe sembrare parte della serie.
+
+### Aggiunto — il rigore che un valutatore pretende
+
+Confronto fra modelli sulle **stesse pieghe** col riferimento banale in cima;
+iperparametri per **validazione annidata**; **intervalli conformi**
+(split-conformal, quantile ⌈(n+1)(1−α)⌉); **EF e BEDROC** per lo screening;
+**curva di apprendimento**.
+
+Il verdetto del confronto è provato **nei due versi**: su segnale vero margine
+1,002 contro dispersione 0,676 → supera; sulle stesse molecole con etichette
+casuali → non supera.
+
+L'arricchimento è verificato sui tre casi calcolabili a mano: perfetto (AUC 1,
+EF@20 % = 5 che è il massimo, BEDROC 1), pessimo (tutto 0, e **BEDROC zero e
+non un negativo**), attivi ai ranghi 2 e 5 (AUC 12/16 = 0,75, EF 2,5).
+
+### Aggiunto — esportazione SDF
+
+Strutture con coordinate 2D generate, nome nella prima riga, campi dati.
+Verificata col **round-trip**: il blocco prodotto si rilegge e dà lo stesso
+SMILES canonico.
+
+### Corretto — due difetti miei, trovati misurando
+
+Il taglio escludeva gli atomi terminali, e la tabella SAR **perdeva il cloro
+sull'anello**: trovava il sostituente sull'azoto e mancava la colonna che
+interessa. Da lì nasce la regola fine.
+
+`scaffoldMurcko().smiles` **non è uno SMILES**: è una chiave canonica di
+raggruppamento, e il commento del codice lo diceva. Il pannello SAR la
+proponeva come nucleo e la decomposizione rispondeva «nucleo non
+interpretabile». Il campo si chiama ora `chiave` e dichiara
+`eUnoSmiles: false`; il banco fissa che serva a raggruppare e **non si rilegga
+come SMILES**. Il pannello non propone più niente: offre otto nuclei pronti e
+il campo libero, perché una proposta sbagliata è peggio di nessuna proposta.
+
+### Interfaccia e misure
+
+Tre schede nuove: Ricerca, Tabella SAR, Coppie corrispondenti. Il contrasto dei
+pannelli è ora misurato su **nove** invece di sei — **593 elementi di testo,
+0 difetti** — e il banco pretende che siano tutti e nove ad aprirsi.
+
+---
+
 ## [bsi-v177] — 2026-10-02
 
 ### Recuperato — le 12 domande del quiz, senza rimettere uno script

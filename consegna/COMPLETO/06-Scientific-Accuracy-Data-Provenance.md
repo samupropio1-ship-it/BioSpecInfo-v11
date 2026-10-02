@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v177` |
+| **Versione descritta** | `bsi-v178` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v177` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v178` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -408,6 +408,166 @@ contrasto **0** su 1 897 elementi di testo.
 
 ---
 
+## 3-quater. Da prototipo a strumento di lavoro
+
+Le funzioni descritte in §3-bis bastavano a dire qualcosa di difendibile su un
+insieme di molecole. Non bastavano a **lavorarci**: un gruppo di
+chemioinformatica, il primo giorno, chiede di cercare una sottostruttura su
+tutto l'insieme, di vedere la tabella SAR, e di sapere che cosa succede
+all'attività se sostituisce un cloro con un metile.
+
+### 3-quater.1 Che cosa la libreria aveva, e che cosa non ha
+
+Prima di progettare si è **sondata** MinimalLib 2025.03.4 all'esecuzione,
+invece di assumere. Sondare per primo ha cambiato il progetto: tre delle
+capacità qui sotto non erano state usate perché non si sapeva che ci fossero.
+
+| C'è | A cosa serve |
+|---|---|
+| `SubstructLibrary` | Ricerca per sottostruttura con pattern fingerprint: scarta in blocco le molecole che non possono corrispondere, invece di provare l'isomorfismo su ognuna |
+| `get_rxn` · `Reaction.run_reactants` | Trasformazioni chimiche. È ciò che permette di **tagliare** un legame, e da lì vengono coppie corrispondenti e tabella SAR |
+| `generate_aligned_coords` | Allineare le molecole a un nucleo comune |
+| `get_molblock` · `get_v3Kmolblock` | Esportazione **SDF**, il formato con cui si scambiano insiemi fra gruppi e programmi |
+
+| Non c'è | Conseguenza dichiarata |
+|---|---|
+| `cleanup`, `neutralize` | La standardizzazione si ferma al frammento maggiore e allo SMILES canonico: **le cariche non vengono neutralizzate** |
+| `canonical_tautomer` | Due tautomeri scritti in modo diverso restano due voci distinte |
+| `FragmentOnBonds`, `RWMol` | Nessuna modifica diretta delle molecole: il taglio passa per una reazione |
+| Sottostruttura massima comune (MCS) | Il nucleo di una tabella SAR va **fornito**, non viene dedotto. Il pannello offre otto nuclei pronti e il campo libero |
+
+### 3-quater.2 Il taglio, e perché ne servono due regole
+
+Una reazione SMARTS spezza un legame e marca i due capi con un atomo fittizio.
+Verificato all'esecuzione: `CCOc1ccccc1` dà tre tagli con la regola fine
+(CH₃–CH₂, CH₂–O, O–arile) e due con quella grossa; il benzene e il metano non
+ne danno nessuno.
+
+| Regola | Taglia | Quando serve |
+|---|---|---|
+| **fine** (predefinita) | Qualunque legame singolo aciclico, **compresi i sostituenti terminali** Cl, CH₃, OH, F | Tabella SAR e trasformazioni fini (Cl → CH₃) |
+| **grossa** (stile BRICS) | Esclude gli atomi terminali | Insiemi grandi, dove i tagli fini sono troppi; produce parti variabili più grandi («clorofenile → fenile») |
+
+> **La regola fine è nata da un difetto.** La prima stesura usava solo quella
+> grossa, e la tabella SAR della serie di prova **perdeva il cloro
+> sull'anello**: trovava il sostituente sull'azoto e mancava proprio la colonna
+> che interessa, perché il cloro è terminale. La regola fine è un soprainsieme
+> della grossa: ogni taglio che la grossa trova, lo trova anche la fine.
+
+### 3-quater.3 Coppie molecolari corrispondenti
+
+Due molecole formano una coppia quando, tagliando un legame in ciascuna,
+restano con lo **stesso contesto** e due parti variabili diverse. La differenza
+di attività è attribuita a quella sostituzione e a nient'altro — ed è il motivo
+per cui questa lettura batte una correlazione su tutto l'insieme, che media su
+molecole diverse per dieci cose.
+
+Verificata su una serie **costruita con effetti noti**: se l'analisi non li
+ritrova non è utilizzabile su dati veri.
+
+| Trasformazione | Attesa | Trovata | Coppie concordanti |
+|---|---:|---:|---|
+| clorofenile → fenile | −1,0 | **−1,0** | 2 su 2 |
+| metilfenile → fenile | −0,5 | **−0,5** | 2 su 2 |
+| metile → cloro | +0,5 | **+0,5** | 2 su 2 |
+| etilammide → propilammide | +0,2 | **+0,2** | 3 su 3 |
+
+Sui 28 inibitori dell'esempio, presi da ChEMBL: **449 coppie, 98
+trasformazioni** viste almeno due volte, 199 viste una sola, in 133 ms. In
+cima alla lista **CF₃ → SO₂NH₂ con Δ mediano −2,65** su due coppie concordanti.
+
+Due scelte dichiarate:
+
+- la **direzione è normalizzata** sull'ordine alfabetico delle due parti.
+  Senza di essa lo stesso effetto comparirebbe due volte, con mediane opposte,
+  e nessuna delle due avrebbe il numero di coppie giusto;
+- le trasformazioni viste **meno di due volte** sono escluse dalla tabella e
+  contate a parte. Una trasformazione vista una volta con Δ = +3 non è una
+  scoperta: è un aneddoto, e metterla in cima farebbe prendere decisioni su di
+  essa.
+
+> **La colonna «concordi» è quella che decide se fidarsi.** Una mediana di
+> +1,0 su tre coppie di cui una a −2,0 non è la stessa cosa di +1,0 su tre
+> coppie tutte positive, e la mediana da sola non lo dice.
+
+### 3-quater.4 La tabella SAR, e come si trova la posizione
+
+Il punto difficile non è trovare i sostituenti: è sapere in quale **posizione**
+sta ognuno. Senza MCS e senza modifica delle molecole, la soluzione sfrutta una
+proprietà del taglio: **il frammento che contiene il nucleo porta l'atomo
+fittizio esattamente nel punto di attacco**. Facendo corrispondere il nucleo a
+quel frammento si scopre su quale suo atomo è appeso il fittizio, e quindi quale
+posizione occupa il sostituente.
+
+Ne viene anche un filtro necessario e gratuito: se il fittizio **non** è
+attaccato a un atomo del nucleo, il taglio è avvenuto dentro un sostituente e
+quel pezzo non è il sostituente intero. Si scarta.
+
+Sui 28 inibitori, con nucleo benzamidico: **20 molecole con il nucleo, 2
+posizioni, 8 escluse**. Le escluse non compaiono in tabella: metterle con le
+celle vuote le farebbe sembrare parte della serie con sostituenti non trovati.
+
+> **Un difetto di denominazione, e come si è manifestato.**
+> `scaffoldMurcko()` restituiva il suo risultato in un campo chiamato
+> `smiles`, ma quel valore **non è uno SMILES**: è un'impronta canonica dello
+> scheletro, costruita perché due molecole con lo stesso scheletro producano la
+> stessa stringa. Serve a raggruppare — pieghe, divisione per scaffold — non a
+> interrogare. Il pannello SAR lo ha preso per uno SMILES e proponeva
+> `6,6,6,6,7,…|0-13:1,…` come nucleo; la decomposizione rispondeva «nucleo non
+> interpretabile».
+>
+> Il campo si chiama ora `chiave` e dichiara `eUnoSmiles: false`; `smiles`
+> resta come alias. Il banco fissa che due scheletri uguali diano la stessa
+> chiave, che scheletri diversi diano chiavi diverse, e che la chiave **non si
+> rilegga come SMILES**. Il nome sbagliato di un campo è un difetto come un
+> altro.
+
+### 3-quater.5 Il rigore che un valutatore pretende
+
+Cinque cose che un gruppo di modellistica mette in ogni rapporto, e la cui
+assenza è la prima obiezione in riunione.
+
+| | Metodo | Perché |
+|---|---|---|
+| **Confronto fra modelli** | Riferimento banale (predire la media), kNN su Tanimoto, regressione kernel — tutti sulle **stesse pieghe** raggruppate per scheletro | Confrontare un modello valutato su una divisione con un altro valutato su un'altra non è un confronto. E il riferimento banale sta in cima all'elenco, perché è il numero che ogni altro deve battere |
+| **Validazione annidata** | Gli iperparametri (k, lambda) si scelgono su pieghe **interne all'addestramento** | Provarne dieci sull'insieme di prova e riportare il migliore gonfia il punteggio: quel numero non è una predizione, è il massimo di dieci tentativi |
+| **Intervalli conformi** | Split-conformal, quantile ⌈(n+1)(1−α)⌉ dei residui assoluti su una porzione di calibrazione **divisa per scaffold** | «7,2» e «7,2 ± 0,3» sono due informazioni diverse, e solo la seconda dice se vale la pena sintetizzare. Una calibrazione su analoghi dell'addestramento darebbe intervalli troppo stretti proprio sulle molecole nuove |
+| **Arricchimento** | EF a 1 %, 5 %, 10 % con il **massimo possibile** accanto; BEDROC (Truchon & Bayly, *J. Chem. Inf. Model.* 47 (2007) 488) | In uno screening non si guarda tutta la lista. Un ROC-AUC di 0,80 può nascondere una testa di lista senza un solo attivo, perché l'AUC premia anche l'ordine nella coda, che nessuno comprerà |
+| **Curva di apprendimento** | Punteggio al variare della dimensione dell'addestramento, con l'insieme di prova **intero** a ogni punto | Risponde alla sola domanda che conta quando il modello è mediocre: serve più chimica o più dati? |
+
+**Il verdetto del confronto è provato nei due versi**, come il modello nullo.
+Su un segnale vero — attività proporzionale al numero di alogeni, su dieci
+nuclei distinti — la regressione kernel arriva a R² 0,943 con margine 0,943
+contro una dispersione di 0,035, e il verdetto è *supera*. Sulle **stesse
+molecole con etichette casuali** il migliore si ferma a −0,265, margine −0,034,
+e il verdetto è *non supera*. Una guardia che non scatta mai e una che scatta
+sempre sono lo stesso difetto.
+
+L'arricchimento è verificato sui tre casi in cui il valore giusto si calcola a
+mano:
+
+| Ordinamento (2 attivi su 10) | AUC | EF@20 % | BEDROC |
+|---|---:|---:|---:|
+| Perfetto: i due attivi in testa | 1 | **5** — ed è il massimo possibile | **1** |
+| Pessimo: i due attivi in coda | 0 | 0 | **0**, non un negativo |
+| Attivi ai ranghi 2 e 5 | **0,75** = 12/16 | **2,5** = 1/0,4 | 0,119 |
+
+Il caso pessimo è quello che conta: senza di esso non si saprebbe se BEDROC
+tocca lo zero o scende sotto, e un BEDROC negativo è il segno che manca il
+termine additivo della formula.
+
+### 3-quater.6 Limiti di questo blocco
+
+| Limite | Conseguenza |
+|---|---|
+| Le coppie crescono col **quadrato** delle molecole | Misurato: 6 molecole 45 ms, 40 molecole 227 ms con 1 255 coppie. Oltre 300 molecole il pannello rifiuta di partire e lo dice, invece di bloccare la pagina |
+| Il taglio è **singolo** | Una coppia che differisce per due sostituzioni insieme non viene trovata. È il limite dello schema a taglio singolo, condiviso con gli strumenti standard |
+| La stessa trasformazione compare in **più forme** | Tagli in posizioni diverse danno contesti diversi per la stessa modifica chimica (`*CC>>*CCC`, `*NCC>>*NCCC`, `*C(=O)NCC>>*C(=O)NCCC`). È ridondanza attesa nello schema a taglio singolo, non un errore |
+| Le cariche **non** sono neutralizzate e i tautomeri non canonizzati | MinimalLib non lo permette (§3-quater.1). Un insieme che mescola forme neutre e ioniche della stessa molecola le conta come voci distinte |
+| Il nucleo della tabella SAR va **fornito** | Nessun MCS disponibile. Il pannello non propone nulla automaticamente, perché una proposta sbagliata è peggio di nessuna proposta |
+
+---
+
 ## 4. Costanti fisiche e dati tabulati
 
 La ricerca delle costanti fisiche procede per livelli di specificità
@@ -449,7 +609,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v177` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v178` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -459,4 +619,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v177`._
+_Documento aggiornato alla versione `bsi-v178`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v177` |
+| **Version described** | `bsi-v178` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -104,7 +104,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_costanti` | Physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | Consistency of the tabulated data | 29 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
-| `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, exports, **contrast of the six panels**, agreement between lab and engine | 106 |
+| `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals | 181 |
 
 
 > **A bench that verifies a model must also verify it when the model is
@@ -417,4 +417,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v177`._
+_Document updated to version `bsi-v178`._

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v177` |
+| **Version described** | `bsi-v178` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v177` the bench also fails in the opposite case: an entry listed in the
+`bsi-v178` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -401,6 +401,165 @@ contrast **0** over 1,897 text elements.
 
 ---
 
+## 3-quater. From prototype to working tool
+
+The functions described in §3-bis were enough to say something defensible
+about a set of molecules. They were not enough to **work** with it: on day one,
+a cheminformatics group asks to search a substructure across the whole set, to
+see the SAR table, and to know what happens to activity when a chlorine is
+replaced by a methyl.
+
+### 3-quater.1 What the library had, and what it does not
+
+Before designing anything, MinimalLib 2025.03.4 was **probed at runtime**
+rather than assumed. Probing first changed the design: three of the
+capabilities below had gone unused because nobody knew they were there.
+
+| Present | What it is for |
+|---|---|
+| `SubstructLibrary` | Substructure search with a pattern fingerprint: it discards in bulk the molecules that cannot match, instead of attempting isomorphism on each |
+| `get_rxn` · `Reaction.run_reactants` | Chemical transformations. This is what makes it possible to **cut** a bond, and from there come matched pairs and the SAR table |
+| `generate_aligned_coords` | Aligning molecules to a common core |
+| `get_molblock` · `get_v3Kmolblock` | **SDF** export, the format in which sets are exchanged between groups and programs |
+
+| Absent | Declared consequence |
+|---|---|
+| `cleanup`, `neutralize` | Standardisation stops at the largest fragment and the canonical SMILES: **charges are not neutralised** |
+| `canonical_tautomer` | Two tautomers written differently remain two distinct entries |
+| `FragmentOnBonds`, `RWMol` | No direct molecule editing: cutting goes through a reaction |
+| Maximum common substructure (MCS) | A SAR table's core must be **supplied**, not deduced. The panel offers eight ready cores and a free field |
+
+### 3-quater.2 The cut, and why two rules are needed
+
+A reaction SMARTS breaks a bond and marks both ends with a dummy atom. Verified
+at runtime: `CCOc1ccccc1` gives three cuts under the fine rule (CH₃–CH₂, CH₂–O,
+O–aryl) and two under the coarse one; benzene and methane give none.
+
+| Rule | Cuts | When it is needed |
+|---|---|---|
+| **fine** (default) | Any acyclic single bond, **including terminal substituents** Cl, CH₃, OH, F | SAR table and fine transformations (Cl → CH₃) |
+| **coarse** (BRICS-style) | Excludes terminal atoms | Large sets, where fine cuts are too many; produces larger variable parts ("chlorophenyl → phenyl") |
+
+> **The fine rule was born of a defect.** The first draft used only the coarse
+> one, and the SAR table of the test series **lost the chlorine on the ring**:
+> it found the substituent on the nitrogen and missed exactly the column that
+> matters, because chlorine is terminal. The fine rule is a superset of the
+> coarse one: every cut the coarse rule finds, the fine one finds too.
+
+### 3-quater.3 Matched molecular pairs
+
+Two molecules form a pair when, cutting one bond in each, they are left with
+the **same context** and two different variable parts. The activity difference
+is attributed to that substitution and to nothing else — which is why this
+reading beats a correlation over the whole set, which averages over molecules
+differing in ten ways.
+
+Verified on a series **built with known effects**: if the analysis does not
+recover them, it is not usable on real data.
+
+| Transformation | Expected | Found | Concordant pairs |
+|---|---:|---:|---|
+| chlorophenyl → phenyl | −1.0 | **−1.0** | 2 of 2 |
+| methylphenyl → phenyl | −0.5 | **−0.5** | 2 of 2 |
+| methyl → chlorine | +0.5 | **+0.5** | 2 of 2 |
+| ethylamide → propylamide | +0.2 | **+0.2** | 3 of 3 |
+
+On the 28 example inhibitors, taken from ChEMBL: **449 pairs, 98
+transformations** seen at least twice, 199 seen once, in 133 ms. At the top,
+**CF₃ → SO₂NH₂ with a median Δ of −2.65** over two concordant pairs.
+
+Two declared choices:
+
+- the **direction is normalised** on the alphabetical order of the two parts.
+  Without it the same effect would appear twice, with opposite medians, and
+  neither would carry the right pair count;
+- transformations seen **fewer than twice** are excluded from the table and
+  counted separately. A transformation seen once with Δ = +3 is not a
+  discovery: it is an anecdote, and putting it at the top would have decisions
+  made on it.
+
+> **The "concordant" column is the one that decides whether to trust it.** A
+> median of +1.0 over three pairs one of which is −2.0 is not the same as +1.0
+> over three pairs all positive, and the median alone does not say so.
+
+### 3-quater.4 The SAR table, and how the position is found
+
+The hard part is not finding the substituents: it is knowing which **position**
+each occupies. With no MCS and no molecule editing, the solution exploits a
+property of the cut: **the fragment containing the core carries the dummy atom
+exactly at the attachment point**. Matching the core onto that fragment reveals
+which of its atoms the dummy hangs off, and therefore which position the
+substituent occupies.
+
+This also yields a necessary and free filter: if the dummy is **not** attached
+to a core atom, the cut happened inside a substituent and that piece is not the
+whole substituent. It is discarded.
+
+On the 28 inhibitors, with a benzamide core: **20 molecules with the core, 2
+positions, 8 excluded**. The excluded ones do not appear in the table: showing
+them with empty cells would make them look like part of the series with
+substituents that were not found.
+
+> **A naming defect, and how it showed itself.** `scaffoldMurcko()` returned
+> its result in a field called `smiles`, but that value **is not a SMILES**: it
+> is a canonical fingerprint of the scaffold, built so that two molecules with
+> the same scaffold produce the same string. It serves to **group** — folds,
+> scaffold split — not to query. The SAR panel took it for a SMILES and
+> proposed `6,6,6,6,7,…|0-13:1,…` as the core; decomposition answered "core not
+> interpretable".
+>
+> The field is now called `chiave` (key) and declares `eUnoSmiles: false`;
+> `smiles` remains as an alias. The bench pins that equal scaffolds give the
+> same key, that different scaffolds give different keys, and that the key
+> **does not read back as a SMILES**. A field's wrong name is a defect like any
+> other.
+
+### 3-quater.5 The rigour an assessor demands
+
+Five things a modelling group puts in every report, and whose absence is the
+first objection in a meeting.
+
+| | Method | Why |
+|---|---|---|
+| **Model comparison** | Trivial reference (predict the mean), kNN over Tanimoto, kernel ridge — all on the **same folds**, grouped by scaffold | Comparing a model evaluated on one split with another evaluated on a different split is not a comparison. And the trivial reference sits at the top of the list, because it is the number every other must beat |
+| **Nested validation** | Hyperparameters (k, lambda) are chosen on folds **internal to the training set** | Trying ten of them on the test set and reporting the best inflates the score: that number is not a prediction, it is the maximum of ten attempts |
+| **Conformal intervals** | Split-conformal, quantile ⌈(n+1)(1−α)⌉ of the absolute residuals on a calibration portion split **by scaffold** | "7.2" and "7.2 ± 0.3" are two different pieces of information, and only the second says whether synthesis is worth it. Calibrating on analogues of the training set would give intervals too narrow precisely on new molecules |
+| **Enrichment** | EF at 1 %, 5 %, 10 % with the **maximum achievable** alongside; BEDROC (Truchon & Bayly, *J. Chem. Inf. Model.* 47 (2007) 488) | In a screen one does not look at the whole list. A ROC-AUC of 0.80 can hide a top-of-list with not a single active, because AUC also rewards the ordering in the tail, which nobody will buy |
+| **Learning curve** | Score against training-set size, with the test set **whole** at every point | It answers the only question that matters when the model is mediocre: more chemistry or more data? |
+
+**The comparison's verdict is proven in both directions**, like the null model.
+On a real signal — activity proportional to halogen count, over ten distinct
+cores — kernel ridge reaches R² 0.943 with a margin of 0.943 against a
+dispersion of 0.035, and the verdict is *beats it*. On the **same molecules with
+random labels** the best stops at −0.265, margin −0.034, and the verdict is
+*does not beat it*. A guard that never fires and one that always fires are the
+same defect.
+
+Enrichment is verified on the three cases where the right value is computable
+by hand:
+
+| Ordering (2 actives of 10) | AUC | EF@20 % | BEDROC |
+|---|---:|---:|---:|
+| Perfect: both actives on top | 1 | **5** — and it is the maximum achievable | **1** |
+| Worst: both actives last | 0 | 0 | **0**, not a negative |
+| Actives at ranks 2 and 5 | **0.75** = 12/16 | **2.5** = 1/0.4 | 0.119 |
+
+The worst case is the one that counts: without it one would not know whether
+BEDROC reaches zero or goes below, and a negative BEDROC is the sign that the
+formula's additive term is missing.
+
+### 3-quater.6 Limits of this block
+
+| Limit | Consequence |
+|---|---|
+| Pairs grow with the **square** of the molecule count | Measured: 6 molecules 45 ms, 40 molecules 227 ms with 1,255 pairs. Beyond 300 molecules the panel refuses to start and says so, instead of freezing the page |
+| The cut is **single** | A pair differing by two substitutions at once is not found. This is the limit of the single-cut scheme, shared with the standard tools |
+| The same transformation appears in **several forms** | Cuts at different positions give different contexts for the same chemical change (`*CC>>*CCC`, `*NCC>>*NCCC`, `*C(=O)NCC>>*C(=O)NCCC`). This is expected redundancy in the single-cut scheme, not an error |
+| Charges are **not** neutralised and tautomers not canonicalised | MinimalLib does not allow it (§3-quater.1). A set mixing neutral and ionic forms of the same molecule counts them as distinct entries |
+| The SAR table's core must be **supplied** | No MCS available. The panel proposes nothing automatically, because a wrong proposal is worse than no proposal |
+
+---
+
 ## 4. Physical constants and tabulated data
 
 The lookup of physical constants proceeds by decreasing specificity (exact match
@@ -442,7 +601,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v177` the residual errors on the drug database are **zero**: the 21
+`bsi-v178` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -451,4 +610,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v177`._
+_Document updated to version `bsi-v178`._
