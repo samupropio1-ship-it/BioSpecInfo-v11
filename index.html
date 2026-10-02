@@ -26721,6 +26721,7 @@ CC(=O)Oc1ccccc1C(=O)O	aspirina	4.2"></textarea>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:#101f33;border:1px solid #1f3a5f;border-radius:10px">
       <span style="color:#8fa3b8;font-size:.78rem;font-weight:700">PORTARE VIA I RISULTATI</span>
       <button id="chemCsv" class="chem-b">⬇ Tabella CSV</button>
+      <button id="chemSdf" class="chem-b">⬇ SDF (strutture + campi)</button>
       <button id="chemRapporto" class="chem-b">⬇ Rapporto di metodo (.md)</button>
       <span id="chemExpNota" style="color:#7d93ab;font-size:.74rem">Si formano nel browser: nessun dato esce dal dispositivo.</span>
     </div>
@@ -26728,6 +26729,9 @@ CC(=O)Oc1ccccc1C(=O)O	aspirina	4.2"></textarea>
       <button class="chem-t chem-t-on" data-p="descr">Descrittori</button>
       <button class="chem-t" data-p="simil">Similarità e gruppi</button>
       <button class="chem-t" data-p="spazio">Spazio chimico</button>
+      <button class="chem-t" data-p="cerca">Ricerca</button>
+      <button class="chem-t" data-p="sar">Tabella SAR</button>
+      <button class="chem-t" data-p="mmp">Coppie corrispondenti</button>
       <button class="chem-t" data-p="qsar">Modello QSAR</button>
       <button class="chem-t" data-p="salti">Salti di attività</button>
       <button class="chem-t" data-p="allarmi">Allarmi strutturali</button>
@@ -26736,6 +26740,9 @@ CC(=O)Oc1ccccc1C(=O)O	aspirina	4.2"></textarea>
     <div id="chemP-descr" class="chem-pan"></div>
     <div id="chemP-simil" class="chem-pan" style="display:none"></div>
     <div id="chemP-spazio" class="chem-pan" style="display:none"></div>
+    <div id="chemP-cerca" class="chem-pan" style="display:none"></div>
+    <div id="chemP-sar" class="chem-pan" style="display:none"></div>
+    <div id="chemP-mmp" class="chem-pan" style="display:none"></div>
     <div id="chemP-qsar" class="chem-pan" style="display:none"></div>
     <div id="chemP-salti" class="chem-pan" style="display:none"></div>
     <div id="chemP-allarmi" class="chem-pan" style="display:none"></div>
@@ -46668,7 +46675,8 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
    collegamento fra quei numeri e lo schermo. */
 (function () {
   'use strict';
-  var stato = { molecole: [], fps: [], scartate: [], modello: null, cv: null, gruppi: null };
+  var stato = { molecole: [], fps: [], scartate: [], modello: null, cv: null, gruppi: null,
+                confronto: null, conformi: null, selezione: null };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
@@ -46741,7 +46749,7 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     }, 30);
   }
 
-  function disegnaTutto() { ['descr','simil','spazio','qsar','salti','allarmi'].forEach(pannello); }
+  function disegnaTutto() { ['descr','simil','spazio','cerca','sar','mmp','qsar','salti','allarmi'].forEach(pannello); }
 
   /* ── Esportazione ──────────────────────────────────────────────────
      Il file si forma in memoria e viene consegnato al browser: non c'è
@@ -46805,6 +46813,27 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     }, 20);
   }
 
+  function esportaStrutture() {
+    var B = window.BSIChem;
+    if (!stato.molecole.length) { nota('Non c\'è niente da esportare.', '#fbbf24'); return; }
+    nota('Generazione delle strutture 2D…');
+    setTimeout(function () {
+      try {
+        var opz = {};
+        if (stato.cv) opz.previsto = stato.cv.previsti;
+        var r = B.esportaSdf(stato.molecole, opz);
+        if (!r.scritte) { nota('Nessuna struttura esportabile.', '#ff8787'); return; }
+        var ok = scarica('biospecinfo-strutture-' + marcaTempo() + '.sdf', r.sdf, 'chemical/x-mdl-sdfile');
+        nota(ok
+          ? 'SDF scaricato: ' + r.scritte + ' strutture' +
+            (r.scartate.length ? ', ' + r.scartate.length + ' scartate e dichiarate nel file di rapporto' : '') + '.'
+          : 'Il browser ha impedito il download.', ok ? '#4ade80' : '#ff8787');
+      } catch (e) {
+        nota('Esportazione SDF non riuscita: ' + e.message, '#ff8787');
+      }
+    }, 20);
+  }
+
   function esportaRapporto() {
     var B = window.BSIChem;
     if (!stato.molecole.length) { nota('Non c\'è niente da esportare.', '#fbbf24'); return; }
@@ -46832,6 +46861,9 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     try { el.innerHTML = COSTRUISCI[p](); } catch (e) { el.innerHTML = avviso('Errore nel pannello: ' + esc(e.message)); }
     if (p === 'spazio') setTimeout(disegnaSpazio, 30);
     if (p === 'qsar') setTimeout(disegnaQsar, 30);
+    if (p === 'cerca') setTimeout(disegnaCerca, 30);
+    if (p === 'sar') setTimeout(disegnaSar, 30);
+    if (p === 'mmp') setTimeout(disegnaMmp, 30);
   }
 
   function avviso(t) {
@@ -46990,7 +47022,10 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
       '<select id="chemPieghe" aria-label="Numero di pieghe della validazione incrociata" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
       '<option value="0">nessuna (divisione singola)</option><option value="3">3</option><option value="5" selected>5</option>' +
       '<option value="10">10</option></select></div>' +
-      '<button id="chemAddestra" class="chem-p">Addestra</button></div>' +
+      '<button id="chemAddestra" class="chem-p">Addestra</button>' +
+      '<button id="chemConfronta" class="chem-b">Confronta i modelli</button>' +
+      '<button id="chemCurva" class="chem-b">Curva di apprendimento</button>' +
+      '<button id="chemIntervalli" class="chem-b">Intervalli di predizione</button></div>' +
       '<div id="chemQsarOut" style="color:#8fa3b8;font-size:.82rem">Premi «Addestra»: il modello verrà confrontato con dieci sosia a etichette rimescolate, e validato su pieghe che non condividono nessuno scheletro.</div>' +
       '</div>';
   };
@@ -46998,6 +47033,145 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
   function disegnaQsar() {
     var b = $('chemAddestra');
     if (b) b.onclick = addestra;
+    var c = $('chemConfronta'); if (c) c.onclick = eseguiConfronto;
+    var cu = $('chemCurva'); if (cu) cu.onclick = eseguiCurva;
+    var iv = $('chemIntervalli'); if (iv) iv.onclick = eseguiIntervalli;
+  }
+
+  /* ── Confronto fra modelli ─────────────────────────────────────────────
+     La prima obiezione in una riunione di modellistica è «meglio di cosa?».
+     Qui il riferimento banale — predire sempre la media — sta in cima
+     all'elenco, e il verdetto dichiara se il margine supera la dispersione:
+     una differenza di 0,05 con scarti di 0,30 non è una differenza. */
+  function eseguiConfronto() {
+    var B = window.BSIChem, out = $('chemQsarOut');
+    if (!out) return;
+    out.textContent = 'Confronto in corso: ogni modello sulle stesse pieghe, con gli iperparametri scelti dentro l’addestramento…';
+    setTimeout(function () {
+      try {
+        var c = B.confrontoModelli(stato.molecole, {
+          fingerprint: ($('chemFp') || {}).value || 'morgan',
+          pieghe: Math.max(3, +(($('chemPieghe') || {}).value || 5)), seme: 42
+        });
+        stato.confronto = c;
+        var righe = c.modelli.map(function (m, i) {
+          var rif = i === 0;
+          return '<tr style="' + (rif ? 'opacity:.85' : '') + '">' +
+            '<td>' + esc(m.nome) + (m.iper ? ' <span style="color:#64798f;font-size:.72rem">(' + m.iper + ' scelto per validazione annidata)</span>' : '') + '</td>' +
+            '<td style="text-align:right;font-weight:' + (m.nome === c.migliore ? '800;color:#5eead4' : '400') + '">' +
+              num(m.media, 3) + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">' + (m.scarto === null ? '—' : '±' + num(m.scarto, 3)) + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">' + (m.riunito ? num(m.riunito[c.metrica], 3) : '—') + '</td>' +
+            '<td style="text-align:right;color:#64798f">' + m.pieghe + (m.saltate ? ' (+' + m.saltate + ' saltate)' : '') + '</td></tr>';
+        }).join('');
+        var verdetto = c.superaIlRiferimento
+          ? '<div style="background:#0d2f22;border:1px solid #2f7d5a;border-radius:9px;padding:12px">' +
+            '<div style="color:#4ade80;font-weight:800;font-size:.9rem">✓ ' + esc(c.migliore) +
+            ' supera il riferimento banale</div><div style="color:#c9d3df;font-size:.82rem;margin-top:5px;line-height:1.6">' +
+            'Margine ' + num(c.margineSulRiferimento, 3) + ' contro una dispersione combinata di ' +
+            num(c.dispersioneCombinata, 3) + ': il vantaggio è più grande del rumore fra le pieghe.</div></div>'
+          : '<div style="background:#3a2a1e;border:1px solid #8a6a3a;border-radius:9px;padding:12px">' +
+            '<div style="color:#fbbf24;font-weight:800;font-size:.9rem">→ Nessun modello supera il riferimento banale</div>' +
+            '<div style="color:#c9d3df;font-size:.82rem;margin-top:5px;line-height:1.6">Il migliore è ' +
+            esc(c.migliore || '—') + ' con un margine di ' + num(c.margineSulRiferimento, 3) +
+            ', ma la dispersione fra le pieghe è ' + num(c.dispersioneCombinata, 3) +
+            '. <b>Su questi dati predire la media è altrettanto buono</b>, e dirlo è l’unica risposta onesta.</div></div>';
+        out.innerHTML = verdetto +
+          '<div class="chem-tw" style="margin-top:12px"><table><thead><tr><th>modello</th>' +
+          '<th style="text-align:right">' + (c.metrica === 'r2' ? 'R²' : 'ROC-AUC') + ' medio</th>' +
+          '<th style="text-align:right">dispersione</th><th style="text-align:right">su tutte le predizioni</th>' +
+          '<th style="text-align:right">pieghe</th></tr></thead><tbody>' + righe + '</tbody></table></div>' +
+          '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px;line-height:1.6">' +
+          'Tutti i modelli girano sulle <b>stesse pieghe</b>, raggruppate per scheletro: confrontare un modello ' +
+          'valutato su una divisione con un altro valutato su un’altra non è un confronto. Gli iperparametri ' +
+          '(k, lambda) sono scelti su <b>pieghe interne all’addestramento</b>: provarli sull’insieme di prova e ' +
+          'riportare il migliore gonfierebbe il punteggio, perché quel numero sarebbe il massimo di dieci tentativi. ' +
+          'Insieme: ' + c.nTotali + ' molecole, ' + c.nScaffold + ' scheletri, seme ' + c.seme + '.</div>';
+      } catch (e) {
+        out.innerHTML = avviso('Confronto non riuscito: ' + esc(e.message));
+      }
+    }, 30);
+  }
+
+  function eseguiCurva() {
+    var B = window.BSIChem, out = $('chemQsarOut');
+    if (!out) return;
+    out.textContent = 'Curva di apprendimento in corso…';
+    setTimeout(function () {
+      try {
+        var c = B.curvaApprendimento(stato.molecole, {
+          fingerprint: ($('chemFp') || {}).value || 'morgan', pieghe: 4, seme: 42
+        });
+        var righe = c.punti.map(function (p) {
+          return '<tr><td>' + Math.round(p.frazione * 100) + ' %</td>' +
+            '<td style="text-align:right">≈' + p.nAddestramentoTipico + '</td>' +
+            '<td style="text-align:right;font-weight:700">' + (p.media === null ? '—' : num(p.media, 3)) + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">' + (p.scarto === null ? '—' : '±' + num(p.scarto, 3)) + '</td></tr>';
+        }).join('');
+        out.innerHTML = '<div class="chem-card"><div class="chem-h">CURVA DI APPRENDIMENTO</div>' +
+          '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:9px">' +
+          'Risponde alla sola domanda che conta quando il modello è mediocre: <b>serve più chimica o più dati?</b> ' +
+          'L’insieme di prova resta intero a ogni punto; si assottiglia solo l’addestramento.</div>' +
+          '<div class="chem-tw"><table><thead><tr><th>addestramento</th>' +
+          '<th style="text-align:right">molecole</th><th style="text-align:right">R²</th>' +
+          '<th style="text-align:right">dispersione</th></tr></thead><tbody>' + righe + '</tbody></table></div>' +
+          '<div style="margin-top:10px;color:' + (c.piuDatiAiuterebbero ? '#4ade80' : '#fbbf24') +
+          ';font-size:.85rem;font-weight:700">' +
+          (c.piuDatiAiuterebbero
+            ? '→ Il punteggio sale ancora all’ultimo punto: più molecole aiuterebbero.'
+            : '→ La curva è piatta sul finale: aggiungere molecole dello stesso tipo non aiuterebbe. ' +
+              'Serve chimica diversa, o un’altra rappresentazione.') + '</div>' +
+          '<div style="color:#64798f;font-size:.76rem;margin-top:5px">Pendenza fra gli ultimi due punti: ' +
+          num(c.pendenzaFinale, 3) + '</div></div>';
+      } catch (e) {
+        out.innerHTML = avviso('Curva non riuscita: ' + esc(e.message));
+      }
+    }, 30);
+  }
+
+  function eseguiIntervalli() {
+    var B = window.BSIChem, out = $('chemQsarOut');
+    if (!out) return;
+    out.textContent = 'Calibrazione conforme in corso…';
+    setTimeout(function () {
+      try {
+        var ic = B.intervalliConformi(stato.molecole, {
+          fingerprint: ($('chemFp') || {}).value || 'morgan', alfa: 0.1, seme: 42
+        });
+        stato.conformi = ic;
+        var esempi = stato.molecole.slice(0, 8).map(function (m) {
+          var p = ic.predici(m.smiles);
+          if (!p) return '';
+          return '<tr><td>' + esc(m.nome) + '</td>' +
+            '<td style="text-align:right">' + (typeof m.attivita === 'number' ? num(m.attivita, 2) : '—') + '</td>' +
+            '<td style="text-align:right;font-weight:700">' + num(p.valore, 2) + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">[' + num(p.basso, 2) + ', ' + num(p.alto, 2) + ']</td></tr>';
+        }).join('');
+        out.innerHTML = '<div class="chem-card"><div class="chem-h">INTERVALLI DI PREDIZIONE CONFORMI</div>' +
+          '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:9px">' +
+          'Una predizione senza intervallo non si può usare in una decisione: «7,2» e «7,2 ± 0,3» sono due ' +
+          'informazioni diverse, e solo la seconda dice se vale la pena sintetizzare. Metodo <b>split-conformal</b>: ' +
+          'nessuna ipotesi sulla distribuzione degli errori, solo il quantile misurato dei residui su una porzione ' +
+          'tenuta da parte.</div>' +
+          '<div class="chem-kpi">' +
+          '<div><div class="v">±' + num(ic.semiampiezza, 2) + '</div><div class="l">semiampiezza al ' +
+            Math.round(ic.livello * 100) + ' %</div></div>' +
+          '<div><div class="v">' + num(ic.residuoMediano, 2) + '</div><div class="l">residuo mediano</div></div>' +
+          '<div><div class="v">' + ic.nAddestramento + '/' + ic.nCalibrazione + '</div><div class="l">addestr./calibrazione</div></div>' +
+          '<div><div class="v">' + Math.round(ic.coperturaSullaCalibrazione * 100) + '%</div><div class="l">copertura misurata</div></div></div>' +
+          '<div class="chem-tw" style="margin-top:10px"><table><thead><tr><th>molecola</th>' +
+          '<th style="text-align:right">osservata</th><th style="text-align:right">prevista</th>' +
+          '<th style="text-align:right">intervallo al ' + Math.round(ic.livello * 100) + ' %</th></tr></thead>' +
+          '<tbody>' + esempi + '</tbody></table></div>' +
+          '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px;line-height:1.6">' +
+          'La calibrazione è divisa <b>' + esc(ic.divisione) + '</b>: una calibrazione fatta su analoghi ' +
+          'dell’addestramento misurerebbe residui troppo piccoli, e l’intervallo che ne esce sarebbe troppo ' +
+          'stretto proprio sulle molecole nuove, cioè dove serve. Un intervallo largo non è un difetto del metodo: ' +
+          'è il modello che dichiara quanto sa.</div></div>';
+      } catch (e) {
+        out.innerHTML = avviso('Calibrazione non riuscita: ' + esc(e.message));
+      }
+    }, 30);
   }
 
   function addestra() {
@@ -47126,6 +47300,277 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
   }
 
   /* ── Salti di attività ────────────────────────────────────────────── */
+  /* ── Ricerca per sottostruttura ───────────────────────────────────────── */
+  COSTRUISCI.cerca = function () {
+    return '<div class="chem-card">' +
+      '<div class="chem-h">RICERCA PER SOTTOSTRUTTURA</div>' +
+      '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:10px">' +
+      'Una query <b>SMARTS</b> oppure uno <b>SMILES</b>: se non è SMARTS valido viene provata come SMILES, ' +
+      'perché chi cerca «c1ccccc1» non sta scrivendo uno SMARTS e non deve saperlo. ' +
+      'Il motore è <code>SubstructLibrary</code> di RDKit, che scarta in blocco le molecole che non possono ' +
+      'corrispondere invece di provare l\'isomorfismo su ognuna.</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
+      '<div style="flex:1;min-width:200px"><label for="chemQuery" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">query</label>' +
+      '<input id="chemQuery" type="text" value="c1ccccc1" aria-label="Query SMARTS o SMILES" ' +
+      'style="width:100%;background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:8px 10px;font-family:var(--font-mono);font-size:.8rem;box-sizing:border-box;min-width:0"></div>' +
+      '<button id="chemCercaVai" class="chem-p">Cerca</button></div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">' +
+      ['[Cl,Br,I]|alogeni', 'c1ccccc1|anello benzenico', '[CX3](=O)[NX3]|ammide',
+       '[OH]|ossidrile', '[NX3;H2]|ammina primaria', 'c1ccncc1|piridina',
+       '[CX3](=O)[OX2H1]|acido carbossilico', '[#7;R]|azoto in anello'
+      ].map(function (v) {
+        var p = v.split('|');
+        return '<button class="chem-b chem-qq" data-q="' + esc(p[0]) + '" style="font-size:.74rem;padding:5px 9px">' +
+               esc(p[1]) + '</button>';
+      }).join('') + '</div>' +
+      '<div id="chemCercaOut" style="margin-top:12px;color:#8fa3b8;font-size:.82rem">Premi «Cerca».</div>' +
+      '</div>';
+  };
+
+  function disegnaCerca() {
+    var b = $('chemCercaVai');
+    if (b) b.onclick = eseguiRicerca;
+    Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-qq'), function (q) {
+      q.onclick = function () {
+        var i = $('chemQuery');
+        if (i) { i.value = q.getAttribute('data-q'); eseguiRicerca(); }
+      };
+    });
+  }
+
+  function eseguiRicerca() {
+    var B = window.BSIChem, out = $('chemCercaOut');
+    if (!out) return;
+    var query = (($('chemQuery') || {}).value || '').trim();
+    if (!query) { out.innerHTML = avviso('Scrivi una query.'); return; }
+    out.textContent = 'Ricerca in corso…';
+    setTimeout(function () {
+      try {
+        var r = B.ricercaSottostruttura(stato.molecole, query);
+        if (r.errore) { out.innerHTML = avviso(esc(r.errore)); return; }
+        stato.selezione = r.trovate;
+        if (!r.quante) {
+          out.innerHTML = '<div style="color:#fbbf24;font-size:.85rem">Nessuna corrispondenza fra le ' +
+            r.indicizzate + ' molecole indicizzate. La query è valida: semplicemente non c\'è.</div>';
+          return;
+        }
+        var righe = r.trovate.slice(0, 200).map(function (k) {
+          var m = stato.molecole[k];
+          return '<tr><td>' + esc(m.nome) + '</td><td style="font-family:var(--font-mono);font-size:.74rem">' +
+            esc(m.smiles) + '</td><td style="text-align:right">' +
+            (r.occorrenze[k] === null ? '—' : r.occorrenze[k]) + '</td><td style="text-align:right">' +
+            (typeof m.attivita === 'number' ? num(m.attivita, 2) : '—') + '</td></tr>';
+        }).join('');
+        out.innerHTML =
+          '<div class="chem-kpi" style="margin-bottom:10px">' +
+          '<div><div class="v">' + r.quante + '</div><div class="l">trovate</div></div>' +
+          '<div><div class="v">' + Math.round(r.frazione * 100) + '%</div><div class="l">dell\'insieme</div></div>' +
+          '<div><div class="v">' + r.indicizzate + '</div><div class="l">indicizzate</div></div>' +
+          (r.scartate ? '<div><div class="v">' + r.scartate + '</div><div class="l">non indicizzabili</div></div>' : '') +
+          '</div>' +
+          '<div class="chem-tw"><table><thead><tr><th>molecola</th><th>SMILES</th>' +
+          '<th style="text-align:right">occorrenze</th><th style="text-align:right">attività</th></tr></thead>' +
+          '<tbody>' + righe + '</tbody></table></div>' +
+          (r.quante > 200 ? '<div style="color:#8fa3b8;font-size:.76rem;margin-top:6px">Mostrate le prime 200 di ' + r.quante + '.</div>' : '');
+      } catch (e) {
+        out.innerHTML = avviso('Ricerca non riuscita: ' + esc(e.message));
+      }
+    }, 20);
+  }
+
+  /* ── Tabella SAR ──────────────────────────────────────────────────────── */
+  COSTRUISCI.sar = function () {
+    /* Il nucleo NON si propone dallo scheletro di Murcko: quella funzione
+       restituisce una CHIAVE canonica di raggruppamento, non uno SMILES, e
+       incollarla qui dava «nucleo non interpretabile». Si offrono invece
+       nuclei pronti e il campo libero: una proposta sbagliata è peggio di
+       nessuna proposta, perché chi non conosce la serie ci crede. */
+    return '<div class="chem-card">' +
+      '<div class="chem-h">TABELLA SAR — DECOMPOSIZIONE IN GRUPPI R</div>' +
+      '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:10px">' +
+      'Un nucleo comune, una riga per molecola, una colonna per posizione di sostituzione: è la tabella in cui ' +
+      'vive la chimica farmaceutica. Le posizioni non sono indovinate — il frammento che contiene il nucleo porta ' +
+      'l\'atomo fittizio <b>nel punto di attacco</b>, e da lì si risale a quale posizione occupa ogni sostituente. ' +
+      'Dove non c\'è sostituente la cella dice <b>H</b>.</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">' +
+      '<div style="flex:1;min-width:200px"><label for="chemNucleo" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">nucleo (SMARTS o SMILES)</label>' +
+      '<input id="chemNucleo" type="text" value="" placeholder="c1ccc(cc1)C(=O)N" aria-label="Nucleo comune della serie" ' +
+      'style="width:100%;background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:8px 10px;font-family:var(--font-mono);font-size:.8rem;box-sizing:border-box;min-width:0"></div>' +
+      '<button id="chemSarVai" class="chem-p">Decomponi</button></div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">' +
+      ['c1ccc(cc1)C(=O)N|benzamide', 'c1ccc(cc1)S(=O)(=O)N|benzensolfonammide',
+       'c1ccc2[nH]ccc2c1|indolo', 'c1ccc2ncccc2c1|chinolina',
+       'C1CNCCN1|piperazina', 'c1ccc(cc1)c1ccccc1|bifenile',
+       'c1ccc(cc1)Nc1ccccc1|difenilammina', 'c1ncnc2[nH]cnc12|purina'
+      ].map(function (v) {
+        var q = v.split('|');
+        return '<button class="chem-b chem-nn" data-n="' + esc(q[0]) + '" style="font-size:.74rem;padding:5px 9px">' +
+               esc(q[1]) + '</button>';
+      }).join('') + '</div>' +
+      '<div style="color:#64798f;font-size:.74rem;margin-top:6px">Nessun nucleo viene proposto automaticamente: ' +
+      'una proposta sbagliata è peggio di nessuna. Se non conosci la serie, guarda i <b>contesti condivisi</b> ' +
+      'nella scheda «Coppie corrispondenti»: sono nuclei comuni trovati sui dati.</div>' +
+      '<div id="chemSarOut" style="margin-top:12px;color:#8fa3b8;font-size:.82rem">Premi «Decomponi».</div>' +
+      '</div>';
+  };
+
+  function disegnaSar() {
+    var b = $('chemSarVai');
+    if (b) b.onclick = eseguiSar;
+    Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-nn'), function (n) {
+      n.onclick = function () {
+        var i = $('chemNucleo');
+        if (i) { i.value = n.getAttribute('data-n'); eseguiSar(); }
+      };
+    });
+  }
+
+  function eseguiSar() {
+    var B = window.BSIChem, out = $('chemSarOut');
+    if (!out) return;
+    var nucleo = (($('chemNucleo') || {}).value || '').trim();
+    if (!nucleo) { out.innerHTML = avviso('Scrivi un nucleo, oppure usa quello proposto.'); return; }
+    out.textContent = 'Decomposizione in corso…';
+    setTimeout(function () {
+      try {
+        var d = B.decomposizioneRGruppi(stato.molecole, nucleo);
+        if (d.errore) { out.innerHTML = avviso(esc(d.errore)); return; }
+        if (!d.conNucleo) {
+          out.innerHTML = '<div style="color:#fbbf24;font-size:.85rem">Nessuna molecola contiene questo nucleo. ' +
+            'Non è un errore del nucleo: è che non appartiene a questo insieme.</div>';
+          return;
+        }
+        var intest = '<tr><th>molecola</th>' +
+          d.posizioni.map(function (p, i) { return '<th>R' + (i + 1) + '</th>'; }).join('') +
+          '<th style="text-align:right">attività</th></tr>';
+        var corpo = d.righe.map(function (r) {
+          return '<tr><td>' + esc(r.mol.nome) + '</td>' +
+            r.celle.map(function (c) {
+              return '<td style="font-family:var(--font-mono);font-size:.74rem;color:' +
+                (c === 'H' ? '#64798f' : '#5eead4') + '">' + esc(c) + '</td>';
+            }).join('') +
+            '<td style="text-align:right">' +
+            (typeof r.mol.attivita === 'number' ? num(r.mol.attivita, 2) : '—') + '</td></tr>';
+        }).join('');
+
+        var perPos = d.perPosizione.map(function (p) {
+          return '<div style="margin-top:10px"><div style="color:#5eead4;font-weight:800;font-size:.78rem">R' +
+            p.colonna + ' · ' + p.distinti + ' sostituenti distinti</div>' +
+            '<div class="chem-tw"><table><thead><tr><th>sostituente</th>' +
+            '<th style="text-align:right">molecole</th><th style="text-align:right">attività mediana</th></tr></thead><tbody>' +
+            p.voci.map(function (v) {
+              return '<tr><td style="font-family:var(--font-mono);font-size:.74rem">' + esc(v.sostituente) +
+                '</td><td style="text-align:right">' + v.n + '</td><td style="text-align:right">' +
+                (v.attivitaMediana === null ? '—' : num(v.attivitaMediana, 2)) + '</td></tr>';
+            }).join('') + '</tbody></table></div></div>';
+        }).join('');
+
+        out.innerHTML =
+          '<div class="chem-kpi" style="margin-bottom:10px">' +
+          '<div><div class="v">' + d.conNucleo + '</div><div class="l">con il nucleo</div></div>' +
+          '<div><div class="v">' + d.colonne + '</div><div class="l">posizioni</div></div>' +
+          '<div><div class="v">' + d.senzaNucleo.length + '</div><div class="l">escluse</div></div>' +
+          '<div><div class="v">' + d.atomiNucleo + '</div><div class="l">atomi del nucleo</div></div></div>' +
+          '<div class="chem-tw"><table><thead>' + intest + '</thead><tbody>' + corpo + '</tbody></table></div>' +
+          (d.senzaNucleo.length
+            ? '<div style="color:#8fa3b8;font-size:.76rem;margin-top:7px">' + d.senzaNucleo.length +
+              ' molecole non contengono il nucleo e non compaiono in tabella: metterle con le celle vuote ' +
+              'le farebbe sembrare parte della serie con sostituenti non trovati.</div>'
+            : '') +
+          perPos;
+      } catch (e) {
+        out.innerHTML = avviso('Decomposizione non riuscita: ' + esc(e.message));
+      }
+    }, 20);
+  }
+
+  /* ── Coppie molecolari corrispondenti ─────────────────────────────────── */
+  COSTRUISCI.mmp = function () {
+    var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 4) {
+      return avviso('Per le coppie corrispondenti servono almeno quattro molecole con attività misurata: ne sono arrivate ' + conY.length + '.');
+    }
+    return '<div class="chem-card">' +
+      '<div class="chem-h">COPPIE MOLECOLARI CORRISPONDENTI</div>' +
+      '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:10px">' +
+      'Due molecole formano una coppia quando, tagliando un legame in ciascuna, restano con lo <b>stesso contesto</b> ' +
+      'e due parti variabili diverse. La differenza di attività è attribuita a quella sostituzione e a nient\'altro: ' +
+      'è il motivo per cui batte una correlazione su tutto l\'insieme, che media su molecole diverse per dieci cose.</div>' +
+      '<div style="display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">' +
+      '<div style="min-width:0"><label for="chemTaglio" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">taglio</label>' +
+      '<select id="chemTaglio" aria-label="Granularità del taglio" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
+      '<option value="fine">fine (comprende Cl, CH₃, OH)</option><option value="grossa">grossa (solo parti non terminali)</option></select></div>' +
+      '<div style="min-width:0"><label for="chemMinCoppie" style="display:block;color:#c9d3df;font-size:.76rem;margin-bottom:3px">coppie minime</label>' +
+      '<select id="chemMinCoppie" aria-label="Numero minimo di coppie per trasformazione" style="background:#0c1828;color:#e9eef6;border:1px solid #26406a;border-radius:7px;padding:7px 9px;font-size:.8rem">' +
+      '<option value="2" selected>2</option><option value="3">3</option><option value="5">5</option></select></div>' +
+      '<button id="chemMmpVai" class="chem-p">Analizza le coppie</button></div>' +
+      '<div id="chemMmpOut" style="color:#8fa3b8;font-size:.82rem">Premi il pulsante: su insiemi grandi il calcolo cresce col quadrato delle molecole.</div>' +
+      '</div>';
+  };
+
+  function disegnaMmp() { var b = $('chemMmpVai'); if (b) b.onclick = eseguiMmp; }
+
+  function eseguiMmp() {
+    var B = window.BSIChem, out = $('chemMmpOut');
+    if (!out) return;
+    var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length > 300) {
+      out.innerHTML = avviso('Con ' + conY.length + ' molecole il numero di coppie diventa troppo grande per il browser. ' +
+        'Riduci l\'insieme, o filtralo prima con la ricerca per sottostruttura.');
+      return;
+    }
+    out.textContent = 'Frammentazione e indicizzazione in corso…';
+    setTimeout(function () {
+      try {
+        var t0 = (window.performance && performance.now) ? performance.now() : 0;
+        var r = B.coppieCorrispondenti(stato.molecole, {
+          taglio: (($('chemTaglio') || {}).value) || 'fine',
+          minCoppie: +(($('chemMinCoppie') || {}).value || 2)
+        });
+        var ms = t0 ? Math.round(performance.now() - t0) : null;
+        if (!r.trasformazioni.length) {
+          out.innerHTML = '<div style="color:#fbbf24;font-size:.85rem">Nessuna trasformazione raggiunge le ' +
+            r.minCoppie + ' coppie richieste. Su ' + r.coppie + ' coppie trovate, ' + r.trasformazioniRare +
+            ' trasformazioni sono state viste meno volte: non sono scoperte, sono aneddoti.</div>';
+          return;
+        }
+        var righe = r.trasformazioni.slice(0, 60).map(function (t) {
+          var col = t.mediana > 0 ? '#4ade80' : (t.mediana < 0 ? '#ff8787' : '#8fa3b8');
+          var tutteConcordi = t.concordanti === t.n;
+          return '<tr>' +
+            '<td style="font-family:var(--font-mono);font-size:.73rem;color:#5eead4">' + esc(t.da) + '</td>' +
+            '<td style="font-family:var(--font-mono);font-size:.73rem;color:#a78bfa">' + esc(t.a) + '</td>' +
+            '<td style="text-align:right">' + t.n + '</td>' +
+            '<td style="text-align:right;color:' + col + ';font-weight:700">' +
+              (t.mediana > 0 ? '+' : '') + num(t.mediana, 2) + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">' + num(t.min, 2) + ' … ' + num(t.max, 2) + '</td>' +
+            '<td style="text-align:right;color:' + (tutteConcordi ? '#4ade80' : '#fbbf24') + '">' +
+              t.concordanti + '/' + t.n + '</td></tr>';
+        }).join('');
+        out.innerHTML =
+          '<div class="chem-kpi" style="margin-bottom:10px">' +
+          '<div><div class="v">' + r.coppie + '</div><div class="l">coppie</div></div>' +
+          '<div><div class="v">' + r.trasformazioni.length + '</div><div class="l">trasformazioni solide</div></div>' +
+          '<div><div class="v">' + r.trasformazioniRare + '</div><div class="l">viste una volta sola</div></div>' +
+          '<div><div class="v">' + r.contestiCondivisi + '</div><div class="l">contesti condivisi</div></div>' +
+          (ms !== null ? '<div><div class="v">' + ms + '</div><div class="l">millisecondi</div></div>' : '') +
+          '</div>' +
+          '<div class="chem-tw"><table><thead><tr><th>da</th><th>a</th>' +
+          '<th style="text-align:right">coppie</th><th style="text-align:right">Δ mediano</th>' +
+          '<th style="text-align:right">intervallo</th><th style="text-align:right">concordi</th></tr></thead>' +
+          '<tbody>' + righe + '</tbody></table></div>' +
+          '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px;line-height:1.6">' +
+          'La colonna <b>concordi</b> è quella che decide se fidarsi: una mediana di +1,0 su tre coppie di cui una ' +
+          'negativa non è la stessa cosa di +1,0 su tre coppie tutte positive, e la mediana da sola non lo dice. ' +
+          'Le trasformazioni viste meno di ' + r.minCoppie + ' volte sono escluse per scelta.' +
+          (r.trasformazioni.length > 60 ? ' Mostrate le prime 60.' : '') +
+          '</div>';
+      } catch (e) {
+        out.innerHTML = avviso('Analisi non riuscita: ' + esc(e.message));
+      }
+    }, 20);
+  }
+
   COSTRUISCI.salti = function () {
     var B = window.BSIChem;
     var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
@@ -47181,6 +47626,7 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     var p = $('chemPulisci'); if (p) p.onclick = function () { i.value = ''; $('chemCorpo').style.display = 'none'; dillo(''); };
     var ec = $('chemCsv'); if (ec) ec.onclick = esportaTabella;
     var er = $('chemRapporto'); if (er) er.onclick = esportaRapporto;
+    var es = $('chemSdf'); if (es) es.onclick = esportaStrutture;
     Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (t) {
       t.onclick = function () {
         Array.prototype.forEach.call(document.querySelectorAll('#scheminfo .chem-t'), function (x) { x.classList.remove('chem-t-on'); });
@@ -47189,8 +47635,12 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
         var el = $('chemP-' + t.getAttribute('data-p'));
         if (el) {
           el.style.display = '';
-          if (t.getAttribute('data-p') === 'spazio') setTimeout(disegnaSpazio, 30);
-          if (t.getAttribute('data-p') === 'qsar') setTimeout(disegnaQsar, 30);
+          var qp = t.getAttribute('data-p');
+          if (qp === 'spazio') setTimeout(disegnaSpazio, 30);
+          if (qp === 'qsar') setTimeout(disegnaQsar, 30);
+          if (qp === 'cerca') setTimeout(disegnaCerca, 30);
+          if (qp === 'sar') setTimeout(disegnaSar, 30);
+          if (qp === 'mmp') setTimeout(disegnaMmp, 30);
         }
       };
     });

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v177` |
-| Commit | `5335a64af53f899d327c4229ae4549b66eee5e33` |
-| Generated (UTC) | `2026-10-02T03:36:09.460Z` |
+| Commit | `94f39a246704525b9b1c01bf309f81bab7daeaff` |
+| Generated (UTC) | `2026-10-02T04:13:49.765Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -56,10 +56,10 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4576 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4605 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 32 kB | IR/NMR spectral prediction engine over the molecular graph. |
-| `bsi-cheminfo.js` | 65 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
+| `bsi-cheminfo.js` | 111 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `sw.js` | 5 kB | Service Worker: offline operation and network strategy. |
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2666 kB | Astrochemistry module. |
@@ -70,10 +70,10 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `f7ab0ef19d436a6e3e43fd859f615f5eb7a0c66ffb2d44de30cfd518ada2894e` |
+| `index.html` | `a685e78aa45dc9a6ea76a6ce6586015cd0bd624e77f9f451f87caa0555d20159` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
-| `bsi-cheminfo.js` | `aefd53302644ef47f4cd78a6f531a8353e4952d9d4fc1eaf006a2f490e7fca9f` |
+| `bsi-cheminfo.js` | `0d82b5d4d39c97dad40e2a56dd777952e8c1d162abdedf277bd55fbc14088027` |
 | `sw.js` | `42d160e761326f00b0449580975262e0399b489cce16dbe8be92c2b0749498e3` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
@@ -127,4 +127,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-02T03:36:09.460Z._
+_Generated on 2026-10-02T04:13:49.765Z._

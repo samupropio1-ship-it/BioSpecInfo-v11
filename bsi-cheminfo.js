@@ -488,7 +488,7 @@
       /* Una molecola aciclica non ha scaffold: dirlo e' corretto, inventarne
          uno no. Si restituisce la stringa vuota, e chi divide per scaffold
          le tratta come un gruppo a se'. */
-      if (!tenuti.length) return { smiles: '', aciclica: true, atomi: 0 };
+      if (!tenuti.length) return { chiave: '', smiles: '', eUnoSmiles: false, aciclica: true, atomi: 0 };
 
       /* Si riscrive lo scaffold come SMILES passando per la sottostruttura:
          si costruisce il molblock dei soli atomi tenuti. Piu' semplice e
@@ -500,8 +500,22 @@
       mol.bonds.forEach(function (b) {
         if (setTenuti[b.atoms[0]] && setTenuti[b.atoms[1]]) pezzi.push(b);
       });
+      /* ATTENZIONE AL NOME. `chiave` NON e' uno SMILES: e' un'impronta
+         canonica dello scheletro, costruita perche' due molecole con lo
+         stesso scheletro producano la stessa stringa. Serve a RAGGRUPPARE
+         (pieghe, divisione per scaffold), non a interrogare.
+
+         Il campo si chiamava `smiles` e il pannello SAR lo ha usato come
+         query: proponeva «6,6,6,6,7,...|0-13:1,...» come nucleo e la
+         decomposizione rispondeva «nucleo non interpretabile». Il nome
+         sbagliato di un campo e' un difetto come un altro, e questo l'ha
+         prodotto. `smiles` resta come alias per non rompere il codice che lo
+         legge, ma il nome giusto e' `chiave`. */
+      var k = scaffoldSmiles(R, smiles, tenuti);
       return {
-        smiles: scaffoldSmiles(R, smiles, tenuti),
+        chiave: k,
+        smiles: k,
+        eUnoSmiles: false,
         aciclica: false,
         atomi: tenuti.length,
         legami: pezzi.length
@@ -1327,6 +1341,87 @@
     return righe.join('\n') + '\n';
   }
 
+  /* ── Esportazione SDF ──────────────────────────────────────────────────
+
+     Il CSV va bene per un foglio di calcolo; il formato con cui si scambiano
+     insiemi di molecole fra gruppi e fra programmi e' l'SDF, che porta la
+     struttura CON le coordinate e i campi dati attaccati a ogni voce.
+
+     Le coordinate 2D vanno generate: `get_molblock()` su una molecola senza
+     coordinate scrive un blocco con tutti gli atomi a (0,0), che ogni
+     visualizzatore disegna come un grumo illeggibile. */
+  function esportaSdf(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var R = esigiRdkit();
+    var campiDesc = opzioni.descrittori ||
+      ['MolWt', 'CrippenClogP', 'tpsa', 'NumHBD', 'NumHBA', 'NumRotatableBonds'];
+    var pezzi = [], scartate = [];
+
+    molecole.forEach(function (mol, i) {
+      var m = null;
+      try {
+        m = R.get_mol(mol.smiles);
+        if (!m || !m.is_valid()) { scartate.push({ indice: i, motivo: 'SMILES non interpretabile' }); return; }
+        try { m.set_new_coords(); } catch (e) { /* senza coordinate il blocco resta valido, solo brutto */ }
+        var blocco = m.get_molblock();
+        if (!blocco) { scartate.push({ indice: i, motivo: 'molblock vuoto' }); return; }
+
+        /* La prima riga del molblock e' il nome: RDKit la lascia vuota, e un
+           SDF senza nomi costringe chi lo riceve a contare le voci. */
+        var righe = blocco.split('\n');
+        if (righe.length) righe[0] = String(mol.nome || ('mol-' + (i + 1)));
+        blocco = righe.join('\n');
+
+        var campi = [];
+        campi.push(['NOME', mol.nome || ('mol-' + (i + 1))]);
+        campi.push(['SMILES_CANONICO', mol.smiles]);
+        if (mol.originale && mol.originale !== mol.smiles) campi.push(['SMILES_ORIGINALE', mol.originale]);
+        if (typeof mol.attivita === 'number') campi.push(['ATTIVITA', mol.attivita]);
+        if (opzioni.previsto && typeof opzioni.previsto[i] === 'number') {
+          campi.push(['PREVISTO', Math.round(opzioni.previsto[i] * 1e4) / 1e4]);
+          if (typeof mol.attivita === 'number') {
+            campi.push(['RESIDUO', Math.round((mol.attivita - opzioni.previsto[i]) * 1e4) / 1e4]);
+          }
+        }
+        if (opzioni.descrittoriAttivi !== false) {
+          var d = null;
+          try { d = descrittori(mol.smiles); } catch (e) { d = null; }
+          if (d) {
+            campiDesc.forEach(function (c) {
+              if (typeof d[c] === 'number') campi.push([c, Math.round(d[c] * 1e4) / 1e4]);
+            });
+            if (typeof d.qed === 'number') campi.push(['QED', Math.round(d.qed * 1e4) / 1e4]);
+          }
+        }
+        if (opzioni.scaffold !== false) {
+          var s = mol._scaffold !== undefined ? mol._scaffold : (scaffoldMurcko(mol.smiles) || {}).smiles;
+          if (s) campi.push(['SCAFFOLD_MURCKO', s]);
+        }
+        (opzioni.campiExtra || []).forEach(function (c) {
+          if (c && c.nome && c.valori && c.valori[i] !== undefined && c.valori[i] !== null) {
+            campi.push([c.nome, c.valori[i]]);
+          }
+        });
+
+        var testo = blocco.replace(/\n*$/, '\n');
+        campi.forEach(function (c) {
+          /* Il nome del campo non puo' contenere spazi ne' '>' o '<': chi
+             legge l'SDF spezzerebbe sulla riga sbagliata. */
+          var nome = String(c[0]).replace(/[<>\s]+/g, '_');
+          testo += '> <' + nome + '>\n' + String(c[1]) + '\n\n';
+        });
+        testo += '$$$$\n';
+        pezzi.push(testo);
+      } catch (e) {
+        scartate.push({ indice: i, motivo: e.message });
+      } finally {
+        if (m && m.delete) { try { m.delete(); } catch (e2) {} }
+      }
+    });
+
+    return { sdf: pezzi.join(''), scritte: pezzi.length, scartate: scartate };
+  }
+
   function n4(v) { return typeof v === 'number' && isFinite(v) ? v.toFixed(4) : '—'; }
 
   /* «R2» scritto cosi' e' il nome di una variabile, non di una metrica. */
@@ -1444,6 +1539,878 @@
     return L.join('\n') + '\n';
   }
 
+  /* ═══ §9-quater · Frammentazione, coppie corrispondenti, SAR ═════════════
+
+     Questo è il blocco che separa uno strumento didattico da uno strumento di
+     lavoro. Un chimico farmaceutico non chiede «quanto si somigliano queste
+     due molecole»: chiede «che cosa succede all'attività se sostituisco un
+     cloro con un metile», e lo chiede su tutto l'insieme in una volta.
+
+     MinimalLib non ha `FragmentOnBonds`. Ha però le reazioni, e una reazione
+     SMARTS può tagliare un legame marcando i due capi con un atomo fittizio —
+     è il taglio in stile BRICS/RECAP. Verificato all'esecuzione:
+
+       CCOc1ccccc1  →  *CC + *Oc1ccccc1   ·   *OCC + *c1ccccc1
+       c1ccccc1     →  nessun taglio (nessun legame singolo aciclico)
+
+     Da lì viene tutto il resto. */
+
+  /* Due regole di taglio, non una.
+
+     FINE (predefinita) — qualunque legame singolo aciclico fra due atomi non
+     fittizi. Comprende i sostituenti TERMINALI: Cl, CH3, OH, F. Senza di essi
+     una tabella SAR perde proprio le colonne che interessano, ed è l'errore
+     che questa funzione ha commesso alla prima stesura: trovava il sostituente
+     sull'azoto e mancava il cloro sull'anello, perché il cloro è terminale.
+
+     GROSSA — esclude gli atomi terminali, in stile BRICS. Produce parti
+     variabili più grandi (un «clorofenile → fenile» invece di un «Cl → H») e
+     serve quando l'insieme è grande e i tagli fini sono troppi.
+
+     La regola fine è un soprainsieme della grossa: ogni taglio che la grossa
+     trova, lo trova anche la fine. */
+  var SMARTS_TAGLIO = {
+    fine:   '[!$([#0]):1]-&!@[!$([#0]):2]>>[*:1]-[#0].[*:2]-[#0]',
+    grossa: '[!$([#0])&!D1:1]-&!@[!$([#0])&!D1:2]>>[*:1]-[#0].[*:2]-[#0]'
+  };
+  var _rxnTaglio = Object.create(null);
+
+  function reazioneTaglio(R, regola) {
+    var nome = SMARTS_TAGLIO[regola] ? regola : 'fine';
+    if (_rxnTaglio[nome]) return _rxnTaglio[nome];
+    try { _rxnTaglio[nome] = R.get_rxn(SMARTS_TAGLIO[nome]); }
+    catch (e) { _rxnTaglio[nome] = null; }
+    return _rxnTaglio[nome];
+  }
+
+  /* Tutti i tagli singoli di una molecola, senza duplicati.
+
+     La reazione restituisce ogni taglio DUE VOLTE, una per ciascun ordine dei
+     prodotti: senza deduplicare, ogni coppia corrispondente verrebbe contata
+     due volte e le statistiche per trasformazione raddoppierebbero. */
+  function frammenta(smiles, regola) {
+    var R = esigiRdkit();
+    var rxn = reazioneTaglio(R, regola);
+    if (!rxn) return [];
+    var ml = null, m = null, prod = null;
+    var visti = Object.create(null), tagli = [];
+    try {
+      m = R.get_mol(smiles);
+      if (!m || !m.is_valid()) return [];
+      ml = new R.MolList();
+      ml.append(m);
+      prod = rxn.run_reactants(ml, 500);
+      var n = prod.size();
+      for (var i = 0; i < n; i++) {
+        var lista = prod.get(i);
+        if (!lista || lista.size() !== 2) { if (lista && lista.delete) lista.delete(); continue; }
+        var a = lista.at(0).get_smiles(), b = lista.at(1).get_smiles();
+        if (lista.delete) lista.delete();
+        if (!a || !b) continue;
+        var chiave = a < b ? a + '\u0000' + b : b + '\u0000' + a;
+        if (visti[chiave]) continue;
+        visti[chiave] = 1;
+        tagli.push([a, b]);
+      }
+    } catch (e) {
+      return [];
+    } finally {
+      if (prod && prod.delete) { try { prod.delete(); } catch (e) {} }
+      if (ml && ml.delete) { try { ml.delete(); } catch (e) {} }
+      if (m && m.delete) { try { m.delete(); } catch (e) {} }
+    }
+    return tagli;
+  }
+
+  /* Il peso in atomi pesanti di un frammento, contato sulla stringa: serve a
+     decidere quale dei due pezzi è il «contesto» e quale la «parte variabile».
+     Si conta senza passare da RDKit perché su qualche migliaio di frammenti
+     creare e distruggere una molecola per contare gli atomi costa più di tutto
+     il resto dell'analisi. */
+  function atomiPesantiStimati(smiles) {
+    var s = String(smiles).replace(/\[[^\]]*\]/g, 'X').replace(/\*/g, '');
+    var n = (s.match(/Cl|Br|[CNOSPFIBcnosp]|X/g) || []).length;
+    return n;
+  }
+
+  /* ── Coppie molecolari corrispondenti ──────────────────────────────────
+
+     Due molecole formano una coppia corrispondente quando, tagliando un
+     legame in ciascuna, restano con lo STESSO contesto e due parti variabili
+     diverse. La trasformazione è «parte di A → parte di B», e la differenza di
+     attività è attribuita a quella sostituzione e a nient'altro.
+
+     È il metodo standard per leggere una serie chimica, e la ragione per cui
+     batte una correlazione su tutto l'insieme: confronta molecole che
+     differiscono per UNA cosa sola, invece di mediare su molecole che
+     differiscono per dieci. */
+  function coppieCorrispondenti(molecole, opzioni) {
+    opzioni = opzioni || {};
+    esigiRdkit();
+    var minAtomiContesto = opzioni.minAtomiContesto === undefined ? 5 : opzioni.minAtomiContesto;
+    var maxAtomiVariabile = opzioni.maxAtomiVariabile === undefined ? 13 : opzioni.maxAtomiVariabile;
+    var regola = opzioni.taglio === 'grossa' ? 'grossa' : 'fine';
+    var conY = molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    var insieme = opzioni.richiediAttivita === false ? molecole : conY;
+
+    /* indice: contesto → [{i, variabile}] */
+    var indice = Object.create(null);
+    var frammentate = 0;
+    insieme.forEach(function (mol, i) {
+      var tagli = frammenta(mol.smiles, regola);
+      if (tagli.length) frammentate++;
+      tagli.forEach(function (coppia) {
+        /* ogni taglio dà due letture: ciascun pezzo può fare da contesto */
+        for (var k = 0; k < 2; k++) {
+          var contesto = coppia[k], variabile = coppia[1 - k];
+          if (atomiPesantiStimati(contesto) < minAtomiContesto) continue;
+          if (atomiPesantiStimati(variabile) > maxAtomiVariabile) continue;
+          (indice[contesto] = indice[contesto] || []).push({ i: i, v: variabile });
+        }
+      });
+    });
+
+    /* Dal contesto condiviso alle coppie. Una molecola può comparire più volte
+       sotto lo stesso contesto (tagli diversi che danno lo stesso pezzo): si
+       tiene una sola variabile per molecola per contesto, altrimenti la stessa
+       coppia entrerebbe più volte. */
+    var coppie = [];
+    Object.keys(indice).forEach(function (contesto) {
+      var voci = indice[contesto];
+      var perMolecola = Object.create(null);
+      voci.forEach(function (v) {
+        if (perMolecola[v.i] === undefined) perMolecola[v.i] = v.v;
+      });
+      var indici = Object.keys(perMolecola);
+      if (indici.length < 2) return;
+      for (var a = 0; a < indici.length; a++) {
+        for (var b = a + 1; b < indici.length; b++) {
+          var ia = +indici[a], ib = +indici[b];
+          var va = perMolecola[ia], vb = perMolecola[ib];
+          if (va === vb) continue;              // stessa parte: non è una coppia
+          coppie.push({
+            contesto: contesto,
+            a: { indice: ia, mol: insieme[ia], parte: va },
+            b: { indice: ib, mol: insieme[ib], parte: vb },
+            delta: (typeof insieme[ib].attivita === 'number' &&
+                    typeof insieme[ia].attivita === 'number')
+                   ? insieme[ib].attivita - insieme[ia].attivita : null
+          });
+        }
+      }
+    });
+
+    /* ── Raggruppamento per trasformazione ──────────────────────────────
+       La trasformazione X→Y e la sua inversa Y→X sono la stessa informazione
+       con il segno opposto: si normalizza la direzione sull'ordine
+       alfabetico, altrimenti lo stesso effetto comparirebbe due volte con
+       mediane opposte e nessuna delle due avrebbe n giusto. */
+    var gruppi = Object.create(null);
+    coppie.forEach(function (c) {
+      var da = c.a.parte, a = c.b.parte, delta = c.delta, invertita = false;
+      if (da > a) { var t = da; da = a; a = t; delta = (delta === null ? null : -delta); invertita = true; }
+      var chiave = da + '>>' + a;
+      var g = gruppi[chiave] || (gruppi[chiave] = { da: da, a: a, delta: [], esempi: [] });
+      if (delta !== null) g.delta.push(delta);
+      if (g.esempi.length < 6) {
+        g.esempi.push(invertita
+          ? { da: c.b.mol, a: c.a.mol, delta: delta, contesto: c.contesto }
+          : { da: c.a.mol, a: c.b.mol, delta: delta, contesto: c.contesto });
+      }
+    });
+
+    var trasformazioni = Object.keys(gruppi).map(function (k) {
+      var g = gruppi[k];
+      var d = g.delta.slice().sort(function (x, y) { return x - y; });
+      var ms = mediaEScarto(d);
+      return {
+        trasformazione: k, da: g.da, a: g.a,
+        n: d.length,
+        mediana: d.length ? (d.length % 2 ? d[(d.length - 1) / 2]
+                                          : (d[d.length / 2 - 1] + d[d.length / 2]) / 2) : null,
+        media: ms.media, scarto: ms.scarto,
+        min: d.length ? d[0] : null, max: d.length ? d[d.length - 1] : null,
+        /* Quante volte la sostituzione va nella stessa direzione: una mediana
+           di +1,0 su 3 coppie di cui una a −2,0 non è la stessa cosa di +1,0
+           su 3 coppie tutte positive, e la mediana da sola non lo dice. */
+        concordanti: d.length ? Math.max(d.filter(function (x) { return x > 0; }).length,
+                                         d.filter(function (x) { return x < 0; }).length) : 0,
+        esempi: g.esempi
+      };
+    });
+
+    /* Ordinate per |mediana| ma solo fra quelle con abbastanza coppie: una
+       trasformazione vista una volta sola con Δ = +3 non è una scoperta, è un
+       aneddoto, e metterla in cima farebbe prendere decisioni su di essa. */
+    var minN = opzioni.minCoppie === undefined ? 2 : opzioni.minCoppie;
+    var solide = trasformazioni.filter(function (t) { return t.n >= minN; });
+    solide.sort(function (x, y) { return Math.abs(y.mediana) - Math.abs(x.mediana); });
+    var aneddoti = trasformazioni.filter(function (t) { return t.n < minN; });
+
+    return {
+      molecoleEsaminate: insieme.length,
+      molecoleFrammentate: frammentate,
+      contestiCondivisi: Object.keys(indice).filter(function (c) {
+        var s = Object.create(null);
+        indice[c].forEach(function (v) { s[v.i] = 1; });
+        return Object.keys(s).length >= 2;
+      }).length,
+      coppie: coppie.length,
+      trasformazioni: solide,
+      trasformazioniRare: aneddoti.length,
+      minCoppie: minN
+    };
+  }
+
+  /* ── Ricerca per sottostruttura su tutto l'insieme ─────────────────────
+
+     MinimalLib ha `SubstructLibrary`, che è il motore di screening vero:
+     indicizza le molecole con un pattern fingerprint e scarta in blocco
+     quelle che non possono corrispondere, invece di provare l'isomorfismo su
+     ognuna. È la differenza fra una ricerca che su diecimila molecole finisce
+     e una che blocca la pagina. */
+  function ricercaSottostruttura(molecole, query, opzioni) {
+    opzioni = opzioni || {};
+    var R = esigiRdkit();
+    var lib = null, q = null;
+    try {
+      /* La query può essere SMARTS o SMILES. `get_qmol` legge lo SMARTS; se
+         fallisce si prova come SMILES, perché chi cerca «c1ccccc1» non sta
+         scrivendo uno SMARTS e non deve saperlo. */
+      try { q = R.get_qmol(query); } catch (e) { q = null; }
+      if (!q || !q.is_valid || !q.is_valid()) {
+        if (q && q.delete) q.delete();
+        q = null;
+        try { q = R.get_mol(query); } catch (e2) { q = null; }
+      }
+      if (!q || (q.is_valid && !q.is_valid())) {
+        return { errore: 'query non interpretabile come SMARTS né come SMILES', query: query };
+      }
+      lib = new R.SubstructLibrary();
+      var validi = [];
+      molecole.forEach(function (m, i) {
+        try { lib.add_smiles(m.smiles); validi.push(i); }
+        catch (e) { /* una molecola che la libreria rifiuta non ferma le altre */ }
+      });
+      var crudi = lib.get_matches(q);
+      var idx = typeof crudi === 'string' ? JSON.parse(crudi) : crudi;
+      var trovate = [].map.call(idx, function (k) { return validi[k]; })
+                      .filter(function (k) { return k !== undefined; });
+
+      /* Quante volte la query compare in ciascuna: una molecola con tre anelli
+         benzenici non è equivalente a una che ne ha uno, e per un filtro
+         («almeno due gruppi nitro») il conteggio è il dato che serve. */
+      var occorrenze = {};
+      if (opzioni.conteggiaOccorrenze !== false) {
+        trovate.forEach(function (k) {
+          var mm = null;
+          try {
+            mm = R.get_mol(molecole[k].smiles);
+            var mt = JSON.parse(mm.get_substruct_matches(q));
+            occorrenze[k] = mt ? mt.length : 0;
+          } catch (e) { occorrenze[k] = null; }
+          finally { if (mm && mm.delete) mm.delete(); }
+        });
+      }
+      return {
+        query: query,
+        indicizzate: validi.length,
+        scartate: molecole.length - validi.length,
+        trovate: trovate,
+        occorrenze: occorrenze,
+        quante: trovate.length,
+        frazione: molecole.length ? trovate.length / molecole.length : 0
+      };
+    } finally {
+      if (q && q.delete) { try { q.delete(); } catch (e) {} }
+      if (lib && lib.delete) { try { lib.delete(); } catch (e) {} }
+    }
+  }
+
+  /* ── Decomposizione in gruppi R: la tabella SAR ────────────────────────
+
+     È la tabella in cui vive la chimica farmaceutica: un nucleo comune in
+     cima, una riga per molecola, una colonna per posizione di sostituzione.
+
+     Il punto difficile non è trovare i sostituenti: è sapere IN QUALE
+     POSIZIONE sta ognuno. La soluzione sfrutta una proprietà del taglio: il
+     frammento che contiene il nucleo porta l'atomo fittizio esattamente nel
+     punto di attacco. Facendo corrispondere il nucleo a quel frammento si
+     scopre su quale atomo del nucleo è appeso il fittizio, e quindi quale
+     posizione della query occupa il sostituente.
+
+     Ne viene anche un filtro gratuito e necessario: se il fittizio NON è
+     attaccato a un atomo del nucleo, il taglio è avvenuto dentro un
+     sostituente, e quel pezzo non è il sostituente intero. Si scarta. */
+  function decomposizioneRGruppi(molecole, nucleo, opzioni) {
+    opzioni = opzioni || {};
+    var R = esigiRdkit();
+    var q = null;
+    try { q = R.get_qmol(nucleo); } catch (e) { q = null; }
+    if (!q || (q.is_valid && !q.is_valid())) {
+      if (q && q.delete) q.delete();
+      try { q = R.get_mol(nucleo); } catch (e) { q = null; }
+    }
+    if (!q || (q.is_valid && !q.is_valid())) {
+      return { errore: 'nucleo non interpretabile', nucleo: nucleo };
+    }
+
+    var nAtomiNucleo = 0;
+    try { nAtomiNucleo = q.get_num_atoms(); } catch (e) { nAtomiNucleo = 0; }
+
+    /* Dal grafo: vicini di ogni atomo e numero atomico, per trovare il
+       fittizio (z = 0) e chi gli sta accanto. */
+    function grafo(smiles) {
+      var m = null;
+      try {
+        m = R.get_mol(smiles);
+        if (!m || !m.is_valid()) return null;
+        var j = JSON.parse(m.get_json());
+        var mol = (j.molecules && j.molecules[0]) || j;
+        var atomi = (mol.atoms || []).map(function (a) { return a.z === undefined ? 6 : a.z; });
+        var vicini = atomi.map(function () { return []; });
+        (mol.bonds || []).forEach(function (b) {
+          var x = b.atoms[0], y = b.atoms[1];
+          vicini[x].push(y); vicini[y].push(x);
+        });
+        return { atomi: atomi, vicini: vicini, mol: m };
+      } catch (e) {
+        if (m && m.delete) { try { m.delete(); } catch (e2) {} }
+        return null;
+      }
+    }
+
+    var righe = [], senzaNucleo = [], posizioniViste = Object.create(null);
+
+    molecole.forEach(function (mol, i) {
+      /* Il nucleo c'è? Altrimenti la molecola non appartiene alla serie, e
+         metterla nella tabella con le celle vuote la farebbe sembrare parte
+         della serie con sostituenti non trovati. */
+      var haNucleo = false, mm = null;
+      try {
+        mm = R.get_mol(mol.smiles);
+        if (mm && mm.is_valid()) {
+          var mt = JSON.parse(mm.get_substruct_matches(q));
+          haNucleo = !!(mt && mt.length);
+        }
+      } catch (e) { haNucleo = false; }
+      finally { if (mm && mm.delete) { try { mm.delete(); } catch (e2) {} } }
+      if (!haNucleo) { senzaNucleo.push(i); return; }
+
+      var erre = Object.create(null);
+      frammenta(mol.smiles, opzioni.taglio === 'grossa' ? 'grossa' : 'fine').forEach(function (coppia) {
+        for (var k = 0; k < 2; k++) {
+          var conNucleo = coppia[k], sostituente = coppia[1 - k];
+          var g = grafo(conNucleo);
+          if (!g) continue;
+          try {
+            /* il nucleo deve stare per intero in questo frammento */
+            var corr = JSON.parse(g.mol.get_substruct_matches(q));
+            if (!corr || !corr.length) continue;
+            /* il fittizio e il suo unico vicino */
+            var fittizio = -1;
+            for (var a = 0; a < g.atomi.length; a++) {
+              if (g.atomi[a] === 0) { fittizio = a; break; }
+            }
+            if (fittizio < 0 || g.vicini[fittizio].length !== 1) continue;
+            var attacco = g.vicini[fittizio][0];
+            /* su quale posizione della query è appeso? */
+            for (var c = 0; c < corr.length; c++) {
+              var at = corr[c].atoms;
+              var p = at.indexOf(attacco);
+              if (p >= 0) {
+                /* Una posizione già riempita da un taglio precedente non si
+                   sovrascrive: due tagli diversi possono raggiungere la stessa
+                   posizione e il primo è quello al legame col nucleo. */
+                if (erre[p] === undefined) erre[p] = sostituente;
+                posizioniViste[p] = 1;
+                break;
+              }
+            }
+          } catch (e) { /* un frammento illeggibile non ferma gli altri */ }
+          finally { if (g.mol && g.mol.delete) { try { g.mol.delete(); } catch (e2) {} } }
+        }
+      });
+      righe.push({ indice: i, mol: mol, r: erre });
+    });
+
+    var posizioni = Object.keys(posizioniViste).map(Number).sort(function (x, y) { return x - y; });
+    /* Le posizioni che nessuna molecola riempie non diventano colonne: una
+       colonna sempre vuota suggerisce un sostituente che non si è trovato,
+       quando in realtà in quella posizione non ce n'è mai stato uno. */
+    righe.forEach(function (r) {
+      r.celle = posizioni.map(function (p) {
+        return r.r[p] === undefined ? 'H' : r.r[p];
+      });
+    });
+
+    /* Statistica per posizione: quanti sostituenti distinti, e se c'è
+       attività, l'effetto mediano di ciascuno. È la lettura che serve. */
+    var perPosizione = posizioni.map(function (p, colonna) {
+      var gruppi = Object.create(null);
+      righe.forEach(function (r) {
+        var v = r.celle[colonna];
+        (gruppi[v] = gruppi[v] || []).push(r);
+      });
+      var voci = Object.keys(gruppi).map(function (v) {
+        var att = gruppi[v].map(function (r) { return r.mol.attivita; })
+                           .filter(function (x) { return typeof x === 'number'; })
+                           .sort(function (x, y) { return x - y; });
+        return {
+          sostituente: v, n: gruppi[v].length,
+          attivitaMediana: att.length
+            ? (att.length % 2 ? att[(att.length - 1) / 2]
+                              : (att[att.length / 2 - 1] + att[att.length / 2]) / 2)
+            : null
+        };
+      });
+      voci.sort(function (x, y) {
+        if (x.attivitaMediana === null || y.attivitaMediana === null) return y.n - x.n;
+        return y.attivitaMediana - x.attivitaMediana;
+      });
+      return { posizione: p, colonna: colonna + 1, distinti: voci.length, voci: voci };
+    });
+
+    if (q.delete) { try { q.delete(); } catch (e) {} }
+    return {
+      nucleo: nucleo, atomiNucleo: nAtomiNucleo,
+      righe: righe, posizioni: posizioni,
+      colonne: posizioni.length,
+      conNucleo: righe.length,
+      senzaNucleo: senzaNucleo,
+      perPosizione: perPosizione
+    };
+  }
+
+  /* ═══ §9-quinquies · Il rigore che un valutatore pretende ════════════════
+
+     Quattro cose che un gruppo di modellistica mette in ogni rapporto, e la
+     cui assenza è la prima obiezione in riunione:
+
+       1. un CONFRONTO con un riferimento banale, sulle stesse pieghe;
+       2. una scelta degli iperparametri che non guardi l'insieme di prova;
+       3. un INTERVALLO attorno a ogni predizione;
+       4. per uno screening, l'ARRICCHIMENTO in testa alla lista, non l'AUC.
+  */
+
+  /* ── 1 · kNN sul kernel di Tanimoto ────────────────────────────────────
+     Non è un riempitivo: sulle impronte molecolari il kNN è il metodo che la
+     letteratura usa come riferimento difficile da battere, perché la
+     similarità strutturale È già una buona predizione dell'attività. Un
+     modello che non lo batte non sta aggiungendo niente. */
+  function prediciKnn(fpsTrain, yTrain, fpQuery, k, pesato) {
+    var v = viciniPiuSimili(fpQuery, fpsTrain, k || 5);
+    if (!v.length) return null;
+    if (pesato === false) {
+      return v.reduce(function (a, x) { return a + yTrain[x.i]; }, 0) / v.length;
+    }
+    /* Pesato sulla similarità: un vicino a 0,8 conta più di uno a 0,3.
+       Se tutti i pesi sono nulli (nessun bit in comune) si ricade sulla media
+       semplice, perché dividere per zero darebbe NaN e un NaN che attraversa
+       le metriche le rende tutte NaN senza dire dove è nato. */
+    var sp = v.reduce(function (a, x) { return a + x.s; }, 0);
+    if (sp <= 1e-12) return v.reduce(function (a, x) { return a + yTrain[x.i]; }, 0) / v.length;
+    return v.reduce(function (a, x) { return a + x.s * yTrain[x.i]; }, 0) / sp;
+  }
+
+  /* ── 2 · Scelta degli iperparametri senza guardare la prova ────────────
+
+     Provare dieci valori di lambda sull'insieme di prova e riportare il
+     migliore è il modo più comune di gonfiare un R²: quel numero non è una
+     predizione, è il massimo di dieci tentativi. La scelta va fatta DENTRO
+     l'addestramento, su pieghe interne, e l'insieme di prova resta intatto.
+     È la validazione annidata. */
+  function scegliIperparametro(fps, y, candidati, costruisci, pieghe, seme) {
+    pieghe = pieghe || 3;
+    var n = fps.length, idx = [];
+    for (var i = 0; i < n; i++) idx.push(i);
+    var r = rng((seme || 42) + 99);
+    for (i = n - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    var gruppi = [];
+    for (i = 0; i < pieghe; i++) gruppi.push([]);
+    idx.forEach(function (v, k) { gruppi[k % pieghe].push(v); });
+
+    var migliore = null;
+    candidati.forEach(function (c) {
+      var punteggi = [];
+      gruppi.forEach(function (prova) {
+        var addestr = idx.filter(function (v) { return prova.indexOf(v) === -1; });
+        if (!prova.length || !addestr.length) return;
+        var fTr = addestr.map(function (v) { return fps[v]; });
+        var yTr = addestr.map(function (v) { return y[v]; });
+        var prev = prova.map(function (v) { return costruisci(c, fTr, yTr, fps[v]); });
+        var veri = prova.map(function (v) { return y[v]; });
+        var m = metricheRegressione(veri, prev);
+        if (m.r2 !== null && isFinite(m.r2)) punteggi.push(m.r2);
+      });
+      var agg = mediaEScarto(punteggi);
+      if (agg.media !== null && (migliore === null || agg.media > migliore.punteggio)) {
+        migliore = { valore: c, punteggio: agg.media, pieghe: punteggi.length };
+      }
+    });
+    return migliore;
+  }
+
+  /* ── 3 · Confronto fra modelli sulle STESSE pieghe ─────────────────────
+
+     Le stesse pieghe per tutti: confrontare un modello valutato su una
+     divisione con un altro valutato su un'altra divisione non è un confronto,
+     è un aneddoto doppio. E il riferimento banale — predire sempre la media —
+     sta in cima all'elenco, perché è il numero che ogni altro deve battere. */
+  function confrontoModelli(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var tipoFp = opzioni.fingerprint || 'morgan';
+    var k = opzioni.pieghe || 5;
+    var seme = opzioni.seme || 42;
+
+    var conY = molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 10) {
+      throw new Error('servono almeno 10 molecole con attivita\' misurata: ne sono arrivate ' + conY.length);
+    }
+    var fps = [], mols = [];
+    conY.forEach(function (m) {
+      var f = fingerprint(m.smiles, tipoFp);
+      if (f) { fps.push(f); mols.push(m); }
+    });
+    var y = mols.map(function (m) { return m.attivita; });
+    var distinti = Array.from(new Set(y));
+    var classificazione = opzioni.classificazione !== undefined
+      ? opzioni.classificazione
+      : (distinti.length === 2 && distinti.every(function (v) { return v === 0 || v === 1; }));
+
+    var p = pieghePerScaffold(mols, k, seme);
+    var LAMBDA = opzioni.lambda || [0.1, 1, 10, 100];
+    var KVIC = opzioni.k || [1, 3, 5, 10];
+
+    var modelli = [];
+    if (classificazione) {
+      modelli.push({
+        nome: 'Riferimento: classe piu\u0300 frequente',
+        addestra: function (fTr, yTr) {
+          var uno = yTr.filter(function (v) { return v === 1; }).length;
+          var p1 = yTr.length ? uno / yTr.length : 0.5;
+          return function () { return p1; };
+        }
+      });
+      modelli.push({
+        nome: 'kNN su Tanimoto',
+        addestra: function (fTr, yTr) {
+          var sc = scegliIperparametro(fTr, yTr, KVIC,
+            function (kk, a, b, q) { return prediciKnn(a, b, q, kk); }, 3, seme);
+          var kk = sc ? sc.valore : 5;
+          return function (q) { return prediciKnn(fTr, yTr, q, kk); };
+        }
+      });
+      modelli.push({
+        nome: 'Regressione logistica',
+        addestra: function (fTr, yTr) {
+          var mod = addestraLogistica(fTr, yTr, opzioni);
+          return function (q) { return prediciLogistica(mod, q); };
+        }
+      });
+    } else {
+      modelli.push({
+        nome: 'Riferimento: media dell\'addestramento',
+        addestra: function (fTr, yTr) {
+          var mu = yTr.reduce(function (a, b) { return a + b; }, 0) / yTr.length;
+          return function () { return mu; };
+        }
+      });
+      modelli.push({
+        nome: 'kNN su Tanimoto',
+        addestra: function (fTr, yTr) {
+          var sc = scegliIperparametro(fTr, yTr, KVIC,
+            function (kk, a, b, q) { return prediciKnn(a, b, q, kk); }, 3, seme);
+          var kk = sc ? sc.valore : 5;
+          return function (q) { return prediciKnn(fTr, yTr, q, kk); };
+        },
+        iper: 'k'
+      });
+      modelli.push({
+        nome: 'Regressione kernel (Tanimoto)',
+        addestra: function (fTr, yTr) {
+          var sc = scegliIperparametro(fTr, yTr, LAMBDA,
+            function (lam, a, b, q) { return prediciRidge(addestraRidge(a, b, lam), q); }, 3, seme);
+          var lam = sc ? sc.valore : 1;
+          var mod = addestraRidge(fTr, yTr, lam);
+          return function (q) { return prediciRidge(mod, q); };
+        },
+        iper: 'lambda'
+      });
+    }
+
+    var chiave = classificazione ? 'auc' : 'r2';
+    var esiti = modelli.map(function (M) {
+      var perPiega = [], previstoDiTutti = new Array(mols.length), saltate = 0;
+      p.pieghe.forEach(function (prova) {
+        var addestr = [];
+        for (var i = 0; i < mols.length; i++) if (prova.indexOf(i) === -1) addestr.push(i);
+        if (!prova.length || !addestr.length) { saltate++; return; }
+        var fTr = addestr.map(function (i) { return fps[i]; });
+        var yTr = addestr.map(function (i) { return y[i]; });
+        if (classificazione && new Set(yTr).size < 2) { saltate++; return; }
+        var predici = M.addestra(fTr, yTr);
+        var prev = prova.map(function (i) { return predici(fps[i]); });
+        prova.forEach(function (i, j) { previstoDiTutti[i] = prev[j]; });
+        var veri = prova.map(function (i) { return y[i]; });
+        perPiega.push(classificazione ? metricheClassificazione(veri, prev)
+                                      : metricheRegressione(veri, prev));
+      });
+      var punteggi = perPiega.map(function (m) { return m[chiave]; });
+      var agg = mediaEScarto(punteggi);
+      var compl = [];
+      previstoDiTutti.forEach(function (v, i) { if (v !== undefined && v !== null) compl.push(i); });
+      var riunito = compl.length
+        ? (classificazione
+            ? metricheClassificazione(compl.map(function (i) { return y[i]; }), compl.map(function (i) { return previstoDiTutti[i]; }))
+            : metricheRegressione(compl.map(function (i) { return y[i]; }), compl.map(function (i) { return previstoDiTutti[i]; })))
+        : null;
+      return {
+        nome: M.nome, iper: M.iper || null,
+        perPiega: punteggi, media: agg.media, scarto: agg.scarto,
+        pieghe: perPiega.length, saltate: saltate,
+        riunito: riunito, previsti: previstoDiTutti
+      };
+    });
+
+    /* Il verdetto scritto: il migliore batte il riferimento? E di quanto,
+       rispetto alla dispersione fra le pieghe? Una differenza di 0,05 con
+       scarti di 0,30 non è una differenza. */
+    var rif = esiti[0];
+    var altri = esiti.slice(1).filter(function (e) { return e.media !== null; });
+    altri.sort(function (a, b) { return b.media - a.media; });
+    var migliore = altri.length ? altri[0] : null;
+    var margine = (migliore && rif.media !== null) ? migliore.media - rif.media : null;
+    var dispersione = migliore && migliore.scarto !== null && rif.scarto !== null
+      ? Math.sqrt(migliore.scarto * migliore.scarto + rif.scarto * rif.scarto) : null;
+
+    return {
+      tipo: classificazione ? 'classificazione' : 'regressione',
+      metrica: chiave, fingerprint: tipoFp,
+      nTotali: mols.length, nScaffold: p.nGruppi, pieghe: p.nPieghe, seme: seme,
+      modelli: esiti,
+      migliore: migliore ? migliore.nome : null,
+      margineSulRiferimento: margine,
+      dispersioneCombinata: dispersione,
+      /* «Supera il riferimento» solo se il margine eccede la dispersione:
+         altrimenti si sta leggendo rumore come se fosse un risultato. */
+      superaIlRiferimento: (margine !== null && dispersione !== null)
+        ? margine > dispersione : null,
+      molecole: mols
+    };
+  }
+
+  /* ── 4 · Intervalli di predizione conformi ─────────────────────────────
+
+     Una predizione senza intervallo non si può usare in una decisione: «7,2»
+     e «7,2 ± 0,3» sono due informazioni diverse, e solo la seconda dice se
+     vale la pena sintetizzare.
+
+     Metodo split-conformal, senza ipotesi sulla distribuzione degli errori:
+     si tiene da parte una porzione di CALIBRAZIONE, si misurano i residui
+     assoluti del modello su quella, e il quantile (1−alfa) di quei residui è
+     la semiampiezza dell'intervallo. La garanzia è di copertura marginale:
+     su dati scambiabili, almeno il (1−alfa) delle predizioni future cade
+     dentro. Non è una barra d'errore inventata: è una quantile misurata. */
+  function intervalliConformi(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var alfa = opzioni.alfa === undefined ? 0.1 : opzioni.alfa;   // 90 %
+    var tipoFp = opzioni.fingerprint || 'morgan';
+    var seme = opzioni.seme || 42;
+    var fraCal = opzioni.frazioneCalibrazione === undefined ? 0.3 : opzioni.frazioneCalibrazione;
+
+    var conY = molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 12) {
+      throw new Error('per una calibrazione conforme servono almeno 12 molecole con attivita\': ne sono arrivate ' + conY.length);
+    }
+    var fps = [], mols = [];
+    conY.forEach(function (m) { var f = fingerprint(m.smiles, tipoFp); if (f) { fps.push(f); mols.push(m); } });
+    var y = mols.map(function (m) { return m.attivita; });
+
+    /* La divisione è PER SCAFFOLD anche qui: una calibrazione fatta su
+       analoghi dell'addestramento misurerebbe residui troppo piccoli, e
+       l'intervallo che ne esce sarebbe troppo stretto proprio sulle molecole
+       nuove, cioè dove serve. */
+    var div = divisionePerScaffold(mols, fraCal);
+    var iAdd = div.addestramento, iCal = div.prova;
+    if (iAdd.length < 5 || iCal.length < 4) {
+      /* Con pochi scaffold la divisione per scaffold può sbilanciarsi: si
+         ricade su quella casuale e LO SI DICHIARA nel risultato. */
+      div = divisioneCasuale(mols.length, fraCal, seme);
+      iAdd = div.addestramento; iCal = div.prova;
+    }
+    var perScaffold = div.nGruppi !== undefined;
+
+    var mod = addestraRidge(iAdd.map(function (i) { return fps[i]; }),
+                            iAdd.map(function (i) { return y[i]; }),
+                            opzioni.lambda === undefined ? 1 : opzioni.lambda);
+    var residui = iCal.map(function (i) { return Math.abs(y[i] - prediciRidge(mod, fps[i])); })
+                      .sort(function (a, b) { return a - b; });
+
+    /* Il quantile conforme: ceil((n+1)(1−alfa)) su n residui ordinati. È la
+       formula che dà la garanzia di copertura, non il semplice percentile. */
+    var n = residui.length;
+    var pos = Math.ceil((n + 1) * (1 - alfa));
+    var semiampiezza = pos <= n ? residui[pos - 1] : residui[n - 1];
+
+    /* Copertura verificata sulla calibrazione stessa: deve essere ≥ 1−alfa.
+       Non è una validazione indipendente — è un controllo di coerenza, e se
+       fallisse vorrebbe dire che la formula del quantile è sbagliata. */
+    var dentro = residui.filter(function (r) { return r <= semiampiezza; }).length;
+
+    return {
+      alfa: alfa, livello: 1 - alfa,
+      semiampiezza: semiampiezza,
+      nAddestramento: iAdd.length, nCalibrazione: n,
+      divisione: perScaffold ? 'per scaffold' : 'casuale (troppo pochi scaffold)',
+      coperturaSullaCalibrazione: n ? dentro / n : null,
+      residuoMediano: n ? (n % 2 ? residui[(n - 1) / 2] : (residui[n / 2 - 1] + residui[n / 2]) / 2) : null,
+      predici: function (smiles) {
+        var f = fingerprint(smiles, tipoFp);
+        if (!f) return null;
+        var v = prediciRidge(mod, f);
+        return { valore: v, basso: v - semiampiezza, alto: v + semiampiezza,
+                 semiampiezza: semiampiezza, livello: 1 - alfa };
+      }
+    };
+  }
+
+  /* ── 5 · Arricchimento: la metrica dello screening ─────────────────────
+
+     In uno screening non si guarda tutta la lista: si prendono i primi mille
+     composti di centomila. Un ROC-AUC di 0,80 può nascondere una testa di
+     lista senza un solo attivo, perché l'AUC premia anche l'ordine nella coda,
+     che nessuno comprerà.
+
+     EF a x % = (attivi trovati nel primo x %) / (attesi se a caso).
+     BEDROC (Truchon & Bayly, J Chem Inf Model 2007) pesa esponenzialmente le
+     posizioni in testa: alfa = 20 corrisponde a concentrarsi sul primo 8 %. */
+  function arricchimento(etichette, punteggi, opzioni) {
+    opzioni = opzioni || {};
+    var frazioni = opzioni.frazioni || [0.01, 0.05, 0.10];
+    var alfaBedroc = opzioni.alfaBedroc === undefined ? 20 : opzioni.alfaBedroc;
+
+    var n = etichette.length;
+    if (!n || punteggi.length !== n) {
+      throw new Error('etichette e punteggi devono avere la stessa lunghezza non nulla');
+    }
+    var ord = [];
+    for (var i = 0; i < n; i++) ord.push({ e: etichette[i] ? 1 : 0, s: punteggi[i], i: i });
+    /* A parità di punteggio l'ordine deciderebbe l'arricchimento: si rompe la
+       parità sull'indice, in modo che il risultato sia riproducibile e non
+       dipenda dall'algoritmo di ordinamento del motore. */
+    ord.sort(function (a, b) { return (b.s - a.s) || (a.i - b.i); });
+    var attivi = ord.filter(function (x) { return x.e === 1; }).length;
+    if (!attivi || attivi === n) {
+      return { errore: 'serve almeno un attivo e un inattivo', attivi: attivi, totale: n };
+    }
+    var Ra = attivi / n;
+
+    var ef = frazioni.map(function (f) {
+      var cima = Math.max(1, Math.round(n * f));
+      var trovati = 0;
+      for (var k = 0; k < cima; k++) if (ord[k].e === 1) trovati++;
+      return {
+        frazione: f, composti: cima, attiviTrovati: trovati,
+        attesiACaso: Ra * cima,
+        ef: (Ra * cima) > 0 ? trovati / (Ra * cima) : null,
+        /* L'arricchimento massimo possibile a quella frazione: un EF di 8 su
+           un massimo di 10 è un risultato; su un massimo di 8 è il massimo. */
+        efMassimo: Math.min(cima, attivi) / (Ra * cima)
+      };
+    });
+
+    /* BEDROC, nella forma di Truchon & Bayly (2007), §2.3.
+         somma    = Σ exp(−α·rᵢ/N)  sui ranghi 1-based degli attivi
+         RIE      = (somma / n_attivi) / [ (1/N)·(1−e^{−α}) / (e^{α/N}−1) ]
+         BEDROC   = RIE·(Ra·sinh(α/2)) / (cosh(α/2) − cosh(α/2 − α·Ra))
+                    + 1/(1 − e^{α(1−Ra)})
+       Scritta in questa forma e non «a occhio»: il termine additivo finale e'
+       quello che porta BEDROC a 0 per un ordinamento pessimo invece che a un
+       numero negativo senza significato. */
+    var a2 = alfaBedroc / 2;
+    var somma = 0;
+    ord.forEach(function (x, k) {
+      if (x.e === 1) somma += Math.exp(-alfaBedroc * (k + 1) / n);
+    });
+    var denomRie = (1 / n) * (1 - Math.exp(-alfaBedroc)) / (Math.exp(alfaBedroc / n) - 1);
+    var rie = (somma / attivi) / denomRie;
+    var bedroc = rie * (Ra * Math.sinh(a2)) /
+                 (Math.cosh(a2) - Math.cosh(a2 - alfaBedroc * Ra)) +
+                 1 / (1 - Math.exp(alfaBedroc * (1 - Ra)));
+
+    return {
+      totale: n, attivi: attivi, frazioneAttivi: Ra,
+      auc: rocAuc(etichette, punteggi),
+      ef: ef,
+      rie: rie, bedroc: bedroc, alfaBedroc: alfaBedroc,
+      /* La frazione in cui BEDROC concentra l'attenzione: alfa = 20 → 8 %. */
+      finestraBedroc: 1 / alfaBedroc * Math.log(100)
+    };
+  }
+
+  /* ── 6 · Curva di apprendimento ────────────────────────────────────────
+     Risponde alla sola domanda che conta quando il modello è mediocre: serve
+     piu' chimica o piu' dati? Se il punteggio sale ancora all'ultimo punto,
+     piu' molecole aiuterebbero; se e' piatto da un pezzo, no. */
+  function curvaApprendimento(molecole, opzioni) {
+    opzioni = opzioni || {};
+    var tipoFp = opzioni.fingerprint || 'morgan';
+    var seme = opzioni.seme || 42;
+    var frazioni = opzioni.frazioni || [0.25, 0.5, 0.75, 1.0];
+    var k = opzioni.pieghe || 4;
+
+    var conY = molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    if (conY.length < 12) {
+      throw new Error('per una curva di apprendimento servono almeno 12 molecole con attivita\'');
+    }
+    var fps = [], mols = [];
+    conY.forEach(function (m) { var f = fingerprint(m.smiles, tipoFp); if (f) { fps.push(f); mols.push(m); } });
+    var y = mols.map(function (m) { return m.attivita; });
+    var p = pieghePerScaffold(mols, k, seme);
+    var r = rng(seme + 555);
+
+    var punti = frazioni.map(function (f) {
+      var punteggi = [];
+      p.pieghe.forEach(function (prova) {
+        var addestr = [];
+        for (var i = 0; i < mols.length; i++) if (prova.indexOf(i) === -1) addestr.push(i);
+        /* si assottiglia SOLO l'addestramento: l'insieme di prova resta
+           intero, altrimenti i punti non sarebbero confrontabili fra loro */
+        var quanti = Math.max(3, Math.round(addestr.length * f));
+        var mescolato = addestr.slice();
+        for (var q = mescolato.length - 1; q > 0; q--) {
+          var j = Math.floor(r() * (q + 1)); var t = mescolato[q]; mescolato[q] = mescolato[j]; mescolato[j] = t;
+        }
+        var usati = mescolato.slice(0, quanti);
+        if (!prova.length || usati.length < 3) return;
+        var mod = addestraRidge(usati.map(function (i) { return fps[i]; }),
+                                usati.map(function (i) { return y[i]; }),
+                                opzioni.lambda === undefined ? 1 : opzioni.lambda);
+        var prev = prova.map(function (i) { return prediciRidge(mod, fps[i]); });
+        var m = metricheRegressione(prova.map(function (i) { return y[i]; }), prev);
+        if (m.r2 !== null && isFinite(m.r2)) punteggi.push(m.r2);
+      });
+      var agg = mediaEScarto(punteggi);
+      return { frazione: f, nAddestramentoTipico: Math.round(mols.length * (1 - 1 / p.nPieghe) * f),
+               media: agg.media, scarto: agg.scarto, pieghe: punteggi.length };
+    });
+
+    var validi = punti.filter(function (x) { return x.media !== null; });
+    var pendenzaFinale = validi.length >= 2
+      ? validi[validi.length - 1].media - validi[validi.length - 2].media : null;
+
+    return {
+      punti: punti, nTotali: mols.length, pieghe: p.nPieghe,
+      pendenzaFinale: pendenzaFinale,
+      /* Il verdetto a parole: il guadagno fra gli ultimi due punti supera la
+         dispersione? Se no, aggiungere molecole dello stesso tipo non aiuta. */
+      piuDatiAiuterebbero: (pendenzaFinale !== null && validi.length >= 2 &&
+                            validi[validi.length - 1].scarto !== null)
+        ? pendenzaFinale > validi[validi.length - 1].scarto : null
+    };
+  }
+
   /* ═══ §10 · Superficie pubblica ══════════════════════════════════════════ */
   globale.BSIChem = {
     /* preparazione */
@@ -1473,9 +2440,22 @@
     pieghePerScaffold: pieghePerScaffold,
     validazioneIncrociata: validazioneIncrociata,
     saltiAttivita: saltiAttivita,
+    /* frammentazione e SAR */
+    frammenta: frammenta,
+    coppieCorrispondenti: coppieCorrispondenti,
+    ricercaSottostruttura: ricercaSottostruttura,
+    /* rigore statistico */
+    confrontoModelli: confrontoModelli,
+    intervalliConformi: intervalliConformi,
+    arricchimento: arricchimento,
+    curvaApprendimento: curvaApprendimento,
+    prediciKnn: prediciKnn,
+    scegliIperparametro: scegliIperparametro,
+    decomposizioneRGruppi: decomposizioneRGruppi,
     dominioApplicabilita: dominioApplicabilita,
     /* esportazione */
     esportaCsv: esportaCsv,
+    esportaSdf: esportaSdf,
     rapportoMetodo: rapportoMetodo,
     /* metriche, esposte perche' un banco possa verificarle da sole */
     mediaEScarto: mediaEScarto,

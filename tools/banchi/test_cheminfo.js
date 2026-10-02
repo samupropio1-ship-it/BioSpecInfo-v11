@@ -625,6 +625,367 @@ function vicino(d, atteso, avuto, tol){
   console.log('      (caffeina/metformina ' + lab.caffeinaMetformina.toFixed(3) +
               ' · aspirina/paracetamolo ' + lab.aspirinaParacetamolo.toFixed(3) + ')');
 
+  /* ── §12 · Frammentazione, coppie corrispondenti, SAR ──────────────────
+     MinimalLib non ha FragmentOnBonds: il taglio si ottiene da una reazione
+     SMARTS. Qui si verifica che tagli dove deve e NON dove non deve, perche'
+     un taglio dentro un anello o su un legame doppio produrrebbe frammenti
+     che non esistono e la tabella SAR li mostrerebbe come sostituenti. */
+  console.log('\n── Frammentazione ──');
+  const fr = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const et = B.frammenta('CCOc1ccccc1').map(p => p.slice().sort().join(' + ')).sort();
+    return {
+      etossibenzene: et,
+      nEtossibenzene: et.length,
+      nEtossibenzeneGrossa: B.frammenta('CCOc1ccccc1', 'grossa').length,
+      benzene: B.frammenta('c1ccccc1').length,
+      /* il metano non ha legami da tagliare */
+      metano: B.frammenta('C').length,
+      /* con la regola grossa il metile terminale non si taglia */
+      toluene_fine: B.frammenta('Cc1ccccc1', 'fine').length,
+      toluene_grossa: B.frammenta('Cc1ccccc1', 'grossa').length
+    };
+  });
+  /* Regola fine: tre legami singoli aciclici — CH3–CH2, CH2–O, O–arile.
+     Regola grossa: due, perché il metile terminale non si taglia. */
+  att('con la regola fine l\'etossibenzene da\' tre tagli', 3, fr.nEtossibenzene);
+  att('i tre tagli sono quelli attesi',
+      '*C + *COc1ccccc1 | *CC + *Oc1ccccc1 | *OCC + *c1ccccc1',
+      fr.etossibenzene.join(' | '));
+  att('con la regola grossa i tagli sono due', 2, fr.nEtossibenzeneGrossa);
+  att('il benzene non ha legami aciclici da tagliare', 0, fr.benzene);
+  att('il metano non ha legami da tagliare', 0, fr.metano);
+  att('la regola fine taglia il metile terminale del toluene', 1, fr.toluene_fine);
+  att('la regola grossa non lo taglia', 0, fr.toluene_grossa);
+
+  /* Le coppie corrispondenti si verificano su una serie COSTRUITA con effetti
+     noti: se l'analisi non li ritrova, non e' utilizzabile su dati veri. */
+  console.log('\n── Coppie molecolari corrispondenti ──');
+  const mmp = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const serie = [
+      { smiles:'c1ccc(cc1)C(=O)NCC',    nome:'H-a',  attivita:6.0 },
+      { smiles:'Clc1ccc(cc1)C(=O)NCC',  nome:'Cl-a', attivita:7.0 },
+      { smiles:'Cc1ccc(cc1)C(=O)NCC',   nome:'Me-a', attivita:6.5 },
+      { smiles:'c1ccc(cc1)C(=O)NCCC',   nome:'H-b',  attivita:6.2 },
+      { smiles:'Clc1ccc(cc1)C(=O)NCCC', nome:'Cl-b', attivita:7.2 },
+      { smiles:'Cc1ccc(cc1)C(=O)NCCC',  nome:'Me-b', attivita:6.7 }
+    ];
+    const r = B.coppieCorrispondenti(serie, { minCoppie: 2 });
+    const t = k => r.trasformazioni.find(x => x.trasformazione === k) || null;
+    const arrotonda = x => x === null ? null : Math.round(x * 1000) / 1000;
+    const cl = t('*c1ccc(Cl)cc1>>*c1ccccc1');
+    const me = t('*c1ccc(C)cc1>>*c1ccccc1');
+    const mecl = t('*c1ccc(C)cc1>>*c1ccc(Cl)cc1');
+    const catena = t('*NCC>>*NCCC');
+    return {
+      frammentate: r.molecoleFrammentate, coppie: r.coppie,
+      cl: cl ? { n: cl.n, med: arrotonda(cl.mediana), conc: cl.concordanti } : null,
+      me: me ? { n: me.n, med: arrotonda(me.mediana) } : null,
+      mecl: mecl ? { n: mecl.n, med: arrotonda(mecl.mediana) } : null,
+      catena: catena ? { n: catena.n, med: arrotonda(catena.mediana) } : null,
+      /* la direzione e' normalizzata sull'ordine alfabetico: la chiave
+         inversa non deve esistere, altrimenti lo stesso effetto comparirebbe
+         due volte con mediane opposte */
+      inversaAssente: t('*c1ccccc1>>*c1ccc(Cl)cc1') === null,
+      /* con minCoppie alto restano solo le trasformazioni viste piu' volte */
+      conSoglia4: B.coppieCorrispondenti(serie, { minCoppie: 4 }).trasformazioni.length
+    };
+  });
+  att('tutte e sei le molecole si frammentano', 6, mmp.frammentate);
+  att('clorofenile→fenile vale −1,0 su 2 coppie',
+      '2|-1', mmp.cl ? mmp.cl.n + '|' + mmp.cl.med : 'assente');
+  att('le due coppie del cloro sono concordanti', 2, mmp.cl ? mmp.cl.conc : 0);
+  att('metilfenile→fenile vale −0,5',
+      '2|-0.5', mmp.me ? mmp.me.n + '|' + mmp.me.med : 'assente');
+  att('metile→cloro vale +0,5',
+      '2|0.5', mmp.mecl ? mmp.mecl.n + '|' + mmp.mecl.med : 'assente');
+  att('etilammide→propilammide vale +0,2 su 3 coppie',
+      '3|0.2', mmp.catena ? mmp.catena.n + '|' + mmp.catena.med : 'assente');
+  att('la direzione è normalizzata, l\'inversa non compare', true, mmp.inversaAssente);
+  att('la soglia sul numero di coppie filtra davvero', true, mmp.conSoglia4 < 8);
+
+  /* ── §13 · Ricerca per sottostruttura e tabella SAR ─────────────────── */
+  console.log('\n── Ricerca per sottostruttura ──');
+  const ric = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const set = [
+      { smiles:'c1ccc(cc1)C(=O)NCC',    nome:'H-Et'  },
+      { smiles:'Clc1ccc(cc1)C(=O)NCC',  nome:'Cl-Et' },
+      { smiles:'Cc1ccc(cc1)C(=O)NCC',   nome:'Me-Et' },
+      { smiles:'Clc1ccc(cc1)C(=O)NCCC', nome:'Cl-Pr' },
+      { smiles:'CCO',                   nome:'estranea' }
+    ];
+    const core = B.ricercaSottostruttura(set, 'c1ccccc1C(=O)N');
+    const cloro = B.ricercaSottostruttura(set, '[Cl]');
+    const rotta = B.ricercaSottostruttura(set, 'c1ccccc1C(=O)N[[[');
+    const due = B.ricercaSottostruttura(
+      [{ smiles:'Clc1ccc(Cl)cc1', nome:'diCl' }, { smiles:'Clc1ccccc1', nome:'monoCl' }], '[Cl]');
+    return {
+      core: core.quante, coreIndici: core.trovate.join(','),
+      cloro: cloro.quante, cloroIndici: cloro.trovate.join(','),
+      rottaDichiarata: !!rotta.errore,
+      occorrenzeDiCl: due.occorrenze[0], occorrenzeMonoCl: due.occorrenze[1],
+      frazione: Math.round(core.frazione * 100) / 100
+    };
+  });
+  att('il nucleo benzamidico corrisponde a quattro molecole su cinque', 4, ric.core);
+  att('sono le quattro attese', '0,1,2,3', ric.coreIndici);
+  att('il cloro corrisponde a due molecole', '1,3', ric.cloroIndici);
+  att('una query malformata viene DICHIARATA, non ignorata', true, ric.rottaDichiarata);
+  att('il diclorobenzene conta due occorrenze di Cl', 2, ric.occorrenzeDiCl);
+  att('il monoclorobenzene ne conta una', 1, ric.occorrenzeMonoCl);
+  att('la frazione di corrispondenze è 0,8', 0.8, ric.frazione);
+
+  console.log('\n── Tabella SAR (decomposizione in gruppi R) ──');
+  const sar = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const serie = [
+      { smiles:'c1ccc(cc1)C(=O)NCC',    nome:'H-Et',  attivita:6.0 },
+      { smiles:'Clc1ccc(cc1)C(=O)NCC',  nome:'Cl-Et', attivita:7.0 },
+      { smiles:'Cc1ccc(cc1)C(=O)NCC',   nome:'Me-Et', attivita:6.5 },
+      { smiles:'Clc1ccc(cc1)C(=O)NCCC', nome:'Cl-Pr', attivita:7.2 },
+      { smiles:'CCO',                   nome:'estranea', attivita:1.0 }
+    ];
+    const d = B.decomposizioneRGruppi(serie, 'c1ccc(cc1)C(=O)N');
+    const riga = n => { const r = d.righe.find(x => x.mol.nome === n); return r ? r.celle.join('|') : null; };
+    const col1 = d.perPosizione[0];
+    return {
+      colonne: d.colonne, conNucleo: d.conNucleo, senzaNucleo: d.senzaNucleo.join(','),
+      H_Et: riga('H-Et'), Cl_Et: riga('Cl-Et'), Me_Et: riga('Me-Et'), Cl_Pr: riga('Cl-Pr'),
+      /* l'ordine per attivita' mediana e' la lettura SAR: Cl > Me > H */
+      ordineColonna1: col1.voci.map(v => v.sostituente).join(' > '),
+      medianeColonna1: col1.voci.map(v => Math.round(v.attivitaMediana * 100) / 100).join(','),
+      nucleoAssente: B.decomposizioneRGruppi(serie, 'c1ccccc1[Se]').conNucleo
+    };
+  });
+  att('la tabella ha due colonne di sostituzione', 2, sar.colonne);
+  att('quattro molecole portano il nucleo', 4, sar.conNucleo);
+  att('la molecola estranea è esclusa, non messa con celle vuote', '4', sar.senzaNucleo);
+  att('la molecola non sostituita mostra H', 'H|*CC', sar.H_Et);
+  att('il cloro compare nella colonna giusta', '*Cl|*CC', sar.Cl_Et);
+  att('il metile compare nella colonna giusta', '*C|*CC', sar.Me_Et);
+  att('il propile compare nella seconda colonna', '*Cl|*CCC', sar.Cl_Pr);
+  att('la colonna 1 ordina i sostituenti per attività: Cl > Me > H',
+      '*Cl > *C > H', sar.ordineColonna1);
+  att('le mediane della colonna 1 sono quelle dei dati', '7.1,6.5,6', sar.medianeColonna1);
+  att('un nucleo che non c\'è non produce righe', 0, sar.nucleoAssente);
+
+  /* La chiave dello scaffold NON e' uno SMILES, e il campo si chiamava
+     `smiles`. Il pannello SAR l'ha usata come query e proponeva
+     «6,6,6,6,7,...|0-13:1,...» come nucleo: il nome sbagliato di un campo e'
+     un difetto come un altro. Qui si fissa che la chiave serva a RAGGRUPPARE
+     e che dichiari di non essere uno SMILES. */
+  const sc = await pg.evaluate(() => {
+    const B = window.BSIChem, R = window.RDKit || window.RDKitModule;
+    const a = B.scaffoldMurcko('Clc1ccc(cc1)C(=O)NCC');
+    const b = B.scaffoldMurcko('Cc1ccc(cc1)C(=O)NCCC');
+    const c = B.scaffoldMurcko('c1ccncc1C(=O)NCC');
+    let leggibile = false;
+    try { const m = R.get_mol(a.chiave); leggibile = !!(m && m.is_valid()); if (m) m.delete(); }
+    catch (e) { leggibile = false; }
+    return {
+      dichiaraDiNonEssereSmiles: a.eUnoSmiles === false,
+      haIlCampoChiave: typeof a.chiave === 'string' && a.chiave.length > 0,
+      aliasCoincide: a.chiave === a.smiles,
+      stessoScheletroStessaChiave: a.chiave === b.chiave,
+      scheletroDiversoChiaveDiversa: a.chiave !== c.chiave,
+      nonEUnoSmilesValido: !leggibile
+    };
+  });
+  att('la chiave dello scaffold dichiara di non essere uno SMILES', true, sc.dichiaraDiNonEssereSmiles);
+  att('il campo chiave esiste ed e\' pieno', true, sc.haIlCampoChiave);
+  att('smiles resta come alias della chiave', true, sc.aliasCoincide);
+  att('due molecole con lo stesso scheletro danno la stessa chiave', true, sc.stessoScheletroStessaChiave);
+  att('scheletri diversi danno chiavi diverse', true, sc.scheletroDiversoChiaveDiversa);
+  att('la chiave NON si rilegge come SMILES: non va usata come query', true, sc.nonEUnoSmilesValido);
+
+  /* ── §14 · Il rigore statistico ────────────────────────────────────────
+     L'arricchimento si verifica sui tre casi in cui il valore giusto si
+     calcola a mano: ordinamento perfetto, pessimo, e uno intermedio. Senza
+     il caso pessimo non si saprebbe se BEDROC tocca lo zero o scende sotto,
+     e un BEDROC negativo e' il segno che manca il termine additivo. */
+  console.log('\n── Arricchimento (EF, BEDROC) ──');
+  const arr = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const r4 = x => x === null ? null : Math.round(x * 10000) / 10000;
+    const punt = [10,9,8,7,6,5,4,3,2,1];
+    const perfetto = B.arricchimento([1,1,0,0,0,0,0,0,0,0], punt, { frazioni:[0.2,0.5] });
+    const pessimo  = B.arricchimento([0,0,0,0,0,0,0,0,1,1], punt, { frazioni:[0.2,0.5] });
+    const medio    = B.arricchimento([0,1,0,0,1,0,0,0,0,0], punt, { frazioni:[0.2,0.5] });
+    const soloAttivi = B.arricchimento([1,1,1], [3,2,1], {});
+    return {
+      perf: { auc: r4(perfetto.auc), ef20: r4(perfetto.ef[0].ef),
+              efMax20: r4(perfetto.ef[0].efMassimo), bedroc: r4(perfetto.bedroc),
+              trovati20: perfetto.ef[0].attiviTrovati, composti20: perfetto.ef[0].composti,
+              attesi20: r4(perfetto.ef[0].attesiACaso) },
+      pess: { auc: r4(pessimo.auc), ef20: r4(pessimo.ef[0].ef), bedroc: r4(pessimo.bedroc) },
+      med:  { auc: r4(medio.auc), ef20: r4(medio.ef[0].ef), ef50: r4(medio.ef[1].ef) },
+      senzaInattivi: !!soloAttivi.errore
+    };
+  });
+  att('ordinamento perfetto: AUC 1', 1, arr.perf.auc);
+  att('il primo 20 % sono 2 composti', 2, arr.perf.composti20);
+  att('e contengono 2 attivi', 2, arr.perf.trovati20);
+  vicino('a caso ne sarebbero attesi 0,4', 0.4, arr.perf.attesi20, 1e-9);
+  att('EF@20 % = 2/0,4 = 5', 5, arr.perf.ef20);
+  att('ed è il massimo possibile a quella frazione', 5, arr.perf.efMax20);
+  att('BEDROC di un ordinamento perfetto vale 1', 1, arr.perf.bedroc);
+  att('ordinamento pessimo: AUC 0', 0, arr.pess.auc);
+  att('EF@20 % = 0', 0, arr.pess.ef20);
+  att('BEDROC di un ordinamento pessimo vale 0, non un negativo', 0, arr.pess.bedroc);
+  att('attivi ai ranghi 2 e 5: AUC 12/16 = 0,75', 0.75, arr.med.auc);
+  att('EF@20 % = 1/0,4 = 2,5', 2.5, arr.med.ef20);
+  att('EF@50 % = 2/1,0 = 2', 2, arr.med.ef50);
+  att('un insieme senza inattivi viene rifiutato, non calcolato', true, arr.senzaInattivi);
+
+  /* Il confronto fra modelli: la promessa e' «il migliore supera il
+     riferimento banale solo se il margine eccede la dispersione». Va provata
+     NEI DUE VERSI, esattamente come il modello nullo: una guardia che non
+     scatta mai e una guardia che scatta sempre sono lo stesso difetto. */
+  console.log('\n── Confronto fra modelli ──');
+  const cmp = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const nuclei = ['c1ccccc1','c1ccncc1','c1ccc2ccccc2c1','C1CCCCC1','c1cc[nH]c1',
+                    'c1ccoc1','c1ccsc1','C1CCNCC1','c1cnc2ccccc2c1','C1CCOC1'];
+    const sost = [['C',0],['Cl',1],['C(Cl)(Cl)',2],['C(Cl)(Cl)Cl',3],['CC',0]];
+    const forte = [], finto = [];
+    let s = 1; const rnd = () => { s = (s*1103515245+12345) % 2147483648; return s/2147483648; };
+    nuclei.forEach((nu, i) => sost.forEach((x, j) => {
+      forte.push({ smiles: nu + x[0], nome:'f'+i+j, attivita: 4 + x[1]*1.5 });
+      finto.push({ smiles: nu + x[0], nome:'x'+i+j, attivita: 4 + rnd()*4.5 });
+    }));
+    const a = B.confrontoModelli(forte, { pieghe: 5, seme: 42 });
+    const b = B.confrontoModelli(finto, { pieghe: 5, seme: 42 });
+    const r3 = x => x === null ? null : Math.round(x*1000)/1000;
+    return {
+      vero: { n: a.nTotali, scaffold: a.nScaffold, modelli: a.modelli.length,
+              riferimento: r3(a.modelli[0].media), migliore: a.migliore,
+              supera: a.superaIlRiferimento, margine: r3(a.margineSulRiferimento) },
+      casuale: { migliore: b.migliore, supera: b.superaIlRiferimento,
+                 margine: r3(b.margineSulRiferimento) },
+      /* il riferimento banale deve essere il PRIMO modello dell'elenco:
+         chi legge la tabella deve incontrarlo prima degli altri */
+      primoERiferimento: /Riferimento/.test(a.modelli[0].nome),
+      /* le pieghe sono le STESSE per tutti: altrimenti non e' un confronto */
+      stessePieghe: a.modelli.every(m => m.pieghe === a.modelli[0].pieghe)
+    };
+  });
+  att('il confronto mette tre modelli a paragone', 3, cmp.vero.modelli);
+  att('il primo dell\'elenco è il riferimento banale', true, cmp.primoERiferimento);
+  att('tutti i modelli usano le stesse pieghe', true, cmp.stessePieghe);
+  att('su un segnale VERO il migliore supera il riferimento', true, cmp.vero.supera);
+  att('su etichette CASUALI non lo supera', false, cmp.casuale.supera);
+  console.log('      (segnale vero: margine ' + cmp.vero.margine +
+              ' · casuale: ' + cmp.casuale.margine + ')');
+
+  /* Intervalli conformi: la garanzia e' di copertura. Si verifica che il
+     quantile sia quello della formula conforme — ceil((n+1)(1−α)) — e non un
+     percentile qualunque, perche' e' quella correzione a dare la garanzia. */
+  console.log('\n── Intervalli di predizione conformi ──');
+  const conf = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const ins = [];
+    for (let n = 3; n <= 22; n++) {
+      ins.push({ smiles:'C'.repeat(n)+'O', nome:'ol'+n, attivita:n*0.4 });
+      ins.push({ smiles:'C'.repeat(n)+'N', nome:'am'+n, attivita:n*0.4+0.3 });
+    }
+    const a = B.intervalliConformi(ins, { alfa: 0.1, seme: 42 });
+    const b = B.intervalliConformi(ins, { alfa: 0.5, seme: 42 });
+    const p = a.predici('CCCCCCCCO');
+    const q = a.predici('non-uno-smiles');
+    return {
+      livello: a.livello, copertura: a.coperturaSullaCalibrazione,
+      copreIlLivello: a.coperturaSullaCalibrazione >= a.livello,
+      /* a confidenza più bassa l'intervallo deve STRINGERSI: se non lo fa,
+         il quantile non sta guardando alfa */
+      piuStrettoAl50: b.semiampiezza <= a.semiampiezza,
+      intervalloCentrato: p ? Math.abs((p.alto + p.basso) / 2 - p.valore) < 1e-9 : false,
+      ampiezzaCoerente: p ? Math.abs((p.alto - p.basso) / 2 - p.semiampiezza) < 1e-9 : false,
+      smilesRottoRestituisceNull: q === null,
+      nCal: a.nCalibrazione, divisione: a.divisione
+    };
+  });
+  att('la copertura sulla calibrazione raggiunge il livello richiesto', true, conf.copreIlLivello);
+  att('al 50 % l\'intervallo è più stretto che al 90 %', true, conf.piuStrettoAl50);
+  att('l\'intervallo è centrato sulla predizione', true, conf.intervalloCentrato);
+  att('la semiampiezza coincide con metà dell\'intervallo', true, conf.ampiezzaCoerente);
+  att('uno SMILES illeggibile non produce un intervallo inventato', true, conf.smilesRottoRestituisceNull);
+
+  /* Curva di apprendimento: serve a dire se più dati aiuterebbero. Si
+     verifica che l'insieme di PROVA resti intero mentre si assottiglia
+     l'addestramento — altrimenti i punti non sarebbero confrontabili. */
+  console.log('\n── Curva di apprendimento ──');
+  const cur = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const nuclei = ['c1ccccc1','c1ccncc1','c1ccc2ccccc2c1','C1CCCCC1','c1cc[nH]c1',
+                    'c1ccoc1','c1ccsc1','C1CCNCC1'];
+    const ins = [];
+    nuclei.forEach((nu, i) => [['C',0],['Cl',1],['C(Cl)(Cl)',2],['C(Cl)(Cl)Cl',3]]
+      .forEach((x, j) => ins.push({ smiles: nu + x[0], nome:'c'+i+j, attivita: 4 + x[1]*1.5 })));
+    const c = B.curvaApprendimento(ins, { pieghe: 4, seme: 42, frazioni: [0.25, 0.5, 1.0] });
+    const v = c.punti.filter(p => p.media !== null);
+    return {
+      punti: c.punti.length, valutati: v.length,
+      crescente: v.length >= 2 && v[v.length-1].media >= v[0].media,
+      ultimoNonPeggiore: v.length >= 2 && v[v.length-1].media >= v[v.length-2].media - 0.2,
+      pendenzaDefinita: c.pendenzaFinale !== null,
+      verdettoEspresso: c.piuDatiAiuterebbero !== null
+    };
+  });
+  att('la curva valuta tutti i punti chiesti', 3, cur.valutati);
+  att('con più addestramento il punteggio non peggiora', true, cur.crescente);
+  att('la pendenza finale è calcolata', true, cur.pendenzaDefinita);
+  att('il verdetto «più dati aiuterebbero» viene espresso', true, cur.verdettoEspresso);
+
+  /* ── §15 · Esportazione SDF ────────────────────────────────────────────
+     Un SDF sbagliato e' peggio di nessun SDF: chi lo riceve lo importa e
+     scopre l'errore dopo. Il controllo decisivo e' il ROUND-TRIP: il blocco
+     prodotto deve rileggersi e dare lo stesso SMILES canonico. */
+  console.log('\n── Esportazione SDF ──');
+  const sdf = await pg.evaluate(() => {
+    const B = window.BSIChem, R = window.RDKit || window.RDKitModule;
+    const set = [
+      { smiles:'CC(=O)Oc1ccccc1C(=O)O', originale:'CC(=O)Oc1ccccc1C(=O)O',
+        nome:'aspirina, acido', attivita:4.2 },
+      { smiles:'CCO', originale:'CCO', nome:'etanolo' },
+      { smiles:'QQQQ', originale:'QQQQ', nome:'spazzatura' }
+    ];
+    const e = B.esportaSdf(set, { previsto:[4.0, undefined, undefined] });
+    const voci = e.sdf.split('$$$$\n').filter(x => x.trim());
+    const riletti = voci.map(v => {
+      let m = null;
+      try { m = R.get_mol(v.split('> <')[0]); } catch (err) { m = null; }
+      const smi = (m && m.is_valid()) ? m.get_smiles() : null;
+      if (m && m.delete) m.delete();
+      return smi;
+    });
+    return {
+      scritte: e.scritte, scartate: e.scartate.length,
+      motivoScarto: e.scartate.length ? e.scartate[0].motivo : '',
+      voci: voci.length,
+      roundTrip: riletti.join(' | '),
+      nomePrimaRiga: e.sdf.split('\n')[0],
+      haAttivita: /> <ATTIVITA>\n4\.2\n/.test(e.sdf),
+      haResiduo: /> <RESIDUO>\n0\.2\n/.test(e.sdf),
+      /* un nome di campo con spazi spezzerebbe il parsing di chi legge */
+      nomiCampoSenzaSpazi: !/> <[^>]*\s[^>]*>/.test(e.sdf),
+      /* senza coordinate generate ogni atomo starebbe a (0,0,0) */
+      coordinateGenerate: !/^\s+0\.0000\s+0\.0000\s+0\.0000/m.test(
+        e.sdf.split('$$$$')[0].split('\n').slice(4, 7).join('\n'))
+    };
+  });
+  att('le due molecole valide vengono scritte', 2, sdf.scritte);
+  att('lo SMILES illeggibile è DICHIARATO scartato', 1, sdf.scartate);
+  att('con il motivo scritto', 'SMILES non interpretabile', sdf.motivoScarto);
+  att('il round-trip restituisce gli stessi SMILES canonici',
+      'CC(=O)Oc1ccccc1C(=O)O | CCO', sdf.roundTrip);
+  att('il nome sta nella prima riga del blocco', 'aspirina, acido', sdf.nomePrimaRiga);
+  att('il campo dell\'attività c\'è', true, sdf.haAttivita);
+  att('il residuo è 4,2 − 4,0', true, sdf.haResiduo);
+  att('nessun nome di campo contiene spazi', true, sdf.nomiCampoSenzaSpazi);
+  att('le coordinate 2D sono state generate', true, sdf.coordinateGenerate);
+
   /* ── §10-quater · Il contrasto dei pannelli, misurato dove nessun altro
      banco arriva ────────────────────────────────────────────────────────
      `verifica-accessibilita` percorre le 88 sezioni e misura ciò che è
@@ -663,7 +1024,7 @@ function vicino(d, atteso, avuto, tol){
 
   /* Si aprono tutti i pannelli a turno: quello nascosto non si misura, e
      lasciarne uno chiuso rifarebbe lo stesso errore in piccolo. */
-  const pannelli = ['descr', 'simil', 'spazio', 'qsar', 'salti', 'allarmi'];
+  const pannelli = ['descr', 'simil', 'spazio', 'cerca', 'sar', 'mmp', 'qsar', 'salti', 'allarmi'];
   let difetti = [], misurati = 0, apertiOk = 0;
   for (const nome of pannelli) {
     const aperto = await pg2.evaluate((n) => {
@@ -756,12 +1117,12 @@ function vicino(d, atteso, avuto, tol){
     difetti = difetti.concat(esito.fuori.map(d => Object.assign({ pannello: nome }, d)));
   }
 
-  att('tutti e sei i pannelli si aprono con del contenuto', 6, apertiOk);
+  att('tutti e nove i pannelli si aprono con del contenuto', 9, apertiOk);
   /* Un banco che non misura nulla passa: se gli elementi misurati sono
      pochi, i pannelli non si sono aperti e il «zero difetti» è vuoto. */
   att('gli elementi di testo misurati sono molti', true, misurati > 250);
   att('nessun testo dei pannelli sotto la soglia WCAG AA', 0, difetti.length);
-  console.log('      (' + misurati + ' elementi di testo misurati nei sei pannelli)');
+  console.log('      (' + misurati + ' elementi di testo misurati nei nove pannelli)');
   difetti.slice(0, 12).forEach(d => console.log('      ! [' + d.pannello + '] ' +
     d.rapporto + ':1 (serve ' + d.soglia + ') ' + d.colore + ' su ' + d.fondo + ' — «' + d.testo + '»'));
 
@@ -779,9 +1140,9 @@ function vicino(d, atteso, avuto, tol){
 
   /* Un banco che non misura nulla passa: se i controlli eseguiti sono
      pochi, qualcosa e' stato saltato in silenzio. */
-  if (eseguiti < 91) {
+  if (eseguiti < 178) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 91');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 178');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
