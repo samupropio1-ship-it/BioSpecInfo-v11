@@ -467,7 +467,23 @@ var SMARTS_H = [
      Senza questa riga l'etile dell'acetato di etile usciva a 0,92 contro
      l'1,26 reale. */
   ['ch3b',  '[CX4H3][CX4;$([CX4][OX2]),$([CX4][NX3])]', 1.24, 't', 3, '–CH₃ in β a O/N'],
-  ['ch3',   '[CX4H3]',                      0.92, 't',    3, '–CH₃ alifatici']
+  ['ch3',   '[CX4H3]',                      0.92, 't',    3, '–CH₃ alifatici'],
+  /* ── Due schermature forti che l'additivita' non prevede ──────────────
+     Misurato prima di aggiungerle: il TETRAMETILSILANO usciva a 0,92 ppm
+     come un metile alifatico qualunque. Ma il TMS non e' un metile
+     qualunque: e' lo standard che DEFINISCE lo zero della scala, e vederlo
+     a 0,92 e' la prima cosa che un chimico nota. Il silicio e'
+     elettropositivo e scherma i protoni invece di deschermarli, effetto che
+     un conteggio additivo di gruppi non puo' dedurre.
+
+     Il CICLOPROPANO usciva a 1,30 come un CH₂ qualunque, mentre sta a 0,22:
+     la corrente d'anello del ciclo a tre termini scherma fortemente, ed e'
+     uno dei valori piu' citati nei testi proprio perche' e' anomalo.
+
+     Si aggiungono con lo stesso meccanismo degli altri — uno SMARTS e una
+     riga in SOTTRAI_H — e non come eccezioni cablate. */
+  ['cpCh2', '[CX4H2;r3]',                   0.22, 'm',    2, '–CH₂– di ciclopropano'],
+  ['siCh3', '[CX4H3][Si]',                  0.00, 's',    3, 'Si–CH₃ (il TMS definisce lo zero)']
 ];
 
 /* Alcuni SMARTS si contengono a vicenda: ogni CH₃ legato a un carbonile e'
@@ -475,8 +491,8 @@ var SMARTS_H = [
    gli stessi protoni e i rapporti — l'unica cosa che in un ¹H NMR si legge
    davvero — vengono sbagliati. */
 var SOTTRAI_H = {
-  ch3:  ['arch3', 'coch3', 'ocOch3', 'arOch3', 'ch3b'],
-  ch2:  ['nch2', 'coch2', 'ocOch2', 'ohCh2'],
+  ch3:  ['arch3', 'coch3', 'ocOch3', 'arOch3', 'ch3b', 'siCh3'],
+  ch2:  ['nch2', 'coch2', 'ocOch2', 'ohCh2', 'cpCh2'],
   ohAlc:['ohFen']
 };
 

@@ -1,12 +1,12 @@
-# BioSpecInfo — archivio completo `bsi-v180`
+# BioSpecInfo — archivio completo `bsi-v181`
 
 Questo archivio contiene **l'applicazione e tutta la documentazione**, nello
 stato esatto del commit pubblicato.
 
 | | |
 |---|---|
-| **Versione** | `bsi-v180` |
-| **Batteria di verifica** | 45 banchi, **0 falliti** — esito CONFORME |
+| **Versione** | `bsi-v181` |
+| **Batteria di verifica** | 47 banchi, **0 falliti** — esito CONFORME |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Demo** | `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
 
@@ -26,7 +26,7 @@ stato esatto del commit pubblicato.
 | `docs/pdf/` | **36 PDF** impaginati, versione e commit in ogni piè di pagina |
 | `docs/evidence/` | Rapporto di verifica integrale, SBOM CycloneDX, registri dei debiti misurati |
 | `tools/` | Gli strumenti che producono l'evidenza |
-| `tools/banchi/` | **I 45 banchi di prova**, versionati: chiunque può rieseguirli |
+| `tools/banchi/` | **I 47 banchi di prova**, versionati: chiunque può rieseguirli |
 | `proxy/` | Il proxy opzionale (Cloudflare Worker) |
 
 ---
@@ -51,7 +51,7 @@ python3 -m http.server 8899
 
 # per rieseguire la verifica
 npm install                      # solo playwright-core
-node tools/genera-evidenza.js    # 45 banchi; deve chiudersi con 0 falliti
+node tools/genera-evidenza.js    # 47 banchi; deve chiudersi con 0 falliti
 ```
 
 > **Serve un server anche in locale.** Aprire `index.html` con un doppio clic
@@ -70,8 +70,8 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 
 | Se sei… | Parti da |
 |---|---|
-| **Un'azienda che valuta** | `LEGGIMI.md` dentro `BioSpecInfo-AZIENDA-bsi-v180.zip` — percorso di lettura ordinato, circa 45 minuti |
-| **Una commissione di tesi** | `LEGGIMI.md` dentro `BioSpecInfo-TESI-bsi-v180.zip` |
+| **Un'azienda che valuta** | `LEGGIMI.md` dentro `BioSpecInfo-AZIENDA-bsi-v181.zip` — percorso di lettura ordinato, circa 45 minuti |
+| **Una commissione di tesi** | `LEGGIMI.md` dentro `BioSpecInfo-TESI-bsi-v181.zip` |
 | **Chi dovrà lavorarci** | `docs/README.md`, poi `docs/15-Test-Documentation.md` |
 | **Un revisore non italofono** | `docs/en/README.md` — tutti e sedici i documenti |
 | **Chi vuole solo un allegato** | `docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf` (o `.en.pdf`) |
@@ -88,4 +88,4 @@ documentazione lo dichiara, non lo nasconde.
 
 ---
 
-_Archivio prodotto alla versione `bsi-v180`._
+_Archivio prodotto alla versione `bsi-v181`._

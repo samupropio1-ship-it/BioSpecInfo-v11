@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v180';
+window.BSI_APP_VERSION='bsi-v181';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -990,6 +990,11 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="snotes">📝 Note</button><button class="nav-btn" data-s="sfilemanager">📁 File Manager</button>
     
     <button class="nav-btn" data-s="sstats">📊 Statistiche</button>
+    <!-- La sezione Data Science esisteva da sempre nel documento e NON aveva un
+         pulsante: zero agganci in tutta l'applicazione, 383 nodi che nessuno
+         poteva raggiungere. Non compariva nemmeno nelle misure, perché i banchi
+         percorrono i PULSANTI (88) e non le sezioni (90). -->
+    <button class="nav-btn" data-s="sdatasci">✨ Data Science</button>
     <button class="nav-btn" data-s="spomo">🍅 Pomodoro</button>
   <button class="nav-btn" data-s="slabcalc">🧪 Calc. Laboratorio</button></div>
 </div>
@@ -2021,7 +2026,18 @@ window.BSI_TELEMETRY_URL='';</script>
   // ── Model Lab: addestra un modello reale sui dati caricati ──
   function _dsModelUI(stats,data){
     var cols=stats.map(function(s){return s.name;});
-    var opts=cols.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+    /* Il target parte dall'ULTIMA colonna numerica, non dalla prima.
+       La convenzione universale e' che la risposta stia in fondo: col valore
+       iniziale sulla prima colonna, chi incollava un CSV normale e premeva
+       «Addestra» otteneva il modello di un'altra cosa — misurato su un insieme
+       con y = 2x1 + 3x2 + 1, il pannello prevedeva x1 dai valori di x2 e y e
+       riportava R² = 1,000. Il numero era giusto, la domanda no, e niente
+       nell'interfaccia lo diceva. */
+    var iTarget = -1;
+    for (var q = stats.length - 1; q >= 0; q--) { if (stats[q].isNum) { iTarget = q; break; } }
+    if (iTarget < 0) iTarget = cols.length - 1;
+    var opts=cols.map(function(c,ci){
+      return '<option value="'+c+'"'+(ci===iTarget?' selected':'')+'>'+c+'</option>'; }).join('');
     var feats=stats.map(function(s){ return '<label style="display:inline-flex;align-items:center;gap:4px;background:#0a1628;border:1px solid #1a3050;border-radius:7px;padding:3px 8px;font-size:.74rem;color:#cdd9e6;cursor:pointer"><input type="checkbox" class="dsMlFeat" value="'+s.name+'"'+(s.isNum?' checked':'')+' style="accent-color:#5eead4"> '+s.name+(s.isNum?'':' <span style="color:#c9b6ff;font-size:.66rem">(cat)</span>')+'</label>'; }).join('');
     return '<div style="margin-top:14px;border-top:1px solid #16273e;padding-top:12px">'+
       '<b style="color:#c9b6ff;font-size:.92rem">🤖 Model Lab — addestra un modello sui tuoi dati</b>'+
@@ -2445,6 +2461,28 @@ window.BSI_TELEMETRY_URL='';</script>
       .catch(function(e){ o.innerHTML='<div style="background:#2a1420;border:1px solid #5a2436;border-radius:9px;padding:11px 13px;color:#ffb0be;font-size:.83rem">⚠️ Impossibile scaricare (CORS o URL non valido): '+e.message+'.<br>Suggerimento: usa un URL "raw" (es. raw.githubusercontent.com) o scarica il file e usa <b>📁 Apri file</b>.</div>'; });
     };
   }
+  /* ── Perché questa matematica è esposta ───────────────────────────────
+     R², validazione incrociata, AUC e classifica dei modelli sono NUMERI CHE
+     L'INTERFACCIA MOSTRA. Finché stavano chiusi in questo ambito, nessun banco
+     poteva metterli alla prova: si poteva solo leggere il valore sullo schermo
+     e crederci.
+
+     Si espongono sotto un nome unico, in sola lettura per chi li usa, perché
+     un banco possa confrontarli con valori calcolabili a mano — esattamente
+     come il motore chemioinformatico espone le sue metriche. */
+  window.BSIDataSci = {
+    adattaDiscesa: _dsGDFit,
+    mediaEScarto: _dsMeanStd,
+    cvRegressione: _dsCVReg,
+    cvRiferimentoRegressione: _dsCVBaseReg,
+    cvKnnRegressione: _dsCVKnnReg,
+    cvClassificazione: _dsCVClf,
+    cvRiferimentoClassificazione: _dsCVBaseClf,
+    roc: _dsROC,
+    statisticheColonna: _dsColStats,
+    leggiCsv: _dsParseCSV
+  };
+
   window.initDataSci=function(){ renderNav(); renderCourses(); renderSkills(); renderTL(); fit(); draw(); window._dsPredict(); initKnn(); initKmeans(); renderGloss(); renderProjects(); renderSolub(); renderCernGuide(); initGh(); _dsWbInit(); };
 })();
 </script>
@@ -3633,6 +3671,13 @@ window.onload = function(){
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='senergia' && typeof window.initEnergyDiagrams==='function') window.initEnergyDiagrams();
       if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
+      if(sec==='sdatasci' && typeof window.initDataSci==='function'){
+        var _secDs = id('sdatasci');
+        if(!_secDs || !_secDs.dataset.bsiCostruita){
+          window.initDataSci();
+          if(_secDs) _secDs.dataset.bsiCostruita = '1';
+        }
+      }
       if(sec==='smolprop' && typeof window.initMolProps==='function') window.initMolProps();
       if(sec==='srxnbal' && typeof window.initRxnBalancer==='function') window.initRxnBalancer();
       if(sec==='ssmiles' && typeof window.initSmilesEditor==='function') window.initSmilesEditor();

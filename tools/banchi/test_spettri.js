@@ -131,6 +131,49 @@ const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
   att('e non l\'assorbanza', false, conv.assorbanza);
   att('la regione dell\'impronta digitale e\' segnata', true, conv.impronta);
 
+  /* ── Due schermature forti che l'additivita' non prevede ─────────────
+     Misurato prima della correzione: il TETRAMETILSILANO usciva a 0,92 ppm,
+     come un metile alifatico qualunque. Ma il TMS e' lo standard che
+     DEFINISCE lo zero della scala: vederlo a 0,92 e' la prima cosa che un
+     chimico nota. E il ciclopropano usciva a 1,30 invece di 0,22, dove la
+     corrente d'anello scherma fortemente.
+
+     Entrambi erano invisibili ai controlli esistenti, che guardavano molecole
+     "normali". Si fissano qui, e si verifica anche che la SOTTRAZIONE
+     funzioni: se il picco specifico non scalasse quello generico, i protoni
+     verrebbero contati due volte e i rapporti di integrazione — l'unica cosa
+     che in un proton NMR si legge davvero — sarebbero sbagliati. */
+  console.log('\n9) Schermature che un conteggio additivo non deduce');
+  const scherm = await pg.evaluate(async () => {
+    const S = window.BSISpettri;
+    function chiedi(smi){
+      return new Promise(res => {
+        let fatto = false;
+        try { S.gruppi(smi, g => { if (!fatto) { fatto = true; res(g); } }); }
+        catch (e) { if (!fatto) { fatto = true; res(null); } }
+        setTimeout(() => { if (!fatto) { fatto = true; res(null); } }, 20000);
+      });
+    }
+    const tms = await chiedi('C[Si](C)(C)C');
+    const cp  = await chiedi('C1CC1');
+    const fe  = await chiedi('[Fe]');
+    const sp  = await chiedi('QQQ');
+    const pick = (g) => (g && g.__protoni) ? g.__protoni : [];
+    return {
+      tms: pick(tms).map(p => p.ppm + '/' + p.nH).join(' '),
+      tmsEtichetta: (pick(tms)[0] || {}).lbl || '',
+      cp: pick(cp).map(p => p.ppm + '/' + p.nH).join(' '),
+      ferroSenzaProtoni: pick(fe).length,
+      spazzaturaNulla: sp === null
+    };
+  });
+  att('il tetrametilsilano sta a 0 ppm con 12 protoni', '0/12', scherm.tms);
+  att('e l\'etichetta dice perché', true, /TMS/.test(scherm.tmsEtichetta));
+  att('il ciclopropano sta a 0,22 ppm con 6 protoni', '0.22/6', scherm.cp);
+  att('un atomo di ferro non ha protoni da mostrare', 0, scherm.ferroSenzaProtoni);
+  att('uno SMILES illeggibile restituisce null, non un risultato inventato',
+      true, scherm.spazzaturaNulla);
+
   att('nessun errore JS in tutto il banco', 0, err.length);
   err.slice(0, 4).forEach(e => console.log('     ! ' + e.slice(0, 150)));
 

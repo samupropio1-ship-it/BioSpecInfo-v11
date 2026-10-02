@@ -58,7 +58,7 @@ const FAMIGLIE = [
     scopo: 'I dati chimici mostrati sono verificati contro una fonte indipendente.',
     banchi: ['@verifica-farmaci', 'test_spettri', 'test_spettri_ui', 'test_assi',
              'test_assi_canvas', 'test_costanti', 'audit_dati', 'test_simmetria', 'test_cheminfo',
-             'test_farm_ui'] },
+             'test_farm_ui', 'test_datasci', 'test_astro'] },
   { nome: 'Agente AI',
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',

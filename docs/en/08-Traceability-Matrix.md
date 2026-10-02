@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v180` |
+| **Version described** | `bsi-v181` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -106,7 +106,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v180`. The
+> remedy was to change it, and that **has been done** at version `bsi-v181`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -172,4 +172,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v180`._
+_Document updated to version `bsi-v181`._

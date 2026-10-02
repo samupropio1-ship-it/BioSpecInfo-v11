@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v180` |
+| **Version described** | `bsi-v181` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**45 benches**, grouped by what they demonstrate.
+**47 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -104,6 +104,8 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_costanti` | Physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | Consistency of the tabulated data | 29 |
 | `test_farm_ui` | That the Drug Atlas **draws** every drug it holds in memory, category by category, and that a **never-labelled** category still appears | 11 |
+| `test_astro` | The astrochemistry data: molecular weight ⟷ formula for the 30 interstellar molecules against IUPAC atomic weights, no repeated celestial body, every quiz question with a valid answer among its options | 13 |
+| `test_datasci` | The maths the Data Science section **displays**: R² on an exact relation, standardised weights in the true ratio, ROC on hand-computable values, behaviour on pure noise, and that **no section is left unreachable** | 23 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
 | `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals and their **refusal on classification** | 189 |
 
@@ -418,4 +420,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v180`._
+_Document updated to version `bsi-v181`._
