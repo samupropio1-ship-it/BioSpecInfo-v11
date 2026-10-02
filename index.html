@@ -814,7 +814,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v178';
+window.BSI_APP_VERSION='bsi-v179';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -47025,7 +47025,8 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
       '<button id="chemAddestra" class="chem-p">Addestra</button>' +
       '<button id="chemConfronta" class="chem-b">Confronta i modelli</button>' +
       '<button id="chemCurva" class="chem-b">Curva di apprendimento</button>' +
-      '<button id="chemIntervalli" class="chem-b">Intervalli di predizione</button></div>' +
+      '<button id="chemIntervalli" class="chem-b">Intervalli di predizione</button>' +
+      '<button id="chemArricchimento" class="chem-b">Arricchimento (screening)</button></div>' +
       '<div id="chemQsarOut" style="color:#8fa3b8;font-size:.82rem">Premi «Addestra»: il modello verrà confrontato con dieci sosia a etichette rimescolate, e validato su pieghe che non condividono nessuno scheletro.</div>' +
       '</div>';
   };
@@ -47036,6 +47037,96 @@ console.log('BioSpecInfo — pannello Impostazioni ✔');
     var c = $('chemConfronta'); if (c) c.onclick = eseguiConfronto;
     var cu = $('chemCurva'); if (cu) cu.onclick = eseguiCurva;
     var iv = $('chemIntervalli'); if (iv) iv.onclick = eseguiIntervalli;
+    var ar = $('chemArricchimento'); if (ar) ar.onclick = eseguiArricchimento;
+  }
+
+  /* ── Arricchimento ─────────────────────────────────────────────────────
+     Esisteva nel motore e nel banco e NON aveva una porta nell'applicazione:
+     una capacità che nessuno può raggiungere è come se non ci fosse. Per uno
+     screening è la metrica che conta più dell'AUC, perché in uno screening
+     non si guarda tutta la lista: si prendono i primi mille di centomila. */
+  function eseguiArricchimento() {
+    var B = window.BSIChem, out = $('chemQsarOut');
+    if (!out) return;
+    var conY = stato.molecole.filter(function (m) { return typeof m.attivita === 'number'; });
+    var distinti = [];
+    conY.forEach(function (m) { if (distinti.indexOf(m.attivita) === -1) distinti.push(m.attivita); });
+    var binaria = distinti.length === 2 && distinti.every(function (v) { return v === 0 || v === 1; });
+
+    out.textContent = 'Classificazione e ordinamento in corso…';
+    setTimeout(function () {
+      try {
+        /* Con attività continua non ci sono «attivi»: bisogna dire dove si
+           taglia, e DICHIARARLO, perché l'arricchimento cambia con la soglia. */
+        var y, soglia = null, nota = '';
+        if (binaria) {
+          y = conY.map(function (m) { return m.attivita; });
+          nota = 'Attività già binaria: gli attivi sono le molecole con valore 1.';
+        } else {
+          var ord = conY.map(function (m) { return m.attivita; }).sort(function (a, b) { return b - a; });
+          soglia = ord[Math.max(0, Math.ceil(ord.length * 0.25) - 1)];
+          y = conY.map(function (m) { return m.attivita >= soglia ? 1 : 0; });
+          nota = 'Attività continua: il quarto superiore è stato preso come «attivo», ' +
+                 'soglia ' + num(soglia, 2) + '. L\'arricchimento dipende da questa scelta, ' +
+                 'e cambiarla cambia i numeri.';
+        }
+        var c = B.confrontoModelli(conY, {
+          fingerprint: ($('chemFp') || {}).value || 'morgan',
+          pieghe: Math.max(3, +(($('chemPieghe') || {}).value || 5)),
+          seme: 42, classificazione: binaria ? true : undefined
+        });
+        /* Il punteggio con cui si ordina è la predizione fuori piega del
+           modello migliore: ordinare con predizioni di un modello che ha
+           visto la molecola darebbe un arricchimento finto. */
+        var migliore = null;
+        c.modelli.slice(1).forEach(function (m) {
+          if (m.media !== null && (migliore === null || m.media > migliore.media)) migliore = m;
+        });
+        if (!migliore) { out.innerHTML = avviso('Nessun modello utilizzabile su questo insieme.'); return; }
+        var idx = [];
+        migliore.previsti.forEach(function (v, i) { if (v !== undefined && v !== null) idx.push(i); });
+        var a = B.arricchimento(idx.map(function (i) { return y[i]; }),
+                                idx.map(function (i) { return migliore.previsti[i]; }),
+                                { frazioni: [0.01, 0.05, 0.10, 0.25] });
+        if (a.errore) { out.innerHTML = avviso(esc(a.errore)); return; }
+
+        var righe = a.ef.map(function (e) {
+          var alMassimo = e.ef !== null && e.efMassimo !== null && e.ef >= e.efMassimo - 1e-9;
+          return '<tr><td>' + Math.round(e.frazione * 100) + ' %</td>' +
+            '<td style="text-align:right">' + e.composti + '</td>' +
+            '<td style="text-align:right">' + e.attiviTrovati + '</td>' +
+            '<td style="text-align:right;color:#8fa3b8">' + num(e.attesiACaso, 2) + '</td>' +
+            '<td style="text-align:right;font-weight:700;color:' +
+              (e.ef > 1 ? '#4ade80' : '#ff8787') + '">' + num(e.ef, 2) + '</td>' +
+            '<td style="text-align:right;color:' + (alMassimo ? '#5eead4' : '#64798f') + '">' +
+              num(e.efMassimo, 2) + (alMassimo ? ' \u2190 al massimo' : '') + '</td></tr>';
+        }).join('');
+
+        out.innerHTML = '<div class="chem-card"><div class="chem-h">ARRICCHIMENTO \u2014 LE METRICHE DELLO SCREENING</div>' +
+          '<div style="color:#c9d3df;font-size:.82rem;line-height:1.6;margin-bottom:9px">' +
+          'In uno screening non si guarda tutta la lista: si prendono i primi mille composti di centomila. ' +
+          'Un <b>ROC-AUC di 0,80 può nascondere una testa di lista senza un solo attivo</b>, perché l\'AUC premia ' +
+          'anche l\'ordine nella coda, che nessuno comprerà. ' + esc(nota) + '</div>' +
+          '<div class="chem-kpi">' +
+          '<div><div class="v">' + num(a.auc, 3) + '</div><div class="l">ROC-AUC</div></div>' +
+          '<div><div class="v">' + num(a.bedroc, 3) + '</div><div class="l">BEDROC (\u03b1=' + a.alfaBedroc + ')</div></div>' +
+          '<div><div class="v">' + a.attivi + '/' + a.totale + '</div><div class="l">attivi</div></div>' +
+          '<div><div class="v">' + Math.round(a.frazioneAttivi * 100) + '%</div><div class="l">frazione attiva</div></div></div>' +
+          '<div class="chem-tw" style="margin-top:10px"><table><thead><tr><th>cima</th>' +
+          '<th style="text-align:right">composti</th><th style="text-align:right">attivi</th>' +
+          '<th style="text-align:right">attesi a caso</th><th style="text-align:right">EF</th>' +
+          '<th style="text-align:right">EF massimo</th></tr></thead><tbody>' + righe + '</tbody></table></div>' +
+          '<div style="color:#8fa3b8;font-size:.76rem;margin-top:8px;line-height:1.6">' +
+          'Ordinamento prodotto da <b>' + esc(migliore.nome) + '</b> con le predizioni <b>fuori piega</b>: ' +
+          'ordinare con le predizioni di un modello che ha già visto la molecola darebbe un arricchimento finto. ' +
+          'La colonna <b>EF massimo</b> dice quanto si potrebbe arrivare a quella frazione: un EF di 8 su un ' +
+          'massimo di 10 è un risultato, su un massimo di 8 è il massimo. ' +
+          'BEDROC pesa esponenzialmente le posizioni in testa (Truchon & Bayly 2007) e vale 1 per un ordinamento ' +
+          'perfetto, 0 per il peggiore.</div></div>';
+      } catch (e) {
+        out.innerHTML = avviso('Arricchimento non riuscito: ' + esc(e.message));
+      }
+    }, 30);
   }
 
   /* ── Confronto fra modelli ─────────────────────────────────────────────

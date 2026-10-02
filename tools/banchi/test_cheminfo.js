@@ -938,6 +938,49 @@ function vicino(d, atteso, avuto, tol){
   att('la pendenza finale è calcolata', true, cur.pendenzaDefinita);
   att('il verdetto «più dati aiuterebbero» viene espresso', true, cur.verdettoEspresso);
 
+  /* Il tipo di problema non e' un dettaglio: su attivita' BINARIA questa
+     funzione riportava un R\u00b2 calcolato su 0/1, e gli intervalli conformi
+     davano «0,122 [\u22120,017, 0,261]» \u2014 un limite inferiore NEGATIVO per una
+     grandezza che vale 0 oppure 1, mostrato con la stessa sicurezza di un
+     valore buono. Qui si fissa che la curva cambi metrica e che gli
+     intervalli RIFIUTINO, indicando cosa usare al loro posto. */
+  const bin = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const nuclei = ['c1ccccc1','c1ccncc1','c1ccc2ccccc2c1','C1CCCCC1','c1cc[nH]c1',
+                    'c1ccoc1','c1ccsc1','C1CCNCC1','c1cnc2ccccc2c1','C1CCOC1'];
+    const binario = [], continuo = [];
+    nuclei.forEach((nu, i) => [['C',0],['Cl',1],['C(Cl)(Cl)',1],['CC',0]].forEach((x, j) => {
+      binario.push({ smiles: nu + x[0], nome: 'b' + i + j, attivita: x[1] });
+      continuo.push({ smiles: nu + x[0], nome: 'k' + i + j, attivita: 4 + x[1] * 1.7 });
+    }));
+    let rifiuto = null;
+    try { B.intervalliConformi(binario, { alfa: 0.1, seme: 42 }); }
+    catch (e) { rifiuto = e.message; }
+    let forzato = null;
+    try { forzato = B.intervalliConformi(binario, { alfa: 0.1, seme: 42, forzaRegressione: true }); }
+    catch (e) { forzato = null; }
+    const cb = B.curvaApprendimento(binario, { pieghe: 4, seme: 42, frazioni: [0.5, 1.0] });
+    const cc = B.curvaApprendimento(continuo, { pieghe: 4, seme: 42, frazioni: [0.5, 1.0] });
+    const icc = B.intervalliConformi(continuo, { alfa: 0.1, seme: 42 });
+    return {
+      haRifiutato: rifiuto !== null,
+      spiegaPerche: !!(rifiuto && /binaria/.test(rifiuto)),
+      indicaAlternativa: !!(rifiuto && /arricchimento|BEDROC/i.test(rifiuto)),
+      siPuoForzare: forzato !== null,
+      metricaBinaria: cb.metrica, tipoBinario: cb.tipo,
+      metricaContinua: cc.metrica, tipoContinuo: cc.tipo,
+      continuoPassa: typeof icc.semiampiezza === 'number' && isFinite(icc.semiampiezza)
+    };
+  });
+  att('su attivita\' binaria gli intervalli conformi RIFIUTANO', true, bin.haRifiutato);
+  att('e il messaggio dice perche\'', true, bin.spiegaPerche);
+  att('e indica quale strumento usare al suo posto', true, bin.indicaAlternativa);
+  att('chi sa quel che fa puo\' forzarli comunque', true, bin.siPuoForzare);
+  att('su attivita\' continua gli intervalli funzionano', true, bin.continuoPassa);
+  att('la curva usa ROC-AUC su attivita\' binaria', 'auc', bin.metricaBinaria);
+  att('e R2 su attivita\' continua', 'r2', bin.metricaContinua);
+  att('e dichiara il tipo di problema', 'classificazione', bin.tipoBinario);
+
   /* ── §15 · Esportazione SDF ────────────────────────────────────────────
      Un SDF sbagliato e' peggio di nessun SDF: chi lo riceve lo importa e
      scopre l'errore dopo. Il controllo decisivo e' il ROUND-TRIP: il blocco
@@ -1140,9 +1183,9 @@ function vicino(d, atteso, avuto, tol){
 
   /* Un banco che non misura nulla passa: se i controlli eseguiti sono
      pochi, qualcosa e' stato saltato in silenzio. */
-  if (eseguiti < 178) {
+  if (eseguiti < 186) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 178');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 186');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

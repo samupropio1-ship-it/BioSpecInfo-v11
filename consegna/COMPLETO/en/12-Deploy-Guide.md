@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v178` |
+| **Version described** | `bsi-v179` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -264,4 +264,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v178`._
+_Document updated to version `bsi-v179`._

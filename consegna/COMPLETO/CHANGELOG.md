@@ -7,6 +7,63 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v179] — 2026-10-02
+
+Caccia ai problemi prima di pubblicare su `main`, sui percorsi meno battuti.
+Il più sospetto era il **caso classificazione**: implementato nel motore, ma
+l'interfaccia era sempre stata provata su dati di regressione. Due difetti veri.
+
+### Corretto — un intervallo di predizione che mentiva con sicurezza
+
+Su un'attività **binaria** (0/1) gli intervalli conformi costruivano una
+regressione sui valori binari e restituivano, misurato:
+
+```
+0,122  [−0,017,  0,261]
+```
+
+Un limite inferiore **negativo** per una grandezza che vale 0 oppure 1,
+mostrato dal pannello con la stessa sicurezza di un valore buono. La predizione
+conforme per la classificazione esiste, ma non è un intervallo: è un **insieme**
+di etichette possibili, e si costruisce in un altro modo.
+
+Finché non c'è, la risposta onesta è **rifiutare**: ora la funzione si ferma,
+spiega che l'attività è binaria, e indica quale strumento usare al suo posto
+(le metriche di arricchimento). Chi sa quel che fa può forzarla con
+`forzaRegressione: true`.
+
+### Corretto — la curva di apprendimento riportava un R² su etichette 0/1
+
+Usava `metricheRegressione` senza guardare il tipo di problema. Ora su attività
+binaria usa **ROC-AUC**, e in ogni caso **dichiara quale metrica** sta
+mostrando: un punto «0,82» senza il nome della metrica non si può confrontare
+con niente.
+
+### Aggiunto — l'arricchimento aveva una capacità e nessuna porta
+
+`arricchimento()` esisteva nel motore ed era verificato dal banco, ma
+**nessun pannello lo raggiungeva**: una capacità che nessuno può usare è come
+se non ci fosse. Ora c'è il pulsante, e il pannello mostra EF a 1, 5, 10 e 25 %
+con l'**EF massimo possibile** accanto, più ROC-AUC e BEDROC.
+
+Due scelte dichiarate nel pannello:
+
+- l'ordinamento viene dalle predizioni **fuori piega** del modello migliore.
+  Ordinare con le predizioni di un modello che ha già visto la molecola darebbe
+  un arricchimento finto;
+- con attività **continua** non esistono «attivi»: il quarto superiore viene
+  preso come tale e **la soglia è scritta**, perché l'arricchimento cambia con
+  essa.
+
+### Verificato — quattordici pagine, nessun problema
+
+Prima di unire su `main`: tutte le pagine dell'applicazione aperte e misurate.
+**Zero errori JavaScript, zero risposte 4xx, zero identificatori duplicati.**
+
+Banco a **189 controlli**. Batteria: 44 banchi, 0 falliti.
+
+---
+
 ## [bsi-v178] — 2026-10-02
 
 La chemioinformatica passa da **prototipo verificato** a **strumento di

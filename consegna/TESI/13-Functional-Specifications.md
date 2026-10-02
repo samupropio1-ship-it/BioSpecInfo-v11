@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v178` |
+| **Versione descritta** | `bsi-v179` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -178,7 +178,7 @@ dall'applicazione: un banco che chiedesse al codice sotto esame quanto vale il
 proprio contrasto non misurerebbe niente.
 
 Il motore sta in `bsi-cheminfo.js`, è esposto come `window.BSIChem` ed è
-verificato dal banco `test_cheminfo` (181 controlli) contro valori calcolabili a
+verificato dal banco `test_cheminfo` (189 controlli) contro valori calcolabili a
 mano.
 
 ### 3.3 Chimica organica
@@ -364,4 +364,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v178`._
+_Documento aggiornato alla versione `bsi-v179`._

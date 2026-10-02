@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v178` |
+| **Version described** | `bsi-v179` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -177,7 +177,7 @@ taken from the application: a bench that asked the code under test how good its
 own contrast was would be measuring nothing.
 
 The engine lives in `bsi-cheminfo.js`, is exposed as `window.BSIChem` and is
-verified by the `test_cheminfo` bench (181 checks) against hand-computable
+verified by the `test_cheminfo` bench (189 checks) against hand-computable
 values.
 
 ### 3.3 Organic chemistry
@@ -364,4 +364,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v178`._
+_Document updated to version `bsi-v179`._

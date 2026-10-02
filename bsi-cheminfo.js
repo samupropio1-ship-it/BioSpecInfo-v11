@@ -2227,6 +2227,27 @@
     conY.forEach(function (m) { var f = fingerprint(m.smiles, tipoFp); if (f) { fps.push(f); mols.push(m); } });
     var y = mols.map(function (m) { return m.attivita; });
 
+    /* ── Un rifiuto necessario ──────────────────────────────────────────
+       Su un'attivita' BINARIA questa funzione produceva un intervallo con
+       senso apparente e nessun significato: misurato, dava «0,122 [−0,017,
+       0,261]» — un limite inferiore NEGATIVO per una grandezza che vale 0
+       oppure 1, mostrato dal pannello con la stessa sicurezza di un valore
+       buono.
+
+       La predizione conforme per la classificazione esiste, ma non e' un
+       intervallo: e' un INSIEME di etichette possibili, e si costruisce in
+       un altro modo. Finche' non c'e', la risposta onesta e' rifiutare e
+       dire quale strumento usare al suo posto. */
+    var distintiY = Array.from(new Set(y));
+    var binaria = distintiY.length === 2 &&
+                  distintiY.every(function (v) { return v === 0 || v === 1; });
+    if (binaria && opzioni.forzaRegressione !== true) {
+      throw new Error('l\'attivita\' e\' binaria (0/1): un intervallo di predizione non ha ' +
+                      'significato su una classificazione. Per lo screening usa le metriche di ' +
+                      'arricchimento (EF, BEDROC); per una probabilita\' calibrata servirebbe la ' +
+                      'predizione conforme a insiemi, che questo motore non ha.');
+    }
+
     /* La divisione è PER SCAFFOLD anche qui: una calibrazione fatta su
        analoghi dell'addestramento misurerebbe residui troppo piccoli, e
        l'intervallo che ne esce sarebbe troppo stretto proprio sulle molecole
@@ -2367,6 +2388,14 @@
     var fps = [], mols = [];
     conY.forEach(function (m) { var f = fingerprint(m.smiles, tipoFp); if (f) { fps.push(f); mols.push(m); } });
     var y = mols.map(function (m) { return m.attivita; });
+    /* Su etichette binarie un R² non e' la metrica giusta: si usa l'AUC e
+       SI DICHIARA quale delle due si sta guardando, perche' un punto «0,82»
+       senza il nome della metrica non si puo' confrontare con niente. */
+    var distintiC = Array.from(new Set(y));
+    var classif = opzioni.classificazione !== undefined
+      ? opzioni.classificazione
+      : (distintiC.length === 2 && distintiC.every(function (v) { return v === 0 || v === 1; }));
+    var chiaveC = classif ? 'auc' : 'r2';
     var p = pieghePerScaffold(mols, k, seme);
     var r = rng(seme + 555);
 
@@ -2384,12 +2413,21 @@
         }
         var usati = mescolato.slice(0, quanti);
         if (!prova.length || usati.length < 3) return;
-        var mod = addestraRidge(usati.map(function (i) { return fps[i]; }),
-                                usati.map(function (i) { return y[i]; }),
-                                opzioni.lambda === undefined ? 1 : opzioni.lambda);
-        var prev = prova.map(function (i) { return prediciRidge(mod, fps[i]); });
-        var m = metricheRegressione(prova.map(function (i) { return y[i]; }), prev);
-        if (m.r2 !== null && isFinite(m.r2)) punteggi.push(m.r2);
+        var yUsati = usati.map(function (i) { return y[i]; });
+        if (classif && new Set(yUsati).size < 2) return;   // non addestrabile
+        var prev;
+        if (classif) {
+          var ml = addestraLogistica(usati.map(function (i) { return fps[i]; }), yUsati, opzioni);
+          prev = prova.map(function (i) { return prediciLogistica(ml, fps[i]); });
+        } else {
+          var mod = addestraRidge(usati.map(function (i) { return fps[i]; }), yUsati,
+                                  opzioni.lambda === undefined ? 1 : opzioni.lambda);
+          prev = prova.map(function (i) { return prediciRidge(mod, fps[i]); });
+        }
+        var veriP = prova.map(function (i) { return y[i]; });
+        var m = classif ? metricheClassificazione(veriP, prev) : metricheRegressione(veriP, prev);
+        var v = m[chiaveC];
+        if (v !== null && isFinite(v)) punteggi.push(v);
       });
       var agg = mediaEScarto(punteggi);
       return { frazione: f, nAddestramentoTipico: Math.round(mols.length * (1 - 1 / p.nPieghe) * f),
@@ -2402,6 +2440,8 @@
 
     return {
       punti: punti, nTotali: mols.length, pieghe: p.nPieghe,
+      tipo: classif ? 'classificazione' : 'regressione',
+      metrica: chiaveC,
       pendenzaFinale: pendenzaFinale,
       /* Il verdetto a parole: il guadagno fra gli ultimi due punti supera la
          dispersione? Se no, aggiungere molecole dello stesso tipo non aiuta. */
