@@ -1,0 +1,132 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Pubblicazione di una versione
+#
+# PERCHE' QUESTO WORKFLOW ESISTE
+#
+# Le credenziali con cui si lavora al repository da una sessione remota sono
+# autorizzate a scrivere sui rami (`refs/heads/*`) e NON sui tag: la spinta di
+# un tag torna 403 sulla POST a `git-receive-pack`, mentre un ramo nuovo passa.
+# Senza tag non c'e' release, e la release era chiesta.
+#
+# Il token di Actions, invece, scrive sul repository che lo ospita. Quindi la
+# versione si pubblica da qui: si avvia a mano (Actions → release → Run
+# workflow), crea il tag sul commit indicato, apre la release e le allega i tre
+# pacchetti di consegna. L'archivio completo — `models/` incluse — lo genera
+# GitHub da se' come «Source code (zip)».
+#
+# Le note non si scrivono due volte: si prendono dalla voce del CHANGELOG che
+# porta lo stesso nome della versione. Se quella voce non c'e', il workflow
+# fallisce invece di pubblicare una release muta.
+# ═══════════════════════════════════════════════════════════════════════════
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versione:
+        description: 'Versione da pubblicare, come nel CHANGELOG (es. bsi-v181)'
+        required: true
+        default: 'bsi-v181'
+      titolo:
+        description: 'Titolo della release (vuoto = «BioSpecInfo <versione>»)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prendi il repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ricava le note dal CHANGELOG
+        id: note
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          # la voce del CHANGELOG che porta esattamente questo nome
+          awk -v v="## [$VER]" '
+            index($0, v) == 1 { dentro = 1; next }
+            /^## \[/         { dentro = 0 }
+            dentro           { print }
+          ' CHANGELOG.md > note.md
+          # Una release senza note e' peggio di nessuna release: sembra una
+          # versione e non dice che cosa cambia.
+          RIGHE=$(grep -c '[^[:space:]]' note.md || true)
+          echo "righe utili nelle note: $RIGHE"
+          if [ "$RIGHE" -lt 5 ]; then
+            echo "::error::nel CHANGELOG non c'è una voce ## [$VER] con del contenuto"
+            exit 1
+          fi
+          {
+            echo ''
+            echo '---'
+            echo ''
+            echo '**Che cosa scaricare**'
+            echo ''
+            echo '- *Source code (zip)* qui sotto è **tutto**: applicazione, codice,'
+            echo '  documentazione in italiano e inglese, i banchi di prova e le strutture'
+            echo '  3D di `models/` (~124 MB).'
+            echo '- I tre pacchetti allegati sono i soli documenti, divisi per destinatario:'
+            echo '  `AZIENDA` per una valutazione tecnica, `TESI` per la commissione,'
+            echo '  `COMPLETO` tutto compreso.'
+            echo "- Per **usare** l'applicazione non serve scaricare niente: è una PWA,"
+            echo '  si apre da <https://samupropio1-ship-it.github.io/BioSpecInfo-v11/>.'
+          } >> note.md
+          echo "file=note.md" >> "$GITHUB_OUTPUT"
+
+      - name: Controlla che i pacchetti ci siano
+        run: |
+          set -euo pipefail
+          # Un allegato mancante renderebbe la release incompleta in silenzio.
+          QUANTI=$(ls -1 consegna/*.zip 2>/dev/null | wc -l)
+          ls -lh consegna/*.zip || true
+          if [ "$QUANTI" -lt 3 ]; then
+            echo "::error::attesi 3 pacchetti in consegna/, trovati $QUANTI"
+            exit 1
+          fi
+
+      - name: Crea il tag e la release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          TIT="${{ inputs.titolo }}"
+          [ -n "$TIT" ] || TIT="BioSpecInfo $VER"
+          # Rieseguibile: se la release c'è già si aggiornano note e allegati
+          # invece di fallire a metà.
+          if gh release view "$VER" >/dev/null 2>&1; then
+            echo "la release $VER esiste: aggiorno note e allegati"
+            gh release edit "$VER" --title "$TIT" --notes-file note.md
+            gh release upload "$VER" consegna/*.zip --clobber
+          else
+            gh release create "$VER" \
+              --target "${{ github.sha }}" \
+              --title "$TIT" \
+              --notes-file note.md \
+              consegna/*.zip
+          fi
+          echo "— pubblicata:"
+          gh release view "$VER" --json tagName,name,assets \
+            --jq '"\(.tagName) · \(.name) · allegati: \(.assets | length)"'
+
+      - name: Togli il ramo di prova lasciato indietro
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # `prova-permessi-refs` è nato da una verifica dei permessi sui ref:
+          # le credenziali della sessione remota possono creare rami ma non
+          # cancellarli, quindi è rimasto sul repository. Qui si può.
+          if git ls-remote --exit-code --heads origin prova-permessi-refs >/dev/null 2>&1; then
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/prova-permessi-refs"
+            echo "ramo prova-permessi-refs rimosso"
+          else
+            echo "nessun ramo di prova da rimuovere"
+          fi
