@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v179` |
+| **Versione descritta** | `bsi-v180` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -35,7 +35,7 @@ Tre applicazioni concrete di questo principio:
 
 ---
 
-## 2. Banca dati farmacologica — 178 voci
+## 2. Banca dati farmacologica — 233 voci
 
 ### 2.1 Il metodo di verifica
 
@@ -118,7 +118,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v179` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v180` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -591,7 +591,7 @@ stesura la batteria comprende, fra gli altri:
 
 | Banco | Oggetto | Controlli |
 |---|---|---|
-| `tools/verifica-farmaci.js` | struttura ⟷ peso molecolare, duplicati, deviazioni registrate | 178 voci |
+| `tools/verifica-farmaci.js` | struttura ⟷ peso molecolare, duplicati, deviazioni registrate | 233 voci |
 | `test_spettri` | riconoscimento gruppi su molecole di riferimento | 36 |
 | `test_assi` / `test_assi_canvas` | convenzioni degli assi (SVG e canvas) | 19 |
 | `test_costanti` | ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
@@ -609,7 +609,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v179` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v180` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -619,4 +619,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v179`._
+_Documento aggiornato alla versione `bsi-v180`._

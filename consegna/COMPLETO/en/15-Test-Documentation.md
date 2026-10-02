@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v179` |
+| **Version described** | `bsi-v180` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,19 +90,20 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**44 benches**, grouped by what they demonstrate.
+**45 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
 | Bench | Verifies | Checks |
 |---|---|---:|
-| `verifica-farmaci` | Structure ⟷ molecular weight, duplicates, recorded deviations | 178 entries |
+| `verifica-farmaci` | Structure ⟷ molecular weight, duplicates, recorded deviations | 233 entries |
 | `test_spettri` | Functional-group recognition on reference molecules | 36 |
 | `test_spettri_ui` | Grafting of the engine into the app's spectrum-drawing points | 16 |
 | `test_assi` | Axis conventions in the SVG spectra | 13 |
 | `test_assi_canvas` | Axis conventions in the canvas spectra | 6 |
 | `test_costanti` | Physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | Consistency of the tabulated data | 29 |
+| `test_farm_ui` | That the Drug Atlas **draws** every drug it holds in memory, category by category, and that a **never-labelled** category still appears | 11 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
 | `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals and their **refusal on classification** | 189 |
 
@@ -417,4 +418,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v179`._
+_Document updated to version `bsi-v180`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v179` |
+| **Version described** | `bsi-v180` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -214,7 +214,7 @@ together with the code.
 
 | Structure | Content | Verification |
 |---|---|---|
-| `FARM_DATA` | **178 drugs**: name, category, SMILES, molecular weight, mechanism of action, indications, adverse effects, class | `tools/verifica-farmaci.js` — structure ⟷ molecular weight |
+| `FARM_DATA` | **233 drugs**: name, category, SMILES, molecular weight, mechanism of action, indications, adverse effects, class | `tools/verifica-farmaci.js` — structure ⟷ molecular weight |
 | `UV_DATA` | Chromophores, λmax, extinction coefficients, Woodward's rules | `audit_dati` |
 | `MS_DATA` | Characteristic fragmentations by class | `audit_dati` |
 | `MOLECOLE_ESAME` | Tabulated exam molecules | `test_spettri` |
@@ -255,4 +255,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v179`._
+_Document updated to version `bsi-v180`._

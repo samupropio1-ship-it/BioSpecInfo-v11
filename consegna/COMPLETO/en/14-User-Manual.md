@@ -95,7 +95,7 @@ find the cards that are due.
 
 ### Looking up a drug
 
-Open **Pharmacology**. For each of the 178 drugs you will find the structure,
+Open **Pharmacology**. For each of the 233 drugs you will find the structure,
 molecular weight, mechanism of action, indications, adverse effects and class.
 
 > ⚕️ **For teaching purposes only.** This information does not replace the
@@ -213,4 +213,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v179`._
+_Guide updated to version `bsi-v180`._

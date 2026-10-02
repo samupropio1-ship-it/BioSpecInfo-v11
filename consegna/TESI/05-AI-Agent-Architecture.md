@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v179` |
+| **Versione documentata** | Service Worker `bsi-v180` |
 
 ---
 
@@ -500,7 +500,7 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 
 ### 3.1 Dataset interni esposti
 
-297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 178 farmaci ·
+297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 233 farmaci ·
 63 patologie · 46 strategie retrosintetiche · 36 interazioni farmacologiche ·
 29 vie metaboliche · 29 potenziali redox.
 

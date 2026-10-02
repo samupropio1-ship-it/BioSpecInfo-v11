@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v179` |
+| **Versione descritta** | `bsi-v180` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -23,7 +23,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SCI-01** | I dati strutturali dei farmaci devono essere coerenti con il peso molecolare dichiarato | `FARM_DATA` in `index.html` | `tools/verifica-farmaci.js` — confronto RDKit ⟷ letteratura su 178 voci |
+| **SCI-01** | I dati strutturali dei farmaci devono essere coerenti con il peso molecolare dichiarato | `FARM_DATA` in `index.html` | `tools/verifica-farmaci.js` — confronto RDKit ⟷ letteratura su 233 voci |
 | **SCI-02** | I gruppi funzionali devono essere riconosciuti sulla struttura, non sul testo dello SMILES | `bsi-spettri.js` §1, pattern SMARTS via RDKit | `test_spettri` — 8 molecole di riferimento, riconoscimento additivo |
 | **SCI-03** | Una molecola con più gruppi funzionali deve mostrarli tutti | `bandeDaGruppi()`, costruzione additiva | `test_spettri` §1 — acido acetilsalicilico: estere **e** acido |
 | **SCI-04** | Gli spettri devono rispettare le convenzioni della tecnica | `svgIR()`, `makeNMRsvg()`, `drawUVSpectrum()`, `drawMSSpectrum()` | `test_assi` (SVG), `test_assi_canvas` (canvas) |
@@ -106,7 +106,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v179`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v180`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -173,4 +173,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v179`._
+_Documento aggiornato alla versione `bsi-v180`._

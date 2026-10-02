@@ -65,6 +65,42 @@ const SOGLIA_GRANDE  = 3.0;
    ad abbassare il riferimento apposta, il difetto sarebbe uscito la prima
    volta che qualcuno introduceva una regressione vera: cioe' nel momento
    peggiore, al posto del messaggio che doveva avvertirlo. */
+/* La guardia opposta: ci sono numeri che non devono CRESCERE (i difetti) e
+   numeri che non devono SCENDERE (quanta superficie si e' guardata).
+
+   Serviva: applicando `content-visibility:auto` alle carte per guadagnare
+   l'82 % sul tempo di apertura, gli elementi esaminati sono scesi da 20 326 a
+   20 031 — uno per carta, perche' il browser non impagina cio' che sta fuori
+   schermo e un elemento senza rettangolo viene saltato. Il banco continuava a
+   dire «contrasto 0»: uno zero su meno superficie, che e' il difetto che
+   questo progetto ha gia' incontrato col 100 % di copertura e col contrasto
+   dei pannelli nascosti.
+
+   La tolleranza e' dell'1 %: il conteggio oscilla di qualche unita' fra
+   esecuzioni, perche' qualche elemento compare o scompare secondo i tempi di
+   caricamento. Un calo vero e' molto piu' grande di cosi'. */
+function confrontaCopertura(desc, ora, riferimento){
+  if (typeof riferimento !== 'number' || !riferimento) {
+    console.log('  ✗ ' + desc + ': riferimento assente o non numerico');
+    return false;
+  }
+  const soglia = Math.floor(riferimento * 0.99);
+  if (ora < soglia) {
+    console.log('  ✗ ' + desc + ' — COPERTURA SCESA: ' + ora + ' contro un riferimento di ' +
+                riferimento + ' (−' + (riferimento - ora) + '). Un «0 difetti» misurato su ' +
+                'meno superficie non è un «0 difetti».');
+    return false;
+  }
+  if (ora > riferimento) {
+    console.log('  ✓ ' + desc + ' — cresciuta: ' + ora + ' contro ' + riferimento +
+                ' (+' + (ora - riferimento) + '). Aggiornare il riferimento con ' +
+                'l\'opzione --aggiorna-riferimento');
+    return true;
+  }
+  console.log('  ✓ ' + desc + ' — stabile a ' + ora);
+  return true;
+}
+
 function confrontaRif(desc, ora, riferimento){
   if (typeof riferimento !== 'number') {
     console.log('  ✗ ' + desc + ': riferimento assente o non numerico');
@@ -314,6 +350,7 @@ const ISPEZIONE = function(soglie){
               SOGLIA_GRANDE + ':1 (testo grande)\n');
 
   let totContrasto = 0, totNome = 0, totEtichetta = 0, totAlt = 0, totTitoli = 0, totSezioni = 0;
+  let totEsaminati = 0;
   const esempi = [];
 
   for (const p of PAGINE) {
@@ -365,6 +402,35 @@ const ISPEZIONE = function(soglie){
           if (b) b.click();
         }, sid);
         await pg.waitForTimeout(110);
+
+        /* ── Scorrere la sezione, non solo aprirla ───────────────────────
+           `content-visibility:auto` fa saltare al browser il layout di cio'
+           che sta fuori dallo schermo: e' la ragione per cui l'apertura della
+           sezione delle sintesi e' passata da 251 a 44 millisecondi. Ma un
+           elemento di cui il browser non calcola il layout ha rettangolo
+           nullo, e questa ispezione lo salta.
+
+           Misurato: senza scorrimento gli elementi esaminati scendevano da
+           20 326 a 20 031 — 295 in meno, uno per ciascuna delle 296 carte —
+           e il banco continuava a dire «contrasto 0». Uno zero su meno
+           superficie: lo stesso difetto che questo progetto ha gia'
+           incontrato due volte.
+
+           Si scorre quindi la sezione dall'alto in basso, in modo che le
+           carte entrino nello schermo e vengano impaginate. E' anche piu'
+           fedele a cio' che l'utente incontra davvero, perche' l'utente
+           scorre. */
+        await pg.evaluate(async function(){
+          const h = window.innerHeight || 800;
+          const tot = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+          for (let y = 0; y < tot; y += Math.floor(h * 0.8)) {
+            window.scrollTo(0, y);
+            await new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(r); }); });
+          }
+          window.scrollTo(0, 0);
+          await new Promise(function(r){ requestAnimationFrame(r); });
+        });
+
         const s = await pg.evaluate(ISPEZIONE, { normale: SOGLIA_NORMALE, grande: SOGLIA_GRANDE });
         percorse++;
         r.esaminati += s.esaminati;
@@ -414,6 +480,7 @@ const ISPEZIONE = function(soglie){
                   'il controllo non sta ispezionando l\'applicazione');
     }
     totSezioni += percorse;
+    totEsaminati += r.esaminati;
   }
 
   console.log('\n── Riepilogo ──');
@@ -454,7 +521,8 @@ const ISPEZIONE = function(soglie){
       aggiornato: new Date().toISOString().slice(0, 10),
       contrasto: totContrasto,
       campiSenzaEtichetta: totEtichetta,
-      sezioniPercorse: totSezioni
+      sezioniPercorse: totSezioni,
+      elementiEsaminati: totEsaminati
     }, null, 2) + '\n');
     console.log('\n  → riferimento aggiornato: contrasto ' + totContrasto +
                 ', campi senza etichetta ' + totEtichetta);
@@ -467,6 +535,10 @@ const ISPEZIONE = function(soglie){
     else ko++;
     if (confrontaRif('campi privi di etichetta', totEtichetta, rif.campiSenzaEtichetta)) ok++;
     else ko++;
+    if (rif.elementiEsaminati !== undefined) {
+      if (confrontaCopertura('elementi di testo esaminati', totEsaminati, rif.elementiEsaminati)) ok++;
+      else ko++;
+    }
     console.log('      riferimento del ' + (rif.aggiornato || '(senza data)') +
                 ' — il debito è dichiarato in docs/09 §4, non tollerato in silenzio');
   }

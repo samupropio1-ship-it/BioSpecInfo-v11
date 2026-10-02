@@ -91,7 +91,7 @@ quelle incerte tornano presto. Riaprendo trovi solo le schede in scadenza.
 
 ### Consultare un farmaco
 
-Apri **Farmacologia**. Per ognuno dei 178 farmaci trovi struttura, peso
+Apri **Farmacologia**. Per ognuno dei 233 farmaci trovi struttura, peso
 molecolare, meccanismo d'azione, indicazioni, effetti avversi e classe.
 
 > ⚕️ **Solo a scopo didattico.** Queste informazioni non sostituiscono il parere
@@ -209,4 +209,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v179`._
+_Guida aggiornata alla versione `bsi-v180`._

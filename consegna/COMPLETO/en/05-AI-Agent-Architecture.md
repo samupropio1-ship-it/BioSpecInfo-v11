@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v179` |
+| **Documented version** | Service Worker `bsi-v180` |
 
 ---
 
@@ -484,7 +484,7 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 
 ### 3.1 Internal datasets exposed
 
-297 synthesis reactions · 118 elements · 67 amino acids · 178 drugs ·
+297 synthesis reactions · 118 elements · 67 amino acids · 233 drugs ·
 63 pathologies · 46 retrosynthetic strategies · 36 drug interactions ·
 29 metabolic pathways · 29 redox potentials.
 

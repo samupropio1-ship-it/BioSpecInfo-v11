@@ -7,6 +7,118 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v180] — 2026-10-02
+
+Due blocchi: la **fluidità** di tutta l'applicazione, misurata e corretta, e la
+banca dati farmacologica che passa da **178 a 233 voci**.
+
+### Fluidità — la causa non era il JavaScript
+
+Misurato il cambio di sezione su tutte e 88: mediano 15 ms, ma cinque sezioni
+oltre i 50 ms in riapertura e due oltre il secondo e mezzo alla prima apertura.
+
+Scomposto il gestore del clic, la causa non era quella che sembrava: il ciclo
+su tutte le sezioni costa **2 ms**, rendere visibile la sezione **0 ms**, e
+tutto il tempo è il browser che **impagina** il DOM appena mostrato — 251 ms
+per le sintesi, che sono 13 482 nodi di cui l'utente vede una schermata.
+
+`content-visibility:auto` sulle carte, con `contain-intrinsic-size:auto` perché
+la barra di scorrimento non salti:
+
+| | riapertura | prima apertura |
+|---|---|---|
+| `ssyn` | 281 → **54 ms** | 1 272 → **199 ms** |
+| `sretro` | 112 → **40 ms** | 180 → 70 ms |
+| `sfarm` | 89 → **4 ms** | 293 → 141 ms |
+| Sezioni oltre 50 ms | 5 → **1** | |
+| Compito più lungo | | 1 374 → **651 ms** |
+
+### Corretto — il prezzo nascosto di quella velocità
+
+Gli elementi esaminati dal banco di accessibilità sono **scesi da 20 326 a
+20 031**: uno per carta, perché un elemento di cui il browser non calcola il
+layout ha rettangolo nullo e l'ispezione lo salta. Il banco continuava a dire
+«contrasto 0» — **su meno superficie**, che è lo stesso difetto già incontrato
+col 100 % di copertura e col contrasto dei pannelli nascosti.
+
+Due correzioni: il banco ora **scorre** ogni sezione (20 338 elementi, più di
+prima), e il riferimento registra `elementiEsaminati` con la **guardia
+opposta** — fallisce se la copertura scende oltre l'1 %. Provata alzando il
+riferimento: «COPERTURA SCESA: un "0 difetti" misurato su meno superficie non
+è un "0 difetti"».
+
+### Corretto — il modello si riaddestrava per OGNI predizione
+
+`scegliIperparametro` prendeva una funzione che predice una query e la chiamava
+dentro `prova.map(...)`: per la regressione kernel costruiva la matrice e
+risolveva il sistema una volta per **ogni molecola da predire**. Oltre duemila
+addestramenti dove ne servivano sessanta.
+
+| Molecole | Prima | Dopo |
+|---|---|---|
+| 50 | 214 ms | 104 ms |
+| 150 | 3 030 ms | **369 ms** |
+| 200 | 7 279 ms | **535 ms** |
+
+A risultati **identici byte per byte**. Il guardiano conta gli addestramenti
+invece di cronometrare: dodici per 240 predizioni, e non dipende da quante
+molecole ci sono.
+
+### Farmaci — da 178 a 233, ogni struttura da ChEMBL
+
+Cinquantacinque voci nuove sui buchi veri: inibitori di tirosin-chinasi,
+antiretrovirali moderni, nirmatrelvir, sartani e antitrombotici, antiepilettici
+di nuova generazione, carbapenemici, daptomicina, incretine, e la parte
+respiratoria, reumatologica e urologica che mancava.
+
+**Nessuno SMILES e nessun peso scritto a memoria**: la struttura viene dal
+record ChEMBL e il peso è quello che ChEMBL dichiara. Un controllo ha
+verificato che RDKit legga ogni struttura e che la **formula molecolare**
+ricostruita dal grafo coincida con quella dichiarata — **55 su 55**.
+
+Serviva una fonte esterna: lo SMILES sbagliato dell'omeprazolo era
+*autoconsistente*, e un peso coerente con una struttura sbagliata passa
+qualunque controllo interno. Intercettata anche una sostituzione silenziosa —
+cercando «formoterol» ChEMBL restituisce l'**arformoterolo**, il solo
+enantiomero (R,R) — registrata col nome giusto.
+
+### Corretto — 115 farmaci su 233 erano invisibili
+
+Cercando se le voci nuove comparissero è emerso un difetto che c'era già:
+
+```js
+var cats = cat==="all" ? Object.keys(catName) : [cat];
+```
+
+Le categorie da disegnare venivano dalla mappa delle **etichette**, non dai
+dati: 47 categorie nei dati, 19 etichettate, e i farmaci delle altre 28 non
+venivano **mai** disegnati. **115 voci su 233 invisibili — e 60 su 178 anche
+prima di queste aggiunte.** L'applicazione ne teneva in memoria centinaia e ne
+mostrava una parte.
+
+Scritte le etichette per tutte e 47 le categorie, e `cats` ricavato dai dati.
+I nodi della sezione passano da 4 038 a 7 805 — quasi il doppio — e la
+riapertura resta a **4 ms**, perché il contenimento del layout fatto nello
+stesso giro rende sostenibile mostrare il doppio del contenuto.
+
+### Il 45° banco — `test_farm_ui`, riscritto
+
+Un file con quel nome esisteva già: stampava sei numeri, non verificava niente
+e **non era registrato nella batteria**. Mentre taceva, la sezione mostrava 118
+farmaci su 233.
+
+Ora pretende che **ogni** farmaco in memoria compaia nella lista disegnata, che
+il filtro mostri le voci della categoria e nessun'altra, e che nessuna scheda
+mostri un peso rotto. Il controllo che conta è l'ultimo: il banco **inserisce**
+un farmaco con una categoria mai etichettata e pretende che venga disegnato,
+poi lo rimuove senza lasciare tracce. Un controllo sui farmaci esistenti non
+l'avrebbe scoperto, perché con le etichette a posto anche la riga difettosa
+disegna tutto — verificato nei due versi.
+
+Batteria: **45 banchi, 0 falliti**.
+
+---
+
 ## [bsi-v179] — 2026-10-02
 
 Caccia ai problemi prima di pubblicare su `main`, sui percorsi meno battuti.

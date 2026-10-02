@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v179` |
+| **Versione descritta** | `bsi-v180` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -213,7 +213,7 @@ così la copia cartacea non perde le spiegazioni.
 | Funzione | Descrizione |
 |---|---|
 | **Atlante 3D** | Si sceglie zona del corpo, malattia e farmaco: il modello evidenzia l'organo bersaglio |
-| **Banca dati** | **178 farmaci** con struttura, peso molecolare, meccanismo, indicazioni, effetti avversi, classe |
+| **Banca dati** | **233 farmaci** con struttura, peso molecolare, meccanismo, indicazioni, effetti avversi, classe |
 | **Interazioni** | Verifica delle interazioni fra principi attivi |
 | **Farmacocinetica** | Calcolatore di emivita, clearance, volume di distribuzione |
 | **Casi clinici** | Percorsi diagnosi-terapia a scopo didattico |
@@ -364,4 +364,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v179`._
+_Documento aggiornato alla versione `bsi-v180`._
