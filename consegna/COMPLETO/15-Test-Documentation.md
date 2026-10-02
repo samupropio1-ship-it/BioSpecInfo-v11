@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v180` |
+| **Versione descritta** | `bsi-v181` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**45 banchi**, raggruppati per ciò che dimostrano.
+**48 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -103,6 +103,8 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_costanti` | Ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | Coerenza dei dati tabulati | 29 |
 | `test_farm_ui` | Che l'Atlante Farmaci **disegni** ogni farmaco che ha in memoria, categoria per categoria, e che una categoria **mai etichettata** compaia comunque | 11 |
+| `test_astro` | I dati di astrochimica: peso molecolare ⟷ formula delle 30 molecole interstellari contro i pesi atomici IUPAC, nessun corpo celeste ripetuto, ogni domanda del quiz con una risposta valida fra le sue opzioni | 13 |
+| `test_datasci` | La matematica che la sezione Data Science **mostra**: R² su una relazione esatta, pesi standardizzati nel rapporto vero, ROC su valori calcolabili a mano, il comportamento su rumore puro, e che **nessuna sezione resti irraggiungibile** | 23 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
 | `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni CSV e SDF, **contrasto dei nove pannelli**, accordo fra laboratorio e motore, frammentazione, **coppie corrispondenti su effetti noti**, ricerca per sottostruttura, tabella SAR, confronto fra modelli nei due versi, arricchimento (EF e BEDROC) su casi calcolabili a mano, intervalli conformi e il loro **rifiuto sulla classificazione** | 189 |
 
@@ -143,7 +145,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 | Banco | Cosa mette alla prova |
 |---|---|
-| `audit_stabilita` | 88 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
+| `audit_stabilita` | 89 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
 | `audit_promesse` | Promesse rifiutate e non gestite, con rete sana e con rete morta |
 | `audit_quota` | `localStorage.setItem` forzato a fallire su 10 pagine |
 | `test_sw` | Offline, rete degradata, aggiornamento durante il lavoro |
@@ -153,7 +155,29 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 ### 3.4 Interfaccia
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
-`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy`
+`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
+`test_fluidita`
+
+**`test_fluidita` — 15 controlli.** Misura quanto la pagina resta *bloccata*
+a ogni cambio di sezione, su tutte le 89. Ha trovato tre difetti che nessun
+altro banco vedeva: il «Viewer 3D PRO» che fermava la pagina **797 ms** al
+primo click — il profilatore li attribuisce al primo `render()` di 3Dmol, che
+compila gli shader del contesto WebGL; le **296 figure** di «Sintesi»
+(5 351 nodi di SVG) disegnate tutte prima di mostrare qualunque cosa, mentre
+all'apertura se ne vedono tre; e **296 timer a 40 ms di distanza** programmati
+all'apertura della stessa sezione — undici secondi e mezzo di risvegli che
+chiedevano `getTotalLength()` su ogni tratto di ogni figura, comprese quelle
+fuori dallo schermo.
+
+Dopo le correzioni: cambio mediano **14 ms**, peggiore **162 ms**, **nessuna
+sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
+
+Metà dei controlli sono le *prove contrarie*, perché una pagina che non
+costruisce niente è fulminea: la tela WebGL deve comparire comunque, le 296
+figure devono esistere tutte poco dopo, nessuna cornice deve restare vuota, la
+stampa non deve uscire muta e la ricerca deve filtrare anche le carte la cui
+figura non è ancora nata. E il banco conta le sezioni che ha attraversato: su
+dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 
 ### 3.5 Sicurezza e accessibilità
 
@@ -161,8 +185,8 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 |---|---|
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 88 sezioni |
-| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 88 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 89 sezioni |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 89 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
 
 > **L'ostacolo era dello strumento, non del problema.** Per tre versioni la
@@ -226,7 +250,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 > **Una sezione per volta.** L'ispezione salta gli elementi non visibili — ed è
 > corretto: un elemento nascosto non ha contrasto da misurare. Ma `index.html`
-> alterna 88 sezioni e ne mostra una sola: su **19 751** elementi di testo il
+> alterna 89 sezioni e ne mostra una sola: su **19 751** elementi di testo il
 > banco ne guardava **41**, e stampava «0 difetti». Non era un risultato falso,
 > era un risultato su un campione che nessuno aveva dichiarato. Ora le sezioni
 > vengono aperte una per una, e **il numero di sezioni percorse viene
@@ -235,7 +259,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > Quel conteggio si è guadagnato lo stipendio alla prima esecuzione: il primo
 > tentativo ne percorreva **zero** — il clic di Playwright aspetta che
 > l'elemento sia visibile, e i pulsanti stanno dentro gruppi di navigazione
-> richiusi — e il banco l'ha detto («88 sezioni presenti, nessuna percorsa»)
+> richiusi — e il banco l'ha detto («89 sezioni presenti, nessuna percorsa»)
 > invece di stampare un altro zero rassicurante.
 
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
@@ -321,13 +345,13 @@ funzionale non osserva.
 
 | Caso | Metodo | Risultato misurato |
 |---|---|---|
-| **Perdite di memoria** | 88 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
+| **Perdite di memoria** | 89 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
 | **Memoria esaurita** | `setItem` sostituito con una funzione che lancia sempre | 10 pagine su 10 restano operative |
 | **Rete degradata ≠ assente** | Richieste sospese 20 s, intercettazione a livello di contesto | Risposta dalla cache in **3 507 ms** (soglia 3 500) |
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 88 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 89 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -401,7 +425,7 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
-| **Accessibilità** | Automatizzata su 13 pagine e tutte le 88 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 89 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
 | **Sicurezza** | `verifica-sicurezza` esegue 9 controlli su 235 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
@@ -421,4 +445,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v180`._
+_Documento aggiornato alla versione `bsi-v181`._

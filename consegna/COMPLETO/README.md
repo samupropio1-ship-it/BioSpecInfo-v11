@@ -4,9 +4,9 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v180-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-45%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
-[![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2088%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v181-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-48%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2089%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
 👉 **[Provala](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/)** ·
@@ -18,7 +18,7 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 ## Che cos'è
 
 Uno strumento di studio per chimica, biochimica, farmacologia e astrochimica,
-rivolto a studenti universitari. **88 sezioni** fra calcolatori, visualizzatori,
+rivolto a studenti universitari. **89 sezioni** fra calcolatori, visualizzatori,
 banche dati e quiz, più un assistente AI che può interrogare l'applicazione
 stessa.
 
@@ -133,7 +133,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 45 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 48 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -153,7 +153,7 @@ node tools/genera-evidenza.js    # 45 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 45 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
+I 48 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.
@@ -164,7 +164,7 @@ c'è non è un banco superato.
 
 ```
 BioSpecInfo-v11/
-├── index.html              Applicazione principale — 88 sezioni, dati chimici
+├── index.html              Applicazione principale — 89 sezioni, dati chimici
 ├── bsi-ai-hub.js           Agente «Spectra»: ciclo agentico, 35 strumenti
 ├── bsi-spettri.js          Motore di predizione spettrale IR/NMR
 ├── bsi-cheminfo.js         Motore di chemioinformatica: impronte, QSAR, modello nullo

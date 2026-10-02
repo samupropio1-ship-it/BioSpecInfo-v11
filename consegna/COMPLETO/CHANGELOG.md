@@ -7,6 +7,221 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v181] — 2026-10-02
+
+Le tre sezioni che restavano — **spettri**, **astrochimica**, **data science** —
+misurate per la prima volta con un banco proprio, e la **fluidità** ripresa
+dove la v180 si era fermata: lì si era corretto l'impaginamento, qui si trova
+che il resto era lavoro fatto nel momento sbagliato.
+
+### Spettri — l'additività non sa dedurre la schermatura forte
+
+Il banco confronta gli spostamenti ¹H previsti dall'additività di gruppo con i
+valori sperimentali. Due casi erano fuori di quasi un ppm, e per la stessa
+ragione: l'additività somma contributi di elettronegatività e non sa nulla di
+atomi elettropositivi né di correnti d'anello a tre termini.
+
+| | previsto prima | sperimentale |
+|---|---|---|
+| Si–CH₃ (TMS) | 0,92 ppm | **0,00 ppm**, per definizione |
+| –CH₂– di ciclopropano | 1,30 ppm | **0,22 ppm** |
+
+Aggiunti i due schemi `siCh3` e `cpCh2` con le relative sottrazioni, perché un
+CH₃ legato al silicio non deve più essere contato come un CH₃ qualunque. Il
+banco passa da 36 a **41 controlli**.
+
+### Astrochimica — 41 corpi celesti contati due volte
+
+`UNIVERSE_DB` dichiarava 1 000 corpi. Confrontati i nomi, 41 comparivano due
+volte, con schede diverse e parziali. Fusi campo per campo: **959 corpi
+distinti**, nessuno perduto.
+
+Nuovo banco `test_astro` (13 controlli): ricalcola il peso molecolare delle 30
+molecole interstellari dalla formula, con i pesi atomici IUPAC **scritti dentro
+il banco** — un banco che chiedesse alla pagina i pesi con cui verificarla non
+verificherebbe niente.
+
+La prima stesura del banco segnalava 25 errori JavaScript che erano **suoi**:
+selezionava «ogni elemento con un'emoji nel testo», ne trovava 2 058 e li
+cliccava tutti. Un controllo che genera i difetti che segnala è peggio di
+nessun controllo.
+
+### Data science — la sezione non era raggiungibile
+
+Nessun pulsante di navigazione portava a «Data science»: il codice c'era, la
+porta no. Aggiunto il pulsante `sdatasci`, esposto `window.BSIDataSci` e
+protetta l'inizializzazione contro la doppia costruzione.
+
+Aperta la sezione, il banco di accessibilità ha subito trovato quello che non
+aveva mai potuto vedere: **4 campi senza etichetta** (`dsWbInput`, `dsPredIn`,
+`dsSqlQ`, `dsGhName`). Gli elementi esaminati dalla verifica di accessibilità
+sono saliti da **33 311 a 37 409** — 4 098 in più da quella sola sezione.
+Nuovo banco `test_datasci` (23 controlli), con la guardia che fallisce se una
+sezione torna orfana.
+
+### Fluidità — il lavoro giusto nel momento sbagliato
+
+Profilata l'apertura di ogni sezione. Due restavano oltre i 100 ms, e in
+entrambi i casi il lavoro era necessario ma eseguito dentro il clic:
+
+| | prima | dopo |
+|---|---|---|
+| `s3dpro` (Viewer 3D PRO) | 797 ms | **14 ms** |
+| `ssyn` (Sintesi), prima apertura | 263 ms | **162 ms** |
+| `ssyn`, riapertura | 85 ms | **40 ms** |
+| Sezioni oltre 100 ms | 2 | **0** |
+| Cambio mediano | 15 ms | **14 ms** |
+
+- **Viewer 3D PRO.** Il profilatore attribuisce 688 ms al primo `render()` di
+  3Dmol, che compila gli shader del contesto WebGL. È lavoro inevitabile, ma
+  non dentro il clic: ora il pannello si disegna e il caricamento parte subito
+  dopo. La tela WebGL compare comunque — il banco lo pretende.
+- **Le 296 figure di sintesi.** 5 351 nodi di SVG disegnati tutti prima di
+  mostrare qualunque cosa, mentre all'apertura se ne vedono tre. Ora si
+  riempiono a fette da 8 ms, in ordine di elenco.
+- **296 timer a 40 ms di distanza**, programmati all'apertura della sezione:
+  undici secondi e mezzo di risvegli che chiedevano `getTotalLength()` su ogni
+  tratto di ogni figura, comprese quelle fuori dallo schermo. Rimossi;
+  l'animazione segue ora la singola figura appena disegnata.
+
+### Corretto — la prima stesura del disegno differito perdeva 101 figure
+
+Il differimento era basato su `IntersectionObserver`, al passaggio davanti allo
+schermo. Misurato: dopo uno scorrimento rapido **101 figure su 296 restavano
+vuote**. Ogni figura che compare cambia l'altezza della carta, la pagina si
+risistema sotto le dita e lo scorrimento scavalca le carte che l'osservatore
+non ha ancora servito. Una figura assente è un difetto; la lentezza era solo un
+fastidio. Sostituito con il disegno a fette, che non lascia nulla di vuoto.
+
+### Aggiunto
+
+- Nuovo banco **`test_fluidita`** (15 controlli): il tempo di blocco a ogni
+  cambio di sezione su tutte le 89, con base dichiarata. Metà dei controlli
+  sono le prove contrarie — la tela WebGL, le 296 figure, la stampa che non
+  esce muta, la ricerca che filtra anche le carte non ancora disegnate.
+- Requisito **UI-09** nella matrice di tracciabilità.
+- `beforeprint` disegna tutte le figure: il foglio non esce mai muto.
+
+### Verifica
+
+**48 banchi, 0 falliti.** 89 sezioni percorse, 37 409 elementi esaminati per
+l'accessibilità, 0 difetti di contrasto, 0 campi senza etichetta. Quattordici
+pagine senza un solo errore JavaScript, senza una risposta 4xx e senza un
+identificativo duplicato.
+
+---
+## [bsi-v180] — 2026-10-02
+
+Due blocchi: la **fluidità** di tutta l'applicazione, misurata e corretta, e la
+banca dati farmacologica che passa da **178 a 233 voci**.
+
+### Fluidità — la causa non era il JavaScript
+
+Misurato il cambio di sezione su tutte e 88: mediano 15 ms, ma cinque sezioni
+oltre i 50 ms in riapertura e due oltre il secondo e mezzo alla prima apertura.
+
+Scomposto il gestore del clic, la causa non era quella che sembrava: il ciclo
+su tutte le sezioni costa **2 ms**, rendere visibile la sezione **0 ms**, e
+tutto il tempo è il browser che **impagina** il DOM appena mostrato — 251 ms
+per le sintesi, che sono 13 482 nodi di cui l'utente vede una schermata.
+
+`content-visibility:auto` sulle carte, con `contain-intrinsic-size:auto` perché
+la barra di scorrimento non salti:
+
+| | riapertura | prima apertura |
+|---|---|---|
+| `ssyn` | 281 → **54 ms** | 1 272 → **199 ms** |
+| `sretro` | 112 → **40 ms** | 180 → 70 ms |
+| `sfarm` | 89 → **4 ms** | 293 → 141 ms |
+| Sezioni oltre 50 ms | 5 → **1** | |
+| Compito più lungo | | 1 374 → **651 ms** |
+
+### Corretto — il prezzo nascosto di quella velocità
+
+Gli elementi esaminati dal banco di accessibilità sono **scesi da 20 326 a
+20 031**: uno per carta, perché un elemento di cui il browser non calcola il
+layout ha rettangolo nullo e l'ispezione lo salta. Il banco continuava a dire
+«contrasto 0» — **su meno superficie**, che è lo stesso difetto già incontrato
+col 100 % di copertura e col contrasto dei pannelli nascosti.
+
+Due correzioni: il banco ora **scorre** ogni sezione (20 338 elementi, più di
+prima), e il riferimento registra `elementiEsaminati` con la **guardia
+opposta** — fallisce se la copertura scende oltre l'1 %. Provata alzando il
+riferimento: «COPERTURA SCESA: un "0 difetti" misurato su meno superficie non
+è un "0 difetti"».
+
+### Corretto — il modello si riaddestrava per OGNI predizione
+
+`scegliIperparametro` prendeva una funzione che predice una query e la chiamava
+dentro `prova.map(...)`: per la regressione kernel costruiva la matrice e
+risolveva il sistema una volta per **ogni molecola da predire**. Oltre duemila
+addestramenti dove ne servivano sessanta.
+
+| Molecole | Prima | Dopo |
+|---|---|---|
+| 50 | 214 ms | 104 ms |
+| 150 | 3 030 ms | **369 ms** |
+| 200 | 7 279 ms | **535 ms** |
+
+A risultati **identici byte per byte**. Il guardiano conta gli addestramenti
+invece di cronometrare: dodici per 240 predizioni, e non dipende da quante
+molecole ci sono.
+
+### Farmaci — da 178 a 233, ogni struttura da ChEMBL
+
+Cinquantacinque voci nuove sui buchi veri: inibitori di tirosin-chinasi,
+antiretrovirali moderni, nirmatrelvir, sartani e antitrombotici, antiepilettici
+di nuova generazione, carbapenemici, daptomicina, incretine, e la parte
+respiratoria, reumatologica e urologica che mancava.
+
+**Nessuno SMILES e nessun peso scritto a memoria**: la struttura viene dal
+record ChEMBL e il peso è quello che ChEMBL dichiara. Un controllo ha
+verificato che RDKit legga ogni struttura e che la **formula molecolare**
+ricostruita dal grafo coincida con quella dichiarata — **55 su 55**.
+
+Serviva una fonte esterna: lo SMILES sbagliato dell'omeprazolo era
+*autoconsistente*, e un peso coerente con una struttura sbagliata passa
+qualunque controllo interno. Intercettata anche una sostituzione silenziosa —
+cercando «formoterol» ChEMBL restituisce l'**arformoterolo**, il solo
+enantiomero (R,R) — registrata col nome giusto.
+
+### Corretto — 115 farmaci su 233 erano invisibili
+
+Cercando se le voci nuove comparissero è emerso un difetto che c'era già:
+
+```js
+var cats = cat==="all" ? Object.keys(catName) : [cat];
+```
+
+Le categorie da disegnare venivano dalla mappa delle **etichette**, non dai
+dati: 47 categorie nei dati, 19 etichettate, e i farmaci delle altre 28 non
+venivano **mai** disegnati. **115 voci su 233 invisibili — e 60 su 178 anche
+prima di queste aggiunte.** L'applicazione ne teneva in memoria centinaia e ne
+mostrava una parte.
+
+Scritte le etichette per tutte e 47 le categorie, e `cats` ricavato dai dati.
+I nodi della sezione passano da 4 038 a 7 805 — quasi il doppio — e la
+riapertura resta a **4 ms**, perché il contenimento del layout fatto nello
+stesso giro rende sostenibile mostrare il doppio del contenuto.
+
+### Il 45° banco — `test_farm_ui`, riscritto
+
+Un file con quel nome esisteva già: stampava sei numeri, non verificava niente
+e **non era registrato nella batteria**. Mentre taceva, la sezione mostrava 118
+farmaci su 233.
+
+Ora pretende che **ogni** farmaco in memoria compaia nella lista disegnata, che
+il filtro mostri le voci della categoria e nessun'altra, e che nessuna scheda
+mostri un peso rotto. Il controllo che conta è l'ultimo: il banco **inserisce**
+un farmaco con una categoria mai etichettata e pretende che venga disegnato,
+poi lo rimuove senza lasciare tracce. Un controllo sui farmaci esistenti non
+l'avrebbe scoperto, perché con le etichette a posto anche la riga difettosa
+disegna tutto — verificato nei due versi.
+
+Batteria: **45 banchi, 0 falliti**.
+
+---
+
 ## [bsi-v179] — 2026-10-02
 
 Caccia ai problemi prima di pubblicare su `main`, sui percorsi meno battuti.
