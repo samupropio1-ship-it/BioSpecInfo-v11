@@ -754,6 +754,28 @@ input::placeholder, textarea::placeholder { color: #888888; }
 /* ── Synthesis card entrance animation ── */
 @keyframes bsiCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .rxn-card{animation:bsiCardIn .22s ease both}
+
+/* ── Fluidita': il costo era il LAYOUT, non il JavaScript ─────────────────
+   Misurato: aprire la sezione delle sintesi costava 251 ms, e il tempo non
+   stava nell'inizializzazione (che ha gia' la sua guardia) ne' nel ciclo sulle
+   sezioni (2 ms). Stava nel browser che impagina 13 482 nodi — 296 carte da 49
+   — di cui l'utente ne vede una schermata.
+
+   `content-visibility:auto` dice al browser di saltare layout e disegno delle
+   carte fuori dallo schermo, e di farli quando entrano. `contain-intrinsic-size`
+   gli da' un'altezza presunta finche' non la conosce: senza di essa la barra di
+   scorrimento salterebbe mentre si scorre. La forma `auto <lunghezza>` fa
+   ricordare l'altezza vera dopo la prima impaginazione.
+
+   Si applica alle CARTE e non alla sezione: contenere l'intera sezione
+   romperebbe gli ancoraggi interni e il posizionamento appiccicato. */
+.rxn-card{content-visibility:auto;contain-intrinsic-size:auto 320px}
+
+/* Le altre tre sezioni lente non hanno carte con una classe: tutto il peso sta
+   in un contenitore unico, e si contengono i suoi figli diretti. Misurato
+   prima dell'intervento: farmaci 78 ms, amminoacidi 54, biosintesi 47. */
+#farmList > div, #aaList > div, #aaList > div > div,
+#biosynList > div { content-visibility:auto; contain-intrinsic-size:auto 360px }
 /* ── SVG arrow animation in synthesis SVGs ── */
 .rxn-sw svg path[stroke-width],.rxn-sw svg line,.rxn-sw svg polyline{stroke-dasharray:var(--sdl,2000);stroke-dashoffset:var(--sdl,2000);animation:bsiArrowDraw .6s ease forwards}
 @keyframes bsiArrowDraw{to{stroke-dashoffset:0}}
@@ -3611,12 +3633,6 @@ window.onload = function(){
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='senergia' && typeof window.initEnergyDiagrams==='function') window.initEnergyDiagrams();
       if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
-      if(sec==='sfilemanager' && typeof window.initFileManager==='function') window.initFileManager();
-      if(sec==='s3dpro' && typeof window.init3DViewerPro==='function') window.init3DViewerPro();
-      if(sec==='sdiagrammi' && typeof window.initDiagrammi==='function') window.initDiagrammi();
-      if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
-      if(sec==='senergia' && typeof window.initEnergyDiagrams==='function') window.initEnergyDiagrams();
-      if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
       if(sec==='smolprop' && typeof window.initMolProps==='function') window.initMolProps();
       if(sec==='srxnbal' && typeof window.initRxnBalancer==='function') window.initRxnBalancer();
       if(sec==='ssmiles' && typeof window.initSmilesEditor==='function') window.initSmilesEditor();
@@ -3629,7 +3645,19 @@ window.onload = function(){
       if(sec==='skin' && typeof window.initKinetics==='function') window.initKinetics();
       if(sec==='smorb' && typeof window.initMOViewer==='function') window.initMOViewer();
       if(sec==='sinorg' && typeof window.initInorganic==='function') window.initInorganic();
-      if(sec==='sretro' && typeof window.initRetro==='function') window.initRetro();
+      /* `initRetro` fa `sec.innerHTML = ...`: ricostruisce da zero 46 carte con
+         46 SVG a ogni visita, e i dati da cui le costruisce sono statici.
+         Misurato: 83 ms per nulla, a ogni riapertura. Si costruisce una volta.
+         Il contrassegno sta sull'elemento e non in una variabile, cosi' se un
+         giorno qualcuno svuotasse la sezione basterebbe togliere l'attributo
+         per farla ricostruire. */
+      if(sec==='sretro' && typeof window.initRetro==='function'){
+        var _secRetro = id('sretro');
+        if(!_secRetro || !_secRetro.dataset.bsiCostruita){
+          window.initRetro();
+          if(_secRetro) _secRetro.dataset.bsiCostruita = '1';
+        }
+      }
       if(sec==='scfgraf' && typeof window.initCFGraf==='function') window.initCFGraf();
       if(sec==='selucid' && typeof window.initElucid==='function') window.initElucid();
       if(sec==='spkcurve' && typeof window.initPKcurve==='function') window.initPKcurve();
@@ -3647,7 +3675,6 @@ window.onload = function(){
       if(sec==='sphase' && typeof window.initPhase==='function') window.initPhase();
       if(sec==='smap' && typeof window.initConceptMap==='function') window.initConceptMap();
       if(sec==='snotes' && typeof window.initNotes==='function') window.initNotes();
-      if(sec==='sstats' && typeof window.initStats==='function') window.initStats();
       if(sec==='smolprop' && typeof window.initMolProps==='function') window.initMolProps();
       if(sec==='scompare' && typeof window.initConfrontaMol==='function') window.initConfrontaMol();
       if(sec==='sfilemanager' && typeof window.initFileManager==='function') window.initFileManager();
@@ -38515,6 +38542,9 @@ var _st=document.createElement('style');
 _st.textContent=[
 // Retro cards: white card style matching v15 synthesis cards
 '.rv16-card{background:#ffffff;color:#1e293b;border-radius:14px;overflow:hidden;margin-bottom:0;',
+  /* vedi la nota su .rxn-card: il costo di apertura era il layout delle carte
+     fuori schermo, 69 ms su questa sezione */
+  'content-visibility:auto;contain-intrinsic-size:auto 420px;',
 'box-shadow:0 3px 14px rgba(0,0,0,.32);transition:transform .15s;}',
 '.rv16-card:hover{transform:translateY(-2px);}',
 '.rv16-hd{padding:12px 15px;display:flex;align-items:center;gap:10px;}',
