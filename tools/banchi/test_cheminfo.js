@@ -876,6 +876,44 @@ function vicino(d, atteso, avuto, tol){
   att('tutti i modelli usano le stesse pieghe', true, cmp.stessePieghe);
   att('su un segnale VERO il migliore supera il riferimento', true, cmp.vero.supera);
   att('su etichette CASUALI non lo supera', false, cmp.casuale.supera);
+
+  /* ── Il costo non va misurato col cronometro, va CONTATO ──────────────
+     `scegliIperparametro` prendeva una funzione che predice una query, e la
+     chiamava dentro `prova.map(...)`: per la regressione kernel significava
+     costruire la matrice e risolvere il sistema UNA VOLTA PER OGNI MOLECOLA
+     da predire. Misurato su 200 molecole: il confronto fra modelli bloccava
+     la pagina 7,3 secondi, ridotti a 0,5 passando a un addestratore chiamato
+     una volta per piega.
+
+     Una soglia sui millisecondi sarebbe incostante fra macchine. Il numero di
+     ADDESTRAMENTI invece e' esatto: tre pieghe per quattro candidati fanno
+     dodici, e non dipende da quante molecole ci sono nell'insieme. Se qualcuno
+     rimettesse l'addestramento dentro il ciclo delle predizioni, questo
+     controllo lo direbbe subito. */
+  const costo = await pg.evaluate(() => {
+    const B = window.BSIChem;
+    const ins = [];
+    for (let i = 0; i < 60; i++) {
+      ins.push({ smiles: 'C'.repeat(2 + (i % 9)) + (i % 2 ? 'O' : 'N'), nome: 'c' + i, attivita: 4 + (i % 7) * 0.5 });
+    }
+    const fps = ins.map(m => B.fingerprint(m.smiles, 'morgan')).filter(Boolean);
+    const y = ins.slice(0, fps.length).map(m => m.attivita);
+    let addestramenti = 0, predizioni = 0;
+    B.scegliIperparametro(fps, y, [0.1, 1, 10, 100], function (lam, a, b) {
+      addestramenti++;
+      return function () { predizioni++; return 5; };
+    }, 3, 42);
+    return { addestramenti, predizioni, molecole: fps.length };
+  });
+  att('l\'insieme di prova e\' abbastanza grande per distinguere i due casi',
+      true, costo.molecole >= 40);
+  att('gli addestramenti sono tre pieghe per quattro candidati', 12, costo.addestramenti);
+  att('le predizioni sono molte di piu\' degli addestramenti',
+      true, costo.predizioni >= costo.molecole);
+  console.log('      (' + costo.addestramenti + ' addestramenti per ' +
+              costo.predizioni + ' predizioni su ' + costo.molecole + ' molecole: ' +
+              'se fossero ' + costo.predizioni + ' addestramenti, il confronto ' +
+              'bloccherebbe la pagina per secondi)');
   console.log('      (segnale vero: margine ' + cmp.vero.margine +
               ' · casuale: ' + cmp.casuale.margine + ')');
 
@@ -1183,9 +1221,9 @@ function vicino(d, atteso, avuto, tol){
 
   /* Un banco che non misura nulla passa: se i controlli eseguiti sono
      pochi, qualcosa e' stato saltato in silenzio. */
-  if (eseguiti < 186) {
+  if (eseguiti < 190) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 186');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 190');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

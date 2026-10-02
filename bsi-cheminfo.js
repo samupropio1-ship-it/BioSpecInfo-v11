@@ -2020,7 +2020,18 @@
      predizione, è il massimo di dieci tentativi. La scelta va fatta DENTRO
      l'addestramento, su pieghe interne, e l'insieme di prova resta intatto.
      È la validazione annidata. */
-  function scegliIperparametro(fps, y, candidati, costruisci, pieghe, seme) {
+  /* `addestra(candidato, fpsAddestramento, yAddestramento)` deve restituire
+     UNA FUNZIONE che predice: addestra una volta per piega e la riusa su tutte
+     le molecole di quella piega.
+
+     La prima stesura prendeva invece `costruisci(candidato, fTr, yTr, query)`
+     e la chiamava dentro `prova.map(...)`: per la regressione kernel questo
+     significava COSTRUIRE LA MATRICE E RISOLVERE IL SISTEMA UNA VOLTA PER
+     OGNI MOLECOLA DA PREDIRE. Misurato su 200 molecole: oltre duemila
+     addestramenti dove ne servivano sessanta, e il confronto fra modelli
+     bloccava la pagina per 7,3 secondi. Un solve 160x160 costa 5 ms: la
+     moltiplicazione era tutta li'. */
+  function scegliIperparametro(fps, y, candidati, addestra, pieghe, seme, classificazione) {
     pieghe = pieghe || 3;
     var n = fps.length, idx = [];
     for (var i = 0; i < n; i++) idx.push(i);
@@ -2038,10 +2049,16 @@
         if (!prova.length || !addestr.length) return;
         var fTr = addestr.map(function (v) { return fps[v]; });
         var yTr = addestr.map(function (v) { return y[v]; });
-        var prev = prova.map(function (v) { return costruisci(c, fTr, yTr, fps[v]); });
+        if (classificazione && new Set(yTr).size < 2) return;
+        /* UNA volta per piega, non una per molecola */
+        var predici = addestra(c, fTr, yTr);
+        if (typeof predici !== 'function') return;
+        var prev = prova.map(function (v) { return predici(fps[v]); });
         var veri = prova.map(function (v) { return y[v]; });
-        var m = metricheRegressione(veri, prev);
-        if (m.r2 !== null && isFinite(m.r2)) punteggi.push(m.r2);
+        var m = classificazione ? metricheClassificazione(veri, prev)
+                                : metricheRegressione(veri, prev);
+        var p = classificazione ? m.auc : m.r2;
+        if (p !== null && isFinite(p)) punteggi.push(p);
       });
       var agg = mediaEScarto(punteggi);
       if (agg.media !== null && (migliore === null || agg.media > migliore.punteggio)) {
@@ -2096,7 +2113,8 @@
         nome: 'kNN su Tanimoto',
         addestra: function (fTr, yTr) {
           var sc = scegliIperparametro(fTr, yTr, KVIC,
-            function (kk, a, b, q) { return prediciKnn(a, b, q, kk); }, 3, seme);
+            function (kk, a, b) { return function (q) { return prediciKnn(a, b, q, kk); }; },
+            3, seme, true);
           var kk = sc ? sc.valore : 5;
           return function (q) { return prediciKnn(fTr, yTr, q, kk); };
         }
@@ -2120,7 +2138,8 @@
         nome: 'kNN su Tanimoto',
         addestra: function (fTr, yTr) {
           var sc = scegliIperparametro(fTr, yTr, KVIC,
-            function (kk, a, b, q) { return prediciKnn(a, b, q, kk); }, 3, seme);
+            function (kk, a, b) { return function (q) { return prediciKnn(a, b, q, kk); }; },
+            3, seme);
           var kk = sc ? sc.valore : 5;
           return function (q) { return prediciKnn(fTr, yTr, q, kk); };
         },
@@ -2130,7 +2149,10 @@
         nome: 'Regressione kernel (Tanimoto)',
         addestra: function (fTr, yTr) {
           var sc = scegliIperparametro(fTr, yTr, LAMBDA,
-            function (lam, a, b, q) { return prediciRidge(addestraRidge(a, b, lam), q); }, 3, seme);
+            function (lam, a, b) {
+              var mm = addestraRidge(a, b, lam);     /* UNA volta per piega */
+              return function (q) { return prediciRidge(mm, q); };
+            }, 3, seme);
           var lam = sc ? sc.valore : 1;
           var mod = addestraRidge(fTr, yTr, lam);
           return function (q) { return prediciRidge(mod, q); };
