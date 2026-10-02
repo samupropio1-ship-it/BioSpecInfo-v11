@@ -7,6 +7,53 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v177] — 2026-10-02
+
+### Recuperato — le 12 domande del quiz, senza rimettere uno script
+
+Sostituendo la guida di biochimica si era perso un quiz interattivo di 12
+domande, che viveva in uno script della versione precedente. Rimetterlo com'era
+avrebbe disfatto la ragione per cui la sostituzione valeva la pena: il documento
+nuovo non ha **nessuno** script, e da lì viene la stabilità.
+
+Le domande sono state riscritte come HTML statico: le quattro opzioni in chiaro,
+la soluzione dentro un `<details>` nativo che si apre con un clic. **Zero righe
+di JavaScript**, e il documento resta a 0 script.
+
+### Corretto — una mia affermazione che era falsa
+
+La prima versione della sezione diceva che la soluzione «resta chiusa sullo
+schermo e **aperta in stampa**». Verificandolo con l'emulazione del mezzo di
+stampa, era falso: Chromium non rende il contenuto di un `<details>` chiuso, e
+il CSS non può forzarlo — `display:block!important` dentro `@media print` non
+ha alcun effetto. Una copia cartacea avrebbe perso tutte e dodici le soluzioni,
+mentre il testo accanto prometteva il contrario.
+
+Risolto con due copie della soluzione, ciascuna visibile in **un solo mezzo**:
+quella dentro il `<details>` per lo schermo, una dedicata per la stampa, con il
+`<details>` nascosto in stampa e la copia dedicata nascosta sullo schermo.
+
+Misurato nei due mezzi:
+
+| | Domande | Opzioni | Soluzioni visibili |
+|---|---:|---:|---:|
+| Schermo (chiuso) | 12 | 48 | **0** |
+| Schermo, dopo un clic | 12 | 48 | **1** |
+| Stampa | 12 | 48 | **12** |
+
+> **Perché vale la pena raccontarlo.** L'affermazione sbagliata non era nel
+> codice: era nella frase che descriveva il codice, e nessun banco la
+> controllava. L'ho trovata solo perché ho verificato una cosa che avevo
+> appena scritto io, invece di fidarmene.
+
+### Misure sulla guida, dopo l'aggiunta
+
+Contrasto **0** su 2 056 elementi di testo (erano 1 897), testo alternativo
+**98 su 98**, nessuno scorrimento orizzontale a 390, 360 e 320 px, **0** script,
+**0** errori all'avvio.
+
+---
+
 ## [bsi-v176] — 2026-10-01
 
 ### Sostituita — la guida di biochimica

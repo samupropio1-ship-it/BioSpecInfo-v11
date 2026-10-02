@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v176` |
+| **Version described** | `bsi-v177` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v176` the bench also fails in the opposite case: an entry listed in the
+`bsi-v177` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -442,7 +442,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v176` the residual errors on the drug database are **zero**: the 21
+`bsi-v177` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -451,4 +451,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v176`._
+_Document updated to version `bsi-v177`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v176` |
+| **Version** | `bsi-v177` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v176` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v177` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -77,7 +77,7 @@ pass.
 | **D-01** | **2 entries** (it was 6) that are not single molecules: Ivermectin, a mixture of B1a/B1b homologues, and Coartem, a combination of two active ingredients | For these two no 2D/3D representation and no spectral prediction is available | Entries left **without SMILES**: the pharmacological data remain, the structure is not shown. For Digoxin, Vincristine and Tacrolimus (topical and systemic) the structure was taken from **ChEMBL** and passes the comparison with the declared molecular weight: those four left the registry. The two that remain have no structure to show, not a missing one. |
 | **D-02** | 19 entries with no SMILES by their very nature (monoclonal antibodies, peptides) | None: for those molecules SMILES notation is not the appropriate representation | Not a substantive deviation; listed for completeness |
 | **D-03** | ~~SEC-02 verified only by proxy~~ — **remedied**: see S-10 | — | `audit_rete` observes the traffic during real use, with a canary value seeded into the user's own data |
-| **D-04** | ~~The File Manager password in the git history~~ — **remedied**: see S-12 | — | The password was **changed** at version `bsi-v176`. The old one is still readable in the history and no longer opens anything |
+| **D-04** | ~~The File Manager password in the git history~~ — **remedied**: see S-12 | — | The password was **changed** at version `bsi-v177`. The old one is still readable in the history and no longer opens anything |
 | **D-06** | Code coverage **measured but partial**: 49.89 % of statements, not branches | It is the coverage of the widest path a bench walks (88 sections plus the other pages), not of the whole battery; and an `if` entered from one side only counts as covered | `audit_copertura` measures it with Chromium's profiler, with no build and without rewriting the source. The value is **recorded**: if it falls, the battery fails |
 | **D-07** | Verification on Chromium only | Firefox and WebKit are tested by hand | Declared in `docs/08` §8. In the verification environment the reason is checkable: the CDN from which `playwright-core` downloads the other engines answers **403** to the network policy, so Firefox and WebKit cannot be installed there |
 | **D-08** | ~~Partial English translation~~ — **remedied**: see S-13 | — | All **16 documents** are in English. `verifica-documenti` and `verifica-affermazioni` read `docs/en/` just like the Italian set: a disagreement between the two languages fails the battery |
@@ -246,4 +246,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v176`._
+_Version `bsi-v177`._

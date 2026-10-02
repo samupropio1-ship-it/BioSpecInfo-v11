@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v176` |
-| Commit | `57a40bd02a670269df36b3ca5b70b05f4402d0a9` |
-| Generated (UTC) | `2026-10-01T23:25:19.944Z` |
+| Application version | `bsi-v177` |
+| Commit | `5335a64af53f899d327c4229ae4549b66eee5e33` |
+| Generated (UTC) | `2026-10-02T03:36:09.460Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -70,11 +70,11 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `2fa8276caac616aa5f5a4ce0969c52e848126a9ddc8dc05786a2f25ec0eb2e94` |
+| `index.html` | `f7ab0ef19d436a6e3e43fd859f615f5eb7a0c66ffb2d44de30cfd518ada2894e` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `6f6d13824b593c92edfdf51cd976de4cb72479c9c6586c5158c56dab615a779b` |
 | `bsi-cheminfo.js` | `aefd53302644ef47f4cd78a6f531a8353e4952d9d4fc1eaf006a2f490e7fca9f` |
-| `sw.js` | `bef94eeb13a8350937ba6af043bce0c874333a3e492582d0a7ffc4368c3d3b6f` |
+| `sw.js` | `42d160e761326f00b0449580975262e0399b489cce16dbe8be92c2b0749498e3` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `53e8d4d29af4bb9cfdb63d974924737e606e3141bd4ce61fbab1bbebe0eed30d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-01T23:25:19.944Z._
+_Generated on 2026-10-02T03:36:09.460Z._
