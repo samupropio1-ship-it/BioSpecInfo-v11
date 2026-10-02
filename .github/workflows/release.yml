@@ -63,6 +63,13 @@ jobs:
             echo "::error::nel CHANGELOG non c'è una voce ## [$VER] con del contenuto"
             exit 1
           fi
+          # Ogni voce del CHANGELOG finisce con il separatore che la stacca
+          # dalla precedente. Lasciarlo mostrava due righe orizzontali di
+          # seguito sulla pagina della release.
+          awk '{ r[n++] = $0 }
+               END { while (n > 0 && (r[n-1] == "" || r[n-1] == "---")) n--;
+                     for (i = 0; i < n; i++) print r[i] }' note.md > note.tagliate
+          mv note.tagliate note.md
           {
             echo ''
             echo '---'
