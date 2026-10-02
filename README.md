@@ -15,6 +15,23 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 
 ---
 
+## Scaricare
+
+| Che cosa | Dimensione | Link |
+|---|---:|---|
+| **Tutto** — applicazione, codice, documentazione, i 48 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
+| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v181.zip) |
+| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v181.zip) |
+| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v181.zip) |
+
+I tre pacchetti della versione in corso stanno sempre in
+[`consegna/`](consegna/); l'archivio completo è generato da GitHub sul
+contenuto attuale di `main`, quindi non invecchia. Per usare l'applicazione non
+serve scaricare niente: è una PWA, si apre dal link qui sopra e si installa dal
+browser.
+
+---
+
 ## Che cos'è
 
 Uno strumento di studio per chimica, biochimica, farmacologia e astrochimica,
