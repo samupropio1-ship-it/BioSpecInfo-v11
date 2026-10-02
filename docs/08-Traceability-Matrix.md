@@ -99,6 +99,7 @@
 | **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 288 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 89 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
+| **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
 > **SEC-03 — limite dichiarato.** GitHub Pages serve file statici: qualunque
@@ -135,10 +136,10 @@ manuale, e la loro automazione è in programma.
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…09) | 7 | 7 | 100 % |
-| Sicurezza (SEC-01…04) | 4 | 4 | 100 % |
-| **Totale automatizzato** | **49** | **49** | **100 %** |
+| Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
+| **Totale automatizzato** | **50** | **50** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **54** | **49** | **91 %** |
+| **Totale dichiarato** | **55** | **50** | **91 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -146,8 +147,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **49
-> requisiti verificati su 54 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **50
+> requisiti verificati su 55 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli

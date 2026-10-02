@@ -75,7 +75,8 @@ const FAMIGLIE = [
              'test_fluidita'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
-    banchi: ['@verifica-sicurezza', 'audit_rete', '@verifica-accessibilita', 'audit_mobile'] },
+    banchi: ['@verifica-sicurezza', 'audit_storia', 'audit_rete',
+             '@verifica-accessibilita', 'audit_mobile'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
     banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni', 'audit_copertura'] }

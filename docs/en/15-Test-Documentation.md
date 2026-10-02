@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**48 benches**, grouped by what they demonstrate.
+**49 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -184,10 +184,45 @@ be excellent and the measurement worthless.
 | Bench | Verifies |
 |---|---|
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
+| `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
 | `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 89 sections |
 | `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 89 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
+
+**`audit_storia` — 6 checks.** `verifica-sicurezza` examines *tracked* files,
+i.e. the present state: it answers "there is no key in the repository today",
+not the question that matters for a public repository. A key added in one
+commit and removed in the next passes `verifica-sicurezza` forever and stays
+readable to anyone who clones, because git does not forget. If that happens,
+the remedy is not a fix-up commit: it is revoking the key.
+
+This bench examines every *version* of every text file ever committed. Result:
+**zero credentials across 1,551 versions and 390 commits**.
+
+Two defences against itself, because here a perfect number can come from less
+surface or from a blind pattern:
+
+- **The clone must not be shallow.** A `--depth 1` holds a fraction of the
+  history: the bench would run, find nothing, and claim "no credential anywhere
+  in history" having seen a tenth of it. If it finds `.git/shallow` it fails and
+  names the command to run.
+- **The patterns are tested before being trusted.** A wrong pattern finds
+  nothing and is indistinguishable from a clean repository: each of the 9 must
+  match a crafted example and must *reject* a near-miss, and both are tested
+  inside a tail of noise containing digits, as a real file would have.
+
+The second defence was born from a defect in this very bench. The AWS pattern
+required a digit via `(?=.*\d)` — always satisfied in a large file, because the
+digit lies further ahead: it found 53 matches, all the same string
+`AKIAAAAAAAAAAAAAAAAA`, sixteen "A"s, the zero region of a base64 image. The
+near-miss did not catch it because it was too short to contain digits. An AWS
+identifier is now judged by the *variety* of its sixteen characters, and the
+near-misses carry their tail.
+
+Tested in the other direction too: with a local commit containing a
+well-formed AWS key the bench fails naming the blob; once the commit is
+removed, it passes again.
 
 > **The obstacle belonged to the tool, not to the problem.** For three versions
 > code coverage was declared unmeasurable, with this reason: "instrumenting

@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**48 banchi**, raggruppati per ciò che dimostrano.
+**49 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -184,10 +184,46 @@ dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 | Banco | Verifica |
 |---|---|
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
+| `audit_storia` | Che nessuna credenziale sia MAI entrata nel repository: **1 551 versioni distinte di file di testo** su **390 commit**, con 9 schemi. Si rifiuta di passare su un clone superficiale |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
 | `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 89 sezioni |
 | `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 89 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
+
+**`audit_storia` — 6 controlli.** `verifica-sicurezza` esamina i file
+*tracciati*, cioè lo stato attuale: risponde a «oggi nel repository non c'è
+nessuna chiave» e non alla domanda che conta su un repository pubblico. Una
+chiave messa in un commit e togliata nel successivo passa `verifica-sicurezza`
+per sempre e resta leggibile a chiunque cloni, perché git non dimentica. Se
+succede, il rimedio non è un commit di correzione: è revocare la chiave.
+
+Questo banco esamina ogni *versione* di ogni file di testo mai entrata nel
+repository. Esito: **zero credenziali in 1 551 versioni su 390 commit**.
+
+Due difese contro sé stesso, perché qui un numero perfetto può nascere da meno
+superficie o da uno schema cieco:
+
+- **Il clone non deve essere superficiale.** Un `--depth 1` contiene una
+  frazione della storia: il banco girerebbe, non troverebbe niente e direbbe
+  «nessuna credenziale in tutta la storia» avendone vista un decimo. Se trova
+  `.git/shallow`, fallisce e dice quale comando eseguire.
+- **Gli schemi si provano prima di fidarsi.** Uno schema sbagliato non trova
+  niente ed è indistinguibile da un repository pulito: ognuno dei 9 deve
+  riconoscere un esempio costruito e deve *rifiutare* un quasi-esempio, ed
+  entrambi vengono provati dentro una coda di rumore con cifre, come sarebbe in
+  un file vero.
+
+La seconda difesa è nata da un errore in questo stesso banco. Lo schema AWS
+chiedeva una cifra con `(?=.*\d)`, condizione sempre soddisfatta in un file
+grande perché la cifra sta più avanti: trovava 53 corrispondenze, tutte la
+stessa stringa `AKIAAAAAAAAAAAAAAAAA` — sedici «A», la zona di zeri di
+un'immagine in base64. Il quasi-esempio non se ne accorgeva perché era troppo
+corto per contenere cifre. Ora l'identificativo AWS si giudica dalla *varietà*
+dei suoi sedici caratteri, e i quasi-esempi portano la loro coda.
+
+Provato anche nell'altro verso: con un commit locale che contiene una chiave
+AWS di forma valida il banco fallisce nominando il blob; rimosso il commit,
+torna a passare.
 
 > **L'ostacolo era dello strumento, non del problema.** Per tre versioni la
 > copertura di codice è stata dichiarata non misurabile, con questa

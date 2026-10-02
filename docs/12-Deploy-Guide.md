@@ -70,6 +70,48 @@ git push -u origin <ramo>
 GitHub Pages pubblica automaticamente da `main`: il workflow *pages build and
 deployment* impiega circa un minuto.
 
+### 2.1-bis Pubblicare la release della versione
+
+L'applicazione è già online appena `main` si aggiorna; la **release** serve a
+un'altra cosa: dare a chi valuta un punto fermo da scaricare — un tag, le note
+di versione e i pacchetti di consegna allegati.
+
+Si pubblica dal repository, non da fuori:
+
+> **Actions → release → Run workflow**, campo `versione`: `bsi-v<NNN>`.
+
+Il workflow crea il tag sul commit corrente, apre la release e le allega i tre
+pacchetti di `consegna/`. L'archivio completo — `models/` incluse, circa
+124 MB — lo genera GitHub da sé come *Source code (zip)*.
+
+**Perché dal repository e non da riga di comando.** Le credenziali con cui una
+sessione remota lavora al repository sono autorizzate a scrivere sui rami e
+**non sui tag**: la `POST` a `git-receive-pack` per `refs/tags/…` risponde
+`403 Forbidden`, mentre un ramo nuovo passa. Il token di Actions, invece, scrive
+sul repository che lo ospita.
+
+Quello che il workflow **si rifiuta** di fare:
+
+| Condizione | Esito |
+|---|---|
+| nel `CHANGELOG.md` non c'è una voce `## [bsi-v<NNN>]` con contenuto | fallisce: una release senza note sembra una versione e non dice che cosa cambia |
+| in `consegna/` ci sono meno di tre pacchetti | fallisce: un allegato mancante renderebbe la release incompleta in silenzio |
+| il tag non punta al commit da cui vengono i pacchetti | fallisce: una release deve avere una sola provenienza |
+
+L'ultima riga esiste per un difetto reale. Rieseguendo il workflow per
+aggiornare i pacchetti, `gh release edit` aggiornava note e allegati ma **non
+spostava il tag**: l'archivio *Source code (zip)*, che GitHub genera dal tag,
+restava al commit della prima pubblicazione mentre i pacchetti venivano da uno
+successivo. Due provenienze, e niente che lo dicesse. Ora il tag viene spostato,
+e un passo successivo non lo dà per buono: richiede a GitHub dove punta e
+confronta.
+
+Il workflow è **rieseguibile**: se la release esiste già, aggiorna note,
+allegati e tag invece di fallire a metà. Spostare un tag già pubblicato non è
+gratis — chi l'ha già scaricato ha un contenuto diverso — quindi vale per una
+release appena pubblicata, non per una vecchia: per quella si pubblica una
+versione nuova.
+
 ### 2.2 Le due righe della versione
 
 `CACHE` in `sw.js` e `BSI_APP_VERSION` in `index.html` **devono coincidere**.

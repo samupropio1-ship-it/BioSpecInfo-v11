@@ -99,6 +99,7 @@
 | **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 288 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 89 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
+| **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
 
 > **SEC-03 — declared limitation.** GitHub Pages serves static files: any
@@ -135,10 +136,10 @@ manual testing, and their automation is planned.
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…09) | 7 | 7 | 100 % |
-| Security (SEC-01…04) | 4 | 4 | 100 % |
-| **Automated total** | **49** | **49** | **100 %** |
+| Security (SEC-01…07) | 5 | 5 | 100 % |
+| **Automated total** | **50** | **50** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **54** | **49** | **91 %** |
+| **Declared total** | **55** | **50** | **91 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -146,8 +147,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **49
-> requirements verified out of 54 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **50
+> requirements verified out of 55 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the

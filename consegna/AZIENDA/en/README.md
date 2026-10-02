@@ -18,7 +18,7 @@ Or the summary cover only: [`00-Technical-Dossier.en.pdf`](../pdf/00-Technical-D
 
 | What | Size | Link |
 |---|---:|---|
-| **Everything** — app, source, documentation, the 48 benches, the delivery packages and the 3D structures in `models/` | ~124 MB | **[full archive](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
+| **Everything** — app, source, documentation, the 49 benches, the delivery packages and the 3D structures in `models/` | ~124 MB | **[full archive](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
 | Dossier for a company evaluation — 67 documents | 5.4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v181.zip) |
 | File for the thesis committee — 33 documents | 2.4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v181.zip) |
 | Every document, operational notes included — 94 | 7.3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v181.zip) |
@@ -47,7 +47,7 @@ link and install it from the browser.
 | 12 | [Deploy Guide](12-Deploy-Guide.md) | Publishing, updating, rolling back; the two version lines |
 | 13 | [Functional Specifications](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/13-Functional-Specifications.md) | What the product does, for whom, under which rules, with which limits |
 | 14 | [User Manual](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/en/14-User-Manual.md) | A guide for the people who study, not for the people who program |
-| 15 | [Test Documentation](15-Test-Documentation.md) | How the 48 benches are organised and run, what they cover, where they leave gaps |
+| 15 | [Test Documentation](15-Test-Documentation.md) | How the 49 benches are organised and run, what they cover, where they leave gaps |
 
 > **All sixteen documents are now available in English.** The numbers declared
 > in the English set are compared against the running application by the same

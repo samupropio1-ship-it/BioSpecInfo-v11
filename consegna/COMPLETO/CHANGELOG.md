@@ -102,12 +102,82 @@ fastidio. Sostituito con il disegno a fette, che non lascia nulla di vuoto.
 - Requisito **UI-09** nella matrice di tracciabilità.
 - `beforeprint` disegna tutte le figure: il foglio non esce mai muto.
 
+### Pubblicazione — la release si fa dal repository
+
+Le credenziali con cui una sessione remota lavora al repository scrivono sui
+rami e **non sui tag**: la `POST` a `git-receive-pack` per `refs/tags/…`
+risponde `403`, mentre un ramo nuovo passa. Senza tag non c'è release.
+
+Aggiunto `.github/workflows/release.yml`, che gira col token di Actions: crea il
+tag, apre la release e le allega i tre pacchetti di consegna; l'archivio
+completo — `models/` incluse — lo genera GitHub come *Source code (zip)*. Si
+avvia da *Actions → release → Run workflow*. Le note vengono dalla voce del
+CHANGELOG con lo stesso nome della versione, e il workflow **fallisce** se
+quella voce manca, se in `consegna/` ci sono meno di tre pacchetti, o se il tag
+non punta al commit da cui vengono i pacchetti.
+
+Quest'ultimo controllo nasce da un difetto: `gh release edit` aggiorna note e
+allegati ma non sposta il tag, e *Source code (zip)* GitHub lo genera dal tag.
+La release aveva due provenienze diverse e niente che lo dicesse.
+
+Documentato in `docs/12` §2.1-bis, in italiano e in inglese.
+
+### Corretto — un numero fermo nella documentazione
+
+La matrice di tracciabilità e la documentazione di prova dichiaravano **235 file
+tracciati**; la verifica di sicurezza ne esamina **288**. Un numero che cresce
+da solo a ogni file aggiunto, scritto in quattro punti fra italiano e inglese, e
+che nessun controllo poteva smentire: `verifica-documenti` confronta i documenti
+fra loro, `verifica-affermazioni` li confronta con l'applicazione in esecuzione,
+e nessuno dei due guardava la misura di quel banco.
+
+La guardia sta ora dentro `verifica-sicurezza`, che quel numero lo misura già:
+legge le cifre davanti a «file tracciati» / «tracked files» nei quattro
+documenti e pretende che coincidano. Fallisce anche se la frase manca del tutto,
+altrimenti bastava toglierla per far tacere il controllo. Il banco passa da 9 a
+**10 controlli**.
+
+### Aggiunto — il 49° banco: nessuna credenziale in NESSUN punto della storia
+
+`verifica-sicurezza` esamina i file *tracciati*, cioè lo stato attuale. È il
+controllo giusto per «oggi nel repository non c'è nessuna chiave», e non
+risponde alla domanda che conta su un repository pubblico: una chiave messa in
+un commit e togliata nel successivo lo passa per sempre, e resta leggibile a
+chiunque cloni. Git non dimentica.
+
+`audit_storia` esamina ogni **versione** di ogni file di testo mai entrata nel
+repository: **1 551 versioni su 390 commit, 9 schemi, zero credenziali**.
+Requisito **SEC-07** nella matrice.
+
+Due difese contro sé stesso, perché qui un numero perfetto può nascere da meno
+superficie o da uno schema cieco:
+
+- **si rifiuta di passare su un clone superficiale** — un `--depth 1`, come
+  quello di una sessione remota, contiene una frazione della storia: il banco
+  girerebbe, non troverebbe niente e direbbe «nessuna credenziale in tutta la
+  storia» avendone vista un decimo;
+- **gli schemi si provano prima di fidarsi** — ognuno dei nove deve riconoscere
+  un esempio costruito e *rifiutare* un quasi-esempio, entrambi dentro una coda
+  di rumore con cifre, come sarebbe in un file vero.
+
+La seconda difesa è nata da un errore in questo stesso banco. Lo schema AWS
+chiedeva una cifra con `(?=.*\d)`, condizione sempre soddisfatta in un file
+grande perché la cifra sta più avanti: trovava 53 corrispondenze, tutte la
+stessa stringa `AKIAAAAAAAAAAAAAAAAA` — sedici «A», la zona di zeri di
+un'immagine in base64 — e il quasi-esempio non se ne accorgeva perché era troppo
+corto per contenere cifre. Ora l'identificativo AWS si giudica dalla varietà dei
+suoi sedici caratteri.
+
+Provato nei due versi: con un commit locale che contiene una chiave AWS di forma
+valida il banco fallisce nominando il blob; rimosso il commit, torna a passare.
+
 ### Verifica
 
-**48 banchi, 0 falliti.** 89 sezioni percorse, 37 409 elementi esaminati per
+**49 banchi, 0 falliti.** 89 sezioni percorse, 37 409 elementi esaminati per
 l'accessibilità, 0 difetti di contrasto, 0 campi senza etichetta. Quattordici
 pagine senza un solo errore JavaScript, senza una risposta 4xx e senza un
-identificativo duplicato.
+identificativo duplicato. E 1 551 versioni di file di testo su 390 commit senza
+una credenziale.
 
 ---
 ## [bsi-v180] — 2026-10-02
