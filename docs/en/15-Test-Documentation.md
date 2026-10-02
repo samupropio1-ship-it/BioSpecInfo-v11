@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**47 benches**, grouped by what they demonstrate.
+**48 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -146,7 +146,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 88 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 89 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -156,7 +156,28 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 ### 3.4 Interface
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
-`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy`
+`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
+`test_fluidita`
+
+**`test_fluidita` — 15 checks.** It measures how long the page stays *blocked*
+at every section switch, across all 89. It found three defects no other bench
+could see: the "3D PRO Viewer" froze the page for **797 ms** on the first click
+— the profiler attributes them to 3Dmol's first `render()`, which compiles the
+WebGL context's shaders; the **296 figures** in "Synthesis" (5,351 SVG nodes)
+were all drawn before anything was shown, while three are visible on opening;
+and **296 timers 40 ms apart** were scheduled when that section opened —
+eleven and a half seconds of wake-ups, each calling `getTotalLength()` on every
+stroke of every figure, including those off screen.
+
+After the fixes: median switch **14 ms**, worst **162 ms**, **no section above
+100 ms** (there were two, the worst at 1,166 ms).
+
+Half the checks are the *opposite proofs*, because a page that builds nothing
+is instantaneous: the WebGL canvas must appear anyway, all 296 figures must
+exist shortly after, no frame may stay empty, printing must not come out mute,
+and the search must filter even cards whose figure is not yet born. And the
+bench counts the sections it traversed: on ten instead of 89 the timings would
+be excellent and the measurement worthless.
 
 ### 3.5 Security and accessibility
 
@@ -164,8 +185,8 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 |---|---|
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 88 sections |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 88 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 89 sections |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 89 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 > **The obstacle belonged to the tool, not to the problem.** For three versions
@@ -226,7 +247,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 88 sections and shows only one: out of **19,751** text
+> `index.html` alternates 89 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -320,13 +341,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 88 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 89 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 88 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 89 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -400,7 +421,7 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 88 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Accessibility** | Automated over 13 pages and all 89 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
 | **Security** | `verifica-sicurezza` runs 9 checks over 235 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |

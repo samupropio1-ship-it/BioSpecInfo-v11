@@ -67,7 +67,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 88 sezioni × 5 giri |
+| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 89 sezioni × 5 giri |
 | **STA-02** | L'esaurimento di `localStorage` non deve rendere inutilizzabile l'app | scritture protette; avviso persistente nel File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | Nessuna promessa rifiutata deve restare non gestita | `.catch()` sistematici | `audit_promesse` — 22 controlli, rete sana e rete morta |
 | **STA-04** | Dati salvati corrotti non devono impedire l'avvio | `loadJSON()` con ripiego | `audit_stabilita` §4 |
@@ -84,10 +84,11 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 88 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 89 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
+| **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi disegnate a fette da 8 ms | `test_fluidita` — **89 sezioni attraversate**, cambio mediano 14 ms, peggiore 162 ms, **0 sezioni oltre 100 ms**; e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta |
 
 ---
 
@@ -96,7 +97,7 @@
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
 | **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 235 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 88 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 89 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
 
@@ -118,7 +119,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 88 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 88 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 89 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 89 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,89 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
@@ -133,11 +134,11 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…21) | 20 | 20 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…08) | 6 | 6 | 100 % |
+| Interfaccia (UI-01…09) | 7 | 7 | 100 % |
 | Sicurezza (SEC-01…04) | 4 | 4 | 100 % |
-| **Totale automatizzato** | **48** | **48** | **100 %** |
+| **Totale automatizzato** | **49** | **49** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **53** | **48** | **91 %** |
+| **Totale dichiarato** | **54** | **49** | **91 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -145,8 +146,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **48
-> requisiti verificati su 53 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **49
+> requisiti verificati su 54 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli

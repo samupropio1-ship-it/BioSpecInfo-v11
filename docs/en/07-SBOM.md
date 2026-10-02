@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v181` |
-| Commit | `393671a85ccbee3e164c67916403beb877551c84` |
-| Generated (UTC) | `2026-10-02T13:02:02.400Z` |
+| Commit | `e19afc6eb78c861aed3b485e13cc5c3fc904af8f` |
+| Generated (UTC) | `2026-10-02T16:27:01.565Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -56,7 +56,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4652 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4657 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 33 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 114 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -70,7 +70,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `96cdaffcfd56e6994e29ec0c64f68a9dc23bb1d946df3e14cdc07364a1a4ead3` |
+| `index.html` | `6232410e66315da479e771bbc481c23b3c9d79853deb424617e5d1cb98650305` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `1eaf605c2d93f00c3edaa843de504c8d6625131b75d8bb4a0bef8d9b767b49bd` |
 | `bsi-cheminfo.js` | `33cd76132c4c3d495b5553315c15a44e991f56a8f1847104f2ec198aa0c005fc` |
@@ -127,4 +127,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-02T13:02:02.400Z._
+_Generated on 2026-10-02T16:27:01.565Z._

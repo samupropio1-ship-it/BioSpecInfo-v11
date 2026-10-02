@@ -1068,7 +1068,7 @@ window.BSI_TELEMETRY_URL='';</script>
       <button id="dsWbHtml" class="ds-gh-b" style="display:none;border-color:#a78bfa;color:#c9b6ff">📄 Report HTML</button>
       <button id="dsWbPy" class="ds-gh-b" style="display:none">🐍 Genera codice pandas</button>
     </div>
-    <textarea id="dsWbInput" spellcheck="false" placeholder="Incolla qui il CSV (con intestazione), es:&#10;smiles,mw,logp,solubility&#10;CCO,46.07,-0.31,1.10&#10;c1ccccc1,78.11,2.13,-2.20&#10;..." style="width:100%;min-height:96px;background:#070f1c;border:1px solid #26406a;border-radius:9px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.5;padding:9px 11px;resize:vertical;box-sizing:border-box"></textarea>
+    <textarea id="dsWbInput" spellcheck="false" placeholder="Incolla qui il CSV (con intestazione), es:&#10;smiles,mw,logp,solubility&#10;CCO,46.07,-0.31,1.10&#10;c1ccccc1,78.11,2.13,-2.20&#10;..." style="width:100%;min-height:96px;background:#070f1c;border:1px solid #26406a;border-radius:9px;color:#d7e6f5;font-family:ui-monospace,monospace;font-size:.76rem;line-height:1.5;padding:9px 11px;resize:vertical;box-sizing:border-box" aria-label="Dati da analizzare, in formato CSV con intestazione"></textarea>
     <div id="dsWbOut" style="margin-top:12px"></div>
   </div>
 
@@ -1138,7 +1138,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <div id="dsEq" style="color:#5eead4;font-family:ui-monospace,monospace;font-size:.84rem;margin:9px 0;text-align:center"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
       <label style="color:#cdd9e6;font-size:.84rem">Predici per <b>n</b> atomi di C:</label>
-      <input id="dsPredIn" type="number" min="1" max="30" value="12" style="width:76px;padding:6px 9px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.85rem">
+      <input id="dsPredIn" type="number" min="1" max="30" value="12" style="width:76px;padding:6px 9px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.85rem" aria-label="Numero di cui prevedere il valore">
       <button onclick="window._dsPredict&&window._dsPredict()" style="padding:6px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Predici →</button>
       <span id="dsPredOut" style="color:#f5a623;font-weight:800;font-size:.9rem"></span>
     </div>
@@ -1183,7 +1183,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <div id="dsSqlUI" style="display:none">
       <div style="color:#9fb3c8;font-size:.8rem;margin:10px 0 5px">Esempi (toccali per provarli):</div>
       <div id="dsSqlPresets" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px"></div>
-      <textarea id="dsSqlQ" spellcheck="false" style="width:100%;min-height:74px;padding:10px 12px;border-radius:9px;border:1px solid #16273e;background:#070f1c;color:#8fe6c8;font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.5;resize:vertical"></textarea>
+      <textarea id="dsSqlQ" spellcheck="false" style="width:100%;min-height:74px;padding:10px 12px;border-radius:9px;border:1px solid #16273e;background:#070f1c;color:#8fe6c8;font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.5;resize:vertical" aria-label="Interrogazione SQL da eseguire sui dati"></textarea>
       <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap"><button onclick="window._dsSqlRun&&window._dsSqlRun()" style="padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c6fff,#5eead4);color:#04121e;font-weight:800;cursor:pointer;font-size:.82rem">Esegui ▶</button><button onclick="window._dsSqlReset&&window._dsSqlReset()" title="Ricrea il database da zero — usalo se una query come DROP TABLE ha rotto le tabelle" style="padding:8px 14px;border-radius:9px;border:1px solid #26406a;background:transparent;color:#9fb3c8;font-weight:700;cursor:pointer;font-size:.82rem">↺ Reset database</button></div>
       <div id="dsSqlOut" style="overflow-x:auto"></div>
     </div>
@@ -1237,7 +1237,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <div style="color:#cdd9e6;font-size:.85rem;line-height:1.6;margin-bottom:10px">Non solo una guida: qui l'app ti <b>genera i file di partenza</b> di un progetto (README, requirements, script Python <b>reale</b>), pronti da mettere su GitHub. Scegli il tipo, dai un nome al repo, <b>scarica i file</b> e lancia i comandi git.</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:9px">
       <label style="color:#9fb3c8;font-size:.82rem">nome repo:</label>
-      <input id="dsGhName" value="solubilita-ml" oninput="window._dsGhSync&&window._dsGhSync()" style="flex:1;min-width:150px;padding:7px 10px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.84rem;font-family:ui-monospace,monospace">
+      <input id="dsGhName" value="solubilita-ml" oninput="window._dsGhSync&&window._dsGhSync()" style="flex:1;min-width:150px;padding:7px 10px;border-radius:8px;border:1px solid #1a3050;background:#0a1628;color:#e9eef6;font-size:.84rem;font-family:ui-monospace,monospace" aria-label="Nome del progetto da generare">
     </div>
     <div style="color:#9fb3c8;font-size:.82rem;margin-bottom:5px">tipo di progetto:</div>
     <div id="dsGhTpl" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
@@ -31924,6 +31924,18 @@ window.init3DViewerPro = function(){
 
   var viewer=null, currentType='mol', spinning=false;
 
+  /* Il primo render di 3Dmol compila gli shader del contesto WebGL: misurato
+     con il profilatore, 688 ms su rasterizzatore software. Finche' stava
+     dentro il click della voce di menu, la sezione si apriva dopo quasi un
+     secondo di pagina bloccata. Si lascia dipingere il pannello e il caricamento
+     automatico parte subito dopo: il click torna in pochi millisecondi e il
+     lavoro del viewer avviene a schermo già disegnato. */
+  function piuTardi(fn){
+    if(typeof requestAnimationFrame === 'function')
+      requestAnimationFrame(function(){ setTimeout(fn, 0); });
+    else setTimeout(fn, 0);
+  }
+
   function ensureViewer(){
     if(!window.$3Dmol){ status.textContent='⚠️ Libreria 3D non caricata'; return null; }
     if(!viewer){
@@ -32073,7 +32085,8 @@ window.init3DViewerPro = function(){
       document.getElementById('m3dgo').onclick=function(){ var q=document.getElementById('m3dq').value.trim(); if(q) loadMolecule(q); };
       document.getElementById('m3dq').onkeydown=function(e){ if(e.key==='Enter'){ var q=this.value.trim(); if(q) loadMolecule(q);} };
       buildStyleBar();
-      loadMolecule('caffeine');
+      setStatus('⏳ Avvio del viewer…');
+      piuTardi(function(){ loadMolecule('caffeine'); });
     } else if(idx==1){
       currentType='protein';
       var box=document.createElement('div');
@@ -32091,7 +32104,10 @@ window.init3DViewerPro = function(){
       controls.appendChild(box);
       document.getElementById('p3dgo').onclick=function(){ var q=document.getElementById('p3dq').value.trim().toUpperCase(); if(q.length===4) loadProtein(q).then(function(){setStatus('✅ '+q+' caricata');}).catch(function(e){setStatus('⚠️ '+e.message);}); };
       buildStyleBar();
-      loadProtein('1CRN').then(function(){setStatus('✅ Crambina 1CRN caricata');}).catch(function(){});
+      setStatus('⏳ Avvio del viewer…');
+      piuTardi(function(){
+        loadProtein('1CRN').then(function(){setStatus('✅ Crambina 1CRN caricata');}).catch(function(){});
+      });
     } else {
       currentType='protein';
       var box=document.createElement('div');
@@ -32113,7 +32129,8 @@ window.init3DViewerPro = function(){
         btn.onclick=function(){ document.getElementById('alA').value=btn.dataset.a; document.getElementById('alB').value=btn.dataset.b; alignTwo(btn.dataset.a,btn.dataset.b); };
       });
       buildStyleBar();
-      alignTwo('1HHO','2HHB');
+      setStatus('⏳ Avvio del viewer…');
+      piuTardi(function(){ alignTwo('1HHO','2HHB'); });
     }
   }
 
@@ -35175,6 +35192,61 @@ buildScrollTop();
       return;
     }
     var _orig = window.showRxns;
+
+    /* ── Le figure si disegnano a fette, in ordine ────────────────────────
+       Le 296 reazioni portano 5 351 nodi di SVG. Disegnarli tutti dentro il
+       click costava 68 ms di JavaScript piu' l'impaginazione di 13 482 nodi.
+       Si creano prima le carte con la cornice vuota — veloce — e le figure si
+       riempiono in fette da 8 ms al massimo, cosi' nessun passo supera la
+       durata di un fotogramma. In ordine di elenco: quelle in cima, che sono
+       le sole visibili all'apertura, stanno nella prima fetta.
+
+       La prima stesura disegnava invece su IntersectionObserver, al passaggio
+       davanti allo schermo. Misurata, lasciava 101 figure su 296 vuote dopo
+       uno scorrimento rapido: ogni figura che compare cambia l'altezza della
+       carta, la pagina si risistema sotto le dita e lo scorrimento scavalca
+       le carte che l'osservatore non ha ancora servito. Una figura assente e'
+       un difetto; la lentezza era solo un fastidio. A fette non resta nulla
+       di vuoto, e il lavoro totale e' lo stesso di prima, solo spezzato. */
+    var _fettaInCorso = 0;
+    function _disegnaFigura(carta){
+      if(!carta || carta._figuraFatta) return;
+      carta._figuraFatta = true;
+      var box = carta.querySelector('.rxn-sw');
+      var fn  = carta._renderFig;
+      if(!box || typeof fn !== 'function') return;
+      try { box.innerHTML = fn(); } catch(e){ box.innerHTML = ''; }
+      /* l'animazione dei tratti riguarda solo la figura appena nata */
+      if(typeof window.bsiAnimaFigura === 'function'){
+        setTimeout(function(){ try{ window.bsiAnimaFigura(carta); }catch(e){} }, 60);
+      }
+    }
+    function _oraMs(){
+      return (window.performance && performance.now) ? performance.now() : Date.now();
+    }
+    function _completaFigure(gettone){
+      var l = document.getElementById('rxnList');
+      if(!l || gettone !== _fettaInCorso) return;
+      var carte = l.querySelectorAll('.rxn-card');
+      var t0 = _oraMs(), fatte = 0;
+      for(var i=0; i<carte.length; i++){
+        if(carte[i]._figuraFatta) continue;
+        _disegnaFigura(carte[i]); fatte++;
+        if(_oraMs() - t0 > 8) break;
+      }
+      if(!fatte) return;
+      if(typeof requestAnimationFrame === 'function')
+        requestAnimationFrame(function(){ _completaFigure(gettone); });
+      else setTimeout(function(){ _completaFigure(gettone); }, 16);
+    }
+    /* Alla stampa non si puo' aspettare una fetta per volta: il foglio
+       uscirebbe muto. Si disegna tutto subito. */
+    window.bsiDisegnaTutteLeFigure = function(){
+      var l = document.getElementById('rxnList');
+      if(l) [].forEach.call(l.querySelectorAll('.rxn-card'), _disegnaFigura);
+    };
+    window.addEventListener('beforeprint', window.bsiDisegnaTutteLeFigure);
+
     window.showRxns = function(cat, q){
       var el = document.getElementById('rxnList');
       if(!el){ _orig(cat,q); return; }
@@ -35191,21 +35263,25 @@ buildScrollTop();
       });
       var cnt = document.getElementById('rxnCount');
       if(cnt) cnt.textContent = filtered.length + ' reazioni · frecce elettroni in giallo';
+      _fettaInCorso++;   /* una ricostruzione annulla le fette della precedente */
       filtered.forEach(function(r,ri){
         // supporta fn: (vecchio) e svg: (nuovo)
         var renderFn = r.fn || r.svg;
-        var svgHtml = '';
-        try{ svgHtml = '<div class="rxn-sw">' + (renderFn ? renderFn() : '') + '</div>'; }catch(e){}
         var title = r.t || r.n || '';
         var d = document.createElement('div');
         d.className = 'rxn-card';
         d.style.animationDelay = Math.min(ri * 0.035, 0.55) + 's';
         d.innerHTML = '<div class="rxn-tt">' + title + '</div>'
-          + svgHtml
+          + '<div class="rxn-sw"></div>'
           + '<div class="rxn-desc">' + (r.d||'') + '</div>'
           + '<div class="rxn-cond">⚗ ' + (r.cond||'') + '</div>';
+        d._renderFig = renderFn;
         try{window.bsiAddMolLinks(d,title);}catch(e){} el.appendChild(d);
       });
+      var gettone = _fettaInCorso;
+      if(typeof requestAnimationFrame === 'function')
+        requestAnimationFrame(function(){ _completaFigure(gettone); });
+      else _completaFigure(gettone);
     };
     // Forza refresh se ssyn è già aperta
     var ssyn = document.getElementById('ssyn');
@@ -41818,18 +41894,14 @@ if(typeof _origRenderStep === 'function'){
     mo.observe(rxnList, { childList: true });
   }
 
-  // Also animate any SVGs already in the DOM on section open
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('[data-s="ssyn"]');
-    if(btn){
-      setTimeout(function(){
-        var el = document.getElementById('rxnList');
-        if(el) el.querySelectorAll('.rxn-card').forEach(function(card, i){
-          setTimeout(function(){ animSVGPaths(card); }, i*40);
-        });
-      }, 300);
-    }
-  });
+  /* Il costruttore delle carte chiama questa funzione sulla singola figura
+     appena disegnata. Prima c'era qui una cascata: all'apertura di «ssyn» si
+     programmavano 296 timer a 40 ms di distanza — undici secondi e mezzo di
+     risvegli, ognuno dei quali chiede getTotalLength() su ogni tratto e
+     costringe la pagina a ricalcolare la geometria. Era lavoro inutile due
+     volte: le carte oltre lo schermo non si vedono, e con il disegno a fette
+     a 300 ms la maggior parte delle figure non esiste ancora. */
+  window.bsiAnimaFigura = animSVGPaths;
 })();
 
 // ── Spectrum sim auto-trigger on section open ─────────────────────

@@ -6,7 +6,7 @@ stato esatto del commit pubblicato.
 | | |
 |---|---|
 | **Versione** | `bsi-v181` |
-| **Batteria di verifica** | 47 banchi, **0 falliti** — esito CONFORME |
+| **Batteria di verifica** | 48 banchi, **0 falliti** — esito CONFORME |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Demo** | `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
 
@@ -16,7 +16,7 @@ stato esatto del commit pubblicato.
 
 | Cartella / file | Contenuto |
 |---|---|
-| `index.html` | L'applicazione: 88 sezioni, dati chimici, interfaccia |
+| `index.html` | L'applicazione: 89 sezioni, dati chimici, interfaccia |
 | `bsi-ai-hub.js` | L'agente «Spectra»: ciclo agentico, 35 strumenti, dieci fornitori |
 | `bsi-spettri.js` | Motore di predizione spettrale IR/NMR sul grafo molecolare |
 | `bsi-cheminfo.js` | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, QSAR con validazione incrociata raggruppata e modello nullo, esportazioni |
@@ -26,7 +26,7 @@ stato esatto del commit pubblicato.
 | `docs/pdf/` | **36 PDF** impaginati, versione e commit in ogni piè di pagina |
 | `docs/evidence/` | Rapporto di verifica integrale, SBOM CycloneDX, registri dei debiti misurati |
 | `tools/` | Gli strumenti che producono l'evidenza |
-| `tools/banchi/` | **I 47 banchi di prova**, versionati: chiunque può rieseguirli |
+| `tools/banchi/` | **I 48 banchi di prova**, versionati: chiunque può rieseguirli |
 | `proxy/` | Il proxy opzionale (Cloudflare Worker) |
 
 ---
@@ -51,7 +51,7 @@ python3 -m http.server 8899
 
 # per rieseguire la verifica
 npm install                      # solo playwright-core
-node tools/genera-evidenza.js    # 47 banchi; deve chiudersi con 0 falliti
+node tools/genera-evidenza.js    # 48 banchi; deve chiudersi con 0 falliti
 ```
 
 > **Serve un server anche in locale.** Aprire `index.html` con un doppio clic

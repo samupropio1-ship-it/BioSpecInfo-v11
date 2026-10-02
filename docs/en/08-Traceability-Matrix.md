@@ -67,7 +67,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 88 sections × 5 rounds |
+| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 89 sections × 5 rounds |
 | **STA-02** | Exhausting `localStorage` must not make the app unusable | guarded writes; persistent warning in the File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | No rejected promise may remain unhandled | systematic `.catch()` | `audit_promesse` — 22 checks, healthy network and dead network |
 | **STA-04** | Corrupted saved data must not prevent startup | `loadJSON()` with fallback | `audit_stabilita` §4 |
@@ -84,10 +84,11 @@
 |---|---|---|---|
 | **UI-01** | Every page must open without JavaScript errors | — | `audit_stabilita` §5 — 14 pages |
 | **UI-02** | Charts must be sharp on high-density screens | `bsiNitido()` on the canvas contexts | `audit_grafici` — 40 canvases |
-| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 88 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
+| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 89 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
+| **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures drawn in 8 ms slices | `test_fluidita` — **89 sections traversed**, median switch 14 ms, worst 162 ms, **0 sections above 100 ms**; plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute |
 
 ---
 
@@ -96,7 +97,7 @@
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
 | **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 235 tracked files, 8 credential shapes |
-| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 88 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
+| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 89 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
 
@@ -118,7 +119,7 @@ manual testing, and their automation is planned.
 
 | ID | Requirement | Current coverage |
 |---|---|---|
-| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 88 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 88 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
+| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 89 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 89 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
 | **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.89 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
@@ -133,11 +134,11 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…21) | 20 | 20 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…08) | 6 | 6 | 100 % |
+| Interface (UI-01…09) | 7 | 7 | 100 % |
 | Security (SEC-01…04) | 4 | 4 | 100 % |
-| **Automated total** | **48** | **48** | **100 %** |
+| **Automated total** | **49** | **49** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **53** | **48** | **91 %** |
+| **Declared total** | **54** | **49** | **91 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -145,8 +146,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **48
-> requirements verified out of 53 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **49
+> requirements verified out of 54 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
