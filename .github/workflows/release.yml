@@ -109,9 +109,16 @@ jobs:
           # Rieseguibile: se la release c'è già si aggiornano note e allegati
           # invece di fallire a metà.
           if gh release view "$VER" >/dev/null 2>&1; then
-            echo "la release $VER esiste: aggiorno note e allegati"
+            echo "la release $VER esiste: aggiorno note, allegati e tag"
             gh release edit "$VER" --title "$TIT" --notes-file note.md
             gh release upload "$VER" consegna/*.zip --clobber
+            # `gh release edit` NON sposta il tag. Senza questa riga l'archivio
+            # «Source code (zip)», che GitHub genera dal tag, resterebbe al
+            # commit della prima pubblicazione mentre i pacchetti allegati
+            # verrebbero da questo: una release con due provenienze diverse e
+            # nulla che lo dica. Una release, un commit.
+            gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$VER" \
+              -f sha="${{ github.sha }}" -F force=true >/dev/null
           else
             gh release create "$VER" \
               --target "${{ github.sha }}" \
@@ -122,6 +129,30 @@ jobs:
           echo "— pubblicata:"
           gh release view "$VER" --json tagName,name,assets \
             --jq '"\(.tagName) · \(.name) · allegati: \(.assets | length)"'
+
+      - name: Il tag e gli allegati devono venire dallo stesso commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          # Non si dà per buono che il passo precedente abbia funzionato: si
+          # chiede a GitHub dove punta il tag adesso e lo si confronta con il
+          # commit su cui sta girando questo workflow, che è quello da cui
+          # sono stati presi i pacchetti.
+          RIF=$(gh api "repos/${{ github.repository }}/git/ref/tags/$VER" \
+                  --jq '.object.sha + " " + .object.type')
+          SHA="${RIF% *}"; TIPO="${RIF#* }"
+          if [ "$TIPO" = "tag" ]; then
+            SHA=$(gh api "repos/${{ github.repository }}/git/tags/$SHA" --jq '.object.sha')
+          fi
+          echo "tag $VER → $SHA"
+          echo "questo workflow → ${{ github.sha }}"
+          if [ "$SHA" != "${{ github.sha }}" ]; then
+            echo "::error::il tag punta a $SHA ma i pacchetti vengono da ${{ github.sha }}"
+            exit 1
+          fi
+          echo "coincidono"
 
       - name: Togli il ramo di prova lasciato indietro
         env:
