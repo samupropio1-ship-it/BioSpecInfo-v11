@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v181` |
-| Commit | `e19afc6eb78c861aed3b485e13cc5c3fc904af8f` |
-| Generato (UTC) | `2026-10-02T16:27:01.565Z` |
+| Commit | `53da0128b7d29f5dcacb1014cd2afe583178e5c5` |
+| Generato (UTC) | `2026-10-02T20:21:10.271Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -127,4 +127,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-02T16:27:01.565Z._
+_Generato il 2026-10-02T20:21:10.271Z._

@@ -148,5 +148,37 @@ const esterni = [];
 att('nessuno script caricato da un dominio esterno', 0, esterni.length);
 esterni.slice(0, 6).forEach(e => console.log('      ! ' + e));
 
+/* ── Quanti file dice la documentazione che si esaminano ──────────────────
+   La matrice di tracciabilita' e la documentazione di prova scrivono il numero
+   di file tracciati su cui gira questa verifica. E' un numero che cresce da
+   solo a ogni file aggiunto al repository: era rimasto a 235 mentre qui se ne
+   esaminavano 288, e nessuno dei controlli esistenti poteva accorgersene,
+   perche' confrontavano i documenti fra loro e non con la misura.
+   Chi legge «235 file tracciati» ha il diritto che sia il numero vero. */
+const DOVE_DICHIARATO = ['docs/08-Traceability-Matrix.md',
+                         'docs/en/08-Traceability-Matrix.md',
+                         'docs/15-Test-Documentation.md',
+                         'docs/en/15-Test-Documentation.md'];
+const disallineati = [];
+DOVE_DICHIARATO.forEach(function (rel) {
+  let t;
+  try { t = fs.readFileSync(path.join(RADICE, rel), 'utf8'); } catch (e) {
+    disallineati.push(rel + ' (non leggibile)'); return;
+  }
+  /* si cercano le cifre che precedono «file tracciati» / «tracked files» */
+  const re = /(\d[\d.,   ]*)\s*(?:file tracciati|tracked files)/gi;
+  let m, viste = 0;
+  while ((m = re.exec(t)) !== null) {
+    viste++;
+    const n = parseInt(m[1].replace(/[^\d]/g, ''), 10);
+    if (n !== file.length) disallineati.push(rel + ': dichiara ' + n);
+  }
+  if (!viste) disallineati.push(rel + ': il numero non è dichiarato');
+});
+att('il numero di file dichiarato nei documenti è quello misurato',
+    '', disallineati.join(' | '));
+console.log('      (' + file.length + ' file tracciati, citati in ' +
+            DOVE_DICHIARATO.length + ' documenti)');
+
 console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
 process.exit(ko ? 1 : 0);
