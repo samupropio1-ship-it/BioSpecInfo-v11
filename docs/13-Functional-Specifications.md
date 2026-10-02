@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v176` |
+| **Versione descritta** | `bsi-v177` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -197,6 +197,13 @@ script e nessuna richiesta di rete**: non può generare errori JavaScript, e il
 testo alternativo delle 98 figure viene dalle didascalie scritte dall'autore,
 non da descrizioni inventate (vedi `docs/06` §3-ter).
 
+Chiude il documento una sezione di **autoverifica con 12 domande a risposta
+multipla**, recuperata dalla guida precedente — dove era un quiz in
+JavaScript — e riscritta **senza un rigo di codice**: le quattro opzioni sono
+in chiaro, la soluzione sta in un `<details>` nativo che si apre con un clic.
+In stampa il `<details>` sparisce e compare una copia dedicata della soluzione,
+così la copia cartacea non perde le spiegazioni.
+
 ### 3.5 Farmacologia
 
 | Funzione | Descrizione |
@@ -353,4 +360,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v176`._
+_Documento aggiornato alla versione `bsi-v177`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v176` |
+| **Version described** | `bsi-v177` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -197,6 +197,13 @@ cannot raise JavaScript errors, and the alternative text of the 98 figures comes
 from the captions the author wrote, not from invented descriptions (see
 `docs/06` §3-ter).
 
+The document closes with a **self-test of 12 multiple-choice questions**,
+recovered from the previous guide — where it was a JavaScript quiz — and
+rewritten **without a line of code**: the four options are in plain sight, the
+solution sits in a native `<details>` that opens on a click. In print the
+`<details>` disappears and a dedicated copy of the solution appears, so the
+printed copy does not lose the explanations.
+
 ### 3.5 Pharmacology
 
 | Function | Description |
@@ -353,4 +360,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v176`._
+_Document updated to version `bsi-v177`._
