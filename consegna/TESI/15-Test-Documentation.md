@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v181` |
+| **Versione descritta** | `bsi-v182` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**49 banchi**, raggruppati per ciò che dimostrano.
+**51 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -156,7 +156,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
-`test_fluidita`
+`test_fluidita` · `test_lingue` · `test_mol3d`
 
 **`test_fluidita` — 15 controlli.** Misura quanto la pagina resta *bloccata*
 a ogni cambio di sezione, su tutte le 89. Ha trovato tre difetti che nessun
@@ -171,6 +171,59 @@ fuori dallo schermo.
 
 Dopo le correzioni: cambio mediano **14 ms**, peggiore **162 ms**, **nessuna
 sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
+
+**`test_lingue` — 20 controlli.** Sorveglia due funzioni nuove e due modi
+diversi di mentire senza accorgersene.
+
+*La lingua.* Un interruttore che «traduce l'applicazione» è facile da scrivere
+e difficile da mantenere onesto: basta che qualcuno cambi un'etichetta italiana
+e la sua traduzione non si trovi più. Il difetto non si vede — l'etichetta resta
+in italiano in mezzo all'inglese — a meno che qualcuno conti. Il banco conta:
+**160 elementi di scheletro, 160 tradotti, zero rimasti**. Pretende anche le due
+prove contrarie: che passando all'inglese il testo **cambi davvero** (un
+dizionario vuoto passerebbe «tutto tradotto» senza muovere una lettera) e che
+tornando all'italiano il testo sia **identico carattere per carattere**.
+
+*I linguaggi delle molecole.* Le conversioni si verificano contro fatti esterni
+— sette chiavi InChI di letteratura **scritte dentro il banco** — e si pretende
+il giro completo SMILES → molfile → SMILES. Le formule si contano a mano.
+
+*Il nominatore IUPAC.* 26 nomi scritti a mano in due lingue, e sette molecole
+che **devono essere rifiutate**: un nominatore che non rifiuta mai è un
+nominatore che inventa.
+
+Provato nei due versi: rimettendo il `trim()` che rompe i molfile e togliendo
+una traduzione, il banco fallisce tre controlli su venti.
+
+**`test_mol3d` — 29 controlli.** Sorveglia l'animazione di formazione della
+molecola e la misura degli angoli di legame, due aggiunte che hanno due modi
+diversi di sembrare giuste senza esserlo.
+
+*L'animazione.* «C'è» o «non c'è» non si vede ispezionando il codice: un ciclo
+che gira e ridisegna sempre la stessa cosa supera qualunque controllo
+sull'esistenza della funzione. Il banco guarda i **pixel**: a 130 ms la tela
+deve essere quasi vuota — polvere — e a 2,3 s deve esserci una molecola.
+Misurato: **532 pixel accesi → 2 334**. Se i due numeri fossero uguali
+l'animazione non ci sarebbe, comunque sia scritto il programma. Verifica anche
+che il ciclo **si fermi** quando lo si ferma: una tela rimossa con il ciclo
+ancora acceso è una perdita che si paga in batteria.
+
+*Gli angoli.* Un numero con un «°» accanto sembra una misura. Si verificano su
+geometrie costruite a mano, il cui valore è noto **per costruzione** e non
+preso da una tabella: tetraedro regolare **109,4712°**, acqua 104,47°, CO₂
+180°, BF₃ 120°, ammoniaca 106,13°. Tolleranza 0,05°.
+
+*Il rifiuto.* Su una struttura **piatta** (z = 0) il pulsante degli angoli deve
+essere spento e la ragione scritta: su coordinate 2D un angolo di legame non è
+un angolo di legame, e mostrarlo sarebbe l'errore peggiore dei due perché
+somiglia a un dato. Provato nei due versi: una struttura con z ≠ 0 non deve
+essere scambiata per piatta, altrimenti nessun angolo si vedrebbe mai.
+
+La prima stesura di questo banco leggeva la barra dei comandi **dopo** aver
+fermato il ciclo, che la rimuove: trovava zero pulsanti e poi dichiarava
+«ognuno ha un nome accessibile» su un insieme vuoto. Un controllo che passa
+perché non ha niente da guardare è esattamente il difetto che questo progetto
+insegue; ora la verifica pretende due pulsanti **e** due nomi.
 
 Metà dei controlli sono le *prove contrarie*, perché una pagina che non
 costruisce niente è fulminea: la tela WebGL deve comparire comunque, le 296
@@ -462,7 +515,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 89 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 288 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 295 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -481,4 +534,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v181`._
+_Documento aggiornato alla versione `bsi-v182`._

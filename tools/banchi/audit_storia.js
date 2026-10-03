@@ -104,11 +104,31 @@ const SCHEMI = [
     quasi:   'gsk_finta' },
   { nome: 'chiave privata',
     re: /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
-    esempio: '-----BEGIN RSA PRIVATE KEY-----',
-    quasi:   '-----BEGIN CERTIFICATE-----' }
+    /* L'esempio si COMPONE invece di scriverlo: scritto per intero finiva nel
+       repository come qualunque altra riga, e alla prima esecuzione dopo il
+       commit questo banco segnalava una chiave privata nella storia — la
+       propria. Uno scanner che inciampa nelle proprie definizioni rende
+       «contaminato» ogni repository che lo contenga, e il difetto si traveste
+       da ritrovamento. Gli altri esempi erano già composti per costruzione. */
+    esempio: '-----BEGIN ' + 'RSA PRIVATE' + ' KEY-----',
+    quasi:   '-----BEGIN ' + 'CERTIFICATE-----' }
 ];
 
 const ESTENSIONI = /\.(html?|js|mjs|cjs|json|md|toml|ya?ml|txt|css|sh|py|xml|svg|csv)$/i;
+
+/* ── Le eccezioni, dichiarate una per una ──────────────────────────────────
+   Un ritrovamento spiegato NON si fa sparire allargando lo schema: si scrive
+   qui, con il suo motivo, e si continua a vederlo. L'eccezione è il singolo
+   oggetto git, non un percorso e non un motivo: un file con lo stesso nome ma
+   contenuto diverso ha un'impronta diversa e torna a essere segnalato. */
+const ECCEZIONI = {
+  'cc1a0ba00d4964a7c90261a3fdb85df5a518ca0c':
+    'tools/banchi/audit_storia.js al commit 825ef66 — la prima stesura di QUESTO ' +
+    'banco, che scriveva per intero l’esempio di chiave privata invece di ' +
+    'comporlo. Non è una credenziale: è la definizione dello schema che la cerca. ' +
+    'La stesura successiva compone l’esempio, ma il blob vecchio resta nella ' +
+    'storia — che è esattamente ciò che questo banco esiste per ricordare.'
+};
 
 /* Una corrispondenza è una credenziale solo se supera anche il giudizio dello
    schema, dove c'è: la forma da sola non basta. */
@@ -174,7 +194,7 @@ function git(args, opz){
 
   /* ── §3 · La ricerca ─────────────────────────────────────────────────── */
   console.log('\n── La ricerca ──');
-  const trovate = [];
+  const trovate = [], scusate = [];
   await new Promise(function (risolvi, rifiuta) {
     const p = spawn('git', ['cat-file', '--batch'], { cwd: RADICE });
     let coda = Buffer.alloc(0), i = 0, atteso = null;
@@ -201,7 +221,9 @@ function git(args, opz){
         atteso = null;
         SCHEMI.forEach(function (s) {
           const m = corrisponde(s, dati);
-          if (m) trovate.push(s.nome + ': ' + m.slice(0, 12) + '… nel blob ' + sha.slice(0, 9));
+          if (!m) return;
+          if (ECCEZIONI[sha]) { scusate.push(s.nome + ' nel blob ' + sha.slice(0, 9)); return; }
+          trovate.push(s.nome + ': ' + m.slice(0, 12) + '… nel blob ' + sha.slice(0, 9));
         });
         chiedi();
       }
@@ -215,6 +237,15 @@ function git(args, opz){
       trovate.slice(0, 6).join(' | '));
   console.log('      (' + blob.length + ' versioni esaminate con ' +
               SCHEMI.length + ' schemi)');
+
+  /* Le eccezioni si MOSTRANO. Una lista che tace somiglia a un controllo che
+     non ha trovato niente, ed è il contrario. */
+  const attese = Object.keys(ECCEZIONI).length;
+  att('le eccezioni dichiarate sono tutte ancora nella storia, nessuna di più',
+      attese, scusate.length);
+  Object.keys(ECCEZIONI).forEach(function (k) {
+    console.log('      · ' + k.slice(0, 9) + ' — ' + ECCEZIONI[k].slice(0, 96) + '…');
+  });
 
   /* Un banco che non misura nulla passa. */
   if (eseguiti < 6) {

@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v181';
+window.BSI_APP_VERSION='bsi-v182';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -31853,6 +31853,14 @@ window.addEventListener('load', init);
 <script src="./bsi-cheminfo.js"></script>
 <script src="./bsi-spettri.js" defer></script>
 <script src="./bsi-ai-hub.js" defer></script>
+<!-- Lingua dell'interfaccia e linguaggi con cui si scrive una molecola.
+     bsi-lingue.js deve venire prima dei pannelli, che lo usano. -->
+<script src="./bsi-lingue.js" defer></script>
+<script src="./bsi-molingue.js" defer></script>
+<script src="./bsi-pannelli-lingua.js" defer></script>
+<!-- La molecola che si forma e gli angoli fra i legami: sostituisce
+     render3DOnCanvas dopo che le definizioni interne sono state valutate. -->
+<script src="./bsi-mol3d.js" defer></script>
 <script>
 
 window.init3DViewerPro = function(){

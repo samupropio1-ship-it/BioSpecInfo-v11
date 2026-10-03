@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v181` |
+| **Versione descritta** | `bsi-v182` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -43,6 +43,8 @@
 | **SCI-19** | Un risultato che cambia a ogni esecuzione non è verificabile da nessuno | generatore mulberry32 seminato per divisioni, rimescolamenti e pieghe; il seme è scritto nel rapporto | `test_cheminfo` — due chiamate con lo stesso seme danno pieghe identiche; il rapporto di metodo dichiara il seme |
 | **SCI-20** | I risultati devono poter uscire dallo strumento, e il metodo deve uscire con loro | `bsi-cheminfo.js` §9-ter — `esportaCsv()` e `rapportoMetodo()`, entrambi formati in memoria nel browser | `test_cheminfo` — colonne coerenti con l'intestazione, nome con virgola citato, residuo calcolato, cella vuota per l'attività mancante; il rapporto contiene seme, fingerprint, verdetto, limiti |
 | **SCI-21** | Un numero presentato come similarità strutturale deve venire da un fingerprint, e una sola implementazione deve calcolarlo | `rdkit_lab.html` carica `bsi-cheminfo.js` e ne usa `tanimoto()` e `fingerprint()`; la similarità a otto bit è stata rimossa | `test_cheminfo` — la pagina e il motore danno lo stesso Tanimoto su tutte e **28 le coppie**, scarto **esattamente 0**; le funzioni della similarità finta non esistono più; ogni struttura di riferimento è valida e ha la **massa monoisotopica** del farmaco che dichiara |
+| **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna, e il nominatore IUPAC deve rifiutare ciò che non sa nominare | `bsi-molingue.js` | `test_lingue` — 7 chiavi InChI **di letteratura scritte nel banco**, giro completo SMILES → molfile → SMILES su 7 molecole, 26 nomi a mano in due lingue e **7 rifiuti pretesi** |
+| **SCI-23** | Un angolo di legame si misura sulle coordinate, e su coordinate piatte non si mostra | calcolo con prodotto scalare sui vettori di legame; rifiuto se z è costante | `test_mol3d` — tetraedro **109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13°; e il rifiuto provato nei due versi |
 
 ---
 
@@ -89,6 +91,8 @@
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
 | **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi disegnate a fette da 8 ms | `test_fluidita` — **89 sezioni attraversate**, cambio mediano 14 ms, peggiore 162 ms, **0 sezioni oltre 100 ms**; e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta |
+| **UI-10** | L'interfaccia deve poter cambiare lingua, e deve dichiarare che cosa resta non tradotto | `bsi-lingue.js`: dizionario a chiavi italiane, originale conservato in `dataset.bsiIt` | `test_lingue` — **160 elementi di scheletro, 160 tradotti, 0 rimasti**; e le due prove contrarie: il testo cambia davvero passando a «en», e torna identico carattere per carattere passando a «it» |
+| **UI-11** | La molecola deve mostrare come sta insieme, non solo che aspetto ha | `bsi-mol3d.js`: animazione di formazione e misura degli angoli sulle coordinate 3D | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s (532 → 2 334), e gli angoli su cinque geometrie note per costruzione, tolleranza 0,05° |
 
 ---
 
@@ -96,7 +100,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 288 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 295 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 89 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -108,7 +112,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v181`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v182`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -132,14 +136,14 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…21) | 20 | 20 | 100 % |
+| Scientifici (SCI-01…23) | 22 | 22 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…09) | 7 | 7 | 100 % |
+| Interfaccia (UI-01…11) | 9 | 9 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
-| **Totale automatizzato** | **50** | **50** | **100 %** |
+| **Totale automatizzato** | **54** | **54** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **55** | **50** | **91 %** |
+| **Totale dichiarato** | **59** | **54** | **91 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -147,8 +151,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **50
-> requisiti verificati su 55 dichiarati** — e i cinque che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **54
+> requisiti verificati su 59 dichiarati** — e i cinque che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
@@ -175,4 +179,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v181`._
+_Documento aggiornato alla versione `bsi-v182`._

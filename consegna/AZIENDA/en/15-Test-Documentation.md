@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v181` |
+| **Version described** | `bsi-v182` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**49 benches**, grouped by what they demonstrate.
+**51 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -157,7 +157,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
-`test_fluidita`
+`test_fluidita` · `test_lingue` · `test_mol3d`
 
 **`test_fluidita` — 15 checks.** It measures how long the page stays *blocked*
 at every section switch, across all 89. It found three defects no other bench
@@ -171,6 +171,59 @@ stroke of every figure, including those off screen.
 
 After the fixes: median switch **14 ms**, worst **162 ms**, **no section above
 100 ms** (there were two, the worst at 1,166 ms).
+
+**`test_lingue` — 20 checks.** It watches two new features and two different
+ways of lying without noticing.
+
+*The language.* A switch that "translates the application" is easy to write and
+hard to keep honest: someone changes an Italian label and its translation is no
+longer found. The defect is invisible — the label stays Italian in the middle of
+English — unless someone counts. The bench counts: **160 skeleton elements, 160
+translated, none left**. It also demands the two opposite proofs: that switching
+to English **actually changes** the text (an empty dictionary would pass
+"everything translated" without moving a letter) and that switching back to
+Italian restores it **character for character**.
+
+*The molecular languages.* Conversions are checked against external facts —
+seven literature InChI keys **written inside the bench** — and the full
+SMILES → molfile → SMILES round-trip is required. Formulas are counted by hand.
+
+*The IUPAC namer.* 26 names written by hand in two languages, and seven
+molecules that **must be refused**: a namer that never refuses is a namer that
+invents.
+
+Tested in both directions: restoring the `trim()` that breaks molfiles and
+removing one translation makes the bench fail three checks out of twenty.
+
+**`test_mol3d` — 29 checks.** It watches the molecule-formation animation and
+the bond-angle measurement, two additions with two different ways of looking
+right without being right.
+
+*The animation.* "It is there" or "it is not" cannot be seen by inspecting the
+code: a loop that spins and redraws the same thing passes any check on the
+function's existence. The bench looks at the **pixels**: at 130 ms the canvas
+must be nearly empty — dust — and at 2.3 s there must be a molecule. Measured:
+**532 lit pixels → 2,334**. If the two numbers were equal there would be no
+animation, however the program is written. It also checks that the loop
+**stops** when stopped: a removed canvas with the loop still running is a drain
+paid in battery.
+
+*The angles.* A number with a "°" next to it looks like a measurement. They are
+checked on hand-built geometries whose value is known **by construction**, not
+taken from a table: regular tetrahedron **109.4712°**, water 104.47°, CO₂ 180°,
+BF₃ 120°, ammonia 106.13°. Tolerance 0.05°.
+
+*The refusal.* On a **flat** structure (z = 0) the angles button must be
+disabled and the reason written: on 2D coordinates a bond angle is not a bond
+angle, and showing it would be the worse of the two errors because it looks
+like data. Tested both ways: a structure with z ≠ 0 must not be mistaken for
+flat, or no angle would ever be shown.
+
+The first draft of this bench read the control bar **after** stopping the loop,
+which removes it: it found zero buttons and then declared "each has an
+accessible name" over an empty set. A check that passes because it has nothing
+to look at is exactly the defect this project chases; the check now demands two
+buttons **and** two names.
 
 Half the checks are the *opposite proofs*, because a page that builds nothing
 is instantaneous: the WebGL canvas must appear anyway, all 296 figures must
@@ -457,7 +510,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 89 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 288 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 295 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -476,4 +529,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v181`._
+_Document updated to version `bsi-v182`._

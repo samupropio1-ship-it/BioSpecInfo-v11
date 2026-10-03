@@ -7,6 +7,182 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v182] — 2026-10-03
+
+Due funzioni nuove nel menu ✨: **cambiare lingua** all'applicazione, e
+**convertire una molecola fra tutti i linguaggi con cui la si può scrivere**,
+con la guida che insegna a scriverli.
+
+### 🌍 Lingua — e che cosa resta in italiano
+
+L'applicazione è 48 000 righe di italiano, con i testi scientifici dentro il
+codice. Tradurla tutta non è un interruttore: è un lavoro di contenuto, e
+prometterlo con un menu a tendina sarebbe una bugia comoda.
+
+Si traduce lo **scheletro** — i 89 pulsanti di navigazione, i 55 titoli di
+sezione, le 16 voci del menu ✨ — e il pannello mostra la copertura
+**misurata adesso sulla pagina aperta**, non una percentuale scritta a mano:
+**160 elementi, 160 tradotti, 0 rimasti**. I contenuti dentro le sezioni
+restano in italiano, e il pannello lo dice in prima riga.
+
+Il ritorno all'italiano non è una ri-traduzione al contrario: ogni elemento si
+porta via l'originale in `dataset.bsiIt` al primo passaggio, e tornare indietro
+riscrive quello. Le chiavi del dizionario sono i testi italiani, scelta
+deliberata: se un'etichetta cambia, la sua traduzione non si trova più e
+l'elemento **resta in italiano** — visibile, con la copertura che scende. Il
+guasto opposto, una traduzione vecchia incollata su un testo nuovo, non si
+vedrebbe.
+
+La lingua vale anche per la nomenclatura: `propan-2-olo` / `propan-2-ol`,
+`acido butanoico` / `butanoic acid`.
+
+### 🔤 Linguaggi delle molecole
+
+Una molecola si scrive in molti modi. Il pannello converte fra quelli che il
+motore sa trattare — **misurati, non supposti**:
+
+| | ingresso | uscita |
+|---|---|---|
+| SMILES · CXSMILES · SMARTS | ✓ | ✓ |
+| molfile V2000 / V3000 | ✓ | ✓ |
+| formula · JSON RDKit | | ✓ |
+| InChI | **no** | ✓ |
+| chiave InChI | **no** | ✓ |
+
+E dichiara i tre «no» con la loro ragione, che non è la stessa:
+
+- **InChI in ingresso** — si genera ma questa build di RDKit non lo rilegge:
+  `get_mol(InChI)` torna nullo. È un limite della build.
+- **chiave InChI in ingresso** — è un digest di 27 caratteri: dalla chiave non
+  si risale alla struttura **per costruzione**, non per limite del programma.
+- **SMILES di Kekulé** — misurato: con `kekuleSmiles`, `kekulize` o entrambe
+  RDKit torna sempre la forma aromatica. Il *molfile*, però, è già kekulizzato
+  — sul benzene gli ordini di legame sono 2,1,2,1,2,1. La riga che mostrava la
+  forma aromatica sotto l'etichetta «Kekulé» è stata tolta: un'etichetta che
+  dice una cosa falsa è peggio di una riga assente.
+
+Le chiavi InChI prodotte sono state confrontate con quelle di letteratura:
+aspirina `BSYNRYMUTXBXSQ-UHFFFAOYSA-N`, caffeina `RYYVLZVUVIJVGH-UHFFFAOYSA-N`,
+benzene `UHOVQNZJYSORNB-UHFFFAOYSA-N`. Coincidono. E il molfile **fa il giro
+completo**: undici molecole su undici, taxolo con undici centri stereogenici
+compreso, tornano al SMILES canonico di partenza.
+
+### Il nominatore IUPAC — nomina solo ciò che può dimostrare
+
+RDKit non genera nomi IUPAC, e non è una mancanza della build: la nomenclatura
+non è un calcolo sul grafo ma un corpo di regole con eccezioni. Qui il nome
+arriva per tre strade, e la **provenienza è sempre dichiarata**: nominatore
+locale, archivio dei nomi comuni dell'app, oppure PubChem con la rete.
+
+Il nominatore locale copre una classe **ristretta e scritta**: molecole
+aperte, neutre, di soli C H O N F Cl Br I, con un solo tipo di gruppo
+principale fra acido, aldeide, chetone, ammina primaria e alcol, e sostituenti
+solo alogeni o catene alchiliche non ramificate. Applica le regole nell'ordine
+giusto — catena principale, suffisso, numerazione, prefissi alfabetici — e
+omette i locanti quando non distinguono: `cloroetano` e non `1-cloroetano`,
+`triclorometano` e non `1,1,1-tricloro…`.
+
+Fuori da quella classe **rifiuta e dice quale condizione è caduta**. Verificato
+su 26 nomi scritti a mano in due lingue e 7 molecole che devono essere
+rifiutate.
+
+### Corretto — tre difetti miei, trovati misurando
+
+- **Il nominatore accorciava la catena.** Su `CCCC(C(C)C)CCC` —
+  4-isopropileptano — la catena di sette veniva scartata perché il sostituente
+  è ramificato, e il programma ripiegava su una di sei producendo
+  `2-metil-3-propilesano`: un nome che non è quello giusto. Ora la lunghezza
+  massima si decide **prima**, fra tutte le catene che portano il gruppo
+  principale, e se nessuna di quelle è trattabile si rifiuta invece di
+  accorciare.
+- **`trim()` distruggeva i molfile.** Un molfile comincia con una riga di
+  titolo che può essere vuota: ripulendo il testo in ingresso la riga sparisce,
+  tutte le altre salgono di uno e la riga di conteggio finisce al posto
+  sbagliato. Trovato dal banco facendo il giro SMILES → molfile → SMILES.
+- **Il benzene scambiato per un nome.** Il riconoscitore decideva con
+  un'espressione regolare, e `c1ccccc1` è fatto di sole lettere e cifre e
+  comincia in minuscolo. Ora la differenza fra SMILES e nome **non si indovina**:
+  la decide il motore chimico, che è l'unico che sappia leggere uno SMILES.
+
+Un quarto l'ha trovato la tavola di prova dentro il banco, e l'errore era mio e
+non del programma: su `CC(Br)C(Cl)C` i locanti {2,3} si ottengono da entrambi i
+capi, e la regola dà il numero più basso al sostituente primo in ordine
+alfabetico. Il nome giusto è `2-bromo-3-clorobutano`, come diceva il codice.
+
+### La guida
+
+Quattro schede nel pannello: **Convertitore**, **Nome**, **Guida ai
+linguaggi** e **Quale usare**. La guida — 7 400 caratteri, italiano e inglese —
+copre come si scrive uno SMILES (atomi, legami, rami, anelli, cariche,
+isotopi, stereochimica `@`/`@@` e `/`·`\`), come si costruisce un nome IUPAC
+nelle sue quattro mosse, gli strati dell'InChI, i tre blocchi della chiave,
+SMARTS come linguaggio di domanda, molfile e SDF, CXSMILES e JSON. Con, per
+ciascuno, i tre errori che fanno perdere tempo.
+
+### 🧬 La molecola che si forma — e gli angoli fra i suoi legami
+
+Nella sezione Molecola la struttura compariva già fatta. Ora **arriva**: gli
+atomi partono sparpagliati, come polvere sospesa, e convergono al loro posto in
+1,6 secondi; i legami si chiudono **dopo**, quando i due atomi che li reggono
+sono arrivati, crescendo dai due capi verso il centro. Non è decorazione: è la
+differenza fra «ecco un disegno» e «ecco come sta insieme». Un pulsante
+↻ rivede la formazione quante volte si vuole.
+
+E mancava la cosa che una formula piana non dice mai: **quanto vale l'angolo**.
+Il pulsante *Angoli di legame* li mostra uno per volta — l'arco disegnato fra i
+due legami, il valore in gradi, il nome della geometria locale e l'angolo
+ideale del modello VSEPR accanto a quello misurato. Sull'etanolo:
+`C–C–O 111,9° · tetraedrica · ideale 109,5°`, e si scorre fra tutti e tredici.
+
+**Gli angoli non sono tabulati**: si calcolano con il prodotto scalare sui
+vettori di legame, dalle coordinate 3D della struttura caricata. Verificato su
+geometrie di cui il valore è noto per costruzione — tetraedro regolare
+**109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13° — con
+tolleranza 0,05°.
+
+E su una struttura **piatta** il pulsante è spento, con la ragione scritta: su
+coordinate con z = 0 un angolo di legame non è un angolo di legame, e mostrarlo
+sarebbe l'errore peggiore dei due, perché somiglia a un dato.
+
+Il modulo sostituisce `render3DOnCanvas` mantenendone il contratto — stessa
+firma, stesso `{stop}` — e conserva l'originale raggiungibile: le altre sezioni
+che lo usano non se ne accorgono. La barra dei comandi è fatta di pulsanti
+veri, con il loro nome accessibile, non di rettangoli disegnati sulla tela.
+
+### Corretto — due difetti nei banchi, non nel codice
+
+- **`audit_storia` segnalava una chiave privata: la propria.** La prima stesura
+  scriveva per intero l'esempio di chiave privata PEM (`-----BEGIN …`), che finiva
+  nel repository come qualunque altra riga; alla prima esecuzione dopo il
+  commit il banco lo trovava nella storia. Uno scanner che inciampa nelle
+  proprie definizioni rende «contaminato» ogni repository che lo contenga, e il
+  difetto si traveste da ritrovamento. Ora l'esempio si **compone** invece di
+  scriverlo, e il blob vecchio — che resta nella storia, perché la storia non
+  si riscrive — è un'**eccezione dichiarata** con il suo motivo, mostrata a ogni
+  esecuzione. Un ritrovamento spiegato non si fa sparire allargando lo schema.
+
+  Lo stesso inciampo si è ripetuto un piano più su: raccontandolo qui avevo
+  scritto per intero la stessa stringa, e `verifica-sicurezza` l'ha trovata nel
+  CHANGELOG. Anche questa riga, ora, è troncata.
+- **`test_mol3d` passava su un insieme vuoto.** Leggeva la barra dei comandi
+  dopo aver fermato il ciclo, che la rimuove: trovava zero pulsanti e poi
+  dichiarava «ognuno ha un nome accessibile». Un controllo che passa perché non
+  ha niente da guardare è il difetto che questo progetto insegue da sempre.
+
+### Aggiunto
+
+- Nuovi banchi **`test_lingue`** (20 controlli) e **`test_mol3d`** (29) —
+  batteria da 49 a **51**.
+- Requisiti **UI-10**, **UI-11**, **SCI-22** e **SCI-23** nella matrice.
+- Quattro file nuovi: `bsi-lingue.js`, `bsi-molingue.js`,
+  `bsi-pannelli-lingua.js` e `bsi-mol3d.js`, tutti nella cache del Service
+  Worker: le funzioni nuove lavorano offline come il resto.
+
+### Verifica
+
+**51 banchi, 0 falliti.**
+
+---
 ## [bsi-v181] — 2026-10-02
 
 Le tre sezioni che restavano — **spettri**, **astrochimica**, **data science** —

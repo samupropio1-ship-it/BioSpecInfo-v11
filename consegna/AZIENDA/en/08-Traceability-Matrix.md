@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v181` |
+| **Version described** | `bsi-v182` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -43,6 +43,8 @@
 | **SCI-19** | A result that changes on every run is verifiable by nobody | seeded mulberry32 generator for splits, scrambles and folds; the seed is written into the report | `test_cheminfo` — two calls with the same seed give identical folds; the method report declares the seed |
 | **SCI-20** | Results must be able to leave the tool, and the method must leave with them | `bsi-cheminfo.js` §9-ter — `esportaCsv()` and `rapportoMetodo()`, both formed in memory in the browser | `test_cheminfo` — columns consistent with the header, a name containing a comma quoted, residual computed, empty cell for missing activity; the report carries seed, fingerprint, verdict, limits |
 | **SCI-21** | A number presented as structural similarity must come from a fingerprint, and one implementation must compute it | `rdkit_lab.html` loads `bsi-cheminfo.js` and uses its `tanimoto()` and `fingerprint()`; the eight-bit similarity has been removed | `test_cheminfo` — page and engine give the same Tanimoto over all **28 pairs**, deviation **exactly 0**; the fake-similarity functions no longer exist; every reference structure is valid and carries the **monoisotopic mass** of the drug it names |
+| **SCI-22** | Conversions between molecular languages must be checked against an external source, and the IUPAC namer must refuse what it cannot name | `bsi-molingue.js` | `test_lingue` — 7 **literature InChI keys written inside the bench**, full SMILES → molfile → SMILES round-trip on 7 molecules, 26 hand-written names in two languages and **7 required refusals** |
+| **SCI-23** | A bond angle is measured on the coordinates, and on flat coordinates it is not shown | dot product on the bond vectors; refusal when z is constant | `test_mol3d` — tetrahedron **109.4712°**, water 104.47°, CO₂ 180°, BF₃ 120°, ammonia 106.13°; and the refusal tested in both directions |
 
 ---
 
@@ -89,6 +91,8 @@
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
 | **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures drawn in 8 ms slices | `test_fluidita` — **89 sections traversed**, median switch 14 ms, worst 162 ms, **0 sections above 100 ms**; plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute |
+| **UI-10** | The interface must be able to change language, and must declare what stays untranslated | `bsi-lingue.js`: dictionary keyed by the Italian text, original kept in `dataset.bsiIt` | `test_lingue` — **160 skeleton elements, 160 translated, 0 left**; plus the two opposite proofs: the text really changes on switching to "en", and comes back character for character on switching to "it" |
+| **UI-11** | The molecule must show how it holds together, not only what it looks like | `bsi-mol3d.js`: formation animation and angle measurement on the 3D coordinates | `test_mol3d` — the canvas **pixels** at 130 ms and at 2.3 s (532 → 2,334), and the angles on five geometries known by construction, tolerance 0.05° |
 
 ---
 
@@ -96,7 +100,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 288 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 295 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 89 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -108,7 +112,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v181`. The
+> remedy was to change it, and that **has been done** at version `bsi-v182`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -132,14 +136,14 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…21) | 20 | 20 | 100 % |
+| Scientific (SCI-01…23) | 22 | 22 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…09) | 7 | 7 | 100 % |
+| Interface (UI-01…11) | 9 | 9 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
-| **Automated total** | **50** | **50** | **100 %** |
+| **Automated total** | **54** | **54** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **55** | **50** | **91 %** |
+| **Declared total** | **59** | **54** | **91 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -147,8 +151,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **50
-> requirements verified out of 55 declared** — and the five that are missing are
+> automated. The number that matters to an assessor is the second one — **54
+> requirements verified out of 59 declared** — and the five that are missing are
 > listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
@@ -174,4 +178,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v181`._
+_Document updated to version `bsi-v182`._
