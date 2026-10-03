@@ -321,6 +321,10 @@
     cxsmiles:     ['CXSMILES', 'CXSMILES'],
     smarts:       ['SMARTS', 'SMARTS'],
     cxsmarts:     ['CXSMARTS', 'CXSMARTS'],
+    smilesPiano:  ['SMILES senza stereochimica', 'SMILES without stereochemistry'],
+    componenti:   ['componenti', 'components'],
+    composizione: ['composizione in massa', 'mass composition'],
+    cml:          ['CML', 'CML'],
     xyz:          ['XYZ', 'XYZ'],
     pdb:          ['PDB', 'PDB'],
     stereo:       ['stereochimica (CIP)', 'stereochemistry (CIP)'],
@@ -331,9 +335,9 @@
     molfileV3000: ['molfile V3000', 'molfile V3000'],
     json:         ['JSON RDKit', 'RDKit JSON']
   };
-  var ORDINE = ['formula', 'smiles', 'cxsmiles', 'inchi', 'chiaveInchi', 'stereo',
-                'smarts', 'cxsmarts', 'molfile', 'molfileAromatico', 'molfileV3000',
-                'xyz', 'pdb', 'json'];
+  var ORDINE = ['formula', 'composizione', 'componenti', 'smiles', 'smilesPiano',
+                'cxsmiles', 'inchi', 'chiaveInchi', 'stereo', 'smarts', 'cxsmarts',
+                'molfile', 'molfileAromatico', 'molfileV3000', 'xyz', 'pdb', 'cml', 'json'];
 
   function agganciaConvertitore() {
     var src = document.getElementById('bsiLG-src');

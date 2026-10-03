@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v185` |
+| **Version described** | `bsi-v186` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -172,7 +172,7 @@ stroke of every figure, including those off screen.
 After the fixes: median switch **14 ms**, worst **162 ms**, **no section above
 100 ms** (there were two, the worst at 1,166 ms).
 
-**`test_lingue` — 49 checks.** It watches two new features and two different
+**`test_lingue` — 64 checks.** It watches two new features and two different
 ways of lying without noticing.
 
 *The language.* A switch that "translates the application" is easy to write and
@@ -563,4 +563,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v185`._
+_Document updated to version `bsi-v186`._

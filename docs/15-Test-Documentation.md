@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v185` |
+| **Versione descritta** | `bsi-v186` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -172,7 +172,7 @@ fuori dallo schermo.
 Dopo le correzioni: cambio mediano **14 ms**, peggiore **162 ms**, **nessuna
 sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
 
-**`test_lingue` — 49 controlli.** Sorveglia due funzioni nuove e due modi
+**`test_lingue` — 64 controlli.** Sorveglia due funzioni nuove e due modi
 diversi di mentire senza accorgersene.
 
 *La lingua.* Un interruttore che «traduce l'applicazione» è facile da scrivere
@@ -568,4 +568,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v185`._
+_Documento aggiornato alla versione `bsi-v186`._

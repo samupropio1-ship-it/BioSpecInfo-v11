@@ -7,6 +7,68 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v186] — 2026-10-03
+
+Giapponese e arabo, altri quattro linguaggi chimici, e la metà di interfaccia
+che restava in italiano anche cambiando lingua.
+
+### 日本語 e العربية — e il verso di scrittura
+
+Quattordici lingue. L'arabo però non è solo un dizionario: si scrive **da
+destra a sinistra**. Tradurre le etichette e lasciare l'impianto della pagina
+al contrario sarebbe una traduzione che sembra fatta e non lo è — e non si
+vedrebbe contando le stringhe, solo guardando. La lingua ora porta con sé il
+verso: `dir="rtl"` per l'arabo, `ltr` per tutte le altre e al ritorno.
+
+Il banco lo verifica nei due versi: `rtl` in arabo, `ltr` in giapponese. Con
+`rtl` su tutte, il verso non significherebbe niente.
+
+### Mezza interfaccia restava in italiano
+
+Guardando la pagina in arabo si vedeva il difetto che nessun conteggio aveva
+segnalato: le **sette categorie** della barra (Chimica, Spettroscopia,
+Biochimica, Farmacologia, Chimica Fisica, Studio, Utility) e il **campo di
+ricerca** restavano in italiano. Metà interfaccia tradotta è peggio di nessuna,
+perché sembra un errore invece di una scelta.
+
+Le categorie sono entrate nello scheletro. Il segnaposto della ricerca ha
+richiesto un trattamento a parte: vive in un **attributo**, non nel testo, e
+nessun conteggio su `textContent` se ne sarebbe mai accorto.
+
+Lo scheletro passa da 162 a **170 elementi**, e tutte e tredici le lingue lo
+coprono per intero.
+
+### Diciassette linguaggi chimici
+
+Ai tredici si aggiungono quattro uscite vere:
+
+| | |
+|---|---|
+| **SMILES senza stereochimica** | ciò che si confronta quando si cerca «la stessa molecola a meno di configurazione» |
+| **componenti** | un sale o un solvato sono *più* molecole, e dirlo evita di ragionare su una molecola che non esiste |
+| **composizione in massa** | il conto che si fa a mano all'esame, con i pesi IUPAC scritti nel modulo |
+| **CML** | Chemical Markup Language: XML, quindi leggibile da qualunque strumento |
+
+La composizione è verificata contro il calcolo a mano: alanina C₃H₇NO₂,
+M = 89,094 → **C 40,44% · H 7,92% · N 15,72% · O 35,91%**; aspirina C₉H₈O₄,
+M = 180,159 → **C 60,00% · H 4,48% · O 35,52%**. La riga «componenti» compare
+solo quando i componenti sono più d'uno — il banco pretende anche questo.
+
+### Le molecole: verificato nella sezione vera
+
+L'animazione di formazione e la selezione degli angoli erano state provate su
+una tela costruita dal banco. Ora sono state provate **dove vivono davvero**:
+nel visualizzatore 3D della sezione Molecola, che si apre in un popup.
+Funzionano: la tela passa da 877 a 3 344 pixel accesi, la barra con i tre
+comandi è presente e **dentro** il popup (misurata: 93 × 518 px, bordo
+inferiore a 691 contro i 725 del contenitore), e la selezione dà
+`C–C–O 111,7° · tetraedrica · ideale 109,5°`.
+
+### Verifica
+
+**51 banchi, 0 falliti.** `test_lingue` passa da 49 a **64 controlli**.
+
+---
 ## [bsi-v185] — 2026-10-03
 
 Un vero selezionatore di lingue, e tutti i linguaggi chimici che il motore sa

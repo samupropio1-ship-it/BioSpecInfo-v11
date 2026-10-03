@@ -206,7 +206,7 @@ const RIFIUTI = [
              filtrate: filtrate, nessuna: nessuna, tutte: tutte };
   });
   att('il selezionatore ha un campo di ricerca', true, selez.campo);
-  att('elenca tutte le lingue', true, selez.quante >= 12);
+  att('elenca tutte le lingue', true, selez.quante >= 14);
   att('ognuna mostra la copertura misurata', selez.quante - 1, selez.conPercentuale);
   att('cercando «pol» ne resta una', 1, selez.filtrate);
   att('cercando una parola inesistente lo dice', 'block', selez.nessuna);
@@ -239,7 +239,7 @@ const RIFIUTI = [
              nonTornati: diversi.slice(0, 5), quantiNonTornati: diversi.length,
              lang: document.documentElement.getAttribute('lang') };
   });
-  att('le lingue offerte sono molte', true, lingua.lingue.length >= 12);
+  att('le lingue offerte sono molte', true, lingua.lingue.length >= 14);
   console.log('      (' + lingua.lingue.join(' · ') + ')');
   /* ogni lingua deve coprire TUTTO lo scheletro: una lingua a metà è peggio
      di una lingua assente, perché l'utente non sa quale metà manca */
@@ -265,6 +265,41 @@ const RIFIUTI = [
      «tutto tradotto» senza cambiare una lettera */
   att('passando all’inglese il testo cambia davvero', true, lingua.cambiati >= 100);
   att('tornando all’italiano il testo è identico a prima', 0, lingua.quantiNonTornati);
+
+  /* ── §2-bis · Il verso di scrittura ─────────────────────────────────────
+     L'arabo si scrive da destra a sinistra. Tradurre le etichette e lasciare
+     l'impianto della pagina al contrario è una traduzione che sembra fatta e
+     non lo è — e si vede solo guardando, non contando le stringhe. */
+  const verso = await pg.evaluate(() => {
+    const B = window.BSILingue;
+    B.imposta('ar'); const ar = document.documentElement.getAttribute('dir');
+    B.imposta('ja'); const ja = document.documentElement.getAttribute('dir');
+    B.imposta('it'); const it = document.documentElement.getAttribute('dir');
+    return { ar: ar, ja: ja, it: it };
+  });
+  att('in arabo la pagina scorre da destra a sinistra', 'rtl', verso.ar);
+  /* guardia opposta: con rtl su tutte, il verso non significherebbe niente */
+  att('in giapponese no', 'ltr', verso.ja);
+  att('e tornando all\u2019italiano nemmeno', 'ltr', verso.it);
+
+  const chrome = await pg.evaluate(() => {
+    const B = window.BSILingue;
+    const cat = () => [].map.call(document.querySelectorAll('.nav-group-tab'), x => x.textContent.trim());
+    const ph = () => (document.getElementById('navSearch') || {}).placeholder;
+    const primaCat = cat(), primaPh = ph();
+    B.imposta('de');
+    const dopoCat = cat(), dopoPh = ph();
+    B.imposta('it');
+    return { quante: primaCat.length,
+             categorieCambiate: primaCat.filter((v, i) => v !== dopoCat[i]).length,
+             ricercaCambiata: primaPh !== dopoPh,
+             ricercaTornata: ph() === primaPh, esempio: dopoCat[0], esempioPh: dopoPh };
+  });
+  att('le categorie della barra sono sette', 7, chrome.quante);
+  att('e cambiano tutte con la lingua', 7, chrome.categorieCambiate);
+  att('anche il segnaposto della ricerca cambia', true, chrome.ricercaCambiata);
+  att('e torna quello di prima in italiano', true, chrome.ricercaTornata);
+  console.log('      (in tedesco: «' + chrome.esempio + '» · «' + chrome.esempioPh + '»)');
   lingua.nonTornati.forEach(x => console.log('      ! ' + String(x).slice(0, 60)));
   console.log('      (' + lingua.tradotti + '/' + lingua.totali + ' elementi, ' +
               lingua.cambiati + ' testi cambiati passando a «en»)');
@@ -357,6 +392,32 @@ const RIFIUTI = [
   att('la stereochimica CIP viene letta', true, /\(R\)|\(S\)/.test(extra.stereo));
   console.log('      (stereo: ' + extra.stereo + ')');
   att('il CXSMARTS c\u2019è', true, extra.cxsmarts.length > 10);
+
+  /* i linguaggi aggiunti */
+  const piu = await pg.evaluate(async () => {
+    function una(t) { return new Promise(r => window.BSIMolLingue.converti(t, { lingua: 'it' }, r)); }
+    const ala = await una('C[C@@H](N)C(=O)O');
+    const sale = await una('[Na+].[Cl-]');
+    const asp = await una('CC(=O)Oc1ccccc1C(=O)O');
+    return { quanti: Object.keys(ala.uscite).length,
+             piano: ala.uscite.smilesPiano, isomerico: ala.uscite.smiles,
+             compAla: ala.uscite.composizione, compAsp: asp.uscite.composizione,
+             compSale: sale.uscite.componenti, compMono: ala.uscite.componenti || null,
+             cml: ala.uscite.cml || '' };
+  });
+  att('i linguaggi prodotti sono almeno diciassette', true, piu.quanti >= 17);
+  att('lo SMILES senza stereochimica perde i marcatori', 'CC(N)C(=O)O', piu.piano);
+  att('e quello isomerico li tiene', 'C[C@@H](N)C(=O)O', piu.isomerico);
+  /* la composizione si conta a mano: alanina C3H7NO2, M = 89,094 */
+  att('la composizione dell\u2019alanina', 'C 40.44%  ·  H 7.92%  ·  N 15.72%  ·  O 35.91%',
+      piu.compAla);
+  att('e quella dell\u2019aspirina', 'C 60.00%  ·  H 4.48%  ·  O 35.52%', piu.compAsp);
+  att('un sale viene dichiarato come due componenti', true, /^2:/.test(piu.compSale || ''));
+  /* due versi: una molecola sola NON deve avere la riga dei componenti */
+  att('e una molecola sola non ha quella riga', null, piu.compMono);
+  att('il CML è XML ben formato', true,
+      /^<\?xml/.test(piu.cml) && /<atomArray>/.test(piu.cml) &&
+      /<bondArray>/.test(piu.cml) && /<\/molecule>$/.test(piu.cml.trim()));
   /* una reazione non è una molecola: va riconosciuta e scomposta, non rifiutata
      come SMILES rotto né convertita come se fosse una cosa sola */
   att('una reazione viene riconosciuta e scomposta', '2 reagenti, 2 prodotti',
@@ -441,9 +502,9 @@ const RIFIUTI = [
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 45) {
+  if (eseguiti < 60) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 60');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

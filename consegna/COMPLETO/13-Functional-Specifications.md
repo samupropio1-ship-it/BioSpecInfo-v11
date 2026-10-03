@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v185` |
+| **Versione descritta** | `bsi-v186` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -364,4 +364,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v185`._
+_Documento aggiornato alla versione `bsi-v186`._

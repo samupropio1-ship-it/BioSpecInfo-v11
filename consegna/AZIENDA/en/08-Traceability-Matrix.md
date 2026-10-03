@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v185` |
+| **Version described** | `bsi-v186` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -43,7 +43,7 @@
 | **SCI-19** | A result that changes on every run is verifiable by nobody | seeded mulberry32 generator for splits, scrambles and folds; the seed is written into the report | `test_cheminfo` — two calls with the same seed give identical folds; the method report declares the seed |
 | **SCI-20** | Results must be able to leave the tool, and the method must leave with them | `bsi-cheminfo.js` §9-ter — `esportaCsv()` and `rapportoMetodo()`, both formed in memory in the browser | `test_cheminfo` — columns consistent with the header, a name containing a comma quoted, residual computed, empty cell for missing activity; the report carries seed, fingerprint, verdict, limits |
 | **SCI-21** | A number presented as structural similarity must come from a fingerprint, and one implementation must compute it | `rdkit_lab.html` loads `bsi-cheminfo.js` and uses its `tanimoto()` and `fingerprint()`; the eight-bit similarity has been removed | `test_cheminfo` — page and engine give the same Tanimoto over all **28 pairs**, deviation **exactly 0**; the fake-similarity functions no longer exist; every reference structure is valid and carries the **monoisotopic mass** of the drug it names |
-| **SCI-22** | Conversions between molecular languages must be checked against an external source, the IUPAC namer must refuse what it cannot name, and coordinates written to a file must be real and declared | `bsi-molingue.js` — **eight languages** plus XYZ, PDB, CXSMARTS and CIP descriptors | `test_lingue` — 7 **literature InChI keys written inside the bench**, full SMILES → molfile → SMILES round-trip, 26 hand-written names in two languages, **7 required refusals**; XYZ and PDB with non-null coordinates **and** declared 2D; a reaction recognised and split |
+| **SCI-22** | Conversions between molecular languages must be checked against an external source or against hand calculation, and coordinates written to a file must be real and declared | `bsi-molingue.js` — **seventeen outputs**, from SMILES to CML | `test_lingue` — 7 **literature InChI keys**, full SMILES → molfile → SMILES round-trip, 26 hand-written names, **7 required refusals**; mass composition against hand calculation (alanine C 40.44%, aspirin C 60.00%); XYZ and PDB with non-null coordinates **and** declared 2D |
 | **SCI-23** | Angles, lengths and dihedrals are measured on the coordinates, and on flat coordinates they are not shown | dot product for angles, cross product for dihedrals | `test_mol3d` — tetrahedron **109.4712°**, water 104.47°, CO₂ 180°, BF₃ 120°, ammonia 106.13°; dihedrals 0°, 60°, 90°, 180°; ethanol C–C 1.509 Å; and the refusal tested in both directions |
 
 ---
@@ -91,7 +91,7 @@
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
 | **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures drawn in 8 ms slices | `test_fluidita` — **91 sections traversed**, median switch 14 ms, worst 162 ms, **0 sections above 100 ms**; plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute |
-| **UI-10** | The interface must switch among many languages, declaring how much each is translated, and the feature must be reachable from every device | `bsi-lingue.js` with **twelve languages** and a searchable selector; two navigation sections, because on a phone the ✨ menu is hidden | `test_lingue` — **162 skeleton elements translated out of 162 in each of the twelve languages**, coverage computed by applying the dictionary and counting; the text really changes and comes back identical; search tested in both directions |
+| **UI-10** | The interface must switch among many languages, declaring how much each is translated, and carrying the writing direction with it | `bsi-lingue.js` with **fourteen languages**, a searchable selector, `dir="rtl"` for Arabic | `test_lingue` — **170 skeleton elements out of 170 in each of the thirteen languages**, coverage computed by applying the dictionary and counting; writing direction tested in both directions; navigation categories and the search placeholder included |
 | **UI-11** | The molecule must show how it holds together, and the viewer must choose the angle | `bsi-mol3d.js`: formation from dust with staggered arrival, and atom selection by click | `test_mol3d` — the canvas **pixels** at 130 ms and 2.3 s, the arrival order (skeleton before hydrogens) measured on each atom's progress, and the selection of 1, 2, 3 and 4 atoms |
 
 ---
@@ -112,7 +112,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v185`. The
+> remedy was to change it, and that **has been done** at version `bsi-v186`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -178,4 +178,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v185`._
+_Document updated to version `bsi-v186`._

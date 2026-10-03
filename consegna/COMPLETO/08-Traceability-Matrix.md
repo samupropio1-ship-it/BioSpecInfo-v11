@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v185` |
+| **Versione descritta** | `bsi-v186` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -43,7 +43,7 @@
 | **SCI-19** | Un risultato che cambia a ogni esecuzione non è verificabile da nessuno | generatore mulberry32 seminato per divisioni, rimescolamenti e pieghe; il seme è scritto nel rapporto | `test_cheminfo` — due chiamate con lo stesso seme danno pieghe identiche; il rapporto di metodo dichiara il seme |
 | **SCI-20** | I risultati devono poter uscire dallo strumento, e il metodo deve uscire con loro | `bsi-cheminfo.js` §9-ter — `esportaCsv()` e `rapportoMetodo()`, entrambi formati in memoria nel browser | `test_cheminfo` — colonne coerenti con l'intestazione, nome con virgola citato, residuo calcolato, cella vuota per l'attività mancante; il rapporto contiene seme, fingerprint, verdetto, limiti |
 | **SCI-21** | Un numero presentato come similarità strutturale deve venire da un fingerprint, e una sola implementazione deve calcolarlo | `rdkit_lab.html` carica `bsi-cheminfo.js` e ne usa `tanimoto()` e `fingerprint()`; la similarità a otto bit è stata rimossa | `test_cheminfo` — la pagina e il motore danno lo stesso Tanimoto su tutte e **28 le coppie**, scarto **esattamente 0**; le funzioni della similarità finta non esistono più; ogni struttura di riferimento è valida e ha la **massa monoisotopica** del farmaco che dichiara |
-| **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna, il nominatore IUPAC deve rifiutare ciò che non sa nominare, e le coordinate scritte in un file devono essere vere e dichiarate | `bsi-molingue.js` — **otto linguaggi** più XYZ, PDB, CXSMARTS e descrittori CIP | `test_lingue` — 7 chiavi InChI **di letteratura scritte nel banco**, giro completo SMILES → molfile → SMILES, 26 nomi a mano in due lingue, **7 rifiuti pretesi**; XYZ e PDB con coordinate non nulle **e** dichiarate 2D; una reazione riconosciuta e scomposta |
+| **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna o contro il calcolo a mano, e le coordinate scritte in un file devono essere vere e dichiarate | `bsi-molingue.js` — **diciassette uscite**, da SMILES a CML | `test_lingue` — 7 chiavi InChI **di letteratura**, giro completo SMILES → molfile → SMILES, 26 nomi a mano, **7 rifiuti pretesi**; composizione in massa contro il calcolo a mano (alanina C 40,44%, aspirina C 60,00%); XYZ e PDB con coordinate non nulle **e** dichiarate 2D |
 | **SCI-23** | Angoli, lunghezze e diedri si misurano sulle coordinate, e su coordinate piatte non si mostrano | prodotto scalare per gli angoli, prodotto vettoriale per i diedri | `test_mol3d` — tetraedro **109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13°; diedri 0°, 60°, 90°, 180°; C–C dell'etanolo 1,509 Å; e il rifiuto provato nei due versi |
 
 ---
@@ -91,7 +91,7 @@
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
 | **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi disegnate a fette da 8 ms | `test_fluidita` — **91 sezioni attraversate**, cambio mediano 14 ms, peggiore 162 ms, **0 sezioni oltre 100 ms**; e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta |
-| **UI-10** | L'interfaccia deve poter cambiare lingua fra molte, dichiarando per ognuna quanto è tradotta, e la funzione deve essere raggiungibile da ogni dispositivo | `bsi-lingue.js` con **dodici lingue** e selezionatore con ricerca; due sezioni di navigazione, perché su telefono il menu ✨ è nascosto | `test_lingue` — **162 elementi di scheletro tradotti su 162 in ognuna delle dodici lingue**, copertura calcolata applicando il dizionario e contando; il testo cambia davvero e torna identico; ricerca provata nei due versi |
+| **UI-10** | L'interfaccia deve poter cambiare lingua fra molte, dichiarando per ognuna quanto è tradotta, portando con sé il verso di scrittura | `bsi-lingue.js` con **quattordici lingue**, selezionatore con ricerca, `dir="rtl"` per l'arabo | `test_lingue` — **170 elementi di scheletro su 170 in ognuna delle tredici lingue**, copertura calcolata applicando il dizionario e contando; verso di scrittura provato nei due versi; categorie della barra e segnaposto della ricerca compresi |
 | **UI-11** | La molecola deve mostrare come sta insieme, e l'angolo lo deve scegliere chi guarda | `bsi-mol3d.js`: formazione dalla polvere con arrivo scaglionato, e selezione degli atomi con un clic | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s, l'ordine d'arrivo (scheletro prima degli idrogeni) misurato sull'avanzamento di ogni atomo, e la selezione di 1, 2, 3 e 4 atomi |
 
 ---
@@ -112,7 +112,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v185`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v186`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -179,4 +179,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v185`._
+_Documento aggiornato alla versione `bsi-v186`._

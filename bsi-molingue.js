@@ -712,6 +712,19 @@
 
       prova('smiles', function () { return m.get_smiles(); });
       prova('cxsmarts', function () { return m.get_cxsmarts(); });
+      /* Lo stesso scheletro senza stereochimica: è ciò che si confronta quando
+         si cerca «la stessa molecola a meno di configurazione». Se coincide
+         con quello isomerico la riga non serve, e non si scrive. */
+      prova('smilesPiano', function () {
+        var p2 = m.get_smiles('{"doIsomericSmiles":false}');
+        return (p2 && p2 !== esito.uscite.smiles) ? p2 : null;
+      });
+      /* I componenti: un sale, un solvato o un cocristallo sono PIÙ molecole.
+         Dirlo evita di ragionare su «una molecola» che non esiste. */
+      prova('componenti', function () {
+        var pezzi = String(esito.uscite.smiles || '').split('.').filter(Boolean);
+        return pezzi.length > 1 ? pezzi.length + ': ' + pezzi.join('  +  ') : null;
+      });
       prova('cxsmiles', function () { return m.get_cxsmiles(); });
       /* Il molfile è già scritto in forma di Kekulé: misurato sul benzene, gli
          ordini di legame sono 2,1,2,1,2,1. La forma aromatica è un'uscita
@@ -746,6 +759,8 @@
         if (gXY) {
           prova('xyz', function () { return scriviXYZ(gXY, esito.uscite.smiles || ''); });
           prova('pdb', function () { return scriviPDB(gXY); });
+          prova('cml', function () { return scriviCML(gXY); });
+          prova('composizione', function () { return composizione(gXY); });
         }
       }
       /* i marcatori stereochimici: R/S ed E/Z come li assegna il motore */
@@ -859,6 +874,55 @@
     });
     righe.push('END');
     return righe.join('\n');
+  }
+
+  /* CML — Chemical Markup Language. È XML, quindi lo legge qualunque
+     strumento che parli XML, e contiene esattamente quello che abbiamo:
+     elementi, coordinate, legami. Niente di piu' e niente di inventato. */
+  function scriviCML(g) {
+    var r = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<molecule xmlns="http://www.xml-cml.org/schema" id="bsi">',
+             '  <atomArray>'];
+    g.atomi.forEach(function (a, i) {
+      r.push('    <atom id="a' + (i + 1) + '" elementType="' + a.el +
+             '" x3="' + (a.x || 0).toFixed(4) + '" y3="' + (a.y || 0).toFixed(4) +
+             '" z3="' + (a.z || 0).toFixed(4) + '"' +
+             (a.carica ? ' formalCharge="' + a.carica + '"' : '') + '/>');
+    });
+    r.push('  </atomArray>', '  <bondArray>');
+    g.legami.forEach(function (b, i) {
+      r.push('    <bond id="b' + (i + 1) + '" atomRefs2="a' + (b.a + 1) + ' a' + (b.b + 1) +
+             '" order="' + (b.ord === 4 ? 'A' : b.ord) + '"/>');
+    });
+    r.push('  </bondArray>', '</molecule>');
+    return r.join('\n');
+  }
+
+  /* La composizione percentuale in massa: il conto che si fa a mano
+     all'esame, con i pesi atomici IUPAC scritti qui e non chiesti altrove. */
+  var PESI = { H:1.008, C:12.011, N:14.007, O:15.999, F:18.998, Na:22.990,
+               Mg:24.305, Al:26.982, Si:28.085, P:30.974, S:32.06, Cl:35.45,
+               K:39.098, Ca:40.078, Fe:55.845, Br:79.904, I:126.904 };
+  function composizione(g) {
+    var conta = {}, tot = 0, hTot = 0;
+    g.atomi.forEach(function (a) { conta[a.el] = (conta[a.el] || 0) + 1; });
+    /* gli idrogeni impliciti contano eccome: senza, le percentuali sono tutte
+       sbagliate e sembrano giuste */
+    var f = formulaDaGrafoConIdrogeni(g);
+    var m2, re = /([A-Z][a-z]?)(\d*)/g, conta2 = {};
+    while ((m2 = re.exec(f)) !== null) {
+      if (!m2[1]) continue;
+      conta2[m2[1]] = (conta2[m2[1]] || 0) + (m2[2] ? parseInt(m2[2], 10) : 1);
+    }
+    Object.keys(conta2).forEach(function (el) {
+      if (PESI[el] == null) { tot = -1; }
+    });
+    if (tot === -1) return null;
+    Object.keys(conta2).forEach(function (el) { tot += PESI[el] * conta2[el]; });
+    if (!tot) return null;
+    return Object.keys(conta2).sort().map(function (el) {
+      return el + ' ' + (PESI[el] * conta2[el] / tot * 100).toFixed(2) + '%';
+    }).join('  ·  ');
   }
 
   /* gli idrogeni impliciti: si contano dalla valenza, perché il molfile di

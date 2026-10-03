@@ -274,7 +274,16 @@ function controllaLink(dir){
   let esaminati = 0;
   const rotti = [];
   file.filter(f => f.endsWith('.md')).forEach(function(f){
-    const t = fs.readFileSync(f, 'utf8');
+    let t = fs.readFileSync(f, 'utf8');
+    /* I blocchi di codice non contengono collegamenti: contengono testo.
+       Il rapporto di verifica riporta l'output dei banchi, e fra quell'output
+       c'è lo SMILES dell'alanina — `C[C@@H](N)C(=O)O` — che a questa
+       espressione regolare sembrava un collegamento al file «N». Tre falsi
+       collegamenti rotti su tre pacchetti, e nessuno dei tre era un difetto
+       dei documenti: era questo controllo che leggeva come Markdown ciò che
+       Markdown dichiara di non interpretare. Si tolgono prima i blocchi
+       recintati e il codice in linea. */
+    t = t.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
     const re = /\[[^\]]*\]\(([^)\s]+?)\)/g;
     let m;
     while ((m = re.exec(t)) !== null) {
