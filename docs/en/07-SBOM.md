@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v182` |
-| Commit | `825ef66be47b98ad571810ee2e80c2fcc1dbbffc` |
-| Generated (UTC) | `2026-10-03T07:55:35.989Z` |
+| Application version | `bsi-v185` |
+| Commit | `15799c2d97cdba532aadf2add68bcc8f98744dbe` |
+| Generated (UTC) | `2026-10-03T11:57:01.417Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -56,7 +56,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4657 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4658 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 33 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 114 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -70,11 +70,11 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `68040ce3a4afa5b05ae3e55e88e0d3aa390f28ecb4c8c5676212bc547fdc4a1d` |
+| `index.html` | `b85d345a050eb566e6db4e7fe98d1a8110472caad3a8a285fae1528ae9b60a87` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `1eaf605c2d93f00c3edaa843de504c8d6625131b75d8bb4a0bef8d9b767b49bd` |
 | `bsi-cheminfo.js` | `33cd76132c4c3d495b5553315c15a44e991f56a8f1847104f2ec198aa0c005fc` |
-| `sw.js` | `f4bf992740f2f22f8f7217399f96ecc62342f842a5839c0d8bdf6660cadda282` |
+| `sw.js` | `a695fb6de64194135709bbe877e57f7eb7aa6a9491723309874e12c8829032be` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-03T07:55:35.989Z._
+_Generated on 2026-10-03T11:57:01.417Z._

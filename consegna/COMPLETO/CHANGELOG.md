@@ -7,6 +7,199 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v185] — 2026-10-03
+
+Un vero selezionatore di lingue, e tutti i linguaggi chimici che il motore sa
+davvero produrre.
+
+### Dodici lingue, con la copertura misurata accanto a ciascuna
+
+Italiano, **English, Español, Français, Deutsch, Português, Nederlands,
+Polski, Română, Ελληνικά, Русский, 中文**. Il pannello non è più un elenco di
+pulsanti: ha un **campo di ricerca** e, accanto a ogni lingua, la copertura
+**162/162 · 100%**.
+
+Quella percentuale non è scritta a mano: `coperturaPerLingua()` applica
+davvero ogni dizionario, conta gli elementi tradotti e rimette la lingua di
+prima. È una misura, e cadrà da sola il giorno in cui qualcuno aggiunga una
+voce di menu dimenticando una lingua.
+
+**Non sono «tutte le lingue del mondo», e non lo dico.** Ogni lingua elencata è
+completa e scritta a mano: nessuna è riempita a macchina, nessuna è parziale.
+Aggiungerne una è un dizionario e una riga — `BSILingue.registra(codice, voci)`
+è pubblica e documentata.
+
+### Otto linguaggi chimici, non sei
+
+Alle conversioni si aggiungono quattro uscite vere:
+
+| | |
+|---|---|
+| **XYZ** | tre numeri per atomo: lo legge qualunque programma di calcolo |
+| **PDB** | HETATM più CONECT, per aprirla in un visualizzatore |
+| **CXSMARTS** | lo SMARTS esteso |
+| **stereochimica CIP** | i descrittori *R*/*S* ed *E*/*Z* come li assegna il motore |
+
+RDKit non scrive né XYZ né PDB: li scrivo io dalle coordinate del molfile. E
+una **reazione** `reagenti>>prodotti` ora viene riconosciuta e scomposta —
+2 reagenti, 2 prodotti — invece di essere trattata come una molecola sola, che
+darebbe un risultato dall'aria giusta e sbagliato.
+
+### Corretto — XYZ e PDB uscivano con tutti gli atomi nell'origine
+
+Il mio lettore di molfile era nato per il nominatore IUPAC, a cui serve solo la
+connettività: **non leggeva affatto le coordinate**. Appena si sono aggiunti
+XYZ e PDB, i file uscivano con ogni atomo a (0, 0, 0) — numeri che sembrano
+dati e non lo sono, esattamente il difetto che questo progetto insegue.
+
+Ora le coordinate si leggono (colonne 0-10, 10-20, 20-30 del blocco atomi) e si
+**dichiarano per quello che sono**: quelle che RDKit calcola da uno SMILES sono
+**2D** (z = 0), servono a disegnare e non a misurare, e il file lo scrive nella
+sua intestazione. Se sono tutte nulle, XYZ e PDB non vengono prodotti affatto.
+
+Il banco lo verifica nei due versi: le coordinate non devono essere nulle **e**
+devono essere dichiarate 2D.
+
+### Verifica
+
+**51 banchi, 0 falliti.** `test_lingue` passa da 31 a **49 controlli**.
+
+---
+## [bsi-v184] — 2026-10-03
+
+Due funzioni che c'erano ma non si trovavano, e la lingua che non è più una
+scelta fra due.
+
+### Erano irraggiungibili dove l'app si usa di più
+
+«Lingua» e «Linguaggi delle molecole» vivevano come voci del menu ✨. Ma su
+telefono quel menu è **nascosto** — `#bsi105-menu{display:none!important}` — e
+sostituito da un pannello a scomparsa con una lista propria, cablata. Le due
+voci nuove non ci arrivavano: una funzione raggiungibile solo da lì è una
+funzione che non c'è, proprio dove l'applicazione si usa di più.
+
+Ora sono **due sezioni come tutte le altre**, con il loro pulsante nella
+navigazione (🌍 Lingua, 🔤 Linguaggi molecole), presenti anche nel pannello
+mobile. La voce del menu ✨ **porta** alla sezione invece di aprire una
+finestra.
+
+### Sei lingue, non due
+
+Italiano, **English, Español, Français, Deutsch, Português**. Ogni lingua copre
+**162 elementi su 162** dello scheletro — e il banco pretende sia la copertura
+piena sia che il testo cambi davvero: un dizionario vuoto passerebbe «tutto
+tradotto» senza muovere una lettera.
+
+| | tradotti | testi cambiati |
+|---|---|---|
+| English | 162/162 | 137 |
+| Español | 162/162 | 136 |
+| Français | 162/162 | 140 |
+| Deutsch | 162/162 | 139 |
+| Português | 162/162 | 136 |
+
+Il ritorno all'italiano resta esatto, carattere per carattere.
+
+### Corretto — una trappola che c'era già, e in cui sono caduto
+
+Montando le viste in due posti (finestra e sezione) con gli stessi
+identificativi, avevo svuotato l'uno quando si apriva l'altro. In fondo
+all'applicazione c'è però un **ripiego per le sezioni vuote** che, 800 ms dopo
+un click, sostituisce qualunque sezione vuota con «🚧 Sezione in costruzione».
+La sezione svuotata diventava un cartello di lavori in corso.
+
+La risposta non è un terzo accorgimento: è togliere il doppione. La finestra
+non c'è più — **una sola casa per funzione**, niente identificativi doppi,
+niente da svuotare. Il banco ora pretende che nessuna delle due sezioni mostri
+quel cartello.
+
+### Corretto — i titoli che si traducevano due volte
+
+I titoli delle due sezioni nuove finivano nel conteggio dello scheletro, ma
+quei pannelli si ridisegnano già da soli nella lingua scelta. Al primo
+passaggio il motore avrebbe memorizzato come «originale italiano» un testo che
+poteva essere già inglese, e il ritorno all'italiano avrebbe riscritto
+l'inglese: un difetto visibile solo cambiando lingua due volte. Ora sono
+esclusi, con il motivo scritto accanto.
+
+### Verifica
+
+**51 banchi, 0 falliti.** `test_lingue` passa da 20 a **31 controlli**.
+
+---
+## [bsi-v183] — 2026-10-03
+
+La sezione Molecola, ripresa dove la v182 l'aveva lasciata: la formazione è
+molto più elaborata, e **l'angolo lo scegli tu**.
+
+### L'angolo lo sceglie chi guarda
+
+Un carosello che mostra gli angoli a turno risponde alla domanda sbagliata: chi
+studia vuole sapere quanto vale *quell'* angolo, non scorrerli tutti. Ora si
+clicca sugli atomi:
+
+| Atomi cliccati | Che cosa mostra |
+|---|---|
+| **1** | tutti gli angoli che insistono su quell'atomo, insieme, con la geometria e la media |
+| **2** | la lunghezza del legame — e se i due atomi *non* sono legati lo dice: una distanza non è un legame |
+| **3** | l'angolo A–B–C, con il vertice nel secondo cliccato |
+| **4** | l'**angolo diedro** A–B–C–D, con i due piani disegnati e il nome della conformazione |
+
+Il diedro è la novità che conta di più: è il numero che distingue *anti* da
+*gauche*, e nessuna formula piana lo contiene. Sull'etanolo, `H–C–C–O 60,7° ·
+sin-clinale (gauche)`.
+
+Gli atomi scelti portano un numero d'ordine, il resto della molecola si spegne,
+e una riga sotto la tela dice sempre che cosa si sta misurando. Si distingue il
+clic dal trascinamento contando i pixel percorsi: senza, ogni rotazione
+finirebbe per selezionare un atomo. Il carosello resta come comando a parte,
+per chi vuole solo guardare.
+
+Verificato sull'etanolo: C–C **1,509 Å**, C–C–O **111,9°**, H–C–C–O **60,7°**,
+e i diedri su quattro conformazioni costruite a mano (0°, 60°, 90°, 180°).
+
+### La formazione, molto più particolare
+
+Non più «atomi che scivolano al loro posto»:
+
+- la **polvere ha un bersaglio**: ogni granello è assegnato a un atomo e gli
+  spirala dentro finché viene assorbito — la materia non svanisce, diventa
+  l'atomo;
+- gli atomi **non arrivano tutti insieme**: prima lo scheletro pesante, poi gli
+  idrogeni, perché è l'ordine con cui si legge una struttura. Si vede la catena
+  formarsi e poi vestirsi;
+- ogni atomo che si posa manda un **anello d'urto**;
+- ogni legame, quando i suoi due atomi sono arrivati, si chiude con una
+  **scintilla** che lo percorre da un capo all'altro;
+- l'arrivo ha un **rimbalzo elastico**: un punto che si ferma di colpo sembra
+  disegnato, uno che oltrepassa di poco e torna sembra arrivato.
+
+### Corretto — tre difetti, tutti trovati misurando
+
+- **Il rimbalzo non c'era, e l'ordine non reggeva.** La curva elastica serviva
+  sia da posizione sia da avanzamento, e veniva tagliata al primo superamento
+  di 1: così il rimbalzo spariva e — peggio — un atomo partito prima poteva
+  risultare «meno arrivato» di uno partito dopo, perché quella curva oscilla.
+  Trovato dal controllo che pretende lo scheletro davanti agli idrogeni a metà
+  formazione. Ora le due grandezze sono separate.
+- **Le etichette si pestavano.** Su un carbonio tetraedrico i sei angoli hanno
+  i vertici vicinissimi, e uscivano numeri sovrapposti che sembrano un errore
+  di calcolo e sono un errore di impaginazione. Ogni etichetta ora tiene
+  memoria del rettangolo che occupa, si sposta se il posto è preso e rinuncia a
+  scriversi se non c'è spazio: meglio un arco muto che due numeri illeggibili.
+- **Le etichette finivano sotto gli atomi**, che si disegnano dopo. Ora si
+  accodano e si stampano per ultime.
+
+E un quarto l'ha trovato la tavola di prova, e l'errore era mio e non del
+programma: con le coordinate che avevo scelto per il caso «gauche» il diedro
+vale 120° e non 60°, perché guardando lungo il legame centrale il vettore
+proiettato sta a (−0,5; 0,866).
+
+### Verifica
+
+**51 banchi, 0 falliti.** `test_mol3d` passa da 29 a **46 controlli**.
+
+---
 ## [bsi-v182] — 2026-10-03
 
 Due funzioni nuove nel menu ✨: **cambiare lingua** all'applicazione, e

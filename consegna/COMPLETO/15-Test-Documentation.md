@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v182` |
+| **Versione descritta** | `bsi-v185` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -145,7 +145,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 | Banco | Cosa mette alla prova |
 |---|---|
-| `audit_stabilita` | 89 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
+| `audit_stabilita` | 91 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
 | `audit_promesse` | Promesse rifiutate e non gestite, con rete sana e con rete morta |
 | `audit_quota` | `localStorage.setItem` forzato a fallire su 10 pagine |
 | `test_sw` | Offline, rete degradata, aggiornamento durante il lavoro |
@@ -159,7 +159,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 `test_fluidita` · `test_lingue` · `test_mol3d`
 
 **`test_fluidita` — 15 controlli.** Misura quanto la pagina resta *bloccata*
-a ogni cambio di sezione, su tutte le 89. Ha trovato tre difetti che nessun
+a ogni cambio di sezione, su tutte le 91. Ha trovato tre difetti che nessun
 altro banco vedeva: il «Viewer 3D PRO» che fermava la pagina **797 ms** al
 primo click — il profilatore li attribuisce al primo `render()` di 3Dmol, che
 compila gli shader del contesto WebGL; le **296 figure** di «Sintesi»
@@ -172,7 +172,7 @@ fuori dallo schermo.
 Dopo le correzioni: cambio mediano **14 ms**, peggiore **162 ms**, **nessuna
 sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
 
-**`test_lingue` — 20 controlli.** Sorveglia due funzioni nuove e due modi
+**`test_lingue` — 49 controlli.** Sorveglia due funzioni nuove e due modi
 diversi di mentire senza accorgersene.
 
 *La lingua.* Un interruttore che «traduce l'applicazione» è facile da scrivere
@@ -195,7 +195,19 @@ nominatore che inventa.
 Provato nei due versi: rimettendo il `trim()` che rompe i molfile e togliendo
 una traduzione, il banco fallisce tre controlli su venti.
 
-**`test_mol3d` — 29 controlli.** Sorveglia l'animazione di formazione della
+*Le porte.* Dalla v184 il banco verifica anche che le due funzioni siano
+**raggiungibili**: pulsante di navigazione, sezione che si disegna davvero, e
+— controllo nato da un difetto reale — che nessuna delle due mostri il cartello
+«🚧 Sezione in costruzione», che il ripiego per le sezioni vuote stampa 800 ms
+dopo un click in qualunque sezione lasciata vuota. Verifica inoltre che la voce
+del menu ✨ **porti** alla sezione e non apra una finestra sovrapposta, e che
+non esista alcun identificativo duplicato con entrambe le sezioni disegnate.
+
+*Le sei lingue.* Per ognuna si pretendono due cose insieme: copertura piena
+dello scheletro (**162 su 162**) e che il testo **cambi davvero** — un
+dizionario vuoto passerebbe «tutto tradotto» senza muovere una lettera.
+
+**`test_mol3d` — 46 controlli.** Sorveglia l'animazione di formazione della
 molecola e la misura degli angoli di legame, due aggiunte che hanno due modi
 diversi di sembrare giuste senza esserlo.
 
@@ -225,6 +237,28 @@ fermato il ciclo, che la rimuove: trovava zero pulsanti e poi dichiarava
 perché non ha niente da guardare è esattamente il difetto che questo progetto
 insegue; ora la verifica pretende due pulsanti **e** due nomi.
 
+*La selezione.* L'angolo lo sceglie chi guarda, cliccando sugli atomi: uno
+mostra tutti gli angoli che insistono su di lui, due la lunghezza del legame,
+tre l'angolo con il vertice nel secondo cliccato, quattro il **diedro**. Il
+banco verifica tutti e quattro i casi sull'etanolo — C–C 1,509 Å, C–C–O 111,9°,
+H–C–C–O 60,7° — e pretende che due atomi **non legati** siano dichiarati tali
+invece di essere spacciati per un legame: una distanza non è un legame.
+
+*I diedri.* Verificati su quattro conformazioni costruite a mano: eclissata 0°,
+gauche 60°, ortogonale 90°, anti 180°. Anche qui la tavola scritta a mano ha
+corretto un mio errore, non del programma: con le coordinate che avevo scelto
+il diedro vale 120° e non 60°, perché guardando lungo il legame centrale il
+vettore proiettato sta a (−0,5; 0,866).
+
+*L'ordine d'arrivo.* «Prima lo scheletro, poi gli idrogeni» è una proprietà
+**misurabile**, non un'intenzione: il banco legge l'avanzamento di ogni atomo a
+metà formazione e pretende che ogni atomo pesante sia davanti a ogni idrogeno.
+Questo controllo ha trovato un difetto reale: la funzione elastica che fa il
+rimbalzo non è monotòna, e usandola anche come avanzamento un atomo partito
+prima poteva risultare «meno arrivato» di uno partito dopo. Ora le due
+grandezze sono separate — l'avanzamento è monotòno, il fattore elastico fa solo
+il rimbalzo — e il rimbalzo, che prima veniva tagliato via, si vede.
+
 Metà dei controlli sono le *prove contrarie*, perché una pagina che non
 costruisce niente è fulminea: la tela WebGL deve comparire comunque, le 296
 figure devono esistere tutte poco dopo, nessuna cornice deve restare vuota, la
@@ -239,8 +273,8 @@ dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `audit_storia` | Che nessuna credenziale sia MAI entrata nel repository: **1 551 versioni distinte di file di testo** su **390 commit**, con 9 schemi. Si rifiuta di passare su un clone superficiale |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 89 sezioni |
-| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 89 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 91 sezioni |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 91 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
 
 **`audit_storia` — 6 controlli.** `verifica-sicurezza` esamina i file
@@ -339,7 +373,7 @@ torna a passare.
 
 > **Una sezione per volta.** L'ispezione salta gli elementi non visibili — ed è
 > corretto: un elemento nascosto non ha contrasto da misurare. Ma `index.html`
-> alterna 89 sezioni e ne mostra una sola: su **19 751** elementi di testo il
+> alterna 91 sezioni e ne mostra una sola: su **19 751** elementi di testo il
 > banco ne guardava **41**, e stampava «0 difetti». Non era un risultato falso,
 > era un risultato su un campione che nessuno aveva dichiarato. Ora le sezioni
 > vengono aperte una per una, e **il numero di sezioni percorse viene
@@ -348,7 +382,7 @@ torna a passare.
 > Quel conteggio si è guadagnato lo stipendio alla prima esecuzione: il primo
 > tentativo ne percorreva **zero** — il clic di Playwright aspetta che
 > l'elemento sia visibile, e i pulsanti stanno dentro gruppi di navigazione
-> richiusi — e il banco l'ha detto («89 sezioni presenti, nessuna percorsa»)
+> richiusi — e il banco l'ha detto («91 sezioni presenti, nessuna percorsa»)
 > invece di stampare un altro zero rassicurante.
 
 ### 3.5-bis Il debito di accessibilità, e il patto che non cresca
@@ -434,13 +468,13 @@ funzionale non osserva.
 
 | Caso | Metodo | Risultato misurato |
 |---|---|---|
-| **Perdite di memoria** | 89 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
+| **Perdite di memoria** | 91 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
 | **Memoria esaurita** | `setItem` sostituito con una funzione che lancia sempre | 10 pagine su 10 restano operative |
 | **Rete degradata ≠ assente** | Richieste sospese 20 s, intercettazione a livello di contesto | Risposta dalla cache in **3 507 ms** (soglia 3 500) |
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 89 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 91 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -514,7 +548,7 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
-| **Accessibilità** | Automatizzata su 13 pagine e tutte le 89 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 91 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
 | **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 295 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
@@ -534,4 +568,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v182`._
+_Documento aggiornato alla versione `bsi-v185`._

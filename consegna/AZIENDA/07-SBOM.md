@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v182` |
-| Commit | `825ef66be47b98ad571810ee2e80c2fcc1dbbffc` |
-| Generato (UTC) | `2026-10-03T07:55:35.989Z` |
+| Versione applicazione | `bsi-v185` |
+| Commit | `15799c2d97cdba532aadf2add68bcc8f98744dbe` |
+| Generato (UTC) | `2026-10-03T11:57:01.417Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,7 +56,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4657 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4658 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 33 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 114 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -70,11 +70,11 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `68040ce3a4afa5b05ae3e55e88e0d3aa390f28ecb4c8c5676212bc547fdc4a1d` |
+| `index.html` | `b85d345a050eb566e6db4e7fe98d1a8110472caad3a8a285fae1528ae9b60a87` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `1eaf605c2d93f00c3edaa843de504c8d6625131b75d8bb4a0bef8d9b767b49bd` |
 | `bsi-cheminfo.js` | `33cd76132c4c3d495b5553315c15a44e991f56a8f1847104f2ec198aa0c005fc` |
-| `sw.js` | `f4bf992740f2f22f8f7217399f96ecc62342f842a5839c0d8bdf6660cadda282` |
+| `sw.js` | `a695fb6de64194135709bbe877e57f7eb7aa6a9491723309874e12c8829032be` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -127,4 +127,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-03T07:55:35.989Z._
+_Generato il 2026-10-03T11:57:01.417Z._

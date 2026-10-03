@@ -94,23 +94,32 @@
   /* ═════════════════════════════════════════════════════════════════════════
      La modale
      ═════════════════════════════════════════════════════════════════════════ */
-  var modal = document.createElement('div');
-  modal.id = 'bsiLG-modal';
-  modal.innerHTML = '<div id="bsiLG-box"><div id="bsiLG-head">' +
-    '<h3 id="bsiLG-title"></h3><button id="bsiLG-x" aria-label="Chiudi">✕</button>' +
-    '</div><div id="bsiLG-body"></div></div>';
-  document.body.appendChild(modal);
-  document.getElementById('bsiLG-x').onclick = chiudi;
-  modal.addEventListener('click', function (e) { if (e.target === modal) chiudi(); });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && modal.classList.contains('open')) chiudi();
-  });
-  function chiudi() { modal.classList.remove('open'); }
+  /* Non c'è più una finestra: le viste vivono nelle due sezioni. */
+  /* Dove si scrive: la finestra del menu ✨, oppure una sezione della
+     navigazione. Le due funzioni di vista producono HTML e non sanno dove
+     finirà — è l'unica ragione per cui si possono montare in due posti senza
+     scriverle due volte. */
+  var contenitore = null;      /* null = la finestra */
+
+  function corpo() {
+    return contenitore || document;
+  }
+  /* UNA SOLA CASA PER FUNZIONE.
+     La prima stesura montava queste viste in due posti: una finestra aperta
+     dal menu ✨ e, subito dopo, due sezioni della navigazione. Due posti con
+     gli stessi identificativi (`bsiLG-src`, `bsiLG-conv`…) sono un guaio:
+     `getElementById` ne serve uno a caso. Si era allora svuotato l'uno quando
+     si apriva l'altro — e si è cascati in una trappola che c'era già: un
+     ripiego, in fondo all'applicazione, che 800 ms dopo un click sostituisce
+     qualunque sezione vuota con «Sezione in costruzione». La sezione svuotata
+     diventava un cartello di lavori in corso.
+
+     La risposta non è un terzo accorgimento: è togliere il doppione. Il menu
+     ✨ ora PORTA alla sezione invece di aprire una finestra. Un posto solo,
+     niente identificativi doppi, niente da svuotare. */
   function apri(titolo, html) {
-    document.getElementById('bsiLG-title').textContent = titolo;
-    document.getElementById('bsiLG-body').innerHTML = html;
-    modal.classList.add('open');
-    document.getElementById('bsiLG-box').scrollTop = 0;
+    if (!contenitore) return;
+    contenitore.innerHTML = '<div class="section-title">' + titolo + '</div>' + html;
   }
 
   function esc(s) {
@@ -128,14 +137,32 @@
       return;
     }
     var cop = B.copertura();
-    var html = '<div class="bsiLG-lin">';
+    /* ── Il selezionatore ───────────────────────────────────────────────
+       Con dodici lingue un elenco di pulsanti non basta più: serve cercare, e
+       serve vedere QUANTO è tradotta ciascuna — misurato applicando davvero il
+       dizionario e contando, non letto da un numero scritto a mano. */
+    var copPer = B.coperturaPerLingua();
+    var html = '<input class="bsiLG-in" id="bsiLG-cerca" spellcheck="false" aria-label="' +
+      t('Cerca una lingua', 'Search a language') + '" placeholder="' +
+      t('cerca una lingua…', 'search a language…') + '" style="margin-bottom:10px">' +
+      '<div class="bsiLG-lin" id="bsiLG-elenco">';
     B.lingue().forEach(function (l) {
+      var c = copPer[l.codice] || { tradotti: 0, totali: 0 };
+      var pct = c.totali ? Math.round(c.tradotti / c.totali * 100) : 0;
       html += '<button class="bsiLG-lingua' + (l.codice === B.corrente() ? ' on' : '') +
-              '" data-l="' + l.codice + '"><span class="fl">' + l.bandiera + '</span>' +
-              '<span>' + l.nome + (l.nativa ? ' · ' + t('originale', 'original') : '') +
-              '</span></button>';
+              '" data-l="' + l.codice + '" data-cerca="' +
+              esc((l.nome + ' ' + l.codice).toLowerCase()) + '">' +
+              '<span class="fl">' + l.bandiera + '</span>' +
+              '<span style="flex:1"><span style="display:block">' + esc(l.nome) + '</span>' +
+              '<span style="display:block;font-size:10.5px;font-weight:600;color:' +
+              (pct === 100 ? '#7fd8c0' : '#d8b878') + '">' +
+              (l.nativa ? t('originale', 'original')
+                        : c.tradotti + '/' + c.totali + '  ·  ' + pct + '%') +
+              '</span></span></button>';
     });
-    html += '</div>';
+    html += '</div><div id="bsiLG-nessuna" style="display:none;color:#8aa2b8;' +
+            'font-size:12px;padding:4px 2px">' +
+            t('nessuna lingua con questo nome', 'no language by that name') + '</div>';
 
     html += '<div class="bsiLG-card"><h4>' +
       t('Che cosa viene tradotto', 'What gets translated') + '</h4><p>' +
@@ -194,12 +221,26 @@
 
     apri(t('🌍 Lingua', '🌍 Language'), html);
 
-    [].forEach.call(document.querySelectorAll('.bsiLG-lingua'), function (b) {
+    [].forEach.call(corpo().querySelectorAll('.bsiLG-lingua'), function (b) {
       b.onclick = function () {
         B.imposta(b.getAttribute('data-l'));
-        pannelloLingua();            /* si ridisegna nella lingua nuova */
+        globale.initLinguaSezione();     /* si ridisegna nella lingua nuova */
       };
     });
+    var campo = document.getElementById('bsiLG-cerca');
+    if (campo) {
+      campo.oninput = function () {
+        var q = campo.value.trim().toLowerCase();
+        var visibili = 0;
+        [].forEach.call(document.querySelectorAll('#bsiLG-elenco .bsiLG-lingua'), function (b2) {
+          var ok = !q || (b2.getAttribute('data-cerca') || '').indexOf(q) !== -1;
+          b2.style.display = ok ? '' : 'none';
+          if (ok) visibili++;
+        });
+        var vuoto = document.getElementById('bsiLG-nessuna');
+        if (vuoto) vuoto.style.display = visibili ? 'none' : 'block';
+      };
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -235,7 +276,7 @@
   }
 
   function agganciaTab() {
-    [].forEach.call(document.querySelectorAll('.bsiLG-tab'), function (b) {
+    [].forEach.call(corpo().querySelectorAll('.bsiLG-tab'), function (b) {
       b.onclick = function () { mostraTab(b.getAttribute('data-t')); };
     });
     mostraTab(tabCorrente);
@@ -249,7 +290,6 @@
       var el = document.getElementById('bsiLG-' + k);
       if (el) el.classList.toggle('on', k === id);
     });
-    document.getElementById('bsiLG-box').scrollTop = 0;
   }
 
   /* ── 2.1 convertitore ─────────────────────────────────────────────────── */
@@ -280,6 +320,10 @@
     molfileAromatico: ['molfile aromatico', 'aromatic molfile'],
     cxsmiles:     ['CXSMILES', 'CXSMILES'],
     smarts:       ['SMARTS', 'SMARTS'],
+    cxsmarts:     ['CXSMARTS', 'CXSMARTS'],
+    xyz:          ['XYZ', 'XYZ'],
+    pdb:          ['PDB', 'PDB'],
+    stereo:       ['stereochimica (CIP)', 'stereochemistry (CIP)'],
     inchi:        ['InChI', 'InChI'],
     chiaveInchi:  ['chiave InChI', 'InChI key'],
     formula:      ['formula', 'formula'],
@@ -287,8 +331,9 @@
     molfileV3000: ['molfile V3000', 'molfile V3000'],
     json:         ['JSON RDKit', 'RDKit JSON']
   };
-  var ORDINE = ['formula', 'smiles', 'cxsmiles', 'inchi', 'chiaveInchi',
-                'smarts', 'molfile', 'molfileAromatico', 'molfileV3000', 'json'];
+  var ORDINE = ['formula', 'smiles', 'cxsmiles', 'inchi', 'chiaveInchi', 'stereo',
+                'smarts', 'cxsmarts', 'molfile', 'molfileAromatico', 'molfileV3000',
+                'xyz', 'pdb', 'json'];
 
   function agganciaConvertitore() {
     var src = document.getElementById('bsiLG-src');
@@ -879,6 +924,18 @@
        t('porta la geometria; fa il giro completo', 'carries geometry; round-trips'),
        t('verboso, molte righe per poche informazioni',
          'verbose: many lines for little information')],
+      [t('XYZ', 'XYZ'), t('passare coordinate a un programma di calcolo',
+                          'handing coordinates to a computational program'),
+       t('tre numeri per atomo, nient\u2019altro: lo legge chiunque',
+         'three numbers per atom and nothing else: everything reads it'),
+       t('nessun legame: la connettività va dedotta',
+         'no bonds: connectivity must be inferred')],
+      [t('PDB', 'PDB'), t('aprire la molecola in un visualizzatore di strutture',
+                          'opening the molecule in a structure viewer'),
+       t('standard per le strutture; porta i legami nei CONECT',
+         'the standard for structures; carries bonds in CONECT'),
+       t('qui con un solo residuo UNL e nomi atomici generati',
+         'here with a single UNL residue and generated atom names')],
       [t('nome IUPAC', 'IUPAC name'), t('parlare e scrivere fra persone',
                                         'speaking and writing between people'),
        t('descrive la struttura in parole', 'describes the structure in words'),
@@ -886,7 +943,7 @@
          'ambiguous when shortened; hard to generate by machine')]
     ];
     var h = '<div class="bsiLG-card"><h4>' +
-      t('Sei linguaggi, sei mestieri', 'Six languages, six jobs') + '</h4><p>' +
+      t('Otto linguaggi, otto mestieri', 'Eight languages, eight jobs') + '</h4><p>' +
       t('Non esiste il linguaggio migliore: esiste quello giusto per ciò che devi fare.',
         'There is no best language: there is the right one for what you are doing.') +
       '</p><table class="bsiLG-tbl"><tr><th>' + t('Linguaggio', 'Language') + '</th><th>' +
@@ -905,7 +962,13 @@
       'If you must <b>talk to a person</b>, use the name. If you must <b>talk to a ' +
       'program</b>, use SMILES. If you must <b>know whether two things are the same</b>, use ' +
       'the InChI key. If you must <b>draw</b>, use the molfile. If you must <b>search</b>, ' +
-      'use SMARTS.') + '</p></div>';
+      'use SMARTS.') + '</p><p>' +
+      t('E una <b>reazione</b> non è una molecola: <code>reagenti&gt;&gt;prodotti</code> viene ' +
+        'riconosciuta e scomposta, perché convertirla come se fosse una cosa sola darebbe un ' +
+        'risultato che sembra giusto e non lo è.',
+        'And a <b>reaction</b> is not a molecule: <code>reactants&gt;&gt;products</code> is ' +
+        'recognised and split, because converting it as one thing would give a result that ' +
+        'looks right and is not.') + '</p></div>';
     return h;
   }
 
@@ -926,8 +989,8 @@
       menu.appendChild(b);
       return b;
     }
-    voce('🌍', 'Lingua', pannelloLingua);
-    voce('🔤', 'Linguaggi delle molecole', pannelloMolingue);
+    voce('🌍', 'Lingua', function () { vaiASezione('slingua'); });
+    voce('🔤', 'Linguaggi delle molecole', function () { vaiASezione('slinguaggi'); });
     /* le voci nuove devono seguire la lingua scelta come tutte le altre */
     if (globale.BSILingue) globale.BSILingue.imposta(globale.BSILingue.corrente(),
                                                      { silenzioso: true });
@@ -943,15 +1006,57 @@
   }
 
   /* se la lingua cambia mentre un pannello è aperto, si ridisegna */
+  /* se la lingua cambia, la sezione aperta si ridisegna nella lingua nuova */
   document.addEventListener('bsi-lingua', function () {
-    if (!modal.classList.contains('open')) return;
-    var tit = document.getElementById('bsiLG-title').textContent || '';
-    if (/Lingua|Language/.test(tit)) pannelloLingua();
-    else pannelloMolingue();
+    ['slingua', 'slinguaggi'].forEach(function (id) {
+      var sec = document.getElementById(id);
+      if (!sec || !sec.children.length) return;
+      if (id === 'slingua') globale.initLinguaSezione();
+      else globale.initLinguaggiSezione();
+    });
   });
 
-  globale.bsiApriLingua = pannelloLingua;
-  globale.bsiApriMolingue = pannelloMolingue;
+  /* ═════════════════════════════════════════════════════════════════════════
+     §4 · Le due sezioni della navigazione
+     ═════════════════════════════════════════════════════════════════════════
+     Le stesse viste, montate dentro `#slingua` e `#slinguaggi`. Il menu ✨
+     resta per chi lo usa, ma non è più l'unica porta: su telefono quel menu è
+     nascosto, e una funzione raggiungibile solo da lì è una funzione che non
+     c'è. */
+  function montaSezione(idSezione, disegna) {
+    var sec = document.getElementById(idSezione);
+    if (!sec) return;
+    var prima = contenitore;
+    contenitore = sec;
+    try { disegna(); } finally { contenitore = prima; }
+  }
+  globale.initLinguaSezione = function () {
+    montaSezione('slingua', pannelloLingua);
+  };
+  globale.initLinguaggiSezione = function () {
+    montaSezione('slinguaggi', pannelloMolingue);
+  };
+
+  /* Si ridisegnano quando la loro sezione viene aperta. */
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('.nav-btn[data-s]') : null;
+    if (!b) return;
+    var quale = b.getAttribute('data-s');
+    if (quale === 'slingua') setTimeout(globale.initLinguaSezione, 60);
+    if (quale === 'slinguaggi') setTimeout(globale.initLinguaggiSezione, 60);
+  }, true);
+
+  /* Portare alla sezione: si preme il pulsante di navigazione vero, così la
+     sezione si apre con il meccanismo dell'applicazione e non con uno nostro. */
+  function vaiASezione(id) {
+    var b = document.querySelector('.nav-btn[data-s="' + id + '"]');
+    if (b) { b.click(); return; }
+    if (id === 'slingua') globale.initLinguaSezione();
+    else globale.initLinguaggiSezione();
+  }
+
+  globale.bsiApriLingua = function () { vaiASezione('slingua'); };
+  globale.bsiApriMolingue = function () { vaiASezione('slinguaggi'); };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v182` |
+| **Version described** | `bsi-v185` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -43,8 +43,8 @@
 | **SCI-19** | A result that changes on every run is verifiable by nobody | seeded mulberry32 generator for splits, scrambles and folds; the seed is written into the report | `test_cheminfo` — two calls with the same seed give identical folds; the method report declares the seed |
 | **SCI-20** | Results must be able to leave the tool, and the method must leave with them | `bsi-cheminfo.js` §9-ter — `esportaCsv()` and `rapportoMetodo()`, both formed in memory in the browser | `test_cheminfo` — columns consistent with the header, a name containing a comma quoted, residual computed, empty cell for missing activity; the report carries seed, fingerprint, verdict, limits |
 | **SCI-21** | A number presented as structural similarity must come from a fingerprint, and one implementation must compute it | `rdkit_lab.html` loads `bsi-cheminfo.js` and uses its `tanimoto()` and `fingerprint()`; the eight-bit similarity has been removed | `test_cheminfo` — page and engine give the same Tanimoto over all **28 pairs**, deviation **exactly 0**; the fake-similarity functions no longer exist; every reference structure is valid and carries the **monoisotopic mass** of the drug it names |
-| **SCI-22** | Conversions between molecular languages must be checked against an external source, and the IUPAC namer must refuse what it cannot name | `bsi-molingue.js` | `test_lingue` — 7 **literature InChI keys written inside the bench**, full SMILES → molfile → SMILES round-trip on 7 molecules, 26 hand-written names in two languages and **7 required refusals** |
-| **SCI-23** | A bond angle is measured on the coordinates, and on flat coordinates it is not shown | dot product on the bond vectors; refusal when z is constant | `test_mol3d` — tetrahedron **109.4712°**, water 104.47°, CO₂ 180°, BF₃ 120°, ammonia 106.13°; and the refusal tested in both directions |
+| **SCI-22** | Conversions between molecular languages must be checked against an external source, the IUPAC namer must refuse what it cannot name, and coordinates written to a file must be real and declared | `bsi-molingue.js` — **eight languages** plus XYZ, PDB, CXSMARTS and CIP descriptors | `test_lingue` — 7 **literature InChI keys written inside the bench**, full SMILES → molfile → SMILES round-trip, 26 hand-written names in two languages, **7 required refusals**; XYZ and PDB with non-null coordinates **and** declared 2D; a reaction recognised and split |
+| **SCI-23** | Angles, lengths and dihedrals are measured on the coordinates, and on flat coordinates they are not shown | dot product for angles, cross product for dihedrals | `test_mol3d` — tetrahedron **109.4712°**, water 104.47°, CO₂ 180°, BF₃ 120°, ammonia 106.13°; dihedrals 0°, 60°, 90°, 180°; ethanol C–C 1.509 Å; and the refusal tested in both directions |
 
 ---
 
@@ -69,7 +69,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 89 sections × 5 rounds |
+| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 91 sections × 5 rounds |
 | **STA-02** | Exhausting `localStorage` must not make the app unusable | guarded writes; persistent warning in the File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | No rejected promise may remain unhandled | systematic `.catch()` | `audit_promesse` — 22 checks, healthy network and dead network |
 | **STA-04** | Corrupted saved data must not prevent startup | `loadJSON()` with fallback | `audit_stabilita` §4 |
@@ -86,13 +86,13 @@
 |---|---|---|---|
 | **UI-01** | Every page must open without JavaScript errors | — | `audit_stabilita` §5 — 14 pages |
 | **UI-02** | Charts must be sharp on high-density screens | `bsiNitido()` on the canvas contexts | `audit_grafici` — 40 canvases |
-| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 89 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
+| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 91 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
-| **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures drawn in 8 ms slices | `test_fluidita` — **89 sections traversed**, median switch 14 ms, worst 162 ms, **0 sections above 100 ms**; plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute |
-| **UI-10** | The interface must be able to change language, and must declare what stays untranslated | `bsi-lingue.js`: dictionary keyed by the Italian text, original kept in `dataset.bsiIt` | `test_lingue` — **160 skeleton elements, 160 translated, 0 left**; plus the two opposite proofs: the text really changes on switching to "en", and comes back character for character on switching to "it" |
-| **UI-11** | The molecule must show how it holds together, not only what it looks like | `bsi-mol3d.js`: formation animation and angle measurement on the 3D coordinates | `test_mol3d` — the canvas **pixels** at 130 ms and at 2.3 s (532 → 2,334), and the angles on five geometries known by construction, tolerance 0.05° |
+| **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures drawn in 8 ms slices | `test_fluidita` — **91 sections traversed**, median switch 14 ms, worst 162 ms, **0 sections above 100 ms**; plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute |
+| **UI-10** | The interface must switch among many languages, declaring how much each is translated, and the feature must be reachable from every device | `bsi-lingue.js` with **twelve languages** and a searchable selector; two navigation sections, because on a phone the ✨ menu is hidden | `test_lingue` — **162 skeleton elements translated out of 162 in each of the twelve languages**, coverage computed by applying the dictionary and counting; the text really changes and comes back identical; search tested in both directions |
+| **UI-11** | The molecule must show how it holds together, and the viewer must choose the angle | `bsi-mol3d.js`: formation from dust with staggered arrival, and atom selection by click | `test_mol3d` — the canvas **pixels** at 130 ms and 2.3 s, the arrival order (skeleton before hydrogens) measured on each atom's progress, and the selection of 1, 2, 3 and 4 atoms |
 
 ---
 
@@ -101,7 +101,7 @@
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
 | **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 295 tracked files, 8 credential shapes |
-| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 89 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
+| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 91 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
@@ -112,7 +112,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v182`. The
+> remedy was to change it, and that **has been done** at version `bsi-v185`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -124,7 +124,7 @@ manual testing, and their automation is planned.
 
 | ID | Requirement | Current coverage |
 |---|---|---|
-| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 89 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 89 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
+| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 91 sections** (`tools/verifica-accessibilita.js`, 33,642 text elements: it was 19,751 before text over gradients entered the measurement). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 91 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
 | **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.89 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
@@ -178,4 +178,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v182`._
+_Document updated to version `bsi-v185`._

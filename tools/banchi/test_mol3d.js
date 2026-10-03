@@ -197,9 +197,9 @@ const GEOMETRIE = [
   /* ── §5 · I comandi sono pulsanti veri, con un nome ─────────────────── */
   console.log('\n── I comandi ──');
   att('la barra dei comandi compare accanto alla tela', true, nascita.barraEsiste);
-  att('ha due pulsanti', 2, nascita.bottoni.length);
+  att('ha tre pulsanti', 3, nascita.bottoni.length);
   /* non vacuo: si pretende che i pulsanti ci siano E che ognuno abbia un nome */
-  att('ognuno ha un nome accessibile', '2 pulsanti, 0 senza nome',
+  att('ognuno ha un nome accessibile', '3 pulsanti, 0 senza nome',
       nascita.bottoni.length + ' pulsanti, ' +
       nascita.bottoni.filter(x => !x.aria || x.aria.length < 8).length + ' senza nome');
   nascita.bottoni.forEach(x => console.log('      · ' + x.testo + '  [' + x.aria + ']'));
@@ -230,15 +230,113 @@ const GEOMETRIE = [
       suPiatta.spiega.length > 20 && suPiatta.avvisoVisibile);
   console.log('      («' + suPiatta.spiega.slice(0, 72) + '…»)');
 
+  /* ── §6 · L'ordine d'arrivo: prima lo scheletro, poi gli idrogeni ───── */
+  console.log('\n── L\u2019ordine d\u2019arrivo ──');
+  const ordine = await pg.evaluate(async () => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:-9999px;top:0;width:470px';
+    const c = document.createElement('canvas');
+    c.id = 'bancoOrdine'; c.width = 440; c.height = 320;
+    d.appendChild(c); document.body.appendChild(d);
+    const mol = { atoms: [
+      {x:-1.246,y:0.231,z:0.000,el:'C'},{x:0.000,y:-0.620,z:0.000,el:'C'},
+      {x:1.180,y:0.170,z:0.000,el:'O'},{x:-1.300,y:0.870,z:0.885,el:'H'},
+      {x:-1.300,y:0.870,z:-0.885,el:'H'},{x:-2.130,y:-0.410,z:0.000,el:'H'},
+      {x:0.030,y:-1.270,z:0.880,el:'H'},{x:0.030,y:-1.270,z:-0.880,el:'H'},
+      {x:1.950,y:-0.380,z:0.000,el:'H'}],
+      bonds: [{a:0,b:1,t:1},{a:1,b:2,t:1},{a:0,b:3,t:1},{a:0,b:4,t:1},
+              {a:0,b:5,t:1},{a:1,b:6,t:1},{a:1,b:7,t:1},{a:2,b:8,t:1}] };
+    const v = window.render3DOnCanvas(c, mol);
+    await new Promise(r => setTimeout(r, 850));   /* a metà della formazione */
+    const p = v.progressi();
+    const pesanti = p.filter(x => x.el !== 'H');
+    const leggeri = p.filter(x => x.el === 'H');
+    const esito = {
+      ritardoMaxPesanti: Math.max.apply(null, pesanti.map(x => x.ritardo)),
+      ritardoMinLeggeri: Math.min.apply(null, leggeri.map(x => x.ritardo)),
+      pesantiAvanti: Math.min.apply(null, pesanti.map(x => x.q)),
+      leggeriIndietro: Math.max.apply(null, leggeri.map(x => x.q))
+    };
+    v.stop(); d.remove();
+    return esito;
+  });
+  att('ogni atomo pesante parte prima di ogni idrogeno', true,
+      ordine.ritardoMaxPesanti < ordine.ritardoMinLeggeri);
+  att('e a metà strada lo scheletro è più avanti degli idrogeni', true,
+      ordine.pesantiAvanti >= ordine.leggeriIndietro);
+  console.log('      (ritardo: scheletro fino a ' + ordine.ritardoMaxPesanti.toFixed(3) +
+              ', idrogeni da ' + ordine.ritardoMinLeggeri.toFixed(3) + ')');
+
+  /* ── §7 · La selezione: l'angolo lo sceglie chi guarda ──────────────── */
+  console.log('\n── La selezione ──');
+  const sel = await pg.evaluate(async () => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:-9999px;top:0;width:470px';
+    const c = document.createElement('canvas');
+    c.id = 'bancoSel'; c.width = 440; c.height = 320;
+    d.appendChild(c); document.body.appendChild(d);
+    const mol = { atoms: [
+      {x:-1.246,y:0.231,z:0.000,el:'C'},{x:0.000,y:-0.620,z:0.000,el:'C'},
+      {x:1.180,y:0.170,z:0.000,el:'O'},{x:-1.300,y:0.870,z:0.885,el:'H'},
+      {x:-1.300,y:0.870,z:-0.885,el:'H'},{x:-2.130,y:-0.410,z:0.000,el:'H'},
+      {x:0.030,y:-1.270,z:0.880,el:'H'},{x:0.030,y:-1.270,z:-0.880,el:'H'},
+      {x:1.950,y:-0.380,z:0.000,el:'H'}],
+      bonds: [{a:0,b:1,t:1},{a:1,b:2,t:1},{a:0,b:3,t:1},{a:0,b:4,t:1},
+              {a:0,b:5,t:1},{a:1,b:6,t:1},{a:1,b:7,t:1},{a:2,b:8,t:1}] };
+    const v = window.render3DOnCanvas(c, mol);
+    await new Promise(r => setTimeout(r, 2500));
+    const uno = v.seleziona([1]);
+    const due = v.seleziona([0, 1]);
+    const tre = v.seleziona([0, 1, 2]);
+    const quattro = v.seleziona([3, 0, 1, 2]);
+    const lontani = v.seleziona([3, 8]);
+    const niente = v.seleziona([]);
+    const quante = v.selezione().length;
+    v.stop(); d.remove();
+    return { uno: uno, due: due, tre: tre, quattro: quattro, lontani: lontani,
+             niente: niente, quante: quante };
+  });
+  att('un atomo mostra tutti i suoi angoli', 'ventaglio', sel.uno && sel.uno.tipo);
+  att('  · e sono sei, sul carbonio tetraedrico', 6, sel.uno && sel.uno.angoli.length);
+  att('due atomi danno la lunghezza del legame', 'lunghezza', sel.due && sel.due.tipo);
+  vicino('  · C–C dell\u2019etanolo (\u00c5)', 1.509, sel.due ? sel.due.valore : -1, 0.002);
+  att('  · e dice che sono legati', true, sel.due && sel.due.legati);
+  att('tre atomi danno l\u2019angolo', 'angolo', sel.tre && sel.tre.tipo);
+  vicino('  · C–C–O dell\u2019etanolo', 111.9, sel.tre ? sel.tre.valore : -1, 0.1);
+  att('quattro atomi danno il diedro', 'diedro', sel.quattro && sel.quattro.tipo);
+  vicino('  · H–C–C–O dell\u2019etanolo', 60.7, sel.quattro ? Math.abs(sel.quattro.valore) : -1, 0.2);
+  /* due atomi NON legati devono essere dichiarati tali, non spacciati per un
+     legame: una distanza non è un legame */
+  att('due atomi non legati sono dichiarati tali', false, sel.lontani && sel.lontani.legati);
+  att('e la selezione si svuota quando la si svuota', 0, sel.quante);
+
+  /* il diedro, su geometrie costruite a mano */
+  console.log('\n── I diedri ──');
+  const die = await pg.evaluate(() => {
+    const M = window.BSIMol3D;
+    const A = {x:-0.5,y:1,z:0}, B = {x:0,y:0,z:0}, C = {x:1.5,y:0,z:0};
+    return [['anti', {x:2.0,y:-1,z:0}, 180],
+            ['eclissata', {x:2.0,y:1,z:0}, 0],
+            ['ortogonale', {x:2.0,y:0,z:1}, 90],
+            ['gauche', {x:2.0,y:0.5,z:0.866}, 60]]
+      .map(function (c) {
+        const g = M.diedro(A, B, C, c[1]);
+        return { nome: c[0], atteso: c[2], avuto: Math.abs(g),
+                 conf: M.conformazione(g) };
+      });
+  });
+  die.forEach(function (x) { vicino('diedro ' + x.nome, x.atteso, Math.round(x.avuto*100)/100, 0.05); });
+  console.log('      (' + die.map(x => x.conf).join(' · ') + ')');
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 25) {
+  if (eseguiti < 40) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 25');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 40');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

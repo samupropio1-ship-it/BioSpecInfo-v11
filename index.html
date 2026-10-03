@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v182';
+window.BSI_APP_VERSION='bsi-v185';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -996,7 +996,13 @@ window.BSI_TELEMETRY_URL='';</script>
          percorrono i PULSANTI (88) e non le sezioni (90). -->
     <button class="nav-btn" data-s="sdatasci">✨ Data Science</button>
     <button class="nav-btn" data-s="spomo">🍅 Pomodoro</button>
-  <button class="nav-btn" data-s="slabcalc">🧪 Calc. Laboratorio</button></div>
+    <button class="nav-btn" data-s="slabcalc">🧪 Calc. Laboratorio</button>
+    <!-- Lingua e linguaggi molecolari: erano solo voci del menu ✨, che su
+         telefono è nascosto e sostituito dal pannello a scomparsa — quindi
+         erano irraggiungibili proprio dove si usa di più l'applicazione.
+         Sono sezioni come tutte le altre. -->
+    <button class="nav-btn" data-s="slingua">🌍 Lingua</button>
+    <button class="nav-btn" data-s="slinguaggi">🔤 Linguaggi molecole</button></div>
 </div>
 
 <!-- ═══════════════ MAIN ═══════════════ -->
@@ -29563,6 +29569,8 @@ window.calcMolProps = function() {
 
 <div id="sfilemanager" class="section"></div>
 <div id="s3dpro" class="section"></div>
+<div id="slingua" class="section"></div>
+<div id="slinguaggi" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -35881,6 +35889,11 @@ var SHEET_ITEMS=[
   {ic:'⬇️',nm:'Scarica BioSpecInfo',ds:'Download file HTML per uso offline',key:'dl'},
   {ic:'📲',nm:'Aggiungi a Home',ds:'Installa come app sul tuo dispositivo',key:'install'},
   {ic:'🔄',nm:'Aggiornamenti',ds:'Verifica nuove versioni disponibili',key:'update'},
+  // Lingua e linguaggi molecolari: questa lista è cablata, quindi una voce
+  // nuova nel menu ✨ non ci arriva da sola — ed è proprio su telefono che
+  // il menu ✨ è nascosto e questo pannello lo sostituisce.
+  {ic:'🌍',nm:'Lingua',ds:'Italiano, English, Español, Français, Deutsch, Português',key:'slingua'},
+  {ic:'🔤',nm:'Linguaggi delle molecole',ds:'SMILES, InChI, SMARTS, molfile, nome IUPAC',key:'slinguaggi'},
 ];
 
 function closeSheet13(){
@@ -35905,6 +35918,7 @@ function doAction13(key){
     if(key==='scentro'||key==='chemdraw'){ if(typeof window.openChemDraw==='function')window.openChemDraw(); return; }
     if(key==='qlab')     { if(typeof window.openQuantumLab==='function')window.openQuantumLab(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
+    if(key==='slingua'||key==='slinguaggi'){ var b=document.querySelector('[data-s='+key+']'); if(b)b.click(); return; }
     if(key==='sretro')   { var b=document.querySelector('[data-s=sretro]'); if(b)b.click(); return; }
     if(key==='export')   { triggerOldItem('Esporta');   return; }
     if(key==='challenge'){ triggerOldItem('Sfida');     return; }

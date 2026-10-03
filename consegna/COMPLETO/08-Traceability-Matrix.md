@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v182` |
+| **Versione descritta** | `bsi-v185` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -43,8 +43,8 @@
 | **SCI-19** | Un risultato che cambia a ogni esecuzione non è verificabile da nessuno | generatore mulberry32 seminato per divisioni, rimescolamenti e pieghe; il seme è scritto nel rapporto | `test_cheminfo` — due chiamate con lo stesso seme danno pieghe identiche; il rapporto di metodo dichiara il seme |
 | **SCI-20** | I risultati devono poter uscire dallo strumento, e il metodo deve uscire con loro | `bsi-cheminfo.js` §9-ter — `esportaCsv()` e `rapportoMetodo()`, entrambi formati in memoria nel browser | `test_cheminfo` — colonne coerenti con l'intestazione, nome con virgola citato, residuo calcolato, cella vuota per l'attività mancante; il rapporto contiene seme, fingerprint, verdetto, limiti |
 | **SCI-21** | Un numero presentato come similarità strutturale deve venire da un fingerprint, e una sola implementazione deve calcolarlo | `rdkit_lab.html` carica `bsi-cheminfo.js` e ne usa `tanimoto()` e `fingerprint()`; la similarità a otto bit è stata rimossa | `test_cheminfo` — la pagina e il motore danno lo stesso Tanimoto su tutte e **28 le coppie**, scarto **esattamente 0**; le funzioni della similarità finta non esistono più; ogni struttura di riferimento è valida e ha la **massa monoisotopica** del farmaco che dichiara |
-| **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna, e il nominatore IUPAC deve rifiutare ciò che non sa nominare | `bsi-molingue.js` | `test_lingue` — 7 chiavi InChI **di letteratura scritte nel banco**, giro completo SMILES → molfile → SMILES su 7 molecole, 26 nomi a mano in due lingue e **7 rifiuti pretesi** |
-| **SCI-23** | Un angolo di legame si misura sulle coordinate, e su coordinate piatte non si mostra | calcolo con prodotto scalare sui vettori di legame; rifiuto se z è costante | `test_mol3d` — tetraedro **109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13°; e il rifiuto provato nei due versi |
+| **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna, il nominatore IUPAC deve rifiutare ciò che non sa nominare, e le coordinate scritte in un file devono essere vere e dichiarate | `bsi-molingue.js` — **otto linguaggi** più XYZ, PDB, CXSMARTS e descrittori CIP | `test_lingue` — 7 chiavi InChI **di letteratura scritte nel banco**, giro completo SMILES → molfile → SMILES, 26 nomi a mano in due lingue, **7 rifiuti pretesi**; XYZ e PDB con coordinate non nulle **e** dichiarate 2D; una reazione riconosciuta e scomposta |
+| **SCI-23** | Angoli, lunghezze e diedri si misurano sulle coordinate, e su coordinate piatte non si mostrano | prodotto scalare per gli angoli, prodotto vettoriale per i diedri | `test_mol3d` — tetraedro **109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13°; diedri 0°, 60°, 90°, 180°; C–C dell'etanolo 1,509 Å; e il rifiuto provato nei due versi |
 
 ---
 
@@ -69,7 +69,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 89 sezioni × 5 giri |
+| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 91 sezioni × 5 giri |
 | **STA-02** | L'esaurimento di `localStorage` non deve rendere inutilizzabile l'app | scritture protette; avviso persistente nel File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | Nessuna promessa rifiutata deve restare non gestita | `.catch()` sistematici | `audit_promesse` — 22 controlli, rete sana e rete morta |
 | **STA-04** | Dati salvati corrotti non devono impedire l'avvio | `loadJSON()` con ripiego | `audit_stabilita` §4 |
@@ -86,13 +86,13 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 89 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 91 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
-| **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi disegnate a fette da 8 ms | `test_fluidita` — **89 sezioni attraversate**, cambio mediano 14 ms, peggiore 162 ms, **0 sezioni oltre 100 ms**; e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta |
-| **UI-10** | L'interfaccia deve poter cambiare lingua, e deve dichiarare che cosa resta non tradotto | `bsi-lingue.js`: dizionario a chiavi italiane, originale conservato in `dataset.bsiIt` | `test_lingue` — **160 elementi di scheletro, 160 tradotti, 0 rimasti**; e le due prove contrarie: il testo cambia davvero passando a «en», e torna identico carattere per carattere passando a «it» |
-| **UI-11** | La molecola deve mostrare come sta insieme, non solo che aspetto ha | `bsi-mol3d.js`: animazione di formazione e misura degli angoli sulle coordinate 3D | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s (532 → 2 334), e gli angoli su cinque geometrie note per costruzione, tolleranza 0,05° |
+| **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi disegnate a fette da 8 ms | `test_fluidita` — **91 sezioni attraversate**, cambio mediano 14 ms, peggiore 162 ms, **0 sezioni oltre 100 ms**; e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta |
+| **UI-10** | L'interfaccia deve poter cambiare lingua fra molte, dichiarando per ognuna quanto è tradotta, e la funzione deve essere raggiungibile da ogni dispositivo | `bsi-lingue.js` con **dodici lingue** e selezionatore con ricerca; due sezioni di navigazione, perché su telefono il menu ✨ è nascosto | `test_lingue` — **162 elementi di scheletro tradotti su 162 in ognuna delle dodici lingue**, copertura calcolata applicando il dizionario e contando; il testo cambia davvero e torna identico; ricerca provata nei due versi |
+| **UI-11** | La molecola deve mostrare come sta insieme, e l'angolo lo deve scegliere chi guarda | `bsi-mol3d.js`: formazione dalla polvere con arrivo scaglionato, e selezione degli atomi con un clic | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s, l'ordine d'arrivo (scheletro prima degli idrogeni) misurato sull'avanzamento di ogni atomo, e la selezione di 1, 2, 3 e 4 atomi |
 
 ---
 
@@ -101,7 +101,7 @@
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
 | **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 295 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 89 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 91 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
@@ -112,7 +112,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v182`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v185`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -124,7 +124,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 89 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 89 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 91 sezioni** (`tools/verifica-accessibilita.js`, 33 642 elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 91 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,89 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
@@ -179,4 +179,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v182`._
+_Documento aggiornato alla versione `bsi-v185`._

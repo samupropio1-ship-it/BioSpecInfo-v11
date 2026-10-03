@@ -75,6 +75,12 @@
     if (righe.length >= 4 && /^\s*\d+\s+\d+/.test(righe[3])) return { lingua: 'molfile' };
     if (/^\s*M\s+END\s*$/m.test(grezzo)) return { lingua: 'molfile' };
 
+    /* Una reazione: reagenti>agenti>prodotti. È un linguaggio chimico a sé,
+       e scambiarlo per uno SMILES rotto sarebbe un errore gratuito. */
+    if (/^[^\s]*>>?[^\s]*$/.test(t) && t.indexOf('>') > 0) {
+      return { lingua: 'reazione' };
+    }
+
     /* CXSMILES: SMILES seguito da un blocco fra |…| */
     if (/\s\|[^|]*\|\s*$/.test(t)) return { lingua: 'cxsmiles' };
 
@@ -115,6 +121,13 @@
     for (i = 0; i < nAt; i++) {
       var r = righe[4 + i];
       if (r == null) return null;
+      /* Le coordinate: colonne 0-10, 10-20, 20-30 del blocco atomi. La prima
+         stesura di questo lettore le saltava — serviva solo la connettività
+         per il nominatore — e quando si sono aggiunti XYZ e PDB i file
+         uscivano con tutti gli atomi nell'origine: numeri che sembrano dati e
+         non lo sono. */
+      var x = parseFloat(r.slice(0, 10)), y = parseFloat(r.slice(10, 20)),
+          z = parseFloat(r.slice(20, 30));
       var el = r.slice(31, 34).trim();
       var carica = 0;
       var cc = parseInt(r.slice(36, 39), 10);
@@ -122,7 +135,9 @@
       if (cc === 1) carica = 3; else if (cc === 2) carica = 2;
       else if (cc === 3) carica = 1; else if (cc === 5) carica = -1;
       else if (cc === 6) carica = -2; else if (cc === 7) carica = -3;
-      atomi.push({ i: i, el: el, carica: carica, vicini: [] });
+      atomi.push({ i: i, el: el, carica: carica, vicini: [],
+                   x: isFinite(x) ? x : 0, y: isFinite(y) ? y : 0,
+                   z: isFinite(z) ? z : 0 });
     }
     for (i = 0; i < nLe; i++) {
       var rl = righe[4 + nAt + i];
@@ -639,6 +654,25 @@
       callback(esito); return;
     }
 
+    /* Una reazione si converte pezzo per pezzo: ogni componente è una
+       molecola, e il tutto non è una molecola. Dirlo è più utile che
+       rifiutare. */
+    if (ric.lingua === 'reazione') {
+      var parti = esito.ingresso.split('>');
+      var reag = (parti[0] || '').split('.').filter(Boolean);
+      var prod = (parti[parti.length - 1] || '').split('.').filter(Boolean);
+      var agen = (parti.length === 3 ? (parti[1] || '') : '').split('.').filter(Boolean);
+      esito.reazione = { reagenti: reag, agenti: agen, prodotti: prod };
+      esito.errore = lingua === 'it'
+        ? 'Questa è una REAZIONE, non una molecola: ' + reag.length + ' reagenti, ' +
+          (agen.length ? agen.length + ' agenti, ' : '') + prod.length + ' prodotti. ' +
+          'Converti un componente per volta.'
+        : 'This is a REACTION, not a molecule: ' + reag.length + ' reactants, ' +
+          (agen.length ? agen.length + ' agents, ' : '') + prod.length + ' products. ' +
+          'Convert one component at a time.';
+      callback(esito); return;
+    }
+
     conRDKit(function (R) {
       if (!R) {
         esito.errore = lingua === 'it'
@@ -677,6 +711,7 @@
       }
 
       prova('smiles', function () { return m.get_smiles(); });
+      prova('cxsmarts', function () { return m.get_cxsmarts(); });
       prova('cxsmiles', function () { return m.get_cxsmiles(); });
       /* Il molfile è già scritto in forma di Kekulé: misurato sul benzene, gli
          ordini di legame sono 2,1,2,1,2,1. La forma aromatica è un'uscita
@@ -700,6 +735,31 @@
         } catch (e) {}
       }
       delete esito.uscite.descrittori;
+
+      /* ── XYZ e PDB: RDKit non li scrive, ma le coordinate ci sono ──────
+         Non sono «quasi» formati: XYZ è elemento più tre numeri, e un PDB di
+         soli HETATM è il modo normale di scrivere un legante. Quel che manca
+         — nomi dei residui, connettività CONECT completa — si dichiara invece
+         di lasciarlo scoprire a chi apre il file. */
+      if (esito.uscite.molfile) {
+        var gXY = grafoDaMolfile(esito.uscite.molfile);
+        if (gXY) {
+          prova('xyz', function () { return scriviXYZ(gXY, esito.uscite.smiles || ''); });
+          prova('pdb', function () { return scriviPDB(gXY); });
+        }
+      }
+      /* i marcatori stereochimici: R/S ed E/Z come li assegna il motore */
+      prova('stereo', function () {
+        var t2 = m.get_stereo_tags();
+        if (!t2) return null;
+        var o = (typeof t2 === 'string') ? JSON.parse(t2) : t2;
+        var pezzi = [];
+        if (o.CIP_atoms && o.CIP_atoms.length)
+          pezzi.push(o.CIP_atoms.map(function (x) { return 'atomo ' + x[0] + ': ' + x[1]; }).join(', '));
+        if (o.CIP_bonds && o.CIP_bonds.length)
+          pezzi.push(o.CIP_bonds.map(function (x) { return 'legame ' + x[0] + '-' + x[1] + ': ' + x[2]; }).join(', '));
+        return pezzi.length ? pezzi.join(' · ') : null;
+      });
 
       /* la formula dal grafo, non da un campo che potrebbe non esserci */
       var g = esito.uscite.molfile ? grafoDaMolfile(esito.uscite.molfile) : null;
@@ -742,6 +802,63 @@
       try { m.delete(); } catch (e) {}
       callback(esito);
     });
+  }
+
+  /* ── Scrittori che RDKit non ha ──────────────────────────────────────── */
+
+  /* Vere o no? Le coordinate che RDKit calcola da uno SMILES sono 2D (z = 0):
+     servono a disegnare, non a misurare. Dirlo nel file è l'unico modo perché
+     chi lo apre non le prenda per una conformazione. */
+  function soloPiane(g) {
+    return g.atomi.every(function (a) { return Math.abs(a.z || 0) < 1e-6; });
+  }
+  function tutteNulle(g) {
+    return g.atomi.every(function (a) {
+      return Math.abs(a.x || 0) < 1e-9 && Math.abs(a.y || 0) < 1e-9 && Math.abs(a.z || 0) < 1e-9;
+    });
+  }
+
+  function scriviXYZ(g, commento) {
+    if (tutteNulle(g)) return null;
+    var nota = soloPiane(g) ? ' | coordinate 2D generate (z = 0), non una conformazione'
+                            : ' | coordinate 3D';
+    var righe = [String(g.atomi.length), (commento || 'BioSpecInfo') + nota];
+    g.atomi.forEach(function (a) {
+      righe.push(a.el.padEnd(3) + '  ' +
+        (a.x || 0).toFixed(6).padStart(12) + '  ' +
+        (a.y || 0).toFixed(6).padStart(12) + '  ' +
+        (a.z || 0).toFixed(6).padStart(12));
+    });
+    return righe.join('\n');
+  }
+
+  function scriviPDB(g) {
+    if (tutteNulle(g)) return null;
+    var righe = ['REMARK   Generato da BioSpecInfo · residuo unico UNL, nomi atomici derivati',
+                 'REMARK   ' + (soloPiane(g)
+                   ? 'coordinate 2D generate (z = 0): servono a disegnare, non a misurare'
+                   : 'coordinate 3D')];
+    var conta = {};
+    g.atomi.forEach(function (a, i) {
+      conta[a.el] = (conta[a.el] || 0) + 1;
+      var nome = (a.el + conta[a.el]).slice(0, 4);
+      righe.push('HETATM' + String(i + 1).padStart(5) + ' ' + nome.padEnd(4) + ' UNL A   1    ' +
+        (a.x || 0).toFixed(3).padStart(8) + (a.y || 0).toFixed(3).padStart(8) +
+        (a.z || 0).toFixed(3).padStart(8) + '  1.00  0.00          ' + a.el.padStart(2));
+    });
+    /* la connettività: un PDB senza CONECT perde i legami di un legante */
+    var per = {};
+    g.legami.forEach(function (b) {
+      (per[b.a] = per[b.a] || []).push(b.b);
+      (per[b.b] = per[b.b] || []).push(b.a);
+    });
+    Object.keys(per).forEach(function (k) {
+      var i = parseInt(k, 10);
+      righe.push('CONECT' + String(i + 1).padStart(5) +
+        per[k].map(function (j) { return String(j + 1).padStart(5); }).join(''));
+    });
+    righe.push('END');
+    return righe.join('\n');
   }
 
   /* gli idrogeni impliciti: si contano dalla valenza, perché il molfile di
