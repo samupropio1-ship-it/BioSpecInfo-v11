@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v188` |
+| **Versione descritta** | `bsi-v189` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -119,7 +119,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v188` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v189` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -156,10 +156,10 @@ rappresenta:
 
 In entrambi i casi non manca una struttura: non ce n'è una sola da mostrare.
 
-### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v188)
+### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v189)
 
 Il confronto struttura ⟷ peso è necessario ma non sufficiente, e si è visto
-dove cede. Le trentasei voci aggiunte in `bsi-v188` portano nel dato stesso
+dove cede. Le trentasei voci aggiunte in `bsi-v189` portano nel dato stesso
 l'identificativo ChEMBL e la formula del record (`chembl:`, `formula:`), e per
 ognuna la formula viene **ricostruita contando gli atomi del grafo** che RDKit
 legge dallo SMILES — idrogeni impliciti compresi — e confrontata con quella
@@ -612,6 +612,65 @@ termine additivo della formula.
 | Le cariche **non** sono neutralizzate e i tautomeri non canonizzati | MinimalLib non lo permette (§3-quater.1). Un insieme che mescola forme neutre e ioniche della stessa molecola le conta come voci distinte |
 | Il nucleo della tabella SAR va **fornito** | Nessun MCS disponibile. Il pannello non propone nulla automaticamente, perché una proposta sbagliata è peggio di nessuna proposta |
 
+### 3.6 Predizione NMR per atomo: la fonte e lo scarto misurato
+
+Il predittore ¹H/¹³C che assegna ogni segnale a un ATOMO (`bsi-nmr.js`) non
+contiene numeri. Le tabelle di stima stanno in **`bsi-pretsch.js`**, trascritte
+riga per riga da:
+
+> E. Pretsch, P. Bühlmann, M. Badertscher, *Structure Determination of Organic
+> Compounds — Tables of Spectral Data*, 4ª ed., Springer.
+> §4.1 pp. 82-84 · §4.5 pp. 100-102 · §5.1 p. 170 · §5.2 pp. 178-179 ·
+> §5.3 p. 182 · §5.5 pp. 188-189
+
+Stanno in un file separato perché si possano **controllare contro la pagina
+stampata** senza leggere il codice che le usa, e perché una riga sbagliata si
+corregga in un posto solo.
+
+| schema | formula | righe |
+|---|---|---|
+| benzeni monosostituiti, ¹³C | δ = 128,5 + Σ Zi | 91 |
+| benzeni monosostituiti, ¹H | δ = 7,34 + Σ Zi | 66 |
+| etileni sostituiti, ¹H | δ = 5,25 + Zgem + Zcis + Ztrans | 42 |
+| alcani sostituiti, ¹H | δ = base(CH₃/CH₂/CH) + ΣZα + ΣZβ | 31 |
+| alchini terminali, ¹H | valore diretto per sostituente | 30 |
+| alifatici, ¹³C | δ = −2,3 + Σ Zi + Σ Sj | 24 |
+| correzioni steriche Sj | per grado del C osservato e dell'atomo α | 4×4 |
+
+**Lo scarto è misurato, su molecole che non hanno scelto i parametri.** Le
+molecole di prova sono divise in due insiemi: *taratura*, usate per scegliere
+valori e regole, e *validazione*, mai usate per quello. Il numero dichiarato nel
+pannello dell'applicazione è quello della validazione.
+
+| | scarto medio misurato |
+|---|---|
+| ¹³C, taratura (9 molecole) | 0,71 ppm |
+| **¹³C, validazione (22 molecole)** | **0,92 ppm** |
+| ¹³C, caso peggiore | 4,9 ppm (cicloesanone) |
+| ¹H (14 molecole) | 0,06 ppm |
+| ¹H, soli aromatici | 0,03 ppm |
+
+Il banco (`test_nmr`, 44 controlli) pretende anche che la validazione resti
+**peggiore** della taratura: se diventassero uguali vorrebbe dire che una
+molecola è stata spostata da un insieme all'altro, e il numero non direbbe più
+niente.
+
+**Quello che resta sbagliato non è stato corretto a posteriori.** Il difenile
+sbaglia il carbonio ipso di 4,6 ppm, perché l'incremento del fenile della
+tabella (Z₁ = 8,1) non lo descrive. Quel numero **non è stato ritoccato**:
+cambiare un valore trascritto perché una molecola di validazione non torna è
+esattamente il modo di rendere falso lo 0,92 ppm dichiarato sopra.
+
+**Limiti dichiarati.** Non è un calcolo quantistico: non prevede gli effetti del
+solvente, non distingue conformeri (le correzioni conformazionali K della fonte
+sono trascritte ma valgono 0, perché la conformazione da uno SMILES non si
+ricava) e non fa NMR bidimensionale. Le costanti di accoppiamento vengono da una
+tabella di valori **tipici** per relazione geometrica, non calcolate. Gli
+**eteroaromatici sostituiti** non hanno, in questa fonte, una tabella di
+incrementi per posizione come l'hanno i benzeni: restano la previsione meno
+affidabile del modulo, e lo strumento di elucidazione lo dichiara abbassando la
+fiducia quando ne incontra uno.
+
 ---
 
 ## 4. Costanti fisiche e dati tabulati
@@ -655,7 +714,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v188` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v189` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -665,4 +724,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v188`._
+_Documento aggiornato alla versione `bsi-v189`._

@@ -496,7 +496,35 @@ var SOTTRAI_H = {
   ohAlc:['ohFen']
 };
 
+/* ── UNA SOLA CASA ────────────────────────────────────────────────────────
+   Da `bsi-v189` il predittore ¹H vero e' quello di `bsi-nmr.js`, che usa le
+   tabelle di Pretsch: sa spostare un H aromatico secondo il sostituente
+   (6,89 per l'anisolo, 8,22 per il nitrobenzene, invece di 7,26 per
+   entrambi), sdoppia i due protoni di un =CH₂ terminale e sa a quale ATOMO
+   appartiene ogni segnale.
+
+   La tabella qui sotto resta come RIPIEGO, per quando `bsi-nmr.js` non e'
+   stato caricato — il Centro spettroscopico deve continuare a funzionare da
+   solo. Ma finche' il motore buono c'e', comanda lui: due predittori per la
+   stessa cosa vogliono dire che uno riceve le correzioni e l'altro no, e chi
+   guarda lo spettro non sa quale sta vedendo. */
 function picchiH(RD, mol){
+  if (typeof window !== 'undefined' && window.BSINMR && window.BSINMR.predici) {
+    try {
+      var smi = mol.get_smiles();
+      var r = window.BSINMR.predici(smi, { nucleo: '1H' });
+      if (r && !r.errore && r.segnali && r.segnali.length) {
+        return r.segnali.map(function (s) {
+          return { ppm: s.ppm, mult: s.molteplicita || 'm', nH: s.nH,
+                   lbl: s.etichetta, atomi: s.atomi };
+        });
+      }
+    } catch (e) { /* si ripiega sulla tabella locale */ }
+  }
+  return picchiHLocali(RD, mol);
+}
+
+function picchiHLocali(RD, mol){
   var conta = {};
   SMARTS_H.forEach(function(r){
     try{

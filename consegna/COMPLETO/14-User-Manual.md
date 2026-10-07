@@ -245,4 +245,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v188`._
+_Guida aggiornata alla versione `bsi-v189`._

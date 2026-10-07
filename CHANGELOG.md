@@ -7,6 +7,121 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v189] — 2026-10-07
+
+Le tabelle di stima **intere**, al posto del riassunto che c'era.
+
+### Il problema: un riassunto che non diceva di esserlo
+
+`bsi-nmr.js` conteneva venticinque incrementi benzenici scelti a mano,
+venticinque «valori di classe» per i carboni sp3, tredici incrementi β/γ e
+quattro correzioni steriche su sedici. Erano un **riassunto** di tabelle molto
+più grandi, e il riassunto funzionava finché la molecola somigliava a quelle su
+cui era stato scritto. Dove non arrivava, il predittore non lo diceva: restituiva
+il valore del composto nudo e basta.
+
+In concreto: **ogni H aromatico usciva a 7,26 ppm** — che l'anello portasse un
+nitro o un metossile. Ogni H vinilico a 5,35. Il nitrobenzene e l'anisolo, che
+in uno spettro vero si distinguono a colpo d'occhio (8,22/7,70/7,55 contro
+6,89/7,27/6,93), uscivano identici.
+
+### Che cosa c'è ora
+
+Nuovo modulo **`bsi-pretsch.js`**: solo numeri, trascritti riga per riga da
+Pretsch–Bühlmann–Badertscher, *Structure Determination of Organic Compounds*,
+4ª ed., Springer — §4.1 (pp. 82-84), §4.5 (pp. 100-102), §5.1 (p. 170),
+§5.2 (pp. 178-179), §5.3 (p. 182), §5.5 (pp. 188-189).
+
+| tabella | righe | formula |
+|---|---|---|
+| ¹³C benzeni monosostituiti | 91 | δ = 128,5 + Σ Zi |
+| ¹H benzeni monosostituiti | 66 | δ = 7,34 + Σ Zi |
+| ¹H etileni sostituiti | 42 | δ = 5,25 + Zgem + Zcis + Ztrans |
+| ¹H alcani sostituiti | 31 | δ = base(CH₃/CH₂/CH) + ΣZα + ΣZβ |
+| ¹H alchini terminali | 30 | valore diretto per sostituente |
+| ¹³C alifatici | 24 | δ = −2,3 + Σ Zi + Σ Sj |
+| correzioni steriche Sj | 4×4 | per grado del C osservato e dell'atomo α |
+| ¹J(C,H) | 24 | J = 125,0 + Σ Zi |
+
+Sta in un file suo perché si possa **controllare contro la pagina stampata**
+senza leggere il codice che lo usa; `bsi-nmr.js` non contiene più numeri, solo
+il ragionamento che li applica.
+
+### Tre capacità che prima non c'erano
+
+**Gli H aromatici si spostano.** δ = 7,34 + Σ Zi, con la posizione ricavata
+camminando l'anello. Misurato: anisolo 6,90/7,29/6,94 contro 6,89/7,27/6,93;
+fenolo 6,83/7,24/6,93 contro 6,84/7,24/6,94; benzaldeide 7,88/7,53/7,63 contro
+7,88/7,52/7,60.
+
+**Un =CH₂ terminale dà due segnali.** I suoi due protoni non sono equivalenti:
+uno è *cis* e uno *trans* al sostituente dell'altro carbonio. Nello stirene
+stanno a 5,74 e 5,23 — mezzo ppm — e darne uno solo vuol dire sbagliarne almeno
+uno. Escono come due voci sullo stesso atomo, etichettate. Previsti 5,61 e 5,18.
+L'etilene, che non ha niente di fronte, continua a darne **uno**.
+
+**I cicloalcani diventano composti di riferimento.** È il metodo che la fonte
+stessa descrive (p. 83): si parte dallo spostamento misurato del parente e si
+aggiunge solo ciò che è cambiato. Prima c'era un valore fisso per dimensione
+d'anello, e funzionava finché l'anello era nudo.
+
+### Lo scarto, misurato di nuovo
+
+| | prima (v188) | ora |
+|---|---|---|
+| ¹³C, taratura (9 molecole) | 1,47 ppm | **0,71 ppm** |
+| **¹³C, validazione (22 molecole)** | **1,56 ppm** | **0,92 ppm** |
+| ¹³C, caso peggiore | 15,0 ppm (cicloesanone) | **4,9 ppm** |
+| ¹H (14 molecole) | 0,10 ppm | **0,06 ppm** |
+| ¹H, soli aromatici | — | **0,03 ppm** |
+
+Le soglie del banco si stringono con il predittore: 2,0 → 1,3 ppm per il ¹³C,
+0,5 → 0,15 ppm per il ¹H, più una soglia nuova sul caso peggiore (6,0 ppm) e una
+sui soli aromatici ¹H, perché la media generale — tirata dagli alifatici, che
+erano già buoni — li nasconderebbe.
+
+**Quello che resta sbagliato è dichiarato.** Il difenile sbaglia l'ipso di
+4,6 ppm: l'incremento del fenile della tabella (Z₁ = 8,1) non lo descrive, e
+**non è stato ritoccato** per farlo tornare — ritoccare un numero trascritto
+perché una molecola di validazione non torna è esattamente il modo di rendere
+quel 0,92 una bugia. Gli eterocicli saturi (THF, piperidina) non hanno un
+composto di riferimento in tabella e restano la previsione meno affidabile.
+
+### Cinque difetti trovati misurando
+
+Nessuno di questi era visibile leggendo il codice: li ha trovati il banco.
+
+- **L'ossidrile dell'acido contato due volte.** La riga del carbossile era
+  scritta `[CX3;$(...)]=[OX1]` e lasciava fuori l'OH: quell'ossigeno restava
+  libero, la riga generica dell'etere se lo prendeva, e il CH₂ dell'acido
+  propanoico riceveva l'incremento α del COOH (+20,1) **più** quello β di un
+  etere (+10,1). Usciva a 37,0 contro i 27,6 misurati. Una riga troppo stretta
+  sbaglia quanto una troppo larga.
+- **L'estere visto da un lato solo.** Dal lato alcolico vale 56,5 in α, dal lato
+  acilico 22,6: trentaquattro ppm di differenza per lo stesso gruppo di tre
+  atomi. L'OCH₂ dell'acetato di etile usciva a 29,4 invece di 60,4. Ora il lato
+  si sceglie in base a quale atomo del gruppo è più vicino.
+- **Le corrispondenze rese uniche per insieme di atomi.** `get_substruct_matches`
+  restituisce *una* orientazione per ogni insieme: per `[CX3]=[CX3]` sullo
+  stirene il capo era un carbonio solo, e l'altro non risultava mai capo dello
+  schema. Lo stirene perdeva l'incremento del vinile su tutti e cinque gli H
+  aromatici. Gli schemi si chiedono ora in forma ricorsiva, `[$(...)]`, che
+  prova ogni atomo per conto suo.
+- **Le righe «X–fenile» pescavano nell'anello che stavano sostituendo.** `[OX2][c]`
+  descrive un ossigeno legato a un aromatico — e l'anello da sostituire *è*
+  aromatico, quindi l'OCH₃ dell'anisolo veniva classificato come O–fenile.
+  Ortho e para sbagliavano di 0,15 ppm ciascuno. Ora quelle righe pretendono
+  **due** vicini aromatici.
+- **Il vicino di un carbonio di giunzione trattato come sostituente.** Il
+  criterio «sta in due anelli» protegge i C4a/C8a del naftalene ma non i loro
+  vicini: il C8 regalava al C8a l'incremento ipso di un fenile, 147,5 invece di
+  133,5. Il criterio giusto è che l'anello di quel vicino **condivida un legame**
+  con questo.
+
+E uno trovato guardando l'indice di colonna: l'orto di ogni benzene
+monosostituito usciva `NaN`, mentre meta e para si scambiavano fra loro.
+
+---
 ## [bsi-v188] — 2026-10-07
 
 Si disegna la molecola e si ottiene lo spettro ¹H e ¹³C **assegnato atomo per

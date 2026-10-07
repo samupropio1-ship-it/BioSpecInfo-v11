@@ -7,6 +7,121 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v189] — 2026-10-07
+
+Le tabelle di stima **intere**, al posto del riassunto che c'era.
+
+### Il problema: un riassunto che non diceva di esserlo
+
+`bsi-nmr.js` conteneva venticinque incrementi benzenici scelti a mano,
+venticinque «valori di classe» per i carboni sp3, tredici incrementi β/γ e
+quattro correzioni steriche su sedici. Erano un **riassunto** di tabelle molto
+più grandi, e il riassunto funzionava finché la molecola somigliava a quelle su
+cui era stato scritto. Dove non arrivava, il predittore non lo diceva: restituiva
+il valore del composto nudo e basta.
+
+In concreto: **ogni H aromatico usciva a 7,26 ppm** — che l'anello portasse un
+nitro o un metossile. Ogni H vinilico a 5,35. Il nitrobenzene e l'anisolo, che
+in uno spettro vero si distinguono a colpo d'occhio (8,22/7,70/7,55 contro
+6,89/7,27/6,93), uscivano identici.
+
+### Che cosa c'è ora
+
+Nuovo modulo **`bsi-pretsch.js`**: solo numeri, trascritti riga per riga da
+Pretsch–Bühlmann–Badertscher, *Structure Determination of Organic Compounds*,
+4ª ed., Springer — §4.1 (pp. 82-84), §4.5 (pp. 100-102), §5.1 (p. 170),
+§5.2 (pp. 178-179), §5.3 (p. 182), §5.5 (pp. 188-189).
+
+| tabella | righe | formula |
+|---|---|---|
+| ¹³C benzeni monosostituiti | 91 | δ = 128,5 + Σ Zi |
+| ¹H benzeni monosostituiti | 66 | δ = 7,34 + Σ Zi |
+| ¹H etileni sostituiti | 42 | δ = 5,25 + Zgem + Zcis + Ztrans |
+| ¹H alcani sostituiti | 31 | δ = base(CH₃/CH₂/CH) + ΣZα + ΣZβ |
+| ¹H alchini terminali | 30 | valore diretto per sostituente |
+| ¹³C alifatici | 24 | δ = −2,3 + Σ Zi + Σ Sj |
+| correzioni steriche Sj | 4×4 | per grado del C osservato e dell'atomo α |
+| ¹J(C,H) | 24 | J = 125,0 + Σ Zi |
+
+Sta in un file suo perché si possa **controllare contro la pagina stampata**
+senza leggere il codice che lo usa; `bsi-nmr.js` non contiene più numeri, solo
+il ragionamento che li applica.
+
+### Tre capacità che prima non c'erano
+
+**Gli H aromatici si spostano.** δ = 7,34 + Σ Zi, con la posizione ricavata
+camminando l'anello. Misurato: anisolo 6,90/7,29/6,94 contro 6,89/7,27/6,93;
+fenolo 6,83/7,24/6,93 contro 6,84/7,24/6,94; benzaldeide 7,88/7,53/7,63 contro
+7,88/7,52/7,60.
+
+**Un =CH₂ terminale dà due segnali.** I suoi due protoni non sono equivalenti:
+uno è *cis* e uno *trans* al sostituente dell'altro carbonio. Nello stirene
+stanno a 5,74 e 5,23 — mezzo ppm — e darne uno solo vuol dire sbagliarne almeno
+uno. Escono come due voci sullo stesso atomo, etichettate. Previsti 5,61 e 5,18.
+L'etilene, che non ha niente di fronte, continua a darne **uno**.
+
+**I cicloalcani diventano composti di riferimento.** È il metodo che la fonte
+stessa descrive (p. 83): si parte dallo spostamento misurato del parente e si
+aggiunge solo ciò che è cambiato. Prima c'era un valore fisso per dimensione
+d'anello, e funzionava finché l'anello era nudo.
+
+### Lo scarto, misurato di nuovo
+
+| | prima (v188) | ora |
+|---|---|---|
+| ¹³C, taratura (9 molecole) | 1,47 ppm | **0,71 ppm** |
+| **¹³C, validazione (22 molecole)** | **1,56 ppm** | **0,92 ppm** |
+| ¹³C, caso peggiore | 15,0 ppm (cicloesanone) | **4,9 ppm** |
+| ¹H (14 molecole) | 0,10 ppm | **0,06 ppm** |
+| ¹H, soli aromatici | — | **0,03 ppm** |
+
+Le soglie del banco si stringono con il predittore: 2,0 → 1,3 ppm per il ¹³C,
+0,5 → 0,15 ppm per il ¹H, più una soglia nuova sul caso peggiore (6,0 ppm) e una
+sui soli aromatici ¹H, perché la media generale — tirata dagli alifatici, che
+erano già buoni — li nasconderebbe.
+
+**Quello che resta sbagliato è dichiarato.** Il difenile sbaglia l'ipso di
+4,6 ppm: l'incremento del fenile della tabella (Z₁ = 8,1) non lo descrive, e
+**non è stato ritoccato** per farlo tornare — ritoccare un numero trascritto
+perché una molecola di validazione non torna è esattamente il modo di rendere
+quel 0,92 una bugia. Gli eterocicli saturi (THF, piperidina) non hanno un
+composto di riferimento in tabella e restano la previsione meno affidabile.
+
+### Cinque difetti trovati misurando
+
+Nessuno di questi era visibile leggendo il codice: li ha trovati il banco.
+
+- **L'ossidrile dell'acido contato due volte.** La riga del carbossile era
+  scritta `[CX3;$(...)]=[OX1]` e lasciava fuori l'OH: quell'ossigeno restava
+  libero, la riga generica dell'etere se lo prendeva, e il CH₂ dell'acido
+  propanoico riceveva l'incremento α del COOH (+20,1) **più** quello β di un
+  etere (+10,1). Usciva a 37,0 contro i 27,6 misurati. Una riga troppo stretta
+  sbaglia quanto una troppo larga.
+- **L'estere visto da un lato solo.** Dal lato alcolico vale 56,5 in α, dal lato
+  acilico 22,6: trentaquattro ppm di differenza per lo stesso gruppo di tre
+  atomi. L'OCH₂ dell'acetato di etile usciva a 29,4 invece di 60,4. Ora il lato
+  si sceglie in base a quale atomo del gruppo è più vicino.
+- **Le corrispondenze rese uniche per insieme di atomi.** `get_substruct_matches`
+  restituisce *una* orientazione per ogni insieme: per `[CX3]=[CX3]` sullo
+  stirene il capo era un carbonio solo, e l'altro non risultava mai capo dello
+  schema. Lo stirene perdeva l'incremento del vinile su tutti e cinque gli H
+  aromatici. Gli schemi si chiedono ora in forma ricorsiva, `[$(...)]`, che
+  prova ogni atomo per conto suo.
+- **Le righe «X–fenile» pescavano nell'anello che stavano sostituendo.** `[OX2][c]`
+  descrive un ossigeno legato a un aromatico — e l'anello da sostituire *è*
+  aromatico, quindi l'OCH₃ dell'anisolo veniva classificato come O–fenile.
+  Ortho e para sbagliavano di 0,15 ppm ciascuno. Ora quelle righe pretendono
+  **due** vicini aromatici.
+- **Il vicino di un carbonio di giunzione trattato come sostituente.** Il
+  criterio «sta in due anelli» protegge i C4a/C8a del naftalene ma non i loro
+  vicini: il C8 regalava al C8a l'incremento ipso di un fenile, 147,5 invece di
+  133,5. Il criterio giusto è che l'anello di quel vicino **condivida un legame**
+  con questo.
+
+E uno trovato guardando l'indice di colonna: l'orto di ogni benzene
+monosostituito usciva `NaN`, mentre meta e para si scambiavano fra loro.
+
+---
 ## [bsi-v188] — 2026-10-07
 
 Si disegna la molecola e si ottiene lo spettro ¹H e ¹³C **assegnato atomo per
@@ -145,9 +260,162 @@ invece di indovinarla. La forma della traccia è recuperata, la taratura no.
   grafo senza atomi, da cui usciva uno spettro con zero segnali: un oggetto che
   sembra un risultato e non lo è.
 
+### La categoria Utility passa nel menù ✨
+
+La barra di navigazione aveva sette categorie, e la settima — «🛠️ Utility»
+— raccoglieva diciotto voci che con la chimica non c'entrano: l'assistente, il
+laboratorio, le note, il File Manager, le statistiche, il Pomodoro. Occupava
+una categoria intera accanto a Chimica, Spettroscopia e Farmacologia.
+
+Ora stanno nel menù ✨, in **due blocchi separati**: «🛠️ Utility» con gli
+strumenti, e «🌍 Lingue e linguaggi» con la lingua dell'interfaccia e i
+linguaggi chimici — che non sono uno strumento fra gli altri, sono il modo in
+cui si legge tutto il resto.
+
+**I pulsanti restano nel documento**, nascosti. Cancellarli sarebbe stato più
+pulito a vedersi e sbagliato: decine di punti dell'applicazione aprono una
+sezione con `document.querySelector('[data-s=...]').click()`, e `goSection()`
+fa esattamente quello. Toglierli avrebbe rotto quei collegamenti in silenzio,
+uno per uno. E le **etichette si leggono dai pulsanti** invece di essere
+riscritte: così non diventano stringhe nuove da tradurre in tredici lingue, e
+il menù dice sempre quello che dice la sezione.
+
+#### Il menù giusto non era quello che sembrava
+
+Il primo tentativo agganciava `#bsi105-fab` e `#bsi13-panel`. Esistono ancora
+nel documento, ma sono `display:none` su **ogni** schermo — grande e piccolo.
+Il menù che si vede davvero è `#bsi14-fab` con `#bsi14-panel`. Il banco
+l'ha detto alla prima esecuzione, su entrambe le misure: «il pulsante ✨ c'è
+ed è visibile → false». Senza quel controllo la categoria Utility sarebbe
+finita in un menù che nessuno può aprire — irraggiungibile, come le due
+sezioni delle lingue prima di lei.
+
+Ed è per questo che il banco non si accontenta che il pulsante esista nel DOM:
+`test_menu` gira su **schermo grande e su telefono**, pretende che il ✨ sia
+visibile, che il pannello si apra, che tutte e diciotto le voci ci siano sotto
+l'intestazione giusta, e che cliccandone una la sezione si apra davvero.
+
+### Elucidazione — dai dati alla struttura, senza fare il salto
+
+Nuovo modulo `bsi-elucida.js`, dentro la sezione «Lettore spettri»: si incolla
+quello che si ha — formula molecolare, lista dei picchi di massa, bande IR,
+segnali ¹³C e ¹H — ed esce un **dossier** in cui le **deduzioni** stanno
+separate dalle **supposizioni**.
+
+| deduzione | che cos'è |
+|---|---|
+| gradi di insaturazione (IDI/DBE) | aritmetica: `1 + Σ nᵢ(vᵢ−2)/2`, vale per qualunque elemento |
+| massa monoisotopica attesa per M⁺ | somma degli isotopi più abbondanti |
+| numero di segnali ¹³C distinti | e se sono meno dei carboni della formula, **c'è simmetria** |
+| protoni dalle integrazioni | con l'avviso se non tornano con la formula |
+
+| supposizione | con quale margine |
+|---|---|
+| numero di carboni dal picco **M+1** | `I(M+1)/I(M) × 100 / 1,1`, corretto per N, S, Si |
+| eteroatomo dal picco **M+2** | Cl 32,5 % · Br 97,3 % · S 4,4 % · Si 3,4 % |
+| perdite neutre | 25 voci, da −15 (CH₃) a −59 (COOCH₃) |
+| bande IR, classi ¹³C e ¹H | **tutte** le compatibili, non la prima |
+
+#### Perché non propone una struttura
+
+Dedurla da zero — generare gli isomeri compatibili e ordinarli — si chiama
+CASE, ed è un problema di ricerca, non una funzione. Per C₉H₁₀O₂S ci sono
+migliaia di isomeri, e gli spettri ne escludono molti ma non tutti tranne uno.
+Un programma che ne sputasse una sola darebbe una certezza che i dati non
+contengono.
+
+Quello che fa è **verificare una proposta**: ne prevede gli spettri e li mette
+accanto a quelli osservati, segnale per segnale, dicendo dove casca.
+
+#### I conti verificati contro compiti già corretti
+
+Il banco non usa esempi inventati: usa quesiti di «Metodi Fisici in Chimica
+Organica» con i conti che lo studente ha scritto a mano sul foglio.
+**Dodici formule, dodici IDI giusti** — C₉H₁₀O₂S = 5, C₁₃H₁₇NO₂ = 6,
+C₇H₁₀O₃ = 3, e così via. E il numero di carboni dal M+1: su `M 151 (47,2) ·
+M+1 152 (4,7)` dà **9**, come il calcolo a mano.
+
+Sul confronto fra una struttura **giusta** e una **sbagliata con la stessa
+formula**: 2-etossibenzaldeide 100 contro 30, 4-amminobenzoato di metile 100
+contro 80.
+
+#### Un punteggio basso può voler dire due cose
+
+E confonderle sarebbe il difetto peggiore di uno strumento come questo, perché
+farebbe scartare la risposta giusta. Sul quesito del furano la struttura è
+**corretta** e il punteggio esce **42**: non perché sia sbagliata, ma perché il
+predittore non ha incrementi di posizione per gli **eteroaromatici
+sostituiti** — esistono per il benzene, non li ho per furano, tiofene, pirrolo
+e piridina, e inventarli sarebbe scrivere numeri senza fonte.
+
+Quindi lo strumento dichiara la **fiducia**: «bassa», con il motivo scritto.
+Il banco lo verifica — formula coincidente, punteggio basso, fiducia bassa,
+motivo presente.
+
+Aggiunti intanto i valori di classe ¹³C per gli eteroaromatici **non**
+sostituiti, che prima non c'erano affatto: furano α 142,7 / β 109,6, tiofene,
+pirrolo, piridina. Senza di quelli i carboni del furano uscivano tutti a 128,5.
+
+### Il manuale come fonte: quattro miglioramenti con la pagina accanto
+
+Dal **Manuale di Metodi Fisici in Chimica Organica** sono usciti i numeri che
+mi mancavano. Ognuno è preso da una tabella del testo, non dedotto:
+
+- **Correzioni steriche di Grant–Paul** (§4.7). Lo schema senza correzioni
+  sbaglia sui carboni ramificati: il metile dell'isobutano usciva 25,6 contro
+  i 24,3 sperimentali. Con le quattro correzioni che il manuale enuncia
+  — osservatore 1° con vicino 3°/4° → −1,1 e le altre tre — esce
+  **24,5**, che è esattamente il valore del suo esempio svolto.
+- **Furano sostituito** (§15, caso D). Il manuale dice «furano monosostituito:
+  C–O deschermato ∼150», e il quesito del 23/04/2024 lo conferma con 150,77 e
+  146,05. Il carbonio α che porta un sostituente va quindi a 150, non ai
+  142,7 del furano nudo. Il β non ha un valore dichiarato e **resta quello non
+  sostituito**: dove non c'è una fonte non si inventa un numero.
+- **Cinque perdite neutre in più** (§7.4): −36 (HCl), −56 (C₄H₈, McLafferty
+  degli esteri butilici), −77 (C₆H₅), −81 (HBr), −128 (HI).
+- **Costanti J per geometria** (§7.5): dodici righe al posto di sei, con
+  l'intervallo accanto al valore tipico — cicloesano ax–ax 8–13, aromatico
+  orto 6–10, alchene cis 6–12 contro trans 12–18, J cicliche del furano
+  1,5–3,5.
+
+#### E due difetti che il manuale ha fatto emergere
+
+Provando i suoi cinque problemi svolti, due sbagliavano di 8–10 ppm.
+
+Il **CH₂ in α a un estere** stava a 28 come quello di un acido. Non è lo
+stesso: l'acido propanoico ha il suo a 27,6, il butanoato di etile a **36,2**
+(dal problema svolto). Tenerli insieme sbagliava di 8 ppm sul segnale che dice
+dove sta il carbonile.
+
+E gli **incrementi β misuravano la distanza dall'atomo più vicino del gruppo**
+invece che dal suo ancoraggio. Il gruppo `[OX2][#6]` di un estere etilico
+comprende anche il carbonio OCH₂, legato al metile: la distanza risultava 1
+invece di 2, nessun incremento si applicava, e il metile dell'etile usciva a
+**4,6 ppm invece di 14,3**.
+
+Correggendolo è emerso un **secondo difetto che il primo nascondeva**:
+l'ossigeno di un alcol corrisponde sia a `[OX2H1]` sia a `[OX2][#6]`, e
+prendeva **due** incrementi per la stessa ragione — il metile dell'etanolo
+saliva a 24,8 invece di 18,2. Le righe ora si escludono a vicenda.
+
+#### Il risultato, misurato
+
+| | prima | ora |
+|---|---|---|
+| scarto medio su 23 molecole di letteratura | 1,96 ppm | **1,47 ppm** |
+| insieme di validazione | 1,93 ppm | **1,56 ppm** |
+| conteggi di segnali corretti | 17/18 | **22/23** |
+| cricca del banco | 2,5 ppm | **2,0 ppm** |
+
+I cinque problemi svolti del manuale sono entrati nell'insieme di
+validazione: sono i casi che lo studente deve saper risolvere, e quindi la
+misura giusta su cui farsi giudicare. La soglia si è stretta perché lasciarla
+a 2,5 permetterebbe al predittore di tornare indietro senza che nessuno se ne
+accorga.
+
 ### Banchi
 
-Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
+Nuovo `test_elucida` (28 controlli). Nuovo `test_menu` (36 controlli su due viewport). Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
 conteggio dei segnali su otto molecole, i rifiuti, e il pannello provato
 nell'applicazione — clic su una riga, atomi illuminati, passaggio fra ¹H e
 ¹³C sulla stessa molecola. `test_spettrolettore` sale a 45 con la lettura da

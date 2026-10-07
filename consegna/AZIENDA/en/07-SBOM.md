@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v188` |
-| Commit | `ec2aee80ff59b3b2d787f87d19aabbea60979f38` |
-| Generated (UTC) | `2026-10-07T08:14:48.778Z` |
+| Application version | `bsi-v189` |
+| Commit | `40c00f56e8cd3c0387ef2a0851d61c7f919eb2d0` |
+| Generated (UTC) | `2026-10-07T16:54:05.524Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -56,11 +56,12 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4689 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4690 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
-| `bsi-spettri.js` | 33 kB | IR/NMR spectral prediction engine over the molecular graph. |
+| `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
-| `bsi-nmr.js` | 43 kB | Per-atom ¹H and ¹³C NMR prediction: benzene-ring substituent increments, Grant–Paul on sp3 carbons, chemical equivalence by environment code. |
+| `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
+| `bsi-nmr.js` | 56 kB | Per-atom ¹H and ¹³C NMR prediction: applies the bsi-pretsch.js tables by walking the ring and measuring distances, with a cyclic reference compound and chemical equivalence by environment code. |
 | `bsi-moldraw.js` | 29 kB | Interactive NMR spectrum: zoom, assignment table, peak↔atom link, CSV/JCAMP-DX/PNG exports. |
 | `bsi-spettrolettore.js` | 53 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 41 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
@@ -77,18 +78,19 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `f235344411186685578d3ca1c4e890df412310dcba58e4a810b65c1a61c64f8a` |
+| `index.html` | `967111a607a00049217685c40b9db62707fb8c0105a4e49c1cf466cb62597451` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
-| `bsi-spettri.js` | `1eaf605c2d93f00c3edaa843de504c8d6625131b75d8bb4a0bef8d9b767b49bd` |
+| `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
-| `bsi-nmr.js` | `c593fea83ad061f9d31119672f06e949596a5021bc0ac56ed9df0b0216cffbca` |
+| `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
+| `bsi-nmr.js` | `c090d614ed5d7ed1fb958f6efec1fc4021cdc7b0f4fd6e1ca89bba167528d259` |
 | `bsi-moldraw.js` | `c2c2a4cc258215a28b64ac3b06ed60befa343db930964be4a7f3360064c1f30e` |
 | `bsi-spettrolettore.js` | `dbdc79aa8e6fc14d26ae9633f15598eb7121efd6e1cf0118e5b9ff99681c567c` |
 | `bsi-mol3d.js` | `beb85c594db8e21bd1653ac6923989375a729d163b2749c6259ee48e05501ca9` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `04a33a90a14c6536e853e5133cf491ac28033bc41997c29cde8f2e548a6da4c3` |
+| `sw.js` | `83edcea62f21e8a315560127f7f798fa1256561c25998f873337f011f16fefe4` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -141,4 +143,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-07T08:14:48.778Z._
+_Generated on 2026-10-07T16:54:05.524Z._

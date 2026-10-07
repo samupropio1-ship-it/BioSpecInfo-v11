@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v188` |
+| **Version described** | `bsi-v189` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v188` the bench also fails in the opposite case: an entry listed in the
+`bsi-v189` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -558,6 +558,63 @@ formula's additive term is missing.
 | Charges are **not** neutralised and tautomers not canonicalised | MinimalLib does not allow it (§3-quater.1). A set mixing neutral and ionic forms of the same molecule counts them as distinct entries |
 | The SAR table's core must be **supplied** | No MCS available. The panel proposes nothing automatically, because a wrong proposal is worse than no proposal |
 
+### 3.6 Per-atom NMR prediction: the source and the measured deviation
+
+The ¹H/¹³C predictor that assigns every signal to an ATOM (`bsi-nmr.js`)
+contains no numbers. The estimation tables live in **`bsi-pretsch.js`**,
+transcribed line by line from:
+
+> E. Pretsch, P. Bühlmann, M. Badertscher, *Structure Determination of Organic
+> Compounds — Tables of Spectral Data*, 4th ed., Springer.
+> §4.1 pp. 82-84 · §4.5 pp. 100-102 · §5.1 p. 170 · §5.2 pp. 178-179 ·
+> §5.3 p. 182 · §5.5 pp. 188-189
+
+They sit in a separate file so they can be **checked against the printed page**
+without reading the code that uses them, and so a wrong line is fixed in one
+place only.
+
+| scheme | formula | rows |
+|---|---|---|
+| monosubstituted benzenes, ¹³C | δ = 128.5 + Σ Zi | 91 |
+| monosubstituted benzenes, ¹H | δ = 7.34 + Σ Zi | 66 |
+| substituted ethylenes, ¹H | δ = 5.25 + Zgem + Zcis + Ztrans | 42 |
+| substituted alkanes, ¹H | δ = base(CH₃/CH₂/CH) + ΣZα + ΣZβ | 31 |
+| terminal alkynes, ¹H | direct value per substituent | 30 |
+| aliphatics, ¹³C | δ = −2.3 + Σ Zi + Σ Sj | 24 |
+| steric corrections Sj | by degree of the observed C and of the α atom | 4×4 |
+
+**The deviation is measured, on molecules that did not choose the parameters.**
+The test molecules are split into two sets: *tuning*, used to choose values and
+rules, and *validation*, never used for that. The figure declared in the
+application's panel is the validation one.
+
+| | measured mean deviation |
+|---|---|
+| ¹³C, tuning (9 molecules) | 0.71 ppm |
+| **¹³C, validation (22 molecules)** | **0.92 ppm** |
+| ¹³C, worst case | 4.9 ppm (cyclohexanone) |
+| ¹H (14 molecules) | 0.06 ppm |
+| ¹H, aromatics only | 0.03 ppm |
+
+The bench (`test_nmr`, 44 checks) also requires validation to stay **worse**
+than tuning: were they to become equal it would mean a molecule had been moved
+from one set to the other, and the figure would no longer say anything.
+
+**What is still wrong has not been corrected after the fact.** Biphenyl misses
+its ipso carbon by 4.6 ppm, because the table's phenyl increment (Z₁ = 8.1) does
+not describe it. That number **has not been adjusted**: changing a transcribed
+value because a validation molecule does not fit is exactly how the 0.92 ppm
+declared above would become a lie.
+
+**Declared limits.** This is not a quantum calculation: it does not predict
+solvent effects, does not distinguish conformers (the source's conformational
+corrections K are transcribed but evaluate to 0, because conformation cannot be
+derived from a SMILES) and does no two-dimensional NMR. Coupling constants come
+from a table of **typical** values by geometric relationship, not calculated.
+**Substituted heteroaromatics** have, in this source, no positional increment
+table as benzenes do: they remain the module's least reliable prediction, and
+the elucidation tool declares it by lowering the confidence when it meets one.
+
 ---
 
 ## 4. Physical constants and tabulated data
@@ -601,7 +658,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v188` the residual errors on the drug database are **zero**: the 21
+`bsi-v189` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -610,4 +667,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v188`._
+_Document updated to version `bsi-v189`._

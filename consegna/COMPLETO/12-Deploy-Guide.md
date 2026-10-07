@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v188` |
+| **Versione descritta** | `bsi-v189` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -307,4 +307,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v188`._
+_Documento aggiornato alla versione `bsi-v189`._

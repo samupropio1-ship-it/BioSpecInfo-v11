@@ -25,7 +25,20 @@ const { chromium } = require('playwright-core');
   await pg.goto('http://127.0.0.1:8899/index.html',{waitUntil:'load'});
   await pg.waitForTimeout(2400);
   await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
-  await pg.waitForTimeout(1100);
+  /* Si ASPETTA il nucleo invece di contare 1100 ms. Con un'attesa a tempo il
+     banco passava da solo e falliva dentro la batteria, dove il server locale
+     serve piu' browser insieme e l'hub si apre piu' tardi: `getElementById`
+     restituiva null e il banco moriva con un TypeError invece di dire che
+     cosa mancava. Un banco che fallisce solo sotto carico insegna a
+     rilanciare finche' non diventa verde, che e' il modo peggiore di
+     fallire. Se davvero non arriva, l'attesa scade e lo dice. */
+  try {
+    await pg.waitForSelector('#bsi-nucleo', { state:'attached', timeout:30000 });
+  } catch(e) {
+    console.log('  ✗ il nucleo non è comparso entro 30 s dall\'apertura dell\'hub');
+    await b.close();
+    process.exit(1);
+  }
   let ok=0,ko=0;
   const att=(d,a,v)=>{ if(String(a)===String(v)){ok++;console.log('  ✓ '+d+'  → '+v);} else {ko++;console.log('  ✗ '+d+'\n      atteso: '+a+'\n      avuto:  '+v);} };
 

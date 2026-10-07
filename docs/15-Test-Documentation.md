@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v188` |
+| **Versione descritta** | `bsi-v189` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -145,7 +145,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > parametri sulle stesse molecole su cui poi si misura l'errore. Il numero che
 > esce dice allora quanto bene lo schema ricorda i propri esempi.
 > `test_nmr` tiene due insiemi separati: **taratura** (9 molecole, scarto 0,56
-> ppm) e **validazione** (17 molecole mai usate per quello, **1,93 ppm**). Il
+> ppm) e **validazione** (22 molecole mai usate per quello, **0,92 ppm**). Il
 > valore dichiarato nel pannello è il secondo. E il banco pretende che la
 > validazione resti **peggiore** della taratura: se un giorno fossero uguali,
 > vorrebbe dire che qualcuno ha spostato una molecola da un insieme all'altro,
@@ -206,7 +206,7 @@ fuori dallo schermo.
 Dopo le correzioni: cambio mediano **16 ms**, peggiore **87 ms**, **nessuna
 sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
 
-Alla versione `bsi-v188` lo stesso banco ha intercettato due cose. La prima:
+Alla versione `bsi-v189` lo stesso banco ha intercettato due cose. La prima:
 con 263 farmaci invece di 233, «Farmacologia» bloccava la pagina **159 ms** e le
 sezioni oltre i 100 ms tornavano a essere **tre** — la batteria era passata per
 un soffio la volta prima, e un limite superato a intermittenza non protegge
@@ -603,7 +603,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 92 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 302 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 307 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -622,4 +622,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v188`._
+_Documento aggiornato alla versione `bsi-v189`._

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v188` |
+| **Versione descritta** | `bsi-v189` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -49,7 +49,7 @@
 | **SCI-25** | Una banda deve essere dichiarata *compatibile con*, mai assegnata a una sola possibilità | `BANDE_IR` — 24 intervalli, `assegnaIR()` restituisce **tutte** le assegnazioni compatibili | `test_spettrolettore` — a 1715 cm⁻¹ compaiono sia C=O chetonico sia C=O di acido carbossilico; la sezione dichiara di non dedurre la struttura |
 | **SCI-26** | Un modello pubblicato va verificato contro il **suo** errore dichiarato, e un modello appreso contro il caso | `bsi-cheminfo.js` §10 — ESOL (Delaney 2004) con incertezza, quattro filtri di drug-likeness separati, foresta casuale con errore fuori sacco | `test_spettrolettore` §4-5 — ESOL contro quattro valori sperimentali, scarto medio **0,68** entro l'errore dichiarato di ~1 unità logaritmica; foresta R² fuori sacco **0,90** su una relazione non lineare e **−0,16** su puro rumore; deterministica a parità di seme e diversa con seme diverso |
 | **SCI-27** | Una struttura senza fonte non deve entrare, nemmeno quando la si conosce | raccolta da ChEMBL, `tools/dati/farmaci_v187.json` con l'identificativo di ogni voce | **Due rifiuti**: ivermectina (`structure_type NONE`, miscela di omologhi) e semaglutide (proteina, `SEQ`). E due nomi tenuti con il nome del **record** e non della domanda: «morphine» → apomorfina, «levothyroxine» → liotironina |
-| **SCI-28** | Uno spettro previsto deve dire QUALI atomi producono ogni segnale, e lo scarto va misurato su molecole che non hanno scelto i parametri | `bsi-nmr.js` — incrementi di sostituente sull'anello benzenico con la posizione ricavata camminando l'anello, Grant–Paul con incrementi β/γ sugli sp3, valori di classe per carbonili, nitrili, alcheni, cicloalcani; equivalenza chimica per codice d'intorno a gusci | `test_nmr` — **26 controlli**. Due insiemi separati: taratura **0,56 ppm** su 9 molecole, **validazione 1,93 ppm** su 17 mai usate per tarare, ¹H **0,10 ppm**. Il banco pretende che la validazione resti **peggiore** della taratura: se diventassero uguali, qualcuno avrebbe spostato una molecola fra i due insiemi |
+| **SCI-28** | Uno spettro previsto deve dire QUALI atomi producono ogni segnale, e lo scarto va misurato su molecole che non hanno scelto i parametri | `bsi-pretsch.js` — le tabelle di stima trascritte intere dalla fonte (Pretsch 4ª ed.: 91 righe ¹³C e 66 ¹H per i benzeni, 42 per gli etileni, 31 per gli alcani, 24 per gli alifatici ¹³C, correzioni steriche 4×4); `bsi-nmr.js` — il ragionamento che le applica: posizione nell'anello ricavata camminando il ciclo, schema additivo con composto di riferimento ciclico, equivalenza chimica per codice d'intorno a gusci | `test_nmr` — **44 controlli**. Due insiemi separati: taratura **0,71 ppm** su 9 molecole, **validazione 0,92 ppm** su 22 mai usate per tarare, caso peggiore **4,9 ppm**, ¹H **0,06 ppm** (0,03 sui soli aromatici). Il banco pretende che la validazione resti **peggiore** della taratura: se diventassero uguali, qualcuno avrebbe spostato una molecola fra i due insiemi |
 | **SCI-29** | Atomi chimicamente equivalenti devono dare UN segnale, non uno per atomo | codice d'intorno a gusci concentrici per distanza (principio dei codici HOSE), con i legami aromatici scritti come tali e non in forma di Kekulé | `test_nmr` — otto molecole di cui si sa quanti segnali danno: benzene **1** (non sei), toluene 5, p-xilene 3, naftalene 3, difenile 4, aspirina 9. Tutte giuste |
 | **SCI-30** | Da un'immagine si può recuperare la FORMA di uno spettro, non la sua taratura | `bsi-spettrolettore.js` §6-bis — estrazione della traccia dai pixel colonna per colonna, sfondo stimato dalla mediana, colonne vuote interpolate | `test_spettrolettore` — su una figura **costruita** con gaussiane a 1715/2950/3400 cm⁻¹ legge **1713/2947/3403** dai soli pixel; **nei due versi**, su un foglio bianco rifiuta invece di inventare una traccia; e dichiara che la scala degli assi non sta nei pixel |
 
@@ -107,7 +107,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 299 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 307 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 92 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -119,7 +119,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v188`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v189`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -186,4 +186,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v188`._
+_Documento aggiornato alla versione `bsi-v189`._

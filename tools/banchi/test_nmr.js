@@ -82,7 +82,10 @@ const VALIDAZIONE = [
   ['butanoato di etile', 'CCCC(=O)OCC', [173.7, 60.2, 36.2, 18.5, 14.3, 13.7]],
   ['isobutano', 'CC(C)C', [25.0, 24.3]]
 ];
-/* ¹H: valori di letteratura in CDCl₃ */
+/* ¹H: valori di letteratura in CDCl₃.
+   Le ultime sei sono la prova delle CAPACITA' NUOVE: fino a ieri ogni H
+   aromatico usciva a 7,26 e ogni H vinilico a 5,35, e queste molecole
+   sarebbero state sbagliate di oltre mezzo ppm su quasi ogni segnale. */
 const PROTONI = [
   ['etanolo', 'CCO', [3.72, 2.60, 1.25]],
   ['acetato di etile', 'CCOC(C)=O', [4.12, 2.04, 1.26]],
@@ -91,8 +94,19 @@ const PROTONI = [
   ['benzene', 'c1ccccc1', [7.26]],
   ['TMS', 'C[Si](C)(C)C', [0.00]],
   ['ciclopropano', 'C1CC1', [0.22]],
-  ['benzaldeide', 'O=Cc1ccccc1', [10.02, 7.88, 7.60, 7.52]]
+  ['benzaldeide', 'O=Cc1ccccc1', [10.02, 7.88, 7.60, 7.52]],
+  ['anisolo', 'COc1ccccc1', [7.27, 6.93, 6.89, 3.80]],
+  ['fenolo', 'Oc1ccccc1', [7.24, 6.94, 6.84, 5.20]],
+  ['nitrobenzene', 'O=[N+]([O-])c1ccccc1', [8.22, 7.70, 7.55]],
+  ['toluene', 'Cc1ccccc1', [7.25, 7.17, 2.32]],
+  ['stirene', 'C=Cc1ccccc1', [7.40, 7.32, 7.25, 6.72, 5.74, 5.23]],
+  ['1-butanolo', 'CCCCO', [3.57, 1.55, 1.39, 0.93]]
 ];
+/* Le molecole su cui si vede se gli H aromatici sono ancora piatti: se il
+   predittore tornasse a dare 7,26 a tutti, lo scarto su queste salirebbe
+   subito sopra la soglia e il banco lo direbbe. Sono un sottoinsieme di
+   PROTONI, misurate a parte perche' la media generale potrebbe nasconderle. */
+const AROMATICI_1H = ['anisolo', 'fenolo', 'nitrobenzene', 'benzaldeide', 'stirene'];
 /* molecole di cui si sa QUANTI segnali ¹³C distinti danno: e' la prova che
    l'equivalenza chimica funziona. Il benzene ne da' UNO, non sei. */
 const QUANTI_SEGNALI = [
@@ -165,6 +179,51 @@ const QUANTI_SEGNALI = [
       const r = window.BSINMR.predici(c[1], { nucleo: '13C' });
       return { nome: c[0], atteso: c[2], avuto: (r && r.segnali) ? r.segnali.length : -1 };
     });
+    /* ── Le prove delle capacita' NUOVE, nei due versi ──────────────────
+       Ognuna dice sia che la cosa funziona dove deve, sia che NON si applica
+       dove non deve. Una tabella di incrementi che si applica dappertutto
+       non e' una tabella, e' un offset. */
+    const nuove = {};
+    const sp = (smi, nuc) => window.BSINMR.predici(smi, { nucleo: nuc || '13C' });
+    const ppmDi = r => (r && r.segnali) ? r.segnali.map(s => s.ppm) : [];
+
+    /* a. gli H aromatici NON sono piu' piatti: il nitrobenzene li ha tutti
+          oltre 7,5 e l'anisolo tutti sotto 7,4 */
+    nuove.nitroMin = Math.min.apply(null, ppmDi(sp('O=[N+]([O-])c1ccccc1', '1H')));
+    nuove.anisoloArMax = Math.max.apply(null,
+      ppmDi(sp('COc1ccccc1', '1H')).filter(x => x > 2));
+    /* e il benzene nudo resta al suo valore di base: nessun incremento */
+    nuove.benzene1H = ppmDi(sp('c1ccccc1', '1H'))[0];
+
+    /* b. un =CH₂ terminale da' DUE segnali, cis e trans; un =CH₂ senza
+          sostituenti di fronte (l'etilene) ne da' uno solo */
+    const st = sp('C=Cc1ccccc1', '1H');
+    nuove.stireneVinilici = st.segnali.filter(s => /vinilic/i.test(s.etichetta)).length;
+    nuove.etilene = ppmDi(sp('C=C', '1H')).length;
+
+    /* c. l'estere visto dai due lati: l'OCH₂ dell'acetato di etile sta a 60,4
+          e il CH₃ acilico a 21,0 — trentanove ppm di distanza con lo stesso
+          gruppo in α */
+    const ae = ppmDi(sp('CCOC(C)=O')).sort((x, y) => y - x);
+    nuove.esterePiuAlto = ae[1];          /* dopo il carbonile */
+    nuove.estereCH3 = ae[2];              /* il più alto fra i restanti */
+
+    /* d. il composto di riferimento ciclico: il cicloesano nudo torna
+          ESATTO per costruzione, e il cicloesanone non eredita il suo valore */
+    nuove.cicloesano = ppmDi(sp('C1CCCCC1'))[0];
+    nuove.cicloesanoneAlfa = ppmDi(sp('O=C1CCCCC1')).sort((x, y) => y - x)[1];
+    /* mentre una catena aperta non passa dal riferimento ciclico */
+    nuove.esano = ppmDi(sp('CCCCCC')).length;
+
+    /* e. la tabella c'e' davvero, ed e' grande: se qualcuno la svuotasse,
+          la predizione continuerebbe a dare numeri senza dirlo */
+    const P = window.BSIPretsch || {};
+    nuove.quanteAr13C = (P.AR13C || []).length;
+    nuove.quanteAr1H = (P.AR1H || []).length;
+    nuove.quanteEtilene = (P.ETILENE1H || []).length;
+    nuove.quanteAlcani = (P.ALCANI1H || []).length;
+    nuove.fonte = (P.fonte || '').slice(0, 20);
+
     /* le due prove contrarie: uno SMILES illeggibile non deve inventare uno
        spettro, e un errore non deve restare silenzioso */
     const rotto = window.BSINMR.predici('questo non e uno smiles', { nucleo: '13C' });
@@ -175,7 +234,8 @@ const QUANTI_SEGNALI = [
       protoni: h,
       conta: conta,
       rotto: rotto === null ? 'null' : (rotto.errore ? 'errore' : ('segnali:' + rotto.segnali.length)),
-      vuoto: vuoto === null ? 'null' : 'oggetto'
+      vuoto: vuoto === null ? 'null' : 'oggetto',
+      nuove: nuove
     };
   }, { TARATURA, VALIDAZIONE, PROTONI, QUANTI_SEGNALI });
 
@@ -198,8 +258,12 @@ const QUANTI_SEGNALI = [
      CH₂ in α distinto fra acido ed estere e le sovrapposizioni tolte fra gli
      incrementi, è sceso a 1,77. Lasciare 2,5 vorrebbe dire permettere al
      predittore di tornare indietro senza che nessuno se ne accorga. */
-  sotto('lo scarto medio sulla validazione sta nel valore dichiarato', 2.0,
+  sotto('lo scarto medio sulla validazione sta nel valore dichiarato', 1.3,
         +mis.validazione.medio.toFixed(2));
+  /* e il caso peggiore: era 15,0 ppm (cicloesanone, che prendeva il valore
+     del cicloesano nudo). Con il composto di riferimento ciclico è 4,9. */
+  sotto('  · e il caso peggiore sta nel valore dichiarato', 6.0,
+        +mis.validazione.peggiore.toFixed(1));
   /* E la guardia opposta: la validazione deve restare PEGGIORE della
      taratura. Se diventasse migliore o uguale, qualcuno avrebbe spostato
      molecole da un insieme all'altro e il numero non direbbe piu' niente. */
@@ -212,10 +276,57 @@ const QUANTI_SEGNALI = [
   const mh = mis.protoni.filter(x => !x.errore);
   mis.protoni.forEach(function (x) {
     if (x.errore) console.log('      ! ' + x.nome + ' → ' + x.errore);
+    else console.log('      ' + x.nome.padEnd(20) + ' medio ' + x.med.toFixed(3));
   });
   att('nessuna molecola ¹H fallisce', 0, mis.protoni.length - mh.length);
   const medioH = mh.reduce((a, x) => a + x.med, 0) / mh.length;
-  sotto('lo scarto medio ¹H sta nel valore dichiarato', 0.5, +medioH.toFixed(2));
+  /* La soglia si STRINGE quando il predittore migliora. Era 0,5 quando i
+     valori ¹H erano ventiquattro intorni fissi; con le tabelle di Pretsch lo
+     scarto misurato è sceso a 0,08 su quattordici molecole, aromatici e
+     vinilici compresi. Lasciarla a 0,5 vorrebbe dire permettere al
+     predittore di tornare indietro senza che nessuno se ne accorga. */
+  sotto('lo scarto medio ¹H sta nel valore dichiarato', 0.15, +medioH.toFixed(2));
+  /* E separatamente gli aromatici, che prima erano tutti a 7,26: la media
+     generale, tirata dagli alifatici che erano già buoni, li nasconderebbe. */
+  const mAr = mh.filter(x => AROMATICI_1H.indexOf(x.nome) >= 0);
+  att('le molecole aromatiche ¹H sono tutte misurate', AROMATICI_1H.length, mAr.length);
+  const medioAr = mAr.reduce((a, x) => a + x.med, 0) / mAr.length;
+  sotto('  · e il loro scarto sta nel valore dichiarato', 0.15, +medioAr.toFixed(2));
+
+  /* ── §2-bis · Le capacità nuove, nei due versi ──────────────────────────── */
+  console.log('\n── Le capacità nuove ──');
+  const N = mis.nuove;
+  /* a. gli incrementi aromatici ¹H: dove devono spostare, e dove no */
+  att('il nitrobenzene ha TUTTI gli H aromatici oltre 7,5', true, N.nitroMin > 7.5);
+  console.log('      (il più schermato a ' + N.nitroMin + ')');
+  att('l’anisolo li ha TUTTI sotto 7,4', true, N.anisoloArMax < 7.4);
+  console.log('      (il più deschermato a ' + N.anisoloArMax + ')');
+  att('e il benzene nudo resta al valore di base, senza incrementi',
+      7.34, N.benzene1H);
+  /* b. il =CH₂ terminale: due segnali quando c'è qualcosa di fronte, uno no */
+  att('lo stirene dà TRE segnali vinilici (CH, =CH₂ cis, =CH₂ trans)',
+      3, N.stireneVinilici);
+  att('ma l’etilene, che non ha nulla di fronte, ne dà uno solo', 1, N.etilene);
+  /* c. l'estere dai due lati */
+  att('l’OCH₂ dell’acetato di etile sta oltre 55 ppm', true, N.esterePiuAlto > 55);
+  att('mentre ogni altro suo carbonio sta sotto 25: lo stesso gruppo, due valori',
+      true, N.estereCH3 < 25);
+  console.log('      (' + N.esterePiuAlto + ' e ' + N.estereCH3 + ')');
+  /* d. il composto di riferimento ciclico */
+  att('il cicloesano torna esatto per costruzione', 26.9, N.cicloesano);
+  att('ma il cicloesanone NON eredita quel valore sui carboni in α',
+      true, N.cicloesanoneAlfa > 35);
+  console.log('      (α al carbonile: ' + N.cicloesanoneAlfa + ' ppm)');
+  att('e una catena aperta dà i suoi carboni senza riferimento ciclico',
+      3, N.esano);
+  /* e. le tabelle ci sono, e sono quelle grandi */
+  att('la tabella ¹³C dei benzeni ha più di settanta righe', true, N.quanteAr13C > 70);
+  att('la tabella ¹H dei benzeni ha più di cinquanta righe', true, N.quanteAr1H > 50);
+  att('la tabella degli etileni ha più di trenta righe', true, N.quanteEtilene > 30);
+  att('la tabella degli alcani ha più di venticinque righe', true, N.quanteAlcani > 25);
+  att('e la fonte è dichiarata', 'Pretsch, Bühlmann,', N.fonte.slice(0, 18));
+  console.log('      (' + N.quanteAr13C + ' + ' + N.quanteAr1H + ' + ' +
+              N.quanteEtilene + ' + ' + N.quanteAlcani + ' righe)');
 
   console.log('\n── L\'equivalenza chimica ──');
   let sbagliati = 0;
@@ -291,9 +402,9 @@ const QUANTI_SEGNALI = [
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 25) {
+  if (eseguiti < 42) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 25');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 42');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
