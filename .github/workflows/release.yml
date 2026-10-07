@@ -189,8 +189,17 @@ jobs:
             # commit della prima pubblicazione mentre i pacchetti allegati
             # verrebbero da questo: una release con due provenienze diverse e
             # nulla che lo dica. Una release, un commit.
-            gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$VER" \
-              -f sha="$SHA_TAG" -F force=true >/dev/null
+            # Il tag si sposta con git, non con l'API.
+            # `gh api -X PATCH .../git/refs/tags/...` funziona finche' il
+            # movimento e' un AVANZAMENTO: spostare un tag INDIETRO, su un
+            # antenato, viene rifiutato perche' non e' un fast-forward, e il
+            # passo cadeva proprio nel caso che serve a riparare un tag messo
+            # male. `git push --force` su refs/tags/ non ha quel vincolo, e il
+            # token di Actions con `contents: write` lo puo' fare.
+            git tag -f "$VER" "$SHA_TAG"
+            git push --force origin "refs/tags/$VER"
+            echo "tag $VER spostato su $SHA_TAG"
+
           else
             gh release create "$VER" \
               --target "$SHA_TAG" \
