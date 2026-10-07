@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v187` |
+| **Version described** | `bsi-v188` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -391,4 +391,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v187`._
+_Document updated to version `bsi-v188`._

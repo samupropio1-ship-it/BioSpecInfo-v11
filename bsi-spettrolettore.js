@@ -482,7 +482,119 @@
 
   /* ═════════════════════════════════════════════════════════════════════════ */
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     §6-bis · Uno spettro da una IMMAGINE
+
+     Succede spesso di avere lo spettro solo come figura: una fotografia del
+     registratore, un ritaglio da un articolo, lo schermo dello strumento.
+     Qui la traccia si estrae dai PIXEL.
+
+     COME. Si disegna l'immagine su una tela e, colonna per colonna, si cerca
+     la riga piu' SCURA rispetto allo sfondo. Il fondo di uno spettro stampato
+     e' chiaro e la traccia e' scura: la differenza di luminanza e' il segnale.
+     Le colonne dove non c'e' niente di abbastanza scuro restano vuote e
+     vengono interpolate dalle vicine, cosi' un tratteggio o una riga
+     interrotta non spezza la curva.
+
+     CHE COSA NON PUO' FARE, E VA DETTO FORTE.
+     L'immagine non contiene i NUMERI degli assi: una figura non sa di essere
+     fra 4000 e 400 cm⁻¹. La scala la deve dare chi legge, ed e' per questo
+     che la funzione la PRETENDE invece di indovinarla. Se gli estremi sono
+     sbagliati, i picchi usciranno a numeri d'onda sbagliati pur essendo nel
+     posto giusto della figura: la forma e' recuperata, la taratura no. E
+     un'immagine compressa, rigata o con la griglia marcata porta con se' il
+     proprio rumore, che diventa rumore dello spettro.
+     ═════════════════════════════════════════════════════════════════════════ */
+  function daImmagine(immagine, opz) {
+    opz = opz || {};
+    var W = immagine.naturalWidth || immagine.width;
+    var H = immagine.naturalHeight || immagine.height;
+    if (!W || !H) return null;
+    /* si riduce la larghezza se e' enorme: mille colonne bastano a qualunque
+       spettro e tengono la lettura sotto i pochi millisecondi */
+    var LARGO = Math.min(W, opz.colonne || 1000);
+    var ALTO = Math.max(1, Math.round(H * LARGO / W));
+    var tela = document.createElement('canvas');
+    tela.width = LARGO; tela.height = ALTO;
+    var ctx = tela.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(immagine, 0, 0, LARGO, ALTO);
+    var dati;
+    try { dati = ctx.getImageData(0, 0, LARGO, ALTO).data; }
+    catch (e) { return { errore: t('l’immagine viene da un altro dominio e non si può leggere',
+                                   'the image comes from another origin and cannot be read') }; }
+
+    /* luminanza per pixel, e la mediana come stima dello SFONDO */
+    var lum = new Float32Array(LARGO * ALTO);
+    var campione = [];
+    for (var i = 0, k = 0; i < dati.length; i += 4, k++) {
+      var l = 0.2126 * dati[i] + 0.7152 * dati[i + 1] + 0.0722 * dati[i + 2];
+      /* un pixel trasparente e' sfondo */
+      if (dati[i + 3] < 24) l = 255;
+      lum[k] = l;
+      if ((k % 7) === 0) campione.push(l);
+    }
+    campione.sort(function (a2, b2) { return a2 - b2; });
+    var sfondo = campione.length ? campione[Math.floor(campione.length * 0.9)] : 255;
+    var soglia = (opz.soglia !== undefined) ? opz.soglia : (sfondo - 45);
+
+    var riga = new Array(LARGO);
+    for (var x = 0; x < LARGO; x++) {
+      var migliore = -1, piuScuro = soglia;
+      for (var y = 0; y < ALTO; y++) {
+        var v = lum[y * LARGO + x];
+        if (v < piuScuro) { piuScuro = v; migliore = y; }
+      }
+      riga[x] = migliore;
+    }
+    /* le colonne vuote si riempiono interpolando: un tratteggio non deve
+       diventare un buco nella curva */
+    var primi = riga.filter(function (v) { return v >= 0; }).length;
+    if (primi < LARGO * 0.25) {
+      return { errore: t('non ho trovato una traccia abbastanza scura: prova a ritagliare ' +
+                         'la figura o ad aumentare il contrasto',
+                         'no dark enough trace found: try cropping the figure or raising the contrast'),
+               colonneConTraccia: primi, colonne: LARGO };
+    }
+    var ultimo = -1;
+    for (var a2 = 0; a2 < LARGO; a2++) {
+      if (riga[a2] >= 0) {
+        if (ultimo >= 0 && a2 - ultimo > 1) {
+          for (var m = ultimo + 1; m < a2; m++) {
+            riga[m] = riga[ultimo] + (riga[a2] - riga[ultimo]) * (m - ultimo) / (a2 - ultimo);
+          }
+        }
+        ultimo = a2;
+      }
+    }
+    for (var b2 = 0; b2 < LARGO; b2++) if (riga[b2] < 0) riga[b2] = riga[ultimo >= 0 ? ultimo : 0] || 0;
+
+    /* La scala la DEVE dare chi legge: l'immagine non la contiene. */
+    var x0 = (opz.xDa !== undefined) ? +opz.xDa : 0;
+    var x1 = (opz.xA !== undefined) ? +opz.xA : (LARGO - 1);
+    var xs = [], ys = [];
+    for (var c = 0; c < LARGO; c++) {
+      xs.push(x0 + (x1 - x0) * c / (LARGO - 1));
+      /* y si inverte: sulla figura cresce verso il basso */
+      ys.push(ALTO - 1 - riga[c]);
+    }
+    /* se le x vanno all'indietro (IR: 4000 → 400) si riordinano crescenti,
+       perche' tutto il resto del lettore le vuole cosi' */
+    if (xs.length > 1 && xs[0] > xs[xs.length - 1]) { xs.reverse(); ys.reverse(); }
+    return {
+      formato: t('immagine', 'image'), x: xs, y: ys,
+      titolo: opz.titolo || '', tipo: opz.tipo || '',
+      unitaX: opz.unitaX || '', unitaY: t('scurezza (unità arbitrarie)', 'darkness (arbitrary units)'),
+      daImmagine: true, colonne: LARGO, sfondo: Math.round(sfondo), soglia: Math.round(soglia),
+      avviso: t('La scala degli assi non sta nell’immagine: è quella che hai indicato. ' +
+                'La FORMA della traccia è recuperata dai pixel, la TARATURA no.',
+                'The axis scale is not in the image: it is the one you gave. The trace SHAPE ' +
+                'is recovered from the pixels, the calibration is not.')
+    };
+  }
+
   globale.BSILettoreSpettri = {
+    daImmagine: daImmagine,
     leggi: leggi, leggiJCAMP: leggiJCAMP, leggiColonne: leggiColonne,
     decodificaASDF: decodificaASDF,
     trovaPicchi: trovaPicchi, lineaDiBase: lineaDiBase, rumore: rumore,
@@ -597,11 +709,30 @@ t('Dati dello spettro', 'Spectrum data') + '" placeholder="##TITLE=...&#10;1000 
 '<button class="bsiSP-btn" id="bsiSP-go">' + t('Leggi e misura', 'Read and measure') + '</button>' +
 '<input type="file" id="bsiSP-file" accept=".jdx,.dx,.txt,.csv,.jcamp" style="display:none">' +
 '<button class="bsiSP-btn2" id="bsiSP-apri">' + t('📂 Apri un file', '📂 Open a file') + '</button>' +
+'<input type="file" id="bsiSP-img" accept="image/*" style="display:none">' +
+'<button class="bsiSP-btn2" id="bsiSP-apriImg">' + t('🖼️ Apri un’immagine', '🖼️ Open an image') + '</button>' +
 '<button class="bsiSP-btn2" data-es="ir">' + t('esempio IR', 'IR example') + '</button>' +
 '<button class="bsiSP-btn2" data-es="ms">' + t('esempio MS', 'MS example') + '</button>' +
 '<button class="bsiSP-btn2" data-es="nmr">' + t('esempio NMR', 'NMR example') + '</button>' +
 '<button class="bsiSP-btn2" id="bsiSP-pulisci">' + t('Pulisci', 'Clear') + '</button>' +
 '</div></div>' +
+'<div class="bsiSP-card" id="bsiSP-scala" style="display:none"><h4>' +
+  t('La scala dell’immagine', 'The image scale') + '</h4><p>' + t(
+  'Una figura non sa di essere fra 4000 e 400 cm⁻¹: i numeri degli assi non ' +
+  'stanno nei pixel. La <b>forma</b> della traccia si recupera, la <b>taratura</b> ' +
+  'la devi dare tu — e se la sbagli i picchi usciranno a numeri sbagliati pur ' +
+  'essendo nel punto giusto della figura.',
+  'A figure does not know it spans 4000 to 400 cm⁻¹: the axis numbers are not ' +
+  'in the pixels. The trace <b>shape</b> is recovered; the <b>calibration</b> is ' +
+  'yours to give — and if you get it wrong the peaks will come out at wrong ' +
+  'numbers while sitting in the right place on the figure.') + '</p>' +
+'<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">' +
+'<label style="font-size:12px;color:#8aadcc">' + t('x a sinistra', 'x at left') +
+  ' <input class="bsiSP-in" id="bsiSP-x0" style="width:92px;display:inline-block" value="4000"></label>' +
+'<label style="font-size:12px;color:#8aadcc">' + t('x a destra', 'x at right') +
+  ' <input class="bsiSP-in" id="bsiSP-x1" style="width:92px;display:inline-block" value="400"></label>' +
+'<button class="bsiSP-btn" id="bsiSP-rileggiImg">' + t('rileggi l’immagine', 'read the image again') + '</button>' +
+'</div><div id="bsiSP-imgNota" style="font-size:11px;color:#8aadcc;margin-top:6px"></div></div>' +
 '<div id="bsiSP-out"></div>' +
 '<div class="bsiSP-card"><h4>' + t('Che cosa non fa', 'What it does not do') + '</h4><p>' +
 t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
@@ -706,7 +837,7 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
             'estimated noise (median absolute deviation)') + ': <b>' +
           an.sigma.toExponential(2) + '</b> · ' + t('picchi oltre 3σ', 'peaks above 3σ')
         : t('lista di picchi: il rumore non è stimabile da poche righe, e i picchi sono le ' +
-            'righe stesse sopra l\u20191% del massimo',
+            'righe stesse sopra l’1% del massimo',
             'peak list: noise cannot be estimated from a few lines, and the peaks are the ' +
             'lines themselves above 1% of the maximum') + ' · ' + t('picchi', 'peaks')) +
       ': <b>' + an.picchi.length + '</b></p></div>';
@@ -816,6 +947,56 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       r.onload = function () { src.value = r.result; leggiOra(); };
       r.readAsText(f);
     };
+    /* ── l'immagine ────────────────────────────────────────────────────── */
+    var imgFile = document.getElementById('bsiSP-img');
+    var ultimaImmagine = null;
+    function leggiImmagine() {
+      if (!ultimaImmagine) return;
+      var scala = document.getElementById('bsiSP-scala');
+      if (scala) scala.style.display = '';
+      var x0 = parseFloat((document.getElementById('bsiSP-x0') || {}).value);
+      var x1 = parseFloat((document.getElementById('bsiSP-x1') || {}).value);
+      if (!isFinite(x0)) x0 = 0;
+      if (!isFinite(x1)) x1 = 1;
+      var sp = S.daImmagine(ultimaImmagine, { xDa: x0, xA: x1,
+        unitaX: (x0 > x1) ? 'cm-1' : '', titolo: ultimaImmagine.alt || '' });
+      var nota = document.getElementById('bsiSP-imgNota');
+      if (!sp || sp.errore) {
+        if (nota) nota.innerHTML = '<span style="color:#ff6b6b">' +
+          ((sp && sp.errore) || t('immagine non leggibile', 'image not readable')) + '</span>';
+        return;
+      }
+      if (nota) nota.innerHTML = sp.colonne + ' ' +
+        t('colonne lette · sfondo ', 'columns read · background ') + sp.sfondo +
+        ' · ' + t('soglia ', 'threshold ') + sp.soglia + '<br>' + sp.avviso;
+      spettroCorrente = sp;
+      analisiCorrente = S.analizza(sp);
+      rendi(sp, analisiCorrente);
+    }
+    if (imgFile) {
+      var apriImg = document.getElementById('bsiSP-apriImg');
+      if (apriImg) apriImg.onclick = function () { imgFile.click(); };
+      imgFile.onchange = function () {
+        var f = imgFile.files && imgFile.files[0];
+        if (!f) return;
+        var u = URL.createObjectURL(f);
+        var im = new Image();
+        im.onload = function () {
+          ultimaImmagine = im;
+          leggiImmagine();
+          setTimeout(function () { try { URL.revokeObjectURL(u); } catch (e) {} }, 1000);
+        };
+        im.onerror = function () {
+          var nota = document.getElementById('bsiSP-imgNota');
+          if (nota) nota.textContent = t('non sono riuscito ad aprire l\u2019immagine',
+                                         'could not open the image');
+        };
+        im.src = u;
+      };
+      var ril = document.getElementById('bsiSP-rileggiImg');
+      if (ril) ril.onclick = leggiImmagine;
+    }
+
     [].forEach.call(document.querySelectorAll('[data-es]'), function (b) {
       b.onclick = function () {
         src.value = ESEMPI[b.getAttribute('data-es')]();

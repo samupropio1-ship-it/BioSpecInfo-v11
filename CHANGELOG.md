@@ -7,6 +7,153 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v188] — 2026-10-07
+
+Si disegna la molecola e si ottiene lo spettro ¹H e ¹³C **assegnato atomo per
+atomo**; e uno spettro si legge anche da una **fotografia**.
+
+### Predizione NMR assegnata per atomo
+
+Nuovo motore `bsi-nmr.js`. Quello che c'era prevedeva il ¹H contando GRUPPI con
+SMARTS — funziona per disegnare uno spettro, ma non sa DOVE stanno quei protoni:
+non c'è un indice di atomo da nessuna parte, e senza quello cliccare un picco e
+vedere illuminarsi l'atomo corrispondente è impossibile. Il ¹³C non esisteva
+affatto nel motore strutturale: le due schede che lo mostravano — nel Centro
+spettroscopico e nell'editor ChemDraw — lo ricavavano con **espressioni
+regolari sul testo dello SMILES**, otto bande generiche per qualunque molecola
+(«C alifatici 22 ppm», sempre).
+
+Il metodo nuovo è fatto di schemi **pubblicati**, verificabili uno per uno:
+
+- **incrementi di sostituente sull'anello benzenico**, con la posizione
+  (ipso/orto/meta/para) ricavata *camminando l'anello*, non indovinata;
+- **Grant–Paul** per i carboni sp3 di catena, con gli incrementi β e γ dei
+  gruppi funzionali;
+- **valori di classe** per carbonili, nitrili, alcheni, alchini, cicloalcani e
+  per gli sp3 che portano un gruppo funzionale in α.
+
+#### Lo scarto è misurato, e su molecole che non hanno scelto i parametri
+
+Un predittore non si rompe mai: produce sempre dei numeri. Per sapere se
+servono, le molecole sono divise in due insiemi — **taratura** (quelle usate per
+scegliere valori e regole) e **validazione** (mai usate per quello). Il numero
+dichiarato nel pannello è quello della validazione:
+
+| | scarto medio |
+|---|---|
+| ¹³C, taratura (9 molecole) | 0,56 ppm |
+| **¹³C, validazione (17 molecole)** | **1,93 ppm** |
+| ¹H (8 molecole) | 0,10 ppm |
+
+Il banco pretende anche che la validazione resti **peggiore** della taratura: se
+diventassero uguali vorrebbe dire che qualcuno ha spostato una molecola da un
+insieme all'altro, e il numero non direbbe più niente.
+
+Sul toluene lo scarto massimo è **0,1 ppm** (137,8 / 129,2 / 128,4 / 125,6
+contro 137,8 / 129,3 / 128,5 / 125,6). Sul cicloesanone è 15 ppm, ed è
+dichiarato: gli sp3 con intorni complicati restano il punto debole.
+
+### L'equivalenza chimica, che fa tornare i conti
+
+Il benzene ha sei carboni e **un** segnale. Gli atomi equivalenti si
+riconoscono con un codice d'intorno costruito a gusci concentrici — lo stesso
+principio dei codici HOSE. Verificato su otto molecole di cui si sa quanti
+segnali danno: benzene 1, toluene 5, p-xilene 3, naftalene 3, difenile 4,
+aspirina 9. Tutte giuste.
+
+### Lo spettro si può interrogare
+
+Nella scheda ¹³C dell'editor: rettangolo per ingrandire, rotella per
+l'intensità, doppio clic per tornare indietro, **clic su un picco o su una riga
+della tabella per illuminare gli atomi che lo producono** nella struttura
+disegnata accanto. Tabella di assegnazione con etichetta, ppm, integrazione,
+molteplicità (dalla regola n+1 calcolata sul grafo) e costanti di
+accoppiamento. Uscite in **CSV**, **JCAMP-DX** e **PNG**.
+
+Il JCAMP prodotto è una `PEAK TABLE`, non una curva: è quello che una lista di
+segnali previsti è, e scrivere `XYDATA` darebbe l'impressione di una misura.
+
+### Un editor nuovo scritto e buttato
+
+Il primo tentativo ne scriveva uno: tavolozza, legami, anelli, annulla e
+ripeti, menu contestuale. Mille righe, già funzionanti. Sono state buttate,
+perché l'applicazione **ne ha già uno** — l'editor ChemDraw, con i template
+eterociclici (piridina, pirrolo, furano, tiofene, imidazolo), i gruppi
+funzionali pronti, le cariche, il tocco, la cronologia e una libreria di 62
+molecole. Due editor per la stessa cosa significa che uno riceve le correzioni
+e l'altro no, e chi disegna non sa quale usare. Il progetto ha una regola per
+questo: una sola casa per funzione. Quello che mancava non era un posto dove
+disegnare, ma uno spettro che si potesse interrogare.
+
+### Uno spettro da una fotografia
+
+Il lettore di spettri accetta ora anche **immagini**: una foto del
+registratore, un ritaglio da un articolo, lo schermo dello strumento. La
+traccia si estrae dai pixel, colonna per colonna, cercando la riga più scura
+rispetto allo sfondo stimato; le colonne vuote si interpolano, così un
+tratteggio non spezza la curva.
+
+Verificato su una figura **costruita** con gaussiane a 1715, 2950 e 3400 cm⁻¹:
+letti dai soli pixel **1713, 2947 e 3403**. E nei due versi — su un foglio
+**bianco** rifiuta invece di inventare una traccia.
+
+**Quello che non può fare è scritto nel pannello:** l'immagine non contiene i
+numeri degli assi. La scala la deve dare chi legge, e la funzione la *pretende*
+invece di indovinarla. La forma della traccia è recuperata, la taratura no.
+
+### Difetti trovati lungo la strada
+
+- **Il codice d'intorno non era canonico.** Usava una visita in ampiezza con
+  l'insieme dei visitati: su un anello, quale cammino arriva prima a un atomo
+  dipende dall'ordine dei vicini, e questo rompeva la simmetria — il benzene
+  usciva con due segnali, 128,5 su quattro carboni e 128,5 sugli altri due.
+  Ora i gusci si costruiscono per distanza.
+- **La forma di Kekulé rompeva la simmetria dell'anello.** In un singolo
+  Kekulé i due carboni orto del toluene non sono equivalenti — uno è legato
+  all'ipso con un doppio, l'altro con un singolo — e il toluene dava sette
+  segnali invece di cinque. Un legame fra due atomi aromatici ora si scrive
+  «a», e l'aromaticità la decide RDKit.
+- **Gli incrementi dell'anello si sommavano.** Un metile corrisponde sia a
+  `[CX4H3]` (+9,3 ipso) sia al generico `[CX4]` (+9,0): l'ipso del toluene
+  usciva a 146,8 invece di 137,8, esattamente +9 di troppo. Ora ogni
+  sostituente riceve **una sola** regola.
+- **Gli anelli condensati non sono anelli sostituiti.** Nel naftalene i due
+  carboni di condensazione ricevevano l'incremento «ipso fenile» dall'altro
+  anello e uscivano a 152,3 invece di 133,5. Correggendolo troppo — saltando
+  ogni vicino aromatico — si rompeva il **difenile**, dove il fenile è un
+  sostituente vero: tutti e quattro i carboni a 128,5 invece di 141,2 / 128,8 /
+  127,3 / 127,2. Il criterio giusto è stare in **due** anelli.
+- **Doppio conteggio fra Grant–Paul e gli incrementi α.** Grant–Paul conta il
+  carbonio carbonilico come α (+9,1) e poi l'incremento del chetone (+30) lo
+  contava di nuovo: l'acetone dava il metile a 46,2 invece di 30,8.
+- **Un segno sbagliato.** Il β di un carbossile *scherma*: l'acido propanoico
+  ha il CH₃ a 9,0 contro i 15,6 del propano, Δ = −6,6 e non +3.
+- **Uno SMARTS che conteneva entrambi i metili.** `[CX4H3][CX3](=[OX1])[CX4]`
+  su un acetone fa **una** corrispondenza, perché l'insieme di atomi è lo
+  stesso per i due metili e RDKit lo unifica: solo uno riceveva il valore di
+  classe, e il segnale usciva come media fra 30 e 16,2. Tutte le tabelle sono
+  state riscritte con l'atomo di interesse come **unico** atomo del pattern,
+  usando SMARTS ricorsivi.
+- **Un `null` silenzioso.** Quando il predittore lanciava, restituiva `null` e
+  il pannello avrebbe mostrato «nessun segnale» senza dire perché. Gli
+  aromatici fallivano **tutti** per un `cicli is not defined`, e nessuno lo
+  diceva. Ora l'errore torna insieme alla sua pila.
+- **Protoni equivalenti non si sdoppiano.** Il benzene usciva «t» e il
+  ciclopropano «quint»: due singoletti, nei fatti, dichiarati come
+  multipletti.
+- **Una stringa vuota non è una molecola.** RDKit la accetta e restituisce un
+  grafo senza atomi, da cui usciva uno spettro con zero segnali: un oggetto che
+  sembra un risultato e non lo è.
+
+### Banchi
+
+Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
+conteggio dei segnali su otto molecole, i rifiuti, e il pannello provato
+nell'applicazione — clic su una riga, atomi illuminati, passaggio fra ¹H e
+¹³C sulla stessa molecola. `test_spettrolettore` sale a 45 con la lettura da
+immagine. Batteria ufficiale: **55 banchi**.
+
+---
 ## [bsi-v187] — 2026-10-03
 
 Un lettore di spettri che si porta il file, chemioinformatica che stima la

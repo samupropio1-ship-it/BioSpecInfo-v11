@@ -147,6 +147,64 @@ function sotto(d, limite, avuto){
       pk.assegnazioni.length >= 2);
   console.log('      (' + pk.assegnazioni.join(' | ') + ')');
 
+  /* ── §2-bis · Uno spettro letto da una IMMAGINE ──────────────────────── */
+  console.log('\n── Dall\u2019immagine ──');
+  const img = await pg.evaluate(async () => {
+    const S = window.BSILettoreSpettri;
+    function tela(disegna) {
+      const W = 900, H = 300, c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+      disegna(x, W, H);
+      return c.toDataURL();
+    }
+    async function carica(url) {
+      const im = new Image(); im.src = url;
+      await new Promise(r => { im.onload = r; });
+      return im;
+    }
+    function g(v, ctr, amp, wid) { return amp * Math.exp(-Math.pow(v - ctr, 2) / (2 * wid * wid)); }
+    /* una figura con tre gaussiane a posizioni NOTE */
+    const buona = await carica(tela(function (x, W, H) {
+      x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath();
+      for (let i = 0; i < W; i++) {
+        const cm = 4000 - (4000 - 400) * i / (W - 1);
+        const y = H - 20 - (g(cm, 1715, 120, 14) + g(cm, 2950, 70, 28) + g(cm, 3400, 55, 65));
+        if (i === 0) x.moveTo(i, y); else x.lineTo(i, y);
+      }
+      x.stroke();
+    }));
+    /* e un foglio BIANCO: non c'è traccia, e il lettore deve dirlo */
+    const bianca = await carica(tela(function () {}));
+    const sp = S.daImmagine(buona, { xDa: 4000, xA: 400, unitaX: 'cm-1' });
+    const an = (sp && !sp.errore) ? S.analizza(sp, { tipo: 'ir' }) : null;
+    const vuota = S.daImmagine(bianca, { xDa: 4000, xA: 400 });
+    return {
+      colonne: sp && sp.colonne, punti: sp && sp.x ? sp.x.length : 0,
+      picchi: an ? an.picchi.map(q => Math.round(q.x)).sort((a2, b2) => a2 - b2) : [],
+      avviso: !!(sp && sp.avviso),
+      primo: sp && sp.x ? Math.round(sp.x[0]) : null,
+      ultimo: sp && sp.x ? Math.round(sp.x[sp.x.length - 1]) : null,
+      erroreSuBianca: !!(vuota && vuota.errore),
+      messaggioBianca: vuota && vuota.errore ? String(vuota.errore).slice(0, 60) : ''
+    };
+  });
+  att('una figura si legge colonna per colonna', 900, img.colonne);
+  att('  · e produce una curva completa', 900, img.punti);
+  att('i tre picchi costruiti si ritrovano (±6 cm⁻¹)', true,
+      img.picchi.length === 3 && Math.abs(img.picchi[0] - 1715) <= 6 &&
+      Math.abs(img.picchi[1] - 2950) <= 6 && Math.abs(img.picchi[2] - 3400) <= 6);
+  console.log('      (letti dai pixel: ' + img.picchi.join(', ') + ' · attesi 1715, 2950, 3400)');
+  /* l'IR si scrive 4000 → 400 ma tutto il lettore vuole x crescenti: se non
+     venissero riordinate, i picchi uscirebbero specchiati */
+  att('le x vengono riordinate crescenti', true, img.primo < img.ultimo);
+  /* la guardia opposta: su un foglio bianco non deve INVENTARE una traccia */
+  att('su un foglio bianco rifiuta invece di inventare una curva', true, img.erroreSuBianca);
+  console.log('      (' + img.messaggioBianca + '…)');
+  /* e deve dire che la taratura non viene dall'immagine */
+  att('e dichiara che la scala non sta nei pixel', true, img.avviso);
+
   /* ── §3 · Curva o lista di picchi ────────────────────────────────────── */
   console.log('\n── Curva o lista ──');
   const cl = await pg.evaluate(() => {
@@ -301,9 +359,9 @@ function sotto(d, limite, avuto){
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 35) {
+  if (eseguiti < 45) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 35');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

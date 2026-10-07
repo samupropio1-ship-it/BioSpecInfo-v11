@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v187` |
-| Commit | `cdefe942c63a80ecc26e383cd55a11685cfdf994` |
-| Generato (UTC) | `2026-10-03T14:56:15.640Z` |
+| Versione applicazione | `bsi-v188` |
+| Commit | `ec2aee80ff59b3b2d787f87d19aabbea60979f38` |
+| Generato (UTC) | `2026-10-07T08:14:48.778Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -56,13 +56,15 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4685 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4689 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 33 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
-| `bsi-spettrolettore.js` | 43 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre. |
+| `bsi-nmr.js` | 43 kB | Predizione NMR ¹H e ¹³C assegnata per atomo: incrementi di sostituente sull'anello benzenico, Grant–Paul sugli sp3, equivalenza chimica per codice d'intorno. |
+| `bsi-moldraw.js` | 29 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, uscite CSV/JCAMP-DX/PNG. |
+| `bsi-spettrolettore.js` | 53 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre. |
 | `bsi-mol3d.js` | 41 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 158 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 159 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 5 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -75,16 +77,18 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `bc119e7cecea9b2c1632d4ae3d7b2e2aa5c5cfabb74ac105b3077006c1b0f2d5` |
+| `index.html` | `f235344411186685578d3ca1c4e890df412310dcba58e4a810b65c1a61c64f8a` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `1eaf605c2d93f00c3edaa843de504c8d6625131b75d8bb4a0bef8d9b767b49bd` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
-| `bsi-spettrolettore.js` | `c7280f54d6fda5b98a42f318bc2c94bfaa08e1b9eb3730c656602634bdcca776` |
+| `bsi-nmr.js` | `c593fea83ad061f9d31119672f06e949596a5021bc0ac56ed9df0b0216cffbca` |
+| `bsi-moldraw.js` | `c2c2a4cc258215a28b64ac3b06ed60befa343db930964be4a7f3360064c1f30e` |
+| `bsi-spettrolettore.js` | `dbdc79aa8e6fc14d26ae9633f15598eb7121efd6e1cf0118e5b9ff99681c567c` |
 | `bsi-mol3d.js` | `beb85c594db8e21bd1653ac6923989375a729d163b2749c6259ee48e05501ca9` |
-| `bsi-lingue.js` | `b3e828537ce9ac9082189a42b1929a73a098218c86a84f1ddedba351dca9b6f3` |
+| `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `28b118344114f94e83c12f52016b9fc33e22d1b56ba90f51fb5cacce15a28ff4` |
+| `sw.js` | `04a33a90a14c6536e853e5133cf491ac28033bc41997c29cde8f2e548a6da4c3` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -137,4 +141,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-03T14:56:15.640Z._
+_Generato il 2026-10-07T08:14:48.778Z._

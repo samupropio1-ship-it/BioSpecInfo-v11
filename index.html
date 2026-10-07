@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v187';
+window.BSI_APP_VERSION='bsi-v188';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -32083,6 +32083,9 @@ window.addEventListener('load', init);
      render3DOnCanvas dopo che le definizioni interne sono state valutate. -->
 <script src="./bsi-mol3d.js" defer></script>
 <script src="./bsi-spettrolettore.js" defer></script>
+<!-- bsi-nmr.js deve venire prima di bsi-moldraw.js, che lo usa. -->
+<script src="./bsi-nmr.js" defer></script>
+<script src="./bsi-moldraw.js" defer></script>
 <script>
 
 window.init3DViewerPro = function(){
@@ -37436,7 +37439,21 @@ window.openChemDraw=function(){
       try{
         if(cur==='ir'){ var bands=(typeof irBandList==='function')?irBandList(smi):[]; var svg=(typeof makeIRsvg==='function')?makeIRsvg(bands,'#c62828'):''; body.innerHTML=wrap(svg, bands.map(function(x){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#c62828">'+x.pk+'</b> '+x.n+'</span>';}).join('')); }
         else if(cur==='h1'){ var pk=(typeof nmrPeakList==='function')?nmrPeakList(smi):[]; var svg=(typeof makeNMRsvg==='function')?makeNMRsvg(pk,'#6a1b9a'):''; body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#6a1b9a">'+p.ppm+' ppm</b> '+p.lbl+' ('+p.mult+', '+p.nH+'H)</span>';}).join('')); }
-        else if(cur==='c13'){ var pk=cd13C(smi); var svg=cd13Csvg(pk); body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#0a8f7a">'+p.ppm+' ppm</b> '+p.lbl+'</span>';}).join('')); }
+        else if(cur==='c13'){
+          /* Il ¹³C passa dal motore di `bsi-nmr.js`, che lavora sul GRAFO e
+             assegna gli spostamenti per ATOMO: da lì vengono il numero giusto
+             di segnali, la tabella di assegnazione e il collegamento fra un
+             picco e gli atomi che lo producono. `cd13C` qui sotto resta come
+             ripiego, e va detto che cos'è: una sequenza di espressioni
+             regolari sul TESTO dello SMILES, che dà otto bande generiche per
+             qualunque molecola. Se il motore non è caricato è meglio mostrare
+             quelle che non mostrare niente. */
+          if(window.BSINmrPannello && typeof window.BSINmrPannello.montaIn==='function' && window.BSINMR){
+            window.BSINmrPannello.montaIn(body, smi);
+          } else {
+            var pk=cd13C(smi); var svg=cd13Csvg(pk); body.innerHTML=wrap(svg, pk.map(function(p){return '<span style="display:inline-block;margin:2px 8px 2px 0"><b style="color:#0a8f7a">'+p.ppm+' ppm</b> '+p.lbl+'</span>';}).join(''));
+          }
+        }
         else if(cur==='ms'){ body.innerHTML=wrap(msSVG(smi,formula), 'Ione molecolare M⁺ e frammenti principali (perdite neutre tipiche dai gruppi presenti).'); }
         else if(cur==='iso'){ body.innerHTML=wrap(isoSVG(formula||myFormula()), 'Distribuzione isotopica del picco molecolare calcolata dalle <b>abbondanze naturali</b> (M, M+1, M+2…). Pattern diagnostici: <b>Cl</b> ≈ 3:1 (M:M+2), <b>Br</b> ≈ 1:1, <b>S</b> ≈ +4,4% a M+2.'); }
         else if(cur==='uv'){ body.innerHTML=wrap(uvSVG(smi), 'Bande di assorbimento elettronico stimate dai cromofori (transizioni π→π* e n→π*).'); }

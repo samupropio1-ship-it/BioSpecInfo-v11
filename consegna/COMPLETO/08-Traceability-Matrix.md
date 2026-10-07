@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v187` |
+| **Versione descritta** | `bsi-v188` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -49,6 +49,9 @@
 | **SCI-25** | Una banda deve essere dichiarata *compatibile con*, mai assegnata a una sola possibilità | `BANDE_IR` — 24 intervalli, `assegnaIR()` restituisce **tutte** le assegnazioni compatibili | `test_spettrolettore` — a 1715 cm⁻¹ compaiono sia C=O chetonico sia C=O di acido carbossilico; la sezione dichiara di non dedurre la struttura |
 | **SCI-26** | Un modello pubblicato va verificato contro il **suo** errore dichiarato, e un modello appreso contro il caso | `bsi-cheminfo.js` §10 — ESOL (Delaney 2004) con incertezza, quattro filtri di drug-likeness separati, foresta casuale con errore fuori sacco | `test_spettrolettore` §4-5 — ESOL contro quattro valori sperimentali, scarto medio **0,68** entro l'errore dichiarato di ~1 unità logaritmica; foresta R² fuori sacco **0,90** su una relazione non lineare e **−0,16** su puro rumore; deterministica a parità di seme e diversa con seme diverso |
 | **SCI-27** | Una struttura senza fonte non deve entrare, nemmeno quando la si conosce | raccolta da ChEMBL, `tools/dati/farmaci_v187.json` con l'identificativo di ogni voce | **Due rifiuti**: ivermectina (`structure_type NONE`, miscela di omologhi) e semaglutide (proteina, `SEQ`). E due nomi tenuti con il nome del **record** e non della domanda: «morphine» → apomorfina, «levothyroxine» → liotironina |
+| **SCI-28** | Uno spettro previsto deve dire QUALI atomi producono ogni segnale, e lo scarto va misurato su molecole che non hanno scelto i parametri | `bsi-nmr.js` — incrementi di sostituente sull'anello benzenico con la posizione ricavata camminando l'anello, Grant–Paul con incrementi β/γ sugli sp3, valori di classe per carbonili, nitrili, alcheni, cicloalcani; equivalenza chimica per codice d'intorno a gusci | `test_nmr` — **26 controlli**. Due insiemi separati: taratura **0,56 ppm** su 9 molecole, **validazione 1,93 ppm** su 17 mai usate per tarare, ¹H **0,10 ppm**. Il banco pretende che la validazione resti **peggiore** della taratura: se diventassero uguali, qualcuno avrebbe spostato una molecola fra i due insiemi |
+| **SCI-29** | Atomi chimicamente equivalenti devono dare UN segnale, non uno per atomo | codice d'intorno a gusci concentrici per distanza (principio dei codici HOSE), con i legami aromatici scritti come tali e non in forma di Kekulé | `test_nmr` — otto molecole di cui si sa quanti segnali danno: benzene **1** (non sei), toluene 5, p-xilene 3, naftalene 3, difenile 4, aspirina 9. Tutte giuste |
+| **SCI-30** | Da un'immagine si può recuperare la FORMA di uno spettro, non la sua taratura | `bsi-spettrolettore.js` §6-bis — estrazione della traccia dai pixel colonna per colonna, sfondo stimato dalla mediana, colonne vuote interpolate | `test_spettrolettore` — su una figura **costruita** con gaussiane a 1715/2950/3400 cm⁻¹ legge **1713/2947/3403** dai soli pixel; **nei due versi**, su un foglio bianco rifiuta invece di inventare una traccia; e dichiara che la scala degli assi non sta nei pixel |
 
 ---
 
@@ -116,7 +119,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v187`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v188`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -140,14 +143,14 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…27) | 26 | 26 | 100 % |
+| Scientifici (SCI-01…30) | 29 | 29 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…11) | 9 | 9 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
-| **Totale automatizzato** | **58** | **58** | **100 %** |
+| **Totale automatizzato** | **61** | **61** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **63** | **58** | **92 %** |
+| **Totale dichiarato** | **66** | **61** | **92 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -183,4 +186,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v187`._
+_Documento aggiornato alla versione `bsi-v188`._
