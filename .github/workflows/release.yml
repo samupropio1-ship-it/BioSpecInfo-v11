@@ -24,13 +24,32 @@ on:
   workflow_dispatch:
     inputs:
       versione:
-        description: 'Versione da pubblicare, come nel CHANGELOG (es. bsi-v181)'
+        # NESSUN VALORE PREDEFINITO, e la ragione è costata una release.
+        # Qui c'era `default: 'bsi-v181'`. Avviato senza compilare il campo,
+        # il workflow ha ripubblicato bsi-v181 con i pacchetti della v187,
+        # allegandoglieli accanto ai suoi, e — essendo rieseguibile — ha
+        # SPOSTATO il tag bsi-v181 dal commit della v181 a quello della v187.
+        # Tutti i passi sono finiti «success»: il workflow ha fatto
+        # esattamente quello che gli era stato detto. Un valore predefinito
+        # che nomina una versione è una trappola che scatta in silenzio.
+        description: 'Versione da pubblicare, come nel CHANGELOG (es. bsi-v187)'
         required: true
-        default: 'bsi-v181'
       titolo:
         description: 'Titolo della release (vuoto = «BioSpecInfo <versione>»)'
         required: false
         default: ''
+      motivo_versione_diversa:
+        description: 'Compilare SOLO per ripubblicare una versione diversa da quella del codice: scrivere il perché'
+        required: false
+        default: ''
+      commit_del_tag:
+        description: 'SHA su cui mettere il tag (vuoto = il commit di questo workflow). Serve a rimettere a posto un tag spostato'
+        required: false
+        default: ''
+      solo_riparazione:
+        description: 'true = non carica pacchetti: rimette il tag e toglie gli allegati estranei'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -43,6 +62,40 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: La versione pubblicata deve essere quella che il codice dichiara
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          MOTIVO="${{ inputs.motivo_versione_diversa }}"
+          if [ -z "$VER" ]; then
+            echo "::error::nessuna versione indicata"
+            exit 1
+          fi
+          # Due testimoni indipendenti, entrambi nel repository:
+          #   · la cache del Service Worker, che è la versione dell'app;
+          #   · il nome dei pacchetti, che dice da quale versione provengono.
+          SW=$(sed -n "s/^var CACHE = '\\(bsi-v[0-9]\\+\\)';.*/\\1/p" sw.js | head -1)
+          PAC=$(ls -1 consegna/*.zip 2>/dev/null | sed -n 's/.*-\(bsi-v[0-9]\+\)\.zip$/\1/p' | sort -u | tr '\n' ' ')
+          echo "versione chiesta:      $VER"
+          echo "versione in sw.js:     $SW"
+          echo "versione dei pacchetti: $PAC"
+          OK=1
+          [ "$VER" = "$SW" ] || OK=0
+          [ "$PAC" = "$VER " ] || OK=0
+          if [ "$OK" -eq 1 ]; then
+            echo "i tre concordano"
+            exit 0
+          fi
+          # Ripubblicare una versione passata è legittimo, ma deve essere
+          # DETTO: un motivo scritto a mano non si compila per sbaglio, un
+          # valore predefinito sì.
+          if [ -n "$MOTIVO" ]; then
+            echo "::warning::versione diversa da quella del codice, motivo dichiarato: $MOTIVO"
+            exit 0
+          fi
+          echo "::error::la versione chiesta ($VER) non è quella del codice (sw.js: $SW, pacchetti: $PAC). Se è voluto, compilare «motivo_versione_diversa»."
+          exit 1
 
       - name: Ricava le note dal CHANGELOG
         id: note
@@ -108,20 +161,39 @@ jobs:
           [ -n "$TIT" ] || TIT="BioSpecInfo $VER"
           # Rieseguibile: se la release c'è già si aggiornano note e allegati
           # invece di fallire a metà.
+          SHA_TAG="${{ inputs.commit_del_tag }}"
+          [ -n "$SHA_TAG" ] || SHA_TAG="${{ github.sha }}"
+          RIPARA="${{ inputs.solo_riparazione }}"
           if gh release view "$VER" >/dev/null 2>&1; then
             echo "la release $VER esiste: aggiorno note, allegati e tag"
             gh release edit "$VER" --title "$TIT" --notes-file note.md
-            gh release upload "$VER" consegna/*.zip --clobber
+            if [ "$RIPARA" != "true" ]; then
+              gh release upload "$VER" consegna/*.zip --clobber
+            else
+              echo "solo riparazione: nessun pacchetto caricato"
+            fi
+            # IGIENE. Un allegato il cui nome porta una versione DIVERSA da
+            # quella della release non ci appartiene: è così che bsi-v181 si
+            # è trovata sei pacchetti, tre suoi e tre della v187. Chi scarica
+            # non ha modo di sapere quale sia quello giusto.
+            gh release view "$VER" --json assets \
+              --jq '.assets[].name' | while read -r NOME; do
+              case "$NOME" in
+                *"$VER"*) : ;;
+                *) echo "rimuovo l'allegato estraneo: $NOME"
+                   gh release delete-asset "$VER" "$NOME" -y ;;
+              esac
+            done
             # `gh release edit` NON sposta il tag. Senza questa riga l'archivio
             # «Source code (zip)», che GitHub genera dal tag, resterebbe al
             # commit della prima pubblicazione mentre i pacchetti allegati
             # verrebbero da questo: una release con due provenienze diverse e
             # nulla che lo dica. Una release, un commit.
             gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$VER" \
-              -f sha="${{ github.sha }}" -F force=true >/dev/null
+              -f sha="$SHA_TAG" -F force=true >/dev/null
           else
             gh release create "$VER" \
-              --target "${{ github.sha }}" \
+              --target "$SHA_TAG" \
               --title "$TIT" \
               --notes-file note.md \
               consegna/*.zip
@@ -146,10 +218,12 @@ jobs:
           if [ "$TIPO" = "tag" ]; then
             SHA=$(gh api "repos/${{ github.repository }}/git/tags/$SHA" --jq '.object.sha')
           fi
+          ATTESO="${{ inputs.commit_del_tag }}"
+          [ -n "$ATTESO" ] || ATTESO="${{ github.sha }}"
           echo "tag $VER → $SHA"
-          echo "questo workflow → ${{ github.sha }}"
-          if [ "$SHA" != "${{ github.sha }}" ]; then
-            echo "::error::il tag punta a $SHA ma i pacchetti vengono da ${{ github.sha }}"
+          echo "atteso          → $ATTESO"
+          if [ "$SHA" != "$ATTESO" ]; then
+            echo "::error::il tag punta a $SHA ma era atteso $ATTESO"
             exit 1
           fi
           echo "coincidono"
