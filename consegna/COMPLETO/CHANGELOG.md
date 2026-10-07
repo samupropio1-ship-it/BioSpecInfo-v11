@@ -652,195 +652,43 @@ veri, con il loro nome accessibile, non di rettangoli disegnati sulla tela.
 > rieseguibile per progetto, ha **spostato il tag `bsi-v181`** dal commit
 > originario `cb0cf03` al commit della `bsi-v187`, e le ha allegato i tre
 > pacchetti della v187 accanto ai suoi. I pacchetti estranei sono stati
-> rimossi; **il tag non è stato possibile riportarlo indietro**, perché
-> GitHub non permette a un'app di scrivere un ref che punti a un commit il cui
-> `.github/workflows/*` differisce da quello corrente — né via `git push`
-> («refusing to allow a GitHub App to create or update workflow») né via API
-> sui ref (403 «Resource not accessible by integration»).
+> rimossi.
 >
-> Quindi: **i tre pacchetti allegati a questa release sono quelli della
-> `bsi-v181`**, ma l'archivio «*Source code (zip)*» che GitHub genera dal tag
-> contiene il codice della `bsi-v187`. Il codice della `bsi-v181` resta al
-> commit `cb0cf03e52f15d5f57c28626c75adc817d726788`.
+> **Il tag non è stato possibile riportarlo indietro.** GitHub non permette a
+> un'app di scrivere un ref che punti a un commit il cui
+> `.github/workflows/*` differisce da quello corrente, e a `cb0cf03` quel file
+> differisce di 319 righe. Sono state provate tre strade, tutte dalla stessa
+> regola:
 >
-> Il tag si rimette a posto solo con le credenziali di una persona, non di
-> un'app: `git push --force origin cb0cf03e52f15d5f57c28626c75adc817d726788:refs/tags/bsi-v181`.
+> | strada | esito |
+> |---|---|
+> | `git push --force origin refs/tags/bsi-v181` | «refusing to allow a GitHub App to create or update workflow `.github/workflows/release.yml` without `workflows` permission» |
+> | `PATCH /git/refs/tags/bsi-v181` con `force` | 403 «Resource not accessible by integration» |
+> | cancella e ricrea (`DELETE` + `POST /git/refs`) | 403 anche sulla **creazione** di un tag di prova sullo stesso commit, perciò il tag vero non è stato toccato |
 >
-> Il valore predefinito è stato togliato dal workflow e la versione da
-> pubblicare deve ora coincidere con quella dichiarata da `sw.js` e dal nome
-> dei pacchetti, altrimenti il workflow si ferma.
+> `GITHUB_TOKEN` non può ottenere il permesso `workflows`, e aggirare la regola
+> rinominando i file di workflow sarebbe circonvenire una protezione, non
+> ripararla.
+>
+> **Che cosa vale, allora, di questa release:**
+>
+> - i **tre pacchetti allegati** sono quelli della `bsi-v181`, corretti;
+> - l'archivio «*Source code (zip)*» che GitHub genera dal tag contiene
+>   invece il codice della `bsi-v187`, e va **ignorato**;
+> - il codice della `bsi-v181` si scarica dal suo commit:
+>   <https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/cb0cf03e52f15d5f57c28626c75adc817d726788.zip>
+>
+> Il tag si rimette a posto con le credenziali di una persona, non di un'app:
+>
+> ```
+> git push --force origin cb0cf03e52f15d5f57c28626c75adc817d726788:refs/tags/bsi-v181
+> ```
+>
+> Perché non ricapiti: il valore predefinito è stato togliato dal workflow, e la
+> versione da pubblicare deve ora coincidere con quella dichiarata da `sw.js`
+> **e** con il nome dei pacchetti — altrimenti il workflow si ferma. Provato
+> nei due versi: passa con `bsi-v187`, rifiuta con `bsi-v181`.
 
-Le tre sezioni che restavano — **spettri**, **astrochimica**, **data science** —
-misurate per la prima volta con un banco proprio, e la **fluidità** ripresa
-dove la v180 si era fermata: lì si era corretto l'impaginamento, qui si trova
-che il resto era lavoro fatto nel momento sbagliato.
-
-### Spettri — l'additività non sa dedurre la schermatura forte
-
-Il banco confronta gli spostamenti ¹H previsti dall'additività di gruppo con i
-valori sperimentali. Due casi erano fuori di quasi un ppm, e per la stessa
-ragione: l'additività somma contributi di elettronegatività e non sa nulla di
-atomi elettropositivi né di correnti d'anello a tre termini.
-
-| | previsto prima | sperimentale |
-|---|---|---|
-| Si–CH₃ (TMS) | 0,92 ppm | **0,00 ppm**, per definizione |
-| –CH₂– di ciclopropano | 1,30 ppm | **0,22 ppm** |
-
-Aggiunti i due schemi `siCh3` e `cpCh2` con le relative sottrazioni, perché un
-CH₃ legato al silicio non deve più essere contato come un CH₃ qualunque. Il
-banco passa da 36 a **41 controlli**.
-
-### Astrochimica — 41 corpi celesti contati due volte
-
-`UNIVERSE_DB` dichiarava 1 000 corpi. Confrontati i nomi, 41 comparivano due
-volte, con schede diverse e parziali. Fusi campo per campo: **959 corpi
-distinti**, nessuno perduto.
-
-Nuovo banco `test_astro` (13 controlli): ricalcola il peso molecolare delle 30
-molecole interstellari dalla formula, con i pesi atomici IUPAC **scritti dentro
-il banco** — un banco che chiedesse alla pagina i pesi con cui verificarla non
-verificherebbe niente.
-
-La prima stesura del banco segnalava 25 errori JavaScript che erano **suoi**:
-selezionava «ogni elemento con un'emoji nel testo», ne trovava 2 058 e li
-cliccava tutti. Un controllo che genera i difetti che segnala è peggio di
-nessun controllo.
-
-### Data science — la sezione non era raggiungibile
-
-Nessun pulsante di navigazione portava a «Data science»: il codice c'era, la
-porta no. Aggiunto il pulsante `sdatasci`, esposto `window.BSIDataSci` e
-protetta l'inizializzazione contro la doppia costruzione.
-
-Aperta la sezione, il banco di accessibilità ha subito trovato quello che non
-aveva mai potuto vedere: **4 campi senza etichetta** (`dsWbInput`, `dsPredIn`,
-`dsSqlQ`, `dsGhName`). Gli elementi esaminati dalla verifica di accessibilità
-sono saliti da **33 311 a 37 409** — 4 098 in più da quella sola sezione.
-Nuovo banco `test_datasci` (23 controlli), con la guardia che fallisce se una
-sezione torna orfana.
-
-### Fluidità — il lavoro giusto nel momento sbagliato
-
-Profilata l'apertura di ogni sezione. Due restavano oltre i 100 ms, e in
-entrambi i casi il lavoro era necessario ma eseguito dentro il clic:
-
-| | prima | dopo |
-|---|---|---|
-| `s3dpro` (Viewer 3D PRO) | 797 ms | **14 ms** |
-| `ssyn` (Sintesi), prima apertura | 263 ms | **162 ms** |
-| `ssyn`, riapertura | 85 ms | **40 ms** |
-| Sezioni oltre 100 ms | 2 | **0** |
-| Cambio mediano | 15 ms | **14 ms** |
-
-- **Viewer 3D PRO.** Il profilatore attribuisce 688 ms al primo `render()` di
-  3Dmol, che compila gli shader del contesto WebGL. È lavoro inevitabile, ma
-  non dentro il clic: ora il pannello si disegna e il caricamento parte subito
-  dopo. La tela WebGL compare comunque — il banco lo pretende.
-- **Le 296 figure di sintesi.** 5 351 nodi di SVG disegnati tutti prima di
-  mostrare qualunque cosa, mentre all'apertura se ne vedono tre. Ora si
-  riempiono a fette da 8 ms, in ordine di elenco.
-- **296 timer a 40 ms di distanza**, programmati all'apertura della sezione:
-  undici secondi e mezzo di risvegli che chiedevano `getTotalLength()` su ogni
-  tratto di ogni figura, comprese quelle fuori dallo schermo. Rimossi;
-  l'animazione segue ora la singola figura appena disegnata.
-
-### Corretto — la prima stesura del disegno differito perdeva 101 figure
-
-Il differimento era basato su `IntersectionObserver`, al passaggio davanti allo
-schermo. Misurato: dopo uno scorrimento rapido **101 figure su 296 restavano
-vuote**. Ogni figura che compare cambia l'altezza della carta, la pagina si
-risistema sotto le dita e lo scorrimento scavalca le carte che l'osservatore
-non ha ancora servito. Una figura assente è un difetto; la lentezza era solo un
-fastidio. Sostituito con il disegno a fette, che non lascia nulla di vuoto.
-
-### Aggiunto
-
-- Nuovo banco **`test_fluidita`** (15 controlli): il tempo di blocco a ogni
-  cambio di sezione su tutte le 89, con base dichiarata. Metà dei controlli
-  sono le prove contrarie — la tela WebGL, le 296 figure, la stampa che non
-  esce muta, la ricerca che filtra anche le carte non ancora disegnate.
-- Requisito **UI-09** nella matrice di tracciabilità.
-- `beforeprint` disegna tutte le figure: il foglio non esce mai muto.
-
-### Pubblicazione — la release si fa dal repository
-
-Le credenziali con cui una sessione remota lavora al repository scrivono sui
-rami e **non sui tag**: la `POST` a `git-receive-pack` per `refs/tags/…`
-risponde `403`, mentre un ramo nuovo passa. Senza tag non c'è release.
-
-Aggiunto `.github/workflows/release.yml`, che gira col token di Actions: crea il
-tag, apre la release e le allega i tre pacchetti di consegna; l'archivio
-completo — `models/` incluse — lo genera GitHub come *Source code (zip)*. Si
-avvia da *Actions → release → Run workflow*. Le note vengono dalla voce del
-CHANGELOG con lo stesso nome della versione, e il workflow **fallisce** se
-quella voce manca, se in `consegna/` ci sono meno di tre pacchetti, o se il tag
-non punta al commit da cui vengono i pacchetti.
-
-Quest'ultimo controllo nasce da un difetto: `gh release edit` aggiorna note e
-allegati ma non sposta il tag, e *Source code (zip)* GitHub lo genera dal tag.
-La release aveva due provenienze diverse e niente che lo dicesse.
-
-Documentato in `docs/12` §2.1-bis, in italiano e in inglese.
-
-### Corretto — un numero fermo nella documentazione
-
-La matrice di tracciabilità e la documentazione di prova dichiaravano **235 file
-tracciati**; la verifica di sicurezza ne esamina **288**. Un numero che cresce
-da solo a ogni file aggiunto, scritto in quattro punti fra italiano e inglese, e
-che nessun controllo poteva smentire: `verifica-documenti` confronta i documenti
-fra loro, `verifica-affermazioni` li confronta con l'applicazione in esecuzione,
-e nessuno dei due guardava la misura di quel banco.
-
-La guardia sta ora dentro `verifica-sicurezza`, che quel numero lo misura già:
-legge le cifre davanti a «file tracciati» / «tracked files» nei quattro
-documenti e pretende che coincidano. Fallisce anche se la frase manca del tutto,
-altrimenti bastava toglierla per far tacere il controllo. Il banco passa da 9 a
-**10 controlli**.
-
-### Aggiunto — il 49° banco: nessuna credenziale in NESSUN punto della storia
-
-`verifica-sicurezza` esamina i file *tracciati*, cioè lo stato attuale. È il
-controllo giusto per «oggi nel repository non c'è nessuna chiave», e non
-risponde alla domanda che conta su un repository pubblico: una chiave messa in
-un commit e togliata nel successivo lo passa per sempre, e resta leggibile a
-chiunque cloni. Git non dimentica.
-
-`audit_storia` esamina ogni **versione** di ogni file di testo mai entrata nel
-repository: **1 551 versioni su 390 commit, 9 schemi, zero credenziali**.
-Requisito **SEC-07** nella matrice.
-
-Due difese contro sé stesso, perché qui un numero perfetto può nascere da meno
-superficie o da uno schema cieco:
-
-- **si rifiuta di passare su un clone superficiale** — un `--depth 1`, come
-  quello di una sessione remota, contiene una frazione della storia: il banco
-  girerebbe, non troverebbe niente e direbbe «nessuna credenziale in tutta la
-  storia» avendone vista un decimo;
-- **gli schemi si provano prima di fidarsi** — ognuno dei nove deve riconoscere
-  un esempio costruito e *rifiutare* un quasi-esempio, entrambi dentro una coda
-  di rumore con cifre, come sarebbe in un file vero.
-
-La seconda difesa è nata da un errore in questo stesso banco. Lo schema AWS
-chiedeva una cifra con `(?=.*\d)`, condizione sempre soddisfatta in un file
-grande perché la cifra sta più avanti: trovava 53 corrispondenze, tutte la
-stessa stringa `AKIAAAAAAAAAAAAAAAAA` — sedici «A», la zona di zeri di
-un'immagine in base64 — e il quasi-esempio non se ne accorgeva perché era troppo
-corto per contenere cifre. Ora l'identificativo AWS si giudica dalla varietà dei
-suoi sedici caratteri.
-
-Provato nei due versi: con un commit locale che contiene una chiave AWS di forma
-valida il banco fallisce nominando il blob; rimosso il commit, torna a passare.
-
-### Verifica
-
-**49 banchi, 0 falliti.** 89 sezioni percorse, 37 409 elementi esaminati per
-l'accessibilità, 0 difetti di contrasto, 0 campi senza etichetta. Quattordici
-pagine senza un solo errore JavaScript, senza una risposta 4xx e senza un
-identificativo duplicato. E 1 551 versioni di file di testo su 390 commit senza
-una credenziale.
-
----
 ## [bsi-v180] — 2026-10-02
 
 Due blocchi: la **fluidità** di tutta l'applicazione, misurata e corretta, e la
