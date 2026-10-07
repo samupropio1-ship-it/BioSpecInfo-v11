@@ -302,7 +302,13 @@ jobs:
           fi
           echo "tag $VER → $SHA_TAG"
 
+      # Il confronto ha senso solo se il tag DOVEVA muoversi. Con
+      # `solo_riparazione` e nessun `commit_del_tag` si e' deciso di non
+      # toccarlo, e confrontarlo con il commit di questo workflow fa fallire
+      # una riparazione andata a buon fine — che e' peggio che non farla,
+      # perche' chi guarda legge «failure» su un lavoro corretto.
       - name: Il tag e gli allegati devono venire dallo stesso commit
+        if: inputs.solo_riparazione != 'true' || inputs.commit_del_tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -327,6 +333,18 @@ jobs:
             exit 1
           fi
           echo "coincidono"
+
+      # ...ma non deve diventare invisibile: se il tag e' stato lasciato dov'e',
+      # si dice dov'e'.
+      - name: Dove punta il tag, se non lo si e' toccato
+        if: inputs.solo_riparazione == 'true' && inputs.commit_del_tag == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          SHA=$(gh api "repos/${{ github.repository }}/git/ref/tags/$VER" --jq '.object.sha')
+          echo "::notice::il tag $VER e' stato lasciato dov'era: $SHA (questo workflow gira su ${{ github.sha }})"
 
       - name: Togli il ramo di prova lasciato indietro
         env:
