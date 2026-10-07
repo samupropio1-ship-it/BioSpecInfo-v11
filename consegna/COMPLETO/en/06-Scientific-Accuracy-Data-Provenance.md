@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v191` |
+| **Version described** | `bsi-v192` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -667,6 +667,35 @@ it minimises geometric violations. It does not choose the most stable conformer
 and does not handle stereochemistry — an R centre and its enantiomer come out
 the same.
 
+### 3.9 From document to working: what is deduced and what is read
+
+`bsi-documento.js` opens the file; `bsi-quesito.js` recognises the data in the
+text; `bsi-elucida.js` works through them. They are three separate steps **on
+purpose**, because they fail in different ways and conflating them hides the
+error: if recognition reads "1715" as an IR band when it was a mass, the
+working that follows is impeccable and the conclusion is wrong. This is why the
+panel shows **the table of data read above the working**, each entry with where
+it came from.
+
+**Recognition is by section, not by number.** An IR band at 1738 and a mass at
+150 are both numbers: telling them apart from the value alone is impossible.
+The technique's label is found (IR, MS, ¹H NMR, ¹³C NMR) and what follows is
+read, up to the end of the paragraph or the next label.
+
+**What it does not do.** There is no language model: there are regular
+expressions and a spectroscopic rule engine. If the text writes the data in an
+unforeseen form, the data are **not** read — and the module says so rather than
+working through half of them. The working goes as far as the rules go:
+compatible functional groups, fragments, counts. **The final structure is not
+proposed**, because proposing it would mean guessing; a structure can be written
+and the program **compares** it with the data, saying which signals fit and
+which do not.
+
+**There is no optical character recognition.** A scanned page contains pixels,
+not letters: the text cannot be read, and the module declares it rather than
+returning an empty string as if the document were empty. The pages stay
+visible, and that is where pixel trace extraction takes over.
+
 ---
 
 ## 4. Physical constants and tabulated data
@@ -719,4 +748,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v191`._
+_Document updated to version `bsi-v192`._

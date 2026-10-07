@@ -77,29 +77,44 @@ if (n <= v) {
    differenza è tutta qui, e per questo gli schemi sono scritti per intero
    invece di cercare il solo numero. */
 const V = vecchia.replace(/[-]/g, '\\-');
+/* Ogni schema porta con sé la PROPRIA sostituzione.
+
+   Prima la sostituzione era una sola, scelta al volo guardando il testo
+   dell'espressione regolare — e al primo uso vero ha rotto il distintivo del
+   README: shields.io scrive un trattino letterale come `--`, quindi il
+   distintivo dice `bsi--v191`, e il controllo che sceglieva la forma giusta
+   cercava nel sorgente della regex una stringa che non c'era. È uscito
+   `versione-bsi-v192`, che shields.io legge come un'altra cosa, e il
+   distintivo è sparito.
+   L'ha trovato `verifica-affermazioni`, che confronta il distintivo con il
+   codice: è il motivo per cui quel controllo esiste. */
 const SCHEMI = [
   /* intestazioni: | **Versione** | `bsi-vNNN` | */
-  new RegExp('(\\|\\s*\\*\\*(?:Versione|Versione documentata|Versione descritta|' +
-             'Version|Documented version|Version described)\\*\\*\\s*\\|[^|\\n]*?)' + V, 'g'),
-  new RegExp('(\\|\\s*(?:Versione applicazione|Application version)\\s*\\|[^|\\n]*?)' + V, 'g'),
+  [new RegExp('(\\|\\s*\\*\\*(?:Versione|Versione documentata|Versione descritta|' +
+              'Version|Documented version|Version described)\\*\\*\\s*\\|[^|\\n]*?)' + V, 'g'),
+   '$1' + nuova],
+  [new RegExp('(\\|\\s*(?:Versione applicazione|Application version)\\s*\\|[^|\\n]*?)' + V, 'g'),
+   '$1' + nuova],
   /* pieghe finali: _Documento aggiornato alla versione `bsi-vNNN`._ */
-  new RegExp('((?:_|)(?:Documento aggiornato alla versione|' +
-             'Document updated to version|Indice aggiornato alla versione|' +
-             'Guida aggiornata alla versione|Guide updated to version|' +
-             'Archivio prodotto alla versione|Archive produced at version|' +
-             'Versione|Version)\\s+`?)' + V, 'g'),
-  /* il distintivo del README */
-  new RegExp('(versione-)bsi\\-\\-v' + vecchia.slice(5), 'g'),
+  [new RegExp('((?:_|)(?:Documento aggiornato alla versione|' +
+              'Document updated to version|Indice aggiornato alla versione|' +
+              'Guida aggiornata alla versione|Guide updated to version|' +
+              'Archivio prodotto alla versione|Archive produced at version|' +
+              'Versione|Version)\\s+`?)' + V, 'g'),
+   '$1' + nuova],
+  /* il distintivo del README: shields.io scrive il trattino raddoppiato */
+  [new RegExp('(versione-)bsi\\-\\-v' + vecchia.slice(5), 'g'),
+   '$1bsi--v' + nuova.slice(5)],
   /* i nomi dei pacchetti di consegna */
-  new RegExp('(BioSpecInfo-(?:AZIENDA|TESI|COMPLETO)-)' + V, 'g'),
+  [new RegExp('(BioSpecInfo-(?:AZIENDA|TESI|COMPLETO)-)' + V, 'g'), '$1' + nuova],
   /* il titolo dell'archivio e la dichiarazione di conformità */
-  new RegExp('(# BioSpecInfo — archivio completo `)' + V, 'g'),
-  new RegExp('(Il sottoscritto dichiara che la versione `)' + V, 'g'),
-  new RegExp('(The undersigned declares that version `)' + V, 'g'),
-  new RegExp('(state at version `)' + V, 'g'),
-  new RegExp('(stato alla versione `)' + V, 'g'),
+  [new RegExp('(# BioSpecInfo — archivio completo `)' + V, 'g'), '$1' + nuova],
+  [new RegExp('(Il sottoscritto dichiara che la versione `)' + V, 'g'), '$1' + nuova],
+  [new RegExp('(The undersigned declares that version `)' + V, 'g'), '$1' + nuova],
+  [new RegExp('(state at version `)' + V, 'g'), '$1' + nuova],
+  [new RegExp('(stato alla versione `)' + V, 'g'), '$1' + nuova],
   /* lo SBOM in JSON */
-  new RegExp('("version":\\s*")' + V, 'g')
+  [new RegExp('("version":\\s*")' + V, 'g'), '$1' + nuova]
 ];
 
 const CODICE = [
@@ -125,10 +140,8 @@ tracciati().forEach(function (rel) {
   if (testo.indexOf(vecchia) < 0) return;
   let nuovo = testo;
 
-  SCHEMI.forEach(function (re) {
-    nuovo = nuovo.replace(re, (tutto, prefisso) =>
-      (prefisso === undefined ? tutto : prefisso) +
-      (re.source.indexOf('versione\\-') >= 0 ? 'bsi--v' + nuova.slice(5) : nuova));
+  SCHEMI.forEach(function (coppia) {
+    nuovo = nuovo.replace(coppia[0], coppia[1]);
   });
   CODICE.forEach(function (c) {
     if (rel !== c[0]) return;

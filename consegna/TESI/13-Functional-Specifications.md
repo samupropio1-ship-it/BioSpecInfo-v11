@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v191` |
+| **Versione descritta** | `bsi-v192` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -65,6 +65,7 @@ L'applicazione conta **92 sezioni**, raggruppate per area di studio.
 | **UV-Vis** | Cromofori, λmax, regole di Woodward |
 | **Predizione NMR assegnata per atomo** | Si disegna o si scrive una struttura e si ottengono ¹H e ¹³C con l'indicazione di QUALI atomi producono ogni segnale; spettro interrogabile (zoom, intensità, clic sul picco), tabella di assegnazione, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG |
 | **NMR bidimensionale** | COSY, HSQC editato e HMBC costruiti camminando il grafo; cliccando una macchia si illuminano gli atomi che la producono. Non è una simulazione dell'esperimento, e il pannello lo dichiara |
+| **Apri un documento e fattelo svolgere** | Si apre un file di qualunque tipo — PDF, fotografia, Word, OpenDocument, PowerPoint, Excel, testo — se ne vede **tutto** il contenuto (ogni pagina disegnata, tutto il testo), i dati spettroscopici riconosciuti compaiono in tabella **con la loro provenienza**, e lo svolgimento procede passo per passo. Quello che non si è potuto leggere è dichiarato |
 | **Modello 3D dalla struttura disegnata** | Coordinate costruite dal grafo, con gli stessi indici del predittore: un picco cliccato illumina l'atomo anche in tre dimensioni |
 | **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
 | **Tabelle di riferimento** | Valori tabulati per la consultazione rapida |
@@ -394,4 +395,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v191`._
+_Documento aggiornato alla versione `bsi-v192`._

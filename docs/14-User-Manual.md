@@ -99,6 +99,36 @@ per ogni banda **tutte** le assegnazioni compatibili. Se a 1715 cm⁻¹ leggi du
 righe, non è un difetto: a quel numero d'onda un chetone e un acido
 carbossilico sono entrambi possibili, e dirne uno solo sarebbe inventare.
 
+### Aprire un quesito e fartelo svolgere
+
+Nella stessa sezione, **Apri un documento**. Accetta il PDF della prova, la
+fotografia del foglio, un file Word, un testo — e ti mostra **tutto** quello
+che c'è dentro: ogni pagina disegnata (cliccala per ingrandirla) e il testo per
+intero.
+
+Poi, se nel testo ci sono dati spettroscopici, li riconosce e li mette in
+tabella **con scritto accanto da dove li ha presi**. Quella tabella sta sopra
+lo svolgimento apposta: guardala prima. Se ha scambiato una massa per una
+banda IR, lo svolgimento che segue sarà impeccabile e la risposta sbagliata, e
+te ne accorgi lì.
+
+Lo svolgimento elenca i passaggi con la **prova** di ognuno e quanto è certo:
+i gradi di insaturazione sono aritmetica, il numero di carboni dal picco M+1 è
+una stima con un margine, una banda IR è *compatibile con* più cose.
+
+> **Non ti dà la struttura.** Un insieme di dati spettroscopici è compatibile
+> con più di una molecola, e un programma che ne sputasse fuori una sola
+> darebbe una certezza che i dati non contengono. Quello che puoi fare è il
+> contrario: scrivi tu una struttura e il programma la **confronta**, segnale
+> per segnale, dicendo dove casca.
+
+> **Se il documento è una scansione**, il testo non si legge: una pagina
+> scansionata contiene pixel, non lettere, e non c'è riconoscimento ottico dei
+> caratteri. L'app te lo dice invece di far finta che il foglio fosse vuoto.
+> Le pagine restano visibili, e se una è la fotografia di uno spettro la
+> traccia si estrae con **Apri un'immagine**.
+
+
 > Il lettore **non ti dice che molecola è**. Un insieme di bande è compatibile
 > con molte molecole diverse: il passo dallo spettro alla struttura lo fai tu,
 > con il resto di quello che sai sul campione.
@@ -245,4 +275,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v191`._
+_Guida aggiornata alla versione `bsi-v192`._

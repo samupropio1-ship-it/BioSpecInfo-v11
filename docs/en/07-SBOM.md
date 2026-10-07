@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v191` |
-| Commit | `454836d5673c1a2a1c1768f6df142a82ab532e06` |
-| Generated (UTC) | `2026-10-07T22:00:26.707Z` |
+| Application version | `bsi-v192` |
+| Commit | `f9fa12749ee06ae98d33ff9d816a5466ec363e41` |
+| Generated (UTC) | `2026-10-07T23:04:14.996Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -31,6 +31,8 @@ availability.
 | **three.js — GLTFLoader**<br><sub>mrdoob e collaboratori</sub> | `gltf_loader.js` | MIT | 94 kB | Loading of anatomical and molecular models in glTF format. |
 | **3Dmol.js**<br><sub>University of Pittsburgh / David Koes</sub> | `3Dmol-min.js` | BSD-3-Clause | 502 kB | 3D molecular visualisation (PDB, SDF, surfaces). |
 | **SmilesDrawer**<br><sub>Daniel Probst</sub> | `smiles-drawer.min.js` | MIT | 246 kB | 2D structure drawing from SMILES. |
+| **PDF.js (build legacy)**<br><sub>Mozilla Foundation</sub> | `vendor/pdfjs/pdf.min.mjs` | Apache-2.0 | 511 kB | Opening PDF documents in the spectrum reader: every page drawn and its text layer. It is the legacy build, because the default one uses very recent language features and breaks on browsers that do not have them yet. |
+| **PDF.js — worker**<br><sub>Mozilla Foundation</sub> | `vendor/pdfjs/pdf.worker.min.mjs` | Apache-2.0 | 1290 kB | The PDF decoding work, off the main thread: a complex page does not freeze the interface. |
 | **sql.js (JS glue)**<br><sub>sql.js / SQLite</sub> | `lib/sql-wasm.js` | MIT | 45 kB | In-browser SQLite database for the data exercises. |
 | **SQLite (WebAssembly)**<br><sub>SQLite Consortium</sub> | `lib/sql-wasm.wasm` | Public Domain | 644 kB | SQLite engine compiled to WebAssembly. |
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Experimental data for the particle-physics exercise. |
@@ -46,6 +48,8 @@ availability.
 | `gltf_loader.js` | `5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6` |
 | `3Dmol-min.js` | `06b6d2fc7d418e8bef62a32cca44373ff21b2b787bd377613dd4039394a4e9ff` |
 | `smiles-drawer.min.js` | `955285fac52a7017b3c3658e2cb84bef7f1f76732f3f7cd565d1bb0903232dc2` |
+| `vendor/pdfjs/pdf.min.mjs` | `bccc24ea711db8e44503629519904a5292d73b9daaa214bbe7cdcc282b0f4259` |
+| `vendor/pdfjs/pdf.worker.min.mjs` | `145d2dd3ab0c86151011dba95acfa2d5336e2accd59388ea43dbee0efddaaec6` |
 | `lib/sql-wasm.js` | `77d6435bac506af0e3c59636dce9d22b1b14156348bc327f41a1577f3212360f` |
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
@@ -65,7 +69,9 @@ availability.
 | `bsi-geom3d.js` | 46 kB | 3D coordinates from a SMILES by distance geometry, carrying the NMR predictor's own atom indices: the precondition for the peak↔atom↔3D link. |
 | `bsi-nmr2d.js` | 21 kB | Two-dimensional NMR: COSY, edited HSQC and HMBC, built by walking the graph over the two per-atom predictions. |
 | `bsi-moldraw.js` | 44 kB | Interactive NMR spectrum: zoom, assignment table, peak↔atom link, SMILES/InChI history, CSV/JCAMP-DX/PNG exports. |
-| `bsi-spettrolettore.js` | 53 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
+| `bsi-documento.js` | 20 kB | Opening of any document — PDF, images, text, Word, OpenDocument, PowerPoint, Excel — with an explicit list of what could NOT be read. |
+| `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
+| `bsi-spettrolettore.js` | 71 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
 | `bsi-lingue.js` | 159 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
@@ -80,21 +86,23 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `4241b66609ed25cdbed9b9a0305309f44c033cc677ba37fce2e8cf5b859e4221` |
+| `index.html` | `2dde161a882ae6a39050fb2a86e4c764c3dc574bf5999abd231789951ed6bba1` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
-| `bsi-nmr.js` | `c090d614ed5d7ed1fb958f6efec1fc4021cdc7b0f4fd6e1ca89bba167528d259` |
+| `bsi-nmr.js` | `7fa879ab0f879fbc0c06a99c43573914deb5d52d78313ad7cf9ca15b875976f2` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
 | `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
 | `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
-| `bsi-spettrolettore.js` | `dbdc79aa8e6fc14d26ae9633f15598eb7121efd6e1cf0118e5b9ff99681c567c` |
+| `bsi-documento.js` | `9fa4b6d467456e92cc6673969c788fb1de2cd35aa38969b8975c11834dab030b` |
+| `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
+| `bsi-spettrolettore.js` | `360022947ec02b8ac463dc3527da5f5e92afbb4a387c64b68d2e27cac2c54d91` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `5d4d70433d8ff0e40bc3c7272edec179876e2ded86d7c5569202fbd17a400f8e` |
+| `sw.js` | `87d1442c501dd82aad3b64fe9282334b3a65d7de727abb2d90ea37274ecdab09` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -147,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-07T22:00:26.707Z._
+_Generated on 2026-10-07T23:04:14.996Z._

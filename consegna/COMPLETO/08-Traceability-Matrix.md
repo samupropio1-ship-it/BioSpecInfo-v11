@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v191` |
+| **Versione descritta** | `bsi-v192` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -54,6 +54,8 @@
 | **SCI-30** | Da un'immagine si può recuperare la FORMA di uno spettro, non la sua taratura | `bsi-spettrolettore.js` §6-bis — estrazione della traccia dai pixel colonna per colonna, sfondo stimato dalla mediana, colonne vuote interpolate | `test_spettrolettore` — su una figura **costruita** con gaussiane a 1715/2950/3400 cm⁻¹ legge **1713/2947/3403** dai soli pixel; **nei due versi**, su un foglio bianco rifiuta invece di inventare una traccia; e dichiara che la scala degli assi non sta nei pixel |
 | **SCI-31** | Una mappa NMR bidimensionale deve dire QUALI atomi producono ogni correlazione, e non deve collegare ciò che la topologia non collega | `bsi-nmr2d.js` — HSQC a un legame con segno invertito sui CH₂, COSY a tre legami fra protoni non equivalenti, HMBC a due e tre legami; gli scambiabili esclusi dalle macchie fuori diagonale | `test_nmr2d` — **40 controlli**, nei due versi: l'esafluorobenzene non dà macchie HSQC, il benzene **nessuna** macchia COSY fuori diagonale (i sei protoni sono equivalenti), il metano **nessuna** macchia HMBC pur avendo quattro protoni |
 | **SCI-32** | Una geometria 3D costruita dal programma deve avere GLI STESSI indici del predittore, altrimenti il collegamento picco↔atomo illumina l'atomo sbagliato | `bsi-geom3d.js` — geometria delle distanze sul grafo di `bsi-nmr.js`, idrogeni aggiunti in coda, generatore seminato dallo SMILES | `test_geom3d` — **29 controlli**: ogni atomo pesante ha lo stesso indice e lo stesso elemento su cinque molecole; legami e angoli entro tolleranza dai valori di letteratura; **nei due versi** il benzene esce piano e il cicloesano no |
+| **SCI-33** | Un documento va aperto per intero, e ciò che NON si è potuto leggere va dichiarato — un lettore che restituisce poco senza dirlo fa credere che il documento fosse quasi vuoto | `bsi-documento.js` — PDF pagina per pagina con lo strato di testo (PDF.js), immagini, testo, archivi Office aperti con `DecompressionStream` senza librerie | `test_documento` — **47 controlli**: PDF, Word e testo aperti davvero e il loro contenuto verificato; **nei due versi** un'immagine dichiara che non c'è riconoscimento ottico dei caratteri e non produce svolgimento, un formato sconosciuto viene rifiutato invece che indovinato, un file binario chiamato `.txt` viene riconosciuto come binario |
+| **SCI-34** | I dati spettroscopici riconosciuti in un testo devono portare la PROVENIENZA, e lo svolgimento deve dichiarare che cosa gli manca | `bsi-quesito.js` — riconoscimento per sezione (IR, MS, ¹H, ¹³C) con i confini fra sezioni, poi `bsi-elucida.js` per lo svolgimento passo per passo | `test_documento` — formula, bande, masse con intensità, segnali ¹H con integrazione e molteplicità, segnali ¹³C; **nei due versi**: CDCl₃ non diventa il composto, una banda fuori da 400-4000 non è una banda, senza etichetta MS non ci sono masse, un capoverso nuovo chiude la sezione, un testo senza spettri non produce dati |
 | **ING-01** | Una stessa funzione non deve avere due implementazioni: lo stack React/FastAPI deve eseguire gli STESSI file dell'applicazione | `stack/api/worker/motore.mjs` — un processo Node carica i moduli dal repository con RDKit WebAssembly; nessun motore in Python | `test_stack` — **15 controlli**: confronta le impronte SHA-256 dichiarate da `GET /salute` con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che nessun file `.ts`/`.tsx` contenga una tabella di spostamenti |
 
 ---
@@ -110,7 +112,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 335 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 362 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 92 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -146,15 +148,15 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…32) | 31 | 31 | 100 % |
+| Scientifici (SCI-01…34) | 33 | 33 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…11) | 9 | 9 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
 | Architettura (ING-01…01) | 1 | 1 | 100 % |
-| **Totale automatizzato** | **64** | **64** | **100 %** |
+| **Totale automatizzato** | **66** | **66** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **69** | **64** | **93 %** |
+| **Totale dichiarato** | **71** | **66** | **93 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -190,4 +192,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v191`._
+_Documento aggiornato alla versione `bsi-v192`._

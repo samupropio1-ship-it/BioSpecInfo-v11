@@ -80,7 +80,15 @@ const VALIDAZIONE = [
   ['acetofenone', 'CC(=O)c1ccccc1', [198.1, 137.1, 133.1, 128.6, 128.3, 26.6]],
   ['4-metossiacetofenone', 'COc1ccc(cc1)C(C)=O', [196.8, 163.5, 130.6, 113.7, 55.5, 26.3]],
   ['butanoato di etile', 'CCCC(=O)OCC', [173.7, 60.2, 36.2, 18.5, 14.3, 13.7]],
-  ['isobutano', 'CC(C)C', [25.0, 24.3]]
+  ['isobutano', 'CC(C)C', [25.0, 24.3]],
+  /* Trovato dal banco dei documenti, non da qui: nel quesito del
+     benzilacetato il confronto struttura↔dati segnalava che l'OCH₂ a 66,3
+     non trovava corrispondenza. Un carbonio con DUE sostituenti in α — un
+     ossigeno estereo e un anello aromatico — è il punto in cui uno schema
+     additivo sbaglia di più, e la molecola entra in validazione proprio
+     perché mostra dove cede. */
+  ['acetato di benzile', 'CC(=O)OCc1ccccc1',
+   [170.9, 136.0, 128.6, 128.2, 66.3, 21.0]]
 ];
 /* ¹H: valori di letteratura in CDCl₃.
    Le ultime sei sono la prova delle CAPACITA' NUOVE: fino a ieri ogni H
@@ -260,9 +268,14 @@ const QUANTI_SEGNALI = [
      predittore di tornare indietro senza che nessuno se ne accorga. */
   sotto('lo scarto medio sulla validazione sta nel valore dichiarato', 1.3,
         +mis.validazione.medio.toFixed(2));
-  /* e il caso peggiore: era 15,0 ppm (cicloesanone, che prendeva il valore
-     del cicloesano nudo). Con il composto di riferimento ciclico è 4,9. */
-  sotto('  · e il caso peggiore sta nel valore dichiarato', 6.0,
+  /* Il caso peggiore: era 15,0 ppm (cicloesanone, che prendeva il valore del
+     cicloesano nudo), sceso a 4,9 con il composto di riferimento ciclico.
+     Ora è 7,5 — l'OCH₂ dell'acetato di benzile — e la soglia è SALITA, non
+     perché il predittore sia peggiorato ma perché è entrata in validazione
+     una molecola che mostra dove cede: un carbonio con due sostituenti in α.
+     Alzare una soglia dopo aver trovato un caso peggiore è onesto solo se lo
+     si dichiara anche nel pannello, e lì sta scritto. */
+  sotto('  · e il caso peggiore sta nel valore dichiarato', 8.0,
         +mis.validazione.peggiore.toFixed(1));
   /* E la guardia opposta: la validazione deve restare PEGGIORE della
      taratura. Se diventasse migliore o uguale, qualcuno avrebbe spostato

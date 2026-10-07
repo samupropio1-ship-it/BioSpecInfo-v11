@@ -21,6 +21,7 @@ ridistribuzione del codice proprietario.
 | **three.js** | `three.min.js`, `three_bloom.js`, `gltf_loader.js` | Rendering 3D WebGL (anatomia, astrochimica, meccanismi) | **MIT** |
 | **SmilesDrawer** | `smiles-drawer.min.js` | Depiction 2D di stringhe SMILES | **MIT** |
 | **sql.js** (SQLite compilato in WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | Playground SQL client-side | **MIT** |
+| **PDF.js** | `vendor/pdfjs/` | Apertura dei documenti PDF nel lettore di spettri: ogni pagina disegnata e il suo strato di testo | **Apache-2.0** |
 
 > Le versioni esatte sono quelle dei file inclusi nel repository. Ogni licenza
 > permissiva richiede la conservazione dell'avviso di copyright originale, che va

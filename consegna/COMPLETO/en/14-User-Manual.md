@@ -106,6 +106,35 @@ acid are both possible, and naming only one would be inventing.
 > compatible with many different molecules: the step from spectrum to structure
 > is yours to take, with everything else you know about the sample.
 
+
+### Opening a problem and having it worked through
+
+In the same section, **Open a document**. It takes the PDF of the exam, a
+photograph of the sheet, a Word file, plain text — and shows you **everything**
+inside: every page drawn (click to enlarge) and the full text.
+
+Then, if the text contains spectroscopic data, it recognises them and puts them
+in a table **with where it took each one from**. That table sits above the
+working on purpose: look at it first. If it mistook a mass for an IR band, the
+working that follows will be impeccable and the answer wrong, and you catch it
+there.
+
+The working lists the steps with the **evidence** for each and how certain it
+is: degrees of unsaturation are arithmetic, the carbon count from the M+1 peak
+is an estimate with a margin, an IR band is *compatible with* several things.
+
+> **It does not give you the structure.** A set of spectroscopic data is
+> compatible with more than one molecule, and a program producing a single one
+> would offer a certainty the data do not contain. What you can do is the
+> opposite: write a structure yourself and the program **compares** it, signal
+> by signal, saying where it fails.
+
+> **If the document is a scan**, the text cannot be read: a scanned page
+> contains pixels, not letters, and there is no optical character recognition.
+> The app tells you instead of pretending the sheet was empty. The pages stay
+> visible, and if one is a photograph of a spectrum the trace can be extracted
+> with **Open an image**.
+
 ### Choosing the language
 
 The **Languages** section holds **fourteen** languages, with a search field to
@@ -249,4 +278,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v191`._
+_Guide updated to version `bsi-v192`._

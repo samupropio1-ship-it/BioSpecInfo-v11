@@ -15,6 +15,7 @@ code is covered by the project [`LICENSE`](LICENSE) ("All rights reserved").
 | three.js | `three.min.js`, `three_bloom.js`, `gltf_loader.js` | MIT | three.js authors |
 | SmilesDrawer | `smiles-drawer.min.js` | MIT | Daniel Probst & contributors |
 | sql.js (SQLite → WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | MIT | sql.js authors; SQLite is public domain |
+| PDF.js | `vendor/pdfjs/pdf.min.mjs`, `vendor/pdfjs/pdf.worker.min.mjs`, `vendor/pdfjs/standard_fonts/` | Apache-2.0 | Mozilla Foundation & PDF.js contributors |
 
 > The exact version of each library is the one bundled in this repository.
 
@@ -113,3 +114,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 _For the authoritative and complete license text of each project, refer to the
 respective upstream repository. The notices above are reproduced to satisfy the
 attribution requirements of the permissive licenses._
+
+---
+
+## PDF.js — Apache-2.0
+
+Copyright 2012 Mozilla Foundation
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use these files except in compliance with the License. You may obtain a copy
+of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+
+The full licence text as shipped by the project is kept verbatim in
+`vendor/pdfjs/LICENSE`.
+
+> **Which build, and why the legacy one.** The bundled files come from the
+> `legacy/` build of `pdfjs-dist`. The default build uses very recent language
+> features (`Map.prototype.getOrInsertComputed` among them) and throws on
+> browsers that do not have them yet — including the Chromium the verification
+> battery runs on. The legacy build is the one meant for wider support, and a
+> PWA that has to open on a three-year-old phone needs it.

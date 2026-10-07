@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v191` |
+| **Versione descritta** | `bsi-v192` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**60 banchi**, raggruppati per ciò che dimostrano.
+**61 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -108,7 +108,10 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
 | `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni CSV e SDF, **contrasto dei nove pannelli**, accordo fra laboratorio e motore, frammentazione, **coppie corrispondenti su effetti noti**, ricerca per sottostruttura, tabella SAR, confronto fra modelli nei due versi, arricchimento (EF e BEDROC) su casi calcolabili a mano, intervalli conformi e il loro **rifiuto sulla classificazione** | 189 |
 | `test_spettrolettore` | Il lettore di spettri e i modelli che ne seguono: ASDF simbolo per simbolo, JCAMP esplicito e compresso in DIF/DUP, picchi per prominenza su spettri **costruiti** e **su rumore puro**, curva contro lista di picchi, perdite neutre sul toluene, ESOL contro quattro valori sperimentali, quattro filtri di drug-likeness separati, foresta casuale nei due versi | 39 |
-| `test_nmr` | La predizione NMR assegnata per atomo: due insiemi separati di molecole (taratura e **validazione**, quest'ultima mai usata per scegliere i parametri), il conteggio dei segnali su molecole di cui si sa quanti ne danno, i rifiuti su uno SMILES illeggibile e su una stringa vuota, e il pannello provato nell'applicazione — clic su una riga, atomi illuminati, passaggio fra ¹H e ¹³C sulla stessa molecola | 26 |
+| `test_nmr` | La predizione NMR assegnata per atomo: due insiemi separati di molecole (taratura e **validazione**, quest'ultima mai usata per scegliere i parametri), il conteggio dei segnali su molecole di cui si sa quanti ne danno, i rifiuti su uno SMILES illeggibile e su una stringa vuota, la **cronologia** con il riconoscimento dei doppioni per chiave InChI, e la sincronia **picco ↔ struttura ↔ 3D** verificata sugli indici, non sul numero di atomi illuminati | 64 |
+| `test_nmr2d` | Le mappe di correlazione contate sul grafo: HSQC con il segno invertito sui CH₂, COSY fra protoni non equivalenti, HMBC a due e tre legami. **Nei due versi**: l'esafluorobenzene non dà macchie HSQC, il benzene **nessuna** macchia COSY fuori diagonale, il metano **nessuna** macchia HMBC pur avendo quattro protoni | 40 |
+| `test_geom3d` | La geometria 3D costruita dal grafo, misurata contro i valori di letteratura: legami, angoli di valenza, linearità degli alchini. **Nei due versi**: il benzene esce piano e il cicloesano **non** piano. E la prova che rende lecito il collegamento picco↔atomo: ogni atomo pesante ha **lo stesso indice e lo stesso elemento** del predittore | 29 |
+| `test_documento` | L'apertura di qualunque documento e lo svolgimento del quesito che contiene: PDF, Word e testo aperti davvero e il contenuto verificato; i dati riconosciuti **con la loro provenienza**. **Nei due versi**: un'immagine dichiara che non c'è riconoscimento ottico e non inventa uno svolgimento, un formato sconosciuto viene rifiutato invece che indovinato, CDCl₃ non diventa la formula del composto, senza etichetta MS non ci sono masse | 47 |
 
 
 > **Un banco che verifica un modello deve verificarlo anche quando il modello
@@ -482,6 +485,7 @@ di nascosto.
 | `genera-pacchetti` | Riscrive i riferimenti dei documenti estratti e **verifica che nessun collegamento resti rotto** nei tre pacchetti di consegna |
 | `genera-pdf` | Converte i documenti in PDF e fallisce se un file risulta sotto la soglia di plausibilità (conversione a vuoto) |
 | `verifica-affermazioni` | Confronta ogni numero dichiarato nei documenti — sezioni, farmaci, malattie, tumori, strategie, moduli — con quello **misurato nell'applicazione in esecuzione**, in italiano *e* in inglese |
+| `test_stack` | Che lo stack React/FastAPI esegua **gli stessi file** dell'applicazione: confronta le impronte SHA-256 che `GET /salute` dichiara con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che **nessun file `.ts`/`.tsx` contenga una tabella di spostamenti** — perché è lì che nascerebbe il secondo motore |
 
 > **Perché i numeri vanno misurati, non ricordati.** Il dossier tecnico si apre
 > con delle cifre: «63 malattie (23 tumori)», «46 strategie», «25 moduli». Sono
@@ -603,7 +607,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 92 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 335 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 362 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -622,4 +626,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v191`._
+_Documento aggiornato alla versione `bsi-v192`._

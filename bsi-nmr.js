@@ -1036,16 +1036,20 @@
            direbbe solo quanto bene lo schema ricorda i propri esempi. */
         incertezza: (nucleo === '13C')
           ? t('scarto medio misurato 0,7 ppm su 9 molecole di taratura e ' +
-              '0,9 su 22 di validazione, mai usate per scegliere i parametri; ' +
-              'caso peggiore misurato 4,9 ppm (cicloesanone). Il difenile ' +
-              'sbaglia l\u2019ipso di 4,6 ppm: l\u2019incremento del fenile della ' +
-              'tabella (8,1) non lo descrive, e non e\u2019 stato ritoccato per ' +
-              'farlo tornare',
+              '1,0 su 23 di validazione, mai usate per scegliere i parametri; ' +
+              'caso peggiore misurato 7,5 ppm — l\u2019OCH\u2082 dell\u2019acetato di ' +
+              'benzile, un carbonio con DUE sostituenti in α (un ossigeno ' +
+              'estereo e un anello): è lì che uno schema additivo cede di più. ' +
+              'Il difenile sbaglia l\u2019ipso di 4,6 ppm perché l\u2019incremento ' +
+              'del fenile della tabella (8,1) non lo descrive, e non è stato ' +
+              'ritoccato per farlo tornare',
               'measured mean deviation 0.7 ppm over 9 tuning molecules and ' +
-              '0.9 over 22 validation ones, never used to choose parameters; ' +
-              'worst case measured 4.9 ppm (cyclohexanone). Biphenyl misses ' +
-              'its ipso carbon by 4.6 ppm: the table\u2019s phenyl increment ' +
-              '(8.1) does not describe it, and was not adjusted to make it fit')
+              '1.0 over 23 validation ones, never used to choose parameters; ' +
+              'worst case measured 7.5 ppm — the OCH\u2082 of benzyl acetate, a ' +
+              'carbon with TWO α substituents (an ester oxygen and a ring): ' +
+              'that is where an additive scheme gives way most. Biphenyl misses ' +
+              'its ipso carbon by 4.6 ppm because the table\u2019s phenyl increment ' +
+              '(8.1) does not describe it, and it was not adjusted to make it fit')
           : t('scarto medio misurato 0,06 ppm su 14 molecole di letteratura, ' +
               '0,03 sui soli aromatici',
               'measured mean deviation 0.06 ppm over 14 literature molecules, ' +

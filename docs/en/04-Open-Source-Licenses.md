@@ -20,6 +20,7 @@ used, so there are no obligations to redistribute the proprietary code.
 | **three.js** | `three.min.js`, `three_bloom.js`, `gltf_loader.js` | WebGL 3D rendering (anatomy, astrochemistry, mechanisms) | **MIT** |
 | **SmilesDrawer** | `smiles-drawer.min.js` | 2D depiction of SMILES strings | **MIT** |
 | **sql.js** (SQLite compiled to WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | Client-side SQL playground | **MIT** |
+| **PDF.js** | `vendor/pdfjs/` | Opening PDF documents in the spectrum reader: every page drawn and its text layer | **Apache-2.0** |
 
 > The exact versions are those of the files included in the repository. Each
 > permissive license requires preserving the original copyright notice, which

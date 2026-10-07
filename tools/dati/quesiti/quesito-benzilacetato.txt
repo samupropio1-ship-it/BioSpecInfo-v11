@@ -1,0 +1,13 @@
+Quesito d'esame — determinazione strutturale
+
+Un composto di formula molecolare C9H10O2 presenta i dati seguenti.
+
+IR (cm-1): 3035, 2955, 1738, 1600, 1498, 1230, 1025, 750, 697.
+
+MS m/z (intensita relativa): 150 (22), 108 (100), 107 (28), 91 (45), 65 (12), 43 (60).
+
+1H NMR (CDCl3): 7.35 (5H, m), 5.10 (2H, s), 2.05 (3H, s).
+
+13C NMR (CDCl3): 170.9; 136.0; 128.6; 128.2; 66.3; 21.0.
+
+Proponi una struttura compatibile e giustificala con i dati.

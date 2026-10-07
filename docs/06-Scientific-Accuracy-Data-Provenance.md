@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v191` |
+| **Versione descritta** | `bsi-v192` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -724,6 +724,35 @@ trentina di atomi e arriva a 0,31 Å su una molecola di 76.
 minimizza violazioni geometriche. Non sceglie il conformero più stabile e non
 tratta la stereochimica — un centro R e il suo enantiomero escono uguali.
 
+### 3.9 Dal documento allo svolgimento: che cosa è dedotto e che cosa è letto
+
+`bsi-documento.js` apre il file; `bsi-quesito.js` riconosce i dati nel testo;
+`bsi-elucida.js` svolge. Sono tre passi separati **di proposito**, perché
+sbagliano in modi diversi e confonderli nasconde l'errore: se il
+riconoscimento legge «1715» come banda IR quando era una massa, lo
+svolgimento che segue è impeccabile e la conclusione è sbagliata. Per questo
+il pannello mostra **la tabella dei dati letti sopra lo svolgimento**, con
+scritto accanto a ognuno da dove viene.
+
+**Il riconoscimento è per sezione, non per numero.** Una banda IR a 1738 e una
+massa a 150 sono entrambe numeri: distinguerli dal solo valore è impossibile.
+Si cerca l'etichetta della tecnica (IR, MS, ¹H NMR, ¹³C NMR) e si legge quello
+che viene dopo, fino alla fine del capoverso o all'etichetta successiva.
+
+**Quello che non fa.** Non c'è nessun modello linguistico: ci sono espressioni
+regolari e un motore di regole spettroscopiche. Se il testo scrive i dati in
+una forma non prevista, i dati **non** vengono letti — e il modulo lo dichiara
+invece di svolgere a metà. Lo svolgimento arriva fino a dove arrivano le
+regole: gruppi funzionali compatibili, frammenti, conteggi. **La struttura
+finale non viene proposta**, perché proporla vorrebbe dire indovinare; una
+struttura la si può scrivere e il programma la **confronta** con i dati,
+dicendo quali segnali tornano e quali no.
+
+**Non c'è riconoscimento ottico dei caratteri.** Una pagina scansionata
+contiene pixel, non lettere: il testo non si legge, e il modulo lo dichiara
+invece di restituire una stringa vuota come se il documento fosse vuoto. Le
+pagine restano visibili, e da lì passa l'estrazione della traccia dai pixel.
+
 ---
 
 ## 4. Costanti fisiche e dati tabulati
@@ -777,4 +806,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v191`._
+_Documento aggiornato alla versione `bsi-v192`._

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v191` |
+| **Version described** | `bsi-v192` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -54,6 +54,8 @@
 | **SCI-30** | From an image one can recover the SHAPE of a spectrum, not its calibration | `bsi-spettrolettore.js` §6-bis — trace extraction from the pixels column by column, background estimated from the median, empty columns interpolated | `test_spettrolettore` — on a **constructed** figure with Gaussians at 1715/2950/3400 cm⁻¹ it reads **1713/2947/3403** from the pixels alone; **in both directions**, on a blank sheet it refuses instead of inventing a trace; and it declares that the axis scale is not in the pixels |
 | **SCI-31** | A two-dimensional NMR map must say WHICH atoms produce each correlation, and must not connect what the topology does not connect | `bsi-nmr2d.js` — one-bond HSQC with inverted sign on CH₂, three-bond COSY between non-equivalent protons, two- and three-bond HMBC; exchangeables excluded from off-diagonal spots | `test_nmr2d` — **40 checks**, in both directions: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots (its six protons are equivalent), methane **no** HMBC spots despite having four protons |
 | **SCI-32** | A program-built 3D geometry must carry THE SAME indices as the predictor, otherwise the peak↔atom link lights up the wrong atom | `bsi-geom3d.js` — distance geometry over the `bsi-nmr.js` graph, hydrogens appended at the end, generator seeded from the SMILES | `test_geom3d` — **29 checks**: every heavy atom has the same index and element across five molecules; bonds and angles within tolerance of literature values; **in both directions** benzene comes out planar and cyclohexane does not |
+| **SCI-33** | A document must be opened in full, and whatever could NOT be read must be declared — a reader that returns little without saying so makes the document look nearly empty | `bsi-documento.js` — PDF page by page with its text layer (PDF.js), images, text, Office archives opened with `DecompressionStream` and no libraries | `test_documento` — **47 checks**: PDF, Word and text genuinely opened and their content verified; **in both directions** an image declares there is no optical character recognition and produces no working, an unknown format is refused rather than guessed, a binary file named `.txt` is recognised as binary |
+| **SCI-34** | Spectroscopic data recognised in a text must carry their PROVENANCE, and the working must declare what it is missing | `bsi-quesito.js` — recognition by section (IR, MS, ¹H, ¹³C) with the boundaries between sections, then `bsi-elucida.js` for the step-by-step working | `test_documento` — formula, bands, masses with intensities, ¹H signals with integral and multiplicity, ¹³C signals; **in both directions**: CDCl₃ does not become the compound, a band outside 400-4000 is not a band, without an MS label there are no masses, a new paragraph closes the section, a text with no spectra produces no data |
 | **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
@@ -110,7 +112,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 335 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 362 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 92 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -146,15 +148,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…32) | 31 | 31 | 100 % |
+| Scientific (SCI-01…34) | 33 | 33 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…11) | 9 | 9 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
 | Architecture (ING-01…01) | 1 | 1 | 100 % |
-| **Automated total** | **64** | **64** | **100 %** |
+| **Automated total** | **66** | **66** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **69** | **64** | **93 %** |
+| **Declared total** | **71** | **66** | **93 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -189,4 +191,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v191`._
+_Document updated to version `bsi-v192`._

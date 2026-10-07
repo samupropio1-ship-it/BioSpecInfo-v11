@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v191` |
+| **Version described** | `bsi-v192` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**60 benches**, grouped by what they demonstrate.
+**61 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -109,6 +109,10 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
 | `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals and their **refusal on classification** | 189 |
 | `test_spettrolettore` | The spectrum reader and the models that follow from it: ASDF symbol by symbol, explicit and DIF/DUP-compressed JCAMP, prominence peaks on **built** spectra **and on pure noise**, curve versus peak list, neutral losses on toluene, ESOL against four experimental values, four drug-likeness filters reported separately, random forest both ways | 39 |
+| `test_nmr` | Per-atom NMR prediction: two separate molecule sets (tuning and **validation**, the latter never used to choose parameters), the signal count on molecules whose count is known, refusals on an unreadable SMILES and on an empty string, the **history** with duplicate detection by InChI key, and the **peak ↔ structure ↔ 3D** sync verified on the indices, not on how many atoms light up | 64 |
+| `test_nmr2d` | Correlation maps counted on the graph: HSQC with inverted sign on CH₂, COSY between non-equivalent protons, HMBC two and three bonds away. **In both directions**: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots, methane **no** HMBC spots despite having four protons | 40 |
+| `test_geom3d` | The 3D geometry built from the graph, measured against literature values: bonds, valence angles, alkyne linearity. **In both directions**: benzene comes out planar and cyclohexane does **not**. And the proof that makes the peak↔atom link legitimate: every heavy atom has **the same index and element** as the predictor's | 29 |
+| `test_documento` | Opening any document and working through the problem inside: PDF, Word and text genuinely opened and the content verified; the data recognised **with their provenance**. **In both directions**: an image declares there is no optical character recognition and invents no working, an unknown format is refused rather than guessed, CDCl₃ does not become the compound's formula, without an MS label there are no masses | 47 |
 
 
 > **A bench that verifies a model must also verify it when the model is
@@ -462,6 +466,7 @@ what can be measured, with the guarantee that it will not silently get worse.
 | `genera-pacchetti` | Rewrites the references of the extracted documents and **verifies that no link is left broken** in the three delivery packages |
 | `genera-pdf` | Converts the documents to PDF and fails if a file falls below the plausibility threshold (empty conversion) |
 | `verifica-affermazioni` | Compares every number declared in the documents — sections, drugs, diseases, tumours, strategies, modules — with the one **measured in the running application**, in Italian *and* in English |
+| `test_stack` | That the React/FastAPI stack runs **the same files** as the application: it compares the SHA-256 fingerprints `GET /salute` declares with those of the files on disk, checks the numbers match the browser's, and that **no `.ts`/`.tsx` file contains a shift table** — because that is where the second engine would be born |
 
 > **Why numbers must be measured, not remembered.** The technical dossier opens
 > with figures: "63 diseases (23 tumours)", "46 strategies", "25 modules". They
@@ -583,7 +588,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 92 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 335 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 362 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -602,4 +607,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v191`._
+_Document updated to version `bsi-v192`._

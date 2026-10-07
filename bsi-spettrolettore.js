@@ -733,6 +733,35 @@ t('Dati dello spettro', 'Spectrum data') + '" placeholder="##TITLE=...&#10;1000 
   ' <input class="bsiSP-in" id="bsiSP-x1" style="width:92px;display:inline-block" value="400"></label>' +
 '<button class="bsiSP-btn" id="bsiSP-rileggiImg">' + t('rileggi l’immagine', 'read the image again') + '</button>' +
 '</div><div id="bsiSP-imgNota" style="font-size:11px;color:#8aadcc;margin-top:6px"></div></div>' +
+'<div class="bsiSP-card"><h4>' +
+  t('📄 Apri un documento e fattelo svolgere',
+    '📄 Open a document and have it worked through') + '</h4><p>' + t(
+  'Un quesito non arriva quasi mai come un file di dati: arriva come un <b>PDF</b> ' +
+  'di tre pagine, la <b>fotografia</b> di un foglio, un <b>documento Word</b> con ' +
+  'dentro una tabella. Qui si apre qualunque file, si vede <b>tutto</b> quello che ' +
+  'contiene — ogni pagina disegnata, tutto il testo — e i dati spettroscopici ' +
+  'riconosciuti vengono passati al motore di elucidazione, che svolge ' +
+  '<b>passo per passo</b> dicendo da dove viene ogni conclusione.',
+  'A problem almost never arrives as a data file: it arrives as a three-page ' +
+  '<b>PDF</b>, a <b>photograph</b> of a sheet, a <b>Word document</b> with a table ' +
+  'inside. Here any file opens, <b>everything</b> it contains is shown — every page ' +
+  'drawn, all the text — and the recognised spectroscopic data go to the ' +
+  'elucidation engine, which works through them <b>step by step</b>, saying where ' +
+  'every conclusion comes from.') + '</p>' +
+'<p style="font-size:11.5px;color:#8aadcc">' + t('Formati: ', 'Formats: ') +
+  (globale.BSIDocumento ? globale.BSIDocumento.FORMATI : 'PDF, …') + '</p>' +
+'<div style="display:flex;gap:7px;flex-wrap:wrap">' +
+'<input type="file" id="bsiSP-doc" style="display:none">' +
+'<button class="bsiSP-btn" id="bsiSP-apriDoc">' +
+  t('📄 Apri un documento', '📄 Open a document') + '</button>' +
+'<button class="bsiSP-btn2" id="bsiSP-esQuesito">' +
+  t('esempio: un quesito d’esame', 'example: an exam problem') + '</button>' +
+'<button class="bsiSP-btn2" id="bsiSP-svolgiTesto">' +
+  t('svolgi il testo qui sopra', 'work through the text above') + '</button>' +
+'</div>' +
+'<div id="bsiSP-docStato" style="font-size:12px;color:#8aadcc;margin-top:8px"></div>' +
+'</div>' +
+'<div id="bsiSP-docOut"></div>' +
 '<div id="bsiSP-out"></div>' +
 '<div class="bsiSP-card"><h4>' + t('Che cosa non fa', 'What it does not do') + '</h4><p>' +
 t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
@@ -926,6 +955,262 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
     if (tela) disegna(tela, sp, an);
   }
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     §7 · Il documento: aprirlo, mostrarlo tutto, svolgerlo
+
+     Tre pezzi distinti, e restano distinti sullo schermo:
+
+       1. CHE COSA C'E' NEL FILE — ogni pagina disegnata, tutto il testo, e
+          l'elenco di ciò che NON si è potuto leggere;
+       2. CHE COSA HO LETTO — i dati riconosciuti, uno per uno, con scritto
+          accanto DA DOVE vengono;
+       3. LO SVOLGIMENTO — i passaggi, con la prova e il grado di certezza.
+
+     L'ordine conta. Se il riconoscimento legge «1715» come banda IR quando
+     era una massa, lo svolgimento che segue è impeccabile e la conclusione è
+     sbagliata: mettendo la tabella dei dati PRIMA, quell'errore si vede
+     prima di leggere la risposta. Metterla dopo la nasconderebbe.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var documentoCorrente = null;
+
+  function esc(x) {
+    return String(x === undefined || x === null ? '' : x)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function cartaAvvisi(lista, titolo) {
+    if (!lista || !lista.length) return '';
+    return '<div class="bsiSP-avv"><b>' + esc(titolo) + '</b><ul style="margin:6px 0 0 18px;' +
+      'padding:0">' + lista.map(function (a) {
+        return '<li style="margin-bottom:4px">' + esc(a) + '</li>';
+      }).join('') + '</ul></div>';
+  }
+
+  /* ── 1 · che cosa c'è nel file ─────────────────────────────────────────── */
+  function rendiDocumento(d) {
+    var h = '<div class="bsiSP-card"><h4>' +
+      t('Che cosa c’è nel file', 'What is in the file') + '</h4>';
+    h += '<table class="bsiSP-tbl"><tr><th>' + t('nome', 'name') + '</th><td>' +
+      esc(d.nome) + '</td></tr><tr><th>' + t('formato', 'format') + '</th><td>' +
+      esc(d.formato || d.tipo || '?') + '</td></tr><tr><th>' +
+      t('dimensione', 'size') + '</th><td>' +
+      (d.byte > 1048576 ? (d.byte / 1048576).toFixed(1) + ' MB'
+                        : Math.round(d.byte / 1024) + ' kB') + '</td></tr>';
+    if (d.pagine.length) {
+      h += '<tr><th>' + t('pagine', 'pages') + '</th><td>' + d.pagine.length + '</td></tr>';
+    }
+    h += '<tr><th>' + t('testo letto', 'text read') + '</th><td>' + d.nParole + ' ' +
+      t('parole in ', 'words in ') + d.nRighe + t(' righe', ' lines') + '</td></tr></table>';
+    if (d.errore) {
+      h += '<div class="bsiSP-avv" style="margin-top:10px"><b>' +
+        esc(d.errore) + '</b></div>';
+    }
+    h += '</div>';
+    h += cartaAvvisi(d.avvisi, t('Quello che NON ho potuto leggere',
+                                 'What I could NOT read'));
+
+    if (d.pagine.length) {
+      h += '<div class="bsiSP-card"><h4>' + t('Le pagine, tutte',
+        'The pages, all of them') + '</h4><div id="bsiSP-pagine" style="display:flex;' +
+        'gap:12px;flex-wrap:wrap"></div></div>';
+    }
+    if (d.testo) {
+      h += '<div class="bsiSP-card"><h4>' + t('Il testo, per intero',
+        'The text, in full') + '</h4><pre style="white-space:pre-wrap;word-break:break-word;' +
+        'max-height:340px;overflow:auto;background:#081321;border:1px solid #1e3a52;' +
+        'border-radius:9px;padding:11px;font:11.5px/1.6 ui-monospace,monospace;' +
+        'color:#cfe2f5;margin:0">' + esc(d.testo) + '</pre></div>';
+    }
+    return h;
+  }
+
+  /* le tele delle pagine si attaccano DOPO, perché sono oggetti e non HTML:
+     passarle per innerHTML le perderebbe */
+  function attaccaPagine(d) {
+    var box = document.getElementById('bsiSP-pagine');
+    if (!box) return;
+    box.innerHTML = '';
+    d.pagine.forEach(function (p) {
+      var cella = document.createElement('div');
+      cella.style.cssText = 'flex:0 0 auto;max-width:100%';
+      var et = document.createElement('div');
+      et.style.cssText = 'font-size:11px;color:#8aadcc;margin-bottom:4px';
+      et.textContent = t('pagina ', 'page ') + p.n + ' · ' + p.larghezza + '×' +
+        p.altezza + (p.testo ? '' : t('  · nessun testo', '  · no text'));
+      cella.appendChild(et);
+      p.tela.style.cssText = 'max-width:100%;width:270px;height:auto;border-radius:8px;' +
+        'background:#fff;border:1px solid #1e3a52;cursor:zoom-in';
+      p.tela.title = t('clicca per ingrandire', 'click to enlarge');
+      p.tela.onclick = function () {
+        p.tela.style.width = (p.tela.style.width === '270px') ? '100%' : '270px';
+      };
+      cella.appendChild(p.tela);
+      box.appendChild(cella);
+    });
+  }
+
+  /* ── 2 e 3 · i dati letti, e lo svolgimento ────────────────────────────── */
+  function rendiSvolgimento(testo) {
+    if (!globale.BSIQuesito) {
+      return '<div class="bsiSP-avv">' + t('Il modulo dei quesiti non è caricato.',
+                                           'The problem module is not loaded.') + '</div>';
+    }
+    var r = globale.BSIQuesito.svolgi(testo);
+    var d = r.dati;
+    var h = '<div class="bsiSP-card"><h4>' +
+      t('Che cosa ho letto — controllalo prima di guardare la risposta',
+        'What I read — check it before looking at the answer') + '</h4>';
+    if (!d.provenienza.length) {
+      h += '<p>' + t('Niente di riconoscibile.', 'Nothing recognisable.') + '</p>';
+    } else {
+      h += '<table class="bsiSP-tbl"><tr><th>' + t('dato', 'datum') + '</th><th>' +
+        t('valore', 'value') + '</th><th>' + t('da dove viene', 'where it comes from') +
+        '</th></tr>' + d.provenienza.map(function (p) {
+          return '<tr><td><b>' + esc(p.dato) + '</b></td><td>' + esc(p.valore) +
+            '</td><td>' + esc(p.perche) + '</td></tr>';
+        }).join('') + '</table>';
+    }
+    if (d.h1 && d.h1.length) {
+      h += '<table class="bsiSP-tbl" style="margin-top:10px"><tr><th>δ ¹H</th><th>' +
+        t('integr.', 'integ.') + '</th><th>' + t('molt.', 'mult.') + '</th><th>J (Hz)</th></tr>' +
+        d.h1.map(function (x) {
+          return '<tr><td>' + x.ppm + '</td><td>' + (x.nH === null ? '—' : x.nH + 'H') +
+            '</td><td>' + esc(x.molteplicita || '—') + '</td><td>' +
+            (x.J && x.J.length ? x.J.join(', ') : '—') + '</td></tr>';
+        }).join('') + '</table>';
+    }
+    if (d.c13 && d.c13.length) {
+      h += '<p style="margin-top:9px"><b>δ ¹³C:</b> ' + esc(d.c13.join('; ')) + '</p>';
+    }
+    h += '</div>';
+
+    if (d.mancanti.length) {
+      h += cartaAvvisi(d.mancanti.map(function (m) {
+        return t('non riconosciuto: ', 'not recognised: ') + m;
+      }), t('Quello che manca allo svolgimento', 'What the work is missing'));
+    }
+    h += cartaAvvisi(r.avvisi, t('Avvertenze', 'Warnings'));
+
+    if (!r.dossier) return h;
+    var D = r.dossier;
+    h += '<div class="bsiSP-card"><h4>' + t('Lo svolgimento, passo per passo',
+      'The work, step by step') + '</h4>';
+    if (D.deduzioni && D.deduzioni.length) {
+      h += '<table class="bsiSP-tbl"><tr><th style="width:26%">' +
+        t('passo', 'step') + '</th><th>' + t('valore', 'value') + '</th><th>' +
+        t('come ci si arriva', 'how it is reached') + '</th><th>' +
+        t('quanto è certo', 'how certain') + '</th></tr>' +
+        D.deduzioni.map(function (x, i) {
+          return '<tr><td><b>' + (i + 1) + '. ' + esc(x.che) + '</b></td><td><b>' +
+            esc(x.valore) + '</b></td><td>' + esc(x.prova) +
+            (x.nota ? '<br><span style="color:#8aadcc">' + esc(x.nota) + '</span>' : '') +
+            '</td><td>' + esc(x.certezza || '') + '</td></tr>';
+        }).join('') + '</table>';
+    }
+    if (D.supposizioni && D.supposizioni.length) {
+      h += '<h4 style="margin-top:12px">' + t('Le supposizioni — non sono conclusioni',
+        'The conjectures — they are not conclusions') + '</h4><ul style="margin:0 0 0 18px;' +
+        'color:#cfe2f5;font-size:12.5px;line-height:1.6">' +
+        D.supposizioni.map(function (x) {
+          if (typeof x === 'string') return '<li>' + esc(x) + '</li>';
+          /* Il campo si chiama `perche`, non `prova`: scritto sbagliato,
+             ogni supposizione usciva come «Perdita di H —» con il motivo
+             vuoto, cioè proprio la metà che la rende una supposizione
+             leggibile invece di un'affermazione nuda. */
+          return '<li><b>' + esc(x.che) + '</b>' +
+            (x.valore !== undefined && x.valore !== '' ? ': ' + esc(x.valore) : '') +
+            (x.perche ? '<br><span style="color:#8aadcc">' + esc(x.perche) + '</span>' : '') +
+            '</li>';
+        }).join('') + '</ul>';
+    }
+    h += cartaAvvisi(D.avvisi, t('Quello che i dati non reggono',
+                                 'What the data do not support'));
+    h += '</div>';
+
+    /* la cosa onesta che si può fare al posto di indovinare */
+    h += '<div class="bsiSP-card"><h4>' + t('Proponi una struttura e confrontala',
+      'Propose a structure and compare it') + '</h4><p>' + t(
+      'La struttura finale <b>non viene proposta</b>: proporla vorrebbe dire ' +
+      'indovinare, e un insieme di dati spettroscopici è compatibile con più di ' +
+      'una molecola. Quello che si può fare onestamente è il contrario — scrivi ' +
+      'tu una struttura e il programma dice <b>quali segnali tornano e quali no</b>.',
+      'The final structure is <b>not proposed</b>: proposing it would mean ' +
+      'guessing, and a set of spectroscopic data is compatible with more than one ' +
+      'molecule. What can honestly be done is the opposite — you write a ' +
+      'structure and the program says <b>which signals fit and which do not</b>.') +
+      '</p><div style="display:flex;gap:7px;flex-wrap:wrap">' +
+      '<input class="bsiSP-in" id="bsiSP-prop" style="flex:1 1 220px" ' +
+      'placeholder="SMILES — es. CC(=O)OCc1ccccc1" spellcheck="false">' +
+      '<button class="bsiSP-btn" id="bsiSP-confronta">' +
+      t('confronta con i dati', 'compare with the data') + '</button></div>' +
+      '<div id="bsiSP-propOut" style="margin-top:10px"></div></div>';
+    return h;
+  }
+
+  function rendiConfronto(c) {
+    if (!c) return '';
+    if (c.errore) return '<div class="bsiSP-avv">' + esc(c.errore) + '</div>';
+    var col = (c.fiducia === 'bassa') ? '#2a1f0c' : '#0c3024';
+    var h = '<div style="background:' + col + ';border-radius:9px;padding:10px 13px;' +
+      'font-size:12.5px;color:#cfe2f5"><b>' + t('Punteggio: ', 'Score: ') +
+      esc(c.punteggio) + ' / 100</b> · ' + t('fiducia: ', 'confidence: ') +
+      esc(c.fiducia) + '</div>';
+    if (c.perche && c.perche.length) {
+      h += '<ul style="margin:8px 0 0 18px;font-size:12px;color:#8aadcc">' +
+        c.perche.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>';
+    }
+    if (c.parti && c.parti.length) {
+      h += '<table class="bsiSP-tbl" style="margin-top:9px"><tr><th>' +
+        t('controllo', 'check') + '</th><th>' + t('esito', 'outcome') + '</th><th>' +
+        t('perché', 'why') + '</th></tr>' + c.parti.map(function (p) {
+          return '<tr><td>' + esc(p.che || p.nome || '') + '</td><td>' +
+            (p.esito ? '✓' : '✗') + '</td><td>' + esc(p.dettaglio || p.prova || '') +
+            '</td></tr>';
+        }).join('') + '</table>';
+    }
+    if (c.avvertenza) {
+      h += '<p style="font-size:11.5px;color:#8aadcc;margin-top:8px">' +
+        esc(c.avvertenza) + '</p>';
+    }
+    return h;
+  }
+
+  var ESEMPIO_QUESITO =
+    'Quesito. Un composto di formula molecolare C9H10O2 dà i seguenti dati.\n\n' +
+    'IR (cm-1): 3035, 2955, 1738, 1600, 1498, 1230, 1025, 750, 697.\n\n' +
+    'MS m/z (intensita relativa): 150 (22), 108 (100), 107 (28), 91 (45), 65 (12), 43 (60).\n\n' +
+    '1H NMR (CDCl3): d 7,35 (5H, m), 5,10 (2H, s), 2,05 (3H, s).\n\n' +
+    '13C NMR (CDCl3): d 170,9; 136,0; 128,6; 128,2; 66,3; 21,0.\n\n' +
+    'Proponi una struttura compatibile e giustificala con i dati.';
+
+  function svolgiTestoE(testo, nota) {
+    var out = document.getElementById('bsiSP-docOut');
+    if (!out) return;
+    out.innerHTML = (nota || '') + rendiSvolgimento(testo);
+    agganciaConfronto(testo);
+  }
+
+  function agganciaConfronto(testo) {
+    var b = document.getElementById('bsiSP-confronta');
+    if (!b) return;
+    b.onclick = function () {
+      var inp = document.getElementById('bsiSP-prop');
+      var box = document.getElementById('bsiSP-propOut');
+      if (!inp || !box) return;
+      var smi = inp.value.trim();
+      if (!smi) { box.innerHTML = ''; return; }
+      if (!globale.BSIQuesito || !globale.BSIQuesito.verifica) return;
+      var fai = function () {
+        box.innerHTML = rendiConfronto(globale.BSIQuesito.verifica(smi, testo));
+      };
+      if (!globale.__rdkit && globale.bsiLoadRDKit) {
+        box.innerHTML = '<span style="color:#8aadcc">' +
+          t('carico il motore chimico…', 'loading the chemistry engine…') + '</span>';
+        globale.bsiLoadRDKit(fai);
+      } else fai();
+    };
+  }
+
   function aggancia() {
     var src = document.getElementById('bsiSP-src');
     if (!src) return;
@@ -996,6 +1281,77 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       var ril = document.getElementById('bsiSP-rileggiImg');
       if (ril) ril.onclick = leggiImmagine;
     }
+
+    /* ── il documento ──────────────────────────────────────────────────── */
+    var doc = document.getElementById('bsiSP-doc');
+    var apriDoc = document.getElementById('bsiSP-apriDoc');
+    var stato = document.getElementById('bsiSP-docStato');
+    if (apriDoc && doc) {
+      apriDoc.onclick = function () { doc.click(); };
+      doc.onchange = function () {
+        var f = doc.files && doc.files[0];
+        if (!f) return;
+        if (!globale.BSIDocumento) {
+          if (stato) stato.textContent = t('il modulo dei documenti non è caricato',
+                                           'the document module is not loaded');
+          return;
+        }
+        if (stato) {
+          stato.textContent = t('apro «', 'opening “') + f.name + t('»…', '”…') +
+            (/pdf$/i.test(f.name) ? t('  (un PDF richiede qualche secondo la prima volta)',
+                                      '  (a PDF takes a few seconds the first time)') : '');
+        }
+        globale.BSIDocumento.leggi(f).then(function (d) {
+          documentoCorrente = d;
+          if (stato) {
+            stato.textContent = t('aperto: ', 'opened: ') + d.nome + ' · ' +
+              (d.pagine.length ? d.pagine.length + t(' pagine · ', ' pages · ') : '') +
+              d.nParole + t(' parole', ' words');
+          }
+          var out = document.getElementById('bsiSP-docOut');
+          if (!out) return;
+          out.innerHTML = rendiDocumento(d) +
+            (d.testo ? rendiSvolgimento(d.testo) : '');
+          attaccaPagine(d);
+          if (d.testo) agganciaConfronto(d.testo);
+          /* Una pagina senza testo è un'immagine: la si può comunque misurare
+             con l'estrattore di tracce, che è già qui accanto. Invece di
+             dirlo e basta, si offre il passaggio. */
+          if (d.pagine.length && !d.testo) {
+            var p0 = d.pagine[0];
+            var im = new Image();
+            im.onload = function () { ultimaImmagine = im; };
+            try { im.src = p0.tela.toDataURL('image/png'); } catch (e) {}
+          }
+        }).catch(function (e) {
+          if (stato) {
+            stato.textContent = t('non sono riuscito ad aprirlo: ',
+                                  'I could not open it: ') +
+              ((e && e.message) ? e.message : String(e));
+          }
+        });
+      };
+    }
+    var esQ = document.getElementById('bsiSP-esQuesito');
+    if (esQ) esQ.onclick = function () {
+      src.value = ESEMPIO_QUESITO;
+      svolgiTestoE(ESEMPIO_QUESITO, '<div class="bsiSP-ok">' +
+        t('Un quesito d’esame tipico, scritto come lo trovi sul foglio. ' +
+          'Il testo è finito anche nella casella qui sopra: provaci a modificarlo.',
+          'A typical exam problem, written as you find it on the sheet. ' +
+          'The text also went into the box above: try changing it.') + '</div>');
+    };
+    var svT = document.getElementById('bsiSP-svolgiTesto');
+    if (svT) svT.onclick = function () {
+      if (!src.value.trim()) {
+        var o = document.getElementById('bsiSP-docOut');
+        if (o) o.innerHTML = '<div class="bsiSP-avv">' +
+          t('La casella è vuota: incolla il testo del quesito, oppure apri un documento.',
+            'The box is empty: paste the problem text, or open a document.') + '</div>';
+        return;
+      }
+      svolgiTestoE(src.value, '');
+    };
 
     [].forEach.call(document.querySelectorAll('[data-es]'), function (b) {
       b.onclick = function () {

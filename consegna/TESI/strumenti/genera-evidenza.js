@@ -59,7 +59,7 @@ const FAMIGLIE = [
     banchi: ['@verifica-farmaci', 'audit_farmaci', 'verifica_farmaci_v187',
              'test_spettri', 'test_spettri_ui', 'test_assi',
              'test_assi_canvas', 'test_costanti', 'audit_dati', 'test_simmetria', 'test_cheminfo',
-             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_nmr', 'test_nmr2d', 'test_geom3d', 'test_elucida'] },
+             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_documento', 'test_nmr', 'test_nmr2d', 'test_geom3d', 'test_elucida'] },
   { nome: 'Agente AI',
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',
@@ -91,6 +91,7 @@ const FAMIGLIE = [
    riferisce ESATTAMENTE a questo contenuto", non a un file con lo stesso nome. */
 const FILE_IMPRONTA = ['index.html', 'bsi-ai-hub.js', 'bsi-spettri.js', 'sw.js',
                        'bsi-pretsch.js', 'bsi-nmr.js', 'bsi-geom3d.js', 'bsi-nmr2d.js',
+                       'bsi-documento.js', 'bsi-quesito.js',
                        'rdkit_lab.html', 'astro.html', 'chimorga.html'];
 
 function comando(cmd, args, opz){
@@ -138,6 +139,23 @@ function impronte(){
   });
 }
 
+const BASE_URL = process.env.BSI_URL_BASE || 'http://127.0.0.1:8899/';
+
+/* Si aspetta qualche secondo: in una catena di comandi il server puo' essere
+   appena stato avviato e non aver ancora aperto la porta. */
+function aspettaServer(url, secondi){
+  const scadenza = Date.now() + (secondi || 8) * 1000;
+  while (Date.now() < scadenza) {
+    try {
+      execFileSync('curl', ['-s', '-o', '/dev/null', '-m', '3', url],
+                   { stdio: 'ignore' });
+      return true;
+    } catch (e) { /* non ancora */ }
+    try { execFileSync('sleep', ['1'], { stdio: 'ignore' }); } catch (e) {}
+  }
+  return false;
+}
+
 /* Esegue un banco e ne cattura l'uscita COMPLETA, senza interpretarla:
    l'interpretazione la fa il lettore, e il codice di uscita dice l'esito. */
 function esegui(nome){
@@ -176,6 +194,29 @@ function main(){
   const amb = ambiente();
   console.log('Evidenza — commit ' + amb.commit.slice(0, 10) + ' · ' + amb.versione);
 
+  /* ── Il server c'è? ─────────────────────────────────────────────────────
+     Quasi tutti i banchi guidano un browser contro un server locale. Se
+     quel server non c'è, falliscono TUTTI con lo stesso errore di
+     connessione — e il rapporto esce con quarantasette fallimenti che non
+     dicono niente sul codice. È successo: una batteria intera, mezz'ora, e
+     un rapporto che sembrava una catastrofe mentre l'applicazione stava
+     benissimo.
+
+     Un banco che fallisce per la ragione sbagliata insegna a ignorare il
+     banco. Qui si guarda PRIMA, e se il server non c'è non si comincia
+     nemmeno. */
+  if (!VELOCE) {
+    const vivo = aspettaServer(BASE_URL);
+    if (!vivo) {
+      console.error('\n  Il server locale non risponde su ' + BASE_URL);
+      console.error('  I banchi guidano un browser contro quell\'indirizzo: senza,');
+      console.error('  fallirebbero tutti con lo stesso errore di connessione e il');
+      console.error('  rapporto non direbbe niente sul codice.\n');
+      console.error('  Avvialo e riprova:    python3 -m http.server 8899\n');
+      process.exit(2);
+    }
+  }
+
   const risultati = [];
   FAMIGLIE.forEach(function(fam){
     fam.esiti = [];
@@ -191,6 +232,22 @@ function main(){
       console.log(r.stato + '  (' + (r.ms / 1000).toFixed(1) + 's)');
     });
   });
+
+  /* E se il server è caduto DURANTE la batteria, il rapporto deve dirlo:
+     altrimenti attribuisce al codice dei fallimenti che sono suoi. */
+  const connessione = risultati.filter(function (r) {
+    return r.stato === 'FALLITO' && /ERR_CONNECTION_REFUSED|ECONNREFUSED/.test(r.uscita);
+  });
+  if (connessione.length) {
+    console.error('\n  ⚠  ' + connessione.length + ' banchi sono falliti per ' +
+                  'CONNESSIONE RIFIUTATA, non per un difetto del codice.');
+    console.error('     Il server locale è caduto durante la batteria. Riavvialo');
+    console.error('     e riesegui: questo rapporto non vale.\n');
+    connessione.slice(0, 6).forEach(function (r) {
+      console.error('       · ' + r.nome);
+    });
+    if (connessione.length > 6) console.error('       · … e altri ' + (connessione.length - 6));
+  }
 
   const superati = risultati.filter(function(r){ return r.stato === 'SUPERATO'; }).length;
   const falliti  = risultati.filter(function(r){ return r.stato === 'FALLITO'; }).length;

@@ -7,6 +7,118 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v192] — 2026-10-07
+
+Nel lettore di spettri si apre **qualunque documento** — un PDF, la fotografia
+di un foglio, un file Word — se ne vede **tutto** il contenuto, e il quesito
+che contiene viene **svolto passo per passo**.
+
+### Aprire il file: `bsi-documento.js`
+
+| formato | che cosa se ne ricava |
+|---|---|
+| **PDF** | ogni pagina disegnata e il suo strato di testo (PDF.js) |
+| **immagini** | la pagina si vede; il testo **no**, e lo dice |
+| **testo, CSV, JCAMP-DX, XML, JSON** | il contenuto |
+| **Word `.docx`, OpenDocument, PowerPoint, Excel** | il testo del documento |
+
+Gli archivi Office si aprono **senza nessuna libreria**: sono ZIP, e il browser
+sa già scompattare un flusso deflate con `DecompressionStream`. La direttrice
+centrale dello ZIP si legge a mano, un centinaio di righe.
+
+Il testo di un PDF arriva a frammenti con le loro coordinate, non a righe:
+incollarli di fila farebbe una riga sola, e **una tabella di spostamenti
+chimici diventerebbe illeggibile**. I frammenti si raggruppano per ordinata e
+si ordinano per ascissa.
+
+**PDF.js sta nel repository**, non su una CDN: l'applicazione funziona offline
+e deve continuare a farlo. Si carica solo quando serve davvero — sono due
+megabyte e mezzo, e chi apre il Centro spettroscopico per guardare uno spettro
+non deve pagarli. È la build **legacy**: quella predefinita usa funzioni di
+linguaggio recentissime (`Map.prototype.getOrInsertComputed`) e si rompe sui
+browser che non le hanno ancora, incluso quello su cui gira la batteria.
+
+### Leggere il quesito e svolgerlo: `bsi-quesito.js`
+
+Riconosce nel testo la formula molecolare, le bande IR, i picchi di massa con
+le loro intensità, i segnali ¹H con integrazione, molteplicità e J, i segnali
+¹³C — e di ognuno dice **da dove l'ha preso**. Poi passa tutto a
+`bsi-elucida.js`, che svolge.
+
+**Il riconoscimento è per sezione, non per numero.** Una banda IR a 1738 e una
+massa a 150 sono entrambe numeri: distinguerli dal solo valore è impossibile.
+Si cerca l'etichetta della tecnica e si legge quello che viene dopo, fino alla
+fine del capoverso.
+
+**Riconoscimento e svolgimento restano separati, e si vedono in quest'ordine.**
+Se il riconoscimento legge «1715» come banda IR quando era una massa, lo
+svolgimento che segue è impeccabile e la conclusione è sbagliata. La tabella
+dei dati letti sta **sopra** lo svolgimento apposta: così l'errore si vede
+prima della risposta.
+
+### Quello che non fa, e lo dice in faccia
+
+- **Non c'è riconoscimento ottico dei caratteri.** Una scansione contiene
+  pixel, non lettere. Il modulo dichiara quante pagine non hanno uno strato di
+  testo, invece di restituire poco e far credere che il documento fosse vuoto.
+- **Non c'è nessun modello linguistico**: espressioni regolari e un motore di
+  regole. Se i dati sono scritti in una forma non prevista, **non** vengono
+  letti — e lo svolgimento dichiara che cosa gli manca.
+- **La struttura finale non viene proposta.** Proporla vorrebbe dire
+  indovinare. Si può fare il contrario: scrivere una struttura e farla
+  **confrontare** con i dati, segnale per segnale.
+
+### Il banco, `test_documento` — 47 controlli nei due versi
+
+Apre davvero un PDF, un `.docx` e un testo, e ne verifica il contenuto. E poi,
+nel verso opposto: un'immagine dichiara che non c'è riconoscimento ottico e
+**non** produce svolgimento; un formato sconosciuto viene rifiutato invece che
+indovinato; un file binario chiamato `.txt` viene riconosciuto come binario;
+CDCl₃ non diventa la formula del composto; una banda fuori da 400-4000 non è
+una banda; senza etichetta MS non ci sono masse; un capoverso nuovo chiude la
+sezione; un testo senza spettri non produce dati.
+
+### Il caso peggiore dichiarato sale da 4,9 a 7,5 ppm
+
+Non per un peggioramento: perché **questo banco ha trovato una molecola che il
+predittore sbaglia più di tutte quelle che c'erano**. Nel quesito del
+benzilacetato il confronto struttura↔dati segnalava che l'OCH₂ a 66,3 ppm non
+trovava corrispondenza: il predittore ne dà 73,8. Un carbonio con **due**
+sostituenti in α — un ossigeno estereo e un anello aromatico — è il punto in
+cui uno schema additivo cede di più.
+
+La molecola è entrata nell'insieme di validazione (ora 23), lo scarto medio
+resta 1,0 ppm, e il caso peggiore **dichiarato nel pannello** è salito a 7,5.
+Alzare una soglia dopo aver trovato un caso peggiore è onesto solo se lo si
+dichiara anche a chi usa lo strumento, e lì sta scritto.
+
+### Un difetto del mio stesso strumento, al primo uso vero
+
+`tools/porta-versione.js`, scritto nella versione precedente per non riscrivere
+più le frasi storiche, ha **rotto il distintivo del README**: shields.io scrive
+un trattino letterale come `--`, e la sostituzione sceglieva la forma giusta
+guardando il testo della propria espressione regolare — un controllo che non
+corrispondeva mai. È uscito `versione-bsi-v192`, che shields.io non riconosce,
+e il distintivo è sparito.
+
+L'ha trovato `verifica-affermazioni`, che confronta il distintivo con il
+codice: è esattamente il motivo per cui quel controllo esiste. Ora ogni schema
+porta con sé la **propria** sostituzione, invece di una sola scelta al volo.
+
+### E quarantasette fallimenti che non erano del codice
+
+Durante una delle esecuzioni il server locale è caduto a metà batteria. I
+banchi che restavano hanno fallito **tutti**, in meno di un secondo l'uno, con
+lo stesso errore di connessione — e il rapporto è uscito con 47 fallimenti
+mentre l'applicazione stava benissimo.
+
+Un banco che fallisce per la ragione sbagliata insegna a ignorare il banco.
+`genera-evidenza.js` ora **guarda prima** se il server risponde, e se non c'è
+non comincia nemmeno: dice che cosa manca e il comando per avviarlo. E se il
+server cade **durante** la batteria, il rapporto lo dichiara invece di
+attribuire al codice dei fallimenti che sono suoi.
+
+---
 ## [bsi-v191] — 2026-10-07
 
 NMR **bidimensionale** — COSY, HSQC, HMBC — e uno **stack React + FastAPI**
