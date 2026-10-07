@@ -179,18 +179,23 @@
     [32, 'CH₃OH',    'metanolo — esteri metilici'],
     [33, 'SH',       'tiolo'],
     [35, 'Cl',       'cloro'],
+    [36, 'HCl',      'acido cloridrico — cloroderivati'],
     [42, 'C₃H₆ / CH₂CO','propene o chetene (acetati)'],
     [43, 'C₃H₇ / CH₃CO','propile o acetile'],
     [44, 'CO₂',      'anidride carbonica — acidi, esteri'],
     [45, 'COOH / OC₂H₅','carbossile o etossile'],
     [46, 'NO₂ / HCOOH','nitro o acido formico'],
+    [56, 'C₄H₈',     'butene — esteri di butile, McLafferty'],
     [47, 'SCH₃',     'tiometile'],
     [59, 'COOCH₃',   'metossicarbonile — esteri metilici'],
     [60, 'CH₃COOH',  'acido acetico — acetati'],
     [73, 'COOC₂H₅',  'etossicarbonile'],
+    [77, 'C₆H₅',     'fenile — aromatici monosostituiti'],
     [79, 'Br',       'bromo'],
+    [81, 'HBr',      'acido bromidrico'],
     [91, 'C₇H₇',     'tropilio — benzilici (è un FRAMMENTO, non una perdita)'],
-    [127,'I',        'iodio']
+    [127,'I',        'iodio'],
+    [128,'HI',       'acido iodidrico']
   ];
 
   function perditeFra(picchi) {

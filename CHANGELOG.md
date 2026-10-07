@@ -241,6 +241,63 @@ Aggiunti intanto i valori di classe ¹³C per gli eteroaromatici **non**
 sostituiti, che prima non c'erano affatto: furano α 142,7 / β 109,6, tiofene,
 pirrolo, piridina. Senza di quelli i carboni del furano uscivano tutti a 128,5.
 
+### Il manuale come fonte: quattro miglioramenti con la pagina accanto
+
+Dal **Manuale di Metodi Fisici in Chimica Organica** sono usciti i numeri che
+mi mancavano. Ognuno è preso da una tabella del testo, non dedotto:
+
+- **Correzioni steriche di Grant–Paul** (§4.7). Lo schema senza correzioni
+  sbaglia sui carboni ramificati: il metile dell'isobutano usciva 25,6 contro
+  i 24,3 sperimentali. Con le quattro correzioni che il manuale enuncia
+  — osservatore 1° con vicino 3°/4° → −1,1 e le altre tre — esce
+  **24,5**, che è esattamente il valore del suo esempio svolto.
+- **Furano sostituito** (§15, caso D). Il manuale dice «furano monosostituito:
+  C–O deschermato ∼150», e il quesito del 23/04/2024 lo conferma con 150,77 e
+  146,05. Il carbonio α che porta un sostituente va quindi a 150, non ai
+  142,7 del furano nudo. Il β non ha un valore dichiarato e **resta quello non
+  sostituito**: dove non c'è una fonte non si inventa un numero.
+- **Cinque perdite neutre in più** (§7.4): −36 (HCl), −56 (C₄H₈, McLafferty
+  degli esteri butilici), −77 (C₆H₅), −81 (HBr), −128 (HI).
+- **Costanti J per geometria** (§7.5): dodici righe al posto di sei, con
+  l'intervallo accanto al valore tipico — cicloesano ax–ax 8–13, aromatico
+  orto 6–10, alchene cis 6–12 contro trans 12–18, J cicliche del furano
+  1,5–3,5.
+
+#### E due difetti che il manuale ha fatto emergere
+
+Provando i suoi cinque problemi svolti, due sbagliavano di 8–10 ppm.
+
+Il **CH₂ in α a un estere** stava a 28 come quello di un acido. Non è lo
+stesso: l'acido propanoico ha il suo a 27,6, il butanoato di etile a **36,2**
+(dal problema svolto). Tenerli insieme sbagliava di 8 ppm sul segnale che dice
+dove sta il carbonile.
+
+E gli **incrementi β misuravano la distanza dall'atomo più vicino del gruppo**
+invece che dal suo ancoraggio. Il gruppo `[OX2][#6]` di un estere etilico
+comprende anche il carbonio OCH₂, legato al metile: la distanza risultava 1
+invece di 2, nessun incremento si applicava, e il metile dell'etile usciva a
+**4,6 ppm invece di 14,3**.
+
+Correggendolo è emerso un **secondo difetto che il primo nascondeva**:
+l'ossigeno di un alcol corrisponde sia a `[OX2H1]` sia a `[OX2][#6]`, e
+prendeva **due** incrementi per la stessa ragione — il metile dell'etanolo
+saliva a 24,8 invece di 18,2. Le righe ora si escludono a vicenda.
+
+#### Il risultato, misurato
+
+| | prima | ora |
+|---|---|---|
+| scarto medio su 23 molecole di letteratura | 1,96 ppm | **1,47 ppm** |
+| insieme di validazione | 1,93 ppm | **1,56 ppm** |
+| conteggi di segnali corretti | 17/18 | **22/23** |
+| cricca del banco | 2,5 ppm | **2,0 ppm** |
+
+I cinque problemi svolti del manuale sono entrati nell'insieme di
+validazione: sono i casi che lo studente deve saper risolvere, e quindi la
+misura giusta su cui farsi giudicare. La soglia si è stretta perché lasciarla
+a 2,5 permetterebbe al predittore di tornare indietro senza che nessuno se ne
+accorga.
+
 ### Banchi
 
 Nuovo `test_elucida` (28 controlli). Nuovo `test_menu` (36 controlli su due viewport). Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il

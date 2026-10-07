@@ -257,6 +257,15 @@
        sperimentali — e in un quesito d'esame il furano si riconosce
        ESATTAMENTE da quei due numeri.
        Vanno prima di `[c;R2]` e `[c]`: il primo che corrisponde vince. */
+    /* Un carbonio α del furano che PORTA un sostituente si descherma fino a
+       ~150: è la regola che il manuale di Metodi Fisici enuncia così —
+       «furano monosostituito: C–O deschermato ∼150» — e che si ritrova nel
+       quesito del 23/04/2024, dove i due carboni furanici-O stanno a 150,77
+       e 146,05. Senza questa riga uscivano entrambi a 142,7 e il confronto
+       lasciava due segnali senza corrispondenza. Il β non ha un valore
+       dichiarato nel manuale e resta quello del furano non sostituito: dove
+       non c'è una fonte non si inventa un numero. */
+    ['[c;r5;$(c:o);$(c-[!#1])]',      150.0, 'C α del furano sostituito', 'substituted furan α-C'],
     ['[c;r5;$(c:o)]',                 142.7, 'C α del furano', 'furan α-C'],
     ['[c;r5;$(c:c:o)]',               109.6, 'C β del furano', 'furan β-C'],
     ['[c;r5;$(c:s)]',                 125.4, 'C α del tiofene', 'thiophene α-C'],
@@ -358,7 +367,12 @@
     /* Un CH₂ in α a un ACIDO o a un ESTERE sta a ~28, in α a un CHETONE a
        ~36: l'acido propanoico ha il CH₂ a 27,6 e il 2-butanone a 36,7.
        Distinguerli vale 8 ppm sul segnale piu' diagnostico della molecola. */
-    ['[CX4H2;$([CX4H2][CX3](=[OX1])[OX2])]',        28.0, 'CH₂ α a acido/estere', 'CH₂ α to acid/ester'],
+    /* Il CH₂ in α a un ACIDO sta a ~28 (acido propanoico 27,6), quello in α
+       a un ESTERE a ~34-36 (butanoato di etile 36,2, dal problema svolto del
+       manuale). Tenerli insieme a 28 sbagliava di 8 ppm sugli esteri — e il
+       CH₂ in α è il segnale che dice dove sta il carbonile. */
+    ['[CX4H2;$([CX4H2][CX3](=[OX1])[OX2H1])]',      28.0, 'CH₂ α all\u2019acido', 'CH₂ α to acid'],
+    ['[CX4H2;$([CX4H2][CX3](=[OX1])[OX2][#6])]',    34.0, 'CH₂ α all\u2019estere', 'CH₂ α to ester'],
     ['[CX4H2;$([CX4H2][CX3]=[OX1])]',               36.0, 'CH₂ α al carbonile', 'CH₂ α to C=O'],
     ['[CX4H2;$([CX4H2][c])]',                         29.0, 'CH₂ benzilico', 'benzylic CH₂'],
     ['[CX4H2;$([CX4H2][CX2]#[NX1])]',                 17.0, 'CH₂ α al nitrile', 'CH₂ α to CN'],
@@ -371,14 +385,22 @@
   /* Incrementi β e γ dei gruppi funzionali, per i carboni che NON hanno un
      gruppo in α. [SMARTS del gruppo, β, γ, nome] */
   var INCR_BG = [
+    /* Le righe devono ESCLUDERSI a vicenda, altrimenti un atomo prende due
+       incrementi per la stessa ragione. L'ossigeno di un alcol corrisponde
+       sia a `[OX2H1]` sia a `[OX2][#6]`: il metile dell'etanolo riceveva
+       +10 e +8, e usciva a 24,8 invece di 18,2. Prima questo non si vedeva
+       perche' un difetto nel calcolo della distanza impediva al secondo di
+       applicarsi — un difetto che ne mascherava un altro. */
     ['[OX2H1]',                 10, -5, 'OH'],
-    ['[OX2][#6]',                8, -4, 'OR'],
+    ['[OX2H0][#6]',              8, -4, 'OR'],
     ['[NX3;H2,H1,H0;!$(N=O)]',  11, -5, 'N'],
     /* Il β di un carbossile SCHERMA. L'acido propanoico ha il CH₃ a 9,0
        contro i 15,6 del propano: Δ = −6,6, non +3. Con il segno sbagliato
        quel metile usciva a 22,2 invece di 9,0. */
     ['[CX3](=[OX1])[OX2]',      -6, -2, 'COOR/COOH'],
-    ['[CX3](=[OX1])[#6]',        1, -2, 'C=O'],
+    /* un carbonile di estere o ammide ha anche un vicino carbonio: senza
+       l'esclusione prenderebbe anche l'incremento del chetone */
+    ['[CX3;!$([CX3](=[OX1])[OX2]);!$([CX3](=[OX1])[NX3])](=[OX1])[#6]', 1, -2, 'C=O'],
     ['[CX2;$([CX2]#[NX1])]',              3, -3, 'CN'],
     ['F',                        9, -4, 'F'],
     ['Cl',                      11, -4, 'Cl'],
@@ -450,7 +472,41 @@
         coda.push(v);
       });
     }
-    return -2.3 + 9.1 * n[1] + 9.4 * n[2] - 2.5 * n[3] + 0.3 * n[4];
+    var base = -2.3 + 9.1 * n[1] + 9.4 * n[2] - 2.5 * n[3] + 0.3 * n[4];
+    return base + correzioneSterica(gr, i);
+  }
+
+  /* ── Le correzioni steriche S ─────────────────────────────────────────────
+     Grant–Paul senza correzioni sbaglia sui carboni ramificati: il metile
+     dell'isobutano usciva 25,6 contro i 24,3 sperimentali. Il manuale dà la
+     tabella, e questi sono i quattro valori che enuncia — non di piu':
+
+         osservatore 1° con vicino 3° o 4°   →  −1,1
+         osservatore 2° con vicino 3°        →  −2,5
+         osservatore 3° con vicino 2°        →  −3,7
+         osservatore 4°                      →  −9,5
+
+     Il «grado» di un carbonio e' quanti carboni gli sono legati. */
+  function gradoCarbonio(gr, i) {
+    var n = 0;
+    gr.atomi[i].vicini.forEach(function (v) {
+      if (gr.atomi[v].sim === 'C') n++;
+    });
+    return n;
+  }
+  function correzioneSterica(gr, i) {
+    var mio = gradoCarbonio(gr, i);
+    if (mio === 0) return 0;
+    var s = 0;
+    gr.atomi[i].vicini.forEach(function (v) {
+      if (gr.atomi[v].sim !== 'C') return;
+      var suo = gradoCarbonio(gr, v);
+      if (mio === 1 && suo >= 3) s += -1.1;
+      else if (mio === 2 && suo === 3) s += -2.5;
+      else if (mio === 3 && suo === 2) s += -3.7;
+      else if (mio === 4) s += -9.5;
+    });
+    return s;
   }
 
   function distanzaNellAnello(anello, da, a) {
@@ -512,12 +568,13 @@
           if (gr.atomi[ii].sim !== 'C' || dentro[ii]) continue;
           if (haClasse[ii]) continue;              /* la classe include già l'α */
           if (!nota[ii] || nota[ii][0] !== 'Grant–Paul') continue;
-          /* distanza minima dal carbonio a un atomo del gruppo */
-          var d = Infinity;
-          gruppo.forEach(function (x) {
-            var dd = distanzaFra(gr, ii, x);
-            if (dd >= 0 && dd < d) d = dd;
-          });
+          /* La distanza si misura dall'ANCORAGGIO del gruppo — il suo primo
+             atomo, l'eteroatomo — e non dall'atomo piu' vicino. Il gruppo
+             `[OX2][#6]` di un estere etilico comprende anche il carbonio
+             OCH₂, che è legato al metile: prendendo il minimo la distanza
+             risultava 1 invece di 2, nessun incremento β si applicava, e il
+             metile dell'etile usciva a 4,6 ppm invece di 14,3. */
+          var d = distanzaFra(gr, ii, gruppo[0]);
           if (d === 2 && riga[1]) { ppm[ii] += riga[1]; nota[ii].push('β ' + riga[3]); }
           else if (d === 3 && riga[2]) { ppm[ii] += riga[2]; nota[ii].push('γ ' + riga[3]); }
         }
@@ -628,13 +685,22 @@
   /* Costanti di accoppiamento TIPICHE, non calcolate: per relazione
      geometrica fra i due protoni. Dichiararlo conta, perche' un J scritto
      con una cifra decimale sembra misurato. */
+  /* Le costanti J per geometria, dalla tabella del manuale (§7.5). Sono
+     intervalli di valori TIPICI, non calcoli: si riporta il centro e, dove
+     serve, l'intervallo. */
   var J_TIPICI = [
-    ['vicinale sp3–sp3',        'vicinal sp3–sp3',        7.0],
-    ['aromatico orto',          'aromatic ortho',          7.5],
-    ['aromatico meta',          'aromatic meta',           2.0],
-    ['alchene trans',           'alkene trans',           16.0],
-    ['alchene cis',             'alkene cis',             10.5],
-    ['alchene geminale',        'alkene geminal',          2.0]
+    ['catena aperta, rotazione libera', 'open chain, free rotation', 7.0, '6–8'],
+    ['aromatico orto',          'aromatic ortho',          8.0, '6–10'],
+    ['aromatico meta',          'aromatic meta',           2.0, '1–3'],
+    ['aromatico para',          'aromatic para',           0.5, '0–1'],
+    ['alchene trans (E)',       'alkene trans (E)',       15.0, '12–18'],
+    ['alchene cis (Z)',         'alkene cis (Z)',          9.0, '6–12'],
+    ['cicloesano ax–ax',        'cyclohexane ax–ax',      10.5, '8–13'],
+    ['cicloesano ax–eq / eq–eq','cyclohexane ax–eq / eq–eq', 3.5, '2–5'],
+    ['ciclopentano cis / trans','cyclopentane cis / trans', 7.5, '6–9 / 2–5'],
+    ['epossido cis / trans',    'epoxide cis / trans',     6.0, '5–7 / 2–3'],
+    ['allilico (⁴J)',           'allylic (⁴J)',            1.5, '0–3'],
+    ['furano, J cicliche',      'furan, ring J',           2.5, '1,5–3,5']
   ];
 
   function nomeMolteplicita(n) {
@@ -768,10 +834,11 @@
            sono state usate per scegliere i parametri — altrimenti il numero
            direbbe solo quanto bene lo schema ricorda i propri esempi. */
         incertezza: (nucleo === '13C')
-          ? t('scarto medio misurato 1,0 ppm sugli aromatici e 3,2 sugli sp3; ' +
-              'caso peggiore misurato 15 ppm (cicloesanone)',
-              'measured mean deviation 1.0 ppm on aromatics and 3.2 on sp3; ' +
-              'worst case measured 15 ppm (cyclohexanone)')
+          ? t('scarto medio misurato 1,5 ppm su 23 molecole di letteratura, ' +
+              '1,8 sull\u2019insieme di validazione; caso peggiore misurato 15 ppm ' +
+              '(cicloesanone)',
+              'measured mean deviation 1.5 ppm over 23 literature molecules, ' +
+              '1.8 on the validation set; worst case measured 15 ppm (cyclohexanone)')
           : t('scarto medio misurato 0,2 ppm su valori di letteratura',
               'measured mean deviation 0.2 ppm against literature values'),
         metodo: (nucleo === '13C')

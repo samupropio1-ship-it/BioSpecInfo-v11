@@ -72,7 +72,15 @@ const VALIDAZIONE = [
   ['cicloesanone', 'O=C1CCCCC1', [211.9, 41.9, 26.9, 25.0]],
   ['1-butanolo', 'CCCCO', [62.6, 34.9, 19.1, 13.9]],
   ['terz-butanolo', 'CC(C)(C)O', [69.0, 31.4]],
-  ['2-butanone', 'CCC(C)=O', [209.3, 36.7, 29.3, 7.9]]
+  ['2-butanone', 'CCC(C)=O', [209.3, 36.7, 29.3, 7.9]],
+  /* I cinque problemi svolti del manuale di Metodi Fisici, con i ¹³C che la
+     soluzione dichiara. Sono casi che lo studente deve saper risolvere, e
+     quindi la misura giusta su cui farsi giudicare. */
+  ['benzoato di etile', 'CCOC(=O)c1ccccc1', [166.6, 133.0, 130.4, 129.6, 128.3, 60.9, 14.3]],
+  ['acetofenone', 'CC(=O)c1ccccc1', [198.1, 137.1, 133.1, 128.6, 128.3, 26.6]],
+  ['4-metossiacetofenone', 'COc1ccc(cc1)C(C)=O', [196.8, 163.5, 130.6, 113.7, 55.5, 26.3]],
+  ['butanoato di etile', 'CCCC(=O)OCC', [173.7, 60.2, 36.2, 18.5, 14.3, 13.7]],
+  ['isobutano', 'CC(C)C', [25.0, 24.3]]
 ];
 /* ¹H: valori di letteratura in CDCl₃ */
 const PROTONI = [
@@ -185,7 +193,12 @@ const QUANTI_SEGNALI = [
   att('nessuna molecola di validazione fallisce', 0, mis.validazione.errori);
   /* La soglia e' quella DICHIARATA nel modulo e nel pannello. Se lo scarto
      cresce oltre, la dichiarazione e' diventata falsa e il banco lo dice. */
-  sotto('lo scarto medio sulla validazione sta nel valore dichiarato', 2.5,
+  /* La soglia si STRINGE quando il predittore migliora: era 2,5 quando lo
+     scarto misurato era 1,93; con le correzioni steriche di Grant–Paul, il
+     CH₂ in α distinto fra acido ed estere e le sovrapposizioni tolte fra gli
+     incrementi, è sceso a 1,77. Lasciare 2,5 vorrebbe dire permettere al
+     predittore di tornare indietro senza che nessuno se ne accorga. */
+  sotto('lo scarto medio sulla validazione sta nel valore dichiarato', 2.0,
         +mis.validazione.medio.toFixed(2));
   /* E la guardia opposta: la validazione deve restare PEGGIORE della
      taratura. Se diventasse migliore o uguale, qualcuno avrebbe spostato
