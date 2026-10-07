@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v186` |
+| **Version described** | `bsi-v187` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -34,7 +34,7 @@ Three concrete applications of this principle:
 
 ---
 
-## 2. Pharmacological database — 233 entries
+## 2. Pharmacological database — 263 entries
 
 ### 2.1 The verification method
 
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v186` the bench also fails in the opposite case: an entry listed in the
+`bsi-v187` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -583,7 +583,7 @@ battery includes, among others:
 
 | Bench | Subject | Checks |
 |---|---|---|
-| `tools/verifica-farmaci.js` | structure ⟷ molecular weight, duplicates, recorded deviations | 233 entries |
+| `audit_farmaci` | structure ⟷ weight, duplicates, formula rebuilt from the graph against ChEMBL, deviations recorded with their reason | 263 entries |
 | `test_spettri` | group recognition on reference molecules | 36 |
 | `test_assi` / `test_assi_canvas` | axis conventions (SVG and canvas) | 19 |
 | `test_costanti` | physical-constant lookup and refusal of ambiguities | 45 |
@@ -601,7 +601,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v186` the residual errors on the drug database are **zero**: the 21
+`bsi-v187` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -610,4 +610,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v186`._
+_Document updated to version `bsi-v187`._

@@ -104,7 +104,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 295 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 299 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 92 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |

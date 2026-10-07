@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v186` |
+| **Versione descritta** | `bsi-v187` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -35,7 +35,7 @@ Tre applicazioni concrete di questo principio:
 
 ---
 
-## 2. Banca dati farmacologica — 233 voci
+## 2. Banca dati farmacologica — 263 voci
 
 ### 2.1 Il metodo di verifica
 
@@ -95,10 +95,11 @@ proposta conteneva la base sbagliata. Il numero ha indicato dove guardare.
 
 | | |
 |---|---|
-| Farmaci in banca dati | **178** (erano 143) |
-| Con struttura verificata | **157** (erano 153) |
+| Farmaci in banca dati | **263** (erano 233) |
+| Con struttura leggibile | **242** |
+| Con provenienza esterna verificata | **36** |
 | Difetti | **0** |
-| Deviazioni dichiarate e accettate | **21** (erano 25) |
+| Voci senza struttura, con ragione dichiarata | **21** |
 
 La verifica è **conforme**: nessuna voce presenta una struttura che contraddica
 il proprio peso molecolare. Le 21 deviazioni sono voci **prive di struttura**,
@@ -118,7 +119,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v186` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v187` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -154,6 +155,51 @@ rappresenta:
   distinti.
 
 In entrambi i casi non manca una struttura: non ce n'è una sola da mostrare.
+
+### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v187)
+
+Il confronto struttura ⟷ peso è necessario ma non sufficiente, e si è visto
+dove cede. Le trentasei voci aggiunte in `bsi-v187` portano nel dato stesso
+l'identificativo ChEMBL e la formula del record (`chembl:`, `formula:`), e per
+ognuna la formula viene **ricostruita contando gli atomi del grafo** che RDKit
+legge dallo SMILES — idrogeni impliciti compresi — e confrontata con quella
+dichiarata da ChEMBL: **36 su 36 coincidono**. I dati grezzi stanno in
+[`tools/dati/farmaci_v187.json`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/tools/dati/farmaci_v187.json).
+
+**Dove il peso non vedeva.** Sei di quelle voci esistevano già, scritte prima
+che la provenienza esterna fosse un requisito. Confrontando le due versioni con
+la **chiave InChI** che ChEMBL dichiara, tre si sono rivelate una molecola
+diversa:
+
+| Voce | chiave della versione precedente | chiave dichiarata da ChEMBL |
+|---|---|---|
+| Lenalidomide | `XKAYAFBLGLCWSY` | `GOTYRUGSSMKFNF` |
+| Palbociclib | `PSRAOXPOEYRNJN` | `AHJRHEGDXFFMBM` |
+| Aripiprazolo | `ZGXTVHHDFYTYTL` | `CEUORZQYGODEFX` |
+
+Erano **isomeri**: stessa formula bruta, stesso peso molecolare, posizione
+diversa di un azoto o di un carbonile. Il controllo struttura ⟷ peso — che
+esisteva, girava a ogni rilascio e passava — non poteva vederlo, perché un
+isomero pesa esattamente uguale. Serviva un testimone che guardasse la
+**connettività**, non la massa. Le tre voci sono state rimosse e sostituite da
+quelle verificate; le altre tre differivano solo nella scrittura canonica dello
+SMILES e descrivevano la stessa molecola.
+
+**Due strutture rifiutate.** Nella stessa raccolta, l'**ivermectina** ha
+`structure_type NONE` nel proprio record ChEMBL — conferma esterna del limite
+già dichiarato in §2.4-bis — e la **semaglutide** è registrata come proteina,
+`structure_type SEQ`. Entrambe si sarebbero potute scrivere a memoria. È
+esattamente ciò che non si fa: una struttura senza fonte entra nel sito
+indistinguibile da una verificata, e da lì in poi nessun controllo le
+distingue.
+
+**Due nomi tenuti con il nome del record.** La ricerca per nome di ChEMBL è a
+corrispondenza parziale: «morphine» ha restituito l'**apomorfina** e
+«levothyroxine» la **liotironina** (T3), trovata fra i sinonimi. Le voci sono
+state tenute con il nome che il record porta, non con quello della domanda:
+il contrario avrebbe messo una scheda clinica sbagliata sopra una struttura
+giusta — l'errore più difficile da trovare, perché ogni controllo automatico
+sulla struttura continuerebbe a passare.
 
 | Gruppo | Voci | Natura |
 |---|---:|---|
@@ -591,7 +637,7 @@ stesura la batteria comprende, fra gli altri:
 
 | Banco | Oggetto | Controlli |
 |---|---|---|
-| `tools/verifica-farmaci.js` | struttura ⟷ peso molecolare, duplicati, deviazioni registrate | 233 voci |
+| `audit_farmaci` | struttura ⟷ peso, duplicati, formula ricostruita contro ChEMBL, deviazioni registrate con la loro ragione | 263 voci |
 | `test_spettri` | riconoscimento gruppi su molecole di riferimento | 36 |
 | `test_assi` / `test_assi_canvas` | convenzioni degli assi (SVG e canvas) | 19 |
 | `test_costanti` | ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
@@ -609,7 +655,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v186` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v187` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -619,4 +665,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v186`._
+_Documento aggiornato alla versione `bsi-v187`._

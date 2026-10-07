@@ -4,8 +4,8 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v186-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-51%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v187-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-54%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2091%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
@@ -19,10 +19,10 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 
 | Che cosa | Dimensione | Link |
 |---|---:|---|
-| **Tutto** — applicazione, codice, documentazione, i 51 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
-| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v186.zip) |
-| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v186.zip) |
-| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v186.zip) |
+| **Tutto** — applicazione, codice, documentazione, i 54 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
+| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v187.zip) |
+| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v187.zip) |
+| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v187.zip) |
 
 I tre pacchetti della versione in corso stanno sempre in
 [`consegna/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/consegna); l'archivio completo è generato da GitHub sul
@@ -35,7 +35,7 @@ browser.
 ## Che cos'è
 
 Uno strumento di studio per chimica, biochimica, farmacologia e astrochimica,
-rivolto a studenti universitari. **91 sezioni** fra calcolatori, visualizzatori,
+rivolto a studenti universitari. **92 sezioni** fra calcolatori, visualizzatori,
 banche dati e quiz, più un assistente AI che può interrogare l'applicazione
 stessa.
 
@@ -61,8 +61,10 @@ promesso, ma perché non esiste un server che possa farlo.
 | **Chimica generale** | Tavola periodica interattiva, bilanciamento, VSEPR, orbitali molecolari, termodinamica, elettrochimica, pKa e tamponi |
 | **Chimica organica** | Retrosintesi (98 esercizi), meccanismi animati con frecce elettroniche, 25 moduli avanzati |
 | **Biochimica** | Amminoacidi, vie metaboliche animate, cinetica enzimatica, macromolecole 3D |
-| **Farmacologia** | 233 farmaci, atlante 3D dei bersagli, interazioni, farmacocinetica, casi clinici |
+| **Farmacologia** | **263 farmaci** (36 con struttura verificata contro ChEMBL), atlante 3D dei bersagli, interazioni, farmacocinetica, casi clinici |
 | **Astrochimica** | Molecole interstellari, esopianeti JWST, nebulose, spettri stellari, nucleosintesi |
+| **Lettore spettri** | Si carica un file e viene letto: **JCAMP-DX** con compressione ASDF completa (DIF, DUP) o due colonne. Picchi per prominenza con rumore stimato dalla MAD; per ogni banda **tutte** le assegnazioni compatibili, non la prima; perdite neutre per gli spettri di massa |
+| **Lingue** | **14 lingue** di interfaccia (compresi giapponese e arabo, con il verso di scrittura) e **25 linguaggi chimici** in uscita: SMILES, InChI, SMARTS, molfile V2000/V3000, XYZ, PDB, CML, JSON e sei impronte digitali |
 | **Chemioinformatica** | Banco di lavoro completo: standardizzazione, 43 descrittori, impronte Morgan/MACCS, Tanimoto, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, QSAR con **divisione per scheletro**, **validazione incrociata raggruppata** e **modello nullo per rimescolamento**, salti di attività, allarmi PAINS e Brenk. I risultati escono in **CSV** e in un **rapporto di metodo** che porta il seme, così l'analisi si rifà |
 | **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale |
 | **Spectra** | Agente AI con 35 strumenti, dieci fornitori, ricaduta automatica sui guasti |
@@ -150,7 +152,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 51 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 54 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -158,7 +160,7 @@ node tools/genera-evidenza.js    # 51 banchi, rapporto di verifica completo
 | `python3 -m http.server 8899` | Avvia l'applicazione in locale |
 | `node tools/genera-evidenza.js` | Esegue tutta la batteria e produce il rapporto di verifica |
 | `node tools/genera-evidenza.js --veloce` | Come sopra, saltando i banchi con browser |
-| `node tools/verifica-farmaci.js` | Verifica struttura ⟷ peso molecolare sui 233 farmaci |
+| `node tools/banchi/audit_farmaci.js` | Struttura ⟷ peso, duplicati e formula ricostruita contro ChEMBL sui 263 farmaci |
 | `node tools/verifica-sicurezza.js` | Credenziali, password in chiaro, script esterni |
 | `node tools/verifica-accessibilita.js` | Contrasto WCAG AA e nomi accessibili, sezione per sezione |
 | `node tools/verifica-documenti.js` | Collegamenti, versioni, coerenza della matrice |
@@ -170,7 +172,7 @@ node tools/genera-evidenza.js    # 51 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 51 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
+I 54 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.
@@ -181,7 +183,7 @@ c'è non è un banco superato.
 
 ```
 BioSpecInfo-v11/
-├── index.html              Applicazione principale — 91 sezioni, dati chimici
+├── index.html              Applicazione principale — 92 sezioni, dati chimici
 ├── bsi-ai-hub.js           Agente «Spectra»: ciclo agentico, 35 strumenti
 ├── bsi-spettri.js          Motore di predizione spettrale IR/NMR
 ├── bsi-cheminfo.js         Motore di chemioinformatica: impronte, QSAR, modello nullo

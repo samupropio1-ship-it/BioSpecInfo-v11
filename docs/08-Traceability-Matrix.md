@@ -104,7 +104,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 295 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 299 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 92 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |

@@ -68,7 +68,14 @@ console.log('Versione del codice (sw.js): ' + ver + '\n');
 console.log('── Collegamenti interni ──');
 const rotti = [];
 documenti().forEach(function(doc){
-  const testo = fs.readFileSync(path.join(RADICE, doc), 'utf8');
+  /* I blocchi di codice vanno via PRIMA di cercare collegamenti: lo SMILES
+     dell'alanina, `C[C@@H](N)C(=O)O`, ha la forma esatta di un collegamento
+     Markdown verso un file chiamato «N», e il controllo segnalava un
+     collegamento rotto che non esiste. Dentro un blocco di codice non ci sono
+     collegamenti per definizione. */
+  const testo = fs.readFileSync(path.join(RADICE, doc), 'utf8')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]*`/g, '');
   const dir = path.dirname(path.join(RADICE, doc));
   const re = /\[[^\]]*\]\(([^)#\s]+)(?:#[^)]*)?\)/g;
   let m;

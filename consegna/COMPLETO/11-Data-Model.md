@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v186` |
+| **Versione descritta** | `bsi-v187` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -206,7 +206,7 @@ insieme al codice.
 
 | Struttura | Contenuto | Verifica |
 |---|---|---|
-| `FARM_DATA` | **233 farmaci**: nome, categoria, SMILES, peso molecolare, meccanismo d'azione, indicazioni, effetti avversi, classe | `tools/verifica-farmaci.js` — struttura ⟷ peso molecolare |
+| `FARM_DATA` | **263 farmaci**: nome, categoria, SMILES, peso molecolare, meccanismo d'azione, indicazioni, effetti avversi, classe; per 36 voci anche `chembl` e `formula` del record di provenienza | `audit_farmaci` — struttura ⟷ peso, duplicati, e formula ricostruita dal grafo contro quella di ChEMBL |
 | `UV_DATA` | Cromofori, λmax, coefficienti di estinzione, regole di Woodward | `audit_dati` |
 | `MS_DATA` | Frammentazioni caratteristiche per classe | `audit_dati` |
 | `MOLECOLE_ESAME` | Molecole d'esame tabulate | `test_spettri` |
@@ -247,4 +247,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v186`._
+_Documento aggiornato alla versione `bsi-v187`._

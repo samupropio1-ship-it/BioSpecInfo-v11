@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v186` |
+| **Versione documentata** | Service Worker `bsi-v187` |
 
 ---
 
@@ -487,7 +487,7 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 | **Fisica** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
-| **Controllo app** | `naviga_sezione` (91 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
+| **Controllo app** | `naviga_sezione` (92 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
 
@@ -500,7 +500,7 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 
 ### 3.1 Dataset interni esposti
 
-297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 233 farmaci ·
+297 reazioni di sintesi · 118 elementi · 67 amminoacidi · 263 farmaci ·
 63 patologie · 46 strategie retrosintetiche · 36 interazioni farmacologiche ·
 29 vie metaboliche · 29 potenziali redox.
 
@@ -694,7 +694,7 @@ nel motore di calcolo.
 
 Test automatizzati con Chromium *headless* su tutte le 14 pagine
 dell'applicazione: nessun errore JavaScript, nessuna risorsa mancante.
-Percorse una per una le 91 sezioni di `index.html` e i 18 tab della sezione
+Percorse una per una le 92 sezioni di `index.html` e i 18 tab della sezione
 Astrochimica. Ispezionato il corpo delle richieste per i quattro livelli
 Claude, e simulato un ciclo completo con ricerca web, sospensione e ripresa
 del turno.

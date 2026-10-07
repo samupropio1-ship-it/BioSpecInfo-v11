@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 91 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 92 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -80,6 +80,42 @@ l'elenco delle bande con la loro assegnazione.
 > Servono a riconoscere i gruppi funzionali e a capire il legame fra struttura e
 > spettro. Per un dato sperimentale, l'app ti rimanda ai database ufficiali.
 
+### Leggere uno spettro che hai misurato tu
+
+La sezione **Lettore spettri** fa il contrario di quella sopra: non prevede uno
+spettro dalla struttura, legge quello che hai già.
+
+1. Trascina il file dentro il riquadro, o incollane il testo
+2. Premi **Leggi**
+
+Funzionano i file **JCAMP-DX** (`.jdx`, `.dx`) che escono dalla maggior parte
+degli spettrofotometri, anche nella forma compressa, e due colonne di numeri
+separate da spazi o virgole — che è ciò che esce da un foglio di calcolo.
+Se non hai un file sotto mano, i tre pulsanti **esempio IR**, **esempio MS** ed
+**esempio NMR** caricano uno spettro di prova.
+
+Sotto il grafico trovi i picchi trovati con il loro rapporto segnale-rumore, e
+per ogni banda **tutte** le assegnazioni compatibili. Se a 1715 cm⁻¹ leggi due
+righe, non è un difetto: a quel numero d'onda un chetone e un acido
+carbossilico sono entrambi possibili, e dirne uno solo sarebbe inventare.
+
+> Il lettore **non ti dice che molecola è**. Un insieme di bande è compatibile
+> con molte molecole diverse: il passo dallo spettro alla struttura lo fai tu,
+> con il resto di quello che sai sul campione.
+
+### Scegliere la lingua
+
+Nella sezione **Lingue** ci sono **quattordici** lingue, con un campo di ricerca
+per trovarle in fretta: italiano, inglese, spagnolo, francese, tedesco,
+portoghese, olandese, polacco, romeno, greco, russo, cinese, giapponese e arabo.
+Scegliendo l'arabo cambia anche il **verso** della pagina, da destra a sinistra.
+
+Accanto c'è **Linguaggi**, che è un'altra cosa: converte una molecola fra le
+venticinque notazioni con cui la chimica la scrive — SMILES, InChI, SMARTS,
+molfile, XYZ, PDB, CML, le impronte digitali — e, per una classe dichiarata di
+molecole semplici, ne scrive il **nome IUPAC**. Fuori da quella classe lo dice,
+invece di tentare un nome sbagliato.
+
 ### Studiare con le schede
 
 1. Apri la sezione di studio
@@ -91,7 +127,7 @@ quelle incerte tornano presto. Riaprendo trovi solo le schede in scadenza.
 
 ### Consultare un farmaco
 
-Apri **Farmacologia**. Per ognuno dei 233 farmaci trovi struttura, peso
+Apri **Farmacologia**. Per ognuno dei 263 farmaci trovi struttura, peso
 molecolare, meccanismo d'azione, indicazioni, effetti avversi e classe.
 
 > ⚕️ **Solo a scopo didattico.** Queste informazioni non sostituiscono il parere
@@ -209,4 +245,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v186`._
+_Guida aggiornata alla versione `bsi-v187`._

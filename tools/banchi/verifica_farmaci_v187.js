@@ -23,7 +23,14 @@ const BASE = process.env.BSI_URL_BASE || 'http://127.0.0.1:8899/';
 const CHROME = process.env.BSI_CHROME ||
   '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 
-const voci = JSON.parse(fs.readFileSync('tools/dati/farmaci_v187.json', 'utf8'));
+/* Il percorso si risolve rispetto a QUESTO file, non alla cartella di lavoro:
+   `genera-evidenza` esegue i banchi di `tools/banchi/` con cwd in quella
+   cartella, e un percorso relativo alla radice falliva solo dentro la
+   batteria ufficiale — passando invece a mano. Un banco che funziona quando
+   lo lanci tu e cade quando lo lancia la batteria e' il peggiore dei due. */
+const path = require('path');
+const DATI = path.resolve(__dirname, '..', 'dati', 'farmaci_v187.json');
+const voci = JSON.parse(fs.readFileSync(DATI, 'utf8'));
 
 (async () => {
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
