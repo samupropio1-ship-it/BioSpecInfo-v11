@@ -129,7 +129,27 @@ documenti().forEach(function(doc){
   let ms;
   while ((ms = reStoria.exec(testo)) !== null) storiche.add(ms[1]);
 
-  const altre = versioni.filter(v => v !== ver && !storiche.has(v));
+  /* ── E una versione nominata dentro una RIGA DI DIFFORMITA' ────────────
+     Le righe che cominciano con `| **D-nn**` sono il registro delle
+     difformita' dichiarate: una versione che compare lì e' il SOGGETTO
+     della difformita', non una dichiarazione rimasta indietro. La D-10
+     dice che il tag `bsi-v181` punta al commit sbagliato: e' una frase che
+     DEVE nominare quella versione.
+
+     L'esenzione e' POSIZIONALE, non per documento. Il primo tentativo
+     aggiungeva la versione a `storiche`, cioe' la esentava in TUTTO il
+     documento: da quel momento un `bsi-v181` rimasto indietro altrove in
+     `docs/09` sarebbe passato in silenzio. Provando la guardia opposta non
+     scattava — e non scattava perche' l'esenzione era troppo larga, non
+     perche' il caso fosse coperto. Qui le righe di difformita' vengono
+     TOLTE dal testo prima di cercarci le versioni: fuori da quelle righe
+     ogni versione superata continua a fallire. */
+  const senzaDifformita = testo.split(/\r?\n/)
+    .filter(function (riga) { return !/^\s*\|\s*\*\*D-\d+\*\*/.test(riga); })
+    .join('\n');
+  const versioniFuori = [...new Set((senzaDifformita.match(/bsi-v\d+/g) || []))];
+
+  const altre = versioniFuori.filter(v => v !== ver && !storiche.has(v));
   if (altre.length) disallineati.push(doc + ' cita ' + altre.join(', '));
 });
 att('nessun documento cita una versione superata', 0, disallineati.length);

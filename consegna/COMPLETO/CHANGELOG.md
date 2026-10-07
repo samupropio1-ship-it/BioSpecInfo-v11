@@ -646,6 +646,30 @@ veri, con il loro nome accessibile, non di rettangoli disegnati sulla tela.
 ---
 ## [bsi-v181] — 2026-10-02
 
+> **Avviso sul tag di questa versione.** Il 7 ottobre 2026 il workflow di
+> pubblicazione è stato avviato senza compilare il campo della versione, e ha
+> usato il proprio valore predefinito — che era `bsi-v181`. Essendo
+> rieseguibile per progetto, ha **spostato il tag `bsi-v181`** dal commit
+> originario `cb0cf03` al commit della `bsi-v187`, e le ha allegato i tre
+> pacchetti della v187 accanto ai suoi. I pacchetti estranei sono stati
+> rimossi; **il tag non è stato possibile riportarlo indietro**, perché
+> GitHub non permette a un'app di scrivere un ref che punti a un commit il cui
+> `.github/workflows/*` differisce da quello corrente — né via `git push`
+> («refusing to allow a GitHub App to create or update workflow») né via API
+> sui ref (403 «Resource not accessible by integration»).
+>
+> Quindi: **i tre pacchetti allegati a questa release sono quelli della
+> `bsi-v181`**, ma l'archivio «*Source code (zip)*» che GitHub genera dal tag
+> contiene il codice della `bsi-v187`. Il codice della `bsi-v181` resta al
+> commit `cb0cf03e52f15d5f57c28626c75adc817d726788`.
+>
+> Il tag si rimette a posto solo con le credenziali di una persona, non di
+> un'app: `git push --force origin cb0cf03e52f15d5f57c28626c75adc817d726788:refs/tags/bsi-v181`.
+>
+> Il valore predefinito è stato togliato dal workflow e la versione da
+> pubblicare deve ora coincidere con quella dichiarata da `sw.js` e dal nome
+> dei pacchetti, altrimenti il workflow si ferma.
+
 Le tre sezioni che restavano — **spettri**, **astrochimica**, **data science** —
 misurate per la prima volta con un banco proprio, e la **fluidità** ripresa
 dove la v180 si era fermata: lì si era corretto l'impaginamento, qui si trova
