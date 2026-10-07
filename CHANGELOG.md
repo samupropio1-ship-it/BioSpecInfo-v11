@@ -180,9 +180,70 @@ Ed è per questo che il banco non si accontenta che il pulsante esista nel DOM:
 visibile, che il pannello si apra, che tutte e diciotto le voci ci siano sotto
 l'intestazione giusta, e che cliccandone una la sezione si apra davvero.
 
+### Elucidazione — dai dati alla struttura, senza fare il salto
+
+Nuovo modulo `bsi-elucida.js`, dentro la sezione «Lettore spettri»: si incolla
+quello che si ha — formula molecolare, lista dei picchi di massa, bande IR,
+segnali ¹³C e ¹H — ed esce un **dossier** in cui le **deduzioni** stanno
+separate dalle **supposizioni**.
+
+| deduzione | che cos'è |
+|---|---|
+| gradi di insaturazione (IDI/DBE) | aritmetica: `1 + Σ nᵢ(vᵢ−2)/2`, vale per qualunque elemento |
+| massa monoisotopica attesa per M⁺ | somma degli isotopi più abbondanti |
+| numero di segnali ¹³C distinti | e se sono meno dei carboni della formula, **c'è simmetria** |
+| protoni dalle integrazioni | con l'avviso se non tornano con la formula |
+
+| supposizione | con quale margine |
+|---|---|
+| numero di carboni dal picco **M+1** | `I(M+1)/I(M) × 100 / 1,1`, corretto per N, S, Si |
+| eteroatomo dal picco **M+2** | Cl 32,5 % · Br 97,3 % · S 4,4 % · Si 3,4 % |
+| perdite neutre | 25 voci, da −15 (CH₃) a −59 (COOCH₃) |
+| bande IR, classi ¹³C e ¹H | **tutte** le compatibili, non la prima |
+
+#### Perché non propone una struttura
+
+Dedurla da zero — generare gli isomeri compatibili e ordinarli — si chiama
+CASE, ed è un problema di ricerca, non una funzione. Per C₉H₁₀O₂S ci sono
+migliaia di isomeri, e gli spettri ne escludono molti ma non tutti tranne uno.
+Un programma che ne sputasse una sola darebbe una certezza che i dati non
+contengono.
+
+Quello che fa è **verificare una proposta**: ne prevede gli spettri e li mette
+accanto a quelli osservati, segnale per segnale, dicendo dove casca.
+
+#### I conti verificati contro compiti già corretti
+
+Il banco non usa esempi inventati: usa quesiti di «Metodi Fisici in Chimica
+Organica» con i conti che lo studente ha scritto a mano sul foglio.
+**Dodici formule, dodici IDI giusti** — C₉H₁₀O₂S = 5, C₁₃H₁₇NO₂ = 6,
+C₇H₁₀O₃ = 3, e così via. E il numero di carboni dal M+1: su `M 151 (47,2) ·
+M+1 152 (4,7)` dà **9**, come il calcolo a mano.
+
+Sul confronto fra una struttura **giusta** e una **sbagliata con la stessa
+formula**: 2-etossibenzaldeide 100 contro 30, 4-amminobenzoato di metile 100
+contro 80.
+
+#### Un punteggio basso può voler dire due cose
+
+E confonderle sarebbe il difetto peggiore di uno strumento come questo, perché
+farebbe scartare la risposta giusta. Sul quesito del furano la struttura è
+**corretta** e il punteggio esce **42**: non perché sia sbagliata, ma perché il
+predittore non ha incrementi di posizione per gli **eteroaromatici
+sostituiti** — esistono per il benzene, non li ho per furano, tiofene, pirrolo
+e piridina, e inventarli sarebbe scrivere numeri senza fonte.
+
+Quindi lo strumento dichiara la **fiducia**: «bassa», con il motivo scritto.
+Il banco lo verifica — formula coincidente, punteggio basso, fiducia bassa,
+motivo presente.
+
+Aggiunti intanto i valori di classe ¹³C per gli eteroaromatici **non**
+sostituiti, che prima non c'erano affatto: furano α 142,7 / β 109,6, tiofene,
+pirrolo, piridina. Senza di quelli i carboni del furano uscivano tutti a 128,5.
+
 ### Banchi
 
-Nuovo `test_menu` (36 controlli su due viewport). Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
+Nuovo `test_elucida` (28 controlli). Nuovo `test_menu` (36 controlli su due viewport). Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
 conteggio dei segnali su otto molecole, i rifiuti, e il pannello provato
 nell'applicazione — clic su una riga, atomi illuminati, passaggio fra ¹H e
 ¹³C sulla stessa molecola. `test_spettrolettore` sale a 45 con la lettura da

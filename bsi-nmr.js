@@ -249,7 +249,24 @@
     ['[CX2;$([CX2]#[CX2])]',                      75, 'C alchino', 'C alkyne'],
     /* aromatici: il valore qui e' solo il punto di partenza, gli incrementi
        di posizione lo correggono in §5 */
-    /* Un carbonio aromatico che appartiene a DUE anelli e' un carbonio di
+    /* ── Gli ETEROAROMATICI hanno valori propri ───────────────────────────
+       Il furano, il tiofene, il pirrolo e la piridina non sono benzeni con un
+       sostituente: l'eteroatomo cambia gli spostamenti di decine di ppm e la
+       tabella degli incrementi benzenici non li descrive. Senza queste righe
+       i carboni del furano uscivano tutti a 128,5 contro i 142,7 e 109,6
+       sperimentali — e in un quesito d'esame il furano si riconosce
+       ESATTAMENTE da quei due numeri.
+       Vanno prima di `[c;R2]` e `[c]`: il primo che corrisponde vince. */
+    ['[c;r5;$(c:o)]',                 142.7, 'C α del furano', 'furan α-C'],
+    ['[c;r5;$(c:c:o)]',               109.6, 'C β del furano', 'furan β-C'],
+    ['[c;r5;$(c:s)]',                 125.4, 'C α del tiofene', 'thiophene α-C'],
+    ['[c;r5;$(c:c:s)]',               127.2, 'C β del tiofene', 'thiophene β-C'],
+    ['[c;r5;$(c:[nX3H1])]',           118.0, 'C α del pirrolo', 'pyrrole α-C'],
+    ['[c;r5;$(c:c:[nX3H1])]',         108.0, 'C β del pirrolo', 'pyrrole β-C'],
+    ['[c;r6;$(c:[nX2])]',             149.9, 'C α della piridina', 'pyridine α-C'],
+    ['[c;r6;$(c:c:[nX2])]',           123.8, 'C β della piridina', 'pyridine β-C'],
+    ['[c;r6;$(c:c:c:[nX2])]',         136.0, 'C γ della piridina', 'pyridine γ-C'],
+        /* Un carbonio aromatico che appartiene a DUE anelli e' un carbonio di
        condensazione, non un carbonio sostituito. Nel naftalene i due
        carboni C4a/C8a ricevevano l'incremento «ipso fenile» (+13)
        dall'altro anello e uscivano a 152,3 invece di 133,5: l'altro anello
