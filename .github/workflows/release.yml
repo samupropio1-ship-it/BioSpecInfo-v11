@@ -151,7 +151,30 @@ jobs:
             exit 1
           fi
 
-      - name: Crea il tag e la release
+      # ── Perche' questi passi sono separati ─────────────────────────────────
+      # Erano un passo unico. Quando e' fallito, tutto cio' che si poteva
+      # sapere era «Crea il tag e la release → failure»: i registri grezzi di
+      # Actions non sono leggibili da dove si lavora, e lo stdout del passo
+      # non arriva da nessuna parte. Separandoli, il NOME del passo che cade
+      # dice dov'e' il problema, e ogni comando che puo' fallire scrive il
+      # proprio errore come annotazione (`::error::`), che invece si legge.
+      - name: La release esiste o va creata
+        id: stato
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          if gh release view "$VER" >/dev/null 2>&1; then
+            echo "esiste=si" >> "$GITHUB_OUTPUT"
+            echo "la release $VER esiste"
+          else
+            echo "esiste=no" >> "$GITHUB_OUTPUT"
+            echo "la release $VER non esiste ancora"
+          fi
+
+      - name: Crea la release (prima pubblicazione)
+        if: steps.stato.outputs.esiste == 'no'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -159,57 +182,95 @@ jobs:
           VER="${{ inputs.versione }}"
           TIT="${{ inputs.titolo }}"
           [ -n "$TIT" ] || TIT="BioSpecInfo $VER"
-          # Rieseguibile: se la release c'è già si aggiornano note e allegati
-          # invece di fallire a metà.
           SHA_TAG="${{ inputs.commit_del_tag }}"
           [ -n "$SHA_TAG" ] || SHA_TAG="${{ github.sha }}"
-          RIPARA="${{ inputs.solo_riparazione }}"
-          if gh release view "$VER" >/dev/null 2>&1; then
-            echo "la release $VER esiste: aggiorno note, allegati e tag"
-            gh release edit "$VER" --title "$TIT" --notes-file note.md
-            if [ "$RIPARA" != "true" ]; then
-              gh release upload "$VER" consegna/*.zip --clobber
-            else
-              echo "solo riparazione: nessun pacchetto caricato"
-            fi
-            # IGIENE. Un allegato il cui nome porta una versione DIVERSA da
-            # quella della release non ci appartiene: è così che bsi-v181 si
-            # è trovata sei pacchetti, tre suoi e tre della v187. Chi scarica
-            # non ha modo di sapere quale sia quello giusto.
-            gh release view "$VER" --json assets \
-              --jq '.assets[].name' | while read -r NOME; do
-              case "$NOME" in
-                *"$VER"*) : ;;
-                *) echo "rimuovo l'allegato estraneo: $NOME"
-                   gh release delete-asset "$VER" "$NOME" -y ;;
-              esac
-            done
-            # `gh release edit` NON sposta il tag. Senza questa riga l'archivio
-            # «Source code (zip)», che GitHub genera dal tag, resterebbe al
-            # commit della prima pubblicazione mentre i pacchetti allegati
-            # verrebbero da questo: una release con due provenienze diverse e
-            # nulla che lo dica. Una release, un commit.
-            # Il tag si sposta con git, non con l'API.
-            # `gh api -X PATCH .../git/refs/tags/...` funziona finche' il
-            # movimento e' un AVANZAMENTO: spostare un tag INDIETRO, su un
-            # antenato, viene rifiutato perche' non e' un fast-forward, e il
-            # passo cadeva proprio nel caso che serve a riparare un tag messo
-            # male. `git push --force` su refs/tags/ non ha quel vincolo, e il
-            # token di Actions con `contents: write` lo puo' fare.
-            git tag -f "$VER" "$SHA_TAG"
-            git push --force origin "refs/tags/$VER"
-            echo "tag $VER spostato su $SHA_TAG"
-
-          else
-            gh release create "$VER" \
-              --target "$SHA_TAG" \
-              --title "$TIT" \
-              --notes-file note.md \
-              consegna/*.zip
+          if ! USCITA=$(gh release create "$VER" --target "$SHA_TAG" \
+                          --title "$TIT" --notes-file note.md consegna/*.zip 2>&1); then
+            echo "::error::gh release create ha fallito: $USCITA"
+            exit 1
           fi
-          echo "— pubblicata:"
-          gh release view "$VER" --json tagName,name,assets \
-            --jq '"\(.tagName) · \(.name) · allegati: \(.assets | length)"'
+          echo "$USCITA"
+
+      - name: Aggiorna note e allegati (ripubblicazione)
+        if: steps.stato.outputs.esiste == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          TIT="${{ inputs.titolo }}"
+          [ -n "$TIT" ] || TIT="BioSpecInfo $VER"
+          if ! USCITA=$(gh release edit "$VER" --title "$TIT" --notes-file note.md 2>&1); then
+            echo "::error::gh release edit ha fallito: $USCITA"
+            exit 1
+          fi
+          if [ "${{ inputs.solo_riparazione }}" != "true" ]; then
+            if ! USCITA=$(gh release upload "$VER" consegna/*.zip --clobber 2>&1); then
+              echo "::error::gh release upload ha fallito: $USCITA"
+              exit 1
+            fi
+            echo "pacchetti caricati"
+          else
+            echo "solo riparazione: nessun pacchetto caricato"
+          fi
+
+      - name: Togli dalla release gli allegati di un'altra versione
+        if: steps.stato.outputs.esiste == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          # Un allegato il cui nome porta una versione DIVERSA da quella della
+          # release non ci appartiene: e' cosi' che bsi-v181 si e' trovata sei
+          # pacchetti, tre suoi e tre della v187. Chi scarica non ha modo di
+          # sapere quale sia il suo.
+          gh release view "$VER" --json assets --jq '.assets[].name' > nomi.txt
+          TOLTI=0
+          while read -r NOME; do
+            [ -n "$NOME" ] || continue
+            case "$NOME" in
+              *"$VER"*) : ;;
+              *) echo "rimuovo l'allegato estraneo: $NOME"
+                 if ! USCITA=$(gh release delete-asset "$VER" "$NOME" -y 2>&1); then
+                   echo "::error::non ho potuto rimuovere $NOME: $USCITA"
+                   exit 1
+                 fi
+                 TOLTI=$((TOLTI+1)) ;;
+            esac
+          done < nomi.txt
+          echo "allegati estranei rimossi: $TOLTI"
+
+      - name: Metti il tag sul commit voluto
+        if: steps.stato.outputs.esiste == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          SHA_TAG="${{ inputs.commit_del_tag }}"
+          [ -n "$SHA_TAG" ] || SHA_TAG="${{ github.sha }}"
+          # `gh release edit` NON sposta il tag. Senza questo passo l'archivio
+          # «Source code (zip)», che GitHub genera dal tag, resterebbe al
+          # commit della prima pubblicazione mentre i pacchetti allegati
+          # verrebbero da un altro: una release con due provenienze e nulla che
+          # lo dica. Una release, un commit.
+          #
+          # E si sposta con git, non con l'API: `PATCH .../git/refs/tags/...`
+          # funziona solo in AVANZAMENTO, e rifiuta di riportare un tag su un
+          # antenato — cioe' proprio il caso che serve a riparare un tag messo
+          # male.
+          if ! git cat-file -e "$SHA_TAG^{commit}" 2>/dev/null; then
+            echo "::error::il commit $SHA_TAG non esiste in questo checkout"
+            exit 1
+          fi
+          git tag -f "$VER" "$SHA_TAG"
+          if ! USCITA=$(git push --force origin "refs/tags/$VER" 2>&1); then
+            echo "::error::git push del tag ha fallito: $USCITA"
+            exit 1
+          fi
+          echo "$USCITA"
+          echo "tag $VER → $SHA_TAG"
 
       - name: Il tag e gli allegati devono venire dallo stesso commit
         env:
