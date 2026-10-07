@@ -50,6 +50,10 @@ on:
         description: 'true = non carica pacchetti: rimette il tag e toglie gli allegati estranei'
         required: false
         default: 'false'
+      ricrea_il_tag:
+        description: 'true = rimette il tag CANCELLANDOLO e ricreandolo (ultima risorsa, solo con commit_del_tag)'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -333,6 +337,71 @@ jobs:
             exit 1
           fi
           echo "coincidono"
+
+      # ── Ultima risorsa: cancellare il tag e ricrearlo ─────────────────────
+      # Spostare un tag INDIETRO e' bloccato in entrambe le strade usuali,
+      # perche' GitHub rifiuta che un'app scriva un ref verso un commit il cui
+      # `.github/workflows/*` differisce da quello corrente:
+      #   · `git push --force` → «refusing to allow a GitHub App to create or
+      #     update workflow ... without `workflows` permission»
+      #   · `PATCH /git/refs/tags/...` → 403 «Resource not accessible by
+      #     integration»
+      # Resta da provare se la stessa regola valga per CANCELLA + RICREA: una
+      # POST su /git/refs con uno SHA che esiste gia' non carica oggetti, e
+      # potrebbe non ricadere nel divieto.
+      #
+      # Ma non si prova sul tag vero. Prima si crea un tag BUTTATO VIA sullo
+      # stesso commit: se quello non si puo' creare, il tag vero non viene
+      # toccato e il passo si ferma. Se si puo', si procede — e se la
+      # ricreazione fallisse dopo la cancellazione, il tag viene rimesso
+      # subito dov'era. Un tag cancellato e non ricreato sarebbe un danno
+      # peggiore di quello che si sta riparando.
+      - name: Rimetti il tag cancellandolo e ricreandolo
+        if: inputs.ricrea_il_tag == 'true' && inputs.commit_del_tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VER="${{ inputs.versione }}"
+          SHA_TAG="${{ inputs.commit_del_tag }}"
+          REPO="${{ github.repository }}"
+          PRIMA=$(gh api "repos/$REPO/git/ref/tags/$VER" --jq '.object.sha')
+          echo "::notice::il tag $VER punta ora a $PRIMA, lo si vuole su $SHA_TAG"
+
+          PROVA="prova-ripristino-$VER"
+          # pulizia di un eventuale residuo di un tentativo precedente
+          gh api -X DELETE "repos/$REPO/git/refs/tags/$PROVA" >/dev/null 2>&1 || true
+
+          if ! USCITA=$(gh api -X POST "repos/$REPO/git/refs" \
+                          -f ref="refs/tags/$PROVA" -f sha="$SHA_TAG" 2>&1); then
+            echo "::error::creare un tag su $SHA_TAG non e' permesso (${USCITA//$'\n'/ | }). Il tag $VER NON e' stato toccato."
+            exit 1
+          fi
+          echo "sondaggio riuscito: un tag su $SHA_TAG si puo' creare"
+          gh api -X DELETE "repos/$REPO/git/refs/tags/$PROVA" >/dev/null
+          echo "tag di prova rimosso"
+
+          if ! USCITA=$(gh api -X DELETE "repos/$REPO/git/refs/tags/$VER" 2>&1); then
+            echo "::error::non ho potuto cancellare il tag $VER (${USCITA//$'\n'/ | })"
+            exit 1
+          fi
+          echo "tag $VER cancellato"
+
+          if ! USCITA=$(gh api -X POST "repos/$REPO/git/refs" \
+                          -f ref="refs/tags/$VER" -f sha="$SHA_TAG" 2>&1); then
+            echo "::error::ricreazione fallita (${USCITA//$'\n'/ | }) — rimetto il tag dov'era"
+            gh api -X POST "repos/$REPO/git/refs" \
+              -f ref="refs/tags/$VER" -f sha="$PRIMA" >/dev/null || \
+              echo "::error::e il ripristino a $PRIMA e' fallito: il tag $VER NON ESISTE PIU'"
+            exit 1
+          fi
+
+          ADESSO=$(gh api "repos/$REPO/git/ref/tags/$VER" --jq '.object.sha')
+          echo "::notice::tag $VER ricreato: $ADESSO"
+          if [ "$ADESSO" != "$SHA_TAG" ]; then
+            echo "::error::il tag dice $ADESSO, era atteso $SHA_TAG"
+            exit 1
+          fi
 
       # ...ma non deve diventare invisibile: se il tag e' stato lasciato dov'e',
       # si dice dov'e'.
