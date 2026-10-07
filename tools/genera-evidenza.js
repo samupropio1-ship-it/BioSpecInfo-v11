@@ -73,7 +73,7 @@ const FAMIGLIE = [
     scopo: 'I pannelli e i comandi rispondono come documentato.',
     banchi: ['browser_reset', 'browser_proxy', 'browser_proxyui', 'browser_rdkit',
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy',
-             'test_fluidita', 'test_lingue', 'test_mol3d'] },
+             'test_fluidita', 'test_lingue', 'test_mol3d', 'test_menu'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
     banchi: ['@verifica-sicurezza', 'audit_storia', 'audit_rete',

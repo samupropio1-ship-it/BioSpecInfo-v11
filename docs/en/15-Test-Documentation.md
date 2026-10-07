@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**55 benches**, grouped by what they demonstrate.
+**56 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 

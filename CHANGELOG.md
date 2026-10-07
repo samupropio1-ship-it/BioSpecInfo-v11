@@ -145,9 +145,44 @@ invece di indovinarla. La forma della traccia è recuperata, la taratura no.
   grafo senza atomi, da cui usciva uno spettro con zero segnali: un oggetto che
   sembra un risultato e non lo è.
 
+### La categoria Utility passa nel menù ✨
+
+La barra di navigazione aveva sette categorie, e la settima — «🛠️ Utility»
+— raccoglieva diciotto voci che con la chimica non c'entrano: l'assistente, il
+laboratorio, le note, il File Manager, le statistiche, il Pomodoro. Occupava
+una categoria intera accanto a Chimica, Spettroscopia e Farmacologia.
+
+Ora stanno nel menù ✨, in **due blocchi separati**: «🛠️ Utility» con gli
+strumenti, e «🌍 Lingue e linguaggi» con la lingua dell'interfaccia e i
+linguaggi chimici — che non sono uno strumento fra gli altri, sono il modo in
+cui si legge tutto il resto.
+
+**I pulsanti restano nel documento**, nascosti. Cancellarli sarebbe stato più
+pulito a vedersi e sbagliato: decine di punti dell'applicazione aprono una
+sezione con `document.querySelector('[data-s=...]').click()`, e `goSection()`
+fa esattamente quello. Toglierli avrebbe rotto quei collegamenti in silenzio,
+uno per uno. E le **etichette si leggono dai pulsanti** invece di essere
+riscritte: così non diventano stringhe nuove da tradurre in tredici lingue, e
+il menù dice sempre quello che dice la sezione.
+
+#### Il menù giusto non era quello che sembrava
+
+Il primo tentativo agganciava `#bsi105-fab` e `#bsi13-panel`. Esistono ancora
+nel documento, ma sono `display:none` su **ogni** schermo — grande e piccolo.
+Il menù che si vede davvero è `#bsi14-fab` con `#bsi14-panel`. Il banco
+l'ha detto alla prima esecuzione, su entrambe le misure: «il pulsante ✨ c'è
+ed è visibile → false». Senza quel controllo la categoria Utility sarebbe
+finita in un menù che nessuno può aprire — irraggiungibile, come le due
+sezioni delle lingue prima di lei.
+
+Ed è per questo che il banco non si accontenta che il pulsante esista nel DOM:
+`test_menu` gira su **schermo grande e su telefono**, pretende che il ✨ sia
+visibile, che il pannello si apra, che tutte e diciotto le voci ci siano sotto
+l'intestazione giusta, e che cliccandone una la sezione si apra davvero.
+
 ### Banchi
 
-Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
+Nuovo `test_menu` (36 controlli su due viewport). Nuovo `test_nmr` (26 controlli): i due insiemi con i valori di letteratura, il
 conteggio dei segnali su otto molecole, i rifiuti, e il pannello provato
 nell'applicazione — clic su una riga, atomi illuminati, passaggio fra ¹H e
 ¹³C sulla stessa molecola. `test_spettrolettore` sale a 45 con la lettura da

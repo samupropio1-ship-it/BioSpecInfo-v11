@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**55 banchi**, raggruppati per ciò che dimostrano.
+**56 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 

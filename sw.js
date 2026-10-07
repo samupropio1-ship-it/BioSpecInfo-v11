@@ -38,6 +38,7 @@ var PRECACHE = [
   './bsi-spettrolettore.js',
   './bsi-nmr.js',
   './bsi-moldraw.js',
+  './bsi-menu.js',
   './3Dmol-min.js',
   './three.min.js',
   './three_bloom.js',
