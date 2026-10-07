@@ -51,9 +51,9 @@ Vercel e Cloudflare Pages lo fanno già.
 python3 -m http.server 8899 &
 node tools/genera-evidenza.js          # deve chiudersi con 0 falliti
 
-# 2. incrementare la versione — DUE righe, sempre in coppia
-#    sw.js:      var CACHE = 'bsi-v<NNN+1>';
-#    index.html: window.BSI_APP_VERSION='bsi-v<NNN+1>';
+# 2. incrementare la versione — con lo strumento, MAI a mano
+node tools/porta-versione.js bsi-v<NNN+1> --prova   # prima si guarda
+node tools/porta-versione.js bsi-v<NNN+1>           # poi si scrive
 
 # 3. rigenerare SBOM, PDF, pacchetti ed evidenza sulla versione nuova
 node tools/genera-sbom.js
@@ -111,6 +111,40 @@ allegati e tag invece di fallire a metà. Spostare un tag già pubblicato non è
 gratis — chi l'ha già scaricato ha un contenuto diverso — quindi vale per una
 release appena pubblicata, non per una vecchia: per quella si pubblica una
 versione nuova.
+
+### 2.1-ter Perché il cambio di versione non si fa con una sostituzione
+
+Sembra l'operazione più innocua del mondo: si cerca `bsi-v<NNN>` e si scrive
+`bsi-v<NNN+1>`. **Per tre rilasci di fila è stato fatto così, e ogni volta ha
+riscritto delle frasi storiche** — frasi che raccontano un fatto accaduto a
+una versione passata. Quello che ne è uscito stava dentro una dichiarazione di
+conformità firmata:
+
+| nel documento c'era scritto | la verità |
+|---|---|
+| la password era stata **cambiata alla versione corrente** | era stata cambiata alla versione `bsi-v188` |
+| il tag era stato **spostato al commit della versione corrente** | l'incidente era accaduto alla versione `bsi-v188` |
+| le trentasei voci erano state **aggiunte nella versione corrente** | erano state aggiunte in `bsi-v188` |
+| «incrementa `CACHE` (es. `bsi-vN` → `bsi-vN`)» | un esempio uguale a se stesso |
+
+Nessun controllo poteva accorgersene: ogni riga citava una versione che
+**esiste**, nel documento che descrive quella versione.
+
+> Questa tabella è scritta con dei segnaposto e non con i numeri veri perché
+> i due controlli di cui si parla qui sotto **la boccerebbero** — ed è la
+> dimostrazione che funzionano.
+
+`tools/porta-versione.js` tocca **solo** le righe che DICHIARANO la versione —
+intestazioni, piè di pagina, distintivo del README, nomi dei pacchetti, le due
+righe di codice — e tutto il resto lo **elenca** perché lo si legga. Con
+`--prova` non scrive niente.
+
+E due controlli in `tools/verifica-documenti.js` chiudono la porta: nessuna
+frase al passato può nominare la versione corrente, e nessun esempio di
+aggiornamento può mostrare la stessa versione da entrambe le parti.
+
+> **Scrivere nominando la cosa, non il numero.** «Dalle tabelle di Pretsch»
+> invece di «dalla versione tale»: si legge meglio e non invecchia.
 
 ### 2.2 Le due righe della versione
 

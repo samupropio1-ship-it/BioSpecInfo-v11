@@ -51,9 +51,9 @@ Vercel and Cloudflare Pages already do.
 python3 -m http.server 8899 &
 node tools/genera-evidenza.js          # must close with 0 failures
 
-# 2. bump the version — TWO lines, always as a pair
-#    sw.js:      var CACHE = 'bsi-v<NNN+1>';
-#    index.html: window.BSI_APP_VERSION='bsi-v<NNN+1>';
+# 2. bump the version — with the tool, NEVER by hand
+node tools/porta-versione.js bsi-v<NNN+1> --prova   # look first
+node tools/porta-versione.js bsi-v<NNN+1>           # then write
 
 # 3. regenerate SBOM, PDFs, packages and evidence on the new version
 node tools/genera-sbom.js
@@ -110,6 +110,39 @@ The workflow is **re-runnable**: if the release already exists it updates notes,
 assets and tag instead of failing halfway. Moving an already-published tag is
 not free — whoever downloaded it already has different content — so it applies
 to a release just published, not an old one: for that, publish a new version.
+
+### 2.1-ter Why the version bump is not done with a find-and-replace
+
+It looks like the most harmless operation in the world: search `bsi-v<NNN>`,
+write `bsi-v<NNN+1>`. **For three releases in a row it was done that way, and
+every time it rewrote historical sentences** — sentences recording a fact that
+happened at a past version. What came out of it sat inside a signed conformance
+statement:
+
+| the document said | the truth |
+|---|---|
+| the password had been **changed at the current version** | it was changed at version `bsi-v188` |
+| the tag had been **moved to the current version's commit** | the incident happened at version `bsi-v188` |
+| the thirty-six entries were **added in the current version** | they were added in `bsi-v188` |
+| "bump `CACHE` (e.g. `bsi-vN` → `bsi-vN`)" | an example equal to itself |
+
+No check could catch it: every line named a version that **exists**, in the
+document describing that version.
+
+> This table uses placeholders rather than the real numbers because the two
+> checks described below **would reject it** — which is the proof that they
+> work.
+
+`tools/porta-versione.js` touches **only** the lines that DECLARE the version —
+headers, footers, the README badge, package names, the two code lines — and
+**lists** everything else so it gets read. With `--prova` it writes nothing.
+
+Two checks in `tools/verifica-documenti.js` now close the door: no past-tense
+sentence may name the current version, and no upgrade example may show the same
+version on both sides.
+
+> **Name the thing, not the number.** "From the Pretsch tables" rather than
+> "from version such-and-such": it reads better and does not age.
 
 ### 2.2 The two version lines
 

@@ -92,6 +92,45 @@ farebbe dire «SMILES sbagliato» a chi ha solo il server spento.
 **Non è pronto per il pubblico**, e il README lo dice: niente autenticazione,
 niente limiti di frequenza, niente cache.
 
+### Undici frasi storiche riscritte da una sostituzione cieca
+
+Alzare la versione sembra l'operazione più innocua del mondo: si cerca
+`bsi-v<NNN>` e si scrive `bsi-v<NNN+1>`. **Per tre rilasci di fila è stato
+fatto così**, e ogni volta ha riscritto anche delle frasi che raccontano un
+fatto accaduto a una versione *passata*. Quello che ne era uscito stava dentro
+una dichiarazione di conformità firmata:
+
+- la password del File Manager risultava cambiata alla versione corrente,
+  mentre era stata cambiata alla `bsi-v188` — e la frase sta in una
+  difformità di **sicurezza**;
+- l'incidente del tag `bsi-v181` risultava avvenuto alla versione corrente,
+  mesi dopo il fatto;
+- trentasei voci della banca dati farmaci risultavano aggiunte alla versione
+  corrente;
+- l'istruzione «incrementa `CACHE`» mostrava **lo stesso numero da entrambe
+  le parti** — un esempio uguale a se stesso, rimasto così per tre versioni.
+
+Undici righe in nove documenti, in italiano e in inglese. Nessun controllo
+poteva accorgersene: ogni riga citava una versione che **esiste**, nel
+documento che descrive quella versione. Il difetto non era nei documenti, era
+nel **modo** di aggiornarli.
+
+**`tools/porta-versione.js`** — il cambio di versione non si fa più a mano.
+Tocca solo le righe che *dichiarano* la versione, riconosciute da uno schema
+esplicito, e tutto il resto lo **elenca** perché lo si legga. Con `--prova` non
+scrive niente. È stato lui, alla prima esecuzione a vuoto, a trovare le ultime
+quattro righe sbagliate e due schemi inglesi che gli mancavano.
+
+**Due controlli nuovi** in `verifica-documenti`, provati nei due versi
+reinserendo i difetti veri e guardandoli fallire: nessuna frase al passato può
+nominare la versione corrente, e nessun esempio di aggiornamento può mostrare
+la stessa versione da entrambe le parti.
+
+I due controlli sono dovuti condividere **una sola** definizione di «frase
+storica» con quello che cercava le versioni rimaste indietro: tenendone due
+elenchi si contraddicevano — uno pretendeva che la frase nominasse una versione
+vecchia, l'altro la segnalava come dimenticata.
+
 ---
 ## [bsi-v190] — 2026-10-07
 

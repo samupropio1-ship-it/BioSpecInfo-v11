@@ -90,6 +90,29 @@ att('nessun collegamento interno rotto', 0, rotti.length);
 rotti.slice(0, 12).forEach(r => console.log('      ! ' + r));
 
 /* ── 2. la versione citata coincide con quella del codice ── */
+/* ── Le formule che collocano un fatto NEL PASSATO ────────────────────────
+   «Fino alla versione bsi-v168 il banco guardava una sezione su 87» DEVE
+   nominare una versione vecchia: e' il suo contenuto. «La password e' stata
+   cambiata alla versione bsi-v188» pure.
+
+   L'elenco sta qui, in un posto solo, perche' lo usano due controlli con
+   intenzioni opposte — vedi il commento accanto a `reStoria`. */
+const FORMULE_STORICHE =
+  'fino alla versione|fino a|antecedente(?:mente)? alla versione|' +
+  'prima della versione|alla versione|dalla versione|nella versione|' +
+  'aggiunt[eoia] in|rimast[oa] a(?:lla versione)?|ferm[oa] a(?:lla versione)?|' +
+  '(?:\u00e8|e\') stat[oa] (?:fatto|fatta|cambiat[oa]|spostat[oa])[^.\\n]{0,60}versione|' +
+  'cambiat[ao]\\*{0,2} alla versione|a quello della|' +
+  'up to version|stuck at(?: version)?|left at(?: version)?|since version|' +
+  'in version|at version|added in|introduced in|' +
+  'was \\*{0,2}(?:changed|done|moved|added)\\*{0,2}[^.\\n]{0,60}(?:at |in |to the )version|' +
+  'has been \\*{0,2}done\\*{0,2}[^.\\n]{0,60}at version|' +
+  'to the';
+
+/* e una versione fra parentesi in fondo a un titolo marca la sezione con la
+   versione in cui quel fatto e' accaduto: «... scritta nel dato (bsi-v188)» */
+const RE_TITOLO_DATATO = /^#{1,6} .*\((bsi-v\d+)\)\s*$/;
+
 console.log('\n── Versione dichiarata nei documenti ──');
 const disallineati = [];
 documenti().forEach(function(doc){
@@ -122,12 +145,29 @@ documenti().forEach(function(doc){
      dall'altra parte. Resta stretta — un'intestazione «Versione
      descritta: bsi-v167» rimasta indietro non contiene nessuno di
      questi verbi e continua a fallire. */
-  const reStoria = /(?:fino alla versione|fino a|antecedente(?:mente)? alla versione|prima della versione|nella versione|rimast[oa] a(?:lla versione)?|ferm[oa] a(?:lla versione)?|up to version|stuck at(?: version)?|left at(?: version)?|since version|in version)\s+>?\s*`?(bsi-v\d+)`?/gi;
+  /* ── UNA SOLA definizione di «frase storica» ─────────────────────────
+     Serve a DUE controlli che guardano in versi opposti:
+
+       · qui sotto, per ESENTARE una versione vecchia nominata dentro una
+         frase che parla del passato — riscriverla la renderebbe falsa;
+       · piu' avanti (§2-bis), per BOCCIARE una di queste stesse frasi che
+         nomini la versione CORRENTE, perche' quella e' la firma di una
+         sostituzione cieca che ha riscritto la storia.
+
+     Tenerne due elenchi diversi li fa divergere, e divergendo i due
+     controlli si contraddicono: uno pretende che la frase nomini una
+     versione vecchia, l'altro la segnala come dimenticata. E' successo, e
+     la correzione e' questa riga sola. */
+  const reStoria = new RegExp('(?:' + FORMULE_STORICHE + ')\\s+>?\\s*`?(bsi-v\\d+)`?', 'gi');
   /* `>?` perche' dentro una citazione Markdown la frase va a capo con un
      `> ` davanti: «Up to version\n> `bsi-v168`». Senza, l'esenzione
      dipendeva da dove cadeva l'a capo. */
   let ms;
   while ((ms = reStoria.exec(testo)) !== null) storiche.add(ms[1]);
+  testo.split(/\r?\n/).forEach(function (riga) {
+    const t = riga.match(RE_TITOLO_DATATO);
+    if (t) storiche.add(t[1]);
+  });
 
   /* ── E una versione nominata dentro una RIGA DI DIFFORMITA' ────────────
      Le righe che cominciano con `| **D-nn**` sono il registro delle
@@ -154,6 +194,80 @@ documenti().forEach(function(doc){
 });
 att('nessun documento cita una versione superata', 0, disallineati.length);
 disallineati.forEach(d => console.log('      ! ' + d));
+
+/* ── 2-bis · Nessun fatto PASSATO attribuito alla versione CORRENTE ───────
+   Il controllo qui sopra guarda il verso sbagliato. Trova una versione
+   rimasta indietro; non trova una frase storica a cui qualcuno ha cambiato
+   la versione SOTTO, lasciando intatto il resto.
+
+   È successo per tre rilasci di fila, con una sostituzione cieca
+   `bsi-vNNN` → `bsi-vNNN+1` su tutti i documenti. Il risultato stava dentro
+   una dichiarazione di conformità firmata:
+
+     «La password è stata **cambiata** alla versione bsi-v191»  — era la v188
+     «ha spostato quel tag al commit della bsi-v191»            — era la v188
+     «Le trentasei voci aggiunte in bsi-v191»                   — erano la v188
+
+   Nessun controllo poteva accorgersene: ogni riga citava una versione che
+   ESISTE, nel documento che descrive quella versione. Erano tutte false, e
+   due di quelle frasi raccontavano un incidente di sicurezza.
+
+   La firma del guasto è precisa: una formula che colloca il fatto NEL
+   PASSATO che nomina la versione CORRENTE. Un documento che descrive la
+   versione N non ha motivo di dire «fatto alla versione N»: o il fatto è di
+   prima, e allora la versione è un'altra, oppure è di adesso, e allora lo
+   dice il CHANGELOG. Scriverlo nominando la cosa invece del numero — «dalle
+   tabelle di Pretsch», non «dalla bsi-v189» — è anche più leggibile, e non
+   invecchia. */
+console.log('\n── Fatti passati attribuiti alla versione corrente ──');
+const retrodatati = [];
+const rePassato = new RegExp(
+  '(?:' + FORMULE_STORICHE + ')\\s+>?\\s*`?' + ver.replace('-', '\\-') + '`?', 'gi');
+
+/* Una riga che DICHIARA la versione del documento non è un fatto passato:
+   «Documento aggiornato alla versione N», «stato alla versione N», «Il
+   sottoscritto dichiara che la versione N». Sono esattamente le righe che
+   `tools/porta-versione.js` ha il compito di aggiornare, e devono nominare
+   la versione corrente. Senza questa esenzione il controllo bocciava il
+   piede di ogni documento — e un controllo che grida sempre si spegne. */
+const reDichiarazione = new RegExp(
+  'aggiornat[oa] alla versione|aggiornata alla versione|' +
+  'updated to version|prodotto alla versione|produced at version|' +
+  'stato alla versione|state at version|' +
+  'dichiara che la versione|declares that version|' +
+  '^\\s*_?Versione\\s+`|^\\s*_?Version\\s+`', 'i');
+documenti().forEach(function (doc) {
+  if (/CHANGELOG|RAPPORTO-VERIFICA/.test(doc)) return;
+  const righe = fs.readFileSync(path.join(RADICE, doc), 'utf8').split(/\r?\n/);
+  righe.forEach(function (riga, i) {
+    rePassato.lastIndex = 0;
+    if (reDichiarazione.test(riga)) return;
+    const td = riga.match(RE_TITOLO_DATATO);
+    if (rePassato.test(riga) || (td && td[1] === ver)) {
+      retrodatati.push(doc + ':' + (i + 1) + '  ' + riga.trim().slice(0, 120));
+    }
+  });
+});
+att('nessuna frase al passato nomina la versione corrente', 0, retrodatati.length);
+retrodatati.forEach(r => console.log('      ! ' + r));
+
+/* ── 2-ter · Nessun esempio che mostra una cosa uguale a se stessa ────────
+   La stessa sostituzione cieca aveva ridotto l'esempio del README del proxy
+   a «incrementa CACHE (es. bsi-v188 → bsi-v188)»: un'istruzione che mostra
+   il prima identico al dopo. È rimasta così per almeno tre versioni. */
+const degeneri = [];
+documenti().forEach(function (doc) {
+  const righe = fs.readFileSync(path.join(RADICE, doc), 'utf8').split(/\r?\n/);
+  righe.forEach(function (riga, i) {
+    const m = riga.match(/`?(bsi-v\d+)`?\s*(?:→|->|a)\s*`?(bsi-v\d+)`?/);
+    if (m && m[1] === m[2]) {
+      degeneri.push(doc + ':' + (i + 1) + '  ' + riga.trim().slice(0, 120));
+    }
+  });
+});
+att('nessun esempio di aggiornamento mostra la stessa versione due volte',
+    0, degeneri.length);
+degeneri.forEach(r => console.log('      ! ' + r));
 
 /* ── 3. index.html dichiara la stessa versione di sw.js ── */
 console.log('\n── Le due righe della versione ──');

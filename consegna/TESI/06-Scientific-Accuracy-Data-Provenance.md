@@ -119,7 +119,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v191` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v188` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -156,10 +156,10 @@ rappresenta:
 
 In entrambi i casi non manca una struttura: non ce n'è una sola da mostrare.
 
-### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v191)
+### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v188)
 
 Il confronto struttura ⟷ peso è necessario ma non sufficiente, e si è visto
-dove cede. Le trentasei voci aggiunte in `bsi-v191` portano nel dato stesso
+dove cede. Le trentasei voci aggiunte in `bsi-v188` portano nel dato stesso
 l'identificativo ChEMBL e la formula del record (`chembl:`, `formula:`), e per
 ognuna la formula viene **ricostruita contando gli atomi del grafo** che RDKit
 legge dallo SMILES — idrogeni impliciti compresi — e confrontata con quella
@@ -767,7 +767,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v191` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v188` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.

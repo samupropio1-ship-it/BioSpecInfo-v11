@@ -89,7 +89,20 @@ Apri `bsi-ai-hub.js` e incolla l'indirizzo del passo 3:
 var PROXY_URL = 'https://spectra-proxy.tuonome.workers.dev';
 ```
 
-Poi incrementa `CACHE` in `sw.js` (es. `bsi-v191` → `bsi-v191`) e pubblica.
+Poi incrementa `CACHE` in `sw.js` — da `bsi-vNNN` a `bsi-vNNN+1` — e pubblica.
+In pratica non si fa a mano: `node tools/porta-versione.js bsi-vNNN+1` aggiorna
+le righe che DICHIARANO la versione ed elenca tutto il resto perché lo si
+legga.
+
+> **Perché l'esempio non porta due numeri veri.** Per tre versioni di fila
+> questa riga ha mostrato lo stesso numero da entrambe le parti — un esempio
+> che mostra una cosa uguale a se stessa — perché il cambio di versione si
+> faceva con una sostituzione cieca su tutti i documenti. La stessa
+> sostituzione aveva riscritto anche delle frasi storiche, dentro una
+> dichiarazione di conformità firmata, spostando in avanti la versione a cui
+> un fatto era accaduto. Un esempio scritto con numeri veri invecchia e
+> invita a quella sostituzione; scritto con `NNN` no. I due controlli che
+> ora lo impediscono stanno in `tools/verifica-documenti.js`.
 
 **Fatto.** Chi apre BioSpecInfo trova Spectra già funzionante.
 
