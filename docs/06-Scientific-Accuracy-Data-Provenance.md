@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v189` |
+| **Versione descritta** | `bsi-v191` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -119,7 +119,7 @@ vanno confuse:
 Registrare una deviazione è quindi una decisione consapevole, tracciata in git e
 visibile nel rapporto, non un modo per silenziare un controllo.
 
-E va anche **revocata** quando non serve più. Dalla versione `bsi-v189` il banco
+E va anche **revocata** quando non serve più. Dalla versione `bsi-v191` il banco
 fallisce anche nel caso opposto: una voce elencata nel registro che **ha** una
 struttura verificata è un permesso rimasto acceso a vuoto, e domani coprirebbe
 in silenzio una struttura sbagliata messa al suo posto.
@@ -156,10 +156,10 @@ rappresenta:
 
 In entrambi i casi non manca una struttura: non ce n'è una sola da mostrare.
 
-### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v189)
+### 2.4-ter Trentasei voci con la provenienza scritta nel dato (bsi-v191)
 
 Il confronto struttura ⟷ peso è necessario ma non sufficiente, e si è visto
-dove cede. Le trentasei voci aggiunte in `bsi-v189` portano nel dato stesso
+dove cede. Le trentasei voci aggiunte in `bsi-v191` portano nel dato stesso
 l'identificativo ChEMBL e la formula del record (`chembl:`, `formula:`), e per
 ognuna la formula viene **ricostruita contando gli atomi del grafo** che RDKit
 legge dallo SMILES — idrogeni impliciti compresi — e confrontata con quella
@@ -671,6 +671,59 @@ incrementi per posizione come l'hanno i benzeni: restano la previsione meno
 affidabile del modulo, e lo strumento di elucidazione lo dichiara abbassando la
 fiducia quando ne incontra uno.
 
+### 3.7 NMR bidimensionale: COSY, HSQC, HMBC
+
+`bsi-nmr2d.js` non contiene spostamenti: li chiede al predittore per atomo e
+costruisce le correlazioni **camminando il grafo**. È per questo che si poteva
+fare solo dopo l'arrivo delle tabelle di Pretsch: servono lo spostamento di *ogni* protone e di
+*ogni* carbonio, più l'indice dell'atomo che li porta.
+
+| mappa | regola topologica |
+|---|---|
+| HSQC | protone e carbonio a **un** legame (¹J); segno invertito sui CH₂ |
+| COSY | due protoni a **tre** legami (H–C–C–H), escluso fra equivalenti |
+| HMBC | protone e carboni a **due o tre** legami (²J, ³J) |
+
+Gli idrogeni **scambiabili** (O–H, N–H) non danno macchie fuori diagonale: si
+scambiano col solvente troppo in fretta perché l'accoppiamento si veda. Sulla
+diagonale del COSY ci sono, perché sono protoni come gli altri.
+
+**Verificato contando i cammini** (`test_nmr2d`, 40 controlli), nei due versi:
+l'esafluorobenzene non dà macchie HSQC, il benzene non ne dà fuori diagonale
+nel COSY, il metano non ne dà in HMBC.
+
+**Limiti dichiarati.** Non è una simulazione dell'esperimento: non ci sono
+intensità calcolate, artefatti, accoppiamento residuo né dipendenza dal tempo
+di miscelamento. In un HMBC vero alcune correlazioni a due legami non si
+vedono; qui ci sono tutte. Gli spostamenti ereditano l'incertezza misurata del
+predittore (0,9 ppm sul ¹³C, 0,06 sul ¹H).
+
+### 3.8 Geometria 3D: costruita dal grafo, non scaricata
+
+`bsi-geom3d.js` costruisce le coordinate con la **geometria delle distanze**:
+una matrice di limiti da legami, angoli di valenza, diagonali d'anello e
+contatti di van der Waals; posizioni iniziali casuali ma **riproducibili**,
+perché il generatore è seminato dallo SMILES; correzione iterativa delle
+violazioni. I sistemi aromatici si proiettano sul loro piano e le terne lineari
+si raddrizzano ruotando i rami come corpi rigidi, perché quelle due cose una
+distanza da sola non le impone.
+
+**Gli indici sono quelli del predittore NMR**, e gli idrogeni si aggiungono in
+coda: è la condizione senza la quale il collegamento picco↔atomo↔3D
+illuminerebbe l'atomo sbagliato. Il visore 3D che pesca da PubChem non poteva
+essere usato per questo — la numerazione di un SDF non ha nessun rapporto con
+quella di RDKit.
+
+Misurato contro i valori noti (`test_geom3d`, 29 controlli): C–C 1,54 Å, C=C
+1,34, C≡C 1,20, aromatico 1,39, C–H 1,09; angolo tetraedrico 109,5°, aromatico
+120,0°, alchino 180,0°. **Nei due versi**: benzene piano (0,00 Å), cicloesano
+**non** piano (0,34). Su molecole vere il residuo resta sotto 0,03 Å fino a una
+trentina di atomi e arriva a 0,31 Å su una molecola di 76.
+
+**Limiti dichiarati.** Non è un campo di forze e non minimizza un'energia:
+minimizza violazioni geometriche. Non sceglie il conformero più stabile e non
+tratta la stereochimica — un centro R e il suo enantiomero escono uguali.
+
 ---
 
 ## 4. Costanti fisiche e dati tabulati
@@ -714,7 +767,7 @@ calcolo, e viene trattata come tale.
 
 Questo documento descrive controlli **effettivamente implementati ed
 eseguibili**, con i risultati realmente ottenuti e i limiti dei predittori. Alla versione
-`bsi-v189` gli errori residui sulla banca dati farmaci sono **zero**: le 21
+`bsi-v191` gli errori residui sulla banca dati farmaci sono **zero**: le 21
 deviazioni che restano sono voci senza struttura, ciascuna con il proprio
 motivo registrato, non errori taciuti. Le percentuali di copertura e i conteggi riportati sono
 prodotti dagli strumenti citati e riproducibili eseguendoli.
@@ -724,4 +777,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v189`._
+_Documento aggiornato alla versione `bsi-v191`._

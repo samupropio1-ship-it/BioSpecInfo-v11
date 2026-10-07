@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v189` |
-| Commit | `53eca6e73171b8dedcea4f9c2d5eeef3b6dca4d2` |
-| Generato (UTC) | `2026-10-07T17:36:39.219Z` |
+| Versione applicazione | `bsi-v191` |
+| Commit | `801ca3ee95bb1a90d808999a0671b3453f5d5266` |
+| Generato (UTC) | `2026-10-07T21:13:35.179Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,9 +62,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
 | `bsi-nmr.js` | 56 kB | Predizione NMR ¹H e ¹³C assegnata per atomo: applica le tabelle di bsi-pretsch.js camminando l'anello e misurando le distanze, con composto di riferimento ciclico ed equivalenza chimica per codice d'intorno. |
-| `bsi-moldraw.js` | 36 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, uscite CSV/JCAMP-DX/PNG. |
+| `bsi-geom3d.js` | 46 kB | Coordinate 3D da uno SMILES per geometria delle distanze, con gli stessi indici del predittore NMR: è la condizione del collegamento picco↔atomo↔3D. |
+| `bsi-nmr2d.js` | 21 kB | NMR bidimensionale: COSY, HSQC editato e HMBC, costruiti camminando il grafo sulle due predizioni per atomo. |
+| `bsi-moldraw.js` | 44 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG. |
 | `bsi-spettrolettore.js` | 53 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre. |
-| `bsi-mol3d.js` | 41 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
+| `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
 | `bsi-lingue.js` | 159 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
@@ -78,19 +80,21 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `967111a607a00049217685c40b9db62707fb8c0105a4e49c1cf466cb62597451` |
+| `index.html` | `4241b66609ed25cdbed9b9a0305309f44c033cc677ba37fce2e8cf5b859e4221` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `c090d614ed5d7ed1fb958f6efec1fc4021cdc7b0f4fd6e1ca89bba167528d259` |
-| `bsi-moldraw.js` | `4bc9918ccf9080685c5553bbb88c03e4213170c32348835f230b6e54c7f24dc2` |
+| `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
+| `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
+| `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
 | `bsi-spettrolettore.js` | `dbdc79aa8e6fc14d26ae9633f15598eb7121efd6e1cf0118e5b9ff99681c567c` |
-| `bsi-mol3d.js` | `beb85c594db8e21bd1653ac6923989375a729d163b2749c6259ee48e05501ca9` |
+| `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `83edcea62f21e8a315560127f7f798fa1256561c25998f873337f011f16fefe4` |
+| `sw.js` | `5d4d70433d8ff0e40bc3c7272edec179876e2ded86d7c5569202fbd17a400f8e` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -143,4 +147,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-07T17:36:39.219Z._
+_Generato il 2026-10-07T21:13:35.179Z._

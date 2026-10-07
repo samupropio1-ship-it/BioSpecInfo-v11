@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v189` |
+| **Versione descritta** | `bsi-v191` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**57 banchi**, raggruppati per ciò che dimostrano.
+**60 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -206,7 +206,7 @@ fuori dallo schermo.
 Dopo le correzioni: cambio mediano **16 ms**, peggiore **87 ms**, **nessuna
 sezione oltre i 100 ms** (erano due, la peggiore a 1 166 ms).
 
-Alla versione `bsi-v189` lo stesso banco ha intercettato due cose. La prima:
+Alla versione `bsi-v191` lo stesso banco ha intercettato due cose. La prima:
 con 263 farmaci invece di 233, «Farmacologia» bloccava la pagina **159 ms** e le
 sezioni oltre i 100 ms tornavano a essere **tre** — la batteria era passata per
 un soffio la volta prima, e un limite superato a intermittenza non protegge
@@ -622,4 +622,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v189`._
+_Documento aggiornato alla versione `bsi-v191`._

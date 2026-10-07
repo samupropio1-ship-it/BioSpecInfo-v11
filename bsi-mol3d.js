@@ -232,6 +232,14 @@
       return b.gradi - a.gradi;
     });
     var scelti = [];                          /* indici degli atomi cliccati, in ordine */
+    /* Gli atomi ILLUMINATI DA FUORI: li accende il pannello NMR quando si
+       clicca un picco, e non sono la stessa cosa degli atomi SCELTI. Gli
+       scelti servono a misurare un angolo e sono al massimo quattro, in
+       ordine; gli illuminati possono essere quanti ne vuole un segnale — i
+       sei carboni equivalenti di un benzene sono un picco solo — e non hanno
+       ordine. Tenerli separati evita di far dire al visore «angolo fra sei
+       atomi», che non vuol dire niente. */
+    var illuminati = [];
     var proiettati = [];                      /* ultime posizioni sullo schermo */
 
     function ora() {
@@ -451,6 +459,8 @@
           evidenti[sel.centro] = 1;
           (vicini[sel.centro] || []).forEach(function (j) { evidenti[j] = 1; });
         } else scelti.forEach(function (i) { evidenti[i] = 1; });
+      } else if (illuminati.length) {
+        illuminati.forEach(function (i) { evidenti[i] = 1; });
       } else if (carosello && angoli.length && nascita >= 1) {
         if (adesso - tAngolo > 2400) { tAngolo = adesso; indiceAngolo = (indiceAngolo+1) % angoli.length; }
         var ev = angoli[indiceAngolo];
@@ -714,6 +724,13 @@
     function aggiornaBarra() {
       if (!etSel) return;
       var sel = misura();
+      if (!scelti.length && illuminati.length) {
+        /* si scrive solo nell'etichetta: riscrivere la barra intera
+           cancellerebbe i bottoni che ci stanno dentro */
+        etSel.textContent = illuminati.length + ' ' +
+          t('atomi dal segnale NMR acceso', 'atoms from the lit NMR signal');
+        return;
+      }
       if (!scelti.length) {
         etSel.textContent = t('nessun atomo scelto — clicca sulla molecola',
                               'no atom selected — click on the molecule');
@@ -761,6 +778,14 @@
         return misura();
       },
       selezione: function () { return scelti.slice(); },
+      /* acceso da fuori: il pannello NMR passa gli atomi di un segnale */
+      illumina: function (lista) {
+        illuminati = (lista || []).slice();
+        if (illuminati.length) { scelti = []; carosello = false; }
+        aggiornaBarra();
+        return illuminati.slice();
+      },
+      illuminati: function () { return illuminati.slice(); },
       misura: misura,
       nascita: function () { return nascita; },
       /* l'avanzamento di ogni atomo, perché «prima lo scheletro, poi gli

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v189` |
+| **Version described** | `bsi-v191` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -118,7 +118,7 @@ Recording a deviation is therefore a deliberate decision, traced in git and
 visible in the report, not a way of silencing a check.
 
 And it must also be **revoked** when it is no longer needed. From version
-`bsi-v189` the bench also fails in the opposite case: an entry listed in the
+`bsi-v191` the bench also fails in the opposite case: an entry listed in the
 registry that **does** have a verified structure is a permission left switched
 on for nothing, and tomorrow it would silently cover a wrong structure put in
 its place.
@@ -615,6 +615,58 @@ from a table of **typical** values by geometric relationship, not calculated.
 table as benzenes do: they remain the module's least reliable prediction, and
 the elucidation tool declares it by lowering the confidence when it meets one.
 
+### 3.7 Two-dimensional NMR: COSY, HSQC, HMBC
+
+`bsi-nmr2d.js` holds no shifts: it asks the per-atom predictor for them and
+builds the correlations by **walking the graph**. This is why it could only be
+done once the Pretsch tables arrived: it needs the shift of *every* proton and *every* carbon,
+plus the index of the atom carrying them.
+
+| map | topological rule |
+|---|---|
+| HSQC | proton and carbon **one** bond apart (¹J); inverted sign on CH₂ |
+| COSY | two protons **three** bonds apart (H–C–C–H), excluding equivalents |
+| HMBC | proton and carbons **two or three** bonds away (²J, ³J) |
+
+**Exchangeable** hydrogens (O–H, N–H) give no off-diagonal spots: they exchange
+with the solvent too fast for the coupling to be seen. They do appear on the
+COSY diagonal, because they are protons like any other.
+
+**Verified by counting paths** (`test_nmr2d`, 40 checks), in both directions:
+hexafluorobenzene gives no HSQC spots, benzene gives no off-diagonal COSY
+spots, methane gives none in HMBC.
+
+**Declared limits.** This is not a simulation of the experiment: no computed
+intensities, no artefacts, no residual coupling, no mixing-time dependence. In
+a real HMBC some two-bond correlations are not seen; here they all are. The
+shifts inherit the predictor's measured uncertainty (0.9 ppm on ¹³C, 0.06 on
+¹H).
+
+### 3.8 3D geometry: built from the graph, not downloaded
+
+`bsi-geom3d.js` builds coordinates by **distance geometry**: a bounds matrix
+from bonds, valence angles, ring diagonals and van der Waals contacts; initial
+positions random but **reproducible**, because the generator is seeded from the
+SMILES; iterative correction of the violations. Aromatic systems are projected
+onto their plane and linear triples are straightened by rotating the branches
+as rigid bodies, because those two things a distance alone cannot impose.
+
+**The indices are the NMR predictor's**, and hydrogens are appended at the end:
+this is the condition without which the peak↔atom↔3D link would light up the
+wrong atom. The PubChem-fed 3D viewer could not be used for this — an SDF's
+numbering bears no relation to RDKit's.
+
+Measured against known values (`test_geom3d`, 29 checks): C–C 1.54 Å, C=C 1.34,
+C≡C 1.20, aromatic 1.39, C–H 1.09; tetrahedral angle 109.5°, aromatic 120.0°,
+alkyne 180.0°. **In both directions**: benzene planar (0.00 Å), cyclohexane
+**not** planar (0.34). On real molecules the residual stays under 0.03 Å up to
+about thirty atoms and reaches 0.31 Å on a 76-atom molecule.
+
+**Declared limits.** It is not a force field and does not minimise an energy:
+it minimises geometric violations. It does not choose the most stable conformer
+and does not handle stereochemistry — an R centre and its enantiomer come out
+the same.
+
 ---
 
 ## 4. Physical constants and tabulated data
@@ -658,7 +710,7 @@ and is treated as such.
 
 This document describes checks that are **actually implemented and runnable**,
 with the results actually obtained and the limits of the predictors. At version
-`bsi-v189` the residual errors on the drug database are **zero**: the 21
+`bsi-v191` the residual errors on the drug database are **zero**: the 21
 deviations that remain are entries without a structure, each with its own
 recorded reason, not errors passed over in silence.
 
@@ -667,4 +719,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v189`._
+_Document updated to version `bsi-v191`._

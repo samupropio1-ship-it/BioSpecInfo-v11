@@ -372,6 +372,13 @@
      che e' quello che l'utente ha appena aperto. Il ripiego su `document`
      serve solo se la radice non e' piu' attaccata alla pagina. */
   var radice = null;
+  /* il visore 3D del pannello e la molecola che ci sta dentro: si rifà solo
+     quando cambia lo SMILES, perché costruire la geometria costa un decimo
+     di secondo e rifarla a ogni clic su un picco si vedrebbe */
+  var visore3d = null, smiles3d = '', mostra3d = false;
+  /* la mappa bidimensionale: quale tipo è mostrato, il risultato, la mappa
+     di coordinate restituita dal disegno e la macchia accesa */
+  var tipo2d = null, ris2d = null, mappa2d = null, acceso2d = null;
 
   function q(id) {
     if (radice && radice.isConnected) {
@@ -398,7 +405,12 @@
     return '';
   }
 
+  /* gli atomi che una macchia 2D ha acceso: hanno la precedenza sul segnale
+     1D, perché sono l'ultima cosa che l'utente ha cliccato */
+  var atomiEsterni = null;
+
   function atomiAccesi() {
+    if (atomiEsterni && atomiEsterni.length) return atomiEsterni;
     if (!ris || !acceso) return [];
     var s = null;
     ris.segnali.forEach(function (x) { if (x.nome === acceso) s = x; });
@@ -415,13 +427,28 @@
       '<button class="bsiNP-b" id="bsiNP-csv">CSV</button>' +
       '<button class="bsiNP-b" id="bsiNP-jdx">JCAMP-DX</button>' +
       '<button class="bsiNP-b" id="bsiNP-png">PNG</button>' +
+      '<button class="bsiNP-b" id="bsiNP-3d">3D</button>' +
+      '<button class="bsiNP-b" data-d2="HSQC">HSQC</button>' +
+      '<button class="bsiNP-b" data-d2="COSY">COSY</button>' +
+      '<button class="bsiNP-b" data-d2="HMBC">HMBC</button>' +
       '</div>' +
       '<div class="bsiNP-storia" id="bsiNP-storia"></div>' +
+      '<div id="bsiNP-due" style="display:none;margin:6px 0">' +
+        '<canvas id="bsiNP-tela2d" width="620" height="400" ' +
+          'style="width:100%;max-width:620px;height:400px;border-radius:8px;' +
+          'touch-action:none;cursor:crosshair"></canvas>' +
+        '<p class="bsiNP-nota" id="bsiNP-nota2d"></p>' +
+        '<button class="bsiNP-b" id="bsiNP-csv2d">CSV</button></div>' +
       '<div class="bsiNP-grid">' +
       '<div><canvas id="bsiNP-tela" class="bsiNP-tela" width="620" height="260" ' +
         'style="height:260px"></canvas>' +
       '<p class="bsiNP-nota" id="bsiNP-metodo"></p></div>' +
       '<div><div class="bsiNP-dep" id="bsiNP-dep"></div>' +
+      '<div id="bsiNP-tre" style="display:none;margin-top:8px">' +
+        '<canvas id="bsiNP-tela3d" width="420" height="260" ' +
+          'style="width:100%;max-width:420px;height:260px;background:#06141f;' +
+          'border-radius:8px;touch-action:none"></canvas>' +
+        '<p class="bsiNP-nota" id="bsiNP-nota3d"></p></div>' +
       '<div id="bsiNP-tab" style="margin-top:8px"></div></div></div>';
   }
 
@@ -482,9 +509,103 @@
       tr.onclick = function () {
         var n = tr.getAttribute('data-seg');
         acceso = (acceso === n) ? null : n;
+        acceso2d = null; atomiEsterni = null;
         tutto();
       };
     });
+  }
+
+  /* ── Il 3D, con GLI STESSI INDICI ─────────────────────────────────────
+     La geometria viene da `bsi-geom3d.js`, che costruisce le coordinate
+     partendo dallo stesso grafo del predittore: l'atomo numero 3 qui è
+     l'atomo numero 3 nella struttura 2D e nello spettro. Senza quella
+     garanzia il collegamento illuminerebbe un atomo a caso, e un atomo
+     sbagliato che sembra giusto è peggio di nessun atomo — per questo il
+     visore 3D che pesca da PubChem non poteva essere usato: la numerazione
+     di un SDF non ha niente a che vedere con quella di RDKit. */
+  function tridi() {
+    var box = q('bsiNP-tre');
+    if (!box) return;
+    box.style.display = mostra3d ? '' : 'none';
+    if (!mostra3d) return;
+    var tela = q('bsiNP-tela3d'), nota = q('bsiNP-nota3d');
+    if (!tela) return;
+    if (!globale.BSIGeom3D || !globale.BSIMol3D) {
+      if (nota) nota.textContent = t('Il modulo 3D non è caricato.',
+                                     'The 3D module is not loaded.');
+      return;
+    }
+    if (smilesOra && smilesOra !== smiles3d) {
+      var g = globale.BSIGeom3D.perVisore(smilesOra);
+      smiles3d = smilesOra;
+      visore3d = null;
+      if (!g) {
+        if (nota) nota.textContent = t('Di questa struttura non si ricava una geometria.',
+                                       'No geometry can be derived from this structure.');
+        return;
+      }
+      try { visore3d = globale.BSIMol3D.render(tela, g); } catch (e) { visore3d = null; }
+      if (nota) {
+        nota.innerHTML = '<b>' + t('Geometria', 'Geometry') + ':</b> ' +
+          g.atoms.length + ' ' + t('atomi', 'atoms') + ' · ' +
+          t('residuo', 'residual') + ' ' + g.scarto + ' Å · ' +
+          t('costruita dai legami e dagli angoli, non misurata; non sceglie il ' +
+            'conformero più stabile e non tratta la stereochimica',
+            'built from bonds and angles, not measured; it does not choose the most ' +
+            'stable conformer and does not handle stereochemistry');
+      }
+    }
+    if (visore3d && visore3d.illumina) {
+      /* Solo gli atomi PESANTI: un segnale ¹³C indica carboni, e gli
+         idrogeni del modello 3D stanno dopo, con indici che il predittore
+         non usa. */
+      visore3d.illumina(atomiAccesi());
+    }
+  }
+
+  /* ── La mappa bidimensionale ──────────────────────────────────────────
+     Usa le DUE predizioni per atomo e il grafo: le correlazioni non sono
+     disegnate, sono contate. Cliccando una macchia si illuminano gli atomi
+     che la producono — nella struttura, e in 3D se è acceso. */
+  function duedi() {
+    var box = q('bsiNP-due');
+    if (!box) return;
+    box.style.display = tipo2d ? '' : 'none';
+    if (!tipo2d) { ris2d = null; mappa2d = null; return; }
+    var tela = q('bsiNP-tela2d'), nota = q('bsiNP-nota2d');
+    if (!tela) return;
+    if (!globale.BSINMR2D) {
+      if (nota) nota.textContent = t('Il modulo 2D non è caricato.',
+                                     'The 2D module is not loaded.');
+      return;
+    }
+    ris2d = globale.BSINMR2D.prevedi(smilesOra, { tipo: tipo2d });
+    mappa2d = globale.BSINMR2D.disegna(tela, ris2d, { acceso: acceso2d });
+    if (nota) {
+      if (!ris2d || ris2d.errore) {
+        nota.innerHTML = '<span style="color:#ff6b6b">' +
+          esc((ris2d && ris2d.errore) || t('nessuna mappa', 'no map')) + '</span>';
+      } else {
+        nota.innerHTML = '<b>' + ris2d.tipo + ':</b> ' + esc(ris2d.metodo) +
+          '<br><b>' + ris2d.picchi.length + '</b> ' +
+          t('correlazioni · clicca una macchia per illuminare gli atomi',
+            'correlations · click a spot to highlight its atoms') +
+          '<br><span style="color:#7a8aa0">' + esc(ris2d.limiti) + '</span>';
+      }
+    }
+    tela.onpointerup = function (ev) {
+      if (!ris2d || !mappa2d) return;
+      var r = tela.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * tela.width / r.width;
+      var py = (ev.clientY - r.top) * tela.height / r.height;
+      var p = globale.BSINMR2D.vicinoA(ris2d, mappa2d, px, py, 18);
+      if (!p) { acceso2d = null; acceso = null; tutto(); return; }
+      acceso2d = (acceso2d === p.etichetta) ? null : p.etichetta;
+      /* gli atomi della macchia illuminano la struttura e il 3D: è la stessa
+         numerazione, perché viene dallo stesso grafo */
+      atomiEsterni = acceso2d ? (p.atomi || []) : null;
+      tutto();
+    };
   }
 
   function depizione() {
@@ -495,7 +616,7 @@
     d.innerHTML = svg || '';
   }
 
-  function tutto() { disegna(); tabella(); depizione(); disegnaStoria(); }
+  function tutto() { disegna(); tabella(); depizione(); disegnaStoria(); tridi(); duedi(); }
 
   /* ── La cronologia delle molecole ───────────────────────────────────────
      Chi usa questo strumento prova una struttura, poi un'altra, poi torna
@@ -648,6 +769,26 @@
     if (bj) bj.onclick = function () {
       if (ris) scarica('nmr-' + nucleo + '.jdx', M.jcampDa(ris, smilesOra), 'chemical/x-jcamp-dx');
     };
+    [].forEach.call((radice && radice.isConnected ? radice : document)
+                      .querySelectorAll('[data-d2]'), function (b) {
+      var k = b.getAttribute('data-d2');
+      b.classList.toggle('on', tipo2d === k);
+      b.onclick = function () {
+        tipo2d = (tipo2d === k) ? null : k;
+        acceso2d = null; atomiEsterni = null;
+        aggancia(); tutto();
+      };
+    });
+    var bq = q('bsiNP-csv2d');
+    if (bq) bq.onclick = function () {
+      if (ris2d && globale.BSINMR2D) {
+        scarica('nmr2d-' + (tipo2d || 'HSQC') + '.csv',
+                globale.BSINMR2D.csvDa(ris2d), 'text/csv');
+      }
+    };
+    var b3 = q('bsiNP-3d');
+    if (b3) { b3.classList.toggle('on', mostra3d);
+      b3.onclick = function () { mostra3d = !mostra3d; aggancia(); tridi(); }; }
     var bg = q('bsiNP-png');
     if (bg) bg.onclick = function () {
       var c = q('bsiNP-tela');
@@ -794,6 +935,23 @@
                errore: (ris && ris.errore) ? ris.errore : null };
     },
     storia: function () { return storia.slice(); },
+    mostra2d: function (k) { tipo2d = k || null; acceso2d = null; atomiEsterni = null;
+                             aggancia(); tutto(); return tipo2d; },
+    stato2d: function () {
+      return { tipo: tipo2d, acceso: acceso2d,
+               picchi: ris2d ? ris2d.picchi.length : 0,
+               atomi: atomiAccesi().slice(),
+               errore: (ris2d && ris2d.errore) ? ris2d.errore : null };
+    },
+    cliccaMacchia: function (k) {
+      if (!ris2d || !ris2d.picchi[k]) return null;
+      var p = ris2d.picchi[k];
+      acceso2d = p.etichetta; atomiEsterni = p.atomi || [];
+      tutto();
+      return p;
+    },
+    visore3d: function () { return visore3d; },
+    mostra3d: function (v) { mostra3d = !!v; aggancia(); tridi(); return mostra3d; },
     prevediDi: prevediDi,
     svuotaStoria: function () { storia = []; salvaStoria(); disegnaStoria(); } };
 

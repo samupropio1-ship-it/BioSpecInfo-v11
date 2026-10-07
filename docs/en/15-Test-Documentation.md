@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v189` |
+| **Version described** | `bsi-v191` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**57 benches**, grouped by what they demonstrate.
+**60 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -192,7 +192,7 @@ stroke of every figure, including those off screen.
 After the fixes: median switch **16 ms**, worst **87 ms**, **no section above
 100 ms** (there were two, the worst at 1,166 ms).
 
-At version `bsi-v189` the same bench caught two things. First: with 263 drugs
+At version `bsi-v191` the same bench caught two things. First: with 263 drugs
 instead of 233, «Pharmacology» blocked the page for **159 ms** and the count of
 sections over 100 ms went back to **three** — the battery had passed by a hair
 the time before, and a limit exceeded intermittently protects nothing. The cards
@@ -602,4 +602,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v189`._
+_Document updated to version `bsi-v191`._

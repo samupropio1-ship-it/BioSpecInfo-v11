@@ -27,3 +27,9 @@ node_modules/
 # Lo zip «TUTTO» è una copia del repository dentro il repository:
 # si rigenera quando serve, versionarlo sarebbe circolare.
 consegna/BioSpecInfo-TUTTO-*.zip
+
+# lo stack React/FastAPI: dipendenze e costruzioni non si versionano
+stack/web/node_modules/
+stack/web/dist/
+stack/api/**/__pycache__/
+stack/api/.pytest_cache/

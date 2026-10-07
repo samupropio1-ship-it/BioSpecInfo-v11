@@ -458,15 +458,71 @@ const QUANTI_SEGNALI = [
   console.log('      (' + cro.dopoIlClic + ')');
   att('e si può svuotare', 0, cro.dopoLoSvuotamento);
 
+  /* ── §5 · La sincronia picco ↔ struttura ↔ 3D ───────────────────────────
+     È la cosa per cui esiste `bsi-geom3d.js`: un picco cliccato deve
+     accendere GLI STESSI atomi nella struttura piatta e nel modello
+     tridimensionale. Perché sia lecito, l'atomo numero k deve essere lo
+     stesso atomo nei tre posti — e questo si verifica, non si suppone. */
+  console.log('\n── Picco ↔ struttura ↔ 3D ──');
+  const tre = await pg.evaluate(async () => {
+    const P = window.BSINmrPannello, out = {};
+    const body = document.querySelector('#bsi-chemdraw-ov .bsi-cd-body') ||
+                 document.getElementById('ctrC13');
+    P.montaIn(body, 'CC(=O)Oc1ccccc1C(=O)O');
+    await new Promise(r => setTimeout(r, 2500));
+    out.spentoPrima = (body.querySelector('#bsiNP-tre') || {}).style
+      ? body.querySelector('#bsiNP-tre').style.display : 'assente';
+    out.acceso = P.mostra3d(true);
+    await new Promise(r => setTimeout(r, 2500));
+    const v = P.visore3d();
+    out.visore = !!v;
+    out.illuminatiPrima = v ? v.illuminati().length : -1;
+    /* si clicca una riga: il segnale si accende e gli atomi con lui */
+    const tr = body.querySelector('#bsiNP-tab tr[data-seg]');
+    if (tr) { tr.click(); await new Promise(r => setTimeout(r, 900)); }
+    const st = P.stato();
+    const seg = st.segnali.filter(x => x.nome === st.acceso)[0] || {};
+    out.atomiDelSegnale = (seg.atomi || []).slice();
+    out.illuminatiDopo = P.visore3d() ? P.visore3d().illuminati() : [];
+    /* e si rispegne cliccando di nuovo */
+    if (tr) { tr.click(); await new Promise(r => setTimeout(r, 900)); }
+    out.illuminatiDopoIlSecondo = P.visore3d() ? P.visore3d().illuminati().length : -1;
+    /* la tela esiste e ha dei pixel diversi dal fondo */
+    const c = body.querySelector('#bsiNP-tela3d');
+    out.tela = !!c;
+    if (c) {
+      const g = c.getContext('2d');
+      const d = g.getImageData(0, 0, c.width, c.height).data;
+      let diversi = 0;
+      for (let i = 0; i < d.length; i += 4 * 97) {
+        if (d[i] > 40 || d[i + 1] > 40 || d[i + 2] > 60) diversi++;
+      }
+      out.pixelDisegnati = diversi;
+    }
+    return out;
+  });
+  att('la tela 3D parte nascosta', 'none', tre.spentoPrima);
+  att('il bottone 3D la mostra', true, tre.acceso);
+  att('e il visore si monta', true, tre.visore);
+  att('prima del clic non c’è niente di illuminato', 0, tre.illuminatiPrima);
+  att('dopo il clic su una riga gli atomi si illuminano anche in 3D', true,
+      tre.illuminatiDopo.length > 0);
+  /* LA PROVA: sono GLI STESSI atomi, non un numero uguale di atomi diversi */
+  att('  · e sono esattamente quelli del segnale', JSON.stringify(tre.atomiDelSegnale),
+      JSON.stringify(tre.illuminatiDopo));
+  att('un secondo clic li rispegne', 0, tre.illuminatiDopoIlSecondo);
+  att('la molecola viene disegnata davvero', true, tre.tela && tre.pixelDisegnati > 5);
+  console.log('      (' + tre.pixelDisegnati + ' campioni non di fondo)');
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 54) {
+  if (eseguiti < 62) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 54');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 62');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

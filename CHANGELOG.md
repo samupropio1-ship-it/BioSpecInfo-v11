@@ -7,6 +7,169 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v191] — 2026-10-07
+
+NMR **bidimensionale** — COSY, HSQC, HMBC — e uno **stack React + FastAPI**
+che esegue gli stessi file, non una copia.
+
+### NMR bidimensionale
+
+Nuovo modulo `bsi-nmr2d.js`. Si poteva fare solo adesso: uno spettro 2D non è
+un disegno più complicato, è una mappa di **correlazioni**, e per costruirla
+servono lo spostamento di *ogni* protone e di *ogni* carbonio più l'**indice
+dell'atomo** che li porta. Il predittore per atomo le dà entrambe; da lì le
+tre mappe escono dalla topologia della molecola, senza inventare niente.
+
+| mappa | che cosa collega | a che serve |
+|---|---|---|
+| **HSQC** | un protone e il carbonio a cui è legato (¹J) | assegna: ogni macchia dice «questo H sta su questo C» |
+| **COSY** | due protoni a tre legami (H–C–C–H) | collega: seguendo le macchie si ricostruisce la catena |
+| **HMBC** | un protone e i carboni a due o tre legami | attraversa i quaternari: un carbonile si vede dai protoni vicini |
+
+L'HSQC è **editato**: i CH₂ hanno segno opposto a CH e CH₃, ed è così che si
+contano i CH₂ di una catena senza dedurli dalle integrazioni.
+
+Cliccando una macchia si illuminano gli atomi che la producono — nella
+struttura piatta e nel modello 3D. Uscita in **CSV**.
+
+**Si verifica contando i cammini** (`test_nmr2d`, **40 controlli**), e le prove
+stanno nei due versi, perché una mappa che collegasse tutto con tutto
+passerebbe qualunque prova scritta in un verso solo:
+
+- l'acetato di etile dà **tre** macchie HSQC, una per carbonio protonato;
+  l'esafluorobenzene, che non ha idrogeni, **nessuna**;
+- il COSY del benzene ha la diagonale e **zero** macchie fuori: i sei protoni
+  sono lo stesso segnale, e due protoni equivalenti non si accoppiano in modo
+  osservabile. Il toluene invece ne ha quattro;
+- il metano, che non ha un secondo carbonio, non dà **nessuna** macchia HMBC
+  pur avendo quattro protoni.
+
+**Quello che non è:** non simula l'esperimento. Niente intensità calcolate,
+artefatti o dipendenza dal tempo di miscelamento. In un HMBC vero alcune
+correlazioni a due legami non si vedono — qui ci sono tutte. Sta scritto nel
+pannello.
+
+### Due difetti, trovati contando
+
+- **L'HSQC contava gli atomi invece dei segnali.** I sei carboni del benzene
+  davano sei macchie sovrapposte nello stesso punto: sei correlazioni
+  dichiarate dove ce n'è una. Il toluene ne dava sei invece di quattro.
+- **La diagonale del COSY perdeva gli scambiabili.** L'O–H di un alcol non dà
+  macchie *fuori* diagonale, ma sulla diagonale c'è: è un protone come gli
+  altri. Escluderlo da entrambe faceva sparire un segnale — l'etanolo ne
+  mostrava due invece di tre.
+
+### Lo stack React + TypeScript + FastAPI
+
+In `stack/`. Serve a chiamare la predizione **da un programma** e a servire
+un'interfaccia separata. Non sostituisce la PWA, che resta il prodotto: gira
+offline, non ha un server da pagare, e continua a essere ciò che si pubblica.
+
+**La decisione che conta: nessun motore in Python.** La strada ovvia sarebbe
+riscrivere il predittore in Python. È anche la strada sbagliata — diventano
+due programmi che fanno la stessa cosa, uno riceve le correzioni e l'altro no,
+e dopo sei mesi danno due numeri diversi per la stessa molecola.
+
+RDKit ha una compilazione WebAssembly che gira **anche in Node**. Quindi un
+processo Node carica gli **stessi quattro file** che l'applicazione serve ai
+suoi utenti — `bsi-pretsch.js`, `bsi-nmr.js`, `bsi-geom3d.js`, `bsi-nmr2d.js` —
+e risponde a FastAPI. Una correzione arriva a tutti e due nello stesso istante,
+perché i file *sono gli stessi file*.
+
+**E lo si verifica, non lo si promette.** `GET /salute` restituisce l'impronta
+SHA-256 di ogni modulo caricato, e il banco `test_stack` la confronta con
+quella dei file nel repository: se qualcuno ne copiasse una versione dentro
+`stack/`, la prova fallirebbe il giorno stesso. Lo stesso banco controlla che
+nel front end **non ci sia chimica**: nessun `.ts`/`.tsx` può contenere una
+tabella di spostamenti, perché è lì che nascerebbe il secondo motore.
+
+Sei rotte (`/salute`, `/identita`, `/nmr`, `/nmr2d`, `/geometria`,
+`/struttura`), **18 controlli** pytest, front end React 19 + TypeScript in
+modalità `strict`. Gli errori dicono di chi è la colpa: **422** se non è una
+struttura leggibile, **503** se il motore non c'è — trattarli allo stesso modo
+farebbe dire «SMILES sbagliato» a chi ha solo il server spento.
+
+**Non è pronto per il pubblico**, e il README lo dice: niente autenticazione,
+niente limiti di frequenza, niente cache.
+
+---
+## [bsi-v190] — 2026-10-07
+
+Un picco cliccato illumina l'atomo **anche in tre dimensioni** — e l'atomo è
+quello giusto, il che è tutto il problema.
+
+### Perché non bastava il visore 3D che c'era
+
+Il visore 3D dell'applicazione **disegna** coordinate, non le costruisce: le
+riceve da un file SDF scaricato da PubChem. Due conseguenze:
+
+1. Una molecola **disegnata** dall'utente non ha un file su PubChem, quindi non
+   si poteva vedere in tre dimensioni. Si vedeva solo ciò che qualcun altro
+   aveva già depositato.
+2. La numerazione degli atomi di un SDF di PubChem non ha **niente** a che
+   vedere con quella di RDKit, che è quella del predittore NMR. Collegare un
+   picco a un atomo del visore avrebbe illuminato l'atomo sbagliato — e un
+   atomo sbagliato che sembra giusto è peggio di nessun atomo.
+
+### `bsi-geom3d.js`: le coordinate dal grafo
+
+Nuovo modulo che costruisce le coordinate **partendo dallo stesso grafo** del
+predittore, con la garanzia per costruzione che l'atomo `i` qui sia l'atomo `i`
+là. Gli idrogeni si aggiungono **in coda**, così gli indici degli atomi pesanti
+non slittano.
+
+Il metodo è la **geometria delle distanze**, in piccolo: si scrive una matrice
+di limiti (legami, angoli di valenza, diagonali d'anello, contatti di van der
+Waals), si parte da posizioni casuali ma riproducibili — il generatore è
+seminato dallo SMILES, quindi la stessa molecola dà sempre la stessa forma — e
+si correggono le violazioni finché non resta quasi niente. Gli anelli aromatici
+si proiettano sul loro piano e le terne lineari si raddrizzano ruotando i rami
+come corpi rigidi, perché quelle due cose una distanza da sola non sa dirle.
+
+Misurato contro i valori che la chimica conosce (`test_geom3d`, **29
+controlli**): C–C 1,54 Å, C=C 1,34, C≡C 1,20, aromatico 1,39, C–O 1,43, C–H
+1,09; angolo tetraedrico 109,5°, aromatico 120,0°, alchino 180,0°, C–O–H
+104,4°. E **nei due versi**: il benzene esce piano (0,00 Å dal piano) e il
+cicloesano **non** piano (0,34), perché un banco che chiedesse solo la
+planarità passerebbe anche a un programma che appiattisce tutto.
+
+Su molecole vere: caffeina 0,027 Å di residuo in 89 ms, ibuprofene 0,014,
+naprossene 0,022, paracetamolo 0,011, atorvastatina (76 atomi) 0,31 in 0,9 s.
+Il residuo dell'ultima è dichiarato, nel modulo e nel pannello.
+
+### La sincronia, e la prova che è lecita
+
+Nel pannello NMR c'è ora un bottone **3D**. Cliccando un picco o una riga della
+tabella, gli atomi si illuminano nella struttura piatta **e** nel modello
+tridimensionale. Il banco non si limita a contare quanti se ne illuminano:
+verifica che siano **esattamente** quelli del segnale, confrontando le due
+liste di indici.
+
+### Quattro difetti del generatore, tutti trovati misurando
+
+- **Gli idrogeni contati due volte.** Aggiunti come atomi, il conteggio dei
+  partner continuava a sommare anche quelli impliciti: il metano risultava con
+  otto partner invece di quattro e usciva con angoli di 122°.
+- **La tolleranza data sulla distanza invece che sull'angolo.** Vicino a 180°
+  il coseno è piatto, e un ±6 % sulla distanza vale ±45° sull'angolo: il
+  propino usciva piegato a 134° come un alchene.
+- **Gli intervalli al posto dei valori.** Un intervallo lascia la soluzione
+  appoggiata a un bordo: il metano si fermava a 115° rispettando ogni limite.
+  Un legame e un angolo di valenza sono rigidi — non sono intervalli.
+- **La correzione applicata a un atomo invece che al suo ramo.** Raddrizzare un
+  alchino spostando il solo atomo terminale lascia indietro i suoi idrogeni, i
+  legami si allungano, il passo dopo li riaccorcia tirando indietro il
+  carbonio, e l'angolo torna piegato: il propino *peggiorava*, da 173° a 155°,
+  con i legami stirati del 7 %. Un ramo va ruotato tutto insieme.
+
+E uno di conflitto fra regole: in un anello aromatico a **cinque** termini
+l'angolo interno vale 108°, non i 120° dell'sp². Imponendo 120 a un pentagono
+si chiede una cosa impossibile — la caffeina non scendeva sotto un decimo di
+ångström. Lo stesso per un carbonio di **giunzione**, che riceveva 108 + 120 +
+120 = 348° invece di 360: gli angoli di un atomo piano ora si distribuiscono,
+invece di essere imposti uno per uno.
+
+---
 ## [bsi-v189] — 2026-10-07
 
 Le tabelle di stima **intere**, al posto del riassunto che c'era.

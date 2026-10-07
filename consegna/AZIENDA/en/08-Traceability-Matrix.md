@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v189` |
+| **Version described** | `bsi-v191` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -52,6 +52,9 @@
 | **SCI-28** | A predicted spectrum must say WHICH atoms produce each signal, and the deviation must be measured on molecules that did not choose the parameters | `bsi-pretsch.js` — the estimation tables transcribed in full from the source (Pretsch 4th ed.: 91 ¹³C and 66 ¹H rows for benzenes, 42 for ethylenes, 31 for alkanes, 24 for ¹³C aliphatics, 4×4 steric corrections); `bsi-nmr.js` — the reasoning that applies them: ring position obtained by walking the cycle, additive scheme with a cyclic reference compound, chemical equivalence by shell environment code | `test_nmr` — **56 checks**. Two separate sets: tuning **0.71 ppm** over 9 molecules, **validation 0.92 ppm** over 22 never used for tuning, worst case **4.9 ppm**, ¹H **0.06 ppm** (0.03 on the aromatics alone). The bench requires validation to stay **worse** than tuning: were they equal, someone would have moved a molecule between the two sets |
 | **SCI-29** | Chemically equivalent atoms must give ONE signal, not one per atom | environment code built as concentric shells by distance (the HOSE-code principle), with aromatic bonds written as such and not in Kekulé form | `test_nmr` — eight molecules whose signal count is known: benzene **1** (not six), toluene 5, p-xylene 3, naphthalene 3, biphenyl 4, aspirin 9. All correct |
 | **SCI-30** | From an image one can recover the SHAPE of a spectrum, not its calibration | `bsi-spettrolettore.js` §6-bis — trace extraction from the pixels column by column, background estimated from the median, empty columns interpolated | `test_spettrolettore` — on a **constructed** figure with Gaussians at 1715/2950/3400 cm⁻¹ it reads **1713/2947/3403** from the pixels alone; **in both directions**, on a blank sheet it refuses instead of inventing a trace; and it declares that the axis scale is not in the pixels |
+| **SCI-31** | A two-dimensional NMR map must say WHICH atoms produce each correlation, and must not connect what the topology does not connect | `bsi-nmr2d.js` — one-bond HSQC with inverted sign on CH₂, three-bond COSY between non-equivalent protons, two- and three-bond HMBC; exchangeables excluded from off-diagonal spots | `test_nmr2d` — **40 checks**, in both directions: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots (its six protons are equivalent), methane **no** HMBC spots despite having four protons |
+| **SCI-32** | A program-built 3D geometry must carry THE SAME indices as the predictor, otherwise the peak↔atom link lights up the wrong atom | `bsi-geom3d.js` — distance geometry over the `bsi-nmr.js` graph, hydrogens appended at the end, generator seeded from the SMILES | `test_geom3d` — **29 checks**: every heavy atom has the same index and element across five molecules; bonds and angles within tolerance of literature values; **in both directions** benzene comes out planar and cyclohexane does not |
+| **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
 
@@ -119,7 +122,7 @@
 > documentation says so. Furthermore the password remained in clear text in the
 > git history until its removal, and taking a secret out of the files does not
 > take it out of the history: `git log -p` hands it to anyone. The only effective
-> remedy was to change it, and that **has been done** at version `bsi-v189`. The
+> remedy was to change it, and that **has been done** at version `bsi-v191`. The
 > old one remains in the history and no longer opens anything.
 
 ---
@@ -143,14 +146,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…27) | 26 | 26 | 100 % |
+| Scientific (SCI-01…32) | 31 | 31 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…11) | 9 | 9 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
-| **Automated total** | **58** | **58** | **100 %** |
+| Architecture (ING-01…01) | 1 | 1 | 100 % |
+| **Automated total** | **64** | **64** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **63** | **58** | **92 %** |
+| **Declared total** | **69** | **64** | **93 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -185,4 +189,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v189`._
+_Document updated to version `bsi-v191`._

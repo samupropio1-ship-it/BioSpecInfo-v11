@@ -59,7 +59,7 @@ const FAMIGLIE = [
     banchi: ['@verifica-farmaci', 'audit_farmaci', 'verifica_farmaci_v187',
              'test_spettri', 'test_spettri_ui', 'test_assi',
              'test_assi_canvas', 'test_costanti', 'audit_dati', 'test_simmetria', 'test_cheminfo',
-             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_nmr', 'test_elucida'] },
+             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_nmr', 'test_nmr2d', 'test_geom3d', 'test_elucida'] },
   { nome: 'Agente AI',
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',
@@ -80,13 +80,17 @@ const FAMIGLIE = [
              '@verifica-accessibilita', 'audit_mobile'] },
   { nome: 'Coerenza documentazione/codice',
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
-    banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni', 'audit_copertura'] }
+    banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni', 'audit_copertura'] },
+  { nome: 'Una sola casa per funzione',
+    scopo: 'Lo stack React/FastAPI esegue gli STESSI file dell\'applicazione, non una copia.',
+    banchi: ['test_stack'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica
    scientifica e i dati. Un'impronta permette di dire "il rapporto si
    riferisce ESATTAMENTE a questo contenuto", non a un file con lo stesso nome. */
 const FILE_IMPRONTA = ['index.html', 'bsi-ai-hub.js', 'bsi-spettri.js', 'sw.js',
+                       'bsi-pretsch.js', 'bsi-nmr.js', 'bsi-geom3d.js', 'bsi-nmr2d.js',
                        'rdkit_lab.html', 'astro.html', 'chimorga.html'];
 
 function comando(cmd, args, opz){

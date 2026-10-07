@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v189` |
+| **Versione descritta** | `bsi-v191` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -52,6 +52,9 @@
 | **SCI-28** | Uno spettro previsto deve dire QUALI atomi producono ogni segnale, e lo scarto va misurato su molecole che non hanno scelto i parametri | `bsi-pretsch.js` — le tabelle di stima trascritte intere dalla fonte (Pretsch 4ª ed.: 91 righe ¹³C e 66 ¹H per i benzeni, 42 per gli etileni, 31 per gli alcani, 24 per gli alifatici ¹³C, correzioni steriche 4×4); `bsi-nmr.js` — il ragionamento che le applica: posizione nell'anello ricavata camminando il ciclo, schema additivo con composto di riferimento ciclico, equivalenza chimica per codice d'intorno a gusci | `test_nmr` — **56 controlli**. Due insiemi separati: taratura **0,71 ppm** su 9 molecole, **validazione 0,92 ppm** su 22 mai usate per tarare, caso peggiore **4,9 ppm**, ¹H **0,06 ppm** (0,03 sui soli aromatici). Il banco pretende che la validazione resti **peggiore** della taratura: se diventassero uguali, qualcuno avrebbe spostato una molecola fra i due insiemi |
 | **SCI-29** | Atomi chimicamente equivalenti devono dare UN segnale, non uno per atomo | codice d'intorno a gusci concentrici per distanza (principio dei codici HOSE), con i legami aromatici scritti come tali e non in forma di Kekulé | `test_nmr` — otto molecole di cui si sa quanti segnali danno: benzene **1** (non sei), toluene 5, p-xilene 3, naftalene 3, difenile 4, aspirina 9. Tutte giuste |
 | **SCI-30** | Da un'immagine si può recuperare la FORMA di uno spettro, non la sua taratura | `bsi-spettrolettore.js` §6-bis — estrazione della traccia dai pixel colonna per colonna, sfondo stimato dalla mediana, colonne vuote interpolate | `test_spettrolettore` — su una figura **costruita** con gaussiane a 1715/2950/3400 cm⁻¹ legge **1713/2947/3403** dai soli pixel; **nei due versi**, su un foglio bianco rifiuta invece di inventare una traccia; e dichiara che la scala degli assi non sta nei pixel |
+| **SCI-31** | Una mappa NMR bidimensionale deve dire QUALI atomi producono ogni correlazione, e non deve collegare ciò che la topologia non collega | `bsi-nmr2d.js` — HSQC a un legame con segno invertito sui CH₂, COSY a tre legami fra protoni non equivalenti, HMBC a due e tre legami; gli scambiabili esclusi dalle macchie fuori diagonale | `test_nmr2d` — **40 controlli**, nei due versi: l'esafluorobenzene non dà macchie HSQC, il benzene **nessuna** macchia COSY fuori diagonale (i sei protoni sono equivalenti), il metano **nessuna** macchia HMBC pur avendo quattro protoni |
+| **SCI-32** | Una geometria 3D costruita dal programma deve avere GLI STESSI indici del predittore, altrimenti il collegamento picco↔atomo illumina l'atomo sbagliato | `bsi-geom3d.js` — geometria delle distanze sul grafo di `bsi-nmr.js`, idrogeni aggiunti in coda, generatore seminato dallo SMILES | `test_geom3d` — **29 controlli**: ogni atomo pesante ha lo stesso indice e lo stesso elemento su cinque molecole; legami e angoli entro tolleranza dai valori di letteratura; **nei due versi** il benzene esce piano e il cicloesano no |
+| **ING-01** | Una stessa funzione non deve avere due implementazioni: lo stack React/FastAPI deve eseguire gli STESSI file dell'applicazione | `stack/api/worker/motore.mjs` — un processo Node carica i moduli dal repository con RDKit WebAssembly; nessun motore in Python | `test_stack` — **15 controlli**: confronta le impronte SHA-256 dichiarate da `GET /salute` con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che nessun file `.ts`/`.tsx` contenga una tabella di spostamenti |
 
 ---
 
@@ -119,7 +122,7 @@
 > e la documentazione lo afferma. Inoltre la password in chiaro è rimasta nella
 > cronologia git fino alla sua rimozione, e togliere un segreto dai file non lo
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
-> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v189`.
+> effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v191`.
 > Quella vecchia resta nella cronologia e non apre più niente.
 
 ---
@@ -143,14 +146,15 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…30) | 29 | 29 | 100 % |
+| Scientifici (SCI-01…32) | 31 | 31 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…11) | 9 | 9 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
-| **Totale automatizzato** | **61** | **61** | **100 %** |
+| Architettura (ING-01…01) | 1 | 1 | 100 % |
+| **Totale automatizzato** | **64** | **64** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **66** | **61** | **92 %** |
+| **Totale dichiarato** | **69** | **64** | **93 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -186,4 +190,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v189`._
+_Documento aggiornato alla versione `bsi-v191`._

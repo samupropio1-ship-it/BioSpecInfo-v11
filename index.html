@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v189';
+window.BSI_APP_VERSION='bsi-v191';
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -32087,6 +32087,10 @@ window.addEventListener('load', init);
      dopo. A loro volta precedono bsi-moldraw.js, che usa il predittore. -->
 <script src="./bsi-pretsch.js" defer></script>
 <script src="./bsi-nmr.js" defer></script>
+<!-- bsi-geom3d.js usa il grafo di bsi-nmr.js: stessi indici, stessi atomi. -->
+<script src="./bsi-geom3d.js" defer></script>
+<!-- bsi-nmr2d.js usa le due predizioni per atomo di bsi-nmr.js. -->
+<script src="./bsi-nmr2d.js" defer></script>
 <script src="./bsi-moldraw.js" defer></script>
 <script src="./bsi-menu.js" defer></script>
 <script src="./bsi-elucida.js" defer></script>

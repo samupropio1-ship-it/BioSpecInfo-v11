@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v189` |
+| **Versione descritta** | `bsi-v191` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -63,7 +63,10 @@ L'applicazione conta **92 sezioni**, raggruppate per area di studio.
 | **Spettri IR visivi** | Bande caratteristiche per classe di composti |
 | **Spettro di massa** | Schemi di frammentazione e regole diagnostiche |
 | **UV-Vis** | Cromofori, λmax, regole di Woodward |
-| **NOE e NMR 2D** | Correlazioni spaziali |
+| **Predizione NMR assegnata per atomo** | Si disegna o si scrive una struttura e si ottengono ¹H e ¹³C con l'indicazione di QUALI atomi producono ogni segnale; spettro interrogabile (zoom, intensità, clic sul picco), tabella di assegnazione, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG |
+| **NMR bidimensionale** | COSY, HSQC editato e HMBC costruiti camminando il grafo; cliccando una macchia si illuminano gli atomi che la producono. Non è una simulazione dell'esperimento, e il pannello lo dichiara |
+| **Modello 3D dalla struttura disegnata** | Coordinate costruite dal grafo, con gli stessi indici del predittore: un picco cliccato illumina l'atomo anche in tre dimensioni |
+| **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
 | **Tabelle di riferimento** | Valori tabulati per la consultazione rapida |
 | **Quiz spettri** | Riconoscimento del gruppo funzionale da uno spettro |
 
@@ -391,4 +394,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v189`._
+_Documento aggiornato alla versione `bsi-v191`._
