@@ -186,7 +186,7 @@ jobs:
           [ -n "$SHA_TAG" ] || SHA_TAG="${{ github.sha }}"
           if ! USCITA=$(gh release create "$VER" --target "$SHA_TAG" \
                           --title "$TIT" --notes-file note.md consegna/*.zip 2>&1); then
-            echo "::error::gh release create ha fallito: $USCITA"
+            echo "::error::gh release create ha fallito: ${USCITA//$'\n'/ | }"
             exit 1
           fi
           echo "$USCITA"
@@ -201,12 +201,12 @@ jobs:
           TIT="${{ inputs.titolo }}"
           [ -n "$TIT" ] || TIT="BioSpecInfo $VER"
           if ! USCITA=$(gh release edit "$VER" --title "$TIT" --notes-file note.md 2>&1); then
-            echo "::error::gh release edit ha fallito: $USCITA"
+            echo "::error::gh release edit ha fallito: ${USCITA//$'\n'/ | }"
             exit 1
           fi
           if [ "${{ inputs.solo_riparazione }}" != "true" ]; then
             if ! USCITA=$(gh release upload "$VER" consegna/*.zip --clobber 2>&1); then
-              echo "::error::gh release upload ha fallito: $USCITA"
+              echo "::error::gh release upload ha fallito: ${USCITA//$'\n'/ | }"
               exit 1
             fi
             echo "pacchetti caricati"
@@ -233,7 +233,7 @@ jobs:
               *"$VER"*) : ;;
               *) echo "rimuovo l'allegato estraneo: $NOME"
                  if ! USCITA=$(gh release delete-asset "$VER" "$NOME" -y 2>&1); then
-                   echo "::error::non ho potuto rimuovere $NOME: $USCITA"
+                   echo "::error::non ho potuto rimuovere $NOME: ${USCITA//$'\n'/ | }"
                    exit 1
                  fi
                  TOLTI=$((TOLTI+1)) ;;
@@ -264,9 +264,10 @@ jobs:
             echo "::error::il commit $SHA_TAG non esiste in questo checkout"
             exit 1
           fi
+          echo "::notice::tag locale $VER → $SHA_TAG ; remoto $(git ls-remote origin "refs/tags/$VER" | cut -f1)"
           git tag -f "$VER" "$SHA_TAG"
           if ! USCITA=$(git push --force origin "refs/tags/$VER" 2>&1); then
-            echo "::error::git push del tag ha fallito: $USCITA"
+            echo "::error::git push del tag ha fallito: ${USCITA//$'\n'/ | }"
             exit 1
           fi
           echo "$USCITA"
