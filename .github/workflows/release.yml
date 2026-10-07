@@ -250,7 +250,9 @@ jobs:
       # fa igiene sugli allegati, lasciando il tag dov'e'. Serve a correggere
       # cio' che si puo' correggere quando il tag non si puo' muovere.
       - name: Metti il tag sul commit voluto
-        if: steps.stato.outputs.esiste == 'si' && (inputs.solo_riparazione != 'true' || inputs.commit_del_tag != '')
+        # con `ricrea_il_tag` ci pensa il passo dopo: questo fallirebbe prima,
+        # togliendo al ripiego l'occasione di provare
+        if: steps.stato.outputs.esiste == 'si' && inputs.ricrea_il_tag != 'true' && (inputs.solo_riparazione != 'true' || inputs.commit_del_tag != '')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -312,7 +314,7 @@ jobs:
       # una riparazione andata a buon fine — che e' peggio che non farla,
       # perche' chi guarda legge «failure» su un lavoro corretto.
       - name: Il tag e gli allegati devono venire dallo stesso commit
-        if: inputs.solo_riparazione != 'true' || inputs.commit_del_tag != ''
+        if: (inputs.solo_riparazione != 'true' || inputs.commit_del_tag != '') && inputs.ricrea_il_tag != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
