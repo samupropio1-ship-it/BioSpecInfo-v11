@@ -596,7 +596,7 @@ application's panel is the validation one.
 | ¹H (14 molecules) | 0.06 ppm |
 | ¹H, aromatics only | 0.03 ppm |
 
-The bench (`test_nmr`, 44 checks) also requires validation to stay **worse**
+The bench (`test_nmr`, 56 checks) also requires validation to stay **worse**
 than tuning: were they to become equal it would mean a molecule had been moved
 from one set to the other, and the figure would no longer say anything.
 

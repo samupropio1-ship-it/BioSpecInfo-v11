@@ -87,6 +87,25 @@ perché una molecola di validazione non torna è esattamente il modo di rendere
 quel 0,92 una bugia. Gli eterocicli saturi (THF, piperidina) non hanno un
 composto di riferimento in tabella e restano la previsione meno affidabile.
 
+### La cronologia delle molecole
+
+Chi usa questo strumento prova una struttura, poi un'altra, poi torna alla prima
+per confrontare gli spettri. Senza cronologia bisogna ridisegnarla, e il
+confronto — che è il motivo per cui si prevede uno spettro — diventa un lavoro
+di memoria.
+
+Sotto la barra del pannello NMR c'è ora una striscia di pastiglie: ogni molecola
+che ha prodotto uno spettro ci finisce dentro, un clic la riporta sul tavolo.
+Di ognuna si tiene lo **SMILES canonico**, l'**InChI** e la sua **chiave**, e il
+confronto per riconoscere i doppioni si fa sulla chiave: `OCC` e `CCO` sono
+l'etanolo entrambi, e senza una forma canonica indipendente dalla scrittura la
+cronologia si riempirebbe di doppioni. Una struttura che il predittore non sa
+leggere **non entra**: non è una molecola su cui si tornerà.
+
+Sta in `localStorage` dentro un `try/catch`, perché in navigazione privata la
+scrittura lancia — e una cronologia che non si salva è un fastidio, non un
+guasto.
+
 ### Cinque difetti trovati misurando
 
 Nessuno di questi era visibile leggendo il codice: li ha trovati il banco.
@@ -120,6 +139,33 @@ Nessuno di questi era visibile leggendo il codice: li ha trovati il banco.
 
 E uno trovato guardando l'indice di colonna: l'orto di ogni benzene
 monosostituito usciva `NaN`, mentre meta e para si scambiavano fra loro.
+
+### Una promessa che nessun controllo manteneva
+
+Il documento 09 dichiara, alla voce D-08, che «un disaccordo fra le due lingue
+fa fallire la batteria». Era un'intenzione: **nessun controllo confrontava i due
+documenti**, e la matrice di tracciabilità inglese era rimasta indietro di tre
+requisiti — SCI-28 (predizione NMR), SCI-29 (equivalenza chimica) e SCI-30
+(lettura di uno spettro da un'immagine), cioè proprio i più recenti. Chi legge
+solo l'inglese non li trovava.
+
+Le tre righe sono state scritte, e `verifica-documenti` confronta ora gli
+identificativi definiti nelle due matrici, stampando la differenza **nei due
+versi**: chi manca all'inglese e chi manca all'italiano. Adesso la frase è vera.
+
+### Un difetto che la cronologia ha fatto emergere
+
+Il pannello NMR si monta in **due** posti — la scheda ¹³C del Centro
+spettroscopico e quella dell'editor ChemDraw — e cercava i propri elementi con
+`document.getElementById`. Montati entrambi, nella pagina esistono due elementi
+con lo stesso `id`, e `getElementById` restituisce il **primo in ordine di
+documento**, che non è necessariamente quello che si sta guardando: lo spettro
+veniva disegnato nel pannello sbagliato e quello aperto restava fermo. Ora le
+ricerche partono dalla **radice del pannello montato per ultimo**.
+
+Non lo si vedeva perché nessun banco aveva mai montato tutti e due i pannelli
+nella stessa pagina. Il banco della cronologia lo fa, e la prova è fallita
+subito.
 
 ---
 ## [bsi-v188] — 2026-10-07

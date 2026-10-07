@@ -340,7 +340,13 @@
     '.bsiNP-tbl tr.on td{background:#15354a;color:#ffd93d}',
     '.bsiNP-tbl tr:hover td{background:#102137}',
     '.bsiNP-nota{font-size:11px;color:#8aadcc;line-height:1.55;margin-top:6px}',
-    '.bsiNP-dep svg{max-width:100%;height:auto;background:#fff;border-radius:8px}'
+    '.bsiNP-dep svg{max-width:100%;height:auto;background:#fff;border-radius:8px}',
+    '.bsiNP-storia{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0 2px}',
+    '.bsiNP-vuota{font-size:11px;color:#7a8aa0}',
+    '.bsiNP-chip{font:600 11px/1 ui-monospace,monospace;background:#0e2033;color:#9fd6cc;'
+      + 'border:1px solid #1d3c52;border-radius:999px;padding:5px 9px;cursor:pointer}',
+    '.bsiNP-chip:hover{background:#15354a;color:#ffd93d}',
+    '.bsiNP-chip.on{background:#00c9b7;color:#06212c;border-color:#00c9b7}'
   ].join('');
 
   function stile() {
@@ -353,6 +359,27 @@
   /* ── stato ──────────────────────────────────────────────────────────────── */
   var nucleo = '13C', ris = null, vista = null, acceso = null;
   var etichette = true, segni = true, intensita = 1, zoomDa = null, smilesOra = '';
+
+  /* ── Dove sta il pannello ────────────────────────────────────────────────
+     Il pannello puo' essere montato in DUE posti: la scheda ¹³C del Centro
+     spettroscopico e la scheda ¹³C dell'editor ChemDraw. Montati entrambi,
+     nella pagina esistono due elementi con lo stesso `id` — e
+     `getElementById` restituisce il PRIMO in ordine di documento, che non e'
+     necessariamente quello che si sta guardando: lo spettro veniva disegnato
+     nel pannello sbagliato e quello aperto restava fermo.
+
+     Le ricerche partono quindi dalla RADICE del pannello montato per ultimo,
+     che e' quello che l'utente ha appena aperto. Il ripiego su `document`
+     serve solo se la radice non e' piu' attaccata alla pagina. */
+  var radice = null;
+
+  function q(id) {
+    if (radice && radice.isConnected) {
+      var e = radice.querySelector('#' + id);
+      if (e) return e;
+    }
+    return document.getElementById(id);
+  }
 
   function smilesCorrente() {
     /* Tre sorgenti, nell'ordine in cui hanno senso: la molecola che il Centro
@@ -389,6 +416,7 @@
       '<button class="bsiNP-b" id="bsiNP-jdx">JCAMP-DX</button>' +
       '<button class="bsiNP-b" id="bsiNP-png">PNG</button>' +
       '</div>' +
+      '<div class="bsiNP-storia" id="bsiNP-storia"></div>' +
       '<div class="bsiNP-grid">' +
       '<div><canvas id="bsiNP-tela" class="bsiNP-tela" width="620" height="260" ' +
         'style="height:260px"></canvas>' +
@@ -398,7 +426,7 @@
   }
 
   function disegna() {
-    var tela = document.getElementById('bsiNP-tela');
+    var tela = q('bsiNP-tela');
     if (!tela) return;
     var segnali = (ris && ris.segnali) ? ris.segnali : [];
     if (!vista) vista = M.finestraPiena(segnali, nucleo);
@@ -406,7 +434,7 @@
     segnali.forEach(function (s) { if ((s.nH || 0) > nHMax) nHMax = s.nH; });
     M.disegnaSpettro(tela, segnali, vista, nucleo, acceso,
       { etichette: etichette, segnali: segni, intensita: intensita, nHMax: nHMax });
-    var m = document.getElementById('bsiNP-metodo');
+    var m = q('bsiNP-metodo');
     if (!m) return;
     if (ris && ris.errore) {
       m.innerHTML = '<span style="color:#ff6b6b">' +
@@ -426,7 +454,7 @@
   }
 
   function tabella() {
-    var d = document.getElementById('bsiNP-tab');
+    var d = q('bsiNP-tab');
     if (!d) return;
     if (!ris || !ris.segnali.length) {
       d.innerHTML = '<p class="bsiNP-nota">' + t('Nessun segnale.', 'No signals.') + '</p>';
@@ -460,23 +488,142 @@
   }
 
   function depizione() {
-    var d = document.getElementById('bsiNP-dep');
+    var d = q('bsiNP-dep');
     if (!d) return;
     if (!smilesOra || !globale.BSINMR) { d.innerHTML = ''; return; }
     var svg = globale.BSINMR.strutturaConAtomi(smilesOra, atomiAccesi(), 420, 240);
     d.innerHTML = svg || '';
   }
 
-  function tutto() { disegna(); tabella(); depizione(); }
+  function tutto() { disegna(); tabella(); depizione(); disegnaStoria(); }
 
-  function prevedi() {
-    smilesOra = smilesCorrente();
+  /* ── La cronologia delle molecole ───────────────────────────────────────
+     Chi usa questo strumento prova una struttura, poi un'altra, poi torna
+     alla prima per confrontare gli spettri. Senza cronologia bisogna
+     ridisegnarla, e il confronto — che e' il motivo per cui si prevede uno
+     spettro — diventa un lavoro di memoria.
+
+     Di ogni molecola si tiene lo SMILES CANONICO, che e' quello che RDKit
+     restituisce e non quello che l'utente ha scritto, piu' l'InChI e la sua
+     chiave. L'InChI serve perche' due SMILES diversi possono essere la stessa
+     molecola: `OCC` e `CCO` sono l'etanolo entrambi, e senza una forma
+     canonica indipendente la cronologia si riempirebbe di doppioni.
+
+     Sta in `localStorage`, dentro un try/catch: in navigazione privata la
+     scrittura lancia, e una cronologia che non si salva e' un fastidio, non
+     un guasto — lo strumento deve continuare a funzionare. */
+  var CHIAVE_STORIA = 'bsi_nmr_storia', MAX_STORIA = 12;
+  var storia = [];
+
+  function leggiStoria() {
+    try {
+      var g = JSON.parse(localStorage.getItem(CHIAVE_STORIA) || '[]');
+      storia = Array.isArray(g) ? g.slice(0, MAX_STORIA) : [];
+    } catch (e) { storia = []; }
+    return storia;
+  }
+  function salvaStoria() {
+    try { localStorage.setItem(CHIAVE_STORIA, JSON.stringify(storia)); }
+    catch (e) { /* in privata non si salva: la sessione corrente resta buona */ }
+  }
+
+  function identitaDi(smiles) {
+    var R = globale.__rdkit, out = { smiles: smiles, inchi: '', chiave: '' };
+    if (!R) return out;
+    var mol = null;
+    try {
+      mol = R.get_mol(String(smiles));
+      if (!mol) return out;
+      try { out.smiles = mol.get_smiles() || smiles; } catch (e) {}
+      try { out.inchi = mol.get_inchi() || ''; } catch (e) {}
+      try {
+        if (out.inchi && typeof R.get_inchikey_for_inchi === 'function') {
+          out.chiave = R.get_inchikey_for_inchi(out.inchi) || '';
+        }
+      } catch (e) {}
+    } catch (e) { /* uno SMILES illeggibile non entra in cronologia */ }
+    if (mol) { try { mol.delete(); } catch (e) {} }
+    return out;
+  }
+
+  function ricorda(smiles) {
+    var id = identitaDi(smiles);
+    if (!id.smiles) return;
+    /* Il confronto e' sulla CHIAVE InChI quando c'e', sullo SMILES canonico
+       quando non c'e'. Una molecola gia' vista non si aggiunge: si sposta in
+       cima, perche' e' quella su cui si sta lavorando adesso. */
+    var uguale = function (x) {
+      return (id.chiave && x.chiave) ? (x.chiave === id.chiave) : (x.smiles === id.smiles);
+    };
+    storia = storia.filter(function (x) { return !uguale(x); });
+    storia.unshift({ smiles: id.smiles, inchi: id.inchi, chiave: id.chiave,
+                     quando: Date.now() });
+    if (storia.length > MAX_STORIA) storia.length = MAX_STORIA;
+    salvaStoria();
+  }
+
+  function disegnaStoria() {
+    var d = q('bsiNP-storia');
+    if (!d) return;
+    if (!storia.length) {
+      d.innerHTML = '<span class="bsiNP-vuota">' +
+        t('Le molecole previste compaiono qui, per riprenderle senza ridisegnarle.',
+          'Predicted molecules appear here, so you can return to them without redrawing.') +
+        '</span>';
+      return;
+    }
+    d.innerHTML = '<span class="bsiNP-vuota">' + t('cronologia', 'history') + ':</span>' +
+      storia.map(function (x, k) {
+        var corto = x.smiles.length > 22 ? (x.smiles.slice(0, 21) + '…') : x.smiles;
+        return '<button class="bsiNP-chip' + (x.smiles === smilesOra ? ' on' : '') +
+          '" data-st="' + k + '" title="' + esc(x.smiles) +
+          (x.inchi ? ('\n' + x.inchi) : '') +
+          (x.chiave ? ('\n' + x.chiave) : '') + '">' + esc(corto) + '</button>';
+      }).join('') +
+      '<button class="bsiNP-chip" id="bsiNP-stCopia">' +
+        t('copia InChI', 'copy InChI') + '</button>' +
+      '<button class="bsiNP-chip" id="bsiNP-stVuota">' +
+        t('svuota', 'clear') + '</button>';
+    [].forEach.call(d.querySelectorAll('[data-st]'), function (b) {
+      b.onclick = function () {
+        var x = storia[+b.getAttribute('data-st')];
+        if (x) prevediDi(x.smiles);
+      };
+    });
+    var bc = q('bsiNP-stCopia');
+    if (bc) bc.onclick = function () {
+      /* Si copia l'InChI della molecola SUL TAVOLO, non il primo della lista:
+         il bottone sta accanto alla cronologia ma parla di quello che si sta
+         guardando. */
+      var qui = storia.filter(function (x) { return x.smiles === smilesOra; })[0] || storia[0];
+      var testo = qui ? (qui.inchi || qui.smiles) : '';
+      if (!testo) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(testo);
+        }
+      } catch (e) {}
+      bc.textContent = t('copiato', 'copied');
+      setTimeout(function () { bc.textContent = t('copia InChI', 'copy InChI'); }, 1200);
+    };
+    var bv = q('bsiNP-stVuota');
+    if (bv) bv.onclick = function () { storia = []; salvaStoria(); disegnaStoria(); };
+  }
+
+  function prevediDi(smiles) {
+    smilesOra = String(smiles || '');
     if (!smilesOra || !globale.BSINMR) { ris = null; vista = null; tutto(); return; }
     ris = globale.BSINMR.predici(smilesOra, { nucleo: nucleo });
     acceso = null;
     vista = ris ? M.finestraPiena(ris.segnali, nucleo) : null;
+    /* In cronologia entra solo cio' che ha prodotto uno spettro: una
+       struttura che il predittore non sa leggere non e' una molecola su cui
+       si tornera'. */
+    if (ris && !ris.errore && ris.segnali.length) ricorda(smilesOra);
     tutto();
   }
+
+  function prevedi() { prevediDi(smilesCorrente()); }
 
   function aggancia() {
     [].forEach.call(document.querySelectorAll('#ctrC13 [data-nuc]'), function (b) {
@@ -485,25 +632,25 @@
         nucleo = b.getAttribute('data-nuc'); vista = null; prevedi(); aggancia();
       };
     });
-    var be = document.getElementById('bsiNP-etich');
+    var be = q('bsiNP-etich');
     if (be) { be.classList.toggle('on', etichette);
       be.onclick = function () { etichette = !etichette; aggancia(); disegna(); }; }
-    var bs = document.getElementById('bsiNP-segni');
+    var bs = q('bsiNP-segni');
     if (bs) { bs.classList.toggle('on', segni);
       bs.onclick = function () { segni = !segni; aggancia(); disegna(); }; }
-    var bp = document.getElementById('bsiNP-prevedi');
+    var bp = q('bsiNP-prevedi');
     if (bp) bp.onclick = prevedi;
-    var bc = document.getElementById('bsiNP-csv');
+    var bc = q('bsiNP-csv');
     if (bc) bc.onclick = function () {
       if (ris) scarica('nmr-' + nucleo + '.csv', M.csvDa(ris), 'text/csv');
     };
-    var bj = document.getElementById('bsiNP-jdx');
+    var bj = q('bsiNP-jdx');
     if (bj) bj.onclick = function () {
       if (ris) scarica('nmr-' + nucleo + '.jdx', M.jcampDa(ris, smilesOra), 'chemical/x-jcamp-dx');
     };
-    var bg = document.getElementById('bsiNP-png');
+    var bg = q('bsiNP-png');
     if (bg) bg.onclick = function () {
-      var c = document.getElementById('bsiNP-tela');
+      var c = q('bsiNP-tela');
       if (!c || !c.toBlob) return;
       c.toBlob(function (b) {
         if (!b) return;
@@ -514,7 +661,7 @@
       });
     };
 
-    var tela = document.getElementById('bsiNP-tela');
+    var tela = q('bsiNP-tela');
     if (!tela) return;
     function cx(ev) {
       var r = tela.getBoundingClientRect();
@@ -567,6 +714,8 @@
     var box = document.getElementById('ctrC13');
     if (!box) return;
     stile();
+    radice = box;
+    leggiStoria();
     box.innerHTML = vistaHTML();
     aggancia();
     if (globale.bsiLoadRDKit) globale.bsiLoadRDKit(prevedi);
@@ -611,15 +760,12 @@
   function montaIn(box, smi) {
     if (!box) return;
     stile();
+    radice = box;
+    leggiStoria();
     box.innerHTML = vistaHTML();
     aggancia();
     function parti() {
-      smilesOra = (smi && String(smi).trim()) || smilesCorrente();
-      if (!smilesOra || !globale.BSINMR) { ris = null; vista = null; tutto(); return; }
-      ris = globale.BSINMR.predici(smilesOra, { nucleo: nucleo });
-      acceso = null;
-      vista = ris ? M.finestraPiena(ris.segnali, nucleo) : null;
-      tutto();
+      prevediDi((smi && String(smi).trim()) || smilesCorrente());
     }
     /* il nucleo si puo' cambiare anche qui, e deve ripartire dallo STESSO
        SMILES: senza questo, passando a ¹H si tornava a cercarlo nel DOM del
@@ -644,7 +790,11 @@
          indovinare. */
       return { nucleo: nucleo, segnali: ris ? ris.segnali : [], acceso: acceso,
                vista: vista, smiles: smilesOra,
+               storia: storia.slice(),
                errore: (ris && ris.errore) ? ris.errore : null };
-    } };
+    },
+    storia: function () { return storia.slice(); },
+    prevediDi: prevediDi,
+    svuotaStoria: function () { storia = []; salvaStoria(); disegnaStoria(); } };
 
 })(typeof window !== 'undefined' ? window : globalThis);

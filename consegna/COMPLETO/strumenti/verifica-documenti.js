@@ -227,6 +227,37 @@ try {
       [...new Set(doppioni)].length);
   [...new Set(doppioni)].forEach(d => console.log('      ! ' + d + ' definito più volte'));
 
+  /* ── Le due lingue devono definire GLI STESSI requisiti ──────────────────
+     Il documento 09 dichiara, alla voce D-08, che «un disaccordo fra le due
+     lingue fa fallire la batteria». Era un'intenzione, non una prova: nessun
+     controllo confrontava i due documenti, e la matrice inglese e' rimasta
+     indietro di TRE requisiti (SCI-28, SCI-29, SCI-30) senza che niente lo
+     dicesse. Chi legge solo l'inglese non trovava la predizione NMR, la
+     equivalenza chimica e il lettore d'immagini — proprio le cose piu'
+     recenti.
+
+     Qui la frase diventa vera: i due documenti devono definire lo stesso
+     insieme di identificativi, e la differenza viene stampata in chiaro nei
+     due versi — chi manca all'inglese e chi manca all'italiano. */
+  try {
+    const matEn = fs.readFileSync(
+      path.join(RADICE, 'docs', 'en', '08-Traceability-Matrix.md'), 'utf8');
+    const definitiEn = [];
+    const reEn = /^\|\s*\*\*([A-Z]{2,4}-\d{2})\*\*\s*\|/gm;
+    let mEn;
+    while ((mEn = reEn.exec(matEn)) !== null) definitiEn.push(mEn[1]);
+    const soloIt = definiti.filter(d => definitiEn.indexOf(d) < 0);
+    const soloEn = definitiEn.filter(d => definiti.indexOf(d) < 0);
+    att('le due lingue definiscono gli stessi requisiti', 0,
+        soloIt.length + soloEn.length);
+    soloIt.forEach(d => console.log('      ! ' + d + ' manca nella matrice inglese'));
+    soloEn.forEach(d => console.log('      ! ' + d + ' manca nella matrice italiana'));
+    console.log('      (' + definiti.length + ' in italiano, ' +
+                definitiEn.length + ' in inglese)');
+  } catch (e) {
+    att('la matrice inglese è leggibile', true, false);
+  }
+
   /* Il conteggio dichiarato nella tabella riassuntiva deve corrispondere a
      quanti identificativi esistono davvero nel documento. */
   const perFamiglia = {};

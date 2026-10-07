@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v189` |
-| Commit | `40c00f56e8cd3c0387ef2a0851d61c7f919eb2d0` |
-| Generato (UTC) | `2026-10-07T16:54:05.524Z` |
+| Commit | `53eca6e73171b8dedcea4f9c2d5eeef3b6dca4d2` |
+| Generato (UTC) | `2026-10-07T17:36:39.219Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -62,7 +62,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
 | `bsi-nmr.js` | 56 kB | Predizione NMR ¹H e ¹³C assegnata per atomo: applica le tabelle di bsi-pretsch.js camminando l'anello e misurando le distanze, con composto di riferimento ciclico ed equivalenza chimica per codice d'intorno. |
-| `bsi-moldraw.js` | 29 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, uscite CSV/JCAMP-DX/PNG. |
+| `bsi-moldraw.js` | 36 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, uscite CSV/JCAMP-DX/PNG. |
 | `bsi-spettrolettore.js` | 53 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre. |
 | `bsi-mol3d.js` | 41 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
 | `bsi-lingue.js` | 159 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
@@ -84,7 +84,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `c090d614ed5d7ed1fb958f6efec1fc4021cdc7b0f4fd6e1ca89bba167528d259` |
-| `bsi-moldraw.js` | `c2c2a4cc258215a28b64ac3b06ed60befa343db930964be4a7f3360064c1f30e` |
+| `bsi-moldraw.js` | `4bc9918ccf9080685c5553bbb88c03e4213170c32348835f230b6e54c7f24dc2` |
 | `bsi-spettrolettore.js` | `dbdc79aa8e6fc14d26ae9633f15598eb7121efd6e1cf0118e5b9ff99681c567c` |
 | `bsi-mol3d.js` | `beb85c594db8e21bd1653ac6923989375a729d163b2749c6259ee48e05501ca9` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
@@ -143,4 +143,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-07T16:54:05.524Z._
+_Generato il 2026-10-07T17:36:39.219Z._

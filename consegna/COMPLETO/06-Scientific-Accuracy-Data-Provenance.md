@@ -650,7 +650,7 @@ pannello dell'applicazione è quello della validazione.
 | ¹H (14 molecole) | 0,06 ppm |
 | ¹H, soli aromatici | 0,03 ppm |
 
-Il banco (`test_nmr`, 44 controlli) pretende anche che la validazione resti
+Il banco (`test_nmr`, 56 controlli) pretende anche che la validazione resti
 **peggiore** della taratura: se diventassero uguali vorrebbe dire che una
 molecola è stata spostata da un insieme all'altro, e il numero non direbbe più
 niente.

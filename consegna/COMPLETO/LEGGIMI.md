@@ -6,7 +6,7 @@
 |---|---|
 | Autore | Samuele Pio Provenzano |
 | Versione | `bsi-v189` |
-| Commit | `40c00f5` |
+| Commit | `53eca6e` |
 | Preparato il | 2026-10-07 |
 | Applicazione | https://samupropio1-ship-it.github.io/BioSpecInfo-v11/ |
 | Repository | github.com/samupropio1-ship-it/BioSpecInfo-v11 |
@@ -79,4 +79,4 @@ Le note di lavorazione non sono documentazione formale: sono il registro di che 
 
 ---
 
-_Pacchetto **COMPLETO** · versione `bsi-v189` · commit `40c00f5`._
+_Pacchetto **COMPLETO** · versione `bsi-v189` · commit `53eca6e`._

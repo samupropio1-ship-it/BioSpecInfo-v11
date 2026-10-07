@@ -396,15 +396,77 @@ const QUANTI_SEGNALI = [
   att('passando a ¹H resta la stessa molecola', 'CC(=O)Oc1ccccc1C(=O)O', pan.h.smiles);
   att('  · e i segnali sono quelli del ¹H', true, pan.h.nucleo === '1H' && pan.h.n > 0);
 
+  /* ── §4 · La cronologia delle molecole ──────────────────────────────────
+     Serve a confrontare due spettri senza ridisegnare la prima molecola. Si
+     verifica nei DUE versi: che ricordi quello che deve, e che NON ricordi
+     quello che non deve — uno SMILES illeggibile non e' una molecola su cui
+     si tornera', e due scritture della stessa molecola non sono due voci. */
+  console.log('\n── La cronologia ──');
+  const cro = await pg.evaluate(async () => {
+    const P = window.BSINmrPannello;
+    P.svuotaStoria();
+    const out = {};
+    out.parteVuota = P.storia().length;
+    P.prevediDi('CCO');
+    P.prevediDi('c1ccccc1');
+    out.dopoDue = P.storia().length;
+    out.inCima = P.storia()[0].smiles;
+    /* lo stesso etanolo scritto al contrario: stessa molecola, stessa voce */
+    P.prevediDi('OCC');
+    out.dopoIlDoppione = P.storia().length;
+    out.doppioneInCima = P.storia()[0].smiles;
+    /* una struttura illeggibile non entra */
+    P.prevediDi('questo non e uno smiles');
+    out.dopoLoScarto = P.storia().length;
+    /* di ogni voce si tiene l'InChI e la sua chiave, non solo lo SMILES */
+    const e = P.storia().filter(x => /CCO/.test(x.smiles))[0] || {};
+    out.inchi = e.inchi || '';
+    out.chiave = e.chiave || '';
+    /* e sopravvive a un rimontaggio del pannello */
+    const body = document.querySelector('#bsi-chemdraw-ov .bsi-cd-body') ||
+                 document.getElementById('ctrC13');
+    if (body) P.montaIn(body, 'CCO');
+    await new Promise(r => setTimeout(r, 1200));
+    out.dopoIlRimontaggio = P.storia().length;
+    /* Si guarda DENTRO il pannello appena montato, non in tutta la pagina:
+       montati in due posti, i due pannelli hanno elementi con lo stesso id e
+       una ricerca su `document` li conterebbe tutti. E' la stessa ragione per
+       cui il pannello cerca a partire dalla propria radice. */
+    const str = body ? body.querySelector('#bsiNP-storia') : null;
+    out.chip = str ? str.querySelectorAll('[data-st]').length : -1;
+    /* e un clic su una voce riporta quella molecola sul tavolo */
+    const chips = str ? str.querySelectorAll('[data-st]') : [];
+    if (chips.length > 1) { chips[1].click(); await new Promise(r => setTimeout(r, 900)); }
+    out.dopoIlClic = P.stato().smiles;
+    P.svuotaStoria();
+    out.dopoLoSvuotamento = P.storia().length;
+    return out;
+  });
+  att('parte vuota', 0, cro.parteVuota);
+  att('due molecole previste, due voci', 2, cro.dopoDue);
+  att('e l’ultima sta in cima', 'c1ccccc1', cro.inCima);
+  att('lo stesso etanolo scritto «OCC» non fa una voce nuova', 2, cro.dopoIlDoppione);
+  att('  · ma risale in cima, perché è quella su cui si lavora adesso',
+      'CCO', cro.doppioneInCima);
+  att('uno SMILES illeggibile non entra in cronologia', 2, cro.dopoLoScarto);
+  att('di ogni voce si tiene l’InChI', true, /^InChI=/.test(cro.inchi));
+  att('  · e la sua chiave', true, /^[A-Z]{14}-[A-Z]{10}-[A-Z]$/.test(cro.chiave));
+  console.log('      (' + cro.inchi + ' · ' + cro.chiave + ')');
+  att('sopravvive al rimontaggio del pannello', 2, cro.dopoIlRimontaggio);
+  att('  · e si vede, una pastiglia per voce', 2, cro.chip);
+  att('un clic su una voce la riporta sul tavolo', true, !!cro.dopoIlClic);
+  console.log('      (' + cro.dopoIlClic + ')');
+  att('e si può svuotare', 0, cro.dopoLoSvuotamento);
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 42) {
+  if (eseguiti < 54) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 42');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 54');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
