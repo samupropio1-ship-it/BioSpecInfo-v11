@@ -265,12 +265,37 @@ jobs:
             exit 1
           fi
           echo "::notice::tag locale $VER → $SHA_TAG ; remoto $(git ls-remote origin "refs/tags/$VER" | cut -f1)"
+          # Due strade, e servono entrambe.
+          #
+          # `git push --force` funziona per avanti e indietro, MA GitHub lo
+          # rifiuta quando il commit di destinazione ha un
+          # `.github/workflows/*` diverso da quello attuale: «refusing to
+          # allow a GitHub App to create or update workflow ... without
+          # `workflows` permission». E' una regola della piattaforma, e
+          # `GITHUB_TOKEN` non puo' ottenere quel permesso. Capita esattamente
+          # quando si riporta un tag su un commit vecchio.
+          #
+          # L'API sui ref non e' una push e non ricade in quella regola.
+          # Si prova prima quella, e si tiene git come ripiego.
           git tag -f "$VER" "$SHA_TAG"
-          if ! USCITA=$(git push --force origin "refs/tags/$VER" 2>&1); then
-            echo "::error::git push del tag ha fallito: ${USCITA//$'\n'/ | }"
+          FATTO=0
+          if USCITA=$(gh api -X PATCH "repos/${{ github.repository }}/git/refs/tags/$VER" \
+                        -f sha="$SHA_TAG" -F force=true 2>&1); then
+            FATTO=1
+            echo "tag spostato con l'API"
+          else
+            echo "::warning::API sui ref: ${USCITA//$'\n'/ | }"
+            if USCITA=$(git push --force origin "refs/tags/$VER" 2>&1); then
+              FATTO=1
+              echo "tag spostato con git"
+            else
+              echo "::error::git push del tag ha fallito: ${USCITA//$'\n'/ | }"
+            fi
+          fi
+          if [ "$FATTO" -ne 1 ]; then
+            echo "::error::non ho potuto mettere il tag $VER su $SHA_TAG con nessuna delle due strade"
             exit 1
           fi
-          echo "$USCITA"
           echo "tag $VER → $SHA_TAG"
 
       - name: Il tag e gli allegati devono venire dallo stesso commit
