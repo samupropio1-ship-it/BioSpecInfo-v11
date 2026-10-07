@@ -2474,6 +2474,230 @@
   }
 
   /* ═══ §10 · Superficie pubblica ══════════════════════════════════════════ */
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     §10 · MODELLI E REGOLE AVANZATE
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* ── 10.1 · ESOL (Delaney 2004) ────────────────────────────────────────
+     La solubilita' in acqua stimata da quattro descrittori. L'equazione e'
+     PUBBLICATA, e si scrive qui con i suoi coefficienti invece di adattarne
+     di nuovi: un modello pubblicato, citato, e' verificabile da chiunque;
+     uno adattato in casa su dati che non si mostrano, no.
+
+       logS = 0,16 − 0,63·clogP − 0,0062·MW + 0,066·RB − 0,74·AP
+
+     dove AP e' la frazione di atomi pesanti che sono aromatici. L'errore
+     dichiarato dall'autore e' circa 1 unita' logaritmica: si riporta, perche'
+     una stima senza il suo errore e' un numero che finge una precisione che
+     non ha.
+     Delaney, J.S. «ESOL: Estimating Aqueous Solubility Directly from
+     Molecular Structure». J. Chem. Inf. Comput. Sci. 2004, 44, 1000-1005. */
+  function solubilitaESOL(d) {
+    if (!d) return null;
+    var logP = (d.CrippenClogP != null) ? d.CrippenClogP : d.clogp;
+    var mw   = (d.amw != null) ? d.amw : d.MolWt;
+    var rb   = (d.NumRotatableBonds != null) ? d.NumRotatableBonds : d.numRotatableBonds;
+    var nAro = (d.NumAromaticHeavyAtoms != null) ? d.NumAromaticHeavyAtoms
+             : (d.numAromaticHeavyAtoms != null ? d.numAromaticHeavyAtoms : null);
+    var nHea = (d.NumHeavyAtoms != null) ? d.NumHeavyAtoms : d.numHeavyAtoms;
+    if (logP == null || mw == null || rb == null || nHea == null || !nHea) return null;
+    var ap = (nAro == null) ? 0 : nAro / nHea;
+    var logS = 0.16 - 0.63 * logP - 0.0062 * mw + 0.066 * rb - 0.74 * ap;
+    return {
+      logS: logS,
+      mgPerL: Math.pow(10, logS) * mw * 1000,
+      incertezza: 1.0,
+      fonte: 'Delaney 2004 (ESOL)',
+      frazioneAromatica: ap
+    };
+  }
+
+  /* ── 10.2 · I filtri di drug-likeness ──────────────────────────────────
+     Quattro regole pubblicate, ognuna con i suoi autori e le sue soglie. Si
+     riportano TUTTE invece di fonderle in un voto unico: dicono cose diverse
+     e si contraddicono spesso, e un unico semaforo verde nasconderebbe
+     proprio l'informazione utile. */
+  function filtriDrugLikeness(d) {
+    if (!d) return null;
+    var mw   = d.amw, logP = d.CrippenClogP, tpsa = d.tpsa;
+    var hbd  = d.lipinskiHBD != null ? d.lipinskiHBD : d.NumHBD;
+    var hba  = d.lipinskiHBA != null ? d.lipinskiHBA : d.NumHBA;
+    var rb   = d.NumRotatableBonds, mr = d.CrippenMR, nHea = d.NumHeavyAtoms;
+    function regola(nome, autori, condizioni) {
+      var rotte = condizioni.filter(function (c) { return c.vero === false; });
+      var ignote = condizioni.filter(function (c) { return c.vero == null; });
+      return { nome: nome, autori: autori,
+               passa: rotte.length === 0 && ignote.length === 0,
+               violazioni: rotte.map(function (c) { return c.testo; }),
+               nonValutabili: ignote.map(function (c) { return c.testo; }) };
+    }
+    function cond(testo, valore, prova) {
+      return { testo: testo, vero: (valore == null ? null : prova(valore)) };
+    }
+    return [
+      regola('Lipinski', 'Lipinski 1997', [
+        cond('MW ≤ 500', mw, function (v) { return v <= 500; }),
+        cond('clogP ≤ 5', logP, function (v) { return v <= 5; }),
+        cond('donatori H ≤ 5', hbd, function (v) { return v <= 5; }),
+        cond('accettori H ≤ 10', hba, function (v) { return v <= 10; })
+      ]),
+      regola('Veber', 'Veber 2002', [
+        cond('legami ruotabili ≤ 10', rb, function (v) { return v <= 10; }),
+        cond('TPSA ≤ 140 Å²', tpsa, function (v) { return v <= 140; })
+      ]),
+      regola('Egan', 'Egan 2000', [
+        cond('clogP ≤ 5,88', logP, function (v) { return v <= 5.88; }),
+        cond('TPSA ≤ 131,6 Å²', tpsa, function (v) { return v <= 131.6; })
+      ]),
+      regola('Ghose', 'Ghose 1999', [
+        cond('160 ≤ MW ≤ 480', mw, function (v) { return v >= 160 && v <= 480; }),
+        cond('−0,4 ≤ clogP ≤ 5,6', logP, function (v) { return v >= -0.4 && v <= 5.6; }),
+        cond('40 ≤ rifrattivita\u0300 molare ≤ 130', mr, function (v) { return v >= 40 && v <= 130; }),
+        cond('20 ≤ atomi pesanti ≤ 70', nHea, function (v) { return v >= 20 && v <= 70; })
+      ])
+    ];
+  }
+
+  /* ── 10.3 · Albero di regressione ──────────────────────────────────────
+     Divide ricorsivamente i dati sul taglio che riduce di piu' la somma dei
+     quadrati. Da solo e' instabile — ed e' proprio per questo che la foresta
+     funziona: la media di molti alberi instabili e' stabile. */
+  function alberoRegressione(X, y, indici, opz) {
+    opz = opz || {};
+    var profonditaMax = opz.profondita != null ? opz.profondita : 8;
+    var minFoglia = opz.minFoglia != null ? opz.minFoglia : 3;
+    var quanteVar = opz.quanteVariabili || null;
+    var rnd = opz.rnd || Math.random;
+
+    function media(ii) {
+      var s = 0; ii.forEach(function (i) { s += y[i]; });
+      return ii.length ? s / ii.length : 0;
+    }
+    function devianza(ii) {
+      if (!ii.length) return 0;
+      var m = media(ii), s = 0;
+      ii.forEach(function (i) { s += (y[i] - m) * (y[i] - m); });
+      return s;
+    }
+
+    function cresci(ii, prof) {
+      var nodo = { valore: media(ii), n: ii.length };
+      if (prof >= profonditaMax || ii.length < 2 * minFoglia) return nodo;
+      var dev0 = devianza(ii);
+      if (dev0 <= 1e-12) return nodo;
+      var nVar = X[0].length;
+      var colonne = [];
+      for (var c = 0; c < nVar; c++) colonne.push(c);
+      if (quanteVar && quanteVar < nVar) {
+        /* sottoinsieme casuale di variabili: e' la seconda sorgente di
+           diversita' fra gli alberi, dopo il bagging */
+        for (var k = colonne.length - 1; k > 0; k--) {
+          var j = Math.floor(rnd() * (k + 1));
+          var tmp = colonne[k]; colonne[k] = colonne[j]; colonne[j] = tmp;
+        }
+        colonne = colonne.slice(0, quanteVar);
+      }
+      var migliore = null;
+      colonne.forEach(function (c) {
+        var valori = ii.map(function (i) { return X[i][c]; });
+        var ordinati = valori.slice().sort(function (a, b) { return a - b; });
+        var provati = {};
+        for (var q = 1; q < ordinati.length; q++) {
+          if (ordinati[q] === ordinati[q - 1]) continue;
+          var taglio = (ordinati[q] + ordinati[q - 1]) / 2;
+          if (provati[taglio]) continue;
+          provati[taglio] = 1;
+          var sx = [], dx = [];
+          ii.forEach(function (i) { (X[i][c] <= taglio ? sx : dx).push(i); });
+          if (sx.length < minFoglia || dx.length < minFoglia) continue;
+          var guadagno = dev0 - devianza(sx) - devianza(dx);
+          if (!migliore || guadagno > migliore.guadagno)
+            migliore = { c: c, taglio: taglio, sx: sx, dx: dx, guadagno: guadagno };
+        }
+      });
+      if (!migliore || migliore.guadagno <= 1e-12) return nodo;
+      nodo.c = migliore.c; nodo.taglio = migliore.taglio;
+      nodo.sx = cresci(migliore.sx, prof + 1);
+      nodo.dx = cresci(migliore.dx, prof + 1);
+      return nodo;
+    }
+
+    var radice = cresci(indici || X.map(function (_, i) { return i; }), 0);
+    return {
+      radice: radice,
+      predici: function (x) {
+        var n = radice;
+        while (n.c !== undefined) n = (x[n.c] <= n.taglio) ? n.sx : n.dx;
+        return n.valore;
+      }
+    };
+  }
+
+  /* ── 10.4 · Foresta casuale ────────────────────────────────────────────
+     Bagging piu' sottoinsieme di variabili. Il seme e' esplicito: una foresta
+     che cambia risposta a ogni esecuzione non si puo' verificare, e un
+     modello che non si puo' verificare non si puo' usare per decidere. */
+  function forestaCasuale(X, y, opz) {
+    opz = opz || {};
+    var nAlberi = opz.alberi || 100;
+    var seme = opz.seme != null ? opz.seme : 42;
+    var stato = seme >>> 0;
+    function rnd() {
+      /* generatore lineare congruenziale: deterministico e sufficiente */
+      stato = (stato * 1664525 + 1013904223) >>> 0;
+      return stato / 4294967296;
+    }
+    var n = X.length;
+    if (!n || !X[0]) return null;
+    var nVar = X[0].length;
+    var quante = opz.quanteVariabili || Math.max(1, Math.round(nVar / 3));
+    var alberi = [], ooB = [];
+    for (var a = 0; a < nAlberi; a++) {
+      var campione = [], dentro = {};
+      for (var i = 0; i < n; i++) {
+        var k = Math.floor(rnd() * n);
+        campione.push(k); dentro[k] = 1;
+      }
+      alberi.push(alberoRegressione(X, y, campione, {
+        profondita: opz.profondita, minFoglia: opz.minFoglia,
+        quanteVariabili: quante, rnd: rnd
+      }));
+      var fuori = [];
+      for (var j = 0; j < n; j++) if (!dentro[j]) fuori.push(j);
+      ooB.push(fuori);
+    }
+    function predici(x) {
+      var s = 0;
+      alberi.forEach(function (t) { s += t.predici(x); });
+      return s / alberi.length;
+    }
+    /* L'errore «fuori sacco»: ogni osservazione si predice con i soli alberi
+       che non l'hanno vista. E' una stima onesta dell'errore senza bisogno di
+       un insieme di prova separato — ed e' il motivo per cui si tiene traccia
+       di chi e' rimasto fuori da ogni campione. */
+    var somma = new Array(n).fill(0), conta = new Array(n).fill(0);
+    alberi.forEach(function (t, a2) {
+      ooB[a2].forEach(function (i) { somma[i] += t.predici(X[i]); conta[i]++; });
+    });
+    var res = [], usati = 0;
+    for (var i2 = 0; i2 < n; i2++) {
+      if (!conta[i2]) continue;
+      usati++;
+      res.push(y[i2] - somma[i2] / conta[i2]);
+    }
+    var mse = res.length ? res.reduce(function (s2, v) { return s2 + v * v; }, 0) / res.length : null;
+    var mY = y.reduce(function (s2, v) { return s2 + v; }, 0) / n;
+    var sst = y.reduce(function (s2, v) { return s2 + (v - mY) * (v - mY); }, 0) / n;
+    return {
+      predici: predici,
+      alberi: alberi.length,
+      variabiliPerNodo: quante,
+      fuoriSacco: { usate: usati, rmse: mse != null ? Math.sqrt(mse) : null,
+                    r2: (mse != null && sst > 0) ? 1 - mse / sst : null }
+    };
+  }
+
   globale.BSIChem = {
     /* preparazione */
     leggiTesto: leggiTesto,
@@ -2528,6 +2752,11 @@
     /* algebra, idem */
     jacobi: jacobi,
     risolvi: risolvi,
+    /* §10 · modelli e regole avanzate */
+    solubilitaESOL: solubilitaESOL,
+    filtriDrugLikeness: filtriDrugLikeness,
+    forestaCasuale: forestaCasuale,
+    alberoRegressione: alberoRegressione,
     /* stato */
     pronto: function () { return rdkit() !== null; },
     versioneRDKit: function () { var R = rdkit(); return R && R.version ? R.version() : null; }

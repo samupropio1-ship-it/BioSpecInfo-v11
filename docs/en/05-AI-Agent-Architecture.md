@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v186` |
+| **Documented version** | Service Worker `bsi-v187` |
 
 ---
 
@@ -471,7 +471,7 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 | **Physics** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **External databases** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Internal data** | `cerca_nel_database` (9 datasets), `cerca_molecola` |
-| **App control** | `naviga_sezione` (91 sections), `apri_strumento` (12 labs), `stato_app` |
+| **App control** | `naviga_sezione` (92 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
 | **Animations** | `apri_animazione` (6 reaction mechanisms) |
 
@@ -484,7 +484,7 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 
 ### 3.1 Internal datasets exposed
 
-297 synthesis reactions · 118 elements · 67 amino acids · 233 drugs ·
+297 synthesis reactions · 118 elements · 67 amino acids · 263 drugs ·
 63 pathologies · 46 retrosynthetic strategies · 36 drug interactions ·
 29 metabolic pathways · 29 redox potentials.
 
@@ -669,7 +669,7 @@ database types, and the 10 injection attempts against the expression engine.
 ### 5.3 Integration — real browser
 
 Automated tests with headless Chromium across all 14 application pages: no
-JavaScript errors, no missing resources. All 91 sections of `index.html` and
+JavaScript errors, no missing resources. All 92 sections of `index.html` and
 the 18 tabs of the Astrochemistry module were traversed one by one. Request
 bodies were inspected for the four Claude tiers, and a full cycle with web
 search, turn suspension and resumption was simulated.

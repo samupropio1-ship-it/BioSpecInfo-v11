@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v186` |
+| **Version described** | `bsi-v187` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **91 sections**, grouped by area of study.
+The application has **92 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -165,7 +165,7 @@ without asking anyone to take it on trust.
 
 ### A measurement no other bench could make
 
-`verifica-accessibilita` walks the 91 sections and measures what is **visible**.
+`verifica-accessibilita` walks the 92 sections and measures what is **visible**.
 The six panels of this section live inside a container that stays `display:none`
 until the analysis has been run: that bench never saw them, and its "contrast 0"
 was not speaking about them.
@@ -213,7 +213,7 @@ printed copy does not lose the explanations.
 | Function | Description |
 |---|---|
 | **3D Atlas** | One chooses a body region, a disease and a drug: the model highlights the target organ |
-| **Database** | **233 drugs** with structure, molecular weight, mechanism, indications, adverse effects, class |
+| **Database** | **263 drugs** with structure, molecular weight, mechanism, indications, adverse effects, class. For **36** the entry carries the ChEMBL identifier and the record's formula, and the formula is rebuilt from the graph and compared |
 | **Interactions** | Checking interactions between active ingredients |
 | **Pharmacokinetics** | Calculator for half-life, clearance, volume of distribution |
 | **Clinical cases** | Diagnosis-therapy paths for teaching purposes |
@@ -222,6 +222,33 @@ printed copy does not lose the explanations.
 
 Molecules of the interstellar medium · exoplanets and JWST data · nebulae ·
 stellar spectra · nucleosynthesis · cometary chemistry · quizzes.
+
+### 3.6-bis Spectrum reader
+
+You load a file from your own instrument, or paste a text, and it is read.
+
+| Function | Description |
+|---|---|
+| **Formats** | **JCAMP-DX** (`.jdx`, `.dx`) with full **ASDF** compression — PMAI for digits, DIF for differences, DUP for repeats — or two columns of numbers separated by spaces, commas or tabs |
+| **Integrity check** | The JCAMP format prescribes that, after a run of differences, the next value written in full must equal the computed one. That check is performed here |
+| **Peak finding** | By **prominence**, with noise estimated from the median absolute deviation (MAD × 1.4826) rather than the standard deviation, which one tall peak inflates |
+| **IR assignment** | For each band, **all** compatible assignments among 24 ranges are listed, not the first |
+| **Mass spectra** | A peak list is recognised as such; differences between ions are matched against 17 **neutral losses** |
+| **NMR** | Integration of areas by chemical-shift region |
+| **Drawing** | IR with **decreasing** wavenumbers, the way it is read |
+
+**What it does not do, stated in the section itself:** it does not deduce the
+structure. A set of bands is compatible with many molecules, and a program that
+produced a name from three peaks would make a claim the data cannot support.
+
+### 3.6-ter Languages and chemical languages
+
+| Function | Description |
+|---|---|
+| **Interface language** | **14 languages** with a selector and a search field: Italian, English, Spanish, French, German, Portuguese, Dutch, Polish, Romanian, Greek, Russian, Chinese, Japanese, Arabic. Each one's coverage is **measured**, not declared |
+| **Writing direction** | Arabic carries `dir="rtl"`; every other language `ltr`, including on the way back |
+| **Chemical languages** | **25 outputs** from one SMILES: formula and mass composition, canonical/flat/explicit-hydrogen SMILES, CXSMILES, InChI and InChIKey, the key's skeleton block, Murcko scaffold, CIP stereo tags, SMARTS and CXSMARTS, molfile V2000 (also aromatic) and V3000, XYZ, PDB, CML, JSON, and the **six fingerprints** (Morgan, MACCS, RDKit, atom pairs, topological torsions, pattern) |
+| **IUPAC naming** | Over a **declared class** (acyclic, neutral, C H O N F Cl Br I, one kind of principal group, linear substituents). Outside that class it **refuses** instead of guessing |
 
 ### 3.7 Study tools
 
@@ -343,7 +370,7 @@ Declared, not hidden. The detail is in
 | 3 | **No synchronisation** | Data do not pass from one device to another, and there are no copies on a server |
 | 4 | **File Manager: deterrent, not security** | On a static site, whoever reads the source bypasses any page-side control. The source carries only the SHA-256 digest of the password, never the password |
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
-| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 91 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
+| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 92 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
 | 8 | **Partial code coverage** | Measured: **49.89 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
@@ -364,4 +391,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v186`._
+_Document updated to version `bsi-v187`._

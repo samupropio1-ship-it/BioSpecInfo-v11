@@ -7,6 +7,212 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v187] — 2026-10-03
+
+Un lettore di spettri che si porta il file, chemioinformatica che stima la
+solubilità e impara da dati, trentasei farmaci nuovi con la struttura presa da
+fuori — e tre strutture sbagliate che erano già nel sito.
+
+### Lettore di spettri avanzato
+
+Nuova sezione **Lettore spettri**. Si carica un file o si incolla un testo, e
+viene letto: **JCAMP-DX** con la compressione **ASDF** completa (PMAI per le
+cifre, DIF per le differenze, DUP per le ripetizioni) oppure due colonne di
+numeri. Il formato JCAMP prevede un proprio controllo di integrità — dopo una
+serie di differenze il valore successivo scritto per intero deve coincidere con
+quello calcolato — e qui viene fatto, cosa che quasi nessun lettore fa.
+
+I picchi si trovano per **prominenza**, con il rumore stimato dalla deviazione
+assoluta mediana (MAD × 1,4826) e non dalla deviazione standard, che un picco
+alto gonfia. L'IR si disegna con i numeri d'onda **decrescenti**, come lo si
+guarda. Per ogni banda vengono elencate **tutte** le assegnazioni compatibili,
+non la prima: a 1715 cm⁻¹ un C=O chetonico e un C=O di acido carbossilico sono
+entrambi possibili, e dire solo uno dei due sarebbe un'affermazione che i dati
+non reggono. La sezione dichiara di non dedurre la struttura.
+
+Spettri di massa: la lista di picchi viene riconosciuta come tale, e le
+differenze fra ioni vengono confrontate con una tabella di diciassette
+**perdite neutre**. Sul toluene il picco base è m/z 91 e fra 92 e 91 compare la
+perdita di H.
+
+Il banco (`tools/banchi/test_spettrolettore.js`, 39 controlli) parte da spettri
+**costruiti**: tre gaussiane a 1715, 2950 e 3400 cm⁻¹ sotto rumore, e il
+lettore ne trova tre, a 1716, 2952 e 3402. Nei due versi: su **rumore puro non
+ne trova nessuno** — senza quello, i tre di sopra non dimostrerebbero niente.
+
+### Chemioinformatica e data science
+
+- **ESOL** (Delaney 2004) per la solubilità in acqua, con l'incertezza
+  dichiarata accanto alla stima. Verificata contro valori sperimentali:
+  aspirina −1,65 contro −1,72; benzene −1,39 contro −1,64; naftalene −2,42
+  contro −3,60; etanolo −0,12 contro +1,10. Scarto medio 0,68 unità
+  logaritmiche, entro l'errore che il metodo dichiara. Un modello pubblicato si
+  verifica contro il **suo** errore, non contro la perfezione.
+- **Quattro filtri di drug-likeness** (Lipinski, Veber, Egan, Ghose), ognuno
+  con il proprio verdetto e le proprie violazioni, non un punteggio unico che
+  nasconde quale regola è stata violata. Sull'aspirina: Lipinski, Veber ed Egan
+  passano, Ghose viola «20 ≤ atomi pesanti ≤ 70» perché l'aspirina ne ha 13.
+- **Albero di regressione** e **foresta casuale** con campionamento bootstrap,
+  sottoinsieme di variabili per nodo ed errore **fuori sacco**. Deterministica
+  a parità di seme: un modello che cambia risposta a ogni esecuzione non si può
+  verificare. Su una relazione non lineare costruita apposta R² fuori sacco
+  0,90; su un bersaglio di **puro rumore** −0,16 — la guardia opposta, senza la
+  quale lo 0,90 non direbbe che il modello impari qualcosa.
+
+### Linguaggi chimici: venticinque uscite
+
+Aggiunte le **sei impronte digitali** (Morgan, MACCS, RDKit, coppie di atomi,
+torsioni topologiche, pattern), lo SMILES con gli idrogeni espliciti, lo
+scheletro Murcko e il blocco scheletrico della chiave InChI. Ogni impronta
+riporta la lunghezza **e il numero di bit accesi**: una stringa di soli zeri
+passerebbe inosservata. Sull'aspirina: Morgan 24/2048, MACCS 21/167, RDKit
+354/2048, coppie 68/2048, torsioni 18/2048, pattern 173/2048.
+
+### Trentasei farmaci nuovi, e tre strutture che erano sbagliate
+
+263 farmaci in tutto. Le trentasei voci nuove colmano classi che mancavano del
+tutto: gliflozine, biguanidi, anticoagulanti diretti e warfarin, diuretici
+(dell'ansa, tiazidici, risparmiatori di potassio), inibitore di KRAS G12C,
+CDK4/6, BCL-2, modulatore CFTR, antifungino triazolico, glicopeptide,
+ossazolidinone, demenze, gepante, glucocorticoide, antileucotrieni,
+inibitore della calcineurina.
+
+**Nessuno SMILES scritto a memoria.** Ogni struttura viene dal record ChEMBL e
+la formula molecolare è stata **ricostruita contando gli atomi del grafo** che
+RDKit legge, poi confrontata con quella che ChEMBL dichiara: 36 su 36
+coincidono. Il banco e i dati grezzi con l'identificativo di ogni voce sono in
+`tools/banchi/verifica_farmaci_v187.js` e `tools/dati/farmaci_v187.json`.
+
+**Due voci rifiutate**, e vale la pena dire perché: l'**ivermectina** ha
+`structure_type NONE` nel record (è una miscela di omologhi) e la
+**semaglutide** è una proteina, `structure_type SEQ`. In entrambi i casi la
+struttura si sarebbe potuta scrivere a memoria. È esattamente ciò che non si
+fa: una struttura senza fonte entra nel sito indistinguibile da una verificata.
+
+**Due nomi sono tornati diversi** da quelli cercati, perché la ricerca per nome
+di ChEMBL è a corrispondenza parziale: «morphine» ha restituito l'**apomorfina**
+e «levothyroxine» la **liotironina** (T3), trovata come sinonimo. Le voci sono
+state tenute con il nome del **record**, non con quello della domanda: il
+contrario avrebbe messo una scheda clinica sbagliata sopra una struttura giusta.
+
+#### Il difetto che il peso non vedeva
+
+Sei dei trentasei farmaci esistevano già. Confrontando le due versioni con la
+**chiave InChI** che ChEMBL dichiara, tre di quelle preesistenti sono risultate
+una **molecola diversa**:
+
+| farmaco | chiave della voce vecchia | chiave dichiarata da ChEMBL |
+|---|---|---|
+| Lenalidomide | `XKAYAFBLGLCWSY` | `GOTYRUGSSMKFNF` |
+| Palbociclib | `PSRAOXPOEYRNJN` | `AHJRHEGDXFFMBM` |
+| Aripiprazolo | `ZGXTVHHDFYTYTL` | `CEUORZQYGODEFX` |
+
+Erano **isomeri**: stessa formula, stesso peso, posizione diversa di un azoto o
+di un carbonile. Il controllo sul peso dichiarato contro quello calcolato — che
+esisteva e passava — non poteva vederlo, perché un isomero pesa uguale. Le tre
+voci sbagliate sono state rimosse e sostituite da quelle verificate.
+
+`audit_farmaci` ora ricostruisce la **formula** per ogni voce che dichiara una
+provenienza, con due cricche che non possono allentarsi: le voci con
+provenienza verificata non possono scendere sotto 36 e quelle con una struttura
+leggibile non sotto 240. E le voci legittimamente **senza** struttura non sono
+più coperte da un carattere jolly ma da tre ragioni dichiarate —
+macromolecola, associazione a dose fissa, miscela di omologhi — perché una
+esenzione senza ragione è un posto dove nascondere i difetti.
+
+### Il modulo nuovo aveva spento il motore degli spettri
+
+Il lettore si chiamava `window.BSISpettri`, e quel nome era **già occupato**:
+è il motore di predizione spettrale di `bsi-spettri.js`, che si carica prima.
+L'assegnazione lo sovrascriveva, e con lui sparivano `gruppi()`,
+`irBandListLegacy()` e `nmrPeakListLegacy()` — il riconoscimento dei gruppi
+funzionali e il disegno degli spettri previsti.
+
+L'applicazione non diceva niente. **Zero errori JavaScript** su tutte le
+quattordici pagine, la pagina si apriva, la sezione nuova funzionava, e perfino
+la sezione degli spettri si disegnava, perché passa da un'altra strada. Il
+difetto esisteva solo per chi chiamava quelle funzioni per nome.
+
+Tre banchi su quattro lo hanno visto: `test_spettri` (41 controlli),
+`test_spettri_ui` (16) e `test_assi` (13) sono caduti tutti sullo stesso
+`TypeError`. Il modulo ora si chiama `BSILettoreSpettri`, e la ragione del nome
+è scritta nella sua intestazione — perché è il tipo di errore che si rifà
+identico sei mesi dopo.
+
+### E la lingua che mancava a una voce sola
+
+Aggiungere «📉 Lettore spettri» alla barra di navigazione senza tradurlo
+avrebbe lasciato **una** voce su 171 in italiano in tutte e tredici le altre
+lingue: invisibile a occhio in mezzo a novantadue pulsanti. `test_lingue` l'ha
+detta per nome — «`navigazione: 📉 Lettore spettri`» — e ha preteso 92
+pulsanti tradotti trovandone 91. Tradotta nelle tredici lingue: la copertura
+torna **171 su 171** per tutte e quattordici.
+
+### Trenta farmaci in piu' hanno reso «Farmacologia» la sezione piu' lenta
+
+Con 263 voci invece di 233, aprire la sezione teneva la pagina bloccata
+**159 ms**, e le sezioni oltre i 100 ms passavano da due a tre — oltre la
+cricca che `test_fluidita` difende. La batteria era passata per un soffio la
+volta precedente: un limite superato a intermittenza non protegge niente, ed è
+peggio di un fallimento netto.
+
+Le carte ora si disegnano **a fette da 8 ms**: la carta vuota entra subito nella
+griglia, così l'altezza presunta è giusta e la barra di scorrimento non salta,
+e solo il contenuto viene accodato. Da 159 a **55 ms**, sezioni oltre i 100 ms
+di nuovo **zero**, e nessuna delle 263 voci perduta.
+
+Le fette **non** sono il comportamento predefinito, e la ragione è precisa:
+`test_farm_ui` chiama `showFarm(cat)` e legge il testo di `#farmList` sulla riga
+dopo. Reso asincrono di nascosto, quel banco avrebbe smesso di misurare quello
+che crede di misurare. Chiamata diretta: sincrona come sempre. Apertura della
+sezione e cambio di filtro: a fette. `showFarm` restituisce **quanti lavori ha
+accodato**, così il comportamento si misura dall'esterno invece di dedurlo dai
+tempi.
+
+#### Un involucro che perdeva gli argomenti
+
+Il primo tentativo non ha avuto effetto, e la funzione modificata sembrava
+giusta a leggerla. Mille righe piu' sotto, `showFarm` viene **riassegnata** da
+un involucro che corregge le etichette delle categorie — e che chiamava
+`_prevShowFarm(cat)`, scartando il secondo argomento e il valore di ritorno.
+Il disegno a fette non partiva mai. Un involucro che perde gli argomenti è un
+difetto invisibile finché qualcuno non comincia a usarli, e si trova solo
+misurando: `showFarm(...)` restituiva `undefined` dove doveva restituire 263.
+
+### Una soglia che misurava la macchina, non il codice
+
+`test_fluidita` pretendeva che aprire il visore 3D costasse meno di **80 ms**.
+Con lo **stesso codice pubblicato**, su container diversi, lo stesso click ha
+misurato 14, 22, 98, 105 e 192 ms: il costo è la compilazione degli shader di
+3Dmol, e qui WebGL è **SwiftShader**, un rasterizzatore software. Una soglia
+assoluta in quelle condizioni fallisce dove il codice è identico, e passerebbe
+dove è peggiorato. Alzarla a 200 l'avrebbe fatta passare e resa cieca.
+
+Provata come **rapporto** su una calibrazione misurata nella stessa esecuzione:
+non funziona. Quando il banco arriva al visore, WebGL è già stato usato dalla
+pagina, e la calibrazione misura un costo **a caldo** (2,9 ms) mentre il visore
+paga una compilazione **a freddo**. Il rapporto oscillava fra 14× e 36×.
+
+Quello che il controllo deve impedire è **strutturale**: il difetto originario
+era il primo `render()` di 3Dmol chiamato dentro il gestore del click. Allora
+si afferma quello, nei due versi: subito dopo il ritorno del gestore, nello
+stesso task, il contesto WebGL **non deve esistere**; poco dopo **deve**
+esistere. Misurato: 0 tele durante il click, 1 dopo. E la misura non è vacua —
+al secondo click, quando la tela c'è già, restituisce 1. Resta un tetto
+assoluto di 400 ms, dichiarato grossolano: intercetta una catastrofe, non
+misura la resa.
+
+### Il difetto nel mio stesso controllo
+
+La prima esecuzione della verifica delle formule ha dato **0 su 36**: ogni
+formula risultava `C<n>`, tutti carboni e nessun idrogeno. Il formato
+`get_json` di RDKit è **commonchem**, e in commonchem un atomo porta soltanto i
+campi che **differiscono** dai valori predefiniti — dove `z` vale 6 e `impHs`
+vale 0. Un atomo scritto `{}` è un carbonio. Leggevo `a.element`, che non
+esiste, e contavo tutto come carbonio. Erano i dati a sembrare sbagliati;
+era il contatore.
+
+---
 ## [bsi-v186] — 2026-10-03
 
 Giapponese e arabo, altri quattro linguaggi chimici, e la metà di interfaccia

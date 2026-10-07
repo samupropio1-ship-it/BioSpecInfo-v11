@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 91 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 92 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -83,6 +83,42 @@ will find the list of bands with their assignment.
 > understand the link between structure and spectrum. For experimental data, the
 > app sends you to the official databases.
 
+### Reading a spectrum you measured yourself
+
+The **Spectrum reader** section does the opposite of the one above: it does not
+predict a spectrum from a structure, it reads one you already have.
+
+1. Drag the file into the box, or paste its text
+2. Press **Read**
+
+**JCAMP-DX** files (`.jdx`, `.dx`), which most spectrophotometers produce, work
+— including the compressed form — and so do two columns of numbers separated by
+spaces or commas, which is what a spreadsheet produces. If you have no file at
+hand, the three buttons **IR example**, **MS example** and **NMR example** load
+a sample spectrum.
+
+Below the chart you will find the peaks found with their signal-to-noise ratio,
+and for each band **all** compatible assignments. If you read two rows at
+1715 cm⁻¹, that is not a defect: at that wavenumber a ketone and a carboxylic
+acid are both possible, and naming only one would be inventing.
+
+> The reader **does not tell you which molecule it is**. A set of bands is
+> compatible with many different molecules: the step from spectrum to structure
+> is yours to take, with everything else you know about the sample.
+
+### Choosing the language
+
+The **Languages** section holds **fourteen** languages, with a search field to
+find them quickly: Italian, English, Spanish, French, German, Portuguese, Dutch,
+Polish, Romanian, Greek, Russian, Chinese, Japanese and Arabic. Choosing Arabic
+also flips the page's **direction**, right to left.
+
+Next to it is **Chemical languages**, which is a different thing: it converts a
+molecule among the twenty-five notations chemistry writes it in — SMILES, InChI,
+SMARTS, molfile, XYZ, PDB, CML, the fingerprints — and, for a declared class of
+simple molecules, writes its **IUPAC name**. Outside that class it says so,
+rather than attempting a wrong name.
+
 ### Studying with cards
 
 1. Open the study section
@@ -95,7 +131,7 @@ find the cards that are due.
 
 ### Looking up a drug
 
-Open **Pharmacology**. For each of the 233 drugs you will find the structure,
+Open **Pharmacology**. For each of the 263 drugs you will find the structure,
 molecular weight, mechanism of action, indications, adverse effects and class.
 
 > ⚕️ **For teaching purposes only.** This information does not replace the
@@ -213,4 +249,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v186`._
+_Guide updated to version `bsi-v187`._

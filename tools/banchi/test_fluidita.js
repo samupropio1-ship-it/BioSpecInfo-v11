@@ -50,9 +50,37 @@ const SOGLIE = {
   medianaMs:         40,    /* misurata 15 */
   peggioreMs:       260,    /* misurata 162 — era 1166 */
   oltre100ms:         2,    /* misurate 1 — erano 2 */
-  visore3dMs:        80,    /* misurata 14 — era 797 */
   figureAttese:     296
 };
+
+/* ── Il visore 3D non si misura in millisecondi assoluti ────────────────
+   La soglia era `visore3dMs: 80`, con la misura di 14 ms accanto. Con lo
+   STESSO codice pubblicato, su container diversi, lo stesso click ha misurato
+   14, 22, 98, 105 e 192 ms. Il costo è la compilazione degli shader di 3Dmol,
+   e qui WebGL è **SwiftShader**: un rasterizzatore software. Una soglia
+   assoluta, in quelle condizioni, misura la macchina e non il codice:
+   fallisce dove il codice è identico e passerebbe dove è peggiorato.
+
+   Si è provato a renderla un rapporto su una calibrazione misurata nella
+   stessa esecuzione. Non funziona: quando il banco arriva al visore, WebGL
+   è già stato usato dalla pagina e la calibrazione misura un costo A CALDO
+   (2,9 ms), mentre il visore paga una compilazione A FREDDO. Il rapporto
+   oscillava fra 14× e 36× — cioè non misurava niente di stabile.
+
+   Quello che il controllo deve davvero impedire è STRUTTURALE, non temporale:
+   il difetto da cui si è partiti era il primo `render()` di 3Dmol chiamato
+   DENTRO il gestore del click, che teneva la pagina bloccata 797 ms. Allora
+   si afferma quello, e si afferma nei due versi:
+
+     · subito dopo il ritorno del gestore, nello stesso task, il contesto
+       WebGL NON deve esistere — se esistesse, la compilazione è tornata
+       dentro il click, qualunque sia il tempo sul cronometro;
+     · poco dopo DEVE esistere — altrimenti il click è veloce perché non
+       costruisce niente, che è un peggioramento travestito.
+
+   Resta un tetto assoluto, dichiarato grossolano: serve solo a intercettare
+   una catastrofe, non a misurare la resa. */
+const TETTO_VISORE_MS = 400;
 
 let ok = 0, ko = 0, eseguiti = 0;
 
@@ -89,11 +117,21 @@ function sotto(d, limite, avuto){
   /* ── §1 · Il viewer 3D: veloce ad aprirsi E funzionante ────────────────── */
   console.log('── Viewer 3D PRO ──');
   const visore = await pg.evaluate(() => {
+    const tele = () => {
+      const d = document.getElementById('glviewer3dpro');
+      return d ? d.querySelectorAll('canvas').length : -1;
+    };
     const t0 = performance.now();
     document.querySelector('.nav-btn[data-s="s3dpro"]').click();
-    return { clickMs: Math.round(performance.now() - t0) };
+    /* letto PRIMA di cedere il controllo: siamo ancora nel task del click */
+    const durante = tele();
+    return { clickMs: Math.round(performance.now() - t0), teleDuranteIlClick: durante };
   });
-  sotto('aprire il viewer 3D non blocca la pagina (ms)', SOGLIE.visore3dMs, visore.clickMs);
+  /* il verso che conta: la compilazione degli shader non è dentro il click */
+  att('il click NON costruisce il contesto WebGL (tele create nel gestore)',
+      0, Math.max(0, visore.teleDuranteIlClick));
+  sotto('e il gestore resta sotto il tetto grossolano (ms)',
+        TETTO_VISORE_MS, visore.clickMs);
 
   /* La prova contraria. Un click veloce perche' non costruisce niente
      sarebbe un peggioramento travestito da miglioramento: il viewer deve

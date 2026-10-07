@@ -325,6 +325,15 @@
     componenti:   ['componenti', 'components'],
     composizione: ['composizione in massa', 'mass composition'],
     cml:          ['CML', 'CML'],
+    smilesConH:   ['SMILES con idrogeni', 'SMILES with hydrogens'],
+    scaffold:     ['scheletro di Murcko', 'Murcko scaffold'],
+    scheletroChiave: ['scheletro (1° blocco della chiave)', 'skeleton (1st key block)'],
+    morgan:       ['impronta Morgan (ECFP4)', 'Morgan fingerprint (ECFP4)'],
+    maccs:        ['impronta MACCS', 'MACCS fingerprint'],
+    rdkitFp:      ['impronta RDKit', 'RDKit fingerprint'],
+    coppieAtomi:  ['impronta coppie di atomi', 'atom-pair fingerprint'],
+    torsioni:     ['impronta torsioni topologiche', 'topological torsion fingerprint'],
+    pattern:      ['impronta pattern', 'pattern fingerprint'],
     xyz:          ['XYZ', 'XYZ'],
     pdb:          ['PDB', 'PDB'],
     stereo:       ['stereochimica (CIP)', 'stereochemistry (CIP)'],
@@ -336,8 +345,10 @@
     json:         ['JSON RDKit', 'RDKit JSON']
   };
   var ORDINE = ['formula', 'composizione', 'componenti', 'smiles', 'smilesPiano',
-                'cxsmiles', 'inchi', 'chiaveInchi', 'stereo', 'smarts', 'cxsmarts',
-                'molfile', 'molfileAromatico', 'molfileV3000', 'xyz', 'pdb', 'cml', 'json'];
+                'smilesConH', 'cxsmiles', 'inchi', 'chiaveInchi', 'scheletroChiave',
+                'scaffold', 'stereo', 'smarts', 'cxsmarts', 'molfile', 'molfileAromatico',
+                'molfileV3000', 'xyz', 'pdb', 'cml', 'json',
+                'morgan', 'maccs', 'rdkitFp', 'coppieAtomi', 'torsioni', 'pattern'];
 
   function agganciaConvertitore() {
     var src = document.getElementById('bsiLG-src');

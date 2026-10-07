@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v186` |
+| **Versione descritta** | `bsi-v187` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **91 sezioni**, raggruppate per area di studio.
+L'applicazione conta **92 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -166,7 +166,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 
 ### Una misura che nessun altro banco poteva fare
 
-`verifica-accessibilita` percorre le 91 sezioni e misura ciò che è **visibile**.
+`verifica-accessibilita` percorre le 92 sezioni e misura ciò che è **visibile**.
 I sei pannelli di questa sezione stanno dentro un contenitore che resta
 `display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
 visti, e il suo «contrasto 0» non parlava di loro.
@@ -213,7 +213,7 @@ così la copia cartacea non perde le spiegazioni.
 | Funzione | Descrizione |
 |---|---|
 | **Atlante 3D** | Si sceglie zona del corpo, malattia e farmaco: il modello evidenzia l'organo bersaglio |
-| **Banca dati** | **233 farmaci** con struttura, peso molecolare, meccanismo, indicazioni, effetti avversi, classe |
+| **Banca dati** | **263 farmaci** con struttura, peso molecolare, meccanismo, indicazioni, effetti avversi, classe. Per **36** la voce porta l'identificativo ChEMBL e la formula del record, e la formula viene ricostruita dal grafo e confrontata (§5.1) |
 | **Interazioni** | Verifica delle interazioni fra principi attivi |
 | **Farmacocinetica** | Calcolatore di emivita, clearance, volume di distribuzione |
 | **Casi clinici** | Percorsi diagnosi-terapia a scopo didattico |
@@ -222,6 +222,33 @@ così la copia cartacea non perde le spiegazioni.
 
 Molecole del mezzo interstellare · esopianeti e dati JWST · nebulose · spettri
 stellari · nucleosintesi · chimica cometaria · quiz.
+
+### 3.6-bis Lettore di spettri
+
+Si carica un file dal proprio strumento, o si incolla un testo, e viene letto.
+
+| Funzione | Descrizione |
+|---|---|
+| **Formati** | **JCAMP-DX** (`.jdx`, `.dx`) con compressione **ASDF** completa — PMAI per le cifre, DIF per le differenze, DUP per le ripetizioni — oppure due colonne di numeri separate da spazi, virgole o tabulazioni |
+| **Controllo di integrità** | Il formato JCAMP prevede che, dopo una serie di differenze, il valore scritto per intero coincida con quello calcolato. Qui viene verificato |
+| **Ricerca dei picchi** | Per **prominenza**, con il rumore stimato dalla deviazione assoluta mediana (MAD × 1,4826) e non dalla deviazione standard, che un picco alto gonfia |
+| **Assegnazione IR** | Per ogni banda vengono elencate **tutte** le assegnazioni compatibili fra 24 intervalli, non la prima |
+| **Spettri di massa** | La lista di picchi viene riconosciuta come tale; le differenze fra ioni sono confrontate con 17 **perdite neutre** |
+| **NMR** | Integrazione delle aree per regione di spostamento chimico |
+| **Disegno** | L'IR con i numeri d'onda **decrescenti**, come lo si guarda |
+
+**Quello che non fa, ed è scritto nella sezione:** non deduce la struttura. Un
+insieme di bande è compatibile con molte molecole, e un programma che da tre
+picchi producesse un nome farebbe un'affermazione che i dati non reggono.
+
+### 3.6-ter Lingue e linguaggi chimici
+
+| Funzione | Descrizione |
+|---|---|
+| **Lingua dell'interfaccia** | **14 lingue** con selettore e campo di ricerca: italiano, inglese, spagnolo, francese, tedesco, portoghese, olandese, polacco, romeno, greco, russo, cinese, giapponese, arabo. La copertura di ciascuna è **misurata**, non dichiarata |
+| **Verso di scrittura** | L'arabo porta con sé `dir="rtl"`; tutte le altre `ltr`, anche al ritorno |
+| **Linguaggi chimici** | **25 uscite** da uno SMILES: formula e composizione in massa, SMILES canonico/piano/con idrogeni, CXSMILES, InChI e chiave InChI, scheletro della chiave, scaffold di Murcko, tag stereochimici CIP, SMARTS e CXSMARTS, molfile V2000 (anche aromatico) e V3000, XYZ, PDB, CML, JSON, e le **sei impronte** (Morgan, MACCS, RDKit, coppie di atomi, torsioni topologiche, pattern) |
+| **Nomenclatura IUPAC** | Su una **classe dichiarata** (aciclici, neutri, C H O N F Cl Br I, un solo tipo di gruppo principale, sostituenti lineari). Fuori da quella classe **rifiuta** invece di tentare |
 
 ### 3.7 Strumenti di studio
 
@@ -343,7 +370,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 91 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 92 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
@@ -364,4 +391,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v186`._
+_Documento aggiornato alla versione `bsi-v187`._

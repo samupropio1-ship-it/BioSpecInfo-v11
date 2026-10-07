@@ -712,6 +712,40 @@
 
       prova('smiles', function () { return m.get_smiles(); });
       prova('cxsmarts', function () { return m.get_cxsmarts(); });
+      /* Gli idrogeni espliciti: utili quando si vuole che il grafo li contenga
+         davvero, per esempio prima di un calcolo che li conta uno per uno. */
+      prova('smilesConH', function () {
+        if (typeof m.add_hs !== 'function') return null;
+        var mh = m.add_hs();
+        var out = null;
+        try { out = (typeof mh === 'string') ? null : mh.get_smiles(); } catch (e) {}
+        if (out == null) { try { out = R.get_mol(String(mh)).get_smiles(); } catch (e) {} }
+        try { if (mh && mh.delete) mh.delete(); } catch (e) {}
+        return out;
+      });
+
+      /* ── Le impronte digitali ──────────────────────────────────────────
+         Sei modi diversi di ridurre una molecola a una sequenza di bit, ed è
+         con queste che si cerca, si raggruppa e si predice. Accanto a ognuna
+         si scrive QUANTI bit sono accesi: una stringa di soli zeri è un
+         difetto che a occhio sembra una stringa come un'altra. */
+      [['morgan', 'get_morgan_fp', '{"radius":2,"nBits":2048}'],
+       ['maccs', 'get_maccs_fp', null],
+       ['rdkitFp', 'get_rdkit_fp', '{"nBits":2048}'],
+       ['coppieAtomi', 'get_atom_pair_fp', '{"nBits":2048}'],
+       ['torsioni', 'get_topological_torsion_fp', '{"nBits":2048}'],
+       ['pattern', 'get_pattern_fp', '{"nBits":2048}']].forEach(function (f) {
+        prova(f[0], function () {
+          if (typeof m[f[1]] !== 'function') return null;
+          var bits = f[2] ? m[f[1]](f[2]) : m[f[1]]();
+          if (!bits) return null;
+          var s2 = String(bits), accesi = 0;
+          for (var i = 0; i < s2.length; i++) if (s2[i] === '1') accesi++;
+          esito.impronte = esito.impronte || {};
+          esito.impronte[f[0]] = { lunghezza: s2.length, accesi: accesi, bit: s2 };
+          return s2.length + ' bit, ' + accesi + ' accesi';
+        });
+      });
       /* Lo stesso scheletro senza stereochimica: è ciò che si confronta quando
          si cerca «la stessa molecola a meno di configurazione». Se coincide
          con quello isomerico la riga non serve, e non si scrive. */
@@ -803,6 +837,27 @@
       esito.impossibili.chiaveInIngresso = lingua === 'it'
         ? 'la chiave InChI è un digest: non è invertibile per costruzione'
         : 'the InChI key is a digest: it is not invertible by construction';
+
+      /* Lo scheletro di Murcko: che cosa resta togliendo i sostituenti. È il
+         modo in cui si raggruppano le molecole per famiglia, e lo calcola il
+         motore chemioinformatico dell'app, non questo modulo. */
+      if (globale.BSIChem && typeof globale.BSIChem.scaffoldMurcko === 'function') {
+        prova('scaffold', function () {
+          var sc = globale.BSIChem.scaffoldMurcko(esito.uscite.smiles);
+          if (!sc) return null;
+          /* `chiave` è un'impronta per raggruppare, NON uno SMILES: dirlo
+             evita che qualcuno la incolli in un convertitore */
+          return sc.eUnoSmiles && sc.smiles ? sc.smiles
+               : (sc.chiave ? 'chiave di raggruppamento: ' + sc.chiave : null);
+        });
+      }
+      /* Il primo blocco della chiave InChI è lo scheletro: due molecole che lo
+         condividono sono la stessa struttura a meno di stereochimica. */
+      if (esito.uscite.chiaveInchi) {
+        prova('scheletroChiave', function () {
+          return String(esito.uscite.chiaveInchi).split('-')[0];
+        });
+      }
 
       /* il nome, con la provenienza */
       esito.nome = { locale: null, archivio: null, rete: null };
