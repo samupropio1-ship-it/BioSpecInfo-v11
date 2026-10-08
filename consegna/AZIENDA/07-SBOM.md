@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v194` |
-| Commit | `59422bc470d879dd9cebe39c7c81b8b5c0e4fe6c` |
-| Generato (UTC) | `2026-10-08T07:18:47.976Z` |
+| Versione applicazione | `bsi-v195` |
+| Commit | `a6597f22ceefb5301148958c0f16bab720f4e19c` |
+| Generato (UTC) | `2026-10-08T07:58:18.908Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -69,9 +69,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-geom3d.js` | 46 kB | Coordinate 3D da uno SMILES per geometria delle distanze, con gli stessi indici del predittore NMR: è la condizione del collegamento picco↔atomo↔3D. |
 | `bsi-nmr2d.js` | 21 kB | NMR bidimensionale: COSY, HSQC editato e HMBC, costruiti camminando il grafo sulle due predizioni per atomo. |
 | `bsi-moldraw.js` | 44 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG. |
-| `bsi-documento.js` | 20 kB | Apertura di qualunque documento — PDF, immagini, testo, Word, OpenDocument, PowerPoint, Excel — con l'elenco esplicito di cio' che NON si e' potuto leggere. |
+| `bsi-documento.js` | 23 kB | Apertura di qualunque documento — PDF, immagini, testo, Word, OpenDocument, PowerPoint, Excel — con l'elenco esplicito di cio' che NON si e' potuto leggere. |
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
-| `bsi-spettrolettore.js` | 71 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
+| `bsi-spettrolettore.js` | 72 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
 | `bsi-lingue.js` | 159 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
@@ -86,7 +86,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `437456b01f09d27d277d08984cda83d3b45aa611ecf74f587bbc0b33aa563eeb` |
+| `index.html` | `69e52638f7ca05f5b592ce62a323f1f4b6348df1aaf01a59a8e0c6ad416f840e` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -95,14 +95,14 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
 | `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
 | `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
-| `bsi-documento.js` | `9fa4b6d467456e92cc6673969c788fb1de2cd35aa38969b8975c11834dab030b` |
+| `bsi-documento.js` | `0e9ad6043a396652549b30879764cc401f8b7bd25689b5bb5f37cf26f7d7d8d9` |
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
-| `bsi-spettrolettore.js` | `360022947ec02b8ac463dc3527da5f5e92afbb4a387c64b68d2e27cac2c54d91` |
+| `bsi-spettrolettore.js` | `8377e55e4f8757eda44fa5bfce3f441ec7b23af41498e70113fa981d106fb6ef` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `65c70e50a9c5a4182ce7b775bd73c9652300b64d5d0f219eef8dd9d984762907` |
+| `sw.js` | `8831d541817980463e320eb49a7fdbe2541591e8123e690ed6f08bf3967bdd44` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-08T07:18:47.976Z._
+_Generato il 2026-10-08T07:58:18.908Z._

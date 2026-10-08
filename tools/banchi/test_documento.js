@@ -54,8 +54,16 @@ function sopra(d, limite, avuto) {
                                          viewport: { width: 1300, height: 1000 } })).newPage();
   const err = [];
   pg.on('pageerror', e => err.push(e.message));
+  /* Il primo tentativo di caricare PDF.js su un server che dichiara il tipo
+     sbagliato FALLISCE, e Chrome lo scrive in console: è il guasto che
+     questo banco provoca apposta per verificare la strada di riserva, e
+     contarlo come errore farebbe fallire la prova proprio quando riesce.
+     L'esenzione è stretta — riguarda quel messaggio e basta — e vale solo
+     perché la ripresa viene verificata subito dopo: se la strada di riserva
+     smettesse di funzionare, il PDF non si aprirebbe e il banco lo direbbe. */
+  const MIME_PROVOCATO = /Failed to load module script.*MIME type of "application\/octet-stream"/;
   pg.on('console', m => {
-    if (m.type() === 'error' &&
+    if (m.type() === 'error' && !MIME_PROVOCATO.test(m.text()) &&
         !/Failed to load resource|favicon|wasm streaming compile failed|falling back to ArrayBuffer instantiation/.test(m.text())) {
       err.push('console: ' + m.text());
     }
@@ -249,6 +257,49 @@ function sopra(d, limite, avuto) {
   att('  · con dentro i dati del quesito', true, /1738/.test(docx.contenuto));
   att('  · e lo svolgimento compare', true, docx.svolgimento);
 
+  /* ── IL CASO CHE I BANCHI NON VEDEVANO ───────────────────────────────
+     Un modulo JavaScript si carica solo se il server dichiara il tipo
+     giusto: Chrome rifiuta un `.mjs` servito come `application/octet-stream`
+     e lo dice senza mezzi termini. **GitHub Pages, dove questa applicazione
+     è pubblicata, lo serve sbagliato**; `python3 -m http.server`, su cui
+     girano i banchi, lo serve giusto.
+
+     Risultato: i banchi passavano, i PDF si aprivano in prova, e sul sito
+     vero non si apriva niente. Il guasto stava nell'unica cosa che la prova
+     non riproduceva — il server.
+
+     Qui il tipo sbagliato viene imposto apposta, e si pretende che il PDF si
+     apra lo stesso. È la prova che la strada di riserva (scaricare il file
+     come testo e reimportarlo da un Blob con il tipo corretto) funziona. */
+  console.log('\n── Un server che sbaglia il tipo dei moduli ──');
+  await pg.route('**/vendor/pdfjs/*.mjs', async function (route) {
+    const r = await route.fetch();
+    await route.fulfill({
+      status: r.status(),
+      body: await r.body(),
+      headers: Object.assign({}, r.headers(), { 'content-type': 'application/octet-stream' })
+    });
+  });
+  /* PDF.js si RICORDA di essersi caricato: senza ricaricare la pagina, la
+     prova qui sotto riuserebbe il modulo già in memoria e non proverebbe
+     niente. Il primo PDF, aperto poco fa con il tipo giusto, ha esercitato
+     la strada diretta; questo ricaricamento azzera tutto perché la strada di
+     riserva venga esercitata davvero. */
+  await pg.reload({ waitUntil: 'load' });
+  await pg.waitForTimeout(5000);
+  await pg.evaluate(async () => {
+    const g = document.getElementById('bsi-guide'); if (g) g.remove();
+    document.querySelector('.nav-btn[data-s="sspettrolettore"]').click();
+    await new Promise(r => setTimeout(r, 1200));
+  });
+  const storto = await apri(QUESITI + '/quesito-benzilacetato.pdf');
+  att('il PDF si apre anche se il server dichiara il tipo sbagliato',
+      1, storto.tele);
+  att('  · e il suo testo viene letto lo stesso', true,
+      storto.testo && storto.lungTesto > 200);
+  att('  · e lo svolgimento compare', true, storto.svolgimento);
+  await pg.unroute('**/vendor/pdfjs/*.mjs');
+
   const txt = await apri(QUESITI + '/quesito-benzilacetato.txt');
   att('un file di testo si apre', true, txt.testo);
   att('  · e dà lo stesso svolgimento', true, txt.svolgimento);
@@ -286,9 +337,9 @@ function sopra(d, limite, avuto) {
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 34) {
+  if (eseguiti < 37) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 34');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 37');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

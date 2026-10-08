@@ -7,6 +7,64 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v195] — 2026-10-08
+
+**I PDF non si aprivano sul sito pubblicato.** I banchi passavano, qui
+funzionava tutto, e lì non si apriva niente: il guasto stava nell'unica cosa
+che la prova non riproduceva — **il server**.
+
+### Che cosa succedeva
+
+Un modulo JavaScript si carica con `import()`, e il browser pretende che il
+server dichiari il tipo giusto, `text/javascript`. Non è una formalità, è una
+regola di sicurezza, e Chrome la applica senza eccezioni:
+
+> Failed to load module script: Expected a JavaScript-or-Wasm module script
+> but the server responded with a MIME type of `application/octet-stream`.
+> Strict MIME type checking is enforced for module scripts.
+
+**GitHub Pages serve i file `.mjs` con il tipo sbagliato.** PDF.js, dalla
+versione 6, è distribuito **solo** come modulo `.mjs`. Il server di prova dei
+banchi — `python3 -m http.server` — li serve giusti. Quindi: banchi verdi,
+PDF che si aprivano in prova, e sul sito vero il nulla.
+
+### La riparazione: non dipendere dal tipo che dichiara il server
+
+Si prova `import()` diretto, che è la strada giusta dove il server è
+configurato bene. Se fallisce, il file si scarica come **testo** — `fetch` non
+fa nessun controllo sul tipo — e si reimporta da un **Blob** che porta il tipo
+corretto, creato qui. Il modulo è byte per byte lo stesso: cambia solo chi
+dichiara che cos'è. Lo stesso trattamento vale per il worker.
+
+### Il difetto era nel banco prima che nel codice
+
+Il banco girava su un server che serve i `.mjs` correttamente: non poteva
+vedere il guasto. Ora **impone il tipo sbagliato** e pretende che il PDF si
+apra lo stesso.
+
+E con un dettaglio che mi ha fatto riscrivere la prova: PDF.js **si ricorda**
+di essersi caricato. Messa dopo l'apertura normale, la prova riusava il modulo
+già in memoria e non provava niente. Ora la pagina si **ricarica** in mezzo,
+così la strada diretta e quella di riserva vengono esercitate tutt'e due
+davvero.
+
+### E un messaggio che mentiva
+
+Con un guasto, la riga di stato diceva **«aperto: documento.pdf · 0 parole»**.
+«Aperto» accanto a un conteggio a zero fa credere che il file fosse vuoto,
+mentre non si era aperto affatto. Ora il guasto compare in rosso lì, sotto il
+bottone appena premuto, non solo più in basso in mezzo al resto.
+
+### Riprodotto prima di correggere
+
+La riparazione non è una congettura: il guasto è stato **riprodotto** in
+locale servendo i `.mjs` come `application/octet-stream`, da una sottocartella
+come fa GitHub Pages, con il service worker attivo e su schermo di telefono.
+Prima: «Questo PDF non si è aperto». Dopo: una pagina, ottanta parole, lo
+svolgimento completo. Anche il pulsante delle immagini è stato verificato
+nello stesso ambiente.
+
+---
 ## [bsi-v194] — 2026-10-08
 
 Cercando fonti online per chiudere il punto debole, è saltato fuori un difetto

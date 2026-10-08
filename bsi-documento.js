@@ -50,19 +50,84 @@
   var BASE_PDFJS = './vendor/pdfjs/';
   var _pdfjs = null;
 
-  /* PDF.js si carica SOLO quando serve davvero: sono due megabyte e mezzo, e
+  /* ── Caricare PDF.js su un server che non sa che cosa sia un «.mjs» ─────
+     PDF.js si carica SOLO quando serve davvero: sono due megabyte e mezzo, e
      chi apre il Centro spettroscopico per guardare uno spettro non deve
      pagarli. Il caricamento si ricorda, così aprire il secondo PDF è
-     immediato. */
+     immediato.
+
+     IL PROBLEMA, E PERCHE' NON SI VEDEVA IN PROVA.
+
+     Un modulo JavaScript si carica con `import()`, e il browser pretende che
+     il server dichiari il tipo giusto: `text/javascript`. Non è una
+     formalità — è una regola di sicurezza, e Chrome la applica senza
+     eccezioni:
+
+       «Failed to load module script: Expected a JavaScript-or-Wasm module
+        script but the server responded with a MIME type of
+        "application/octet-stream". Strict MIME type checking is enforced.»
+
+     **GitHub Pages, dove questa applicazione è pubblicata, serve i file
+     `.mjs` con il tipo sbagliato.** Il server di prova — `python3 -m
+     http.server` — li serve giusti. Quindi i banchi passavano, i PDF si
+     aprivano qui, e sul sito vero non si apriva niente: il guasto stava
+     nell'unica cosa che la prova non riproduceva, cioè il server.
+
+     LA SOLUZIONE: non dipendere dal tipo che dichiara il server.
+
+     Si prova `import()` diretto, che è la strada veloce e quella giusta dove
+     il server è configurato bene. Se fallisce, si scarica il file come
+     TESTO — `fetch` non fa nessun controllo sul tipo — e lo si reimporta da
+     un oggetto Blob che porta il tipo corretto, creato qui. Il modulo è
+     byte per byte lo stesso; cambia solo chi dichiara che cos'è.
+
+     Lo stesso vale per il worker, che PDF.js carica per conto suo: anche a
+     lui si passa un Blob invece di un indirizzo.
+
+     Il banco `test_documento` prova tutt'e due i casi servendo apposta il
+     file con il tipo sbagliato. */
+  function perBlob(via, tipo) {
+    return fetch(via).then(function (r) {
+      if (!r.ok) throw new Error(via + ' → HTTP ' + r.status);
+      return r.text();
+    }).then(function (sorgente) {
+      return URL.createObjectURL(new Blob([sorgente],
+        { type: tipo || 'text/javascript' }));
+    });
+  }
+
   function caricaPdfJs() {
     if (_pdfjs) return _pdfjs;
-    _pdfjs = import(BASE_PDFJS + 'pdf.min.mjs').then(function (m) {
-      m.GlobalWorkerOptions.workerSrc = BASE_PDFJS + 'pdf.worker.min.mjs';
-      return m;
-    }).catch(function (e) {
-      _pdfjs = null;                       /* un guasto non si ricorda */
-      throw e;
-    });
+
+    function conWorker(m) {
+      /* Il worker si prova per indirizzo; se anche lui ha il tipo sbagliato
+         PDF.js ricade da solo sul filo principale — più lento, ma funziona.
+         Dargli subito un Blob evita anche quello. */
+      return perBlob(BASE_PDFJS + 'pdf.worker.min.mjs').then(function (u) {
+        m.GlobalWorkerOptions.workerSrc = u;
+        return m;
+      }).catch(function () {
+        m.GlobalWorkerOptions.workerSrc = BASE_PDFJS + 'pdf.worker.min.mjs';
+        return m;
+      });
+    }
+
+    _pdfjs = import(/* webpackIgnore: true */ BASE_PDFJS + 'pdf.min.mjs')
+      .then(conWorker)
+      .catch(function (primo) {
+        /* la strada di riserva: il file va bene, è il tipo dichiarato che no */
+        return perBlob(BASE_PDFJS + 'pdf.min.mjs')
+          .then(function (u) { return import(/* webpackIgnore: true */ u); })
+          .then(conWorker)
+          .catch(function (secondo) {
+            _pdfjs = null;                 /* un guasto non si ricorda */
+            throw new Error(
+              t('PDF.js non si è caricato. Diretto: ', 'PDF.js did not load. Direct: ') +
+              ((primo && primo.message) ? primo.message : String(primo)) +
+              t(' · da Blob: ', ' · via Blob: ') +
+              ((secondo && secondo.message) ? secondo.message : String(secondo)));
+          });
+      });
     return _pdfjs;
   }
 

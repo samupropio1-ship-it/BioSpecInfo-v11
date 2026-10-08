@@ -1304,9 +1304,19 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
         globale.BSIDocumento.leggi(f).then(function (d) {
           documentoCorrente = d;
           if (stato) {
-            stato.textContent = t('aperto: ', 'opened: ') + d.nome + ' · ' +
-              (d.pagine.length ? d.pagine.length + t(' pagine · ', ' pages · ') : '') +
-              d.nParole + t(' parole', ' words');
+            /* Con un guasto lo stato diceva «aperto: … 0 parole»: la parola
+               «aperto» accanto a un conteggio a zero fa credere che il file
+               fosse vuoto, mentre non si era aperto affatto. Il guasto va
+               detto qui, sotto il bottone che si è appena premuto, non solo
+               più in basso in mezzo al resto. */
+            if (d.errore) {
+              stato.innerHTML = '<span style="color:#ff8fa3">⚠ ' + esc(d.errore) +
+                '</span>';
+            } else {
+              stato.textContent = t('aperto: ', 'opened: ') + d.nome + ' · ' +
+                (d.pagine.length ? d.pagine.length + t(' pagine · ', ' pages · ') : '') +
+                d.nParole + t(' parole', ' words');
+            }
           }
           var out = document.getElementById('bsiSP-docOut');
           if (!out) return;

@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v194` |
-| Commit | `59422bc470d879dd9cebe39c7c81b8b5c0e4fe6c` |
-| Generated (UTC) | `2026-10-08T07:18:47.976Z` |
+| Application version | `bsi-v195` |
+| Commit | `a6597f22ceefb5301148958c0f16bab720f4e19c` |
+| Generated (UTC) | `2026-10-08T07:58:18.908Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -69,9 +69,9 @@ availability.
 | `bsi-geom3d.js` | 46 kB | 3D coordinates from a SMILES by distance geometry, carrying the NMR predictor's own atom indices: the precondition for the peak↔atom↔3D link. |
 | `bsi-nmr2d.js` | 21 kB | Two-dimensional NMR: COSY, edited HSQC and HMBC, built by walking the graph over the two per-atom predictions. |
 | `bsi-moldraw.js` | 44 kB | Interactive NMR spectrum: zoom, assignment table, peak↔atom link, SMILES/InChI history, CSV/JCAMP-DX/PNG exports. |
-| `bsi-documento.js` | 20 kB | Opening of any document — PDF, images, text, Word, OpenDocument, PowerPoint, Excel — with an explicit list of what could NOT be read. |
+| `bsi-documento.js` | 23 kB | Opening of any document — PDF, images, text, Word, OpenDocument, PowerPoint, Excel — with an explicit list of what could NOT be read. |
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
-| `bsi-spettrolettore.js` | 71 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
+| `bsi-spettrolettore.js` | 72 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
 | `bsi-lingue.js` | 159 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
@@ -86,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `437456b01f09d27d277d08984cda83d3b45aa611ecf74f587bbc0b33aa563eeb` |
+| `index.html` | `69e52638f7ca05f5b592ce62a323f1f4b6348df1aaf01a59a8e0c6ad416f840e` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -95,14 +95,14 @@ availability.
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
 | `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
 | `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
-| `bsi-documento.js` | `9fa4b6d467456e92cc6673969c788fb1de2cd35aa38969b8975c11834dab030b` |
+| `bsi-documento.js` | `0e9ad6043a396652549b30879764cc401f8b7bd25689b5bb5f37cf26f7d7d8d9` |
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
-| `bsi-spettrolettore.js` | `360022947ec02b8ac463dc3527da5f5e92afbb4a387c64b68d2e27cac2c54d91` |
+| `bsi-spettrolettore.js` | `8377e55e4f8757eda44fa5bfce3f441ec7b23af41498e70113fa981d106fb6ef` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
 | `bsi-lingue.js` | `588beac68e5ea9fcfdc430a3b56290eb61df509a41c507aa24ba8c146a809431` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `65c70e50a9c5a4182ce7b775bd73c9652300b64d5d0f219eef8dd9d984762907` |
+| `sw.js` | `8831d541817980463e320eb49a7fdbe2541591e8123e690ed6f08bf3967bdd44` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-08T07:18:47.976Z._
+_Generated on 2026-10-08T07:58:18.908Z._
