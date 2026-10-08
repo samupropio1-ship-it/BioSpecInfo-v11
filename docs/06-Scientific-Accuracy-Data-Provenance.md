@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v192` |
+| **Versione descritta** | `bsi-v193` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -753,6 +753,62 @@ contiene pixel, non lettere: il testo non si legge, e il modulo lo dichiara
 invece di restituire una stringa vuota come se il documento fosse vuoto. Le
 pagine restano visibili, e da lì passa l'estrazione della traccia dai pixel.
 
+### 3.10 I due punti in cui il predittore cede, misurati
+
+Dichiarare «scarto medio 1,0 ppm» e fermarsi lì nasconde la cosa che serve
+davvero sapere: *dove* sbaglia. Sono due posti, e si conoscono per misura.
+
+#### a) Gli eteroaromatici sostituiti — manca la tabella, non il metodo
+
+Per i benzeni la fonte dà gli incrementi di sostituente per posizione; per
+furano, tiofene, pirrolo e piridina **non li dà**. Un eteroaromatico
+sostituito riceve quindi i valori del composto *non* sostituito, e i suoi
+carboni β risultano tutti uguali quando nella realtà non lo sono.
+
+Misurato sul quesito del 23/04/2024 (struttura `O=CC(=Cc1ccco1)CSC`):
+
+| osservato | previsto | scarto | che carbonio è |
+|---:|---:|---:|---|
+| 192,04 | 192,0 | 0,04 | CHO |
+| 150,77 | 150,0 | 0,77 | C α del furano, sostituito |
+| 146,05 | 142,7 | **3,35** | C α del furano |
+| 135,55 | 135,0 | 0,55 | =C |
+| 135,05 | 135,0 | 0,05 | =C |
+| 118,55 | 109,6 | **8,95** | C β del furano |
+| 112,97 | 109,6 | **3,37** | C β del furano |
+| 26,67 | 34,0 | **7,33** | CH₂ fra C=C e S |
+| 15,72 | 15,6 | 0,12 | S–CH₃ |
+
+I due carboni β escono **identici** (109,6) perché senza incrementi di
+posizione non c'è niente che li distingua. **Si è provato** a trasferire gli
+incrementi del benzene all'anello eteroaromatico: sul carbonio *ipso*
+funziona (151,6 contro 150,77 misurato), ma sui β **peggiora** — il C3
+passerebbe da 3,4 a 5,7 ppm di scarto. Non è stato fatto: una
+generalizzazione che peggiora dove il problema sta non è una
+generalizzazione.
+
+#### b) Un carbonio sp³ con DUE sostituenti in α
+
+Gli incrementi sono ricavati da composti **mono**-sostituiti. Sommandone due
+sullo stesso carbonio si conta due volte un effetto che in realtà satura, e
+la previsione esce alta. Misurato due volte, stessa entità e stesso verso:
+
+| molecola | carbonio | osservato | previsto | scarto |
+|---|---|---:|---:|---:|
+| acetato di benzile | OCH₂ (O estereo + anello) | 66,3 | 73,8 | **7,5** |
+| il quesito qui sopra | CH₂ (C=C + S) | 26,7 | 34,0 | **7,3** |
+
+È il caso peggiore dichiarato del modulo, e l'acetato di benzile è entrato
+nell'insieme di validazione proprio per tenerlo misurato.
+
+**Lo strumento di confronto lo dice.** Quando una struttura proposta contiene
+un carbonio del genere, la fiducia scende da «alta» a «media» e compare il
+motivo: *un segnale che non torna su quel carbonio può essere un limite del
+predittore, non una prova contro la struttura*. Senza quell'avviso, un
+punteggio basso su una struttura **giusta** verrebbe letto come una
+smentita — ed è esattamente quello che succedeva all'acetato di benzile, che
+prende 42 su 100 pur essendo la risposta.
+
 ---
 
 ## 4. Costanti fisiche e dati tabulati
@@ -806,4 +862,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v192`._
+_Documento aggiornato alla versione `bsi-v193`._

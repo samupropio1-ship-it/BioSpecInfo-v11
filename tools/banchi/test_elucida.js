@@ -128,6 +128,30 @@ const IDI = [
     out.furano = { punteggio: fur.punteggio, fiducia: fur.fiducia,
                    motivi: (fur.perche || []).length, formula: fur.formulaCoincide };
 
+    /* ── L'ALTRO caso che il predittore non sa trattare ──────────────────
+       Un carbonio sp3 con DUE sostituenti in α. Misurato due volte, sempre
+       nello stesso verso e della stessa entità: l'OCH₂ dell'acetato di
+       benzile esce a 73,8 contro 66,3, e il CH₂ di un solfuro allilico a
+       34,0 contro 26,7. Gli incrementi vengono da composti MONO-sostituiti
+       e, sommati, contano due volte un effetto che satura.
+
+       Senza l'avviso, quel segnale che non torna fa perdere punti a una
+       struttura GIUSTA e il punteggio basso sembra dire il contrario. */
+    out.dueAlfa = ['CC(=O)OCc1ccccc1', 'OCc1ccccc1', 'COCc1ccccc1']
+      .map(function (smi) {
+        const r = E.confronta(smi, { formula: 'C9H10O2', c13: '170.9 128.6 66.3 21.0' });
+        return { smi: smi, fiducia: r.fiducia,
+                 avvisa: (r.perche || []).some(function (p) { return /due sostituenti|TWO/i.test(p); }) };
+      });
+    /* e il verso opposto: dove il carbonio ha UN solo sostituente in α,
+       l'avviso NON deve comparire — altrimenti diventa rumore e si ignora */
+    out.unAlfa = ['CCO', 'Cc1ccccc1', 'CCOC(C)=O', 'C1CCCCC1', 'CC(C)=O', 'CCCCO']
+      .map(function (smi) {
+        const r = E.confronta(smi, { formula: 'C2H6O', c13: '58.0 18.2' });
+        return { smi: smi, fiducia: r.fiducia,
+                 avvisa: (r.perche || []).some(function (p) { return /due sostituenti|TWO/i.test(p); }) };
+      });
+
     /* i rifiuti */
     out.rifiuti = {
       smilesRotto: E.confronta('non e uno smiles', { formula: 'C6H6', c13: '128.5' }).errore ? 'errore' : 'nessuno',
@@ -200,6 +224,21 @@ const IDI = [
      non ha incrementi di posizione per gli eteroaromatici sostituiti. Lo
      strumento deve DIRLO: un punteggio basso senza spiegazione farebbe
      scartare la risposta corretta. */
+  console.log('\n── Il carbonio con due sostituenti in α ──');
+  /* Un avviso che non compare dove serve è inutile; uno che compare
+     dappertutto è rumore. Si verificano tutt'e due le cose. */
+  const senzaAvviso = r.dueAlfa.filter(function (x) { return !x.avvisa; });
+  att('dove un carbonio ha DUE sostituenti in α, lo strumento avvisa',
+      0, senzaAvviso.length);
+  senzaAvviso.forEach(function (x) { console.log('      ! ' + x.smi + ' non avvisa'); });
+  att('  · e la fiducia non resta «alta»', 0,
+      r.dueAlfa.filter(function (x) { return x.fiducia === 'alta'; }).length);
+  const conAvviso = r.unAlfa.filter(function (x) { return x.avvisa; });
+  att('dove ne ha UNO solo, NON avvisa', 0, conAvviso.length);
+  conAvviso.forEach(function (x) { console.log('      ! ' + x.smi + ' avvisa a sproposito'); });
+  att('  · e la fiducia resta «alta»', r.unAlfa.length,
+      r.unAlfa.filter(function (x) { return x.fiducia === 'alta'; }).length);
+
   att('la formula della struttura giusta coincide', true, r.furano.formula);
   att('il punteggio è basso', true, r.furano.punteggio < 70);
   att('ma la fiducia è dichiarata BASSA', 'bassa', r.furano.fiducia);

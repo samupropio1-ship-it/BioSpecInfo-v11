@@ -78,7 +78,13 @@ const VALIDAZIONE = [
      quindi la misura giusta su cui farsi giudicare. */
   ['benzoato di etile', 'CCOC(=O)c1ccccc1', [166.6, 133.0, 130.4, 129.6, 128.3, 60.9, 14.3]],
   ['acetofenone', 'CC(=O)c1ccccc1', [198.1, 137.1, 133.1, 128.6, 128.3, 26.6]],
-  ['4-metossiacetofenone', 'COc1ccc(cc1)C(C)=O', [196.8, 163.5, 130.6, 113.7, 55.5, 26.3]],
+  /* Sette valori, non sei: il 4-metossiacetofenone ha sette carboni
+     distinti e nella lista ne mancava uno — il C1 dell'anello, quello che
+     porta l'acetile, a 130,3. Il banco stampava «segnali 7/6» a ogni
+     esecuzione e nessuno ci faceva caso: un conteggio che non torna, in un
+     banco che serve a far tornare i conteggi. */
+  ['4-metossiacetofenone', 'COc1ccc(cc1)C(C)=O',
+   [196.8, 163.5, 130.6, 130.3, 113.7, 55.5, 26.3]],
   ['butanoato di etile', 'CCCC(=O)OCC', [173.7, 60.2, 36.2, 18.5, 14.3, 13.7]],
   ['isobutano', 'CC(C)C', [25.0, 24.3]],
   /* Trovato dal banco dei documenti, non da qui: nel quesito del

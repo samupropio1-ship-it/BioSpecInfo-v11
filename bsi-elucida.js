@@ -695,15 +695,18 @@
       var mm = null;
       try { mm = globale.__rdkit.get_mol(String(smiles)); } catch (e) { mm = null; }
       if (mm) {
-        var q = null, eteroSost = false;
-        try {
-          q = globale.__rdkit.get_qmol('[c;r5,r6;$(c:[o,s,nX2,nX3H1])]!@[!#1]');
-          var mt = mm.get_substruct_matches(q);
-          eteroSost = !!(mt && mt !== '{}' && JSON.parse(mt).length);
-        } catch (e) { eteroSost = false; }
-        if (q) { try { q.delete(); } catch (e) {} }
-        try { mm.delete(); } catch (e) {}
-        if (eteroSost) {
+        function haMotivo(smarts) {
+          var q = null, c = false;
+          try {
+            q = globale.__rdkit.get_qmol(smarts);
+            var mt = mm.get_substruct_matches(q);
+            c = !!(mt && mt !== '{}' && JSON.parse(mt).length);
+          } catch (e) { c = false; }
+          if (q) { try { q.delete(); } catch (e) {} }
+          return c;
+        }
+
+        if (haMotivo('[c;r5,r6;$(c:[o,s,nX2,nX3H1])]!@[!#1]')) {
           fiducia = 'bassa';
           perche.push(t('la struttura contiene un eteroaromatico SOSTITUITO, e per ' +
                         'quelli il predittore non ha incrementi di posizione: pu\u00f2 ' +
@@ -712,6 +715,40 @@
                         'the predictor has no positional increments: it can be off by ' +
                         '8-10 ppm on the ring carbons'));
         }
+
+        /* ── Un carbonio sp3 con DUE sostituenti in α ────────────────────
+           È il punto in cui uno schema additivo cede di più, e si è visto
+           due volte misurando: l'OCH₂ dell'acetato di benzile (ossigeno
+           estereo + anello) esce a 73,8 contro i 66,3 misurati, e il CH₂ di
+           un solfuro allilico (C=C + zolfo) a 34,0 contro 26,7. Sette ppm e
+           mezzo in tutt'e due i casi, nello stesso verso: gli incrementi
+           sono ricavati da composti MONO-sostituiti e, sommati, contano due
+           volte un effetto che in realtà satura.
+
+           Perché dirlo qui e non solo nel pannello: in un confronto,
+           quel carbonio risulta «senza corrispondenza» e fa perdere punti a
+           una struttura che è GIUSTA. Chi legge deve sapere che quel segnale
+           che non torna può essere un limite del predittore e non una prova
+           contro la struttura — e senza questo avviso il punteggio basso
+           sembrerebbe dire il contrario. */
+        if (haMotivo('[CX4;!$([CX4]([#6])([#6])([#6])[#6])]' +
+                     '(~[!#1;!$([CX4H3]);!$([CX4H2][CX4])])' +
+                     '~[!#1;O,N,S,F,Cl,Br,I,$([CX3]=[!#6]),$([CX3]=[CX3]),a,$([CX2]#*)]')) {
+          if (fiducia === 'alta') fiducia = 'media';
+          perche.push(t('la struttura ha un carbonio sp\u00b3 con DUE sostituenti in \u03b1 ' +
+                        '(per esempio un eteroatomo e un anello): l\u00ec lo schema additivo ' +
+                        'somma due effetti che in realt\u00e0 saturano e sovrastima di ' +
+                        '7-8 ppm \u2014 misurato. Un segnale che non torna su quel carbonio ' +
+                        'pu\u00f2 essere un limite del predittore, non una prova contro la ' +
+                        'struttura',
+                        'the structure has an sp\u00b3 carbon with TWO \u03b1 substituents ' +
+                        '(an oxygen and a ring, for instance): there the additive scheme ' +
+                        'adds two effects that in fact saturate, and overestimates by ' +
+                        '7-8 ppm \u2014 measured. A signal that does not fit on that carbon ' +
+                        'may be a limit of the predictor, not evidence against the ' +
+                        'structure'));
+        }
+        try { mm.delete(); } catch (e) {}
       }
     }
     esito.fiducia = fiducia;

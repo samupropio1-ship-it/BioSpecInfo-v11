@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v192` |
+| **Version** | `bsi-v193` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v192` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v193` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -79,10 +79,10 @@ pass.
 | **D-03** | ~~SEC-02 verified only by proxy~~ — **remedied**: see S-10 | — | `audit_rete` observes the traffic during real use, with a canary value seeded into the user's own data |
 | **D-04** | ~~The File Manager password in the git history~~ — **remedied**: see S-12 | — | The password was **changed** at version `bsi-v188`. The old one is still readable in the history and no longer opens anything |
 | **D-06** | Code coverage **measured but partial**: 49.89 % of statements, not branches | It is the coverage of the widest path a bench walks (92 sections plus the other pages), not of the whole battery; and an `if` entered from one side only counts as covered | `audit_copertura` measures it with Chromium's profiler, with no build and without rewriting the source. The value is **recorded**: if it falls, the battery fails |
-| **D-07** | Verification on Chromium only | Firefox and WebKit are tested by hand | Declared in `docs/08` §8. In the verification environment the reason is checkable: the CDN from which `playwright-core` downloads the other engines answers **403** to the network policy, so Firefox and WebKit cannot be installed there |
+| **D-07** | Verification on Chromium only | Firefox and WebKit are tested by hand | Declared in `docs/08` §8. In the verification environment the reason is checkable: the CDN from which `playwright-core` downloads the other engines answers **403** to the network policy, so Firefox and WebKit cannot be installed there. **Re-verified on 2026-10-08**: `npx playwright install firefox` fails with «Download failure», and `cdn.playwright.dev` still answers 403 to the tunnel. It is not a choice, it is a constraint of the environment, and it stands |
 | **D-08** | ~~Partial English translation~~ — **remedied**: see S-13 | — | All **16 documents** are in English. `verifica-documenti` and `verifica-affermazioni` read `docs/en/` just like the Italian set: a disagreement between the two languages fails the battery |
 | **D-09** | Full WCAG 2.1 AA conformance not verifiable entirely by automation | What stays outside is text inside SVGs (8,888 elements), text over a real background **image** (108) and everything requiring human judgement. Text over a **gradient** has entered the measurement: 591 elements, judged against the worst stop of the gradient | The skipped elements are **counted** and reported on every run |
-| **D-10** | The `bsi-v181` tag points at the wrong commit | The release workflow, started without filling in the version field, used its own default — `bsi-v181` — and, being rerunnable by design, **moved that tag** from commit `cb0cf03` to the `bsi-v188` one, also attaching the v187 packages to it. The foreign assets were removed. **The tag cannot be moved back by an app**: GitHub refuses to let an app write a ref pointing at a commit whose `.github/workflows/*` differs from the current one, and at `cb0cf03` that file differs by 319 lines. Three routes were tried, all blocked by the same rule: `git push --force` («refusing to allow a GitHub App to create or update workflow»), `PATCH /git/refs` with `force` (403), and delete-and-recreate — where the **403 already lands on creating a throwaway tag** at that commit, so the real tag was left untouched. `GITHUB_TOKEN` cannot be granted the `workflows` permission | The three packages attached to the release are the correct ones; the «Source code (zip)» archive must be ignored, and the `bsi-v181` code is downloadable from commit `cb0cf03`. Declared in the CHANGELOG's `bsi-v181` entry and in the release body, with the command that restores the tag from personal credentials. The default was removed and the workflow now **refuses** a version that does not match `sw.js` and the package filenames — verified both ways |
+| **D-10** | The `bsi-v181` tag points at the wrong commit | The release workflow, started without filling in the version field, used its own default — `bsi-v181` — and, being rerunnable by design, **moved that tag** from commit `cb0cf03` to the `bsi-v188` one, also attaching the v187 packages to it. The foreign assets were removed. **The tag cannot be moved back by an app**: GitHub refuses to let an app write a ref pointing at a commit whose `.github/workflows/*` differs from the current one, and at `cb0cf03` that file differs by 319 lines. Three routes were tried, all blocked by the same rule: `git push --force` («refusing to allow a GitHub App to create or update workflow»), `PATCH /git/refs` with `force` (403), and delete-and-recreate — where the **403 already lands on creating a throwaway tag** at that commit, so the real tag was left untouched. `GITHUB_TOKEN` cannot be granted the `workflows` permission. **Re-verified on 2026-10-08** with the session's own GitHub client, which uses a different credential: `PATCH /git/refs/tags/bsi-v181` answers **403 «Write access to this GitHub API path is not permitted through this proxy»**. It is a second block, independent of the first: even without the workflow-file rule, writing to git refs does not get through. The tag points at `64e8c316`; it should point at `cb0cf03e` | The three packages attached to the release are the correct ones; the «Source code (zip)» archive must be ignored, and the `bsi-v181` code is downloadable from commit `cb0cf03`. Declared in the CHANGELOG's `bsi-v181` entry and in the release body, with the command that restores the tag from personal credentials. The default was removed and the workflow now **refuses** a version that does not match `sw.js` and the package filenames — verified both ways |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -247,4 +247,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v192`._
+_Version `bsi-v193`._

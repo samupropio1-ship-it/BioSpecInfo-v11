@@ -7,6 +7,78 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v193] — 2026-10-08
+
+I problemi rimasti, affrontati uno per uno: due chiusi, uno **misurato invece
+che asserito**, e due bloccati dall'ambiente — con la prova di oggi.
+
+### Il secondo punto in cui il predittore cede, trovato misurando
+
+Finora era dichiarato un solo punto debole: gli eteroaromatici sostituiti.
+Misurando il quesito del furano carbonio per carbonio ne è saltato fuori un
+altro, che **non c'entra niente con gli eteroaromatici**:
+
+| molecola | carbonio | osservato | previsto | scarto |
+|---|---|---:|---:|---:|
+| acetato di benzile | OCH₂ (O estereo + anello) | 66,3 | 73,8 | **7,5** |
+| il quesito del furano | CH₂ (C=C + S) | 26,7 | 34,0 | **7,3** |
+
+Un carbonio sp³ con **due sostituenti in α**. Gli incrementi sono ricavati da
+composti *mono*-sostituiti: sommandone due si conta due volte un effetto che
+in realtà satura. Due misure indipendenti, stessa entità e stesso verso.
+
+**Perché conta, e non è solo una curiosità.** In un confronto struttura↔dati
+quel carbonio risulta «senza corrispondenza» e fa **perdere punti a una
+struttura giusta**: l'acetato di benzile, che *è* la risposta, prende 42 su
+100. Senza spiegazione, quel punteggio si legge come una smentita.
+
+Ora lo strumento lo dice: la fiducia scende da «alta» a «media» e compare il
+motivo — *un segnale che non torna su quel carbonio può essere un limite del
+predittore, non una prova contro la struttura*. Provato nei due versi: avvisa
+su tre strutture che hanno quel carbonio, e **tace** su sei che non ce
+l'hanno, perché un avviso che compare dappertutto è rumore e si impara a
+ignorarlo.
+
+### Gli eteroaromatici: la scorciatoia è stata provata, e peggiora
+
+La tabella degli incrementi di posizione per furano, tiofene, pirrolo e
+piridina **non esiste** nella fonte, e non è stata trovata altrove: NIST è
+irraggiungibile da qui e SpectraBase è dietro un accesso. Costruirla a memoria
+sarebbe stato il contrario di tutto il resto di questo progetto.
+
+La scorciatoia ovvia — **trasferire gli incrementi del benzene** all'anello
+eteroaromatico — è stata provata sul caso che abbiamo: sul carbonio *ipso*
+funziona (151,6 contro 150,77 misurato), ma sui carboni β **peggiora**, da 3,4
+a 5,7 ppm di scarto. Non è stata adottata. Una generalizzazione che peggiora
+proprio dove sta il problema non è una generalizzazione.
+
+Quello che c'è ora è la **misura**, carbonio per carbonio, nel documento 06: i
+due β del furano escono identici (109,6) contro 118,55 e 112,97, e si vede
+perché. «Fiducia bassa» smette di essere un'affermazione e diventa un numero.
+
+### Un dato sbagliato nel mio stesso banco
+
+Il 4-metossiacetofenone ha **sette** carboni distinti e nella lista di
+riferimento ne figuravano sei: mancava il C1 dell'anello, a 130,3. Il banco
+stampava «segnali 7/6» a ogni esecuzione — un conteggio che non torna, dentro
+un banco che serve a far tornare i conteggi — e nessuno ci faceva caso.
+
+### D-07 e D-10: riverificati oggi, entrambi bloccati
+
+Non per inerzia: riprovati, e il registro delle difformità lo dice con la
+prova di oggi.
+
+- **D-07** (verifica solo su Chromium): `npx playwright install firefox`
+  fallisce con «Download failure», e `cdn.playwright.dev` risponde ancora
+  **403** al tunnel. Vincolo dell'ambiente, non una scelta.
+- **D-10** (il tag `bsi-v181`): riprovato con il client GitHub della sessione,
+  che usa una credenziale **diversa** da quella che aveva fallito.
+  `PATCH /git/refs/tags/bsi-v181` risponde **403 «Write access to this GitHub
+  API path is not permitted through this proxy»**. È un secondo blocco,
+  indipendente dal primo: anche senza la regola sui file di workflow, la
+  scrittura sui riferimenti git non passa.
+
+---
 ## [bsi-v192] — 2026-10-07
 
 Nel lettore di spettri si apre **qualunque documento** — un PDF, la fotografia

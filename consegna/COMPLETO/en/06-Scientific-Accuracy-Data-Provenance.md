@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v192` |
+| **Version described** | `bsi-v193` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -696,6 +696,61 @@ not letters: the text cannot be read, and the module declares it rather than
 returning an empty string as if the document were empty. The pages stay
 visible, and that is where pixel trace extraction takes over.
 
+### 3.10 The two places where the predictor gives way, measured
+
+Declaring "mean deviation 1.0 ppm" and stopping there hides what one actually
+needs to know: *where* it is wrong. There are two places, and they are known by
+measurement.
+
+#### a) Substituted heteroaromatics — the table is missing, not the method
+
+For benzenes the source gives positional substituent increments; for furan,
+thiophene, pyrrole and pyridine it **does not**. A substituted heteroaromatic
+therefore gets the values of the *un*substituted parent, and its β carbons all
+come out equal when in reality they are not.
+
+Measured on the 23/04/2024 problem (structure `O=CC(=Cc1ccco1)CSC`):
+
+| observed | predicted | deviation | which carbon |
+|---:|---:|---:|---|
+| 192.04 | 192.0 | 0.04 | CHO |
+| 150.77 | 150.0 | 0.77 | furan α-C, substituted |
+| 146.05 | 142.7 | **3.35** | furan α-C |
+| 135.55 | 135.0 | 0.55 | =C |
+| 135.05 | 135.0 | 0.05 | =C |
+| 118.55 | 109.6 | **8.95** | furan β-C |
+| 112.97 | 109.6 | **3.37** | furan β-C |
+| 26.67 | 34.0 | **7.33** | CH₂ between C=C and S |
+| 15.72 | 15.6 | 0.12 | S–CH₃ |
+
+The two β carbons come out **identical** (109.6) because without positional
+increments nothing distinguishes them. Transferring the benzene increments to
+the heteroaromatic ring **was tried**: on the *ipso* carbon it works (151.6
+against 150.77 measured), but on the β carbons it makes things **worse** — C3
+would go from 3.4 to 5.7 ppm of deviation. It was not done: a generalisation
+that gets worse exactly where the problem is, is not a generalisation.
+
+#### b) An sp³ carbon with TWO α substituents
+
+The increments are derived from **mono**-substituted compounds. Adding two of
+them on the same carbon counts twice an effect that in fact saturates, and the
+prediction comes out high. Measured twice, same magnitude and same direction:
+
+| molecule | carbon | observed | predicted | deviation |
+|---|---|---:|---:|---:|
+| benzyl acetate | OCH₂ (ester O + ring) | 66.3 | 73.8 | **7.5** |
+| the problem above | CH₂ (C=C + S) | 26.7 | 34.0 | **7.3** |
+
+It is the module's declared worst case, and benzyl acetate entered the
+validation set precisely to keep it measured.
+
+**The comparison tool says so.** When a proposed structure contains such a
+carbon, confidence drops from "high" to "medium" and the reason appears: *a
+signal that does not fit on that carbon may be a limit of the predictor, not
+evidence against the structure*. Without that warning, a low score on a
+**correct** structure would read as a refutation — which is exactly what
+happened to benzyl acetate, which scores 42 out of 100 while being the answer.
+
 ---
 
 ## 4. Physical constants and tabulated data
@@ -748,4 +803,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v192`._
+_Document updated to version `bsi-v193`._
