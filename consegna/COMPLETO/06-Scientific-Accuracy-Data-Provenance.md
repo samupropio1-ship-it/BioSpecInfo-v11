@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v193` |
+| **Versione descritta** | `bsi-v194` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -809,6 +809,50 @@ punteggio basso su una struttura **giusta** verrebbe letto come una
 smentita — ed è esattamente quello che succedeva all'acetato di benzile, che
 prende 42 su 100 pur essendo la risposta.
 
+### 3.11 Che cosa si è potuto consultare, e che cosa no
+
+Una tabella di incrementi per gli eteroaromatici sostituiti chiuderebbe il
+punto debole descritto sopra. **Dalla macchina in cui questo progetto si
+compila non è raggiungibile nessuna fonte primaria**, e la cosa è stata
+verificata, non supposta:
+
+| via | esito |
+|---|---|
+| `curl` verso qualunque dominio | la politica di rete consente **solo** i registri di pacchetti (npm, PyPI, crates, Go) — lo dichiara il proxy stesso |
+| NIST WebBook, SDBS (AIST), PubChem, SpectraBase | **403**, bloccati |
+| CSIRO, RSC, ACS, Springer, Wikipedia, LibreTexts | **403**, bloccati |
+| le tabelle di Hans Reich (`organicchemistrydata.org`, `chem.wisc.edu`) | **403**, bloccati |
+| NMRShiftDB2 (`nmrshiftdb.nmr.uni-koeln.de`) | **403**, bloccato |
+| PubMed (via il suo servizio) | nessun risultato: indicizza il biomedico, non la chimica pura |
+| npm e PyPI | nessun pacchetto ridistribuisce una banca dati NMR di riferimento: `nmr-predictor` la **scarica** da GitHub, che è bloccato; `nmr-processing` non la contiene |
+
+**Quello che la ricerca testuale ha potuto accertare** è *dove* sta il dato,
+e questo è un risultato utile anche senza averlo in mano:
+
+> M. T. W. Hearn, «Carbon-13 chemical shifts in some substituted furans and
+> thiophens», *Australian Journal of Chemistry* **29**(1), 107–113 (1976).
+> DOI [10.1071/CH9760107](https://doi.org/10.1071/CH9760107)
+
+L'abstract dichiara che «gli effetti dei sostituenti in questi eterocicli
+**assomigliano** a quelli riportati per i benzeni sostituiti». *Assomigliano*
+non vuol dire *coincidono*: trasferire gli incrementi del benzene è stato
+provato (§3.10 a) e sui carboni β peggiora. La tabella vera serve ancora.
+
+**Perché non è stata scritta a memoria.** Sarebbe stato facile: quei numeri
+sono noti. Ma un valore che nessuno può risalire a una fonte è esattamente
+ciò che questo documento esiste per impedire, e metterlo in una tabella
+accanto a novantuno righe trascritte da una pagina stampata renderebbe meno
+credibili anche quelle. **Il buco dichiarato vale più di un buco tappato male.**
+
+#### Una riga di validazione con provenienza più debole
+
+Per onestà va detto anche questo: l'acetato di benzile, entrato nell'insieme
+di validazione perché mostra il punto debole dei due sostituenti in α, porta
+valori **non verificati contro una fonte primaria** da questo ambiente. Il
+fenomeno che mostra è confermato in modo indipendente dal quesito d'esame del
+23/04/2024 — dato di provenienza vera — ma il **caso peggiore dichiarato
+(7,5 ppm) poggia su quella riga**, ed è scritto nel banco a chiare lettere.
+
 ---
 
 ## 4. Costanti fisiche e dati tabulati
@@ -862,4 +906,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v193`._
+_Documento aggiornato alla versione `bsi-v194`._

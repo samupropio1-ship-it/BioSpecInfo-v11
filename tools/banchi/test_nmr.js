@@ -87,12 +87,24 @@ const VALIDAZIONE = [
    [196.8, 163.5, 130.6, 130.3, 113.7, 55.5, 26.3]],
   ['butanoato di etile', 'CCCC(=O)OCC', [173.7, 60.2, 36.2, 18.5, 14.3, 13.7]],
   ['isobutano', 'CC(C)C', [25.0, 24.3]],
-  /* Trovato dal banco dei documenti, non da qui: nel quesito del
-     benzilacetato il confronto struttura↔dati segnalava che l'OCH₂ a 66,3
-     non trovava corrispondenza. Un carbonio con DUE sostituenti in α — un
-     ossigeno estereo e un anello aromatico — è il punto in cui uno schema
-     additivo sbaglia di più, e la molecola entra in validazione proprio
-     perché mostra dove cede. */
+  /* ── Questa riga ha una provenienza PIU' DEBOLE delle altre ───────────
+     Le molecole qui sopra portano valori presi dal manuale di Metodi Fisici
+     e dai testi di spettroscopia. Questa l'ho scritta ricordando, mentre
+     costruivo il quesito di prova per il lettore di documenti, e dalla
+     macchina in cui questo progetto si compila NON si raggiunge nessuna
+     fonte primaria per confermarla: NIST, SDBS, SpectraBase, PubChem e i
+     siti degli editori rispondono tutti 403 alla politica di rete.
+
+     Resta nell'insieme perché il fenomeno che mostra — un carbonio sp³ con
+     due sostituenti in α, previsto 7-8 ppm troppo alto — è confermato in
+     modo INDIPENDENTE dal quesito d'esame del 23/04/2024, che è un dato di
+     provenienza vera: lì il CH₂ fra un C=C e uno zolfo sta a 26,67 e il
+     predittore ne dà 34,0. Due misure, lo stesso verso, la stessa entità.
+
+     Ma la differenza di provenienza va scritta, non taciuta: il caso
+     peggiore dichiarato dal modulo (7,5 ppm) poggia su QUESTA riga, e chi
+     verifica deve sapere quanto vale la sua fonte. Se un giorno questi sei
+     numeri risultassero sbagliati, l'affermazione da correggere è quella. */
   ['acetato di benzile', 'CC(=O)OCc1ccccc1',
    [170.9, 136.0, 128.6, 128.2, 66.3, 21.0]]
 ];
@@ -238,6 +250,36 @@ const QUANTI_SEGNALI = [
     nuove.quanteAlcani = (P.ALCANI1H || []).length;
     nuove.fonte = (P.fonte || '').slice(0, 20);
 
+    /* ── La spiegazione deve RICOSTRUIRE il numero ──────────────────────
+       Ogni carbonio alifatico porta la lista dei contributi che lo hanno
+       prodotto. Se quella lista non si somma al valore, non è una
+       spiegazione: è un'illustrazione. E non è un caso di scuola — l'OCH₂
+       dell'acetato di benzile mostrava «α arile + α OCO-», che fanno 76,3,
+       accanto a un valore di 73,8: mancava il termine dei carboni semplici,
+       che la somma usava e la spiegazione taceva.
+
+       Qui i numeri si ripescano dalla lista e si risommano, su OGNI
+       carbonio alifatico di TUTTE le molecole dei due insiemi. */
+    const ricostruzione = { controllati: 0, sbagliati: [] };
+    dati.TARATURA.concat(dati.VALIDAZIONE).forEach(function (c) {
+      const r = window.BSINMR.predici(c[1], { nucleo: '13C' });
+      if (!r || r.errore) return;
+      r.segnali.forEach(function (s) {
+        const note = s.contributi || [];
+        if (!note.length || !/^base/.test(note[0])) return;   /* non alifatico */
+        let somma = 0;
+        note.forEach(function (n) {
+          const m = n.match(/([+\u2212])\s*([\d.]+)\s*$/);
+          if (m) somma += (m[1] === '+' ? 1 : -1) * parseFloat(m[2]);
+        });
+        ricostruzione.controllati++;
+        if (Math.abs(somma - s.ppm) > 0.06) {
+          ricostruzione.sbagliati.push(c[0] + ' ' + s.nome + ': ' +
+            somma.toFixed(2) + ' invece di ' + s.ppm + '  [' + note.join(' ') + ']');
+        }
+      });
+    });
+
     /* le due prove contrarie: uno SMILES illeggibile non deve inventare uno
        spettro, e un errore non deve restare silenzioso */
     const rotto = window.BSINMR.predici('questo non e uno smiles', { nucleo: '13C' });
@@ -249,6 +291,7 @@ const QUANTI_SEGNALI = [
       conta: conta,
       rotto: rotto === null ? 'null' : (rotto.errore ? 'errore' : ('segnali:' + rotto.segnali.length)),
       vuoto: vuoto === null ? 'null' : 'oggetto',
+      ricostruzione: ricostruzione,
       nuove: nuove
     };
   }, { TARATURA, VALIDAZIONE, PROTONI, QUANTI_SEGNALI });
@@ -313,6 +356,19 @@ const QUANTI_SEGNALI = [
   sotto('  · e il loro scarto sta nel valore dichiarato', 0.15, +medioAr.toFixed(2));
 
   /* ── §2-bis · Le capacità nuove, nei due versi ──────────────────────────── */
+  console.log('\n── La spiegazione ricostruisce il numero ──');
+  /* Uno strumento che si regge sul dire DA DOVE viene ogni numero non può
+     permettersi una lista di contributi che non si somma al numero: sembra
+     una verifica e non lo è. */
+  att('ogni carbonio alifatico dichiara contributi che risommano al suo valore',
+      0, mis.ricostruzione.sbagliati.length);
+  mis.ricostruzione.sbagliati.slice(0, 6).forEach(function (x) {
+    console.log('      ! ' + x);
+  });
+  console.log('      (' + mis.ricostruzione.controllati + ' carboni controllati)');
+  att('  · e sono abbastanza da voler dire qualcosa', true,
+      mis.ricostruzione.controllati >= 40);
+
   console.log('\n── Le capacità nuove ──');
   const N = mis.nuove;
   /* a. gli incrementi aromatici ¹H: dove devono spostare, e dove no */
@@ -539,9 +595,9 @@ const QUANTI_SEGNALI = [
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 62) {
+  if (eseguiti < 66) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 62');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 66');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

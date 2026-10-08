@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v193` |
+| **Version described** | `bsi-v194` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -751,6 +751,49 @@ evidence against the structure*. Without that warning, a low score on a
 **correct** structure would read as a refutation — which is exactly what
 happened to benzyl acetate, which scores 42 out of 100 while being the answer.
 
+### 3.11 What could be consulted, and what could not
+
+A table of increments for substituted heteroaromatics would close the weak
+point described above. **From the machine this project is built on, no primary
+source is reachable**, and that was verified, not assumed:
+
+| route | outcome |
+|---|---|
+| `curl` to any domain | the network policy allows **only** package registries (npm, PyPI, crates, Go) — the proxy says so itself |
+| NIST WebBook, SDBS (AIST), PubChem, SpectraBase | **403**, blocked |
+| CSIRO, RSC, ACS, Springer, Wikipedia, LibreTexts | **403**, blocked |
+| the Hans Reich tables (`organicchemistrydata.org`, `chem.wisc.edu`) | **403**, blocked |
+| NMRShiftDB2 (`nmrshiftdb.nmr.uni-koeln.de`) | **403**, blocked |
+| PubMed (through its service) | no results: it indexes biomedicine, not pure chemistry |
+| npm and PyPI | no package redistributes a reference NMR database: `nmr-predictor` **downloads** it from GitHub, which is blocked; `nmr-processing` does not contain it |
+
+**What text search could establish** is *where* the data are, and that is a
+useful result even without having them in hand:
+
+> M. T. W. Hearn, "Carbon-13 chemical shifts in some substituted furans and
+> thiophens", *Australian Journal of Chemistry* **29**(1), 107–113 (1976).
+> DOI [10.1071/CH9760107](https://doi.org/10.1071/CH9760107)
+
+The abstract states that "the substituent effects in these heterocycles
+**resemble** those reported for substituted benzenes". *Resemble* is not
+*equal*: transferring the benzene increments was tried (§3.10 a) and on the β
+carbons it makes things worse. The real table is still needed.
+
+**Why it was not written from memory.** It would have been easy: those numbers
+are well known. But a value nobody can trace to a source is exactly what this
+document exists to prevent, and putting one in a table next to ninety-one rows
+transcribed from a printed page would make those less credible too. **A
+declared hole is worth more than a badly patched one.**
+
+#### One validation row with weaker provenance
+
+For honesty this too must be said: benzyl acetate, which entered the validation
+set because it shows the two-α-substituent weak point, carries values **not
+verified against a primary source** from this environment. The phenomenon it
+shows is independently confirmed by the 23/04/2024 exam problem — a datum with
+real provenance — but the **declared worst case (7.5 ppm) rests on that row**,
+and the bench says so in plain words.
+
 ---
 
 ## 4. Physical constants and tabulated data
@@ -803,4 +846,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v193`._
+_Document updated to version `bsi-v194`._

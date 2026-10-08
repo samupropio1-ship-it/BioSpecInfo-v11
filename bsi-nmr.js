@@ -505,6 +505,24 @@
     var mio = gradoPesante(gr, i);
     var ETICHETTA = ['α', 'β', 'γ', 'δ'];
 
+    /* ── Ogni contributo porta il PROPRIO NUMERO ──────────────────────────
+       Prima la lista diceva «α arile + α OCO-» e basta. Chi la leggeva non
+       poteva rifare il conto, e infatti il conto NON tornava: l'OCH₂
+       dell'acetato di benzile mostrava due contributi che sommati fanno
+       76,3, mentre il valore era 73,8. Mancava il termine dei carboni
+       semplici — che la somma usava ma la spiegazione non nominava.
+
+       Due millimetri di difetto e un problema grosso: in uno strumento che
+       si regge sul dire DA DOVE viene ogni numero, una spiegazione che non
+       ricostruisce il numero è peggio di nessuna spiegazione, perché sembra
+       una verifica e non lo è. Ora ogni voce porta il suo valore con il
+       segno, il banco rifà la somma e pretende che torni. */
+    function segna(testo, valore) {
+      note.push(testo + ' ' + (valore > 0 ? '+' : '\u2212') +
+                Math.abs(Math.round(valore * 100) / 100));
+    }
+    note.push('base \u22122.3');
+
     info.gruppi.forEach(function (g) {
       if (g.atomi.indexOf(i) >= 0) return;         /* il carbonio E' il gruppo */
       /* La distanza di un gruppo e' quella del suo atomo PIU' VICINO. Per un
@@ -520,19 +538,27 @@
       var Z = g.Z, nome = g.nome;
       if (g.alt && g.alt.atomo === alfa) { Z = g.alt.Z; nome = g.alt.nome; }
       var z = Z[d - 1];
-      if (z) { somma += z; note.push(ETICHETTA[d - 1] + ' ' + nome); }
+      if (z) { somma += z; segna(ETICHETTA[d - 1] + ' ' + nome, z); }
       if (d === 1 && g.asterisco) S += sterico(mio, gradoPesante(gr, alfa));
     });
 
+    /* I carboni semplici si contano per DISTANZA e si dichiarano insieme:
+       «3 C in β +28,2» si legge, tre righe «β C +9,4» no. */
+    var quanti = [0, 0, 0, 0];
     for (var x = 0; x < gr.atomi.length; x++) {
       if (x === i || gr.atomi[x].sim !== 'C' || info.presi[x]) continue;
       var d2 = distanzaFra(gr, i, x);
       if (d2 < 1 || d2 > 4) continue;
       somma += P.CARBONIO_SEMPLICE[d2 - 1];
+      quanti[d2 - 1]++;
       if (d2 === 1) S += sterico(mio, gradoPesante(gr, x));
     }
+    quanti.forEach(function (n, k) {
+      if (!n) return;
+      segna(n + ' C in ' + ETICHETTA[k], n * P.CARBONIO_SEMPLICE[k]);
+    });
 
-    if (S) { somma += S; note.push('S ' + (S > 0 ? '+' : '') + S.toFixed(1)); }
+    if (S) { somma += S; segna('correzione sterica S', S); }
     /* Kk, le correzioni conformazionali, valgono 0: la conformazione da uno
        SMILES non si ricava, e inventarla sarebbe peggio che ometterla. */
 
@@ -553,8 +579,9 @@
           var dr = distanzaNellAnello(anello, i, j);
           if (dr >= 1 && dr <= 4) giaNelParente += P2.CARBONIO_SEMPLICE[dr - 1];
         });
+        var prima = somma;
         somma = parente + (somma - P2.BASE_ALIF13C) - giaNelParente;
-        note.push('C' + anello.length + ' di riferimento');
+        segna('riferimento C' + anello.length + ' (' + parente + ')', somma - prima);
       }
     }
     return { ppm: somma, note: note };

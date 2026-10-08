@@ -7,6 +7,82 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v194] — 2026-10-08
+
+Cercando fonti online per chiudere il punto debole, è saltato fuori un difetto
+**nello strumento che spiega i numeri** — e quello sì che si poteva chiudere.
+
+### La spiegazione non ricostruiva il numero
+
+Il predittore mostra, per ogni carbonio alifatico, i contributi che lo hanno
+prodotto. Per l'OCH₂ dell'acetato di benzile diceva:
+
+> α arile + α OCO-
+
+che fanno 22,1 + 56,5 = 78,6 sulla base di −2,3, cioè **76,3**. Il valore
+mostrato accanto era **73,8**. Mancava il termine dei carboni semplici — un
+γ a −2,5 — che la somma usava e la spiegazione taceva.
+
+In uno strumento che si regge sul dire DA DOVE viene ogni numero, una lista di
+contributi che non ricostruisce il numero è **peggio di nessuna lista**:
+sembra una verifica e non lo è. Chi la leggeva per controllare il conto
+trovava una differenza e non sapeva se sbagliava lui.
+
+Ora ogni voce porta **il proprio valore con il segno**, i carboni semplici
+sono dichiarati raggruppati per distanza, la correzione sterica e il cambio di
+composto di riferimento ciclico compaiono con il loro contributo:
+
+```
+73,8 = base −2,3 · α arile +22,1 · α OCO- +56,5 · 1 C in γ −2,5
+34,0 = base −2,3 · γ arile −2,6 · β CHO −0,6 · α S- +10,6 · α C=C +19,5 · 1 C in β +9,4
+```
+
+E il banco **rifà la somma**: per ogni carbonio alifatico di tutte le molecole
+dei due insiemi ripesca i numeri dalla lista, li risomma e pretende che
+tornino al millesimo. **48 carboni controllati.** Finché quella prova passa, la
+spiegazione non può scollarsi dal calcolo senza che qualcuno se ne accorga.
+
+Come effetto collaterale, i due «punti deboli» dichiarati nella versione
+precedente risultano **verificati**: 73,8 e 34,0 sono esattamente ciò che lo
+schema pubblicato prescrive, riga per riga. Non erano un difetto
+dell'implementazione.
+
+### Le fonti online: cercate, e il risultato è negativo — con la prova
+
+Dalla macchina in cui questo progetto si compila **non è raggiungibile nessuna
+fonte primaria**. Verificato, non supposto: `curl` passa solo verso i registri
+di pacchetti (lo dichiara il proxy stesso); NIST, SDBS, PubChem, SpectraBase,
+CSIRO, RSC, ACS, Springer, Wikipedia, LibreTexts, le tabelle di Hans Reich e
+NMRShiftDB2 rispondono tutti **403**; PubMed non indicizza la chimica pura; e
+nessun pacchetto npm o PyPI ridistribuisce una banca dati NMR di riferimento
+(`nmr-predictor` la **scarica** da GitHub, che è bloccato).
+
+Quello che la ricerca testuale ha potuto accertare è **dove sta il dato**:
+
+> M. T. W. Hearn, «Carbon-13 chemical shifts in some substituted furans and
+> thiophens», *Aust. J. Chem.* **29**(1), 107–113 (1976), DOI 10.1071/CH9760107
+
+Il suo abstract dice che gli effetti dei sostituenti in questi eterocicli
+*assomigliano* a quelli dei benzeni sostituiti. **Assomigliano non è
+coincidono**: il trasferimento degli incrementi del benzene era già stato
+provato e sui carboni β peggiora.
+
+**Non ho scritto quella tabella a memoria.** Sarebbe stato facile. Ma un valore
+che nessuno può risalire a una fonte è esattamente ciò che questo progetto
+esiste per impedire, e metterlo accanto a novantuno righe trascritte da una
+pagina stampata renderebbe meno credibili anche quelle.
+
+### Una riga di validazione con provenienza più debole, dichiarata
+
+L'acetato di benzile, entrato in validazione perché mostra il punto debole dei
+due sostituenti in α, porta valori che **non ho potuto verificare** contro una
+fonte primaria da qui. Il fenomeno è confermato in modo indipendente dal
+quesito d'esame del 23/04/2024 — dato di provenienza vera — ma il **caso
+peggiore dichiarato (7,5 ppm) poggia su quella riga**, ed è scritto sia nel
+banco sia nel documento 06. Se quei sei numeri fossero sbagliati, è
+quell'affermazione a cadere.
+
+---
 ## [bsi-v193] — 2026-10-08
 
 I problemi rimasti, affrontati uno per uno: due chiusi, uno **misurato invece
