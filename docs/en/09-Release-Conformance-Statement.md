@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v195` |
+| **Version** | `bsi-v196` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v195` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v196` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -247,4 +247,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v195`._
+_Version `bsi-v196`._

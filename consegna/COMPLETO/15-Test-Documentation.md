@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v195` |
+| **Versione descritta** | `bsi-v196` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -107,7 +107,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_datasci` | La matematica che la sezione Data Science **mostra**: R² su una relazione esatta, pesi standardizzati nel rapporto vero, ROC su valori calcolabili a mano, il comportamento su rumore puro, e che **nessuna sezione resti irraggiungibile** | 23 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
 | `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni CSV e SDF, **contrasto dei nove pannelli**, accordo fra laboratorio e motore, frammentazione, **coppie corrispondenti su effetti noti**, ricerca per sottostruttura, tabella SAR, confronto fra modelli nei due versi, arricchimento (EF e BEDROC) su casi calcolabili a mano, intervalli conformi e il loro **rifiuto sulla classificazione** | 189 |
-| `test_spettrolettore` | Il lettore di spettri e i modelli che ne seguono: ASDF simbolo per simbolo, JCAMP esplicito e compresso in DIF/DUP, picchi per prominenza su spettri **costruiti** e **su rumore puro**, curva contro lista di picchi, perdite neutre sul toluene, ESOL contro quattro valori sperimentali, quattro filtri di drug-likeness separati, foresta casuale nei due versi | 39 |
+| `test_spettrolettore` | Il lettore di spettri e i modelli che ne seguono: ASDF simbolo per simbolo, JCAMP esplicito e compresso in DIF/DUP, picchi per prominenza su spettri **costruiti** e **su rumore puro**, curva contro lista di picchi, perdite neutre sul toluene, ESOL contro quattro valori sperimentali, quattro filtri di drug-likeness separati, foresta casuale nei due versi, **una sola porta d'ingresso** (un bottone, `accept` vuoto, instradamento provato su PDF/`.docx`/`.txt`/`.jdx`/`.csv`/binario travestito/immagine) e il distintivo di versione confrontato con `BSI_APP_VERSION` | 61 |
 | `test_nmr` | La predizione NMR assegnata per atomo: due insiemi separati di molecole (taratura e **validazione**, quest'ultima mai usata per scegliere i parametri), il conteggio dei segnali su molecole di cui si sa quanti ne danno, i rifiuti su uno SMILES illeggibile e su una stringa vuota, la **cronologia** con il riconoscimento dei doppioni per chiave InChI, e la sincronia **picco ↔ struttura ↔ 3D** verificata sugli indici, non sul numero di atomi illuminati | 64 |
 | `test_nmr2d` | Le mappe di correlazione contate sul grafo: HSQC con il segno invertito sui CH₂, COSY fra protoni non equivalenti, HMBC a due e tre legami. **Nei due versi**: l'esafluorobenzene non dà macchie HSQC, il benzene **nessuna** macchia COSY fuori diagonale, il metano **nessuna** macchia HMBC pur avendo quattro protoni | 40 |
 | `test_geom3d` | La geometria 3D costruita dal grafo, misurata contro i valori di letteratura: legami, angoli di valenza, linearità degli alchini. **Nei due versi**: il benzene esce piano e il cicloesano **non** piano. E la prova che rende lecito il collegamento picco↔atomo: ogni atomo pesante ha **lo stesso indice e lo stesso elemento** del predittore | 29 |
@@ -482,7 +482,7 @@ di nascosto.
 |---|---|
 | `verifica_guida` | Che le promesse della documentazione esistano nel codice; assenza di marcatori di conflitto su 58 file |
 | `verifica-documenti` | Collegamenti interni, allineamento delle versioni, coerenza dell'indice, motivazione delle deviazioni, **coerenza interna della matrice di tracciabilità** (identificativi non duplicati, totali di copertura pari agli identificativi realmente definiti) |
-| `genera-pacchetti` | Riscrive i riferimenti dei documenti estratti e **verifica che nessun collegamento resti rotto** nei tre pacchetti di consegna |
+| `genera-pacchetti` | Riscrive i riferimenti dei documenti estratti e **verifica che nessun collegamento resti rotto** nei tre pacchetti di consegna. Verifica anche che **nessun PDF sia più vecchio del documento da cui viene** e che il rapporto di verifica imbustato dichiari **questa** versione: un impaginato o un'evidenza della versione precedente, in un pacchetto di adesso, è una bugia silenziosa |
 | `genera-pdf` | Converte i documenti in PDF e fallisce se un file risulta sotto la soglia di plausibilità (conversione a vuoto) |
 | `verifica-affermazioni` | Confronta ogni numero dichiarato nei documenti — sezioni, farmaci, malattie, tumori, strategie, moduli — con quello **misurato nell'applicazione in esecuzione**, in italiano *e* in inglese |
 | `test_stack` | Che lo stack React/FastAPI esegua **gli stessi file** dell'applicazione: confronta le impronte SHA-256 che `GET /salute` dichiara con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che **nessun file `.ts`/`.tsx` contenga una tabella di spostamenti** — perché è lì che nascerebbe il secondo motore |
@@ -626,4 +626,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v195`._
+_Documento aggiornato alla versione `bsi-v196`._

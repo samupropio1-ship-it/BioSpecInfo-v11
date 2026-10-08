@@ -176,6 +176,14 @@ if (restano.length) {
 }
 
 if (!prova) {
-  console.log('\n  Ora: node tools/genera-sbom.js && node tools/genera-evidenza.js');
-  console.log('       node tools/genera-pacchetti.js && node tools/genera-pdf.js');
+  /* L'ORDINE CONTA, e prima era sbagliato: «pacchetti && pdf» imbustava i PDF
+     della versione PRECEDENTE — testo nuovo e impaginato vecchio nello stesso
+     pacchetto. I PDF si fanno PRIMA, i pacchetti DOPO; `genera-pacchetti`
+     adesso se ne accorge da sé e si ferma, ma il suggerimento non deve
+     portare nella buca. */
+  console.log('\n  Ora, in quest’ordine:');
+  console.log('    node tools/genera-sbom.js');
+  console.log('    node tools/genera-evidenza.js     (la batteria: serve un server su :8899)');
+  console.log('    node tools/genera-pdf.js          (prima i PDF…)');
+  console.log('    node tools/genera-pacchetti.js    (…poi i pacchetti che li imbustano)');
 }

@@ -836,7 +836,15 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v195';
+window.BSI_APP_VERSION='bsi-v196';
+/* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
+   nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
+   cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
+   codice: una versione sola, dichiarata in un posto solo. */
+(function(){ function m(){ var b=document.getElementById('version-badge');
+  if(b) b.textContent=String(window.BSI_APP_VERSION||'').replace(/^bsi-/,''); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',m);
+  else m(); })();
 // URL Web App di Google Apps Script per telemetria accessi/errori/feedback (vedi tools/telemetria-feedback.gs).
 // Lasciare vuoto disabilita l'invio remoto: i dati restano solo in coda locale (bsi_telemetry_queue).
 window.BSI_TELEMETRY_URL='';</script>
@@ -862,7 +870,7 @@ window.BSI_TELEMETRY_URL='';</script>
         <circle cx="23" cy="10" r="2" fill="#00d4aa"/><circle cx="33" cy="15.5" r="2" fill="#6bcfff"/><circle cx="33" cy="26.5" r="2" fill="#b388ff"/>
       </svg>
       <div class="logo-text">
-        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super">v13l</span></div>
+        <div class="logo-name">BioSpecInfo <span id="version-badge" style="font-size:.55em;opacity:.7;vertical-align:super"></span></div>
         <div class="logo-sub">© 2025 Samuele Pio Provenzano</div>
       </div>
     </div>

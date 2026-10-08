@@ -692,30 +692,65 @@
 
   var spettroCorrente = null, analisiCorrente = null;
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     UNA SOLA PORTA D'INGRESSO
+
+     C'erano due schede: «Carica uno spettro», che accettava JCAMP-DX e due
+     colonne di numeri, e «Apri un documento», che accettava tutto il resto.
+     Due schede separate per la stessa domanda — «ho un file, cosa ci faccio?»
+     — e chi arrivava con il PDF di un compito apriva la prima, trovava un
+     selettore che mostrava SOLO i `.jdx` e i `.csv`, e si fermava lì: quei
+     formati non ce li ha nessuno, escono dagli spettrofotometri.
+
+     Ora la porta è una sola e non filtra niente. Si apre il file e **il
+     programma decide che cos'è**, dicendolo: uno spettro si misura, un
+     documento si svolge, una fotografia si fa tutte e due le cose perché può
+     essere l'uno o l'altro.
+     ═════════════════════════════════════════════════════════════════════════ */
   function vista() {
     return '' +
-'<div class="bsiSP-card"><h4>' + t('Carica uno spettro', 'Load a spectrum') + '</h4><p>' +
-t('Incolla un file <b>JCAMP-DX</b> (.jdx, .dx — lo standard IUPAC) oppure due ' +
-  'colonne <code>x&nbsp;y</code>, che è il formato in cui esce metà della ' +
-  'strumentazione. Il tipo di spettro viene riconosciuto dal file; se non lo ' +
-  'dichiara, dall’intervallo dei numeri.',
-  'Paste a <b>JCAMP-DX</b> file (.jdx, .dx — the IUPAC standard) or two ' +
-  '<code>x&nbsp;y</code> columns, the format half the instruments produce. The ' +
-  'kind of spectrum is read from the file; failing that, from the range of the ' +
-  'numbers.') + '</p>' +
-'<textarea class="bsiSP-in" id="bsiSP-src" rows="6" spellcheck="false" aria-label="' +
-t('Dati dello spettro', 'Spectrum data') + '" placeholder="##TITLE=...&#10;1000 0.12&#10;1002 0.15"></textarea>' +
-'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
-'<button class="bsiSP-btn" id="bsiSP-go">' + t('Leggi e misura', 'Read and measure') + '</button>' +
-'<input type="file" id="bsiSP-file" accept=".jdx,.dx,.txt,.csv,.jcamp" style="display:none">' +
-'<button class="bsiSP-btn2" id="bsiSP-apri">' + t('📂 Apri un file', '📂 Open a file') + '</button>' +
+'<div class="bsiSP-card"><h4>' +
+  t('📂 Apri un file qualunque, o incolla i dati',
+    '📂 Open any file, or paste the data') + '</h4><p>' +
+t('Il <b>PDF</b> di un compito, la <b>fotografia</b> di uno spettro o di un ' +
+  'foglio, un <b>documento Word</b>, un file <b>JCAMP-DX</b> appena uscito ' +
+  'dallo strumento, due colonne di numeri da un foglio di calcolo. ' +
+  '<b>Il selettore non filtra niente</b>: apri quello che hai, e ci penso io a ' +
+  'capire che cos’è — e a dirtelo.',
+  'The <b>PDF</b> of an exam, a <b>photograph</b> of a spectrum or of a sheet, ' +
+  'a <b>Word document</b>, a <b>JCAMP-DX</b> file straight from the instrument, ' +
+  'two columns of numbers from a spreadsheet. <b>The picker filters nothing</b>: ' +
+  'open what you have, and I work out what it is — and tell you.') + '</p>' +
+'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">' +
+'<input type="file" id="bsiSP-file" style="display:none">' +
+'<button class="bsiSP-btn" id="bsiSP-apri">' +
+  t('📂 Apri un file', '📂 Open a file') + '</button>' +
+/* Gli ingressi separati restano, nascosti: l'uno serve a chi vuole forzare la
+   lettura di un'immagine come traccia, l'altro ai banchi che li usano per
+   nome. Il bottone visibile però è uno solo. */
+'<input type="file" id="bsiSP-doc" style="display:none">' +
 '<input type="file" id="bsiSP-img" accept="image/*" style="display:none">' +
-'<button class="bsiSP-btn2" id="bsiSP-apriImg">' + t('🖼️ Apri un’immagine', '🖼️ Open an image') + '</button>' +
+'</div>' +
+'<div id="bsiSP-deciso" style="font-size:12px;color:#8aadcc;margin-bottom:10px"></div>' +
+'<p style="font-size:12.5px;color:#cfe2f5;margin:0 0 6px">' +
+  t('…oppure incolla qui i dati dello spettro o il <b>testo del quesito</b>:',
+    '…or paste the spectrum data or the <b>problem text</b> here:') + '</p>' +
+'<textarea class="bsiSP-in" id="bsiSP-src" rows="6" spellcheck="false" aria-label="' +
+t('Dati dello spettro o testo del quesito', 'Spectrum data or problem text') +
+'" placeholder="##TITLE=...&#10;1000 0.12&#10;1002 0.15"></textarea>' +
+'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">' +
+'<button class="bsiSP-btn" id="bsiSP-go">' +
+  t('Leggi e svolgi', 'Read and work it out') + '</button>' +
 '<button class="bsiSP-btn2" data-es="ir">' + t('esempio IR', 'IR example') + '</button>' +
 '<button class="bsiSP-btn2" data-es="ms">' + t('esempio MS', 'MS example') + '</button>' +
 '<button class="bsiSP-btn2" data-es="nmr">' + t('esempio NMR', 'NMR example') + '</button>' +
+'<button class="bsiSP-btn2" id="bsiSP-esQuesito">' +
+  t('esempio: un quesito d’esame', 'example: an exam problem') + '</button>' +
 '<button class="bsiSP-btn2" id="bsiSP-pulisci">' + t('Pulisci', 'Clear') + '</button>' +
-'</div></div>' +
+'</div>' +
+'<p style="font-size:11px;color:#7a8aa0;margin:9px 0 0">' + t('Formati: ', 'Formats: ') +
+  (globale.BSIDocumento ? globale.BSIDocumento.FORMATI : 'PDF, …') + '</p>' +
+'</div>' +
 '<div class="bsiSP-card" id="bsiSP-scala" style="display:none"><h4>' +
   t('La scala dell’immagine', 'The image scale') + '</h4><p>' + t(
   'Una figura non sa di essere fra 4000 e 400 cm⁻¹: i numeri degli assi non ' +
@@ -733,34 +768,7 @@ t('Dati dello spettro', 'Spectrum data') + '" placeholder="##TITLE=...&#10;1000 
   ' <input class="bsiSP-in" id="bsiSP-x1" style="width:92px;display:inline-block" value="400"></label>' +
 '<button class="bsiSP-btn" id="bsiSP-rileggiImg">' + t('rileggi l’immagine', 'read the image again') + '</button>' +
 '</div><div id="bsiSP-imgNota" style="font-size:11px;color:#8aadcc;margin-top:6px"></div></div>' +
-'<div class="bsiSP-card"><h4>' +
-  t('📄 Apri un documento e fattelo svolgere',
-    '📄 Open a document and have it worked through') + '</h4><p>' + t(
-  'Un quesito non arriva quasi mai come un file di dati: arriva come un <b>PDF</b> ' +
-  'di tre pagine, la <b>fotografia</b> di un foglio, un <b>documento Word</b> con ' +
-  'dentro una tabella. Qui si apre qualunque file, si vede <b>tutto</b> quello che ' +
-  'contiene — ogni pagina disegnata, tutto il testo — e i dati spettroscopici ' +
-  'riconosciuti vengono passati al motore di elucidazione, che svolge ' +
-  '<b>passo per passo</b> dicendo da dove viene ogni conclusione.',
-  'A problem almost never arrives as a data file: it arrives as a three-page ' +
-  '<b>PDF</b>, a <b>photograph</b> of a sheet, a <b>Word document</b> with a table ' +
-  'inside. Here any file opens, <b>everything</b> it contains is shown — every page ' +
-  'drawn, all the text — and the recognised spectroscopic data go to the ' +
-  'elucidation engine, which works through them <b>step by step</b>, saying where ' +
-  'every conclusion comes from.') + '</p>' +
-'<p style="font-size:11.5px;color:#8aadcc">' + t('Formati: ', 'Formats: ') +
-  (globale.BSIDocumento ? globale.BSIDocumento.FORMATI : 'PDF, …') + '</p>' +
-'<div style="display:flex;gap:7px;flex-wrap:wrap">' +
-'<input type="file" id="bsiSP-doc" style="display:none">' +
-'<button class="bsiSP-btn" id="bsiSP-apriDoc">' +
-  t('📄 Apri un documento', '📄 Open a document') + '</button>' +
-'<button class="bsiSP-btn2" id="bsiSP-esQuesito">' +
-  t('esempio: un quesito d’esame', 'example: an exam problem') + '</button>' +
-'<button class="bsiSP-btn2" id="bsiSP-svolgiTesto">' +
-  t('svolgi il testo qui sopra', 'work through the text above') + '</button>' +
-'</div>' +
-'<div id="bsiSP-docStato" style="font-size:12px;color:#8aadcc;margin-top:8px"></div>' +
-'</div>' +
+'<div id="bsiSP-docStato" style="font-size:12px;color:#8aadcc;margin:0 0 10px"></div>' +
 '<div id="bsiSP-docOut"></div>' +
 '<div id="bsiSP-out"></div>' +
 '<div class="bsiSP-card"><h4>' + t('Che cosa non fa', 'What it does not do') + '</h4><p>' +
@@ -1218,19 +1226,180 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       spettroCorrente = S.leggi(src.value);
       analisiCorrente = spettroCorrente ? S.analizza(spettroCorrente) : null;
       rendi(spettroCorrente, analisiCorrente);
+      return spettroCorrente;
     }
-    document.getElementById('bsiSP-go').onclick = leggiOra;
+    function dillo(testo) {
+      var d = document.getElementById('bsiSP-deciso');
+      if (d) d.innerHTML = testo;
+    }
+    function pulisciUscite() {
+      ['bsiSP-out', 'bsiSP-docOut', 'bsiSP-docStato'].forEach(function (id) {
+        var e = document.getElementById(id);
+        if (e) e.innerHTML = '';
+      });
+      var sc = document.getElementById('bsiSP-scala');
+      if (sc) sc.style.display = 'none';
+    }
+
+    /* ── «Leggi e svolgi»: decide da solo che cosa ha davanti ────────────
+       Nella casella può esserci uno spettro (numeri in due colonne, un
+       JCAMP) oppure il testo di un quesito. Chiedere all'utente di
+       dichiararlo con due bottoni diversi era una domanda che il programma
+       può farsi da sé: prova a leggerlo come spettro e, se non ne esce
+       niente di sensato, lo tratta come testo. */
+    function leggiOSvolgi() {
+      var testo = src.value.trim();
+      if (!testo) {
+        dillo('<span style="color:#ffb86b">' +
+              t('La casella è vuota: apri un file o incolla qualcosa.',
+                'The box is empty: open a file or paste something.') + '</span>');
+        return;
+      }
+      pulisciUscite();
+      var sp = S.leggi(testo);
+      if (sp && sp.x && sp.x.length >= 5) {
+        dillo(t('Letto come <b>spettro</b>: ', 'Read as a <b>spectrum</b>: ') +
+              sp.x.length + t(' punti.', ' points.'));
+        spettroCorrente = sp;
+        analisiCorrente = S.analizza(sp);
+        rendi(spettroCorrente, analisiCorrente);
+        return;
+      }
+      dillo(t('Non sono numeri di uno spettro: lo tratto come il ' +
+              '<b>testo di un quesito</b>.',
+              'These are not spectrum numbers: treating it as <b>problem text</b>.'));
+      svolgiTestoE(testo, '');
+    }
+
+    document.getElementById('bsiSP-go').onclick = leggiOSvolgi;
     document.getElementById('bsiSP-pulisci').onclick = function () {
-      src.value = ''; document.getElementById('bsiSP-out').innerHTML = '';
+      src.value = ''; pulisciUscite(); dillo('');
     };
+
+    /* ── UNA porta sola: si apre il file e si capisce che cos'è ──────────
+       Il selettore non ha nessun filtro. Un `accept` che elenca «.jdx,.dx,
+       .txt,.csv» su un telefono non restringe la scelta: NASCONDE tutto il
+       resto, e chi arriva con il PDF di un compito vede una cartella vuota
+       e conclude che l'applicazione è rotta. Lo era, di fatto.
+
+       La decisione si prende dal contenuto quando si può, dal nome quando
+       non si può — e si DICE, perché un programma che sceglie in silenzio
+       per conto tuo è peggio di uno che ti fa scegliere. */
     var file = document.getElementById('bsiSP-file');
     document.getElementById('bsiSP-apri').onclick = function () { file.click(); };
     file.onchange = function () {
       var f = file.files && file.files[0];
-      if (!f) return;
-      var r = new FileReader();
-      r.onload = function () { src.value = r.result; leggiOra(); };
-      r.readAsText(f);
+      if (f) apriQualunque(f);
+      file.value = '';          /* così riaprire lo stesso file rifà il giro */
+    };
+
+    /* «Binario» non è un'opinione: un testo vero non contiene byte nulli, e
+       la decodifica UTF-8 di byte non testuali produce U+FFFD. Qualche
+       carattere sporco può capitare in un file legittimo (un accento salvato
+       in un'altra codifica), quindi la soglia è una frazione, non uno. */
+    function binario(testo) {
+      if (!testo) return false;
+      var campione = testo.slice(0, 4000);
+      if (campione.indexOf('\u0000') >= 0) return true;
+      var sporchi = (campione.match(/[�]/g) || []).length;
+      return campione.length > 0 && sporchi / campione.length > 0.05;
+    }
+
+    function apriQualunque(f) {
+      var nome = (f.name || '').toLowerCase();
+      var tipo = f.type || '';
+      pulisciUscite();
+
+      /* 1 · un'immagine può essere tutt'e due le cose: la fotografia di uno
+             spettro o la pagina di un compito. Si fanno entrambe. */
+      if (/^image\//.test(tipo) || /\.(png|jpe?g|gif|webp|bmp|avif|heic)$/.test(nome)) {
+        dillo(t('È un’<b>immagine</b>: ne estraggo la traccia qui sotto, e la ' +
+                'mostro anche come pagina. Se è la foto di un foglio scritto, il ' +
+                'testo non si legge — non c’è riconoscimento ottico dei caratteri.',
+                'It is an <b>image</b>: I extract the trace below, and also show it ' +
+                'as a page. If it is a photo of a written sheet, the text cannot be ' +
+                'read — there is no optical character recognition.'));
+        var u = URL.createObjectURL(f);
+        var im = new Image();
+        im.onload = function () {
+          ultimaImmagine = im;
+          leggiImmagine();
+          setTimeout(function () { try { URL.revokeObjectURL(u); } catch (e) {} }, 2000);
+        };
+        im.onerror = function () {
+          dillo('<span style="color:#ff8fa3">' +
+                t('Questa immagine non si è aperta.', 'This image did not open.') +
+                '</span>');
+        };
+        im.src = u;
+        apriComeDocumento(f, true);
+        return;
+      }
+
+      /* 2 · JCAMP-DX: lo dichiara il formato stesso, non serve indovinare */
+      if (/\.(jdx|dx|jcamp)$/.test(nome)) {
+        f.text().then(function (testo) {
+          src.value = testo;
+          var sp = leggiOra();
+          dillo(sp
+            ? t('Letto come <b>spettro JCAMP-DX</b>: ', 'Read as a <b>JCAMP-DX spectrum</b>: ') +
+              sp.x.length + t(' punti.', ' points.')
+            : '<span style="color:#ff8fa3">' +
+              t('Il file dice di essere JCAMP-DX ma non si è letto.',
+                'The file claims to be JCAMP-DX but did not parse.') + '</span>');
+        });
+        return;
+      }
+
+      /* 3 · testo e tabelle: si GUARDA che cosa c'è dentro.
+             Un `.csv` può essere due colonne di uno spettro o la tabella di
+             un quesito: il nome non lo dice, il contenuto sì. */
+      if (/^text\//.test(tipo) || /\.(txt|csv|tsv|dat|asc|md|json|xml)$/.test(nome) ||
+          (!tipo && !/\.(pdf|docx|odt|pptx|xlsx|ods|odp)$/.test(nome))) {
+        f.text().then(function (testo) {
+          /* Un file senza estensione, o un `.txt` che in realtà è un binario,
+             qui arriverebbe comunque. Scaricare byte illeggibili nella
+             casella di testo non aiuta nessuno: se il contenuto è binario lo
+             passo al lettore di documenti, che sa dirlo invece di mostrarlo. */
+          if (binario(testo)) { apriComeDocumento(f, false); return; }
+          src.value = testo;
+          var sp = S.leggi(testo);
+          if (sp && sp.x && sp.x.length >= 5) {
+            spettroCorrente = sp;
+            analisiCorrente = S.analizza(sp);
+            rendi(spettroCorrente, analisiCorrente);
+            dillo(t('Letto come <b>spettro</b>: ', 'Read as a <b>spectrum</b>: ') +
+                  sp.x.length + t(' punti.', ' points.'));
+          } else {
+            dillo(t('Non ci sono numeri di uno spettro: lo tratto come il ' +
+                    '<b>testo di un quesito</b>.',
+                    'No spectrum numbers in it: treating it as <b>problem text</b>.'));
+            svolgiTestoE(testo, '');
+          }
+        }).catch(function () {
+          apriComeDocumento(f, false);
+        });
+        return;
+      }
+
+      /* 4 · tutto il resto: PDF, Word, OpenDocument, fogli di calcolo */
+      dillo(t('È un <b>documento</b>: lo apro, te lo mostro tutto e svolgo ' +
+              'quello che contiene.',
+              'It is a <b>document</b>: I open it, show you all of it and work ' +
+              'through what it contains.'));
+      apriComeDocumento(f, false);
+    }
+
+    /* L'ingresso dedicato resta, nascosto, per chi vuole FORZARE la lettura
+       come documento: i banchi, e il codice che apre un documento da
+       un'altra parte dell'applicazione. Non passa da `apriQualunque` —
+       altrimenti un `.txt` finirebbe di nuovo nell'instradamento automatico
+       e verrebbe trattato come il testo di un quesito, che è un'altra cosa.
+       Si chiama «doc»: deve aprire un documento. */
+    var docInput = document.getElementById('bsiSP-doc');
+    if (docInput) docInput.onchange = function () {
+      var f = docInput.files && docInput.files[0];
+      if (f) { pulisciUscite(); apriComeDocumento(f, false); }
     };
     /* ── l'immagine ────────────────────────────────────────────────────── */
     var imgFile = document.getElementById('bsiSP-img');
@@ -1259,8 +1428,6 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       rendi(sp, analisiCorrente);
     }
     if (imgFile) {
-      var apriImg = document.getElementById('bsiSP-apriImg');
-      if (apriImg) apriImg.onclick = function () { imgFile.click(); };
       imgFile.onchange = function () {
         var f = imgFile.files && imgFile.files[0];
         if (!f) return;
@@ -1282,65 +1449,61 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       if (ril) ril.onclick = leggiImmagine;
     }
 
-    /* ── il documento ──────────────────────────────────────────────────── */
-    var doc = document.getElementById('bsiSP-doc');
-    var apriDoc = document.getElementById('bsiSP-apriDoc');
-    var stato = document.getElementById('bsiSP-docStato');
-    if (apriDoc && doc) {
-      apriDoc.onclick = function () { doc.click(); };
-      doc.onchange = function () {
-        var f = doc.files && doc.files[0];
-        if (!f) return;
-        if (!globale.BSIDocumento) {
-          if (stato) stato.textContent = t('il modulo dei documenti non è caricato',
-                                           'the document module is not loaded');
-          return;
-        }
+    /* ── Aprire un documento: una funzione, chiamata dal router ─────────
+       Prima era il corpo di un `onchange` legato a un bottone che non
+       esiste più. Ora è una funzione con un nome, e la chiama chi decide
+       che cosa fare del file. */
+    function apriComeDocumento(f, silenzioso) {
+      var stato = document.getElementById('bsiSP-docStato');
+      if (!globale.BSIDocumento) {
+        if (stato) stato.innerHTML = '<span style="color:#ff8fa3">' +
+          t('il modulo dei documenti non è caricato',
+            'the document module is not loaded') + '</span>';
+        return;
+      }
+      if (stato && !silenzioso) {
+        stato.textContent = t('apro «', 'opening “') + f.name + t('»…', '”…') +
+          (/pdf$/i.test(f.name) ? t('  (un PDF richiede qualche secondo la prima volta)',
+                                    '  (a PDF takes a few seconds the first time)') : '');
+      }
+      globale.BSIDocumento.leggi(f).then(function (d) {
+        documentoCorrente = d;
         if (stato) {
-          stato.textContent = t('apro «', 'opening “') + f.name + t('»…', '”…') +
-            (/pdf$/i.test(f.name) ? t('  (un PDF richiede qualche secondo la prima volta)',
-                                      '  (a PDF takes a few seconds the first time)') : '');
+          /* Con un guasto lo stato diceva «aperto: … 0 parole»: la parola
+             «aperto» accanto a un conteggio a zero fa credere che il file
+             fosse vuoto, mentre non si era aperto affatto. */
+          if (d.errore) {
+            stato.innerHTML = '<span style="color:#ff8fa3">⚠ ' + esc(d.errore) + '</span>';
+          } else {
+            stato.textContent = t('aperto: ', 'opened: ') + d.nome + ' · ' +
+              (d.pagine.length ? d.pagine.length + t(' pagine · ', ' pages · ') : '') +
+              d.nParole + t(' parole', ' words');
+          }
         }
-        globale.BSIDocumento.leggi(f).then(function (d) {
-          documentoCorrente = d;
-          if (stato) {
-            /* Con un guasto lo stato diceva «aperto: … 0 parole»: la parola
-               «aperto» accanto a un conteggio a zero fa credere che il file
-               fosse vuoto, mentre non si era aperto affatto. Il guasto va
-               detto qui, sotto il bottone che si è appena premuto, non solo
-               più in basso in mezzo al resto. */
-            if (d.errore) {
-              stato.innerHTML = '<span style="color:#ff8fa3">⚠ ' + esc(d.errore) +
-                '</span>';
-            } else {
-              stato.textContent = t('aperto: ', 'opened: ') + d.nome + ' · ' +
-                (d.pagine.length ? d.pagine.length + t(' pagine · ', ' pages · ') : '') +
-                d.nParole + t(' parole', ' words');
-            }
-          }
-          var out = document.getElementById('bsiSP-docOut');
-          if (!out) return;
-          out.innerHTML = rendiDocumento(d) +
-            (d.testo ? rendiSvolgimento(d.testo) : '');
-          attaccaPagine(d);
-          if (d.testo) agganciaConfronto(d.testo);
-          /* Una pagina senza testo è un'immagine: la si può comunque misurare
-             con l'estrattore di tracce, che è già qui accanto. Invece di
-             dirlo e basta, si offre il passaggio. */
-          if (d.pagine.length && !d.testo) {
-            var p0 = d.pagine[0];
-            var im = new Image();
-            im.onload = function () { ultimaImmagine = im; };
-            try { im.src = p0.tela.toDataURL('image/png'); } catch (e) {}
-          }
-        }).catch(function (e) {
-          if (stato) {
-            stato.textContent = t('non sono riuscito ad aprirlo: ',
-                                  'I could not open it: ') +
-              ((e && e.message) ? e.message : String(e));
-          }
-        });
-      };
+        var out = document.getElementById('bsiSP-docOut');
+        if (!out) return;
+        out.innerHTML = rendiDocumento(d) +
+          (d.testo ? rendiSvolgimento(d.testo) : '');
+        attaccaPagine(d);
+        if (d.testo) {
+          agganciaConfronto(d.testo);
+          if (!src.value.trim()) src.value = d.testo;
+        }
+        /* Una pagina senza testo è un'immagine: la si può comunque misurare
+           con l'estrattore di tracce, che è già qui accanto. */
+        if (d.pagine.length && !d.testo) {
+          var p0 = d.pagine[0];
+          var im = new Image();
+          im.onload = function () { ultimaImmagine = im; };
+          try { im.src = p0.tela.toDataURL('image/png'); } catch (e) {}
+        }
+      }).catch(function (e) {
+        if (stato) {
+          stato.innerHTML = '<span style="color:#ff8fa3">⚠ ' +
+            esc(t('non sono riuscito ad aprirlo: ', 'I could not open it: ') +
+                ((e && e.message) ? e.message : String(e))) + '</span>';
+        }
+      });
     }
     var esQ = document.getElementById('bsiSP-esQuesito');
     if (esQ) esQ.onclick = function () {
@@ -1350,17 +1513,6 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
           'Il testo è finito anche nella casella qui sopra: provaci a modificarlo.',
           'A typical exam problem, written as you find it on the sheet. ' +
           'The text also went into the box above: try changing it.') + '</div>');
-    };
-    var svT = document.getElementById('bsiSP-svolgiTesto');
-    if (svT) svT.onclick = function () {
-      if (!src.value.trim()) {
-        var o = document.getElementById('bsiSP-docOut');
-        if (o) o.innerHTML = '<div class="bsiSP-avv">' +
-          t('La casella è vuota: incolla il testo del quesito, oppure apri un documento.',
-            'The box is empty: paste the problem text, or open a document.') + '</div>';
-        return;
-      }
-      svolgiTestoE(src.value, '');
     };
 
     [].forEach.call(document.querySelectorAll('[data-es]'), function (b) {

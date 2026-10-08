@@ -88,14 +88,28 @@ will find the list of bands with their assignment.
 The **Spectrum reader** section does the opposite of the one above: it does not
 predict a spectrum from a structure, it reads one you already have.
 
-1. Drag the file into the box, or paste its text
-2. Press **Read**
+There is **one button**: `📂 Open a file`. It filters nothing — whatever you
+have in your folder, open it. A line under the button then **tells you what it
+decided the file is**:
 
-**JCAMP-DX** files (`.jdx`, `.dx`), which most spectrophotometers produce, work
-— including the compressed form — and so do two columns of numbers separated by
-spaces or commas, which is what a spreadsheet produces. If you have no file at
-hand, the three buttons **IR example**, **MS example** and **NMR example** load
-a sample spectrum.
+| What you open | What happens |
+|---|---|
+| a **PDF**, a **Word** file, an OpenDocument, a spreadsheet | it opens, shows you all of it and **works through** what it contains |
+| a **photograph** (`.png`, `.jpg`, …) | both things: the **trace** is extracted and the image is also shown as a page, because it may be a photo of a spectrum or of a sheet |
+| a **JCAMP-DX** (`.jdx`, `.dx`), compressed form included | it is a spectrum: the format itself says so |
+| a **text** file or a **`.csv`** | decided **from the content**: if the numbers form a curve it is a spectrum, otherwise it is **problem text** and gets worked through |
+
+If you prefer, **paste** the data or the problem text into the box and press
+**Read and work it out**: the same reasoning applies.
+
+> There used to be two cards, and the spectrum one allowed only `.jdx` and
+> `.csv`. On a phone that filter did not narrow, it **hid**: anyone arriving
+> with the PDF of an exam saw an empty folder. Now there is one door and it
+> filters nothing.
+
+If you have no file at hand, the three buttons **IR example**, **MS example**
+and **NMR example** load a sample spectrum, and **example: an exam problem**
+loads a complete problem.
 
 Below the chart you will find the peaks found with their signal-to-noise ratio,
 and for each band **all** compatible assignments. If you read two rows at
@@ -109,7 +123,7 @@ acid are both possible, and naming only one would be inventing.
 
 ### Opening a problem and having it worked through
 
-In the same section, **Open a document**. It takes the PDF of the exam, a
+The same button, `📂 Open a file`. It takes the PDF of the exam, a
 photograph of the sheet, a Word file, plain text — and shows you **everything**
 inside: every page drawn (click to enlarge) and the full text.
 
@@ -278,4 +292,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v195`._
+_Guide updated to version `bsi-v196`._

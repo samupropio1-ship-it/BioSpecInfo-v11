@@ -366,11 +366,38 @@ function copertina(nome, p){
   return m;
 }
 
+/* Dal nome di un PDF al documento da cui è stato impaginato.
+   `15-Test-Documentation.pdf` → `docs/15-Test-Documentation.md`
+   `15-Test-Documentation.en.pdf` → `docs/en/15-Test-Documentation.md`
+   I due dossier raccolgono tutto: il loro riferimento è il documento più
+   recente della rispettiva lingua, perché basta che UNO sia cambiato. */
+function sorgenteDelPdf(nomePdf) {
+  const dossier = /^BioSpecInfo-(Dossier-Completo\.it|Full-Dossier\.en)\.pdf$/.exec(nomePdf);
+  if (dossier) {
+    const dir = dossier[1].indexOf('.en') >= 0 ? path.join(RADICE, 'docs', 'en')
+                                               : path.join(RADICE, 'docs');
+    if (!fs.existsSync(dir)) return null;
+    let piuRecente = null, quando = 0;
+    fs.readdirSync(dir).filter(f => /^\d\d-.*\.md$/.test(f)).forEach(function(f){
+      const t = fs.statSync(path.join(dir, f)).mtimeMs;
+      if (t > quando) { quando = t; piuRecente = path.join(dir, f); }
+    });
+    return piuRecente;
+  }
+  const en = /^(.+)\.en\.pdf$/.exec(nomePdf);
+  if (en) return path.join(RADICE, 'docs', 'en', en[1] + '.md');
+  const it = /^(.+)\.pdf$/.exec(nomePdf);
+  if (it) return path.join(RADICE, 'docs', it[1] + '.md');
+  return null;
+}
+
 function main(){
   fs.rmSync(USCITA, { recursive: true, force: true });
   console.log('Pacchetti di documentazione — ' + VER + ' (' + SHA + ')\n');
 
   let rottiTotali = 0, esaminatiTotali = 0;
+  const pdfVecchi = [];
+  let evidenzaVecchia = null;
 
   Object.keys(PACCHETTI).forEach(function(nome){
     const p = PACCHETTI[nome];
@@ -468,6 +495,18 @@ function main(){
     }
 
     if (p.evidenza) {
+      /* Lo stesso vizio dei PDF, in un altro posto: il rapporto di verifica
+         dichiara la versione su cui la batteria è girata. Se non è questa, il
+         pacchetto porta l'evidenza di un'ALTRA versione — e un'evidenza che
+         riguarda altro codice non è evidenza. */
+      const rapporto = path.join(RADICE, 'docs', 'evidence', 'RAPPORTO-VERIFICA.md');
+      if (fs.existsSync(rapporto)) {
+        const dichiarata = /Versione applicazione \| `([^`]+)`/.exec(
+          fs.readFileSync(rapporto, 'utf8'));
+        if (dichiarata && dichiarata[1] !== VER) {
+          evidenzaVecchia = dichiarata[1];
+        }
+      }
       n += copiaCartella(path.join(RADICE, 'docs', 'evidence'),
                          path.join(dir, 'evidence'), null, dir);
     }
@@ -496,6 +535,19 @@ function main(){
         if (p.inglese) voluti.add('BioSpecInfo-Full-Dossier.en.pdf');
         fs.mkdirSync(path.join(dir, 'pdf'), { recursive: true });
         fs.readdirSync(dirPdf).filter(f => voluti.has(f)).sort().forEach(function(f){
+          /* UN PDF PIÙ VECCHIO DEL SUO TESTO È UN PDF CHE MENTE.
+             L'ordine suggerito dagli strumenti era «pacchetti && pdf», e
+             imbustava quindi i PDF della versione PRECEDENTE: il testo
+             aggiornato e l'impaginato vecchio, nello stesso pacchetto, senza
+             che nulla lo dicesse. Chi legge il PDF legge la versione di
+             prima. Quindi il confronto si fa qui, sulle date, e si DICE. */
+          const sorgente = sorgenteDelPdf(f);
+          if (sorgente && fs.existsSync(sorgente)) {
+            const tPdf = fs.statSync(path.join(dirPdf, f)).mtimeMs;
+            const tMd  = fs.statSync(sorgente).mtimeMs;
+            if (tPdf < tMd) pdfVecchi.push(f + '  (più vecchio di ' +
+                            path.relative(RADICE, sorgente) + ')');
+          }
           copia(path.join(dirPdf, f), path.join(dir, 'pdf', f), dir); n++;
         });
       }
@@ -554,7 +606,25 @@ function main(){
     console.log('✗ ' + rottiTotali + ' collegamenti rotti su ' + esaminatiTotali + ' esaminati');
     process.exit(1);
   }
+  /* L'impaginato non può essere più vecchio del testo: sarebbe la
+     versione di prima, dentro il pacchetto di adesso. */
+  if (pdfVecchi.length) {
+    const unici = Array.from(new Set(pdfVecchi)).sort();
+    console.log('\n✗ ' + unici.length + ' PDF sono più vecchi del documento da cui vengono:');
+    unici.slice(0, 12).forEach(function(r){ console.log('    · ' + r); });
+    if (unici.length > 12) console.log('    … e altri ' + (unici.length - 12));
+    console.log('\n  Rigenerali e ripeti:  node tools/genera-pdf.js && node tools/genera-pacchetti.js');
+    process.exit(1);
+  }
+  if (evidenzaVecchia) {
+    console.log('\n✗ il rapporto di verifica dichiara ' + evidenzaVecchia +
+                ', non ' + VER + ': i pacchetti porterebbero l’evidenza di un’altra versione.');
+    console.log('\n  Rigeneralo e ripeti:  node tools/genera-evidenza.js && node tools/genera-pacchetti.js');
+    process.exit(1);
+  }
   console.log('✓ ' + esaminatiTotali + ' collegamenti interni verificati, nessuno rotto');
+  console.log('✓ nessun PDF più vecchio del documento da cui viene');
+  console.log('✓ l’evidenza imbustata è quella di ' + VER);
   console.log('Ogni cartella è autosufficiente e porta la propria copertina.');
 }
 

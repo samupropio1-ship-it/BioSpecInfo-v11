@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v195` |
+| **Versione descritta** | `bsi-v196` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -55,11 +55,14 @@ node tools/genera-evidenza.js          # deve chiudersi con 0 falliti
 node tools/porta-versione.js bsi-v<NNN+1> --prova   # prima si guarda
 node tools/porta-versione.js bsi-v<NNN+1>           # poi si scrive
 
-# 3. rigenerare SBOM, PDF, pacchetti ed evidenza sulla versione nuova
+# 3. rigenerare SBOM, evidenza, PDF e pacchetti — IN QUEST'ORDINE
+#    I pacchetti imbustano i PDF e l'evidenza: se si costruiscono prima,
+#    portano l'impaginato e il rapporto della versione PRECEDENTE.
+#    genera-pacchetti adesso se ne accorge e si ferma, ma meglio non arrivarci.
 node tools/genera-sbom.js
+node tools/genera-evidenza.js       # la batteria; serve un server su :8899
 node tools/genera-pdf.js            # 36 PDF; ogni piè di pagina porta versione e commit
-node tools/genera-pacchetti.js      # i tre pacchetti di consegna; fallisce se un link è rotto
-node tools/genera-evidenza.js
+node tools/genera-pacchetti.js      # i tre pacchetti; fallisce su link rotti, PDF o evidenza vecchi
 
 # 4. unire in main
 git add -A && git commit -m "…"
@@ -341,4 +344,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v195`._
+_Documento aggiornato alla versione `bsi-v196`._

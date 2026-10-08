@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v195` |
+| **Versione descritta** | `bsi-v196` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -45,7 +45,7 @@
 | **SCI-21** | Un numero presentato come similarità strutturale deve venire da un fingerprint, e una sola implementazione deve calcolarlo | `rdkit_lab.html` carica `bsi-cheminfo.js` e ne usa `tanimoto()` e `fingerprint()`; la similarità a otto bit è stata rimossa | `test_cheminfo` — la pagina e il motore danno lo stesso Tanimoto su tutte e **28 le coppie**, scarto **esattamente 0**; le funzioni della similarità finta non esistono più; ogni struttura di riferimento è valida e ha la **massa monoisotopica** del farmaco che dichiara |
 | **SCI-22** | Le conversioni fra linguaggi molecolari devono essere verificate contro una fonte esterna o contro il calcolo a mano, e le coordinate scritte in un file devono essere vere e dichiarate | `bsi-molingue.js` — **venticinque uscite**, da SMILES a CML e alle sei impronte | `test_lingue` — 7 chiavi InChI **di letteratura**, giro completo SMILES → molfile → SMILES, 26 nomi a mano, **7 rifiuti pretesi**; composizione in massa contro il calcolo a mano (alanina C 40,44%, aspirina C 60,00%); XYZ e PDB con coordinate non nulle **e** dichiarate 2D |
 | **SCI-23** | Angoli, lunghezze e diedri si misurano sulle coordinate, e su coordinate piatte non si mostrano | prodotto scalare per gli angoli, prodotto vettoriale per i diedri | `test_mol3d` — tetraedro **109,4712°**, acqua 104,47°, CO₂ 180°, BF₃ 120°, ammoniaca 106,13°; diedri 0°, 60°, 90°, 180°; C–C dell'etanolo 1,509 Å; e il rifiuto provato nei due versi |
-| **SCI-24** | Uno spettro letto da un file deve essere decodificato secondo il formato, e i picchi trovati devono essere quelli che ci sono — né più né meno | `bsi-spettrolettore.js` — JCAMP-DX con ASDF completo (PMAI, DIF, DUP) e il controllo di integrità che il formato prevede; picchi per **prominenza**, rumore da MAD × 1,4826 | `test_spettrolettore` — **39 controlli**. Su tre gaussiane costruite a 1715, 2950, 3400 cm⁻¹ sotto rumore ne trova tre: 1716, 2952, 3402. **Nei due versi**: su rumore puro ne trova **zero**. ASDF verificato simbolo per simbolo (`abcdefghi` = −1…−9; `n` = −5, non −4) |
+| **SCI-24** | Uno spettro letto da un file deve essere decodificato secondo il formato, e i picchi trovati devono essere quelli che ci sono — né più né meno | `bsi-spettrolettore.js` — JCAMP-DX con ASDF completo (PMAI, DIF, DUP) e il controllo di integrità che il formato prevede; picchi per **prominenza**, rumore da MAD × 1,4826 | `test_spettrolettore` — **61 controlli**. Su tre gaussiane costruite a 1715, 2950, 3400 cm⁻¹ sotto rumore ne trova tre: 1716, 2952, 3402. **Nei due versi**: su rumore puro ne trova **zero**. ASDF verificato simbolo per simbolo (`abcdefghi` = −1…−9; `n` = −5, non −4) |
 | **SCI-25** | Una banda deve essere dichiarata *compatibile con*, mai assegnata a una sola possibilità | `BANDE_IR` — 24 intervalli, `assegnaIR()` restituisce **tutte** le assegnazioni compatibili | `test_spettrolettore` — a 1715 cm⁻¹ compaiono sia C=O chetonico sia C=O di acido carbossilico; la sezione dichiara di non dedurre la struttura |
 | **SCI-26** | Un modello pubblicato va verificato contro il **suo** errore dichiarato, e un modello appreso contro il caso | `bsi-cheminfo.js` §10 — ESOL (Delaney 2004) con incertezza, quattro filtri di drug-likeness separati, foresta casuale con errore fuori sacco | `test_spettrolettore` §4-5 — ESOL contro quattro valori sperimentali, scarto medio **0,68** entro l'errore dichiarato di ~1 unità logaritmica; foresta R² fuori sacco **0,90** su una relazione non lineare e **−0,16** su puro rumore; deterministica a parità di seme e diversa con seme diverso |
 | **SCI-27** | Una struttura senza fonte non deve entrare, nemmeno quando la si conosce | raccolta da ChEMBL, `tools/dati/farmaci_v187.json` con l'identificativo di ogni voce | **Due rifiuti**: ivermectina (`structure_type NONE`, miscela di omologhi) e semaglutide (proteina, `SEQ`). E due nomi tenuti con il nome del **record** e non della domanda: «morphine» → apomorfina, «levothyroxine» → liotironina |
@@ -105,6 +105,8 @@
 | **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi **e le 263 carte dei farmaci** disegnate a fette da 8 ms | `test_fluidita` — **92 sezioni attraversate**, cambio mediano 16 ms, peggiore 87 ms, **0 sezioni oltre 100 ms** (erano 3 con i farmaci nuovi, a 159 ms); e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta. Sul visore l'affermazione è **strutturale e non temporale**: subito dopo il ritorno del gestore del click il contesto WebGL non deve esistere, poco dopo deve — perché una soglia in millisecondi misurava SwiftShader e non il codice (14…192 ms a codice identico) |
 | **UI-10** | L'interfaccia deve poter cambiare lingua fra molte, dichiarando per ognuna quanto è tradotta, portando con sé il verso di scrittura | `bsi-lingue.js` con **quattordici lingue**, selezionatore con ricerca, `dir="rtl"` per l'arabo | `test_lingue` — **170 elementi di scheletro su 170 in ognuna delle tredici lingue**, copertura calcolata applicando il dizionario e contando; verso di scrittura provato nei due versi; categorie della barra e segnaposto della ricerca compresi |
 | **UI-11** | La molecola deve mostrare come sta insieme, e l'angolo lo deve scegliere chi guarda | `bsi-mol3d.js`: formazione dalla polvere con arrivo scaglionato, e selezione degli atomi con un clic | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s, l'ordine d'arrivo (scheletro prima degli idrogeni) misurato sull'avanzamento di ogni atomo, e la selezione di 1, 2, 3 e 4 atomi |
+| **UI-12** | Chi ha un file deve poterlo aprire: un selettore che elenca le estensioni non restringe la scelta su un telefono, la **nasconde** | `bsi-spettrolettore.js` — un solo `<input type="file">` **senza `accept`**, un solo bottone, e `apriQualunque()` che instrada per tipo, per estensione dichiarata dal formato e **per contenuto**, annunciando la decisione in `#bsiSP-deciso` | `test_spettrolettore` §7 — un solo bottone visibile, `accept` **vuoto** (un `accept` non vuoto qui *è* il guasto), e l'instradamento verificato su PDF, `.docx`, `.txt`, `.jdx`, due colonne `.csv` e un'immagine; **nei due versi** un binario travestito da `.txt` non viene riversato come testo ma dichiarato binario |
+| **UI-13** | La versione mostrata in intestazione deve essere quella che sta girando | `index.html` — il distintivo si riempie da `window.BSI_APP_VERSION`, non è più una stringa scritta a mano | `test_spettrolettore` §8 — il testo del distintivo è confrontato con `BSI_APP_VERSION` misurata nella pagina in esecuzione. Serviva: per circa ottanta versioni l'intestazione ha scritto `v13l` quando l'applicazione aveva già superato la versione 190, e nessun controllo la guardava |
 
 ---
 
@@ -151,12 +153,12 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…34) | 33 | 33 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…11) | 9 | 9 | 100 % |
+| Interfaccia (UI-01…13) | 11 | 11 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
 | Architettura (ING-01…01) | 1 | 1 | 100 % |
-| **Totale automatizzato** | **66** | **66** | **100 %** |
+| **Totale automatizzato** | **68** | **68** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **71** | **66** | **93 %** |
+| **Totale dichiarato** | **73** | **68** | **93 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -192,4 +194,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v195`._
+_Documento aggiornato alla versione `bsi-v196`._

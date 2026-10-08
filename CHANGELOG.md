@@ -7,6 +7,89 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v196] — 2026-10-08
+
+**Una sola porta d'ingresso al lettore spettri.** Dalla fotografia di un
+telefono: la scheda «Carica uno spettro» non lasciava scegliere un PDF, e
+mostrava solo formati che nessuno ha in cartella.
+
+### Che cosa succedeva
+
+Il selettore di file dichiarava:
+
+```html
+<input type="file" accept=".jdx,.dx,.txt,.csv,.jcamp">
+```
+
+Su un telefono un `accept` **non restringe: nasconde**. Chi apriva «carica uno
+spettro» con in mano il PDF di un compito vedeva una cartella vuota e
+concludeva che l'applicazione fosse rotta. Lo era, di fatto: `.jdx` e `.dx`
+escono dagli spettrofotometri, non li ha nessuno; il PDF e la fotografia ce li
+hanno tutti, ed erano esattamente i due formati che quella scheda rifiutava.
+
+C'erano poi **due schede** per la stessa domanda — «ho un file, cosa ci
+faccio?» — una per gli spettri e una per i documenti. Chi arrivava col file
+sbagliato nella scheda sbagliata non riceveva un errore: riceveva niente.
+
+### Che cosa è cambiato
+
+- **Una scheda sola, un bottone solo, nessun filtro.** `📂 Apri un file`
+  accetta qualunque cosa, e **il programma decide che cos'è dicendolo** in una
+  riga sotto il bottone. Niente instradamenti silenziosi: un instradamento
+  silenzioso che sbaglia non si distingue da un programma che non fa nulla.
+- **Le decisioni.** Un'immagine fa *entrambe* le cose (si estrae la traccia e
+  si mostra come pagina, perché può essere la foto di uno spettro o di un
+  foglio). Un `.jdx` è uno spettro per dichiarazione del formato. Un testo o un
+  `.csv` si decide **dal contenuto**: se ci sono almeno cinque punti è uno
+  spettro, altrimenti è il testo di un quesito e si svolge. Tutto il resto —
+  PDF, Word, OpenDocument, fogli di calcolo — è un documento: si apre, si
+  mostra per intero e si svolge quello che contiene.
+- **Un binario travestito da `.txt`** non finisce più riversato nella casella
+  di testo come byte illeggibili: la decodifica si controlla (byte nulli,
+  frazione di `U+FFFD`) e il file passa al lettore di documenti, che sa dire
+  che non è testo.
+- **L'ingresso nascosto `#bsiSP-doc` forza il lettore di documenti** invece di
+  ripassare dall'instradamento automatico. Si chiama «doc»: deve aprire un
+  documento.
+
+### Il distintivo di versione mentiva da ottanta versioni
+
+L'intestazione scriveva **`v13l`**: una stringa fissa nell'HTML, mai
+aggiornata, mentre l'applicazione era a `bsi-v195`. Nessun controllo la
+guardava. Ora il distintivo si riempie da `BSI_APP_VERSION`, e **un controllo
+confronta i due** — se tornano a divergere la batteria se ne accorge.
+
+### Verifiche
+
+- `test_spettrolettore` passa da 45 a **61 controlli**: un solo bottone
+  visibile, `accept` **vuoto** (la direzione che conta: un `accept` non vuoto
+  qui *è* il guasto), e l'instradamento provato su PDF, `.docx`, `.txt`,
+  `.jdx`, due colonne `.csv`, un binario travestito e un `.png` — pretendendo
+  per ognuno che la decisione annunciata sia quella giusta.
+- Provato anche nell'ambiente che somiglia al telefono: sottocartella,
+  **`.mjs` servito come `application/octet-stream` come fa GitHub Pages**,
+  service worker attivo, finestra 390×844.
+
+### Due bugie silenziose nei pacchetti di consegna
+
+L'ordine suggerito dagli strumenti era `genera-pacchetti && genera-pdf`, e
+`genera-evidenza` veniva per ultimo. Ma i pacchetti **imbustano** i PDF e il
+rapporto di verifica: costruiti prima, portavano dentro **l'impaginato e
+l'evidenza della versione precedente**, accanto al testo nuovo, senza che
+nulla lo dicesse. Chi avesse letto il PDF avrebbe letto la versione di prima.
+
+- `genera-pacchetti` ora **confronta le date**: un PDF più vecchio del
+  documento da cui viene ferma la generazione e viene nominato.
+- E **legge la versione dichiarata dal rapporto di verifica**: se non è
+  questa, si ferma — un'evidenza che riguarda altro codice non è evidenza.
+- L'ordine suggerito è stato corretto in `porta-versione.js` e nella guida al
+  rilascio: SBOM → evidenza → **PDF** → **pacchetti**.
+
+Entrambi i controlli sono stati provati **nei due versi**: toccando un
+documento perché il suo PDF risultasse vecchio (si ferma, esce con 1) e
+riportando il rapporto a `bsi-v195` (si ferma); rigenerando, passa.
+
+---
 ## [bsi-v195] — 2026-10-08
 
 **I PDF non si aprivano sul sito pubblicato.** I banchi passavano, qui

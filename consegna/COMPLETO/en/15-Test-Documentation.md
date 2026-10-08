@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v195` |
+| **Version described** | `bsi-v196` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -108,7 +108,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_datasci` | The maths the Data Science section **displays**: R² on an exact relation, standardised weights in the true ratio, ROC on hand-computable values, behaviour on pure noise, and that **no section is left unreachable** | 23 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
 | `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals and their **refusal on classification** | 189 |
-| `test_spettrolettore` | The spectrum reader and the models that follow from it: ASDF symbol by symbol, explicit and DIF/DUP-compressed JCAMP, prominence peaks on **built** spectra **and on pure noise**, curve versus peak list, neutral losses on toluene, ESOL against four experimental values, four drug-likeness filters reported separately, random forest both ways | 39 |
+| `test_spettrolettore` | The spectrum reader and the models that follow from it: ASDF symbol by symbol, explicit and DIF/DUP-compressed JCAMP, prominence peaks on **built** spectra **and on pure noise**, curve versus peak list, neutral losses on toluene, ESOL against four experimental values, four drug-likeness filters reported separately, random forest both ways, **a single entry point** (one button, empty `accept`, routing checked on PDF/`.docx`/`.txt`/`.jdx`/`.csv`/a disguised binary/an image) and the version badge compared with `BSI_APP_VERSION` | 61 |
 | `test_nmr` | Per-atom NMR prediction: two separate molecule sets (tuning and **validation**, the latter never used to choose parameters), the signal count on molecules whose count is known, refusals on an unreadable SMILES and on an empty string, the **history** with duplicate detection by InChI key, and the **peak ↔ structure ↔ 3D** sync verified on the indices, not on how many atoms light up | 64 |
 | `test_nmr2d` | Correlation maps counted on the graph: HSQC with inverted sign on CH₂, COSY between non-equivalent protons, HMBC two and three bonds away. **In both directions**: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots, methane **no** HMBC spots despite having four protons | 40 |
 | `test_geom3d` | The 3D geometry built from the graph, measured against literature values: bonds, valence angles, alkyne linearity. **In both directions**: benzene comes out planar and cyclohexane does **not**. And the proof that makes the peak↔atom link legitimate: every heavy atom has **the same index and element** as the predictor's | 29 |
@@ -463,7 +463,7 @@ what can be measured, with the guarantee that it will not silently get worse.
 |---|---|
 | `verifica_guida` | That the documentation's promises exist in the code; absence of conflict markers across 58 files |
 | `verifica-documenti` | Internal links, version alignment, index consistency, justification of the deviations, **internal consistency of the traceability matrix** (no duplicated identifiers, coverage totals equal to the identifiers actually defined) |
-| `genera-pacchetti` | Rewrites the references of the extracted documents and **verifies that no link is left broken** in the three delivery packages |
+| `genera-pacchetti` | Rewrites the references of the extracted documents and **verifies that no link is left broken** in the three delivery packages. It also verifies that **no PDF is older than the document it comes from** and that the bundled verification report declares **this** version: a typeset document or an evidence report from the previous version, inside a current package, is a silent lie |
 | `genera-pdf` | Converts the documents to PDF and fails if a file falls below the plausibility threshold (empty conversion) |
 | `verifica-affermazioni` | Compares every number declared in the documents — sections, drugs, diseases, tumours, strategies, modules — with the one **measured in the running application**, in Italian *and* in English |
 | `test_stack` | That the React/FastAPI stack runs **the same files** as the application: it compares the SHA-256 fingerprints `GET /salute` declares with those of the files on disk, checks the numbers match the browser's, and that **no `.ts`/`.tsx` file contains a shift table** — because that is where the second engine would be born |
@@ -607,4 +607,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v195`._
+_Document updated to version `bsi-v196`._

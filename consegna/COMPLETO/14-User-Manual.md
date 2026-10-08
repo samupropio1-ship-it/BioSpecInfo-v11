@@ -85,14 +85,28 @@ l'elenco delle bande con la loro assegnazione.
 La sezione **Lettore spettri** fa il contrario di quella sopra: non prevede uno
 spettro dalla struttura, legge quello che hai già.
 
-1. Trascina il file dentro il riquadro, o incollane il testo
-2. Premi **Leggi**
+C'è **un solo bottone**: `📂 Apri un file`. Non filtra niente — qualunque cosa
+hai in cartella, aprila. Sotto il bottone compare una riga che **ti dice che
+cosa ha deciso di essere** il file che hai aperto:
 
-Funzionano i file **JCAMP-DX** (`.jdx`, `.dx`) che escono dalla maggior parte
-degli spettrofotometri, anche nella forma compressa, e due colonne di numeri
-separate da spazi o virgole — che è ciò che esce da un foglio di calcolo.
+| Quello che apri | Che cosa succede |
+|---|---|
+| un **PDF**, un **Word**, un OpenDocument, un foglio di calcolo | si apre, te lo mostra per intero e **svolge** quello che contiene |
+| una **fotografia** (`.png`, `.jpg`, …) | tutte e due le cose: ne estrae la **traccia** e la mostra anche come pagina, perché può essere la foto di uno spettro o di un foglio |
+| un **JCAMP-DX** (`.jdx`, `.dx`), anche compresso | è uno spettro: lo dichiara il formato stesso |
+| un **testo** o un **`.csv`** | si decide **dal contenuto**: se ci sono dei numeri che formano una curva è uno spettro, altrimenti è il **testo di un quesito** e lo svolge |
+
+Se preferisci, puoi **incollare** i dati o il testo del quesito nella casella e
+premere **Leggi e svolgi**: fa lo stesso ragionamento.
+
+> Prima c'erano due schede, e quella degli spettri lasciava scegliere solo
+> `.jdx` e `.csv`. Su un telefono quel filtro non restringeva, **nascondeva**:
+> chi ci arrivava con il PDF di un compito vedeva una cartella vuota. Ora la
+> porta è una e non filtra niente.
+
 Se non hai un file sotto mano, i tre pulsanti **esempio IR**, **esempio MS** ed
-**esempio NMR** caricano uno spettro di prova.
+**esempio NMR** caricano uno spettro di prova, e **esempio: un quesito d'esame**
+carica una traccia completa.
 
 Sotto il grafico trovi i picchi trovati con il loro rapporto segnale-rumore, e
 per ogni banda **tutte** le assegnazioni compatibili. Se a 1715 cm⁻¹ leggi due
@@ -101,7 +115,7 @@ carbossilico sono entrambi possibili, e dirne uno solo sarebbe inventare.
 
 ### Aprire un quesito e fartelo svolgere
 
-Nella stessa sezione, **Apri un documento**. Accetta il PDF della prova, la
+Lo stesso bottone, `📂 Apri un file`. Accetta il PDF della prova, la
 fotografia del foglio, un file Word, un testo — e ti mostra **tutto** quello
 che c'è dentro: ogni pagina disegnata (cliccala per ingrandirla) e il testo per
 intero.
@@ -275,4 +289,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v195`._
+_Guida aggiornata alla versione `bsi-v196`._

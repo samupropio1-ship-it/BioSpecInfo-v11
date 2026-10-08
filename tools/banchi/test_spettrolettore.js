@@ -353,15 +353,136 @@ function sotto(d, limite, avuto){
   /* il punto d'onore: dichiarare che non deduce la struttura */
   att('e la sezione dichiara che NON deduce la struttura', true, sez.dichiara);
 
+  /* ── §7 · Una sola porta d'ingresso ──────────────────────────────────────
+     Il difetto che questo blocco guarda era REALE e arrivava da una foto:
+     il selettore dichiarava `accept=".jdx,.dx,.txt,.csv,.jcamp"`, e su un
+     telefono un `accept` non restringe — NASCONDE. Chi apriva «carica uno
+     spettro» con in mano il PDF di un compito vedeva una cartella vuota e
+     concludeva che l'applicazione fosse rotta. Lo era.
+
+     Quindi qui si pretendono tre cose insieme: che la porta sia UNA, che non
+     filtri NIENTE, e che per ogni tipo di file il programma DICA che cosa ha
+     deciso — perché un instradamento silenzioso che sbaglia è peggio di un
+     errore: non si distingue da un programma che non ha fatto nulla.
+     ───────────────────────────────────────────────────────────────────────── */
+  console.log('\n── Una sola porta d’ingresso ──');
+  const fs = require('fs'), os = require('os'), path = require('path');
+  const Q = path.join(__dirname, '..', 'dati', 'quesiti');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bsi-porta-'));
+  /* un JCAMP-DX minimo ma vero: due colonne, XYDATA in (X++(Y..Y)) */
+  const jdx = path.join(tmp, 'spettro.jdx');
+  fs.writeFileSync(jdx, '##TITLE=prova\n##JCAMP-DX=4.24\n##XUNITS=1/CM\n' +
+    '##YUNITS=ABSORBANCE\n##FIRSTX=1000\n##LASTX=1009\n##DELTAX=1\n##NPOINTS=10\n' +
+    '##XYDATA=(X++(Y..Y))\n1000 10 12 40 90 40 12 10 11 10 9\n##END=\n');
+  /* due colonne di numeri senza intestazione: si decide dal CONTENUTO */
+  const csv = path.join(tmp, 'colonne.csv');
+  fs.writeFileSync(csv, Array.from({ length: 40 }, (_, i) =>
+    (1000 + i) + ',' + (0.1 + 0.8 * Math.exp(-Math.pow(i - 20, 2) / 8))).join('\n') + '\n');
+
+  const ingresso = await pg.evaluate(() => {
+    /* Un `<input type=file>` si tiene SEMPRE nascosto e si apre con un
+       bottone: è il modo normale di avere un controllo che si possa disegnare.
+       Quindi non conto gli ingressi — conto i BOTTONI che l'utente vede, e
+       pretendo che ne esista uno solo per aprire un file. */
+    const bottoni = [].filter.call(
+      document.querySelectorAll('#sspettrolettore button'),
+      b => b.offsetParent !== null && /apri|open/i.test(b.textContent) &&
+           !/immagine|image|rileggi|again/i.test(b.textContent));
+    const f = document.getElementById('bsiSP-file');
+    return { bottoni: bottoni.map(b => b.textContent.trim()),
+             filtro: f ? (f.getAttribute('accept') || '') : '(manca l’ingresso)',
+             apreIlNostro: bottoni.length === 1 && bottoni[0].id === 'bsiSP-apri',
+             dice: !!document.getElementById('bsiSP-deciso') };
+  });
+  att('un solo bottone visibile per aprire un file', 1, ingresso.bottoni.length);
+  console.log('      (' + ingresso.bottoni.join(' | ') + ')');
+  att('  · ed è quello dell’ingresso unico', true, ingresso.apreIlNostro);
+  /* la direzione che conta: NESSUN filtro. Un accept non vuoto qui è il bug. */
+  att('  · che non filtra nessuna estensione', '', ingresso.filtro);
+  att('  · e c’è una riga che annuncia la decisione', true, ingresso.dice);
+
+  async function instrada(file, attesa) {
+    await pg.evaluate(() => {
+      const d = document.getElementById('bsiSP-deciso'); if (d) d.textContent = '';
+      const s = document.getElementById('bsiSP-docStato'); if (s) s.textContent = '';
+    });
+    await pg.setInputFiles('#bsiSP-file', file);
+    await pg.waitForTimeout(attesa || 3500);
+    return pg.evaluate(() => ({
+      deciso: (document.getElementById('bsiSP-deciso') || {}).textContent || '',
+      stato: (document.getElementById('bsiSP-docStato') || {}).textContent || '',
+      pagine: document.querySelectorAll('#bsiSP-pagine canvas').length,
+      tela: !!document.getElementById('bsiSP-tela'),
+      svolto: /svolgimento|working it out|passaggi/i.test(
+        (document.getElementById('bsiSP-docOut') || {}).textContent || '')
+    }));
+  }
+
+  const vPdf = await instrada(path.join(Q, 'quesito-benzilacetato.pdf'), 14000);
+  att('un PDF viene instradato come documento', true, /documento|document/i.test(vPdf.deciso));
+  att('  · le sue pagine compaiono disegnate', true, vPdf.pagine >= 1);
+  att('  · e la traccia dentro viene svolta', true, vPdf.svolto);
+  att('  · senza che lo stato menta («aperto» solo se è aperto)', true,
+      /aperto|opened/.test(vPdf.stato) && !/errore|error/i.test(vPdf.stato));
+  console.log('      (' + vPdf.stato.trim().slice(0, 70) + ')');
+
+  const vDocx = await instrada(path.join(Q, 'quesito-benzilacetato.docx'), 4500);
+  att('un .docx viene instradato come documento e svolto', true,
+      /documento|document/i.test(vDocx.deciso) && vDocx.svolto);
+
+  const vTxt = await instrada(path.join(Q, 'quesito-benzilacetato.txt'), 4500);
+  att('un testo senza numeri di spettro diventa un quesito', true,
+      /quesito|problem|testo|text/i.test(vTxt.deciso) && vTxt.svolto);
+
+  const vJdx = await instrada(jdx, 4000);
+  att('un .jdx viene letto come spettro, non come documento', true,
+      /spettro|spectrum/i.test(vJdx.deciso) && vJdx.tela);
+
+  const vCsv = await instrada(csv, 4500);
+  att('due colonne di numeri si riconoscono dal contenuto', true,
+      /spettro|spectrum/i.test(vCsv.deciso) && vCsv.tela);
+
+  /* L'altra direzione del riconoscimento del testo: un binario travestito da
+     `.txt` non deve finire nella casella di testo come byte illeggibili. Il
+     nome dice «testo»; il contenuto no, e vince il contenuto. */
+  const finto = path.join(tmp, 'travestito.txt');
+  fs.writeFileSync(finto, Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    Buffer.alloc(600, 0)
+  ]));
+  const vFinto = await instrada(finto, 3500);
+  att('un binario chiamato .txt non viene riversato come testo', false,
+      /quesito|problem text/i.test(vFinto.deciso));
+  att('  · e il lettore di documenti dice che non lo sa leggere', true,
+      /non|not|binario|binary|formato|format/i.test(vFinto.stato + vFinto.deciso));
+  console.log('      (' + (vFinto.stato || vFinto.deciso).trim().slice(0, 80) + ')');
+
+  const vPng = await instrada(path.join(__dirname, '..', '..', 'icon-192.png'), 6000);
+  att('un’immagine fa entrambe le cose (traccia e pagina)', true,
+      /immagine|image/i.test(vPng.deciso) && vPng.tela && vPng.pagine >= 1);
+
+  try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) {}
+
+  /* ── §8 · Il distintivo di versione ──────────────────────────────────────
+     Per circa ottanta versioni l'intestazione ha scritto «v13l»: una stringa
+     fissa nell'HTML, mai aggiornata, mentre l'applicazione era a v195.
+     Nessun controllo la guardava. Ora c'è. */
+  const distintivo = await pg.evaluate(() => ({
+    badge: ((document.getElementById('version-badge') || {}).textContent || '').trim(),
+    atteso: String(window.BSI_APP_VERSION || '').replace(/^bsi-/, '')
+  }));
+  att('il distintivo in intestazione riporta la versione vera',
+      distintivo.atteso, distintivo.badge);
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 45) {
+  if (eseguiti < 60) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 60');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v195` |
+| **Version described** | `bsi-v196` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -354,4 +354,4 @@ Extension points for whoever has to work on the code. They are globals on
 
 ---
 
-_Document updated to version `bsi-v195`._
+_Document updated to version `bsi-v196`._

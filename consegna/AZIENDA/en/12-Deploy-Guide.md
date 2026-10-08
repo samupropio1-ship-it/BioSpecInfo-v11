@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v195` |
+| **Version described** | `bsi-v196` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -55,11 +55,14 @@ node tools/genera-evidenza.js          # must close with 0 failures
 node tools/porta-versione.js bsi-v<NNN+1> --prova   # look first
 node tools/porta-versione.js bsi-v<NNN+1>           # then write
 
-# 3. regenerate SBOM, PDFs, packages and evidence on the new version
+# 3. regenerate SBOM, evidence, PDFs and packages — IN THIS ORDER
+#    The packages bundle the PDFs and the evidence: built first, they carry
+#    the typeset documents and the report of the PREVIOUS version.
+#    genera-pacchetti now notices and stops, but better not to get there.
 node tools/genera-sbom.js
+node tools/genera-evidenza.js       # the battery; needs a server on :8899
 node tools/genera-pdf.js            # 36 PDFs; every footer carries version and commit
-node tools/genera-pacchetti.js      # the three delivery packages; fails if a link is broken
-node tools/genera-evidenza.js
+node tools/genera-pacchetti.js      # the three packages; fails on broken links, stale PDFs or stale evidence
 
 # 4. merge into main
 git add -A && git commit -m "…"
@@ -338,4 +341,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v195`._
+_Document updated to version `bsi-v196`._

@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v195` |
+| **Version described** | `bsi-v196` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -45,7 +45,7 @@
 | **SCI-21** | A number presented as structural similarity must come from a fingerprint, and one implementation must compute it | `rdkit_lab.html` loads `bsi-cheminfo.js` and uses its `tanimoto()` and `fingerprint()`; the eight-bit similarity has been removed | `test_cheminfo` — page and engine give the same Tanimoto over all **28 pairs**, deviation **exactly 0**; the fake-similarity functions no longer exist; every reference structure is valid and carries the **monoisotopic mass** of the drug it names |
 | **SCI-22** | Conversions between molecular languages must be checked against an external source or against hand calculation, and coordinates written to a file must be real and declared | `bsi-molingue.js` — **seventeen outputs**, from SMILES to CML | `test_lingue` — 7 **literature InChI keys**, full SMILES → molfile → SMILES round-trip, 26 hand-written names, **7 required refusals**; mass composition against hand calculation (alanine C 40.44%, aspirin C 60.00%); XYZ and PDB with non-null coordinates **and** declared 2D |
 | **SCI-23** | Angles, lengths and dihedrals are measured on the coordinates, and on flat coordinates they are not shown | dot product for angles, cross product for dihedrals | `test_mol3d` — tetrahedron **109.4712°**, water 104.47°, CO₂ 180°, BF₃ 120°, ammonia 106.13°; dihedrals 0°, 60°, 90°, 180°; ethanol C–C 1.509 Å; and the refusal tested in both directions |
-| **SCI-24** | A spectrum read from a file must be decoded according to the format, and the peaks found must be the ones that are there — no more, no fewer | `bsi-spettrolettore.js` — JCAMP-DX with full ASDF (PMAI, DIF, DUP) and the integrity check the format prescribes; peaks by **prominence**, noise from MAD × 1.4826 | `test_spettrolettore` — **39 checks**. On three Gaussians built at 1715, 2950, 3400 cm⁻¹ under noise it finds three: 1716, 2952, 3402. **Both ways**: on pure noise it finds **zero**. ASDF verified symbol by symbol (`abcdefghi` = −1…−9; `n` = −5, not −4) |
+| **SCI-24** | A spectrum read from a file must be decoded according to the format, and the peaks found must be the ones that are there — no more, no fewer | `bsi-spettrolettore.js` — JCAMP-DX with full ASDF (PMAI, DIF, DUP) and the integrity check the format prescribes; peaks by **prominence**, noise from MAD × 1.4826 | `test_spettrolettore` — **61 checks**. On three Gaussians built at 1715, 2950, 3400 cm⁻¹ under noise it finds three: 1716, 2952, 3402. **Both ways**: on pure noise it finds **zero**. ASDF verified symbol by symbol (`abcdefghi` = −1…−9; `n` = −5, not −4) |
 | **SCI-25** | A band must be declared *compatible with*, never assigned to a single possibility | `BANDE_IR` — 24 ranges; `assegnaIR()` returns **all** compatible assignments | `test_spettrolettore` — at 1715 cm⁻¹ both a ketone C=O and a carboxylic acid C=O appear; the section states that it does not deduce the structure |
 | **SCI-26** | A published model must be checked against **its own** declared error, and a learned model against chance | `bsi-cheminfo.js` §10 — ESOL (Delaney 2004) with its uncertainty, four drug-likeness filters reported separately, random forest with out-of-bag error | `test_spettrolettore` §4-5 — ESOL against four experimental values, mean deviation **0.68**, inside the declared ~1 log unit; forest out-of-bag R² **0.90** on a non-linear relationship and **−0.16** on pure noise; deterministic for a given seed and different for another |
 | **SCI-27** | A structure without a source must not get in, not even one that is known | collected from ChEMBL, `tools/dati/farmaci_v187.json` carries each entry's identifier | **Two refusals**: ivermectin (`structure_type NONE`, a mixture of homologues) and semaglutide (a protein, `SEQ`). And two entries kept under the **record's** name rather than the query's: «morphine» → apomorphine, «levothyroxine» → liothyronine |
@@ -105,6 +105,8 @@
 | **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures **and the 263 drug cards** drawn in 8 ms slices | `test_fluidita` — **92 sections traversed**, median switch 16 ms, worst 87 ms, **0 sections above 100 ms** (there were 3 with the new drugs, at 159 ms); plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute. For the viewer the claim is **structural, not temporal**: immediately after the click handler returns, the WebGL context must not exist; shortly after it must — because a millisecond threshold was measuring SwiftShader rather than the code (14…192 ms on identical code) |
 | **UI-10** | The interface must switch among many languages, declaring how much each is translated, and carrying the writing direction with it | `bsi-lingue.js` with **fourteen languages**, a searchable selector, `dir="rtl"` for Arabic | `test_lingue` — **170 skeleton elements out of 170 in each of the thirteen languages**, coverage computed by applying the dictionary and counting; writing direction tested in both directions; navigation categories and the search placeholder included |
 | **UI-11** | The molecule must show how it holds together, and the viewer must choose the angle | `bsi-mol3d.js`: formation from dust with staggered arrival, and atom selection by click | `test_mol3d` — the canvas **pixels** at 130 ms and 2.3 s, the arrival order (skeleton before hydrogens) measured on each atom's progress, and the selection of 1, 2, 3 and 4 atoms |
+| **UI-12** | Whoever has a file must be able to open it: a picker listing extensions does not narrow the choice on a phone, it **hides** it | `bsi-spettrolettore.js` — a single `<input type="file">` **with no `accept`**, a single button, and `apriQualunque()` routing by type, by the extension the format declares and **by content**, announcing the decision in `#bsiSP-deciso` | `test_spettrolettore` §7 — one visible button, an **empty** `accept` (a non-empty `accept` here *is* the defect), and routing verified on PDF, `.docx`, `.txt`, `.jdx`, two `.csv` columns and an image; **both ways**, a binary disguised as `.txt` is not poured out as text but declared binary |
+| **UI-13** | The version shown in the header must be the one actually running | `index.html` — the badge is filled from `window.BSI_APP_VERSION`, no longer a hand-written string | `test_spettrolettore` §8 — the badge text is compared with `BSI_APP_VERSION` measured in the running page. It was needed: for about eighty versions the header read `v13l` when the application was already past version 190, and no check looked at it |
 
 ---
 
@@ -151,12 +153,12 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…34) | 33 | 33 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…11) | 9 | 9 | 100 % |
+| Interface (UI-01…13) | 11 | 11 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
 | Architecture (ING-01…01) | 1 | 1 | 100 % |
-| **Automated total** | **66** | **66** | **100 %** |
+| **Automated total** | **68** | **68** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **71** | **66** | **93 %** |
+| **Declared total** | **73** | **68** | **93 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -191,4 +193,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v195`._
+_Document updated to version `bsi-v196`._
