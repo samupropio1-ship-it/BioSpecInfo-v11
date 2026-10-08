@@ -59,7 +59,7 @@ const FAMIGLIE = [
     banchi: ['@verifica-farmaci', 'audit_farmaci', 'verifica_farmaci_v187',
              'test_spettri', 'test_spettri_ui', 'test_assi',
              'test_assi_canvas', 'test_costanti', 'audit_dati', 'test_simmetria', 'test_cheminfo',
-             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_documento', 'test_nmr', 'test_nmr2d', 'test_geom3d', 'test_elucida'] },
+             'test_farm_ui', 'test_datasci', 'test_astro', 'test_spettrolettore', 'test_documento', 'test_nmr', 'test_nmr2d', 'test_geom3d', 'test_elucida', 'test_digitalizza'] },
   { nome: 'Agente AI',
     scopo: 'L\'assistente resta utilizzabile quando il fornitore esterno si guasta.',
     banchi: ['test_nucleo', 'test_ko', 'test_404', 'test_503', 'test_firma',

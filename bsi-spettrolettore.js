@@ -250,7 +250,20 @@
     var verso = opz.versoIlBasso ? -1 : 1;
     var yy = y.map(function (v) { return v * verso; });
     var base = lineaDiBase(yy, opz.finestraBase);
-    var sigma = rumore(yy, base) || 1e-12;
+    /* RUMORE ZERO NON VUOL DIRE RUMORE PICCOLISSIMO.
+       Lo scarto assoluto mediano dei residui vale esattamente 0 quando la
+       traccia è liscia: una curva digitalizzata da una figura pulita, o una
+       curva calcolata. Dividere per 1e-12 produceva rapporti segnale-rumore
+       come 4 996 427 518, stampati con due decimali — una precisione
+       inventata su una grandezza che in quel caso NON E' MISURABILE.
+       Il surrogato resta per poter confrontare le altezze, ma si segna che
+       il rumore non è misurato, e chi stampa i numeri lo dice. */
+    var sigmaVera = rumore(yy, base);
+    var misurabile = sigmaVera > 0;
+    /* senza rumore misurabile la soglia diventa una frazione dell'ampiezza:
+       un picco è un picco se si alza di almeno un millesimo dell'escursione */
+    var escursione = Math.max.apply(null, yy) - Math.min.apply(null, yy);
+    var sigma = misurabile ? sigmaVera : Math.max(escursione * 1e-3, 1e-12);
     var sogliaSNR = opz.snr != null ? opz.snr : 3;
     var picchi = [];
     for (var i = 1; i < yy.length - 1; i++) {
@@ -265,10 +278,14 @@
       var prom = yy[i] - Math.max(sx, dx);
       if (prom < (opz.prominenzaMinima != null ? opz.prominenzaMinima : sogliaSNR * sigma)) continue;
       picchi.push({ i: i, x: x[i], y: y[i], altezza: altezza * verso,
-                    prominenza: prom, snr: altezza / sigma });
+                    prominenza: prom,
+                    /* se il rumore non è misurabile l'SNR non esiste: null,
+                       non un numero enorme */
+                    snr: misurabile ? altezza / sigma : null });
     }
     picchi.sort(function (p, q) { return q.prominenza - p.prominenza; });
-    return { picchi: picchi, sigma: sigma, base: base };
+    return { picchi: picchi, sigma: misurabile ? sigma : null,
+             rumoreMisurabile: misurabile, sogliaUsata: sogliaSNR * sigma, base: base };
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -442,6 +459,11 @@
     var esito = {
       tipo: tipo, versoIlBasso: versoIlBasso, listaDiPicchi: lista,
       punti: spettro.x.length, sigma: r.sigma,
+      /* tre casi distinti, e vanno detti distinti: il rumore misurato, il
+         rumore non misurabile perché la traccia è liscia, e la lista di
+         picchi dove di rumore non si parla nemmeno */
+      rumoreMisurabile: lista ? null : !!r.rumoreMisurabile,
+      sogliaUsata: r.sogliaUsata != null ? r.sogliaUsata : null,
       intervallo: [Math.min.apply(null, spettro.x), Math.max.apply(null, spettro.x)],
       picchi: r.picchi.slice(0, opz.quanti || 30),
       base: r.base
@@ -507,6 +529,17 @@
      ═════════════════════════════════════════════════════════════════════════ */
   function daImmagine(immagine, opz) {
     opz = opz || {};
+    /* UNA SOLA CASA PER FUNZIONE.
+       Questa funzione era l'implementazione. Ora l'implementazione sta in
+       `bsi-digitalizza.js`, che fa la stessa cosa fatta bene: trova la
+       cornice degli assi invece di digitalizzare anche le etichette, prende
+       il baricentro a subpixel invece del pixel più scuro, sopravvive alla
+       griglia, tara anche l'asse verticale e converte la trasmittanza in
+       assorbanza. Qui resta il NOME, perché il resto dell'applicazione e i
+       banchi lo chiamano così, e perché due implementazioni della stessa
+       cosa divergono il giorno dopo.
+       Il ripiego sotto serve solo se il modulo non è caricato. */
+    if (globale.BSIDigitalizza) return globale.BSIDigitalizza.digitalizza(immagine, opz);
     var W = immagine.naturalWidth || immagine.width;
     var H = immagine.naturalHeight || immagine.height;
     if (!W || !H) return null;
@@ -725,11 +758,19 @@ t('Il <b>PDF</b> di un compito, la <b>fotografia</b> di uno spettro o di un ' +
 '<input type="file" id="bsiSP-file" style="display:none">' +
 '<button class="bsiSP-btn" id="bsiSP-apri">' +
   t('📂 Apri un file', '📂 Open a file') + '</button>' +
-/* Gli ingressi separati restano, nascosti: l'uno serve a chi vuole forzare la
-   lettura di un'immagine come traccia, l'altro ai banchi che li usano per
-   nome. Il bottone visibile però è uno solo. */
-'<input type="file" id="bsiSP-doc" style="display:none">' +
+/* IL BOTTONE DELL'IMMAGINE E' SEPARATO, E NON E' UN DOPPIONE.
+   Su un telefono un `<input type=file>` SENZA `accept` apre il navigatore
+   dei file; con `accept="image/*"` apre la GALLERIA e offre la fotocamera.
+   Sono due selettori diversi del sistema operativo, non due filtri dello
+   stesso. Tenere solo il primo — che è quello che serve per i PDF — vuol
+   dire che chi ha lo spettro in una foto non trova la strada per darla:
+   l'opzione c'era nel codice e non c'era sullo schermo. */
 '<input type="file" id="bsiSP-img" accept="image/*" style="display:none">' +
+'<button class="bsiSP-btn" id="bsiSP-apriImg">' +
+  t('📷 Foto o immagine di uno spettro', '📷 Photo or image of a spectrum') + '</button>' +
+/* l'ingresso dedicato ai documenti resta nascosto: lo usano i banchi e il
+   codice che apre un documento da un'altra parte dell'applicazione */
+'<input type="file" id="bsiSP-doc" style="display:none">' +
 '</div>' +
 '<div id="bsiSP-deciso" style="font-size:12px;color:#8aadcc;margin-bottom:10px"></div>' +
 '<p style="font-size:12.5px;color:#cfe2f5;margin:0 0 6px">' +
@@ -752,22 +793,179 @@ t('Dati dello spettro o testo del quesito', 'Spectrum data or problem text') +
   (globale.BSIDocumento ? globale.BSIDocumento.FORMATI : 'PDF, …') + '</p>' +
 '</div>' +
 '<div class="bsiSP-card" id="bsiSP-scala" style="display:none"><h4>' +
-  t('La scala dell’immagine', 'The image scale') + '</h4><p>' + t(
+  t('La taratura dell’immagine', 'The image calibration') + '</h4><p>' + t(
   'Una figura non sa di essere fra 4000 e 400 cm⁻¹: i numeri degli assi non ' +
   'stanno nei pixel. La <b>forma</b> della traccia si recupera, la <b>taratura</b> ' +
   'la devi dare tu — e se la sbagli i picchi usciranno a numeri sbagliati pur ' +
-  'essendo nel punto giusto della figura.',
+  'essendo nel punto giusto della figura. I valori qui sotto sono quelli ai ' +
+  '<b>bordi del grafico</b>, non dell’immagine: la cornice degli assi la trovo io.',
   'A figure does not know it spans 4000 to 400 cm⁻¹: the axis numbers are not ' +
   'in the pixels. The trace <b>shape</b> is recovered; the <b>calibration</b> is ' +
   'yours to give — and if you get it wrong the peaks will come out at wrong ' +
-  'numbers while sitting in the right place on the figure.') + '</p>' +
-'<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">' +
+  'numbers while sitting in the right place on the figure. The values below are ' +
+  'those at the <b>plot edges</b>, not the image edges: I find the axis frame myself.') + '</p>' +
+'<div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:8px">' +
 '<label style="font-size:12px;color:#8aadcc">' + t('x a sinistra', 'x at left') +
-  ' <input class="bsiSP-in" id="bsiSP-x0" style="width:92px;display:inline-block" value="4000"></label>' +
+  ' <input class="bsiSP-in" id="bsiSP-x0" style="width:88px;display:inline-block" value="4000"></label>' +
 '<label style="font-size:12px;color:#8aadcc">' + t('x a destra', 'x at right') +
-  ' <input class="bsiSP-in" id="bsiSP-x1" style="width:92px;display:inline-block" value="400"></label>' +
+  ' <input class="bsiSP-in" id="bsiSP-x1" style="width:88px;display:inline-block" value="400"></label>' +
+'<label style="font-size:12px;color:#8aadcc">' + t('unità x', 'x unit') +
+  ' <input class="bsiSP-in" id="bsiSP-xu" style="width:78px;display:inline-block" value="cm-1"></label>' +
+'<label style="font-size:12px;color:#8aadcc"><input type="checkbox" id="bsiSP-logx"> ' +
+  t('x logaritmica', 'x logarithmic') + '</label>' +
+'</div>' +
+'<div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:8px">' +
+'<label style="font-size:12px;color:#8aadcc">' + t('y in basso', 'y at bottom') +
+  ' <input class="bsiSP-in" id="bsiSP-y0" style="width:88px;display:inline-block" placeholder="0"></label>' +
+'<label style="font-size:12px;color:#8aadcc">' + t('y in alto', 'y at top') +
+  ' <input class="bsiSP-in" id="bsiSP-y1" style="width:88px;display:inline-block" placeholder="100"></label>' +
+'<label style="font-size:12px;color:#8aadcc">' + t('unità y', 'y unit') +
+  ' <select class="bsiSP-in" id="bsiSP-yu" style="width:132px;display:inline-block">' +
+  '<option value="">' + t('non tarata (pixel)', 'not calibrated (pixels)') + '</option>' +
+  '<option value="%T">%T</option><option value="T">T (0–1)</option>' +
+  '<option value="A">' + t('A (assorbanza)', 'A (absorbance)') + '</option>' +
+  '<option value="I">' + t('intensità', 'intensity') + '</option></select></label>' +
+'<label style="font-size:12px;color:#8aadcc"><input type="checkbox" id="bsiSP-logy"> ' +
+  t('y logaritmica', 'y logarithmic') + '</label>' +
+'</div>' +
+'<div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:8px">' +
+'<label style="font-size:12px;color:#8aadcc"><input type="checkbox" id="bsiSP-adA" checked> ' +
+  t('converti %T in assorbanza (A = −log₁₀T)', 'convert %T to absorbance (A = −log₁₀T)') + '</label>' +
+'<label style="font-size:12px;color:#8aadcc">' + t('cornice', 'frame') +
+  ' <select class="bsiSP-in" id="bsiSP-corn" style="width:150px;display:inline-block">' +
+  '<option value="auto">' + t('trovala tu', 'find it yourself') + '</option>' +
+  '<option value="tutta">' + t('tutta la figura', 'the whole figure') + '</option></select></label>' +
+'</div>' +
+'<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">' +
 '<button class="bsiSP-btn" id="bsiSP-rileggiImg">' + t('rileggi l’immagine', 'read the image again') + '</button>' +
-'</div><div id="bsiSP-imgNota" style="font-size:11px;color:#8aadcc;margin-top:6px"></div></div>' +
+'<button class="bsiSP-btn2" id="bsiSP-csv">' + t('scarica CSV', 'download CSV') + '</button>' +
+'<button class="bsiSP-btn2" id="bsiSP-jdx">' + t('scarica JCAMP-DX', 'download JCAMP-DX') + '</button>' +
+'</div><div id="bsiSP-imgNota" style="font-size:11px;color:#8aadcc;margin-top:8px;line-height:1.5"></div></div>' +
+/* ── LA GUIDA ──────────────────────────────────────────────────────────────
+   Chiesta, e giusta da avere: uno strumento che chiede una taratura senza
+   spiegare che cos'è la taratura non è usabile. Sta in un `<details>` così
+   chi l'ha già letta la chiude e non la trova più in mezzo. */
+'<details class="bsiSP-card" id="bsiSP-guida"><summary style="cursor:pointer;' +
+  'font-weight:700;color:#5eead4;font-size:14px">' +
+  t('📖 Come si usa — guida completa', '📖 How to use it — full guide') + '</summary>' +
+'<h4 style="margin-top:12px">' + t('1 · Uno spettro che hai in un file',
+                                   '1 · A spectrum you have in a file') + '</h4><p>' +
+t('Premi <b>Apri un file</b> e dai il file: un <b>JCAMP-DX</b> (<code>.jdx</code>, ' +
+  '<code>.dx</code>) appena uscito dallo strumento, anche nella forma compressa, ' +
+  'oppure due colonne di numeri da un foglio di calcolo. Il grafico, i picchi e ' +
+  'le assegnazioni compaiono da soli: non c’è niente da premere dopo.',
+  'Press <b>Open a file</b> and give it the file: a <b>JCAMP-DX</b> ' +
+  '(<code>.jdx</code>, <code>.dx</code>) straight from the instrument, compressed ' +
+  'form included, or two columns of numbers from a spreadsheet. The chart, the peaks ' +
+  'and the assignments appear by themselves: there is nothing to press afterwards.') +
+'</p><h4>' + t('2 · Uno spettro che hai solo come figura',
+                '2 · A spectrum you only have as a figure') + '</h4><p>' +
+t('Premi <b>Foto o immagine di uno spettro</b>: si apre la galleria del telefono e ' +
+  'puoi anche scattare la foto sul momento. Funziona la fotografia del registratore, ' +
+  'il ritaglio di un articolo, lo schermo dello strumento. La traccia viene estratta ' +
+  'dai <b>pixel</b>, e il grafico compare subito.',
+  'Press <b>Photo or image of a spectrum</b>: the phone gallery opens and you can also ' +
+  'take the picture there and then. A photograph of the chart recorder works, a crop ' +
+  'from a paper, the instrument screen. The trace is extracted from the <b>pixels</b>, ' +
+  'and the chart appears at once.') + '</p>' +
+'<p><b>' + t('Poi tara gli assi.', 'Then calibrate the axes.') + '</b> ' +
+t('È il passaggio che decide se i numeri valgono qualcosa. Scrivi il valore ' +
+  'all’estremo <b>sinistro</b> e a quello <b>destro</b> del grafico — per un IR ' +
+  'tipicamente 4000 e 400, in quest’ordine, perché l’IR si scrive con i numeri ' +
+  'd’onda che <i>decrescono</i>. Per l’asse verticale, se la figura è in <b>%T</b> ' +
+  'scegli «%T» e metti 0 in basso e 100 in alto: da lì calcolo l’assorbanza con ' +
+  'A = −log₁₀T, che è la definizione. Se lasci l’asse verticale non tarato, la forma ' +
+  'e le posizioni dei picchi restano giuste e le <i>intensità</i> no — e te lo scrivo.',
+  'This is the step that decides whether the numbers mean anything. Write the value at ' +
+  'the <b>left</b> and <b>right</b> edge of the plot — for an IR typically 4000 and 400, ' +
+  'in that order, because an IR is written with <i>decreasing</i> wavenumbers. For the ' +
+  'vertical axis, if the figure is in <b>%T</b> pick "%T" and put 0 at the bottom and 100 ' +
+  'at the top: from there I compute the absorbance with A = −log₁₀T, which is the ' +
+  'definition. If you leave the vertical axis uncalibrated the shape and the peak ' +
+  'positions stay right and the <i>intensities</i> do not — and I say so.') + '</p>' +
+'<h4>' + t('3 · Che cosa faccio da solo', '3 · What I do by myself') + '</h4><ul style="margin:0 0 10px 18px;padding:0">' +
+'<li>' + t('<b>Trovo la cornice degli assi</b> e digitalizzo solo quello che c’è dentro: ' +
+           'i numeri scritti sugli assi sono pixel scuri come la traccia, e senza questo ' +
+           'finirebbero nella curva.',
+           '<b>I find the axis frame</b> and digitise only what is inside it: the numbers ' +
+           'written on the axes are dark pixels just like the trace, and without this they ' +
+           'would end up in the curve.') + '</li>' +
+'<li>' + t('<b>Sopravvivo alla griglia.</b> In ogni colonna ci sono due tratti scuri, la ' +
+           'griglia e la traccia: scelgo quello vicino a dove la traccia stava un pixel prima.',
+           '<b>I survive the grid.</b> In each column there are two dark runs, the grid and ' +
+           'the trace: I pick the one near where the trace was a pixel earlier.') + '</li>' +
+'<li>' + t('<b>Leggo a subpixel</b>: il centro della linea è il baricentro pesato sulla ' +
+           'scurezza, non il pixel più scuro. Su una linea spessa due pixel e sfumata, è ' +
+           'mezzo pixel di precisione in più in ogni punto.',
+           '<b>I read at sub-pixel</b>: the line centre is the darkness-weighted centroid, ' +
+           'not the darkest pixel. On a two-pixel antialiased line that is half a pixel more ' +
+           'precision at every point.') + '</li>' +
+'<li>' + t('<b>Trovo i picchi</b> per prominenza, con il rumore stimato dallo scarto ' +
+           'assoluto mediano, e tengo solo quelli oltre tre volte il rumore.',
+           '<b>I find the peaks</b> by prominence, with the noise estimated from the median ' +
+           'absolute deviation, keeping only those above three times the noise.') + '</li>' +
+'<li>' + t('<b>Disegno il grafico con le convenzioni giuste</b>: l’IR con i numeri d’onda ' +
+           'decrescenti, i picchi segnati col loro valore, gli assi con le unità.',
+           '<b>I draw the chart with the right conventions</b>: IR with decreasing ' +
+           'wavenumbers, peaks marked with their value, axes with units.') + '</li></ul>' +
+'<h4>' + t('4 · Che cosa non posso fare', '4 · What I cannot do') + '</h4><ul style="margin:0 0 10px 18px;padding:0">' +
+'<li>' + t('<b>Non indovino i numeri degli assi</b>: nell’immagine non ci sono. Se sbagli la ' +
+           'taratura, i picchi escono a numeri sbagliati stando nel punto giusto della figura.',
+           '<b>I do not guess the axis numbers</b>: they are not in the image. If you get the ' +
+           'calibration wrong, the peaks come out at wrong numbers while sitting in the right ' +
+           'place on the figure.') + '</li>' +
+'<li>' + t('<b>Non correggo la prospettiva.</b> Una foto presa di sbieco porta una ' +
+           'deformazione che non raddrizzo: inquadra la figura di fronte.',
+           '<b>I do not correct perspective.</b> A photo taken at an angle carries a ' +
+           'distortion I do not straighten: frame the figure head-on.') + '</li>' +
+'<li>' + t('<b>Non leggo il testo di una scansione</b>: una pagina scansionata contiene ' +
+           'pixel, non lettere, e qui non c’è riconoscimento ottico dei caratteri.',
+           '<b>I do not read the text of a scan</b>: a scanned page contains pixels, not ' +
+           'letters, and there is no optical character recognition here.') + '</li>' +
+'<li>' + t('<b>Non deduco la struttura</b> — vedi in fondo: è una scelta, non un limite ' +
+           'tecnico.',
+           '<b>I do not deduce the structure</b> — see at the bottom: that is a choice, not a ' +
+           'technical limit.') + '</li></ul>' +
+'<h4>' + t('5 · Quando il risultato esce storto', '5 · When the result comes out wrong') + '</h4>' +
+'<table class="bsiSP-tbl"><tr><th>' + t('quello che vedi', 'what you see') + '</th><th>' +
+  t('quasi sempre è', 'almost always it is') + '</th></tr>' +
+'<tr><td>' + t('la curva è piatta sul bordo', 'the curve is flat along the edge') + '</td><td>' +
+  t('la cornice non è stata trovata e la traccia si è agganciata al bordo: scegli ' +
+    '«tutta la figura» oppure ritaglia l’immagine al solo grafico',
+    'the frame was not found and the trace locked onto the border: pick "the whole figure" ' +
+    'or crop the image to the plot only') + '</td></tr>' +
+'<tr><td>' + t('i picchi sono a numeri assurdi', 'the peaks are at absurd numbers') + '</td><td>' +
+  t('la taratura è invertita: per un IR il primo campo è 4000 e il secondo 400',
+    'the calibration is reversed: for an IR the first field is 4000 and the second 400') +
+  '</td></tr>' +
+'<tr><td>' + t('non trova nessuna traccia', 'it finds no trace at all') + '</td><td>' +
+  t('la figura è troppo chiara o la curva è troppo sottile: alza il contrasto, o ' +
+    'ritaglia via il bianco intorno',
+    'the figure is too pale or the curve too thin: raise the contrast, or crop away the ' +
+    'surrounding white') + '</td></tr>' +
+'<tr><td>' + t('trova trenta picchi', 'it finds thirty peaks') + '</td><td>' +
+  t('l’immagine è compressa o rigata e il suo rumore è diventato rumore dello ' +
+    'spettro: una figura più grande e meno compressa cambia tutto',
+    'the image is compressed or streaky and its noise became the spectrum noise: a larger, ' +
+    'less compressed figure changes everything') + '</td></tr></table>' +
+'<h4>' + t('6 · Portare via i numeri', '6 · Taking the numbers away') + '</h4><p>' +
+t('<b>scarica CSV</b> dà due colonne, <b>scarica JCAMP-DX</b> un file che qualunque ' +
+  'programma di spettroscopia apre — e che questo stesso lettore rilegge identico. ' +
+  'Dentro il JCAMP c’è scritto che la taratura è stata data a mano: chi lo apre fra un ' +
+  'anno deve sapere che quei numeri vengono da dei pixel.',
+  '<b>download CSV</b> gives two columns, <b>download JCAMP-DX</b> a file any ' +
+  'spectroscopy program opens — and that this very reader reads back identical. Inside the ' +
+  'JCAMP it is written that the calibration was given by hand: whoever opens it in a year ' +
+  'must know those numbers come from pixels.') + '</p>' +
+'<h4>' + t('7 · Un quesito d’esame', '7 · An exam problem') + '</h4><p>' +
+t('Se apri il <b>PDF</b> o la <b>fotografia</b> di un compito, non mi fermo allo ' +
+  'spettro: leggo tutto il documento, riconosco i dati spettroscopici che contiene ' +
+  '— con scritto accanto <b>da dove li ho presi</b> — e svolgo la traccia passo per ' +
+  'passo, dicendo per ogni passaggio la prova e quanto è certo.',
+  'If you open the <b>PDF</b> or the <b>photograph</b> of an exam, I do not stop at the ' +
+  'spectrum: I read the whole document, recognise the spectroscopic data in it — with ' +
+  '<b>where I took each one from</b> written beside it — and work through the problem step ' +
+  'by step, stating for each step the evidence and how certain it is.') + '</p></details>' +
 '<div id="bsiSP-docStato" style="font-size:12px;color:#8aadcc;margin:0 0 10px"></div>' +
 '<div id="bsiSP-docOut"></div>' +
 '<div id="bsiSP-out"></div>' +
@@ -812,6 +1010,27 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
     for (var k = 0; k <= 5; k++) {
       var v = xmin + (xmax - xmin) * k / 5;
       ctx.fillText(v.toFixed(v > 100 ? 0 : 2), px(v), H - my + 12);
+    }
+    /* L'ASSE VERTICALE AVEVA LE TACCHE? NO. E un grafico con un asse muto
+       non è un grafico scientifico: si vede che qualcosa sale, e non si sa
+       di quanto né in che unità. Quattro tacche e l'unità, ruotata, come si
+       fa su carta. */
+    ctx.textAlign = 'right';
+    for (var q = 0; q <= 4; q++) {
+      var vy = ymin + (ymax - ymin) * q / 4;
+      var ay = Math.abs(vy);
+      var et = (ay >= 1000 || (ay > 0 && ay < 0.01)) ? vy.toExponential(1)
+             : (ay >= 10 ? vy.toFixed(0) : vy.toFixed(2));
+      ctx.fillText(et, mx - 4, py(vy) + 3);
+      ctx.strokeStyle = '#132a3e'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(mx, py(vy)); ctx.lineTo(W - 6, py(vy)); ctx.stroke();
+    }
+    if (sp.unitaY) {
+      ctx.save();
+      ctx.translate(10, (H - my) / 2); ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = 'center'; ctx.fillStyle = '#6a8aa4'; ctx.font = '9px Arial';
+      ctx.fillText(String(sp.unitaY).slice(0, 34), 0, 0);
+      ctx.restore();
     }
     /* la traccia */
     ctx.beginPath();
@@ -873,10 +1092,20 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
         ? t('rumore stimato (scarto assoluto mediano)',
             'estimated noise (median absolute deviation)') + ': <b>' +
           an.sigma.toExponential(2) + '</b> · ' + t('picchi oltre 3σ', 'peaks above 3σ')
-        : t('lista di picchi: il rumore non è stimabile da poche righe, e i picchi sono le ' +
-            'righe stesse sopra l’1% del massimo',
-            'peak list: noise cannot be estimated from a few lines, and the peaks are the ' +
-            'lines themselves above 1% of the maximum') + ' · ' + t('picchi', 'peaks')) +
+        : (an.rumoreMisurabile === false
+          ? t('la traccia è <b>liscia</b>: lo scarto assoluto mediano dei residui è esattamente ' +
+              'zero, quindi il rumore non è misurabile e un rapporto segnale-rumore non esiste. ' +
+              'Succede su una curva calcolata o digitalizzata da una figura pulita. I picchi qui ' +
+              'sono quelli che si alzano di almeno un millesimo dell’escursione',
+              'the trace is <b>smooth</b>: the median absolute deviation of the residuals is ' +
+              'exactly zero, so the noise is not measurable and a signal-to-noise ratio does not ' +
+              'exist. This happens on a computed curve or one digitised from a clean figure. The ' +
+              'peaks here are those rising by at least a thousandth of the span') +
+            ' · ' + t('picchi', 'peaks')
+          : t('lista di picchi: il rumore non è stimabile da poche righe, e i picchi sono le ' +
+              'righe stesse sopra l’1% del massimo',
+              'peak list: noise cannot be estimated from a few lines, and the peaks are the ' +
+              'lines themselves above 1% of the maximum') + ' · ' + t('picchi', 'peaks'))) +
       ': <b>' + an.picchi.length + '</b></p></div>';
 
     if (!an.picchi.length) {
@@ -1404,29 +1633,106 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
     /* ── l'immagine ────────────────────────────────────────────────────── */
     var imgFile = document.getElementById('bsiSP-img');
     var ultimaImmagine = null;
+    function val(id, pred) {
+      var e = document.getElementById(id);
+      if (!e) return undefined;
+      var v = parseFloat(e.value);
+      return isFinite(v) ? v : undefined;
+    }
+    function acceso(id) {
+      var e = document.getElementById(id);
+      return !!(e && e.checked);
+    }
     function leggiImmagine() {
       if (!ultimaImmagine) return;
       var scala = document.getElementById('bsiSP-scala');
       if (scala) scala.style.display = '';
-      var x0 = parseFloat((document.getElementById('bsiSP-x0') || {}).value);
-      var x1 = parseFloat((document.getElementById('bsiSP-x1') || {}).value);
-      if (!isFinite(x0)) x0 = 0;
-      if (!isFinite(x1)) x1 = 1;
-      var sp = S.daImmagine(ultimaImmagine, { xDa: x0, xA: x1,
-        unitaX: (x0 > x1) ? 'cm-1' : '', titolo: ultimaImmagine.alt || '' });
+      var x0 = val('bsiSP-x0'); if (x0 === undefined) x0 = 0;
+      var x1 = val('bsiSP-x1'); if (x1 === undefined) x1 = 1;
+      var yu = (document.getElementById('bsiSP-yu') || {}).value || '';
+      var xu = ((document.getElementById('bsiSP-xu') || {}).value || '').trim();
+      var corn = (document.getElementById('bsiSP-corn') || {}).value || 'auto';
+      var sp = S.daImmagine(ultimaImmagine, {
+        xDa: x0, xA: x1,
+        yDa: val('bsiSP-y0'), yA: val('bsiSP-y1'),
+        unitaX: xu || ((x0 > x1) ? 'cm-1' : ''),
+        yUnita: yu,
+        logX: acceso('bsiSP-logx'), logY: acceso('bsiSP-logy'),
+        adAssorbanza: acceso('bsiSP-adA'),
+        cornice: corn,
+        titolo: ultimaImmagine.alt || ''
+      });
       var nota = document.getElementById('bsiSP-imgNota');
       if (!sp || sp.errore) {
         if (nota) nota.innerHTML = '<span style="color:#ff6b6b">' +
           ((sp && sp.errore) || t('immagine non leggibile', 'image not readable')) + '</span>';
+        spettroCorrente = null;
         return;
       }
-      if (nota) nota.innerHTML = sp.colonne + ' ' +
-        t('colonne lette · sfondo ', 'columns read · background ') + sp.sfondo +
-        ' · ' + t('soglia ', 'threshold ') + sp.soglia + '<br>' + sp.avviso;
+      /* LA DIAGNOSI SERVE A CAPIRE PERCHE' IL RISULTATO E' QUELLO.
+         Un numero senza il suo come non si può contestare: se la cornice non
+         è stata trovata, o se duecento colonne sono state troncate perché la
+         griglia si era fusa con la traccia, chi guarda deve poterlo leggere
+         qui invece di indovinarlo dal grafico. */
+      if (nota) {
+        var d = [];
+        d.push('<b>' + sp.colonne + '</b> ' + t('colonne', 'columns') +
+               ' · ' + t('con traccia', 'with a trace') + ' ' + sp.colonneConTraccia);
+        d.push(sp.cornice && sp.cornice.trovata
+          ? t('cornice: ', 'frame: ') + sp.cornice.lati.join(', ') +
+            ' (' + sp.cornice.x0 + ',' + sp.cornice.y0 + ')–(' +
+            sp.cornice.x1 + ',' + sp.cornice.y1 + ')'
+          : '<span style="color:#ffb86b">' +
+            t('nessuna cornice trovata', 'no frame found') + '</span>');
+        d.push(t('sfondo ', 'background ') + sp.sfondo + ' · ' +
+               t('soglia ', 'threshold ') + sp.soglia + ' · ' +
+               t('tratti per colonna ', 'runs per column ') + sp.trattiPerColonna);
+        if (sp.righeMoltoCoperte) {
+          d.push(t('righe molto coperte (griglia orizzontale o linea di base): ',
+                   'heavily covered rows (horizontal grid or baseline): ') + sp.righeMoltoCoperte);
+        }
+        if (sp.colonneTroncate) {
+          d.push(t('colonne in cui un tratto troppo alto è stato ristretto per continuità: ',
+                   'columns where an over-tall run was narrowed by continuity: ') +
+                 sp.colonneTroncate);
+        }
+        nota.innerHTML = d.join(' · ') +
+          (sp.note && sp.note.length
+            ? '<br><span style="color:#ffb86b">' + sp.note.join('<br>') + '</span>' : '') +
+          '<br>' + sp.avviso;
+      }
       spettroCorrente = sp;
       analisiCorrente = S.analizza(sp);
       rendi(sp, analisiCorrente);
     }
+
+    /* ── LE USCITE ─────────────────────────────────────────────────────────
+       Chi digitalizza uno spettro lo fa per farci qualcosa. Se i numeri
+       restano dentro l'applicazione il lavoro è a metà. */
+    function scarica(nome, testo, tipo) {
+      var b = new Blob([testo], { type: tipo || 'text/plain;charset=utf-8' });
+      var u = URL.createObjectURL(b);
+      var a = document.createElement('a');
+      a.href = u; a.download = nome;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { try { URL.revokeObjectURL(u); } catch (e) {} }, 1500);
+    }
+    function baseNome() {
+      var n = (spettroCorrente && spettroCorrente.titolo) || 'spettro';
+      return String(n).replace(/[^\w.-]+/g, '_').slice(0, 48) || 'spettro';
+    }
+    var bCsv = document.getElementById('bsiSP-csv');
+    if (bCsv) bCsv.onclick = function () {
+      if (!spettroCorrente || !globale.BSIDigitalizza) return;
+      scarica(baseNome() + '.csv', globale.BSIDigitalizza.csv(spettroCorrente),
+              'text/csv;charset=utf-8');
+    };
+    var bJdx = document.getElementById('bsiSP-jdx');
+    if (bJdx) bJdx.onclick = function () {
+      if (!spettroCorrente || !globale.BSIDigitalizza) return;
+      scarica(baseNome() + '.jdx', globale.BSIDigitalizza.jcamp(spettroCorrente),
+              'chemical/x-jcamp-dx');
+    };
     if (imgFile) {
       imgFile.onchange = function () {
         var f = imgFile.files && imgFile.files[0];
@@ -1447,6 +1753,21 @@ t('Non deduce la struttura. Un insieme di bande è compatibile con molte ' +
       };
       var ril = document.getElementById('bsiSP-rileggiImg');
       if (ril) ril.onclick = leggiImmagine;
+      /* il bottone visibile che apre la GALLERIA (e offre la fotocamera):
+         è un selettore diverso da quello senza filtro, non un doppione */
+      var apriImg = document.getElementById('bsiSP-apriImg');
+      if (apriImg) apriImg.onclick = function () { imgFile.click(); };
+      /* Cambiare la taratura e dover premere «rileggi» è un passaggio in più
+         che non serve a niente: la lettura costa pochi millisecondi. Si
+         rilegge da sé, e il grafico segue. */
+      ['bsiSP-x0', 'bsiSP-x1', 'bsiSP-xu', 'bsiSP-y0', 'bsiSP-y1'].forEach(function (id) {
+        var e = document.getElementById(id);
+        if (e) e.oninput = function () { if (ultimaImmagine) leggiImmagine(); };
+      });
+      ['bsiSP-yu', 'bsiSP-corn', 'bsiSP-logx', 'bsiSP-logy', 'bsiSP-adA'].forEach(function (id) {
+        var e = document.getElementById(id);
+        if (e) e.onchange = function () { if (ultimaImmagine) leggiImmagine(); };
+      });
     }
 
     /* ── Aprire un documento: una funzione, chiamata dal router ─────────

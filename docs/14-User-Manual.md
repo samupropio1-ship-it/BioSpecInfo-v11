@@ -85,9 +85,16 @@ l'elenco delle bande con la loro assegnazione.
 La sezione **Lettore spettri** fa il contrario di quella sopra: non prevede uno
 spettro dalla struttura, legge quello che hai già.
 
-C'è **un solo bottone**: `📂 Apri un file`. Non filtra niente — qualunque cosa
-hai in cartella, aprila. Sotto il bottone compare una riga che **ti dice che
-cosa ha deciso di essere** il file che hai aperto:
+Ci sono **due bottoni**, e non sono un doppione.
+
+`📂 Apri un file` non filtra niente: qualunque cosa hai in cartella, aprila.
+`📷 Foto o immagine di uno spettro` apre invece la **galleria del telefono** e
+ti lascia anche scattare la foto sul momento — su un telefono sono due
+selettori diversi del sistema, non due filtri dello stesso, e senza il secondo
+non c'è modo di dare una fotografia.
+
+Sotto i bottoni compare una riga che **ti dice che cosa ha deciso di essere** il
+file che hai aperto:
 
 | Quello che apri | Che cosa succede |
 |---|---|
@@ -107,6 +114,50 @@ premere **Leggi e svolgi**: fa lo stesso ragionamento.
 Se non hai un file sotto mano, i tre pulsanti **esempio IR**, **esempio MS** ed
 **esempio NMR** caricano uno spettro di prova, e **esempio: un quesito d'esame**
 carica una traccia completa.
+
+Dentro la sezione c'è **📖 Come si usa — guida completa**: sette capitoletti
+che spiegano passo per passo i due bottoni, la taratura, che cosa fa il
+programma da solo, che cosa non può fare, come riconoscere un risultato storto
+dal sintomo che vedi, e come portare via i numeri.
+
+### Uno spettro che hai solo come figura
+
+La traccia viene estratta dai **pixel**, e il grafico compare subito. Poi va
+**tarata**, perché i numeri degli assi non stanno nell'immagine:
+
+| campo | che cosa ci scrivi |
+|---|---|
+| **x a sinistra** / **x a destra** | i valori ai due estremi del grafico — per un IR tipicamente 4000 e 400 **in quest'ordine**, perché l'IR si scrive con i numeri d'onda che decrescono |
+| **y in basso** / **y in alto** | i valori dell'asse verticale; per una figura in %T, 0 in basso e 100 in alto |
+| **unità y** | `%T`, `T`, `A` o intensità. Scegliendo `%T` l'assorbanza si ricava con **A = −log₁₀T**, che è la definizione |
+| **x/y logaritmica** | se un asse è logaritmico, dillo: applicargli una mappa lineare non dà un errore, dà numeri sbagliati dall'aspetto giusto |
+| **cornice** | normalmente la trovo io; «tutta la figura» serve quando la figura è già ritagliata al solo grafico |
+
+Cambi un campo e il grafico si rifà da sé: non c'è niente da confermare. Sotto
+compare la **diagnosi** — quante colonne, se la cornice è stata trovata e su
+quali lati, sfondo e soglia, quante colonne erano griglia — perché un numero
+senza il suo come non si può contestare.
+
+Che cosa faccio da solo: trovo la **cornice degli assi** e digitalizzo solo
+quello che c'è dentro (i numeri scritti sugli assi sono pixel scuri come la
+traccia); **sopravvivo alla griglia**, scegliendo in ogni colonna il tratto
+vicino a dove la traccia stava un pixel prima e abbastanza scuro da essere
+traccia; leggo a **subpixel**, perché il centro di una linea spessa due pixel
+sta in mezzo.
+
+> **Quanto sbaglio.** Misurato su sette figure costruite di cui si conoscono i
+> centri delle bande: scarto **medio 2,2 cm⁻¹**, **peggiore 7,3**. Una colonna
+> di una figura larga 900 pixel su 3600 cm⁻¹ vale circa 4 cm⁻¹: sotto quel
+> valore non c'è niente da guadagnare, è il limite della figura.
+
+> **Se la taratura è sbagliata**, i picchi escono a numeri sbagliati pur stando
+> nel punto giusto della figura: la forma si recupera dai pixel, la taratura
+> no. E una foto presa di sbieco porta una deformazione che non raddrizzo —
+> inquadra la figura di fronte.
+
+Con **scarica CSV** e **scarica JCAMP-DX** i numeri escono da qui: il JCAMP lo
+apre qualunque programma di spettroscopia, e questo stesso lettore lo rilegge
+identico. Dentro c'è scritto che la taratura è stata data a mano.
 
 Sotto il grafico trovi i picchi trovati con il loro rapporto segnale-rumore, e
 per ogni banda **tutte** le assegnazioni compatibili. Se a 1715 cm⁻¹ leggi due
@@ -289,4 +340,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v197`._
+_Guida aggiornata alla versione `bsi-v198`._

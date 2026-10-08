@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v197` |
+| **Versione descritta** | `bsi-v198` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -66,6 +66,7 @@ L'applicazione conta **92 sezioni**, raggruppate per area di studio.
 | **Predizione NMR assegnata per atomo** | Si disegna o si scrive una struttura e si ottengono ¹H e ¹³C con l'indicazione di QUALI atomi producono ogni segnale; spettro interrogabile (zoom, intensità, clic sul picco), tabella di assegnazione, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG |
 | **NMR bidimensionale** | COSY, HSQC editato e HMBC costruiti camminando il grafo; cliccando una macchia si illuminano gli atomi che la producono. Non è una simulazione dell'esperimento, e il pannello lo dichiara |
 | **Apri un file qualunque, e il programma decide** | Un solo ingresso, senza filtro di estensione: si apre quello che si ha e il programma **dichiara che cosa ha deciso che sia**. Un documento (PDF, fotografia, Word, OpenDocument, PowerPoint, Excel, testo) si apre, se ne vede **tutto** il contenuto (ogni pagina disegnata, tutto il testo), i dati spettroscopici riconosciuti compaiono in tabella **con la loro provenienza**, e lo svolgimento procede passo per passo; un JCAMP-DX o due colonne di numeri diventano uno spettro misurato; un'immagine fa entrambe le cose. Quello che non si è potuto leggere è dichiarato |
+| **Spettro da una figura (digitalizzazione)** | Dalla fotografia di un registratore, dal ritaglio di un articolo o dallo schermo dello strumento si estrae la traccia dai **pixel**: la cornice degli assi viene riconosciuta e digitalizzata solo la parte interna, la posizione della linea è il **baricentro pesato sulla scurezza** (subpixel), la griglia viene aggirata per continuità e scurezza, i due assi si tarano in lineare o in logaritmica, la %T si converte in assorbanza con A = −log₁₀T. Il grafico, i picchi e le assegnazioni compaiono da sé e si rifanno a ogni modifica della taratura; una diagnosi dice che cosa è stato deciso e perché. Uscite CSV e JCAMP-DX. Scarto misurato: medio 2,2 cm⁻¹, peggiore 7,3 su sette figure costruite |
 | **Modello 3D dalla struttura disegnata** | Coordinate costruite dal grafo, con gli stessi indici del predittore: un picco cliccato illumina l'atomo anche in tre dimensioni |
 | **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
 | **Tabelle di riferimento** | Valori tabulati per la consultazione rapida |
@@ -395,4 +396,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v197`._
+_Documento aggiornato alla versione `bsi-v198`._

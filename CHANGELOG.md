@@ -7,6 +7,141 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v198] — 2026-10-08
+
+**Il bottone per le immagini era sparito dallo schermo, e la lettura di una
+figura era grezza.** Tornano entrambe le cose, con una guida dentro la
+sezione e un errore misurato.
+
+### Il bottone che non c'era più
+
+Accorpando tutto in una porta sola (v196) l'ingresso delle immagini è restato
+nel codice e non sullo schermo. Non era un dettaglio: su un telefono un
+`<input type="file">` **senza** `accept` apre il navigatore dei file, mentre
+con `accept="image/*"` apre la **galleria** e offre la fotocamera. Sono due
+selettori diversi del sistema, non due filtri dello stesso — e senza il
+secondo, chi ha lo spettro in una fotografia non ha una strada per darlo.
+
+Ora i bottoni sono due, e non sono un doppione: `📂 Apri un file` (nessun
+filtro) e `📷 Foto o immagine di uno spettro` (galleria e fotocamera).
+
+### Il digitalizzatore, rifatto da capo
+
+La vecchia lettura di una figura prendeva, per ogni colonna, **il pixel più
+scuro**. Funziona su una figura pulita e sbaglia su tutte le altre, per tre
+motivi precisi: digitalizzava anche gli **assi** e i **numeri** degli assi,
+che sono pixel scuri come la traccia; su una figura con la **griglia** la
+colonna più scura è la griglia; e il pixel più scuro è un **intero**, mentre
+su una linea spessa due pixel e sfumata la posizione vera sta in mezzo.
+
+Nasce `bsi-digitalizza.js`, e `bsi-spettrolettore.js` gli **delega**
+`daImmagine()` — una sola casa per funzione, non due implementazioni che
+divergono il giorno dopo. Che cosa fa:
+
+- **Trova la cornice degli assi** fra le linee continue nei margini, e
+  digitalizza solo quello che c'è dentro. Un bordo si distingue da una riga
+  di griglia per la **spaziatura irregolare** rispetto alla famiglia
+  **oppure** perché il tratto è più spesso e più nero — come lo distingue
+  l'occhio. Il ritaglio si sposta **oltre** lo spessore della linea.
+- **Legge a subpixel**: il centro della linea è il baricentro pesato sulla
+  scurezza. L'antialiasing, che per il «pixel più scuro» è un fastidio, qui
+  dice da che parte sta il centro vero.
+- **Aggira la griglia** per continuità **e** per scurezza: in ogni colonna si
+  prende il tratto vicino a dove la traccia stava un pixel prima e abbastanza
+  scuro da essere traccia. Le colonne di griglia verticale si segnano come
+  **non misurate** e si ricostruiscono dalle vicine.
+- **Tara i due assi**, in lineare o in **logaritmica** — applicare una mappa
+  lineare a un asse logaritmico non dà un errore, dà numeri sbagliati
+  dall'aspetto giusto.
+- **Converte la %T in assorbanza** con A = −log₁₀T, che è la definizione, e
+  dichiara quanti punti erano saturati.
+- **Esporta** in CSV e in JCAMP-DX 4.24, con la provenienza scritta dentro il
+  file: chi lo apre fra un anno deve sapere che quei numeri vengono da pixel.
+
+L'interfaccia chiede i valori ai **bordi del grafico**, non dell'immagine, e
+si rilegge da sé a ogni modifica: il grafico segue senza niente da
+confermare. Sotto compare la **diagnosi** — colonne lette, cornice e su quali
+lati, sfondo, soglia, colonne di griglia — perché un numero senza il suo come
+non si può contestare.
+
+### Tre difetti trovati scrivendolo, e vale la pena dirli
+
+1. **La linea di base piatta presa per una griglia.** Prima stesura: «una
+   riga coperta per oltre il 60 % è una griglia, la si toglie». Su una figura
+   normale non si trovava **più nessuna traccia** — perché la linea di base di
+   uno spettro IR *è* una lunga riga scura, e «le colonne vicine» non la
+   ritrovavano essendo piatte sulla stessa riga. Non esiste una soglia che
+   separi le due cose: sono la stessa cosa geometrica. La griglia si gestisce
+   per continuità, e la funzione resta solo come diagnosi.
+2. **Una riga di griglia come attrattore.** Con la sola continuità, quando la
+   traccia passa accanto a una griglia orizzontale il tratto della griglia è
+   più vicino di quanto lo sia la traccia che si muove: viene scelto, e la
+   curva ci resta incollata per sempre. Misurato: picchi a 1591, 3147, 3717
+   invece di 1715, 2950, 3400. Risolto preferendo i tratti scuri almeno
+   quanto il 60 % del riferimento, aggiornato strada facendo.
+3. **Sette bande false, equispaziate come la griglia.** Sulle colonne di
+   griglia verticale il baricentro troncato lasciava un gradino, e su una
+   curva liscia quei gradini passavano la soglia dei picchi: 734, 1126, 1517,
+   1909, 2300, 2691, 3866 cm⁻¹ accanto alle tre vere. Su quelle colonne la
+   traccia **non è misurabile** e il valore non va tenuto.
+
+### Un rapporto segnale-rumore da dieci cifre
+
+Lo scarto assoluto mediano dei residui vale **esattamente zero** su una
+traccia liscia — una curva calcolata, o digitalizzata da una figura pulita. Il
+codice divideva per `1e-12` e stampava SNR come **4 996 427 518**, con due
+decimali: una precisione inventata su una grandezza che in quel caso non è
+misurabile. Ora il rumore non misurabile si dichiara tale, l'SNR è `—`, e la
+soglia dei picchi diventa un millesimo dell'escursione.
+
+### Il grafico aveva un asse muto
+
+L'asse verticale non aveva né tacche né unità: si vedeva che qualcosa sale e
+non si sapeva di quanto. Quattro tacche, le linee di riferimento e l'unità
+ruotata a lato, come si fa su carta.
+
+### La guida, dentro la sezione
+
+**📖 Come si usa — guida completa**: sette capitoletti — i due bottoni, la
+taratura passo per passo, che cosa fa il programma da solo, che cosa **non**
+può fare, una tabella «quello che vedi → quasi sempre è» per riconoscere un
+risultato storto dal sintomo, come portare via i numeri, e come si svolge un
+quesito d'esame.
+
+### Verifiche
+
+Nuovo banco `test_digitalizza` — **45 controlli** su **sette figure
+costruite**, di cui si conoscono i centri delle gaussiane al cm⁻¹: nuda, con
+cornice ed etichette, con griglia grigia, con griglia nera, con cornice **e**
+griglia (11 famiglie verticali, 7 orizzontali), tratteggiata, in %T.
+
+- scarto **medio 2,2 cm⁻¹**, **peggiore 7,3**. Una colonna di una figura
+  larga 900 pixel su 3600 cm⁻¹ vale ~4 cm⁻¹: sotto, non c'è niente da
+  guadagnare — è il limite della figura, non del metodo.
+- **nei due versi**: da un foglio bianco e dall'icona dell'applicazione non
+  esce **nessuna** curva; il ripiego grezzo sulla stessa figura con cornice ed
+  etichette trova **un** picco invece di tre; su asse logaritmico il punto di
+  mezzo è la media geometrica (316,2) e su asse lineare quella aritmetica
+  (550); un asse logaritmico che parte da zero viene rifiutato.
+- **giro completo**: il JCAMP esportato viene riletto da `leggi()` e torna con
+  lo stesso numero di punti, gli stessi estremi e le stesse unità.
+
+Una mia affermazione è stata smentita da questo banco e resta scritta dentro:
+avevo messo «il ripiego grezzo con la griglia sbaglia». Non sbaglia — una riga
+di griglia da un pixel viene resa sfumata al 50 % di grigio, e il «pixel più
+scuro» la ignora senza accorgersene. Il metodo grezzo cade sulla cornice, non
+sulla griglia.
+
+`test_spettrolettore` sale a **63 controlli**: il banco usava l'icona
+dell'applicazione come se fosse uno spettro, e passava perché il vecchio
+estrattore tirava una curva da qualunque cosa. Ora una **figura di spettro**
+deve dare la traccia, e un'immagine che non è uno spettro deve **dirlo**
+continuando a mostrarsi.
+
+Requisiti nuovi in matrice: **SCI-35** (cornice, etichette e griglia),
+**SCI-36** (le uscite, con il giro completo). **SCI-30** riscritto.
+
+---
 ## [bsi-v197] — 2026-10-08
 
 **Tre tabelle finivano fuori dallo schermo del telefono, e il contenuto non

@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v197';
+window.BSI_APP_VERSION='bsi-v198';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -32116,6 +32116,10 @@ window.addEventListener('load', init);
 <!-- bsi-documento.js apre i file; bsi-quesito.js ne legge i dati e li passa
      a bsi-elucida.js. L'ordine qui non conta: il collegamento avviene quando
      si preme il bottone, non quando lo script si carica. -->
+<!-- bsi-digitalizza.js e' l'implementazione di «spettro da una figura»:
+     bsi-spettrolettore.js le delega daImmagine(). Deve caricarsi, altrimenti
+     resta il ripiego grezzo (pixel piu' scuro, nessuna cornice). -->
+<script src="./bsi-digitalizza.js" defer></script>
 <script src="./bsi-documento.js" defer></script>
 <script src="./bsi-quesito.js" defer></script>
 <script src="./bsi-moldraw.js" defer></script>

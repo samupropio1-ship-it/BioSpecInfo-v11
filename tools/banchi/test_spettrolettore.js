@@ -457,9 +457,39 @@ function sotto(d, limite, avuto){
       /non|not|binario|binary|formato|format/i.test(vFinto.stato + vFinto.deciso));
   console.log('      (' + (vFinto.stato || vFinto.deciso).trim().slice(0, 80) + ')');
 
+  /* UN'IMMAGINE FA DUE COSE, E LE DUE COSE SI PROVANO SEPARATE.
+     Qui c'era l'icona dell'applicazione, usata come se fosse uno spettro.
+     Passava perché il vecchio estrattore tirava una curva da QUALUNQUE cosa:
+     dava un grafico anche da un logo. Il digitalizzatore nuovo si rifiuta —
+     ed è giusto — quindi il banco misurava una cosa sbagliata con un file
+     sbagliato. Ora: una FIGURA DI SPETTRO deve dare la traccia, e un'immagine
+     che non è uno spettro deve dire che non lo è, continuando a mostrarla. */
+  const figura = path.join(tmp, 'spettro-ir.png');
+  fs.writeFileSync(figura, Buffer.from(await pg.evaluate(() => {
+    const g = (v, c, a, w) => a * Math.exp(-Math.pow(v - c, 2) / (2 * w * w));
+    const W = 900, H = 300, cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath();
+    for (let i = 0; i < W; i++) {
+      const cm = 4000 - (4000 - 400) * i / (W - 1);
+      const y = H - 20 - (g(cm, 1715, 120, 14) + g(cm, 2950, 70, 28) + g(cm, 3400, 55, 65));
+      i ? x.lineTo(i, y) : x.moveTo(i, y);
+    }
+    x.stroke();
+    return cv.toDataURL('image/png').split(',')[1];
+  }), 'base64'));
+
+  const vFig = await instrada(figura, 7000);
+  att('la figura di uno spettro dà la traccia E la pagina', true,
+      /immagine|image/i.test(vFig.deciso) && vFig.tela && vFig.pagine >= 1);
+
   const vPng = await instrada(path.join(__dirname, '..', '..', 'icon-192.png'), 6000);
-  att('un’immagine fa entrambe le cose (traccia e pagina)', true,
-      /immagine|image/i.test(vPng.deciso) && vPng.tela && vPng.pagine >= 1);
+  att('un’immagine che non è uno spettro viene mostrata comunque', true,
+      /immagine|image/i.test(vPng.deciso) && vPng.pagine >= 1);
+  /* la direzione che conta: NIENTE curva inventata da un logo */
+  att('  · ma senza inventarle una curva', false, vPng.tela);
 
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) {}
 
@@ -480,9 +510,9 @@ function sotto(d, limite, avuto){
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 60) {
+  if (eseguiti < 62) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 60');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 62');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

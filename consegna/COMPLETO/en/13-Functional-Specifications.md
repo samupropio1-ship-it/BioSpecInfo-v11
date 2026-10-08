@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v197` |
+| **Version described** | `bsi-v198` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -66,6 +66,7 @@ The application has **92 sections**, grouped by area of study.
 | **Per-atom NMR prediction** | Draw or type a structure and get ¹H and ¹³C with WHICH atoms produce each signal; interrogable spectrum (zoom, intensity, click a peak), assignment table, SMILES/InChI history, CSV/JCAMP-DX/PNG exports |
 | **Two-dimensional NMR** | COSY, edited HSQC and HMBC built by walking the graph; clicking a spot highlights the atoms producing it. It is not a simulation of the experiment, and the panel says so |
 | **Open any file, and the program decides** | One entry point, with no extension filter: open what you have and the program **states what it decided the file is**. A document (PDF, photograph, Word, OpenDocument, PowerPoint, Excel, text) opens, **everything** it contains is shown (every page drawn, all the text), the recognised spectroscopic data appear in a table **with their provenance**, and the working proceeds step by step; a JCAMP-DX file or two columns of numbers become a measured spectrum; an image does both. Whatever could not be read is declared |
+| **Spectrum from a figure (digitisation)** | From a photograph of a chart recorder, a crop from a paper or the instrument screen, the trace is extracted from the **pixels**: the axis frame is recognised and only its inside is digitised, the line position is the **darkness-weighted centroid** (sub-pixel), the grid is worked around by continuity and darkness, both axes are calibrated linearly or logarithmically, %T is converted to absorbance with A = −log₁₀T. The chart, the peaks and the assignments appear by themselves and are redone at every change of the calibration; a diagnostics line says what was decided and why. CSV and JCAMP-DX outputs. Measured deviation: mean 2.2 cm⁻¹, worst 7.3 over seven constructed figures |
 | **3D model from the drawn structure** | Coordinates built from the graph, carrying the predictor's own indices: a clicked peak lights up the atom in three dimensions too |
 | **NOE and 2D NMR (tables)** | Reference values for spatial correlations |
 | **Reference tables** | Tabulated values for quick consultation |
@@ -395,4 +396,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v197`._
+_Document updated to version `bsi-v198`._

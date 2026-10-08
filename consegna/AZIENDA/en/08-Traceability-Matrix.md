@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v197` |
+| **Version described** | `bsi-v198` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -51,11 +51,13 @@
 | **SCI-27** | A structure without a source must not get in, not even one that is known | collected from ChEMBL, `tools/dati/farmaci_v187.json` carries each entry's identifier | **Two refusals**: ivermectin (`structure_type NONE`, a mixture of homologues) and semaglutide (a protein, `SEQ`). And two entries kept under the **record's** name rather than the query's: «morphine» → apomorphine, «levothyroxine» → liothyronine |
 | **SCI-28** | A predicted spectrum must say WHICH atoms produce each signal, and the deviation must be measured on molecules that did not choose the parameters | `bsi-pretsch.js` — the estimation tables transcribed in full from the source (Pretsch 4th ed.: 91 ¹³C and 66 ¹H rows for benzenes, 42 for ethylenes, 31 for alkanes, 24 for ¹³C aliphatics, 4×4 steric corrections); `bsi-nmr.js` — the reasoning that applies them: ring position obtained by walking the cycle, additive scheme with a cyclic reference compound, chemical equivalence by shell environment code | `test_nmr` — **56 checks**. Two separate sets: tuning **0.71 ppm** over 9 molecules, **validation 0.92 ppm** over 22 never used for tuning, worst case **4.9 ppm**, ¹H **0.06 ppm** (0.03 on the aromatics alone). The bench requires validation to stay **worse** than tuning: were they equal, someone would have moved a molecule between the two sets |
 | **SCI-29** | Chemically equivalent atoms must give ONE signal, not one per atom | environment code built as concentric shells by distance (the HOSE-code principle), with aromatic bonds written as such and not in Kekulé form | `test_nmr` — eight molecules whose signal count is known: benzene **1** (not six), toluene 5, p-xylene 3, naphthalene 3, biphenyl 4, aspirin 9. All correct |
-| **SCI-30** | From an image one can recover the SHAPE of a spectrum, not its calibration | `bsi-spettrolettore.js` §6-bis — trace extraction from the pixels column by column, background estimated from the median, empty columns interpolated | `test_spettrolettore` — on a **constructed** figure with Gaussians at 1715/2950/3400 cm⁻¹ it reads **1713/2947/3403** from the pixels alone; **in both directions**, on a blank sheet it refuses instead of inventing a trace; and it declares that the axis scale is not in the pixels |
+| **SCI-30** | From an image one can recover the SHAPE of a spectrum, not its calibration | `bsi-digitalizza.js` — `bsi-spettrolettore.js` delegates `daImmagine()` to it, a single implementation. The axis frame is found first, the trace is extracted at **sub-pixel** resolution (darkness-weighted centroid), the run is chosen by continuity **and** by darkness, both axes are calibrated linearly or logarithmically, %T is converted to absorbance with A = −log₁₀T | `test_digitalizza` — **45 checks** over seven constructed figures: mean deviation **2.2 cm⁻¹**, worst **7.3** (one column is worth ~4 cm⁻¹). **Both ways**: from a blank sheet and from the app icon no curve comes out, and the crude fallback on the same figure with frame and labels finds **one** peak instead of three. `test_spettrolettore` for the routing |
 | **SCI-31** | A two-dimensional NMR map must say WHICH atoms produce each correlation, and must not connect what the topology does not connect | `bsi-nmr2d.js` — one-bond HSQC with inverted sign on CH₂, three-bond COSY between non-equivalent protons, two- and three-bond HMBC; exchangeables excluded from off-diagonal spots | `test_nmr2d` — **40 checks**, in both directions: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots (its six protons are equivalent), methane **no** HMBC spots despite having four protons |
 | **SCI-32** | A program-built 3D geometry must carry THE SAME indices as the predictor, otherwise the peak↔atom link lights up the wrong atom | `bsi-geom3d.js` — distance geometry over the `bsi-nmr.js` graph, hydrogens appended at the end, generator seeded from the SMILES | `test_geom3d` — **29 checks**: every heavy atom has the same index and element across five molecules; bonds and angles within tolerance of literature values; **in both directions** benzene comes out planar and cyclohexane does not |
 | **SCI-33** | A document must be opened in full, and whatever could NOT be read must be declared — a reader that returns little without saying so makes the document look nearly empty | `bsi-documento.js` — PDF page by page with its text layer (PDF.js), images, text, Office archives opened with `DecompressionStream` and no libraries | `test_documento` — **47 checks**: PDF, Word and text genuinely opened and their content verified; **in both directions** an image declares there is no optical character recognition and produces no working, an unknown format is refused rather than guessed, a binary file named `.txt` is recognised as binary |
 | **SCI-34** | Spectroscopic data recognised in a text must carry their PROVENANCE, and the working must declare what it is missing | `bsi-quesito.js` — recognition by section (IR, MS, ¹H, ¹³C) with the boundaries between sections, then `bsi-elucida.js` for the step-by-step working | `test_documento` — formula, bands, masses with intensities, ¹H signals with integral and multiplicity, ¹³C signals; **in both directions**: CDCl₃ does not become the compound, a band outside 400-4000 is not a band, without an MS label there are no masses, a new paragraph closes the section, a text with no spectra produces no data |
+| **SCI-35** | A figure with a frame, labels and a grid must not be digitised as if it were only the curve: the axes and the numbers are dark pixels just like the trace | `bsi-digitalizza.js` — the frame is sought among the CONTINUOUS lines in the margins, and a border is told from a gridline by its **irregular spacing** relative to the family **or** by its thicker, darker stroke; the crop is moved past the line thickness; vertical gridline columns are marked as not measured and reconstructed from their neighbours | `test_digitalizza` §1-2 — on a figure with a frame **and** a grid (11 vertical families, 7 horizontal) it finds all four sides and the peaks stay within 2.2 cm⁻¹; **both ways**, on a grid-only figure it does **not** invent a frame and says so, and a **flat baseline** is not mistaken for an axis |
+| **SCI-36** | A digitised curve must be able to leave the application, and the exported file must be valid | `bsi-digitalizza.js` — CSV output with the units in the header, and JCAMP-DX 4.24 in (XY..XY) form with FIRSTX/LASTX/NPOINTS and the provenance written inside the file | `test_digitalizza` §4 — the **full round trip**: the exported JCAMP is read back by `bsi-spettrolettore.js`'s `leggi()` and returns with the same number of points, the same end points and the same units |
 | **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
@@ -114,7 +116,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 362 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 364 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 92 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -150,15 +152,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…34) | 33 | 33 | 100 % |
+| Scientific (SCI-01…36) | 35 | 35 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…13) | 11 | 11 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
 | Architecture (ING-01…01) | 1 | 1 | 100 % |
-| **Automated total** | **68** | **68** | **100 %** |
+| **Automated total** | **70** | **70** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **73** | **68** | **93 %** |
+| **Declared total** | **75** | **70** | **93 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -193,4 +195,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v197`._
+_Document updated to version `bsi-v198`._

@@ -88,9 +88,15 @@ will find the list of bands with their assignment.
 The **Spectrum reader** section does the opposite of the one above: it does not
 predict a spectrum from a structure, it reads one you already have.
 
-There is **one button**: `📂 Open a file`. It filters nothing — whatever you
-have in your folder, open it. A line under the button then **tells you what it
-decided the file is**:
+There are **two buttons**, and they are not duplicates.
+
+`📂 Open a file` filters nothing: whatever you have in your folder, open it.
+`📷 Photo or image of a spectrum` instead opens the **phone gallery** and also
+lets you take the picture there and then — on a phone these are two different
+system pickers, not two filters of the same one, and without the second there
+is no way to hand over a photograph.
+
+A line under the buttons then **tells you what it decided the file is**:
 
 | What you open | What happens |
 |---|---|
@@ -110,6 +116,49 @@ If you prefer, **paste** the data or the problem text into the box and press
 If you have no file at hand, the three buttons **IR example**, **MS example**
 and **NMR example** load a sample spectrum, and **example: an exam problem**
 loads a complete problem.
+
+Inside the section there is **📖 How to use it — full guide**: seven short
+chapters covering the two buttons step by step, the calibration, what the
+program does by itself, what it cannot do, how to recognise a wrong result from
+the symptom you see, and how to take the numbers away.
+
+### A spectrum you only have as a figure
+
+The trace is extracted from the **pixels**, and the chart appears at once. Then
+it must be **calibrated**, because the axis numbers are not in the image:
+
+| field | what you write in it |
+|---|---|
+| **x at left** / **x at right** | the values at the two edges of the plot — for an IR typically 4000 and 400 **in that order**, because an IR is written with decreasing wavenumbers |
+| **y at bottom** / **y at top** | the values of the vertical axis; for a figure in %T, 0 at the bottom and 100 at the top |
+| **y unit** | `%T`, `T`, `A` or intensity. Picking `%T` derives the absorbance with **A = −log₁₀T**, which is the definition |
+| **x/y logarithmic** | if an axis is logarithmic, say so: applying a linear map to it does not raise an error, it produces wrong numbers that look right |
+| **frame** | normally I find it; "the whole figure" is for when the image is already cropped to the plot only |
+
+Change a field and the chart redraws by itself: there is nothing to confirm.
+Below it the **diagnostics** appear — how many columns, whether the frame was
+found and on which sides, background and threshold, how many columns were grid
+— because a number without its how cannot be challenged.
+
+What I do by myself: I find the **axis frame** and digitise only what is inside
+it (the numbers written on the axes are dark pixels just like the trace); I
+**survive the grid**, picking in each column the run near where the trace was a
+pixel earlier and dark enough to be the trace; I read at **sub-pixel**, because
+the centre of a two-pixel line sits in between.
+
+> **How much I get wrong.** Measured over seven constructed figures whose band
+> centres are known: **mean 2.2 cm⁻¹** deviation, **worst 7.3**. One column of
+> a figure 900 pixels wide over 3600 cm⁻¹ is worth about 4 cm⁻¹: below that
+> there is nothing to gain, it is the limit of the figure.
+
+> **If the calibration is wrong**, the peaks come out at wrong numbers while
+> sitting in the right place on the figure: the shape is recovered from the
+> pixels, the calibration is not. And a photo taken at an angle carries a
+> distortion I do not straighten — frame the figure head-on.
+
+With **download CSV** and **download JCAMP-DX** the numbers leave this place:
+any spectroscopy program opens the JCAMP, and this very reader reads it back
+identical. Inside it is written that the calibration was given by hand.
 
 Below the chart you will find the peaks found with their signal-to-noise ratio,
 and for each band **all** compatible assignments. If you read two rows at
@@ -292,4 +341,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v197`._
+_Guide updated to version `bsi-v198`._
