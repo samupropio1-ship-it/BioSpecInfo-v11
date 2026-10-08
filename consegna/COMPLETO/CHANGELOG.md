@@ -7,6 +7,54 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v197] — 2026-10-08
+
+**Tre tabelle finivano fuori dallo schermo del telefono, e il contenuto non
+era tagliato a metà: era irraggiungibile.**
+
+### Che cosa succedeva
+
+`audit_mobile` misurava — bene, e con un argomento scritto — una cosa sola: se
+il **documento** scorre in orizzontale. È il difetto che l'utente vede, e
+segnalare ogni elemento più largo dello schermo avrebbe riempito l'uscita di
+rumore, perché una tabella larga dentro un contenitore che scorre è corretta.
+
+Solo che esiste un secondo caso, e non lo vedeva nessuno: una sezione che
+**ritaglia** il contenuto invece di far scorrere la pagina. Non compare nessuna
+barra. Si vede una tabella che finisce, e non c'è modo di sapere che l'ultima
+colonna esiste: non è tagliata a metà, è **irraggiungibile**, perché non c'è
+niente da scorrere.
+
+Tre casi veri, trovati così:
+
+| sezione | tabella | quanto |
+|---|---|---|
+| Tabelle spettroscopiche | ¹H / ¹³C / IR / costanti J, 4 colonne | 425 px in 370 — la colonna **Note** |
+| VSEPR | formula, geometria, angolo, esempi, ibridazione | 473 px in 390 — la colonna **Ibridazione** |
+| Chimica inorganica | serie spettrochimica dei ligandi | 394 px in 390 — là `overflow:hidden` serviva solo ad arrotondare gli angoli, e ritagliava |
+
+### Che cosa è cambiato
+
+- Le tre tabelle stanno ora dentro un contenitore con `overflow-x:auto` — lo
+  stesso schema già usato altrove nel file per le tabelle larghe. Dove serviva
+  l'angolo tondo, `overflow-x:auto` con `overflow-y:hidden`: scorre in
+  orizzontale e resta ritagliato in verticale.
+- Alla tabella spettroscopica è stato dato un `min-width`, perché il browser
+  non schiacci quattro colonne in fettine illeggibili invece di far scorrere.
+
+### Il controllo che mancava
+
+`audit_mobile` ora fa **due misure distinte** su tutte le 92 sezioni: lo
+`scrollWidth` del documento (come prima) **e** gli elementi più larghi della
+loro sezione **senza un antenato scorrevole**. La distinzione è tutta lì, e
+tiene in piedi l'argomento originale del banco: una tabella larga dentro un
+contenitore che scorre **non** viene segnalata, perché si legge scorrendola.
+
+Provato nei due versi: togliendo il contenitore a una delle tre tabelle il
+banco la nomina e fallisce; rimettendolo, le 92 sezioni passano pulite — con
+dentro parecchie tabelle larghe, correttamente non segnalate.
+
+---
 ## [bsi-v196] — 2026-10-08
 
 **Una sola porta d'ingresso al lettore spettri.** Dalla fotografia di un

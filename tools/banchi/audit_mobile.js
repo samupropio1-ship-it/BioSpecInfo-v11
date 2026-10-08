@@ -59,6 +59,52 @@ const CAUSE = function(){
   return fuori.slice(0, 3);
 };
 
+/* ═══════════════════════════════════════════════════════════════════════
+   L'ALTRO DIFETTO, CHE QUELLO DI SOPRA NON VEDE
+
+   Una sezione puo' RITAGLIARE il contenuto invece di far scorrere la
+   pagina. L'utente allora non vede nessuna barra — vede una tabella che
+   finisce, e non sa che l'ultima colonna esiste: non e' tagliata a meta',
+   e' IRRAGGIUNGIBILE, perche' non c'e' niente da scorrere.
+
+   Trovato cosi': in «Tabelle spettroscopiche» una tabella a quattro
+   colonne usciva 425 px in una sezione da 370, e la colonna «Note» era
+   lì, scritta, inaccessibile. `audit_mobile` non la segnalava — a
+   ragione: il documento non scorreva. Mancava la misura, non il banco.
+
+   Si cerca quindi l'elemento piu' largo della sua sezione CHE NON ABBIA
+   un antenato con overflow-x scorrevole. La distinzione e' tutta qui: una
+   tabella larga dentro un contenitore che scorre e' corretta — si legge
+   scorrendola — e non va segnalata. Senza quel contenitore, no.
+   ═══════════════════════════════════════════════════════════════════════ */
+const RITAGLIATI = function(){
+  const sec = document.querySelector('.section.on');
+  if (!sec) return [];
+  const largo = sec.clientWidth, fuori = [];
+  sec.querySelectorAll('*').forEach(function(el){
+    if (el.ownerSVGElement) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || r.width <= largo + 2) return;
+    /* se un antenato (fino alla sezione) scorre, il contenuto si raggiunge */
+    let n = el.parentElement, raggiungibile = false;
+    while (n && n !== sec.parentElement) {
+      if (/auto|scroll/.test(getComputedStyle(n).overflowX)) { raggiungibile = true; break; }
+      if (n === sec) break;
+      n = n.parentElement;
+    }
+    if (raggiungibile) return;
+    /* e nemmeno i figli di un elemento gia' segnalato: una riga dentro una
+       tabella larga non e' un secondo difetto */
+    if (fuori.some(x => x.nodo.contains(el))) return;
+    fuori.push({ nodo: el, descrizione: el.tagName.toLowerCase() +
+      (el.className && typeof el.className === 'string' && el.className.trim()
+        ? '.' + el.className.trim().split(/\s+/)[0] : '') +
+      '  ' + Math.round(r.width) + 'px in ' + largo + '  «' +
+      (el.textContent || '').trim().slice(0, 30) + '»' });
+  });
+  return fuori.slice(0, 3).map(x => x.descrizione);
+};
+
 (async () => {
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
   const ctx = await browser.newContext({
@@ -79,7 +125,7 @@ const CAUSE = function(){
   const sezioni = await pg.$$eval('.nav-btn[data-s]', bs => bs.map(x => x.getAttribute('data-s')));
 
   let percorse = 0;
-  const colpevoli = [];
+  const colpevoli = [], ritagliate = [];
   for (const s of sezioni) {
     await pg.evaluate(function(id){
       const x = document.querySelector('.nav-btn[data-s="' + id + '"]');
@@ -90,6 +136,8 @@ const CAUSE = function(){
     const oltre = await pg.evaluate(() =>
       document.documentElement.scrollWidth - document.documentElement.clientWidth);
     if (oltre > 1) colpevoli.push({ sezione: s, oltre: Math.round(oltre), cause: await pg.evaluate(CAUSE) });
+    const tagliati = await pg.evaluate(RITAGLIATI);
+    if (tagliati.length) ritagliate.push({ sezione: s, cause: tagliati });
   }
 
   await browser.close();
@@ -106,7 +154,14 @@ const CAUSE = function(){
      percorsa, il risultato «zero traboccamenti» non significa niente. */
   att('sezioni percorse', sezioni.length, percorse);
   att('sezioni in cui la pagina scorre in orizzontale', 0, colpevoli.length);
+  att('sezioni con contenuto piu\u2019 largo dello schermo e IRRAGGIUNGIBILE',
+      0, ritagliate.length);
   att('nessun errore JavaScript', 0, erroriJs.length);
+
+  ritagliate.slice(0, 10).forEach(function(c){
+    console.log('      ! ' + c.sezione + '  contenuto ritagliato e non scorrevole');
+    c.cause.forEach(x => console.log('          ' + x));
+  });
 
   colpevoli.slice(0, 10).forEach(function(c){
     console.log('      ! ' + c.sezione + '  esce di ' + c.oltre + 'px');

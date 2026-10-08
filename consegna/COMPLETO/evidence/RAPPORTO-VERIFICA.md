@@ -15,7 +15,7 @@
 |---|---|
 | **Banchi superati** | 61 |
 | **Banchi falliti** | 0 |
-| **Durata totale** | 1099 s |
+| **Durata totale** | 1077 s |
 | **Esito** | ✅ **CONFORME** |
 
 ---
@@ -24,11 +24,11 @@
 
 | Campo | Valore |
 |---|---|
-| Istante (UTC) | `2026-10-08T11:18:33.540Z` |
-| Commit | `f168eed862ff523a01d999a60874efb4dede63bb` |
+| Istante (UTC) | `2026-10-08T11:48:31.286Z` |
+| Commit | `8b0f183a8818921b1d69285378a786e6e108df60` |
 | Ramo | `main` |
 | Albero di lavoro pulito | NO — sono presenti modifiche non registrate |
-| Versione applicazione | `bsi-v196` |
+| Versione applicazione | `bsi-v197` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |
@@ -40,10 +40,10 @@ Il rapporto si riferisce esattamente a questo contenuto.
 
 | File | Byte | SHA-256 |
 |---|---:|---|
-| `index.html` | 4.803.217 | `0971486c09364781a101589bf23eda242a6b5b6f8f805c35258ad3eb79ab038a` |
+| `index.html` | 4.804.338 | `c4b24c7a5c7df24f4e85e341d3ff5fa0b45aeb92520c45525c3565a83724670c` |
 | `bsi-ai-hub.js` | 432.165 | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | 35.565 | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
-| `sw.js` | 5597 | `1e12bdef2195e928e55a3c47340165db34f7a78b80d799218915a697c79cee69` |
+| `sw.js` | 5597 | `862b7e801bc095785b851687f3ccb52201736d8476faef71b268259489e8c5d2` |
 | `bsi-pretsch.js` | 38.320 | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | 58.695 | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | 46.729 | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
@@ -64,26 +64,26 @@ _I dati chimici mostrati sono verificati contro una fonte indipendente._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-farmaci` | ✅ SUPERATO | 5.7 s | ✓ CONFORME |
-| `audit_farmaci` | ✅ SUPERATO | 5.8 s | 263 farmaci controllati — nessun errore, 21 avvisi |
-| `verifica_farmaci_v187` | ✅ SUPERATO | 6.4 s | 36/36 formule coincidono |
+| `@verifica-farmaci` | ✅ SUPERATO | 5.4 s | ✓ CONFORME |
+| `audit_farmaci` | ✅ SUPERATO | 5.7 s | 263 farmaci controllati — nessun errore, 21 avvisi |
+| `verifica_farmaci_v187` | ✅ SUPERATO | 6.3 s | 36/36 formule coincidono |
 | `test_spettri` | ✅ SUPERATO | 5.2 s | 41 passati |
 | `test_spettri_ui` | ✅ SUPERATO | 11.6 s | 16 passati |
-| `test_assi` | ✅ SUPERATO | 6.4 s | 13 passati |
-| `test_assi_canvas` | ✅ SUPERATO | 10.0 s | 6 passati |
+| `test_assi` | ✅ SUPERATO | 6.6 s | 13 passati |
+| `test_assi_canvas` | ✅ SUPERATO | 9.8 s | 6 passati |
 | `test_costanti` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 45 controlli |
 | `audit_dati` | ✅ SUPERATO | 0.1 s | ✓ 29 controlli superati |
-| `test_simmetria` | ✅ SUPERATO | 3.9 s | 26 passati |
-| `test_cheminfo` | ✅ SUPERATO | 12.7 s | 192 controlli passati |
-| `test_farm_ui` | ✅ SUPERATO | 7.8 s | 11 controlli passati |
+| `test_simmetria` | ✅ SUPERATO | 3.8 s | 26 passati |
+| `test_cheminfo` | ✅ SUPERATO | 12.4 s | 192 controlli passati |
+| `test_farm_ui` | ✅ SUPERATO | 7.2 s | 11 controlli passati |
 | `test_datasci` | ✅ SUPERATO | 8.6 s | 23 controlli passati |
 | `test_astro` | ✅ SUPERATO | 6.6 s | 13 controlli passati |
-| `test_spettrolettore` | ✅ SUPERATO | 52.6 s | 61 controlli passati |
-| `test_documento` | ✅ SUPERATO | 21.1 s | 50 controlli passati |
+| `test_spettrolettore` | ✅ SUPERATO | 52.5 s | 61 controlli passati |
+| `test_documento` | ✅ SUPERATO | 21.0 s | 50 controlli passati |
 | `test_nmr` | ✅ SUPERATO | 25.0 s | 66 controlli passati |
-| `test_nmr2d` | ✅ SUPERATO | 13.5 s | 40 controlli passati |
-| `test_geom3d` | ✅ SUPERATO | 8.4 s | 29 controlli passati |
-| `test_elucida` | ✅ SUPERATO | 7.5 s | 32 controlli passati |
+| `test_nmr2d` | ✅ SUPERATO | 13.3 s | 40 controlli passati |
+| `test_geom3d` | ✅ SUPERATO | 8.6 s | 29 controlli passati |
+| `test_elucida` | ✅ SUPERATO | 7.3 s | 32 controlli passati |
 
 ### Agente AI
 
@@ -91,7 +91,7 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `test_nucleo` | ✅ SUPERATO | 7.3 s | 13 passati |
+| `test_nucleo` | ✅ SUPERATO | 4.6 s | 13 passati |
 | `test_ko` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 35 controlli |
 | `test_404` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 36 controlli |
 | `test_503` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 40 controlli |
@@ -99,11 +99,11 @@ _L'assistente resta utilizzabile quando il fornitore esterno si guasta._
 | `test_attesa` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 11 controlli |
 | `test_attesalunga` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 14 controlli |
 | `test_tetto` | ✅ SUPERATO | 0.1 s | ✓ tutti passati — 32 controlli |
-| `browser_ko` | ✅ SUPERATO | 41.6 s | 37 passati |
-| `browser_prova` | ✅ SUPERATO | 52.8 s | 29 passati |
-| `browser_prov` | ✅ SUPERATO | 5.2 s | 7 passati |
-| `test_doppioinvio` | ✅ SUPERATO | 11.5 s | 7 passati |
-| `caccia_ai` | ✅ SUPERATO | 64.4 s | 22 passati |
+| `browser_ko` | ✅ SUPERATO | 40.1 s | 37 passati |
+| `browser_prova` | ✅ SUPERATO | 52.4 s | 29 passati |
+| `browser_prov` | ✅ SUPERATO | 5.1 s | 7 passati |
+| `test_doppioinvio` | ✅ SUPERATO | 11.6 s | 7 passati |
+| `caccia_ai` | ✅ SUPERATO | 64.2 s | 22 passati |
 
 ### Stabilita
 
@@ -111,12 +111,12 @@ _L'applicazione regge sessioni lunghe, memoria esaurita e rete degradata._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `audit_stabilita` | ✅ SUPERATO | 118.6 s | 29 passati |
-| `audit_promesse` | ✅ SUPERATO | 117.5 s | 22 passati |
-| `audit_quota` | ✅ SUPERATO | 42.6 s | 10 passati |
-| `test_sw` | ✅ SUPERATO | 30.3 s | 22 passati |
-| `test_filemanager` | ✅ SUPERATO | 11.0 s | 15 passati |
-| `test_visore3d` | ✅ SUPERATO | 9.8 s | 5 passati |
+| `audit_stabilita` | ✅ SUPERATO | 116.9 s | 29 passati |
+| `audit_promesse` | ✅ SUPERATO | 116.3 s | 22 passati |
+| `audit_quota` | ✅ SUPERATO | 42.0 s | 10 passati |
+| `test_sw` | ✅ SUPERATO | 30.1 s | 22 passati |
+| `test_filemanager` | ✅ SUPERATO | 11.3 s | 15 passati |
+| `test_visore3d` | ✅ SUPERATO | 9.9 s | 5 passati |
 
 ### Interfaccia
 
@@ -124,18 +124,18 @@ _I pannelli e i comandi rispondono come documentato._
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `browser_reset` | ✅ SUPERATO | 10.8 s | 24 passati |
-| `browser_proxy` | ✅ SUPERATO | 8.8 s | 15 passati |
+| `browser_reset` | ✅ SUPERATO | 11.1 s | 24 passati |
+| `browser_proxy` | ✅ SUPERATO | 9.0 s | 15 passati |
 | `browser_proxyui` | ✅ SUPERATO | 12.0 s | 17 passati |
-| `browser_rdkit` | ✅ SUPERATO | 4.9 s | 31 passati |
-| `browser_lab` | ✅ SUPERATO | 10.9 s | 21 passati |
-| `browser_frontiera` | ✅ SUPERATO | 6.7 s | 9 passati |
-| `test_aggiorna` | ✅ SUPERATO | 5.9 s | 9 passati |
-| `test_guidaproxy` | ✅ SUPERATO | 5.4 s | 12 passati |
+| `browser_rdkit` | ✅ SUPERATO | 5.0 s | 31 passati |
+| `browser_lab` | ✅ SUPERATO | 11.1 s | 21 passati |
+| `browser_frontiera` | ✅ SUPERATO | 6.8 s | 9 passati |
+| `test_aggiorna` | ✅ SUPERATO | 5.8 s | 9 passati |
+| `test_guidaproxy` | ✅ SUPERATO | 5.5 s | 12 passati |
 | `test_fluidita` | ✅ SUPERATO | 21.4 s | 16 controlli passati |
 | `test_lingue` | ✅ SUPERATO | 14.8 s | 64 controlli passati |
-| `test_mol3d` | ✅ SUPERATO | 12.5 s | 46 controlli passati |
-| `test_menu` | ✅ SUPERATO | 25.6 s | 36 controlli passati |
+| `test_mol3d` | ✅ SUPERATO | 12.4 s | 46 controlli passati |
+| `test_menu` | ✅ SUPERATO | 25.9 s | 36 controlli passati |
 
 ### Sicurezza e accessibilita
 
@@ -143,11 +143,11 @@ _Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia as
 
 | Banco | Esito | Durata | Sintesi |
 |---|---|---:|---|
-| `@verifica-sicurezza` | ✅ SUPERATO | 0.7 s | 10 controlli passati |
-| `audit_storia` | ✅ SUPERATO | 27.7 s | 7 controlli passati |
-| `audit_rete` | ✅ SUPERATO | 27.2 s | 5 controlli passati |
-| `@verifica-accessibilita` | ✅ SUPERATO | 87.4 s | 6 controlli passati |
-| `audit_mobile` | ✅ SUPERATO | 28.1 s | 3 controlli passati |
+| `@verifica-sicurezza` | ✅ SUPERATO | 0.4 s | 10 controlli passati |
+| `audit_storia` | ✅ SUPERATO | 9.6 s | 7 controlli passati |
+| `audit_rete` | ✅ SUPERATO | 27.7 s | 5 controlli passati |
+| `@verifica-accessibilita` | ✅ SUPERATO | 89.0 s | 6 controlli passati |
+| `audit_mobile` | ✅ SUPERATO | 29.6 s | 4 controlli passati |
 
 ### Coerenza documentazione/codice
 
@@ -157,8 +157,8 @@ _Cio che la documentazione promette esiste davvero nel codice._
 |---|---|---:|---|
 | `verifica_guida` | ✅ SUPERATO | 0.2 s | 71 controlli passati |
 | `@verifica-documenti` | ✅ SUPERATO | 0.1 s | 18 controlli passati |
-| `@verifica-affermazioni` | ✅ SUPERATO | 11.0 s | 10 controlli passati |
-| `audit_copertura` | ✅ SUPERATO | 45.0 s | 4 controlli passati |
+| `@verifica-affermazioni` | ✅ SUPERATO | 10.9 s | 10 controlli passati |
+| `audit_copertura` | ✅ SUPERATO | 46.2 s | 4 controlli passati |
 
 ### Una sola casa per funzione
 
@@ -1115,7 +1115,7 @@ Lettore di spettri e modelli avanzati
   ✓   · e il lettore di documenti dice che non lo sa leggere  → true
       (⚠ Questo file non è testo: contiene dati binari. Il tipo dichiarato è «text/plai)
   ✓ un’immagine fa entrambe le cose (traccia e pagina)  → true
-  ✓ il distintivo in intestazione riporta la versione vera  → v196
+  ✓ il distintivo in intestazione riporta la versione vera  → v197
   ✓ nessun errore JavaScript  → 0
 
 61 controlli passati
@@ -1467,15 +1467,15 @@ Geometria 3D — costruita dal grafo, misurata contro la chimica
   ✓ e lo scarto dai limiti resta piccolo  → 0.017 (al più 0.12)
 
 ── Le molecole vere ──
-      caffeina        24 atomi · scarto 0.027 Å · minima 2.33 Å · 82 ms
-      ibuprofene      33 atomi · scarto 0.014 Å · minima 1.99 Å · 75 ms
-      naprossene      31 atomi · scarto 0.022 Å · minima 2.27 Å · 115 ms
-      paracetamolo    20 atomi · scarto 0.011 Å · minima 2.33 Å · 32 ms
-      atorvastatina   76 atomi · scarto 0.31 Å · minima 1.63 Å · 476 ms
+      caffeina        24 atomi · scarto 0.027 Å · minima 2.33 Å · 115 ms
+      ibuprofene      33 atomi · scarto 0.014 Å · minima 1.99 Å · 114 ms
+      naprossene      31 atomi · scarto 0.022 Å · minima 2.27 Å · 156 ms
+      paracetamolo    20 atomi · scarto 0.011 Å · minima 2.33 Å · 42 ms
+      atorvastatina   76 atomi · scarto 0.31 Å · minima 1.63 Å · 505 ms
   ✓ ognuna produce una geometria  → 0
   ✓ il residuo peggiore resta nel valore dichiarato (Å)  → 0.31 (al più 0.4)
   ✓ e nessuna coppia scende sotto 1,5 Å  → 1.63 (almeno 1.5)
-  ✓ nessuna impiega più di due secondi  → 476 (al più 2000)
+  ✓ nessuna impiega più di due secondi  → 505 (al più 2000)
 
 ── Riproducibilità ──
   ✓ la stessa molecola dà sempre la stessa forma  → true
@@ -2319,17 +2319,17 @@ Due Invio di fila, a mezzo secondo di distanza
 1) Installazione e precarico
   ✓ una sola cache, quella corrente  → 1
   ✓ il nome e' quello della versione  → true
-    · cache: bsi-v196 con 51 voci
+    · cache: bsi-v197 con 51 voci
   ✓ il precarico ha messo dentro le pagine  → true
   ✓ nessun errore JS  → 0
 
 2) Offline completo
   ✓ la app si apre senza rete  → true
-    · 7006 nodi in 986 ms — "BioSpecInfo · v8"
+    · 6957 nodi in 672 ms — "BioSpecInfo · v8"
   ✓ nessun errore JS offline  → 0
 
 3) Rete pessima (risposte a 20 secondi)
-    · caricata in 7553 ms con 7036 nodi — rete bloccata 19 volte
+    · caricata in 7475 ms con 7036 nodi — rete bloccata 19 volte
   ✓ la rete e' stata bloccata davvero (misura valida)  → true
   ✓ non si aspettano i 20 secondi della rete  → true
   ✓ la app viene servita dalla cache  → true
@@ -2677,8 +2677,8 @@ Chiave condivisa nella UI
 ```
 
 1) La versione dichiarata e' quella vera
-    · app: bsi-v196   ·  sw.js: bsi-v196
-  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v196
+    · app: bsi-v197   ·  sw.js: bsi-v197
+  ✓ BSI_APP_VERSION coincide con la cache del service worker  → bsi-v197
   ✓ e non e' piu' la vecchia v140  → false
 
 2) Si arriva alla finestra degli aggiornamenti
@@ -2691,7 +2691,7 @@ Chiave condivisa nella UI
 3) La voce apre davvero la finestra
   ✓ la finestra si apre  → true
   ✓ e dichiara la versione giusta  → true
-    · 🔄AggiornamentiVersione installata: bsi-v196Premi “Controlla” per verificare se è disponib
+    · 🔄AggiornamentiVersione installata: bsi-v197Premi “Controlla” per verificare se è disponib
   ✓ nessun errore JS  → 0
 
 9 passati
@@ -2735,7 +2735,7 @@ Fluidità — il tempo che la pagina resta bloccata a ogni cambio di sezione
 
 ── Viewer 3D PRO ──
   ✓ il click NON costruisce il contesto WebGL (tele create nel gestore)  → 0
-  ✓ e il gestore resta sotto il tetto grossolano (ms)  → 15 (limite 400)
+  ✓ e il gestore resta sotto il tetto grossolano (ms)  → 51 (limite 400)
   ✓ il viewer si costruisce comunque: la tela WebGL esiste  → true
   ✓ e i comandi del pannello ci sono  → true
       (41 nodi, 1 tela, 26 comandi)
@@ -2753,10 +2753,10 @@ Fluidità — il tempo che la pagina resta bloccata a ogni cambio di sezione
 
 ── I cambi di sezione ──
   ✓ le sezioni attraversate sono tutte  → true
-  ✓ il cambio di sezione mediano (ms)  → 12 (limite 40)
-  ✓ il cambio di sezione peggiore (ms)  → 55 (limite 260)
+  ✓ il cambio di sezione mediano (ms)  → 13 (limite 40)
+  ✓ il cambio di sezione peggiore (ms)  → 62 (limite 260)
   ✓ quante sezioni superano i 100 ms  → 0 (limite 2)
-      (92 sezioni; le più lente: sdatasci 55ms, sretro 52ms, sfarm 43ms, scroma 42ms)
+      (92 sezioni; le più lente: scroma 62ms, sfarm 58ms, sdatasci 55ms, sretro 51ms)
   ✓ nessun errore JavaScript percorrendo tutta l'applicazione  → 0
 
 16 controlli passati
@@ -2906,7 +2906,7 @@ La molecola che si forma, e gli angoli fra i suoi legami
   ✓ all’avvio la tela è quasi vuota (polvere)  → true
   ✓ due secondi dopo c’è una molecola  → true
   ✓ il ciclo si ferma quando lo si ferma  → true
-      (655 pixel accesi a 130 ms → 2724 a 2,3 s)
+      (658 pixel accesi a 130 ms → 2724 a 2,3 s)
 
 ── I comandi ──
   ✓ la barra dei comandi compare accanto alla tela  → true
@@ -3052,11 +3052,11 @@ Storia del repository — nessuna credenziale in nessuna versione
   ✓ il clone NON è superficiale (altrimenti la storia è parziale)  → false
   ✓ i commit esaminati sono molti  → true
   ✓ le versioni di file di testo sono molte  → true
-      (419 commit · 2253 versioni distinte di file di testo)
+      (420 commit · 2301 versioni distinte di file di testo)
 
 ── La ricerca ──
   ✓ nessuna credenziale in nessuna versione di nessun file  → 
-      (2253 versioni esaminate con 9 schemi)
+      (2301 versioni esaminate con 9 schemi)
   ✓ le eccezioni dichiarate sono tutte ancora nella storia, nessuna di più  → 1
       · cc1a0ba00 — tools/banchi/audit_storia.js al commit 825ef66 — la prima stesura di QUESTO banco, che scriveva …
 
@@ -3093,7 +3093,7 @@ Nessun dato dell'utente lascia il dispositivo
 Verifica di accessibilità
 WCAG 2.1 AA — contrasto 4.5:1 (testo normale), 3:1 (testo grande)
 
-  ✓ index                    92/92  sez · 25344 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 6795 in SVG · 572 su gradiente (misurati sulla tappa peggiore) · 4 su immagine, non misurabili · 2 di sole emoji
+  ✓ index                    92/92  sez · 25344 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 6794 in SVG · 572 su gradiente (misurati sulla tappa peggiore) · 4 su immagine, non misurabili · 2 di sole emoji
   ✓ astro                             4999 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 2 su gradiente (misurati sulla tappa peggiore) · 1 su immagine, non misurabili · 1 di sole emoji
   ✓ chimorga                          1701 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 469 in SVG · 1 di sole emoji
   ✓ accademia                         61 elementi di testo · contrasto 0 · comandi senza nome 0 · campi senza etichetta 0 · img senza alt 0 · 1 su gradiente (misurati sulla tappa peggiore) · 13 di sole emoji
@@ -3130,9 +3130,10 @@ Traboccamento orizzontale a 390 px
 
   ✓ sezioni percorse  → 92
   ✓ sezioni in cui la pagina scorre in orizzontale  → 0
+  ✓ sezioni con contenuto piu’ largo dello schermo e IRRAGGIUNGIBILE  → 0
   ✓ nessun errore JavaScript  → 0
 
-3 controlli passati
+4 controlli passati
 ```
 
 </details>
@@ -3250,7 +3251,7 @@ Traboccamento orizzontale a 390 px
 ```
 Verifica della documentazione
 
-Versione del codice (sw.js): bsi-v196
+Versione del codice (sw.js): bsi-v197
 
 ── Collegamenti interni ──
   ✓ nessun collegamento interno rotto
@@ -3312,7 +3313,7 @@ misurato nell'applicazione in esecuzione.
   ✓ moduli di chimica organica  → 25
 
 ── Badge del README ──
-  ✓ il badge della versione è allineato al codice  → bsi--v196
+  ✓ il badge della versione è allineato al codice  → bsi--v197
   ✓ il badge dei banchi coincide con la batteria  → 61
   ✓ il badge del contrasto coincide con la misura registrata  → 0
 
@@ -3345,7 +3346,7 @@ Copertura di codice — istruzioni eseguite, non rami
   · bsi-mol3d.js                9.08 %   (4 kB su 40 kB)
   · bsi-moldraw.js             27.33 %   (11 kB su 42 kB)
   · bsi-molingue.js            16.58 %   (8 kB su 51 kB)
-  · bsi-nmr.js                 64.44 %   (35 kB su 54 kB)
+  · bsi-nmr.js                 63.11 %   (34 kB su 54 kB)
   · bsi-nmr2d.js                23.1 %   (4 kB su 19 kB)
   · bsi-pannelli-lingua.js     61.99 %   (39 kB su 63 kB)
   · bsi-pretsch.js             99.96 %   (33 kB su 33 kB)
@@ -3409,7 +3410,7 @@ Lo stack React + FastAPI — lo stesso motore, un altro guscio
 
 ```bash
 # 1. dalla radice del repository, al commit indicato al §2
-git checkout f168eed862ff
+git checkout 8b0f183a8818
 
 # 2. dipendenze di prova (solo Playwright, nessuna dipendenza di runtime)
 npm install
@@ -3440,4 +3441,4 @@ I limiti noti e dichiarati dei predittori scientifici sono documentati in
 `docs/06-Scientific-Accuracy-Data-Provenance.md` e non sono trattati come
 difetti da questo rapporto.
 
-_Generato il 2026-10-08T11:18:33.540Z._
+_Generato il 2026-10-08T11:48:31.286Z._

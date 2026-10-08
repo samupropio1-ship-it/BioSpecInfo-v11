@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v196` |
+| **Versione descritta** | `bsi-v197` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -330,7 +330,7 @@ dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `audit_storia` | Che nessuna credenziale sia MAI entrata nel repository: **1 551 versioni distinte di file di testo** su **390 commit**, con 9 schemi. Si rifiuta di passare su un clone superficiale |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 92 sezioni |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 92 sezioni — **e** che nessuna sezione ritagli contenuto rendendolo irraggiungibile: un elemento più largo della sua sezione, senza un antenato che scorra, è testo presente e non leggibile. Una tabella larga dentro un contenitore scorrevole non viene segnalata |
 | `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 92 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
 
@@ -626,4 +626,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v196`._
+_Documento aggiornato alla versione `bsi-v197`._

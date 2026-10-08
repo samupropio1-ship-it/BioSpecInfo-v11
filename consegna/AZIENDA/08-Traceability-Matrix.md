@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v196` |
+| **Versione descritta** | `bsi-v197` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -98,7 +98,7 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza | griglie `auto-fit`, nessuna colonna fissa | `audit_mobile` — `scrollWidth` del documento su tutte le 92 sezioni a 390 px; `audit_stabilita` per gli errori in viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza, e il contenuto che non ci sta deve restare **raggiungibile** | griglie `auto-fit`, nessuna colonna fissa, e le tabelle larghe dentro un contenitore con `overflow-x:auto` | `audit_mobile` — **due misure distinte** su tutte le 92 sezioni a 390 px: lo `scrollWidth` del documento (la barra orizzontale che l'utente vede) **e** gli elementi più larghi della loro sezione **senza un antenato scorrevole**, cioè il contenuto ritagliato e irraggiungibile — una colonna scritta che non si può leggere e non dà nessun segno di esistere. **Nei due versi**: una tabella larga dentro un contenitore che scorre **non** viene segnalata, perché si legge scorrendola. `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
@@ -194,4 +194,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v196`._
+_Documento aggiornato alla versione `bsi-v197`._

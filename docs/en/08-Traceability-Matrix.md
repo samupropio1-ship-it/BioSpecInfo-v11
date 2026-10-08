@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v196` |
+| **Version described** | `bsi-v197` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -98,7 +98,7 @@
 |---|---|---|---|
 | **UI-01** | Every page must open without JavaScript errors | — | `audit_stabilita` §5 — 14 pages |
 | **UI-02** | Charts must be sharp on high-density screens | `bsiNitido()` on the canvas contexts | `audit_grafici` — 40 canvases |
-| **UI-03** | The app must work at 390 px width | `auto-fit` grids, no fixed column | `audit_mobile` — the document's `scrollWidth` across all 92 sections at 390 px; `audit_stabilita` for errors in a phone viewport |
+| **UI-03** | The app must work at 390 px width, and content that does not fit must stay **reachable** | `auto-fit` grids, no fixed column, and wide tables inside a container with `overflow-x:auto` | `audit_mobile` — **two distinct measurements** across all 92 sections at 390 px: the document's `scrollWidth` (the horizontal bar the user sees) **and** elements wider than their section **with no scrollable ancestor**, that is content clipped and unreachable — a written column that cannot be read and gives no sign of existing. **Both ways**: a wide table inside a scrolling container is **not** reported, because it can be read by scrolling. `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
@@ -193,4 +193,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v196`._
+_Document updated to version `bsi-v197`._

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Autore | Samuele Pio Provenzano |
-| Versione | `bsi-v196` |
-| Commit | `f168eed` |
+| Versione | `bsi-v197` |
+| Commit | `8b0f183` |
 | Preparato il | 2026-10-08 |
 | Applicazione | https://samupropio1-ship-it.github.io/BioSpecInfo-v11/ |
 | Repository | github.com/samupropio1-ship-it/BioSpecInfo-v11 |
@@ -83,4 +83,4 @@ Il documento 06 contiene il risultato più difendibile del lavoro: un controllo 
 
 ---
 
-_Pacchetto **TESI** · versione `bsi-v196` · commit `f168eed`._
+_Pacchetto **TESI** · versione `bsi-v197` · commit `8b0f183`._

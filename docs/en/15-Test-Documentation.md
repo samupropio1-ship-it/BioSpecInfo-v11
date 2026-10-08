@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v196` |
+| **Version described** | `bsi-v197` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -316,7 +316,7 @@ be excellent and the measurement worthless.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 92 sections |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 92 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
 | `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 92 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
@@ -607,4 +607,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v196`._
+_Document updated to version `bsi-v197`._

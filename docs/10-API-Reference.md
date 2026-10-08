@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v196` |
+| **Versione descritta** | `bsi-v197` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -338,4 +338,4 @@ Punti di estensione per chi deve intervenire sul codice. Sono globali sul
 
 ---
 
-_Documento aggiornato alla versione `bsi-v196`._
+_Documento aggiornato alla versione `bsi-v197`._

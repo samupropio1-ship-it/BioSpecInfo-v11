@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v196` |
+| **Version described** | `bsi-v197` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -846,4 +846,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v196`._
+_Document updated to version `bsi-v197`._

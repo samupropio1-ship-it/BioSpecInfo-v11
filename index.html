@@ -836,7 +836,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v196';
+window.BSI_APP_VERSION='bsi-v197';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -3011,7 +3011,13 @@ if(document.getElementById('specSimCanvas')){
   <div style="margin-bottom:8px">
     <input type="text" id="specQ" style="width:100%;padding:9px 12px;background:#0f2040;border:1px solid #34465f;color:#e8f4ff;outline:none;font-size:13px;border-radius:8px;font-family:monospace;box-sizing:border-box" placeholder="Cerca gruppo funzionale: OH, carbonile, aromatico…"/>
   </div>
-  <div id="specTable"></div>
+  <!-- Quattro colonne non entrano in 370 px, e senza questo contenitore la
+       colonna «Note» finisce fuori dallo schermo del telefono: non tagliata
+       a meta' — IRRAGGIUNGIBILE, perche' la pagina non scorre in orizzontale.
+       Il contenuto c'era e non si poteva leggere. Lo stesso contenitore
+       (overflow-x:auto + min-width sulla tabella) e' gia' usato altrove per
+       le tabelle larghe: qui mancava. -->
+  <div id="specTable" style="overflow-x:auto"></div>
 </div>
 
 <!-- ══ SECTION: FARMACI PER CATEGORIA ══ -->
@@ -5525,7 +5531,9 @@ function showSpec(tab,q){
             isIR?["Gruppo Funzionale","ν̃ (cm⁻¹)","Intensità","Note"]:
             isC?["Gruppo Funzionale","δ tipico (¹³C ppm)","Note",""]:
             ["Gruppo Funzionale","δ tipico (¹H ppm)","Molteplicità","Note"];
-  var tbl=document.createElement("table");tbl.style.cssText="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12px";
+  /* il min-width dice al browser di NON schiacciare le quattro colonne in
+     fettine illeggibili: sotto quella larghezza scorre il contenitore */
+  var tbl=document.createElement("table");tbl.style.cssText="width:100%;min-width:420px;border-collapse:collapse;font-family:var(--font-mono);font-size:12px";
   var thead=document.createElement("thead");
   var hrow=document.createElement("tr");
   cols.forEach(function(c){
@@ -19786,7 +19794,11 @@ window.initInorganic = function(){
     +'<h3 style="color:#e9eef6;margin-bottom:12px">Complessi principali con diagrammi degli e⁻ d:</h3>'
     +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px">'+complexCards+'</div>'
     +'<h3 style="color:#e9eef6;margin-bottom:10px">Serie Spettrochimica dei Ligandi:</h3>'
-    +'<div style="border-radius:10px;overflow:hidden;margin-bottom:16px">'+seriesHTML+'</div>'
+    /* `overflow:hidden` serviva solo ad arrotondare gli angoli, ma su uno
+       schermo da 390 px RITAGLIAVA la colonna «Note»: scritta, presente e
+       irraggiungibile, perche' non c'era niente da scorrere. Scorre in
+       orizzontale e resta ritagliato in verticale: gli angoli restano tondi. */
+    +'<div style="border-radius:10px;overflow-x:auto;overflow-y:hidden;margin-bottom:16px">'+seriesHTML+'</div>'
     +'<div style="background:#15304a;border-radius:12px;padding:14px;font-size:12px">'
     +'<strong>📌 Punti chiave:</strong><br>'
     +'• Isomeria nei complessi: geometrica (cis/trans), ottica (Δ/Λ), linkage (SCN vs NCS), ionizzazione<br>'
@@ -26915,7 +26927,9 @@ function showClinCase(id){
     </div>
     <div class="panel" style="grid-column:1/-1">
       <div class="ph" style="color:#a78bfa">📋 Tutte le Geometrie VSEPR</div>
-      <div class="pb" id="vseprTable"></div>
+      <!-- Cinque colonne non entrano in 390 px: senza contenitore scorrevole
+           «Ibridazione» restava fuori dallo schermo e irraggiungibile. -->
+      <div class="pb" id="vseprTable" style="overflow-x:auto"></div>
     </div>
   </div>
 </div>
