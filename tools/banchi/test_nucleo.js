@@ -1,7 +1,19 @@
 const { chromium } = require('playwright-core');
 (async () => {
   const b = await chromium.launch({ executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args:['--no-sandbox'] });
-  const ctx = await b.newContext({ viewport:{width:430,height:920}, deviceScaleFactor:2 });
+  /* SERVICE WORKER BLOCCATO, E NON PER ABITUDINE.
+     Questo banco e' fallito una volta nella batteria con «Execution context
+     was destroyed, most likely because of a navigation», morendo a meta' di
+     un `evaluate`. Rilanciato a mano passava, tre volte su tre: una corsa,
+     non un difetto dell'applicazione.
+     La corsa e' questa: il service worker si attiva, manda
+     `BSI_SW_UPDATED` alla pagina, e la pagina puo' ricaricarsi — proprio
+     mentre l'evaluate sta leggendo il DOM. Gli altri banchi bloccano il
+     service worker; questo no, e per questo era l'unico a inciampare.
+     Un banco che falla una volta su venti non viene creduto nemmeno quando
+     ha ragione, quindi la causa si toglie invece di rilanciare e sperare. */
+  const ctx = await b.newContext({ viewport:{width:430,height:920}, deviceScaleFactor:2,
+                                   serviceWorkers:'block' });
   const pg = await ctx.newPage();
   const err=[]; pg.on('pageerror',e=>err.push(e.message));
   /* Emscripten compila il .wasm in streaming; se il corpo della risposta

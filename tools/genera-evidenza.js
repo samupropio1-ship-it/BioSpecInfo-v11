@@ -84,7 +84,11 @@ const FAMIGLIE = [
   { nome: 'Una sola casa per funzione',
     scopo: 'Lo stack React/FastAPI esegue gli STESSI file dell\'applicazione, non una copia; ' +
            'e nell\'interfaccia nessuna funzione ha due porte d\'ingresso.',
-    banchi: ['test_stack', 'test_articoli'] }
+    /* `audit_statico` entra nella batteria ADESSO, e il motivo vale la pena
+       di dirlo: la guardia contro i blocchi duplicati era stata scritta
+       dentro di lui, e lui non era nell'elenco. Una guardia che non gira
+       non e' una guardia. */
+    banchi: ['test_stack', 'test_articoli', 'audit_statico'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

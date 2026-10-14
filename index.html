@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v200';
+window.BSI_APP_VERSION='bsi-v201';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -18007,9 +18007,18 @@ window.showMechanism = function(id){
   if(!mech) return;
   mechState.current=mech;
   mechState.step=0;
-  renderMechStep();
+  window.renderMechStep();
 };
 
+/* ESPOSTA SUL `window`, E LE CHIAMATE INTERNE PASSANO DA LA'.
+   Un blocco piu' in basso («Mechanism Canvas Visualizer», 471 righe) vuole
+   avvolgere questa funzione per disegnare la tela del meccanismo dopo ogni
+   passo, e lo fa con `var _orig = window.renderMechStep; if(typeof _orig ===
+   'function'){ ... }`. Ma questa funzione era LOCALE a questa chiusura:
+   `window.renderMechStep` era `undefined`, la guardia saltava in silenzio, e
+   la tela non si disegnava mai. Esporla non basterebbe — le chiamate interne
+   userebbero comunque il riferimento locale, scavalcando l'involucro —
+   quindi chiamano `window.renderMechStep`. */
 function renderMechStep(){
   var sec=document.getElementById('sanimmech');
   var mech=mechState.current;
@@ -18052,9 +18061,14 @@ function renderMechStep(){
     +'</div>';
 }
 
+/* l'esposizione sta qui, dove la dichiarazione della funzione e' conclusa */
+window.renderMechStep = renderMechStep;
+/* e `mechState` serve all'involucro per sapere a che passo siamo */
+window.mechState = mechState;
+
 window.goMechStep=function(i){
   mechState.step=i;
-  renderMechStep();
+  window.renderMechStep();
 };
 
 window.showKeypoints=function(){
@@ -20625,409 +20639,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-// ═══════════════════════════════════════════════════════════════════
-// BIOSPECINFO — AGGIUNTE FINALI
-// 1. Flashcard Personalizzate (crea le tue domande con SM-2)
-// 2. Quiz per le nuove categorie (MO, inorganica, retrosintesi)
-// 3. Diagrammi di Fase interattivi
-// 4. Mappa Connessioni tra sezioni
-// ═══════════════════════════════════════════════════════════════════
-
-// ── 1. FLASHCARD PERSONALIZZATE ───────────────────────────────────
-(function(){
-'use strict';
-
-var CUSTOM_KEY = 'bsi_custom_flashcards';
-
-function loadCustomCards(){
-  try { return JSON.parse(localStorage.getItem(CUSTOM_KEY)||'[]'); } catch(e){ return []; }
-}
-function saveCustomCards(cards){ localStorage.setItem(CUSTOM_KEY, JSON.stringify(cards)); }
-
-function renderCustomHome(){
-  var sec = document.getElementById('scustomflash');
-  var cards = loadCustomCards();
-
-  // SM-2 progress for custom cards
-  var progress = {};
-  try { progress = JSON.parse(localStorage.getItem('bsi_quiz_progress')||'{}'); } catch(e){}
-
-  var dueNow = cards.filter(function(c){
-    var p = progress['custom_'+c.id];
-    return !p || p.nextReview <= Date.now();
-  }).length;
-
-  sec.innerHTML =
-    '<div style="max-width:800px;margin:0 auto;padding:20px">'
-    +'<div style="text-align:center;margin-bottom:20px">'
-    +'<div style="font-size:36px">✍️</div>'
-    +'<h2 style="color:#e9eef6;margin:8px 0 4px">Le Mie Flashcard</h2>'
-    +'<p style="color:#c9d3df;font-size:13px;margin:0">Crea le tue domande personalizzate — studiate con l\'algoritmo SM-2</p>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">'
-    +'<div style="background:linear-gradient(135deg,#0d1522,#0d1522);color:#fff;border-radius:14px;padding:16px;text-align:center">'
-    +'<div style="font-size:36px;font-weight:800">'+cards.length+'</div>'
-    +'<div style="opacity:.9">Flashcard totali</div>'
-    +'</div>'
-    +'<div style="background:linear-gradient(135deg,#DC2626,#B71C1C);color:#fff;border-radius:14px;padding:16px;text-align:center">'
-    +'<div style="font-size:36px;font-weight:800">'+dueNow+'</div>'
-    +'<div style="opacity:.9">Da ripassare ora</div>'
-    +'</div>'
-    +'</div>'
-    +(dueNow>0?'<button onclick="studyCustomCards()" style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px">⚡ Ripassa ora ('+dueNow+' da ripassare)</button>':'')
-    +'<div style="background:#16273e;border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16px">'
-    +'<h3 style="margin:0 0 12px;font-size:15px;color:#e9eef6">➕ Nuova Flashcard</h3>'
-    +'<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:#e9eef6">Domanda:</label>'
-    +'<textarea id="cfQuestion" rows="2" placeholder="Scrivi la domanda..." style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box"></textarea></div>'
-    +'<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:#e9eef6">Risposta:</label>'
-    +'<textarea id="cfAnswer" rows="2" placeholder="Scrivi la risposta..." style="width:100%;margin-top:4px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box"></textarea></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
-    +'<div><label style="font-size:12px;font-weight:600;color:#e9eef6">Materia (opzionale):</label>'
-    +'<input id="cfSubject" type="text" placeholder="es: Chimica Organica" style="width:100%;margin-top:4px;padding:7px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box"></div>'
-    +'<div><label style="font-size:12px;font-weight:600;color:#e9eef6">Hint (opzionale):</label>'
-    +'<input id="cfHint" type="text" placeholder="Suggerimento..." style="width:100%;margin-top:4px;padding:7px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box"></div>'
-    +'</div>'
-    +'<button onclick="addCustomCard()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer">✅ Aggiungi Flashcard</button>'
-    +'</div>'
-    +(cards.length>0?'<div style="background:#16273e;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.08)">'
-    +'<h3 style="margin:0 0 12px;font-size:15px;color:#e9eef6">📋 Le tue flashcard ('+cards.length+')</h3>'
-    +'<div style="display:grid;gap:8px">'
-    +cards.slice(0,20).map(function(c,i){
-      var p = progress['custom_'+c.id];
-      var status = !p?'🆕 Nuova':p.nextReview<=Date.now()?'🔴 Da ripassare':'✅ Appresa';
-      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#16273e;border-radius:8px">'
-        +'<div style="flex:1;min-width:0">'
-        +'<div style="font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+c.q+'</div>'
-        +'<div style="font-size:11px;color:#c9d3df">'+status+(c.subject?' · '+c.subject:'')+'</div>'
-        +'</div>'
-        +'<button aria-label="Elimina" onclick="deleteCustomCard(\''+c.id+'\')" style="background:#3a1e1e;color:#c9d3df;border:1px solid #FECACA;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;flex-shrink:0">🗑</button>'
-        +'</div>';
-    }).join('')
-    +(cards.length>20?'<div style="text-align:center;font-size:12px;color:#c9d3df">...e altre '+(cards.length-20)+' flashcard</div>':'')
-    +'</div></div>':'<div style="text-align:center;padding:20px;color:#c9d3df"><div style="font-size:32px">✍️</div><div style="margin-top:8px">Nessuna flashcard ancora. Creane una!</div></div>')
-    +'</div>';
-}
-
-window.addCustomCard = function(){
-  var q = document.getElementById('cfQuestion').value.trim();
-  var a = document.getElementById('cfAnswer').value.trim();
-  var subject = document.getElementById('cfSubject').value.trim();
-  var hint = document.getElementById('cfHint').value.trim();
-  if(!q||!a){ alert('Inserisci domanda e risposta.'); return; }
-
-  var cards = loadCustomCards();
-  var id = 'cf_'+Date.now();
-  cards.push({id:id, q:q, a:a, subject:subject, hint:hint, created:Date.now()});
-  saveCustomCards(cards);
-  renderCustomHome();
-};
-
-window.deleteCustomCard = function(id){
-  if(!confirm('Eliminare questa flashcard?')) return;
-  var cards = loadCustomCards().filter(function(c){ return c.id!==id; });
-  saveCustomCards(cards);
-  // Remove from progress too
-  var progress = JSON.parse(localStorage.getItem('bsi_quiz_progress')||'{}');
-  delete progress['custom_'+id];
-  localStorage.setItem('bsi_quiz_progress', JSON.stringify(progress));
-  renderCustomHome();
-};
-
-window.studyCustomCards = function(){
-  var cards = loadCustomCards();
-  var progress = JSON.parse(localStorage.getItem('bsi_quiz_progress')||'{}');
-  var now = Date.now();
-
-  // Get due cards
-  var due = cards.filter(function(c){
-    var p = progress['custom_'+c.id];
-    return !p || p.nextReview <= now;
-  }).sort(function(){ return Math.random()-.5; }).slice(0,20);
-
-  if(!due.length){ alert('Nessuna flashcard da ripassare! Torna più tardi.'); return; }
-
-  // Convert to quiz format and use SM-2
-  var sec = document.getElementById('scustomflash');
-  var idx = 0;
-  var results = [];
-
-  function showCard(){
-    if(idx >= due.length){ showCustomResults(); return; }
-    var card = due[idx];
-    var revealed = false;
-
-    sec.innerHTML =
-      '<div style="max-width:600px;margin:0 auto;padding:20px">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:12px">'
-      +'<span style="font-size:13px;color:#c9d3df">'+(idx+1)+' / '+due.length+'</span>'
-      +'<button onclick="renderCustomHome()" style="background:transparent;border:1px solid #e5e7eb;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">✕ Esci</button>'
-      +'</div>'
-      +'<div style="background:#0d1522;border-radius:3px;height:4px;margin-bottom:16px">'
-      +'<div style="background:#1f6e4a;height:100%;width:'+Math.round(idx/due.length*100)+'%;transition:width .3s"></div></div>'
-      +'<div id="cfCard" style="background:#16273e;border-radius:16px;padding:28px;box-shadow:0 8px 32px rgba(0,0,0,.12);text-align:center;min-height:200px;display:flex;flex-direction:column;justify-content:center">'
-      +(card.subject?'<div style="font-size:11px;color:#c9d3df;font-weight:600;margin-bottom:12px;text-transform:uppercase">'+card.subject+'</div>':'')
-      +'<div style="font-size:18px;font-weight:600;color:#e9eef6;line-height:1.5;margin-bottom:20px">'+card.q+'</div>'
-      +'<div id="cfReveal"></div>'
-      +'<button onclick="revealAnswer()" id="cfRevBtn" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer">👀 Mostra risposta</button>'
-      +'</div>'
-      +'</div>';
-
-    window.revealAnswer = function(){
-      var revDiv = document.getElementById('cfReveal');
-      var revBtn = document.getElementById('cfRevBtn');
-      if(!revDiv||!revBtn) return;
-      revDiv.innerHTML =
-        '<div style="background:#16273e;border-radius:10px;padding:14px;margin-bottom:14px;text-align:left">'
-        +'<div style="font-size:12px;font-weight:700;color:#e9eef6;margin-bottom:6px">✅ Risposta:</div>'
-        +'<div style="font-size:16px;color:#e9eef6">'+card.a+'</div>'
-        +(card.hint?'<div style="font-size:12px;color:#c9d3df;margin-top:8px;font-style:italic">💡 '+card.hint+'</div>':'')
-        +'</div>'
-        +'<div style="font-size:13px;font-weight:600;color:#e9eef6;margin-bottom:10px">Come ti sei trovato?</div>'
-        +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
-      revBtn.style.display='none';
-
-      var grades = [{q:1,label:'😕 Non sapevo',col:'#DC2626'},{q:2,label:'🤔 Quasi',col:'#D97706'},{q:3,label:'😊 Bene',col:'#1565C0'},{q:4,label:'🎉 Perfetto',col:'#0d1522'}];
-      grades.forEach(function(g){
-        revDiv.innerHTML +=
-          '<button onclick="rateCard('+g.q+')" style="background:'+g.col+';color:#fff;border:none;border-radius:8px;padding:8px 4px;font-size:11px;font-weight:600;cursor:pointer">'+g.label+'</button>';
-      });
-      revDiv.innerHTML += '</div>';
-    };
-
-    window.rateCard = function(quality){
-      // SM-2
-      var p = progress['custom_'+card.id]||{};
-      var ef = p.ef||2.5, interval = p.interval||1, reps = p.reps||0;
-      if(quality < 3){ reps=0; interval=1; }
-      else { if(reps===0) interval=1; else if(reps===1) interval=6; else interval=Math.round(interval*ef); reps++; }
-      ef = Math.max(1.3, ef + 0.1 - (5-quality)*(0.08+(5-quality)*0.02));
-      progress['custom_'+card.id] = {ef:ef, interval:interval, reps:reps, nextReview:Date.now()+interval*86400000};
-      localStorage.setItem('bsi_quiz_progress', JSON.stringify(progress));
-      results.push({card:card, quality:quality});
-      idx++;
-      showCard();
-    };
-  }
-
-  function showCustomResults(){
-    var correct = results.filter(function(r){ return r.quality>=3; }).length;
-    sec.innerHTML =
-      '<div style="max-width:500px;margin:0 auto;padding:20px;text-align:center">'
-      +'<div style="font-size:48px;margin-bottom:12px">'+(correct/results.length>=0.8?'🎉':'📚')+'</div>'
-      +'<h2 style="color:#e9eef6">Sessione completata!</h2>'
-      +'<div style="font-size:48px;font-weight:800;color:#e9eef6;margin:12px 0">'+Math.round(correct/results.length*100)+'%</div>'
-      +'<div style="color:#c9d3df;margin-bottom:20px">'+correct+' su '+results.length+' risposte buone/ottime</div>'
-      +'<button onclick="renderCustomHome()" style="background:var(--c-primary,#00c896);color:#06141f;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer">← Torna alle flashcard</button>'
-      +'</div>';
-  }
-
-  showCard();
-};
-
-;
-})();
-
-// ── 2. QUIZ NUOVE CATEGORIE (MO, Inorganica, Retrosintesi, Cinetica) ─
-(function(){
-if(typeof QUIZ_BANK === 'undefined') return;
-
-QUIZ_BANK.orbitali_mo = [
-  {id:'mo01',q:'Nell\'H₂, quanti orbitali molecolari si formano dalla combinazione di 2 orbitali atomici 1s?',a:'2 MO: σ1s (legante) e σ*1s (antilegante)',opts:['2 MO: σ1s (legante) e σ*1s (antilegante)','1 MO','4 MO','3 MO'],hint:'N orbitali atomici → N orbitali molecolari. 2 AO (1s+1s) → 1 MO legante + 1 MO antilegante.',cat:'orbitali_mo'},
-  {id:'mo02',q:'Perché O₂ è paramagnetico nonostante abbia un doppio legame?',a:'Due e⁻ spaiati negli orbitali π*2p degeneri (regola di Hund)',opts:['Due e⁻ spaiati negli orbitali π*2p degeneri (regola di Hund)','Ha un elettrone libero sul O','Ha numero dispari di e⁻ totali','È un radicale con legame singolo'],hint:'La configurazione MO di O₂ ha 2 e⁻ nei π*2p: per Hund si dispongono uno per orbitale (spaiati). Sperimentalmente confermato dall\'attrazione verso magneti.',cat:'orbitali_mo'},
-  {id:'mo03',q:'L\'ordine di legame di N₂ è 3. Come si calcola?',a:'OL = (8 e⁻ leganti − 2 e⁻ antileganti) / 2 = 3',opts:['OL = (8 e⁻ leganti − 2 e⁻ antileganti) / 2 = 3','OL = numero di legami nella formula di Lewis','OL = 6 / 2 = 3','OL dipende solo dai legami σ'],hint:'Formula: OL = (e⁻ in MO leganti − e⁻ in MO antileganti) / 2.',cat:'orbitali_mo'},
-  {id:'mo04',q:'He₂ non esiste perché:',a:'OL = (2-2)/2 = 0: il contributo legante del σ1s è annullato dal σ*1s',opts:['OL = (2-2)/2 = 0: il contributo legante del σ1s è annullato dal σ*1s','He non forma legami covalenti','He è monoatomico per definizione','Non ha abbastanza elettroni'],hint:'He₂ avrebbe (σ1s)²(σ*1s)²: 2 e⁻ leganti e 2 antileganti → OL=0 → non si forma.',cat:'orbitali_mo'},
-  {id:'mo05',q:'In N₂, l\'ordine degli MO di valenza è insolito perché:',a:'Il σ2p è SOPRA i π2p (invertito rispetto a O₂ e F₂)',opts:['Il σ2p è SOPRA i π2p (invertito rispetto a O₂ e F₂)','I π2p sono antileganti','Il σ2p non esiste','L\'ordine è identico a O₂'],hint:'Per Z < 8 (N, C, B) la mescolanza degli AO 2s e 2p causa l\'inversione: π2p hanno energia minore di σ2p.',cat:'orbitali_mo'},
-];
-
-QUIZ_BANK.inorganica_complessi = [
-  {id:'ic01',q:'Nella teoria del campo cristallino, in un complesso ottaedrico gli orbitali d si dividono in:',a:'t₂g (3 orbitali a energia bassa) e eg (2 orbitali a energia alta)',opts:['t₂g (3 orbitali a energia bassa) e eg (2 orbitali a energia alta)','eg (3) e t₂g (2)','5 orbitali tutti equivalenti','2 gruppi da 5 orbitali'],hint:'In simmetria ottaedrica i ligandi si avvicinano lungo gli assi x,y,z: dz² e dx²-y² (puntano verso i ligandi) = eg. dxy,dxz,dyz = t₂g.',cat:'inorganica_complessi'},
-  {id:'ic02',q:'Un ligando di campo forte come CN⁻ causa:',a:'Grande splitting Δo → basso spin (e⁻ preferiscono accoppiarsi in t₂g)',opts:['Grande splitting Δo → basso spin (e⁻ preferiscono accoppiarsi in t₂g)','Piccolo Δo → alto spin','Geometria tetraedrica','Nessun colore nel complesso'],hint:'La serie spettrochimica: I⁻ < Br⁻ < Cl⁻ < F⁻ < H₂O < NH₃ < en < CN⁻ < CO. CN⁻ e CO: campo fortissimo.',cat:'inorganica_complessi'},
-  {id:'ic03',q:'Perché [Fe(CN)₆]³⁻ è meno paramagnetico di [Fe(H₂O)₆]³⁺ (entrambi Fe³⁺, d⁵)?',a:'CN⁻ (campo forte) → basso spin t₂g⁵: 1 e⁻ spaiato. H₂O (campo debole) → alto spin: 5 e⁻ spaiati',opts:['CN⁻ (campo forte) → basso spin t₂g⁵: 1 e⁻ spaiato. H₂O (campo debole) → alto spin: 5 e⁻ spaiati','Non cambia perché Fe³⁺ è sempre d⁵','Il colore è diverso ma il magnetismo uguale','[Fe(CN)₆]³⁻ è diamagnetico'],hint:'d⁵ con campo forte: t₂g⁵ eg⁰ → 1 e⁻ spaiato. Campo debole: t₂g³ eg² → 5 e⁻ spaiati (tutti gli orbitali d occupati da 1 e⁻ prima).',cat:'inorganica_complessi'},
-  {id:'ic04',q:'La distorsione di Jahn-Teller è tipica di:',a:'Complessi con configurazione d⁹ (es. Cu²⁺) o d⁴ alto spin: distribuzione asimmetrica in eg',opts:['Complessi con configurazione d⁹ (es. Cu²⁺) o d⁴ alto spin: distribuzione asimmetrica in eg','Tutti i complessi ottaedrici','Solo i complessi con CO','Complessi d⁶ basso spin'],hint:'Jahn-Teller: il sistema abbassa la sua energia deformandosi se la configurazione è degenerata. d⁹: 1 e⁻ in dx²-y² o dz².',cat:'inorganica_complessi'},
-  {id:'ic05',q:'Quale complesso è certamente diamagnetico?',a:'[Co(NH₃)₆]³⁺ (Co³⁺, d⁶, basso spin, t₂g⁶)',opts:['[Co(NH₃)₆]³⁺ (Co³⁺, d⁶, basso spin, t₂g⁶)','[Fe(H₂O)₆]²⁺','[Ni(H₂O)₆]²⁺','[Cr(H₂O)₆]³⁺'],hint:'d⁶ basso spin con campo forte (NH₃): t₂g⁶ eg⁰. Tutti gli e⁻ accoppiati → diamagnetico. Nobel Taube per il meccanismo di trasferimento e⁻ nei complessi.',cat:'inorganica_complessi'},
-];
-
-QUIZ_BANK.retrosintesi_quiz = [
-  {id:'ret01',q:'Nell\'analisi retrosintetica, la freccia ⇒ indica:',a:'La disconnessione dal target ai precursori (direzione opposta alla sintesi)',opts:['La disconnessione dal target ai precursori (direzione opposta alla sintesi)','La direzione della reazione sintetica','Un equilibrio','La formazione di un radicale'],hint:'La retrosintesi di Corey (Nobel 1990) procede dal target verso le materie prime: ⇒ è la freccia retrosintetica.',cat:'retrosintesi_quiz'},
-  {id:'ret02',q:'Per sintetizzare un alcol terziario con 3 gruppi diversi, la strategia retrosintetica chiave è:',a:'Disconnessione C–C: un precursore è il chetone/aldeide, l\'altro è il Grignard (RMgX)',opts:['Disconnessione C–C: un precursore è il chetone/aldeide, l\'altro è il Grignard (RMgX)','Ossidazione di un alchene','Riduzione di un estere','Idratazione di Markovnikov'],hint:'Alcol terziario R₁R₂R₃COH ⇒ disconnessione Cα–OH ⇒ carbonile R₁COR₂ + carbanione R₃⁻ (=R₃MgBr).',cat:'retrosintesi_quiz'},
-  {id:'ret03',q:'Per un\'olefinazione di Wittig retrosintetica, la disconnessione è:',a:'Disconnessione sul doppio legame C=C: un frammento diventa C=O, l\'altro C=PPh₃',opts:['Disconnessione sul doppio legame C=C: un frammento diventa C=O, l\'altro C=PPh₃','Disconnessione su un legame C–C alifatico','Disconnessione sull\'anello aromatico','Disconnessione su un legame C–O'],hint:'Wittig: R₁R₂C=CR₃R₄ ⇒ R₁R₂C=O + R₃R₄C=PPh₃. La posizione del C=C è definita dalla struttura dell\'ilide.',cat:'retrosintesi_quiz'},
-  {id:'ret04',q:'La Ring Closing Metathesis (RCM) in retrosintesi parte da:',a:'Un alchene ciclico: si disconnette il C=C dell\'anello aprendo a un diene con due alcheni terminali',opts:['Un alchene ciclico: si disconnette il C=C dell\'anello aprendo a un diene con due alcheni terminali','Un cicloalcano per eliminazione','Un epossido per riarrangiamento','Un anello aromatico per apertura'],hint:'RCM: apri l\'anello al doppio legame → diene con CH₂=CH– su entrambe le estremità → catalizzatore di Grubbs chiude.',cat:'retrosintesi_quiz'},
-];
-
-QUIZ_BANK.cinetica_quiz = [
-  {id:'kin01',q:'Una reazione di primo ordine ha emivita t½ = 10 min. Dopo 30 min, rimane:',a:'12.5% della concentrazione iniziale (3 emivite: 100→50→25→12.5%)',opts:['12.5% della concentrazione iniziale (3 emivite: 100→50→25→12.5%)','25%','6.25%','50%'],hint:'Ogni emivita il reagente si dimezza. 30 min = 3 × 10 min = 3 emivite: (1/2)³ = 1/8 = 12.5%.',cat:'cinetica_quiz'},
-  {id:'kin02',q:'Il grafico 1/[A] vs t è lineare per una reazione di:',a:'Ordine 2 (v = k[A]²)',opts:['Ordine 2 (v = k[A]²)','Ordine 1','Ordine 0','Ordine 3'],hint:'Integrazione: ordine 0 → [A] vs t lineare; ordine 1 → ln[A] vs t lineare; ordine 2 → 1/[A] vs t lineare.',cat:'cinetica_quiz'},
-  {id:'kin03',q:'Lo stadio limitante (rate-determining step) di una reazione multistep è:',a:'Lo stadio più lento: determina la velocità complessiva',opts:['Lo stadio più lento: determina la velocità complessiva','Lo stadio più veloce','Il primo stadio','Il numero totale di step'],hint:'Come un collo di bottiglia in un processo. La catena è forte quanto il suo anello più debole.',cat:'cinetica_quiz'},
-  {id:'kin04',q:'Un catalizzatore aumenta la velocità di reazione perché:',a:'Abbassa l\'energia di attivazione Ea (non cambia ΔG della reazione)',opts:['Abbassa l\'energia di attivazione Ea (non cambia ΔG della reazione)','Aumenta la temperatura','Sposta l\'equilibrio verso i prodotti','Aumenta la concentrazione dei reagenti'],hint:'Il catalizzatore abbassa Ea aprendo un percorso alternativo. L\'equilibrio (K) e ΔG° non cambiano.',cat:'cinetica_quiz'},
-];
-
-QUIZ_BANK.nmr_predictor_quiz = [
-  {id:'np01',q:'Quale gruppo funzionale è identificato da un singoletto a 9-10 ppm in ¹H NMR + banda doppia a 2720 e 2820 cm⁻¹ in IR?',a:'Aldeide (CHO): Fermi doublet in IR + H aldeidico a 9-10 ppm',opts:['Aldeide (CHO): Fermi doublet in IR + H aldeidico a 9-10 ppm','Chetone','Acido carbossilico','Ammide'],hint:'Il Fermi doublet IR (2720+2820) è patognomonico per il CHO. Lo shift ¹H ~9.8 ppm è il più spostato downfield tra i C-H.',cat:'nmr_predictor_quiz'},
-  {id:'np02',q:'Un segnale ¹³C a 195-215 ppm in DEPT non appare. Indica:',a:'Carbonio carbonilico quaternario (chetone: ~205 ppm, aldeide: ~200 ppm)',opts:['Carbonio carbonilico quaternario (chetone: ~205 ppm, aldeide: ~200 ppm)','Carbonio aromatico','CH₂ alchene','Errore strumentale'],hint:'DEPT non rivela C quaternari. I carbonili (C=O) sono sempre quaternari e appaiono solo nell\'¹³C normale a >190 ppm.',cat:'nmr_predictor_quiz'},
-  {id:'np03',q:'Quale metodo dà la predizione NMR più accurata per una molecola complessa?',a:'DFT/B3LYP (calcolo quantomeccanico), o confronto con database SDBS',opts:['DFT/B3LYP (calcolo quantomeccanico), o confronto con database SDBS','Regola empirica di Shoolery','Solo il DEPT','Il rapporto H/C della formula bruta'],hint:'Gli incrementi additivi (Shoolery) danno ±0.5 ppm per sistemi semplici. Per strutture complesse serve DFT o database sperimentali.',cat:'nmr_predictor_quiz'},
-];
-
-// Aggiorna ALL_QUESTIONS
-ALL_QUESTIONS.length = 0;
-Object.keys(QUIZ_BANK).forEach(function(cat){
-  QUIZ_BANK[cat].forEach(function(q){ q._cat = cat; ALL_QUESTIONS.push(q); });
-});
-console.log('Quiz totale dopo aggiunta nuove categorie: ' + ALL_QUESTIONS.length);
-})();
-
-// ── 3. DIAGRAMMI DI FASE INTERATTIVI ─────────────────────────────
-(function(){
-'use strict';
-
-var PHASE_SYSTEMS = [
-  {
-    name:'Acqua (H₂O)',
-    triple:{T:273.16,P:611.73},
-    critical:{T:647.1,P:22064000},
-    phases:{solid:'Ghiaccio (Ih)',liquid:'Acqua liquida',gas:'Vapore'},
-    special:'La pendenza della curva solido-liquido è NEGATIVA (anomalia): il ghiaccio galleggia. A pressione alta il ghiaccio si scioglie (pattinaggio!)',
-    colors:{solid:'#BFDBFE',liquid:'#3B82F6',gas:'#FDE68A'}
-  },
-  {
-    name:'CO₂',
-    triple:{T:216.6,P:518000},
-    critical:{T:304.2,P:7386000},
-    phases:{solid:'Dry ice (ghiaccio secco)',liquid:'CO₂ liquida',gas:'CO₂ gas'},
-    special:'Punto triplo a 5.1 atm: a pressione atmosferica la CO₂ SUBLIMA direttamente (non c\'è fase liquida a 1 atm). SFC usa CO₂ supercritica.',
-    colors:{solid:'#FEF3C7',liquid:'#6EE7B7',gas:'#FDE68A'}
-  },
-];
-
-window.drawPhase = function(idx){
-  var sys = PHASE_SYSTEMS[idx];
-  var canvas = document.getElementById('phaseCanvas');
-  var info = document.getElementById('phaseInfo');
-  if(!canvas) return;
-
-  document.querySelectorAll('[id^="phbtn_"]').forEach(function(b){ b.style.background='#fff'; b.style.borderColor='#e5e7eb'; });
-  var ab = document.getElementById('phbtn_'+idx);
-  if(ab){ ab.style.background='#16273e'; ab.style.color='#e9eef6'; ab.style.borderColor='#5eead4'; }
-
-  var ctx = canvas.getContext('2d');if(!ctx)return;
-  var W=canvas.width, H=canvas.height;
-  var padL=70,padR=30,padT=30,padB=50;
-  var plotW=W-padL-padR, plotH=H-padT-padB;
-
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#fafafa'; ctx.fillRect(0,0,W,H);
-
-  // Log scale P axis (Pa), linear T axis (K)
-  var Tmin=150, Tmax=750, Pmin=100, Pmax=idx===0?25000000:9000000;
-  var logPmin=Math.log10(Pmin), logPmax=Math.log10(Pmax);
-
-  function tx(T){ return padL+(T-Tmin)/(Tmax-Tmin)*plotW; }
-  function py(P){ return padT+(1-(Math.log10(P)-logPmin)/(logPmax-logPmin))*plotH; }
-
-  // Fill phase regions (approximate)
-  // Solid region (low T)
-  ctx.fillStyle=sys.colors.solid+'88';
-  ctx.fillRect(padL, padT, plotW*0.25, plotH);
-
-  // Liquid region
-  ctx.fillStyle=sys.colors.liquid+'88';
-  ctx.fillRect(padL+plotW*0.22, padT, plotW*0.45, plotH);
-
-  // Gas region
-  ctx.fillStyle=sys.colors.gas+'88';
-  ctx.fillRect(padL+plotW*0.6, padT, plotW*0.4, plotH);
-
-  // Phase labels
-  ctx.font='bold 13px Arial'; ctx.textAlign='center'; ctx.fillStyle='rgba(0,0,0,0.5)';
-  ctx.fillText('SOLIDO', padL+plotW*0.10, padT+plotH*0.4);
-  ctx.fillText('LIQUIDO', padL+plotW*0.45, padT+plotH*0.4);
-  ctx.fillText('GAS/VAPORE', padL+plotW*0.80, padT+plotH*0.7);
-  ctx.fillText('SUPERCRITICO', padL+plotW*0.80, padT+plotH*0.2);
-
-  // Grid
-  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
-  var Tgrid=[200,300,400,500,600,700];
-  Tgrid.forEach(function(T){
-    var x=tx(T);
-    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+plotH);ctx.stroke();
-    ctx.fillStyle='#9ca3af';ctx.font='10px Arial';ctx.textAlign='center';
-    ctx.fillText(T+'K', x, padT+plotH+16);
-    ctx.fillText((T-273)+'°C', x, padT+plotH+28);
-  });
-
-  // Triple point
-  var xt=tx(sys.triple.T), ypt=py(sys.triple.P);
-  ctx.beginPath();ctx.arc(xt,ypt,6,0,Math.PI*2);ctx.fillStyle='#7C3AED';ctx.fill();
-  ctx.fillStyle='#7C3AED';ctx.font='bold 11px Arial';ctx.textAlign='left';
-  ctx.fillText('Punto triplo', xt+8, ypt-5);
-  ctx.fillStyle='#6b7280';ctx.font='10px Arial';
-  ctx.fillText('T='+sys.triple.T+'K, P='+Math.round(sys.triple.P/1000)+'kPa', xt+8, ypt+8);
-
-  // Critical point
-  var xc=tx(sys.critical.T), yc=py(sys.critical.P);
-  ctx.beginPath();ctx.arc(xc,yc,6,0,Math.PI*2);ctx.fillStyle='#DC2626';ctx.fill();
-  ctx.fillStyle='#DC2626';ctx.font='bold 11px Arial';ctx.textAlign='right';
-  ctx.fillText('Punto critico', xc-8, yc-5);
-  ctx.fillStyle='#6b7280';ctx.font='10px Arial';
-  ctx.fillText('T='+sys.critical.T+'K', xc-8, yc+8);
-
-  // Draw coexistence curves (schematic)
-  // Liquid-Gas curve
-  ctx.strokeStyle='#1565C0';ctx.lineWidth=2.5;
-  ctx.beginPath();
-  ctx.moveTo(xt,ypt);
-  ctx.bezierCurveTo(xt+plotW*0.1,ypt-plotH*0.3, xc-plotW*0.1,yc+plotH*0.1, xc,yc);
-  ctx.stroke();
-
-  // Solid-Gas curve
-  ctx.strokeStyle='#6b7280';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(padL,padT+plotH*0.8);ctx.lineTo(xt,ypt);ctx.stroke();
-
-  // Solid-Liquid curve
-  ctx.strokeStyle='#0d1522';ctx.lineWidth=2;
-  if(idx===0){
-    // Negative slope for water
-    ctx.beginPath();ctx.moveTo(xt,ypt);ctx.lineTo(xt-plotW*0.05,padT);ctx.stroke();
-  } else {
-    ctx.beginPath();ctx.moveTo(xt,ypt);ctx.lineTo(xt+plotW*0.04,padT);ctx.stroke();
-  }
-
-  // Axes
-  ctx.strokeStyle='#374151';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(padL,padT);ctx.lineTo(padL,padT+plotH);ctx.lineTo(padL+plotW,padT+plotH);ctx.stroke();
-
-  // Axis labels
-  ctx.fillStyle='#374151';ctx.font='bold 12px Arial';
-  ctx.textAlign='center';ctx.fillText('Temperatura (K / °C)', padL+plotW/2, H-5);
-  ctx.save();ctx.translate(15,padT+plotH/2);ctx.rotate(-Math.PI/2);
-  ctx.fillText('Pressione (log scale)', 0,0);ctx.restore();
-
-  // Legend
-  [['Curva liquido-gas (ebollizione)','#1565C0'],['Curva solido-gas (sublimazione)','#6b7280'],['Curva solido-liquido (fusione)','#0d1522']].forEach(function(l,i){
-    ctx.fillStyle=l[1];ctx.fillRect(padL+plotW-180, padT+8+i*18, 18,10);
-    ctx.fillStyle='#374151';ctx.font='10px Arial';ctx.textAlign='left';
-    ctx.fillText(l[0], padL+plotW-158, padT+17+i*18);
-  });
-
-  if(info) info.innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +'<div style="background:#16273e;border-radius:10px;padding:12px">'
-    +'<div style="font-weight:700;color:#c9d3df;margin-bottom:6px">🔮 Punto Triplo</div>'
-    +'<div style="font-size:13px">T = '+sys.triple.T+' K ('+(sys.triple.T-273.15).toFixed(2)+'°C)<br>'
-    +'P = '+sys.triple.P+' Pa = '+Math.round(sys.triple.P/101325*1000)/1000+' atm<br>'
-    +'Le 3 fasi coesistono — F=0</div>'
-    +'</div>'
-    +'<div style="background:#16273e;border-radius:10px;padding:12px">'
-    +'<div style="font-weight:700;color:#c9d3df;margin-bottom:6px">🔴 Punto Critico</div>'
-    +'<div style="font-size:13px">T = '+sys.critical.T+' K ('+(sys.critical.T-273.15).toFixed(0)+'°C)<br>'
-    +'P = '+Math.round(sys.critical.P/1000)+' kPa = '+Math.round(sys.critical.P/101325)+' atm<br>'
-    +'Sopra: fluido supercritico</div>'
-    +'</div>'
-    +'</div>'
-    +'<div style="background:#3a2e18;border-left:4px solid #F57C00;padding:10px;border-radius:0 8px 8px 0;margin-top:10px;font-size:12px;color:#c9d3df">⚠️ '+sys.special+'</div>';
-};
-
-;
-})();
+// La copia duplicata di questo blocco (« AGGIUNTE FINALI », 403 righe, 27 kB)
+// stava qui e è stata rimossa: era un incollaggio TRONCATO della copia
+// soprastante. Confrontate riga per riga, la copia di sopra definiva 42 righe
+// in piu' — window.initCustomFlash, window.initPhase, il renderer dei diagrammi
+// di fase e i due pulsanti di navigazione — e la copia qui non definiva NIENTE
+// che quella non avesse: le sue sole righe esclusive erano due punti e virgola.
+// Essendo piu' in basso, le sue definizioni vincevano: le quattro funzioni
+// globali ripetute avevano corpi IDENTICI, quindi togliere la copia non cambia
+// comportamento. Misurato, non supposto: vedi tools/banchi/test_articoli.js.
 
 // ═══════════════════════════════════════════════════════════════════
 // BIOSPECINFO — ESPANSIONE CLINICA FARMACI
@@ -41717,6 +41337,18 @@ window.addEventListener('resize',function(){var on=document.querySelector('.mod.
   if(id==='ho')drawHO();else if(id==='box')drawBox();else if(id==='mb')drawMB();}});
 document.addEventListener('visibilitychange',function(){if(!document.hidden){var on=document.querySelector('.mod.on');if(on)setModule(on.id.slice(2));}});
 </SCRIPTBSIQ>
+</script>
+<!-- IL TAG DI CHIUSURA QUI SOPRA MANCAVA, E COSTAVA UNA FUNZIONE INTERA.
+     Sopra c'e' un modello `script type="text/html"` che porta dentro un
+     DOCUMENTO HTML COMPLETO — il laboratorio quantistico — iniettato poi come
+     `srcdoc` di un iframe. I tag di chiusura interni al documento sono scritti
+     con il sentinella SCRIPTBSIQ, che il codice sostituisce prima di iniettare;
+     ma il modello, per il parser, finisce al primo tag di chiusura VERO.
+     Quello vero stava 471 righe piu' sotto, alla fine del blocco «Mechanism
+     Canvas Visualizer»: quindi quelle 471 righe (18,8 kB) erano TESTO dentro il
+     modello e non eseguivano mai. Misurato: `window.renderMechStep` era
+     `undefined` e la sezione «Meccanismi» non disegnava nessuna tela.
+     Chiudendo il modello qui, il blocco sotto torna a essere codice. -->
 
 
 <script>
@@ -42273,7 +41905,10 @@ if(typeof _origRenderStep === 'function'){
 
 </body>
 </html>
-</script>
+<!-- Il tag di chiusura in eccesso che stava qui e' stato rimosso: era la
+     chiusura del modello, finita centinaia di righe dopo il suo posto. Ora il
+     modello si chiude dove deve, e il documento non ha piu' un tag orfano
+     dopo la fine del body. -->
 <script>
 (function(){try{
   var ov=document.getElementById('bsiQ-ov'),fr=document.getElementById('bsiQ-frame');

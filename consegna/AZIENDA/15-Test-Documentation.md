@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v200` |
+| **Versione descritta** | `bsi-v201` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**63 banchi**, raggruppati per ciò che dimostrano.
+**64 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -107,10 +107,11 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_datasci` | La matematica che la sezione Data Science **mostra**: R² su una relazione esatta, pesi standardizzati nel rapporto vero, ROC su valori calcolabili a mano, il comportamento su rumore puro, e che **nessuna sezione resti irraggiungibile** | 23 |
 | `test_simmetria` | Gruppi puntuali, modi normali, regole di selezione IR/Raman | 26 |
 | `test_cheminfo` | Il motore di chemioinformatica: Tanimoto e Dice su valori calcolabili a mano, impronte di Morgan e MACCS, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, regressione kernel, divisione per scheletro, **modello nullo per rimescolamento delle etichette**, validazione incrociata raggruppata, esportazioni CSV e SDF, **contrasto dei nove pannelli**, accordo fra laboratorio e motore, frammentazione, **coppie corrispondenti su effetti noti**, ricerca per sottostruttura, tabella SAR, confronto fra modelli nei due versi, arricchimento (EF e BEDROC) su casi calcolabili a mano, intervalli conformi e il loro **rifiuto sulla classificazione** | 189 |
-| `test_spettrolettore` | Il lettore di spettri e i modelli che ne seguono: ASDF simbolo per simbolo, JCAMP esplicito e compresso in DIF/DUP, picchi per prominenza su spettri **costruiti** e **su rumore puro**, curva contro lista di picchi, perdite neutre sul toluene, ESOL contro quattro valori sperimentali, quattro filtri di drug-likeness separati, foresta casuale nei due versi, **una sola porta d'ingresso** (un bottone, `accept` vuoto, instradamento provato su PDF/`.docx`/`.txt`/`.jdx`/`.csv`/binario travestito/immagine) e il distintivo di versione confrontato con `BSI_APP_VERSION` | 63 |
+| `test_spettrolettore` | Il lettore di spettri e i modelli che ne seguono: ASDF simbolo per simbolo, JCAMP esplicito e compresso in DIF/DUP, picchi per prominenza su spettri **costruiti** e **su rumore puro**, curva contro lista di picchi, perdite neutre sul toluene, ESOL contro quattro valori sperimentali, quattro filtri di drug-likeness separati, foresta casuale nei due versi, **una sola porta d'ingresso** (un bottone, `accept` vuoto, instradamento provato su PDF/`.docx`/`.txt`/`.jdx`/`.csv`/binario travestito/immagine) e il distintivo di versione confrontato con `BSI_APP_VERSION`. **E la relazione fra le due tabelle IR**: `SPEC_DATA.ir` serve a studiare, `BANDE_IR` ad assegnare, non sono un doppione — ma l'ombrello delle assegnazioni deve **coprire** il riferimento per ognuno dei 23 gruppi presenti in entrambe, e non essere arbitrariamente più largo (margine ricavato dai dati, non inventato) | 66 |
 | `test_nmr` | La predizione NMR assegnata per atomo: due insiemi separati di molecole (taratura e **validazione**, quest'ultima mai usata per scegliere i parametri), il conteggio dei segnali su molecole di cui si sa quanti ne danno, i rifiuti su uno SMILES illeggibile e su una stringa vuota, la **cronologia** con il riconoscimento dei doppioni per chiave InChI, e la sincronia **picco ↔ struttura ↔ 3D** verificata sugli indici, non sul numero di atomi illuminati | 64 |
 | `test_nmr2d` | Le mappe di correlazione contate sul grafo: HSQC con il segno invertito sui CH₂, COSY fra protoni non equivalenti, HMBC a due e tre legami. **Nei due versi**: l'esafluorobenzene non dà macchie HSQC, il benzene **nessuna** macchia COSY fuori diagonale, il metano **nessuna** macchia HMBC pur avendo quattro protoni | 40 |
 | `test_digitalizza` | Uno spettro estratto da una **figura**, su sette immagini costruite di cui si conoscono i centri delle gaussiane al cm⁻¹: figura nuda, con cornice ed etichette, con griglia grigia, con griglia nera, con cornice **e** griglia, tratteggiata, in %T. Scarto **medio 2,2 cm⁻¹**, **peggiore 7,3** — una colonna vale ~4 cm⁻¹, che è il limite della figura e non del metodo. **Nei due versi**: da un foglio bianco e dall'icona dell'applicazione non esce **nessuna** curva; il ripiego grezzo sulla stessa figura con la cornice trova **un** picco invece di tre; su asse logaritmico il punto di mezzo è la media geometrica e su asse lineare quella aritmetica. Conversione %T→A sui valori esatti (50 %T → A = 0,301) e **giro completo** del JCAMP esportato, riletto dal lettore stesso | 45 |
+| `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
 | `test_geom3d` | La geometria 3D costruita dal grafo, misurata contro i valori di letteratura: legami, angoli di valenza, linearità degli alchini. **Nei due versi**: il benzene esce piano e il cicloesano **non** piano. E la prova che rende lecito il collegamento picco↔atomo: ogni atomo pesante ha **lo stesso indice e lo stesso elemento** del predittore | 29 |
 | `test_documento` | L'apertura di qualunque documento e lo svolgimento del quesito che contiene: PDF, Word e testo aperti davvero e il contenuto verificato; i dati riconosciuti **con la loro provenienza**. **Nei due versi**: un'immagine dichiara che non c'è riconoscimento ottico e non inventa uno svolgimento, un formato sconosciuto viene rifiutato invece che indovinato, CDCl₃ non diventa la formula del composto, senza etichetta MS non ci sono masse | 47 |
@@ -628,4 +629,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v200`._
+_Documento aggiornato alla versione `bsi-v201`._

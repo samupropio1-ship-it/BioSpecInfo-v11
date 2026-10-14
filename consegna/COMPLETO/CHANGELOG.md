@@ -7,6 +7,157 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v201] — 2026-10-14
+
+**Una verifica dei doppioni più larga delle precedenti, e ha trovato una
+funzione che non ha mai eseguito.**
+
+Ogni giro di controlli, in questo progetto, ha trovato un doppione che il giro
+prima non vedeva. Questa volta ho misurato cinque dimensioni nuove: script
+caricati due volte, titoli di sezione uguali, funzioni globali definite più
+volte, blocchi di codice identici, tabelle di dati scientifici duplicate.
+
+### 471 righe di codice dentro un modello, che non eseguivano mai
+
+In `index.html` c'è un `<script type="text/html">` che porta dentro un
+**documento HTML completo** — il laboratorio quantistico, 16 moduli — iniettato
+poi come `srcdoc` di un iframe. I tag di chiusura interni a quel documento sono
+scritti con un sentinella, sostituito col tag vero prima dell'iniezione: è una
+tecnica corretta, perché per il parser il modello finisce al **primo tag di
+chiusura vero**.
+
+Uno di quei tag interni non era stato scritto col sentinella. Quindi il modello
+si chiudeva **471 righe più in basso del suo posto**, e quelle 471 righe
+(18,8 kB) erano *testo* dentro il modello: il blocco **Mechanism Canvas
+Visualizer**, che disegna la tela dei meccanismi di reazione passo per passo.
+
+Misurato, non supposto: `window.renderMechStep` era `undefined`, il modello
+conteneva la stringa «Mechanism Canvas Visualizer», e la sezione «🎬
+Meccanismi» mostrava i passaggi **senza nessuna tela**.
+
+### E non bastava chiuderlo: c'era un secondo difetto, indipendente
+
+Chiuso il modello al suo posto, il blocco ha cominciato a eseguire — e la tela
+continuava a non comparire. Il blocco si installa così:
+
+```js
+var _origRenderStep = window.renderMechStep;
+if (typeof _origRenderStep === 'function') { … }
+```
+
+Ma `renderMechStep` era **locale** alla chiusura che la dichiara:
+`window.renderMechStep` era `undefined`, la guardia saltava **in silenzio**, e
+l'involucro non si installava. Esporla non bastava — le chiamate interne
+avrebbero continuato a usare il riferimento locale, scavalcando l'involucro —
+quindi le due chiamate interne passano ora da `window.renderMechStep`, e
+`mechState` è esposto perché l'involucro sappia a che passo siamo.
+
+Risultato misurato: cliccando un meccanismo, `#mechCv` esiste e la sezione ha
+**una tela** dove prima ne aveva **zero**. Il laboratorio quantistico, che è il
+modello che ho toccato, continua a funzionare: 16 moduli e 16 tele
+nell'iframe.
+
+Due difetti indipendenti sulla stessa funzione, entrambi silenziosi: uno
+perché il codice era testo, l'altro perché una guardia proteggeva da un
+errore e nascondeva un bug.
+
+### 28 kB di codice incollato due volte
+
+Un blocco di **403 righe** («AGGIUNTE FINALI»: flashcard personalizzate, quiz
+delle nuove categorie, diagrammi di fase) era presente **due volte**.
+Confrontate riga per riga, la copia di sopra definiva **42 righe in più** —
+`window.initCustomFlash`, `window.initPhase`, il renderer dei diagrammi di fase
+e due pulsanti di navigazione — e la copia di sotto non definiva **niente** che
+la prima non avesse: le sue sole righe esclusive erano due punti e virgola. Era
+un incollaggio troncato.
+
+Rimossa. Le quattro funzioni globali con corpi **identici** sono scese a zero.
+Verificato prima/dopo sullo stesso browser: stesse funzioni definite, stessi 95
+pulsanti, stessa sezione quiz, zero errori — il taglio non cambia
+comportamento.
+
+### Due tabelle di bande IR che divergevano
+
+Come le costanti J della versione precedente, ma più sottile: `SPEC_DATA.ir`
+(28 righe, con intensità e note) è la tabella di riferimento e serve a
+**studiare**; `BANDE_IR` del lettore serve ad **assegnare** e dà l'intervallo in
+cui quel legame può comparire perché nessuna possibilità venga esclusa. Due
+scopi diversi, quindi due larghezze diverse: **non** sono un doppione.
+
+Ma una relazione devono rispettarla: **l'ombrello copre il riferimento**. Se
+l'intervallo del lettore non contiene quello della tabella per lo stesso
+gruppo, una banda che la tabella attribuisce a quel gruppo non verrebbe
+elencata fra le compatibili — e il lettore contraddirebbe il proprio scopo
+dichiarato.
+
+Misurandolo: **cinque righe non coprivano** (O–H libero, ≡C–H, C≡N, C=O acido
+carbossilico, C=O anidride) e **quattro gruppi mancavano del tutto** (tiolo,
+bromuro, lattame β, N–H ammide: il lettore non poteva proporli nemmeno davanti
+alla banda giusta).
+
+Corretto prendendo l'**unione** con gli intervalli già scritti nella tabella di
+riferimento: **nessun numero inventato**, e allargare un ombrello può solo
+*aggiungere* un'assegnazione compatibile, mai togliere. `test_spettrolettore`
+pretende ora la copertura per ognuno dei 23 gruppi presenti in entrambe, con
+l'abbinamento **dichiarato** nel banco — dedurlo dal simbolo del legame
+confrontava «C=O aldeide» con «C=O estere» e produceva venti conflitti finti.
+
+### Un mio limite inventato, corretto dal banco stesso
+
+Il controllo opposto («nessun ombrello così largo da non dire niente») l'avevo
+scritto con un tetto fisso di 400 cm⁻¹, e falliva. Giustamente: l'O–H di un
+acido carbossilico **è** larga 800 cm⁻¹, e lo dice la tabella di riferimento.
+Il numero sbagliato era il mio tetto, non il dato. Un limite inventato a
+tavolino che contraddice la fonte non è un controllo, è un errore con
+l'aspetto di un controllo. Ora il limite viene dai dati: l'ombrello può essere
+più largo del riferimento, ma non oltre un margine dichiarato di 140 cm⁻¹.
+
+### Undici ridefinizioni che NON sono un difetto
+
+Undici funzioni globali sono definite più di una volta (`runNMRPred` cinque
+volte). Non è un doppione: è lo stile dichiarato di questo file, il «patch
+additivo» che non modifica il codice esistente ma lo sovrascrive più in basso —
+`window.initTheory` salva `_origInitTheory` e lo richiama. Le ho **dichiarate**
+con un riferimento in `audit_statico` invece di segnalarle come guasto: se il
+numero cresce, la batteria fallisce e la ridefinizione nuova va spiegata.
+
+### Un falso allarme inseguito e archiviato
+
+I 99,7 kB del modello `text/html` sembravano codice morto. Non lo sono: è il
+documento del laboratorio quantistico, e il sentinella viene sostituito
+correttamente prima dell'iniezione. L'ho verificato **prima** di chiamarlo
+difetto. E `audit_statico` segnalava `index.html` come «script sbilanciati» a
+ogni esecuzione: era un falso positivo del suo stesso conteggio, che contava i
+`<script` *dentro* il testo del modello. Ora misura l'annidamento escludendo i
+modelli — un rapporto che mostra sempre lo stesso problema inesistente insegna
+a non leggerlo.
+
+### Un banco che inciampava una volta su venti
+
+`test_nucleo` è fallito una volta nella batteria con «Execution context was
+destroyed, most likely because of a navigation», morendo a metà di un
+`evaluate`. Rilanciato a mano passava, **tre volte su tre**: una corsa, non un
+difetto dell'applicazione.
+
+La corsa era questa: il service worker si attiva, manda `BSI_SW_UPDATED` alla
+pagina, e la pagina può ricaricarsi — proprio mentre l'`evaluate` legge il DOM.
+Gli altri banchi bloccano il service worker; questo era **l'unico che non lo
+faceva**, e per questo era l'unico a inciampare. La causa è stata tolta invece
+di rilanciare e sperare: un banco che falla una volta su venti non viene
+creduto nemmeno quando ha ragione. Ora passa quattro volte su quattro.
+
+### Verifiche
+
+- `audit_statico` entra **nella batteria** — e il motivo vale la pena di dirlo:
+  la guardia contro i blocchi duplicati era stata scritta dentro di lui, e lui
+  non era nell'elenco. Una guardia che non gira non è una guardia.
+- Ha **tre misure nuove con riferimento dichiarato**, e queste fanno fallire:
+  blocchi duplicati verbatim (**0**), funzioni globali ridefinite (**11**), di
+  cui con corpi identici (**0**).
+- `test_spettrolettore` sale a **66 controlli**: la copertura dell'ombrello sui
+  23 gruppi, e il margine ricavato dai dati.
+
+---
 ## [bsi-v200] — 2026-10-14
 
 **Utility torna nel menù principale, e le ripetizioni che restavano sono

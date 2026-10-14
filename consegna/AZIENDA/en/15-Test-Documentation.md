@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v200` |
+| **Version described** | `bsi-v201` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**63 benches**, grouped by what they demonstrate.
+**64 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -108,10 +108,11 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_datasci` | The maths the Data Science section **displays**: R² on an exact relation, standardised weights in the true ratio, ROC on hand-computable values, behaviour on pure noise, and that **no section is left unreachable** | 23 |
 | `test_simmetria` | Point groups, normal modes, IR/Raman selection rules | 26 |
 | `test_cheminfo` | The cheminformatics engine: Tanimoto and Dice against hand-computable values, Morgan and MACCS fingerprints, Butina clustering, Bemis–Murcko scaffolds, PCA, kernel ridge, scaffold split, **null model by label scrambling**, grouped cross-validation, CSV and SDF exports, **contrast of the nine panels**, agreement between lab and engine, fragmentation, **matched pairs against known effects**, substructure search, SAR table, model comparison in both directions, enrichment (EF and BEDROC) on hand-computable cases, conformal intervals and their **refusal on classification** | 189 |
-| `test_spettrolettore` | The spectrum reader and the models that follow from it: ASDF symbol by symbol, explicit and DIF/DUP-compressed JCAMP, prominence peaks on **built** spectra **and on pure noise**, curve versus peak list, neutral losses on toluene, ESOL against four experimental values, four drug-likeness filters reported separately, random forest both ways, **a single entry point** (one button, empty `accept`, routing checked on PDF/`.docx`/`.txt`/`.jdx`/`.csv`/a disguised binary/an image) and the version badge compared with `BSI_APP_VERSION` | 63 |
+| `test_spettrolettore` | The spectrum reader and the models that follow from it: ASDF symbol by symbol, explicit and DIF/DUP-compressed JCAMP, prominence peaks on **built** spectra **and on pure noise**, curve versus peak list, neutral losses on toluene, ESOL against four experimental values, four drug-likeness filters reported separately, random forest both ways, **a single entry point** (one button, empty `accept`, routing checked on PDF/`.docx`/`.txt`/`.jdx`/`.csv`/a disguised binary/an image) and the version badge compared with `BSI_APP_VERSION`. **And the relationship between the two IR tables**: `SPEC_DATA.ir` is for studying, `BANDE_IR` for assigning, they are not a duplicate — but the assignment umbrella must **cover** the reference for each of the 23 groups present in both, and not be arbitrarily wider (margin derived from the data, not invented) | 66 |
 | `test_nmr` | Per-atom NMR prediction: two separate molecule sets (tuning and **validation**, the latter never used to choose parameters), the signal count on molecules whose count is known, refusals on an unreadable SMILES and on an empty string, the **history** with duplicate detection by InChI key, and the **peak ↔ structure ↔ 3D** sync verified on the indices, not on how many atoms light up | 64 |
 | `test_nmr2d` | Correlation maps counted on the graph: HSQC with inverted sign on CH₂, COSY between non-equivalent protons, HMBC two and three bonds away. **In both directions**: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots, methane **no** HMBC spots despite having four protons | 40 |
 | `test_digitalizza` | A spectrum extracted from a **figure**, over seven constructed images whose Gaussian centres are known to the cm⁻¹: bare figure, with frame and labels, with a grey grid, with a black grid, with frame **and** grid, dashed, in %T. **Mean 2.2 cm⁻¹** deviation, **worst 7.3** — one column is worth ~4 cm⁻¹, which is the limit of the figure and not of the method. **In both directions**: from a blank sheet and from the app icon **no** curve comes out; the crude fallback on the same framed figure finds **one** peak instead of three; on a logarithmic axis the midpoint is the geometric mean and on a linear axis the arithmetic one. %T→A conversion on exact values (50 %T → A = 0.301) and a **full round trip** of the exported JCAMP, read back by the reader itself | 45 |
+| `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
 | `test_geom3d` | The 3D geometry built from the graph, measured against literature values: bonds, valence angles, alkyne linearity. **In both directions**: benzene comes out planar and cyclohexane does **not**. And the proof that makes the peak↔atom link legitimate: every heavy atom has **the same index and element** as the predictor's | 29 |
 | `test_documento` | Opening any document and working through the problem inside: PDF, Word and text genuinely opened and the content verified; the data recognised **with their provenance**. **In both directions**: an image declares there is no optical character recognition and invents no working, an unknown format is refused rather than guessed, CDCl₃ does not become the compound's formula, without an MS label there are no masses | 47 |
@@ -609,4 +610,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v200`._
+_Document updated to version `bsi-v201`._

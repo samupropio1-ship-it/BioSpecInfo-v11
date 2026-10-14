@@ -289,28 +289,68 @@
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
-     §4 · Le bande IR — tabelle scritte qui
+     §4 · Le bande IR — l'OMBRELLO delle assegnazioni
      ═════════════════════════════════════════════════════════════════════════
      Intervalli in cm⁻¹ con la loro assegnazione. Si restituiscono TUTTE le
      assegnazioni compatibili con una banda, non la prima: una banda a
      1700 cm⁻¹ è compatibile con un chetone, un'aldeide, un acido e un estere,
-     e scegliere per conto di chi guarda sarebbe inventare. */
+     e scegliere per conto di chi guarda sarebbe inventare.
+
+     QUESTA NON E' LA TABELLA DI RIFERIMENTO, ED E' IMPORTANTE SAPERLO
+
+     Nella sezione «Tabelle di riferimento» del Centro spettri c'è un'ALTRA
+     tabella IR (`SPEC_DATA.ir`, 28 righe con intensità e note): quella serve
+     a STUDIARE, e dà l'intervallo tipico di un gruppo specifico. Questa serve
+     ad ASSEGNARE, e dà l'intervallo in cui quel legame può comparire perché
+     nessuna possibilità venga esclusa. Hanno due scopi diversi, quindi due
+     larghezze diverse: non sono un doppione.
+
+     MA UNA RELAZIONE DEVONO RISPETTARLA: L'OMBRELLO COPRE IL RIFERIMENTO.
+
+     Se l'intervallo qui NON contiene quello della tabella di riferimento per
+     lo stesso gruppo, allora una banda che la tabella attribuisce a quel
+     gruppo non verrebbe elencata fra le compatibili — e sarebbe questo
+     modulo a contraddire il proprio scopo dichiarato.
+
+     Misurandolo, cinque righe non lo rispettavano e quattro gruppi mancavano
+     del tutto. Sono stati corretti prendendo l'UNIONE con gli intervalli già
+     scritti nella tabella di riferimento: nessun numero è stato inventato, e
+     allargare un ombrello può solo AGGIUNGERE un'assegnazione compatibile,
+     mai togliere. `test_spettrolettore` adesso pretende la copertura per
+     ogni gruppo presente in entrambe, così le due tabelle non possono più
+     divergere in silenzio. */
   var BANDE_IR = [
-    [3600, 3200, 'O–H', t('alcol o acqua, banda larga', 'alcohol or water, broad band')],
+    /* allargata a 3650: la tabella di riferimento dà l'O–H libero di un alcol
+       a 3580–3650, e fino a 3600 quella banda non veniva assegnata a niente */
+    [3650, 3200, 'O–H', t('alcol o acqua, banda larga (libero fino a 3650)',
+                          'alcohol or water, broad band (free up to 3650)')],
     [3300, 2500, 'O–H', t('acido carbossilico, molto larga', 'carboxylic acid, very broad')],
     [3500, 3300, 'N–H', t('ammina primaria (due punte) o secondaria (una)',
                           'primary amine (two peaks) or secondary (one)')],
-    [3330, 3270, '≡C–H', t('alchino terminale', 'terminal alkyne')],
+    /* l'ammide primaria sta nella tabella di riferimento a 3300–3400 e qui
+       non c'era: ricadeva nell'intervallo dell'ammina, che è un'altra cosa */
+    [3400, 3300, 'N–H', t('ammide primaria', 'primary amide')],
+    [3330, 3260, '≡C–H', t('alchino terminale', 'terminal alkyne')],
     [3100, 3000, '=C–H', t('alchene o aromatico', 'alkene or aromatic')],
     [3000, 2850, 'C–H',  t('alcano', 'alkane')],
     [2830, 2695, 'C–H',  t('aldeide (doppietto di Fermi)', 'aldehyde (Fermi doublet)')],
-    [2260, 2210, 'C≡N',  t('nitrile', 'nitrile')],
+    /* il tiolo era nella tabella di riferimento e non qui: il lettore non
+       poteva proporlo nemmeno davanti a una banda a 2570 */
+    [2600, 2550, 'S–H',  t('tiolo, debole', 'thiol, weak')],
+    [2260, 2200, 'C≡N',  t('nitrile', 'nitrile')],
     [2260, 2100, 'C≡C',  t('alchino', 'alkyne')],
-    [1820, 1770, 'C=O',  t('cloruro acilico o anidride', 'acyl chloride or anhydride')],
-    [1750, 1735, 'C=O',  t('estere', 'ester')],
+    /* l'anidride ha DUE bande (1800–1850 e 1740–1790 nella tabella di
+       riferimento): l'ombrello le copre entrambe, e il cloruro acilico resta
+       dentro */
+    [1850, 1740, 'C=O',  t('cloruro acilico o anidride (due bande)',
+                           'acyl chloride or anhydride (two bands)')],
+    /* allargata a 1760 per il lattame β della tabella di riferimento */
+    [1760, 1735, 'C=O',  t('estere o lattame β', 'ester or β-lactam')],
     [1740, 1720, 'C=O',  t('aldeide', 'aldehyde')],
     [1725, 1700, 'C=O',  t('chetone', 'ketone')],
-    [1720, 1680, 'C=O',  t('acido carbossilico', 'carboxylic acid')],
+    /* allargata a 1725: la tabella di riferimento dà l'acido a 1700–1725, e
+       fermandosi a 1720 una banda a 1723 non lo proponeva */
+    [1725, 1680, 'C=O',  t('acido carbossilico', 'carboxylic acid')],
     [1690, 1630, 'C=O',  t('ammide', 'amide')],
     [1680, 1600, 'C=C',  t('alchene', 'alkene')],
     [1600, 1450, 'C=C',  t('anello aromatico', 'aromatic ring')],
@@ -322,7 +362,9 @@
                            'amine, out-of-plane bending')],
     [900,  675,  '=C–H', t('aromatico sostituito, fuori dal piano',
                            'substituted aromatic, out-of-plane')],
-    [800,  550,  'C–Cl', t('alogenuro alchilico', 'alkyl halide')]
+    [800,  550,  'C–Cl', t('alogenuro alchilico', 'alkyl halide')],
+    /* il bromuro era nella tabella di riferimento a 500–700 e non qui */
+    [700,  500,  'C–Br', t('alogenuro alchilico', 'alkyl halide')]
   ];
 
   function assegnaIR(numeroOnda) {

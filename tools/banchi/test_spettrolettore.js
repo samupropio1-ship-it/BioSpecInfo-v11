@@ -493,6 +493,141 @@ function sotto(d, limite, avuto){
 
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) {}
 
+  /* ── §7-bis · DUE TABELLE IR, E LA RELAZIONE FRA LORO ─────────────────────
+     Nell'applicazione ci sono DUE tabelle delle bande IR, e non sono un
+     doppione: `SPEC_DATA.ir` (28 righe, con intensità e note) è la tabella di
+     riferimento della scheda «Tabelle di riferimento», e serve a STUDIARE —
+     dà l'intervallo tipico di un gruppo specifico; `BANDE_IR` del lettore
+     serve ad ASSEGNARE, e dà l'intervallo in cui quel legame può comparire
+     perché nessuna possibilità venga esclusa. Due scopi, due larghezze.
+
+     Ma una relazione devono rispettarla: **l'ombrello copre il riferimento**.
+     Se l'intervallo del lettore non contiene quello della tabella per lo
+     stesso gruppo, una banda che la tabella attribuisce a quel gruppo non
+     verrebbe elencata fra le compatibili, e il lettore contraddirebbe il
+     proprio scopo dichiarato. Senza questo controllo le due tabelle hanno
+     divergiuto in silenzio: cinque righe non coprivano e quattro gruppi
+     mancavano del tutto (tiolo, bromuro, lattame β, ammide N–H).
+
+     L'ABBINAMENTO E' DICHIARATO QUI, e non dedotto dal simbolo del legame:
+     dedurlo dal legame confrontava «C=O aldeide» con «C=O estere», che sono
+     gruppi diversi, e produceva venti conflitti finti. Una coppia sbagliata
+     nell'elenco qui sotto si vede e si corregge; una regola che indovina no.
+     ───────────────────────────────────────────────────────────────────────── */
+  console.log('\n── Le due tabelle IR, e la relazione fra loro ──');
+  const ir = await pg.evaluate(() => {
+    /* (gruppo nella tabella di riferimento) → (nota nel lettore) */
+    const COPPIE = [
+      ['O–H (acido, legame H)',        'acido carbossilico'],
+      ['O–H libero (alcol)',           'alcol o acqua'],
+      ['O–H (alcol, legame H)',        'alcol o acqua'],
+      ['N–H (ammina primaria)',        'ammina primaria'],
+      ['N–H (ammide primaria)',        'ammide primaria'],
+      ['≡C–H (alchini terminali)',     'alchino terminale'],
+      ['=C–H (aromatici)',             'alchene o aromatico'],
+      ['C–H (alifatici)',              'alcano'],
+      ['S–H (tioli)',                  'tiolo'],
+      ['C≡N (nitrile)',                'nitrile'],
+      ['C≡C (alchini non terminali)',  'alchino'],
+      ['C=O (aldeide)',                'aldeide'],
+      ['C=O (chetone aciclico)',       'chetone'],
+      ['C=O (estere alifatico)',       'estere'],
+      ['C=O (acido carbossilico)',     'acido carbossilico'],
+      ['C=O (ammide primaria)',        'ammide'],
+      ['C=O (lattame β, 4 membr.)',    'lattame'],
+      ['C=C (alchene)',                'alchene'],
+      ['C=C (aromatico)',              'anello aromatico'],
+      ['C–O (estere, sim. alta)',      'alcol, estere'],
+      ['C–O (etereo)',                 'alcol, estere'],
+      ['C–Cl',                         'alogenuro'],
+      ['C–Br',                         'alogenuro']
+    ];
+    const ombrello = window.BSILettoreSpettri.BANDE_IR.map(r => ({
+      da: Math.min(r[0], r[1]), a: Math.max(r[0], r[1]),
+      legame: r[2], nota: String(r[3] || '')
+    }));
+    const rif = SPEC_DATA.ir;
+    const scoperti = [], nonAbbinati = [];
+    COPPIE.forEach(function (c) {
+      const t = rif.filter(r => r.group === c[0])[0];
+      if (!t) { nonAbbinati.push('riferimento: ' + c[0]); return; }
+      /* una riga di riferimento può dichiarare DUE bande (l'anidride):
+         si prende l'estremo più basso e quello più alto */
+      const nn = String(t.wn).match(/\d+/g).map(Number);
+      const tDa = Math.min.apply(null, nn), tA = Math.max.apply(null, nn);
+      const cand = ombrello.filter(o =>
+        o.nota.toLowerCase().indexOf(c[1].toLowerCase()) >= 0);
+      if (!cand.length) { nonAbbinati.push('lettore: ' + c[1]); return; }
+      /* basta che UNA riga dell'ombrello copra l'intervallo del riferimento */
+      const copre = cand.some(o => o.da <= tDa && o.a >= tA);
+      if (!copre) {
+        scoperti.push(c[0] + ': riferimento ' + tDa + '-' + tA + ' · ombrello ' +
+          cand.map(o => o.da + '-' + o.a).join(' / '));
+      }
+    });
+    /* l'abbinamento serve anche al controllo successivo: si lascia sulla
+       pagina invece di riscriverlo, perché due copie divergono */
+    window.__BSI_COPPIE_IR = COPPIE;
+    return { coppie: COPPIE.length, scoperti: scoperti, nonAbbinati: nonAbbinati,
+             righeOmbrello: ombrello.length, righeRiferimento: rif.length };
+  });
+  att('ogni coppia dichiarata esiste in entrambe le tabelle', 0, ir.nonAbbinati.length);
+  ir.nonAbbinati.forEach(x => console.log('      ! ' + x));
+  /* L'INVARIANTE: l'ombrello copre il riferimento, gruppo per gruppo. */
+  att('l’ombrello delle assegnazioni copre la tabella di riferimento', 0,
+      ir.scoperti.length);
+  ir.scoperti.forEach(x => console.log('      ! ' + x));
+  console.log('      (' + ir.coppie + ' gruppi confrontati · ombrello ' +
+              ir.righeOmbrello + ' righe · riferimento ' + ir.righeRiferimento + ')');
+  /* E LA DIREZIONE OPPOSTA, perché «copre» da solo si soddisfa banalmente:
+     un ombrello che prendesse tutto lo spettro assegnerebbe qualunque banda a
+     qualunque gruppo, cioè non direbbe niente.
+
+     La prima stesura di questo controllo metteva un tetto fisso di 400 cm⁻¹,
+     e falliva — giustamente. L'O–H di un acido carbossilico E' larga 800 cm⁻¹
+     (2500–3300), e lo dice la tabella di riferimento stessa: il numero
+     sbagliato era il mio tetto, non il dato. Un limite inventato a tavolino
+     che contraddice la fonte non è un controllo, è un errore con l'aspetto di
+     un controllo.
+     Il limite giusto viene dai dati: l'ombrello può essere più largo del
+     riferimento, ma non ARBITRARIAMENTE più largo. Si confronta ogni riga
+     dell'ombrello con l'unione degli intervalli di riferimento che le sono
+     stati abbinati, e si concede un margine dichiarato. */
+  const MARGINE = 140;
+  const largo = await pg.evaluate((MARGINE) => {
+    const COPPIE = window.__BSI_COPPIE_IR;
+    const ombrello = window.BSILettoreSpettri.BANDE_IR.map(r => ({
+      da: Math.min(r[0], r[1]), a: Math.max(r[0], r[1]), nota: String(r[3] || '')
+    }));
+    const rif = SPEC_DATA.ir;
+    const troppo = [];
+    ombrello.forEach(function (o) {
+      /* le righe di riferimento abbinate a QUESTA riga dell'ombrello */
+      const abbinati = COPPIE.filter(c =>
+        o.nota.toLowerCase().indexOf(c[1].toLowerCase()) >= 0);
+      if (!abbinati.length) return;          /* riga senza riferimento: non si giudica */
+      let rDa = Infinity, rA = -Infinity;
+      abbinati.forEach(function (c) {
+        const t = rif.filter(r => r.group === c[0])[0];
+        if (!t) return;
+        const nn = String(t.wn).match(/\d+/g).map(Number);
+        rDa = Math.min(rDa, Math.min.apply(null, nn));
+        rA = Math.max(rA, Math.max.apply(null, nn));
+      });
+      if (!isFinite(rDa)) return;
+      const lOmb = o.a - o.da, lRif = rA - rDa;
+      if (lOmb > lRif + MARGINE) {
+        troppo.push(o.nota.slice(0, 34) + ': ombrello ' + lOmb +
+                    ' cm⁻¹ contro riferimento ' + lRif);
+      }
+    });
+    return { troppo: troppo, quante: ombrello.length };
+  }, MARGINE);
+  att('e nessun ombrello è arbitrariamente più largo del riferimento', 0,
+      largo.troppo.length);
+  largo.troppo.forEach(x => console.log('      ! ' + x));
+  console.log('      (margine concesso: ' + MARGINE + ' cm⁻¹ oltre il riferimento)');
+
   /* ── §8 · Il distintivo di versione ──────────────────────────────────────
      Per circa ottanta versioni l'intestazione ha scritto «v13l»: una stringa
      fissa nell'HTML, mai aggiornata, mentre l'applicazione era a v195.
@@ -510,9 +645,9 @@ function sotto(d, limite, avuto){
   await b.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 62) {
+  if (eseguiti < 66) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 62');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 66');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
