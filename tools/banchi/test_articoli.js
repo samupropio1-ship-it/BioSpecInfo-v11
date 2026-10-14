@@ -387,9 +387,25 @@ function sopra(d, minimo, avuto) {
     out.spectraPulsanteVisibile = !!(bs && bs.offsetParent !== null);
     /* il lettore spettri: sta nel centro, non anche fra le utility */
     out.lettoreNelMenu = righe.indexOf('sspettrolettore') >= 0;
-    /* la sezione Articoli deve essere raggiungibile dal menù: su telefono il
-       menù è la strada, e una sezione raggiungibile da nulla è irraggiungibile */
-    out.articoliNelMenu = righe.indexOf('sarticoli') >= 0;
+    /* LA SEZIONE ARTICOLI DEVE ESSERE RAGGIUNGIBILE, E ORA LO E' DALLA BARRA.
+       Quando è nata stava nel menù ✨, perché lì stavano le utility. Poi le
+       utility sono tornate nella barra e tenerla anche nel menù l'avrebbe
+       resa una ripetizione: si misura quindi che sia raggiungibile dalla
+       BARRA — pulsante non nascosto e linguetta del suo gruppo visibile —
+       perché «esiste nel DOM» non vuol dire «si può aprire». */
+    out.articoliNellaBarra = (function () {
+      const btn = document.querySelector('.nav-btn[data-s="sarticoli"]');
+      if (!btn || getComputedStyle(btn).display === 'none') return false;
+      const pan = btn.closest('.nav-group-panel');
+      if (!pan) return true;
+      const n = (pan.id || '').replace('navGroup', '');
+      const tb = document.querySelector('.nav-group-tab[data-group="' + n + '"]');
+      return !!(tb && getComputedStyle(tb).display !== 'none');
+    })();
+    /* e NON anche nel menù: sarebbero due strade */
+    out.articoliNelMenu = righe.indexOf('sarticoli') >= 0 ||
+      [].some.call(document.querySelectorAll('#bsi14-panel [data-key="sarticoli"]'),
+                   r => getComputedStyle(r).display !== 'none');
     document.getElementById('bsi14-fab').click();
     return out;
   });
@@ -407,7 +423,10 @@ function sopra(d, minimo, avuto) {
   att('  · e il suo pulsante dedicato c’è', true, dop.spectraFab);
   att('  · e il pulsante di navigazione non si vede', false, dop.spectraPulsanteVisibile);
   att('il lettore spettri non è anche fra le utility', false, dop.lettoreNelMenu);
-  att('la sezione Articoli è raggiungibile dal menù ✨', true, dop.articoliNelMenu);
+  att('la sezione Articoli è raggiungibile dalla barra', true, dop.articoliNellaBarra);
+  /* l'altro verso: raggiungibile da UNA strada, non da due */
+  att('  · e NON anche dal menù ✨, che sarebbe la seconda strada', false,
+      dop.articoliNelMenu);
   console.log('      (' + dop.navTotali + ' sezioni navigabili in tutto)');
 
   /* la tabella delle costanti J: ce n'era una seconda, con numeri diversi */
@@ -434,9 +453,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 44) {
+  if (eseguiti < 45) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 44');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

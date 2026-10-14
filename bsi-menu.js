@@ -1,78 +1,63 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   BSI MENU — Utility nel menù ✨, e le lingue per conto loro
+   BSI MENU — Utility nel MENU PRINCIPALE, e una strada sola per ogni cosa
 
-   CHE COSA CAMBIA
+   LA STORIA DI QUESTO FILE, PERCHE' SPIEGA COM'E' FATTO ADESSO
 
-   La barra di navigazione aveva sette categorie, e la settima — «🛠️ Utility» —
-   raccoglieva diciotto voci che con la chimica non c'entrano: l'assistente, il
-   laboratorio, le note, il File Manager, le statistiche, il Pomodoro, le
-   lingue. Occupava una categoria intera accanto a Chimica, Spettroscopia e
-   Farmacologia, e spingeva fuori schermo quelle che si usano davvero.
+   Prima questo modulo faceva l'opposto: nascondeva la categoria «🛠️ Utility»
+   dalla barra di navigazione e ne portava le diciotto voci dentro il menù ✨,
+   perche' occupavano una categoria intera e spingevano fuori schermo quelle
+   che si usano piu' spesso.
 
-   Ora quelle voci stanno nel menù ✨, in due blocchi SEPARATI:
-     · 🛠️ Utility — gli strumenti;
-     · 🌍 Lingue e linguaggi — la lingua dell'interfaccia e i linguaggi
-       chimici, che non sono uno strumento fra gli altri: sono il modo in cui
-       si legge tutto il resto.
+   Il risultato pratico, però, e' stato che le stesse cose si trovavano in
+   DUE posti. Non per un errore di questo file: perche' il pannello ✨ ha
+   anche un suo elenco CABLATO di voci — editor, laboratori, strumenti — e
+   alcune di quelle voci aprivano esattamente le stesse sezioni che il
+   modulo stava inserendo. Nel pannello comparivano due «Data Science», due
+   «File Manager», due «Articoli», due «Aggiornamenti». Chi guardava vedeva
+   ripetizioni, e aveva ragione.
 
-   DUE DECISIONI CHE VALE LA PENA SPIEGARE
+   ADESSO LA REGOLA E' UNA SOLA E SI PUO' CONTROLLARE
 
-   1. I PULSANTI RESTANO NEL DOM, nascosti. Cancellarli sarebbe stato più
-      pulito a vedersi e sbagliato: decine di punti dell'applicazione aprono
-      una sezione con `document.querySelector('[data-s=...]').click()`, e
-      `goSection()` fa esattamente quello. Toglierli avrebbe rotto quei
-      collegamenti in silenzio, uno per uno, senza che niente lo dicesse.
-      Restano, in un pannello che non si mostra, e il menù li clicca.
+     se una cosa ha un pulsante VISIBILE nella barra, NON sta nel menù ✨;
+     se non ce l'ha — gli strumenti in sovrapposizione, i laboratori, le
+     azioni come «stampa» o «condividi» — sta solo nel menù ✨.
 
-   2. LE ETICHETTE SI LEGGONO DAI PULSANTI, non si riscrivono. Se le copiassi
-      qui diventerebbero stringhe nuove da tradurre in tredici lingue, e la
-      prossima volta che qualcuno cambia il nome di una sezione il menù
-      resterebbe indietro. Leggendole dal pulsante, il menù dice sempre quello
-      che dice la sezione — e la traduzione la fa già `bsi-lingue.js` sui
-      pulsanti.
+   Quindi: la categoria Utility torna nella barra con tutte le sue voci, e
+   questo modulo non inserisce piu' nessuna riga di sezione nel pannello.
+   Il suo lavoro e' diventato il contrario di prima: TENERE la categoria
+   visibile (altro codice la ricostruisce, e l'ha nascosta per versioni) e
+   togliere dalla barra le due voci che hanno una casa migliore altrove.
 
-   IL RISCHIO CHE QUESTA MODIFICA PORTA, E LA GUARDIA CHE LO COPRE
+   LE DUE ECCEZIONI, ED ENTRAMBE HANNO UN MOTIVO
 
-   Una sezione raggiungibile solo da un menù è una sezione che sparisce se il
-   menù si rompe. È già successo in questo progetto: le due sezioni delle
-   lingue erano SOLO voci del menù ✨, e su telefono — dove il menù era
-   nascosto — non si raggiungevano affatto. Per questo il banco non si
-   accontenta che il pulsante esista nel DOM: pretende che ogni sezione
-   spostata compaia NEL MENÙ e che cliccandola si apra davvero.
+   · `sai` (Spectra) resta FUORI dalla barra: ha un pulsante dedicato suo,
+     che pulsa in basso a destra. Tre strade per il copilota erano troppe.
+   · `sspettrolettore` resta FUORI dalla barra: e' una scheda del Centro
+     spettri, e il Centro spettri ha il suo pulsante. Averlo anche qui ne
+     faceva la decima strada per una cosa che ha gia' un posto suo.
 
-   IL MENU GIUSTO NON ERA QUELLO CHE SEMBRAVA
+   In entrambi i casi il pulsante resta NEL DOCUMENTO, nascosto: decine di
+   punti dell'applicazione aprono una sezione con `goSection()`, che e'
+   `[data-s=...]`.click(). Nascosto si', rimosso no.
 
-   Il primo tentativo agganciava `#bsi105-fab` e `#bsi13-panel`, che sono il
-   pulsante ✨ e il pannello «vecchi»: esistono ancora nel documento ma sono
-   `display:none` su OGNI schermo, grande e piccolo. Il menù che si vede
-   davvero è `#bsi14-fab` con `#bsi14-panel`. Il banco l'ha detto subito
-   — «il pulsante ✨ c'è ed è visibile → false» su entrambe le misure — e
-   senza quel controllo la categoria Utility sarebbe finita in un menù che
-   nessuno può aprire: irraggiungibile, come le lingue prima di lei.
-
-   USO   si innesta da sé; `BSIMenu` per il banco.
+   USO   si innesta da se'; `BSIMenu` per il banco.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
 
-  /* Le due liste. L'ordine è quello in cui stavano nella barra, perché è
-     quello a cui chi usa l'applicazione è abituato. */
-  /* SPECTRA NON STA QUI, E PRIMA CI STAVA.
-     Il commento accanto al suo pulsante dedicato diceva già «Spectra non sta
-     più dentro il menù ✨» — e non era vero: `'sai'` era la prima voce di
-     questa lista. Risultato, tre strade per la stessa cosa: la voce nel
-     menù, il pulsante dedicato che pulsa in basso, e la sezione `sai` che è
-     solo una pagina di presentazione con dentro un bottone «Apri Spectra».
-     Ora la strada è una: il pulsante dedicato. Il pulsante di navigazione
-     `sai` resta nel documento, nascosto, perché `goSection('sai')` lo usa.
-
-     IL LETTORE SPETTRI NON STA PIU' QUI per lo stesso motivo: è una scheda
-     del Centro spettri, e averlo anche fra le utility ne faceva la decima
-     voce di una cosa che è già in un posto suo. */
+  /* Le voci che la categoria Utility deve mostrare nella barra. L'ordine è
+     quello a cui chi usa l'applicazione è abituato, con «Articoli» in testa
+     perché è la novità e perché è la più generica. */
   var UTILITY = ['sarticoli', 'slab', 'sghs', 'smap', 'scompare', 'spubchem',
     'sdiagrammi', 'srisorse', 'smateriali', 'snotes', 'sfilemanager',
     'sstats', 'sdatasci', 'spomo', 'slabcalc'];
   var LINGUE = ['slingua', 'slinguaggi'];
+
+  /* Le due che NON devono stare nella barra, e perché (vedi l'intestazione). */
+  var FUORI = {
+    sai: 'ha il suo pulsante dedicato',
+    sspettrolettore: 'è una scheda del Centro spettri'
+  };
 
   function t(it, en) {
     return (globale.BSILingue && globale.BSILingue.corrente &&
@@ -83,112 +68,139 @@
     return document.querySelector('.nav-btn[data-s="' + sid + '"]');
   }
 
-  /* L'etichetta del pulsante, senza l'icona iniziale se è un'emoji isolata:
-     nel menù l'icona sta in una colonna sua. */
-  function etichettaDi(b) {
-    var testo = (b.textContent || '').trim().replace(/\s+/g, ' ');
-    var m = testo.match(/^([\u{1F300}-\u{1FAFF}☀-➿⬀-⯿️‍]+)\s*(.*)$/u);
-    if (m && m[2]) return { ic: m[1], nm: m[2] };
-    /* Spectra ha un SVG al posto dell'emoji */
-    return { ic: '✦', nm: testo || b.getAttribute('data-s') };
-  }
-
-  /* ── 1. la categoria sparisce dalla barra ──────────────────────────────── */
-  function nascondiCategoria() {
+  /* ── 1. la categoria torna, e resta, nella barra ──────────────────────── */
+  function mostraCategoria() {
     var tab = document.querySelector('.nav-group-tab[data-group="6"]');
     var pan = document.getElementById('navGroup6');
     if (tab) {
-      tab.style.display = 'none';
-      tab.setAttribute('aria-hidden', 'true');
-      tab.tabIndex = -1;
+      /* Per diverse versioni questo modulo scriveva `display:none` qui. Altro
+         codice ricostruisce la barra e rimette lo stile originale, quindi non
+         basta togliere la riga: va rimosso l'attributo, e va rifatto a tratti
+         perché la barra può essere ricostruita dopo di noi. */
+      tab.style.removeProperty('display');
+      tab.removeAttribute('aria-hidden');
+      tab.tabIndex = 0;
     }
     if (pan) {
-      /* Il pannello resta, con i suoi pulsanti: sono il bersaglio di decine
-         di `[data-s=...]`.click() sparsi nell'applicazione. Nascosto sì,
-         rimosso no. */
-      pan.style.display = 'none';
-      pan.setAttribute('aria-hidden', 'true');
-      pan.setAttribute('data-bsi-spostato', 'menu');
+      pan.removeAttribute('aria-hidden');
+      pan.removeAttribute('data-bsi-spostato');
+      /* il pannello di un gruppo non attivo è `display:none` per progetto:
+         non si forza, lo gestisce `switchNavGroup()` */
     }
     return !!(tab && pan);
   }
 
-  /* ── 2. le voci entrano nel pannello del menù ✨ ───────────────────────── */
-  function riga(sid) {
-    var b = pulsanteDi(sid);
-    if (!b) return '';
-    var e = etichettaDi(b);
-    return '<div class="bsi14-row bsiMenu-sp" data-bsi-sez="' + sid + '">' +
-      '<span class="bsi14-ic">' + e.ic + '</span>' +
-      '<div class="bsi14-tx"><div class="bsi14-nm">' + e.nm + '</div></div>' +
-      '<span class="bsi14-ar">›</span></div>';
-  }
-
-  function inserisci() {
-    var pan = document.getElementById('bsi14-panel');
-    if (!pan) return false;
-    /* se ci sono già, si rifanno: la lingua può essere cambiata */
-    [].forEach.call(pan.querySelectorAll('.bsiMenu-sez, .bsiMenu-sp'),
-                    function (n) { n.remove(); });
-
-    var h = '<div class="bsi14-sec bsiMenu-sez">🛠️ ' + t('Utility', 'Utility') + '</div>';
-    var quante = 0;
-    UTILITY.forEach(function (s) { var r = riga(s); if (r) { h += r; quante++; } });
-    h += '<div class="bsi14-sec bsiMenu-sez">🌍 ' +
-         t('Lingue e linguaggi', 'Languages') + '</div>';
-    LINGUE.forEach(function (s) { var r = riga(s); if (r) { h += r; quante++; } });
-
-    /* Si raccolgono i nodi NELL'ORDINE voluto prima di toccare il pannello,
-       e poi si inseriscono uno dopo l'altro con un riferimento che avanza.
-       Il primo tentativo li inseriva tutti subito dopo l'intestazione e poi
-       provava a rimetterli in ordine: ogni inserimento li rovesciava, e il
-       secondo giro li rovesciava di nuovo — il menù usciva con «Lingue»
-       prima di «Utility» e ogni blocco al contrario. */
-    var d = document.createElement('div');
-    d.innerHTML = h;
-    var nodi = [].slice.call(d.childNodes);
-    var rif = pan.querySelector('#bsi13-hd');
-    if (!rif) { nodi.forEach(function (n) { pan.appendChild(n); }); }
-    else {
-      nodi.forEach(function (n) {
-        pan.insertBefore(n, rif.nextSibling);
-        rif = n;
-      });
-    }
-
-    [].forEach.call(pan.querySelectorAll('.bsiMenu-sp'), function (r) {
-      r.onclick = function (ev) {
-        ev.stopPropagation();
-        var sid = r.getAttribute('data-bsi-sez');
-        if (typeof globale._closeSheet === 'function') globale._closeSheet();
-        else {
-          var s = document.getElementById('bsi14-sheet');
-          if (s) s.classList.remove('open');
-        }
-        setTimeout(function () {
-          var b = pulsanteDi(sid);
-          if (b) b.click();
-        }, 60);
-      };
+  /* ── 2. le due che hanno una casa migliore escono dalla barra ─────────── */
+  function nascondiLeDue() {
+    var n = 0;
+    Object.keys(FUORI).forEach(function (sid) {
+      var b = pulsanteDi(sid);
+      if (!b) return;
+      b.style.display = 'none';
+      b.setAttribute('aria-hidden', 'true');
+      b.setAttribute('data-bsi-fuori', FUORI[sid]);
+      b.tabIndex = -1;
+      n++;
     });
-    return quante;
+    return n;
   }
 
-  /* ── 3. quando ─────────────────────────────────────────────────────────── */
+  /* ── 3. il pannello ✨ non deve ripetere la barra ─────────────────────
+     Questo modulo non inserisce più righe. Ma nel pannello c'è un elenco
+     CABLATO, scritto altrove, e qualche sua voce apre una sezione che ora
+     ha un pulsante visibile: sarebbero due strade. Si tolgono, misurando
+     invece di indovinare — si guarda se la sezione che aprono ha un
+     pulsante visibile, non si tiene un elenco di nomi da aggiornare a mano. */
+  /* «VISIBILE NELLA BARRA» NON SI MISURA CON `offsetParent`.
+     Nella barra un solo gruppo per volta è mostrato: il pannello degli altri
+     sei è `display:none` per progetto. Quindi un pulsante perfettamente
+     raggiungibile — basta cambiare linguetta — ha `offsetParent` nullo, e la
+     prima stesura di questa funzione concludeva che la barra non lo
+     mostrava: non toglieva nessuna ripetizione e le quattro restavano tutte.
+     La domanda giusta è un'altra: il pulsante è nascosto DI SUO, o è
+     soltanto in un gruppo che adesso non è aperto? */
+  function nellaBarra(sid) {
+    var b = pulsanteDi(sid);
+    if (!b) return false;
+    if (getComputedStyle(b).display === 'none') return false;
+    var pan = b.closest ? b.closest('.nav-group-panel') : null;
+    if (!pan) return true;                /* fuori dai gruppi: sempre in vista */
+    var n = pan.id && pan.id.replace('navGroup', '');
+    var tab = document.querySelector('.nav-group-tab[data-group="' + n + '"]');
+    /* raggiungibile se la sua linguetta esiste e si vede */
+    return !!(tab && getComputedStyle(tab).display !== 'none');
+  }
+
+  /* UNA REGOLA SUL NOME SBAGLIA QUANDO IL NOME INGANNA.
+     La regola «se la chiave si chiama come una sezione, apre quella sezione»
+     funziona per `datasci`→`sdatasci` e per `sarticoli`, e ha sbagliato su
+     `filemanager`: quella chiave NON apre la sezione `sfilemanager` — apre
+     `file_manager.html` in sovrapposizione, che è la pagina protetta da
+     password, una cosa diversa con un nome simile. Nascondendola come
+     «ripetizione» si perdeva una funzione.
+     Le eccezioni stanno scritte qui con il motivo, invece di essere
+     indovinate: una regola che non si può spiegare non si può correggere. */
+  var NON_E_LA_SEZIONE = {
+    filemanager: 'apre la pagina protetta in sovrapposizione, non la sezione degli appunti'
+  };
+
+  function APRE_SEZIONE(chiave) {
+    if (NON_E_LA_SEZIONE[chiave]) return null;
+    /* le chiavi cablate che aprono una sezione dell'applicazione: la chiave
+       è il nome della sezione, con o senza la «s» iniziale */
+    if (document.getElementById(chiave)) return chiave;
+    if (document.getElementById('s' + chiave)) return 's' + chiave;
+    return null;
+  }
+
+  function togliRipetizioni() {
+    var pan = document.getElementById('bsi14-panel');
+    if (!pan) return 0;
+    var tolte = 0;
+    [].forEach.call(pan.querySelectorAll('[data-key]'), function (r) {
+      var sid = APRE_SEZIONE(r.getAttribute('data-key'));
+      if (!sid) return;
+      /* se la barra lo mostra, il menù non lo ripete */
+      if (nellaBarra(sid)) {
+        r.style.display = 'none';
+        r.setAttribute('aria-hidden', 'true');
+        r.setAttribute('data-bsi-ripetuto', sid);
+        tolte++;
+      }
+    });
+    /* e le voci con la STESSA etichetta: due righe che dicono la stessa
+       parola sono una ripetizione anche se dietro hanno chiavi diverse.
+       Resta la prima. */
+    var viste = {};
+    [].forEach.call(pan.querySelectorAll('[data-key]'), function (r) {
+      if (r.style.display === 'none') return;
+      var nodo = r.querySelector('.bsi14-nm') || r;
+      var nome = (nodo.textContent || '').trim().toLowerCase();
+      if (!nome) return;
+      if (viste[nome]) {
+        r.style.display = 'none';
+        r.setAttribute('aria-hidden', 'true');
+        r.setAttribute('data-bsi-ripetuto', 'etichetta: ' + nome);
+        tolte++;
+      } else viste[nome] = true;
+    });
+    return tolte;
+  }
+
+  /* ── 4. quando ───────────────────────────────────────────────────────── */
   function applica() {
-    nascondiCategoria();
-    return inserisci();
+    mostraCategoria();
+    nascondiLeDue();
+    return togliRipetizioni();
   }
 
-  /* Il pannello viene costruito al primo clic sul ✨, non all'avvio: si
-     aspetta che esista invece di indovinare quando. */
   var osservatore = null;
   function sorveglia() {
-    if (document.getElementById('bsi14-panel')) { applica(); return; }
+    if (document.getElementById('bsi14-panel')) { togliRipetizioni(); return; }
     if (osservatore) return;
     osservatore = new MutationObserver(function () {
       if (document.getElementById('bsi14-panel')) {
-        applica();
+        togliRipetizioni();
         osservatore.disconnect();
         osservatore = null;
       }
@@ -197,43 +209,73 @@
   }
 
   function avvia() {
-    nascondiCategoria();
+    mostraCategoria();
+    nascondiLeDue();
     sorveglia();
-    /* il clic sul ✨ costruisce il pannello: subito dopo si inserisce */
+    /* il clic sul ✨ costruisce il pannello: subito dopo si ripulisce */
     document.addEventListener('click', function (e) {
       var f = e.target && e.target.closest ? e.target.closest('#bsi14-fab') : null;
       if (!f) return;
-      setTimeout(function () { applica(); }, 40);
+      setTimeout(togliRipetizioni, 40);
     }, true);
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', avvia);
   } else avvia();
-  /* la barra può essere ricostruita da altro codice: si riapplica a tratti
-     nei primi secondi, poi si smette */
-  [300, 900, 2000, 4000].forEach(function (ms) { setTimeout(nascondiCategoria, ms); });
+  /* la barra può essere ricostruita da altro codice, e per versioni l'ha
+     ricostruita NASCOSTA: si riapplica a tratti nei primi secondi */
+  [300, 900, 2000, 4000].forEach(function (ms) {
+    setTimeout(function () { mostraCategoria(); nascondiLeDue(); }, ms);
+  });
 
   document.addEventListener('bsi-lingua', function () {
-    if (document.getElementById('bsi14-panel')) inserisci();
+    if (document.getElementById('bsi14-panel')) togliRipetizioni();
   });
 
   globale.BSIMenu = {
-    UTILITY: UTILITY, LINGUE: LINGUE,
-    applica: applica, inserisci: inserisci, nascondiCategoria: nascondiCategoria,
-    /* per il banco: che cosa è dove */
+    UTILITY: UTILITY, LINGUE: LINGUE, FUORI: FUORI,
+    NON_E_LA_SEZIONE: NON_E_LA_SEZIONE,
+    applica: applica, mostraCategoria: mostraCategoria,
+    nascondiLeDue: nascondiLeDue, togliRipetizioni: togliRipetizioni,
+    /* per il banco: che cosa è dove, misurato nel documento */
     stato: function () {
       var pan = document.getElementById('bsi14-panel');
       var tab = document.querySelector('.nav-group-tab[data-group="6"]');
+      var visibile = nellaBarra;
+      var vociPannello = pan ? [].filter.call(pan.querySelectorAll('[data-key]'),
+        function (r) { return getComputedStyle(r).display !== 'none'; }) : [];
       return {
-        categoriaNascosta: !!(tab && getComputedStyle(tab).display === 'none'),
-        pulsantiAncoraNelDom: UTILITY.concat(LINGUE)
-          .filter(function (s) { return !!pulsanteDi(s); }).length,
-        vociNelMenu: pan ? pan.querySelectorAll('.bsiMenu-sp').length : 0,
-        sezioniNelMenu: pan ? [].map.call(pan.querySelectorAll('.bsiMenu-sp'),
-          function (r) { return r.getAttribute('data-bsi-sez'); }) : [],
-        intestazioni: pan ? [].map.call(pan.querySelectorAll('.bsiMenu-sez'),
-          function (r) { return r.textContent; }) : []
+        categoriaVisibile: !!(tab && getComputedStyle(tab).display !== 'none'),
+        utilityNellaBarra: UTILITY.filter(visibile).length,
+        utilityTotali: UTILITY.length,
+        lingueNellaBarra: LINGUE.filter(visibile).length,
+        /* le due fuori: nel documento ma non nella barra */
+        fuoriDallaBarra: Object.keys(FUORI).filter(function (s) {
+          return !!pulsanteDi(s) && !visibile(s); }).length,
+        /* il menù non ripete la barra */
+        vociPannelloVisibili: vociPannello.length,
+        ripetizioniTolte: pan ? pan.querySelectorAll('[data-bsi-ripetuto]').length : 0,
+        /* e nessuna voce visibile del pannello apre una sezione che la barra
+           mostra già: è la regola, misurata */
+        ripetizioniRimaste: vociPannello.filter(function (r) {
+          var sid = APRE_SEZIONE(r.getAttribute('data-key'));
+          return !!(sid && visibile(sid)); }).map(function (r) {
+            return r.getAttribute('data-key'); }),
+        /* né due voci visibili con la stessa etichetta */
+        etichetteDoppie: (function () {
+          var c = {}, out = [];
+          vociPannello.forEach(function (r) {
+            var nodo = r.querySelector('.bsi14-nm') || r;
+            var n = (nodo.textContent || '').trim().toLowerCase();
+            if (!n) return;
+            c[n] = (c[n] || 0) + 1;
+          });
+          Object.keys(c).forEach(function (k) { if (c[k] > 1) out.push(k); });
+          return out;
+        })(),
+        /* nessuna riga di sezione inserita da qui: non le inserisce più */
+        righeDiSezione: pan ? pan.querySelectorAll('.bsiMenu-sp').length : 0
       };
     }
   };

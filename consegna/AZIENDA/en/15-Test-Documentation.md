@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v199` |
+| **Version described** | `bsi-v200` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -112,7 +112,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_nmr` | Per-atom NMR prediction: two separate molecule sets (tuning and **validation**, the latter never used to choose parameters), the signal count on molecules whose count is known, refusals on an unreadable SMILES and on an empty string, the **history** with duplicate detection by InChI key, and the **peak ↔ structure ↔ 3D** sync verified on the indices, not on how many atoms light up | 64 |
 | `test_nmr2d` | Correlation maps counted on the graph: HSQC with inverted sign on CH₂, COSY between non-equivalent protons, HMBC two and three bonds away. **In both directions**: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots, methane **no** HMBC spots despite having four protons | 40 |
 | `test_digitalizza` | A spectrum extracted from a **figure**, over seven constructed images whose Gaussian centres are known to the cm⁻¹: bare figure, with frame and labels, with a grey grid, with a black grid, with frame **and** grid, dashed, in %T. **Mean 2.2 cm⁻¹** deviation, **worst 7.3** — one column is worth ~4 cm⁻¹, which is the limit of the figure and not of the method. **In both directions**: from a blank sheet and from the app icon **no** curve comes out; the crude fallback on the same framed figure finds **one** peak instead of three; on a logarithmic axis the midpoint is the geometric mean and on a linear axis the arithmetic one. %T→A conversion on exact values (50 %T → A = 0.301) and a **full round trip** of the exported JCAMP, read back by the reader itself | 45 |
-| `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 57 |
+| `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
 | `test_geom3d` | The 3D geometry built from the graph, measured against literature values: bonds, valence angles, alkyne linearity. **In both directions**: benzene comes out planar and cyclohexane does **not**. And the proof that makes the peak↔atom link legitimate: every heavy atom has **the same index and element** as the predictor's | 29 |
 | `test_documento` | Opening any document and working through the problem inside: PDF, Word and text genuinely opened and the content verified; the data recognised **with their provenance**. **In both directions**: an image declares there is no optical character recognition and invents no working, an unknown format is refused rather than guessed, CDCl₃ does not become the compound's formula, without an MS label there are no masses | 47 |
 
@@ -609,4 +609,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v199`._
+_Document updated to version `bsi-v200`._

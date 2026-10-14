@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v199';
+window.BSI_APP_VERSION='bsi-v200';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -36151,8 +36151,6 @@ var SHEET_ITEMS=[
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Percorsi di sintesi + analisi retrosintetica',key:'sr',hi:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali, spettri, Jablonski — 11 moduli interattivi',key:'qlab',hi:true},
-  {ic:'🔬',nm:'Centro spettri',ds:'Leggi, prevedi, confronta: le dieci schede degli spettri in un posto solo',key:'scentrospettri',hi:true},
-  {ic:'📰',nm:'Articoli',ds:'Gli ultimi articoli della chimica dai DOI, e tutti i Nobel per la chimica spiegati',key:'sarticoli',hi:true},
   {ic:'🎨',nm:'Editor di struttura',ds:'Disegna una molecola e ricavane spettri, gruppi funzionali e proprieta\u0300',key:'chemdraw',hi:true},
   {sec:'⚙️ Strumenti'},
   {ic:'📸',nm:'Esporta figure',ds:'PNG/SVG ad alta risoluzione',key:'export'},
@@ -37678,13 +37676,10 @@ var _ITEMS=[
   {ic:'🎓',nm:'Accademia Chimica',ds:'Quiz gamificati · XP · livelli · streak · 83 domande su 6 materie',key:'accademia',hl:true},
   {ic:'⚗️',nm:'Chimica Organica 1+2',ds:'25 moduli: meccanismi, stereochimica, eterocicli, pericicliche, organometallici, radicali, spettroscopia, retrosintesi',key:'chimorga',hl:true},
   {ic:'🧪',nm:'RDKit Cheminformatics Lab',ds:'Visualizzatore SVG, descrittori, drug-likeness, similarità Tanimoto, libreria molecole',key:'rdkitlab',hl:true},
-  {ic:'🔬',nm:'Centro spettri',ds:'Leggi il tuo spettro, previsione NMR, 2D, massa, IR, UV-Vis, tabelle, elucidazione, allenamento: dieci schede in un posto solo',key:'scentrospettri',hl:true},
-  {ic:'📰',nm:'Articoli',ds:'Gli ultimi articoli della chimica dai DOI di Crossref, e tutti i Nobel per la chimica con la motivazione ufficiale e la spiegazione',key:'sarticoli',hl:true},
   {ic:'🎨',nm:'Editor di struttura',ds:'Disegna/carica molecole → spettri (IR · ¹H/¹³C-NMR · MS · isotopi · UV-Vis · Raman), 2D/3D, gruppi funzionali, drug-likeness, similarità, mappa e confronto',key:'chemdraw',hl:true},
   {ic:'🌌',nm:'Astrochimica 3D PRO',ds:'Molecole ISM, esopianeti JWST, nebule, spettri stellari, nucleosintesi, chimica cometaria, quiz',key:'astro',hl:true},
-  {ic:'✨',nm:'Data Science — dalla chimica ai dati',ds:'Lab ML interattivi, CERN (bosone Z), Playground SQL, roadmap corsi, Toolkit GitHub — dal chimico al data scientist',key:'datasci',hl:true},
   {ic:'⚗️',nm:'PRO Hub — ML · QM · Fisica · Statistica',ds:'Machine Learning QSAR, Meccanica Quantistica, Chimica Fisica, Chimica Statistica, Tools avanzati',key:'pro',hl:true},
-  {ic:'📁',nm:'File Manager PRO',ds:'Galleria foto, sezioni HTML personalizzate, note — accesso protetto da password',key:'filemanager',hl:true},
+  {ic:'🔒',nm:'File Manager protetto',ds:'Galleria foto, sezioni HTML personalizzate, note — pagina a parte, con password. NON è la sezione «File Manager» della barra, che serve a caricare i tuoi appunti: sono due cose diverse',key:'filemanager',hl:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali 3D, spettroscopie, cinetica e altre 10 simulazioni',key:'qlab',hl:true},
   {ic:'🧪',nm:'Simulazioni Interattive',ds:'pH · titolazione · tamponi · Beer-Lambert · gas ideali · cinetica — esperimenti in tempo reale',key:'simulazioni',hl:true},
   {ic:'📄',nm:'Documentazione Tecnica',ds:'Changelog, architettura e note di rilascio del progetto (materiale per la tesi)',key:'tesi',hl:true},
@@ -37710,7 +37705,6 @@ var _ITEMS=[
   {ic:'🔗',nm:'Condividi app',ds:'',key:'share'},
   {ic:'⬇️',nm:'Scarica BioSpecInfo',ds:'HTML per uso offline',key:'dl'},
   {ic:'📲',nm:'Aggiungi a Home',ds:'Installa come app',key:'install'},
-  {ic:'🔄',nm:'Aggiornamenti',ds:'Verifica nuove versioni',key:'update'},
 ];
 
 function _closeSheet(){ var s=document.getElementById('bsi14-sheet'); if(s) s.classList.remove('open'); }

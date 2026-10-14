@@ -113,6 +113,32 @@ centre on the **Mass** tab.
 > remains, the one inside the Spectra centre, which sits in the section with
 > its own reference list.
 
+### Where things are
+
+The sections live in the **navigation bar**, grouped by subject, with **🛠️
+Utility** among them: laboratory, GHS, concept map, molecule comparison,
+molecule search, atlas, resources, materials, notes, file manager, statistics,
+data science, pomodoro, lab calculator, **articles**, and the two language
+ones.
+
+The **✨** menu holds only what is *not* a section: the editors, the overlay
+labs, and actions such as exporting a figure, printing, sharing, updating. The
+rule is simple and always holds: **if something is in the bar, it is not also
+in the menu**. It used not to be, and the menu showed two "Data Science", two
+"File Manager", two "Articles" and two "Updates".
+
+Two exceptions, and they have a reason:
+
+- **Spectra** is not in the bar: it has its own dedicated button, the pulsing
+  one at the bottom. Three roads to the copilot were too many.
+- The **spectrum reader** is not in the bar: it is a tab of the Spectra centre.
+
+> **Two File Managers, and they are two different things.** In the bar, **📁
+> File Manager** is for uploading and organising your own notes (PDF, images,
+> Word). In the ✨ menu, **🔒 Protected File Manager** is a separate page with
+> the password, for the gallery and the custom sections. They had the same name
+> and looked like a duplicate: now they are named for what they do.
+
 ### The articles and the Nobel Prizes
 
 **📰 Articles** (from the ✨ menu) has two tabs.
@@ -398,4 +424,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v199`._
+_Guide updated to version `bsi-v200`._

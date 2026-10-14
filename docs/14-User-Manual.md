@@ -109,6 +109,32 @@ porta al Centro spettri aperto sulla scheda **Massa**.
 > quella dentro il Centro spettri, che sta nella sezione con la sua lista di
 > riferimenti.
 
+### Dove si trovano le cose
+
+Le sezioni stanno nella **barra di navigazione**, raggruppate per materia, con
+**🛠️ Utility** fra loro: laboratorio, GHS, mappa concettuale, confronto
+molecole, ricerca molecole, atlante, risorse, materiali, note, file manager,
+statistiche, data science, pomodoro, calcolatrice di laboratorio, **articoli**,
+e le due della lingua.
+
+Il menù **✨** tiene soltanto quello che *non* è una sezione: gli editor, i
+laboratori in sovrapposizione, e le azioni come esportare una figura, stampare,
+condividere, aggiornare. La regola è semplice e vale sempre: **se una cosa è
+nella barra, non è anche nel menù**. Prima non era così, e nel menù comparivano
+due «Data Science», due «File Manager», due «Articoli» e due «Aggiornamenti».
+
+Due eccezioni, e hanno un motivo:
+
+- **Spectra** non è nella barra: ha il suo pulsante dedicato, quello che pulsa
+  in basso. Tre strade per il copilota erano troppe.
+- Il **lettore spettri** non è nella barra: è una scheda del Centro spettri.
+
+> **Due File Manager, e sono due cose diverse.** Nella barra, **📁 File
+> Manager** serve a caricare e ordinare i tuoi appunti (PDF, immagini, Word).
+> Nel menù ✨, **🔒 File Manager protetto** è una pagina a parte con la
+> password, per la galleria e le sezioni personalizzate. Avevano lo stesso
+> nome e sembravano un doppione: ora si chiamano per quello che fanno.
+
 ### Gli articoli e i Nobel
 
 **📰 Articoli** (dal menù ✨) ha due schede.
@@ -397,4 +423,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v199`._
+_Guida aggiornata alla versione `bsi-v200`._

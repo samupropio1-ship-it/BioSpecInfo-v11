@@ -7,6 +7,95 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v200] — 2026-10-14
+
+**Utility torna nel menù principale, e le ripetizioni che restavano sono
+sparite dalla sorgente, non nascoste.**
+
+### Perché erano doppie: nessuno confrontava le due liste
+
+Il pannello ✨ si riempie da **due posti**: un elenco **cablato** scritto in
+`index.html` (editor, laboratori, azioni) e le righe che `bsi-menu.js`
+inseriva per le sezioni spostate. Alcune voci cablate aprivano **esattamente**
+le sezioni che il modulo stava inserendo, e nessun controllo confrontava le
+due liste fra loro. Nel pannello comparivano:
+
+| ripetizione | le due strade |
+|---|---|
+| **Articoli** ×2 | voce cablata + riga di sezione (l'avevo aggiunta io a entrambe nella versione precedente) |
+| **Data Science** ×2 | chiave `datasci`, che apre `sdatasci`, + riga di sezione `sdatasci` |
+| **Centro spettri** ×2 | voce cablata + pulsante visibile nella barra |
+| **Aggiornamenti** ×2 | due chiavi diverse, `aggiorna` e `update`, che chiamano la **stessa** funzione |
+
+### La regola, adesso una e misurabile
+
+> se una cosa ha un pulsante **raggiungibile** nella barra, NON sta nel menù ✨;
+> se non ce l'ha, sta **solo** nel menù ✨.
+
+Quindi la categoria **🛠️ Utility torna nella barra** con tutte le sue quindici
+voci più le due della lingua, e `bsi-menu.js` non inserisce più nessuna riga
+di sezione nel pannello. Il suo lavoro è diventato il contrario di prima:
+**tenere** la categoria visibile — altro codice ricostruisce la barra e per
+versioni l'ha rimessa nascosta — e togliere dalla barra le due voci che hanno
+una casa migliore.
+
+Le quattro ripetizioni sono state rimosse **dalla sorgente**, non nascoste a
+runtime: le righe duplicate negli elenchi cablati non ci sono più. Il
+controllo a runtime resta, ma come **guardia** per quelle future, non come
+rimedio per queste — e infatti ora non trova niente da nascondere.
+
+### Due eccezioni nella barra, entrambe con un motivo
+
+- **Spectra** non è nella barra: ha il suo pulsante dedicato. Tre strade per
+  il copilota erano troppe.
+- Il **lettore spettri** non è nella barra: è una scheda del Centro spettri.
+
+In entrambi i casi il pulsante resta **nel documento**, nascosto: decine di
+punti dell'applicazione aprono una sezione con `goSection()`, che è
+`[data-s=...]`.click(). Nascosto sì, rimosso no.
+
+### Una regola sul nome ha sbagliato, e vale la pena dirlo
+
+La regola «se la chiave si chiama come una sezione, apre quella sezione»
+funziona per `datasci`→`sdatasci`, e ha **sbagliato** su `filemanager`: quella
+chiave non apre la sezione `sfilemanager`, apre `file_manager.html` in
+sovrapposizione — la pagina protetta da password, una cosa **diversa** con un
+nome simile. Nascondendola come «ripetizione» si perdeva una funzione.
+
+Sono due cose diverse con lo stesso nome, e il nome era il problema:
+
+- nella barra, **📁 File Manager** carica e ordina i tuoi appunti (PDF,
+  immagini, Word), con il suo database locale;
+- nel menù ✨, **🔒 File Manager protetto** è la pagina a parte con la
+  password, per la galleria e le sezioni personalizzate.
+
+L'eccezione è ora scritta nel modulo **con il motivo accanto**, invece di
+essere indovinata: una regola che non si può spiegare non si può correggere.
+
+### «Raggiungibile nella barra» non si misura con `offsetParent`
+
+Nella barra un gruppo per volta è mostrato: il pannello degli altri sei è
+`display:none` per progetto. Un pulsante perfettamente raggiungibile — basta
+cambiare linguetta — ha `offsetParent` **nullo**. La prima stesura della regola
+cadeva proprio qui: concludeva che la barra non mostrava niente, non toglieva
+nessuna ripetizione, e le quattro restavano tutte. La misura giusta è un'altra:
+il pulsante non è nascosto di suo, e la linguetta del suo gruppo si vede.
+
+### Verifiche
+
+`test_menu` è stato **riscritto**: misurava l'opposto di quello che serve ora —
+categoria nascosta, voci nel menù. Ora pretende Utility **visibile** nella
+barra con tutte e quindici le voci più le due delle lingue, **nessuna** voce
+del menù che ripeta una sezione della barra, **nessuna** etichetta doppia nel
+pannello, e le due eccezioni fuori dalla barra **ma con il pulsante ancora nel
+documento**. Su **due viewport**, schermo grande e telefono — perché il difetto
+storico di questo progetto è una sezione raggiungibile da niente, e si
+nascondeva proprio sul telefono. Da 36 a **42 controlli**.
+
+`test_articoli` passa a **58**: Articoli deve essere raggiungibile **dalla
+barra** e, nell'altro verso, **non** anche dal menù.
+
+---
 ## [bsi-v199] — 2026-10-14
 
 **Una casa sola per gli spettri, nessuna cosa doppia, e una sezione nuova:

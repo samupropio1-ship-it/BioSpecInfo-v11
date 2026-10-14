@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v199` |
-| Commit | `2e8afe60aadde0e144427ec5fe72b985e5b993ba` |
-| Generated (UTC) | `2026-10-14T08:11:26.488Z` |
+| Application version | `bsi-v200` |
+| Commit | `3bcf3b9c4601ec1c16de9a50cad666894a86b466` |
+| Generated (UTC) | `2026-10-14T09:17:06.973Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -60,7 +60,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4695 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4694 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -86,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `5e592086fd6dfa19baaca64c7417298055c58ddd8a02570b0bf93b8ae969a300` |
+| `index.html` | `4ebccfafaebfc254991ad74c19deb76545369905a07eb9a36f5f9190015f4a45` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -102,7 +102,7 @@ availability.
 | `bsi-lingue.js` | `2f4c8d97765e1cf8737fb5a101326ffb1b0deb81fccf7a3a526ff4506afbc6c9` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `e98244c463961d89b835cf2bca73c6b4460d43c371871647317f9b28bbdd2837` |
+| `sw.js` | `9c0b61e0a9071bff49016513e6d4cae94fcb60cf34950451ed846e536609e759` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-14T08:11:26.488Z._
+_Generated on 2026-10-14T09:17:06.973Z._
