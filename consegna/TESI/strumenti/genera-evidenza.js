@@ -88,7 +88,7 @@ const FAMIGLIE = [
        di dirlo: la guardia contro i blocchi duplicati era stata scritta
        dentro di lui, e lui non era nell'elenco. Una guardia che non gira
        non e' una guardia. */
-    banchi: ['test_stack', 'test_articoli', 'audit_statico'] }
+    banchi: ['test_stack', 'test_articoli', 'audit_statico', 'test_gioco'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

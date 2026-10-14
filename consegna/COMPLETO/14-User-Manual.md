@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 95 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 96 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -108,6 +108,77 @@ porta al Centro spettri aperto sulla scheda **Massa**.
 > otteneva una risposta diversa a seconda di dove entrava. Ne resta **una**,
 > quella dentro il Centro spettri, che sta nella sezione con la sua lista di
 > riferimenti.
+
+### Cambiare lingua: il tondo in alto a destra
+
+All'altezza del titolo, all'estremo destro, c'è un **pulsante tondo** con la
+bandiera della lingua in uso. Si apre in un **disco**: le quattordici bandiere
+disposte su due gusci — sei dentro, come un anello benzenico, e otto fuori — e
+al centro compare il nome della lingua su cui stai passando e **quanto è
+tradotta**. Quella percentuale non è scritta a mano: è misurata applicando il
+dizionario e contando quello che resta in italiano.
+
+Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
+
+> La sezione **🌍 Lingua** resta, e fa un'altra cosa: spiega le lingue, mostra
+> la copertura di ognuna e dice che l'arabo porta con sé il verso di scrittura.
+> Quella **informa**, questo **agisce**.
+
+### 🎮 La corsa degli elementi
+
+Un platform retro, nella sua sezione. I potenziamenti non sono fiori: sono
+**elementi della tavola periodica**, e ognuno ti trasforma dandoti un'abilità
+che viene dalla sua chimica.
+
+| elemento | che cosa ti dà | perché |
+|---|---|---|
+| **H** | salti più alto | è il più leggero che esista |
+| **He** | scendi piano | gas nobile più leggero dell'aria |
+| **C** | quattro colpi a ventaglio | quattro legami |
+| **F** | il colpo più forte | il più elettronegativo |
+| **Al** | reggi un colpo | si passiva con il proprio ossido |
+| **Fe** | sfondi cadendo | pesante e ferromagnetico |
+| **Hg** | corri | metallo liquido |
+| **Au** | i nemici ossidanti non ti toccano | non si ossida |
+
+…e altri dodici. Nome e numero atomico li legge dalla **tavola periodica di
+questa applicazione**: non sono riscritti nel gioco.
+
+**Dodici livelli** in quattro zone, un **boss** alla fine di ogni zona e il
+**boss finale** al dodicesimo. I livelli sono generati a caso ogni partita, ma
+mai impercorribili: nessun vuoto più largo di quanto un salto copra, nessun
+gradino più alto di quanto un salto scavalchi — e prima di ogni boss trovi
+garantito un elemento che spara, perché un boss senza di quello sarebbe
+invincibile.
+
+**I comandi**: `◀ ▶` muovono, `⤒` salta (tienilo premuto per saltare più alto),
+`✦` usa l'abilità dell'elemento. Da tastiera: frecce o `A/D`, spazio salta, `K`
+agisce. Saltare **sopra** un nemico lo schiaccia.
+
+**Le cinque difficoltà** hanno nomi di chimica, e non sono decorativi — dicono
+quanto il sistema è reattivo:
+
+| difficoltà | che cambia |
+|---|---|
+| **Soluzione diluita** | 5 vite, tutto lento, domande di base |
+| **Soluzione satura** | 4 vite, più nemici e più potenziamenti |
+| **Reazione esotermica** | 3 vite, e **sbagliare una domanda costa** |
+| **Catalisi enzimatica** | 2 vite, tutto più rapido, 25 s per rispondere |
+| **Fusione nucleare** | **una vita**, nemici feroci, 20 s per rispondere |
+
+**Ai punti di controllo** (le bandierine) arriva una domanda di chimica. La
+difficoltà non rende la stessa domanda più difficile: cambia **quali** domande
+arrivano — dal simbolo di un elemento alla disconnessione retrosintetica giusta
+per un bersaglio, passando per bande IR, spostamenti ¹H e ¹³C, costanti J,
+gradi di insaturazione, masse, reazioni, amminoacidi e linguaggi della chimica.
+
+> **Le domande non sono scritte nel gioco.** Sono **generate** dalle tabelle di
+> questa applicazione, e dopo ogni risposta ti dico **da dove viene** quella
+> domanda. Se la tabella è giusta, la domanda è giusta — e non esiste un
+> secondo elenco di chimica che possa divergere da quelli veri.
+
+**Funziona offline**: non c'è un solo file da scaricare — la grafica è disegnata
+a rettangoli e i suoni sono sintetizzati.
 
 ### Dove si trovano le cose
 
@@ -423,4 +494,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v201`._
+_Guida aggiornata alla versione `bsi-v202`._

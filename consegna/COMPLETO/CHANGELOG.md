@@ -7,6 +7,168 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v202] — 2026-10-14
+
+**Il cambio lingua tondo in intestazione, e un gioco retro in cui i
+potenziamenti sono elementi della tavola periodica.**
+
+### Il tondo in alto a destra
+
+Un pulsante **rotondo** all'altezza del titolo, all'estremo destro, con la
+bandiera della lingua in uso. Si apre in un **disco**: le quattordici bandiere
+su **due gusci** — sei dentro, come un anello benzenico, e otto fuori — e al
+centro il nome della lingua su cui stai passando e **quanto è tradotta**, che
+non è un numero scritto a mano ma la misura che fa `coperturaPerLingua()`
+applicando il dizionario e contando quello che resta in italiano.
+
+Il cambio vero non lo fa questo modulo: lo fa `BSILingue.imposta()`, che è
+l'unica casa di quella funzione. Qui c'è solo il modo di chiamarla. E la
+sezione «🌍 Lingua» resta, perché fa un'altra cosa: quella **informa**, questo
+**agisce**.
+
+**Due misure, non due impressioni.** Il primo tentativo l'aveva messo in
+`#hdr-actions`, che sembra il posto giusto — e che è `display:none`: tutte e
+nove le icone di quel gruppo sono nascoste, e il pulsante nuovo è finito
+invisibile con loro, larghezza zero. Il posto giusto è `.hdr-inner`. Poi, con
+`align-self:center`, era allineato al titolo su schermo grande e **non** su
+telefono, dove quel flex allinea in alto e il blocco del logo è alto due righe:
+ora l'allineamento si **misura** leggendo dov'è la riga del titolo. Verificato
+su tre viewport.
+
+### 🎮 «La corsa degli elementi»
+
+Un platform retro, in una sezione sua. I potenziamenti non sono fiori: sono
+**venti elementi della tavola periodica**, e ognuno trasforma il personaggio
+dandogli un'abilità che viene dalla sua chimica — l'idrogeno è il più leggero e
+fa saltare più alto, il fluoro è il più elettronegativo e il suo colpo è il più
+forte, l'alluminio si passiva col proprio ossido e regge un colpo, l'oro non si
+ossida e i nemici ossidanti non lo toccano, il mercurio è liquido e fa correre.
+Nome e numero atomico vengono dalla **tavola periodica dell'applicazione**: non
+sono riscritti nel gioco.
+
+**Dodici livelli** in quattro zone, un **boss** alla fine di ogni zona e il
+**boss finale** al dodicesimo, con il doppio della vita e due fasi. Comandi a
+schermo grandi (≥ 44 px, perché col pollice si sbaglia) e da tastiera. Cinque
+difficoltà con nomi di chimica che dicono quanto il sistema è reattivo, dalla
+**soluzione diluita** alla **fusione nucleare** — una vita e venti secondi per
+rispondere.
+
+**Funziona offline**: non c'è un solo file da scaricare. La grafica è disegnata
+a rettangoli su una tela 480×270 ingrandita a numeri interi, e i suoni sono
+sintetizzati con l'oscillatore del browser.
+
+### Le domande non sono scritte nel gioco
+
+`bsi-gioco-domande.js` **non contiene domande**: contiene **diciannove
+generatori** che pescano dalle tabelle che l'applicazione ha già — `ELEMENTS`,
+`SPEC_DATA`, `RXN`, `RETRO_STRATEGIES`, `AA_DATA` e i motori `BSIElucida` e
+`BSILettoreSpettri`. Simbolo di un elemento, elettronegatività, configurazione
+elettronica, banda IR, spostamento ¹H e ¹³C, costante J, assegnazione calcolata
+dal lettore spettri, gradi di insaturazione, massa di una formula, reazione da
+una descrizione, condizioni di reazione, disconnessione retrosintetica,
+amminoacidi, riconoscimento dei linguaggi della chimica.
+
+Il motivo non è pigrizia: un elenco di domande scritto a mano sarebbe una
+**seconda fonte di verità chimica** accanto a quelle che ci sono, e due fonti
+divergono — è il difetto che in questo progetto si è presentato due volte, con
+le costanti J e con le bande IR. Una domanda sbagliata in un gioco didattico
+insegna la cosa sbagliata, e nessuno se ne accorge. Così invece: se la tabella
+è giusta, la domanda è giusta. E ogni domanda porta la sua **provenienza**,
+mostrata dopo la risposta.
+
+La difficoltà non è un moltiplicatore: non rende le stesse domande «più
+difficili», cambia **quali** arrivano.
+
+### Tre difetti trovati scrivendolo, e tutti e tre silenziosi
+
+1. **Una domanda con due risposte giuste.** I distrattori pescati dalla stessa
+   tabella possono avere intervalli che si **accavallano**: «⁴J meta» sta a
+   1–3 Hz e «⁴J allilico» a 0–3 Hz, e la prima stesura li ha messi nella stessa
+   domanda — con quella marcata sbagliata che non lo era. Ora i distrattori su
+   intervalli sono **disgiunti** dalla risposta, e se non ne restano abbastanza
+   il generatore rinuncia.
+
+2. **Il trattino fa due mestieri, e li avevo confusi.** In «1–3 Hz» separa due
+   numeri; in «−12 a −15» è il segno. Il lettore convertiva ogni lineetta in
+   «-» e leggeva «1–3» come l'intervallo **[−3, 1]**. La conseguenza non era un
+   numero storto in uno spiegone: era che **niente** risultava disgiunto, quindi
+   i quattro generatori su intervalli non trovavano mai tre distrattori e si
+   tiravano indietro **sempre** — e il controllo «zero domande ambigue» passava
+   perché quelle domande non arrivavano più. Un controllo che passa perché non
+   misura niente è peggio di uno che falla. Il banco ora pretende **entrambe**
+   le cose: zero ambigue **e** quei generatori che girano.
+
+3. **Un generatore morto.** `massaDa` ha firma `(conta, tabella)`, non
+   `(formula)`: lo chiamavo con una stringa e andava in errore a ogni giro.
+   Invisibile, perché chi pesca la domanda cattura l'errore e prova il
+   generatore successivo. E `disponibili()` diceva che «girava», perché
+   guardava se la **fonte** esisteva. Ora `disponibili()` **prova** ogni
+   generatore: «gira» vuol dire «ha prodotto una domanda».
+
+### Un livello generato a caso può essere impercorribile
+
+Il salto copre 8,6² / (2·0,62) = 59,6 px, cioè **3,7 tile**. Un vuoto più largo
+di quattro colonne o un gradino più alto di tre tile è un muro invalicabile — e
+chi gioca non ha modo di sapere che è rotto il livello e non lui.
+
+Il generatore rispetta quei limiti, e il raccordo finale no: metteva l'altezza a
+3 **di colpo** sugli ultimi otto, e se il terreno era a 7 il gradino diventava
+di quattro. Misurato: **cinque livelli su sessanta**. Ora il raccordo scende di
+un tile per colonna, e il banco verifica tutti e sessanta (dodici livelli per
+cinque difficoltà).
+
+### Una sezione invisibile, e il controllo che l'aveva lasciata passare
+
+`bsi-centrospettri.js` **sposta** dieci pannelli dentro il proprio corpo, e fra
+questi `sspettrolettore`. La sezione «Articoli», ancorandosi a lui, è finita
+**dentro il corpo del Centro spettri** — un contenitore `display:none`: il suo
+display proprio diceva `block` e lei **non si vedeva**. È stata così per una
+versione intera.
+
+Il controllo che l'aveva approvata chiedeva
+`getComputedStyle(sezione).display !== 'none'`, che **non risponde** alla
+domanda «si vede?»: basta un antenato nascosto. La risposta è un riquadro di
+dimensione non nulla e un `offsetParent` che esiste. Ora le sezioni nuove si
+ancorano a una sezione di **primo livello**, e `test_articoli` pretende il
+riquadro.
+
+### Una collisione di nomi fra moduli
+
+I comandi del gioco usavano `data-bsi-t` per dire «questo è un tasto». Ma
+`data-bsi-t` è già preso: `bsi-lingue.js` lo usa per marcare i nodi il cui
+**testo va tradotto**. Risultato: «◀», «▶», «✦», «⤒» sono finiti nell'elenco
+delle stringhe non tradotte in tutte e tredici le lingue. Non lo sono: sono
+**simboli**, e quello che si traduce è il loro nome accessibile. Due significati
+per lo stesso nome di attributo sono una collisione, e si risolve cambiando
+nome: `data-bsi-tasto`.
+
+### Verifiche
+
+Nuovo banco `test_gioco` — **71 controlli**:
+
+- **il selettore su due viewport**: tondo, in alto, a destra, e «all'altezza del
+  titolo» **misurata** come sovrapposizione dei riquadri; nome accessibile che
+  dice che cosa fa e non «bandiera dell'Italia»; il disco dentro lo schermo; e
+  **nei due versi** la lingua che cambia e torna identica;
+- **i diciannove generatori provati uno per uno**, il lettore di intervalli su
+  sei casi noti, **600 domande sane**, **zero ambigue** e la guardia che i
+  generatori su intervalli girino;
+- **60 livelli** verificati percorribili, due punti di controllo ciascuno, un
+  elemento che spara in ogni livello con boss, quattro boss e uno solo finale,
+  e lo stesso seme che dà lo stesso livello;
+- **la partita giocata davvero**: titolo → difficoltà → livello → elemento
+  raccolto (Al, Alluminio, Z 13) → domanda al punto di controllo (NMR protonico)
+  → livello 2 → boss di zona abbattuto col carbonio → **boss finale e vittoria**
+  col rame;
+- **il ciclo nei due versi**: trenta fotogrammi con la sezione aperta, **zero**
+  con la sezione chiusa;
+- a 390 px niente sborda, i comandi sono ≥ 44 px e ognuno ha un nome
+  accessibile.
+
+Requisiti nuovi in matrice: **UI-16** (il cambio lingua), **SCI-37** (le domande
+generate, mai ambigue), **UI-17** (il gioco giocabile che non consuma).
+
+---
 ## [bsi-v201] — 2026-10-14
 
 **Una verifica dei doppioni più larga delle precedenti, e ha trovato una

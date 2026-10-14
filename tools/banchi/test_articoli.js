@@ -402,6 +402,25 @@ function sopra(d, minimo, avuto) {
       const tb = document.querySelector('.nav-group-tab[data-group="' + n + '"]');
       return !!(tb && getComputedStyle(tb).display !== 'none');
     })();
+    /* «SI VEDE» NON E' «display DIVERSO DA none».
+       Questo controllo, scritto così nella versione precedente, ha lasciato
+       passare per una versione intera una sezione INVISIBILE: `sarticoli`
+       era finita dentro il corpo del Centro spettri — un contenitore
+       `display:none` — e il suo display proprio diceva `block`. La domanda
+       «si vede?» ha una risposta sola: un riquadro di dimensione non nulla
+       e un `offsetParent` che esiste. */
+    out.articoliSiVedeDavvero = (function () {
+      const b2 = document.querySelector('.nav-btn[data-s="sarticoli"]');
+      if (b2) b2.click();
+      const e = document.getElementById('sarticoli');
+      if (!e) return false;
+      const r = e.getBoundingClientRect();
+      return !!(e.offsetParent && r.width > 50 && r.height > 50);
+    })();
+    out.articoliAnnidata = (function () {
+      const e = document.getElementById('sarticoli');
+      return !!(e && e.parentElement && e.parentElement.closest('.section'));
+    })();
     /* e NON anche nel menù: sarebbero due strade */
     out.articoliNelMenu = righe.indexOf('sarticoli') >= 0 ||
       [].some.call(document.querySelectorAll('#bsi14-panel [data-key="sarticoli"]'),
@@ -424,6 +443,10 @@ function sopra(d, minimo, avuto) {
   att('  · e il pulsante di navigazione non si vede', false, dop.spectraPulsanteVisibile);
   att('il lettore spettri non è anche fra le utility', false, dop.lettoreNelMenu);
   att('la sezione Articoli è raggiungibile dalla barra', true, dop.articoliNellaBarra);
+  /* e si VEDE: il controllo che mancava, e che costava una sezione invisibile */
+  att('  · e aprendola si vede davvero (riquadro non nullo)', true,
+      dop.articoliSiVedeDavvero);
+  att('  · e non è annidata dentro un’altra sezione', false, dop.articoliAnnidata);
   /* l'altro verso: raggiungibile da UNA strada, non da due */
   att('  · e NON anche dal menù ✨, che sarebbe la seconda strada', false,
       dop.articoliNelMenu);
@@ -453,9 +476,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 45) {
+  if (eseguiti < 47) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 45');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 47');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

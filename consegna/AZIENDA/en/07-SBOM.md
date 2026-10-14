@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v201` |
-| Commit | `a7e661025d66d9ca787d93fc96cfdb1f5e2b3597` |
-| Generated (UTC) | `2026-10-14T10:02:16.353Z` |
+| Application version | `bsi-v202` |
+| Commit | `4bc165f9bed4ac31a76e4e17e104cd6cc24d1ef4` |
+| Generated (UTC) | `2026-10-14T13:37:21.015Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -60,7 +60,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4668 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4669 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -73,7 +73,7 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 162 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 163 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
 | `sw.js` | 6 kB | Service Worker: offline operation and network strategy. |
@@ -86,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `eb5e0ef19a35d21afcd6eb519d3b27e4b2e1fa9d5f7dbde9654a9f43deac3bad` |
+| `index.html` | `b1ff9cdb196f5193c45da5de0637e5718e873bcbf65cb1ff5082126464a8d277` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -99,10 +99,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `2f4c8d97765e1cf8737fb5a101326ffb1b0deb81fccf7a3a526ff4506afbc6c9` |
+| `bsi-lingue.js` | `3f6d716d6ee5d3a45b91ba0bc5af809d8b8e7f1fc0e7255eb94bf744ffcd57f8` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `3f0042e0a6e67fb1339687633478a183b228cba5494dd497f84a84059d44df08` |
+| `sw.js` | `330e0199c633bd6e815f21c19320c44ca49acd837db1787afe398cc429a69d4f` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-14T10:02:16.353Z._
+_Generated on 2026-10-14T13:37:21.015Z._

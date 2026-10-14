@@ -267,11 +267,32 @@
     document.head.appendChild(s);
   }
 
+  /* ── DOVE SI ATTACCA UNA SEZIONE NUOVA ────────────────────────────────
+     Non accanto a una sezione qualunque: accanto a una di PRIMO LIVELLO.
+     `bsi-centrospettri.js` SPOSTA dieci pannelli dentro il proprio corpo, e
+     fra questi `sspettrolettore`. Ancorandosi a lui — come faceva la prima
+     stesura — la sezione nuova finiva DENTRO il corpo del centro, cioe'
+     dentro un contenitore nascosto: il suo `display` diceva `block` e lei
+     non si vedeva, perche' un antenato era `display:none`.
+     E' il difetto che ha reso invisibile la sezione «Articoli» per una
+     versione intera. Il controllo che l'aveva lasciata passare guardava
+     `getComputedStyle(sezione).display !== 'none'`, che NON risponde alla
+     domanda «si vede?»: la risposta e' un riquadro di dimensione non nulla.
+     Qui si cerca una sezione che non sia annidata in un'altra. */
+  function ancora() {
+    var tutte = document.querySelectorAll('.section');
+    for (var i = 0; i < tutte.length; i++) {
+      var s = tutte[i];
+      if (!s.parentElement) continue;
+      if (s.parentElement.closest && s.parentElement.closest('.section')) continue;
+      return s;
+    }
+    return null;
+  }
+
   function costruisci() {
     if (document.getElementById(ID)) return document.getElementById(ID);
-    var rif = document.getElementById('sspettrolettore') ||
-              document.getElementById('scentrospettri') ||
-              document.querySelector('.section');
+    var rif = ancora();
     if (!rif || !rif.parentNode) return null;
     var d = document.createElement('div');
     d.id = ID;

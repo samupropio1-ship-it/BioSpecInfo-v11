@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v201` |
+| **Versione descritta** | `bsi-v202` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **95 sezioni**, raggruppate per area di studio.
+L'applicazione conta **96 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -66,6 +66,8 @@ L'applicazione conta **95 sezioni**, raggruppate per area di studio.
 | **Predizione NMR assegnata per atomo** | Si disegna o si scrive una struttura e si ottengono ¹H e ¹³C con l'indicazione di QUALI atomi producono ogni segnale; spettro interrogabile (zoom, intensità, clic sul picco), tabella di assegnazione, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG |
 | **NMR bidimensionale** | COSY, HSQC editato e HMBC costruiti camminando il grafo; cliccando una macchia si illuminano gli atomi che la producono. Non è una simulazione dell'esperimento, e il pannello lo dichiara |
 | **Apri un file qualunque, e il programma decide** | Un solo ingresso, senza filtro di estensione: si apre quello che si ha e il programma **dichiara che cosa ha deciso che sia**. Un documento (PDF, fotografia, Word, OpenDocument, PowerPoint, Excel, testo) si apre, se ne vede **tutto** il contenuto (ogni pagina disegnata, tutto il testo), i dati spettroscopici riconosciuti compaiono in tabella **con la loro provenienza**, e lo svolgimento procede passo per passo; un JCAMP-DX o due colonne di numeri diventano uno spettro misurato; un'immagine fa entrambe le cose. Quello che non si è potuto leggere è dichiarato |
+| **Cambio lingua in intestazione** | Un pulsante tondo in alto a destra, all'altezza del titolo, con la bandiera della lingua in uso; si apre in un disco con le quattordici bandiere su due gusci e, al centro, il nome della lingua e **quanto è tradotta, misurata**. Il cambio vero resta nel modulo delle lingue: questo è solo il modo di chiamarlo |
+| **Gioco: «La corsa degli elementi»** | Un platform retro in cui i potenziamenti sono **elementi della tavola periodica**, ognuno con un'abilità che viene dalla sua chimica (venti elementi). Dodici livelli in quattro zone, un boss per zona e il boss finale; livelli generati da un seme — quindi casuali a ogni partita e **ripetibili** — e verificati percorribili contro la fisica del salto. Cinque difficoltà con nomi di chimica, dalla «soluzione diluita» alla «fusione nucleare». Ai punti di controllo una domanda **generata dalle tabelle dell'applicazione** (diciannove generatori: elementi, spettri IR/¹H/¹³C/J, insaturazioni, masse, reazioni, retrosintesi, amminoacidi, linguaggi), con la provenienza mostrata dopo la risposta. Comandi a schermo e da tastiera. **Funziona offline**: grafica a rettangoli e suoni sintetizzati, nessun file da scaricare |
 | **Spettro da una figura (digitalizzazione)** | Dalla fotografia di un registratore, dal ritaglio di un articolo o dallo schermo dello strumento si estrae la traccia dai **pixel**: la cornice degli assi viene riconosciuta e digitalizzata solo la parte interna, la posizione della linea è il **baricentro pesato sulla scurezza** (subpixel), la griglia viene aggirata per continuità e scurezza, i due assi si tarano in lineare o in logaritmica, la %T si converte in assorbanza con A = −log₁₀T. Il grafico, i picchi e le assegnazioni compaiono da sé e si rifanno a ogni modifica della taratura; una diagnosi dice che cosa è stato deciso e perché. Uscite CSV e JCAMP-DX. Scarto misurato: medio 2,2 cm⁻¹, peggiore 7,3 su sette figure costruite |
 | **Modello 3D dalla struttura disegnata** | Coordinate costruite dal grafo, con gli stessi indici del predittore: un picco cliccato illumina l'atomo anche in tre dimensioni |
 | **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
@@ -171,7 +173,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 
 ### Una misura che nessun altro banco poteva fare
 
-`verifica-accessibilita` percorre le 95 sezioni e misura ciò che è **visibile**.
+`verifica-accessibilita` percorre le 96 sezioni e misura ciò che è **visibile**.
 I sei pannelli di questa sezione stanno dentro un contenitore che resta
 `display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
 visti, e il suo «contrasto 0» non parlava di loro.
@@ -375,7 +377,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 95 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 96 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
@@ -396,4 +398,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v201`._
+_Documento aggiornato alla versione `bsi-v202`._
