@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v198` |
+| **Version described** | `bsi-v199` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -58,6 +58,9 @@
 | **SCI-34** | Spectroscopic data recognised in a text must carry their PROVENANCE, and the working must declare what it is missing | `bsi-quesito.js` — recognition by section (IR, MS, ¹H, ¹³C) with the boundaries between sections, then `bsi-elucida.js` for the step-by-step working | `test_documento` — formula, bands, masses with intensities, ¹H signals with integral and multiplicity, ¹³C signals; **in both directions**: CDCl₃ does not become the compound, a band outside 400-4000 is not a band, without an MS label there are no masses, a new paragraph closes the section, a text with no spectra produces no data |
 | **SCI-35** | A figure with a frame, labels and a grid must not be digitised as if it were only the curve: the axes and the numbers are dark pixels just like the trace | `bsi-digitalizza.js` — the frame is sought among the CONTINUOUS lines in the margins, and a border is told from a gridline by its **irregular spacing** relative to the family **or** by its thicker, darker stroke; the crop is moved past the line thickness; vertical gridline columns are marked as not measured and reconstructed from their neighbours | `test_digitalizza` §1-2 — on a figure with a frame **and** a grid (11 vertical families, 7 horizontal) it finds all four sides and the peaks stay within 2.2 cm⁻¹; **both ways**, on a grid-only figure it does **not** invent a frame and says so, and a **flat baseline** is not mistaken for an axis |
 | **SCI-36** | A digitised curve must be able to leave the application, and the exported file must be valid | `bsi-digitalizza.js` — CSV output with the units in the header, and JCAMP-DX 4.24 in (XY..XY) form with FIRSTX/LASTX/NPOINTS and the provenance written inside the file | `test_digitalizza` §4 — the **full round trip**: the exported JCAMP is read back by `bsi-spettrolettore.js`'s `leggi()` and returns with the same number of points, the same end points and the same units |
+| **UI-14** | One function must not have two entry points: the spectra lived in **nine sections** across two different menus, and Spectra in three places | `bsi-centrospettri.js` — the panels are **moved** (`appendChild` moves, it does not copy) into a single tabbed section; the old buttons stay hidden because they are the target of `goSection()`, and a tab **clicks the button** instead of showing the panel, so lazy initialisation goes through the one road that already existed | `test_articoli` §5-6 — the **ten** tabs are inside the centre, and each identifier exists in the document **exactly once** (the proof that it was moved and not copied); `goSection()` on each opens the centre on the right tab and shows **only** one. **Both ways**: no repeated id, no duplicate button, no section reachable from the menu **and** from the visible bar, Spectra out of the menu but with its dedicated button still in place |
+| **UI-15** | A data table must not exist twice: two copies diverge, and the reader gets a different answer depending on where they came in | The J coupling constants existed in two independent tables with **different** numbers (aromatic ortho ³J 6–9 Hz against 7–10 Hz). The one inside the Spectra centre remains, which sits in the section with its own reference list; `_apriCostantiJ()` is the single road and leads there | `test_articoli` §6 — asking for the J constants opens the centre on the reference-tables tab, on the right sub-tab, and the table has its rows |
+| **ING-02** | A hand-written list of articles is stale the next day, and a prize year written from memory is an error nobody can see | `bsi-articoli.js` reads **live** from Crossref and from the Nobel Foundation; `bsi-articoli-nobel.js` holds **explanations only**, matched to the <b>topic of the official motivation</b> and not to the year, so no attribution comes from the application. The addresses are not written: they are **pure functions** of the identifier (DOI, year) | `test_articoli` §1-4 — the links tested as functions (stable for the same datum, different for a different one); the explanations matched against nine test motivations and **none** invented when the topic is not recognised; and the proof that counts: a response is **injected** with a name that exists nowhere, and the screen must show **that** name. **Three distinct failures tested**: failed request, empty answer, unrecognised shape — and they must be stated **differently** |
 | **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
@@ -83,7 +86,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 92 sections × 5 rounds |
+| **STA-01** | A long session must accumulate neither DOM nodes nor timers | section lifecycle management | `audit_stabilita` §1 — 95 sections × 5 rounds |
 | **STA-02** | Exhausting `localStorage` must not make the app unusable | guarded writes; persistent warning in the File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | No rejected promise may remain unhandled | systematic `.catch()` | `audit_promesse` — 22 checks, healthy network and dead network |
 | **STA-04** | Corrupted saved data must not prevent startup | `loadJSON()` with fallback | `audit_stabilita` §4 |
@@ -100,11 +103,11 @@
 |---|---|---|---|
 | **UI-01** | Every page must open without JavaScript errors | — | `audit_stabilita` §5 — 14 pages |
 | **UI-02** | Charts must be sharp on high-density screens | `bsiNitido()` on the canvas contexts | `audit_grafici` — 40 canvases |
-| **UI-03** | The app must work at 390 px width, and content that does not fit must stay **reachable** | `auto-fit` grids, no fixed column, and wide tables inside a container with `overflow-x:auto` | `audit_mobile` — **two distinct measurements** across all 92 sections at 390 px: the document's `scrollWidth` (the horizontal bar the user sees) **and** elements wider than their section **with no scrollable ancestor**, that is content clipped and unreachable — a written column that cannot be read and gives no sign of existing. **Both ways**: a wide table inside a scrolling container is **not** reported, because it can be read by scrolling. `audit_stabilita` for errors in a phone viewport |
+| **UI-03** | The app must work at 390 px width, and content that does not fit must stay **reachable** | `auto-fit` grids, no fixed column, and wide tables inside a container with `overflow-x:auto` | `audit_mobile` — **two distinct measurements** across all 95 sections at 390 px: the document's `scrollWidth` (the horizontal bar the user sees) **and** elements wider than their section **with no scrollable ancestor**, that is content clipped and unreachable — a written column that cannot be read and gives no sign of existing. **Both ways**: a wide table inside a scrolling container is **not** reported, because it can be read by scrolling. `audit_stabilita` for errors in a phone viewport |
 | **UI-04** | The user must be able to know which version they are running and force the update | "Updates" entry in the ✨ panel | `test_aggiorna` — 9 checks |
 | **UI-05** | Data deletion must be selective and reversible in its choices | `bsiCancellaDati()` by group | `browser_reset` — 24 checks |
 | **UI-08** | Surfaces that appear only after an action must also meet WCAG AA contrast | the six panels of the Cheminformatics section | `test_cheminfo` — the analysis is run, the panels opened in turn, **460 text elements measured, 0 defects**, with the WCAG formulas rewritten inside the bench |
-| **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures **and the 263 drug cards** drawn in 8 ms slices | `test_fluidita` — **92 sections traversed**, median switch 16 ms, worst 87 ms, **0 sections above 100 ms** (there were 3 with the new drugs, at 159 ms); plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute. For the viewer the claim is **structural, not temporal**: immediately after the click handler returns, the WebGL context must not exist; shortly after it must — because a millisecond threshold was measuring SwiftShader rather than the code (14…192 ms on identical code) |
+| **UI-09** | Opening a section must not block the page | 3Dmol's first `render()` moved out of the click; the 296 synthesis figures **and the 263 drug cards** drawn in 8 ms slices | `test_fluidita` — **95 sections traversed**, median switch 16 ms, worst 87 ms, **0 sections above 100 ms** (there were 3 with the new drugs, at 159 ms); plus the opposite proofs: the WebGL canvas appears anyway, all 296 figures exist shortly after, and printing does not come out mute. For the viewer the claim is **structural, not temporal**: immediately after the click handler returns, the WebGL context must not exist; shortly after it must — because a millisecond threshold was measuring SwiftShader rather than the code (14…192 ms on identical code) |
 | **UI-10** | The interface must switch among many languages, declaring how much each is translated, and carrying the writing direction with it | `bsi-lingue.js` with **fourteen languages**, a searchable selector, `dir="rtl"` for Arabic | `test_lingue` — **170 skeleton elements out of 170 in each of the thirteen languages**, coverage computed by applying the dictionary and counting; writing direction tested in both directions; navigation categories and the search placeholder included |
 | **UI-11** | The molecule must show how it holds together, and the viewer must choose the angle | `bsi-mol3d.js`: formation from dust with staggered arrival, and atom selection by click | `test_mol3d` — the canvas **pixels** at 130 ms and 2.3 s, the arrival order (skeleton before hydrogens) measured on each atom's progress, and the selection of 1, 2, 3 and 4 atoms |
 | **UI-12** | Whoever has a file must be able to open it: a picker listing extensions does not narrow the choice on a phone, it **hides** it | `bsi-spettrolettore.js` — a single `<input type="file">` **with no `accept`**, a single button, and `apriQualunque()` routing by type, by the extension the format declares and **by content**, announcing the decision in `#bsiSP-deciso` | `test_spettrolettore` §7 — one visible button, an **empty** `accept` (a non-empty `accept` here *is* the defect), and routing verified on PDF, `.docx`, `.txt`, `.jdx`, two `.csv` columns and an image; **both ways**, a binary disguised as `.txt` is not poured out as text but declared binary |
@@ -116,8 +119,8 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 364 tracked files, 8 credential shapes |
-| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 92 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 368 tracked files, 8 credential shapes |
+| **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 95 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
@@ -140,7 +143,7 @@ manual testing, and their automation is planned.
 
 | ID | Requirement | Current coverage |
 |---|---|---|
-| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 92 sections** (`tools/verifica-accessibilita.js`, 38,407 text elements: it was 19,751 before text over gradients entered the measurement, and 37,409 before the «Spectrum reader» section). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 92 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
+| **UI-06** | Full WCAG 2.1 AA conformance | the mechanical part is automated across **13 pages and 95 sections** (`tools/verifica-accessibilita.js`, 38,407 text elements: it was 19,751 before text over gradients entered the measurement, and 37,409 before the «Spectrum reader» section). **Of the 1,069 contrast defects that emerged, none remain: 0 measured** over those same 95 sections, and the value is recorded as a baseline the bench defends. Unlabelled fields are **zero**: see the box in `docs/09` §4. What remains outside is text inside SVGs and text over a real background image, counted on every run (D-09) |
 | **PERF-01** | First-paint time on a low-end device | manual cross-device testing (`docs/02` §4) |
 | **SCI-11** | Structures of 2 entries that are not single molecules (it was 6) | **not representable**: Ivermectin is a mixture of homologues, Coartem a combination of two active ingredients. The other four were closed by taking the structure from ChEMBL, see `docs/06` §2.4 |
 | **PERF-02** | Code coverage of the verification benches | **partially measured**: 49.89 % of statements over the widest path (`audit_copertura`). Whole-battery coverage and branch coverage remain unmeasured; see §8 |
@@ -155,12 +158,12 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…36) | 35 | 35 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…13) | 11 | 11 | 100 % |
+| Interface (UI-01…15) | 13 | 13 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
-| Architecture (ING-01…01) | 1 | 1 | 100 % |
-| **Automated total** | **70** | **70** | **100 %** |
+| Architecture (ING-01…02) | 2 | 2 | 100 % |
+| **Automated total** | **73** | **73** | **100 %** |
 | Not automated (§6) | 5 | 0 | 0 % |
-| **Declared total** | **75** | **70** | **93 %** |
+| **Declared total** | **78** | **73** | **94 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -195,4 +198,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v198`._
+_Document updated to version `bsi-v199`._

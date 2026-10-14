@@ -7,6 +7,152 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v199] — 2026-10-14
+
+**Una casa sola per gli spettri, nessuna cosa doppia, e una sezione nuova:
+gli articoli della chimica e i Nobel.**
+
+### Nove sezioni per una domanda sola
+
+Le cose che si fanno con uno spettro stavano in **nove sezioni**, sparse su
+**due menù diversi**: tabelle di riferimento, IR visivi, massa, NMR 2D/NOE,
+UV-Vis, predizione NMR, quiz, elucidazione nella barra; il lettore spettri fra
+le utility del menù ✨. Nove voci per «ho uno spettro, cosa ci faccio?».
+
+Ora c'è **🔬 Centro spettri**, una sezione sola con **dieci schede**. E il modo
+in cui è fatto conta quanto il risultato: i pannelli non sono stati riscritti
+né copiati, sono stati **spostati**. `appendChild` muove un nodo, non lo
+duplica — quindi dopo il trasferimento ogni pannello esiste ancora, **una volta
+sola**, con il suo stesso identificatore. Tutti i `getElementById` e tutti i
+`goSection()` sparsi per l'applicazione continuano a funzionare.
+
+Due scelte dietro:
+
+- **i vecchi pulsanti restano, nascosti.** Cancellarli sarebbe stato più pulito
+  a vedersi e sbagliato: sono il bersaglio di decine di `goSection()`. Restano,
+  e il centro li intercetta.
+- **la scheda non apre il pannello: clicca il pulsante.** Sembra un giro
+  inutile e non lo è — il gestore del pulsante fa anche l'inizializzazione
+  pigra (`initMS()`, `initUVVis()`, `initNOE()`…). Una scheda che mostrasse il
+  pannello da sé aprirebbe sezioni vuote la prima volta.
+
+### Le cose doppie, cercate misurandole
+
+Non a occhio: contando id ripetuti, pulsanti con lo stesso bersaglio, voci di
+menù duplicate e sezioni raggiungibili da due strade. Quello che è uscito:
+
+| doppione | com'era | com'è |
+|---|---|---|
+| **Spectra** | voce nel menù ✨ **più** pulsante dedicato **più** sezione `sai` — e il commento accanto al pulsante dedicato diceva già «Spectra non sta più nel menù», che non era vero | una strada: il pulsante dedicato |
+| **Lettore spettri** | scheda del Centro spettri **e** voce fra le utility | scheda del Centro spettri |
+| **Centro Spettri** | una voce di menù con quel nome apriva l'**editor**, mentre la sezione `scentro` — un centro spettroscopico completo — non aveva nessun pulsante e si raggiungeva solo da una funzione interna | il nome sta sulla cosa che nomina; `scentro` è la scheda «Tutto su una molecola» |
+| **Costanti J** | **due tabelle indipendenti**, con numeri **diversi**: ³J orto aromatico 6–9 Hz in una, 7–10 nell'altra | una, quella dentro il Centro spettri, che sta nella sezione con la sua lista di riferimenti |
+
+L'ultima è la più seria: non è un doppione di comodo, è una **divergenza
+scientifica**. Chi cercava quel numero otteneva una risposta diversa a seconda
+di dove entrava, e niente diceva che esistesse l'altra. La discrepanza resta
+scritta qui perché sia a verbale, non perché sia stata risolta: è stata tolta
+la copia senza riferimenti, non scelto fra i due intervalli.
+
+### Una barra di strumenti fuori dallo schermo, da sempre
+
+Dando a `scentro` un pulsante di navigazione, i banchi hanno cominciato ad
+attraversarla — e hanno trovato subito che a 390 px la barra dell'editor
+misurava **527 px**: gli ultimi strumenti erano fuori, irraggiungibili, perché
+niente scorreva. Non se n'era accorto nessuno perché quella sezione, senza
+pulsante, non veniva mai visitata. Per una barra di strumenti la risposta
+giusta non è farla scorrere: è mandarla a capo.
+
+### 📰 Articoli, e dentro i Nobel
+
+Sezione nuova nel menù ✨, con due schede.
+
+**Ultimi articoli** — quello che è uscito negli ultimi sessanta giorni, per
+argomento. Non è un elenco scritto a mano: arriva da **Crossref** nel momento
+in cui si apre la scheda. Ogni titolo porta al suo **DOI**.
+
+**Nobel per la chimica** — tutti i premi, con anno, premiati e motivazione
+ufficiale presi **in diretta dalla Fondazione Nobel**, e una spiegazione in
+italiano di quello che è stato premiato.
+
+### Le due regole che tengono in piedi la sezione
+
+**Nessun dato scritto a mano.** In `bsi-articoli-nobel.js` non c'è un anno, non
+c'è un nome, non c'è una motivazione: solo **66 spiegazioni**. Un elenco di
+articoli scritto a mano sarebbe vecchio il giorno dopo; un anno di premio
+scritto a memoria sarebbe un errore **invisibile** — sta lì e sembra un dato.
+
+E le spiegazioni non sono legate a un **anno**: sono legate a un **argomento**.
+Ognuna dichiara un'espressione regolare che si confronta con la motivazione
+ufficiale. Se la motivazione parla di «click chemistry», compare la spiegazione
+della click chemistry, a qualunque anno quel premio appartenga. Così non si può
+sbagliare un'attribuzione nemmeno volendo: non se ne fa nessuna. Se nessun
+argomento combacia, **non si inventa**: si mostra la motivazione ufficiale e il
+materiale della Fondazione, e si dice che la spiegazione non c'è.
+
+**I link non sono scritti: sono calcolati.** Il dato è il DOI, l'anno, il nome;
+l'indirizzo è una funzione di quel dato. Un articolo di ieri funziona senza che
+nessuno lo abbia aggiunto a una lista, e se un sito cambia schema cambia **una
+funzione**. La lettura in italiano è costruita allo stesso modo, dall'indirizzo
+originale.
+
+### Quando la rete non c'è, si dice — e si dice *cosa*
+
+Tre modi di andare male, e sono tre cose diverse che vanno dette diverse:
+
+- **richiesta fallita** → si mostra l'indirizzo chiesto, apribile a mano, e si
+  dichiara di **non** mostrare una lista vecchia al suo posto;
+- **risposta vuota** → «non ci sono articoli», che è una risposta, non un
+  guasto;
+- **risposta di forma non riconosciuta** → «non ho capito», con le **chiavi**
+  arrivate. Senza questa distinzione le ultime due davano lo stesso messaggio,
+  e l'applicazione avrebbe detto «non c'è niente» quando il vero problema era
+  un altro. Questo modulo è stato scritto dove la rete è bloccata da una
+  politica: la forma esatta delle due risposte non ho potuto misurarla, e
+  questa diagnosi è il modo di non far finta del contrario.
+
+### Due destinazioni di rete nuove, e il banco le ha pretese
+
+`audit_rete` ha fallito la prima esecuzione: **`api.crossref.org` contattato e
+non dichiarato nella distinta**. È il controllo che fa il suo lavoro — una
+destinazione che nessuno ha dichiarato è una destinazione che nessuno ha
+valutato. Le due sorgenti sono ora in `docs/07` §4 e nell'elenco del banco.
+
+La cosa che contava è stata misurata nella stessa esecuzione: con un valore
+spia seminato in **71 depositi** dei dati utente e URL, intestazioni e corpo di
+ogni richiesta ispezionati, le richieste che portano fuori un dato dell'utente
+sono **zero**. Le due sorgenti sono interrogate in sola lettura e la richiesta
+non porta niente: nessun identificativo, nessun contenuto, nessuna cronologia.
+Crossref chiede che chi interroga si identifichi, e il parametro `mailto` porta
+un indirizzo *noreply* del progetto, non quello di chi usa l'applicazione.
+
+### Verifiche
+
+Nuovo banco `test_articoli` — **57 controlli**. I due che contano:
+
+- **i link come funzioni pure**: lo stesso identificatore dà sempre lo stesso
+  indirizzo, uno diverso ne dà uno diverso.
+- **i dati vengono dalla sorgente**: si **inietta** una risposta che dichiara
+  un nome inesistente, e si pretende che sullo schermo compaia **quel** nome.
+  Se ne comparisse uno vero, ci sarebbe un elenco scritto a mano da qualche
+  parte — ed è esattamente quello che non deve esserci.
+
+E sul centro: dieci schede dentro, **ogni identificatore presente nel documento
+una volta sola** (la prova che si è spostato e non copiato), `goSection()` su
+ognuna che apre la scheda giusta mostrandone **solo** una, e la sweep dei
+doppioni che deve tornare vuota su cinque misure diverse.
+
+`test_menu` passa da diciotto voci a diciassette, e il numero è **dichiarato**:
+Spectra e il lettore sono usciti, Articoli è entrato. `test_lingue` ha preteso
+le traduzioni delle stringhe nuove in **tredici lingue** prima di tornare
+verde, e ha segnalato — giustamente — un pulsante nascosto che portava come
+etichetta il proprio identificatore.
+
+Requisiti nuovi in matrice: **UI-14** (una porta sola per funzione), **UI-15**
+(una tabella di dati non esiste due volte), **ING-02** (nessun dato scritto a
+mano, link ricostruibili).
+
+---
 ## [bsi-v198] — 2026-10-08
 
 **Il bottone per le immagini era sparito dallo schermo, e la lettura di una

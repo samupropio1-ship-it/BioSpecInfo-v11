@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 92 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 95 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -82,6 +82,63 @@ will find the list of bands with their assignment.
 > laboratory. They are there to help you recognise functional groups and to
 > understand the link between structure and spectrum. For experimental data, the
 > app sends you to the official databases.
+
+### Everything about spectra, in one place
+
+What you do with a spectrum used to live in **nine sections** across two
+different menus. Now there is **🔬 Spectra centre**, a single section with ten
+tabs:
+
+| tab | what it is for |
+|---|---|
+| **Read your spectrum** | a file, a photo, a PDF |
+| **Predict NMR** | ¹H and ¹³C assigned per atom |
+| **2D NMR and NOE** | COSY, HSQC, HMBC |
+| **Mass** | fragmentation and neutral losses |
+| **IR** | bands and functional groups |
+| **UV-Vis** | chromophores and λmax |
+| **Reference tables** | ¹H, ¹³C, IR, J constants |
+| **Everything on one molecule** | editor, spectra, groups, comparison |
+| **Elucidate a structure** | from the data to a proposal |
+| **Practise** | recognise the group from the spectrum |
+
+The panels are the same ones as before: they were **moved**, not copied — there
+is no second copy of anything. The old links still work: if something in the
+application used to take you to "Mass spectrum", it now opens the Spectra
+centre on the **Mass** tab.
+
+> **Two tables of J constants, with different numbers.** There were two: one
+> gave the aromatic ortho ³J as 6–9 Hz, the other as 7–10. Whoever looked that
+> number up got a different answer depending on where they came in. **One**
+> remains, the one inside the Spectra centre, which sits in the section with
+> its own reference list.
+
+### The articles and the Nobel Prizes
+
+**📰 Articles** (from the ✨ menu) has two tabs.
+
+**Latest articles** shows what came out in the last two months, by topic:
+spectroscopy, synthesis, catalysis, drugs, materials, biochemistry,
+computational. It is not a hand-written list — that would be stale tomorrow: it
+comes from **Crossref**, the DOI registry, at the moment you open the tab. Each
+title leads to its **DOI**, which is a permanent address, and beside it there is
+a link to **read it in Italian**.
+
+**Nobel Prize in Chemistry** lists every prize. Years, laureates and motivations
+come from the **Nobel Foundation**, live: they are not written inside the
+application. The **explanation** in Italian is — and it is matched to the
+*topic* of the official motivation, not to the year, so no attribution comes
+from here. For each prize you get the official page, the Foundation's
+scientific and popular material, the Italian translated view and an Italian
+Wikipedia search — all addresses **computed** from the year, not written.
+
+> **If a prize has no explanation, I say so.** I would rather write "for this
+> prize I have no explanation" and leave you the official motivation and the
+> Foundation's material, which is the source, than make something up.
+
+> **It needs the network.** Without it you do not see a stale list passed off
+> as current: you see what I asked for, from whom, and why it did not arrive —
+> with the address of the request, which you can open by hand.
 
 ### Reading a spectrum you measured yourself
 
@@ -341,4 +398,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v198`._
+_Guide updated to version `bsi-v199`._

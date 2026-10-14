@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 92 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 95 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -79,6 +79,63 @@ l'elenco delle bande con la loro assegnazione.
 > Gli spettri sono **previsti** dalla struttura, non misurati in laboratorio.
 > Servono a riconoscere i gruppi funzionali e a capire il legame fra struttura e
 > spettro. Per un dato sperimentale, l'app ti rimanda ai database ufficiali.
+
+### Tutto sugli spettri, in un posto solo
+
+Le cose che si fanno con uno spettro stavano in **nove sezioni** sparse su due
+menù diversi. Ora c'è **🔬 Centro spettri**, una sezione sola con dieci schede:
+
+| scheda | a che serve |
+|---|---|
+| **Leggi il tuo spettro** | un file, una fotografia, un PDF |
+| **Prevedi NMR** | ¹H e ¹³C assegnati per atomo |
+| **NMR 2D e NOE** | COSY, HSQC, HMBC |
+| **Massa** | frammentazione e perdite neutre |
+| **IR** | bande e gruppi funzionali |
+| **UV-Vis** | cromofori e λmax |
+| **Tabelle di riferimento** | ¹H, ¹³C, IR, costanti J |
+| **Tutto su una molecola** | editor, spettri, gruppi, confronto |
+| **Elucida una struttura** | dai dati a una proposta |
+| **Allenati** | riconosci il gruppo dallo spettro |
+
+I pannelli sono gli stessi di prima: sono stati **spostati**, non copiati — non
+esiste una seconda copia di niente. I vecchi collegamenti continuano a
+funzionare: se qualcosa nell'applicazione ti mandava a «Spettro MS», ora ti
+porta al Centro spettri aperto sulla scheda **Massa**.
+
+> **Due tabelle delle costanti J, con numeri diversi.** Ce n'erano due: una
+> dava il ³J orto aromatico a 6–9 Hz, l'altra a 7–10. Chi cercava quel numero
+> otteneva una risposta diversa a seconda di dove entrava. Ne resta **una**,
+> quella dentro il Centro spettri, che sta nella sezione con la sua lista di
+> riferimenti.
+
+### Gli articoli e i Nobel
+
+**📰 Articoli** (dal menù ✨) ha due schede.
+
+**Ultimi articoli** mostra quello che è uscito negli ultimi due mesi, per
+argomento: spettroscopia, sintesi, catalisi, farmaci, materiali, biochimica,
+computazionale. Non è un elenco scritto a mano — sarebbe vecchio domani: arriva
+da **Crossref**, la banca dati dei DOI, nel momento in cui apri la scheda. Ogni
+titolo porta al suo **DOI**, che è un indirizzo permanente, e accanto c'è il
+collegamento per **leggerlo in italiano**.
+
+**Nobel per la chimica** elenca tutti i premi. Anni, premiati e motivazioni
+vengono dalla **Fondazione Nobel**, in diretta: non sono scritti dentro
+l'applicazione. La **spiegazione** in italiano invece sì — ed è abbinata
+all'*argomento* della motivazione ufficiale, non all'anno, così nessuna
+attribuzione viene da qui. Per ogni premio trovi la pagina ufficiale, il
+materiale scientifico e quello divulgativo della Fondazione, la versione
+tradotta in italiano e una ricerca su Wikipedia italiana — tutti indirizzi
+**costruiti** dall'anno, non scritti.
+
+> **Se un premio non ha la spiegazione, te lo dico.** Preferisco scrivere «per
+> questo premio non ho una spiegazione» e lasciarti la motivazione ufficiale e
+> il materiale della Fondazione, che è la fonte, piuttosto che inventare.
+
+> **Serve la rete.** Senza, non vedi una lista vecchia spacciata per nuova:
+> vedi che cosa ho chiesto, a chi, e perché non è arrivato — con l'indirizzo
+> della richiesta, che puoi aprire a mano.
 
 ### Leggere uno spettro che hai misurato tu
 
@@ -340,4 +397,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v198`._
+_Guida aggiornata alla versione `bsi-v199`._

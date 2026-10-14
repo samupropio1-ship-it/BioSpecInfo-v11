@@ -57,9 +57,21 @@
 
   /* Le due liste. L'ordine è quello in cui stavano nella barra, perché è
      quello a cui chi usa l'applicazione è abituato. */
-  var UTILITY = ['sai', 'slab', 'sghs', 'smap', 'scompare', 'spubchem',
+  /* SPECTRA NON STA QUI, E PRIMA CI STAVA.
+     Il commento accanto al suo pulsante dedicato diceva già «Spectra non sta
+     più dentro il menù ✨» — e non era vero: `'sai'` era la prima voce di
+     questa lista. Risultato, tre strade per la stessa cosa: la voce nel
+     menù, il pulsante dedicato che pulsa in basso, e la sezione `sai` che è
+     solo una pagina di presentazione con dentro un bottone «Apri Spectra».
+     Ora la strada è una: il pulsante dedicato. Il pulsante di navigazione
+     `sai` resta nel documento, nascosto, perché `goSection('sai')` lo usa.
+
+     IL LETTORE SPETTRI NON STA PIU' QUI per lo stesso motivo: è una scheda
+     del Centro spettri, e averlo anche fra le utility ne faceva la decima
+     voce di una cosa che è già in un posto suo. */
+  var UTILITY = ['sarticoli', 'slab', 'sghs', 'smap', 'scompare', 'spubchem',
     'sdiagrammi', 'srisorse', 'smateriali', 'snotes', 'sfilemanager',
-    'sstats', 'sdatasci', 'spomo', 'slabcalc', 'sspettrolettore'];
+    'sstats', 'sdatasci', 'spomo', 'slabcalc'];
   var LINGUE = ['slingua', 'slinguaggi'];
 
   function t(it, en) {

@@ -105,7 +105,12 @@ function att(d, atteso, avuto) {
 
       /* 4. cliccare una voce apre la sezione, davvero */
       out.aperte = {};
-      for (const sid of ['snotes', 'slingua', 'slinguaggi', 'sspettrolettore']) {
+      /* `sspettrolettore` NON sta piu' qui: e' una scheda del Centro
+         spettri, e averlo anche fra le utility ne faceva la decima strada
+         per una cosa che ha gia' un posto suo. Al suo posto si prova
+         `sarticoli`, che nel menu c'e' e che su telefono — dove la barra
+         non mostra tutto — e' l'unica strada per arrivarci. */
+      for (const sid of ['snotes', 'slingua', 'slinguaggi', 'sarticoli']) {
         const f2 = document.getElementById('bsi14-fab');
         if (f2) { f2.click(); await new Promise(r => setTimeout(r, 500)); }
         const v = document.querySelector('.bsiMenu-sp[data-bsi-sez="' + sid + '"]');
@@ -145,7 +150,14 @@ function att(d, atteso, avuto) {
         (m.mancanti === null || m.mancanti === undefined)
           ? 'il pannello non si è aperto: non ho potuto guardare'
           : (m.mancanti.length ? m.mancanti.join(', ') : 'nessuna mancante'));
-    att('  · e sono tutte e diciotto', 18, (m.voci || []).length);
+    /* QUANTE SONO, E PERCHE' QUEL NUMERO.
+       Erano diciotto. Poi sono diventate sedici e una nuova: `sai`
+       (Spectra) e' uscita — aveva gia' un pulsante dedicato suo, e la
+       voce nel menu era la terza strada per la stessa cosa —,
+       `sspettrolettore` e' uscita perche' e' una scheda del Centro
+       spettri, e `sarticoli` e' entrata. Il numero si dichiara, cosi'
+       se qualcuno ne aggiunge una senza dirlo il banco lo nota. */
+    att('  · e sono tutte e diciassette', 17, (m.voci || []).length);
     att('con DUE intestazioni separate', 2, (m.intestazioni || []).length);
     console.log('      (' + (m.intestazioni || []).join(' · ') + ')');
     /* il punto della richiesta: le lingue NON sotto Utility */

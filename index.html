@@ -827,6 +827,15 @@ input::placeholder, textarea::placeholder { color: #888888; }
 .rxn-fp button.on, .rxn-fp button:hover { background: var(--g100); border-color: var(--g700); color: var(--testo-forte); }
 
 
+/* LA BARRA DELL'EDITOR USCIVA DALLO SCHERMO DEL TELEFONO.
+   Le file di strumenti del disegnatore stanno in contenitori flex con
+   `nowrap` implicito: a 390 px la barra misurava 527 px, e gli ultimi
+   strumenti finivano fuori — non tagliati a meta', IRRAGGIUNGIBILI,
+   perche' niente scorreva. Nessun banco se ne era accorto perche'
+   `scentro` non aveva un pulsante di navigazione e non veniva mai
+   attraversata. Per una barra di strumenti la risposta giusta non e'
+   farla scorrere: e' mandarla a capo. */
+#scentro div[style*="display:flex"]{flex-wrap:wrap}
 #scentro .section-title{margin-bottom:16px}.ctr-search{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.ctr-search input{flex:1;min-width:200px;background:#0c1f33;color:#e9eef6;border:1.5px solid rgba(0,201,183,.3);border-radius:12px;padding:12px 15px;font-size:15px;outline:none;transition:border-color .2s}.ctr-search input:focus{border-color:#00c9b7}.ctr-search button{background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;font-size:14px;transition:transform .15s}.ctr-search button:hover{transform:translateY(-1px)}#ctrFromEditor{background:#102a44!important;color:#e9eef6!important;border:1px solid rgba(0,201,183,.3)!important}.ctr-status{font-size:.85rem;color:#9fb3c8;min-height:18px;margin-bottom:8px}.ctr-molhead{display:none;background:#0c1f33;border-radius:12px;padding:12px 16px;margin-bottom:14px;border-left:3px solid #00c9b7}.ctr-molhead.on{display:block}.ctr-molhead .mn{font-size:1.05rem;font-weight:700;color:#e9eef6;margin-bottom:4px}.ctr-molhead .mp{font-size:.82rem;color:#9fb3c8;font-family:monospace}.ctr-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.ctrb{padding:10px 16px;border:1px solid rgba(0,201,183,.25);background:#0c1f33;color:#e9eef6;border-radius:12px;cursor:pointer;font-size:.92rem;font-weight:600;transition:all .18s}.ctrb:hover{border-color:#00c9b7}.ctrb.on{background:linear-gradient(135deg,#05ad8a,#00c9b7);color:#06222b;border-color:#00c9b7}.ctrp{display:none;animation:ctrfade .3s ease}.ctrp.on{display:block}@keyframes ctrfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}#scentro svg{width:100%!important;height:auto!important;display:block;border-radius:10px}.ctr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.ctr-nav{background:#0c1f33;border:1px solid rgba(0,201,183,.2);border-radius:14px;padding:16px 12px;color:#e9eef6;cursor:pointer;text-align:center;transition:all .2s}.ctr-nav:hover{border-color:#00c9b7;transform:translateY(-2px);background:#143452}.ctr-nav .ci{font-size:1.7rem;margin-bottom:6px}.ctr-nav b{color:#00c9b7;font-size:.95rem;display:block;margin-bottom:3px}.ctr-nav span{color:#9fb3c8;font-size:.76rem}.specmap-reg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 13px;margin:6px 0;background:#0c1f33;border-left:4px solid #00c9b7;border-radius:10px;font-size:.86rem;cursor:pointer;transition:background .15s}.specmap-reg:hover{background:#143452}
 </style>
 </head>
@@ -836,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v198';
+window.BSI_APP_VERSION='bsi-v199';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -32120,6 +32129,15 @@ window.addEventListener('load', init);
      bsi-spettrolettore.js le delega daImmagine(). Deve caricarsi, altrimenti
      resta il ripiego grezzo (pixel piu' scuro, nessuna cornice). -->
 <script src="./bsi-digitalizza.js" defer></script>
+<!-- bsi-centrospettri.js SPOSTA i nove pannelli degli spettri in una sezione
+     sola: appendChild muove, non copia. Deve caricarsi dopo che i pannelli
+     esistono nel documento, e li cerca da se'. -->
+<script src="./bsi-centrospettri.js" defer></script>
+<!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
+     premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
+     Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
+<script src="./bsi-articoli-nobel.js" defer></script>
+<script src="./bsi-articoli.js" defer></script>
 <script src="./bsi-documento.js" defer></script>
 <script src="./bsi-quesito.js" defer></script>
 <script src="./bsi-moldraw.js" defer></script>
@@ -32890,7 +32908,6 @@ var items = [
   ['\uD83D\uDCF8','Esporta figure (PNG/SVG)','export'],
   ['\uD83C\uDFAF','Sfida spettroscopica','challenge'],
   ['\uD83D\uDCD6','Glossario chimico','gloss'],
-  ['\u269B\uFE0F','Costanti di accoppiamento J','jconst'],
   ['\uD83D\uDDA8\uFE0F','Stampa pagina corrente','print']
 ];
 items.forEach(function(it){
@@ -33183,7 +33200,9 @@ window.bsi105_open = function(which){
   if(which==='export') bsi105_doExport();
   else if(which==='challenge') bsi105_startChallenge();
   else if(which==='gloss') bsi105_renderGloss('');
-  else if(which==='jconst') bsi105_renderJ();
+  /* la seconda tabella delle costanti J non si apre piu': ce n'e' una, nel
+     Centro spettri. `bsi105_renderJ` resta solo come storia del codice. */
+  else if(which==='jconst'){ if(typeof window._apriCostantiJ==='function') window._apriCostantiJ(); }
   else if(which==='print') bsi105_doPrint();
 };
 
@@ -36132,7 +36151,9 @@ var SHEET_ITEMS=[
   {sec:'🔬 Funzioni chimiche'},
   {ic:'⚗️',nm:'Sintesi & Retrosintesi',ds:'Percorsi di sintesi + analisi retrosintetica',key:'sr',hi:true},
   {ic:'⚛️',nm:'Lab Quantistico',ds:'Orbitali, spettri, Jablonski — 11 moduli interattivi',key:'qlab',hi:true},
-  {ic:'🌈',nm:'Centro Spettri',ds:'Editor + tutti gli spettri, 2D/3D, gruppi funzionali, drug-likeness, mappa e confronto',key:'scentro',hi:true},
+  {ic:'🔬',nm:'Centro spettri',ds:'Leggi, prevedi, confronta: le dieci schede degli spettri in un posto solo',key:'scentrospettri',hi:true},
+  {ic:'📰',nm:'Articoli',ds:'Gli ultimi articoli della chimica dai DOI, e tutti i Nobel per la chimica spiegati',key:'sarticoli',hi:true},
+  {ic:'🎨',nm:'Editor di struttura',ds:'Disegna una molecola e ricavane spettri, gruppi funzionali e proprieta\u0300',key:'chemdraw',hi:true},
   {sec:'⚙️ Strumenti'},
   {ic:'📸',nm:'Esporta figure',ds:'PNG/SVG ad alta risoluzione',key:'export'},
   {ic:'🎯',nm:'Sfida spettroscopica',ds:'Quiz su spettri NMR / IR / MS',key:'challenge'},
@@ -36171,6 +36192,7 @@ function doAction13(key){
   closeSheet13();
   setTimeout(function(){
     if(key==='sr')       { window.openSR13(); return; }
+    if(key==='scentrospettri'||key==='sarticoli'){ var b=document.querySelector('.nav-btn[data-s="'+key+'"]'); if(b)b.click(); return; }
     if(key==='scentro'||key==='chemdraw'){ if(typeof window.openChemDraw==='function')window.openChemDraw(); return; }
     if(key==='qlab')     { if(typeof window.openQuantumLab==='function')window.openQuantumLab(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
@@ -36179,7 +36201,7 @@ function doAction13(key){
     if(key==='export')   { triggerOldItem('Esporta');   return; }
     if(key==='challenge'){ triggerOldItem('Sfida');     return; }
     if(key==='gloss')    { triggerOldItem('Glossario'); return; }
-    if(key==='jconst')   { triggerOldItem('Costanti');  return; }
+    if(key==='jconst')   { _apriCostantiJ(); return; }
     if(key==='print')    { triggerOldItem('Stampa') || window.print(); return; }
     if(key==='guide')    { if(typeof openBSIGuide==='function')openBSIGuide(0); return; }
     if(key==='share')    { var b=document.getElementById('shareBtn'); if(b)b.click(); return; }
@@ -37619,7 +37641,13 @@ window.openChemDraw=function(){
   var clsBtn=document.getElementById('cdLegacy'); if(clsBtn)clsBtn.onclick=function(){ ov.style.display='none'; window.openLegacyCentro(); };
 };
 // apre la sezione Centro Spettri "classica" (mappa, confronto, spettri reali) preservata
-window.openLegacyCentro=function(){ var sec=document.getElementById('scentro'); if(!sec)return; document.querySelectorAll('.section').forEach(function(x){x.classList.remove('on');}); sec.classList.add('on'); sec.style.display='block'; try{ window.scrollTo(0,0); }catch(e){} if(typeof window.initCentro==='function') setTimeout(window.initCentro,50); };
+/* IL CENTRO SPETTRI E' UNO. `scentro` era una sezione senza pulsante,
+   raggiungibile solo da qui, mentre la voce di menu chiamata «Centro Spettri»
+   apriva l'editor: il nome stava su una cosa e il contenuto su un'altra. Ora
+   `scentro` e' una scheda del Centro spettri, e questa funzione — che altro
+   codice chiama per nome — ci porta dentro, sulla sua scheda. */
+window.openLegacyCentro=function(){ if(window.BSICentroSpettri) return window.BSICentroSpettri.apri('scentro');
+  var b=document.querySelector('.nav-btn[data-s="scentro"]'); if(b) b.click(); };
 // apre il Centro Spettri (ChemDraw) caricando direttamente uno SMILES/nome
 window.openChemDrawWith=function(smi){ window.openChemDraw(); setTimeout(function(){ var inp=document.getElementById('cdSmiles'); if(inp&&smi){ inp.value=smi; var b=document.getElementById('cdLoadSmi'); if(b)b.click(); } },160); };
 window.openRDKitLab=function(){var ov=document.getElementById('bsi-rdkitlab-ov');if(!ov){ov=document.createElement('div');ov.id='bsi-rdkitlab-ov';ov.style.cssText='position:fixed;inset:0;z-index:9999;background:#071221;display:flex;flex-direction:column';var tb=document.createElement('div');tb.style.cssText=_BSI_TB_STYLE;tb.innerHTML='<span style="color:#00c9b7;font-weight:800;font-size:.9rem;flex:1">🧪 RDKit Cheminformatics Lab</span>';var fr=document.createElement('iframe');fr.src='rdkit_lab.html?v='+Date.now();fr.style.cssText='flex:1;border:none;width:100%;height:100%';var cb=document.createElement('button');cb.setAttribute('style',_BSI_BACK_BTN);cb.innerHTML='↩ Indietro';cb.onclick=function(){ov.style.display='none';};ov.appendChild(tb);ov.appendChild(fr);ov.appendChild(cb);document.body.appendChild(ov);}else{ov.style.display='flex';}};
@@ -37650,7 +37678,9 @@ var _ITEMS=[
   {ic:'🎓',nm:'Accademia Chimica',ds:'Quiz gamificati · XP · livelli · streak · 83 domande su 6 materie',key:'accademia',hl:true},
   {ic:'⚗️',nm:'Chimica Organica 1+2',ds:'25 moduli: meccanismi, stereochimica, eterocicli, pericicliche, organometallici, radicali, spettroscopia, retrosintesi',key:'chimorga',hl:true},
   {ic:'🧪',nm:'RDKit Cheminformatics Lab',ds:'Visualizzatore SVG, descrittori, drug-likeness, similarità Tanimoto, libreria molecole',key:'rdkitlab',hl:true},
-  {ic:'🌈',nm:'Centro Spettri',ds:'Disegna/carica molecole → tutti gli spettri (IR · ¹H/¹³C-NMR · MS · isotopi · UV-Vis · Raman), 2D/3D, gruppi funzionali, drug-likeness, similarità, mappa e confronto',key:'chemdraw',hl:true},
+  {ic:'🔬',nm:'Centro spettri',ds:'Leggi il tuo spettro, previsione NMR, 2D, massa, IR, UV-Vis, tabelle, elucidazione, allenamento: dieci schede in un posto solo',key:'scentrospettri',hl:true},
+  {ic:'📰',nm:'Articoli',ds:'Gli ultimi articoli della chimica dai DOI di Crossref, e tutti i Nobel per la chimica con la motivazione ufficiale e la spiegazione',key:'sarticoli',hl:true},
+  {ic:'🎨',nm:'Editor di struttura',ds:'Disegna/carica molecole → spettri (IR · ¹H/¹³C-NMR · MS · isotopi · UV-Vis · Raman), 2D/3D, gruppi funzionali, drug-likeness, similarità, mappa e confronto',key:'chemdraw',hl:true},
   {ic:'🌌',nm:'Astrochimica 3D PRO',ds:'Molecole ISM, esopianeti JWST, nebule, spettri stellari, nucleosintesi, chimica cometaria, quiz',key:'astro',hl:true},
   {ic:'✨',nm:'Data Science — dalla chimica ai dati',ds:'Lab ML interattivi, CERN (bosone Z), Playground SQL, roadmap corsi, Toolkit GitHub — dal chimico al data scientist',key:'datasci',hl:true},
   {ic:'⚗️',nm:'PRO Hub — ML · QM · Fisica · Statistica',ds:'Machine Learning QSAR, Meccanica Quantistica, Chimica Fisica, Chimica Statistica, Tools avanzati',key:'pro',hl:true},
@@ -37723,6 +37753,7 @@ function _act(key){
 
 
     if(key==='qlab')     { if(typeof window.openQuantumLab==='function') window.openQuantumLab(); return; }
+    if(key==='scentrospettri'||key==='sarticoli'){ var b=document.querySelector('.nav-btn[data-s="'+key+'"]'); if(b)b.click(); return; }
     if(key==='scentro')  { window.openChemDraw(); return; }
     if(key==='feedback') { if(typeof window.openFeedback21==='function') window.openFeedback21(); return; }
     if(key==='ssyn')     { var b=document.querySelector('[data-s=ssyn]');   if(b)b.click(); return; }
@@ -37730,7 +37761,7 @@ function _act(key){
     if(key==='export')   { _trigOld('Esporta'); return; }
     if(key==='challenge'){ _trigOld('Sfida'); return; }
     if(key==='gloss')    { _trigOld('Glossario'); return; }
-    if(key==='jconst')   { _trigOld('Costanti'); return; }
+    if(key==='jconst')   { _apriCostantiJ(); return; }
     if(key==='print')    { _trigOld('Stampa')||window.print(); return; }
     if(key==='fs'){
       if(document.fullscreenElement||document.webkitFullscreenElement)
@@ -37791,6 +37822,25 @@ function _mkFab(){
   document.body.appendChild(fab);
 }
 _mkFab();
+
+/* ══ LA TABELLA DELLE COSTANTI J ESISTEVA DUE VOLTE ═══════════════════════════
+   Due tabelle della stessa grandezza fisica, con dati indipendenti e numeri
+   che NON coincidevano: la scheda «Costanti J» del Centro spettri dava il
+   ³J orto aromatico a 6–9 Hz, la tabella del menu lo dava a 7–10. Chi cercava
+   quel numero otteneva una risposta diversa a seconda di dove entrava, e
+   niente diceva che esistesse l'altra.
+   Resta quella del Centro spettri, che e' dentro la sezione con la sua lista
+   di riferimenti (Pretsch, Buhlmann, Badertscher). Qui si porta la' chiunque
+   chieda le costanti J. */
+function _apriCostantiJ(){
+  var b=document.querySelector('.nav-btn[data-s="sspec"]');
+  if(b){ b.click(); }
+  setTimeout(function(){
+    var t=document.querySelector('#specTabs button[data-st="jcoup"]');
+    if(t) t.click();
+  }, 320);
+}
+window._apriCostantiJ=_apriCostantiJ;
 
 // ══ 11-bis. Lancio dedicato di Spectra ════════════════════════════════════════
 // Spectra non sta piu' dentro il menu ✨: e' un pulsante suo, appena sopra,

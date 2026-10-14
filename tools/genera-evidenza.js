@@ -82,8 +82,9 @@ const FAMIGLIE = [
     scopo: 'Cio che la documentazione promette esiste davvero nel codice.',
     banchi: ['verifica_guida', '@verifica-documenti', '@verifica-affermazioni', 'audit_copertura'] },
   { nome: 'Una sola casa per funzione',
-    scopo: 'Lo stack React/FastAPI esegue gli STESSI file dell\'applicazione, non una copia.',
-    banchi: ['test_stack'] }
+    scopo: 'Lo stack React/FastAPI esegue gli STESSI file dell\'applicazione, non una copia; ' +
+           'e nell\'interfaccia nessuna funzione ha due porte d\'ingresso.',
+    banchi: ['test_stack', 'test_articoli'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica

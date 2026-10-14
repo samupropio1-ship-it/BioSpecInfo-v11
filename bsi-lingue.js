@@ -62,6 +62,9 @@
      Il dizionario. Chiavi: il testo italiano esatto, come appare.
      ═════════════════════════════════════════════════════════════════════════ */
   var EN = {
+    '🌈 Tutto su una molecola': '🌈 Everything on one molecule',
+    '🔬 Centro spettri': '🔬 Spectra centre', '📰 Articoli': '📰 Articles',
+    '🔬 CENTRO SPETTRI': '🔬 SPECTRA CENTRE', '📰 ARTICOLI': '📰 ARTICLES',
     '🔬 Chimica': '🔬 Chemistry',
     '📊 Spettroscopia': '📊 Spectroscopy',
     '🧬 Biochimica': '🧬 Biochemistry',
@@ -263,6 +266,9 @@
 
   /* ── spagnolo ─────────────────────────────────────────────────────── */
   var ES = {
+    '🌈 Tutto su una molecola': '🌈 Todo sobre una molécula',
+    '🔬 Centro spettri': '🔬 Centro de espectros', '📰 Articoli': '📰 Artículos',
+    '🔬 CENTRO SPETTRI': '🔬 CENTRO DE ESPECTROS', '📰 ARTICOLI': '📰 ARTÍCULOS',
     '🔬 Chimica': '🔬 Química',
     '📊 Spettroscopia': '📊 Espectroscopia',
     '🧬 Biochimica': '🧬 Bioquímica',
@@ -418,6 +424,9 @@
 
   /* ── francese ─────────────────────────────────────────────────────── */
   var FR = {
+    '🌈 Tutto su una molecola': '🌈 Tout sur une molécule',
+    '🔬 Centro spettri': '🔬 Centre des spectres', '📰 Articoli': '📰 Articles',
+    '🔬 CENTRO SPETTRI': '🔬 CENTRE DES SPECTRES', '📰 ARTICOLI': '📰 ARTICLES',
     '🔬 Chimica': '🔬 Chimie',
     '📊 Spettroscopia': '📊 Spectroscopie',
     '🧬 Biochimica': '🧬 Biochimie',
@@ -574,6 +583,9 @@
 
   /* ── tedesco ──────────────────────────────────────────────────────── */
   var DE = {
+    '🌈 Tutto su una molecola': '🌈 Alles zu einem Molekül',
+    '🔬 Centro spettri': '🔬 Spektrenzentrum', '📰 Articoli': '📰 Artikel',
+    '🔬 CENTRO SPETTRI': '🔬 SPEKTRENZENTRUM', '📰 ARTICOLI': '📰 ARTIKEL',
     '🔬 Chimica': '🔬 Chemie',
     '📊 Spettroscopia': '📊 Spektroskopie',
     '🧬 Biochimica': '🧬 Biochemie',
@@ -729,6 +741,9 @@
 
   /* ── portoghese ───────────────────────────────────────────────────── */
   var PT = {
+    '🌈 Tutto su una molecola': '🌈 Tudo sobre uma molécula',
+    '🔬 Centro spettri': '🔬 Centro de espetros', '📰 Articoli': '📰 Artigos',
+    '🔬 CENTRO SPETTRI': '🔬 CENTRO DE ESPETROS', '📰 ARTICOLI': '📰 ARTIGOS',
     '🔬 Chimica': '🔬 Química',
     '📊 Spettroscopia': '📊 Espetroscopia',
     '🧬 Biochimica': '🧬 Bioquímica',
@@ -884,6 +899,9 @@
 
   /* Nederlands */
   var NL = {
+    '🌈 Tutto su una molecola': '🌈 Alles over één molecuul',
+    '🔬 Centro spettri': '🔬 Spectracentrum', '📰 Articoli': '📰 Artikelen',
+    '🔬 CENTRO SPETTRI': '🔬 SPECTRACENTRUM', '📰 ARTICOLI': '📰 ARTIKELEN',
     '🔬 Chimica': '🔬 Chemie',
     '📊 Spettroscopia': '📊 Spectroscopie',
     '🧬 Biochimica': '🧬 Biochemie',
@@ -1065,6 +1083,9 @@
 
   /* Polski */
   var PL = {
+    '🌈 Tutto su una molecola': '🌈 Wszystko o jednej cząsteczce',
+    '🔬 Centro spettri': '🔬 Centrum widm', '📰 Articoli': '📰 Artykuły',
+    '🔬 CENTRO SPETTRI': '🔬 CENTRUM WIDM', '📰 ARTICOLI': '📰 ARTYKUŁY',
     '🔬 Chimica': '🔬 Chemia',
     '📊 Spettroscopia': '📊 Spektroskopia',
     '🧬 Biochimica': '🧬 Biochemia',
@@ -1246,6 +1267,9 @@
 
   /* Română */
   var RO = {
+    '🌈 Tutto su una molecola': '🌈 Tot despre o moleculă',
+    '🔬 Centro spettri': '🔬 Centrul de spectre', '📰 Articoli': '📰 Articole',
+    '🔬 CENTRO SPETTRI': '🔬 CENTRUL DE SPECTRE', '📰 ARTICOLI': '📰 ARTICOLE',
     '🔬 Chimica': '🔬 Chimie',
     '📊 Spettroscopia': '📊 Spectroscopie',
     '🧬 Biochimica': '🧬 Biochimie',
@@ -1427,6 +1451,9 @@
 
   /* Ελληνικά */
   var EL = {
+    '🌈 Tutto su una molecola': '🌈 Όλα για ένα μόριο',
+    '🔬 Centro spettri': '🔬 Κέντρο φασμάτων', '📰 Articoli': '📰 Άρθρα',
+    '🔬 CENTRO SPETTRI': '🔬 ΚΕΝΤΡΟ ΦΑΣΜΑΤΩΝ', '📰 ARTICOLI': '📰 ΑΡΘΡΑ',
     '🔬 Chimica': '🔬 Χημεία',
     '📊 Spettroscopia': '📊 Φασματοσκοπία',
     '🧬 Biochimica': '🧬 Βιοχημεία',
@@ -1608,6 +1635,9 @@
 
   /* Русский */
   var RU = {
+    '🌈 Tutto su una molecola': '🌈 Всё об одной молекуле',
+    '🔬 Centro spettri': '🔬 Центр спектров', '📰 Articoli': '📰 Статьи',
+    '🔬 CENTRO SPETTRI': '🔬 ЦЕНТР СПЕКТРОВ', '📰 ARTICOLI': '📰 СТАТЬИ',
     '🔬 Chimica': '🔬 Химия',
     '📊 Spettroscopia': '📊 Спектроскопия',
     '🧬 Biochimica': '🧬 Биохимия',
@@ -1789,6 +1819,9 @@
 
   /* 中文 */
   var ZH = {
+    '🌈 Tutto su una molecola': '🌈 关于一个分子的一切',
+    '🔬 Centro spettri': '🔬 光谱中心', '📰 Articoli': '📰 文章',
+    '🔬 CENTRO SPETTRI': '🔬 光谱中心', '📰 ARTICOLI': '📰 文章',
     '🔬 Chimica': '🔬 化学',
     '📊 Spettroscopia': '📊 光谱学',
     '🧬 Biochimica': '🧬 生物化学',
@@ -1970,6 +2003,9 @@
 
   /* 日本語 */
   var JA = {
+    '🌈 Tutto su una molecola': '🌈 一つの分子のすべて',
+    '🔬 Centro spettri': '🔬 スペクトルセンター', '📰 Articoli': '📰 論文',
+    '🔬 CENTRO SPETTRI': '🔬 スペクトルセンター', '📰 ARTICOLI': '📰 論文',
     '🔬 Chimica': '🔬 化学',
     '📊 Spettroscopia': '📊 分光学',
     '🧬 Biochimica': '🧬 生化学',
@@ -2151,6 +2187,9 @@
 
   /* العربية */
   var AR = {
+    '🌈 Tutto su una molecola': '🌈 كل شيء عن جزيء واحد',
+    '🔬 Centro spettri': '🔬 مركز الأطياف', '📰 Articoli': '📰 مقالات',
+    '🔬 CENTRO SPETTRI': '🔬 مركز الأطياف', '📰 ARTICOLI': '📰 مقالات',
     '🔬 Chimica': '🔬 الكيمياء',
     '📊 Spettroscopia': '📊 التحليل الطيفي',
     '🧬 Biochimica': '🧬 الكيمياء الحيوية',

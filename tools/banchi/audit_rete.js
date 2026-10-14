@@ -46,6 +46,17 @@ const CHROME = process.env.BSI_CHROME ||
 const OSPITI_DICHIARATI = [
   '127.0.0.1', 'localhost',
   'pubchem.ncbi.nlm.nih.gov',
+  /* La sezione «Articoli» legge in diretta da queste due: sono SORGENTI, e
+     la richiesta non porta fuori niente dell'utente — nessun identificativo,
+     nessun contenuto, nessuna cronologia. Che non esca nulla non e' una
+     promessa: lo misura questo stesso banco, con la spia seminata in 71
+     depositi. Crossref chiede che chi interroga si identifichi: il suo
+     parametro `mailto` porta un indirizzo noreply del progetto, non quello
+     di chi usa l'applicazione.
+     Dichiarate qui e in docs/07 §4 perche' una destinazione nuova che
+     nessuno ha dichiarato e' una destinazione che nessuno ha valutato. */
+  'api.crossref.org',
+  'api.nobelprize.org',
   'eutils.ncbi.nlm.nih.gov',
   'cdn.jsdelivr.net',                 // solo se qualcosa vi ricadesse: va visto
   'api.nasa.gov', 'images-api.nasa.gov', 'www.nasa.gov', 'esahubble.org',

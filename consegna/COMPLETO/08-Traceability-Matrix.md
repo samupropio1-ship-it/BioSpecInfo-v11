@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v198` |
+| **Versione descritta** | `bsi-v199` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -58,6 +58,9 @@
 | **SCI-34** | I dati spettroscopici riconosciuti in un testo devono portare la PROVENIENZA, e lo svolgimento deve dichiarare che cosa gli manca | `bsi-quesito.js` — riconoscimento per sezione (IR, MS, ¹H, ¹³C) con i confini fra sezioni, poi `bsi-elucida.js` per lo svolgimento passo per passo | `test_documento` — formula, bande, masse con intensità, segnali ¹H con integrazione e molteplicità, segnali ¹³C; **nei due versi**: CDCl₃ non diventa il composto, una banda fuori da 400-4000 non è una banda, senza etichetta MS non ci sono masse, un capoverso nuovo chiude la sezione, un testo senza spettri non produce dati |
 | **SCI-35** | Una figura con la cornice, le etichette e la griglia non deve essere digitalizzata come se fosse solo la curva: gli assi e i numeri sono pixel scuri come la traccia | `bsi-digitalizza.js` — la cornice si cerca fra le linee CONTINUE nei margini, e un bordo si distingue da una riga di griglia per la **spaziatura irregolare** rispetto alla famiglia **oppure** per il tratto più spesso e più nero; il ritaglio si sposta oltre lo spessore della linea; le colonne di griglia verticale si segnano come non misurate e si ricostruiscono dalle vicine | `test_digitalizza` §1-2 — su una figura con cornice **e** griglia (11 famiglie verticali, 7 orizzontali) trova tutti e quattro i lati e i picchi restano entro 2,2 cm⁻¹; **nei due versi**, su una figura con la sola griglia **non** inventa una cornice e lo dichiara, e una **linea di base piatta** non viene presa per un asse |
 | **SCI-36** | Una curva digitalizzata deve poter uscire dall'applicazione, e il file esportato deve essere valido | `bsi-digitalizza.js` — uscita CSV con le unità in testa e JCAMP-DX 4.24 in forma (XY..XY) con FIRSTX/LASTX/NPOINTS e la provenienza scritta dentro il file | `test_digitalizza` §4 — il **giro completo**: il JCAMP esportato viene riletto da `leggi()` di `bsi-spettrolettore.js` e torna con lo stesso numero di punti, gli stessi estremi e le stesse unità |
+| **UI-14** | Una stessa funzione non deve avere due porte d'ingresso: gli spettri stavano in **nove sezioni** su due menù diversi, e Spectra in tre posti | `bsi-centrospettri.js` — i pannelli vengono **spostati** (`appendChild` muove, non copia) in una sola sezione a schede; i vecchi pulsanti restano nascosti perché sono il bersaglio di `goSection()`, e la scheda **clicca il pulsante** invece di mostrare il pannello, così l'inizializzazione pigra passa per l'unica strada che già c'era | `test_articoli` §5-6 — le **dieci** schede sono dentro il centro, e ogni identificatore esiste nel documento **una volta sola** (la prova che si è spostato e non copiato); `goSection()` su ognuna apre il centro sulla scheda giusta e ne mostra **solo** una. **Nei due versi**: nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile dal menù **e** dalla barra visibile, Spectra fuori dal menù ma con il suo pulsante dedicato ancora al suo posto |
+| **UI-15** | Una tabella di dati non deve esistere due volte: due copie divergono, e chi legge ottiene una risposta diversa a seconda di dove entra | Le costanti di accoppiamento J esistevano in due tabelle indipendenti con numeri **diversi** (³J orto aromatico 6–9 Hz contro 7–10 Hz). Resta quella dentro il Centro spettri, che è nella sezione con la sua lista di riferimenti; `_apriCostantiJ()` è l'unica strada e porta lì | `test_articoli` §6 — chiedere le costanti J apre il centro sulla scheda delle tabelle di riferimento, sulla sotto-scheda giusta, e la tabella ha le sue righe |
+| **ING-02** | Un elenco di articoli scritto a mano è vecchio il giorno dopo, e un anno di premio scritto a memoria è un errore che non si vede | `bsi-articoli.js` legge **in diretta** da Crossref e dalla Fondazione Nobel; `bsi-articoli-nobel.js` contiene **solo spiegazioni**, abbinate all'<b>argomento della motivazione ufficiale</b> e non all'anno, così nessuna attribuzione viene dall'applicazione. Gli indirizzi non sono scritti: sono **funzioni pure** dell'identificatore (DOI, anno) | `test_articoli` §1-4 — i link provati come funzioni (stabili a parità di dato, diversi al variare); le spiegazioni abbinate a nove motivazioni di prova e **nessuna** inventata quando l'argomento non si riconosce; e la prova che conta: si **inietta** una risposta con un nome inesistente e si pretende che sullo schermo compaia **quel** nome. **Tre guasti distinti provati**: richiesta fallita, risposta vuota, risposta di forma non riconosciuta — e devono essere detti **diversi** |
 | **ING-01** | Una stessa funzione non deve avere due implementazioni: lo stack React/FastAPI deve eseguire gli STESSI file dell'applicazione | `stack/api/worker/motore.mjs` — un processo Node carica i moduli dal repository con RDKit WebAssembly; nessun motore in Python | `test_stack` — **15 controlli**: confronta le impronte SHA-256 dichiarate da `GET /salute` con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che nessun file `.ts`/`.tsx` contenga una tabella di spostamenti |
 
 ---
@@ -83,7 +86,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 92 sezioni × 5 giri |
+| **STA-01** | Una sessione lunga non deve accumulare nodi DOM né timer | gestione del ciclo di vita delle sezioni | `audit_stabilita` §1 — 95 sezioni × 5 giri |
 | **STA-02** | L'esaurimento di `localStorage` non deve rendere inutilizzabile l'app | scritture protette; avviso persistente nel File Manager | `audit_quota` (10), `test_filemanager` (15) |
 | **STA-03** | Nessuna promessa rifiutata deve restare non gestita | `.catch()` sistematici | `audit_promesse` — 22 controlli, rete sana e rete morta |
 | **STA-04** | Dati salvati corrotti non devono impedire l'avvio | `loadJSON()` con ripiego | `audit_stabilita` §4 |
@@ -100,11 +103,11 @@
 |---|---|---|---|
 | **UI-01** | Ogni pagina deve aprirsi senza errori JavaScript | — | `audit_stabilita` §5 — 14 pagine |
 | **UI-02** | I grafici devono essere nitidi su schermi ad alta densità | `bsiNitido()` sui contesti canvas | `audit_grafici` — 40 canvas |
-| **UI-03** | L'app deve funzionare a 390 px di larghezza, e il contenuto che non ci sta deve restare **raggiungibile** | griglie `auto-fit`, nessuna colonna fissa, e le tabelle larghe dentro un contenitore con `overflow-x:auto` | `audit_mobile` — **due misure distinte** su tutte le 92 sezioni a 390 px: lo `scrollWidth` del documento (la barra orizzontale che l'utente vede) **e** gli elementi più larghi della loro sezione **senza un antenato scorrevole**, cioè il contenuto ritagliato e irraggiungibile — una colonna scritta che non si può leggere e non dà nessun segno di esistere. **Nei due versi**: una tabella larga dentro un contenitore che scorre **non** viene segnalata, perché si legge scorrendola. `audit_stabilita` per gli errori in viewport telefono |
+| **UI-03** | L'app deve funzionare a 390 px di larghezza, e il contenuto che non ci sta deve restare **raggiungibile** | griglie `auto-fit`, nessuna colonna fissa, e le tabelle larghe dentro un contenitore con `overflow-x:auto` | `audit_mobile` — **due misure distinte** su tutte le 95 sezioni a 390 px: lo `scrollWidth` del documento (la barra orizzontale che l'utente vede) **e** gli elementi più larghi della loro sezione **senza un antenato scorrevole**, cioè il contenuto ritagliato e irraggiungibile — una colonna scritta che non si può leggere e non dà nessun segno di esistere. **Nei due versi**: una tabella larga dentro un contenitore che scorre **non** viene segnalata, perché si legge scorrendola. `audit_stabilita` per gli errori in viewport telefono |
 | **UI-04** | L'utente deve poter sapere quale versione sta usando e forzare l'aggiornamento | voce «Aggiornamenti» nel pannello ✨ | `test_aggiorna` — 9 controlli |
 | **UI-05** | La cancellazione dei dati deve essere selettiva e reversibile nelle scelte | `bsiCancellaDati()` per gruppi | `browser_reset` — 24 controlli |
 | **UI-08** | Anche le superfici che compaiono solo dopo un'azione devono rispettare il contrasto WCAG AA | i sei pannelli della sezione Chemioinformatica | `test_cheminfo` — l'analisi viene eseguita, i pannelli aperti a turno, **460 elementi di testo misurati, 0 difetti**, con le formule WCAG riscritte dentro il banco |
-| **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi **e le 263 carte dei farmaci** disegnate a fette da 8 ms | `test_fluidita` — **92 sezioni attraversate**, cambio mediano 16 ms, peggiore 87 ms, **0 sezioni oltre 100 ms** (erano 3 con i farmaci nuovi, a 159 ms); e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta. Sul visore l'affermazione è **strutturale e non temporale**: subito dopo il ritorno del gestore del click il contesto WebGL non deve esistere, poco dopo deve — perché una soglia in millisecondi misurava SwiftShader e non il codice (14…192 ms a codice identico) |
+| **UI-09** | Aprire una sezione non deve bloccare la pagina | primo `render()` di 3Dmol fuori dal click; le 296 figure di sintesi **e le 263 carte dei farmaci** disegnate a fette da 8 ms | `test_fluidita` — **95 sezioni attraversate**, cambio mediano 16 ms, peggiore 87 ms, **0 sezioni oltre 100 ms** (erano 3 con i farmaci nuovi, a 159 ms); e le prove contrarie: la tela WebGL compare comunque, le 296 figure esistono tutte poco dopo, la stampa non esce muta. Sul visore l'affermazione è **strutturale e non temporale**: subito dopo il ritorno del gestore del click il contesto WebGL non deve esistere, poco dopo deve — perché una soglia in millisecondi misurava SwiftShader e non il codice (14…192 ms a codice identico) |
 | **UI-10** | L'interfaccia deve poter cambiare lingua fra molte, dichiarando per ognuna quanto è tradotta, portando con sé il verso di scrittura | `bsi-lingue.js` con **quattordici lingue**, selezionatore con ricerca, `dir="rtl"` per l'arabo | `test_lingue` — **170 elementi di scheletro su 170 in ognuna delle tredici lingue**, copertura calcolata applicando il dizionario e contando; verso di scrittura provato nei due versi; categorie della barra e segnaposto della ricerca compresi |
 | **UI-11** | La molecola deve mostrare come sta insieme, e l'angolo lo deve scegliere chi guarda | `bsi-mol3d.js`: formazione dalla polvere con arrivo scaglionato, e selezione degli atomi con un clic | `test_mol3d` — i **pixel** della tela a 130 ms e a 2,3 s, l'ordine d'arrivo (scheletro prima degli idrogeni) misurato sull'avanzamento di ogni atomo, e la selezione di 1, 2, 3 e 4 atomi |
 | **UI-12** | Chi ha un file deve poterlo aprire: un selettore che elenca le estensioni non restringe la scelta su un telefono, la **nasconde** | `bsi-spettrolettore.js` — un solo `<input type="file">` **senza `accept`**, un solo bottone, e `apriQualunque()` che instrada per tipo, per estensione dichiarata dal formato e **per contenuto**, annunciando la decisione in `#bsiSP-deciso` | `test_spettrolettore` §7 — un solo bottone visibile, `accept` **vuoto** (un `accept` non vuoto qui *è* il guasto), e l'instradamento verificato su PDF, `.docx`, `.txt`, `.jdx`, due colonne `.csv` e un'immagine; **nei due versi** un binario travestito da `.txt` non viene riversato come testo ma dichiarato binario |
@@ -116,8 +119,8 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 364 file tracciati, 8 forme di credenziale |
-| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 92 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 368 file tracciati, 8 forme di credenziale |
+| **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 95 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
@@ -140,7 +143,7 @@ manuale, e la loro automazione è in programma.
 
 | ID | Requisito | Copertura attuale |
 |---|---|---|
-| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 92 sezioni** (`tools/verifica-accessibilita.js`, **38 407** elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura, e 37 409 prima della sezione «Lettore spettri»). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 92 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
+| **UI-06** | Conformità WCAG 2.1 AA completa | la parte meccanica è automatizzata su **13 pagine e 95 sezioni** (`tools/verifica-accessibilita.js`, **38 407** elementi di testo: erano 19 751 prima che il testo su gradiente entrasse nella misura, e 37 409 prima della sezione «Lettore spettri»). **Dei 1 069 difetti di contrasto emersi non ne resta nessuno: 0 misurati** sulle stesse 95 sezioni, e il valore è registrato come riferimento che il banco difende. I campi senza etichetta sono **zero**: vedi il riquadro in `docs/09` §4. Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione (D-09) |
 | **PERF-01** | Tempo di primo disegno su dispositivo di fascia bassa | prova manuale cross-device (`docs/02` §4) |
 | **SCI-11** | Strutture di 2 voci che non sono molecole singole (erano 6) | **non rappresentabili**: Ivermectina è una miscela di omologhi, Coartem un'associazione di due principi attivi. Le altre quattro sono state chiuse riprendendo la struttura da ChEMBL, vedi `docs/06` §2.4 |
 | **PERF-02** | Copertura di codice dei banchi di prova | **misurata parzialmente**: 49,89 % di istruzioni sul percorso più ampio (`audit_copertura`). Resta non misurata la copertura dell'intera batteria e quella di rami; vedi §8 |
@@ -155,12 +158,12 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…36) | 35 | 35 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…13) | 11 | 11 | 100 % |
+| Interfaccia (UI-01…15) | 13 | 13 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
-| Architettura (ING-01…01) | 1 | 1 | 100 % |
-| **Totale automatizzato** | **70** | **70** | **100 %** |
+| Architettura (ING-01…02) | 2 | 2 | 100 % |
+| **Totale automatizzato** | **73** | **73** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **75** | **70** | **93 %** |
+| **Totale dichiarato** | **78** | **73** | **94 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -196,4 +199,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v198`._
+_Documento aggiornato alla versione `bsi-v199`._
