@@ -7,6 +7,67 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v204] — 2026-10-14
+
+**ELEMENTIA ha una faccia: un chimico a pixel che diventa l'elemento che
+raccoglie, e la sua icona nella barra e sul titolo della sezione.**
+
+### Il personaggio
+
+Era un rettangolo colorato con un puntino per occhio, e si vedeva. Ora è un
+**chimico disegnato a pixel** — casco, occhialoni, camice, guanti e scarponi —
+in **dodici per sedici**, con quattro fotogrammi: fermo, due di corsa e uno di
+salto. Il verso si ottiene **specchiando le colonne**, non con un secondo
+disegno: due disegni speculari sono due disegni da tenere uguali.
+
+Due colori non stanno nella tavolozza: il **casco** e il **distintivo sul
+petto**. Quelli li mette l'elemento che hai addosso — il ferro grigio-blu, il
+fluoro giallo, l'oro oro. **Un solo disegno, venti vestiti**: è così che il
+personaggio «diventa» l'elemento invece di limitarsi a portarne il simbolo.
+
+Anche i nemici hanno smesso di essere quadrati: sono molecolette con due occhi
+e due zampe che si muovono, e quelli che volano battono le ali.
+
+Il disegno sta nel sorgente come righe di `#`, `.` e lettere, leggibili, come
+il font del titolo: una maschera di bit si scrive in meno spazio e non la
+rilegge nessuno.
+
+### L'icona
+
+Disegnata **con lo stesso personaggio**, busto e spalle dentro un tondo scuro
+con un orbitale, e consegnata come immagine `data:` — non è un file: non c'è
+niente da scaricare e non può mancare quando si è senza rete. Si vede nel
+**pulsante della barra** e nel **titolo della sezione**.
+
+Entra come sfondo di uno **pseudo-elemento**, non come `<img>`, e c'è un
+motivo: il cambio lingua riscrive il TESTO di quei due nodi, e riscrivendolo
+porterebbe via qualunque figlio. Lo pseudo-elemento il testo non lo tocca.
+
+Il pulsante nella barra ora porta il **nome del gioco** al posto della parola
+«Gioco», e nei tredici dizionari la voce c'è e vale sé stessa: un nome proprio
+è lo stesso in tutte le lingue, e la copertura si **misura** contando i nodi
+tradotti — saltarne uno sarebbe un buco finto. Misurato: **scheletro coperto al
+completo in tutte e tredici**.
+
+### Sulla copertina
+
+Il chimico corre sul fondo della schermata del titolo mentre il terreno gli
+scorre sotto, cambia elemento ogni pochi secondi — casco e distintivo compresi
+— e un nemico gli viene incontro: il gioco spiegato senza una parola.
+
+### Il banco
+
+`test_gioco` passa da 105 a **118 controlli**. I nuovi: le righe del disegno
+tutte della stessa lunghezza e **nessun carattere senza colore dichiarato** —
+un carattere non dichiarato non si vede, non dà errore e lascia un buco muto;
+il fotogramma giusto nel momento giusto (salto in aria, fermo da fermo, corsa
+correndo); l'icona che è davvero un PNG `data:` e che **i due posti la
+mostrano**; e, **nei due versi sulla tela**: con l'elemento addosso il suo
+colore compare sul personaggio (24 pixel), senza elemento quel colore **non
+c'è** (zero). La guardia è stata provata rompendola: con un carattere fuori
+tavolozza e una riga più corta, il banco li segnala tutti e due.
+
+---
 ## [bsi-v203] — 2026-10-14
 
 **Il gioco ha un nome — ELEMENTIA — scritto in grafica, e un menù di pausa con

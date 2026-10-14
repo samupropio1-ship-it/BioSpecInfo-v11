@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v203` |
+| **Versione descritta** | `bsi-v204` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -65,6 +65,7 @@
 | **SCI-37** | Le domande di un gioco didattico non possono essere una seconda fonte di verità chimica, e non possono avere due risposte giuste | `bsi-gioco-domande.js` — **non contiene domande**: diciannove generatori che pescano da `ELEMENTS`, `SPEC_DATA`, `RXN`, `RETRO_STRATEGIES`, `AA_DATA` e dai motori `BSIElucida`/`BSILettoreSpettri`, e ogni domanda porta la sua **provenienza**. I distrattori su intervalli sono **disgiunti** da quello della risposta, perché gli intervalli di gruppi diversi si accavallano (⁴J meta 1–3 Hz contro ⁴J allilico 0–3 Hz) | `test_gioco` §2 — i diciannove generatori **provati uno per uno** (uno era morto e «disponibile» lo diceva girante, perché guardava la fonte invece di provarlo); il lettore di intervalli su sei casi noti (leggeva «1–3 Hz» come [−3, 1], e la conseguenza non era un numero storto: era che i quattro generatori su intervalli non uscivano più e il controllo «zero ambigue» passava a vuoto); 600 domande sane; **zero ambigue**, con la guardia che quei generatori girino |
 | **UI-17** | Un gioco deve essere giocabile, e non deve consumare quando nessuno lo guarda | `bsi-gioco.js` — fisica a **passo fisso** (1/60) con accumulatore, livelli generati da un seme di (livello, difficoltà, partita) e quindi **ripetibili**, e il ciclo di disegno che **esce da sé** se la sezione non è visibile | `test_gioco` §3-5 — **60 livelli** verificati percorribili contro il limite che viene dalla fisica del salto (8,6²/(2·0,62) = 3,7 tile): nessun vuoto oltre 4 colonne, nessun gradino oltre 3 tile, due punti di controllo per livello, un elemento che spara in ogni livello con boss; la partita **giocata** dal titolo all'elemento raccolto, alla domanda al punto di controllo, al livello successivo, al boss di zona, alla **vittoria sul boss finale**; e **nei due versi** il ciclo: trenta fotogrammi con la sezione aperta, **zero** con la sezione chiusa |
 | **UI-18** | Un gioco deve avere un nome e una porta di servizio: la pausa, con dentro tutto quello che serve senza uscire | `bsi-gioco.js` — **ELEMENTIA** disegnato sulla tela con un font a cinque per sette pixel (non un `<h1>` sopra la scena) e **non ripetuto in HTML**; menù di pausa da `❚❚` o `Esc`/`P` con stato, **guida** (la stessa del titolo: una funzione sola), **quattordici bandiere** che chiamano `BSILingue`, suono, schermo pieno, abbandona. Il pannello dei menù si àncora alla **finestra**, non alla scena, e scorre | `test_gioco` §6 su finestra da telefono **in verticale e in orizzontale** — pixel contati sulla tela e due fotogrammi diversi (disegnato e animato), nome assente dall'HTML, menù con guida/bandiere/impostazioni, lingua che cambia davvero, partita ferma in pausa, e **ogni voce raggiungibile col dito**: è quest'ultimo ad aver trovato la barra di navigazione **sopra** il menù (il `z-index:10000` non valeva niente dentro una sezione resa contesto di impilamento da un'animazione con `fill-mode: both`) |
+| **UI-19** | Il personaggio di un gioco non può essere un rettangolo, e una sezione che è un gioco deve avere la sua icona | `bsi-gioco.js` — chimico a pixel **12×16** (casco, occhialoni, camice, guanti, scarponi) con quattro fotogrammi e il verso ottenuto **specchiando le colonne**; casco e distintivo prendono il colore dell'ELEMENTO raccolto (un disegno, venti vestiti); nemici con occhi e zampe. L'**icona** è disegnata con lo stesso personaggio e consegnata come `data:` — niente da scaricare, non può mancare offline — ed entra come sfondo di uno **pseudo-elemento**, perché il cambio lingua riscrive il testo di quei nodi e porterebbe via un `<img>` | `test_gioco` §7 — righe tutte della stessa lunghezza e **nessun carattere senza colore dichiarato** (invisibile e muto: la guardia è stata provata rompendola), il fotogramma giusto nel momento giusto, l'icona che è un PNG `data:` mostrato nei due posti, e **nei due versi sulla tela**: con l'elemento addosso il suo colore compare sul personaggio, senza elemento è zero |
 | **ING-01** | Una stessa funzione non deve avere due implementazioni: lo stack React/FastAPI deve eseguire gli STESSI file dell'applicazione | `stack/api/worker/motore.mjs` — un processo Node carica i moduli dal repository con RDKit WebAssembly; nessun motore in Python | `test_stack` — **15 controlli**: confronta le impronte SHA-256 dichiarate da `GET /salute` con quelle dei file su disco, verifica che i numeri coincidano con quelli del browser, e che nessun file `.ts`/`.tsx` contenga una tabella di spostamenti |
 
 ---
@@ -162,12 +163,12 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…37) | 36 | 36 | 100 % |
 | Agente AI (AI-01…10) | 10 | 10 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…18) | 16 | 16 | 100 % |
+| Interfaccia (UI-01…19) | 17 | 17 | 100 % |
 | Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **77** | **77** | **100 %** |
+| **Totale automatizzato** | **78** | **78** | **100 %** |
 | Non automatizzati (§6) | 5 | 0 | 0 % |
-| **Totale dichiarato** | **82** | **77** | **94 %** |
+| **Totale dichiarato** | **83** | **78** | **94 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -203,4 +204,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v203`._
+_Documento aggiornato alla versione `bsi-v204`._

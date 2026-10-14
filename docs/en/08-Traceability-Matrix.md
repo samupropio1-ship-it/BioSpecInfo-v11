@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v203` |
+| **Version described** | `bsi-v204` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -65,6 +65,7 @@
 | **SCI-37** | A didactic game's questions cannot be a second source of chemical truth, and cannot have two right answers | `bsi-gioco-domande.js` — it **contains no questions**: nineteen generators drawing from `ELEMENTS`, `SPEC_DATA`, `RXN`, `RETRO_STRATEGIES`, `AA_DATA` and the `BSIElucida`/`BSILettoreSpettri` engines, and every question carries its **provenance**. Range distractors are **disjoint** from the answer's, because different groups' ranges overlap (⁴J meta 1–3 Hz against ⁴J allylic 0–3 Hz) | `test_gioco` §2 — the nineteen generators **each tried** (one was dead and "available" called it running, because it looked at the source instead of trying it); the range reader on six known cases (it read "1–3 Hz" as [−3, 1], and the consequence was not a skewed number: it was that the four range generators stopped coming out and the "zero ambiguous" check passed vacuously); 600 sound questions; **zero ambiguous**, with the guard that those generators do run |
 | **UI-17** | A game must be playable, and must not consume when nobody is watching | `bsi-gioco.js` — **fixed-step** physics (1/60) with an accumulator, levels generated from a seed of (level, difficulty, run) and therefore **repeatable**, and a draw loop that **exits by itself** if the section is not visible | `test_gioco` §3-5 — **60 levels** verified passable against the limit that comes from the jump's physics (8.6²/(2·0.62) = 3.7 tiles): no gap beyond 4 columns, no step beyond 3 tiles, two checkpoints per level, a shooting element in every boss level; the game **played** from the title to the collected element, to the checkpoint question, to the next level, to the zone boss, to **victory over the final boss**; and **both ways** for the loop: thirty frames with the section open, **zero** with it closed |
 | **UI-18** | A game needs a name and a service door: the pause menu, holding everything needed without leaving | `bsi-gioco.js` — **ELEMENTIA** drawn on the canvas with a five-by-seven pixel font (not an `<h1>` over the scene) and **not repeated in HTML**; pause menu from `❚❚` or `Esc`/`P` with the run's state, the **guide** (the same one as the title screen: a single function), **fourteen flags** calling `BSILingue`, sound, full screen, give up. The menu panel anchors to the **window**, not to the scene, and scrolls | `test_gioco` §6 on a phone-sized window **portrait and landscape** — pixels counted on the canvas and two different frames (drawn and animated), the name absent from the HTML, the menu with guide/flags/settings, the language actually changing, the run frozen while paused, and **every item reachable by thumb**: this last one found the navigation bar **on top of** the menu (`z-index:10000` worth nothing inside a section turned into a stacking context by an animation with `fill-mode: both`) |
+| **UI-19** | A game's character cannot be a rectangle, and a section that is a game needs its own icon | `bsi-gioco.js` — a **12×16** pixel chemist (helmet, goggles, lab coat, gloves, boots) with four frames and facing obtained by **mirroring the columns**; helmet and chest badge take the colour of the ELEMENT picked up (one drawing, twenty outfits); enemies with eyes and legs. The **icon** is drawn with the same character and delivered as `data:` — nothing to download, cannot go missing offline — and enters as a **pseudo-element** background, because the language switch rewrites those nodes' text and would carry away an `<img>` | `test_gioco` §7 — every row the same length and **no character without a declared colour** (invisible and silent: the guard was proved by breaking it), the right frame at the right moment, the icon really a `data:` PNG shown in both places, and **both ways on the canvas**: with an element on, its colour is on the character; without one, it is zero |
 | **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
@@ -162,7 +163,7 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…37) | 36 | 36 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…18) | 16 | 16 | 100 % |
+| Interface (UI-01…19) | 17 | 17 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
 | **Automated total** | **76** | **76** | **100 %** |
@@ -202,4 +203,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v203`._
+_Document updated to version `bsi-v204`._

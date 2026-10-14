@@ -152,6 +152,206 @@
     return scrivi(testo, Math.round((LARGO - largoTesto(testo, k)) / 2), y, k, c1, c2);
   }
 
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL PERSONAGGIO, A PIXEL
+
+     Si chiama ATOMO ed è un chimico: casco, occhialoni, camice e scarponi.
+     Non è un rettangolo colorato — lo era, e si vedeva. È disegnato come il
+     font qui sopra, a righe di caratteri leggibili, dodici per sedici pixel,
+     perché una maschera di bit si scrive in meno spazio e non la rilegge
+     nessuno.
+
+     Due colori NON stanno nella tavolozza: `C` (il casco) e `A` (il distintivo
+     sul petto). Quelli li mette l'ELEMENTO che hai addosso, e sono il motivo
+     per cui il personaggio «diventa» l'elemento invece di limitarsi a portarne
+     il simbolo: il ferro è grigio-blu, il fluoro verde pallido, l'oro oro.
+     Un solo disegno, venti vestiti.
+
+     Il verso si ottiene SPECCHIANDO le colonne, non con un secondo disegno:
+     due disegni speculari sono due disegni da tenere uguali.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var TAVOLOZZA = {
+    '#': '#0a1420',   /* contorno */
+    'P': '#f2c594',   /* pelle */
+    'V': '#9fe8ff',   /* vetro degli occhialoni */
+    'W': '#eef4fb',   /* camice */
+    'G': '#c3cedd',   /* guanti */
+    'T': '#2e4a6b',   /* pantaloni */
+    'S': '#c0532f'    /* scarponi */
+  };
+
+  var SPRITE = {
+    fermo: [
+      '....CCCC....',
+      '..##CCCC##..',
+      '..#CCCCCC#..',
+      '..#CCCCCC#..',
+      '..#PPPPPP#..',
+      '..#VVPPVV#..',
+      '..#PPPPPP#..',
+      '...##PP##...',
+      '..#WWWWWW#..',
+      '.#GWWAAWWG#.',
+      '.#GWWAAWWG#.',
+      '..#WWWWWW#..',
+      '..#WW##WW#..',
+      '..#TT..TT#..',
+      '..#TT..TT#..',
+      '..SSS..SSS..'
+    ],
+    corsa1: [
+      '....CCCC....',
+      '..##CCCC##..',
+      '..#CCCCCC#..',
+      '..#CCCCCC#..',
+      '..#PPPPPP#..',
+      '..#VVPPVV#..',
+      '..#PPPPPP#..',
+      '...##PP##...',
+      '..#WWWWWW#G.',
+      '.#GWWAAWW##.',
+      '.#.#WAAWW#..',
+      '..#WWWWWW#..',
+      '..#WW##WW#..',
+      '...#TT#TT#..',
+      '..#TT..#TT#.',
+      '..SS....SSS.'
+    ],
+    corsa2: [
+      '....CCCC....',
+      '..##CCCC##..',
+      '..#CCCCCC#..',
+      '..#CCCCCC#..',
+      '..#PPPPPP#..',
+      '..#VVPPVV#..',
+      '..#PPPPPP#..',
+      '...##PP##...',
+      '.G#WWWWWW#..',
+      '.##WWAAWWG#.',
+      '..#WWAAW#.#.',
+      '..#WWWWWW#..',
+      '..#WW##WW#..',
+      '..#TT#TT#...',
+      '.#TT#..TT#..',
+      '.SSS....SS..'
+    ],
+    salto: [
+      '....CCCC....',
+      '..##CCCC##..',
+      '..#CCCCCC#..',
+      '..#CCCCCC#..',
+      '..#PPPPPP#..',
+      '..#VVPPVV#..',
+      '..#PPPPPP#..',
+      '.G.##PP##.G.',
+      '.##WWWWWW##.',
+      '..#WWAAWW#..',
+      '..#WWAAWW#..',
+      '..#WWWWWW#..',
+      '..#TTTTTT#..',
+      '..#TT..TT#..',
+      '..SS....SS..',
+      '............'
+    ]
+  };
+
+  var LARGO_SPRITE = 12, ALTO_SPRITE = 16;
+
+  /* un nemico non è un quadrato: è una molecoletta con due occhi e due zampe */
+  var NEMICO = [
+    '..######..',
+    '.#OOOOOO#.',
+    '#OO####OO#',
+    '#O#VV#VV#O',
+    '#OO####OO#',
+    '#OOOOOOOO#',
+    '.#OO##OO#.',
+    '..#.##.#..'
+  ];
+
+  /* Disegna una figura a caratteri. `colore` è quello dell'elemento: entra
+     dove il disegno dice `C` (casco) e `A` (distintivo). Se `pieno` è un
+     colore, tutto il disegno esce di quel colore — serve per il lampo di
+     quando si viene colpiti, che deve leggersi in un fotogramma solo. */
+  function disegnaSprite(righe, x, y, k, versoDx, colore, pieno, chiaro) {
+    var l = righe[0].length;
+    for (var r = 0; r < righe.length; r++) {
+      for (var c = 0; c < l; c++) {
+        var ch = righe[r].charAt(versoDx ? c : l - 1 - c);
+        if (ch === '.') continue;
+        var col;
+        if (pieno) col = pieno;
+        else if (ch === 'C' || ch === 'A') col = colore;
+        else if (ch === 'O') col = chiaro || '#b06bff';
+        else col = TAVOLOZZA[ch];
+        if (!col) continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(x + c * k, y + r * k, k, k);
+      }
+    }
+  }
+
+  /* quale fotogramma: fermo, i due della corsa, o il salto */
+  function fotogramma(p) {
+    if (!p.terra) return SPRITE.salto;
+    if (Math.abs(p.vx) < 0.3) return SPRITE.fermo;
+    return (Math.floor(p.anim / 5) % 2) ? SPRITE.corsa1 : SPRITE.corsa2;
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     L'ICONA
+
+     Si disegna qui, con lo stesso personaggio, e si consegna come immagine ai
+     due posti che la mostrano: il pulsante nella barra e il titolo della
+     sezione. Non è un file: è una tela disegnata una volta e trasformata in
+     `data:` — così non c'è niente da scaricare, e l'icona non può «mancare»
+     quando si è senza rete.
+
+     Non entra come `<img>` dentro quei due elementi, e c'è un motivo: il
+     cambio lingua riscrive il loro TESTO, e riscrivendolo porterebbe via
+     qualunque figlio. Entra come immagine di sfondo di uno pseudo-elemento,
+     dove il testo non arriva.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var iconaFatta = null;
+
+  function icona() {
+    if (iconaFatta) return iconaFatta;
+    var L = 64;
+    var cv = document.createElement('canvas');
+    cv.width = L; cv.height = L;
+    var q = cv.getContext('2d');
+    q.imageSmoothingEnabled = false;
+    /* il fondo: un tondo scuro con un orbitale, come il marchio dell'app */
+    var g = q.createRadialGradient(L * 0.38, L * 0.3, 2, L / 2, L / 2, L * 0.72);
+    g.addColorStop(0, '#1d4f7a'); g.addColorStop(1, '#071323');
+    q.fillStyle = g;
+    q.beginPath(); q.arc(L / 2, L / 2, L / 2 - 1, 0, 6.2832); q.fill();
+    q.strokeStyle = 'rgba(94,234,212,.85)'; q.lineWidth = 2;
+    q.beginPath(); q.arc(L / 2, L / 2, L / 2 - 2, 0, 6.2832); q.stroke();
+    q.save();
+    q.translate(L / 2, L / 2); q.rotate(-0.5);
+    q.strokeStyle = 'rgba(94,234,212,.5)'; q.lineWidth = 1.5;
+    q.beginPath(); q.ellipse(0, 0, L * 0.44, L * 0.17, 0, 0, 6.2832); q.stroke();
+    q.restore();
+    /* IL BUSTO, NON TUTTA LA FIGURA. L'icona si guarda a tredici pixel nella
+       barra: una figura intera là dentro è una macchia. Testa e spalle, grandi
+       quanto basta a riconoscere il casco e gli occhialoni. */
+    var vero = ctx;
+    ctx = q;
+    disegnaSprite(SPRITE.fermo.slice(0, 11), Math.round((L - LARGO_SPRITE * 5) / 2),
+                  5, 5, true, '#5eead4');
+    ctx = vero;
+    iconaFatta = cv.toDataURL('image/png');
+    return iconaFatta;
+  }
+
+  function mettiIcona() {
+    try {
+      document.documentElement.style.setProperty('--bsiG-ico', 'url(' + icona() + ')');
+    } catch (e) { /* senza icona il gioco si gioca uguale */ }
+  }
+
   /* ═════════════════════════════════════════════════════════════════════════
      LE DIFFICOLTA'
 
@@ -812,6 +1012,28 @@
     /* il sottotitolo */
     scriviCentrato(t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN'),
                    yN + 7 * k1 + 12, 2, '#9fe8da', 'rgba(3,12,20,.7)');
+    /* IL PERSONAGGIO SULLA COPERTINA. Corre sul fondo della schermata e cambia
+       elemento ogni tanto, casco e distintivo compresi: è il gioco spiegato
+       senza una parola. Corre sul posto, mentre il terreno gli scorre sotto —
+       il contrario costerebbe una telecamera per tre secondi di titolo. */
+    var terra = ALTO - 15;
+    ctx.fillStyle = '#122a44'; ctx.fillRect(0, terra, LARGO, 15);
+    ctx.fillStyle = '#1d4267'; ctx.fillRect(0, terra, LARGO, 2);
+    for (var sc = 0; sc < LARGO / 16 + 1; sc++) {
+      var sx2 = (sc * 16 - (tTit * 1.4) % 16);
+      ctx.fillStyle = 'rgba(94,234,212,.10)';
+      ctx.fillRect(sx2, terra + 5, 8, 2);
+    }
+    var pt = POTERI[Math.floor(tTit / 150) % POTERI.length];
+    var fin = (Math.floor(tTit / 7) % 2) ? SPRITE.corsa1 : SPRITE.corsa2;
+    disegnaSprite(fin, 34, terra - ALTO_SPRITE * 2, 2, true,
+                  COLORI[pt.ab] || '#5eead4');
+    scrivi(pt.sim, 34 + 10, terra - ALTO_SPRITE * 2 - 12, 2,
+           COLORI[pt.ab] || '#5eead4', 'rgba(3,12,20,.85)');
+    /* e un nemico che gli viene incontro, perché il gioco è questo */
+    var nx = LARGO - 40 - ((tTit * 1.4) % (LARGO * 0.55));
+    disegnaSprite(NEMICO, Math.round(nx), terra - 16, 2, false, null, null, '#b06bff');
+
     /* che cos'è questo gioco, in una riga. Sta QUI, sotto il sottotitolo, e
        non in fondo: il terzo inferiore della tela è occupato dai due pulsanti
        veri, e un testo disegnato lì sotto ci finisce dietro — misurato in una
@@ -899,14 +1121,15 @@
       if (!e.vivo) return;
       var x = e.x - cam;
       if (x < -20 || x > LARGO + 20) return;
-      ctx.fillStyle = e.ossidante ? '#ff5f7e' : '#b06bff';
-      ctx.fillRect(x - 6, e.y - 6, 12, 12);
-      ctx.fillStyle = '#06131f';
-      ctx.fillRect(x - 3, e.y - 3, 2, 2);
-      ctx.fillRect(x + 1, e.y - 3, 2, 2);
+      /* le zampe si muovono: un nemico fermo nel disegno sembra uno sfondo */
+      var passo2 = Math.floor((e.x + S.p.anim) / 6) % 2;
+      disegnaSprite(NEMICO, Math.round(x - 5), Math.round(e.y - 5 + passo2), 1,
+                    e.vx >= 0, null, null, e.ossidante ? '#ff5f7e' : '#b06bff');
       if (e.tipo === 'vola') {
-        ctx.fillStyle = 'rgba(255,255,255,.5)';
-        ctx.fillRect(x - 10, e.y - 1, 4, 2); ctx.fillRect(x + 6, e.y - 1, 4, 2);
+        ctx.fillStyle = 'rgba(255,255,255,.55)';
+        var al = Math.floor(S.p.anim / 4) % 2 ? 2 : 0;
+        ctx.fillRect(x - 10, e.y - 2 - al, 5, 2);
+        ctx.fillRect(x + 6, e.y - 2 - al, 5, 2);
       }
     });
 
@@ -935,26 +1158,30 @@
       ctx.fillStyle = q.c; ctx.fillRect(q.x - cam, q.y, 2, 2);
     });
 
-    /* il giocatore: prende il colore dell'elemento e ne porta il simbolo */
+    /* ── il giocatore ────────────────────────────────────────────────────
+       Il disegno è uno solo; cambia il VESTITO, e il vestito è l'elemento:
+       il casco e il distintivo sul petto prendono il suo colore. Il simbolo
+       resta scritto sopra la testa, piccolo, perché il colore da solo non
+       dice «Fe» — e la tabella sotto la scena dice che cosa fa. */
     var p = S.p, px = p.x - cam;
-    var col = S.elemento ? (COLORI[S.elemento.ab] || '#8be9fd') : '#e8f4ff';
+    var col = S.elemento ? (COLORI[S.elemento.ab] || '#8be9fd') : '#9fd2ff';
     if (!(p.immune > 0 && Math.floor(p.immune / 4) % 2)) {
       if (S.invincibile > 0) {
-        ctx.fillStyle = 'rgba(255,255,255,' + (0.3 + 0.3 * Math.sin(p.anim / 3)) + ')';
-        ctx.fillRect(px - 9, p.y - 11, 18, 22);
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.25 + 0.25 * Math.sin(p.anim / 3)) + ')';
+        ctx.beginPath(); ctx.arc(px, p.y, 15, 0, 6.2832); ctx.fill();
       }
-      ctx.fillStyle = col;
-      ctx.fillRect(px - 5, p.y - 7, 11, 14);
-      ctx.fillStyle = '#06131f';
-      ctx.fillRect(px + (p.guarda > 0 ? 1 : -4), p.y - 4, 3, 3);
+      disegnaSprite(fotogramma(p), Math.round(px - LARGO_SPRITE / 2),
+                    Math.round(p.y - ALTO_SPRITE / 2 - 1), 1,
+                    p.guarda > 0, col,
+                    S.invincibile > 0 && Math.floor(p.anim / 4) % 2 ? '#ffffff' : null);
       if (S.elemento) {
-        ctx.fillStyle = '#06131f';
+        ctx.fillStyle = col;
         ctx.font = 'bold 7px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(S.elemento.sim, px, p.y + 5);
+        ctx.fillText(S.elemento.sim, px, p.y - 11);
       }
       if (S.scudo > 0) {
         ctx.strokeStyle = '#8be9fd'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(px, p.y, 12, 0, 6.2832); ctx.stroke();
+        ctx.beginPath(); ctx.arc(px, p.y, 13, 0, 6.2832); ctx.stroke();
       }
     }
 
@@ -1073,6 +1300,7 @@
      L'INTERFACCIA
      ═════════════════════════════════════════════════════════════════════════ */
   function stile() {
+    mettiIcona();
     if (document.getElementById('bsiG-stile')) return;
     var s = document.createElement('style');
     s.id = 'bsiG-stile';
@@ -1133,6 +1361,18 @@
          «riprendi» non si poteva premere perché sotto il dito c'era una
          linguetta della barra. La sezione del gioco compare quindi senza
          dissolvenza: meglio senza un effetto che con un menù che non si tocca. */
+      /* L'ICONA, DOVE SI VEDE. Entra come sfondo di uno pseudo-elemento e non
+         come `<img>`: il cambio lingua riscrive il testo di questi due nodi, e
+         riscrivendolo porterebbe via qualunque figlio. Lo pseudo-elemento il
+         testo non lo tocca. `image-rendering:pixelated` perché un'icona a
+         pixel ingrandita con l'interpolazione diventa una macchia. */
+      '.nav-btn[data-s="' + ID + '"]::before,#' + ID + ' .section-title::before{',
+      ' content:"";display:inline-block;vertical-align:-0.22em;margin-right:7px;',
+      ' background-image:var(--bsiG-ico);background-size:contain;',
+      ' background-repeat:no-repeat;image-rendering:pixelated;',
+      ' width:1.15em;height:1.15em}',
+      '#' + ID + ' .section-title::before{width:1.5em;height:1.5em;',
+      ' vertical-align:-0.35em}',
       '#' + ID + '{will-change:auto}',
       '#' + ID + '.on{animation:none}',
       /* QUANDO C'E' UN MENU' L'INGOMBRO E' LO SCHERMO, NON LA SCENA.
@@ -1241,7 +1481,7 @@
     d.id = ID;
     d.className = 'section';
     d.innerHTML =
-      '<div class="section-title">🎮 ' + NOME + ' — ' +
+      '<div class="section-title">' + NOME + ' — ' +
         t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN') + '</div>' +
       '<div id="bsiG-intro" style="color:#9fb3c8;font-size:.9rem;margin-bottom:12px;' +
         'max-width:860px;line-height:1.65"></div>' +
@@ -1717,7 +1957,11 @@
     b = document.createElement('button');
     b.className = 'nav-btn';
     b.setAttribute('data-s', ID);
-    b.textContent = '🎮 ' + t('Gioco', 'Game');
+    /* IL PULSANTE PORTA IL NOME, NON LA PAROLA «GIOCO». Un nome proprio è lo
+       stesso in tutte le lingue, e nei dizionari c'è scritto così: la voce
+       esiste e vale se stessa, perché la copertura delle lingue si MISURA
+       contando i nodi tradotti, e un nodo saltato sarebbe un buco finto. */
+    b.textContent = NOME;
     b.style.cssText = 'border:1px solid #7c6fff;background:linear-gradient(135deg,' +
       'rgba(124,111,255,.18),rgba(94,234,212,.1))';
     gruppo.appendChild(b);
@@ -1840,7 +2084,7 @@
   document.addEventListener('bsi-lingua', function () {
     intro(); sotto();
     var b = document.querySelector('.nav-btn[data-s="' + ID + '"]');
-    if (b) b.textContent = '🎮 ' + t('Gioco', 'Game');
+    if (b) b.textContent = NOME;
     var c = document.getElementById('bsiG-comandi');
     if (c) { c.removeAttribute('data-bsi-pronti'); comandi(); }
     disegnaUI();
@@ -1851,6 +2095,9 @@
     DIFFICOLTA: DIFFICOLTA, generaLivello: generaLivello, terrenoA: terrenoA,
     applica: applica, nuovaPartita: nuovaPartita, caricaLivello: caricaLivello,
     Caso: Caso, NOME: NOME, FONT: FONT, LIVELLI: LIVELLI, guida: guida,
+    SPRITE: SPRITE, NEMICO: NEMICO, TAVOLOZZA: TAVOLOZZA, COLORI: COLORI,
+    icona: icona,
+    disegnaSprite: disegnaSprite, fotogramma: fotogramma,
     pausa: pausa, inPausa: inPausa, riprendi: riprendi,
     lingueDisponibili: lingueDisponibili,
     scrivi: scrivi, largoTesto: largoTesto, disegnaTitolo: disegnaTitolo,

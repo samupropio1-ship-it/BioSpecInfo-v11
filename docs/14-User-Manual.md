@@ -126,9 +126,18 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 
 ### 🎮 ELEMENTIA — la corsa degli elementi
 
-Un platform retro, nella sua sezione. All'apertura il nome compare **disegnato
-sulla tela**, lettera per lettera, con un font a cinque per sette pixel, e
-attorno girano venti bollicine: una per ogni elemento che puoi diventare. I potenziamenti non sono fiori: sono
+Un platform retro, nella sua sezione — la riconosci dall'**icona**: il faccino
+del protagonista, casco e occhialoni, in un tondo con un orbitale. All'apertura
+il nome compare **disegnato sulla tela**, lettera per lettera, con un font a
+cinque per sette pixel, attorno girano venti bollicine (una per ogni elemento
+che puoi diventare) e sul fondo il protagonista corre mentre un nemico gli
+viene incontro.
+
+**Il protagonista è un chimico a pixel**: casco, occhialoni, camice, guanti e
+scarponi. Quando raccogli un elemento non cambia solo colore — il **casco** e
+il **distintivo sul petto** prendono il colore di quell'elemento, e il simbolo
+ti resta scritto sopra la testa. Un solo disegno, venti vestiti. I nemici sono
+molecolette con due occhi e due zampe; quelli che volano battono le ali. I potenziamenti non sono fiori: sono
 **elementi della tavola periodica**, e ognuno ti trasforma dandoti un'abilità
 che viene dalla sua chimica.
 
@@ -517,4 +526,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v203`._
+_Guida aggiornata alla versione `bsi-v204`._

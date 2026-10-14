@@ -585,15 +585,120 @@ function sopra(d, minimo, avuto) {
     await cx.close();
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     IL PERSONAGGIO E L'ICONA
+
+     Il personaggio è un disegno a caratteri: si controlla che le righe siano
+     tutte lunghe uguale e che non ci sia un carattere senza colore — un
+     carattere non dichiarato non si vede, non dà errore, e lascia un buco nel
+     disegno. Poi si guarda la TELA: con l'elemento addosso il colore
+     dell'elemento deve comparire sul personaggio, e senza elemento no.
+     ═══════════════════════════════════════════════════════════════════════ */
+  const cxS = await browser.newContext({ serviceWorkers: 'block',
+                                         viewport: { width: 1100, height: 950 } });
+  const pgS = await cxS.newPage();
+  pgS.on('pageerror', e => err.push(e.message));
+  await pgS.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 90000 });
+  await pgS.waitForTimeout(6500);
+  const sp = await pgS.evaluate(async () => {
+    const g = document.getElementById('bsi-guide'); if (g) g.remove();
+    BSIGioco.suono(false);
+    const nav = document.querySelector('.nav-btn[data-s="sgioco"]');
+    nav.click();
+    await new Promise(r => setTimeout(r, 1400));
+    const G = BSIGioco;
+
+    /* il disegno */
+    const noti = Object.keys(G.TAVOLOZZA).concat(['.', 'C', 'A', 'O']);
+    const fotogrammi = Object.keys(G.SPRITE);
+    let righeStorte = 0, caratteriIgnoti = [];
+    fotogrammi.forEach(k => {
+      const f = G.SPRITE[k];
+      f.forEach(r => {
+        if (r.length !== f[0].length) righeStorte++;
+        r.split('').forEach(ch => {
+          if (noti.indexOf(ch) < 0 && caratteriIgnoti.indexOf(ch) < 0) caratteriIgnoti.push(ch);
+        });
+      });
+    });
+    G.NEMICO.forEach(r => {
+      if (r.length !== G.NEMICO[0].length) righeStorte++;
+      r.split('').forEach(ch => {
+        if (noti.indexOf(ch) < 0 && caratteriIgnoti.indexOf(ch) < 0) caratteriIgnoti.push(ch);
+      });
+    });
+
+    /* quale fotogramma in quale momento */
+    const fSalto = G.fotogramma({ terra: false, vx: 0, anim: 0 }) === G.SPRITE.salto;
+    const fFermo = G.fotogramma({ terra: true, vx: 0, anim: 0 }) === G.SPRITE.fermo;
+    const fCorsa = G.fotogramma({ terra: true, vx: 2, anim: 0 }) !== G.SPRITE.fermo;
+
+    /* l'icona */
+    const ico = G.icona();
+    const pb = getComputedStyle(nav, '::before');
+    const tb = getComputedStyle(document.querySelector('#sgioco .section-title'), '::before');
+
+    /* la tela: il colore dell'elemento compare sul personaggio? */
+    G.nuovaPartita(2); G.schermo('gioco'); G.fermaCiclo();
+    const S = G.stato();
+    const tela = document.getElementById('bsiG-tela');
+    const q = tela.getContext('2d');
+    function conta(hex) {
+      const r = parseInt(hex.slice(1, 3), 16), v = parseInt(hex.slice(3, 5), 16),
+            b2 = parseInt(hex.slice(5, 7), 16);
+      const px = Math.round(S.p.x - S.cam), py = Math.round(S.p.y);
+      const d = q.getImageData(Math.max(0, px - 10), Math.max(0, py - 12), 20, 24).data;
+      let n = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i] === r && d[i + 1] === v && d[i + 2] === b2) n++;
+      }
+      return n;
+    }
+    /* un colore che non compare altrove nella scena: il confronto è esatto */
+    const colore = G.COLORI.spara;          /* l'ossigeno */
+    S.elemento = null; G.disegna();
+    const senza = conta(colore);
+    S.elemento = { sim: 'O', nome: 'Ossigeno', ab: 'spara', z: 8 };
+    G.disegna();
+    const con = conta(colore);
+    return { righeStorte, caratteriIgnoti, fotogrammi, fSalto, fFermo, fCorsa,
+             icona: ico.slice(0, 22), iconaLunga: ico.length,
+             testoNav: nav.textContent.trim(),
+             iconaNav: pb.backgroundImage.indexOf('data:image/png') > 0 &&
+                       parseFloat(pb.width) >= 8,
+             iconaTitolo: tb.backgroundImage.indexOf('data:image/png') > 0 &&
+                          parseFloat(tb.width) >= 8,
+             con, senza };
+  });
+  att('il personaggio ha i suoi quattro fotogrammi', 4, sp.fotogrammi.length);
+  att('  · righe tutte della stessa lunghezza', 0, sp.righeStorte);
+  /* un carattere senza colore non si vede e non dà errore: è un buco muto */
+  att('  · nessun carattere senza colore dichiarato', 0, sp.caratteriIgnoti.length);
+  sp.caratteriIgnoti.forEach(c => console.log('      ! «' + c + '» non è nella tavolozza'));
+  att('  · in aria si usa il fotogramma del salto', true, sp.fSalto);
+  att('  · fermo quello fermo', true, sp.fFermo);
+  att('  · e correndo quelli della corsa', true, sp.fCorsa);
+  att('l’icona è un’immagine, non un file da scaricare', 'data:image/png;base64,',
+      sp.icona);
+  sopra('  · e non è vuota', 1500, sp.iconaLunga);
+  att('  · il pulsante nella barra la mostra', true, sp.iconaNav);
+  att('  · e il titolo della sezione anche', true, sp.iconaTitolo);
+  att('  · il pulsante porta il nome del gioco', 'ELEMENTIA', sp.testoNav);
+  /* NEI DUE VERSI: con l'elemento addosso il suo colore è sul personaggio… */
+  sopra('con un elemento addosso il personaggio ne prende il colore', 12, sp.con);
+  /* …e senza elemento quel colore sul personaggio non c'è */
+  att('  · e senza elemento quel colore non c’è', 0, sp.senza);
+  await cxS.close();
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 80) {
+  if (eseguiti < 95) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 80');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 95');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
