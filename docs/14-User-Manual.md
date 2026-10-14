@@ -126,58 +126,63 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 
 ### 🎮 ELEMENTIA — la corsa degli elementi
 
-Un platform retro, nella sua sezione — la riconosci dall'**icona**: il faccino
-del protagonista, casco e occhialoni, in un tondo con un orbitale. All'apertura
-il nome compare **disegnato sulla tela**, lettera per lettera, con un font a
-cinque per sette pixel, attorno girano venti bollicine (una per ogni elemento
-che puoi diventare) e sul fondo il protagonista corre mentre un nemico gli
+Un gioco che **non si gioca come gli altri**, e la riconosci dall'**icona**: un
+atomo con gli occhi in un tondo con un orbitale. All'apertura il nome compare
+**disegnato sulla tela**, lettera per lettera, con un font a cinque per sette
+pixel, e sul fondo un atomo gira appeso a un legame mentre un radicale gli
 viene incontro.
 
-**Il protagonista è un chimico a pixel**: casco, occhialoni, camice, guanti e
-scarponi. Quando raccogli un elemento non cambia solo colore — il **casco** e
-il **distintivo sul petto** prendono il colore di quell'elemento, e il simbolo
-ti resta scritto sopra la testa. Un solo disegno, venti vestiti. I nemici sono
-molecolette con due occhi e due zampe; quelli che volano battono le ali. I potenziamenti non sono fiori: sono
-**elementi della tavola periodica**, e ognuno ti trasforma dandoti un'abilità
-che viene dalla sua chimica.
+**Qui non si cammina e non si salta: non c'è terreno.** Sei un atomo dentro una
+provetta piena di solvente, e ci si muove come si muove un atomo in soluzione.
 
-| elemento | che cosa ti dà | perché |
-|---|---|---|
-| **H** | salti più alto | è il più leggero che esista |
-| **He** | scendi piano | gas nobile più leggero dell'aria |
-| **C** | quattro colpi a ventaglio | quattro legami |
-| **F** | il colpo più forte | il più elettronegativo |
-| **Al** | reggi un colpo | si passiva con il proprio ossido |
-| **Fe** | sfondi cadendo | pesante e ferromagnetico |
-| **Hg** | corri | metallo liquido |
-| **Au** | i nemici ossidanti non ti toccano | non si ossida |
+| comando | che cosa fa |
+|---|---|
+| **⚛** (tieni premuto) | **sali**, e se passa un atomo a portata (quello con il cerchietto tratteggiato) ti ci **leghi** e cominci a girargli intorno |
+| **⚛** (lascia) | parti **per la tangente** con tutta la velocità accumulata, e **affondi** |
+| **◀ ▶** da legato | ti fanno **girare** — ▶ in senso orario, ◀ al contrario — e a ogni giro prendi velocità, come su un'altalena |
+| **◀ ▶** da libero | quasi niente: la corrente è più forte della bracciata |
+| **✦** | usa l'abilità dell'elemento che hai addosso |
 
-…e altri dodici. Nome e numero atomico li legge dalla **tavola periodica di
-questa applicazione**: non sono riscritti nel gioco.
+Da tastiera: **frecce** o **A/D**, **spazio** lega e sale, **K** agisce.
+
+> **Si avanza solo con i legami.** Non è uno slogan: è una disuguaglianza fra
+> due numeri scritta nel codice — la spinta da libero (0,008) è **minore** della
+> corrente (0,012) — e finché vale, nuotare non può far guadagnare terreno con
+> nessun elemento e in nessuna difficoltà. Il banco la verifica togliendo tutte
+> le ancore a un livello: un pilota automatico, che senza ancore arrivava al
+> 91%, adesso si ferma al 13%.
+
+**I numeri degli elementi sono le regole del gioco**, e si leggono dalla tavola
+periodica di questa applicazione:
+
+| che cosa | da dove viene |
+|---|---|
+| quanto **affondi** | la **massa atomica**, confrontata con quella media dell'aria (28,96 u): l'idrogeno quasi galleggia, il piombo precipita |
+| quanto è **lungo** il tuo legame | i **raggi atomici** veri dei due atomi |
+| quanto **regge** prima di spezzarsi | la tua **energia di ionizzazione** |
+| che **legame** è | la differenza di **elettronegatività**: sotto 0,4 covalente (giri libero), fino a 1,7 polare, sopra ionico (tira dentro) — le due soglie convenzionali di Pauling |
+| quanti **gusci** ti si vedono attorno | il **periodo** della tavola |
+
+E oltre a questo ogni elemento ha la sua **abilità**: l'ossigeno ossida, il
+fluoro colpisce più forte perché è il più elettronegativo, il carbonio spara
+quattro colpi perché ha quattro legami, il ferro affonda e sfonda i cristalli,
+l'oro non si fa toccare dagli ossidanti. Sono venti, e la tabella sotto la
+scena le elenca tutte con il perché.
+
+**Che cosa fa male**: i **radicali** (si dissociano solo colpendoli *di
+slancio*, sopra 2,6 di velocità: qui non si salta sopra a nessuno), i
+**cristalli**, la **superficie** e il **fondo** — che non uccidono sul colpo, ti
+respingono e ti costano l'elemento o una vita — e la **corrente**, se ti porta
+fuori dallo schermo.
 
 **Dodici livelli** in quattro zone, un **boss** alla fine di ogni zona e il
-**boss finale** al dodicesimo. I livelli sono generati a caso ogni partita, ma
-mai impercorribili: nessun vuoto più largo di quanto un salto copra, nessun
-gradino più alto di quanto un salto scavalchi — e prima di ogni boss trovi
-garantito un elemento che spara, perché un boss senza di quello sarebbe
-invincibile.
+**boss finale** al dodicesimo: uno ione grosso che ti attira, e che si abbatte
+andandogli addosso di slancio o sparandogli. I livelli sono generati a caso ogni
+partita ma mai impercorribili: due atomi consecutivi non distano mai più di
+quanto una fionda copra, e prima di ogni boss trovi garantito un elemento che
+spara.
 
-**I comandi**: `◀ ▶` muovono, `⤒` salta (tienilo premuto per saltare più alto),
-`✦` usa l'abilità dell'elemento. Da tastiera: frecce o `A/D`, spazio salta, `K`
-agisce. Saltare **sopra** un nemico lo schiaccia.
-
-**Le cinque difficoltà** hanno nomi di chimica, e non sono decorativi — dicono
-quanto il sistema è reattivo:
-
-| difficoltà | che cambia |
-|---|---|
-| **Soluzione diluita** | 5 vite, tutto lento, domande di base |
-| **Soluzione satura** | 4 vite, più nemici e più potenziamenti |
-| **Reazione esotermica** | 3 vite, e **sbagliare una domanda costa** |
-| **Catalisi enzimatica** | 2 vite, tutto più rapido, 25 s per rispondere |
-| **Fusione nucleare** | **una vita**, nemici feroci, 20 s per rispondere |
-
-**Ai punti di controllo** (le bandierine) arriva una domanda di chimica. La
+**Ai punti di controllo** (le membrane) arriva una domanda di chimica. La
 difficoltà non rende la stessa domanda più difficile: cambia **quali** domande
 arrivano — dal simbolo di un elemento alla disconnessione retrosintetica giusta
 per un bersaglio, passando per bande IR, spostamenti ¹H e ¹³C, costanti J,
@@ -187,6 +192,16 @@ gradi di insaturazione, masse, reazioni, amminoacidi e linguaggi della chimica.
 > questa applicazione, e dopo ogni risposta ti dico **da dove viene** quella
 > domanda. Se la tabella è giusta, la domanda è giusta — e non esiste un
 > secondo elenco di chimica che possa divergere da quelli veri.
+
+**Le cinque difficoltà** hanno nomi di chimica, e non sono decorativi:
+
+| difficoltà | che cambia |
+|---|---|
+| **Soluzione diluita** | 5 vite, radicali lenti e pochi, domande di base |
+| **Soluzione satura** | 4 vite, più radicali e più elementi |
+| **Reazione esotermica** | 3 vite, e **sbagliare una domanda costa** |
+| **Catalisi enzimatica** | 2 vite, tutto più rapido, 25 s per rispondere |
+| **Fusione nucleare** | **una vita**, radicali feroci, 20 s per rispondere |
 
 **Il menù di pausa** si apre con `❚❚`, o con `Esc` / `P` da tastiera, e dentro
 c'è tutto quello che serve senza uscire dal gioco:
@@ -526,4 +541,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v204`._
+_Guida aggiornata alla versione `bsi-v205`._

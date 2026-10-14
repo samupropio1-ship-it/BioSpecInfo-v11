@@ -154,152 +154,6 @@
 
 
   /* ═════════════════════════════════════════════════════════════════════════
-     IL PERSONAGGIO, A PIXEL
-
-     Si chiama ATOMO ed è un chimico: casco, occhialoni, camice e scarponi.
-     Non è un rettangolo colorato — lo era, e si vedeva. È disegnato come il
-     font qui sopra, a righe di caratteri leggibili, dodici per sedici pixel,
-     perché una maschera di bit si scrive in meno spazio e non la rilegge
-     nessuno.
-
-     Due colori NON stanno nella tavolozza: `C` (il casco) e `A` (il distintivo
-     sul petto). Quelli li mette l'ELEMENTO che hai addosso, e sono il motivo
-     per cui il personaggio «diventa» l'elemento invece di limitarsi a portarne
-     il simbolo: il ferro è grigio-blu, il fluoro verde pallido, l'oro oro.
-     Un solo disegno, venti vestiti.
-
-     Il verso si ottiene SPECCHIANDO le colonne, non con un secondo disegno:
-     due disegni speculari sono due disegni da tenere uguali.
-     ═════════════════════════════════════════════════════════════════════════ */
-  var TAVOLOZZA = {
-    '#': '#0a1420',   /* contorno */
-    'P': '#f2c594',   /* pelle */
-    'V': '#9fe8ff',   /* vetro degli occhialoni */
-    'W': '#eef4fb',   /* camice */
-    'G': '#c3cedd',   /* guanti */
-    'T': '#2e4a6b',   /* pantaloni */
-    'S': '#c0532f'    /* scarponi */
-  };
-
-  var SPRITE = {
-    fermo: [
-      '....CCCC....',
-      '..##CCCC##..',
-      '..#CCCCCC#..',
-      '..#CCCCCC#..',
-      '..#PPPPPP#..',
-      '..#VVPPVV#..',
-      '..#PPPPPP#..',
-      '...##PP##...',
-      '..#WWWWWW#..',
-      '.#GWWAAWWG#.',
-      '.#GWWAAWWG#.',
-      '..#WWWWWW#..',
-      '..#WW##WW#..',
-      '..#TT..TT#..',
-      '..#TT..TT#..',
-      '..SSS..SSS..'
-    ],
-    corsa1: [
-      '....CCCC....',
-      '..##CCCC##..',
-      '..#CCCCCC#..',
-      '..#CCCCCC#..',
-      '..#PPPPPP#..',
-      '..#VVPPVV#..',
-      '..#PPPPPP#..',
-      '...##PP##...',
-      '..#WWWWWW#G.',
-      '.#GWWAAWW##.',
-      '.#.#WAAWW#..',
-      '..#WWWWWW#..',
-      '..#WW##WW#..',
-      '...#TT#TT#..',
-      '..#TT..#TT#.',
-      '..SS....SSS.'
-    ],
-    corsa2: [
-      '....CCCC....',
-      '..##CCCC##..',
-      '..#CCCCCC#..',
-      '..#CCCCCC#..',
-      '..#PPPPPP#..',
-      '..#VVPPVV#..',
-      '..#PPPPPP#..',
-      '...##PP##...',
-      '.G#WWWWWW#..',
-      '.##WWAAWWG#.',
-      '..#WWAAW#.#.',
-      '..#WWWWWW#..',
-      '..#WW##WW#..',
-      '..#TT#TT#...',
-      '.#TT#..TT#..',
-      '.SSS....SS..'
-    ],
-    salto: [
-      '....CCCC....',
-      '..##CCCC##..',
-      '..#CCCCCC#..',
-      '..#CCCCCC#..',
-      '..#PPPPPP#..',
-      '..#VVPPVV#..',
-      '..#PPPPPP#..',
-      '.G.##PP##.G.',
-      '.##WWWWWW##.',
-      '..#WWAAWW#..',
-      '..#WWAAWW#..',
-      '..#WWWWWW#..',
-      '..#TTTTTT#..',
-      '..#TT..TT#..',
-      '..SS....SS..',
-      '............'
-    ]
-  };
-
-  var LARGO_SPRITE = 12, ALTO_SPRITE = 16;
-
-  /* un nemico non è un quadrato: è una molecoletta con due occhi e due zampe */
-  var NEMICO = [
-    '..######..',
-    '.#OOOOOO#.',
-    '#OO####OO#',
-    '#O#VV#VV#O',
-    '#OO####OO#',
-    '#OOOOOOOO#',
-    '.#OO##OO#.',
-    '..#.##.#..'
-  ];
-
-  /* Disegna una figura a caratteri. `colore` è quello dell'elemento: entra
-     dove il disegno dice `C` (casco) e `A` (distintivo). Se `pieno` è un
-     colore, tutto il disegno esce di quel colore — serve per il lampo di
-     quando si viene colpiti, che deve leggersi in un fotogramma solo. */
-  function disegnaSprite(righe, x, y, k, versoDx, colore, pieno, chiaro) {
-    var l = righe[0].length;
-    for (var r = 0; r < righe.length; r++) {
-      for (var c = 0; c < l; c++) {
-        var ch = righe[r].charAt(versoDx ? c : l - 1 - c);
-        if (ch === '.') continue;
-        var col;
-        if (pieno) col = pieno;
-        else if (ch === 'C' || ch === 'A') col = colore;
-        else if (ch === 'O') col = chiaro || '#b06bff';
-        else col = TAVOLOZZA[ch];
-        if (!col) continue;
-        ctx.fillStyle = col;
-        ctx.fillRect(x + c * k, y + r * k, k, k);
-      }
-    }
-  }
-
-  /* quale fotogramma: fermo, i due della corsa, o il salto */
-  function fotogramma(p) {
-    if (!p.terra) return SPRITE.salto;
-    if (Math.abs(p.vx) < 0.3) return SPRITE.fermo;
-    return (Math.floor(p.anim / 5) % 2) ? SPRITE.corsa1 : SPRITE.corsa2;
-  }
-
-  /* ═════════════════════════════════════════════════════════════════════════
      L'ICONA
 
      Si disegna qui, con lo stesso personaggio, e si consegna come immagine ai
@@ -322,26 +176,27 @@
     cv.width = L; cv.height = L;
     var q = cv.getContext('2d');
     q.imageSmoothingEnabled = false;
-    /* il fondo: un tondo scuro con un orbitale, come il marchio dell'app */
+    /* il fondo: la provetta vista da dentro */
     var g = q.createRadialGradient(L * 0.38, L * 0.3, 2, L / 2, L / 2, L * 0.72);
-    g.addColorStop(0, '#1d4f7a'); g.addColorStop(1, '#071323');
+    g.addColorStop(0, '#1d4f7a'); g.addColorStop(1, '#061322');
     q.fillStyle = g;
     q.beginPath(); q.arc(L / 2, L / 2, L / 2 - 1, 0, 6.2832); q.fill();
     q.strokeStyle = 'rgba(94,234,212,.85)'; q.lineWidth = 2;
     q.beginPath(); q.arc(L / 2, L / 2, L / 2 - 2, 0, 6.2832); q.stroke();
-    q.save();
-    q.translate(L / 2, L / 2); q.rotate(-0.5);
-    q.strokeStyle = 'rgba(94,234,212,.5)'; q.lineWidth = 1.5;
-    q.beginPath(); q.ellipse(0, 0, L * 0.44, L * 0.17, 0, 0, 6.2832); q.stroke();
-    q.restore();
-    /* IL BUSTO, NON TUTTA LA FIGURA. L'icona si guarda a tredici pixel nella
-       barra: una figura intera là dentro è una macchia. Testa e spalle, grandi
-       quanto basta a riconoscere il casco e gli occhialoni. */
+    /* il legame che entra da sinistra: dice che gioco è */
+    q.strokeStyle = 'rgba(94,234,212,.55)'; q.lineWidth = 2;
+    q.beginPath(); q.moveTo(6, 52); q.lineTo(30, 34); q.stroke();
+    q.fillStyle = '#7f9ec2';
+    q.beginPath(); q.arc(7, 53, 5, 0, 6.2832); q.fill();
+    /* l'atomo con la faccia, grande: a tredici pixel si deve riconoscere */
     var vero = ctx;
     ctx = q;
-    disegnaSprite(SPRITE.fermo.slice(0, 11), Math.round((L - LARGO_SPRITE * 5) / 2),
-                  5, 5, true, '#5eead4');
+    disegnaAtomo(34, 30, 17, '#5eead4', 2, 0, null);
     ctx = vero;
+    q.fillStyle = '#ffffff';
+    q.fillRect(27, 26, 6, 6); q.fillRect(38, 26, 6, 6);
+    q.fillStyle = '#06131f';
+    q.fillRect(29, 28, 4, 4); q.fillRect(40, 28, 4, 4);
     iconaFatta = cv.toDataURL('image/png');
     return iconaFatta;
   }
@@ -389,10 +244,10 @@
      118 elementi per un gioco.
      ═════════════════════════════════════════════════════════════════════════ */
   var POTERI = [
-    { sim: 'H',  ab: 'salto',    perche: t('il più leggero che esista: spinge più in alto',
-                                           'the lightest there is: it pushes you higher') },
-    { sim: 'He', ab: 'planata',  perche: t('gas nobile più leggero dell’aria: si scende piano',
-                                           'noble gas lighter than air: you fall slowly') },
+    { sim: 'H',  ab: 'salto',    perche: t('il più leggero che esista: sali in fretta',
+                                           'the lightest there is: you rise fast') },
+    { sim: 'He', ab: 'planata',  perche: t('gas nobile: inerte e calmo, ti muovi piano e preciso',
+                                           'noble gas: inert and calm, you move slowly and precisely') },
     { sim: 'C',  ab: 'quattro',  perche: t('quattro legami: quattro colpi a ventaglio',
                                            'four bonds: four shots in a fan') },
     { sim: 'N',  ab: 'perfora',  perche: t('triplo legame, fra i più robusti: il colpo passa oltre',
@@ -412,8 +267,8 @@
                                            'sulfur poisons catalysts: the enemies slow down') },
     { sim: 'Cl', ab: 'pulisci',  perche: t('disinfetta: ripulisce quello che ha intorno',
                                            'it disinfects: it clears what is around') },
-    { sim: 'Fe', ab: 'tuffo',    perche: t('pesante e ferromagnetico: sfonda cadendo',
-                                           'heavy and ferromagnetic: it smashes through falling') },
+    { sim: 'Fe', ab: 'tuffo',    perche: t('pesante: affondi in fretta e sfondi i cristalli',
+                                           'heavy: you sink fast and smash through crystals') },
     { sim: 'Cu', ab: 'fulmine',  perche: t('conduce: il colpo è una scarica',
                                            'it conducts: the shot is a discharge') },
     { sim: 'Zn', ab: 'armatura', perche: t('zinca: protegge il ferro sacrificandosi',
@@ -422,7 +277,8 @@
                                            'the best conductor: it doubles everything') },
     { sim: 'Au', ab: 'inerte',   perche: t('non si ossida: gli ossidanti non lo toccano',
                                            'it does not oxidise: oxidisers cannot touch it') },
-    { sim: 'Hg', ab: 'veloce',   perche: t('metallo liquido: scorre', 'liquid metal: it flows') },
+    { sim: 'Hg', ab: 'veloce',   perche: t('metallo liquido: scorre, e il solvente non lo frena',
+                                           'liquid metal: it flows, and the solvent barely slows it') },
     { sim: 'Pb', ab: 'schermo',  perche: t('denso: ferma le radiazioni e i proiettili',
                                            'dense: it stops radiation and bullets') },
     { sim: 'U',  ab: 'radio',    perche: t('radioattivo: danneggia tutto quello che gli sta vicino',
@@ -468,127 +324,295 @@
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
-     IL LIVELLO
+     LA PROVETTA, E COME CI SI MUOVE DENTRO
 
-     Una striscia di colonne. Ogni colonna ha un'altezza di terreno (o un
-     vuoto), e sopra possono starci piattaforme, blocchi, nemici, elementi.
-     Generata dal seme, quindi ripetibile.
+     QUI NON SI CAMMINA E NON SI SALTA. Non c'e' terreno: c'e' un solvente che
+     scorre, e ci si muove come si muove un atomo in soluzione — facendo e
+     rompendo LEGAMI.
 
-     LA REGOLA CHE RENDE UN LIVELLO GIOCABILE: un vuoto non puo' essere piu'
-     largo di quanto un salto possa coprire, e un gradino non piu' alto di
-     quanto un salto possa scavalcare. Non e' un dettaglio estetico: un
-     livello generato a caso senza questa regola produce muri invalicabili, e
-     chi gioca non ha modo di sapere che il gioco e' rotto e non lui.
+       · si galleggia o si affonda secondo la propria MASSA, confrontata con
+         quella media dell'aria: piu' leggero dell'aria sale, piu' pesante
+         scende. E' la regola dei gas, presa come regola di gioco: qui si
+         confronta la massa ATOMICA con 28,96 u, non la densita' di una
+         sostanza reale, e si dice invece di lasciarlo credere;
+       · una CORRENTE spinge indietro, sempre. Stare fermi fa perdere terreno;
+       · tenendo premuto il tasto del legame ci si lega all'atomo piu' vicino
+         a portata e gli si gira intorno; lasciandolo si parte per la
+         tangente, con la velocita' che si era accumulata. Questo e' il
+         movimento: non un salto, una FIONDA fatta di legami;
+       · la distanza del legame viene dai RAGGI ATOMICI veri dei due atomi;
+       · un legame si ROMPE se la tensione supera quello che regge, e quello
+         che regge viene dall'ENERGIA DI IONIZZAZIONE del tuo elemento;
+       · la differenza di ELETTRONEGATIVITA' decide che legame e': sotto 0,4
+         covalente (gira libero), fino a 1,7 polare (tira un po' dentro),
+         sopra ionico (tira forte e non perdona). Le due soglie sono quelle
+         convenzionali di Pauling, e sono scritte qui perche' si vedano.
+
+     Tutti i numeri degli elementi — massa, raggio, elettronegativita',
+     energia di ionizzazione — si leggono da `ELEMENTS`, la tavola periodica
+     che l'applicazione ha gia'. Nessun secondo elenco di chimica.
      ═════════════════════════════════════════════════════════════════════════ */
-  var TILE = 16;
-  var SALTO_MAX_VUOTO = 4;     /* colonne di vuoto scavalcabili con un salto */
-  var SALTO_MAX_GRADINO = 3;   /* tile di dislivello scavalcabili */
+  /* I NUMERI DEL MOVIMENTO, E PERCHE' SONO QUESTI.
 
-  function generaLivello(livello, diff, partita) {
-    var caso = Caso((livello * 7919 + diff * 104729 + partita * 15485863) >>> 0);
-    var colonne = 150 + livello * 10;
-    var boss = (livello % 3 === 0);
-    var mappa = [];
-    var hMin = 2, hMax = 7;
-    var h = 3;
-    var i;
-    for (i = 0; i < colonne; i++) {
-      var col = { h: h, vuoto: false, piattaforma: 0, blocco: false };
-      /* I PRIMI OTTO PIANI, E GLI ULTIMI RACCORDATI.
-         La prima stesura metteva `h = 3` di colpo sugli ultimi otto: se
-         l'altezza era 7, il raccordo diventava un gradino di QUATTRO tile.
-         Misurato: cinque livelli su sessanta avevano un gradino che il salto
-         non copre (8,6² / (2·0,62) = 59,6 px = 3,7 tile), quindi un muro
-         invalicabile — e chi gioca non ha modo di sapere che è rotto il
-         livello e non lui. Qui si scende di un tile per colonna. */
-      if (i < 8) { col.h = 3; h = 3; mappa.push(col); continue; }
-      if (i > colonne - 9) {
-        h = (h > 3) ? h - 1 : ((h < 3) ? h + 1 : 3);
-        col.h = h;
-        mappa.push(col);
-        continue;
-      }
-      /* un vuoto, mai piu' largo del salto */
-      if (caso() < 0.055) {
-        var largo = 1 + Math.floor(caso() * SALTO_MAX_VUOTO);
-        for (var k = 0; k < largo && i < colonne - 9; k++, i++) {
-          mappa.push({ h: h, vuoto: true, piattaforma: 0, blocco: false });
+     La regola del gioco e' una sola: SI AVANZA SOLO CON I LEGAMI. Non e' uno
+     slogan, e' una disuguaglianza fra due numeri, e sta scritta qui:
+
+         spinta da liberi (0,008)  <  corrente (0,012)
+
+     Finche' vale quella riga, nuotare non puo' far guadagnare terreno in
+     nessuna difficolta', con nessun elemento: si rallenta la deriva, non la
+     si inverte. Il banco la prova togliendo TUTTE le ancore a un livello e
+     guardando dove arriva un pilota automatico — se arrivasse in fondo lo
+     stesso, questo gioco non sarebbe quello che dice di essere. (E' successo:
+     con i primi numeri arrivava al 91%.)
+
+     Il solvente frena dell'1,3% a ogni passo, quindi ogni spinta costante
+     arriva a una velocita' di equilibrio pari a spinta/0,013:
+       · la corrente porta indietro a ~0,9 px/passo — si perde terreno piano,
+         c'e' il tempo di rimediare;
+       · da LEGATI si spinge SULLA CURVA, 0,09: in pochi giri si arriva al
+         tetto di 5,4 px/passo. Lasciato il legame a quella velocita' si
+         percorrono piu' di 250 px prima di fermarsi, e due ancore non distano
+         mai piu' di 104. La fionda copre sempre il salto successivo: e' il
+         conto che rende il livello attraversabile, e non un'impressione;
+       · il galleggiamento, a massa estrema, vale ~1,2 px/passo: dal centro
+         alla superficie un paio di secondi. Abbastanza per dover fare
+         qualcosa, non cosi' poco da non poterlo;
+       · da liberi si affonda di 0,012 e, tenendo premuto il tasto del legame,
+         si sale di 0,034: in verticale si decide, in orizzontale no. E'
+         questa asimmetria a fare il gioco. */
+  var M_ARIA = 28.96;          /* massa media dell'aria, u: il paragone */
+  /* IL GALLEGGIAMENTO MODULA L'AFFONDAMENTO, NON LO ROVESCIA: 0,010 è meno
+     di `SEDIMENTA` (0,012), quindi anche l'idrogeno scende — piano — se non
+     si tiene premuto. Lasciare che lo rovesciasse sembrava più fedele alla
+     chimica ed era una trappola: con l'idrogeno addosso si finiva incollati
+     alla superficie, senza modo di scendere, a prendere danno fino alla fine
+     della partita. Misurato: un pilota automatico con l'idrogeno è arretrato
+     da 1207 px a 308 strisciando sul soffitto. Quello che l'elemento cambia è
+     QUANTO si scende e quanto si risale: l'idrogeno quasi galleggia, il piombo
+     precipita. */
+  var SPINTA = 0.010;          /* quanto il galleggiamento modula, al massimo */
+  var CORRENTE = 0.012;        /* la corrente del solvente, verso sinistra */
+  var BRACCIATA = 0.008;       /* la spinta da liberi: MENO della corrente */
+  var POMPA = 0.090;           /* la spinta sulla curva, da legati */
+  var VISCOSITA = 0.013;       /* l'attrito del solvente, per passo */
+  var PORTATA = 72;            /* da quanto lontano si aggancia un legame */
+  var DIST_MAX = 104;          /* distanza massima fra due ancore consecutive */
+  var SEDIMENTA = 0.012;       /* tutti affondano un po': e' una soluzione */
+  var NUOTO_SU = 0.034;        /* tenendo il tasto del legame si sale */
+  var V_MAX = 5.4;
+  /* LE ANCORE STANNO LONTANE DAI BORDI QUANTO IL LEGAME PIU' LUNGO, e un po'
+     di piu': un'ancora a quaranta pixel dalla superficie, con un legame da
+     cinquantaquattro, manda in orbita FUORI dalla provetta — e lassù il
+     giocatore veniva schiacciato fra il bordo che lo respinge e il legame che
+     lo tiene, perdeva tutta la velocità e non ripartiva più. Misurato: il
+     pilota automatico restava inchiodato a y=8 per duemila fotogrammi. */
+  var BORDO = 62;              /* quanto le ancore stanno lontane dai bordi */
+
+  /* I PROFILI: un elemento, quattro numeri veri, e che cosa ne viene.
+     Se la tavola non c'e' (il gioco deve girare anche da solo) si usa un
+     profilo neutro, e si vede subito perche' tutti gli atomi diventano
+     uguali: meglio di un gioco che non parte. */
+  var profiliNoti = {};
+
+  function profilo(sim) {
+    /* SENZA ELEMENTO NON SI GALLEGGIA E NON SI AFFONDA. Si parte da un atomo
+       generico con la massa media dell'aria: indice di galleggiamento zero,
+       sta dov'è. Il primo tentativo faceva partire da elio — leggero,
+       inerte, bello da raccontare — e il risultato misurato era che nei primi
+       due secondi si saliva fino alla superficie e si evaporava senza aver
+       toccato niente. Un inizio che uccide da solo non è una difficoltà: è un
+       difetto. */
+    if (!sim) sim = '·neutro';
+    if (profiliNoti[sim]) return profiliNoti[sim];
+    var r = { sim: sim, massa: 28.96, raggio: 100, en: 2.2, ion: 10, periodo: 3,
+              nome: sim, Z: 0, nota: '', vero: false };
+    try {
+      var el = globale.ELEMENTS;
+      if (el && el.length && el[0] && el[0].length > 10) {
+        for (var i = 0; i < el.length; i++) if (el[i][1] === sim) {
+          r = { sim: sim, Z: el[i][0], nome: el[i][2],
+                massa: el[i][3], periodo: el[i][4],
+                en: (el[i][9] == null ? 0 : el[i][9]),
+                raggio: (el[i][10] == null ? 100 : el[i][10]),
+                ion: (el[i][11] == null ? 10 : el[i][11]),
+                nota: el[i][13] || '', vero: true };
+          break;
         }
-        i--;
-        continue;
       }
-      /* un gradino, mai piu' alto di quanto un salto scavalchi */
-      if (caso() < 0.2) {
-        var d = Math.round((caso() * 2 - 1) * SALTO_MAX_GRADINO);
-        h = Math.max(hMin, Math.min(hMax, h + d));
-        col.h = h;
-      }
-      /* una piattaforma sospesa, a portata di salto dal terreno */
-      if (caso() < 0.12) col.piattaforma = col.h + 3 + Math.floor(caso() * 2);
-      /* un blocco rompibile */
-      if (caso() < 0.07) col.blocco = true;
-      mappa.push(col);
+    } catch (e) { /* senza tavola si gioca con il profilo neutro */ }
+    /* da qui in giu' sono regole di gioco, derivate dai numeri veri */
+    r.sale = Math.max(-1, Math.min(1, (M_ARIA - r.massa) / M_ARIA));
+    r.corpo = Math.max(4, Math.min(11, Math.round(r.raggio / 16) + 3));
+    r.inerzia = Math.max(0.9, Math.min(2.4, Math.pow(r.massa / M_ARIA, 0.45)));
+    r.tenuta = 0.55 + r.ion / 9;        /* quanta tensione regge un legame */
+    r.gusci = Math.max(1, Math.min(7, r.periodo || 1));
+    profiliNoti[sim] = r;
+    return r;
+  }
+
+  /* che legame e': la differenza di elettronegativita' lo dice */
+  function tipoLegame(a, b) {
+    var d = Math.abs((a.en || 0) - (b.en || 0));
+    if (d >= 1.7) return 'ionico';
+    if (d >= 0.4) return 'polare';
+    return 'covalente';
+  }
+
+  var COL_LEGAME = { covalente: '#5eead4', polare: '#ffd93d', ionico: '#ff6bd6' };
+
+  /* gli atomi che fanno da ancora: elementi che un legame lo fanno davvero */
+  var ANCORE = ['C', 'N', 'O', 'S', 'P', 'Cl', 'Si', 'Na', 'Ca', 'Fe', 'Mg', 'K'];
+
+  function lunghezzaLegame(pa, pb) {
+    /* i raggi atomici veri, in picometri, riscalati alla provetta */
+    return Math.max(22, Math.min(54, (pa.raggio + pb.raggio) / 7 + 12));
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL LIVELLO — una catena di ancore, e la garanzia che si possa percorrere
+
+     LA REGOLA CHE RENDE UN LIVELLO GIOCABILE: due ancore consecutive non
+     possono distare piu' di `DIST_MAX`, perche' quella e' la distanza che si
+     copre partendo per la tangente con la velocita' massima che un legame
+     regge. Si garantisce per COSTRUZIONE — si sceglie prima lo scostamento
+     orizzontale, poi quello verticale dentro quello che resta — e il banco la
+     verifica per conto suo su tutti e sessanta i livelli. Senza questa regola
+     un livello generato a caso produce un tratto che non si attraversa, e chi
+     gioca non ha modo di sapere che e' rotto il gioco e non lui.
+     ═════════════════════════════════════════════════════════════════════════ */
+  function generaLivello(livello, diff, partita) {
+    var caso = Caso((livello * 7919 + diff.n * 104729 + partita * 15485863) >>> 0);
+    var largo = 1700 + livello * 240;
+    var boss = (livello % 3 === 0);
+    var i;
+
+    /* la catena di ancore */
+    var ancore = [];
+    var x = 150, y = ALTO / 2;
+    while (x < largo - 150) {
+      var sim = ANCORE[Math.floor(caso() * ANCORE.length)];
+      ancore.push({ x: Math.round(x), y: Math.round(y), sim: sim,
+                    pro: profilo(sim), t: Math.floor(caso() * 100) });
+      /* IL MARGINE DI DUE PIXEL NON E' PRUDENZA: le coordinate si arrotondano
+         a numero intero, e due arrotondamenti possono allungare la distanza
+         di un pixel. Il banco misura le coordinate VERE, quelle arrotondate,
+         e con `DIST_MAX` esatto trovava un salto da 105 su un limite di 104. */
+      var tetto = DIST_MAX - 2;
+      var dx = 56 + caso() * (tetto - 56);
+      var resto = Math.sqrt(Math.max(0, tetto * tetto - dx * dx));
+      /* LO SCALINO VERTICALE E' PIU' STRETTO DI QUELLO ORIZZONTALE, e non per
+         simmetria: avanti ci si va con la fionda, in alto si va controvoglia —
+         e con un elemento pesante addosso si affonda mentre si sale. Con uno
+         scarto verticale fino a 74 px il pilota automatico si fermava su tre
+         livelli su dodici; a 52 li attraversa tutti. */
+      var dy = (caso() * 2 - 1) * Math.min(resto, 52);
+      /* UN RICHIAMO VERSO IL CENTRO. Una passeggiata casuale si appoggia ai
+         bordi e ci resta: su un livello uscivano dieci ancore di fila tutte
+         alla stessa quota massima, e lassù l'orbita è schiacciata fra il
+         bordo e l'ancora. Un quarto di correzione basta a staccarle dal
+         bordo senza raddrizzare la catena. */
+      dy += (ALTO / 2 - y) * 0.25;
+      if (Math.abs(dy) > resto) dy = (dy < 0 ? -1 : 1) * resto;
+      x += dx;
+      y = Math.max(BORDO, Math.min(ALTO - BORDO, y + dy));
     }
 
-    /* i nemici: densita' dalla difficolta' */
+    function lontanoDaAncore(ax, ay, quanto) {
+      for (var k = 0; k < ancore.length; k++) {
+        if (Math.abs(ancore[k].x - ax) < quanto &&
+            Math.abs(ancore[k].y - ay) < quanto) return false;
+      }
+      return true;
+    }
+
+    /* i cristalli: taglienti, fermi, e MAI sopra un'ancora — un cristallo
+       addosso a un'ancora renderebbe impossibile usarla */
+    var cristalli = [];
+    var quantiCr = Math.round((4 + livello * 0.9) * diff.nemici);
+    for (i = 0; i < quantiCr; i++) {
+      var cx = 240 + caso() * (largo - 420);
+      var cy = 26 + caso() * (ALTO - 52);
+      if (!lontanoDaAncore(cx, cy, 44)) continue;
+      cristalli.push({ x: Math.round(cx), y: Math.round(cy),
+                       r: 7 + Math.round(caso() * 6), t: Math.floor(caso() * 100) });
+    }
+
+    /* le bolle: salgono, e chi le prende sale con loro */
+    var bolle = [];
+    for (i = 0; i < 10 + livello; i++) {
+      bolle.push({ x: Math.round(200 + caso() * (largo - 300)),
+                   y: Math.round(caso() * ALTO), r: 4 + Math.round(caso() * 4),
+                   v: 0.25 + caso() * 0.5 });
+    }
+
+    /* i radicali: hanno un elettrone spaiato, e vanno dove capita */
     var nemici = [];
-    var quanti = Math.round((8 + livello * 1.6) * diff.nemici);
+    var quanti = Math.round((7 + livello * 1.5) * diff.nemici);
     for (i = 0; i < quanti; i++) {
-      var c = 14 + Math.floor(caso() * (colonne - 30));
-      if (mappa[c].vuoto) continue;
-      var tipo = caso() < 0.62 ? 'cammina' : (caso() < 0.8 ? 'salta' : 'vola');
+      var ex = 260 + caso() * (largo - 460);
+      var ey = 24 + caso() * (ALTO - 48);
+      if (!lontanoDaAncore(ex, ey, 30)) continue;
       nemici.push({
-        x: c * TILE, y: (ALTO - (mappa[c].h + 1) * TILE) - (tipo === 'vola' ? 48 : 0),
-        vx: (caso() < 0.5 ? -1 : 1) * (0.5 + caso() * 0.5) * diff.vel,
-        vy: 0, tipo: tipo, vivo: true, w: 12, h: 12, t: caso() * 100,
-        /* un nemico «ossidante» è quello che l'oro ignora: la chimica dentro
-           la regola, non accanto */
+        x: Math.round(ex), y: Math.round(ey),
+        vx: (caso() < 0.5 ? -1 : 1) * (0.25 + caso() * 0.55) * diff.vel,
+        vy: (caso() < 0.5 ? -1 : 1) * (0.12 + caso() * 0.4) * diff.vel,
+        tipo: caso() < 0.6 ? 'deriva' : 'insegue',
+        vivo: true, t: Math.floor(caso() * 100),
+        /* un «ossidante» e' quello che l'oro ignora: la chimica dentro la
+           regola, non accanto */
         ossidante: caso() < 0.4
       });
     }
 
-    /* gli elementi: randomici, come chiesto, ma garantiti prima di un boss —
-       un boss senza un elemento che spari sarebbe invincibile */
+    /* gli elementi da raccogliere: vicino a un'ancora, cosi' si prendono
+       girandoci intorno invece che per caso */
     var elementi = [];
-    var quantiEl = 3 + Math.floor(caso() * 3) + (diff.n <= 2 ? 2 : 0);
-    for (i = 0; i < quantiEl; i++) {
-      var ce = 16 + Math.floor(caso() * (colonne - 40));
-      if (mappa[ce].vuoto) continue;
+    var quantiEl = 4 + Math.floor(caso() * 3) + (diff.n <= 2 ? 2 : 0);
+    for (i = 0; i < quantiEl && ancore.length > 4; i++) {
+      var an = ancore[3 + Math.floor(caso() * (ancore.length - 5))];
       var p = POTERI[Math.floor(caso() * POTERI.length)];
-      elementi.push({ x: ce * TILE, y: ALTO - (mappa[ce].h + 2) * TILE - 4,
-                      sim: p.sim, ab: p.ab, preso: false, t: caso() * 100 });
+      elementi.push({ x: an.x + (caso() < 0.5 ? -1 : 1) * 26,
+                      y: Math.max(20, Math.min(ALTO - 20, an.y + (caso() * 2 - 1) * 26)),
+                      sim: p.sim, ab: p.ab, preso: false, t: Math.floor(caso() * 100) });
     }
-    if (boss) {
-      /* garantito: un potere che spara, poco prima dell'arena */
+    if (boss && ancore.length > 3) {
+      /* garantito: un elemento che spara, poco prima dell'arena. Un boss
+         senza di quello sarebbe invincibile */
       var sparanti = POTERI.filter(function (p2) { return SPARA[p2.ab]; });
       var ps = sparanti[Math.floor(caso() * sparanti.length)];
-      var cs = colonne - 26;
-      elementi.push({ x: cs * TILE, y: ALTO - (mappa[cs].h + 2) * TILE - 4,
-                      sim: ps.sim, ab: ps.ab, preso: false, t: 0, garantito: true });
+      var ag = ancore[ancore.length - 3];
+      elementi.push({ x: ag.x, y: Math.max(16, ag.y - 36), sim: ps.sim, ab: ps.ab,
+                      preso: false, t: 0, garantito: true });
     }
 
-    /* i punti di controllo: due per livello, dove arriva la domanda */
+    /* i punti di controllo: due membrane da attraversare, dove arriva la
+       domanda */
     var controlli = [
-      { x: Math.round(colonne * 0.35) * TILE, fatto: false },
-      { x: Math.round(colonne * 0.7) * TILE, fatto: false }
+      { x: Math.round(largo * 0.35), fatto: false },
+      { x: Math.round(largo * 0.7), fatto: false }
     ];
 
     return {
       livello: livello, zona: Math.ceil(livello / 3), boss: boss,
-      colonne: colonne, mappa: mappa, nemici: nemici, elementi: elementi,
-      controlli: controlli, largo: colonne * TILE,
-      /* il boss finale è al dodicesimo: più vita e due fasi */
+      largo: largo, ancore: ancore, cristalli: cristalli, bolle: bolle,
+      nemici: nemici, elementi: elementi, controlli: controlli,
+      /* il boss finale e' al dodicesimo: piu' vita e due fasi */
       finale: livello === LIVELLI
     };
   }
 
-  function terrenoA(liv, px) {
-    var c = Math.floor(px / TILE);
-    if (c < 0) c = 0;
-    if (c >= liv.mappa.length) c = liv.mappa.length - 1;
-    var m = liv.mappa[c];
-    if (m.vuoto) return ALTO + 200;            /* il vuoto: si cade */
-    return ALTO - m.h * TILE;
+  /* l'ancora piu' vicina a portata: la stessa funzione che usa il gioco e che
+     usa il banco, perche' una seconda copia direbbe un'altra cosa */
+  function ancoraVicina(liv, x, y, portata, escluso) {
+    var mi = -1, md = portata * portata;
+    for (var i = 0; i < liv.ancore.length; i++) {
+      if (escluso != null && i === escluso) continue;
+      var a = liv.ancore[i];
+      var dx = a.x - x, dy = a.y - y, d = dx * dx + dy * dy;
+      if (d < md) { md = d; mi = i; }
+    }
+    return mi;
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -609,12 +633,19 @@
   var suono = true;
   var audio = null;
 
-  function nuovaPartita(nDiff) {
+  /* `seme` serve a chi vuole la STESSA partita: il banco lo usa per provare
+     sempre gli stessi dodici livelli, altrimenti misurerebbe ogni volta un
+     gioco diverso e non saprebbe mai se è peggiorato. Chi gioca non lo passa,
+     e ogni partita è nuova. */
+  function nuovaPartita(nDiff, seme) {
     var diff = DIFFICOLTA()[nDiff - 1] || DIFFICOLTA()[0];
     S = {
-      diff: diff, partita: (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0,
+      diff: diff,
+      partita: seme ? (seme >>> 0)
+                    : ((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0),
       livello: 1, vite: diff.vite, punti: 0, moltiplicatore: 1,
-      elemento: null, scudo: 0, invincibile: 0, tempoRisposta: diff.tempo,
+      elemento: null, profilo: profilo('He'), scudo: 0, invincibile: 0,
+      tempoRisposta: diff.tempo,
       risposteGiuste: 0, risposteSbagliate: 0,
       proiettili: [], particelle: [],
       p: null, liv: null, cam: 0, boss: null, finito: null
@@ -626,13 +657,25 @@
   function caricaLivello(n) {
     S.livello = n;
     S.liv = generaLivello(n, S.diff, S.partita);
-    S.p = { x: 40, y: ALTO - 4 * TILE, vx: 0, vy: 0, w: 11, h: 14,
-            terra: false, guarda: 1, coyote: 0, salto: 0, anim: 0 };
+    /* SI PARTE SENZA ELEMENTO, e senza elemento si è elio: leggero, inerte,
+       nobile — l'atomo che non reagisce con niente. Chi non ha ancora
+       raccolto nulla galleggia e basta, ed è esattamente la sensazione
+       giusta per il primo minuto di gioco. */
+    /* SI PARTE A PORTATA DELLA PRIMA ANCORA, sempre. A nuoto non si avanza —
+       è la regola di questo gioco — quindi nascere lontani da qualunque atomo
+       significherebbe nascere senza niente da fare, e la corrente farebbe il
+       resto. */
+    var a1 = S.liv.ancore[0];
+    S.p = { x: a1 ? Math.max(20, a1.x - 30) : 60, y: a1 ? a1.y : ALTO / 2, vx: 0, vy: 0,
+            legame: null, ultimo: null, raggio: 0, raggio0: 0, tipo: 'covalente',
+            tensione: 0, grazia: 0, attesa: 0, guarda: 1, anim: 0,
+            immune: 0, scia: [] };
+    if (!S.elemento) S.profilo = profilo(null);
     S.cam = 0;
     S.proiettili = [];
     S.particelle = [];
     S.boss = S.liv.boss ? {
-      x: S.liv.largo - 120, y: ALTO - 6 * TILE, vx: 0, vy: 0, w: 34, h: 34,
+      x: S.liv.largo - 110, y: ALTO / 2, vx: 0, vy: 0, w: 34, h: 34,
       vita: S.liv.finale ? 10 : 5, max: S.liv.finale ? 10 : 5,
       fase: 1, t: 0, colpito: 0, attivo: false
     } : null;
@@ -664,61 +707,168 @@
   function passo() {
     if (!S || !S.liv || schermo !== 'gioco') return;
     var p = S.p, liv = S.liv, ab = abilita();
+    var pro = S.profilo;
 
-    /* ── movimento ────────────────────────────────────────────────────── */
-    var velMax = 2.3 * (ab === 'veloce' ? 1.5 : 1);
-    var acc = 0.34;
-    if (tasti.sx) { p.vx -= acc; p.guarda = -1; }
-    if (tasti.dx) { p.vx += acc; p.guarda = 1; }
-    if (!tasti.sx && !tasti.dx) p.vx *= 0.82;
-    p.vx = Math.max(-velMax, Math.min(velMax, p.vx));
+    /* ── il solvente: si affonda, si sale, la corrente, l'attrito ──────
+       IL COMANDO VERTICALE E' IL TASTO DEL LEGAME, e non ne serve un altro:
+       tenendolo premuto si agita il solvente e si SALE, lasciandolo si
+       affonda — e se intanto passa un'ancora a portata, ci si lega. Un solo
+       gesto per due cose che in acqua sono la stessa cosa: allungarsi verso
+       l'alto e aggrapparsi.
 
-    /* ── salto, con coyote time e altezza variabile ───────────────────── */
-    var forza = 8.6 * (ab === 'salto' ? 1.22 : 1);
-    if (tasti.su && (p.terra || p.coyote > 0) && p.salto <= 0) {
-      p.vy = -forza; p.terra = false; p.coyote = 0; p.salto = 12;
-      bip(420, 0.07, 'square');
+       Senza questo non c'era NESSUN controllo verticale da liberi: misurato
+       con il pilota automatico, un atomo neutro sbalzato contro la superficie
+       restava a ventun pixel dall'alto per sempre, derivando all'indietro
+       senza un'ancora alla sua altezza, finché la corrente non lo portava
+       fuori. Non era difficile: era bloccato. */
+    var sale = pro.sale + (ab === 'salto' ? 0.5 : 0) - (ab === 'tuffo' ? 0.6 : 0);
+    p.vy += SEDIMENTA;
+    p.vy -= Math.max(-1.4, Math.min(1.4, sale)) * SPINTA;
+    if (p.legame === null && tasti.su) p.vy -= NUOTO_SU;
+    /* LA CORRENTE NON CAMBIA CON LA DIFFICOLTA'. Scalandola, alla difficoltà
+       più bassa diventava più debole della bracciata e si attraversava il
+       livello a nuoto, senza legarsi a niente: il banco lo ha misurato
+       togliendo tutte le ancore e arrivando lo stesso in fondo. La regola del
+       gioco deve valere in tutte le difficoltà; quello che cambia con la
+       difficoltà sono i radicali, le vite e le domande. */
+    p.vx -= CORRENTE;
+    var visc = VISCOSITA * (ab === 'veloce' ? 0.45 : (ab === 'planata' ? 2.4 : 1));
+    p.vx *= (1 - visc); p.vy *= (1 - visc);
+
+    /* ── i comandi ─────────────────────────────────────────────────────
+       LIBERI si nuota: si spinge a destra o a sinistra contro il solvente, e
+       si va piano. LEGATI si SPINGE SULLA CURVA: ▶ fa girare in senso orario,
+       ◀ al contrario, e a ogni giro si prende velocità — come ci si dà la
+       spinta su un'altalena.
+
+       Il primo disegno teneva la spinta orizzontale anche da legati, ed era
+       sbagliato in un modo che si vede solo provando: una forza costante su
+       una corda non fa girare niente, sposta il punto di equilibrio e basta.
+       Misurato con il pilota automatico: restava appeso a oscillare e in
+       settemila passi non arrivava a un decimo del livello. Sulla curva la
+       spinta si accumula giro dopo giro, ed è questo che rende il legame una
+       fionda invece di un'altalena ferma. */
+    var spinta = BRACCIATA / pro.inerzia;
+    if (p.legame !== null && liv.ancore[p.legame]) {
+      /* sulla curva l'inerzia pesa, ma pesa la RADICE: un atomo di uranio
+         deve essere più lento di uno di idrogeno, non immobile. Diviso per
+         l'inerzia piena, con l'uranio addosso non si arrivava mai alla
+         velocità che serve per lasciare il legame e andarsene. */
+      spinta = POMPA / Math.sqrt(pro.inerzia);
+      var an0 = liv.ancore[p.legame];
+      var ndx = p.x - an0.x, ndy = p.y - an0.y;
+      var nd = Math.hypot(ndx, ndy) || 1;
+      /* il verso orario, sullo schermo: (−ny, nx) */
+      var tx = -ndy / nd, ty = ndx / nd;
+      var sp2 = spinta;
+      if (tasti.dx) { p.vx += tx * sp2; p.vy += ty * sp2; p.guarda = 1; }
+      if (tasti.sx) { p.vx -= tx * sp2; p.vy -= ty * sp2; p.guarda = -1; }
+    } else {
+      if (tasti.sx) { p.vx -= spinta; p.guarda = -1; }
+      if (tasti.dx) { p.vx += spinta; p.guarda = 1; }
     }
-    if (p.salto > 0) {
-      p.salto--;
-      /* lasciando il tasto il salto si accorcia: è la differenza fra un
-         salto che si controlla e uno che decide da sé */
-      if (!tasti.su && p.vy < -3) p.vy = -3;
-    }
-    p.vy += G * (ab === 'planata' && p.vy > 0 ? 0.42 : 1);
-    if (p.vy > 11) p.vy = 11;
 
-    /* ── collisione col terreno ───────────────────────────────────────── */
-    p.x += p.vx;
-    if (p.x < 4) { p.x = 4; p.vx = 0; }
-    if (p.x > liv.largo - 20) p.x = liv.largo - 20;
-    var yPrima = p.y;
-    p.y += p.vy;
-    var suolo = Math.min(terrenoA(liv, p.x - p.w / 2), terrenoA(liv, p.x + p.w / 2));
-    /* le piattaforme sospese: si atterra solo scendendo */
-    var cp = Math.floor(p.x / TILE);
-    var piatta = null;
-    for (var dc = -1; dc <= 1; dc++) {
-      var mm = liv.mappa[cp + dc];
-      if (mm && mm.piattaforma) {
-        var yp = ALTO - mm.piattaforma * TILE;
-        if (yPrima + p.h / 2 <= yp + 3 && p.y + p.h / 2 >= yp && p.vy >= 0) {
-          if (piatta === null || yp < piatta) piatta = yp;
+    /* ── IL LEGAME ────────────────────────────────────────────────────── */
+    if (tasti.su) {
+      if (p.legame === null && p.attesa <= 0) {
+        var k = ancoraVicina(liv, p.x, p.y, PORTATA, p.ultimo);
+        if (k >= 0) {
+          var a0 = liv.ancore[k];
+          p.legame = k;
+          /* e comunque mai tanto lungo da portare l'orbita fuori dai bordi */
+          p.raggio = Math.max(18, Math.min(lunghezzaLegame(pro, a0.pro),
+                                           Math.hypot(a0.x - p.x, a0.y - p.y),
+                                           a0.y - 14, ALTO - a0.y - 14));
+          p.raggio0 = p.raggio;
+          p.tipo = tipoLegame(pro, a0.pro);
+          /* i primi fotogrammi non contano per la tensione: agganciarsi non
+             deve spezzare il legame che si sta formando */
+          p.grazia = 8;
+          bip(p.tipo === 'ionico' ? 320 : 520, 0.05, 'triangle', 0.05);
+          particelle(p.x, p.y, COL_LEGAME[p.tipo], 4);
         }
       }
+    } else if (p.legame !== null) {
+      /* SI LASCIA: si parte per la tangente con quello che si è accumulato.
+         E NON CI SI RIATTACCA SUBITO ALLA STESSA ANCORA: finché non se ne
+         esce, quella è esclusa. Senza questa regola si resta appesi allo
+         stesso atomo per sempre — misurato con un pilota automatico, che
+         lasciava e si riagganciava nello stesso fotogramma e in millecinque
+         passi non arrivava a un sesto del livello. */
+      p.ultimo = p.legame;
+      p.legame = null; p.attesa = 6;
+      bip(700, 0.04, 'triangle', 0.04);
     }
-    if (piatta !== null && piatta < suolo) suolo = piatta;
+    if (p.attesa > 0) p.attesa--;
 
-    if (p.y + p.h / 2 >= suolo) {
-      p.y = suolo - p.h / 2;
-      if (p.vy > 0) p.vy = 0;
-      p.terra = true; p.coyote = 7;
-    } else {
-      p.terra = false;
-      if (p.coyote > 0) p.coyote--;
+    p.x += p.vx; p.y += p.vy;
+
+    if (p.legame !== null) {
+      var a = liv.ancore[p.legame];
+      var dx = p.x - a.x, dy = p.y - a.y;
+      var d = Math.hypot(dx, dy) || 0.0001;
+      /* Il legame ionico tira dentro: non è una corda, è un'attrazione. Ma
+         NON FINO A INCOLLARSI: il raggio non scende sotto i due terzi di
+         quello di partenza. Senza quel fondo il raggio arrivava al minimo e
+         si finiva a girare in un cerchietto di venti pixel, da cui non si
+         raggiunge più niente — misurato: il pilota automatico ci restava
+         duemilaquattrocento fotogrammi. */
+      var rMin = Math.max(22, p.raggio0 * 0.66);
+      if (p.tipo === 'ionico') p.raggio = Math.max(rMin, p.raggio - 0.16);
+      else if (p.tipo === 'polare') p.raggio = Math.max(rMin, p.raggio - 0.04);
+      if (d > p.raggio || p.tipo !== 'covalente') {
+        var nx = dx / d, ny = dy / d;
+        p.x = a.x + nx * p.raggio; p.y = a.y + ny * p.raggio;
+        var radiale = p.vx * nx + p.vy * ny;
+        /* la tensione è quella che si toglie alla velocità più la forza che
+           tiene in curva: se supera quello che il legame regge, si spezza */
+        var tang = Math.hypot(p.vx - radiale * nx, p.vy - radiale * ny);
+        var tensione = Math.abs(radiale) + tang * tang / Math.max(12, p.raggio);
+        p.vx -= radiale * nx; p.vy -= radiale * ny;
+        p.tensione = tensione / pro.tenuta;
+        if (p.grazia > 0) { p.grazia--; p.tensione = 0; }
+        else if (tensione > pro.tenuta) {
+          p.legame = null; p.attesa = 14; p.tensione = 0;
+          particelle(p.x, p.y, '#ff6b84', 10);
+          bip(140, 0.12, 'sawtooth', 0.07);
+          mostraAvviso(t('legame spezzato: troppa tensione',
+                         'bond broken: too much tension'), null, null);
+        }
+      }
+    } else p.tensione = 0;
+
+    if (p.ultimo != null && liv.ancore[p.ultimo]) {
+      var au = liv.ancore[p.ultimo];
+      if (Math.hypot(au.x - p.x, au.y - p.y) > PORTATA) p.ultimo = null;
     }
-    /* caduta nel vuoto */
-    if (p.y > ALTO + 60) { perdiVita(t('sei caduto nel vuoto', 'you fell into the void')); return; }
+
+    var v = Math.hypot(p.vx, p.vy);
+    if (v > V_MAX) { p.vx *= V_MAX / v; p.vy *= V_MAX / v; }
+
+    /* ── i bordi della provetta ───────────────────────────────────────── */
+    if (p.x < 6) { p.x = 6; p.vx = Math.max(0, p.vx); }
+    if (p.x > liv.largo - 8) p.x = liv.largo - 8;
+    /* LA SUPERFICIE E IL FONDO NON UCCIDONO SUL COLPO: respingono e fanno
+       male. Il primo disegno li faceva uccidere, ed era una condanna: con
+       l'idrogeno addosso si sale di un pixel e mezzo al fotogramma e il solo
+       modo di fermarsi è un legame — se non c'è un'ancora a portata non c'è
+       niente da fare, e un gioco in cui non c'è niente da fare non è
+       difficile, è rotto. Misurato con un pilota automatico: su dodici livelli
+       quarantasette morti su cinquantasette erano «evaporato». Ora si
+       rimbalza, si perde un elemento o una vita come con qualunque altro
+       danno, e si ha il tempo di rimediare. */
+    if (p.y < 8) {
+      p.y = 8; p.vy = Math.abs(p.vy) * 0.4 + 0.3;
+      if (p.legame === null) colpito(t('la superficie: stavi evaporando',
+                                       'the surface: you were evaporating'));
+    }
+    if (p.y > ALTO - 8) {
+      p.y = ALTO - 8; p.vy = -Math.abs(p.vy) * 0.4 - 0.3;
+      if (p.legame === null) colpito(t('il fondo: stavi sedimentando',
+                                       'the bottom: you were settling'));
+    }
+    if (p.x < S.cam - 24) { perdiVita(t('la corrente ti ha portato indietro',
+                                        'the current carried you back')); return; }
 
     /* ── la camera ────────────────────────────────────────────────────── */
     var voluta = p.x - LARGO * 0.38;
@@ -726,20 +876,21 @@
     S.cam = Math.max(0, Math.min(liv.largo - LARGO, S.cam));
 
     /* ── sparare ──────────────────────────────────────────────────────── */
-    if (tasti.fuoco && SPARA[ab] && (S.p.ricarica || 0) <= 0) {
+    if (tasti.fuoco && SPARA[ab] && (p.ricarica || 0) <= 0) {
       var forzaC = SPARA[ab];
       var n = (ab === 'quattro') ? 4 : 1;
-      for (var s = 0; s < n; s++) {
+      var dir = p.guarda || 1;
+      for (var s2 = 0; s2 < n; s2++) {
         S.proiettili.push({
-          x: p.x + p.guarda * 8, y: p.y - 2 + (n > 1 ? (s - 1.5) * 3 : 0),
-          vx: p.guarda * 4.2, vy: (n > 1 ? (s - 1.5) * 0.5 : 0),
+          x: p.x + dir * 8, y: p.y + (n > 1 ? (s2 - 1.5) * 3 : 0),
+          vx: dir * 4.4, vy: (n > 1 ? (s2 - 1.5) * 0.55 : 0),
           forza: forzaC, perfora: ab === 'perfora', vivo: true, t: 0
         });
       }
-      S.p.ricarica = ab === 'forte' ? 18 : 11;
+      p.ricarica = ab === 'forte' ? 18 : 11;
       bip(ab === 'forte' ? 900 : 660, 0.05, 'sawtooth', 0.05);
     }
-    if (S.p.ricarica > 0) S.p.ricarica--;
+    if (p.ricarica > 0) p.ricarica--;
 
     /* i poteri ad area: Cl pulisce, U e Na danneggiano quello che hanno intorno */
     if (ab === 'pulisci' || ab === 'radio' || ab === 'esplodi') {
@@ -747,12 +898,12 @@
       liv.nemici.forEach(function (e) {
         if (!e.vivo) return;
         if (Math.abs(e.x - p.x) < raggio && Math.abs(e.y - p.y) < raggio) {
-          if ((S.p.areaT || 0) <= 0) { uccidi(e); }
+          if ((p.areaT || 0) <= 0) uccidi(e);
         }
       });
-      if ((S.p.areaT || 0) <= 0) S.p.areaT = ab === 'pulisci' ? 40 : 70;
+      if ((p.areaT || 0) <= 0) p.areaT = ab === 'pulisci' ? 40 : 70;
     }
-    if (S.p.areaT > 0) S.p.areaT--;
+    if (p.areaT > 0) p.areaT--;
 
     /* ── i proiettili ─────────────────────────────────────────────────── */
     S.proiettili.forEach(function (b) {
@@ -767,7 +918,7 @@
         }
       });
       if (S.boss && S.boss.attivo && b.vivo &&
-          Math.abs(S.boss.x - b.x) < 22 && Math.abs(S.boss.y - b.y) < 22) {
+          Math.abs(S.boss.x - b.x) < 24 && Math.abs(S.boss.y - b.y) < 24) {
         S.boss.vita -= b.forza;
         S.boss.colpito = 10;
         b.vivo = false;
@@ -777,35 +928,56 @@
     });
     S.proiettili = S.proiettili.filter(function (b) { return b.vivo; });
 
-    /* ── i nemici ─────────────────────────────────────────────────────── */
+    /* ── le bolle: chi le prende sale ─────────────────────────────────── */
+    liv.bolle.forEach(function (bo) {
+      bo.y -= bo.v;
+      if (bo.y < -8) { bo.y = ALTO + 8; }
+      if (Math.abs(bo.x - p.x) < bo.r + 8 && Math.abs(bo.y - p.y) < bo.r + 8) {
+        p.vy -= 0.1;
+      }
+    });
+
+    /* ── i cristalli: fermi e taglienti ───────────────────────────────── */
+    liv.cristalli.forEach(function (cr) {
+      if (cr.rotto) return;
+      if (Math.abs(cr.x - p.x) < cr.r + 6 && Math.abs(cr.y - p.y) < cr.r + 6) {
+        /* il ferro è pesante: affondando ci passa attraverso */
+        if (ab === 'tuffo' && p.vy > 1.4) {
+          cr.rotto = true; particelle(cr.x, cr.y, '#9fe8ff', 10);
+          S.punti += 30 * S.moltiplicatore;
+          bip(220, 0.08, 'square', 0.06);
+        } else if (S.invincibile > 0 || ab === 'invinc') { /* niente */ }
+        else colpito();
+      }
+    });
+
+    /* ── i radicali ───────────────────────────────────────────────────── */
     var lento = (ab === 'rallenta') ? 0.45 : 1;
     liv.nemici.forEach(function (e) {
       if (!e.vivo) return;
       if (Math.abs(e.x - p.x) > LARGO) return;      /* fuori scena: fermi */
       e.t++;
-      if (e.tipo === 'vola') {
-        e.x += e.vx * lento;
-        e.y += Math.sin(e.t / 22) * 0.8;
+      if (e.tipo === 'insegue') {
+        var ddx = p.x - e.x, ddy = p.y - e.y, dd = Math.hypot(ddx, ddy) || 1;
+        e.vx += (ddx / dd) * 0.012 * S.diff.vel;
+        e.vy += (ddy / dd) * 0.012 * S.diff.vel;
+        var ve = Math.hypot(e.vx, e.vy), vm = 1.1 * S.diff.vel;
+        if (ve > vm) { e.vx *= vm / ve; e.vy *= vm / ve; }
       } else {
-        e.x += e.vx * lento;
-        var sE = terrenoA(liv, e.x);
-        if (e.tipo === 'salta' && e.t % 72 === 0) e.vy = -6.2;
-        e.vy += G * 0.9;
-        e.y += e.vy;
-        if (e.y + e.h / 2 >= sE) { e.y = sE - e.h / 2; e.vy = 0; }
-        /* davanti a un vuoto o a un muro si gira: un nemico che cade nel
-           vuoto da sé rende il livello più facile a caso */
-        var avanti = terrenoA(liv, e.x + e.vx * 8);
-        if (avanti > ALTO + 100 || Math.abs(avanti - sE) > TILE * 2) e.vx = -e.vx;
+        e.vy += Math.sin(e.t / 30) * 0.012;
       }
-      /* contatto col giocatore */
-      if (Math.abs(e.x - p.x) < 11 && Math.abs(e.y - p.y) < 13) {
-        /* saltandoci sopra si schiaccia: è la grammatica del genere */
-        if (p.vy > 1.2 && p.y < e.y - 2) {
+      e.x += e.vx * lento; e.y += e.vy * lento;
+      if (e.y < 12 || e.y > ALTO - 12) e.vy = -e.vy;
+      /* contatto */
+      if (Math.abs(e.x - p.x) < 11 && Math.abs(e.y - p.y) < 11) {
+        /* COLPIRLO DI SLANCIO LO DISSOCIA: è la grammatica di questo gioco —
+           non si salta sopra a nessuno, si arriva addosso con la velocità
+           che il legame ti ha dato */
+        if (Math.hypot(p.vx, p.vy) > 2.6) {
           uccidi(e);
-          p.vy = -6.4;
+          p.vx *= -0.35; p.vy *= -0.35;
         } else if (ab === 'inerte' && e.ossidante) {
-          /* l'oro non si ossida: quel nemico non lo tocca */
+          /* l'oro non si ossida: quel radicale non lo tocca */
         } else if (S.invincibile > 0 || ab === 'invinc') {
           uccidi(e);
         } else {
@@ -818,13 +990,20 @@
     liv.elementi.forEach(function (el) {
       if (el.preso) return;
       el.t++;
-      if (Math.abs(el.x - p.x) < 13 && Math.abs(el.y - p.y) < 15) {
+      /* DA VICINO SI FA PRENDERE. Passare a cinque pixel da un elemento e non
+         raccoglierlo, mentre si vola appesi a un legame, è una frustrazione
+         gratuita: qui non si mira, si passa. Misurato: senza questo, in
+         cinquemila passi il pilota non ne raccoglieva nemmeno uno. */
+      var dxe = p.x - el.x, dye = p.y - el.y;
+      var de = Math.hypot(dxe, dye);
+      if (de < 46 && de > 1) { el.x += (dxe / de) * 0.9; el.y += (dye / de) * 0.9; }
+      if (Math.abs(el.x - p.x) < 14 && Math.abs(el.y - p.y) < 14) {
         el.preso = true;
         prendi(el);
       }
     });
 
-    /* ── i punti di controllo: la domanda ─────────────────────────────── */
+    /* ── le membrane: la domanda ──────────────────────────────────────── */
     liv.controlli.forEach(function (c) {
       if (c.fatto) return;
       if (p.x >= c.x) {
@@ -833,23 +1012,36 @@
       }
     });
 
-    /* ── il boss ──────────────────────────────────────────────────────── */
+    /* ── il boss: uno ione grosso che tira a sé ───────────────────────── */
     if (S.boss) {
-      var bo = S.boss;
-      if (!bo.attivo && p.x > bo.x - LARGO * 0.6) {
-        bo.attivo = true;
+      var bo2 = S.boss;
+      if (!bo2.attivo && p.x > bo2.x - LARGO * 0.6) {
+        bo2.attivo = true;
         bip(110, 0.4, 'sawtooth', 0.08);
       }
-      if (bo.attivo) {
-        bo.t++;
-        if (bo.colpito > 0) bo.colpito--;
-        /* seconda fase quando è a metà vita: si muove più in fretta */
-        if (bo.vita <= bo.max / 2) bo.fase = 2;
-        var vb = (bo.fase === 2 ? 1.5 : 0.9) * S.diff.vel;
-        bo.x += Math.sin(bo.t / 48) * vb;
-        bo.y = ALTO - 6 * TILE + Math.sin(bo.t / 30) * 14;
-        if (Math.abs(bo.x - p.x) < 24 && Math.abs(bo.y - p.y) < 24) {
-          if (S.invincibile > 0 || ab === 'invinc') { /* niente */ }
+      if (bo2.attivo) {
+        bo2.t++;
+        if (bo2.colpito > 0) bo2.colpito--;
+        if (bo2.vita <= bo2.max / 2) bo2.fase = 2;
+        var vb = (bo2.fase === 2 ? 1.5 : 0.9) * S.diff.vel;
+        bo2.y += Math.sin(bo2.t / 42) * vb;
+        bo2.y = Math.max(40, Math.min(ALTO - 40, bo2.y));
+        /* attrae: più sei vicino, più tira. È uno ione */
+        var bx = bo2.x - p.x, by = bo2.y - p.y, bd = Math.hypot(bx, by) || 1;
+        if (bd < 150) {
+          var f = 0.05 * (1 - bd / 150) * S.diff.vel;
+          p.vx += (bx / bd) * f; p.vy += (by / bd) * f;
+        }
+        if (bd < 26) {
+          if (Math.hypot(p.vx, p.vy) > 3.2) {
+            /* addosso di slancio: lo si ionizza */
+            bo2.vita -= 1; bo2.colpito = 10;
+            p.vx = -bx / bd * 3.4; p.vy = -by / bd * 3.4;
+            S.invincibile = Math.max(S.invincibile, 24);
+            particelle(bo2.x, bo2.y, '#ffd93d', 12);
+            bip(200, 0.12, 'square', 0.08);
+            if (bo2.vita <= 0) vinciLivello();
+          } else if (S.invincibile > 0 || ab === 'invinc') { /* niente */ }
           else colpito();
         }
       }
@@ -858,8 +1050,11 @@
     }
 
     if (S.invincibile > 0) S.invincibile--;
-    S.particelle.forEach(function (q) { q.x += q.vx; q.y += q.vy; q.vy += 0.2; q.t--; });
+    S.particelle.forEach(function (q) { q.x += q.vx; q.y += q.vy; q.vy *= 0.96; q.t--; });
     S.particelle = S.particelle.filter(function (q) { return q.t > 0; });
+    /* la scia: dice da dove si arriva, e in un gioco di fionde serve */
+    p.scia.push({ x: p.x, y: p.y });
+    if (p.scia.length > 14) p.scia.shift();
     p.anim++;
   }
 
@@ -882,6 +1077,10 @@
     var d = datiElemento(el.sim);
     S.elemento = { sim: el.sim, ab: el.ab, nome: d ? d.nome : el.sim,
                    Z: d ? d.Z : null, nota: d ? d.nota : '' };
+    /* DIVENTARE UN ELEMENTO QUI VUOL DIRE CAMBIARE FISICA, non colore: massa,
+       raggio, elettronegatività ed energia di ionizzazione entrano subito nel
+       galleggiamento, nella lunghezza dei legami e in quanto reggono. */
+    S.profilo = profilo(el.sim);
     if (el.ab === 'armatura') S.scudo = 2;
     else if (el.ab === 'scudo1') S.scudo = 1;
     else if (el.ab === 'scudo2') S.scudo = 1;
@@ -895,7 +1094,7 @@
                    return p.ab === el.ab; })[0], d);
   }
 
-  function colpito() {
+  function colpito(perche) {
     if (S.p.immune > 0) return;
     if (abilita() === 'schermo' && Math.random() < 0.5) { S.p.immune = 40; return; }
     if (S.scudo > 0) {
@@ -905,12 +1104,14 @@
       if (abilita() === 'scudo2') setTimeout(function () { if (S) S.scudo = 1; }, 4000);
       return;
     }
-    perdiVita(t('ti ha preso un nemico', 'an enemy got you'));
+    perdiVita(perche || t('ti ha preso un radicale', 'a radical got you'));
   }
 
   function perdiVita(perche) {
     S.vite--;
+    S.perche = perche;          /* l'ultima causa: serve a chi gioca e al banco */
     S.elemento = null; S.scudo = 0; S.moltiplicatore = 1;
+    S.profilo = profilo(null);
     bip(140, 0.3, 'sawtooth', 0.09);
     if (S.vite <= 0) {
       S.finito = { esito: 'perso', perche: perche };
@@ -1012,27 +1213,36 @@
     /* il sottotitolo */
     scriviCentrato(t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN'),
                    yN + 7 * k1 + 12, 2, '#9fe8da', 'rgba(3,12,20,.7)');
-    /* IL PERSONAGGIO SULLA COPERTINA. Corre sul fondo della schermata e cambia
-       elemento ogni tanto, casco e distintivo compresi: è il gioco spiegato
-       senza una parola. Corre sul posto, mentre il terreno gli scorre sotto —
-       il contrario costerebbe una telecamera per tre secondi di titolo. */
-    var terra = ALTO - 15;
-    ctx.fillStyle = '#122a44'; ctx.fillRect(0, terra, LARGO, 15);
-    ctx.fillStyle = '#1d4267'; ctx.fillRect(0, terra, LARGO, 2);
-    for (var sc = 0; sc < LARGO / 16 + 1; sc++) {
-      var sx2 = (sc * 16 - (tTit * 1.4) % 16);
-      ctx.fillStyle = 'rgba(94,234,212,.10)';
-      ctx.fillRect(sx2, terra + 5, 8, 2);
-    }
+    /* IL GIOCO, SULLA COPERTINA. Non un omino che corre: un atomo appeso a un
+       legame che gira intorno a un'ancora e poi parte per la tangente. È la
+       sola cosa che si fa in questo gioco, e si vede prima di cominciare. */
+    /* IN BASSO A SINISTRA, e non al centro: al centro ci sono i due pulsanti,
+       e un'animazione dietro un pulsante non la vede nessuno. Misurato
+       guardando la copertina: l'atomo girava esattamente sotto «GIOCA». */
+    var cy = ALTO - 46;
+    var ax = 42 + Math.sin(tTit / 160) * 10;
     var pt = POTERI[Math.floor(tTit / 150) % POTERI.length];
-    var fin = (Math.floor(tTit / 7) % 2) ? SPRITE.corsa1 : SPRITE.corsa2;
-    disegnaSprite(fin, 34, terra - ALTO_SPRITE * 2, 2, true,
-                  COLORI[pt.ab] || '#5eead4');
-    scrivi(pt.sim, 34 + 10, terra - ALTO_SPRITE * 2 - 12, 2,
-           COLORI[pt.ab] || '#5eead4', 'rgba(3,12,20,.85)');
-    /* e un nemico che gli viene incontro, perché il gioco è questo */
-    var nx = LARGO - 40 - ((tTit * 1.4) % (LARGO * 0.55));
-    disegnaSprite(NEMICO, Math.round(nx), terra - 16, 2, false, null, null, '#b06bff');
+    var colT = COLORI[pt.ab] || '#5eead4';
+    var ang = tTit / 26;
+    var rag = 23 + Math.sin(tTit / 90) * 4;
+    var ox3 = ax + Math.cos(ang) * rag, oy3 = cy + Math.sin(ang) * rag;
+    ctx.strokeStyle = 'rgba(94,234,212,.35)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ax, cy); ctx.lineTo(ox3, oy3); ctx.stroke();
+    for (var q3 = 1; q3 < 5; q3++) {
+      var tq = q3 / 5;
+      ctx.fillStyle = '#5eead4';
+      ctx.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(tTit / 7 + q3));
+      ctx.fillRect(Math.round(ax + (ox3 - ax) * tq) - 1,
+                   Math.round(cy + (oy3 - cy) * tq) - 1, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+    disegnaAtomo(ax, cy, 7, '#7f9ec2', 2, tTit, 'C');
+    disegnaAtomo(ox3, oy3, 6, colT, 2, tTit * 1.6, null);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(Math.round(ox3 - 3), Math.round(oy3 - 2), 2, 2);
+    ctx.fillRect(Math.round(ox3 + 1), Math.round(oy3 - 2), 2, 2);
+    scrivi(pt.sim, Math.round(ox3) - 4, Math.round(oy3) - 18, 1, colT,
+           'rgba(3,12,20,.85)');
 
     /* che cos'è questo gioco, in una riga. Sta QUI, sotto il sottotitolo, e
        non in fondo: il terzo inferiore della tela è occupato dai due pulsanti
@@ -1044,160 +1254,315 @@
                    yN + 7 * k1 + 32, 1, '#9ab4cc', 'rgba(3,12,20,.9)');
   }
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL DISEGNO
+
+     Non c'e' un prato con delle nuvole: c'e' un LIQUIDO. Il fondo e' una
+     colonna di solvente con le sue bollicine e le sue righe di corrente che
+     scorrono all'indietro; gli atomi sono nuclei con i loro gusci di
+     elettroni che girano davvero (quanti gusci lo dice il PERIODO della
+     tavola periodica, non un numero inventato); il legame e' una catena di
+     elettroni che pulsa, e il suo colore dice che legame e'.
+
+     Il personaggio e' un ATOMO con due occhi, non un omino: guarda dove va, e
+     quando prende un elemento cambia colore, dimensione e numero di gusci —
+     perche' e' diventato quell'atomo per davvero, numeri compresi.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var FONDI = [
+    ['#071d33', '#0d3350'], ['#140b2c', '#2c1a4d'],
+    ['#2a1206', '#4d2a14'], ['#04161a', '#0a3838']
+  ];
+
+  function disegnaAtomo(x, y, r, colore, gusci, fase, sim, chiaro) {
+    /* il nucleo */
+    ctx.fillStyle = colore;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.25)';
+    ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.34, 0, 6.2832); ctx.fill();
+    /* i gusci: uno per periodo, con gli elettroni che girano */
+    for (var g = 1; g <= gusci; g++) {
+      var rg = r + 4 + g * 3.5;
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.13 - g * 0.012).toFixed(3) + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, rg, 0, 6.2832); ctx.stroke();
+      var quanti = Math.min(6, 1 + g);
+      for (var e = 0; e < quanti; e++) {
+        var an = fase / (9 + g * 4) + (e / quanti) * 6.2832 + g;
+        ctx.fillStyle = chiaro || 'rgba(190,235,255,.85)';
+        ctx.fillRect(Math.round(x + Math.cos(an) * rg) - 1,
+                     Math.round(y + Math.sin(an) * rg) - 1, 2, 2);
+      }
+    }
+    if (sim) {
+      ctx.fillStyle = '#04101e';
+      ctx.font = 'bold ' + Math.max(7, Math.round(r)) + 'px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(sim, x, y + r * 0.38);
+    }
+  }
+
   function disegna() {
     if (!ctx) return;
-    /* sul titolo si disegna il titolo: e' una schermata del gioco, non una
+    /* sul titolo si disegna il titolo: è una schermata del gioco, non una
        pagina HTML travestita */
     if (schermo === 'titolo') { disegnaTitolo(); return; }
     var liv = S && S.liv;
     ctx.imageSmoothingEnabled = false;
-    /* cielo: due fasce, la zona cambia colore */
     var zona = liv ? liv.zona : 1;
-    var cieli = [['#0b1d3a', '#13325c'], ['#1a0f2e', '#3a1f52'],
-                 ['#2a1206', '#5a2a10'], ['#04161a', '#0a3a3a']];
-    var c1 = cieli[(zona - 1) % 4][0], c2 = cieli[(zona - 1) % 4][1];
+    var f = FONDI[(zona - 1) % 4];
     var g = ctx.createLinearGradient(0, 0, 0, ALTO);
-    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    g.addColorStop(0, f[1]); g.addColorStop(1, f[0]);
     ctx.fillStyle = g; ctx.fillRect(0, 0, LARGO, ALTO);
     if (!liv) return;
 
-    /* stelle fisse: un fondo che non si muove dà profondità a costo zero */
-    ctx.fillStyle = 'rgba(255,255,255,.22)';
-    for (var i = 0; i < 40; i++) {
-      var sx = (i * 97) % LARGO, sy = (i * 61) % (ALTO - 90);
-      ctx.fillRect(sx, sy, 1, 1);
-    }
-
     var cam = Math.round(S.cam);
-    var da = Math.floor(cam / TILE) - 1, a = da + Math.ceil(LARGO / TILE) + 2;
+    var p = S.p, pro = S.profilo;
+    var col = S.elemento ? (COLORI[S.elemento.ab] || '#8be9fd') : '#9fe8ff';
 
-    /* terreno */
-    for (var c = Math.max(0, da); c < Math.min(liv.mappa.length, a); c++) {
-      var m = liv.mappa[c];
-      var x = c * TILE - cam;
-      if (!m.vuoto) {
-        var y = ALTO - m.h * TILE;
-        ctx.fillStyle = ['#2d4a2d', '#3a2d4a', '#4a3a2d', '#2d4a4a'][(zona - 1) % 4];
-        ctx.fillRect(x, y, TILE, ALTO - y);
-        ctx.fillStyle = ['#4a7a4a', '#5f4a7a', '#7a5f3a', '#3a7a7a'][(zona - 1) % 4];
-        ctx.fillRect(x, y, TILE, 3);
-      }
-      if (m.piattaforma) {
-        var yp = ALTO - m.piattaforma * TILE;
-        ctx.fillStyle = '#6b7a8a'; ctx.fillRect(x, yp, TILE, 4);
-        ctx.fillStyle = '#95a7b8'; ctx.fillRect(x, yp, TILE, 1);
-      }
-      if (m.blocco) {
-        var yb = ALTO - (m.h + 2) * TILE;
-        ctx.fillStyle = '#8a6a3a'; ctx.fillRect(x + 1, yb, TILE - 2, TILE - 2);
-        ctx.fillStyle = '#c0a060'; ctx.fillRect(x + 2, yb + 1, TILE - 4, 2);
-      }
+    /* ── il solvente: righe di corrente che scorrono indietro ──────────── */
+    ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+    for (var r0 = 0; r0 < 16; r0++) {
+      var yr = (r0 * 37 + (p.anim * 0.25) % 37) % ALTO;
+      var xr = (-(cam * 0.6) + r0 * 91) % (LARGO + 120) - 60;
+      ctx.beginPath(); ctx.moveTo(xr, yr); ctx.lineTo(xr + 26, yr); ctx.stroke();
+    }
+    /* bollicine di fondo, lente: profondità a costo zero */
+    for (var b0 = 0; b0 < 26; b0++) {
+      var bx = ((b0 * 173) - cam * 0.35) % (LARGO + 40) - 20;
+      if (bx < -20) bx += LARGO + 40;
+      var by = (ALTO - ((p.anim * 0.3 + b0 * 53) % (ALTO + 20)));
+      ctx.fillStyle = 'rgba(255,255,255,.055)';
+      ctx.beginPath(); ctx.arc(bx, by, 1 + (b0 % 3), 0, 6.2832); ctx.fill();
     }
 
-    /* punti di controllo */
-    liv.controlli.forEach(function (ck) {
-      var x = ck.x - cam;
-      if (x < -20 || x > LARGO + 20) return;
-      ctx.fillStyle = ck.fatto ? '#5eead4' : '#ffd93d';
-      ctx.fillRect(x, ALTO - 150, 2, 150);
-      ctx.fillRect(x, ALTO - 150, 14, 9);
+    /* i due bordi pericolosi: la superficie e il fondo. Si devono VEDERE,
+       perché fanno male */
+    var gs = ctx.createLinearGradient(0, 0, 0, 22);
+    gs.addColorStop(0, 'rgba(159,232,255,.22)'); gs.addColorStop(1, 'rgba(159,232,255,0)');
+    ctx.fillStyle = gs; ctx.fillRect(0, 0, LARGO, 22);
+    var gf = ctx.createLinearGradient(0, ALTO - 22, 0, ALTO);
+    gf.addColorStop(0, 'rgba(120,90,60,0)'); gf.addColorStop(1, 'rgba(120,90,60,.35)');
+    ctx.fillStyle = gf; ctx.fillRect(0, ALTO - 22, LARGO, 22);
+
+    /* ── le membrane dei punti di controllo ────────────────────────────── */
+    liv.controlli.forEach(function (c) {
+      var x = c.x - cam;
+      if (x < -10 || x > LARGO + 10) return;
+      ctx.strokeStyle = c.fatto ? 'rgba(94,234,212,.3)' : 'rgba(255,217,61,.5)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var yy = 0; yy < ALTO; yy += 6) {
+        ctx.moveTo(x + Math.sin((yy + p.anim) / 14) * 3, yy);
+        ctx.lineTo(x + Math.sin((yy + p.anim) / 14) * 3, yy + 3);
+      }
+      ctx.stroke();
     });
 
-    /* elementi */
+    /* ── le bolle ──────────────────────────────────────────────────────── */
+    liv.bolle.forEach(function (bo) {
+      var x = bo.x - cam;
+      if (x < -20 || x > LARGO + 20) return;
+      ctx.strokeStyle = 'rgba(190,240,255,.35)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, bo.y, bo.r, 0, 6.2832); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.18)';
+      ctx.beginPath(); ctx.arc(x - bo.r * 0.3, bo.y - bo.r * 0.35, bo.r * 0.3, 0, 6.2832);
+      ctx.fill();
+    });
+
+    /* ── i cristalli ───────────────────────────────────────────────────── */
+    liv.cristalli.forEach(function (cr) {
+      if (cr.rotto) return;
+      var x = cr.x - cam;
+      if (x < -24 || x > LARGO + 24) return;
+      ctx.fillStyle = 'rgba(159,232,255,.22)';
+      ctx.strokeStyle = '#9fe8ff'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var k2 = 0; k2 < 6; k2++) {
+        var aa = (k2 / 6) * 6.2832 + cr.t / 100;
+        var rr = cr.r * (k2 % 2 ? 0.62 : 1);
+        var px2 = x + Math.cos(aa) * rr, py2 = cr.y + Math.sin(aa) * rr;
+        if (k2) ctx.lineTo(px2, py2); else ctx.moveTo(px2, py2);
+      }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    });
+
+    /* ── le ancore, e quale si può agganciare ──────────────────────────── */
+    var vicina = ancoraVicina(liv, p.x, p.y, PORTATA);
+    liv.ancore.forEach(function (a, k3) {
+      var x = a.x - cam;
+      if (x < -40 || x > LARGO + 40) return;
+      if (k3 === vicina && p.legame === null) {
+        /* SI VEDE A CHE COSA CI SI PUÒ LEGARE. Senza questo segno si tiene
+           premuto sperando: un gioco in cui non si sa che cosa succederà */
+        ctx.strokeStyle = 'rgba(94,234,212,.5)'; ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.arc(x, a.y, a.pro.corpo + 9 + Math.sin(p.anim / 9) * 1.5,
+                                 0, 6.2832); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      disegnaAtomo(x, a.y, a.pro.corpo, k3 === vicina ? '#9fc4e8' : '#6f8fb3',
+                   Math.min(3, a.pro.gusci), a.t + p.anim, a.sim,
+                   'rgba(190,235,255,.5)');
+    });
+
+    /* ── il legame ─────────────────────────────────────────────────────── */
+    if (p.legame !== null && liv.ancore[p.legame]) {
+      var an2 = liv.ancore[p.legame];
+      var ax = an2.x - cam, ay = an2.y;
+      var px3 = p.x - cam, py3 = p.y;
+      var cl = COL_LEGAME[p.tipo] || '#5eead4';
+      ctx.strokeStyle = cl; ctx.globalAlpha = 0.45; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(px3, py3); ctx.stroke();
+      ctx.globalAlpha = 1;
+      /* gli elettroni del legame, che corrono avanti e indietro */
+      var passi = Math.max(3, Math.round(p.raggio / 7));
+      for (var q2 = 1; q2 < passi; q2++) {
+        var tt = q2 / passi;
+        var ox = ax + (px3 - ax) * tt, oy = ay + (py3 - ay) * tt;
+        var bri = 0.35 + 0.65 * Math.abs(Math.sin(p.anim / 7 + q2));
+        ctx.fillStyle = cl; ctx.globalAlpha = bri;
+        ctx.fillRect(Math.round(ox) - 1, Math.round(oy) - 1, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+      /* la tensione, dove serve guardarla: sul legame */
+      if (p.tensione > 0.45) {
+        ctx.strokeStyle = p.tensione > 0.8 ? '#ff6b84' : '#ffd93d';
+        ctx.globalAlpha = 0.5 + 0.5 * Math.sin(p.anim / 3);
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(px3, py3); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.lineWidth = 1;
+      }
+    }
+
+    /* ── gli elementi da raccogliere ───────────────────────────────────── */
     liv.elementi.forEach(function (el) {
       if (el.preso) return;
+      el.t++;
       var x = el.x - cam;
       if (x < -24 || x > LARGO + 24) return;
       var y = el.y + Math.sin(el.t / 18) * 3;
-      ctx.fillStyle = COLORI[el.ab] || '#fff';
-      ctx.beginPath(); ctx.arc(x + 6, y + 6, 8, 0, 6.2832); ctx.fill();
-      ctx.fillStyle = '#06131f';
-      ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(el.sim, x + 6, y + 9.5);
+      ctx.strokeStyle = COLORI[el.ab] || '#fff'; ctx.globalAlpha = 0.45;
+      ctx.beginPath(); ctx.arc(x, y, 11 + Math.sin(el.t / 12) * 1.5, 0, 6.2832);
+      ctx.stroke(); ctx.globalAlpha = 1;
+      disegnaAtomo(x, y, 7, COLORI[el.ab] || '#fff', 1, el.t * 2, el.sim);
     });
 
-    /* nemici */
+    /* ── i radicali: un elettrone spaiato, e si vede ───────────────────── */
     liv.nemici.forEach(function (e) {
       if (!e.vivo) return;
       var x = e.x - cam;
       if (x < -20 || x > LARGO + 20) return;
-      /* le zampe si muovono: un nemico fermo nel disegno sembra uno sfondo */
-      var passo2 = Math.floor((e.x + S.p.anim) / 6) % 2;
-      disegnaSprite(NEMICO, Math.round(x - 5), Math.round(e.y - 5 + passo2), 1,
-                    e.vx >= 0, null, null, e.ossidante ? '#ff5f7e' : '#b06bff');
-      if (e.tipo === 'vola') {
-        ctx.fillStyle = 'rgba(255,255,255,.55)';
-        var al = Math.floor(S.p.anim / 4) % 2 ? 2 : 0;
-        ctx.fillRect(x - 10, e.y - 2 - al, 5, 2);
-        ctx.fillRect(x + 6, e.y - 2 - al, 5, 2);
-      }
+      var ce = e.ossidante ? '#ff5f7e' : '#b06bff';
+      ctx.fillStyle = ce;
+      ctx.beginPath(); ctx.arc(x, e.y, 6, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = '#06131f';
+      ctx.fillRect(Math.round(x) - 3, Math.round(e.y) - 2, 2, 2);
+      ctx.fillRect(Math.round(x) + 1, Math.round(e.y) - 2, 2, 2);
+      /* l'elettrone spaiato: il punto che gira da solo */
+      var ae = e.t / 9;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(Math.round(x + Math.cos(ae) * 10) - 1,
+                   Math.round(e.y + Math.sin(ae) * 10) - 1, 2, 2);
     });
 
-    /* proiettili */
+    /* ── i proiettili ──────────────────────────────────────────────────── */
     ctx.fillStyle = '#ffe066';
     S.proiettili.forEach(function (b) {
       ctx.fillRect(b.x - cam - 2, b.y - 1, 5, 2);
     });
 
-    /* boss */
+    /* ── il boss: uno ione grosso ──────────────────────────────────────── */
     if (S.boss && S.boss.attivo) {
-      var bo = S.boss, bx = bo.x - cam;
-      ctx.fillStyle = bo.colpito > 0 ? '#ffffff' : (S.liv.finale ? '#ff3b5c' : '#c44bff');
-      ctx.fillRect(bx - 17, bo.y - 17, 34, 34);
+      var bo3 = S.boss, bx2 = bo3.x - cam;
+      var cb = bo3.colpito > 0 ? '#ffffff' : (liv.finale ? '#ff3b5c' : '#c44bff');
+      /* il campo che tira: si vede fin dove arriva */
+      ctx.strokeStyle = 'rgba(255,107,132,.16)';
+      ctx.beginPath(); ctx.arc(bx2, bo3.y, 150, 0, 6.2832); ctx.stroke();
+      disegnaAtomo(bx2, bo3.y, 17, cb, 3, bo3.t * 2, null, 'rgba(255,200,220,.9)');
       ctx.fillStyle = '#06131f';
-      ctx.fillRect(bx - 9, bo.y - 7, 5, 5); ctx.fillRect(bx + 4, bo.y - 7, 5, 5);
-      ctx.fillRect(bx - 8, bo.y + 5, 16, 3);
-      /* la sua vita */
+      ctx.fillRect(Math.round(bx2) - 8, Math.round(bo3.y) - 5, 5, 5);
+      ctx.fillRect(Math.round(bx2) + 3, Math.round(bo3.y) - 5, 5, 5);
+      ctx.fillRect(Math.round(bx2) - 7, Math.round(bo3.y) + 5, 14, 2);
       ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(LARGO / 2 - 60, 10, 120, 7);
       ctx.fillStyle = '#ff5f7e';
-      ctx.fillRect(LARGO / 2 - 59, 11, 118 * Math.max(0, bo.vita / bo.max), 5);
+      ctx.fillRect(LARGO / 2 - 59, 11, 118 * Math.max(0, bo3.vita / bo3.max), 5);
     }
 
-    /* particelle */
+    /* ── le particelle ─────────────────────────────────────────────────── */
     S.particelle.forEach(function (q) {
       ctx.fillStyle = q.c; ctx.fillRect(q.x - cam, q.y, 2, 2);
     });
 
-    /* ── il giocatore ────────────────────────────────────────────────────
-       Il disegno è uno solo; cambia il VESTITO, e il vestito è l'elemento:
-       il casco e il distintivo sul petto prendono il suo colore. Il simbolo
-       resta scritto sopra la testa, piccolo, perché il colore da solo non
-       dice «Fe» — e la tabella sotto la scena dice che cosa fa. */
-    var p = S.p, px = p.x - cam;
-    var col = S.elemento ? (COLORI[S.elemento.ab] || '#8be9fd') : '#9fd2ff';
+    /* ── IL GIOCATORE ──────────────────────────────────────────────────── */
+    var px4 = p.x - cam;
     if (!(p.immune > 0 && Math.floor(p.immune / 4) % 2)) {
+      /* la scia */
+      p.scia.forEach(function (sp, k4) {
+        ctx.fillStyle = col;
+        ctx.globalAlpha = (k4 / p.scia.length) * 0.22;
+        ctx.beginPath(); ctx.arc(sp.x - cam, sp.y, pro.corpo * 0.7, 0, 6.2832); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
       if (S.invincibile > 0) {
-        ctx.fillStyle = 'rgba(255,255,255,' + (0.25 + 0.25 * Math.sin(p.anim / 3)) + ')';
-        ctx.beginPath(); ctx.arc(px, p.y, 15, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.2 + 0.2 * Math.sin(p.anim / 3)) + ')';
+        ctx.beginPath(); ctx.arc(px4, p.y, pro.corpo + 7, 0, 6.2832); ctx.fill();
       }
-      disegnaSprite(fotogramma(p), Math.round(px - LARGO_SPRITE / 2),
-                    Math.round(p.y - ALTO_SPRITE / 2 - 1), 1,
-                    p.guarda > 0, col,
-                    S.invincibile > 0 && Math.floor(p.anim / 4) % 2 ? '#ffffff' : null);
+      /* UN ALONE INTORNO AL GIOCATORE. Su un fondo pieno di atomi grigi, un
+         atomo colorato da sei pixel si perde: misurato guardando una
+         schermata di gioco e non trovandolo. L'alone lo stacca da tutto. */
+      ctx.strokeStyle = col; ctx.globalAlpha = 0.35; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(px4, p.y, pro.corpo + 2, 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.lineWidth = 1;
+      disegnaAtomo(px4, p.y, pro.corpo, col, pro.gusci, p.anim, null, col);
+      ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.arc(px4, p.y, pro.corpo, 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = 1;
+      /* gli occhi guardano dove si va: è quello che rende un atomo un
+         personaggio invece che un pallino */
+      var vv = Math.hypot(p.vx, p.vy) || 1;
+      var ox2 = (p.vx / vv) * 1.6, oy2 = (p.vy / vv) * 1.6;
+      var ro = Math.max(1, Math.round(pro.corpo / 3.4));
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(Math.round(px4 - pro.corpo * 0.42), Math.round(p.y - 2), ro + 1, ro + 1);
+      ctx.fillRect(Math.round(px4 + pro.corpo * 0.1), Math.round(p.y - 2), ro + 1, ro + 1);
+      ctx.fillStyle = '#06131f';
+      ctx.fillRect(Math.round(px4 - pro.corpo * 0.42 + ox2), Math.round(p.y - 2 + oy2), ro, ro);
+      ctx.fillRect(Math.round(px4 + pro.corpo * 0.1 + ox2), Math.round(p.y - 2 + oy2), ro, ro);
       if (S.elemento) {
         ctx.fillStyle = col;
         ctx.font = 'bold 7px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(S.elemento.sim, px, p.y - 11);
+        ctx.fillText(S.elemento.sim, px4, p.y - pro.corpo - 7);
       }
       if (S.scudo > 0) {
         ctx.strokeStyle = '#8be9fd'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(px, p.y, 13, 0, 6.2832); ctx.stroke();
+        ctx.beginPath(); ctx.arc(px4, p.y, pro.corpo + 10, 0, 6.2832); ctx.stroke();
       }
     }
 
-    /* HUD */
+    /* ── il quadro comandi ─────────────────────────────────────────────── */
     ctx.fillStyle = 'rgba(4,12,22,.72)'; ctx.fillRect(0, 0, LARGO, 20);
     ctx.fillStyle = '#eaf6ff'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left';
     ctx.fillText('♥'.repeat(Math.max(0, S.vite)), 6, 14);
     ctx.textAlign = 'center';
-    ctx.fillText(t('ZONA ', 'ZONE ') + S.liv.zona + ' · ' + t('LIV ', 'LVL ') +
+    ctx.fillText(t('ZONA ', 'ZONE ') + liv.zona + ' · ' + t('LIV ', 'LVL ') +
                  S.livello + '/' + LIVELLI, LARGO / 2, 14);
     ctx.textAlign = 'right';
     ctx.fillText(String(S.punti).padStart(6, '0') +
                  (S.moltiplicatore > 1 ? ' ×' + S.moltiplicatore : ''), LARGO - 6, 14);
+    /* quanto manca alla fine della provetta: in un gioco di corrente serve
+       sapere se si sta andando avanti o indietro */
+    var av = Math.max(0, Math.min(1, p.x / liv.largo));
+    ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(0, 20, LARGO, 2);
+    ctx.fillStyle = '#5eead4'; ctx.fillRect(0, 20, LARGO * av, 2);
     if (S.elemento) {
-      ctx.fillStyle = col; ctx.textAlign = 'left';
-      ctx.fillText(S.elemento.sim + ' ' + S.elemento.nome, 6, ALTO - 6);
+      ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.font = 'bold 10px monospace';
+      ctx.fillText(S.elemento.sim + ' ' + S.elemento.nome + '  ' +
+                   (pro.sale > 0 ? '↑' : '↓') + ' ' + pro.massa.toFixed(2) + ' u',
+                   6, ALTO - 6);
+    } else {
+      ctx.fillStyle = '#7fa0bb'; ctx.textAlign = 'left'; ctx.font = 'bold 10px monospace';
+      ctx.fillText(t('atomo neutro · nessun elemento raccolto',
+                     'neutral atom · no element yet'), 6, ALTO - 6);
     }
   }
 
@@ -1503,22 +1868,32 @@
     var i = document.getElementById('bsiG-intro');
     if (!i) return;
     i.innerHTML = t(
-      'Un platform retro in cui i potenziamenti sono <b>elementi della tavola ' +
-      'periodica</b>: ognuno ti trasforma e ti dà un’abilità che viene dalla sua ' +
-      'chimica. Dodici livelli, quattro zone, un boss alla fine di ogni zona. Ai ' +
+      'Un gioco che non si gioca come gli altri: sei un <b>atomo in soluzione</b> ' +
+      'e <b>non c’è terreno</b> — ci si muove <b>legandosi</b> agli atomi che si ' +
+      'incontrano, girandoci intorno e lasciando il legame al momento giusto per ' +
+      'partire per la tangente. Una corrente ti spinge indietro più forte di quanto ' +
+      'tu sappia nuotare — <b>si avanza solo con i legami</b> — la tua <b>massa</b> ' +
+      'decide quanto affondi, i <b>raggi atomici</b> decidono quanto è lungo il ' +
+      'legame e l’<b>energia di ionizzazione</b> quanto regge prima di spezzarsi: ' +
+      'i numeri veri della tavola periodica di questa applicazione sono le regole ' +
+      'del gioco. Dodici livelli, quattro zone, un boss alla fine di ogni zona. Ai ' +
       '<b>punti di controllo</b> arriva una domanda di chimica — generata dalle ' +
-      'tabelle di questa applicazione, non scritta a mano — e la difficoltà che ' +
-      'scegli decide <i>quali</i> domande arrivano. Il tasto <b>❚❚</b> (o <b>Esc</b>) ' +
-      'apre la pausa: lì dentro ci sono la guida, il cambio lingua, il suono e lo ' +
-      'schermo pieno. Funziona anche <b>offline</b>: non c’è niente da scaricare.',
-      'A retro platformer where the power-ups are <b>periodic table elements</b>: ' +
-      'each one transforms you and grants an ability that comes from its chemistry. ' +
-      'Twelve levels, four zones, a boss at the end of each zone. At the ' +
-      '<b>checkpoints</b> a chemistry question arrives — generated from this ' +
-      'application’s own tables, not hand-written — and the difficulty you pick ' +
-      'decides <i>which</i> questions come. The <b>❚❚</b> key (or <b>Esc</b>) opens ' +
-      'the pause menu: the guide, the language switch, the sound and full screen are ' +
-      'in there. It works <b>offline</b> too: there is nothing to download.');
+      'tabelle di questa applicazione, non scritta a mano. Il tasto <b>❚❚</b> (o ' +
+      '<b>Esc</b>) apre la pausa: lì dentro ci sono la guida, il cambio lingua, il ' +
+      'suono e lo schermo pieno. Funziona anche <b>offline</b>: non c’è niente da ' +
+      'scaricare.',
+      'A game that is not played like the others: you are an <b>atom in solution</b> ' +
+      'and <b>there is no ground</b> — you move by <b>bonding</b> to the atoms you ' +
+      'meet, orbiting them and letting go at the right moment to fly off along the ' +
+      'tangent. A current pushes you back harder than you can swim — <b>bonds are the ' +
+      'only way forward</b> — your <b>mass</b> decides how fast you sink, <b>atomic radii</b> decide how long the bond is and <b>ionisation ' +
+      'energy</b> how much it holds before snapping: the real numbers from this ' +
+      'application’s periodic table are the rules of the game. Twelve levels, four ' +
+      'zones, a boss at the end of each. At the <b>checkpoints</b> a chemistry ' +
+      'question arrives — generated from this application’s own tables, not ' +
+      'hand-written. The <b>❚❚</b> key (or <b>Esc</b>) opens the pause menu: the ' +
+      'guide, the language switch, the sound and full screen are in there. It works ' +
+      '<b>offline</b> too: there is nothing to download.');
   }
 
   function mostraAvviso(testo, potere, dati) {
@@ -1539,27 +1914,70 @@
   /* LA GUIDA STA IN UNA FUNZIONE SOLA perché si legge da due posti: dal
      titolo («come si gioca») e dal menù di pausa. Due copie dello stesso
      testo sono due testi che un giorno diranno cose diverse. */
+  /* LA GUIDA STA IN UNA FUNZIONE SOLA perché si legge da due posti: dal
+     titolo («come si gioca») e dal menù di pausa. Due copie dello stesso
+     testo sono due testi che un giorno diranno cose diverse. */
   function guida() {
     return t(
-          '<b>◀ ▶</b> muovono · <b>⤒</b> salta (tienilo premuto per saltare più alto) · ' +
-          '<b>✦</b> usa l’abilità dell’elemento.<br>' +
-          'Da tastiera: <b>frecce</b> o <b>A/D</b>, <b>spazio</b> salta, <b>K</b> agisce.<br><br>' +
-          'Saltare <b>sopra</b> un nemico lo schiaccia. Sparare funziona solo se ' +
-          'l’elemento che hai lo permette — l’ossigeno ossida, il fluoro è il più ' +
-          'elettronegativo e colpisce più forte, il carbonio ha quattro legami e ' +
-          'quindi quattro colpi.<br><br>' +
-          'Ai <b>punti di controllo</b> (le bandierine) arriva una domanda. Da ' +
-          '«reazione esotermica» in su, sbagliare costa l’elemento — o una vita se ' +
-          'non ne hai.',
-          '<b>◀ ▶</b> move · <b>⤒</b> jump (hold it to jump higher) · ' +
-          '<b>✦</b> uses the element’s ability.<br>' +
-          'Keyboard: <b>arrows</b> or <b>A/D</b>, <b>space</b> jumps, <b>K</b> acts.<br><br>' +
-          'Jumping <b>on</b> an enemy squashes it. Shooting only works if the element ' +
-          'you carry allows it — oxygen oxidises, fluorine is the most electronegative ' +
-          'and hits hardest, carbon has four bonds and therefore four shots.<br><br>' +
-          'At the <b>checkpoints</b> (the flags) a question arrives. From "exothermic ' +
-          'reaction" upwards, a wrong answer costs the element — or a life if you have ' +
-          'none.');
+      'Sei un <b>atomo</b> dentro una provetta, e qui non si cammina e non si ' +
+      'salta: <b>non c’è terreno</b>. Ci si muove come si muove un atomo in ' +
+      'soluzione.<br><br>' +
+      '<b>⚛ tieni premuto</b>: sali, e se passa un atomo a portata (quello con ' +
+      'il cerchietto tratteggiato) ti ci <b>leghi</b> e cominci a girargli ' +
+      'intorno. <b>Lascia</b> e parti <b>per la tangente</b> con tutta la ' +
+      'velocità accumulata. Questo è il movimento: una <b>fionda fatta di ' +
+      'legami</b>.<br>' +
+      '<b>◀ ▶</b> da legato ti fanno <b>girare</b> — ▶ in senso orario, ◀ al ' +
+      'contrario — e a ogni giro prendi velocità, come su un’altalena. Da ' +
+      'libero servono a poco: la corrente è più forte della bracciata, e <b>a ' +
+      'nuoto non si avanza</b>. <b>✦</b> usa l’abilità dell’elemento.' +
+      '<br>Da tastiera: <b>frecce</b> o <b>A/D</b>, <b>spazio</b> lega e sale, ' +
+      '<b>K</b> agisce.<br><br>' +
+      'La <b>corrente</b> ti spinge sempre indietro: se ti porta fuori dallo ' +
+      'schermo, perdi una vita. L’unico modo di guadagnare terreno è il legame.' +
+      '<br><br>' +
+      'Lasciando il tasto <b>affondi</b>, e quanto dipende dalla tua <b>massa</b>: ' +
+      'l’idrogeno quasi galleggia, il piombo precipita. La <b>superficie</b> e il ' +
+      '<b>fondo</b> fanno male: ti respingono e ti costano l’elemento, o una vita ' +
+      'se non ne hai.<br><br>' +
+      'Il <b>legame si spezza</b> se tiri troppo: quanto regge viene ' +
+      'dall’<b>energia di ionizzazione</b> del tuo elemento, e il colore dice ' +
+      'che legame è — <span style="color:#5eead4">covalente</span> (gira libero), ' +
+      '<span style="color:#ffd93d">polare</span> (tira un po’ dentro), ' +
+      '<span style="color:#ff6bd6">ionico</span> (tira forte).<br><br>' +
+      'I <b>radicali</b> si dissociano addosso <b>di slancio</b> (velocità sopra ' +
+      '2,6): non si salta sopra a nessuno. Ai <b>punti di controllo</b> (le ' +
+      'membrane) arriva una domanda. Da «reazione esotermica» in su, sbagliare ' +
+      'costa l’elemento — o una vita se non ne hai.',
+
+      'You are an <b>atom</b> inside a test tube, and here you do not walk and do ' +
+      'not jump: <b>there is no ground</b>. You move the way an atom moves in ' +
+      'solution.<br><br>' +
+      '<b>⚛ hold</b>: you rise, and if an atom comes within range (the one with ' +
+      'the dashed circle) you <b>bond</b> to it and start orbiting. <b>Let go</b> ' +
+      'and you fly off <b>along the tangent</b> with all the speed you built up. ' +
+      'That is the movement: a <b>slingshot made of bonds</b>.<br>' +
+      '<b>◀ ▶</b> while bonded make you <b>spin</b> — ▶ clockwise, ◀ the other ' +
+      'way — and each turn adds speed, like pumping a swing. While free they do ' +
+      'little: the current is stronger than your stroke, and <b>swimming gets you ' +
+      'nowhere</b>. <b>✦</b> uses the element’s ability.' +
+      '<br>Keyboard: <b>arrows</b> or <b>A/D</b>, <b>space</b> bonds and rises, ' +
+      '<b>K</b> acts.<br><br>' +
+      'The <b>current</b> always pushes you back: if it carries you off screen, ' +
+      'you lose a life. The only way to gain ground is the bond.<br><br>' +
+      'Let the key go and you <b>sink</b>, as fast as your <b>mass</b> says: ' +
+      'hydrogen almost floats, lead drops. The <b>surface</b> and the <b>bottom</b> ' +
+      'hurt: they push you back and cost you the element, or a life if you have ' +
+      'none.<br><br>' +
+      'The <b>bond breaks</b> if you pull too hard: how much it holds comes from ' +
+      'your element’s <b>ionisation energy</b>, and the colour says which bond it ' +
+      'is — <span style="color:#5eead4">covalent</span> (free to spin), ' +
+      '<span style="color:#ffd93d">polar</span> (pulls in a little), ' +
+      '<span style="color:#ff6bd6">ionic</span> (pulls hard).<br><br>' +
+      '<b>Radicals</b> are dissociated by hitting them <b>with momentum</b> (speed ' +
+      'above 2.6): you do not jump on anything here. At the <b>checkpoints</b> ' +
+      '(the membranes) a question arrives. From "exothermic reaction" upwards, a ' +
+      'wrong answer costs the element — or a life if you have none.');
   }
 
   function disegnaUI() {
@@ -1740,7 +2158,8 @@
         '<button class="bsiG-t az" data-bsi-tasto="fuoco" aria-label="' +
           t('usa l’abilità dell’elemento', 'use the element ability') + '">✦</button>' +
         '<button class="bsiG-t" data-bsi-tasto="su" aria-label="' +
-          t('salta', 'jump') + '">⤒</button>' +
+          t('tieni premuto per legarti all’atomo vicino',
+            'hold to bond to the nearby atom') + '">⚛</button>' +
       '</div>';
     /* L'ATTRIBUTO SI CHIAMA `data-bsi-tasto`, NON `data-bsi-t`, E C'E' UN
        MOTIVO. `data-bsi-t` e' gia' preso: `bsi-lingue.js` lo usa per marcare
@@ -2092,12 +2511,13 @@
 
   globale.BSIGioco = {
     ID: ID, LARGO: LARGO, ALTO: ALTO, POTERI: POTERI, SPARA: SPARA,
-    DIFFICOLTA: DIFFICOLTA, generaLivello: generaLivello, terrenoA: terrenoA,
+    DIFFICOLTA: DIFFICOLTA, generaLivello: generaLivello,
     applica: applica, nuovaPartita: nuovaPartita, caricaLivello: caricaLivello,
     Caso: Caso, NOME: NOME, FONT: FONT, LIVELLI: LIVELLI, guida: guida,
-    SPRITE: SPRITE, NEMICO: NEMICO, TAVOLOZZA: TAVOLOZZA, COLORI: COLORI,
-    icona: icona,
-    disegnaSprite: disegnaSprite, fotogramma: fotogramma,
+    COLORI: COLORI, icona: icona, profilo: profilo, tipoLegame: tipoLegame,
+    ancoraVicina: ancoraVicina, lunghezzaLegame: lunghezzaLegame,
+    PORTATA: PORTATA, DIST_MAX: DIST_MAX, M_ARIA: M_ARIA,
+    disegnaAtomo: disegnaAtomo,
     pausa: pausa, inPausa: inPausa, riprendi: riprendi,
     lingueDisponibili: lingueDisponibili,
     scrivi: scrivi, largoTesto: largoTesto, disegnaTitolo: disegnaTitolo,

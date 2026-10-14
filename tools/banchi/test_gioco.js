@@ -229,45 +229,125 @@ function sopra(d, minimo, avuto) {
     G.DIFFICOLTA().forEach(d => {
       for (let L = 1; L <= 12; L++) {
         const l = G.generaLivello(L, d, 20260101);
-        let maxVuoto = 0, run = 0, maxGrad = 0, prev = null;
-        l.mappa.forEach(m => {
-          if (m.vuoto) { run++; maxVuoto = Math.max(maxVuoto, run); }
-          else { run = 0; if (prev !== null) maxGrad = Math.max(maxGrad, Math.abs(m.h - prev)); prev = m.h; }
+        /* LA REGOLA CHE RENDE PERCORRIBILE UN LIVELLO: due ancore consecutive
+           non più lontane di quanto una fionda copra. Si misura qui per conto
+           proprio, non si chiede al generatore se è stato bravo. */
+        let salto = 0, fuori = 0;
+        for (let k = 1; k < l.ancore.length; k++) {
+          const a = l.ancore[k - 1], b = l.ancore[k];
+          salto = Math.max(salto, Math.hypot(b.x - a.x, b.y - a.y));
+        }
+        l.ancore.forEach(a => { if (a.y < 8 || a.y > 262) fuori++; });
+        /* un cristallo addosso a un'ancora la renderebbe inutilizzabile */
+        let crAddosso = 0;
+        l.cristalli.forEach(c => {
+          l.ancore.forEach(a => {
+            if (Math.hypot(a.x - c.x, a.y - c.y) < 20) crAddosso++;
+          });
         });
-        esiti.push({ d: d.n, L: L, maxVuoto, maxGrad, boss: l.boss, finale: l.finale,
+        esiti.push({ d: d.n, L: L, salto: Math.round(salto), fuori, crAddosso,
+                     ancore: l.ancore.length, boss: l.boss, finale: l.finale,
                      controlli: l.controlli.length, nemici: l.nemici.length,
                      elementi: l.elementi.length,
                      sparante: l.elementi.some(e => G.SPARA[e.ab]) });
       }
     });
-    /* a parità di seme, lo stesso livello */
     const a = G.generaLivello(5, G.DIFFICOLTA()[2], 77), b = G.generaLivello(5, G.DIFFICOLTA()[2], 77);
+    /* L'ALTRO VERSO: una catena rotta deve essere SEGNALATA da questa misura,
+       altrimenti il controllo qui sopra non sta misurando niente */
+    const rotto = G.generaLivello(3, G.DIFFICOLTA()[0], 99);
+    rotto.ancore[4].x += 400;
+    let saltoRotto = 0;
+    for (let k = 1; k < rotto.ancore.length; k++) {
+      const u = rotto.ancore[k - 1], v = rotto.ancore[k];
+      saltoRotto = Math.max(saltoRotto, Math.hypot(v.x - u.x, v.y - u.y));
+    }
     return {
-      quanti: esiti.length,
-      vuotiLarghi: esiti.filter(e => e.maxVuoto > 4).length,
-      gradiniAlti: esiti.filter(e => e.maxGrad > 3).length,
+      quanti: esiti.length, DIST_MAX: G.DIST_MAX,
+      troppoLontane: esiti.filter(e => e.salto > G.DIST_MAX + 0.5).length,
+      peggiorSalto: Math.max.apply(null, esiti.map(e => e.salto)),
+      saltoRotto: Math.round(saltoRotto),
+      ancoreFuori: esiti.filter(e => e.fuori > 0).length,
+      cristalliAddosso: esiti.reduce((n, e) => n + e.crAddosso, 0),
+      pocheAncore: esiti.filter(e => e.ancore < 12).length,
       bossSenzaSparante: esiti.filter(e => e.boss && !e.sparante).length,
       senzaDueControlli: esiti.filter(e => e.controlli !== 2).length,
       senzaNemici: esiti.filter(e => e.nemici === 0).length,
       quantiBoss: esiti.filter(e => e.boss && e.d === 3).length,
       finali: esiti.filter(e => e.finale && e.d === 3).length,
-      ripetibile: JSON.stringify(a.mappa) === JSON.stringify(b.mappa),
+      ripetibile: JSON.stringify(a.ancore) === JSON.stringify(b.ancore),
       nemiciCrescono: esiti.filter(e => e.d === 1 && e.L === 12)[0].nemici >
                       esiti.filter(e => e.d === 1 && e.L === 1)[0].nemici
     };
   });
   att('livelli generati (12 × 5 difficoltà)', 60, liv.quanti);
-  /* IL LIMITE VIENE DALLA FISICA, NON DA UN GUSTO: il salto copre 3,7 tile */
-  att('nessun vuoto più largo di quanto un salto copra', 0, liv.vuotiLarghi);
-  att('nessun gradino più alto di quanto un salto scavalchi', 0, liv.gradiniAlti);
+  /* IL LIMITE VIENE DAL MOVIMENTO, NON DA UN GUSTO: è la distanza che si copre
+     partendo per la tangente alla velocità massima che un legame regge */
+  att('nessuna coppia di ancore più lontana di quanto una fionda copra',
+      0, liv.troppoLontane);
+  console.log('      (il salto peggiore su 60 livelli: ' + liv.peggiorSalto +
+              ' px, il limite è ' + liv.DIST_MAX + ')');
+  /* …e la stessa misura, su una catena rotta apposta, DEVE accorgersene */
+  att('  · e su una catena rotta apposta la misura se ne accorge', true,
+      liv.saltoRotto > liv.DIST_MAX);
+  att('nessuna ancora fuori dalla provetta', 0, liv.ancoreFuori);
+  att('nessun cristallo addosso a un’ancora', 0, liv.cristalliAddosso);
+  att('ogni livello ha una catena di ancore', 0, liv.pocheAncore);
   att('ogni livello ha due punti di controllo', 0, liv.senzaDueControlli);
-  att('nessun livello è vuoto di nemici', 0, liv.senzaNemici);
+  att('nessun livello è vuoto di radicali', 0, liv.senzaNemici);
   /* un boss senza un elemento che spari sarebbe invincibile */
   att('ogni livello con boss ha un elemento che spara', 0, liv.bossSenzaSparante);
   att('quattro boss in dodici livelli', 4, liv.quantiBoss);
   att('  · e uno solo è il boss finale', 1, liv.finali);
   att('a parità di seme il livello è identico', true, liv.ripetibile);
-  att('e il dodicesimo ha più nemici del primo', true, liv.nemiciCrescono);
+  att('e il dodicesimo ha più radicali del primo', true, liv.nemiciCrescono);
+
+  /* ═══ §3bis · LA CHIMICA DENTRO IL MOVIMENTO ═══════════════════════════ */
+  console.log('\n── Il movimento viene dai numeri veri ──');
+  const fis = await pg.evaluate(() => {
+    const G = window.BSIGioco;
+    const H = G.profilo('H'), He = G.profilo('He'), Pb = G.profilo('Pb'),
+          C = G.profilo('C'), O = G.profilo('O'), Na = G.profilo('Na'),
+          Cl = G.profilo('Cl'), U = G.profilo('U'), neutro = G.profilo(null);
+    return {
+      veri: [H, He, Pb, C, U].filter(p => p.vero).length,
+      massaH: H.massa, massaPb: Pb.massa,
+      saleH: +H.sale.toFixed(2), salePb: +Pb.sale.toFixed(2),
+      saleNeutro: +neutro.sale.toFixed(3),
+      /* i gusci sono il PERIODO della tavola, non un numero scelto a mano */
+      gusciH: H.gusci, gusciU: U.gusci, periodoU: U.periodo,
+      /* la lunghezza del legame viene dai raggi atomici veri */
+      legameHH: Math.round(G.lunghezzaLegame(H, H)),
+      legameUU: Math.round(G.lunghezzaLegame(U, U)),
+      /* il tipo di legame viene dalla differenza di elettronegatività */
+      CC: G.tipoLegame(C, C), CO: G.tipoLegame(C, O), NaCl: G.tipoLegame(Na, Cl),
+      dCC: +Math.abs(C.en - C.en).toFixed(2),
+      dCO: +Math.abs(C.en - O.en).toFixed(2),
+      dNaCl: +Math.abs(Na.en - Cl.en).toFixed(2),
+      /* quanto regge un legame viene dall'energia di ionizzazione */
+      tenutaNa: +Na.tenuta.toFixed(2), tenutaF: +G.profilo('F').tenuta.toFixed(2),
+      ionNa: Na.ion, ionF: G.profilo('F').ion
+    };
+  });
+  att('i profili vengono dalla tavola periodica dell’app', 5, fis.veri);
+  /* PIÙ LEGGERO DELL'ARIA SALE, PIÙ PESANTE AFFONDA — nei due versi */
+  att('l’idrogeno sale', true, fis.saleH > 0.9 && fis.massaH < 1.1);
+  att('  · e il piombo affonda', true, fis.salePb < -0.9 && fis.massaPb > 200);
+  att('  · e senza elemento non si sale né si affonda', 0, fis.saleNeutro);
+  att('i gusci sono il periodo della tavola, non un numero a mano',
+      fis.periodoU, fis.gusciU);
+  att('  · e l’idrogeno ne ha uno solo', 1, fis.gusciH);
+  /* il legame fra due atomi grandi è più lungo di quello fra due piccoli */
+  att('il legame viene dai raggi atomici: U–U è più lungo di H–H', true,
+      fis.legameUU > fis.legameHH);
+  console.log('      (H–H ' + fis.legameHH + ' px · U–U ' + fis.legameUU + ' px)');
+  att('C–C è covalente (Δχ ' + fis.dCC + ')', 'covalente', fis.CC);
+  att('C–O è polare (Δχ ' + fis.dCO + ')', 'polare', fis.CO);
+  att('Na–Cl è ionico (Δχ ' + fis.dNaCl + ')', 'ionico', fis.NaCl);
+  /* il fluoro ha l'energia di ionizzazione più alta del sodio: i suoi legami
+     reggono di più, e il gioco lo deve dire con i numeri veri */
+  att('il legame del fluoro regge più di quello del sodio', true,
+      fis.tenutaF > fis.tenutaNa && fis.ionF > fis.ionNa);
 
   /* ═══ §4 · SI GIOCA ════════════════════════════════════════════════════ */
   console.log('\n── Si gioca: dal titolo alla vittoria ──');
@@ -293,11 +373,12 @@ function sopra(d, minimo, avuto) {
     await new Promise(r2 => setTimeout(r2, 220));
     out.inGioco = G.schermo() === 'gioco';
 
-    /* si corre a destra a passi deterministici, senza dipendere dai fotogrammi */
+    /* SI GIOCA COME SI GIOCA DAVVERO: ci si lega, si pompa, si lascia. A passi
+       deterministici, senza dipendere dai fotogrammi. */
     G.fermaCiclo();
     G.tasti('dx', true);
-    let preso = null, domanda = null, fermo = 0, xPrec = 0;
-    for (let i = 0; i < 5000; i++) {
+    let preso = null, domanda = null, legati = 0;
+    for (let i = 0; i < 9000; i++) {
       const sc = G.schermo();
       if (sc === 'domanda' || sc === 'esitoDomanda') {
         const q = G.domandaAperta();
@@ -309,12 +390,32 @@ function sopra(d, minimo, avuto) {
       if (sc !== 'gioco') break;
       const S = G.stato();
       if (!preso && S.elemento) preso = { sim: S.elemento.sim, nome: S.elemento.nome, ab: S.elemento.ab, Z: S.elemento.Z };
-      if (Math.abs(S.p.x - xPrec) < 0.2) { fermo++; if (fermo > 6) G.tasti('su', true); }
-      else { fermo = 0; G.tasti('su', false); }
-      xPrec = S.p.x;
+      const p = S.p, liv = S.liv;
+      let su;
+      if (p.legame === null) {
+        const k = G.ancoraVicina(liv, p.x, p.y, G.PORTATA, p.ultimo);
+        let mira = null, md = 1e9;
+        for (const q2 of liv.ancore) {
+          const d = Math.hypot(q2.x - p.x, q2.y - p.y);
+          if (q2.x > p.x - 30 && d < md) { md = d; mira = q2; }
+        }
+        su = (k >= 0) || (mira ? mira.y < p.y - 6 : p.y > G.ALTO - 56);
+      } else {
+        let pros = null;
+        for (const q2 of liv.ancore) if (q2.x > p.x + 14) { pros = q2; break; }
+        const vel = Math.hypot(p.vx, p.vy);
+        if (!pros) su = !(vel > 2.4 && p.vx > 1.6);
+        else {
+          const dx = pros.x - p.x, dy = pros.y - p.y, dd = Math.hypot(dx, dy) || 1;
+          const dot = (p.vx * dx + p.vy * dy) / (dd * (vel || 1));
+          su = !(vel > 2.2 && dot > 0.72);
+        }
+        legati++;
+      }
+      G.tasti('su', su);
       G.passo();
-      if (i % 60 === 0) G.tasti('su', false);
     }
+    out.fotogrammiLegato = legati;
     const S1 = G.stato();
     out.elementoPreso = preso;
     out.domandaVista = domanda;
@@ -329,9 +430,12 @@ function sopra(d, minimo, avuto) {
   att('le difficoltà sono cinque, con nomi di chimica', 5, gioca.difficolta.length);
   console.log('      (' + gioca.difficolta.join(' · ') + ')');
   att('dal titolo si arriva in partita', true, gioca.inGioco);
+  /* il gioco è il legame: se in cinquemila passi non ci si lega mai, quello
+     che segue sta misurando qualcos'altro */
+  sopra('  · e ci si muove legandosi agli atomi', 200, gioca.fotogrammiLegato);
   /* IL POTENZIAMENTO E' UN ELEMENTO, e il suo nome viene dalla tavola
      periodica dell'applicazione, non riscritto nel gioco */
-  att('correndo si raccoglie un elemento e si diventa quell’elemento', true,
+  att('girando per la provetta si raccoglie un elemento e si diventa quello', true,
       !!(gioca.elementoPreso && gioca.elementoPreso.sim && gioca.elementoPreso.nome));
   if (gioca.elementoPreso) console.log('      (' + gioca.elementoPreso.sim + ' ' +
     gioca.elementoPreso.nome + ' Z' + gioca.elementoPreso.Z + ' → ' + gioca.elementoPreso.ab + ')');
@@ -340,6 +444,97 @@ function sopra(d, minimo, avuto) {
   if (gioca.domandaVista) console.log('      (' + gioca.domandaVista.area + ')');
   sopra('rispondendo giusto si avanza di livello', 2, gioca.livelloRaggiunto);
   sopra('e si fanno punti', 1, gioca.punti);
+
+  /* ═══ §4bis · IL PILOTA AUTOMATICO ═════════════════════════════════════
+     La prova che un livello si attraversa non è una misura geometrica: è
+     qualcuno che lo attraversa. Qui gioca un pilota che sa tre cose e basta —
+     si lega a quello che trova, spinge sempre nello stesso verso, lascia
+     quando sta andando verso il prossimo atomo abbastanza in fretta — e non
+     muore, perché quello che si misura è se il PERCORSO si percorre, non se
+     un pilota cieco sopravvive ai radicali.
+
+     I semi sono fissi: senza, ogni esecuzione proverebbe dodici livelli
+     diversi e non si saprebbe mai se il gioco è peggiorato.
+     ═══════════════════════════════════════════════════════════════════════ */
+  console.log('\n── Un pilota che sa tre cose attraversa i livelli ──');
+  const pil = await pg.evaluate(() => {
+    const G = window.BSIGioco, ALTO = G.ALTO;
+    function pilota(nLiv, seme, passi, rompi) {
+      /* i tasti si azzerano: un tasto rimasto premuto da una prova precedente
+         spinge il pilota nel verso opposto, e la misura diventa un'altra */
+      ['sx', 'dx', 'su', 'fuoco'].forEach(function (k) { G.tasti(k, false); });
+      G.nuovaPartita(1, seme); G.fermaCiclo();
+      G.caricaLivello(nLiv); G.schermo('gioco'); G.fermaCiclo();
+      const S = G.stato();
+      let maxX = S.p.x, fermoDa = 0, altroVerso = 0;
+      for (let i = 0; i < passi; i++) {
+        /* per l'altro verso: le ancore si tolgono a ogni passo, perché a ogni
+           vita persa il livello si rigenera con la catena intera */
+        if (rompi && S.liv.ancore.length > 2) S.liv.ancore = S.liv.ancore.slice(0, 2);
+        const sc = G.schermo();
+        if (sc === 'domanda' || sc === 'esitoDomanda') {
+          const q = G.domandaAperta();
+          if (q && !('giusto' in q)) G.rispondi(q.giusta);
+          G.chiudiDomanda(); continue;
+        }
+        if (sc !== 'gioco') break;
+        const p = S.p, liv = S.liv;
+        let su;
+        if (p.legame === null) {
+          /* libero: si punta all'altezza dell'ancora più vicina, e si tiene
+             premuto per salire o per agganciare */
+          const k = G.ancoraVicina(liv, p.x, p.y, G.PORTATA, p.ultimo);
+          let mira = null, md = 1e9;
+          for (const q2 of liv.ancore) {
+            const d = Math.hypot(q2.x - p.x, q2.y - p.y);
+            if (q2.x > p.x - 30 && d < md) { md = d; mira = q2; }
+          }
+          su = (k >= 0) || (mira ? mira.y < p.y - 6 : p.y > ALTO - 56);
+        } else {
+          /* legato: si lascia quando si sta andando verso il prossimo atomo */
+          let pros = null;
+          for (const q2 of liv.ancore) if (q2.x > p.x + 14) { pros = q2; break; }
+          const vel = Math.hypot(p.vx, p.vy);
+          if (!pros) su = !(vel > 2.4 && p.vx > 1.6);
+          else {
+            const dx = pros.x - p.x, dy = pros.y - p.y, dd = Math.hypot(dx, dy) || 1;
+            const dot = (p.vx * dx + p.vy * dy) / (dd * (vel || 1));
+            su = !(vel > 2.2 && dot > 0.72);
+          }
+        }
+        /* se per quattro secondi non guadagna un pixel, prova a girare
+           dall'altra parte: è quello che farebbe chiunque, e serve a misurare
+           il livello invece dell'ostinazione del pilota */
+        if (altroVerso > 0) { altroVerso--; G.tasti('dx', false); G.tasti('sx', true); }
+        else { G.tasti('dx', true); G.tasti('sx', false); }
+        G.tasti('su', su);
+        S.p.immune = 999; S.invincibile = 999; S.vite = 9;
+        G.passo();
+        if (S.p.x > maxX + 0.5) { maxX = S.p.x; fermoDa = 0; }
+        else if (++fermoDa > 240) { fermoDa = 0; altroVerso = 150; }
+      }
+      G.tasti('su', false); G.tasti('dx', false); G.tasti('sx', false);
+      return +(maxX / (S.liv ? S.liv.largo : 1)).toFixed(2);
+    }
+    const corse = [];
+    for (const seme of [20260101, 777])
+      for (let L = 1; L <= 12; L++) corse.push({ seme: seme, L: L, f: pilota(L, seme, 5200, false) });
+    return { corse: corse, rotto: pilota(5, 20260101, 5200, true) };
+  });
+  const fr = pil.corse.map(c => c.f);
+  const bene = fr.filter(f => f >= 0.85).length;
+  console.log('      ' + pil.corse.map(c => c.L + ':' + c.f).join(' '));
+  /* RIFERIMENTO DICHIARATO: oggi sono 21 corse su 24 oltre l'85%, e la
+     peggiore arriva al 36%. Non è «tutte», e dirlo è il punto: il pilota è
+     cieco e si impunta. Se un giorno questi numeri scendono, qualcosa si è
+     rotto nel movimento o nella generazione dei livelli. */
+  sopra('almeno 20 corse su 24 oltre l’85% del livello', 20, bene);
+  sopra('  · e nessuna si ferma nel primo terzo', 0.15, Math.min.apply(null, fr));
+  /* L'ALTRO VERSO: senza ancore non si va da nessuna parte. Se ci si andasse
+     lo stesso, questo gioco non sarebbe quello che dice di essere — ed è
+     successo: con i primi numeri il pilota senza ancore arrivava al 91%. */
+  att('  · togliendo le ancore il pilota non avanza', true, pil.rotto < 0.4);
+  console.log('      (senza ancore: ' + Math.round(pil.rotto * 100) + '% del livello)');
 
   /* il boss di zona, e il boss finale */
   const boss = await pg.evaluate(async (liv) => {
@@ -588,11 +783,9 @@ function sopra(d, minimo, avuto) {
   /* ═══════════════════════════════════════════════════════════════════════
      IL PERSONAGGIO E L'ICONA
 
-     Il personaggio è un disegno a caratteri: si controlla che le righe siano
-     tutte lunghe uguale e che non ci sia un carattere senza colore — un
-     carattere non dichiarato non si vede, non dà errore, e lascia un buco nel
-     disegno. Poi si guarda la TELA: con l'elemento addosso il colore
-     dell'elemento deve comparire sul personaggio, e senza elemento no.
+     Il personaggio è un ATOMO: il suo colore, la sua dimensione e il numero
+     dei suoi gusci vengono dall'elemento che ha addosso. Qui si guarda la
+     TELA: con l'elemento il suo colore c'è, senza l'elemento no.
      ═══════════════════════════════════════════════════════════════════════ */
   const cxS = await browser.newContext({ serviceWorkers: 'block',
                                          viewport: { width: 1100, height: 950 } });
@@ -607,38 +800,10 @@ function sopra(d, minimo, avuto) {
     nav.click();
     await new Promise(r => setTimeout(r, 1400));
     const G = BSIGioco;
-
-    /* il disegno */
-    const noti = Object.keys(G.TAVOLOZZA).concat(['.', 'C', 'A', 'O']);
-    const fotogrammi = Object.keys(G.SPRITE);
-    let righeStorte = 0, caratteriIgnoti = [];
-    fotogrammi.forEach(k => {
-      const f = G.SPRITE[k];
-      f.forEach(r => {
-        if (r.length !== f[0].length) righeStorte++;
-        r.split('').forEach(ch => {
-          if (noti.indexOf(ch) < 0 && caratteriIgnoti.indexOf(ch) < 0) caratteriIgnoti.push(ch);
-        });
-      });
-    });
-    G.NEMICO.forEach(r => {
-      if (r.length !== G.NEMICO[0].length) righeStorte++;
-      r.split('').forEach(ch => {
-        if (noti.indexOf(ch) < 0 && caratteriIgnoti.indexOf(ch) < 0) caratteriIgnoti.push(ch);
-      });
-    });
-
-    /* quale fotogramma in quale momento */
-    const fSalto = G.fotogramma({ terra: false, vx: 0, anim: 0 }) === G.SPRITE.salto;
-    const fFermo = G.fotogramma({ terra: true, vx: 0, anim: 0 }) === G.SPRITE.fermo;
-    const fCorsa = G.fotogramma({ terra: true, vx: 2, anim: 0 }) !== G.SPRITE.fermo;
-
-    /* l'icona */
     const ico = G.icona();
     const pb = getComputedStyle(nav, '::before');
     const tb = getComputedStyle(document.querySelector('#sgioco .section-title'), '::before');
 
-    /* la tela: il colore dell'elemento compare sul personaggio? */
     G.nuovaPartita(2); G.schermo('gioco'); G.fermaCiclo();
     const S = G.stato();
     const tela = document.getElementById('bsiG-tela');
@@ -647,7 +812,7 @@ function sopra(d, minimo, avuto) {
       const r = parseInt(hex.slice(1, 3), 16), v = parseInt(hex.slice(3, 5), 16),
             b2 = parseInt(hex.slice(5, 7), 16);
       const px = Math.round(S.p.x - S.cam), py = Math.round(S.p.y);
-      const d = q.getImageData(Math.max(0, px - 10), Math.max(0, py - 12), 20, 24).data;
+      const d = q.getImageData(Math.max(0, px - 14), Math.max(0, py - 14), 28, 28).data;
       let n = 0;
       for (let i = 0; i < d.length; i += 4) {
         if (d[i] === r && d[i + 1] === v && d[i + 2] === b2) n++;
@@ -656,28 +821,25 @@ function sopra(d, minimo, avuto) {
     }
     /* un colore che non compare altrove nella scena: il confronto è esatto */
     const colore = G.COLORI.spara;          /* l'ossigeno */
-    S.elemento = null; G.disegna();
+    S.elemento = null; S.profilo = G.profilo(null); G.disegna();
     const senza = conta(colore);
     S.elemento = { sim: 'O', nome: 'Ossigeno', ab: 'spara', z: 8 };
+    S.profilo = G.profilo('O');
     G.disegna();
     const con = conta(colore);
-    return { righeStorte, caratteriIgnoti, fotogrammi, fSalto, fFermo, fCorsa,
-             icona: ico.slice(0, 22), iconaLunga: ico.length,
-             testoNav: nav.textContent.trim(),
-             iconaNav: pb.backgroundImage.indexOf('data:image/png') > 0 &&
-                       parseFloat(pb.width) >= 8,
-             iconaTitolo: tb.backgroundImage.indexOf('data:image/png') > 0 &&
-                          parseFloat(tb.width) >= 8,
-             con, senza };
+    /* e il corpo cambia davvero con l'elemento: l'uranio è più grosso
+       dell'idrogeno, e ha più gusci */
+    const H = G.profilo('H'), U = G.profilo('U');
+    return {
+      icona: ico.slice(0, 22), iconaLunga: ico.length,
+      testoNav: nav.textContent.trim(),
+      iconaNav: pb.backgroundImage.indexOf('data:image/png') > 0 &&
+                parseFloat(pb.width) >= 8,
+      iconaTitolo: tb.backgroundImage.indexOf('data:image/png') > 0 &&
+                   parseFloat(tb.width) >= 8,
+      con, senza, corpoH: H.corpo, corpoU: U.corpo, gusciH: H.gusci, gusciU: U.gusci
+    };
   });
-  att('il personaggio ha i suoi quattro fotogrammi', 4, sp.fotogrammi.length);
-  att('  · righe tutte della stessa lunghezza', 0, sp.righeStorte);
-  /* un carattere senza colore non si vede e non dà errore: è un buco muto */
-  att('  · nessun carattere senza colore dichiarato', 0, sp.caratteriIgnoti.length);
-  sp.caratteriIgnoti.forEach(c => console.log('      ! «' + c + '» non è nella tavolozza'));
-  att('  · in aria si usa il fotogramma del salto', true, sp.fSalto);
-  att('  · fermo quello fermo', true, sp.fFermo);
-  att('  · e correndo quelli della corsa', true, sp.fCorsa);
   att('l’icona è un’immagine, non un file da scaricare', 'data:image/png;base64,',
       sp.icona);
   sopra('  · e non è vuota', 1500, sp.iconaLunga);
@@ -686,8 +848,12 @@ function sopra(d, minimo, avuto) {
   att('  · il pulsante porta il nome del gioco', 'ELEMENTIA', sp.testoNav);
   /* NEI DUE VERSI: con l'elemento addosso il suo colore è sul personaggio… */
   sopra('con un elemento addosso il personaggio ne prende il colore', 12, sp.con);
-  /* …e senza elemento quel colore sul personaggio non c'è */
+  /* …e senza elemento quel colore non c'è */
   att('  · e senza elemento quel colore non c’è', 0, sp.senza);
+  att('  · e l’uranio è più grosso dell’idrogeno, con più gusci', true,
+      sp.corpoU > sp.corpoH && sp.gusciU > sp.gusciH);
+  console.log('      (H ' + sp.corpoH + ' px/' + sp.gusciH + ' gusci · U ' +
+              sp.corpoU + ' px/' + sp.gusciU + ' gusci)');
   await cxS.close();
 
   att('nessun errore JavaScript', 0, err.length);
@@ -696,9 +862,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 95) {
+  if (eseguiti < 110) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 95');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 110');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v204` |
-| Commit | `558aaa7a54ec5c0e4a9b996467f2a76aeae1847f` |
-| Generato (UTC) | `2026-10-14T17:24:20.633Z` |
+| Versione applicazione | `bsi-v205` |
+| Commit | `9d3b8957d9baaa02ab66d9953a365c3ab92e4e17` |
+| Generato (UTC) | `2026-10-14T18:37:07.509Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -86,7 +86,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `bbcca9518fd7a086e2332c36717cef7528b07cd081b5c0edeb78265d0741b4e9` |
+| `index.html` | `e34063af576e850609b8b83b9cca7e654ff1250baf0ad0523fe986d8429d6f15` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -102,7 +102,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `8b4f28da090750b3cd348686f017ae252a5cbdab1f0c22fb06f47295003d532d` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `094bda607be3a8896a5b9b83fbde5fa2a4e54d525205afe4075b886b42603ae0` |
+| `sw.js` | `02740edfd47f29a2ce4c01f63c33fcfc15e79e3b66320f6bde86365e999386b3` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-14T17:24:20.633Z._
+_Generato il 2026-10-14T18:37:07.509Z._

@@ -7,6 +7,91 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v205] — 2026-10-14
+
+**ELEMENTIA non è più un platform: in questo gioco non si cammina e non si
+salta. Si è un atomo in soluzione, e ci si muove facendo e rompendo LEGAMI.**
+
+### Il movimento
+
+Tenendo premuto `⚛` si sale e, se passa un atomo a portata, ci si **lega** e si
+comincia a girargli intorno; `◀ ▶` fanno **girare** — ▶ in senso orario — e a
+ogni giro si prende velocità, come su un'altalena; lasciando il tasto si parte
+**per la tangente** con tutta la velocità accumulata. Il movimento è una
+**fionda fatta di legami**.
+
+**E si avanza SOLO così.** Non è uno slogan: è una disuguaglianza fra due
+numeri scritta nel codice — spinta da liberi **0,008** < corrente **0,012** — e
+finché vale, nuotare non può far guadagnare terreno con nessun elemento e in
+nessuna difficoltà. Il banco la verifica nel modo più diretto possibile:
+toglie **tutte le ancore** a un livello e guarda dove arriva un pilota
+automatico. Con i primi numeri arrivava al **91%**; adesso si ferma al **13%**.
+
+### I numeri veri della tavola periodica sono le regole
+
+Diventare un elemento non cambia il colore: cambia la **fisica**.
+
+| che cosa | da dove viene |
+|---|---|
+| quanto affondi | la **massa atomica**, contro quella media dell'aria (28,96 u) |
+| quanto è lungo il tuo legame | i **raggi atomici** dei due atomi |
+| quanto regge prima di spezzarsi | la tua **energia di ionizzazione** |
+| covalente, polare o ionico | la differenza di **elettronegatività** (soglie di Pauling 0,4 e 1,7) |
+| quanti gusci ti si vedono | il **periodo** della tavola |
+
+L'idrogeno quasi galleggia, il piombo precipita, il fluoro fa legami che
+reggono più di quelli del sodio, Na–Cl è ionico e tira dentro. Tutto letto da
+`ELEMENTS`, la tavola periodica che l'applicazione ha già: nessun secondo
+elenco di chimica.
+
+### Il personaggio e la scena
+
+Il chimico a pixel è andato via con il platform. Il personaggio è un **atomo
+con due occhi** che guardano dove va, con i suoi gusci di elettroni intorno,
+grande quanto dice il suo raggio atomico. I nemici sono **radicali**, e portano
+il loro elettrone spaiato che gira. Lo sfondo è una **colonna di solvente** con
+le righe di corrente che scorrono all'indietro e le bollicine che salgono; gli
+atomi-ancora hanno i loro gusci, e quello a portata si illumina con un cerchio
+tratteggiato. L'icona della sezione è lo stesso atomo.
+
+### Sei difetti trovati facendo giocare un pilota automatico
+
+Nessuno di questi si vedeva leggendo il codice.
+
+* **Una forza costante su una corda non fa girare niente**: spostava il punto
+  di equilibrio e basta. Il pilota restava appeso a oscillare e in settemila
+  passi non arrivava a un decimo del livello. Ora la spinta è **sulla curva**.
+* **Il raggio del legame si accorciava fino al minimo**: si finiva a girare in
+  un cerchietto di venti pixel da cui non si raggiunge più niente. Ora non
+  scende sotto i due terzi di quello di partenza.
+* **Le ancore troppo vicine ai bordi** mandavano l'orbita fuori dalla provetta,
+  e lassù si restava schiacciati fra il bordo e il legame: duemilaquattrocento
+  fotogrammi inchiodati a y=8. Ora i bordi sono larghi quanto il legame più
+  lungo, e il raggio si accorcia da sé vicino al bordo.
+* **Superficie e fondo uccidevano sul colpo**: con l'idrogeno addosso si sale
+  di un pixel e mezzo al fotogramma e il solo modo di fermarsi è un legame —
+  quarantasette morti su cinquantasette erano «evaporato». Ora respingono e
+  fanno male come qualunque altro danno.
+* **Il galleggiamento rovesciava l'affondamento**: con l'idrogeno si finiva
+  incollati al soffitto senza modo di scendere. Ora modula, non rovescia: tutti
+  scendono se non si tiene premuto, e l'elemento decide quanto.
+* **Non c'era nessun controllo verticale da liberi**: un atomo neutro sbalzato
+  contro la superficie restava lì per sempre. Ora il tasto del legame fa anche
+  salire — un solo gesto per due cose che in acqua sono la stessa.
+
+### Il banco
+
+`test_gioco` passa da 118 a **131 controlli**. I livelli non si misurano più
+con il salto: si misura che **due ancore consecutive non distino più di quanto
+una fionda copra** (104 px, che vengono dal conto: 5,4 px/passo di lancio con
+l'1,3% di attrito fanno oltre 250 px) — e la stessa misura, su una catena
+rotta apposta, se ne accorge. Poi la chimica dentro il movimento, provata nei
+due versi. E soprattutto il **pilota automatico**: sa tre cose — si lega a
+quello che trova, spinge sempre nello stesso verso, lascia quando sta andando
+verso il prossimo atomo — e attraversa **21 livelli su 24 oltre l'85%**, con
+semi fissi perché due esecuzioni misurino lo stesso gioco.
+
+---
 ## [bsi-v204] — 2026-10-14
 
 **ELEMENTIA ha una faccia: un chimico a pixel che diventa l'elemento che
