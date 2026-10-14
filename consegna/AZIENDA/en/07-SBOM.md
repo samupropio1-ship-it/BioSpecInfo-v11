@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v202` |
-| Commit | `4bc165f9bed4ac31a76e4e17e104cd6cc24d1ef4` |
-| Generated (UTC) | `2026-10-14T13:37:21.015Z` |
+| Application version | `bsi-v203` |
+| Commit | `1a58c5ad0beea0f7232cd4fc6564bb0597d5ba30` |
+| Generated (UTC) | `2026-10-14T14:35:48.754Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -86,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `b1ff9cdb196f5193c45da5de0637e5718e873bcbf65cb1ff5082126464a8d277` |
+| `index.html` | `0c34160438c665bdfe54a0ef1d10970ff03d97fc9360c0ba3904e9121c474f64` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -102,7 +102,7 @@ availability.
 | `bsi-lingue.js` | `3f6d716d6ee5d3a45b91ba0bc5af809d8b8e7f1fc0e7255eb94bf744ffcd57f8` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `330e0199c633bd6e815f21c19320c44ca49acd837db1787afe398cc429a69d4f` |
+| `sw.js` | `5686c09a6df15b7ec5364c6cf8ad9a4e32abcd13cb0669efa90a3792a02d80e0` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-14T13:37:21.015Z._
+_Generated on 2026-10-14T14:35:48.754Z._

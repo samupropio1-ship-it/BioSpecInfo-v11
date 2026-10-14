@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v202` |
+| **Version described** | `bsi-v203` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -64,6 +64,7 @@
 | **UI-16** | Changing language must cost a gesture, not a navigation | `bsi-sellingua.js` — a **round** button top right, at the title's height, with the flag in use; it opens into a disc with the fourteen flags on **two shells** (six inside, like a benzene ring) and, at the centre, the language name and **how much it is translated, measured** by `coperturaPerLingua()`. The actual switch stays in `bsi-lingue.js`: here there is only the way to call it, and the "Language" section remains because it INFORMS while this one ACTS | `test_gioco` §1 across **two viewports** — round, top, right, and "at the title's height" **measured** as the overlap of the two boxes (with `align-self:center` it lined up on a large screen and not on a phone, because there the flex aligns to the top and the logo block is two lines tall); an accessible name that says what it does rather than "flag of Italy"; the disc **inside the screen**; and **both ways**: the language really changes and going back to Italian the text is identical |
 | **SCI-37** | A didactic game's questions cannot be a second source of chemical truth, and cannot have two right answers | `bsi-gioco-domande.js` — it **contains no questions**: nineteen generators drawing from `ELEMENTS`, `SPEC_DATA`, `RXN`, `RETRO_STRATEGIES`, `AA_DATA` and the `BSIElucida`/`BSILettoreSpettri` engines, and every question carries its **provenance**. Range distractors are **disjoint** from the answer's, because different groups' ranges overlap (⁴J meta 1–3 Hz against ⁴J allylic 0–3 Hz) | `test_gioco` §2 — the nineteen generators **each tried** (one was dead and "available" called it running, because it looked at the source instead of trying it); the range reader on six known cases (it read "1–3 Hz" as [−3, 1], and the consequence was not a skewed number: it was that the four range generators stopped coming out and the "zero ambiguous" check passed vacuously); 600 sound questions; **zero ambiguous**, with the guard that those generators do run |
 | **UI-17** | A game must be playable, and must not consume when nobody is watching | `bsi-gioco.js` — **fixed-step** physics (1/60) with an accumulator, levels generated from a seed of (level, difficulty, run) and therefore **repeatable**, and a draw loop that **exits by itself** if the section is not visible | `test_gioco` §3-5 — **60 levels** verified passable against the limit that comes from the jump's physics (8.6²/(2·0.62) = 3.7 tiles): no gap beyond 4 columns, no step beyond 3 tiles, two checkpoints per level, a shooting element in every boss level; the game **played** from the title to the collected element, to the checkpoint question, to the next level, to the zone boss, to **victory over the final boss**; and **both ways** for the loop: thirty frames with the section open, **zero** with it closed |
+| **UI-18** | A game needs a name and a service door: the pause menu, holding everything needed without leaving | `bsi-gioco.js` — **ELEMENTIA** drawn on the canvas with a five-by-seven pixel font (not an `<h1>` over the scene) and **not repeated in HTML**; pause menu from `❚❚` or `Esc`/`P` with the run's state, the **guide** (the same one as the title screen: a single function), **fourteen flags** calling `BSILingue`, sound, full screen, give up. The menu panel anchors to the **window**, not to the scene, and scrolls | `test_gioco` §6 on a phone-sized window **portrait and landscape** — pixels counted on the canvas and two different frames (drawn and animated), the name absent from the HTML, the menu with guide/flags/settings, the language actually changing, the run frozen while paused, and **every item reachable by thumb**: this last one found the navigation bar **on top of** the menu (`z-index:10000` worth nothing inside a section turned into a stacking context by an animation with `fill-mode: both`) |
 | **ING-01** | One function must not have two implementations: the React/FastAPI stack must run THE SAME files as the application | `stack/api/worker/motore.mjs` — a Node process loads the repository modules with RDKit WebAssembly; no Python engine | `test_stack` — **15 checks**: compares the SHA-256 fingerprints declared by `GET /salute` with those of the files on disk, verifies the numbers match the browser's, and that no `.ts`/`.tsx` file contains a shift table |
 
 ---
@@ -161,7 +162,7 @@ manual testing, and their automation is planned.
 | Scientific (SCI-01…37) | 36 | 36 | 100 % |
 | AI agent (AI-01…10) | 10 | 10 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…17) | 15 | 15 | 100 % |
+| Interface (UI-01…18) | 16 | 16 | 100 % |
 | Security (SEC-01…07) | 5 | 5 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
 | **Automated total** | **76** | **76** | **100 %** |
@@ -201,4 +202,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v202`._
+_Document updated to version `bsi-v203`._

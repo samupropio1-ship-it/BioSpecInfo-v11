@@ -61,6 +61,98 @@
   var PASSO = 1000 / 60;
 
   /* ═════════════════════════════════════════════════════════════════════════
+     IL NOME, E UN FONT A PIXEL PER SCRIVERLO
+
+     Il gioco si chiama **ELEMENTIA**. Il titolo non e' un `<h1>`: e'
+     DISEGNATO sulla tela, lettera per lettera, con un font a cinque per
+     sette pixel scritto qui sotto. In un gioco retro il titolo fa parte del
+     gioco — un titolo in HTML sopra una tela a pixel si vede subito che e'
+     un'altra cosa.
+
+     Il font sta come disegno e non come numeri perche' un font scritto in
+     maschere di bit non si puo' leggere ne' correggere: cosi' invece una
+     lettera storta si vede a occhio nel sorgente.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var NOME = 'ELEMENTIA';
+
+  var FONT = {
+    A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+    B: ['####.', '#...#', '#...#', '####.', '#...#', '#...#', '####.'],
+    C: ['.###.', '#...#', '#....', '#....', '#....', '#...#', '.###.'],
+    D: ['####.', '#...#', '#...#', '#...#', '#...#', '#...#', '####.'],
+    E: ['#####', '#....', '#....', '####.', '#....', '#....', '#####'],
+    F: ['#####', '#....', '#....', '####.', '#....', '#....', '#....'],
+    G: ['.###.', '#...#', '#....', '#.###', '#...#', '#...#', '.####'],
+    H: ['#...#', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+    I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'],
+    J: ['..###', '...#.', '...#.', '...#.', '...#.', '#..#.', '.##..'],
+    K: ['#...#', '#..#.', '#.#..', '##...', '#.#..', '#..#.', '#...#'],
+    L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
+    M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'],
+    N: ['#...#', '##..#', '#.#.#', '#..##', '#...#', '#...#', '#...#'],
+    O: ['.###.', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+    P: ['####.', '#...#', '#...#', '####.', '#....', '#....', '#....'],
+    Q: ['.###.', '#...#', '#...#', '#...#', '#.#.#', '#..##', '.##.#'],
+    R: ['####.', '#...#', '#...#', '####.', '#.#..', '#..#.', '#...#'],
+    S: ['.####', '#....', '#....', '.###.', '....#', '....#', '####.'],
+    T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
+    U: ['#...#', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+    V: ['#...#', '#...#', '#...#', '#...#', '#...#', '.#.#.', '..#..'],
+    W: ['#...#', '#...#', '#...#', '#.#.#', '#.#.#', '##.##', '#...#'],
+    X: ['#...#', '#...#', '.#.#.', '..#..', '.#.#.', '#...#', '#...#'],
+    Y: ['#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..'],
+    Z: ['#####', '....#', '...#.', '..#..', '.#...', '#....', '#####'],
+    '0': ['.###.', '#...#', '#..##', '#.#.#', '##..#', '#...#', '.###.'],
+    '1': ['..#..', '.##..', '..#..', '..#..', '..#..', '..#..', '.###.'],
+    '2': ['.###.', '#...#', '....#', '...#.', '..#..', '.#...', '#####'],
+    '3': ['#####', '...#.', '..#..', '...#.', '....#', '#...#', '.###.'],
+    '4': ['...#.', '..##.', '.#.#.', '#..#.', '#####', '...#.', '...#.'],
+    '5': ['#####', '#....', '####.', '....#', '....#', '#...#', '.###.'],
+    '6': ['..##.', '.#...', '#....', '####.', '#...#', '#...#', '.###.'],
+    '7': ['#####', '....#', '...#.', '..#..', '.#...', '.#...', '.#...'],
+    '8': ['.###.', '#...#', '#...#', '.###.', '#...#', '#...#', '.###.'],
+    '9': ['.###.', '#...#', '#...#', '.####', '....#', '...#.', '.##..'],
+    ' ': ['.....', '.....', '.....', '.....', '.....', '.....', '.....'],
+    '·': ['.....', '.....', '.....', '..#..', '.....', '.....', '.....'],
+    '!': ['..#..', '..#..', '..#..', '..#..', '..#..', '.....', '..#..'],
+    '?': ['.###.', '#...#', '....#', '...#.', '..#..', '.....', '..#..'],
+    ':': ['.....', '..#..', '.....', '.....', '.....', '..#..', '.....'],
+    '-': ['.....', '.....', '.....', '#####', '.....', '.....', '.....'],
+    '/': ['....#', '...#.', '...#.', '..#..', '.#...', '.#...', '#....'],
+    '.': ['.....', '.....', '.....', '.....', '.....', '.....', '..#..'],
+    ',': ['.....', '.....', '.....', '.....', '.....', '..#..', '.#...']
+  };
+
+  /* larghezza in pixel logici di un testo a una data scala */
+  function largoTesto(testo, k) {
+    return String(testo).length * (5 * k + k) - k;
+  }
+
+  /* scrive a pixel. `c2` disegna un'ombra sotto, che a questa dimensione e'
+     l'unico modo di staccare le lettere dal fondo */
+  function scrivi(testo, x, y, k, c1, c2) {
+    var t2 = String(testo).toUpperCase();
+    var cx = x;
+    for (var i = 0; i < t2.length; i++) {
+      var g = FONT[t2[i]] || FONT[' '];
+      for (var r = 0; r < 7; r++) {
+        for (var q = 0; q < 5; q++) {
+          if (g[r][q] !== '#') continue;
+          if (c2) { ctx.fillStyle = c2; ctx.fillRect(cx + q * k + k, y + r * k + k, k, k); }
+          ctx.fillStyle = c1;
+          ctx.fillRect(cx + q * k, y + r * k, k, k);
+        }
+      }
+      cx += 5 * k + k;
+    }
+    return cx - k - x;
+  }
+
+  function scriviCentrato(testo, y, k, c1, c2) {
+    return scrivi(testo, Math.round((LARGO - largoTesto(testo, k)) / 2), y, k, c1, c2);
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
      LE DIFFICOLTA'
 
      I nomi sono di chimica e non sono decorativi: dicono quanto il sistema
@@ -286,7 +378,7 @@
       colonne: colonne, mappa: mappa, nemici: nemici, elementi: elementi,
       controlli: controlli, largo: colonne * TILE,
       /* il boss finale è al dodicesimo: più vita e due fasi */
-      finale: livello === 12
+      finale: livello === LIVELLI
     };
   }
 
@@ -302,6 +394,13 @@
   /* ═════════════════════════════════════════════════════════════════════════
      LO STATO
      ═════════════════════════════════════════════════════════════════════════ */
+  /* QUANTI LIVELLI. Il numero stava scritto a mano in sei punti: il titolo,
+     la barra in alto, la schermata di livello, quella di fine, la fine del
+     gioco e la generazione dell'ultimo livello. Sei copie dello stesso numero
+     sono cinque occasioni di sbagliarlo. Dodici: abbastanza da avere quattro
+     zone e quattro boss, pochi abbastanza da arrivare in fondo. */
+  var LIVELLI = 12;
+
   var S = null;        /* stato di partita, null = nessuna partita */
   var schermo = 'titolo';
   var tela = null, ctx = null, scala = 2;
@@ -628,7 +727,7 @@
     S.punti += 500 * S.moltiplicatore;
     bip(660, 0.1, 'triangle', 0.08);
     setTimeout(function () { bip(880, 0.18, 'triangle', 0.08); }, 110);
-    if (S.livello >= 12) {
+    if (S.livello >= LIVELLI) {
       S.finito = { esito: 'vinto' };
       schermo = 'esito';
       disegnaUI();
@@ -642,8 +741,92 @@
   /* ═════════════════════════════════════════════════════════════════════════
      IL DISEGNO — rettangoli su una tela 480×270, ingrandita a numeri interi
      ═════════════════════════════════════════════════════════════════════════ */
+  /* ═════════════════════════════════════════════════════════════════════════
+     LA SCHERMATA DEL TITOLO, DISEGNATA
+
+     Il nome del gioco sta nella TELA, non in un `<h1>` sopra: in un gioco
+     retro il titolo fa parte del gioco, e un titolo in HTML sopra una tela a
+     pixel si vede subito che e' un'altra cosa. Attorno al nome girano venti
+     bollicine, una per ogni elemento che si puo' diventare, con il loro
+     simbolo e il loro colore: il titolo dice che cos'e' il gioco senza
+     scriverlo.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var tTit = 0;
+
+  function disegnaTitolo() {
+    if (!ctx) return;
+    tTit++;
+    ctx.imageSmoothingEnabled = false;
+    /* fondo: un bagliore che respira */
+    var g = ctx.createRadialGradient(LARGO / 2, ALTO * 0.44, 10, LARGO / 2, ALTO * 0.44, 300);
+    g.addColorStop(0, '#13385c');
+    g.addColorStop(0.45, '#0a1c33');
+    g.addColorStop(1, '#03090f');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, LARGO, ALTO);
+    /* stelle */
+    for (var i = 0; i < 60; i++) {
+      var sx = (i * 131) % LARGO, sy = (i * 71) % ALTO;
+      var b = 0.12 + 0.2 * Math.abs(Math.sin((tTit + i * 29) / 40));
+      ctx.fillStyle = 'rgba(255,255,255,' + b.toFixed(2) + ')';
+      ctx.fillRect(sx, sy, 1, 1);
+    }
+    /* due orbitali inclinati, come nel marchio dell'applicazione */
+    ctx.strokeStyle = 'rgba(94,234,212,.16)'; ctx.lineWidth = 1;
+    for (var o2 = 0; o2 < 3; o2++) {
+      ctx.save();
+      ctx.translate(LARGO / 2, ALTO * 0.44);
+      ctx.rotate((o2 * 60 + tTit / 6) * Math.PI / 180);
+      ctx.beginPath(); ctx.ellipse(0, 0, 196, 58, 0, 0, 6.2832); ctx.stroke();
+      ctx.restore();
+    }
+    /* le bollicine degli elementi, una per potere, in orbita */
+    POTERI.forEach(function (p, k) {
+      var a = (tTit / 150) + (k / POTERI.length) * 6.2832;
+      var rx = 188, ry = 56;
+      var x = LARGO / 2 + Math.cos(a) * rx;
+      var y = ALTO * 0.44 + Math.sin(a) * ry;
+      var dietro = Math.sin(a) < 0;
+      var r = dietro ? 5 : 7;
+      ctx.globalAlpha = dietro ? 0.45 : 1;
+      ctx.fillStyle = COLORI[p.ab] || '#fff';
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+      if (!dietro) {
+        ctx.fillStyle = '#04101e';
+        ctx.font = 'bold 7px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(p.sim, x, y + 2.5);
+      }
+      ctx.globalAlpha = 1;
+    });
+    /* IL NOME */
+    var k1 = 5;
+    var larg = largoTesto(NOME, k1);
+    while (larg > LARGO - 28 && k1 > 2) { k1--; larg = largoTesto(NOME, k1); }
+    var yN = Math.round(ALTO * 0.44 - 7 * k1 / 2);
+    /* un alone, poi l'ombra, poi le lettere: a cinque pixel per modulo
+       l'alone e' l'unico modo di far staccare il titolo dagli orbitali */
+    ctx.save();
+    ctx.shadowColor = 'rgba(94,234,212,.55)'; ctx.shadowBlur = 18;
+    scriviCentrato(NOME, yN, k1, '#eafffb', 'rgba(3,12,20,.85)');
+    ctx.restore();
+    scriviCentrato(NOME, yN, k1, '#eafffb', 'rgba(3,12,20,.85)');
+    /* il sottotitolo */
+    scriviCentrato(t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN'),
+                   yN + 7 * k1 + 12, 2, '#9fe8da', 'rgba(3,12,20,.7)');
+    /* che cos'è questo gioco, in una riga. Sta QUI, sotto il sottotitolo, e
+       non in fondo: il terzo inferiore della tela è occupato dai due pulsanti
+       veri, e un testo disegnato lì sotto ci finisce dietro — misurato in una
+       finestra da telefono. Non c'è nemmeno un «PREMI GIOCA» che lampeggia:
+       il pulsante GIOCA è lì sotto e dice già la stessa cosa. */
+    scriviCentrato(LIVELLI + ' ' + t('LIVELLI', 'LEVELS') + ' · 4 BOSS · ' +
+                   POTERI.length + ' ' + t('ELEMENTI', 'ELEMENTS'),
+                   yN + 7 * k1 + 32, 1, '#9ab4cc', 'rgba(3,12,20,.9)');
+  }
+
   function disegna() {
     if (!ctx) return;
+    /* sul titolo si disegna il titolo: e' una schermata del gioco, non una
+       pagina HTML travestita */
+    if (schermo === 'titolo') { disegnaTitolo(); return; }
     var liv = S && S.liv;
     ctx.imageSmoothingEnabled = false;
     /* cielo: due fasce, la zona cambia colore */
@@ -781,7 +964,7 @@
     ctx.fillText('♥'.repeat(Math.max(0, S.vite)), 6, 14);
     ctx.textAlign = 'center';
     ctx.fillText(t('ZONA ', 'ZONE ') + S.liv.zona + ' · ' + t('LIV ', 'LVL ') +
-                 S.livello + '/12', LARGO / 2, 14);
+                 S.livello + '/' + LIVELLI, LARGO / 2, 14);
     ctx.textAlign = 'right';
     ctx.fillText(String(S.punti).padStart(6, '0') +
                  (S.moltiplicatore > 1 ? ' ×' + S.moltiplicatore : ''), LARGO - 6, 14);
@@ -807,6 +990,8 @@
     ultimo = ora;
     accumulo += dt;
     var giri = 0;
+    /* `passo()` avanza la FISICA, e si fa solo in partita; il disegno invece
+       gira anche sul titolo, che è animato. Il ciclo resta uno. */
     while (accumulo >= PASSO && giri < 5) { passo(); accumulo -= PASSO; giri++; }
     disegna();
     anim = requestAnimationFrame(ciclo);
@@ -892,12 +1077,93 @@
     var s = document.createElement('style');
     s.id = 'bsiG-stile';
     s.textContent = [
-      '#bsiG-scena{position:relative;max-width:100%;margin:0 auto;',
+      /* ── LA SCENA SI DIMENSIONA SULL'ALTEZZA, NON SOLO SULLA LARGHEZZA ──
+         Misurato su un telefono: con `width:100%` e `height:auto` la tela, a
+         schermo girato (844×390), diventava 808×455 — PIU' ALTA dello
+         schermo — e i comandi finivano a 907 px su una finestra di 390,
+         cioe' IRRAGGIUNGIBILI. Girare il telefono rendeva il gioco
+         ingiocabile.
+         Qui la larghezza e' la minore fra «tutto lo spazio» e «quella che
+         l'altezza disponibile consente», quindi la scena rimpicciolisce
+         invece di sfondare il bordo inferiore. `dvh` perche' su telefono la
+         barra del browser entra e esce e `vh` non la conta. */
+      '#bsiG-scena{position:relative;margin:0 auto;aspect-ratio:480/270;',
+      ' width:min(100%,calc((100vh - 230px) * 480 / 270));',
+      ' width:min(100%,calc((100dvh - 230px) * 480 / 270));',
       ' background:#04101e;border:2px solid #1e3a52;border-radius:10px;overflow:hidden}',
-      '#bsiG-tela{display:block;width:100%;height:auto;image-rendering:pixelated}',
+      '#bsiG-tela{display:block;width:100%;height:100%;image-rendering:pixelated}',
+      /* ── SCHERMO PIENO, FATTO A MANO ───────────────────────────────────
+         Non con l'API Fullscreen: su telefono non e' concessa a un elemento
+         qualunque in tutti i browser, e un gioco che a volte va a schermo
+         pieno e a volte no e' peggio di uno che non ci va mai. Qui e' una
+         classe sul `body`: funziona sempre, e la vera API si chiede in piu'
+         quando c'e'. */
+      'body.bsiG-pieno #bsiG-scena{position:fixed;inset:0;width:100vw;',
+      ' height:100dvh;max-width:none;aspect-ratio:auto;border:0;border-radius:0;',
+      ' z-index:9998;background:#02080f}',
+      'body.bsiG-pieno #bsiG-tela{width:100%;height:100%;object-fit:contain}',
+      'body.bsiG-pieno #bsiG-comandi{position:fixed;left:10px;right:10px;',
+      ' bottom:max(14px,env(safe-area-inset-bottom));z-index:9999;margin:0}',
+      'body.bsiG-pieno{overflow:hidden}',
+      '#bsiG-pieno{position:absolute;top:8px;right:8px;z-index:30;width:34px;',
+      ' height:34px;border-radius:9px;border:1px solid #2f5f82;color:#cfe2f5;',
+      ' background:rgba(4,12,22,.72);font-size:15px;cursor:pointer;padding:0;',
+      ' display:flex;align-items:center;justify-content:center}',
+      '#bsiG-pieno:hover,#bsiG-pieno:focus-visible{border-color:#5eead4;outline:none}',
       '#bsiG-ui{position:absolute;inset:0;display:flex;align-items:center;',
       ' justify-content:center;padding:14px;box-sizing:border-box;pointer-events:none}',
-      '#bsiG-ui.attiva{pointer-events:auto;background:rgba(4,12,22,.86)}',
+      /* PERCHE' LA SEZIONE DEL GIOCO NON PUO' AVERE UNA TRASFORMAZIONE.
+         L'applicazione anima l'apertura di ogni sezione con uno spostamento
+         (`transform:translateY`) e con `will-change:opacity,transform`. Un
+         elemento con una trasformazione diventa il riferimento dei figli
+         `position:fixed`: dentro una sezione così, `fixed; inset:0` non è più
+         lo schermo, è la sezione. Misurato: il pannello dei menù risultava
+         812×427 a partire da y=−10 su una finestra 844×390, e tre pulsanti
+         restavano fuori. Qui si toglie la trasformazione alla sola sezione del
+         gioco — l'apertura sfuma lo stesso, ma in opacità — perché questa
+         sezione contiene cose che devono ancorarsi alla finestra: il pannello
+         dei menù, la scena a schermo pieno e i comandi.
+
+         Si toglie anche l'animazione in opacità, e non per gusto: un'animazione
+         che anima l'opacità, con `fill-mode: both`, lascia la sezione in stato
+         «riempito» per sempre, e un elemento in quello stato è un contesto di
+         impilamento con z-index automatico. Dentro un contesto così il nostro
+         `z-index:10000` non vale più niente fuori: misurato, la barra di
+         navigazione (z-index 90) finiva SOPRA il menù di pausa, e il pulsante
+         «riprendi» non si poteva premere perché sotto il dito c'era una
+         linguetta della barra. La sezione del gioco compare quindi senza
+         dissolvenza: meglio senza un effetto che con un menù che non si tocca. */
+      '#' + ID + '{will-change:auto}',
+      '#' + ID + '.on{animation:none}',
+      /* QUANDO C'E' UN MENU' L'INGOMBRO E' LO SCHERMO, NON LA SCENA.
+         La scena è alta quanto 270/480 della sua larghezza: su un telefono in
+         verticale sono circa 220 px, e dentro 220 px un menù con la guida, le
+         quattordici lingue e le impostazioni non ci sta — misurato: diciassette
+         pulsanti su diciannove finivano fuori, e girando il telefono anche
+         «riprendi». Un pulsante che non si riesce a toccare non c'è. Perciò il
+         pannello dei menù (e solo quello: in partita resta trasparente sopra la
+         scena) si àncora alla finestra e scorre dentro di sé. Vale per tutti i
+         menù — difficoltà, domanda, esito, pausa — non solo per la pausa. */
+      '#bsiG-ui.attiva{pointer-events:auto;background:rgba(4,12,22,.92);',
+      ' position:fixed;inset:0;z-index:10000;align-items:center;',
+      ' padding:max(10px,env(safe-area-inset-top)) 12px ',
+      ' max(10px,env(safe-area-inset-bottom))}',
+      '#bsiG-ui.attiva .bsiG-scheda{max-height:100%;overflow:auto;',
+      ' -webkit-overflow-scrolling:touch;overscroll-behavior:contain}',
+      '.bsiG-stato{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;',
+      ' font-size:12px;color:#b9d3e6;margin:6px 0 12px}',
+      '.bsiG-stato span{background:rgba(94,234,212,.08);border:1px solid ',
+      ' rgba(94,234,212,.18);border-radius:999px;padding:3px 9px}',
+      '.bsiG-etic{font-size:11px;letter-spacing:.14em;text-transform:uppercase;',
+      ' color:#6f8aa3;margin:12px 0 6px}',
+      '.bsiG-bandiere{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}',
+      '.bsiG-fl{width:38px;height:38px;border-radius:50%;font-size:17px;line-height:1;',
+      ' cursor:pointer;background:rgba(10,22,40,.9);color:#eaf6ff;padding:0;',
+      ' border:1.5px solid rgba(94,234,212,.28);transition:transform .15s}',
+      '.bsiG-fl:hover,.bsiG-fl:focus-visible{transform:scale(1.12);outline:none;',
+      ' border-color:#5eead4}',
+      '.bsiG-fl.on{border-color:#5eead4;background:rgba(94,234,212,.18);',
+      ' box-shadow:0 0 0 2px rgba(94,234,212,.22)}',
       '.bsiG-scheda{max-width:420px;width:100%;text-align:center;color:#eaf6ff;',
       ' font-family:ui-monospace,monospace}',
       '.bsiG-tit{font-size:17px;font-weight:800;color:#5eead4;margin:0 0 6px;',
@@ -975,7 +1241,7 @@
     d.id = ID;
     d.className = 'section';
     d.innerHTML =
-      '<div class="section-title">🎮 ' +
+      '<div class="section-title">🎮 ' + NOME + ' — ' +
         t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN') + '</div>' +
       '<div id="bsiG-intro" style="color:#9fb3c8;font-size:.9rem;margin-bottom:12px;' +
         'max-width:860px;line-height:1.65"></div>' +
@@ -984,6 +1250,8 @@
           'aria-label="' + t('Area di gioco', 'Game area') + '"></canvas>' +
         '<div id="bsiG-ui"></div>' +
         '<div id="bsiG-avviso"></div>' +
+        '<button id="bsiG-pieno" aria-label="' +
+          t('schermo pieno', 'full screen') + '">⛶</button>' +
       '</div>' +
       '<div id="bsiG-comandi"></div>' +
       '<div id="bsiG-sotto" style="margin-top:12px"></div>';
@@ -1000,15 +1268,17 @@
       'chimica. Dodici livelli, quattro zone, un boss alla fine di ogni zona. Ai ' +
       '<b>punti di controllo</b> arriva una domanda di chimica — generata dalle ' +
       'tabelle di questa applicazione, non scritta a mano — e la difficoltà che ' +
-      'scegli decide <i>quali</i> domande arrivano. Funziona anche <b>offline</b>: ' +
-      'non c’è niente da scaricare.',
+      'scegli decide <i>quali</i> domande arrivano. Il tasto <b>❚❚</b> (o <b>Esc</b>) ' +
+      'apre la pausa: lì dentro ci sono la guida, il cambio lingua, il suono e lo ' +
+      'schermo pieno. Funziona anche <b>offline</b>: non c’è niente da scaricare.',
       'A retro platformer where the power-ups are <b>periodic table elements</b>: ' +
       'each one transforms you and grants an ability that comes from its chemistry. ' +
       'Twelve levels, four zones, a boss at the end of each zone. At the ' +
       '<b>checkpoints</b> a chemistry question arrives — generated from this ' +
       'application’s own tables, not hand-written — and the difficulty you pick ' +
-      'decides <i>which</i> questions come. It works <b>offline</b> too: there is ' +
-      'nothing to download.');
+      'decides <i>which</i> questions come. The <b>❚❚</b> key (or <b>Esc</b>) opens ' +
+      'the pause menu: the guide, the language switch, the sound and full screen are ' +
+      'in there. It works <b>offline</b> too: there is nothing to download.');
   }
 
   function mostraAvviso(testo, potere, dati) {
@@ -1026,38 +1296,11 @@
 
   function ui() { return document.getElementById('bsiG-ui'); }
 
-  function disegnaUI() {
-    var u = ui();
-    if (!u) return;
-    u.className = (schermo === 'gioco') ? '' : 'attiva';
-    if (schermo === 'gioco') { u.innerHTML = ''; comandi(); return; }
-
-    if (schermo === 'titolo') {
-      u.innerHTML = '<div class="bsiG-scheda">' +
-        '<div class="bsiG-tit">⚛ ' + t('LA CORSA DEGLI ELEMENTI', 'THE ELEMENT RUN') + '</div>' +
-        '<div class="bsiG-sub">' + t(
-          'Corri, salta, abbatti. Raccogli un elemento e diventi quell’elemento.<br>' +
-          '12 livelli · 4 zone · 4 boss · ' + (globale.BSIGiocoDomande ?
-            globale.BSIGiocoDomande.quanti : 0) + ' tipi di domanda',
-          'Run, jump, take them down. Pick up an element and you become that element.<br>' +
-          '12 levels · 4 zones · 4 bosses · ' + (globale.BSIGiocoDomande ?
-            globale.BSIGiocoDomande.quanti : 0) + ' question types') + '</div>' +
-        '<button class="bsiG-b" id="bsiG-gioca">▶ ' + t('GIOCA', 'PLAY') + '</button>' +
-        '<button class="bsiG-b bsiG-b2" id="bsiG-comeSi">' +
-          t('come si gioca', 'how to play') + '</button></div>';
-      document.getElementById('bsiG-gioca').onclick = function () {
-        schermo = 'difficolta'; disegnaUI();
-      };
-      document.getElementById('bsiG-comeSi').onclick = function () {
-        schermo = 'aiuto'; disegnaUI();
-      };
-      return;
-    }
-
-    if (schermo === 'aiuto') {
-      u.innerHTML = '<div class="bsiG-scheda" style="text-align:left">' +
-        '<div class="bsiG-tit">' + t('Come si gioca', 'How to play') + '</div>' +
-        '<div class="bsiG-sub">' + t(
+  /* LA GUIDA STA IN UNA FUNZIONE SOLA perché si legge da due posti: dal
+     titolo («come si gioca») e dal menù di pausa. Due copie dello stesso
+     testo sono due testi che un giorno diranno cose diverse. */
+  function guida() {
+    return t(
           '<b>◀ ▶</b> muovono · <b>⤒</b> salta (tienilo premuto per saltare più alto) · ' +
           '<b>✦</b> usa l’abilità dell’elemento.<br>' +
           'Da tastiera: <b>frecce</b> o <b>A/D</b>, <b>spazio</b> salta, <b>K</b> agisce.<br><br>' +
@@ -1076,7 +1319,41 @@
           'and hits hardest, carbon has four bonds and therefore four shots.<br><br>' +
           'At the <b>checkpoints</b> (the flags) a question arrives. From "exothermic ' +
           'reaction" upwards, a wrong answer costs the element — or a life if you have ' +
-          'none.') + '</div>' +
+          'none.');
+  }
+
+  function disegnaUI() {
+    var u = ui();
+    if (!u) return;
+    u.className = (schermo === 'gioco') ? '' : 'attiva';
+    if (schermo === 'gioco') { u.innerHTML = ''; comandi(); return; }
+
+    if (schermo === 'titolo') {
+      /* IL NOME NON SI RIPETE QUI: sta nella grafica, disegnato sulla tela.
+         Scriverlo anche in HTML sarebbe lo stesso titolo due volte — e in
+         questo progetto le cose doppie si tolgono. Il pannello resta
+         trasparente, così il titolo disegnato si vede, e porta solo i
+         pulsanti, che devono essere veri pulsanti per la tastiera e per un
+         lettore di schermo. */
+      u.className = '';
+      u.innerHTML = '<div class="bsiG-scheda" style="align-self:flex-end;' +
+        'margin-bottom:6px;pointer-events:auto">' +
+        '<button class="bsiG-b" id="bsiG-gioca">▶ ' + t('GIOCA', 'PLAY') + '</button>' +
+        '<button class="bsiG-b bsiG-b2" id="bsiG-comeSi">' +
+          t('come si gioca', 'how to play') + '</button></div>';
+      document.getElementById('bsiG-gioca').onclick = function () {
+        schermo = 'difficolta'; disegnaUI();
+      };
+      document.getElementById('bsiG-comeSi').onclick = function () {
+        schermo = 'aiuto'; disegnaUI();
+      };
+      return;
+    }
+
+    if (schermo === 'aiuto') {
+      u.innerHTML = '<div class="bsiG-scheda" style="text-align:left">' +
+        '<div class="bsiG-tit">' + t('Come si gioca', 'How to play') + '</div>' +
+        '<div class="bsiG-sub">' + guida() + '</div>' +
         '<div style="text-align:center"><button class="bsiG-b" id="bsiG-indietro">' +
           t('indietro', 'back') + '</button></div></div>';
       document.getElementById('bsiG-indietro').onclick = function () {
@@ -1110,7 +1387,7 @@
     if (schermo === 'livello') {
       u.innerHTML = '<div class="bsiG-scheda">' +
         '<div class="bsiG-tit">' + t('ZONA ', 'ZONE ') + S.liv.zona +
-          ' · ' + t('LIVELLO ', 'LEVEL ') + S.livello + '/12</div>' +
+          ' · ' + t('LIVELLO ', 'LEVEL ') + S.livello + '/' + LIVELLI + '</div>' +
         '<div class="bsiG-sub">' +
           (S.liv.boss ? (S.liv.finale
             ? t('<b>BOSS FINALE</b> — oltre questo non c’è niente.',
@@ -1123,7 +1400,9 @@
           '<br>' + esc(S.diff.nome) + ' · ♥ ' + S.vite + '</div>' +
         '<button class="bsiG-b" id="bsiG-via">' + t('VIA', 'GO') + '</button></div>';
       document.getElementById('bsiG-via').onclick = function () {
-        schermo = 'gioco'; disegnaUI(); avviaCiclo();
+        schermo = 'gioco';
+        if (!pienoSeServe()) inVista();
+        disegnaUI(); avviaCiclo();
       };
       return;
     }
@@ -1183,7 +1462,7 @@
         '<div class="bsiG-sub">' +
           (vinto ? '' : esc(S.finito && S.finito.perche || '') + '<br>') +
           t('punti', 'score') + ': <b>' + S.punti + '</b><br>' +
-          t('arrivato al livello', 'reached level') + ' <b>' + S.livello + '/12</b><br>' +
+          t('arrivato al livello', 'reached level') + ' <b>' + S.livello + '/' + LIVELLI + '</b><br>' +
           t('risposte', 'answers') + ': <b>' + S.risposteGiuste + '/' + tot + '</b>' +
           (tot ? ' (' + Math.round(S.risposteGiuste / tot * 100) + '%)' : '') +
           '<br>' + esc(S.diff.nome) + '</div>' +
@@ -1245,30 +1524,121 @@
     });
     var pa = document.getElementById('bsiG-pausa');
     if (pa) pa.onclick = function () {
-      if (schermo === 'gioco') { schermo = 'pausa'; fermaCiclo(); pausa(); }
-      else if (schermo === 'pausa') { schermo = 'gioco'; disegnaUI(); avviaCiclo(); }
+      if (schermo === 'gioco') inPausa(); else riprendi();
     };
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════════
+     IL MENU' DI PAUSA
+
+     Quando si gioca su un telefono la pausa non e' un lusso: e' il posto
+     dove si torna quando suona qualcosa. Deve esserci dentro tutto quello
+     che serve senza uscire dal gioco — la guida, la lingua, il suono, lo
+     schermo pieno, e dove si e' arrivati.
+
+     La lingua NON si ricambia qui: l'elenco delle lingue e il cambio vero
+     stanno in `BSILingue`/`BSISelLingua`, e questo menu' li chiama. Se un
+     giorno si aggiunge una lingua, compare anche qui senza toccare questo
+     file. Se quei moduli non ci sono (il gioco deve funzionare anche da
+     solo, pure senza rete), la riga delle bandiere semplicemente non si
+     disegna, e il resto del menu' resta intero.
+     ════════════════════════════════════════════════════════════════════════════ */
+  var guidaAperta = false;
+
+  function lingueDisponibili() {
+    var L = globale.BSILingue;
+    if (!L || !L.lingue) return [];
+    var e = L.lingue();
+    return (e && e.length) ? e : [];
+  }
+
+  function righeBandiere() {
+    var el = lingueDisponibili();
+    if (!el.length) return '';
+    var ora = (globale.BSILingue && globale.BSILingue.corrente)
+      ? globale.BSILingue.corrente() : 'it';
+    var h = '<div class="bsiG-etic">' + t('lingua', 'language') + '</div>' +
+      '<div class="bsiG-bandiere">';
+    el.forEach(function (l) {
+      h += '<button class="bsiG-fl' + (l.codice === ora ? ' on' : '') +
+        '" data-bsi-lingua="' + esc(l.codice) + '" title="' + esc(l.nome) +
+        '" aria-label="' + esc(l.nome) + '">' + (l.bandiera || '⚑') + '</button>';
+    });
+    return h + '</div>';
+  }
+
+  function inPausa() {
+    if (schermo !== 'gioco' || !S) return;
+    schermo = 'pausa'; tasti = {}; fermaCiclo(); pausa();
+  }
+
+  function riprendi() {
+    if (schermo !== 'pausa') return;
+    guidaAperta = false;
+    schermo = 'gioco'; disegnaUI(); avviaCiclo();
   }
 
   function pausa() {
     var u = ui();
-    if (!u) return;
+    if (!u || !S) return;
     u.className = 'attiva';
-    u.innerHTML = '<div class="bsiG-scheda">' +
-      '<div class="bsiG-tit">' + t('IN PAUSA', 'PAUSED') + '</div>' +
-      '<div class="bsiG-sub">' + esc(S.diff.nome) + ' · ' + t('punti ', 'score ') +
-        S.punti + '<br>' + (S.elemento
-          ? esc(S.elemento.sim + ' ' + S.elemento.nome)
-          : t('nessun elemento', 'no element')) + '</div>' +
-      '<button class="bsiG-b" id="bsiG-riprendi">' + t('riprendi', 'resume') + '</button>' +
+    u.innerHTML = '<div class="bsiG-scheda bsiG-pau">' +
+      '<div class="bsiG-tit">❚❚ ' + t('IN PAUSA', 'PAUSED') + '</div>' +
+      '<div class="bsiG-stato">' +
+        '<span><b>' + esc(S.diff.nome) + '</b></span>' +
+        '<span>' + t('livello ', 'level ') + S.livello + '/' + LIVELLI + '</span>' +
+        '<span>' + t('punti ', 'score ') + S.punti + '</span>' +
+        '<span>' + (S.vite > 0 ? new Array(S.vite + 1).join('♥') :
+                    t('ultima vita', 'last life')) + '</span>' +
+        '<span>' + (S.elemento ? esc(S.elemento.sim + ' ' + S.elemento.nome)
+                               : t('nessun elemento', 'no element')) + '</span>' +
+      '</div>' +
+      '<button class="bsiG-b" id="bsiG-riprendi">▶ ' + t('riprendi', 'resume') + '</button>' +
+      '<button class="bsiG-b bsiG-b2" id="bsiG-guida" aria-expanded="' +
+        (guidaAperta ? 'true' : 'false') + '">' +
+        (guidaAperta ? t('chiudi la guida', 'close the guide')
+                     : t('guida: come si gioca', 'guide: how to play')) + '</button>' +
+      (guidaAperta ? '<div class="bsiG-sub" id="bsiG-guidaT" style="text-align:left">' +
+        guida() + '</div>' : '') +
+      righeBandiere() +
+      '<div class="bsiG-etic">' + t('impostazioni', 'settings') + '</div>' +
+      '<div class="bsiG-bandiere">' +
+        '<button class="bsiG-b bsiG-b2" id="bsiG-suono">' +
+          (suono ? '🔊 ' + t('suono acceso', 'sound on')
+                 : '🔇 ' + t('suono spento', 'sound off')) + '</button>' +
+        '<button class="bsiG-b bsiG-b2" id="bsiG-pieno2">⛶ ' +
+          (pieno ? t('finestra', 'windowed') : t('schermo pieno', 'full screen')) +
+        '</button>' +
+      '</div>' +
       '<button class="bsiG-b bsiG-b2" id="bsiG-abbandona">' +
-        t('abbandona', 'give up') + '</button></div>';
-    document.getElementById('bsiG-riprendi').onclick = function () {
-      schermo = 'gioco'; disegnaUI(); avviaCiclo();
+        t('abbandona la partita', 'give up the run') + '</button></div>';
+
+    document.getElementById('bsiG-riprendi').onclick = riprendi;
+    document.getElementById('bsiG-guida').onclick = function () {
+      guidaAperta = !guidaAperta; pausa();
+    };
+    document.getElementById('bsiG-suono').onclick = function () {
+      suono = !suono; if (suono) bip(660, 0.07); pausa();
+    };
+    document.getElementById('bsiG-pieno2').onclick = function () {
+      schermoPieno(!pieno); pausa();
     };
     document.getElementById('bsiG-abbandona').onclick = function () {
-      schermo = 'titolo'; S = null; disegnaUI();
+      guidaAperta = false;
+      schermo = 'titolo'; S = null; schermoPieno(false); disegnaUI();
     };
+    [].forEach.call(u.querySelectorAll('[data-bsi-lingua]'), function (b) {
+      b.onclick = function () {
+        var c = b.getAttribute('data-bsi-lingua');
+        /* il cambio vero lo fa chi lo sa fare; qui si chiede soltanto */
+        if (globale.BSISelLingua && globale.BSISelLingua.scegli) {
+          globale.BSISelLingua.scegli(c);
+        } else if (globale.BSILingue && globale.BSILingue.imposta) {
+          globale.BSILingue.imposta(c);
+        }
+        pausa();
+      };
+    });
   }
 
   /* ── la tabella degli elementi, sotto la scena ───────────────────────── */
@@ -1310,6 +1680,13 @@
     }
     document.addEventListener('keydown', function (e) {
       if (!visibile()) return;
+      /* ESC e P mettono in pausa: su un computer nessuno cerca il tasto ❚❚
+         col mouse mentre un nemico arriva */
+      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if (schermo === 'gioco') { e.preventDefault(); inPausa(); }
+        else if (schermo === 'pausa') { e.preventDefault(); riprendi(); }
+        return;
+      }
       var k = mappa(e);
       if (!k) return;
       /* la barra spaziatrice scorrerebbe la pagina: in gioco no */
@@ -1347,6 +1724,71 @@
     return b;
   }
 
+  /* ── SCHERMO PIENO ─────────────────────────────────────────────────── */
+  var pieno = false;
+  function schermoPieno(v) {
+    pieno = (v == null) ? !pieno : !!v;
+    document.body.classList.toggle('bsiG-pieno', pieno);
+    var b = document.getElementById('bsiG-pieno');
+    if (b) {
+      b.textContent = pieno ? '⤡' : '⛶';
+      b.setAttribute('aria-label', pieno ? t('esci da schermo pieno', 'leave full screen')
+                                         : t('schermo pieno', 'full screen'));
+    }
+    /* la vera API in piu', quando c'e': migliora, ma non serve */
+    try {
+      var sc = document.getElementById('bsiG-scena');
+      if (pieno && sc && sc.requestFullscreen) sc.requestFullscreen().catch(function () {});
+      else if (!pieno && document.exitFullscreen && document.fullscreenElement)
+        document.exitFullscreen().catch(function () {});
+    } catch (e) {}
+    disegnaUI();
+    return pieno;
+  }
+
+  /* IL GIOCO DEVE ESSERE IN VISTA, NON SOTTO MEZZO SCHERMO DI TESTO.
+     Misurato su telefono: la tela cominciava a 523 px su una finestra di
+     844, quindi per giocare bisognava scorrere. Aprendo la sezione la scena
+     si porta in vista da se'. */
+  /* NON CI STA? ALLORA SCHERMO PIENO, E LO SI DECIDE MISURANDO.
+     In orizzontale su un telefono (844×390) la scena rimpicciolisce come
+     deve, ma il titolo e l'introduzione sopra consumano comunque abbastanza
+     da spingere i comandi 23 px sotto il bordo: misurato, non supposto. Un
+     gioco in cui girando il telefono i comandi escono dallo schermo e'
+     ingiocabile.
+     Quindi quando si entra in partita si misura se scena piu' comandi
+     stanno nella finestra, e se non ci stanno si va a schermo pieno. Non
+     «se e' un telefono»: se NON CI STA. */
+  function stannoDentro() {
+    var sc = document.getElementById('bsiG-scena');
+    var co = document.getElementById('bsiG-comandi');
+    if (!sc || !co) return true;
+    var a = sc.getBoundingClientRect(), b = co.getBoundingClientRect();
+    return (a.height + b.height + 24) <= window.innerHeight;
+  }
+
+  function pienoSeServe() {
+    if (pieno) return false;
+    if (stannoDentro()) return false;
+    schermoPieno(true);
+    return true;
+  }
+
+  /* SI PORTA IN VISTA I COMANDI, NON LA SCENA, E C'E' UN MOTIVO.
+     Centrando la scena, i comandi — che stanno sotto — possono restare
+     fuori: misurato in orizzontale, scena a `top 187` e comandi che
+     finivano a 413 su una finestra di 390. Portando in vista i COMANDI
+     («block:end», cioe' appoggiati al bordo inferiore) e sapendo che scena
+     piu' comandi stanno nella finestra, la scena viene su da se'. */
+  function inVista() {
+    var co = document.getElementById('bsiG-comandi');
+    var sc = document.getElementById('bsiG-scena');
+    var bersaglio = co || sc;
+    if (!bersaglio) return;
+    try { bersaglio.scrollIntoView({ block: 'end', behavior: 'smooth' }); }
+    catch (e) { bersaglio.scrollIntoView(false); }
+  }
+
   function applica() {
     stile();
     if (!costruisci()) return false;
@@ -1355,6 +1797,8 @@
     tela = document.getElementById('bsiG-tela');
     ctx = tela ? tela.getContext('2d') : null;
     comandi();          /* sempre: sono i comandi, non un dettaglio della partita */
+    var bp = document.getElementById('bsiG-pieno');
+    if (bp && !bp._bsi) { bp._bsi = 1; bp.onclick = function () { schermoPieno(); }; }
     pulsante();
     if (schermo === 'titolo') disegnaUI();
     return true;
@@ -1371,10 +1815,22 @@
       if (!b) return;
       setTimeout(function () {
         applica();
-        if (schermo === 'gioco') avviaCiclo(); else disegnaUI();
+        inVista();
+        disegnaUI();
+        /* il ciclo parte sempre: il titolo è animato. Si ferma da sé quando
+           la sezione non si vede — verificato nei due versi dal banco. */
+        avviaCiclo();
       }, 70);
     }, false);
     [500, 1500, 3200].forEach(function (ms) { setTimeout(pulsante, ms); });
+    /* girando il telefono in partita: prima si prova a rimettere tutto in
+       vista, e solo se davvero non ci sta si va a schermo pieno */
+    function risistema() {
+      if (schermo !== 'gioco' || !visibile() || pieno) return;
+      if (!pienoSeServe()) inVista();
+    }
+    window.addEventListener('resize', function () { setTimeout(risistema, 60); });
+    window.addEventListener('orientationchange', function () { setTimeout(risistema, 320); });
   }
 
   if (document.readyState === 'loading') {
@@ -1394,7 +1850,10 @@
     ID: ID, LARGO: LARGO, ALTO: ALTO, POTERI: POTERI, SPARA: SPARA,
     DIFFICOLTA: DIFFICOLTA, generaLivello: generaLivello, terrenoA: terrenoA,
     applica: applica, nuovaPartita: nuovaPartita, caricaLivello: caricaLivello,
-    Caso: Caso,
+    Caso: Caso, NOME: NOME, FONT: FONT, LIVELLI: LIVELLI, guida: guida,
+    pausa: pausa, inPausa: inPausa, riprendi: riprendi,
+    lingueDisponibili: lingueDisponibili,
+    scrivi: scrivi, largoTesto: largoTesto, disegnaTitolo: disegnaTitolo,
     /* per il banco e per chi vuole guidare il gioco da fuori */
     schermo: function (s) { if (s) { schermo = s; disegnaUI(); } return schermo; },
     stato: function () { return S; },
@@ -1404,6 +1863,9 @@
     domandaAperta: function () { return domandaCorrente; },
     rispondi: rispondi, chiudiDomanda: chiudiDomanda,
     suono: function (v) { if (v != null) suono = !!v; return suono; },
+    schermoPieno: schermoPieno, inVista: inVista,
+    stannoDentro: stannoDentro, pienoSeServe: pienoSeServe,
+    pieno: function () { return pieno; },
     versione: '1.0'
   };
 

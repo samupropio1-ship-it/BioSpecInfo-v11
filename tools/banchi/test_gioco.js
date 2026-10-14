@@ -455,15 +455,145 @@ function sopra(d, minimo, avuto) {
       tel.com.filter(c => !c.nome || !c.nome.trim()).length);
   await ctxT.close();
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     IL TITOLO DISEGNATO E IL MENU' DI PAUSA
+
+     Questi due si provano DENTRO L'APPLICAZIONE, su una finestra da telefono,
+     nei due versi dello schermo. Non si guarda il sorgente: si guarda che cosa
+     c'è sulla tela e che cosa si riesce a toccare col dito. Il difetto vero
+     che questi controlli hanno trovato — la barra di navigazione sopra il menù
+     di pausa — nel sorgente non si vedeva: il menù aveva `z-index:10000` e la
+     barra 90, e sembrava a posto.
+     ═══════════════════════════════════════════════════════════════════════ */
+  for (const [verso, vp] of [['in verticale', { width: 390, height: 844 }],
+                             ['in orizzontale', { width: 844, height: 390 }]]) {
+    const cx = await browser.newContext({ serviceWorkers: 'block', viewport: vp,
+                                          hasTouch: true, isMobile: true });
+    const pp = await cx.newPage();
+    pp.on('pageerror', e => err.push(e.message));
+    await pp.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 90000 });
+    await pp.waitForTimeout(6500);
+    const m = await pp.evaluate(async () => {
+      const g = document.getElementById('bsi-guide'); if (g) g.remove();
+      BSIGioco.suono(false);
+      document.querySelector('.nav-btn[data-s="sgioco"]').click();
+      await new Promise(r => setTimeout(r, 1400));
+      const G = BSIGioco;
+      const tela = document.getElementById('bsiG-tela');
+      const c2 = tela.getContext('2d');
+      function impronta() {
+        const d = c2.getImageData(0, 0, G.LARGO, G.ALTO).data;
+        let acceso = 0, somma = 0;
+        for (let i = 0; i < d.length; i += 4) {
+          const v = d[i] + d[i + 1] + d[i + 2];
+          if (v > 120) acceso++;
+          somma = (somma + v * (i % 7 + 1)) % 1e9;
+        }
+        return { acceso, somma };
+      }
+      const a = impronta();
+      await new Promise(r => setTimeout(r, 420));
+      const b = impronta();
+      /* il nome è scritto anche in HTML? non deve esserlo: sta nella grafica */
+      const inHtml = new RegExp(G.NOME, 'i').test(
+        document.getElementById('bsiG-ui').textContent);
+      const senzaLettera = G.NOME.split('').filter(ch => !G.FONT[ch]);
+
+      /* ── la pausa ──────────────────────────────────────────────────── */
+      G.nuovaPartita(2); G.schermo('gioco');
+      await new Promise(r => setTimeout(r, 400));
+      document.getElementById('bsiG-pausa').click();
+      await new Promise(r => setTimeout(r, 350));
+      const inPausa = G.schermo();
+      function tastiMenu() {
+        return [].map.call(document.querySelectorAll('#bsiG-ui button'), x => {
+          const q = x.getBoundingClientRect();
+          const el = document.elementFromPoint(q.left + q.width / 2, q.top + q.height / 2);
+          return { id: x.id || x.getAttribute('data-bsi-lingua') || x.textContent.trim(),
+                   ok: q.top >= 0 && q.bottom <= innerHeight && q.left >= 0 &&
+                       q.right <= innerWidth && q.width >= 24 && q.height >= 24 &&
+                       !!(el && (el === x || x.contains(el))),
+                   /* chi c'è sotto il dito, se non è il pulsante */
+                   sopra: (el && el !== x && !x.contains(el))
+                     ? (el.id || String(el.className).split(' ')[0] || el.tagName) : null };
+        });
+      }
+      const chiusa = tastiMenu();
+      document.getElementById('bsiG-guida').click();
+      await new Promise(r => setTimeout(r, 250));
+      const testoGuida = (document.getElementById('bsiG-guidaT') || {}).textContent || '';
+      const aperta = tastiMenu();
+      const card = document.querySelector('.bsiG-pau');
+      card.scrollTop = card.scrollHeight;
+      await new Promise(r => setTimeout(r, 200));
+      const inFondo = tastiMenu();
+      const raggiunto = {};
+      chiusa.concat(aperta, inFondo).forEach(x => { raggiunto[x.id] = raggiunto[x.id] || x.ok; });
+      const copertiDa = chiusa.concat(aperta).filter(x => x.sopra).map(x => x.id + '←' + x.sopra);
+      /* il cambio lingua dal menù cambia la lingua dell'intera applicazione */
+      const prima = BSILingue.corrente();
+      const alt = document.querySelector('[data-bsi-lingua="en"]');
+      if (alt) alt.click();
+      await new Promise(r => setTimeout(r, 600));
+      const dopo = BSILingue.corrente();
+      const riprendiEn = (document.getElementById('bsiG-riprendi') || {}).textContent || '';
+      BSILingue.imposta(prima);
+      await new Promise(r => setTimeout(r, 500));
+      G.pausa();
+      /* in pausa la fisica è ferma: il punteggio e il personaggio non si muovono */
+      const x1 = G.stato().p.x;
+      await new Promise(r => setTimeout(r, 400));
+      const x2 = G.stato().p.x;
+      document.getElementById('bsiG-riprendi').click();
+      await new Promise(r => setTimeout(r, 300));
+      const tornato = G.schermo();
+      return {
+        nome: G.NOME, senzaLettera, inHtml,
+        accesi: a.acceso, animato: a.somma !== b.somma,
+        largoNome: G.largoTesto(G.NOME, 5), LARGO: G.LARGO,
+        inPausa, quanti: chiusa.length,
+        maiRaggiunti: Object.keys(raggiunto).filter(k => !raggiunto[k]),
+        copertiDa, guidaCaratteri: testoGuida.trim().length,
+        bandiere: chiusa.filter(x => /^[a-z]{2}$/.test(x.id)).length,
+        impostazioni: ['bsiG-suono', 'bsiG-pieno2', 'bsiG-abbandona']
+          .filter(id => !document.getElementById(id) && !chiusa.some(x => x.id === id)),
+        linguaDopo: dopo, riprendiEn, fermo: x1 === x2, tornato
+      };
+    });
+    att('il gioco ha un nome ' + verso, 'ELEMENTIA', m.nome);
+    att('  · e ogni sua lettera esiste nel font', 0, m.senzaLettera.length);
+    att('  · e ci sta nella tela', true, m.largoNome <= m.LARGO - 20);
+    sopra('  · il titolo è disegnato sulla tela', 8000, m.accesi);
+    att('  · ed è animato (due fotogrammi diversi)', true, m.animato);
+    /* L'ALTRO VERSO: se il nome fosse anche in HTML sarebbe un doppione */
+    att('  · e non è ripetuto in HTML', false, m.inHtml);
+    att('il tasto ❚❚ apre il menù di pausa ' + verso, 'pausa', m.inPausa);
+    sopra('  · con tutte le voci che servono', 18, m.quanti);
+    sopra('  · la guida si apre dentro il menù', 300, m.guidaCaratteri);
+    sopra('  · le bandiere delle lingue ci sono', 13, m.bandiere);
+    att('  · e suono, schermo pieno e abbandona anche', 0, m.impostazioni.length);
+    att('  · il cambio lingua dal menù cambia lingua', 'en', m.linguaDopo);
+    att('  · e il menù stesso si traduce', true, /resume/i.test(m.riprendiEn));
+    /* IL CONTROLLO CHE HA TROVATO IL DIFETTO: nessun pezzo dell'applicazione
+       deve stare sopra il menù. Un pulsante che il dito non raggiunge non c'è */
+    att('  · ogni voce si tocca col dito', 0, m.maiRaggiunti.length);
+    m.maiRaggiunti.forEach(x => console.log('      ! ' + x + ' non si raggiunge'));
+    att('  · e niente dell’app ci sta sopra', 0, m.copertiDa.length);
+    m.copertiDa.slice(0, 4).forEach(x => console.log('      ! ' + x));
+    att('  · in pausa la partita è ferma', true, m.fermo);
+    att('  · e «riprendi» torna a giocare', 'gioco', m.tornato);
+    await cx.close();
+  }
+
   att('nessun errore JavaScript', 0, err.length);
   err.slice(0, 5).forEach(e => console.log('      ! ' + e.slice(0, 160)));
 
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 48) {
+  if (eseguiti < 80) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 48');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 80');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -124,9 +124,11 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 > la copertura di ognuna e dice che l'arabo porta con sé il verso di scrittura.
 > Quella **informa**, questo **agisce**.
 
-### 🎮 La corsa degli elementi
+### 🎮 ELEMENTIA — la corsa degli elementi
 
-Un platform retro, nella sua sezione. I potenziamenti non sono fiori: sono
+Un platform retro, nella sua sezione. All'apertura il nome compare **disegnato
+sulla tela**, lettera per lettera, con un font a cinque per sette pixel, e
+attorno girano venti bollicine: una per ogni elemento che puoi diventare. I potenziamenti non sono fiori: sono
 **elementi della tavola periodica**, e ognuno ti trasforma dandoti un'abilità
 che viene dalla sua chimica.
 
@@ -176,6 +178,27 @@ gradi di insaturazione, masse, reazioni, amminoacidi e linguaggi della chimica.
 > questa applicazione, e dopo ogni risposta ti dico **da dove viene** quella
 > domanda. Se la tabella è giusta, la domanda è giusta — e non esiste un
 > secondo elenco di chimica che possa divergere da quelli veri.
+
+**Il menù di pausa** si apre con `❚❚`, o con `Esc` / `P` da tastiera, e dentro
+c'è tutto quello che serve senza uscire dal gioco:
+
+* dove sei — difficoltà, livello su dodici, punti, vite, elemento in corso;
+* **riprendi**;
+* la **guida** completa, che si apre lì dentro (è la stessa del titolo: una
+  sola, perché due copie dello stesso testo prima o poi dicono cose diverse);
+* il **cambio lingua**, con le quattordici bandiere;
+* **suono** acceso/spento e **schermo pieno**;
+* abbandona la partita.
+
+> Il gioco parla **italiano e inglese**. Con le altre dodici lingue resta in
+> italiano, come il resto dei contenuti scientifici dell'applicazione: il
+> cambio lingua dal menù agisce su tutta l'applicazione, non solo sul gioco.
+
+**Sul telefono**: i comandi sono grandi abbastanza per il pollice (44 px), la
+scena si porta da sola in vista quando apri la sezione, e il tasto `⛶` la
+allarga a tutto schermo — girando il telefono la tela diventa tre volte più
+larga. Il menù di pausa prende tutto lo schermo e scorre, perché dentro
+l'altezza della sola scena non ci starebbe.
 
 **Funziona offline**: non c'è un solo file da scaricare — la grafica è disegnata
 a rettangoli e i suoni sono sintetizzati.
@@ -494,4 +517,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v202`._
+_Guida aggiornata alla versione `bsi-v203`._

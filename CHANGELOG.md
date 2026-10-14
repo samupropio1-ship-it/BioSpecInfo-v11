@@ -7,6 +7,88 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v203] — 2026-10-14
+
+**Il gioco ha un nome — ELEMENTIA — scritto in grafica, e un menù di pausa con
+dentro la guida, le lingue e tutto il resto. Provato su telefono, nei due versi
+dello schermo.**
+
+### ELEMENTIA
+
+Il nome compare all'avvio, **disegnato sulla tela** lettera per lettera con un
+font a cinque per sette pixel scritto per l'occasione — non un `<h1>` sopra la
+scena: in un gioco retro il titolo fa parte del gioco, e un titolo in HTML
+sopra una tela a pixel si vede subito che è un'altra cosa. Attorno al nome
+girano venti bollicine, una per ogni elemento che si può diventare, con il loro
+simbolo e il loro colore: la schermata dice che cos'è il gioco senza doverlo
+scrivere. Il font sta nel sorgente come righe di `#` e `.`, leggibili: una
+maschera di bit si scrive in meno spazio, ma nessuno la rilegge.
+
+Il nome **non è ripetuto** nel pannello HTML, che porta solo i due pulsanti —
+e il banco lo verifica, perché una cosa doppia qui dentro è un difetto.
+
+### Il menù di pausa
+
+Dal tasto `❚❚`, o da **Esc**/**P** da tastiera. Dentro c'è tutto quello che
+serve senza uscire dal gioco:
+
+* dove sei — difficoltà, livello su dodici, punti, vite, elemento in corso;
+* **riprendi**;
+* la **guida** completa, che si apre lì dentro;
+* il **cambio lingua** con le quattordici bandiere;
+* **suono** acceso/spento e **schermo pieno**;
+* abbandona la partita.
+
+La guida sta in **una funzione sola**, letta sia dal titolo sia dalla pausa:
+due copie dello stesso testo sono due testi che un giorno diranno cose diverse.
+L'elenco delle lingue e il cambio vero restano in `BSILingue`/`BSISelLingua`:
+qui si chiamano soltanto, così una lingua in più comparirà anche qui senza
+toccare il gioco. Il gioco parla **italiano e inglese**; con le altre dodici
+lingue resta in italiano, come il resto dei contenuti — detto, non nascosto.
+
+### Tre difetti trovati provando sul telefono, non leggendo il sorgente
+
+**La barra di navigazione stava sopra il menù di pausa.** Il menù ha
+`z-index:10000` e la barra 90: nel sorgente sembrava a posto. Nel browser no:
+la sezione del gioco è animata all'apertura con `fill-mode: both`, e
+un'animazione che resta «riempita» rende la sezione un contesto di impilamento
+con z-index automatico — dentro quel contesto il 10000 non vale più niente
+fuori. Sotto il dito, al posto di «riprendi», c'era una linguetta della barra.
+La sezione del gioco ora compare senza dissolvenza: meglio senza un effetto che
+con un menù che non si tocca.
+
+**`position: fixed` non era lo schermo.** La stessa animazione porta con sé
+`will-change: transform`, e un elemento trasformato diventa il riferimento dei
+figli `fixed`: il pannello dei menù risultava 812×427 a partire da y=−10 su una
+finestra 844×390.
+
+**Il menù non ci stava.** La scena è alta 270/480 della sua larghezza — circa
+220 px su un telefono in verticale — e dentro 220 px un menù con la guida, le
+quattordici lingue e le impostazioni non entra: diciassette pulsanti su
+diciannove finivano fuori, e girando il telefono anche «riprendi». Ora il
+pannello dei **menù** (e solo quello: in partita resta trasparente sopra la
+scena) si àncora alla finestra e scorre dentro di sé. Vale per tutti i menù —
+difficoltà, domanda, esito, pausa — non solo per la pausa.
+
+### Una cosa doppia in meno
+
+Il numero dei livelli era scritto a mano in **sei punti** (titolo, barra,
+schermata di livello, schermata di fine, fine del gioco, generazione
+dell'ultimo livello). Sei copie dello stesso numero sono cinque occasioni di
+sbagliarlo: ora è una costante sola.
+
+### Il banco
+
+`test_gioco.js` passa da 71 a **105 controlli**, e i nuovi misurano
+nell'applicazione in esecuzione, su finestra da telefono, in verticale **e** in
+orizzontale: che il nome sia davvero disegnato (pixel contati sulla tela) e
+animato (due fotogrammi diversi), che non sia ripetuto in HTML, che il menù di
+pausa si apra e contenga guida, lingue e impostazioni, che il cambio lingua
+cambi davvero la lingua, che in pausa la partita sia ferma, e che **ogni voce
+del menù si possa toccare col dito** — dentro lo schermo e con nient'altro
+sopra. È quest'ultimo controllo ad aver trovato la barra di navigazione.
+
+---
 ## [bsi-v202] — 2026-10-14
 
 **Il cambio lingua tondo in intestazione, e un gioco retro in cui i
