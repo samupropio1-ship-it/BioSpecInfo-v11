@@ -7,11 +7,11 @@
    Un gioco di esplorazione si rompe in modi che non si vedono guardandolo
    partire:
 
-   1. UNA STANZA IRRAGGIUNGIBILE. Le stanze sono collegate da porte scritte
-      nei dati: una porta dimenticata, o scritta in un verso solo, e un pezzo
-      di gioco diventa inarrivabile. Qui si percorre il grafo delle stanze e
-      si verifica che dalla partenza si arrivi al guardiano, e che ogni porta
-      abbia la sua gemella dall'altra parte.
+   1. UNA STANZA IRRAGGIUNGIBILE. I venti livelli sono generati da un seme:
+      una porta scritta in un verso solo, o un guardiano senza gli elementi
+      per batterlo, e un livello diventa impossibile. Qui si generano tutti
+      e venti e si percorre il grafo di ognuno, e si contano gli atomi di
+      ogni equazione.
 
    2. UN ENIGMA O UN BOSS CHE SI RISOLVE PREMENDO A CASO. Il guardiano ha una
       debolezza chimica: usare la cosa sbagliata NON deve funzionare. E'
@@ -219,89 +219,136 @@ function sopra(d, minimo, avuto) {
   sopra('generatori usati in 600 estrazioni', 15, dom.usati);
 
 
-  /* ═══ §3 · IL MONDO: SI ARRIVA DAPPERTUTTO? ════════════════════════════ */
-  console.log('\n── La Zona 1: sei stanze, e tutte raggiungibili ──');
-  const mondo = await pg.evaluate(() => {
-    const A = window.BSIAtomic;
-    const z = A.ZONA1();
-    const perId = {};
-    z.stanze.forEach(s => { perId[s.id] = s; });
-    /* ogni porta deve avere la sua gemella: se dalla stanza A si va in B,
-       da B si deve poter tornare in A — altrimenti è una trappola */
-    let zoppe = [];
-    z.stanze.forEach(s => {
-      (s.porte || []).forEach(p => {
+  /* ═══ §3 · I VENTI LIVELLI: SI ARRIVA DAPPERTUTTO? ═════════════════════ */
+  console.log('\n── Venti livelli generati: tutti percorribili, tutti vincibili ──');
+  const liv = await pg.evaluate(() => {
+    const A = window.BSIAtomicLivelli;
+    const out = { livelli: 0, irraggiungibili: [], zoppe: [], sovrapposte: [], senza: [],
+                  bossMancanti: [], bossInvincibili: [], deterministici: 0, boss: [] };
+    for (let n = 1; n <= A.LIVELLI; n++) {
+      const L = A.livello(n);
+      out.livelli++;
+      const perId = {};
+      L.stanze.forEach(s => { perId[s.id] = s; });
+      /* ogni porta ha la sua gemella: se da A si va in B, da B si torna in A */
+      L.stanze.forEach(s => s.porte.forEach(p => {
         const altra = perId[p.a];
-        if (!altra) { zoppe.push(s.id + '→' + p.a + ' (non esiste)'); return; }
-        const torna = (altra.porte || []).some(q => q.a === s.id);
-        if (!torna) zoppe.push(s.id + '→' + p.a + ' (senza ritorno)');
-      });
-    });
-    /* si percorre il grafo dalla partenza: dove si arriva? */
-    const visti = {}, coda = [z.partenza.stanza];
-    while (coda.length) {
-      const id = coda.shift();
-      if (visti[id]) continue;
-      visti[id] = true;
-      (perId[id].porte || []).forEach(p => { if (!visti[p.a]) coda.push(p.a); });
-    }
-    /* le stanze non devono sovrapporsi: due stanze nello stesso posto sono
-       due stanze che si vedono una dentro l'altra */
-    let sovrapposte = 0;
-    for (let i = 0; i < z.stanze.length; i++) {
-      for (let j = i + 1; j < z.stanze.length; j++) {
-        const a = z.stanze[i], b = z.stanze[j];
-        if (Math.abs(a.x - b.x) < (a.larg + b.larg) / 2 - 0.1 &&
-            Math.abs(a.z - b.z) < (a.prof + b.prof) / 2 - 0.1) sovrapposte++;
+        if (!altra || !altra.porte.some(q => q.a === s.id)) out.zoppe.push(n + ':' + s.id + '→' + p.a);
+      }));
+      /* dalla partenza si arriva a ogni stanza */
+      const visti = {}, coda = [L.partenza.stanza];
+      while (coda.length) {
+        const id = coda.shift(); if (visti[id]) continue; visti[id] = 1;
+        perId[id].porte.forEach(p => { if (!visti[p.a]) coda.push(p.a); });
       }
+      if (Object.keys(visti).length !== L.stanze.length) out.irraggiungibili.push(n);
+      /* nessuna stanza dentro un'altra */
+      for (let i = 0; i < L.stanze.length; i++) for (let j = i + 1; j < L.stanze.length; j++) {
+        const a = L.stanze[i], b = L.stanze[j];
+        if (Math.abs(a.x - b.x) < (a.larg + b.larg) / 2 - 0.1 &&
+            Math.abs(a.z - b.z) < (a.prof + b.prof) / 2 - 0.1) out.sovrapposte.push(n);
+      }
+      const ogg = [].concat(...L.stanze.map(s => s.oggetti));
+      const tipi = {}; ogg.forEach(o => { tipi[o.tipo] = (tipi[o.tipo] || 0) + 1; });
+      ['banco', 'terminale', 'uscita'].forEach(k => { if (tipi[k] !== 1) out.senza.push(n + ':' + k); });
+      if (!!L.boss !== (n % 4 === 0) || (L.boss && tipi.boss !== 1)) out.bossMancanti.push(n);
+      /* PRIMA DI UN GUARDIANO CI SONO GLI ELEMENTI PER BATTERLO: un
+         guardiano invincibile perché il livello non ha messo il sodio è un
+         gioco rotto, non difficile */
+      if (L.boss) {
+        out.boss.push(L.boss.nome + ' (' + L.boss.fasi.length + ' fasi)');
+        const el = new Set(ogg.filter(o => o.tipo === 'elemento').map(o => o.sim));
+        const R = A.RICETTE();
+        L.boss.fasi.forEach(f => {
+          if (f.serve === 'qualunque' || /^enigma:/.test(f.serve)) return;
+          const r = R.find(x => x.id === f.serve);
+          const serve = r ? [].concat(...r.reagenti.map(e => {
+            const sub = R.find(x => x.id === e); return sub ? sub.reagenti : [e]; })) : [f.serve];
+          serve.forEach(e => { if (!el.has(e)) out.bossInvincibili.push(n + ':' + e); });
+        });
+      }
+      /* lo stesso numero dà lo stesso livello: il seme è il numero */
+      if (JSON.stringify(A.livello(n).stanze.map(s => [s.id, s.larg, s.prof])) ===
+          JSON.stringify(L.stanze.map(s => [s.id, s.larg, s.prof]))) out.deterministici++;
     }
-    const oggetti = {};
-    z.stanze.forEach(s => (s.oggetti || []).forEach(o => {
-      oggetti[o.tipo] = (oggetti[o.tipo] || 0) + 1;
-    }));
-    return { stanze: z.stanze.length, zoppe, visitate: Object.keys(visti).length,
-             sovrapposte, oggetti,
-             elementi: z.stanze.reduce((n, s) => n + (s.oggetti || [])
-               .filter(o => o.tipo === 'elemento').length, 0) };
+    /* le equazioni: si contano gli atomi, nei due versi */
+    const R = A.RICETTE();
+    out.ricette = R.length;
+    out.bilanciate = R.filter(A.bilanciata).length;
+    const finta = JSON.parse(JSON.stringify(R[1]));
+    finta.bilancio[2][0][1] = 1;         /* H₂ + Cl₂ → 1 H … : non torna */
+    out.fintaRespinta = !A.bilanciata(finta);
+    /* gli enigmi: quattro opzioni diverse, la giusta fra queste, un perché */
+    out.enigmiGuasti = [];
+    ['riconosci', 'nomina', 'bilancia', 'dna', 'costruisci'].forEach(tp => {
+      for (let i = 1; i <= 40; i++) {
+        const e = A.enigma(tp, A.Caso(i * 7));
+        if (e.tipo === 'costruisci') { if (!e.catena || !e.catena.length) out.enigmiGuasti.push(tp); continue; }
+        if (e.opzioni.length !== 4 || new Set(e.opzioni).size !== 4 ||
+            e.opzioni.indexOf(e.giusta) < 0 || !e.perche) { out.enigmiGuasti.push(tp + ' ' + e.opzioni.join('|')); break; }
+      }
+    });
+    const dna = A.enigma('dna', A.Caso(5));
+    const comp = { A: 'T', T: 'A', G: 'C', C: 'G' };
+    out.dnaGiusto = dna.giusta === dna.dna.split('').map(x => comp[x]).join('');
+    return out;
   });
-  att('la zona ha le sue sette stanze', 7, mondo.stanze);
-  att('  · e si arriva a tutte dalla partenza', mondo.stanze, mondo.visitate);
-  att('  · ogni porta ha la sua gemella', 0, mondo.zoppe.length);
-  mondo.zoppe.forEach(x => console.log('      ! ' + x));
-  att('  · e nessuna stanza sta dentro un’altra', 0, mondo.sovrapposte);
-  sopra('ci sono elementi da raccogliere', 3, mondo.elementi);
-  att('  · un banco di sintesi', 1, mondo.oggetti.banco || 0);
-  att('  · un terminale con l’enigma', 1, mondo.oggetti.terminale || 0);
-  att('  · e un guardiano', 1, mondo.oggetti.boss || 0);
+  att('i livelli sono venti', 20, liv.livelli);
+  att('  · da ogni partenza si arriva a ogni stanza', 0, liv.irraggiungibili.length);
+  liv.irraggiungibili.forEach(x => console.log('      ! livello ' + x));
+  att('  · ogni porta ha la sua gemella', 0, liv.zoppe.length);
+  liv.zoppe.slice(0, 3).forEach(x => console.log('      ! ' + x));
+  att('  · nessuna stanza sta dentro un’altra', 0, liv.sovrapposte.length);
+  att('  · ognuno con un banco, un terminale e un’uscita', 0, liv.senza.length);
+  liv.senza.slice(0, 3).forEach(x => console.log('      ! ' + x));
+  att('un guardiano ogni quattro livelli, e solo lì', 0, liv.bossMancanti.length);
+  console.log('      (' + liv.boss.join(' · ') + ')');
+  att('  · e prima di ognuno ci sono gli elementi per batterlo', 0, liv.bossInvincibili.length);
+  liv.bossInvincibili.slice(0, 3).forEach(x => console.log('      ! manca ' + x));
+  att('lo stesso numero dà sempre lo stesso livello', 20, liv.deterministici);
+  sopra('ricette di sintesi', 10, liv.ricette);
+  att('  · tutte bilanciate, atomo per atomo', liv.ricette, liv.bilanciate);
+  /* L'ALTRO VERSO: il contatore di atomi deve accorgersi di un errore */
+  att('  · e un’equazione sbagliata viene respinta', true, liv.fintaRespinta);
+  att('gli enigmi generati sono sani (4 opzioni distinte, giusta inclusa)', 0, liv.enigmiGuasti.length);
+  liv.enigmiGuasti.slice(0, 3).forEach(x => console.log('      ! ' + x));
+  att('  · e il filamento complementare è davvero complementare', true, liv.dnaGiusto);
 
   /* ═══ §4 · I MURI SONO MURI ════════════════════════════════════════════ */
   console.log('\n── Dentro si cammina, fuori no ──');
   const muri = await pg.evaluate(async () => {
     const A = window.BSIAtomic;
     A.scriviImp('suono', 'spento');
+    localStorage.removeItem('bsi-ap-partita'); localStorage.removeItem('bsi-ap-livelloMax');
     document.querySelector('.nav-btn[data-s="sgioco"]').click();
-    await new Promise(r => setTimeout(r, 2000));
-    A.nuovaPartita(); A.cominciaPartita();
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 2500));
+    A.nuovaPartita(1); A.cominciaPartita();
+    await new Promise(r => setTimeout(r, 400));
     const S = A.stato(), M = A.mondo();
     const st = M.zona.stanze[0];
     const out = {};
     out.dentro = A.puoStare(st.x, st.z);
-    out.fuori = A.puoStare(st.x + st.larg / 2 + 3, st.z);
-    /* camminare contro un muro non deve farci passare */
-    S.pos.x = st.x; S.pos.z = st.z + st.prof / 2 - 1; S.ang = Math.PI;
-    A.tasti('su', true);
-    for (let i = 0; i < 200; i++) A.passo();
-    A.tasti('su', false);
-    out.bloccatoDalMuro = S.pos.z < st.z + st.prof / 2;
-    /* e attraversare una porta aperta deve farci cambiare stanza */
-    S.pos.x = st.x; S.pos.z = st.z - st.prof / 2 + 1; S.ang = 0;
+    out.fuori = A.puoStare(st.x + st.larg / 2 + 40, st.z);
+    /* contro un muro senza porta non si passa */
+    const versi = { nord: [0, -1], sud: [0, 1], est: [1, 0], ovest: [-1, 0] };
+    const libero = Object.keys(versi).filter(v => !st.porte.some(p => p.verso === v))[0];
+    const [mx, mz] = versi[libero];
+    S.pos.x = st.x; S.pos.z = st.z; S.ang = Math.atan2(-mx, -mz);
     A.tasti('su', true);
     for (let i = 0; i < 400; i++) A.passo();
     A.tasti('su', false);
+    out.bloccatoDalMuro = A.stanzaDi(S.pos.x, S.pos.z) === st;
+    /* e attraverso la porta si cambia stanza */
+    const porta = st.porte[0];
+    const [px, pz] = versi[porta.verso];
+    S.pos.x = st.x; S.pos.z = st.z; S.ang = Math.atan2(-px, -pz);
+    A.tasti('su', true);
+    for (let i = 0; i < 500 && A.stanzaDi(S.pos.x, S.pos.z) === st; i++) A.passo();
+    for (let i = 0; i < 20; i++) A.passo();
+    A.tasti('su', false);
     const dove = A.stanzaDi(S.pos.x, S.pos.z);
-    out.passataLaPorta = !!(dove && dove.id !== st.id);
-    out.stanzaRaggiunta = dove ? dove.id : null;
+    out.passataLaPorta = !!(dove && dove.id === porta.a);
+    out.stanzaRaggiunta = dove ? dove.nome : null;
     return out;
   });
   att('dentro una stanza si può stare', true, muri.dentro);
@@ -309,136 +356,311 @@ function sopra(d, minimo, avuto) {
      direbbe niente */
   att('  · e fuori dai muri no', false, muri.fuori);
   att('camminando contro un muro non si passa', true, muri.bloccatoDalMuro);
-  att('  · e attraversando una porta si cambia stanza', true, muri.passataLaPorta);
+  att('  · e attraversando la porta si arriva nella stanza dall’altra parte', true, muri.passataLaPorta);
   console.log('      (arrivato in ' + muri.stanzaRaggiunta + ')');
 
-  /* ═══ §5 · IL GIRO COMPLETO DELLA ZONA 1 ═══════════════════════════════ */
-  console.log('\n── Si gioca: elementi, sintesi, enigma, guardiano ──');
+  /* ═══ §5 · UN LIVELLO DALL'INIZIO ALLA FINE ════════════════════════════ */
+  console.log('\n── Livello 1: elementi, sintesi, terminale, ascensore, salvataggio ──');
   const giro = await pg.evaluate(async () => {
     const A = window.BSIAtomic;
-    A.nuovaPartita(); A.cominciaPartita();
-    await new Promise(r => setTimeout(r, 200));
+    A.nuovaPartita(1); A.cominciaPartita();
+    await new Promise(r => setTimeout(r, 300));
     const S = A.stato(), M = A.mondo(), out = {};
-    function vaiA(id, ox, oz) {
-      const st = M.zona.stanze.filter(x => x.id === id)[0];
-      S.pos.x = st.x + ox; S.pos.z = st.z + oz; A.passo();
+    const tutti = [].concat(...M.zona.stanze.map(st => st.oggetti.map(o => ({ o, st }))));
+    function vaiDavanti(x) {
+      /* un passo davanti all'oggetto, dal lato libero */
+      for (const [dx, dz] of [[0, 1.1], [0, -1.1], [1.1, 0], [-1.1, 0], [0, 1.6], [1.6, 0]]) {
+        const px = x.st.x + x.o.x + dx, pz = x.st.z + x.o.z + dz;
+        if (A.puoStare(px, pz)) {
+          /* e lo si guarda: il bersaglio è quello che si ha davanti */
+          S.pos.x = px; S.pos.z = pz; S.ang = Math.atan2(dx, dz); A.passo(); return true;
+        }
+      }
+      S.pos.x = x.st.x + x.o.x; S.pos.z = x.st.z + x.o.z + 1; A.passo(); return false;
     }
-    /* l'idrogeno */
-    vaiA('stoc1', -3.5, -3.2);
-    out.bersaglio = (A.bersaglio() || {}).tipo;
-    A.interagisci();
-    out.inventario = S.inventario.map(x => x.sim);
+    /* tutti gli elementi */
+    tutti.filter(x => x.o.tipo === 'elemento').forEach(x => {
+      vaiDavanti(x);
+      if ((A.bersaglio() || {}).tipo === 'elemento') A.interagisci();
+    });
+    out.inventario = S.inventario.map(x => x.sim).sort().join(',');
     out.padronanza = S.inventario[0] ? S.inventario[0].padronanza : 0;
-    /* il foglio con la ricetta */
-    vaiA('stoc1', 3.6, -2.5); A.interagisci(); A.schermo('gioco');
+    /* la scheda di sintesi */
+    const fogli = tutti.filter(x => x.o.tipo === 'foglio' && x.o.ricetta);
+    out.schede = fogli.map(x => x.o.ricetta);
+    fogli.forEach(x => { vaiDavanti(x); if ((A.bersaglio() || {}).tipo === 'foglio') { A.interagisci(); A.schermo('gioco'); } });
     out.ricetteDopoFoglio = S.ricette.filter(x => x.sbloccata).map(x => x.id);
-    /* il cloro */
-    vaiA('stoc2', 3.6, -2.0); A.interagisci();
-    out.inventario2 = S.inventario.map(x => x.sim);
-    /* la sintesi */
-    vaiA('banco', 0, -1.9);
+    /* al banco */
+    const banco = tutti.find(x => x.o.tipo === 'banco');
+    vaiDavanti(banco);
     out.bersaglioBanco = (A.bersaglio() || {}).tipo;
     const r1 = A.ricettaPer(['H', 'Cl']);
     out.ricettaTrovata = r1 ? r1.formula : null;
     /* L'ALTRO VERSO: una coppia che non reagisce non deve produrre niente */
     out.coppiaAssurda = A.ricettaPer(['H', 'H']);
+    out.ignota = A.ricettaPer(['S', 'O', 'H']);     /* esiste, ma non la conosci */
     if (r1) A.sintetizza(r1);
     out.composti = S.composti.map(c => c.id + '×' + c.dosi);
     out.equazioneNelCodex = S.codex.reazioni.length;
     A.schermo('gioco');
-    /* l'enigma: tre passi */
-    vaiA('term', 0, -1.9);
+    /* il residuo: il sale non lo scioglie, il cloro sì */
+    const res = tutti.find(x => x.o.tipo === 'nemico');
+    if (res) {
+      S.pos.x = res.st.x + res.o.x + 1.6; S.pos.z = res.st.z + res.o.z; S.immune = 999;
+      S.composti.push({ id: 'NaCl', dosi: 1 });
+      out.saleSulResiduo = A.usaSu('NaCl');
+      out.cloroSulResiduo = A.usaSu('Cl');
+      out.residuoVivo = res.o.vivo;
+      S.immune = 0;
+    }
+    /* il terminale */
+    const term = tutti.find(x => x.o.tipo === 'terminale');
+    vaiDavanti(term);
+    out.bersaglioTerm = (A.bersaglio() || {}).tipo;
     A.interagisci();
     out.enigma = A.schermo();
-    out.passiEnigma = S._enigma ? S._enigma.passi.length : 0;
-    out.struttureDisegnate = S._enigma
-      ? S._enigma.passi.filter(p => p.disegno).length : 0;
-    /* sbagliando non si apre niente */
-    A.rispondiEnigma(2);
-    out.dopoSbaglio = !!S.fatti.paratia1;
-    A.rispondiEnigma(0); A.rispondiEnigma(0);
-    const E = S._enigma; if (E) E.costruita = ['C', 'C', 'O'];
-    A.rispondiEnigma(null);
-    out.paratia = !!S.fatti.paratia1;
-    out.ricetteDopoEnigma = S.ricette.filter(x => x.sbloccata).map(x => x.id);
-    A.schermo('gioco');
-    /* il guardiano */
-    vaiA('pompe', 0, 2);
-    for (let i = 0; i < 40; i++) A.passo();
-    out.bossAttivo = !!(S.boss && S.boss.attivo);
-    out.fase1 = S.boss ? S.boss.fase : null;
-    S.composti.push({ id: 'NaCl', dosi: 9 });
-    const vita0 = S.boss.vita;
-    A.usaSu('NaCl');
-    out.sbagliatoNonFa = (S.boss.vita === vita0);
-    A.usaSu('HCl'); A.usaSu('HCl'); A.usaSu('HCl');
-    out.fase2 = S.boss ? S.boss.fase : null;
-    const vita2 = S.boss.vita;
-    A.usaSu('HCl');
-    out.acidoInFase2 = (S.boss.vita === vita2);
-    S.inventario.push({ sim: 'Na', padronanza: 3, usi: 0 });
-    A.usaSu('Na'); A.usaSu('Na'); A.usaSu('Na');
-    out.fase3 = S.boss ? S.boss.fase : null;
-    A.usaSu('HCl'); A.usaSu('HCl'); A.usaSu('HCl');
+    const E = S._enigma;
+    out.passiEnigma = E ? E.passi.length : 0;
+    out.tipi = E ? E.passi.map(p => p.tipo + (p.struttura ? '+struttura' : '')).join(',') : '';
+    /* sbagliando, la paratia resta chiusa */
+    const p0 = E.passi[0];
+    if (p0.tipo === 'costruisci') E.costruita = ['S'];
+    A.rispondiEnigma(p0.tipo === 'costruisci' ? null : p0.opzioni.find(o => o !== p0.giusta));
+    out.dopoSbaglio = !!S.fatti[term.o.apre];
+    /* l'uscita è oltre la paratia: da chiusa, non si passa */
+    const ultima = M.zona.stanze.find(s => s.ruolo === 'uscita');
+    const portaChiusa = ultima.porte.find(p => p.chiusa);
+    out.chiusaBlocca = !A.puoStare(ultima.x + ({ est: 1, ovest: -1 }[portaChiusa.verso] || 0) * (ultima.larg / 2 - 0.1),
+                                   ultima.z + ({ sud: 1, nord: -1 }[portaChiusa.verso] || 0) * (ultima.prof / 2 - 0.1));
+    E.passi.forEach(p => {
+      if (p.tipo === 'costruisci') { S._enigma.costruita = p.catena.slice(); A.rispondiEnigma(null); }
+      else A.rispondiEnigma(p.giusta);
+    });
+    out.paratia = !!S.fatti[term.o.apre];
+    out.schermoDopo = A.schermo();
+    out.apre = !A.puoStare(0, 0) || true;
+    out.apertaPassa = A.puoStare(ultima.x + ({ est: 1, ovest: -1 }[portaChiusa.verso] || 0) * (ultima.larg / 2 - 0.1),
+                                 ultima.z + ({ sud: 1, nord: -1 }[portaChiusa.verso] || 0) * (ultima.prof / 2 - 0.1));
+    /* l'ascensore: chiude il livello e salva */
+    const usc = tutti.find(x => x.o.tipo === 'uscita');
+    S.pos.x = usc.st.x + usc.o.x; S.pos.z = usc.st.z + usc.o.z + 0.3;
+    A.passo();
     out.esito = S.finito ? S.finito.esito : null;
-    out.ricetteFine = S.ricette.filter(x => x.sbloccata).map(x => x.id);
+    out.prossimo = S.livello;
+    out.salvato = JSON.parse(localStorage.getItem('bsi-ap-partita') || '{}').livello;
+    out.livelloMax = A.livelloMax();
     out.punti = S.punti;
-    out.consigli = S.codex.consigli.length;
+    /* e riprendendo si ritrova quello che si aveva */
+    const inv = S.inventario.length;
+    A.nuovaPartita(1);
+    out.ripreso = A.riprendi() && A.stato().livello === 2 && A.stato().inventario.length === inv;
     return out;
   });
-  att('si raccoglie un elemento e finisce in inventario', 'H', (giro.inventario || [])[0]);
-  att('  · con la sua padronanza', 1, giro.padronanza);
-  att('il foglio sblocca la ricetta dell’acido cloridrico', true,
-      (giro.ricetteDopoFoglio || []).indexOf('HCl') >= 0);
-  att('  · e nella seconda stanza c’è il cloro', true,
-      (giro.inventario2 || []).indexOf('Cl') >= 0);
-  att('al banco si sintetizza HCl', 'HCl', giro.ricettaTrovata);
+  att('si raccolgono gli elementi dell’ala', 'Cl,H,Na,O', giro.inventario);
+  att('  · ognuno con la sua padronanza', true, giro.padronanza >= 1);
+  att('la scheda sblocca la ricetta che porta scritta', true,
+      giro.schede.length > 0 && giro.schede.every(x => giro.ricetteDopoFoglio.indexOf(x) >= 0));
+  att('al banco ci si arriva', 'banco', giro.bersaglioBanco);
+  att('  · e si sintetizza HCl', 'HCl', giro.ricettaTrovata);
   /* L'ALTRO VERSO: due reagenti che non fanno niente non devono fare niente */
-  att('  · e due reagenti senza ricetta non producono nulla', 'null',
-      String(giro.coppiaAssurda));
-  att('  · il composto entra fra quelli che hai', 'HCl×1', (giro.composti || [])[0]);
+  att('  · due reagenti senza ricetta non producono nulla', 'null', String(giro.coppiaAssurda));
+  att('  · né una ricetta che esiste ma non conosci ancora', 'null', String(giro.ignota));
+  att('  · il composto entra fra quelli che hai', true, /^HCl×\d$/.test((giro.composti || [])[0]));
   sopra('  · e l’equazione finisce nel codex', 1, giro.equazioneNelCodex);
+  /* il residuo è organico: conta CHE COSA usi */
+  att('il sale non scioglie un residuo', false, giro.saleSulResiduo);
+  att('  · il cloro sì', true, giro.cloroSulResiduo);
+  att('  · e il residuo sparisce', false, giro.residuoVivo);
   att('il terminale apre un enigma in tre passi', 3, giro.passiEnigma);
-  att('  · ognuno con la sua struttura disegnata', 3, giro.struttureDisegnate);
+  console.log('      (' + giro.tipi + ')');
   /* NEI DUE VERSI: sbagliando la paratia resta chiusa */
   att('  · sbagliando la paratia resta chiusa', false, giro.dopoSbaglio);
+  att('  · e da chiusa non si passa', true, giro.chiusaBlocca);
   att('  · rispondendo giusto si apre', true, giro.paratia);
-  att('  · e sblocca la ricetta del perossido', true,
-      (giro.ricetteDopoEnigma || []).indexOf('H2O2') >= 0);
-  att('il guardiano si attiva avvicinandosi', true, giro.bossAttivo);
-  /* IL CUORE DEL GIOCO: conta CHE COSA usi */
-  att('  · il sale non gli fa niente', true, giro.sbagliatoNonFa);
-  att('  · l’acido scioglie la ruggine e passa alla fase 2', 2, giro.fase2);
-  att('  · e in fase 2 l’acido non basta più', true, giro.acidoInFase2);
-  att('  · il sodio reagisce col vapore e scopre il rotore', 3, giro.fase3);
-  att('  · e lì si abbatte', 'vinto', giro.esito);
-  att('abbattendolo si sblocca la ricetta della soda', true,
-      (giro.ricetteFine || []).indexOf('NaOH') >= 0);
-  sopra('  · e il codex impara qualcosa', 1, giro.consigli);
-  sopra('  · con i punti della zona', 1000, giro.punti);
+  att('  · e da aperta si passa', true, giro.apertaPassa);
+  att('l’ascensore chiude il livello', 'livello', giro.esito);
+  att('  · si passa al livello 2', 2, giro.prossimo);
+  att('  · il gioco si salva', 2, giro.salvato);
+  att('  · il livello raggiunto si ricorda', 2, giro.livelloMax);
+  att('  · e riprendendo si ritrova l’inventario', true, giro.ripreso);
 
-  /* ═══ §6 · IL MOTORE PS1 ═══════════════════════════════════════════════ */
-  console.log('\n── Il motore: PS1 vero, e un chimico fatto di pezzi ──');
-  const motore = await pg.evaluate(() => {
+  /* ═══ §5b · I GUARDIANI, NEI DUE VERSI ═════════════════════════════════ */
+  console.log('\n── I guardiani: conta che cosa usi ──');
+  const boss = await pg.evaluate(async () => {
     const A = window.BSIAtomic;
-    const cv = document.getElementById('bsiAP-tela');
-    const st = getComputedStyle(cv);
-    const gl = cv.getContext('webgl2') || cv.getContext('webgl');
-    return {
-      pronto: A.pronto(), perche: A.perche3d(),
-      tela: { w: cv.width, h: cv.height },
-      pixelati: /pixelated|crisp/.test(st.imageRendering),
-      webgl: !!gl,
-      /* la risoluzione interna è quella scelta, non quella dello schermo */
-      bassaRisoluzione: cv.width <= 640
-    };
+    const out = {};
+    async function arena(n) {
+      A.nuovaPartita(n); A.cominciaPartita();
+      await new Promise(r => setTimeout(r, 300));
+      const S = A.stato(), M = A.mondo();
+      const st = M.zona.stanze.find(s => s.ruolo === 'boss');
+      S.fatti['paratia' + n] = true;
+      const v = st.porte[0].verso;
+      S.pos.x = st.x + ({ est: 1, ovest: -1 }[v] || 0) * (st.larg / 2 - 1.2);
+      S.pos.z = st.z + ({ sud: 1, nord: -1 }[v] || 0) * (st.prof / 2 - 1.2);
+      for (let i = 0; i < 5; i++) A.passo();
+      S.immune = 99999;
+      return { S, M, st };
+    }
+    /* POMPA 7 */
+    let { S, M } = await arena(4);
+    out.ricetteDovute = ['HCl'].every(id => S.ricette.find(r => r.id === id).sbloccata);
+    out.attivo = !!(S.boss && S.boss.attivo);
+    out.nome = S.boss && S.boss._def.nome;
+    S.composti.push({ id: 'NaCl', dosi: 9 }, { id: 'HCl', dosi: 9 });
+    S.inventario.push({ sim: 'Na', padronanza: 3, usi: 0 });
+    const v0 = S.boss.vita;
+    A.usaSu('NaCl');
+    out.saleNonFa = S.boss.vita === v0;
+    A.usaSu('HCl'); A.usaSu('HCl'); A.usaSu('HCl');
+    out.fase2 = S.boss.fase;
+    const v2 = S.boss.vita;
+    A.usaSu('HCl');
+    out.acidoInFase2 = S.boss.vita === v2;
+    A.usaSu('Na'); A.usaSu('Na'); A.usaSu('Na');
+    out.fase3 = S.boss.fase;
+    out.uscitaPrima = (() => { const u = M.zona.stanze.find(s => s.ruolo === 'boss').oggetti.find(o => o.tipo === 'uscita');
+      const st = M.zona.stanze.find(s => s.ruolo === 'boss'); S.pos.x = st.x + u.x; S.pos.z = st.z + u.z; A.passo(); return S.finito; })();
+    A.usaSu('NaCl'); A.usaSu('NaCl'); A.usaSu('NaCl');
+    out.abbattuto = !!S.fatti.pompa7;
+    out.premio = S.ricette.find(r => r.id === 'NaOH').sbloccata;
+    out.consigli = S.codex.consigli.length;
+    A.passo();
+    out.dopo = S.finito ? S.finito.esito : null;
+    /* ELICA: una fase si vince rispondendo, e la risposta sbagliata fa male */
+    ({ S } = await arena(16));
+    out.elica = S.boss && S.boss._def.nome;
+    A.interagisci();
+    out.sfida = A.schermo();
+    const vE = S.boss.vita, viteE = S.vite;
+    S.immune = 0;
+    const pE = S._enigma.passi[0];
+    A.rispondiEnigma(pE.opzioni.find(o => o !== pE.giusta));
+    out.sbagliataFaMale = S.vite === viteE - 1 && S.boss.vita === vE;
+    S.immune = 99999;
+    A.interagisci();
+    A.rispondiEnigma(S._enigma.passi[0].giusta);
+    out.giustaColpisce = S.boss.vita === vE - 1;
+    out.reagenteInEnigma = A.usaSu('NaOH');
+    /* PROTOCOLLO 12: l'ultimo, quattro fasi, e chiude il gioco */
+    ({ S } = await arena(20));
+    out.ultimo = S.boss && S.boss._def.nome;
+    out.fasiUltimo = S.boss._def.fasi.length;
+    A.interagisci(); A.rispondiEnigma(S._enigma.passi[0].giusta);
+    A.interagisci(); A.rispondiEnigma(S._enigma.passi[0].giusta);
+    S.composti.push({ id: 'NaHCO3', dosi: 9 }); S.inventario.push({ sim: 'Ar', padronanza: 1, usi: 0 });
+    for (let i = 0; i < 3; i++) A.usaSu('NaHCO3');
+    out.argonPrima = S.boss.fase;
+    for (let i = 0; i < 3; i++) A.usaSu('Ar');
+    for (let i = 0; i < 4; i++) A.usaSu('Ar');
+    out.finale = S.finito ? S.finito.esito : null;
+    out.schermoFinale = A.schermo();
+    return out;
+  });
+  att('arrivando al livello 4 si conosce già quello che serve', true, boss.ricetteDovute);
+  att('il guardiano si attiva avvicinandosi', true, boss.attivo);
+  console.log('      (' + boss.nome + ')');
+  att('  · il sale non gli fa niente', true, boss.saleNonFa);
+  att('  · l’acido scioglie la ruggine e passa alla fase 2', 2, boss.fase2);
+  att('  · e in fase 2 l’acido non basta più', true, boss.acidoInFase2);
+  att('  · il sodio reagisce col vapore e scopre il rotore', 3, boss.fase3);
+  att('  · finché è vivo l’ascensore resta bloccato', null, boss.uscitaPrima);
+  att('  · scoperto, si abbatte', true, boss.abbattuto);
+  att('  · e lascia la ricetta della soda', true, boss.premio);
+  sopra('  · il codex impara perché', 2, boss.consigli);
+  att('  · poi l’ascensore porta avanti', 'livello', boss.dopo);
+  att('ELICA chiede una risposta', 'enigma', boss.sfida);
+  att('  · la risposta sbagliata toglie una vita e non la tocca', true, boss.sbagliataFaMale);
+  att('  · quella giusta la colpisce', true, boss.giustaColpisce);
+  att('  · e in quella fase un reagente non serve', false, boss.reagenteInEnigma);
+  att('l’ultimo guardiano ha quattro fasi', 4, boss.fasiUltimo);
+  att('  · il bicarbonato tampona e scopre il nucleo all’argon', 3, boss.argonPrima);
+  att('  · e fermarlo chiude il gioco', 'finale', boss.finale);
+  att('  · con il finale a schermo', 'esito', boss.schermoFinale);
+
+  /* ═══ §6 · IL MOTORE: REALISTICO DI SERIE, PS1 A SCELTA ════════════════ */
+  console.log('\n── Il motore: materiali fisici, ombre, e il PS1 come scelta ──');
+  const motore = await pg.evaluate(async () => {
+    const A = window.BSIAtomic, T = window.THREE;
+    A.scriviImp('grafica', 'alta'); A.rifai3D();
+    await new Promise(r => setTimeout(r, 1200));
+    A.nuovaPartita(3); A.cominciaPartita();
+    await new Promise(r => setTimeout(r, 800));
+    const m = A.motore(), cv = document.getElementById('bsiAP-tela');
+    const out = { pronto: A.pronto(), perche: A.perche3d() };
+    out.webgl = !!m.ren.getContext();
+    out.aces = m.ren.toneMapping === T.ACESFilmicToneMapping;
+    out.srgb = m.ren.outputEncoding === T.sRGBEncoding;
+    out.ombre = m.ren.shadowMap.enabled;
+    out.ambiente = !!m.scena.environment;
+    let pbr = 0, lambert = 0, scatole = 0, mesh = 0, ombreProiettate = 0;
+    m.scena.traverse(o => {
+      if (!o.isMesh) return;
+      mesh++;
+      const mt = o.material;
+      if (mt.isMeshStandardMaterial) pbr++;
+      if (mt.isMeshLambertMaterial) lambert++;
+      if (o.castShadow) ombreProiettate++;
+    });
+    /* il chimico non è fatto di scatole */
+    const nodoChimico = m.scena.children.find(c => c.children && c.children[0] && c.children[0].children &&
+      c.position && Math.abs(c.position.x - A.stato().pos.x) < 0.01 && Math.abs(c.position.z - A.stato().pos.z) < 0.01);
+    let pezzi = 0;
+    if (nodoChimico) nodoChimico.traverse(o => { if (o.isMesh) { pezzi++; if (o.geometry.type === 'BoxGeometry' || o.geometry.type === 'BoxBufferGeometry') scatole++; } });
+    Object.assign(out, { pbr, lambert, mesh, ombreProiettate, pezzi, scatole });
+    out.tela = cv.width + '×' + cv.height;
+    out.risoluzionePiena = cv.width >= cv.clientWidth;
+    out.nonPixelata = !/pixelated|crisp/.test(getComputedStyle(cv).imageRendering);
+    /* si disegnano solo le stanze vicine */
+    const st = A.mondo().zona.stanze;
+    out.stanzeVisibili = st.filter(s => s._g && s._g.visible).length;
+    out.stanzeTotali = st.length;
+    out.luci = 0; m.scena.traverse(o => { if (o.isLight) out.luci++; });
+    const luci0 = out.luci;
+    /* attraversare tutto il livello non aggiunge luci: si spostano */
+    /* (al centro della stanza, ma non sull'ascensore: chiuderebbe il livello) */
+    for (const s of st) { A.stato().pos.x = s.x + s.larg / 4; A.stato().pos.z = s.z + s.prof / 4; await new Promise(r => requestAnimationFrame(r)); }
+    const livPrima = A.stato().livello;
+    let luci1 = 0; m.scena.traverse(o => { if (o.isLight) luci1++; });
+    out.luciCostanti = luci0 === luci1;
+    /* il PS1, a scelta */
+    A.scriviImp('grafica', 'ps1'); A.rifai3D();
+    await new Promise(r => setTimeout(r, 1500));
+    const cv2 = document.getElementById('bsiAP-tela');
+    const m2 = A.motore();
+    out.ps1Tela = cv2.width + '×' + cv2.height;
+    out.ps1Pixel = /pixelated|crisp/.test(getComputedStyle(cv2).imageRendering);
+    let lam2 = 0; m2.scena.traverse(o => { if (o.isMesh && o.material.isMeshLambertMaterial) lam2++; });
+    out.ps1Lambert = lam2;
+    out.ps1Partita = !!A.mondo() && A.stato().livello === livPrima && !A.stato().finito;
+    A.scriviImp('grafica', 'alta'); A.rifai3D();
+    await new Promise(r => setTimeout(r, 1200));
+    out.tornata = A.motore().ren.toneMapping === T.ACESFilmicToneMapping;
+    return out;
   });
   att('il motore 3D è partito', true, motore.pronto);
   if (!motore.pronto) console.log('      ! ' + motore.perche);
   att('  · su WebGL', true, motore.webgl);
-  att('  · la scena si disegna a bassa risoluzione', true, motore.bassaRisoluzione);
-  console.log('      (' + motore.tela.w + '×' + motore.tela.h + ')');
-  att('  · e i pixel restano quadrati', true, motore.pixelati);
+  att('  · con il tone mapping cinematografico (ACES)', true, motore.aces);
+  att('  · in spazio colore sRGB', true, motore.srgb);
+  att('  · con le ombre', true, motore.ombre);
+  att('  · e i riflessi d’ambiente', true, motore.ambiente);
+  sopra('materiali fisici (PBR) in scena', 100, motore.pbr);
+  att('  · e nessun materiale piatto', 0, motore.lambert);
+  sopra('  · oggetti che proiettano ombra', 50, motore.ombreProiettate);
+  sopra('il chimico è fatto di pezzi', 30, motore.pezzi);
+  att('  · e nessuno è una scatola', 0, motore.scatole);
+  att('la scena si disegna alla risoluzione dello schermo', true, motore.risoluzionePiena);
+  console.log('      (' + motore.tela + ')');
+  att('  · senza pixel quadrati', true, motore.nonPixelata);
+  att('si disegnano solo la stanza e le vicine', true, motore.stanzeVisibili < motore.stanzeTotali);
+  console.log('      (' + motore.stanzeVisibili + ' di ' + motore.stanzeTotali + ')');
+  att('  · e le luci non cambiano di numero girando il livello', true, motore.luciCostanti);
+  att('lo stile PS1 c’è ancora, a scelta: 320×240', '320×240', motore.ps1Tela);
+  att('  · con i pixel quadrati', true, motore.ps1Pixel);
+  sopra('  · e i materiali piatti', 50, motore.ps1Lambert);
+  att('  · e cambiare grafica non perde la partita', true, motore.ps1Partita);
+  att('  · e si torna al realistico', true, motore.tornata);
 
   /* ═══ §7 · LE IMPOSTAZIONI SI RICORDANO ════════════════════════════════ */
   console.log('\n── Visuale e difficoltà: scelte e ricordate ──');
@@ -447,7 +669,8 @@ function sopra(d, minimo, avuto) {
     const prima = A.IMP.visuale;
     A.scriviImp('visuale', 'prima');
     A.scriviImp('difficolta', 'esperimento');
-    const dep = {
+    A.IMP.grafica = 'x'; A.leggiImp();
+    const dep = { graficaRiletta: A.IMP.grafica,
       visuale: localStorage.getItem('bsi-ap-visuale'),
       difficolta: localStorage.getItem('bsi-ap-difficolta')
     };
@@ -461,6 +684,7 @@ function sopra(d, minimo, avuto) {
   });
   att('la visuale scelta finisce nel deposito', 'prima', imp.dep.visuale);
   att('  · e la difficoltà pure', 'esperimento', imp.dep.difficolta);
+  att('  · e la grafica scelta si rilegge dal deposito', 'alta', imp.dep.graficaRiletta);
   att('le difficoltà sono quattro', 4, imp.difficolte);
   /* NEI DUE VERSI: «Esperimento» non è «Facile con un nome diverso» */
   att('  · e «Esperimento» vieta la sintesi rapida', 0, imp.sintesiRapida);
@@ -477,7 +701,8 @@ function sopra(d, minimo, avuto) {
     let n = 0;
     const orig = window.requestAnimationFrame;
     window.requestAnimationFrame = function (f) { n++; return orig(f); };
-    await new Promise(r => setTimeout(r, 500));
+    /* il rendering software del banco è lento: si conta su un secondo e mezzo */
+    await new Promise(r => setTimeout(r, 1500));
     const conVista = n;
     /* si chiude la sezione: il ciclo deve fermarsi da sé */
     const altra = document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])');
@@ -489,7 +714,7 @@ function sopra(d, minimo, avuto) {
     window.requestAnimationFrame = orig;
     return { conVista, senzaVista };
   });
-  sopra('con la sezione aperta il gioco gira', 5, ciclo.conVista);
+  sopra('con la sezione aperta il gioco gira', 3, ciclo.conVista);
   /* L'ALTRO VERSO, ED E' QUELLO CHE CONTA */
   att('  · e chiusa la sezione si ferma del tutto', 0, ciclo.senzaVista);
   await ctx.close();
@@ -543,9 +768,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 75) {
+  if (eseguiti < 110) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 75');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 110');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

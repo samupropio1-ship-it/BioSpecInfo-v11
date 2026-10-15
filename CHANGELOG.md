@@ -7,6 +7,70 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v209] — 2026-10-15
+
+**ATOMIC PROTOCOL ha venti livelli e una grafica realistica. Niente più
+cubetti.**
+
+### Venti livelli, cinque ali, cinque guardiani
+
+* **`bsi-atomic-livelli.js`** (nuovo) genera i venti livelli da un seme — il
+  numero del livello — su una griglia in cui due stanze vicine condividono il
+  muro e la porta: le porte combaciano per costruzione. Percorso principale,
+  stanze laterali, arredi lungo i muri, banco, terminale, paratia, ascensore.
+* **Cinque ali** — Stoccaggio, Sintesi organica, Spettroscopia, Biochimica, il
+  Nucleo — ognuna con i suoi elementi, le sue ricette, la sua nebbia e la sua
+  luce.
+* **Cinque guardiani** ai livelli 4, 8, 12, 16 e 20: POMPA 7 (HCl → sodio),
+  IL POLIMERO (H₂O₂ → H₂SO₄), LO SPETTRO (acido ascorbico → CO₂), ELICA
+  (appaiare le basi → NaOH), PROTOCOLLO 12 (bilanciare → bicarbonato →
+  argon). Ogni fase chiede una cosa di chimica precisa; quella sbagliata non
+  fa niente. Prima di ogni guardiano ci sono sempre gli elementi per batterlo.
+* **Dieci ricette** con equazioni **contate atomo per atomo**; il bicarbonato
+  si fa da due composti (NaOH + CO₂). A «Esperimento» la reazione va
+  bilanciata prima di farla.
+* **Enigmi generati** ai terminali, diversi per ala: gruppo funzionale
+  cerchiato, nome IUPAC, costruire una catena, bilanciare, DNA complementare,
+  domande da tutto il sito. Le strutture sono dati, disegnate da una funzione
+  sola.
+* **La trama** in cinque appunti e un finale: chi ha scritto «riprendere
+  comunque»?
+* **Salvataggio** a ogni livello, «continua» e **scelta del livello** dal
+  titolo; mappa delle stanze viste; ✦ usa quello che hai in mano, ⟳ lo cambia;
+  i residui si sciolgono con un ossidante.
+
+### Grafica realistica
+
+* **`bsi-atomic-grafica.js`** (nuovo): materiali fisici (PBR) con texture
+  procedurali e mappe di rilievo e di ruvidità calcolate dal rumore, riflessi
+  d'ambiente, ombre morbide, tone mapping ACES in sRGB, vignettatura,
+  telecamera smorzata. Il chimico, gli scaffali con la vetreria, i fusti con
+  l'etichetta di pericolo, il banco in resina, le cappe, le paratie
+  scorrevoli, i guardiani: **nessuna scatola**.
+* Si disegnano solo la stanza e quelle vicine, e le luci sono sempre cinque,
+  spostate sulle plafoniere vicine: un livello di dodici stanze costa come
+  una e mezza.
+* Impostazione **Grafica**: alta, media (per i telefoni, di serie su quelli
+  con pochi processori), **PS1** — lo stile di prima resta come scelta, e
+  cambiarlo non perde la partita.
+
+### Corretto
+
+* Il generatore ordinava con un comparatore che chiamava il caso: Node e
+  Chromium davano **livelli diversi dallo stesso seme**. Ora il caso si estrae
+  prima di ordinare.
+* Il bersaglio di ✋ era il più vicino anche se di lato: ora conta dove si
+  guarda.
+
+### Verifica
+
+`test_atomic` riscritto: **132 controlli** (minimo 110) — i venti livelli
+percorsi, le equazioni contate e una sbagliata respinta, il livello 1 giocato
+fino all'ascensore e al salvataggio, i guardiani nei due versi, il motore
+misurato nella scena viva (ACES, ombre, PBR, nessuna scatola, luci costanti)
+e il PS1 come scelta.
+
+---
 ## [bsi-v208] — 2026-10-15
 
 **Il gioco è rifatto da zero: ATOMIC PROTOCOL, esplorazione 3D low-poly in

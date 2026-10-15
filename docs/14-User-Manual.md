@@ -126,16 +126,23 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 
 ### 🎮 ATOMIC PROTOCOL
 
-Un gioco di **esplorazione in tre dimensioni** con la grafica di una
-**PlayStation 1**, in cima alla barra accanto a 📰 Articoli.
+Un gioco di **esplorazione in tre dimensioni** con **grafica realistica**, in
+cima alla barra accanto a 📰 Articoli: **venti livelli**, cinque ali, cinque
+guardiani.
 
-**La storia.** Sei un chimico chiuso dentro un istituto sigillato dopo un
-incidente. Cammini per i reparti, raccogli **elementi**, li **sintetizzi** in
-composti al banco, risolvi gli enigmi dei terminali e abbatti i guardiani —
-usando la chimica, non i riflessi.
+**La storia.** Sei un chimico chiuso dentro un istituto sigillato: il
+Protocollo 12, una sintesi che si alimenta da sola, è ripartito alle tre di
+notte. Cammini per le ali, raccogli **elementi**, li **sintetizzi** in
+composti al banco, risolvi gli enigmi dei terminali per aprire le paratie e
+fermi i guardiani — usando la chimica, non i riflessi. Gli appunti sparsi
+per le ali raccontano chi ha fatto ripartire il Protocollo; il Codex li
+conserva.
 
-**La visuale si sceglie**: terza o prima persona, dal menù impostazioni, e la
-scelta **resta** anche chiudendo la pagina (tasto `V` per cambiarla al volo).
+**Come si avanza.** In ogni livello si trova il **terminale**: tre enigmi
+aprono la paratia, e oltre la paratia c'è l'**ascensore**. Ogni quattro
+livelli l'ascensore sta nell'arena di un guardiano, e si sblocca solo
+quando il guardiano è fermo. Il gioco **si salva** a ogni livello: dal
+titolo si **continua** o si **sceglie** un livello già raggiunto.
 
 | comando | tastiera | a schermo |
 |---|---|---|
@@ -144,50 +151,64 @@ scelta **resta** anche chiudendo la pagina (tasto `V` per cambiarla al volo).
 | correre | `Shift` | — |
 | saltare | `Spazio` | ⤒ |
 | interagire | `F` | ✋ |
-| usare un composto | — | ✦ |
+| usare quello che hai in mano | `X` | ✦ |
+| cambiare quello che hai in mano | `R` | ⟳ |
 | inventario | `I` | 🎒 |
-| codex | `C` | 📖 |
+| codex | `C` | dalla pausa |
 | pausa | `Esc` o `P` | ❚❚ |
 | cambiare visuale | `V` | impostazioni |
+
+**La grafica si sceglie** nelle impostazioni (anche dalla pausa, senza perdere
+la partita): **alta** — ombre morbide, riflessi, vetro trasparente; **media** —
+gli stessi modelli senza ombre, per i telefoni; **PS1** — poligoni piatti,
+pixel quadrati e tremolio dei vertici, come nel 1996. Sui telefoni con pochi
+processori si parte da «media».
 
 **Le quattro difficoltà** non cambiano solo i numeri:
 
 | | Facile | Normale | Difficile | Esperimento |
 |---|---|---|---|---|
-| vite | 5 | 3 | 2 | **1** |
-| danno dei nemici | ×0,6 | ×1 | ×1,4 | ×2 |
+| vite per livello | 5 | 3 | 2 | **1** |
+| danno dei guardiani | ×0,6 | ×1 | ×1,4 | ×2 |
 | tempo per gli enigmi | — | — | 90 s | 45 s |
-| sintesi rapida | sempre | sempre | 2 per scontro | **vietata** |
+| sintesi rapida contro un guardiano | sempre | sempre | 2 | **vietata** |
+| bilanciare la reazione prima di farla | — | — | — | **sì** |
 
 **L'inventario** tiene gli elementi raccolti: simbolo, nome, numero atomico,
 massa, gruppo, periodo, elettronegatività ed energia di ionizzazione — letti
 dalla **tavola periodica di questa applicazione** — più il potere e il
-**livello di padronanza**, che sale usandoli.
+**livello di padronanza**, che sale usandoli. Toccando un elemento o un
+composto lo si prende **in mano**: è quello che usa ✦.
 
-**Il laboratorio di sintesi** (il banco, nella stanza a ovest) combina gli
-elementi in composti: HCl, NaOH, H₂O₂, NaCl… Ogni ricetta porta la sua
-equazione bilanciata e dice a che cosa serve. Le ricette si sbloccano
-esplorando, risolvendo enigmi e abbattendo guardiani — e si leggono nel
-**Codex**.
+**Il laboratorio di sintesi** (il banco con lo schermo verde) combina fino a
+quattro reagenti: HCl, H₂O₂, NaOH, H₂SO₄, NH₃, CO₂, acido ascorbico, MgO,
+NaCl e il bicarbonato, che si fa da **due composti** (NaOH + CO₂). Ogni
+ricetta porta la sua equazione bilanciata e dice a che cosa serve. Le ricette
+si sbloccano con le **schede** trovate nelle stanze, ai terminali e fermando
+i guardiani.
 
-**Gli enigmi** mostrano strutture molecolari disegnate: riconoscere il gruppo
-funzionale cerchiato, dare il nome IUPAC, costruire la molecola scegliendo gli
-atomi. Sbagliando la porta resta chiusa e si riprova.
+**Gli enigmi** cambiano con l'ala: gruppo funzionale cerchiato in una
+struttura disegnata, nome IUPAC, costruire una catena, bilanciare una
+reazione, scrivere il filamento di DNA complementare, e domande da tutto il
+resto dell'applicazione. Sbagliando la paratia resta chiusa.
 
-**I guardiani non si abbattono a forza.** POMPA 7, il primo, è coperta di
-ossido: serve un **acido** (HCl) per scioglierlo. Poi mette il metallo nudo nel
-vapore: lì serve il **sodio**, che con l'acqua reagisce liberando idrogeno e
-calore. Solo allora espone il rotore. Il sale non le fa niente, e l'acido in
-fase 2 nemmeno: è questo che rende il gioco di chimica.
+**I guardiani non si abbattono a forza**: ogni fase ha una debolezza chimica,
+scritta in alto.
 
-**Lo stile PS1 è una scelta tecnica, non un filtro**: la scena si disegna a
-320×240 e si ingrandisce a pixel quadrati, le texture non hanno filtro, i
-vertici vengono «agganciati» alla griglia dello schermo (è il tremolio tipico
-di quella macchina), la luce è sui vertici e la nebbia è densa. Nelle
-impostazioni si può ridurre o spegnere.
+| livello | guardiano | che cosa serve |
+|---|---|---|
+| 4 | POMPA 7 | **HCl** sulla ruggine → **sodio** nel vapore → il rotore scoperto |
+| 8 | IL POLIMERO | **H₂O₂** spezza le catene → **H₂SO₄** disidrata il reticolo → il nucleo |
+| 12 | LO SPETTRO | **acido ascorbico** chiude la catena radicalica → **CO₂** soffoca la fiamma → il cristallo |
+| 16 | ELICA | **appaiare le basi** (rispondendo) → **NaOH** separa i filamenti → lo scheletro |
+| 20 | PROTOCOLLO 12 | **bilanciare** l'equazione → **bicarbonato** tampona → **argon** soffoca il nucleo → il nucleo |
+
+La cosa sbagliata non fa niente; quando la luce rossa si accende, il
+guardiano attacca: ci si allontana. I **residui** che strisciano nelle
+stanze sono organici: un ossidante (Cl, O, H₂O₂…) li scioglie.
 
 **Funziona offline**: Three.js è già nel pacchetto e il Service Worker lo
-tiene in cache.
+tiene in cache, insieme ai tre file del gioco.
 
 ### Dove si trovano le cose
 
@@ -503,4 +524,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v208`._
+_Guida aggiornata alla versione `bsi-v209`._
