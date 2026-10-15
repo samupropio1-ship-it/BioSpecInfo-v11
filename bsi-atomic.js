@@ -1861,7 +1861,28 @@
       ' max-width:none;aspect-ratio:auto;border:0;border-radius:0;z-index:9998}',
       'body.bsiAP-pieno #bsiAP-comandi{position:fixed;left:10px;right:10px;',
       ' bottom:max(12px,env(safe-area-inset-bottom));z-index:9999;margin:0}',
-      'body.bsiAP-pieno{overflow:hidden}'
+      'body.bsiAP-pieno{overflow:hidden}',
+      /* il pulsante flottante del gioco: pillola come Spectra, ma viola e
+         arancio, con l'icona animata */
+      '#bsi-gioco-fab{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);',
+      ' height:48px;padding:0 16px 0 9px;border-radius:24px;display:flex;align-items:center;gap:8px;',
+      ' background:linear-gradient(135deg,rgba(30,14,58,.97),rgba(12,30,52,.97));',
+      ' border:1.5px solid rgba(180,140,255,.6);cursor:pointer;color:#efe6ff;font-family:inherit;',
+      ' z-index:99990;box-shadow:0 6px 22px rgba(140,90,255,.38),0 2px 8px rgba(0,0,0,.45);',
+      ' transition:transform .15s,box-shadow .2s,border-color .2s;animation:apFab 4s ease-in-out infinite}',
+      '#bsi-gioco-fab:hover{border-color:#ffd34d;box-shadow:0 8px 30px rgba(255,160,60,.45),0 2px 8px rgba(0,0,0,.45)}',
+      '#bsi-gioco-fab:active{transform:scale(.94)}',
+      '#bsi-gioco-fab:focus-visible{outline:2px solid #ffd34d;outline-offset:3px}',
+      '#bsi-gioco-fab .ap-tx{display:flex;flex-direction:column;line-height:1;text-align:left}',
+      '#bsi-gioco-fab .ap-tx b{font-size:13.5px;font-weight:900;letter-spacing:.14em;',
+      ' background:linear-gradient(90deg,#ffd34d,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent}',
+      '#bsi-gioco-fab .ap-tx small{font-size:8.5px;font-weight:800;letter-spacing:.3em;color:#b8a6e8;margin-top:3px}',
+      '@keyframes apFab{0%,100%{box-shadow:0 6px 22px rgba(140,90,255,.32),0 2px 8px rgba(0,0,0,.45)}',
+      ' 50%{box-shadow:0 6px 30px rgba(255,150,60,.42),0 2px 8px rgba(0,0,0,.45)}}',
+      '@media (prefers-reduced-motion:reduce){#bsi-gioco-fab{animation:none}}',
+      '@media (max-width:360px){#bsi-gioco-fab{padding:0 9px}#bsi-gioco-fab .ap-tx{display:none}}',
+      'body.bsiAP-sezione #bsi-gioco-fab,body.bsiAP-sezione #bsi14-fab,body.bsiAP-sezione #bsi-spectra-fab',
+      '{visibility:hidden!important;pointer-events:none!important}'
     ].join('');
     document.head.appendChild(s);
   }
@@ -2183,7 +2204,7 @@
           'quella sbagliata non fa niente. Alcune fasi si vincono rispondendo (✋). Allontanati ' +
           'quando la luce rossa si accende.\n\n' +
           'RESIDUI — chiazze di solvente organico che si spostano e fumano: un ossidante (Cl, O, H₂O₂…) le degrada.\n\n' +
-          'COMANDI — si gioca in prima persona. Computer: clicca sulla scena e il mouse muove lo sguardo (Esc lo libera); W/S avanti e indietro, A/D gira, Q/E di lato, Maiusc corre, ' +
+          'COMANDI — si gioca in prima persona. Computer: clicca sulla scena e il mouse muove lo sguardo (Esc lo libera); W/S avanti e indietro, A/D di lato, frecce per girare, Maiusc corre, ' +
           'Spazio salta, F interagisce, X usa ✦, R cambia quello che hai in mano, I inventario, ' +
           'C codex, V passa alla terza persona, Esc pausa. Telefono: trascina il dito sulla scena per guardarti intorno, e i pulsanti sotto la scena.',
           'GOAL — on each level find the terminal, solve the puzzle to open the bulkhead and ' +
@@ -2196,7 +2217,7 @@
           'with ✦; the wrong one does nothing. Some phases are won by answering (✋). Step back ' +
           'when the red light flares.\n\n' +
           'RESIDUES — moving, fuming puddles of organic solvent: an oxidiser (Cl, O, H₂O₂…) degrades them.\n\n' +
-          'CONTROLS — you play in first person. Computer: click the scene and the mouse moves your gaze (Esc frees it); W/S forward and back, A/D turn, Q/E strafe, Shift runs, ' +
+          'CONTROLS — you play in first person. Computer: click the scene and the mouse moves your gaze (Esc frees it); W/S forward and back, A/D strafe, arrows turn, Shift runs, ' +
           'Space jumps, F interacts, X uses ✦, R switches what you hold, I inventory, C codex, ' +
           'V switches to third person, Esc pause. Phone: drag a finger on the scene to look around, and the buttons below the scene.')) + '</div>' +
         bottone('apIndietroG', '◂ ' + t('indietro', 'back')) + '</div>';
@@ -2818,6 +2839,9 @@
       var tag = (ev.target && ev.target.tagName) || '';
       if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
       var k = mappa2[ev.key];
+      /* in prima persona A e D vanno di lato, come in ogni gioco in prima
+         persona: a girare ci pensano il mouse e le frecce */
+      if (IMP.visuale === 'prima' && /^[aAdD]$/.test(ev.key)) k = /[aA]/.test(ev.key) ? 'latSx' : 'latDx';
       if (k && schermo === 'gioco') {
         tasti[k] = true;
         if (ev.key === ' ' || ev.key.indexOf('Arrow') === 0) ev.preventDefault();
@@ -2845,6 +2869,7 @@
     document.addEventListener('keyup', function (ev) {
       var k = mappa2[ev.key];
       if (k) tasti[k] = false;
+      if (/^[aAdD]$/.test(ev.key)) { tasti.latSx = tasti.latDx = false; }
     });
     globale.addEventListener('blur', function () { tasti = {}; });
   }
@@ -2891,20 +2916,95 @@
     sc.addEventListener('touchcancel', function () { tocco = null; });
   }
 
+  /* IL PULSANTE DEL GIOCO. Non sta piu' nella barra delle sezioni: sta con
+     i pulsanti flottanti, sopra Spectra e il menu ✨, con un'icona sua.
+     Nella barra resta un pulsante NASCOSTO con lo stesso data-s: e' quello
+     che il sito usa per cambiare sezione, e non si duplica la navigazione —
+     il pulsante flottante lo preme. */
+  var ICONA = '<svg class="ap-ico" viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">' +
+    '<defs><linearGradient id="apGrE" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">' +
+    '<stop offset="0" stop-color="#b48cff"/><stop offset="1" stop-color="#3ee0ff"/></linearGradient>' +
+    '<linearGradient id="apGrL" x1="0" y1="26" x2="0" y2="40" gradientUnits="userSpaceOnUse">' +
+    '<stop offset="0" stop-color="#ffd34d"/><stop offset="1" stop-color="#ff6a2a"/></linearGradient>' +
+    '<radialGradient id="apGrN" cx="24" cy="31" r="9" gradientUnits="userSpaceOnUse">' +
+    '<stop offset="0" stop-color="#fff6c8"/><stop offset="1" stop-color="#ffb030" stop-opacity="0"/></radialGradient></defs>' +
+    /* l'esagono: l'anello del benzene, e lo scudo del contenimento */
+    '<path d="M24 3.5 L41.8 13.75 L41.8 34.25 L24 44.5 L6.2 34.25 L6.2 13.75 Z" fill="rgba(20,12,40,.55)" ' +
+      'stroke="url(#apGrE)" stroke-width="2.4" stroke-linejoin="round"/>' +
+    /* la beuta, con il liquido che brilla */
+    '<path d="M20.5 12 L27.5 12 M21.8 12 L21.8 20.5 L14.8 34.2 Q13.6 37 16.8 37 L31.2 37 Q34.4 37 33.2 34.2 ' +
+      'L26.2 20.5 L26.2 12" fill="none" stroke="#e8f2ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+    '<path d="M17.4 29 Q20.5 27.4 24 29 T30.6 29 L32.3 33.6 Q33 35.6 30.8 35.6 L17.2 35.6 Q15 35.6 15.7 33.6 Z" fill="url(#apGrL)"/>' +
+    '<circle cx="24" cy="31" r="9" fill="url(#apGrN)"/>' +
+    '<circle cx="21" cy="32.4" r="1.2" fill="#fff8e0"/><circle cx="26.5" cy="30.6" r="0.9" fill="#fff8e0"/>' +
+    /* l'orbita con l'elettrone, che gira */
+    '<g><ellipse cx="24" cy="24" rx="19" ry="6.2" fill="none" stroke="rgba(62,224,255,.75)" stroke-width="1.3" ' +
+      'transform="rotate(-28 24 24)"/>' +
+    '<circle cx="43" cy="24" r="2.4" fill="#3ee0ff" transform="rotate(-28 24 24)">' +
+      '<animateTransform attributeName="transform" type="rotate" from="-28 24 24" to="332 24 24" dur="3.2s" ' +
+      'repeatCount="indefinite"/></circle></g></svg>';
+
   function pulsante() {
     var b = document.querySelector('.nav-btn[data-s="' + ID + '"]');
-    if (b) { b.textContent = NOME; return b; }
-    var gruppo = document.getElementById('navGroup0');
-    if (!gruppo) return null;
-    b = document.createElement('button');
-    b.className = 'nav-btn';
-    b.setAttribute('data-s', ID);
+    if (!b) {
+      var gruppo = document.getElementById('navGroup0');
+      if (!gruppo) return null;
+      b = document.createElement('button');
+      b.className = 'nav-btn';
+      b.setAttribute('data-s', ID);
+      gruppo.appendChild(b);
+    }
     b.textContent = NOME;
-    b.style.cssText = 'border:1px solid #8fe3c4;background:linear-gradient(135deg,' +
-      'rgba(143,227,196,.16),rgba(42,74,102,.2))';
-    if (gruppo.firstElementChild) gruppo.insertBefore(b, gruppo.firstElementChild.nextSibling);
-    else gruppo.appendChild(b);
+    b.hidden = true;
+    b.setAttribute('aria-hidden', 'true');
+    b.tabIndex = -1;
+    fab();
     return b;
+  }
+
+  function fab() {
+    var f = document.getElementById('bsi-gioco-fab');
+    if (!f) {
+      f = document.createElement('button');
+      f.id = 'bsi-gioco-fab';
+      f.type = 'button';
+      f.innerHTML = ICONA + '<span class="ap-tx"><b>ATOMIC</b><small>PROTOCOL</small></span>';
+      f.onclick = function (e) {
+        e.stopPropagation();
+        var nav = document.querySelector('.nav-btn[data-s="' + ID + '"]');
+        if (nav) nav.click();
+      };
+      document.body.appendChild(f);
+      globale.addEventListener('resize', ancoraFab);
+      /* il pulsante ✨ viene sistemato dagli altri moduli nei primi secondi:
+         ci si appoggia a lui per un po', poi solo quando la finestra cambia */
+      var n = 0, iv = setInterval(function () { ancoraFab(); if (++n > 40) clearInterval(iv); }, 750);
+    }
+    f.title = t('ATOMIC PROTOCOL — il gioco di chimica in prima persona', 'ATOMIC PROTOCOL — the first-person chemistry game');
+    f.setAttribute('aria-label', t('Apri ATOMIC PROTOCOL, il gioco', 'Open ATOMIC PROTOCOL, the game'));
+    ancoraFab();
+  }
+  /* sopra Spectra, allineato a destra con lui; se Spectra non c'e', sopra ✨ */
+  function ancoraFab() {
+    var f = document.getElementById('bsi-gioco-fab');
+    var sotto = document.getElementById('bsi-spectra-fab') || document.getElementById('bsi14-fab');
+    if (!f || !sotto) return;
+    var r = sotto.getBoundingClientRect();
+    if (!r.height) return;
+    f.style.setProperty('bottom', Math.round(globale.innerHeight - r.top + 10) + 'px', 'important');
+    f.style.setProperty('right', Math.round(globale.innerWidth - r.right) + 'px', 'important');
+  }
+  /* mentre la sezione del gioco e' aperta i pulsanti flottanti si tolgono
+     di mezzo: coprivano la scena 3D proprio dove stanno i comandi */
+  function segnaSezione() {
+    var v = visibile();
+    document.body.classList.toggle('bsiAP-sezione', v);
+    /* il sito sa nascondere i suoi pulsanti flottanti: glielo si chiede */
+    if (typeof globale._bsiSyncFabs === 'function') globale._bsiSyncFabs();
+    if (!v) {
+      if (tela && document.pointerLockElement === tela) { try { document.exitPointerLock(); } catch (e) {} }
+      tasti = {};
+    }
   }
 
   function applica() {
@@ -2924,6 +3024,8 @@
     tastiera();
     [500, 1500, 3000].forEach(function (ms) { setTimeout(applica, ms); });
     document.addEventListener('click', function (e) {
+      var nb = e.target && e.target.closest && e.target.closest('.nav-btn');
+      if (nb) setTimeout(segnaSezione, 80);
       var b = e.target && e.target.closest && e.target.closest('.nav-btn[data-s="' + ID + '"]');
       if (!b) return;
       setTimeout(function () {

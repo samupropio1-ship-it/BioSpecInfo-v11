@@ -842,6 +842,49 @@ function sopra(d, minimo, avuto) {
   sopra('con la sezione aperta il gioco gira', 3, ciclo.conVista);
   /* L'ALTRO VERSO, ED E' QUELLO CHE CONTA */
   att('  · e chiusa la sezione si ferma del tutto', 0, ciclo.senzaVista);
+
+  /* ═══ §8b · IL PULSANTE FLOTTANTE DEL GIOCO ═══════════════════════════ */
+  console.log('\n── Il pulsante del gioco, con ✨ e Spectra ──');
+  const fab = await pg.evaluate(async () => {
+    const f = document.getElementById('bsi-gioco-fab'), s = document.getElementById('bsi-spectra-fab');
+    const nav = document.querySelector('.nav-btn[data-s="sgioco"]');
+    const r = f.getBoundingClientRect(), rs = s.getBoundingClientRect();
+    const out = { c_e: !!f, visibile: r.width > 40 && r.height > 30 && getComputedStyle(f).visibility === 'visible',
+                  sopra: r.bottom <= rs.top + 1, allineato: Math.abs(r.right - rs.right) < 2,
+                  nome: f.getAttribute('aria-label') || '', icona: !!f.querySelector('svg'),
+                  navNascosto: !!(nav && nav.hidden) };
+    f.click();
+    await new Promise(r => setTimeout(r, 1500));
+    out.apre = getComputedStyle(document.getElementById('sgioco')).display !== 'none';
+    const nascosto = el => { const c = getComputedStyle(el); return c.visibility === 'hidden' || c.display === 'none'; };
+    out.nascostiInGioco = ['bsi-gioco-fab', 'bsi14-fab', 'bsi-spectra-fab'].every(id => nascosto(document.getElementById(id)));
+    out.dettaglio = ['bsi-gioco-fab', 'bsi14-fab', 'bsi-spectra-fab'].map(id => id + ':' +
+      getComputedStyle(document.getElementById(id)).visibility).join(' ') + ' corpo:' + document.body.className;
+    /* in prima persona A e D vanno di lato */
+    const A = window.BSIAtomic;
+    A.scriviImp('visuale', 'prima'); A.nuovaPartita(1); A.cominciaPartita();
+    await new Promise(r => setTimeout(r, 300));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'd' }));
+    out.dLaterale = !!A.tasti().latDx && !A.tasti().dx;
+    document.dispatchEvent(new KeyboardEvent('keyup', { key: 'd' }));
+    out.dRilasciato = !A.tasti().latDx;
+    document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])').click();
+    await new Promise(r => setTimeout(r, 400));
+    out.tornano = ['bsi-gioco-fab', 'bsi14-fab', 'bsi-spectra-fab'].every(id => {
+      const c = getComputedStyle(document.getElementById(id)); return c.visibility === 'visible' && c.display !== 'none'; });
+    return out;
+  });
+  att('il pulsante del gioco c’è e si vede', true, fab.c_e && fab.visibile);
+  att('  · sta sopra Spectra', true, fab.sopra);
+  att('  · allineato con lui', true, fab.allineato);
+  att('  · con un’icona e un nome accessibile', true, fab.icona && /ATOMIC/.test(fab.nome));
+  att('  · e non è più nella barra delle sezioni', true, fab.navNascosto);
+  att('premuto, apre il gioco', true, fab.apre);
+  att('  · e in gioco i pulsanti flottanti non coprono la scena', true, fab.nascostiInGioco);
+  if (!fab.nascostiInGioco) console.log('      ! ' + fab.dettaglio);
+  att('  · e uscendo tornano', true, fab.tornano);
+  att('in prima persona D va di lato, non gira', true, fab.dLaterale);
+  att('  · e lasciandolo si ferma', true, fab.dRilasciato);
   await ctx.close();
 
   /* ═══ §9 · SUL TELEFONO ════════════════════════════════════════════════ */
@@ -893,9 +936,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 160) {
+  if (eseguiti < 170) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 160');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 170');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v212';
+window.BSI_APP_VERSION='bsi-v213';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -37623,8 +37623,9 @@ window._bsiOverlayOpen = function(){
   return false;
 };
 window._bsiSyncFabs = function(){
-  var vuole = window._bsiOverlayOpen() ? 'none' : 'flex';
-  ['bsi14-fab','bsi-spectra-fab'].forEach(function(id){
+  // nascosti anche mentre la sezione del gioco e' aperta: coprivano la scena
+  var vuole = (window._bsiOverlayOpen() || document.body.classList.contains('bsiAP-sezione')) ? 'none' : 'flex';
+  ['bsi14-fab','bsi-spectra-fab','bsi-gioco-fab'].forEach(function(id){
     var e = document.getElementById(id);
     if(!e) return;
     // Si scrive SOLO se cambia: l'osservatore qui sotto guarda anche gli
@@ -37647,7 +37648,8 @@ window._bsiSyncFabs = function(){
 
 var _fabTimer = setInterval(function(){
   var f = document.getElementById('bsi14-fab');
-  if(f && !window._bsiOverlayOpen()){
+  // in gioco il FAB resta nascosto: copriva la scena 3D (vedi bsi-atomic.js)
+  if(f && !window._bsiOverlayOpen() && !document.body.classList.contains('bsiAP-sezione')){
     f.style.setProperty('display','flex','important');
     f.style.setProperty('visibility','visible','important');
     f.style.setProperty('opacity','1','important');

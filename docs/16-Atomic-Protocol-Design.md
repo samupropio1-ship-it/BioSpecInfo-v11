@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 5 (bsi-v212): si gioca in prima persona, con le braccia e lo strumento curati come in un FPS.
+> Versione 6 (bsi-v213): mani anatomiche, pulsante flottante con icona propria.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -65,8 +65,12 @@ la partita, e sono la cosa più curata del gioco.
   profondità: non entrano mai nei muri, come in ogni gioco in prima persona.
   Hanno luci proprie e i riflessi d'ambiente del livello.
 * **Le maniche** del camice sono tubi aperti con il polsino cucito, l'interno
-  in ombra e il bordo del guanto che esce; **le mani** in nitrile hanno cinque
-  dita in tre falangi, che si sovrappongono come un dito vero.
+  in ombra e il bordo del guanto che esce. **Le mani** sono anatomiche: ogni
+  dito è un unico tubo che segue le tre falangi lungo una curva, si
+  assottiglia verso la punta, si gonfia appena sulle nocche e finisce con il
+  polpastrello; il palmo è un volume solo, con il dorso piatto, il rilievo
+  delle nocche, l'eminenza del pollice e il polso che si stringe. La destra
+  avvolge l'impugnatura, la sinistra è rilassata.
 * **Il dispensatore**, nella destra: corpo in polimero con gli anelli cromati,
   impugnatura in gomma, la fiala di vetro con il liquido del colore del
   composto, lo schermo sul fondo con la formula e le dosi, l'ugello con il LED
@@ -117,6 +121,14 @@ vicine) e liberando la memoria della scheda video a ogni cambio di livello.
 
 «CONTINUA» appare solo se c'è una partita salvata; «SCEGLI LIVELLO» apre i
 livelli già raggiunti, divisi per zona, con i guardiani segnati.
+
+Il gioco si apre da un **pulsante flottante** in basso a destra, sopra Spectra
+e il menu ✨: una pillola viola e arancio con l'icona propria — l'esagono del
+benzene come scudo di contenimento, la beuta con il liquido luminoso,
+l'elettrone che le gira intorno. Nella barra delle sezioni non c'è più: vi
+resta un pulsante nascosto, quello che il sito usa per cambiare sezione.
+Mentre la sezione del gioco è aperta i pulsanti flottanti si tolgono di
+mezzo, perché coprivano la scena.
 
 ### 2.2 Impostazioni
 

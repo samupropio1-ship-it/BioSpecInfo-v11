@@ -127,7 +127,7 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 ### 🎮 ATOMIC PROTOCOL
 
 Un gioco di **esplorazione in tre dimensioni** con grafica di **livello
-PlayStation 2**, in cima alla barra accanto a 📰 Articoli: **cento livelli**,
+PlayStation 2**. Si apre dal **pulsante ATOMIC PROTOCOL** in basso a destra, sopra Spectra e il menu ✨ (l'icona con l'esagono, la beuta e l'elettrone che gira); mentre giochi i pulsanti flottanti si tolgono di mezzo. **Cento livelli**,
 dieci zone, dieci guardiani.
 
 **La storia.** Sei un chimico chiuso dentro un istituto sigillato: il
@@ -146,7 +146,7 @@ solo quando il guardiano è fermo. Il gioco **si salva** a ogni livello: dal
 titolo si **continua** o si **sceglie** un livello già raggiunto.
 
 **Si gioca in prima persona.** Davanti a te le tue braccia nel camice e, nella
-destra, il **dispensatore**: la fiala mostra il colore del composto che hai in
+destra — mani in guanti di nitrile, con le dita modellate una per una — il **dispensatore**: la fiala mostra il colore del composto che hai in
 mano e lo schermo sul fondo la formula e le dosi. Spruzzando, lo strumento
 rincula e lancia una nuvola di goccioline; la mano sinistra si allunga quando
 prendi o tocchi qualcosa; il mirino si allarga quando guardi qualcosa che puoi
@@ -155,8 +155,9 @@ usare. La terza persona si può scegliere nelle impostazioni (tasto `V`).
 | comando | tastiera e mouse | a schermo |
 |---|---|---|
 | guardarsi intorno | clic sulla scena, poi il mouse (`Esc` lo libera) | trascina il dito sulla scena |
-| muoversi | `W A S D` o frecce | ▲ ▼ ◀ ▶ |
-| spostarsi di lato | `Q` / `E` | ⇤ ⇥ |
+| muoversi | `W` / `S`, frecce ▲ ▼ | ▲ ▼ |
+| girarsi | mouse, frecce ◀ ▶ | ◀ ▶, o trascina il dito |
+| spostarsi di lato | `A` / `D` (o `Q` / `E`) | ⇤ ⇥ |
 | correre | `Shift` | — |
 | saltare | `Spazio` | ⤒ |
 | interagire | `F` | ✋ |
@@ -544,4 +545,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v212`._
+_Guida aggiornata alla versione `bsi-v213`._

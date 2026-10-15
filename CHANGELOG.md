@@ -7,6 +7,45 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v213] — 2026-10-15
+
+**Mani anatomiche in prima persona, un pulsante flottante tutto suo per il
+gioco, e i bug trovati a tappeto.**
+
+### Le mani
+
+* Ogni dito è **un unico tubo** che segue le tre falangi lungo una curva, si
+  assottiglia, si gonfia sulle nocche e finisce con il polpastrello; il palmo è
+  **un volume solo** con il dorso, le nocche, l'eminenza del pollice e il polso.
+  Prima erano pezzi accostati, e si vedevano come perline.
+* La destra avvolge l'impugnatura del dispensatore con le punte delle dita
+  visibili sul fianco, la sinistra è rilassata; il guanto di nitrile ha la
+  grana fine e qualche piega, senza le righe di prima.
+
+### Il pulsante del gioco
+
+* Il gioco non sta più nella barra delle sezioni: ha un **pulsante flottante**
+  sopra Spectra e il menu ✨, una pillola viola e arancio con un'icona nuova e
+  animata — l'esagono del benzene, la beuta con il liquido luminoso,
+  l'elettrone in orbita.
+
+### Bug corretti
+
+* I pulsanti flottanti ✨ e Spectra **coprivano la scena 3D** durante il gioco:
+  ora si tolgono di mezzo mentre la sezione è aperta e tornano all'uscita (anche
+  il controllo del sito che li rimetteva visibili lo sa).
+* Uscendo dalla sezione il **puntatore restava bloccato** e i tasti premuti
+  restavano «tenuti».
+* In prima persona **A e D giravano** invece di spostare di lato.
+* Un giro automatico su **96 sezioni, 25 strumenti del menu ✨** e tutti i
+  menu del gioco su tredici livelli, in tre grafiche e due lingue, non ha
+  trovato errori JavaScript.
+
+### Verifica
+
+`test_atomic`: **174 controlli** (minimo 170).
+
+---
 ## [bsi-v212] — 2026-10-15
 
 **Si gioca in prima persona, con le braccia e lo strumento curati come in un

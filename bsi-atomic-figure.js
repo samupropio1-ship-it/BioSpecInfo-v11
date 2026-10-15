@@ -1373,12 +1373,13 @@
       var MB = {
         manica: materiale(texCamice('manicaFP', 128, 128), { roughness: 0.8, rilievo: 0.9 }),
         guanto: materiale(pittura('nitrileFP', 128, 128, function (u, v) {
-          var gr = (fbm(u * 40, v * 40, 3, 901) - 0.5) * 8;
-          var grinza = Math.pow(Math.abs(Math.sin(v * 60 + fbm(u * 6, v * 6, 2, 902) * 8)), 12) * 14;
-          return [78 + gr - grinza, 132 + gr - grinza, 200 + gr - grinza * 0.6];
+          /* nitrile: grana fine e qualche piega morbida, niente righe */
+          var gr = (fbm(u * 60, v * 60, 3, 901) - 0.5) * 6;
+          var piega = Math.pow(Math.max(0, fbm(u * 5, v * 5, 3, 902) - 0.55) * 2.2, 2) * 18;
+          return [80 + gr - piega, 134 + gr - piega, 202 + gr - piega * 0.6];
         }, null, function (u, v) {
-          return fbm(u * 40, v * 40, 3, 901) * 0.3 + Math.pow(Math.abs(Math.sin(v * 60 + fbm(u * 6, v * 6, 2, 902) * 8)), 12) * 0.6;
-        }, 1.4), { roughness: 0.32, rilievo: 0.7 }),
+          return fbm(u * 60, v * 60, 3, 901) * 0.25 + Math.max(0, fbm(u * 5, v * 5, 3, 902) - 0.55) * 1.2;
+        }, 1.2), { roughness: 0.3, rilievo: 0.5 }),
         polimero: mat({ color: 0xc9cdd1, roughness: 0.42, metalness: 0.05 }),
         grigio: mat({ color: 0x3a4048, roughness: 0.5, metalness: 0.3 }),
         gomma: mat({ color: 0x1e2226, roughness: 0.75 }),
@@ -1442,28 +1443,113 @@
         return m(geo, MB.guanto, 0, 0, 0, false);
       }
 
+      /* ── LA MANO ANATOMICA ──
+         Costruita nel suo sistema: polso nell'origine, dita verso -z,
+         palmo verso -y, dorso verso +y. Ogni dito e' UN tubo che segue le
+         tre falangi lungo una curva, si assottiglia verso la punta, si
+         gonfia appena sulle nocche e finisce con il polpastrello: niente
+         giunture, niente perline. Il palmo e' un volume solo: dorso piatto
+         con il rilievo delle nocche, l'eminenza del pollice carnosa, il
+         polso che si stringe. */
+      function manoAnatomica(lato, posa) {
+        var tx = -lato;                                  /* da che parte sta il pollice */
+        var g = new T.Group();
+        var geo = new T.SphereGeometry(1, sg(36), sg(26));
+        var p = geo.attributes.position;
+        for (var i = 0; i < p.count; i++) {
+          var x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+          var avanti = (-z + 1) / 2;                      /* 0 al polso, 1 alle nocche */
+          var largo = 0.031 + 0.011 * Math.min(1, avanti * 1.6);
+          var X = x * largo;
+          var Y = y > 0 ? y * 0.0125 : y * 0.0175;
+          var Z = z * 0.048 - 0.046;
+          /* l'eminenza del pollice: carnosa, sul lato del pollice, verso il polso */
+          var ten = Math.max(0, x * tx) * Math.max(0, 1 - Math.abs(avanti - 0.35) / 0.35) * Math.max(0, -y);
+          Y -= ten * 0.009; X += tx * ten * 0.004;
+          /* le nocche sul dorso */
+          if (y > 0 && avanti > 0.8) Y += 0.0025 * Math.pow(Math.abs(Math.cos(x * 5.2)), 4) * (avanti - 0.8) * 5;
+          p.setXYZ(i, X, Y, Z);
+        }
+        g.add(m(lisce(geo), MB.guanto, 0, 0, 0, false));
+        var dita = [];
+        var curve = posa === 'impugna'
+          ? [[-1.25, -1.5, -0.65], [-1.35, -1.55, -0.6], [-1.35, -1.5, -0.55], [-1.3, -1.4, -0.5]]
+          : [[-0.22, -0.32, -0.18], [-0.18, -0.3, -0.18], [-0.24, -0.34, -0.2], [-0.3, -0.38, -0.22]];
+        [[0.028, 0.082, 0.0098, -0.088], [0.009, 0.09, 0.0101, -0.092], [-0.011, 0.085, 0.0096, -0.089],
+         [-0.029, 0.068, 0.0084, -0.081]].forEach(function (d, k) {
+          var x0 = tx * d[0];
+          var pts = [new T.Vector3(x0, 0.001, d[3] + 0.012)];
+          var dir = new T.Vector3(x0 * 1.1, 0, -1).normalize();
+          var asse = new T.Vector3(1, 0, 0);
+          var lung = [d[1] * 0.46, d[1] * 0.31, d[1] * 0.23];
+          var pos = new T.Vector3(x0, 0.001, d[3]);
+          pts.push(pos.clone());
+          for (var j2 = 0; j2 < 3; j2++) {
+            dir.applyAxisAngle(asse, curve[k][j2]);
+            var mezzo = pos.clone().addScaledVector(dir, lung[j2] * 0.5);
+            pos = pos.clone().addScaledVector(dir, lung[j2]);
+            pts.push(mezzo, pos.clone());
+          }
+          var cur = new T.CatmullRomCurve3(pts, false, 'centripetal');
+          var N = sg(40), RS = sg(12);
+          var tg = new T.TubeGeometry(cur, N, d[2], RS, false);
+          var pp = tg.attributes.position;
+          for (var r = 0; r <= N; r++) {
+            var tt = r / N, c0 = cur.getPointAt(tt);
+            var f = (1 - 0.24 * tt) * (1 + 0.09 * Math.exp(-Math.pow((tt - 0.42) / 0.05, 2)) +
+                                       0.07 * Math.exp(-Math.pow((tt - 0.72) / 0.05, 2)));
+            for (var q2 = 0; q2 <= RS; q2++) {
+              var idx = r * (RS + 1) + q2;
+              pp.setXYZ(idx, c0.x + (pp.getX(idx) - c0.x) * f, c0.y + (pp.getY(idx) - c0.y) * f * 0.92,
+                        c0.z + (pp.getZ(idx) - c0.z) * f);
+            }
+          }
+          tg.computeVertexNormals();
+          var dGr = new T.Group();
+          dGr.add(m(tg, MB.guanto, 0, 0, 0, false));
+          /* il polpastrello */
+          dGr.add(m(new T.SphereGeometry(d[2] * 0.76, sg(14), sg(10)), MB.guanto, pos.x, pos.y, pos.z, false));
+          g.add(dGr);
+          dita.push({ gruppo: dGr, punta: pos });
+        });
+        /* il pollice: dall'eminenza, in avanti e verso l'esterno */
+        var pPts = [new T.Vector3(tx * 0.024, -0.006, -0.018)];
+        var pDir = posa === 'impugna' ? new T.Vector3(tx * 0.42, -0.12, -0.9).normalize() : new T.Vector3(tx * 0.75, -0.25, -0.62).normalize();
+        var pPos = pPts[0].clone();
+        var pCurve = posa === 'impugna' ? [0.08, 0.12, 0.1] : [0.15, 0.2, 0.15];
+        var pAsse = new T.Vector3(0.2, 1, 0.1).normalize().multiplyScalar(tx);
+        (posa === 'impugna' ? [0.04, 0.03, 0.024] : [0.045, 0.033, 0.027]).forEach(function (l, k) {
+          pDir.applyAxisAngle(pAsse, -pCurve[k]);
+          var mezzo = pPos.clone().addScaledVector(pDir, l * 0.5);
+          pPos = pPos.clone().addScaledVector(pDir, l);
+          pPts.push(mezzo, pPos.clone());
+        });
+        var pc = new T.CatmullRomCurve3(pPts, false, 'centripetal');
+        var pt = new T.TubeGeometry(pc, sg(32), 0.0118, sg(12), false);
+        var ppp = pt.attributes.position, NN = sg(32), RR = sg(12);
+        for (var r2 = 0; r2 <= NN; r2++) {
+          var t2 = r2 / NN, c1 = pc.getPointAt(t2), f2 = 1.15 - 0.4 * t2;
+          for (var q3 = 0; q3 <= RR; q3++) {
+            var id2 = r2 * (RR + 1) + q3;
+            ppp.setXYZ(id2, c1.x + (ppp.getX(id2) - c1.x) * f2, c1.y + (ppp.getY(id2) - c1.y) * f2, c1.z + (ppp.getZ(id2) - c1.z) * f2);
+          }
+        }
+        pt.computeVertexNormals();
+        g.add(m(pt, MB.guanto, 0, 0, 0, false));
+        g.add(m(new T.SphereGeometry(0.0118 * 0.72, sg(14), sg(10)), MB.guanto, pPos.x, pPos.y, pPos.z, false));
+        return { gruppo: g, dita: dita };
+      }
+
       /* ── la mano destra, che impugna il dispensatore ── */
       var dx = new T.Group();
       dx.add(manica(1));
       var mD = new T.Group();
       mD.rotation.x = -0.34;                  /* il polso alza la mano rispetto all'avambraccio */
       dx.add(mD);
-      var pD = palmo(0.045, 0.092, 0.02);
-      pD.rotation.z = Math.PI / 2;            /* palmo verso sinistra: impugnatura */
-      mD.add(pD);
-      var ditaD = [];
-      [[0.028, 0.085, 0.0098], [0.006, 0.092, 0.0102], [-0.016, 0.087, 0.0097], [-0.036, 0.072, 0.0086]].forEach(function (d, i) {
-        var dd = dito(d[1], d[2] * 0.9, [0.95 + i * 0.05, 1.2, 0.85], 'y');
-        dd.gruppo.position.set(-0.006, d[0], -0.088);
-        dd.gruppo.rotation.y = 0.15;
-        mD.add(dd.gruppo);
-        ditaD.push(dd);
-      });
-      /* il pollice, che si appoggia sul fianco del dispensatore */
-      var polD = dito(0.07, 0.0108, [0.25, 0.2, 0.15], 'y');
-      polD.gruppo.position.set(-0.022, 0.038, -0.035);
-      polD.gruppo.rotation.set(0.35, 0.55, 0.3);
-      mD.add(polD.gruppo);
+      var manoD = manoAnatomica(1, 'impugna');
+      manoD.gruppo.rotation.z = -Math.PI / 2;  /* palmo verso sinistra, pollice in alto */
+      mD.add(manoD.gruppo);
+      var ditaD = manoD.dita;
 
       /* il dispensatore */
       var disp = new T.Group();
@@ -1529,20 +1615,8 @@
       sx.add(manica(-1));
       var mS = new T.Group();
       sx.add(mS);
-      var pS = palmo(0.046, 0.092, 0.02);
-      mS.add(pS);
-      [[-0.028, 0.08], [-0.008, 0.088], [0.012, 0.084], [0.03, 0.07]].forEach(function (d, i) {
-        var dd = dito(d[1], 0.0095, [0.18 + i * 0.03, 0.22, 0.16], 'x');
-        dd.gruppo.position.set(d[0], 0, -0.088);
-        dd.gruppo.rotation.y = (d[0]) * 1.5;
-        dd.gruppo.rotation.x = 0;
-        dd.giunti.forEach(function (gg) { gg.rotation.x = -gg.rotation.x; });
-        mS.add(dd.gruppo);
-      });
-      var polS = dito(0.068, 0.0105, [0.2, 0.15, 0.1], 'y');
-      polS.gruppo.position.set(0.04, -0.008, -0.03);
-      polS.gruppo.rotation.set(-0.2, -0.7, -0.4);
-      mS.add(polS.gruppo);
+      var manoS = manoAnatomica(-1, 'rilassata');
+      mS.add(manoS.gruppo);
 
       var g = new T.Group();
       g.add(dx); g.add(sx);
