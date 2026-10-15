@@ -28,6 +28,16 @@ used, so there are no obligations to redistribute the proprietary code.
 
 ---
 
+### 1.1 Third-party 3D models (ATOMIC PROTOCOL, first person)
+
+| File | Work | Author | Licence | Obligations |
+|------|------|--------|---------|-------------|
+| `models/mani-atomic.glb` | hands animation | hugo colauto (Sketchfab) | Sketchfab Standard | use within the work; do not redistribute the model on its own — to be checked with the author before publication |
+| `models/manica-atomic.glb` | Modern Scientist in a Lab Coat (crop) | restore50 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+
+The derivatives are produced by `tools/prepara-modelli.js`; the entries with their SHA-256 digests are in the SBOM (`docs/07`).
+
 ## 2. External services/APIs (not redistributed)
 
 These services are queried over the network at runtime (their data is not part of

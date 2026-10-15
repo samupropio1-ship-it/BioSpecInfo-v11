@@ -7,6 +7,284 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v215] — 2026-10-15
+
+**Le mani, il camice e la pistola dai modelli scelti dall'utente — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Mani vere con lo scheletro** (`models/mani-atomic.glb`, da «hands
+  animation» di hugo colauto): ogni posa del gioco è fatta di fotogrammi della
+  loro animazione, campionata (le dita, 15 fotogrammi al secondo) e fusa dito
+  per dito — la presa sull'impugnatura, l'indice che preme il grilletto
+  spruzzando, il palmo aperto del potere, la sinistra che si chiude a
+  prendere, il gesto d'attesa (il pugno che si apre) quando si sta fermi. In
+  **guanto di nitrile**: la texture della pelle ricolorata dalla sua
+  luminosità, con le normali del modello, così nocche, unghie e pieghe si
+  leggono sotto la gomma. Allineamento automatico alla manica.
+- **La manica del camice** (`models/manica-atomic.glb`): l'avambraccio
+  ritagliato dalla scansione «Modern Scientist in a Lab Coat» (restore50,
+  CC-BY 4.0), con l'orlo e il polsino azzurro della camicia, specchiato per il
+  braccio sinistro; la manica procedurale resta dentro come fodera.
+- **La pistola a capsula** (`models/pistola-atomic.glb`, «Capsule Gun» di
+  sc8di, CC-BY 4.0) al posto del dispensatore: l'impugnatura si allinea
+  all'anello delle dita chiuse e al palmo, il polso devia quanto un polso vero
+  perché la canna guardi avanti, la capsula prende il colore del composto, il
+  grilletto segue l'indice, lo spruzzo parte dalla punta della canna.
+- `tools/prepara-modelli.js`: dai tre GLB originali (45 MB) ai derivati
+  (3,6 MB) — texture in JPEG, il ritaglio della manica senza la pelle.
+- I crediti dei modelli 3D nel Codex e in `models/CREDITS.md`.
+
+### Corretto
+- La piega del polso della mano sinistra del modello andava al contrario:
+  quella mano è la destra specchiata, e nel riferimento specchiato una
+  rotazione cambia verso. Ora il palmo del potere sale verso lo sguardo.
+- L'avambraccio del modello usciva dalla manica col polso piegato: la piega
+  la fa l'osso del polso, l'avambraccio resta dritto nella manica.
+- Le pieghe della manica procedurale potevano rientrare e far bucare il
+  braccio: ora sporgono solo verso l'esterno.
+
+### Banco
+- `test_atomic`: 196 controlli (erano 185) — i tre modelli caricati, due mani
+  con lo scheletro in nitrile, l'animazione campionata, le dita
+  sull'impugnatura, l'ugello in punta alla canna, la pistola che ruota nella
+  presa meno di 0,6 rad, il dispensatore procedurale nascosto, il palmo che
+  sale col potere; il passo si misura a modelli arrivati.
+
+---
+## [bsi-v214] — 2026-10-15
+
+**Nello spirito di BioShock — atmosfera, mani, dinamiche, misteri — sulla
+trama del Protocollo 12.**
+
+### Gli ambienti
+
+* **Art déco**: marmo a scacchi con i filetti d'ottone, zoccolo in noce,
+  carta da parati verde e oro, lesene di marmo, applique a ventaglio,
+  plafoniere déco, soffitto a cassettoni, portali d'ottone, targhe con le
+  lettere d'oro; manifesti dell'Istituto e del **Consorzio Albedo**, scritte
+  a gesso sui muri, gocce che cadono dal soffitto nelle pozze; luce ambra e
+  più ombra.
+
+### Le mani
+
+* La **sinistra tiene vivo l'elemento** come un plasmide: scintille con l'arco
+  elettrico per i metalli, fiamma per i combustibili, vapore per i gas, luce
+  per il resto, con una luce vera dal palmo; usandolo lo **lancia**. La destra
+  resta al dispensatore per i composti.
+
+### I misteri
+
+* **Trenta registrazioni** su magnetofoni déco, tre per zona, sette voci
+  (Sarti, il Custode, Lenzi, Vela, Moro, l'avv. Ferri del Consorzio Albedo, il
+  Direttore): si **ascoltano mentre si gioca** con la voce del dispositivo e i
+  sottotitoli, e finiscono nel Codex. Ricompongono il segreto della frase
+  «riprendere comunque».
+
+### L'HUD
+
+* Salute a tacche e reagente in mano in **cornici d'ottone**.
+
+### Verifica
+
+`test_atomic`: **185 controlli** (minimo 185).
+
+---
+## [bsi-v213] — 2026-10-15
+
+**Mani anatomiche in prima persona, un pulsante flottante tutto suo per il
+gioco, e i bug trovati a tappeto.**
+
+### Le mani
+
+* Ogni dito è **un unico tubo** che segue le tre falangi lungo una curva, si
+  assottiglia, si gonfia sulle nocche e finisce con il polpastrello; il palmo è
+  **un volume solo** con il dorso, le nocche, l'eminenza del pollice e il polso.
+  Prima erano pezzi accostati, e si vedevano come perline.
+* La destra avvolge l'impugnatura del dispensatore con le punte delle dita
+  visibili sul fianco, la sinistra è rilassata; il guanto di nitrile ha la
+  grana fine e qualche piega, senza le righe di prima.
+
+### Il pulsante del gioco
+
+* Il gioco non sta più nella barra delle sezioni: ha un **pulsante flottante**
+  sopra Spectra e il menu ✨, una pillola viola e arancio con un'icona nuova e
+  animata — l'esagono del benzene, la beuta con il liquido luminoso,
+  l'elettrone in orbita.
+
+### Bug corretti
+
+* I pulsanti flottanti ✨ e Spectra **coprivano la scena 3D** durante il gioco:
+  ora si tolgono di mezzo mentre la sezione è aperta e tornano all'uscita (anche
+  il controllo del sito che li rimetteva visibili lo sa).
+* Uscendo dalla sezione il **puntatore restava bloccato** e i tasti premuti
+  restavano «tenuti».
+* In prima persona **A e D giravano** invece di spostare di lato.
+* Un giro automatico su **96 sezioni, 25 strumenti del menu ✨** e tutti i
+  menu del gioco su tredici livelli, in tre grafiche e due lingue, non ha
+  trovato errori JavaScript.
+
+### Verifica
+
+`test_atomic`: **174 controlli** (minimo 170).
+
+---
+## [bsi-v212] — 2026-10-15
+
+**Si gioca in prima persona, con le braccia e lo strumento curati come in un
+FPS.**
+
+Il protagonista visto da fuori non poteva arrivare al livello degli ambienti:
+una figura umana costruita interamente dal codice resta un manichino. In prima
+persona quello che si vede di sé sono le braccia — e quelle si possono fare
+bene.
+
+### Le braccia e lo strumento
+
+* Maniche del camice con il polsino cucito e aperto, l'interno in ombra, il
+  bordo del guanto che esce; mani in nitrile a cinque dita in tre falangi.
+* Il **dispensatore** nella destra: corpo in polimero con anelli cromati,
+  impugnatura in gomma, fiala di vetro con il liquido del colore del composto,
+  schermo sul fondo con formula e dosi, ugello con LED e bagliore.
+* Disegnate in una **scena loro**, dopo il mondo: non entrano nei muri.
+
+### Il movimento
+
+* Le braccia oscillano col passo, restano indietro nelle curve, respirano,
+  affondano all'atterraggio, **rinculano spruzzando** con una nuvola di
+  goccioline; cambiando composto lo strumento si abbassa e risale; la sinistra
+  si allunga a prendere e toccare.
+* La testa sale e scende col passo e si inclina appena di lato.
+* **Sguardo libero**: mouse con il puntatore bloccato sul computer,
+  trascinamento del dito sul telefono; il mirino si allarga su ciò che si può
+  usare.
+* La terza persona resta a scelta (tasto `V`).
+
+### Verifica
+
+`test_atomic`: **164 controlli** (minimo 160) — prima persona di partenza,
+braccia in una scena loro con più di quaranta pezzi e cinque dita, lo strumento
+che mostra il composto in mano, le goccioline, lo sguardo che gira ma non oltre
+una testa.
+
+---
+## [bsi-v211] — 2026-10-15
+
+**Grafica di livello PlayStation 2, e niente horror: i guardiani sono le
+macchine dell'istituto.**
+
+### Il protagonista
+
+* **Migliaia di poligoni**: la testa è una sfera da circa 8000 triangoli
+  deformata a mano (cranio, arcate, zigomi, naso con le ali, labbra, mento); la
+  figura intera ne ha circa 29 000.
+* **Occhi modellati** — bulbo, iride dipinta, palpebra — e il **viso dipinto a
+  sfumature, senza contorni**: pelle, rossore, ombre delle orbite e sotto il
+  naso, luce su fronte e mento, sopracciglia fatte di peli, barba appena rasata.
+  I contorni erano quello che lo faceva sembrare un cartone animato.
+* **Mani a cinque dita** in guanti di nitrile; camice con revers, colletto,
+  tasche, bottoni, penna e cartellino modellati; capelli a ciocche; scarpe da
+  un profilo estruso. Texture a 512 px con **mappe di rilievo** (pieghe, trama).
+* Tolti i dettagli da sopravvivenza (semimaschera, occhiali sulla fronte): è un
+  direttore di laboratorio, non un soldato.
+
+### I guardiani e i residui
+
+* I dieci guardiani sono **macchine di laboratorio fuori controllo**, senza
+  carne, ossa o cadaveri: la pompa con i bracci idraulici, l'estrusore dei
+  polimeri, il banco laser con la torretta, il robot sequenziatore con la
+  doppia elica in vetro, l'impianto di elettrolisi con i dendriti di rame, il
+  criostato che sfiata azoto, la farmacia automatica, la cella calda con i
+  manipolatori e la luce di Čerenkov, il chiarificatore con il ponte
+  raschiatore, il reattore con gli anelli magnetici. Bracci, carrelli, barre e
+  ponti si muovono; i quadri di controllo dicono che cosa non va.
+* I **residui** sono chiazze di solvente che si spostano, con le bolle e i
+  vapori.
+* Descrizioni, guida e manuale riscritti di conseguenza; la chimica delle fasi
+  non cambia.
+
+### Il motore
+
+* **Grafica alta di partenza** (media sui telefoni con pochi processori); il
+  PS1 resta come scelta retrò.
+* **Bagliori** a sprite additivi su plafoniere, schermi, LED, fari e nuclei.
+
+### Verifica
+
+`test_atomic`: **155 controlli** (minimo 150) — grafica alta di partenza, più
+di cinque bagliori in scena, occhi modellati, cinque dita, testa sopra i 3000
+triangoli e figura sopra i 15 000, nessuna scatola nel protagonista e nei dieci
+guardiani.
+
+---
+## [bsi-v210] — 2026-10-15
+
+**Le figure rifatte nel realismo grezzo dei titoli PlayStation 1, e cento
+livelli in dieci zone.**
+
+### Il protagonista
+
+* **`bsi-atomic-figure.js`** (nuovo): un ricercatore, non un pupazzo. Un
+  metro e settantotto con le proporzioni di un adulto; la testa è una sfera
+  deformata (mandibola, mento, zigomi, naso, nuca) con il **viso dipinto** —
+  occhi con le palpebre, occhiaie, sopracciglia, ombra del naso, bocca, barba
+  di un giorno — in proiezione piana, come i volti di Resident Evil.
+* Il **camice** in tre pezzi con pieghe, aloni di reagente, sporco in fondo,
+  revers aperti su camicia e cravatta, taschino con penna e dosimetro,
+  cartellino con la foto; le **falde** separate che seguono le gambe.
+* **Attrezzatura**: guanti di butile lunghi, stivali di sicurezza,
+  semimaschera al collo con i filtri, occhiali alzati sulla fronte, torcia,
+  cintura con il marsupio.
+* **Animazioni smorzate**: passo misurato in metri, ginocchia che si piegano
+  nel verso giusto (prima si piegavano all'indietro), bacino che oscilla e
+  ruota, busto in controrotazione, testa stabilizzata, falde in ritardo,
+  respiro e cambio di peso da fermo, inclinazione in curva, corsa diversa
+  dal passo.
+
+### I guardiani e i residui
+
+* I cinque guardiani rifatti e **cinque nuovi**: POMPA 7 (pompa incrostata
+  con lo squarcio, la girante, il braccio di gru, i manometri), IL POLIMERO
+  (plastica fusa e carne con una maschera antigas), LO SPETTRO (una persona
+  carbonizzata che galleggia tra le schegge dello spettrometro), ELICA (una
+  colonna vertebrale a doppia elica), LA CELLA, IL GELO, LA DOSE, IL
+  DECADIMENTO, LA MELMA, PROTOCOLLO 12 (il reattore squarciato con il nucleo
+  di magma). Superfici deformate dal rumore, texture sporche — ruggine che
+  cola, carne con le vene, brace, magma — e **nessuna scatola**.
+* I **residui** strisciano: una massa con un torace e un cranio mezzo
+  sciolti e due appendici che graffiano il pavimento. Niente occhi simpatici.
+
+### Lo stile PS1, di partenza
+
+* La grafica di partenza è il **PS1**: luce sui vertici sfumata (Gouraud,
+  come la macchina vera, non le facce piatte di prima), vertici agganciati
+  alla griglia, **colore a 15 bit con la retinatura di Bayer**, texture senza
+  filtro, pavimenti suddivisi per la luce, ombre a macchia, nebbia cupa,
+  480×360 a pixel quadrati. La grafica moderna (PBR, ombre) resta a scelta.
+
+### Cento livelli
+
+* **Dieci zone da dieci livelli**: le cinque di prima più Elettrochimica,
+  Criogenia, Farmacologia, Radiochimica e Depurazione. Un guardiano al
+  decimo livello di ogni zona, in un'arena di almeno 14 m; dentro la zona i
+  livelli crescono. Due ricette nuove (HNO₃, CaO). La trama ha dieci capitoli.
+* Per arrivare a 150 o 200 livelli basta aggiungere zone e guardiani.
+
+### Corretto
+
+* **Il chimico camminava all'indietro**: il modello guardava verso la
+  telecamera mentre avanzava (dalla v208). Ora guarda dove va.
+* Dopo un cambio di grafica a partita aperta il ciclo non ripartiva.
+* Passando da un livello all'altro geometrie e texture restavano nella
+  memoria della scheda video: ora si liberano.
+
+### Verifica
+
+`test_atomic`: **151 controlli** (minimo 140) — i cento livelli, i dieci
+guardiani senza scatole, il viso dipinto, il chimico che avanza guardando
+dove va e le ginocchia che non si piegano all'indietro, la memoria che non
+cresce attraversando dieci livelli, il PS1 di partenza.
+
+---
 ## [bsi-v209] — 2026-10-15
 
 **ATOMIC PROTOCOL ha venti livelli e una grafica realistica. Niente più

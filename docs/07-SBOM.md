@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v215` |
-| Commit | `a19fe5f46f9bbddd47a01ac3fd2dce3536160692` |
-| Generato (UTC) | `2026-10-15T14:23:39.082Z` |
+| Commit | `adf6d33dd16e3619834513495831703b5db60371` |
+| Generato (UTC) | `2026-10-15T20:35:00.564Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -36,6 +36,9 @@ la dipendenza dalla disponibilità di terzi.
 | **sql.js (JS glue)**<br><sub>sql.js / SQLite</sub> | `lib/sql-wasm.js` | MIT | 45 kB | Database SQLite in-browser per le esercitazioni sui dati. |
 | **SQLite (WebAssembly)**<br><sub>SQLite Consortium</sub> | `lib/sql-wasm.wasm` | Public Domain | 644 kB | Motore SQLite compilato in WebAssembly. |
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Dati sperimentali per l'esercitazione di fisica delle particelle. |
+| **hands animation (modello 3D, adattato)**<br><sub>hugo colauto (Sketchfab)</sub> | `models/mani-atomic.glb` | LicenseRef-Sketchfab-Standard | 2059 kB | Le mani della prima persona, con lo scheletro e l'animazione da cui il gioco ricava le pose. |
+| **Modern Scientist in a Lab Coat (ritaglio)**<br><sub>restore50 (Sketchfab)</sub> | `models/manica-atomic.glb` | CC-BY-4.0 | 275 kB | La manica del camice della prima persona, ritagliata dalla scansione. |
+| **Capsule Gun (modello 3D)**<br><sub>sc8di (Sketchfab)</sub> | `models/pistola-atomic.glb` | CC-BY-4.0 | 1366 kB | La pistola a capsula impugnata nella prima persona. |
 
 ### Impronte
 
@@ -53,6 +56,9 @@ la dipendenza dalla disponibilità di terzi.
 | `lib/sql-wasm.js` | `77d6435bac506af0e3c59636dce9d22b1b14156348bc327f41a1577f3212360f` |
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
+| `models/mani-atomic.glb` | `d27b4ea1689e677e9406944abaecd95d524ca7693b2e4b62aec6c906f46ece56` |
+| `models/manica-atomic.glb` | `0034162e3fc772d3afb11c2df1a66222ae681ad7f404bcec59977d6557f14b98` |
+| `models/pistola-atomic.glb` | `4e109a4ab7e2794b139a5c9414151b376b7a237baab5d9f183f98d8e9ac65f7f` |
 
 ---
 
@@ -60,7 +66,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4670 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4671 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 35 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -86,7 +92,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `cd6666855146376983097b36bcb0529b57514a76df3e3b02c4989ed7b25445d3` |
+| `index.html` | `26109c9f6deff5a121c1887663925b9318fc164d397342611f8d4b9726b1beb0` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -102,7 +108,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `32c2ab8a730214e9250ed285492f7c6149e76a0bcae84ba18bdb7c3c1c0f8be5` |
+| `sw.js` | `0870bc084935ecd1698b6c7fded00fbdde50e782e9be156dc4f2e37c27eb21f1` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +161,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-15T14:23:39.082Z._
+_Generato il 2026-10-15T20:35:00.564Z._

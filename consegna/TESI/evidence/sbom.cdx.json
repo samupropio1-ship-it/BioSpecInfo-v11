@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-15T14:23:39.082Z",
+    "timestamp": "2026-10-15T20:35:00.564Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v209",
+      "version": "bsi-v215",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "a19fe5f46f9bbddd47a01ac3fd2dce3536160692"
+        "value": "adf6d33dd16e3619834513495831703b5db60371"
       }
     ]
   },
@@ -322,6 +322,81 @@
         {
           "alg": "SHA-256",
           "content": "61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "hands animation (modello 3D, adattato)",
+      "publisher": "hugo colauto (Sketchfab)",
+      "description": "Le mani della prima persona, con lo scheletro e l'animazione da cui il gioco ricava le pose.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "LicenseRef-Sketchfab-Standard"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d27b4ea1689e677e9406944abaecd95d524ca7693b2e4b62aec6c906f46ece56"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Modern Scientist in a Lab Coat (ritaglio)",
+      "publisher": "restore50 (Sketchfab)",
+      "description": "La manica del camice della prima persona, ritagliata dalla scansione.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/modern-scientist-in-a-lab-coat-e835a3b126a4463583727dbac2fedecc"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0034162e3fc772d3afb11c2df1a66222ae681ad7f404bcec59977d6557f14b98"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Capsule Gun (modello 3D)",
+      "publisher": "sc8di (Sketchfab)",
+      "description": "La pistola a capsula impugnata nella prima persona.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/capsule-gun-3639c42106334abab57d0592dae745df"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4e109a4ab7e2794b139a5c9414151b376b7a237baab5d9f183f98d8e9ac65f7f"
         }
       ]
     },

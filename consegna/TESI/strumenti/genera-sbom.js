@@ -74,7 +74,21 @@ const COMPONENTI = [
   { file: 'lib/dimuon.js', nome: 'Dataset dimuoni (CERN Open Data)', licenza: 'CC0-1.0',
     fornitore: 'CERN Open Data Portal', url: 'https://opendata.cern.ch',
     ruolo: 'Dati sperimentali per l\'esercitazione di fisica delle particelle.',
-    ruoloEn: 'Experimental data for the particle-physics exercise.' }
+    ruoloEn: 'Experimental data for the particle-physics exercise.' },
+  /* i modelli 3D della prima persona di ATOMIC PROTOCOL (crediti completi in
+     models/CREDITS.md; i derivati da tools/prepara-modelli.js) */
+  { file: 'models/mani-atomic.glb', nome: 'hands animation (modello 3D, adattato)', licenza: 'LicenseRef-Sketchfab-Standard',
+    fornitore: 'hugo colauto (Sketchfab)', url: 'https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385',
+    ruolo: 'Le mani della prima persona, con lo scheletro e l\'animazione da cui il gioco ricava le pose.',
+    ruoloEn: 'The first-person hands, with the skeleton and the animation the game derives its poses from.' },
+  { file: 'models/manica-atomic.glb', nome: 'Modern Scientist in a Lab Coat (ritaglio)', licenza: 'CC-BY-4.0',
+    fornitore: 'restore50 (Sketchfab)', url: 'https://sketchfab.com/3d-models/modern-scientist-in-a-lab-coat-e835a3b126a4463583727dbac2fedecc',
+    ruolo: 'La manica del camice della prima persona, ritagliata dalla scansione.',
+    ruoloEn: 'The first-person lab-coat sleeve, cropped from the scan.' },
+  { file: 'models/pistola-atomic.glb', nome: 'Capsule Gun (modello 3D)', licenza: 'CC-BY-4.0',
+    fornitore: 'sc8di (Sketchfab)', url: 'https://sketchfab.com/3d-models/capsule-gun-3639c42106334abab57d0592dae745df',
+    ruolo: 'La pistola a capsula impugnata nella prima persona.',
+    ruoloEn: 'The capsule gun held in first person.' }
 ];
 
 /* Il codice scritto per questo progetto: non e' una dipendenza, ma un
