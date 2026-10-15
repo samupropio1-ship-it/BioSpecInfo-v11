@@ -1034,8 +1034,13 @@
     var P = vista.pistola ? PISTOLA_DX : ZERO_DX;
     d.position.set(BASE_DX.x + P.x + bx + animV.swayX * 0.6, BASE_DX.y + P.y + by + resp - animV.swayY * 0.5 - animV.atterra * 0.04 - cambio * 0.28 - (corsa ? 0.02 : 0),
                    BASE_DX.z + P.z + animV.rinculo * 0.05);
-    d.rotation.set(BASE_DX.rx + animV.rinculo * 0.25 + animV.swayY * 0.8 - cambio * 0.6 + (corsa ? -0.15 : 0),
-                   BASE_DX.ry + P.ry + animV.swayX * 1.4 + (corsa ? 0.25 : 0), BASE_DX.rz + bx * 2 + animV.swayX);
+    /* guardare la pistola: la si alza, la si gira di fianco, la si rimette */
+    var isp = animV.ispLiscia = (animV.ispLiscia || 0) + ((animV.ispeziona || 0) - (animV.ispLiscia || 0)) * 0.08;
+    d.rotation.set(BASE_DX.rx + animV.rinculo * 0.25 + animV.swayY * 0.8 - cambio * 0.6 + (corsa ? -0.15 : 0) + isp * 0.25,
+                   BASE_DX.ry + P.ry + animV.swayX * 1.4 + (corsa ? 0.25 : 0) + isp * 0.45, BASE_DX.rz + bx * 2 + animV.swayX + isp * 0.55);
+    d.position.x -= isp * 0.06; d.position.y += isp * 0.05;
+    /* il rinculo nel polso: la canna salta su e torna */
+    if (vista.pistola && vista.pistola.baseX != null) vista.manoDx.rotation.x = vista.pistola.baseX + animV.rinculo * 0.18;
     /* la sinistra: di solito appena in vista in basso, si allunga a
        prendere (una curva: avanti, poi indietro) */
     var pr = Math.sin(animV.prendi * Math.PI);
@@ -1081,17 +1086,51 @@
      si chiude a prendere; col potere si apre e le dita respirano; ferma a
      lungo, ripete il gesto della clip (il pugno che si apre, le dita che si
      stirano) */
+  /* OGNI DITO HA LA SUA INERZIA. Le pose non si applicano di colpo: ogni
+     dito insegue il suo bersaglio con una molla smorzata (rigidezza
+     diversa per dito: l'indice sul grilletto e' svelto, il mignolo pigro),
+     cosi' un cambio di posa e' un movimento e non uno scatto. Sopra ci
+     sono i micro-movimenti di una mano viva: ogni dito ha la sua fase */
+  var DITA5 = ['pollice', 'indice', 'medio', 'anulare', 'mignolo'];
+  var RIGIDO = { pollice: 140, indice: 220, medio: 120, anulare: 105, mignolo: 90 };
+  function molle(lato, bersaglio, dt, svelto) {
+    var st = animV.dita || (animV.dita = {});
+    var m = st[lato] || (st[lato] = {});
+    var out = {};
+    DITA5.forEach(function (d) {
+      var c = m[d] || (m[d] = { x: bersaglio[d], v: 0 });
+      var k = RIGIDO[d] * ((svelto && svelto[d]) || 1), z = 2 * Math.sqrt(k);
+      c.v += (k * (bersaglio[d] - c.x) - z * c.v) * dt;
+      c.x += c.v * dt;
+      out[d] = c.x;
+    });
+    return out;
+  }
   function poseMani(ora, pr, al, la, cambio) {
-    var mm = vista.modello, rin = Math.min(1, animV.rinculo * 1.6), gr = animV.grilletto || 0;
-    animV.grilletto = gr + ((rin > 0.05 ? 1 : 0) - gr) * 0.45;
-    var apri = cambio * 0.6;
-    mm.posa(1, { pollice: PRESA.pollice - apri, indice: PRESA.indice + animV.grilletto * 0.42 - apri, medio: PRESA.medio - apri,
-                 anulare: PRESA.anulare - apri, mignolo: PRESA.mignolo - apri });
+    var mm = vista.modello;
+    var dt = Math.min(0.05, Math.max(0.001, ora - (animV.oraMani || ora - 0.016)));
+    animV.oraMani = ora;
+    var vel = Math.hypot(S.vel.x, S.vel.z), corsa = vel > 0.07;
+    /* la destra: la presa, con l'indice sul grilletto. Spruzzando l'indice
+       preme di scatto e rilascia piu' morbido */
+    var preme = animV.rinculo > 0.35 ? 1 : 0;
+    var apri = Math.sin(Math.min(1, animV.cambio) * Math.PI) * 0.55;
+    var micro = function (f, a) { return Math.sin(ora * (1.1 + f * 0.37) + f * 1.7) * a; };
+    var bDx = {
+      pollice: PRESA.pollice - apri + micro(0, 0.02),
+      indice: PRESA.indice + preme * 0.5 - apri + micro(1, 0.03),
+      medio: PRESA.medio - apri + (corsa ? 0.05 : 0),
+      anulare: PRESA.anulare - apri + micro(3, 0.015),
+      mignolo: PRESA.mignolo - apri + micro(4, 0.02)
+    };
+    var wDx = molle('dx', bDx, dt, { indice: preme ? 4 : 1 });
+    mm.posa(1, wDx);
+    animV.grilletto = Math.max(0, Math.min(1, (wDx.indice - PRESA.indice) / 0.5));
     /* il grilletto della pistola segue l'indice */
     if (vista.pistola && vista.pistola.grilletto) {
       var gri = vista.pistola.grilletto;
       if (gri.userData.z0 == null) gri.userData.z0 = gri.position.x;
-      gri.position.x = gri.userData.z0 + animV.grilletto * 9;
+      gri.position.x = gri.userData.z0 + animV.grilletto * 7;
     }
     /* il potere si accende sul palmo vero */
     if (vista.potere && vista.potere.palmo) {
@@ -1100,17 +1139,36 @@
       pp.addScaledVector(nn, 0.035);
       vista.potere.palmo.position.copy(vista.manoSx.worldToLocal(pp));
     }
+    /* la sinistra */
     var resp = Math.sin(ora * 1.3) * 0.04;
-    var base = 0.26 + resp, chiudi = pr * 0.62, aperta = al * (0.24 + resp * 0.5) + la * 0.18;
-    var fermo = Math.hypot(S.vel.x, S.vel.z) < 0.004 && pr < 0.01 && al < 0.05;
+    var bSx = {};
+    var u = animV.prendi > 0 ? 1 - animV.prendi : -1;          /* 0 → 1 lungo il gesto di prendere */
+    DITA5.forEach(function (d, i) {
+      var b = 0.24 + i * 0.03 + resp + micro(i + 5, 0.025) + (corsa ? 0.14 : 0);
+      if (al > 0.05) {
+        /* il potere: la mano aperta, e le dita che ondeggiano una dopo
+           l'altra, come qualcosa di vivo sul palmo */
+        b = b * (1 - al) + al * (0.08 + 0.13 * (0.5 + 0.5 * Math.sin(ora * 2.4 - i * 0.8)));
+      }
+      if (u >= 0) {
+        /* prendere: prima si apre, poi si chiude sull'oggetto, poi lascia */
+        b = u < 0.3 ? -0.2 : u < 0.75 ? 0.8 + (i === 0 ? -0.15 : 0) : b;
+      }
+      if (la > 0.05) b = b * (1 - la) - 0.28 * la;            /* il lancio: le dita si aprono di scatto */
+      bSx[d] = b;
+    });
+    var wSx = molle('sx', bSx, dt, la > 0.05 ? { pollice: 3, indice: 3, medio: 3, anulare: 3, mignolo: 3 } : null);
+    var fermo = vel < 0.004 && pr < 0.01 && al < 0.05;
     animV.fermoDa = fermo ? (animV.fermoDa || ora) : 0;
     var gesto = null;
+    animV.ispeziona = 0;
     if (animV.fermoDa && ora - animV.fermoDa > 7) {
-      var tg = (ora - animV.fermoDa - 7) % 9;
+      var tg = (ora - animV.fermoDa - 7) % 11;
       if (tg < 2.6) gesto = { t: 11.0 + tg * 0.85, peso: Math.sin(tg / 2.6 * Math.PI) * 0.9 };
+      /* e la destra, ogni tanto, alza la pistola per guardarla */
+      if (tg > 4 && tg < 7.5) animV.ispeziona = Math.sin((tg - 4) / 3.5 * Math.PI);
     }
-    mm.posa(-1, { pollice: base * 0.8 + chiudi - aperta, indice: base * 0.8 + chiudi - aperta,
-                  medio: base + chiudi - aperta, anulare: base * 1.1 + chiudi - aperta, mignolo: base * 1.2 + chiudi - aperta }, gesto);
+    mm.posa(-1, wSx, gesto);
   }
   /* spruzzare: rinculo, e una nuvola di goccioline dal colore del composto */
   function spruzzo() {
@@ -1219,6 +1277,7 @@
           animV.modelliFP++;
           if ((k === 'mani' || k === 'pistola') && v.modello && v.pistola) {
             G.adattaPresa(v, PRESA);
+            v.pistola.baseX = v.manoDx.rotation.x;
             animV.inMano = undefined;
           }
         }, function (e) { animV.erroreMani = String(e && e.message || e); });
@@ -2951,7 +3010,15 @@
       muoviCamera();
     }
     if (!ps1()) adattaDimensioni();
+    disegna(ora);
+    hud();
+    anim = requestAnimationFrame(ciclo);
+  }
+
+  /* un fotogramma: il mondo, le braccia sopra, la passata finale */
+  function disegna(ora) {
     if (ren && scena && camera) {
+      if (post) { adattaPost(); ren.setRenderTarget(post.rt); }
       if (vista && IMP.visuale === 'prima' && S && mondo && schermo === 'gioco') {
         ren.autoClear = false;
         ren.clear();
@@ -2960,9 +3027,78 @@
         ren.render(scenaMani, camMani);
         ren.autoClear = true;
       } else ren.render(scena, camera);
+      if (post) {
+        ren.setRenderTarget(null);
+        post.mat.uniforms.tempo.value = (ora % 100000) / 1000;
+        ren.render(post.scena, post.cam);
+      }
     }
-    hud();
-    anim = requestAnimationFrame(ciclo);
+  }
+
+  /* LA PASSATA FINALE «PS2 SERIA». I giochi della PS2 che si ricordano
+     come seri — Silent Hill 2, Resident Evil 4, Metal Gear Solid 3 — non
+     avevano piu' poligoni degli altri: avevano l'immagine trattata. Qui la
+     scena (mondo e braccia) si disegna in una texture e poi passa da uno
+     shader: colore da pellicola (un po' meno saturo, ombre fredde, luci
+     calde, piu' contrasto), i bagliori morbidi delle luci forti (solo in
+     alta), la vignettatura e la grana, che si muove. Lavora sui valori gia'
+     mappati (ACES e sRGB li fa il motore entrando nella texture). In PS1 no:
+     quello stile ha la sua passata */
+  var post = null;
+  var POST_VS = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
+  var POST_FS = [
+    'uniform sampler2D tDiffuse; uniform vec2 risol; uniform float tempo; uniform float bagliore;',
+    'varying vec2 vUv;',
+    'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }',
+    'vec3 forte(vec2 uv){ vec3 c = texture2D(tDiffuse, uv).rgb; return max(c - 0.72, 0.0); }',
+    'void main(){',
+    '  vec3 c = texture2D(tDiffuse, vUv).rgb;',
+    '  if (bagliore > 0.0) {',
+    '    vec2 px = 1.0 / risol; vec3 b = vec3(0.0);',
+    '    for (int i = 0; i < 8; i++) { float a = float(i) * 0.7854;',
+    '      vec2 d = vec2(cos(a), sin(a));',
+    '      b += forte(vUv + d * px * 5.0) + forte(vUv + d * px * 12.0) * 0.7; }',
+    '    c += b * (bagliore / 13.6);',
+    '  }',
+    '  float l = dot(c, vec3(0.299, 0.587, 0.114));',
+    '  c = c - pow(max(c - 0.7, 0.0), vec3(2.0)) * 0.9;',
+    '  c = mix(vec3(l), c, 0.84);',
+    '  c += vec3(-0.012, 0.004, 0.02) * (1.0 - l) + vec3(0.025, 0.012, -0.012) * l;',
+    '  c = (c - 0.5) * 1.1 + 0.48;',
+    '  vec2 q = vUv - 0.5; q.x *= risol.x / risol.y;',
+    '  c *= 1.0 - 0.55 * pow(clamp(length(q) * 1.08, 0.0, 1.0), 2.2);',
+    '  float g = hash(floor(vUv * risol) + fract(tempo * 7.13) * 91.7) - 0.5;',
+    '  c += g * 0.045 * (1.0 - l * 0.6);',
+    '  gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);',
+    '}'].join('\n');
+  function creaPost() {
+    if (post) { post.rt.dispose(); post.mat.dispose(); post.geo.dispose(); post = null; }
+    if (ps1() || !ren) return;
+    var dim = ren.getDrawingBufferSize(new T.Vector2());
+    var opz = { minFilter: T.LinearFilter, magFilter: T.LinearFilter, format: T.RGBAFormat };
+    var rt = (ren.capabilities.isWebGL2 && T.WebGLMultisampleRenderTarget)
+      ? new T.WebGLMultisampleRenderTarget(dim.x, dim.y, opz) : new T.WebGLRenderTarget(dim.x, dim.y, opz);
+    if (rt.samples !== undefined) rt.samples = IMP.grafica === 'alta' ? 4 : 2;
+    rt.texture.encoding = T.sRGBEncoding;
+    var geo = new T.PlaneGeometry(2, 2);
+    var mat = new T.ShaderMaterial({
+      uniforms: { tDiffuse: { value: rt.texture }, risol: { value: dim.clone() }, tempo: { value: 0 },
+                  bagliore: { value: IMP.grafica === 'alta' ? 1 : 0 } },
+      vertexShader: POST_VS, fragmentShader: POST_FS, depthTest: false, depthWrite: false
+    });
+    var sc = new T.Scene(), q = new T.Mesh(geo, mat);
+    q.frustumCulled = false; sc.add(q);
+    post = { rt: rt, mat: mat, geo: geo, scena: sc, cam: new T.Camera(), dim: dim };
+  }
+  var dimPost = null;
+  function adattaPost() {
+    if (!dimPost) dimPost = new T.Vector2();
+    ren.getDrawingBufferSize(dimPost);
+    if (dimPost.x !== post.dim.x || dimPost.y !== post.dim.y) {
+      post.dim.copy(dimPost);
+      post.rt.setSize(dimPost.x, dimPost.y);
+      post.mat.uniforms.risol.value.copy(dimPost);
+    }
   }
 
   function avviaCiclo() { if (!anim && pronto) anim = requestAnimationFrame(ciclo); }
@@ -3103,6 +3239,7 @@
         scena.add(chimico.nodo);
         creaVista();
         applicaRisoluzione();
+        creaPost();
         pronto = true;
         cb(true);
       } catch (e) {
@@ -3360,7 +3497,8 @@
     bersaglio: bersaglio, avviaCiclo: avviaCiclo, fermaCiclo: fermaCiclo,
     pronto: function () { return pronto; }, perche3d: function () { return errore3d; },
     mondo: function () { return mondo; },
-    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico,
+    disegna: function () { disegna(Date.now()); },
+    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico, post: post,
                                    vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
     spruzzo: function () { spruzzo(); },
     lancio: function () { lancio(); },

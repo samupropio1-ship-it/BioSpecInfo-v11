@@ -664,6 +664,26 @@ function sopra(d, minimo, avuto) {
       out.fpUgelloMm = Math.round(ug.distanceTo(pu) * 1000);
       out.fpResiduo = +Math.abs(vm.pistola.residuo || 0).toFixed(2);
       /* il dispensatore procedurale non si vede piu' */
+      /* i movimenti: ogni dito ha inerzia (lo spruzzo non porta l'indice
+         a fine corsa nello stesso fotogramma), la mano e' viva (le dita si
+         muovono anche da ferma), prendere apre la mano prima di chiuderla,
+         e lo spruzzo fa saltare la canna */
+      const fr = () => new Promise(r => requestAnimationFrame(r));
+      await new Promise(r => setTimeout(r, 600));
+      const ind0 = m.animV.dita.dx.indice.x;
+      const x0 = vm.manoDx.rotation.x;
+      A.spruzzo(); await fr();
+      const ind1 = m.animV.dita.dx.indice.x;
+      let indMax = ind1, xMax = x0;
+      for (let i = 0; i < 12; i++) { await fr(); indMax = Math.max(indMax, m.animV.dita.dx.indice.x); xMax = Math.max(xMax, vm.manoDx.rotation.x); }
+      out.fpInerzia = (ind1 - ind0) < 0.6 * (indMax - ind0) && indMax - ind0 > 0.15;
+      out.fpRinculo = +(xMax - x0).toFixed(2);
+      const v0 = m.animV.dita.sx.medio.x; await new Promise(r => setTimeout(r, 900));
+      out.fpViva = Math.abs(m.animV.dita.sx.medio.x - v0) > 0.003;
+      m.animV.prendi = 1; let pMin = 9, pMax = -9;
+      for (let i = 0; i < 40; i++) { await fr(); const x = m.animV.dita.sx.medio.x; pMin = Math.min(pMin, x); pMax = Math.max(pMax, x); }
+      out.fpPrendi = pMin < 0.1 && pMax > 0.6;
+      out.fpPost = !!(m.post && m.post.rt);
       out.fpProcedurali = vm.dispensatore.gruppo.children.filter(c => c.visible && c !== vm.pistola.gruppo && c !== vm.dispensatore.aloneLed).length;
     }
     A.stato().inMano = 'Cl';
@@ -829,6 +849,11 @@ function sopra(d, minimo, avuto) {
   att('  · la canna guarda avanti: la pistola ruota nella presa meno di 0,6 rad', true, motore.fpResiduo < 0.6);
   att('  · e il dispensatore procedurale non si vede più', 0, motore.fpProcedurali);
   att('  · col potere il palmo sinistro sale verso lo sguardo', true, motore.fpPalmoSu > 0.2);
+  att('  · ogni dito ha la sua inerzia: niente pose di colpo', true, motore.fpInerzia);
+  sopra('  · lo spruzzo fa saltare la canna (rad)', 0.05, motore.fpRinculo);
+  att('  · le mani sono vive: le dita si muovono anche da ferme', true, motore.fpViva);
+  att('  · prendere: la mano si apre prima di chiudersi', true, motore.fpPrendi);
+  att('la passata finale «PS2 seria» (colore, bagliori, vignettatura, grana)', true, motore.fpPost);
   att('  · lo strumento mostra quello che hai in mano', 'Cl', motore.inManoVista);
   sopra('  · e spruzzando escono le goccioline', 5, motore.goccioline);
   att('con un elemento in mano la sinistra lo tiene vivo: il sodio fa scintille', 'scintille', motore.potereNa);
@@ -1028,9 +1053,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 196) {
+  if (eseguiti < 201) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 196');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 201');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
