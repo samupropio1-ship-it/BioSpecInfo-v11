@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 6 (bsi-v213): mani anatomiche, pulsante flottante con icona propria.
+> Versione 7 (bsi-v214): nello spirito di BioShock — ambienti art déco, la mano sinistra-plasmide, trenta registrazioni audio — sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -54,6 +54,44 @@ pantaloni grigio scuro con la piega; guanti di nitrile azzurri; scarpe da
 laboratorio. Animazioni smorzate: passo misurato in metri, ginocchia che si
 piegano nel verso giusto, bacino e busto in controrotazione, testa
 stabilizzata, falde in ritardo, respiro e cambio di peso da fermo.
+
+### 1.2b Nello spirito di BioShock, sulla trama del Protocollo 12
+
+BioShock è il riferimento per **atmosfera, mani, dinamiche e misteri** — non per
+la storia, che resta quella del Protocollo 12. Le due si incontrano in un punto
+preciso: anche qui c'è una **frase-comando** («riprendere comunque») e un
+protagonista che obbedisce senza ricordare.
+
+* **Gli ambienti** sono art déco: l'Istituto è stato costruito come monumento al
+  suo finanziatore. Marmo a scacchi crema e verde con il filetto d'ottone,
+  zoccolo in noce a riquadri con il corrimano d'ottone, carta da parati verde
+  petrolio con colonne e ventagli d'oro, cornice di marmo in alto, lesene
+  scanalate con capitello e base d'ottone, applique a ventaglio dalla luce
+  calda, plafoniere di vetro smerigliato con l'anello d'ottone, soffitto a
+  cassettoni, portali d'ottone a gradini sui vani, targhe verdi con le lettere
+  d'oro. **Manifesti** dell'Istituto («Il progresso non chiede permesso») e del
+  **Consorzio Albedo** («Il futuro ha un fornitore»); **scritte a gesso** sui muri
+  («Chi ha firmato?», «Non obbedire»); il soffitto che perde e le gocce nelle
+  pozze. Luce ambra, poca luce d'ambiente, nebbia: pozze di luce e ombra.
+* **Le mani**: la destra impugna il dispensatore (i composti), la sinistra
+  evoca gli **elementi** come un plasmide — scintille con l'arco elettrico per i
+  metalli, fiamma che sale per i combustibili, vapore che gira per i gas, luce
+  per il resto — con una luce vera dal palmo che illumina il guanto; usandoli,
+  la mano spinge in avanti e lancia la scarica.
+* **I misteri**: trenta **registrazioni** su magnetofoni déco, tre per zona
+  (livelli 2, 5, 8), con sette voci — Sarti, il Custode, Lenzi, Vela, Moro,
+  l'avv. Ferri del Consorzio Albedo, e il Direttore. Si ascoltano mentre si
+  gioca, con la sintesi vocale del dispositivo (un tono e una velocità per
+  voce) e i sottotitoli su una targa d'ottone; finiscono nel Codex. Raccontano,
+  in ordine: il Custode che sigilla l'Istituto; il Consorzio che finanzia e
+  pretende; Sarti che scopre la frase-comando e il condizionamento
+  farmacologico; il Direttore che si lascia messaggi e trova la propria firma
+  sotto il contratto; le prove nascoste nel ghiaccio, nella carta e nel DNA; il
+  Custode che non tiene prigioniero il Direttore ma lo protegge da chi direbbe
+  la frase; l'ultima voce di Ferri alla radio, «riprendere comunque», e la
+  risposta finale del Direttore: un'equazione bilanciata.
+* **L'HUD** è déco: la salute a tacche rosse e il reagente in mano in blu, in
+  cornici d'ottone; i nomi delle stanze in un carattere con le grazie.
 
 ### 1.3 La prima persona
 

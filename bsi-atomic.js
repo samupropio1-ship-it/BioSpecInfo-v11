@@ -267,7 +267,7 @@
       composti: [],            /* { id, dosi } */
       inMano: null,            /* che cosa usa ✦ */
       ricette: RICETTE.map(function (r) { return { id: r.id, sbloccata: !!r.iniziale }; }),
-      codex: { elementi: [], molecole: [], reazioni: [], consigli: [], guardiani: [], trama: [] },
+      codex: { elementi: [], molecole: [], reazioni: [], consigli: [], guardiani: [], trama: [], registrazioni: [] },
       fatti: {},               /* quello che è già successo: paratie, guardiani… */
       presi: {},               /* gli oggetti raccolti o abbattuti, per chiave */
       visitate: {},            /* le stanze viste: la mappa le disegna */
@@ -614,6 +614,11 @@
       g.add(gu.gruppo);
       o._corpo = gu.gruppo; o._parti = gu.parti; o._def = B;
       o._solido = { l: 2.6, p: 2.2 };
+    } else if (o.tipo === 'registratore') {
+      var rg = G.registratore();
+      g.add(rg.gruppo);
+      o._reg = rg;
+      o._solido = { l: 0.6, p: 0.45 };
     } else if (o.tipo === 'uscita') {
       g.add(costruisciUscita(o, livello));
     }
@@ -635,6 +640,7 @@
       sg.add(stz.gruppo);
       st._g = sg;
       st._emergenza = stz.emergenza;
+      st._gocce = stz.gocce || [];
       stz.luci.forEach(function (l) {
         luciMondo.push({ x: st.x + l.x, y: l.y, z: st.z + l.z, stanza: st.id });
       });
@@ -642,6 +648,7 @@
         var nodo = costruisciOggetto(o, st, k, liv.zona.n, n);
         sg.add(nodo);
         /* quello che e' gia' stato raccolto o abbattuto non torna */
+        if (S && S.presi[o._chiave + ':sentito']) o.ascoltato = true;
         if (S && S.presi[o._chiave]) {
           o.preso = true; o.vivo = false; o.abbattuto = true;
           nodo.visible = false;
@@ -661,7 +668,7 @@
     scena.add(radice);
     var nebbia = liv.zona.nebbia;
     if (ps1()) scena.fog = new T.Fog(nebbia, 4, 22);
-    else scena.fog = new T.FogExp2(nebbia, 0.045);
+    else scena.fog = new T.FogExp2(nebbia, 0.055);
     scena.background = new T.Color(nebbia);
     return { zona: liv, livello: liv, ala: liv.zona, radice: radice,
              luci: luciMondo, paratie: paratie, stanzaCorrente: null };
@@ -698,7 +705,7 @@
       scena.add(g.boss);
       return g;
     }
-    g.emi = new T.HemisphereLight(0x9fb8d0, 0x1a2026, 0.3);
+    g.emi = new T.HemisphereLight(0xb8a890, 0x14100c, 0.2);
     scena.add(g.emi);
     for (var i = 0; i < 4; i++) {
       var p = new T.PointLight(0xffe8cc, 0.55, 11);
@@ -879,6 +886,12 @@
         o._gira.rotation.y += 0.02;
         o._gira.position.y = 0.82 + Math.sin(ora / 520 + o.x) * 0.04;
         if (o._alone) o._alone.material.opacity = 0.08 + Math.sin(ora / 300) * 0.04;
+      } else if (o.tipo === 'registratore' && o._reg) {
+        if (sx !== st) return;
+        var suona = nastro && nastro.reg === o.reg;
+        o._reg.bobine.forEach(function (bb, i) { if (suona) bb.rotation.y += 0.05 * (i ? 1 : 1.3); });
+        var acc = !o.ascoltato && (Math.floor(ora / 500) % 2 === 0);
+        o._reg.spia.visible = acc || suona; o._reg.alone.visible = acc || suona;
       } else if (o.tipo === 'foglio' && !o.preso) {
         if (o._gira) o._gira.visible = (Math.floor(ora / 600) % 2) === 0;
       } else if (o.tipo === 'nemico' && o.vivo) {
@@ -959,6 +972,11 @@
      ═════════════════════════════════════════════════════════════════════════ */
   var BASE_DX = { x: 0.15, y: -0.125, z: -0.33, rx: 0.4, ry: 0.1, rz: 0.05 };
   var BASE_SX = { x: -0.24, y: -0.46, z: -0.3, rx: 0.35, ry: -0.25, rz: -0.1 };
+  var TIPO_POTERE = { Na: 'scintille', K: 'scintille', Mg: 'scintille', Fe: 'scintille', Cu: 'scintille', Zn: 'scintille',
+                      Al: 'scintille', Ca: 'scintille', Ba: 'scintille', Au: 'scintille', Pb: 'scintille', U: 'scintille',
+                      O: 'fiamma', H: 'fiamma', C: 'fiamma', S: 'fiamma', P: 'fiamma',
+                      Cl: 'vapore', F: 'vapore', N: 'vapore', Ar: 'vapore' };
+  function elementoInMano() { return !!(S && S.inMano && !ricetta(S.inMano)); }
   function aggiornaDispensatore() {
     if (!vista || animV.inMano === S.inMano) return;
     var prima = animV.inMano === undefined;
@@ -973,7 +991,12 @@
     var testo = r ? r.formula : (id || '');
     var sotto = r ? (c ? '×' + c.dosi : '') : (id ? t('elemento', 'element') : t('vuoto', 'empty'));
     /* il cambio si vede: lo schermo si aggiorna quando lo strumento e' giu' */
-    setTimeout(function () { if (vista) vista.dispensatore.aggiorna(testo, sotto, col); }, prima ? 0 : 180);
+    setTimeout(function () {
+      if (!vista) return;
+      vista.dispensatore.aggiorna(r ? testo : '', r ? sotto : '', col);
+      /* un elemento vive sulla mano sinistra; un composto nel dispensatore */
+      if (vista.potere) vista.potere.aggiorna(r || !id ? null : (TIPO_POTERE[id] || 'luce'), col);
+    }, prima ? 0 : 180);
     animV.colore = col;
   }
   function animaVista() {
@@ -1006,10 +1029,20 @@
     /* la sinistra: di solito appena in vista in basso, si allunga a
        prendere (una curva: avanti, poi indietro) */
     var pr = Math.sin(animV.prendi * Math.PI);
+    /* con un elemento in mano la sinistra si alza, col palmo in su, e lo
+       tiene vivo; lanciandolo spinge in avanti */
+    var vuoleAlta = elementoInMano() ? 1 : 0;
+    animV.alta = (animV.alta || 0) + (vuoleAlta - (animV.alta || 0)) * 0.1;
+    animV.lancio = Math.max(0, (animV.lancio || 0) - 0.06);
+    var al = animV.alta, la = Math.sin(Math.min(1, animV.lancio) * Math.PI);
     var e = vista.sx;
-    e.position.set(BASE_SX.x - bx + animV.swayX * 0.6 + pr * 0.16, BASE_SX.y - by * 0.8 + resp + pr * 0.3 - animV.atterra * 0.04,
-                   BASE_SX.z - pr * 0.2);
-    e.rotation.set(BASE_SX.rx - pr * 0.3, BASE_SX.ry + animV.swayX * 1.2 + pr * 0.25, BASE_SX.rz - bx * 2);
+    e.position.set(BASE_SX.x - bx + animV.swayX * 0.6 + pr * 0.16 + al * 0.1 + la * 0.05,
+                   BASE_SX.y - by * 0.8 + resp + pr * 0.3 - animV.atterra * 0.04 + al * 0.31 + la * 0.04,
+                   BASE_SX.z - pr * 0.2 - al * 0.06 - la * 0.16);
+    e.rotation.set(BASE_SX.rx - pr * 0.3 - al * 0.55 - la * 0.3, BASE_SX.ry + animV.swayX * 1.2 + pr * 0.25 + al * 0.35,
+                   BASE_SX.rz - bx * 2 + al * 0.15);
+    if (vista.manoSx) vista.manoSx.rotation.z = al * Math.PI * 0.82;
+    if (vista.potere) vista.potere.anima(ora, al * (1 + la * 1.5));
     /* le goccioline dello spruzzo */
     animV.particelle.forEach(function (q) {
       if (!q.vivo) return;
@@ -1041,6 +1074,27 @@
       q.o.material.color.setHex(animV.colore || 0x5ef0c4);
       q.o.position.copy(ug);
       q.v.set((Math.random() - 0.5) * 0.004 - 0.002, (Math.random() - 0.3) * 0.003, -0.012 - Math.random() * 0.012);
+    }
+  }
+  function lancio() {
+    if (!vista || !vista.potere) return;
+    animV.lancio = 1;
+    var p0 = new T.Vector3();
+    vista.potere.palmo.getWorldPosition(p0);
+    for (var i = 0; i < 22; i++) {
+      var q = animV.particelle.filter(function (x) { return !x.vivo; })[0];
+      if (!q) {
+        if (animV.particelle.length >= 70) break;
+        var sp = new T.Sprite(new T.SpriteMaterial({ map: vista.goccia, transparent: true, depthWrite: false,
+                                                      blending: T.AdditiveBlending, toneMapped: false }));
+        scenaMani.add(sp);
+        q = { o: sp, v: new T.Vector3(), t: 0, vivo: false };
+        animV.particelle.push(q);
+      }
+      q.vivo = true; q.t = 0; q.o.visible = true;
+      q.o.material.color.setHex(animV.colore || 0xffffff);
+      q.o.position.copy(p0);
+      q.v.set((Math.random() - 0.5) * 0.008 + 0.004, (Math.random() - 0.2) * 0.006, -0.02 - Math.random() * 0.02);
     }
   }
   function creaVista() {
@@ -1135,7 +1189,8 @@
     var mi = null, md = 99;
     (st.oggetti || []).forEach(function (o) {
       if (o.preso || o.abbattuto) return;
-      if (['elemento', 'foglio', 'banco', 'terminale', 'uscita'].indexOf(o.tipo) < 0) return;
+      if (['elemento', 'foglio', 'banco', 'terminale', 'uscita', 'registratore'].indexOf(o.tipo) < 0) return;
+      if (o.tipo === 'registratore' && o.ascoltato) return;
       var vx = (st.x + o.x) - S.pos.x, vz = (st.z + o.z) - S.pos.z;
       var d = Math.hypot(vx, vz);
       if (o.tipo === 'banco') d -= 0.8;
@@ -1169,6 +1224,7 @@
     else if (o.tipo === 'foglio') { prendi(o); leggiFoglio(o); }
     else if (o.tipo === 'banco') { schermo = 'sintesi'; fermaCiclo(); disegnaUI(); }
     else if (o.tipo === 'terminale') apriEnigma(o);
+    else if (o.tipo === 'registratore') { o.ascoltato = true; if (o._chiave) S.presi[o._chiave + ':sentito'] = true; ascolta(o.reg); }
     else if (o.tipo === 'uscita') {
       if (mondo.livello.boss && !S.fatti[mondo.livello.boss.id]) {
         avviso(t('L’ascensore è bloccato finché il guardiano è attivo',
@@ -1226,6 +1282,62 @@
       return true;
     }
     return false;
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     LE REGISTRAZIONI — si ascoltano mentre si gioca
+
+     La voce e' quella del dispositivo (la sintesi vocale del browser), con
+     un tono e una velocita' per ogni persona: il Custode lento e basso,
+     Sarti piu' chiara. I sottotitoli ci sono sempre — anche a suono spento,
+     anche dove la voce non c'e' — e il nastro finisce nell'archivio del
+     Codex, da riascoltare.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var nastro = null;
+  function ascolta(id) {
+    var R = LIV().REGISTRAZIONI()[id - 1];
+    if (!R) return;
+    var V = LIV().VOCI()[R.voce] || { nome: '', tono: 1, velocita: 1 };
+    if (S && S.codex.registrazioni.indexOf(id) < 0) S.codex.registrazioni.push(id);
+    taciNastro();
+    nastro = { reg: id, inizio: Date.now(), durata: Math.max(4000, R.testo.length * 62) };
+    var box = document.getElementById('bsiAP-nastro');
+    if (box) {
+      box.innerHTML = '<div class="nt"><span class="nt-ico">◉</span><b>' + esc(V.nome) + '</b> · ' + esc(R.titolo) +
+        '</div><div class="nt-tx">' + esc(R.testo) + '</div><div class="nt-bar"><i></i></div>';
+      box.classList.add('on');
+    }
+    bip(660, 0.08, 'triangle', 0.04);
+    var parla = IMP.suono === 'acceso' && globale.speechSynthesis && globale.SpeechSynthesisUtterance;
+    if (parla) {
+      try {
+        var u = new globale.SpeechSynthesisUtterance(R.testo);
+        var lingua = ling() === 'en' ? 'en' : 'it';
+        u.lang = lingua === 'en' ? 'en-GB' : 'it-IT';
+        var voci = globale.speechSynthesis.getVoices() || [];
+        var v = voci.filter(function (x) { return x.lang && x.lang.toLowerCase().indexOf(lingua) === 0; })[0];
+        if (v) u.voice = v;
+        u.pitch = V.tono; u.rate = V.velocita;
+        u.onend = function () { if (nastro && nastro.reg === id) nastro.durata = Math.min(nastro.durata, Date.now() - nastro.inizio + 600); };
+        globale.speechSynthesis.cancel();
+        globale.speechSynthesis.speak(u);
+        nastro.voce = true;
+      } catch (e) {}
+    }
+    avviso(t('Registrazione ', 'Recording ') + id + '/30', V.nome);
+  }
+  function taciNastro() {
+    try { if (globale.speechSynthesis) globale.speechSynthesis.cancel(); } catch (e) {}
+    nastro = null;
+    var box = document.getElementById('bsiAP-nastro');
+    if (box) box.classList.remove('on');
+  }
+  function aggiornaNastro() {
+    if (!nastro) return;
+    var k = (Date.now() - nastro.inizio) / nastro.durata;
+    var bar = document.querySelector('#bsiAP-nastro .nt-bar i');
+    if (bar) bar.style.width = Math.min(100, k * 100) + '%';
+    if (k >= 1) taciNastro();
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -1817,7 +1929,18 @@
       '#bsiAP-hud .alto{position:absolute;top:0;left:0;right:0;display:flex;gap:8px;',
       ' justify-content:space-between;align-items:flex-start;padding:8px 10px;',
       ' background:linear-gradient(rgba(3,7,12,.75),transparent);text-shadow:0 1px 2px #000}',
-      '#bsiAP-hud .vite{color:#ff6b7f;font-size:14px;letter-spacing:2px}',
+      '#bsiAP-hud .vite{display:flex;flex-direction:column;gap:5px}',
+      '#bsiAP-hud .barra{display:flex;gap:2px;height:10px;width:150px;padding:2px;border-radius:2px;',
+      ' background:linear-gradient(180deg,#2a1e0c,#140e06);border:1px solid #c9a24a;',
+      ' box-shadow:0 0 0 2px rgba(10,7,3,.7),0 0 0 3px rgba(201,162,74,.5),0 2px 6px rgba(0,0,0,.6)}',
+      '#bsiAP-hud .barra.salute i{flex:1;border-radius:1px}',
+      '#bsiAP-hud .barra.salute i.p{background:linear-gradient(180deg,#ff6a5a,#a8140e);box-shadow:0 0 6px rgba(255,60,40,.6)}',
+      '#bsiAP-hud .barra.salute i.v{background:rgba(120,30,20,.25)}',
+      '#bsiAP-hud .barra.reagente{width:120px;height:7px}',
+      '#bsiAP-hud .barra.reagente b{display:block;height:100%;border-radius:1px;transition:width .3s;',
+      ' background:linear-gradient(180deg,#7ad8ff,#1a6ab8);box-shadow:0 0 6px rgba(80,180,255,.6)}',
+      '#bsiAP-hud .dove{font-family:Georgia,"Times New Roman",serif;color:#f0dca0}',
+      '#bsiAP-hud .dove small{color:#c9a24a!important;font-variant:small-caps}',
       '#bsiAP-hud .dove{text-align:center;line-height:1.35}',
       '#bsiAP-hud .dove small{display:block;color:#8fe3c4;font-size:10px;letter-spacing:.12em}',
       '#bsiAP-hud .basso{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;',
@@ -1862,6 +1985,20 @@
       'body.bsiAP-pieno #bsiAP-comandi{position:fixed;left:10px;right:10px;',
       ' bottom:max(12px,env(safe-area-inset-bottom));z-index:9999;margin:0}',
       'body.bsiAP-pieno{overflow:hidden}',
+      /* i sottotitoli delle registrazioni: una targa d'ottone in basso a sinistra */
+      '#bsiAP-nastro{position:absolute;left:12px;bottom:112px;max-width:min(62%,460px);z-index:5;opacity:0;',
+      ' transform:translateY(8px);transition:opacity .3s,transform .3s;pointer-events:none;',
+      ' background:linear-gradient(180deg,rgba(28,20,10,.92),rgba(12,9,5,.92));border:1px solid #b8913a;',
+      ' box-shadow:0 0 0 3px rgba(12,9,5,.7),0 0 0 4px rgba(184,145,58,.45),0 10px 30px rgba(0,0,0,.5);',
+      ' border-radius:4px;padding:9px 12px;color:#f2e6c8;font-family:Georgia,"Times New Roman",serif}',
+      '#bsiAP-nastro.on{opacity:1;transform:none}',
+      '#bsiAP-nastro .nt{font-size:11px;letter-spacing:.06em;color:#d9b96a;margin-bottom:4px}',
+      '#bsiAP-nastro .nt b{color:#ffe7a8;font-variant:small-caps;letter-spacing:.08em}',
+      '#bsiAP-nastro .nt-ico{color:#ff4a30;margin-right:6px;animation:apRec 1s steps(2) infinite}',
+      '@keyframes apRec{50%{opacity:.2}}',
+      '#bsiAP-nastro .nt-tx{font-size:13px;line-height:1.45;font-style:italic}',
+      '#bsiAP-nastro .nt-bar{height:2px;background:rgba(184,145,58,.25);margin-top:7px}',
+      '#bsiAP-nastro .nt-bar i{display:block;height:100%;width:0;background:#d9b96a}',
       /* il pulsante flottante del gioco: pillola come Spectra, ma viola e
          arancio, con l'icona animata */
       '#bsi-gioco-fab{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 150px);',
@@ -1903,6 +2040,7 @@
         '<div id="bsiAP-ui"></div>' +
         '<div id="bsiAP-hud"></div>' +
         '<div id="bsiAP-avviso"></div>' +
+        '<div id="bsiAP-nastro" aria-live="polite"></div>' +
       '</div>' +
       '<div id="bsiAP-comandi"></div>' +
       '<div id="bsiAP-sotto" style="margin-top:12px"></div>';
@@ -1982,13 +2120,25 @@
              : b.tipo === 'foglio' ? t('✋ leggi', '✋ read')
              : b.tipo === 'banco' ? t('✋ laboratorio di sintesi', '✋ synthesis lab')
              : b.tipo === 'uscita' ? t('✋ ascensore', '✋ elevator')
+             : b.tipo === 'registratore' ? t('✋ ascolta la registrazione', '✋ play the recording')
              : t('✋ usa il terminale', '✋ use the terminal');
     }
     var f = S.boss && S.boss.attivo ? faseCorrente(S.boss) : null;
     if (f && /^enigma:/.test(f.serve)) azione = t('✋ rispondi alla sfida', '✋ answer the challenge');
     var parti = {
-      vite: '♥'.repeat(Math.max(0, S.vite)) + '<span style="opacity:.25">' +
-            '♥'.repeat(Math.max(0, S.vitaMax - S.vite)) + '</span>',
+      /* le barre in stile déco: la salute (rossa, a tacche, una per vita) e
+         il reagente in mano (blu: le dosi del composto, piena per un
+         elemento, che non si consuma) */
+      vite: (function () {
+        var tacche = '';
+        for (var i = 0; i < S.vitaMax; i++) tacche += '<i class="' + (i < S.vite ? 'p' : 'v') + '"></i>';
+        var r = S.inMano ? ricetta(S.inMano) : null, dosi = 0;
+        if (r) { var c = S.composti.filter(function (x) { return x.id === S.inMano; })[0]; dosi = c ? Math.min(1, c.dosi / 9) : 0; }
+        else if (S.inMano) dosi = 1;
+        return '<span class="barra salute" role="img" aria-label="' + t('salute ', 'health ') + S.vite + '/' + S.vitaMax + '">' + tacche + '</span>' +
+               '<span class="barra reagente" role="img" aria-label="' + t('reagente', 'reagent') + '"><b style="width:' +
+               Math.round(dosi * 100) + '%"></b></span>';
+      })(),
       dove: '<small>' + esc(t('LIVELLO ', 'LEVEL ') + mondo.livello.n + ' · ' +
             String(mondo.ala.nome).split('·')[0]) + '</small>' + esc(st ? st.nome : ''),
       punti: String(S.punti).padStart(6, '0'),
@@ -2011,6 +2161,7 @@
       mir.className = b ? 'attivo' : '';
     }
     if ((S.t || 0) % 10 === 0) mappa();
+    aggiornaNastro();
   }
 
   /* la mappa: solo le stanze gia' viste, come su un taccuino */
@@ -2264,7 +2415,21 @@
           t('Consigli', 'Tips') + '</div><div class="bsiAP-sub" style="text-align:left">• ' +
           S.codex.consigli.map(esc).join('<br>• ') + '</div>' : '') +
         (tr ? '<div class="bsiAP-sub">' + t('Appunti ritrovati', 'Notes found') + '</div>' + tr : '') +
+        (function () {
+          var regs = (S ? S.codex.registrazioni || [] : []).slice().sort(function (a2, b2) { return a2 - b2; });
+          if (!regs.length) return '';
+          var RR = LIV().REGISTRAZIONI(), VV = LIV().VOCI();
+          return '<div class="bsiAP-sub">' + t('Registrazioni ', 'Recordings ') + regs.length + '/30</div>' +
+            regs.map(function (id) {
+              var r = RR[id - 1], v = VV[r.voce] || {};
+              return '<button class="bsiAP-b" data-nastro="' + id + '" style="font-weight:600">▶ ' + id + '. ' +
+                esc(r.titolo) + ' <span style="color:#9fb0c4;font-weight:400">— ' + esc(v.nome || '') + '</span></button>';
+            }).join('');
+        })() +
         bottone('apIndietro2', '◂ ' + t('indietro', 'back')) + '</div>';
+      [].forEach.call(u.querySelectorAll('[data-nastro]'), function (bn) {
+        bn.onclick = function () { ascolta(+bn.getAttribute('data-nastro')); };
+      });
       su('apIndietro2', function () { schermo = (S && mondo && !S.finito) ? 'pausa' : 'titolo'; disegnaUI(); });
       return;
     }
@@ -2605,7 +2770,7 @@
 
   /* usare quello che si ha in mano: la scorciatoia del combattimento */
   function usaRapido() {
-    spruzzo();
+    if (elementoInMano()) lancio(); else spruzzo();
     if (S.boss && S.boss.attivo && /^enigma:/.test(faseCorrente(S.boss).serve)) { sfidaBoss(); return; }
     var d = disponibili();
     if (!d.length) {
@@ -2654,6 +2819,12 @@
       aggiornaLuci(false);
       /* i residui respirano: solo quelli della stanza in cui si e', e un
          fotogramma si' e uno no — la deformazione costa */
+      /* le gocce cadono dal soffitto nella pozza */
+      if (mondo.stanzaCorrente) (mondo.stanzaCorrente._gocce || []).forEach(function (gc) {
+        var k = ((ora / 1400) + gc.fase) % 1;
+        gc.o.position.y = gc.h * (1 - k * k);
+        gc.o.visible = k < 0.97;
+      });
       if ((S.t || 0) % 2 === 0) {
         var qui = mondo.stanzaCorrente;
         if (qui) (qui.oggetti || []).forEach(function (o) {
@@ -3002,6 +3173,7 @@
     /* il sito sa nascondere i suoi pulsanti flottanti: glielo si chiede */
     if (typeof globale._bsiSyncFabs === 'function') globale._bsiSyncFabs();
     if (!v) {
+      taciNastro();
       if (tela && document.pointerLockElement === tela) { try { document.exitPointerLock(); } catch (e) {} }
       tasti = {};
     }
@@ -3075,8 +3247,9 @@
     motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico,
                                    vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
     spruzzo: function () { spruzzo(); },
+    lancio: function () { lancio(); },
     sguardo: function (dx, dy) { sguardo(dx, dy, 0.0024); },
-    TRAMA: TRAMA,
+    TRAMA: TRAMA, ascolta: function (id) { ascolta(id); }, nastro: function () { return nastro; },
     versione: '2.0'
   };
 

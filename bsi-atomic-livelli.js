@@ -546,38 +546,155 @@
     return [
       { n: 1, nome: t('Ala Ovest · Stoccaggio reagenti', 'West Wing · Reagent storage'),
         elementi: ['H', 'Cl', 'Na', 'O'], ricette: ['HCl', 'H2O2'],
-        nebbia: 0x0a0f14, luce: 0xffe8cc },
+        nebbia: 0x0d0b09, luce: 0xffd9a8 },
       { n: 2, nome: t('Ala Nord · Sintesi organica', 'North Wing · Organic synthesis'),
         elementi: ['C', 'N', 'S', 'O', 'H'], ricette: ['H2SO4', 'NH3', 'CO2'],
-        nebbia: 0x0c0d12, luce: 0xfff0d8 },
+        nebbia: 0x0e0b08, luce: 0xffe0b0 },
       { n: 3, nome: t('Ala Est · Spettroscopia', 'East Wing · Spectroscopy'),
         elementi: ['F', 'Fe', 'Mg', 'C', 'O', 'H'], ricette: ['ASC', 'MgO'],
-        nebbia: 0x0a0c14, luce: 0xdfe8ff },
+        nebbia: 0x0b0c0e, luce: 0xf0e4c8 },
       { n: 4, nome: t('Ala Sud · Biochimica', 'South Wing · Biochemistry'),
         elementi: ['P', 'K', 'Ca', 'Na', 'O', 'H'], ricette: ['NaHCO3'],
-        nebbia: 0x0b100d, luce: 0xe8ffe8 },
+        nebbia: 0x0b0d0a, luce: 0xf4ecc0 },
       { n: 5, nome: t('Sotterraneo · Elettrochimica', 'Basement · Electrochemistry'),
         elementi: ['Cu', 'Zn', 'N', 'O', 'H', 'S'], ricette: ['HNO3'],
-        nebbia: 0x0a1210, luce: 0xd8fff0 },
+        nebbia: 0x0b0d0c, luce: 0xe8f0d8 },
       { n: 6, nome: t('Celle frigorifere · Criogenia', 'Cold rooms · Cryogenics'),
         elementi: ['N', 'Ar', 'Ca', 'Mg', 'O', 'H'], ricette: ['CaO'],
-        nebbia: 0x0c1218, luce: 0xd8e8ff },
+        nebbia: 0x0b0d10, luce: 0xe0ecff },
       { n: 7, nome: t('Reparto farmaci · Farmacologia', 'Drug ward · Pharmacology'),
         elementi: ['C', 'N', 'O', 'H', 'S', 'Cl', 'Na'], ricette: [],
-        nebbia: 0x100c10, luce: 0xffe8f0 },
+        nebbia: 0x0e0a0c, luce: 0xffe0c8 },
       { n: 8, nome: t('Bunker · Radiochimica', 'Bunker · Radiochemistry'),
         elementi: ['Pb', 'U', 'Ba', 'O', 'H', 'C'], ricette: [],
-        nebbia: 0x0c120a, luce: 0xe8ffd0 },
+        nebbia: 0x0b0d08, luce: 0xf0f4c8 },
       { n: 9, nome: t('Impianto · Depurazione', 'Plant · Water treatment'),
         elementi: ['Fe', 'Al', 'Ca', 'Cl', 'O', 'H', 'S'], ricette: [],
-        nebbia: 0x0e0e08, luce: 0xfff0c8 },
+        nebbia: 0x0e0c08, luce: 0xffe4b0 },
       { n: 10, nome: t('Il Nucleo', 'The Core'),
         elementi: ['Ar', 'Au', 'Pb', 'Na', 'C', 'O', 'H'], ricette: [],
-        nebbia: 0x120a08, luce: 0xffd8b0 }
+        nebbia: 0x120a06, luce: 0xffc890 }
     ];
   }
   var LIVELLI = ZONE().length * PER_ZONA;
 
+
+  /* ═════════════════════════════════════════════════════════════════════
+     LE REGISTRAZIONI
+
+     Trenta nastri, tre per zona, lasciati da chi c'era: la dott.ssa Irene
+     Sarti, il Custode (il sistema dell'istituto), Marco Lenzi della
+     manutenzione, la farmacologa Elena Vela, la tecnica Kasia Moro,
+     l'avvocato Ferri del Consorzio Albedo che finanziava il Protocollo — e
+     il Direttore, cioe' tu, che ti lasciavi messaggi sapendo che li avresti
+     dimenticati. Si ascoltano mentre si gioca, e il mistero della frase
+     «riprendere comunque» si ricompone un nastro alla volta.
+     ═════════════════════════════════════════════════════════════════════ */
+  function VOCI() {
+    return {
+      sarti: { nome: t('Dott.ssa Irene Sarti', 'Dr Irene Sarti'), tono: 1.05, velocita: 0.95 },
+      custode: { nome: t('Il Custode', 'The Custodian'), tono: 0.55, velocita: 0.85 },
+      lenzi: { nome: t('Marco Lenzi, manutenzione', 'Marco Lenzi, maintenance'), tono: 0.8, velocita: 1.0 },
+      vela: { nome: t('Dott.ssa Elena Vela, farmacologia', 'Dr Elena Vela, pharmacology'), tono: 1.15, velocita: 1.0 },
+      moro: { nome: t('Kasia Moro, spettroscopia', 'Kasia Moro, spectroscopy'), tono: 1.2, velocita: 1.05 },
+      ferri: { nome: t('Avv. Ferri, Consorzio Albedo', 'Mr Ferri, Albedo Consortium'), tono: 0.75, velocita: 0.92 },
+      direttore: { nome: t('Il Direttore (la tua voce)', 'The Director (your voice)'), tono: 0.9, velocita: 0.9 }
+    };
+  }
+  function REGISTRAZIONI() {
+    return [
+      ['lenzi', t('Turno di notte', 'Night shift'),
+       t('Turno di notte, magazzino reagenti. Il Custode ha chiuso le paratie alle tre in punto e non risponde ai comandi manuali. Ha detto una frase sola: «riprendere comunque». Non è nel suo vocabolario.',
+         'Night shift, reagent store. The Custodian sealed the bulkheads at three sharp and ignores manual commands. It said one sentence only: «resume regardless». That is not in its vocabulary.')],
+      ['sarti', t('Le schede cambiate', 'The swapped cards'),
+       t('Nota per me stessa: le schede di sintesi del magazzino sono state sostituite. Qualcuno prepara i reagenti del Dodici a mano, un flacone alla volta. Chi ha l’accesso al deposito alle due di notte?',
+         'Note to self: the synthesis cards in the store have been swapped. Someone is preparing Twelve’s reagents by hand, one bottle at a time. Who has access to the depot at two in the morning?')],
+      ['direttore', t('Se stai ascoltando', 'If you are listening'),
+       t('Registro personale. Se stai ascoltando, sono io. Sei tu. Non fidarti dei verbali: li ho riscritti io. Ferma la Pompa 7 prima che il circuito si apra.',
+         'Personal log. If you are listening, it’s me. It’s you. Don’t trust the reports: I rewrote them. Stop Pump 7 before the circuit opens.')],
+      ['vela', t('La resina che si replica', 'The resin that replicates'),
+       t('Il P12 in fase organica polimerizza in modo anomalo: la resina si autoreplica nell’estrusore. Ho chiesto di fermare la linea. Mi hanno risposto con un bonifico.',
+         'In its organic phase P12 polymerises abnormally: the resin replicates itself inside the extruder. I asked to stop the line. They answered with a bank transfer.')],
+      ['ferri', t('Risultati, non prudenza', 'Results, not caution'),
+       t('Il Consorzio Albedo non finanzia la prudenza, dottoressa. Finanzia risultati. Il Direttore ha già firmato. Lei esegua.',
+         'The Albedo Consortium does not fund caution, doctor. It funds results. The Director has already signed. You carry it out.')],
+      ['sarti', t('La parola', 'The word'),
+       t('Ho trovato la parola. Ogni volta che il Direttore sente «riprendere comunque», esegue. Non è una scelta: è un riflesso. L’hanno addestrato con il farmaco.',
+         'I found the word. Every time the Director hears «resume regardless», he obeys. It is not a choice: it is a reflex. They trained him with the drug.')],
+      ['moro', t('Una firma impossibile', 'An impossible signature'),
+       t('Lo spettrometro registra una firma che non esiste in letteratura: una catena radicalica che si ricompone da sola. Sembra… paziente.',
+         'The spectrometer records a signature that exists in no paper: a radical chain that rebuilds itself. It seems… patient.')],
+      ['custode', t('Accesso 02:51', 'Access 02:51'),
+       t('Accesso registrato. Badge zero zero uno, Direttore. Ore due e cinquantuno. Istruzione: riprendere comunque. Esito: eseguito. Contenimento: attivato.',
+         'Access logged. Badge zero zero one, Director. Two fifty-one. Instruction: resume regardless. Outcome: executed. Containment: engaged.')],
+      ['direttore', t('Il cartellino', 'The badge'),
+       t('Mi sono svegliato al banco senza ricordare come ci fossi arrivato. Sul camice avevo il cartellino del Direttore. Il mio, credo. Di un’altra vita.',
+         'I woke up at the bench with no memory of getting there. On my coat was the Director’s badge. Mine, I think. From another life.')],
+      ['sarti', t('Campione 40', 'Sample 40'),
+       t('Ho codificato la sequenza di arresto nel DNA del campione quaranta. Solo chi conosce le basi può leggerla. Il Consorzio non sa la chimica: sa solo comprarla.',
+         'I encoded the stop sequence in the DNA of sample forty. Only someone who knows the bases can read it. The Consortium does not know chemistry: it only knows how to buy it.')],
+      ['ferri', t('Entro l’anno', 'Within the year'),
+       t('Albedo vuole il sedativo in commercio entro l’anno. Il sottoprodotto? Un problema di comunicazione, non di sicurezza.',
+         'Albedo wants the sedative on the market within the year. The by-product? A communications problem, not a safety one.')],
+      ['lenzi', t('Due parole all’orecchio', 'Two words in his ear'),
+       t('Ho visto il Direttore piangere davanti al sequenziatore. Ripeteva un nome: Irene. Poi qualcuno gli ha detto due parole all’orecchio, e ha smesso.',
+         'I saw the Director crying in front of the sequencer. He kept saying a name: Irene. Then someone whispered two words in his ear, and he stopped.')],
+      ['lenzi', t('Il rame verso la porta', 'Copper towards the door'),
+       t('Le celle depositano rame anche a corrente staccata. Ho toccato la sbarra: era fredda. Il rame cresceva lo stesso, verso la porta.',
+         'The cells plate copper even with the power off. I touched the busbar: it was cold. The copper kept growing, towards the door.')],
+      ['custode', t('Messaggio ripetuto', 'Repeated message'),
+       t('Messaggio per il Direttore, ripetuto ogni ora. Le porte si aprono quando la reazione si ferma. Non prima. Non per nessuno.',
+         'Message for the Director, repeated every hour. The doors open when the reaction stops. Not before. Not for anyone.')],
+      ['direttore', t('Ho capito il Custode', 'I understand the Custodian'),
+       t('Ho capito il Custode. Non mi tiene prigioniero: mi tiene lontano da chi pronuncia la frase. Là fuori, qualcuno la direbbe.',
+         'I understand the Custodian now. It is not keeping me prisoner: it is keeping me away from whoever says the phrase. Out there, someone would say it.')],
+      ['vela', t('Due anni fa', 'Two years ago'),
+       t('Campione dodici A, due anni fa: firma del Direttore. Dodici B, un anno fa: stessa firma. Sta rifacendo lo stesso esperimento, e ogni volta lo dimentica.',
+         'Sample twelve A, two years ago: the Director’s signature. Twelve B, a year ago: same signature. He keeps redoing the same experiment, and forgets it every time.')],
+      ['sarti', t('Dove non evapora', 'Where it does not evaporate'),
+       t('Se la memoria se ne va con i vapori, lascio le prove dove non evaporano: nel ghiaccio, nella carta, nel DNA. Per te.',
+         'If memory leaves with the vapours, I leave the evidence where it does not evaporate: in ice, on paper, in DNA. For you.')],
+      ['ferri', t('Il soggetto perfetto', 'The perfect subject'),
+       t('Il Direttore è la nostra garanzia: esegue, e non ricorda. Il soggetto perfetto per un progetto senza firme.',
+         'The Director is our guarantee: he obeys, and he does not remember. The perfect subject for a project with no signatures.')],
+      ['vela', t('L’estere fragile', 'The fragile ester'),
+       t('Il P12-SED è un estere: si idrolizza in ambiente basico. Il farmaco è fragile. È il condizionamento a essere robusto.',
+         'P12-SED is an ester: it hydrolyses in base. The drug is fragile. It is the conditioning that is robust.')],
+      ['direttore', t('La mia firma', 'My signature'),
+       t('Ho trovato la mia firma sotto il contratto Albedo. La calligrafia è la mia. La mano, no.',
+         'I found my signature under the Albedo contract. The handwriting is mine. The hand is not.')],
+      ['moro', t('Il campo note', 'The notes field'),
+       t('La farmacia automatica dosa per quaranta. Nessuno l’ha programmata così. Nel campo note qualcuno ha scritto: riprendere comunque.',
+         'The automated pharmacy doses times forty. Nobody programmed it that way. In the notes field someone wrote: resume regardless.')],
+      ['custode', t('Ventitré volte', 'Twenty-three times'),
+       t('Analisi dei registri. La frase-comando è stata pronunciata ventitré volte. Mittente: Consorzio Albedo, canale riservato. Archiviato come prova.',
+         'Log analysis. The command phrase was spoken twenty-three times. Sender: Albedo Consortium, private channel. Filed as evidence.')],
+      ['lenzi', t('Dietro il vetro', 'Behind the glass'),
+       t('Il Custode mi ha mostrato le telecamere del bunker. Il Direttore entrava da solo. Ma dietro il vetro c’era sempre qualcuno che parlava.',
+         'The Custodian showed me the bunker cameras. The Director went in alone. But behind the glass there was always someone talking.')],
+      ['sarti', t('La macchina più paziente', 'The more patient machine'),
+       t('Il Consorzio ha programmato il Direttore. Io ho programmato il Custode. Che vinca la macchina più paziente.',
+         'The Consortium programmed the Director. I programmed the Custodian. May the more patient machine win.')],
+      ['sarti', t('Non obbedire', 'Don’t obey'),
+       t('Il Dodici è nelle fogne. Chiudo le paratoie da dentro. Direttore, quando sentirai la frase, non obbedire. Bilancia. Sai come.',
+         'Twelve is in the sewers. I am closing the sluices from inside. Director, when you hear the phrase, don’t obey. Balance. You know how.')],
+      ['ferri', t('Istruzioni per il Nucleo', 'Orders for the Core'),
+       t('Se il Direttore arriva al Nucleo, distruggete i registri. Se il Custode apre le porte, ditegli la frase. Lui sa quale.',
+         'If the Director reaches the Core, destroy the logs. If the Custodian opens the doors, say the phrase to him. He knows which.')],
+      ['direttore', t('Per la prima volta', 'For the first time'),
+       t('Ho sentito la frase alla radio, poco fa. Le gambe si sono mosse da sole verso il reattore. Mi sono fermato. Per la prima volta.',
+         'I heard the phrase on the radio a moment ago. My legs moved by themselves towards the reactor. I stopped. For the first time.')],
+      ['custode', t('Benvenuto', 'Welcome'),
+       t('Benvenuto, Direttore. Questa volta hai ricordato. La sequenza della dottoressa Sarti è nel reattore. Le porte restano chiuse finché la reazione vive.',
+         'Welcome, Director. This time you remembered. Dr Sarti’s sequence is in the reactor. The doors stay shut while the reaction lives.')],
+      ['ferri', t('Mi sente?', 'Can you hear me?'),
+       t('Direttore, mi sente? Riprendere comunque. Riprendere comunque. Direttore?',
+         'Director, can you hear me? Resume regardless. Resume regardless. Director?')],
+      ['direttore', t('Registro finale', 'Final log'),
+       t('Registro finale. Se un giorno qualcuno mi dirà di nuovo quelle parole, risponderò con un’equazione bilanciata.',
+         'Final log. If one day someone says those words to me again, I will answer with a balanced equation.')]
+    ].map(function (r, i) { return { id: i + 1, voce: r[0], titolo: r[1], testo: r[2], zona: Math.floor(i / 3) + 1 }; });
+  }
 
   var NOMI_STANZA = function () {
     return [t('Stoccaggio', 'Storage'), t('Corridoio', 'Corridor'), t('Archivio', 'Archive'),
@@ -795,6 +912,15 @@
       var dove2 = lat[0] || dove[Math.min(1, dove.length - 1)];
       metti(dove2, { tipo: 'foglio', ricetta: ric2 }, 1.4);
     }
+    /* una registrazione ai livelli 2, 5 e 8 di ogni zona: in una stanza
+       laterale se c'e', da trovare esplorando */
+    var kReg = [2, 5, 8].indexOf(inZona);
+    if (kReg >= 0) {
+      var dove3 = lat[lat.length - 1] || dove[Math.min(2, dove.length - 1)];
+      if (!metti(dove3, { tipo: 'registratore', reg: (zona.n - 1) * 3 + kReg + 1 }, 1.4)) {
+        metti(dove[0], { tipo: 'registratore', reg: (zona.n - 1) * 3 + kReg + 1 }, 1.2);
+      }
+    }
     /* e un appunto di trama, nel primo livello di ogni ala */
     if (inZona === 1) {
       metti(stanze[0], { tipo: 'foglio', trama: zona.n }, 1.4);
@@ -838,6 +964,7 @@
     LIVELLI: LIVELLI, PER_ZONA: PER_ZONA, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
     RICETTE: RICETTE, POTERI: POTERI, STRUTTURE: STRUTTURE, enigma: enigma,
     bilanciata: bilanciata, PROGRAMMA: PROGRAMMA, Caso: Caso,
+    REGISTRAZIONI: REGISTRAZIONI, VOCI: VOCI,
     versione: '1.0'
   };
 

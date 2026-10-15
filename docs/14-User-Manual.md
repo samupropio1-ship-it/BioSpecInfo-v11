@@ -145,11 +145,23 @@ di ogni zona finisce nell'arena di un guardiano, e l'ascensore si sblocca
 solo quando il guardiano è fermo. Il gioco **si salva** a ogni livello: dal
 titolo si **continua** o si **sceglie** un livello già raggiunto.
 
+**I misteri.** Nelle stanze laterali dei livelli 2, 5 e 8 di ogni zona c'è un
+**magnetofono** con la spia rossa accesa: sono le registrazioni di chi c'era —
+Sarti, il Custode, Lenzi della manutenzione, la farmacologa Vela, la tecnica
+Moro, l'avvocato Ferri del Consorzio Albedo che finanziava il Protocollo, e il
+Direttore, cioè tu, che ti lasciavi messaggi sapendo che li avresti
+dimenticati. Si **ascoltano mentre giochi**, con la voce del dispositivo e i
+sottotitoli; trenta in tutto, e ricompongono il segreto della frase «riprendere
+comunque». Il Codex le conserva, da riascoltare. Sui muri, qua e là, qualcuno ha
+lasciato domande a gesso.
+
 **Si gioca in prima persona.** Davanti a te le tue braccia nel camice e, nella
 destra — mani in guanti di nitrile, con le dita modellate una per una — il **dispensatore**: la fiala mostra il colore del composto che hai in
 mano e lo schermo sul fondo la formula e le dosi. Spruzzando, lo strumento
-rincula e lancia una nuvola di goccioline; la mano sinistra si allunga quando
-prendi o tocchi qualcosa; il mirino si allarga quando guardi qualcosa che puoi
+rincula e lancia una nuvola di goccioline. Se in mano hai un **elemento**, la
+mano sinistra si alza e lo tiene vivo sul palmo — scintille per i metalli,
+fiamma per i combustibili, vapore per i gas — e usandolo lo lancia; la sinistra
+si allunga anche quando prendi o tocchi qualcosa; il mirino si allarga quando guardi qualcosa che puoi
 usare. La terza persona si può scegliere nelle impostazioni (tasto `V`).
 
 | comando | tastiera e mouse | a schermo |
@@ -168,8 +180,12 @@ usare. La terza persona si può scegliere nelle impostazioni (tasto `V`).
 | pausa | `Esc` o `P` | ❚❚ |
 | passare alla terza persona e tornare | `V` | impostazioni |
 
-**La grafica è di livello PlayStation 2** — il riferimento sono Metal Gear Solid 2,
-Final Fantasy X, Resident Evil 4, senza horror: il chimico ha migliaia di
+**Gli ambienti sono art déco**, nello spirito di BioShock: marmo a scacchi con i
+filetti d'ottone, noce, carta da parati verde e oro, lesene, applique a
+ventaglio, manifesti dell'Istituto e del Consorzio Albedo, luce ambra, gocce
+che cadono dal soffitto. L'HUD ha la barra della salute a tacche e quella del
+reagente in mano, in cornici d'ottone. **La grafica è di livello PlayStation 2**
+— senza horror: il chimico ha migliaia di
 poligoni, gli occhi modellati, le mani a cinque dita in guanti di nitrile, il
 camice con revers, tasche, bottoni e cartellino; le texture sono ad alta
 risoluzione con le mappe di rilievo; le luci, gli schermi e i nuclei hanno il
@@ -545,4 +561,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v213`._
+_Guida aggiornata alla versione `bsi-v214`._

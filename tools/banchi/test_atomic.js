@@ -276,6 +276,12 @@ function sopra(d, minimo, avuto) {
       if (JSON.stringify(A.livello(n).stanze.map(s => [s.id, s.larg, s.prof])) ===
           JSON.stringify(L.stanze.map(s => [s.id, s.larg, s.prof]))) out.deterministici++;
     }
+    /* le registrazioni: trenta, tutte collocate in qualche livello */
+    const regs = new Set();
+    for (let n = 1; n <= A.LIVELLI; n++) A.livello(n).stanze.forEach(st => st.oggetti.forEach(o => { if (o.tipo === 'registratore') regs.add(o.reg); }));
+    out.registrazioni = A.REGISTRAZIONI().length;
+    out.regCollocate = regs.size;
+    out.regVoci = A.REGISTRAZIONI().every(r => A.VOCI()[r.voce] && r.testo.length > 40);
     /* le equazioni: si contano gli atomi, nei due versi */
     const R = A.RICETTE();
     out.ricette = R.length;
@@ -313,6 +319,9 @@ function sopra(d, minimo, avuto) {
   att('  · e prima di ognuno ci sono gli elementi per batterlo', 0, liv.bossInvincibili.length);
   liv.bossInvincibili.slice(0, 3).forEach(x => console.log('      ! manca ' + x));
   att('lo stesso numero dà sempre lo stesso livello', 100, liv.deterministici);
+  att('le registrazioni sono trenta', 30, liv.registrazioni);
+  att('  · tutte collocate nei livelli', 30, liv.regCollocate);
+  att('  · ognuna con la sua voce e un testo vero', true, liv.regVoci);
   sopra('ricette di sintesi', 10, liv.ricette);
   att('  · tutte bilanciate, atomo per atomo', liv.ricette, liv.bilanciate);
   /* L'ALTRO VERSO: il contatore di atomi deve accorgersi di un errore */
@@ -636,6 +645,27 @@ function sopra(d, minimo, avuto) {
     out.inManoVista = m.animV.inMano;
     A.spruzzo();
     out.goccioline = m.animV.particelle.filter(q => q.vivo).length;
+    /* la mano sinistra: un elemento ci vive sopra, e si lancia */
+    A.stato().inventario.push({ sim: 'Na', padronanza: 1, usi: 0 });
+    A.stato().inMano = 'Na';
+    await new Promise(r => setTimeout(r, 900));
+    out.potereNa = vi.potere ? vi.potere.stato.tipo : null;
+    const vivi0 = m.animV.particelle.filter(q => q.vivo).length;
+    A.lancio();
+    out.lancio = m.animV.particelle.filter(q => q.vivo).length > vivi0;
+    A.stato().inMano = 'Cl';
+    await new Promise(r => setTimeout(r, 900));
+    out.potereCl = vi.potere ? vi.potere.stato.tipo : null;
+    /* gli ambienti déco e l'HUD */
+    out.ottone = !!(m.G.M.ottone && m.G.M.marmo);
+    out.tacche = document.querySelectorAll('#bsiAP-hud .barra.salute i').length;
+    out.vitaMax = A.stato().vitaMax;
+    /* una registrazione: si ascolta, ha i sottotitoli, finisce nel Codex */
+    A.ascolta(6);
+    await new Promise(r => setTimeout(r, 300));
+    out.nastroOn = document.getElementById('bsiAP-nastro').classList.contains('on');
+    out.nastroTesto = /riprendere comunque|resume regardless/i.test(document.getElementById('bsiAP-nastro').textContent);
+    out.nastroCodex = A.stato().codex.registrazioni.indexOf(6) >= 0;
     const ang0 = A.stato().ang, angY0 = A.stato().angY;
     A.sguardo(100, 40);
     out.sguardoGira = A.stato().ang < ang0 && A.stato().angY < angY0;
@@ -747,6 +777,14 @@ function sopra(d, minimo, avuto) {
   att('  · la telecamera delle braccia segue le proporzioni dello schermo', true, motore.camManiAspetto);
   att('  · lo strumento mostra quello che hai in mano', 'Cl', motore.inManoVista);
   sopra('  · e spruzzando escono le goccioline', 5, motore.goccioline);
+  att('con un elemento in mano la sinistra lo tiene vivo: il sodio fa scintille', 'scintille', motore.potereNa);
+  att('  · il cloro è vapore', 'vapore', motore.potereCl);
+  att('  · e lanciandolo parte la scarica', true, motore.lancio);
+  att('gli ambienti hanno ottone e marmo', true, motore.ottone);
+  att('l’HUD ha la barra della salute a tacche, una per vita', motore.vitaMax, motore.tacche);
+  att('una registrazione si ascolta con i sottotitoli', true, motore.nastroOn);
+  att('  · e il sottotitolo è il testo del nastro', true, motore.nastroTesto);
+  att('  · e finisce nell’archivio del Codex', true, motore.nastroCodex);
   att('lo sguardo si muove col mouse o col dito', true, motore.sguardoGira);
   att('  · ma non oltre quanto gira una testa', true, motore.sguardoLimitato);
   att('il protagonista ha gli occhi modellati', 2, motore.occhiModellati);
@@ -936,9 +974,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 170) {
+  if (eseguiti < 185) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 170');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 185');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

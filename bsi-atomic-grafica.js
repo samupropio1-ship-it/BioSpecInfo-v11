@@ -158,54 +158,70 @@
     }
 
     /* ── i materiali di base del laboratorio ───────────────────────────── */
+    /* ── gli ambienti, in stile art déco ──
+       L'istituto e' stato costruito negli anni d'oro del suo finanziatore:
+       marmo, ottone, noce, carta da parati verde e oro. E' lo stile dei
+       grandi edifici razionalisti e déco — e di Rapture — e dice subito che
+       questo non e' un laboratorio qualunque: e' un monumento a qualcuno. */
+    function venatura(u, v, s) {
+      return Math.abs(fbm(u * 5 + fbm(u * 9, v * 9, 2, s) * 1.2, v * 5, 4, s + 1) - 0.5);
+    }
     function texPavimento() {
-      /* resina epossidica in quadrotte da 60 cm, con la fuga e un leggero
-         puntinato: il pavimento di un laboratorio vero */
-      return tessitura('pavimento', 512, function (u, v) {
+      /* marmo a scacchi crema e verde scuro, con il filetto d'ottone */
+      return tessitura('pavimentoDeco', 512, function (u, v) {
         var tu = (u * 4) % 1, tv = (v * 4) % 1;
-        var fuga = (tu < 0.018 || tv < 0.018) ? 1 : 0;
-        var n = fbm(u * 24, v * 24, 4, 3);
-        var punti = hash(Math.floor(u * 512), Math.floor(v * 512), 9) > 0.985 ? 0.12 : 0;
-        var tono = 0.44 + (hash(Math.floor(u * 4), Math.floor(v * 4), 5) - 0.5) * 0.05;
-        var base = (tono + (n - 0.5) * 0.06 + punti) * 255;
-        if (fuga) base *= 0.55;
-        return [base * 0.93, base * 0.97, base, fuga ? 0.1 : 0.55 + n * 0.08,
-                fuga ? 0.85 : 0.32 + n * 0.12];
-      }, [3, 3], 3.2);
+        var filetto = (tu < 0.014 || tv < 0.014 || tu > 0.986 || tv > 0.986);
+        var chiaro = (Math.floor(u * 4) + Math.floor(v * 4)) % 2 === 0;
+        var ven = venatura(u * 2, v * 2, chiaro ? 7 : 9);
+        var n = fbm(u * 30, v * 30, 2, 11);
+        if (filetto) return [176, 136, 62, 0.62, 0.25];
+        var r, g, b;
+        if (chiaro) { r = 214 + n * 14; g = 204 + n * 12; b = 184 + n * 10; if (ven < 0.008) { r -= 46; g -= 44; b -= 40; } else if (ven < 0.016) { r -= 16; g -= 15; b -= 14; } }
+        else { r = 28 + n * 12; g = 56 + n * 14; b = 50 + n * 12; if (ven < 0.007) { r += 56; g += 58; b += 50; } else if (ven < 0.014) { r += 16; g += 18; b += 15; } }
+        return [r, g, b, 0.5, 0.12 + n * 0.08];
+      }, [3, 3], 1.2);
     }
     function texPannello() {
-      /* pannelli metallici verniciati con giunti, rivetti e sporco in basso */
-      return tessitura('pannello', 512, function (u, v) {
-        var pu = (u * 2) % 1, pv = v;
-        var giunto = (pu < 0.012 || pu > 0.988) ? 1 : 0;
-        var dx = Math.min(Math.abs(pu - 0.06), Math.abs(pu - 0.94));
-        var riv = (dx < 0.012 && (Math.abs(pv - 0.08) < 0.014 || Math.abs(pv - 0.92) < 0.014)) ? 1 : 0;
-        var n = fbm(u * 18, v * 18, 4, 11);
-        var sporco = Math.max(0, (v - 0.55) / 0.45) * 0.25 * fbm(u * 6, v * 3, 3, 4);
-        var r = 66 + n * 16, g = 98 + n * 16, b = 110 + n * 14;
-        var k = 1 - sporco - giunto * 0.4;
-        return [r * k, g * k, b * k,
-                giunto ? 0.15 : (riv ? 0.95 : 0.5 + n * 0.05),
-                0.45 + n * 0.2 + sporco];
-      }, [1, 1], 2.6);
+      /* lo zoccolo in noce a riquadri, con la cornice in rilievo */
+      return tessitura('pannelloDeco', 512, function (u, v) {
+        var pu = (u * 2) % 1;
+        var cornice = (pu < 0.06 || pu > 0.94 || v < 0.1 || v > 0.9);
+        var bordo = (Math.abs(pu - 0.06) < 0.012 || Math.abs(pu - 0.94) < 0.012 || Math.abs(v - 0.1) < 0.015 || Math.abs(v - 0.9) < 0.015);
+        var vena = fbm(u * 3, v * 40, 4, 21), n = fbm(u * 50, v * 50, 2, 22);
+        var r = 72 + vena * 42 + n * 6, g = 44 + vena * 26 + n * 4, b = 26 + vena * 14 + n * 3;
+        if (cornice) { r *= 0.86; g *= 0.86; b *= 0.86; }
+        if (bordo) { r *= 0.55; g *= 0.55; b *= 0.55; }
+        return [r, g, b, bordo ? 0.15 : (cornice ? 0.55 : 0.4 + vena * 0.1), 0.38 + vena * 0.1];
+      }, [1, 1], 2.4);
     }
     function texIntonaco() {
-      return tessitura('intonaco', 256, function (u, v) {
-        /* grana fine e poca: l'intonaco di un laboratorio è liscio, e un
-           rumore largo lo faceva sembrare un cielo nuvoloso */
-        var n = fbm(u * 60, v * 60, 3, 21) * 0.6 + fbm(u * 6, v * 6, 2, 22) * 0.4;
-        var c = 168 + (n - 0.5) * 9;
-        return [c, c * 0.99, c * 0.97, n, 0.85 + n * 0.1];
-      }, [2, 1], 0.35);
+      /* carta da parati verde petrolio con il motivo déco in oro: le
+         colonne sottili e i ventagli */
+      return tessitura('cartaDeco', 256, function (u, v) {
+        var cu = (u * 6) % 1, cv = (v * 3) % 1;
+        var n = fbm(u * 40, v * 40, 2, 31);
+        var r = 22 + n * 8, g = 60 + n * 10, b = 58 + n * 10;
+        var oro = false;
+        if (Math.abs(cu - 0.5) < 0.012) oro = true;                       /* le colonne */
+        var dx = cu - 0.5, dy = cv;                                       /* il ventaglio */
+        var rr = Math.hypot(dx * 1.6, dy);
+        if (dy < 0.55 && (Math.abs(rr - 0.32) < 0.012 || Math.abs(rr - 0.22) < 0.01) ) oro = true;
+        if (dy < 0.32 && Math.abs(Math.atan2(dx, dy) % 0.42) < 0.03 && rr < 0.32 && rr > 0.05) oro = true;
+        if (oro) return [178, 142, 70, 0.7, 0.35];
+        return [r, g, b, 0.5, 0.85];
+      }, [2, 1], 0.6);
     }
     function texSoffitto() {
-      return tessitura('soffitto', 256, function (u, v) {
-        var tu = (u * 4) % 1, tv = (v * 4) % 1;
-        var bordo = (tu < 0.03 || tv < 0.03) ? 1 : 0;
-        var n = hash(Math.floor(u * 256), Math.floor(v * 256), 31);
-        var c = bordo ? 95 : 146 + (n - 0.5) * 10;
-        return [c, c, c * 1.01, bordo ? 0.2 : 0.6, 0.9];
-      }, [2, 2], 1.2);
+      /* soffitto a cassettoni, crema invecchiato */
+      return tessitura('soffittoDeco', 256, function (u, v) {
+        var tu = (u * 3) % 1, tv = (v * 3) % 1;
+        var bordo = (tu < 0.08 || tv < 0.08 || tu > 0.92 || tv > 0.92);
+        var smusso = (tu < 0.14 || tv < 0.14 || tu > 0.86 || tv > 0.86);
+        var n = fbm(u * 20, v * 20, 3, 41);
+        var c = bordo ? 120 : (smusso ? 96 : 148);
+        c += (n - 0.5) * 14;
+        return [c * 1.02, c * 0.97, c * 0.88, bordo ? 0.8 : (smusso ? 0.45 : 0.25), 0.9];
+      }, [2, 2], 2.2);
     }
     function texSpazzolato() {
       /* acciaio spazzolato: righe lunghe in una direzione sola */
@@ -316,10 +332,13 @@
       var tp = texPavimento(), tpa = texPannello(), ti = texIntonaco();
       var ts = texSoffitto(), tsp = texSpazzolato(), tr = texRuggine(), tst = texStrisce();
       M.pavimento = mat({ map: tp.map, normalMap: tp.normalMap, roughnessMap: tp.roughnessMap,
-                          roughness: 1, metalness: 0.05, env: 0.9, normale: 0.6 });
+                          roughness: 1, metalness: 0.05, env: 1.3, normale: 0.5 });
       M.pannello = mat({ map: tpa.map, normalMap: tpa.normalMap, roughnessMap: tpa.roughnessMap,
-                         roughness: 1, metalness: 0.35 });
-      M.intonaco = mat({ map: ti.map, normalMap: ti.normalMap, roughness: 0.92 });
+                         roughness: 1, metalness: 0.0, env: 0.9 });
+      M.intonaco = mat({ map: ti.map, normalMap: ti.normalMap, roughnessMap: ti.roughnessMap, roughness: 1, metalness: 0.1 });
+      M.ottone = mat({ color: 0xc9a24a, roughness: 0.3, metalness: 1, env: 1.3 });
+      M.marmo = mat({ color: 0xe6dcc6, roughness: 0.22, metalness: 0, env: 1.1 });
+      M.vetroCaldo = mat({ color: 0xfff0d0, emissive: 0xffd9a0, emissiveIntensity: 1.6, roughness: 0.3 });
       M.soffitto = mat({ map: ts.map, normalMap: ts.normalMap, roughness: 0.95 });
       M.acciaio = mat({ map: tsp.map, normalMap: tsp.normalMap, roughnessMap: tsp.roughnessMap,
                         roughness: 1, metalness: 0.9, env: 1.2 });
@@ -772,6 +791,64 @@
        spessore del muro. Le luci vere non stanno qui: le dispone il gioco,
        perche' devono seguire il giocatore.
        ═══════════════════════════════════════════════════════════════════ */
+    /* i manifesti: l'Istituto e il Consorzio Albedo che lo finanzia, in
+       stile déco — raggi d'oro, un emblema, un motto */
+    function manifesto(k) {
+      var chiave = 'manifesto' + k;
+      if (cache[chiave]) return cache[chiave];
+      var c = document.createElement('canvas'); c.width = 256; c.height = 384;
+      var q = c.getContext('2d');
+      var temi = [
+        ['#0f2a26', '#c9a24a', 'ISTITUTO', 'IL PROGRESSO', 'NON CHIEDE PERMESSO'],
+        ['#2a1414', '#e0b050', 'CONSORZIO ALBEDO', 'IL FUTURO', 'HA UN FORNITORE'],
+        ['#14202e', '#d8c070', 'PROTOCOLLO 12', 'SICURO · PULITO', 'NOSTRO'],
+        ['#1e1a2c', '#e6c27a', 'LA CHIMICA', 'LIBERA', "L'UOMO"]][k % 4];
+      q.fillStyle = temi[0]; q.fillRect(0, 0, 256, 384);
+      q.save(); q.translate(128, 200);
+      for (var i = 0; i < 24; i++) {
+        q.rotate(Math.PI / 12);
+        q.fillStyle = i % 2 ? 'rgba(255,220,140,.10)' : 'rgba(255,220,140,.04)';
+        q.beginPath(); q.moveTo(0, 0); q.lineTo(-18, -260); q.lineTo(18, -260); q.closePath(); q.fill();
+      }
+      q.restore();
+      q.strokeStyle = temi[1]; q.lineWidth = 4; q.strokeRect(10, 10, 236, 364); q.lineWidth = 1.5; q.strokeRect(18, 18, 220, 348);
+      /* l'emblema: una beuta dentro un esagono */
+      q.save(); q.translate(128, 190); q.strokeStyle = temi[1]; q.lineWidth = 4;
+      q.beginPath(); for (var e = 0; e < 6; e++) { var a = e / 6 * 6.283 - Math.PI / 2; q.lineTo(Math.cos(a) * 58, Math.sin(a) * 58); }
+      q.closePath(); q.stroke();
+      q.beginPath(); q.moveTo(-10, -32); q.lineTo(-10, -8); q.lineTo(-30, 28); q.lineTo(30, 28); q.lineTo(10, -8); q.lineTo(10, -32); q.stroke();
+      q.fillStyle = temi[1]; q.globalAlpha = 0.6; q.beginPath(); q.moveTo(-22, 14); q.lineTo(22, 14); q.lineTo(30, 28); q.lineTo(-30, 28); q.fill();
+      q.restore(); q.globalAlpha = 1;
+      q.fillStyle = temi[1]; q.textAlign = 'center';
+      q.font = 'bold 22px Georgia, serif'; q.fillText(temi[2], 128, 62);
+      q.font = 'bold 30px Georgia, serif'; q.fillText(temi[3], 128, 300);
+      q.font = '600 17px Georgia, serif'; q.fillText(temi[4], 128, 330);
+      /* il manifesto e' vecchio: macchie e pieghe */
+      for (var m2 = 0; m2 < 60; m2++) {
+        q.fillStyle = 'rgba(0,0,0,' + (hash(m2, k, 77) * 0.08) + ')';
+        q.beginPath(); q.arc(hash(m2, 1, 78) * 256, hash(m2, 2, 79) * 384, 4 + hash(m2, 3, 80) * 22, 0, 6.283); q.fill();
+      }
+      var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding;
+      cache[chiave] = t;
+      return t;
+    }
+    /* le scritte sui muri, a gesso: chi c'era ha lasciato domande */
+    function scritta(k) {
+      var chiave = 'scritta' + k;
+      if (cache[chiave]) return cache[chiave];
+      var c = document.createElement('canvas'); c.width = 512; c.height = 140;
+      var q = c.getContext('2d');
+      var testi = ['CHI HA FIRMATO?', 'NON OBBEDIRE', 'RIPRENDERE COMUNQUE?'];
+      q.font = 'bold 54px "Comic Sans MS", "Marker Felt", cursive';
+      q.textAlign = 'center'; q.fillStyle = 'rgba(235,232,220,.82)';
+      q.save(); q.translate(256, 86); q.rotate(-0.04);
+      q.fillText(testi[k % 3], 0, 0);
+      q.restore();
+      var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding;
+      cache[chiave] = t;
+      return t;
+    }
+
     function stanza(st, vaniPer) {
       var g = new T.Group();
       var L = st.larg, P = st.prof, H = st.alt;
@@ -798,6 +875,12 @@
       sof.rotation.x = Math.PI / 2; sof.position.y = H;
       g.add(sof);
 
+      /* il muro déco: zoccolo in noce, corrimano d'ottone, carta da parati,
+         cornice in alto; lesene di marmo a intervalli regolari con le
+         applique a ventaglio fra l'una e l'altra */
+      var aloni = [];
+      var semeStanza = 0;
+      String(st.nome || '').split('').forEach(function (ch) { semeStanza = (semeStanza * 31 + ch.charCodeAt(0)) % 9973; });
       function muro(lung, verso, vani) {
         var gr = new T.Group();
         var tagli = [-lung / 2];
@@ -807,18 +890,43 @@
           var a1 = tagli[i], a2 = tagli[i + 1], w = a2 - a1;
           if (w < 0.05) continue;
           var cx = (a1 + a2) / 2;
-          var basso = mesh(tonda(w, 1.3, 0.12, 0.02), M.pannello, cx, 0.65, 0);
-          gr.add(basso);
-          var alto = mesh(new T.BoxGeometry(w, H - 1.3, 0.1), M.intonaco, cx, 1.3 + (H - 1.3) / 2, -0.01);
-          gr.add(alto);
-          /* il corrimano paracolpi e il battiscopa */
-          gr.add(mesh(tonda(w, 0.08, 0.06, 0.02), M.acciaioScuro, cx, 1.0, 0.09));
-          gr.add(mesh(tonda(w, 0.1, 0.03, 0.008), M.gomma, cx, 0.05, 0.075));
-          gr.add(mesh(tonda(w, 0.04, 0.05, 0.01), M.acciaio, cx, 1.31, 0.065));
+          gr.add(mesh(tonda(w, 1.1, 0.12, 0.02), M.pannello, cx, 0.55, 0));
+          gr.add(mesh(new T.BoxGeometry(w, H - 1.1, 0.1), M.intonaco, cx, 1.1 + (H - 1.1) / 2, -0.01));
+          gr.add(mesh(tonda(w, 0.05, 0.05, 0.015), M.ottone, cx, 1.12, 0.075));
+          gr.add(mesh(tonda(w, 0.12, 0.04, 0.01), M.pannello, cx, 0.06, 0.07));
+          gr.add(mesh(tonda(w, 0.14, 0.09, 0.02), M.marmo, cx, H - 0.07, 0.04));
+          gr.add(mesh(tonda(w, 0.025, 0.1, 0.008), M.ottone, cx, H - 0.155, 0.05));
+          if (PS1) continue;
+          /* le lesene e le applique */
+          var n = Math.floor(w / 3.2);
+          for (var k = 1; k <= n; k++) {
+            var px = a1 + k * (w / (n + 1));
+            var les = new T.Group(); les.position.set(px, 0, 0.06);
+            les.add(mesh(tonda(0.32, H - 0.3, 0.07, 0.02), M.marmo, 0, (H - 0.3) / 2 + 0.12, 0));
+            for (var f = -1; f <= 1; f++) les.add(mesh(tonda(0.03, H - 0.8, 0.02, 0.01), M.pannello, f * 0.09, H / 2, 0.035));
+            les.add(mesh(tonda(0.38, 0.1, 0.1, 0.02), M.ottone, 0, H - 0.3, 0.01));
+            les.add(mesh(tonda(0.38, 0.12, 0.1, 0.02), M.ottone, 0, 0.12, 0.01));
+            gr.add(les);
+          }
+          for (var a = 0; a <= n; a++) {
+            var ax = a1 + (a + 0.5) * (w / (n + 1));
+            if (w < 2.2) continue;
+            var ap = new T.Group(); ap.position.set(ax, 2.05, 0.06);
+            ap.add(mesh(tonda(0.12, 0.2, 0.03, 0.01), M.ottone, 0, 0, 0));
+            var ventaglio = new T.Mesh(new T.CylinderGeometry(0.16, 0.16, 0.03, 20, 1, false, -Math.PI / 2, Math.PI), M.vetroCaldo);
+            ventaglio.rotation.x = Math.PI / 2; ventaglio.position.set(0, 0.06, 0.05);
+            ap.add(ventaglio);
+            if (api.alone) { var al = api.alone(0xffcc88, 1.1, 0.4); al.position.set(0, 0.14, 0.16); ap.add(al); }
+            gr.add(ap);
+          }
         }
         vani.forEach(function (c) {
-          /* l'architrave sopra il vano, e lo spessore ai lati */
           gr.add(mesh(new T.BoxGeometry(2.5, H - 2.7, 0.12), M.intonaco, c, 2.7 + (H - 2.7) / 2, 0));
+          /* la cornice d'ottone del vano, a gradini come un portale déco */
+          if (!PS1) {
+            gr.add(mesh(tonda(2.7, 0.12, 0.14, 0.02), M.ottone, c, 2.76, 0.05));
+            [-1, 1].forEach(function (l) { gr.add(mesh(tonda(0.1, 2.7, 0.14, 0.02), M.ottone, c + l * 1.3, 1.35, 0.05)); });
+          }
         });
         return gr;
       }
@@ -827,21 +935,57 @@
       var est = muro(P, 'est', vaniPer('est')); est.rotation.y = -Math.PI / 2; est.position.set(L / 2, 0, 0); g.add(est);
       var ovest = muro(P, 'ovest', vaniPer('ovest')); ovest.rotation.y = Math.PI / 2; ovest.position.set(-L / 2, 0, 0); g.add(ovest);
 
-      /* le plafoniere: pannelli accesi incassati nel controsoffitto */
+      /* le plafoniere déco: un disco di vetro smerigliato con l'anello
+         d'ottone, e il bagliore */
       var luci = [];
       var nx = Math.max(1, Math.round(L / 6)), nz = Math.max(1, Math.round(P / 6));
       for (var ix = 0; ix < nx; ix++) {
         for (var iz = 0; iz < nz; iz++) {
           var lx = -L / 2 + (ix + 0.5) * (L / nx), lz = -P / 2 + (iz + 0.5) * (P / nz);
-          var pl = mesh(tonda(1.2, 0.05, 0.6, 0.01), M.lampada, lx, H - 0.03, lz, false);
-          g.add(pl);
-          /* il bagliore della plafoniera: lo sprite additivo della PS2 */
-          if (!PS1 && api.alone) {
-            var bg = api.alone(0xfff0d8, 1.9, 0.32);
-            bg.position.set(lx, H - 0.14, lz);
-            g.add(bg);
+          var disco = mesh(new T.CylinderGeometry(0.42, 0.36, 0.08, PS1 ? 10 : 32), PS1 ? M.lampada : M.vetroCaldo, lx, H - 0.06, lz, false);
+          g.add(disco);
+          if (!PS1) {
+            var anello = mesh(new T.TorusGeometry(0.43, 0.025, 8, 32), M.ottone, lx, H - 0.06, lz, false);
+            anello.rotation.x = Math.PI / 2;
+            g.add(anello);
+            g.add(mesh(new T.CylinderGeometry(0.02, 0.02, 0.06, 8), M.ottone, lx, H - 0.01, lz, false));
+            if (api.alone) { var bg = api.alone(0xffd9a8, 2.2, 0.38); bg.position.set(lx, H - 0.18, lz); g.add(bg); }
           }
           luci.push({ x: lx, y: H - 0.3, z: lz });
+        }
+      }
+      /* un manifesto dell'istituto o del suo finanziatore, e qualche volta
+         una scritta lasciata sul muro da chi c'era */
+      if (!PS1 && L >= 6 && P >= 6) {
+        var man = new T.Mesh(new T.PlaneGeometry(0.9, 1.35), mat({ map: manifesto(semeStanza % 4), roughness: 0.75 }));
+        man.position.set(semeStanza % 2 ? L / 2 - 0.07 : -L / 2 + 0.07, 1.9, (semeStanza % 3 - 1) * P * 0.2);
+        man.rotation.y = semeStanza % 2 ? -Math.PI / 2 : Math.PI / 2;
+        g.add(man);
+        var cornM = new T.Mesh(tonda(0.96, 1.41, 0.02, 0.006), M.ottone);
+        cornM.position.copy(man.position); cornM.rotation.copy(man.rotation);
+        cornM.position.x += semeStanza % 2 ? 0.012 : -0.012;
+        g.add(cornM);
+        if (semeStanza % 5 === 0) {
+          var scr = new T.Mesh(new T.PlaneGeometry(2.2, 0.6), new T.MeshStandardMaterial({ map: scritta(semeStanza % 3),
+            transparent: true, roughness: 0.9, depthWrite: false }));
+          scr.position.set((semeStanza % 7 - 3) * L * 0.08, 1.75, P / 2 - 0.08);
+          scr.rotation.y = Math.PI;
+          g.add(scr);
+        }
+      }
+      /* le gocce: il soffitto perde, qua e la' */
+      var gocce = [];
+      if (!PS1 && semeStanza % 3 === 0) {
+        var gx = ((semeStanza * 7) % 10 / 10 - 0.5) * (L - 2), gz = ((semeStanza * 13) % 10 / 10 - 0.5) * (P - 2);
+        var pozza = new T.Mesh(new T.CircleGeometry(0.55, 24), mat({ color: 0x1a2a2a, roughness: 0.02, metalness: 0.2,
+          transparent: true, opacity: 0.55, env: 1.8 }));
+        pozza.rotation.x = -Math.PI / 2; pozza.position.set(gx, 0.012, gz); pozza.scale.set(1, 1.4, 1);
+        g.add(pozza);
+        for (var d = 0; d < 2; d++) {
+          var goc = mesh(new T.SphereGeometry(0.018, 8, 6), mat({ color: 0xcfe8ff, roughness: 0.05, transparent: true, opacity: 0.7 }), gx, H, gz, false);
+          goc.scale.y = 1.6;
+          g.add(goc);
+          gocce.push({ o: goc, h: H, fase: d * 0.5 });
         }
       }
       /* la luce di emergenza in un angolo */
@@ -857,22 +1001,16 @@
         var c = document.createElement('canvas');
         c.width = 512; c.height = 160;
         var q = c.getContext('2d');
-        q.fillStyle = '#e9edf0'; q.fillRect(0, 0, 512, 160);
-        q.fillStyle = '#0f3d5c'; q.fillRect(0, 0, 512, 44);
-        q.fillStyle = '#ffffff'; q.font = 'bold 26px sans-serif';
-        q.fillText(String(st.ala || 'ISTITUTO').toUpperCase().slice(0, 30), 16, 31);
-        q.fillStyle = '#10161c'; q.font = 'bold 40px sans-serif';
-        q.fillText(String(st.nome).toUpperCase(), 16, 96);
-        q.font = '18px sans-serif'; q.fillStyle = '#4a5560';
-        q.fillText('accesso consentito al personale autorizzato', 16, 132);
-        [['!', '#c4161c'], ['☠', '#c4161c']].forEach(function (p, i) {
-          q.save(); q.translate(440 - i * 66, 100); q.rotate(Math.PI / 4);
-          q.fillStyle = '#fff'; q.fillRect(-22, -22, 44, 44);
-          q.strokeStyle = p[1]; q.lineWidth = 4; q.strokeRect(-20, -20, 40, 40);
-          q.restore();
-          q.fillStyle = '#111'; q.font = 'bold 24px sans-serif'; q.textAlign = 'center';
-          q.fillText(p[0], 440 - i * 66, 109); q.textAlign = 'left';
-        });
+        /* la targa déco: verde scuro, filetti e lettere d'oro */
+        q.fillStyle = '#0f2a26'; q.fillRect(0, 0, 512, 160);
+        q.strokeStyle = '#c9a24a'; q.lineWidth = 4; q.strokeRect(8, 8, 496, 144);
+        q.lineWidth = 1.5; q.strokeRect(16, 16, 480, 128);
+        q.fillStyle = '#c9a24a'; q.font = '600 20px Georgia, serif'; q.textAlign = 'center';
+        q.fillText('— ' + String(st.ala || 'ISTITUTO').toUpperCase().slice(0, 30) + ' —', 256, 48);
+        q.fillStyle = '#f0dca0'; q.font = 'bold 42px Georgia, serif';
+        q.fillText(String(st.nome).toUpperCase(), 256, 100);
+        q.font = 'italic 16px Georgia, serif'; q.fillStyle = '#b89a5a';
+        q.fillText('Istituto di Chimica Applicata', 256, 130); q.textAlign = 'left';
         var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding;
         tx.usaEGetta = true;
         var cart = new T.Mesh(new T.PlaneGeometry(1.4, 0.44), mat({ map: tx, roughness: 0.5 }));
@@ -892,14 +1030,12 @@
         g.add(est);
       }
 
-      /* qualche tubo che corre sotto il soffitto, lungo un muro */
+      /* i tubi d'ottone che corrono sotto il soffitto, lungo un muro */
       if (!PS1 && L > 6) {
         g.add(tubo([[-L / 2 + 0.3, H - 0.35, -P / 2 + 0.35], [L / 2 - 0.3, H - 0.35, -P / 2 + 0.35]],
-                   0.07, M.acciaio));
-        g.add(tubo([[-L / 2 + 0.3, H - 0.55, -P / 2 + 0.35], [L / 2 - 0.3, H - 0.55, -P / 2 + 0.35]],
-                   0.045, M.verniceGialla));
+                   0.07, M.ottone));
       }
-      return { gruppo: g, luci: luci, emergenza: em };
+      return { gruppo: g, luci: luci, emergenza: em, gocce: gocce };
     }
 
     /* ═══════════════════════════════════════════════════════════════════

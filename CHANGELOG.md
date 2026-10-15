@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v214] — 2026-10-15
+
+**Nello spirito di BioShock — atmosfera, mani, dinamiche, misteri — sulla
+trama del Protocollo 12.**
+
+### Gli ambienti
+
+* **Art déco**: marmo a scacchi con i filetti d'ottone, zoccolo in noce,
+  carta da parati verde e oro, lesene di marmo, applique a ventaglio,
+  plafoniere déco, soffitto a cassettoni, portali d'ottone, targhe con le
+  lettere d'oro; manifesti dell'Istituto e del **Consorzio Albedo**, scritte
+  a gesso sui muri, gocce che cadono dal soffitto nelle pozze; luce ambra e
+  più ombra.
+
+### Le mani
+
+* La **sinistra tiene vivo l'elemento** come un plasmide: scintille con l'arco
+  elettrico per i metalli, fiamma per i combustibili, vapore per i gas, luce
+  per il resto, con una luce vera dal palmo; usandolo lo **lancia**. La destra
+  resta al dispensatore per i composti.
+
+### I misteri
+
+* **Trenta registrazioni** su magnetofoni déco, tre per zona, sette voci
+  (Sarti, il Custode, Lenzi, Vela, Moro, l'avv. Ferri del Consorzio Albedo, il
+  Direttore): si **ascoltano mentre si gioca** con la voce del dispositivo e i
+  sottotitoli, e finiscono nel Codex. Ricompongono il segreto della frase
+  «riprendere comunque».
+
+### L'HUD
+
+* Salute a tacche e reagente in mano in **cornici d'ottone**.
+
+### Verifica
+
+`test_atomic`: **185 controlli** (minimo 185).
+
+---
 ## [bsi-v213] — 2026-10-15
 
 **Mani anatomiche in prima persona, un pulsante flottante tutto suo per il

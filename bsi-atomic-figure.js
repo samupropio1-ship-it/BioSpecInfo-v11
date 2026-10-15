@@ -1618,12 +1618,133 @@
       var manoS = manoAnatomica(-1, 'rilassata');
       mS.add(manoS.gruppo);
 
+      /* IL POTERE SULLA MANO SINISTRA — l'elemento che si tiene vive sul
+         palmo, come un plasmide: scintille per i metalli, fiamma per i
+         combustibili, vapore per i gas, luce per il resto. C'e' una luce
+         vera che illumina il guanto dal palmo. */
+      var aura = new T.Group();
+      aura.position.set(0, -0.035, -0.05);       /* sopra il palmo, a mano girata */
+      mS.add(aura);
+      var lucePalmo = new T.PointLight(0xffffff, 0, 0.35, 2);
+      aura.add(lucePalmo);
+      var cvA = nuovaTela(32, 32), qA = cvA.getContext('2d'), grA = qA.createRadialGradient(16, 16, 0, 16, 16, 16);
+      grA.addColorStop(0, 'rgba(255,255,255,1)'); grA.addColorStop(0.4, 'rgba(255,255,255,.5)'); grA.addColorStop(1, 'rgba(255,255,255,0)');
+      qA.fillStyle = grA; qA.fillRect(0, 0, 32, 32);
+      var texA = new T.CanvasTexture(cvA);
+      var parts = [];
+      for (var pa = 0; pa < 28; pa++) {
+        var sp = new T.Sprite(new T.SpriteMaterial({ map: texA, transparent: true, depthWrite: false,
+                                                     blending: T.AdditiveBlending, toneMapped: false }));
+        sp.visible = false;
+        aura.add(sp);
+        parts.push({ o: sp, seme: hash(pa, 3, 1501), fase: hash(pa, 4, 1502) });
+      }
+      /* l'arco elettrico, per i metalli: una spezzata che cambia a ogni
+         fotogramma */
+      var arcoGeo = new T.BufferGeometry();
+      arcoGeo.setAttribute('position', new T.Float32BufferAttribute(new Array(8 * 3).fill(0), 3));
+      var arco = new T.Line(arcoGeo, new T.LineBasicMaterial({ color: 0xffffff, transparent: true, blending: T.AdditiveBlending, toneMapped: false }));
+      arco.visible = false;
+      aura.add(arco);
+      var potere = { tipo: null, colore: new T.Color(0xffffff) };
+      function aggiornaPotere(tipo, colore) {
+        potere.tipo = tipo;
+        potere.colore.setHex(colore || 0xffffff);
+        parts.forEach(function (q) { q.o.material.color.copy(potere.colore); });
+        arco.material.color.copy(potere.colore).lerp(new T.Color(0xffffff), 0.5);
+        lucePalmo.color.copy(potere.colore);
+      }
+      function animaPotere(ora, forza) {
+        var tp = potere.tipo, f = forza || 0;
+        lucePalmo.intensity = tp ? (0.9 + Math.sin(ora * 13) * 0.25) * f * 2.2 : 0;
+        arco.visible = tp === 'scintille' && f > 0.3 && Math.random() > 0.35;
+        if (arco.visible) {
+          var pp = arcoGeo.attributes.position;
+          var a0 = Math.random() * 6.28, a1 = a0 + 1 + Math.random() * 2;
+          for (var i = 0; i < 8; i++) {
+            var k = i / 7, an = a0 + (a1 - a0) * k, r = 0.035 + Math.sin(k * Math.PI) * 0.015;
+            pp.setXYZ(i, Math.cos(an) * r + (Math.random() - 0.5) * 0.012, (Math.random() - 0.3) * 0.02 - k * 0.0, Math.sin(an) * r + (Math.random() - 0.5) * 0.012);
+          }
+          pp.needsUpdate = true;
+        }
+        parts.forEach(function (q, i) {
+          if (!tp || f < 0.05) { q.o.visible = false; return; }
+          q.o.visible = true;
+          var t = (ora * (tp === 'vapore' ? 0.25 : 0.9) + q.fase) % 1, sd = q.seme;
+          var x, y, z, sc, op;
+          if (tp === 'fiamma') {
+            var rr = (1 - t) * 0.03 * (0.5 + sd);
+            x = Math.cos(sd * 40 + t * 3) * rr; z = Math.sin(sd * 40 + t * 3) * rr; y = -t * 0.11;
+            sc = 0.045 * (1 - t) + 0.01; op = (1 - t) * 0.9;
+            q.o.material.color.copy(potere.colore).lerp(new T.Color(0xfff4c0), Math.max(0, 0.7 - t));
+          } else if (tp === 'scintille') {
+            var an2 = sd * 60 + ora * (8 + sd * 6);
+            x = Math.cos(an2) * 0.03 * (0.6 + sd); z = Math.sin(an2 * 1.3) * 0.03; y = -Math.abs(Math.sin(an2 * 0.7)) * 0.03;
+            sc = 0.012 + (Math.random() > 0.8 ? 0.02 : 0); op = Math.random() > 0.25 ? 1 : 0;
+          } else if (tp === 'vapore') {
+            var an3 = sd * 6.28 + ora * 0.8;
+            x = Math.cos(an3) * (0.025 + t * 0.03); z = Math.sin(an3) * (0.025 + t * 0.03); y = -t * 0.07;
+            sc = 0.05 + t * 0.05; op = (1 - t) * 0.35;
+          } else {
+            var an4 = sd * 6.28 + ora * (1.5 + sd);
+            x = Math.cos(an4) * 0.035; z = Math.sin(an4) * 0.035; y = -0.012 + Math.sin(ora * 3 + sd * 9) * 0.01;
+            sc = 0.02 + sd * 0.012; op = 0.8;
+          }
+          q.o.position.set(x, y, z);
+          q.o.scale.setScalar(sc * (0.6 + f * 0.4));
+          q.o.material.opacity = op * f;
+        });
+      }
+
       var g = new T.Group();
       g.add(dx); g.add(sx);
       return { gruppo: g, dx: dx, sx: sx, manoDx: mD, manoSx: mS, ditaDx: ditaD,
-               dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led } };
+               dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led },
+               potere: { aggiorna: aggiornaPotere, anima: animaPotere, palmo: aura, stato: potere } };
     }
 
+    /* IL REGISTRATORE — un magnetofono degli anni Cinquanta su un tavolino:
+       cassa in legno scuro con i profili d'ottone, due bobine, la griglia
+       dell'altoparlante, la spia rossa che lampeggia finche' nessuno lo ha
+       ascoltato */
+    function registratore() {
+      var g = new T.Group();
+      var legno = materiale(pittura('legnoScuro', 128, 128, function (u, v, x, y) {
+        var vena = fbm(u * 2, v * 30, 4, 1401), gr = (hash(x, y, 1402) - 0.5) * 6;
+        return [70 + vena * 40 + gr, 42 + vena * 24 + gr, 26 + vena * 14 + gr];
+      }, null, function (u, v) { return fbm(u * 2, v * 30, 4, 1401); }, 1.5), { roughness: 0.38 });
+      var ottone = mat({ color: 0xc9a24a, roughness: 0.28, metalness: 1, env: 1.3 });
+      var nero = mat({ color: 0x1a1a1c, roughness: 0.5 });
+      /* il tavolino, con le gambe affusolate */
+      g.add(m(tonda(0.62, 0.04, 0.46, 0.012), legno, 0, 0.72, 0));
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (q) {
+        g.add(m(cil(0.018, 0.012, 0.7, 10), legno, q[0] * 0.26, 0.35, q[1] * 0.19));
+        g.add(m(cil(0.014, 0.014, 0.02, 10), ottone, q[0] * 0.26, 0.01, q[1] * 0.19));
+      });
+      /* la cassa */
+      g.add(m(tonda(0.46, 0.13, 0.32, 0.025), legno, 0, 0.805, 0));
+      g.add(m(tonda(0.47, 0.012, 0.33, 0.005), ottone, 0, 0.872, 0));
+      var bobine = [];
+      [-1, 1].forEach(function (l) {
+        var b = new T.Group(); b.position.set(l * 0.11, 0.885, -0.03);
+        b.add(m(cil(0.075, 0.075, 0.01, 32), ottone));
+        b.add(m(cil(0.05, 0.05, 0.016, 32), nero, 0, 0.006, 0));
+        for (var r = 0; r < 3; r++) b.add(mr(tonda(0.006, 0.004, 0.11, 0.002), ottone, 0, 0.012, 0, 0, r * Math.PI / 3, 0));
+        g.add(b); bobine.push(b);
+      });
+      /* la griglia dell'altoparlante e i tasti */
+      var gri = m(tonda(0.2, 0.07, 0.006, 0.003), mat({ color: 0x3a2a1a, roughness: 0.8 }), -0.08, 0.81, 0.162);
+      g.add(gri);
+      for (var k = 0; k < 6; k++) g.add(m(tonda(0.004, 0.06, 0.004, 0.001), ottone, -0.16 + k * 0.032, 0.81, 0.166));
+      for (var tt = 0; tt < 4; tt++) g.add(m(tonda(0.028, 0.02, 0.03, 0.006), tt === 2 ? M.verniceRossa : nero, 0.08 + tt * 0.034, 0.875, 0.11));
+      var spia = m(new T.SphereGeometry(0.012, 12, 10), mat({ color: 0x300000, emissive: 0xff2a1a, emissiveIntensity: 2.4 }), 0.19, 0.84, 0.162, false);
+      g.add(spia);
+      var al = alone(0xff3020, 0.18, 0.9); al.position.set(0.19, 0.84, 0.18);
+      g.add(al);
+      return { gruppo: g, bobine: bobine, spia: spia, alone: al };
+    }
+
+    api.registratore = registratore;
     api.braccia = braccia;
     api.chimico = chimico;
     api.residuo = residuo;
