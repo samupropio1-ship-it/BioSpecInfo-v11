@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 7 (bsi-v214): nello spirito di BioShock — ambienti art déco, la mano sinistra-plasmide, trenta registrazioni audio — sulla trama del Protocollo 12.
+> Versione 8 (bsi-v215): le mani, la manica del camice e la pistola a capsula dai modelli scelti dall'utente, con le pose fatte dei fotogrammi della loro animazione; prima, nella versione 7, gli ambienti art déco, la mano sinistra-plasmide, trenta registrazioni audio — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -102,6 +102,30 @@ la partita, e sono la cosa più curata del gioco.
   visivo più stretto), disegnate dopo il mondo e dopo aver cancellato la
   profondità: non entrano mai nei muri, come in ogni gioco in prima persona.
   Hanno luci proprie e i riflessi d'ambiente del livello.
+* **I modelli** (dalla v215): le braccia sono fatte con tre modelli forniti
+  dall'utente, in `models/` e preparati da `tools/prepara-modelli.js` (crediti
+  in `models/CREDITS.md` e nel Codex). Le **mani** sono un modello con lo
+  scheletro (23 ossa per mano) e una clip di 21 secondi: il gioco la campiona
+  (le sole ossa delle dita, 15 fotogrammi al secondo) e costruisce ogni posa
+  fondendo i fotogrammi dito per dito — aperta, pugno, la flessione della
+  clip — per cui la presa, il dito sul grilletto, il palmo del potere e il
+  gesto d'attesa sono pose di quella mano. La pelle diventa **nitrile**
+  ricolorando la texture dalla sua luminosità, così nocche, unghie e pieghe
+  si leggono sotto la gomma; la mappa delle normali resta quella del modello.
+  Ogni mano si allinea da sola alla manica (polso, asse dell'avambraccio,
+  verso del palmo) e la piega del polso la fa l'osso del polso, così
+  l'avambraccio resta dentro la manica; la sinistra del modello è la destra
+  specchiata, e lì la piega cambia verso. La **manica** è l'avambraccio
+  ritagliato da una scansione di uno scienziato in camice, con l'orlo e il
+  polsino azzurro della camicia: il lato verso il busto nella scansione era
+  fuso col corpo, quindi sta in basso, dove non si vede, con la manica
+  procedurale dentro come fodera. La **pistola a capsula** prende il posto
+  del dispensatore: la sua impugnatura si allinea all'anello delle dita
+  chiuse e al palmo, poi il polso devia (al massimo 0,6 rad, quanto un polso
+  vero) perché la canna guardi avanti; il resto lo fa la pistola che ruota
+  nella presa. La capsula prende il colore del composto, il grilletto segue
+  l'indice, lo spruzzo parte dalla punta della canna. Finché i modelli non
+  arrivano (offline al primo avvio) restano le braccia procedurali qui sotto.
 * **Le maniche** del camice sono tubi aperti con il polsino cucito, l'interno
   in ombra e il bordo del guanto che esce. **Le mani** sono anatomiche: ogni
   dito è un unico tubo che segue le tre falangi lungo una curva, si

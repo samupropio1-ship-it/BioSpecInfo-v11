@@ -1371,7 +1371,7 @@
        ═════════════════════════════════════════════════════════════════════ */
     function braccia() {
       var MB = {
-        manica: materiale(texCamice('manicaFP', 128, 128), { roughness: 0.8, rilievo: 0.9 }),
+        manica: materiale(texCamice('manicaFP', 128, 128), { roughness: 0.85, rilievo: 0.35 }),
         guanto: materiale(pittura('nitrileFP', 128, 128, function (u, v) {
           /* nitrile: grana fine e qualche piega morbida, niente righe */
           var gr = (fbm(u * 60, v * 60, 3, 901) - 0.5) * 6;
@@ -1380,6 +1380,63 @@
         }, null, function (u, v) {
           return fbm(u * 60, v * 60, 3, 901) * 0.25 + Math.max(0, fbm(u * 5, v * 5, 3, 902) - 0.55) * 1.2;
         }, 1.2), { roughness: 0.3, rilievo: 0.5 }),
+        /* IL GUANTO DI NITRILE, fatto come lo si faceva su PS2 (RE4, MGS3,
+           Silent Hill 3): poca geometria in piu', il resto nella texture.
+           Il dorso e il palmo: grana fine del nitrile, le pieghe a ventaglio
+           tra pollice e indice, le linee del palmo che il guanto segue, le
+           zone tese piu' chiare e lucide, quelle lente piu' scure */
+        guantoMano: materiale(pittura('nitrileManoPS2', 256, 256, function (u, v, x, y) {
+          var gr = (hash(x, y, 951) - 0.5) * 7 + (fbm(u * 40, v * 40, 2, 952) - 0.5) * 6;
+          /* pieghe morbide e lunghe, come di gomma che non aderisce del tutto */
+          var pg = Math.abs(fbm(u * 6 + Math.sin(v * 9) * 0.2, v * 3, 3, 953) - 0.5);
+          var piega = Math.exp(-pg * pg / 0.0003) * 9;
+          /* le grinze sottili, a gruppi */
+          var gz = Math.abs(Math.sin(u * 90 + fbm(u * 3, v * 3, 2, 954) * 20));
+          var grinza = Math.pow(1 - gz, 12) * 22 * Math.max(0, fbm(u * 4, v * 4, 2, 955) - 0.45) * 3;
+          var teso = Math.max(0, fbm(u * 3 + 7, v * 3, 2, 956) - 0.5) * 30;
+          return [70 + gr - piega - grinza + teso * 0.6, 118 + gr - piega - grinza + teso, 186 + gr - piega * 0.7 - grinza * 0.7 + teso];
+        }, null, function (u, v, x, y) {
+          var pg = Math.abs(fbm(u * 6 + Math.sin(v * 9) * 0.2, v * 3, 3, 953) - 0.5);
+          var gz = Math.abs(Math.sin(u * 90 + fbm(u * 3, v * 3, 2, 954) * 20));
+          return 0.6 - Math.exp(-pg * pg / 0.0003) * 0.12 - Math.pow(1 - gz, 12) * 0.25 * Math.max(0, fbm(u * 4, v * 4, 2, 955) - 0.45) * 3 +
+                 hash(x, y, 951) * 0.12;
+        }, 2.2), { roughness: 0.46, rilievo: 0.7 }),
+        /* le dita: il tubo ha la lunghezza lungo u. Sulle articolazioni il
+           nitrile fa anelli di grinze fitte (sul lato del palmo di piu'),
+           sulle nocche si tende e schiarisce, sulle punte c'e' la
+           zigrinatura antiscivolo dei guanti veri */
+        guantoDita: materiale(pittura('nitrileDitaPS2', 256, 64, function (u, v, x, y) {
+          var gr = (hash(x, y, 961) - 0.5) * 7;
+          var anelli = 0;
+          [[0.36, 0.05], [0.66, 0.04]].forEach(function (a) {
+            var dd = (u - a[0]) / a[1];
+            if (Math.abs(dd) < 1) anelli += Math.pow(Math.abs(Math.sin((u - a[0]) * 260)), 3) * (1 - dd * dd) *
+                                             (0.55 + 0.45 * Math.cos((v - 0.75) * 6.283));
+          });
+          var teso = Math.exp(-Math.pow((u - 0.36) / 0.05, 2)) * 0.5 + Math.exp(-Math.pow((u - 0.66) / 0.04, 2)) * 0.4;
+          teso *= Math.max(0, Math.cos((v - 0.25) * 6.283));
+          var zigr = u > 0.8 ? (hash(x >> 1, y >> 1, 962) > 0.55 ? -9 : 4) * Math.min(1, (u - 0.8) * 10) : 0;
+          var pg = Math.exp(-Math.pow(Math.abs(fbm(u * 3, v * 4, 2, 963) - 0.5) / 0.03, 2)) * 20;
+          return [70 + gr - anelli * 40 + teso * 40 + zigr - pg, 118 + gr - anelli * 46 + teso * 46 + zigr - pg,
+                  186 + gr - anelli * 40 + teso * 34 + zigr - pg * 0.7];
+        }, null, function (u, v, x, y) {
+          var anelli = 0;
+          [[0.36, 0.05], [0.66, 0.04]].forEach(function (a) {
+            var dd = (u - a[0]) / a[1];
+            if (Math.abs(dd) < 1) anelli += Math.pow(Math.abs(Math.sin((u - a[0]) * 260)), 3) * (1 - dd * dd);
+          });
+          var zigr = u > 0.8 ? (hash(x >> 1, y >> 1, 962) > 0.55 ? 0.15 : 0) : 0;
+          return 0.6 - anelli * 0.5 + zigr + hash(x, y, 961) * 0.08;
+        }, 2.6), { roughness: 0.44, rilievo: 1 }),
+        /* il polsino del guanto: pieghe lunghe lungo il braccio, dove la
+           gomma si allenta sul polso */
+        guantoPolsino: materiale(pittura('nitrilePolsinoPS2', 128, 64, function (u, v, x, y) {
+          var gr = (hash(x, y, 971) - 0.5) * 7;
+          var pl = Math.pow(Math.abs(Math.sin(u * 6.283 * 7 + fbm(u * 4, v * 2, 2, 972) * 5)), 6) * 16 * (0.4 + v * 0.6);
+          return [72 + gr - pl, 120 + gr - pl, 188 + gr - pl * 0.7];
+        }, null, function (u, v, x, y) {
+          return 0.6 - Math.pow(Math.abs(Math.sin(u * 6.283 * 7 + fbm(u * 4, v * 2, 2, 972) * 5)), 6) * 0.5 * (0.4 + v * 0.6) + hash(x, y, 971) * 0.08;
+        }, 2), { roughness: 0.46, rilievo: 1, side: T.DoubleSide }),
         polimero: mat({ color: 0xc9cdd1, roughness: 0.42, metalness: 0.05 }),
         grigio: mat({ color: 0x3a4048, roughness: 0.5, metalness: 0.3 }),
         gomma: mat({ color: 0x1e2226, roughness: 0.75 }),
@@ -1410,29 +1467,39 @@
         return { gruppo: radice, giunti: giunti };
       }
       /* la manica: dal polso verso il gomito (+z), un po' in basso */
+      /* LA MANICA DEL CAMICE: tessuto, non un tubo. Si sforma in pieghe
+         lunghe lungo il braccio e si ammassa in pieghe ad anello vicino al
+         polso, dove il braccio piegato la spinge; l'orlo e' spesso, e dal
+         fondo esce il polsino del guanto */
       function manica(lato) {
         var g = new T.Group();
-        /* un tubo aperto: dal polsino esce il guanto, come in una manica vera */
-        var prof = [[0.047, 0.03], [0.05, -0.012], [0.054, 0.0], [0.054, 0.03], [0.05, 0.04], [0.052, 0.12],
-                    [0.058, 0.3], [0.062, 0.55]];
-        var geo = lathe(prof, 36);
+        var NR = sg(48), NH = sg(28);
+        var geo = new T.CylinderGeometry(1, 1, 1, NR, NH, true);
+        var pp = geo.attributes.position;
+        for (var i = 0; i < pp.count; i++) {
+          var x = pp.getX(i), y = pp.getY(i), z = pp.getZ(i);
+          var h = y + 0.5;                                   /* 0 all'orlo, 1 al gomito */
+          var an = Math.atan2(z, x);
+          var r = 0.051 + h * 0.013;
+          var pieghe = Math.sin(an * 5 + h * 7 + fbm(h * 3, an, 2, 941) * 3) * 0.0055 * (0.4 + h);
+          var anelli = Math.sin(h * 55 + an * 1.5) * 0.006 * Math.exp(-h * 5);
+          var gonfio = Math.exp(-Math.pow((h - 0.12) / 0.08, 2)) * 0.005;
+          /* le pieghe solo in fuori: dentro la manica c'e' il braccio */
+          r += Math.abs(pieghe) + Math.abs(anelli) + gonfio;
+          pp.setXYZ(i, Math.cos(an) * r, h * 0.54 + 0.02, Math.sin(an) * r);
+        }
         geo.rotateX(Math.PI / 2);
-        var tubo2 = m(lisce(geo), MB.manica, 0, 0, 0, false);
-        tubo2.material = MB.manica.clone(); tubo2.material.side = T.DoubleSide;
+        /* il bianco del camice, non quello di una lampadina: un bianco sporco */
+        var tubo2 = new T.Mesh(lisce(geo), MB.manica.clone());
+        tubo2.material.side = T.DoubleSide; tubo2.material.color.setHex(0xa4a6a2);
         g.add(tubo2);
-        /* l'interno, in ombra */
-        var dentro = new T.Mesh(new T.CircleGeometry(0.046, sg(28)), mat({ color: 0x2a2c30, roughness: 1 }));
-        dentro.position.z = 0.03;
+        /* l'orlo, spesso */
+        var orlo = new T.Mesh(lisce(lathe([[0.049, 0], [0.0545, 0.002], [0.056, 0.008], [0.0545, 0.016], [0.052, 0.02]], 48)), tubo2.material);
+        orlo.rotation.x = Math.PI / 2; orlo.position.z = 0.016;
+        g.add(orlo);
+        var dentro = new T.Mesh(new T.CircleGeometry(0.05, sg(28)), mat({ color: 0x24262a, roughness: 1 }));
+        dentro.position.z = 0.045;
         g.add(dentro);
-        /* la cucitura del polsino */
-        var cuc = new T.Mesh(new T.TorusGeometry(0.0545, 0.0025, 6, sg(40)), MB.manica);
-        cuc.position.z = 0.032;
-        g.add(cuc);
-        /* il bordo del guanto che esce dal polsino */
-        var bordo = new T.Mesh(new T.CylinderGeometry(0.043, 0.04, 0.05, sg(28), 1, true), MB.guanto);
-        bordo.rotation.x = Math.PI / 2; bordo.position.z = -0.005;
-        g.add(bordo);
-        g.add(m(new T.TorusGeometry(0.043, 0.004, 6, sg(28)), MB.guanto, 0, 0, -0.03, false));
         return g;
       }
       /* il palmo: un ellissoide schiacciato, piu' largo verso le nocche */
@@ -1454,7 +1521,7 @@
       function manoAnatomica(lato, posa) {
         var tx = -lato;                                  /* da che parte sta il pollice */
         var g = new T.Group();
-        var geo = new T.SphereGeometry(1, sg(36), sg(26));
+        var geo = new T.SphereGeometry(1, sg(44), sg(32));
         var p = geo.attributes.position;
         for (var i = 0; i < p.count; i++) {
           var x = p.getX(i), y = p.getY(i), z = p.getZ(i);
@@ -1467,13 +1534,39 @@
           var ten = Math.max(0, x * tx) * Math.max(0, 1 - Math.abs(avanti - 0.35) / 0.35) * Math.max(0, -y);
           Y -= ten * 0.009; X += tx * ten * 0.004;
           /* le nocche sul dorso */
-          if (y > 0 && avanti > 0.8) Y += 0.0025 * Math.pow(Math.abs(Math.cos(x * 5.2)), 4) * (avanti - 0.8) * 5;
+          if (y > 0 && avanti > 0.78) Y += 0.0036 * Math.pow(Math.abs(Math.cos(x * 5.2)), 4) * Math.min(1, (avanti - 0.78) * 6);
+          /* i tendini estensori sul dorso, che dal polso vanno alle nocche
+             e si vedono sotto il guanto teso */
+          if (y > 0.2) Y += 0.0011 * Math.pow(Math.abs(Math.cos(x * 5.2 * (0.6 + avanti * 0.4))), 8) * avanti * y;
+          /* la piega del guanto tra pollice e indice */
+          var rete = Math.max(0, x * tx - 0.6) * Math.max(0, avanti - 0.55) * 4;
+          Y -= rete * 0.0014 * (1 + Math.sin(avanti * 70));
           p.setXYZ(i, X, Y, Z);
         }
-        g.add(m(lisce(geo), MB.guanto, 0, 0, 0, false));
+        g.add(m(lisce(geo), MB.guantoMano, 0, 0, 0, false));
+        /* il polso e il polsino del guanto: si allarga verso il braccio, fa
+           le sue pieghe lunghe e finisce con il bordo arrotolato */
+        var pg2 = new T.CylinderGeometry(1, 1, 1, sg(28), sg(8), true);
+        var pq = pg2.attributes.position;
+        for (var i3 = 0; i3 < pq.count; i3++) {
+          var hy = pq.getY(i3) + 0.5, an3 = Math.atan2(pq.getZ(i3), pq.getX(i3));
+          var rr = 1 + Math.sin(an3 * 7 + hy * 3) * 0.018 * hy;
+          pq.setXYZ(i3, Math.cos(an3) * rr * (0.029 + hy * 0.005), (hy - 0.5) * 0.05, Math.sin(an3) * rr * (0.02 + hy * 0.009));
+        }
+        /* corto: il polso e' piegato rispetto alla manica e un polsino lungo
+           la bucherebbe in alto */
+        pg2.rotateX(Math.PI / 2); pg2.translate(0, 0.001, 0.02);
+        g.add(m(lisce(pg2), MB.guantoPolsino, 0, 0, 0, false));
+        var bordo = new T.Mesh(new T.TorusGeometry(1, 0.08, sg(8), sg(28)), MB.guantoPolsino);
+        bordo.scale.set(0.034, 0.029, 0.03); bordo.position.set(0, 0.001, 0.045);
+        g.add(bordo);
         var dita = [];
         var curve = posa === 'impugna'
-          ? [[-1.25, -1.5, -0.65], [-1.35, -1.55, -0.6], [-1.35, -1.5, -0.55], [-1.3, -1.4, -0.5]]
+          ? /* la presa, calcolata intorno all'impugnatura: la prima falange va
+             avanti quasi dritta lungo il palmo, la seconda gira davanti
+             all'impugnatura, la terza torna indietro e il polpastrello preme
+             sul fianco opposto. Il mignolo, piu' corto, si chiude di piu' */
+            [[-0.42, -1.45, -0.9], [-0.45, -1.45, -0.9], [-0.5, -1.45, -0.95], [-0.62, -1.5, -1.0]]
           : [[-0.22, -0.32, -0.18], [-0.18, -0.3, -0.18], [-0.24, -0.34, -0.2], [-0.3, -0.38, -0.22]];
         [[0.028, 0.082, 0.0098, -0.088], [0.009, 0.09, 0.0101, -0.092], [-0.011, 0.085, 0.0096, -0.089],
          [-0.029, 0.068, 0.0084, -0.081]].forEach(function (d, k) {
@@ -1483,9 +1576,13 @@
           var asse = new T.Vector3(1, 0, 0);
           var lung = [d[1] * 0.46, d[1] * 0.31, d[1] * 0.23];
           var pos = new T.Vector3(x0, 0.001, d[3]);
+          var su = new T.Vector3(0, 1, 0);               /* il dorso del dito, che ruota con lui */
+          var base0 = pos.clone(), dir0 = null;
           pts.push(pos.clone());
           for (var j2 = 0; j2 < 3; j2++) {
             dir.applyAxisAngle(asse, curve[k][j2]);
+            su.applyAxisAngle(asse, curve[k][j2]);
+            if (!j2) dir0 = dir.clone();
             var mezzo = pos.clone().addScaledVector(dir, lung[j2] * 0.5);
             pos = pos.clone().addScaledVector(dir, lung[j2]);
             pts.push(mezzo, pos.clone());
@@ -1496,8 +1593,8 @@
           var pp = tg.attributes.position;
           for (var r = 0; r <= N; r++) {
             var tt = r / N, c0 = cur.getPointAt(tt);
-            var f = (1 - 0.24 * tt) * (1 + 0.09 * Math.exp(-Math.pow((tt - 0.42) / 0.05, 2)) +
-                                       0.07 * Math.exp(-Math.pow((tt - 0.72) / 0.05, 2)));
+            var f = (1 - 0.3 * tt) * (1 + 0.08 * Math.exp(-Math.pow((tt - 0.42) / 0.05, 2)) +
+                                      0.06 * Math.exp(-Math.pow((tt - 0.72) / 0.05, 2)));
             for (var q2 = 0; q2 <= RS; q2++) {
               var idx = r * (RS + 1) + q2;
               pp.setXYZ(idx, c0.x + (pp.getX(idx) - c0.x) * f, c0.y + (pp.getY(idx) - c0.y) * f * 0.92,
@@ -1506,43 +1603,54 @@
           }
           tg.computeVertexNormals();
           var dGr = new T.Group();
-          dGr.add(m(tg, MB.guanto, 0, 0, 0, false));
+          dGr.add(m(tg, MB.guantoDita, 0, 0, 0, false));
           /* il polpastrello */
-          dGr.add(m(new T.SphereGeometry(d[2] * 0.76, sg(14), sg(10)), MB.guanto, pos.x, pos.y, pos.z, false));
+          dGr.add(m(new T.SphereGeometry(d[2] * 0.7, sg(14), sg(10)), MB.guantoDita, pos.x, pos.y, pos.z, false));
+          /* l'unghia sotto il guanto: un rilievo piatto, la gomma tesa sopra */
+          var lato2 = new T.Vector3().crossVectors(su, dir.clone().negate()).normalize();
+          var un = new T.Mesh(new T.SphereGeometry(1, sg(14), sg(8), 0, Math.PI * 2, 0, Math.PI * 0.42), MB.guantoMano);
+          un.scale.set(d[2] * 0.6, d[2] * 0.16, d[2] * 0.85);
+          var bas = new T.Matrix4().makeBasis(lato2, su.clone().normalize(), dir.clone().negate());
+          un.quaternion.setFromRotationMatrix(bas);
+          un.position.copy(pos).addScaledVector(dir, -0.008).addScaledVector(su, d[2] * 0.56);
+          dGr.add(un);
           g.add(dGr);
           dita.push({ gruppo: dGr, punta: pos });
         });
         /* il pollice: dall'eminenza, in avanti e verso l'esterno */
         var pPts = [new T.Vector3(tx * 0.024, -0.006, -0.018)];
-        var pDir = posa === 'impugna' ? new T.Vector3(tx * 0.42, -0.12, -0.9).normalize() : new T.Vector3(tx * 0.75, -0.25, -0.62).normalize();
+        var pDir = posa === 'impugna' ? new T.Vector3(tx * 0.02, -0.85, -0.45).normalize() : new T.Vector3(tx * 0.75, -0.25, -0.62).normalize();
         var pPos = pPts[0].clone();
-        var pCurve = posa === 'impugna' ? [0.08, 0.12, 0.1] : [0.15, 0.2, 0.15];
-        var pAsse = new T.Vector3(0.2, 1, 0.1).normalize().multiplyScalar(tx);
-        (posa === 'impugna' ? [0.04, 0.03, 0.024] : [0.045, 0.033, 0.027]).forEach(function (l, k) {
+        /* nella presa il pollice gira dietro l'impugnatura e poi punta avanti
+           lungo il fianco opposto, sopra il medio */
+        var pCurve = posa === 'impugna' ? [0.3, 0.35, 0.2] : [0.15, 0.2, 0.15];
+        var pAsse = posa === 'impugna' ? new T.Vector3(-1, 0, 0) : new T.Vector3(0.2, 1, 0.1).normalize().multiplyScalar(tx);
+        (posa === 'impugna' ? [0.036, 0.028, 0.022] : [0.034, 0.028, 0.023]).forEach(function (l, k) {
           pDir.applyAxisAngle(pAsse, -pCurve[k]);
           var mezzo = pPos.clone().addScaledVector(pDir, l * 0.5);
           pPos = pPos.clone().addScaledVector(pDir, l);
           pPts.push(mezzo, pPos.clone());
         });
         var pc = new T.CatmullRomCurve3(pPts, false, 'centripetal');
-        var pt = new T.TubeGeometry(pc, sg(32), 0.0118, sg(12), false);
+        var pt = new T.TubeGeometry(pc, sg(32), 0.011, sg(12), false);
         var ppp = pt.attributes.position, NN = sg(32), RR = sg(12);
         for (var r2 = 0; r2 <= NN; r2++) {
-          var t2 = r2 / NN, c1 = pc.getPointAt(t2), f2 = 1.15 - 0.4 * t2;
+          var t2 = r2 / NN, c1 = pc.getPointAt(t2), f2 = 1.2 - 0.45 * t2;
           for (var q3 = 0; q3 <= RR; q3++) {
             var id2 = r2 * (RR + 1) + q3;
             ppp.setXYZ(id2, c1.x + (ppp.getX(id2) - c1.x) * f2, c1.y + (ppp.getY(id2) - c1.y) * f2, c1.z + (ppp.getZ(id2) - c1.z) * f2);
           }
         }
         pt.computeVertexNormals();
-        g.add(m(pt, MB.guanto, 0, 0, 0, false));
-        g.add(m(new T.SphereGeometry(0.0118 * 0.72, sg(14), sg(10)), MB.guanto, pPos.x, pPos.y, pPos.z, false));
+        g.add(m(pt, MB.guantoDita, 0, 0, 0, false));
+        g.add(m(new T.SphereGeometry(0.0118 * 0.7, sg(14), sg(10)), MB.guantoDita, pPos.x, pPos.y, pPos.z, false));
         return { gruppo: g, dita: dita };
       }
 
       /* ── la mano destra, che impugna il dispensatore ── */
       var dx = new T.Group();
-      dx.add(manica(1));
+      var manicaDx = manica(1);
+      dx.add(manicaDx);
       var mD = new T.Group();
       mD.rotation.x = -0.34;                  /* il polso alza la mano rispetto all'avambraccio */
       dx.add(mD);
@@ -1556,8 +1664,9 @@
       disp.position.set(-0.03, 0.06, -0.06);
       mD.add(disp);
       /* l'impugnatura, dentro le dita */
-      var imp = m(tonda(0.03, 0.12, 0.045, 0.012), MB.gomma, 0, -0.045, -0.035, false);
-      imp.rotation.x = 0.28;
+      /* tonda smussa verso fuori: 0.016 + 2·0.006 = 2,8 cm di spessore, 4 di profondita' */
+      var imp = m(tonda(0.016, 0.104, 0.04, 0.006), MB.gomma, -0.0025, -0.045, -0.032, false);
+      imp.rotation.x = 0.1;
       disp.add(imp);
       /* il corpo, con gli anelli cromati */
       var corpoD = m(rad(lisce(lathe([[0, -0.03], [0.03, -0.03], [0.034, -0.022], [0.034, 0.12], [0.026, 0.15], [0, 0.152]], 32))),
@@ -1606,13 +1715,14 @@
         liqMat.color.setHex(colore); liqMat.emissive.setHex(colore);
         ledMat.emissive.setHex(colore);
         aloneLed.material.color.setHex(colore);
-        liquido.visible = !!testo;
+        liquido.visible = !!testo && !disp.userData.pistola;
       }
       aggiorna('', '', 0x5ef0c4);
 
       /* ── la mano sinistra, libera: si allunga per prendere e toccare ── */
       var sx = new T.Group();
-      sx.add(manica(-1));
+      var manicaSx = manica(-1);
+      sx.add(manicaSx);
       var mS = new T.Group();
       sx.add(mS);
       var manoS = manoAnatomica(-1, 'rilassata');
@@ -1698,8 +1808,8 @@
 
       var g = new T.Group();
       g.add(dx); g.add(sx);
-      return { gruppo: g, dx: dx, sx: sx, manoDx: mD, manoSx: mS, ditaDx: ditaD,
-               dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led },
+      return { gruppo: g, dx: dx, sx: sx, manoDx: mD, manoSx: mS, ditaDx: ditaD, gruppoManoDx: manoD.gruppo, gruppoManoSx: manoS.gruppo, impugnatura: imp, maniche: { dx: manicaDx, sx: manicaSx },
+               dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led, aloneLed: aloneLed, liquido: liqMat },
                potere: { aggiorna: aggiornaPotere, anima: animaPotere, palmo: aura, stato: potere } };
     }
 
@@ -1744,6 +1854,331 @@
       return { gruppo: g, bobine: bobine, spia: spia, alone: al };
     }
 
+    /* ════════════════════════════════════════════════════════════════════
+       LE MANI DAL MODELLO — il GLB «hands animation» (hugo colauto,
+       Sketchfab) che l'utente ha scelto: due mani a 23 ossa e una clip di
+       21 secondi con mani aperte, pugni, gesti. Il gioco non riproduce la
+       clip cosi' com'e': la campiona (solo le ossa delle dita, 15
+       fotogrammi al secondo) e costruisce ogni posa fondendo, dito per
+       dito, i fotogrammi veri — aperta, pugno, la flessione — cosi' la
+       presa sull'impugnatura, il dito sul grilletto e il palmo del potere
+       sono pose di quella mano, non di un'altra.
+       Il guanto: il colore della pelle diventa nitrile (la luminosita'
+       resta, quindi le nocche, le unghie e le pieghe si leggono sotto la
+       gomma) e la mappa delle normali resta quella del modello.
+       ════════════════════════════════════════════════════════════════════ */
+    var DITA_GLB = { THUMB: 'pollice', INDEX: 'indice', MIDDLE_F: 'medio', RING: 'anulare', PINK: 'mignolo' };
+    var T_APERTA = 0.5, T_PUGNO = 7.0, FPS_GLB = 15;
+    function guantoDaPelle(img) {
+      var L = 512, cv = nuovaTela(L, L), q = cv.getContext('2d');
+      q.drawImage(img, 0, 0, L, L);
+      var d = q.getImageData(0, 0, L, L), px = d.data, somma = 0, n = 0;
+      for (var i = 0; i < px.length; i += 4) { if (px[i + 3] > 0) { somma += px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11; n++; } }
+      var media = somma / Math.max(1, n);
+      for (var j = 0; j < px.length; j += 4) {
+        var lum = (px[j] * 0.3 + px[j + 1] * 0.59 + px[j + 2] * 0.11) / media;
+        var k = Math.max(0.35, Math.min(1.35, 0.8 + (lum - 1) * 1.15));
+        var gr = (hash(j >> 2 & 511, j >> 11, 981) - 0.5) * 6;
+        px[j] = Math.min(255, 66 * k + gr); px[j + 1] = Math.min(255, 116 * k + gr); px[j + 2] = Math.min(255, 188 * k + gr);
+      }
+      q.putImageData(d, 0, 0);
+      var t = new T.CanvasTexture(cv);
+      t.encoding = T.sRGBEncoding; t.flipY = false;
+      t.anisotropy = 4;
+      return t;
+    }
+    function maniModello(gltf, vista) {
+      var radice = gltf.scene, clip = gltf.animations[0];
+      var mix = new T.AnimationMixer(radice);
+      mix.clipAction(clip).play();
+      var mesh = [];
+      radice.traverse(function (o) { if (o.isSkinnedMesh) mesh.push(o); });
+      if (mesh.length < 2 || !clip) return null;
+      var chiave = function (b) { return b.name.replace(/_joint.*$/, '').replace(/_\d+$/, ''); };
+      var mani = mesh.map(function (m) {
+        var ossa = m.skeleton.bones, per = {};
+        ossa.forEach(function (b, i) { per[chiave(b)] = b; b.userData.dito = null;
+          Object.keys(DITA_GLB).forEach(function (k) { if (chiave(b).indexOf(k + '_') === 0) b.userData.dito = DITA_GLB[k]; }); });
+        return { mesh: m, ossa: ossa, per: per };
+      });
+      /* i fotogrammi: le rotazioni delle ossa delle dita per tutta la clip */
+      var NF = Math.floor(clip.duration * FPS_GLB) + 1, fot = [];
+      for (var f = 0; f < NF; f++) {
+        mix.setTime(f / FPS_GLB);
+        fot.push(mani.map(function (mn) { return mn.ossa.map(function (b) { return b.quaternion.clone(); }); }));
+      }
+      /* il pugno, nel riferimento del palmo: serve per sapere da che parte
+         sta il palmo */
+      mix.setTime(T_PUGNO); radice.updateMatrixWorld(true);
+      var puntePugno = mani.map(function (mn) {
+        var p = new T.Vector3(); mn.per.MIDDLE_F_UP_TOP.getWorldPosition(p);
+        return mn.per.HANDPALM.worldToLocal(p);
+      });
+      mix.setTime(T_APERTA); radice.updateMatrixWorld(true);
+      var wp = function (b) { var v = new T.Vector3(); b.getWorldPosition(v); return v; };
+      mani.forEach(function (mn, i) {
+        /* l'asse e' quello dell'avambraccio, che deve stare dritto nella
+           manica; la mano resta piegata quanto la piega il modello */
+        var pol = wp(mn.per.HANDPALM), med = wp(mn.per.MIDDLE_F_BASE);
+        var lung = med.distanceTo(pol);
+        var F = pol.clone().sub(wp(mn.per.Root || mn.per._rootJoint)).normalize();
+        var Sd = wp(mn.per.INDEX_BASE).sub(wp(mn.per.PINK_BASE));
+        Sd.addScaledVector(F, -Sd.dot(F)).normalize();
+        var pd = mn.per.HANDPALM.localToWorld(puntePugno[i].clone()).sub(med);
+        pd.addScaledVector(F, -pd.dot(F)).addScaledVector(Sd, -pd.dot(Sd)).normalize();
+        var U = pd.clone().negate();
+        mn.destra = new T.Vector3().crossVectors(F, Sd).dot(U) > 0;
+        mn.polso = pol; mn.lung = lung; mn.F = F; mn.S = Sd; mn.U = U;
+      });
+      var materiale0 = mesh[0].material;
+      var guanto = new T.MeshStandardMaterial({
+        map: materiale0.map ? guantoDaPelle(materiale0.map.image) : null,
+        normalMap: materiale0.normalMap || null, roughness: 0.42, metalness: 0, skinning: true, envMapIntensity: 0.7
+      });
+      if (guanto.normalMap) guanto.normalScale.set(1.2, 1.2);
+      /* ogni mano lascia la scena del modello e va nel gruppo della mano
+         procedurale del suo lato, allineata: polso nel polso, nocche sulle
+         nocche, palmo dove sta il palmo */
+      var lati = {};
+      mani.forEach(function (mn) {
+        var lato = mn.destra ? 1 : -1, tx = -lato;
+        var dest = lato > 0 ? vista.gruppoManoDx : vista.gruppoManoSx;
+        var braccio = lato > 0 ? vista.dx : vista.sx, polsoG = lato > 0 ? vista.manoDx : vista.manoSx;
+        if (!dest || !braccio || !polsoG) return;
+        var radiceMano = mn.mesh; while (radiceMano.parent && radiceMano.parent.name !== 'RootNode') radiceMano = radiceMano.parent;
+        var padreW = radiceMano.parent ? radiceMano.parent.matrixWorld.clone() : new T.Matrix4();
+        var Bm = new T.Matrix4().makeBasis(mn.S, mn.U, mn.F.clone().negate());
+        var Bt = new T.Matrix4().makeBasis(new T.Vector3(tx, 0, 0), new T.Vector3(0, 1, 0), new T.Vector3(0, 0, 1));
+        var R = Bt.multiply(Bm.invert());
+        var k = 0.086 / mn.lung;
+        var A = new T.Matrix4().makeTranslation(0, 0.002, 0.004)
+          .multiply(new T.Matrix4().makeScale(k, k, k)).multiply(R)
+          .multiply(new T.Matrix4().makeTranslation(-mn.polso.x, -mn.polso.y, -mn.polso.z));
+        var cont = new T.Group();
+        cont.matrixAutoUpdate = false;
+        cont.matrix.copy(A.multiply(padreW));
+        cont.add(radiceMano);
+        /* la mano non sta nel gruppo del polso (che e' piegato) ma in uno
+           che ne copia tutto tranne la piega: la piega la fa l'osso del
+           polso del modello, cosi' l'avambraccio resta dritto dentro la
+           manica e si piega solo la mano */
+        dest.children.forEach(function (c) { c.visible = false; });
+        var gPolso = new T.Group(), gMano = new T.Group();
+        gMano.position.copy(dest.position); gMano.rotation.copy(dest.rotation); gMano.scale.copy(dest.scale);
+        braccio.add(gPolso); gPolso.add(gMano); gMano.add(cont);
+        mn.polsoOsso = mn.per.HANDPALM; mn.polsoRiposo = mn.per.HANDPALM.quaternion.clone();
+        mn.mesh.material = guanto;
+        mn.mesh.frustumCulled = false;
+        mn.mesh.castShadow = false;
+        lati[lato > 0 ? 'dx' : 'sx'] = { mano: mn, contenitore: cont, idx: mani.indexOf(mn), braccio: braccio, polso: polsoG, gPolso: gPolso };
+      });
+      if (!lati.dx || !lati.sx) return null;
+      /* posa: per ogni dito un peso tra la mano aperta (0) e il pugno (1),
+         oppure un fotogramma qualsiasi della clip (gesto) */
+      var qA = new T.Quaternion(), qB = new T.Quaternion();
+      function fotogramma(t) { return Math.max(0, Math.min(NF - 1, Math.round(t * FPS_GLB))); }
+      var FA = fotogramma(T_APERTA), FP = fotogramma(T_PUGNO);
+      var qW = new T.Quaternion(), qP = new T.Quaternion(), asse = new T.Vector3(), qPiega = new T.Quaternion();
+      function segui(L) {
+        var pg = L.polso, gp = L.gPolso, osso = L.mano.polsoOsso;
+        gp.position.copy(pg.position); gp.scale.copy(pg.scale);
+        gp.rotation.set(0, pg.rotation.y, pg.rotation.z, pg.rotation.order);
+        gp.updateMatrixWorld(true);
+        /* la piega del polso (rotation.x del gruppo del polso) attorno
+           all'asse x del braccio, espresso nel riferimento del padre
+           dell'osso */
+        L.braccio.getWorldQuaternion(qW);
+        osso.parent.getWorldQuaternion(qP);
+        asse.set(1, 0, 0).applyQuaternion(qW).applyQuaternion(qP.invert()).normalize();
+        /* la sinistra del modello e' la destra specchiata (scala negativa
+           nella catena delle ossa): li' una rotazione cambia verso */
+        var specchio = osso.parent.matrixWorld.determinant() < 0 ? -1 : 1;
+        qPiega.setFromAxisAngle(asse, pg.rotation.x * specchio);
+        osso.quaternion.copy(qPiega).multiply(L.mano.polsoRiposo);
+      }
+      function posa(lato, pesi, gesto) {
+        var L = lati[lato > 0 ? 'dx' : 'sx'];
+        if (!L) return;
+        segui(L);
+        var mi = L.idx;
+        L.mano.ossa.forEach(function (b, j) {
+          var dito = b.userData.dito;
+          if (!dito) return;
+          var w = pesi[dito] != null ? pesi[dito] : 0;
+          qA.copy(fot[FA][mi][j]); qB.copy(fot[FP][mi][j]);
+          b.quaternion.copy(qA).slerp(qB, Math.max(-0.2, Math.min(1.1, w)));
+          if (gesto && gesto.peso > 0) {
+            var t = gesto.t * FPS_GLB, f0 = Math.max(0, Math.min(NF - 1, Math.floor(t))), f1 = Math.min(NF - 1, f0 + 1);
+            qA.copy(fot[f0][mi][j]).slerp(fot[f1][mi][j], t - Math.floor(t));
+            b.quaternion.slerp(qA, gesto.peso);
+          }
+        });
+      }
+      /* il centro del palmo e la sua normale (verso dove guarda il palmo),
+         nel mondo: il potere ci si accende sopra */
+      var vA = new T.Vector3(), vB = new T.Vector3(), vC = new T.Vector3();
+      function palmo(lato, pos, norm) {
+        var L = lati[lato > 0 ? 'dx' : 'sx'], per = L.mano.per;
+        per.HANDPALM.getWorldPosition(vA); per.MIDDLE_F_BASE.getWorldPosition(vB); per.PINK_BASE.getWorldPosition(vC);
+        pos.copy(vA).lerp(vB, 0.55);
+        var ind = per.INDEX_BASE.getWorldPosition(new T.Vector3());
+        norm.crossVectors(vB.clone().sub(vA), ind.sub(vC)).normalize();
+        if (!L.mano.destra) norm.negate();
+        /* per la destra (pollice a sinistra guardando il dorso) il prodotto
+           vettoriale esce dal dorso: il palmo e' dall'altra parte */
+        norm.negate();
+        return pos;
+      }
+      /* l'anello delle dita chiuse: centro e asse (dall'indice al mignolo) */
+      function presa(lato) {
+        var L = lati[lato > 0 ? 'dx' : 'sx'], per = L.mano.per, cs = [];
+        ['INDEX', 'MIDDLE_F', 'RING', 'PINK'].forEach(function (d) {
+          var c = new T.Vector3();
+          ['BASE', 'MID', 'TOP', 'UP_TOP'].forEach(function (k) { c.add(per[d + '_' + k].getWorldPosition(new T.Vector3())); });
+          cs.push(c.multiplyScalar(0.25));
+        });
+        var centro = cs.reduce(function (a, c) { return a.add(c); }, new T.Vector3()).multiplyScalar(0.25);
+        var asse = cs[3].clone().sub(cs[0]).normalize();
+        return { centro: centro, asse: asse };
+      }
+      return { posa: posa, lati: lati, materiale: guanto, fotogrammi: NF, durata: clip.duration, palmo: palmo, presa: presa };
+    }
+
+    /* LA MANICA DEL CAMICE dalla scansione (models/manica-atomic.glb):
+       l'avambraccio sinistro dello scienziato, con l'orlo e il polsino
+       azzurro della camicia. Il lato verso il busto nella scansione era
+       fuso col corpo e non c'e': lo si gira in basso, dove non si vede, e
+       la manica procedurale resta dentro come fodera. Per il braccio
+       sinistro del gioco si specchia */
+    function manicaModello(gltf, vista) {
+      var sorg = null;
+      gltf.scene.traverse(function (o) { if (o.isMesh && !sorg) sorg = o; });
+      if (!sorg || !vista.maniche) return null;
+      var mappa = sorg.material.map;
+      var tessuto = new T.MeshStandardMaterial({ map: mappa, roughness: 0.86, metalness: 0, side: T.DoubleSide, envMapIntensity: 0.5 });
+      var fatte = {};
+      [1, -1].forEach(function (lato) {
+        var dest = vista.maniche[lato > 0 ? 'dx' : 'sx'];
+        var gr = new T.Group();
+        var me = new T.Mesh(sorg.geometry, tessuto);
+        if (lato < 0) me.scale.x = -1;
+        gr.add(me);
+        gr.rotation.z = lato * Math.PI / 2;
+        gr.position.z = -0.03;
+        gr.scale.setScalar(1.0);
+        dest.children.forEach(function (c, i) {
+          if (i === 0) { c.scale.set(0.88, 0.88, 1); c.material = c.material.clone(); c.material.color.setHex(0xd4d6d2); }
+          else c.visible = false;
+        });
+        dest.add(gr);
+        fatte[lato > 0 ? 'dx' : 'sx'] = gr;
+      });
+      return { maniche: fatte, materiale: tessuto };
+    }
+
+    /* LA PISTOLA A CAPSULA (models/pistola-atomic.glb, «Capsule Gun» di
+       sc8di): prende il posto del dispensatore procedurale. Nel modello la
+       canna va verso -x e l'unita' e' circa il millimetro; l'impugnatura e'
+       inclinata, dal grilletto in giu' all'indietro. La capsula sopra
+       prende il colore del composto */
+    var IMPUGNATURA = { centro: [85, 106, 0], asse: [0.658, -0.753, 0] };
+    function pistolaModello(gltf, vista) {
+      var d = vista.dispensatore;
+      if (!d) return null;
+      var interno = gltf.scene;
+      interno.scale.setScalar(0.0008);
+      interno.rotation.y = -Math.PI / 2;
+      var pist = new T.Group();
+      pist.add(interno);
+      var capsula = null, grilletto = null;
+      interno.traverse(function (o) {
+        if (!o.isMesh) return;
+        o.frustumCulled = false;
+        if (/Balloon/.test(o.name)) { o.material = o.material.clone(); capsula = o; }
+        if (/Trigger/.test(o.name)) grilletto = o;
+        if (o.material) o.material.envMapIntensity = 0.9;
+      });
+      d.gruppo.children.forEach(function (c) { if (c !== d.ugello) c.visible = false; });
+      d.gruppo.userData.pistola = true;
+      d.ugello.visible = false;
+      d.gruppo.add(pist);
+      pist.updateMatrixWorld(true);
+      var M = new T.Matrix4().compose(new T.Vector3(), interno.quaternion, interno.scale);
+      var centro = new T.Vector3().fromArray(IMPUGNATURA.centro).applyMatrix4(M);
+      var asse = new T.Vector3().fromArray(IMPUGNATURA.asse).applyQuaternion(interno.quaternion).normalize();
+      var bb = new T.Box3().setFromObject(interno);
+      var punta = new T.Vector3((bb.min.x + bb.max.x) / 2, 0, bb.min.z);
+      /* la punta della canna: il centro dei pezzi Barrel all'estremo */
+      interno.traverse(function (o) {
+        if (o.isMesh && /Barrel2/.test(o.name)) { var b2 = new T.Box3().setFromObject(o); punta.set((b2.min.x + b2.max.x) / 2, (b2.min.y + b2.max.y) / 2, b2.min.z); }
+      });
+      return { gruppo: pist, interno: interno, centro: centro, asse: asse, punta: punta, capsula: capsula, grilletto: grilletto };
+    }
+    /* la pistola nella presa: l'asse dell'impugnatura su quello delle dita
+       chiuse, il fianco dell'impugnatura contro il palmo, il centro
+       nell'anello delle dita; poi il polso si piega quanto serve perche' la
+       canna guardi avanti */
+    function adattaPresa(vista, pesi) {
+      var mm = vista.modello, pi = vista.pistola;
+      if (!mm || !pi) return false;
+      var mD = vista.manoDx, disp = vista.dispensatore.gruppo;
+      /* la canna deve guardare dove guardava il dispensatore: -z nel polso
+         a riposo. L'impugnatura di questa pistola e' molto inclinata: la
+         differenza la fa il polso (deviazione ulnare, al massimo 0,6 rad
+         oltre la posa di riposo, quanto un polso vero) e, se non basta, il
+         resto lo fa la pistola che ruota nella presa */
+      var X0 = mD.rotation.x, MIRA = X0;
+      var residuo = 0;
+      for (var giro = 0; giro < 4; giro++) {
+        mm.posa(1, pesi);
+        vista.gruppo.updateMatrixWorld(true);
+        var pr = mm.presa(1);
+        var pp = new T.Vector3(), nn = new T.Vector3();
+        mm.palmo(1, pp, nn);
+        /* nel riferimento del gruppo del dispensatore */
+        var inv = new T.Matrix4().copy(disp.matrixWorld).invert();
+        var qInv = new T.Quaternion(); disp.getWorldQuaternion(qInv); qInv.invert();
+        var Ch = pr.centro.clone().applyMatrix4(inv);
+        var Ah = pr.asse.clone().applyQuaternion(qInv).normalize();
+        var Nh = nn.clone().applyQuaternion(qInv);        /* dal palmo in fuori: verso l'impugnatura */
+        Nh.addScaledVector(Ah, -Nh.dot(Ah)).normalize();
+        /* nella pistola: l'asse dell'impugnatura e il fianco destro (+x),
+           quello che tocca il palmo della destra; il palmo guarda verso -x */
+        var Ag = pi.asse.clone(), Ng = new T.Vector3(-1, 0, 0);
+        Ng.addScaledVector(Ag, -Ng.dot(Ag)).normalize();
+        var Bg = new T.Matrix4().makeBasis(Ag, Ng, new T.Vector3().crossVectors(Ag, Ng));
+        var Bh = new T.Matrix4().makeBasis(Ah, Nh, new T.Vector3().crossVectors(Ah, Nh));
+        var R = Bh.multiply(Bg.transpose());
+        pi.gruppo.quaternion.setFromRotationMatrix(R);
+        pi.gruppo.position.copy(Ch).sub(pi.centro.clone().applyQuaternion(pi.gruppo.quaternion));
+        /* dove punta la canna, nel riferimento del braccio */
+        var canna = new T.Vector3(0, 0, -1).applyQuaternion(pi.gruppo.quaternion).applyQuaternion(mD.quaternion);
+        var beccheggio = Math.atan2(canna.y, -canna.z) - MIRA, imbardata = Math.atan2(-canna.x, -canna.z);
+        var voluto = mD.rotation.x - beccheggio;
+        mD.rotation.x = Math.max(X0 - 0.6, Math.min(X0 + 0.6, voluto));
+        residuo = voluto - mD.rotation.x;
+        mD.rotation.y = Math.max(-0.5, Math.min(0.5, mD.rotation.y + imbardata * 0.8));
+      }
+      if (Math.abs(residuo) > 0.01) {
+        /* la parte che il polso non fa: la pistola gira attorno al centro
+           della presa, sull'asse x del polso */
+        var c0 = pi.gruppo.position.clone().add(pi.centro.clone().applyQuaternion(pi.gruppo.quaternion));
+        var qR = new T.Quaternion().setFromAxisAngle(new T.Vector3(1, 0, 0), residuo);
+        pi.gruppo.quaternion.premultiply(qR);
+        pi.gruppo.position.copy(c0).sub(pi.centro.clone().applyQuaternion(pi.gruppo.quaternion));
+      }
+      pi.residuo = residuo;
+      var punta = pi.punta.clone().applyQuaternion(pi.gruppo.quaternion).add(pi.gruppo.position);
+      vista.dispensatore.ugello.position.copy(punta);
+      if (vista.dispensatore.led) { vista.dispensatore.led.position.copy(punta); }
+      if (vista.dispensatore.aloneLed) { vista.dispensatore.aloneLed.position.copy(punta); vista.dispensatore.aloneLed.visible = true; }
+      return true;
+    }
+
+    api.maniModello = maniModello;
+    api.manicaModello = manicaModello;
+    api.pistolaModello = pistolaModello;
+    api.adattaPresa = adattaPresa;
     api.registratore = registratore;
     api.braccia = braccia;
     api.chimico = chimico;

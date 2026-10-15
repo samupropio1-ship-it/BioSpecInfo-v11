@@ -7,6 +7,50 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v215] — 2026-10-15
+
+**Le mani, il camice e la pistola dai modelli scelti dall'utente — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Mani vere con lo scheletro** (`models/mani-atomic.glb`, da «hands
+  animation» di hugo colauto): ogni posa del gioco è fatta di fotogrammi della
+  loro animazione, campionata (le dita, 15 fotogrammi al secondo) e fusa dito
+  per dito — la presa sull'impugnatura, l'indice che preme il grilletto
+  spruzzando, il palmo aperto del potere, la sinistra che si chiude a
+  prendere, il gesto d'attesa (il pugno che si apre) quando si sta fermi. In
+  **guanto di nitrile**: la texture della pelle ricolorata dalla sua
+  luminosità, con le normali del modello, così nocche, unghie e pieghe si
+  leggono sotto la gomma. Allineamento automatico alla manica.
+- **La manica del camice** (`models/manica-atomic.glb`): l'avambraccio
+  ritagliato dalla scansione «Modern Scientist in a Lab Coat» (restore50,
+  CC-BY 4.0), con l'orlo e il polsino azzurro della camicia, specchiato per il
+  braccio sinistro; la manica procedurale resta dentro come fodera.
+- **La pistola a capsula** (`models/pistola-atomic.glb`, «Capsule Gun» di
+  sc8di, CC-BY 4.0) al posto del dispensatore: l'impugnatura si allinea
+  all'anello delle dita chiuse e al palmo, il polso devia quanto un polso vero
+  perché la canna guardi avanti, la capsula prende il colore del composto, il
+  grilletto segue l'indice, lo spruzzo parte dalla punta della canna.
+- `tools/prepara-modelli.js`: dai tre GLB originali (45 MB) ai derivati
+  (3,6 MB) — texture in JPEG, il ritaglio della manica senza la pelle.
+- I crediti dei modelli 3D nel Codex e in `models/CREDITS.md`.
+
+### Corretto
+- La piega del polso della mano sinistra del modello andava al contrario:
+  quella mano è la destra specchiata, e nel riferimento specchiato una
+  rotazione cambia verso. Ora il palmo del potere sale verso lo sguardo.
+- L'avambraccio del modello usciva dalla manica col polso piegato: la piega
+  la fa l'osso del polso, l'avambraccio resta dritto nella manica.
+- Le pieghe della manica procedurale potevano rientrare e far bucare il
+  braccio: ora sporgono solo verso l'esterno.
+
+### Banco
+- `test_atomic`: 196 controlli (erano 185) — i tre modelli caricati, due mani
+  con lo scheletro in nitrile, l'animazione campionata, le dita
+  sull'impugnatura, l'ugello in punta alla canna, la pistola che ruota nella
+  presa meno di 0,6 rad, il dispensatore procedurale nascosto, il palmo che
+  sale col potere; il passo si misura a modelli arrivati.
+
+---
 ## [bsi-v214] — 2026-10-15
 
 **Nello spirito di BioShock — atmosfera, mani, dinamiche, misteri — sulla

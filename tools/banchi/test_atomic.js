@@ -640,6 +640,32 @@ function sopra(d, minimo, avuto) {
     let pezziVista = 0; if (m.scenaMani) m.scenaMani.traverse(o => { if (o.isMesh) pezziVista++; });
     out.pezziVista = pezziVista;
     out.camManiAspetto = m.camMani ? Math.abs(m.camMani.aspect - m.camera.aspect) < 0.01 : false;
+    /* I MODELLI DELLA PRIMA PERSONA: mani (con la loro animazione),
+       manica del camice dalla scansione, pistola a capsula */
+    for (let i = 0; i < 80 && !(m.vista.modello && m.vista.pistola && m.vista.manicaModello); i++) await new Promise(r => setTimeout(r, 250));
+    const vm = m.vista;
+    out.fpMani = !!vm.modello; out.fpManica = !!vm.manicaModello; out.fpPistola = !!vm.pistola;
+    out.fpErrore = m.animV.erroreMani || '';
+    if (vm.modello && vm.pistola) {
+      let skin = 0, skinning = 0; m.scenaMani.traverse(o => { if (o.isSkinnedMesh && o.visible) { skin++; if (o.material.skinning) skinning++; } });
+      out.fpSkin = skin; out.fpSkinning = skinning;
+      /* il guanto e' nitrile: nella texture il blu domina sul rosso */
+      const img = vm.modello.materiale.map.image, cq = img.getContext ? img : null;
+      if (cq) { const d = cq.getContext('2d').getImageData(0, 0, cq.width, cq.height).data; let r = 0, b = 0; for (let i = 0; i < d.length; i += 64) { r += d[i]; b += d[i + 2]; } out.fpNitrile = b > r * 1.5; }
+      out.fpFotogrammi = vm.modello.fotogrammi;
+      /* la presa: il centro dell'anello delle dita chiuse sta sull'impugnatura */
+      m.scenaMani.updateMatrixWorld(true);
+      const pr = vm.modello.presa(1);
+      const cg = vm.pistola.centro.clone().applyMatrix4(vm.pistola.gruppo.matrixWorld);
+      out.fpPresaMm = Math.round(pr.centro.distanceTo(cg) * 1000);
+      /* l'ugello dello spruzzo e' in punta alla canna */
+      const ug = new T.Vector3(); vm.dispensatore.ugello.getWorldPosition(ug);
+      const pu = vm.pistola.punta.clone().applyMatrix4(vm.pistola.gruppo.matrixWorld);
+      out.fpUgelloMm = Math.round(ug.distanceTo(pu) * 1000);
+      out.fpResiduo = +Math.abs(vm.pistola.residuo || 0).toFixed(2);
+      /* il dispensatore procedurale non si vede piu' */
+      out.fpProcedurali = vm.dispensatore.gruppo.children.filter(c => c.visible && c !== vm.pistola.gruppo && c !== vm.dispensatore.aloneLed).length;
+    }
     A.stato().inMano = 'Cl';
     await new Promise(r => setTimeout(r, 700));
     out.inManoVista = m.animV.inMano;
@@ -650,6 +676,13 @@ function sopra(d, minimo, avuto) {
     A.stato().inMano = 'Na';
     await new Promise(r => setTimeout(r, 900));
     out.potereNa = vi.potere ? vi.potere.stato.tipo : null;
+    /* con il potere il palmo della sinistra sale verso lo sguardo */
+    if (vi.modello) {
+      m.animV.alta = 1; await new Promise(r => setTimeout(r, 400));
+      const per = vi.modello.lati.sx.mano.per, wq = (o) => { const v = new THREE.Vector3(); o.getWorldPosition(v); return v; };
+      const dir = wq(per.MIDDLE_F_BASE).sub(wq(per.HANDPALM)).transformDirection(m.camMani.matrixWorldInverse);
+      out.fpPalmoSu = +dir.y.toFixed(2);
+    }
     const vivi0 = m.animV.particelle.filter(q => q.vivo).length;
     A.lancio();
     out.lancio = m.animV.particelle.filter(q => q.vivo).length > vivi0;
@@ -722,7 +755,15 @@ function sopra(d, minimo, avuto) {
     /* il chimico avanza guardando dove va, e le ginocchia si piegano nel
        verso giusto (mai all'indietro) */
     const S2 = A.stato();
+    /* prima i modelli della prima persona (il loro arrivo e' un fotogramma
+       lungo, che falserebbe il passo) */
+    for (let i = 0; i < 80 && !(A.motore().vista && A.motore().vista.modello && A.motore().vista.pistola); i++) await new Promise(r => setTimeout(r, 250));
     const chV = A.motore().chimico;     /* il rig del motore attuale */
+    /* rivolto verso il centro della stanza: il passo si misura nello spazio
+       libero, non contro un muro (dove scivolando cambierebbe verso) */
+    const sUlt = A.mondo().zona.stanze[A.mondo().zona.stanze.length - 1];
+    S2.pos.x = sUlt.x + sUlt.larg / 4; S2.pos.z = sUlt.z + sUlt.prof / 4;
+    S2.ang = Math.atan2(sUlt.larg / 4, sUlt.prof / 4);
     const x0 = S2.pos.x, z0 = S2.pos.z;
     let kMin = 9, kMax = -9;
     A.schermo('gioco'); A.avviaCiclo();
@@ -775,6 +816,19 @@ function sopra(d, minimo, avuto) {
   sopra('  · fatte di molti pezzi', 40, motore.pezziVista);
   att('  · la mano destra ha cinque dita', 5, motore.ditaVista);
   att('  · la telecamera delle braccia segue le proporzioni dello schermo', true, motore.camManiAspetto);
+  att('le mani del modello (models/mani-atomic.glb) arrivano', true, motore.fpMani);
+  if (motore.fpErrore) console.log('      (errore: ' + motore.fpErrore + ')');
+  att('  · la manica del camice dalla scansione', true, motore.fpManica);
+  att('  · la pistola a capsula', true, motore.fpPistola);
+  att('  · due mani con lo scheletro, animate dalla GPU', '2/2', motore.fpSkin + '/' + motore.fpSkinning);
+  att('  · in guanto di nitrile (il blu domina nella texture)', true, motore.fpNitrile);
+  sopra('  · la clip campionata in fotogrammi', 300, motore.fpFotogrammi);
+  att('  · le dita chiuse stanno sull’impugnatura (entro 3 cm)', true, motore.fpPresaMm <= 30);
+  console.log('      (' + motore.fpPresaMm + ' mm dal centro dell’impugnatura)');
+  att('  · l’ugello dello spruzzo è in punta alla canna', true, motore.fpUgelloMm <= 5);
+  att('  · la canna guarda avanti: la pistola ruota nella presa meno di 0,6 rad', true, motore.fpResiduo < 0.6);
+  att('  · e il dispensatore procedurale non si vede più', 0, motore.fpProcedurali);
+  att('  · col potere il palmo sinistro sale verso lo sguardo', true, motore.fpPalmoSu > 0.2);
   att('  · lo strumento mostra quello che hai in mano', 'Cl', motore.inManoVista);
   sopra('  · e spruzzando escono le goccioline', 5, motore.goccioline);
   att('con un elemento in mano la sinistra lo tiene vivo: il sodio fa scintille', 'scintille', motore.potereNa);
@@ -974,9 +1028,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 185) {
+  if (eseguiti < 196) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 185');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 196');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

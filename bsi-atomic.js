@@ -971,6 +971,7 @@
      cambia composto, e la sinistra si allunga a prendere e a toccare.
      ═════════════════════════════════════════════════════════════════════════ */
   var BASE_DX = { x: 0.15, y: -0.125, z: -0.33, rx: 0.4, ry: 0.1, rz: 0.05 };
+  var PISTOLA_DX = { x: 0.03, y: 0.045, z: -0.03, ry: 0.32 }, ZERO_DX = { x: 0, y: 0, z: 0, ry: 0 };
   var BASE_SX = { x: -0.24, y: -0.46, z: -0.3, rx: 0.35, ry: -0.25, rz: -0.1 };
   var TIPO_POTERE = { Na: 'scintille', K: 'scintille', Mg: 'scintille', Fe: 'scintille', Cu: 'scintille', Zn: 'scintille',
                       Al: 'scintille', Ca: 'scintille', Ba: 'scintille', Au: 'scintille', Pb: 'scintille', U: 'scintille',
@@ -994,6 +995,12 @@
     setTimeout(function () {
       if (!vista) return;
       vista.dispensatore.aggiorna(r ? testo : '', r ? sotto : '', col);
+      /* nella pistola a capsula il composto si vede dalla capsula, che
+         prende il suo colore */
+      if (vista.pistola && vista.pistola.capsula) {
+        var mc = vista.pistola.capsula.material;
+        mc.emissive.setHex(col); mc.emissiveIntensity = r ? 0.09 : 0.02;
+      }
       /* un elemento vive sulla mano sinistra; un composto nel dispensatore */
       if (vista.potere) vista.potere.aggiorna(r || !id ? null : (TIPO_POTERE[id] || 'luce'), col);
     }, prima ? 0 : 180);
@@ -1022,10 +1029,13 @@
     var bx = Math.sin(f) * (corsa ? 0.03 : 0.014) * amp;
     var by = -Math.abs(Math.cos(f)) * (corsa ? 0.03 : 0.012) * amp;
     var d = vista.dx;
-    d.position.set(BASE_DX.x + bx + animV.swayX * 0.6, BASE_DX.y + by + resp - animV.swayY * 0.5 - animV.atterra * 0.04 - cambio * 0.28 - (corsa ? 0.02 : 0),
-                   BASE_DX.z + animV.rinculo * 0.05);
+    /* con la pistola del modello la destra sta piu' alta e piu' in dentro:
+       si deve vedere il fianco dell'arma, non solo la capsula dall'alto */
+    var P = vista.pistola ? PISTOLA_DX : ZERO_DX;
+    d.position.set(BASE_DX.x + P.x + bx + animV.swayX * 0.6, BASE_DX.y + P.y + by + resp - animV.swayY * 0.5 - animV.atterra * 0.04 - cambio * 0.28 - (corsa ? 0.02 : 0),
+                   BASE_DX.z + P.z + animV.rinculo * 0.05);
     d.rotation.set(BASE_DX.rx + animV.rinculo * 0.25 + animV.swayY * 0.8 - cambio * 0.6 + (corsa ? -0.15 : 0),
-                   BASE_DX.ry + animV.swayX * 1.4 + (corsa ? 0.25 : 0), BASE_DX.rz + bx * 2 + animV.swayX);
+                   BASE_DX.ry + P.ry + animV.swayX * 1.4 + (corsa ? 0.25 : 0), BASE_DX.rz + bx * 2 + animV.swayX);
     /* la sinistra: di solito appena in vista in basso, si allunga a
        prendere (una curva: avanti, poi indietro) */
     var pr = Math.sin(animV.prendi * Math.PI);
@@ -1036,13 +1046,23 @@
     animV.lancio = Math.max(0, (animV.lancio || 0) - 0.06);
     var al = animV.alta, la = Math.sin(Math.min(1, animV.lancio) * Math.PI);
     var e = vista.sx;
+    /* la mano del modello e' aperta e dritta, non raccolta come quella
+       procedurale: per mostrare il palmo il polso si piega di piu' */
+    var alM = vista.modello ? al : 0;
     e.position.set(BASE_SX.x - bx + animV.swayX * 0.6 + pr * 0.16 + al * 0.1 + la * 0.05,
                    BASE_SX.y - by * 0.8 + resp + pr * 0.3 - animV.atterra * 0.04 + al * 0.31 + la * 0.04,
                    BASE_SX.z - pr * 0.2 - al * 0.06 - la * 0.16);
     e.rotation.set(BASE_SX.rx - pr * 0.3 - al * 0.55 - la * 0.3, BASE_SX.ry + animV.swayX * 1.2 + pr * 0.25 + al * 0.35,
                    BASE_SX.rz - bx * 2 + al * 0.15);
-    if (vista.manoSx) vista.manoSx.rotation.z = al * Math.PI * 0.82;
+    if (vista.manoSx) {
+      /* il palmo si gira verso l'alto e il polso si piega all'indietro, cosi'
+         la mano esce dalla manica e mostra il palmo, come chi regge qualcosa */
+      vista.manoSx.rotation.z = al * Math.PI * 0.82;
+      vista.manoSx.rotation.x = al * 0.55 + alM * 0.45;
+      vista.manoSx.position.z = -al * 0.02;
+    }
     if (vista.potere) vista.potere.anima(ora, al * (1 + la * 1.5));
+    if (vista.modello) poseMani(ora, pr, al, la, cambio);
     /* le goccioline dello spruzzo */
     animV.particelle.forEach(function (q) {
       if (!q.vivo) return;
@@ -1053,6 +1073,44 @@
       q.o.scale.setScalar(0.012 + q.t * 0.0016);
       if (q.t > 40) { q.vivo = false; q.o.visible = false; }
     });
+  }
+  /* LE POSE DELLE MANI DEL MODELLO. La destra impugna: il medio,
+     l'anulare e il mignolo chiusi intorno all'impugnatura, il pollice che
+     si chiude da dietro, l'indice piu' aperto sul grilletto, che si chiude
+     di colpo quando si spruzza. La sinistra: rilassata, un po' piegata;
+     si chiude a prendere; col potere si apre e le dita respirano; ferma a
+     lungo, ripete il gesto della clip (il pugno che si apre, le dita che si
+     stirano) */
+  function poseMani(ora, pr, al, la, cambio) {
+    var mm = vista.modello, rin = Math.min(1, animV.rinculo * 1.6), gr = animV.grilletto || 0;
+    animV.grilletto = gr + ((rin > 0.05 ? 1 : 0) - gr) * 0.45;
+    var apri = cambio * 0.6;
+    mm.posa(1, { pollice: PRESA.pollice - apri, indice: PRESA.indice + animV.grilletto * 0.42 - apri, medio: PRESA.medio - apri,
+                 anulare: PRESA.anulare - apri, mignolo: PRESA.mignolo - apri });
+    /* il grilletto della pistola segue l'indice */
+    if (vista.pistola && vista.pistola.grilletto) {
+      var gri = vista.pistola.grilletto;
+      if (gri.userData.z0 == null) gri.userData.z0 = gri.position.x;
+      gri.position.x = gri.userData.z0 + animV.grilletto * 9;
+    }
+    /* il potere si accende sul palmo vero */
+    if (vista.potere && vista.potere.palmo) {
+      var pp = new T.Vector3(), nn = new T.Vector3();
+      mm.palmo(-1, pp, nn);
+      pp.addScaledVector(nn, 0.035);
+      vista.potere.palmo.position.copy(vista.manoSx.worldToLocal(pp));
+    }
+    var resp = Math.sin(ora * 1.3) * 0.04;
+    var base = 0.26 + resp, chiudi = pr * 0.62, aperta = al * (0.24 + resp * 0.5) + la * 0.18;
+    var fermo = Math.hypot(S.vel.x, S.vel.z) < 0.004 && pr < 0.01 && al < 0.05;
+    animV.fermoDa = fermo ? (animV.fermoDa || ora) : 0;
+    var gesto = null;
+    if (animV.fermoDa && ora - animV.fermoDa > 7) {
+      var tg = (ora - animV.fermoDa - 7) % 9;
+      if (tg < 2.6) gesto = { t: 11.0 + tg * 0.85, peso: Math.sin(tg / 2.6 * Math.PI) * 0.9 };
+    }
+    mm.posa(-1, { pollice: base * 0.8 + chiudi - aperta, indice: base * 0.8 + chiudi - aperta,
+                  medio: base + chiudi - aperta, anulare: base * 1.1 + chiudi - aperta, mignolo: base * 1.2 + chiudi - aperta }, gesto);
   }
   /* spruzzare: rinculo, e una nuvola di goccioline dal colore del composto */
   function spruzzo() {
@@ -1101,7 +1159,7 @@
     scenaMani = new T.Scene();
     camMani = new T.PerspectiveCamera(52, camera.aspect, 0.01, 10);
     scenaMani.add(new T.HemisphereLight(0xe4ecf4, 0x3a4048, ps1() ? 1.2 : 0.75));
-    var sole = new T.DirectionalLight(0xfff2e0, ps1() ? 0.6 : 1.4);
+    var sole = new T.DirectionalLight(0xfff2e0, ps1() ? 0.6 : 1.15);
     sole.position.set(0.6, 1.2, 0.4);
     scenaMani.add(sole);
     var contro = new T.DirectionalLight(0x9fc8ff, ps1() ? 0.2 : 0.5);
@@ -1117,6 +1175,55 @@
     q.fillStyle = gr; q.fillRect(0, 0, 32, 32);
     vista.goccia = new T.CanvasTexture(cv);
     animV.inMano = undefined; animV.particelle = [];
+    caricaManiModello(vista);
+  }
+
+  /* I MODELLI DELLA PRIMA PERSONA (cartella models/, preparati da
+     tools/prepara-modelli.js): le mani con la loro animazione, la manica
+     del camice dalla scansione, la pistola a capsula. Si scaricano una
+     volta e si ricostruiscono a ogni vista nuova; finche' non arrivano, o
+     se non arrivano (offline al primo avvio), restano i pezzi procedurali.
+     La presa si monta quando ci sono sia le mani sia la pistola */
+  var MODELLI_FP = { mani: 'models/mani-atomic.glb', manica: 'models/manica-atomic.glb', pistola: 'models/pistola-atomic.glb' };
+  var PRESA = { pollice: 0.55, indice: 0.42, medio: 0.8, anulare: 0.83, mignolo: 0.86 };
+  var bufferFP = {};
+  function libreriaGLTF() {
+    return new Promise(function (ok) {
+      if (T.GLTFLoader) return ok(true);
+      var sc = document.createElement('script'); sc.src = './gltf_loader.js';
+      sc.onload = function () { ok(!!T.GLTFLoader); }; sc.onerror = function () { ok(false); };
+      document.head.appendChild(sc);
+    });
+  }
+  function scaricaFP(k) {
+    if (!bufferFP[k]) {
+      bufferFP[k] = libreriaGLTF().then(function (c) {
+        if (!c) throw new Error('GLTFLoader assente');
+        return fetch(MODELLI_FP[k]);
+      }).then(function (r) { if (!r.ok) throw new Error(MODELLI_FP[k] + ' HTTP ' + r.status); return r.arrayBuffer(); })
+        .catch(function (e) { bufferFP[k] = null; animV.erroreMani = String(e && e.message || e); return null; });
+    }
+    return bufferFP[k];
+  }
+  function caricaManiModello(v) {
+    if (typeof fetch === 'undefined' || !G.maniModello) return;
+    animV.modelliFP = 0;
+    Object.keys(MODELLI_FP).forEach(function (k) {
+      scaricaFP(k).then(function (b) {
+        if (!b || vista !== v) return;
+        new T.GLTFLoader().parse(b.slice(0), '', function (gltf) {
+          if (vista !== v) return;
+          if (k === 'mani') v.modello = G.maniModello(gltf, v);
+          else if (k === 'manica') v.manicaModello = G.manicaModello(gltf, v);
+          else { v.pistola = G.pistolaModello(gltf, v); animV.inMano = undefined; }
+          animV.modelliFP++;
+          if ((k === 'mani' || k === 'pistola') && v.modello && v.pistola) {
+            G.adattaPresa(v, PRESA);
+            animV.inMano = undefined;
+          }
+        }, function (e) { animV.erroreMani = String(e && e.message || e); });
+      });
+    });
   }
 
   function muoviCamera() {
@@ -2426,6 +2533,15 @@
                 esc(r.titolo) + ' <span style="color:#9fb0c4;font-weight:400">— ' + esc(v.nome || '') + '</span></button>';
             }).join('');
         })() +
+        /* i modelli 3D della prima persona e i loro autori: la CC-BY chiede
+           il credito dove l'opera si usa */
+        '<div class="bsiAP-sub">' + t('Modelli 3D', '3D models') + '</div>' +
+        '<div class="bsiAP-sub" style="text-align:left;font-size:12px">' +
+          '• «hands animation» — hugo colauto (Sketchfab, Sketchfab Standard)<br>' +
+          '• «Modern Scientist in a Lab Coat» — restore50 (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Capsule Gun» — sc8di (Sketchfab, CC-BY 4.0)<br>' +
+          t('adattati: guanto di nitrile, avambraccio ritagliato, texture ridotte', 'adapted: nitrile glove, cropped forearm, reduced textures') +
+        '</div>' +
         bottone('apIndietro2', '◂ ' + t('indietro', 'back')) + '</div>';
       [].forEach.call(u.querySelectorAll('[data-nastro]'), function (bn) {
         bn.onclick = function () { ascolta(+bn.getAttribute('data-nastro')); };
