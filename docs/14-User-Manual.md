@@ -124,108 +124,70 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 > la copertura di ognuna e dice che l'arabo porta con sé il verso di scrittura.
 > Quella **informa**, questo **agisce**.
 
-### 🎮 ELEMENTIA — la corsa degli elementi
+### 🎮 ATOMIC PROTOCOL
 
-Un gioco che **non si gioca come gli altri**, e la riconosci dall'**icona**: un
-atomo con gli occhi in un tondo con un orbitale. All'apertura il nome compare
-**disegnato sulla tela**, lettera per lettera, con un font a cinque per sette
-pixel, e sul fondo un atomo gira appeso a un legame mentre un radicale gli
-viene incontro.
+Un gioco di **esplorazione in tre dimensioni** con la grafica di una
+**PlayStation 1**, in cima alla barra accanto a 📰 Articoli.
 
-**Qui non si cammina e non si salta: non c'è terreno.** Sei un atomo dentro una
-provetta piena di solvente, e ci si muove come si muove un atomo in soluzione.
+**La storia.** Sei un chimico chiuso dentro un istituto sigillato dopo un
+incidente. Cammini per i reparti, raccogli **elementi**, li **sintetizzi** in
+composti al banco, risolvi gli enigmi dei terminali e abbatti i guardiani —
+usando la chimica, non i riflessi.
 
-| comando | che cosa fa |
-|---|---|
-| **⚛** (tieni premuto) | **sali**, e se passa un atomo a portata (quello con il cerchietto tratteggiato) ti ci **leghi** e cominci a girargli intorno |
-| **⚛** (lascia) | parti **per la tangente** con tutta la velocità accumulata, e **affondi** |
-| **◀ ▶** da legato | ti fanno **girare** — ▶ in senso orario, ◀ al contrario — e a ogni giro prendi velocità, come su un'altalena |
-| **◀ ▶** da libero | quasi niente: la corrente è più forte della bracciata |
-| **✦** | usa l'abilità dell'elemento che hai addosso |
+**La visuale si sceglie**: terza o prima persona, dal menù impostazioni, e la
+scelta **resta** anche chiudendo la pagina (tasto `V` per cambiarla al volo).
 
-Da tastiera: **frecce** o **A/D**, **spazio** lega e sale, **K** agisce.
+| comando | tastiera | a schermo |
+|---|---|---|
+| muoversi | `W A S D` o frecce | ▲ ▼ ◀ ▶ |
+| spostarsi di lato | `Q` / `E` | ⇤ ⇥ |
+| correre | `Shift` | — |
+| saltare | `Spazio` | ⤒ |
+| interagire | `F` | ✋ |
+| usare un composto | — | ✦ |
+| inventario | `I` | 🎒 |
+| codex | `C` | 📖 |
+| pausa | `Esc` o `P` | ❚❚ |
+| cambiare visuale | `V` | impostazioni |
 
-> **Si avanza solo con i legami.** Non è uno slogan: è una disuguaglianza fra
-> due numeri scritta nel codice — la spinta da libero (0,008) è **minore** della
-> corrente (0,012) — e finché vale, nuotare non può far guadagnare terreno con
-> nessun elemento e in nessuna difficoltà. Il banco la verifica togliendo tutte
-> le ancore a un livello: un pilota automatico, che senza ancore arrivava al
-> 91%, adesso si ferma al 13%.
+**Le quattro difficoltà** non cambiano solo i numeri:
 
-**I numeri degli elementi sono le regole del gioco**, e si leggono dalla tavola
-periodica di questa applicazione:
+| | Facile | Normale | Difficile | Esperimento |
+|---|---|---|---|---|
+| vite | 5 | 3 | 2 | **1** |
+| danno dei nemici | ×0,6 | ×1 | ×1,4 | ×2 |
+| tempo per gli enigmi | — | — | 90 s | 45 s |
+| sintesi rapida | sempre | sempre | 2 per scontro | **vietata** |
 
-| che cosa | da dove viene |
-|---|---|
-| quanto **affondi** | la **massa atomica**, confrontata con quella media dell'aria (28,96 u): l'idrogeno quasi galleggia, il piombo precipita |
-| quanto è **lungo** il tuo legame | i **raggi atomici** veri dei due atomi |
-| quanto **regge** prima di spezzarsi | la tua **energia di ionizzazione** |
-| che **legame** è | la differenza di **elettronegatività**: sotto 0,4 covalente (giri libero), fino a 1,7 polare, sopra ionico (tira dentro) — le due soglie convenzionali di Pauling |
-| quanti **gusci** ti si vedono attorno | il **periodo** della tavola |
+**L'inventario** tiene gli elementi raccolti: simbolo, nome, numero atomico,
+massa, gruppo, periodo, elettronegatività ed energia di ionizzazione — letti
+dalla **tavola periodica di questa applicazione** — più il potere e il
+**livello di padronanza**, che sale usandoli.
 
-E oltre a questo ogni elemento ha la sua **abilità**: l'ossigeno ossida, il
-fluoro colpisce più forte perché è il più elettronegativo, il carbonio spara
-quattro colpi perché ha quattro legami, il ferro affonda e sfonda i cristalli,
-l'oro non si fa toccare dagli ossidanti. Sono venti, e la tabella sotto la
-scena le elenca tutte con il perché.
+**Il laboratorio di sintesi** (il banco, nella stanza a ovest) combina gli
+elementi in composti: HCl, NaOH, H₂O₂, NaCl… Ogni ricetta porta la sua
+equazione bilanciata e dice a che cosa serve. Le ricette si sbloccano
+esplorando, risolvendo enigmi e abbattendo guardiani — e si leggono nel
+**Codex**.
 
-**Che cosa fa male**: i **radicali** (si dissociano solo colpendoli *di
-slancio*, sopra 2,6 di velocità: qui non si salta sopra a nessuno), i
-**cristalli**, la **superficie** e il **fondo** — che non uccidono sul colpo, ti
-respingono e ti costano l'elemento o una vita — e la **corrente**, se ti porta
-fuori dallo schermo.
+**Gli enigmi** mostrano strutture molecolari disegnate: riconoscere il gruppo
+funzionale cerchiato, dare il nome IUPAC, costruire la molecola scegliendo gli
+atomi. Sbagliando la porta resta chiusa e si riprova.
 
-**Dodici livelli** in quattro zone, un **boss** alla fine di ogni zona e il
-**boss finale** al dodicesimo: uno ione grosso che ti attira, e che si abbatte
-andandogli addosso di slancio o sparandogli. I livelli sono generati a caso ogni
-partita ma mai impercorribili: due atomi consecutivi non distano mai più di
-quanto una fionda copra, e prima di ogni boss trovi garantito un elemento che
-spara.
+**I guardiani non si abbattono a forza.** POMPA 7, il primo, è coperta di
+ossido: serve un **acido** (HCl) per scioglierlo. Poi mette il metallo nudo nel
+vapore: lì serve il **sodio**, che con l'acqua reagisce liberando idrogeno e
+calore. Solo allora espone il rotore. Il sale non le fa niente, e l'acido in
+fase 2 nemmeno: è questo che rende il gioco di chimica.
 
-**Ai punti di controllo** (le membrane) arriva una domanda di chimica. La
-difficoltà non rende la stessa domanda più difficile: cambia **quali** domande
-arrivano — dal simbolo di un elemento alla disconnessione retrosintetica giusta
-per un bersaglio, passando per bande IR, spostamenti ¹H e ¹³C, costanti J,
-gradi di insaturazione, masse, reazioni, amminoacidi e linguaggi della chimica.
+**Lo stile PS1 è una scelta tecnica, non un filtro**: la scena si disegna a
+320×240 e si ingrandisce a pixel quadrati, le texture non hanno filtro, i
+vertici vengono «agganciati» alla griglia dello schermo (è il tremolio tipico
+di quella macchina), la luce è sui vertici e la nebbia è densa. Nelle
+impostazioni si può ridurre o spegnere.
 
-> **Le domande non sono scritte nel gioco.** Sono **generate** dalle tabelle di
-> questa applicazione, e dopo ogni risposta ti dico **da dove viene** quella
-> domanda. Se la tabella è giusta, la domanda è giusta — e non esiste un
-> secondo elenco di chimica che possa divergere da quelli veri.
-
-**Le cinque difficoltà** hanno nomi di chimica, e non sono decorativi:
-
-| difficoltà | che cambia |
-|---|---|
-| **Soluzione diluita** | 5 vite, radicali lenti e pochi, domande di base |
-| **Soluzione satura** | 4 vite, più radicali e più elementi |
-| **Reazione esotermica** | 3 vite, e **sbagliare una domanda costa** |
-| **Catalisi enzimatica** | 2 vite, tutto più rapido, 25 s per rispondere |
-| **Fusione nucleare** | **una vita**, radicali feroci, 20 s per rispondere |
-
-**Il menù di pausa** si apre con `❚❚`, o con `Esc` / `P` da tastiera, e dentro
-c'è tutto quello che serve senza uscire dal gioco:
-
-* dove sei — difficoltà, livello su dodici, punti, vite, elemento in corso;
-* **riprendi**;
-* la **guida** completa, che si apre lì dentro (è la stessa del titolo: una
-  sola, perché due copie dello stesso testo prima o poi dicono cose diverse);
-* il **cambio lingua**, con le quattordici bandiere;
-* **suono** acceso/spento e **schermo pieno**;
-* abbandona la partita.
-
-> Il gioco parla **italiano e inglese**. Con le altre dodici lingue resta in
-> italiano, come il resto dei contenuti scientifici dell'applicazione: il
-> cambio lingua dal menù agisce su tutta l'applicazione, non solo sul gioco.
-
-**Sul telefono**: i comandi sono grandi abbastanza per il pollice (44 px), la
-scena si porta da sola in vista quando apri la sezione, e il tasto `⛶` la
-allarga a tutto schermo — girando il telefono la tela diventa tre volte più
-larga. Il menù di pausa prende tutto lo schermo e scorre, perché dentro
-l'altezza della sola scena non ci starebbe.
-
-**Funziona offline**: non c'è un solo file da scaricare — la grafica è disegnata
-a rettangoli e i suoni sono sintetizzati.
+**Funziona offline**: Three.js è già nel pacchetto e il Service Worker lo
+tiene in cache.
 
 ### Dove si trovano le cose
 
@@ -541,4 +503,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v205`._
+_Guida aggiornata alla versione `bsi-v208`._

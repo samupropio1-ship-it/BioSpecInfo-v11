@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v205';
+window.BSI_APP_VERSION='bsi-v208';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -15548,6 +15548,18 @@ var FRASI_H_PRINCIPALI = [
   {code:'H400',desc:'Molto tossico per gli organismi acquatici'},
   {code:'H410',desc:'Molto tossico per gli organismi acquatici con effetti di lunga durata'},
 ];
+/* I DATI CHE SERVONO ANCHE FUORI DA QUI. Queste tabelle stanno dentro una
+   funzione anonima, quindi non esistono per nessun altro: il gioco, che le
+   usa per costruire gli enigmi, non poteva vederle. Si pubblicano sotto un
+   nome solo — `BSI_DATI` — invece di sparpagliare variabili globali.
+   NOTA: in questo file esistono DUE tabelle `CONSTANTS`, DUE `GHS_PICTOGRAMS`
+   e DUE `FRASI_H_PRINCIPALI`, in due funzioni diverse e con forme diverse.
+   Qui si pubblica, per ognuna, quella piu' completa; la doppia resta ed e'
+   segnalata, perche' unirle tocca due pannelli e va fatto guardandoli. */
+window.BSI_DATI = window.BSI_DATI || {};
+window.BSI_DATI.ghs = GHS_PICTOGRAMS;
+window.BSI_DATI.frasiH = FRASI_H_PRINCIPALI;
+
 
 var FRASI_P_PRINCIPALI = [
   {code:'P101',desc:'In caso di consultazione di un medico, tenere a disposizione il contenitore o l\'etichetta del prodotto'},
@@ -16501,6 +16513,9 @@ var CONSTANTS = [
   {sym:'ΔHvap(H₂O)',name:'Entalpia vaporizzazione acqua (25°C)',val:'44.0',unit:'kJ mol⁻¹',alt:'40.7 kJ/mol a 100°C',cat:'Termodinamica',use:'Importante per evaporazione, distillazione, sistemi biologici'},
   {sym:'σ(SB)',name:'Costante di Stefan-Boltzmann',val:'5.670374×10⁻⁸',unit:'W m⁻² K⁻⁴',alt:'',cat:'Termodinamica',use:'Radiazione corpo nero: P = σAT⁴'},
 ];
+window.BSI_DATI = window.BSI_DATI || {};
+window.BSI_DATI.costanti = CONSTANTS;
+
 
 var UNIT_CONVERSIONS = [
   {from:'1 eV',to:'96.485 kJ/mol | 8065.5 cm⁻¹ | 1.602×10⁻¹⁹ J | 11604 K (kBT)'},
@@ -16514,6 +16529,9 @@ var UNIT_CONVERSIONS = [
   {from:'1 L·atm',to:'101.325 J'},
   {from:'ppm (NMR)',to:'Δν(Hz) = ppm × ν₀(MHz). A 500 MHz: 1 ppm = 500 Hz'},
 ];
+window.BSI_DATI = window.BSI_DATI || {};
+window.BSI_DATI.unita = UNIT_CONVERSIONS;
+
 
 window.filterConst = function(cat){
   document.querySelectorAll('.const-card').forEach(function(el){
@@ -17597,6 +17615,9 @@ var LAB_TECHNIQUES = [
     safety:'Indossare sempre: camice, occhiali di sicurezza, guanti nitrile. Lavorare sotto cappa. Non mangiare o bere in laboratorio.',color:'#BF360C'
   },
 ];
+window.BSI_DATI = window.BSI_DATI || {};
+window.BSI_DATI.lab = LAB_TECHNIQUES;
+
 
 window.initLab = function(){
   var sec=document.getElementById('slab');
@@ -31763,7 +31784,7 @@ window.addEventListener('load', init);
      Un elenco di domande scritto a mano sarebbe una seconda fonte di
      verita' chimica accanto a quelle, e due fonti divergono. -->
 <script src="./bsi-gioco-domande.js" defer></script>
-<script src="./bsi-gioco.js" defer></script>
+<script src="./bsi-atomic.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

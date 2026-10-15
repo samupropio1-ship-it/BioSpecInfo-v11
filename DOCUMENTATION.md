@@ -6,7 +6,7 @@
 |---|---|
 | **Software** | BioSpecInfo — piattaforma di chemioinformatica interattiva |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione documentata** | `bsi-v205` |
+| **Versione documentata** | `bsi-v208` |
 | **Demo** | [samupropio1-ship-it.github.io/BioSpecInfo-v11](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/) |
 | **Licenza** | Proprietaria — *All rights reserved* ([`LICENSE`](LICENSE)) |
 
@@ -51,6 +51,7 @@ La documentazione è estesa. Questo è il percorso più breve secondo chi sei.
 | 06 | [Accuratezza scientifica](docs/06-Scientific-Accuracy-Data-Provenance.md) | Come sono verificati i dati chimici, limiti dichiarati |
 | 08 | [Matrice di tracciabilità](docs/08-Traceability-Matrix.md) | Requisito → implementazione → banco di verifica |
 | 15 | [Documentazione dei test](docs/15-Test-Documentation.md) | Come eseguirli, cosa coprono, lacune dichiarate |
+| 16 | [Atomic Protocol — progetto del gioco](docs/16-Atomic-Protocol-Design.md) | Direzione artistica PS1, visuale, inventario, laboratorio di sintesi, combattimento, Zona 1, primo boss ed enigma |
 
 ### Conformità, sicurezza, licenze
 
@@ -137,4 +138,4 @@ impronte SHA-256 dei file si ricalcolano con `sha256sum`.
 
 ---
 
-_Indice aggiornato alla versione `bsi-v205`._
+_Indice aggiornato alla versione `bsi-v208`._

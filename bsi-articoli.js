@@ -619,14 +619,21 @@
   function pulsante() {
     var b = document.querySelector('.nav-btn[data-s="' + ID + '"]');
     if (b) return b;
-    var gruppo = document.getElementById('navGroup6') ||
-                 document.getElementById('navGroup5');
+    /* NEL PRIMO GRUPPO, NON NELL'ULTIMO. La barra mostra un gruppo per volta e
+       all'apertura mostra il primo: una sezione appesa in fondo a «Utility»,
+       diciannovesima di diciannove, c'è ma non la trova nessuno — ed è
+       successo: «la sezione articoli non l'ho trovata». Una sezione che non si
+       trova vale quanto una sezione che non c'è. Qui va dove si guarda, e in
+       cima al gruppo invece che in coda. */
+    var gruppo = document.getElementById('navGroup0') ||
+                 document.getElementById('navGroup6');
     if (!gruppo) return null;
     b = document.createElement('button');
     b.className = 'nav-btn';
     b.setAttribute('data-s', ID);
     b.textContent = '📰 ' + t('Articoli', 'Articles');
-    gruppo.appendChild(b);
+    if (gruppo.firstElementChild) gruppo.insertBefore(b, gruppo.firstElementChild.nextSibling);
+    else gruppo.appendChild(b);
     return b;
   }
 

@@ -7,6 +7,260 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v208] — 2026-10-15
+
+**Il gioco è rifatto da zero: ATOMIC PROTOCOL, esplorazione 3D low-poly in
+stile PlayStation 1. Niente più runner.**
+
+### Che cos'è adesso
+
+Un chimico chiuso in un istituto sigillato. Si **cammina** — non si corre da
+soli — per sette stanze collegate da porte, si raccolgono **elementi**, si
+**sintetizzano** composti al banco, si risolvono **enigmi con strutture
+molecolari** ai terminali e si abbattono **guardiani con una debolezza
+chimica**. Visuale a scelta in **terza o prima persona**, salvata; quattro
+difficoltà, dal «Facile» all'«Esperimento».
+
+Il progetto completo — direzione artistica, inventario, laboratorio di sintesi,
+sistema di combattimento, Zona 1, primo boss e primo enigma — è in
+**`docs/16-Atomic-Protocol-Design.md`**.
+
+### Lo stile PS1 è fatto di limiti, e i limiti sono rifatti
+
+Non è un filtro «retro»: sono i vincoli di quella macchina, riprodotti uno per
+uno.
+
+| limite vero | come si rifà | che cosa si vede |
+|---|---|---|
+| 320×240 | la scena si disegna a 320×240 e si ingrandisce a pixel quadrati | bordi scalettati |
+| niente filtro bilineare | `NearestFilter` su ogni texture | texture nette e sgranate |
+| vertici a coordinate intere | **vertex snapping** innestato nel vertex shader | i poligoni *tremano*: è il segno più riconoscibile di quella macchina |
+| niente luci dinamiche | luce sui vertici con `flatShading` | ombre dure |
+| memoria scarsa | nebbia densa, modelli a blocchi | fondali che spariscono nel buio |
+
+Si può **ridurre o spegnere** dalle impostazioni, insieme alla risoluzione
+interna: una scelta estetica forte deve restare una scelta.
+
+### Il chimico
+
+Low-poly e **articolato**: bacino, busto, collo, testa e quattro arti con due
+snodi ciascuno. Cammina con le gambe in opposizione, le braccia sfasate di mezzo
+ciclo e il bacino che rimbalza; da fermo respira; in aria raccoglie le
+ginocchia. In prima persona il corpo non si disegna.
+
+### Inventario, sintesi, enigmi, guardiani
+
+* **Inventario**: ogni elemento porta simbolo, nome, Z, massa, gruppo, periodo,
+  elettronegatività ed energia di ionizzazione — letti da `ELEMENTS`, non
+  riscritti — più il potere e la **padronanza** (1–5, sale usandolo).
+* **Laboratorio di sintesi**: HCl, NaOH, H₂O₂, NaCl, con l'equazione bilanciata
+  e la resa legata alla padronanza media dei reagenti. Le ricette si sbloccano
+  esplorando, risolvendo enigmi e abbattendo guardiani.
+* **Enigmi**: strutture molecolari **disegnate** — riconoscere il gruppo
+  funzionale cerchiato, dare il nome IUPAC, costruire l'etanolo scegliendo gli
+  atomi. Sbagliando la paratia resta chiusa.
+* **POMPA 7**: coperta di ossido (serve un **acido**: Fe₂O₃ + 6 HCl → 2 FeCl₃ +
+  3 H₂O), poi metallo nudo nel vapore (serve il **sodio**: 2 Na + 2 H₂O → 2 NaOH
+  + H₂), poi il rotore. Il sale non le fa niente; l'acido in fase 2 nemmeno.
+
+### Gli enigmi vengono da tutto il sito
+
+I 28 generatori restano: tavola periodica, spettri IR/¹H/¹³C/J, reazioni,
+retrosintesi, amminoacidi, linguaggi, farmaci, sicurezza GHS, costanti, unità,
+tecniche di laboratorio, biomolecole, vie metaboliche.
+
+### Che cosa è stato tolto
+
+`bsi-gioco.js`, `bsi-gioco-3d.js` e `test_gioco.js` non ci sono più: il gioco
+vecchio è stato **rimosso**, non lasciato accanto al nuovo. Una sola casa per
+funzione, anche quando la funzione è «il gioco».
+
+### Il banco
+
+`test_atomic` — **91 controlli**: il grafo delle stanze (ogni porta con la sua
+gemella, tutte raggiungibili, nessuna stanza dentro un'altra), i muri che
+fermano e le porte che fanno passare, il giro completo della Zona 1, il motore
+PS1 (WebGL, 320×240 misurati, pixel quadrati), le impostazioni che si ricordano
+davvero, il ciclo che si ferma a sezione chiusa, e i dodici comandi da ≥ 44 px
+sul telefono. **Nei due versi** dove conta: il sale non fa niente alla ruggine,
+l'acido sì; due reagenti senza ricetta non producono nulla; sbagliando l'enigma
+la paratia resta chiusa.
+
+---
+## [bsi-v207] — 2026-10-15
+
+**ELEMENT CHEMIST in 3D vero: WebGL, un chimico articolato che corre, salta e
+gira su sé stesso, un corridoio di laboratorio con luci e nebbia — e una trama
+con un colpevole.**
+
+### Tre dimensioni, non una prospettiva finta
+
+Il mondo adesso lo disegna un motore vero (`bsi-gioco-3d.js`): scena, telecamera
+in terza persona che insegue, luci, nebbia, soffitto e plafoniere. Three.js era
+**già in questo repository** — lo usano il visore molecolare e l'atlante — e il
+Service Worker lo tiene in cache: **niente da scaricare, funziona offline** come
+tutto il resto.
+
+Il chimico non è più uno sprite che alterna due disegni: è **articolato**.
+Bacino, busto, collo, testa, casco, e quattro arti con due snodi ciascuno. Le
+animazioni muovono gli snodi:
+
+* **corsa** — gambe in opposizione, braccia sfasate di mezzo ciclo, bacino che
+  rimbalza due volte per passo, busto inclinato in avanti;
+* **salto** — in salita il corpo si allunga e le braccia vanno su, in discesa le
+  ginocchia si raccolgono;
+* **giro** — il corpo ruota su sé stesso e le braccia si aprono;
+* **sterzata** — il busto si inclina dalla parte in cui ti sposti.
+
+Il **casco e il distintivo** prendono il colore dell'elemento: diventare un
+elemento si vede addosso, non solo nella barra in alto.
+
+> Se WebGL non c'è — un telefono vecchio, un driver che non collabora — non si
+> rompe niente: il gioco si disegna come prima e si gioca uguale. Il banco
+> verifica la strada nuova; la vecchia è rimasta dov'era.
+
+### Si corre dentro lo schermo
+
+Il movimento è cambiato con la prospettiva: si corre **avanti** da soli — su un
+telefono «avanti» non è un tasto, è quello che succede — `◀ ▶` spostano di lato,
+`⤒` salta le **buche**, `✦` fa **girare su sé stessi**: è l'attacco sempre
+disponibile, rompe le **casse** e disintegra quello che hai a tiro.
+
+Dentro le casse: elementi («?»), campioni da raccogliere (**25 fanno una vita**)
+e **TNT**, che è rossa, pulsa e fa male. Una buca non è mai più larga di quanto
+un salto copra — 2,2 metri, che vengono dal conto: 33 passi in aria a 0,085 m
+per passo fanno 2,8 metri, meno un margine perché nessuno salta nell'istante
+perfetto.
+
+### La trama, per intero
+
+Sei un chimico chiuso nel suo laboratorio alle 3:40. Il **Custode** — la voce
+dell'impianto — dice che la chiusura è partita alle 03:00: **quaranta minuti
+prima** che la reazione scappasse di mano. Fra i vetri rotti trovi una pagina
+del tuo quaderno con la tua calligrafia e la data di **domani**. Nel reparto di
+organica il reattore sta sintetizzando un **catalizzatore** che abbassa
+l'energia di attivazione di qualunque reazione: lo avevi disegnato tu, da
+studente, e lo avevi abbandonato scrivendo «troppo generale, troppo pericoloso».
+In spettroscopia l'infrarosso gira da ore sullo stesso campione — **aria** — e
+il Custode spiega che il contenimento protegge la città, non il personale. Nel
+nucleo arriva la verità: il protocollo 12 non era cancellato, era **sospeso**, e
+in fondo avevi scritto una riga per te stesso: *«riprendere comunque»*. Alle
+03:00 il Custode l'ha letta e ha fatto il suo mestiere.
+
+Il finale si legge vincendo, e l'ultima riga non è «hai vinto».
+
+### Gli enigmi vengono da tutto il sito
+
+I generatori di domande sono **28**: alle tabelle di sempre (elementi, spettri
+IR/¹H/¹³C/J, reazioni, retrosintesi, amminoacidi, linguaggi) si sono aggiunti
+**farmaci**, **sicurezza GHS e frasi H**, **costanti fisiche**, **conversioni di
+unità**, **tecniche di laboratorio**, **biomolecole** e **vie metaboliche**.
+
+### Il banco
+
+`test_gioco` arriva a **162 controlli**. I nuovi guardano il motore 3D (il
+chimico fatto di pezzi, quattro arti snodati, le pose che cambiano fra un
+fotogramma e l'altro e il salto che non è la corsa), le porte (**sbagliando
+resta chiusa e non si passa**), il giro (disintegra quello a tiro, rompe le
+casse, e **uno lontano resta vivo**), i guardiani (enigma, debolezza svelata,
+colpo che vale **tre** con l'elemento giusto e **uno** senza), e i livelli
+(nessuna buca più larga di quanto un salto copra, e una buca allargata apposta
+viene segnalata).
+
+---
+## [bsi-v206] — 2026-10-14
+
+**ELEMENT CHEMIST: un chimico chiuso nel suo laboratorio, quattro reparti,
+porte da sbloccare con la chimica e quattro guardiani che si abbattono solo
+trovando la loro debolezza.**
+
+La versione precedente aveva portato il gioco in una direzione che non era
+quella chiesta — niente terreno, niente salti, niente combattimento. Qui si
+torna al gioco vero e lo si costruisce davvero: trama, livelli, combattimenti,
+boss ed enigmi.
+
+### La trama
+
+Sei un chimico. Alle 3:40 una reazione è scappata di mano e il laboratorio si è
+chiuso da solo. Quattro reparti — **inorganica, organica, spettroscopia, il
+nucleo** — dodici livelli, quattro guardiani, e una regola: **tocca un elemento
+e diventi quell'elemento**. Il racconto arriva a pezzi, dieci righe all'ingresso
+di ogni reparto, e si rilegge dal menù di pausa.
+
+### Si combatte sempre
+
+Senza elemento `✦` dà un **colpo corto di reagente**: poco raggio, ricarica
+lenta, ma nessuno resta disarmato — un gioco in cui finché non trovi il
+potenziamento giusto puoi solo scappare non è difficile, è vuoto. Con un
+elemento che spara, `✦` spara, e **come** spara viene dalla chimica: il carbonio
+fa quattro legami e tira quattro colpi a ventaglio, l'azoto col triplo legame
+perfora, il fluoro colpisce più forte perché è il più elettronegativo.
+
+Fra i nemici è comparso chi **sputa acido** e non si muove: gli altri si
+scavalcano, questo va spento.
+
+### Le porte non si attraversano: si aprono
+
+Ogni livello ha **due terminali in allarme**. Ti fermano davanti, ti fanno una
+domanda e si aprono **solo con la risposta giusta**; sbagliando restano chiuse e
+il terminale si riarma dopo un paio di secondi. Una domanda che si può ignorare
+correndo è un cartello, non un enigma.
+
+### I guardiani hanno una debolezza chimica
+
+Quattro, uno per reparto: **il versamento acido**, **la catena radicalica**, **il
+metallo pesante**, **la reazione fuggita**. Nessuno si abbatte a forza:
+all'inizio dello scontro il guardiano ti chiede che cosa lo neutralizza, e la
+risposta è chimica vera — un acido si neutralizza con una base, una catena
+radicalica si chiude con chi dona un legame, un metallo pesante si lega allo
+zolfo, una reazione fuori controllo si spegne con un gas inerte. Rispondi
+giusto e l'elemento compare nell'arena: da quel momento i tuoi colpi valgono
+**tre** invece di uno. A metà vita cambiano passo: caricano e chiamano rinforzi.
+
+### Gli enigmi vengono da tutto il sito
+
+I generatori di domande passano da 19 a **28**, e le nuove aree sono quelle che
+mancavano: **farmaci** (classe e indicazione), **sicurezza GHS** (pittogrammi e
+frasi H), **costanti fisiche**, **conversioni di unità**, **tecniche di
+laboratorio**, **biomolecole**, **vie metaboliche**. Cinque di queste tabelle
+stavano dentro funzioni anonime e non le vedeva nessuno: l'applicazione adesso
+le pubblica sotto `BSI_DATI`.
+
+> **Trovate due volte.** In `index.html` esistono **due** tabelle `CONSTANTS`,
+> **due** `GHS_PICTOGRAMS` e **due** `FRASI_H_PRINCIPALI`, in funzioni diverse e
+> con forme diverse (una ha 6,022×10²³, l'altra 6,02214076×10²³). Qui si
+> pubblica la più completa di ognuna e **la doppia resta registrata**: unirle
+> tocca due pannelli e va fatto guardandoli, non con una sostituzione.
+
+### Il laboratorio si vede
+
+Il fondo non è più un cielo con le stelle: è un **laboratorio**, e cambia con il
+reparto — scaffali di bottiglie, colonne di distillazione, rastrelliere di
+strumenti con gli spettri che scorrono, serbatoi con le strisce di pericolo. Il
+pavimento è piastrellato, le passerelle sono grigliato metallico, le casse sono
+casse di reagenti. Il verde del prato era il segno più evidente che questo gioco
+veniva da un altro gioco.
+
+### E la sezione Articoli si trova
+
+Era appesa in fondo al gruppo «Utility», diciannovesima su diciannove: c'era, ma
+non la trovava nessuno — *«la sezione articoli non l'ho trovata»*. Ora **📰
+Articoli** e **ELEMENT CHEMIST** stanno in testa al primo gruppo della barra,
+quello che si vede appena si apre l'applicazione. Una sezione che non si trova
+vale quanto una sezione che non c'è.
+
+### Il banco
+
+`test_gioco` passa da 118 a **143 controlli**. I nuovi misurano il gioco vero,
+nei due versi: davanti alla porta ci si ferma, **sbagliando resta chiusa**,
+rispondendo si apre e si passa; il colpo corto uccide e **senza premere il tasto
+il nemico resta vivo**; il guardiano apre il suo enigma, svela la debolezza, fa
+comparire l'elemento, e **il colpo vale tre con quello giusto e uno senza**;
+attacca davvero e a metà vita passa alla seconda fase; la storia è in cinque
+pezzi e nessuno è vuoto; i quattro guardiani hanno quattro debolezze diverse e
+ognuna porta la sua ragione chimica.
+
+---
 ## [bsi-v205] — 2026-10-14
 
 **ELEMENTIA non è più un platform: in questo gioco non si cammina e non si

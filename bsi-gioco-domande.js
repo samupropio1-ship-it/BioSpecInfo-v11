@@ -161,6 +161,21 @@
         case 'AA': return (typeof globale.AA_DATA !== 'undefined') ? globale.AA_DATA : null;
         case 'ELUCIDA': return globale.BSIElucida || null;
         case 'LETTORE': return globale.BSILettoreSpettri || null;
+        /* LE ALTRE STANZE DEL SITO. Gli enigmi devono poter venire da
+           qualunque cosa ci sia qui dentro, non dalle solite tre tabelle:
+           farmaci, sicurezza, costanti, laboratorio, biochimica, metabolismo
+           e conversioni sono dati veri dell'applicazione quanto la tavola
+           periodica. */
+        case 'FARM': return (typeof globale.FARM_DATA !== 'undefined') ? globale.FARM_DATA : null;
+        /* queste quattro stanno dentro funzioni anonime dell'applicazione e
+           non sono globali: l'applicazione le pubblica sotto `BSI_DATI` */
+        case 'GHS': return (globale.BSI_DATI && globale.BSI_DATI.ghs) || null;
+        case 'FRASIH': return (globale.BSI_DATI && globale.BSI_DATI.frasiH) || null;
+        case 'COST': return (globale.BSI_DATI && globale.BSI_DATI.costanti) || null;
+        case 'LAB': return (globale.BSI_DATI && globale.BSI_DATI.lab) || null;
+        case 'BIOMONO': return (typeof globale.BIO_MONO_NEW !== 'undefined') ? globale.BIO_MONO_NEW : null;
+        case 'VIE': return (typeof globale.VIE_META !== 'undefined') ? globale.VIE_META : null;
+        case 'UNITA': return (globale.BSI_DATI && globale.BSI_DATI.unita) || null;
         default: return null;
       }
     } catch (e) { return null; }
@@ -195,6 +210,19 @@
        { domanda, opzioni[], giusta, spiega, provenienza }
      oppure `null` se con quei dati non riesce a costruire una domanda sensata.
      ═════════════════════════════════════════════════════════════════════════ */
+
+  /* le sigle delle classi dei farmaci, scritte per esteso una volta sola */
+  var CLASSI_FARMACI = {
+    fans: t('FANS (antinfiammatorio non steroideo)', 'NSAID (non-steroidal anti-inflammatory)'),
+    blattam: t('beta-lattamico (antibiotico)', 'beta-lactam (antibiotic)'),
+    statine: t('statina (ipolipemizzante)', 'statin (lipid-lowering)'),
+    ace: t('ACE-inibitore (antipertensivo)', 'ACE inhibitor (antihypertensive)'),
+    benzo: t('benzodiazepina', 'benzodiazepine'),
+    ssri: t('SSRI (antidepressivo)', 'SSRI (antidepressant)'),
+    chemo: t('chemioterapico', 'chemotherapeutic'),
+    cardio: t('cardiovascolare', 'cardiovascular')
+  };
+
   var GEN = [
 
     /* ── gli elementi ─────────────────────────────────────────────────── */
@@ -570,6 +598,174 @@
           spiega: x.name + ' · SMILES ' + x.smi +
                   (x.desc ? ' · ' + String(x.desc).slice(0, 110) : ''),
           provenienza: 'AA_DATA'
+        };
+      } },
+
+    /* ── la farmacologia ──────────────────────────────────────────────── */
+    { id: 'farmaco-classe', liv: 2, serve: ['FARM'],
+      area: t('farmaci', 'drugs'),
+      fai: function (caso) {
+        var fa = fonte('FARM').filter(function (x) { return x.name && CLASSI_FARMACI[x.cat]; });
+        if (fa.length < 5) return null;
+        var x = scegli(caso, fa);
+        /* i distrattori sono ALTRE CLASSI, non altri farmaci: una domanda in
+           cui due opzioni sono la stessa classe avrebbe due risposte giuste */
+        var classi = [];
+        fa.forEach(function (y) {
+          if (y.cat !== x.cat && classi.indexOf(y.cat) < 0) classi.push(y.cat);
+        });
+        if (classi.length < 3) return null;
+        var scelte = mescola(caso, classi).slice(0, 3).map(function (c) { return CLASSI_FARMACI[c]; });
+        return {
+          domanda: t('A quale classe appartiene ', 'Which class does ') + x.name +
+                   t('?', ' belong to?'),
+          opzioni: mescola(caso, [CLASSI_FARMACI[x.cat]].concat(scelte)),
+          giusta: CLASSI_FARMACI[x.cat],
+          spiega: x.name + ' · ' + CLASSI_FARMACI[x.cat] +
+                  (x.moa ? ' · ' + String(x.moa).slice(0, 120) : ''),
+          provenienza: 'FARM_DATA'
+        };
+      } },
+
+    { id: 'farmaco-indicazione', liv: 4, serve: ['FARM'],
+      area: t('farmaci', 'drugs'),
+      fai: function (caso) {
+        var fa = fonte('FARM').filter(function (x) { return x.name && x.indicaz; });
+        if (fa.length < 5) return null;
+        var x = scegli(caso, fa);
+        function corta(y) { return String(y.indicaz).split(/[.;]/)[0].slice(0, 70); }
+        var d = distrattori(caso, fa, x, 3, corta);
+        return {
+          domanda: t('Per che cosa si usa ', 'What is ') + x.name +
+                   t('?', ' used for?'),
+          opzioni: mescola(caso, [x].concat(d)).map(corta),
+          giusta: corta(x),
+          spiega: x.name + ' · ' + String(x.indicaz).slice(0, 140),
+          provenienza: 'FARM_DATA'
+        };
+      } },
+
+    /* ── la sicurezza ─────────────────────────────────────────────────── */
+    { id: 'ghs-pittogramma', liv: 1, serve: ['GHS'],
+      area: t('sicurezza · GHS', 'safety · GHS'),
+      fai: function (caso) {
+        var gh = fonte('GHS').filter(function (x) { return x.name && x.desc; });
+        if (gh.length < 4) return null;
+        var x = scegli(caso, gh);
+        var d = distrattori(caso, gh, x, 3, function (y) { return y.name; });
+        return {
+          domanda: t('Quale pittogramma GHS indica: ', 'Which GHS pictogram means: ') +
+                   String(x.desc).split(',')[0].slice(0, 80) + '?',
+          opzioni: mescola(caso, [x].concat(d)).map(function (y) { return y.code + ' · ' + y.name; }),
+          giusta: x.code + ' · ' + x.name,
+          spiega: x.code + ' ' + x.name + ' — ' + String(x.desc).slice(0, 130),
+          provenienza: 'GHS_PICTOGRAMS'
+        };
+      } },
+
+    { id: 'frase-h', liv: 3, serve: ['FRASIH'],
+      area: t('sicurezza · frasi H', 'safety · H statements'),
+      fai: function (caso) {
+        var fr = fonte('FRASIH').filter(function (x) { return x.code && x.desc; });
+        if (fr.length < 5) return null;
+        var x = scegli(caso, fr);
+        var d = distrattori(caso, fr, x, 3, function (y) { return y.desc; });
+        return {
+          domanda: t('Che cosa dice la frase di pericolo ',
+                     'What does hazard statement ') + x.code + t('?', ' say?'),
+          opzioni: mescola(caso, [x].concat(d)).map(function (y) { return y.desc; }),
+          giusta: x.desc,
+          spiega: x.code + ': ' + x.desc,
+          provenienza: 'FRASI_H_PRINCIPALI'
+        };
+      } },
+
+    /* ── le costanti e le unità ───────────────────────────────────────── */
+    { id: 'costante-valore', liv: 3, serve: ['COST'],
+      area: t('costanti fisiche', 'physical constants'),
+      fai: function (caso) {
+        var co = fonte('COST').filter(function (x) { return x.name && x.val; });
+        if (co.length < 5) return null;
+        function valore(y) { return y.val + (y.unit ? ' ' + y.unit : ''); }
+        var x = scegli(caso, co);
+        var d = distrattori(caso, co, x, 3, valore);
+        return {
+          domanda: t('Quanto vale la ', 'What is the value of the ') + x.name + '?',
+          opzioni: mescola(caso, [x].concat(d)).map(valore),
+          giusta: valore(x),
+          spiega: x.name + ' (' + x.sym + ') = ' + valore(x) +
+                  (x.use ? ' · ' + x.use : (x.desc ? ' · ' + x.desc : '')),
+          provenienza: 'CONSTANTS'
+        };
+      } },
+
+    { id: 'conversione', liv: 4, serve: ['UNITA'],
+      area: t('unità di misura', 'units'),
+      fai: function (caso) {
+        var un = fonte('UNITA').filter(function (x) { return x.from && x.to; });
+        if (un.length < 4) return null;
+        var x = scegli(caso, un);
+        function primo(y) { return String(y.to).split('|')[0].trim(); }
+        var d = distrattori(caso, un, x, 3, primo);
+        return {
+          domanda: t('A quanto corrisponde ', 'How much is ') + x.from + '?',
+          opzioni: mescola(caso, [x].concat(d)).map(primo),
+          giusta: primo(x),
+          spiega: x.from + ' = ' + x.to,
+          provenienza: 'UNIT_CONVERSIONS'
+        };
+      } },
+
+    /* ── il laboratorio ───────────────────────────────────────────────── */
+    { id: 'tecnica-lab', liv: 3, serve: ['LAB'],
+      area: t('tecniche di laboratorio', 'lab techniques'),
+      fai: function (caso) {
+        var lb = fonte('LAB').filter(function (x) { return x.name && x.desc; });
+        if (lb.length < 4) return null;
+        var x = scegli(caso, lb);
+        var d = distrattori(caso, lb, x, 3, function (y) { return y.name; });
+        return {
+          domanda: t('Quale tecnica è questa? «', 'Which technique is this? «') +
+                   String(x.desc).split('.')[0].slice(0, 120) + '»',
+          opzioni: mescola(caso, [x].concat(d)).map(function (y) { return y.name; }),
+          giusta: x.name,
+          spiega: x.name + (x.cat ? ' (' + x.cat + ')' : '') + ' · ' +
+                  String(x.desc).slice(0, 130),
+          provenienza: 'LAB_TECHNIQUES'
+        };
+      } },
+
+    /* ── la biochimica e il metabolismo ───────────────────────────────── */
+    { id: 'biomolecola-formula', liv: 4, serve: ['BIOMONO'],
+      area: t('biomolecole', 'biomolecules'),
+      fai: function (caso) {
+        var bm = fonte('BIOMONO').filter(function (x) { return x.name && x.formula; });
+        if (bm.length < 4) return null;
+        var x = scegli(caso, bm);
+        var d = distrattori(caso, bm, x, 3, function (y) { return y.formula; });
+        return {
+          domanda: t('Qual è la formula di ', 'What is the formula of ') + x.name + '?',
+          opzioni: mescola(caso, [x].concat(d)).map(function (y) { return y.formula; }),
+          giusta: x.formula,
+          spiega: x.name + ' · ' + x.formula + (x.mw ? ' · MW ' + x.mw : '') +
+                  (x.type ? ' · ' + x.type : ''),
+          provenienza: 'BIO_MONO_NEW'
+        };
+      } },
+
+    { id: 'via-metabolica', liv: 5, serve: ['VIE'],
+      area: t('vie metaboliche', 'metabolic pathways'),
+      fai: function (caso) {
+        var vi = fonte('VIE').filter(function (x) { return x.name && x.tipo; });
+        if (vi.length < 4) return null;
+        var x = scegli(caso, vi);
+        var d = distrattori(caso, vi, x, 3, function (y) { return y.tipo; });
+        return {
+          domanda: t('Che cos’è la ', 'What is ') + String(x.name).split('(')[0].trim() + '?',
+          opzioni: mescola(caso, [x].concat(d)).map(function (y) { return y.tipo; }),
+          giusta: x.tipo,
+          spiega: x.name + ' · ' + x.tipo + (x.fase ? ' · ' + x.fase : ''),
+          provenienza: 'VIE_META'
         };
       } },
 

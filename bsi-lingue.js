@@ -62,7 +62,7 @@
      Il dizionario. Chiavi: il testo italiano esatto, come appare.
      ═════════════════════════════════════════════════════════════════════════ */
   var EN = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — THE ELEMENT RUN',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Everything on one molecule',
     '🔬 Centro spettri': '🔬 Spectra centre', '📰 Articoli': '📰 Articles',
     '🔬 CENTRO SPETTRI': '🔬 SPECTRA CENTRE', '📰 ARTICOLI': '📰 ARTICLES',
@@ -267,7 +267,7 @@
 
   /* ── spagnolo ─────────────────────────────────────────────────────── */
   var ES = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — LA CARRERA DE LOS ELEMENTOS',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Todo sobre una molécula',
     '🔬 Centro spettri': '🔬 Centro de espectros', '📰 Articoli': '📰 Artículos',
     '🔬 CENTRO SPETTRI': '🔬 CENTRO DE ESPECTROS', '📰 ARTICOLI': '📰 ARTÍCULOS',
@@ -426,7 +426,7 @@
 
   /* ── francese ─────────────────────────────────────────────────────── */
   var FR = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — LA COURSE DES ÉLÉMENTS',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Tout sur une molécule',
     '🔬 Centro spettri': '🔬 Centre des spectres', '📰 Articoli': '📰 Articles',
     '🔬 CENTRO SPETTRI': '🔬 CENTRE DES SPECTRES', '📰 ARTICOLI': '📰 ARTICLES',
@@ -586,7 +586,7 @@
 
   /* ── tedesco ──────────────────────────────────────────────────────── */
   var DE = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — DER LAUF DER ELEMENTE',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Alles zu einem Molekül',
     '🔬 Centro spettri': '🔬 Spektrenzentrum', '📰 Articoli': '📰 Artikel',
     '🔬 CENTRO SPETTRI': '🔬 SPEKTRENZENTRUM', '📰 ARTICOLI': '📰 ARTIKEL',
@@ -745,7 +745,7 @@
 
   /* ── portoghese ───────────────────────────────────────────────────── */
   var PT = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — A CORRIDA DOS ELEMENTOS',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Tudo sobre uma molécula',
     '🔬 Centro spettri': '🔬 Centro de espetros', '📰 Articoli': '📰 Artigos',
     '🔬 CENTRO SPETTRI': '🔬 CENTRO DE ESPETROS', '📰 ARTICOLI': '📰 ARTIGOS',
@@ -904,7 +904,7 @@
 
   /* Nederlands */
   var NL = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — DE RACE DER ELEMENTEN',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Alles over één molecuul',
     '🔬 Centro spettri': '🔬 Spectracentrum', '📰 Articoli': '📰 Artikelen',
     '🔬 CENTRO SPETTRI': '🔬 SPECTRACENTRUM', '📰 ARTICOLI': '📰 ARTIKELEN',
@@ -1089,7 +1089,7 @@
 
   /* Polski */
   var PL = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — BIEG PIERWIASTKÓW',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Wszystko o jednej cząsteczce',
     '🔬 Centro spettri': '🔬 Centrum widm', '📰 Articoli': '📰 Artykuły',
     '🔬 CENTRO SPETTRI': '🔬 CENTRUM WIDM', '📰 ARTICOLI': '📰 ARTYKUŁY',
@@ -1274,7 +1274,7 @@
 
   /* Română */
   var RO = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — CURSA ELEMENTELOR',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Tot despre o moleculă',
     '🔬 Centro spettri': '🔬 Centrul de spectre', '📰 Articoli': '📰 Articole',
     '🔬 CENTRO SPETTRI': '🔬 CENTRUL DE SPECTRE', '📰 ARTICOLI': '📰 ARTICOLE',
@@ -1459,7 +1459,7 @@
 
   /* Ελληνικά */
   var EL = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — Ο ΑΓΩΝΑΣ ΤΩΝ ΣΤΟΙΧΕΙΩΝ',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Όλα για ένα μόριο',
     '🔬 Centro spettri': '🔬 Κέντρο φασμάτων', '📰 Articoli': '📰 Άρθρα',
     '🔬 CENTRO SPETTRI': '🔬 ΚΕΝΤΡΟ ΦΑΣΜΑΤΩΝ', '📰 ARTICOLI': '📰 ΑΡΘΡΑ',
@@ -1644,7 +1644,7 @@
 
   /* Русский */
   var RU = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — ГОНКА ЭЛЕМЕНТОВ',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 Всё об одной молекуле',
     '🔬 Centro spettri': '🔬 Центр спектров', '📰 Articoli': '📰 Статьи',
     '🔬 CENTRO SPETTRI': '🔬 ЦЕНТР СПЕКТРОВ', '📰 ARTICOLI': '📰 СТАТЬИ',
@@ -1829,7 +1829,7 @@
 
   /* 中文 */
   var ZH = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — 元素竞速',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 关于一个分子的一切',
     '🔬 Centro spettri': '🔬 光谱中心', '📰 Articoli': '📰 文章',
     '🔬 CENTRO SPETTRI': '🔬 光谱中心', '📰 ARTICOLI': '📰 文章',
@@ -2014,7 +2014,7 @@
 
   /* 日本語 */
   var JA = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — 元素のラン',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 一つの分子のすべて',
     '🔬 Centro spettri': '🔬 スペクトルセンター', '📰 Articoli': '📰 論文',
     '🔬 CENTRO SPETTRI': '🔬 スペクトルセンター', '📰 ARTICOLI': '📰 論文',
@@ -2199,7 +2199,7 @@
 
   /* العربية */
   var AR = {
-    'ELEMENTIA': 'ELEMENTIA', 'ELEMENTIA — LA CORSA DEGLI ELEMENTI': 'ELEMENTIA — سباق العناصر',
+    'ATOMIC PROTOCOL': 'ATOMIC PROTOCOL', 
     '🌈 Tutto su una molecola': '🌈 كل شيء عن جزيء واحد',
     '🔬 Centro spettri': '🔬 مركز الأطياف', '📰 Articoli': '📰 مقالات',
     '🔬 CENTRO SPETTRI': '🔬 مركز الأطياف', '📰 ARTICOLI': '📰 مقالات',
