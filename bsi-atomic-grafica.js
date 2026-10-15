@@ -238,6 +238,13 @@
        Una sola funzione decide se un materiale e' fisico (alta, media) o
        piatto in stile PS1: i modelli non lo sanno e non devono saperlo.
        ═══════════════════════════════════════════════════════════════════ */
+    /* LA PLAYSTATION 1 IN DUE RIGHE DI SHADER.
+       Nel vertex shader la posizione proiettata si arrotonda a una griglia:
+       i vertici della PS1 erano numeri interi, ed e' quello — non la bassa
+       risoluzione — a far tremare i poligoni. Nel fragment shader il colore
+       scende a 15 bit (5 per canale, come la sua memoria video) con la
+       retinatura ordinata di Bayer che la macchina applicava per nascondere
+       le bande: il grano fine che si vede su ogni sfumatura di Resident Evil. */
     var vertexSnap = function (m) {
       m.onBeforeCompile = function (shader) {
         shader.vertexShader = shader.vertexShader.replace(
@@ -245,17 +252,31 @@
           '#include <project_vertex>\n' +
           '{ float g = 160.0; vec2 p = gl_Position.xy / gl_Position.w;' +
           '  p = floor(p * g + 0.5) / g; gl_Position.xy = p * gl_Position.w; }');
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          '#include <dithering_fragment>\n' +
+          '{ vec2 a = floor(gl_FragCoord.xy);' +
+          '  vec2 h = floor(a * 0.5);' +
+          '  float b2a = fract(dot(mod(a, 2.0), vec2(0.5, mod(a.y, 2.0) * 0.75)));' +
+          '  float b2h = fract(dot(mod(h, 2.0), vec2(0.5, mod(h.y, 2.0) * 0.75)));' +
+          '  float bay = b2h * 0.25 + b2a;' +
+          '  gl_FragColor.rgb = floor(gl_FragColor.rgb * 31.0 + bay) / 31.0; }');
       };
+      m.userData.ps1 = true;
       return m;
     };
 
     function mat(p) {
       if (PS1) {
+        /* luce sui vertici e sfumata fra un vertice e l'altro (Gouraud):
+           e' quello che faceva la PS1, non le facce piatte */
         var m1 = new T.MeshLambertMaterial({
           color: p.color != null ? p.color : 0xffffff,
           map: p.map || null, emissive: p.emissive || 0x000000,
+          emissiveMap: p.emissiveMap || null,
+          emissiveIntensity: p.emissiveIntensity != null ? p.emissiveIntensity : 1,
           transparent: !!p.transparent, opacity: p.opacity != null ? p.opacity : 1,
-          flatShading: true, side: p.side || T.FrontSide
+          alphaTest: p.alphaTest || 0, side: p.side || T.FrontSide
         });
         return vertexSnap(m1);
       }
@@ -279,9 +300,10 @@
         roughnessMap: p.roughnessMap || null,
         roughness: p.roughness != null ? p.roughness : 0.6,
         metalness: p.metalness != null ? p.metalness : 0,
-        emissive: p.emissive || 0x000000,
+        emissive: p.emissive || 0x000000, emissiveMap: p.emissiveMap || null,
         emissiveIntensity: p.emissiveIntensity != null ? p.emissiveIntensity : 1,
         transparent: !!p.transparent, opacity: p.opacity != null ? p.opacity : 1,
+        alphaTest: p.alphaTest || 0,
         side: p.side || T.FrontSide,
         envMapIntensity: p.env != null ? p.env : 1
       });
@@ -392,149 +414,8 @@
       return o;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       IL CHIMICO
-
-       Un metro e settantacinque, proporzioni vere. Testa ovale, capelli,
-       occhiali di protezione con le lenti di vetro, camice che si apre sotto
-       la vita, guanti di nitrile azzurri, pantaloni e scarpe. Gli snodi sono
-       gli stessi di prima — bacino, busto, collo, spalle, gomiti, anche,
-       ginocchia — e l'animazione non cambia: cambia quello che si muove.
-       ═══════════════════════════════════════════════════════════════════ */
-    function chimico() {
-      var g = new T.Group();
-      var bacino = new T.Group();
-      bacino.position.y = 0.95;
-      g.add(bacino);
-
-      /* il bacino: fianchi dentro i pantaloni */
-      var fianchi = mesh(capsula(0.15, 0.05), M.pantaloni, 0, -0.02, 0);
-      fianchi.rotation.z = Math.PI / 2; fianchi.scale.set(1, 1, 0.75);
-      bacino.add(fianchi);
-
-      /* il camice sotto la vita: una gonna svasata che scende fino al
-         ginocchio. Sta sul bacino e non sul busto, cosi' non ruota con le
-         spalle — e' quello che fa un camice vero quando cammini */
-      var profiloCamice = [];
-      for (var i = 0; i <= 10; i++) {
-        var t = i / 10;
-        profiloCamice.push(new T.Vector2(0.17 + t * 0.07, -t * 0.5));
-      }
-      var gonna = new T.Mesh(new T.LatheGeometry(profiloCamice, SEG, -Math.PI * 0.86,
-                                                 Math.PI * 1.72),
-                             mat({ color: 0xf2f4f6, roughness: 0.78, side: T.DoubleSide }));
-      gonna.position.y = 0.06; gonna.rotation.y = Math.PI; gonna.scale.z = 0.78;
-      if (!PS1) { gonna.castShadow = true; gonna.receiveShadow = true; }
-      bacino.add(gonna);
-
-      var busto = new T.Group();
-      bacino.add(busto);
-      /* il torace: un profilo ruotato, stretto in vita e largo alle spalle */
-      var profiloBusto = [
-        new T.Vector2(0.0, 0.0), new T.Vector2(0.16, 0.02), new T.Vector2(0.175, 0.15),
-        new T.Vector2(0.2, 0.32), new T.Vector2(0.205, 0.44), new T.Vector2(0.17, 0.53),
-        new T.Vector2(0.07, 0.58), new T.Vector2(0.0, 0.585)
-      ];
-      var torace = mesh(new T.LatheGeometry(profiloBusto, SEG), M.camice, 0, 0, 0);
-      torace.scale.z = 0.66;
-      busto.add(torace);
-      /* il colletto e il bavero */
-      var colletto = mesh(new T.TorusGeometry(0.075, 0.022, 8, SEG, Math.PI * 1.6),
-                          M.camice, 0, 0.55, 0.01);
-      colletto.rotation.x = Math.PI / 2; colletto.rotation.z = Math.PI * 0.7;
-      busto.add(colletto);
-      /* il taschino, il cartellino e la penna */
-      busto.add(mesh(tonda(0.1, 0.11, 0.012, 0.004), M.camice, 0.1, 0.36, 0.135));
-      var tesserino = mesh(tonda(0.06, 0.085, 0.006, 0.004), M.plastica, -0.1, 0.38, 0.137);
-      busto.add(tesserino);
-      var distintivo = mesh(tonda(0.05, 0.022, 0.008, 0.003),
-                            mat({ color: 0x0b3b2d, emissive: 0x2ee6a6, emissiveIntensity: 1.2 }),
-                            -0.1, 0.355, 0.142, false);
-      busto.add(distintivo);
-      busto.add(mesh(new T.CylinderGeometry(0.006, 0.006, 0.12, 6), M.verniceBlu,
-                     0.13, 0.4, 0.14));
-
-      var collo = new T.Group();
-      collo.position.y = 0.56;
-      busto.add(collo);
-      collo.add(mesh(new T.CylinderGeometry(0.048, 0.055, 0.08, SEG), M.pelle, 0, 0.03, 0));
-      var testa = new T.Group();
-      testa.position.y = 0.17;
-      collo.add(testa);
-      var cranio = mesh(new T.SphereGeometry(0.105, SEG, SEG), M.pelle, 0, 0, 0);
-      cranio.scale.set(0.92, 1.14, 1.02);
-      testa.add(cranio);
-      /* la mascella, appena piu' stretta */
-      var mascella = mesh(new T.SphereGeometry(0.08, SEG, SEG), M.pelle, 0, -0.06, 0.02);
-      mascella.scale.set(1, 0.8, 1);
-      testa.add(mascella);
-      /* i capelli: una calotta sopra e dietro */
-      var cap = mesh(new T.SphereGeometry(0.112, SEG, SEG, 0, Math.PI * 2, 0, Math.PI * 0.55),
-                     M.capelli, 0, 0.012, -0.008);
-      cap.scale.set(0.95, 1.12, 1.08);
-      cap.rotation.x = -0.25;
-      testa.add(cap);
-      /* il naso e le orecchie */
-      var naso = mesh(new T.ConeGeometry(0.016, 0.04, 8), M.pelle, 0, -0.01, 0.108);
-      naso.rotation.x = Math.PI / 2;
-      testa.add(naso);
-      [-1, 1].forEach(function (l) {
-        var o = mesh(new T.SphereGeometry(0.022, 8, 8), M.pelle, l * 0.098, -0.005, 0);
-        o.scale.set(0.45, 1, 0.8);
-        testa.add(o);
-        /* gli occhi, dietro le lenti */
-        testa.add(mesh(new T.SphereGeometry(0.011, 8, 8), M.occhio, l * 0.034, 0.018, 0.098, false));
-      });
-      /* gli occhiali di protezione: la fascia elastica e le due lenti */
-      var fascia = mesh(new T.TorusGeometry(0.108, 0.012, 6, SEG * 2), M.montatura,
-                        0, 0.022, 0);
-      fascia.rotation.x = Math.PI / 2; fascia.scale.set(0.95, 1.06, 1);
-      testa.add(fascia);
-      var lenti = mesh(tonda(0.15, 0.048, 0.03, 0.012), M.lenti, 0, 0.02, 0.098, false);
-      testa.add(lenti);
-      testa.add(mesh(tonda(0.155, 0.054, 0.012, 0.006), M.montatura, 0, 0.02, 0.083));
-
-      function braccio(lato) {
-        var spalla = new T.Group();
-        spalla.position.set(lato * 0.205, 0.47, 0);
-        busto.add(spalla);
-        spalla.add(mesh(new T.SphereGeometry(0.06, SEG, SEG), M.camice, 0, 0, 0));
-        spalla.add(mesh(capsula(0.052, 0.2), M.camice, 0, -0.14, 0));
-        var gomito = new T.Group();
-        gomito.position.y = -0.28;
-        spalla.add(gomito);
-        gomito.add(mesh(capsula(0.045, 0.18), M.camice, 0, -0.1, 0));
-        /* il polsino del camice e la mano guantata */
-        gomito.add(mesh(new T.CylinderGeometry(0.047, 0.047, 0.03, SEG), M.camice, 0, -0.2, 0));
-        var mano = mesh(new T.SphereGeometry(0.045, SEG, SEG), M.guanti, 0, -0.255, 0.004);
-        mano.scale.set(0.82, 1.25, 0.6);
-        gomito.add(mano);
-        var pollice = mesh(capsula(0.013, 0.035), M.guanti, -lato * 0.03, -0.24, 0.022);
-        pollice.rotation.z = lato * 0.6;
-        gomito.add(pollice);
-        return { spalla: spalla, gomito: gomito };
-      }
-      function gamba(lato) {
-        var anca = new T.Group();
-        anca.position.set(lato * 0.095, 0, 0);
-        bacino.add(anca);
-        anca.add(mesh(capsula(0.072, 0.32), M.pantaloni, 0, -0.21, 0));
-        var ginocchio = new T.Group();
-        ginocchio.position.y = -0.43;
-        anca.add(ginocchio);
-        ginocchio.add(mesh(capsula(0.058, 0.32), M.pantaloni, 0, -0.2, 0));
-        var scarpa = mesh(new T.SphereGeometry(0.07, SEG, SEG), M.scarpe, 0, -0.43, 0.04);
-        scarpa.scale.set(0.82, 0.55, 1.55);
-        ginocchio.add(scarpa);
-        ginocchio.add(mesh(tonda(0.105, 0.025, 0.22, 0.01), M.gomma, 0, -0.455, 0.04));
-        return { anca: anca, ginocchio: ginocchio };
-      }
-
-      return {
-        nodo: g, bacino: bacino, busto: busto, collo: collo, distintivo: distintivo,
-        bSx: braccio(-1), bDx: braccio(1), gSx: gamba(-1), gDx: gamba(1)
-      };
-    }
+    /* il chimico, i residui e i guardiani stanno in bsi-atomic-figure.js:
+       una casa per le figure, che il gioco installa sopra questi arredi */
 
     /* ═══════════════════════════════════════════════════════════════════
        GLI ARREDI
@@ -854,7 +735,7 @@
       q.fillStyle = '#ffffff'; q.font = 'bold 54px sans-serif';
       q.textAlign = 'center'; q.textBaseline = 'middle';
       q.fillText(sim, 64, 68);
-      var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding;
+      var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding; tx.usaEGetta = true;
       var spr = new T.Sprite(new T.SpriteMaterial({ map: tx, depthWrite: false }));
       spr.scale.set(0.32, 0.32, 0.32);
       spr.position.y = 0.72;
@@ -873,198 +754,13 @@
         q.beginPath(); q.moveTo(12, 24 + i * 14);
         q.lineTo(12 + 60 + Math.sin(i * 3.1) * 40, 24 + i * 14); q.stroke();
       }
-      var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding;
+      var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding; tx.usaEGetta = true;
       var m = new T.Mesh(new T.PlaneGeometry(0.21, 0.29),
                          mat({ map: tx, roughness: 0.9, side: T.DoubleSide }));
       m.rotation.x = -Math.PI / 2;
       m.position.y = 0.005;
       if (!PS1) m.receiveShadow = true;
       return m;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       I NEMICI — residui che si sono mossi
-
-       Una goccia di materia viscosa: una sfera suddivisa i cui vertici si
-       spostano con il rumore, aggiornata a ogni fotogramma. Lucida e un po'
-       trasparente, con un nucleo che brilla. Non un mostro: una cosa che
-       non dovrebbe muoversi e lo fa.
-       ═══════════════════════════════════════════════════════════════════ */
-    function residuo(colore) {
-      colore = colore || 0x5fbf2a;
-      var geo = new T.IcosahedronGeometry(0.42, PS1 ? 1 : (ALTA ? 4 : 3));
-      var base = geo.attributes.position.array.slice(0);
-      var m = ALTA
-        ? new T.MeshPhysicalMaterial({ color: colore || 0x7ad04b, roughness: 0.12,
-            metalness: 0, clearcoat: 1, clearcoatRoughness: 0.08, transmission: 0.12,
-            transparent: true, emissive: colore || 0x7ad04b, emissiveIntensity: 0.35 })
-        : mat({ color: colore || 0x7ad04b, roughness: 0.2,
-                emissive: colore || 0x7ad04b, emissiveIntensity: 0.18 });
-      var o = new T.Mesh(geo, m);
-      if (!PS1) o.castShadow = true;
-      var nucleo = new T.Mesh(new T.SphereGeometry(0.12, 12, 12),
-        new T.MeshBasicMaterial({ color: 0xeaffb0 }));
-      var g = new T.Group();
-      g.add(o); g.add(nucleo);
-      /* gli occhi: due punti lucidi che ti guardano */
-      [-1, 1].forEach(function (l) {
-        var oc = new T.Mesh(new T.SphereGeometry(0.045, 10, 10),
-                            new T.MeshBasicMaterial({ color: 0x0b0f0a }));
-        oc.position.set(l * 0.13, 0.12, 0.36);
-        g.add(oc);
-      });
-      function deforma(t) {
-        var p = geo.attributes.position.array;
-        for (var i = 0; i < p.length; i += 3) {
-          var x = base[i], y = base[i + 1], z = base[i + 2];
-          var d = 1 + (rumore(x * 3 + t, y * 3 + t * 0.7, 7) - 0.5) * 0.32 -
-                  Math.max(0, -y) * 0.25;
-          p[i] = x * d * (1 + Math.sin(t * 2) * 0.03);
-          p[i + 1] = y * d * (0.86 - Math.sin(t * 2) * 0.04);
-          p[i + 2] = z * d;
-        }
-        geo.attributes.position.needsUpdate = true;
-        geo.computeVertexNormals();
-      }
-      return { gruppo: g, corpo: o, deforma: deforma };
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       I GUARDIANI
-       ═══════════════════════════════════════════════════════════════════ */
-    function guardiano(tipo) {
-      var g = new T.Group();
-      var parti = {};
-      if (tipo === 'pompa') {
-        /* POMPA 7: una pompa centrifuga industriale incrostata. Corpo a
-           chiocciola, motore, giunto, tubi di mandata con le flange, e il
-           volantino della valvola sopra. La ruggine e' uno strato a parte:
-           si scioglie con l'acido, letteralmente. */
-        var corpo = new T.Group();
-        var voluta = mesh(new T.CylinderGeometry(1.05, 1.05, 0.7, SEG * 2), M.acciaio, 0, 1.25, 0);
-        voluta.rotation.x = Math.PI / 2;
-        corpo.add(voluta);
-        var ruggine = mesh(new T.CylinderGeometry(1.09, 1.09, 0.74, SEG * 2), M.ruggine, 0, 1.25, 0);
-        ruggine.rotation.x = Math.PI / 2;
-        corpo.add(ruggine);
-        var girante = mesh(new T.CylinderGeometry(0.42, 0.42, 0.78, 12), M.acciaioScuro, 0, 1.25, 0);
-        girante.rotation.x = Math.PI / 2;
-        corpo.add(girante);
-        for (var p = 0; p < 6; p++) {
-          var pala = mesh(tonda(0.08, 0.4, 0.8, 0.02), M.acciaio, 0, 0, 0);
-          pala.position.set(Math.cos(p / 6 * 6.2832) * 0.22, Math.sin(p / 6 * 6.2832) * 0.22, 0);
-          pala.rotation.z = p / 6 * 6.2832;
-          girante.add(pala);
-        }
-        var motore = mesh(capsula(0.48, 0.9), M.verniceVerde, 0, 1.25, -1.1);
-        motore.rotation.x = Math.PI / 2;
-        corpo.add(motore);
-        for (var a = 0; a < 10; a++) {
-          var al = mesh(tonda(0.02, 0.9, 0.12, 0.006), M.verniceVerde, 0, 0, 0);
-          var an = a / 10 * 6.2832;
-          al.position.set(Math.cos(an) * 0.5, 1.25 + Math.sin(an) * 0.5, -1.1);
-          al.rotation.set(0, 0, an); al.rotation.x = Math.PI / 2;
-          corpo.add(al);
-        }
-        corpo.add(tubo([[0, 2.25, 0], [0, 2.9, 0], [0.6, 3.4, 0], [1.8, 3.5, 0]], 0.2, M.acciaio));
-        corpo.add(tubo([[1.05, 1.0, 0], [1.6, 1.0, 0], [2.4, 1.0, 0.3]], 0.22, M.ruggine));
-        var vol = mesh(new T.TorusGeometry(0.42, 0.05, 10, SEG * 2), M.verniceRossa, 0, 3.0, 0.35);
-        corpo.add(vol);
-        for (var r2 = 0; r2 < 4; r2++) {
-          var raz = mesh(new T.CylinderGeometry(0.02, 0.02, 0.84, 6), M.verniceRossa, 0, 3.0, 0.35);
-          raz.rotation.z = r2 * Math.PI / 4;
-          corpo.add(raz);
-        }
-        /* gli «occhi»: due spie che guardano chi entra */
-        var oA = mesh(new T.SphereGeometry(0.09, 12, 12), M.ledRosso, -0.45, 1.85, 0.36, false);
-        var oB = mesh(new T.SphereGeometry(0.09, 12, 12), M.ledRosso, 0.45, 1.85, 0.36, false);
-        corpo.add(oA); corpo.add(oB);
-        corpo.add(mesh(tonda(2.4, 0.3, 1.6, 0.04), M.acciaioScuro, 0, 0.15, -0.4));
-        g.add(corpo);
-        parti = { corpo: corpo, ruggine: ruggine, girante: girante, volantino: vol, occhi: [oA, oB] };
-      } else if (tipo === 'polimero') {
-        /* IL POLIMERO: catene che si avvolgono su se stesse, lucide come
-           plastica fusa. Ogni catena e' un tubo lungo una curva casuale ma
-           ripetibile. */
-        var catene = [];
-        for (var c = 0; c < 9; c++) {
-          var pts = [];
-          for (var k = 0; k < 9; k++) {
-            var a1 = k * 0.9 + c * 1.7, r1 = 0.6 + 0.5 * Math.sin(k * 1.3 + c);
-            pts.push([Math.cos(a1) * r1, 1.4 + Math.sin(k * 0.8 + c * 0.6) * 0.9, Math.sin(a1) * r1]);
-          }
-          var mc = mat({ color: [0xc04bff, 0x8a3ce0, 0xe06bd8][c % 3], roughness: 0.18,
-                         metalness: 0.05, emissive: 0x2a0a40, emissiveIntensity: 0.4 });
-          var tc = tubo(pts, 0.11, mc);
-          g.add(tc); catene.push(tc);
-        }
-        var nocciolo = mesh(new T.SphereGeometry(0.45, SEG, SEG),
-                            mat({ color: 0xffe06b, emissive: 0xffa020, emissiveIntensity: 1.4 }),
-                            0, 1.45, 0);
-        g.add(nocciolo);
-        parti = { catene: catene, nocciolo: nocciolo, occhi: [nocciolo] };
-      } else if (tipo === 'spettro') {
-        /* LO SPETTRO: un cristallo che emette e tre anelli che girano come le
-           bande di uno spettro. E' un radicale: ha un elettrone spaiato che
-           gli gira intorno. */
-        var cristallo = mesh(new T.OctahedronGeometry(0.85, 0),
-          mat({ color: 0x9fe8ff, roughness: 0.05, metalness: 0.2,
-                emissive: 0x2a9fd0, emissiveIntensity: 0.9 }), 0, 1.7, 0);
-        cristallo.scale.set(0.8, 1.3, 0.8);
-        g.add(cristallo);
-        var anelli = [];
-        [0xff4d6d, 0x6bff9a, 0x6b9aff].forEach(function (col, i) {
-          var an2 = mesh(new T.TorusGeometry(1.3 + i * 0.25, 0.035, 8, SEG * 3),
-                         mat({ color: col, emissive: col, emissiveIntensity: 1.6 }), 0, 1.7, 0, false);
-          an2.rotation.x = Math.PI / 2 + i * 0.5;
-          g.add(an2); anelli.push(an2);
-        });
-        var elettrone = mesh(new T.SphereGeometry(0.12, 12, 12),
-                             new T.MeshBasicMaterial({ color: 0xffffff }), 1.6, 1.7, 0, false);
-        g.add(elettrone);
-        parti = { cristallo: cristallo, anelli: anelli, elettrone: elettrone, occhi: [cristallo] };
-      } else if (tipo === 'elica') {
-        /* ELICA: una doppia elica di DNA alta tre metri, con le coppie di
-           basi colorate come nei libri — adenina, timina, guanina, citosina.
-           Gira, e le basi sono la sua debolezza. */
-        var el = new T.Group();
-        var basi = [0xff5a5a, 0x5aa0ff, 0x5aff8a, 0xffd35a];
-        for (var b = 0; b < 22; b++) {
-          var y = 0.3 + b * 0.14, an3 = b * 0.55;
-          var p1 = new T.Vector3(Math.cos(an3) * 0.7, y, Math.sin(an3) * 0.7);
-          var p2 = new T.Vector3(Math.cos(an3 + Math.PI) * 0.7, y, Math.sin(an3 + Math.PI) * 0.7);
-          el.add(mesh(new T.SphereGeometry(0.09, 12, 12), M.acciaio, p1.x, p1.y, p1.z));
-          el.add(mesh(new T.SphereGeometry(0.09, 12, 12), M.acciaio, p2.x, p2.y, p2.z));
-          var mid = p1.clone().add(p2).multiplyScalar(0.5);
-          var coppia = mesh(new T.CylinderGeometry(0.035, 0.035, 1.4, 8),
-            mat({ color: basi[b % 4], emissive: basi[b % 4], emissiveIntensity: 0.5 }),
-            mid.x, mid.y, mid.z);
-          coppia.lookAt(p2); coppia.rotateX(Math.PI / 2);
-          el.add(coppia);
-        }
-        g.add(el);
-        parti = { elica: el, occhi: [] };
-      } else {
-        /* PROTOCOLLO: il nucleo del reattore. Anelli concentrici, una sfera
-           di plasma, e i sostegni che lo tengono sospeso. */
-        var nucleo = mesh(new T.SphereGeometry(0.7, SEG * 2, SEG * 2),
-          mat({ color: 0xffc46a, emissive: 0xff7a18, emissiveIntensity: 1.25, roughness: 0.3 }), 0, 1.9, 0, false);
-        g.add(nucleo);
-        var anelli2 = [];
-        for (var i2 = 0; i2 < 3; i2++) {
-          var ar = mesh(new T.TorusGeometry(1.1 + i2 * 0.35, 0.09, 12, SEG * 3), M.acciaio, 0, 1.9, 0);
-          ar.rotation.set(i2 * 0.7, i2 * 0.4, 0);
-          g.add(ar); anelli2.push(ar);
-        }
-        for (var s2 = 0; s2 < 4; s2++) {
-          var an4 = s2 / 4 * 6.2832;
-          g.add(tubo([[Math.cos(an4) * 2.2, 0, Math.sin(an4) * 2.2],
-                      [Math.cos(an4) * 1.8, 1.0, Math.sin(an4) * 1.8],
-                      [Math.cos(an4) * 1.2, 1.9, Math.sin(an4) * 1.2]], 0.12, M.acciaioScuro));
-        }
-        parti = { nucleo: nucleo, anelli: anelli2, occhi: [nucleo] };
-      }
-      return { gruppo: g, parti: parti };
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1079,7 +775,11 @@
     function stanza(st, vaniPer) {
       var g = new T.Group();
       var L = st.larg, P = st.prof, H = st.alt;
-      var pav = new T.Mesh(new T.PlaneGeometry(L, P), M.pavimento);
+      /* in PS1 il pavimento e' suddiviso: con la luce sui vertici, un
+         pavimento di quattro vertici e' buio dappertutto tranne gli angoli.
+         I giochi dell'epoca facevano lo stesso */
+      var pav = new T.Mesh(PS1 ? new T.PlaneGeometry(L, P, Math.ceil(L / 1.2), Math.ceil(P / 1.2))
+                               : new T.PlaneGeometry(L, P), M.pavimento);
       pav.rotation.x = -Math.PI / 2;
       if (!PS1) pav.receiveShadow = true;
       /* le piastrelle restano grandi uguali, qualunque sia la stanza */
@@ -1168,6 +868,7 @@
           q.fillText(p[0], 440 - i * 66, 109); q.textAlign = 'left';
         });
         var tx = new T.CanvasTexture(c); tx.encoding = T.sRGBEncoding;
+        tx.usaEGetta = true;
         var cart = new T.Mesh(new T.PlaneGeometry(1.4, 0.44), mat({ map: tx, roughness: 0.5 }));
         cart.position.set(-L / 2 + 1.4, 1.95, -P / 2 + 0.07);
         g.add(cart);
@@ -1240,14 +941,22 @@
 
     materiali();
 
-    return {
+    var api = {
       qualita: Q, M: M, materiali: M,
-      chimico: chimico, fusto: fusto, scaffale: scaffale, bancoLab: bancoLab,
+      fusto: fusto, scaffale: scaffale, bancoLab: bancoLab,
       terminale: terminale, paratia: paratia, cappa: cappa, tubo: tubo,
-      ampolla: ampolla, foglio: foglio, residuo: residuo, guardiano: guardiano,
+      ampolla: ampolla, foglio: foglio,
       stanza: stanza, flacone: flacone, capsula: capsula, tonda: tonda,
       configura: configura, ambiente: ambiente, mat: mat
     };
+    /* le figure: protagonista, residui e guardiani */
+    if (globale.BSIAtomicFigure) {
+      globale.BSIAtomicFigure.installa(api, T, {
+        PS1: PS1, ALTA: ALTA, SEG: SEG, M: M, hash: hash, rumore: rumore, fbm: fbm,
+        mat: mat, mesh: mesh, tonda: tonda, capsula: capsula, tubo: tubo
+      });
+    }
+    return api;
   }
 
   globale.BSIAtomicGrafica = { crea: crea, versione: '1.0' };

@@ -5,18 +5,21 @@
    CHE COS'E'
 
    Un gioco di esplorazione in tre dimensioni, in terza o in prima persona:
-   un chimico attraversa le cinque ali di un istituto sigillato — venti
-   livelli, cinque guardiani — raccoglie ELEMENTI, li SINTETIZZA in composti
+   un chimico attraversa le dieci zone di un istituto sigillato — cento
+   livelli, dieci guardiani — raccoglie ELEMENTI, li SINTETIZZA in composti
    e usa la chimica vera per aprire le paratie e abbattere i guardiani.
 
    TRE MODULI, UNA CASA PER FUNZIONE
 
-     · bsi-atomic-grafica.js — i modelli, i materiali e le luci. Grafica
-       realistica di serie: materiali fisici (PBR), texture procedurali con
-       mappe di rilievo e di ruvidita', riflessi d'ambiente, ombre morbide,
-       tone mapping cinematografico. Lo stile PlayStation 1 resta come
-       impostazione, per chi lo preferisce o ha un telefono lento.
-     · bsi-atomic-livelli.js — i dati: venti livelli generati da un seme,
+     · bsi-atomic-figure.js — il protagonista, i residui e i dieci
+       guardiani, nel realismo grezzo dei migliori titoli PlayStation 1:
+       pochi poligoni con proporzioni vere e texture dipinte (il viso, le
+       pieghe del camice, la ruggine che cola, la carne con le vene).
+     · bsi-atomic-grafica.js — gli ambienti, i materiali e le luci. Di
+       partenza lo stile PS1: luce sui vertici, colore a 15 bit con la
+       retinatura, vertici che tremano, pixel netti. A scelta, una grafica
+       moderna con materiali fisici, riflessi e ombre morbide.
+     · bsi-atomic-livelli.js — i dati: cento livelli generati da un seme,
        guardiani, ricette, enigmi. Niente grafica: il banco li verifica tutti
        senza aprire un fotogramma.
      · questo file — il gioco: movimento, telecamera, interazione,
@@ -59,18 +62,15 @@
      di un gioco che scatta e' peggiore di quella di un gioco meno lucido.
      ═════════════════════════════════════════════════════════════════════════ */
   var PRE = 'bsi-ap-';
-  function graficaDiPartenza() {
-    try {
-      var tocco = globale.matchMedia && globale.matchMedia('(pointer: coarse)').matches;
-      var core = (globale.navigator && globale.navigator.hardwareConcurrency) || 8;
-      return (tocco && core <= 4) ? 'media' : 'alta';
-    } catch (e) { return 'alta'; }
-  }
+  /* la grafica di partenza e' il PS1: e' lo stile scelto per il gioco —
+     poligoni pochi, texture dipinte, luce sui vertici — e su un telefono
+     e' anche il piu' leggero. Alta e media restano come scelta */
+  function graficaDiPartenza() { return 'ps1'; }
   var IMP = {
     visuale: 'terza',        /* terza | prima */
     difficolta: 'normale',   /* facile | normale | difficile | esperimento */
     grafica: graficaDiPartenza(), /* alta | media | ps1 */
-    risoluzione: '320',      /* solo PS1: 320 | 480 | 640 */
+    risoluzione: '480',      /* solo PS1: 320 | 480 | 640 */
     suono: 'acceso'
   };
 
@@ -170,7 +170,41 @@
            'pair the bases can read it. If you are reading this and remember nothing, that is ' +
            'normal: the vapours of 12 erase the last hours. You restarted it. You are also the ' +
            'only one who knows how to stop it.»'),
-      5: t('Il Nucleo. Il Custode ti parla per la prima volta: «Non sono il tuo nemico. Ti ho chiuso ' +
+      5: t('Registro del quadro elettrico, sotterraneo. Alle 02:40 la corrente delle celle ' +
+           'elettrolitiche è stata deviata sul reattore del 12. Autorizzazione: il tuo badge. Sul ' +
+           'pannello, un post-it di Sarti: «Il rame cresce anche a corrente spenta. Non toccare ' +
+           'le vasche senza guanti.»',
+           'Switchboard log, basement. At 02:40 the electrolytic cells’ current was diverted to ' +
+           'reactor 12. Authorisation: your badge. On the panel, a sticky note from Sarti: ' +
+           '«The copper grows even with the power off. Do not touch the tanks without gloves.»'),
+      6: t('Inventario delle celle frigorifere. Campioni del Protocollo 12 conservati a −196 °C. ' +
+           'Il più vecchio porta la tua firma e una data di due anni fa. Il Protocollo non è ' +
+           'ripartito stanotte per caso: lo stai rifacendo, una volta dopo l’altra, e ogni volta ' +
+           'dimentichi.',
+           'Cold-room inventory. Protocol 12 samples stored at −196 °C. The oldest bears your ' +
+           'signature and a date two years ago. The Protocol did not restart tonight by chance: ' +
+           'you keep redoing it, again and again, and each time you forget.'),
+      7: t('Fascicolo «P12 — candidato farmaco». Era un sedativo a lunga durata: i finanziatori ' +
+           'volevano il farmaco, il sottoprodotto era il problema. Nota a margine di Sarti: «Chi ' +
+           'respira i vapori dimentica le ultime ore. È per questo che il direttore non ricorda ' +
+           'di aver firmato.»',
+           'File «P12 — drug candidate». It was a long-acting sedative: the funders wanted the ' +
+           'drug, the by-product was the problem. Sarti’s note in the margin: «Whoever breathes ' +
+           'the vapours forgets the last hours. That is why the director does not remember ' +
+           'signing.»'),
+      8: t('Le telecamere del bunker. Alle 02:51 si vede una persona in camice che sblocca i ' +
+           'contenitori delle scorie con la chiave del direttore. Si gira verso l’obiettivo. ' +
+           'Hai la tua faccia. Il direttore dell’istituto sei tu.',
+           'The bunker cameras. At 02:51 a person in a lab coat unlocks the waste containers ' +
+           'with the director’s key. They turn towards the lens. They have your face. The ' +
+           'institute’s director is you.'),
+      9: t('Ultima registrazione di Sarti, impianto di depurazione: «Il 12 è nelle fogne. Ho ' +
+           'chiuso le paratoie a mano, da dentro: se arriva al fiume non si ferma più. Non ' +
+           'posso uscire, e va bene così. Finiscilo tu, direttore. Sai come.»',
+           'Sarti’s last recording, treatment plant: «12 is in the sewers. I closed the ' +
+           'sluices by hand, from inside: if it reaches the river it will never stop. I cannot ' +
+           'get out, and that is fine. You finish it, director. You know how.»'),
+      10: t('Il Nucleo. Il Custode ti parla per la prima volta: «Non sono il tuo nemico. Ti ho chiuso ' +
            'dentro con lui perché solo tu puoi bilanciarlo. Quando la reazione si ferma, le porte ' +
            'si aprono.» Sul pannello, la tua istruzione scritta a mano: «riprendere comunque». ' +
            'Questa volta la cancelli.',
@@ -241,7 +275,7 @@
      sblocca la scelta dei livelli nel menu.
      ═════════════════════════════════════════════════════════════════════════ */
   function livelloMax() {
-    try { return Math.max(1, Math.min(20, +globale.localStorage.getItem(PRE + 'livelloMax') || 1)); }
+    try { return Math.max(1, Math.min(LIV().LIVELLI, +globale.localStorage.getItem(PRE + 'livelloMax') || 1)); }
     catch (e) { return 1; }
   }
   function salva() {
@@ -283,7 +317,7 @@
      rotto, non un gioco difficile */
   function ricetteDovute(n) {
     var A = LIV(), dovute = [];
-    var zona = Math.ceil(n / 4);
+    var zona = Math.ceil(n / LIV().PER_ZONA);
     A.ZONE().forEach(function (z) { if (z.n < zona) dovute = dovute.concat(z.ricette); });
     var G2 = A.GUARDIANI();
     Object.keys(G2).forEach(function (k) {
@@ -343,46 +377,101 @@
      snodi — spalle, gomiti, anche, ginocchia — perche' un personaggio che
      cammina senza piegare le gambe e' un pupazzo che scivola. */
   var BACINO = 0.95;
+
+  /* LE ANIMAZIONI. Ogni giunto ha un BERSAGLIO calcolato dal passo, e ci
+     va per gradi: e' lo smorzamento che toglie la rigidita' da marionetta.
+     I versi sono quelli del corpo vero — rotazione positiva dell'anca =
+     gamba indietro, ginocchio positivo = piegato (la tibia va indietro),
+     gomito negativo = piegato in avanti.
+
+     · il passo e' misurato in metri percorsi: due passi ogni 1,4 m al
+       cammino, falcata piu' lunga di corsa, quindi i piedi non scivolano;
+     · il ginocchio si piega nella fase in cui la gamba avanza, e appena
+       all'appoggio;
+     · il bacino sale e scende due volte per ciclo e ruota con le anche, il
+       busto ruota al contrario, la testa compensa e resta sull'orizzonte;
+     · le falde del camice seguono le cosce in ritardo, piu' aperte di corsa;
+     · da fermo si respira, il peso passa da una gamba all'altra, e ogni
+       tanto ci si guarda intorno. */
+  var anim2 = {};
+  function verso(k, bersaglio, a) {
+    var v = anim2[k] == null ? bersaglio : anim2[k];
+    v += (bersaglio - v) * (a || 0.18);
+    anim2[k] = v;
+    return v;
+  }
   function animaChimico() {
     if (!chimico) return;
-    var v = Math.hypot(S.vel.x, S.vel.z);
     var r = chimico;
+    var v = Math.hypot(S.vel.x, S.vel.z);
+    var corsa = v > 0.07;
     S.passi += v;
-    var f = S.passi * 2.4;
+    var f = S.passi * (corsa ? 3.9 : 4.5);
+    var amp = Math.min(1, v / 0.05);
+    var ora = Date.now() / 1000;
+    var B = {};
     if (!S.terra) {
-      r.gSx.anca.rotation.x = -0.5; r.gDx.anca.rotation.x = 0.4;
-      r.gSx.ginocchio.rotation.x = -0.6; r.gDx.ginocchio.rotation.x = -0.3;
-      r.bSx.spalla.rotation.x = -1.6; r.bDx.spalla.rotation.x = -1.4;
-      r.bacino.position.y = BACINO;
-      return;
+      B = { aSx: -0.9, aDx: 0.35, kSx: 1.3, kDx: 0.5, sSx: -0.5, sDx: -0.4, gSx: -0.9, gDx: -0.9,
+            by: BACINO + 0.02, bx: 0, bry: 0, brz: 0, tx: 0.15, ty: 0, cy: 0, fSx: -0.3, fDx: 0.2, cvSx: 0.3, cvDx: 0.2 };
+    } else if (v < 0.004) {
+      var resp = Math.sin(ora * 1.6);
+      var peso = Math.sin(ora * 0.35);
+      var guarda = Math.sin(ora * 0.45) * Math.max(0, Math.sin(ora * 0.17)) * 0.5;
+      B = { aSx: 0.02, aDx: -0.02, kSx: 0.06 + Math.max(0, peso) * 0.12, kDx: 0.06 + Math.max(0, -peso) * 0.12,
+            sSx: 0.06 + resp * 0.015, sDx: 0.06 + resp * 0.015, gSx: -0.18, gDx: -0.22,
+            by: BACINO - 0.01 + resp * 0.004 - Math.abs(peso) * 0.01, bx: peso * 0.025, bry: 0, brz: peso * 0.035,
+            tx: 0.03 + resp * 0.012, ty: 0, cy: guarda, fSx: 0, fDx: 0, cvSx: 0, cvDx: 0 };
+    } else {
+      var sn = Math.sin(f), cs = Math.cos(f);
+      var A = corsa ? 0.8 : 0.5, K = corsa ? 1.5 : 0.95;
+      /* anca: negativa = in avanti. La gamba sinistra avanza quando sin>0 */
+      var aSx = -sn * A * amp, aDx = sn * A * amp;
+      /* ginocchio: piegato mentre la gamba avanza (derivata dell'anca < 0) */
+      var kSx = (0.08 + Math.max(0, cs) * K) * amp + 0.04, kDx = (0.08 + Math.max(0, -cs) * K) * amp + 0.04;
+      B = {
+        aSx: aSx, aDx: aDx, kSx: kSx, kDx: kDx,
+        /* le braccia al contrario delle gambe, i gomiti piu' piegati di corsa */
+        sSx: sn * (corsa ? 0.75 : 0.42) * amp, sDx: -sn * (corsa ? 0.75 : 0.42) * amp,
+        gSx: corsa ? -1.35 : -0.25 - Math.max(0, -sn) * 0.35, gDx: corsa ? -1.35 : -0.25 - Math.max(0, sn) * 0.35,
+        by: BACINO - (corsa ? 0.05 : 0.015) + Math.cos(f * 2) * (corsa ? 0.03 : 0.018) * amp,
+        bx: 0, bry: sn * 0.13 * amp, brz: sn * 0.035 * amp,
+        tx: (corsa ? 0.24 : 0.06) * amp, ty: -sn * 0.16 * amp, cy: sn * 0.1 * amp,
+        fSx: aSx * 0.5 + (corsa ? -0.25 : -0.05), fDx: aDx * 0.5 + (corsa ? -0.25 : -0.05),
+        /* la caviglia tiene il piede parallelo al pavimento, e spinge alla fine */
+        cvSx: -(aSx + kSx) * 0.6 + Math.max(0, -cs) * 0.25 * amp,
+        cvDx: -(aDx + kDx) * 0.6 + Math.max(0, cs) * 0.25 * amp
+      };
+      /* in curva ci si inclina verso l'interno */
+      if (tasti.sx) B.brz -= 0.06; if (tasti.dx) B.brz += 0.06;
     }
-    if (v < 0.004) {
-      /* fermo: respira, e ogni tanto si guarda intorno */
-      var ora = Date.now();
-      var re = Math.sin(ora / 700) * 0.012;
-      r.gSx.anca.rotation.x = 0; r.gDx.anca.rotation.x = 0;
-      r.gSx.ginocchio.rotation.x = -0.05; r.gDx.ginocchio.rotation.x = -0.05;
-      r.bSx.spalla.rotation.x = 0.05; r.bDx.spalla.rotation.x = 0.05;
-      r.bSx.gomito.rotation.x = -0.25; r.bDx.gomito.rotation.x = -0.25;
-      r.bacino.position.y = BACINO + re;
-      r.busto.rotation.x = 0.02;
-      r.collo.rotation.y = Math.sin(ora / 2300) * 0.35 * Math.max(0, Math.sin(ora / 5100));
-      return;
+    var a = S.terra && v >= 0.004 ? 0.35 : 0.14;
+    r.gSx.anca.rotation.x = verso('aSx', B.aSx, a);
+    r.gDx.anca.rotation.x = verso('aDx', B.aDx, a);
+    r.gSx.ginocchio.rotation.x = verso('kSx', B.kSx, a);
+    r.gDx.ginocchio.rotation.x = verso('kDx', B.kDx, a);
+    if (r.gSx.caviglia) {
+      r.gSx.caviglia.rotation.x = verso('cvSx', B.cvSx, a);
+      r.gDx.caviglia.rotation.x = verso('cvDx', B.cvDx, a);
     }
-    r.collo.rotation.y *= 0.9;
-    var sin = Math.sin(f), cos = Math.cos(f);
-    var amp = Math.min(1, v * 110);
-    r.gSx.anca.rotation.x = sin * 0.85 * amp;
-    r.gDx.anca.rotation.x = -sin * 0.85 * amp;
-    r.gSx.ginocchio.rotation.x = -Math.max(0, cos) * 1.0 * amp - 0.08;
-    r.gDx.ginocchio.rotation.x = -Math.max(0, -cos) * 1.0 * amp - 0.08;
-    r.bSx.spalla.rotation.x = -sin * 0.7 * amp;
-    r.bDx.spalla.rotation.x = sin * 0.7 * amp;
-    r.bSx.gomito.rotation.x = -0.45 - Math.max(0, sin) * 0.4;
-    r.bDx.gomito.rotation.x = -0.45 - Math.max(0, -sin) * 0.4;
-    r.bacino.position.y = BACINO + Math.abs(sin) * 0.05 * amp;
-    r.busto.rotation.x = 0.1 * amp;
-    r.busto.rotation.y = sin * 0.08 * amp;
+    r.bSx.spalla.rotation.x = verso('sSx', B.sSx, a * 0.8);
+    r.bDx.spalla.rotation.x = verso('sDx', B.sDx, a * 0.8);
+    r.bSx.spalla.rotation.z = -0.06; r.bDx.spalla.rotation.z = 0.06;
+    r.bSx.gomito.rotation.x = verso('gSx', B.gSx, a * 0.7);
+    r.bDx.gomito.rotation.x = verso('gDx', B.gDx, a * 0.7);
+    r.bacino.position.y = verso('by', B.by, 0.3);
+    r.bacino.position.x = verso('bx', B.bx, 0.1);
+    r.bacino.rotation.y = verso('bry', B.bry, a);
+    r.bacino.rotation.z = verso('brz', B.brz, 0.12);
+    r.busto.rotation.x = verso('tx', B.tx, 0.12);
+    r.busto.rotation.y = verso('ty', B.ty, a) - r.bacino.rotation.y * 0.5;
+    r.busto.rotation.z = -r.bacino.rotation.z * 0.6;
+    /* la testa compensa: resta dritta e guarda avanti */
+    r.collo.rotation.y = verso('cy', B.cy, 0.08) - r.busto.rotation.y * 0.6 - r.bacino.rotation.y * 0.4;
+    r.collo.rotation.x = -r.busto.rotation.x * 0.6;
+    if (r.falde) {
+      r.falde.sx.rotation.x = verso('fSx', B.fSx, 0.12);
+      r.falde.dx.rotation.x = verso('fDx', B.fDx, 0.12);
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -433,8 +522,8 @@
     var q = cv.getContext('2d');
     q.fillStyle = '#0d2a1a'; q.fillRect(0, 0, 256, 64);
     q.fillStyle = '#7dffb0'; q.font = 'bold 26px sans-serif'; q.textAlign = 'center';
-    q.fillText(livello >= 20 ? t('USCITA', 'EXIT') : t('ASCENSORE ▲', 'ELEVATOR ▲'), 128, 42);
-    var tx = new T.CanvasTexture(cv); tx.encoding = T.sRGBEncoding;
+    q.fillText(livello >= LIV().LIVELLI ? t('USCITA', 'EXIT') : t('ASCENSORE ▲', 'ELEVATOR ▲'), 128, 42);
+    var tx = new T.CanvasTexture(cv); tx.encoding = T.sRGBEncoding; tx.usaEGetta = true;
     var cart = new T.Mesh(new T.PlaneGeometry(1.4, 0.35),
                           new T.MeshBasicMaterial({ map: tx, toneMapped: false }));
     cart.position.set(0, 2.75, 0.11);
@@ -502,8 +591,8 @@
       o._gira = spia;
       o._solido = { l: 0.6, p: 0.45 };
     } else if (o.tipo === 'nemico') {
-      var r = G.residuo(COLORI_RESIDUO[(zonaN - 1) % 5]);
-      r.gruppo.position.y = 0.36;
+      var r = G.residuo(COLORI_RESIDUO[(zonaN - 1) % COLORI_RESIDUO.length]);
+      r.gruppo.position.y = 0.34;
       g.add(r.gruppo);
       o._corpo = r.gruppo; o._deforma = r.deforma;
       o.vivo = true; o.t = (h % 100);
@@ -511,7 +600,6 @@
     } else if (o.tipo === 'boss') {
       var B = LIV().GUARDIANI()[livello];
       var gu = G.guardiano(B ? B.modello : 'pompa');
-      gu.gruppo.scale.setScalar(1.25);
       g.add(gu.gruppo);
       o._corpo = gu.gruppo; o._parti = gu.parti; o._def = B;
       o._solido = { l: 2.6, p: 2.2 };
@@ -561,7 +649,7 @@
     });
     scena.add(radice);
     var nebbia = liv.zona.nebbia;
-    if (ps1()) scena.fog = new T.Fog(nebbia, 6, 30);
+    if (ps1()) scena.fog = new T.Fog(nebbia, 4, 22);
     else scena.fog = new T.FogExp2(nebbia, 0.045);
     scena.background = new T.Color(nebbia);
     return { zona: liv, livello: liv, ala: liv.zona, radice: radice,
@@ -580,10 +668,23 @@
   function creaLuci() {
     var g = { punti: [], faro: null, emi: null, boss: null };
     if (ps1()) {
-      scena.add(new T.HemisphereLight(0xb8ccdf, 0x323c48, 1.45));
-      var dir = new T.DirectionalLight(0xffffff, 0.5);
+      /* PS1: poca luce d'ambiente, fredda, e le lampade vicine calde. Le
+         stanze di Resident Evil sono buie negli angoli e illuminate a
+         chiazze: e' la luce sui vertici a farlo, se le si da' qualcosa da
+         illuminare */
+      g.emi = new T.HemisphereLight(0x8a98ac, 0x1c2026, 0.8);
+      scena.add(g.emi);
+      var dir = new T.DirectionalLight(0xffe8d0, 0.28);
       dir.position.set(0.4, 1, 0.6);
       scena.add(dir);
+      for (var j = 0; j < 4; j++) {
+        var pp = new T.PointLight(0xffe0c0, 0.9, 9);
+        pp.position.set(0, -50, 0);
+        scena.add(pp);
+        g.punti.push(pp);
+      }
+      g.boss = new T.PointLight(0xff4020, 0, 9);
+      scena.add(g.boss);
       return g;
     }
     g.emi = new T.HemisphereLight(0x9fb8d0, 0x1a2026, 0.3);
@@ -610,7 +711,7 @@
 
   var contaLuci = 0;
   function aggiornaLuci(forza) {
-    if (!luci || !mondo || ps1()) return;
+    if (!luci || !mondo || !luci.punti.length) return;
     contaLuci++;
     if (!forza && contaLuci % 12) return;
     var st = stanzaDi(S.pos.x, S.pos.z);
@@ -623,7 +724,7 @@
     var colore = mondo.ala.luce || 0xffe8cc;
     luci.punti.forEach(function (p, i) {
       var l = ord[i];
-      if (l) { p.position.set(l.x, l.y, l.z); p.color.setHex(colore); p.intensity = 0.55; }
+      if (l) { p.position.set(l.x, l.y, l.z); p.color.setHex(colore); p.intensity = ps1() ? 0.9 : 0.55; }
       else p.intensity = 0;
     });
     if (ord[0] && luci.faro) {
@@ -783,7 +884,6 @@
           o._nodo.rotation.y = Math.atan2(ax, az);
         }
         o._nodo.position.set(o.x, 0, o.z);
-        o._corpo.position.y = 0.36 + Math.abs(Math.sin(o.t / 22)) * 0.06;
         if (d < 0.85 && !S.immune) danno(t('un residuo corrosivo ti ha toccato',
                                            'a corrosive residue touched you'));
       } else if (o.tipo === 'boss' && !o.abbattuto) {
@@ -841,7 +941,10 @@
     if (!camera || !S) return;
     var prima = IMP.visuale === 'prima';
     chimico.nodo.position.set(S.pos.x, S.pos.y, S.pos.z);
-    chimico.nodo.rotation.y = S.ang;
+    /* il modello guarda verso +z, e «avanti» e' -z: senza il mezzo giro il
+       chimico avanzava camminando all'indietro, con la faccia verso la
+       telecamera */
+    chimico.nodo.rotation.y = S.ang + Math.PI;
     /* in prima persona il corpo non si disegna: vedersi il busto da dentro
        la testa e' il modo piu' rapido di rompere l'illusione */
     chimico.nodo.visible = !prima;
@@ -1051,7 +1154,7 @@
     animaBoss(o, true);
     /* l'attacco: un'onda ogni tanto, piu' fitta con la difficolta' e il
        livello. Si vede arrivare — la luce si accende — e ci si allontana */
-    var periodo = Math.max(60, Math.round((120 - mondo.livello.n * 1.5) / diff().danno));
+    var periodo = Math.max(60, Math.round((125 - mondo.ala.n * 5) / diff().danno));
     if (o.t % periodo === 0) { o.sbuffo = 45; bip(220, 0.3, 'sawtooth', 0.05); }
     if (luci && luci.boss) {
       luci.boss.position.set(wx, 2.2, wz);
@@ -1076,24 +1179,35 @@
     }
   }
 
+  /* le figure dichiarano che cosa gira, dondola, pulsa, trema e brilla:
+     qui si anima tutto allo stesso modo, piu' piano finche' il guardiano
+     dorme */
   function animaBoss(o, attivo) {
-    var p = o._parti || {}, tt = (o.t || 0) + Date.now() / 16;
-    var rab = attivo ? 1 : 0.25;
+    var p = o._parti || {}, tt = ((o.t || 0) + Date.now() / 16) / 60;
+    var rab = attivo ? 1 : 0.3;
     var f = o.fase || 1;
-    if (p.girante) p.girante.rotation.z += 0.22 * rab;
-    if (p.volantino) p.volantino.rotation.z -= 0.05 * rab;
+    (p.ruota || []).forEach(function (r) { r.o.rotation[r.asse] += r.v * rab; });
+    (p.oscilla || []).forEach(function (r, i) {
+      if (r.base == null) r.base = r.o.rotation[r.asse];
+      r.o.rotation[r.asse] = r.base + Math.sin(tt * r.f * 3 + i) * r.amp * (attivo ? 1 : 0.5);
+    });
+    (p.pulsa || []).forEach(function (q, i) {
+      var k = 1 + Math.sin(tt * 4 + i * 1.7) * (attivo ? 0.06 : 0.025);
+      q.scale.set(k, k * (1 + (k - 1) * 0.5), k);
+    });
+    (p.tremola || []).forEach(function (q) {
+      q.visible = Math.random() > (attivo ? 0.35 : 0.8);
+      q.rotation.set(Math.random() * 6, Math.random() * 6, 0);
+    });
+    if (p.orbita) {
+      p.orbita.o.position.set(Math.cos(tt * 1.4) * p.orbita.r, p.orbita.y + Math.sin(tt * 3) * 0.25,
+                              Math.sin(tt * 1.4) * p.orbita.r);
+    }
+    if (p.galleggia) p.galleggia.position.y = 0.45 + Math.sin(tt * 1.3) * 0.12;
     if (p.ruggine) p.ruggine.visible = !attivo || f === 1;
-    if (p.catene) p.catene.forEach(function (c, i) { c.rotation.y += (0.004 + i * 0.0007) * rab * (i % 2 ? 1 : -1); });
-    if (p.nocciolo) p.nocciolo.scale.setScalar(1 + Math.sin(tt / 14) * 0.08);
-    if (p.anelli) p.anelli.forEach(function (a, i) { a.rotation.z += (0.01 + i * 0.006) * rab; a.rotation.x += 0.003 * rab; });
-    if (p.elettrone) { p.elettrone.position.set(Math.cos(tt / 20) * 1.6, 1.7 + Math.sin(tt / 9) * 0.3, Math.sin(tt / 20) * 1.6); }
-    if (p.cristallo) p.cristallo.rotation.y += 0.01 * rab;
-    if (p.elica) p.elica.rotation.y += 0.012 * rab;
-    if (p.nucleo) p.nucleo.scale.setScalar(1 + Math.sin(tt / 10) * 0.06 * (attivo ? 2 : 1));
-    if (p.corpo) p.corpo.position.y = attivo ? Math.sin(tt / 28) * 0.05 : 0;
     (p.occhi || []).forEach(function (e) {
       if (e.material && e.material.emissive) {
-        e.material.emissiveIntensity = attivo ? (f >= o._def.fasi.length ? 3.4 : 2.2) : 0.8;
+        e.material.emissiveIntensity = attivo ? (o.sbuffo > 0 ? 3 : (f >= o._def.fasi.length ? 2.4 : 1.5)) : 0.7;
       }
     });
   }
@@ -1183,7 +1297,7 @@
       .map(function (f) { return B.nome + ': ' + f.descr + ' → ' + f.giusto; });
     cons.forEach(function (c) { if (S.codex.consigli.indexOf(c) < 0) S.codex.consigli.push(c); });
     bip(880, 0.3, 'triangle', 0.09);
-    if (mondo.livello.n >= 20) {
+    if (mondo.livello.n >= LIV().LIVELLI) {
       S.finito = { esito: 'finale' };
       try { globale.localStorage.setItem(PRE + 'finito', '1'); } catch (e) {}
       schermo = 'esito'; fermaCiclo(); disegnaUI();
@@ -1201,7 +1315,7 @@
     var n = mondo.livello.n;
     S.punti += 500;
     S.finito = { esito: 'livello', livello: n };
-    S.livello = Math.min(20, n + 1);
+    S.livello = Math.min(LIV().LIVELLI, n + 1);
     salva();
     bip(988, 0.25, 'triangle', 0.08);
     schermo = 'esito';
@@ -1649,18 +1763,18 @@
     var i = document.getElementById('bsiAP-intro');
     if (!i) return;
     i.innerHTML = t(
-      '<b>Esplorazione in tre dimensioni, venti livelli, cinque guardiani.</b> Sei un ' +
+      '<b>Esplorazione in tre dimensioni, cento livelli in dieci zone, dieci guardiani.</b> Sei un ' +
       'chimico chiuso dentro un istituto sigillato: cammini, apri paratie, raccogli ' +
       '<b>elementi</b>, li <b>sintetizzi</b> in composti al banco e usi la chimica vera per ' +
-      'risolvere gli enigmi e abbattere i guardiani. Grafica <b>realistica</b> — materiali ' +
-      'fisici, ombre, riflessi — o in stile PlayStation 1, a scelta. Visuale in <b>terza o ' +
+      'risolvere gli enigmi e abbattere i guardiani. Stile <b>PlayStation 1</b> nel realismo ' +
+      'grezzo di Resident Evil e Silent Hill — o una grafica moderna, a scelta. Visuale in <b>terza o ' +
       'prima persona</b>; quattro difficoltà, fino all’«Esperimento», dove le reazioni vanno ' +
       'bilanciate. Il gioco <b>si salva</b> a ogni livello e funziona <b>offline</b>.',
-      '<b>Three-dimensional exploration, twenty levels, five guardians.</b> You are a ' +
+      '<b>Three-dimensional exploration, a hundred levels in ten zones, ten guardians.</b> You are a ' +
       'chemist locked inside a sealed institute: you walk, open bulkheads, collect ' +
       '<b>elements</b>, <b>synthesise</b> them into compounds at the bench and use real ' +
-      'chemistry to solve puzzles and bring down the guardians. <b>Realistic</b> graphics — ' +
-      'physical materials, shadows, reflections — or PlayStation 1 style, your choice. ' +
+      'chemistry to solve puzzles and bring down the guardians. <b>PlayStation 1</b> style in the ' +
+      'raw realism of Resident Evil and Silent Hill — or modern graphics, your choice. ' +
       '<b>Third or first person</b> view; four difficulties, up to «Experiment», where ' +
       'reactions must be balanced. The game <b>saves</b> at every level and works <b>offline</b>.');
   }
@@ -1803,11 +1917,11 @@
       u.innerHTML = '<div class="bsiAP-scheda">' +
         '<div class="bsiAP-logo">' + NOME + '</div>' +
         '<div class="bsiAP-sub">' +
-          t('— protocollo di contenimento · 20 livelli —', '— containment protocol · 20 levels —') + '</div>' +
+          t('— protocollo di contenimento · ', '— containment protocol · ') + LIV().LIVELLI + t(' livelli —', ' levels —') + '</div>' +
         (sv ? bottone('apRiprendi', '▸ ' + t('CONTINUA', 'CONTINUE') + ' · ' +
                       t('livello ', 'level ') + sv.livello) : '') +
         bottone('apNuova', (sv ? '◇ ' : '▸ ') + t('NUOVA PARTITA', 'NEW GAME')) +
-        bottone('apLivelli', '▦ ' + t('SCEGLI LIVELLO', 'SELECT LEVEL') + ' (' + livelloMax() + '/20)') +
+        bottone('apLivelli', '▦ ' + t('SCEGLI LIVELLO', 'SELECT LEVEL') + ' (' + livelloMax() + '/' + LIV().LIVELLI + ')') +
         bottone('apImp', '⚙ ' + t('IMPOSTAZIONI', 'SETTINGS')) +
         bottone('apGuida', '❔ ' + t('COME SI GIOCA', 'HOW TO PLAY')) +
         bottone('apCodex', '📖 CODEX') +
@@ -1832,7 +1946,8 @@
       LIV().ZONE().forEach(function (z) {
         h += '<div class="bsiAP-sub" style="margin:6px 0 0"><b style="color:#8fe3c4">' +
              esc(z.nome) + '</b></div><div class="bsiAP-liv">';
-        for (var n = (z.n - 1) * 4 + 1; n <= z.n * 4; n++) {
+        var PZ = LIV().PER_ZONA;
+        for (var n = (z.n - 1) * PZ + 1; n <= z.n * PZ; n++) {
           var b2 = Gd[n];
           h += '<button data-liv="' + n + '"' + (b2 ? ' class="boss"' : '') +
                (n > max ? ' disabled' : '') + '>' + (n > max ? '🔒 ' : '') + n +
@@ -1878,20 +1993,22 @@
                 ['difficile', DIFFICOLTA.difficile.nome],
                 ['esperimento', DIFFICOLTA.esperimento.nome]]) +
         gruppo(t('Grafica', 'Graphics'), 'grafica',
-               [['alta', nomeGrafica('alta')], ['media', nomeGrafica('media')],
-                ['ps1', nomeGrafica('ps1')]]) +
+               [['ps1', nomeGrafica('ps1')], ['alta', nomeGrafica('alta')],
+                ['media', nomeGrafica('media')]]) +
         (ps1() ? gruppo(t('Risoluzione PS1', 'PS1 resolution'), 'risoluzione',
                [['320', '320×240'], ['480', '480×360'], ['640', '640×480']]) : '') +
         gruppo(t('Suono', 'Sound'), 'suono',
                [['acceso', t('acceso', 'on')], ['spento', t('spento', 'off')]]) +
         lingue +
         '<div class="bsiAP-sub" style="margin-top:10px">' +
-          t('Grafica alta: ombre morbide, riflessi e vetro trasparente. Media: stessi modelli, ' +
-            'senza ombre, per i telefoni. PS1: poligoni piatti e pixel grossi, come nel 1996.\n' +
+          t('PS1: lo stile del gioco — pochi poligoni, texture dipinte, luce sui vertici, colore ' +
+            'a 15 bit con la retinatura, vertici che tremano. Moderna alta: materiali fisici, ' +
+            'ombre morbide, riflessi. Moderna media: stessi modelli senza ombre.\n' +
             'La difficoltà cambia vite, danno, tempo degli enigmi e se la sintesi rapida è ' +
             'permessa. A «Esperimento» le reazioni vanno bilanciate.',
-            'High graphics: soft shadows, reflections and transparent glass. Medium: same ' +
-            'models, no shadows, for phones. PS1: flat polygons and big pixels, as in 1996.\n' +
+            'PS1: the game’s style — few polygons, painted textures, vertex lighting, 15-bit ' +
+            'colour with dithering, wobbling vertices. Modern high: physical materials, soft ' +
+            'shadows, reflections. Modern medium: same models without shadows.\n' +
             'Difficulty changes lives, damage, puzzle time and whether quick synthesis is ' +
             'allowed. On «Experiment» reactions must be balanced.') +
         '</div>' + bottone('apIndietro', '◂ ' + t('indietro', 'back')) + '</div>';
@@ -2139,8 +2256,8 @@
   }
 
   function nomeGrafica(g) {
-    return g === 'alta' ? t('realistica alta', 'realistic high')
-         : g === 'media' ? t('realistica media', 'realistic medium') : 'PS1';
+    return g === 'alta' ? t('moderna alta', 'modern high')
+         : g === 'media' ? t('moderna media', 'modern medium') : 'PS1';
   }
   function ricreaDifficolta() {
     return {
@@ -2421,9 +2538,34 @@
     if (camera) { camera.aspect = w / h; camera.updateProjectionMatrix(); }
   }
 
+  /* SMONTARE UN LIVELLO. Togliere il gruppo dalla scena non libera niente:
+     geometrie e texture restano nella memoria della scheda video finche' non
+     si chiede di buttarle. Su cento livelli la differenza fra un gioco che
+     regge e uno che si pianta al trentesimo. Si buttano le geometrie e i
+     materiali usati solo da questo livello; quelli condivisi (i materiali
+     della grafica, le geometrie in cache) se usati di nuovo vengono
+     ricaricati da Three da soli. */
+  function smonta(radice) {
+    var condivisi = {};
+    if (G && G.M) Object.keys(G.M).forEach(function (k) { if (G.M[k]) condivisi[G.M[k].uuid] = true; });
+    radice.traverse(function (o) {
+      if (o.geometry) o.geometry.dispose();
+      var mats = o.material ? [].concat(o.material) : [];
+      mats.forEach(function (m) {
+        if (!m || condivisi[m.uuid]) return;
+        ['map', 'emissiveMap'].forEach(function (k) {
+          /* le texture delle figure sono in cache e si riusano: si butta
+             solo quella dei cartelli, nuova a ogni stanza */
+          if (m[k] && m[k].usaEGetta) m[k].dispose();
+        });
+        m.dispose();
+      });
+    });
+  }
+
   function ricostruisci() {
     if (!scena) return;
-    if (mondo && mondo.radice) scena.remove(mondo.radice);
+    if (mondo && mondo.radice) { scena.remove(mondo.radice); smonta(mondo.radice); }
     mondo = costruisciMondo(S ? S.livello : 1);
   }
 
@@ -2445,6 +2587,7 @@
       S.pos.x = pos.x; S.pos.z = pos.z; S.ang = pos.ang;
       if (S.boss) S.boss = null;
       disegnaUI();
+      if (schermo === 'gioco') avviaCiclo();
     });
   }
 
@@ -2636,7 +2779,7 @@
     bersaglio: bersaglio, avviaCiclo: avviaCiclo, fermaCiclo: fermaCiclo,
     pronto: function () { return pronto; }, perche3d: function () { return errore3d; },
     mondo: function () { return mondo; },
-    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci }; },
+    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico }; },
     TRAMA: TRAMA,
     versione: '2.0'
   };

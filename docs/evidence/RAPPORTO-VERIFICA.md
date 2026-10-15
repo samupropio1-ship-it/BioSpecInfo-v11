@@ -28,7 +28,7 @@
 | Commit | `a19fe5f46f9bbddd47a01ac3fd2dce3536160692` |
 | Ramo | `main` |
 | Albero di lavoro pulito | sì (nessuna modifica non registrata) |
-| Versione applicazione | `bsi-v209` |
+| Versione applicazione | `bsi-v210` |
 | Node.js | `v22.22.2` |
 | Piattaforma | `linux x64` |
 | Chromium | `Chromium 141.0.7390.37` |

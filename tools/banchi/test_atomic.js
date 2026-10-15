@@ -220,7 +220,7 @@ function sopra(d, minimo, avuto) {
 
 
   /* ═══ §3 · I VENTI LIVELLI: SI ARRIVA DAPPERTUTTO? ═════════════════════ */
-  console.log('\n── Venti livelli generati: tutti percorribili, tutti vincibili ──');
+  console.log('\n── Cento livelli generati: tutti percorribili, tutti vincibili ──');
   const liv = await pg.evaluate(() => {
     const A = window.BSIAtomicLivelli;
     const out = { livelli: 0, irraggiungibili: [], zoppe: [], sovrapposte: [], senza: [],
@@ -251,7 +251,12 @@ function sopra(d, minimo, avuto) {
       const ogg = [].concat(...L.stanze.map(s => s.oggetti));
       const tipi = {}; ogg.forEach(o => { tipi[o.tipo] = (tipi[o.tipo] || 0) + 1; });
       ['banco', 'terminale', 'uscita'].forEach(k => { if (tipi[k] !== 1) out.senza.push(n + ':' + k); });
-      if (!!L.boss !== (n % 4 === 0) || (L.boss && tipi.boss !== 1)) out.bossMancanti.push(n);
+      if (!!L.boss !== (n % A.PER_ZONA === 0) || (L.boss && tipi.boss !== 1)) out.bossMancanti.push(n);
+      if (L.boss) {
+        const ar = L.stanze.find(s => s.ruolo === 'boss');
+        if (!ar || ar.larg < 14 || ar.prof < 14) out.arenePiccole = (out.arenePiccole || 0) + 1;
+        out.modelli = (out.modelli || []).concat(L.boss.modello);
+      }
       /* PRIMA DI UN GUARDIANO CI SONO GLI ELEMENTI PER BATTERLO: un
          guardiano invincibile perché il livello non ha messo il sodio è un
          gioco rotto, non difficile */
@@ -293,7 +298,7 @@ function sopra(d, minimo, avuto) {
     out.dnaGiusto = dna.giusta === dna.dna.split('').map(x => comp[x]).join('');
     return out;
   });
-  att('i livelli sono venti', 20, liv.livelli);
+  att('i livelli sono cento', 100, liv.livelli);
   att('  · da ogni partenza si arriva a ogni stanza', 0, liv.irraggiungibili.length);
   liv.irraggiungibili.forEach(x => console.log('      ! livello ' + x));
   att('  · ogni porta ha la sua gemella', 0, liv.zoppe.length);
@@ -301,11 +306,13 @@ function sopra(d, minimo, avuto) {
   att('  · nessuna stanza sta dentro un’altra', 0, liv.sovrapposte.length);
   att('  · ognuno con un banco, un terminale e un’uscita', 0, liv.senza.length);
   liv.senza.slice(0, 3).forEach(x => console.log('      ! ' + x));
-  att('un guardiano ogni quattro livelli, e solo lì', 0, liv.bossMancanti.length);
+  att('un guardiano ogni dieci livelli, e solo lì', 0, liv.bossMancanti.length);
+  att('  · dieci guardiani, tutti diversi', 10, new Set(liv.modelli).size);
+  att('  · e ogni arena è larga almeno 14 m', 0, liv.arenePiccole || 0);
   console.log('      (' + liv.boss.join(' · ') + ')');
   att('  · e prima di ognuno ci sono gli elementi per batterlo', 0, liv.bossInvincibili.length);
   liv.bossInvincibili.slice(0, 3).forEach(x => console.log('      ! manca ' + x));
-  att('lo stesso numero dà sempre lo stesso livello', 20, liv.deterministici);
+  att('lo stesso numero dà sempre lo stesso livello', 100, liv.deterministici);
   sopra('ricette di sintesi', 10, liv.ricette);
   att('  · tutte bilanciate, atomo per atomo', liv.ricette, liv.bilanciate);
   /* L'ALTRO VERSO: il contatore di atomi deve accorgersi di un errore */
@@ -503,7 +510,7 @@ function sopra(d, minimo, avuto) {
       return { S, M, st };
     }
     /* POMPA 7 */
-    let { S, M } = await arena(4);
+    let { S, M } = await arena(10);
     out.ricetteDovute = ['HCl'].every(id => S.ricette.find(r => r.id === id).sbloccata);
     out.attivo = !!(S.boss && S.boss.attivo);
     out.nome = S.boss && S.boss._def.nome;
@@ -528,7 +535,7 @@ function sopra(d, minimo, avuto) {
     A.passo();
     out.dopo = S.finito ? S.finito.esito : null;
     /* ELICA: una fase si vince rispondendo, e la risposta sbagliata fa male */
-    ({ S } = await arena(16));
+    ({ S } = await arena(40));
     out.elica = S.boss && S.boss._def.nome;
     A.interagisci();
     out.sfida = A.schermo();
@@ -543,7 +550,7 @@ function sopra(d, minimo, avuto) {
     out.giustaColpisce = S.boss.vita === vE - 1;
     out.reagenteInEnigma = A.usaSu('NaOH');
     /* PROTOCOLLO 12: l'ultimo, quattro fasi, e chiude il gioco */
-    ({ S } = await arena(20));
+    ({ S } = await arena(100));
     out.ultimo = S.boss && S.boss._def.nome;
     out.fasiUltimo = S.boss._def.fasi.length;
     A.interagisci(); A.rispondiEnigma(S._enigma.passi[0].giusta);
@@ -557,7 +564,7 @@ function sopra(d, minimo, avuto) {
     out.schermoFinale = A.schermo();
     return out;
   });
-  att('arrivando al livello 4 si conosce già quello che serve', true, boss.ricetteDovute);
+  att('arrivando al livello 10 si conosce già quello che serve', true, boss.ricetteDovute);
   att('il guardiano si attiva avvicinandosi', true, boss.attivo);
   console.log('      (' + boss.nome + ')');
   att('  · il sale non gli fa niente', true, boss.saleNonFa);
@@ -579,15 +586,16 @@ function sopra(d, minimo, avuto) {
   att('  · con il finale a schermo', 'esito', boss.schermoFinale);
 
   /* ═══ §6 · IL MOTORE: REALISTICO DI SERIE, PS1 A SCELTA ════════════════ */
-  console.log('\n── Il motore: materiali fisici, ombre, e il PS1 come scelta ──');
+  console.log('\n── Il motore: PS1 di partenza, grafica moderna a scelta ──');
   const motore = await pg.evaluate(async () => {
     const A = window.BSIAtomic, T = window.THREE;
+    const partenza = A.IMP.grafica;
     A.scriviImp('grafica', 'alta'); A.rifai3D();
     await new Promise(r => setTimeout(r, 1200));
     A.nuovaPartita(3); A.cominciaPartita();
     await new Promise(r => setTimeout(r, 800));
     const m = A.motore(), cv = document.getElementById('bsiAP-tela');
-    const out = { pronto: A.pronto(), perche: A.perche3d() };
+    const out = { pronto: A.pronto(), perche: A.perche3d(), partenza };
     out.webgl = !!m.ren.getContext();
     out.aces = m.ren.toneMapping === T.ACESFilmicToneMapping;
     out.srgb = m.ren.outputEncoding === T.sRGBEncoding;
@@ -603,8 +611,7 @@ function sopra(d, minimo, avuto) {
       if (o.castShadow) ombreProiettate++;
     });
     /* il chimico non è fatto di scatole */
-    const nodoChimico = m.scena.children.find(c => c.children && c.children[0] && c.children[0].children &&
-      c.position && Math.abs(c.position.x - A.stato().pos.x) < 0.01 && Math.abs(c.position.z - A.stato().pos.z) < 0.01);
+    const nodoChimico = m.chimico && m.chimico.nodo;
     let pezzi = 0;
     if (nodoChimico) nodoChimico.traverse(o => { if (o.isMesh) { pezzi++; if (o.geometry.type === 'BoxGeometry' || o.geometry.type === 'BoxBufferGeometry') scatole++; } });
     Object.assign(out, { pbr, lambert, mesh, ombreProiettate, pezzi, scatole });
@@ -633,6 +640,52 @@ function sopra(d, minimo, avuto) {
     let lam2 = 0; m2.scena.traverse(o => { if (o.isMesh && o.material.isMeshLambertMaterial) lam2++; });
     out.ps1Lambert = lam2;
     out.ps1Partita = !!A.mondo() && A.stato().livello === livPrima && !A.stato().finito;
+    /* la PS1 vera: luce sui vertici sfumata (Gouraud), non facce piatte, e
+       lo shader con i vertici agganciati e il colore a 15 bit */
+    let piatti = 0, conShader = 0;
+    m2.scena.traverse(o => { if (o.isMesh && o.material.isMeshLambertMaterial) {
+      if (o.material.flatShading) piatti++; if (o.material.userData.ps1) conShader++; } });
+    out.ps1Piatti = piatti; out.ps1Shader = conShader;
+    /* le figure: il viso dipinto, le falde del camice, le caviglie */
+    const ch = m2.chimico;
+    let viso = false; ch.testa.traverse(o => { if (o.isMesh && o.material.map && o.material.map.image && o.material.map.image.width >= 128) viso = true; });
+    out.viso = viso; out.falde = !!(ch.falde && ch.falde.sx && ch.falde.dx); out.caviglie = !!(ch.gSx.caviglia && ch.gDx.caviglia);
+    let pz = 0, sc2 = 0; ch.nodo.traverse(o => { if (o.isMesh) { pz++; if (/Box/.test(o.geometry.type)) sc2++; } });
+    out.ps1Pezzi = pz; out.ps1Scatole = sc2;
+    /* i dieci guardiani si costruiscono tutti, e nessuno e' fatto di scatole */
+    out.guardiani = (m2.G.GUARDIANI_MODELLI || []).map(tp => {
+      const g = m2.G.guardiano(tp); let n = 0, b = 0;
+      g.gruppo.traverse(o => { if (o.isMesh) { n++; if (/Box/.test(o.geometry.type)) b++; } });
+      return { tp, n, b, occhi: (g.parti.occhi || []).length };
+    });
+    /* il chimico avanza guardando dove va, e le ginocchia si piegano nel
+       verso giusto (mai all'indietro) */
+    const S2 = A.stato();
+    const chV = A.motore().chimico;     /* il rig del motore attuale */
+    const x0 = S2.pos.x, z0 = S2.pos.z;
+    let kMin = 9, kMax = -9;
+    A.schermo('gioco'); A.avviaCiclo();
+    A.tasti('su', true);
+    for (let i = 0; i < 40; i++) {
+      await new Promise(r => requestAnimationFrame(r));
+      const k1 = chV.gSx.ginocchio.rotation.x, k2 = chV.gDx.ginocchio.rotation.x;
+      kMin = Math.min(kMin, k1, k2); kMax = Math.max(kMax, k1, k2);
+    }
+    A.tasti('su', false);
+    const dx = S2.pos.x - x0, dz = S2.pos.z - z0, dl = Math.hypot(dx, dz) || 1e-9;
+    const ry = chV.nodo.rotation.y;
+    out.verso = (Math.sin(ry) * dx + Math.cos(ry) * dz) / dl;
+    out.mosso = Math.hypot(dx, dz);
+    out.kMin = kMin; out.kMax = kMax;
+    /* LA STABILITA': si attraversano i livelli, guardiani compresi, e la
+       memoria della scheda video non deve crescere senza fine */
+    const memo = [];
+    for (const n of [1, 10, 23, 40, 57, 70, 84, 90, 100, 5]) {
+      A.nuovaPartita(n); A.cominciaPartita();
+      await new Promise(r => setTimeout(r, 120));
+      memo.push(A.motore().ren.info.memory.geometries);
+    }
+    out.memoria = memo;
     A.scriviImp('grafica', 'alta'); A.rifai3D();
     await new Promise(r => setTimeout(r, 1200));
     out.tornata = A.motore().ren.toneMapping === T.ACESFilmicToneMapping;
@@ -656,11 +709,36 @@ function sopra(d, minimo, avuto) {
   att('si disegnano solo la stanza e le vicine', true, motore.stanzeVisibili < motore.stanzeTotali);
   console.log('      (' + motore.stanzeVisibili + ' di ' + motore.stanzeTotali + ')');
   att('  · e le luci non cambiano di numero girando il livello', true, motore.luciCostanti);
-  att('lo stile PS1 c’è ancora, a scelta: 320×240', '320×240', motore.ps1Tela);
+  att('la grafica di partenza è il PS1', 'ps1', motore.partenza);
+  att('il PS1 si disegna a 480×360', '480×360', motore.ps1Tela);
   att('  · con i pixel quadrati', true, motore.ps1Pixel);
   sopra('  · e i materiali piatti', 50, motore.ps1Lambert);
   att('  · e cambiare grafica non perde la partita', true, motore.ps1Partita);
-  att('  · e si torna al realistico', true, motore.tornata);
+  att('  · e si torna alla grafica moderna', true, motore.tornata);
+  att('  · luce sui vertici sfumata (Gouraud): nessun materiale a facce piatte', 0, motore.ps1Piatti);
+  sopra('  · e lo shader PS1 (vertici agganciati, colore a 15 bit) sui materiali', 50, motore.ps1Shader);
+  console.log('\n── Le figure: il protagonista e i dieci guardiani ──');
+  att('il protagonista ha il viso dipinto', true, motore.viso);
+  att('  · le falde del camice separate, che si muovono', true, motore.falde);
+  att('  · e le caviglie', true, motore.caviglie);
+  sopra('  · è fatto di pezzi', 40, motore.ps1Pezzi);
+  att('  · e nessuno è una scatola', 0, motore.ps1Scatole);
+  att('i dieci guardiani si costruiscono tutti', 10, motore.guardiani.length);
+  att('  · ognuno con almeno venti pezzi', 0, motore.guardiani.filter(g => g.n < 20).length);
+  att('  · nessuno fatto di scatole', 0, motore.guardiani.filter(g => g.b > 0).length);
+  att('  · e ognuno con qualcosa che si accende quando attacca', 0, motore.guardiani.filter(g => g.occhi < 1).length);
+  console.log('      (' + motore.guardiani.map(g => g.tp + ' ' + g.n).join(' · ') + ')');
+  sopra('il chimico cammina', 0.3, motore.mosso);
+  /* il difetto della v208/v209: avanzava con la faccia verso la telecamera */
+  sopra('  · guardando dove va (coseno fra sguardo e passo)', 0.9, motore.verso);
+  sopra('  · e le ginocchia si piegano', 0.3, motore.kMax);
+  sopra('  · mai all’indietro', -0.02, motore.kMin);
+  console.log('\n── La stabilità su cento livelli ──');
+  console.log('      (geometrie in memoria: ' + motore.memoria.join(' → ') + ')');
+  /* dopo dieci livelli, compresi quattro guardiani, la memoria torna dove
+     era: il livello 5 alla fine non deve pesare piu' di un livello normale */
+  att('attraversando dieci livelli la memoria non cresce senza fine', true,
+      motore.memoria[motore.memoria.length - 1] <= motore.memoria[0] * 1.5 + 40);
 
   /* ═══ §7 · LE IMPOSTAZIONI SI RICORDANO ════════════════════════════════ */
   console.log('\n── Visuale e difficoltà: scelte e ricordate ──');
@@ -769,9 +847,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 110) {
+  if (eseguiti < 140) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 110');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 140');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

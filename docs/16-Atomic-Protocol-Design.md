@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 2 (bsi-v209): grafica realistica e venti livelli.
+> Versione 3 (bsi-v210): figure rifatte nel realismo grezzo PS1, cento livelli.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -12,78 +12,80 @@
 
 ## 0. Che cos'è, in una riga
 
-Un gioco di **esplorazione in terza o prima persona**, in **venti livelli** e
-cinque ali, con **grafica realistica** (e lo stile PlayStation 1 come scelta),
-in cui un chimico attraversa un istituto di ricerca sigillato, raccoglie
-**elementi**, li **sintetizza** in composti, e usa la chimica — quella vera —
-per risolvere enigmi e fermare cinque guardiani.
+Un gioco di **esplorazione in terza o prima persona**, in **cento livelli** e
+dieci zone, nello **stile PlayStation 1** — il realismo grezzo di Resident
+Evil, Silent Hill, Metal Gear Solid, Parasite Eve — in cui un chimico
+attraversa un istituto di ricerca sigillato, raccoglie **elementi**, li
+**sintetizza** in composti, e usa la chimica — quella vera — per risolvere
+enigmi e fermare dieci guardiani.
 
 **Non è un runner.** Non si corre da soli, non si va «avanti e basta»: si
 cammina, ci si guarda intorno, si torna indietro, si apre una paratia che prima
 era chiusa perché adesso si ha la risposta giusta.
 
-Tre file, una casa per funzione: `bsi-atomic-grafica.js` (modelli, materiali,
-luci), `bsi-atomic-livelli.js` (dati: livelli, guardiani, ricette, enigmi — il
-banco li verifica senza disegnare un fotogramma), `bsi-atomic.js` (il gioco).
+Quattro file, una casa per funzione: `bsi-atomic-figure.js` (protagonista,
+residui, guardiani), `bsi-atomic-grafica.js` (ambienti, materiali, luci),
+`bsi-atomic-livelli.js` (dati: livelli, guardiani, ricette, enigmi — il banco
+li verifica senza disegnare un fotogramma), `bsi-atomic.js` (il gioco).
 
 ---
 
-## 1. Direzione artistica — realistica di serie ✅, PS1 a scelta ✅
+## 1. Direzione artistica — PS1, realismo grezzo ✅
 
-### 1.1 Realistica: che cosa vuol dire, misurato
+### 1.1 Il trucco dei migliori titoli PS1: pochi poligoni, texture dipinte
 
-«Realistico» non è un aggettivo: è un elenco di tecniche, e ognuna si vede.
+Il viso di un personaggio di Resident Evil sono una ventina di triangoli; quello
+che lo rende un uomo è un'immagine di 64 pixel con gli occhi, le sopracciglia,
+l'ombra del naso e la barba. Qui si fa lo stesso, e le texture sono **dipinte
+da codice** — niente immagini da scaricare, funziona offline.
 
-| tecnica | come è fatta | perché si vede |
+| limite o tecnica della PS1 | come si rifà qui | perché si vede |
 |---|---|---|
-| materiali fisici (PBR) | `MeshStandardMaterial` / `MeshPhysicalMaterial` con colore, **rugosità** e **metallicità** per ogni superficie | l'acciaio luccica, il camice no, la resina del banco riflette |
-| texture procedurali | rumore frattale (fbm) disegnato su tela: piastrelle con le fughe e lo sporco, pannelli verniciati, intonaco, acciaio spazzolato, ruggine | niente superfici a tinta unita, e niente immagini da scaricare: funziona offline |
-| mappe di rilievo e di ruvidità | calcolate dalla stessa altezza del rumore con un filtro di Sobel | le fughe hanno profondità, la ruggine ha grana, senza aggiungere un poligono |
-| riflessi d'ambiente | una stanza luminosa fotografata una volta (PMREM) | i metalli riflettono qualcosa invece di diventare neri |
-| ombre morbide | un faro con l'ombra (PCF morbido) che segue il giocatore | il chimico e gli arredi poggiano sul pavimento |
-| tone mapping ACES, sRGB | la curva del cinema, esposizione 0,78 | le luci forti non bruciano, i bui non diventano fango |
-| geometria arrotondata | profili ruotati (`LatheGeometry`), tubi lungo curve, scatole con lo smusso estruso | **nessuna scatola**: fusti con le nervature, vetreria, il personaggio |
-| vignettatura e smorzamento | gradiente ai bordi, telecamera che insegue invece di essere incollata | si guarda al centro, i movimenti sono morbidi |
+| luce calcolata sui vertici, sfumata fra un vertice e l'altro (Gouraud) | `MeshLambertMaterial` **senza** facce piatte; i pavimenti suddivisi perché la luce abbia vertici su cui cadere | le figure sono modellate dalla luce, le stanze sono illuminate a chiazze |
+| vertici a coordinate intere | **vertex snapping** nello shader: la posizione proiettata arrotondata a una griglia | i poligoni tremano quando ci si muove |
+| colore a 15 bit (5 per canale) con retinatura | nello shader il colore scende a 31 livelli per canale con la **retinatura ordinata di Bayer** 4×4 | il grano fine su ogni sfumatura |
+| risoluzione bassa, pixel netti | 480×360 di partenza (320 e 640 a scelta), `image-rendering: pixelated`, texture senza filtro | bordi scalettati, texture nette |
+| niente ombre proiettate | **ombre a macchia** sotto le figure | le figure poggiano sul pavimento |
+| nebbia densa | nebbia lineare da 4 a 22 m, del colore della zona | i corridoi diventano minacciosi |
 
-Il chimico è alto un metro e settantacinque, con testa ovale, capelli,
-occhiali di protezione con lenti di vetro, camice che si apre sotto la vita,
-guanti di nitrile azzurri, scarpe; gli snodi — spalle, gomiti, anche,
-ginocchia, collo — sono animati: cammina piegando le ginocchia, respira da
-fermo e ogni tanto si guarda intorno.
+### 1.2 Il protagonista
 
-### 1.2 Quello che costa, e come si paga
+Un metro e settantotto, con le proporzioni di un adulto vero: bacino a 95 cm,
+spalle a 1,43 m, la testa un ottavo dell'altezza, il torace a sezione
+ellittica, le braccia che arrivano a metà coscia, le mani con il pollice.
 
-* **Si disegnano solo la stanza in cui si è e quelle attaccate alle sue
-  porte.** Le stanze sono scatole chiuse: dalle altre non si vede niente, e un
-  livello di dodici stanze costa come una e mezza.
-* **Le luci sono sempre cinque** — quattro lampade e un faro con l'ombra — e si
-  **spostano** sulle plafoniere più vicine. In Three il numero di luci è
-  scritto negli shader: cambiarlo ricompila ogni materiale e il gioco si
-  pianta per un secondo.
-* **Tre livelli di grafica**: *alta* (ombre, vetro trasparente, antialias,
-  risoluzione fino a 1,5× lo schermo), *media* (stessi modelli, niente ombre,
-  risoluzione 1×), *PS1*. Su un telefono con pochi processori si parte da
-  «media».
-* I residui si deformano a ogni fotogramma (una sfera suddivisa i cui vertici
-  si spostano col rumore), ma **solo quelli della stanza in cui si è**, e un
-  fotogramma sì e uno no.
+* **La testa** è una sfera deformata — mandibola che si stringe, mento,
+  zigomi, arcata sopraccigliare, naso, nuca — con una **proiezione piana**:
+  metà texture è la faccia vista di fronte, metà la nuca. Il viso è dipinto:
+  occhi con le palpebre, occhiaie, sopracciglia folte, ombra del naso, narici,
+  bocca seria, pieghe naso-labiali, barba di un giorno, una cicatrice.
+* **Il camice** è in tre pezzi: il busto dipinto con i revers aperti sulla
+  camicia e la cravatta, l'abbottonatura, il taschino con la penna e il
+  dosimetro, il cartellino con la foto, una bruciatura d'acido; le **falde**,
+  due pannelli separati che seguono le gambe; le maniche con le grinze al
+  gomito. Pieghe, sporco in fondo e aloni di reagente sono nella texture.
+* **L'attrezzatura** di chi lavora davvero con i reagenti: guanti di butile
+  lunghi, stivali di sicurezza con la suola, semimaschera al collo con i due
+  filtri P100, occhiali di protezione alzati sulla fronte, torcia, cintura con
+  il marsupio.
 
-### 1.3 PS1, come scelta: i limiti rifatti
+### 1.3 Le animazioni
 
-Lo stile PlayStation 1 non è «pixelloso»: è una **somma di limiti tecnici
-precisi**, e chi lo sceglie li ha tutti:
+Ogni giunto ha un bersaglio calcolato dal passo e ci va **per gradi**: è lo
+smorzamento che toglie la rigidità. Il passo è misurato in metri percorsi
+(i piedi non scivolano); il ginocchio si piega mentre la gamba avanza; il
+bacino sale e scende due volte per ciclo e ruota con le anche, il busto ruota
+al contrario, la testa compensa e resta sull'orizzonte; le falde del camice
+seguono le cosce in ritardo; di corsa il busto si inclina e i gomiti si
+piegano; in curva ci si inclina; da fermo si respira, il peso passa da una
+gamba all'altra e ogni tanto ci si guarda intorno.
 
-| limite dell'hardware vero | come si riproduce qui | perché si vede |
-|---|---|---|
-| risoluzione interna 320×240 | la scena si disegna a **320×240** (o 480, 640) e si ingrandisce con `image-rendering: pixelated` | i bordi sono scalettati, i pixel sono quadrati e grossi |
-| vertici a coordinate intere | **vertex snapping** nello shader: la posizione proiettata viene arrotondata a una griglia | i poligoni *tremano* quando ci si muove |
-| poca memoria, pochi poligoni | gli stessi modelli con meno segmenti | silhouette spigolose |
-| niente luci dinamiche | luce calcolata sui vertici (`MeshLambertMaterial`, `flatShading`) + nebbia densa | ombre dure, fondali che spariscono nel buio |
+### 1.4 Grafica moderna, a scelta
 
-**Riferimenti dichiarati**: Resident Evil (porte come passaggi, paura dello
-spazio), Silent Hill (nebbia come atmosfera), Half-Life (un laboratorio di
-ricerca credibile, cartelli e attrezzature veri), Control (architettura
-istituzionale che diventa ostile).
+Le stesse figure con materiali fisici (PBR), riflessi d'ambiente, ombre
+morbide, tone mapping ACES; *alta* con le ombre, *media* senza. Il costo si
+paga disegnando solo la stanza in cui si è e quelle attaccate alle sue porte,
+e tenendo le luci sempre in numero fisso, spostate sulle plafoniere vicine.
 
 ---
 
@@ -95,15 +97,16 @@ istituzionale che diventa ostile).
             ATOMIC PROTOCOL
      ── protocollo di contenimento ──
 
-              ▸ NUOVA PARTITA
-                CONTINUA
+              ▸ CONTINUA · livello N
+                NUOVA PARTITA
+                SCEGLI LIVELLO (N/100)
                 IMPOSTAZIONI
+                COME SI GIOCA
                 CODEX
 ```
 
-Il titolo è disegnato con il font a pixel del progetto; sotto, un rendering
-3D della prima stanza che ruota lentamente (come la schermata di Resident
-Evil). «CONTINUA» appare solo se c'è una partita salvata.
+«CONTINUA» appare solo se c'è una partita salvata; «SCEGLI LIVELLO» apre i
+livelli già raggiunti, divisi per zona, con i guardiani segnati.
 
 ### 2.2 Impostazioni
 
@@ -111,21 +114,21 @@ Evil). «CONTINUA» appare solo se c'è una partita salvata.
 |---|---|---|---|
 | **Visuale** | terza persona · prima persona | terza persona | `localStorage` → `bsi-ap-visuale` |
 | **Difficoltà** | Facile · Normale · Difficile · Esperimento | Normale | `bsi-ap-difficolta` |
-| **Filtro PS1** | pieno · ridotto · spento | pieno | `bsi-ap-ps1` |
-| **Risoluzione interna** | 320×240 · 480×360 · 640×480 | 320×240 | `bsi-ap-risoluzione` |
+| **Grafica** | PS1 · moderna alta · moderna media | PS1 | `bsi-ap-grafica` |
+| **Risoluzione PS1** | 320×240 · 480×360 · 640×480 | 480×360 | `bsi-ap-risoluzione` |
 | **Suono** | acceso · spento | acceso | `bsi-ap-suono` |
-| **Lingua** | le quattordici dell'applicazione | quella in uso | `BSILingue` |
-| **Comandi** | mostra la mappatura | — | — |
+| **Lingua** | italiano · inglese (le altre dal selettore dell'applicazione) | quella in uso | `BSILingue` |
+| **Come si gioca** | obiettivo, regole e comandi | — | — |
 
 La scelta della **visuale si applica subito**, senza ricaricare: la telecamera
 passa da dietro le spalle (terza) a dentro la testa (prima), e in prima persona
 il corpo del chimico non si disegna ma le **mani sì**, perché una prima persona
 senza mani è una telecamera che vola.
 
-> **Perché «Filtro PS1» si può spegnere.** Il tremolio dei vertici e la bassa
-> risoluzione sono il punto del gioco, ma a qualcuno danno fastidio: si può
-> ridurre (solo bassa risoluzione) o togliere (3D pulito). Una scelta estetica
-> forte deve restare una scelta.
+> **Perché la grafica si può cambiare.** Il PS1 è lo stile del gioco, ma il
+> tremolio dei vertici e i pixel grossi a qualcuno danno fastidio: la grafica
+> moderna usa gli stessi modelli con materiali fisici e ombre. Cambiarla non
+> perde la partita.
 
 ### 2.3 Difficoltà — che cosa cambia davvero
 
@@ -296,7 +299,7 @@ Lo scontro ha tre tempi:
 
 ---
 
-## 6. I venti livelli ✅
+## 6. I cento livelli ✅
 
 ### 6.1 Come si genera un livello
 
@@ -306,7 +309,7 @@ muro**, e la porta è al centro di quel muro: per costruzione le porte
 combaciano sempre, e non esiste un corridoio che finisce nel vuoto.
 
 1. Il **percorso principale** è una passeggiata che non torna sui suoi passi e
-   preferisce andare avanti; la sua lunghezza cresce col livello (da 4 a 9
+   preferisce andare avanti; la sua lunghezza cresce dentro la zona e da una zona all'altra (da 4 a 10
    stanze).
 2. Le **stanze laterali** sono appese al percorso: tengono elementi e schede.
 3. Gli **arredi** stanno lungo i muri, dove li metterebbe chiunque, e mai
@@ -319,32 +322,50 @@ combaciano sempre, e non esiste un corridoio che finisce nel vuoto.
    guardiano **ci sono sempre gli elementi per batterlo**: un guardiano
    invincibile perché il livello non ha messo il sodio è un gioco rotto, non
    difficile.
-6. I **residui** crescono col livello (da 1 a 10), mai nella stanza di
+6. I **residui** crescono dentro la zona e con la zona (fino a 10), mai nella stanza di
    partenza.
 
 Il seme è il numero del livello: lo stesso livello è sempre lo stesso, su ogni
 motore JavaScript (il caso si estrae prima di ordinare, mai dentro il
 comparatore).
 
-### 6.2 Le cinque ali
+### 6.2 Le dieci zone
 
-| livelli | ala | elementi | ricette dell'ala | guardiano |
+Dieci livelli per zona: dentro una zona i livelli crescono (più stanze, più
+residui) fino al guardiano, e ogni zona parte un po' più dura della
+precedente. Per arrivare a 150 o 200 livelli basta aggiungere zone e
+guardiani: il generatore non ha altri numeri scritti dentro.
+
+| livelli | zona | elementi | ricette nuove | guardiano |
 |---|---|---|---|---|
-| 1–4 | Ovest · Stoccaggio reagenti | H, Cl, Na, O | HCl, H₂O₂ | **POMPA 7** |
-| 5–8 | Nord · Sintesi organica | C, N, S, O, H | H₂SO₄, NH₃, CO₂ | **IL POLIMERO** |
-| 9–12 | Est · Spettroscopia | F, Fe, Mg, C, O, H | acido ascorbico, MgO | **LO SPETTRO** |
-| 13–16 | Sud · Biochimica | P, K, Ca, Na, O, H | NaHCO₃ | **ELICA** |
-| 17–20 | Il Nucleo | Ar, Au, Pb, Na, C, O, H | — | **PROTOCOLLO 12** |
+| 1–10 | Ala Ovest · Stoccaggio reagenti | H, Cl, Na, O | HCl, H₂O₂ | **POMPA 7** |
+| 11–20 | Ala Nord · Sintesi organica | C, N, S, O, H | H₂SO₄, NH₃, CO₂ | **IL POLIMERO** |
+| 21–30 | Ala Est · Spettroscopia | F, Fe, Mg, C, O, H | acido ascorbico, MgO | **LO SPETTRO** |
+| 31–40 | Ala Sud · Biochimica | P, K, Ca, Na, O, H | NaHCO₃ | **ELICA** |
+| 41–50 | Sotterraneo · Elettrochimica | Cu, Zn, N, O, H, S | HNO₃ | **LA CELLA** |
+| 51–60 | Celle frigorifere · Criogenia | N, Ar, Ca, Mg, O, H | CaO | **IL GELO** |
+| 61–70 | Reparto farmaci · Farmacologia | C, N, O, H, S, Cl, Na | — | **LA DOSE** |
+| 71–80 | Bunker · Radiochimica | Pb, U, Ba, O, H, C | — | **IL DECADIMENTO** |
+| 81–90 | Impianto · Depurazione | Fe, Al, Ca, Cl, O, H, S | — | **LA MELMA** |
+| 91–100 | Il Nucleo | Ar, Au, Pb, Na, C, O, H | — | **PROTOCOLLO 12** |
 
-### 6.3 Gli enigmi per ala
+L'arena di un guardiano è larga almeno 14 m per lato: si allargano la
+colonna e la riga della sua cella, e le porte continuano a combaciare.
 
-| ala | i tre passi del terminale |
+### 6.3 Gli enigmi per zona
+
+| zona | i tre passi del terminale |
 |---|---|
 | 1 | gruppo funzionale cerchiato · nome IUPAC · costruire la catena |
 | 2 | nome IUPAC · bilanciare · costruire |
 | 3 | domanda dal sito · bilanciare · nome IUPAC |
 | 4 | DNA complementare · domanda dal sito · gruppo funzionale |
-| 5 | bilanciare · DNA complementare · domanda dal sito |
+| 5 | bilanciare · domanda dal sito · nome IUPAC |
+| 6 | costruire · bilanciare · domanda dal sito |
+| 7 | gruppo funzionale · domanda dal sito · nome IUPAC |
+| 8 | bilanciare · DNA complementare · domanda dal sito |
+| 9 | domanda dal sito · gruppo funzionale · bilanciare |
+| 10 | bilanciare · DNA complementare · domanda dal sito |
 
 Le «domande dal sito» arrivano dai 28 generatori di `bsi-gioco-domande.js`:
 spettri, farmaci, GHS, costanti, tecniche di laboratorio, vie metaboliche.
@@ -358,13 +379,16 @@ sue lampade.
 
 ### 6.5 La trama
 
-Un appunto nel primo livello di ogni ala, e il finale: il verbale del Custode
-(«riprendere comunque», con una calligrafia familiare), il diario della
-dott.ssa Sarti (il Protocollo 12 è una sintesi che si alimenta da sola), il
-registro dello spettrometro (la firma è quella del tuo badge), l'ultima nota
-di Sarti (i vapori cancellano le ultime ore: sei tu che l'hai ripreso), e il
-Nucleo, dove il Custode parla per la prima volta. Il Codex conserva gli
-appunti ritrovati.
+Dieci capitoli, uno nel primo livello di ogni zona, e il finale: il verbale
+del Custode («riprendere comunque», con una calligrafia familiare); il diario
+della dott.ssa Sarti (il Protocollo 12 è una sintesi che si alimenta da sola);
+il registro dello spettrometro (la firma è quella del tuo badge); la nota
+nascosta nel DNA (i vapori cancellano le ultime ore); il quadro elettrico (la
+corrente deviata sul reattore, autorizzata da te); le celle frigorifere (un
+campione di due anni fa, con la tua firma: lo stai rifacendo); il fascicolo del
+farmaco (chi respira i vapori dimentica); le telecamere del bunker (il
+direttore sei tu); l'ultima registrazione di Sarti (è rimasta dentro a chiudere
+le fogne); e il Nucleo, dove il Custode parla per la prima volta.
 
 ---
 
@@ -413,14 +437,29 @@ in fase 1 (senza vapore) lo spreca; restare fermi nel vapore toglie resistenza.
 
 **Ricompensa**: la ricetta **NaOH**, e l'ascensore verso l'Ala Nord.
 
-### 8.1 Gli altri quattro guardiani
+### 8.1 Gli altri nove guardiani
 
-| livello | guardiano | natura | fasi |
+Niente anelli perfetti, cristalli puliti o melme simpatiche: sono quello che
+resta di macchine e persone dopo un esperimento andato male. Superfici
+deformate dal rumore, texture sporche, silhouette che non sono solidi
+geometrici.
+
+| livello | guardiano | com'è fatto | fasi |
 |---|---|---|---|
-| 8 | IL POLIMERO | catena organica reticolata | **H₂O₂** ossida e spezza le catene → **H₂SO₄** disidrata e carbonizza il reticolo → il nucleo scoperto |
-| 12 | LO SPETTRO | specie radicalica | **acido ascorbico** cede un idrogeno e chiude la catena → **CO₂** soffoca la fiamma → il cristallo |
-| 16 | ELICA | doppia elica di acido nucleico | **appaiare le basi** (si risponde: la risposta sbagliata costa una vita) → **NaOH** rompe i legami a idrogeno → lo scheletro |
-| 20 | PROTOCOLLO 12 | la reazione stessa | **bilanciare** l'equazione (si risponde) → **NaHCO₃** tampona gli spruzzi acidi → **argon** toglie l'ossigeno al nucleo → il nucleo, quattro colpi |
+| 20 | IL POLIMERO | colonna di plastica fusa e carne, una maschera antigas fusa nella «testa», fili che pendono fino a terra, vetreria inglobata, un nocciolo di magma in una cavità | **H₂O₂** → **H₂SO₄** → il nucleo |
+| 30 | LO SPETTRO | una persona carbonizzata che galleggia: crepe di brace, costole, cranio con la mandibola aperta, braccia ad artiglio, stracci del camice, schegge di vetro dello spettrometro che le girano attorno | **acido ascorbico** → **CO₂** → il corpo |
+| 40 | ELICA | una colonna vertebrale avvolta a doppia elica, tenuta insieme da fasci di carne, costole al posto delle basi, radici nel pavimento, un bulbo con una fessura | **basi complementari** (risposta) → **NaOH** → lo scheletro |
+| 50 | LA CELLA | vasca elettrolitica arrugginita, elettrodi coperti di verderame, dendriti di rame ramificati, una massa viva al centro, cavi che fanno scintille | **redox bilanciata** (risposta) → **HNO₃** (Cu + 4 HNO₃ → Cu(NO₃)₂ + 2 NO₂ + 2 H₂O) → gli elettrodi |
+| 60 | IL GELO | un Dewar spaccato dal di dentro, lastre di ghiaccio irregolari, un braccio congelato che esce dal metallo | **CaO** (CaO + H₂O → Ca(OH)₂, esotermica) → **magnesio** → il nucleo |
+| 70 | LA DOSE | un corpo gonfio e accasciato, capsule incastrate nella carne, siringhe piantate, una flebo su un'asta piegata | **principio attivo** (risposta) → **NaOH** (idrolisi degli esteri) → il cuore |
+| 80 | IL DECADIMENTO | fusti di scorie ammaccati fusi in una crescita che brilla di verde, squame di piombo, un cartello col trifoglio piegato | **piombo** (schermo) → **bilanciare** (risposta) → i nuclei |
+| 90 | LA MELMA | il fango del depuratore alzato: pseudobraccia, una grata, ossa, bolle | **CaO** (pH > 12) → **cloro** → il centro |
+| 100 | PROTOCOLLO 12 | il reattore chiodato e ammaccato, uno squarcio da cui si vede il nucleo di magma, crepe incandescenti, carne che sale dalla base, cavi, anelli di raffreddamento spezzati | **bilanciare** (risposta) → **NaHCO₃** → **argon** → il nucleo, quattro colpi |
+
+I **residui** che strisciano nelle stanze non sono gelatine: una massa bassa
+che si trascina, un torace che emerge con le costole, un cranio mezzo sciolto,
+due appendici che erano braccia e graffiano il pavimento, una scia. Niente
+occhi. Un ossidante li scioglie.
 
 Ogni guardiano attacca a ondate che **si vedono arrivare** — la sua luce rossa
 si accende e la stanza lampeggia — e sono più fitte con la difficoltà e col
@@ -470,17 +509,21 @@ e il gioco non lo punisce per non saperla già.
 
 ## 11. Struttura completa ✅
 
-Venti livelli in cinque ali (tabella al §6.2). Ogni livello: esplorazione →
+Cento livelli in dieci zone (tabella al §6.2). Ogni livello: esplorazione →
 elementi e schede → sintesi → terminale (tre enigmi) → paratia → ascensore.
-Ogni quarto livello l'ascensore sta nell'arena di un guardiano e si sblocca
-quando il guardiano è fermo.
+Il decimo livello di ogni zona finisce nell'arena del suo guardiano, e
+l'ascensore si sblocca quando il guardiano è fermo.
 
 **Salvataggio**: a ogni livello si salvano inventario, composti, ricette,
 codex e punti; il livello più alto raggiunto sblocca la **scelta del
 livello** dal titolo. Chi comincia da un livello avanzato riceve le ricette
-che avrebbe già (quelle delle ali precedenti, i premi dei guardiani passati e
-quelle che servono al guardiano di quell'ala). Le vite si ricaricano a ogni
-livello.
+che avrebbe già. Le vite si ricaricano a ogni livello.
+
+**Stabilità**: passando da un livello all'altro si liberano le geometrie e
+le texture del livello precedente — togliere un gruppo dalla scena non libera
+la memoria della scheda video, e su cento livelli la differenza è fra un gioco
+che regge e uno che si pianta. Il banco lo misura attraversando dieci livelli
+con quattro guardiani.
 
 ---
 

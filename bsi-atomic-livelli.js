@@ -37,7 +37,9 @@
     };
   }
 
-  var LIVELLI = 20;
+  /* dieci zone da dieci livelli; per arrivare a 150 o 200 basta aggiungere
+     zone e guardiani: il generatore non ha altri numeri scritti dentro */
+  var PER_ZONA = 10;
 
   /* ═════════════════════════════════════════════════════════════════════
      I POTERI DEGLI ELEMENTI
@@ -91,6 +93,21 @@
       Au: { colore: 0xffcc33, potere: t('Inattaccabile', 'Untouchable'),
             descr: t('Non si ossida: gli acidi comuni non lo toccano.',
                      'It does not oxidise: common acids do not touch it.') },
+      Cu: { colore: 0xd9894a, potere: t('Conduttore', 'Conductor'),
+            descr: t('Il rame conduce e si deposita sul catodo; all’aria umida si copre di verderame.',
+                     'Copper conducts and plates onto the cathode; in damp air it grows verdigris.') },
+      Zn: { colore: 0xa9b6c2, potere: t('Anodo sacrificale', 'Sacrificial anode'),
+            descr: t('Si ossida prima del ferro e lo protegge: è l’anodo della pila Daniell.',
+                     'It oxidises before iron and protects it: the anode of the Daniell cell.') },
+      Al: { colore: 0xc8ccd2, potere: t('Flocculante', 'Flocculant'),
+            descr: t('I suoi sali fanno coagulare il fango negli impianti di depurazione.',
+                     'Its salts make sludge coagulate in water treatment plants.') },
+      Ba: { colore: 0x9ad06a, potere: t('Contrasto', 'Contrast'),
+            descr: t('Il solfato di bario è opaco ai raggi X; il bario libero è tossico.',
+                     'Barium sulfate is opaque to X-rays; free barium is toxic.') },
+      U:  { colore: 0x6aff6a, potere: t('Fissione', 'Fission'),
+            descr: t('L’uranio-235 si spezza assorbendo un neutrone e ne libera altri: la reazione a catena.',
+                     'Uranium-235 splits on absorbing a neutron and releases more: the chain reaction.') },
       Pb: { colore: 0x8a929c, potere: t('Schermatura', 'Shielding'),
             descr: t('Denso: ferma le radiazioni. Tossico, da maneggiare con i guanti.',
                      'Dense: it stops radiation. Toxic, to be handled with gloves.') }
@@ -161,6 +178,18 @@
                    [['Na', 1], ['H', 1], ['C', 1], ['O', 3]]],
         usa: t('Tampona gli acidi senza scaldare: scudo contro gli spruzzi corrosivi.',
                'Buffers acids without heating: a shield against corrosive splashes.') },
+      { id: 'HNO3', formula: 'HNO₃', nome: t('Acido nitrico', 'Nitric acid'),
+        classe: t('acido ossidante', 'oxidising acid'), reagenti: ['N', 'O', 'H'],
+        equazione: 'N₂ + 3 O₂ + H₂ → 2 HNO₃ ' + t('(formazione formale)', '(formal formation)'),
+        bilancio: [[['N', 2]], [['O', 6]], [['H', 2]], [['H', 2], ['N', 2], ['O', 6]]],
+        usa: t('Scioglie il rame, che gli acidi non ossidanti non toccano.',
+               'Dissolves copper, which non-oxidising acids do not touch.') },
+      { id: 'CaO', formula: 'CaO', nome: t('Ossido di calcio (calce viva)', 'Calcium oxide (quicklime)'),
+        classe: t('ossido basico', 'basic oxide'), reagenti: ['Ca', 'O'],
+        equazione: '2 Ca + O₂ → 2 CaO',
+        bilancio: [[['Ca', 2]], [['O', 2]], [['Ca', 2], ['O', 2]]],
+        usa: t('Con l’acqua scalda forte e alza il pH: scioglie il ghiaccio, stabilizza i fanghi.',
+               'With water it heats strongly and raises pH: melts ice, stabilises sludge.') },
       { id: 'MgO', formula: 'MgO', nome: t('Ossido di magnesio', 'Magnesium oxide'),
         classe: t('ossido basico', 'basic oxide'), reagenti: ['Mg', 'O'],
         equazione: '2 Mg + O₂ → 2 MgO',
@@ -351,26 +380,34 @@
     return enigma('nomina', caso);
   }
 
-  /* quali enigmi in quale ala: si comincia dai gruppi funzionali e si
+  /* quali enigmi in quale zona: si comincia dai gruppi funzionali e si
      finisce mescolando tutto, compreso il resto del sito */
   var PROGRAMMA = {
     1: ['riconosci', 'nomina', 'costruisci'],
     2: ['nomina', 'bilancia', 'costruisci'],
     3: ['sito', 'bilancia', 'nomina'],
     4: ['dna', 'sito', 'riconosci'],
-    5: ['bilancia', 'dna', 'sito']
+    5: ['bilancia', 'sito', 'nomina'],
+    6: ['costruisci', 'bilancia', 'sito'],
+    7: ['riconosci', 'sito', 'nomina'],
+    8: ['bilancia', 'dna', 'sito'],
+    9: ['sito', 'riconosci', 'bilancia'],
+    10: ['bilancia', 'dna', 'sito']
   };
 
   /* ═════════════════════════════════════════════════════════════════════
-     I CINQUE GUARDIANI
+     I DIECI GUARDIANI, uno alla fine di ogni zona
 
      Ogni fase dice CHE COSA serve e PERCHE'. Una fase «qualunque» e' la
      finestra in cui il guardiano e' scoperto; una fase «enigma» si supera
-     rispondendo mentre lui attacca.
+     rispondendo mentre lui attacca. La chimica di ogni fase e' vera.
      ═════════════════════════════════════════════════════════════════════ */
+  function scoperto(descr, it, en) {
+    return { serve: 'qualunque', colpi: 3, descr: descr, giusto: t(it, en), sbagliato: '' };
+  }
   function GUARDIANI() {
     return {
-      4: { id: 'pompa7', modello: 'pompa', nome: 'POMPA 7',
+      10: { id: 'pompa7', modello: 'pompa', nome: 'POMPA 7',
            natura: t('lega ferrosa, ossidata in superficie', 'ferrous alloy, oxidised on the surface'),
            fasi: [
              { serve: 'HCl', colpi: 3, descr: t('la ruggine', 'the rust'),
@@ -379,11 +416,10 @@
              { serve: 'Na', colpi: 3, descr: t('il vapore', 'the steam'),
                giusto: '2 Na + 2 H₂O → 2 NaOH + H₂',
                sbagliato: t('Serve qualcosa che reagisca con il vapore.', 'You need something that reacts with steam.') },
-             { serve: 'qualunque', colpi: 3, descr: t('il rotore', 'the rotor'),
-               giusto: t('Il rotore è scoperto.', 'The rotor is exposed.'), sbagliato: '' }
+             scoperto(t('il rotore', 'the rotor'), 'Il rotore è scoperto.', 'The rotor is exposed.')
            ],
            premio: 'NaOH' },
-      8: { id: 'polimero', modello: 'polimero', nome: t('IL POLIMERO', 'THE POLYMER'),
+      20: { id: 'polimero', modello: 'polimero', nome: t('IL POLIMERO', 'THE POLYMER'),
            natura: t('catena organica reticolata', 'cross-linked organic chain'),
            fasi: [
              { serve: 'H2O2', colpi: 3, descr: t('le catene', 'the chains'),
@@ -392,11 +428,10 @@
              { serve: 'H2SO4', colpi: 3, descr: t('il reticolo', 'the network'),
                giusto: t('L’acido solforico toglie l’acqua e carbonizza.', 'Sulfuric acid strips water and chars it.'),
                sbagliato: t('Il reticolo non si ossida più: va disidratato.', 'The network no longer oxidises: it must be dehydrated.') },
-             { serve: 'qualunque', colpi: 3, descr: t('il nucleo', 'the core'),
-               giusto: t('Il nucleo è scoperto.', 'The core is exposed.'), sbagliato: '' }
+             scoperto(t('il nucleo', 'the core'), 'Il nucleo è scoperto.', 'The core is exposed.')
            ],
            premio: 'NH3' },
-      12: { id: 'spettro', modello: 'spettro', nome: t('LO SPETTRO', 'THE SPECTRUM'),
+      30: { id: 'spettro', modello: 'spettro', nome: t('LO SPETTRO', 'THE SPECTRUM'),
             natura: t('specie radicalica con un elettrone spaiato', 'radical species with an unpaired electron'),
             fasi: [
               { serve: 'ASC', colpi: 3, descr: t('la catena radicalica', 'the radical chain'),
@@ -405,11 +440,10 @@
               { serve: 'CO2', colpi: 3, descr: t('la fiamma', 'the flame'),
                 giusto: t('L’anidride carbonica toglie l’ossigeno alla fiamma.', 'Carbon dioxide takes the oxygen away from the flame.'),
                 sbagliato: t('La fiamma va soffocata.', 'The flame must be smothered.') },
-              { serve: 'qualunque', colpi: 3, descr: t('il cristallo', 'the crystal'),
-                giusto: t('Il cristallo è scoperto.', 'The crystal is exposed.'), sbagliato: '' }
+              scoperto(t('il corpo', 'the body'), 'Il corpo è scoperto.', 'The body is exposed.')
             ],
             premio: 'NaHCO3' },
-      16: { id: 'elica', modello: 'elica', nome: t('ELICA', 'HELIX'),
+      40: { id: 'elica', modello: 'elica', nome: t('ELICA', 'HELIX'),
             natura: t('doppia elica di acido nucleico', 'nucleic-acid double helix'),
             fasi: [
               { serve: 'enigma:dna', colpi: 2, descr: t('l’appaiamento', 'the pairing'),
@@ -419,11 +453,74 @@
                 giusto: t('In ambiente basico i legami a idrogeno cedono: denaturazione.',
                           'In base the hydrogen bonds give way: denaturation.'),
                 sbagliato: t('I filamenti si separano in ambiente basico.', 'The strands separate in base.') },
-              { serve: 'qualunque', colpi: 3, descr: t('lo scheletro', 'the backbone'),
-                giusto: t('Lo scheletro è scoperto.', 'The backbone is exposed.'), sbagliato: '' }
+              scoperto(t('lo scheletro', 'the backbone'), 'Lo scheletro è scoperto.', 'The backbone is exposed.')
             ],
             premio: 'MgO' },
-      20: { id: 'protocollo', modello: 'protocollo', nome: 'PROTOCOLLO 12',
+      50: { id: 'cella', modello: 'cella', nome: t('LA CELLA', 'THE CELL'),
+            natura: t('cella elettrolitica che ha continuato a depositare rame', 'an electrolytic cell that kept plating copper'),
+            fasi: [
+              { serve: 'enigma:bilancia', colpi: 2, descr: t('la corrente', 'the current'),
+                giusto: t('Bilanciata la redox, la corrente si inverte.', 'Redox balanced, the current reverses.'),
+                sbagliato: t('Gli elettroni ceduti devono essere quelli acquistati.', 'Electrons lost must equal electrons gained.') },
+              { serve: 'HNO3', colpi: 3, descr: t('il rame depositato', 'the plated copper'),
+                giusto: 'Cu + 4 HNO₃ → Cu(NO₃)₂ + 2 NO₂ + 2 H₂O',
+                sbagliato: t('Il rame non si scioglie in un acido qualunque: serve un acido ossidante.',
+                             'Copper does not dissolve in just any acid: it needs an oxidising acid.') },
+              scoperto(t('gli elettrodi', 'the electrodes'), 'Gli elettrodi sono scoperti.', 'The electrodes are exposed.')
+            ],
+            premio: null },
+      60: { id: 'gelo', modello: 'gelo', nome: t('IL GELO', 'THE FROST'),
+            natura: t('campione congelato a −196 °C che ha continuato a crescere', 'a sample frozen at −196 °C that kept growing'),
+            fasi: [
+              { serve: 'CaO', colpi: 3, descr: t('il ghiaccio', 'the ice'),
+                giusto: 'CaO + H₂O → Ca(OH)₂  ' + t('(fortemente esotermica)', '(strongly exothermic)'),
+                sbagliato: t('Il ghiaccio va sciolto da una reazione che scalda.', 'The ice must be melted by a reaction that heats.') },
+              { serve: 'Mg', colpi: 3, descr: t('l’azoto liquido', 'the liquid nitrogen'),
+                giusto: t('Il magnesio brucia a oltre 2000 °C anche al freddo.', 'Magnesium burns above 2000 °C even in the cold.'),
+                sbagliato: t('Serve un metallo che bruci caldissimo.', 'You need a metal that burns extremely hot.') },
+              scoperto(t('il nucleo', 'the core'), 'Il nucleo si scongela.', 'The core thaws.')
+            ],
+            premio: null },
+      70: { id: 'dose', modello: 'dose', nome: t('LA DOSE', 'THE DOSE'),
+            natura: t('un corpo fuso con i farmaci del Protocollo', 'a body fused with the Protocol’s drugs'),
+            fasi: [
+              { serve: 'enigma:sito', colpi: 2, descr: t('il principio attivo', 'the active ingredient'),
+                giusto: t('Riconosciuto: la dose perde effetto.', 'Recognised: the dose loses its effect.'),
+                sbagliato: t('Bisogna sapere che cosa si ha davanti.', 'You must know what you face.') },
+              { serve: 'NaOH', colpi: 3, descr: t('gli esteri', 'the esters'),
+                giusto: t('Idrolisi basica: gli esteri dei farmaci si spezzano (saponificazione).',
+                          'Basic hydrolysis: the drugs’ esters break apart (saponification).'),
+                sbagliato: t('Un estere si idrolizza in ambiente basico.', 'An ester is hydrolysed in base.') },
+              scoperto(t('il cuore', 'the heart'), 'Il cuore è scoperto.', 'The heart is exposed.')
+            ],
+            premio: null },
+      80: { id: 'decadimento', modello: 'decadimento', nome: t('IL DECADIMENTO', 'THE DECAY'),
+            natura: t('scorie radioattive fuse in una crescita viva', 'radioactive waste fused into a living growth'),
+            fasi: [
+              { serve: 'Pb', colpi: 3, descr: t('la radiazione', 'the radiation'),
+                giusto: t('Il piombo, denso, assorbe la radiazione gamma.', 'Dense lead absorbs gamma radiation.'),
+                sbagliato: t('Contro la radiazione serve uno schermo denso.', 'Radiation needs a dense shield.') },
+              { serve: 'enigma:bilancia', colpi: 2, descr: t('la catena', 'the chain'),
+                giusto: t('Gli atomi tornano: la catena si ferma.', 'The atoms add up: the chain stops.'),
+                sbagliato: t('Conta gli atomi a destra e a sinistra.', 'Count the atoms on both sides.') },
+              scoperto(t('i nuclei', 'the cores'), 'I nuclei sono scoperti.', 'The cores are exposed.')
+            ],
+            premio: null },
+      90: { id: 'melma', modello: 'melma', nome: t('LA MELMA', 'THE SLUDGE'),
+            natura: t('fango di depurazione contaminato dal Protocollo', 'treatment sludge contaminated by the Protocol'),
+            fasi: [
+              { serve: 'CaO', colpi: 3, descr: t('il fango', 'the sludge'),
+                giusto: t('La calce alza il pH sopra 12: il fango si stabilizza e i patogeni muoiono.',
+                          'Lime raises the pH above 12: the sludge stabilises and pathogens die.'),
+                sbagliato: t('Il fango si stabilizza con la calce.', 'Sludge is stabilised with lime.') },
+              { serve: 'Cl', colpi: 3, descr: t('i batteri', 'the bacteria'),
+                giusto: t('Il cloro disinfetta: è quello che si fa con l’acqua potabile.',
+                          'Chlorine disinfects: it is what is done to drinking water.'),
+                sbagliato: t('Serve un disinfettante.', 'You need a disinfectant.') },
+              scoperto(t('il centro', 'the centre'), 'Il centro è scoperto.', 'The centre is exposed.')
+            ],
+            premio: null },
+      100: { id: 'protocollo', modello: 'protocollo', nome: 'PROTOCOLLO 12',
             natura: t('la reazione stessa, fuori controllo', 'the reaction itself, out of control'),
             fasi: [
               { serve: 'enigma:bilancia', colpi: 2, descr: t('l’equazione', 'the equation'),
@@ -443,7 +540,7 @@
   }
 
   /* ═════════════════════════════════════════════════════════════════════
-     LE CINQUE ALI
+     LE DIECI ZONE
      ═════════════════════════════════════════════════════════════════════ */
   function ZONE() {
     return [
@@ -459,11 +556,28 @@
       { n: 4, nome: t('Ala Sud · Biochimica', 'South Wing · Biochemistry'),
         elementi: ['P', 'K', 'Ca', 'Na', 'O', 'H'], ricette: ['NaHCO3'],
         nebbia: 0x0b100d, luce: 0xe8ffe8 },
-      { n: 5, nome: t('Il Nucleo', 'The Core'),
+      { n: 5, nome: t('Sotterraneo · Elettrochimica', 'Basement · Electrochemistry'),
+        elementi: ['Cu', 'Zn', 'N', 'O', 'H', 'S'], ricette: ['HNO3'],
+        nebbia: 0x0a1210, luce: 0xd8fff0 },
+      { n: 6, nome: t('Celle frigorifere · Criogenia', 'Cold rooms · Cryogenics'),
+        elementi: ['N', 'Ar', 'Ca', 'Mg', 'O', 'H'], ricette: ['CaO'],
+        nebbia: 0x0c1218, luce: 0xd8e8ff },
+      { n: 7, nome: t('Reparto farmaci · Farmacologia', 'Drug ward · Pharmacology'),
+        elementi: ['C', 'N', 'O', 'H', 'S', 'Cl', 'Na'], ricette: [],
+        nebbia: 0x100c10, luce: 0xffe8f0 },
+      { n: 8, nome: t('Bunker · Radiochimica', 'Bunker · Radiochemistry'),
+        elementi: ['Pb', 'U', 'Ba', 'O', 'H', 'C'], ricette: [],
+        nebbia: 0x0c120a, luce: 0xe8ffd0 },
+      { n: 9, nome: t('Impianto · Depurazione', 'Plant · Water treatment'),
+        elementi: ['Fe', 'Al', 'Ca', 'Cl', 'O', 'H', 'S'], ricette: [],
+        nebbia: 0x0e0e08, luce: 0xfff0c8 },
+      { n: 10, nome: t('Il Nucleo', 'The Core'),
         elementi: ['Ar', 'Au', 'Pb', 'Na', 'C', 'O', 'H'], ricette: [],
         nebbia: 0x120a08, luce: 0xffd8b0 }
     ];
   }
+  var LIVELLI = ZONE().length * PER_ZONA;
+
 
   var NOMI_STANZA = function () {
     return [t('Stoccaggio', 'Storage'), t('Corridoio', 'Corridor'), t('Archivio', 'Archive'),
@@ -478,7 +592,10 @@
   function livello(n) {
     n = Math.max(1, Math.min(LIVELLI, n | 0));
     var caso = Caso(n * 2654435761 + 97);
-    var zona = ZONE()[Math.ceil(n / 4) - 1];
+    var zona = ZONE()[Math.ceil(n / PER_ZONA) - 1];
+    /* dentro una zona si cresce: piu' stanze, piu' residui, verso il
+       guardiano; e ogni zona parte un po' piu' dura della precedente */
+    var inZona = (n - 1) % PER_ZONA + 1;
     var guardiani = GUARDIANI();
     var boss = guardiani[n] || null;
 
@@ -492,7 +609,7 @@
     function cz(r2) { var z = 0; for (var i = 0; i < r2; i++) z += prof[i]; return z + prof[r2] / 2; }
 
     /* il percorso principale: una passeggiata che non torna sui suoi passi */
-    var lunghezza = Math.min(9, 4 + Math.floor(n / 3));
+    var lunghezza = Math.min(10, 4 + Math.floor(inZona / 2) + Math.floor((zona.n - 1) / 3));
     var percorso = [], occ = {};
     var pos = [Math.floor(caso() * 2), Math.floor(caso() * 2) + 2];
     function libera(p) { return p[0] >= 0 && p[0] < NC && p[1] >= 0 && p[1] < NR && !occ[p[0] + ',' + p[1]]; }
@@ -518,9 +635,18 @@
       percorso.push(nuova); occ[nuova[0] + ',' + nuova[1]] = true;
     }
 
+    /* l'arena di un guardiano e' grande: almeno 14 m per lato, alzando la
+       colonna e la riga della sua cella (le stanze vicine si allargano con
+       lei, e le porte continuano a combaciare) */
+    if (boss) {
+      var fin = percorso[percorso.length - 1];
+      larg[fin[0]] = Math.max(larg[fin[0]], 14);
+      prof[fin[1]] = Math.max(prof[fin[1]], 14);
+    }
+
     /* le stanze laterali: appese al percorso, mai all'ultima */
     var laterali = [];
-    var nLat = 1 + Math.floor(caso() * 2) + (n > 8 ? 1 : 0);
+    var nLat = 1 + Math.floor(caso() * 2) + (zona.n > 2 ? 1 : 0);
     for (var k = 0; k < nLat * 6 && laterali.length < nLat; k++) {
       var base = percorso[Math.floor(caso() * (percorso.length - 1))];
       var dd = [[1, 0], [0, 1], [0, -1], [-1, 0]][Math.floor(caso() * 4)];
@@ -665,20 +791,20 @@
     /* gli appunti con le ricette dell'ala: uno per livello, a turno */
     var ricZona = zona.ricette;
     if (ricZona.length) {
-      var ric2 = ricZona[(n - 1) % 4 % ricZona.length];
+      var ric2 = ricZona[(inZona - 1) % ricZona.length];
       var dove2 = lat[0] || dove[Math.min(1, dove.length - 1)];
       metti(dove2, { tipo: 'foglio', ricetta: ric2 }, 1.4);
     }
     /* e un appunto di trama, nel primo livello di ogni ala */
-    if (n % 4 === 1) {
+    if (inZona === 1) {
       metti(stanze[0], { tipo: 'foglio', trama: zona.n }, 1.4);
     }
 
     /* i nemici: crescono con il livello, mai nella stanza di partenza */
-    var nNem = Math.min(10, 1 + Math.floor(n * 0.5));
+    var nNem = Math.min(10, 1 + Math.floor(inZona * 0.5) + Math.floor(zona.n / 2));
     var conNemici = stanze.filter(function (s) { return s.ruolo !== 'partenza' && s.ruolo !== 'boss'; });
     for (var e = 0; e < nNem && conNemici.length; e++) {
-      metti(conNemici[e % conNemici.length], { tipo: 'nemico', forza: 1 + Math.floor(n / 6) }, 1.6);
+      metti(conNemici[e % conNemici.length], { tipo: 'nemico', forza: 1 + Math.floor(zona.n / 3) }, 1.6);
     }
 
     /* l'ultima stanza: l'ascensore verso il livello dopo, o il guardiano */
@@ -709,7 +835,7 @@
   }
 
   globale.BSIAtomicLivelli = {
-    LIVELLI: LIVELLI, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
+    LIVELLI: LIVELLI, PER_ZONA: PER_ZONA, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
     RICETTE: RICETTE, POTERI: POTERI, STRUTTURE: STRUTTURE, enigma: enigma,
     bilanciata: bilanciata, PROGRAMMA: PROGRAMMA, Caso: Caso,
     versione: '1.0'

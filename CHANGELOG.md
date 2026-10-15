@@ -7,6 +7,75 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v210] — 2026-10-15
+
+**Le figure rifatte nel realismo grezzo dei titoli PlayStation 1, e cento
+livelli in dieci zone.**
+
+### Il protagonista
+
+* **`bsi-atomic-figure.js`** (nuovo): un ricercatore, non un pupazzo. Un
+  metro e settantotto con le proporzioni di un adulto; la testa è una sfera
+  deformata (mandibola, mento, zigomi, naso, nuca) con il **viso dipinto** —
+  occhi con le palpebre, occhiaie, sopracciglia, ombra del naso, bocca, barba
+  di un giorno — in proiezione piana, come i volti di Resident Evil.
+* Il **camice** in tre pezzi con pieghe, aloni di reagente, sporco in fondo,
+  revers aperti su camicia e cravatta, taschino con penna e dosimetro,
+  cartellino con la foto; le **falde** separate che seguono le gambe.
+* **Attrezzatura**: guanti di butile lunghi, stivali di sicurezza,
+  semimaschera al collo con i filtri, occhiali alzati sulla fronte, torcia,
+  cintura con il marsupio.
+* **Animazioni smorzate**: passo misurato in metri, ginocchia che si piegano
+  nel verso giusto (prima si piegavano all'indietro), bacino che oscilla e
+  ruota, busto in controrotazione, testa stabilizzata, falde in ritardo,
+  respiro e cambio di peso da fermo, inclinazione in curva, corsa diversa
+  dal passo.
+
+### I guardiani e i residui
+
+* I cinque guardiani rifatti e **cinque nuovi**: POMPA 7 (pompa incrostata
+  con lo squarcio, la girante, il braccio di gru, i manometri), IL POLIMERO
+  (plastica fusa e carne con una maschera antigas), LO SPETTRO (una persona
+  carbonizzata che galleggia tra le schegge dello spettrometro), ELICA (una
+  colonna vertebrale a doppia elica), LA CELLA, IL GELO, LA DOSE, IL
+  DECADIMENTO, LA MELMA, PROTOCOLLO 12 (il reattore squarciato con il nucleo
+  di magma). Superfici deformate dal rumore, texture sporche — ruggine che
+  cola, carne con le vene, brace, magma — e **nessuna scatola**.
+* I **residui** strisciano: una massa con un torace e un cranio mezzo
+  sciolti e due appendici che graffiano il pavimento. Niente occhi simpatici.
+
+### Lo stile PS1, di partenza
+
+* La grafica di partenza è il **PS1**: luce sui vertici sfumata (Gouraud,
+  come la macchina vera, non le facce piatte di prima), vertici agganciati
+  alla griglia, **colore a 15 bit con la retinatura di Bayer**, texture senza
+  filtro, pavimenti suddivisi per la luce, ombre a macchia, nebbia cupa,
+  480×360 a pixel quadrati. La grafica moderna (PBR, ombre) resta a scelta.
+
+### Cento livelli
+
+* **Dieci zone da dieci livelli**: le cinque di prima più Elettrochimica,
+  Criogenia, Farmacologia, Radiochimica e Depurazione. Un guardiano al
+  decimo livello di ogni zona, in un'arena di almeno 14 m; dentro la zona i
+  livelli crescono. Due ricette nuove (HNO₃, CaO). La trama ha dieci capitoli.
+* Per arrivare a 150 o 200 livelli basta aggiungere zone e guardiani.
+
+### Corretto
+
+* **Il chimico camminava all'indietro**: il modello guardava verso la
+  telecamera mentre avanzava (dalla v208). Ora guarda dove va.
+* Dopo un cambio di grafica a partita aperta il ciclo non ripartiva.
+* Passando da un livello all'altro geometrie e texture restavano nella
+  memoria della scheda video: ora si liberano.
+
+### Verifica
+
+`test_atomic`: **151 controlli** (minimo 140) — i cento livelli, i dieci
+guardiani senza scatole, il viso dipinto, il chimico che avanza guardando
+dove va e le ginocchia che non si piegano all'indietro, la memoria che non
+cresce attraversando dieci livelli, il PS1 di partenza.
+
+---
 ## [bsi-v209] — 2026-10-15
 
 **ATOMIC PROTOCOL ha venti livelli e una grafica realistica. Niente più
