@@ -12,13 +12,12 @@
    TRE MODULI, UNA CASA PER FUNZIONE
 
      · bsi-atomic-figure.js — il protagonista, i residui e i dieci
-       guardiani, nel realismo grezzo dei migliori titoli PlayStation 1:
-       pochi poligoni con proporzioni vere e texture dipinte (il viso, le
-       pieghe del camice, la ruggine che cola, la carne con le vene).
-     · bsi-atomic-grafica.js — gli ambienti, i materiali e le luci. Di
-       partenza lo stile PS1: luce sui vertici, colore a 15 bit con la
-       retinatura, vertici che tremano, pixel netti. A scelta, una grafica
-       moderna con materiali fisici, riflessi e ombre morbide.
+       guardiani in qualita' PS2: occhi modellati, mani con le dita,
+       texture ad alta risoluzione con le mappe di rilievo, bagliori; i
+       guardiani sono le macchine dell'istituto fuori controllo.
+     · bsi-atomic-grafica.js — gli ambienti, i materiali e le luci:
+       materiali fisici, riflessi d'ambiente, ombre morbide, tone mapping
+       cinematografico. Lo stile PS1 resta come scelta retro'.
      · bsi-atomic-livelli.js — i dati: cento livelli generati da un seme,
        guardiani, ricette, enigmi. Niente grafica: il banco li verifica tutti
        senza aprire un fotogramma.
@@ -62,10 +61,16 @@
      di un gioco che scatta e' peggiore di quella di un gioco meno lucido.
      ═════════════════════════════════════════════════════════════════════════ */
   var PRE = 'bsi-ap-';
-  /* la grafica di partenza e' il PS1: e' lo stile scelto per il gioco —
-     poligoni pochi, texture dipinte, luce sui vertici — e su un telefono
-     e' anche il piu' leggero. Alta e media restano come scelta */
-  function graficaDiPartenza() { return 'ps1'; }
+  /* la grafica di partenza e' la piu' alta che il dispositivo regge: «alta»
+     dove c'e' potenza, «media» su un telefono con pochi processori (stessi
+     modelli, senza ombre proiettate). Il PS1 resta come scelta retro' */
+  function graficaDiPartenza() {
+    try {
+      var tocco = globale.matchMedia && globale.matchMedia('(pointer: coarse)').matches;
+      var core = (globale.navigator && globale.navigator.hardwareConcurrency) || 8;
+      return (tocco && core <= 4) ? 'media' : 'alta';
+    } catch (e) { return 'alta'; }
+  }
   var IMP = {
     visuale: 'terza',        /* terza | prima */
     difficolta: 'normale',   /* facile | normale | difficile | esperimento */
@@ -1197,13 +1202,27 @@
     });
     (p.tremola || []).forEach(function (q) {
       q.visible = Math.random() > (attivo ? 0.35 : 0.8);
-      q.rotation.set(Math.random() * 6, Math.random() * 6, 0);
+      if (!q.isSprite) q.rotation.set(Math.random() * 6, Math.random() * 6, 0);
     });
     if (p.orbita) {
       p.orbita.o.position.set(Math.cos(tt * 1.4) * p.orbita.r, p.orbita.y + Math.sin(tt * 3) * 0.25,
                               Math.sin(tt * 1.4) * p.orbita.r);
     }
     if (p.galleggia) p.galleggia.position.y = 0.45 + Math.sin(tt * 1.3) * 0.12;
+    (p.scorre || []).forEach(function (r, i) {
+      if (r.base == null) r.base = r.o.position[r.asse];
+      r.o.position[r.asse] = r.base + Math.sin(tt * r.f * 3 + i) * r.amp * (attivo ? 1 : 0.4);
+    });
+    (p.saliscendi || []).forEach(function (r, i) {
+      if (r.base == null) r.base = r.o.position.y;
+      r.o.position.y = r.base + Math.sin(tt * r.f * 3 + i * 1.3) * r.amp * (attivo ? 1 : 0.3);
+    });
+    (p.vapore || []).forEach(function (r) {
+      var k = (tt * 0.25 + r.fase) % 1;
+      r.o.position.set(r.x + Math.sin(tt + r.fase * 6) * 0.1, r.base + k * 1.2, 0);
+      r.o.material.opacity = 0.5 * (1 - k) * (attivo ? 1 : 0.6);
+      r.o.scale.setScalar(0.4 + k * 0.9);
+    });
     if (p.ruggine) p.ruggine.visible = !attivo || f === 1;
     (p.occhi || []).forEach(function (e) {
       if (e.material && e.material.emissive) {
@@ -1214,7 +1233,7 @@
 
   /* USARE QUALCOSA. Qui sta la regola del gioco: conta CHE COSA usi, non
      quante volte premi. Senza guardiano, quello che hai serve contro i
-     residui: sono organici, e un ossidante li scioglie. */
+     residui: sono solvente organico, e un ossidante lo degrada. */
   var OSSIDANTI = ['Cl', 'O', 'F', 'H2O2', 'H2SO4', 'HCl', 'NaOH'];
 
   function usaSu(id) {
@@ -1265,8 +1284,8 @@
       return false;
     }
     if (OSSIDANTI.indexOf(id) < 0) {
-      avviso(t('Il residuo è organico: serve un ossidante (Cl, O, H₂O₂…)',
-               'The residue is organic: you need an oxidiser (Cl, O, H₂O₂…)'));
+      avviso(t('Il residuo è un solvente organico: serve un ossidante (Cl, O, H₂O₂…)',
+               'The residue is an organic solvent: you need an oxidiser (Cl, O, H₂O₂…)'));
       bip(150, 0.14, 'square', 0.05);
       return false;
     }
@@ -1276,7 +1295,7 @@
     S.punti += 50;
     bip(700, 0.12, 'triangle', 0.06);
     var r = ricetta(id);
-    avviso(t('Il residuo si ossida e si scioglie', 'The residue oxidises and dissolves'),
+    avviso(t('Il solvente si ossida e si degrada', 'The solvent oxidises and breaks down'),
            (r ? r.formula : id));
     return true;
   }
@@ -1766,15 +1785,15 @@
       '<b>Esplorazione in tre dimensioni, cento livelli in dieci zone, dieci guardiani.</b> Sei un ' +
       'chimico chiuso dentro un istituto sigillato: cammini, apri paratie, raccogli ' +
       '<b>elementi</b>, li <b>sintetizzi</b> in composti al banco e usi la chimica vera per ' +
-      'risolvere gli enigmi e abbattere i guardiani. Stile <b>PlayStation 1</b> nel realismo ' +
-      'grezzo di Resident Evil e Silent Hill — o una grafica moderna, a scelta. Visuale in <b>terza o ' +
+      'fermare le macchine dell’istituto andate fuori controllo. Grafica di livello <b>PlayStation 2</b> — ' +
+      'materiali fisici, ombre, riflessi, bagliori — e lo stile PS1 come scelta retrò. Visuale in <b>terza o ' +
       'prima persona</b>; quattro difficoltà, fino all’«Esperimento», dove le reazioni vanno ' +
       'bilanciate. Il gioco <b>si salva</b> a ogni livello e funziona <b>offline</b>.',
       '<b>Three-dimensional exploration, a hundred levels in ten zones, ten guardians.</b> You are a ' +
       'chemist locked inside a sealed institute: you walk, open bulkheads, collect ' +
       '<b>elements</b>, <b>synthesise</b> them into compounds at the bench and use real ' +
-      'chemistry to solve puzzles and bring down the guardians. <b>PlayStation 1</b> style in the ' +
-      'raw realism of Resident Evil and Silent Hill — or modern graphics, your choice. ' +
+      'chemistry to stop the institute’s runaway machines. <b>PlayStation 2</b>-level graphics — ' +
+      'physical materials, shadows, reflections, glow — and PS1 style as a retro option. ' +
       '<b>Third or first person</b> view; four difficulties, up to «Experiment», where ' +
       'reactions must be balanced. The game <b>saves</b> at every level and works <b>offline</b>.');
   }
@@ -1993,22 +2012,22 @@
                 ['difficile', DIFFICOLTA.difficile.nome],
                 ['esperimento', DIFFICOLTA.esperimento.nome]]) +
         gruppo(t('Grafica', 'Graphics'), 'grafica',
-               [['ps1', nomeGrafica('ps1')], ['alta', nomeGrafica('alta')],
-                ['media', nomeGrafica('media')]]) +
+               [['alta', nomeGrafica('alta')], ['media', nomeGrafica('media')],
+                ['ps1', nomeGrafica('ps1')]]) +
         (ps1() ? gruppo(t('Risoluzione PS1', 'PS1 resolution'), 'risoluzione',
                [['320', '320×240'], ['480', '480×360'], ['640', '640×480']]) : '') +
         gruppo(t('Suono', 'Sound'), 'suono',
                [['acceso', t('acceso', 'on')], ['spento', t('spento', 'off')]]) +
         lingue +
         '<div class="bsiAP-sub" style="margin-top:10px">' +
-          t('PS1: lo stile del gioco — pochi poligoni, texture dipinte, luce sui vertici, colore ' +
-            'a 15 bit con la retinatura, vertici che tremano. Moderna alta: materiali fisici, ' +
-            'ombre morbide, riflessi. Moderna media: stessi modelli senza ombre.\n' +
+          t('Alta: livello PS2 — materiali fisici, ombre morbide, riflessi, bagliori, texture ad alta ' +
+            'risoluzione. Media: stessi modelli senza ombre proiettate, per i telefoni. PS1: lo stile ' +
+            'retrò, con pochi poligoni, luce sui vertici e colore a 15 bit.\n' +
             'La difficoltà cambia vite, danno, tempo degli enigmi e se la sintesi rapida è ' +
             'permessa. A «Esperimento» le reazioni vanno bilanciate.',
-            'PS1: the game’s style — few polygons, painted textures, vertex lighting, 15-bit ' +
-            'colour with dithering, wobbling vertices. Modern high: physical materials, soft ' +
-            'shadows, reflections. Modern medium: same models without shadows.\n' +
+            'High: PS2 level — physical materials, soft shadows, reflections, glow, high-resolution ' +
+            'textures. Medium: same models without cast shadows, for phones. PS1: the retro style, ' +
+            'with few polygons, vertex lighting and 15-bit colour.\n' +
             'Difficulty changes lives, damage, puzzle time and whether quick synthesis is ' +
             'allowed. On «Experiment» reactions must be balanced.') +
         '</div>' + bottone('apIndietro', '◂ ' + t('indietro', 'back')) + '</div>';
@@ -2040,7 +2059,7 @@
         '<div class="bsiAP-tit">❔ ' + t('COME SI GIOCA', 'HOW TO PLAY') + '</div>' +
         '<div class="bsiAP-sub">' + esc(t(
           'OBIETTIVO — in ogni livello trova il terminale, risolvi l’enigma per aprire la ' +
-          'paratia e raggiungi l’ascensore. Ogni quattro livelli un guardiano blocca la strada.\n\n' +
+          'paratia e raggiungi l’ascensore. Alla fine di ogni zona, ogni dieci livelli, un guardiano blocca la strada: una macchina dell’istituto fuori controllo.\n\n' +
           'ELEMENTI — le fiale sui piedistalli. Raccolti, restano tuoi: usarli fa crescere la ' +
           'padronanza, e la padronanza aumenta la resa della sintesi.\n\n' +
           'SINTESI — al banco scegli i reagenti: se conosci la ricetta (schede, terminali, ' +
@@ -2048,12 +2067,12 @@
           'GUARDIANI — ogni fase ha una debolezza chimica scritta in alto. Usa la cosa giusta con ✦; ' +
           'quella sbagliata non fa niente. Alcune fasi si vincono rispondendo (✋). Allontanati ' +
           'quando la luce rossa si accende.\n\n' +
-          'RESIDUI — sono organici: un ossidante (Cl, O, H₂O₂…) li scioglie.\n\n' +
+          'RESIDUI — chiazze di solvente organico che si spostano e fumano: un ossidante (Cl, O, H₂O₂…) le degrada.\n\n' +
           'COMANDI — tastiera: W/S avanti e indietro, A/D gira, Q/E di lato, Maiusc corre, ' +
           'Spazio salta, F interagisce, X usa ✦, R cambia quello che hai in mano, I inventario, ' +
           'C codex, V cambia visuale, Esc pausa. Sul telefono: i pulsanti sotto la scena.',
           'GOAL — on each level find the terminal, solve the puzzle to open the bulkhead and ' +
-          'reach the elevator. Every four levels a guardian blocks the way.\n\n' +
+          'reach the elevator. At the end of every zone, every ten levels, a guardian blocks the way: one of the institute’s machines out of control.\n\n' +
           'ELEMENTS — the vials on the pedestals. Once collected they are yours: using them ' +
           'raises mastery, and mastery increases synthesis yield.\n\n' +
           'SYNTHESIS — at the bench pick the reagents: if you know the recipe (cards, ' +
@@ -2061,7 +2080,7 @@
           'GUARDIANS — each phase has a chemical weakness shown at the top. Use the right thing ' +
           'with ✦; the wrong one does nothing. Some phases are won by answering (✋). Step back ' +
           'when the red light flares.\n\n' +
-          'RESIDUES — they are organic: an oxidiser (Cl, O, H₂O₂…) dissolves them.\n\n' +
+          'RESIDUES — moving, fuming puddles of organic solvent: an oxidiser (Cl, O, H₂O₂…) degrades them.\n\n' +
           'CONTROLS — keyboard: W/S forward and back, A/D turn, Q/E strafe, Shift runs, ' +
           'Space jumps, F interacts, X uses ✦, R switches what you hold, I inventory, C codex, ' +
           'V toggles view, Esc pause. On a phone: the buttons below the scene.')) + '</div>' +
@@ -2256,8 +2275,8 @@
   }
 
   function nomeGrafica(g) {
-    return g === 'alta' ? t('moderna alta', 'modern high')
-         : g === 'media' ? t('moderna media', 'modern medium') : 'PS1';
+    return g === 'alta' ? t('alta (PS2)', 'high (PS2)')
+         : g === 'media' ? t('media', 'medium') : t('PS1 retrò', 'PS1 retro');
   }
   function ricreaDifficolta() {
     return {

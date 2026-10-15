@@ -586,7 +586,7 @@ function sopra(d, minimo, avuto) {
   att('  · con il finale a schermo', 'esito', boss.schermoFinale);
 
   /* ═══ §6 · IL MOTORE: REALISTICO DI SERIE, PS1 A SCELTA ════════════════ */
-  console.log('\n── Il motore: PS1 di partenza, grafica moderna a scelta ──');
+  console.log('\n── Il motore: grafica alta (PS2) di partenza, PS1 a scelta ──');
   const motore = await pg.evaluate(async () => {
     const A = window.BSIAtomic, T = window.THREE;
     const partenza = A.IMP.grafica;
@@ -623,6 +623,16 @@ function sopra(d, minimo, avuto) {
     out.stanzeVisibili = st.filter(s => s._g && s._g.visible).length;
     out.stanzeTotali = st.length;
     out.luci = 0; m.scena.traverse(o => { if (o.isLight) out.luci++; });
+    /* i bagliori della PS2: sprite additivi su lampade, schermi, nuclei */
+    out.aloni = 0; m.scena.traverse(o => { if (o.isSprite && o.userData.alone) out.aloni++; });
+    /* il protagonista in alta: occhi modellati, cinque dita, testa fitta */
+    const chA = m.chimico;
+    out.occhiModellati = (chA.occhi || []).length;
+    out.dita = chA.bSx.mano ? chA.bSx.mano.dita.length + (chA.bSx.mano.pollice ? 1 : 0) : 0;
+    let triTesta = 0; chA.testa.traverse(o => { if (o.isMesh) triTesta += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+    out.triTesta = Math.round(triTesta);
+    let triTot = 0; chA.nodo.traverse(o => { if (o.isMesh) triTot += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+    out.triTot = Math.round(triTot);
     const luci0 = out.luci;
     /* attraversare tutto il livello non aggiunge luci: si spostano */
     /* (al centro della stanza, ma non sull'ascensore: chiuderebbe il livello) */
@@ -653,8 +663,10 @@ function sopra(d, minimo, avuto) {
     let pz = 0, sc2 = 0; ch.nodo.traverse(o => { if (o.isMesh) { pz++; if (/Box/.test(o.geometry.type)) sc2++; } });
     out.ps1Pezzi = pz; out.ps1Scatole = sc2;
     /* i dieci guardiani si costruiscono tutti, e nessuno e' fatto di scatole */
-    out.guardiani = (m2.G.GUARDIANI_MODELLI || []).map(tp => {
-      const g = m2.G.guardiano(tp); let n = 0, b = 0;
+    /* (costruiti con la grafica alta: in PS1 i pezzi piccoli diventano
+       parallelepipedi apposta, ed e' il low-poly di quello stile) */
+    out.guardiani = (m.G.GUARDIANI_MODELLI || []).map(tp => {
+      const g = m.G.guardiano(tp); let n = 0, b = 0;
       g.gruppo.traverse(o => { if (o.isMesh) { n++; if (/Box/.test(o.geometry.type)) b++; } });
       return { tp, n, b, occhi: (g.parti.occhi || []).length };
     });
@@ -707,14 +719,20 @@ function sopra(d, minimo, avuto) {
   console.log('      (' + motore.tela + ')');
   att('  · senza pixel quadrati', true, motore.nonPixelata);
   att('si disegnano solo la stanza e le vicine', true, motore.stanzeVisibili < motore.stanzeTotali);
+  sopra('i bagliori (sprite additivi) su luci, schermi e nuclei', 5, motore.aloni);
+  att('il protagonista ha gli occhi modellati', 2, motore.occhiModellati);
+  att('  · e le mani con cinque dita', 5, motore.dita);
+  sopra('  · una testa fitta (triangoli)', 3000, motore.triTesta);
+  sopra('  · e migliaia di triangoli in tutto', 15000, motore.triTot);
+  console.log('      (testa ' + motore.triTesta + ' · figura ' + motore.triTot + ' triangoli)');
   console.log('      (' + motore.stanzeVisibili + ' di ' + motore.stanzeTotali + ')');
   att('  · e le luci non cambiano di numero girando il livello', true, motore.luciCostanti);
-  att('la grafica di partenza è il PS1', 'ps1', motore.partenza);
-  att('il PS1 si disegna a 480×360', '480×360', motore.ps1Tela);
+  att('la grafica di partenza è l’alta (livello PS2)', 'alta', motore.partenza);
+  att('il PS1, a scelta, si disegna a 480×360', '480×360', motore.ps1Tela);
   att('  · con i pixel quadrati', true, motore.ps1Pixel);
   sopra('  · e i materiali piatti', 50, motore.ps1Lambert);
   att('  · e cambiare grafica non perde la partita', true, motore.ps1Partita);
-  att('  · e si torna alla grafica moderna', true, motore.tornata);
+  att('  · e si torna alla grafica alta', true, motore.tornata);
   att('  · luce sui vertici sfumata (Gouraud): nessun materiale a facce piatte', 0, motore.ps1Piatti);
   sopra('  · e lo shader PS1 (vertici agganciati, colore a 15 bit) sui materiali', 50, motore.ps1Shader);
   console.log('\n── Le figure: il protagonista e i dieci guardiani ──');
@@ -722,7 +740,6 @@ function sopra(d, minimo, avuto) {
   att('  · le falde del camice separate, che si muovono', true, motore.falde);
   att('  · e le caviglie', true, motore.caviglie);
   sopra('  · è fatto di pezzi', 40, motore.ps1Pezzi);
-  att('  · e nessuno è una scatola', 0, motore.ps1Scatole);
   att('i dieci guardiani si costruiscono tutti', 10, motore.guardiani.length);
   att('  · ognuno con almeno venti pezzi', 0, motore.guardiani.filter(g => g.n < 20).length);
   att('  · nessuno fatto di scatole', 0, motore.guardiani.filter(g => g.b > 0).length);
@@ -847,9 +864,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 140) {
+  if (eseguiti < 150) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 140');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 150');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

@@ -408,7 +408,7 @@
   function GUARDIANI() {
     return {
       10: { id: 'pompa7', modello: 'pompa', nome: 'POMPA 7',
-           natura: t('lega ferrosa, ossidata in superficie', 'ferrous alloy, oxidised on the surface'),
+           natura: t('pompa del raffreddamento con i bracci della manutenzione, corrosa', 'cooling pump with maintenance arms, corroded'),
            fasi: [
              { serve: 'HCl', colpi: 3, descr: t('la ruggine', 'the rust'),
                giusto: 'Fe₂O₃ + 6 HCl → 2 FeCl₃ + 3 H₂O',
@@ -420,7 +420,7 @@
            ],
            premio: 'NaOH' },
       20: { id: 'polimero', modello: 'polimero', nome: t('IL POLIMERO', 'THE POLYMER'),
-           natura: t('catena organica reticolata', 'cross-linked organic chain'),
+           natura: t('l’estrusore dei polimeri: la resina reticola dentro la macchina', 'the polymer extruder: the resin cross-links inside the machine'),
            fasi: [
              { serve: 'H2O2', colpi: 3, descr: t('le catene', 'the chains'),
                giusto: t('Il perossido ossida e spezza le catene.', 'Peroxide oxidises and breaks the chains.'),
@@ -432,7 +432,7 @@
            ],
            premio: 'NH3' },
       30: { id: 'spettro', modello: 'spettro', nome: t('LO SPETTRO', 'THE SPECTRUM'),
-            natura: t('specie radicalica con un elettrone spaiato', 'radical species with an unpaired electron'),
+            natura: t('il banco laser in risonanza: genera radicali e fiamme', 'the laser bench in resonance: it generates radicals and flames'),
             fasi: [
               { serve: 'ASC', colpi: 3, descr: t('la catena radicalica', 'the radical chain'),
                 giusto: t('L’ascorbico cede un idrogeno e chiude la catena.', 'Ascorbic acid donates a hydrogen and closes the chain.'),
@@ -440,11 +440,11 @@
               { serve: 'CO2', colpi: 3, descr: t('la fiamma', 'the flame'),
                 giusto: t('L’anidride carbonica toglie l’ossigeno alla fiamma.', 'Carbon dioxide takes the oxygen away from the flame.'),
                 sbagliato: t('La fiamma va soffocata.', 'The flame must be smothered.') },
-              scoperto(t('il corpo', 'the body'), 'Il corpo è scoperto.', 'The body is exposed.')
+              scoperto(t('la torretta', 'the turret'), 'La torretta è scoperta.', 'The turret is exposed.')
             ],
             premio: 'NaHCO3' },
       40: { id: 'elica', modello: 'elica', nome: t('ELICA', 'HELIX'),
-            natura: t('doppia elica di acido nucleico', 'nucleic-acid double helix'),
+            natura: t('il robot sequenziatore, bloccato su una doppia elica', 'the sequencing robot, locked on a double helix'),
             fasi: [
               { serve: 'enigma:dna', colpi: 2, descr: t('l’appaiamento', 'the pairing'),
                 giusto: t('Basi complementari: l’elica si apre.', 'Complementary bases: the helix opens.'),
@@ -453,11 +453,11 @@
                 giusto: t('In ambiente basico i legami a idrogeno cedono: denaturazione.',
                           'In base the hydrogen bonds give way: denaturation.'),
                 sbagliato: t('I filamenti si separano in ambiente basico.', 'The strands separate in base.') },
-              scoperto(t('lo scheletro', 'the backbone'), 'Lo scheletro è scoperto.', 'The backbone is exposed.')
+              scoperto(t('il carrello', 'the carriage'), 'Il carrello è scoperto.', 'The carriage is exposed.')
             ],
             premio: 'MgO' },
       50: { id: 'cella', modello: 'cella', nome: t('LA CELLA', 'THE CELL'),
-            natura: t('cella elettrolitica che ha continuato a depositare rame', 'an electrolytic cell that kept plating copper'),
+            natura: t('l’impianto di elettrolisi che continua a depositare rame', 'the electrolysis plant that keeps plating copper'),
             fasi: [
               { serve: 'enigma:bilancia', colpi: 2, descr: t('la corrente', 'the current'),
                 giusto: t('Bilanciata la redox, la corrente si inverte.', 'Redox balanced, the current reverses.'),
@@ -470,7 +470,7 @@
             ],
             premio: null },
       60: { id: 'gelo', modello: 'gelo', nome: t('IL GELO', 'THE FROST'),
-            natura: t('campione congelato a −196 °C che ha continuato a crescere', 'a sample frozen at −196 °C that kept growing'),
+            natura: t('il criostato dei campioni, in perdita di azoto liquido a −196 °C', 'the sample cryostat, leaking liquid nitrogen at −196 °C'),
             fasi: [
               { serve: 'CaO', colpi: 3, descr: t('il ghiaccio', 'the ice'),
                 giusto: 'CaO + H₂O → Ca(OH)₂  ' + t('(fortemente esotermica)', '(strongly exothermic)'),
@@ -478,11 +478,11 @@
               { serve: 'Mg', colpi: 3, descr: t('l’azoto liquido', 'the liquid nitrogen'),
                 giusto: t('Il magnesio brucia a oltre 2000 °C anche al freddo.', 'Magnesium burns above 2000 °C even in the cold.'),
                 sbagliato: t('Serve un metallo che bruci caldissimo.', 'You need a metal that burns extremely hot.') },
-              scoperto(t('il nucleo', 'the core'), 'Il nucleo si scongela.', 'The core thaws.')
+              scoperto(t('il braccio', 'the arm'), 'Il braccio è scoperto.', 'The arm is exposed.')
             ],
             premio: null },
       70: { id: 'dose', modello: 'dose', nome: t('LA DOSE', 'THE DOSE'),
-            natura: t('un corpo fuso con i farmaci del Protocollo', 'a body fused with the Protocol’s drugs'),
+            natura: t('il robot della farmacia automatica, che dosa il farmaco del Protocollo', 'the automated pharmacy robot, dispensing the Protocol’s drug'),
             fasi: [
               { serve: 'enigma:sito', colpi: 2, descr: t('il principio attivo', 'the active ingredient'),
                 giusto: t('Riconosciuto: la dose perde effetto.', 'Recognised: the dose loses its effect.'),
@@ -491,11 +491,11 @@
                 giusto: t('Idrolisi basica: gli esteri dei farmaci si spezzano (saponificazione).',
                           'Basic hydrolysis: the drugs’ esters break apart (saponification).'),
                 sbagliato: t('Un estere si idrolizza in ambiente basico.', 'An ester is hydrolysed in base.') },
-              scoperto(t('il cuore', 'the heart'), 'Il cuore è scoperto.', 'The heart is exposed.')
+              scoperto(t('il prelevatore', 'the picker'), 'Il prelevatore è scoperto.', 'The picker is exposed.')
             ],
             premio: null },
       80: { id: 'decadimento', modello: 'decadimento', nome: t('IL DECADIMENTO', 'THE DECAY'),
-            natura: t('scorie radioattive fuse in una crescita viva', 'radioactive waste fused into a living growth'),
+            natura: t('la cella calda delle scorie, con i manipolatori fuori controllo', 'the waste hot cell, with its manipulators out of control'),
             fasi: [
               { serve: 'Pb', colpi: 3, descr: t('la radiazione', 'the radiation'),
                 giusto: t('Il piombo, denso, assorbe la radiazione gamma.', 'Dense lead absorbs gamma radiation.'),
@@ -503,11 +503,11 @@
               { serve: 'enigma:bilancia', colpi: 2, descr: t('la catena', 'the chain'),
                 giusto: t('Gli atomi tornano: la catena si ferma.', 'The atoms add up: the chain stops.'),
                 sbagliato: t('Conta gli atomi a destra e a sinistra.', 'Count the atoms on both sides.') },
-              scoperto(t('i nuclei', 'the cores'), 'I nuclei sono scoperti.', 'The cores are exposed.')
+              scoperto(t('i manipolatori', 'the manipulators'), 'I manipolatori sono scoperti.', 'The manipulators are exposed.')
             ],
             premio: null },
       90: { id: 'melma', modello: 'melma', nome: t('LA MELMA', 'THE SLUDGE'),
-            natura: t('fango di depurazione contaminato dal Protocollo', 'treatment sludge contaminated by the Protocol'),
+            natura: t('il chiarificatore del depuratore, contaminato dal Protocollo', 'the treatment plant clarifier, contaminated by the Protocol'),
             fasi: [
               { serve: 'CaO', colpi: 3, descr: t('il fango', 'the sludge'),
                 giusto: t('La calce alza il pH sopra 12: il fango si stabilizza e i patogeni muoiono.',
@@ -517,11 +517,11 @@
                 giusto: t('Il cloro disinfetta: è quello che si fa con l’acqua potabile.',
                           'Chlorine disinfects: it is what is done to drinking water.'),
                 sbagliato: t('Serve un disinfettante.', 'You need a disinfectant.') },
-              scoperto(t('il centro', 'the centre'), 'Il centro è scoperto.', 'The centre is exposed.')
+              scoperto(t('il ponte raschiatore', 'the scraper bridge'), 'Il ponte è scoperto.', 'The bridge is exposed.')
             ],
             premio: null },
       100: { id: 'protocollo', modello: 'protocollo', nome: 'PROTOCOLLO 12',
-            natura: t('la reazione stessa, fuori controllo', 'the reaction itself, out of control'),
+            natura: t('il reattore del Protocollo, in reazione autocatalitica', 'the Protocol’s reactor, in an autocatalytic reaction'),
             fasi: [
               { serve: 'enigma:bilancia', colpi: 2, descr: t('l’equazione', 'the equation'),
                 giusto: t('Bilanciata: il reattore perde il ritmo.', 'Balanced: the reactor loses its rhythm.'),

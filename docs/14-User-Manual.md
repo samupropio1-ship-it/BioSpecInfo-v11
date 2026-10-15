@@ -126,15 +126,16 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 
 ### 🎮 ATOMIC PROTOCOL
 
-Un gioco di **esplorazione in tre dimensioni** nello stile **PlayStation 1**, in
-cima alla barra accanto a 📰 Articoli: **cento livelli**, dieci zone, dieci
-guardiani.
+Un gioco di **esplorazione in tre dimensioni** con grafica di **livello
+PlayStation 2**, in cima alla barra accanto a 📰 Articoli: **cento livelli**,
+dieci zone, dieci guardiani.
 
 **La storia.** Sei un chimico chiuso dentro un istituto sigillato: il
 Protocollo 12, una sintesi che si alimenta da sola, è ripartito alle tre di
 notte. Cammini per le ali, raccogli **elementi**, li **sintetizzi** in
 composti al banco, risolvi gli enigmi dei terminali per aprire le paratie e
-fermi i guardiani — usando la chimica, non i riflessi. Gli appunti sparsi
+fermi i guardiani — le macchine dell'istituto andate fuori controllo —
+usando la chimica, non i riflessi. Gli appunti sparsi
 per le zone — dieci capitoli — raccontano chi ha fatto ripartire il
 Protocollo; il Codex li conserva.
 
@@ -158,15 +159,15 @@ titolo si **continua** o si **sceglie** un livello già raggiunto.
 | pausa | `Esc` o `P` | ❚❚ |
 | cambiare visuale | `V` | impostazioni |
 
-**Lo stile è quello dei migliori titoli PlayStation 1** — Resident Evil, Silent
-Hill, Metal Gear Solid: figure a pochi poligoni con le **texture dipinte** (il
-viso del chimico, le pieghe e le macchie del camice, la ruggine che cola, la
-carne con le vene), luce sui vertici sfumata, colore a 15 bit con la
-retinatura, vertici che tremano, pixel netti, ombre a macchia. Nelle
-impostazioni (anche dalla pausa, senza perdere la partita) si può passare a
-una grafica **moderna**: *alta* con ombre morbide e riflessi, *media* senza
-ombre. La risoluzione del PS1 si sceglie fra 320, 480 (di partenza) e 640
-punti.
+**La grafica è di livello PlayStation 2** — il riferimento sono Metal Gear Solid 2,
+Final Fantasy X, Resident Evil 4, senza horror: il chimico ha migliaia di
+poligoni, gli occhi modellati, le mani a cinque dita in guanti di nitrile, il
+camice con revers, tasche, bottoni e cartellino; le texture sono ad alta
+risoluzione con le mappe di rilievo; le luci, gli schermi e i nuclei hanno il
+**bagliore**; i materiali sono fisici, con ombre e riflessi. Nelle impostazioni
+(anche dalla pausa, senza perdere la partita): *alta* di partenza, *media* senza
+ombre proiettate per i telefoni, e lo stile **PS1 retrò** — pochi poligoni,
+luce sui vertici, colore a 15 bit, pixel netti.
 
 **Le quattro difficoltà** non cambiano solo i numeri:
 
@@ -198,25 +199,25 @@ reazione, scrivere il filamento di DNA complementare, e domande da tutto il
 resto dell'applicazione. Sbagliando la paratia resta chiusa.
 
 **I guardiani non si abbattono a forza**: ogni fase ha una debolezza chimica,
-scritta in alto. Sono quello che resta di macchine e persone dopo un
-esperimento andato male.
+scritta in alto. Sono le **macchine dell'istituto** che non rispondono più ai
+comandi.
 
 | livello | zona | guardiano | che cosa serve |
 |---|---|---|---|
-| 10 | Stoccaggio | POMPA 7 — pompa incrostata, fusa col basamento | **HCl** sulla ruggine → **sodio** nel vapore → il rotore scoperto |
-| 20 | Sintesi organica | IL POLIMERO — plastica fusa e carne | **H₂O₂** spezza le catene → **H₂SO₄** disidrata il reticolo → il nucleo |
-| 30 | Spettroscopia | LO SPETTRO — una persona bruciata, che galleggia | **acido ascorbico** chiude la catena radicalica → **CO₂** soffoca la fiamma → il corpo |
-| 40 | Biochimica | ELICA — una colonna vertebrale avvolta a doppia elica | **appaiare le basi** (rispondendo) → **NaOH** separa i filamenti → lo scheletro |
-| 50 | Elettrochimica | LA CELLA — vasca elettrolitica invasa dal rame | **bilanciare** la redox → **HNO₃** scioglie il rame → gli elettrodi |
-| 60 | Criogenia | IL GELO — un Dewar spaccato da ciò che era congelato | **CaO** scalda e scioglie il ghiaccio → **magnesio** brucia anche al freddo → il nucleo |
-| 70 | Farmacologia | LA DOSE — un corpo fuso con i farmaci | **riconoscere** il principio attivo → **NaOH** idrolizza gli esteri → il cuore |
-| 80 | Radiochimica | IL DECADIMENTO — scorie fuse in una crescita viva | **piombo** come schermo → **bilanciare** → i nuclei |
-| 90 | Depurazione | LA MELMA — il fango del depuratore, alzato | **CaO** stabilizza il fango → **cloro** disinfetta → il centro |
-| 100 | Nucleo | PROTOCOLLO 12 — il reattore squarciato | **bilanciare** → **bicarbonato** tampona → **argon** soffoca il nucleo → il nucleo |
+| 10 | Stoccaggio | POMPA 7 — la pompa del raffreddamento, con i bracci idraulici | **HCl** sulla ruggine → **sodio** nel vapore → il rotore scoperto |
+| 20 | Sintesi organica | IL POLIMERO — l'estrusore dei polimeri | **H₂O₂** spezza le catene → **H₂SO₄** disidrata il reticolo → il nucleo |
+| 30 | Spettroscopia | LO SPETTRO — il banco laser in risonanza | **acido ascorbico** chiude la catena radicalica → **CO₂** soffoca la fiamma → la torretta |
+| 40 | Biochimica | ELICA — il robot sequenziatore | **appaiare le basi** (rispondendo) → **NaOH** separa i filamenti → lo scheletro |
+| 50 | Elettrochimica | LA CELLA — l'impianto di elettrolisi, con i dendriti di rame | **bilanciare** la redox → **HNO₃** scioglie il rame → gli elettrodi |
+| 60 | Criogenia | IL GELO — il criostato dei campioni, in perdita d'azoto | **CaO** scalda e scioglie il ghiaccio → **magnesio** brucia anche al freddo → il nucleo |
+| 70 | Farmacologia | LA DOSE — il robot della farmacia automatica | **riconoscere** il principio attivo → **NaOH** idrolizza gli esteri → il cuore |
+| 80 | Radiochimica | IL DECADIMENTO — la cella calda, con i manipolatori | **piombo** come schermo → **bilanciare** → i nuclei |
+| 90 | Depurazione | LA MELMA — il chiarificatore, con il ponte raschiatore | **CaO** stabilizza il fango → **cloro** disinfetta → il centro |
+| 100 | Nucleo | PROTOCOLLO 12 — il reattore, in reazione autocatalitica | **bilanciare** → **bicarbonato** tampona → **argon** soffoca il nucleo → il nucleo |
 
 La cosa sbagliata non fa niente; quando la luce rossa si accende, il
-guardiano attacca: ci si allontana. I **residui** che strisciano nelle
-stanze sono organici: un ossidante (Cl, O, H₂O₂…) li scioglie.
+guardiano attacca: ci si allontana. I **residui** sono chiazze di solvente
+organico che si spostano e fumano: un ossidante (Cl, O, H₂O₂…) le degrada.
 
 **Funziona offline**: Three.js è già nel pacchetto e il Service Worker lo
 tiene in cache, insieme ai quattro file del gioco.
@@ -535,4 +536,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v210`._
+_Guida aggiornata alla versione `bsi-v211`._

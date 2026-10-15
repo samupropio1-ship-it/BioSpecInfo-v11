@@ -835,6 +835,12 @@
           var lx = -L / 2 + (ix + 0.5) * (L / nx), lz = -P / 2 + (iz + 0.5) * (P / nz);
           var pl = mesh(tonda(1.2, 0.05, 0.6, 0.01), M.lampada, lx, H - 0.03, lz, false);
           g.add(pl);
+          /* il bagliore della plafoniera: lo sprite additivo della PS2 */
+          if (!PS1 && api.alone) {
+            var bg = api.alone(0xfff0d8, 1.9, 0.32);
+            bg.position.set(lx, H - 0.14, lz);
+            g.add(bg);
+          }
           luci.push({ x: lx, y: H - 0.3, z: lz });
         }
       }

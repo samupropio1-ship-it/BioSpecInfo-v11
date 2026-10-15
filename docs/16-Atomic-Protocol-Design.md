@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 3 (bsi-v210): figure rifatte nel realismo grezzo PS1, cento livelli.
+> Versione 4 (bsi-v211): grafica di livello PS2, guardiani-macchina, nessun horror.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -13,11 +13,11 @@
 ## 0. Che cos'è, in una riga
 
 Un gioco di **esplorazione in terza o prima persona**, in **cento livelli** e
-dieci zone, nello **stile PlayStation 1** — il realismo grezzo di Resident
-Evil, Silent Hill, Metal Gear Solid, Parasite Eve — in cui un chimico
-attraversa un istituto di ricerca sigillato, raccoglie **elementi**, li
-**sintetizza** in composti, e usa la chimica — quella vera — per risolvere
-enigmi e fermare dieci guardiani.
+dieci zone, con grafica di **livello PlayStation 2** — il riferimento sono
+Metal Gear Solid 2, Final Fantasy X, Resident Evil 4, **senza horror** — in cui
+un chimico attraversa un istituto di ricerca sigillato, raccoglie
+**elementi**, li **sintetizza** in composti, e usa la chimica — quella vera —
+per risolvere enigmi e fermare dieci macchine andate fuori controllo.
 
 **Non è un runner.** Non si corre da soli, non si va «avanti e basta»: si
 cammina, ci si guarda intorno, si torna indietro, si apre una paratia che prima
@@ -30,62 +30,42 @@ li verifica senza disegnare un fotogramma), `bsi-atomic.js` (il gioco).
 
 ---
 
-## 1. Direzione artistica — PS1, realismo grezzo ✅
+## 1. Direzione artistica — livello PS2, serio, non horror ✅
 
-### 1.1 Il trucco dei migliori titoli PS1: pochi poligoni, texture dipinte
+### 1.1 Che cosa separa la PS2 dalla PS1, e come si fa qui
 
-Il viso di un personaggio di Resident Evil sono una ventina di triangoli; quello
-che lo rende un uomo è un'immagine di 64 pixel con gli occhi, le sopracciglia,
-l'ombra del naso e la barba. Qui si fa lo stesso, e le texture sono **dipinte
-da codice** — niente immagini da scaricare, funziona offline.
-
-| limite o tecnica della PS1 | come si rifà qui | perché si vede |
+| voce | come è fatta | perché si vede |
 |---|---|---|
-| luce calcolata sui vertici, sfumata fra un vertice e l'altro (Gouraud) | `MeshLambertMaterial` **senza** facce piatte; i pavimenti suddivisi perché la luce abbia vertici su cui cadere | le figure sono modellate dalla luce, le stanze sono illuminate a chiazze |
-| vertici a coordinate intere | **vertex snapping** nello shader: la posizione proiettata arrotondata a una griglia | i poligoni tremano quando ci si muove |
-| colore a 15 bit (5 per canale) con retinatura | nello shader il colore scende a 31 livelli per canale con la **retinatura ordinata di Bayer** 4×4 | il grano fine su ogni sfumatura |
-| risoluzione bassa, pixel netti | 480×360 di partenza (320 e 640 a scelta), `image-rendering: pixelated`, texture senza filtro | bordi scalettati, texture nette |
-| niente ombre proiettate | **ombre a macchia** sotto le figure | le figure poggiano sul pavimento |
-| nebbia densa | nebbia lineare da 4 a 22 m, del colore della zona | i corridoi diventano minacciosi |
+| figure con migliaia di poligoni e superfici lisce | la testa è una sfera da quasi 8000 triangoli deformata a mano; la figura intera ne ha circa 29 000 | le sagome sono curve, non segmenti |
+| occhi modellati | bulbo con l'iride dipinta (raggi, pupilla, limbo), palpebra superiore che copre la parte alta | lo sguardo è vivo, non dipinto |
+| viso dipinto a sfumature, senza contorni | pelle, rossore, ombra delle orbite, sotto il naso e il labbro, luce su fronte e mento, sopracciglia fatte di peli, barba rasata come un velo | i contorni neri sono quello che fa sembrare un volto un cartone animato |
+| mani e vestiti modellati | mani a cinque dita, ognuna in tre falangi; camice con revers estrusi, colletto, tasche, bottoni, cartellino; scarpe da un profilo laterale estruso | le cose che si toccano sono oggetti, non disegni |
+| texture ad alta risoluzione con mappe di rilievo | 512 px in alta; le pieghe del camice, la trama dei pantaloni, le giunture e i rivetti dei pannelli sono nella mappa di rilievo | la luce le fa vedere mentre ci si muove |
+| bagliori | sprite additivi a gradiente su plafoniere, schermi, LED, fari, nuclei | è il «bloom» di quella generazione, e costa quasi niente |
+| materiali fisici, ombre, riflessi | PBR, ombre morbide dal faro che segue il giocatore, riflessi d'ambiente, tone mapping ACES | acciaio, vernice, gomma, vetro e pelle si distinguono |
 
 ### 1.2 Il protagonista
 
-Un metro e settantotto, con le proporzioni di un adulto vero: bacino a 95 cm,
-spalle a 1,43 m, la testa un ottavo dell'altezza, il torace a sezione
-ellittica, le braccia che arrivano a metà coscia, le mani con il pollice.
+Un metro e settantotto con le proporzioni di un adulto: bacino a 95 cm, spalle
+a 1,43 m, la testa un ottavo dell'altezza, il torace a sezione ellittica. Camice
+bianco chiuso con i revers su camicia azzurra e cravatta, taschino con la penna,
+cartellino del direttore, falde separate con le tasche che seguono le gambe;
+pantaloni grigio scuro con la piega; guanti di nitrile azzurri; scarpe da
+laboratorio. Animazioni smorzate: passo misurato in metri, ginocchia che si
+piegano nel verso giusto, bacino e busto in controrotazione, testa
+stabilizzata, falde in ritardo, respiro e cambio di peso da fermo.
 
-* **La testa** è una sfera deformata — mandibola che si stringe, mento,
-  zigomi, arcata sopraccigliare, naso, nuca — con una **proiezione piana**:
-  metà texture è la faccia vista di fronte, metà la nuca. Il viso è dipinto:
-  occhi con le palpebre, occhiaie, sopracciglia folte, ombra del naso, narici,
-  bocca seria, pieghe naso-labiali, barba di un giorno, una cicatrice.
-* **Il camice** è in tre pezzi: il busto dipinto con i revers aperti sulla
-  camicia e la cravatta, l'abbottonatura, il taschino con la penna e il
-  dosimetro, il cartellino con la foto, una bruciatura d'acido; le **falde**,
-  due pannelli separati che seguono le gambe; le maniche con le grinze al
-  gomito. Pieghe, sporco in fondo e aloni di reagente sono nella texture.
-* **L'attrezzatura** di chi lavora davvero con i reagenti: guanti di butile
-  lunghi, stivali di sicurezza con la suola, semimaschera al collo con i due
-  filtri P100, occhiali di protezione alzati sulla fronte, torcia, cintura con
-  il marsupio.
+### 1.3 Grafica alta, media, PS1
 
-### 1.3 Le animazioni
+*Alta* di partenza; *media* — stessi modelli, texture a metà risoluzione, senza
+ombre proiettate — sui telefoni con pochi processori; *PS1 retrò* a scelta:
+pochi segmenti, texture piccole senza filtro, luce sui vertici sfumata,
+vertici agganciati alla griglia, colore a 15 bit con la retinatura di Bayer,
+480×360 a pixel quadrati. Cambiarla non perde la partita.
 
-Ogni giunto ha un bersaglio calcolato dal passo e ci va **per gradi**: è lo
-smorzamento che toglie la rigidità. Il passo è misurato in metri percorsi
-(i piedi non scivolano); il ginocchio si piega mentre la gamba avanza; il
-bacino sale e scende due volte per ciclo e ruota con le anche, il busto ruota
-al contrario, la testa compensa e resta sull'orizzonte; le falde del camice
-seguono le cosce in ritardo; di corsa il busto si inclina e i gomiti si
-piegano; in curva ci si inclina; da fermo si respira, il peso passa da una
-gamba all'altra e ogni tanto ci si guarda intorno.
-
-### 1.4 Grafica moderna, a scelta
-
-Le stesse figure con materiali fisici (PBR), riflessi d'ambiente, ombre
-morbide, tone mapping ACES; *alta* con le ombre, *media* senza. Il costo si
-paga disegnando solo la stanza in cui si è e quelle attaccate alle sue porte,
-e tenendo le luci sempre in numero fisso, spostate sulle plafoniere vicine.
+Il costo si paga disegnando solo la stanza in cui si è e quelle attaccate alle
+sue porte, tenendo le luci sempre in numero fisso (spostate sulle plafoniere
+vicine) e liberando la memoria della scheda video a ogni cambio di livello.
 
 ---
 
@@ -114,7 +94,7 @@ livelli già raggiunti, divisi per zona, con i guardiani segnati.
 |---|---|---|---|
 | **Visuale** | terza persona · prima persona | terza persona | `localStorage` → `bsi-ap-visuale` |
 | **Difficoltà** | Facile · Normale · Difficile · Esperimento | Normale | `bsi-ap-difficolta` |
-| **Grafica** | PS1 · moderna alta · moderna media | PS1 | `bsi-ap-grafica` |
+| **Grafica** | alta (PS2) · media · PS1 retrò | alta (media sui telefoni con pochi processori) | `bsi-ap-grafica` |
 | **Risoluzione PS1** | 320×240 · 480×360 · 640×480 | 480×360 | `bsi-ap-risoluzione` |
 | **Suono** | acceso · spento | acceso | `bsi-ap-suono` |
 | **Lingua** | italiano · inglese (le altre dal selettore dell'applicazione) | quella in uso | `BSILingue` |
@@ -125,10 +105,10 @@ passa da dietro le spalle (terza) a dentro la testa (prima), e in prima persona
 il corpo del chimico non si disegna ma le **mani sì**, perché una prima persona
 senza mani è una telecamera che vola.
 
-> **Perché la grafica si può cambiare.** Il PS1 è lo stile del gioco, ma il
-> tremolio dei vertici e i pixel grossi a qualcuno danno fastidio: la grafica
-> moderna usa gli stessi modelli con materiali fisici e ombre. Cambiarla non
-> perde la partita.
+> **Perché la grafica si può cambiare.** L'alta chiede una scheda video
+> discreta; la media regge su un telefono; il PS1 è per chi ama lo stile
+> retrò. Gli stessi modelli si costruiscono con più o meno segmenti e texture
+> più o meno grandi. Cambiarla non perde la partita.
 
 ### 2.3 Difficoltà — che cosa cambia davvero
 
@@ -413,53 +393,48 @@ A Facile i passi 1 e 2 sono a scelta multipla e il 3 è guidato; a Esperimento i
 
 ---
 
-## 8. Il primo guardiano — «POMPA 7» 🔧
+## 8. Il primo guardiano — «POMPA 7» ✅
 
-**Che cos'è**: una pompa industriale incrostata, mezza fusa con il metallo
-della paratia. Lega ferrosa, ossidata in superficie. Si muove sui binari del
-soffitto e colpisce con sbuffi di vapore caldo.
+**Che cos'è**: la pompa centrifuga del circuito di raffreddamento — chiocciola
+blu con le flange imbullonate, oblò d'ispezione da cui si vede la girante che
+gira, motore con le alette, coprigiunto giallo, tubazioni, la valvola rossa —
+con i due **bracci idraulici della manutenzione automatica** che non si fermano
+più. È coperta di piastre di corrosione; due manometri e un faro rotante
+segnalano l'allarme; il quadro di controllo dice «blocco: NEGATO».
 
 **Fasi**
 
-1. **Fase 1 — la ruggine.** Lo scudo è l'ossido. Serve un **acido**: `HCl`
-   sintetizzato al banco (H + Cl) oppure trovato. Tre applicazioni sciolgono
-   l'ossido. Colpirla con l'idrogeno puro non fa niente: l'H₂ non attacca il
-   ferro.
-2. **Fase 2 — il metallo nudo.** Adesso è vulnerabile, ma chiude le valvole e
-   riempie la stanza di vapore: bisogna muoversi. Qui serve **sodio** (reagisce
-   con l'acqua del vapore liberando idrogeno e calore) per far saltare le
-   valvole.
-3. **Fase 3 — il nucleo.** La pompa espone il rotore. Qualunque cosa va bene,
-   ma ha 15 secondi prima di richiudersi.
-
-**Se si sbaglia**: usare una **base** sulla ruggine non fa niente; usare sodio
-in fase 1 (senza vapore) lo spreca; restare fermi nel vapore toglie resistenza.
+1. **La ruggine.** Le piastre di corrosione la proteggono. Serve un **acido**:
+   `HCl` (Fe₂O₃ + 6 HCl → 2 FeCl₃ + 3 H₂O). L'idrogeno puro o una base non fanno
+   niente. Sciolta la corrosione, le piastre spariscono.
+2. **Il vapore.** Il circuito si apre e la stanza si riempie di vapore: serve
+   **sodio**, che con l'acqua libera idrogeno e calore e fa saltare le valvole.
+3. **Il rotore.** Scoperto: qualunque cosa va, ma la finestra si richiude se
+   non si colpisce in tempo.
 
 **Ricompensa**: la ricetta **NaOH**, e l'ascensore verso l'Ala Nord.
 
-### 8.1 Gli altri nove guardiani
+### 8.1 Gli altri nove guardiani — le macchine dell'istituto
 
-Niente anelli perfetti, cristalli puliti o melme simpatiche: sono quello che
-resta di macchine e persone dopo un esperimento andato male. Superfici
-deformate dal rumore, texture sporche, silhouette che non sono solidi
-geometrici.
+Nessuna creatura: sono macchinari di laboratorio veri, con bracci robotici,
+carrelli, quadri di controllo, fari rotanti e bagliori, che non rispondono più
+ai comandi. Minacciosi come lo è una macchina industriale fuori controllo.
 
 | livello | guardiano | com'è fatto | fasi |
 |---|---|---|---|
-| 20 | IL POLIMERO | colonna di plastica fusa e carne, una maschera antigas fusa nella «testa», fili che pendono fino a terra, vetreria inglobata, un nocciolo di magma in una cavità | **H₂O₂** → **H₂SO₄** → il nucleo |
-| 30 | LO SPETTRO | una persona carbonizzata che galleggia: crepe di brace, costole, cranio con la mandibola aperta, braccia ad artiglio, stracci del camice, schegge di vetro dello spettrometro che le girano attorno | **acido ascorbico** → **CO₂** → il corpo |
-| 40 | ELICA | una colonna vertebrale avvolta a doppia elica, tenuta insieme da fasci di carne, costole al posto delle basi, radici nel pavimento, un bulbo con una fessura | **basi complementari** (risposta) → **NaOH** → lo scheletro |
-| 50 | LA CELLA | vasca elettrolitica arrugginita, elettrodi coperti di verderame, dendriti di rame ramificati, una massa viva al centro, cavi che fanno scintille | **redox bilanciata** (risposta) → **HNO₃** (Cu + 4 HNO₃ → Cu(NO₃)₂ + 2 NO₂ + 2 H₂O) → gli elettrodi |
-| 60 | IL GELO | un Dewar spaccato dal di dentro, lastre di ghiaccio irregolari, un braccio congelato che esce dal metallo | **CaO** (CaO + H₂O → Ca(OH)₂, esotermica) → **magnesio** → il nucleo |
-| 70 | LA DOSE | un corpo gonfio e accasciato, capsule incastrate nella carne, siringhe piantate, una flebo su un'asta piegata | **principio attivo** (risposta) → **NaOH** (idrolisi degli esteri) → il cuore |
-| 80 | IL DECADIMENTO | fusti di scorie ammaccati fusi in una crescita che brilla di verde, squame di piombo, un cartello col trifoglio piegato | **piombo** (schermo) → **bilanciare** (risposta) → i nuclei |
-| 90 | LA MELMA | il fango del depuratore alzato: pseudobraccia, una grata, ossa, bolle | **CaO** (pH > 12) → **cloro** → il centro |
-| 100 | PROTOCOLLO 12 | il reattore chiodato e ammaccato, uno squarcio da cui si vede il nucleo di magma, crepe incandescenti, carne che sale dalla base, cavi, anelli di raffreddamento spezzati | **bilanciare** (risposta) → **NaHCO₃** → **argon** → il nucleo, quattro colpi |
+| 20 | IL POLIMERO | l'estrusore: reattore cromato con l'oblò sulla resina, cilindro con le fasce riscaldanti incandescenti, tramoggia, testa da cui cola il polimero ambrato, braccio robotico | **H₂O₂** → **H₂SO₄** → il nucleo |
+| 30 | LO SPETTRO | il banco laser su tavolo ottico in granito: torretta con tre emettitori che ruota e spazza la stanza con i fasci, prismi, specchi orientabili | **acido ascorbico** → **CO₂** → la torretta |
+| 40 | ELICA | il robot sequenziatore: portale con il carrello delle pipette che corre avanti e indietro, camera di vetro con il modello della doppia elica che ruota | **basi complementari** (risposta) → **NaOH** → il carrello |
+| 50 | LA CELLA | l'impianto di elettrolisi: due vasche, elettrodi e sbarre di rame, dendriti di rame cresciuti fuori dal liquido, raddrizzatore, scintille | **redox bilanciata** (risposta) → **HNO₃** (Cu + 4 HNO₃ → Cu(NO₃)₂ + 2 NO₂ + 2 H₂O) → gli elettrodi |
+| 60 | IL GELO | il criostato: tre Dewar d'acciaio con la brina alla base, sfiati che buttano vapore d'azoto, braccio che carica le provette | **CaO** (esotermica con l'acqua) → **magnesio** → il braccio |
+| 70 | LA DOSE | la farmacia automatica: parete di cassetti, prelevatore sul binario, nastro con i flaconi, tramoggia di vetro piena di capsule | **principio attivo** (risposta) → **NaOH** (idrolisi degli esteri) → il prelevatore |
+| 80 | IL DECADIMENTO | la cella calda: parete di schermo con la finestra al piombo, manipolatori a pinza, piscina con la luce blu di Čerenkov, fusti gialli col trifoglio | **piombo** (schermo) → **bilanciare** (risposta) → i manipolatori |
+| 90 | LA MELMA | il chiarificatore: vasca circolare, fango lucido con le bolle, ponte raschiatore che gira, pompa dei fanghi | **CaO** (pH > 12) → **cloro** → il ponte |
+| 100 | PROTOCOLLO 12 | il reattore: recipiente in pressione con la calotta imbullonata, oblò sul nucleo incandescente, barre di controllo che salgono e scendono, anelli magnetici con le bobine di rame che girano, tubazioni | **bilanciare** (risposta) → **NaHCO₃** → **argon** → il nucleo, quattro colpi |
 
-I **residui** che strisciano nelle stanze non sono gelatine: una massa bassa
-che si trascina, un torace che emerge con le costole, un cranio mezzo sciolto,
-due appendici che erano braccia e graffiano il pavimento, una scia. Niente
-occhi. Un ossidante li scioglie.
+I **residui** che si muovono nelle stanze sono chiazze di solvente organico:
+una pozza lucida e irregolare che scivola sul pavimento, con le bolle che si
+gonfiano e i vapori che salgono. Un ossidante la degrada.
 
 Ogni guardiano attacca a ondate che **si vedono arrivare** — la sua luce rossa
 si accende e la stanza lampeggia — e sono più fitte con la difficoltà e col

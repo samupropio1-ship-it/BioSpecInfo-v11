@@ -7,6 +7,55 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v211] — 2026-10-15
+
+**Grafica di livello PlayStation 2, e niente horror: i guardiani sono le
+macchine dell'istituto.**
+
+### Il protagonista
+
+* **Migliaia di poligoni**: la testa è una sfera da circa 8000 triangoli
+  deformata a mano (cranio, arcate, zigomi, naso con le ali, labbra, mento); la
+  figura intera ne ha circa 29 000.
+* **Occhi modellati** — bulbo, iride dipinta, palpebra — e il **viso dipinto a
+  sfumature, senza contorni**: pelle, rossore, ombre delle orbite e sotto il
+  naso, luce su fronte e mento, sopracciglia fatte di peli, barba appena rasata.
+  I contorni erano quello che lo faceva sembrare un cartone animato.
+* **Mani a cinque dita** in guanti di nitrile; camice con revers, colletto,
+  tasche, bottoni, penna e cartellino modellati; capelli a ciocche; scarpe da
+  un profilo estruso. Texture a 512 px con **mappe di rilievo** (pieghe, trama).
+* Tolti i dettagli da sopravvivenza (semimaschera, occhiali sulla fronte): è un
+  direttore di laboratorio, non un soldato.
+
+### I guardiani e i residui
+
+* I dieci guardiani sono **macchine di laboratorio fuori controllo**, senza
+  carne, ossa o cadaveri: la pompa con i bracci idraulici, l'estrusore dei
+  polimeri, il banco laser con la torretta, il robot sequenziatore con la
+  doppia elica in vetro, l'impianto di elettrolisi con i dendriti di rame, il
+  criostato che sfiata azoto, la farmacia automatica, la cella calda con i
+  manipolatori e la luce di Čerenkov, il chiarificatore con il ponte
+  raschiatore, il reattore con gli anelli magnetici. Bracci, carrelli, barre e
+  ponti si muovono; i quadri di controllo dicono che cosa non va.
+* I **residui** sono chiazze di solvente che si spostano, con le bolle e i
+  vapori.
+* Descrizioni, guida e manuale riscritti di conseguenza; la chimica delle fasi
+  non cambia.
+
+### Il motore
+
+* **Grafica alta di partenza** (media sui telefoni con pochi processori); il
+  PS1 resta come scelta retrò.
+* **Bagliori** a sprite additivi su plafoniere, schermi, LED, fari e nuclei.
+
+### Verifica
+
+`test_atomic`: **155 controlli** (minimo 150) — grafica alta di partenza, più
+di cinque bagliori in scena, occhi modellati, cinque dita, testa sopra i 3000
+triangoli e figura sopra i 15 000, nessuna scatola nel protagonista e nei dieci
+guardiani.
+
+---
 ## [bsi-v210] — 2026-10-15
 
 **Le figure rifatte nel realismo grezzo dei titoli PlayStation 1, e cento
