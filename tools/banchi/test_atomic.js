@@ -640,54 +640,53 @@ function sopra(d, minimo, avuto) {
     let pezziVista = 0; if (m.scenaMani) m.scenaMani.traverse(o => { if (o.isMesh) pezziVista++; });
     out.pezziVista = pezziVista;
     out.camManiAspetto = m.camMani ? Math.abs(m.camMani.aspect - m.camera.aspect) < 0.01 : false;
-    /* I MODELLI DELLA PRIMA PERSONA: mani (con la loro animazione),
-       manica del camice dalla scansione, pistola a capsula */
-    for (let i = 0; i < 80 && !(m.vista.modello && m.vista.pistola && m.vista.manicaModello); i++) await new Promise(r => setTimeout(r, 250));
-    const vm = m.vista;
-    out.fpMani = !!vm.modello; out.fpManica = !!vm.manicaModello; out.fpPistola = !!vm.pistola;
+    /* I MODELLI DELLA PRIMA PERSONA: le braccia del rig con le loro
+       animazioni, la mano robotica a sinistra, la pistola nel pugno */
+    for (let i = 0; i < 100 && !(m.vista.rig && m.vista.rig.aggancio && m.vista.rig.robot); i++) await new Promise(r => setTimeout(r, 250));
+    const vm = m.vista, R = vm.rig;
+    out.fpRig = !!R; out.fpPistola = !!(R && R.aggancio); out.fpRobot = !!(R && R.robot);
     out.fpErrore = m.animV.erroreMani || '';
-    if (vm.modello && vm.pistola) {
+    if (R && R.aggancio) {
       let skin = 0, skinning = 0; m.scenaMani.traverse(o => { if (o.isSkinnedMesh && o.visible) { skin++; if (o.material.skinning) skinning++; } });
-      out.fpSkin = skin; out.fpSkinning = skinning;
-      /* il guanto e' nitrile: nella texture il blu domina sul rosso */
-      const img = vm.modello.materiale.map.image, cq = img.getContext ? img : null;
-      if (cq) { const d = cq.getContext('2d').getImageData(0, 0, cq.width, cq.height).data; let r = 0, b = 0; for (let i = 0; i < d.length; i += 64) { r += d[i]; b += d[i + 2]; } out.fpNitrile = b > r * 1.5; }
-      out.fpFotogrammi = vm.modello.fotogrammi;
-      /* la presa: il centro dell'anello delle dita chiuse sta sull'impugnatura */
+      out.fpSkin = skin + '/' + skinning;
+      out.fpClip = Object.keys(R.azioni).sort().join(',');
+      /* il guanto destro e' nitrile: nella texture il blu domina */
+      const gm = R.mesh.find(x => x.userData.ruolo === 'guanto');
+      const im = gm && gm.material.map && gm.material.map.image;
+      if (im && im.getContext) { const d = im.getContext('2d').getImageData(0, 0, im.width, im.height).data; let r = 0, b = 0; for (let i = 0; i < d.length; i += 256) { r += d[i]; b += d[i + 2]; } out.fpNitrile = b > r * 1.5; }
+      /* la presa: l'impugnatura sta nell'anello delle dita destre */
       m.scenaMani.updateMatrixWorld(true);
-      const pr = vm.modello.presa(1);
+      const w = o => o.getWorldPosition(new T.Vector3());
+      const anello = new T.Vector3(); ['f_index', 'f_middle', 'f_ring', 'f_pinky'].forEach(d => [1, 2, 3].forEach(n => anello.add(w(R.dita(1, d, n))))); anello.multiplyScalar(1 / 12);
       const cg = vm.pistola.centro.clone().applyMatrix4(vm.pistola.gruppo.matrixWorld);
-      out.fpPresaMm = Math.round(pr.centro.distanceTo(cg) * 1000);
-      /* l'ugello dello spruzzo e' in punta alla canna */
-      const ug = new T.Vector3(); vm.dispensatore.ugello.getWorldPosition(ug);
-      const pu = vm.pistola.punta.clone().applyMatrix4(vm.pistola.gruppo.matrixWorld);
-      out.fpUgelloMm = Math.round(ug.distanceTo(pu) * 1000);
-      out.fpResiduo = +Math.abs(vm.pistola.residuo || 0).toFixed(2);
-      /* il dispensatore procedurale non si vede piu' */
-      /* i movimenti: ogni dito ha inerzia (lo spruzzo non porta l'indice
-         a fine corsa nello stesso fotogramma), la mano e' viva (le dita si
-         muovono anche da ferma), prendere apre la mano prima di chiuderla,
-         e lo spruzzo fa saltare la canna */
+      out.fpPresaMm = Math.round(anello.distanceTo(cg) * 1000);
+      /* l'indice sopra il mignolo: si impugna, non si tiene in guardia */
+      out.fpIndiceSopra = w(R.dita(1, 'f_index', 1)).y > w(R.dita(1, 'f_pinky', 1)).y + 0.02;
+      /* la canna verso avanti e il centro */
+      const ug = w(vm.dispensatore.ugello), cP = cg.clone();
+      const canna = ug.clone().sub(cP).applyMatrix4(new T.Matrix4().extractRotation(m.camMani.matrixWorldInverse)).normalize();
+      out.fpCannaAvanti = +(-canna.z).toFixed(2);
+      /* la pistola segue la mano: e' figlia dell'osso */
+      let pa = R.aggancio.parent; out.fpAgganciata = pa === R.manoDx;
+      out.fpProcedurali = (vm.dx.visible ? 1 : 0) + (vm.sx.visible ? 1 : 0);
+      /* le animazioni rispondono: camminando pesa Walk, un cambio fa
+         partire Equip, un lancio il jab, lo spruzzo fa rinculare */
       const fr = () => new Promise(r => requestAnimationFrame(r));
-      await new Promise(r => setTimeout(r, 600));
-      const ind0 = m.animV.dita.dx.indice.x;
-      const x0 = vm.manoDx.rotation.x;
-      A.spruzzo(); await fr();
-      const ind1 = m.animV.dita.dx.indice.x;
-      let indMax = ind1, xMax = x0;
-      for (let i = 0; i < 12; i++) { await fr(); indMax = Math.max(indMax, m.animV.dita.dx.indice.x); xMax = Math.max(xMax, vm.manoDx.rotation.x); }
-      out.fpInerzia = (ind1 - ind0) < 0.6 * (indMax - ind0) && indMax - ind0 > 0.15;
-      out.fpRinculo = +(xMax - x0).toFixed(2);
-      const v0 = m.animV.dita.sx.medio.x; await new Promise(r => setTimeout(r, 900));
-      out.fpViva = Math.abs(m.animV.dita.sx.medio.x - v0) > 0.003;
-      m.animV.prendi = 1; let pMin = 9, pMax = -9;
-      for (let i = 0; i < 40; i++) { await fr(); const x = m.animV.dita.sx.medio.x; pMin = Math.min(pMin, x); pMax = Math.max(pMax, x); }
-      out.fpPrendi = pMin < 0.1 && pMax > 0.6;
+      /* (il passo si prova sul rig: camminare davvero porterebbe il
+         chimico altrove, magari in ascensore) */
+      for (let i = 0; i < 30; i++) R.aggiorna({ dt: 0.016, ora: i * 0.016, vel: 0.8, corsa: false, potere: 0, prendi: -1 });
+      out.fpWalk = +R.pesi.Walk.toFixed(2);
+      for (let i = 0; i < 30; i++) await fr();
+      m.animV.cambio = 1; await fr(); await fr(); out.fpEquip = !!R.colpi.Equip;
+      const z0 = R.base.position.z; A.spruzzo(); await fr(); await fr(); out.fpRinculo = R.base.position.z > z0 + 0.005;
+      /* la mano robotica segue il braccio sinistro */
+      const r0 = w(R.robot.children[0]).clone(); m.animV.prendi = 1; for (let i = 0; i < 8; i++) await fr();
+      out.fpRobotSegue = w(R.robot.children[0]).distanceTo(r0) > 0.003;
+      for (let i = 0; i < 40; i++) await fr();
       out.fpPost = !!(m.post && m.post.rt);
-      out.fpProcedurali = vm.dispensatore.gruppo.children.filter(c => c.visible && c !== vm.pistola.gruppo && c !== vm.dispensatore.aloneLed).length;
     }
     A.stato().inMano = 'Cl';
-    await new Promise(r => setTimeout(r, 700));
+    for (let i = 0; i < 30 && m.animV.inMano !== 'Cl'; i++) await new Promise(r => setTimeout(r, 100));
     out.inManoVista = m.animV.inMano;
     A.spruzzo();
     out.goccioline = m.animV.particelle.filter(q => q.vivo).length;
@@ -696,12 +695,16 @@ function sopra(d, minimo, avuto) {
     A.stato().inMano = 'Na';
     await new Promise(r => setTimeout(r, 900));
     out.potereNa = vi.potere ? vi.potere.stato.tipo : null;
-    /* con il potere il palmo della sinistra sale verso lo sguardo */
-    if (vi.modello) {
-      m.animV.alta = 1; await new Promise(r => setTimeout(r, 400));
-      const per = vi.modello.lati.sx.mano.per, wq = (o) => { const v = new THREE.Vector3(); o.getWorldPosition(v); return v; };
-      const dir = wq(per.MIDDLE_F_BASE).sub(wq(per.HANDPALM)).transformDirection(m.camMani.matrixWorldInverse);
-      out.fpPalmoSu = +dir.y.toFixed(2);
+    /* con il potere il palmo sinistro guarda in su; la sfera prende il
+       colore dell'elemento (il sodio giallo: rosso e verde sopra il blu) */
+    if (vi.rig && vi.rig.robot) {
+      m.animV.alta = 1; await new Promise(r => setTimeout(r, 500));
+      const pp = new THREE.Vector3(), nn = new THREE.Vector3(); m.G.palmoSx(vi.rig, pp, nn);
+      out.fpPalmoSu = +nn.y.toFixed(2);
+      out.fpNucleo = !!(vi.potere.nucleo && vi.potere.nucleo.visible);
+      const c = vi.potere.nucleo.children[0].material.color;
+      out.fpColoreNa = c.r > c.b * 1.3 && c.g > c.b * 1.1;
+      out.fpGranelli = !!(vi.rig.granelli && vi.rig.granelli.visible);
     }
     const vivi0 = m.animV.particelle.filter(q => q.vivo).length;
     A.lancio();
@@ -836,23 +839,27 @@ function sopra(d, minimo, avuto) {
   sopra('  · fatte di molti pezzi', 40, motore.pezziVista);
   att('  · la mano destra ha cinque dita', 5, motore.ditaVista);
   att('  · la telecamera delle braccia segue le proporzioni dello schermo', true, motore.camManiAspetto);
-  att('le mani del modello (models/mani-atomic.glb) arrivano', true, motore.fpMani);
+  att('le braccia del rig (models/braccia-atomic.glb) arrivano', true, motore.fpRig);
   if (motore.fpErrore) console.log('      (errore: ' + motore.fpErrore + ')');
-  att('  · la manica del camice dalla scansione', true, motore.fpManica);
-  att('  · la pistola a capsula', true, motore.fpPistola);
-  att('  · due mani con lo scheletro, animate dalla GPU', '2/2', motore.fpSkin + '/' + motore.fpSkinning);
-  att('  · in guanto di nitrile (il blu domina nella texture)', true, motore.fpNitrile);
-  sopra('  · la clip campionata in fotogrammi', 300, motore.fpFotogrammi);
-  att('  · le dita chiuse stanno sull’impugnatura (entro 3 cm)', true, motore.fpPresaMm <= 30);
-  console.log('      (' + motore.fpPresaMm + ' mm dal centro dell’impugnatura)');
-  att('  · l’ugello dello spruzzo è in punta alla canna', true, motore.fpUgelloMm <= 5);
-  att('  · la canna guarda avanti: la pistola ruota nella presa meno di 0,6 rad', true, motore.fpResiduo < 0.6);
-  att('  · e il dispensatore procedurale non si vede più', 0, motore.fpProcedurali);
-  att('  · col potere il palmo sinistro sale verso lo sguardo', true, motore.fpPalmoSu > 0.2);
-  att('  · ogni dito ha la sua inerzia: niente pose di colpo', true, motore.fpInerzia);
-  sopra('  · lo spruzzo fa saltare la canna (rad)', 0.05, motore.fpRinculo);
-  att('  · le mani sono vive: le dita si muovono anche da ferme', true, motore.fpViva);
-  att('  · prendere: la mano si apre prima di chiudersi', true, motore.fpPrendi);
+  att('  · la pistola a capsula nel pugno destro', true, motore.fpPistola);
+  att('  · la mano robotica a sinistra', true, motore.fpRobot);
+  att('  · braccia e guanti con lo scheletro, animati dalla GPU', '2/2', motore.fpSkin);
+  att('  · le otto animazioni della prima persona', 'Equip,Idle,Inspect,Punch,Punch_2,Run,Unequip,Walk', motore.fpClip);
+  att('  · il guanto destro è nitrile (il blu domina nella texture)', true, motore.fpNitrile);
+  att('  · l’impugnatura sta nell’anello delle dita (entro 3 cm)', true, motore.fpPresaMm <= 30);
+  console.log('      (' + motore.fpPresaMm + ' mm)');
+  att('  · si impugna: l’indice sta sopra il mignolo', true, motore.fpIndiceSopra);
+  sopra('  · la canna guarda avanti (coseno)', 0.6, motore.fpCannaAvanti);
+  att('  · la pistola è agganciata all’osso della mano', true, motore.fpAgganciata);
+  att('  · e le braccia procedurali non si vedono più', 0, motore.fpProcedurali);
+  sopra('camminando pesa l’animazione del passo', 0.5, motore.fpWalk);
+  att('  · cambiando strumento parte Equip', true, motore.fpEquip);
+  att('  · spruzzando le braccia rinculano', true, motore.fpRinculo);
+  att('  · la mano robotica segue il braccio', true, motore.fpRobotSegue);
+  att('  · col potere il palmo sinistro guarda in su', true, motore.fpPalmoSu > 0.4);
+  att('  · sopra il palmo la sfera del nucleo', true, motore.fpNucleo);
+  att('  · del colore dell’elemento (il sodio è giallo)', true, motore.fpColoreNa);
+  att('  · e la manica si sgretola in granelli', true, motore.fpGranelli);
   att('la passata finale «PS2 seria» (colore, bagliori, vignettatura, grana)', true, motore.fpPost);
   att('  · lo strumento mostra quello che hai in mano', 'Cl', motore.inManoVista);
   sopra('  · e spruzzando escono le goccioline', 5, motore.goccioline);
@@ -1053,9 +1060,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 201) {
+  if (eseguiti < 205) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 201');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 205');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

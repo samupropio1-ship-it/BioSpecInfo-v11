@@ -1067,7 +1067,8 @@
       vista.manoSx.position.z = -al * 0.02;
     }
     if (vista.potere) vista.potere.anima(ora, al * (1 + la * 1.5));
-    if (vista.modello) poseMani(ora, pr, al, la, cambio);
+    if (vista.rig && vista.rig.aggancio) animaRig(ora, al);
+    else if (vista.modello) poseMani(ora, pr, al, la, cambio);
     /* le goccioline dello spruzzo */
     animV.particelle.forEach(function (q) {
       if (!q.vivo) return;
@@ -1086,6 +1087,39 @@
      si chiude a prendere; col potere si apre e le dita respirano; ferma a
      lungo, ripete il gesto della clip (il pugno che si apre, le dita che si
      stirano) */
+  /* LE BRACCIA DEL RIG IN GIOCO. Le animazioni seguono quello che succede:
+     il passo e la corsa, Equip quando si cambia quello che si ha in mano,
+     il jab sinistro (Punch_2) per lanciare un elemento e per prendere, e
+     da fermi a lungo Inspect — col pugno destro sempre chiuso: si guarda
+     la pistola. Lo sguardo che gira trascina un poco le braccia, lo
+     spruzzo le fa rinculare */
+  function animaRig(ora, al) {
+    var R = vista.rig;
+    var dt = Math.min(0.05, Math.max(0.001, ora - (animV.oraRig || ora - 0.016)));
+    animV.oraRig = ora;
+    var vel = Math.hypot(S.vel.x, S.vel.z);
+    var e = animV.eventiRig || (animV.eventiRig = { cambio: 0, lancio: 0, prendi: 0 });
+    if (animV.cambio > 0.9 && e.cambio <= 0.9) R.colpo('Equip', 1.5);
+    if (animV.lancio > 0.9 && e.lancio <= 0.9) R.colpo('Punch_2', 1.4);
+    if (animV.prendi > 0.9 && e.prendi <= 0.9) R.colpo('Punch_2', 1.0);
+    e.cambio = animV.cambio; e.lancio = animV.lancio || 0; e.prendi = animV.prendi;
+    var fermo = vel < 0.004 && !animV.prendi && al < 0.05;
+    animV.fermoDa = fermo ? (animV.fermoDa || ora) : 0;
+    if (animV.fermoDa && ora - animV.fermoDa > 8 && !R.colpi.Inspect) { R.colpo('Inspect', 1); animV.fermoDa = ora + 4; }
+    R.aggiorna({ dt: dt, ora: ora, vel: Math.min(1, vel / 0.05), corsa: vel > 0.07, potere: al,
+                 prendi: animV.prendi > 0 ? 1 - animV.prendi : -1 });
+    /* lo sguardo e il rinculo */
+    R.base.rotation.set(animV.swayY * 0.6 + animV.rinculo * 0.05, animV.swayX * 0.9, animV.swayX * 0.4);
+    R.base.position.set(animV.swayX * 0.25, -animV.atterra * 0.03, animV.rinculo * 0.025);
+    /* il potere sul palmo */
+    if (vista.potere && vista.potere.palmo && al > 0.01) {
+      var pp = new T.Vector3(), nn = new T.Vector3();
+      R.base.updateMatrixWorld(true);
+      G.palmoSx(R, pp, nn);
+      if (!R.robot && nn.z < 0) nn.negate();
+      orientaPalmo(vista.potere.palmo, pp, nn);
+    }
+  }
   /* OGNI DITO HA LA SUA INERZIA. Le pose non si applicano di colpo: ogni
      dito insegue il suo bersaglio con una molla smorzata (rigidezza
      diversa per dito: l'indice sul grilletto e' svelto, il mignolo pigro),
@@ -1105,6 +1139,19 @@
       out[d] = c.x;
     });
     return out;
+  }
+  /* il potere sta sopra il palmo: l'aura si mette sul palmo, col suo «su»
+     (l'asse -y, quello verso cui salgono fiamma, vapore e nucleo) lungo la
+     normale del palmo, un po' piegato verso lo sguardo */
+  var qPal = null, qPad = null, vGiu = null;
+  function orientaPalmo(aura, pos, norm) {
+    if (!vGiu) { vGiu = new T.Vector3(0, -1, 0); qPal = new T.Quaternion(); qPad = new T.Quaternion(); }
+    var su = norm.clone().add(new T.Vector3(0, 0.6, 0.25)).normalize();
+    aura.parent.updateWorldMatrix(true, false);
+    aura.position.copy(aura.parent.worldToLocal(pos.clone().addScaledVector(norm, 0.012)));
+    qPal.setFromUnitVectors(vGiu, su);
+    aura.parent.getWorldQuaternion(qPad);
+    aura.quaternion.copy(qPad.invert().multiply(qPal));
   }
   function poseMani(ora, pr, al, la, cambio) {
     var mm = vista.modello;
@@ -1136,8 +1183,7 @@
     if (vista.potere && vista.potere.palmo) {
       var pp = new T.Vector3(), nn = new T.Vector3();
       mm.palmo(-1, pp, nn);
-      pp.addScaledVector(nn, 0.035);
-      vista.potere.palmo.position.copy(vista.manoSx.worldToLocal(pp));
+      orientaPalmo(vista.potere.palmo, pp, nn);
     }
     /* la sinistra */
     var resp = Math.sin(ora * 1.3) * 0.04;
@@ -1242,7 +1288,7 @@
      volta e si ricostruiscono a ogni vista nuova; finche' non arrivano, o
      se non arrivano (offline al primo avvio), restano i pezzi procedurali.
      La presa si monta quando ci sono sia le mani sia la pistola */
-  var MODELLI_FP = { mani: 'models/mani-atomic.glb', manica: 'models/manica-atomic.glb', pistola: 'models/pistola-atomic.glb' };
+  var MODELLI_FP = { braccia: 'models/braccia-atomic.glb', robot: 'models/mano-robotica-atomic.glb', pistola: 'models/pistola-atomic.glb', mani: 'models/mani-atomic.glb', manica: 'models/manica-atomic.glb' };
   var PRESA = { pollice: 0.55, indice: 0.42, medio: 0.8, anulare: 0.83, mignolo: 0.86 };
   var bufferFP = {};
   function libreriaGLTF() {
@@ -1263,27 +1309,55 @@
     }
     return bufferFP[k];
   }
+  /* prima le braccia del rig e la pistola; le mani e la manica separate
+     sono la riserva, se il rig non arriva */
   function caricaManiModello(v) {
     if (typeof fetch === 'undefined' || !G.maniModello) return;
     animV.modelliFP = 0;
-    Object.keys(MODELLI_FP).forEach(function (k) {
-      scaricaFP(k).then(function (b) {
-        if (!b || vista !== v) return;
-        new T.GLTFLoader().parse(b.slice(0), '', function (gltf) {
-          if (vista !== v) return;
+    function carica(k) {
+      return scaricaFP(k).then(function (b) {
+        if (!b || vista !== v) return null;
+        return new Promise(function (ok) {
+          new T.GLTFLoader().parse(b.slice(0), '', function (gltf) { ok(vista === v ? gltf : null); },
+            function (e) { animV.erroreMani = String(e && e.message || e); ok(null); });
+        });
+      });
+    }
+    function montaRig() {
+      if (!v.rig || !v.pistola || v.rig.aggancio) return;
+      /* il rig e' fatto per un campo visivo largo, quello dei giochi in
+         prima persona: con i 52 gradi delle braccia procedurali i pugni
+         starebbero sotto il bordo */
+      camMani.fov = 72; camMani.updateProjectionMatrix();
+      G.pistolaNelRig(v.rig, v);
+      /* le braccia procedurali e le mani separate non servono piu' */
+      v.dx.visible = false; v.sx.visible = false;
+      if (v.potere && v.potere.palmo) v.gruppo.attach(v.potere.palmo);
+      animV.inMano = undefined;
+    }
+    Promise.all([carica('braccia'), carica('pistola'), carica('robot')]).then(function (r) {
+      if (vista !== v) return;
+      if (r[1]) { v.pistola = G.pistolaModello(r[1], v); animV.modelliFP++; }
+      if (r[0]) { v.rig = G.bracciaRig(r[0], v); if (v.rig) animV.modelliFP++; }
+      if (r[2] && v.rig) { G.manoRobotica(r[2], v.rig, v); animV.modelliFP++; }
+      if (v.rig) { montaRig(); return; }
+      /* la riserva: le mani e la manica */
+      ['mani', 'manica'].forEach(function (k) {
+        carica(k).then(function (gltf) {
+          if (!gltf || vista !== v) return;
           if (k === 'mani') v.modello = G.maniModello(gltf, v);
-          else if (k === 'manica') v.manicaModello = G.manicaModello(gltf, v);
-          else { v.pistola = G.pistolaModello(gltf, v); animV.inMano = undefined; }
+          else v.manicaModello = G.manicaModello(gltf, v);
           animV.modelliFP++;
-          if ((k === 'mani' || k === 'pistola') && v.modello && v.pistola) {
+          if (v.modello && v.pistola && !v.pistola.baseX) {
             G.adattaPresa(v, PRESA);
             v.pistola.baseX = v.manoDx.rotation.x;
             animV.inMano = undefined;
           }
-        }, function (e) { animV.erroreMani = String(e && e.message || e); });
+        });
       });
     });
   }
+
 
   function muoviCamera() {
     if (!camera || !S) return;
@@ -2596,10 +2670,12 @@
            il credito dove l'opera si usa */
         '<div class="bsiAP-sub">' + t('Modelli 3D', '3D models') + '</div>' +
         '<div class="bsiAP-sub" style="text-align:left;font-size:12px">' +
+          '• «Fists (2023) | First Person Animations» — 1Matzh (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Robotic Hand» — SeanNicolas (Sketchfab, CC-BY 4.0)<br>' +
           '• «hands animation» — hugo colauto (Sketchfab, Sketchfab Standard)<br>' +
           '• «Modern Scientist in a Lab Coat» — restore50 (Sketchfab, CC-BY 4.0)<br>' +
           '• «Capsule Gun» — sc8di (Sketchfab, CC-BY 4.0)<br>' +
-          t('adattati: guanto di nitrile, avambraccio ritagliato, texture ridotte', 'adapted: nitrile glove, cropped forearm, reduced textures') +
+          t('adattati: camice e guanto di nitrile, mano robotica specchiata, scheletro snellito, texture ridotte', 'adapted: lab coat and nitrile glove, mirrored robotic hand, slimmed skeleton, reduced textures') +
         '</div>' +
         bottone('apIndietro2', '◂ ' + t('indietro', 'back')) + '</div>';
       [].forEach.call(u.querySelectorAll('[data-nastro]'), function (bn) {

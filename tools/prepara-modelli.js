@@ -17,17 +17,26 @@
               geometria).
      pistola  «Capsule Gun» (sc8di)                    → models/pistola-atomic.glb
               Geometria intatta, texture ridotte a JPEG.
+     braccia  «Fists (2023) | First Person Animations» (1Matzh) → models/braccia-atomic.glb
+              Braccia e guanti con lo scheletro e le otto animazioni della
+              prima persona, intatti. Via lo skybox di presentazione e le
+              mappe di emissione (le cuciture luminose della divisa: in
+              gioco e' un camice); colore e normali in JPEG da 1024 px,
+              ruvidita' da 512.
+     robot    «Robotic Hand» (SeanNicolas)             → models/mano-robotica-atomic.glb
+              Copiato com'e' (0,8 MB, niente texture): il gioco lo specchia e
+              lo aggancia alla mano sinistra.
 
-   uso: node tools/prepara-modelli.js mani|camice|pistola <sorgente.glb> [uscita.glb]
+   uso: node tools/prepara-modelli.js mani|camice|pistola|braccia|robot <sorgente.glb> [uscita.glb]
    Serve Chromium (Playwright) per decodificare e ricomprimere le immagini. */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 
 const COSA = process.argv[2], SORGENTE = process.argv[3];
-const PREDEFINITI = { mani: 'mani-atomic.glb', camice: 'manica-atomic.glb', pistola: 'pistola-atomic.glb' };
+const PREDEFINITI = { mani: 'mani-atomic.glb', camice: 'manica-atomic.glb', pistola: 'pistola-atomic.glb', braccia: 'braccia-atomic.glb', robot: 'mano-robotica-atomic.glb' };
 if (!PREDEFINITI[COSA] || !SORGENTE) {
-  console.error('uso: node tools/prepara-modelli.js mani|camice|pistola <sorgente.glb> [uscita.glb]');
+  console.error('uso: node tools/prepara-modelli.js mani|camice|pistola|braccia|robot <sorgente.glb> [uscita.glb]');
   process.exit(2);
 }
 const USCITA = process.argv[4] || path.join(__dirname, '..', 'models', PREDEFINITI[COSA]);
@@ -68,7 +77,7 @@ function Costruttore() {
 
 function accessore(json, bin, i) {
   const a = json.accessors[i], v = json.bufferViews[a.bufferView];
-  const n = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4 }[a.type];
+  const n = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 }[a.type];
   const C = { 5126: Float32Array, 5125: Uint32Array, 5123: Uint16Array, 5121: Uint8Array }[a.componentType];
   const off = (v.byteOffset || 0) + (a.byteOffset || 0), passo = v.byteStride || n * C.BYTES_PER_ELEMENT;
   const out = new C(a.count * n), dv = new DataView(bin.buffer, bin.byteOffset, bin.length);
@@ -120,8 +129,9 @@ function ricomponi(json, bin, nuoveImmagini, nomi) {
   const vista = i => { const v = json.bufferViews[i]; return bin.slice(v.byteOffset || 0, (v.byteOffset || 0) + v.byteLength); };
   const vecchie = new Set(json.images.map(im => im.bufferView));
   const B = Costruttore(), mappa = {};
+  const usate = new Set(json.accessors.map(a => a.bufferView));
   json.bufferViews.forEach((v, i) => {
-    if (vecchie.has(i)) return;
+    if (vecchie.has(i) || !usate.has(i)) return;
     const extra = {}; if (v.byteStride) extra.byteStride = v.byteStride; if (v.target) extra.target = v.target;
     mappa[i] = B.aggiungi(vista(i), extra);
   });
@@ -255,11 +265,92 @@ async function camice(json, bin) {
   return { json: out, bin: nb };
 }
 
+async function braccia(json, bin) {
+  const vista = i => { const v = json.bufferViews[i]; return bin.slice(v.byteOffset || 0, (v.byteOffset || 0) + v.byteLength); };
+  /* lo skybox di presentazione: il nodo perde la mesh */
+  json.nodes.forEach(n => { if (n.mesh != null && /Skybox/.test(json.meshes[n.mesh].name || '')) delete n.mesh; });
+  /* LO SCHELETRO SNELLITO. Il rig (Rigify) ha 1423 ossa, ma i vertici ne
+     usano 52: le altre sono di controllo. Lo scheletro della pelle tiene
+     solo quelle 52 (indici dei vertici e matrici di legame rimappati sul
+     posto) e le animazioni solo le tracce delle ossa che servono — le 52
+     e i loro antenati. Si anima a ogni fotogramma un ventisettesimo delle
+     ossa, e il file perde quasi tre megabyte */
+  const sk = json.skins[0], pesati = new Set();
+  const scrivi = (i, valori) => {
+    const a = json.accessors[i], v = json.bufferViews[a.bufferView];
+    const n = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 }[a.type];
+    const dim = { 5126: 4, 5125: 4, 5123: 2, 5121: 1 }[a.componentType];
+    const off = (v.byteOffset || 0) + (a.byteOffset || 0), passo = v.byteStride || n * dim;
+    const dv = new DataView(bin.buffer, bin.byteOffset, bin.length);
+    for (let k = 0; k < valori.length / n; k++) for (let c = 0; c < n; c++) {
+      const o = off + k * passo + c * dim, x = valori[k * n + c];
+      if (a.componentType === 5126) dv.setFloat32(o, x, true); else if (dim === 2) dv.setUint16(o, x, true); else if (dim === 1) dv.setUint8(o, x); else dv.setUint32(o, x, true);
+    }
+  };
+  json.meshes.forEach(m => m.primitives.forEach(p => {
+    if (p.attributes.JOINTS_0 == null) return;
+    const J = accessore(json, bin, p.attributes.JOINTS_0), W = accessore(json, bin, p.attributes.WEIGHTS_0);
+    for (let i = 0; i < J.length; i++) if (W[i] > 0) pesati.add(J[i]);
+  }));
+  const vecchi = [...pesati].sort((a, b) => a - b), nuovoIdx = new Map(vecchi.map((v, k) => [v, k]));
+  json.meshes.forEach(m => m.primitives.forEach(p => {
+    if (p.attributes.JOINTS_0 == null) return;
+    const J = accessore(json, bin, p.attributes.JOINTS_0), W = accessore(json, bin, p.attributes.WEIGHTS_0);
+    for (let i = 0; i < J.length; i++) J[i] = W[i] > 0 ? nuovoIdx.get(J[i]) : 0;
+    scrivi(p.attributes.JOINTS_0, J);
+  }));
+  const IBM = accessore(json, bin, sk.inverseBindMatrices), ibm2 = [];
+  vecchi.forEach(v => { for (let c = 0; c < 16; c++) ibm2.push(IBM[v * 16 + c]); });
+  scrivi(sk.inverseBindMatrices, ibm2);
+  json.accessors[sk.inverseBindMatrices].count = vecchi.length;
+  sk.joints = vecchi.map(v => sk.joints[v]);
+  const padre = {}; json.nodes.forEach((n, i) => (n.children || []).forEach(c => { padre[c] = i; }));
+  const serve = new Set();
+  sk.joints.forEach(n => { let x = n; while (x != null && !serve.has(x)) { serve.add(x); x = padre[x]; } });
+  json.animations.forEach(a => {
+    const tieni = a.channels.filter(c => serve.has(c.target.node));
+    const mappa = new Map(), samp = [];
+    tieni.forEach(c => { if (!mappa.has(c.sampler)) { mappa.set(c.sampler, samp.length); samp.push(a.samplers[c.sampler]); } c.sampler = mappa.get(c.sampler); });
+    a.channels = tieni; a.samplers = samp;
+  });
+  /* gli accessori che nessuno usa piu' si tolgono, e gli indici si rifanno */
+  const usati = new Set();
+  json.meshes.forEach(m => m.primitives.forEach(p => { Object.values(p.attributes).forEach(i => usati.add(i)); if (p.indices != null) usati.add(p.indices); }));
+  json.skins.forEach(k => usati.add(k.inverseBindMatrices));
+  json.animations.forEach(a => a.samplers.forEach(sp => { usati.add(sp.input); usati.add(sp.output); }));
+  const mappaA = new Map(), acc2 = [];
+  json.accessors.forEach((a, i) => { if (usati.has(i)) { mappaA.set(i, acc2.length); acc2.push(a); } });
+  json.accessors = acc2;
+  json.meshes.forEach(m => m.primitives.forEach(p => { Object.keys(p.attributes).forEach(k => { p.attributes[k] = mappaA.get(p.attributes[k]); }); if (p.indices != null) p.indices = mappaA.get(p.indices); }));
+  json.skins.forEach(k => { k.inverseBindMatrices = mappaA.get(k.inverseBindMatrices); });
+  json.animations.forEach(a => a.samplers.forEach(sp => { sp.input = mappaA.get(sp.input); sp.output = mappaA.get(sp.output); }));
+  const ruolo = {};
+  json.materials.forEach(m => {
+    const pb = m.pbrMetallicRoughness || {};
+    if (/Skybox/.test(m.name)) { if (pb.baseColorTexture) ruolo[json.textures[pb.baseColorTexture.index].source] = 'via'; return; }
+    if (pb.baseColorTexture) ruolo[json.textures[pb.baseColorTexture.index].source] = 'colore';
+    if (pb.metallicRoughnessTexture) ruolo[json.textures[pb.metallicRoughnessTexture.index].source] = 'ruvidita';
+    if (m.normalTexture) ruolo[json.textures[m.normalTexture.index].source] = 'normali';
+    if (m.emissiveTexture) { ruolo[json.textures[m.emissiveTexture.index].source] = 'via'; delete m.emissiveTexture; delete m.emissiveFactor; }
+  });
+  const spec = json.images.map((im, k) => {
+    const r = ruolo[k] || 'via';
+    return { dati: vista(im.bufferView), mime: im.mimeType, lato: r === 'via' ? 4 : r === 'ruvidita' ? 512 : 1024,
+             qualita: r === 'normali' ? 0.92 : 0.86 };
+  });
+  const nuove = await ricomprimi(spec);
+  const nb = ricomponi(json, bin, nuove, json.images.map((im, k) => ruolo[k] || 'via'));
+  nota(json, 'Adattato per BioSpecInfo (tools/prepara-modelli.js): tolti lo skybox e le mappe di emissione; scheletro della pelle ridotto alle 52 ossa pesate e animazioni alle loro tracce (piu\' gli antenati), valori invariati; texture in JPEG da 1024/512 px.');
+  return nb;
+}
+
 (async () => {
   const { json, bin } = leggiGlb(fs.readFileSync(SORGENTE));
   let outJson = json, outBin;
   if (COSA === 'mani') outBin = await mani(json, bin);
   else if (COSA === 'pistola') outBin = await pistola(json, bin);
+  else if (COSA === 'braccia') outBin = await braccia(json, bin);
+  else if (COSA === 'robot') outBin = bin;
   else { const r = await camice(json, bin); outJson = r.json; outBin = r.bin; }
   const glb = scriviGlb(outJson, outBin);
   fs.writeFileSync(USCITA, glb);

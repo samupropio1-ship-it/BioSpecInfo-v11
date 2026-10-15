@@ -1756,6 +1756,97 @@
       var arco = new T.Line(arcoGeo, new T.LineBasicMaterial({ color: 0xffffff, transparent: true, blending: T.AdditiveBlending, toneMapped: false }));
       arco.visible = false;
       aura.add(arco);
+      /* IL NUCLEO. Sopra il palmo l'elemento prende forma: un poliedro di
+         luce bianca con le venature, il guscio di spigoli azzurri, un
+         alone, e una chioma di filamenti che escono, si avvolgono e si
+         spengono — vivi, ricalcolati a ogni fotogramma */
+      var nucleo = new T.Group();
+      nucleo.position.set(0, -0.06, 0);
+      nucleo.visible = false;
+      aura.add(nucleo);
+      var cvV = nuovaTela(256, 256), qV = cvV.getContext('2d');
+      qV.fillStyle = '#ffffff'; qV.fillRect(0, 0, 256, 256);
+      qV.strokeStyle = 'rgba(150,205,230,0.55)'; qV.lineCap = 'round';
+      (function rami(x, y, an, lu, sp, liv) {
+        if (liv > 5 || lu < 6) return;
+        var x2 = x + Math.cos(an) * lu, y2 = y + Math.sin(an) * lu;
+        qV.lineWidth = sp; qV.beginPath(); qV.moveTo(x, y); qV.lineTo(x2, y2); qV.stroke();
+        rami(x2, y2, an - 0.45 - hash(liv, lu | 0, 1601) * 0.3, lu * 0.72, sp * 0.7, liv + 1);
+        rami(x2, y2, an + 0.45 + hash(lu | 0, liv, 1602) * 0.3, lu * 0.72, sp * 0.7, liv + 1);
+      })(128, 128, 0, 0, 0, 9);
+      for (var rv = 0; rv < 9; rv++) (function rami(x, y, an, lu, sp, liv) {
+        if (liv > 5 || lu < 5) return;
+        var x2 = x + Math.cos(an) * lu, y2 = y + Math.sin(an) * lu;
+        qV.lineWidth = sp; qV.beginPath(); qV.moveTo(x, y); qV.lineTo(x2, y2); qV.stroke();
+        rami(x2, y2, an - 0.4 - hash(liv, rv, 1603) * 0.35, lu * 0.7, sp * 0.68, liv + 1);
+        rami(x2, y2, an + 0.4 + hash(rv, liv, 1604) * 0.35, lu * 0.7, sp * 0.68, liv + 1);
+      })(128, 128, rv / 9 * 6.283, 46, 4.5, 0);
+      var texV = new T.CanvasTexture(cvV); texV.encoding = T.sRGBEncoding;
+      var cuore = new T.Mesh(new T.IcosahedronGeometry(0.034, 0), new T.MeshBasicMaterial({ map: texV, color: 0xd8f2ff, toneMapped: false }));
+      nucleo.add(cuore);
+      var guscio = new T.LineSegments(new T.EdgesGeometry(new T.IcosahedronGeometry(0.037, 0)),
+        new T.LineBasicMaterial({ color: 0xbff4ff, transparent: true, opacity: 0.85, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      nucleo.add(guscio);
+      var aloneN = new T.Sprite(new T.SpriteMaterial({ map: texA, color: 0x9fe8ff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, toneMapped: false }));
+      aloneN.scale.setScalar(0.1); nucleo.add(aloneN);
+      var aloneN2 = new T.Sprite(new T.SpriteMaterial({ map: texA, color: 0xffffff, transparent: true, depthWrite: false, blending: T.AdditiveBlending, toneMapped: false }));
+      aloneN2.scale.setScalar(0.048); nucleo.add(aloneN2);
+      var NFIL = 72, NPF = 20;
+      var filPos = new Float32Array(NFIL * (NPF - 1) * 2 * 3), filCol = new Float32Array(filPos.length);
+      var filGeo = new T.BufferGeometry();
+      filGeo.setAttribute('position', new T.BufferAttribute(filPos, 3));
+      filGeo.setAttribute('color', new T.BufferAttribute(filCol, 3));
+      var filamenti = new T.LineSegments(filGeo, new T.LineBasicMaterial({ vertexColors: true, transparent: true, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false }));
+      filamenti.frustumCulled = false;
+      nucleo.add(filamenti);
+      var semiFil = [];
+      for (var fi = 0; fi < NFIL; fi++) {
+        var u1 = hash(fi, 1, 1611) * 2 - 1, an1 = hash(fi, 2, 1612) * 6.283, rq = Math.sqrt(1 - u1 * u1);
+        var dd = new T.Vector3(rq * Math.cos(an1), u1, rq * Math.sin(an1));
+        var ax = new T.Vector3(hash(fi, 3, 1613) - 0.5, hash(fi, 4, 1614) - 0.5, hash(fi, 5, 1615) - 0.5).cross(dd).normalize();
+        semiFil.push({ d: dd, ax: ax, lu: 0.018 + hash(fi, 6, 1616) * 0.05, giro: 1.5 + hash(fi, 7, 1617) * 3.5,
+                       vel: 0.4 + hash(fi, 8, 1618) * 1.2, fase: hash(fi, 9, 1619) * 6.283 });
+      }
+      var vF = new T.Vector3(), qF = new T.Quaternion(), cF = new T.Color();
+      function animaNucleo(ora, f) {
+        nucleo.visible = f > 0.05;
+        if (!nucleo.visible) return;
+        var pulsa = 1 + Math.sin(ora * 5.3) * 0.05 + Math.sin(ora * 13.1) * 0.02;
+        nucleo.scale.setScalar((0.55 + 0.45 * f) * pulsa);
+        cuore.rotation.set(ora * 0.4, ora * 0.62, ora * 0.21);
+        guscio.rotation.copy(cuore.rotation);
+        aloneN.material.opacity = 0.32 * f; aloneN2.material.opacity = 0.22 * f;
+        /* il colore e' quello dell'elemento: il cuore ne e' tinto, il
+           guscio e i filamenti lo portano pieno (il bianco della «luce»
+           diventa l'azzurro elettrico) */
+        var base = potere.colore.getHSL({}).s < 0.12 ? new T.Color(0x3fc4ff) : potere.colore;
+        cuore.material.color.copy(base).lerp(new T.Color(0xffffff), 0.12);
+        guscio.material.color.copy(base).lerp(new T.Color(0xffffff), 0.35);
+        aloneN.material.color.copy(base);
+        aloneN2.material.color.copy(base);
+        cF.copy(base); var hsl = cF.getHSL({}); cF.setHSL(hsl.h, Math.min(1, hsl.s * 1.3), Math.min(0.55, hsl.l));
+        var o = 0;
+        semiFil.forEach(function (sf, i) {
+          var prec = null;
+          for (var k = 0; k < NPF; k++) {
+            var t = k / (NPF - 1);
+            qF.setFromAxisAngle(sf.ax, t * sf.giro + ora * sf.vel + sf.fase);
+            vF.copy(sf.d).applyQuaternion(qF).multiplyScalar(0.036 + t * sf.lu);
+            vF.x += Math.sin(t * 9 + ora * 3.1 + i) * 0.005 * t;
+            vF.y += Math.cos(t * 7 + ora * 2.3 + i * 1.7) * 0.005 * t;
+            if (prec) {
+              var lum = Math.sin(Math.min(1, t * 4) * Math.PI / 2) * (1 - t) * f * 0.32, t0 = (k - 1) / (NPF - 1), lum0 = Math.sin(Math.min(1, t0 * 4) * Math.PI / 2) * (1 - t0) * f * 0.32;
+              filPos[o * 3] = prec.x; filPos[o * 3 + 1] = prec.y; filPos[o * 3 + 2] = prec.z;
+              filCol[o * 3] = cF.r * lum0; filCol[o * 3 + 1] = cF.g * lum0; filCol[o * 3 + 2] = cF.b * lum0; o++;
+              filPos[o * 3] = vF.x; filPos[o * 3 + 1] = vF.y; filPos[o * 3 + 2] = vF.z;
+              filCol[o * 3] = cF.r * lum; filCol[o * 3 + 1] = cF.g * lum; filCol[o * 3 + 2] = cF.b * lum; o++;
+              prec.copy(vF);
+            } else prec = vF.clone();
+          }
+        });
+        filGeo.attributes.position.needsUpdate = true;
+        filGeo.attributes.color.needsUpdate = true;
+      }
       var potere = { tipo: null, colore: new T.Color(0xffffff) };
       function aggiornaPotere(tipo, colore) {
         potere.tipo = tipo;
@@ -1766,6 +1857,7 @@
       }
       function animaPotere(ora, forza) {
         var tp = potere.tipo, f = forza || 0;
+        animaNucleo(ora, tp ? f : 0);
         lucePalmo.intensity = tp ? (0.9 + Math.sin(ora * 13) * 0.25) * f * 2.2 : 0;
         arco.visible = tp === 'scintille' && f > 0.3 && Math.random() > 0.35;
         if (arco.visible) {
@@ -1810,7 +1902,7 @@
       g.add(dx); g.add(sx);
       return { gruppo: g, dx: dx, sx: sx, manoDx: mD, manoSx: mS, ditaDx: ditaD, gruppoManoDx: manoD.gruppo, gruppoManoSx: manoS.gruppo, impugnatura: imp, maniche: { dx: manicaDx, sx: manicaSx },
                dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led, aloneLed: aloneLed, liquido: liqMat },
-               potere: { aggiorna: aggiornaPotere, anima: animaPotere, palmo: aura, stato: potere } };
+               potere: { aggiorna: aggiornaPotere, anima: animaPotere, palmo: aura, stato: potere, nucleo: nucleo, filamenti: filamenti } };
     }
 
     /* IL REGISTRATORE — un magnetofono degli anni Cinquanta su un tavolino:
@@ -2175,6 +2267,398 @@
       return true;
     }
 
+    /* ════════════════════════════════════════════════════════════════════
+       LE BRACCIA DEL RIG (models/braccia-atomic.glb, «Fists (2023) | First
+       Person Animations» di 1Matzh, CC-BY 4.0): braccia e guanti con lo
+       scheletro e le otto animazioni fatte per la prima persona — Idle,
+       Walk, Run, Punch, Punch_2, Inspect, Equip, Unequip. Le animazioni si
+       fondono secondo quello che succede nel gioco; sopra, tre strati:
+       il pugno destro resta sempre chiuso (tiene la pistola, anche quando
+       Inspect apre le mani), la sinistra prende la posa aperta di Inspect
+       per il potere e per prendere, e una piccola vita propria alle dita.
+       La divisa diventa il camice, i guanti nitrile.
+       ════════════════════════════════════════════════════════════════════ */
+    var OCCHIO_RIG = [0, 1.407, 0.02];
+    var texPunto = null;
+    function puntoTondo() {
+      if (texPunto) return texPunto;
+      var cv = nuovaTela(32, 32), q = cv.getContext('2d'), g = q.createRadialGradient(16, 16, 0, 16, 16, 16);
+      g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.5, 'rgba(255,255,255,.8)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      q.fillStyle = g; q.fillRect(0, 0, 32, 32);
+      return (texPunto = new T.CanvasTexture(cv));
+    }
+    function camiceDaDivisa(img) {
+      var L = 1024, cv = nuovaTela(L, L), q = cv.getContext('2d');
+      q.drawImage(img, 0, 0, L, L);
+      var d = q.getImageData(0, 0, L, L), px = d.data, somma = 0, n = 0;
+      for (var i = 0; i < px.length; i += 16) { somma += px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11; n++; }
+      var media = somma / Math.max(1, n);
+      for (var j = 0; j < px.length; j += 4) {
+        var l = (px[j] * 0.3 + px[j + 1] * 0.59 + px[j + 2] * 0.11) / Math.max(1, media);
+        var k = Math.max(0.55, Math.min(1.08, 0.86 + (l - 1) * 0.22));
+        px[j] = 236 * k; px[j + 1] = 236 * k; px[j + 2] = 230 * k;
+      }
+      q.putImageData(d, 0, 0);
+      var t = new T.CanvasTexture(cv); t.encoding = T.sRGBEncoding; t.flipY = false; t.anisotropy = 4;
+      return t;
+    }
+    function bracciaRig(gltf, vista) {
+      var scena = gltf.scene, clips = {};
+      gltf.animations.forEach(function (a) { clips[a.name.replace(/^rig\|/, '')] = a; });
+      if (!clips.Idle) return null;
+      var per = {}, mesh = [];
+      scena.traverse(function (o) {
+        per[o.name] = o;
+        if (o.isSkinnedMesh) mesh.push(o);
+        if (o.isMesh) { o.frustumCulled = false; o.castShadow = false; }
+      });
+      if (!mesh.length) return null;
+      var osso = function (re) { var k = Object.keys(per).filter(function (n) { return re.test(n); })[0]; return k ? per[k] : null; };
+      /* i materiali: il camice e il guanto */
+      mesh.forEach(function (m) {
+        var vecchio = m.material, guanto = /Glove/i.test(vecchio.name || m.name);
+        var nuovo = new T.MeshStandardMaterial({
+          map: vecchio.map ? (guanto ? guantoDaPelle(vecchio.map.image) : camiceDaDivisa(vecchio.map.image)) : null,
+          normalMap: vecchio.normalMap || null, roughness: guanto ? 0.42 : 0.86, metalness: 0,
+          skinning: true, side: T.DoubleSide, envMapIntensity: guanto ? 0.7 : 0.4
+        });
+        if (nuovo.normalMap) nuovo.normalScale.set(guanto ? 1.1 : 0.8, guanto ? 1.1 : 0.8);
+        if (!guanto) nuovo.color.setHex(0xf4f4f0);
+        m.material = nuovo;
+        m.userData.ruolo = guanto ? 'guanto' : 'camice';
+      });
+      /* l'occhio del rig e' la nostra telecamera: mezzo giro e giu' */
+      var cont = new T.Group();
+      cont.rotation.y = Math.PI;
+      cont.position.set(0, -OCCHIO_RIG[1], OCCHIO_RIG[2]);
+      var base = new T.Group();
+      base.add(cont);
+      cont.add(scena);
+      vista.gruppo.add(base);
+      var mix = new T.AnimationMixer(scena), azioni = {};
+      Object.keys(clips).forEach(function (k) { azioni[k] = mix.clipAction(clips[k]); });
+      var ossa = mesh[0].skeleton.bones;
+      var sx = ossa.filter(function (b) { return /L(\d{3})?_\d+$/.test(b.name); });
+      var dx = ossa.filter(function (b) { return /R(\d{3})?_\d+$/.test(b.name); });
+      var ditaDx = dx.filter(function (b) { return /DEF-(f_|thumb|palm)/.test(b.name); });
+      var ditaSx = sx.filter(function (b) { return /DEF-(f_|thumb|palm)/.test(b.name); });
+      /* le pose campionate: un fotogramma di una clip, osso per osso */
+      function campiona(nome, t) {
+        mix.stopAllAction();
+        var a = azioni[nome]; a.reset(); a.play(); mix.setTime(t);
+        var m2 = new Map(); ossa.forEach(function (b) { m2.set(b, { q: b.quaternion.clone(), p: b.position.clone() }); });
+        return m2;
+      }
+      var POSE = { pugno: campiona('Idle', 0.2), aperta: campiona('Inspect', 1.4), apertaDx: campiona('Inspect', 2.4) };
+      mix.stopAllAction();
+      ['Idle', 'Walk', 'Run'].forEach(function (k) { azioni[k].reset().play(); azioni[k].setEffectiveWeight(k === 'Idle' ? 1 : 0); });
+      var colpi = {};          /* le animazioni a colpo singolo in corso: nome -> {t, durata} */
+      function colpo(nome, velocita) {
+        var a = azioni[nome]; if (!a) return;
+        a.reset(); a.setLoop(T.LoopOnce, 1); a.clampWhenFinished = true; a.timeScale = velocita || 1; a.play();
+        colpi[nome] = { t: 0, durata: clips[nome].duration / (velocita || 1) };
+      }
+      var pesi = { Idle: 1, Walk: 0, Run: 0 };
+      var qT = new T.Quaternion();
+      function verso(lista, posa, w) {
+        if (w <= 0.001) return;
+        lista.forEach(function (b) { var r = posa.get(b); if (!r) return; b.quaternion.slerp(r.q, w); b.position.lerp(r.p, w); });
+      }
+      /* lo stato che il gioco passa a ogni fotogramma:
+         { dt, vel (0..1), corsa, potere (0..1), prendi (0..1, avanzamento),
+           ora } */
+      function aggiorna(st) {
+        var dt = Math.min(0.05, st.dt || 0.016);
+        var vB = Math.min(1, st.vel || 0);
+        var bW = st.corsa ? 0 : vB, bR = st.corsa ? 1 : 0, bI = Math.max(0, 1 - bW - bR);
+        pesi.Idle += (bI - pesi.Idle) * Math.min(1, dt * 6); pesi.Walk += (bW - pesi.Walk) * Math.min(1, dt * 6); pesi.Run += (bR - pesi.Run) * Math.min(1, dt * 6);
+        /* i colpi singoli: entrano e escono con una rampa, e intanto il
+           passo pesa meno */
+        var wColpo = 0;
+        Object.keys(colpi).forEach(function (k) {
+          var c = colpi[k]; c.t += dt;
+          var w = Math.min(1, c.t / 0.12, Math.max(0, (c.durata - c.t) / 0.18));
+          if (c.t >= c.durata) { azioni[k].stop(); delete colpi[k]; return; }
+          azioni[k].setEffectiveWeight(w); wColpo = Math.max(wColpo, w);
+        });
+        ['Idle', 'Walk', 'Run'].forEach(function (k) { azioni[k].setEffectiveWeight(pesi[k] * (1 - wColpo)); });
+        azioni.Walk.timeScale = 0.7 + vB * 0.5;
+        mix.update(dt);
+        if (R.robot) R.manoSx.scale.set(1, 1, 1);
+        /* il pugno destro tiene la pistola: sempre chiuso */
+        verso(ditaDx, POSE.pugno, 1);
+        verso(ditaDx, POSE.apertaDx, 0.32);           /* a cilindro: c'e' un'impugnatura dentro */
+        /* il polso destro da pistola: il rig tiene il pugno in guardia, con
+           le nocche avanti; per impugnare il polso gira finche' l'indice sta
+           sopra e il mignolo sotto (la stretta di mano), con l'impugnatura
+           appena inclinata. Durante Inspect cede: li' il polso gira per
+           guardare la pistola */
+        if (R.manoDx) {
+          base.updateMatrixWorld(true);
+          var i1 = R.dita(1, 'f_index', 1).getWorldPosition(new T.Vector3());
+          var p1 = R.dita(1, 'f_pinky', 1).getWorldPosition(new T.Vector3());
+          var asseP = p1.sub(i1).normalize();
+          var qP = new T.Quaternion().setFromUnitVectors(asseP, new T.Vector3(0.05, -0.93, 0.36).normalize());
+          var wIsp = colpi.Inspect ? Math.min(1, colpi.Inspect.t / 0.4, Math.max(0, (colpi.Inspect.durata - colpi.Inspect.t) / 0.4)) : 0;
+          qP.slerp(new T.Quaternion(), wIsp);
+          ruotaNelMondo(R.manoDx, qP);
+        }
+        /* la sinistra: il potere la apre col palmo verso lo sguardo (tutto
+           il braccio sinistro prende la posa aperta di Inspect), prendere
+           apre le dita a meta' gesto e le richiude */
+        var al = st.potere || 0;
+        if (al > 0) verso(sx, POSE.aperta, al);
+        var u = st.prendi;
+        if (u != null && u >= 0) verso(ditaSx, POSE.aperta, u < 0.45 ? Math.sin(u / 0.45 * Math.PI / 2) : Math.max(0, 1 - (u - 0.45) / 0.2));
+        /* il palmo in su: la mano sinistra gira nel mondo finche' il palmo
+           guarda in alto (e un poco lo sguardo), quanto vale il potere */
+        if (al > 0.01 && R.manoSx) {
+          base.updateMatrixWorld(true);
+          var pp0 = new T.Vector3(), nn0 = new T.Vector3();
+          palmoRig(R, pp0, nn0);
+          if (R.robot) { R.robot.matrix.copy(R.manoSx.matrixWorld).multiply(R.robot.userData.offset); R.robot.matrixWorldNeedsUpdate = true; palmoSx(R, pp0, nn0); }
+          else if (nn0.z < 0) nn0.negate();
+          var qG = new T.Quaternion().setFromUnitVectors(nn0, new T.Vector3(0.1, 0.95, 0.3).normalize());
+          qG.slerp(new T.Quaternion(), 1 - al);
+          ruotaNelMondo(R.manoSx, qG);
+        }
+        /* la vita delle dita della sinistra col potere: piccole onde */
+        /* la mano robotica al posto della sinistra: segue l'osso della mano
+           (con la sua posa, anche il palmo in su del potere), poi il guanto
+           sinistro si chiude dentro il suo polsino */
+        if (R.robot) {
+          base.updateMatrixWorld(true);
+          R.manoSx.scale.set(1, 1, 1); R.manoSx.updateMatrixWorld(true);
+          R.robot.matrix.copy(R.manoSx.matrixWorld).multiply(R.robot.userData.offset);
+          R.robot.matrixWorldNeedsUpdate = true;
+          R.manoSx.scale.setScalar(0.001);
+        }
+        animaPolvere(dt, al);
+        if (al > 0.05) ditaSx.forEach(function (b, i) {
+          if (!/f_.*0[23]/.test(b.name)) return;
+          qT.setFromAxisAngle(new T.Vector3(1, 0, 0), Math.sin(st.ora * 2.4 - i * 0.7) * 0.12 * al);
+          b.quaternion.multiply(qT);
+        });
+      }
+      /* ruotare un osso di una rotazione data nel mondo */
+      function ruotaNelMondo(b, qMondo) {
+        var qp = new T.Quaternion(), qb = new T.Quaternion();
+        b.parent.getWorldQuaternion(qp); b.getWorldQuaternion(qb);
+        b.quaternion.copy(qp.clone().invert().multiply(qMondo).multiply(qb));
+      }
+      /* L'AVAMBRACCIO CHE SI SGRETOLA. Col potere acceso la manica sinistra
+         si disfa: granelli di stoffa che si staccano dalla superficie
+         dell'avambraccio e volano via verso il gomito, e in mezzo scintille
+         azzurre. Le particelle vivono nel mondo delle braccia */
+      var NP = 700, polvere = { pos: new Float32Array(NP * 3), col: new Float32Array(NP * 3), vel: [], vita: new Float32Array(NP) };
+      var gP = new T.BufferGeometry();
+      gP.setAttribute('position', new T.BufferAttribute(polvere.pos, 3));
+      gP.setAttribute('color', new T.BufferAttribute(polvere.col, 3));
+      var granelli = new T.Points(gP, new T.PointsMaterial({ size: 0.006, map: puntoTondo(), alphaTest: 0.05, vertexColors: true, transparent: true, depthWrite: false }));
+      granelli.frustumCulled = false; vista.gruppo.add(granelli);
+      var NS = 120, sPos = new Float32Array(NS * 3), sCol = new Float32Array(NS * 3), sVel = [], sVita = new Float32Array(NS);
+      var gS = new T.BufferGeometry();
+      gS.setAttribute('position', new T.BufferAttribute(sPos, 3));
+      gS.setAttribute('color', new T.BufferAttribute(sCol, 3));
+      var scintille = new T.Points(gS, new T.PointsMaterial({ size: 0.009, map: puntoTondo(), vertexColors: true, transparent: true, depthWrite: false,
+                                                               blending: T.AdditiveBlending, toneMapped: false }));
+      scintille.frustumCulled = false; vista.gruppo.add(scintille);
+      for (var ip = 0; ip < NP; ip++) { polvere.vel.push(new T.Vector3()); polvere.vita[ip] = -1; }
+      for (var is = 0; is < NS; is++) { sVel.push(new T.Vector3()); sVita[is] = -1; }
+      var vA2 = new T.Vector3(), vB2 = new T.Vector3(), vR = new T.Vector3();
+      function nasce(i, pos, vel, al, scintilla) {
+        var avb = R.avambraccioSx, mano = R.manoSx;
+        avb.getWorldPosition(vA2); mano.getWorldPosition(vB2);
+        var t = Math.pow(Math.random(), 0.7);                 /* piu' verso il gomito */
+        vR.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+        pos.set(vB2.x + (vA2.x - vB2.x) * t, vB2.y + (vA2.y - vB2.y) * t, vB2.z + (vA2.z - vB2.z) * t).addScaledVector(vR, 0.03 + Math.random() * 0.012);
+        vel.copy(vA2).sub(vB2).normalize().multiplyScalar(0.015 + Math.random() * 0.05).addScaledVector(vR, 0.012 + Math.random() * 0.02);
+        vel.y += 0.008 + Math.random() * 0.015;
+      }
+      function animaPolvere(dt, al) {
+        granelli.visible = scintille.visible = al > 0.02 && !!R.avambraccioSx;
+        if (!granelli.visible) return;
+        var v3 = new T.Vector3(), p3 = new T.Vector3();
+        for (var i = 0; i < NP; i++) {
+          if (polvere.vita[i] <= 0) {
+            if (Math.random() < al * 0.9) {
+              nasce(i, p3, polvere.vel[i], al);
+              polvere.pos[i * 3] = p3.x; polvere.pos[i * 3 + 1] = p3.y; polvere.pos[i * 3 + 2] = p3.z;
+              polvere.vita[i] = 0.6 + Math.random() * 1.1;
+              var tono = 0.12 + Math.random() * 0.3, blu = Math.random() < 0.3;
+              polvere.col[i * 3] = blu ? 0.08 : tono * 1.1; polvere.col[i * 3 + 1] = blu ? 0.2 : tono * 0.85; polvere.col[i * 3 + 2] = blu ? 0.45 : tono * 0.7;
+            } else { polvere.pos[i * 3 + 1] = -99; continue; }
+          }
+          polvere.vita[i] -= dt;
+          polvere.pos[i * 3] += polvere.vel[i].x * dt; polvere.pos[i * 3 + 1] += polvere.vel[i].y * dt; polvere.pos[i * 3 + 2] += polvere.vel[i].z * dt;
+          polvere.vel[i].multiplyScalar(0.985);
+        }
+        for (var j = 0; j < NS; j++) {
+          if (sVita[j] <= 0) {
+            if (Math.random() < al * 0.45) {
+              nasce(j, p3, sVel[j], al, true); sVel[j].multiplyScalar(2.2);
+              sPos[j * 3] = p3.x; sPos[j * 3 + 1] = p3.y; sPos[j * 3 + 2] = p3.z;
+              sVita[j] = 0.3 + Math.random() * 0.7;
+            } else { sPos[j * 3 + 1] = -99; continue; }
+          }
+          sVita[j] -= dt;
+          var lum = Math.max(0, sVita[j]) * 1.6 * al;
+          sCol[j * 3] = 0.45 * lum; sCol[j * 3 + 1] = 0.9 * lum; sCol[j * 3 + 2] = 1.0 * lum;
+          sPos[j * 3] += sVel[j].x * dt; sPos[j * 3 + 1] += sVel[j].y * dt; sPos[j * 3 + 2] += sVel[j].z * dt;
+        }
+        granelli.material.opacity = Math.min(1, al * 1.2);
+        gP.attributes.position.needsUpdate = true; gP.attributes.color.needsUpdate = true;
+        gS.attributes.position.needsUpdate = true; gS.attributes.color.needsUpdate = true;
+      }
+      var R = {
+        base: base, contenitore: cont, mixer: mix, granelli: granelli, scintille: scintille, azioni: azioni, colpo: colpo, aggiorna: aggiorna, pesi: pesi, colpi: colpi,
+        mesh: mesh, osso: osso, ossa: ossa,
+        manoDx: osso(/^DEF-handR_/), manoSx: osso(/^DEF-handL_/), avambraccioSx: osso(/^DEF-forearmL_/), avambraccioSx2: osso(/^DEF-forearmL001_/),
+        dita: function (lato, nome, n) { return osso(new RegExp('^DEF-' + nome + '0' + n + (lato > 0 ? 'R' : 'L') + '_')); }
+      };
+      aggiorna({ dt: 0.016, vel: 0, ora: 0 });
+      base.updateMatrixWorld(true);
+      return R;
+    }
+    /* il palmo della sinistra del rig, nel mondo: centro e normale (verso
+       cui guarda il palmo) */
+    function palmoRig(R, pos, norm) {
+      var h = new T.Vector3(), m1 = new T.Vector3(), i1 = new T.Vector3(), p1 = new T.Vector3();
+      R.manoSx.getWorldPosition(h);
+      R.dita(-1, 'f_middle', 1).getWorldPosition(m1);
+      R.dita(-1, 'f_index', 1).getWorldPosition(i1);
+      R.dita(-1, 'f_pinky', 1).getWorldPosition(p1);
+      pos.copy(h).lerp(m1, 0.6);
+      norm.crossVectors(m1.clone().sub(h), i1.sub(p1)).normalize();
+      /* il segno: il palmo e' dalla parte opposta al dorso, e il dorso e'
+         dove stanno le nocche rispetto ai polpastrelli chiusi; si sceglie
+         il verso che guarda lo sguardo quando la mano e' aperta davanti */
+      if (R.segnoPalmo) norm.multiplyScalar(R.segnoPalmo);
+      return pos;
+    }
+    /* la pistola nel pugno destro del rig: l'impugnatura nell'anello delle
+       dita chiuse, la canna verso il mirino; poi la pistola si aggancia
+       all'osso della mano e la segue in ogni animazione */
+    function pistolaNelRig(R, vista) {
+      var pi = vista.pistola, disp = vista.dispensatore.gruppo;
+      if (!pi || !R.manoDx) return false;
+      /* nel rig le braccia sono a grandezza vera: la pistola a 25 cm */
+      var kS = 0.00068 / pi.interno.scale.x;
+      pi.interno.scale.multiplyScalar(kS); pi.centro.multiplyScalar(kS); pi.punta.multiplyScalar(kS);
+      R.base.updateMatrixWorld(true);
+      var c = new T.Vector3(), cs = [];
+      ['f_index', 'f_middle', 'f_ring', 'f_pinky'].forEach(function (d) {
+        var m = new T.Vector3();
+        [1, 2, 3].forEach(function (n) { var b = R.dita(1, d, n); if (b) m.add(b.getWorldPosition(new T.Vector3())); });
+        cs.push(m.multiplyScalar(1 / 3));
+      });
+      cs.forEach(function (v) { c.add(v); }); c.multiplyScalar(1 / cs.length);
+      /* il centro dell'anello sta fra le falangi e il palmo */
+      var pal = new T.Vector3(), np = 0;
+      [1, 2, 3, 4].forEach(function (n) { var o = R.osso(new RegExp('^DEF-palm0' + n + 'R_')); if (o) { pal.add(o.getWorldPosition(new T.Vector3())); np++; } });
+      if (np) c.lerp(pal.multiplyScalar(1 / np), 0.28);
+      /* la canna verso il centro-sinistra, poco avanti: si vede il fianco
+         della pistola, come in ogni prima persona */
+      var avanti = new T.Vector3(-0.55, 0.05, -1.4).sub(c).normalize();
+      /* la pistola nel suo gruppo: canna -z, impugnatura pi.asse */
+      var Bc = new T.Vector3(0, 0, -1);
+      var q1 = new T.Quaternion().setFromUnitVectors(Bc, avanti);
+      /* dritta: la capsula in su, la verticale della pistola su quella del
+         mondo (il pugno in guardia e' inclinato, la pistola no) */
+      var a1 = new T.Vector3(0, 1, 0).applyQuaternion(q1);
+      var pa = a1.clone().addScaledVector(avanti, -a1.dot(avanti)).normalize();
+      var su = new T.Vector3(0, 1, 0);
+      var pd = su.clone().addScaledVector(avanti, -su.dot(avanti)).normalize();
+      var ang = Math.atan2(new T.Vector3().crossVectors(pa, pd).dot(avanti), pa.dot(pd));
+      var q2 = new T.Quaternion().setFromAxisAngle(avanti, ang).multiply(q1);
+      /* la pistola esce dal gruppo del dispensatore procedurale e va in un
+         aggancio sotto l'osso della mano */
+      var aggancio = new T.Group();
+      vista.gruppo.add(aggancio);
+      aggancio.quaternion.copy(q2);
+      aggancio.position.copy(c).sub(pi.centro.clone().applyQuaternion(q2));
+      aggancio.updateMatrixWorld(true);
+      /* nel gruppo del dispensatore la pistola torna all'identita': tutto
+         l'orientamento lo da' l'aggancio */
+      pi.gruppo.position.set(0, 0, 0); pi.gruppo.quaternion.identity();
+      disp.position.set(0, 0, 0); disp.quaternion.identity(); disp.scale.set(1, 1, 1);
+      aggancio.add(disp);
+      vista.dispensatore.ugello.position.copy(pi.punta);
+      if (vista.dispensatore.led) vista.dispensatore.led.position.copy(pi.punta);
+      if (vista.dispensatore.aloneLed) vista.dispensatore.aloneLed.position.copy(pi.punta);
+      R.manoDx.attach(aggancio);
+      R.aggancio = aggancio;
+      return true;
+    }
+
+    /* LA MANICA ROBOTICA (models/mano-robotica-atomic.glb, «Robotic Hand»
+       di SeanNicolas, CC-BY 4.0): una mano destra aperta, che si specchia
+       e diventa la sinistra. Nel suo modello le dita vanno verso -x, il
+       pollice verso +z, il palmo verso -y; il polso e' a x = 1,85 e la
+       punta del medio a x = -2,57 */
+    var ROBOT = { polso: [1.85, -3.88, 0], lung: 4.42, palmo: [0.45, -3.78, 0.27] };
+    function manoRobotica(gltf, R, vista) {
+      if (!R || !R.manoSx) return false;
+      var sc = gltf.scene;
+      sc.traverse(function (o) {
+        if (!o.isMesh) return;
+        o.frustumCulled = false;
+        var m = o.material, nuovo = new T.MeshStandardMaterial({ color: m.color, roughness: m.roughness, metalness: Math.max(0.15, m.metalness || 0),
+                                                                 side: T.DoubleSide, envMapIntensity: 1.1 });
+        o.material = nuovo;
+      });
+      var interno = new T.Group();
+      interno.add(sc);
+      interno.scale.set(1, 1, -1);                     /* specchio: la destra diventa sinistra */
+      interno.updateMatrixWorld(true);
+      /* la misura dal rig: polso → punta del medio */
+      R.base.updateMatrixWorld(true);
+      R.manoSx.scale.set(1, 1, 1); R.manoSx.updateMatrixWorld(true);
+      var h = R.manoSx.getWorldPosition(new T.Vector3());
+      var punta = R.osso(/^DEF-f_middle03L_end/) || R.dita(-1, 'f_middle', 3);
+      var mF = R.dita(-1, 'f_middle', 1).getWorldPosition(new T.Vector3());
+      var pT = punta.getWorldPosition(new T.Vector3());
+      var th = R.dita(-1, 'thumb', 1).getWorldPosition(new T.Vector3());
+      var lung = (h.distanceTo(pT) || 0.18) * 1.25;   /* un po' piu' grande: e' meccanica */
+      var k = lung / ROBOT.lung;
+      /* le basi: nel rig (mondo) e nel robot (dopo lo specchio) */
+      var Fh = mF.clone().sub(h).normalize(), Th = th.clone().sub(h);
+      Th.addScaledVector(Fh, -Th.dot(Fh)).normalize();
+      var Bh = new T.Matrix4().makeBasis(Fh, Th, new T.Vector3().crossVectors(Fh, Th));
+      var Fr = new T.Vector3(-1, 0, 0), Tr = new T.Vector3(0, 0, -1);
+      var Br = new T.Matrix4().makeBasis(Fr, Tr, new T.Vector3().crossVectors(Fr, Tr));
+      var Rm = Bh.multiply(Br.transpose());
+      var mondo = new T.Matrix4().compose(h, new T.Quaternion().setFromRotationMatrix(Rm), new T.Vector3(k, k, k))
+        .multiply(new T.Matrix4().makeTranslation(-ROBOT.polso[0], -ROBOT.polso[1], ROBOT.polso[2]));
+      var cont = new T.Group();
+      cont.matrixAutoUpdate = false;
+      cont.add(interno);
+      vista.gruppo.add(cont);
+      /* l'offset rispetto all'osso: fisso */
+      cont.userData.offset = new T.Matrix4().copy(R.manoSx.matrixWorld).invert().multiply(mondo);
+      cont.matrix.copy(mondo);
+      R.robot = cont;
+      R.robotPalmo = new T.Vector3(ROBOT.palmo[0], ROBOT.palmo[1], ROBOT.palmo[2]);
+      return true;
+    }
+    /* il palmo da usare per il potere: quello della mano robotica, se c'e' */
+    function palmoSx(R, pos, norm) {
+      if (R.robot) {
+        R.robot.updateMatrixWorld(true);
+        var M = R.robot.matrixWorld.clone().multiply(R.robot.children[0].matrix);
+        pos.copy(R.robotPalmo).applyMatrix4(M);
+        var o = new T.Vector3(ROBOT.palmo[0], ROBOT.palmo[1] - 1, ROBOT.palmo[2]).applyMatrix4(M);
+        norm.copy(o).sub(pos).normalize();
+        return pos;
+      }
+      return palmoRig(R, pos, norm);
+    }
+
+    api.manoRobotica = manoRobotica;
+    api.palmoSx = palmoSx;
+    api.bracciaRig = bracciaRig;
+    api.palmoRig = palmoRig;
+    api.pistolaNelRig = pistolaNelRig;
     api.maniModello = maniModello;
     api.manicaModello = manicaModello;
     api.pistolaModello = pistolaModello;

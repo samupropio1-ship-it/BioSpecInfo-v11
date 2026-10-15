@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 9 (bsi-v216): la passata finale «PS2 seria» e le mani che si muovono con la loro inerzia; nella versione 8 le mani, la manica del camice e la pistola a capsula dai modelli scelti dall'utente — sempre sulla trama del Protocollo 12.
+> Versione 10 (bsi-v217): le braccia del rig con le loro animazioni, la mano sinistra robotica e la sfera dell'elemento; prima, la passata «PS2 seria» e le mani con l'inerzia — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -126,6 +126,21 @@ la partita, e sono la cosa più curata del gioco.
   nella presa. La capsula prende il colore del composto, il grilletto segue
   l'indice, lo spruzzo parte dalla punta della canna. Finché i modelli non
   arrivano (offline al primo avvio) restano le braccia procedurali qui sotto.
+* **Il rig e la mano robotica** (dalla v217): le braccia sono il rig «Fists
+  (2023)» di 1Matzh, con lo scheletro (le 52 ossa che muovono la pelle) e le
+  otto animazioni fatte per la prima persona. Si fondono secondo il gioco:
+  Idle, Walk e Run col passo; Equip quando si cambia strumento; il jab
+  sinistro per lanciare un elemento e per prendere; Inspect da fermi a
+  lungo. La pistola e' agganciata all'osso della mano destra: il polso gira
+  da guardia a impugnatura (indice sopra, mignolo sotto), le dita si chiudono
+  a cilindro e durante Inspect il polso cede per guardarla. A sinistra c'e'
+  la **mano robotica** di SeanNicolas, specchiata e agganciata all'osso
+  della mano. Col potere il palmo si gira in su, sopra si accende la **sfera
+  dell'elemento** — un icosaedro di luce venata col guscio di spigoli, gli
+  aloni e settantadue filamenti che escono e si avvolgono, tutto del colore
+  dell'elemento (giallo il sodio, verde il cloro, rosa l'ossigeno) — e la
+  manica si sgretola: granelli scuri e azzurri che si staccano verso il
+  gomito, con scintille.
 * **I movimenti** (dalla v216): ogni dito insegue il suo bersaglio con una
   molla smorzata (l'indice svelto, il mignolo pigro), con sopra i
   micro-movimenti di una mano viva, ognuno con la sua fase. Spruzzando
