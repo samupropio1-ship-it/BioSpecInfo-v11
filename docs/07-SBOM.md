@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v216` |
-| Commit | `adf6d33dd16e3619834513495831703b5db60371` |
-| Generato (UTC) | `2026-10-15T20:35:00.564Z` |
+| Commit | `e2b16f3fe7abb9a922080b51e5a3c750f10b9ef2` |
+| Generato (UTC) | `2026-10-15T21:07:36.218Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -92,7 +92,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `26109c9f6deff5a121c1887663925b9318fc164d397342611f8d4b9726b1beb0` |
+| `index.html` | `92058b10779076de364984b98e17e30cb13775f5c9e7f79f7af1442332bd1fd6` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -108,7 +108,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `0870bc084935ecd1698b6c7fded00fbdde50e782e9be156dc4f2e37c27eb21f1` |
+| `sw.js` | `1a48a81bfb1606e2793cd2ecc99bfae575cc73a6edbe31a889d53ca56d1a1b1d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -161,4 +161,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-15T20:35:00.564Z._
+_Generato il 2026-10-15T21:07:36.218Z._

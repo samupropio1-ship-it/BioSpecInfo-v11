@@ -7,6 +7,30 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v216] — 2026-10-15
+
+**PS2 seria e mani che si muovono come mani — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **La passata finale «PS2 seria»**: mondo e braccia disegnati in una
+  texture multicampionata e trattati da uno shader — colore da pellicola
+  (meno saturo, ombre fredde, luci calde, alte luci compresse, più
+  contrasto), bagliori morbidi delle luci forti, vignettatura, grana in
+  movimento. Non in PS1, che ha la sua.
+- **Le dita con l'inerzia**: ogni dito insegue la posa con una molla
+  smorzata, con i micro-movimenti di una mano viva. L'indice preme il
+  grilletto di scatto e rilascia morbido; la canna salta su nel polso a
+  ogni spruzzo; cambiando composto la presa si allenta e si riprende; la
+  sinistra si apre prima di prendere, apre le dita nel lancio, le fa
+  ondeggiare col potere, le chiude un po' correndo; da fermi la destra alza
+  la pistola per guardarla.
+
+### Banco
+- `test_atomic`: 201 controlli (erano 196) — l'inerzia delle dita, il
+  rinculo nel polso, le mani vive, l'apertura prima della presa, la
+  passata finale.
+
+---
 ## [bsi-v215] — 2026-10-15
 
 **Le mani, il camice e la pistola dai modelli scelti dall'utente — ATOMIC PROTOCOL**

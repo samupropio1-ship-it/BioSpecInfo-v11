@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 8 (bsi-v215): le mani, la manica del camice e la pistola a capsula dai modelli scelti dall'utente, con le pose fatte dei fotogrammi della loro animazione; prima, nella versione 7, gli ambienti art déco, la mano sinistra-plasmide, trenta registrazioni audio — sempre sulla trama del Protocollo 12.
+> Versione 9 (bsi-v216): la passata finale «PS2 seria» e le mani che si muovono con la loro inerzia; nella versione 8 le mani, la manica del camice e la pistola a capsula dai modelli scelti dall'utente — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -126,6 +126,21 @@ la partita, e sono la cosa più curata del gioco.
   nella presa. La capsula prende il colore del composto, il grilletto segue
   l'indice, lo spruzzo parte dalla punta della canna. Finché i modelli non
   arrivano (offline al primo avvio) restano le braccia procedurali qui sotto.
+* **I movimenti** (dalla v216): ogni dito insegue il suo bersaglio con una
+  molla smorzata (l'indice svelto, il mignolo pigro), con sopra i
+  micro-movimenti di una mano viva, ognuno con la sua fase. Spruzzando
+  l'indice preme di scatto e rilascia morbido, il grilletto lo segue e la
+  canna salta su nel polso; cambiando composto la presa si allenta e si
+  riprende. La sinistra per prendere prima si apre, poi si chiude e lascia;
+  nel lancio le dita si aprono di scatto; col potere ondeggiano una dopo
+  l'altra; correndo si chiudono un po'. Fermi a lungo, la sinistra ripete il
+  gesto della clip e la destra alza la pistola per guardarla.
+* **La passata finale «PS2 seria»**: il mondo e le braccia si disegnano in
+  una texture (con il multicampionamento) e passano da uno shader — colore da
+  pellicola (meno saturo, ombre fredde, luci calde, alte luci compresse,
+  piu' contrasto), bagliori morbidi delle luci forti in alta, vignettatura e
+  grana che si muove. E' cio' che rendeva serie Silent Hill 2, RE4 e MGS3,
+  senza diventare horror.
 * **Le maniche** del camice sono tubi aperti con il polsino cucito, l'interno
   in ombra e il bordo del guanto che esce. **Le mani** sono anatomiche: ogni
   dito è un unico tubo che segue le tre falangi lungo una curva, si

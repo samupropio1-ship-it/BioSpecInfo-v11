@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-15T20:35:00.564Z",
+    "timestamp": "2026-10-15T21:07:36.218Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v215",
+      "version": "bsi-v216",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "adf6d33dd16e3619834513495831703b5db60371"
+        "value": "e2b16f3fe7abb9a922080b51e5a3c750f10b9ef2"
       }
     ]
   },

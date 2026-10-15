@@ -157,7 +157,7 @@ lasciato domande a gesso.
 
 **Si gioca in prima persona.** Davanti a te le tue braccia nel camice e, nella
 destra — mani in guanti di nitrile, con le nocche e le pieghe che si vedono sotto la gomma — la **pistola a capsula**: la capsula prende il colore del composto che hai in
-mano e l'HUD in basso ne mostra la formula e le dosi. Le dita si chiudono sull'impugnatura e l'indice preme il grilletto quando spruzzi; ferma a lungo, la sinistra stira le dita. I crediti dei modelli 3D sono in fondo al Codex. Spruzzando, lo strumento
+mano e l'HUD in basso ne mostra la formula e le dosi. Le dita si chiudono sull'impugnatura e l'indice preme il grilletto quando spruzzi; ferma a lungo, la sinistra stira le dita. Le dita si muovono con la loro inerzia: lo spruzzo fa saltare la canna, la sinistra si apre prima di prendere, e se stai fermo a lungo alzi la pistola per guardarla. I crediti dei modelli 3D sono in fondo al Codex. Spruzzando, lo strumento
 rincula e lancia una nuvola di goccioline. Se in mano hai un **elemento**, la
 mano sinistra si alza e lo tiene vivo sul palmo — scintille per i metalli,
 fiamma per i combustibili, vapore per i gas — e usandolo lo lancia; la sinistra
@@ -561,4 +561,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v215`._
+_Guida aggiornata alla versione `bsi-v216`._
