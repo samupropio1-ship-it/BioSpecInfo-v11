@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 4 (bsi-v211): grafica di livello PS2, guardiani-macchina, nessun horror.
+> Versione 5 (bsi-v212): si gioca in prima persona, con le braccia e lo strumento curati come in un FPS.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -12,7 +12,7 @@
 
 ## 0. Che cos'è, in una riga
 
-Un gioco di **esplorazione in terza o prima persona**, in **cento livelli** e
+Un gioco di **esplorazione in prima persona**, in **cento livelli** e
 dieci zone, con grafica di **livello PlayStation 2** — il riferimento sono
 Metal Gear Solid 2, Final Fantasy X, Resident Evil 4, **senza horror** — in cui
 un chimico attraversa un istituto di ricerca sigillato, raccoglie
@@ -55,7 +55,37 @@ laboratorio. Animazioni smorzate: passo misurato in metri, ginocchia che si
 piegano nel verso giusto, bacino e busto in controrotazione, testa
 stabilizzata, falde in ritardo, respiro e cambio di peso da fermo.
 
-### 1.3 Grafica alta, media, PS1
+### 1.3 La prima persona
+
+Si gioca in prima persona: quello che si vede di sé sono le braccia, per tutta
+la partita, e sono la cosa più curata del gioco.
+
+* **Le braccia** stanno in una scena loro, con una telecamera loro (campo
+  visivo più stretto), disegnate dopo il mondo e dopo aver cancellato la
+  profondità: non entrano mai nei muri, come in ogni gioco in prima persona.
+  Hanno luci proprie e i riflessi d'ambiente del livello.
+* **Le maniche** del camice sono tubi aperti con il polsino cucito, l'interno
+  in ombra e il bordo del guanto che esce; **le mani** in nitrile hanno cinque
+  dita in tre falangi, che si sovrappongono come un dito vero.
+* **Il dispensatore**, nella destra: corpo in polimero con gli anelli cromati,
+  impugnatura in gomma, la fiala di vetro con il liquido del colore del
+  composto, lo schermo sul fondo con la formula e le dosi, l'ugello con il LED
+  e il bagliore. Cambiando quello che si ha in mano lo strumento si abbassa e
+  risale, e lo schermo si aggiorna quando è giù.
+* **Il movimento**: le braccia oscillano col passo (un otto, più ampio di
+  corsa), restano indietro quando ci si gira e recuperano, respirano da ferme,
+  affondano all'atterraggio, rinculano spruzzando — con una nuvola di
+  goccioline del colore del composto — e la sinistra si allunga a prendere e a
+  toccare. La testa sale e scende col passo e si inclina appena spostandosi
+  di lato.
+* **Lo sguardo**: sul computer si clicca sulla scena e il mouse muove lo
+  sguardo (puntatore bloccato, Esc lo libera); sul telefono si trascina il
+  dito sulla scena. Lo sguardo verticale si ferma dove si ferma una testa. Il
+  mirino si allarga quando si guarda qualcosa che si può toccare.
+
+La terza persona resta come scelta, con il chimico intero.
+
+### 1.4 Grafica alta, media, PS1
 
 *Alta* di partenza; *media* — stessi modelli, texture a metà risoluzione, senza
 ombre proiettate — sui telefoni con pochi processori; *PS1 retrò* a scelta:
@@ -92,7 +122,7 @@ livelli già raggiunti, divisi per zona, con i guardiani segnati.
 
 | voce | valori | predefinito | dove si salva |
 |---|---|---|---|
-| **Visuale** | terza persona · prima persona | terza persona | `localStorage` → `bsi-ap-visuale` |
+| **Visuale** | prima persona · terza persona | prima persona | `localStorage` → `bsi-ap-visuale` |
 | **Difficoltà** | Facile · Normale · Difficile · Esperimento | Normale | `bsi-ap-difficolta` |
 | **Grafica** | alta (PS2) · media · PS1 retrò | alta (media sui telefoni con pochi processori) | `bsi-ap-grafica` |
 | **Risoluzione PS1** | 320×240 · 480×360 · 640×480 | 480×360 | `bsi-ap-risoluzione` |

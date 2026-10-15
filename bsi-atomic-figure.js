@@ -1354,6 +1354,203 @@
       return { gruppo: g, corpo: corpo, deforma: deforma };
     }
 
+    /* ═════════════════════════════════════════════════════════════════════
+       LA PRIMA PERSONA — le braccia e lo strumento
+
+       In prima persona quello che si vede di se' sono le braccia, e le si
+       guarda per tutta la partita: devono essere la cosa piu' curata del
+       gioco. Maniche del camice con il polsino e le pieghe nella mappa di
+       rilievo, il bordo del guanto che esce, mani in nitrile con le tre
+       falangi per dito e le nocche, e nella destra il DISPENSATORE: lo
+       strumento con cui si usa la chimica — corpo in polimero bianco con gli
+       anelli cromati, la fiala di vetro con il composto scelto, lo schermo
+       con la formula, l'ugello con il LED del colore del composto.
+
+       Le coordinate sono quelle della telecamera delle braccia: x a destra,
+       y in alto, -z davanti. Il polso e' l'origine di ogni mano.
+       ═════════════════════════════════════════════════════════════════════ */
+    function braccia() {
+      var MB = {
+        manica: materiale(texCamice('manicaFP', 128, 128), { roughness: 0.8, rilievo: 0.9 }),
+        guanto: materiale(pittura('nitrileFP', 128, 128, function (u, v) {
+          var gr = (fbm(u * 40, v * 40, 3, 901) - 0.5) * 8;
+          var grinza = Math.pow(Math.abs(Math.sin(v * 60 + fbm(u * 6, v * 6, 2, 902) * 8)), 12) * 14;
+          return [78 + gr - grinza, 132 + gr - grinza, 200 + gr - grinza * 0.6];
+        }, null, function (u, v) {
+          return fbm(u * 40, v * 40, 3, 901) * 0.3 + Math.pow(Math.abs(Math.sin(v * 60 + fbm(u * 6, v * 6, 2, 902) * 8)), 12) * 0.6;
+        }, 1.4), { roughness: 0.32, rilievo: 0.7 }),
+        polimero: mat({ color: 0xc9cdd1, roughness: 0.42, metalness: 0.05 }),
+        grigio: mat({ color: 0x3a4048, roughness: 0.5, metalness: 0.3 }),
+        gomma: mat({ color: 0x1e2226, roughness: 0.75 }),
+        cromo: mat({ color: 0xdfe4e8, roughness: 0.1, metalness: 1, env: 1.5 }),
+        vetro: mat({ vetro: true, color: 0xeaf6ff })
+      };
+      function rad(geo) { return geo.rotateX(-Math.PI / 2); }      /* asse y → asse -z */
+      /* una falange lungo -z, con la nocca */
+      function falange(r, l) {
+        var gg = new T.Group();
+        /* le falangi si sovrappongono un poco: un dito e' un tubo che si
+           piega, non una fila di perline */
+        var geo = rad(capsula(r, l * 1.15));
+        geo.translate(0, 0, -l / 2);
+        gg.add(m(geo, MB.guanto, 0, 0, 0, false));
+        return gg;
+      }
+      /* un dito: tre falangi che si piegano attorno all'asse dato */
+      function dito(lung, r, curve, asse) {
+        var radice = new T.Group(), giunti = [], cur = radice;
+        var pez = [lung * 0.46, lung * 0.31, lung * 0.23];
+        pez.forEach(function (l2, i) {
+          var f = falange(r * (1 - i * 0.1), l2);
+          if (i) f.position.z = -pez[i - 1];
+          f.rotation[asse] = curve[i];
+          cur.add(f); giunti.push(f); cur = f;
+        });
+        return { gruppo: radice, giunti: giunti };
+      }
+      /* la manica: dal polso verso il gomito (+z), un po' in basso */
+      function manica(lato) {
+        var g = new T.Group();
+        /* un tubo aperto: dal polsino esce il guanto, come in una manica vera */
+        var prof = [[0.047, 0.03], [0.05, -0.012], [0.054, 0.0], [0.054, 0.03], [0.05, 0.04], [0.052, 0.12],
+                    [0.058, 0.3], [0.062, 0.55]];
+        var geo = lathe(prof, 36);
+        geo.rotateX(Math.PI / 2);
+        var tubo2 = m(lisce(geo), MB.manica, 0, 0, 0, false);
+        tubo2.material = MB.manica.clone(); tubo2.material.side = T.DoubleSide;
+        g.add(tubo2);
+        /* l'interno, in ombra */
+        var dentro = new T.Mesh(new T.CircleGeometry(0.046, sg(28)), mat({ color: 0x2a2c30, roughness: 1 }));
+        dentro.position.z = 0.03;
+        g.add(dentro);
+        /* la cucitura del polsino */
+        var cuc = new T.Mesh(new T.TorusGeometry(0.0545, 0.0025, 6, sg(40)), MB.manica);
+        cuc.position.z = 0.032;
+        g.add(cuc);
+        /* il bordo del guanto che esce dal polsino */
+        var bordo = new T.Mesh(new T.CylinderGeometry(0.043, 0.04, 0.05, sg(28), 1, true), MB.guanto);
+        bordo.rotation.x = Math.PI / 2; bordo.position.z = -0.005;
+        g.add(bordo);
+        g.add(m(new T.TorusGeometry(0.043, 0.004, 6, sg(28)), MB.guanto, 0, 0, -0.03, false));
+        return g;
+      }
+      /* il palmo: un ellissoide schiacciato, piu' largo verso le nocche */
+      function palmo(largo, alto, spesso) {
+        var geo = lisce(lathe([[0, 0], [0.6, 0.06], [0.9, 0.3], [1.0, 0.65], [0.85, 0.95], [0, 1]], 24));
+        geo.scale(largo, 0.092, spesso);
+        geo.rotateX(-Math.PI / 2);
+        return m(geo, MB.guanto, 0, 0, 0, false);
+      }
+
+      /* ── la mano destra, che impugna il dispensatore ── */
+      var dx = new T.Group();
+      dx.add(manica(1));
+      var mD = new T.Group();
+      mD.rotation.x = -0.34;                  /* il polso alza la mano rispetto all'avambraccio */
+      dx.add(mD);
+      var pD = palmo(0.045, 0.092, 0.02);
+      pD.rotation.z = Math.PI / 2;            /* palmo verso sinistra: impugnatura */
+      mD.add(pD);
+      var ditaD = [];
+      [[0.028, 0.085, 0.0098], [0.006, 0.092, 0.0102], [-0.016, 0.087, 0.0097], [-0.036, 0.072, 0.0086]].forEach(function (d, i) {
+        var dd = dito(d[1], d[2] * 0.9, [0.95 + i * 0.05, 1.2, 0.85], 'y');
+        dd.gruppo.position.set(-0.006, d[0], -0.088);
+        dd.gruppo.rotation.y = 0.15;
+        mD.add(dd.gruppo);
+        ditaD.push(dd);
+      });
+      /* il pollice, che si appoggia sul fianco del dispensatore */
+      var polD = dito(0.07, 0.0108, [0.25, 0.2, 0.15], 'y');
+      polD.gruppo.position.set(-0.022, 0.038, -0.035);
+      polD.gruppo.rotation.set(0.35, 0.55, 0.3);
+      mD.add(polD.gruppo);
+
+      /* il dispensatore */
+      var disp = new T.Group();
+      disp.position.set(-0.03, 0.06, -0.06);
+      mD.add(disp);
+      /* l'impugnatura, dentro le dita */
+      var imp = m(tonda(0.03, 0.12, 0.045, 0.012), MB.gomma, 0, -0.045, -0.035, false);
+      imp.rotation.x = 0.28;
+      disp.add(imp);
+      /* il corpo, con gli anelli cromati */
+      var corpoD = m(rad(lisce(lathe([[0, -0.03], [0.03, -0.03], [0.034, -0.022], [0.034, 0.12], [0.026, 0.15], [0, 0.152]], 32))),
+                     MB.polimero, 0, 0.02, 0, false);
+      disp.add(corpoD);
+      [-0.01, 0.04, 0.1].forEach(function (z) {
+        disp.add(m(new T.TorusGeometry(0.0345, 0.003, 8, sg(32)), MB.cromo, 0, 0.02, -z, false));
+      });
+      disp.add(m(rad(cil(0.0345, 0.0345, 0.03, 32)), MB.grigio, 0, 0.02, -0.07, false));
+      /* il fondo piatto, scuro, con lo schermo */
+      disp.add(m(rad(cil(0.0345, 0.0345, 0.012, 32)), MB.grigio, 0, 0.02, 0.026, false));
+      /* l'ugello */
+      var ugello = m(rad(lisce(lathe([[0.016, 0], [0.012, 0.03], [0.006, 0.05], [0, 0.052]], 20))), MB.cromo, 0, 0.02, -0.15, false);
+      disp.add(ugello);
+      var ledMat = mat({ color: 0x111111, emissive: 0x5ef0c4, emissiveIntensity: 2.2, roughness: 0.3 });
+      var led = m(new T.TorusGeometry(0.018, 0.003, 8, sg(24)), ledMat, 0, 0.02, -0.152, false);
+      disp.add(led);
+      var aloneLed = alone(0x5ef0c4, 0.07, 0.8); aloneLed.position.set(0, 0.02, -0.16);
+      disp.add(aloneLed);
+      /* la fiala di vetro sopra, con il liquido del composto */
+      var supp = m(tonda(0.03, 0.012, 0.09, 0.004), MB.grigio, 0, 0.055, -0.03, false);
+      disp.add(supp);
+      var fiala = m(rad(cil(0.0135, 0.0135, 0.085, 24, true)), MB.vetro, 0, 0.076, -0.03, false);
+      disp.add(fiala);
+      var liqMat = mat({ color: 0x5ef0c4, emissive: 0x5ef0c4, emissiveIntensity: 0.35, roughness: 0.1, transparent: true, opacity: 0.85 });
+      var liquido = m(rad(cil(0.0115, 0.0115, 0.07, 20)), liqMat, 0, 0.076, -0.03, false);
+      disp.add(liquido);
+      [-0.065, 0.005].forEach(function (z) { disp.add(m(rad(cil(0.016, 0.016, 0.008, 20)), MB.cromo, 0, 0.076, z, false)); });
+      /* lo schermo sul retro, rivolto a chi impugna */
+      var cvS = nuovaTela(128, 64);
+      var tS = new T.CanvasTexture(cvS); tS.encoding = T.sRGBEncoding;
+      var schermo = new T.Mesh(new T.PlaneGeometry(0.046, 0.023), new T.MeshBasicMaterial({ map: tS, toneMapped: false }));
+      schermo.position.set(0, 0.02, 0.0335);
+      schermo.rotation.x = 0;
+
+      disp.add(schermo);
+      function aggiorna(testo, sotto, colore) {
+        var q = cvS.getContext('2d');
+        var col = '#' + new T.Color(colore).getHexString();
+        q.fillStyle = '#04120f'; q.fillRect(0, 0, 128, 64);
+        q.fillStyle = col; q.font = 'bold 26px monospace'; q.textAlign = 'center';
+        q.fillText(testo || '—', 64, 34);
+        q.font = '13px monospace'; q.fillStyle = '#9fe8d0';
+        q.fillText(sotto || '', 64, 54);
+        tS.needsUpdate = true;
+        liqMat.color.setHex(colore); liqMat.emissive.setHex(colore);
+        ledMat.emissive.setHex(colore);
+        aloneLed.material.color.setHex(colore);
+        liquido.visible = !!testo;
+      }
+      aggiorna('', '', 0x5ef0c4);
+
+      /* ── la mano sinistra, libera: si allunga per prendere e toccare ── */
+      var sx = new T.Group();
+      sx.add(manica(-1));
+      var mS = new T.Group();
+      sx.add(mS);
+      var pS = palmo(0.046, 0.092, 0.02);
+      mS.add(pS);
+      [[-0.028, 0.08], [-0.008, 0.088], [0.012, 0.084], [0.03, 0.07]].forEach(function (d, i) {
+        var dd = dito(d[1], 0.0095, [0.18 + i * 0.03, 0.22, 0.16], 'x');
+        dd.gruppo.position.set(d[0], 0, -0.088);
+        dd.gruppo.rotation.y = (d[0]) * 1.5;
+        dd.gruppo.rotation.x = 0;
+        dd.giunti.forEach(function (gg) { gg.rotation.x = -gg.rotation.x; });
+        mS.add(dd.gruppo);
+      });
+      var polS = dito(0.068, 0.0105, [0.2, 0.15, 0.1], 'y');
+      polS.gruppo.position.set(0.04, -0.008, -0.03);
+      polS.gruppo.rotation.set(-0.2, -0.7, -0.4);
+      mS.add(polS.gruppo);
+
+      var g = new T.Group();
+      g.add(dx); g.add(sx);
+      return { gruppo: g, dx: dx, sx: sx, manoDx: mD, manoSx: mS, ditaDx: ditaD,
+               dispensatore: { gruppo: disp, ugello: ugello, aggiorna: aggiorna, led: led } };
+    }
+
+    api.braccia = braccia;
     api.chimico = chimico;
     api.residuo = residuo;
     api.guardiano = guardiano;

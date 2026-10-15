@@ -7,6 +7,45 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v212] — 2026-10-15
+
+**Si gioca in prima persona, con le braccia e lo strumento curati come in un
+FPS.**
+
+Il protagonista visto da fuori non poteva arrivare al livello degli ambienti:
+una figura umana costruita interamente dal codice resta un manichino. In prima
+persona quello che si vede di sé sono le braccia — e quelle si possono fare
+bene.
+
+### Le braccia e lo strumento
+
+* Maniche del camice con il polsino cucito e aperto, l'interno in ombra, il
+  bordo del guanto che esce; mani in nitrile a cinque dita in tre falangi.
+* Il **dispensatore** nella destra: corpo in polimero con anelli cromati,
+  impugnatura in gomma, fiala di vetro con il liquido del colore del composto,
+  schermo sul fondo con formula e dosi, ugello con LED e bagliore.
+* Disegnate in una **scena loro**, dopo il mondo: non entrano nei muri.
+
+### Il movimento
+
+* Le braccia oscillano col passo, restano indietro nelle curve, respirano,
+  affondano all'atterraggio, **rinculano spruzzando** con una nuvola di
+  goccioline; cambiando composto lo strumento si abbassa e risale; la sinistra
+  si allunga a prendere e toccare.
+* La testa sale e scende col passo e si inclina appena di lato.
+* **Sguardo libero**: mouse con il puntatore bloccato sul computer,
+  trascinamento del dito sul telefono; il mirino si allarga su ciò che si può
+  usare.
+* La terza persona resta a scelta (tasto `V`).
+
+### Verifica
+
+`test_atomic`: **164 controlli** (minimo 160) — prima persona di partenza,
+braccia in una scena loro con più di quaranta pezzi e cinque dita, lo strumento
+che mostra il composto in mano, le goccioline, lo sguardo che gira ma non oltre
+una testa.
+
+---
 ## [bsi-v211] — 2026-10-15
 
 **Grafica di livello PlayStation 2, e niente horror: i guardiani sono le

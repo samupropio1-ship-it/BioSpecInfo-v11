@@ -72,7 +72,7 @@
     } catch (e) { return 'alta'; }
   }
   var IMP = {
-    visuale: 'terza',        /* terza | prima */
+    visuale: 'prima',        /* prima | terza: si gioca in prima persona */
     difficolta: 'normale',   /* facile | normale | difficile | esperimento */
     grafica: graficaDiPartenza(), /* alta | media | ps1 */
     risoluzione: '480',      /* solo PS1: 320 | 480 | 640 */
@@ -245,7 +245,13 @@
   var tasti = {};
   var mondo = null;           /* il livello costruito */
   var chimico = null;         /* il rig del personaggio */
-  var mani = null;            /* le mani, in prima persona */
+  var mani = null;            /* (non piu' usato: vedi «vista») */
+  /* la prima persona: le braccia stanno in una scena loro, con una
+     telecamera loro, disegnate dopo il mondo e sopra di esso — cosi' non
+     entrano mai nei muri, come in ogni gioco in prima persona */
+  var scenaMani = null, camMani = null, vista = null;
+  var animV = { rinculo: 0, cambio: 0, prendi: 0, ang: 0, angY: 0, swayX: 0, swayY: 0, terra: true, atterra: 0,
+                inMano: undefined, particelle: [] };
   var luci = null;            /* il gruppo di luci che segue il giocatore */
   var audio = null;
   var camLiscia = null;       /* la posizione della telecamera, smorzata */
@@ -942,6 +948,123 @@
   /* ═════════════════════════════════════════════════════════════════════════
      LA TELECAMERA — terza o prima persona, e si cambia subito
      ═════════════════════════════════════════════════════════════════════════ */
+  /* ═════════════════════════════════════════════════════════════════════════
+     LE BRACCIA IN PRIMA PERSONA
+
+     Quello che separa una prima persona curata da una telecamera che vola
+     e' il movimento delle braccia: oscillano col passo (un otto, non un su e
+     giu'), restano indietro quando ci si gira e recuperano, respirano da
+     fermi, rinculano quando si spruzza, si abbassano e risalgono quando si
+     cambia composto, e la sinistra si allunga a prendere e a toccare.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var BASE_DX = { x: 0.15, y: -0.125, z: -0.33, rx: 0.4, ry: 0.1, rz: 0.05 };
+  var BASE_SX = { x: -0.24, y: -0.46, z: -0.3, rx: 0.35, ry: -0.25, rz: -0.1 };
+  function aggiornaDispensatore() {
+    if (!vista || animV.inMano === S.inMano) return;
+    var prima = animV.inMano === undefined;
+    animV.inMano = S.inMano;
+    if (!prima) animV.cambio = 1;
+    var id = S.inMano, r = id ? ricetta(id) : null;
+    var col = r ? 0x5ef0c4 : ((POTERI[id] && POTERI[id].colore) || 0x5ef0c4);
+    if (r) { var cc = { HCl: 0xbfe8a0, H2O2: 0xdfefff, NaOH: 0xe0e0ff, H2SO4: 0xffe070, NH3: 0xa0d8ff, CO2: 0xd0d8e0,
+                        ASC: 0xffd060, NaHCO3: 0xf0f0f0, MgO: 0xffffff, NaCl: 0xf8f8f8, HNO3: 0xffb060, CaO: 0xf0ece0 }[id];
+             if (cc) col = cc; }
+    var c = r ? S.composti.filter(function (x) { return x.id === id; })[0] : null;
+    var testo = r ? r.formula : (id || '');
+    var sotto = r ? (c ? '×' + c.dosi : '') : (id ? t('elemento', 'element') : t('vuoto', 'empty'));
+    /* il cambio si vede: lo schermo si aggiorna quando lo strumento e' giu' */
+    setTimeout(function () { if (vista) vista.dispensatore.aggiorna(testo, sotto, col); }, prima ? 0 : 180);
+    animV.colore = col;
+  }
+  function animaVista() {
+    if (!vista) return;
+    aggiornaDispensatore();
+    var ora = Date.now() / 1000;
+    var v = Math.hypot(S.vel.x, S.vel.z), corsa = v > 0.07, amp = Math.min(1, v / 0.05);
+    var f = S.passi * (corsa ? 3.9 : 4.5);
+    /* il ritardo nelle curve: le braccia seguono lo sguardo con un attimo
+       di ritardo, e si inclinano */
+    var dAng = S.ang - animV.ang, dAngY = S.angY - animV.angY;
+    animV.ang = S.ang; animV.angY = S.angY;
+    animV.swayX += (Math.max(-0.08, Math.min(0.08, dAng * 1.6)) - animV.swayX) * 0.12;
+    animV.swayY += (Math.max(-0.06, Math.min(0.06, dAngY * 1.2)) - animV.swayY) * 0.12;
+    if (!animV.terra && S.terra) animV.atterra = 1;
+    animV.terra = S.terra;
+    animV.atterra *= 0.86;
+    animV.rinculo *= 0.82;
+    animV.cambio = Math.max(0, animV.cambio - 0.045);
+    animV.prendi = Math.max(0, animV.prendi - 0.03);
+    var cambio = Math.sin(Math.min(1, animV.cambio) * Math.PI);
+    var resp = Math.sin(ora * 1.7) * 0.004 * (1 - amp);
+    var bx = Math.sin(f) * (corsa ? 0.03 : 0.014) * amp;
+    var by = -Math.abs(Math.cos(f)) * (corsa ? 0.03 : 0.012) * amp;
+    var d = vista.dx;
+    d.position.set(BASE_DX.x + bx + animV.swayX * 0.6, BASE_DX.y + by + resp - animV.swayY * 0.5 - animV.atterra * 0.04 - cambio * 0.28 - (corsa ? 0.02 : 0),
+                   BASE_DX.z + animV.rinculo * 0.05);
+    d.rotation.set(BASE_DX.rx + animV.rinculo * 0.25 + animV.swayY * 0.8 - cambio * 0.6 + (corsa ? -0.15 : 0),
+                   BASE_DX.ry + animV.swayX * 1.4 + (corsa ? 0.25 : 0), BASE_DX.rz + bx * 2 + animV.swayX);
+    /* la sinistra: di solito appena in vista in basso, si allunga a
+       prendere (una curva: avanti, poi indietro) */
+    var pr = Math.sin(animV.prendi * Math.PI);
+    var e = vista.sx;
+    e.position.set(BASE_SX.x - bx + animV.swayX * 0.6 + pr * 0.16, BASE_SX.y - by * 0.8 + resp + pr * 0.3 - animV.atterra * 0.04,
+                   BASE_SX.z - pr * 0.2);
+    e.rotation.set(BASE_SX.rx - pr * 0.3, BASE_SX.ry + animV.swayX * 1.2 + pr * 0.25, BASE_SX.rz - bx * 2);
+    /* le goccioline dello spruzzo */
+    animV.particelle.forEach(function (q) {
+      if (!q.vivo) return;
+      q.t += 1;
+      q.o.position.addScaledVector(q.v, 1);
+      q.v.y -= 0.0006;
+      q.o.material.opacity = Math.max(0, 0.55 - q.t / 60);
+      q.o.scale.setScalar(0.012 + q.t * 0.0016);
+      if (q.t > 40) { q.vivo = false; q.o.visible = false; }
+    });
+  }
+  /* spruzzare: rinculo, e una nuvola di goccioline dal colore del composto */
+  function spruzzo() {
+    if (!vista) return;
+    animV.rinculo = 1;
+    var ug = new T.Vector3();
+    vista.dispensatore.ugello.getWorldPosition(ug);
+    for (var i = 0; i < 18; i++) {
+      var q = animV.particelle.filter(function (x) { return !x.vivo; })[0];
+      if (!q) {
+        if (animV.particelle.length >= 60) break;
+        var sp = new T.Sprite(new T.SpriteMaterial({ map: vista.goccia, transparent: true, depthWrite: false,
+                                                      blending: T.AdditiveBlending, toneMapped: false }));
+        scenaMani.add(sp);
+        q = { o: sp, v: new T.Vector3(), t: 0, vivo: false };
+        animV.particelle.push(q);
+      }
+      q.vivo = true; q.t = 0; q.o.visible = true;
+      q.o.material.color.setHex(animV.colore || 0x5ef0c4);
+      q.o.position.copy(ug);
+      q.v.set((Math.random() - 0.5) * 0.004 - 0.002, (Math.random() - 0.3) * 0.003, -0.012 - Math.random() * 0.012);
+    }
+  }
+  function creaVista() {
+    scenaMani = new T.Scene();
+    camMani = new T.PerspectiveCamera(52, camera.aspect, 0.01, 10);
+    scenaMani.add(new T.HemisphereLight(0xe4ecf4, 0x3a4048, ps1() ? 1.2 : 0.75));
+    var sole = new T.DirectionalLight(0xfff2e0, ps1() ? 0.6 : 1.4);
+    sole.position.set(0.6, 1.2, 0.4);
+    scenaMani.add(sole);
+    var contro = new T.DirectionalLight(0x9fc8ff, ps1() ? 0.2 : 0.5);
+    contro.position.set(-0.8, 0.3, -0.6);
+    scenaMani.add(contro);
+    scenaMani.environment = scena.environment || null;
+    vista = G.braccia();
+    vista.dx.scale.setScalar(0.72); vista.sx.scale.setScalar(0.72);
+    scenaMani.add(vista.gruppo);
+    var cv = document.createElement('canvas'); cv.width = cv.height = 32;
+    var q = cv.getContext('2d'), gr = q.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    q.fillStyle = gr; q.fillRect(0, 0, 32, 32);
+    vista.goccia = new T.CanvasTexture(cv);
+    animV.inMano = undefined; animV.particelle = [];
+  }
+
   function muoviCamera() {
     if (!camera || !S) return;
     var prima = IMP.visuale === 'prima';
@@ -956,31 +1079,17 @@
     var sx = (Math.random() - 0.5) * scossa * 0.12, sy = (Math.random() - 0.5) * scossa * 0.08;
     scossa *= 0.88;
     if (prima) {
-      camera.position.set(S.pos.x + sx, S.pos.y + 1.6 + sy, S.pos.z);
-      camera.rotation.set(S.angY, S.ang, 0, 'YXZ');
-      if (!mani) {
-        /* le mani si vedono: due guanti di nitrile e le maniche del camice */
-        mani = new T.Group();
-        [-1, 1].forEach(function (l) {
-          var m = new T.Mesh(G.capsula(0.045, 0.12), G.M.guanti);
-          m.rotation.x = Math.PI / 2;
-          m.position.set(l * 0.22, -0.26, -0.6);
-          mani.add(m);
-          var p = new T.Mesh(G.capsula(0.06, 0.22), G.M.camice);
-          p.rotation.x = Math.PI / 2;
-          p.position.set(l * 0.23, -0.27, -0.44);
-          mani.add(p);
-        });
-        camera.add(mani);
-        scena.add(camera);
-      }
-      mani.visible = true;
-      var v2 = Math.hypot(S.vel.x, S.vel.z);
-      var osc = Math.sin(S.passi * 2.4) * (v2 > 0.004 ? 0.05 : 0.012);
-      mani.position.y = osc;
-      mani.rotation.z = osc * 0.6;
+      /* il passo si sente nella testa: su e giu' due volte per ciclo,
+         appena di lato, e un piccolo affondo quando si atterra */
+      var vv = Math.hypot(S.vel.x, S.vel.z), ampP = Math.min(1, vv / 0.05);
+      var fP = S.passi * (vv > 0.07 ? 3.9 : 4.5);
+      var bobY = Math.abs(Math.sin(fP)) * 0.03 * ampP - animV.atterra * 0.06;
+      var bobX = Math.sin(fP) * 0.012 * ampP;
+      camera.position.set(S.pos.x + sx + Math.cos(S.ang) * bobX, S.pos.y + 1.62 + sy + bobY,
+                          S.pos.z - Math.sin(S.ang) * bobX);
+      camera.rotation.set(S.angY, S.ang, -bobX * 0.6 + (tasti.latSx ? 0.012 : 0) - (tasti.latDx ? 0.012 : 0), 'YXZ');
+      animaVista();
     } else {
-      if (mani) mani.visible = false;
       var d = 3.7, h = 2.15;
       /* la telecamera non passa i muri: si controlla TUTTO il tragitto dal
          chimico alla telecamera, non solo il punto d'arrivo — in un
@@ -1048,6 +1157,7 @@
 
   function interagisci() {
     if (!S) return;
+    animV.prendi = 1;
     /* in una fase-enigma del guardiano, il tasto apre la sfida */
     if (S.boss && S.boss.attivo) {
       var f = faseCorrente(S.boss);
@@ -1722,8 +1832,10 @@
       '#bsiAP-hud .boss .bb i{display:block;height:100%;background:linear-gradient(90deg,#ff4d3a,#ffb04d)}',
       '#bsiAP-mappa{position:absolute;right:8px;top:40px;width:96px;height:96px;opacity:.85;',
       ' border-radius:8px;background:rgba(3,10,16,.55);border:1px solid rgba(143,227,196,.25)}',
-      '#bsiAP-mirino{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;',
-      ' border-radius:50%;background:rgba(255,255,255,.7);box-shadow:0 0 4px #000}',
+      '#bsiAP-mirino{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;',
+      ' border-radius:50%;background:rgba(255,255,255,.75);box-shadow:0 0 3px #000;transition:all .15s}',
+      '#bsiAP-mirino.attivo{width:18px;height:18px;margin:-9px 0 0 -9px;background:transparent;',
+      ' border:2px solid #8fe3c4;box-shadow:0 0 6px rgba(143,227,196,.6)}',
       '#bsiAP-avviso{position:absolute;left:50%;transform:translateX(-50%);bottom:58px;',
       ' background:rgba(3,10,16,.86);border:1px solid rgba(143,227,196,.3);border-radius:8px;',
       ' padding:7px 12px;max-width:86%;font-size:12px;line-height:1.5;opacity:0;',
@@ -1873,7 +1985,10 @@
       }
     });
     var mir = document.getElementById('bsiAP-mirino');
-    if (mir) mir.style.display = IMP.visuale === 'prima' ? 'block' : 'none';
+    if (mir) {
+      mir.style.display = IMP.visuale === 'prima' ? 'block' : 'none';
+      mir.className = b ? 'attivo' : '';
+    }
     if ((S.t || 0) % 10 === 0) mappa();
   }
 
@@ -2068,9 +2183,9 @@
           'quella sbagliata non fa niente. Alcune fasi si vincono rispondendo (✋). Allontanati ' +
           'quando la luce rossa si accende.\n\n' +
           'RESIDUI — chiazze di solvente organico che si spostano e fumano: un ossidante (Cl, O, H₂O₂…) le degrada.\n\n' +
-          'COMANDI — tastiera: W/S avanti e indietro, A/D gira, Q/E di lato, Maiusc corre, ' +
+          'COMANDI — si gioca in prima persona. Computer: clicca sulla scena e il mouse muove lo sguardo (Esc lo libera); W/S avanti e indietro, A/D gira, Q/E di lato, Maiusc corre, ' +
           'Spazio salta, F interagisce, X usa ✦, R cambia quello che hai in mano, I inventario, ' +
-          'C codex, V cambia visuale, Esc pausa. Sul telefono: i pulsanti sotto la scena.',
+          'C codex, V passa alla terza persona, Esc pausa. Telefono: trascina il dito sulla scena per guardarti intorno, e i pulsanti sotto la scena.',
           'GOAL — on each level find the terminal, solve the puzzle to open the bulkhead and ' +
           'reach the elevator. At the end of every zone, every ten levels, a guardian blocks the way: one of the institute’s machines out of control.\n\n' +
           'ELEMENTS — the vials on the pedestals. Once collected they are yours: using them ' +
@@ -2081,9 +2196,9 @@
           'with ✦; the wrong one does nothing. Some phases are won by answering (✋). Step back ' +
           'when the red light flares.\n\n' +
           'RESIDUES — moving, fuming puddles of organic solvent: an oxidiser (Cl, O, H₂O₂…) degrades them.\n\n' +
-          'CONTROLS — keyboard: W/S forward and back, A/D turn, Q/E strafe, Shift runs, ' +
+          'CONTROLS — you play in first person. Computer: click the scene and the mouse moves your gaze (Esc frees it); W/S forward and back, A/D turn, Q/E strafe, Shift runs, ' +
           'Space jumps, F interacts, X uses ✦, R switches what you hold, I inventory, C codex, ' +
-          'V toggles view, Esc pause. On a phone: the buttons below the scene.')) + '</div>' +
+          'V switches to third person, Esc pause. Phone: drag a finger on the scene to look around, and the buttons below the scene.')) + '</div>' +
         bottone('apIndietroG', '◂ ' + t('indietro', 'back')) + '</div>';
       su('apIndietroG', function () { schermo = (S && mondo && !S.finito) ? 'pausa' : 'titolo'; disegnaUI(); });
       return;
@@ -2469,6 +2584,7 @@
 
   /* usare quello che si ha in mano: la scorciatoia del combattimento */
   function usaRapido() {
+    spruzzo();
     if (S.boss && S.boss.attivo && /^enigma:/.test(faseCorrente(S.boss).serve)) { sfidaBoss(); return; }
     var d = disponibili();
     if (!d.length) {
@@ -2527,7 +2643,16 @@
       muoviCamera();
     }
     if (!ps1()) adattaDimensioni();
-    if (ren && scena && camera) ren.render(scena, camera);
+    if (ren && scena && camera) {
+      if (vista && IMP.visuale === 'prima' && S && mondo && schermo === 'gioco') {
+        ren.autoClear = false;
+        ren.clear();
+        ren.render(scena, camera);
+        ren.clearDepth();
+        ren.render(scenaMani, camMani);
+        ren.autoClear = true;
+      } else ren.render(scena, camera);
+    }
     hud();
     anim = requestAnimationFrame(ciclo);
   }
@@ -2546,6 +2671,7 @@
     dimPrec = chiave;
     ren.setSize(w, h, false);
     if (camera) { camera.aspect = w / h; camera.updateProjectionMatrix(); }
+    if (camMani) { camMani.aspect = w / h; camMani.updateProjectionMatrix(); }
   }
 
   function applicaRisoluzione() {
@@ -2555,6 +2681,7 @@
     var h = Math.round(w * 3 / 4);
     ren.setSize(w, h, false);
     if (camera) { camera.aspect = w / h; camera.updateProjectionMatrix(); }
+    if (camMani) { camMani.aspect = w / h; camMani.updateProjectionMatrix(); }
   }
 
   /* SMONTARE UN LIVELLO. Togliere il gruppo dalla scena non libera niente:
@@ -2599,6 +2726,7 @@
     if (tela && tela.parentNode) tela.parentNode.removeChild(tela);
     ren = null; scena = null; camera = null; tela = null; G = null;
     chimico = null; mani = null; luci = null; mondo = null; camLiscia = null;
+    scenaMani = null; camMani = null; vista = null;
     pronto = false; dimPrec = '';
     avvia3D(function (ok) {
       if (!ok || !inPartita) { disegnaUI(); return; }
@@ -2665,6 +2793,7 @@
         luci = creaLuci();
         chimico = G.chimico();
         scena.add(chimico.nodo);
+        creaVista();
         applicaRisoluzione();
         pronto = true;
         cb(true);
@@ -2720,6 +2849,48 @@
     globale.addEventListener('blur', function () { tasti = {}; });
   }
 
+  /* GUARDARSI INTORNO. Sul computer si clicca sulla scena e il mouse muove
+     lo sguardo (il puntatore resta bloccato; Esc lo libera); sul telefono si
+     trascina il dito sulla scena. Lo sguardo verticale e' limitato, come la
+     testa vera */
+  function sguardo(dx, dy, k) {
+    if (!S || schermo !== 'gioco') return;
+    S.ang -= dx * k;
+    S.angY = Math.max(-1.1, Math.min(1.1, S.angY - dy * k * 0.9));
+  }
+  function mouseETocco() {
+    var sc = document.getElementById('bsiAP-scena');
+    if (!sc || sc.getAttribute('data-sguardo')) return;
+    sc.setAttribute('data-sguardo', '1');
+    sc.addEventListener('click', function (e) {
+      if (schermo !== 'gioco' || !tela || e.target.closest('button')) return;
+      if (tela.requestPointerLock && document.pointerLockElement !== tela) {
+        try { tela.requestPointerLock(); } catch (er) {}
+      }
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (tela && document.pointerLockElement === tela) sguardo(e.movementX || 0, e.movementY || 0, 0.0024);
+    });
+    var tocco = null;
+    sc.addEventListener('touchstart', function (e) {
+      if (schermo !== 'gioco' || e.target.closest('button')) return;
+      var t0 = e.changedTouches[0];
+      tocco = { id: t0.identifier, x: t0.clientX, y: t0.clientY };
+    }, { passive: true });
+    sc.addEventListener('touchmove', function (e) {
+      if (!tocco) return;
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t1 = e.changedTouches[i];
+        if (t1.identifier !== tocco.id) continue;
+        sguardo(t1.clientX - tocco.x, t1.clientY - tocco.y, 0.006);
+        tocco.x = t1.clientX; tocco.y = t1.clientY;
+        e.preventDefault();
+      }
+    }, { passive: false });
+    sc.addEventListener('touchend', function () { tocco = null; });
+    sc.addEventListener('touchcancel', function () { tocco = null; });
+  }
+
   function pulsante() {
     var b = document.querySelector('.nav-btn[data-s="' + ID + '"]');
     if (b) { b.textContent = NOME; return b; }
@@ -2743,6 +2914,7 @@
     sezione();
     intro();
     pulsante();
+    mouseETocco();
     disegnaUI();
     return true;
   }
@@ -2798,7 +2970,10 @@
     bersaglio: bersaglio, avviaCiclo: avviaCiclo, fermaCiclo: fermaCiclo,
     pronto: function () { return pronto; }, perche3d: function () { return errore3d; },
     mondo: function () { return mondo; },
-    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico }; },
+    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico,
+                                   vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
+    spruzzo: function () { spruzzo(); },
+    sguardo: function (dx, dy) { sguardo(dx, dy, 0.0024); },
     TRAMA: TRAMA,
     versione: '2.0'
   };

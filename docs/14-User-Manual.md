@@ -145,8 +145,16 @@ di ogni zona finisce nell'arena di un guardiano, e l'ascensore si sblocca
 solo quando il guardiano è fermo. Il gioco **si salva** a ogni livello: dal
 titolo si **continua** o si **sceglie** un livello già raggiunto.
 
-| comando | tastiera | a schermo |
+**Si gioca in prima persona.** Davanti a te le tue braccia nel camice e, nella
+destra, il **dispensatore**: la fiala mostra il colore del composto che hai in
+mano e lo schermo sul fondo la formula e le dosi. Spruzzando, lo strumento
+rincula e lancia una nuvola di goccioline; la mano sinistra si allunga quando
+prendi o tocchi qualcosa; il mirino si allarga quando guardi qualcosa che puoi
+usare. La terza persona si può scegliere nelle impostazioni (tasto `V`).
+
+| comando | tastiera e mouse | a schermo |
 |---|---|---|
+| guardarsi intorno | clic sulla scena, poi il mouse (`Esc` lo libera) | trascina il dito sulla scena |
 | muoversi | `W A S D` o frecce | ▲ ▼ ◀ ▶ |
 | spostarsi di lato | `Q` / `E` | ⇤ ⇥ |
 | correre | `Shift` | — |
@@ -157,7 +165,7 @@ titolo si **continua** o si **sceglie** un livello già raggiunto.
 | inventario | `I` | 🎒 |
 | codex | `C` | dalla pausa |
 | pausa | `Esc` o `P` | ❚❚ |
-| cambiare visuale | `V` | impostazioni |
+| passare alla terza persona e tornare | `V` | impostazioni |
 
 **La grafica è di livello PlayStation 2** — il riferimento sono Metal Gear Solid 2,
 Final Fantasy X, Resident Evil 4, senza horror: il chimico ha migliaia di
@@ -536,4 +544,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v211`._
+_Guida aggiornata alla versione `bsi-v212`._

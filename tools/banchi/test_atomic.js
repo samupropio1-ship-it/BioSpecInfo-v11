@@ -623,6 +623,25 @@ function sopra(d, minimo, avuto) {
     out.stanzeVisibili = st.filter(s => s._g && s._g.visible).length;
     out.stanzeTotali = st.length;
     out.luci = 0; m.scena.traverse(o => { if (o.isLight) out.luci++; });
+    /* LA PRIMA PERSONA: di partenza, con le braccia in una scena loro */
+    out.visualePartenza = A.IMP.visuale;
+    const vi = m.vista;
+    out.vista = !!vi;
+    out.ditaVista = vi ? vi.ditaDx.length + 1 : 0;
+    let pezziVista = 0; if (m.scenaMani) m.scenaMani.traverse(o => { if (o.isMesh) pezziVista++; });
+    out.pezziVista = pezziVista;
+    out.camManiAspetto = m.camMani ? Math.abs(m.camMani.aspect - m.camera.aspect) < 0.01 : false;
+    A.stato().inMano = 'Cl';
+    await new Promise(r => setTimeout(r, 700));
+    out.inManoVista = m.animV.inMano;
+    A.spruzzo();
+    out.goccioline = m.animV.particelle.filter(q => q.vivo).length;
+    const ang0 = A.stato().ang, angY0 = A.stato().angY;
+    A.sguardo(100, 40);
+    out.sguardoGira = A.stato().ang < ang0 && A.stato().angY < angY0;
+    A.sguardo(0, 99999);
+    out.sguardoLimitato = A.stato().angY >= -1.1;
+    A.stato().angY = 0;
     /* i bagliori della PS2: sprite additivi su lampade, schermi, nuclei */
     out.aloni = 0; m.scena.traverse(o => { if (o.isSprite && o.userData.alone) out.aloni++; });
     /* il protagonista in alta: occhi modellati, cinque dita, testa fitta */
@@ -720,6 +739,16 @@ function sopra(d, minimo, avuto) {
   att('  · senza pixel quadrati', true, motore.nonPixelata);
   att('si disegnano solo la stanza e le vicine', true, motore.stanzeVisibili < motore.stanzeTotali);
   sopra('i bagliori (sprite additivi) su luci, schermi e nuclei', 5, motore.aloni);
+  console.log('\n── La prima persona ──');
+  att('si gioca in prima persona di partenza', 'prima', motore.visualePartenza);
+  att('  · con le braccia in una scena loro (non entrano nei muri)', true, motore.vista);
+  sopra('  · fatte di molti pezzi', 40, motore.pezziVista);
+  att('  · la mano destra ha cinque dita', 5, motore.ditaVista);
+  att('  · la telecamera delle braccia segue le proporzioni dello schermo', true, motore.camManiAspetto);
+  att('  · lo strumento mostra quello che hai in mano', 'Cl', motore.inManoVista);
+  sopra('  · e spruzzando escono le goccioline', 5, motore.goccioline);
+  att('lo sguardo si muove col mouse o col dito', true, motore.sguardoGira);
+  att('  · ma non oltre quanto gira una testa', true, motore.sguardoLimitato);
   att('il protagonista ha gli occhi modellati', 2, motore.occhiModellati);
   att('  · e le mani con cinque dita', 5, motore.dita);
   sopra('  · una testa fitta (triangoli)', 3000, motore.triTesta);
@@ -864,9 +893,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 150) {
+  if (eseguiti < 160) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 150');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 160');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
