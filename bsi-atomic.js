@@ -705,6 +705,23 @@
 
   function puoStare(x, z) { return liberoIn(x, z) || neiVani(x, z); }
 
+  function vistaLibera(x0, z0, x1, z1) {
+    var n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.2);
+    for (var i = 1; i <= n; i++) {
+      var f = i / n;
+      var x = x0 + (x1 - x0) * f, z = z0 + (z1 - z0) * f;
+      if (!liberoIn(x, z) && !neiVani(x, z) && !dentroStanza(x, z)) return false;
+    }
+    return true;
+  }
+  /* un punto dentro le mura di una stanza (anche sopra un arredo: la
+     telecamera sta in alto) e non nella fascia del muro */
+  function dentroStanza(x, z) {
+    var st = stanzaDi(x, z);
+    if (!st) return false;
+    return Math.abs(x - st.x) < st.larg / 2 - 0.4 && Math.abs(z - st.z) < st.prof / 2 - 0.4;
+  }
+
   /* ═════════════════════════════════════════════════════════════════════════
      IL PASSO DI GIOCO
      ═════════════════════════════════════════════════════════════════════════ */
@@ -857,21 +874,32 @@
     } else {
       if (mani) mani.visible = false;
       var d = 3.7, h = 2.15;
+      /* la telecamera non passa i muri: si controlla TUTTO il tragitto dal
+         chimico alla telecamera, non solo il punto d'arrivo — in un
+         corridoio stretto il punto d'arrivo può stare nella stanza accanto */
       var k = 1;
-      while (k > 0.3 && !puoStare(S.pos.x + Math.sin(S.ang) * d * k,
-                                  S.pos.z + Math.cos(S.ang) * d * k)) k -= 0.12;
+      while (k > 0.3 && !vistaLibera(S.pos.x, S.pos.z, S.pos.x + Math.sin(S.ang) * d * k,
+                                     S.pos.z + Math.cos(S.ang) * d * k)) k -= 0.12;
+      var dietroLibero = vistaLibera(S.pos.x, S.pos.z, S.pos.x + Math.sin(S.ang) * d * k,
+                                     S.pos.z + Math.cos(S.ang) * d * k);
+      /* spalle al muro: la telecamera sale sopra la testa e guarda avanti,
+         invece di finire dall'altra parte del muro */
+      if (!dietroLibero) { k = 0.05; h = 2.7; }
       var cx = S.pos.x + Math.sin(S.ang) * d * k;
       var cz = S.pos.z + Math.cos(S.ang) * d * k;
       var cy = S.pos.y + h;
       /* la telecamera insegue, non e' incollata: lo smorzamento e' quello
          che separa una ripresa da una telecamera di sorveglianza */
-      if (!camLiscia) camLiscia = { x: cx, y: cy, z: cz };
+      /* dopo un salto di posizione (un livello nuovo, un caricamento) la
+         telecamera non insegue da lontano: si riallinea */
+      if (!camLiscia || Math.hypot(camLiscia.x - cx, camLiscia.z - cz) > 6) camLiscia = { x: cx, y: cy, z: cz };
       var a = ps1() ? 1 : 0.14;
       camLiscia.x += (cx - camLiscia.x) * a;
       camLiscia.y += (cy - camLiscia.y) * a;
       camLiscia.z += (cz - camLiscia.z) * a;
       camera.position.set(camLiscia.x + sx, camLiscia.y + sy, camLiscia.z);
-      camera.lookAt(S.pos.x, S.pos.y + 1.2 + S.angY * 2, S.pos.z);
+      if (dietroLibero) camera.lookAt(S.pos.x, S.pos.y + 1.2 + S.angY * 2, S.pos.z);
+      else camera.lookAt(S.pos.x - Math.sin(S.ang) * 2.5, S.pos.y + 0.6, S.pos.z - Math.cos(S.ang) * 2.5);
     }
     if (luci && luci.faro) luci.faro.target.position.set(S.pos.x, 0, S.pos.z);
   }

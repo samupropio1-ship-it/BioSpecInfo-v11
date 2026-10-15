@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v209` |
-| Commit | `19533cc82d5a2278468dd10522f18853cd84055b` |
-| Generated (UTC) | `2026-10-15T07:03:06.730Z` |
+| Commit | `b5a356a0a5cf8497fc752085553bb0d84465c3a6` |
+| Generated (UTC) | `2026-10-15T13:46:59.945Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -86,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `b43f332280ab195807160bc2cc1cbd53812a82389d59b7e5347b2ecbb1d3961e` |
+| `index.html` | `cd6666855146376983097b36bcb0529b57514a76df3e3b02c4989ed7b25445d3` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -99,10 +99,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `e73ee05c261c6b476f5e2b719aa8c51a18d7d08f9133d62936940ae4cd97a6a3` |
+| `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `ad9e27ba515730734484975e86a637864ecdbd561ec385c65888bb7267380b10` |
+| `sw.js` | `32c2ab8a730214e9250ed285492f7c6149e76a0bcae84ba18bdb7c3c1c0f8be5` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-15T07:03:06.730Z._
+_Generated on 2026-10-15T13:46:59.945Z._

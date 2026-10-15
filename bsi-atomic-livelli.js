@@ -622,8 +622,12 @@
     stanze.forEach(function (st) { if (st.ruolo !== 'boss') arredaBordo(st); });
 
     /* il banco di sintesi: in una stanza del percorso, mai nell'arena */
+    /* il banco va nella sala piu' ampia del percorso: in un corridoio largo
+       sei metri un banco di tre ci sta, ma chi ci lavora no */
     var conBanco = stanze.filter(function (s) {
-      return (s.ruolo === 'percorso' || s.ruolo === 'partenza') && s.larg >= 10 && s.prof >= 10;
+      return s.ruolo === 'percorso' || s.ruolo === 'partenza' || s.ruolo === 'laterale';
+    }).sort(function (a, b) {
+      return Math.min(b.larg, b.prof) - Math.min(a.larg, a.prof) || (a.id < b.id ? -1 : 1);
     })[0] || stanze[0];
     metti(conBanco, { tipo: 'banco', ruota: 0 }, 2.2);
 

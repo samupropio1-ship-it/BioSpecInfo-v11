@@ -701,8 +701,9 @@ function sopra(d, minimo, avuto) {
     let n = 0;
     const orig = window.requestAnimationFrame;
     window.requestAnimationFrame = function (f) { n++; return orig(f); };
-    /* il rendering software del banco è lento: si conta su un secondo e mezzo */
-    await new Promise(r => setTimeout(r, 1500));
+    /* il rendering software del banco (SwiftShader, senza GPU) fa pochi
+       fotogrammi al secondo con le ombre: si conta su tre secondi */
+    await new Promise(r => setTimeout(r, 3000));
     const conVista = n;
     /* si chiude la sezione: il ciclo deve fermarsi da sé */
     const altra = document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])');
