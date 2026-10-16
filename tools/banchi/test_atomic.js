@@ -679,9 +679,16 @@ function sopra(d, minimo, avuto) {
       for (let i = 0; i < 30; i++) await fr();
       m.animV.cambio = 1; await fr(); await fr(); out.fpEquip = !!R.colpi.Equip;
       const z0 = R.base.position.z; A.spruzzo(); await fr(); await fr(); out.fpRinculo = R.base.position.z > z0 + 0.005;
+      /* le dita robotiche sono articolate: cinque dita con i loro perni, e
+         prendere le chiude */
+      out.fpDitaRobot = R.robotDita ? Object.keys(R.robotDita).length : 0;
+      const piega = () => R.robotDita.medio.perni[1].quaternion.angleTo(new T.Quaternion());
+      const p0 = piega();
       /* la mano robotica segue il braccio sinistro */
       const r0 = w(R.robot.children[0]).clone(); m.animV.prendi = 1; for (let i = 0; i < 8; i++) await fr();
       out.fpRobotSegue = w(R.robot.children[0]).distanceTo(r0) > 0.003;
+      for (let i = 0; i < 10; i++) await fr();
+      out.fpDitaChiudono = piega() > p0 + 0.3;
       for (let i = 0; i < 40; i++) await fr();
       out.fpPost = !!(m.post && m.post.rt);
     }
@@ -856,6 +863,8 @@ function sopra(d, minimo, avuto) {
   att('  · cambiando strumento parte Equip', true, motore.fpEquip);
   att('  · spruzzando le braccia rinculano', true, motore.fpRinculo);
   att('  · la mano robotica segue il braccio', true, motore.fpRobotSegue);
+  att('  · con le cinque dita articolate', 5, motore.fpDitaRobot);
+  att('  · che si chiudono per prendere', true, motore.fpDitaChiudono);
   att('  · col potere il palmo sinistro guarda in su', true, motore.fpPalmoSu > 0.4);
   att('  · sopra il palmo la sfera del nucleo', true, motore.fpNucleo);
   att('  · del colore dell’elemento (il sodio è giallo)', true, motore.fpColoreNa);
@@ -1060,9 +1069,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 205) {
+  if (eseguiti < 207) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 205');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 207');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

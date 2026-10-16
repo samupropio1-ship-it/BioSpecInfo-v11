@@ -1761,7 +1761,7 @@
          alone, e una chioma di filamenti che escono, si avvolgono e si
          spengono — vivi, ricalcolati a ogni fotogramma */
       var nucleo = new T.Group();
-      nucleo.position.set(0, -0.06, 0);
+      nucleo.position.set(0, -0.085, 0);
       nucleo.visible = false;
       aura.add(nucleo);
       var cvV = nuovaTela(256, 256), qV = cvV.getContext('2d');
@@ -1812,7 +1812,7 @@
         nucleo.visible = f > 0.05;
         if (!nucleo.visible) return;
         var pulsa = 1 + Math.sin(ora * 5.3) * 0.05 + Math.sin(ora * 13.1) * 0.02;
-        nucleo.scale.setScalar((0.55 + 0.45 * f) * pulsa);
+        nucleo.scale.setScalar((0.55 + 0.45 * Math.min(f, 1.25)) * pulsa);
         cuore.rotation.set(ora * 0.4, ora * 0.62, ora * 0.21);
         guscio.rotation.copy(cuore.rotation);
         aloneN.material.opacity = 0.32 * f; aloneN2.material.opacity = 0.22 * f;
@@ -2450,11 +2450,11 @@
          si disfa: granelli di stoffa che si staccano dalla superficie
          dell'avambraccio e volano via verso il gomito, e in mezzo scintille
          azzurre. Le particelle vivono nel mondo delle braccia */
-      var NP = 700, polvere = { pos: new Float32Array(NP * 3), col: new Float32Array(NP * 3), vel: [], vita: new Float32Array(NP) };
+      var NP = 900, polvere = { pos: new Float32Array(NP * 3), col: new Float32Array(NP * 3), vel: [], vita: new Float32Array(NP) };
       var gP = new T.BufferGeometry();
       gP.setAttribute('position', new T.BufferAttribute(polvere.pos, 3));
       gP.setAttribute('color', new T.BufferAttribute(polvere.col, 3));
-      var granelli = new T.Points(gP, new T.PointsMaterial({ size: 0.006, map: puntoTondo(), alphaTest: 0.05, vertexColors: true, transparent: true, depthWrite: false }));
+      var granelli = new T.Points(gP, new T.PointsMaterial({ size: 0.0042, map: puntoTondo(), alphaTest: 0.05, vertexColors: true, transparent: true, depthWrite: false }));
       granelli.frustumCulled = false; vista.gruppo.add(granelli);
       var NS = 120, sPos = new Float32Array(NS * 3), sCol = new Float32Array(NS * 3), sVel = [], sVita = new Float32Array(NS);
       var gS = new T.BufferGeometry();
@@ -2471,7 +2471,7 @@
         avb.getWorldPosition(vA2); mano.getWorldPosition(vB2);
         var t = Math.pow(Math.random(), 0.7);                 /* piu' verso il gomito */
         vR.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-        pos.set(vB2.x + (vA2.x - vB2.x) * t, vB2.y + (vA2.y - vB2.y) * t, vB2.z + (vA2.z - vB2.z) * t).addScaledVector(vR, 0.03 + Math.random() * 0.012);
+        pos.set(vB2.x + (vA2.x - vB2.x) * t, vB2.y + (vA2.y - vB2.y) * t, vB2.z + (vA2.z - vB2.z) * t).addScaledVector(vR, 0.034 + Math.random() * 0.006);
         vel.copy(vA2).sub(vB2).normalize().multiplyScalar(0.015 + Math.random() * 0.05).addScaledVector(vR, 0.012 + Math.random() * 0.02);
         vel.y += 0.008 + Math.random() * 0.015;
       }
@@ -2484,9 +2484,12 @@
             if (Math.random() < al * 0.9) {
               nasce(i, p3, polvere.vel[i], al);
               polvere.pos[i * 3] = p3.x; polvere.pos[i * 3 + 1] = p3.y; polvere.pos[i * 3 + 2] = p3.z;
-              polvere.vita[i] = 0.6 + Math.random() * 1.1;
-              var tono = 0.12 + Math.random() * 0.3, blu = Math.random() < 0.3;
-              polvere.col[i * 3] = blu ? 0.08 : tono * 1.1; polvere.col[i * 3 + 1] = blu ? 0.2 : tono * 0.85; polvere.col[i * 3 + 2] = blu ? 0.45 : tono * 0.7;
+              polvere.vita[i] = 0.35 + Math.random() * 0.6;
+              var tipo = Math.random(), tono = 0.7 + Math.random() * 0.25;
+              /* stoffa del camice, qualche grumo scuro, qualche scheggia azzurra */
+              if (tipo < 0.6) { polvere.col[i * 3] = tono; polvere.col[i * 3 + 1] = tono; polvere.col[i * 3 + 2] = tono * 0.97; }
+              else if (tipo < 0.85) { polvere.col[i * 3] = 0.16; polvere.col[i * 3 + 1] = 0.14; polvere.col[i * 3 + 2] = 0.13; }
+              else { polvere.col[i * 3] = 0.25; polvere.col[i * 3 + 1] = 0.6; polvere.col[i * 3 + 2] = 0.95; }
             } else { polvere.pos[i * 3 + 1] = -99; continue; }
           }
           polvere.vita[i] -= dt;
@@ -2607,6 +2610,13 @@
                                                                  side: T.DoubleSide, envMapIntensity: 1.1 });
         o.material = nuovo;
       });
+      /* LE ARTICOLAZIONI. Il modello e' fatto di pezzi rigidi: per ogni dito
+         i cilindri sono i giunti e i blocchi le falangi. Si mette un perno
+         su ogni giunto e ogni falange dentro il perno del suo giunto, con il
+         resto del dito dentro: piegando un perno si piega tutto quello che
+         viene dopo, come in una mano vera (o in una protesi). Si fa prima di
+         montare la mano, quando la scena del modello e' il mondo */
+      R.robotDita = articolaRobot(sc);
       var interno = new T.Group();
       interno.add(sc);
       interno.scale.set(1, 1, -1);                     /* specchio: la destra diventa sinistra */
@@ -2634,6 +2644,7 @@
       cont.matrixAutoUpdate = false;
       cont.add(interno);
       vista.gruppo.add(cont);
+
       /* l'offset rispetto all'osso: fisso */
       cont.userData.offset = new T.Matrix4().copy(R.manoSx.matrixWorld).invert().multiply(mondo);
       cont.matrix.copy(mondo);
@@ -2641,6 +2652,58 @@
       R.robotPalmo = new T.Vector3(ROBOT.palmo[0], ROBOT.palmo[1], ROBOT.palmo[2]);
       return true;
     }
+    var DITA_ROBOT = {
+      indice:  { giunti: ['Cylinder008', 'Cylinder006', 'Cylinder007'], falangi: ['Cube026', 'Cube027', 'Cube028'] },
+      medio:   { giunti: ['Cylinder009', 'Cylinder011', 'Cylinder010'], falangi: ['Cube031', 'Cube030', 'Cube029'] },
+      anulare: { giunti: ['Cylinder012', 'Cylinder014', 'Cylinder013'], falangi: ['Cube034', 'Cube033', 'Cube032'] },
+      mignolo: { giunti: ['Cylinder017', 'Cylinder015', 'Cylinder016'], falangi: ['Cube035', 'Cube036', 'Cube037'] },
+      pollice: { giunti: ['Cylinder004', 'Cylinder005'], falangi: ['Cube018', 'Cube019'] }
+    };
+    /* quanto si piega ogni giunto a dito chiuso (radianti): la prima
+       falange meno, la seconda di piu', la punta il giusto */
+    var CURVA_ROBOT = { dito: [1.05, 1.35, 0.85], pollice: [0.75, 0.9] };
+    function articolaRobot(sc) {
+      sc.updateMatrixWorld(true);
+      var per = function (n) { return sc.getObjectByName(n); };
+      var centro = function (o) { return new T.Box3().setFromObject(o).getCenter(new T.Vector3()); };
+      var palmoC = centro(per('Cube014'));
+      var dita = {};
+      Object.keys(DITA_ROBOT).forEach(function (k) {
+        var d = DITA_ROBOT[k], gi = d.giunti.map(per), fa = d.falangi.map(per);
+        if (gi.some(function (x) { return !x; }) || fa.some(function (x) { return !x; })) return;
+        var padre = gi[0].parent, perni = [];
+        /* l'asse di piega: perpendicolare al dito e alla normale del palmo
+           (il palmo guarda verso -y nel modello) */
+        var base = centro(gi[0]), punta = centro(fa[fa.length - 1]);
+        var dir = punta.clone().sub(base).normalize();
+        var verso = k === 'pollice' ? palmoC.clone().sub(base).normalize() : new T.Vector3(0, -1, 0);
+        var asse = new T.Vector3().crossVectors(dir, verso).normalize();
+        var cont = padre;
+        gi.forEach(function (g, i) {
+          var pv = new T.Group();
+          cont.updateMatrixWorld(true);
+          pv.position.copy(cont.worldToLocal(centro(g)));
+          cont.add(pv);
+          pv.updateMatrixWorld(true);
+          if (i > 0) pv.attach(g);              /* il giunto di base resta sul palmo */
+          pv.attach(fa[i]);
+          perni.push(pv);
+          cont = pv;
+        });
+        dita[k] = { perni: perni, asse: asse.applyQuaternion(padre.getWorldQuaternion(new T.Quaternion()).invert()).normalize(),
+                    curva: k === 'pollice' ? CURVA_ROBOT.pollice : CURVA_ROBOT.dito };
+      });
+      return dita;
+    }
+    /* piegare le dita: per ogni dito un peso, 0 dritto, 1 chiuso */
+    function pieghaRobot(R, pesi) {
+      if (!R || !R.robotDita) return;
+      Object.keys(R.robotDita).forEach(function (k) {
+        var d = R.robotDita[k], w = pesi[k] != null ? pesi[k] : 0;
+        d.perni.forEach(function (pv, i) { pv.quaternion.setFromAxisAngle(d.asse, d.curva[i] * w); });
+      });
+    }
+    api.pieghaRobot = pieghaRobot;
     /* il palmo da usare per il potere: quello della mano robotica, se c'e' */
     function palmoSx(R, pos, norm) {
       if (R.robot) {

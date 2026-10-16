@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 10 (bsi-v217): le braccia del rig con le loro animazioni, la mano sinistra robotica e la sfera dell'elemento; prima, la passata «PS2 seria» e le mani con l'inerzia — sempre sulla trama del Protocollo 12.
+> Versione 11 (bsi-v218): la mano robotica con le dita articolate, la sfera più alta sul palmo, la manica che si sgretola in granelli fini; nella versione 10 le braccia del rig con le loro animazioni, la mano robotica e la sfera dell'elemento — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -135,7 +135,12 @@ la partita, e sono la cosa più curata del gioco.
   da guardia a impugnatura (indice sopra, mignolo sotto), le dita si chiudono
   a cilindro e durante Inspect il polso cede per guardarla. A sinistra c'e'
   la **mano robotica** di SeanNicolas, specchiata e agganciata all'osso
-  della mano. Col potere il palmo si gira in su, sopra si accende la **sfera
+  della mano. Dalla v218 le sue dita sono **articolate**: il modello e'
+  fatto di pezzi rigidi, e su ogni giunto (i cilindri) c'e' un perno con
+  dentro la falange e il resto del dito, cosi' che piegare un giunto pieghi
+  tutto quello che viene dopo; ogni dito segue la sua molla — appena piegato
+  e vivo a riposo, aperto poi chiuso per prendere, aperto e ondeggiante col
+  potere, aperto di scatto nel lancio, un po' chiuso correndo. Col potere il palmo si gira in su, sopra si accende la **sfera
   dell'elemento** — un icosaedro di luce venata col guscio di spigoli, gli
   aloni e settantadue filamenti che escono e si avvolgono, tutto del colore
   dell'elemento (giallo il sodio, verde il cloro, rosa l'ossigeno) — e la

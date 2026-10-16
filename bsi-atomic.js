@@ -1108,6 +1108,22 @@
     if (animV.fermoDa && ora - animV.fermoDa > 8 && !R.colpi.Inspect) { R.colpo('Inspect', 1); animV.fermoDa = ora + 4; }
     R.aggiorna({ dt: dt, ora: ora, vel: Math.min(1, vel / 0.05), corsa: vel > 0.07, potere: al,
                  prendi: animV.prendi > 0 ? 1 - animV.prendi : -1 });
+    /* le dita della mano robotica: a riposo appena piegate e vive; per
+       prendere si aprono, si chiudono sull'oggetto e lasciano; col potere
+       si aprono e ondeggiano una dopo l'altra; nel lancio scattano aperte;
+       correndo si chiudono un po'. Ogni dito ha la sua molla */
+    if (R.robotDita) {
+      var u = animV.prendi > 0 ? 1 - animV.prendi : -1, la = Math.sin(Math.min(1, animV.lancio || 0) * Math.PI);
+      var b = {}, svelto = null;
+      DITA5.forEach(function (d, i) {
+        var x = 0.22 + i * 0.035 + Math.sin(ora * (1.1 + i * 0.37) + i * 1.7) * 0.03 + (vel > 0.07 ? 0.25 : 0);
+        if (al > 0.05) x = x * (1 - al) + al * (0.04 + 0.12 * (0.5 + 0.5 * Math.sin(ora * 2.4 - i * 0.8)));
+        if (u >= 0) x = u < 0.3 ? -0.12 : u < 0.75 ? (i === 0 ? 0.55 : 0.85) : x;
+        if (la > 0.05) { x = x * (1 - la) - 0.15 * la; svelto = { pollice: 3, indice: 3, medio: 3, anulare: 3, mignolo: 3 }; }
+        b[d] = x;
+      });
+      G.pieghaRobot(R, molle('robot', b, dt, svelto));
+    }
     /* lo sguardo e il rinculo */
     R.base.rotation.set(animV.swayY * 0.6 + animV.rinculo * 0.05, animV.swayX * 0.9, animV.swayX * 0.4);
     R.base.position.set(animV.swayX * 0.25, -animV.atterra * 0.03, animV.rinculo * 0.025);

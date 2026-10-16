@@ -7,6 +7,29 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v218] — 2026-10-16
+
+**La mano robotica si muove — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Dita robotiche articolate**: un perno su ogni giunto del modello, la
+  falange e il resto del dito dentro; ogni dito segue una molla con
+  l'inerzia. A riposo appena piegate e vive, per prendere si aprono e si
+  chiudono, col potere si aprono e ondeggiano, nel lancio scattano aperte,
+  correndo si chiudono un po'.
+
+### Migliorato
+- La sfera dell'elemento sta più alta sul palmo (si vede la mano sotto) e
+  nel lancio non si gonfia oltre misura.
+- La manica che si sgretola: granelli più fini e più fitti, aderenti al
+  braccio, di stoffa bianca con grumi scuri e schegge azzurre (non più
+  coriandoli sparsi).
+
+### Banco
+- `test_atomic`: 207 controlli — le cinque dita articolate e la loro chiusura
+  per prendere.
+
+---
 ## [bsi-v217] — 2026-10-16
 
 **Braccia animate, mano robotica e la sfera dell'elemento — ATOMIC PROTOCOL**
