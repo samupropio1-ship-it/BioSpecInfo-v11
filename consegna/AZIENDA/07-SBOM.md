@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v219` |
-| Commit | `f39b42c40e242c612ebe7b49de358472e86de9dc` |
-| Generato (UTC) | `2026-10-16T09:20:55.159Z` |
+| Versione applicazione | `bsi-v220` |
+| Commit | `784d87bfb90ba5015cc3136b419f5447d5cb7145` |
+| Generato (UTC) | `2026-10-16T12:22:25.158Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -28,6 +28,7 @@ la dipendenza dalla disponibilità di terzi.
 | **RDKit MinimalLib (WebAssembly)**<br><sub>RDKit / Greg Landrum</sub> | `RDKit_minimal.wasm` | BSD-3-Clause | 6753 kB | Binario WebAssembly del motore chemioinformatico. |
 | **three.js**<br><sub>mrdoob e collaboratori</sub> | `three.min.js` | MIT | 589 kB | Motore di rendering WebGL per le scene 3D. |
 | **three.js — UnrealBloomPass**<br><sub>mrdoob e collaboratori</sub> | `three_bloom.js` | MIT | 25 kB | Effetto di post-produzione per le visualizzazioni astronomiche. |
+| **three.js — SkeletonUtils**<br><sub>mrdoob e collaboratori</sub> | `skeleton_utils.js` | MIT | 12 kB | Copie dei nemici animati con il loro scheletro (ATOMIC PROTOCOL). |
 | **three.js — GLTFLoader**<br><sub>mrdoob e collaboratori</sub> | `gltf_loader.js` | MIT | 94 kB | Caricamento dei modelli anatomici e molecolari in formato glTF. |
 | **3Dmol.js**<br><sub>University of Pittsburgh / David Koes</sub> | `3Dmol-min.js` | BSD-3-Clause | 502 kB | Visualizzazione molecolare 3D (PDB, SDF, superfici). |
 | **SmilesDrawer**<br><sub>Daniel Probst</sub> | `smiles-drawer.min.js` | MIT | 246 kB | Disegno 2D delle strutture a partire da SMILES. |
@@ -45,6 +46,13 @@ la dipendenza dalla disponibilità di terzi.
 | **Overgrown Laboratory (adattato)**<br><sub>MichalTroye (Sketchfab)</sub> | `models/mappe/overgrown.glb` | CC-BY-4.0 | 6227 kB | ATOMIC PROTOCOL — laboratorio (ali 5, 10). |
 | **Quantum_Laboratory_X_Alpha (adattato)**<br><sub>-X-ScornGames (Sketchfab)</sub> | `models/mappe/reattore.glb` | CC-BY-4.0 | 3269 kB | ATOMIC PROTOCOL — apparecchio (il reattore). |
 | **Sci Fi lab (adattato)**<br><sub>IrisProcess (Sketchfab)</sub> | `models/mappe/capsula.glb` | CC-BY-4.0 | 6548 kB | ATOMIC PROTOCOL — apparecchio (la capsula). |
+| **Worm Monster (adattato)**<br><sub>CR!STALLL (Sketchfab)</sub> | `models/nemici/verme.glb` | CC-BY-4.0 | 626 kB | ATOMIC PROTOCOL — nemico: il verme di scarico. |
+| **Scary Monster (adattato)**<br><sub>L. (Sketchfab)</sub> | `models/nemici/curvo.glb` | LicenseRef-Sketchfab-Standard | 1145 kB | ATOMIC PROTOCOL — nemico: il rampicante. |
+| **SWAMP MONSTER (adattato)**<br><sub>alexalbinyana (Sketchfab)</sub> | `models/nemici/palude.glb` | CC-BY-4.0 | 1803 kB | ATOMIC PROTOCOL — nemico: la fanghiglia. |
+| **The Human Deer (adattato)**<br><sub>ceeleste (Sketchfab)</sub> | `models/nemici/cervo.glb` | CC-BY-4.0 | 6854 kB | ATOMIC PROTOCOL — nemico: il cervo. |
+| **6- Stylized- Monster (adattato)**<br><sub>Lex Wild (Sketchfab)</sub> | `models/nemici/abissale.glb` | CC-BY-4.0 | 3470 kB | ATOMIC PROTOCOL — nemico: l’abissale. |
+| **Monster (adattato)**<br><sub>itszyx123456789 (Sketchfab)</sub> | `models/nemici/mostro.glb` | CC-BY-4.0 | 2108 kB | ATOMIC PROTOCOL — nemico: il cristallino. |
+| **CREATURE MONSTER 3D BY Oscar Creativo (adattato)**<br><sub>OSCAR CREATIVO (Sketchfab)</sub> | `models/nemici/bruto.glb` | CC-BY-4.0 | 5305 kB | ATOMIC PROTOCOL — nemico: il bruto. |
 | **hands animation (modello 3D, adattato)**<br><sub>hugo colauto (Sketchfab)</sub> | `models/mani-atomic.glb` | LicenseRef-Sketchfab-Standard | 2059 kB | Le mani della prima persona, con lo scheletro e l'animazione da cui il gioco ricava le pose. |
 | **Modern Scientist in a Lab Coat (ritaglio)**<br><sub>restore50 (Sketchfab)</sub> | `models/manica-atomic.glb` | CC-BY-4.0 | 275 kB | La manica del camice della prima persona, ritagliata dalla scansione. |
 | **Capsule Gun (modello 3D)**<br><sub>sc8di (Sketchfab)</sub> | `models/pistola-atomic.glb` | CC-BY-4.0 | 1366 kB | La pistola a capsula impugnata nella prima persona. |
@@ -57,6 +65,7 @@ la dipendenza dalla disponibilità di terzi.
 | `RDKit_minimal.wasm` | `e0967d44fed59e44a2d07bfc08f3a86821c54a14c95bb7e6e392fe867333b8c8` |
 | `three.min.js` | `9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2` |
 | `three_bloom.js` | `42e0ff40b00ea1ba4fe53baeb3726834a3ac3db46e9cfb80856baebf01611090` |
+| `skeleton_utils.js` | `cc2e2e1a3183ab55169d185565f86f43f80c6dfafe73610d991e741ea990ac1a` |
 | `gltf_loader.js` | `5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6` |
 | `3Dmol-min.js` | `06b6d2fc7d418e8bef62a32cca44373ff21b2b787bd377613dd4039394a4e9ff` |
 | `smiles-drawer.min.js` | `955285fac52a7017b3c3658e2cb84bef7f1f76732f3f7cd565d1bb0903232dc2` |
@@ -74,6 +83,13 @@ la dipendenza dalla disponibilità di terzi.
 | `models/mappe/overgrown.glb` | `c521f06e1da35eda66d585a0e6ab5b87a4da504d4b4fb09048518bf11683f403` |
 | `models/mappe/reattore.glb` | `58f200ac13b072d40ee45bdd6c725ddd06591502e53825d60699862fc79a3e01` |
 | `models/mappe/capsula.glb` | `be1ae03a8aa0c8cd160d517620985f83a515a2f05fc3d062aab4303496befb02` |
+| `models/nemici/verme.glb` | `4b35e41fd47e554733f593f671b35b51765367ef2f7522bda4316ddef0ee02d8` |
+| `models/nemici/curvo.glb` | `a1fb198ba5806fd97feb45ec4ca5d42a065420ce2bdb0c331699609845218577` |
+| `models/nemici/palude.glb` | `83668a9192e57d1183f9086ac974b4e87af8ecdc57b57c13015ec90d2f5da533` |
+| `models/nemici/cervo.glb` | `ecece2366754baf17c400ac4265d65ad7daa166a40fc911eece6d3641403291d` |
+| `models/nemici/abissale.glb` | `81b701fba1f0a59ce10f57c45128b172aeb1d6f759a51b9b6903f548c14eee2e` |
+| `models/nemici/mostro.glb` | `c669349d5562013e251a76fdb48d0e180e3f997e95c07d1064c8697368d0d4e3` |
+| `models/nemici/bruto.glb` | `a995a10428f05dd0074570980a72c9a5f04606deb90a58382a8f3e5e3d301ae1` |
 | `models/mani-atomic.glb` | `d27b4ea1689e677e9406944abaecd95d524ca7693b2e4b62aec6c906f46ece56` |
 | `models/manica-atomic.glb` | `0034162e3fc772d3afb11c2df1a66222ae681ad7f404bcec59977d6557f14b98` |
 | `models/pistola-atomic.glb` | `4e109a4ab7e2794b139a5c9414151b376b7a237baab5d9f183f98d8e9ac65f7f` |
@@ -110,7 +126,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3d93251f7fb81768e8872911364e14e5861566ba8c9b03cd513258df784cbe4b` |
+| `index.html` | `50c39157bfb20a753ca2de6535259b8e3ca88b7a8beb0d2e21b969aa1b55f6c8` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -126,7 +142,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `469c7fa90d6a603b3b8f50e83d8bfa82033808d2c0776adf1e2303c1c5a550b8` |
+| `sw.js` | `1cc20757acb2497ff8dcbc6d7aee7aec8089a2d48c1fecb98136cb23b6d1a0d4` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -179,4 +195,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-16T09:20:55.159Z._
+_Generato il 2026-10-16T12:22:25.158Z._

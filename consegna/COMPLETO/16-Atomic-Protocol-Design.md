@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 12 (bsi-v219): i laboratori percorribili dalle mappe fornite, la sinistra robotica vera sinistra e le dita guidate dalle animazioni; nella versione 11 la mano robotica articolata — sempre sulla trama del Protocollo 12.
+> Versione 13 (bsi-v220): il combattimento — tre specie di nemici, la pistola, i poteri per famiglia di elementi con l'energia e la barra di scelta — la fluidità (inerzia e interpolazione), lo zoom e lo schermo intero; nella versione 12 i laboratori dalle mappe — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -146,6 +146,51 @@ la partita, e sono la cosa più curata del gioco.
   dell'elemento (giallo il sodio, verde il cloro, rosa l'ossigeno) — e la
   manica si sgretola: granelli scuri e azzurri che si staccano verso il
   gomito, con scintille.
+* **Le creature** (dalla v220): i nemici sono i modelli forniti dall'utente
+  (models/nemici, crediti in models/CREDITS.md): il **verme** di scarico
+  (con le sue clip: riposo, passo, corsa, attacco, ferito, morte), il
+  **rampicante** (salta addosso), la **fanghiglia** (sputa acido in
+  parabola), il **cervo** (con la sua clip), l'**abissale** (fluttua e lancia
+  tre sfere a ventaglio), il **cristallino** (con la sua clip: si carica e
+  travolge) e il **bruto** (in T-pose nel modello: le braccia si abbassano
+  sulla geometria al caricamento). Una nuova per ala. Ognuna ha il suo
+  colore (occhi, colpi, schegge), il suo modo di attaccare e il suo punto
+  debole. Gli attacchi hanno tre tempi: avvicinamento, carica (il corpo si
+  tira indietro, gli occhi si accendono) e colpo, che ferisce solo se il
+  giocatore e' ancora a portata: si schivano. Dove il modello non ha clip
+  il gioco anima il corpo (respiro, ondeggiare del passo, carica e affondo,
+  il contraccolpo quando e' colpito, la caduta). Le copie dei modelli con lo
+  scheletro usano SkeletonUtils; l'altezza si misura nella posa vera, non
+  in quella di legame (per il cristallino e' sdraiata). Il pugno della mano
+  robotica (il jab del rig) ferisce e respinge. «monster_eye» non e' nel
+  gioco: la sua licenza (CC-BY-ND) non permette versioni modificate.
+* **Il combattimento** (dalla v220): i livelli hanno nemici da abbattere,
+  da tre a quattordici, in tre specie che arrivano un'ala dopo l'altra —
+  il **residuo** (solvente: lo distruggono gli ossidanti e il fuoco;
+  striscia e scatta da vicino), la **sentinella** (drone a sfera con
+  l'anello che gira e la lente che si accende: tiene la distanza, gira
+  intorno e spara cariche lente che si schivano; la mandano in corto le
+  scariche), l'**automa** (robot di servizio a botte su zampe a pistone:
+  cammina, si carica con la feritoia che lampeggia e scatta; lo corrodono
+  gli acidi e lo blocca il gelo). La **pistola** spara sempre (danno 1, con
+  un composto 2 e doppio sul nemico che lo teme; una dose per colpo a
+  segno), il raggio parte dalla telecamera e si ferma ai muri. I **poteri**
+  sono uno per famiglia: scarica a catena su tre bersagli che stordisce,
+  palla di fuoco che esplode, nube tossica che resta o di gelo che
+  rallenta, onda d'urto che respinge, scudo, fissione; costano energia, che
+  si ricarica (e torna abbattendo). La barra in basso mostra gli elementi
+  raccolti, il numero e il colore; abbattere a volte rende una tacca di
+  salute. Gli effetti — particelle additive, la luce del lampo (una sola,
+  che si sposta: il numero delle luci non cambia), lo scossone, i numeri
+  dei danni, il mirino che si apre sul colpo — fanno sentire ogni colpo.
+* **La fluidita'** (dalla v220): la velocita' insegue quella voluta (si
+  accelera e si frena in un attimo, piu' svelti a terra che in aria, in
+  diagonale non si va piu' veloci, mirando si va piano); il gioco avanza a
+  passi fissi di 1/60 s ma si disegna interpolando fra l'ultimo passo e
+  quello prima, cosi' a 90, 120 o 144 Hz non scatta. Lo **zoom** stringe il
+  campo visivo con una curva morbida, abbassa le braccia e rende lo
+  sguardo piu' preciso; lo **schermo intero** usa l'API del browser (e
+  blocca il telefono in orizzontale dove si puo').
 * **I laboratori** (dalla v219): le mappe che l'utente ha fornito diventano
   luoghi del gioco. Small Lab, Sci-fi lab, Flynn's Secret Lab, il laboratorio
   sotterraneo e Overgrown Laboratory sono i laboratori delle dieci ali, a

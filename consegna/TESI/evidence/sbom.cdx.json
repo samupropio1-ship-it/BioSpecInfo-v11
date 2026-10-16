@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-16T09:20:55.159Z",
+    "timestamp": "2026-10-16T12:22:25.158Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v219",
+      "version": "bsi-v220",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "f39b42c40e242c612ebe7b49de358472e86de9dc"
+        "value": "784d87bfb90ba5015cc3136b419f5447d5cb7145"
       }
     ]
   },
@@ -122,6 +122,31 @@
         {
           "alg": "SHA-256",
           "content": "42e0ff40b00ea1ba4fe53baeb3726834a3ac3db46e9cfb80856baebf01611090"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "three.js — SkeletonUtils",
+      "publisher": "mrdoob e collaboratori",
+      "description": "Copie dei nemici animati con il loro scheletro (ATOMIC PROTOCOL).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://threejs.org"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cc2e2e1a3183ab55169d185565f86f43f80c6dfafe73610d991e741ea990ac1a"
         }
       ]
     },
@@ -547,6 +572,181 @@
         {
           "alg": "SHA-256",
           "content": "be1ae03a8aa0c8cd160d517620985f83a515a2f05fc3d062aab4303496befb02"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Worm Monster (adattato)",
+      "publisher": "CR!STALLL (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: il verme di scarico.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/worm-monster-5563066315694125b741901681d387c5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4b35e41fd47e554733f593f671b35b51765367ef2f7522bda4316ddef0ee02d8"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Scary Monster (adattato)",
+      "publisher": "L. (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: il rampicante.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/scary-monster-8da390cb461848e3bbb404e125a17186"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "LicenseRef-Sketchfab-Standard"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a1fb198ba5806fd97feb45ec4ca5d42a065420ce2bdb0c331699609845218577"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "SWAMP MONSTER (adattato)",
+      "publisher": "alexalbinyana (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: la fanghiglia.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/swamp-monster-6dab8cb402864d9c842d52e4dded1bdf"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "83668a9192e57d1183f9086ac974b4e87af8ecdc57b57c13015ec90d2f5da533"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "The Human Deer (adattato)",
+      "publisher": "ceeleste (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: il cervo.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/the-human-deer-7644694337404bb18eb68e6b637740a1"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ecece2366754baf17c400ac4265d65ad7daa166a40fc911eece6d3641403291d"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "6- Stylized- Monster (adattato)",
+      "publisher": "Lex Wild (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: l’abissale.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/6-stylized-monster-f0aa9258214844a1b6690c03ec473f78"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "81b701fba1f0a59ce10f57c45128b172aeb1d6f759a51b9b6903f548c14eee2e"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Monster (adattato)",
+      "publisher": "itszyx123456789 (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: il cristallino.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/monster-6aaab68784f84f5fbc12aaf2bf92d730"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c669349d5562013e251a76fdb48d0e180e3f997e95c07d1064c8697368d0d4e3"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "CREATURE MONSTER 3D BY Oscar Creativo (adattato)",
+      "publisher": "OSCAR CREATIVO (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — nemico: il bruto.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/creature-monster-3d-by-oscar-creativo-03bff460ebdc4103b42a14d56131db78"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a995a10428f05dd0074570980a72c9a5f04606deb90a58382a8f3e5e3d301ae1"
         }
       ]
     },

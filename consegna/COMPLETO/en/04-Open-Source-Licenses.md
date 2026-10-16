@@ -43,6 +43,14 @@ used, so there are no obligations to redistribute the proprietary code.
 | `models/mappe/overgrown.glb` | Overgrown Laboratory | MichalTroye (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 | `models/mappe/reattore.glb` | Quantum_Laboratory_X_Alpha | -X-ScornGames (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 | `models/mappe/capsula.glb` | Sci Fi lab | IrisProcess (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/verme.glb` | Worm Monster | CR!STALLL (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/curvo.glb` | Scary Monster | L. (Sketchfab) | Sketchfab Standard | use within the work, like the hands |
+| `models/nemici/palude.glb` | SWAMP MONSTER | alexalbinyana (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/cervo.glb` | The Human Deer | ceeleste (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/abissale.glb` | 6- Stylized- Monster | Lex Wild (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/mostro.glb` | Monster | itszyx123456789 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/nemici/bruto.glb` | CREATURE MONSTER 3D BY Oscar Creativo | OSCAR CREATIVO (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `skeleton_utils.js` | three.js SkeletonUtils r128 | mrdoob e collaboratori | MIT | avviso di licenza (three.js) |
 | `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 
 The derivatives are produced by `tools/prepara-modelli.js`; the entries with their SHA-256 digests are in the SBOM (`docs/07`).
