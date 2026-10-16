@@ -29,7 +29,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   specchio della destra, con le sue animazioni (tolta la mano robotica).
 
 ### Banco
-- `test_atomic`: 278 controlli — 300 livelli, trenta guardiani, salvataggi,
+- `test_atomic`: 280 controlli — 300 livelli, trenta guardiani, salvataggi,
   varianti, élite, ripartenza, mani uguali.
 
 ---

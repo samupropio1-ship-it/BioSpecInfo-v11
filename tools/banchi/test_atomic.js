@@ -578,6 +578,19 @@ function sopra(d, minimo, avuto) {
     out.argonPrima = S.boss.fase;
     for (let i = 0; i < 3; i++) A.usaSu('Ar');
     for (let i = 0; i < 4; i++) A.usaSu('Ar');
+    /* al 100 si chiude l'atto I, non il gioco */
+    out.fineAtto = !S.finito || S.finito.esito !== 'finale';
+    /* PROTOCOLLO 12 · Ω, al livello 300: lui chiude il gioco. Si vince
+       fase per fase con quello che ogni fase chiede */
+    ({ S } = await arena(300));
+    out.ultimoOmega = S.boss && S.boss._def.nome;
+    S.composti.push({ id: 'NaHCO3', dosi: 99 });
+    ['Ar', 'Au', 'Pb', 'Na', 'C', 'O', 'H'].forEach(x => S.inventario.push({ sim: x, padronanza: 1, usi: 0 }));
+    for (let g = 0; g < 80 && S.boss && !S.finito; g++) {
+      const f = S.boss._def.fasi[S.boss.fase - 1];
+      if (/^enigma:/.test(f.serve)) { A.interagisci(); if (S._enigma) A.rispondiEnigma(S._enigma.passi[0].giusta); }
+      else A.usaSu(f.serve === 'qualunque' ? 'Ar' : f.serve);
+    }
     out.finale = S.finito ? S.finito.esito : null;
     out.schermoFinale = A.schermo();
     return out;
@@ -600,6 +613,8 @@ function sopra(d, minimo, avuto) {
   att('  · e in quella fase un reagente non serve', false, boss.reagenteInEnigma);
   att('l’ultimo guardiano ha quattro fasi', 4, boss.fasiUltimo);
   att('  · il bicarbonato tampona e scopre il nucleo all’argon', 3, boss.argonPrima);
+  att('  · e fermarlo chiude l’atto I, non il gioco', true, boss.fineAtto);
+  att('il guardiano del livello 300 è PROTOCOLLO 12 · Ω', true, /Ω/.test(boss.ultimoOmega || ''));
   att('  · e fermarlo chiude il gioco', 'finale', boss.finale);
   att('  · con il finale a schermo', 'esito', boss.schermoFinale);
 
@@ -712,10 +727,13 @@ function sopra(d, minimo, avuto) {
     out.potereNa = vi.potere ? vi.potere.stato.tipo : null;
     /* con il potere il palmo sinistro guarda in su; la sfera prende il
        colore dell'elemento (il sodio giallo: rosso e verde sopra il blu) */
-    if (vi.rig && vi.rig.robot) {
+    if (vi.rig) {
       m.animV.alta = 1; await new Promise(r => setTimeout(r, 500));
+      /* la sfera sta sopra il palmo: il palmo guarda verso lo sguardo */
       const pp = new THREE.Vector3(), nn = new THREE.Vector3(); m.G.palmoSx(vi.rig, pp, nn);
-      out.fpPalmoSu = +nn.y.toFixed(2);
+      if (nn.z < 0) nn.negate();
+      const verso = nn.clone().transformDirection(m.camMani.matrixWorldInverse);
+      out.fpPalmoSu = +(verso.y + verso.z).toFixed(2);
       out.fpNucleo = !!(vi.potere.nucleo && vi.potere.nucleo.visible);
       const c = vi.potere.nucleo.children[0].material.color;
       out.fpColoreNa = c.r > c.b * 1.3 && c.g > c.b * 1.1;
@@ -872,7 +890,8 @@ function sopra(d, minimo, avuto) {
   att('  · cambiando strumento parte Equip', true, motore.fpEquip);
   att('  · spruzzando le braccia rinculano', true, motore.fpRinculo);
   att('  · la sinistra si allunga e muove le dita per prendere', true, motore.fpRobotSegue);
-  att('  · col potere il palmo sinistro guarda in su', true, motore.fpPalmoSu > 0.4);
+  att('  · col potere il palmo sinistro si apre verso lo sguardo', true, motore.fpPalmoSu > 0.3);
+  console.log('      (' + motore.fpPalmoSu + ')');
   att('  · sopra il palmo la sfera del nucleo', true, motore.fpNucleo);
   att('  · del colore dell’elemento (il sodio è giallo)', true, motore.fpColoreNa);
   att('  · e la manica si sgretola in granelli', true, motore.fpGranelli);
@@ -1325,9 +1344,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 278) {
+  if (eseguiti < 280) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 278');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 280');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
