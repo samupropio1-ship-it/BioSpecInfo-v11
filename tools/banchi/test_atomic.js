@@ -689,10 +689,13 @@ function sopra(d, minimo, avuto) {
       const piega = () => R.robotDita.medio.perni[1].quaternion.angleTo(new T.Quaternion());
       const p0 = piega();
       /* la mano robotica segue il braccio sinistro */
-      const r0 = w(R.robot.children[0]).clone(); m.animV.prendi = 1; for (let i = 0; i < 8; i++) await fr();
+      /* prendere: le dita si aprono e si richiudono (seguono la mano del rig) */
+      const r0 = w(R.robot.children[0]).clone(); m.animV.prendi = 1;
+      let pMin = p0, pMax = p0;
+      for (let i = 0; i < 8; i++) { await fr(); pMin = Math.min(pMin, piega()); pMax = Math.max(pMax, piega()); }
       out.fpRobotSegue = w(R.robot.children[0]).distanceTo(r0) > 0.003;
-      for (let i = 0; i < 10; i++) await fr();
-      out.fpDitaChiudono = piega() > p0 + 0.3;
+      for (let i = 0; i < 50; i++) { await fr(); pMin = Math.min(pMin, piega()); pMax = Math.max(pMax, piega()); }
+      out.fpDitaChiudono = pMax - pMin > 0.3 && piega() > pMin + 0.2;
       for (let i = 0; i < 40; i++) await fr();
       out.fpPost = !!(m.post && m.post.rt);
     }
@@ -869,7 +872,7 @@ function sopra(d, minimo, avuto) {
   att('  · spruzzando le braccia rinculano', true, motore.fpRinculo);
   att('  · la mano robotica segue il braccio', true, motore.fpRobotSegue);
   att('  · con le cinque dita articolate', 5, motore.fpDitaRobot);
-  att('  · che si chiudono per prendere', true, motore.fpDitaChiudono);
+  att('  · che si aprono e si richiudono per prendere', true, motore.fpDitaChiudono);
   att('  · col potere il palmo sinistro guarda in su', true, motore.fpPalmoSu > 0.4);
   att('  · sopra il palmo la sfera del nucleo', true, motore.fpNucleo);
   att('  · del colore dell’elemento (il sodio è giallo)', true, motore.fpColoreNa);
@@ -980,6 +983,148 @@ function sopra(d, minimo, avuto) {
   sopra('con la sezione aperta il gioco gira', 3, ciclo.conVista);
   /* L'ALTRO VERSO, ED E' QUELLO CHE CONTA */
   att('  · e chiusa la sezione si ferma del tutto', 0, ciclo.senzaVista);
+
+  /* ═══ §8d · IL COMBATTIMENTO, I POTERI, LA FLUIDITA' ═══════════════════ */
+  console.log('\n── Il combattimento, i poteri, la fluidità ──');
+  const lotta = await pg.evaluate(async () => {
+    const A = BSIAtomic, L = BSIAtomicLivelli, out = {};
+    if (getComputedStyle(document.getElementById('sgioco')).display === 'none') {
+      document.querySelector('.nav-btn[data-s="sgioco"]').click();
+      await new Promise(r => setTimeout(r, 1200));
+    }
+    const fr = () => new Promise(r => requestAnimationFrame(r));
+    /* le specie: in ogni livello almeno tre nemici, e dalla terza ala tutte e tre */
+    let minimo = 99, tutte = true;
+    for (let n = 1; n <= L.LIVELLI; n++) {
+      const sp = L.livello(n).stanze.flatMap(st => st.oggetti).filter(o => o.tipo === 'nemico').map(o => o.specie);
+      minimo = Math.min(minimo, sp.length);
+      if (n > 60 && new Set(sp).size < 5) tutte = false;
+    }
+    out.minNemici = minimo; out.treSpecie = tutte;
+    A.nuovaPartita(55); A.cominciaPartita();
+    await new Promise(r => setTimeout(r, 1500));
+    /* i modelli dei nemici arrivano */
+    const Mn = A.mondo();
+    const conMod = () => Mn.zona.stanze.flatMap(st => st.oggetti).filter(o => o.tipo === 'nemico');
+    for (let i = 0; i < 120 && !conMod().every(o => o._mod); i++) await new Promise(r => setTimeout(r, 250));
+    out.modelli = conMod().filter(o => o._mod).length + '/' + conMod().length;
+    out.animati = [...new Set(conMod().filter(o => o._mod && o._mod.mixer).map(o => o.specie))].sort().join(',');
+    const S = A.stato(), M = A.mondo();
+    S.immune = 99999;
+    ['Na', 'O', 'Cl', 'N', 'Pb'].forEach(x => S.inventario.push({ sim: x, padronanza: 1, usi: 0 }));
+    const trova = sp => { let r = null; M.zona.stanze.forEach(st => st.oggetti.forEach(o => { if (!r && o.tipo === 'nemico' && o.specie === sp && o.vivo) r = { o, st }; })); return r; };
+    const davanti = async (n, d) => {
+      const wx = n.st.x + n.o.x, wz = n.st.z + n.o.z;
+      /* nella stessa stanza, a d metri, verso il centro */
+      const cx = n.st.x - wx, cz = n.st.z - wz, l = Math.hypot(cx, cz) || 1;
+      S.pos.x = wx + (l > 0.5 ? cx / l : 1) * d; S.pos.z = wz + (l > 0.5 ? cz / l : 0) * d;
+      S.ang = Math.atan2(-(wx - S.pos.x), -(wz - S.pos.z));
+      S.angY = 0;
+      S.posPrec = null; await fr(); await fr(); await fr();
+    };
+    /* la pistola abbatte un automa colpo dopo colpo */
+    const au = trova('mostro');
+    out.automa = !!au;
+    if (au) {
+      await davanti(au, 3);
+      out.mirinoAutoma = !!(A.nelMirino() && A.nelMirino().o === au.o);
+      const v0 = au.o.vita; A.sparo(); out.colpoScende = au.o.vita < v0;
+      for (let i = 0; i < 16 && au.o.vivo; i++) { au.o._spinta = null; au.o._fase = 'attesa'; au.o._allerta = 0; await davanti(au, 3); A.sparo(); }
+      out.automaAbbattuto = !au.o.vivo;
+      out.uccisi = S.uccisi || 0;
+    }
+    /* il drone spara: un proiettile nemico parte quando ti vede */
+    const dr = trova('abissale');
+    out.drone = !!dr;
+    if (dr) {
+      await davanti(dr, 5); dr.o._cd = 0; dr.o._allerta = 4; dr.o._fase = 'insegui';
+      let visti = 0; for (let i = 0; i < 80 && !visti; i++) { await fr(); visti = Math.max(visti, A.combattimento().proiettili); }
+      out.droneSpara = visti > 0;
+      /* la scarica del sodio: debole il drone, fa doppio danno e stordisce */
+      S.energia = 100; A.scegliPotere('Na'); await davanti(dr, 4);
+      const v1 = dr.o.vita; A.usaPotere(); out.scaricaDoppia = v1 - dr.o.vita >= 3 || !dr.o.vivo; out.stordito = (dr.o._stordito || 0) > 0 || !dr.o.vivo;
+    }
+    /* il fuoco e il gelo */
+    const re = trova('palude') || trova('verme');
+    if (re) {
+      S.energia = 100; A.scegliPotere('O'); await davanti(re, 4);
+      const v2 = re.o.vita; A.usaPotere();
+      for (let i = 0; i < 40 && re.o.vivo && re.o.vita === v2; i++) await fr();
+      out.fuoco = re.o.vita < v2 || !re.o.vivo;
+    }
+    const au2 = trova('bruto') || trova('mostro');
+    if (au2) {
+      S.energia = 100; A.scegliPotere('N'); await davanti(au2, 4);
+      A.usaPotere(); for (let i = 0; i < 50 && !(au2.o._gelo > 0); i++) await fr();
+      out.gelo = (au2.o._gelo || 0) > 0;
+    }
+    /* un nemico in mischia annuncia il colpo e, se resti li', ti ferisce */
+    const ve = trova('verme') || trova('cervo');
+    if (ve) {
+      await davanti(ve, 1.2); S.immune = 0; S.scudo = 0; const v0 = S.vite;
+      ve.o._allerta = 5; ve.o._cd = 0; ve.o._fase = 'insegui';
+      let caricato = false;
+      for (let i = 0; i < 120 && S.vite === v0; i++) { await fr(); if (ve.o._fase === 'carica') caricato = true; const wx = ve.st.x + ve.o.x, wz = ve.st.z + ve.o.z, l = Math.hypot(S.pos.x - wx, S.pos.z - wz) || 1; if (l > 1.2) { S.pos.x = wx + (S.pos.x - wx) / l * 1.1; S.pos.z = wz + (S.pos.z - wz) / l * 1.1; } }
+      out.annuncia = caricato; out.attaccoFerisce = S.vite < v0;
+      S.vite = v0; S.immune = 99999;
+      /* il pugno della mano robotica */
+      await davanti(ve, 1.3); const vp = ve.o.vita; A.pugno(); await new Promise(r => setTimeout(r, 250));
+      out.pugno = ve.o.vita < vp || !ve.o.vivo;
+    }
+    /* lo scudo, l'energia che si consuma e torna */
+    S.energia = 100; A.scegliPotere('Pb'); A.usaPotere(); out.scudo = (S.scudo || 0) > 0;
+    const e0 = S.energia; for (let i = 0; i < 30; i++) await fr(); out.energiaTorna = S.energia > e0;
+    S.energia = 5; A.scegliPotere('O'); A.usaPotere(); out.senzaEnergia = S.energia <= 5.5;
+    /* la barra dei poteri */
+    await new Promise(r => setTimeout(r, 300));
+    out.slot = document.querySelectorAll('#apH-poteri .bsiAP-pt').length;
+    out.slotSel = (document.querySelector('#apH-poteri .bsiAP-pt.sel') || {}).textContent || '';
+    /* lo zoom e lo schermo intero */
+    const f0 = A.motore().camera.fov; A.zoom(1); for (let i = 0; i < 40; i++) await fr();
+    out.zoomFov = A.motore().camera.fov < f0 * 0.75; A.zoom(0); for (let i = 0; i < 40; i++) await fr();
+    out.zoomTorna = Math.abs(A.motore().camera.fov - f0) < 0.5;
+    out.pulsanti = ['apB-spara', 'apB-pot', 'apB-zoom', 'apB-pieno'].every(id => !!document.getElementById(id));
+    A.schermoIntero(true); out.pieno = document.body.classList.contains('bsiAP-pieno');
+    A.schermoIntero(false); out.pienoEsce = !document.body.classList.contains('bsiAP-pieno');
+    /* la fluidita': si accelera (non si parte a velocita' piena) e si
+       disegna fra due passi */
+    S.immune = 99999; S.vMov = { x: 0, z: 0 };
+    A.tasti('su', true); await fr(); const v1f = Math.hypot(S.vMov.x, S.vMov.z);
+    for (let i = 0; i < 20; i++) await fr(); const v2f = Math.hypot(S.vMov.x, S.vMov.z); A.tasti('su', false);
+    out.accelera = v1f < v2f * 0.8 && v2f > 0.03;
+    out.interpola = !!S.posPrec;
+    document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])').click();
+    await new Promise(r => setTimeout(r, 600));
+    return out;
+  });
+  sopra('ogni livello ha almeno tre nemici', 3, lotta.minNemici);
+  att('  · dalla settima ala almeno cinque creature diverse per livello', true, lotta.treSpecie);
+  att('i nemici hanno il loro modello (models/nemici)', true, /^(\d+)\/\1$/.test(lotta.modelli || ''));
+  console.log('      (' + lotta.modelli + ')');
+  att('  · con le loro animazioni dove ci sono (verme, cervo, cristallino)', 'cervo,mostro,verme', lotta.animati);
+  att('il mirino aggancia il cristallino che hai davanti', true, lotta.mirinoAutoma);
+  att('  · la pistola lo ferisce colpo dopo colpo', true, lotta.colpoScende);
+  att('  · e lo abbatte', true, lotta.automaAbbattuto);
+  att('l’abissale lancia le sue sfere quando ti vede', true, lotta.droneSpara);
+  att('la scarica del sodio fa doppio danno all’abissale', true, lotta.scaricaDoppia);
+  att('  · e la stordisce', true, lotta.stordito);
+  att('la palla di fuoco dell’ossigeno esplode e ferisce', true, lotta.fuoco);
+  att('la nube di gelo dell’azoto rallenta il bruto', true, lotta.gelo);
+  att('il nemico in mischia annuncia il colpo (si carica)', true, lotta.annuncia);
+  att('  · e se resti lì ti ferisce', true, lotta.attaccoFerisce);
+  att('il pugno della mano robotica ferisce', true, lotta.pugno);
+  att('il piombo fa lo scudo', true, lotta.scudo);
+  att('l’energia dei poteri torna da sola', true, lotta.energiaTorna);
+  att('  · e senza energia il potere non parte', true, lotta.senzaEnergia);
+  sopra('la barra dei poteri ha un tasto per elemento', 5, lotta.slot);
+  att('  · col potere scelto evidenziato', true, /O/.test(lotta.slotSel));
+  att('lo zoom stringe il campo visivo', true, lotta.zoomFov);
+  att('  · e torna com’era', true, lotta.zoomTorna);
+  att('ci sono i pulsanti: spara, potere, zoom, schermo intero', true, lotta.pulsanti);
+  att('lo schermo intero si apre', true, lotta.pieno);
+  att('  · e si chiude', true, lotta.pienoEsce);
+  att('il movimento accelera (niente scatti da fermo a pieno)', true, lotta.accelera);
+  att('si disegna fra due passi del gioco (interpolazione)', true, lotta.interpola);
 
   /* ═══ §8c · I LABORATORI (le mappe fornite) ══════════════════════════ */
   console.log('\n── I laboratori: le mappe da percorrere ──');
@@ -1155,9 +1300,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 245) {
+  if (eseguiti < 271) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 245');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 271');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

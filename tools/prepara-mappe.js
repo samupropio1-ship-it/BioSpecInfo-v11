@@ -42,7 +42,17 @@ const MAPPE = {
   underground: { file: 'underground.glb', scala: 1,          tri: 160000, tex: 512,  titolo: 'Location underground laboratory' },
   /* le due apparecchiature: non si percorrono, si mettono nei laboratori */
   reattore:    { file: 'quantum.glb',     scala: 1.6,        tri: 60000,  tex: 1024, titolo: 'Quantum_Laboratory_X_Alpha', oggetto: true },
-  capsula:     { file: 'scifi2.glb',      scala: 0.8,        tri: 40000,  tex: 512,  titolo: 'Sci Fi lab', oggetto: true }
+  capsula:     { file: 'scifi2.glb',      scala: 0.8,        tri: 40000,  tex: 512,  titolo: 'Sci Fi lab', oggetto: true },
+  /* I NEMICI (cartella models/nemici): quelli animati restano con lo
+     scheletro e le clip (niente unione ne' semplificazione, solo texture);
+     quelli fermi si semplificano al loro bilancio. La scala la fa il gioco */
+  verme:       { file: 'worm.glb',     scala: 1, tri: 0,     tex: 512, titolo: 'Worm Monster', oggetto: true, nemico: true, animato: true },
+  mostro:      { file: 'monster.glb',  scala: 1, tri: 0,     tex: 1024, titolo: 'Monster', oggetto: true, nemico: true, animato: true },
+  cervo:       { file: 'deer.glb',     scala: 1, tri: 0,     tex: 512, titolo: 'The Human Deer', oggetto: true, nemico: true, animato: true },
+  palude:      { file: 'swamp.glb',    scala: 1, tri: 12000, tex: 1024, titolo: 'SWAMP MONSTER', oggetto: true, nemico: true },
+  bruto:       { file: 'creature.glb', scala: 1, tri: 20000, tex: 1024, titolo: 'CREATURE MONSTER 3D BY Oscar Creativo', oggetto: true, nemico: true },
+  curvo:       { file: 'scary.glb',    scala: 1, tri: 14000, tex: 1024, titolo: 'Scary Monster', oggetto: true, nemico: true },
+  abissale:    { file: 'stylized.glb', scala: 1, tri: 18000, tex: 1024, titolo: '6- Stylized- Monster', oggetto: true, nemico: true }
 };
 
 async function ottimizza(src, dst, cfg) {
@@ -59,6 +69,44 @@ async function ottimizza(src, dst, cfg) {
   const radice = doc.createNode('mappa').setScale([cfg.scala, cfg.scala, cfg.scala]);
   scena.listChildren().forEach(n => { scena.removeChild(n); radice.addChild(n); });
   scena.addChild(radice);
+  if (cfg.animato) {
+    /* con lo scheletro e le clip: solo materiali e texture */
+    await doc.transform(F.metalRough(), F.dedup(), F.prune(),
+      F.textureCompress({ encoder: sharp, targetFormat: 'jpeg', resize: [cfg.tex, cfg.tex], quality: 84, pattern: /^(?!.*(alpha|opac)).*$/i }),
+      F.textureCompress({ encoder: sharp, resize: [cfg.tex, cfg.tex] }));
+    doc.getRoot().getAsset().extras = Object.assign({}, crediti, {
+      note: 'Adattato per BioSpecInfo (tools/prepara-mappe.js): materiali metal/rough, texture ridotte a ' + cfg.tex + ' px; scheletro e animazioni invariati.' });
+    await io.write(dst, doc);
+    return { tri: 0, crediti };
+  }
+  /* le mesh con tutti i vertici distinti (ogni triangolo i suoi tre: certi
+     export di scultura) non si semplificano: si reindicizzano, fondendo i
+     vertici con la stessa posizione e le stesse UV */
+  doc.getRoot().listMeshes().forEach(m => m.listPrimitives().forEach(p => {
+    const P = p.getAttribute('POSITION'), I = p.getIndices();
+    if (!P || (I && I.getCount() > P.getCount() * 1.2)) return;
+    const U = p.getAttribute('TEXCOORD_0'), N = p.getAttribute('NORMAL');
+    const ordine = I ? Array.from(I.getArray()) : Array.from({ length: P.getCount() }, (_, i) => i);
+    const mappa = new Map(), idx = [], pos = [], uv = [], nor = [], a = [], b = [], c = [];
+    for (const i of ordine) {
+      P.getElement(i, a); if (U) U.getElement(i, b); if (N) N.getElement(i, c);
+      const k = a.map(x => Math.round(x * 1e4)).join(',') + (U ? '|' + b.map(x => Math.round(x * 1e4)).join(',') : '');
+      let j = mappa.get(k);
+      if (j == null) { j = pos.length / 3; mappa.set(k, j); pos.push(...a); if (U) uv.push(...b); if (N) nor.push(...c); }
+      idx.push(j);
+    }
+    if (pos.length / 3 > ordine.length * 0.8) return;
+    p.listSemantics().forEach(k => { if (!['POSITION', 'TEXCOORD_0', 'NORMAL'].includes(k)) p.setAttribute(k, null); });
+    P.setArray(new Float32Array(pos)); if (U) U.setArray(new Float32Array(uv)); if (N) N.setArray(new Float32Array(nor));
+    p.setIndices(doc.createAccessor().setType('SCALAR').setArray(new Uint32Array(idx)).setBuffer(P.getBuffer()));
+  }));
+  /* i nemici fermi: si semplificano subito, mesh per mesh, prima di unire
+     (unite, i bordi fra i pezzi restano bloccati e la semplificazione si
+     ferma) */
+  if (cfg.nemico && cfg.tri) {
+    const t0 = doc.getRoot().listMeshes().reduce((a, m) => a + m.listPrimitives().reduce((b, p) => b + (p.getIndices() ? p.getIndices().getCount() / 3 : 0), 0), 0);
+    if (t0 > cfg.tri) await doc.transform(F.simplify({ simplifier: MeshoptSimplifier, ratio: cfg.tri / t0, error: 0.01 }));
+  }
   await doc.transform(
     F.metalRough(),
     F.dedup(), F.prune(),
@@ -71,10 +119,16 @@ async function ottimizza(src, dst, cfg) {
     const i = p.getIndices(); return b + (i ? i.getCount() : p.getAttribute('POSITION').getCount()) / 3;
   }, 0), 0);
   let tri = contaTri();
-  for (let giro = 0; giro < 6 && tri > cfg.tri; giro++) {
-    await doc.transform(F.simplify({ simplifier: MeshoptSimplifier, ratio: Math.max(0.05, cfg.tri / tri * 0.95), error: 0.002 * (giro + 1) }));
+  for (let giro = 0; giro < 8 && tri > cfg.tri; giro++) {
+    await doc.transform(F.weld(), F.simplify({ simplifier: MeshoptSimplifier, ratio: Math.max(0.05, cfg.tri / tri * 0.95), error: 0.002 * Math.pow(2, giro) }));
     tri = contaTri();
+    if (process.env.BSI_DEBUG) console.log('  giro', giro, tri);
   }
+  /* i nemici: via gli attributi che il gioco non usa (tangenti, colori,
+     coordinate in piu') */
+  if (cfg.nemico) doc.getRoot().listMeshes().forEach(m => m.listPrimitives().forEach(p => {
+    ['TANGENT', 'COLOR_0', 'TEXCOORD_1', 'TEXCOORD_2', 'TEXCOORD_3'].forEach(k => { if (p.getAttribute(k)) p.setAttribute(k, null); });
+  }));
   await doc.transform(
     F.textureCompress({ encoder: sharp, targetFormat: 'jpeg', resize: [cfg.tex, cfg.tex], quality: 82,
                         pattern: /^(?!.*(alpha|opac|glass|vetro)).*$/i }),
@@ -322,7 +376,8 @@ async function griglia(nome) {
   fs.mkdirSync(USCITA, { recursive: true });
   for (const nome of nomi) {
     const cfg = MAPPE[nome];
-    const dst = path.join(USCITA, nome + '.glb');
+    const dst = path.join(cfg.nemico ? path.join(RADICE, 'models', 'nemici') : USCITA, nome + '.glb');
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
     const r = await ottimizza(path.join(src, cfg.file), dst, cfg);
     let msg = nome + ': ' + r.tri + ' triangoli, ' + (fs.statSync(dst).size / 1048576).toFixed(2) + ' MB';
     if (!cfg.oggetto) {

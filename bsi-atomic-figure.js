@@ -2763,6 +2763,113 @@
     api.manicaModello = manicaModello;
     api.pistolaModello = pistolaModello;
     api.adattaPresa = adattaPresa;
+    /* ════════════════════════════════════════════════════════════════════
+       I NEMICI DA ABBATTERE — le macchine di sorveglianza dell'Istituto
+       (non mostri: apparecchi impazziti, come i guardiani)
+
+       LA SENTINELLA: un drone a sfera che galleggia, con l'anello che gira,
+       l'occhio-lente che si accende quando ti vede e due alette. Spara
+       cariche lente, che si possono schivare.
+       L'AUTOMA: un robot di servizio su due zampe, corpo a botte con la
+       griglia del radiatore, una pinza e un braccio con l'elettrodo; carica.
+       Tutti e due restituiscono le parti che il gioco anima (e i materiali
+       da far lampeggiare quando vengono colpiti)
+       ════════════════════════════════════════════════════════════════════ */
+    function metalloMacchina(colore) {
+      return mat({ color: colore, roughness: 0.32, metalness: 0.75, env: 1.3 });
+    }
+    function drone(colore) {
+      var tinta = new T.Color(colore || 0x5ef0c4);
+      var g = new T.Group(), corpo = new T.Group();
+      corpo.position.y = 1.55;
+      g.add(corpo);
+      var guscio = metalloMacchina(0x9aa3ad), scuro = metalloMacchina(0x2a3036);
+      var occhioM = mat({ color: 0x050a0a, emissive: tinta, emissiveIntensity: 2.4, roughness: 0.1 });
+      var sfera = m(lisce(new T.SphereGeometry(0.3, sg(32), sg(24))), guscio, 0, 0, 0, false);
+      corpo.add(sfera);
+      /* la fascia scura all'equatore e le piastre */
+      corpo.add(m(new T.TorusGeometry(0.3, 0.035, sg(10), sg(40)), scuro, 0, 0, 0, false));
+      [0, 1, 2, 3].forEach(function (k) {
+        var pl = m(new T.BoxGeometry(0.12, 0.05, 0.02), scuro, Math.cos(k * Math.PI / 2) * 0.27, 0.16, Math.sin(k * Math.PI / 2) * 0.27, false);
+        pl.lookAt(0, 0.16, 0); corpo.add(pl);
+      });
+      /* la lente */
+      var lente = new T.Group(); lente.position.z = 0.27; corpo.add(lente);
+      lente.add(m(new T.CylinderGeometry(0.11, 0.13, 0.08, sg(28)).rotateX(Math.PI / 2), scuro, 0, 0, 0, false));
+      var occhio = m(new T.SphereGeometry(0.075, sg(20), sg(14)), occhioM, 0, 0, 0.035, false);
+      lente.add(occhio);
+      var alOc = alone(tinta, 0.5, 0.75); alOc.position.z = 0.1; lente.add(alOc);
+      /* l'anello che gira, con le luci */
+      var anello = new T.Group(); corpo.add(anello);
+      anello.add(m(new T.TorusGeometry(0.42, 0.018, sg(8), sg(48)), guscio, 0, 0, 0, false));
+      for (var k2 = 0; k2 < 6; k2++) {
+        var lu = m(new T.SphereGeometry(0.022, 8, 6), occhioM, Math.cos(k2 / 6 * 6.283) * 0.42, 0, Math.sin(k2 / 6 * 6.283) * 0.42, false);
+        anello.add(lu);
+      }
+      anello.rotation.x = Math.PI / 2;
+      /* le alette */
+      [-1, 1].forEach(function (l) {
+        var al = m(new T.BoxGeometry(0.28, 0.02, 0.14), scuro, l * 0.38, 0, -0.04, false);
+        al.rotation.z = l * 0.25; corpo.add(al);
+      });
+      /* il getto sotto, e l'ombra a terra */
+      var getto = alone(tinta, 0.35, 0.5); getto.position.y = -0.32; corpo.add(getto);
+      var ombra = new T.Mesh(new T.CircleGeometry(0.35, 24), new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false }));
+      ombra.rotation.x = -Math.PI / 2; ombra.position.y = 0.01; g.add(ombra);
+      return { gruppo: g, corpo: corpo, anello: anello, lente: lente, occhio: occhioM, materiali: [guscio], alone: alOc };
+    }
+    function automa(colore) {
+      var tinta = new T.Color(colore || 0xff8a3a);
+      var g = new T.Group();
+      var vern = metalloMacchina(0xc49a3a), scuro = metalloMacchina(0x2a2e33), acc = metalloMacchina(0x7d858e);
+      vern.roughness = 0.45; vern.metalness = 0.55;
+      var occhioM = mat({ color: 0x080404, emissive: tinta, emissiveIntensity: 2.6, roughness: 0.1 });
+      var bacino = new T.Group(); bacino.position.y = 0.72; g.add(bacino);
+      /* il corpo a botte, con la griglia e la targa */
+      var torso = new T.Group(); torso.position.y = 0.34; bacino.add(torso);
+      torso.add(m(lisce(new T.CylinderGeometry(0.3, 0.26, 0.62, sg(28))), vern, 0, 0, 0, false));
+      torso.add(m(new T.CylinderGeometry(0.305, 0.305, 0.06, sg(28)), scuro, 0, 0.22, 0, false));
+      torso.add(m(new T.CylinderGeometry(0.305, 0.305, 0.06, sg(28)), scuro, 0, -0.2, 0, false));
+      for (var gr = 0; gr < 5; gr++) torso.add(m(new T.BoxGeometry(0.26, 0.018, 0.02), scuro, 0, -0.08 + gr * 0.045, 0.29, false));
+      /* la testa: una cupola con la feritoia luminosa */
+      var testa = new T.Group(); testa.position.y = 0.42; torso.add(testa);
+      testa.add(m(lisce(new T.SphereGeometry(0.2, sg(24), sg(16), 0, Math.PI * 2, 0, Math.PI / 2)), acc, 0, 0, 0, false));
+      testa.add(m(new T.CylinderGeometry(0.2, 0.2, 0.06, sg(24)), scuro, 0, -0.02, 0, false));
+      var fer = m(new T.BoxGeometry(0.22, 0.035, 0.05), occhioM, 0, 0.06, 0.17, false); testa.add(fer);
+      var alOc = alone(tinta, 0.4, 0.7); alOc.position.set(0, 0.06, 0.24); testa.add(alOc);
+      /* le braccia: pinza a destra, elettrodo a sinistra */
+      var braccia = [-1, 1].map(function (l) {
+        var spalla = new T.Group(); spalla.position.set(l * 0.36, 0.16, 0); torso.add(spalla);
+        spalla.add(m(new T.SphereGeometry(0.08, 14, 10), scuro, 0, 0, 0, false));
+        var b1 = m(lisce(new T.CylinderGeometry(0.045, 0.05, 0.36, 12)), acc, 0, -0.2, 0, false); spalla.add(b1);
+        var gomito = new T.Group(); gomito.position.y = -0.38; spalla.add(gomito);
+        gomito.add(m(new T.SphereGeometry(0.06, 12, 8), scuro, 0, 0, 0, false));
+        var b2 = m(lisce(new T.CylinderGeometry(0.04, 0.045, 0.32, 12)), vern, 0, -0.17, 0.0, false); gomito.add(b2);
+        if (l > 0) {
+          [-1, 1].forEach(function (k) { var dito = m(new T.BoxGeometry(0.03, 0.14, 0.05), scuro, k * 0.035, -0.38, 0, false); dito.rotation.z = k * 0.25; gomito.add(dito); });
+        } else {
+          gomito.add(m(new T.CylinderGeometry(0.02, 0.035, 0.14, 10), acc, 0, -0.39, 0, false));
+          var punta = m(new T.SphereGeometry(0.035, 10, 8), occhioM, 0, -0.47, 0, false); gomito.add(punta);
+        }
+        return { spalla: spalla, gomito: gomito };
+      });
+      /* le zampe a pistone */
+      var zampe = [-1, 1].map(function (l) {
+        var anca = new T.Group(); anca.position.set(l * 0.15, 0, 0); bacino.add(anca);
+        anca.add(m(new T.SphereGeometry(0.075, 12, 8), scuro, 0, 0, 0, false));
+        anca.add(m(lisce(new T.CylinderGeometry(0.06, 0.05, 0.36, 12)), acc, 0, -0.2, 0, false));
+        var gin = new T.Group(); gin.position.y = -0.38; anca.add(gin);
+        gin.add(m(new T.SphereGeometry(0.06, 12, 8), scuro, 0, 0, 0, false));
+        gin.add(m(lisce(new T.CylinderGeometry(0.05, 0.04, 0.3, 12)), vern, 0, -0.16, 0, false));
+        gin.add(m(new T.BoxGeometry(0.14, 0.05, 0.22), scuro, 0, -0.32, 0.04, false));
+        return { anca: anca, ginocchio: gin };
+      });
+      var ombra = new T.Mesh(new T.CircleGeometry(0.42, 24), new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false }));
+      ombra.rotation.x = -Math.PI / 2; ombra.position.y = 0.01; g.add(ombra);
+      return { gruppo: g, bacino: bacino, torso: torso, testa: testa, braccia: braccia, zampe: zampe, occhio: occhioM, materiali: [vern, acc], alone: alOc };
+    }
+    api.drone = drone;
+    api.automa = automa;
     api.registratore = registratore;
     api.braccia = braccia;
     api.chimico = chimico;

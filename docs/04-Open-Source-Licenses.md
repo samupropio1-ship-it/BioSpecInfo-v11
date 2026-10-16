@@ -44,6 +44,14 @@ ridistribuzione del codice proprietario.
 | `models/mappe/overgrown.glb` | Overgrown Laboratory | MichalTroye (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 | `models/mappe/reattore.glb` | Quantum_Laboratory_X_Alpha | -X-ScornGames (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 | `models/mappe/capsula.glb` | Sci Fi lab | IrisProcess (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/verme.glb` | Worm Monster | CR!STALLL (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/curvo.glb` | Scary Monster | L. (Sketchfab) | Sketchfab Standard | uso dentro l'opera, come le mani |
+| `models/nemici/palude.glb` | SWAMP MONSTER | alexalbinyana (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/cervo.glb` | The Human Deer | ceeleste (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/abissale.glb` | 6- Stylized- Monster | Lex Wild (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/mostro.glb` | Monster | itszyx123456789 (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/nemici/bruto.glb` | CREATURE MONSTER 3D BY Oscar Creativo | OSCAR CREATIVO (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `skeleton_utils.js` | three.js SkeletonUtils r128 | mrdoob e collaboratori | MIT | avviso di licenza (three.js) |
 | `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 
 I derivati si producono con `tools/prepara-modelli.js`; le voci con l'impronta SHA-256 sono nella SBOM (`docs/07`).

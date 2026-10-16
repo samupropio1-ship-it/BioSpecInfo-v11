@@ -601,11 +601,34 @@
       g.add(spia);
       o._gira = spia;
       o._solido = { l: 0.6, p: 0.45 };
+    } else if (o.tipo === 'nemico' && SPECIE_M[o.specie]) {
+      /* il nemico dal modello: subito un segnaposto della sua forma (se il
+         modello non e' ancora arrivato), poi il modello vero */
+      var SM = SPECIE_M[o.specie];
+      var seg = (SM.modo === 'sputo' || SM.modo === 'fluttua') ? G.drone(SM.colore) : G.automa(SM.colore);
+      seg.gruppo.scale.setScalar(SM.alto / 2.1);
+      g.add(seg.gruppo);
+      o._segnaposto = seg.gruppo; o._parti = null; o._mat = seg.materiali.slice();
+      o.vivo = true; o.t = (h % 100); o.vita = SM.vita;
+      montaModelloNemico(o, g);
+    } else if (o.tipo === 'nemico' && o.specie === 'drone' && G.drone) {
+      var dr = G.drone(0xff5a3a);
+      g.add(dr.gruppo);
+      o._corpo = dr.gruppo; o._parti = dr; o._mat = dr.materiali.map(function (m4) { return m4; });
+      o.vivo = true; o.t = (h % 100); o.vita = SPECIE.drone.vita;
+      o.casaX = o.x; o.casaZ = o.z;
+    } else if (o.tipo === 'nemico' && o.specie === 'automa' && G.automa) {
+      var au = G.automa(0xff8a3a);
+      g.add(au.gruppo);
+      o._corpo = au.gruppo; o._parti = au; o._mat = au.materiali;
+      o.vivo = true; o.t = (h % 100); o.vita = SPECIE.automa.vita;
+      o.casaX = o.x; o.casaZ = o.z;
     } else if (o.tipo === 'nemico') {
       var r = G.residuo(COLORI_RESIDUO[(zonaN - 1) % COLORI_RESIDUO.length]);
       r.gruppo.position.y = 0.34;
       g.add(r.gruppo);
-      o._corpo = r.gruppo; o._deforma = r.deforma;
+      o._corpo = r.gruppo; o._deforma = r.deforma; o.vita = SPECIE.residuo.vita;
+      o._mat = []; r.gruppo.traverse(function (m5) { if (m5.isMesh && m5.material.emissive && o._mat.indexOf(m5.material) < 0) o._mat.push(m5.material); });
       o.vivo = true; o.t = (h % 100);
       o.casaX = o.x; o.casaZ = o.z;
     } else if (o.tipo === 'boss') {
@@ -707,6 +730,8 @@
       }
       g.boss = new T.PointLight(0xff4020, 0, 9);
       scena.add(g.boss);
+      g.lampo = new T.PointLight(0xffffff, 0, 10, 2);
+      scena.add(g.lampo);
       return g;
     }
     g.emi = new T.HemisphereLight(0xb8a890, 0x14100c, 0.2);
@@ -728,6 +753,9 @@
     /* la luce del guardiano: rossa, pulsa quando attacca */
     g.boss = new T.PointLight(0xff4020, 0, 9);
     scena.add(g.boss);
+    /* il lampo dei colpi e dei poteri: una luce sola, che si sposta */
+    g.lampo = new T.PointLight(0xffffff, 0, 10, 2);
+    scena.add(g.lampo);
     return g;
   }
 
@@ -875,8 +903,20 @@
 
     var avanti = (tasti.su ? 1 : 0) - (tasti.giu ? 1 : 0);
     var lat = (tasti.latSx ? 1 : 0) - (tasti.latDx ? 1 : 0);
-    var dx = (-Math.sin(S.ang) * avanti - Math.cos(S.ang) * lat) * v;
-    var dz = (-Math.cos(S.ang) * avanti + Math.sin(S.ang) * lat) * v;
+    /* in diagonale non si va piu' veloci; mirando si va piano */
+    if (avanti && lat) { avanti *= 0.7071; lat *= 0.7071; }
+    if (zoom > 0.5) v *= 0.55;
+    var vx = (-Math.sin(S.ang) * avanti - Math.cos(S.ang) * lat) * v;
+    var vz = (-Math.cos(S.ang) * avanti + Math.sin(S.ang) * lat) * v;
+    /* L'INERZIA: la velocita' insegue quella voluta — si parte e ci si
+       ferma in un attimo, non di colpo (piu' svelti a terra che in aria) */
+    S.posPrec = { x: S.pos.x, y: S.pos.y, z: S.pos.z };
+    var acc = S.terra ? (avanti || lat ? 0.2 : 0.28) : 0.06;
+    S.vMov = S.vMov || { x: 0, z: 0 };
+    S.vMov.x += (vx - S.vMov.x) * acc; S.vMov.z += (vz - S.vMov.z) * acc;
+    if (Math.abs(S.vMov.x) < 0.0004) S.vMov.x = 0;
+    if (Math.abs(S.vMov.z) < 0.0004) S.vMov.z = 0;
+    var dx = S.vMov.x, dz = S.vMov.z;
 
     if (S.lab) muoviInLab(dx, dz);
     else {
@@ -916,21 +956,7 @@
       } else if (o.tipo === 'foglio' && !o.preso) {
         if (o._gira) o._gira.visible = (Math.floor(ora / 600) % 2) === 0;
       } else if (o.tipo === 'nemico' && o.vivo) {
-        o.t++;
-        var wx = sx.x + o.x, wz = sx.z + o.z;
-        var d = Math.hypot(S.pos.x - wx, S.pos.z - wz) || 1;
-        if (d < 7 && sx === st) {
-          /* ti viene incontro, piano: è un residuo, non un atleta */
-          var ax = (S.pos.x - wx) / d, az = (S.pos.z - wz) / d;
-          var nx = o.x + ax * 0.016, nz = o.z + az * 0.016;
-          /* e resta nella sua stanza */
-          if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
-          if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
-          o._nodo.rotation.y = Math.atan2(ax, az);
-        }
-        o._nodo.position.set(o.x, 0, o.z);
-        if (d < 0.85 && !S.immune) danno(t('un residuo corrosivo ti ha toccato',
-                                           'a corrosive residue touched you'));
+        if (!S.lab) { if (SPECIE_M[o.specie]) aggiornaNemicoM(o, sx, st, ora); else aggiornaNemico(o, sx, st, ora); }
       } else if (o.tipo === 'boss' && !o.abbattuto) {
         passoBoss(o, sx);
       } else if (o.tipo === 'uscita') {
@@ -958,15 +984,26 @@
       pa.p.sx.visible = pa.p.dx.visible = pa.apertura < 0.96;
     });
 
+    passoCombattimento(PASSO / 1000);
     if (S.immune > 0) S.immune--;
     S.t = (S.t || 0) + 1;
   }
 
-  function danno(perche) {
+  function danno(perche, fonte) {
     if (S.immune > 0 || S.finito) return;
     S.immune = 60;
     S.vite -= 1;
     scossa = 1;
+    animV.colpito = 1;
+    /* da dove arriva il colpo: un arco rosso sul bordo dello schermo */
+    if (fonte) {
+      var ind = document.getElementById('bsiAP-dir');
+      if (ind) {
+        var a = Math.atan2(fonte.x - S.pos.x, fonte.z - S.pos.z) - S.ang + Math.PI;
+        ind.style.transform = 'translate(-50%,-50%) rotate(' + (-a) + 'rad)';
+        ind.classList.remove('on'); void ind.offsetWidth; ind.classList.add('on');
+      }
+    }
     bip(140, 0.25, 'sawtooth', 0.08);
     avviso(perche);
     var sc = document.getElementById('bsiAP-scena');
@@ -999,10 +1036,17 @@
                       O: 'fiamma', H: 'fiamma', C: 'fiamma', S: 'fiamma', P: 'fiamma',
                       Cl: 'vapore', F: 'vapore', N: 'vapore', Ar: 'vapore' };
   function elementoInMano() { return !!(S && S.inMano && !ricetta(S.inMano)); }
+  /* il potere della sinistra: quello scelto nella barra, o l'elemento in mano */
+  function potereAttivo() {
+    if (!S) return null;
+    if (S.potere && S.inventario.some(function (x) { return x.sim === S.potere; })) return S.potere;
+    return elementoInMano() ? S.inMano : null;
+  }
   function aggiornaDispensatore() {
-    if (!vista || animV.inMano === S.inMano) return;
+    var chiave = S.inMano + '|' + potereAttivo();
+    if (!vista || animV.chiaveMano === chiave) return;
     var prima = animV.inMano === undefined;
-    animV.inMano = S.inMano;
+    animV.inMano = S.inMano; animV.chiaveMano = chiave;
     if (!prima) animV.cambio = 1;
     var id = S.inMano, r = id ? ricetta(id) : null;
     var col = r ? 0x5ef0c4 : ((POTERI[id] && POTERI[id].colore) || 0x5ef0c4);
@@ -1023,7 +1067,9 @@
         mc.emissive.setHex(col); mc.emissiveIntensity = r ? 0.09 : 0.02;
       }
       /* un elemento vive sulla mano sinistra; un composto nel dispensatore */
-      if (vista.potere) vista.potere.aggiorna(r || !id ? null : (TIPO_POTERE[id] || 'luce'), col);
+      /* la sinistra tiene il potere scelto (o l'elemento in mano) */
+      var pa = potereAttivo();
+      if (vista.potere) vista.potere.aggiorna(pa ? (TIPO_POTERE[pa] || 'luce') : null, pa ? ((POTERI[pa] && POTERI[pa].colore) || 0xffffff) : col);
     }, prima ? 0 : 180);
     animV.colore = col;
   }
@@ -1067,7 +1113,7 @@
     var pr = Math.sin(animV.prendi * Math.PI);
     /* con un elemento in mano la sinistra si alza, col palmo in su, e lo
        tiene vivo; lanciandolo spinge in avanti */
-    var vuoleAlta = elementoInMano() ? 1 : 0;
+    var vuoleAlta = potereAttivo() ? 1 : 0;
     animV.alta = (animV.alta || 0) + (vuoleAlta - (animV.alta || 0)) * 0.1;
     animV.lancio = Math.max(0, (animV.lancio || 0) - 0.06);
     var al = animV.alta, la = Math.sin(Math.min(1, animV.lancio) * Math.PI);
@@ -1140,8 +1186,10 @@
       G.pieghaRobot(R, molle('robot', R.chiusuraSx(), dt, { pollice: 4, indice: 4, medio: 4, anulare: 4, mignolo: 4 }));
     }
     /* lo sguardo e il rinculo */
-    R.base.rotation.set(animV.swayY * 0.6 + animV.rinculo * 0.05, animV.swayX * 0.9, animV.swayX * 0.4);
-    R.base.position.set(animV.swayX * 0.25, -animV.atterra * 0.03, animV.rinculo * 0.025);
+    R.base.rotation.set(animV.swayY * 0.6 + animV.rinculo * 0.05 - animV.colpito * 0.22, animV.swayX * 0.9, animV.swayX * 0.4 + animV.colpito * 0.12);
+    animV.colpito = Math.max(0, (animV.colpito || 0) - dt * 3);
+    /* mirando le braccia scendono e si allargano: il centro resta libero */
+    R.base.position.set(animV.swayX * 0.25 + zoom * 0.05, -animV.atterra * 0.03 - zoom * 0.09, animV.rinculo * 0.025 + zoom * 0.04);
     /* il potere sul palmo */
     if (vista.potere && vista.potere.palmo && al > 0.01) {
       var pp = new T.Vector3(), nn = new T.Vector3();
@@ -1528,6 +1576,7 @@
     } else S.inventario.push({ sim: sim, padronanza: 1, usi: 0 });
     if (S.codex.elementi.indexOf(sim) < 0) S.codex.elementi.push(sim);
     if (!S.inMano) S.inMano = sim;
+    if (!S.potere) S.potere = sim;
     S.punti += 100;
     bip(880, 0.12, 'triangle', 0.07);
     avviso(t('Raccolto ', 'Collected ') + sim + ' · ' + (d.nome || sim) +
@@ -2245,6 +2294,39 @@
       ' border-radius:50%;background:rgba(255,255,255,.75);box-shadow:0 0 3px #000;transition:all .15s}',
       '#bsiAP-mirino.attivo{width:18px;height:18px;margin:-9px 0 0 -9px;background:transparent;',
       ' border:2px solid #8fe3c4;box-shadow:0 0 6px rgba(143,227,196,.6)}',
+      /* il colpo a segno: il mirino si apre in una croce; giallo se debole */
+      '#bsiAP-mirino.colpo{animation:apColpo .22s ease-out}',
+      '#bsiAP-mirino.colpo.forte{box-shadow:0 0 0 3px #ffd24a,0 0 14px #ffd24a}',
+      '@keyframes apColpo{0%{transform:scale(2.4) rotate(45deg);box-shadow:0 0 0 2px #fff}100%{transform:none}}',
+      '#bsiAP-scena.mira #bsiAP-mirino{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;box-shadow:0 0 0 7px rgba(255,255,255,.12),0 0 0 8px rgba(255,255,255,.5)}',
+      '#bsiAP-scena.mira::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;',
+      ' background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.55) 100%)}',
+      '#bsiAP-dir{position:absolute;left:50%;top:50%;width:46vmin;height:46vmin;border-radius:50%;opacity:0;pointer-events:none;',
+      ' border-top:6px solid rgba(255,40,30,.85);filter:drop-shadow(0 0 8px #f20);transform:translate(-50%,-50%)}',
+      '#bsiAP-dir.on{animation:apDir .9s ease-out}',
+      '@keyframes apDir{0%{opacity:1}100%{opacity:0}}',
+      '.bsiAP-num{position:absolute;left:0;top:0;z-index:6;pointer-events:none;font:900 18px system-ui,sans-serif;',
+      ' text-shadow:0 0 4px #000,0 2px 0 #000;will-change:transform,opacity}',
+      '#bsiAP-hud .bers{position:absolute;left:50%;top:44px;transform:translateX(-50%);min-width:180px;',
+      ' text-align:center;font:600 12px system-ui,sans-serif;color:#ffd9c8;text-shadow:0 1px 2px #000}',
+      '#bsiAP-hud .bers:empty{display:none}',
+      '#bsiAP-hud .bers b{color:#ffd24a}',
+      '#bsiAP-hud .bers .bb{height:5px;background:rgba(0,0,0,.6);border:1px solid #6a2a20;border-radius:3px;margin-top:3px;overflow:hidden}',
+      '#bsiAP-hud .bers .bb i{display:block;height:100%;background:linear-gradient(90deg,#ff4d3a,#ff9a4d)}',
+      '#bsiAP-hud .poteri{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);display:flex;gap:5px;pointer-events:auto}',
+      '.bsiAP-pt{position:relative;width:38px;height:38px;border-radius:50%;border:2px solid var(--c);',
+      ' background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),rgba(8,14,20,.92) 60%);',
+      ' color:#fff;font:800 13px system-ui,sans-serif;cursor:pointer;touch-action:none;',
+      ' box-shadow:0 0 8px var(--c);opacity:.72;transition:transform .12s,opacity .12s}',
+      '.bsiAP-pt i{position:absolute;top:-5px;left:-3px;font:700 9px system-ui;font-style:normal;color:#cfe2f5;',
+      ' background:#0b1a26;border-radius:6px;padding:0 3px}',
+      '.bsiAP-pt.sel{opacity:1;transform:scale(1.18);box-shadow:0 0 16px var(--c),inset 0 0 10px var(--c)}',
+      '.bsiAP-pt.scarico{filter:grayscale(.8) brightness(.6)}',
+      '#bsiAP-hud .barra.energia{width:120px;height:7px}',
+      '#bsiAP-hud .barra.energia b{display:block;height:100%;border-radius:1px;transition:width .2s;',
+      ' background:linear-gradient(90deg,#7a4dff,#3ee0ff);box-shadow:0 0 6px rgba(120,80,255,.6)}',
+      '#bsiAP-hud .scudo{color:#ffd24a;text-shadow:0 0 6px #ffd24a}',
+      '.bsiAP-t.fuoco{background:radial-gradient(circle,#5a1c14,#2a0c08);border-color:#ff6a3a;color:#ffb08a}',
       '#bsiAP-avviso{position:absolute;left:50%;transform:translateX(-50%);bottom:58px;',
       ' background:rgba(3,10,16,.86);border:1px solid rgba(143,227,196,.3);border-radius:8px;',
       ' padding:7px 12px;max-width:86%;font-size:12px;line-height:1.5;opacity:0;',
@@ -2395,8 +2477,18 @@
         '<div class="boss" id="apH-boss"></div>' +
         '<canvas id="bsiAP-mappa" width="192" height="192"></canvas>' +
         '<div id="bsiAP-mirino"></div>' +
+        '<div class="bers" id="apH-bers"></div>' +
+        '<div id="bsiAP-dir"></div>' +
+        '<div class="poteri" id="apH-poteri"></div>' +
         '<div class="basso" id="apH-basso"></div>';
       hudPrec = {};
+      /* la barra dei poteri: un tocco sceglie */
+      h.addEventListener('pointerdown', function (ev) {
+        var b3 = ev.target.closest('[data-pot]');
+        if (!b3) return;
+        ev.preventDefault(); ev.stopPropagation();
+        scegliPotere(b3.getAttribute('data-pot'));
+      });
     }
     var st = stanzaDi(S.pos.x, S.pos.z);
     var b = bersaglio();
@@ -2425,12 +2517,24 @@
         else if (S.inMano) dosi = 1;
         return '<span class="barra salute" role="img" aria-label="' + t('salute ', 'health ') + S.vite + '/' + S.vitaMax + '">' + tacche + '</span>' +
                '<span class="barra reagente" role="img" aria-label="' + t('reagente', 'reagent') + '"><b style="width:' +
-               Math.round(dosi * 100) + '%"></b></span>';
+               Math.round(dosi * 100) + '%"></b></span>' +
+               '<span class="barra energia" role="img" aria-label="' + t('energia ', 'energy ') + Math.round(S.energia || 0) + '"><b style="width:' +
+               Math.round(S.energia == null ? 100 : S.energia) + '%"></b></span>' + (S.scudo > 0 ? ' <span class="scudo">🛡</span>' : '');
       })(),
       dove: '<small>' + esc(t('LIVELLO ', 'LEVEL ') + mondo.livello.n + ' · ' +
             String(mondo.ala.nome).split('·')[0]) + '</small>' +
             esc(S.lab ? (NOMI_LAB[S.lab.nome] ? t(NOMI_LAB[S.lab.nome][0], NOMI_LAB[S.lab.nome][1]) : S.lab.nome) : (st ? st.nome : '')),
-      punti: String(S.punti).padStart(6, '0'),
+      punti: String(S.punti).padStart(6, '0') + (S.uccisi ? ' <small>☠ ' + S.uccisi + '</small>' : ''),
+      poteri: S.lab ? '' : barraPoteri(),
+      bers: (function () {
+        var n = S.lab ? null : nelMirino(16);
+        if (!n || !n.o) return '';
+        var sp = specieDi(n.o), en = lingua() === 'en' ? 1 : 0;
+        var id = S.inMano && ricetta(S.inMano) ? S.inMano : potereAttivo();
+        var debole = id && moltiplicatore(n.o, id) > 1;
+        return esc(sp.nome[en]) + (debole ? ' <b>' + t('· debole a ', '· weak to ') + esc(id) + '</b>' : '') +
+               '<div class="bb"><i style="width:' + Math.round(100 * Math.max(0, n.o.vita) / sp.vita) + '%"></i></div>';
+      })(),
       boss: f ? esc(S.boss._def.nome) + ' · ' + t('fase ', 'phase ') + S.boss.fase + '/' +
                 S.boss._def.fasi.length + ' — ' + esc(f.descr) +
                 '<div class="bb"><i style="width:' + Math.round(100 * S.boss.vita / f.colpi) + '%"></i></div>' : '',
@@ -2745,6 +2849,13 @@
           '• «hands animation» — hugo colauto (Sketchfab, Sketchfab Standard)<br>' +
           '• «Modern Scientist in a Lab Coat» — restore50 (Sketchfab, CC-BY 4.0)<br>' +
           '• «Capsule Gun» — sc8di (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Worm Monster» — CR!STALLL (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Scary Monster» — L. (Sketchfab, Sketchfab Standard)<br>' +
+          '• «SWAMP MONSTER» — alexalbinyana (Sketchfab, CC-BY 4.0)<br>' +
+          '• «The Human Deer» — ceeleste (Sketchfab, CC-BY 4.0)<br>' +
+          '• «6- Stylized- Monster» — Lex Wild (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Monster» — itszyx123456789 (Sketchfab, CC-BY 4.0)<br>' +
+          '• «CREATURE MONSTER 3D BY Oscar Creativo» — OSCAR CREATIVO (Sketchfab, CC-BY 4.0)<br>' +
           '• «Small Lab» — Biohazard Rooms (Sketchfab, CC-BY 4.0)<br>' +
           '• «Sci-fi lab» — Agata Wilczek (Sketchfab, CC-BY 4.0)<br>' +
           '• «Flynn\'s Secret Lab [Tron Legacy]» — jvouillon (Sketchfab, CC-BY 4.0)<br>' +
@@ -3044,6 +3155,70 @@
     });
   }
 
+  /* LO ZOOM (la mira): il campo visivo si stringe con una curva morbida,
+     lo sguardo diventa piu' preciso, ci si muove piu' piano */
+  var zoom = 0, zoomVoluto = 0, FOV_BASE = null;
+  function cambiaZoom(v) {
+    zoomVoluto = v == null ? (zoomVoluto ? 0 : 1) : v;
+    var b2 = document.getElementById('apB-zoom'); if (b2) b2.classList.toggle('giu', !!zoomVoluto);
+    var sc = document.getElementById('bsiAP-scena'); if (sc) sc.classList.toggle('mira', !!zoomVoluto);
+  }
+  function aggiornaZoom(dt) {
+    if (!camera) return;
+    if (FOV_BASE == null || FOV_BASE.cam !== camera) FOV_BASE = { cam: camera, fov: camera.fov };
+    zoom += (zoomVoluto - zoom) * Math.min(1, dt * 12);
+    var f = FOV_BASE.fov * (1 - zoom * 0.45);
+    if (Math.abs(camera.fov - f) > 0.01) { camera.fov = f; camera.updateProjectionMatrix(); }
+  }
+  /* LO SCHERMO INTERO: la scena del gioco riempie lo schermo (con l'API
+     del browser dove c'e'; su iPhone, che non la ha, la sola scena fissata
+     a tutto schermo) */
+  function schermoIntero(v) {
+    var dentro = document.body.classList.contains('bsiAP-pieno');
+    var vuole = v == null ? !dentro : v;
+    var el = document.documentElement;
+    if (vuole) {
+      document.body.classList.add('bsiAP-pieno');
+      try { if (el.requestFullscreen && !document.fullscreenElement) el.requestFullscreen({ navigationUI: 'hide' }).catch(function () {}); } catch (e) {}
+      try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
+    } else {
+      document.body.classList.remove('bsiAP-pieno');
+      try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); } catch (e) {}
+    }
+    var b2 = document.getElementById('apB-pieno');
+    if (b2) { b2.textContent = vuole ? '⤡' : '⛶'; b2.setAttribute('aria-label', vuole ? t('esci dallo schermo intero', 'exit full screen') : t('schermo intero', 'full screen')); }
+    dimPrec = '';
+  }
+  document.addEventListener('fullscreenchange', function () {
+    if (!document.fullscreenElement && document.body.classList.contains('bsiAP-pieno')) schermoIntero(false);
+  });
+
+  /* LA BARRA DEI POTERI: un tasto per elemento raccolto (al massimo nove),
+     con il numero, il colore e il costo; si sceglie col tocco, con 1–9 o
+     con la rotella */
+  function scegliPotere(sim) {
+    if (!S || !S.inventario.some(function (x) { return x.sim === sim; })) return;
+    if (S.potere === sim) return;
+    S.potere = sim;
+    bip(760, 0.05, 'triangle', 0.04);
+    avviso('✦ ' + sim + ' · ' + nomePotere(sim), t('energia ', 'energy ') + costoPotere(sim));
+  }
+  function scorriPotere(verso) {
+    var l = S.inventario.map(function (x) { return x.sim; }).slice(0, 9);
+    if (!l.length) return;
+    var i = l.indexOf(potereAttivo());
+    scegliPotere(l[(i + verso + l.length) % l.length]);
+  }
+  function barraPoteri() {
+    var l = S.inventario.slice(0, 9), pa = potereAttivo();
+    return l.map(function (x, i) {
+      var col = '#' + ('000000' + ((POTERI[x.sim] && POTERI[x.sim].colore) || 0xffffff).toString(16)).slice(-6);
+      var pronto = (S.energia || 0) >= costoPotere(x.sim);
+      return '<button class="bsiAP-pt' + (x.sim === pa ? ' sel' : '') + (pronto ? '' : ' scarico') + '" data-pot="' + x.sim +
+             '" style="--c:' + col + '" aria-label="' + esc(x.sim + ' ' + nomePotere(x.sim)) + '"><i>' + (i + 1) + '</i>' + x.sim + '</button>';
+    }).join('');
+  }
+
   /* ── i comandi a schermo ─────────────────────────────────────────────── */
   function comandi() {
     var c = document.getElementById('bsiAP-comandi');
@@ -3064,7 +3239,11 @@
         '<button class="bsiAP-t" id="apB-pausa" aria-label="' + t('pausa', 'pause') + '">❚❚</button>' +
         '<button class="bsiAP-t" data-k="salto" aria-label="' + t('salta', 'jump') + '">⤒</button>' +
         '<button class="bsiAP-t" id="apB-usa" aria-label="' + t('interagisci', 'interact') + '">✋</button>' +
-        '<button class="bsiAP-t" id="apB-pot" aria-label="' + t('usa quello che hai in mano', 'use what you hold') + '">✦</button>' +
+        '<button class="bsiAP-t" id="apB-pot" aria-label="' + t('scatena il potere', 'unleash the power') + '">✦</button>' +
+        '<button class="bsiAP-t" id="apB-zoom" aria-label="' + t('mira (zoom)', 'aim (zoom)') + '">🔍</button>' +
+        '<button class="bsiAP-t" id="apB-pieno" aria-label="' + t('schermo intero', 'full screen') + '">⛶</button>' +
+        '<button class="bsiAP-t" id="apB-pugno" aria-label="' + t('pugno', 'punch') + '">👊</button>' +
+        '<button class="bsiAP-t fuoco" id="apB-spara" aria-label="' + t('spara', 'fire') + '">◉</button>' +
       '</div>';
     [].forEach.call(c.querySelectorAll('[data-k]'), function (b) {
       var k = b.getAttribute('data-k');
@@ -3077,7 +3256,17 @@
       b.addEventListener('lostpointercapture', su2);
     });
     su('apB-usa', function () { if (schermo === 'gioco') interagisci(); });
-    su('apB-pot', function () { if (schermo === 'gioco') usaRapido(); });
+    su('apB-pot', function () { if (schermo === 'gioco') usaPotere(); });
+    su('apB-zoom', function () { if (schermo === 'gioco') cambiaZoom(); });
+    su('apB-pugno', function () { if (schermo === 'gioco') pugno(); });
+    su('apB-pieno', function () { schermoIntero(); });
+    /* sparare: tenendo premuto si spara di continuo */
+    var bSp = document.getElementById('apB-spara'), raffica = null;
+    if (bSp) {
+      var fermaR = function () { if (raffica) clearInterval(raffica); raffica = null; bSp.classList.remove('giu'); };
+      bSp.addEventListener('pointerdown', function (e) { e.preventDefault(); if (schermo !== 'gioco') return; bSp.classList.add('giu'); usaRapido(); raffica = setInterval(function () { if (schermo === 'gioco') usaRapido(); }, 250); });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { bSp.addEventListener(ev, fermaR); });
+    }
     su('apB-cambia', function () { if (schermo === 'gioco') cambiaInMano(); });
     su('apB-inv', function () { if (!S) return; schermo = 'inventario'; fermaCiclo(); disegnaUI(); });
     su('apB-pausa', function () { if (!S) return; schermo = 'pausa'; fermaCiclo(); disegnaUI(); });
@@ -3096,32 +3285,782 @@
     avviso('✦ ' + nomeInMano());
   }
 
-  /* usare quello che si ha in mano: la scorciatoia del combattimento */
-  function usaRapido() {
-    if (elementoInMano()) lancio(); else spruzzo();
-    if (S.boss && S.boss.attivo && /^enigma:/.test(faseCorrente(S.boss).serve)) { sfidaBoss(); return; }
-    var d = disponibili();
-    if (!d.length) {
-      avviso(t('Non hai niente: cerca gli elementi e vai al banco di sintesi',
-               'You have nothing: find the elements and go to the synthesis bench'));
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL COMBATTIMENTO
+
+     LE ARMI. La pistola a capsula spara sempre: un getto di soluzione
+     (danno 1); con un composto in capsula il getto e' quel composto (danno
+     2, doppio sul nemico che lo teme) e ogni colpo andato a segno costa una
+     dose. Mira dove guardi, fino a 16 m, se non c'e' un muro in mezzo.
+     I POTERI. La sinistra scatena l'elemento scelto nella barra (1–9, la
+     rotella, o un tocco sulla barra), consumando energia che si ricarica:
+       scintille (i metalli)   la SCARICA che salta fra tre nemici e li
+                               stordisce; il sodio e il potassio esplodono
+       fiamma (O, H, C, S, P)  la PALLA DI FUOCO che esplode dove arriva
+       vapore (Cl, F, Ar)      la NUBE tossica che resta e corrode;
+                               l'azoto e' una nube di GELO che rallenta
+       luce (gli altri)        l'ONDA D'URTO intorno a te; il piombo e
+                               l'oro fanno uno SCUDO; l'uranio la FISSIONE
+     I NEMICI. Tre specie con il loro punto debole chimico: il residuo (un
+     solvente: lo distruggono gli ossidanti e il fuoco), la sentinella (un
+     drone: la mandano in corto le scariche), l'automa (un robot: lo
+     corrodono gli acidi, lo blocca il gelo).
+     ═════════════════════════════════════════════════════════════════════════ */
+  var SPECIE = {
+    residuo: { vita: 3, nome: ['Residuo corrosivo', 'Corrosive residue'], altezza: 0.3, raggio: 0.62,
+               debole: ['Cl', 'O', 'F', 'H2O2', 'H2SO4', 'HCl', 'NaOH', 'fiamma'], punti: 60 },
+    drone:   { vita: 4, nome: ['Sentinella', 'Sentinel'], altezza: 1.55, raggio: 0.5,
+               debole: ['scintille', 'NaOH', 'NaCl'], punti: 90 },
+    automa:  { vita: 7, nome: ['Automa di servizio', 'Service automaton'], altezza: 1.0, raggio: 0.55,
+               debole: ['HCl', 'H2SO4', 'HNO3', 'gelo'], punti: 140 }
+  };
+  /* I NEMICI DAI MODELLI (models/nemici/, forniti dall'utente): ogni specie
+     ha il suo modello, il suo modo di attaccare, il suo colore (quello dei
+     colpi, degli occhi, delle schegge) e il suo punto debole */
+  var SPECIE_M = {
+    verme:    { modello: 'verme', modo: 'mischia', vita: 4, alto: 1.75, raggio: 0.55, colore: 0x9fb7ff, vel: 2.1, portata: 1.5,
+                nome: ['Verme di scarico', 'Drain worm'], debole: ['Cl', 'O', 'H2O2', 'fiamma'], punti: 70, anim: { idle: 'Idle', passo: 'WALK', corsa: 'RUN', attacco: 'ATTACK', ferito: 'WOUND_1', morte: 'DEATH' } },
+    curvo:    { modello: 'curvo', modo: 'salto', vita: 5, alto: 1.9, raggio: 0.6, colore: 0xff6a4a, vel: 1.8, portata: 1.4,
+                nome: ['Rampicante', 'Lurcher'], debole: ['fiamma', 'HCl'], punti: 90 },
+    palude:   { modello: 'palude', modo: 'sputo', vita: 7, alto: 2.0, raggio: 0.62, colore: 0x8fe36b, vel: 1.0, portata: 1.4,
+                nome: ['Fanghiglia', 'Bog thing'], debole: ['NaOH', 'O', 'fiamma'], punti: 110 },
+    cervo:    { modello: 'cervo', modo: 'mischia', vita: 6, alto: 2.35, raggio: 0.55, colore: 0xff3040, vel: 2.6, portata: 1.7,
+                nome: ['Il cervo', 'The deer'], debole: ['scintille', 'gelo'], punti: 130, anim: { idle: 'Take 001', passo: 'Take 001', corsa: 'Take 001' } },
+    abissale: { modello: 'abissale', modo: 'fluttua', vita: 6, alto: 1.9, raggio: 0.6, colore: 0x3ee0c8, vel: 1.6, portata: 1.4, quota: 0.6,
+                nome: ['Abissale', 'Abyssal'], debole: ['scintille', 'NaCl'], punti: 120 },
+    mostro:   { modello: 'mostro', modo: 'carica', vita: 9, alto: 2.15, raggio: 0.7, colore: 0x3ef0ff, vel: 1.4, portata: 1.6,
+                nome: ['Cristallino', 'Crystalline'], debole: ['HCl', 'H2SO4', 'HNO3', 'gelo'], punti: 160, anim: { idle: 'Anim', passo: 'Anim', corsa: 'Anim' } },
+    bruto:    { modello: 'bruto', modo: 'carica', vita: 13, alto: 2.6, raggio: 0.85, colore: 0xff2a2a, vel: 1.1, portata: 2.0, abbassaBraccia: 1.15,
+                nome: ['Bruto', 'Brute'], debole: ['gelo', 'U', 'HNO3'], punti: 220 }
+  };
+  var ACIDI = ['HCl', 'H2SO4', 'HNO3'];
+  var proiettili = [], effetti = [], numeri = [], nubi = [];
+  var CD = { sparo: 0, potere: 0 };
+  function specieDi(o) {
+    var m = SPECIE_M[o.specie];
+    if (m) return { vita: m.vita, nome: m.nome, altezza: m.alto * 0.55 + (m.quota || 0), raggio: m.raggio, debole: m.debole, punti: m.punti, m: m };
+    return SPECIE[o.specie] || SPECIE.residuo;
+  }
+  function costoPotere(sim) {
+    var tp = TIPO_POTERE[sim] || 'luce';
+    if (sim === 'U') return 60;
+    return tp === 'scintille' ? 25 : tp === 'fiamma' ? 30 : tp === 'vapore' ? 30 : 35;
+  }
+  function nomePotere(sim) {
+    var tp = TIPO_POTERE[sim] || 'luce';
+    if (sim === 'Na' || sim === 'K') return t('Scarica esplosiva', 'Explosive discharge');
+    if (sim === 'N') return t('Nube di gelo', 'Frost cloud');
+    if (sim === 'Pb' || sim === 'Au') return t('Scudo', 'Shield');
+    if (sim === 'U') return t('Fissione', 'Fission');
+    return { scintille: t('Scarica a catena', 'Chain discharge'), fiamma: t('Palla di fuoco', 'Fireball'),
+             vapore: t('Nube tossica', 'Toxic cloud'), luce: t('Onda d’urto', 'Shockwave') }[tp];
+  }
+  /* il nemico nel mondo */
+  function posNemico(o) {
+    var st = mondo.zona.stanze.filter(function (x) { return x.id === o._stanza; })[0];
+    return new T.Vector3((st ? st.x : 0) + o.x, specieDi(o).altezza + (o._quota || 0) + (o._quotaSalto || 0), (st ? st.z : 0) + o.z);
+  }
+  function nemiciVivi(raggio, centro) {
+    var out = [];
+    if (!mondo || S.lab) return out;
+    tuttiGliOggetti(function (o) {
+      if (o.tipo !== 'nemico' || !o.vivo || !o._nodo) return;
+      var p = posNemico(o);
+      if (!centro || p.distanceTo(centro) <= raggio) out.push({ o: o, p: p });
+    });
+    return out;
+  }
+  /* quale nemico ho nel mirino: il raggio dalla telecamera, la sfera del
+     nemico, niente muri in mezzo */
+  function nelMirino(portata) {
+    if (!camera || !mondo || S.lab) return null;
+    var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
+    var migl = null, dm = portata || 16;
+    nemiciVivi().forEach(function (n) {
+      var v = n.p.clone().sub(orig), lungo = v.dot(dir);
+      if (lungo < 0.2 || lungo > dm) return;
+      var lat = v.addScaledVector(dir, -lungo).length();
+      if (lat > specieDi(n.o).raggio * (zoom > 0.5 ? 1.1 : 1.35)) return;
+      if (!vistaLibera(S.pos.x, S.pos.z, n.p.x, n.p.z)) return;
+      dm = lungo; migl = n;
+    });
+    if (S.boss && S.boss.attivo && S.boss._nodo) {
+      var bp = S.boss._nodo.getWorldPosition(new T.Vector3()); bp.y += 1.2;
+      var v2 = bp.clone().sub(orig), l2 = v2.dot(dir);
+      if (l2 > 0.2 && l2 < dm && v2.addScaledVector(dir, -l2).length() < 1.6) migl = { boss: S.boss, p: bp };
+    }
+    return migl;
+  }
+  function moltiplicatore(o, chi) {
+    var deb = specieDi(o).debole;
+    return (deb.indexOf(chi) >= 0 || deb.indexOf(TIPO_POTERE[chi]) >= 0) ? 2 : 1;
+  }
+  function ferisci(o, quanto, chi, p) {
+    if (!o.vivo) return;
+    var k = chi ? moltiplicatore(o, chi) : 1, d = Math.max(1, Math.round(quanto * k));
+    o.vita = (o.vita == null ? specieDi(o).vita : o.vita) - d;
+    o._lampo = 1; o._ferito = 1;
+    numero(p || posNemico(o), (k > 1 ? '✦' : '') + d, k > 1 ? '#ffd24a' : '#ffffff');
+    segnoColpo(k > 1);
+    if (o.vita <= 0) abbattiNemico(o, p || posNemico(o));
+  }
+  function abbattiNemico(o, p) {
+    o.vivo = false; o.abbattuto = true; o._muore = 1;
+    if (o._mod && animaClip(o, 'morte', true)) o._muoreClip = true;
+    if (o._chiave) S.presi[o._chiave] = true;
+    var sp = specieDi(o);
+    S.punti += sp.punti;
+    S.uccisi = (S.uccisi || 0) + 1;
+    esplosione(p, o.specie === 'residuo' ? 0x8fe36b : 0xffb04d, o.specie === 'automa' ? 1.4 : 1, true);
+    bip(o.specie === 'residuo' ? 300 : 180, 0.25, 'sawtooth', 0.07);
+    /* l'energia torna, e a volte una tacca di salute */
+    S.energia = Math.min(100, (S.energia || 0) + 15);
+    if (S.vite < S.vitaMax && ((S.uccisi * 7) % 10) < 3) { S.vite++; avviso(t('+1 salute', '+1 health'), sp.nome[lingua() === 'en' ? 1 : 0]); }
+  }
+  function lingua() { return (globale.BSI_LINGUA || document.documentElement.lang || 'it').slice(0, 2); }
+
+  /* SPARARE */
+  function sparo() {
+    if (!S || schermo !== 'gioco' || S.finito) return;
+    if (CD.sparo > 0) return;
+    CD.sparo = 0.24;
+    spruzzo();
+    var bers = nelMirino(16);
+    var id = S.inMano && ricetta(S.inMano) ? S.inMano : null;
+    var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
+    var fine = bers ? bers.p.clone() : orig.clone().addScaledVector(dir, 12);
+    traccia(orig.clone().add(new T.Vector3(0, -0.12, 0)).addScaledVector(dir, 0.6), fine, animV.colore || 0x9fe8ff);
+    luceLampo(orig.clone().addScaledVector(dir, 0.8), animV.colore || 0x9fe8ff, 1.2, 0.08);
+    if (!bers) return;
+    if (bers.boss) { if (id) { usaSu(id); consumaDose(id); } else avviso(t('Il guardiano si ferma solo con il composto giusto', 'The guardian only stops with the right compound')); return; }
+    ferisci(bers.o, id ? 2 : 1, id, bers.p);
+    scintille(bers.p, animV.colore || 0x9fe8ff, 10);
+    if (id) consumaDose(id);
+  }
+  function consumaDose(id) {
+    var c = S.composti.filter(function (x) { return x.id === id; })[0];
+    if (!c) return;
+    c.dosi--;
+    if (c.dosi <= 0) { S.composti.splice(S.composti.indexOf(c), 1); S.inMano = disponibili().filter(function (x) { return ricetta(x); })[0] || null; }
+  }
+
+  /* I POTERI */
+  function usaPotere() {
+    if (!S || schermo !== 'gioco' || S.finito) return;
+    var sim = potereAttivo();
+    if (!sim) { avviso(t('Nessun potere: raccogli un elemento', 'No power: collect an element')); return; }
+    if (CD.potere > 0) return;
+    var costo = costoPotere(sim);
+    if ((S.energia || 0) < costo) { avviso(t('Energia insufficiente', 'Not enough energy'), Math.round(S.energia || 0) + '/' + costo); bip(140, 0.1, 'square', 0.04); return; }
+    S.energia -= costo;
+    CD.potere = 0.6;
+    lancio();
+    var col = (POTERI[sim] && POTERI[sim].colore) || 0xffffff;
+    var tp = TIPO_POTERE[sim] || 'luce';
+    var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
+    var mano = orig.clone().add(new T.Vector3(0, -0.2, 0)).addScaledVector(dir, 0.5);
+    var x = S.inventario.filter(function (y) { return y.sim === sim; })[0];
+    if (x) { x.usi++; if (x.usi % 3 === 0 && x.padronanza < 5) x.padronanza++; }
+    var forza = 1 + ((x && x.padronanza) || 1) * 0.15;
+    if (sim === 'Pb' || sim === 'Au') {
+      S.scudo = 4; S.immune = Math.max(S.immune, 240);
+      esplosione(orig.clone().addScaledVector(dir, 0.8), col, 0.8, false);
+      avviso('🛡 ' + nomePotere(sim), t('4 secondi senza danni', '4 seconds without damage'));
+      bip(520, 0.3, 'sine', 0.07);
       return;
     }
-    if (d.indexOf(S.inMano) < 0) S.inMano = d[0];
-    var id = S.inMano;
-    if (usaSu(id) && ricetta(id)) {
-      var c = S.composti.filter(function (x) { return x.id === id; })[0];
-      if (c) {
-        c.dosi--;
-        if (c.dosi <= 0) {
-          S.composti.splice(S.composti.indexOf(c), 1);
-          S.inMano = disponibili()[0] || null;
+    if (tp === 'scintille') {
+      /* la scarica: dal mirino al nemico piu' vicino, poi a catena */
+      var colpiti = [], da = mano.clone(), primo = nelMirino(18);
+      var lista = nemiciVivi(14, orig).sort(function (a2, b2) { return a2.p.distanceTo(orig) - b2.p.distanceTo(orig); });
+      if (primo && primo.o) lista.unshift(primo);
+      for (var i = 0; i < lista.length && colpiti.length < 3; i++) {
+        var n = lista[i];
+        if (colpiti.indexOf(n.o) >= 0 || n.p.distanceTo(da) > 9) continue;
+        if (!vistaLibera(da.x, da.z, n.p.x, n.p.z)) continue;
+        fulmine(da, n.p, col);
+        ferisci(n.o, 2 * forza, sim, n.p);
+        n.o._stordito = 1.4;
+        colpiti.push(n.o); da = n.p.clone();
+      }
+      if (!colpiti.length) fulmine(mano, orig.clone().addScaledVector(dir, 7), col);
+      if (sim === 'Na' || sim === 'K') esplosione(colpiti.length ? da : orig.clone().addScaledVector(dir, 5), 0xffd24a, 1.3, true, 2, sim);
+      bip(900, 0.12, 'sawtooth', 0.06);
+    } else if (tp === 'fiamma') {
+      proiettili.push(proiettile(mano, dir.clone().multiplyScalar(14), col, true, sim, 3 * forza));
+      bip(260, 0.25, 'sawtooth', 0.06);
+    } else if (tp === 'vapore') {
+      var dove = nelMirino(12);
+      var punto = dove ? dove.p.clone() : orig.clone().addScaledVector(dir, 6);
+      punto.y = 0.5;
+      nubi.push(creaNube(punto, sim === 'N' ? 0xbfe6ff : col, sim === 'N' ? 'gelo' : 'tossica', sim));
+      bip(sim === 'N' ? 1400 : 200, 0.4, 'sine', 0.05);
+    } else if (sim === 'U') {
+      var dU = nelMirino(18), pU = dU ? dU.p.clone() : orig.clone().addScaledVector(dir, 8);
+      esplosione(pU, 0x6aff6a, 2.4, true, 5, sim);
+      bip(80, 0.6, 'sawtooth', 0.1);
+    } else {
+      /* l'onda d'urto intorno */
+      esplosione(new T.Vector3(S.pos.x, 1, S.pos.z), col, 1.8, true, 0, sim);
+      nemiciVivi(4.5, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
+        ferisci(n.o, 2, sim, n.p);
+        var v = n.p.clone().sub(new T.Vector3(S.pos.x, n.p.y, S.pos.z)).normalize();
+        n.o._spinta = { x: v.x * 0.12, z: v.z * 0.12 };
+      });
+      bip(160, 0.35, 'triangle', 0.08);
+    }
+    scossa = Math.max(scossa, 0.35);
+  }
+
+  /* GLI EFFETTI NEL MONDO: sprite additivi in un piccolo deposito, una
+     luce sola che lampeggia (le luci della scena sono sempre le stesse) */
+  var texPunto = null;
+  function texEffetto() {
+    if (texPunto) return texPunto;
+    var cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    var q = cv.getContext('2d'), g = q.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.7)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    q.fillStyle = g; q.fillRect(0, 0, 64, 64);
+    return (texPunto = new T.CanvasTexture(cv));
+  }
+  function sprite(col, op) {
+    var sp = new T.Sprite(new T.SpriteMaterial({ map: texEffetto(), color: col, transparent: true, depthWrite: false,
+                                                 blending: T.AdditiveBlending, opacity: op == null ? 1 : op, toneMapped: false }));
+    scena.add(sp);
+    return sp;
+  }
+  function particella(p, v, col, vita, dim, gravita) {
+    var sp = sprite(col); sp.position.copy(p); sp.scale.setScalar(dim);
+    effetti.push({ o: sp, v: v, t: 0, vita: vita, dim: dim, g: gravita == null ? 4 : gravita });
+  }
+  function scintille(p, col, n) {
+    for (var i = 0; i < n; i++) particella(p, new T.Vector3((Math.random() - 0.5) * 4, Math.random() * 3, (Math.random() - 0.5) * 4), col, 0.35 + Math.random() * 0.3, 0.08, 6);
+  }
+  function esplosione(p, col, dim, danno2, quanto, chi) {
+    for (var i = 0; i < 26 * dim; i++) {
+      var v = new T.Vector3(Math.random() - 0.5, Math.random() * 0.8, Math.random() - 0.5).normalize().multiplyScalar(2 + Math.random() * 4 * dim);
+      particella(p, v, i % 3 ? col : 0xffffff, 0.5 + Math.random() * 0.5, 0.18 * dim + Math.random() * 0.2, 2);
+    }
+    particella(p, new T.Vector3(), col, 0.3, 1.5 * dim, 0);
+    luceLampo(p, col, 3 * dim, 0.3);
+    scossa = Math.max(scossa, 0.5 * dim);
+    if (danno2 && quanto) nemiciVivi(2.6 * dim, p).forEach(function (n) { ferisci(n.o, quanto, chi, n.p); });
+  }
+  function traccia(a2, b2, col) {
+    var n = Math.max(4, Math.round(a2.distanceTo(b2) / 0.4));
+    for (var i = 0; i <= n; i++) particella(a2.clone().lerp(b2, i / n), new T.Vector3(), col, 0.12 + i / n * 0.05, 0.07, 0);
+  }
+  function fulmine(a2, b2, col) {
+    var n = 14, prec = a2.clone();
+    for (var i = 1; i <= n; i++) {
+      var p = a2.clone().lerp(b2, i / n);
+      if (i < n) p.add(new T.Vector3((Math.random() - 0.5) * 0.35, (Math.random() - 0.5) * 0.35, (Math.random() - 0.5) * 0.35));
+      for (var k = 0; k < 3; k++) particella(prec.clone().lerp(p, k / 3), new T.Vector3(), k ? col : 0xffffff, 0.18, 0.09, 0);
+      prec = p;
+    }
+    luceLampo(b2, col, 2, 0.15);
+  }
+  function luceLampo(p, col, int, durata) {
+    if (!luci || !luci.lampo) return;
+    luci.lampo.position.copy(p); luci.lampo.color.setHex(col);
+    luci.lampo.intensity = int; luci.lampo.userData.cala = int / Math.max(0.05, durata);
+  }
+  function proiettile(p, v, col, mio, chi, danno2) {
+    var sp = sprite(col); sp.position.copy(p); sp.scale.setScalar(mio ? 0.45 : 0.32);
+    var nucleo = sprite(0xffffff); nucleo.position.copy(p); nucleo.scale.setScalar(mio ? 0.18 : 0.14);
+    return { o: sp, n: nucleo, v: v, col: col, mio: mio, chi: chi, danno: danno2 || 1, t: 0 };
+  }
+  function creaNube(p, col, tipo, chi) {
+    var parti = [];
+    for (var i = 0; i < 16; i++) {
+      var sp = sprite(col, 0.32); sp.material.blending = T.NormalBlending;
+      sp.position.copy(p).add(new T.Vector3((Math.random() - 0.5) * 3.2, Math.random() * 1.4, (Math.random() - 0.5) * 3.2));
+      sp.scale.setScalar(1.4 + Math.random() * 1.4); parti.push(sp);
+    }
+    return { p: p, parti: parti, tipo: tipo, chi: chi, t: 0, vita: 4.5, colpo: 0 };
+  }
+  /* i numeri dei danni, che salgono e svaniscono */
+  function numero(p, testo, col) {
+    var sc = document.getElementById('bsiAP-scena');
+    if (!sc) return;
+    var d = document.createElement('div');
+    d.className = 'bsiAP-num'; d.textContent = testo; d.style.color = col; d.style.opacity = '0';
+    sc.appendChild(d);
+    numeri.push({ el: d, p: p.clone(), t: 0 });
+  }
+  function segnoColpo(forte) {
+    var m2 = document.getElementById('bsiAP-mirino');
+    if (!m2) return;
+    m2.classList.remove('colpo', 'forte'); void m2.offsetWidth;
+    m2.classList.add('colpo'); if (forte) m2.classList.add('forte');
+    bip(forte ? 1300 : 1000, 0.04, 'square', 0.03);
+  }
+
+  /* il passo del combattimento: nemici, proiettili, nubi, effetti */
+  function passoCombattimento(dt) {
+    CD.sparo = Math.max(0, CD.sparo - dt); CD.potere = Math.max(0, CD.potere - dt); CD.pugno = Math.max(0, (CD.pugno || 0) - dt);
+    S.energia = Math.min(100, (S.energia == null ? 100 : S.energia) + dt * 9);
+    if (S.scudo > 0) S.scudo -= dt;
+    /* i proiettili */
+    for (var i = proiettili.length - 1; i >= 0; i--) {
+      var q = proiettili[i];
+      q.t += dt;
+      if (q.g) q.v.y -= q.g * dt;
+      q.o.position.addScaledVector(q.v, dt); q.n.position.copy(q.o.position);
+      if (Math.random() < 0.6) particella(q.o.position, new T.Vector3(), q.col, 0.25, q.mio ? 0.22 : 0.15, 0);
+      var finito = q.t > 3 || q.o.position.y < 0.05;
+      if (!finito && !S.lab && !vistaLibera(q.o.position.x - q.v.x * dt, q.o.position.z - q.v.z * dt, q.o.position.x, q.o.position.z)) finito = true;
+      if (!finito) {
+        if (q.mio) {
+          if (nemiciVivi(0.9, q.o.position).length) finito = true;
+        } else if (Math.hypot(q.o.position.x - S.pos.x, q.o.position.z - S.pos.z) < 0.45 && Math.abs(q.o.position.y - (S.pos.y + 1.2)) < 0.8) {
+          finito = true;
+          if (!(S.scudo > 0)) danno(q.nome ? q.nome[lingua() === 'en' ? 1 : 0] + t(' ti ha colpito', ' hit you') : t('una sentinella ti ha colpito', 'a sentinel hit you'), q.fonte);
+          else esplosione(q.o.position, 0xffcc33, 0.4, false);
         }
       }
-    } else if (!ricetta(id)) {
-      var x = S.inventario.filter(function (y) { return y.sim === id; })[0];
-      if (x) { x.usi++; if (x.usi % 3 === 0 && x.padronanza < 5) x.padronanza++; }
+      if (finito) {
+        if (q.mio) esplosione(q.o.position, q.col, 1.2, true, q.danno, q.chi);
+        else scintille(q.o.position, q.col, 8);
+        scena.remove(q.o); scena.remove(q.n); q.o.material.dispose(); q.n.material.dispose();
+        proiettili.splice(i, 1);
+      }
+    }
+    /* le nubi */
+    for (var j = nubi.length - 1; j >= 0; j--) {
+      var nb = nubi[j];
+      nb.t += dt; nb.colpo -= dt;
+      nb.parti.forEach(function (sp, k) {
+        sp.position.y += dt * 0.08; sp.material.rotation += dt * (k % 2 ? 0.3 : -0.3);
+        sp.material.opacity = Math.min(0.36, (nb.vita - nb.t) * 0.16) * (0.75 + Math.sin(nb.t * 3 + k) * 0.25);
+      });
+      if (nb.colpo <= 0) {
+        nb.colpo = 0.6;
+        nemiciVivi(3, nb.p).forEach(function (n) {
+          if (nb.tipo === 'gelo') { n.o._gelo = 3; ferisci(n.o, 1, 'gelo', n.p); }
+          else ferisci(n.o, 1, nb.chi, n.p);
+        });
+      }
+      if (nb.t > nb.vita) { nb.parti.forEach(function (sp) { scena.remove(sp); sp.material.dispose(); }); nubi.splice(j, 1); }
+    }
+    /* gli effetti */
+    for (var k2 = effetti.length - 1; k2 >= 0; k2--) {
+      var e = effetti[k2];
+      e.t += dt;
+      e.v.y -= e.g * dt;
+      e.o.position.addScaledVector(e.v, dt);
+      var f = 1 - e.t / e.vita;
+      e.o.material.opacity = Math.max(0, f);
+      e.o.scale.setScalar(e.dim * (e.g === 0 && e.dim > 1 ? 1 + (1 - f) * 0.6 : 0.6 + f * 0.4));
+      if (e.t >= e.vita) { scena.remove(e.o); e.o.material.dispose(); effetti.splice(k2, 1); }
+    }
+    if (effetti.length > 600) effetti.splice(0, effetti.length - 600).forEach(function (e) { scena.remove(e.o); e.o.material.dispose(); });
+    if (luci && luci.lampo && luci.lampo.intensity > 0) luci.lampo.intensity = Math.max(0, luci.lampo.intensity - (luci.lampo.userData.cala || 10) * dt);
+  }
+  /* togliere tutto quando si cambia livello */
+  function pulisciCombattimento() {
+    proiettili.forEach(function (q) { if (scena) { scena.remove(q.o); scena.remove(q.n); } });
+    effetti.forEach(function (e) { if (scena) scena.remove(e.o); });
+    nubi.forEach(function (nb) { nb.parti.forEach(function (sp) { if (scena) scena.remove(sp); }); });
+    numeri.forEach(function (n) { if (n.el.parentNode) n.el.parentNode.removeChild(n.el); });
+    proiettili = []; effetti = []; nubi = []; numeri = [];
+  }
+  /* i numeri seguono il punto colpito sullo schermo */
+  function aggiornaNumeri(dt) {
+    var sc = document.getElementById('bsiAP-scena');
+    if (!sc || !camera) return;
+    var w = sc.clientWidth, h = sc.clientHeight;
+    for (var i = numeri.length - 1; i >= 0; i--) {
+      var n = numeri[i];
+      n.t += dt; n.p.y += dt * 0.7;
+      var v = n.p.clone().project(camera);
+      n.el.style.transform = 'translate(' + ((v.x + 1) / 2 * w) + 'px,' + ((1 - v.y) / 2 * h) + 'px) translate(-50%,-50%) scale(' + (1 + Math.max(0, 0.3 - n.t)) + ')';
+      n.el.style.opacity = String(Math.max(0, 1 - n.t / 0.9));
+      n.el.style.display = v.z > 1 ? 'none' : 'block';
+      if (n.t > 0.9) { if (n.el.parentNode) n.el.parentNode.removeChild(n.el); numeri.splice(i, 1); }
     }
   }
+
+  /* IL NEMICO: si muove nella sua stanza secondo la specie */
+  function aggiornaNemico(o, sx, st, ora) {
+    var dt = PASSO / 1000, sp = specieDi(o);
+    if (o.vita == null) o.vita = sp.vita;
+    o.t = (o.t || 0) + 1;
+    var wx = sx.x + o.x, wz = sx.z + o.z;
+    var dx = S.pos.x - wx, dz = S.pos.z - wz, d = Math.hypot(dx, dz) || 1;
+    var vede = sx === st && d < 13 && vistaLibera(wx, wz, S.pos.x, S.pos.z);
+    var lento = o._gelo > 0 ? 0.3 : 1;
+    if (o._gelo > 0) o._gelo -= dt;
+    if (o._stordito > 0) { o._stordito -= dt; lento = 0; }
+    var mx = 0, mz = 0;
+    if (vede) o._allerta = 4; else if (o._allerta > 0) o._allerta -= dt;
+    var all = o._allerta > 0 && sx === st;
+    if (o.specie === 'drone') {
+      /* tiene la distanza, gira intorno, spara */
+      o._quota = Math.sin(ora / 600 + o.t * 0.01) * 0.12;
+      if (all) {
+        var ideale = 5.5, rad = d > ideale + 1 ? 1 : d < ideale - 1.5 ? -1 : 0;
+        var lato = Math.sin(o.t * 0.01 + (o.x * 3)) > 0 ? 1 : -1;
+        mx = (dx / d * rad - dz / d * lato * 0.6) * 2.2 * dt * lento;
+        mz = (dz / d * rad + dx / d * lato * 0.6) * 2.2 * dt * lento;
+        o._colpo = (o._colpo == null ? 1.5 : o._colpo) - dt * lento;
+        if (o._colpo <= 0 && vede) {
+          o._colpo = 2.2 + ((o.t * 13) % 10) / 10;
+          var pn = posNemico(o), bers = new T.Vector3(S.pos.x + S.vel.x * 25, S.pos.y + 1.2, S.pos.z + S.vel.z * 25);
+          proiettili.push(proiettile(pn, bers.sub(pn).normalize().multiplyScalar(7), 0xff5a3a, false));
+          bip(700, 0.08, 'square', 0.03);
+        }
+      }
+      if (o._parti) {
+        o._parti.anello.rotation.z += dt * (all ? 4 : 1.2);
+        o._parti.corpo.position.y = 1.55 + o._quota;
+        o._parti.occhio.emissiveIntensity = all ? 2.6 + Math.sin(ora / 80) * 0.6 : 1.2;
+      }
+    } else if (o.specie === 'automa') {
+      /* cammina verso di te, poi si ferma, si carica e scatta */
+      o._fase = o._fase || 'cammina';
+      if (all) {
+        if (o._fase === 'cammina') {
+          mx = dx / d * 1.3 * dt * lento; mz = dz / d * 1.3 * dt * lento;
+          if (d < 6 && vede && lento > 0) { o._fase = 'carica'; o._tf = 0.6; }
+        } else if (o._fase === 'carica') {
+          o._tf -= dt; if (o._tf <= 0) { o._fase = 'scatto'; o._tf = 0.7; o._dir = { x: dx / d, z: dz / d }; bip(220, 0.2, 'sawtooth', 0.05); }
+        } else if (o._fase === 'scatto') {
+          o._tf -= dt; mx = o._dir.x * 5 * dt * lento; mz = o._dir.z * 5 * dt * lento;
+          if (o._tf <= 0) { o._fase = 'cammina'; }
+        }
+      }
+      if (o._parti) {
+        var passoA = (Math.abs(mx) + Math.abs(mz)) > 0.0005 ? ora / 160 : 0;
+        o._parti.zampe.forEach(function (z, k) { z.anca.rotation.x = Math.sin(passoA + k * Math.PI) * 0.5; z.ginocchio.rotation.x = Math.max(0, -Math.sin(passoA + k * Math.PI)) * 0.7; });
+        o._parti.braccia.forEach(function (b, k) { b.spalla.rotation.x = o._fase === 'carica' ? -1.4 : o._fase === 'scatto' ? -0.6 : Math.sin(passoA + k * Math.PI) * 0.4; });
+        o._parti.occhio.emissiveIntensity = o._fase === 'carica' ? 4 + Math.sin(ora / 40) * 2 : all ? 2.6 : 1.2;
+        o._parti.torso.rotation.y = Math.sin(ora / 700) * 0.1;
+      }
+    } else {
+      /* il residuo: striscia verso di te e scatta da vicino */
+      if (all) {
+        var v = d < 2.6 ? 3.6 : 1.5;
+        mx = dx / d * v * dt * lento; mz = dz / d * v * dt * lento;
+      }
+    }
+    if (o._spinta) { mx += o._spinta.x; mz += o._spinta.z; o._spinta.x *= 0.85; o._spinta.z *= 0.85; if (Math.abs(o._spinta.x) + Math.abs(o._spinta.z) < 0.002) o._spinta = null; }
+    var nx = o.x + mx, nz = o.z + mz;
+    if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
+    if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
+    if (o._nodo) {
+      o._nodo.position.set(o.x, 0, o.z);
+      if (all) o._nodo.rotation.y = Math.atan2(dx, dz);
+    }
+    /* il lampo quando e' colpito */
+    if (o._lampo > 0) {
+      o._lampo -= dt * 5;
+      (o._mat || []).forEach(function (m3) { if (m3.emissive) { m3.emissive.setRGB(o._lampo, o._lampo * 0.6, o._lampo * 0.3); } });
+    }
+    /* il contatto fa male (il residuo e l'automa) */
+    if (o.specie !== 'drone' && d < (o.specie === 'automa' ? 1.0 : 0.85) && !S.immune && !(S.scudo > 0)) {
+      danno(o.specie === 'automa' ? t('un automa ti ha travolto', 'an automaton ran you over')
+                                  : t('un residuo corrosivo ti ha toccato', 'a corrosive residue touched you'));
+    }
+  }
+  function animaMorti(dt) {
+    if (!mondo) return;
+    tuttiGliOggetti(function (o) {
+      if (o.tipo !== 'nemico' || !(o._muore > 0) || !o._nodo) return;
+      if (o._mod) {
+        /* il modello: la clip della morte se c'e', se no cade e affonda */
+        o._muore -= dt * (o._muoreClip ? 0.9 : 1.3);
+        if (o._mod.mixer) o._mod.mixer.update(dt);
+        if (!o._muoreClip) o._mod.corpo.rotation.x += (-1.45 - o._mod.corpo.rotation.x) * Math.min(1, dt * 6);
+        if (o._muore < 0.4) o._nodo.position.y -= dt * 0.8;
+        if (o._muore <= 0) o._nodo.visible = false;
+        return;
+      }
+      o._muore -= dt * 2.5;
+      o._nodo.scale.setScalar(Math.max(0.01, o._muore));
+      o._nodo.position.y -= dt * 0.5;
+      if (o._muore <= 0) o._nodo.visible = false;
+    });
+  }
+
+  /* ── i modelli dei nemici ─────────────────────────────────────────── */
+  var cacheNemici = {};
+  function libreriaScheletri() {
+    return new Promise(function (ok) {
+      if (T.SkeletonUtils) return ok(true);
+      var sc = document.createElement('script'); sc.src = './skeleton_utils.js';
+      sc.onload = function () { ok(!!T.SkeletonUtils); }; sc.onerror = function () { ok(false); };
+      document.head.appendChild(sc);
+    });
+  }
+  function caricaNemico(nome) {
+    if (!cacheNemici[nome]) cacheNemici[nome] = Promise.all([libreriaGLTF(), libreriaScheletri()]).then(function () {
+      return fetch('models/nemici/' + nome + '.glb');
+    }).then(function (r) { if (!r.ok) throw new Error(nome + ' HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(function (b) { return analizza(b); })
+      .then(function (gltf) {
+        /* la misura: il riquadro nella posa di partenza */
+        gltf.scene.updateMatrixWorld(true);
+        var bb = new T.Box3();
+        if (gltf.animations && gltf.animations.length) {
+          /* con lo scheletro la posa di legame puo' essere sdraiata: si
+             misura nella posa vera (il primo fotogramma della clip), dai
+             vertici deformati dalle ossa */
+          var mx0 = new T.AnimationMixer(gltf.scene);
+          mx0.clipAction(gltf.animations[0]).play(); mx0.update(0.2);
+          gltf.scene.updateMatrixWorld(true);
+          var v = new T.Vector3();
+          gltf.scene.traverse(function (o) {
+            if (!o.isSkinnedMesh) { if (o.isMesh) { o.geometry.computeBoundingBox(); bb.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); } return; }
+            o.skeleton.update();
+            var pos = o.geometry.attributes.position, passo = Math.max(1, Math.floor(pos.count / 1500));
+            for (var i = 0; i < pos.count; i += passo) { v.fromBufferAttribute(pos, i); o.boneTransform(i, v); v.applyMatrix4(o.matrixWorld); bb.expandByPoint(v); }
+          });
+          mx0.stopAllAction(); mx0.uncacheRoot(gltf.scene);
+        } else gltf.scene.traverse(function (o) { if (o.isMesh) { o.geometry.computeBoundingBox(); bb.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); } });
+        gltf.misura = bb;
+        /* le braccia in T-pose dei modelli fermi (il bruto): si abbassano
+           sulla geometria, una volta, ruotando i vertici oltre le spalle
+           intorno alla spalla, con una sfumatura sull'articolazione */
+        if (SPECIE_M[nome] && SPECIE_M[nome].abbassaBraccia) abbassaBraccia(gltf, bb, SPECIE_M[nome].abbassaBraccia);
+        gltf.scene.traverse(function (o) {
+          if (!o.isMesh) return;
+          o.frustumCulled = false; o.castShadow = !ps1(); o.receiveShadow = false;
+          var ms = Array.isArray(o.material) ? o.material : [o.material];
+          ms.forEach(function (m) { m.envMapIntensity = 0.8; if (m.transparent && m.opacity > 0.9) m.transparent = false; });
+        });
+        return gltf;
+      }).catch(function (e) { cacheNemici[nome] = null; animV.erroreNemici = String(e && e.message || e); return null; });
+    return cacheNemici[nome];
+  }
+  function abbassaBraccia(gltf, bb, ang) {
+    var w = bb.max.x - bb.min.x, h = bb.max.y - bb.min.y, cx = (bb.min.x + bb.max.x) / 2;
+    var sx = w * 0.17, sy = bb.min.y + h * 0.78, sfuma = w * 0.06;
+    var v = new T.Vector3(), inv = new T.Matrix4();
+    gltf.scene.traverse(function (o) {
+      if (!o.isMesh || o.isSkinnedMesh) return;
+      var pos = o.geometry.attributes.position, M = o.matrixWorld;
+      inv.copy(M).invert();
+      for (var i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(M);
+        var lato = v.x > cx ? 1 : -1, fuori = (v.x - cx) * lato - sx;
+        if (fuori <= 0 || v.y < sy - h * 0.25) continue;
+        var k = Math.min(1, fuori / sfuma), a = -lato * ang * k;
+        var px = cx + lato * sx, dx = v.x - px, dy = v.y - sy;
+        v.x = px + dx * Math.cos(a) - dy * Math.sin(a);
+        v.y = sy + dx * Math.sin(a) + dy * Math.cos(a);
+        v.applyMatrix4(inv);
+        pos.setXYZ(i, v.x, v.y, v.z);
+      }
+      pos.needsUpdate = true;
+      o.geometry.computeVertexNormals();
+      o.geometry.computeBoundingBox(); o.geometry.computeBoundingSphere();
+    });
+  }
+  function montaModelloNemico(o, g) {
+    var SM = SPECIE_M[o.specie];
+    if (typeof fetch === 'undefined') return;
+    caricaNemico(SM.modello).then(function (gltf) {
+      if (!gltf || !o._nodo || o._nodo !== g || !g.parent) return;
+      var anim = gltf.animations && gltf.animations.length && T.SkeletonUtils;
+      var copia = anim ? T.SkeletonUtils.clone(gltf.scene) : gltf.scene.clone(true);
+      var bb = gltf.misura, alto = Math.max(0.01, bb.max.y - bb.min.y), k = SM.alto / alto;
+      var cont = new T.Group(), corpo = new T.Group();
+      copia.scale.setScalar(k);
+      copia.position.set(-(bb.min.x + bb.max.x) / 2 * k, -bb.min.y * k + (SM.quota || 0), -(bb.min.z + bb.max.z) / 2 * k);
+      corpo.add(copia); cont.add(corpo);
+      /* i materiali propri, per il lampo quando e' colpito */
+      var mats = [];
+      copia.traverse(function (m) {
+        if (!m.isMesh) return;
+        m.material = Array.isArray(m.material) ? m.material.map(function (x) { var c = x.clone(); mats.push(c); return c; }) : m.material.clone();
+        if (!Array.isArray(m.material)) mats.push(m.material);
+      });
+      mats.forEach(function (m) { if (!m.emissive) return; m.userData.em0 = m.emissive.clone(); });
+      /* gli occhi: un alone del colore della specie */
+      var oc = G.alone ? G.alone(SM.colore, 0.22 + SM.alto * 0.04, 0.3) : null;
+      if (oc) { oc.position.set(0, SM.alto * 0.86 + (SM.quota || 0), SM.raggio * 0.55); corpo.add(oc); }
+      var mod = { cont: cont, corpo: corpo, copia: copia, mats: mats, occhi: oc, k: k };
+      if (anim) {
+        mod.mixer = new T.AnimationMixer(copia); mod.azioni = {};
+        gltf.animations.forEach(function (c) { mod.azioni[c.name] = mod.mixer.clipAction(c); });
+        mod.attuale = null;
+      }
+      if (o._segnaposto) { g.remove(o._segnaposto); o._segnaposto = null; }
+      g.add(cont);
+      o._mod = mod; o._mat = mats;
+      animaClip(o, 'idle');
+      if (mod.mixer) mod.mixer.update(0.2);      /* subito in posa: mai la posa di legame */
+    });
+  }
+  /* la clip di un'azione (se il modello l'ha): si passa con una dissolvenza */
+  function animaClip(o, cosa, una) {
+    var mod = o._mod, SM = SPECIE_M[o.specie];
+    if (!mod || !mod.mixer) return false;
+    var nome = (SM.anim && SM.anim[cosa]) || null;
+    if (!nome || !mod.azioni[nome]) {
+      var primo = Object.keys(mod.azioni)[0];
+      if (!mod.attuale && primo) { mod.azioni[primo].play(); mod.attuale = mod.azioni[primo]; }
+      return false;
+    }
+    var az = mod.azioni[nome];
+    if (mod.attuale === az && !una) return true;
+    az.reset(); az.setLoop(una ? T.LoopOnce : T.LoopRepeat, Infinity); az.clampWhenFinished = !!una;
+    az.timeScale = cosa === 'corsa' && SM.anim.corsa === SM.anim.passo ? 1.6 : 1;
+    az.play();
+    if (mod.attuale && mod.attuale !== az) mod.attuale.crossFadeTo(az, 0.18, false);
+    mod.attuale = az;
+    return true;
+  }
+
+  /* IL NEMICO DAL MODELLO: insegue, attacca secondo la specie, reagisce
+     ai colpi. Gli attacchi si annunciano (il corpo si carica, gli occhi
+     si accendono) e colpiscono alla fine: chi si sposta in tempo li schiva */
+  function aggiornaNemicoM(o, sx, st, ora) {
+    var dt = PASSO / 1000, SM = SPECIE_M[o.specie];
+    o.t = (o.t || 0) + 1;
+    var wx = sx.x + o.x, wz = sx.z + o.z;
+    var dx = S.pos.x - wx, dz = S.pos.z - wz, d = Math.hypot(dx, dz) || 1;
+    var vede = sx === st && d < 14 && vistaLibera(wx, wz, S.pos.x, S.pos.z);
+    if (vede) o._allerta = 5; else if (o._allerta > 0) o._allerta -= dt;
+    var all = o._allerta > 0 && sx === st;
+    var lento = o._gelo > 0 ? 0.3 : 1;
+    if (o._gelo > 0) o._gelo -= dt;
+    if (o._stordito > 0) { o._stordito -= dt; lento = 0; }
+    o._fase = o._fase || 'attesa';
+    o._cd = Math.max(0, (o._cd || 0) - dt);
+    var mx = 0, mz = 0, ux = dx / d, uz = dz / d;
+    var vai = function (v) { mx = ux * v * dt * lento; mz = uz * v * dt * lento; };
+    if (!all) { o._fase = 'attesa'; }
+    else if (o._fase === 'attesa' || o._fase === 'insegui') {
+      o._fase = 'insegui';
+      if (SM.modo === 'sputo' || SM.modo === 'fluttua') {
+        /* a distanza: si avvicina o si allontana, gira intorno, spara */
+        var ideale = SM.modo === 'sputo' ? 6.5 : 5.5, rad = d > ideale + 1 ? 1 : d < ideale - 1.5 ? -1 : 0;
+        var lato = Math.sin(o.t * 0.008 + o.x * 2) > 0 ? 1 : -1;
+        mx = (ux * rad - uz * lato * 0.5) * SM.vel * dt * lento; mz = (uz * rad + ux * lato * 0.5) * SM.vel * dt * lento;
+        if (o._cd <= 0 && vede && lento > 0) { o._fase = 'carica'; o._tf = 0.55; }
+      } else if (SM.modo === 'salto') {
+        if (d > 6.5) vai(SM.vel); else if (o._cd <= 0 && vede && lento > 0) { o._fase = 'carica'; o._tf = 0.5; } else vai(SM.vel * 0.5);
+      } else if (SM.modo === 'carica') {
+        if (d > SM.portata && !(d < 6 && o._cd <= 0)) vai(SM.vel);
+        if (d < 6 && o._cd <= 0 && vede && lento > 0) { o._fase = 'carica'; o._tf = 0.65; }
+      } else {
+        if (d > SM.portata * 0.8) vai(d < 4 ? SM.vel * 1.4 : SM.vel);
+        if (d < SM.portata + 0.2 && o._cd <= 0 && lento > 0) { o._fase = 'carica'; o._tf = 0.42; }
+      }
+    } else if (o._fase === 'carica') {
+      /* il colpo in arrivo: si vede */
+      o._tf -= dt * (lento || 0.0001);
+      if (o._tf <= 0) {
+        o._fase = 'colpo'; o._tf = SM.modo === 'carica' ? 0.75 : SM.modo === 'salto' ? 0.6 : 0.25;
+        o._dir = { x: ux, z: uz };
+        if (SM.modo === 'salto') o._salto = { da: { x: o.x, z: o.z }, a: { x: o.x + dx * 0.9, z: o.z + dz * 0.9 }, t: 0 };
+        if (SM.modo === 'sputo' || SM.modo === 'fluttua') {
+          var pn = posNemico(o); pn.y = SM.alto * 0.8 + (SM.quota || 0);
+          var bers = new T.Vector3(S.pos.x + S.vel.x * 20, S.pos.y + 1.2, S.pos.z + S.vel.z * 20);
+          var n = SM.modo === 'fluttua' ? 3 : 1;
+          for (var i = 0; i < n; i++) {
+            var dir = bers.clone().sub(pn).normalize();
+            if (n > 1) dir.applyAxisAngle(new T.Vector3(0, 1, 0), (i - 1) * 0.16);
+            var pr = proiettile(pn.clone(), dir.multiplyScalar(SM.modo === 'sputo' ? 8 : 6.5), SM.colore, false);
+            if (SM.modo === 'sputo') { pr.v.y += 2.2; pr.g = 4.5; }
+            pr.fonte = { x: wx, z: wz }; pr.nome = SM.nome;
+            proiettili.push(pr);
+          }
+          bip(SM.modo === 'sputo' ? 180 : 620, 0.12, 'sawtooth', 0.04);
+        } else bip(140, 0.15, 'sawtooth', 0.05);
+      }
+    } else if (o._fase === 'colpo') {
+      o._tf -= dt;
+      if (SM.modo === 'carica') { mx = o._dir.x * 5.2 * dt * lento; mz = o._dir.z * 5.2 * dt * lento; }
+      else if (SM.modo === 'salto' && o._salto) {
+        o._salto.t += dt / 0.6; var kk = Math.min(1, o._salto.t);
+        mx = o._salto.da.x + (o._salto.a.x - o._salto.da.x) * kk - o.x; mz = o._salto.da.z + (o._salto.a.z - o._salto.da.z) * kk - o.z;
+        o._quotaSalto = Math.sin(kk * Math.PI) * 1.4;
+      } else if (SM.modo === 'mischia') { mx = ux * 1.2 * dt; mz = uz * 1.2 * dt; }
+      /* il colpo arriva: se sei ancora a portata (e senza scudo), fa male */
+      var arriva = (SM.modo === 'mischia' && o._tf <= 0.12 && !o._colpito) || (SM.modo !== 'mischia' && SM.modo !== 'sputo' && SM.modo !== 'fluttua' && !o._colpito);
+      if (arriva && d < SM.portata + (SM.modo === 'salto' ? 0.4 : 0.3) && !S.immune && !(S.scudo > 0)) {
+        o._colpito = true;
+        danno(SM.nome[lingua() === 'en' ? 1 : 0] + t(' ti ha colpito', ' hit you'), { x: wx, z: wz });
+      }
+      if (o._tf <= 0) { o._fase = 'insegui'; o._cd = SM.modo === 'carica' ? 2.2 : SM.modo === 'salto' ? 2.6 : SM.modo === 'mischia' ? 1.1 : 2.4; o._colpito = false; o._quotaSalto = 0; }
+    }
+    if (o._spinta) { mx += o._spinta.x; mz += o._spinta.z; o._spinta.x *= 0.85; o._spinta.z *= 0.85; if (Math.abs(o._spinta.x) + Math.abs(o._spinta.z) < 0.002) o._spinta = null; }
+    var nx = o.x + mx, nz = o.z + mz;
+    if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
+    if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
+    var muove = Math.hypot(mx, mz) / dt;
+    if (o._nodo) {
+      o._nodo.position.set(o.x, o._quotaSalto || 0, o.z);
+      if (all && o._fase !== 'colpo') {
+        var vuole = Math.atan2(dx, dz), att = o._nodo.rotation.y;
+        var dd = Math.atan2(Math.sin(vuole - att), Math.cos(vuole - att));
+        o._nodo.rotation.y = att + dd * Math.min(1, dt * 7);
+      }
+    }
+    /* la posa: le clip se ci sono; se no il corpo respira, cammina
+       ondeggiando, si carica all'indietro e si lancia avanti */
+    var mod = o._mod;
+    if (mod) {
+      var conClip = !!mod.mixer;
+      if (conClip) {
+        if (o._ferito > 0 && animaClip(o, 'ferito', true)) {}
+        else if (o._fase === 'carica' || o._fase === 'colpo') { if (!animaClip(o, 'attacco', o._fase === 'carica')) animaClip(o, 'corsa'); }
+        else if (muove > 1.6) animaClip(o, 'corsa'); else if (muove > 0.1) animaClip(o, 'passo'); else animaClip(o, 'idle');
+        mod.mixer.update(dt * (lento || 0.15));
+      }
+      var c = mod.corpo, f = ora / 1000 + o.t * 0.01;
+      var respiro = Math.sin(f * 2.2) * 0.02, ond = muove > 0.1 ? Math.sin(f * 9) : 0;
+      var carica = o._fase === 'carica' ? 1 : 0, colpo = o._fase === 'colpo' ? 1 : 0;
+      c.scale.set(1 + respiro * 0.5, 1 + respiro + carica * 0.06, 1 + respiro * 0.5);
+      c.rotation.x += ((conClip ? 0 : -carica * 0.32 + colpo * 0.38) + (o._ferito > 0 ? -0.35 * o._ferito : 0) - c.rotation.x) * Math.min(1, dt * 10);
+      c.rotation.z = conClip ? 0 : ond * 0.06;
+      c.position.y = conClip ? 0 : Math.abs(ond) * 0.05 + (SM.modo === 'fluttua' ? Math.sin(f * 1.6) * 0.15 : 0);
+      if (mod.occhi) { mod.occhi.material.opacity = carica ? 0.5 + Math.sin(ora / 40) * 0.3 : all ? 0.35 : 0.15; mod.occhi.scale.setScalar((0.22 + SM.alto * 0.04) * (1 + carica * 1.2)); }
+    } else if (o._segnaposto) {
+      o._segnaposto.rotation.x = o._fase === 'carica' ? -0.25 : o._fase === 'colpo' ? 0.3 : 0;
+    }
+    if (o._ferito > 0) o._ferito -= dt * 3;
+    /* il lampo quando e' colpito */
+    if (o._lampo > 0) {
+      o._lampo -= dt * 5;
+      (o._mat || []).forEach(function (m3) { if (m3.emissive) { var e0 = m3.userData.em0; m3.emissive.setRGB((e0 ? e0.r : 0) + o._lampo, (e0 ? e0.g : 0) + o._lampo * 0.5, (e0 ? e0.b : 0) + o._lampo * 0.3); } });
+    }
+  }
+
+  /* IL PUGNO: il jab della mano robotica (V o 👊): chi e' davanti, entro due
+     metri, prende un colpo e viene respinto */
+  function pugno() {
+    if (!S || schermo !== 'gioco' || S.finito || (CD.pugno || 0) > 0) return;
+    CD.pugno = 0.7;
+    animV.prendi = 0; animV.lancio = 1;
+    if (vista && vista.rig) vista.rig.colpo('Punch_sx', 1.6);
+    var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
+    var colpito = false;
+    nemiciVivi(2.4, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
+      var v = n.p.clone().sub(orig); v.y = 0; var l = v.length(); v.normalize();
+      var dd = new T.Vector3(dir.x, 0, dir.z).normalize();
+      if (v.dot(dd) < 0.55) return;
+      setTimeout(function () {
+        ferisci(n.o, 2, null, n.p);
+        n.o._spinta = { x: dd.x * 0.16, z: dd.z * 0.16 }; n.o._ferito = 1; n.o._stordito = 0.5;
+        scintille(n.p, 0xffffff, 12);
+      }, 120);
+      colpito = true;
+    });
+    bip(colpito ? 120 : 300, 0.1, 'square', colpito ? 0.08 : 0.03);
+    if (colpito) scossa = Math.max(scossa, 0.4);
+  }
+
+  /* usare quello che si ha in mano: la scorciatoia del combattimento */
+  function usaRapido() {
+    if (!S) return;
+    if (S.boss && S.boss.attivo && /^enigma:/.test(faseCorrente(S.boss).serve)) { spruzzo(); sfidaBoss(); return; }
+    sparo();
+  }
+
 
   /* ═════════════════════════════════════════════════════════════════════════
      IL CICLO E L'AVVIO
@@ -3159,8 +4098,22 @@
           if (o.tipo === 'nemico' && o.vivo && o._deforma) o._deforma(ora / 900 + o.t * 0.01);
         });
       }
+      /* L'INTERPOLAZIONE: il gioco avanza a passi fissi di 1/60 s, lo
+         schermo va alla sua frequenza (90, 120, 144 Hz): si disegna fra
+         l'ultima posizione e quella prima, cosi' niente scatti */
+      var reale = null, alfa = Math.max(0, Math.min(1, accumulo / PASSO));
+      if (S.posPrec && !ps1()) {
+        reale = { x: S.pos.x, y: S.pos.y, z: S.pos.z };
+        S.pos.x = S.posPrec.x + (reale.x - S.posPrec.x) * alfa;
+        S.pos.y = S.posPrec.y + (reale.y - S.posPrec.y) * alfa;
+        S.pos.z = S.posPrec.z + (reale.z - S.posPrec.z) * alfa;
+      }
+      aggiornaZoom(dt / 1000);
       animaChimico();
       muoviCamera();
+      if (reale) { S.pos.x = reale.x; S.pos.y = reale.y; S.pos.z = reale.z; }
+      animaMorti(dt / 1000);
+      aggiornaNumeri(dt / 1000);
     }
     if (!ps1()) adattaDimensioni();
     disegna(ora);
@@ -3610,6 +4563,7 @@
     /* un livello che si ricostruisce chiude il laboratorio (anche quello
        di una partita precedente): si torna alla sua porta */
     togliLab();
+    pulisciCombattimento();
     if (S && S.lab) {
       var Lr = S.lab;
       S.lab = null; S.pos.x = Lr.ritorno.x; S.pos.z = Lr.ritorno.z; S.pos.y = 0;
@@ -3733,13 +4687,18 @@
       }
       var tt = ev.key.toLowerCase();
       if (schermo === 'gioco') {
-        if (tt === 'f') interagisci();
+        if (/^[1-9]$/.test(ev.key)) { var lp = S.inventario[+ev.key - 1]; if (lp) scegliPotere(lp.sim); }
+        else if (tt === 'f') interagisci();
         else if (tt === 'x') usaRapido();
+        else if (tt === 'g') usaPotere();
+        else if (tt === 'v') pugno();
+        else if (tt === 'z') cambiaZoom();
+        else if (tt === 'h') schermoIntero();
         else if (tt === 'r') cambiaInMano();
         else if (tt === 'i') { schermo = 'inventario'; fermaCiclo(); disegnaUI(); }
         else if (tt === 'c') { schermo = 'codex'; fermaCiclo(); disegnaUI(); }
         else if (ev.key === 'Escape' || tt === 'p') { schermo = 'pausa'; fermaCiclo(); disegnaUI(); }
-        else if (tt === 'v') {
+        else if (tt === 'b') {
           scriviImp('visuale', IMP.visuale === 'prima' ? 'terza' : 'prima');
           camLiscia = null;
           avviso(t('visuale: ', 'view: ') + (IMP.visuale === 'prima'
@@ -3778,8 +4737,24 @@
       }
     });
     document.addEventListener('mousemove', function (e) {
-      if (tela && document.pointerLockElement === tela) sguardo(e.movementX || 0, e.movementY || 0, 0.0024);
+      if (tela && document.pointerLockElement === tela) sguardo(e.movementX || 0, e.movementY || 0, 0.0024 * (1 - zoom * 0.5));
     });
+    /* col puntatore bloccato: sinistro spara (tenendo premuto, a raffica),
+       destro scatena il potere, la rotella sceglie il potere */
+    var rafficaM = null;
+    document.addEventListener('mousedown', function (e) {
+      if (!tela || document.pointerLockElement !== tela || schermo !== 'gioco') return;
+      if (e.button === 0) { usaRapido(); if (rafficaM) clearInterval(rafficaM); rafficaM = setInterval(function () { if (schermo === 'gioco') usaRapido(); }, 250); }
+      else if (e.button === 2) usaPotere();
+      else if (e.button === 1) { e.preventDefault(); cambiaZoom(); }
+    });
+    document.addEventListener('mouseup', function (e) { if (e.button === 0 && rafficaM) { clearInterval(rafficaM); rafficaM = null; } });
+    sc.addEventListener('contextmenu', function (e) { if (schermo === 'gioco') e.preventDefault(); });
+    sc.addEventListener('wheel', function (e) {
+      if (schermo !== 'gioco' || !S) return;
+      e.preventDefault();
+      scorriPotere(e.deltaY > 0 ? 1 : -1);
+    }, { passive: false });
     var tocco = null;
     sc.addEventListener('touchstart', function (e) {
       if (schermo !== 'gioco' || e.target.closest('button')) return;
@@ -3791,7 +4766,7 @@
       for (var i = 0; i < e.changedTouches.length; i++) {
         var t1 = e.changedTouches[i];
         if (t1.identifier !== tocco.id) continue;
-        sguardo(t1.clientX - tocco.x, t1.clientY - tocco.y, 0.006);
+        sguardo(t1.clientX - tocco.x, t1.clientY - tocco.y, 0.006 * (1 - zoom * 0.5));
         tocco.x = t1.clientX; tocco.y = t1.clientY;
         e.preventDefault();
       }
@@ -3965,6 +4940,15 @@
     motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico, post: post,
                                    vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
     spruzzo: function () { spruzzo(); },
+    sparo: function () { CD.sparo = 0; sparo(); },
+    pugno: function () { CD.pugno = 0; pugno(); },
+    specieNemici: function () { return Object.keys(SPECIE_M); },
+    usaPotere: function () { CD.potere = 0; usaPotere(); },
+    scegliPotere: function (x) { scegliPotere(x); },
+    zoom: function (v) { cambiaZoom(v); return zoom; },
+    schermoIntero: function (v) { schermoIntero(v); },
+    nelMirino: function () { return nelMirino(16); },
+    combattimento: function () { return { proiettili: proiettili.length, effetti: effetti.length, nubi: nubi.length }; },
     lancio: function () { lancio(); },
     sguardo: function (dx, dy) { sguardo(dx, dy, 0.0024); },
     TRAMA: TRAMA, ascolta: function (id) { ascolta(id); }, nastro: function () { return nastro; },

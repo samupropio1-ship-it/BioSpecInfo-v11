@@ -7,6 +7,42 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v220] — 2026-10-16
+
+**Combattimento, poteri, fluidità — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Le creature fornite** come nemici: verme (con le sue animazioni),
+  rampicante (salta), fanghiglia (sputa acido), cervo (con la sua clip),
+  abissale (fluttua e lancia sfere), cristallino (con la sua clip, carica),
+  bruto (carica; braccia abbassate dalla T-pose); una nuova per ala, da tre a
+  quattordici per livello, ognuna col suo colore e il suo punto debole.
+- **Gli attacchi dei nemici**: si annunciano (carica, occhi accesi) e
+  colpiscono alla fine, si schivano; l'arco rosso dice da dove arriva il
+  colpo; le braccia sobbalzano quando si viene colpiti.
+- **Il pugno** della mano robotica (V, 👊): ferisce e respinge.
+- `skeleton_utils.js` (three.js r128, MIT) per le copie con lo scheletro.
+- **La pistola spara sempre** (clic sinistro, X, ◉; a raffica tenendo
+  premuto), con i composti come munizioni potenziate.
+- **Poteri distinti** per famiglia di elementi: scarica a catena (sodio e
+  potassio esplosiva), palla di fuoco, nube tossica, nube di gelo, onda
+  d'urto, scudo, fissione — con l'**energia** che si ricarica.
+- **Scelta rapida** dei poteri: barra in basso (un tocco), tasti 1–9, rotella.
+- **Zoom** per mirare (🔍, Z, tasto centrale) e **schermo intero** (⛶, H).
+- Effetti: mirino che aggancia con nome, vita e debolezza del bersaglio;
+  numeri dei danni; colpo a segno sul mirino; tracce, scintille, esplosioni,
+  fulmini; il lampo di luce dei colpi; lo scossone.
+
+### Migliorato
+- **Fluidità**: movimento con inerzia (accelera e frena), diagonali non più
+  veloci; disegno interpolato fra i passi fissi del gioco, niente scatti
+  sugli schermi a 90/120/144 Hz.
+
+### Banco
+- `test_atomic`: 271 controlli — creature, attacchi, pugno, combattimento,
+  poteri, energia, barra, zoom, schermo intero, accelerazione, interpolazione.
+
+---
 ## [bsi-v219] — 2026-10-16
 
 **I laboratori dalle mappe, e la sinistra giusta — ATOMIC PROTOCOL**

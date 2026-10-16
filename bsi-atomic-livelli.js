@@ -955,10 +955,19 @@
     }
 
     /* i nemici: crescono con il livello, mai nella stanza di partenza */
-    var nNem = Math.min(10, 1 + Math.floor(inZona * 0.5) + Math.floor(zona.n / 2));
+    /* la specie si sceglie senza il generatore casuale: il resto del
+       livello resta identico */
+    var nNem = Math.min(14, 3 + Math.floor(inZona * 0.6) + Math.floor(zona.n * 0.8));
+    /* le creature (i modelli forniti): una nuova per ala, e quelle di prima
+       restano — il verme e il rampicante dall'inizio, poi la fanghiglia
+       che sputa, il cervo, l'abissale che fluttua, il cristallino che
+       carica, il bruto */
+    var ORDINE = ['verme', 'curvo', 'palude', 'cervo', 'abissale', 'mostro', 'bruto'];
+    var specie = ORDINE.slice(0, Math.min(ORDINE.length, zona.n + 1));
     var conNemici = stanze.filter(function (s) { return s.ruolo !== 'partenza' && s.ruolo !== 'boss'; });
     for (var e = 0; e < nNem && conNemici.length; e++) {
-      metti(conNemici[e % conNemici.length], { tipo: 'nemico', forza: 1 + Math.floor(zona.n / 3) }, 1.6);
+      metti(conNemici[e % conNemici.length], { tipo: 'nemico', specie: specie[(e + n) % specie.length],
+                                               forza: 1 + Math.floor(zona.n / 3) }, 1.6);
     }
 
     /* l'ultima stanza: l'ascensore verso il livello dopo, o il guardiano */
