@@ -1061,12 +1061,14 @@ function sopra(d, minimo, avuto) {
     /* un nemico in mischia annuncia il colpo e, se resti li', ti ferisce */
     const ve = trova('verme') || trova('cervo');
     if (ve) {
-      await davanti(ve, 1.2); S.immune = 0; S.scudo = 0; const v0 = S.vite;
+      S.vite = S.vitaMax; await davanti(ve, 1.2); S.immune = 0; S.scudo = 0; const v0 = S.vite;
       ve.o._allerta = 5; ve.o._cd = 0; ve.o._fase = 'insegui';
       let caricato = false;
       for (let i = 0; i < 120 && S.vite === v0; i++) { await fr(); if (ve.o._fase === 'carica') caricato = true; const wx = ve.st.x + ve.o.x, wz = ve.st.z + ve.o.z, l = Math.hypot(S.pos.x - wx, S.pos.z - wz) || 1; if (l > 1.2) { S.pos.x = wx + (S.pos.x - wx) / l * 1.1; S.pos.z = wz + (S.pos.z - wz) / l * 1.1; } }
       out.annuncia = caricato; out.attaccoFerisce = S.vite < v0;
       S.vite = v0; S.immune = 99999;
+      /* (se nel frattempo un colpo vagante avesse chiuso la partita, si riprende) */
+      if (A.schermo() !== 'gioco') { S.finito = null; A.schermo('gioco'); A.avviaCiclo(); }
       /* il pugno della mano robotica */
       await davanti(ve, 1.3); const vp = ve.o.vita; A.pugno(); await new Promise(r => setTimeout(r, 250));
       out.pugno = ve.o.vita < vp || !ve.o.vivo;
@@ -1079,6 +1081,7 @@ function sopra(d, minimo, avuto) {
     await new Promise(r => setTimeout(r, 300));
     out.slot = document.querySelectorAll('#apH-poteri .bsiAP-pt').length;
     out.slotSel = (document.querySelector('#apH-poteri .bsiAP-pt.sel') || {}).textContent || '';
+    out.schermoLotta = A.schermo() + ' vite ' + S.vite + ' potere ' + S.potere;
     /* lo zoom e lo schermo intero */
     const f0 = A.motore().camera.fov; A.zoom(1); for (let i = 0; i < 40; i++) await fr();
     out.zoomFov = A.motore().camera.fov < f0 * 0.75; A.zoom(0); for (let i = 0; i < 40; i++) await fr();
@@ -1118,6 +1121,7 @@ function sopra(d, minimo, avuto) {
   att('  · e senza energia il potere non parte', true, lotta.senzaEnergia);
   sopra('la barra dei poteri ha un tasto per elemento', 5, lotta.slot);
   att('  · col potere scelto evidenziato', true, /O/.test(lotta.slotSel));
+  console.log('      (' + lotta.slotSel + ' · ' + lotta.schermoLotta + ')');
   att('lo zoom stringe il campo visivo', true, lotta.zoomFov);
   att('  · e torna com’era', true, lotta.zoomTorna);
   att('ci sono i pulsanti: spara, potere, zoom, schermo intero', true, lotta.pulsanti);
