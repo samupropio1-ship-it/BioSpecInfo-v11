@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 13 (bsi-v220): il combattimento — tre specie di nemici, la pistola, i poteri per famiglia di elementi con l'energia e la barra di scelta — la fluidità (inerzia e interpolazione), lo zoom e lo schermo intero; nella versione 12 i laboratori dalle mappe — sempre sulla trama del Protocollo 12.
+> Versione 15 (bsi-v221): trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -12,7 +12,7 @@
 
 ## 0. Che cos'è, in una riga
 
-Un gioco di **esplorazione in prima persona**, in **cento livelli** e
+Un gioco di **esplorazione in prima persona**, in **trecento livelli**, tre atti e
 dieci zone, con grafica di **livello PlayStation 2** — il riferimento sono
 Metal Gear Solid 2, Final Fantasy X, Resident Evil 4, **senza horror** — in cui
 un chimico attraversa un istituto di ricerca sigillato, raccoglie
@@ -489,7 +489,29 @@ Lo scontro ha tre tempi:
 
 ---
 
-## 6. I cento livelli ✅
+## 6. I trecento livelli ✅
+
+**Tre atti** (dalla v221). L'istituto si percorre tre volte: l'**Atto I**, il
+contenimento (livelli 1–100); l'**Atto II**, «Il riflusso» (101–200): il
+Protocollo ha ricostruito tutto, la luce e' azzurra e fredda, la nebbia blu;
+l'**Atto III**, «Il nucleo profondo» (201–300): il calore del nucleo e' salito
+nelle ali, luce rossa. Le dieci zone sono le stesse, ritinte; i livelli sono
+piu' lunghi, con piu' creature e tutte le specie; i **dieci guardiani
+tornano** come MK II e Ω, con un colpo in piu' per fase a ogni atto, ritinti e
+piu' grandi. Due appunti aprono ogni atto nuovo, e il finale e' al livello
+300. **Le varianti**: la stessa creatura nell'Atto II e' «gelida» (azzurra),
+nell'Atto III «rovente» (rossa) — piu' grande, piu' veloce, attacca piu'
+spesso, con piu' colpi (raffiche a ventaglio piu' larghe, sputi multipli,
+combinazioni di due o tre colpi in mischia e cariche ripetute) e resiste di
+piu'; una creatura ogni cinque (dall'Atto II ogni quattro) e' un'**élite**:
+alone d'oro, piu' grande, vita doppia. **I punti di salvataggio**: una
+stazione d'ottone a meta' del percorso (e una vicino alla fine nei livelli
+lunghi); passandoci accanto si attiva (luce d'oro, +1 salute) e salva
+posizione, oggetti presi e porte aperte, anche nel salvataggio della
+partita; cadendo si riparte da li' con la salute piena.
+
+**Le mani** (dalla v221): la sinistra non e' piu' la mano robotica, ma il
+guanto di nitrile del rig, lo specchio della destra, con le sue animazioni.
 
 ### 6.1 Come si genera un livello
 

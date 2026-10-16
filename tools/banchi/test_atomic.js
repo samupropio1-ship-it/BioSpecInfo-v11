@@ -220,7 +220,7 @@ function sopra(d, minimo, avuto) {
 
 
   /* ═══ §3 · I VENTI LIVELLI: SI ARRIVA DAPPERTUTTO? ═════════════════════ */
-  console.log('\n── Cento livelli generati: tutti percorribili, tutti vincibili ──');
+  console.log('\n── Trecento livelli in tre atti: tutti percorribili, tutti vincibili ──');
   const liv = await pg.evaluate(() => {
     const A = window.BSIAtomicLivelli;
     const out = { livelli: 0, irraggiungibili: [], zoppe: [], sovrapposte: [], senza: [],
@@ -272,6 +272,11 @@ function sopra(d, minimo, avuto) {
           serve.forEach(e => { if (!el.has(e)) out.bossInvincibili.push(n + ':' + e); });
         });
       }
+      /* il punto di salvataggio, e le varianti dei nemici */
+      if (tipi.salvataggio) out.conSalvataggio = (out.conSalvataggio || 0) + 1;
+      const nem = ogg.filter(o => o.tipo === 'nemico');
+      if (nem.length && nem.every(o => o.atto === Math.ceil(n / 100))) out.attoGiusto = (out.attoGiusto || 0) + 1;
+      if (nem.some(o => o.elite)) out.conElite = (out.conElite || 0) + 1;
       /* lo stesso numero dà lo stesso livello: il seme è il numero */
       if (JSON.stringify(A.livello(n).stanze.map(s => [s.id, s.larg, s.prof])) ===
           JSON.stringify(L.stanze.map(s => [s.id, s.larg, s.prof]))) out.deterministici++;
@@ -304,7 +309,10 @@ function sopra(d, minimo, avuto) {
     out.dnaGiusto = dna.giusta === dna.dna.split('').map(x => comp[x]).join('');
     return out;
   });
-  att('i livelli sono cento', 100, liv.livelli);
+  att('i livelli sono trecento, in tre atti', 300, liv.livelli);
+  sopra('  · quasi tutti con un punto di salvataggio', 290, liv.conSalvataggio || 0);
+  att('  · i nemici sono della variante del loro atto', 300, liv.attoGiusto);
+  sopra('  · e molti livelli hanno un’élite', 150, liv.conElite || 0);
   att('  · da ogni partenza si arriva a ogni stanza', 0, liv.irraggiungibili.length);
   liv.irraggiungibili.forEach(x => console.log('      ! livello ' + x));
   att('  · ogni porta ha la sua gemella', 0, liv.zoppe.length);
@@ -313,12 +321,13 @@ function sopra(d, minimo, avuto) {
   att('  · ognuno con un banco, un terminale e un’uscita', 0, liv.senza.length);
   liv.senza.slice(0, 3).forEach(x => console.log('      ! ' + x));
   att('un guardiano ogni dieci livelli, e solo lì', 0, liv.bossMancanti.length);
-  att('  · dieci guardiani, tutti diversi', 10, new Set(liv.modelli).size);
+  att('  · dieci guardiani, tutti diversi, che tornano negli atti II e III', 10, new Set(liv.modelli).size);
+  att('  · trenta guardiani in tutto', 30, liv.boss.length);
   att('  · e ogni arena è larga almeno 14 m', 0, liv.arenePiccole || 0);
   console.log('      (' + liv.boss.join(' · ') + ')');
   att('  · e prima di ognuno ci sono gli elementi per batterlo', 0, liv.bossInvincibili.length);
   liv.bossInvincibili.slice(0, 3).forEach(x => console.log('      ! manca ' + x));
-  att('lo stesso numero dà sempre lo stesso livello', 100, liv.deterministici);
+  att('lo stesso numero dà sempre lo stesso livello', 300, liv.deterministici);
   att('le registrazioni sono trenta', 30, liv.registrazioni);
   att('  · tutte collocate nei livelli', 30, liv.regCollocate);
   att('  · ognuna con la sua voce e un testo vero', true, liv.regVoci);
@@ -642,9 +651,9 @@ function sopra(d, minimo, avuto) {
     out.camManiAspetto = m.camMani ? Math.abs(m.camMani.aspect - m.camera.aspect) < 0.01 : false;
     /* I MODELLI DELLA PRIMA PERSONA: le braccia del rig con le loro
        animazioni, la mano robotica a sinistra, la pistola nel pugno */
-    for (let i = 0; i < 100 && !(m.vista.rig && m.vista.rig.aggancio && m.vista.rig.robot); i++) await new Promise(r => setTimeout(r, 250));
+    for (let i = 0; i < 100 && !(m.vista.rig && m.vista.rig.aggancio); i++) await new Promise(r => setTimeout(r, 250));
     const vm = m.vista, R = vm.rig;
-    out.fpRig = !!R; out.fpPistola = !!(R && R.aggancio); out.fpRobot = !!(R && R.robot);
+    out.fpRig = !!R; out.fpPistola = !!(R && R.aggancio); out.fpRobot = !!(R && !R.robot);
     out.fpErrore = m.animV.erroreMani || '';
     if (R && R.aggancio) {
       let skin = 0, skinning = 0; m.scenaMani.traverse(o => { if (o.isSkinnedMesh && o.visible) { skin++; if (o.material.skinning) skinning++; } });
@@ -683,19 +692,11 @@ function sopra(d, minimo, avuto) {
       for (let i = 0; i < 30; i++) await fr();
       m.animV.cambio = 1; await fr(); await fr(); out.fpEquip = !!R.colpi.Equip;
       const z0 = R.base.position.z; A.spruzzo(); await fr(); await fr(); out.fpRinculo = R.base.position.z > z0 + 0.005;
-      /* le dita robotiche sono articolate: cinque dita con i loro perni, e
-         prendere le chiude */
-      out.fpDitaRobot = R.robotDita ? Object.keys(R.robotDita).length : 0;
-      const piega = () => R.robotDita.medio.perni[1].quaternion.angleTo(new T.Quaternion());
-      const p0 = piega();
-      /* la mano robotica segue il braccio sinistro */
-      /* prendere: le dita si aprono e si richiudono (seguono la mano del rig) */
-      const r0 = w(R.robot.children[0]).clone(); m.animV.prendi = 1;
-      let pMin = p0, pMax = p0;
-      for (let i = 0; i < 8; i++) { await fr(); pMin = Math.min(pMin, piega()); pMax = Math.max(pMax, piega()); }
-      out.fpRobotSegue = w(R.robot.children[0]).distanceTo(r0) > 0.003;
-      for (let i = 0; i < 50; i++) { await fr(); pMin = Math.min(pMin, piega()); pMax = Math.max(pMax, piega()); }
-      out.fpDitaChiudono = pMax - pMin > 0.3 && piega() > pMin + 0.2;
+      /* la sinistra segue il braccio: prendere la muove, e le dita si
+         aprono e si chiudono (sono quelle del rig) */
+      const osso = R.dita(-1, 'f_middle', 2), r0 = w(osso).clone(); m.animV.prendi = 1;
+      let dmax = 0; for (let i = 0; i < 40; i++) { await fr(); dmax = Math.max(dmax, w(osso).distanceTo(r0)); }
+      out.fpRobotSegue = dmax > 0.01;
       for (let i = 0; i < 40; i++) await fr();
       out.fpPost = !!(m.post && m.post.rt);
     }
@@ -856,7 +857,7 @@ function sopra(d, minimo, avuto) {
   att('le braccia del rig (models/braccia-atomic.glb) arrivano', true, motore.fpRig);
   if (motore.fpErrore) console.log('      (errore: ' + motore.fpErrore + ')');
   att('  · la pistola a capsula nel pugno destro', true, motore.fpPistola);
-  att('  · la mano robotica a sinistra', true, motore.fpRobot);
+  att('  · le due mani sono guanti uguali (niente mano robotica)', true, motore.fpRobot);
   att('  · braccia e guanti con lo scheletro, animati dalla GPU', '2/2', motore.fpSkin);
   att('  · le otto animazioni della prima persona', 'Equip,Idle,Inspect,Punch,Punch_2,Run,Unequip,Walk', motore.fpClip);
   att('  · il guanto destro è nitrile (il blu domina nella texture)', true, motore.fpNitrile);
@@ -870,9 +871,7 @@ function sopra(d, minimo, avuto) {
   sopra('camminando pesa l’animazione del passo', 0.5, motore.fpWalk);
   att('  · cambiando strumento parte Equip', true, motore.fpEquip);
   att('  · spruzzando le braccia rinculano', true, motore.fpRinculo);
-  att('  · la mano robotica segue il braccio', true, motore.fpRobotSegue);
-  att('  · con le cinque dita articolate', 5, motore.fpDitaRobot);
-  att('  · che si aprono e si richiudono per prendere', true, motore.fpDitaChiudono);
+  att('  · la sinistra si allunga e muove le dita per prendere', true, motore.fpRobotSegue);
   att('  · col potere il palmo sinistro guarda in su', true, motore.fpPalmoSu > 0.4);
   att('  · sopra il palmo la sfera del nucleo', true, motore.fpNucleo);
   att('  · del colore dell’elemento (il sodio è giallo)', true, motore.fpColoreNa);
@@ -1073,6 +1072,24 @@ function sopra(d, minimo, avuto) {
       await davanti(ve, 1.3); const vp = ve.o.vita; A.pugno(); await new Promise(r => setTimeout(r, 250));
       out.pugno = ve.o.vita < vp || !ve.o.vivo;
     }
+    /* IL PUNTO DI SALVATAGGIO: avvicinandosi si attiva; cadendo si riparte
+       da li' con la salute piena, senza perdere la partita */
+    let cpO = null, cpS = null;
+    Mn.zona.stanze.forEach(st => st.oggetti.forEach(o => { if (!cpO && o.tipo === 'salvataggio') { cpO = o; cpS = st; } }));
+    if (cpO) {
+      S.pos.x = cpS.x + cpO.x + 1; S.pos.z = cpS.z + cpO.z; S.posPrec = null;
+      for (let i = 0; i < 20 && !S.checkpoint; i++) await fr();
+      out.cpAttivo = !!(S.checkpoint && S.checkpoint.id === cpO.id);
+      S.pos.x += 6; S.vite = 1; A.ferito('prova');
+      out.cpRiparte = A.schermo() === 'gioco' && S.vite === S.vitaMax && Math.hypot(S.pos.x - S.checkpoint.x, S.pos.z - S.checkpoint.z) < 0.1;
+      out.cpSalvato = !!(JSON.parse(localStorage.getItem('bsi-ap-partita') || '{}').checkpoint);
+      S.immune = 99999;
+    }
+    /* LE VARIANTI: la stessa creatura nell'atto II e nell'atto III e' piu'
+       forte, e cambia colore */
+    const fv = (n, sp) => { const o = L.livello(n).stanze.flatMap(st => st.oggetti).find(x => x.tipo === 'nemico' && x.specie === sp && !x.elite); return o ? A.variante(o) : null; };
+    const v1 = fv(55, 'mostro'), v2 = fv(155, 'mostro') || fv(165, 'mostro'), v3 = fv(255, 'mostro') || fv(265, 'mostro');
+    out.variantiCrescono = !!(v1 && v2 && v3 && v1.vita < v2.vita && v2.vita < v3.vita && v2.tinta && v3.tinta && v2.tinta !== v3.tinta);
     /* lo scudo, l'energia che si consuma e torna */
     S.energia = 100; A.scegliPotere('Pb'); A.usaPotere(); out.scudo = (S.scudo || 0) > 0;
     const e0 = S.energia; for (let i = 0; i < 30; i++) await fr(); out.energiaTorna = S.energia > e0;
@@ -1115,7 +1132,11 @@ function sopra(d, minimo, avuto) {
   att('la nube di gelo dell’azoto rallenta il bruto', true, lotta.gelo);
   att('il nemico in mischia annuncia il colpo (si carica)', true, lotta.annuncia);
   att('  · e se resti lì ti ferisce', true, lotta.attaccoFerisce);
-  att('il pugno della mano robotica ferisce', true, lotta.pugno);
+  att('il pugno ferisce', true, lotta.pugno);
+  att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
+  att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
+  att('  · ed è scritto nel salvataggio della partita', true, lotta.cpSalvato);
+  att('le creature degli atti II e III sono più forti e cambiano colore', true, lotta.variantiCrescono);
   att('il piombo fa lo scudo', true, lotta.scudo);
   att('l’energia dei poteri torna da sola', true, lotta.energiaTorna);
   att('  · e senza energia il potere non parte', true, lotta.senzaEnergia);
@@ -1198,7 +1219,7 @@ function sopra(d, minimo, avuto) {
     await new Promise(r => setTimeout(r, 800));
     return out;
   });
-  att('ogni livello ha la porta del laboratorio, nella stanza del banco', 100, labs.porte);
+  att('ogni livello ha la porta del laboratorio, nella stanza del banco', 300, labs.porte);
   att('i cinque laboratori, uno per ala a turno', 'small,scifi1,flynn,underground,overgrown', labs.mappeLab);
   Object.keys(labs.mappe).forEach(k => {
     const r = labs.mappe[k];
@@ -1304,9 +1325,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 271) {
+  if (eseguiti < 278) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 271');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 278');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

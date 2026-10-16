@@ -405,7 +405,26 @@
   function scoperto(descr, it, en) {
     return { serve: 'qualunque', colpi: 3, descr: descr, giusto: t(it, en), sbagliato: '' };
   }
+  /* I GUARDIANI DEI TRE ATTI: quelli del primo atto (livelli 10–100)
+     tornano nel secondo (110–200) e nel terzo (210–300) ricostruiti dal
+     Protocollo — piu' colpi per fase, il nome della nuova versione. Le
+     fasi e le loro chimiche restano: e' cosi' che si riconoscono */
   function GUARDIANI() {
+    var base = GUARDIANI1(), tutti = {};
+    Object.keys(base).forEach(function (k) {
+      tutti[k] = base[k];
+      [[2, ' · MK II', t('ricostruito dal Protocollo, ', 'rebuilt by the Protocol, ')],
+       [3, ' · Ω', t('l’ultima versione, fusa col nucleo: ', 'the last version, fused with the core: ')]].forEach(function (v) {
+        var b = base[k], kk = +k + (v[0] - 1) * 100;
+        tutti[kk] = {
+          id: b.id + '_' + v[0], modello: b.modello, nome: b.nome + v[1], natura: v[2] + b.natura, atto: v[0],
+          fasi: b.fasi.map(function (f) { return Object.assign({}, f, { colpi: f.colpi + v[0] - 1 }); })
+        };
+      });
+    });
+    return tutti;
+  }
+  function GUARDIANI1() {
     return {
       10: { id: 'pompa7', modello: 'pompa', nome: 'POMPA 7',
            natura: t('pompa del raffreddamento con i bracci della manutenzione, corrosa', 'cooling pump with maintenance arms, corroded'),
@@ -576,7 +595,33 @@
         nebbia: 0x120a06, luce: 0xffc890 }
     ];
   }
-  var LIVELLI = ZONE().length * PER_ZONA;
+  /* TRE ATTI da cento livelli: l'istituto si percorre tre volte, e ogni
+     volta e' cambiato. Atto I: il contenimento. Atto II, «Il riflusso»: il
+     Protocollo ha ricostruito tutto, piu' buio e piu' freddo, i guardiani
+     tornano e le creature cambiano. Atto III, «Il nucleo profondo»: il
+     calore del nucleo ha invaso le ali */
+  var ATTI = 3;
+  var LIVELLI = ZONE().length * PER_ZONA * ATTI;
+  function NOMI_ATTI() {
+    return [null, t('Atto I · Il contenimento', 'Act I · Containment'), t('Atto II · Il riflusso', 'Act II · The backflow'),
+            t('Atto III · Il nucleo profondo', 'Act III · The deep core')];
+  }
+  /* la zona del livello n: quella del primo atto, ritinta per l'atto */
+  function zonaDi(n) {
+    var Z = ZONE(), k = (Math.ceil(n / PER_ZONA) - 1) % Z.length, z = Object.assign({}, Z[k]);
+    var atto = Math.min(ATTI, Math.floor((n - 1) / (PER_ZONA * Z.length)) + 1);
+    z.atto = atto;
+    if (atto > 1) {
+      z.nome = NOMI_ATTI()[atto].split('·')[0].trim() + ' · ' + z.nome;
+      var mix = function (a, b, f) {
+        var r = (a >> 16) * (1 - f) + (b >> 16) * f, g = ((a >> 8) & 255) * (1 - f) + ((b >> 8) & 255) * f, bb = (a & 255) * (1 - f) + (b & 255) * f;
+        return (Math.round(r) << 16) | (Math.round(g) << 8) | Math.round(bb);
+      };
+      z.luce = atto === 2 ? mix(z.luce, 0xa8c4ff, 0.45) : mix(z.luce, 0xff7a40, 0.45);
+      z.nebbia = atto === 2 ? mix(z.nebbia, 0x0a1220, 0.6) : mix(z.nebbia, 0x200804, 0.6);
+    }
+    return z;
+  }
 
 
   /* ═════════════════════════════════════════════════════════════════════
@@ -714,7 +759,7 @@
   function livello(n) {
     n = Math.max(1, Math.min(LIVELLI, n | 0));
     var caso = Caso(n * 2654435761 + 97);
-    var zona = ZONE()[Math.ceil(n / PER_ZONA) - 1];
+    var zona = zonaDi(n), atto = zona.atto;
     /* dentro una zona si cresce: piu' stanze, piu' residui, verso il
        guardiano; e ogni zona parte un po' piu' dura della precedente */
     var inZona = (n - 1) % PER_ZONA + 1;
@@ -731,7 +776,7 @@
     function cz(r2) { var z = 0; for (var i = 0; i < r2; i++) z += prof[i]; return z + prof[r2] / 2; }
 
     /* il percorso principale: una passeggiata che non torna sui suoi passi */
-    var lunghezza = Math.min(10, 4 + Math.floor(inZona / 2) + Math.floor((zona.n - 1) / 3));
+    var lunghezza = Math.min(10, 4 + Math.floor(inZona / 2) + Math.floor((zona.n - 1) / 3) + (atto - 1));
     var percorso = [], occ = {};
     var pos = [Math.floor(caso() * 2), Math.floor(caso() * 2) + 2];
     function libera(p) { return p[0] >= 0 && p[0] < NC && p[1] >= 0 && p[1] < NR && !occ[p[0] + ',' + p[1]]; }
@@ -942,7 +987,7 @@
     }
     /* una registrazione ai livelli 2, 5 e 8 di ogni zona: in una stanza
        laterale se c'e', da trovare esplorando */
-    var kReg = [2, 5, 8].indexOf(inZona);
+    var kReg = atto === 1 ? [2, 5, 8].indexOf(inZona) : -1;
     if (kReg >= 0) {
       var dove3 = lat[lat.length - 1] || dove[Math.min(2, dove.length - 1)];
       if (!metti(dove3, { tipo: 'registratore', reg: (zona.n - 1) * 3 + kReg + 1 }, 1.4)) {
@@ -950,24 +995,40 @@
       }
     }
     /* e un appunto di trama, nel primo livello di ogni ala */
-    if (inZona === 1) {
+    if (inZona === 1 && atto === 1) {
       metti(stanze[0], { tipo: 'foglio', trama: zona.n }, 1.4);
     }
+    /* l'apertura dei due atti nuovi: un appunto nella prima stanza */
+    if (atto > 1 && inZona === 1 && zona.n === 1) metti(stanze[0], { tipo: 'foglio', trama: 'atto' + atto }, 1.4);
+    if (atto > 1 && inZona === 1 && zona.n === 6) metti(stanze[0], { tipo: 'foglio', trama: 'atto' + atto + 'b' }, 1.4);
+
+    /* I PUNTI DI SALVATAGGIO: una stazione a meta' del percorso (e una
+       vicino alla fine nei livelli lunghi). Toccarla salva: morendo si
+       riparte da li', con quello che si aveva */
+    var tappe = [Math.floor(percorso.length / 2)];
+    if (percorso.length >= 8) tappe.push(percorso.length - 2);
+    tappe.forEach(function (k3, j3) {
+      var stS = stanze.filter(function (s3) { return s3.id === idDi(percorso[k3]); })[0];
+      if (stS && stS.ruolo !== 'boss') metti(stS, { tipo: 'salvataggio', id: 'cp' + n + '_' + j3 }, 1.4);
+    });
 
     /* i nemici: crescono con il livello, mai nella stanza di partenza */
     /* la specie si sceglie senza il generatore casuale: il resto del
        livello resta identico */
-    var nNem = Math.min(14, 3 + Math.floor(inZona * 0.6) + Math.floor(zona.n * 0.8));
+    var nNem = Math.min(14 + (atto - 1) * 4, 3 + Math.floor(inZona * 0.6) + Math.floor(zona.n * 0.8) + (atto - 1) * 3);
     /* le creature (i modelli forniti): una nuova per ala, e quelle di prima
        restano — il verme e il rampicante dall'inizio, poi la fanghiglia
        che sputa, il cervo, l'abissale che fluttua, il cristallino che
        carica, il bruto */
     var ORDINE = ['verme', 'curvo', 'palude', 'cervo', 'abissale', 'mostro', 'bruto'];
-    var specie = ORDINE.slice(0, Math.min(ORDINE.length, zona.n + 1));
+    var specie = atto > 1 ? ORDINE.slice() : ORDINE.slice(0, Math.min(ORDINE.length, zona.n + 1));
     var conNemici = stanze.filter(function (s) { return s.ruolo !== 'partenza' && s.ruolo !== 'boss'; });
     for (var e = 0; e < nNem && conNemici.length; e++) {
+      /* la variante: l'atto la decide (colori, taglia, attacchi), e uno
+         ogni cinque (dal secondo atto uno ogni quattro) e' un'ELITE */
       metti(conNemici[e % conNemici.length], { tipo: 'nemico', specie: specie[(e + n) % specie.length],
-                                               forza: 1 + Math.floor(zona.n / 3) }, 1.6);
+                                               forza: 1 + Math.floor(zona.n / 3), atto: atto,
+                                               elite: ((e + n) % (atto > 1 ? 4 : 5)) === 0 && inZona > 2 }, 1.6);
     }
 
     /* l'ultima stanza: l'ascensore verso il livello dopo, o il guardiano */
@@ -998,7 +1059,7 @@
   }
 
   globale.BSIAtomicLivelli = {
-    LIVELLI: LIVELLI, PER_ZONA: PER_ZONA, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
+    LIVELLI: LIVELLI, PER_ZONA: PER_ZONA, ATTI: ATTI, NOMI_ATTI: NOMI_ATTI, zonaDi: zonaDi, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
     RICETTE: RICETTE, POTERI: POTERI, STRUTTURE: STRUTTURE, enigma: enigma,
     bilanciata: bilanciata, PROGRAMMA: PROGRAMMA, Caso: Caso,
     REGISTRAZIONI: REGISTRAZIONI, VOCI: VOCI, MAPPE_LAB: MAPPE_LAB,

@@ -217,6 +217,32 @@
            'locked you in with it because only you can balance it. When the reaction stops, the ' +
            'doors open.» On the panel, your handwritten instruction: «resume regardless». This ' +
            'time you strike it out.'),
+      atto2: t('Atto II · Il riflusso. Ti svegli sul banco della prima ala. Le pareti sono le stesse, ma ' +
+           'piu\u2019 fredde, e la luce e\u2019 azzurra. Sul monitor: «Protocollo 12 ripreso. Istruzione ' +
+           'archiviata n. 2». Il Custode non risponde. Qualcuno ha ricostruito le macchine — e ' +
+           'le creature nelle ali sono cambiate.',
+           'Act II · The backflow. You wake on the bench of the first wing. The walls are the same, ' +
+           'but colder, and the light is blue. On the monitor: «Protocol 12 resumed. Archived ' +
+           'instruction no. 2». The Custodian does not answer. Someone has rebuilt the machines — ' +
+           'and the creatures in the wings have changed.'),
+      atto2b: t('Un foglio di Ferri, il legale del Consorzio Albedo: «Il protocollo deve completare il ' +
+           'ciclo. Ogni volta che viene fermato, il nucleo lo ricostruisce un po\u2019 piu\u2019 forte. ' +
+           'Il direttore lo sa: per questo ha lasciato due istruzioni archiviate.» Due. Ne hai trovata una.',
+           'A note by Ferri, the Albedo Consortium lawyer: «The protocol must complete its cycle. ' +
+           'Every time it is stopped, the core rebuilds it a little stronger. The director knows: ' +
+           'that is why he left two archived instructions.» Two. You have found one.'),
+      atto3: t('Atto III · Il nucleo profondo. Il calore del nucleo e\u2019 salito nelle ali: le pareti ' +
+           'sudano, la luce e\u2019 rossa. Il Custode, debole: «Ultima istruzione archiviata. Se ' +
+           'fermi il Protocollo adesso, si ferma per sempre. Ma devi arrivare in fondo.»',
+           'Act III · The deep core. The core’s heat has risen into the wings: the walls sweat, ' +
+           'the light is red. The Custodian, faint: «Last archived instruction. If you stop the ' +
+           'Protocol now, it stops for good. But you must reach the bottom.»'),
+      atto3b: t('La tua calligrafia, di nuovo, su un foglio bruciato a meta\u2019: «Se leggi questo, ' +
+           'sei arrivato piu\u2019 lontano di me. Non riprendere. Non riprendere. Non riprendere.» ' +
+           'Sotto, piu\u2019 piccolo: «la chimica lo puo\u2019 fermare — l\u2019argon, l\u2019oro, il piombo».',
+           'Your handwriting, again, on a half-burnt sheet: «If you read this, you got further than ' +
+           'me. Do not resume. Do not resume. Do not resume.» Below, smaller: «chemistry can stop ' +
+           'it — argon, gold, lead».'),
       finale: t('Il Protocollo 12 si spegne. Il nucleo si raffredda, l’argon riempie la camera e ' +
            'il silenzio torna nell’istituto. Il Custode apre le ali una a una. Fuori è l’alba. ' +
            'Nel taschino trovi il foglio con la tua calligrafia: lo pieghi e lo lasci sul banco. ' +
@@ -233,6 +259,7 @@
      LO STATO
      ═════════════════════════════════════════════════════════════════════════ */
   var S = null;
+  var attoAperto = 0;        /* l'atto aperto nella scelta dei livelli */
   var schermo = 'titolo';     /* titolo · livelli · impostazioni · codex · guida
                                  · gioco · pausa · inventario · sintesi · enigma
                                  · lettura · esito */
@@ -292,7 +319,7 @@
   function salva() {
     if (!S) return false;
     var dati = { livello: S.livello, inventario: S.inventario, composti: S.composti,
-                 ricette: S.ricette, codex: S.codex, punti: S.punti,
+                 ricette: S.ricette, codex: S.codex, punti: S.punti, checkpoint: S.checkpoint || null,
                  difficolta: IMP.difficolta, quando: Date.now() };
     try {
       globale.localStorage.setItem(PRE + 'partita', JSON.stringify(dati));
@@ -313,6 +340,7 @@
     S.inventario = x.inventario || [];
     S.composti = x.composti || [];
     S.punti = x.punti || 0;
+    S.ripresa = x.checkpoint && x.checkpoint.livello === x.livello ? x.checkpoint : null;
     if (x.codex) Object.keys(S.codex).forEach(function (k) { if (x.codex[k]) S.codex[k] = x.codex[k]; });
     (x.ricette || []).forEach(function (r) {
       var mia = S.ricette.filter(function (y) { return y.id === r.id; })[0];
@@ -606,10 +634,10 @@
          modello non e' ancora arrivato), poi il modello vero */
       var SM = SPECIE_M[o.specie];
       var seg = (SM.modo === 'sputo' || SM.modo === 'fluttua') ? G.drone(SM.colore) : G.automa(SM.colore);
-      seg.gruppo.scale.setScalar(SM.alto / 2.1);
+      seg.gruppo.scale.setScalar(SM.alto * variante(o).scala / 2.1);
       g.add(seg.gruppo);
       o._segnaposto = seg.gruppo; o._parti = null; o._mat = seg.materiali.slice();
-      o.vivo = true; o.t = (h % 100); o.vita = SM.vita;
+      o.vivo = true; o.t = (h % 100); o.vita = specieDi(o).vita;
       montaModelloNemico(o, g);
     } else if (o.tipo === 'nemico' && o.specie === 'drone' && G.drone) {
       var dr = G.drone(0xff5a3a);
@@ -634,6 +662,17 @@
     } else if (o.tipo === 'boss') {
       var B = LIV().GUARDIANI()[livello];
       var gu = G.guardiano(B ? B.modello : 'pompa');
+      /* i guardiani ricostruiti: gelo nel secondo atto, calore nel terzo */
+      if (B && B.atto > 1) {
+        var tB = new T.Color(B.atto === 2 ? 0x6ab4ff : 0xff4a14);
+        gu.gruppo.traverse(function (m6) {
+          if (!m6.isMesh || !m6.material || Array.isArray(m6.material)) return;
+          m6.material = m6.material.clone();
+          if (m6.material.color) m6.material.color.lerp(tB, 0.3);
+          if (m6.material.emissive) m6.material.emissive.lerp(tB, 0.5);
+        });
+        gu.gruppo.scale.multiplyScalar(1 + 0.1 * (B.atto - 1));
+      }
       g.add(gu.gruppo);
       o._corpo = gu.gruppo; o._parti = gu.parti; o._def = B;
       o._solido = { l: 2.6, p: 2.2 };
@@ -644,6 +683,18 @@
       o._solido = { l: 0.6, p: 0.45 };
     } else if (o.tipo === 'uscita') {
       g.add(costruisciUscita(o, livello));
+    } else if (o.tipo === 'salvataggio') {
+      /* la stazione: una colonna d'ottone con la lente verde e l'anello
+         che gira; attiva, la luce diventa d'oro */
+      var col0 = new T.Mesh(G.tonda(0.32, 1.4, 0.32, 0.05), G.M.ottone || G.M.acciaio);
+      col0.position.y = 0.7; col0.castShadow = !ps1(); g.add(col0);
+      var len = new T.Mesh(new T.SphereGeometry(0.18, 20, 14), G.mat({ color: 0x0a2a14, emissive: 0x2aff7a, emissiveIntensity: 2.2 }));
+      len.position.y = 1.55; g.add(len);
+      var an2 = new T.Mesh(new T.TorusGeometry(0.34, 0.025, 8, 36), G.mat({ color: 0x0a2a14, emissive: 0x2aff7a, emissiveIntensity: 2 }));
+      an2.position.y = 1.55; g.add(an2);
+      var alS = G.alone ? G.alone(0x2aff7a, 0.9, 0.5) : null; if (alS) { alS.position.y = 1.55; g.add(alS); }
+      o._lente = len; o._anello = an2; o._aloneS = alS;
+      o._solido = { l: 0.5, p: 0.5 };
     } else if (o.tipo === 'portaLab') {
       var nl = NOMI_LAB[o.mappa] || [o.mappa, o.mappa];
       g.add(costruisciPortaLab(t('LABORATORIO', 'LABORATORY'), t(nl[0], nl[1])));
@@ -957,6 +1008,12 @@
         if (o._gira) o._gira.visible = (Math.floor(ora / 600) % 2) === 0;
       } else if (o.tipo === 'nemico' && o.vivo) {
         if (!S.lab) { if (SPECIE_M[o.specie]) aggiornaNemicoM(o, sx, st, ora); else aggiornaNemico(o, sx, st, ora); }
+      } else if (o.tipo === 'salvataggio' && o._anello) {
+        if (sx !== st) return;
+        var attivo = S.checkpoint && S.checkpoint.id === o.id;
+        o._anello.rotation.x = Math.PI / 2 + Math.sin(ora / 900) * 0.3;
+        o._anello.rotation.z += attivo ? 0.05 : 0.015;
+        if (!attivo && Math.hypot(S.pos.x - (sx.x + o.x), S.pos.z - (sx.z + o.z)) < 1.6) attivaSalvataggio(o, sx);
       } else if (o.tipo === 'boss' && !o.abbattuto) {
         passoBoss(o, sx);
       } else if (o.tipo === 'uscita') {
@@ -989,6 +1046,19 @@
     S.t = (S.t || 0) + 1;
   }
 
+  function attivaSalvataggio(o, sx) {
+    S.checkpoint = { id: o.id, livello: mondo.livello.n, x: sx.x + o.x + 1.2, z: sx.z + o.z, ang: S.ang,
+                     presi: Object.assign({}, S.presi), fatti: Object.assign({}, S.fatti) };
+    S.vite = Math.max(S.vite, Math.min(S.vitaMax, S.vite + 1));
+    salva();
+    [o._lente, o._anello].forEach(function (m) { if (m) { m.material = m.material.clone(); m.material.emissive.setHex(0xffd24a); } });
+    if (o._aloneS) o._aloneS.material.color.setHex(0xffd24a);
+    tuttiGliOggetti(function (x) {
+      if (x.tipo === 'salvataggio' && x !== o && x._lente) [x._lente, x._anello].forEach(function (m) { m.material = m.material.clone(); m.material.emissive.setHex(0x2aff7a); });
+    });
+    avviso(t('✚ Punto di salvataggio', '✚ Save point'), t('se cadi, riparti da qui · +1 salute', 'if you fall, you restart here · +1 health'));
+    bip(784, 0.25, 'triangle', 0.07);
+  }
   function danno(perche, fonte) {
     if (S.immune > 0 || S.finito) return;
     S.immune = 60;
@@ -1008,6 +1078,18 @@
     avviso(perche);
     var sc = document.getElementById('bsiAP-scena');
     if (sc) { sc.classList.remove('colpito'); void sc.offsetWidth; sc.classList.add('colpito'); }
+    if (S.vite <= 0 && S.checkpoint && S.checkpoint.livello === mondo.livello.n && !S.lab) {
+      /* si riparte dal punto di salvataggio: salute piena, qualche
+         secondo d'immunita', i nemici restano dove sono */
+      var cp = S.checkpoint;
+      S.vite = S.vitaMax; S.immune = 180; S.energia = 100;
+      S.pos.x = cp.x; S.pos.z = cp.z; S.pos.y = 0; S.vel.x = S.vel.z = 0; S.vMov = { x: 0, z: 0 }; S.posPrec = null;
+      S.morti = (S.morti || 0) + 1;
+      camLiscia = null; mondo.stanzaCorrente = null; aggiornaVisibili();
+      avviso(t('↺ Ripartito dal punto di salvataggio', '↺ Restarted from the save point'), perche);
+      bip(330, 0.4, 'sine', 0.07);
+      return;
+    }
     if (S.vite <= 0) {
       S.finito = { esito: 'perso', perche: perche };
       schermo = 'esito';
@@ -1367,7 +1449,7 @@
      volta e si ricostruiscono a ogni vista nuova; finche' non arrivano, o
      se non arrivano (offline al primo avvio), restano i pezzi procedurali.
      La presa si monta quando ci sono sia le mani sia la pistola */
-  var MODELLI_FP = { braccia: 'models/braccia-atomic.glb', robot: 'models/mano-robotica-atomic.glb', pistola: 'models/pistola-atomic.glb', mani: 'models/mani-atomic.glb', manica: 'models/manica-atomic.glb' };
+  var MODELLI_FP = { braccia: 'models/braccia-atomic.glb', pistola: 'models/pistola-atomic.glb', mani: 'models/mani-atomic.glb', manica: 'models/manica-atomic.glb' };
   var PRESA = { pollice: 0.55, indice: 0.42, medio: 0.8, anulare: 0.83, mignolo: 0.86 };
   var bufferFP = {};
   function libreriaGLTF() {
@@ -1414,11 +1496,13 @@
       if (v.potere && v.potere.palmo) v.gruppo.attach(v.potere.palmo);
       animV.inMano = undefined;
     }
-    Promise.all([carica('braccia'), carica('pistola'), carica('robot')]).then(function (r) {
+    /* le due mani sono quelle del rig, tutte e due in guanto di nitrile:
+       la sinistra e' lo specchio vero della destra (la mano robotica non
+       c'e' piu') */
+    Promise.all([carica('braccia'), carica('pistola')]).then(function (r) {
       if (vista !== v) return;
       if (r[1]) { v.pistola = G.pistolaModello(r[1], v); animV.modelliFP++; }
       if (r[0]) { v.rig = G.bracciaRig(r[0], v); if (v.rig) animV.modelliFP++; }
-      if (r[2] && v.rig) { G.manoRobotica(r[2], v.rig, v); animV.modelliFP++; }
       if (v.rig) { montaRig(); return; }
       /* la riserva: le mani e la manica */
       ['mani', 'manica'].forEach(function (k) {
@@ -1892,6 +1976,9 @@
     S.punti += 500;
     S.finito = { esito: 'livello', livello: n };
     S.livello = Math.min(LIV().LIVELLI, n + 1);
+    S.checkpoint = null;
+    /* la fine di un atto: lo si dice */
+    if (n % 100 === 0 && n < LIV().LIVELLI) S.finito.atto = Math.floor(n / 100) + 1;
     salva();
     bip(988, 0.25, 'triangle', 0.08);
     schermo = 'esito';
@@ -2663,17 +2750,26 @@
       var max = livelloMax(), Gd = LIV().GUARDIANI();
       var h = '<div class="bsiAP-scheda" style="text-align:left">' +
         '<div class="bsiAP-tit">▦ ' + t('LIVELLI', 'LEVELS') + '</div>';
+      /* tre atti: si vede quello in cui si e' arrivati, gli altri si
+         aprono con un tocco sul titolo */
+      var attoMax = Math.ceil(max / 100), aperto = attoAperto || attoMax;
+      [1, 2, 3].forEach(function (at) {
+        h += '<button class="bsiAP-b" data-atto="' + at + '" style="margin-top:8px;text-align:left">' +
+             (at === aperto ? '▾ ' : '▸ ') + esc(LIV().NOMI_ATTI()[at]) + (at > attoMax ? ' 🔒' : '') + '</button>';
+        if (at !== aperto) return;
       LIV().ZONE().forEach(function (z) {
+        var z2 = LIV().zonaDi((at - 1) * 100 + z.n * 10);
         h += '<div class="bsiAP-sub" style="margin:6px 0 0"><b style="color:#8fe3c4">' +
-             esc(z.nome) + '</b></div><div class="bsiAP-liv">';
-        var PZ = LIV().PER_ZONA;
-        for (var n = (z.n - 1) * PZ + 1; n <= z.n * PZ; n++) {
+             esc(z2.nome) + '</b></div><div class="bsiAP-liv">';
+        var PZ = LIV().PER_ZONA, base = (at - 1) * 100;
+        for (var n = base + (z.n - 1) * PZ + 1; n <= base + z.n * PZ; n++) {
           var b2 = Gd[n];
           h += '<button data-liv="' + n + '"' + (b2 ? ' class="boss"' : '') +
                (n > max ? ' disabled' : '') + '>' + (n > max ? '🔒 ' : '') + n +
                (b2 ? '<br><small>☠ ' + esc(b2.nome) + '</small>' : '') + '</button>';
         }
         h += '</div>';
+      });
       });
       h += bottone('apIndietroL', '◂ ' + t('indietro', 'back')) + '</div>';
       u.innerHTML = h;
@@ -2685,6 +2781,9 @@
           if (sv2 && riprendi()) S.livello = n2; else nuovaPartita(n2);
           cominciaPartita();
         };
+      });
+      [].forEach.call(u.querySelectorAll('[data-atto]'), function (b4) {
+        b4.onclick = function () { attoAperto = +b4.getAttribute('data-atto'); disegnaUI(); };
       });
       su('apIndietroL', function () { schermo = 'titolo'; disegnaUI(); });
       return;
@@ -2979,9 +3078,11 @@
       var F = S.finito || {};
       var titolo, testo, bott;
       if (F.esito === 'livello') {
-        titolo = t('LIVELLO ', 'LEVEL ') + F.livello + t(' COMPLETATO', ' COMPLETE');
+        titolo = F.atto ? t('ATTO ', 'ACT ') + ['', 'I', 'II', 'III'][F.atto - 1] + t(' CONCLUSO', ' COMPLETE')
+                        : t('LIVELLO ', 'LEVEL ') + F.livello + t(' COMPLETATO', ' COMPLETE');
         var prossimo = LIV().livello(S.livello);
-        testo = t('Salvato. Prossimo: ', 'Saved. Next: ') + prossimo.nome +
+        testo = (F.atto ? LIV().NOMI_ATTI()[F.atto] + t(' comincia. Il Protocollo ha ricostruito l’istituto.\n\n', ' begins. The Protocol has rebuilt the institute.\n\n') : '') +
+                t('Salvato. Prossimo: ', 'Saved. Next: ') + prossimo.nome +
                 (prossimo.boss ? '\n☠ ' + t('ti aspetta ', 'awaiting you: ') + prossimo.boss.nome : '') +
                 '\n' + S.punti + t(' punti', ' points');
         bott = bottone('apAvanti', '▸ ' + t('livello ', 'level ') + S.livello) +
@@ -3336,9 +3437,40 @@
   var ACIDI = ['HCl', 'H2SO4', 'HNO3'];
   var proiettili = [], effetti = [], numeri = [], nubi = [];
   var CD = { sparo: 0, potere: 0 };
+  /* LE VARIANTI. La stessa creatura cambia con l'atto: nel secondo e'
+     piu' grossa, piu' veloce, attacca piu' spesso e con piu' colpi, ed e'
+     ghiacciata (azzurra); nel terzo ancora di piu', ed e' rovente (rossa).
+     Le ELITE hanno l'alone d'oro, sono piu' grandi e resistono il doppio */
+  function variante(o) {
+    if (o._var) return o._var;
+    var a = o.atto || 1, el = !!o.elite;
+    return (o._var = {
+      atto: a, elite: el,
+      vita: (1 + 0.75 * (a - 1)) * (el ? 2 : 1),
+      scala: (1 + 0.1 * (a - 1)) * (el ? 1.28 : 1),
+      vel: 1 + 0.18 * (a - 1) + (el ? 0.1 : 0),
+      cd: Math.max(0.5, 1 - 0.18 * (a - 1) - (el ? 0.1 : 0)),
+      extra: (a - 1) + (el ? 1 : 0),
+      tinta: a === 2 ? 0x6ab4ff : a === 3 ? 0xff4a14 : null,
+      punti: (1 + 0.5 * (a - 1)) * (el ? 2.5 : 1)
+    });
+  }
+  function coloreDi(o) {
+    var SM = SPECIE_M[o.specie], v = variante(o);
+    if (v.elite) return 0xffd24a;
+    if (!v.tinta) return SM.colore;
+    return new T.Color(SM.colore).lerp(new T.Color(v.tinta), 0.65).getHex();
+  }
   function specieDi(o) {
     var m = SPECIE_M[o.specie];
-    if (m) return { vita: m.vita, nome: m.nome, altezza: m.alto * 0.55 + (m.quota || 0), raggio: m.raggio, debole: m.debole, punti: m.punti, m: m };
+    if (m) {
+      var v = variante(o);
+      var pre = v.elite ? ['Élite · ', 'Elite · '] : v.atto === 2 ? ['', ''] : ['', ''];
+      var suf = v.atto === 2 ? [' gelido', ' (frozen)'] : v.atto === 3 ? [' rovente', ' (molten)'] : ['', ''];
+      return { vita: Math.round(m.vita * v.vita), nome: [pre[0] + m.nome[0] + suf[0], pre[1] + m.nome[1] + suf[1]],
+               altezza: m.alto * v.scala * 0.55 + (m.quota || 0), raggio: m.raggio * v.scala,
+               debole: m.debole, punti: Math.round(m.punti * v.punti), m: m };
+    }
     return SPECIE[o.specie] || SPECIE.residuo;
   }
   function costoPotere(sim) {
@@ -3864,7 +3996,8 @@
       if (!gltf || !o._nodo || o._nodo !== g || !g.parent) return;
       var anim = gltf.animations && gltf.animations.length && T.SkeletonUtils;
       var copia = anim ? T.SkeletonUtils.clone(gltf.scene) : gltf.scene.clone(true);
-      var bb = gltf.misura, alto = Math.max(0.01, bb.max.y - bb.min.y), k = SM.alto / alto;
+      var V = variante(o), colV = coloreDi(o);
+      var bb = gltf.misura, alto = Math.max(0.01, bb.max.y - bb.min.y), k = SM.alto * V.scala / alto;
       var cont = new T.Group(), corpo = new T.Group();
       copia.scale.setScalar(k);
       copia.position.set(-(bb.min.x + bb.max.x) / 2 * k, -bb.min.y * k + (SM.quota || 0), -(bb.min.z + bb.max.z) / 2 * k);
@@ -3876,10 +4009,20 @@
         m.material = Array.isArray(m.material) ? m.material.map(function (x) { var c = x.clone(); mats.push(c); return c; }) : m.material.clone();
         if (!Array.isArray(m.material)) mats.push(m.material);
       });
-      mats.forEach(function (m) { if (!m.emissive) return; m.userData.em0 = m.emissive.clone(); });
-      /* gli occhi: un alone del colore della specie */
-      var oc = G.alone ? G.alone(SM.colore, 0.22 + SM.alto * 0.04, 0.3) : null;
-      if (oc) { oc.position.set(0, SM.alto * 0.86 + (SM.quota || 0), SM.raggio * 0.55); corpo.add(oc); }
+      /* la tinta della variante: la pelle prende il gelo o il calore, e
+         l'elite un riflesso d'oro che pulsa */
+      mats.forEach(function (m) {
+        if (V.tinta && m.color) m.color.lerp(new T.Color(V.tinta), 0.32);
+        if (m.emissive) {
+          if (V.tinta) m.emissive.lerp(new T.Color(V.tinta).multiplyScalar(0.25), 0.6);
+          if (V.elite) m.emissive.add(new T.Color(0x3a2a00));
+          m.userData.em0 = m.emissive.clone();
+        }
+      });
+      /* gli occhi: un alone del colore della variante */
+      var oc = G.alone ? G.alone(colV, 0.22 + SM.alto * 0.04, 0.3) : null;
+      if (oc) { oc.position.set(0, SM.alto * V.scala * 0.86 + (SM.quota || 0), SM.raggio * V.scala * 0.55); corpo.add(oc); }
+      if (V.elite && G.alone) { var aur = G.alone(0xffd24a, SM.alto * V.scala * 1.4, 0.18); aur.position.y = SM.alto * V.scala * 0.5; corpo.add(aur); }
       var mod = { cont: cont, corpo: corpo, copia: copia, mats: mats, occhi: oc, k: k };
       if (anim) {
         mod.mixer = new T.AnimationMixer(copia); mod.azioni = {};
@@ -3917,14 +4060,14 @@
      ai colpi. Gli attacchi si annunciano (il corpo si carica, gli occhi
      si accendono) e colpiscono alla fine: chi si sposta in tempo li schiva */
   function aggiornaNemicoM(o, sx, st, ora) {
-    var dt = PASSO / 1000, SM = SPECIE_M[o.specie];
+    var dt = PASSO / 1000, SM = SPECIE_M[o.specie], V = variante(o), colV = coloreDi(o);
     o.t = (o.t || 0) + 1;
     var wx = sx.x + o.x, wz = sx.z + o.z;
     var dx = S.pos.x - wx, dz = S.pos.z - wz, d = Math.hypot(dx, dz) || 1;
     var vede = sx === st && d < 14 && vistaLibera(wx, wz, S.pos.x, S.pos.z);
     if (vede) o._allerta = 5; else if (o._allerta > 0) o._allerta -= dt;
     var all = o._allerta > 0 && sx === st;
-    var lento = o._gelo > 0 ? 0.3 : 1;
+    var lento = (o._gelo > 0 ? 0.3 : 1) * V.vel;
     if (o._gelo > 0) o._gelo -= dt;
     if (o._stordito > 0) { o._stordito -= dt; lento = 0; }
     o._fase = o._fase || 'attesa';
@@ -3959,11 +4102,11 @@
         if (SM.modo === 'sputo' || SM.modo === 'fluttua') {
           var pn = posNemico(o); pn.y = SM.alto * 0.8 + (SM.quota || 0);
           var bers = new T.Vector3(S.pos.x + S.vel.x * 20, S.pos.y + 1.2, S.pos.z + S.vel.z * 20);
-          var n = SM.modo === 'fluttua' ? 3 : 1;
+          var n = SM.modo === 'fluttua' ? 3 + V.extra * 2 : 1 + V.extra;
           for (var i = 0; i < n; i++) {
             var dir = bers.clone().sub(pn).normalize();
-            if (n > 1) dir.applyAxisAngle(new T.Vector3(0, 1, 0), (i - 1) * 0.16);
-            var pr = proiettile(pn.clone(), dir.multiplyScalar(SM.modo === 'sputo' ? 8 : 6.5), SM.colore, false);
+            if (n > 1) dir.applyAxisAngle(new T.Vector3(0, 1, 0), (i - (n - 1) / 2) * (SM.modo === 'fluttua' ? 0.16 : 0.09));
+            var pr = proiettile(pn.clone(), dir.multiplyScalar((SM.modo === 'sputo' ? 8 : 6.5) * (1 + 0.1 * (V.atto - 1))), colV, false);
             if (SM.modo === 'sputo') { pr.v.y += 2.2; pr.g = 4.5; }
             pr.fonte = { x: wx, z: wz }; pr.nome = SM.nome;
             proiettili.push(pr);
@@ -3981,11 +4124,18 @@
       } else if (SM.modo === 'mischia') { mx = ux * 1.2 * dt; mz = uz * 1.2 * dt; }
       /* il colpo arriva: se sei ancora a portata (e senza scudo), fa male */
       var arriva = (SM.modo === 'mischia' && o._tf <= 0.12 && !o._colpito) || (SM.modo !== 'mischia' && SM.modo !== 'sputo' && SM.modo !== 'fluttua' && !o._colpito);
-      if (arriva && d < SM.portata + (SM.modo === 'salto' ? 0.4 : 0.3) && !S.immune && !(S.scudo > 0)) {
+      if (arriva && d < SM.portata * V.scala + (SM.modo === 'salto' ? 0.4 : 0.3) && !S.immune && !(S.scudo > 0)) {
         o._colpito = true;
         danno(SM.nome[lingua() === 'en' ? 1 : 0] + t(' ti ha colpito', ' hit you'), { x: wx, z: wz });
       }
-      if (o._tf <= 0) { o._fase = 'insegui'; o._cd = SM.modo === 'carica' ? 2.2 : SM.modo === 'salto' ? 2.6 : SM.modo === 'mischia' ? 1.1 : 2.4; o._colpito = false; o._quotaSalto = 0; }
+      if (o._tf <= 0) {
+        o._colpito = false; o._quotaSalto = 0;
+        /* la COMBINAZIONE: dal secondo atto (e le elite) chi colpisce in
+           mischia o carica ripete subito, una o due volte */
+        o._combo = (o._combo || 0) + 1;
+        if ((SM.modo === 'mischia' || SM.modo === 'carica') && o._combo <= V.extra && d < 7) { o._fase = 'carica'; o._tf = 0.3; }
+        else { o._combo = 0; o._fase = 'insegui'; o._cd = (SM.modo === 'carica' ? 2.2 : SM.modo === 'salto' ? 2.6 : SM.modo === 'mischia' ? 1.1 : 2.4) * V.cd; }
+      }
     }
     if (o._spinta) { mx += o._spinta.x; mz += o._spinta.z; o._spinta.x *= 0.85; o._spinta.z *= 0.85; if (Math.abs(o._spinta.x) + Math.abs(o._spinta.z) < 0.002) o._spinta = null; }
     var nx = o.x + mx, nz = o.z + mz;
@@ -4018,7 +4168,7 @@
       c.rotation.x += ((conClip ? 0 : -carica * 0.32 + colpo * 0.38) + (o._ferito > 0 ? -0.35 * o._ferito : 0) - c.rotation.x) * Math.min(1, dt * 10);
       c.rotation.z = conClip ? 0 : ond * 0.06;
       c.position.y = conClip ? 0 : Math.abs(ond) * 0.05 + (SM.modo === 'fluttua' ? Math.sin(f * 1.6) * 0.15 : 0);
-      if (mod.occhi) { mod.occhi.material.opacity = carica ? 0.5 + Math.sin(ora / 40) * 0.3 : all ? 0.35 : 0.15; mod.occhi.scale.setScalar((0.22 + SM.alto * 0.04) * (1 + carica * 1.2)); }
+      if (mod.occhi) { mod.occhi.material.opacity = carica ? 0.5 + Math.sin(ora / 40) * 0.3 : all ? 0.35 : 0.15; mod.occhi.scale.setScalar((0.22 + SM.alto * 0.04) * V.scala * (1 + carica * 1.2)); }
     } else if (o._segnaposto) {
       o._segnaposto.rotation.x = o._fase === 'carica' ? -0.25 : o._fase === 'colpo' ? 0.3 : 0;
     }
@@ -4603,6 +4753,10 @@
     var d = diff();
     S.vite = d.vite; S.vitaMax = d.vite;
     S.finito = null; S.boss = null; S.fatti = {}; S.presi = {}; S.visitate = {};
+    var rip = S.ripresa && S.ripresa.livello === S.livello ? S.ripresa : null;
+    S.ripresa = null;
+    if (rip) { S.presi = Object.assign({}, rip.presi); S.fatti = Object.assign({}, rip.fatti); S.checkpoint = rip; }
+    else S.checkpoint = null;
     S.rapide = 0; S.tentativi = 0;
     ricetteDovute(S.livello).forEach(function (id) { sbloccaRicetta(id, true); });
     salva();
@@ -4615,6 +4769,7 @@
     var porta = (st.porte || [])[0];
     var versi = { nord: 0, ovest: Math.PI / 2, sud: Math.PI, est: -Math.PI / 2 };
     S.ang = porta ? versi[porta.verso] : 0;
+    if (rip) { S.pos.x = rip.x; S.pos.z = rip.z; S.ang = rip.ang || 0; }
     S.angY = 0; S.immune = 0;
     camLiscia = null;
     mondo.stanzaCorrente = null;
@@ -4942,6 +5097,8 @@
     spruzzo: function () { spruzzo(); },
     sparo: function () { CD.sparo = 0; sparo(); },
     pugno: function () { CD.pugno = 0; pugno(); },
+    ferito: function (p) { S.immune = 0; danno(p || '—'); },
+    variante: function (o) { return variante(o); },
     specieNemici: function () { return Object.keys(SPECIE_M); },
     usaPotere: function () { CD.potere = 0; usaPotere(); },
     scegliPotere: function (x) { scegliPotere(x); },

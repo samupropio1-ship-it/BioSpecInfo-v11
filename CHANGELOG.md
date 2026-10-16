@@ -7,6 +7,32 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v221] — 2026-10-16
+
+**Trecento livelli, salvataggi, varianti — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Tre atti, 300 livelli**: «Il contenimento» (1–100), «Il riflusso»
+  (101–200, gelido), «Il nucleo profondo» (201–300, rovente), con le zone
+  ritinte, livelli più lunghi e più popolati, appunti di trama nuovi e il
+  finale al livello 300; scelta dei livelli divisa per atto.
+- **I guardiani tornano** come MK II (atto II) e Ω (atto III): trenta in
+  tutto, con più colpi per fase, ritinti e più grandi.
+- **Le varianti delle creature** per atto (gelide, roventi: più grandi,
+  veloci, frequenti, con raffiche più larghe, sputi multipli, combinazioni
+  e cariche ripetute) e le **élite** (alone d'oro, vita doppia).
+- **Punti di salvataggio** dentro i livelli: si attivano passando, salvano
+  posizione e progressi anche nella partita salvata; cadendo si riparte da lì.
+
+### Cambiato
+- **Le due mani sono uguali**: la sinistra è il guanto di nitrile del rig,
+  specchio della destra, con le sue animazioni (tolta la mano robotica).
+
+### Banco
+- `test_atomic`: 278 controlli — 300 livelli, trenta guardiani, salvataggi,
+  varianti, élite, ripartenza, mani uguali.
+
+---
 ## [bsi-v220] — 2026-10-16
 
 **Combattimento, poteri, fluidità — ATOMIC PROTOCOL**
