@@ -1044,6 +1044,9 @@ function sopra(d, minimo, avuto) {
       }
       out.mappe[nome] = r;
     }
+    /* si richiude la sezione, come l'aveva lasciata il banco prima */
+    document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])').click();
+    await new Promise(r => setTimeout(r, 800));
     return out;
   });
   att('ogni livello ha la porta del laboratorio, nella stanza del banco', 100, labs.porte);
