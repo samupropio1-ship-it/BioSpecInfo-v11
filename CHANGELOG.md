@@ -7,6 +7,42 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v219] — 2026-10-16
+
+**I laboratori dalle mappe, e la sinistra giusta — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Cinque laboratori da percorrere**, dalle mappe fornite: Small Lab
+  (Biohazard Rooms), Sci-fi lab (Agata Wilczek), Flynn's Secret Lab
+  (jvouillon), Location underground laboratory (bazz4r), Overgrown Laboratory
+  (MichalTroye); con il reattore (Quantum Laboratory X Alpha, -X-ScornGames) e
+  la capsula (Sci Fi lab, IrisProcess). Tutti CC-BY 4.0, crediti nel Codex.
+- In ogni livello una **porta con la targa** nella stanza del banco: entra nel
+  laboratorio dell'ala, con il banco di sintesi sul bancone vero della mappa
+  e la porta per tornare. Ci si muove su una griglia di cammino calcolata
+  dalla geometria (pavimenti, scale, muri, arredi), con la mappa e l'HUD del
+  laboratorio.
+- `tools/usd-in-glb.py` (USDZ → GLB) e `tools/prepara-mappe.js` (ottimizzazione
+  e griglia di cammino): 145 MB di sorgenti → 37 MB.
+
+### Corretto
+- **La sinistra sembrava una destra rovesciata**: la mano robotica si
+  allineava sul pollice, ripiegato nel pugno del rig, e girava di un quarto.
+  Ora si allinea sulla linea delle nocche.
+- **Le animazioni delle mani**: le dita robotiche copiano quanto sono chiuse
+  quelle della sinistra del rig in ogni animazione, invece di pose inventate;
+  tolto il giro forzato del palmo col potere; il jab per lanciare e prendere
+  e l'ispezione da fermi muovono solo il braccio sinistro (prima l'ispezione
+  faceva girare anche la destra con la pistola, e il jab era il destro).
+- La batteria v218 aveva un `test_atomic` fallito per un'attesa troppo corta
+  sullo strumento in mano: ora si aspetta che cambi.
+
+### Banco
+- `test_atomic`: 245 controlli — i laboratori (porta in tutti i livelli, e
+  per ogni mappa: cartello, ingresso, triangoli, pavimento, muri, banco,
+  ritorno) e il jab/ispezione solo a sinistra.
+
+---
 ## [bsi-v218] — 2026-10-16
 
 **La mano robotica si muove — ATOMIC PROTOCOL**

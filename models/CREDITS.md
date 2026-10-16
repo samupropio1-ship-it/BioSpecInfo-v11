@@ -32,6 +32,22 @@ sono anche dentro ogni file (`asset.extras`) e nel Codex del gioco.
 | `mano-robotica-atomic.glb` | [Robotic Hand](https://sketchfab.com/3d-models/robotic-hand-3e284b06bbb84d858f85f7a246cd65df) | [SeanNicolas](https://sketchfab.com/SeanNicolas) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | invariato; in gioco specchiato e agganciato alla mano sinistra |
 | `pistola-atomic.glb` | [Capsule Gun](https://sketchfab.com/3d-models/capsule-gun-3639c42106334abab57d0592dae745df) | [sc8di](https://sketchfab.com/sc8di) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | texture ricompresse; in gioco la capsula prende il colore del composto |
 
+## ATOMIC PROTOCOL — i laboratori (cartella `mappe/`)
+
+Le mappe dei laboratori, fornite dall'utente (Sketchfab; tre in USDZ) e
+adattate con `tools/prepara-mappe.js`, che calcola anche la griglia di cammino
+di ognuna (`mappe/<nome>.json`).
+
+| File | Opera originale | Autore | Licenza | Uso e adattamento |
+|------|-----------------|--------|---------|-------------------|
+| `mappe/small.glb` | [Small Lab](https://sketchfab.com/3d-models/small-lab-8ad8088491d2409eb4b6f06563684d23) | [Biohazard Rooms](https://sketchfab.com/Perriqueso) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | laboratorio (ali 1, 6): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri |
+| `mappe/scifi1.glb` | [Sci-fi lab](https://sketchfab.com/3d-models/sci-fi-lab-a676e149e343403bb5e57686f3d31da5) | [Agata Wilczek](https://sketchfab.com/a_wilczek) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | laboratorio (ali 2, 7): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri; dall’USDZ convertito con `tools/usd-in-glb.py` |
+| `mappe/flynn.glb` | [Flynn's Secret Lab [Tron Legacy]](https://sketchfab.com/3d-models/flynns-secret-lab-tron-legacy-0429196769e040bd84e84040daccc40a) | [jvouillon](https://sketchfab.com/jvouillon) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | laboratorio (ali 3, 8): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri |
+| `mappe/underground.glb` | [Location underground laboratory](https://sketchfab.com/3d-models/location-underground-laboratory-7f70eebd1f044277b91c197fb17c513e) | [bazz4r](https://sketchfab.com/bazz4r) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | laboratorio (ali 4, 9): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri |
+| `mappe/overgrown.glb` | [Overgrown Laboratory](https://sketchfab.com/3d-models/overgrown-laboratory-51e1307fb6c44fa29dd2c19b79ec893f) | [MichalTroye](https://sketchfab.com/MichalTroye) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | laboratorio (ali 5, 10): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri; dall’USDZ convertito con `tools/usd-in-glb.py` |
+| `mappe/reattore.glb` | [Quantum_Laboratory_X_Alpha](https://sketchfab.com/3d-models/quantum-laboratory-x-alpha-a8811324c92f45678bbadc4ec71204f4) | [-X-ScornGames](https://sketchfab.com/XX-XX) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | apparecchio (il reattore): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri |
+| `mappe/capsula.glb` | [Sci Fi lab](https://sketchfab.com/3d-models/sci-fi-lab-f7626acfa80943bab35568b4852b8ab8) | [IrisProcess](https://sketchfab.com/IrisProcess) | [CC-BY 4.0](http://creativecommons.org/licenses/by/4.0/) | apparecchio (la capsula): materiali metal/rough, mesh unite, geometria semplificata, texture ridotte, scala in metri; dall’USDZ convertito con `tools/usd-in-glb.py` |
+
 **Nota sulla licenza Sketchfab Standard** (le mani): consente l'uso del
 modello dentro un'opera, non la sua ridistribuzione come modello a sé. Il
 file sta in un repository pubblico, da cui si può scaricare: prima di una

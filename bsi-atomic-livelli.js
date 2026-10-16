@@ -706,6 +706,11 @@
   /* ═════════════════════════════════════════════════════════════════════
      GENERARE UN LIVELLO
      ═════════════════════════════════════════════════════════════════════ */
+  /* I LABORATORI: le mappe fornite dall'utente (models/mappe/), una per
+     ala, a turno. Ognuna e' un laboratorio vero da percorrere, con il suo
+     banco di sintesi; ci si entra dalla porta nella stanza del banco */
+  var MAPPE_LAB = ['small', 'scifi1', 'flynn', 'underground', 'overgrown'];
+
   function livello(n) {
     n = Math.max(1, Math.min(LIVELLI, n | 0));
     var caso = Caso(n * 2654435761 + 97);
@@ -874,6 +879,29 @@
     })[0] || stanze[0];
     metti(conBanco, { tipo: 'banco', ruota: 0 }, 2.2);
 
+    /* LA PORTA DEL LABORATORIO: nella stanza del banco, contro una parete
+       senza vani e lontana dagli arredi. Porta al laboratorio dell'ala (una
+       delle mappe dei laboratori, MAPPE_LAB). Si sceglie senza il generatore
+       casuale, cosi' il resto del livello non cambia */
+    (function () {
+      var lati = [];
+      [0, -0.28, 0.28].forEach(function (f) {
+        lati.push({ x: f * conBanco.larg, z: -conBanco.prof / 2 + 0.35, ruota: 0, verso: 'nord' },
+                  { x: f * conBanco.larg, z: conBanco.prof / 2 - 0.35, ruota: Math.PI, verso: 'sud' },
+                  { x: -conBanco.larg / 2 + 0.35, z: f * conBanco.prof, ruota: Math.PI / 2, verso: 'ovest' },
+                  { x: conBanco.larg / 2 - 0.35, z: f * conBanco.prof, ruota: -Math.PI / 2, verso: 'est' });
+      });
+      var ok = lati.filter(function (l) {
+        return !conBanco.porte.some(function (pt) { return pt.verso === l.verso; }) &&
+               conBanco.oggetti.every(function (o) { return Math.hypot(o.x - l.x, o.z - l.z) > 2.0; });
+      })[0] || lati.filter(function (l) {
+        return conBanco.oggetti.every(function (o) { return Math.hypot(o.x - l.x, o.z - l.z) > 1.6; }) &&
+               lontanoDallePorte(conBanco, l);
+      })[0];
+      if (ok) conBanco.oggetti.push({ tipo: 'portaLab', x: ok.x, z: ok.z, ruota: ok.ruota,
+                                      mappa: MAPPE_LAB[(zona.n - 1) % MAPPE_LAB.length] });
+    })();
+
     /* il terminale: nella penultima stanza, e apre l'ultima porta */
     var term = stanze.filter(function (s) { return s.ruolo === 'terminale'; })[0] || stanze[stanze.length - 2];
     var tipiEnigma = PROGRAMMA[zona.n];
@@ -964,7 +992,7 @@
     LIVELLI: LIVELLI, PER_ZONA: PER_ZONA, livello: livello, ZONE: ZONE, GUARDIANI: GUARDIANI,
     RICETTE: RICETTE, POTERI: POTERI, STRUTTURE: STRUTTURE, enigma: enigma,
     bilanciata: bilanciata, PROGRAMMA: PROGRAMMA, Caso: Caso,
-    REGISTRAZIONI: REGISTRAZIONI, VOCI: VOCI,
+    REGISTRAZIONI: REGISTRAZIONI, VOCI: VOCI, MAPPE_LAB: MAPPE_LAB,
     versione: '1.0'
   };
 

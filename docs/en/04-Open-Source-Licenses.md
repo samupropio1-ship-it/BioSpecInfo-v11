@@ -36,6 +36,13 @@ used, so there are no obligations to redistribute the proprietary code.
 | `models/manica-atomic.glb` | Modern Scientist in a Lab Coat (crop) | restore50 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 | `models/braccia-atomic.glb` | Fists (2023) \| First Person Animations | 1Matzh (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 | `models/mano-robotica-atomic.glb` | Robotic Hand | SeanNicolas (Sketchfab) | CC-BY 4.0 | attribution: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/small.glb` | Small Lab | Biohazard Rooms (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/scifi1.glb` | Sci-fi lab | Agata Wilczek (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/flynn.glb` | Flynn's Secret Lab [Tron Legacy] | jvouillon (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/underground.glb` | Location underground laboratory | bazz4r (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/overgrown.glb` | Overgrown Laboratory | MichalTroye (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/reattore.glb` | Quantum_Laboratory_X_Alpha | -X-ScornGames (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mappe/capsula.glb` | Sci Fi lab | IrisProcess (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 | `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 
 The derivatives are produced by `tools/prepara-modelli.js`; the entries with their SHA-256 digests are in the SBOM (`docs/07`).

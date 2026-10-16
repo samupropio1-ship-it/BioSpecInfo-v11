@@ -981,6 +981,84 @@ function sopra(d, minimo, avuto) {
   /* L'ALTRO VERSO, ED E' QUELLO CHE CONTA */
   att('  · e chiusa la sezione si ferma del tutto', 0, ciclo.senzaVista);
 
+  /* ═══ §8c · I LABORATORI (le mappe fornite) ══════════════════════════ */
+  console.log('\n── I laboratori: le mappe da percorrere ──');
+  const labs = await pg.evaluate(async () => {
+    const A = BSIAtomic, L = BSIAtomicLivelli, out = { porte: 0, mappe: {} };
+    /* la sezione del gioco aperta: con la sezione chiusa il ciclo si ferma */
+    if (getComputedStyle(document.getElementById('sgioco')).display === 'none') {
+      document.querySelector('.nav-btn[data-s="sgioco"]').click();
+      await new Promise(r => setTimeout(r, 1200));
+    }
+    /* ogni livello ha la porta del laboratorio, nella stanza del banco */
+    for (let n = 1; n <= L.LIVELLI; n++) {
+      const lv = L.livello(n), p = lv.stanze.flatMap(s => s.oggetti.filter(o => o.tipo === 'portaLab').map(o => ({ o, s })));
+      if (p.length === 1 && p[0].s.oggetti.some(o => o.tipo === 'banco')) out.porte++;
+    }
+    out.mappeLab = L.MAPPE_LAB.join(',');
+    const fr = () => new Promise(r => requestAnimationFrame(r));
+    for (const nome of L.MAPPE_LAB) {
+      const n = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91].find(k => L.livello(k).stanze.some(s => s.oggetti.some(o => o.tipo === 'portaLab' && o.mappa === nome)));
+      A.nuovaPartita(n + 1 <= L.LIVELLI ? n + 1 : n); A.cominciaPartita();
+      await new Promise(r => setTimeout(r, 600));
+      const S = A.stato(), M = A.mondo(); let pl, sl;
+      M.zona.stanze.forEach(st => st.oggetti.forEach(o => { if (o.tipo === 'portaLab') { pl = o; sl = st; } }));
+      const r = { mappa: pl ? pl.mappa : '?' };
+      if (!pl) { out.mappe[nome] = r; continue; }
+      S.pos.x = sl.x + pl.x + Math.sin(pl.ruota) * 1.4; S.pos.z = sl.z + pl.z + Math.cos(pl.ruota) * 1.4; S.ang = pl.ruota;
+      for (let i = 0; i < 20 && !/laboratorio|laboratory/i.test((document.getElementById('apH-basso') || {}).textContent || ''); i++) await new Promise(rr => setTimeout(rr, 100));
+      r.cartello = /laboratorio|laboratory/i.test(document.getElementById('apH-basso').textContent);
+      const x0 = S.pos.x, z0 = S.pos.z;
+      A.interagisci();
+      for (let i = 0; i < 160 && !A.lab(); i++) await new Promise(rr => setTimeout(rr, 250));
+      const Lb = A.lab();
+      r.entrato = !!Lb && Lb.nome === r.mappa;
+      if (Lb) {
+        r.mondoNascosto = !M.radice.visible;
+        r.triangoli = 0; Lb.radice.traverse(o => { if (o.isMesh) r.triangoli += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+        r.triangoli = Math.round(r.triangoli);
+        /* il pavimento sotto i piedi */
+        r.pavimento = A.pavimentoLab(S.pos.x, S.pos.z, 0) !== null;
+        /* i muri: davanti, entro 25 m, la griglia finisce (c'e' un muro); e
+           camminando non si esce mai dal pavimento */
+        let muro = false;
+        for (let d = 0.25; d < 25 && !muro; d += 0.25) muro = A.pavimentoLab(S.pos.x - Math.sin(S.ang) * d, S.pos.z - Math.cos(S.ang) * d, S.labSuolo) === null;
+        r.fermatoDalMuro = muro;
+        let sempre = true;
+        A.tasti('su', true);
+        for (let i = 0; i < 60; i++) { await fr(); if (A.pavimentoLab(S.pos.x, S.pos.z, S.labSuolo) === null) sempre = false; }
+        A.tasti('su', false);
+        r.sempreSulPavimento = sempre;
+        /* il banco di sintesi: ci si va, si apre */
+        const bo = Lb.oggetti.find(o => o.tipo === 'banco');
+        S.pos.x = bo.x; S.pos.z = bo.z; await fr(); await fr();
+        A.interagisci(); await fr();
+        r.banco = A.schermo() === 'sintesi';
+        A.schermo('gioco'); A.avviaCiclo();
+        /* si torna al livello dalla porta */
+        const us = Lb.oggetti.find(o => o.tipo === 'uscitaLab');
+        S.pos.x = us.x; S.pos.z = us.z; await fr(); await fr();
+        A.interagisci(); await fr();
+        r.uscito = !A.lab() && M.radice.visible && Math.hypot(S.pos.x - x0, S.pos.z - z0) < 0.5;
+        r.liberoDopo = !!(Lb.radice && !Lb.radice.parent);
+      }
+      out.mappe[nome] = r;
+    }
+    return out;
+  });
+  att('ogni livello ha la porta del laboratorio, nella stanza del banco', 100, labs.porte);
+  att('i cinque laboratori, uno per ala a turno', 'small,scifi1,flynn,underground,overgrown', labs.mappeLab);
+  Object.keys(labs.mappe).forEach(k => {
+    const r = labs.mappe[k];
+    att('  ' + k + ': davanti alla porta il cartello dice di entrare', true, r.cartello);
+    att('  ' + k + ': si entra nella mappa giusta, e il livello si nasconde', true, r.entrato && r.mondoNascosto);
+    sopra('  ' + k + ': la mappa è fatta di migliaia di triangoli', 20000, r.triangoli || 0);
+    att('  ' + k + ': si sta sul pavimento della mappa', true, r.pavimento);
+    att('  ' + k + ': i muri fermano (25 m dritti non si fanno)', true, r.fermatoDalMuro && r.sempreSulPavimento);
+    att('  ' + k + ': il banco di sintesi c’è e si apre', true, r.banco);
+    att('  ' + k + ': si torna alla porta del livello, e il laboratorio si libera', true, r.uscito && r.liberoDopo);
+  });
+
   /* ═══ §8b · IL PULSANTE FLOTTANTE DEL GIOCO ═══════════════════════════ */
   console.log('\n── Il pulsante del gioco, con ✨ e Spectra ──');
   const fab = await pg.evaluate(async () => {
@@ -1074,9 +1152,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 208) {
+  if (eseguiti < 245) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 208');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 245');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

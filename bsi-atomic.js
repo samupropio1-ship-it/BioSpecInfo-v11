@@ -621,6 +621,10 @@
       o._solido = { l: 0.6, p: 0.45 };
     } else if (o.tipo === 'uscita') {
       g.add(costruisciUscita(o, livello));
+    } else if (o.tipo === 'portaLab') {
+      var nl = NOMI_LAB[o.mappa] || [o.mappa, o.mappa];
+      g.add(costruisciPortaLab(t('LABORATORIO', 'LABORATORY'), t(nl[0], nl[1])));
+      o._solido = solidoRuotato(1.9, 0.5, o.ruota);
     }
     return g;
   }
@@ -732,9 +736,9 @@
     if (!luci || !mondo || !luci.punti.length) return;
     contaLuci++;
     if (!forza && contaLuci % 12) return;
-    var st = stanzaDi(S.pos.x, S.pos.z);
+    var st = S.lab ? null : stanzaDi(S.pos.x, S.pos.z);
     var id = st ? st.id : null;
-    var ord = mondo.luci.slice().sort(function (a, b) {
+    var ord = (S.lab ? S.lab.luci : mondo.luci).slice().sort(function (a, b) {
       var da = Math.hypot(a.x - S.pos.x, a.z - S.pos.z) + (a.stanza === id ? 0 : 40);
       var db = Math.hypot(b.x - S.pos.x, b.z - S.pos.z) + (b.stanza === id ? 0 : 40);
       return da - db;
@@ -753,6 +757,7 @@
 
   /* quali stanze si disegnano: questa e quelle attaccate alle sue porte */
   function aggiornaVisibili() {
+    if (S.lab) return;
     var st = stanzaDi(S.pos.x, S.pos.z);
     if (!st || st === mondo.stanzaCorrente) return;
     mondo.stanzaCorrente = st;
@@ -825,6 +830,12 @@
   function puoStare(x, z) { return liberoIn(x, z) || neiVani(x, z); }
 
   function vistaLibera(x0, z0, x1, z1) {
+    if (S && S.lab) {
+      /* nel laboratorio: libera se la griglia ha pavimento lungo la linea */
+      var nL = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.25);
+      for (var iL = 1; iL <= nL; iL++) if (pavimentoLab(S.lab, x0 + (x1 - x0) * iL / nL, z0 + (z1 - z0) * iL / nL, S.labSuolo) === null) return false;
+      return true;
+    }
     var n = Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.2);
     for (var i = 1; i <= n; i++) {
       var f = i / n;
@@ -867,15 +878,25 @@
     var dx = (-Math.sin(S.ang) * avanti - Math.cos(S.ang) * lat) * v;
     var dz = (-Math.cos(S.ang) * avanti + Math.sin(S.ang) * lat) * v;
 
-    if (dx && puoStare(S.pos.x + dx, S.pos.z)) S.pos.x += dx;
-    if (dz && puoStare(S.pos.x, S.pos.z + dz)) S.pos.z += dz;
+    if (S.lab) muoviInLab(dx, dz);
+    else {
+      if (dx && puoStare(S.pos.x + dx, S.pos.z)) S.pos.x += dx;
+      if (dz && puoStare(S.pos.x, S.pos.z + dz)) S.pos.z += dz;
+    }
     S.vel.x = dx; S.vel.z = dz;
 
+    /* il suolo: zero nei livelli; nei laboratori il pavimento della mappa
+       sotto i piedi, che cambia sulle scale */
+    var suolo = S.lab ? S.labSuolo : 0;
     if (tasti.salto && S.terra) { S.vel.y = 0.19; S.terra = false; bip(380, 0.06); }
     if (!S.terra) {
       S.vel.y -= 0.011;
       S.pos.y += S.vel.y;
-      if (S.pos.y <= 0) { S.pos.y = 0; S.vel.y = 0; S.terra = true; }
+      if (S.pos.y <= suolo) { S.pos.y = suolo; S.vel.y = 0; S.terra = true; }
+    } else if (S.pos.y !== suolo) {
+      /* gradini: si sale e si scende morbidi, non a scatti */
+      S.pos.y += (suolo - S.pos.y) * 0.35;
+      if (Math.abs(S.pos.y - suolo) < 0.004) S.pos.y = suolo;
     }
 
     var st = stanzaDi(S.pos.x, S.pos.z);
@@ -1434,16 +1455,29 @@
      ═════════════════════════════════════════════════════════════════════════ */
   function bersaglio() {
     if (!S || !mondo) return null;
+    if (S.lab) {
+      /* nel laboratorio: il banco e la porta, in coordinate del mondo */
+      var miL = null, mdL = 99;
+      S.lab.oggetti.forEach(function (o) {
+        var vx = o.x - S.pos.x, vz = o.z - S.pos.z, d = Math.hypot(vx, vz);
+        if (d >= 2.0) return;
+        var dot = d > 0.05 ? (-Math.sin(S.ang) * vx - Math.cos(S.ang) * vz) / d : 1;
+        var peso = d + (1 - dot) * 0.7;
+        if (peso < mdL) { mdL = peso; miL = o; }
+      });
+      return miL;
+    }
     var st = stanzaDi(S.pos.x, S.pos.z);
     if (!st) return null;
     var mi = null, md = 99;
     (st.oggetti || []).forEach(function (o) {
       if (o.preso || o.abbattuto) return;
-      if (['elemento', 'foglio', 'banco', 'terminale', 'uscita', 'registratore'].indexOf(o.tipo) < 0) return;
+      if (['elemento', 'foglio', 'banco', 'terminale', 'uscita', 'registratore', 'portaLab'].indexOf(o.tipo) < 0) return;
       if (o.tipo === 'registratore' && o.ascoltato) return;
       var vx = (st.x + o.x) - S.pos.x, vz = (st.z + o.z) - S.pos.z;
       var d = Math.hypot(vx, vz);
       if (o.tipo === 'banco') d -= 0.8;
+      if (o.tipo === 'portaLab') d -= 0.3;
       if (d >= 2.3) return;
       /* conta anche dove guardi: fra due fiale vicine si prende quella che
          hai davanti, non quella che ti sfiora il gomito */
@@ -1475,6 +1509,8 @@
     else if (o.tipo === 'banco') { schermo = 'sintesi'; fermaCiclo(); disegnaUI(); }
     else if (o.tipo === 'terminale') apriEnigma(o);
     else if (o.tipo === 'registratore') { o.ascoltato = true; if (o._chiave) S.presi[o._chiave + ':sentito'] = true; ascolta(o.reg); }
+    else if (o.tipo === 'portaLab') entraLab(o, stanzaDi(S.pos.x, S.pos.z));
+    else if (o.tipo === 'uscitaLab') esciLab();
     else if (o.tipo === 'uscita') {
       if (mondo.livello.boss && !S.fatti[mondo.livello.boss.id]) {
         avviso(t('L’ascensore è bloccato finché il guardiano è attivo',
@@ -2371,6 +2407,8 @@
              : b.tipo === 'banco' ? t('✋ laboratorio di sintesi', '✋ synthesis lab')
              : b.tipo === 'uscita' ? t('✋ ascensore', '✋ elevator')
              : b.tipo === 'registratore' ? t('✋ ascolta la registrazione', '✋ play the recording')
+             : b.tipo === 'portaLab' ? t('✋ entra nel laboratorio', '✋ enter the laboratory')
+             : b.tipo === 'uscitaLab' ? t('✋ torna al livello', '✋ back to the level')
              : t('✋ usa il terminale', '✋ use the terminal');
     }
     var f = S.boss && S.boss.attivo ? faseCorrente(S.boss) : null;
@@ -2390,7 +2428,8 @@
                Math.round(dosi * 100) + '%"></b></span>';
       })(),
       dove: '<small>' + esc(t('LIVELLO ', 'LEVEL ') + mondo.livello.n + ' · ' +
-            String(mondo.ala.nome).split('·')[0]) + '</small>' + esc(st ? st.nome : ''),
+            String(mondo.ala.nome).split('·')[0]) + '</small>' +
+            esc(S.lab ? (NOMI_LAB[S.lab.nome] ? t(NOMI_LAB[S.lab.nome][0], NOMI_LAB[S.lab.nome][1]) : S.lab.nome) : (st ? st.nome : '')),
       punti: String(S.punti).padStart(6, '0'),
       boss: f ? esc(S.boss._def.nome) + ' · ' + t('fase ', 'phase ') + S.boss.fase + '/' +
                 S.boss._def.fasi.length + ' — ' + esc(f.descr) +
@@ -2414,11 +2453,31 @@
     aggiornaNastro();
   }
 
+  /* la mappa del laboratorio: il pavimento percorribile intorno al
+     chimico (16 m di lato), il banco e la porta */
+  function mappaLab(q) {
+    var L = S.lab, g = L.griglia, R = 8, sc = 176 / (2 * R);
+    q.clearRect(0, 0, 192, 192);
+    q.fillStyle = 'rgba(143,227,196,.22)';
+    for (var a = -R; a < R; a += 0.5) for (var b2 = -R; b2 < R; b2 += 0.5) {
+      if (pavimentoLab(L, S.pos.x + a, S.pos.z + b2, S.labSuolo) !== null) q.fillRect(8 + (a + R) * sc, 8 + (b2 + R) * sc, sc * 0.5 + 0.5, sc * 0.5 + 0.5);
+    }
+    L.oggetti.forEach(function (o) {
+      var x = 8 + (o.x - S.pos.x + R) * sc, z = 8 + (o.z - S.pos.z + R) * sc;
+      if (x < 4 || z < 4 || x > 188 || z > 188) return;
+      q.fillStyle = o.tipo === 'banco' ? '#5ef0c4' : '#2aff7a';
+      q.beginPath(); q.arc(x, z, 4, 0, 6.2832); q.fill();
+    });
+    q.save(); q.translate(96, 96); q.rotate(-S.ang);
+    q.fillStyle = '#ffffff'; q.beginPath(); q.moveTo(0, -7); q.lineTo(5, 5); q.lineTo(-5, 5); q.closePath(); q.fill();
+    q.restore();
+  }
   /* la mappa: solo le stanze gia' viste, come su un taccuino */
   function mappa() {
     var cv = document.getElementById('bsiAP-mappa');
     if (!cv || !mondo) return;
     var q = cv.getContext('2d');
+    if (S.lab) { mappaLab(q); return; }
     var st = mondo.zona.stanze;
     var minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
     st.forEach(function (s) {
@@ -2439,7 +2498,8 @@
       (s.oggetti || []).forEach(function (o) {
         if (o.preso || o.abbattuto) return;
         var col = o.tipo === 'uscita' ? '#2aff7a' : o.tipo === 'boss' ? '#ff4d3a'
-                : o.tipo === 'elemento' ? '#ffd24a' : o.tipo === 'terminale' ? '#5ef0c4' : null;
+                : o.tipo === 'elemento' ? '#ffd24a' : o.tipo === 'terminale' ? '#5ef0c4'
+                : o.tipo === 'portaLab' ? '#c9a24a' : null;
         if (!col) return;
         q.fillStyle = col;
         q.beginPath(); q.arc(ox + (s.x + o.x - minX) * sc, oz + (s.z + o.z - minZ) * sc, 3.5, 0, 6.2832); q.fill();
@@ -2685,6 +2745,13 @@
           '• «hands animation» — hugo colauto (Sketchfab, Sketchfab Standard)<br>' +
           '• «Modern Scientist in a Lab Coat» — restore50 (Sketchfab, CC-BY 4.0)<br>' +
           '• «Capsule Gun» — sc8di (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Small Lab» — Biohazard Rooms (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Sci-fi lab» — Agata Wilczek (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Flynn\'s Secret Lab [Tron Legacy]» — jvouillon (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Location underground laboratory» — bazz4r (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Overgrown Laboratory» — MichalTroye (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Quantum_Laboratory_X_Alpha» — -X-ScornGames (Sketchfab, CC-BY 4.0)<br>' +
+          '• «Sci Fi lab» — IrisProcess (Sketchfab, CC-BY 4.0)<br>' +
           t('adattati: camice e guanto di nitrile, mano robotica specchiata, scheletro snellito, texture ridotte', 'adapted: lab coat and nitrile glove, mirrored robotic hand, slimmed skeleton, reduced textures') +
         '</div>' +
         bottone('apIndietro2', '◂ ' + t('indietro', 'back')) + '</div>';
@@ -3239,8 +3306,314 @@
     });
   }
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     I LABORATORI — le mappe che l'utente ha scelto (models/mappe/), una per
+     ala: Small Lab, Sci-fi lab, il laboratorio segreto di Flynn, il
+     laboratorio sotterraneo, il laboratorio invaso dalla vegetazione.
+
+     Ci si entra dalla porta nella stanza del banco. La mappa si scarica la
+     prima volta, si monta lontano dal livello (che intanto si nasconde) e
+     si percorre con la sua GRIGLIA DI CAMMINO (calcolata una volta da
+     tools/prepara-mappe.js): celle da 25 cm, fino a tre pavimenti ognuna,
+     percorribili o no — muri, arredi, scale e piani veri della mappa. Dentro
+     c'e' il banco di sintesi, sul bancone vero della mappa, e il reattore e
+     la capsula di contenimento (gli altri due modelli forniti) dove c'e'
+     spazio. Si esce dalla porta da cui si e' entrati.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var LAB_ORIGINE = { x: 0, z: 3000 };
+  var NOMI_LAB = {
+    small: ['Laboratorio piccolo', 'Small laboratory'],
+    scifi1: ['Laboratorio Sci-fi', 'Sci-fi laboratory'],
+    flynn: ['Il laboratorio segreto', 'The secret laboratory'],
+    underground: ['Laboratorio sotterraneo', 'Underground laboratory'],
+    overgrown: ['Laboratorio invaso dalle piante', 'Overgrown laboratory']
+  };
+  var cacheLab = {};
+  var labMontato = null;     /* il gruppo del laboratorio in scena, di qualunque partita */
+  function scaricaLab(nome) {
+    if (!cacheLab[nome]) {
+      cacheLab[nome] = libreriaGLTF().then(function (ok) {
+        if (!ok) throw new Error('GLTFLoader assente');
+        return Promise.all([
+          fetch('models/mappe/' + nome + '.glb').then(function (r) { if (!r.ok) throw new Error(nome + '.glb HTTP ' + r.status); return r.arrayBuffer(); }),
+          fetch('models/mappe/' + nome + '.json').then(function (r) { if (!r.ok) throw new Error(nome + '.json HTTP ' + r.status); return r.json(); })
+        ]);
+      }).catch(function (e) { cacheLab[nome] = null; throw e; });
+    }
+    return cacheLab[nome];
+  }
+  function scaricaApparecchio(nome) {
+    var k = 'app:' + nome;
+    if (!cacheLab[k]) cacheLab[k] = fetch('models/mappe/' + nome + '.glb').then(function (r) {
+      if (!r.ok) throw new Error(nome + ' HTTP ' + r.status); return r.arrayBuffer(); }).catch(function () { cacheLab[k] = null; return null; });
+    return cacheLab[k];
+  }
+  function daBase64(b) {
+    var s2 = atob(b), u = new Uint8Array(s2.length);
+    for (var i = 0; i < s2.length; i++) u[i] = s2.charCodeAt(i);
+    return u;
+  }
+  function analizza(buf) {
+    return new Promise(function (ok, ko) { new T.GLTFLoader().parse(buf.slice(0), '', ok, ko); });
+  }
+  /* la griglia: il pavimento percorribile piu' vicino (in altezza) a yRif
+     nel punto (x, z) del mondo, o null */
+  function pavimentoLab(L, x, z, yRif) {
+    var g = L.griglia;
+    var i = Math.round((x - L.off.x - g.x0) / g.cella), k = Math.round((z - L.off.z - g.z0) / g.cella);
+    if (i < 0 || k < 0 || i >= g.nx || k >= g.nz) return null;
+    var migl = null, dm = 0.5;
+    for (var j = 0; j < g.piani; j++) {
+      var c = (k * g.nx + i) * g.piani + j;
+      if (g.H[c] === -32768 || !g.L[c]) continue;
+      var h = g.H[c] / 100 + L.off.y, d = Math.abs(h - yRif);
+      if (d <= dm) { dm = d; migl = h; }
+    }
+    return migl;
+  }
+  /* chiudere le celle sotto un oggetto (il banco, un apparecchio) */
+  function bloccaLab(L, x, z, raggio) {
+    var g = L.griglia, r = Math.ceil(raggio / g.cella);
+    var i0 = Math.round((x - L.off.x - g.x0) / g.cella), k0 = Math.round((z - L.off.z - g.z0) / g.cella);
+    for (var a = -r; a <= r; a++) for (var b = -r; b <= r; b++) {
+      if (Math.hypot(a, b) * g.cella > raggio) continue;
+      var i = i0 + a, k = k0 + b;
+      if (i < 0 || k < 0 || i >= g.nx || k >= g.nz) continue;
+      for (var j = 0; j < g.piani; j++) g.L[(k * g.nx + i) * g.piani + j] = 0;
+    }
+  }
+  /* il materiale del laboratorio sotterraneo, che arriva senza texture e
+     senza coordinate: le texture del gioco proiettate dai tre assi del
+     mondo (pavimento sulle facce in piano, pannelli sulle pareti) */
+  function materialeTriplanare(vecchio) {
+    var m = new T.MeshStandardMaterial({ color: 0xc9cfd6, roughness: 0.55, metalness: 0.35, side: T.DoubleSide,
+                                         vertexColors: !!vecchio.vertexColors });
+    var pan = G.M.pannello && G.M.pannello.map, pav = G.M.pavimento && G.M.pavimento.map;
+    if (!pan || !pav) return m;
+    m.onBeforeCompile = function (sh) {
+      sh.uniforms.triPannello = { value: pan };
+      sh.uniforms.triPavimento = { value: pav };
+      sh.vertexShader = 'varying vec3 vTriPos; varying vec3 vTriNor;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+        '#include <begin_vertex>\n vTriPos = (modelMatrix * vec4(position, 1.0)).xyz; vTriNor = normalize(mat3(modelMatrix) * normal);');
+      sh.fragmentShader = 'uniform sampler2D triPannello; uniform sampler2D triPavimento; varying vec3 vTriPos; varying vec3 vTriNor;\n' +
+        sh.fragmentShader.replace('#include <map_fragment>', [
+          'vec3 bw = pow(abs(vTriNor), vec3(4.0)); bw /= (bw.x + bw.y + bw.z);',
+          'vec4 tP = texture2D(triPannello, vTriPos.zy * 0.45) * bw.x + texture2D(triPannello, vTriPos.xy * 0.45) * bw.z;',
+          'vec4 tF = (vTriNor.y > 0.0 && vTriPos.y < 1.2 ? texture2D(triPavimento, vTriPos.xz * 0.5) : texture2D(triPannello, vTriPos.xz * 0.45) * 0.8) * bw.y;',
+          'vec4 tTri = tP + tF; tTri.rgb = pow(tTri.rgb, vec3(2.2));',
+          /* il bianco del modello originale: le texture desaturate e chiare */
+          'float lTri = dot(tTri.rgb, vec3(0.299, 0.587, 0.114)); tTri.rgb = mix(vec3(lTri), tTri.rgb, 0.2) * 1.6;',
+          'diffuseColor *= vec4(tTri.rgb, 1.0);'
+        ].join('\n'));
+    };
+    return m;
+  }
+  function preparaMateriali(radice, nome) {
+    radice.traverse(function (o) {
+      if (!o.isMesh) return;
+      o.castShadow = false; o.receiveShadow = !ps1();
+      var ms = Array.isArray(o.material) ? o.material : [o.material];
+      ms = ms.map(function (m) {
+        if (ps1()) {
+          var l = new T.MeshLambertMaterial({ map: m.map || null, color: m.color, transparent: m.transparent, opacity: m.opacity,
+                                              side: T.DoubleSide, emissive: m.emissive || new T.Color(0), emissiveMap: m.emissiveMap || null });
+          return l;
+        }
+        if (nome === 'underground' && /base_mat/.test(m.name || '')) return materialeTriplanare(m);
+        m.envMapIntensity = 0.8;
+        return m;
+      });
+      o.material = Array.isArray(o.material) ? ms : ms[0];
+    });
+  }
+  /* la porta: telaio d'acciaio, battente scuro con l'oblo', la targa col
+     nome del laboratorio e la luce verde */
+  function costruisciPortaLab(titolo, sotto) {
+    var g = new T.Group(), M = G.M;
+    [-0.8, 0.8].forEach(function (x) {
+      var m = new T.Mesh(G.tonda(0.16, 2.6, 0.3, 0.03), M.acciaio); m.position.set(x, 1.3, 0); g.add(m);
+    });
+    var arch = new T.Mesh(G.tonda(1.76, 0.22, 0.3, 0.03), M.acciaio); arch.position.y = 2.66; g.add(arch);
+    var batt = new T.Mesh(G.tonda(1.44, 2.5, 0.08, 0.02), G.mat({ color: 0x2a3036, roughness: 0.5, metalness: 0.7 }));
+    batt.position.set(0, 1.25, -0.04); g.add(batt);
+    /* i due battenti: la fessura in mezzo e le maniglie verticali */
+    var fess = new T.Mesh(G.tonda(0.03, 2.4, 0.1, 0.01), G.mat({ color: 0x0b0d0f, roughness: 0.9 }));
+    fess.position.set(0, 1.25, 0); g.add(fess);
+    [-0.12, 0.12].forEach(function (x) {
+      var man = new T.Mesh(G.tonda(0.04, 0.5, 0.05, 0.015), M.acciaio); man.position.set(x, 1.15, 0.03); g.add(man);
+    });
+    var oblo = new T.Mesh(new T.CircleGeometry(0.13, 24), G.mat({ color: 0x0a2a24, emissive: 0x5ef0c4, emissiveIntensity: 0.6 }));
+    oblo.position.set(-0.36, 1.65, 0.01); g.add(oblo);
+    var oblo2 = oblo.clone(); oblo2.position.x = 0.36; g.add(oblo2);
+    /* la striscia di sicurezza sul pavimento davanti */
+    var str = new T.Mesh(G.tonda(1.7, 0.01, 0.4, 0.005), M.strisce); str.position.set(0, 0.006, 0.35); g.add(str);
+    var cv = document.createElement('canvas'); cv.width = 512; cv.height = 96;
+    var q = cv.getContext('2d');
+    q.fillStyle = '#0d1a17'; q.fillRect(0, 0, 512, 96);
+    q.strokeStyle = '#c9a24a'; q.lineWidth = 4; q.strokeRect(4, 4, 504, 88);
+    q.fillStyle = '#8fe3c4'; q.textAlign = 'center';
+    q.font = 'bold 30px sans-serif'; q.fillText(titolo, 256, 44);
+    q.font = '20px sans-serif'; q.fillStyle = '#c9a24a'; q.fillText(sotto, 256, 76);
+    var tx = new T.CanvasTexture(cv); tx.encoding = T.sRGBEncoding; tx.usaEGetta = true;
+    var targa = new T.Mesh(new T.PlaneGeometry(1.6, 0.3), new T.MeshBasicMaterial({ map: tx, toneMapped: false }));
+    targa.position.set(0, 2.66, 0.16); g.add(targa);
+    var spia = new T.Mesh(new T.SphereGeometry(0.05, 12, 10), G.mat({ color: 0x002a10, emissive: 0x2aff7a, emissiveIntensity: 2.6 }));
+    spia.position.set(0.62, 1.2, 0.05); g.add(spia);
+    if (G.alone) { var al = G.alone(0x2aff7a, 0.12, 0.6); al.position.set(0.62, 1.2, 0.12); g.add(al); }
+    return g;
+  }
+  /* il banco del laboratorio: sul bancone vero, un portaprovette con tre
+     fiale accese e un anello verde; se la mappa non ha banconi, il banco
+     del gioco */
+  function costruisciBancoLab(L, j) {
+    var g = new T.Group();
+    if (j.bancoPiano) {
+      var p = j.bancoPiano;
+      g.position.set(p[0] + L.off.x, p[1] + L.off.y, p[2] + L.off.z);
+      var base = new T.Mesh(G.tonda(0.46, 0.04, 0.18, 0.01), G.M.acciaio); base.position.y = 0.02; g.add(base);
+      [['Cl', -0.14], ['Na', 0], ['O', 0.14]].forEach(function (e) {
+        var col = (POTERI[e[0]] && POTERI[e[0]].colore) || 0x5eead4;
+        var a = G.ampolla(e[0], col); a.gruppo.scale.setScalar(0.55); a.gruppo.position.set(e[1], 0.04, 0); g.add(a.gruppo);
+        /* le etichette delle fiale, piccole: si leggono da vicino, non coprono il banco */
+        if (a.etichetta) a.etichetta.scale.setScalar(0.15);
+        if (a.alone) a.alone.scale.multiplyScalar(0.5);
+      });
+      var an = new T.Mesh(new T.TorusGeometry(0.3, 0.012, 8, 40), G.mat({ color: 0x0a2a14, emissive: 0x2aff7a, emissiveIntensity: 2 }));
+      an.rotation.x = Math.PI / 2; an.position.y = 0.01; g.add(an);
+      if (G.alone) { var al = G.alone(0x5ef0c4, 0.28, 0.45); al.position.y = 0.12; g.add(al); }
+      L.anelloBanco = an;
+    } else {
+      var b = j.banco;
+      g.position.set(b[0] + L.off.x, b[1] + L.off.y, b[2] + L.off.z);
+      g.add(G.bancoLab());
+      bloccaLab(L, g.position.x, g.position.z, 1.4);
+    }
+    return g;
+  }
+  function entraLab(o, st) {
+    if (S.lab || animV.labInCarico) return;
+    var nome = o.mappa;
+    animV.labInCarico = true;
+    avviso(t('Apertura del laboratorio…', 'Opening the laboratory…'));
+    scaricaLab(nome).then(function (r) {
+      return Promise.all([analizza(r[0]), Promise.resolve(r[1]), scaricaApparecchio('reattore'), scaricaApparecchio('capsula')]);
+    }).then(function (r) {
+      animV.labInCarico = false;
+      if (!S || !mondo || schermo !== 'gioco') return;
+      montaLab(nome, r[0], r[1], r[2], r[3], { x: S.pos.x, z: S.pos.z, ang: S.ang, porta: o, stanza: st });
+    }).catch(function (e) {
+      animV.labInCarico = false;
+      avviso(t('Il laboratorio non si apre', 'The laboratory will not open'), String(e && e.message || e));
+    });
+  }
+  function montaLab(nome, gltf, j, bufReattore, bufCapsula, ritorno) {
+    var hb = daBase64(j.altezze);
+    var L = {
+      nome: nome, json: j, ritorno: ritorno, oggetti: [],
+      griglia: { cella: j.cella, x0: j.x0, z0: j.z0, nx: j.nx, nz: j.nz, piani: j.piani,
+                 H: new Int16Array(hb.buffer, 0, hb.length / 2), L: daBase64(j.libero) },
+      off: { x: LAB_ORIGINE.x - j.ingresso[0], y: -j.ingresso[1], z: LAB_ORIGINE.z - j.ingresso[2] }
+    };
+    var radice = new T.Group();
+    radice.position.set(L.off.x, L.off.y, L.off.z);
+    preparaMateriali(gltf.scene, nome);
+    radice.add(gltf.scene);
+    L.radice = new T.Group();
+    L.radice.add(radice);
+    /* il banco */
+    var nb = costruisciBancoLab(L, j);
+    L.radice.add(nb);
+    var pb = j.banco;
+    L.oggetti.push({ tipo: 'banco', x: pb[0] + L.off.x, z: pb[2] + L.off.z, _nodo: nb });
+    /* la porta da cui si esce: dall'ingresso, nel verso opposto al banco,
+       fino al primo punto non percorribile (una parete) */
+    var ing = { x: LAB_ORIGINE.x, z: LAB_ORIGINE.z };
+    var vx = ing.x - (pb[0] + L.off.x), vz = ing.z - (pb[2] + L.off.z), vl = Math.hypot(vx, vz) || 1;
+    vx /= vl; vz /= vl;
+    var dp = 0.3;
+    while (dp < 4 && pavimentoLab(L, ing.x + vx * dp, ing.z + vz * dp, 0) !== null) dp += 0.1;
+    var porta = costruisciPortaLab(t('LIVELLO ', 'LEVEL ') + S.livello, t('✋ torna al livello', '✋ back to the level'));
+    porta.position.set(ing.x + vx * (dp + 0.05), 0, ing.z + vz * (dp + 0.05));
+    porta.rotation.y = Math.atan2(-vx, -vz);
+    L.radice.add(porta);
+    L.oggetti.push({ tipo: 'uscitaLab', x: ing.x + vx * Math.max(0.3, dp - 0.4), z: ing.z + vz * Math.max(0.3, dp - 0.4) });
+    /* gli apparecchi: il reattore e la capsula, dove c'e' posto */
+    [[bufReattore, 'reattore'], [bufCapsula, 'capsula']].forEach(function (a, k) {
+      var posto = (j.posti || [])[k];
+      if (!a[0] || !posto) return;
+      /* la capsula e' il modello piu' pesante: solo con la grafica alta */
+      if (a[1] === 'capsula' && IMP.grafica !== 'alta') return;
+      analizza(a[0]).then(function (gl) {
+        if (S.lab !== L) return;
+        var sc2 = gl.scene; preparaMateriali(sc2, a[1]);
+        var bb = new T.Box3().setFromObject(sc2), dim = bb.getSize(new T.Vector3());
+        var raggio = Math.max(0.3, posto[3] - 0.15), kS = Math.min(1, raggio * 2 / Math.max(dim.x, dim.z));
+        var gr = new T.Group(); sc2.scale.setScalar(kS);
+        sc2.position.set(-(bb.min.x + bb.max.x) / 2 * kS, -bb.min.y * kS, -(bb.min.z + bb.max.z) / 2 * kS);
+        gr.add(sc2);
+        gr.position.set(posto[0] + L.off.x, posto[1] + L.off.y, posto[2] + L.off.z);
+        /* il fronte dell'apparecchio verso l'ingresso, da dove arriva chi entra */
+        gr.rotation.y = Math.atan2(LAB_ORIGINE.x - gr.position.x, LAB_ORIGINE.z - gr.position.z);
+        L.radice.add(gr);
+        bloccaLab(L, gr.position.x, gr.position.z, Math.max(dim.x, dim.z) * kS / 2 + 0.2);
+      });
+    });
+    /* le luci della mappa nel mondo */
+    L.luci = (j.luci || []).map(function (l) { return { x: l[0] + L.off.x, y: l[1] + L.off.y, z: l[2] + L.off.z }; });
+    togliLab();
+    scena.add(L.radice);
+    labMontato = L.radice;
+    mondo.radice.visible = false;
+    S.lab = L;
+    S.labSuolo = 0;
+    S.pos.x = ing.x; S.pos.z = ing.z; S.pos.y = 0; S.vel.y = 0; S.terra = true;
+    S.ang = Math.atan2(vx, vz);
+    camLiscia = null;
+    if (luci && luci.emi) { L.emiPrima = luci.emi.intensity; luci.emi.intensity = ps1() ? 1.0 : 0.55; }
+    if (scena.fog && scena.fog.density) { L.nebbiaPrima = scena.fog.density; scena.fog.density = 0.03; }
+    aggiornaLuci(true);
+    var titolo = NOMI_LAB[nome] ? t(NOMI_LAB[nome][0], NOMI_LAB[nome][1]) : (j.titolo || nome);
+    avviso('⚗ ' + titolo, t('il banco di sintesi è sul bancone · ✋ per usarlo', 'the synthesis bench is on the counter · ✋ to use it'));
+    bip(660, 0.12, 'triangle', 0.06);
+  }
+  function esciLab() {
+    var L = S && S.lab;
+    if (!L) return;
+    togliLab();
+    if (luci && luci.emi && L.emiPrima != null) luci.emi.intensity = L.emiPrima;
+    if (scena.fog && L.nebbiaPrima) scena.fog.density = L.nebbiaPrima;
+    mondo.radice.visible = true;
+    S.lab = null;
+    var r = L.ritorno;
+    S.pos.x = r.x; S.pos.z = r.z; S.pos.y = 0; S.vel.y = 0; S.terra = true;
+    S.ang = r.ang + Math.PI;
+    camLiscia = null;
+    mondo.stanzaCorrente = null;
+    aggiornaVisibili();
+    aggiornaLuci(true);
+    bip(520, 0.1, 'triangle', 0.05);
+  }
+  /* togliere il laboratorio dalla scena (e dalla memoria della scheda) */
+  function togliLab() {
+    if (labMontato && labMontato.parent) { labMontato.parent.remove(labMontato); smonta(labMontato); }
+    labMontato = null;
+  }
+  /* il passo dentro un laboratorio: per assi separati, sulla griglia */
+  function muoviInLab(dx, dz) {
+    var L = S.lab, h;
+    if (dx) { h = pavimentoLab(L, S.pos.x + dx, S.pos.z, S.labSuolo); if (h !== null) { S.pos.x += dx; S.labSuolo = h; } }
+    if (dz) { h = pavimentoLab(L, S.pos.x, S.pos.z + dz, S.labSuolo); if (h !== null) { S.pos.z += dz; S.labSuolo = h; } }
+  }
+
   function ricostruisci() {
     if (!scena) return;
+    /* un livello che si ricostruisce chiude il laboratorio (anche quello
+       di una partita precedente): si torna alla sua porta */
+    togliLab();
+    if (S && S.lab) {
+      var Lr = S.lab;
+      S.lab = null; S.pos.x = Lr.ritorno.x; S.pos.z = Lr.ritorno.z; S.pos.y = 0;
+    }
     if (mondo && mondo.radice) { scena.remove(mondo.radice); smonta(mondo.radice); }
     mondo = costruisciMondo(S ? S.livello : 1);
   }
@@ -3250,11 +3623,12 @@
      partita resta dov'era — gli oggetti presi sono scritti nello stato */
   function rifai3D() {
     var inPartita = !!(S && mondo);
+    if (inPartita && S.lab) { var Lq = S.lab; S.lab = null; S.pos.x = Lq.ritorno.x; S.pos.z = Lq.ritorno.z; S.pos.y = 0; S.ang = Lq.ritorno.ang + Math.PI; }
     var pos = inPartita ? { x: S.pos.x, z: S.pos.z, ang: S.ang } : null;
     fermaCiclo();
     try { if (ren) { ren.dispose(); if (ren.forceContextLoss) ren.forceContextLoss(); } } catch (e) {}
     if (tela && tela.parentNode) tela.parentNode.removeChild(tela);
-    ren = null; scena = null; camera = null; tela = null; G = null;
+    ren = null; scena = null; camera = null; tela = null; G = null; labMontato = null;
     chimico = null; mani = null; luci = null; mondo = null; camLiscia = null;
     scenaMani = null; camMani = null; vista = null;
     pronto = false; dimPrec = '';
@@ -3584,6 +3958,10 @@
     pronto: function () { return pronto; }, perche3d: function () { return errore3d; },
     mondo: function () { return mondo; },
     disegna: function () { disegna(Date.now()); },
+    lab: function () { return S && S.lab; },
+    entraLab: function (o) { entraLab(o || null); },
+    esciLab: function () { esciLab(); },
+    pavimentoLab: function (x, z, y) { return S && S.lab ? pavimentoLab(S.lab, x, z, y) : null; },
     motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico, post: post,
                                    vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
     spruzzo: function () { spruzzo(); },
