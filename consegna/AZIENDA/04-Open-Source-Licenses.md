@@ -37,6 +37,13 @@ ridistribuzione del codice proprietario.
 | `models/manica-atomic.glb` | Modern Scientist in a Lab Coat (ritaglio) | restore50 (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 | `models/braccia-atomic.glb` | Fists (2023) \| First Person Animations | 1Matzh (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 | `models/mano-robotica-atomic.glb` | Robotic Hand | SeanNicolas (Sketchfab) | CC-BY 4.0 | attribuzione: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/small.glb` | Small Lab | Biohazard Rooms (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/scifi1.glb` | Sci-fi lab | Agata Wilczek (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/flynn.glb` | Flynn's Secret Lab [Tron Legacy] | jvouillon (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/underground.glb` | Location underground laboratory | bazz4r (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/overgrown.glb` | Overgrown Laboratory | MichalTroye (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/reattore.glb` | Quantum_Laboratory_X_Alpha | -X-ScornGames (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
+| `models/mappe/capsula.glb` | Sci Fi lab | IrisProcess (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 | `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribuzione e indicazione delle modifiche: nel Codex del gioco e in `models/CREDITS.md` |
 
 I derivati si producono con `tools/prepara-modelli.js`; le voci con l'impronta SHA-256 sono nella SBOM (`docs/07`).

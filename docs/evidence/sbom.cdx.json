@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-16T06:53:38.735Z",
+    "timestamp": "2026-10-16T09:20:55.159Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v218",
+      "version": "bsi-v219",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "7c7dc6dd6e00cd74e1894b71e2bf3c7729b4bdc9"
+        "value": "f39b42c40e242c612ebe7b49de358472e86de9dc"
       }
     ]
   },
@@ -372,6 +372,181 @@
         {
           "alg": "SHA-256",
           "content": "3cadfde4777f5f609fb9fea7990f35ddc8f82d19fad4c60b8fc18a563ba7e5c6"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Small Lab (adattato)",
+      "publisher": "Biohazard Rooms (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — laboratorio (ali 1, 6).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/small-lab-8ad8088491d2409eb4b6f06563684d23"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "932e21a12c772ef3c36290fac8974a30b37b62e2000f7f1f26cb812a0572a7ab"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Sci-fi lab (adattato)",
+      "publisher": "Agata Wilczek (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — laboratorio (ali 2, 7).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/sci-fi-lab-a676e149e343403bb5e57686f3d31da5"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f3e4434820cda4a2ebec5804749cd0a6278aa0cda6a19b74ec14623affb3dc5e"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Flynn's Secret Lab [Tron Legacy] (adattato)",
+      "publisher": "jvouillon (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — laboratorio (ali 3, 8).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/flynns-secret-lab-tron-legacy-0429196769e040bd84e84040daccc40a"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d9c32659b5a75db09e88e97aeef645f46d30caee24522fc3a18b5048fa56911a"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Location underground laboratory (adattato)",
+      "publisher": "bazz4r (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — laboratorio (ali 4, 9).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/location-underground-laboratory-7f70eebd1f044277b91c197fb17c513e"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8cae8085cae16d6b496fe93a00eef7d687349492e3d74c7af1aaab407085fa75"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Overgrown Laboratory (adattato)",
+      "publisher": "MichalTroye (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — laboratorio (ali 5, 10).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/overgrown-laboratory-51e1307fb6c44fa29dd2c19b79ec893f"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c521f06e1da35eda66d585a0e6ab5b87a4da504d4b4fb09048518bf11683f403"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Quantum_Laboratory_X_Alpha (adattato)",
+      "publisher": "-X-ScornGames (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — apparecchio (il reattore).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/quantum-laboratory-x-alpha-a8811324c92f45678bbadc4ec71204f4"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "58f200ac13b072d40ee45bdd6c725ddd06591502e53825d60699862fc79a3e01"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Sci Fi lab (adattato)",
+      "publisher": "IrisProcess (Sketchfab)",
+      "description": "ATOMIC PROTOCOL — apparecchio (la capsula).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/sci-fi-lab-f7626acfa80943bab35568b4852b8ab8"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "be1ae03a8aa0c8cd160d517620985f83a515a2f05fc3d062aab4303496befb02"
         }
       ]
     },

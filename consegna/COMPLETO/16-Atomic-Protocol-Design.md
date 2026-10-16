@@ -2,7 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 11 (bsi-v218): la mano robotica con le dita articolate, la sfera più alta sul palmo, la manica che si sgretola in granelli fini; nella versione 10 le braccia del rig con le loro animazioni, la mano robotica e la sfera dell'elemento — sempre sulla trama del Protocollo 12.
+> Versione 12 (bsi-v219): i laboratori percorribili dalle mappe fornite, la sinistra robotica vera sinistra e le dita guidate dalle animazioni; nella versione 11 la mano robotica articolata — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
@@ -146,6 +146,32 @@ la partita, e sono la cosa più curata del gioco.
   dell'elemento (giallo il sodio, verde il cloro, rosa l'ossigeno) — e la
   manica si sgretola: granelli scuri e azzurri che si staccano verso il
   gomito, con scintille.
+* **I laboratori** (dalla v219): le mappe che l'utente ha fornito diventano
+  luoghi del gioco. Small Lab, Sci-fi lab, Flynn's Secret Lab, il laboratorio
+  sotterraneo e Overgrown Laboratory sono i laboratori delle dieci ali, a
+  turno; Quantum Laboratory X Alpha (il reattore) e la capsula di Sci Fi lab
+  sono apparecchi messi dentro dove c'e' spazio. Tre arrivano in USDZ e si
+  convertono con `tools/usd-in-glb.py`; `tools/prepara-mappe.js` le porta in
+  metri, unisce le mesh per materiale, le semplifica al loro bilancio di
+  triangoli, riduce le texture, e — una volta, nel browser, con il three del
+  gioco — calcola la **griglia di cammino**: celle da 25 cm con fino a tre
+  pavimenti, percorribili se non c'e' niente fra 40 cm e 1,75 m sopra e se
+  hanno un soffitto, ristrette di una cella per il corpo, tenendo solo la
+  parte connessa (e coperta) piu' grande. Sulla griglia stanno l'ingresso, il
+  **banco** (la cella con piu' bancone vero intorno, fra 65 cm e 1,3 m), i
+  posti degli apparecchi (lontani dall'ingresso) e le luci sotto il soffitto.
+  Nel gioco una porta con la targa, nella stanza del banco di ogni livello,
+  monta il laboratorio lontano dal livello (che si nasconde) e ci si muove
+  per assi separati sulla griglia, salendo i gradini; il laboratorio
+  sotterraneo, che arriva senza texture, prende quelle del gioco proiettate
+  dai tre assi. Si torna dalla porta da cui si e' entrati, e il laboratorio
+  si libera dalla memoria.
+* **La sinistra e le animazioni** (dalla v219): la mano robotica e'
+  allineata sulla linea delle nocche (prima, col pollice ripiegato nel
+  pugno, era girata di un quarto e sembrava una destra rovesciata) e le sue
+  dita copiano quanto sono chiuse quelle della sinistra del rig,
+  animazione per animazione. Il jab (Punch) e l'ispezione (Inspect)
+  muovono solo il braccio sinistro: la destra tiene la pistola.
 * **I movimenti** (dalla v216): ogni dito insegue il suo bersaglio con una
   molla smorzata (l'indice svelto, il mignolo pigro), con sopra i
   micro-movimenti di una mano viva, ognuno con la sua fase. Spruzzando

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v219` |
-| Commit | `7c7dc6dd6e00cd74e1894b71e2bf3c7729b4bdc9` |
-| Generated (UTC) | `2026-10-16T06:53:38.735Z` |
+| Commit | `f39b42c40e242c612ebe7b49de358472e86de9dc` |
+| Generated (UTC) | `2026-10-16T09:20:55.159Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -38,6 +38,13 @@ availability.
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Experimental data for the particle-physics exercise. |
 | **Fists (2023) | First Person Animations (adattato)**<br><sub>1Matzh (Sketchfab)</sub> | `models/braccia-atomic.glb` | CC-BY-4.0 | 6530 kB | The first-person arms with the skeleton and the eight animations (walk, run, punches, inspect, equip). |
 | **Robotic Hand (modello 3D)**<br><sub>SeanNicolas (Sketchfab)</sub> | `models/mano-robotica-atomic.glb` | CC-BY-4.0 | 838 kB | The robotic left hand, over which the element power lights up. |
+| **Small Lab (adattato)**<br><sub>Biohazard Rooms (Sketchfab)</sub> | `models/mappe/small.glb` | CC-BY-4.0 | 1506 kB | ATOMIC PROTOCOL — laboratory (wings 1, 6). |
+| **Sci-fi lab (adattato)**<br><sub>Agata Wilczek (Sketchfab)</sub> | `models/mappe/scifi1.glb` | CC-BY-4.0 | 6683 kB | ATOMIC PROTOCOL — laboratory (wings 2, 7). |
+| **Flynn's Secret Lab [Tron Legacy] (adattato)**<br><sub>jvouillon (Sketchfab)</sub> | `models/mappe/flynn.glb` | CC-BY-4.0 | 2319 kB | ATOMIC PROTOCOL — laboratory (wings 3, 8). |
+| **Location underground laboratory (adattato)**<br><sub>bazz4r (Sketchfab)</sub> | `models/mappe/underground.glb` | CC-BY-4.0 | 10512 kB | ATOMIC PROTOCOL — laboratory (wings 4, 9). |
+| **Overgrown Laboratory (adattato)**<br><sub>MichalTroye (Sketchfab)</sub> | `models/mappe/overgrown.glb` | CC-BY-4.0 | 6227 kB | ATOMIC PROTOCOL — laboratory (wings 5, 10). |
+| **Quantum_Laboratory_X_Alpha (adattato)**<br><sub>-X-ScornGames (Sketchfab)</sub> | `models/mappe/reattore.glb` | CC-BY-4.0 | 3269 kB | ATOMIC PROTOCOL — apparatus (the reactor). |
+| **Sci Fi lab (adattato)**<br><sub>IrisProcess (Sketchfab)</sub> | `models/mappe/capsula.glb` | CC-BY-4.0 | 6548 kB | ATOMIC PROTOCOL — apparatus (the capsule). |
 | **hands animation (modello 3D, adattato)**<br><sub>hugo colauto (Sketchfab)</sub> | `models/mani-atomic.glb` | LicenseRef-Sketchfab-Standard | 2059 kB | The first-person hands, with the skeleton and the animation the game derives its poses from. |
 | **Modern Scientist in a Lab Coat (ritaglio)**<br><sub>restore50 (Sketchfab)</sub> | `models/manica-atomic.glb` | CC-BY-4.0 | 275 kB | The first-person lab-coat sleeve, cropped from the scan. |
 | **Capsule Gun (modello 3D)**<br><sub>sc8di (Sketchfab)</sub> | `models/pistola-atomic.glb` | CC-BY-4.0 | 1366 kB | The capsule gun held in first person. |
@@ -60,6 +67,13 @@ availability.
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
 | `models/braccia-atomic.glb` | `3e72b0067366ba4906e8cb3d9077e3b800656705bfcdef5b0bb41339c0b765ff` |
 | `models/mano-robotica-atomic.glb` | `3cadfde4777f5f609fb9fea7990f35ddc8f82d19fad4c60b8fc18a563ba7e5c6` |
+| `models/mappe/small.glb` | `932e21a12c772ef3c36290fac8974a30b37b62e2000f7f1f26cb812a0572a7ab` |
+| `models/mappe/scifi1.glb` | `f3e4434820cda4a2ebec5804749cd0a6278aa0cda6a19b74ec14623affb3dc5e` |
+| `models/mappe/flynn.glb` | `d9c32659b5a75db09e88e97aeef645f46d30caee24522fc3a18b5048fa56911a` |
+| `models/mappe/underground.glb` | `8cae8085cae16d6b496fe93a00eef7d687349492e3d74c7af1aaab407085fa75` |
+| `models/mappe/overgrown.glb` | `c521f06e1da35eda66d585a0e6ab5b87a4da504d4b4fb09048518bf11683f403` |
+| `models/mappe/reattore.glb` | `58f200ac13b072d40ee45bdd6c725ddd06591502e53825d60699862fc79a3e01` |
+| `models/mappe/capsula.glb` | `be1ae03a8aa0c8cd160d517620985f83a515a2f05fc3d062aab4303496befb02` |
 | `models/mani-atomic.glb` | `d27b4ea1689e677e9406944abaecd95d524ca7693b2e4b62aec6c906f46ece56` |
 | `models/manica-atomic.glb` | `0034162e3fc772d3afb11c2df1a66222ae681ad7f404bcec59977d6557f14b98` |
 | `models/pistola-atomic.glb` | `4e109a4ab7e2794b139a5c9414151b376b7a237baab5d9f183f98d8e9ac65f7f` |
@@ -96,7 +110,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `9066d21076309d3e88489c5c175de814f131437ee27d6a6d431a190f74cd69d3` |
+| `index.html` | `3d93251f7fb81768e8872911364e14e5861566ba8c9b03cd513258df784cbe4b` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -112,7 +126,7 @@ availability.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `6193ce066856cbed24e6a8a866a80315100290d6eb11f288d339e08e39ac1230` |
+| `sw.js` | `469c7fa90d6a603b3b8f50e83d8bfa82033808d2c0776adf1e2303c1c5a550b8` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -165,4 +179,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-16T06:53:38.735Z._
+_Generated on 2026-10-16T09:20:55.159Z._
