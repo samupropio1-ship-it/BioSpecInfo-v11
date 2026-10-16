@@ -1089,9 +1089,9 @@
      stirano) */
   /* LE BRACCIA DEL RIG IN GIOCO. Le animazioni seguono quello che succede:
      il passo e la corsa, Equip quando si cambia quello che si ha in mano,
-     il jab sinistro (Punch_2) per lanciare un elemento e per prendere, e
-     da fermi a lungo Inspect — col pugno destro sempre chiuso: si guarda
-     la pistola. Lo sguardo che gira trascina un poco le braccia, lo
+     il jab sinistro (Punch, solo il braccio sinistro) per lanciare un
+     elemento e per prendere, e da fermi a lungo Inspect sul sinistro: si
+     guarda la mano robotica. Lo sguardo che gira trascina un poco le braccia, lo
      spruzzo le fa rinculare */
   function animaRig(ora, al) {
     var R = vista.rig;
@@ -1100,29 +1100,23 @@
     var vel = Math.hypot(S.vel.x, S.vel.z);
     var e = animV.eventiRig || (animV.eventiRig = { cambio: 0, lancio: 0, prendi: 0 });
     if (animV.cambio > 0.9 && e.cambio <= 0.9) R.colpo('Equip', 1.5);
-    if (animV.lancio > 0.9 && e.lancio <= 0.9) R.colpo('Punch_2', 1.4);
-    if (animV.prendi > 0.9 && e.prendi <= 0.9) R.colpo('Punch_2', 1.0);
+    /* il jab sinistro (Punch, solo il braccio sinistro: Punch_2 e' il
+       destro e la destra tiene la pistola) per lanciare e per allungarsi a
+       prendere */
+    if (animV.lancio > 0.9 && e.lancio <= 0.9) R.colpo('Punch_sx', 1.5);
+    if (animV.prendi > 0.9 && e.prendi <= 0.9) R.colpo('Punch_sx', 1.1);
     e.cambio = animV.cambio; e.lancio = animV.lancio || 0; e.prendi = animV.prendi;
     var fermo = vel < 0.004 && !animV.prendi && al < 0.05;
     animV.fermoDa = fermo ? (animV.fermoDa || ora) : 0;
-    if (animV.fermoDa && ora - animV.fermoDa > 8 && !R.colpi.Inspect) { R.colpo('Inspect', 1); animV.fermoDa = ora + 4; }
+    if (animV.fermoDa && ora - animV.fermoDa > 8 && !R.colpi.Inspect_sx) { R.colpo('Inspect_sx', 1); animV.fermoDa = ora + 4; }
     R.aggiorna({ dt: dt, ora: ora, vel: Math.min(1, vel / 0.05), corsa: vel > 0.07, potere: al,
                  prendi: animV.prendi > 0 ? 1 - animV.prendi : -1 });
-    /* le dita della mano robotica: a riposo appena piegate e vive; per
-       prendere si aprono, si chiudono sull'oggetto e lasciano; col potere
-       si aprono e ondeggiano una dopo l'altra; nel lancio scattano aperte;
-       correndo si chiudono un po'. Ogni dito ha la sua molla */
-    if (R.robotDita) {
-      var u = animV.prendi > 0 ? 1 - animV.prendi : -1, la = Math.sin(Math.min(1, animV.lancio || 0) * Math.PI);
-      var b = {}, svelto = null;
-      DITA5.forEach(function (d, i) {
-        var x = 0.22 + i * 0.035 + Math.sin(ora * (1.1 + i * 0.37) + i * 1.7) * 0.03 + (vel > 0.07 ? 0.25 : 0);
-        if (al > 0.05) x = x * (1 - al) + al * (0.04 + 0.12 * (0.5 + 0.5 * Math.sin(ora * 2.4 - i * 0.8)));
-        if (u >= 0) x = u < 0.3 ? -0.12 : u < 0.75 ? (i === 0 ? 0.55 : 0.85) : x;
-        if (la > 0.05) { x = x * (1 - la) - 0.15 * la; svelto = { pollice: 3, indice: 3, medio: 3, anulare: 3, mignolo: 3 }; }
-        b[d] = x;
-      });
-      G.pieghaRobot(R, molle('robot', b, dt, svelto));
+    /* le dita della mano robotica copiano quelle della sinistra del rig:
+       il pugno in guardia, la mano aperta dell'ispezione e del potere, la
+       presa, il jab del lancio — sono le animazioni del modello. Una molla
+       svelta toglie solo gli scatti fra un fotogramma e l'altro */
+    if (R.robotDita && R.chiusuraSx) {
+      G.pieghaRobot(R, molle('robot', R.chiusuraSx(), dt, { pollice: 4, indice: 4, medio: 4, anulare: 4, mignolo: 4 }));
     }
     /* lo sguardo e il rinculo */
     R.base.rotation.set(animV.swayY * 0.6 + animV.rinculo * 0.05, animV.swayX * 0.9, animV.swayX * 0.4);

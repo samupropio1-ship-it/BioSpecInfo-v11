@@ -649,7 +649,11 @@ function sopra(d, minimo, avuto) {
     if (R && R.aggancio) {
       let skin = 0, skinning = 0; m.scenaMani.traverse(o => { if (o.isSkinnedMesh && o.visible) { skin++; if (o.material.skinning) skinning++; } });
       out.fpSkin = skin + '/' + skinning;
-      out.fpClip = Object.keys(R.azioni).sort().join(',');
+      out.fpClip = Object.keys(R.azioni).filter(k => !/_sx$/.test(k)).sort().join(',');
+      /* il jab e l'ispezione «solo sinistra»: nessuna traccia sulle ossa
+         della destra, che tiene la pistola */
+      const clipSx = ['Punch_sx', 'Inspect_sx'].map(k => R.azioni[k] && R.azioni[k].getClip());
+      out.fpSoloSx = clipSx.every(c => c && c.tracks.length > 10 && c.tracks.every(t => !/R(\d{3})?_\d+\./.test(t.name)));
       /* il guanto destro e' nitrile: nella texture il blu domina */
       const gm = R.mesh.find(x => x.userData.ruolo === 'guanto');
       const im = gm && gm.material.map && gm.material.map.image;
@@ -853,6 +857,7 @@ function sopra(d, minimo, avuto) {
   att('  · braccia e guanti con lo scheletro, animati dalla GPU', '2/2', motore.fpSkin);
   att('  · le otto animazioni della prima persona', 'Equip,Idle,Inspect,Punch,Punch_2,Run,Unequip,Walk', motore.fpClip);
   att('  · il guanto destro è nitrile (il blu domina nella texture)', true, motore.fpNitrile);
+  att('  · il jab e l’ispezione muovono solo il braccio sinistro', true, motore.fpSoloSx);
   att('  · l’impugnatura sta nell’anello delle dita (entro 3 cm)', true, motore.fpPresaMm <= 30);
   console.log('      (' + motore.fpPresaMm + ' mm)');
   att('  · si impugna: l’indice sta sopra il mignolo', true, motore.fpIndiceSopra);
@@ -1069,9 +1074,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 207) {
+  if (eseguiti < 208) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 207');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 208');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

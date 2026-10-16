@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v218` |
-| Commit | `233ce661f5d2ef4ee04ff413cea95b79303e2342` |
-| Generato (UTC) | `2026-10-16T00:00:05.551Z` |
+| Commit | `7c7dc6dd6e00cd74e1894b71e2bf3c7729b4bdc9` |
+| Generato (UTC) | `2026-10-16T06:53:38.735Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -96,7 +96,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `9ad2579490b57f7da3010818afff38f7bc834c7998c8241fc2bb656e49aa98c9` |
+| `index.html` | `9066d21076309d3e88489c5c175de814f131437ee27d6a6d431a190f74cd69d3` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -112,7 +112,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `bf8b7ca235ee306ff22f538bfee51d5c74ce58a28c54f3b6bdc18b6ef7a7786f` |
+| `sw.js` | `6193ce066856cbed24e6a8a866a80315100290d6eb11f288d339e08e39ac1230` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -165,4 +165,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-16T00:00:05.551Z._
+_Generato il 2026-10-16T06:53:38.735Z._

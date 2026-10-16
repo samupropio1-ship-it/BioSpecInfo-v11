@@ -2335,6 +2335,15 @@
       base.add(cont);
       cont.add(scena);
       vista.gruppo.add(base);
+      /* le versioni «solo braccio sinistro» delle clip: la destra tiene la
+         pistola e non deve tirare pugni. Il lato di un osso e' nel suo nome
+         (…L_0632, …L001_0631) */
+      var lato = function (nome) { var m = /([LR])(\d{3})?_\d+$/.exec(nome.split('.')[0]); return m ? m[1] : ''; };
+      ['Punch', 'Inspect'].forEach(function (k) {
+        if (!clips[k]) return;
+        clips[k + '_sx'] = new T.AnimationClip(k + '_sx', clips[k].duration,
+          clips[k].tracks.filter(function (t) { return lato(t.name) === 'L'; }));
+      });
       var mix = new T.AnimationMixer(scena), azioni = {};
       Object.keys(clips).forEach(function (k) { azioni[k] = mix.clipAction(clips[k]); });
       var ossa = mesh[0].skeleton.bones;
@@ -2391,16 +2400,13 @@
         /* il polso destro da pistola: il rig tiene il pugno in guardia, con
            le nocche avanti; per impugnare il polso gira finche' l'indice sta
            sopra e il mignolo sotto (la stretta di mano), con l'impugnatura
-           appena inclinata. Durante Inspect cede: li' il polso gira per
-           guardare la pistola */
+           appena inclinata */
         if (R.manoDx) {
           base.updateMatrixWorld(true);
           var i1 = R.dita(1, 'f_index', 1).getWorldPosition(new T.Vector3());
           var p1 = R.dita(1, 'f_pinky', 1).getWorldPosition(new T.Vector3());
           var asseP = p1.sub(i1).normalize();
           var qP = new T.Quaternion().setFromUnitVectors(asseP, new T.Vector3(0.05, -0.93, 0.36).normalize());
-          var wIsp = colpi.Inspect ? Math.min(1, colpi.Inspect.t / 0.4, Math.max(0, (colpi.Inspect.durata - colpi.Inspect.t) / 0.4)) : 0;
-          qP.slerp(new T.Quaternion(), wIsp);
           ruotaNelMondo(R.manoDx, qP);
         }
         /* la sinistra: il potere la apre col palmo verso lo sguardo (tutto
@@ -2410,21 +2416,8 @@
         if (al > 0) verso(sx, POSE.aperta, al);
         var u = st.prendi;
         if (u != null && u >= 0) verso(ditaSx, POSE.aperta, u < 0.45 ? Math.sin(u / 0.45 * Math.PI / 2) : Math.max(0, 1 - (u - 0.45) / 0.2));
-        /* il palmo in su: la mano sinistra gira nel mondo finche' il palmo
-           guarda in alto (e un poco lo sguardo), quanto vale il potere */
-        if (al > 0.01 && R.manoSx) {
-          base.updateMatrixWorld(true);
-          var pp0 = new T.Vector3(), nn0 = new T.Vector3();
-          palmoRig(R, pp0, nn0);
-          if (R.robot) { R.robot.matrix.copy(R.manoSx.matrixWorld).multiply(R.robot.userData.offset); R.robot.matrixWorldNeedsUpdate = true; palmoSx(R, pp0, nn0); }
-          else if (nn0.z < 0) nn0.negate();
-          var qG = new T.Quaternion().setFromUnitVectors(nn0, new T.Vector3(0.1, 0.95, 0.3).normalize());
-          qG.slerp(new T.Quaternion(), 1 - al);
-          ruotaNelMondo(R.manoSx, qG);
-        }
-        /* la vita delle dita della sinistra col potere: piccole onde */
         /* la mano robotica al posto della sinistra: segue l'osso della mano
-           (con la sua posa, anche il palmo in su del potere), poi il guanto
+           (con la posa dell'animazione), poi il guanto
            sinistro si chiude dentro il suo polsino */
         if (R.robot) {
           base.updateMatrixWorld(true);
@@ -2434,9 +2427,10 @@
           R.manoSx.scale.setScalar(0.001);
         }
         animaPolvere(dt, al);
+        /* col potere le dita respirano appena, una dopo l'altra */
         if (al > 0.05) ditaSx.forEach(function (b, i) {
           if (!/f_.*0[23]/.test(b.name)) return;
-          qT.setFromAxisAngle(new T.Vector3(1, 0, 0), Math.sin(st.ora * 2.4 - i * 0.7) * 0.12 * al);
+          qT.setFromAxisAngle(new T.Vector3(1, 0, 0), Math.sin(st.ora * 2.4 - i * 0.7) * 0.06 * al);
           b.quaternion.multiply(qT);
         });
       }
@@ -2513,7 +2507,44 @@
         gP.attributes.position.needsUpdate = true; gP.attributes.color.needsUpdate = true;
         gS.attributes.position.needsUpdate = true; gS.attributes.color.needsUpdate = true;
       }
+      /* QUANTO E' CHIUSO OGNI DITO DELLA SINISTRA DEL RIG: la somma degli
+         angoli ai tre giunti, tarata fra la mano aperta di Inspect (0) e il
+         pugno di Idle (1). La mano robotica copia questi valori: le sue dita
+         fanno quello che fanno quelle del rig, animazione per animazione */
+      var NOMI_DITA = { pollice: 'thumb', indice: 'f_index', medio: 'f_middle', anulare: 'f_ring', mignolo: 'f_pinky' };
+      var segm = function (d) {
+        var re = function (n, fine) { return new RegExp('^DEF-' + d + '0' + n + 'L' + (fine ? '_end' : '') + '_'); };
+        return [osso(/^DEF-handL_/), osso(re(1)), osso(re(2)), osso(re(3)), osso(re(3, true))];
+      };
+      var catene = {};
+      Object.keys(NOMI_DITA).forEach(function (k) { catene[k] = segm(NOMI_DITA[k]); });
+      var vA3 = new T.Vector3(), vB3 = new T.Vector3(), vC3 = new T.Vector3();
+      function piegaGrezza(k) {
+        var c = catene[k]; if (c.some(function (x) { return !x; })) return 0;
+        var p = c.map(function (b) { return b.getWorldPosition(new T.Vector3()); }), tot = 0;
+        for (var i = 1; i < p.length - 1; i++) {
+          vA3.copy(p[i]).sub(p[i - 1]); vB3.copy(p[i + 1]).sub(p[i]);
+          if (vA3.lengthSq() > 1e-10 && vB3.lengthSq() > 1e-10) tot += vA3.angleTo(vB3);
+        }
+        return tot;
+      }
+      var taraAperta = {}, taraPugno = {};
+      function tara(posa, dove) {
+        ossa.forEach(function (b) { var r = posa.get(b); if (r) { b.quaternion.copy(r.q); b.position.copy(r.p); } });
+        scena.updateMatrixWorld(true);
+        Object.keys(NOMI_DITA).forEach(function (k) { dove[k] = piegaGrezza(k); });
+      }
+      tara(POSE.aperta, taraAperta); tara(POSE.pugno, taraPugno);
+      function chiusuraSx() {
+        var out = {};
+        Object.keys(NOMI_DITA).forEach(function (k) {
+          var a0 = taraAperta[k], a1 = taraPugno[k];
+          out[k] = Math.abs(a1 - a0) < 0.05 ? 0 : Math.max(-0.2, Math.min(1.15, (piegaGrezza(k) - a0) / (a1 - a0)));
+        });
+        return out;
+      }
       var R = {
+        chiusuraSx: chiusuraSx,
         base: base, contenitore: cont, mixer: mix, granelli: granelli, scintille: scintille, azioni: azioni, colpo: colpo, aggiorna: aggiorna, pesi: pesi, colpi: colpi,
         mesh: mesh, osso: osso, ossa: ossa,
         manoDx: osso(/^DEF-handR_/), manoSx: osso(/^DEF-handL_/), avambraccioSx: osso(/^DEF-forearmL_/), avambraccioSx2: osso(/^DEF-forearmL001_/),
@@ -2632,7 +2663,13 @@
       var lung = (h.distanceTo(pT) || 0.18) * 1.25;   /* un po' piu' grande: e' meccanica */
       var k = lung / ROBOT.lung;
       /* le basi: nel rig (mondo) e nel robot (dopo lo specchio) */
-      var Fh = mF.clone().sub(h).normalize(), Th = th.clone().sub(h);
+      /* il lato: la linea delle nocche, dal mignolo verso l'indice (stabile
+         anche a pugno chiuso, dove il pollice e' ripiegato sul palmo e
+         girava la mano di un quarto). Nel robot l'indice sta a +z, che dopo
+         lo specchio diventa -z */
+      var i1 = R.dita(-1, 'f_index', 1).getWorldPosition(new T.Vector3());
+      var p1 = R.dita(-1, 'f_pinky', 1).getWorldPosition(new T.Vector3());
+      var Fh = mF.clone().sub(h).normalize(), Th = i1.sub(p1);
       Th.addScaledVector(Fh, -Th.dot(Fh)).normalize();
       var Bh = new T.Matrix4().makeBasis(Fh, Th, new T.Vector3().crossVectors(Fh, Th));
       var Fr = new T.Vector3(-1, 0, 0), Tr = new T.Vector3(0, 0, -1);
