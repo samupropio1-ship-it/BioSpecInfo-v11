@@ -7,6 +7,39 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v217] — 2026-10-16
+
+**Braccia animate, mano robotica e la sfera dell'elemento — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Le braccia del rig** «Fists (2023) | First Person Animations» (1Matzh,
+  CC-BY 4.0): scheletro e otto animazioni della prima persona fusi secondo il
+  gioco — passo, corsa, Equip al cambio di strumento, il jab sinistro per
+  lanciare e prendere, Inspect da fermi. Divisa → camice, guanti → nitrile.
+- **La pistola impugnata davvero**: agganciata all'osso del pugno destro, il
+  polso che gira da guardia a impugnatura, le dita a cilindro intorno
+  all'impugnatura, la canna avanti; segue ogni animazione.
+- **La mano sinistra robotica** («Robotic Hand», SeanNicolas, CC-BY 4.0),
+  specchiata e agganciata al braccio.
+- **La sfera dell'elemento**, sul modello dell'immagine fornita: un
+  poliedro di luce venata col guscio di spigoli, gli aloni e una chioma di
+  filamenti vivi, **del colore dell'elemento**; il palmo si gira in su e la
+  manica sinistra si sgretola in granelli e scintille.
+- `tools/prepara-modelli.js`: modalità `braccia` (skybox ed emissione via,
+  scheletro ridotto da 1423 a 52 ossa, animazioni alle loro tracce: 13 → 6,4
+  MB) e `robot`.
+
+### Corretto
+- La lettura delle matrici (MAT4) nello strumento dei modelli: senza, le
+  matrici di legame si azzeravano e la pelle spariva.
+
+### Banco
+- `test_atomic`: 205 controlli — rig, otto animazioni, nitrile, presa (19 mm
+  dal centro dell'impugnatura), indice sopra il mignolo, canna avanti,
+  pistola agganciata, passo, Equip, rinculo, mano robotica, palmo in su,
+  sfera del colore dell'elemento, granelli.
+
+---
 ## [bsi-v216] — 2026-10-15
 
 **PS2 seria e mani che si muovono come mani — ATOMIC PROTOCOL**

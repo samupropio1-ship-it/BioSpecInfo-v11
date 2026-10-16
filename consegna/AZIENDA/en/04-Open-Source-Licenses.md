@@ -34,6 +34,8 @@ used, so there are no obligations to redistribute the proprietary code.
 |------|------|--------|---------|-------------|
 | `models/mani-atomic.glb` | hands animation | hugo colauto (Sketchfab) | Sketchfab Standard | use within the work; do not redistribute the model on its own — to be checked with the author before publication |
 | `models/manica-atomic.glb` | Modern Scientist in a Lab Coat (crop) | restore50 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/braccia-atomic.glb` | Fists (2023) \| First Person Animations | 1Matzh (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
+| `models/mano-robotica-atomic.glb` | Robotic Hand | SeanNicolas (Sketchfab) | CC-BY 4.0 | attribution: in the game's Codex and in `models/CREDITS.md` |
 | `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
 
 The derivatives are produced by `tools/prepara-modelli.js`; the entries with their SHA-256 digests are in the SBOM (`docs/07`).

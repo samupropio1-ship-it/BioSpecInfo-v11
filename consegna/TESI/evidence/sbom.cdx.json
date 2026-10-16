@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-15T21:07:36.218Z",
+    "timestamp": "2026-10-16T00:00:05.551Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v216",
+      "version": "bsi-v217",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "e2b16f3fe7abb9a922080b51e5a3c750f10b9ef2"
+        "value": "233ce661f5d2ef4ee04ff413cea95b79303e2342"
       }
     ]
   },
@@ -322,6 +322,56 @@
         {
           "alg": "SHA-256",
           "content": "61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Fists (2023) | First Person Animations (adattato)",
+      "publisher": "1Matzh (Sketchfab)",
+      "description": "Le braccia della prima persona con lo scheletro e le otto animazioni (passo, corsa, colpi, ispezione, estrazione).",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/fists-2023-first-person-animations-b178e95c4b7f4e95b52a12752aff57d0"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3e72b0067366ba4906e8cb3d9077e3b800656705bfcdef5b0bb41339c0b765ff"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Robotic Hand (modello 3D)",
+      "publisher": "SeanNicolas (Sketchfab)",
+      "description": "La mano sinistra robotica, sopra cui si accende il potere degli elementi.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/robotic-hand-3e284b06bbb84d858f85f7a246cd65df"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3cadfde4777f5f609fb9fea7990f35ddc8f82d19fad4c60b8fc18a563ba7e5c6"
         }
       ]
     },

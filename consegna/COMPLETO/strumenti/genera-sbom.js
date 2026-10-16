@@ -77,6 +77,14 @@ const COMPONENTI = [
     ruoloEn: 'Experimental data for the particle-physics exercise.' },
   /* i modelli 3D della prima persona di ATOMIC PROTOCOL (crediti completi in
      models/CREDITS.md; i derivati da tools/prepara-modelli.js) */
+  { file: 'models/braccia-atomic.glb', nome: 'Fists (2023) | First Person Animations (adattato)', licenza: 'CC-BY-4.0',
+    fornitore: '1Matzh (Sketchfab)', url: 'https://sketchfab.com/3d-models/fists-2023-first-person-animations-b178e95c4b7f4e95b52a12752aff57d0',
+    ruolo: 'Le braccia della prima persona con lo scheletro e le otto animazioni (passo, corsa, colpi, ispezione, estrazione).',
+    ruoloEn: 'The first-person arms with the skeleton and the eight animations (walk, run, punches, inspect, equip).' },
+  { file: 'models/mano-robotica-atomic.glb', nome: 'Robotic Hand (modello 3D)', licenza: 'CC-BY-4.0',
+    fornitore: 'SeanNicolas (Sketchfab)', url: 'https://sketchfab.com/3d-models/robotic-hand-3e284b06bbb84d858f85f7a246cd65df',
+    ruolo: 'La mano sinistra robotica, sopra cui si accende il potere degli elementi.',
+    ruoloEn: 'The robotic left hand, over which the element power lights up.' },
   { file: 'models/mani-atomic.glb', nome: 'hands animation (modello 3D, adattato)', licenza: 'LicenseRef-Sketchfab-Standard',
     fornitore: 'hugo colauto (Sketchfab)', url: 'https://sketchfab.com/3d-models/hands-animation-9f63e924253b4179adb79b117a26d385',
     ruolo: 'Le mani della prima persona, con lo scheletro e l\'animazione da cui il gioco ricava le pose.',
