@@ -3,7 +3,7 @@
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
 > Versione 16 (bsi-v222): le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
-> Versione 15 (bsi-v221): trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
+> Versione 15: trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
 > reazioni, retrosintesi, amminoacidi, farmaci, sicurezza, costanti, tecniche
