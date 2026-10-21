@@ -1211,6 +1211,7 @@
       pa.p.sx.visible = pa.p.dx.visible = pa.apertura < 0.96;
     });
 
+    if (S.lab) passoLab(ora);
     if (S.immune > 0) S.immune--;
     S.t = (S.t || 0) + 1;
   }
@@ -1249,6 +1250,8 @@
     avviso(perche);
     var sc = document.getElementById('bsiAP-scena');
     if (sc) { sc.classList.remove('colpito'); void sc.offsetWidth; sc.classList.add('colpito'); }
+    /* caduti nel laboratorio: si esce (la sua orda ricomincera') */
+    if (S.vite <= 0 && S.lab) esciLab();
     if (S.vite <= 0 && S.checkpoint && S.checkpoint.livello === mondo.livello.n && !S.lab) {
       /* si riparte dal punto di salvataggio: salute piena, qualche
          secondo d'immunita', i nemici restano dove sono */
@@ -1773,7 +1776,10 @@
     }
     if (luci && luci.allarme && mondo) {
       var stA = mondo.stanzaCorrente, oraA = Date.now() / 1000;
-      if (stA && !S.lab && (stA._allarme || S.orda === stA)) {
+      if (S.lab && S.lab.orda && !S.lab.orda.finita && S.lab.orda.ondata > 0) {
+        luci.allarme.position.set(S.pos.x + Math.cos(oraA * 2) * 3, S.labSuolo + 2.6, S.pos.z + Math.sin(oraA * 2) * 3);
+        luci.allarme.intensity = 2.6 * Math.pow(0.5 + 0.5 * Math.sin(oraA * 3.2), 2);
+      } else if (stA && !S.lab && (stA._allarme || S.orda === stA)) {
         luci.allarme.position.set(stA.x + stA.larg / 2 - 0.5 + Math.cos(oraA * 3.2) * 0.4, (stA.alt || 3.2) - 0.35, stA.z - stA.prof / 2 + 0.5 + Math.sin(oraA * 3.2) * 0.4);
         luci.allarme.intensity = (S.orda === stA ? 3.2 : 1.4) * Math.pow(0.5 + 0.5 * Math.sin(oraA * 3.2), 2);
       } else luci.allarme.intensity = 0;
@@ -1857,7 +1863,10 @@
     else if (o.tipo === 'terminale') apriEnigma(o);
     else if (o.tipo === 'registratore') { o.ascoltato = true; if (o._chiave) S.presi[o._chiave + ':sentito'] = true; ascolta(o.reg); }
     else if (o.tipo === 'portaLab') entraLab(o, stanzaDi(S.pos.x, S.pos.z));
-    else if (o.tipo === 'uscitaLab') esciLab();
+    else if (o.tipo === 'uscitaLab') {
+      if (S.lab && S.lab.orda && !S.lab.orda.finita) { avviso(t('🔒 La porta è bloccata', '🔒 The door is locked'), t('finché ci sono creature nel laboratorio', 'while there are creatures in the laboratory')); bip(140, 0.12, 'square', 0.04); }
+      else esciLab();
+    }
     else if (o.tipo === 'uscita') {
       if (mondo.livello.boss && !S.fatti[mondo.livello.boss.id]) {
         avviso(t('L’ascensore è bloccato finché il guardiano è attivo',
@@ -3724,11 +3733,19 @@
   /* il nemico nel mondo */
   function posNemico(o) {
     var st = mondo.zona.stanze.filter(function (x) { return x.id === o._stanza; })[0];
-    return new T.Vector3((st ? st.x : 0) + o.x, specieDi(o).altezza + (o._quota || 0) + (o._quotaSalto || 0), (st ? st.z : 0) + o.z);
+    return new T.Vector3((st ? st.x : 0) + o.x, specieDi(o).altezza + (o._quota || 0) + (o._quotaSalto || 0) + (o._suolo || 0), (st ? st.z : 0) + o.z);
   }
   function nemiciVivi(raggio, centro) {
     var out = [];
-    if (!mondo || S.lab) return out;
+    if (!mondo) return out;
+    if (S.lab) {
+      (S.lab.nemici || []).forEach(function (o) {
+        if (!o.vivo || !o._nodo) return;
+        var p = posNemico(o);
+        if (!centro || p.distanceTo(centro) <= raggio) out.push({ o: o, p: p });
+      });
+      return out;
+    }
     tuttiGliOggetti(function (o) {
       if (o.tipo !== 'nemico' || !o.vivo || !o._nodo) return;
       var p = posNemico(o);
@@ -3739,7 +3756,7 @@
   /* quale nemico ho nel mirino: il raggio dalla telecamera, la sfera del
      nemico, niente muri in mezzo */
   function nelMirino(portata) {
-    if (!camera || !mondo || S.lab) return null;
+    if (!camera || !mondo) return null;
     var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
     var migl = null, dm = portata || 16;
     nemiciVivi().forEach(function (n) {
@@ -4522,7 +4539,10 @@
   }
   function animaMorti(dt) {
     if (!mondo) return;
-    tuttiGliOggetti(function (o) {
+    var tutti = [];
+    tuttiGliOggetti(function (o) { tutti.push(o); });
+    if (S.lab && S.lab.nemici) tutti = tutti.concat(S.lab.nemici);
+    tutti.forEach(function (o) {
       if (o.tipo !== 'nemico' || !(o._muore > 0) || !o._nodo) return;
       if (o._mod) {
         /* il modello: la clip della morte se c'e', se no cade e affonda */
@@ -4874,8 +4894,17 @@
     }
     if (o._spinta) { mx += o._spinta.x; mz += o._spinta.z; o._spinta.x *= 0.85; o._spinta.z *= 0.85; if (Math.abs(o._spinta.x) + Math.abs(o._spinta.z) < 0.002) o._spinta = null; }
     var nx = o.x + mx, nz = o.z + mz;
-    if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
-    if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
+    if (S.lab) {
+      /* nel laboratorio si cammina sulla griglia della mappa, sullo stesso
+         piano (le scale si salgono: mezzo metro alla volta) */
+      var s0 = o._suolo || 0, hN = pavimentoLab(S.lab, nx, o.z, s0);
+      if (hN !== null && Math.abs(hN - s0) < 0.6) { o.x = nx; o._suolo = s0 = hN; }
+      hN = pavimentoLab(S.lab, o.x, nz, s0);
+      if (hN !== null && Math.abs(hN - s0) < 0.6) { o.z = nz; o._suolo = hN; }
+    } else {
+      if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
+      if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
+    }
     /* LA DISTANZA DAL CORPO: una creatura a terra non entra mai nel
        giocatore (la telecamera finirebbe dentro il modello): si ferma a un
        palmo dal suo raggio. In aria (il balzo) o sotto il pavimento no */
@@ -4885,8 +4914,11 @@
       if (ed < minD) {
         if (ed < 0.01) { ex = -Math.sin(S.ang); ez = -Math.cos(S.ang); ed = 1; }
         var px2 = S.pos.x + ex / ed * minD - sx.x, pz2 = S.pos.z + ez / ed * minD - sx.z;
-        if (Math.abs(px2) < sx.larg / 2 - 0.6) o.x = px2;
-        if (Math.abs(pz2) < sx.prof / 2 - 0.6) o.z = pz2;
+        if (S.lab) { if (pavimentoLab(S.lab, px2, pz2, o._suolo || 0) !== null) { o.x = px2; o.z = pz2; } }
+        else {
+          if (Math.abs(px2) < sx.larg / 2 - 0.6) o.x = px2;
+          if (Math.abs(pz2) < sx.prof / 2 - 0.6) o.z = pz2;
+        }
       }
     }
     var muove = Math.hypot(mx, mz) / dt;
@@ -4895,7 +4927,7 @@
     o._fasePrec = o._fase;
     var spC = o._fase === 'speciale' && o._sp && o._sp.fase === 'carica', spV = o._fase === 'speciale' && o._sp && o._sp.fase === 'via';
     if (o._nodo) {
-      ip.y1 = o._quotaSalto || 0;
+      ip.y1 = (o._quotaSalto || 0) + (o._suolo || 0);
       var att = ip.r0;
       if (all && o._fase !== 'colpo') {
         var vuole = Math.atan2(dx, dz);
@@ -5446,6 +5478,7 @@
         var lato = Math.random() < 0.5 ? 1 : -1, ang = Math.atan2(-ux, -uz) + lato * 1.3;
         var nx = S.pos.x + Math.sin(ang) * 3.5 - sx.x, nz = S.pos.z + Math.cos(ang) * 3.5 - sx.z;
         nx = Math.max(-sx.larg / 2 + 0.7, Math.min(sx.larg / 2 - 0.7, nx)); nz = Math.max(-sx.prof / 2 + 0.7, Math.min(sx.prof / 2 - 0.7, nz));
+        if (S.lab) { var hS = pavimentoLab(S.lab, nx, nz, S.labSuolo); if (hS === null) { nx = o.x; nz = o.z; } else o._suolo = hS; }
         o.x = nx; o.z = nz; o._ip.x0 = nx; o._ip.z0 = nz;
         o._nascosto = false; o._nodo.visible = true;
         esplosione(posNemico(o), colV, 0.7, false);
@@ -5624,15 +5657,15 @@
      dell'ultimo, come il giocatore */
   var frustum = null, mFrustum = null, sferaN = null;
   function interpolaNemici(alfa) {
-    var st = mondo.stanzaCorrente;
-    if (!st || S.lab) return;
+    var st = S.lab ? S.lab.stanza : mondo.stanzaCorrente;
+    if (!st) return;
     /* i nemici fuori dall'inquadratura non si disegnano (le loro mesh non
        hanno il ritaglio automatico: l'animazione ne sposta i vertici) */
     if (!frustum) { frustum = new T.Frustum(); mFrustum = new T.Matrix4(); sferaN = new T.Sphere(); }
     camera.updateMatrixWorld(); mFrustum.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     frustum.setFromProjectionMatrix(mFrustum);
     var stanze = [st];
-    (st.porte || []).forEach(function (p) { var s2 = mondo.zona.stanze.filter(function (x) { return x.id === p.a; })[0]; if (s2) stanze.push(s2); });
+    if (!S.lab) (st.porte || []).forEach(function (p) { var s2 = mondo.zona.stanze.filter(function (x) { return x.id === p.a; })[0]; if (s2) stanze.push(s2); });
     stanze.forEach(function (s3) {
       (s3.oggetti || []).forEach(function (o) {
         if (o.tipo !== 'nemico' || !o._nodo || !o._ip) return;
@@ -5642,7 +5675,7 @@
         o._nodo.rotation.y = a.r0 + dr * alfa;
         if (!o.vivo && !(o._muore > 0)) return;
         var sp = specieDi(o), h = (sp.m ? sp.m.alto : 1.6) * (o._var ? o._var.scala : 1);
-        sferaN.center.set(s3.x + o._nodo.position.x, h * 0.5, s3.z + o._nodo.position.z); sferaN.radius = h * 0.75 + 0.5;
+        sferaN.center.set(s3.x + o._nodo.position.x, o._nodo.position.y + h * 0.5, s3.z + o._nodo.position.z); sferaN.radius = h * 0.75 + 0.5;
         o._nodo.visible = !o._nascosto && frustum.intersectsSphere(sferaN);
       });
     });
@@ -6156,12 +6189,89 @@
     S.pos.x = ing.x; S.pos.z = ing.z; S.pos.y = 0; S.vel.y = 0; S.terra = true;
     S.ang = Math.atan2(vx, vz);
     camLiscia = null;
-    if (luci && luci.emi) { L.emiPrima = luci.emi.intensity; luci.emi.intensity = ps1() ? 1.0 : 0.55; }
-    if (scena.fog && scena.fog.density) { L.nebbiaPrima = scena.fog.density; scena.fog.density = 0.03; }
+    var buioLab = IMP.degrado !== 'no';
+    if (luci && luci.emi) { L.emiPrima = luci.emi.intensity; luci.emi.intensity = ps1() ? 1.0 : buioLab ? 0.3 : 0.55; }
+    if (scena.fog && scena.fog.density) { L.nebbiaPrima = scena.fog.density; scena.fog.density = buioLab ? 0.05 : 0.03; }
+    preparaOrdaLab(L);
     aggiornaLuci(true);
     var titolo = NOMI_LAB[nome] ? t(NOMI_LAB[nome][0], NOMI_LAB[nome][1]) : (j.titolo || nome);
     avviso('⚗ ' + titolo, t('il banco di sintesi è sul bancone · ✋ per usarlo', 'the synthesis bench is on the counter · ✋ to use it'));
     bip(660, 0.12, 'triangle', 0.06);
+  }
+  /* IL LABORATORIO E' IL CUORE DEL LIVELLO. Entrando la porta si chiude
+     alle spalle: le creature del livello risalgono dal pavimento della
+     mappa, a ondate, e si combatte sul terreno vero (piani, scale,
+     banconi). Respinte tutte, la porta si riapre: salute, energia piena,
+     una tacca di padronanza su tutti i poteri. Il laboratorio di un
+     livello si ripulisce una volta sola */
+  function preparaOrdaLab(L) {
+    var specie = [], atto = 1;
+    mondo.zona.stanze.forEach(function (st) { (st.oggetti || []).forEach(function (o) {
+      if (o.tipo === 'nemico' && SPECIE_M[o.specie]) { if (specie.indexOf(o.specie) < 0) specie.push(o.specie); atto = Math.max(atto, o.atto || 1); }
+    }); });
+    if (!specie.length) specie = ['verme', 'palude'];
+    L.nemici = [];
+    L.stanza = { id: 'lab', x: 0, z: 0, larg: 1e5, prof: 1e5, alt: 4, oggetti: L.nemici, porte: [] };
+    L.gruppoNemici = new T.Group(); L.radice.add(L.gruppoNemici);
+    var chiave = 'lab:' + S.livello;
+    L.orda = { ondate: 2 + (atto - 1), ondata: 0, pausa: 1.6, finita: !!S.presi[chiave], specie: specie, atto: atto, chiave: chiave };
+    if (L.orda.finita) return;
+    /* il sangue di chi c'era prima, sul pavimento della mappa */
+    if (conSangue()) for (var i = 0; i < 8; i++) { var pz = postoLab(L, 2, 14); if (pz) pozzaSotto(new T.Vector3(pz.x, pz.y, pz.z), 0.8 + Math.random() * 1.4); }
+    avviso('⚠ ' + t('La porta si è chiusa', 'The door has locked'), t('qualcosa si muove nel laboratorio', 'something is moving in the laboratory'));
+    sirena();
+  }
+  /* un punto percorribile della mappa, sullo stesso piano dell'ingresso,
+     fra da e a metri dal giocatore */
+  function postoLab(L, da, a) {
+    var g = L.griglia;
+    for (var t2 = 0; t2 < 60; t2++) {
+      var x = L.off.x + g.x0 + Math.random() * g.nx * g.cella, z = L.off.z + g.z0 + Math.random() * g.nz * g.cella;
+      var d = Math.hypot(x - S.pos.x, z - S.pos.z);
+      if (d < da || d > a) continue;
+      var h = pavimentoLab(L, x, z, S.labSuolo);
+      if (h === null || Math.abs(h - S.labSuolo) > 0.4) continue;
+      /* un po' di spazio intorno */
+      if (pavimentoLab(L, x + 0.5, z, h) === null || pavimentoLab(L, x - 0.5, z, h) === null || pavimentoLab(L, x, z + 0.5, h) === null || pavimentoLab(L, x, z - 0.5, h) === null) continue;
+      return { x: x, y: h, z: z };
+    }
+    return null;
+  }
+  function ondataLab(L) {
+    var O = L.orda;
+    O.ondata++;
+    var quanti = Math.min(8, 2 + O.ondata + (O.atto - 1) + Math.floor(S.livello / 60));
+    for (var i = 0; i < quanti; i++) {
+      var pz = postoLab(L, 3.5, 16) || postoLab(L, 2.5, 30);
+      if (!pz) continue;
+      var o = { tipo: 'nemico', specie: O.specie[(i + O.ondata) % O.specie.length], x: pz.x, z: pz.z, atto: O.atto, elite: O.ondata === O.ondate && i === 0, _orda: O.ondata };
+      L.nemici.push(o);
+      var nodo = costruisciOggetto(o, L.stanza, L.nemici.length - 1, mondo.zona.zona ? mondo.zona.zona.n : 1, mondo.livello.n);
+      o._chiave = null; o._suolo = pz.y; o._emerge = 1.2 + i * 0.3; o._quotaSalto = -2.6; o._allerta = 5;
+      L.gruppoNemici.add(nodo);
+      scintille(new T.Vector3(pz.x, pz.y + 0.2, pz.z), 0x3a2a1a, 12);
+      if (conSangue()) pozzaSotto(new T.Vector3(pz.x, pz.y, pz.z), 0.9);
+    }
+    if (O.ondata > 1) avviso(t('Ondata ', 'Wave ') + O.ondata + '/' + O.ondate);
+    tonfo(50, 0.6);
+  }
+  function passoLab(ora) {
+    var L = S.lab;
+    if (!L || !L.orda || !L.stanza) return;
+    L.nemici.forEach(function (o) { if (o.vivo) aggiornaNemicoM(o, L.stanza, L.stanza, ora); });
+    var O = L.orda;
+    if (O.finita) return;
+    var vivi = L.nemici.filter(function (o) { return o.vivo && o._orda === O.ondata; }).length;
+    if (vivi > 0) return;
+    O.pausa -= PASSO / 1000;
+    if (O.pausa > 0) return;
+    O.pausa = 2.2;
+    if (O.ondata < O.ondate) { ondataLab(L); return; }
+    O.finita = true; S.presi[O.chiave] = true;
+    S.vite = Math.min(S.vitaMax, S.vite + 1); S.energia = 100; S.punti += 500;
+    S.inventario.forEach(function (x) { if (x.padronanza < 5) x.padronanza++; });
+    avviso(t('✓ Laboratorio ripulito', '✓ Laboratory cleared'), t('la porta si riapre · +1 salute · energia piena · +1 padronanza a tutti i poteri · +500', 'the door reopens · +1 health · full energy · +1 mastery on every power · +500'));
+    bip(523, 0.2, 'triangle', 0.07); setTimeout(function () { bip(784, 0.3, 'triangle', 0.07); }, 180);
   }
   function esciLab() {
     var L = S && S.lab;
@@ -6595,6 +6705,8 @@
     speciale: function (o) { if (!SPECIALI[o.specie]) return false; o._fase = 'speciale'; o._sp = { fase: 'carica', t: 0 }; return true; },
     speciali: function () { return Object.keys(SPECIALI).map(function (k) { return [k, SPECIALI[k].nome]; }); },
     torcia: function () { return !!(luci && luci.torcia); },
+    ordaLab: function () { var L = S && S.lab; return L ? { nome: L.nome, ondata: L.orda ? L.orda.ondata : 0, ondate: L.orda ? L.orda.ondate : 0, finita: !!(L.orda && L.orda.finita),
+                                                         vivi: (L.nemici || []).filter(function (o) { return o.vivo; }).length, nemici: L.nemici || [] } : null; },
     abbatti: function (o) { if (o && o.vivo) abbattiNemico(o, posNemico(o)); },
     orda: function () { var st = null; if (mondo) mondo.zona.stanze.forEach(function (x) { if (x._orda) st = x; }); return st ? { id: st.id, x: st.x, z: st.z, larg: st.larg, prof: st.prof, ondate: st._orda.ondate, ondata: st._orda.ondata, finita: st._orda.finita, attiva: S.orda === st,
                                        vivi: st.oggetti.filter(function (o) { return o._orda && o.vivo; }).length } : null; },
