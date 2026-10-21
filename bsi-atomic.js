@@ -3989,15 +3989,15 @@
   }
   /* la brace: una scintilla stirata, calda, che cade */
   function brace(p, v, col) {
-    var sp = spriteCon(texGoccia(), new T.Color(col).lerp(new T.Color(0xffd080), 0.6), 1, true);
+    var sp = spriteCon(texGoccia(), new T.Color(0xff7a20).lerp(new T.Color(col), 0.3).lerp(new T.Color(0xffc060), Math.random() * 0.4), 0.9, true);
     sp.position.copy(p);
-    effetti.push({ o: sp, v: v, t: 0, vita: 0.5 + Math.random() * 0.7, dim: 0.05 + Math.random() * 0.04, g: 5, tipo: 'brace', op: 1 });
+    effetti.push({ o: sp, v: v, t: 0, vita: 0.4 + Math.random() * 0.6, dim: 0.022 + Math.random() * 0.022, g: 5, tipo: 'brace', op: 0.9 });
   }
   /* LA PALLA DI FUOCO: una sfera deformata dal rumore che ribolle, colori
      dal bianco del cuore al colore dell'elemento al nero del bordo che
      brucia; cresce e si consuma in mezzo secondo */
   var geoFuoco = null, FUOCO_VS = [
-    'uniform float tempo; uniform float gonfia; varying vec3 vN; varying vec3 vV; varying float vR;',
+    'uniform float tempo; uniform float gonfia; varying vec3 vN; varying vec3 vV; varying float vR; varying vec3 vO;',
     'float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }',
     'float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
     '  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),',
@@ -4005,26 +4005,39 @@
     'float fbm3(vec3 p){ return n3(p)*0.5 + n3(p*2.03)*0.25 + n3(p*4.01)*0.125 + n3(p*8.0)*0.0625; }',
     'void main(){',
     '  float d = fbm3(normal * 2.4 + vec3(0.0, -tempo * 3.0, tempo * 1.3));',
-    '  vR = d;',
+    '  vR = d; vO = normal;',
     '  vec3 pos = position * (1.0 + (d - 0.45) * gonfia);',
     '  vec4 mv = modelViewMatrix * vec4(pos, 1.0);',
     '  vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);',
     '  gl_Position = projectionMatrix * mv;',
     '}'].join('\n');
+  /* il colore si calcola PER PIXEL con un rumore a quattro ottave sulla
+     posizione della superficie: i bordi si sfrangiano in lingue, il
+     cuore e' bianco, il colore dell'elemento in mezzo, il fumo nero fuori;
+     con l'eta' la temperatura scende e il fuoco diventa fumo */
   var FUOCO_FS = [
-    'uniform vec3 colore; uniform float eta; varying vec3 vN; varying vec3 vV; varying float vR;',
+    'uniform vec3 colore; uniform float eta; uniform float tempo; varying vec3 vN; varying vec3 vV; varying float vR; varying vec3 vO;',
+    'float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }',
+    'float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
+    '  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),',
+    '             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z); }',
+    'float fbm3(vec3 p){ return n3(p)*0.5 + n3(p*2.07)*0.25 + n3(p*4.13)*0.125 + n3(p*8.3)*0.0625; }',
     'void main(){',
     '  float fr = abs(dot(normalize(vN), normalize(vV)));',
-    '  float caldo = clamp(vR * 1.5 * (0.35 + fr) * (1.0 - eta * 0.9), 0.0, 1.0);',
-    '  vec3 c = mix(vec3(0.04, 0.03, 0.025), colore * 1.6, smoothstep(0.18, 0.55, caldo));',
-    '  c = mix(c, vec3(1.6, 1.45, 1.1), smoothstep(0.62, 0.95, caldo));',
-    '  float a = smoothstep(0.02, 0.4, fr) * (1.0 - smoothstep(0.55, 1.0, eta)) * smoothstep(0.15, 0.4, vR + 0.25 - eta * 0.3);',
-    '  gl_FragColor = vec4(c, a);',
+    '  float d = fbm3(vO * 3.4 + vec3(0.0, -tempo * 2.2, tempo * 0.7));',
+    '  float d2 = fbm3(vO * 7.0 + vec3(tempo * 1.3, -tempo * 3.0, 0.0));',
+    '  float caldo = clamp((d * 0.75 + d2 * 0.45) * (0.25 + fr * 1.1) * (1.15 - eta * 1.1), 0.0, 1.0);',
+    '  vec3 c = mix(vec3(0.03, 0.025, 0.02), colore * 1.25, smoothstep(0.22, 0.5, caldo));',
+    '  c = mix(c, mix(colore, vec3(1.0, 0.85, 0.55), 0.6) * 1.6, smoothstep(0.5, 0.72, caldo));',
+    '  c = mix(c, vec3(1.7, 1.55, 1.25), smoothstep(0.78, 0.98, caldo));',
+    '  float bordo = smoothstep(0.08, 0.5, fr) * smoothstep(0.3, 0.55, d + d2 * 0.4 - eta * 0.35 + 0.15);',
+    '  float a = bordo * (1.0 - smoothstep(0.6, 1.0, eta));',
+    '  gl_FragColor = vec4(c, a * mix(0.55, 0.95, smoothstep(0.3, 0.7, caldo)));',
     '}'].join('\n');
   function pallaDiFuoco(p, col, dim) {
     if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
     var m = new T.Mesh(geoFuoco, new T.ShaderMaterial({
-      uniforms: { tempo: { value: Math.random() * 10 }, gonfia: { value: 0.9 }, colore: { value: new T.Color(col) }, eta: { value: 0 } },
+      uniforms: { tempo: { value: Math.random() * 10 }, gonfia: { value: 0.35 }, colore: { value: new T.Color(col) }, eta: { value: 0 } },
       vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
     m.position.copy(p); m.scale.setScalar(0.25 * dim); m.renderOrder = 7;
     scena.add(m);
@@ -4039,11 +4052,11 @@
       /* L'ESPLOSIONE VERA: un lampo breve, la palla di fuoco (uno shader
          di rumore che ribolle, dal bianco al colore al nero), il fumo che
          sale e si allarga, le braci che volano. Niente nuvola bianca */
-      particella(p, new T.Vector3(), 0xffffff, 0.07, 0.9 * dim, 0);
+      particella(p, new T.Vector3(), 0xfff0d0, 0.06, 0.6 * Math.min(1.5, dim), 0);
       pallaDiFuoco(p, col, dim);
       for (var f = 0; f < 3 + dim * 4; f++) fumo(p.clone().add(new T.Vector3((Math.random() - 0.5) * 0.6 * dim, Math.random() * 0.4 * dim, (Math.random() - 0.5) * 0.6 * dim)),
         new T.Vector3((Math.random() - 0.5) * 1.2, 0.6 + Math.random() * 0.9, (Math.random() - 0.5) * 1.2), 0x1c1a18, 1.4 + Math.random() * 1.4, 0.7 * dim + Math.random() * 0.5, 0.55);
-      for (var b = 0; b < 10 + dim * 10; b++) brace(p, new T.Vector3(Math.random() - 0.5, Math.random() * 0.9, Math.random() - 0.5).normalize().multiplyScalar(3 + Math.random() * 6 * dim), col);
+      for (var b = 0; b < 8 + dim * 6; b++) brace(p, new T.Vector3(Math.random() - 0.5, Math.random() * 0.9, Math.random() - 0.5).normalize().multiplyScalar(3 + Math.random() * 6 * dim), col);
       luceLampo(p, col, 3 * dim, 0.35);
       scossa = Math.max(scossa, 0.5 * dim);
       if (danno2 && quanto) nemiciVivi(2.6 * dim, p).forEach(function (n) { ferisci(n.o, quanto, chi, n.p); });
@@ -4263,7 +4276,7 @@
       /* la palla di fuoco del giocatore: fuoco vero che ribolle */
       if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
       var fm = new T.Mesh(geoFuoco, new T.ShaderMaterial({
-        uniforms: { tempo: { value: 0 }, gonfia: { value: 0.7 }, colore: { value: new T.Color(col) }, eta: { value: 0.05 } },
+        uniforms: { tempo: { value: 0 }, gonfia: { value: 0.3 }, colore: { value: new T.Color(col) }, eta: { value: 0.05 } },
         vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
       fm.position.copy(p); fm.scale.setScalar(0.22); fm.renderOrder = 7; scena.add(fm);
       var nf = sprite(0xffe0a0); nf.position.copy(p); nf.scale.setScalar(0.35); nf.material.opacity = 0.5;
@@ -4370,7 +4383,7 @@
       if (e.tipo === 'fuoco') {
         var u2 = e.t / e.vita;
         e.o.material.uniforms.tempo.value += dt; e.o.material.uniforms.eta.value = u2;
-        e.o.scale.setScalar(e.dim * (0.25 + 1.1 * (1 - Math.pow(1 - Math.min(1, u2 * 1.6), 3))));
+        e.o.scale.setScalar(Math.min(1.8, 0.55 * Math.pow(e.dim, 0.8)) * (0.25 + 0.75 * (1 - Math.pow(1 - Math.min(1, u2 * 1.6), 3))));
         e.v.multiplyScalar(0.96);
       } else if (e.tipo === 'fumo') {
         e.o.material.opacity = e.op * Math.min(1, e.t * 6) * f;
@@ -4383,7 +4396,7 @@
           var a2 = e.o.position.clone().project(camera), b2 = e.o.position.clone().addScaledVector(e.v, 0.03).project(camera);
           e.o.material.rotation = Math.atan2(b2.y - a2.y, (b2.x - a2.x) * camera.aspect);
           var vel = e.v.length();
-          e.o.scale.set(e.dim * (1.2 + Math.min(5, vel * 0.5)), e.dim * 0.45, 1);
+          e.o.scale.set(e.dim * (1.2 + Math.min(e.tipo === 'brace' ? 3 : 4, vel * (e.tipo === 'brace' ? 0.3 : 0.45))), e.dim * (e.tipo === 'brace' ? 0.35 : 0.5), 1);
         }
         e.o.material.opacity = e.op * (e.tipo === 'brace' ? f : Math.min(1, f * 3));
         var suoloE = S && S.lab ? S.labSuolo : 0;
@@ -4942,7 +4955,7 @@
     /* il lampo quando e' colpito */
     if (o._lampo > 0) {
       o._lampo -= dt * 5;
-      (o._mat || []).forEach(function (m3) { if (m3.emissive) { var e0 = m3.userData.em0; m3.emissive.setRGB((e0 ? e0.r : 0) + o._lampo, (e0 ? e0.g : 0) + o._lampo * 0.5, (e0 ? e0.b : 0) + o._lampo * 0.3); } });
+      (o._mat || []).forEach(function (m3) { if (m3.emissive) { var e0 = m3.userData.em0; m3.emissive.setRGB((e0 ? e0.r : 0) + o._lampo * 0.45, (e0 ? e0.g : 0) + o._lampo * 0.12, (e0 ? e0.b : 0) + o._lampo * 0.08); } });
     }
   }
 
