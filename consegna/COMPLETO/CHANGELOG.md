@@ -7,6 +7,45 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v225] — 2026-10-22
+
+**L'istituto abbandonato, il sangue, le orde — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **I laboratori sono il cuore del livello**: entrando la porta si chiude
+  alle spalle, suona la sirena, gira la luce d'allarme, e le creature del
+  livello risalgono dal pavimento della mappa a ondate, combattendo sul
+  terreno vero (piani, scale, banconi). Respinte tutte la porta si riapre:
+  salute, energia piena, una tacca di padronanza su tutti i poteri, 500
+  punti. Caduti dentro, si riparte dal punto di salvataggio.
+- **Le orde nei livelli**: dal sesto livello, uno su tre ha una
+  stanza-trappola con le porte bloccate e le ondate.
+- **L'istituto abbandonato** (nuovo modulo `bsi-atomic-degrado.js`): in ogni
+  stanza fogli sparsi, sedie rovesciate, scatoloni sfondati, cavi strappati
+  dal soffitto, calcinacci, pozzanghere lucide, sporco e muffa sui muri, e
+  sangue — pozze, strisciate, schizzi, impronte di mani, colature —, sempre
+  di piu' scendendo nei livelli.
+- **Luce da horror**: nebbia piu' scura e fredda, raggi di luce dalla
+  lampada piu' vicina attraverso la foschia, neon guasti che sfarfallano,
+  luce rossa d'allarme che gira.
+- **Il sangue**: gocce stirate lungo il moto che cadono e macchiano, la
+  nebbiolina rossa del colpo, schizzi sul muro dietro chi incassa un colpo
+  forte, pozze sotto chi cade; chi e' ucciso con molto piu' del necessario
+  va in pezzi (brandelli di carne che rimbalzano e restano a terra).
+- **I poteri**: la palla di fuoco e le esplosioni sono fuoco vero (uno
+  shader di rumore calcolato per pixel, dal bianco del cuore al nero del
+  bordo, con il fumo che sale e le braci); i fulmini sono nastri frastagliati
+  con i rami e l'alone; mentre si carica, archi elettrici escono dalla mano;
+  le nubi sono fatte di fumo.
+- Impostazioni **Istituto** (abbandonato / in ordine) e **Sangue** (sì /
+  ridotto).
+
+### Banco
+- `test_atomic`: 316 controlli — le stanze devastate, l’orda nel livello (partenza,
+  porte bloccate, ondate, uscita), la porta chiusa e le ondate in ognuno dei
+  cinque laboratori, i brandelli, il sangue a terra, i fulmini.
+
+---
 ## [bsi-v224] — 2026-10-21
 
 **Il controllo finale — ATOMIC PROTOCOL**

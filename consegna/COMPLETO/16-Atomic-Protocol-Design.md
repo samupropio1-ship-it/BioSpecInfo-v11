@@ -2,7 +2,8 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 18 (bsi-v224): le creature si fermano a mezzo metro dal giocatore, il rampicante più piccolo, la combustione provata dal banco.
+> Versione 19: i laboratori diventano il cuore del livello (porta che si chiude, ondate sul terreno vero delle mappe), le orde nei livelli, l'istituto abbandonato, la luce da horror, il sangue che resta, i brandelli, il fuoco e i fulmini veri.
+> Versione 18: le creature si fermano a mezzo metro dal giocatore, il rampicante più piccolo, la combustione provata dal banco.
 > Versione 17: le reazioni chimiche fra poteri e stati (frantumazione, combustione, conduzione), la luce di contorno sulle creature, i coni di luce e la polvere.
 > Versione 16: le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
 > Versione 15: trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
@@ -26,8 +27,10 @@ per risolvere enigmi e fermare dieci macchine andate fuori controllo.
 cammina, ci si guarda intorno, si torna indietro, si apre una paratia che prima
 era chiusa perché adesso si ha la risposta giusta.
 
-Quattro file, una casa per funzione: `bsi-atomic-figure.js` (protagonista,
+Cinque file, una casa per funzione: `bsi-atomic-figure.js` (protagonista,
 residui, guardiani), `bsi-atomic-grafica.js` (ambienti, materiali, luci),
+`bsi-atomic-degrado.js` (l'istituto abbandonato: arredi rovesciati, sporco,
+sangue — dalla v225),
 `bsi-atomic-livelli.js` (dati: livelli, guardiani, ricette, enigmi — il banco
 li verifica senza disegnare un fotogramma), `bsi-atomic.js` (il gioco).
 
@@ -577,6 +580,57 @@ fanghiglia) fa **conduzione**: corre su tutte le creature entro quattro metri
 e mezzo e le stordisce. Ogni reazione rende 75 punti e 15 di energia, ferma il
 tempo un istante e scrive il suo nome sopra il punto; la prima volta spiega
 perché. Le pozze del nemico diventano così anche un'arma del giocatore.
+
+**I laboratori, cuore del livello** (dalla v225). Il laboratorio dell'ala
+non e' piu' una pausa: entrando la porta si chiude alle spalle, la sirena
+suona e una luce rossa gira intorno a chi gioca; dopo un attimo le
+creature del livello (le stesse specie, con le varianti dell'atto)
+risalgono dal pavimento della mappa in punti percorribili lontani da
+3,5 a 16 metri, a ondate (due nell'atto I, tre nel II, quattro nel III;
+fino a otto creature per ondata). Si muovono sulla GRIGLIA DI CAMMINO della
+mappa come il giocatore — sullo stesso piano, salendo le scale mezzo metro
+alla volta — e i loro attacchi speciali si adattano (l'abissale ricompare
+solo dove c'e' pavimento). La porta resta bloccata finche' ne resta una;
+respinte tutte: una tacca di salute, energia piena, una tacca di padronanza
+su ogni potere, 500 punti, e quel laboratorio resta pulito. Caduti dentro
+si esce e si riparte dal punto di salvataggio.
+
+**Le orde** (dalla v225). Dal sesto livello, un livello su tre sceglie una
+stanza grande (non quella del banco, dell'uscita, del guardiano o del
+salvataggio): entrandoci le porte si bloccano (non si esce dal suo
+perimetro), e le creature risalgono a ondate. Un'orda respinta e' scritta
+nella partita e non torna.
+
+**L'istituto abbandonato** (dalla v225). Sopra ogni stanza in ordine, il
+modulo del degrado mette — con un seme per stanza, sempre uguale — sporco a
+terra, muffa che sale dai muri, pozze e strisciate di sangue, schizzi e
+impronte di mani, colature, pozzanghere lucide, vetri rotti, mucchi di
+fogli battuti a macchina, sedie rovesciate, scatoloni sfondati, calcinacci
+con i cavi strappati dal soffitto. La quantita' cresce col livello (piena
+dal sessantesimo e negli atti II e III). Le macchie sono texture disegnate
+su tela (gocce sovrapposte, bordi irregolari, rivoli); niente tocca le porte
+o gli oggetti del livello; la geometria si fonde con quella della stanza.
+La nebbia e' piu' scura e fredda, una lampada su quattro ha il neon guasto
+(buchi di qualche fotogramma, mai a ritmo), una stanza su tre ha l'allarme
+acceso, e la passata finale disegna i **raggi di luce** dalla lampada piu'
+vicina attraverso la foschia.
+
+**Il sangue e i poteri** (dalla v225). Il colpo fa partire gocce stirate
+lungo il moto (orientate sullo schermo a ogni fotogramma) che cadono e
+lasciano macchie dove toccano, e una nebbiolina rossa; un colpo da tre in
+su schizza sul muro dietro il bersaglio (se li' non c'e' una porta); chi
+cade lascia la sua pozza; chi muore con molto piu' danno del necessario va
+in pezzi — brandelli di carne (icosaedri deformati a caso, bagnati) che
+volano, rimbalzano, lasciano gocce e restano a terra. Al massimo sessanta
+macchie e settanta brandelli: i piu' vecchi se ne vanno. Il fuoco e' uno
+shader: una sfera appena deformata il cui colore si calcola per pixel con
+due rumori a quattro ottave (il cuore bianco, il colore dell'elemento, il
+fumo nero ai bordi sfrangiati), che cresce e si raffredda in fumo; intorno
+fumo vero (rumore frattale su un batuffolo) e braci arancioni stirate. I
+fulmini sono nastri rivolti alla telecamera lungo una spezzata a 33 punti
+(spostamento del punto medio) con due o tre rami, rifatti ogni 45 ms, con
+un alone largo e un nucleo bianco. Con «Sangue: ridotto» niente macchie ne'
+brandelli di carne.
 
 **La distanza dal corpo** (dalla v224). Nessuna creatura a terra entra nel
 giocatore: dopo ogni passo, se è più vicina del suo raggio più mezzo metro,

@@ -176,7 +176,9 @@ function esegui(nome){
   let uscita = '', codice = 0;
   try {
     uscita = execFileSync(process.execPath, [file], {
-      cwd: interno ? RADICE : BANCHI_DIR, encoding: 'utf8', timeout: 20 * 60 * 1000,
+      /* 40 minuti: test_atomic (v225) gioca le orde nei cinque laboratori e
+         con il disegno software della macchina di prova supera i venti */
+      cwd: interno ? RADICE : BANCHI_DIR, encoding: 'utf8', timeout: 40 * 60 * 1000,
       maxBuffer: 32 * 1024 * 1024
     });
   } catch (e) {

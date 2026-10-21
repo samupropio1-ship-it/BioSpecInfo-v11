@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v225` |
-| Commit | `1806ad73b87d9f53d55db96273dcbe1310949443` |
-| Generato (UTC) | `2026-10-21T15:52:14.171Z` |
+| Commit | `8c3deb21cb633b4136db9bb27f114b1cab4bed41` |
+| Generato (UTC) | `2026-10-21T18:35:08.602Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -126,7 +126,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `0f31a4d9cfad38769b3de9bbbb1a62610564112e0655c24d4a09564ae33695f5` |
+| `index.html` | `ef091dc38ee8849128460a28bb7574af225093251104fa706397fc0242d2f70a` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -142,7 +142,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `db5d51f8b9ef24fc4b1ced121695ffd7d0a66aa8d9b0f5a581139dbea20d7adb` |
+| `sw.js` | `3a4d40e25454938d9a13149d55f3444a7963466e645293970c0899de8fdcb488` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -195,4 +195,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-21T15:52:14.171Z._
+_Generato il 2026-10-21T18:35:08.602Z._
