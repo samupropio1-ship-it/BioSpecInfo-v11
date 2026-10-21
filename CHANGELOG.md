@@ -18,6 +18,11 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   sotto il pavimento (il verme che scava) no.
 - Il rampicante è più piccolo e resta più distante: da vicino il giocatore
   non finisce più sotto le sue zampe.
+- **Gli avvisi a terra si leggono su ogni pavimento**: il disco è una macchia
+  scura del colore dell'attacco, l'anello è luce, e l'onda del bruto ha un
+  muro di luce basso che corre sul pavimento. Dentro un cerchio che si
+  riempie (anche sotto i piedi, fuori vista) i bordi dello schermo pulsano e
+  un ticchettio accelera.
 
 ### Banco
 - `test_atomic`: 297 controlli — la combustione provata in gioco (la nube

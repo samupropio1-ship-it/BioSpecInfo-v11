@@ -6,7 +6,7 @@
 |---|---|
 | **Software** | BioSpecInfo — piattaforma di chemioinformatica interattiva |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione documentata** | `bsi-v223` |
+| **Versione documentata** | `bsi-v224` |
 | **Demo** | [samupropio1-ship-it.github.io/BioSpecInfo-v11](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/) |
 | **Licenza** | Proprietaria — *All rights reserved* ([`LICENSE`](LICENSE)) |
 
@@ -138,4 +138,4 @@ impronte SHA-256 dei file si ricalcolano con `sha256sum`.
 
 ---
 
-_Indice aggiornato alla versione `bsi-v223`._
+_Indice aggiornato alla versione `bsi-v224`._

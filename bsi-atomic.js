@@ -4800,6 +4800,13 @@
         var k = Math.min(1, P.t / P.ritardo);
         P.an.scale.setScalar(P.r); P.di.scale.setScalar(Math.max(0.01, P.r * k));
         P.an.material.opacity = 0.75 + Math.sin(P.t * 30) * 0.25;
+        /* dentro il cerchio che si riempie: i bordi dello schermo pulsano e
+           un ticchettio accelera — e' sotto i piedi, non sempre si vede */
+        if (!P.fatto && d < P.r) {
+          if (post) post.mat.uniforms.colpito.value = Math.max(post.mat.uniforms.colpito.value, 0.25 + 0.25 * Math.sin(P.t * 25));
+          P.tic = (P.tic || 0) - dt;
+          if (P.tic <= 0) { P.tic = 0.3 * (1 - k) + 0.06; bip(1500 + k * 900, 0.04, 'square', 0.03); }
+        }
         if (k >= 1 && !P.fatto) {
           P.fatto = true;
           if (d < P.r) colpisci(P);
