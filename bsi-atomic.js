@@ -4758,21 +4758,34 @@
      e' dentro. «onda»: un anello che si allarga dal punto d'impatto — si
      salta. «pozza»: resta e brucia chi ci cammina
      ═════════════════════════════════════════════════════════════════════════ */
-  var pericoli = [], geoAnello = null, geoDisco = null;
+  var pericoli = [], geoAnello = null, geoDisco = null, geoMuro = null;
   function pericolo(opz) {
     if (!scena) return null;
     if (!geoAnello) { geoAnello = new T.RingGeometry(0.8, 1, 64); geoDisco = new T.CircleGeometry(1, 40); }
     var mA = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.8, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
-    var mD = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.38, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
+    /* il disco e' una macchia scura del colore dell'attacco (si legge sul
+       marmo bianco come su quello verde), l'anello e' luce */
+    var mD = new T.MeshBasicMaterial({ color: new T.Color(opz.col).multiplyScalar(0.3), transparent: true, opacity: 0.5, depthWrite: false, toneMapped: false, side: T.DoubleSide });
     var an = new T.Mesh(geoAnello, mA), di = new T.Mesh(geoDisco, mD);
-    [an, di].forEach(function (m) { m.rotation.x = -Math.PI / 2; m.position.set(opz.x, 0.03, opz.z); m.renderOrder = 3; scena.add(m); });
+    [di, an].forEach(function (m, k) { m.rotation.x = -Math.PI / 2; m.position.set(opz.x, 0.03 + k * 0.005, opz.z); m.renderOrder = 3 + k; scena.add(m); });
+    /* l'onda ha anche un muro di luce basso, che corre sul pavimento */
+    var muro = null;
+    if (opz.tipo === 'onda') {
+      if (!geoMuro) { geoMuro = new T.CylinderGeometry(1, 1, 0.5, 64, 1, true); geoMuro.translate(0, 0.25, 0); }
+      muro = new T.Mesh(geoMuro, new T.ShaderMaterial({
+        uniforms: { colore: { value: new T.Color(opz.col) }, forza: { value: 1 } },
+        vertexShader: 'varying float vY; void main(){ vY = position.y / 0.5; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        fragmentShader: 'uniform vec3 colore; uniform float forza; varying float vY; void main(){ gl_FragColor = vec4(colore * forza * (1.0 - vY) * (1.0 - vY), 1.0); }',
+        transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, toneMapped: false }));
+      muro.position.set(opz.x, 0.02, opz.z); muro.renderOrder = 5; scena.add(muro);
+    }
     var P = { x: opz.x, z: opz.z, r: opz.r || 1.4, tipo: opz.tipo || 'area', ritardo: opz.ritardo || 0.8, durata: opz.durata || 0, vel: opz.vel || 7,
-              col: opz.col, nome: opz.nome, fonte: opz.fonte || { x: opz.x, z: opz.z }, t: 0, an: an, di: di, fatto: false, poi: opz.poi };
+              col: opz.col, nome: opz.nome, fonte: opz.fonte || { x: opz.x, z: opz.z }, t: 0, an: an, di: di, muro: muro, fatto: false, poi: opz.poi };
     pericoli.push(P);
     return P;
   }
   function vaVia(P) {
-    [P.an, P.di].forEach(function (m) { scena.remove(m); m.material.dispose(); });
+    [P.an, P.di, P.muro].forEach(function (m) { if (m) { scena.remove(m); m.material.dispose(); } });
   }
   function colpisci(P) {
     if (S.immune > 0 || S.scudo > 0 || S.finito) return;
@@ -4798,6 +4811,7 @@
         var rr = P.t * P.vel;
         P.an.scale.setScalar(Math.max(0.05, rr)); P.di.visible = false;
         P.an.material.opacity = Math.max(0, 1.4 * (1 - rr / P.r));
+        if (P.muro) { P.muro.scale.set(Math.max(0.05, rr), 1 - rr / P.r * 0.6, Math.max(0.05, rr)); P.muro.material.uniforms.forza.value = Math.max(0, 1 - rr / P.r); }
         /* l'onda corre sul pavimento: chi e' in aria passa sopra */
         if (!P.fatto && Math.abs(d - rr) < 0.5 && S.pos.y - (S.lab ? S.labSuolo : 0) < 0.3) { P.fatto = true; colpisci(P); }
         if (Math.random() < 0.5) particella(new T.Vector3(P.x + Math.cos(P.t * 40) * rr, 0.15, P.z + Math.sin(P.t * 40) * rr), new T.Vector3(0, 1.5, 0), P.col, 0.3, 0.2, 2);

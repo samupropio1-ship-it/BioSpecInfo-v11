@@ -649,7 +649,10 @@ function sopra(d, minimo, avuto) {
     if (nodoChimico) nodoChimico.traverse(o => { if (o.isMesh) { pezzi++; if (o.geometry.type === 'BoxGeometry' || o.geometry.type === 'BoxBufferGeometry') scatole++; } });
     Object.assign(out, { pbr, lambert, mesh, ombreProiettate, pezzi, scatole });
     out.tela = cv.width + '×' + cv.height;
-    out.risoluzionePiena = cv.width >= cv.clientWidth;
+    /* (con la risoluzione dinamica la scala puo' scendere sotto carico:
+       la tela segue lo schermo per quella scala) */
+    out.scalaDin = A.motore().prof ? A.motore().prof.scala : 1;
+    out.risoluzionePiena = cv.width >= Math.floor(cv.clientWidth * out.scalaDin * 0.98);
     out.nonPixelata = !/pixelated|crisp/.test(getComputedStyle(cv).imageRendering);
     /* si disegnano solo le stanze vicine */
     const st = A.mondo().zona.stanze;
@@ -1165,7 +1168,7 @@ function sopra(d, minimo, avuto) {
         A.speciale(br.o);
         let visto = 0, fasi = {};
         const p0 = A.mosse().pericoli.length, q0 = A.combattimento().proiettili;
-        for (let i = 0; i < 300 && !(visto && fasi.via); i++) { await fr(); fasi[(br.o._sp || {}).fase || br.o._fase] = 1; visto = fasi.via ? Math.max(0, A.mosse().pericoli.length - p0) + (br.o.specie === 'mostro' ? Math.max(0, A.combattimento().proiettili - q0) : 0) : 0; }
+        for (let i = 0; i < 300 && !(visto && fasi.via); i++) { await fr(); fasi[(br.o._sp || {}).fase || br.o._fase] = 1; visto = fasi.via ? A.mosse().pericoli.filter(P => P.t < 0.6).length + (br.o.specie === 'mostro' ? Math.max(0, A.combattimento().proiettili - q0) : 0) : 0; }
         out.specialeFasi = Object.keys(fasi).join(',');
         out.specialeEffetto = visto > 0;
       }
