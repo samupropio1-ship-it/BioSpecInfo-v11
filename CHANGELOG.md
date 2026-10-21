@@ -30,7 +30,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - I cerchi e le onde degli attacchi speciali sono più spessi e più visibili.
 
 ### Banco
-- `test_atomic`: conduzione e frantumazione provate in gioco.
+- `test_atomic`: 295 controlli — conduzione e frantumazione provate in gioco.
 
 ---
 ## [bsi-v222] — 2026-10-21
