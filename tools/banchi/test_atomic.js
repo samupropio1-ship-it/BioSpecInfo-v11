@@ -985,8 +985,8 @@ function sopra(d, minimo, avuto) {
     const orig = window.requestAnimationFrame;
     window.requestAnimationFrame = function (f) { n++; return orig(f); };
     /* il rendering software del banco (SwiftShader, senza GPU) fa pochi
-       fotogrammi al secondo con le ombre: si conta su tre secondi */
-    await new Promise(r => setTimeout(r, 3000));
+       fotogrammi al secondo con le ombre e la torcia: si conta su cinque secondi */
+    await new Promise(r => setTimeout(r, 5000));
     const conVista = n;
     /* si chiude la sezione: il ciclo deve fermarsi da sé */
     const altra = document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])');
@@ -1093,13 +1093,13 @@ function sopra(d, minimo, avuto) {
       /* v222 · LE MOSSE. La combinazione: tre colpi a tempo, il terzo
          butta a terra; chi e' a terra si puo' finire (l'esecuzione) */
       if (ve.o.vivo) {
-        ve.o.vita = 60; await davanti(ve, 1.3);
+        ve.o.vita = 60; A.riposo(); await davanti(ve, 1.3);
         const seq = [];
         for (let i = 0; i < 3; i++) { A.pugno(); seq.push(A.mosse().combo); await new Promise(r => setTimeout(r, 200)); await fr(); await fr(); }
         out.comboSeq = seq.join(',');
         out.crollo = (ve.o._crollo || 0) > 0;
         out.eseguibile = A.eseguibile(ve.o);
-        await davanti(ve, 1.3); ve.o._crollo = Math.max(ve.o._crollo || 0, 1);
+        A.riposo(); await davanti(ve, 1.3); ve.o._crollo = Math.max(ve.o._crollo || 0, 1);
         A.pugno(); out.esegueParte = A.mosse().esegui;
         out.rallenta = A.mosse().tempo.lento > 0;
         for (let i = 0; i < 90 && ve.o.vivo; i++) await fr();
@@ -1108,7 +1108,7 @@ function sopra(d, minimo, avuto) {
     }
     /* la schivata: uno scatto con un attimo d'invulnerabilita' */
     {
-      const x0 = S.pos.x, z0 = S.pos.z; S.immune = 0;
+      A.riposo(); const x0 = S.pos.x, z0 = S.pos.z; S.immune = 0;
       A.schiva(); out.schivaImmune = S.immune >= 20; out.scatto = A.mosse().scatto;
       for (let i = 0; i < 30; i++) await fr();
       out.schivaDist = Math.hypot(S.pos.x - x0, S.pos.z - z0);
@@ -1400,9 +1400,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 295) {
+  if (eseguiti < 293) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 295');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 293');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

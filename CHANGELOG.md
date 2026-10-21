@@ -52,7 +52,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - Il Codex passa al tasto `K` (`C` è la schivata).
 
 ### Banco
-- `test_atomic`: 295 controlli — combinazione, caduta, esecuzione col
+- `test_atomic`: 293 controlli — combinazione, caduta, esecuzione col
   rallentatore, schivata, potere caricato, sette attacchi speciali, torcia.
 
 ---

@@ -5869,6 +5869,7 @@
     sparo: function () { CD.sparo = 0; sparo(); },
     pugno: function () { CD.pugno = 0; pugno(); },
     schiva: function () { CD.schiva = 0; schiva(); },
+    riposo: function () { mosse.finestra = 0; mosse.combo = 0; mosse.esegui = null; tempoG.fermo = tempoG.lento = 0; },
     caricaPotere: function (k) { CD.potere = 0; inizioCarica(); mosse.carica = k == null ? 1 : k; fineCarica(); },
     eseguibile: function (o) { return eseguibile(o); },
     mosse: function () { return { combo: mosse.combo, finestra: mosse.finestra, esegui: !!mosse.esegui, carica: mosse.carica, tempo: Object.assign({}, tempoG),
