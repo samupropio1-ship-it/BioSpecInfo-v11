@@ -41,7 +41,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   ridotto).
 
 ### Banco
-- `test_atomic`: le stanze devastate, l'orda nel livello (partenza,
+- `test_atomic`: 316 controlli — le stanze devastate, l’orda nel livello (partenza,
   porte bloccate, ondate, uscita), la porta chiusa e le ondate in ognuno dei
   cinque laboratori, i brandelli, il sangue a terra, i fulmini.
 
