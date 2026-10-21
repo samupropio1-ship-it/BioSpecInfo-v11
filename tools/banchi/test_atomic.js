@@ -1390,8 +1390,20 @@ function sopra(d, minimo, avuto) {
         A.interagisci(); await fr();
         r.banco = A.schermo() === 'sintesi';
         A.schermo('gioco'); A.avviaCiclo();
-        /* si torna al livello dalla porta */
+        /* v225: la porta e' chiusa finche' l'orda del laboratorio non e'
+           respinta; si respingono tutte le ondate */
+        S.immune = 99999;
         const us = Lb.oggetti.find(o => o.tipo === 'uscitaLab');
+        S.pos.x = us.x; S.pos.z = us.z; await fr(); await fr();
+        A.interagisci(); await fr();
+        r.portaChiusa = !!A.lab();
+        for (let w = 0; w < 8 && A.ordaLab() && !A.ordaLab().finita; w++) {
+          for (let i = 0; i < 300 && A.ordaLab().vivi === 0 && !A.ordaLab().finita; i++) await fr();
+          r.creature = Math.max(r.creature || 0, A.ordaLab().vivi);
+          A.ordaLab().nemici.forEach(o => { if (o.vivo) A.abbatti(o); });
+          await fr();
+        }
+        r.ordaRespinta = !!A.ordaLab() && A.ordaLab().finita;
         S.pos.x = us.x; S.pos.z = us.z; await fr(); await fr();
         A.interagisci(); await fr();
         r.uscito = !A.lab() && M.radice.visible && Math.hypot(S.pos.x - x0, S.pos.z - z0) < 0.5;
@@ -1414,6 +1426,8 @@ function sopra(d, minimo, avuto) {
     att('  ' + k + ': si sta sul pavimento della mappa', true, r.pavimento);
     att('  ' + k + ': i muri fermano (25 m dritti non si fanno)', true, r.fermatoDalMuro && r.sempreSulPavimento);
     att('  ' + k + ': il banco di sintesi c’è e si apre', true, r.banco);
+    att('  ' + k + ': entrando la porta si chiude (l’orda del laboratorio)', true, r.portaChiusa);
+    att('  ' + k + ': le creature risalgono a ondate, e respinte la porta si riapre', true, r.ordaRespinta && r.creature > 0);
     att('  ' + k + ': si torna alla porta del livello, e il laboratorio si libera', true, r.uscito && r.liberoDopo);
   });
 
@@ -1510,9 +1524,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 306) {
+  if (eseguiti < 316) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 306');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 316');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

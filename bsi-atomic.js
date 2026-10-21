@@ -3662,7 +3662,7 @@
      ha il suo modello, il suo modo di attaccare, il suo colore (quello dei
      colpi, degli occhi, delle schegge) e il suo punto debole */
   var SPECIE_M = {
-    verme:    { modello: 'verme', modo: 'mischia', vita: 4, alto: 1.75, raggio: 0.55, colore: 0x9fb7ff, vel: 2.1, portata: 1.5,
+    verme:    { modello: 'verme', modo: 'mischia', vita: 4, alto: 1.75, raggio: 0.95, colore: 0x9fb7ff, vel: 2.1, portata: 1.9,
                 nome: ['Verme di scarico', 'Drain worm'], debole: ['Cl', 'O', 'H2O2', 'fiamma'], punti: 70, anim: { idle: 'Idle', passo: 'WALK', corsa: 'RUN', attacco: 'ATTACK', ferito: 'WOUND_1', morte: 'DEATH' } },
     curvo:    { modello: 'curvo', modo: 'salto', vita: 5, alto: 1.5, raggio: 0.95, colore: 0xff6a4a, vel: 1.8, portata: 1.8,
                 nome: ['Rampicante', 'Lurcher'], debole: ['fiamma', 'HCl'], punti: 90, rigBraccia: 0 },
