@@ -279,7 +279,7 @@
       /* il sangue: pozze, una strisciata che porta da qualche parte,
          schizzi e mani sui muri, colature */
       var nS = sangue ? Math.round(I * (2 + R() * 3)) : 0;
-      for (var b = 0; b < nS; b++) { pz = posto(0.7, R() < 0.5); if (pz) aTerra('pozza', 0.9 + R() * 1.1, null, pz[0], pz[1], R() * 6); }
+      for (var b = 0; b < nS; b++) { pz = posto(0.9, R() < 0.5); if (pz) aTerra('pozza', 1.3 + R() * 1.5, null, pz[0], pz[1], R() * 6); }
       if (sangue && R() < 0.35 + I * 0.5) { pz = posto(1.4, false); if (pz) aTerra('striscia', 2.4 + R() * 1.4, 0.8, pz[0], pz[1], R() * 6); }
       for (var w = 0; w < (sangue ? Math.round(I * (1 + R() * 3)) : 0); w++) sulMuro(R() < 0.6 ? 'schizzo' : 'mano', 0.9 + R() * 0.8, null, 1.0 + R() * 0.9);
       if (sangue && R() < I * 0.8) sulMuro('colatura', 1.2 + R() * 0.6, 1.6, H - 1.2);

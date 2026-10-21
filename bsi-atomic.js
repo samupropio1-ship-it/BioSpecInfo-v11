@@ -3793,7 +3793,10 @@
     if (SPECIE_M[o.specie] && p) {
       var pT = p.clone ? p.clone() : new T.Vector3(p.x, p.y, p.z);
       setTimeout(function () { pozzaSotto(pT, 1.2 + Math.random() * 0.8); }, 350);
-      if (o._sovra) lanciaBrandelli(pT, o._frantumato ? 16 : 12, !!o._frantumato);
+      if (o._sovra) {
+        lanciaBrandelli(pT, o._frantumato ? 16 : 18, !!o._frantumato);
+        if (!o._frantumato) sangue(pT, 0x5a0303, 30, null);
+      }
     }
     if (o._mod && animaClip(o, 'morte', true)) o._muoreClip = true;
     if (o._chiave) S.presi[o._chiave] = true;
@@ -3935,10 +3938,117 @@
     var sp = sprite(col); sp.position.copy(p); sp.scale.setScalar(dim);
     effetti.push({ o: sp, v: v, t: 0, vita: vita, dim: dim, g: gravita == null ? 4 : gravita });
   }
+  /* ── le texture degli effetti realistici ─────────────────────────────── */
+  var texFumoT = null, texGocciaT = null, texBraceT = null;
+  function texFumo() {
+    if (texFumoT) return texFumoT;
+    /* un batuffolo di fumo: rumore frattale dentro un cerchio sfumato */
+    var N = 128, cv = document.createElement('canvas'); cv.width = cv.height = N;
+    var q = cv.getContext('2d'), img = q.createImageData(N, N), d = img.data;
+    function h(x, y) { var v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return v - Math.floor(v); }
+    function n2(x, y) { var ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+      return (h(ix, iy) * (1 - fx) + h(ix + 1, iy) * fx) * (1 - fy) + (h(ix, iy + 1) * (1 - fx) + h(ix + 1, iy + 1) * fx) * fy; }
+    for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+      var u = x / N * 6, v = y / N * 6, f = n2(u, v) * 0.5 + n2(u * 2, v * 2) * 0.25 + n2(u * 4, v * 4) * 0.125 + n2(u * 8, v * 8) * 0.0625;
+      var r = Math.hypot(x - N / 2, y - N / 2) / (N / 2), m = Math.max(0, 1 - r); m = m * m * (3 - 2 * m);
+      var a = Math.max(0, Math.min(1, (f - 0.25) * 1.9)) * m, i = (y * N + x) * 4, l = 200 + f * 55;
+      d[i] = d[i + 1] = d[i + 2] = l; d[i + 3] = a * 255;
+    }
+    q.putImageData(img, 0, 0);
+    return (texFumoT = new T.CanvasTexture(cv));
+  }
+  function texGoccia() {
+    if (texGocciaT) return texGocciaT;
+    /* una goccia allungata: si stira lungo la velocita' */
+    var cv = document.createElement('canvas'); cv.width = 64; cv.height = 16;
+    var q = cv.getContext('2d'), g = q.createRadialGradient(44, 8, 0, 44, 8, 8);
+    g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.7, 'rgba(255,255,255,0.9)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    q.fillStyle = g; q.fillRect(0, 0, 64, 16);
+    var g2 = q.createLinearGradient(0, 0, 44, 0); g2.addColorStop(0, 'rgba(255,255,255,0)'); g2.addColorStop(1, 'rgba(255,255,255,0.85)');
+    q.fillStyle = g2; q.beginPath(); q.moveTo(0, 8); q.lineTo(44, 3); q.lineTo(44, 13); q.closePath(); q.fill();
+    return (texGocciaT = new T.CanvasTexture(cv));
+  }
+  function spriteCon(tex, col, op, additivo) {
+    var sp = new T.Sprite(new T.SpriteMaterial({ map: tex, color: col, transparent: true, depthWrite: false, opacity: op,
+                                                 blending: additivo ? T.AdditiveBlending : T.NormalBlending, toneMapped: !!(!additivo) }));
+    scena.add(sp);
+    return sp;
+  }
+  /* il fumo: sale, si allarga, gira piano, svanisce */
+  function fumo(p, v, col, vita, dim, op) {
+    var sp = spriteCon(texFumo(), col, op == null ? 0.5 : op, false);
+    sp.position.copy(p); sp.scale.setScalar(dim); sp.material.rotation = Math.random() * 6.28;
+    effetti.push({ o: sp, v: v, t: 0, vita: vita, dim: dim, g: -0.15, tipo: 'fumo', op: op == null ? 0.5 : op, giro: (Math.random() - 0.5) * 0.8 });
+  }
+  /* la goccia di sangue: stirata lungo la velocita' (si orienta sullo
+     schermo a ogni fotogramma), cade, e dove tocca terra macchia */
+  function gocciaSangue(p, v, dim) {
+    var sp = spriteCon(texGoccia(), new T.Color(0x5a0303).lerp(new T.Color(0x8a0a06), Math.random()), 0.95, false);
+    sp.position.copy(p);
+    effetti.push({ o: sp, v: v, t: 0, vita: 1.6, dim: dim, g: 9.8, tipo: 'goccia', op: 0.95 });
+  }
+  /* la brace: una scintilla stirata, calda, che cade */
+  function brace(p, v, col) {
+    var sp = spriteCon(texGoccia(), new T.Color(col).lerp(new T.Color(0xffd080), 0.6), 1, true);
+    sp.position.copy(p);
+    effetti.push({ o: sp, v: v, t: 0, vita: 0.5 + Math.random() * 0.7, dim: 0.05 + Math.random() * 0.04, g: 5, tipo: 'brace', op: 1 });
+  }
+  /* LA PALLA DI FUOCO: una sfera deformata dal rumore che ribolle, colori
+     dal bianco del cuore al colore dell'elemento al nero del bordo che
+     brucia; cresce e si consuma in mezzo secondo */
+  var geoFuoco = null, FUOCO_VS = [
+    'uniform float tempo; uniform float gonfia; varying vec3 vN; varying vec3 vV; varying float vR;',
+    'float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }',
+    'float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);',
+    '  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),',
+    '             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z); }',
+    'float fbm3(vec3 p){ return n3(p)*0.5 + n3(p*2.03)*0.25 + n3(p*4.01)*0.125 + n3(p*8.0)*0.0625; }',
+    'void main(){',
+    '  float d = fbm3(normal * 2.4 + vec3(0.0, -tempo * 3.0, tempo * 1.3));',
+    '  vR = d;',
+    '  vec3 pos = position * (1.0 + (d - 0.45) * gonfia);',
+    '  vec4 mv = modelViewMatrix * vec4(pos, 1.0);',
+    '  vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);',
+    '  gl_Position = projectionMatrix * mv;',
+    '}'].join('\n');
+  var FUOCO_FS = [
+    'uniform vec3 colore; uniform float eta; varying vec3 vN; varying vec3 vV; varying float vR;',
+    'void main(){',
+    '  float fr = abs(dot(normalize(vN), normalize(vV)));',
+    '  float caldo = clamp(vR * 1.5 * (0.35 + fr) * (1.0 - eta * 0.9), 0.0, 1.0);',
+    '  vec3 c = mix(vec3(0.04, 0.03, 0.025), colore * 1.6, smoothstep(0.18, 0.55, caldo));',
+    '  c = mix(c, vec3(1.6, 1.45, 1.1), smoothstep(0.62, 0.95, caldo));',
+    '  float a = smoothstep(0.02, 0.4, fr) * (1.0 - smoothstep(0.55, 1.0, eta)) * smoothstep(0.15, 0.4, vR + 0.25 - eta * 0.3);',
+    '  gl_FragColor = vec4(c, a);',
+    '}'].join('\n');
+  function pallaDiFuoco(p, col, dim) {
+    if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
+    var m = new T.Mesh(geoFuoco, new T.ShaderMaterial({
+      uniforms: { tempo: { value: Math.random() * 10 }, gonfia: { value: 0.9 }, colore: { value: new T.Color(col) }, eta: { value: 0 } },
+      vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
+    m.position.copy(p); m.scale.setScalar(0.25 * dim); m.renderOrder = 7;
+    scena.add(m);
+    effetti.push({ o: m, v: new T.Vector3(0, 0.6, 0), t: 0, vita: 0.55 + dim * 0.12, dim: dim, g: 0, tipo: 'fuoco' });
+    return m;
+  }
   function scintille(p, col, n) {
     for (var i = 0; i < n; i++) particella(p, new T.Vector3((Math.random() - 0.5) * 4, Math.random() * 3, (Math.random() - 0.5) * 4), col, 0.35 + Math.random() * 0.3, 0.08, 6);
   }
   function esplosione(p, col, dim, danno2, quanto, chi) {
+    if (!ps1()) {
+      /* L'ESPLOSIONE VERA: un lampo breve, la palla di fuoco (uno shader
+         di rumore che ribolle, dal bianco al colore al nero), il fumo che
+         sale e si allarga, le braci che volano. Niente nuvola bianca */
+      particella(p, new T.Vector3(), 0xffffff, 0.07, 0.9 * dim, 0);
+      pallaDiFuoco(p, col, dim);
+      for (var f = 0; f < 3 + dim * 4; f++) fumo(p.clone().add(new T.Vector3((Math.random() - 0.5) * 0.6 * dim, Math.random() * 0.4 * dim, (Math.random() - 0.5) * 0.6 * dim)),
+        new T.Vector3((Math.random() - 0.5) * 1.2, 0.6 + Math.random() * 0.9, (Math.random() - 0.5) * 1.2), 0x1c1a18, 1.4 + Math.random() * 1.4, 0.7 * dim + Math.random() * 0.5, 0.55);
+      for (var b = 0; b < 10 + dim * 10; b++) brace(p, new T.Vector3(Math.random() - 0.5, Math.random() * 0.9, Math.random() - 0.5).normalize().multiplyScalar(3 + Math.random() * 6 * dim), col);
+      luceLampo(p, col, 3 * dim, 0.35);
+      scossa = Math.max(scossa, 0.5 * dim);
+      if (danno2 && quanto) nemiciVivi(2.6 * dim, p).forEach(function (n) { ferisci(n.o, quanto, chi, n.p); });
+      return;
+    }
     for (var i = 0; i < 26 * dim; i++) {
       var v = new T.Vector3(Math.random() - 0.5, Math.random() * 0.8, Math.random() - 0.5).normalize().multiplyScalar(2 + Math.random() * 4 * dim);
       particella(p, v, i % 3 ? col : 0xffffff, 0.5 + Math.random() * 0.5, 0.18 * dim + Math.random() * 0.2, 2);
@@ -3956,6 +4066,7 @@
     if (!ps1()) {
       /* il fulmine vero: un nastro frastagliato con i suoi rami, che
          cambia forma a ogni istante, e qualche scintilla dove colpisce */
+      arco(a2, b2, col, 0.24, 0.32, 2, 0.22);     /* l'alone */
       arco(a2, b2, col, 0.24, 0.07, 3);
       arco(a2, b2, 0xffffff, 0.12, 0.025, 0);
       scintille(b2, col, 6);
@@ -4010,7 +4121,7 @@
     return pts;
   }
   var MAX_SEG = 72;
-  function arco(a, b, col, vita, larg, rami) {
+  function arco(a, b, col, vita, larg, rami, op) {
     if (!scena || archi.length > 40) return;
     var geo = new T.BufferGeometry();
     geo.setAttribute('position', new T.BufferAttribute(new Float32Array(MAX_SEG * 4 * 3), 3).setUsage(T.DynamicDrawUsage));
@@ -4020,7 +4131,7 @@
       idx.push(s2 * 4, s2 * 4 + 1, s2 * 4 + 2, s2 * 4 + 2, s2 * 4 + 1, s2 * 4 + 3);
     }
     geo.setAttribute('uv', new T.BufferAttribute(uv, 2)); geo.setIndex(idx);
-    var m = new T.Mesh(geo, new T.MeshBasicMaterial({ map: texturaArco(), color: new T.Color(col).lerp(new T.Color(0xffffff), 0.3), transparent: true,
+    var m = new T.Mesh(geo, new T.MeshBasicMaterial({ map: texturaArco(), color: new T.Color(col).lerp(new T.Color(0xffffff), 0.3), transparent: true, opacity: op == null ? 1 : op,
                                                       blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide, toneMapped: false }));
     m.frustumCulled = false; m.renderOrder = 6;
     scena.add(m);
@@ -4102,13 +4213,19 @@
   function lanciaBrandelli(p, n, ghiaccio) {
     if (ps1() || (!ghiaccio && !conSangue())) return;
     if (!geoBrandello) {
-      geoBrandello = new T.DodecahedronGeometry(1, 0);
-      matBrandello = new T.MeshStandardMaterial({ color: 0x4a0505, roughness: 0.3, metalness: 0, emissive: 0x120000 });
+      /* la carne: un sasso irregolare (icosaedro deformato a caso), rosso
+         scuro e bagnato; quattro forme diverse */
+      geoBrandello = [0, 1, 2, 3].map(function () {
+        var gb = new T.IcosahedronGeometry(1, 1), pa = gb.attributes.position, vb = new T.Vector3();
+        for (var iv = 0; iv < pa.count; iv++) { vb.fromBufferAttribute(pa, iv); vb.multiplyScalar(0.55 + Math.random() * 0.7); vb.y *= 0.7; pa.setXYZ(iv, vb.x, vb.y, vb.z); }
+        gb.computeVertexNormals(); return gb;
+      });
+      matBrandello = new T.MeshStandardMaterial({ color: 0x3a0505, roughness: 0.26, metalness: 0.05, envMapIntensity: 1.3 });
       matGhiaccio = new T.MeshStandardMaterial({ color: 0xcfeeff, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.85, emissive: 0x10283a });
     }
     for (var i = 0; i < n; i++) {
-      var m = new T.Mesh(geoBrandello, ghiaccio ? matGhiaccio : matBrandello);
-      var r = 0.03 + Math.random() * (ghiaccio ? 0.09 : 0.07);
+      var m = new T.Mesh(geoBrandello[i % 4], ghiaccio ? matGhiaccio : matBrandello);
+      var r = ghiaccio ? 0.03 + Math.random() * 0.08 : 0.02 + Math.random() * 0.045;
       m.scale.set(r * (0.7 + Math.random() * 0.8), r * (0.5 + Math.random() * 0.6), r * (0.7 + Math.random() * 0.8));
       m.position.copy(p); m.castShadow = true;
       scena.add(m);
@@ -4124,6 +4241,8 @@
       if (b.fermo) continue;
       b.v.y -= 9.8 * dt;
       b.m.position.addScaledVector(b.v, dt);
+      /* in volo la carne lascia una scia di gocce */
+      if (b.macchia && Math.random() < 0.25) gocciaSangue(b.m.position.clone(), b.v.clone().multiplyScalar(0.3), 0.03);
       b.m.rotation.x += b.w.x * dt; b.m.rotation.y += b.w.y * dt; b.m.rotation.z += b.w.z * dt;
       if (b.m.position.y < suolo + b.r * 0.6) {
         b.m.position.y = suolo + b.r * 0.6;
@@ -4140,6 +4259,16 @@
   }
 
   function proiettile(p, v, col, mio, chi, danno2) {
+    if (mio && !ps1() && TIPO_POTERE[chi] === 'fiamma') {
+      /* la palla di fuoco del giocatore: fuoco vero che ribolle */
+      if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
+      var fm = new T.Mesh(geoFuoco, new T.ShaderMaterial({
+        uniforms: { tempo: { value: 0 }, gonfia: { value: 0.7 }, colore: { value: new T.Color(col) }, eta: { value: 0.05 } },
+        vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
+      fm.position.copy(p); fm.scale.setScalar(0.22); fm.renderOrder = 7; scena.add(fm);
+      var nf = sprite(0xffe0a0); nf.position.copy(p); nf.scale.setScalar(0.35); nf.material.opacity = 0.5;
+      return { o: fm, n: nf, v: v, col: col, mio: mio, chi: chi, danno: danno2 || 1, t: 0, fuoco: true };
+    }
     var sp = sprite(col); sp.position.copy(p); sp.scale.setScalar(mio ? 0.45 : 0.32);
     var nucleo = sprite(0xffffff); nucleo.position.copy(p); nucleo.scale.setScalar(mio ? 0.18 : 0.14);
     return { o: sp, n: nucleo, v: v, col: col, mio: mio, chi: chi, danno: danno2 || 1, t: 0 };
@@ -4148,6 +4277,7 @@
     var parti = [];
     for (var i = 0; i < 16; i++) {
       var sp = sprite(col, 0.32); sp.material.blending = T.NormalBlending;
+      if (!ps1()) { sp.material.map = texFumo(); sp.material.rotation = Math.random() * 6.28; sp.material.needsUpdate = true; }
       sp.position.copy(p).add(new T.Vector3((Math.random() - 0.5) * 3.2, Math.random() * 1.4, (Math.random() - 0.5) * 3.2));
       sp.scale.setScalar(1.4 + Math.random() * 1.4); parti.push(sp);
     }
@@ -4181,7 +4311,11 @@
       q.t += dt;
       if (q.g) q.v.y -= q.g * dt;
       q.o.position.addScaledVector(q.v, dt); q.n.position.copy(q.o.position);
-      if (Math.random() < 0.6) particella(q.o.position, new T.Vector3(), q.col, 0.25, q.mio ? 0.22 : 0.15, 0);
+      if (q.fuoco) {
+        q.o.material.uniforms.tempo.value += dt * 1.5;
+        if (Math.random() < 0.7) fumo(q.o.position.clone(), new T.Vector3((Math.random() - 0.5) * 0.3, 0.4, (Math.random() - 0.5) * 0.3), 0x2a2420, 0.7, 0.18 + Math.random() * 0.12, 0.45);
+        if (Math.random() < 0.5) brace(q.o.position, new T.Vector3((Math.random() - 0.5) * 1.5, Math.random() * 1.2, (Math.random() - 0.5) * 1.5), q.col);
+      } else if (Math.random() < 0.6) particella(q.o.position, new T.Vector3(), q.col, 0.25, q.mio ? 0.22 : 0.15, 0);
       var finito = q.t > 3 || q.o.position.y < 0.05;
       if (!finito && !S.lab && !vistaLibera(q.o.position.x - q.v.x * dt, q.o.position.z - q.v.z * dt, q.o.position.x, q.o.position.z)) finito = true;
       if (!finito) {
@@ -4233,8 +4367,34 @@
       e.v.y -= e.g * dt;
       e.o.position.addScaledVector(e.v, dt);
       var f = 1 - e.t / e.vita;
-      e.o.material.opacity = Math.max(0, f);
-      e.o.scale.setScalar(e.dim * (e.g === 0 && e.dim > 1 ? 1 + (1 - f) * 0.6 : 0.6 + f * 0.4));
+      if (e.tipo === 'fuoco') {
+        var u2 = e.t / e.vita;
+        e.o.material.uniforms.tempo.value += dt; e.o.material.uniforms.eta.value = u2;
+        e.o.scale.setScalar(e.dim * (0.25 + 1.1 * (1 - Math.pow(1 - Math.min(1, u2 * 1.6), 3))));
+        e.v.multiplyScalar(0.96);
+      } else if (e.tipo === 'fumo') {
+        e.o.material.opacity = e.op * Math.min(1, e.t * 6) * f;
+        e.o.scale.setScalar(e.dim * (1 + (1 - f) * 1.8));
+        e.o.material.rotation += e.giro * dt;
+        e.v.multiplyScalar(0.985);
+      } else if (e.tipo === 'goccia' || e.tipo === 'brace') {
+        /* stirata lungo il moto, vista dalla telecamera */
+        if (camera) {
+          var a2 = e.o.position.clone().project(camera), b2 = e.o.position.clone().addScaledVector(e.v, 0.03).project(camera);
+          e.o.material.rotation = Math.atan2(b2.y - a2.y, (b2.x - a2.x) * camera.aspect);
+          var vel = e.v.length();
+          e.o.scale.set(e.dim * (1.2 + Math.min(5, vel * 0.5)), e.dim * 0.45, 1);
+        }
+        e.o.material.opacity = e.op * (e.tipo === 'brace' ? f : Math.min(1, f * 3));
+        var suoloE = S && S.lab ? S.labSuolo : 0;
+        if (e.tipo === 'goccia' && e.o.position.y < suoloE + 0.02) {
+          if (Math.random() < 0.35) pozzaSotto(e.o.position, 0.12 + Math.random() * 0.22);
+          e.t = e.vita;
+        }
+      } else {
+        e.o.material.opacity = Math.max(0, f);
+        e.o.scale.setScalar(e.dim * (e.g === 0 && e.dim > 1 ? 1 + (1 - f) * 0.6 : 0.6 + f * 0.4));
+      }
       if (e.t >= e.vita) { scena.remove(e.o); e.o.material.dispose(); effetti.splice(k2, 1); }
     }
     if (effetti.length > 600) effetti.splice(0, effetti.length - 600).forEach(function (e) { scena.remove(e.o); e.o.material.dispose(); });
@@ -5087,6 +5247,19 @@
   /* LE GOCCE: quello che esce da un colpo, del colore della creatura,
      scuro, che cade a terra */
   function sangue(p, col, n, dir) {
+    if (!ps1() && IMP.sangue !== 'ridotto') {
+      /* IL SANGUE VERO: gocce stirate che partono nella direzione del
+         colpo e cadono macchiando, una nebbiolina rossa che resta un
+         attimo nell'aria, e il getto dalla parte opposta */
+      for (var g = 0; g < n * 1.6; g++) {
+        var vg = new T.Vector3((Math.random() - 0.5) * 3.5, Math.random() * 3 + 0.5, (Math.random() - 0.5) * 3.5);
+        if (dir) vg.addScaledVector(dir, 2.5 + Math.random() * 3);
+        gocciaSangue(p.clone().add(new T.Vector3((Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2)), vg, 0.035 + Math.random() * 0.05);
+      }
+      for (var m2 = 0; m2 < 2 + n / 8; m2++) fumo(p.clone(), new T.Vector3((Math.random() - 0.5) * 0.8, 0.2, (Math.random() - 0.5) * 0.8).addScaledVector(dir || new T.Vector3(), 0.6),
+                                                 0x5a0606, 0.5 + Math.random() * 0.4, 0.35 + Math.random() * 0.3, 0.45);
+      return;
+    }
     var c = new T.Color(col).lerp(new T.Color(0x220000), 0.45).getHex();
     for (var i = 0; i < n; i++) {
       var v = new T.Vector3((Math.random() - 0.5) * 3, Math.random() * 2.5, (Math.random() - 0.5) * 3);
