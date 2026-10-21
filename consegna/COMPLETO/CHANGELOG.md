@@ -7,6 +7,29 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v224] — 2026-10-21
+
+**Il controllo finale — ATOMIC PROTOCOL**
+
+### Corretto
+- **Le creature non entrano più nel giocatore**: a terra si fermano a mezzo
+  metro dal loro raggio (prima un verme poteva arrivare dentro la
+  telecamera, con la bocca che riempiva lo schermo). In aria (il balzo) e
+  sotto il pavimento (il verme che scava) no.
+- Il rampicante è più piccolo e resta più distante: da vicino il giocatore
+  non finisce più sotto le sue zampe.
+- **Gli avvisi a terra si leggono su ogni pavimento**: il disco è una macchia
+  scura del colore dell'attacco, l'anello è luce, e l'onda del bruto ha un
+  muro di luce basso che corre sul pavimento. Dentro un cerchio che si
+  riempie (anche sotto i piedi, fuori vista) i bordi dello schermo pulsano e
+  un ticchettio accelera.
+
+### Banco
+- `test_atomic`: 297 controlli — la combustione provata in gioco (la nube
+  del cloro, poi la palla di fuoco dell'ossigeno) e la distanza minima dal
+  corpo del giocatore.
+
+---
 ## [bsi-v223] — 2026-10-21
 
 **Le reazioni, la luce, la polvere — ATOMIC PROTOCOL**
