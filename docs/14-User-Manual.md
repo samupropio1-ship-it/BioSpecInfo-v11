@@ -565,4 +565,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v222`._
+_Guida aggiornata alla versione `bsi-v223`._

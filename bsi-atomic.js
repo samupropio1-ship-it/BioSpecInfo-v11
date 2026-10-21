@@ -3603,7 +3603,7 @@
   var SPECIE_M = {
     verme:    { modello: 'verme', modo: 'mischia', vita: 4, alto: 1.75, raggio: 0.55, colore: 0x9fb7ff, vel: 2.1, portata: 1.5,
                 nome: ['Verme di scarico', 'Drain worm'], debole: ['Cl', 'O', 'H2O2', 'fiamma'], punti: 70, anim: { idle: 'Idle', passo: 'WALK', corsa: 'RUN', attacco: 'ATTACK', ferito: 'WOUND_1', morte: 'DEATH' } },
-    curvo:    { modello: 'curvo', modo: 'salto', vita: 5, alto: 1.9, raggio: 0.6, colore: 0xff6a4a, vel: 1.8, portata: 1.4,
+    curvo:    { modello: 'curvo', modo: 'salto', vita: 5, alto: 1.5, raggio: 0.95, colore: 0xff6a4a, vel: 1.8, portata: 1.8,
                 nome: ['Rampicante', 'Lurcher'], debole: ['fiamma', 'HCl'], punti: 90, rigBraccia: 0 },
     palude:   { modello: 'palude', modo: 'sputo', vita: 7, alto: 2.0, raggio: 0.62, colore: 0x8fe36b, vel: 1.0, portata: 1.4,
                 nome: ['Fanghiglia', 'Bog thing'], debole: ['NaOH', 'O', 'fiamma'], punti: 110, rigBraccia: 0.7 },
