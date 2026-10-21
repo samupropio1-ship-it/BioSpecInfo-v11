@@ -1143,7 +1143,8 @@ function sopra(d, minimo, avuto) {
         await davanti(br, 4); br.o._allerta = 5; br.o._stordito = 0; br.o._crollo = 0; br.o._gelo = 0;
         A.speciale(br.o);
         let visto = 0, fasi = {};
-        for (let i = 0; i < 150 && !visto; i++) { await fr(); fasi[(br.o._sp || {}).fase || br.o._fase] = 1; visto = A.mosse().pericoli.length + (br.o.specie === 'mostro' ? A.combattimento().proiettili : 0); }
+        const p0 = A.mosse().pericoli.length, q0 = A.combattimento().proiettili;
+        for (let i = 0; i < 300 && !(visto && fasi.via); i++) { await fr(); fasi[(br.o._sp || {}).fase || br.o._fase] = 1; visto = fasi.via ? Math.max(0, A.mosse().pericoli.length - p0) + (br.o.specie === 'mostro' ? Math.max(0, A.combattimento().proiettili - q0) : 0) : 0; }
         out.specialeFasi = Object.keys(fasi).join(',');
         out.specialeEffetto = visto > 0;
       }
@@ -1172,7 +1173,7 @@ function sopra(d, minimo, avuto) {
     const e0 = S.energia; for (let i = 0; i < 30; i++) await fr(); out.energiaTorna = S.energia > e0;
     S.energia = 5; A.scegliPotere('O'); A.usaPotere(); out.senzaEnergia = S.energia <= 5.5;
     /* la barra dei poteri */
-    await new Promise(r => setTimeout(r, 300));
+    await new Promise(r => setTimeout(r, 300)); for (let i = 0; i < 12; i++) await fr();
     out.slot = document.querySelectorAll('#apH-poteri .bsiAP-pt').length;
     out.slotSel = (document.querySelector('#apH-poteri .bsiAP-pt.sel') || {}).textContent || '';
     out.schermoLotta = A.schermo() + ' vite ' + S.vite + ' potere ' + S.potere;
