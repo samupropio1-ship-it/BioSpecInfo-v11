@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v220` |
-| Commit | `784d87bfb90ba5015cc3136b419f5447d5cb7145` |
-| Generated (UTC) | `2026-10-16T12:22:25.158Z` |
+| Application version | `bsi-v223` |
+| Commit | `36a96ee506b6602a07a6d0cbe5d9395db8e949c1` |
+| Generated (UTC) | `2026-10-21T10:49:56.739Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -126,7 +126,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `50c39157bfb20a753ca2de6535259b8e3ca88b7a8beb0d2e21b969aa1b55f6c8` |
+| `index.html` | `410a54689d045820e2e33bf427c443e55cf10c2fe2f1343e62e77ee3667a0d72` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -142,7 +142,7 @@ availability.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `1cc20757acb2497ff8dcbc6d7aee7aec8089a2d48c1fecb98136cb23b6d1a0d4` |
+| `sw.js` | `e11bf0585bf71b749b4585df4c4a06c6464b1fcf7b928ef2a59cbc6ef800f495` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -195,4 +195,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-16T12:22:25.158Z._
+_Generated on 2026-10-21T10:49:56.739Z._

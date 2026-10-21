@@ -7,6 +7,107 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v223] — 2026-10-21
+
+**Le reazioni, la luce, la polvere — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Le reazioni chimiche** fra quello che fai e lo stato delle creature:
+  la **frantumazione** (una creatura gelata dall'azoto che prende un colpo
+  pesante va in pezzi, e le schegge feriscono chi le sta intorno), la
+  **combustione** (la palla di fuoco dentro una nube tossica la fa esplodere),
+  la **conduzione** (la scarica su una creatura gelata o in una pozza d'acido
+  corre su tutte quelle vicine e le stordisce). Ogni reazione rende punti ed
+  energia; la prima volta si spiega che cosa è successo.
+- **La luce di contorno** sulle creature: nel buio la sagoma si stacca dal
+  fondo con un filo di luce sui bordi, appena del loro colore.
+- **I coni di luce** sotto le lampade e **la polvere** che galleggia
+  nell'aria intorno a chi guarda.
+
+### Cambiato
+- Il rig procedurale non muove più le «braccia» delle forme a quattro zampe
+  (il rampicante) e le muove meno nella fanghiglia: niente più deformazioni.
+- I cerchi e le onde degli attacchi speciali sono più spessi e più visibili.
+
+### Banco
+- `test_atomic`: 295 controlli — conduzione e frantumazione provate in gioco.
+
+---
+## [bsi-v222] — 2026-10-21
+
+**Le mosse, la paura, la fluidità — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Le mosse del giocatore**: la **schivata** (`C` o 💨: uno scatto di un
+  metro e mezzo con un attimo d'invulnerabilità, il campo visivo che si
+  allarga e la sfocatura radiale); la **combinazione** corpo a corpo (`V` o 👊
+  a tempo: jab sinistro, gancio col calcio della pistola, diretto pesante che
+  butta a terra), con il tempo che si ferma un istante su ogni colpo; il
+  **potere caricato** (tenendo premuto `G`, il tasto destro o ✦: la sfera
+  cresce, il potere esce fino a 2,5 volte più forte); l'**esecuzione** (`V`
+  su una creatura a terra, stordita o quasi morta: rallentatore, due colpi e
+  il colpo finale; rende energia e salute; gli occhi della creatura
+  lampeggiano bianchi quando si può).
+- **Gli attacchi speciali delle creature**, annunciati e schivabili: il bruto
+  batte i pugni a terra (un'onda d'urto da saltare), il cristallino esplode in
+  schegge, la fanghiglia sputa fango acido che resta a terra, il cervo urla
+  (rallenta) e si lancia, l'abissale sparisce e ricompare di fianco, il verme
+  si infila nel pavimento e sbuca sotto i piedi, il rampicante fa un balzo
+  altissimo e ricade dove eri. Cerchi e onde a terra mostrano dove colpiranno.
+- **Le reazioni**: il colpo pesante butta a terra (si rialza dopo un po'), la
+  carica di una creatura s'interrompe con un pugno a tempo.
+- **Il rig procedurale** per le creature senza scheletro (rampicante,
+  fanghiglia, abissale, bruto): gambe che camminano col passo, braccia che si
+  alzano per caricare e calano nel colpo, busto che si china e respira,
+  tentacoli che ondeggiano — nello shader, senza costo per la CPU.
+- **La torcia** sulla spalla, che segue lo sguardo con un attimo di ritardo e
+  ogni tanto tremola.
+- **La passata finale** con l'aberrazione cromatica, il rosso che batte sui
+  bordi quando la salute è poca, il colore che se ne va nel rallentatore.
+- **Il suono del posto**, sintetizzato: il ronzio basso dell'istituto, colpi
+  lontani nei tubi, i passi, i fruscii delle mosse, i tonfi, i versi delle
+  creature (ognuna la sua voce) quando caricano.
+
+### Cambiato
+- **Fluidità**: le creature si disegnano interpolate fra due passi del gioco;
+  proiettili, nubi ed effetti vanno col tempo vero del fotogramma; la
+  geometria ferma delle stanze è fusa per materiale (da circa 340 a 110
+  chiamate di disegno); le creature fuori dall'inquadratura non si disegnano;
+  la **risoluzione dinamica** scende fino al 55% quando un fotogramma costa
+  troppo e risale quando c'è margine (impostazione `risdin`).
+- Il Codex passa al tasto `K` (`C` è la schivata).
+
+### Banco
+- `test_atomic`: 293 controlli — combinazione, caduta, esecuzione col
+  rallentatore, schivata, potere caricato, sette attacchi speciali, torcia.
+
+---
+## [bsi-v221] — 2026-10-16
+
+**Trecento livelli, salvataggi, varianti — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Tre atti, 300 livelli**: «Il contenimento» (1–100), «Il riflusso»
+  (101–200, gelido), «Il nucleo profondo» (201–300, rovente), con le zone
+  ritinte, livelli più lunghi e più popolati, appunti di trama nuovi e il
+  finale al livello 300; scelta dei livelli divisa per atto.
+- **I guardiani tornano** come MK II (atto II) e Ω (atto III): trenta in
+  tutto, con più colpi per fase, ritinti e più grandi.
+- **Le varianti delle creature** per atto (gelide, roventi: più grandi,
+  veloci, frequenti, con raffiche più larghe, sputi multipli, combinazioni
+  e cariche ripetute) e le **élite** (alone d'oro, vita doppia).
+- **Punti di salvataggio** dentro i livelli: si attivano passando, salvano
+  posizione e progressi anche nella partita salvata; cadendo si riparte da lì.
+
+### Cambiato
+- **Le due mani sono uguali**: la sinistra è il guanto di nitrile del rig,
+  specchio della destra, con le sue animazioni (tolta la mano robotica).
+
+### Banco
+- `test_atomic`: 280 controlli — 300 livelli, trenta guardiani, salvataggi,
+  varianti, élite, ripartenza, mani uguali.
+
+---
 ## [bsi-v220] — 2026-10-16
 
 **Combattimento, poteri, fluidità — ATOMIC PROTOCOL**
