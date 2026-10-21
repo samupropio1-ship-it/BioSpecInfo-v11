@@ -76,6 +76,8 @@
     difficolta: 'normale',   /* facile | normale | difficile | esperimento */
     grafica: graficaDiPartenza(), /* alta | media | ps1 */
     risoluzione: '480',      /* solo PS1: 320 | 480 | 640 */
+    risdin: 'si',            /* risoluzione dinamica: si | no */
+    torcia: 'si',            /* la torcia sulla telecamera */
     suono: 'acceso'
   };
 
@@ -283,6 +285,18 @@
   var audio = null;
   var camLiscia = null;       /* la posizione della telecamera, smorzata */
   var scossa = 0;             /* lo scossone della telecamera quando si viene colpiti */
+  /* lo stato delle mosse che si vede: il campo visivo che si allarga nello
+     scatto, la testa che s'inclina, l'affondo, la carica del potere */
+  var mosse = { fov: 0, rollio: 0, chino: 0, affondo: 0, carica: 0, caricando: false, combo: 0, finestra: 0, esegui: null, sangue: 0 };
+  /* IL TEMPO: fermo un istante sui colpi (hitstop), lento nelle esecuzioni */
+  var tempoG = { fermo: 0, lento: 0 };
+  function fermaTempo(s) { if (!ps1()) tempoG.fermo = Math.max(tempoG.fermo, s); }
+  function rallenta(s) { tempoG.lento = Math.max(tempoG.lento, s); }
+  function scalaTempo(dtS) {
+    if (tempoG.fermo > 0) { tempoG.fermo -= dtS; return 0.05; }
+    if (tempoG.lento > 0) { tempoG.lento -= dtS; return 0.3; }
+    return 1;
+  }
 
   function nuovaPartita(livello) {
     var d = diff();
@@ -703,6 +717,80 @@
     return g;
   }
 
+  /* UNIRE LA GEOMETRIA STATICA. Una stanza e' fatta di centinaia di pezzi
+     (pannelli, cornici, lesene, tubi, arredi): disegnarli uno per uno vuol
+     dire centinaia di chiamate alla scheda grafica, piu' altrettante per
+     le ombre. Quello che non si muove si fonde, una volta, in un blocco per
+     materiale: stesso aspetto, una frazione del costo. Restano separati i
+     pezzi che si muovono o cambiano (segnati con userData.mobile) e le
+     immagini in sovrimpressione */
+  /* due materiali con lo stesso aspetto sono lo stesso materiale, anche se
+     sono due oggetti diversi (la grafica ne crea uno per pezzo) */
+  function firmaMateriale(m) {
+    if (m.userData.firma) return m.userData.firma;
+    var c = function (x) { return x ? x.getHexString() : '-'; }, tx = function (x) { return x ? x.uuid : '-'; };
+    return (m.userData.firma = [m.type, c(m.color), c(m.emissive), m.emissiveIntensity, tx(m.map), tx(m.normalMap),
+      tx(m.roughnessMap), tx(m.metalnessMap), tx(m.emissiveMap), tx(m.aoMap), tx(m.alphaMap), m.roughness, m.metalness,
+      m.envMapIntensity, m.transparent, m.opacity, m.side, m.flatShading, m.vertexColors, m.alphaTest, m.depthWrite,
+      m.toneMapped, m.userData.ps1 ? 1 : 0, m.onBeforeCompile ? m.onBeforeCompile.toString().length : 0,
+      m.normalScale ? m.normalScale.x : '', m.clearcoat || 0].join('|'));
+  }
+  function unisciStatici(radice) {
+    radice.updateMatrixWorld(true);
+    var inv = new T.Matrix4().copy(radice.matrixWorld).invert();
+    var gruppi = {}, via = [];
+    (function visita(o, mobile) {
+      if (o.userData && o.userData.mobile) mobile = true;
+      /* (i gruppi di una geometria contano solo con piu' materiali: con uno
+         solo three li ignora, e si possono ignorare anche qui) */
+      if (!mobile && o.isMesh && !o.isSkinnedMesh && !Array.isArray(o.material) && o.geometry && o.geometry.isBufferGeometry &&
+          !o.geometry.morphAttributes.position && o.visible) {
+        var g = o.geometry, nomi = Object.keys(g.attributes).sort();
+        var k = firmaMateriale(o.material) + '|' + (o.castShadow ? 1 : 0) + (o.receiveShadow ? 1 : 0) + '|' + nomi.join(',') + '|' + o.renderOrder;
+        (gruppi[k] || (gruppi[k] = { mat: o.material, ombra: o.castShadow, riceve: o.receiveShadow, ordine: o.renderOrder, nomi: nomi, pezzi: [] })).pezzi.push(o);
+      }
+      o.children.forEach(function (c) { visita(c, mobile); });
+    })(radice, false);
+    var fusi = 0, prima = 0;
+    Object.keys(gruppi).forEach(function (k) {
+      var gr = gruppi[k];
+      if (gr.pezzi.length < 2) return;
+      var parti = gr.pezzi.map(function (o) {
+        var gg = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+        gg.clearGroups();
+        gg.applyMatrix4(new T.Matrix4().multiplyMatrices(inv, o.matrixWorld));
+        return gg;
+      });
+      var tot = 0; parti.forEach(function (gg) { tot += gg.attributes.position.count; });
+      var nuova = new T.BufferGeometry();
+      gr.nomi.forEach(function (nome) {
+        var a0 = parti[0].attributes[nome], dim = a0.itemSize, arr = new Float32Array(tot * dim), off = 0;
+        parti.forEach(function (gg) {
+          var a = gg.attributes[nome];
+          if (!a.isInterleavedBufferAttribute && a.array.length === a.count * dim && !a.normalized) arr.set(a.array, off * dim);
+          else for (var i = 0; i < a.count; i++) {
+            arr[(off + i) * dim] = a.getX(i);
+            if (dim > 1) arr[(off + i) * dim + 1] = a.getY(i);
+            if (dim > 2) arr[(off + i) * dim + 2] = a.getZ(i);
+            if (dim > 3) arr[(off + i) * dim + 3] = a.getW(i);
+          }
+          off += a.count;
+        });
+        nuova.setAttribute(nome, new T.BufferAttribute(arr, dim));
+      });
+      nuova.computeBoundingSphere(); nuova.computeBoundingBox();
+      parti.forEach(function (gg) { gg.dispose(); });
+      var m = new T.Mesh(nuova, gr.mat);
+      m.castShadow = gr.ombra; m.receiveShadow = gr.riceve; m.renderOrder = gr.ordine;
+      m.userData.fusa = gr.pezzi.length;
+      radice.add(m);
+      gr.pezzi.forEach(function (o) { via.push(o); });
+      fusi++; prima += gr.pezzi.length;
+    });
+    via.forEach(function (o) { if (o.parent) o.parent.remove(o); });
+    return { prima: prima, dopo: fusi };
+  }
+
   function costruisciMondo(n) {
     var A = LIV();
     var liv = A.livello(n);
@@ -719,11 +807,14 @@
       st._g = sg;
       st._emergenza = stz.emergenza;
       st._gocce = stz.gocce || [];
+      st._gocce.forEach(function (gc) { if (gc.o) gc.o.userData.mobile = true; });
       stz.luci.forEach(function (l) {
         luciMondo.push({ x: st.x + l.x, y: l.y, z: st.z + l.z, stanza: st.id });
       });
       (st.oggetti || []).forEach(function (o, k) {
         var nodo = costruisciOggetto(o, st, k, liv.zona.n, n);
+        /* restano a parte gli oggetti che si muovono, si prendono o cambiano */
+        if (['scaffale', 'fusto', 'fusti', 'cappa', 'banco'].indexOf(o.tipo) < 0) nodo.userData.mobile = true;
         sg.add(nodo);
         /* quello che e' gia' stato raccolto o abbattuto non torna */
         if (S && S.presi[o._chiave + ':sentito']) o.ascoltato = true;
@@ -739,8 +830,11 @@
         if (p.verso === 'sud') pa.gruppo.position.set(0, 0, st.prof / 2);
         else { pa.gruppo.position.set(st.larg / 2, 0, 0); pa.gruppo.rotation.y = Math.PI / 2; }
         sg.add(pa.gruppo);
+        pa.gruppo.userData.mobile = true;
         paratie.push({ chiave: p.chiusa, p: pa, apertura: (S && S.fatti[p.chiusa]) ? 1 : 0 });
       });
+      /* la stanza costruita: quello che non si muove diventa pochi blocchi */
+      st._fusi = unisciStatici(sg);
       radice.add(sg);
     });
     scena.add(radice);
@@ -801,6 +895,14 @@
     f.shadow.camera.far = 16;
     scena.add(f); scena.add(f.target);
     g.faro = f;
+    /* LA TORCIA: un cono stretto dalla spalla destra, che segue lo sguardo
+       con un attimo di ritardo e ogni tanto tremola; senza ombre (la loro
+       ombra cadrebbe dietro le cose, dove non si vede) */
+    if (IMP.torcia !== 'no') {
+      var tc = new T.SpotLight(0xdfe8ff, 1.8, 15, Math.PI / 7.5, 0.65, 1.6);
+      scena.add(tc); scena.add(tc.target);
+      g.torcia = tc; g.dirTorcia = null;
+    }
     /* la luce del guardiano: rossa, pulsa quando attacca */
     g.boss = new T.PointLight(0xff4020, 0, 9);
     scena.add(g.boss);
@@ -957,6 +1059,7 @@
     /* in diagonale non si va piu' veloci; mirando si va piano */
     if (avanti && lat) { avanti *= 0.7071; lat *= 0.7071; }
     if (zoom > 0.5) v *= 0.55;
+    if (S.stordito > 0) v *= 0.4;                     /* l'urlo del cervo: le gambe non rispondono */
     var vx = (-Math.sin(S.ang) * avanti - Math.cos(S.ang) * lat) * v;
     var vz = (-Math.cos(S.ang) * avanti + Math.sin(S.ang) * lat) * v;
     /* L'INERZIA: la velocita' insegue quella voluta — si parte e ci si
@@ -967,6 +1070,13 @@
     S.vMov.x += (vx - S.vMov.x) * acc; S.vMov.z += (vz - S.vMov.z) * acc;
     if (Math.abs(S.vMov.x) < 0.0004) S.vMov.x = 0;
     if (Math.abs(S.vMov.z) < 0.0004) S.vMov.z = 0;
+    /* LA SCHIVATA: uno scatto di un metro e mezzo che parte forte e si
+       spegne; per i primi istanti non si viene toccati */
+    if (S.scatto) {
+      S.vMov.x = S.scatto.x * S.scatto.k; S.vMov.z = S.scatto.z * S.scatto.k;
+      S.scatto.k *= 0.86;
+      if (--S.scatto.n <= 0) S.scatto = null;
+    }
     var dx = S.vMov.x, dz = S.vMov.z;
 
     if (S.lab) muoviInLab(dx, dz);
@@ -1041,7 +1151,6 @@
       pa.p.sx.visible = pa.p.dx.visible = pa.apertura < 0.96;
     });
 
-    passoCombattimento(PASSO / 1000);
     if (S.immune > 0) S.immune--;
     S.t = (S.t || 0) + 1;
   }
@@ -1065,6 +1174,8 @@
     S.vite -= 1;
     scossa = 1;
     animV.colpito = 1;
+    if (post) post.mat.uniforms.colpito.value = 1;
+    if (mosse.caricando) { mosse.caricando = false; mosse.carica = 0; }
     /* da dove arriva il colpo: un arco rosso sul bordo dello schermo */
     if (fonte) {
       var ind = document.getElementById('bsiAP-dir');
@@ -1215,7 +1326,7 @@
       vista.manoSx.rotation.x = al * 0.55 + alM * 0.45;
       vista.manoSx.position.z = -al * 0.02;
     }
-    if (vista.potere) vista.potere.anima(ora, al * (1 + la * 1.5));
+    if (vista.potere) vista.potere.anima(ora, al * (1 + la * 1.5 + mosse.carica * 2.2));
     if (vista.rig && vista.rig.aggancio) animaRig(ora, al);
     else if (vista.modello) poseMani(ora, pr, al, la, cambio);
     /* le goccioline dello spruzzo */
@@ -1542,9 +1653,12 @@
       var fP = S.passi * (vv > 0.07 ? 3.9 : 4.5);
       var bobY = Math.abs(Math.sin(fP)) * 0.03 * ampP - animV.atterra * 0.06;
       var bobX = Math.sin(fP) * 0.012 * ampP;
-      camera.position.set(S.pos.x + sx + Math.cos(S.ang) * bobX, S.pos.y + 1.62 + sy + bobY,
-                          S.pos.z - Math.sin(S.ang) * bobX);
-      camera.rotation.set(S.angY, S.ang, -bobX * 0.6 + (tasti.latSx ? 0.012 : 0) - (tasti.latDx ? 0.012 : 0), 'YXZ');
+      /* le mosse muovono la testa: la schivata la inclina e la abbassa,
+         il colpo pesante e l'esecuzione la spingono avanti */
+      var aff = mosse.affondo;
+      camera.position.set(S.pos.x + sx + Math.cos(S.ang) * bobX - Math.sin(S.ang) * aff, S.pos.y + 1.62 + sy + bobY - mosse.chino * 0.22,
+                          S.pos.z - Math.sin(S.ang) * bobX - Math.cos(S.ang) * aff);
+      camera.rotation.set(S.angY - aff * 0.25, S.ang, -bobX * 0.6 + (tasti.latSx ? 0.012 : 0) - (tasti.latDx ? 0.012 : 0) + mosse.rollio, 'YXZ');
       animaVista();
     } else {
       var d = 3.7, h = 2.15;
@@ -1576,6 +1690,15 @@
       else camera.lookAt(S.pos.x - Math.sin(S.ang) * 2.5, S.pos.y + 0.6, S.pos.z - Math.cos(S.ang) * 2.5);
     }
     if (luci && luci.faro) luci.faro.target.position.set(S.pos.x, 0, S.pos.z);
+    if (luci && luci.torcia) {
+      var tc = luci.torcia, dv = camera.getWorldDirection(new T.Vector3());
+      if (!luci.dirTorcia) luci.dirTorcia = dv.clone();
+      luci.dirTorcia.lerp(dv, 0.22).normalize();
+      tc.position.copy(camera.position).add(new T.Vector3(Math.cos(S.ang) * 0.22, -0.25, -Math.sin(S.ang) * 0.22));
+      tc.target.position.copy(tc.position).addScaledVector(luci.dirTorcia, 6);
+      var ora2 = Date.now();
+      tc.intensity = (prima ? 1.8 : 1.2) * (Math.sin(ora2 / 37) > 0.995 || ((ora2 / 1000) % 23) < 0.12 ? 0.35 : 1);
+    }
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -2383,6 +2506,10 @@
       ' border:2px solid #8fe3c4;box-shadow:0 0 6px rgba(143,227,196,.6)}',
       /* il colpo a segno: il mirino si apre in una croce; giallo se debole */
       '#bsiAP-mirino.colpo{animation:apColpo .22s ease-out}',
+      '#bsiAP-esegui{position:absolute;left:50%;top:calc(50% + 26px);transform:translateX(-50%);z-index:6;pointer-events:none;display:none;',
+      'font:900 12px/1 system-ui,sans-serif;letter-spacing:.14em;color:#ffe9c4;padding:5px 9px;border:1px solid rgba(255,80,60,.8);',
+      'background:rgba(60,0,0,.55);text-shadow:0 0 6px #ff3020;animation:apEsegui .5s ease-in-out infinite alternate}',
+      '@keyframes apEsegui{from{opacity:.65}to{opacity:1}}',
       '#bsiAP-mirino.colpo.forte{box-shadow:0 0 0 3px #ffd24a,0 0 14px #ffd24a}',
       '@keyframes apColpo{0%{transform:scale(2.4) rotate(45deg);box-shadow:0 0 0 2px #fff}100%{transform:none}}',
       '#bsiAP-scena.mira #bsiAP-mirino{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;box-shadow:0 0 0 7px rgba(255,255,255,.12),0 0 0 8px rgba(255,255,255,.5)}',
@@ -2563,7 +2690,7 @@
         '<span class="dove" id="apH-dove"></span><span id="apH-punti"></span></div>' +
         '<div class="boss" id="apH-boss"></div>' +
         '<canvas id="bsiAP-mappa" width="192" height="192"></canvas>' +
-        '<div id="bsiAP-mirino"></div>' +
+        '<div id="bsiAP-mirino"></div><div id="bsiAP-esegui">' + t('V · ☠ ESECUZIONE', 'V · ☠ EXECUTE') + '</div>' +
         '<div class="bers" id="apH-bers"></div>' +
         '<div id="bsiAP-dir"></div>' +
         '<div class="poteri" id="apH-poteri"></div>' +
@@ -2639,6 +2766,10 @@
     if (mir) {
       mir.style.display = IMP.visuale === 'prima' ? 'block' : 'none';
       mir.className = b ? 'attivo' : '';
+    }
+    if ((S.t || 0) % 6 === 0) {
+      var es = document.getElementById('bsiAP-esegui');
+      if (es) es.style.display = IMP.visuale === 'prima' && !mosse.esegui && bersaglioEsecuzione() ? 'block' : 'none';
     }
     if ((S.t || 0) % 10 === 0) mappa();
     aggiornaNastro();
@@ -3268,7 +3399,7 @@
     if (!camera) return;
     if (FOV_BASE == null || FOV_BASE.cam !== camera) FOV_BASE = { cam: camera, fov: camera.fov };
     zoom += (zoomVoluto - zoom) * Math.min(1, dt * 12);
-    var f = FOV_BASE.fov * (1 - zoom * 0.45);
+    var f = FOV_BASE.fov * (1 - zoom * 0.45) * (1 + mosse.fov * 0.12);
     if (Math.abs(camera.fov - f) > 0.01) { camera.fov = f; camera.updateProjectionMatrix(); }
   }
   /* LO SCHERMO INTERO: la scena del gioco riempie lo schermo (con l'API
@@ -3344,6 +3475,7 @@
         '<button class="bsiAP-t" id="apB-zoom" aria-label="' + t('mira (zoom)', 'aim (zoom)') + '">🔍</button>' +
         '<button class="bsiAP-t" id="apB-pieno" aria-label="' + t('schermo intero', 'full screen') + '">⛶</button>' +
         '<button class="bsiAP-t" id="apB-pugno" aria-label="' + t('pugno', 'punch') + '">👊</button>' +
+        '<button class="bsiAP-t" id="apB-schiva" aria-label="' + t('schivata', 'dodge') + '">💨</button>' +
         '<button class="bsiAP-t fuoco" id="apB-spara" aria-label="' + t('spara', 'fire') + '">◉</button>' +
       '</div>';
     [].forEach.call(c.querySelectorAll('[data-k]'), function (b) {
@@ -3357,7 +3489,13 @@
       b.addEventListener('lostpointercapture', su2);
     });
     su('apB-usa', function () { if (schermo === 'gioco') interagisci(); });
-    su('apB-pot', function () { if (schermo === 'gioco') usaPotere(); });
+    /* il potere: tenendo premuto si carica */
+    (function (b) {
+      if (!b) return;
+      b.addEventListener('pointerdown', function (e) { e.preventDefault(); if (schermo === 'gioco') { b.classList.add('giu'); inizioCarica(); } });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { b.addEventListener(ev, function () { b.classList.remove('giu'); fineCarica(); }); });
+    })(document.getElementById('apB-pot'));
+    su('apB-schiva', function () { if (schermo === 'gioco') schiva(); });
     su('apB-zoom', function () { if (schermo === 'gioco') cambiaZoom(); });
     su('apB-pugno', function () { if (schermo === 'gioco') pugno(); });
     su('apB-pieno', function () { schermoIntero(); });
@@ -3577,12 +3715,15 @@
   }
 
   /* I POTERI */
-  function usaPotere() {
+  function usaPotere(potenza) {
     if (!S || schermo !== 'gioco' || S.finito) return;
     var sim = potereAttivo();
     if (!sim) { avviso(t('Nessun potere: raccogli un elemento', 'No power: collect an element')); return; }
     if (CD.potere > 0) return;
-    var costo = costoPotere(sim);
+    /* il potere CARICATO (tenendo premuto): fino a due volte e mezzo piu'
+       forte e piu' grande, costa fino a meta' in piu' */
+    var pz = Math.max(1, Math.min(2.5, potenza || 1));
+    var costo = Math.round(costoPotere(sim) * (1 + (pz - 1) / 3));
     if ((S.energia || 0) < costo) { avviso(t('Energia insufficiente', 'Not enough energy'), Math.round(S.energia || 0) + '/' + costo); bip(140, 0.1, 'square', 0.04); return; }
     S.energia -= costo;
     CD.potere = 0.6;
@@ -3593,7 +3734,8 @@
     var mano = orig.clone().add(new T.Vector3(0, -0.2, 0)).addScaledVector(dir, 0.5);
     var x = S.inventario.filter(function (y) { return y.sim === sim; })[0];
     if (x) { x.usi++; if (x.usi % 3 === 0 && x.padronanza < 5) x.padronanza++; }
-    var forza = 1 + ((x && x.padronanza) || 1) * 0.15;
+    var forza = (1 + ((x && x.padronanza) || 1) * 0.15) * pz;
+    if (pz > 1.3) { fermaTempo(0.05); luceLampo(mano, col, 3 * pz, 0.25); }
     if (sim === 'Pb' || sim === 'Au') {
       S.scudo = 4; S.immune = Math.max(S.immune, 240);
       esplosione(orig.clone().addScaledVector(dir, 0.8), col, 0.8, false);
@@ -3606,9 +3748,9 @@
       var colpiti = [], da = mano.clone(), primo = nelMirino(18);
       var lista = nemiciVivi(14, orig).sort(function (a2, b2) { return a2.p.distanceTo(orig) - b2.p.distanceTo(orig); });
       if (primo && primo.o) lista.unshift(primo);
-      for (var i = 0; i < lista.length && colpiti.length < 3; i++) {
+      for (var i = 0; i < lista.length && colpiti.length < 2 + Math.round(pz); i++) {
         var n = lista[i];
-        if (colpiti.indexOf(n.o) >= 0 || n.p.distanceTo(da) > 9) continue;
+        if (colpiti.indexOf(n.o) >= 0 || n.p.distanceTo(da) > 9 * Math.sqrt(pz)) continue;
         if (!vistaLibera(da.x, da.z, n.p.x, n.p.z)) continue;
         fulmine(da, n.p, col);
         ferisci(n.o, 2 * forza, sim, n.p);
@@ -3619,7 +3761,9 @@
       if (sim === 'Na' || sim === 'K') esplosione(colpiti.length ? da : orig.clone().addScaledVector(dir, 5), 0xffd24a, 1.3, true, 2, sim);
       bip(900, 0.12, 'sawtooth', 0.06);
     } else if (tp === 'fiamma') {
-      proiettili.push(proiettile(mano, dir.clone().multiplyScalar(14), col, true, sim, 3 * forza));
+      var pf = proiettile(mano, dir.clone().multiplyScalar(14), col, true, sim, 3 * forza);
+      pf.o.scale.multiplyScalar(pz); pf.dim = pz;
+      proiettili.push(pf);
       bip(260, 0.25, 'sawtooth', 0.06);
     } else if (tp === 'vapore') {
       var dove = nelMirino(12);
@@ -3629,19 +3773,20 @@
       bip(sim === 'N' ? 1400 : 200, 0.4, 'sine', 0.05);
     } else if (sim === 'U') {
       var dU = nelMirino(18), pU = dU ? dU.p.clone() : orig.clone().addScaledVector(dir, 8);
-      esplosione(pU, 0x6aff6a, 2.4, true, 5, sim);
+      esplosione(pU, 0x6aff6a, 2.4 * Math.sqrt(pz), true, Math.round(5 * pz), sim);
       bip(80, 0.6, 'sawtooth', 0.1);
     } else {
       /* l'onda d'urto intorno */
-      esplosione(new T.Vector3(S.pos.x, 1, S.pos.z), col, 1.8, true, 0, sim);
-      nemiciVivi(4.5, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
-        ferisci(n.o, 2, sim, n.p);
+      esplosione(new T.Vector3(S.pos.x, 1, S.pos.z), col, 1.8 * Math.sqrt(pz), true, 0, sim);
+      nemiciVivi(4.5 * Math.sqrt(pz), new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
+        ferisci(n.o, 2 * pz, sim, n.p);
         var v = n.p.clone().sub(new T.Vector3(S.pos.x, n.p.y, S.pos.z)).normalize();
-        n.o._spinta = { x: v.x * 0.12, z: v.z * 0.12 };
+        n.o._spinta = { x: v.x * 0.12 * pz, z: v.z * 0.12 * pz };
+        if (pz > 1.8) n.o._crollo = 1;
       });
       bip(160, 0.35, 'triangle', 0.08);
     }
-    scossa = Math.max(scossa, 0.35);
+    scossa = Math.max(scossa, 0.35 * pz);
   }
 
   /* GLI EFFETTI NEL MONDO: sprite additivi in un piccolo deposito, una
@@ -3745,14 +3890,14 @@
       if (!finito) {
         if (q.mio) {
           if (nemiciVivi(0.9, q.o.position).length) finito = true;
-        } else if (Math.hypot(q.o.position.x - S.pos.x, q.o.position.z - S.pos.z) < 0.45 && Math.abs(q.o.position.y - (S.pos.y + 1.2)) < 0.8) {
+        } else if (!q.innocuo && Math.hypot(q.o.position.x - S.pos.x, q.o.position.z - S.pos.z) < 0.45 && Math.abs(q.o.position.y - (S.pos.y + 1.2)) < 0.8) {
           finito = true;
           if (!(S.scudo > 0)) danno(q.nome ? q.nome[lingua() === 'en' ? 1 : 0] + t(' ti ha colpito', ' hit you') : t('una sentinella ti ha colpito', 'a sentinel hit you'), q.fonte);
           else esplosione(q.o.position, 0xffcc33, 0.4, false);
         }
       }
       if (finito) {
-        if (q.mio) esplosione(q.o.position, q.col, 1.2, true, q.danno, q.chi);
+        if (q.mio) esplosione(q.o.position, q.col, 1.2 * (q.dim || 1), true, q.danno, q.chi);
         else scintille(q.o.position, q.col, 8);
         scena.remove(q.o); scena.remove(q.n); q.o.material.dispose(); q.n.material.dispose();
         proiettili.splice(i, 1);
@@ -3989,6 +4134,73 @@
       o.geometry.computeBoundingBox(); o.geometry.computeBoundingSphere();
     });
   }
+  /* IL RIG PROCEDURALE. I modelli senza scheletro si animano nella scheda
+     grafica: ogni vertice, riportato nel riferimento del modello (in
+     piedi, che guarda +z), si piega secondo dove sta — le gambe sotto
+     l'anca ruotano avanti e indietro in opposizione, le braccia oltre le
+     spalle oscillano col passo, si alzano per caricare e calano nel colpo,
+     il busto si china nell'affondo e indietro quando incassa, respira; le
+     forme senza gambe (l'abissale) ondeggiano come tentacoli. Le soglie
+     sono nella forma umana: anca al 47% dell'altezza, spalle al 78% */
+  var RIG_VS = [
+    'uniform vec4 rigB0; uniform vec4 rigB1; uniform vec4 rigA; uniform vec4 rigC; uniform mat4 rigM; uniform mat4 rigMi;',
+    'vec3 rigRuota(vec3 p, vec3 c, float a){ vec3 d = p - c; float s = sin(a), k = cos(a); return c + vec3(d.x, d.y * k - d.z * s, d.y * s + d.z * k); }'
+  ].join('\n');
+  var RIG_BODY = [
+    '{',
+    '  vec3 p = (rigM * vec4(transformed, 1.0)).xyz;',
+    '  float W = rigB1.x - rigB0.x, H = rigB1.y - rigB0.y, cx = (rigB0.x + rigB1.x) * 0.5, cz = (rigB0.z + rigB1.z) * 0.5;',
+    '  float h = (p.y - rigB0.y) / H, lato = sign(p.x - cx + 1e-5), dx = abs(p.x - cx) / W;',
+    /* le gambe */
+    '  float gamba = (1.0 - smoothstep(0.40, 0.52, h)) * smoothstep(0.015, 0.06, dx) * (1.0 - rigC.y);',
+    '  float aG = lato * sin(rigA.x) * rigA.y * 0.6;',
+    '  vec3 q = rigRuota(p, vec3(p.x, rigB0.y + H * 0.47, cz), aG);',
+    '  float gin = gamba * (1.0 - smoothstep(0.12, 0.26, h)) * max(0.0, -lato * sin(rigA.x)) * rigA.y;',
+    '  q = rigRuota(q, vec3(q.x, rigB0.y + H * 0.24, cz), gin * 0.9);',
+    '  p = mix(p, q, gamba);',
+    /* le braccia */
+    '  float br = smoothstep(0.19, 0.29, dx) * smoothstep(0.30, 0.48, h) * (1.0 - smoothstep(0.86, 0.95, h));',
+    '  float aB = -lato * sin(rigA.x) * rigA.y * 0.45 - rigA.z * 0.95 + rigA.w * 0.75 - rigC.x * 0.45;',
+    '  p = mix(p, rigRuota(p, vec3(p.x, rigB0.y + H * 0.78, cz + (rigB1.z - rigB0.z) * 0.05), aB), br);',
+    /* il busto */
+    '  float bu = smoothstep(0.42, 0.62, h);',
+    '  p = mix(p, rigRuota(p, vec3(p.x, rigB0.y + H * 0.47, cz), rigA.w * 0.32 - rigA.z * 0.14 - rigC.x * 0.45 + rigC.z), bu);',
+    '  p.xz += (p.xz - vec2(cx, cz)) * rigC.w * bu;',
+    /* i tentacoli */
+    '  float ten = rigC.y * (1.0 - smoothstep(0.0, 0.55, h));',
+    '  p.x += sin(h * 13.0 - rigA.x * 1.7 + p.z * 4.0) * ten * W * 0.09;',
+    '  p.z += cos(h * 11.0 - rigA.x * 1.3 + p.x * 3.0) * ten * W * 0.07;',
+    '  transformed = (rigMi * vec4(p, 1.0)).xyz;',
+    '}'
+  ].join('\n');
+  function rigProcedurale(copia, bb, tentacoli) {
+    var unif = {
+      rigB0: { value: new T.Vector4(bb.min.x, bb.min.y, bb.min.z, 0) },
+      rigB1: { value: new T.Vector4(bb.max.x, bb.max.y, bb.max.z, 0) },
+      rigA: { value: new T.Vector4(0, 0, 0, 0) },                /* fase del passo, ampiezza, braccia alzate, colpo */
+      rigC: { value: new T.Vector4(0, tentacoli ? 1 : 0, 0, 0) }  /* ferito, tentacoli, chinarsi, respiro */
+    };
+    copia.updateMatrixWorld(true);
+    var inv = new T.Matrix4().copy(copia.matrixWorld).invert();
+    copia.traverse(function (m) {
+      if (!m.isMesh || m.isSkinnedMesh) return;
+      var M = new T.Matrix4().multiplyMatrices(inv, m.matrixWorld), Mi = M.clone().invert();
+      var mats = Array.isArray(m.material) ? m.material : [m.material];
+      mats.forEach(function (mt) {
+        var prima = mt.onBeforeCompile;
+        mt.onBeforeCompile = function (sh, r) {
+          if (prima) prima.call(this, sh, r);
+          sh.uniforms.rigB0 = unif.rigB0; sh.uniforms.rigB1 = unif.rigB1; sh.uniforms.rigA = unif.rigA; sh.uniforms.rigC = unif.rigC;
+          sh.uniforms.rigM = { value: M }; sh.uniforms.rigMi = { value: Mi };
+          sh.vertexShader = RIG_VS + '\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + RIG_BODY);
+        };
+        mt.customProgramCacheKey = function () { return 'rig1'; };   /* un programma per tutti: cambiano solo le uniform */
+        mt.needsUpdate = true;
+      });
+      m.frustumCulled = false;
+    });
+    return unif;
+  }
   function montaModelloNemico(o, g) {
     var SM = SPECIE_M[o.specie];
     if (typeof fetch === 'undefined') return;
@@ -4034,6 +4246,7 @@
       o._mod = mod; o._mat = mats;
       animaClip(o, 'idle');
       if (mod.mixer) mod.mixer.update(0.2);      /* subito in posa: mai la posa di legame */
+      else mod.rig = rigProcedurale(copia, gltf.misura, SM.modo === 'fluttua');
     });
   }
   /* la clip di un'azione (se il modello l'ha): si passa con una dissolvenza */
@@ -4062,6 +4275,8 @@
   function aggiornaNemicoM(o, sx, st, ora) {
     var dt = PASSO / 1000, SM = SPECIE_M[o.specie], V = variante(o), colV = coloreDi(o);
     o.t = (o.t || 0) + 1;
+    var ip = o._ip || (o._ip = {});
+    ip.x0 = o.x; ip.z0 = o.z; ip.y0 = ip.y1 == null ? 0 : ip.y1; ip.r0 = ip.r1 == null ? (o._nodo ? o._nodo.rotation.y : 0) : ip.r1;
     var wx = sx.x + o.x, wz = sx.z + o.z;
     var dx = S.pos.x - wx, dz = S.pos.z - wz, d = Math.hypot(dx, dz) || 1;
     var vede = sx === st && d < 14 && vistaLibera(wx, wz, S.pos.x, S.pos.z);
@@ -4070,14 +4285,26 @@
     var lento = (o._gelo > 0 ? 0.3 : 1) * V.vel;
     if (o._gelo > 0) o._gelo -= dt;
     if (o._stordito > 0) { o._stordito -= dt; lento = 0; }
+    if (o._crollo > 0) { o._crollo -= dt; lento = 0; }
     o._fase = o._fase || 'attesa';
     o._cd = Math.max(0, (o._cd || 0) - dt);
+    o._cdS = o._cdS == null ? 3 + ((o.t * 7 + o.x * 13) % 4) : Math.max(0, o._cdS - dt);
     var mx = 0, mz = 0, ux = dx / d, uz = dz / d;
     var vai = function (v) { mx = ux * v * dt * lento; mz = uz * v * dt * lento; };
-    if (!all) { o._fase = 'attesa'; }
+    var SPc = SPECIALI[o.specie];
+    if (o._fase === 'speciale' && o._sp) {
+      /* l'attacco speciale: stordito mentre si carica, lo perde */
+      if (lento === 0 && o._sp.fase === 'carica') { o._sp = null; o._fase = 'insegui'; }
+      else { var rs = passoSpeciale(o, sx, SM, V, colV, d, ux, uz, wx, wz, dt); mx = rs.mx; mz = rs.mz; }
+    }
+    else if (!all) { o._fase = 'attesa'; }
     else if (o._fase === 'attesa' || o._fase === 'insegui') {
       o._fase = 'insegui';
-      if (SM.modo === 'sputo' || SM.modo === 'fluttua') {
+      if (SPc && o._cdS <= 0 && vede && lento > 0 && d > SPc.da && d < SPc.a) {
+        o._fase = 'speciale'; o._sp = { fase: 'carica', t: 0 };
+        o._cdS = SPc.cd * V.cd * (0.8 + Math.random() * 0.4);
+        ringhio(o, SPc.carica + 0.4, true);
+      } else if (SM.modo === 'sputo' || SM.modo === 'fluttua') {
         /* a distanza: si avvicina o si allontana, gira intorno, spara */
         var ideale = SM.modo === 'sputo' ? 6.5 : 5.5, rad = d > ideale + 1 ? 1 : d < ideale - 1.5 ? -1 : 0;
         var lato = Math.sin(o.t * 0.008 + o.x * 2) > 0 ? 1 : -1;
@@ -4142,13 +4369,20 @@
     if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
     if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
     var muove = Math.hypot(mx, mz) / dt;
+    if (o._fase === 'carica' && o._fasePrec !== 'carica') ringhio(o, 0.45, false);
+    else if (all && o._fase === 'insegui' && Math.random() < dt * 0.06) ringhio(o, 0.9, false);
+    o._fasePrec = o._fase;
+    var spC = o._fase === 'speciale' && o._sp && o._sp.fase === 'carica', spV = o._fase === 'speciale' && o._sp && o._sp.fase === 'via';
     if (o._nodo) {
-      o._nodo.position.set(o.x, o._quotaSalto || 0, o.z);
+      ip.y1 = o._quotaSalto || 0;
+      var att = ip.r0;
       if (all && o._fase !== 'colpo') {
-        var vuole = Math.atan2(dx, dz), att = o._nodo.rotation.y;
+        var vuole = Math.atan2(dx, dz);
         var dd = Math.atan2(Math.sin(vuole - att), Math.cos(vuole - att));
-        o._nodo.rotation.y = att + dd * Math.min(1, dt * 7);
+        att += dd * Math.min(1, dt * 7);
       }
+      ip.r1 = att;
+      if (ps1()) { o._nodo.position.set(o.x, ip.y1, o.z); o._nodo.rotation.y = att; }
     }
     /* la posa: le clip se ci sono; se no il corpo respira, cammina
        ondeggiando, si carica all'indietro e si lancia avanti */
@@ -4157,18 +4391,42 @@
       var conClip = !!mod.mixer;
       if (conClip) {
         if (o._ferito > 0 && animaClip(o, 'ferito', true)) {}
-        else if (o._fase === 'carica' || o._fase === 'colpo') { if (!animaClip(o, 'attacco', o._fase === 'carica')) animaClip(o, 'corsa'); }
+        else if (o._fase === 'carica' || o._fase === 'colpo' || spC) { if (!animaClip(o, 'attacco', o._fase === 'carica' || spC)) animaClip(o, 'corsa'); }
+        else if (spV) animaClip(o, 'corsa');
         else if (muove > 1.6) animaClip(o, 'corsa'); else if (muove > 0.1) animaClip(o, 'passo'); else animaClip(o, 'idle');
         mod.mixer.update(dt * (lento || 0.15));
       }
       var c = mod.corpo, f = ora / 1000 + o.t * 0.01;
-      var respiro = Math.sin(f * 2.2) * 0.02, ond = muove > 0.1 ? Math.sin(f * 9) : 0;
-      var carica = o._fase === 'carica' ? 1 : 0, colpo = o._fase === 'colpo' ? 1 : 0;
-      c.scale.set(1 + respiro * 0.5, 1 + respiro + carica * 0.06, 1 + respiro * 0.5);
-      c.rotation.x += ((conClip ? 0 : -carica * 0.32 + colpo * 0.38) + (o._ferito > 0 ? -0.35 * o._ferito : 0) - c.rotation.x) * Math.min(1, dt * 10);
-      c.rotation.z = conClip ? 0 : ond * 0.06;
-      c.position.y = conClip ? 0 : Math.abs(ond) * 0.05 + (SM.modo === 'fluttua' ? Math.sin(f * 1.6) * 0.15 : 0);
-      if (mod.occhi) { mod.occhi.material.opacity = carica ? 0.5 + Math.sin(ora / 40) * 0.3 : all ? 0.35 : 0.15; mod.occhi.scale.setScalar((0.22 + SM.alto * 0.04) * V.scala * (1 + carica * 1.2)); }
+      var respiro = Math.sin(f * 2.2) * 0.02, ond = muove > 0.1 ? Math.sin(o._fasePasso || 0) : 0;
+      var carica = o._fase === 'carica' || spC ? 1 : 0, colpo = o._fase === 'colpo' || spV ? 1 : 0;
+      if (mod.rig) {
+        /* il rig nello shader: il passo avanza con la strada fatta (non col
+           tempo), le braccia salgono nella carica e calano nel colpo con
+           una curva morbida, il colpo subito arretra il busto */
+        var A4 = mod.rig.rigA.value, C4 = mod.rig.rigC.value;
+        o._fasePasso = (o._fasePasso || 0) + muove * dt * (5.2 / Math.max(0.8, SM.alto));
+        var ampV = Math.min(1, muove / Math.max(0.6, SM.vel * 0.8));
+        A4.x = o._fasePasso;
+        A4.y += (ampV - A4.y) * Math.min(1, dt * 8);
+        A4.z += ((carica ? 1 : 0) - A4.z) * Math.min(1, dt * (carica ? 7 : 16));
+        A4.w += ((colpo ? 1 : 0) - A4.w) * Math.min(1, dt * (colpo ? 18 : 5));
+        C4.x = Math.max(0, o._ferito || 0);
+        C4.z = (SM.modo === 'salto' || (spC && (o.specie === 'bruto' || o.specie === 'curvo'))) && carica ? 0.3 : 0;
+        C4.w = respiro * 0.6;
+      }
+      c.scale.set(1 + respiro * 0.3, 1 + respiro * 0.5, 1 + respiro * 0.3);
+      /* a terra: il colpo pesante lo butta all'indietro, poi si rialza */
+      var aTerra = o._crollo > 0.35 ? 1 : 0;
+      c.rotation.x += ((conClip ? 0 : colpo * 0.1) + (o._ferito > 0 ? -0.18 * o._ferito : 0) - aTerra * 1.25 - c.rotation.x) * Math.min(1, dt * (aTerra ? 9 : 5));
+      c.rotation.z = conClip ? 0 : ond * 0.035;
+      c.position.y = (conClip ? 0 : Math.abs(ond) * 0.035 + (SM.modo === 'fluttua' ? Math.sin(f * 1.6) * 0.15 : 0)) - Math.max(0, -c.rotation.x) * 0.25;
+      if (mod.occhi) {
+        /* gli occhi: si accendono nella carica; chi si puo' finire lampeggia bianco */
+        var es = eseguibile(o) && d < 6;
+        mod.occhi.material.opacity = es ? 0.45 + Math.sin(ora / 70) * 0.35 : carica ? 0.5 + Math.sin(ora / 40) * 0.3 : all ? 0.35 : 0.15;
+        mod.occhi.material.color.setHex(es ? 0xffffff : colV);
+        mod.occhi.scale.setScalar((0.22 + SM.alto * 0.04) * V.scala * (1 + carica * 1.2 + (es ? 0.6 : 0)));
+      }
     } else if (o._segnaposto) {
       o._segnaposto.rotation.x = o._fase === 'carica' ? -0.25 : o._fase === 'colpo' ? 0.3 : 0;
     }
@@ -4180,28 +4438,458 @@
     }
   }
 
-  /* IL PUGNO: il jab della mano robotica (V o 👊): chi e' davanti, entro due
-     metri, prende un colpo e viene respinto */
+  /* ═════════════════════════════════════════════════════════════════════════
+     LE MOSSE DEL GIOCATORE
+     ═════════════════════════════════════════════════════════════════════════ */
+  /* IL CORPO A CORPO: tre colpi in fila se si preme a tempo — il jab
+     sinistro, il gancio col calcio della pistola, il diretto pesante che
+     butta a terra. Ogni colpo che entra ferma il tempo un istante (si
+     sente il peso) e spinge il bersaglio */
+  var COMBO = [
+    { clip: 'Punch_sx', vel: 1.9, danno: 2, spinta: 0.06, stordito: 0.45, attesa: 0.26, fermo: 0.045, portata: 2.4 },
+    { clip: 'Punch_2', vel: 1.8, danno: 2, spinta: 0.07, stordito: 0.6, attesa: 0.3, fermo: 0.055, portata: 2.4 },
+    { clip: 'Punch', vel: 1.35, danno: 4, spinta: 0.16, stordito: 1.3, attesa: 0.6, fermo: 0.1, portata: 2.7, crollo: true }
+  ];
   function pugno() {
-    if (!S || schermo !== 'gioco' || S.finito || (CD.pugno || 0) > 0) return;
-    CD.pugno = 0.7;
-    animV.prendi = 0; animV.lancio = 1;
-    if (vista && vista.rig) vista.rig.colpo('Punch_sx', 1.6);
+    if (!S || schermo !== 'gioco' || S.finito || (CD.pugno || 0) > 0 || mosse.esegui) return;
+    /* davanti c'e' un nemico che barcolla: il pugno diventa l'esecuzione */
+    if (esecuzione()) return;
+    mosse.combo = mosse.finestra > 0 ? (mosse.combo % 3) + 1 : 1;
+    mosse.finestra = 0.9;
+    var C = COMBO[mosse.combo - 1];
+    CD.pugno = C.attesa;
+    animV.prendi = 0;
+    if (vista && vista.rig) vista.rig.colpo(C.clip, C.vel);
+    else animV.lancio = 1;
+    mosse.affondo = Math.max(mosse.affondo, C.crollo ? 0.16 : 0.07);
     var orig = camera.getWorldPosition(new T.Vector3()), dir = camera.getWorldDirection(new T.Vector3());
+    var dd = new T.Vector3(dir.x, 0, dir.z).normalize();
     var colpito = false;
-    nemiciVivi(2.4, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
-      var v = n.p.clone().sub(orig); v.y = 0; var l = v.length(); v.normalize();
-      var dd = new T.Vector3(dir.x, 0, dir.z).normalize();
-      if (v.dot(dd) < 0.55) return;
-      setTimeout(function () {
-        ferisci(n.o, 2, null, n.p);
-        n.o._spinta = { x: dd.x * 0.16, z: dd.z * 0.16 }; n.o._ferito = 1; n.o._stordito = 0.5;
-        scintille(n.p, 0xffffff, 12);
-      }, 120);
+    nemiciVivi(C.portata, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
+      var v = n.p.clone().sub(orig); v.y = 0; v.normalize();
+      if (v.dot(dd) < 0.5) return;
       colpito = true;
+      setTimeout(function () {
+        if (!n.o.vivo) return;
+        ferisci(n.o, C.danno, null, n.p);
+        n.o._spinta = { x: dd.x * C.spinta, z: dd.z * C.spinta }; n.o._ferito = 1;
+        n.o._stordito = Math.max(n.o._stordito || 0, C.stordito);
+        if (C.crollo) n.o._crollo = 1.3;
+        /* la carica del nemico s'interrompe: un pugno a tempo e' una difesa */
+        if (n.o._fase === 'carica') { n.o._fase = 'insegui'; n.o._cd = Math.max(n.o._cd || 0, 0.8); }
+        sangue(n.p, coloreDi(n.o), C.crollo ? 18 : 9, dd);
+        fermaTempo(C.fermo);
+        scossa = Math.max(scossa, C.crollo ? 0.55 : 0.3);
+        tonfo(C.crollo ? 70 : 110, C.crollo ? 0.35 : 0.18);
+      }, 110);
     });
-    bip(colpito ? 120 : 300, 0.1, 'square', colpito ? 0.08 : 0.03);
-    if (colpito) scossa = Math.max(scossa, 0.4);
+    fruscio(0.12, 900, 2400, colpito ? 0.03 : 0.05);
+  }
+
+  /* L'ESECUZIONE: un nemico stordito, a terra o quasi morto, davanti e
+     vicino, si finisce con una sequenza — il tempo rallenta, la testa si
+     avvicina, due colpi, poi il corpo cede. Rende energia e salute */
+  function eseguibile(o) {
+    if (!o || !o.vivo || !SPECIE_M[o.specie]) return false;
+    var max = specieDi(o).vita;
+    return (o._stordito || 0) > 1.0 || (o._crollo || 0) > 0 || (o.vita != null && o.vita <= Math.max(1, max * 0.3));
+  }
+  function bersaglioEsecuzione() {
+    if (!S || !mondo || S.lab || !camera) return null;
+    var dir = camera.getWorldDirection(new T.Vector3()), dd = new T.Vector3(dir.x, 0, dir.z).normalize();
+    var mi = null, md = 2.7;
+    nemiciVivi(2.7, new T.Vector3(S.pos.x, 1, S.pos.z)).forEach(function (n) {
+      if (!eseguibile(n.o)) return;
+      var v = n.p.clone().sub(new T.Vector3(S.pos.x, n.p.y, S.pos.z)), l = v.length();
+      if (v.normalize().dot(dd) < 0.45 || l > md) return;
+      md = l; mi = n;
+    });
+    return mi;
+  }
+  function esecuzione() {
+    var n = bersaglioEsecuzione();
+    if (!n) return false;
+    mosse.esegui = { o: n.o, p: n.p.clone(), t: 0, fase: 0 };
+    n.o._stordito = 3; n.o._fase = 'attesa';
+    rallenta(0.75);
+    S.immune = Math.max(S.immune, 90);
+    if (vista && vista.rig) vista.rig.colpo('Punch_sx', 1.6);
+    fruscio(0.2, 400, 1600, 0.05);
+    return true;
+  }
+  function passoEsecuzione(dtR) {
+    var E = mosse.esegui;
+    if (!E) return;
+    E.t += dtR;
+    /* lo sguardo va sul bersaglio */
+    var vuole = Math.atan2(-(E.p.x - S.pos.x), -(E.p.z - S.pos.z));
+    S.ang += Math.atan2(Math.sin(vuole - S.ang), Math.cos(vuole - S.ang)) * Math.min(1, dtR * 12);
+    S.angY += (-0.12 - S.angY) * Math.min(1, dtR * 8);
+    mosse.affondo += (0.42 - mosse.affondo) * Math.min(1, dtR * 10);
+    if (E.fase === 0 && E.t > 0.22) {
+      E.fase = 1;
+      if (vista && vista.rig) vista.rig.colpo('Punch_2', 1.7);
+      sangue(E.p, coloreDi(E.o), 10, null); tonfo(120, 0.15); fermaTempo(0.06);
+    } else if (E.fase === 1 && E.t > 0.5) {
+      E.fase = 2;
+      if (vista && vista.rig) vista.rig.colpo('Punch', 1.4);
+    } else if (E.fase === 2 && E.t > 0.68) {
+      E.fase = 3;
+      var o = E.o;
+      if (o.vivo) {
+        o._crollo = 2;
+        ferisci(o, 999, null, E.p);
+        sangue(E.p, coloreDi(o), 40, camera.getWorldDirection(new T.Vector3()));
+        luceLampo(E.p, coloreDi(o), 4, 0.4);
+        S.energia = Math.min(100, (S.energia || 0) + 35);
+        S.punti += 50;
+        if (S.vite < S.vitaMax) S.vite++;
+        avviso(t('☠ Esecuzione', '☠ Execution'), t('+35 energia · +1 salute', '+35 energy · +1 health'));
+      }
+      fermaTempo(0.16); scossa = 1; tonfo(55, 0.6); ringhio(o, 0.5, true);
+    } else if (E.fase === 3 && E.t > 1.0) {
+      mosse.esegui = null;
+    }
+  }
+
+  /* LA SCHIVATA (C o 💨): uno scatto nella direzione in cui si va —
+     all'indietro se si sta fermi — con un attimo d'invulnerabilita' */
+  function schiva() {
+    if (!S || schermo !== 'gioco' || S.finito || mosse.esegui || (CD.schiva || 0) > 0) return;
+    var av = (tasti.su ? 1 : 0) - (tasti.giu ? 1 : 0), lat = (tasti.latSx ? 1 : 0) - (tasti.latDx ? 1 : 0);
+    if (!av && !lat) av = -1;
+    var l = Math.hypot(av, lat); av /= l; lat /= l;
+    var vx = -Math.sin(S.ang) * av - Math.cos(S.ang) * lat, vz = -Math.cos(S.ang) * av + Math.sin(S.ang) * lat;
+    S.scatto = { x: vx, z: vz, k: 0.27, n: 14 };
+    S.immune = Math.max(S.immune, 22);
+    CD.schiva = 0.7;
+    mosse.rollio = lat * 0.09; mosse.chino = 1;
+    fruscio(0.28, 300, 1800, 0.07);
+  }
+
+  /* IL POTERE CARICATO: tenendo premuto (G, tasto destro, ✦) la sfera
+     nella mano cresce; lasciando parte il potere, piu' forte quanto piu'
+     si e' caricato. Un tocco breve e' il potere normale */
+  function inizioCarica() {
+    if (!S || schermo !== 'gioco' || S.finito || mosse.caricando) return;
+    if (!potereAttivo()) { usaPotere(); return; }
+    mosse.caricando = true; mosse.carica = 0;
+  }
+  function fineCarica() {
+    if (!mosse.caricando) return;
+    mosse.caricando = false;
+    var k = mosse.carica;
+    mosse.carica = 0;
+    usaPotere(k < 0.2 ? 1 : 1 + k * 1.5);
+  }
+
+  /* il passo delle mosse, col tempo vero (dtR) e con quello del gioco (dtG) */
+  function passoMosse(dtR, dtG) {
+    mosse.finestra = Math.max(0, mosse.finestra - dtR);
+    CD.schiva = Math.max(0, (CD.schiva || 0) - dtG);
+    if (S.stordito > 0) S.stordito -= dtG;
+    mosse.fov += ((S.scatto ? 1 : 0) - mosse.fov) * Math.min(1, dtR * (S.scatto ? 18 : 6));
+    mosse.rollio *= Math.max(0, 1 - dtR * 7);
+    mosse.chino *= Math.max(0, 1 - dtR * 6);
+    if (!mosse.esegui) mosse.affondo *= Math.max(0, 1 - dtR * 9);
+    if (mosse.caricando) {
+      mosse.carica = Math.min(1, mosse.carica + dtR / 1.1);
+      scossa = Math.max(scossa, mosse.carica * 0.08);
+      if (mosse.carica >= 1 && !mosse.pieno) { mosse.pieno = true; bip(1320, 0.08, 'sine', 0.04); }
+    } else mosse.pieno = false;
+    passoEsecuzione(dtR);
+    passoPericoli(dtG);
+    /* il sangue sullo schermo: pulsa quando la salute e' poca */
+    var poca = S.vitaMax ? 1 - S.vite / S.vitaMax : 0;
+    mosse.sangue += ((S.vite <= 1 ? 1 : poca > 0.5 ? 0.5 : 0) - mosse.sangue) * Math.min(1, dtR * 3);
+    if (post) {
+      var U = post.mat.uniforms;
+      U.scatto.value = mosse.fov;
+      U.sangue.value = mosse.sangue;
+      U.colpito.value = Math.max(0, (U.colpito.value || 0) - dtR * 2.2);
+      U.urlo.value = Math.max(0, (S.stordito || 0) / 1.6);
+      U.lento.value += ((tempoG.lento > 0 ? 1 : 0) - U.lento.value) * Math.min(1, dtR * 8);
+    }
+  }
+
+  /* LE GOCCE: quello che esce da un colpo, del colore della creatura,
+     scuro, che cade a terra */
+  function sangue(p, col, n, dir) {
+    var c = new T.Color(col).lerp(new T.Color(0x220000), 0.45).getHex();
+    for (var i = 0; i < n; i++) {
+      var v = new T.Vector3((Math.random() - 0.5) * 3, Math.random() * 2.5, (Math.random() - 0.5) * 3);
+      if (dir) v.addScaledVector(dir, 2.5);
+      particella(p, v, i % 4 ? c : col, 0.45 + Math.random() * 0.4, 0.06 + Math.random() * 0.09, 9);
+    }
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     I PERICOLI A TERRA: gli attacchi speciali dei mostri si annunciano con
+     un cerchio sul pavimento. «area»: il disco si riempie, poi colpisce chi
+     e' dentro. «onda»: un anello che si allarga dal punto d'impatto — si
+     salta. «pozza»: resta e brucia chi ci cammina
+     ═════════════════════════════════════════════════════════════════════════ */
+  var pericoli = [], geoAnello = null, geoDisco = null;
+  function pericolo(opz) {
+    if (!scena) return null;
+    if (!geoAnello) { geoAnello = new T.RingGeometry(0.9, 1, 56); geoDisco = new T.CircleGeometry(1, 40); }
+    var mA = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.8, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
+    var mD = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.25, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
+    var an = new T.Mesh(geoAnello, mA), di = new T.Mesh(geoDisco, mD);
+    [an, di].forEach(function (m) { m.rotation.x = -Math.PI / 2; m.position.set(opz.x, 0.03, opz.z); m.renderOrder = 3; scena.add(m); });
+    var P = { x: opz.x, z: opz.z, r: opz.r || 1.4, tipo: opz.tipo || 'area', ritardo: opz.ritardo || 0.8, durata: opz.durata || 0, vel: opz.vel || 7,
+              col: opz.col, nome: opz.nome, fonte: opz.fonte || { x: opz.x, z: opz.z }, t: 0, an: an, di: di, fatto: false, poi: opz.poi };
+    pericoli.push(P);
+    return P;
+  }
+  function vaVia(P) {
+    [P.an, P.di].forEach(function (m) { scena.remove(m); m.material.dispose(); });
+  }
+  function colpisci(P) {
+    if (S.immune > 0 || S.scudo > 0 || S.finito) return;
+    danno((P.nome ? P.nome[lingua() === 'en' ? 1 : 0] : '') + t(' ti ha colpito', ' hit you'), P.fonte);
+  }
+  function passoPericoli(dt) {
+    for (var i = pericoli.length - 1; i >= 0; i--) {
+      var P = pericoli[i];
+      P.t += dt;
+      var d = Math.hypot(S.pos.x - P.x, S.pos.z - P.z), fine = false;
+      if (P.tipo === 'area') {
+        var k = Math.min(1, P.t / P.ritardo);
+        P.an.scale.setScalar(P.r); P.di.scale.setScalar(Math.max(0.01, P.r * k));
+        P.an.material.opacity = 0.5 + Math.sin(P.t * 30) * 0.3;
+        if (k >= 1 && !P.fatto) {
+          P.fatto = true;
+          if (d < P.r) colpisci(P);
+          esplosione(new T.Vector3(P.x, 0.3, P.z), P.col, 0.8, false);
+          if (P.poi) P.poi(P);
+        }
+        if (P.fatto) { P.di.material.opacity *= 0.85; P.an.material.opacity *= 0.85; fine = P.t > P.ritardo + 0.4; }
+      } else if (P.tipo === 'onda') {
+        var rr = P.t * P.vel;
+        P.an.scale.setScalar(Math.max(0.05, rr)); P.di.visible = false;
+        P.an.material.opacity = Math.max(0, 0.9 * (1 - rr / P.r));
+        /* l'onda corre sul pavimento: chi e' in aria passa sopra */
+        if (!P.fatto && Math.abs(d - rr) < 0.5 && S.pos.y - (S.lab ? S.labSuolo : 0) < 0.3) { P.fatto = true; colpisci(P); }
+        if (Math.random() < 0.5) particella(new T.Vector3(P.x + Math.cos(P.t * 40) * rr, 0.15, P.z + Math.sin(P.t * 40) * rr), new T.Vector3(0, 1.5, 0), P.col, 0.3, 0.2, 2);
+        fine = rr > P.r;
+      } else {
+        var k2 = Math.min(1, P.t / P.ritardo);
+        P.an.scale.setScalar(P.r); P.di.scale.setScalar(P.r * (k2 < 1 ? k2 : 1));
+        P.di.material.opacity = k2 < 1 ? 0.2 : 0.45 + Math.sin(P.t * 5) * 0.1;
+        if (k2 >= 1 && d < P.r * 0.9) colpisci(P);
+        if (k2 >= 1 && Math.random() < 0.25) particella(new T.Vector3(P.x + (Math.random() - 0.5) * P.r * 1.4, 0.1, P.z + (Math.random() - 0.5) * P.r * 1.4), new T.Vector3(0, 0.8, 0), P.col, 0.7, 0.14, -0.5);
+        fine = P.t > P.ritardo + P.durata;
+        if (P.t > P.ritardo + P.durata - 0.6) { P.di.material.opacity *= 0.9; P.an.material.opacity *= 0.9; }
+      }
+      if (fine) { vaVia(P); pericoli.splice(i, 1); }
+    }
+  }
+  function pulisciPericoli() { pericoli.forEach(vaVia); pericoli = []; mosse.esegui = null; S && (S.scatto = null); }
+
+  /* GLI ATTACCHI SPECIALI DEI MOSTRI. Ognuno ha il suo, oltre a quello
+     normale, e lo usa ogni tanto: si vede arrivare (il corpo si carica, il
+     cerchio a terra) e si schiva — di lato, saltando, con la schivata */
+  var SPECIALI = {
+    bruto: { nome: 'tonfo', carica: 1.0, cd: 8, da: 0, a: 7 },        /* pugni a terra: l'onda d'urto, da saltare */
+    mostro: { nome: 'schegge', carica: 0.8, cd: 7, da: 2, a: 11 },    /* esplode in schegge di cristallo */
+    palude: { nome: 'pozza', carica: 0.7, cd: 7, da: 2.5, a: 11 },    /* sputa fango acido che resta a terra */
+    cervo: { nome: 'urlo', carica: 0.7, cd: 9, da: 2.5, a: 10 },      /* urla (ti rallenta) e si lancia */
+    abissale: { nome: 'svanisce', carica: 0.5, cd: 8, da: 3, a: 12 }, /* sparisce e ricompare di fianco */
+    verme: { nome: 'sotterra', carica: 0.5, cd: 8, da: 3, a: 10 },    /* si infila nel pavimento e sbuca sotto di te */
+    curvo: { nome: 'balzo', carica: 0.6, cd: 7, da: 3, a: 10 }        /* un balzo altissimo, ricade dove eri */
+  };
+  function passoSpeciale(o, sx, SM, V, colV, d, ux, uz, wx, wz, dt) {
+    var SP = o._sp, nm = SM.nome, fonte = { x: wx, z: wz };
+    SP.t += dt;
+    var mx = 0, mz = 0;
+    if (SP.fase === 'carica') {
+      if (SP.t >= SPECIALI[o.specie].carica) { SP.fase = 'via'; SP.t = 0; SP.inizio = true; }
+      return { mx: 0, mz: 0 };
+    }
+    var inizio = SP.inizio; SP.inizio = false;
+    var tipo = SPECIALI[o.specie].nome, finito = false;
+    if (tipo === 'tonfo') {
+      if (inizio) {
+        pericolo({ x: wx, z: wz, r: 8 * V.scala, tipo: 'onda', vel: 7.5, col: colV, nome: nm, fonte: fonte });
+        esplosione(new T.Vector3(wx, 0.2, wz), colV, 1.1, false);
+        scossa = Math.max(scossa, Math.max(0.2, 1 - d / 10)); tonfo(45, 0.7);
+      }
+      finito = SP.t > 0.6;
+    } else if (tipo === 'schegge') {
+      if (inizio) {
+        var pn = posNemico(o), n = 12 + V.extra * 4;
+        for (var i = 0; i < n; i++) {
+          var a = i / n * Math.PI * 2, pr = proiettile(pn.clone(), new T.Vector3(Math.sin(a), 0.05, Math.cos(a)).multiplyScalar(7.5), colV, false);
+          pr.fonte = fonte; pr.nome = nm; proiettili.push(pr);
+        }
+        esplosione(pn, colV, 0.9, false); bip(1800, 0.2, 'triangle', 0.05);
+      }
+      finito = SP.t > 0.5;
+    } else if (tipo === 'pozza') {
+      if (inizio) {
+        for (var j = 0; j < 3; j++) {
+          var px = S.pos.x + (j ? (Math.random() - 0.5) * 3 : S.vel.x * 30), pz = S.pos.z + (j ? (Math.random() - 0.5) * 3 : S.vel.z * 30);
+          pericolo({ x: px, z: pz, r: 1.25, tipo: 'pozza', ritardo: 0.85, durata: 4.5, col: colV, nome: nm, fonte: fonte });
+          var p0 = posNemico(o), vv = new T.Vector3(px - p0.x, 0, pz - p0.z).divideScalar(0.85);
+          vv.y = 0.5 * 4.5 * 0.85 + (0.1 - p0.y) / 0.85;
+          var gl = proiettile(p0, vv, colV, false); gl.g = 4.5; gl.innocuo = true; proiettili.push(gl);
+        }
+        bip(150, 0.3, 'sawtooth', 0.05);
+      }
+      finito = SP.t > 0.6;
+    } else if (tipo === 'urlo') {
+      if (inizio) {
+        if (d < 10) { S.stordito = 1.6; scossa = Math.max(scossa, 0.6); }
+        ringhio(o, 1.2, true);
+        for (var r2 = 0; r2 < 3; r2++) pericolo({ x: wx, z: wz, r: 6 + r2 * 2, tipo: 'onda', vel: 9 - r2, col: colV, nome: nm, fonte: fonte }).fatto = true;
+        SP.dir = { x: ux, z: uz };
+      }
+      /* poi la carica a testa bassa */
+      if (SP.t > 0.5) {
+        mx = SP.dir.x * 7.5 * dt; mz = SP.dir.z * 7.5 * dt;
+        if (!SP.colpito && d < SM.portata + 0.3 && !S.immune && !(S.scudo > 0)) { SP.colpito = true; danno(nm[lingua() === 'en' ? 1 : 0] + t(' ti ha travolto', ' ran you over'), fonte); }
+      }
+      finito = SP.t > 1.15;
+    } else if (tipo === 'svanisce') {
+      if (inizio) { esplosione(posNemico(o), colV, 0.7, false); o._nodo.visible = false; o._nascosto = true; }
+      if (SP.t > 0.45 && o._nascosto) {
+        /* ricompare di fianco, a tre metri e mezzo, dentro la stanza */
+        var lato = Math.random() < 0.5 ? 1 : -1, ang = Math.atan2(-ux, -uz) + lato * 1.3;
+        var nx = S.pos.x + Math.sin(ang) * 3.5 - sx.x, nz = S.pos.z + Math.cos(ang) * 3.5 - sx.z;
+        nx = Math.max(-sx.larg / 2 + 0.7, Math.min(sx.larg / 2 - 0.7, nx)); nz = Math.max(-sx.prof / 2 + 0.7, Math.min(sx.prof / 2 - 0.7, nz));
+        o.x = nx; o.z = nz; o._ip.x0 = nx; o._ip.z0 = nz;
+        o._nascosto = false; o._nodo.visible = true;
+        esplosione(posNemico(o), colV, 0.7, false);
+        o._fase = 'carica'; o._tf = 0.3; o._sp = null;
+        return { mx: 0, mz: 0 };
+      }
+    } else if (tipo === 'sotterra') {
+      if (inizio) { SP.quota = 0; scintille(posNemico(o), colV, 14); tonfo(90, 0.3); }
+      if (!SP.sotto) {
+        SP.quota = Math.max(-2.6, SP.quota - dt * 6);
+        if (SP.quota <= -2.6) {
+          SP.sotto = true; SP.tSotto = SP.t;
+          var bx = S.pos.x, bz = S.pos.z;
+          pericolo({ x: bx, z: bz, r: 1.5, tipo: 'area', ritardo: 0.9, col: colV, nome: nm, fonte: { x: bx, z: bz } });
+          o.x = Math.max(-sx.larg / 2 + 0.7, Math.min(sx.larg / 2 - 0.7, bx - sx.x)); o.z = Math.max(-sx.prof / 2 + 0.7, Math.min(sx.prof / 2 - 0.7, bz - sx.z));
+          o._ip.x0 = o.x; o._ip.z0 = o.z;
+        }
+      } else if (SP.t - SP.tSotto > 0.9) {
+        SP.quota = Math.min(0, SP.quota + dt * 9);
+        if (SP.quota === 0) finito = true;
+      }
+      o._quotaSalto = SP.quota;
+    } else if (tipo === 'balzo') {
+      if (inizio) {
+        SP.da = { x: o.x, z: o.z };
+        SP.a = { x: Math.max(-sx.larg / 2 + 0.7, Math.min(sx.larg / 2 - 0.7, S.pos.x - sx.x)), z: Math.max(-sx.prof / 2 + 0.7, Math.min(sx.prof / 2 - 0.7, S.pos.z - sx.z)) };
+        pericolo({ x: sx.x + SP.a.x, z: sx.z + SP.a.z, r: 1.7, tipo: 'area', ritardo: 1.0, col: colV, nome: nm, fonte: fonte,
+                   poi: function () { scossa = Math.max(scossa, 0.5); tonfo(60, 0.4); } });
+        ringhio(o, 0.6, false);
+      }
+      var kk = Math.min(1, SP.t / 1.0);
+      mx = SP.da.x + (SP.a.x - SP.da.x) * kk - o.x; mz = SP.da.z + (SP.a.z - SP.da.z) * kk - o.z;
+      o._quotaSalto = Math.sin(kk * Math.PI) * 3.4;
+      finito = kk >= 1;
+    }
+    if (finito) { o._sp = null; o._fase = 'insegui'; o._quotaSalto = 0; o._cd = Math.max(o._cd || 0, 0.8); }
+    return { mx: mx, mz: mz };
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL SUONO DEL POSTO: rumore filtrato e oscillatori, niente file. Il
+     ronzio basso dell'istituto, i colpi lontani nei tubi, i passi, i
+     fruscii delle mosse, i tonfi dei colpi, i versi delle creature
+     ═════════════════════════════════════════════════════════════════════════ */
+  var bufRumore = null, amb = null;
+  function contesto() {
+    if (IMP.suono !== 'acceso') return null;
+    try { if (!audio) audio = new (globale.AudioContext || globale.webkitAudioContext)(); } catch (e) { return null; }
+    if (!bufRumore) {
+      bufRumore = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+      var d = bufRumore.getChannelData(0), ultimo2 = 0;
+      for (var i = 0; i < d.length; i++) { var w = Math.random() * 2 - 1; ultimo2 = (ultimo2 + 0.02 * w) / 1.02; d[i] = ultimo2 * 3.5 * 0.5 + w * 0.5; }
+    }
+    return audio;
+  }
+  function rumore(durata, f0, f1, vol, tipoF, q) {
+    var A = contesto(); if (!A) return;
+    try {
+      var s = A.createBufferSource(), f = A.createBiquadFilter(), g = A.createGain(), t0 = A.currentTime;
+      s.buffer = bufRumore; s.loop = true;
+      f.type = tipoF || 'bandpass'; f.Q.value = q || 1.2;
+      f.frequency.setValueAtTime(f0, t0); f.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t0 + durata);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + Math.min(0.03, durata * 0.2));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + durata);
+      s.connect(f); f.connect(g); g.connect(A.destination);
+      s.start(t0, Math.random() * 1.5); s.stop(t0 + durata + 0.05);
+    } catch (e) {}
+  }
+  function fruscio(durata, f0, f1, vol) { rumore(durata, f0, f1, vol, 'bandpass', 0.9); }
+  function tonfo(freq, durata) {
+    var A = contesto(); if (!A) return;
+    try {
+      var o = A.createOscillator(), g = A.createGain(), t0 = A.currentTime;
+      o.type = 'sine'; o.frequency.setValueAtTime(freq * 2.2, t0); o.frequency.exponentialRampToValueAtTime(freq * 0.6, t0 + durata);
+      g.gain.setValueAtTime(0.16, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + durata);
+      o.connect(g); g.connect(A.destination); o.start(t0); o.stop(t0 + durata + 0.02);
+    } catch (e) {}
+    rumore(durata * 0.6, 1800, 200, 0.08, 'lowpass', 0.7);
+  }
+  /* il verso: una sega bassa che trema, passata in un filtro che si apre e
+     si chiude come una gola; ogni specie ha la sua altezza */
+  var VOCI = { bruto: 48, mostro: 95, palude: 62, cervo: 140, abissale: 210, verme: 80, curvo: 110 };
+  function ringhio(o, durata, forte) {
+    var A = contesto(); if (!A || !o) return;
+    var dist = 1;
+    try { var p = posNemico(o); dist = Math.hypot(p.x - S.pos.x, p.z - S.pos.z); } catch (e) {}
+    var vol = (forte ? 0.11 : 0.06) / (1 + dist * 0.25);
+    if (vol < 0.006) return;
+    try {
+      var f0 = (VOCI[o.specie] || 90) * (0.9 + Math.random() * 0.2), t0 = A.currentTime;
+      var os = A.createOscillator(), lfo = A.createOscillator(), lg = A.createGain(), fl = A.createBiquadFilter(), g = A.createGain();
+      os.type = 'sawtooth'; os.frequency.setValueAtTime(f0, t0); os.frequency.linearRampToValueAtTime(f0 * (forte ? 0.7 : 0.85), t0 + durata);
+      lfo.frequency.value = 18 + Math.random() * 12; lg.gain.value = f0 * 0.12; lfo.connect(lg); lg.connect(os.frequency);
+      fl.type = 'bandpass'; fl.Q.value = 3; fl.frequency.setValueAtTime(f0 * 4, t0); fl.frequency.linearRampToValueAtTime(f0 * (forte ? 9 : 6), t0 + durata * 0.4); fl.frequency.linearRampToValueAtTime(f0 * 3, t0 + durata);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t0 + durata);
+      os.connect(fl); fl.connect(g); g.connect(A.destination);
+      os.start(t0); lfo.start(t0); os.stop(t0 + durata + 0.05); lfo.stop(t0 + durata + 0.05);
+    } catch (e) {}
+    rumore(durata, 600, 300, vol * 0.5, 'bandpass', 2);
+  }
+  /* il fondo: due note basse appena stonate fra loro e un soffio d'aria
+     nei condotti; la tensione sale quando qualcosa ti ha visto */
+  function suonoAmbiente(dtR, attivo) {
+    var A = attivo ? contesto() : audio;
+    if (!A) return;
+    try {
+      if (!amb && attivo) {
+        var g = A.createGain(); g.gain.value = 0; g.connect(A.destination);
+        var o1 = A.createOscillator(), o2 = A.createOscillator(), fo = A.createBiquadFilter();
+        o1.type = o2.type = 'sawtooth'; o1.frequency.value = 41; o2.frequency.value = 41.7;
+        fo.type = 'lowpass'; fo.frequency.value = 120; fo.Q.value = 0.7;
+        o1.connect(fo); o2.connect(fo); fo.connect(g);
+        var s = A.createBufferSource(), fa = A.createBiquadFilter(), ga = A.createGain();
+        s.buffer = bufRumore; s.loop = true; fa.type = 'bandpass'; fa.frequency.value = 380; fa.Q.value = 0.6; ga.gain.value = 0.5;
+        s.connect(fa); fa.connect(ga); ga.connect(g);
+        o1.start(); o2.start(); s.start();
+        amb = { g: g, fo: fo, fa: fa, tensione: 0, prossimo: 4, passo: 0 };
+      }
+      if (!amb) return;
+      var vuole = attivo ? 0.05 + amb.tensione * 0.05 : 0;
+      amb.g.gain.value += (vuole - amb.g.gain.value) * Math.min(1, dtR * 2);
+      if (!attivo) return;
+      amb.fo.frequency.value = 120 + amb.tensione * 140;
+      amb.fa.frequency.value = 380 + Math.sin(A.currentTime * 0.13) * 160;
+      /* i colpi lontani nei tubi, ogni tanto */
+      amb.prossimo -= dtR;
+      if (amb.prossimo <= 0) { amb.prossimo = 6 + Math.random() * 12; rumore(1.4, 220 + Math.random() * 300, 80, 0.03, 'bandpass', 8); }
+      /* i passi */
+      var v = Math.hypot(S.vel.x, S.vel.z), fase = Math.floor((S.passi || 0) * (v > 0.07 ? 3.9 : 4.5) / Math.PI);
+      if (v > 0.01 && S.terra && fase !== amb.passo) rumore(0.09, v > 0.07 ? 900 : 650, 180, v > 0.07 ? 0.05 : 0.03, 'lowpass', 1);
+      amb.passo = fase;
+    } catch (e) {}
   }
 
   /* usare quello che si ha in mano: la scorciatoia del combattimento */
@@ -4221,16 +4909,75 @@
   }
 
   var dimPrec = '';
+  /* IL PROFILO: quanto costa ogni parte del fotogramma (media mobile, ms).
+     Serve a sapere dove va il tempo, non a indovinarlo */
+  var prof = { passo: 0, scena: 0, disegna: 0, hud: 0, fotogramma: 16.7, scala: 1, giri: 0 };
+  function misura(k, t0) { prof[k] += ((performance.now() - t0) - prof[k]) * 0.1; }
+  /* LA RISOLUZIONE DINAMICA: se il fotogramma costa troppo si disegna a
+     una risoluzione un po' piu' bassa (fino al 55%), e quando c'e' margine
+     si risale: il movimento resta fluido, che e' quello che si sente */
+  var risDin = { lento: 0, veloce: 0, base: 1 };
+  function adattaRisoluzione(dtMs) {
+    if (!ren || ps1() || IMP.risdin === 'no') return;
+    prof.fotogramma += (dtMs - prof.fotogramma) * 0.05;
+    if (prof.fotogramma > 21) { risDin.lento += dtMs; risDin.veloce = 0; }
+    else if (prof.fotogramma < 14.5) { risDin.veloce += dtMs; risDin.lento = 0; }
+    else { risDin.lento = risDin.veloce = 0; }
+    var nuova = prof.scala;
+    if (risDin.lento > 900 && prof.scala > 0.56) { nuova = Math.max(0.55, prof.scala - 0.1); risDin.lento = 0; }
+    if (risDin.veloce > 3000 && prof.scala < 1) { nuova = Math.min(1, prof.scala + 0.1); risDin.veloce = 0; }
+    if (nuova !== prof.scala) {
+      prof.scala = nuova;
+      ren.setPixelRatio(risDin.base * nuova);
+      dimPrec = '';
+    }
+  }
+  /* i nemici si disegnano fra la posizione del passo prima e quella
+     dell'ultimo, come il giocatore */
+  var frustum = null, mFrustum = null, sferaN = null;
+  function interpolaNemici(alfa) {
+    var st = mondo.stanzaCorrente;
+    if (!st || S.lab) return;
+    /* i nemici fuori dall'inquadratura non si disegnano (le loro mesh non
+       hanno il ritaglio automatico: l'animazione ne sposta i vertici) */
+    if (!frustum) { frustum = new T.Frustum(); mFrustum = new T.Matrix4(); sferaN = new T.Sphere(); }
+    camera.updateMatrixWorld(); mFrustum.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+    frustum.setFromProjectionMatrix(mFrustum);
+    var stanze = [st];
+    (st.porte || []).forEach(function (p) { var s2 = mondo.zona.stanze.filter(function (x) { return x.id === p.a; })[0]; if (s2) stanze.push(s2); });
+    stanze.forEach(function (s3) {
+      (s3.oggetti || []).forEach(function (o) {
+        if (o.tipo !== 'nemico' || !o._nodo || !o._ip) return;
+        var a = o._ip;
+        o._nodo.position.set(a.x0 + (o.x - a.x0) * alfa, a.y0 + (a.y1 - a.y0) * alfa, a.z0 + (o.z - a.z0) * alfa);
+        var dr = Math.atan2(Math.sin(a.r1 - a.r0), Math.cos(a.r1 - a.r0));
+        o._nodo.rotation.y = a.r0 + dr * alfa;
+        if (!o.vivo && !(o._muore > 0)) return;
+        var sp = specieDi(o), h = (sp.m ? sp.m.alto : 1.6) * (o._var ? o._var.scala : 1);
+        sferaN.center.set(s3.x + o._nodo.position.x, h * 0.5, s3.z + o._nodo.position.z); sferaN.radius = h * 0.75 + 0.5;
+        o._nodo.visible = !o._nascosto && frustum.intersectsSphere(sferaN);
+      });
+    });
+  }
   function ciclo(ora) {
     anim = null;
     if (!visibile() || !pronto) { ultimo = 0; return; }
     if (!ultimo) ultimo = ora;
     var dt = Math.min(ora - ultimo, 200);
     ultimo = ora;
+    adattaRisoluzione(dt);
+    /* il tempo del gioco: si ferma un attimo sui colpi pesanti, rallenta
+       nelle esecuzioni (lo schermo intanto resta fluido) */
+    var kT = scalaTempo(dt / 1000), dtR = dt;
+    dt *= kT;
     accumulo += dt;
-    var giri = 0;
+    var giri = 0, t0 = performance.now();
     while (accumulo >= PASSO && giri < 5) { passo(); accumulo -= PASSO; giri++; }
     if (accumulo > PASSO * 5) accumulo = 0;
+    misura('passo', t0); prof.giri = giri;
+    /* i proiettili, le nubi, gli effetti: col tempo vero del fotogramma */
+    if (S && mondo && schermo === 'gioco') { passoCombattimento(Math.min(0.05, dt / 1000)); passoMosse(Math.min(0.05, dtR / 1000), Math.min(0.05, dt / 1000)); }
+    t0 = performance.now();
     if (S && mondo) {
       aggiornaVisibili();
       aggiornaLuci(false);
@@ -4258,16 +5005,21 @@
         S.pos.y = S.posPrec.y + (reale.y - S.posPrec.y) * alfa;
         S.pos.z = S.posPrec.z + (reale.z - S.posPrec.z) * alfa;
       }
-      aggiornaZoom(dt / 1000);
+      aggiornaZoom(dtR / 1000);
       animaChimico();
       muoviCamera();
       if (reale) { S.pos.x = reale.x; S.pos.y = reale.y; S.pos.z = reale.z; }
+      if (!ps1()) interpolaNemici(alfa);
       animaMorti(dt / 1000);
       aggiornaNumeri(dt / 1000);
     }
+    misura('scena', t0);
     if (!ps1()) adattaDimensioni();
-    disegna(ora);
-    hud();
+    if (ren) { ren.info.autoReset = false; ren.info.reset(); }
+    t0 = performance.now(); disegna(ora); misura('disegna', t0);
+    if (ren) { prof.chiamate = ren.info.render.calls; prof.triangoli = ren.info.render.triangles; }
+    t0 = performance.now(); hud(); misura('hud', t0);
+    suonoAmbiente(dtR / 1000, !!(S && mondo && schermo === 'gioco'));
     anim = requestAnimationFrame(ciclo);
   }
 
@@ -4304,11 +5056,17 @@
   var POST_VS = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
   var POST_FS = [
     'uniform sampler2D tDiffuse; uniform vec2 risol; uniform float tempo; uniform float bagliore;',
+    'uniform float scatto; uniform float sangue; uniform float colpito; uniform float urlo; uniform float lento;',
     'varying vec2 vUv;',
     'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }',
     'vec3 forte(vec2 uv){ vec3 c = texture2D(tDiffuse, uv).rgb; return max(c - 0.72, 0.0); }',
     'void main(){',
-    '  vec3 c = texture2D(tDiffuse, vUv).rgb;',
+    /* l'aberrazione cromatica: appena sui bordi, forte nello scatto, nel
+       colpo subito, nell'urlo; la sfocatura radiale nello scatto */
+    '  vec2 dc = vUv - 0.5;',
+    '  float ab = 0.0015 + dot(dc, dc) * 0.006 + scatto * 0.006 + colpito * 0.009 + urlo * 0.007 * (0.6 + 0.4 * sin(tempo * 40.0));',
+    '  vec3 c = vec3(texture2D(tDiffuse, vUv + dc * ab * 2.0).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - dc * ab * 2.0).b);',
+    '  if (scatto > 0.02) { vec3 sb = c; for (int i = 1; i < 6; i++) sb += texture2D(tDiffuse, vUv - dc * float(i) * 0.012 * scatto).rgb; c = mix(c, sb / 6.0, min(1.0, scatto * 1.2)); }',
     '  if (bagliore > 0.0) {',
     '    vec2 px = 1.0 / risol; vec3 b = vec3(0.0);',
     '    for (int i = 0; i < 8; i++) { float a = float(i) * 0.7854;',
@@ -4323,6 +5081,14 @@
     '  c = (c - 0.5) * 1.1 + 0.48;',
     '  vec2 q = vUv - 0.5; q.x *= risol.x / risol.y;',
     '  c *= 1.0 - 0.55 * pow(clamp(length(q) * 1.08, 0.0, 1.0), 2.2);',
+    /* la salute poca: il rosso sui bordi che batte come il cuore, il colore
+       che se ne va; il rallentatore toglie colore e scalda */
+    '  float bordo = smoothstep(0.25, 0.85, length(q));',
+    '  float cuore = 0.55 + 0.45 * pow(abs(sin(tempo * 3.4)), 6.0);',
+    '  float lr = dot(c, vec3(0.299, 0.587, 0.114));',
+    '  c = mix(c, vec3(lr), sangue * 0.45 + lento * 0.5);',
+    '  c = mix(c, vec3(0.35, 0.0, 0.0), bordo * (sangue * 0.65 * cuore + colpito * 0.5));',
+    '  c = mix(c, c * vec3(1.08, 0.95, 0.82), lento * 0.6);',
     '  float g = hash(floor(vUv * risol) + fract(tempo * 7.13) * 91.7) - 0.5;',
     '  c += g * 0.045 * (1.0 - l * 0.6);',
     '  gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);',
@@ -4339,7 +5105,8 @@
     var geo = new T.PlaneGeometry(2, 2);
     var mat = new T.ShaderMaterial({
       uniforms: { tDiffuse: { value: rt.texture }, risol: { value: dim.clone() }, tempo: { value: 0 },
-                  bagliore: { value: IMP.grafica === 'alta' ? 1 : 0 } },
+                  bagliore: { value: IMP.grafica === 'alta' ? 1 : 0 }, scatto: { value: 0 }, sangue: { value: 0 },
+                  colpito: { value: 0 }, urlo: { value: 0 }, lento: { value: 0 } },
       vertexShader: POST_VS, fragmentShader: POST_FS, depthTest: false, depthWrite: false
     });
     var sc = new T.Scene(), q = new T.Mesh(geo, mat);
@@ -4358,7 +5125,7 @@
   }
 
   function avviaCiclo() { if (!anim && pronto) anim = requestAnimationFrame(ciclo); }
-  function fermaCiclo() { if (anim) cancelAnimationFrame(anim); anim = null; ultimo = 0; }
+  function fermaCiclo() { if (anim) cancelAnimationFrame(anim); anim = null; ultimo = 0; mosse.caricando = false; if (amb) amb.g.gain.value = 0; }
 
   /* in realistica la scena si disegna alla risoluzione dello schermo; si
      controlla a ogni fotogramma — costa un confronto di stringhe — perche'
@@ -4713,7 +5480,7 @@
     /* un livello che si ricostruisce chiude il laboratorio (anche quello
        di una partita precedente): si torna alla sua porta */
     togliLab();
-    pulisciCombattimento();
+    pulisciCombattimento(); pulisciPericoli();
     if (S && S.lab) {
       var Lr = S.lab;
       S.lab = null; S.pos.x = Lr.ritorno.x; S.pos.z = Lr.ritorno.z; S.pos.y = 0;
@@ -4797,7 +5564,9 @@
         cont.insertBefore(tela, cont.firstChild);
         var alta = IMP.grafica === 'alta';
         ren = new T.WebGLRenderer({ canvas: tela, antialias: alta, powerPreference: 'high-performance' });
-        ren.setPixelRatio(ps1() ? 1 : Math.min(globale.devicePixelRatio || 1, alta ? 1.5 : 1));
+        risDin.base = ps1() ? 1 : Math.min(globale.devicePixelRatio || 1, alta ? 1.5 : 1);
+        prof.scala = 1;
+        ren.setPixelRatio(risDin.base);
         scena = new T.Scene();
         camera = new T.PerspectiveCamera(ps1() ? 70 : 62, 4 / 3, 0.05, 80);
         G = GR().crea(T, { qualita: IMP.grafica });
@@ -4845,13 +5614,14 @@
         if (/^[1-9]$/.test(ev.key)) { var lp = S.inventario[+ev.key - 1]; if (lp) scegliPotere(lp.sim); }
         else if (tt === 'f') interagisci();
         else if (tt === 'x') usaRapido();
-        else if (tt === 'g') usaPotere();
+        else if (tt === 'g') { if (!ev.repeat) inizioCarica(); }
         else if (tt === 'v') pugno();
+        else if (tt === 'c') { if (!ev.repeat) schiva(); }
         else if (tt === 'z') cambiaZoom();
         else if (tt === 'h') schermoIntero();
         else if (tt === 'r') cambiaInMano();
         else if (tt === 'i') { schermo = 'inventario'; fermaCiclo(); disegnaUI(); }
-        else if (tt === 'c') { schermo = 'codex'; fermaCiclo(); disegnaUI(); }
+        else if (tt === 'k') { schermo = 'codex'; fermaCiclo(); disegnaUI(); }
         else if (ev.key === 'Escape' || tt === 'p') { schermo = 'pausa'; fermaCiclo(); disegnaUI(); }
         else if (tt === 'b') {
           scriviImp('visuale', IMP.visuale === 'prima' ? 'terza' : 'prima');
@@ -4865,6 +5635,7 @@
       }
     });
     document.addEventListener('keyup', function (ev) {
+      if (ev.key === 'g' || ev.key === 'G') fineCarica();
       var k = mappa2[ev.key];
       if (k) tasti[k] = false;
       if (/^[aAdD]$/.test(ev.key)) { tasti.latSx = tasti.latDx = false; }
@@ -4900,10 +5671,10 @@
     document.addEventListener('mousedown', function (e) {
       if (!tela || document.pointerLockElement !== tela || schermo !== 'gioco') return;
       if (e.button === 0) { usaRapido(); if (rafficaM) clearInterval(rafficaM); rafficaM = setInterval(function () { if (schermo === 'gioco') usaRapido(); }, 250); }
-      else if (e.button === 2) usaPotere();
+      else if (e.button === 2) inizioCarica();
       else if (e.button === 1) { e.preventDefault(); cambiaZoom(); }
     });
-    document.addEventListener('mouseup', function (e) { if (e.button === 0 && rafficaM) { clearInterval(rafficaM); rafficaM = null; } });
+    document.addEventListener('mouseup', function (e) { if (e.button === 0 && rafficaM) { clearInterval(rafficaM); rafficaM = null; } if (e.button === 2) fineCarica(); });
     sc.addEventListener('contextmenu', function (e) { if (schermo === 'gioco') e.preventDefault(); });
     sc.addEventListener('wheel', function (e) {
       if (schermo !== 'gioco' || !S) return;
@@ -5092,11 +5863,19 @@
     entraLab: function (o) { entraLab(o || null); },
     esciLab: function () { esciLab(); },
     pavimentoLab: function (x, z, y) { return S && S.lab ? pavimentoLab(S.lab, x, z, y) : null; },
-    motore: function () { return { ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico, post: post,
+    motore: function () { return { prof: prof, ren: ren, scena: scena, camera: camera, G: G, luci: luci, chimico: chimico, post: post,
                                    vista: vista, scenaMani: scenaMani, camMani: camMani, animV: animV }; },
     spruzzo: function () { spruzzo(); },
     sparo: function () { CD.sparo = 0; sparo(); },
     pugno: function () { CD.pugno = 0; pugno(); },
+    schiva: function () { CD.schiva = 0; schiva(); },
+    caricaPotere: function (k) { CD.potere = 0; inizioCarica(); mosse.carica = k == null ? 1 : k; fineCarica(); },
+    eseguibile: function (o) { return eseguibile(o); },
+    mosse: function () { return { combo: mosse.combo, finestra: mosse.finestra, esegui: !!mosse.esegui, carica: mosse.carica, tempo: Object.assign({}, tempoG),
+                                  scatto: !!(S && S.scatto), pericoli: pericoli.map(function (P) { return { tipo: P.tipo, r: P.r, t: P.t }; }) }; },
+    speciale: function (o) { if (!SPECIALI[o.specie]) return false; o._fase = 'speciale'; o._sp = { fase: 'carica', t: 0 }; return true; },
+    speciali: function () { return Object.keys(SPECIALI).map(function (k) { return [k, SPECIALI[k].nome]; }); },
+    torcia: function () { return !!(luci && luci.torcia); },
     ferito: function (p) { S.immune = 0; danno(p || '—'); },
     variante: function (o) { return variante(o); },
     specieNemici: function () { return Object.keys(SPECIE_M); },

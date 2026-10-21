@@ -2339,7 +2339,7 @@
          pistola e non deve tirare pugni. Il lato di un osso e' nel suo nome
          (…L_0632, …L001_0631) */
       var lato = function (nome) { var m = /([LR])(\d{3})?_\d+$/.exec(nome.split('.')[0]); return m ? m[1] : ''; };
-      ['Punch', 'Inspect'].forEach(function (k) {
+      ['Punch', 'Inspect'].forEach(function (k) {   /* (Punch_2 e' il destro: il gancio col calcio della pistola) */
         if (!clips[k]) return;
         clips[k + '_sx'] = new T.AnimationClip(k + '_sx', clips[k].duration,
           clips[k].tracks.filter(function (t) { return lato(t.name) === 'L'; }));

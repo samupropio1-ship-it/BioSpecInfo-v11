@@ -1090,7 +1090,48 @@ function sopra(d, minimo, avuto) {
       /* il pugno della mano robotica */
       await davanti(ve, 1.3); const vp = ve.o.vita; A.pugno(); await new Promise(r => setTimeout(r, 250));
       out.pugno = ve.o.vita < vp || !ve.o.vivo;
+      /* v222 · LE MOSSE. La combinazione: tre colpi a tempo, il terzo
+         butta a terra; chi e' a terra si puo' finire (l'esecuzione) */
+      if (ve.o.vivo) {
+        ve.o.vita = 60; await davanti(ve, 1.3);
+        const seq = [];
+        for (let i = 0; i < 3; i++) { A.pugno(); seq.push(A.mosse().combo); await new Promise(r => setTimeout(r, 200)); await fr(); await fr(); }
+        out.comboSeq = seq.join(',');
+        out.crollo = (ve.o._crollo || 0) > 0;
+        out.eseguibile = A.eseguibile(ve.o);
+        await davanti(ve, 1.3); ve.o._crollo = Math.max(ve.o._crollo || 0, 1);
+        A.pugno(); out.esegueParte = A.mosse().esegui;
+        out.rallenta = A.mosse().tempo.lento > 0;
+        for (let i = 0; i < 90 && ve.o.vivo; i++) await fr();
+        out.eseguito = !ve.o.vivo;
+      }
     }
+    /* la schivata: uno scatto con un attimo d'invulnerabilita' */
+    {
+      const x0 = S.pos.x, z0 = S.pos.z; S.immune = 0;
+      A.schiva(); out.schivaImmune = S.immune >= 20; out.scatto = A.mosse().scatto;
+      for (let i = 0; i < 30; i++) await fr();
+      out.schivaDist = Math.hypot(S.pos.x - x0, S.pos.z - z0);
+      S.immune = 99999;
+    }
+    /* il potere caricato costa di piu' e colpisce piu' forte */
+    S.energia = 100; A.scegliPotere('O'); A.caricaPotere(1); out.caricaCosto = 100 - S.energia;
+    /* gli attacchi speciali dei mostri: ognuno il suo, annunciato da un
+       cerchio a terra o da un'onda */
+    out.speciali = A.speciali().map(x => x.join(':')).join(' ');
+    {
+      const br = trova('bruto') || trova('mostro') || trova('palude') || trova('curvo') || trova('verme');
+      out.specieSpeciale = br ? br.o.specie : '-';
+      if (br) {
+        await davanti(br, 4); br.o._allerta = 5; br.o._stordito = 0; br.o._crollo = 0; br.o._gelo = 0;
+        A.speciale(br.o);
+        let visto = 0, fasi = {};
+        for (let i = 0; i < 150 && !visto; i++) { await fr(); fasi[(br.o._sp || {}).fase || br.o._fase] = 1; visto = A.mosse().pericoli.length + (br.o.specie === 'mostro' ? A.combattimento().proiettili : 0); }
+        out.specialeFasi = Object.keys(fasi).join(',');
+        out.specialeEffetto = visto > 0;
+      }
+    }
+    out.torcia = A.torcia();
     /* IL PUNTO DI SALVATAGGIO: avvicinandosi si attiva; cadendo si riparte
        da li' con la salute piena, senza perdere la partita */
     let cpO = null, cpS = null;
@@ -1152,6 +1193,21 @@ function sopra(d, minimo, avuto) {
   att('il nemico in mischia annuncia il colpo (si carica)', true, lotta.annuncia);
   att('  · e se resti lì ti ferisce', true, lotta.attaccoFerisce);
   att('il pugno ferisce', true, lotta.pugno);
+  att('la combinazione: tre colpi in fila (jab, gancio, diretto)', '1,2,3', lotta.comboSeq);
+  att('  · il terzo butta a terra', true, lotta.crollo);
+  att('  · e chi è a terra si può finire', true, lotta.eseguibile);
+  att('l’esecuzione parte col pugno', true, lotta.esegueParte);
+  att('  · col tempo rallentato', true, lotta.rallenta);
+  att('  · e abbatte la creatura', true, lotta.eseguito);
+  att('la schivata dà un attimo d’invulnerabilità', true, lotta.schivaImmune);
+  att('  · e scatta di oltre un metro', true, lotta.schivaDist > 1);
+  console.log('      (scatto ' + (lotta.schivaDist || 0).toFixed(2) + ' m)');
+  att('il potere caricato costa di più (fino a metà)', true, lotta.caricaCosto >= 44);
+  att('ogni mostro ha il suo attacco speciale', 7, (lotta.speciali || '').split(' ').filter(Boolean).length);
+  console.log('      (' + lotta.speciali + ')');
+  att('  · lo speciale si carica e poi colpisce (' + lotta.specieSpeciale + ')', true, /carica/.test(lotta.specialeFasi || '') && /via/.test(lotta.specialeFasi || ''));
+  att('  · e lascia il suo segno (onda, cerchio o schegge)', true, lotta.specialeEffetto);
+  att('la torcia sulla telecamera', true, lotta.torcia);
   att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
   att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
   att('  · ed è scritto nel salvataggio della partita', true, lotta.cpSalvato);
@@ -1344,9 +1400,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 280) {
+  if (eseguiti < 295) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 280');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 295');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

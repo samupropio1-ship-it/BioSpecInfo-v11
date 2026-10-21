@@ -2,6 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
+> Versione 16 (bsi-v222): le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
 > Versione 15 (bsi-v221): trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
@@ -513,6 +514,65 @@ partita; cadendo si riparte da li' con la salute piena.
 **Le mani** (dalla v221): la sinistra non e' piu' la mano robotica, ma il
 guanto di nitrile del rig, lo specchio della destra, con le sue animazioni.
 
+**Le mosse** (dalla v222). Il giocatore non ha solo la pistola e il potere:
+la **schivata** (`C`, 💨) è uno scatto di un metro e mezzo che parte forte e si
+spegne in un quarto di secondo, con un attimo d'invulnerabilità — il campo
+visivo si allarga, la testa s'inclina dal lato, l'immagine si sfoca dal
+centro. Il **pugno** premuto a tempo (entro 0,9 s) fa la **combinazione**: il
+jab sinistro, il gancio destro col calcio della pistola, il diretto pesante
+che **butta a terra**; ogni colpo che entra ferma il tempo per qualche
+centesimo (il peso del colpo) e interrompe la carica della creatura. Il
+**potere caricato**: tenendo premuto, la sfera nella mano cresce in poco più
+di un secondo; lasciando, il potere esce fino a 2,5 volte più forte e più
+largo, e costa fino a metà in più. L'**esecuzione**: una creatura a terra,
+stordita a lungo o sotto il 30% della vita ha gli occhi che lampeggiano
+bianchi e sullo schermo compare «V · ☠ ESECUZIONE»; il pugno la finisce —
+il tempo rallenta al 30%, lo sguardo va sul bersaglio, la testa si avvicina,
+due colpi e il terzo che la abbatte; rende 35 di energia e una tacca di
+salute.
+
+**Gli attacchi speciali** (dalla v222). Ogni creatura ne ha uno, oltre a
+quello normale, che usa ogni sette-nove secondi (più spesso negli atti II e
+III): si annuncia — il verso, il corpo che si carica, poi un **cerchio** che
+si riempie sul pavimento o un'**onda** che si allarga — e si schiva. Il bruto
+batte i pugni a terra: un'onda d'urto che corre sul pavimento e si **salta**.
+Il cristallino esplode in schegge in tutte le direzioni. La fanghiglia sputa
+tre grumi di fango acido che restano a terra e bruciano chi ci cammina. Il
+cervo urla — chi è vicino si muove al 40% per un secondo e mezzo, l'immagine
+trema — e poi si lancia a testa bassa. L'abissale sparisce e ricompare di
+fianco, a tre metri e mezzo, e spara subito. Il verme si infila nel pavimento
+e sbuca dove eri. Il rampicante fa un balzo di tre metri e ricade dove eri.
+Stordita mentre carica, la creatura perde lo speciale.
+
+**Il rig procedurale** (dalla v222). Quattro creature (rampicante,
+fanghiglia, abissale, bruto) arrivano senza scheletro: si animano nella
+scheda grafica. Ogni vertice, riportato nel riferimento del modello, si piega
+secondo dove sta: sotto l'anca (47% dell'altezza) le gambe ruotano in
+opposizione con il ginocchio che si flette, col passo che avanza con la
+strada fatta (non col tempo, così i piedi non scivolano); oltre le spalle le
+braccia oscillano, salgono nella carica e calano nel colpo; il busto si china
+nell'affondo, arretra quando incassa e respira; l'abissale ondeggia come un
+tentacolo. Un solo programma per tutti: cambiano solo le uniform.
+
+**L'atmosfera** (dalla v222). La torcia sulla spalla destra segue lo sguardo
+con un ritardo e ogni tanto tremola. La passata finale aggiunge l'aberrazione
+cromatica (appena sui bordi, forte nello scatto, nel colpo subito e
+nell'urlo), il rosso che batte come un cuore sui bordi quando la salute è
+poca, il colore che se ne va nel rallentatore. Il suono è tutto sintetizzato:
+il ronzio basso a due note stonate dell'istituto, che si apre quando qualcosa
+ti ha visto, il soffio nei condotti, i colpi lontani nei tubi, i passi, i
+fruscii, i tonfi, e i versi delle creature — una sega bassa che trema in un
+filtro che si apre come una gola, ognuna alla sua altezza.
+
+**La fluidità** (dalla v222). Il gioco avanza a passi fissi di 1/60 s e lo
+schermo va alla sua frequenza: il giocatore **e le creature** si disegnano
+fra l'ultimo passo e quello prima; proiettili, nubi ed effetti vanno col
+tempo vero del fotogramma. La geometria ferma delle stanze si fonde per
+materiale (circa 340 → 110 chiamate di disegno al livello 2), le creature
+fuori dall'inquadratura non si disegnano, e la **risoluzione dinamica**
+scende di un decimo (fino al 55%) se il fotogramma costa più di 21 ms per
+quasi un secondo, e risale sotto i 14,5 ms per tre secondi.
+
 ### 6.1 Come si genera un livello
 
 Le stanze stanno su una **griglia** di colonne e righe di larghezza variabile
@@ -683,11 +743,15 @@ livello. L'ultima fase si richiude se non la si colpisce in tempo.
 | correre | `Shift` | — |
 | saltare | `Spazio` | ⤒ |
 | interagire (raccogliere, leggere, banco, terminale, ascensore, rispondere al guardiano) | `F` | ✋ |
-| usare quello che si ha in mano | `X` | ✦ |
+| sparare / usare quello che si ha in mano | clic sinistro, `X` | ◉ |
+| potere (tenendo premuto si carica) | clic destro, `G` | ✦ |
+| pugno, combinazione a tempo, esecuzione | `V` | 👊 |
+| schivata | `C` | 💨 |
+| mirare (zoom) · schermo intero | `Z` · `H` | 🔍 · ⛶ |
 | cambiare quello che si ha in mano | `R` | ⟳ |
 | inventario (e sintesi rapida contro un guardiano) | `I` | 🎒 |
-| codex | `C` | dalla pausa |
-| cambiare visuale | `V` | impostazioni |
+| codex | `K` | dalla pausa |
+| cambiare visuale | `B` | impostazioni |
 | pausa | `Esc` o `P` | ❚❚ |
 
 Il bersaglio di ✋ è quello che si ha **davanti e vicino**: fra due fiale
