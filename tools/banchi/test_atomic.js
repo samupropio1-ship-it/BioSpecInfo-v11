@@ -1132,6 +1132,27 @@ function sopra(d, minimo, avuto) {
         for (let i = 0; i < 10; i++) await fr();
         out.frantuma = (A.reazioni().frantuma || 0) > 0 && !n1.o.vivo;
       }
+      /* la combustione: la nube tossica del cloro, poi la palla di fuoco */
+      const n2 = trova('palude') || trova('verme') || trova('bruto') || trova('mostro') || trova('cervo');
+      if (n2) {
+        A.riposo(); n2.o.vita = 99; n2.o._gelo = 0; await davanti(n2, 4);
+        S.energia = 100; A.scegliPotere('Cl'); A.usaPotere();
+        for (let i = 0; i < 4; i++) await fr();
+        S.energia = 100; A.scegliPotere('O'); await davanti(n2, 4); A.usaPotere();
+        for (let i = 0; i < 90 && !(A.reazioni().combustione > 0); i++) await fr();
+        out.combustione = (A.reazioni().combustione || 0) > 0;
+      }
+    }
+    /* nessuna creatura a terra entra nel giocatore */
+    {
+      const n3 = trova('mostro') || trova('bruto') || trova('cervo') || trova('verme');
+      if (n3) {
+        A.riposo(); n3.o._fase = 'insegui'; n3.o._allerta = 5; n3.o._stordito = 0; n3.o._crollo = 0; n3.o._gelo = 0; n3.o._sp = null;
+        await davanti(n3, 0.3);
+        for (let i = 0; i < 6; i++) await fr();
+        const wx = n3.st.x + n3.o.x, wz = n3.st.z + n3.o.z;
+        out.distanzaCorpo = Math.hypot(wx - S.pos.x, wz - S.pos.z);
+      }
     }
     /* gli attacchi speciali dei mostri: ognuno il suo, annunciato da un
        cerchio a terra o da un'onda */
@@ -1228,6 +1249,9 @@ function sopra(d, minimo, avuto) {
   att('la torcia sulla telecamera', true, lotta.torcia);
   att('reazione: la scarica nell’acido si propaga (conduzione)', true, lotta.conduzione);
   att('reazione: la creatura gelata colpita forte va in pezzi (frantumazione)', true, lotta.frantuma);
+  att('reazione: il fuoco nella nube tossica la fa esplodere (combustione)', true, lotta.combustione);
+  att('nessuna creatura entra nel corpo del giocatore (resta a mezzo metro dal suo raggio)', true, lotta.distanzaCorpo > 0.7);
+  console.log('      (distanza ' + (lotta.distanzaCorpo || 0).toFixed(2) + ' m)');
   att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
   att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
   att('  · ed è scritto nel salvataggio della partita', true, lotta.cpSalvato);
@@ -1420,9 +1444,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 295) {
+  if (eseguiti < 297) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 295');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 297');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

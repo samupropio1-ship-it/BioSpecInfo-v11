@@ -2,7 +2,8 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 17 (bsi-v223): le reazioni chimiche fra poteri e stati (frantumazione, combustione, conduzione), la luce di contorno sulle creature, i coni di luce e la polvere.
+> Versione 18 (bsi-v224): le creature si fermano a mezzo metro dal giocatore, il rampicante più piccolo, la combustione provata dal banco.
+> Versione 17: le reazioni chimiche fra poteri e stati (frantumazione, combustione, conduzione), la luce di contorno sulle creature, i coni di luce e la polvere.
 > Versione 16: le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
 > Versione 15: trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
@@ -576,6 +577,12 @@ fanghiglia) fa **conduzione**: corre su tutte le creature entro quattro metri
 e mezzo e le stordisce. Ogni reazione rende 75 punti e 15 di energia, ferma il
 tempo un istante e scrive il suo nome sopra il punto; la prima volta spiega
 perché. Le pozze del nemico diventano così anche un'arma del giocatore.
+
+**La distanza dal corpo** (dalla v224). Nessuna creatura a terra entra nel
+giocatore: dopo ogni passo, se è più vicina del suo raggio più mezzo metro,
+viene rimessa a quella distanza lungo la stessa direzione (dentro la
+stanza). Così la telecamera non finisce mai dentro un modello. Il balzo del
+rampicante e il verme che scava ne sono esclusi: passano sopra e sotto.
 
 **La luce e l'aria** (dalla v223). Le creature hanno una luce di contorno
 (dove la superficie gira via dallo sguardo un filo del loro colore), che le

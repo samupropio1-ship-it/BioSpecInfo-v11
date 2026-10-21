@@ -4459,6 +4459,19 @@
     var nx = o.x + mx, nz = o.z + mz;
     if (Math.abs(nx) < sx.larg / 2 - 0.6) o.x = nx;
     if (Math.abs(nz) < sx.prof / 2 - 0.6) o.z = nz;
+    /* LA DISTANZA DAL CORPO: una creatura a terra non entra mai nel
+       giocatore (la telecamera finirebbe dentro il modello): si ferma a un
+       palmo dal suo raggio. In aria (il balzo) o sotto il pavimento no */
+    var qS = o._quotaSalto || 0;
+    if (sx === st && !o._nascosto && qS < 0.8 && qS > -0.5) {
+      var ex = sx.x + o.x - S.pos.x, ez = sx.z + o.z - S.pos.z, ed = Math.hypot(ex, ez), minD = SM.raggio * V.scala + 0.5;
+      if (ed < minD) {
+        if (ed < 0.01) { ex = -Math.sin(S.ang); ez = -Math.cos(S.ang); ed = 1; }
+        var px2 = S.pos.x + ex / ed * minD - sx.x, pz2 = S.pos.z + ez / ed * minD - sx.z;
+        if (Math.abs(px2) < sx.larg / 2 - 0.6) o.x = px2;
+        if (Math.abs(pz2) < sx.prof / 2 - 0.6) o.z = pz2;
+      }
+    }
     var muove = Math.hypot(mx, mz) / dt;
     if (o._fase === 'carica' && o._fasePrec !== 'carica') ringhio(o, 0.45, false);
     else if (all && o._fase === 'insegui' && Math.random() < dt * 0.06) ringhio(o, 0.9, false);
