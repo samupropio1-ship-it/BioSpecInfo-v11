@@ -78,6 +78,8 @@
     risoluzione: '480',      /* solo PS1: 320 | 480 | 640 */
     risdin: 'si',            /* risoluzione dinamica: si | no */
     torcia: 'si',            /* la torcia sulla telecamera */
+    degrado: 'si',           /* l'istituto abbandonato: si | no (stanze in ordine) */
+    sangue: 'si',            /* si | ridotto (niente macchie ne' brandelli) */
     suono: 'acceso'
   };
 
@@ -800,16 +802,26 @@
     var alaBreve = liv.zona.nome.split('·')[0].trim();
     liv.stanze.forEach(function (st) {
       st.ala = alaBreve;
+      /* quanto e' devastata: poco all'inizio, del tutto dal sessantesimo
+         livello e negli atti II e III */
+      st.livello = n;
+      st.degrado = IMP.degrado === 'no' ? 0 : 0.45 + 0.55 * Math.min(1, n / 60);
+      st.senzaSangue = IMP.sangue === 'ridotto';
       var sg = new T.Group();
       sg.position.set(st.x, 0, st.z);
       var stz = G.stanza(st, vaniPerStanza(st));
       sg.add(stz.gruppo);
       st._g = sg;
       st._emergenza = stz.emergenza;
+      /* una stanza su tre ha l'allarme acceso: la luce rossa che gira */
+      st._allarme = IMP.degrado !== 'no' && (String(st.id).length * 7 + n * 3 + st.x * 13 + st.z * 5) % 3 === 0;
       st._gocce = stz.gocce || [];
       st._gocce.forEach(function (gc) { if (gc.o) gc.o.userData.mobile = true; });
       stz.luci.forEach(function (l) {
-        luciMondo.push({ x: st.x + l.x, y: l.y, z: st.z + l.z, stanza: st.id });
+        /* nell'istituto abbandonato una lampada su quattro ha il neon
+           guasto: sfarfalla */
+        var hL = 0; String(st.id + ':' + l.x + ':' + l.z).split('').forEach(function (ch) { hL = (hL * 31 + ch.charCodeAt(0)) % 9973; });
+        luciMondo.push({ x: st.x + l.x, y: l.y, z: st.z + l.z, stanza: st.id, sfarfalla: IMP.degrado !== 'no' && hL % 4 === 0 });
       });
       (st.oggetti || []).forEach(function (o, k) {
         var nodo = costruisciOggetto(o, st, k, liv.zona.n, n);
@@ -834,13 +846,24 @@
         paratie.push({ chiave: p.chiusa, p: pa, apertura: (S && S.fatti[p.chiusa]) ? 1 : 0 });
       });
       /* la stanza costruita: quello che non si muove diventa pochi blocchi */
+      st._degrado = 0;
+      if (stz.degrado) stz.degrado.traverse(function (m) { if (m.isMesh) st._degrado++; });
       st._fusi = unisciStatici(sg);
       radice.add(sg);
     });
     scena.add(radice);
+    scegliOrda(liv, n);
     var nebbia = liv.zona.nebbia;
     if (ps1()) scena.fog = new T.Fog(nebbia, 4, 22);
-    else scena.fog = new T.FogExp2(nebbia, 0.055);
+    else {
+      /* LA NEBBIA DELL'ABBANDONO: piu' scura e piu' fredda, piu' densa —
+         gli angoli lontani spariscono, la luce delle lampade ci si vede
+         dentro */
+      var nb = new T.Color(nebbia);
+      if (IMP.degrado !== 'no') nb.lerp(new T.Color(0x0a1016), 0.55);
+      nebbia = nb.getHex();
+      scena.fog = new T.FogExp2(nebbia, IMP.degrado !== 'no' ? 0.072 : 0.055);
+    }
     scena.background = new T.Color(nebbia);
     return { zona: liv, livello: liv, ala: liv.zona, radice: radice,
              luci: luciMondo, paratie: paratie, stanzaCorrente: null };
@@ -879,7 +902,7 @@
       scena.add(g.lampo);
       return g;
     }
-    g.emi = new T.HemisphereLight(0xb8a890, 0x14100c, 0.2);
+    g.emi = new T.HemisphereLight(0xb8a890, 0x14100c, IMP.degrado !== 'no' ? 0.13 : 0.2);
     scena.add(g.emi);
     for (var i = 0; i < 4; i++) {
       var p = new T.PointLight(0xffe8cc, 0.55, 11);
@@ -903,6 +926,10 @@
       scena.add(tc); scena.add(tc.target);
       g.torcia = tc; g.dirTorcia = null;
     }
+    /* la luce d'allarme: rossa, gira, nelle stanze con l'allarme acceso e
+       in quelle dove si scatena un'orda */
+    g.allarme = new T.PointLight(0xff1a0a, 0, 10, 2);
+    scena.add(g.allarme);
     /* I CONI DI LUCE sotto le lampade: l'aria polverosa dell'istituto si
        vede dove la luce la attraversa. Un cono aperto, additivo, che sfuma
        verso il basso e sui bordi */
@@ -954,6 +981,7 @@
       var l = ord[i];
       if (l) { p.position.set(l.x, l.y, l.z); p.color.setHex(colore); p.intensity = ps1() ? 0.9 : 0.55; }
       else p.intensity = 0;
+      p.userData.base = p.intensity; p.userData.sfarfalla = !!(l && l.sfarfalla);
       var cn = luci.coni && luci.coni[i];
       if (cn) {
         cn.visible = !!l && !S.lab && i < 3;
@@ -1112,8 +1140,8 @@
 
     if (S.lab) muoviInLab(dx, dz);
     else {
-      if (dx && puoStare(S.pos.x + dx, S.pos.z)) S.pos.x += dx;
-      if (dz && puoStare(S.pos.x, S.pos.z + dz)) S.pos.z += dz;
+      if (dx && puoStare(S.pos.x + dx, S.pos.z) && dentroOrda(S.pos.x + dx, S.pos.z)) S.pos.x += dx;
+      if (dz && puoStare(S.pos.x, S.pos.z + dz) && dentroOrda(S.pos.x, S.pos.z + dz)) S.pos.z += dz;
     }
     S.vel.x = dx; S.vel.z = dz;
 
@@ -1132,6 +1160,7 @@
     }
 
     var st = stanzaDi(S.pos.x, S.pos.z);
+    passoOrda(st);
     var ora = Date.now();
     tuttiGliOggetti(function (o, sx) {
       if (o.tipo === 'elemento' && !o.preso) {
@@ -1224,6 +1253,7 @@
       /* si riparte dal punto di salvataggio: salute piena, qualche
          secondo d'immunita', i nemici restano dove sono */
       var cp = S.checkpoint;
+      azzeraOrda();
       S.vite = S.vitaMax; S.immune = 180; S.energia = 100;
       S.pos.x = cp.x; S.pos.z = cp.z; S.pos.y = 0; S.vel.x = S.vel.z = 0; S.vMov = { x: 0, z: 0 }; S.posPrec = null;
       S.morti = (S.morti || 0) + 1;
@@ -1729,6 +1759,24 @@
       tc.target.position.copy(tc.position).addScaledVector(luci.dirTorcia, 6);
       var ora2 = Date.now();
       tc.intensity = (prima ? 1.8 : 1.2) * (Math.sin(ora2 / 37) > 0.995 || ((ora2 / 1000) % 23) < 0.12 ? 0.35 : 1);
+    }
+    if (luci && luci.punti) {
+      /* i neon guasti: accesi quasi sempre, poi un buco di qualche
+         fotogramma, a volte due di fila — mai a ritmo */
+      luci.punti.forEach(function (p, i) {
+        var u = p.userData;
+        if (!u.sfarfalla) { if (u.base != null && p.intensity !== u.base) p.intensity = u.base; return; }
+        if (u.buio > 0) u.buio--; else if (Math.random() < 0.035) u.buio = 2 + (Math.random() * 7 | 0);
+        p.intensity = (u.base || 0) * (u.buio > 0 ? 0.08 : 0.9 + Math.random() * 0.1);
+        if (luci.coni && luci.coni[i]) luci.coni[i].material.opacity = 1;
+      });
+    }
+    if (luci && luci.allarme && mondo) {
+      var stA = mondo.stanzaCorrente, oraA = Date.now() / 1000;
+      if (stA && !S.lab && (stA._allarme || S.orda === stA)) {
+        luci.allarme.position.set(stA.x + stA.larg / 2 - 0.5 + Math.cos(oraA * 3.2) * 0.4, (stA.alt || 3.2) - 0.35, stA.z - stA.prof / 2 + 0.5 + Math.sin(oraA * 3.2) * 0.4);
+        luci.allarme.intensity = (S.orda === stA ? 3.2 : 1.4) * Math.pow(0.5 + 0.5 * Math.sin(oraA * 3.2), 2);
+      } else luci.allarme.intensity = 0;
     }
     if (luci && luci.polvere) {
       /* la polvere: si sposta con chi guarda (i granelli che escono da un
@@ -2991,6 +3039,10 @@
                 ['ps1', nomeGrafica('ps1')]]) +
         (ps1() ? gruppo(t('Risoluzione PS1', 'PS1 resolution'), 'risoluzione',
                [['320', '320×240'], ['480', '480×360'], ['640', '640×480']]) : '') +
+        gruppo(t('Istituto', 'Institute'), 'degrado',
+               [['si', t('abbandonato', 'abandoned')], ['no', t('in ordine', 'tidy')]]) +
+        gruppo(t('Sangue', 'Blood'), 'sangue',
+               [['si', t('sì', 'yes')], ['ridotto', t('ridotto', 'reduced')]]) +
         gruppo(t('Suono', 'Sound'), 'suono',
                [['acceso', t('acceso', 'on')], ['spento', t('spento', 'off')]]) +
         lingue +
@@ -3715,14 +3767,22 @@
        in pezzi, e le schegge feriscono chi le sta intorno */
     if (o._gelo > 0 && quanto >= 4 && chi !== 'gelo' && SPECIE_M[o.specie]) {
       var pf = p || posNemico(o);
-      o._gelo = 0;
+      o._gelo = 0; o._frantumato = true;
       reazione('frantuma', pf, 0xbfe6ff);
       for (var k = 0; k < 30; k++) particella(pf, new T.Vector3((Math.random() - 0.5) * 7, Math.random() * 4, (Math.random() - 0.5) * 7), k % 3 ? 0xbfe6ff : 0xffffff, 0.6 + Math.random() * 0.4, 0.06 + Math.random() * 0.08, 9);
       nemiciVivi(3, pf).forEach(function (n) { if (n.o !== o) ferisci(n.o, 2, 'gelo', n.p); });
       quanto = 999;
     }
     var k = chi ? moltiplicatore(o, chi) : 1, d = Math.max(1, Math.round(quanto * k));
-    o.vita = (o.vita == null ? specieDi(o).vita : o.vita) - d;
+    var vPrima = o.vita == null ? specieDi(o).vita : o.vita;
+    o.vita = vPrima - d;
+    /* il colpo forte schizza sul muro dietro; ucciso con molto piu' del
+       necessario, va in pezzi */
+    if (SPECIE_M[o.specie]) {
+      var pc = p || posNemico(o);
+      if (d >= 3 && !o._frantumato) schizzoSulMuro(pc, new T.Vector3(pc.x - S.pos.x, 0, pc.z - S.pos.z));
+      if (o.vita <= 0 && (d >= vPrima + 3 || d >= 999)) o._sovra = true;
+    }
     o._lampo = 1; o._ferito = 1;
     numero(p || posNemico(o), (k > 1 ? '✦' : '') + d, k > 1 ? '#ffd24a' : '#ffffff');
     segnoColpo(k > 1);
@@ -3730,6 +3790,11 @@
   }
   function abbattiNemico(o, p) {
     o.vivo = false; o.abbattuto = true; o._muore = 1;
+    if (SPECIE_M[o.specie] && p) {
+      var pT = p.clone ? p.clone() : new T.Vector3(p.x, p.y, p.z);
+      setTimeout(function () { pozzaSotto(pT, 1.2 + Math.random() * 0.8); }, 350);
+      if (o._sovra) lanciaBrandelli(pT, o._frantumato ? 16 : 12, !!o._frantumato);
+    }
     if (o._mod && animaClip(o, 'morte', true)) o._muoreClip = true;
     if (o._chiave) S.presi[o._chiave] = true;
     var sp = specieDi(o);
@@ -3888,6 +3953,15 @@
     for (var i = 0; i <= n; i++) particella(a2.clone().lerp(b2, i / n), new T.Vector3(), col, 0.12 + i / n * 0.05, 0.07, 0);
   }
   function fulmine(a2, b2, col) {
+    if (!ps1()) {
+      /* il fulmine vero: un nastro frastagliato con i suoi rami, che
+         cambia forma a ogni istante, e qualche scintilla dove colpisce */
+      arco(a2, b2, col, 0.24, 0.07, 3);
+      arco(a2, b2, 0xffffff, 0.12, 0.025, 0);
+      scintille(b2, col, 6);
+      luceLampo(b2, col, 2.6, 0.18);
+      return;
+    }
     var n = 14, prec = a2.clone();
     for (var i = 1; i <= n; i++) {
       var p = a2.clone().lerp(b2, i / n);
@@ -3902,6 +3976,169 @@
     luci.lampo.position.copy(p); luci.lampo.color.setHex(col);
     luci.lampo.intensity = int; luci.lampo.userData.cala = int / Math.max(0.05, durata);
   }
+  /* ═════════════════════════════════════════════════════════════════════════
+     I FULMINI: un nastro sempre rivolto alla telecamera lungo una linea
+     spezzata (spostamento del punto medio, cinque volte: 33 punti), con
+     due o tre rami che si staccano e si assottigliano. La forma si rifa'
+     ogni 45 ms: il fulmine trema. La texture e' un taglio di luce: bianca
+     al centro, colorata e trasparente ai bordi
+     ═════════════════════════════════════════════════════════════════════════ */
+  var archi = [], texArco = null;
+  function texturaArco() {
+    if (texArco) return texArco;
+    var cv = document.createElement('canvas'); cv.width = 4; cv.height = 64;
+    var q = cv.getContext('2d'), g = q.createLinearGradient(0, 0, 0, 64);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.35, 'rgba(255,255,255,0.35)');
+    g.addColorStop(0.47, 'rgba(255,255,255,1)'); g.addColorStop(0.53, 'rgba(255,255,255,1)');
+    g.addColorStop(0.65, 'rgba(255,255,255,0.35)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    q.fillStyle = g; q.fillRect(0, 0, 4, 64);
+    return (texArco = new T.CanvasTexture(cv));
+  }
+  function spezzata(a, b, livelli, amp) {
+    var pts = [a.clone(), b.clone()], tmp = new T.Vector3(), dir = new T.Vector3();
+    for (var l = 0; l < livelli; l++) {
+      var nuovi = [pts[0]];
+      for (var i = 0; i < pts.length - 1; i++) {
+        var p0 = pts[i], p1 = pts[i + 1], len = p0.distanceTo(p1);
+        dir.subVectors(p1, p0).normalize();
+        tmp.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
+        tmp.addScaledVector(dir, -tmp.dot(dir)).normalize().multiplyScalar(len * amp * (Math.random() * 0.8 + 0.2));
+        nuovi.push(p0.clone().lerp(p1, 0.5).add(tmp), p1);
+      }
+      pts = nuovi;
+    }
+    return pts;
+  }
+  var MAX_SEG = 72;
+  function arco(a, b, col, vita, larg, rami) {
+    if (!scena || archi.length > 40) return;
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.BufferAttribute(new Float32Array(MAX_SEG * 4 * 3), 3).setUsage(T.DynamicDrawUsage));
+    var uv = new Float32Array(MAX_SEG * 4 * 2), idx = [];
+    for (var s2 = 0; s2 < MAX_SEG; s2++) {
+      uv.set([0, 0, 0, 1, 1, 0, 1, 1], s2 * 8);
+      idx.push(s2 * 4, s2 * 4 + 1, s2 * 4 + 2, s2 * 4 + 2, s2 * 4 + 1, s2 * 4 + 3);
+    }
+    geo.setAttribute('uv', new T.BufferAttribute(uv, 2)); geo.setIndex(idx);
+    var m = new T.Mesh(geo, new T.MeshBasicMaterial({ map: texturaArco(), color: new T.Color(col).lerp(new T.Color(0xffffff), 0.3), transparent: true,
+                                                      blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide, toneMapped: false }));
+    m.frustumCulled = false; m.renderOrder = 6;
+    scena.add(m);
+    archi.push({ a: a.clone(), b: b.clone(), t: 0, vita: vita, larg: larg, rami: rami, m: m, rifai: 0, linee: null });
+  }
+  function passoArchi(dt) {
+    if (!archi.length) return;
+    var cam = camera.position, side = new T.Vector3(), tg = new T.Vector3(), vista2 = new T.Vector3();
+    for (var i = archi.length - 1; i >= 0; i--) {
+      var A = archi[i];
+      A.t += dt; A.rifai -= dt;
+      if (A.t >= A.vita) { scena.remove(A.m); A.m.geometry.dispose(); A.m.material.dispose(); archi.splice(i, 1); continue; }
+      if (A.rifai <= 0 || !A.linee) {
+        A.rifai = 0.045;
+        var lun = A.a.distanceTo(A.b), principale = spezzata(A.a, A.b, lun > 3 ? 5 : 4, 0.22);
+        A.linee = [{ p: principale, w: A.larg }];
+        for (var r2 = 0; r2 < A.rami; r2++) {
+          var da = principale[1 + (Math.random() * (principale.length - 2) | 0)];
+          var verso = new T.Vector3().subVectors(A.b, A.a).normalize().add(new T.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(1.4)).normalize();
+          A.linee.push({ p: spezzata(da, da.clone().addScaledVector(verso, lun * (0.2 + Math.random() * 0.3)), 3, 0.3), w: A.larg * 0.55 });
+        }
+      }
+      var pos = A.m.geometry.attributes.position, arr = pos.array, s3 = 0;
+      var svanire = 1 - Math.pow(A.t / A.vita, 2);
+      A.linee.forEach(function (L) {
+        for (var k = 0; k < L.p.length - 1 && s3 < MAX_SEG; k++, s3++) {
+          var p0 = L.p[k], p1 = L.p[k + 1];
+          tg.subVectors(p1, p0); vista2.subVectors(p0, cam);
+          side.crossVectors(tg, vista2).normalize();
+          var w0 = L.w * svanire * (1 - k / L.p.length * 0.5), w1 = L.w * svanire * (1 - (k + 1) / L.p.length * 0.5), o = s3 * 12;
+          arr[o] = p0.x - side.x * w0; arr[o + 1] = p0.y - side.y * w0; arr[o + 2] = p0.z - side.z * w0;
+          arr[o + 3] = p0.x + side.x * w0; arr[o + 4] = p0.y + side.y * w0; arr[o + 5] = p0.z + side.z * w0;
+          arr[o + 6] = p1.x - side.x * w1; arr[o + 7] = p1.y - side.y * w1; arr[o + 8] = p1.z - side.z * w1;
+          arr[o + 9] = p1.x + side.x * w1; arr[o + 10] = p1.y + side.y * w1; arr[o + 11] = p1.z + side.z * w1;
+        }
+      });
+      for (var z2 = s3 * 12; z2 < arr.length; z2++) arr[z2] = 0;
+      pos.needsUpdate = true;
+      A.m.geometry.setDrawRange(0, s3 * 6);
+    }
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
+     IL SANGUE CHE RESTA: le pozze sotto chi cade, gli schizzi sul muro
+     dietro chi incassa un colpo forte, i brandelli che volano quando una
+     creatura esplode e restano a terra. Un numero massimo (le piu' vecchie
+     se ne vanno): la scena non si riempie all'infinito. Con «sangue
+     ridotto» niente di tutto questo (restano i pezzi di ghiaccio)
+     ═════════════════════════════════════════════════════════════════════════ */
+  var macchieV = [], brandelli = [], geoBrandello = null, matBrandello = null, matGhiaccio = null;
+  function conSangue() { return IMP.sangue !== 'ridotto' && !ps1() && G && G.macchia; }
+  function lasciaMacchia(m) {
+    scena.add(m); macchieV.push(m);
+    if (macchieV.length > 60) { var v = macchieV.shift(); scena.remove(v); }
+  }
+  function pozzaSotto(p, dim) {
+    if (!conSangue()) return;
+    var m = G.macchia('pozza', dim, dim);
+    m.rotation.set(-Math.PI / 2, 0, Math.random() * 6.28);
+    m.position.set(p.x, (S.lab ? S.labSuolo : 0) + 0.012 + macchieV.length * 0.0002, p.z);
+    lasciaMacchia(m);
+  }
+  /* lo schizzo sul muro: si segue la direzione del colpo fino al muro
+     della stanza; se li' c'e' una porta (si passa), niente */
+  function schizzoSulMuro(p, dir) {
+    if (!conSangue() || S.lab) return;
+    var st = stanzaDi(p.x, p.z); if (!st) return;
+    var dx = dir.x, dz = dir.z, l = Math.hypot(dx, dz); if (l < 0.01) return; dx /= l; dz /= l;
+    var tx = dx > 0 ? (st.x + st.larg / 2 - p.x) / dx : dx < 0 ? (st.x - st.larg / 2 - p.x) / dx : 99;
+    var tz = dz > 0 ? (st.z + st.prof / 2 - p.z) / dz : dz < 0 ? (st.z - st.prof / 2 - p.z) / dz : 99;
+    var tt = Math.min(tx, tz); if (tt > 3.2) return;
+    var hx = p.x + dx * tt, hz = p.z + dz * tt;
+    if (puoStare(hx + dx * 0.4, hz + dz * 0.4)) return;
+    var m = G.macchia('schizzo', 0.9 + Math.random() * 0.7);
+    if (tx < tz) { m.position.set(hx - Math.sign(dx) * 0.13, Math.max(0.7, Math.min(2.3, p.y + 0.2)), hz); m.rotation.set(0, dx > 0 ? -Math.PI / 2 : Math.PI / 2, Math.random() * 6.28); }
+    else { m.position.set(hx, Math.max(0.7, Math.min(2.3, p.y + 0.2)), hz - Math.sign(dz) * 0.13); m.rotation.set(0, dz > 0 ? Math.PI : 0, Math.random() * 6.28); }
+    lasciaMacchia(m);
+  }
+  function lanciaBrandelli(p, n, ghiaccio) {
+    if (ps1() || (!ghiaccio && !conSangue())) return;
+    if (!geoBrandello) {
+      geoBrandello = new T.DodecahedronGeometry(1, 0);
+      matBrandello = new T.MeshStandardMaterial({ color: 0x4a0505, roughness: 0.3, metalness: 0, emissive: 0x120000 });
+      matGhiaccio = new T.MeshStandardMaterial({ color: 0xcfeeff, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.85, emissive: 0x10283a });
+    }
+    for (var i = 0; i < n; i++) {
+      var m = new T.Mesh(geoBrandello, ghiaccio ? matGhiaccio : matBrandello);
+      var r = 0.03 + Math.random() * (ghiaccio ? 0.09 : 0.07);
+      m.scale.set(r * (0.7 + Math.random() * 0.8), r * (0.5 + Math.random() * 0.6), r * (0.7 + Math.random() * 0.8));
+      m.position.copy(p); m.castShadow = true;
+      scena.add(m);
+      brandelli.push({ m: m, r: r, v: new T.Vector3((Math.random() - 0.5) * 6, 2 + Math.random() * 4, (Math.random() - 0.5) * 6),
+                       w: new T.Vector3(Math.random() * 12, Math.random() * 12, Math.random() * 12), fermo: false, macchia: !ghiaccio });
+      if (brandelli.length > 70) { var v = brandelli.shift(); scena.remove(v.m); }
+    }
+  }
+  function passoBrandelli(dt) {
+    var suolo = S.lab ? S.labSuolo : 0;
+    for (var i = 0; i < brandelli.length; i++) {
+      var b = brandelli[i];
+      if (b.fermo) continue;
+      b.v.y -= 9.8 * dt;
+      b.m.position.addScaledVector(b.v, dt);
+      b.m.rotation.x += b.w.x * dt; b.m.rotation.y += b.w.y * dt; b.m.rotation.z += b.w.z * dt;
+      if (b.m.position.y < suolo + b.r * 0.6) {
+        b.m.position.y = suolo + b.r * 0.6;
+        if (b.macchia && b.v.y < -2.5 && Math.random() < 0.4) pozzaSotto(b.m.position, 0.25 + Math.random() * 0.25);
+        b.v.y *= -0.25; b.v.x *= 0.5; b.v.z *= 0.5; b.w.multiplyScalar(0.4);
+        if (Math.abs(b.v.y) < 0.4 && Math.hypot(b.v.x, b.v.z) < 0.3) b.fermo = true;
+      }
+    }
+  }
+  function pulisciGore() {
+    macchieV.forEach(function (m) { if (scena) scena.remove(m); }); macchieV = [];
+    brandelli.forEach(function (b) { if (scena) scena.remove(b.m); }); brandelli = [];
+    archi.forEach(function (A) { if (scena) scena.remove(A.m); A.m.geometry.dispose(); A.m.material.dispose(); }); archi = [];
+  }
+
   function proiettile(p, v, col, mio, chi, danno2) {
     var sp = sprite(col); sp.position.copy(p); sp.scale.setScalar(mio ? 0.45 : 0.32);
     var nucleo = sprite(0xffffff); nucleo.position.copy(p); nucleo.scale.setScalar(mio ? 0.18 : 0.14);
@@ -4002,6 +4239,7 @@
     }
     if (effetti.length > 600) effetti.splice(0, effetti.length - 600).forEach(function (e) { scena.remove(e.o); e.o.material.dispose(); });
     if (luci && luci.lampo && luci.lampo.intensity > 0) luci.lampo.intensity = Math.max(0, luci.lampo.intensity - (luci.lampo.userData.cala || 10) * dt);
+    passoArchi(dt); passoBrandelli(dt);
   }
   /* togliere tutto quando si cambia livello */
   function pulisciCombattimento() {
@@ -4377,6 +4615,12 @@
     if (o._gelo > 0) o._gelo -= dt;
     if (o._stordito > 0) { o._stordito -= dt; lento = 0; }
     if (o._crollo > 0) { o._crollo -= dt; lento = 0; }
+    /* chi arriva con l'orda risale dal pavimento */
+    if (o._emerge > 0) {
+      o._emerge -= dt; lento = 0; o._allerta = 5;
+      o._quotaSalto = -2.6 * Math.max(0, o._emerge) / 1.2;
+      if (o._emerge <= 0) o._quotaSalto = 0;
+    }
     o._fase = o._fase || 'attesa';
     o._cd = Math.max(0, (o._cd || 0) - dt);
     o._cdS = o._cdS == null ? 3 + ((o.t * 7 + o.x * 13) % 4) : Math.max(0, o._cdS - dt);
@@ -4543,6 +4787,95 @@
   }
 
   /* ═════════════════════════════════════════════════════════════════════════
+     LE ORDE. Dal sesto livello, un livello su tre ha una stanza-trappola:
+     entrando le porte si bloccano, la luce d'allarme gira, la sirena
+     suona, e le creature del livello risalgono dal pavimento a ondate
+     (due nell'atto I, di piu' dopo). Si esce solo dopo averle abbattute
+     tutte; la ricompensa e' salute, energia piena e punti. Le creature
+     dell'orda non si salvano: un'orda respinta non torna
+     ═════════════════════════════════════════════════════════════════════════ */
+  function scegliOrda(liv, n) {
+    if (n < 6 || n % 3 !== 0) return;
+    var specie = [], atto = 1;
+    liv.stanze.forEach(function (st) { (st.oggetti || []).forEach(function (o) {
+      if (o.tipo === 'nemico' && SPECIE_M[o.specie]) { if (specie.indexOf(o.specie) < 0) specie.push(o.specie); atto = Math.max(atto, o.atto || 1); }
+    }); });
+    if (!specie.length) return;
+    var cand = liv.stanze.filter(function (st, i) {
+      return i > 0 && st.larg >= 7 && st.prof >= 7 && !(st.oggetti || []).some(function (o) { return ['uscita', 'boss', 'banco', 'portaLab', 'salvataggio'].indexOf(o.tipo) >= 0; });
+    });
+    if (!cand.length) return;
+    var st = cand[(n * 7) % cand.length];
+    st._orda = { ondate: 2 + (atto - 1) + (n >= 150 ? 1 : 0), ondata: 0, finita: !!(S && S.presi['orda:' + st.id]), specie: specie, atto: atto, pausa: 0 };
+  }
+  function dentroOrda(x, z) {
+    var st = S.orda;
+    if (!st) return true;
+    return Math.abs(x - st.x) < st.larg / 2 - 0.45 && Math.abs(z - st.z) < st.prof / 2 - 0.45;
+  }
+  function passoOrda(st) {
+    if (S.lab || S.finito) return;
+    var dt = PASSO / 1000;
+    if (S.orda) {
+      var A = S.orda, O = A._orda, vivi = 0;
+      (A.oggetti || []).forEach(function (o) { if (o._orda === O.ondata && o.vivo) vivi++; });
+      if (vivi > 0) return;
+      if (O.pausa <= 0) O.pausa = 2.2;
+      O.pausa -= dt;
+      if (O.pausa > 0.01) return;
+      O.pausa = 0;
+      if (O.ondata < O.ondate) { ondataOrda(A); return; }
+      /* respinta */
+      O.finita = true; S.orda = null; S.presi['orda:' + A.id] = true;
+      S.vite = Math.min(S.vitaMax, S.vite + 1); S.energia = 100; S.punti += 300;
+      avviso(t('✓ Orda respinta', '✓ Horde repelled'), t('le porte si riaprono · +1 salute · energia piena · +300', 'the doors reopen · +1 health · full energy · +300'));
+      bip(523, 0.2, 'triangle', 0.07); setTimeout(function () { bip(784, 0.3, 'triangle', 0.07); }, 180);
+      return;
+    }
+    if (st && st._orda && !st._orda.finita && Math.abs(S.pos.x - st.x) < st.larg / 2 - 1.3 && Math.abs(S.pos.z - st.z) < st.prof / 2 - 1.3) {
+      S.orda = st;
+      avviso('⚠ ' + t('ORDA', 'HORDE'), t('le porte si sono bloccate: abbattile tutte', 'the doors have locked: take them all down'));
+      sirena(); scossa = Math.max(scossa, 0.6);
+      ondataOrda(st);
+    }
+  }
+  function ondataOrda(st) {
+    var O = st._orda;
+    O.ondata++;
+    var quanti = Math.min(7, 2 + O.ondata + (O.atto - 1));
+    for (var i = 0; i < quanti; i++) {
+      /* dove: lontano da chi gioca, dentro la stanza, sparpagliati */
+      var x = 0, z = 0;
+      for (var tN = 0; tN < 12; tN++) {
+        x = (Math.random() - 0.5) * (st.larg - 2.2); z = (Math.random() - 0.5) * (st.prof - 2.2);
+        if (Math.hypot(st.x + x - S.pos.x, st.z + z - S.pos.z) > 3.6) break;
+      }
+      var o = { tipo: 'nemico', specie: O.specie[(i + O.ondata) % O.specie.length], x: x, z: z, atto: O.atto, elite: O.ondata === O.ondate && i === 0, _orda: O.ondata };
+      var k = st.oggetti.length;
+      st.oggetti.push(o);
+      var nodo = costruisciOggetto(o, st, k, mondo.zona.zona ? mondo.zona.zona.n : 1, mondo.livello.n);
+      o._chiave = null; o._emerge = 1.2 + i * 0.25; o._quotaSalto = -2.6; o._allerta = 5;
+      nodo.userData.mobile = true;
+      st._g.add(nodo);
+      scintille(new T.Vector3(st.x + x, 0.2, st.z + z), 0x3a2a1a, 12);
+      if (conSangue()) pozzaSotto(new T.Vector3(st.x + x, 0, st.z + z), 0.9);
+    }
+    if (O.ondata > 1) avviso(t('Ondata ', 'Wave ') + O.ondata + '/' + O.ondate);
+    tonfo(50, 0.6);
+  }
+  function sirena() {
+    var A = contesto(); if (!A) return;
+    try {
+      var o = A.createOscillator(), g = A.createGain(), t0 = A.currentTime;
+      o.type = 'sawtooth';
+      for (var i = 0; i < 4; i++) { o.frequency.setValueAtTime(520, t0 + i * 0.9); o.frequency.linearRampToValueAtTime(880, t0 + i * 0.9 + 0.45); o.frequency.linearRampToValueAtTime(520, t0 + i * 0.9 + 0.9); }
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.045, t0 + 0.1); g.gain.setValueAtTime(0.045, t0 + 3.4); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 3.6);
+      var f = A.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 900; f.Q.value = 1.5;
+      o.connect(f); f.connect(g); g.connect(A.destination); o.start(t0); o.stop(t0 + 3.7);
+    } catch (e) {}
+  }
+
+  /* ═════════════════════════════════════════════════════════════════════════
      LE MOSSE DEL GIOCATORE
      ═════════════════════════════════════════════════════════════════════════ */
   /* IL CORPO A CORPO: tre colpi in fila se si preme a tempo — il jab
@@ -4700,6 +5033,16 @@
       mosse.carica = Math.min(1, mosse.carica + dtR / 1.1);
       scossa = Math.max(scossa, mosse.carica * 0.08);
       if (mosse.carica >= 1 && !mosse.pieno) { mosse.pieno = true; bip(1320, 0.08, 'sine', 0.04); }
+      /* gli archi che scappano dalla mano mentre si carica, sempre piu'
+         spessi e lunghi, del colore dell'elemento */
+      mosse.tArchi = (mosse.tArchi || 0) - dtR;
+      if (!ps1() && camera && mosse.carica > 0.15 && mosse.tArchi <= 0) {
+        mosse.tArchi = 0.09 - mosse.carica * 0.05;
+        var palmo = new T.Vector3(-0.24, -0.2, -0.6).applyMatrix4(camera.matrixWorld);
+        var fine = palmo.clone().add(new T.Vector3(Math.random() - 0.5, Math.random() - 0.3, Math.random() - 0.5).normalize().multiplyScalar(0.2 + mosse.carica * 0.45));
+        var simC = potereAttivo(), colC = (simC && POTERI[simC] && POTERI[simC].colore) || 0x9fe8ff;
+        arco(palmo, fine, colC, 0.1, 0.012 + mosse.carica * 0.02, mosse.carica > 0.6 ? 1 : 0);
+      }
     } else mosse.pieno = false;
     passoEsecuzione(dtR);
     passoPericoli(dtG);
@@ -4835,7 +5178,16 @@
       if (fine) { vaVia(P); pericoli.splice(i, 1); }
     }
   }
-  function pulisciPericoli() { pericoli.forEach(vaVia); pericoli = []; mosse.esegui = null; S && (S.scatto = null); }
+  function pulisciPericoli() { pericoli.forEach(vaVia); pericoli = []; mosse.esegui = null; if (S) { S.scatto = null; S.orda = null; } }
+  /* caduti durante un'orda: l'orda ricomincia da capo la prossima volta,
+     e chi ne era rimasto sparisce */
+  function azzeraOrda() {
+    var st = S && S.orda;
+    if (!st) return;
+    (st.oggetti || []).forEach(function (o) { if (o._orda && o.vivo) { o.vivo = false; o.abbattuto = true; if (o._nodo) o._nodo.visible = false; } });
+    st._orda.ondata = 0; st._orda.pausa = 0;
+    S.orda = null;
+  }
 
   /* GLI ATTACCHI SPECIALI DEI MOSTRI. Ognuno ha il suo, oltre a quello
      normale, e lo usa ogni tanto: si vede arrivare (il corpo si carica, il
@@ -5188,6 +5540,7 @@
       if (post) {
         ren.setRenderTarget(null);
         post.mat.uniforms.tempo.value = (ora % 100000) / 1000;
+        aggiornaRaggi();
         ren.render(post.scena, post.cam);
       }
     }
@@ -5207,6 +5560,7 @@
   var POST_FS = [
     'uniform sampler2D tDiffuse; uniform vec2 risol; uniform float tempo; uniform float bagliore;',
     'uniform float scatto; uniform float sangue; uniform float colpito; uniform float urlo; uniform float lento;',
+    'uniform vec2 raggiPos; uniform float raggiForza;',
     'varying vec2 vUv;',
     'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }',
     'vec3 forte(vec2 uv){ vec3 c = texture2D(tDiffuse, uv).rgb; return max(c - 0.72, 0.0); }',
@@ -5223,6 +5577,14 @@
     '      vec2 d = vec2(cos(a), sin(a));',
     '      b += forte(vUv + d * px * 5.0) + forte(vUv + d * px * 12.0) * 0.7; }',
     '    c += b * (bagliore / 13.6);',
+    '  }',
+    /* i RAGGI DI LUCE: dalla lampada piu' vicina, i pixel forti si
+       allungano verso chi guarda attraverso la nebbia (dodici campioni
+       lungo la linea verso la lampada, sempre piu' deboli) */
+    '  if (raggiForza > 0.0) {',
+    '    vec2 dr = (vUv - raggiPos) / 14.0; vec2 ur = vUv; float dec = 1.0; vec3 rg = vec3(0.0);',
+    '    for (int i = 0; i < 14; i++) { ur -= dr; rg += forte(ur) * dec; dec *= 0.9; }',
+    '    c += rg * raggiForza * 0.16;',
     '  }',
     '  float l = dot(c, vec3(0.299, 0.587, 0.114));',
     '  c = c - pow(max(c - 0.7, 0.0), vec3(2.0)) * 0.9;',
@@ -5256,7 +5618,8 @@
     var mat = new T.ShaderMaterial({
       uniforms: { tDiffuse: { value: rt.texture }, risol: { value: dim.clone() }, tempo: { value: 0 },
                   bagliore: { value: IMP.grafica === 'alta' ? 1 : 0 }, scatto: { value: 0 }, sangue: { value: 0 },
-                  colpito: { value: 0 }, urlo: { value: 0 }, lento: { value: 0 } },
+                  colpito: { value: 0 }, urlo: { value: 0 }, lento: { value: 0 },
+                  raggiPos: { value: new T.Vector2(0.5, 0.8) }, raggiForza: { value: 0 } },
       vertexShader: POST_VS, fragmentShader: POST_FS, depthTest: false, depthWrite: false
     });
     var sc = new T.Scene(), q = new T.Mesh(geo, mat);
@@ -5274,6 +5637,24 @@
     }
   }
 
+  /* dove sta, sullo schermo, la lampada piu' vicina accesa: i raggi
+     partono da li', e si spengono quando esce dall'inquadratura */
+  var vRaggi = null;
+  function aggiornaRaggi() {
+    var U = post.mat.uniforms, forza = 0;
+    if (IMP.grafica === 'alta' && IMP.degrado !== 'no' && luci && luci.punti && luci.punti[0] && camera && S && !S.lab) {
+      var p = luci.punti[0];
+      if (p.intensity > 0.2) {
+        if (!vRaggi) vRaggi = new T.Vector3();
+        vRaggi.copy(p.position).project(camera);
+        if (vRaggi.z < 1 && Math.abs(vRaggi.x) < 1.4 && Math.abs(vRaggi.y) < 1.4) {
+          U.raggiPos.value.set((vRaggi.x + 1) / 2, (vRaggi.y + 1) / 2);
+          forza = Math.max(0, 1 - Math.max(Math.abs(vRaggi.x), Math.abs(vRaggi.y)) / 1.4) * (p.intensity / Math.max(0.01, p.userData.base || 0.55));
+        }
+      }
+    }
+    U.raggiForza.value += (forza - U.raggiForza.value) * 0.2;
+  }
   function avviaCiclo() { if (!anim && pronto) anim = requestAnimationFrame(ciclo); }
   function fermaCiclo() { if (anim) cancelAnimationFrame(anim); anim = null; ultimo = 0; mosse.caricando = false; if (amb) amb.g.gain.value = 0; }
 
@@ -5630,7 +6011,7 @@
     /* un livello che si ricostruisce chiude il laboratorio (anche quello
        di una partita precedente): si torna alla sua porta */
     togliLab();
-    pulisciCombattimento(); pulisciPericoli();
+    pulisciCombattimento(); pulisciPericoli(); pulisciGore();
     if (S && S.lab) {
       var Lr = S.lab;
       S.lab = null; S.pos.x = Lr.ritorno.x; S.pos.z = Lr.ritorno.z; S.pos.y = 0;
@@ -6028,6 +6409,11 @@
     speciale: function (o) { if (!SPECIALI[o.specie]) return false; o._fase = 'speciale'; o._sp = { fase: 'carica', t: 0 }; return true; },
     speciali: function () { return Object.keys(SPECIALI).map(function (k) { return [k, SPECIALI[k].nome]; }); },
     torcia: function () { return !!(luci && luci.torcia); },
+    abbatti: function (o) { if (o && o.vivo) abbattiNemico(o, posNemico(o)); },
+    orda: function () { var st = null; if (mondo) mondo.zona.stanze.forEach(function (x) { if (x._orda) st = x; }); return st ? { id: st.id, x: st.x, z: st.z, larg: st.larg, prof: st.prof, ondate: st._orda.ondate, ondata: st._orda.ondata, finita: st._orda.finita, attiva: S.orda === st,
+                                       vivi: st.oggetti.filter(function (o) { return o._orda && o.vivo; }).length } : null; },
+    gore: function () { return { macchie: macchieV.length, brandelli: brandelli.length, archi: archi.length }; },
+    degrado: function () { var n = 0; if (mondo) mondo.zona.stanze.forEach(function (x) { if (x._degrado) n += x._degrado; }); return n; },
     reazioni: function () { return Object.assign({}, S.reazioni || {}); },
     pozza: function (x, z) { var P = pericolo({ x: x, z: z, r: 1.6, tipo: 'pozza', ritardo: 0.01, durata: 6, col: 0x8fe36b, nome: ['prova', 'test'] }); P.t = 0.02; return !!P; },
     ferito: function (p) { S.immune = 0; danno(p || '—'); },

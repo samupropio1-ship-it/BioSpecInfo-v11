@@ -1146,6 +1146,24 @@ function sopra(d, minimo, avuto) {
         out.combustione = (A.reazioni().combustione || 0) > 0;
       }
     }
+    /* v225 · IL SANGUE CHE RESTA E I FULMINI: una creatura uccisa con
+       molto piu' del necessario va in pezzi e lascia la pozza; la scarica
+       disegna i suoi archi */
+    {
+      const n4 = trova('mostro') || trova('bruto') || trova('palude') || trova('verme') || trova('cervo');
+      if (n4) {
+        A.riposo(); n4.o.vita = 1; n4.o._gelo = 0; await davanti(n4, 4);
+        S.energia = 100; A.scegliPotere('O'); A.caricaPotere(1);
+        for (let i = 0; i < 120 && n4.o.vivo; i++) await fr();
+        await new Promise(r => setTimeout(r, 500)); for (let i = 0; i < 4; i++) await fr();
+        out.gore = A.gore();
+      }
+      const n5 = trova('mostro') || trova('bruto') || trova('palude') || trova('verme') || trova('cervo') || trova('abissale');
+      if (n5) {
+        await davanti(n5, 4); S.energia = 100; A.scegliPotere('Na'); A.usaPotere(); await fr();
+        out.archi = A.gore().archi;
+      }
+    }
     /* nessuna creatura a terra entra nel giocatore */
     {
       const n3 = trova('mostro') || trova('bruto') || trova('cervo') || trova('verme');
@@ -1254,6 +1272,9 @@ function sopra(d, minimo, avuto) {
   att('reazione: la creatura gelata colpita forte va in pezzi (frantumazione)', true, lotta.frantuma);
   att('reazione: il fuoco nella nube tossica la fa esplodere (combustione)', true, lotta.combustione);
   att('nessuna creatura entra nel corpo del giocatore (resta a mezzo metro dal suo raggio)', true, lotta.distanzaCorpo > 0.7);
+  att('ucciso con molto più del necessario: va in pezzi (brandelli)', true, !!lotta.gore && lotta.gore.brandelli > 0);
+  att('  · e lascia il sangue a terra', true, !!lotta.gore && lotta.gore.macchie > 0);
+  att('la scarica disegna i fulmini veri (archi a nastro)', true, lotta.archi > 0);
   console.log('      (distanza ' + (lotta.distanzaCorpo || 0).toFixed(2) + ' m)');
   att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
   att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
@@ -1272,6 +1293,48 @@ function sopra(d, minimo, avuto) {
   att('  · e si chiude', true, lotta.pienoEsce);
   att('il movimento accelera (niente scatti da fermo a pieno)', true, lotta.accelera);
   att('si disegna fra due passi del gioco (interpolazione)', true, lotta.interpola);
+
+  /* ═══ v225 · L'ISTITUTO ABBANDONATO E LE ORDE ═══════════════════════ */
+  console.log('\n── v225: l’istituto abbandonato, le orde ──');
+  const orda = await pg.evaluate(async () => {
+    const A = BSIAtomic, out = {};
+    const fr = () => new Promise(r => requestAnimationFrame(r));
+    if (getComputedStyle(document.getElementById('sgioco')).display === 'none') {
+      document.querySelector('.nav-btn[data-s="sgioco"]').click(); await new Promise(r => setTimeout(r, 500));
+    }
+    A.nuovaPartita(57); A.cominciaPartita();
+    for (let i = 0; i < 40 && !A.mondo(); i++) await new Promise(r => setTimeout(r, 200));
+    const S = A.stato(); S.immune = 99999;
+    out.degrado = A.degrado();
+    const O = A.orda(); out.c_e = !!O;
+    if (O) {
+      S.pos.x = O.x; S.pos.z = O.z; S.posPrec = null;
+      for (let i = 0; i < 200 && !(A.orda().attiva && A.orda().vivi > 0); i++) await fr();
+      const O1 = A.orda(); out.attiva = O1.attiva; out.vivi = O1.vivi; out.ondate = O1.ondate;
+      /* bloccati dentro: si spinge verso il muro e oltre */
+      S.pos.x = O.x + O.larg / 2 - 0.8; S.posPrec = null; S.ang = -Math.PI / 2; A.tasti('su', true);
+      for (let i = 0; i < 40; i++) await fr();
+      A.tasti('su', false);
+      out.bloccato = Math.abs(S.pos.x - O.x) < O.larg / 2;
+      /* le ondate: si abbattono tutte */
+      for (let w = 0; w < 6 && !A.orda().finita; w++) {
+        A.mondo().zona.stanze.forEach(st => st.oggetti.forEach(o => { if (o._orda && o.vivo) A.abbatti(o); }));
+        for (let i = 0; i < 260 && !A.orda().finita && A.orda().vivi === 0; i++) await fr();
+      }
+      out.finita = A.orda().finita; out.ondataFinale = A.orda().ondata;
+      out.libero = !A.orda().attiva;
+    }
+    document.querySelector('.nav-btn[data-s]:not([data-s="sgioco"])').click();
+    await new Promise(r => setTimeout(r, 400));
+    return out;
+  });
+  sopra('le stanze sono devastate (fogli, sedie, cavi, sporco, sangue)', 40, orda.degrado);
+  att('dal sesto livello, uno su tre ha una stanza-orda', true, orda.c_e);
+  att('  · entrando, l’orda parte e le creature risalgono', true, !!orda.attiva && orda.vivi > 0);
+  console.log('      (' + orda.vivi + ' creature nella prima ondata, ' + orda.ondate + ' ondate)');
+  att('  · le porte sono bloccate finché dura', true, orda.bloccato);
+  att('  · abbattute tutte le ondate, l’orda è respinta', true, orda.finita && orda.ondataFinale === orda.ondate);
+  att('  · e si esce', true, orda.libero);
 
   /* ═══ §8c · I LABORATORI (le mappe fornite) ══════════════════════════ */
   console.log('\n── I laboratori: le mappe da percorrere ──');
@@ -1447,9 +1510,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 297) {
+  if (eseguiti < 306) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 297');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 306');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');

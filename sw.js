@@ -46,6 +46,7 @@ var PRECACHE = [
   './bsi-gioco-domande.js',
   './bsi-atomic-livelli.js',
   './bsi-atomic-figure.js',
+  './bsi-atomic-degrado.js',
   './bsi-atomic-grafica.js',
   './bsi-atomic.js',
   './bsi-articoli-nobel.js',

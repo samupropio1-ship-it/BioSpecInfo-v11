@@ -1035,7 +1035,13 @@
         g.add(tubo([[-L / 2 + 0.3, H - 0.35, -P / 2 + 0.35], [L / 2 - 0.3, H - 0.35, -P / 2 + 0.35]],
                    0.07, M.ottone));
       }
-      return { gruppo: g, luci: luci, emergenza: em, gocce: gocce };
+      /* sopra la stanza in ordine, quello che resta dopo l'evacuazione */
+      var deg = null;
+      if (!PS1 && api.degrado && st.degrado > 0) {
+        deg = api.degrado(st, vaniPer, semeStanza * 31 + (st.livello || 0) * 131 + 7, st.degrado);
+        if (deg) g.add(deg);
+      }
+      return { gruppo: g, luci: luci, emergenza: em, gocce: gocce, degrado: deg };
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1097,6 +1103,10 @@
         PS1: PS1, ALTA: ALTA, SEG: SEG, M: M, hash: hash, rumore: rumore, fbm: fbm,
         mat: mat, mesh: mesh, tonda: tonda, capsula: capsula, tubo: tubo
       });
+    }
+    /* l'istituto abbandonato: fogli, sedie, cavi, sporco, sangue */
+    if (globale.BSIAtomicDegrado) {
+      globale.BSIAtomicDegrado.installa(api, T, { PS1: PS1, ALTA: ALTA, M: M, mat: mat, mesh: mesh, tonda: tonda, tubo: tubo });
     }
     return api;
   }
