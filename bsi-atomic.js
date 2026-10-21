@@ -4051,10 +4051,17 @@
     '  float a = bordo * (1.0 - smoothstep(0.6, 1.0, eta));',
     '  gl_FragColor = vec4(c, a * mix(0.55, 0.95, smoothstep(0.3, 0.7, caldo)));',
     '}'].join('\n');
+  /* il fuoco vero e' arancione: il colore dell'elemento lo tinge, non lo
+     sostituisce (il plasma della scarica e il gelo restano del loro) */
+  function coloreFuoco(col) {
+    var c = new T.Color(col), hsl = {}; c.getHSL(hsl);
+    var caldo = hsl.h < 0.12 || hsl.h > 0.88;
+    return caldo ? c.lerp(new T.Color(0xff6a1a), 0.65) : c;
+  }
   function pallaDiFuoco(p, col, dim) {
     if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
     var m = new T.Mesh(geoFuoco, new T.ShaderMaterial({
-      uniforms: { tempo: { value: Math.random() * 10 }, gonfia: { value: 0.35 }, colore: { value: new T.Color(col) }, eta: { value: 0 } },
+      uniforms: { tempo: { value: Math.random() * 10 }, gonfia: { value: 0.35 }, colore: { value: coloreFuoco(col) }, eta: { value: 0 } },
       vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
     m.position.copy(p); m.scale.setScalar(0.25 * dim); m.renderOrder = 7;
     scena.add(m);
@@ -4114,6 +4121,8 @@
   }
   function luceLampo(p, col, int, durata) {
     if (!luci || !luci.lampo) return;
+    /* il lampo vicinissimo non brucia l'immagine */
+    if (camera) int *= Math.min(1, 0.25 + p.distanceTo(camera.position) / 3);
     luci.lampo.position.copy(p); luci.lampo.color.setHex(col);
     luci.lampo.intensity = int; luci.lampo.userData.cala = int / Math.max(0.05, durata);
   }
@@ -4293,7 +4302,7 @@
       /* la palla di fuoco del giocatore: fuoco vero che ribolle */
       if (!geoFuoco) geoFuoco = new T.IcosahedronGeometry(1, IMP.grafica === 'alta' ? 4 : 3);
       var fm = new T.Mesh(geoFuoco, new T.ShaderMaterial({
-        uniforms: { tempo: { value: 0 }, gonfia: { value: 0.3 }, colore: { value: new T.Color(col) }, eta: { value: 0.05 } },
+        uniforms: { tempo: { value: 0 }, gonfia: { value: 0.3 }, colore: { value: coloreFuoco(col) }, eta: { value: 0.05 } },
         vertexShader: FUOCO_VS, fragmentShader: FUOCO_FS, transparent: true, depthWrite: false, toneMapped: false }));
       fm.position.copy(p); fm.scale.setScalar(0.22); fm.renderOrder = 7; scena.add(fm);
       var nf = sprite(0xffe0a0); nf.position.copy(p); nf.scale.setScalar(0.35); nf.material.opacity = 0.5;
@@ -4400,6 +4409,7 @@
       if (e.tipo === 'fuoco') {
         var u2 = e.t / e.vita;
         e.o.material.uniforms.tempo.value += dt; e.o.material.uniforms.eta.value = u2;
+        if (camera) { var dF = e.o.position.distanceTo(camera.position) - e.o.scale.x; if (dF < 1) e.o.material.uniforms.eta.value = Math.max(u2, Math.min(0.95, 1 - dF)); }
         e.o.scale.setScalar(Math.min(1.8, 0.55 * Math.pow(e.dim, 0.8)) * (0.25 + 0.75 * (1 - Math.pow(1 - Math.min(1, u2 * 1.6), 3))));
         e.v.multiplyScalar(0.96);
       } else if (e.tipo === 'fumo') {
@@ -4424,6 +4434,13 @@
       } else {
         e.o.material.opacity = Math.max(0, f);
         e.o.scale.setScalar(e.dim * (e.g === 0 && e.dim > 1 ? 1 + (1 - f) * 0.6 : 0.6 + f * 0.4));
+      }
+      /* un effetto a un palmo dalla telecamera non deve accecare: sotto il
+         metro e mezzo svanisce (il fuoco intorno alla testa si vede ai
+         bordi, non come uno schermo bianco) */
+      if (camera && e.o.isSprite) {
+        var dC = e.o.position.distanceTo(camera.position);
+        if (dC < 1.5) e.o.material.opacity *= Math.max(0, (dC - 0.35) / 1.15);
       }
       if (e.t >= e.vita) { scena.remove(e.o); e.o.material.dispose(); effetti.splice(k2, 1); }
     }
