@@ -1166,7 +1166,9 @@ function sopra(d, minimo, avuto) {
     }
     /* nessuna creatura a terra entra nel giocatore */
     {
-      const n3 = trova('mostro') || trova('bruto') || trova('cervo') || trova('verme');
+      /* (a questo punto del banco parecchie creature sono gia' cadute: va bene una qualunque, a terra) */
+      const n3 = trova('mostro') || trova('bruto') || trova('cervo') || trova('verme') || trova('palude') || trova('curvo');
+      out.n3 = n3 ? n3.o.specie : '-';
       if (n3) {
         A.riposo(); n3.o._fase = 'insegui'; n3.o._allerta = 5; n3.o._stordito = 0; n3.o._crollo = 0; n3.o._gelo = 0; n3.o._sp = null;
         await davanti(n3, 0.3);
@@ -1275,7 +1277,7 @@ function sopra(d, minimo, avuto) {
   att('ucciso con molto più del necessario: va in pezzi (brandelli)', true, !!lotta.gore && lotta.gore.brandelli > 0);
   att('  · e lascia il sangue a terra', true, !!lotta.gore && lotta.gore.macchie > 0);
   att('la scarica disegna i fulmini veri (archi a nastro)', true, lotta.archi > 0);
-  console.log('      (distanza ' + (lotta.distanzaCorpo || 0).toFixed(2) + ' m)');
+  console.log('      (' + lotta.n3 + ', distanza ' + (lotta.distanzaCorpo || 0).toFixed(2) + ' m)');
   att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
   att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
   att('  · ed è scritto nel salvataggio della partita', true, lotta.cpSalvato);
