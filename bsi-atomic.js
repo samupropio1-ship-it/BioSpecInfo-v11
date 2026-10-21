@@ -3604,9 +3604,9 @@
     verme:    { modello: 'verme', modo: 'mischia', vita: 4, alto: 1.75, raggio: 0.55, colore: 0x9fb7ff, vel: 2.1, portata: 1.5,
                 nome: ['Verme di scarico', 'Drain worm'], debole: ['Cl', 'O', 'H2O2', 'fiamma'], punti: 70, anim: { idle: 'Idle', passo: 'WALK', corsa: 'RUN', attacco: 'ATTACK', ferito: 'WOUND_1', morte: 'DEATH' } },
     curvo:    { modello: 'curvo', modo: 'salto', vita: 5, alto: 1.9, raggio: 0.6, colore: 0xff6a4a, vel: 1.8, portata: 1.4,
-                nome: ['Rampicante', 'Lurcher'], debole: ['fiamma', 'HCl'], punti: 90 },
+                nome: ['Rampicante', 'Lurcher'], debole: ['fiamma', 'HCl'], punti: 90, rigBraccia: 0 },
     palude:   { modello: 'palude', modo: 'sputo', vita: 7, alto: 2.0, raggio: 0.62, colore: 0x8fe36b, vel: 1.0, portata: 1.4,
-                nome: ['Fanghiglia', 'Bog thing'], debole: ['NaOH', 'O', 'fiamma'], punti: 110 },
+                nome: ['Fanghiglia', 'Bog thing'], debole: ['NaOH', 'O', 'fiamma'], punti: 110, rigBraccia: 0.7 },
     cervo:    { modello: 'cervo', modo: 'mischia', vita: 6, alto: 2.35, raggio: 0.55, colore: 0xff3040, vel: 2.6, portata: 1.7,
                 nome: ['Il cervo', 'The deer'], debole: ['scintille', 'gelo'], punti: 130, anim: { idle: 'Take 001', passo: 'Take 001', corsa: 'Take 001' } },
     abissale: { modello: 'abissale', modo: 'fluttua', vita: 6, alto: 1.9, raggio: 0.6, colore: 0x3ee0c8, vel: 1.6, portata: 1.4, quota: 0.6,
@@ -4212,7 +4212,7 @@
      forme senza gambe (l'abissale) ondeggiano come tentacoli. Le soglie
      sono nella forma umana: anca al 47% dell'altezza, spalle al 78% */
   var RIG_VS = [
-    'uniform vec4 rigB0; uniform vec4 rigB1; uniform vec4 rigA; uniform vec4 rigC; uniform mat4 rigM; uniform mat4 rigMi;',
+    'uniform vec4 rigB0; uniform vec4 rigB1; uniform vec4 rigA; uniform vec4 rigC; uniform vec4 rigD; uniform mat4 rigM; uniform mat4 rigMi;',
     'vec3 rigRuota(vec3 p, vec3 c, float a){ vec3 d = p - c; float s = sin(a), k = cos(a); return c + vec3(d.x, d.y * k - d.z * s, d.y * s + d.z * k); }'
   ].join('\n');
   var RIG_BODY = [
@@ -4230,7 +4230,7 @@
     /* le braccia */
     '  float br = smoothstep(0.19, 0.29, dx) * smoothstep(0.30, 0.48, h) * (1.0 - smoothstep(0.86, 0.95, h));',
     '  float aB = -lato * sin(rigA.x) * rigA.y * 0.45 - rigA.z * 0.95 + rigA.w * 0.75 - rigC.x * 0.45;',
-    '  p = mix(p, rigRuota(p, vec3(p.x, rigB0.y + H * 0.78, cz + (rigB1.z - rigB0.z) * 0.05), aB), br);',
+    '  p = mix(p, rigRuota(p, vec3(p.x, rigB0.y + H * 0.78, cz + (rigB1.z - rigB0.z) * 0.05), aB * rigD.x), br);',
     /* il busto */
     '  float bu = smoothstep(0.42, 0.62, h);',
     '  p = mix(p, rigRuota(p, vec3(p.x, rigB0.y + H * 0.47, cz), rigA.w * 0.32 - rigA.z * 0.14 - rigC.x * 0.45 + rigC.z), bu);',
@@ -4242,12 +4242,13 @@
     '  transformed = (rigMi * vec4(p, 1.0)).xyz;',
     '}'
   ].join('\n');
-  function rigProcedurale(copia, bb, tentacoli) {
+  function rigProcedurale(copia, bb, tentacoli, braccia) {
     var unif = {
       rigB0: { value: new T.Vector4(bb.min.x, bb.min.y, bb.min.z, 0) },
       rigB1: { value: new T.Vector4(bb.max.x, bb.max.y, bb.max.z, 0) },
       rigA: { value: new T.Vector4(0, 0, 0, 0) },                /* fase del passo, ampiezza, braccia alzate, colpo */
-      rigC: { value: new T.Vector4(0, tentacoli ? 1 : 0, 0, 0) }  /* ferito, tentacoli, chinarsi, respiro */
+      rigC: { value: new T.Vector4(0, tentacoli ? 1 : 0, 0, 0) }, /* ferito, tentacoli, chinarsi, respiro */
+      rigD: { value: new T.Vector4(braccia == null ? 1 : braccia, 0, 0, 0) }  /* quanto si muovono le braccia (le forme a quattro zampe: niente) */
     };
     copia.updateMatrixWorld(true);
     var inv = new T.Matrix4().copy(copia.matrixWorld).invert();
@@ -4259,7 +4260,7 @@
         var prima = mt.onBeforeCompile;
         mt.onBeforeCompile = function (sh, r) {
           if (prima) prima.call(this, sh, r);
-          sh.uniforms.rigB0 = unif.rigB0; sh.uniforms.rigB1 = unif.rigB1; sh.uniforms.rigA = unif.rigA; sh.uniforms.rigC = unif.rigC;
+          sh.uniforms.rigB0 = unif.rigB0; sh.uniforms.rigB1 = unif.rigB1; sh.uniforms.rigA = unif.rigA; sh.uniforms.rigC = unif.rigC; sh.uniforms.rigD = unif.rigD;
           sh.uniforms.rigM = { value: M }; sh.uniforms.rigMi = { value: Mi };
           sh.vertexShader = RIG_VS + '\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + RIG_BODY);
         };
@@ -4336,7 +4337,7 @@
       o._mod = mod; o._mat = mats;
       animaClip(o, 'idle');
       if (mod.mixer) mod.mixer.update(0.2);      /* subito in posa: mai la posa di legame */
-      else mod.rig = rigProcedurale(copia, gltf.misura, SM.modo === 'fluttua');
+      else mod.rig = rigProcedurale(copia, gltf.misura, SM.modo === 'fluttua', SM.rigBraccia);
     });
   }
   /* la clip di un'azione (se il modello l'ha): si passa con una dissolvenza */
@@ -4747,9 +4748,9 @@
   var pericoli = [], geoAnello = null, geoDisco = null;
   function pericolo(opz) {
     if (!scena) return null;
-    if (!geoAnello) { geoAnello = new T.RingGeometry(0.9, 1, 56); geoDisco = new T.CircleGeometry(1, 40); }
+    if (!geoAnello) { geoAnello = new T.RingGeometry(0.8, 1, 64); geoDisco = new T.CircleGeometry(1, 40); }
     var mA = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.8, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
-    var mD = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.25, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
+    var mD = new T.MeshBasicMaterial({ color: opz.col, transparent: true, opacity: 0.38, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide });
     var an = new T.Mesh(geoAnello, mA), di = new T.Mesh(geoDisco, mD);
     [an, di].forEach(function (m) { m.rotation.x = -Math.PI / 2; m.position.set(opz.x, 0.03, opz.z); m.renderOrder = 3; scena.add(m); });
     var P = { x: opz.x, z: opz.z, r: opz.r || 1.4, tipo: opz.tipo || 'area', ritardo: opz.ritardo || 0.8, durata: opz.durata || 0, vel: opz.vel || 7,
@@ -4772,7 +4773,7 @@
       if (P.tipo === 'area') {
         var k = Math.min(1, P.t / P.ritardo);
         P.an.scale.setScalar(P.r); P.di.scale.setScalar(Math.max(0.01, P.r * k));
-        P.an.material.opacity = 0.5 + Math.sin(P.t * 30) * 0.3;
+        P.an.material.opacity = 0.75 + Math.sin(P.t * 30) * 0.25;
         if (k >= 1 && !P.fatto) {
           P.fatto = true;
           if (d < P.r) colpisci(P);
@@ -4783,7 +4784,7 @@
       } else if (P.tipo === 'onda') {
         var rr = P.t * P.vel;
         P.an.scale.setScalar(Math.max(0.05, rr)); P.di.visible = false;
-        P.an.material.opacity = Math.max(0, 0.9 * (1 - rr / P.r));
+        P.an.material.opacity = Math.max(0, 1.4 * (1 - rr / P.r));
         /* l'onda corre sul pavimento: chi e' in aria passa sopra */
         if (!P.fatto && Math.abs(d - rr) < 0.5 && S.pos.y - (S.lab ? S.labSuolo : 0) < 0.3) { P.fatto = true; colpisci(P); }
         if (Math.random() < 0.5) particella(new T.Vector3(P.x + Math.cos(P.t * 40) * rr, 0.15, P.z + Math.sin(P.t * 40) * rr), new T.Vector3(0, 1.5, 0), P.col, 0.3, 0.2, 2);

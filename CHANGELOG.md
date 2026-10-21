@@ -7,6 +7,32 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v223] — 2026-10-21
+
+**Le reazioni, la luce, la polvere — ATOMIC PROTOCOL**
+
+### Aggiunto
+- **Le reazioni chimiche** fra quello che fai e lo stato delle creature:
+  la **frantumazione** (una creatura gelata dall'azoto che prende un colpo
+  pesante va in pezzi, e le schegge feriscono chi le sta intorno), la
+  **combustione** (la palla di fuoco dentro una nube tossica la fa esplodere),
+  la **conduzione** (la scarica su una creatura gelata o in una pozza d'acido
+  corre su tutte quelle vicine e le stordisce). Ogni reazione rende punti ed
+  energia; la prima volta si spiega che cosa è successo.
+- **La luce di contorno** sulle creature: nel buio la sagoma si stacca dal
+  fondo con un filo di luce sui bordi, appena del loro colore.
+- **I coni di luce** sotto le lampade e **la polvere** che galleggia
+  nell'aria intorno a chi guarda.
+
+### Cambiato
+- Il rig procedurale non muove più le «braccia» delle forme a quattro zampe
+  (il rampicante) e le muove meno nella fanghiglia: niente più deformazioni.
+- I cerchi e le onde degli attacchi speciali sono più spessi e più visibili.
+
+### Banco
+- `test_atomic`: conduzione e frantumazione provate in gioco.
+
+---
 ## [bsi-v222] — 2026-10-21
 
 **Le mosse, la paura, la fluidità — ATOMIC PROTOCOL**

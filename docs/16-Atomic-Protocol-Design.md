@@ -2,7 +2,8 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
-> Versione 16 (bsi-v222): le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
+> Versione 17 (bsi-v223): le reazioni chimiche fra poteri e stati (frantumazione, combustione, conduzione), la luce di contorno sulle creature, i coni di luce e la polvere.
+> Versione 16: le mosse — schivata, combinazione di tre colpi, potere caricato, esecuzioni al rallentatore —, un attacco speciale per ogni creatura, il rig procedurale nello shader per le creature senza scheletro, la torcia, il suono sintetizzato del posto e la fluidità (interpolazione, geometria fusa, risoluzione dinamica).
 > Versione 15: trecento livelli in tre atti, i guardiani che tornano, le creature che cambiano con l'atto, le élite, i punti di salvataggio e le due mani uguali; nella versione 14 il combattimento con le creature fornite — sempre sulla trama del Protocollo 12.
 > Il gioco vive nella sezione **🎮 Atomic Protocol** dell'applicazione e usa i
 > dati scientifici che l'applicazione ha già: tavola periodica, spettri,
@@ -563,6 +564,24 @@ il ronzio basso a due note stonate dell'istituto, che si apre quando qualcosa
 ti ha visto, il soffio nei condotti, i colpi lontani nei tubi, i passi, i
 fruscii, i tonfi, e i versi delle creature — una sega bassa che trema in un
 filtro che si apre come una gola, ognuna alla sua altezza.
+
+**Le reazioni** (dalla v223). Il combattimento è chimica: lo stato di una
+creatura e quello che le si fa si combinano. Gelata dall'azoto e colpita
+forte (il diretto della combinazione, il potere caricato, la palla di fuoco)
+va in **frantumazione**: si spezza, e le schegge feriscono chi è intorno. La
+palla di fuoco che esplode dentro una nube tossica di cloro o fluoro innesca
+la **combustione**: la nube brucia tutta in un colpo. La scarica dei metalli
+su una creatura gelata o ferma in una pozza d'acido (quelle che sputa la
+fanghiglia) fa **conduzione**: corre su tutte le creature entro quattro metri
+e mezzo e le stordisce. Ogni reazione rende 75 punti e 15 di energia, ferma il
+tempo un istante e scrive il suo nome sopra il punto; la prima volta spiega
+perché. Le pozze del nemico diventano così anche un'arma del giocatore.
+
+**La luce e l'aria** (dalla v223). Le creature hanno una luce di contorno
+(dove la superficie gira via dallo sguardo un filo del loro colore), che le
+stacca dal buio; sotto le tre lampade più vicine un cono di luce additivo,
+che sfuma in basso e sui bordi, mostra l'aria; intorno a chi guarda
+galleggiano 420 granelli di polvere che scendono e girano piano.
 
 **La fluidità** (dalla v222). Il gioco avanza a passi fissi di 1/60 s e lo
 schermo va alla sua frequenza: il giocatore **e le creature** si disegnano
