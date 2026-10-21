@@ -26,7 +26,12 @@ const { chromium } = require('playwright-core');
     await pg.goto('http://127.0.0.1:8899/index.html',{waitUntil:'load',timeout:60000});
     await pg.waitForTimeout(2500);
     await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
-    await pg.waitForTimeout(1200);
+    /* si aspetta che la chat ci sia davvero (il selettore e il campo), non
+       un tempo fisso: con la batteria che fa girare piu' browser insieme
+       1,2 s a volte non bastavano e il banco leggeva una tendina vuota */
+    await pg.waitForSelector('#bsi-hub-provsel', { state: 'attached', timeout: 20000 }).catch(()=>{});
+    await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 5000 }).catch(()=>{});
+    await pg.waitForTimeout(600);
     return { pg, err };
   }
   const stato = pg => pg.evaluate(()=>{
