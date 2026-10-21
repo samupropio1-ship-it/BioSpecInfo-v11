@@ -903,6 +903,31 @@
       scena.add(tc); scena.add(tc.target);
       g.torcia = tc; g.dirTorcia = null;
     }
+    /* I CONI DI LUCE sotto le lampade: l'aria polverosa dell'istituto si
+       vede dove la luce la attraversa. Un cono aperto, additivo, che sfuma
+       verso il basso e sui bordi */
+    var geoCono = new T.CylinderGeometry(0.12, 1.25, 1, 28, 1, true);
+    geoCono.translate(0, -0.5, 0);
+    var matCono = new T.ShaderMaterial({
+      uniforms: { colore: { value: new T.Color(0xffe8cc) } },
+      vertexShader: 'varying float vH; varying vec3 vN; varying vec3 vV; void main(){ vH = -position.y; vec4 mv = modelViewMatrix * vec4(position, 1.0); vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+      fragmentShader: 'uniform vec3 colore; varying float vH; varying vec3 vN; varying vec3 vV; void main(){ float bordo = pow(abs(dot(normalize(vN), normalize(vV))), 2.0); float a = 0.075 * bordo * (1.0 - vH) * (1.0 - vH); gl_FragColor = vec4(colore * a, 1.0); }',
+      transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide, toneMapped: false
+    });
+    g.coni = g.punti.map(function () { var m = new T.Mesh(geoCono, matCono); m.visible = false; m.renderOrder = 2; scena.add(m); return m; });
+    g.matCono = matCono;
+    /* LA POLVERE nell'aria: granelli che galleggiano intorno a chi guarda,
+       appena visibili, che scendono piano e girano */
+    var NP = 420, pos = new Float32Array(NP * 3);
+    for (var q = 0; q < NP; q++) { pos[q * 3] = (Math.random() - 0.5) * 9; pos[q * 3 + 1] = Math.random() * 3.4; pos[q * 3 + 2] = (Math.random() - 0.5) * 9; }
+    var geoP = new T.BufferGeometry(); geoP.setAttribute('position', new T.BufferAttribute(pos, 3));
+    var cv = document.createElement('canvas'); cv.width = cv.height = 32;
+    var cq = cv.getContext('2d'), gr = cq.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); cq.fillStyle = gr; cq.fillRect(0, 0, 32, 32);
+    var polvere = new T.Points(geoP, new T.PointsMaterial({ size: 0.022, map: new T.CanvasTexture(cv), color: 0xffe2c0, transparent: true, opacity: 0.55,
+                                                             depthWrite: false, blending: T.AdditiveBlending, toneMapped: false }));
+    polvere.frustumCulled = false; scena.add(polvere);
+    g.polvere = polvere;
     /* la luce del guardiano: rossa, pulsa quando attacca */
     g.boss = new T.PointLight(0xff4020, 0, 9);
     scena.add(g.boss);
@@ -929,7 +954,13 @@
       var l = ord[i];
       if (l) { p.position.set(l.x, l.y, l.z); p.color.setHex(colore); p.intensity = ps1() ? 0.9 : 0.55; }
       else p.intensity = 0;
+      var cn = luci.coni && luci.coni[i];
+      if (cn) {
+        cn.visible = !!l && !S.lab && i < 3;
+        if (l) { cn.position.set(l.x, l.y - 0.08, l.z); cn.scale.set(1, Math.max(0.5, l.y - 0.1), 1); }
+      }
     });
+    if (luci.matCono) luci.matCono.uniforms.colore.value.setHex(colore);
     if (ord[0] && luci.faro) {
       luci.faro.position.set(ord[0].x, ord[0].y + 0.1, ord[0].z);
       luci.faro.color.setHex(colore);
@@ -1698,6 +1729,19 @@
       tc.target.position.copy(tc.position).addScaledVector(luci.dirTorcia, 6);
       var ora2 = Date.now();
       tc.intensity = (prima ? 1.8 : 1.2) * (Math.sin(ora2 / 37) > 0.995 || ((ora2 / 1000) % 23) < 0.12 ? 0.35 : 1);
+    }
+    if (luci && luci.polvere) {
+      /* la polvere: si sposta con chi guarda (i granelli che escono da un
+         lato rientrano dall'altro), scende e gira piano */
+      var pa = luci.polvere.geometry.attributes.position, A2 = pa.array, oraP = Date.now() / 1000;
+      var cx2 = camera.position.x, cz2 = camera.position.z, base2 = S.lab ? S.labSuolo : 0;
+      for (var q2 = 0; q2 < A2.length; q2 += 3) {
+        A2[q2] += Math.sin(oraP * 0.3 + q2) * 0.0008; A2[q2 + 1] -= 0.0012; A2[q2 + 2] += Math.cos(oraP * 0.27 + q2 * 0.7) * 0.0008;
+        if (A2[q2] - cx2 > 4.5) A2[q2] -= 9; else if (A2[q2] - cx2 < -4.5) A2[q2] += 9;
+        if (A2[q2 + 2] - cz2 > 4.5) A2[q2 + 2] -= 9; else if (A2[q2 + 2] - cz2 < -4.5) A2[q2 + 2] += 9;
+        if (A2[q2 + 1] < base2) A2[q2 + 1] += 3.4; else if (A2[q2 + 1] > base2 + 3.4) A2[q2 + 1] -= 3.4;
+      }
+      pa.needsUpdate = true;
     }
   }
 
@@ -3667,6 +3711,16 @@
   }
   function ferisci(o, quanto, chi, p) {
     if (!o.vivo) return;
+    /* LA FRANTUMAZIONE: una creatura gelata che prende un colpo pesante va
+       in pezzi, e le schegge feriscono chi le sta intorno */
+    if (o._gelo > 0 && quanto >= 4 && chi !== 'gelo' && SPECIE_M[o.specie]) {
+      var pf = p || posNemico(o);
+      o._gelo = 0;
+      reazione('frantuma', pf, 0xbfe6ff);
+      for (var k = 0; k < 30; k++) particella(pf, new T.Vector3((Math.random() - 0.5) * 7, Math.random() * 4, (Math.random() - 0.5) * 7), k % 3 ? 0xbfe6ff : 0xffffff, 0.6 + Math.random() * 0.4, 0.06 + Math.random() * 0.08, 9);
+      nemiciVivi(3, pf).forEach(function (n) { if (n.o !== o) ferisci(n.o, 2, 'gelo', n.p); });
+      quanto = 999;
+    }
     var k = chi ? moltiplicatore(o, chi) : 1, d = Math.max(1, Math.round(quanto * k));
     o.vita = (o.vita == null ? specieDi(o).vita : o.vita) - d;
     o._lampo = 1; o._ferito = 1;
@@ -3753,6 +3807,12 @@
         if (colpiti.indexOf(n.o) >= 0 || n.p.distanceTo(da) > 9 * Math.sqrt(pz)) continue;
         if (!vistaLibera(da.x, da.z, n.p.x, n.p.z)) continue;
         fulmine(da, n.p, col);
+        /* LA CONDUZIONE: sul ghiaccio o nell'acido la scarica corre ovunque */
+        if (conduce(n)) {
+          reazione('conduzione', n.p, 0x9fe8ff);
+          nemiciVivi(4.5, n.p).forEach(function (m2) { if (m2.o !== n.o) { fulmine(n.p, m2.p, 0x9fe8ff); ferisci(m2.o, 2 * forza, sim, m2.p); m2.o._stordito = 1.4; } });
+          ferisci(n.o, 2 * forza, sim, n.p);
+        }
         ferisci(n.o, 2 * forza, sim, n.p);
         n.o._stordito = 1.4;
         colpiti.push(n.o); da = n.p.clone();
@@ -3897,7 +3957,16 @@
         }
       }
       if (finito) {
-        if (q.mio) esplosione(q.o.position, q.col, 1.2 * (q.dim || 1), true, q.danno, q.chi);
+        if (q.mio) {
+          /* LA COMBUSTIONE: il fuoco dentro una nube tossica la fa esplodere */
+          var nubeV = TIPO_POTERE[q.chi] === 'fiamma' ? nubi.filter(function (nb) { return nb.tipo === 'tossica' && nb.t < nb.vita && Math.hypot(nb.p.x - q.o.position.x, nb.p.z - q.o.position.z) < 3.4; })[0] : null;
+          if (nubeV) {
+            nubeV.t = nubeV.vita;
+            reazione('combustione', nubeV.p.clone().setY(1), 0xffa040);
+            esplosione(nubeV.p.clone().setY(1), 0xffa040, 2.4, true, 5, q.chi);
+          }
+          esplosione(q.o.position, q.col, 1.2 * (q.dim || 1), true, q.danno, q.chi);
+        }
         else scintille(q.o.position, q.col, 8);
         scena.remove(q.o); scena.remove(q.n); q.o.material.dispose(); q.n.material.dispose();
         proiettili.splice(i, 1);
@@ -4194,12 +4263,32 @@
           sh.uniforms.rigM = { value: M }; sh.uniforms.rigMi = { value: Mi };
           sh.vertexShader = RIG_VS + '\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + RIG_BODY);
         };
-        mt.customProgramCacheKey = function () { return 'rig1'; };   /* un programma per tutti: cambiano solo le uniform */
+        var kPrima = mt.hasOwnProperty('customProgramCacheKey') ? mt.customProgramCacheKey : null;
+        mt.customProgramCacheKey = function () { return 'rig1' + (kPrima ? kPrima.call(this) : ''); };   /* un programma per tutti: cambiano solo le uniform */
         mt.needsUpdate = true;
       });
       m.frustumCulled = false;
     });
     return unif;
+  }
+  /* LA LUCE DI CONTORNO: nel buio la sagoma della creatura si stacca dal
+     fondo con un filo di luce sui bordi (dove la superficie gira via dallo
+     sguardo), appena del suo colore — come la pelle bagnata sotto una
+     lampada alle spalle */
+  function luceDiContorno(mats, col) {
+    var rc = { value: new T.Color(col).lerp(new T.Color(0xcfd8e0), 0.5).multiplyScalar(0.55) };
+    mats.forEach(function (mt) {
+      if (!mt.isMeshStandardMaterial) return;
+      var prima = mt.onBeforeCompile;
+      mt.onBeforeCompile = function (sh, r2) {
+        if (prima) prima.call(this, sh, r2);
+        sh.uniforms.rimCol = rc;
+        sh.fragmentShader = 'uniform vec3 rimCol;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
+          '#include <emissivemap_fragment>\n  { float fr = 1.0 - abs(dot(normal, normalize(vViewPosition))); totalEmissiveRadiance += rimCol * pow(fr, 3.0); }');
+      };
+      mt.customProgramCacheKey = function () { return 'rim1'; };
+      mt.needsUpdate = true;
+    });
   }
   function montaModelloNemico(o, g) {
     var SM = SPECIE_M[o.specie];
@@ -4232,6 +4321,7 @@
         }
       });
       /* gli occhi: un alone del colore della variante */
+      if (!ps1()) luceDiContorno(mats, colV);
       var oc = G.alone ? G.alone(colV, 0.22 + SM.alto * 0.04, 0.3) : null;
       if (oc) { oc.position.set(0, SM.alto * V.scala * 0.86 + (SM.quota || 0), SM.raggio * V.scala * 0.55); corpo.add(oc); }
       if (V.elite && G.alone) { var aur = G.alone(0xffd24a, SM.alto * V.scala * 1.4, 0.18); aur.position.y = SM.alto * V.scala * 0.5; corpo.add(aur); }
@@ -4610,6 +4700,31 @@
       U.urlo.value = Math.max(0, (S.stordito || 0) / 1.6);
       U.lento.value += ((tempoG.lento > 0 ? 1 : 0) - U.lento.value) * Math.min(1, dtR * 8);
     }
+  }
+
+  /* LE REAZIONI: due cose che il giocatore fa (o trova) si combinano —
+     gelo e colpo pesante, fuoco e nube tossica, scarica e ghiaccio o acido.
+     Rendono punti ed energia, e la prima volta si spiega che cosa e'
+     successo */
+  var REAZIONI = {
+    frantuma: [['Frantumazione', 'Shatter'], ['il ghiaccio fragile si spezza sotto il colpo', 'brittle ice breaks under the blow']],
+    combustione: [['Combustione', 'Combustion'], ['il gas della nube brucia tutto in un colpo', 'the cloud gas burns all at once']],
+    conduzione: [['Conduzione', 'Conduction'], ['l\u2019acqua e l\u2019acido conducono la scarica', 'water and acid conduct the discharge']]
+  };
+  function reazione(k, p, col) {
+    var R = REAZIONI[k], en = lingua() === 'en' ? 1 : 0;
+    S.reazioni = S.reazioni || {};
+    var prima = !S.reazioni[k];
+    S.reazioni[k] = (S.reazioni[k] || 0) + 1;
+    S.punti += 75; S.energia = Math.min(100, (S.energia || 0) + 15);
+    numero(p.clone().setY(p.y + 0.6), '⚗ ' + R[0][en].toUpperCase(), '#' + new T.Color(col).getHexString());
+    luceLampo(p, col, 4, 0.35); fermaTempo(0.08); scossa = Math.max(scossa, 0.5);
+    bip(660, 0.12, 'triangle', 0.05); setTimeout(function () { bip(990, 0.18, 'triangle', 0.05); }, 90);
+    if (prima) avviso('⚗ ' + t('Reazione: ', 'Reaction: ') + R[0][en], R[1][en] + ' · +75');
+  }
+  function conduce(n) {
+    if (n.o._gelo > 0) return true;
+    return pericoli.some(function (P) { return P.tipo === 'pozza' && P.t >= P.ritardo && Math.hypot(n.p.x - P.x, n.p.z - P.z) < P.r; });
   }
 
   /* LE GOCCE: quello che esce da un colpo, del colore della creatura,
@@ -5869,6 +5984,7 @@
     sparo: function () { CD.sparo = 0; sparo(); },
     pugno: function () { CD.pugno = 0; pugno(); },
     schiva: function () { CD.schiva = 0; schiva(); },
+    tieniCarica: function (on) { if (on) { CD.potere = 0; inizioCarica(); } else fineCarica(); },
     riposo: function () { mosse.finestra = 0; mosse.combo = 0; mosse.esegui = null; tempoG.fermo = tempoG.lento = 0; },
     caricaPotere: function (k) { CD.potere = 0; inizioCarica(); mosse.carica = k == null ? 1 : k; fineCarica(); },
     eseguibile: function (o) { return eseguibile(o); },
@@ -5877,6 +5993,8 @@
     speciale: function (o) { if (!SPECIALI[o.specie]) return false; o._fase = 'speciale'; o._sp = { fase: 'carica', t: 0 }; return true; },
     speciali: function () { return Object.keys(SPECIALI).map(function (k) { return [k, SPECIALI[k].nome]; }); },
     torcia: function () { return !!(luci && luci.torcia); },
+    reazioni: function () { return Object.assign({}, S.reazioni || {}); },
+    pozza: function (x, z) { var P = pericolo({ x: x, z: z, r: 1.6, tipo: 'pozza', ritardo: 0.01, durata: 6, col: 0x8fe36b, nome: ['prova', 'test'] }); P.t = 0.02; return !!P; },
     ferito: function (p) { S.immune = 0; danno(p || '—'); },
     variante: function (o) { return variante(o); },
     specieNemici: function () { return Object.keys(SPECIE_M); },

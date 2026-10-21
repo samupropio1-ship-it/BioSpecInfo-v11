@@ -1116,6 +1116,23 @@ function sopra(d, minimo, avuto) {
     }
     /* il potere caricato costa di piu' e colpisce piu' forte */
     S.energia = 100; A.scegliPotere('O'); A.caricaPotere(1); out.caricaCosto = 100 - S.energia;
+    /* LE REAZIONI: la scarica su una creatura nell'acido si propaga
+       (conduzione); una creatura gelata colpita forte va in pezzi
+       (frantumazione) */
+    {
+      const n1 = trova('palude') || trova('verme') || trova('bruto') || trova('mostro');
+      if (n1) {
+        n1.o.vita = 99; n1.o._gelo = 0; await davanti(n1, 4);
+        const wx = n1.st.x + n1.o.x, wz = n1.st.z + n1.o.z;
+        A.pozza(wx, wz); await fr();
+        S.energia = 100; A.scegliPotere('Na'); A.usaPotere();
+        out.conduzione = (A.reazioni().conduzione || 0) > 0;
+        A.riposo(); n1.o._gelo = 3; n1.o._stordito = 0; n1.o.vita = 99; await davanti(n1, 1.4);
+        for (let i = 0; i < 3; i++) { A.pugno(); await new Promise(r => setTimeout(r, 200)); await fr(); await fr(); }
+        for (let i = 0; i < 10; i++) await fr();
+        out.frantuma = (A.reazioni().frantuma || 0) > 0 && !n1.o.vivo;
+      }
+    }
     /* gli attacchi speciali dei mostri: ognuno il suo, annunciato da un
        cerchio a terra o da un'onda */
     out.speciali = A.speciali().map(x => x.join(':')).join(' ');
@@ -1208,6 +1225,8 @@ function sopra(d, minimo, avuto) {
   att('  · lo speciale si carica e poi colpisce (' + lotta.specieSpeciale + ')', true, /carica/.test(lotta.specialeFasi || '') && /via/.test(lotta.specialeFasi || ''));
   att('  · e lascia il suo segno (onda, cerchio o schegge)', true, lotta.specialeEffetto);
   att('la torcia sulla telecamera', true, lotta.torcia);
+  att('reazione: la scarica nell’acido si propaga (conduzione)', true, lotta.conduzione);
+  att('reazione: la creatura gelata colpita forte va in pezzi (frantumazione)', true, lotta.frantuma);
   att('il punto di salvataggio si attiva avvicinandosi', true, lotta.cpAttivo);
   att('  · cadendo si riparte da lì, con la salute piena', true, lotta.cpRiparte);
   att('  · ed è scritto nel salvataggio della partita', true, lotta.cpSalvato);
@@ -1400,9 +1419,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 293) {
+  if (eseguiti < 295) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 293');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 295');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
