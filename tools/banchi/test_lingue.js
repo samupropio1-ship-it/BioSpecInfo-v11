@@ -295,8 +295,8 @@ const RIFIUTI = [
              ricercaCambiata: primaPh !== dopoPh,
              ricercaTornata: ph() === primaPh, esempio: dopoCat[0], esempioPh: dopoPh };
   });
-  att('le categorie della barra sono sette', 7, chrome.quante);
-  att('e cambiano tutte con la lingua', 7, chrome.categorieCambiate);
+  att('le categorie della barra sono otto (con ⚛️ Fisica, dalla v227)', 8, chrome.quante);
+  att('e cambiano tutte con la lingua', 8, chrome.categorieCambiate);
   att('anche il segnaposto della ricerca cambia', true, chrome.ricercaCambiata);
   att('e torna quello di prima in italiano', true, chrome.ricercaTornata);
   console.log('      (in tedesco: «' + chrome.esempio + '» · «' + chrome.esempioPh + '»)');

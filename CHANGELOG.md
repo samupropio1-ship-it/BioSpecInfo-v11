@@ -7,6 +7,47 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v227] — 2026-10-22
+
+**La fisica sotto la chimica: otto sezioni calcolate**
+
+### Aggiunto
+- Una nuova categoria **⚛️ Fisica** nella barra, con otto sezioni in cui ogni
+  numero si calcola nel browser e si confronta con la letteratura:
+  - **🌊 Laboratorio di Schrödinger**: stati stazionari (differenze finite,
+    bisezione di Sturm, iterazione inversa) di pozzo, oscillatore armonico,
+    Morse e doppia buca accanto alle soluzioni esatte; il pacchetto d'onda
+    sulla barriera con Crank-Nicolson e la trasmissione esatta; le
+    vibrazioni di HCl, H₂, CO e N₂ in cm⁻¹ contro l'esperimento.
+  - **🧮 Hartree-Fock in diretta**: RHF/STO-3G con gli integrali di
+    McMurchie-Davidson e la funzione di Boys, SCF con DIIS, otto molecole,
+    orbitali disegnati, curve di dissociazione (e perché l'RHF sbaglia il
+    limite di H₂). Riproduce H₂ e HeH⁺ di Szabo-Ostlund e H₂O di Crawford.
+  - **🎻 Spettroscopia rotovibrazionale**: rami P e R dalle costanti di
+    Huber-Herzberg, temperatura, isotopi, Raman rotazionale con la
+    statistica degli spin nucleari, B e rₑ ricavati di nuovo dalle righe.
+  - **🎲 Termodinamica statistica**: funzioni di partizione, S° e Cp di nove
+    gas contro NIST-JANAF, popolazioni rotazionali e vibrazionali.
+  - **🎱 Dinamica molecolare**: Lennard-Jones 2D dal vivo (velocity Verlet,
+    termostato, viriale, Maxwell-Boltzmann, g(r)); si ferma a sezione chiusa.
+  - **∑ Matematica per la chimica**: FID → spettro con la FFT, Hückel su
+    dodici sistemi π, cinetiche con Runge-Kutta, minimi quadrati di
+    Arrhenius con gli errori.
+  - **💎 Cristallografia e raggi X**: 14 reticoli di Bravais, indici di
+    Miller, diffrattogramma di polvere di undici cristalli con fattore di
+    struttura ed estinzioni sistematiche.
+  - **☢️ Radiochimica e nucleare**: equazioni di Bateman (generatore
+    ⁹⁹Mo/⁹⁹ᵐTc, ⁹⁰Sr/⁹⁰Y, radio-radon, ¹³¹I), datazione ¹⁴C, K-Ar, U-Pb,
+    formula di Weizsäcker e valle di stabilità.
+- Traduzioni dei pulsanti e dei titoli nelle tredici lingue della barra.
+- Requisiti **SCI-38**, **SCI-39**, **SCI-40** nella matrice di tracciabilità.
+
+### Banco
+- `test_fisica` (nuovo, 92 controlli): ogni calcolo contro un valore
+  indipendente della letteratura, poi ogni sezione e scheda nel browser su
+  due viewport. `test_lingue`: otto categorie. La batteria passa a 66 banchi.
+
+---
 ## [bsi-v226] — 2026-10-22
 
 **ATOMIC PROTOCOL sospeso, tutto conservato**
