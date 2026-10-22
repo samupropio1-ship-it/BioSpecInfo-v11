@@ -926,6 +926,8 @@ window.BSI_TELEMETRY_URL='';</script>
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >📚 Studio</button>
     <button class="nav-group-tab" data-group="6" onclick="switchNavGroup(6)" 
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >🛠️ Utility</button>
+    <button class="nav-group-tab" data-group="7" onclick="switchNavGroup(7)" 
+      style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >⚛️ Fisica</button>
   </div>
 
   <!-- Group button panels -->
@@ -1021,6 +1023,17 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="slingua">🌍 Lingua</button>
     <button class="nav-btn" data-s="slinguaggi">🔤 Linguaggi molecole</button>
     <button class="nav-btn" data-s="sspettrolettore">📉 Lettore spettri</button></div>
+  <!-- ⚛️ FISICA (v227): otto sezioni calcolate, nei moduli bsi-fis-*.js -->
+  <div id="navGroup7" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
+    <button class="nav-btn" data-s="sschrod" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Schrödinger</button>
+    <button class="nav-btn" data-s="shf" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧮 Hartree-Fock</button>
+    <button class="nav-btn" data-s="srotovib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎻 Rotovibrazionale</button>
+    <button class="nav-btn" data-s="stermostat" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎲 Termodinamica statistica</button>
+    <button class="nav-btn" data-s="sdinmol" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎱 Dinamica molecolare</button>
+    <button class="nav-btn" data-s="smatchim" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">∑ Matematica per la chimica</button>
+    <button class="nav-btn" data-s="scristalli" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💎 Cristallografia</button>
+    <button class="nav-btn" data-s="snucleare" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">☢️ Radiochimica</button>
+  </div>
 </div>
 
 <!-- ═══════════════ MAIN ═══════════════ -->
@@ -3739,6 +3752,8 @@ window.onload = function(){
       if(sec==='scft' && typeof window.initCFT==='function') window.initCFT();
       if(sec==='sdistrib' && typeof window.initDistrib==='function') window.initDistrib();
       if(sec==='sqm' && typeof window.initQM==='function') window.initQM();
+      /* le sezioni di fisica (v227) si costruiscono da sé, nei moduli bsi-fis-*.js */
+      if(window.BSIFisica && window.BSIFisica.apri) window.BSIFisica.apri(sec);
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
       if(sec==='setc' && typeof window.initETC==='function') window.initETC();
@@ -29456,6 +29471,14 @@ window.calcMolProps = function() {
 <div id="slingua" class="section"></div>
 <div id="slinguaggi" class="section"></div>
 <div id="sspettrolettore" class="section"></div>
+<div id="sschrod" class="section"></div>
+<div id="shf" class="section"></div>
+<div id="srotovib" class="section"></div>
+<div id="stermostat" class="section"></div>
+<div id="sdinmol" class="section"></div>
+<div id="smatchim" class="section"></div>
+<div id="scristalli" class="section"></div>
+<div id="snucleare" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31778,6 +31801,16 @@ window.addEventListener('load', init);
      il cambio lingua vero resta in bsi-lingue.js, unica casa di quella
      funzione. Qui c'e' il pulsante tondo in intestazione. -->
 <script src="./bsi-sellingua.js" defer></script>
+<!-- Le sezioni di FISICA (v227): un modulo comune e uno per sezione. -->
+<script src="./bsi-fisica-comune.js" defer></script>
+<script src="./bsi-fis-schrodinger.js" defer></script>
+<script src="./bsi-fis-hartreefock.js" defer></script>
+<script src="./bsi-fis-rotovib.js" defer></script>
+<script src="./bsi-fis-termostat.js" defer></script>
+<script src="./bsi-fis-dinamica.js" defer></script>
+<script src="./bsi-fis-matematica.js" defer></script>
+<script src="./bsi-fis-cristalli.js" defer></script>
+<script src="./bsi-fis-nucleare.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
