@@ -455,7 +455,9 @@ function main(){
       });
     } else {
       fs.readdirSync(path.join(RADICE, 'docs'))
-        .filter(f => f.endsWith('.md'))
+        /* l'archivio del gioco sospeso resta nel repository per chi lo
+           riprendera', ma non fa parte dell'applicazione consegnata */
+        .filter(f => f.endsWith('.md') && f !== 'ARCHIVIO-ATOMIC-PROTOCOL.md')
         .sort()
         .forEach(function(f){
           /* `docs/README.md` è l'indice della documentazione, non il README

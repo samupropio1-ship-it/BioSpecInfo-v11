@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v225` |
+| **Version described** | `bsi-v226` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -112,7 +112,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_nmr` | Per-atom NMR prediction: two separate molecule sets (tuning and **validation**, the latter never used to choose parameters), the signal count on molecules whose count is known, refusals on an unreadable SMILES and on an empty string, the **history** with duplicate detection by InChI key, and the **peak ↔ structure ↔ 3D** sync verified on the indices, not on how many atoms light up | 64 |
 | `test_nmr2d` | Correlation maps counted on the graph: HSQC with inverted sign on CH₂, COSY between non-equivalent protons, HMBC two and three bonds away. **In both directions**: hexafluorobenzene gives no HSQC spots, benzene **no** off-diagonal COSY spots, methane **no** HMBC spots despite having four protons | 40 |
 | `test_digitalizza` | A spectrum extracted from a **figure**, over seven constructed images whose Gaussian centres are known to the cm⁻¹: bare figure, with frame and labels, with a grey grid, with a black grid, with frame **and** grid, dashed, in %T. **Mean 2.2 cm⁻¹** deviation, **worst 7.3** — one column is worth ~4 cm⁻¹, which is the limit of the figure and not of the method. **In both directions**: from a blank sheet and from the app icon **no** curve comes out; the crude fallback on the same framed figure finds **one** peak instead of three; on a logarithmic axis the midpoint is the geometric mean and on a linear axis the arithmetic one. %T→A conversion on exact values (50 %T → A = 0.301) and a **full round trip** of the exported JCAMP, read back by the reader itself | 45 |
-| `test_atomic` | The round language switcher and **Atomic Protocol**. The switcher: round, top right, **at the measured title height**, fourteen flags on two shells, and **both ways** the language actually changing and coming back identical. The questions: **28 generators each tried**, 600 sound questions and **none ambiguous** on ranges. The **three hundred levels** in three acts generated and walked (with the save point and the enemy variants of their act): twin doors, no unreachable or overlapping room, bench-terminal-exit in each, the elements needed to beat every guardian present before it, the same level from the same seed; the twelve equations counted atom by atom, ten distinct guardians in wide arenas and **a wrong equation rejected**. Level 1 played up to the elevator: elements, card, synthesis (and a pair that does not react, and a recipe not yet known, producing nothing), the residue dissolved by chlorine and not by salt, the terminal that **stays shut on a wrong answer** and the bulkhead that does not let you through while shut, the save and the resume with the inventory. The guardians **both ways**: PUMP 7 phase by phase, HELIX punishing the wrong answer, PROTOCOL 12 ending the game. The engine **measured in the live scene**: high graphics (PS2 level) as the default, with more than five glows in scene; **first person** by default with the arms in their own scene, five fingers, the tool showing the compound held, spray droplets and a gaze that turns but not beyond a head; the protagonist with **modelled eyes and five fingers**, a head above 3000 triangles and a figure above 15000; the painted face, coat tails, ankles, **ten machine guardians with no box at all**; PS1 at 480×360 as an option, with smooth vertex lighting and the 15-bit shader; the chemist **moving forward facing where it goes** and knees never bending backwards; memory not growing across ten levels; and modern graphics (ACES, sRGB, shadows, PBR) as an option, without losing the game. The thirty logs placed, one played with subtitles and archived in the Codex; the left hand with sodium sparks and chlorine vapour, and the throw; brass and marble in the environments; segmented health. The game's floating button above Spectra, opening the game, and the floating buttons not covering the scene in game; in first person A and D strafe. The **first-person models**: the rig arms with the skeleton and the eight animations, the robotic left hand, the gun in the right fist (grip inside the ring of fingers, index above the little finger, muzzle forward, attached to the hand bone), the nitrile glove, the procedural arms hidden; the walk weighing in while walking, Equip on a switch, the spray recoil, the robotic hand following the arm, with five articulated fingers closing to grab; with the power the palm up, the sphere in the element's colour and the sleeve crumbling; the final «serious PS2» pass; the jab and the inspect moving only the left arm. The **laboratories**: the door in all three hundred levels, in the bench room; for each of the five maps the sign, entering the right map with the level hidden, thousands of triangles, the floor underfoot, walls that stop you, the synthesis bench opening and the way back to the door with the laboratory freed. **Combat**: at least three enemies per level and at least five different creatures from the seventh wing; all enemy models mounted, with their animations where they exist; the crosshair locking on, the gun wounding and killing, the abyssal throwing its orbs, sodium's discharge doubled and stunning, fire exploding, frost slowing, the melee enemy telegraphing its blow and hurting whoever stays, the punch, the save point activating and the restart from it, the creatures stronger and differently coloured in acts II and III, the two matching hands, the shield, energy regenerating and running out, the power bar, zoom, full screen, acceleration and interpolation; the moves (v222): the three-hit combo that knocks down, the slow-motion execution, the dodge with invulnerability and over a metre of dash, the charged power, the seven special attacks winding up and leaving their mark, the flashlight; reactions (v223–v224): conduction, shatter and combustion; the minimum distance from the player's body; v225: the devastated rooms, the hordes in the level and in the five laboratories, gibs, blood on the floor, lightning. Settings remembered, loop stopped with the section closed, thumb-sized controls at 390 px. **316 checks**, declared minimum 316 | 316 |
+| `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
 | `test_geom3d` | The 3D geometry built from the graph, measured against literature values: bonds, valence angles, alkyne linearity. **In both directions**: benzene comes out planar and cyclohexane does **not**. And the proof that makes the peak↔atom link legitimate: every heavy atom has **the same index and element** as the predictor's | 29 |
@@ -174,7 +174,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 96 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 95 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -320,8 +320,8 @@ be excellent and the measurement worthless.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 96 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 96 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 95 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 95 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 **`audit_storia` — 6 checks.** `verifica-sicurezza` examines *tracked* files,
@@ -416,7 +416,7 @@ removed, it passes again.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 96 sections and shows only one: out of **19,751** text
+> `index.html` alternates 95 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -511,13 +511,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 96 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 95 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 96 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 95 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -591,8 +591,8 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 96 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 393 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Accessibility** | Automated over 13 pages and all 95 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Security** | `verifica-sicurezza` runs 10 checks over 371 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
@@ -611,4 +611,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v225`._
+_Document updated to version `bsi-v226`._

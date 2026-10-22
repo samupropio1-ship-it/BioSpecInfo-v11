@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v225` |
-| Commit | `8c3deb21cb633b4136db9bb27f114b1cab4bed41` |
-| Generated (UTC) | `2026-10-21T18:35:08.602Z` |
+| Application version | `bsi-v226` |
+| Commit | `11a7ad7786d51cd52348958323c03d7eadf59861` |
+| Generated (UTC) | `2026-10-22T16:08:46.252Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -28,7 +28,6 @@ availability.
 | **RDKit MinimalLib (WebAssembly)**<br><sub>RDKit / Greg Landrum</sub> | `RDKit_minimal.wasm` | BSD-3-Clause | 6753 kB | WebAssembly binary of the cheminformatics engine. |
 | **three.js**<br><sub>mrdoob e collaboratori</sub> | `three.min.js` | MIT | 589 kB | WebGL rendering engine for the 3D scenes. |
 | **three.js — UnrealBloomPass**<br><sub>mrdoob e collaboratori</sub> | `three_bloom.js` | MIT | 25 kB | Post-processing effect for the astronomical visualisations. |
-| **three.js — SkeletonUtils**<br><sub>mrdoob e collaboratori</sub> | `skeleton_utils.js` | MIT | 12 kB | Copies of the animated enemies with their skeleton (ATOMIC PROTOCOL). |
 | **three.js — GLTFLoader**<br><sub>mrdoob e collaboratori</sub> | `gltf_loader.js` | MIT | 94 kB | Loading of anatomical and molecular models in glTF format. |
 | **3Dmol.js**<br><sub>University of Pittsburgh / David Koes</sub> | `3Dmol-min.js` | BSD-3-Clause | 502 kB | 3D molecular visualisation (PDB, SDF, surfaces). |
 | **SmilesDrawer**<br><sub>Daniel Probst</sub> | `smiles-drawer.min.js` | MIT | 246 kB | 2D structure drawing from SMILES. |
@@ -37,25 +36,6 @@ availability.
 | **sql.js (JS glue)**<br><sub>sql.js / SQLite</sub> | `lib/sql-wasm.js` | MIT | 45 kB | In-browser SQLite database for the data exercises. |
 | **SQLite (WebAssembly)**<br><sub>SQLite Consortium</sub> | `lib/sql-wasm.wasm` | Public Domain | 644 kB | SQLite engine compiled to WebAssembly. |
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Experimental data for the particle-physics exercise. |
-| **Fists (2023) | First Person Animations (adattato)**<br><sub>1Matzh (Sketchfab)</sub> | `models/braccia-atomic.glb` | CC-BY-4.0 | 6530 kB | The first-person arms with the skeleton and the eight animations (walk, run, punches, inspect, equip). |
-| **Robotic Hand (modello 3D)**<br><sub>SeanNicolas (Sketchfab)</sub> | `models/mano-robotica-atomic.glb` | CC-BY-4.0 | 838 kB | The robotic left hand, over which the element power lights up. |
-| **Small Lab (adattato)**<br><sub>Biohazard Rooms (Sketchfab)</sub> | `models/mappe/small.glb` | CC-BY-4.0 | 1506 kB | ATOMIC PROTOCOL — laboratory (wings 1, 6). |
-| **Sci-fi lab (adattato)**<br><sub>Agata Wilczek (Sketchfab)</sub> | `models/mappe/scifi1.glb` | CC-BY-4.0 | 6683 kB | ATOMIC PROTOCOL — laboratory (wings 2, 7). |
-| **Flynn's Secret Lab [Tron Legacy] (adattato)**<br><sub>jvouillon (Sketchfab)</sub> | `models/mappe/flynn.glb` | CC-BY-4.0 | 2319 kB | ATOMIC PROTOCOL — laboratory (wings 3, 8). |
-| **Location underground laboratory (adattato)**<br><sub>bazz4r (Sketchfab)</sub> | `models/mappe/underground.glb` | CC-BY-4.0 | 10512 kB | ATOMIC PROTOCOL — laboratory (wings 4, 9). |
-| **Overgrown Laboratory (adattato)**<br><sub>MichalTroye (Sketchfab)</sub> | `models/mappe/overgrown.glb` | CC-BY-4.0 | 6227 kB | ATOMIC PROTOCOL — laboratory (wings 5, 10). |
-| **Quantum_Laboratory_X_Alpha (adattato)**<br><sub>-X-ScornGames (Sketchfab)</sub> | `models/mappe/reattore.glb` | CC-BY-4.0 | 3269 kB | ATOMIC PROTOCOL — apparatus (the reactor). |
-| **Sci Fi lab (adattato)**<br><sub>IrisProcess (Sketchfab)</sub> | `models/mappe/capsula.glb` | CC-BY-4.0 | 6548 kB | ATOMIC PROTOCOL — apparatus (the capsule). |
-| **Worm Monster (adattato)**<br><sub>CR!STALLL (Sketchfab)</sub> | `models/nemici/verme.glb` | CC-BY-4.0 | 626 kB | ATOMIC PROTOCOL — enemy: the drain worm. |
-| **Scary Monster (adattato)**<br><sub>L. (Sketchfab)</sub> | `models/nemici/curvo.glb` | LicenseRef-Sketchfab-Standard | 1145 kB | ATOMIC PROTOCOL — enemy: the lurcher. |
-| **SWAMP MONSTER (adattato)**<br><sub>alexalbinyana (Sketchfab)</sub> | `models/nemici/palude.glb` | CC-BY-4.0 | 1803 kB | ATOMIC PROTOCOL — enemy: the bog thing. |
-| **The Human Deer (adattato)**<br><sub>ceeleste (Sketchfab)</sub> | `models/nemici/cervo.glb` | CC-BY-4.0 | 6854 kB | ATOMIC PROTOCOL — enemy: the deer. |
-| **6- Stylized- Monster (adattato)**<br><sub>Lex Wild (Sketchfab)</sub> | `models/nemici/abissale.glb` | CC-BY-4.0 | 3470 kB | ATOMIC PROTOCOL — enemy: the abyssal. |
-| **Monster (adattato)**<br><sub>itszyx123456789 (Sketchfab)</sub> | `models/nemici/mostro.glb` | CC-BY-4.0 | 2108 kB | ATOMIC PROTOCOL — enemy: the crystalline. |
-| **CREATURE MONSTER 3D BY Oscar Creativo (adattato)**<br><sub>OSCAR CREATIVO (Sketchfab)</sub> | `models/nemici/bruto.glb` | CC-BY-4.0 | 5305 kB | ATOMIC PROTOCOL — enemy: the brute. |
-| **hands animation (modello 3D, adattato)**<br><sub>hugo colauto (Sketchfab)</sub> | `models/mani-atomic.glb` | LicenseRef-Sketchfab-Standard | 2059 kB | The first-person hands, with the skeleton and the animation the game derives its poses from. |
-| **Modern Scientist in a Lab Coat (ritaglio)**<br><sub>restore50 (Sketchfab)</sub> | `models/manica-atomic.glb` | CC-BY-4.0 | 275 kB | The first-person lab-coat sleeve, cropped from the scan. |
-| **Capsule Gun (modello 3D)**<br><sub>sc8di (Sketchfab)</sub> | `models/pistola-atomic.glb` | CC-BY-4.0 | 1366 kB | The capsule gun held in first person. |
 
 ### Digests
 
@@ -65,7 +45,6 @@ availability.
 | `RDKit_minimal.wasm` | `e0967d44fed59e44a2d07bfc08f3a86821c54a14c95bb7e6e392fe867333b8c8` |
 | `three.min.js` | `9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2` |
 | `three_bloom.js` | `42e0ff40b00ea1ba4fe53baeb3726834a3ac3db46e9cfb80856baebf01611090` |
-| `skeleton_utils.js` | `cc2e2e1a3183ab55169d185565f86f43f80c6dfafe73610d991e741ea990ac1a` |
 | `gltf_loader.js` | `5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6` |
 | `3Dmol-min.js` | `06b6d2fc7d418e8bef62a32cca44373ff21b2b787bd377613dd4039394a4e9ff` |
 | `smiles-drawer.min.js` | `955285fac52a7017b3c3658e2cb84bef7f1f76732f3f7cd565d1bb0903232dc2` |
@@ -74,25 +53,6 @@ availability.
 | `lib/sql-wasm.js` | `77d6435bac506af0e3c59636dce9d22b1b14156348bc327f41a1577f3212360f` |
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
-| `models/braccia-atomic.glb` | `3e72b0067366ba4906e8cb3d9077e3b800656705bfcdef5b0bb41339c0b765ff` |
-| `models/mano-robotica-atomic.glb` | `3cadfde4777f5f609fb9fea7990f35ddc8f82d19fad4c60b8fc18a563ba7e5c6` |
-| `models/mappe/small.glb` | `932e21a12c772ef3c36290fac8974a30b37b62e2000f7f1f26cb812a0572a7ab` |
-| `models/mappe/scifi1.glb` | `f3e4434820cda4a2ebec5804749cd0a6278aa0cda6a19b74ec14623affb3dc5e` |
-| `models/mappe/flynn.glb` | `d9c32659b5a75db09e88e97aeef645f46d30caee24522fc3a18b5048fa56911a` |
-| `models/mappe/underground.glb` | `8cae8085cae16d6b496fe93a00eef7d687349492e3d74c7af1aaab407085fa75` |
-| `models/mappe/overgrown.glb` | `c521f06e1da35eda66d585a0e6ab5b87a4da504d4b4fb09048518bf11683f403` |
-| `models/mappe/reattore.glb` | `58f200ac13b072d40ee45bdd6c725ddd06591502e53825d60699862fc79a3e01` |
-| `models/mappe/capsula.glb` | `be1ae03a8aa0c8cd160d517620985f83a515a2f05fc3d062aab4303496befb02` |
-| `models/nemici/verme.glb` | `4b35e41fd47e554733f593f671b35b51765367ef2f7522bda4316ddef0ee02d8` |
-| `models/nemici/curvo.glb` | `a1fb198ba5806fd97feb45ec4ca5d42a065420ce2bdb0c331699609845218577` |
-| `models/nemici/palude.glb` | `83668a9192e57d1183f9086ac974b4e87af8ecdc57b57c13015ec90d2f5da533` |
-| `models/nemici/cervo.glb` | `ecece2366754baf17c400ac4265d65ad7daa166a40fc911eece6d3641403291d` |
-| `models/nemici/abissale.glb` | `81b701fba1f0a59ce10f57c45128b172aeb1d6f759a51b9b6903f548c14eee2e` |
-| `models/nemici/mostro.glb` | `c669349d5562013e251a76fdb48d0e180e3f997e95c07d1064c8697368d0d4e3` |
-| `models/nemici/bruto.glb` | `a995a10428f05dd0074570980a72c9a5f04606deb90a58382a8f3e5e3d301ae1` |
-| `models/mani-atomic.glb` | `d27b4ea1689e677e9406944abaecd95d524ca7693b2e4b62aec6c906f46ece56` |
-| `models/manica-atomic.glb` | `0034162e3fc772d3afb11c2df1a66222ae681ad7f404bcec59977d6557f14b98` |
-| `models/pistola-atomic.glb` | `4e109a4ab7e2794b139a5c9414151b376b7a237baab5d9f183f98d8e9ac65f7f` |
 
 ---
 
@@ -100,7 +60,7 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4671 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4670 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
@@ -126,7 +86,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `ef091dc38ee8849128460a28bb7574af225093251104fa706397fc0242d2f70a` |
+| `index.html` | `4815a1d115e20d559eb72a28e7b3546755e26fd11bcd94717f3c9009b227efae` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -142,7 +102,7 @@ availability.
 | `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `3a4d40e25454938d9a13149d55f3444a7963466e645293970c0899de8fdcb488` |
+| `sw.js` | `3a90f44ded2d73f8b989041d8680dfeae3054498ab0e465670ca804d10584f1d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -195,4 +155,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-21T18:35:08.602Z._
+_Generated on 2026-10-22T16:08:46.252Z._

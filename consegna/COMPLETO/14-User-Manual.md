@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 96 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 95 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -123,133 +123,6 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 > La sezione **🌍 Lingua** resta, e fa un'altra cosa: spiega le lingue, mostra
 > la copertura di ognuna e dice che l'arabo porta con sé il verso di scrittura.
 > Quella **informa**, questo **agisce**.
-
-### 🎮 ATOMIC PROTOCOL
-
-Un gioco di **esplorazione in tre dimensioni** con grafica di **livello
-PlayStation 2**. Si apre dal **pulsante ATOMIC PROTOCOL** in basso a destra, sopra Spectra e il menu ✨ (l'icona con l'esagono, la beuta e l'elettrone che gira); mentre giochi i pulsanti flottanti si tolgono di mezzo. **Trecento livelli** in tre atti (il secondo gelido, il terzo rovente: le creature cambiano colore e diventano più forti, ci sono le élite con l'alone d'oro, i guardiani tornano come MK II e Ω), con un **punto di salvataggio** a metà percorso — la colonna d'ottone con la lente verde: passandoci accanto diventa d'oro, e se cadi riparti da lì —,
-dieci zone, dieci guardiani.
-
-**La storia.** Sei un chimico chiuso dentro un istituto sigillato: il
-Protocollo 12, una sintesi che si alimenta da sola, è ripartito alle tre di
-notte. Cammini per le ali, raccogli **elementi**, li **sintetizzi** in
-composti al banco, risolvi gli enigmi dei terminali per aprire le paratie e
-fermi i guardiani — le macchine dell'istituto andate fuori controllo —
-usando la chimica, non i riflessi. Gli appunti sparsi
-per le zone — dieci capitoli — raccontano chi ha fatto ripartire il
-Protocollo; il Codex li conserva.
-
-**Come si avanza.** In ogni livello si trova il **terminale**: tre enigmi
-aprono la paratia, e oltre la paratia c'è l'**ascensore**. Il decimo livello
-di ogni zona finisce nell'arena di un guardiano, e l'ascensore si sblocca
-solo quando il guardiano è fermo. Il gioco **si salva** a ogni livello: dal
-titolo si **continua** o si **sceglie** un livello già raggiunto.
-
-**I misteri.** Nelle stanze laterali dei livelli 2, 5 e 8 di ogni zona c'è un
-**magnetofono** con la spia rossa accesa: sono le registrazioni di chi c'era —
-Sarti, il Custode, Lenzi della manutenzione, la farmacologa Vela, la tecnica
-Moro, l'avvocato Ferri del Consorzio Albedo che finanziava il Protocollo, e il
-Direttore, cioè tu, che ti lasciavi messaggi sapendo che li avresti
-dimenticati. Si **ascoltano mentre giochi**, con la voce del dispositivo e i
-sottotitoli; trenta in tutto, e ricompongono il segreto della frase «riprendere
-comunque». Il Codex le conserva, da riascoltare. Sui muri, qua e là, qualcuno ha
-lasciato domande a gesso.
-
-**Si gioca in prima persona.** Davanti a te le tue braccia nel camice e, nella
-destra — mani in guanti di nitrile, con le nocche e le pieghe che si vedono sotto la gomma — la **pistola a capsula**: la capsula prende il colore del composto che hai in
-mano e l'HUD in basso ne mostra la formula e le dosi. Le dita si chiudono sull'impugnatura e l'indice preme il grilletto quando spruzzi; ferma a lungo, la sinistra stira le dita. **Il combattimento.** Nei livelli ci sono creature da abbattere, una nuova per ala: il **verme** e il **rampicante** (che salta addosso), la **fanghiglia** (sputa acido verde), il **cervo**, l'**abissale** (fluttua e lancia sfere a ventaglio), il **cristallino** e il **bruto** (si caricano e travolgono). Ogni attacco si annuncia — il corpo si carica, gli occhi si accendono — e colpisce alla fine: spostati e lo schivi; un arco rosso sul bordo dello schermo dice da dove arriva il colpo. Il **pugno** (V o 👊) colpisce chi è vicino; premuto a tempo diventa una **combinazione** di tre colpi — jab, gancio col calcio della pistola, diretto pesante che butta a terra. Una creatura a terra, stordita o quasi morta ha gli occhi che lampeggiano bianchi: col pugno la **finisci** (l'esecuzione, al rallentatore, rende energia e salute). La **schivata** (C o 💨) è uno scatto con un attimo d'invulnerabilità. Ogni creatura ha anche un **attacco speciale**, annunciato da un cerchio o da un'onda a terra: l'onda del bruto si salta, il resto si schiva. **Le reazioni**: una creatura gelata dall'azoto colpita forte va in pezzi (frantumazione); la palla di fuoco in una nube tossica la fa esplodere (combustione); la scarica su una creatura gelata o in una pozza d'acido salta su tutte quelle vicine (conduzione). **I laboratori**: entrando la porta si chiude e le creature risalgono a ondate; respinte tutte, la porta si riapre con salute, energia e padronanza dei poteri in premio. Dal sesto livello alcune stanze sono **orde**: le porte si bloccano finché non le abbatti tutte. Nelle impostazioni: **Istituto** (abbandonato / in ordine) e **Sangue** (sì / ridotto). Il cartello in alto dice chi hai nel mirino, quanta vita ha e se è debole a quello che usi. La **pistola** (clic sinistro, tasto X o ◉, tenendo premuto spara a raffica) colpisce sempre; con un composto nella capsula fa più danno. La **sinistra** scatena il **potere** dell'elemento scelto (clic destro, tasto G o ✦) consumando energia (la barra viola, che si ricarica); tenendo premuto si **carica** e esce fino a due volte e mezzo più forte: i metalli fanno una **scarica a catena** (il sodio e il potassio esplodono), ossigeno, idrogeno, carbonio, zolfo e fosforo una **palla di fuoco**, cloro e fluoro una **nube tossica**, l'azoto una **nube di gelo**, piombo e oro uno **scudo**, l'uranio la **fissione**, gli altri un'**onda d'urto**. Il potere si sceglie dalla barra in basso (un tocco), con i tasti **1–9** o con la **rotella**. **🔍 / Z / tasto centrale** mira (zoom), **⛶ / H** entra ed esce dallo schermo intero. **I laboratori.** In ogni livello, nella stanza del banco, c'è una porta con la targa «LABORATORIO»: porta al laboratorio dell'ala — il laboratorio piccolo, quello sci-fi, quello segreto, quello sotterraneo, quello invaso dalle piante — da esplorare, con il banco di sintesi sul bancone e la porta per tornare al livello. La prima volta si scarica (qualche secondo). Le due mani sono guanti di nitrile uguali: con un elemento in mano la sinistra apre il palmo e ci accende sopra una sfera del colore dell'elemento, mentre la manica si sgretola; la destra impugna la pistola e le braccia seguono il passo, la corsa, il cambio e il lancio. Le dita si muovono con la loro inerzia: lo spruzzo fa saltare la canna, la sinistra si apre prima di prendere, e se stai fermo a lungo alzi la pistola per guardarla. I crediti dei modelli 3D sono in fondo al Codex. Spruzzando, lo strumento
-rincula e lancia una nuvola di goccioline. Se in mano hai un **elemento**, la
-mano sinistra si alza e lo tiene vivo sul palmo — scintille per i metalli,
-fiamma per i combustibili, vapore per i gas — e usandolo lo lancia; la sinistra
-si allunga anche quando prendi o tocchi qualcosa; il mirino si allarga quando guardi qualcosa che puoi
-usare. La terza persona si può scegliere nelle impostazioni (tasto `V`).
-
-| comando | tastiera e mouse | a schermo |
-|---|---|---|
-| guardarsi intorno | clic sulla scena, poi il mouse (`Esc` lo libera) | trascina il dito sulla scena |
-| muoversi | `W` / `S`, frecce ▲ ▼ | ▲ ▼ |
-| girarsi | mouse, frecce ◀ ▶ | ◀ ▶, o trascina il dito |
-| spostarsi di lato | `A` / `D` (o `Q` / `E`) | ⇤ ⇥ |
-| correre | `Shift` | — |
-| saltare | `Spazio` | ⤒ |
-| interagire | `F` | ✋ |
-| sparare / usare quello che hai in mano | clic sinistro, `X` | ◉ |
-| potere (tenendo premuto si carica) | clic destro, `G` | ✦ |
-| pugno, combinazione a tempo, esecuzione | `V` | 👊 |
-| schivata | `C` | 💨 |
-| mirare (zoom) | `Z`, tasto centrale | 🔍 |
-| cambiare quello che hai in mano | `R` | ⟳ |
-| inventario | `I` | 🎒 |
-| codex | `K` | dalla pausa |
-| pausa | `Esc` o `P` | ❚❚ |
-| passare alla terza persona e tornare | `B` | impostazioni |
-
-**Gli ambienti sono art déco**, nello spirito di BioShock: marmo a scacchi con i
-filetti d'ottone, noce, carta da parati verde e oro, lesene, applique a
-ventaglio, manifesti dell'Istituto e del Consorzio Albedo, luce ambra, gocce
-che cadono dal soffitto. L'HUD ha la barra della salute a tacche e quella del
-reagente in mano, in cornici d'ottone. **La grafica è di livello PlayStation 2**
-— senza horror: il chimico ha migliaia di
-poligoni, gli occhi modellati, le mani a cinque dita in guanti di nitrile, il
-camice con revers, tasche, bottoni e cartellino; le texture sono ad alta
-risoluzione con le mappe di rilievo; le luci, gli schermi e i nuclei hanno il
-**bagliore**; i materiali sono fisici, con ombre e riflessi. Nelle impostazioni
-(anche dalla pausa, senza perdere la partita): *alta* di partenza, *media* senza
-ombre proiettate per i telefoni, e lo stile **PS1 retrò** — pochi poligoni,
-luce sui vertici, colore a 15 bit, pixel netti.
-
-**Le quattro difficoltà** non cambiano solo i numeri:
-
-| | Facile | Normale | Difficile | Esperimento |
-|---|---|---|---|---|
-| vite per livello | 5 | 3 | 2 | **1** |
-| danno dei guardiani | ×0,6 | ×1 | ×1,4 | ×2 |
-| tempo per gli enigmi | — | — | 90 s | 45 s |
-| sintesi rapida contro un guardiano | sempre | sempre | 2 | **vietata** |
-| bilanciare la reazione prima di farla | — | — | — | **sì** |
-
-**L'inventario** tiene gli elementi raccolti: simbolo, nome, numero atomico,
-massa, gruppo, periodo, elettronegatività ed energia di ionizzazione — letti
-dalla **tavola periodica di questa applicazione** — più il potere e il
-**livello di padronanza**, che sale usandoli. Toccando un elemento o un
-composto lo si prende **in mano**: è quello che usa ✦.
-
-**Il laboratorio di sintesi** (il banco con lo schermo verde) combina fino a
-quattro reagenti: HCl, H₂O₂, NaOH, H₂SO₄, NH₃, CO₂, HNO₃, CaO, acido
-ascorbico, MgO, NaCl e il bicarbonato, che si fa da **due composti** (NaOH +
-CO₂). Ogni
-ricetta porta la sua equazione bilanciata e dice a che cosa serve. Le ricette
-si sbloccano con le **schede** trovate nelle stanze, ai terminali e fermando
-i guardiani.
-
-**Gli enigmi** cambiano con l'ala: gruppo funzionale cerchiato in una
-struttura disegnata, nome IUPAC, costruire una catena, bilanciare una
-reazione, scrivere il filamento di DNA complementare, e domande da tutto il
-resto dell'applicazione. Sbagliando la paratia resta chiusa.
-
-**I guardiani non si abbattono a forza**: ogni fase ha una debolezza chimica,
-scritta in alto. Sono le **macchine dell'istituto** che non rispondono più ai
-comandi.
-
-| livello | zona | guardiano | che cosa serve |
-|---|---|---|---|
-| 10 | Stoccaggio | POMPA 7 — la pompa del raffreddamento, con i bracci idraulici | **HCl** sulla ruggine → **sodio** nel vapore → il rotore scoperto |
-| 20 | Sintesi organica | IL POLIMERO — l'estrusore dei polimeri | **H₂O₂** spezza le catene → **H₂SO₄** disidrata il reticolo → il nucleo |
-| 30 | Spettroscopia | LO SPETTRO — il banco laser in risonanza | **acido ascorbico** chiude la catena radicalica → **CO₂** soffoca la fiamma → la torretta |
-| 40 | Biochimica | ELICA — il robot sequenziatore | **appaiare le basi** (rispondendo) → **NaOH** separa i filamenti → lo scheletro |
-| 50 | Elettrochimica | LA CELLA — l'impianto di elettrolisi, con i dendriti di rame | **bilanciare** la redox → **HNO₃** scioglie il rame → gli elettrodi |
-| 60 | Criogenia | IL GELO — il criostato dei campioni, in perdita d'azoto | **CaO** scalda e scioglie il ghiaccio → **magnesio** brucia anche al freddo → il nucleo |
-| 70 | Farmacologia | LA DOSE — il robot della farmacia automatica | **riconoscere** il principio attivo → **NaOH** idrolizza gli esteri → il cuore |
-| 80 | Radiochimica | IL DECADIMENTO — la cella calda, con i manipolatori | **piombo** come schermo → **bilanciare** → i nuclei |
-| 90 | Depurazione | LA MELMA — il chiarificatore, con il ponte raschiatore | **CaO** stabilizza il fango → **cloro** disinfetta → il centro |
-| 100 | Nucleo | PROTOCOLLO 12 — il reattore, in reazione autocatalitica | **bilanciare** → **bicarbonato** tampona → **argon** soffoca il nucleo → il nucleo |
-
-La cosa sbagliata non fa niente; quando la luce rossa si accende, il
-guardiano attacca: ci si allontana. I **residui** sono chiazze di solvente
-organico che si spostano e fumano: un ossidante (Cl, O, H₂O₂…) le degrada.
-
-**Funziona offline**: Three.js è già nel pacchetto e il Service Worker lo
-tiene in cache, insieme ai quattro file del gioco.
 
 ### Dove si trovano le cose
 
@@ -565,4 +438,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v225`._
+_Guida aggiornata alla versione `bsi-v226`._
