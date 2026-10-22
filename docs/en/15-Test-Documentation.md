@@ -174,7 +174,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 96 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 95 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -320,8 +320,8 @@ be excellent and the measurement worthless.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 96 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 96 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 95 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 95 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 **`audit_storia` — 6 checks.** `verifica-sicurezza` examines *tracked* files,
@@ -416,7 +416,7 @@ removed, it passes again.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 96 sections and shows only one: out of **19,751** text
+> `index.html` alternates 95 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -511,13 +511,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 96 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 95 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 96 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 95 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -591,7 +591,7 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 96 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Accessibility** | Automated over 13 pages and all 95 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
 | **Security** | `verifica-sicurezza` runs 10 checks over 378 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |

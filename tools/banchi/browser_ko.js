@@ -29,7 +29,7 @@ const { chromium } = require('playwright-core');
     /* si aspetta che la chat ci sia davvero (il selettore e il campo), non
        un tempo fisso: con la batteria che fa girare piu' browser insieme
        1,2 s a volte non bastavano e il banco leggeva una tendina vuota */
-    await pg.waitForSelector('#bsi-hub-provsel', { state: 'attached', timeout: 20000 }).catch(()=>{});
+    await pg.waitForSelector('#bsi-hub-provsel', { state: 'attached', timeout: 60000 }).catch(()=>{});
     await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 5000 }).catch(()=>{});
     await pg.waitForTimeout(600);
     return { pg, err };
