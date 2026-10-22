@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 95 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 103 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -123,6 +123,23 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 > La sezione **🌍 Lingua** resta, e fa un'altra cosa: spiega le lingue, mostra
 > la copertura di ognuna e dice che l'arabo porta con sé il verso di scrittura.
 > Quella **informa**, questo **agisce**.
+
+### ⚛️ Fisica: otto sezioni calcolate
+
+Nella categoria **⚛️ Fisica** della barra ci sono otto sezioni in cui la fisica
+che sta sotto la chimica si **calcola**, non si racconta. Ogni numero che vedi è
+confrontato dal banco con un valore indipendente della letteratura.
+
+| sezione | che cosa fai |
+|---|---|
+| 🌊 **Schrödinger** | scegli un potenziale (pozzo, oscillatore armonico, Morse, doppia buca) e vedi livelli e funzioni d'onda con la soluzione esatta accanto; lanci un pacchetto d'onda contro una barriera (effetto tunnel); vedi le vibrazioni di HCl, H₂, CO e N₂ in cm⁻¹ |
+| 🧮 **Hartree-Fock** | un calcolo ab initio vero (RHF/STO-3G) su otto molecole: energia, orbitali con le loro energie, cariche di Mulliken, la mappa dell'orbitale scelto, la curva di dissociazione |
+| 🎻 **Rotovibrazionale** | lo spettro IR di una biatomica gassosa con i rami P e R: cambia temperatura, risoluzione, isotopo; il Raman rotazionale di N₂, O₂, H₂, CO₂; dalle righe alla lunghezza di legame |
+| 🎲 **Termodinamica statistica** | entropia e capacità termica di nove gas calcolate dalle costanti molecolari, contributo per contributo, e le popolazioni rotazionali e vibrazionali |
+| 🎱 **Dinamica molecolare** | particelle di Lennard-Jones dal vivo: scaldi, comprimi e vedi gas, liquido e cristallo, con la distribuzione delle velocità e la g(r) |
+| ∑ **Matematica per la chimica** | dal FID allo spettro con la trasformata di Fourier; Hückel su dodici sistemi π; cinetiche con Runge-Kutta; la retta di Arrhenius con gli errori dai tuoi dati |
+| 💎 **Cristallografia** | i 14 reticoli di Bravais da ruotare, i piani di Miller, il diffrattogramma di polvere di undici cristalli con le estinzioni |
+| ☢️ **Radiochimica** | le catene di decadimento (il generatore di tecnezio degli ospedali), la datazione con ¹⁴C, K-Ar e U-Pb, l'energia di legame dei nuclei |
 
 ### Dove si trovano le cose
 
@@ -438,4 +455,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v226`._
+_Guida aggiornata alla versione `bsi-v227`._

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v227` |
-| Commit | `11a7ad7786d51cd52348958323c03d7eadf59861` |
-| Generated (UTC) | `2026-10-22T16:08:46.252Z` |
+| Commit | `37d51fab2abb05037c07275071ba647f43859fa3` |
+| Generated (UTC) | `2026-10-22T21:53:31.026Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -60,20 +60,29 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4670 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4673 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 422 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
 | `bsi-nmr.js` | 57 kB | Per-atom ¹H and ¹³C NMR prediction: applies the bsi-pretsch.js tables by walking the ring and measuring distances, with a cyclic reference compound and chemical equivalence by environment code. |
 | `bsi-geom3d.js` | 46 kB | 3D coordinates from a SMILES by distance geometry, carrying the NMR predictor's own atom indices: the precondition for the peak↔atom↔3D link. |
+| `bsi-fisica-comune.js` | 15 kB | The shared home of the physics sections: header, tabs, sliders, canvas charts, language. |
+| `bsi-fis-schrodinger.js` | 22 kB | 1D Schrödinger equation: finite differences, Sturm bisection, inverse iteration, Crank-Nicolson, Morse for real molecules. |
+| `bsi-fis-hartreefock.js` | 29 kB | Restricted Hartree-Fock in the STO-3G basis: McMurchie-Davidson integrals, Boys function, SCF with DIIS, molecular orbitals. |
+| `bsi-fis-rotovib.js` | 16 kB | IR and Raman rovibrational spectra of diatomics from molecular constants; combination differences. |
+| `bsi-fis-termostat.js` | 11 kB | Statistical thermodynamics: partition functions, entropy, heat capacity, Boltzmann populations. |
+| `bsi-fis-dinamica.js` | 12 kB | 2D Lennard-Jones molecular dynamics: velocity Verlet, thermostat, virial, radial distribution. |
+| `bsi-fis-matematica.js` | 24 kB | Mathematics for chemistry: FFT of the FID, Hückel, Runge-Kutta for kinetics, least squares with errors. |
+| `bsi-fis-cristalli.js` | 20 kB | Crystallography: Bravais lattices, Miller indices, powder pattern with structure factor and absences. |
+| `bsi-fis-nucleare.js` | 14 kB | Radiochemistry: Bateman equations, radiometric dating, Weizsäcker semi-empirical formula. |
 | `bsi-nmr2d.js` | 21 kB | Two-dimensional NMR: COSY, edited HSQC and HMBC, built by walking the graph over the two per-atom predictions. |
 | `bsi-moldraw.js` | 44 kB | Interactive NMR spectrum: zoom, assignment table, peak↔atom link, SMILES/InChI history, CSV/JCAMP-DX/PNG exports. |
 | `bsi-documento.js` | 23 kB | Opening of any document — PDF, images, text, Word, OpenDocument, PowerPoint, Excel — with an explicit list of what could NOT be read. |
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 163 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 174 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
 | `sw.js` | 6 kB | Service Worker: offline operation and network strategy. |
@@ -86,23 +95,32 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `4815a1d115e20d559eb72a28e7b3546755e26fd11bcd94717f3c9009b227efae` |
+| `index.html` | `9d21d85e25b714b4079a4e5ef8ef0a153291f4b72d355e45ab307cda57da28a0` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
+| `bsi-fisica-comune.js` | `092cde6b44f779694b0aa865f407a2e011a6d047878bf8e2fa3c819d6f3c23e0` |
+| `bsi-fis-schrodinger.js` | `b032084511102c7231bcb244b5bb647128a080a18e9e6d706ec4c727ac29d17d` |
+| `bsi-fis-hartreefock.js` | `8210d2a1501fe6e3f57c0ce8a0e6d5d78432274792833d50bc2e821fc7566fde` |
+| `bsi-fis-rotovib.js` | `428182687a76111f013986127ee49beb7393498387b146bd0694ff16bea7d909` |
+| `bsi-fis-termostat.js` | `0bb9f04d7d5b144791764fa4efd9f8e658be5b5d78b40f94e18752c2366589a9` |
+| `bsi-fis-dinamica.js` | `f1d76c737ce7f75cdc9c75665194180a4cdf401e47a105583838f31c85c9b906` |
+| `bsi-fis-matematica.js` | `616a2d4f338fe1d371f5ba3fd4fe569e94b2d94626a8d323bba8ae58f8550f62` |
+| `bsi-fis-cristalli.js` | `f5283d63ff075ddc19f9d200194528366f38294909db5872e7604b46e0a7d7d5` |
+| `bsi-fis-nucleare.js` | `8ae148a2f37a40f6902faa4148e44468b4d659b6c7d1230378de92c2703a5874` |
 | `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
 | `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
 | `bsi-documento.js` | `0e9ad6043a396652549b30879764cc401f8b7bd25689b5bb5f37cf26f7d7d8d9` |
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `5a28570f930be99f9e07c46ed354dab3392805820209adb1eb38e28f2d20f410` |
+| `bsi-lingue.js` | `5694e6affcd5bbab7f842140d99a472104f6351bbb15d7fc8f634f7d74cbe4e4` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `3a90f44ded2d73f8b989041d8680dfeae3054498ab0e465670ca804d10584f1d` |
+| `sw.js` | `486fe3aebe0eea58cf9b8a24ab5aa8200e0f1ccf0946f6b0f7ddb8efae6a1f73` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -155,4 +173,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-22T16:08:46.252Z._
+_Generated on 2026-10-22T21:53:31.026Z._

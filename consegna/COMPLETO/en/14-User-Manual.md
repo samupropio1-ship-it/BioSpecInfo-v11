@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 95 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 103 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -127,6 +127,23 @@ Touch a flag and the interface changes at once. `Esc` closes the disc.
 > The **🌍 Language** section remains, and does something else: it explains the
 > languages, shows each one's coverage and says that Arabic carries the writing
 > direction with it. That one **informs**, this one **acts**.
+
+### ⚛️ Physics: eight computed sections
+
+In the **⚛️ Physics** category of the bar there are eight sections where the
+physics underneath chemistry is **computed**, not narrated. Every number you see
+is compared by the bench with an independent literature value.
+
+| section | what you do |
+|---|---|
+| 🌊 **Schrödinger** | pick a potential (well, harmonic oscillator, Morse, double well) and see levels and wavefunctions with the exact solution beside them; launch a wave packet at a barrier (tunnelling); see the vibrations of HCl, H₂, CO and N₂ in cm⁻¹ |
+| 🧮 **Hartree-Fock** | a real ab initio calculation (RHF/STO-3G) on eight molecules: energy, orbitals with their energies, Mulliken charges, a map of the chosen orbital, the dissociation curve |
+| 🎻 **Rovibrational** | the IR spectrum of a gaseous diatomic with its P and R branches: change temperature, resolution, isotope; rotational Raman of N₂, O₂, H₂, CO₂; from the lines to the bond length |
+| 🎲 **Statistical thermodynamics** | entropy and heat capacity of nine gases computed from molecular constants, contribution by contribution, and rotational and vibrational populations |
+| 🎱 **Molecular dynamics** | live Lennard-Jones particles: heat, compress and watch gas, liquid and crystal, with the speed distribution and g(r) |
+| ∑ **Mathematics for chemistry** | from FID to spectrum by Fourier transform; Hückel on twelve π systems; kinetics by Runge-Kutta; the Arrhenius line with errors from your data |
+| 💎 **Crystallography** | the 14 Bravais lattices to rotate, Miller planes, the powder pattern of eleven crystals with absences |
+| ☢️ **Radiochemistry** | decay chains (the hospitals' technetium generator), dating with ¹⁴C, K-Ar and U-Pb, nuclear binding energy |
 
 ### Where things are
 
@@ -439,4 +456,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v226`._
+_Guide updated to version `bsi-v227`._

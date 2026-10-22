@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v226` |
+| **Versione descritta** | `bsi-v227` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **95 sezioni**, raggruppate per area di studio.
+L'applicazione conta **103 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -69,6 +69,7 @@ L'applicazione conta **95 sezioni**, raggruppate per area di studio.
 | **Cambio lingua in intestazione** | Un pulsante tondo in alto a destra, all'altezza del titolo, con la bandiera della lingua in uso; si apre in un disco con le quattordici bandiere su due gusci e, al centro, il nome della lingua e **quanto è tradotta, misurata**. Il cambio vero resta nel modulo delle lingue: questo è solo il modo di chiamarlo |
 | **Spettro da una figura (digitalizzazione)** | Dalla fotografia di un registratore, dal ritaglio di un articolo o dallo schermo dello strumento si estrae la traccia dai **pixel**: la cornice degli assi viene riconosciuta e digitalizzata solo la parte interna, la posizione della linea è il **baricentro pesato sulla scurezza** (subpixel), la griglia viene aggirata per continuità e scurezza, i due assi si tarano in lineare o in logaritmica, la %T si converte in assorbanza con A = −log₁₀T. Il grafico, i picchi e le assegnazioni compaiono da sé e si rifanno a ogni modifica della taratura; una diagnosi dice che cosa è stato deciso e perché. Uscite CSV e JCAMP-DX. Scarto misurato: medio 2,2 cm⁻¹, peggiore 7,3 su sette figure costruite |
 | **Modello 3D dalla struttura disegnata** | Coordinate costruite dal grafo, con gli stessi indici del predittore: un picco cliccato illumina l'atomo anche in tre dimensioni |
+| **⚛️ Fisica: otto sezioni calcolate** | **Laboratorio di Schrödinger** (stati stazionari di pozzi, oscillatori, Morse e doppia buca; pacchetto d'onda e effetto tunnel con Crank-Nicolson; vibrazioni di HCl, H₂, CO, N₂ in cm⁻¹ confrontate con l'esperimento); **Hartree-Fock in diretta** (RHF/STO-3G nel browser, otto molecole, orbitali disegnati, curve di dissociazione); **spettroscopia rotovibrazionale** (rami P e R con temperatura e isotopi, Raman con la statistica degli spin, lunghezza di legame dalle righe); **termodinamica statistica** (funzioni di partizione, S° e Cp contro NIST-JANAF, popolazioni); **dinamica molecolare** di Lennard-Jones dal vivo; **matematica per la chimica** (FID → spettro con la FFT, Hückel, cinetiche con Runge-Kutta, minimi quadrati di Arrhenius); **cristallografia** (14 reticoli di Bravais, indici di Miller, diffrattogramma di polvere con estinzioni); **radiochimica** (Bateman, datazione, Weizsäcker). Ogni numero è verificato da `test_fisica` contro la letteratura |
 | **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
 | **Tabelle di riferimento** | Valori tabulati per la consultazione rapida |
 | **Quiz spettri** | Riconoscimento del gruppo funzionale da uno spettro |
@@ -172,7 +173,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 
 ### Una misura che nessun altro banco poteva fare
 
-`verifica-accessibilita` percorre le 95 sezioni e misura ciò che è **visibile**.
+`verifica-accessibilita` percorre le 103 sezioni e misura ciò che è **visibile**.
 I sei pannelli di questa sezione stanno dentro un contenitore che resta
 `display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
 visti, e il suo «contrasto 0» non parlava di loro.
@@ -376,7 +377,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 95 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 103 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
@@ -397,4 +398,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v226`._
+_Documento aggiornato alla versione `bsi-v227`._
