@@ -128,61 +128,6 @@ Touch a flag and the interface changes at once. `Esc` closes the disc.
 > languages, shows each one's coverage and says that Arabic carries the writing
 > direction with it. That one **informs**, this one **acts**.
 
-### 🎮 The Element Run
-
-A retro platformer, in its own section. The power-ups are not flowers: they are
-**periodic table elements**, and each one transforms you with an ability that
-comes from its chemistry.
-
-| element | what it gives you | why |
-|---|---|---|
-| **H** | you jump higher | the lightest there is |
-| **He** | you fall slowly | noble gas lighter than air |
-| **C** | four shots in a fan | four bonds |
-| **F** | the hardest shot | the most electronegative |
-| **Al** | you take one hit | it passivates with its own oxide |
-| **Fe** | you smash through falling | heavy and ferromagnetic |
-| **Hg** | you run | liquid metal |
-| **Au** | oxidising enemies cannot touch you | it does not oxidise |
-
-…and twelve more. Name and atomic number are read from **this application's
-periodic table**: they are not rewritten in the game.
-
-**Twelve levels** in four zones, a **boss** at the end of each zone and the
-**final boss** at the twelfth. Levels are generated at random every run, but
-never impassable: no gap wider than a jump covers, no step higher than a jump
-clears — and before every boss you are guaranteed a shooting element, because a
-boss without one would be invincible.
-
-**Controls**: `◀ ▶` move, `⤒` jumps (hold it to jump higher), `✦` uses the
-element's ability. Keyboard: arrows or `A/D`, space jumps, `K` acts. Jumping
-**on** an enemy squashes it.
-
-**The five difficulties** have chemistry names, and they are not decorative —
-they say how reactive the system is:
-
-| difficulty | what changes |
-|---|---|
-| **Dilute solution** | 5 lives, everything slow, basic questions |
-| **Saturated solution** | 4 lives, more enemies and more power-ups |
-| **Exothermic reaction** | 3 lives, and **a wrong answer costs** |
-| **Enzymatic catalysis** | 2 lives, everything faster, 25 s to answer |
-| **Nuclear fusion** | **one life**, fierce enemies, 20 s to answer |
-
-**At the checkpoints** (the flags) a chemistry question arrives. The difficulty
-does not make the same question harder: it changes **which** questions come —
-from an element's symbol to the right retrosynthetic disconnection for a target,
-by way of IR bands, ¹H and ¹³C shifts, J constants, degrees of unsaturation,
-masses, reactions, amino acids and chemical languages.
-
-> **The questions are not written in the game.** They are **generated** from
-> this application's tables, and after each answer I tell you **where** that
-> question comes from. If the table is right, the question is right — and there
-> is no second list of chemistry that could diverge from the real ones.
-
-**It works offline**: there is not a single file to download — the graphics are
-drawn as rectangles and the sounds are synthesised.
-
 ### Where things are
 
 The sections live in the **navigation bar**, grouped by subject, with **🛠️

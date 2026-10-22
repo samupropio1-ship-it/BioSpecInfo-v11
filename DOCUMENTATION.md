@@ -51,7 +51,6 @@ La documentazione è estesa. Questo è il percorso più breve secondo chi sei.
 | 06 | [Accuratezza scientifica](docs/06-Scientific-Accuracy-Data-Provenance.md) | Come sono verificati i dati chimici, limiti dichiarati |
 | 08 | [Matrice di tracciabilità](docs/08-Traceability-Matrix.md) | Requisito → implementazione → banco di verifica |
 | 15 | [Documentazione dei test](docs/15-Test-Documentation.md) | Come eseguirli, cosa coprono, lacune dichiarate |
-| 16 | [Atomic Protocol — progetto del gioco](docs/16-Atomic-Protocol-Design.md) | Direzione artistica PS1, visuale, inventario, laboratorio di sintesi, combattimento, Zona 1, primo boss ed enigma |
 
 ### Conformità, sicurezza, licenze
 

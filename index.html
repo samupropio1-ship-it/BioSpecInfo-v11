@@ -31778,29 +31778,6 @@ window.addEventListener('load', init);
      il cambio lingua vero resta in bsi-lingue.js, unica casa di quella
      funzione. Qui c'e' il pulsante tondo in intestazione. -->
 <script src="./bsi-sellingua.js" defer></script>
-<!-- Il gioco. bsi-gioco-domande.js non contiene DOMANDE: contiene
-     generatori che pescano dalle tabelle che l'applicazione ha gia'
-     (ELEMENTS, SPEC_DATA, RXN, RETRO_STRATEGIES, AA_DATA, BSIElucida).
-     Un elenco di domande scritto a mano sarebbe una seconda fonte di
-     verita' chimica accanto a quelle, e due fonti divergono. -->
-<!-- ATOMIC PROTOCOL E' SOSPESO (v226). Il gioco non fa piu' parte
-     dell'applicazione: nessuna sezione, nessun pulsante, niente download.
-     I file restano nel repository, identici (e l'intero lavoro e' anche nel
-     ramo archivio/atomic-protocol); si riattiva per prova scrivendo
-     localStorage['bsi-gioco'] = 'si', e per tutti rimettendo qui i sei
-     <script> (vedi docs/ARCHIVIO-ATOMIC-PROTOCOL.md). -->
-<script>
-(function () {
-  try { if (localStorage.getItem('bsi-gioco') !== 'si') return; } catch (e) { return; }
-  function carica() {
-    ['./bsi-gioco-domande.js', './bsi-atomic-livelli.js', './bsi-atomic-figure.js', './bsi-atomic-degrado.js',
-     './bsi-atomic-grafica.js', './bsi-atomic.js'].forEach(function (src) {
-      var s = document.createElement('script'); s.src = src; s.async = false; document.head.appendChild(s);
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', carica); else carica();
-})();
-</script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
@@ -37636,9 +37613,8 @@ window._bsiOverlayOpen = function(){
   return false;
 };
 window._bsiSyncFabs = function(){
-  // nascosti anche mentre la sezione del gioco e' aperta: coprivano la scena
-  var vuole = (window._bsiOverlayOpen() || document.body.classList.contains('bsiAP-sezione')) ? 'none' : 'flex';
-  ['bsi14-fab','bsi-spectra-fab','bsi-gioco-fab'].forEach(function(id){
+  var vuole = window._bsiOverlayOpen() ? 'none' : 'flex';
+  ['bsi14-fab','bsi-spectra-fab'].forEach(function(id){
     var e = document.getElementById(id);
     if(!e) return;
     // Si scrive SOLO se cambia: l'osservatore qui sotto guarda anche gli
@@ -37661,8 +37637,7 @@ window._bsiSyncFabs = function(){
 
 var _fabTimer = setInterval(function(){
   var f = document.getElementById('bsi14-fab');
-  // in gioco il FAB resta nascosto: copriva la scena 3D (vedi bsi-atomic.js)
-  if(f && !window._bsiOverlayOpen() && !document.body.classList.contains('bsiAP-sezione')){
+  if(f && !window._bsiOverlayOpen()){
     f.style.setProperty('display','flex','important');
     f.style.setProperty('visibility','visible','important');
     f.style.setProperty('opacity','1','important');

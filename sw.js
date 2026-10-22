@@ -43,7 +43,6 @@ var PRECACHE = [
   './bsi-digitalizza.js',
   './bsi-centrospettri.js',
   './bsi-sellingua.js',
-  /* ATOMIC PROTOCOL sospeso (v226): i suoi file non si scaricano piu' */
   './bsi-articoli-nobel.js',
   './bsi-articoli.js',
   './bsi-documento.js',
@@ -55,7 +54,6 @@ var PRECACHE = [
   './three.min.js',
   './three_bloom.js',
   './gltf_loader.js',
-  './skeleton_utils.js',
   './smiles-drawer.min.js',
   './lib/sql-wasm.js',
   './lib/dimuon.js',

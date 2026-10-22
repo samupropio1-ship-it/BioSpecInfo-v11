@@ -73,7 +73,7 @@ const FAMIGLIE = [
     scopo: 'I pannelli e i comandi rispondono come documentato.',
     banchi: ['browser_reset', 'browser_proxy', 'browser_proxyui', 'browser_rdkit',
              'browser_lab', 'browser_frontiera', 'test_aggiorna', 'test_guidaproxy',
-             'test_fluidita', 'test_lingue', 'test_mol3d', 'test_menu'] },
+             'test_fluidita', 'test_lingue', 'test_sellingua', 'test_mol3d', 'test_menu'] },
   { nome: 'Sicurezza e accessibilita',
     scopo: 'Nessuna credenziale pubblicata; le pagine restano usabili con una tecnologia assistiva.',
     banchi: ['@verifica-sicurezza', 'audit_storia', 'audit_rete',
@@ -88,7 +88,7 @@ const FAMIGLIE = [
        di dirlo: la guardia contro i blocchi duplicati era stata scritta
        dentro di lui, e lui non era nell'elenco. Una guardia che non gira
        non e' una guardia. */
-    banchi: ['test_stack', 'test_articoli', 'audit_statico', 'test_atomic'] }
+    banchi: ['test_stack', 'test_articoli', 'audit_statico'] }
 ];
 
 /* I file di cui si registra l'impronta: sono quelli che contengono la logica
@@ -176,9 +176,7 @@ function esegui(nome){
   let uscita = '', codice = 0;
   try {
     uscita = execFileSync(process.execPath, [file], {
-      /* 40 minuti: test_atomic (v225) gioca le orde nei cinque laboratori e
-         con il disegno software della macchina di prova supera i venti */
-      cwd: interno ? RADICE : BANCHI_DIR, encoding: 'utf8', timeout: 40 * 60 * 1000,
+      cwd: interno ? RADICE : BANCHI_DIR, encoding: 'utf8', timeout: 20 * 60 * 1000,
       maxBuffer: 32 * 1024 * 1024
     });
   } catch (e) {

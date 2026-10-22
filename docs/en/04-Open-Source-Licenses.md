@@ -28,33 +28,6 @@ used, so there are no obligations to redistribute the proprietary code.
 
 ---
 
-### 1.1 Third-party 3D models (ATOMIC PROTOCOL, first person)
-
-| File | Work | Author | Licence | Obligations |
-|------|------|--------|---------|-------------|
-| `models/mani-atomic.glb` | hands animation | hugo colauto (Sketchfab) | Sketchfab Standard | use within the work; do not redistribute the model on its own — to be checked with the author before publication |
-| `models/manica-atomic.glb` | Modern Scientist in a Lab Coat (crop) | restore50 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/braccia-atomic.glb` | Fists (2023) \| First Person Animations | 1Matzh (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mano-robotica-atomic.glb` | Robotic Hand | SeanNicolas (Sketchfab) | CC-BY 4.0 | attribution: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/small.glb` | Small Lab | Biohazard Rooms (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/scifi1.glb` | Sci-fi lab | Agata Wilczek (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/flynn.glb` | Flynn's Secret Lab [Tron Legacy] | jvouillon (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/underground.glb` | Location underground laboratory | bazz4r (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/overgrown.glb` | Overgrown Laboratory | MichalTroye (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/reattore.glb` | Quantum_Laboratory_X_Alpha | -X-ScornGames (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/mappe/capsula.glb` | Sci Fi lab | IrisProcess (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/verme.glb` | Worm Monster | CR!STALLL (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/curvo.glb` | Scary Monster | L. (Sketchfab) | Sketchfab Standard | use within the work, like the hands |
-| `models/nemici/palude.glb` | SWAMP MONSTER | alexalbinyana (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/cervo.glb` | The Human Deer | ceeleste (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/abissale.glb` | 6- Stylized- Monster | Lex Wild (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/mostro.glb` | Monster | itszyx123456789 (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `models/nemici/bruto.glb` | CREATURE MONSTER 3D BY Oscar Creativo | OSCAR CREATIVO (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-| `skeleton_utils.js` | three.js SkeletonUtils r128 | mrdoob e collaboratori | MIT | avviso di licenza (three.js) |
-| `models/pistola-atomic.glb` | Capsule Gun | sc8di (Sketchfab) | CC-BY 4.0 | attribution and notice of changes: in the game's Codex and in `models/CREDITS.md` |
-
-The derivatives are produced by `tools/prepara-modelli.js`; the entries with their SHA-256 digests are in the SBOM (`docs/07`).
-
 ## 2. External services/APIs (not redistributed)
 
 These services are queried over the network at runtime (their data is not part of

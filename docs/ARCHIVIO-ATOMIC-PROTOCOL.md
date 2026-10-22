@@ -2,38 +2,42 @@
 
 | | |
 |---|---|
-| **Stato** | **Sospeso** (v226): il gioco è fuori dall’applicazione |
+| **Stato** | **Sospeso** (v226): il gioco è fuori dall’applicazione e dal ramo principale |
 | **Ultima versione giocabile** | v225 (più le correzioni del fuoco e degli effetti vicini alla telecamera) |
 | **Archivio completo** | ramo Git **`archivio/atomic-protocol`** (commit `30700d6`) |
 | **Autore** | Samuele Pio Provenzano |
 
 Il gioco è stato tolto dall'applicazione su richiesta dell'autore, **senza
-cancellare niente**. Tutto il lavoro resta in tre posti:
+perdere niente**. Dall'applicazione pubblicata sono usciti i suoi file, i
+modelli 3D, gli strumenti e il banco; **tutto** il lavoro resta:
 
-1. **Nel repository, così com'è**: i file del gioco, i modelli, gli strumenti
-   e il banco non sono stati toccati. Semplicemente l'applicazione non li
-   carica più.
-2. **Nel ramo `archivio/atomic-protocol`**: la fotografia completa
-   dell'ultimo stato giocabile, con la sua storia (ogni commit dalla v209).
-3. **In questo documento, nel registro delle modifiche (`CHANGELOG.md`,
-   versioni v209–v225) e nel documento di progetto
-   (`docs/16-Atomic-Protocol-Design.md`)**: che cosa fa, come è fatto, perché.
+1. **Nel ramo Git `archivio/atomic-protocol`** (su GitHub): la fotografia
+   completa dell'ultimo stato giocabile — codice, modelli, mappe, strumenti,
+   banco, documento di progetto — con tutta la sua storia, commit per commit.
+2. **Nella storia del ramo principale**: ogni commit fino alla v226 contiene
+   ancora il gioco; il registro delle modifiche (`CHANGELOG.md`, versioni
+   v209–v226) dice che cosa è cambiato in ognuna.
+3. **In questo documento**: che cosa c'era, come riattivarlo, da dove
+   ripartire.
 
 ---
 
 ## Come riattivarlo
 
-**Per provarlo, su un solo browser** (senza cambiare niente per gli altri):
-nella console del browser, sulla pagina dell'applicazione,
+Si riportano i file dal ramo d'archivio nel ramo di lavoro:
 
-```js
-localStorage.setItem('bsi-gioco', 'si'); location.reload();
+```sh
+git fetch origin archivio/atomic-protocol
+git checkout origin/archivio/atomic-protocol -- \
+  bsi-atomic.js bsi-atomic-livelli.js bsi-atomic-figure.js bsi-atomic-grafica.js \
+  bsi-atomic-degrado.js bsi-gioco-domande.js skeleton_utils.js \
+  models/mappe models/nemici models/mani-atomic.glb models/manica-atomic.glb \
+  models/pistola-atomic.glb models/braccia-atomic.glb models/mano-robotica-atomic.glb \
+  tools/banchi/test_atomic.js tools/prepara-mappe.js tools/prepara-modelli.js \
+  tools/usd-in-glb.py docs/16-Atomic-Protocol-Design.md
 ```
 
-e per toglierlo di nuovo `localStorage.removeItem('bsi-gioco')`.
-
-**Per tutti**, in `index.html` si sostituisce il caricatore condizionale (il
-blocco che controlla `bsi-gioco`) con i sei script, in quest'ordine:
+poi, in `index.html`, dopo `bsi-sellingua.js`, i sei script in quest'ordine:
 
 ```html
 <script src="./bsi-gioco-domande.js" defer></script>
@@ -44,14 +48,11 @@ blocco che controlla `bsi-gioco`) con i sei script, in quest'ordine:
 <script src="./bsi-atomic.js" defer></script>
 ```
 
-e si rimettono gli stessi sei file nell'elenco della cache di `sw.js` (dopo
-`./bsi-sellingua.js`). Poi `node tools/porta-versione.js bsi-vNNN` e la
-batteria come sempre. In alternativa si riparte dal ramo d'archivio:
-`git checkout archivio/atomic-protocol -- <file>`.
-
-Il banco `tools/banchi/test_atomic.js` attiva il gioco da solo (scrive
-`bsi-gioco` prima di aprire la pagina) e resta nella batteria: il gioco
-continua a essere verificato anche da sospeso, 316 controlli.
+gli stessi file (più `skeleton_utils.js`) nell'elenco della cache di `sw.js`,
+`test_atomic` nella batteria (`tools/genera-evidenza.js`, con 40 minuti per
+banco), e dal ramo d'archivio le voci dei modelli in `tools/genera-sbom.js`,
+`models/CREDITS.md` e `docs/04-Open-Source-Licenses.md`. Poi
+`node tools/porta-versione.js bsi-vNNN` e la batteria come sempre.
 
 ---
 

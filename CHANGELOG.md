@@ -15,18 +15,22 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - **Il gioco non fa più parte dell'applicazione**, su richiesta dell'autore:
   niente sezione, niente pulsante, niente download (i suoi sei script non si
   caricano e non sono più nella cache del Service Worker).
-- **Niente è stato cancellato**: i file, i modelli, gli strumenti e il banco
-  restano nel repository; l'ultimo stato giocabile è nel ramo
-  `archivio/atomic-protocol`; il documento `docs/ARCHIVIO-ATOMIC-PROTOCOL.md`
-  spiega che cosa c'è e come riattivarlo (per prova:
-  `localStorage['bsi-gioco'] = 'si'`).
+- **Niente è perso**: codice, modelli 3D (mani, pistola, creature,
+  laboratori), strumenti, banco e documento di progetto sono usciti dal ramo
+  principale e restano interi nel ramo `archivio/atomic-protocol`; il
+  documento `docs/ARCHIVIO-ATOMIC-PROTOCOL.md` spiega che cosa c'è e come
+  riattivarlo.
+- La documentazione (manuale, specifiche, tracciabilità, licenze, SBOM,
+  test) non descrive più il gioco: tolti i requisiti SCI-37, UI-17, UI-18,
+  UI-19.
 - Prima della sospensione: gli effetti vicini alla telecamera non accecano
   più (sfumano sotto il metro e mezzo, il lampo si attenua) e il fuoco
   tende all'arancione.
 
 ### Banco
-- `test_atomic` riattiva il gioco da solo e resta nella batteria: 316
-  controlli.
+- `test_atomic` esce dalla batteria con il gioco; le sue prove del cambio
+  lingua tondo (UI-16), che non riguardano il gioco, restano in un banco
+  nuovo, `test_sellingua` (30 controlli su due viewport).
 
 ---
 ## [bsi-v225] — 2026-10-22
