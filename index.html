@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v225';
+window.BSI_APP_VERSION='bsi-v226';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -31783,12 +31783,24 @@ window.addEventListener('load', init);
      (ELEMENTS, SPEC_DATA, RXN, RETRO_STRATEGIES, AA_DATA, BSIElucida).
      Un elenco di domande scritto a mano sarebbe una seconda fonte di
      verita' chimica accanto a quelle, e due fonti divergono. -->
-<script src="./bsi-gioco-domande.js" defer></script>
-<script src="./bsi-atomic-livelli.js" defer></script>
-<script src="./bsi-atomic-figure.js" defer></script>
-<script src="./bsi-atomic-degrado.js" defer></script>
-<script src="./bsi-atomic-grafica.js" defer></script>
-<script src="./bsi-atomic.js" defer></script>
+<!-- ATOMIC PROTOCOL E' SOSPESO (v226). Il gioco non fa piu' parte
+     dell'applicazione: nessuna sezione, nessun pulsante, niente download.
+     I file restano nel repository, identici (e l'intero lavoro e' anche nel
+     ramo archivio/atomic-protocol); si riattiva per prova scrivendo
+     localStorage['bsi-gioco'] = 'si', e per tutti rimettendo qui i sei
+     <script> (vedi docs/ARCHIVIO-ATOMIC-PROTOCOL.md). -->
+<script>
+(function () {
+  try { if (localStorage.getItem('bsi-gioco') !== 'si') return; } catch (e) { return; }
+  function carica() {
+    ['./bsi-gioco-domande.js', './bsi-atomic-livelli.js', './bsi-atomic-figure.js', './bsi-atomic-degrado.js',
+     './bsi-atomic-grafica.js', './bsi-atomic.js'].forEach(function (src) {
+      var s = document.createElement('script'); s.src = src; s.async = false; document.head.appendChild(s);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', carica); else carica();
+})();
+</script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

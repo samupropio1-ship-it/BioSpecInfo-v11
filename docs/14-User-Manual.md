@@ -126,6 +126,8 @@ Tocca una bandiera e l'interfaccia cambia subito. `Esc` chiude il disco.
 
 ### 🎮 ATOMIC PROTOCOL
 
+> **Sospeso dalla versione v226**: il gioco non è più nell'applicazione. È conservato per intero (vedi `docs/ARCHIVIO-ATOMIC-PROTOCOL.md`); quello che segue descrive com'era.
+
 Un gioco di **esplorazione in tre dimensioni** con grafica di **livello
 PlayStation 2**. Si apre dal **pulsante ATOMIC PROTOCOL** in basso a destra, sopra Spectra e il menu ✨ (l'icona con l'esagono, la beuta e l'elettrone che gira); mentre giochi i pulsanti flottanti si tolgono di mezzo. **Trecento livelli** in tre atti (il secondo gelido, il terzo rovente: le creature cambiano colore e diventano più forti, ci sono le élite con l'alone d'oro, i guardiani tornano come MK II e Ω), con un **punto di salvataggio** a metà percorso — la colonna d'ottone con la lente verde: passandoci accanto diventa d'oro, e se cadi riparti da lì —,
 dieci zone, dieci guardiani.
@@ -565,4 +567,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v225`._
+_Guida aggiornata alla versione `bsi-v226`._

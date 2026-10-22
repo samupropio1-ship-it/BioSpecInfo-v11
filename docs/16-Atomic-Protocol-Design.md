@@ -2,6 +2,7 @@
 
 > Documento di progetto. Descrive che cosa si costruisce e **perché**, prima di
 > costruirlo. Le parti già realizzate sono marcate ✅, quelle in costruzione 🔧.
+> **Sospeso dalla v226**: il gioco non è più caricato dall'applicazione; tutto è conservato (file, modelli, strumenti, banco, ramo `archivio/atomic-protocol`) — vedi `docs/ARCHIVIO-ATOMIC-PROTOCOL.md`.
 > Versione 19: i laboratori diventano il cuore del livello (porta che si chiude, ondate sul terreno vero delle mappe), le orde nei livelli, l'istituto abbandonato, la luce da horror, il sangue che resta, i brandelli, il fuoco e i fulmini veri.
 > Versione 18: le creature si fermano a mezzo metro dal giocatore, il rampicante più piccolo, la combustione provata dal banco.
 > Versione 17: le reazioni chimiche fra poteri e stati (frantumazione, combustione, conduzione), la luce di contorno sulle creature, i coni di luce e la polvere.

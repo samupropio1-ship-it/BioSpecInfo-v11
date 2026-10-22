@@ -7,6 +7,28 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v226] — 2026-10-22
+
+**ATOMIC PROTOCOL sospeso, tutto conservato**
+
+### Cambiato
+- **Il gioco non fa più parte dell'applicazione**, su richiesta dell'autore:
+  niente sezione, niente pulsante, niente download (i suoi sei script non si
+  caricano e non sono più nella cache del Service Worker).
+- **Niente è stato cancellato**: i file, i modelli, gli strumenti e il banco
+  restano nel repository; l'ultimo stato giocabile è nel ramo
+  `archivio/atomic-protocol`; il documento `docs/ARCHIVIO-ATOMIC-PROTOCOL.md`
+  spiega che cosa c'è e come riattivarlo (per prova:
+  `localStorage['bsi-gioco'] = 'si'`).
+- Prima della sospensione: gli effetti vicini alla telecamera non accecano
+  più (sfumano sotto il metro e mezzo, il lampo si attenua) e il fuoco
+  tende all'arancione.
+
+### Banco
+- `test_atomic` riattiva il gioco da solo e resta nella batteria: 316
+  controlli.
+
+---
 ## [bsi-v225] — 2026-10-22
 
 **L'istituto abbandonato, il sangue, le orde — ATOMIC PROTOCOL**

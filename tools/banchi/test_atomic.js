@@ -59,6 +59,9 @@ function sopra(d, minimo, avuto) {
                             ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage();
+  await pg.addInitScript(() => { try { localStorage.setItem('bsi-gioco', 'si'); } catch (e) {} });
+    /* il gioco e' sospeso nell'app (v226): il banco lo riattiva */
+    await pg.addInitScript(() => { try { localStorage.setItem('bsi-gioco', 'si'); } catch (e) {} });
     const err = [];
     pg.on('pageerror', e => err.push(e.message));
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 90000 });
@@ -1481,6 +1484,7 @@ function sopra(d, minimo, avuto) {
   const ctxT = await browser.newContext({ serviceWorkers: 'block',
                                           viewport: { width: 390, height: 844 } });
   const pgT = await ctxT.newPage();
+  await pgT.addInitScript(() => { try { localStorage.setItem('bsi-gioco', 'si'); } catch (e) {} });
   await pgT.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 90000 });
   await pgT.waitForTimeout(6500);
   const tel = await pgT.evaluate(async () => {

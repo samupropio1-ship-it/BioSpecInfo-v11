@@ -1,7 +1,7 @@
 // BioSpecInfo Service Worker v134 — network-first + precache di pagine e librerie
 'use strict';
 
-var CACHE = 'bsi-v225';
+var CACHE = 'bsi-v226';
 
 // Precarico solo file che esistono davvero nel deploy (una voce inesistente
 // costa una richiesta fallita ad ogni install). NON precarico models/*.glb:
@@ -43,12 +43,7 @@ var PRECACHE = [
   './bsi-digitalizza.js',
   './bsi-centrospettri.js',
   './bsi-sellingua.js',
-  './bsi-gioco-domande.js',
-  './bsi-atomic-livelli.js',
-  './bsi-atomic-figure.js',
-  './bsi-atomic-degrado.js',
-  './bsi-atomic-grafica.js',
-  './bsi-atomic.js',
+  /* ATOMIC PROTOCOL sospeso (v226): i suoi file non si scaricano piu' */
   './bsi-articoli-nobel.js',
   './bsi-articoli.js',
   './bsi-documento.js',
