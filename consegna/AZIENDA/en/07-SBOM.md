@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v233` |
-| Commit | `d6be31c1f5ec4acc68a29953f3a685e09636ec29` |
-| Generated (UTC) | `2026-10-23T17:01:12.225Z` |
+| Application version | `bsi-v234` |
+| Commit | `b73fec13115523d083d5a1d6b9aa2dc129f5e7be` |
+| Generated (UTC) | `2026-10-23T18:26:28.507Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -60,14 +60,14 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4680 kB | Main application: interface, teaching sections, chemical data. |
+| `index.html` | 4683 kB | Main application: interface, teaching sections, chemical data. |
 | `bsi-ai-hub.js` | 429 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
 | `bsi-nmr.js` | 57 kB | Per-atom ¹H and ¹³C NMR prediction: applies the bsi-pretsch.js tables by walking the ring and measuring distances, with a cyclic reference compound and chemical equivalence by environment code. |
 | `bsi-geom3d.js` | 46 kB | 3D coordinates from a SMILES by distance geometry, carrying the NMR predictor's own atom indices: the precondition for the peak↔atom↔3D link. |
-| `bsi-fisica-comune.js` | 24 kB | The shared home of the physics sections: header, tabs, sliders, canvas charts, language. |
+| `bsi-fisica-comune.js` | 31 kB | The shared home of the physics sections: header, tabs, sliders, canvas charts, language. |
 | `bsi-fis-schrodinger.js` | 22 kB | 1D Schrödinger equation: finite differences, Sturm bisection, inverse iteration, Crank-Nicolson, Morse for real molecules. |
 | `bsi-fis-hartreefock.js` | 29 kB | Restricted Hartree-Fock in the STO-3G basis: McMurchie-Davidson integrals, Boys function, SCF with DIIS, molecular orbitals. |
 | `bsi-fis-rotovib.js` | 16 kB | IR and Raman rovibrational spectra of diatomics from molecular constants; combination differences. |
@@ -88,8 +88,13 @@ availability.
 | `bsi-mat-esame.js` | 56 kB | Istituzioni di Matematiche I and II exam: syllabus, solver, solved papers, simulation. |
 | `bsi-fis-esame.js` | 135 kB | General Physics I and II exam: syllabus, 48 problem models, solved papers. |
 | `bsi-percorsi.js` | 9 kB | Study paths from high school to PhD for chemistry, physics and mathematics. |
-| `bsi-fis-meccanica.js` | 24 kB | Mechanics in motion: projectile with air, collisions, real pendulum, coupled oscillators. |
-| `bsi-fis-onde.js` | 21 kB | Waves and optics: superposition, lenses and mirrors, diffraction. |
+| `bsi-fis-astro.js` | 36 kB | Astrophysics: H-R diagram, black body, solar system, exoplanets, cosmology. |
+| `bsi-fis-relativita.js` | 15 kB | Special relativity: Minkowski, twins, dynamics. |
+| `bsi-fis-fluidi.js` | 15 kB | Fluids: Venturi and Bernoulli, viscosity and Stokes, capillarity. |
+| `bsi-mat-vettoriale.js` | 23 kB | Vector calculus: fields, Green, gradient. |
+| `bsi-chi-cinetica.js` | 17 kB | Complex kinetics: composite and oscillating reactions, Turing patterns. |
+| `bsi-fis-meccanica.js` | 23 kB | Mechanics in motion: projectile with air, collisions, real pendulum, coupled oscillators. |
+| `bsi-fis-onde.js` | 20 kB | Waves and optics: superposition, lenses and mirrors, diffraction. |
 | `bsi-fis-circuiti.js` | 17 kB | Circuits: RLC transients, alternating current, filters and Bode. |
 | `bsi-fis-termo.js` | 25 kB | Thermodynamics in motion: cycles, particle gas, Brownian motion. |
 | `bsi-mat-numerici.js` | 24 kB | Numerical methods: roots, integration, ODEs, interpolation with measured orders. |
@@ -108,10 +113,10 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 198 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 202 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
-| `sw.js` | 6 kB | Service Worker: offline operation and network strategy. |
+| `sw.js` | 7 kB | Service Worker: offline operation and network strategy. |
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2660 kB | Astrochemistry module. |
 | `chimorga.html` | 194 kB | Organic chemistry module. |
@@ -121,14 +126,14 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `1fe25b51ebf7c3c3d33dfd6e13543ac55eab50efa7e878dd8e53f4b4c3482af9` |
+| `index.html` | `b0c9c8b2de8fd356bb8a9675e6d1599d34728120e96495b2331dfb2bb2df74aa` |
 | `bsi-ai-hub.js` | `9979f49378cafa4c1bfb141946cd9dccc6f342ebefc2e946617ddba7a81e57de` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
-| `bsi-fisica-comune.js` | `6db7c7c7c8f22cf8b6602f52a8849f1e8706e7627d4a2ea38c4058cb49175211` |
+| `bsi-fisica-comune.js` | `8ec1678339245dcbd3f416807d0840bc8b5caebe6f99c39a510bbffa68353584` |
 | `bsi-fis-schrodinger.js` | `b032084511102c7231bcb244b5bb647128a080a18e9e6d706ec4c727ac29d17d` |
 | `bsi-fis-hartreefock.js` | `8210d2a1501fe6e3f57c0ce8a0e6d5d78432274792833d50bc2e821fc7566fde` |
 | `bsi-fis-rotovib.js` | `428182687a76111f013986127ee49beb7393498387b146bd0694ff16bea7d909` |
@@ -148,14 +153,19 @@ availability.
 | `bsi-mat-risolutore.js` | `709349e1d81f03506c02b9b05a060d8d3801dc37183c0e3894cc93c0aafe9f0c` |
 | `bsi-mat-esame.js` | `de4af253244bd7d610b1a3607297d1678a529504afa23d7123aebe042e1f2c27` |
 | `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
-| `bsi-percorsi.js` | `b61d7db3afb15f9049a749029a495322f1926c0a24f282ec61cb4c90a62c9770` |
-| `bsi-fis-meccanica.js` | `4b05378ffe5425e08e958b00ee50403f5b198a5ebe9ea0de360d24ee642c2b3e` |
-| `bsi-fis-onde.js` | `2c679d42873164e00b5d3a33d67354c4902449474202b16a6693c87f589c3340` |
-| `bsi-fis-circuiti.js` | `fc2ea4c2baf7848d69845065ce7bd1e23db0f561ab1a2de287188b3b5346e2e6` |
-| `bsi-fis-termo.js` | `f683c3c4e8790be3ebf1bb2942611b6c5f414da4fbef2988afb30f2951d70616` |
+| `bsi-percorsi.js` | `5620e76bd60ded06ebe605d887c96f03e62e6ae6443b123dc8604cb6f9c96c65` |
+| `bsi-fis-astro.js` | `64901258a641c54ee99a862990a7e5d86acc5c2367408bb38db9371a39c7363e` |
+| `bsi-fis-relativita.js` | `276d4e4c2df5b416fc4af4b29fa10e8670cb1b7ff8279e192abba7c1015b18ce` |
+| `bsi-fis-fluidi.js` | `65d94ea45133f9537fd3af0feb96b12539a866cde8c12a29cb48c5156b001b9e` |
+| `bsi-mat-vettoriale.js` | `fc3116f45b849118cf41c23f13cc2c07f1d9bdd03341baf6cc81b152a5b6225e` |
+| `bsi-chi-cinetica.js` | `8ba3ad927e4a1858779ffd8ba798c1211a844475b1ad4b571cd1acfd41ea30b0` |
+| `bsi-fis-meccanica.js` | `07d67eb501958079347fa1905a9c212ca2a588c5d1930f615bd0bd07b36a9279` |
+| `bsi-fis-onde.js` | `23bc4412088de214ad1f6f2671c2507eadd08ff252f21966f557c31ed6dae073` |
+| `bsi-fis-circuiti.js` | `098679cdbb52241b6035e23076c82a25fe3d9a72b6f5bf7d4f880f887223f375` |
+| `bsi-fis-termo.js` | `c04fc820b4d874b41b18407b200410d8b8862b3e20f8813660ad009f6af67d3b` |
 | `bsi-mat-numerici.js` | `8656bdf657dcc3468f78951ed3d8e1056d953b147e04595c6bfaad647fa8ca93` |
 | `bsi-mat-geometria.js` | `609bf6c951d438aa0b0639fd2e736a52b340a363294ee564acfe9510966334be` |
-| `bsi-chi-equilibrio.js` | `e6651fc7135f97abf98bf0dcd232858818fb9c3f7fbe60aacc39bca13ad8e401` |
+| `bsi-chi-equilibrio.js` | `de2368be8299a4ebdce9401b77c7bea390208f1372460f17f033e27d0ead88af` |
 | `bsi-lab3d.js` | `bb6a60e7c7ede603c4d7a3e152a92417ff88e66df068f718320e82de0f51badd` |
 | `bsi-vista-molecole.js` | `4a7eb7cd7d8a0033ad0381d936d8e36b2b2e6b75af04988ecc5e9f4e8022cbc4` |
 | `bsi-assistente.js` | `00053872ed83218c81b8867b075a5142c6108dbc1f41e7693df1e9aa0897c4f8` |
@@ -169,10 +179,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `bef568ba2c65bbd60d16791ffeb075b9988db1686f8406a6f43e054727f8810a` |
+| `bsi-lingue.js` | `98a380607e3d1e3a69f457ca2d8624a476dc7dde983275649bca60308ff85a2f` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `8cf3e86696e2dae13ec72c9bd9b511d9fc190325b42e140268772850114d1691` |
+| `sw.js` | `b831ad4ccf42f5b4f14b8bab7e72a491e4211c3326264d9da2352caa5eca1ae3` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -225,4 +235,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-23T17:01:12.225Z._
+_Generated on 2026-10-23T18:26:28.507Z._

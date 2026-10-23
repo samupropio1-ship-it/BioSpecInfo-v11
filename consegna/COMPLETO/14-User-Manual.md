@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 128 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 133 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🔭 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa
+
+In **⚛️ Fisica** ci sono **🔭 Astrofisica**, **⏱️ Relatività ristretta** e **🌊 Fluidi**; in **📐 Matematica** **∇ Calcolo vettoriale**; in **⚗️ Chimica Fisica** **🌀 Cinetica complessa**. Sotto ogni animazione c'è una barra: **⏸/▶** ferma e riprende, **↺** ricomincia, **×¼ … ×4** cambia la velocità, a destra il tempo trascorso. Le animazioni si fermano da sole quando escono dallo schermo; con «riduci movimento» attivo nel sistema partono ferme e si avviano con ▶.
 
 ### 🎯 I laboratori in movimento
 
@@ -497,4 +501,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v233`._
+_Guida aggiornata alla versione `bsi-v234`._
