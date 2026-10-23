@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v231';
+window.BSI_APP_VERSION='bsi-v232';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -1031,6 +1031,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <!-- ⚛️ FISICA (v227): otto sezioni calcolate, nei moduli bsi-fis-*.js -->
   <div id="navGroup7" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareafis" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">⚛️ Area Fisica · assistente</button>
+    <button class="nav-btn" data-s="slab3d" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧊 Laboratorio 3D</button>
     <button class="nav-btn" data-s="sschrod" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Schrödinger</button>
     <button class="nav-btn" data-s="shf" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧮 Hartree-Fock</button>
     <button class="nav-btn" data-s="srotovib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎻 Rotovibrazionale</button>
@@ -29518,6 +29519,7 @@ window.calcMolProps = function() {
 <div id="sareachim" class="section"></div>
 <div id="sareafis" class="section"></div>
 <div id="sareamat" class="section"></div>
+<div id="slab3d" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31513,6 +31515,7 @@ window.initFileManager = function(){
 
 <!-- 3Dmol.js v2.4.0 BSD-License (file esterno per upload affidabile) -->
 <script src="./3Dmol-min.js"></script>
+<script src="./bsi-vista-molecole.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════════════════════
    SIMMETRIA MOLECOLARE — gruppi puntuali, tavole dei caratteri,
@@ -31867,6 +31870,7 @@ window.addEventListener('load', init);
 <script src="./bsi-chi-esame.js" defer></script>
 <script src="./bsi-percorsi.js" defer></script>
 <script src="./bsi-assistente.js" defer></script>
+<script src="./bsi-lab3d.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

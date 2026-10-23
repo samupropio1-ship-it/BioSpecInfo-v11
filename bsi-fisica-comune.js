@@ -58,6 +58,9 @@
     '.bsiFX select,.bsiFX input[type=number],.bsiFX input[type=text]{width:100%;background:#081522;color:#e6fffb;border:1px solid #1a3050;border-radius:7px;padding:6px 8px;font-size:.85rem;font-family:inherit;box-sizing:border-box}',
     '.bsiFX-bott{border:1px solid #5eead4;background:rgba(94,234,212,.12);color:#5eead4;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer;font-size:.82rem;font-family:inherit;margin:4px 4px 4px 0;min-height:34px}',
     '.bsiFX-tela{width:100%;height:auto;display:block;background:#081522;border:1px solid #1a3050;border-radius:10px;touch-action:pan-y}',
+    '.bsiFX-tela.bsiFX-entra{animation:bsiFX-entra .7s cubic-bezier(.2,.7,.2,1) both}',
+    '@keyframes bsiFX-entra{from{clip-path:inset(0 100% 0 0);opacity:.35}to{clip-path:inset(0 0 0 0);opacity:1}}',
+    '@media (prefers-reduced-motion:reduce){.bsiFX-tela.bsiFX-entra{animation:none}}',
     '.bsiFX-num{font-variant-numeric:tabular-nums;color:#e6fffb}',
     '.bsiFX-tab{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}',
     '.bsiFX-tab td,.bsiFX-tab th{border-bottom:1px solid #16263d;padding:4px 6px;text-align:right}',
@@ -129,7 +132,7 @@
   }
   /* opz: { serie:[{x,y,col,larg,tratt,etich}], barre:[{x,y,col}], punti:[{x,y,col}],
            xmin,xmax,ymin,ymax, xl, yl, invertiX, linee:[{y,col,etich}], legenda } */
-  function grafico(c, opz) {
+  function disegna(c, opz) {
     var P = prepara(c), q = P.q, W = P.w, H = P.h;
     var m = { s: 54, d: 14, a: 14, b: 40 };
     var xs = [], ys = [];
@@ -182,7 +185,141 @@
       opz.legenda.forEach(function (L) { q.fillStyle = L.col; q.fillRect(lx - 10, ly - 8, 10, 3); q.fillStyle = '#c9d3df'; q.fillText(tt(L.etich), lx - 14, ly - 3); ly += 15; });
     }
     c.setAttribute('aria-label', tt(opz.descr || opz.yl || ['grafico', 'chart']));
-    return { X: X, Y: Y, q: q, W: W, H: H };
+    return { X: X, Y: Y, q: q, W: W, H: H, m: m, xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax };
+  }
+
+  /* ── il grafico che si muove ──────────────────────────────────────────────
+     Tre cose, per tutti i grafici delle sezioni insieme:
+     · la prima volta il grafico ENTRA da sinistra (una maschera CSS: i pixel
+       sono gia' tutti disegnati, si scopre solo la vista);
+     · quando i dati cambiano (un pulsante, un menu, un passo del cursore) le
+       curve e gli assi SCIVOLANO dai valori vecchi ai nuovi in 0,3 s, invece
+       di saltare. Se le chiamate arrivano a raffica (un cursore trascinato,
+       una simulazione) si disegna subito, senza inseguire: un grafico che
+       insegue in ritardo mostrerebbe valori che non sono piu' quelli;
+     · passando con il mouse o con il dito compare un MIRINO con il valore di
+       ogni curva in quel punto.
+     Molti moduli, dopo F.grafico, disegnano altro sopra con il contesto che
+     ricevono (punti critici, frecce, etichette). Per non perderlo durante
+     l'animazione il contesto restituito e' un registratore: le istruzioni
+     date subito dopo la chiamata vengono ripetute a ogni fotogramma.
+     Chi ha chiesto meno movimento nel sistema operativo non vede animazioni. */
+  var MENO_MOTO = false;
+  try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  var RAF = globale.requestAnimationFrame ? function (f) { return globale.requestAnimationFrame(f); } : function (f) { return setTimeout(function () { f(Date.now()); }, 16); };
+  var NO_RAF = globale.cancelAnimationFrame ? function (h) { globale.cancelAnimationFrame(h); } : clearTimeout;
+  var DURATA = 300;
+  function adesso() { return globale.performance && performance.now ? performance.now() : Date.now(); }
+  function registratore(q, ops) {
+    if (typeof Proxy === 'undefined') return q;
+    return new Proxy(q, {
+      get: function (o, n) { var v = o[n]; if (typeof v !== 'function') return v; return function () { var a = [].slice.call(arguments); if (ops.attivo) ops.push([0, n, a]); return v.apply(o, a); }; },
+      set: function (o, n, v) { if (ops.attivo) ops.push([1, n, v]); o[n] = v; return true; }
+    });
+  }
+  function ripeti(q, ops) { for (var i = 0; i < ops.length; i++) { var x = ops[i]; if (x[0]) q[x[1]] = x[2]; else q[x[1]].apply(q, x[2]); } }
+  function forma(opz) { return (opz.serie || []).map(function (s) { return s.y.length; }).join(',') + '|' + (opz.barre || []).length + '|' + (opz.punti || []).length; }
+  function mescola(a, b, f) { return isFinite(a) && isFinite(b) ? a + (b - a) * f : b; }
+  function intermedio(da, a, f) {
+    var o = {}; for (var k in a) o[k] = a[k];
+    o.serie = (a.serie || []).map(function (s, i) { var p = da.opz.serie[i], n = {}; for (var k in s) n[k] = s[k]; n.y = s.y.map(function (v, j) { return mescola(p.y[j], v, f); }); n.x = s.x.map(function (v, j) { return mescola(p.x[j], v, f); }); return n; });
+    o.barre = (a.barre || []).map(function (b, i) { var p = da.opz.barre[i], n = {}; for (var k in b) n[k] = b[k]; n.x = mescola(p.x, b.x, f); n.y = mescola(p.y, b.y, f); return n; });
+    o.punti = (a.punti || []).map(function (b, i) { var p = da.opz.punti[i], n = {}; for (var k in b) n[k] = b[k]; n.x = mescola(p.x, b.x, f); n.y = mescola(p.y, b.y, f); return n; });
+    o.xmin = mescola(da.P.xmin, a._P.xmin, f); o.xmax = mescola(da.P.xmax, a._P.xmax, f); o.ymin = mescola(da.P.ymin, a._P.ymin, f); o.ymax = mescola(da.P.ymax, a._P.ymax, f);
+    return o;
+  }
+  function copiaDati(opz) {
+    return { serie: (opz.serie || []).map(function (s) { return { x: s.x.slice(), y: s.y.slice() }; }), barre: (opz.barre || []).map(function (b) { return { x: b.x, y: b.y }; }), punti: (opz.punti || []).map(function (b) { return { x: b.x, y: b.y }; }) };
+  }
+  function grafico(c, opz) {
+    var st = c._bsiG || (c._bsiG = { ultimo: null, ops: [], t: 0, rapido: 0 });
+    if (st.anim) { NO_RAF(st.anim); st.anim = null; }
+    var t0 = adesso(), raffica = t0 - st.t < 160; st.t = t0;
+    st.rapido = raffica ? st.rapido + 1 : 0;
+    var prima = st.ultimo;
+    var P = disegna(c, opz);
+    st.snap = null;
+    var ops = []; ops.attivo = true; st.ops = ops;
+    var proxy = registratore(P.q, ops);
+    var finale = { opz: copiaDati(opz), P: { xmin: P.xmin, xmax: P.xmax, ymin: P.ymin, ymax: P.ymax }, forma: forma(opz) };
+    st.ultimo = finale; st.opz = opz; st.P = P;
+    attivaMirino(c, st);
+    /* la prima volta: entra */
+    if (!prima && !MENO_MOTO && !c._bsiEntrato) { c._bsiEntrato = true; c.classList.add('bsiFX-entra'); }
+    /* le volte dopo: scivola, se la forma dei dati e' la stessa e qualcosa e' cambiato */
+    var muovi = prima && !MENO_MOTO && !raffica && st.rapido === 0 && prima.forma === finale.forma && (opz.serie || []).length + (opz.barre || []).length + (opz.punti || []).length > 0 &&
+      JSON.stringify(prima.opz) !== JSON.stringify(finale.opz) && c.offsetParent !== null;
+    var chiudi = function () { ops.attivo = false; };
+    if (!muovi) { (globale.queueMicrotask || function (f) { Promise.resolve().then(f); })(chiudi); return { X: P.X, Y: P.Y, q: proxy, W: P.W, H: P.H }; }
+    var opzA = {}; for (var k in opz) opzA[k] = opz[k]; opzA._P = finale.P;
+    function fotogramma(f) {
+      try { disegna(c, f >= 1 ? opz : intermedio(prima, opzA, f)); ripeti(c.getContext('2d'), ops); }
+      catch (e) { st.anim = null; disegna(c, opz); try { ripeti(c.getContext('2d'), ops); } catch (e2) { } return false; }
+      return true;
+    }
+    (globale.queueMicrotask || function (f) { Promise.resolve().then(f); })(function () {
+      chiudi();
+      if (st.ops !== ops) return;
+      if (!fotogramma(0)) return;
+      var inizio = adesso();
+      (function passo() {
+        st.anim = RAF(function () {
+          if (st.ops !== ops) return;
+          var f = Math.min(1, (adesso() - inizio) / DURATA), e = 1 - Math.pow(1 - f, 3);
+          if (!fotogramma(f >= 1 ? 1 : e)) return;
+          if (f < 1) passo(); else { st.anim = null; st.snap = null; }
+        });
+      })();
+    });
+    return { X: P.X, Y: P.Y, q: proxy, W: P.W, H: P.H };
+  }
+
+  /* il mirino: si salva l'immagine del grafico finito e ci si disegna sopra */
+  function attivaMirino(c, st) {
+    if (c._bsiMirino || !c.addEventListener) return;
+    c._bsiMirino = true;
+    function ripristina() { if (st.snap) { try { c.getContext('2d').putImageData(st.snap, 0, 0); } catch (e) { } } }
+    function muovi(ev) {
+      if (st.anim || !st.P || !st.opz) return;
+      var opz = st.opz, P = st.P, serie = (opz.serie || []).filter(function (s) { return s.x.length > 1 && !s.nascondiMirino; });
+      if (!serie.length && !(opz.barre || []).length) return;
+      var r = c.getBoundingClientRect(); if (!r.width) return;
+      var px = (ev.clientX - r.left) * (P.W / r.width), m = P.m;
+      if (px < m.s || px > P.W - m.d) { ripristina(); return; }
+      var q = c.getContext('2d'), dpr = c.width / P.W;
+      if (!st.snap) { try { q.setTransform(1, 0, 0, 1, 0, 0); st.snap = q.getImageData(0, 0, c.width, c.height); } catch (e) { return; } }
+      q.setTransform(1, 0, 0, 1, 0, 0); q.putImageData(st.snap, 0, 0); q.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var fr = (px - m.s) / (P.W - m.s - m.d); if (opz.invertiX) fr = 1 - fr;
+      var xv = P.xmin + fr * (P.xmax - P.xmin), righe = [], H = P.H;
+      q.save(); q.strokeStyle = 'rgba(230,255,251,.45)'; q.setLineDash([3, 3]); q.lineWidth = 1;
+      q.beginPath(); q.moveTo(px, m.a); q.lineTo(px, H - m.b); q.stroke(); q.setLineDash([]);
+      serie.forEach(function (s, k) {
+        var mi = -1, md = Infinity;
+        for (var i = 0; i < s.x.length; i++) { var d = Math.abs(s.x[i] - xv); if (d < md && isFinite(s.y[i])) { md = d; mi = i; } }
+        if (mi < 0) return;
+        var yv = s.y[mi], X = P.X(s.x[mi]), Y = P.Y(yv);
+        if (Y < m.a - 2 || Y > H - m.b + 2) return;
+        q.fillStyle = s.col || '#5eead4'; q.beginPath(); q.arc(X, Y, 4, 0, Math.PI * 2); q.fill(); q.strokeStyle = '#081522'; q.lineWidth = 1.5; q.stroke();
+        var nome = s.etich ? tt(s.etich) : (opz.legenda && opz.legenda[k] ? tt(opz.legenda[k].etich) : (serie.length > 1 ? '#' + (k + 1) : (opz.yl ? tt(opz.yl).split(' ')[0] : 'y')));
+        righe.push([s.col || '#5eead4', nome + ' = ' + fmt(yv)]);
+      });
+      if (!serie.length) {
+        var mb = null, mdb = Infinity; (opz.barre || []).forEach(function (b) { var d = Math.abs(P.X(b.x) - px); if (d < mdb) { mdb = d; mb = b; } });
+        if (mb && mdb < 12) { righe.push([mb.col || '#5eead4', fmt(mb.x) + ' → ' + fmt(mb.y)]); xv = mb.x; }
+      }
+      var testa = (opz.xl ? tt(opz.xl).split(' (')[0].split(' ')[0] : 'x') + ' = ' + fmt(xv);
+      righe.unshift(['#e6fffb', testa]);
+      q.font = '11px system-ui,sans-serif';
+      var w = 0; righe.forEach(function (r) { w = Math.max(w, q.measureText(r[1]).width); }); w += 18;
+      var h = righe.length * 15 + 8, bx = px + 10 + w > P.W - m.d ? px - 10 - w : px + 10, by = m.a + 6;
+      q.fillStyle = 'rgba(8,21,34,.92)'; q.strokeStyle = '#2a4a6e'; q.lineWidth = 1; q.beginPath(); q.rect(bx, by, w, h); q.fill(); q.stroke();
+      q.textAlign = 'left';
+      righe.forEach(function (r, i) { q.fillStyle = r[0]; if (i) q.fillRect(bx + 6, by + 11 + i * 15 - 4, 6, 3); q.fillStyle = i ? '#e6fffb' : '#9fb1c6'; q.fillText(r[1], bx + (i ? 15 : 6), by + 14 + i * 15); });
+      q.restore();
+    }
+    c.addEventListener('pointermove', muovi);
+    c.addEventListener('pointerdown', muovi);
+    c.addEventListener('pointerleave', ripristina);
   }
 
   /* ── la sezione: intestazione e schede ─────────────────────────────────── */

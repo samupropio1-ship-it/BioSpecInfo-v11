@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 120 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 121 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🧊 Laboratorio 3D, grafici e viste molecolari
+
+Nella categoria **⚛️ Fisica** il **🧊 Laboratorio 3D** mostra in tre dimensioni superfici, orbitali atomici, moti nello spazio, strutture cristalline e linee di campo. Si ruota trascinando con un dito o con il mouse e si ingrandisce con due dita o con la rotellina. I pulsanti in alto a destra avviano la rotazione automatica (⟳), tornano alla vista iniziale (⌖), salvano un'immagine (📷) e passano a schermo intero (⛶). Passando con il dito o con il mouse su un grafico di qualunque sezione compare un mirino con il valore di ogni curva in quel punto. Le viste molecolari 3D hanno la stessa barra, più il pulsante ✦ che sceglie la qualità: automatica, alta (con occlusione ambientale), media o bassa per i telefoni lenti. Chi ha attivato «riduci movimento» nel sistema operativo non vede animazioni.
 
 ### ⚗️ ⚛️ 📐 Le tre macro-aree e l'assistente
 
@@ -489,4 +493,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v231`._
+_Guida aggiornata alla versione `bsi-v232`._
