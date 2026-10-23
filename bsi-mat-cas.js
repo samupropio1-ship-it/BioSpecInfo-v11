@@ -69,7 +69,7 @@
   function div(a, b) { return mul(a, pow(b, Q(-1))); }
 
   /* ── l'analizzatore sintattico ─────────────────────────────────────────── */
-  var FUNZ = { sin: 1, cos: 1, tan: 1, asin: 1, acos: 1, atan: 1, sinh: 1, cosh: 1, tanh: 1, exp: 1, ln: 1, log: 1, sqrt: 1, abs: 1 };
+  var FUNZ = { fact: 1, sin: 1, cos: 1, tan: 1, asin: 1, acos: 1, atan: 1, sinh: 1, cosh: 1, tanh: 1, exp: 1, ln: 1, log: 1, sqrt: 1, abs: 1 };
   var ALIAS = { sen: 'sin', tg: 'tan', arcsin: 'asin', arcsen: 'asin', arccos: 'acos', arctan: 'atan', arctg: 'atan', senh: 'sinh', Log: 'log', Ln: 'ln', radq: 'sqrt' };
   var APICI = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '-' };
 
@@ -136,7 +136,7 @@
     }
     function potenza() {
       var b = primario();
-      if (e_op('!')) throw new Error('il fattoriale non è supportato');
+      while (e_op('!')) { p++; b = fn('fact', b); }
       if (e_op('^')) { p++; return pow(b, unario()); }
       return b;
     }
@@ -209,6 +209,7 @@
     var v = x.t === 'n' ? val(x) : null;
     if (x.t === 'n' && !esatto(x)) return F(valuta(fn(n, x), {}));
     if (v === 0) { if (n === 'sin' || n === 'tan' || n === 'asin' || n === 'atan' || n === 'sinh' || n === 'tanh' || n === 'abs') return Q(0); if (n === 'cos' || n === 'cosh' || n === 'exp') return Q(1); }
+    if (n === 'fact' && x.t === 'n' && intero(x) && x.n >= 0 && x.n <= 20) return Q(fattoriale(x.n));
     if (v === 1 && (n === 'ln')) return Q(0);
     if (v === 1 && n === 'log') return Q(0);
     if (n === 'log' && esatto(x) && x.d === 1 && x.n > 0) { var l = Math.round(Math.log10(x.n)); if (Math.pow(10, l) === x.n) return Q(l); }
@@ -259,6 +260,9 @@
   function sempMul(fattori) {
     var coef = Q(1), gruppi = {}, ordine = [], piatti = [];
     (function appiattisci(lista) { lista.forEach(function (f) { if (f.t === '*') appiattisci(f.a); else piatti.push(f); }); })(fattori);
+    /* e^a · e^b = e^(a + b) */
+    var esp = piatti.filter(function (f) { return f.t === 'f' && f.n === 'exp'; });
+    if (esp.length > 1) { piatti = piatti.filter(function (f) { return !(f.t === 'f' && f.n === 'exp'); }); var som = sempAdd(esp.map(function (f) { return f.a[0]; })); var en = sempF('exp', som); if (en.t === '*') piatti = piatti.concat(en.a); else piatti.push(en); }
     piatti.forEach(function (f) {
       if (f.t === 'n') { coef = qmul(coef, f); return; }
       var base = f, esp = Q(1);
@@ -333,8 +337,17 @@
   /* ── il calcolo numerico sull'albero ───────────────────────────────────── */
   var FN = {
     sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, acos: Math.acos, atan: Math.atan,
-    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, exp: Math.exp, ln: Math.log, log: Math.log10, abs: Math.abs
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, exp: Math.exp, ln: Math.log, log: Math.log10, abs: Math.abs,
+    fact: function (v) { return fattoriale(v); }
   };
+  function fattoriale(v) { if (v % 1 === 0 && v >= 0 && v < 171) { var r = 1; for (var i = 2; i <= v; i++) r *= i; return r; } return Math.exp(lgamma(v + 1)); }
+  /* logaritmo della funzione Gamma (Lanczos), per n! con n non intero o grande */
+  function lgamma(x) {
+    var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+    var y = x, tmp = x + 5.5; tmp -= (x + 0.5) * Math.log(tmp);
+    var ser = 1.000000000190015; for (var j = 0; j < 6; j++) ser += c[j] / ++y;
+    return -tmp + Math.log(2.5066282746310005 * ser / x);
+  }
   function potenzaReale(b, x) {
     if (b < 0 && x % 1 !== 0) {
       /* radici dispari di numeri negativi: ∛(−8) = −2 */
@@ -403,6 +416,7 @@
         case 's': return html && e.n.length > 1 && e.n !== 'π' ? '<i>' + esc(e.n) + '</i>' : e.n;
         case 'f':
           if (e.n === 'abs') return '|' + P(e.a[0], 0) + '|';
+          if (e.n === 'fact') return (atomo(e.a[0]) && e.a[0].t !== 'f' ? P(e.a[0], 3) : '(' + P(e.a[0], 0) + ')') + '!';
           if (e.n === 'exp') { var arg = e.a[0]; if (html) return 'e<sup>' + P(arg, 0) + '</sup>'; return 'e^' + (atomo(arg) ? P(arg, 3) : '(' + P(arg, 0) + ')'); }
           return e.n + '(' + P(e.a[0], 0) + ')';
         case '^': s = stampaPow(e.a[0], e.a[1]); return liv >= 3 ? '(' + s + ')' : s;
@@ -418,7 +432,7 @@
       return '?';
     }
     function stampaPow(b, x) {
-      if (x.t === 'n' && val(x) < 0) { var inv = sempPow(b, sempMul([Q(-1), x])); return '1/' + (inv.t === '*' ? '(' + P(inv, 0) + ')' : P(inv, 2)); }
+      if (negativo(x)) { var inv = sempPow(b, sempMul([Q(-1), x])); return '1/' + (inv.t === '*' ? '(' + P(inv, 0) + ')' : P(inv, 2)); }
       if (esatto(x) && x.n === 1 && x.d === 2) return '√' + (atomo(b) ? P(b, 3) : '(' + P(b, 0) + ')');
       if (esatto(x) && x.n === 1 && x.d === 3) return '∛' + (atomo(b) ? P(b, 3) : '(' + P(b, 0) + ')');
       var bs = atomo(b) ? P(b, 3) : '(' + P(b, 0) + ')';
@@ -430,7 +444,7 @@
       var c = e.a[0].t === 'n' ? e.a[0] : Q(1), fatt = e.a[0].t === 'n' ? e.a.slice(1) : e.a.slice();
       var num = [], den = [];
       fatt.forEach(function (f) {
-        if (f.t === '^' && f.a[1].t === 'n' && val(f.a[1]) < 0) den.push(sempPow(f.a[0], sempMul([Q(-1), f.a[1]])));
+        if (f.t === '^' && negativo(f.a[1])) den.push(sempPow(f.a[0], sempMul([Q(-1), f.a[1]])));
         else num.push(f);
       });
       var segno = val(c) < 0 ? '−' : '', cn, cd = '';
@@ -509,6 +523,7 @@
             case 'ln': g = sempPow(u, Q(-1)); break;
             case 'log': g = sempMul([sempPow(u, Q(-1)), sempPow(sempF('ln', Q(10)), Q(-1))]); break;
             case 'abs': g = sempMul([u, sempPow(e, Q(-1))]); break;
+            case 'fact': throw new Error('il fattoriale non si deriva: è definito sugli interi');
             default: throw new Error('derivata di ' + e.n + ' non nota');
           }
           return sempMul([g, du]);
@@ -536,10 +551,15 @@
     if (dipende(d, x)) return null;
     return { a: d, c: sempAdd([u, sempMul([Q(-1), d, S_(x)])]) };
   }
-  function integra(e, x) {
+  /* il registro dei metodi (tabella, sostituzione, per parti) per chi spiega lo svolgimento */
+  var REG = null;
+  function annota(prof, metodo, dettagli) { if (REG && prof <= 3 && REG.length < 12) REG.push({ metodo: metodo, dettagli: dettagli }); }
+  function integra(e, x, registro) {
     e = S(e);
+    REG = registro || null;
     var r = I(e, x, 0);
-    if (!r) { var ex = espandi(e); if (chiave(ex) !== chiave(e)) r = I(ex, x, 0); }
+    if (!r) { var ex = espandi(e); if (chiave(ex) !== chiave(e)) { if (REG) REG.push({ metodo: 'espansione', dettagli: { espr: stampa(ex) } }); r = I(ex, x, 0); } }
+    REG = null;
     if (!r) return null;
     r = S(r);
     return verificaPrimitiva(r, e, x) ? r : null;
@@ -563,27 +583,34 @@
     var X = S_(x);
     if (!dipende(e, x)) return sempMul([e, X]);
     if (e.t === 's') return sempMul([Q(1, 2), sempPow(X, Q(2))]);
-    if (e.t === '+') { var parti = e.a.map(function (t) { return I(t, x, prof + 1); }); return parti.every(Boolean) ? sempAdd(parti) : null; }
+    if (e.t === '+') { annota(prof, 'linearita', { n: e.a.length }); var parti = e.a.map(function (t) { return I(t, x, prof + 1); }); return parti.every(Boolean) ? sempAdd(parti) : null; }
     if (e.t === '*') {
       var c = e.a.filter(function (f) { return !dipende(f, x); }), v = e.a.filter(function (f) { return dipende(f, x); });
-      if (c.length) { var r0 = I(v.length === 1 ? v[0] : sempMul(v), x, prof + 1); return r0 ? sempMul(c.concat([r0])) : null; }
-      return perParti(v, x, prof) || sostituzione(e, x, prof);
+      if (c.length) { annota(prof, 'costante', { c: stampa(sempMul(c)) }); var r0 = I(v.length === 1 ? v[0] : sempMul(v), x, prof + 1); return r0 ? sempMul(c.concat([r0])) : null; }
+      return perParti(v, x, prof) || sostituzione(e, x, prof) || razionale(e, x, prof);
     }
     if (e.t === '^') {
       var b = e.a[0], p = e.a[1];
       if (!dipende(p, x)) {
         var L = lineare(b, x);
         if (L) {
+          annota(prof, 'tabella', { espr: stampa(e), regola: val(p) === -1 ? 'ln' : 'potenza' });
           if (p.t === 'n' && val(p) === -1) return sempMul([sempPow(L.a, Q(-1)), sempF('ln', sempF('abs', b))]);
           return sempMul([sempPow(sempMul([L.a, sempAdd([p, Q(1)])]), Q(-1)), sempPow(b, sempAdd([p, Q(1)]))]);
         }
         /* 1/(a + b x²) → arctangente;  1/√(a − b x²) → arcoseno */
         var q = quadratica(b, x);
         if (q && q.lin === 0) {
+          if ((val(p) === -1 && q.a > 0 && q.b > 0) || (val(p) === -0.5 && q.a > 0 && q.b < 0)) annota(prof, 'tabella', { espr: stampa(e), regola: val(p) === -1 ? 'atan' : 'asin' });
           if (val(p) === -1 && q.a > 0 && q.b > 0) return sempMul([F(1 / Math.sqrt(q.a * q.b)), sempF('atan', sempMul([F(Math.sqrt(q.b / q.a)), X]))]);
           if (val(p) === -0.5 && q.a > 0 && q.b < 0) return sempMul([F(1 / Math.sqrt(-q.b)), sempF('asin', sempMul([F(Math.sqrt(-q.b / q.a)), X]))]);
         }
-        return sostituzione(e, x, prof);
+        /* lnⁿ(x): per parti con u = lnⁿ x, dv = dx */
+        if (intero(p) && p.n >= 2 && b.t === 'f' && b.n === 'ln' && b.a[0].t === 's' && b.a[0].n === x) {
+          var Rn = I(sempPow(b, Q(p.n - 1)), x, prof + 1);
+          if (Rn) { annota(prof, 'parti', { u: stampa(e), dv: '1', v: x, resto: stampa(sempMul([p, sempPow(b, Q(p.n - 1))])) }); return sempAdd([sempMul([X, e]), sempMul([Q(-p.n), Rn])]); }
+        }
+        return sostituzione(e, x, prof) || razionale(e, x, prof);
       }
       if (!dipende(b, x)) { var L2 = lineare(p, x); if (L2) return sempMul([e, sempPow(sempMul([L2.a, sempF('ln', b)]), Q(-1))]); }
       return null;
@@ -592,6 +619,7 @@
       var u = e.a[0], L3 = lineare(u, x);
       if (!L3) return sostituzione(e, x, prof);
       var inv = sempPow(L3.a, Q(-1)), g;
+      annota(prof, 'tabella', { espr: stampa(e), regola: e.n });
       switch (e.n) {
         case 'sin': g = sempMul([Q(-1), sempF('cos', u)]); break;
         case 'cos': g = sempF('sin', u); break;
@@ -610,6 +638,57 @@
     }
     return null;
   }
+  /* funzioni razionali: fratti semplici (radici del denominatore, coefficienti con i minimi quadrati, poi esatti) */
+  function numQ(v) { for (var d = 1; d <= 2000; d++) { var n = Math.round(v * d); if (Math.abs(v - n / d) < 1e-9 * Math.max(1, Math.abs(v))) return Q(n, d); } return F(v); }
+  function razionale(e, x, prof) {
+    if (prof > 4) return null;
+    var fatt = e.t === '*' ? e.a : [e], num = [], den = [];
+    fatt.forEach(function (f) { if (f.t === '^' && f.a[1].t === 'n' && val(f.a[1]) < 0) den.push(sempPow(f.a[0], sempMul([Q(-1), f.a[1]]))); else num.push(f); });
+    if (!den.length) return null;
+    var cN = coeffPolinomio(num.length ? sempMul(num) : Q(1), x), cD = coeffPolinomio(sempMul(den), x);
+    if (!cN || !cD || cD.length < 2) return null;
+    var X = S_(x), parti = [];
+    /* divisione se serve */
+    if (cN.length >= cD.length) {
+      var qz = new Array(cN.length - cD.length + 1).fill(0), r = cN.slice();
+      for (var k = cN.length - cD.length; k >= 0; k--) { var cq = r[k + cD.length - 1] / cD[cD.length - 1]; qz[k] = cq; for (var j = 0; j < cD.length; j++) r[k + j] -= cq * cD[j]; }
+      qz.forEach(function (c, i) { if (Math.abs(c) > 1e-14) parti.push(sempMul([numQ(c / (i + 1)), sempPow(X, Q(i + 1))])); });
+      cN = r.slice(0, cD.length - 1);
+    }
+    var rad = radiciPolinomio(cD), reali = [], cpl = [];
+    rad.forEach(function (z) {
+      if (!z.im) { var g = reali.filter(function (q) { return Math.abs(q.r - z.re) < 1e-7 * (1 + Math.abs(z.re)); })[0]; if (g) g.m++; else reali.push({ r: z.re, m: 1 }); }
+      else if (z.im > 0) { var g2 = cpl.filter(function (q) { return Math.abs(q.a - z.re) + Math.abs(q.b - z.im) < 1e-7; })[0]; if (g2) g2.m++; else cpl.push({ a: z.re, b: z.im, m: 1 }); }
+    });
+    if (cpl.some(function (q) { return q.m > 1; })) return null;
+    var base = [];
+    reali.forEach(function (q) { for (var k = 1; k <= q.m; k++) base.push({ t: 'r', r: q.r, k: k }); });
+    cpl.forEach(function (q) { var p_ = -2 * q.a, q_ = q.a * q.a + q.b * q.b; base.push({ t: 'x', p: p_, q: q_ }); base.push({ t: '1', p: p_, q: q_ }); });
+    function phi(b, v) { if (b.t === 'r') return 1 / Math.pow(v - b.r, b.k); var Qv = v * v + b.p * v + b.q; return b.t === 'x' ? v / Qv : 1 / Qv; }
+    function pol(c, v) { var s = 0; for (var k = c.length - 1; k >= 0; k--) s = s * v + c[k]; return s; }
+    var m = base.length, A = [], y = [], i;
+    for (i = 0; A.length < m + 6 && i < 200; i++) { var v = -2.91 + 0.613 * i; if (Math.abs(pol(cD, v)) < 1e-4) continue; A.push(base.map(function (b) { return phi(b, v); })); y.push(pol(cN, v) / pol(cD, v)); }
+    /* equazioni normali */
+    var M = [], bb = [];
+    for (i = 0; i < m; i++) { M.push([]); for (var j2 = 0; j2 < m; j2++) { var s2 = 0; for (var k2 = 0; k2 < A.length; k2++) s2 += A[k2][i] * A[k2][j2]; M[i].push(s2); } var sb = 0; for (k2 = 0; k2 < A.length; k2++) sb += A[k2][i] * y[k2]; bb.push(sb); }
+    for (var c = 0; c < m; c++) { var pv = c; for (i = c + 1; i < m; i++) if (Math.abs(M[i][c]) > Math.abs(M[pv][c])) pv = i; var tmp = M[c]; M[c] = M[pv]; M[pv] = tmp; var tb = bb[c]; bb[c] = bb[pv]; bb[pv] = tb; if (Math.abs(M[c][c]) < 1e-14) return null; for (i = 0; i < m; i++) if (i !== c) { var fct = M[i][c] / M[c][c]; for (var j3 = c; j3 < m; j3++) M[i][j3] -= fct * M[c][j3]; bb[i] -= fct * bb[c]; } }
+    var co = bb.map(function (v2, i2) { return v2 / M[i2][i2]; });
+    base.forEach(function (b, k3) {
+      var cc = co[k3];
+      if (b.t === 'r') {
+        if (Math.abs(cc) < 1e-12) return;
+        var lin = sempAdd([X, sempMul([Q(-1), numQ(b.r)])]);
+        parti.push(b.k === 1 ? sempMul([numQ(cc), sempF('ln', sempF('abs', lin))]) : sempMul([numQ(-cc / (b.k - 1)), sempPow(lin, Q(1 - b.k))]));
+      } else if (b.t === 'x') {
+        var Bq = cc, Cq = co[k3 + 1], d4 = numQ(4 * b.q - b.p * b.p), Qn = sempAdd([sempPow(X, Q(2)), sempMul([numQ(b.p), X]), numQ(b.q)]), rq = sempPow(d4, Q(-1, 2));
+        if (Math.abs(Bq) > 1e-12) parti.push(sempMul([numQ(Bq / 2), sempF('ln', Qn)]));
+        var k4 = Cq - Bq * b.p / 2;
+        if (Math.abs(k4) > 1e-12) parti.push(sempMul([numQ(2 * k4), rq, sempF('atan', sempMul([sempAdd([sempMul([Q(2), X]), numQ(b.p)]), rq]))]));
+      }
+    });
+    annota(prof, 'fratti', { espr: stampa(e) });
+    return parti.length ? sempAdd(parti) : Q(0);
+  }
   function quadratica(b, x) {
     if (!dipende(b, x)) return null;
     var f = funzione(b, x), a0 = f(0), a1 = f(1), am = f(-1), a2 = f(2);
@@ -627,17 +706,29 @@
   }
   function perParti(v, x, prof) {
     if (v.length !== 2) return null;
+    /* e^(ax+b)·cos(cx+d) e e^(ax+b)·sin(cx+d): per parti due volte, l'integrale ricompare */
+    var ie = v[0].t === 'f' && v[0].n === 'exp' ? 0 : v[1].t === 'f' && v[1].n === 'exp' ? 1 : -1;
+    if (ie >= 0) {
+      var E_ = v[ie], T_ = v[1 - ie], La = lineare(E_.a[0], x), Lc = T_.t === 'f' && (T_.n === 'sin' || T_.n === 'cos') ? lineare(T_.a[0], x) : null;
+      if (La && Lc) {
+        var a_ = La.a, c_ = Lc.a, den = sempPow(sempAdd([sempPow(a_, Q(2)), sempPow(c_, Q(2))]), Q(-1)), sn = sempF('sin', T_.a[0]), cs = sempF('cos', T_.a[0]);
+        var dentro = T_.n === 'cos' ? sempAdd([sempMul([a_, cs]), sempMul([c_, sn])]) : sempAdd([sempMul([a_, sn]), sempMul([Q(-1), c_, cs])]);
+        annota(prof, 'ciclico', { espr: stampa(sempMul(v)) });
+        return sempMul([E_, dentro, den]);
+      }
+    }
     for (var k = 0; k < 2; k++) {
       var P_ = v[k], G = v[1 - k];
       if (polinomio(P_, x) && G.t === 'f' && /^(exp|sin|cos|sinh|cosh)$/.test(G.n) && lineare(G.a[0], x)) {
         var Gi = I(G, x, prof + 1); if (!Gi) continue;
         var resto = I(S(sempMul([deriva(P_, x), Gi])), x, prof + 1);
-        if (resto) return sempAdd([sempMul([P_, Gi]), sempMul([Q(-1), resto])]);
+        if (resto) { annota(prof, 'parti', { u: stampa(P_), dv: stampa(G), v: stampa(Gi), resto: stampa(S(sempMul([deriva(P_, x), Gi]))) }); return sempAdd([sempMul([P_, Gi]), sempMul([Q(-1), resto])]); }
       }
-      if (polinomio(P_, x) && G.t === 'f' && /^(ln|atan|asin)$/.test(G.n) && G.a[0].t === 's' && G.a[0].n === x) {
+      var potenzaX = P_.t === '^' && P_.a[0].t === 's' && P_.a[0].n === x && P_.a[1].t === 'n' && val(P_.a[1]) !== -1;
+      if ((polinomio(P_, x) || (potenzaX && G.n === 'ln')) && G.t === 'f' && /^(ln|atan|asin)$/.test(G.n) && G.a[0].t === 's' && G.a[0].n === x) {
         var Pi = I(P_, x, prof + 1); if (!Pi) continue;
         var r2 = I(S(sempMul([Pi, deriva(G, x)])), x, prof + 1);
-        if (r2) return sempAdd([sempMul([Pi, G]), sempMul([Q(-1), r2])]);
+        if (r2) { annota(prof, 'parti', { u: stampa(G), dv: stampa(P_), v: stampa(Pi), resto: stampa(S(sempMul([Pi, deriva(G, x)]))) }); return sempAdd([sempMul([Pi, G]), sempMul([Q(-1), r2])]); }
       }
     }
     return null;
@@ -661,7 +752,7 @@
       var qt = sostituisciChiave(q, chiave(u), S_(t));
       if (dipende(qt, x)) continue;
       var Ft = I(qt, t, prof + 1);
-      if (Ft) return sostituisci(Ft, t, u);
+      if (Ft) { annota(prof, 'sostituzione', { u: stampa(u), du: stampa(du), integrando: stampa(sostituisci(qt, t, S_('u'))), Fu: stampa(sostituisci(Ft, t, S_('u'))) }); return sostituisci(Ft, t, u); }
     }
     return null;
   }
@@ -736,6 +827,7 @@
             case 'asin': case 'acos':
               var r = sInt(sDiv(sDer(u), sPow(sMul(u, u).map(function (v, i) { return (i === 0 ? 1 : 0) - v; }), 0.5)), Math.asin(u[0]));
               return e.n === 'asin' ? r : r.map(function (v, i) { return i === 0 ? Math.PI / 2 - v : -v; });
+            case 'fact': throw new Error('serie non disponibile per il fattoriale');
             case 'abs': if (Math.abs(u[0]) < 1e-14) throw new Error('|u| non derivabile in 0'); var sg = Math.sign(u[0]); return u.map(function (v) { return v * sg; });
           }
       }
@@ -802,6 +894,12 @@
       }
     }
     var u = ys[n - 1], v1 = ys[n - 2], v2 = ys[n - 3];
+    /* divergenza lenta (ln x): incrementi dello stesso segno che non si riducono */
+    if (n >= 6) {
+      var dd = []; for (var q = n - 5; q < n; q++) dd.push(ys[q] - ys[q - 1]);
+      if (dd.every(function (d) { return d > 0; }) && dd.every(function (d, i) { return i === 0 || d >= 0.8 * dd[i - 1]; })) return { valore: Infinity, metodo: 'numerico', successione: seq };
+      if (dd.every(function (d) { return d < 0; }) && dd.every(function (d, i) { return i === 0 || d <= 0.8 * dd[i - 1]; })) return { valore: -Infinity, metodo: 'numerico', successione: seq };
+    }
     /* divergente: valori enormi, monotoni nel modulo, di segno costante */
     if (Math.abs(u) > 1e6 && Math.abs(u) > Math.abs(v1) && Math.abs(v1) > Math.abs(v2) && Math.sign(u) === Math.sign(v1)) return { valore: Math.sign(u) * Infinity, metodo: 'numerico', successione: seq };
     return { valore: NaN, metodo: 'numerico', successione: seq };
@@ -877,7 +975,33 @@
       }
       if (mosso < 1e-15 * R) break;
     }
-    return z.map(function (w) {
+    /* le radici multiple escono sparpagliate di ~ε^(1/m) (e con parti immaginarie spurie):
+       si raggruppano e si sostituiscono con la media del gruppo, che e' precisa */
+    var gruppi = [];
+    z.forEach(function (w) {
+      var g = gruppi.filter(function (q) { return Math.hypot(q.re / q.n - w[0], q.im / q.n - w[1]) < 2e-3 * Math.max(1, Math.hypot(w[0], w[1])); })[0];
+      if (g) { g.re += w[0]; g.im += w[1]; g.n++; } else gruppi.push({ re: w[0], im: w[1], n: 1 });
+    });
+    var out = [];
+    gruppi.forEach(function (g) {
+      var w = [g.re / g.n, g.im / g.n];
+      if (g.n > 1) {
+        /* una radice di molteplicita' m e' radice semplice di p^(m−1): Newton li' */
+        var d = a.slice(0, n).concat([1]);
+        for (var k = 1; k < g.n; k++) d = d.slice(1).map(function (c, i) { return c * (i + 1); });
+        var dd = d.slice(1).map(function (c, i) { return c * (i + 1); });
+        var ev = function (c, zr, zi) { var pr = 0, pi = 0; for (var j = c.length - 1; j >= 0; j--) { var nr = pr * zr - pi * zi + c[j], ni = pr * zi + pi * zr; pr = nr; pi = ni; } return [pr, pi]; };
+        for (var it2 = 0; it2 < 60; it2++) {
+          var P = ev(d, w[0], w[1]), Dp = ev(dd, w[0], w[1]), den = Dp[0] * Dp[0] + Dp[1] * Dp[1];
+          if (!den) break;
+          var sr = (P[0] * Dp[0] + P[1] * Dp[1]) / den, si = (P[1] * Dp[0] - P[0] * Dp[1]) / den;
+          w = [w[0] - sr, w[1] - si];
+          if (Math.abs(sr) + Math.abs(si) < 1e-16 * (1 + Math.abs(w[0]))) break;
+        }
+      }
+      for (var k2 = 0; k2 < g.n; k2++) out.push(w);
+    });
+    return out.map(function (w) {
       var re = w[0], im = w[1];
       if (Math.abs(im) < 1e-9 * Math.max(1, Math.abs(re))) im = 0;
       if (Math.abs(re) < 1e-12) re = 0;

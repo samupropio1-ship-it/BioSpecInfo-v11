@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v228';
+window.BSI_APP_VERSION='bsi-v229';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -1035,6 +1035,9 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatchim" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">∑ Matematica per la chimica</button>
     <button class="nav-btn" data-s="scristalli" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💎 Cristallografia</button>
     <button class="nav-btn" data-s="snucleare" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">☢️ Radiochimica</button>
+    <button class="nav-btn" data-s="selettrodi" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚡ Elettrodi e stato di transizione</button>
+    <button class="nav-btn" data-s="sfotosup" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌟 Fotochimica, superfici e polimeri</button>
+    <button class="nav-btn" data-s="sfisesame" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎓 Esame di Fisica (UniBA)</button>
   </div>
   <!-- 📐 MATEMATICA (v228): otto sezioni sul motore simbolico bsi-mat-cas.js -->
   <div id="navGroup8" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
@@ -1046,6 +1049,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatmulti" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🗻 Funzioni di più variabili</button>
     <button class="nav-btn" data-s="smatcompl" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">ℂ Complessi e Fourier</button>
     <button class="nav-btn" data-s="smatstat" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📏 Statistica di laboratorio</button>
+    <button class="nav-btn" data-s="smatesame" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎓 Esame di Matematica (UniBA)</button>
   </div>
 </div>
 
@@ -29500,6 +29504,10 @@ window.calcMolProps = function() {
 <div id="smatmulti" class="section"></div>
 <div id="smatcompl" class="section"></div>
 <div id="smatstat" class="section"></div>
+<div id="selettrodi" class="section"></div>
+<div id="sfotosup" class="section"></div>
+<div id="sfisesame" class="section"></div>
+<div id="smatesame" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31841,6 +31849,11 @@ window.addEventListener('load', init);
 <script src="./bsi-mat-multi.js" defer></script>
 <script src="./bsi-mat-complessi.js" defer></script>
 <script src="./bsi-mat-statistica.js" defer></script>
+<script src="./bsi-fis-elettrodi.js" defer></script>
+<script src="./bsi-fis-superfici.js" defer></script>
+<script src="./bsi-fis-esame.js" defer></script>
+<script src="./bsi-mat-risolutore.js" defer></script>
+<script src="./bsi-mat-esame.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 111 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 115 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -163,6 +163,10 @@ gives the original function back.
 | 🗻 **Functions of several variables** | 3D surfaces to rotate and contour maps, gradient, Hessian, minima, maxima and saddles (the transition state), gradient descent; state functions, the Maxwell relation, exact differentials |
 | ℂ **Complex numbers and Fourier** | complex numbers on the Argand plane, n-th roots, Euler's formula, Fourier series with the Gibbs phenomenon |
 | 📏 **Laboratory statistics** | mean, standard deviation, confidence interval; Grubbs and Dixon for outliers; t and F tests with p-values; uncertainty propagation; calibration line with LOD, LOQ and the sample uncertainty |
+
+### 🎓 UniBA exams: Mathematics and Physics
+
+**🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
 
 ### Where things are
 
@@ -475,4 +479,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v228`._
+_Guide updated to version `bsi-v229`._

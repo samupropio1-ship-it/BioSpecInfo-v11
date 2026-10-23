@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 111 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 115 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -159,6 +159,10 @@ derivandole, si riottiene la funzione di partenza.
 | 🗻 **Funzioni di più variabili** | superfici 3D da ruotare e mappe a curve di livello, gradiente, hessiano, minimi, massimi e selle (lo stato di transizione), discesa del gradiente; funzioni di stato, relazione di Maxwell, differenziali esatti |
 | ℂ **Complessi e Fourier** | numeri complessi sul piano di Argand, radici n-esime, la formula di Eulero, le serie di Fourier con il fenomeno di Gibbs |
 | 📏 **Statistica di laboratorio** | media, deviazione standard, intervallo di confidenza; Grubbs e Dixon per gli anomali; test t e F con il valore p; propagazione delle incertezze; retta di taratura con LOD, LOQ e l'incertezza del campione |
+
+### 🎓 Esami UniBA: Matematica e Fisica
+
+**🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
 
 ### Dove si trovano le cose
 
@@ -474,4 +478,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v228`._
+_Guida aggiornata alla versione `bsi-v229`._

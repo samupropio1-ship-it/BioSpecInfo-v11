@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v228` |
-| Commit | `496b4eefc761703f84cb8f72e9b5cd3d4dad6e0b` |
-| Generato (UTC) | `2026-10-23T07:27:55.053Z` |
+| Versione applicazione | `bsi-v229` |
+| Commit | `da89a128888040e07741289416246266c2ab3bf8` |
+| Generato (UTC) | `2026-10-23T08:22:13.658Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -60,7 +60,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | Dimensione | Ruolo |
 |---|---:|---|
-| `index.html` | 4676 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
+| `index.html` | 4677 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
 | `bsi-ai-hub.js` | 422 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 35 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
@@ -76,7 +76,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-matematica.js` | 24 kB | Matematica per la chimica: FFT del FID, Hückel, Runge-Kutta per le cinetiche, minimi quadrati con gli errori. |
 | `bsi-fis-cristalli.js` | 20 kB | Cristallografia: reticoli di Bravais, indici di Miller, diffrattogramma di polvere con fattore di struttura ed estinzioni. |
 | `bsi-fis-nucleare.js` | 14 kB | Radiochimica: equazioni di Bateman, datazione radiometrica, formula semiempirica di Weizsäcker. |
-| `bsi-mat-cas.js` | 53 kB | Motore di calcolo simbolico: analizzatore, frazioni esatte, forma canonica, derivate, primitive verificate, serie troncate, limiti. |
+| `bsi-mat-cas.js` | 63 kB | Motore di calcolo simbolico: analizzatore, frazioni esatte, forma canonica, derivate, primitive verificate, serie troncate, limiti. |
 | `bsi-mat-basi.js` | 26 kB | Basi di matematica: cifre significative, logaritmi e pH, equazioni con i passaggi, allenamento. |
 | `bsi-mat-funzioni.js` | 17 kB | Studio di funzione: dominio, zeri, estremi, flessi, asintoti; famiglie e trasformazioni. |
 | `bsi-mat-calcolo.js` | 21 kB | Derivate con le regole, integrali e somme di Riemann, polinomi di Taylor, limiti. |
@@ -84,6 +84,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-ode.js` | 21 kB | Equazioni differenziali: campo di direzioni, Eulero/Heun/RK4, piano delle fasi ed equilibri dallo jacobiano. |
 | `bsi-mat-multi.js` | 22 kB | Funzioni di più variabili: superfici, punti critici con l'hessiano, relazioni di Maxwell, differenziali esatti. |
 | `bsi-mat-complessi.js` | 20 kB | Numeri complessi (piano di Argand, radici, Eulero) e serie di Fourier. |
+| `bsi-mat-risolutore.js` | 89 kB | Risolutore d’esame di matematica: svolgimento passo per passo di 16 tipi di esercizio. |
+| `bsi-mat-esame.js` | 45 kB | Esame di Istituzioni di Matematiche I e II: programma, risolutore, appelli svolti, simulazione. |
+| `bsi-fis-esame.js` | 83 kB | Esame di Fisica Generale I e II: programma, 48 modelli di problema, prove svolte. |
+| `bsi-fis-elettrodi.js` | 14 kB | Cinetica elettrodica (Butler-Volmer, Tafel) e teoria dello stato di transizione (Eyring). |
+| `bsi-fis-superfici.js` | 18 kB | Fotofisica (Jablonski, Stern-Volmer), isoterme di adsorbimento (Langmuir, Freundlich, BET), polimeri. |
 | `bsi-mat-statistica.js` | 27 kB | Statistica di laboratorio: t, F, Grubbs, Dixon, propagazione delle incertezze, retta di taratura con LOD e LOQ. |
 | `bsi-nmr2d.js` | 21 kB | NMR bidimensionale: COSY, HSQC editato e HMBC, costruiti camminando il grafo sulle due predizioni per atomo. |
 | `bsi-moldraw.js` | 44 kB | Spettro NMR interattivo: zoom, tabella di assegnazione, collegamento picco↔atomo, cronologia SMILES/InChI, uscite CSV/JCAMP-DX/PNG. |
@@ -91,7 +96,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 182 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 186 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 6 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -104,7 +109,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `ab2fb6e0c0f0449d01211cfb969f45babc5ec57ae8bc4f4e79841f30bdf5fd55` |
+| `index.html` | `520e7755e19233f3b4289524b5aa0efc126fa817c0d79853166f83a86ba9ca5d` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -120,7 +125,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-fis-matematica.js` | `616a2d4f338fe1d371f5ba3fd4fe569e94b2d94626a8d323bba8ae58f8550f62` |
 | `bsi-fis-cristalli.js` | `f5283d63ff075ddc19f9d200194528366f38294909db5872e7604b46e0a7d7d5` |
 | `bsi-fis-nucleare.js` | `8ae148a2f37a40f6902faa4148e44468b4d659b6c7d1230378de92c2703a5874` |
-| `bsi-mat-cas.js` | `6e222b832095ff75f69db7939875d868a2b19da60a4b201a14d249ed834a7f52` |
+| `bsi-mat-cas.js` | `85d03bbd215603429b908c54b5a66082ba87ba5d5e268da7a71cbd44f911e775` |
 | `bsi-mat-basi.js` | `db30e16c58bde3638f13de5c3311a00598628676b7b418dc023b175efa77c214` |
 | `bsi-mat-funzioni.js` | `68f8780d4fb4fcda6f028e4749adef333253efbf270d0caab47def5bdf30c66c` |
 | `bsi-mat-calcolo.js` | `c3363448c4d773d29c4f680eddb79e9ad55a5eb87b033a728754df8cbee2a631` |
@@ -128,6 +133,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-ode.js` | `698725d49dc2bf862161914e41d38c3fafd33069021eae3b11b4973c146b52ce` |
 | `bsi-mat-multi.js` | `1040861c3b9d340febe8c4a78d212b168eb42752ee22589facf8566a401234d7` |
 | `bsi-mat-complessi.js` | `52a2ac5594a697d3a008d9fd629bee60fcff96ea76aa16c2ccda63eafd43f316` |
+| `bsi-mat-risolutore.js` | `3428f8d56213690c886b6621b8d66348997303f65907be6beae61e94a1e36e20` |
+| `bsi-mat-esame.js` | `d91f990f1e4d2829b83231dffca875b3684e2f7ebedc0bad922ced2b8a73a34c` |
+| `bsi-fis-esame.js` | `1fb7ab57701508981627cbcb08ff41b6fb025d4e1d2a0393eff78921140a8aaf` |
+| `bsi-fis-elettrodi.js` | `249bb92ac39b78e916eaa0ecf80a2b1aac5d10249bb6b51628f61839c4b64240` |
+| `bsi-fis-superfici.js` | `3daec64d2c4755e70279b8ef2f433e4c98d6e90ff7d8c7d9c0689a24f080abd8` |
 | `bsi-mat-statistica.js` | `0b0c82afa13173b84308589cf16fbaa8b30c5e575fd8fdee00034b70c34d17fc` |
 | `bsi-nmr2d.js` | `a0b1db87f27ffa8c124d617e4903f61e35b89c30c35162527ad023325c03fa78` |
 | `bsi-moldraw.js` | `45cacdca20c8091cbfb32e256c179de8c32c71068a5d1008fbef9be005b5df0e` |
@@ -135,10 +145,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `d05cd5d99048f73f2985d271a833ee46c3076afca67cbd5390e1a7dedc23f26b` |
+| `bsi-lingue.js` | `d0e417c3ed91cd449496d940c3fd6312b050bc00f9d7b88aefb0cbaddcf00644` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `11ee4642511db40e5e11461d7009f20e3cec4f30a429fb01a96a5629352d9292` |
+| `sw.js` | `6070d331361503d97577b280d1c03c3a837caee1d3408d07ac68effd2e76cd6d` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -191,4 +201,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-23T07:27:55.053Z._
+_Generato il 2026-10-23T08:22:13.658Z._
