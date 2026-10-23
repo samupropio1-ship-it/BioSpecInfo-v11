@@ -233,6 +233,11 @@
     if (uno(x)) return b;
     if (uno(b)) return Q(1);
     if (b.t === 's' && b.n === 'e') return sempF('exp', x);
+    /* (−s + 2)⁻¹ = −(s − 2)⁻¹: le somme elevate a potenza intera cominciano con un termine positivo */
+    if (b.t === '+' && intero(x) && negativo(b.a[0])) {
+      var opp = sempAdd(b.a.map(function (tm) { return sempMul([Q(-1), tm]); }));
+      if (!(opp.t === '+' && negativo(opp.a[0]))) return sempMul([Q(Math.abs(x.n) % 2 ? -1 : 1), sempPow(opp, x)]);
+    }
     if (zero(b) && x.t === 'n' && val(x) > 0) return Q(0);
     if (b.t === 'n' && x.t === 'n') {
       if (!esatto(b) || !esatto(x)) { var r = Math.pow(val(b), val(x)); return isFinite(r) ? F(r) : pow(b, x); }

@@ -66,6 +66,7 @@ var PRECACHE = [
   './bsi-fis-esame.js',
   './bsi-mat-risolutore.js',
   './bsi-mat-esame.js',
+  './bsi-chi-esame.js',
   './bsi-articoli-nobel.js',
   './bsi-articoli.js',
   './bsi-documento.js',

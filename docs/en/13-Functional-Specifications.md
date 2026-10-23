@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **115 sections**, grouped by area of study.
+The application has **116 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -71,7 +71,7 @@ The application has **115 sections**, grouped by area of study.
 | **3D model from the drawn structure** | Coordinates built from the graph, carrying the predictor's own indices: a clicked peak lights up the atom in three dimensions too |
 | **⚛️ Physics: eight computed sections** | **Schrödinger laboratory** (stationary states of wells, oscillators, Morse and double well; wave packet and tunnelling with Crank-Nicolson; vibrations of HCl, H₂, CO, N₂ in cm⁻¹ compared with experiment); **live Hartree-Fock** (RHF/STO-3G in the browser, eight molecules, orbitals drawn, dissociation curves); **rovibrational spectroscopy** (P and R branches with temperature and isotopes, Raman with spin statistics, bond length from the lines); **statistical thermodynamics** (partition functions, S° and Cp against NIST-JANAF, populations); live Lennard-Jones **molecular dynamics**; **mathematics for chemistry** (FID → spectrum by FFT, Hückel, kinetics by Runge-Kutta, Arrhenius least squares); **crystallography** (14 Bravais lattices, Miller indices, powder pattern with absences); **radiochemistry** (Bateman, dating, Weizsäcker). Every number is checked by `test_fisica` against the literature |
 | **📐 Mathematics: eight sections on a symbolic engine** | A computer-algebra engine written for the app (`bsi-mat-cas.js`: exact fractions, canonical form, rule-based derivatives, antiderivatives verified by differentiating them, Taylor series by truncated power-series arithmetic, limits) underpinning: **basics** (significant figures and measurement rules, logarithms and pH, equations from linear to polynomial and the fractional ones of equilibrium, practice with marking); **function analysis** (domain, zeros, extrema, inflections, asymptotes, tangent; families and transformations); **derivatives, integrals and series** (rules used, Riemann, adaptive Simpson, Taylor, left and right limits); **linear algebra** in exact fractions with Gauss-Jordan steps, eigenvalues, plane transformations and reaction balancing as a null space; **differential equations** (direction field, order of methods, phase plane with equilibria classified from the Jacobian); **several variables** (3D surfaces, critical points, Maxwell relations, exact differentials); **complex numbers and Fourier**; **laboratory statistics** (t, F, Grubbs, Dixon, uncertainty propagation, calibration line with LOD/LOQ) |
-| **🎓 UniBA exams and advanced physical chemistry** | **Mathematics exam**: Istituzioni di Matematiche I and II syllabi explained, step-by-step solver for 16 exercise types, 16 solved papers (64 exercises), timed simulation. **Physics exam**: General Physics I and II syllabi, 48 standard problems solved with the user's data (laws, substitutions, units), 12 solved papers. **Electrodes and transition state** (Butler-Volmer, Tafel, Eyring) and **photochemistry, surfaces and polymers** (Jablonski, Stern-Volmer, Langmuir/Freundlich/BET, Mn/Mw, Carothers). The traces are built on the syllabi, they are not the official papers |
+| **🎓 UniBA exams and advanced physical chemistry** | **Mathematics exam**: Istituzioni di Matematiche I and II syllabi explained, step-by-step solver for 16 exercise types, 16 solved papers (64 exercises), timed simulation. **Physics exam**: General Physics I and II syllabi, 48 standard problems solved with the user's data (laws, substitutions, units), 12 solved papers. **Electrodes and transition state** (Butler-Volmer, Tafel, Eyring) and **photochemistry, surfaces and polymers** (Jablonski, Stern-Volmer, Langmuir/Freundlich/BET, Mn/Mw, Carothers). **Chemistry exam** (🔬 category): 40 standard problems on four levels — basic (General and Inorganic), intermediate (Analytical), advanced (Physical Chemistry), expert (Sackur-Tetrode, Debye-Hückel, Pourbaix) — and 7 solved papers. Mathematics and Physics also gain an **advanced and expert** level (eigenvalues, ODE systems, Fourier, Laplace, triple integrals; driven oscillations, waves, Doppler, photoelectric, Compton, relativity, blackbody, particle in a box, tunnelling). The traces are built on the syllabi, they are not the official papers |
 | **NOE and 2D NMR (tables)** | Reference values for spatial correlations |
 | **Reference tables** | Tabulated values for quick consultation |
 | **Spectrum quiz** | Recognising the functional group from a spectrum |
@@ -174,7 +174,7 @@ without asking anyone to take it on trust.
 
 ### A measurement no other bench could make
 
-`verifica-accessibilita` walks the 115 sections and measures what is **visible**.
+`verifica-accessibilita` walks the 116 sections and measures what is **visible**.
 The six panels of this section live inside a container that stays `display:none`
 until the analysis has been run: that bench never saw them, and its "contrast 0"
 was not speaking about them.
@@ -379,7 +379,7 @@ Declared, not hidden. The detail is in
 | 3 | **No synchronisation** | Data do not pass from one device to another, and there are no copies on a server |
 | 4 | **File Manager: deterrent, not security** | On a static site, whoever reads the source bypasses any page-side control. The source carries only the SHA-256 digest of the password, never the password |
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
-| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 115 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
+| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 116 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
 | 8 | **Partial code coverage** | Measured: **49.89 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |

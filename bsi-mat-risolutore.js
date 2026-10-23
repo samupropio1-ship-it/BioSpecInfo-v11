@@ -47,6 +47,10 @@
       }
     }
     for (d = 1; d <= 12; d++) { var m = Math.round(a / Math.PI * d); if (m && Math.abs(a - m * Math.PI / d) < 1e-9) return s + (m === 1 ? '' : m) + 'π' + (d === 1 ? '' : '/' + d); }
+    for (d = 1; d <= 12; d++) { var m2 = Math.round(a / (Math.PI * Math.PI) * d); if (m2 && Math.abs(a - m2 * Math.PI * Math.PI / d) < 1e-9) return s + (m2 === 1 ? '' : m2) + 'π²' + (d === 1 ? '' : '/' + d); }
+    for (d = 1; d <= 64; d++) { var m3 = Math.round(a * Math.PI * d); if (m3 && Math.abs(a - m3 / (Math.PI * d)) < 1e-9) return s + m3 + '/' + (d === 1 ? 'π' : '(' + d + 'π)'); }
+    var RAD = [2, 3, 5, 6, 7];
+    for (var ri = 0; ri < RAD.length; ri++) for (d = 1; d <= 6; d++) for (var qq = -6; qq <= 6; qq++) { if (!qq) continue; var p0 = a * d - qq * Math.sqrt(RAD[ri]), pr = Math.round(p0); if (Math.abs(p0 - pr) < 1e-9 && pr !== 0) { var rad = (Math.abs(qq) === 1 ? '' : Math.abs(qq)) + '√' + RAD[ri], txt = pr + (qq < 0 ? ' − ' : ' + ') + rad; return s + (d === 1 ? txt : '(' + txt + ')/' + d); } }
     var la = Math.log(a); for (d = 1; d <= 6; d++) { var k = Math.round(la * d); if (k && Math.abs(la - k / d) < 5e-8) return s + (k === d ? 'e' : d === 1 && k > 0 && k < 10 ? 'e' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[k] : 'e^(' + (d === 1 ? k : k + '/' + d) + ')'); }
     return s + String(+a.toPrecision(7));
   }
@@ -839,10 +843,122 @@
     return out;
   }
 
+  /* ════════════════════════════════════════════════════════════════════
+     13. AVANZATO E AVANZATISSIMO
+     ════════════════════════════════════════════════════════════════════ */
+  function autovalori(testo) {
+    var R = nuovo(), LA = F.calcolo.lineare, A = LA.leggiMatrice(testo), K = A.campo, E = LA.autovalori(A.M, K);
+    R.passo(t('Matrice', 'Matrix'), 'A = [ ' + A.M.map(function (r) { return r.map(K.str).join('  '); }).join(' ; ') + ' ]');
+    var pol = E.pol.map(function (c, k) { return { c: K.val(c), k: k }; }).filter(function (q) { return Math.abs(q.c) > 1e-14; }).reverse().map(function (q, i) { var cs = bello(Math.abs(q.c)), mon = q.k === 0 ? '' : q.k === 1 ? 'λ' : 'λ' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[q.k]; return (i ? (q.c < 0 ? ' − ' : ' + ') : (q.c < 0 ? '−' : '')) + (cs === '1' && q.k ? '' : cs) + mon; }).join('');
+    R.passo(t('Polinomio caratteristico', 'Characteristic polynomial'), 'p(λ) = det(λI − A) = ' + esc(pol) + ' = 0');
+    R.passo(t('Autovalori e autospazi', 'Eigenvalues and eigenspaces'), E.valori.map(function (d) { return 'λ = <b>' + (d.im ? bello(d.re) + ' ± ' + bello(Math.abs(d.im)) + 'i' : bello(d.re)) + '</b> (' + t('molteplicità algebrica ', 'algebraic multiplicity ') + d.molt + (d.vettori ? ', ' + t('geometrica ', 'geometric ') + d.vettori.length + '; ' + t('autovettori ', 'eigenvectors ') + d.vettori.map(function (v) { return '(' + v.join(', ') + ')'; }).join(', ') : '') + ')'; }).join('<br>'));
+    var reali = E.valori.filter(function (d) { return !d.im; }), diag = !E.valori.some(function (d) { return d.im; }) && reali.every(function (d) { return d.vettori && d.vettori.length === d.molt; });
+    R.passo(t('Diagonalizzabilità', 'Diagonalisability'), diag ? t('Per ogni autovalore molteplicità geometrica = algebrica: A = P D P⁻¹ con D diagonale degli autovalori e P con gli autovettori in colonna.', 'For every eigenvalue geometric = algebraic multiplicity: A = P D P⁻¹ with D the diagonal of eigenvalues and P the eigenvectors as columns.') + (E.simmetrica ? t(' A è simmetrica: P si può scegliere ortogonale (teorema spettrale).', ' A is symmetric: P can be chosen orthogonal (spectral theorem).') : '') : t('Non diagonalizzabile su ℝ (autovalori complessi o molteplicità geometrica minore).', 'Not diagonalisable over ℝ (complex eigenvalues or smaller geometric multiplicity).'));
+    return { passi: R.passi, risultato: E.valori.map(function (d) { return d.im ? bello(d.re) + '±' + bello(Math.abs(d.im)) + 'i' : bello(d.re) + (d.molt > 1 ? '(×' + d.molt + ')' : ''); }).join(', '), valori: E.valori, diagonalizzabile: diag };
+  }
+  function lin2(p, q) { var o = ''; [[p, 'x'], [q, 'y']].forEach(function (z) { if (!z[0]) return; var a = Math.abs(z[0]); o += (z[0] < 0 ? (o ? ' − ' : '−') : (o ? ' + ' : '')) + (a === 1 ? '' : bello(a)) + z[1]; }); return o || '0'; }
+  function sistemaEDO(d) {
+    var R = nuovo(), a = +d.a, b = +d.b, c = +d.c, e = +d.d, x0 = +d.x0, y0 = +d.y0, tr = a + e, det = a * e - b * c, D = tr * tr - 4 * det;
+    R.passo(t('Sistema', 'System'), "x′ = " + lin2(a, b) + " ; y′ = " + lin2(c, e) + ' — ' + t('in forma matriciale X′ = AX', 'in matrix form X′ = AX'));
+    R.passo(t('Autovalori di A', 'Eigenvalues of A'), 'λ² − (tr A)λ + det A = 0: tr = ' + bello(tr) + ', det = ' + bello(det) + ', Δ = ' + bello(D));
+    var sx, sy, tipo;
+    function vett(l) { return Math.abs(b) > 1e-12 ? [b, l - a] : Math.abs(c) > 1e-12 ? [l - e, c] : (Math.abs(l - a) < 1e-12 ? [1, 0] : [0, 1]); }
+    if (D > 1e-12) {
+      var l1 = belloNum((tr - Math.sqrt(D)) / 2), l2 = belloNum((tr + Math.sqrt(D)) / 2), v1 = vett(l1), v2 = vett(l2);
+      var s = risolviLineare([[v1[0], v2[0]], [v1[1], v2[1]]], [x0, y0]), c1 = belloNum(s[0]), c2 = belloNum(s[1]);
+      R.passo(t('Autovalori reali distinti', 'Distinct real eigenvalues'), 'λ₁ = ' + bello(l1) + ', v₁ = (' + bello(v1[0]) + ', ' + bello(v1[1]) + ') ; λ₂ = ' + bello(l2) + ', v₂ = (' + bello(v2[0]) + ', ' + bello(v2[1]) + ')<br>X(t) = c₁v₁e<sup>λ₁t</sup> + c₂v₂e<sup>λ₂t</sup>; ' + t('dal dato iniziale', 'from the initial datum') + ' c₁ = ' + bello(c1) + ', c₂ = ' + bello(c2));
+      sx = '(' + c1 * v1[0] + ')*e^((' + l1 + ')*t) + (' + c2 * v2[0] + ')*e^((' + l2 + ')*t)'; sy = '(' + c1 * v1[1] + ')*e^((' + l1 + ')*t) + (' + c2 * v2[1] + ')*e^((' + l2 + ')*t)';
+      tipo = l1 * l2 < 0 ? t('sella', 'saddle') : l2 < 0 ? t('nodo stabile', 'stable node') : t('nodo instabile', 'unstable node');
+    } else if (D < -1e-12) {
+      var al = belloNum(tr / 2), be = Math.sqrt(-D) / 2;
+      /* soluzione reale: X = e^(αt)[ cos βt·X0 + sin βt·(A − αI)X0/β ] */
+      var w = [((a - al) * x0 + b * y0) / be, (c * x0 + (e - al) * y0) / be];
+      R.passo(t('Autovalori complessi', 'Complex eigenvalues'), 'λ = ' + bello(al) + ' ± ' + bello(be) + 'i ⇒ X(t) = e<sup>αt</sup>[cos(βt)·X₀ + sin(βt)·(A − αI)X₀/β]');
+      sx = 'e^((' + al + ')*t)*((' + x0 + ')*cos((' + be + ')*t) + (' + belloNum(w[0]) + ')*sin((' + be + ')*t))'; sy = 'e^((' + al + ')*t)*((' + y0 + ')*cos((' + be + ')*t) + (' + belloNum(w[1]) + ')*sin((' + be + ')*t))';
+      tipo = Math.abs(al) < 1e-12 ? t('centro', 'centre') : al < 0 ? t('fuoco stabile', 'stable focus') : t('fuoco instabile', 'unstable focus');
+    } else {
+      var l = belloNum(tr / 2), N = [[a - l, b], [c, e - l]], NX = [N[0][0] * x0 + N[0][1] * y0, N[1][0] * x0 + N[1][1] * y0];
+      R.passo(t('Autovalore doppio', 'Double eigenvalue'), 'λ = ' + bello(l) + ' ⇒ X(t) = e<sup>λt</sup>[X₀ + t(A − λI)X₀] ' + t('(perché (A − λI)² = 0)', '(because (A − λI)² = 0)'));
+      sx = 'e^((' + l + ')*t)*((' + x0 + ') + (' + belloNum(NX[0]) + ')*t)'; sy = 'e^((' + l + ')*t)*((' + y0 + ') + (' + belloNum(NX[1]) + ')*t)';
+      tipo = l < 0 ? t('nodo stabile degenere', 'stable degenerate node') : t('nodo instabile degenere', 'unstable degenerate node');
+    }
+    var X = C.espandi(C.semplifica(C.leggi(sx))), Y = C.espandi(C.semplifica(C.leggi(sy)));
+    R.passo(t('Soluzione del problema di Cauchy', 'Solution of the Cauchy problem'), 'x(t) = <b>' + H(X) + '</b><br>y(t) = <b>' + H(Y) + '</b>');
+    R.passo(t('Origine', 'Origin'), t('Punto di equilibrio di tipo ', 'Equilibrium of type ') + '<b>' + tipo + '</b>');
+    return { passi: R.passi, risultato: 'x = ' + S(X) + ' ; y = ' + S(Y), x: X, y: Y, tipo: tipo };
+  }
+  function fourier(testo, N) {
+    var R = nuovo(), e = C.leggi(testo), x = variabile(e), f = C.funzione(e, x); N = N || 5;
+    R.passo(t('Coefficienti su [−π, π]', 'Coefficients on [−π, π]'), 'a₀ = (1/π)∫f, aₙ = (1/π)∫f cos(nx) dx, bₙ = (1/π)∫f sin(nx) dx; f ~ a₀/2 + Σ(aₙcos nx + bₙsin nx)');
+    var pari = [0.4, 1.1, 2.3].every(function (v) { return Math.abs(f(v) - f(-v)) < 1e-9; }), disp = [0.4, 1.1, 2.3].every(function (v) { return Math.abs(f(v) + f(-v)) < 1e-9; });
+    if (pari) R.passo(t('Simmetria', 'Symmetry'), t('f pari: tutti i bₙ = 0 (serie di soli coseni).', 'f even: all bₙ = 0 (cosine series).'));
+    if (disp) R.passo(t('Simmetria', 'Symmetry'), t('f dispari: tutti gli aₙ = 0 (serie di soli seni).', 'f odd: all aₙ = 0 (sine series).'));
+    /* 17 pezzi di uguale ampiezza: i punti di Simpson non cadono sugli zeri di sin(nx), cos(nx) */
+    function I(g) { var s = 0, m = 17; for (var k = 0; k < m; k++) s += C.integraleDefinito(g, -Math.PI + 2 * Math.PI * k / m, -Math.PI + 2 * Math.PI * (k + 1) / m, 1e-12).valore; return s / Math.PI; }
+    var a = [], b = [], righe = [];
+    for (var n = 0; n <= N; n++) { var an = disp ? 0 : I(function (v) { return f(v) * Math.cos(n * v); }), bn = pari || !n ? 0 : I(function (v) { return f(v) * Math.sin(n * v); }); a.push(belloNum(an)); b.push(belloNum(bn)); righe.push('<tr><td>' + n + '</td><td class="bsiFX-num">' + bello(a[n]) + '</td><td class="bsiFX-num">' + (n ? bello(b[n]) : '—') + '</td></tr>'); }
+    R.passo(t('Coefficienti', 'Coefficients'), '<table class="bsiFX-tab" style="width:auto"><tr><th>n</th><th>aₙ</th><th>bₙ</th></tr>' + righe.join('') + '</table>');
+    /* forma chiusa dei coefficienti, quando si riconosce */
+    var tentativo = [];
+    [['bn', b], ['an', a]].forEach(function (q) { var arr = q[1]; if (arr.slice(1).every(function (v) { return Math.abs(v) < 1e-12; })) return; var k = [1, 2, 3, 4].map(function (n) { return arr[n] * n; }), k2 = [1, 2, 3, 4].map(function (n) { return arr[n] * n * n; }); if (k.every(function (v, i) { return Math.abs(Math.abs(v) - Math.abs(k[0])) < 1e-8 || Math.abs(v) < 1e-10; })) tentativo.push(q[0].replace('n', 'ₙ') + ' ∝ 1/n (|' + q[0].replace('n', 'ₙ') + '·n| = ' + bello(Math.abs(k[0]) || Math.abs(k[1])) + ')'); else if (k2.every(function (v) { return Math.abs(Math.abs(v) - Math.abs(k2[0])) < 1e-8 || Math.abs(v) < 1e-10; })) tentativo.push(q[0].replace('n', 'ₙ') + ' ∝ 1/n² (|' + q[0].replace('n', 'ₙ') + '·n²| = ' + bello(Math.abs(k2[0]) || Math.abs(k2[1])) + ')'); });
+    if (tentativo.length) R.passo(t('Andamento dei coefficienti', 'Coefficient behaviour'), tentativo.join('<br>') + '<br>' + t('Più la funzione è liscia, più in fretta calano (1/n se ha salti, 1/n² se è continua con derivata a salti).', 'The smoother the function, the faster they fall (1/n with jumps, 1/n² if continuous with a jumping derivative).'));
+    var termini = []; if (Math.abs(a[0]) > 1e-12) termini.push(bello(a[0] / 2));
+    var coefTxt = function (v) { var bv = bello(v); return bv === '1' ? '' : bv === '−1' ? '−' : bv + '·'; };
+    for (n = 1; n <= N; n++) { if (Math.abs(a[n]) > 1e-12) termini.push(coefTxt(a[n]) + 'cos(' + (n > 1 ? n : '') + 'x)'); if (Math.abs(b[n]) > 1e-12) termini.push(coefTxt(b[n]) + 'sin(' + (n > 1 ? n : '') + 'x)'); }
+    var serie = termini.join(' + ').replace(/\+ −/g, '− ') + ' + …';
+    R.passo(t('Serie', 'Series'), 'f(x) ~ <b>' + esc(serie) + '</b><br>' + t('Converge a f nei punti di continuità e alla media dei limiti destro e sinistro nei salti (Dirichlet).', 'It converges to f at points of continuity and to the mean of the one-sided limits at jumps (Dirichlet).'));
+    return { passi: R.passi, risultato: serie, a: a, b: b };
+  }
+  function laplace(testo) {
+    var R = nuovo(), e = C.leggi(testo), tv = variabile(e, 't');
+    R.passo(t('Definizione', 'Definition'), 'ℒ{f}(s) = ∫₀^∞ f(' + tv + ')e<sup>−s' + tv + '</sup> d' + tv + t(' (per s abbastanza grande perché l’integrale converga)', ' (for s large enough for the integral to converge)'));
+    var integ = C.semplifica(B.mul(e, B.fn('exp', B.mul(C.Q(-1), C.simbolo('s'), C.simbolo(tv))))), G = C.integra(integ, tv), Fs = null;
+    if (G) {
+      var amb = function (sv, tt) { var o = { s: sv }; o[tv] = tt; return o; };
+      var inf = Math.abs(C.valuta(G, amb(7, 60))) < 1e-9;
+      if (inf) {
+        Fs = C.espandi(C.semplifica(B.mul(C.Q(-1), C.sostituisci(G, tv, C.Q(0)))));
+        R.passo(t('Primitiva', 'Antiderivative'), '∫ ' + H(integ) + ' d' + tv + ' = ' + H(G) + t(' → 0 per ', ' → 0 as ') + tv + ' → ∞ ' + t('(s > 0)', '(s > 0)'));
+      }
+    }
+    if (Fs) {
+      var ok = [2.5, 4].every(function (sv) { var g = C.funzione(C.sostituisci(integ, 's', C.num(sv)), tv); var num = C.integraleDefinito(function (u) { var v = u / (1 - u); return g(v) / ((1 - u) * (1 - u)); }, 0, 1 - 1e-12, 1e-11).valore; return Math.abs(num - C.valuta(Fs, { s: sv })) < 1e-6 * (1 + Math.abs(num)); });
+      R.passo(t('Trasformata', 'Transform'), 'F(s) = 0 − G(0) = <b>' + H(Fs) + '</b>' + (ok ? ' ✓ <span style="color:#9fb1c6">(' + t('controllo numerico per s = 2,5 e 4', 'numerical check at s = 2.5 and 4') + ')</span>' : ''));
+      R.passo(t('Tabella da ricordare', 'Table to remember'), 'ℒ{1} = 1/s · ℒ{tⁿ} = n!/sⁿ⁺¹ · ℒ{e^(at)} = 1/(s − a) · ℒ{sin ωt} = ω/(s² + ω²) · ℒ{cos ωt} = s/(s² + ω²) · ℒ{e^(at)f(t)} = F(s − a) · ℒ{f′} = sF − f(0)');
+      return { passi: R.passi, risultato: S(Fs), F: Fs };
+    }
+    R.passo(t('Trasformata', 'Transform'), t('Non si trova in forma chiusa con i metodi del motore.', 'No closed form found with the engine’s methods.'));
+    return { passi: R.passi, risultato: null };
+  }
+  function integraleTriplo(d) {
+    var R = nuovo(), e = C.leggi(d.f), sist = d.tipo, lim = d.lim.split(';').map(function (q) { return q.split(',').map(function (v) { return C.valuta(C.leggi(v)); }); });
+    var vars = sist === 'sferiche' ? ['ρ', 'φ', 'θ'] : sist === 'cilindriche' ? ['r', 'θ', 'z'] : ['x', 'y', 'z'], integ = e, jac = '1';
+    if (sist === 'sferiche') { integ = C.sostituisci(C.sostituisci(C.sostituisci(e, 'x', C.leggi('ρ*sin(φ)*cos(θ)')), 'y', C.leggi('ρ*sin(φ)*sin(θ)')), 'z', C.leggi('ρ*cos(φ)')); jac = 'ρ²·sin φ'; integ = C.semplifica(B.mul(integ, C.leggi('ρ^2*sin(φ)'))); }
+    if (sist === 'cilindriche') { integ = C.sostituisci(C.sostituisci(e, 'x', C.leggi('r*cos(θ)')), 'y', C.leggi('r*sin(θ)')); jac = 'r'; integ = C.semplifica(B.mul(integ, C.simbolo('r'))); }
+    R.passo(t('Coordinate', 'Coordinates'), sist + t(': jacobiano ', ': Jacobian ') + jac + ' ⇒ ' + t('integrando ', 'integrand ') + H(integ));
+    R.passo(t('Dominio', 'Domain'), vars.map(function (v, i) { return bello(lim[i][0]) + ' ≤ ' + v + ' ≤ ' + bello(lim[i][1]); }).join(', ') + t(' — estremi costanti: l’integrale si fa variabile per variabile (Fubini).', ' — constant limits: integrate one variable at a time (Fubini).'));
+    var cur = integ, val = null, ok = true;
+    for (var i = 0; i < 3 && ok; i++) {
+      var P = C.integra(cur, vars[i]);
+      if (!P) { ok = false; break; }
+      cur = C.semplifica(B.sub(C.sostituisci(P, vars[i], C.num(lim[i][1])), C.sostituisci(P, vars[i], C.num(lim[i][0]))));
+      R.passo(t('Integrazione in ', 'Integrating in ') + vars[i], '∫ … d' + vars[i] + ' = ' + H(cur));
+    }
+    if (ok) val = C.valuta(cur, {});
+    if (val === null) {
+      var fi = C.compila(integ), amb = {};
+      val = C.integraleDefinito(function (u) { amb[vars[0]] = 0; return C.integraleDefinito(function (v) { return C.integraleDefinito(function (w) { amb[vars[0]] = w; amb[vars[1]] = v; amb[vars[2]] = u; return fi(amb); }, lim[0][0], lim[0][1], 1e-8).valore; }, lim[1][0], lim[1][1], 1e-8).valore; }, lim[2][0], lim[2][1], 1e-8).valore;
+      R.passo(t('Calcolo numerico', 'Numerical evaluation'), '≈ ' + (+val.toPrecision(9)));
+    }
+    R.passo(t('Risultato', 'Result'), '<b>' + bello(belloNum(val)) + '</b>');
+    return { passi: R.passi, risultato: bello(belloNum(val)), valore: val };
+  }
+
   var RISOLUTORI = {
     complessi: complessi, dominio: dominio, limite: limite, studio: studio, integraleIndefinito: integraleIndefinito, integraleDefinito: integraleDefinito,
     taylor: taylor, serieNumerica: serieNumerica, seriePotenze: seriePotenze, dueVariabili: dueVariabili, maxMinCompatto: maxMinCompatto,
-    integraleDoppio: integraleDoppio, formeDifferenziali: formeDifferenziali, lineare1: lineare1, separabile: separabile, secondoOrdine: secondoOrdine
+    integraleDoppio: integraleDoppio, formeDifferenziali: formeDifferenziali, lineare1: lineare1, separabile: separabile, secondoOrdine: secondoOrdine,
+    autovalori: autovalori, sistemaEDO: sistemaEDO, fourier: fourier, laplace: laplace, integraleTriplo: integraleTriplo
   };
-  F.calcolo.risolutore = { edoTxt: edoTxt, RISOLUTORI: RISOLUTORI, bello: bello, belloNum: belloNum, condizioni: condizioni, fratti: fratti };
+  F.calcolo.risolutore = { lin2: lin2, edoTxt: edoTxt, RISOLUTORI: RISOLUTORI, bello: bello, belloNum: belloNum, condizioni: condizioni, fratti: fratti };
 })(typeof window !== 'undefined' ? window : globalThis);

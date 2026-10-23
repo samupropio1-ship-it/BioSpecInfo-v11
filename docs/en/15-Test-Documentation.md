@@ -114,7 +114,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_digitalizza` | A spectrum extracted from a **figure**, over seven constructed images whose Gaussian centres are known to the cm⁻¹: bare figure, with frame and labels, with a grey grid, with a black grid, with frame **and** grid, dashed, in %T. **Mean 2.2 cm⁻¹** deviation, **worst 7.3** — one column is worth ~4 cm⁻¹, which is the limit of the figure and not of the method. **In both directions**: from a blank sheet and from the app icon **no** curve comes out; the crude fallback on the same framed figure finds **one** peak instead of three; on a logarithmic axis the midpoint is the geometric mean and on a linear axis the arithmetic one. %T→A conversion on exact values (50 %T → A = 0.301) and a **full round trip** of the exported JCAMP, read back by the reader itself | 45 |
 | `test_fisica` | The eight **physics** sections against literature numbers: Schrödinger (harmonic oscillator, infinite well, exact Morse, Crank-Nicolson norm), **STO-3G Hartree-Fock** (Szabo-Ostlund H₂ and HeH⁺, Crawford H₂O to 10⁻⁶ Eh), rovibrational (HCl rₑ, B from combination differences, odd J of O₂ Raman), **NIST-JANAF** standard entropies of eight gases, molecular dynamics (energy conserved, g(r) peak), Hückel, FFT, Runge-Kutta, Arrhenius, the 2θ angles of NaCl/Si/Cu/Fe with absences, Bateman (⁹⁹ᵐTc), ¹⁴C, Weizsäcker; then in the browser every section and tab on two viewports, nothing overflowing at 390 px, the simulation stopped when the section is closed, the buttons translated. **92 checks**, declared minimum 90 | 92 |
 | `test_matematica` | The eight **mathematics** sections and the **symbolic engine** against independent values: simplifications, table derivatives and a complicated derivative checked by finite differences, verified antiderivatives (by parts, by substitution) and the Gaussian that must **not** have one, ∫e^(−x²) = √π, Taylor series (1/120, 17/315), standard limits and left/right ones; significant figures, pH, acetic acid from the quadratic formula, eˣ = 3 − x against Lambert's W; function analysis; **the integer inverse of the Hilbert matrix** and det 1/2160, a 4×4 det recomputed separately, eigenvalues 2 ± √2, **balanced reactions** (permanganate, redox with charges, Wöhler); the order of Euler, Heun and RK4 measured; Lotka-Volterra and Brusselator equilibria; critical points and the Maxwell relation; e^(iπ) = −1, Gibbs, Parseval; t, F and Grubbs from the tables, **the Miller & Miller calibration line**, propagation against Monte Carlo. Then every section and tab in the browser on two viewports, a real interaction and the translations |
-| `test_esami` | The **exam solvers** for Mathematics (Istituzioni I and II) and Physics (General I and II) and the new physical-chemistry sections: domains, limits, partial fractions, improper integrals, series, constrained extrema, double integrals, differential forms, ODEs with Cauchy checked against SymPy or hand calculation; the 48 physics models against independent formulas; Tafel, Eyring, BET, Langmuir, Mn/Mw, quantum yields; every exercise of the solved papers must produce a working. In the browser the four sections, an opened paper, the solver recomputing, translations |
+| `test_esami` | The **exam solvers** for Chemistry (40 models on four levels), Mathematics (Istituzioni I and II plus the advanced level) and Physics (General I and II plus modern physics) and the new physical-chemistry sections: domains, limits, partial fractions, improper integrals, series, constrained extrema, double integrals, differential forms, ODEs with Cauchy checked against SymPy or hand calculation; the 48 physics models against independent formulas; Tafel, Eyring, BET, Langmuir, Mn/Mw, quantum yields; every exercise of the solved papers must produce a working. In the browser the four sections, an opened paper, the solver recomputing, translations |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -177,7 +177,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 115 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 116 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -323,8 +323,8 @@ be excellent and the measurement worthless.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 115 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 115 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 116 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 116 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 **`audit_storia` — 6 checks.** `verifica-sicurezza` examines *tracked* files,
@@ -419,7 +419,7 @@ removed, it passes again.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 115 sections and shows only one: out of **19,751** text
+> `index.html` alternates 116 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -514,13 +514,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 115 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 116 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 115 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 116 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -594,8 +594,8 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 115 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 397 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Accessibility** | Automated over 13 pages and all 116 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Security** | `verifica-sicurezza` runs 10 checks over 398 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |

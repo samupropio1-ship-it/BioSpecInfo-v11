@@ -63,7 +63,18 @@
       esegui: function (v) { var ci = v.ci.trim() ? v.ci.split(',') : null; return RS().separabile({ g: v.g, h: v.h, x0: ci ? ci[0] : null, y0: ci ? ci[1] : null }); } },
     secondoOrdine: { nome: ['EDO del 2° ordine a coefficienti costanti', 'Second-order constant-coefficient ODE'], corso: 'II', campi: [['abc', ['a, b, c (ay″ + by′ + cy)', 'a, b, c (ay″ + by′ + cy)'], '1, -3, 2'], ['f', ['termine noto f(x)', 'forcing term f(x)'], 'e^x'], ['ci', ['Cauchy x₀, y(x₀), y′(x₀) (vuoto: generale)', 'Cauchy x₀, y(x₀), y′(x₀) (empty: general)'], '0, 0, 1']],
       enunciato: function (v) { var q = v.abc.split(','); return t('Risolvere ', 'Solve ') + F.calcolo.risolutore.edoTxt(q.map(function (z) { return C.valuta(C.leggi(z)); })) + ' = ' + H(v.f) + (v.ci.trim() ? t(' con y(', ' with y(') + esc(v.ci.split(',')[0]) + ') = ' + esc(v.ci.split(',')[1]) + ", y′(" + esc(v.ci.split(',')[0]) + ') = ' + esc(v.ci.split(',')[2]) : ''); },
-      esegui: function (v) { var q = v.abc.split(',').map(function (s) { return C.valuta(C.leggi(s)); }), ci = v.ci.trim() ? v.ci.split(',') : null; return RS().secondoOrdine({ a: q[0], b: q[1], c: q[2], f: v.f, x0: ci ? ci[0] : null, y0: ci ? ci[1] : null, y1: ci ? ci[2] : null }); }, grafico: 'edo2' }
+      esegui: function (v) { var q = v.abc.split(',').map(function (s) { return C.valuta(C.leggi(s)); }), ci = v.ci.trim() ? v.ci.split(',') : null; return RS().secondoOrdine({ a: q[0], b: q[1], c: q[2], f: v.f, x0: ci ? ci[0] : null, y0: ci ? ci[1] : null, y1: ci ? ci[2] : null }); }, grafico: 'edo2' },
+    autovalori: { nome: ['Autovalori e diagonalizzazione', 'Eigenvalues and diagonalisation'], corso: 'A', campi: [['M', ['matrice (righe separate da ;)', 'matrix (rows separated by ;)'], '2 -1 0; -1 2 -1; 0 -1 2']],
+      enunciato: function (v) { return t('Trovare autovalori e autovettori di A = [', 'Find the eigenvalues and eigenvectors of A = [') + esc(v.M) + t('] e dire se è diagonalizzabile.', '] and say whether it is diagonalisable.'); }, esegui: function (v) { return RS().autovalori(v.M.replace(/;/g, '\n')); } },
+    sistemaEDO: { nome: ['Sistemi di EDO lineari', 'Linear ODE systems'], corso: 'A', campi: [['A', ['matrice a, b, c, d (x′ = ax + by, y′ = cx + dy)', 'matrix a, b, c, d (x′ = ax + by, y′ = cx + dy)'], '1, 2, 2, 1'], ['X0', ['dato iniziale x(0), y(0)', 'initial datum x(0), y(0)'], '1, 0']],
+      enunciato: function (v) { var q = v.A.split(',').map(function (z) { return C.valuta(C.leggi(z)); }), L = F.calcolo.risolutore.lin2; return t('Risolvere il sistema ', 'Solve the system ') + "x′ = " + L(q[0], q[1]) + ", y′ = " + L(q[2], q[3]) + ' ' + t('con', 'with') + ' (x(0), y(0)) = (' + esc(v.X0) + t(') e classificare l’origine.', ') and classify the origin.'); },
+      esegui: function (v) { var q = v.A.split(',').map(function (z) { return C.valuta(C.leggi(z)); }), x = v.X0.split(',').map(function (z) { return C.valuta(C.leggi(z)); }); return RS().sistemaEDO({ a: q[0], b: q[1], c: q[2], d: q[3], x0: x[0], y0: x[1] }); } },
+    fourier: { nome: ['Serie di Fourier', 'Fourier series'], corso: 'A', campi: [['f', ['f(x) su [−π, π]', 'f(x) on [−π, π]'], 'x'], ['N', ['armoniche', 'harmonics'], '5']],
+      enunciato: function (v) { return t('Sviluppare in serie di Fourier la funzione 2π-periodica che su [−π, π] vale f(x) = ', 'Expand in Fourier series the 2π-periodic function equal on [−π, π] to f(x) = ') + H(v.f) + '.'; }, esegui: function (v) { return RS().fourier(v.f, +v.N || 5); } },
+    laplace: { nome: ['Trasformata di Laplace', 'Laplace transform'], corso: 'A', campi: [['f', 'f(t)', 't*e^(-t)']],
+      enunciato: function (v) { return t('Calcolare la trasformata di Laplace di f(t) = ', 'Compute the Laplace transform of f(t) = ') + H(v.f) + '.'; }, esegui: function (v) { return RS().laplace(v.f); } },
+    integraleTriplo: { nome: ['Integrale triplo', 'Triple integral'], corso: 'A', campi: [['f', 'f(x, y, z)', 'x^2+y^2+z^2'], ['tipo', ['coordinate: cartesiane | cilindriche | sferiche', 'coordinates: cartesiane | cilindriche | sferiche'], 'sferiche'], ['lim', ['estremi (ρ,φ,θ / r,θ,z / x,y,z) separati da ;', 'limits (ρ,φ,θ / r,θ,z / x,y,z) separated by ;'], '0,1; 0,pi; 0,2*pi']],
+      enunciato: function (v) { return t('Calcolare ', 'Compute ') + '∭ ' + H(v.f) + ' dV ' + t('in coordinate ', 'in coordinates ') + esc(v.tipo) + ', ' + t('estremi ', 'limits ') + esc(v.lim) + '.'; }, esegui: function (v) { return RS().integraleTriplo({ f: v.f, tipo: v.tipo.trim(), lim: v.lim }); } }
   };
 
   /* ── il programma, argomento per argomento ────────────────────────────── */
@@ -140,6 +151,13 @@
         en: 'ay″ + by′ + cy = f(x): general solution = general solution of the homogeneous equation (from the roots of the characteristic equation) + one particular solution (undetermined coefficients for f = polynomial · e<sup>αx</sup> · cos/sin βx, multiplying by x<sup>m</sup> if α + iβ is a root of multiplicity m).',
         metodo: ['Radici reali distinte: c₁e^(λ₁x) + c₂e^(λ₂x); doppia: (c₁ + c₂x)e^(λx); complesse α ± iβ: e^(αx)(c₁cos βx + c₂sin βx).', 'Distinct real roots: c₁e^(λ₁x) + c₂e^(λ₂x); double: (c₁ + c₂x)e^(λx); complex α ± iβ: e^(αx)(c₁cos βx + c₂sin βx).'] }
     ]
+    ,A: [
+      { tit: ['Algebra lineare: autovalori', 'Linear algebra: eigenvalues'], tipo: 'autovalori', it: 'Autovalori dal polinomio caratteristico det(λI − A) = 0, autospazi come nuclei di A − λI, molteplicità algebrica e geometrica, diagonalizzazione A = PDP⁻¹, teorema spettrale per le matrici simmetriche. In chimica: Hückel, modi normali, matrici di Fock.', en: 'Eigenvalues from the characteristic polynomial det(λI − A) = 0, eigenspaces as null spaces of A − λI, algebraic and geometric multiplicity, diagonalisation A = PDP⁻¹, spectral theorem for symmetric matrices. In chemistry: Hückel, normal modes, Fock matrices.', metodo: ['Diagonalizzabile se e solo se per ogni λ la molteplicità geometrica è uguale all’algebrica.', 'Diagonalisable iff for every λ geometric multiplicity equals algebraic.'] },
+      { tit: ['Sistemi di equazioni differenziali lineari', 'Linear systems of differential equations'], tipo: 'sistemaEDO', it: 'X′ = AX si risolve con autovalori e autovettori: X = Σcᵢvᵢe^(λᵢt); con autovalori complessi la soluzione oscilla, con un autovalore doppio compare t·e^(λt). Il segno degli autovalori classifica l’equilibrio (nodo, sella, fuoco, centro). In chimica: cinetiche di reazioni del primo ordine accoppiate.', en: 'X′ = AX is solved with eigenvalues and eigenvectors: X = Σcᵢvᵢe^(λᵢt); complex eigenvalues give oscillation, a double one brings in t·e^(λt). The sign of the eigenvalues classifies the equilibrium (node, saddle, focus, centre). In chemistry: coupled first-order kinetics.', metodo: ['tr A e det A bastano per la classificazione: det < 0 sella; tr² < 4det fuoco o centro; altrimenti nodo.', 'tr A and det A suffice to classify: det < 0 saddle; tr² < 4det focus or centre; otherwise node.'] },
+      { tit: ['Serie di Fourier', 'Fourier series'], tipo: 'fourier', it: 'Ogni funzione periodica regolare a tratti è somma di seni e coseni; coefficienti con gli integrali su un periodo, simmetrie (pari: soli coseni, dispari: soli seni), convergenza di Dirichlet, fenomeno di Gibbs, Parseval. In chimica: spettroscopia FT (NMR, IR), cristallografia.', en: 'Every piecewise-smooth periodic function is a sum of sines and cosines; coefficients from integrals over a period, symmetries (even: cosines only, odd: sines only), Dirichlet convergence, Gibbs phenomenon, Parseval. In chemistry: FT spectroscopy (NMR, IR), crystallography.', metodo: ['Prima la simmetria (dimezza il lavoro), poi gli integrali per parti con n generico.', 'Symmetry first (halves the work), then integrals by parts with generic n.'] },
+      { tit: ['Trasformata di Laplace', 'Laplace transform'], tipo: 'laplace', it: 'ℒ{f}(s) = ∫₀^∞ f e^(−st) dt trasforma le derivate in prodotti (ℒ{f′} = sF − f(0)) e le equazioni differenziali lineari in equazioni algebriche; si torna indietro con la tabella e i fratti semplici. In chimica: cinetiche, circuiti, risposta di un sistema.', en: 'ℒ{f}(s) = ∫₀^∞ f e^(−st) dt turns derivatives into products (ℒ{f′} = sF − f(0)) and linear ODEs into algebraic equations; invert with the table and partial fractions. In chemistry: kinetics, circuits, system response.', metodo: ['Usa la linearità, la tabella e lo spostamento ℒ{e^(at)f} = F(s − a).', 'Use linearity, the table and the shift ℒ{e^(at)f} = F(s − a).'] },
+      { tit: ['Integrali tripli', 'Triple integrals'], tipo: 'integraleTriplo', it: 'Volumi e masse in tre dimensioni; coordinate cilindriche (jacobiano r) e sferiche (jacobiano ρ² sin φ). In chimica: normalizzazione degli orbitali atomici, densità elettronica.', en: 'Volumes and masses in three dimensions; cylindrical (Jacobian r) and spherical coordinates (Jacobian ρ² sin φ). In chemistry: normalising atomic orbitals, electron density.', metodo: ['Scegli le coordinate della simmetria del dominio; non dimenticare lo jacobiano.', 'Choose coordinates matching the domain’s symmetry; never forget the Jacobian.'] }
+    ]
   };
 
   /* ── gli appelli svolti ───────────────────────────────────────────────── */
@@ -164,6 +182,11 @@
       [E('serieNumerica', { an: 'cos(n)/n^2', n0: '1' }), E('seriePotenze', { cn: 'n*2^n', x0: '0' }), E('formeDifferenziali', { M: '-y', N: 'x', curva: 'cos(t), sin(t)', tt: '0, 2*pi' }), E('secondoOrdine', { abc: '1, 2, 5', f: '0', ci: '0, 1, 0' })],
       [E('serieNumerica', { an: '(-1)^n*n/(n^2+1)', n0: '1' }), E('maxMinCompatto', { f: 'x^2-x*y+y', dom: 'triangolo 0,0,2,0,0,2' }), E('separabile', { g: '2x', h: '1+y^2', ci: '0, 0' }), E('secondoOrdine', { abc: '1, 2, 1', f: 'x^2', ci: '' })],
       [E('serieNumerica', { an: '(n/(n+1))^n', n0: '1' }), E('seriePotenze', { cn: '1/n', x0: '0' }), E('separabile', { g: '1', h: 'y^2', ci: '0, 1' }), E('secondoOrdine', { abc: '1, -2, 1', f: 'e^x', ci: '' })]
+    ],
+    A: [
+      [E('autovalori', { M: '2 -1 0; -1 2 -1; 0 -1 2' }), E('sistemaEDO', { A: '1, 2, 2, 1', X0: '1, 0' }), E('fourier', { f: 'x', N: '5' }), E('laplace', { f: 't*e^(-t)' })],
+      [E('autovalori', { M: '2 1; 0 2' }), E('sistemaEDO', { A: '-1, -2, 2, -1', X0: '1, 0' }), E('fourier', { f: 'abs(x)', N: '5' }), E('integraleTriplo', { f: 'x^2+y^2+z^2', tipo: 'sferiche', lim: '0,1; 0,pi; 0,2*pi' })],
+      [E('autovalori', { M: '4 1; 2 3' }), E('sistemaEDO', { A: '-1, 1, 0, -1', X0: '1, 1' }), E('laplace', { f: 'e^(-t)*sin(2t)' }), E('integraleTriplo', { f: 'z', tipo: 'cilindriche', lim: '0,2; 0,2*pi; 0,3' })]
     ]
   };
 
@@ -204,8 +227,9 @@
     div.appendChild(F.el('div', { 'class': 'bsiFX-nota', html: t('Programmi dalle schede degli insegnamenti del corso di laurea in <b>Chimica</b> dell’Università di Bari: ', 'Syllabi from the course sheets of the <b>Chemistry</b> degree at the University of Bari: ') +
       '<a href="https://www.uniba.it/it/corsi/chimica/studiare/piano-di-studi/elenco-insegnamenti-e-docenti-affidatari" target="_blank" rel="noopener" style="color:#5eead4">' + t('elenco insegnamenti e programmi', 'courses and syllabi') + '</a>. ' +
       t('Il dettaglio può cambiare da un anno accademico all’altro: fa fede la scheda del tuo anno.', 'Details can change from one academic year to the next: the sheet for your year is authoritative.') }));
-    ['I', 'II'].forEach(function (k) {
-      div.appendChild(F.el('div', { 'class': 'bsiFX-tit', style: 'font-size:1.1rem;margin-top:14px', testo: 'Istituzioni di Matematiche ' + k + (k === 'I' ? t(' — 1° anno, 1° semestre, 6 CFU', ' — 1st year, 1st semester, 6 ECTS') : t(' — 1° anno, 2° semestre, 6 CFU', ' — 1st year, 2nd semester, 6 ECTS')) }));
+    div.appendChild(F.el('div', { 'class': 'bsiFX-nota', html: t('Livelli: <b>base</b> nella sezione 🔢 Basi di matematica; <b>I</b> e <b>II</b> i due corsi; <b>A</b> avanzato e avanzatissimo (algebra lineare, sistemi di EDO, Fourier, Laplace, integrali tripli), utili per Chimica Fisica e la magistrale.', 'Levels: <b>basic</b> in the 🔢 Mathematics basics section; <b>I</b> and <b>II</b> the two courses; <b>A</b> advanced and expert (linear algebra, ODE systems, Fourier, Laplace, triple integrals), useful for Physical Chemistry and the master’s degree.') }));
+    ['I', 'II', 'A'].forEach(function (k) {
+      div.appendChild(F.el('div', { 'class': 'bsiFX-tit', style: 'font-size:1.1rem;margin-top:14px', testo: k === 'A' ? t('Avanzato e avanzatissimo — oltre i due corsi', 'Advanced and expert — beyond the two courses') : 'Istituzioni di Matematiche ' + k + (k === 'I' ? t(' — 1° anno, 1° semestre, 6 CFU', ' — 1st year, 1st semester, 6 ECTS') : t(' — 1° anno, 2° semestre, 6 CFU', ' — 1st year, 2nd semester, 6 ECTS')) }));
       PROGRAMMA[k].forEach(function (arg) {
         var d = F.el('details', { 'class': 'bsiFX-pannello', style: 'margin:6px 0' });
         d.appendChild(F.el('summary', { style: 'cursor:pointer;font-weight:700;color:#e6fffb', testo: F.tt(arg.tit) }));
@@ -246,8 +270,8 @@
   }
   function schedaAppelli(div) {
     div.appendChild(F.el('div', { 'class': 'bsiFX-nota', html: t('<b>Tracce nello stile della prova scritta</b>, costruite sui programmi: non sono i testi ufficiali degli appelli. Prova da solo, poi apri lo svolgimento esercizio per esercizio.', '<b>Traces in the style of the written exam</b>, built on the syllabi: they are not the official exam papers. Try on your own, then open the solution exercise by exercise.') }));
-    ['I', 'II'].forEach(function (k) {
-      div.appendChild(F.el('div', { 'class': 'bsiFX-tit', style: 'font-size:1.1rem;margin-top:12px', testo: 'Istituzioni di Matematiche ' + k }));
+    ['I', 'II', 'A'].forEach(function (k) {
+      div.appendChild(F.el('div', { 'class': 'bsiFX-tit', style: 'font-size:1.1rem;margin-top:12px', testo: k === 'A' ? t('Avanzato e avanzatissimo', 'Advanced and expert') : 'Istituzioni di Matematiche ' + k }));
       APPELLI[k].forEach(function (ap, i) {
         var d = F.el('details', { 'class': 'bsiFX-pannello', style: 'margin:6px 0' });
         d.appendChild(F.el('summary', { style: 'cursor:pointer;font-weight:700;color:#e6fffb', testo: t('Appello ', 'Paper ') + k + '.' + (i + 1) + ' — ' + ap.map(function (es) { return F.tt(TIPI[es.tipo].nome); }).join(' · ') }));
@@ -265,7 +289,7 @@
   function schedaSimulazione(div) {
     var pan = F.el('div', { 'class': 'bsiFX-pannello' }); div.appendChild(pan);
     var corso = 'I', minuti = 120, timer = null, fine = 0, area = F.el('div'), orologio = F.el('div', { 'class': 'bsiFX-eq', style: 'font-family:inherit;font-size:1.1rem' });
-    F.scelta(pan, ['Corso', 'Course'], [['I', 'Istituzioni di Matematiche I'], ['II', 'Istituzioni di Matematiche II']], corso, function (v) { corso = v; });
+    F.scelta(pan, ['Corso', 'Course'], [['I', 'Istituzioni di Matematiche I'], ['II', 'Istituzioni di Matematiche II'], ['A', ['Avanzato', 'Advanced']]], corso, function (v) { corso = v; });
     F.cursore(pan, ['Tempo (minuti)', 'Time (minutes)'], 30, 180, 15, minuti, function (v) { minuti = v; }, function (v) { return v + ' min'; });
     F.bottone(pan, ['Estrai un appello e parti', 'Draw a paper and start'], parti);
     pan.appendChild(orologio); pan.appendChild(area);

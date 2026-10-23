@@ -43,7 +43,7 @@ const { chromium } = require('playwright-core');
 const RADICE = path.join(__dirname, '..', '..');
 const BASE = process.env.BSI_URL_BASE || 'http://127.0.0.1:8899/';
 const CHROME = process.env.BSI_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const MINIMO = 150;
+const MINIMO = 200;
 
 let ok = 0, ko = 0, eseguiti = 0;
 function att(d, atteso, avuto) {
@@ -64,8 +64,8 @@ function carica() {
   ctx.document = { getElementById: () => null, head: { appendChild() {} }, createElement: () => ({ style: {} }), querySelectorAll: () => [] };
   ctx.addEventListener = () => {};
   vm.createContext(ctx);
-  ['bsi-fisica-comune.js', 'bsi-mat-cas.js', 'bsi-mat-funzioni.js', 'bsi-mat-multi.js', 'bsi-mat-complessi.js', 'bsi-mat-risolutore.js', 'bsi-mat-esame.js',
-   'bsi-fis-esame.js', 'bsi-fis-elettrodi.js', 'bsi-fis-superfici.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx, { filename: f }));
+  ['bsi-fisica-comune.js', 'bsi-mat-cas.js', 'bsi-mat-lineare.js', 'bsi-mat-funzioni.js', 'bsi-mat-multi.js', 'bsi-mat-complessi.js', 'bsi-mat-risolutore.js', 'bsi-mat-esame.js',
+   'bsi-fis-esame.js', 'bsi-fis-elettrodi.js', 'bsi-fis-superfici.js', 'bsi-chi-esame.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx, { filename: f }));
   return ctx.BSIFisica;
 }
 
@@ -216,6 +216,70 @@ function carica() {
   att('ogni modello del risolutore funziona con i dati predefiniti', EF.MODELLI.length, EF.MODELLI.filter(m => { try { return EF.risolvi(m.id, {}).risultati.length > 0; } catch (e) { return false; } }).length);
   vero('  · i modelli sono almeno 45', EF.MODELLI.length >= 45);
 
+  console.log('\n── Matematica avanzata ──');
+  att('autovalori di tridiag(−1, 2, −1): 2, 2 ∓ √2', '2, 2 − √2, 2 + √2', ris(R.autovalori('2 -1 0\n-1 2 -1\n0 -1 2')));
+  att('[2 1; 0 2] non è diagonalizzabile', false, R.autovalori('2 1\n0 2').diagonalizzabile);
+  const se = R.sistemaEDO({ a: 1, b: 2, c: 2, d: 1, x0: 1, y0: 0 });
+  vero('x′ = x + 2y, y′ = 2x + y, X(0) = (1, 0): x = (e^(3t) + e^(−t))/2', C.uguali(se.x, C.leggi('(e^(3t) + e^(-t))/2'), ['t']) && /sella/.test(se.tipo));
+  vero('sistema con autovalori −1 ± 2i: fuoco stabile, x = e^(−t)cos 2t', /fuoco stabile/.test(R.sistemaEDO({ a: -1, b: -2, c: 2, d: -1, x0: 1, y0: 0 }).tipo) && C.uguali(R.sistemaEDO({ a: -1, b: -2, c: 2, d: -1, x0: 1, y0: 0 }).x, C.leggi('e^(-t)*cos(2t)'), ['t']));
+  vero('autovalore doppio −1: x = (1 + t)e^(−t)', C.uguali(R.sistemaEDO({ a: -1, b: 1, c: 0, d: -1, x0: 1, y0: 1 }).x, C.leggi('(1+t)*e^(-t)'), ['t']));
+  const fo = R.fourier('x', 4);
+  vero('Fourier di x: bₙ = 2(−1)ⁿ⁺¹/n', [1, 2, 3, 4].every(n => Math.abs(fo.b[n] - 2 * Math.pow(-1, n + 1) / n) < 1e-9) && fo.a.every(v => Math.abs(v) < 1e-12));
+  vero('Fourier di |x|: a₁ = −4/π, a₂ = 0', Math.abs(R.fourier('abs(x)', 3).a[1] + 4 / Math.PI) < 1e-9 && Math.abs(R.fourier('abs(x)', 3).a[2]) < 1e-12);
+  att('ℒ{t e^(−t)} = 1/(s + 1)²', '1/(s + 1)²', ris(R.laplace('t*e^(-t)')));
+  att('ℒ{e^(−t) sin 2t} = 2/(s² + 2s + 5)', '2/(s² + 2s + 5)', ris(R.laplace('e^(-t)*sin(2t)')));
+  att('ℒ{cos t} = s/(s² + 1)', 's/(s² + 1)', ris(R.laplace('cos(t)')));
+  att('volume della sfera unitaria in sferiche: 4π/3', '4π/3', ris(R.integraleTriplo({ f: '1', tipo: 'sferiche', lim: '0,1; 0,pi; 0,2*pi' })));
+  att('∭ r² sulla sfera unitaria = 4π/5', '4π/5', ris(R.integraleTriplo({ f: 'x^2+y^2+z^2', tipo: 'sferiche', lim: '0,1; 0,pi; 0,2*pi' })));
+  att('∭ xyz sul parallelepipedo [0,1]×[0,2]×[0,3] = 9/2', '9/2', ris(R.integraleTriplo({ f: 'x*y*z', tipo: 'cartesiane', lim: '0,1; 0,2; 0,3' })));
+  let atot = 0, abuoni = 0;
+  EM.APPELLI.A.forEach(ap => ap.forEach(es => { atot++; try { const r = EM.TIPI[es.tipo].esegui(es.v); if (r && r.risultato) abuoni++; } catch (e) { } }));
+  att('gli appelli avanzati di matematica hanno tutti uno svolgimento', atot, abuoni);
+
+  console.log('\n── Fisica avanzata ──');
+  vicino('oscillatore forzato: ampiezza (F₀/m)/√((ω₀² − ω²)² + (2γω)²)', 2 / Math.sqrt(76 * 76 + 72 * 72), rf('forzato', {}).A, 1e-12);
+  vicino('corda: f₁ = √(T/μ)/(2L)', Math.sqrt(80 / 0.005) / 1.3, rf('corda', {})['f₁'], 1e-9);
+  vicino('fotoelettrico: soglia hc/W con W = 4,3 eV ≈ 288,3 nm', 1239.84198 / 4.3, rf('fotoelettrico', {})['λ₀'], 1e-6);
+  vicino('Compton a 90°: Δλ = λ_C = 2,426 pm', 2.42631, rf('compton', {})['Δλ'], 1e-5);
+  vicino('relatività a 0,8c: γ = 5/3', 5 / 3, rf('relativita', {})['γ'], 1e-12);
+  vicino('Wien: Sole a 5778 K, λ_max ≈ 501,5 nm', 501.5, rf('corponero', {})['λ_max'], 0.1);
+  vicino('scatola di 1 nm: E₁ = 0,376 eV', 0.376, rf('scatola', {})['Eₙ'], 1e-3);
+  vicino('tunnel 5 eV contro 10 eV, 0,5 nm: T ≈ 4,24·10⁻⁵', 4.2353e-5, rf('tunnel', {}).T, 1e-8);
+  let ftot = 0, fbuoni = 0;
+  EF.PROBLEMI.A.forEach(ap => ap.forEach(p => { ftot++; try { if (EF.risolvi(p[0], p[1]).risultati.length) fbuoni++; } catch (e) { } }));
+  att('le prove avanzate di fisica hanno tutte uno svolgimento', ftot, fbuoni);
+
+  console.log('\n── Chimica ──');
+  const CH = K.esameChimica, rc = (id, d) => { const r = CH.risolvi(id, d); const o = {}; r.risultati.forEach(x => { o[x.nome] = x.v; }); return o; };
+  vicino('massa molare di Ca₃(PO₄)₂ = 310,18 g/mol', 310.18, rc('massamolare', {}).M, 0.01);
+  att('formula minima e molecolare del glucosio da C 40,0 H 6,71 O 53,29', 'formula minima CH₂O|formula molecolare C₆H₁₂O₆', CH.risolvi('formulaminima', {}).risultati.map(x => x.nome).join('|'));
+  const lim = CH.risolvi('limitante', {});
+  vero('2Al + 3Cl₂ → 2AlCl₃ con 10 g Al e 30 g Cl₂: limitante Cl₂', /limitante Cl₂/.test(lim.risultati[0].nome));
+  vicino('  · massa teorica di AlCl₃ = (30/70,90)·(2/3)·133,33', 30 / 70.9 * 2 / 3 * 133.33, rc('limitante', {}).m_teorica, 0.01);
+  vicino('equilibrio A + B ⇌ 2C, K = 49, 0,5 M: [C] = 7/9 M', 7 / 9, rc('equilibrio', {})['[C]'], 1e-6);
+  vicino('pH di acido acetico 0,1 M (formula risolutiva)', -Math.log10((-1.8e-5 + Math.sqrt(1.8e-5 ** 2 + 4 * 1.8e-5 * 0.1)) / 2), rc('acidodebole', {}).pH, 1e-9);
+  vicino('pH di HCl 10⁻⁸ M: 6,98 (non 8!)', 6.978, rc('phforte', { tipo: 'acido', C: 1e-8 }).pH, 1e-3);
+  vicino('tampone acetato equimolare: pH = pK_a', 4.76, rc('tampone', {}).pH, 1e-12);
+  vicino('solubilità di AgCl: √K_sp', Math.sqrt(1.8e-10), rc('ksp', {}).s, 1e-15);
+  vicino('Ag₂CrO₄: s = (K_sp/4)^(1/3)', Math.pow(1.1e-12 / 4, 1 / 3), rc('ksp', { Ksp: 1.1e-12, x: 2, y: 1, comune: 0 }).s, 1e-15);
+  vicino('pila Daniell: E° = 1,10 V', 1.1, rc('pila', {})['E°'], 1e-12);
+  vicino('elettrolisi: 2 A per 30 min depositano 1,186 g di Cu', 3600 / 96485.33212 / 2 * 63.546, rc('elettrolisi', {}).m, 1e-9);
+  vicino('riga Hα (3 → 2): 656 nm', 656.1, rc('bohr', {})['λ'], 0.2);
+  vicino('ΔH° di combustione del metano = −890,3 kJ/mol (Hess)', -890.3, rc('hess', {})['ΔH°'], 1e-9);
+  vicino('titolazione: alla semi-equivalenza pH = pK_a', -Math.log10(1.8e-5), rc('titolazione', {}).pH, 2e-3);
+  vicino('  · pH al punto equivalente ≈ 8,72', 8.72, rc('titolazione', {}).pH_eq, 0.01);
+  vicino('H₃PO₄ 0,1 M, bilancio di carica: pH ≈ 1,62', 1.62, rc('poliprotico', {}).pH, 0.01);
+  vicino('gravimetria: 0,4668 g di BaSO₄ → S 6,41 %', 0.4668 * 32.06 / 233.38 * 100, rc('gravimetria', {})['%'], 0.01);
+  vicino('rotore HCl: B ≈ 10,59 cm⁻¹', 10.59, rc('rotore', {}).B, 0.02);
+  vicino('Sackur-Tetrode: S°(Ar) = 154,8 J/(mol·K)', 154.8, rc('sackur', {})['S°'], 0.2);
+  vicino('Pourbaix: E(O₂) a pH 0 e 1 bar = 1,229 V', 1.229, rc('ossigeno', { pH: 0, pO2: 1 })['E(O₂)'], 1e-9);
+  vicino('Debye-Hückel: forza ionica di NaCl 0,05 + MgSO₄ 0,01 = 0,09 M', 0.09, rc('debye', { ioni: '+1: 0.05, -1: 0.05, +2: 0.01, -2: 0.01', z: 1, a: 900 }).I, 1e-12);
+  let ctot = 0, cbuoni = 0;
+  CH.PROVE.forEach(ap => ap.forEach(p => { ctot++; try { if (CH.risolvi(p[0], p[1]).risultati.length) cbuoni++; } catch (e) { } }));
+  att('tutte le prove svolte di chimica hanno uno svolgimento', ctot, cbuoni);
+  att('ogni modello di chimica funziona con i dati predefiniti', CH.MODELLI.length, CH.MODELLI.filter(m => { try { return CH.risolvi(m.id, {}).risultati.length > 0; } catch (e) { return false; } }).length);
+  vero('  · su quattro livelli, almeno 40 modelli', CH.MODELLI.length >= 40 && [0, 1, 2, 3].every(l => CH.MODELLI.some(m => m.liv === l)));
+
   console.log('\n── Chimica fisica ──');
   const EL = K.elettrodi, SU = K.superfici;
   const p = { i0: 2e-6, aa: 0.4, ac: 0.6, T: 298.15 }, dati = [-0.3, -0.25, -0.2, -0.15, 0.15, 0.2, 0.25, 0.3].map(e => [e, EL.butlerVolmer(e, p)]), tf = EL.tafel(dati, 298.15, 0.1);
@@ -246,7 +310,7 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--use-gl=swiftshader'] });
-  const SEZ = [[7, 'selettrodi'], [7, 'sfotosup'], [7, 'sfisesame'], [8, 'smatesame']];
+  const SEZ = [[7, 'selettrodi'], [7, 'sfotosup'], [7, 'sfisesame'], [8, 'smatesame'], [0, 'schiesame']];
   for (const [nome, vp] of [['schermo grande', { width: 1280, height: 900 }], ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage(), err = [];
@@ -307,9 +371,9 @@ function carica() {
   const tr = await pgE.evaluate(async () => {
     if (window.BSILingue && window.BSILingue.imposta) window.BSILingue.imposta('en');
     await new Promise(r => setTimeout(r, 1500));
-    return [document.querySelector('.nav-btn[data-s="smatesame"]').textContent.trim(), document.querySelector('.nav-btn[data-s="sfisesame"]').textContent.trim(), document.querySelector('.nav-btn[data-s="selettrodi"]').textContent.trim()];
+    return [document.querySelector('.nav-btn[data-s="schiesame"]').textContent.trim(), document.querySelector('.nav-btn[data-s="smatesame"]').textContent.trim(), document.querySelector('.nav-btn[data-s="sfisesame"]').textContent.trim(), document.querySelector('.nav-btn[data-s="selettrodi"]').textContent.trim()];
   });
-  att('in inglese: «Mathematics exam (UniBA)», «Physics exam (UniBA)», «Electrodes and transition state»', '🎓 Mathematics exam (UniBA)|🎓 Physics exam (UniBA)|⚡ Electrodes and transition state', tr.join('|'));
+  att('in inglese: «Chemistry exam», «Mathematics exam», «Physics exam», «Electrodes and transition state»', '🎓 Chemistry exam (UniBA)|🎓 Mathematics exam (UniBA)|🎓 Physics exam (UniBA)|⚡ Electrodes and transition state', tr.join('|'));
   await ctxE.close();
   await browser.close();
 

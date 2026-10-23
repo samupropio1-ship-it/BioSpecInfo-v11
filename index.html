@@ -948,7 +948,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sdistrib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">📊 Distribuzioni & Statistica</button>
     <button class="nav-btn" data-s="sqm" style="border:1px solid #7c6fff;background:linear-gradient(135deg,rgba(124,111,255,.18),rgba(94,234,212,.08))">🌌 Meccanica Quantistica</button>
     <button class="nav-btn" data-s="srxnbal">⚖️ Bilancia Rz.</button>
-  <button class="nav-btn" data-s="sdbe">📐 Insaturazioni (DBE)</button></div>
+  <button class="nav-btn" data-s="sdbe">📐 Insaturazioni (DBE)</button>
+  <button class="nav-btn" data-s="schiesame" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">🎓 Esame di Chimica (UniBA)</button></div>
   <div id="navGroup1" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sspec">📊 Spettri Ref.</button>
     <button class="nav-btn" data-s="sirvis">📈 IR Visivi</button>
@@ -29508,6 +29509,7 @@ window.calcMolProps = function() {
 <div id="sfotosup" class="section"></div>
 <div id="sfisesame" class="section"></div>
 <div id="smatesame" class="section"></div>
+<div id="schiesame" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31854,6 +31856,7 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-esame.js" defer></script>
 <script src="./bsi-mat-risolutore.js" defer></script>
 <script src="./bsi-mat-esame.js" defer></script>
+<script src="./bsi-chi-esame.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 115 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 116 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -160,7 +160,10 @@ derivandole, si riottiene la funzione di partenza.
 | ℂ **Complessi e Fourier** | numeri complessi sul piano di Argand, radici n-esime, la formula di Eulero, le serie di Fourier con il fenomeno di Gibbs |
 | 📏 **Statistica di laboratorio** | media, deviazione standard, intervallo di confidenza; Grubbs e Dixon per gli anomali; test t e F con il valore p; propagazione delle incertezze; retta di taratura con LOD, LOQ e l'incertezza del campione |
 
-### 🎓 Esami UniBA: Matematica e Fisica
+### 🎓 Esami UniBA: Chimica, Matematica e Fisica, dalla base all'avanzatissimo
+
+**🎓 Esame di Chimica** (categoria 🔬 Chimica) ha 40 problemi tipo su quattro livelli: base (moli, stechiometria, gas, soluzioni, termochimica, cinetica, equilibri, acidi e basi, solubilità, elettrochimica, atomo), intermedio (analitica: titolazioni, Lambert-Beer, gravimetria, EDTA, acidi poliprotici), avanzato (chimica fisica: van ’t Hoff, Clausius-Clapeyron, polieni, rotore e oscillatore, Michaelis-Menten) e avanzatissimo (Sackur-Tetrode, Debye-Hückel, Pourbaix). Le reazioni si bilanciano da sole. In Matematica e Fisica il livello **A** porta oltre i due corsi: autovalori, sistemi di EDO, Fourier, Laplace, integrali tripli; onde, fisica moderna e quantistica.
+
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
 

@@ -35,7 +35,7 @@ browser.
 ## Che cos'è
 
 Uno strumento di studio per chimica, biochimica, farmacologia e astrochimica,
-rivolto a studenti universitari. **115 sezioni** fra calcolatori, visualizzatori,
+rivolto a studenti universitari. **116 sezioni** fra calcolatori, visualizzatori,
 banche dati e quiz, più un assistente AI che può interrogare l'applicazione
 stessa.
 
@@ -183,7 +183,7 @@ c'è non è un banco superato.
 
 ```
 BioSpecInfo-v11/
-├── index.html              Applicazione principale — 115 sezioni, dati chimici
+├── index.html              Applicazione principale — 116 sezioni, dati chimici
 ├── bsi-ai-hub.js           Agente «Spectra»: ciclo agentico, 35 strumenti
 ├── bsi-spettri.js          Motore di predizione spettrale IR/NMR
 ├── bsi-cheminfo.js         Motore di chemioinformatica: impronte, QSAR, modello nullo
