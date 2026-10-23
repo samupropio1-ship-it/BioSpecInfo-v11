@@ -954,11 +954,50 @@
     return { passi: R.passi, risultato: bello(belloNum(val)), valore: val };
   }
 
+  /* ════════════════════════════════════════════════════════════════════
+     14. MAGISTRALE E DOTTORATO
+     ════════════════════════════════════════════════════════════════════ */
+  function residui(testo) {
+    var R = nuovo(), e = C.leggi(testo), x = variabile(e), fr = frazione(e);
+    if (!fr) throw new Error(t('serve una funzione razionale P(x)/Q(x)', 'a rational function P(x)/Q(x) is needed'));
+    var cN = C.coeffPolinomio(fr.N, x), cD = C.coeffPolinomio(fr.D, x);
+    if (!cN || !cD) throw new Error(t('numeratore e denominatore devono essere polinomi', 'numerator and denominator must be polynomials'));
+    R.passo(t('Ipotesi', 'Hypotheses'), t('grado Q − grado P = ', 'deg Q − deg P = ') + (cD.length - cN.length) + (cD.length - cN.length >= 2 ? t(' ≥ 2: il contributo del semicerchio grande tende a 0 (lemma di Jordan/stima ML).', ' ≥ 2: the large semicircle contributes nothing (ML estimate).') : t(' < 2: l’integrale non converge.', ' < 2: the integral does not converge.')));
+    var rad = C.radiciPolinomio(cD);
+    if (rad.some(function (z) { return Math.abs(z.im) < 1e-9; })) throw new Error(t('Q ha zeri reali: l’integrale è improprio sull’asse (serve il valore principale)', 'Q has real zeros: the integral is singular on the axis (principal value needed)'));
+    var sup = rad.filter(function (z) { return z.im > 0; });
+    function polC(c, z) { var r = [0, 0]; for (var k = c.length - 1; k >= 0; k--) r = [r[0] * z[0] - r[1] * z[1] + c[k], r[0] * z[1] + r[1] * z[0]]; return r; }
+    var dD = cD.slice(1).map(function (v, i) { return v * (i + 1); }), somma = [0, 0], righe = [];
+    sup.forEach(function (z) {
+      var zz = [z.re, z.im], num = polC(cN, zz), den = polC(dD, zz), d2 = den[0] * den[0] + den[1] * den[1], res = [(num[0] * den[0] + num[1] * den[1]) / d2, (num[1] * den[0] - num[0] * den[1]) / d2];
+      somma = [somma[0] + res[0], somma[1] + res[1]];
+      righe.push('z = ' + strZBello([z.re, z.im]) + ': Res = P(z)/Q′(z) = ' + strZBello([belloNum(res[0]), belloNum(res[1])]));
+    });
+    R.passo(t('Poli nel semipiano superiore e residui', 'Poles in the upper half-plane and residues'), righe.join('<br>') + '<br><span style="color:#9fb1c6">' + t('(poli semplici; per un polo multiplo si usa la derivata di ordine m − 1)', '(simple poles; for a multiple pole use the derivative of order m − 1)') + '</span>');
+    var v = -2 * Math.PI * somma[1];
+    var rp = bello(v / Math.PI), forma = /^[−\d√/()+ ]+$/.test(rp) && !/\./.test(rp) ? (rp === '1' ? 'π' : (/[+ ]/.test(rp) ? '(' + rp + ')' : rp) + '·π') : bello(v);
+    R.passo(t('Teorema dei residui', 'Residue theorem'), '∫₋∞^∞ f dx = 2πi·Σ Res = <b>' + forma + '</b>');
+    var f = C.funzione(e, x), num2 = C.integraleDefinito(function (u) { var w = u / (1 - u * u); return f(w) * (1 + u * u) / Math.pow(1 - u * u, 2); }, -1 + 1e-12, 1 - 1e-12, 1e-11).valore;
+    R.passo(t('Controllo numerico', 'Numerical check'), (+num2.toPrecision(10)) + (Math.abs(num2 - v) < 1e-6 * (1 + Math.abs(v)) ? ' ✓' : ' ✗'));
+    return { passi: R.passi, risultato: forma, valore: v };
+  }
+  function calore(d) {
+    var R = nuovo(), e = C.leggi(d.f), L = C.valuta(C.leggi(String(d.L))), al = +d.alfa, x0 = +d.x, t0 = +d.t, N = 40, f = C.funzione(e, 'x');
+    R.passo(t('Problema', 'Problem'), 'u_t = α u_xx, 0 < x < L, u(0, t) = u(L, t) = 0, u(x, 0) = ' + H(e) + ' (α = ' + bello(al) + ', L = ' + bello(L) + ')');
+    R.passo(t('Separazione delle variabili', 'Separation of variables'), 'u = X(x)T(t) ⇒ X″ + λX = 0, X(0) = X(L) = 0 ⇒ λₙ = (nπ/L)², Xₙ = sin(nπx/L), Tₙ = e^(−αλₙt)');
+    var b = [];
+    for (var n = 1; n <= N; n++) { var bn = 2 / L * C.integraleDefinito(function (s) { return f(s) * Math.sin(n * Math.PI * s / L); }, 0, L, 1e-11).valore; b.push(belloNum(bn)); }
+    R.passo(t('Coefficienti dal dato iniziale', 'Coefficients from the initial datum'), 'bₙ = (2/L)∫₀ᴸ f(x) sin(nπx/L) dx: ' + b.slice(0, 5).map(function (v, i) { return 'b' + '₁₂₃₄₅'[i] + ' = ' + bello(v); }).join(', ') + ', …');
+    var u = 0; b.forEach(function (bn, i) { var k = (i + 1) * Math.PI / L; u += bn * Math.sin(k * x0) * Math.exp(-al * k * k * t0); });
+    R.passo(t('Soluzione', 'Solution'), 'u(x, t) = Σ bₙ e^(−α(nπ/L)²t) sin(nπx/L) ⇒ u(' + bello(x0) + ', ' + bello(t0) + ') = <b>' + (+u.toPrecision(8)) + '</b>' + t(' (40 termini). I modi alti si smorzano in fretta: a tempi lunghi resta il primo.', ' (40 terms). High modes decay fast: at long times the first remains.'));
+    return { passi: R.passi, risultato: String(+u.toPrecision(8)), valore: u, b: b };
+  }
+
   var RISOLUTORI = {
     complessi: complessi, dominio: dominio, limite: limite, studio: studio, integraleIndefinito: integraleIndefinito, integraleDefinito: integraleDefinito,
     taylor: taylor, serieNumerica: serieNumerica, seriePotenze: seriePotenze, dueVariabili: dueVariabili, maxMinCompatto: maxMinCompatto,
     integraleDoppio: integraleDoppio, formeDifferenziali: formeDifferenziali, lineare1: lineare1, separabile: separabile, secondoOrdine: secondoOrdine,
-    autovalori: autovalori, sistemaEDO: sistemaEDO, fourier: fourier, laplace: laplace, integraleTriplo: integraleTriplo
+    autovalori: autovalori, sistemaEDO: sistemaEDO, fourier: fourier, laplace: laplace, integraleTriplo: integraleTriplo, residui: residui, calore: calore
   };
   F.calcolo.risolutore = { lin2: lin2, edoTxt: edoTxt, RISOLUTORI: RISOLUTORI, bello: bello, belloNum: belloNum, condizioni: condizioni, fratti: fratti };
 })(typeof window !== 'undefined' ? window : globalThis);

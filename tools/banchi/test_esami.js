@@ -43,7 +43,7 @@ const { chromium } = require('playwright-core');
 const RADICE = path.join(__dirname, '..', '..');
 const BASE = process.env.BSI_URL_BASE || 'http://127.0.0.1:8899/';
 const CHROME = process.env.BSI_CHROME || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-const MINIMO = 200;
+const MINIMO = 230;
 
 let ok = 0, ko = 0, eseguiti = 0;
 function att(d, atteso, avuto) {
@@ -65,7 +65,7 @@ function carica() {
   ctx.addEventListener = () => {};
   vm.createContext(ctx);
   ['bsi-fisica-comune.js', 'bsi-mat-cas.js', 'bsi-mat-lineare.js', 'bsi-mat-funzioni.js', 'bsi-mat-multi.js', 'bsi-mat-complessi.js', 'bsi-mat-risolutore.js', 'bsi-mat-esame.js',
-   'bsi-fis-esame.js', 'bsi-fis-elettrodi.js', 'bsi-fis-superfici.js', 'bsi-chi-esame.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx, { filename: f }));
+   'bsi-fis-esame.js', 'bsi-fis-elettrodi.js', 'bsi-fis-superfici.js', 'bsi-chi-esame.js', 'bsi-percorsi.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(RADICE, f), 'utf8'), ctx, { filename: f }));
   return ctx.BSIFisica;
 }
 
@@ -280,6 +280,41 @@ function carica() {
   att('ogni modello di chimica funziona con i dati predefiniti', CH.MODELLI.length, CH.MODELLI.filter(m => { try { return CH.risolvi(m.id, {}).risultati.length > 0; } catch (e) { return false; } }).length);
   vero('  · su quattro livelli, almeno 40 modelli', CH.MODELLI.length >= 40 && [0, 1, 2, 3].every(l => CH.MODELLI.some(m => m.liv === l)));
 
+  console.log('\n── Astrofisica, nucleare, quantistica, dottorato ──');
+  vicino('Sirio A: L ≈ 25,7 L☉ da R = 1,71 R☉, T = 9940 K', 25.7, rf('stella', {})['L/L☉'], 0.3);
+  vicino('Proxima: 768,5 mas → 1,301 pc', 1.3012, rf('parallasse', {}).d, 1e-3);
+  vicino('Keplero: 1 anno a 1 UA → 1 massa solare', 1.989e30, rf('keplero', {}).M, 5e27);
+  vicino('Keplero: Giove (11,86 anni, 5,2 UA) → 1 M☉', 1.989e30, rf('keplero', { T: 4332.6, a: 5.2 }).M, 2e28);
+  vicino('Schwarzschild: 10 M☉ → 29,5 km', 29532, rf('schwarzschild', {}).R_s, 10);
+  vicino('Terra senza effetto serra: 255 K', 254.6, rf('pianeta', {}).T, 0.5);
+  vicino('Hubble: Hα a 689,2 nm → z = 0,0502', 0.05016, rf('hubble', {}).z, 1e-4);
+  vicino('⁵⁶Fe: B/A = 8,790 MeV dal difetto di massa', 8.790, rf('legame', {})['B/A'], 2e-3);
+  vicino('²³⁵U: B/A = 7,591 MeV', 7.591, rf('legame', { Z: 92, A: 235, m: 235.043930 })['B/A'], 2e-3);
+  vicino('D + T → ⁴He + n: Q = 17,59 MeV', 17.59, rf('qvalore', {}).Q, 0.01);
+  vicino('¹³¹I, 1 μg: A₀ = 4,6·10⁹ Bq', 4.6e9, rf('decadimento', {})['A₀'], 2e7);
+  vicino('¹⁴C al 25 %: due tempi di dimezzamento = 11460 anni', 11460, rf('datazione', {}).t, 1e-6);
+  vicino('nucleo: densità ≈ 2,3·10¹⁷ kg/m³ (indipendente da A)', rf('raggionucleo', { A: 16 })['ρ'], rf('raggionucleo', { A: 208 })['ρ'], 1e10);
+  vicino('idrogeno 2p: ⟨r⟩ = 5a₀ = 264,6 pm', 264.59, rf('idrogeno', {})['⟨r⟩'], 0.01);
+  vicino('idrogeno n = 2: E = −3,40 eV', -3.4014, rf('idrogeno', {}).E, 1e-3);
+  vicino('Larmor: 9,4 T → 400,2 MHz per ¹H', 400.23, rf('larmor', {})['ν_H'], 0.01);
+  vicino('scatola 1D stato fondamentale: ΔxΔp/ħ = 0,568', 0.5679, rf('indet_scatola', {})['ΔxΔp/ħ'], 1e-3);
+  vicino('elio variazionale: ζ = 27/16, E = −77,49 eV', -77.49, rf('variazionale', {}).E, 0.01);
+  vicino('perturbazione al secondo ordine = spostamento esatto −q²E²/2k', -Math.pow(1.602176634e-10, 2) / 1000 / 1.602176634e-19, rf('perturbazione', {})['E⁽²⁾'], 1e-12);
+  let qtot = 0, qbuoni = 0;
+  ['AF', 'N', 'Q'].forEach(k => EF.PROBLEMI[k].forEach(ap => ap.forEach(p => { qtot++; try { if (EF.risolvi(p[0], p[1]).risultati.length) qbuoni++; } catch (e) { } })));
+  att('tutte le prove di astrofisica, nucleare e quantistica hanno uno svolgimento', qtot, qbuoni);
+  vicino('Marcus: ΔG‡ = (λ + ΔG°)²/4λ = 0,0625 eV', 0.0625, rc('marcus', {})['ΔG‡'], 1e-12);
+  vicino('KIE C–H/C–D ≈ 6,4 a 298 K', 6.4, rc('kie', {}).KIE, 0.2);
+  vicino('DBE dell’aspirina C₉H₈O₄ = 6', 6, rc('insaturazioni', { f: 'C9H8O4' }).DBE, 1e-12);
+  vicino('punto isoelettrico della lisina = 9,74', 9.74, rc('pI', { pk: '2.18, 8.95, 10.53', tipo: 'basica', pH: 7.4 }).pI, 1e-9);
+  vicino('estrazione: 4 × 25 mL con K_D = 4 lascia il 6,25 %', 0.0625, rc('estrazione', {})['resta (n volte)'], 1e-12);
+  vicino('Cl₂: rapporto M+2/M = 2·0,2424/0,7576', 2 * 0.2424 / 0.7576, rc('isotopi', {})['M+2/M'], 1e-9);
+  att('∫ 1/(x⁴ + 1) con i residui = π/√2', '√2/2·π', ris(R.residui('1/(x^4+1)')));
+  att('∫ 1/((x² + 1)(x² + 4)) = π/6', '1/6·π', ris(R.residui('1/((x^2+1)*(x^2+4))')));
+  vicino('equazione del calore con u(x,0) = sin x: u = e^(−αt) sin x', Math.sin(1.5) * Math.exp(-0.5), R.calore({ f: 'sin(x)', L: 'pi', alfa: 0.5, x: 1.5, t: 1 }).valore, 1e-8);
+  vicino('equazione del calore con u(x,0) = x(π − x): bₙ = 8/(πn³) per n dispari', 8 / Math.PI, R.calore({ f: 'x*(pi-x)', L: 'pi', alfa: 1, x: 1, t: 0.5 }).b[0], 1e-8);
+  vero('i percorsi coprono quattro livelli per chimica, fisica e matematica', ['chimica', 'fisica', 'matematica'].every(a => K.percorsi.MAPPA[a].length === 4));
+
   console.log('\n── Chimica fisica ──');
   const EL = K.elettrodi, SU = K.superfici;
   const p = { i0: 2e-6, aa: 0.4, ac: 0.6, T: 298.15 }, dati = [-0.3, -0.25, -0.2, -0.15, 0.15, 0.2, 0.25, 0.3].map(e => [e, EL.butlerVolmer(e, p)]), tf = EL.tafel(dati, 298.15, 0.1);
@@ -310,7 +345,7 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--use-gl=swiftshader'] });
-  const SEZ = [[7, 'selettrodi'], [7, 'sfotosup'], [7, 'sfisesame'], [8, 'smatesame'], [0, 'schiesame']];
+  const SEZ = [[7, 'selettrodi'], [7, 'sfotosup'], [7, 'sfisesame'], [8, 'smatesame'], [0, 'schiesame'], [5, 'spercorsi']];
   for (const [nome, vp] of [['schermo grande', { width: 1280, height: 900 }], ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage(), err = [];

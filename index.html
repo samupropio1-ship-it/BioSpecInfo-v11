@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v229';
+window.BSI_APP_VERSION='bsi-v230';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -992,6 +992,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="scalc">🔢 Calcolatore</button>
   <button class="nav-btn" data-s="sdistr">📊 Diagrammi Distribuz.</button><button class="nav-btn" data-s="sbuffer">📉 Henderson & Tamponi</button><button class="nav-btn" data-s="sthermoadv">🌡️ Termodinamica Avanz.</button><button class="nav-btn" data-s="scfgraf" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">📈 Grafici Interattivi</button></div>
   <div id="navGroup5" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
+    <button class="nav-btn" data-s="spercorsi" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.16),rgba(124,111,255,.1))">🧭 Dalle superiori al dottorato</button>
     <button class="nav-btn" data-s="serrori">🗺️ Riassunti</button>
     <button class="nav-btn" data-s="squiz">❓ Quiz</button>
     <button class="nav-btn" data-s="sexam">🎓 Esame UniBA</button>
@@ -29510,6 +29511,7 @@ window.calcMolProps = function() {
 <div id="sfisesame" class="section"></div>
 <div id="smatesame" class="section"></div>
 <div id="schiesame" class="section"></div>
+<div id="spercorsi" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31857,6 +31859,7 @@ window.addEventListener('load', init);
 <script src="./bsi-mat-risolutore.js" defer></script>
 <script src="./bsi-mat-esame.js" defer></script>
 <script src="./bsi-chi-esame.js" defer></script>
+<script src="./bsi-percorsi.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

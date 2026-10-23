@@ -7,6 +7,34 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v230] — 2026-10-23
+
+**Dalle superiori al dottorato: astrofisica, nucleare, quantistica, organica**
+
+### Aggiunto
+- **🧭 Dalle superiori al dottorato** (categoria 📚 Studio): chimica, fisica e
+  matematica su quattro livelli, con che cosa si deve saper fare e i
+  collegamenti agli strumenti dell'app.
+- Esame di Fisica: **astrofisica** (luminosità e classi spettrali, magnitudini,
+  parallasse, Hubble, Keplero, buchi neri, massa di Jeans, sequenza
+  principale, temperatura dei pianeti, velocità radiali), **fisica nucleare**
+  (energia di legame, attività, Q-valore, datazione, schermatura, dose,
+  raggio nucleare, barriera coulombiana), **fisica quantistica**
+  (indeterminazione, atomo idrogenoide, oscillatore e rotore con le
+  popolazioni, NMR/EPR, scatola 3D, valori di aspettazione, metodo
+  variazionale, perturbazioni); 8 prove svolte.
+- Esame di Chimica: **organica** (insaturazioni, rese, estrazione,
+  cromatografia, polarimetria), **spettroscopia** (NMR in ppm e Hz, pattern
+  isotopici), **biochimica** (pI, ΔG dell'ATP, Lineweaver-Burk) e
+  **dottorato** (Marcus, effetto isotopico cinetico, Wigner); 3 prove svolte.
+- Esame di Matematica, livello dottorato: **teorema dei residui** ed
+  **equazione del calore**; un appello svolto.
+- Requisito **SCI-47**.
+
+### Banco
+- `test_esami`: 235 controlli.
+
+---
 ## [bsi-v229] — 2026-10-23
 
 **Esami UniBA di Chimica, Matematica e Fisica dalla base all'avanzatissimo**
