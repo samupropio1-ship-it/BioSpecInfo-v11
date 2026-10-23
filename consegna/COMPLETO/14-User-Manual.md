@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 133 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 140 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🎲 Le esplorazioni
+
+In **📐 Matematica**: **🎲 Probabilità in movimento** e **🎞️ Matematica visiva** (negli epicicli di Fourier si può scegliere «disegnala tu» e tracciare una figura con il dito; nei frattali un tocco ingrandisce). In **⚛️ Fisica**: **⚡ Elettromagnetismo in movimento** (le cariche si trascinano), **🔊 Suono e acustica** (il pulsante 🔊 Ascolta fa sentire il suono) e **💡 Semiconduttori**. In **⚗️ Chimica Fisica**: **🌡️ Distillazione e miscele** e **🔋 Voltammetria ciclica**.
 
 ### 🔭 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa
 
@@ -501,4 +505,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v234`._
+_Guida aggiornata alla versione `bsi-v235`._

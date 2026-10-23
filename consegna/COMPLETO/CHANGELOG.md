@@ -7,6 +7,51 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v235] — 2026-10-23
+
+**Probabilità, matematica visiva, elettromagnetismo, suono, semiconduttori, distillazione, voltammetria**
+
+### Aggiunto
+- **🎲 Probabilità in movimento**: macchina di Galton con binomiale e
+  gaussiana, legge dei grandi numeri e limite centrale da quattro
+  distribuzioni, π con il Monte Carlo, teorema di Bayes con mille persone
+  disegnate.
+- **🎞️ Matematica visiva**:
+  - trasformazioni lineari animate con determinante e autovettori;
+  - epicicli di Fourier, anche da una figura disegnata con il dito;
+  - Mandelbrot e Julia con lo zoom;
+  - mappa logistica con ragnatela e diagramma di biforcazione.
+- **⚡ Elettromagnetismo in movimento**:
+  - cariche da trascinare con potenziale, equipotenziali e linee di campo;
+  - induzione con la calamita nella spira;
+  - generatore;
+  - onde elettromagnetiche e polarizzazione.
+- **🔊 Suono e acustica**, con l'audio da ascoltare: armoniche di corde e
+  canne, timbro, battimenti, Doppler e cono di Mach, decibel.
+- **💡 Semiconduttori**:
+  - Fermi-Dirac e n_i di Si, Ge e GaAs;
+  - drogaggio con il livello di Fermi;
+  - giunzione p-n con Shockley e il colore dei LED.
+- **🌡️ Distillazione e miscele**:
+  - diagrammi T-x-y con Antoine, Raoult e van Laar;
+  - azeotropo etanolo-acqua confrontato con la misura;
+  - McCabe-Thiele animato con Fenske e Underwood;
+  - distillazione semplice di Rayleigh.
+- **🔋 Voltammetria ciclica**: simulazione con diffusione e Butler-Volmer,
+  profili di concentrazione, Randles-Ševčík, ΔE_p, analisi con la velocità
+  di scansione e stima di D.
+- Requisito **SCI-52**.
+
+### Corretto
+- Prima della pubblicazione: nella voltammetria il gradiente di
+  concentrazione all'elettrodo era del primo ordine. Il picco reversibile
+  usciva al 95,6 % del valore teorico e ΔE_p a 63,5 mV. Con il gradiente
+  del secondo ordine: 99,9 % e 58,1 mV.
+
+### Banco
+- Nuovo `test_esplorazioni`.
+
+---
 ## [bsi-v234] — 2026-10-23
 
 **Animazioni con pausa e velocità, astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa**
