@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 117 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 120 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -170,6 +170,10 @@ gives the original function back.
 
 
 **🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
+
+### ⚗️ ⚛️ 📐 The three macro-areas and the assistant
+
+At the head of the **🔬 Chemistry**, **⚛️ Physics** and **📐 Mathematics** categories is the area of that subject. In the **🤖 Assistant** tab, write the problem as you would write it to your teacher, for example «a car at 90 km/h brakes at 5 m/s²», «how many grams of NaCl for 250 mL of 0.5 M solution» or «y'' + 4y = sin(x), y(0)=0, y'(0)=1», and press **Solve and explain**. The answer says what was understood; the **Data used** table shows in green the data read from the text, in yellow those inferred and in red those assumed, to be checked. If the chosen model is not the right one, the **Did you mean…?** buttons offer the others, and **Edit the data in the solver** opens the problem with its fields. The **🗂️ All tools** tab gathers the subject's sections, with search; **🧭 Levels** orders them from high school to PhD.
 
 ### 🧭 From high school to PhD
 
@@ -486,4 +490,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v230`._
+_Guide updated to version `bsi-v231`._

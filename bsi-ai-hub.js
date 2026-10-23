@@ -1018,7 +1018,10 @@ var PAROLE_STRUMENTO = {
   ricordi: 'ricordi sai cosa avevo detto memoria precedente',
   cerca_nel_database: 'database interno app dataset elenco scheda archivio biospecinfo',
   apri_animazione: 'animazione video meccanismo mostrami visualizza movimento',
-  stato_app: 'dove sono adesso schermata corrente stato apertura'
+  stato_app: 'dove sono adesso schermata corrente stato apertura',
+  risolvi_matematica: 'derivata integrale limite studio funzione serie taylor dominio equazione differenziale autovalori matrice laplace fourier residui semplifica primitiva',
+  risolvi_fisica: 'proiettile piano inclinato molla pendolo orbita carica campo condensatore resistenza circuito lente onda fotone relativita nucleo decadimento stella esercizio problema fisica',
+  risolvi_chimica: 'esercizio problema chimica stechiometria titolazione tampone solubilita pila elettrolisi entalpia cinetica equilibrio colligative assorbanza grammi moli'
 };
 
 /* Radice di una parola: i primi 5 caratteri. Serve perche' l'italiano
@@ -2217,6 +2220,37 @@ function gruppiDaSmiles(smi){
   return { gruppi: gruppi, ir: ir, nmr_h: h };
 }
 
+/* Le risposte dell'assistente delle macro-aree, ridotte a testo per il modello. */
+function _testoPiano(h){ return String(h || '').replace(/<sup>/g, '^').replace(/<sub>/g, '_').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+\n/g, '\n').trim(); }
+function _risolviArea(a, materia){
+  a = a || {};
+  var A = window.BSIAssistente, Fz = window.BSIFisica;
+  if(!A || !Fz) return { ok: false, error: 'assistente non caricato' };
+  var r;
+  if(a.modello && materia !== 'matematica'){
+    var S = materia === 'fisica' ? Fz.calcolo.esameFisica : Fz.calcolo.esameChimica;
+    var M = S && S.MODELLI.filter(function(m){ return m.id === a.modello; })[0];
+    if(!M) return { ok: false, error: 'modello sconosciuto', modelli: S ? S.MODELLI.map(function(m){ return m.id; }) : [] };
+    var d = {}; M.dati.forEach(function(c){ d[c[0]] = a.dati && a.dati[c[0]] !== undefined ? a.dati[c[0]] : c[3]; });
+    try { var x = S.risolvi(M.id, d); r = { materia: materia, tipo: M.id, titolo: Fz.tt(M.nome), passi: x.passi, risultati: x.risultati, dati: { dati: d, origine: {} } }; }
+    catch(e){ return { ok: false, error: e.message }; }
+  } else {
+    if(!a.domanda) return { ok: false, error: 'serve la domanda' };
+    r = A.rispondi(a.domanda, materia);
+  }
+  if(!r || !r.titolo) return { ok: false, error: 'tipo di esercizio non riconosciuto: riformula con una parola chiave o passa modello e dati' };
+  var out = { ok: !r.errore, materia: r.materia, tipo: r.tipo, titolo: r.titolo };
+  if(r.capito) out.capito = _testoPiano(r.capito);
+  if(r.errore) out.error = r.errore;
+  if(r.dati) { out.dati = {}; Object.keys(r.dati.dati).forEach(function(k){ out.dati[k] = { valore: r.dati.dati[k], origine: r.dati.origine[k] || 'dato' }; }); }
+  if(r.risultati) out.risultati = r.risultati.map(function(y){ return { nome: y.nome, valore: y.v, unita: y.u || '' }; });
+  if(r.risultato) out.risultato = _testoPiano(r.risultato);
+  if(r.passi) out.svolgimento = r.passi.slice(0, 14).map(function(p){ return _testoPiano(p.titolo) + ': ' + _testoPiano(p.html).slice(0, 600); });
+  if(r.alternative && r.alternative.length) out.altri_modelli_possibili = r.alternative.map(function(y){ return y.id; });
+  out.nota = 'origine dei dati: testo = letto dalla domanda, dedotto = ricavato dal contesto, predefinito = valore supposto da verificare, calcolato = ricavato all\'indietro';
+  return out;
+}
+
 var TOOLS = [
   {
     name: 'naviga_sezione',
@@ -2399,6 +2433,47 @@ var TOOLS = [
         })();
       });
     }
+  }
+  ,
+  /* Le tre macro-aree: lo stesso motore dell'assistente locale (bsi-assistente.js),
+     cosi' Spectra e l'assistente danno lo stesso svolgimento. */
+  {
+    name: 'risolvi_matematica',
+    description: "Risolve un esercizio di matematica scritto in linguaggio naturale con il motore simbolico dell'app e restituisce lo svolgimento passo per passo: derivate, integrali (indefiniti, definiti, impropri, con i residui), limiti, studi di funzione, dominio, Taylor, serie numeriche e di potenze, equazioni algebriche, EDO del primo e secondo ordine con condizioni iniziali, autovalori, Fourier, Laplace, semplificazioni. Usalo SEMPRE per un calcolo di analisi o algebra invece di farlo a mente.",
+    parameters: {
+      type: 'object',
+      properties: {
+        domanda: { type: 'string', description: "L'esercizio come lo scriverebbe lo studente, es. \"integra x*e^x da 0 a 1\", \"limite di (sin(x)-x)/x^3 per x che tende a 0\", \"y'' + 4y = sin(x), y(0)=0, y'(0)=1\"." }
+      },
+      required: ['domanda']
+    },
+    execute: function(a){ return _risolviArea(a, 'matematica'); }
+  },
+  {
+    name: 'risolvi_fisica',
+    description: "Risolve un problema di fisica (meccanica, fluidi, termodinamica, elettromagnetismo, ottica, onde, relativita', fisica moderna, astrofisica, nucleare, quantistica) con uno degli oltre ottanta modelli dell'app: riconosce il modello, legge i dati con le unita' e le converte, risolve anche il problema inverso, e restituisce dati usati, risultati e svolgimento. Si puo' passare la domanda oppure modello e dati espliciti.",
+    parameters: {
+      type: 'object',
+      properties: {
+        domanda: { type: 'string', description: 'Il testo del problema, con i numeri e le unita\'.' },
+        modello: { type: 'string', description: 'Facoltativo: id del modello (es. proiettile, piano, orbita, carnot, lorentz, young, relativita, legame, datazione, idrogeno).' },
+        dati: { type: 'object', description: 'Facoltativo: dati del modello nelle unita\' del modello, es. {"v0":20,"th":30}.' }
+      }
+    },
+    execute: function(a){ return _risolviArea(a, 'fisica'); }
+  },
+  {
+    name: 'risolvi_chimica',
+    description: "Risolve un problema numerico di chimica (stechiometria, reagente limitante, soluzioni, gas, colligative, termochimica, cinetica, equilibri, acidi e basi, tamponi, titolazioni, solubilita', elettrochimica, analitica, spettroscopia, chimica fisica, biochimica) con uno dei cinquanta modelli dell'app, leggendo formule, reazioni e dati con le unita'; risolve anche il problema inverso (\"quanti grammi servono…\") e restituisce lo svolgimento.",
+    parameters: {
+      type: 'object',
+      properties: {
+        domanda: { type: 'string', description: 'Il testo del problema, con formule, reazioni, numeri e unita\'.' },
+        modello: { type: 'string', description: 'Facoltativo: id del modello (es. acidodebole, tampone, titolazione, limitante, ksp, pila, hess, cinetica, beer).' },
+        dati: { type: 'object', description: 'Facoltativo: dati del modello nelle sue unita\'.' }
+      }
+    },
+    execute: function(a){ return _risolviArea(a, 'chimica'); }
   }
 ];
 
@@ -5239,6 +5314,9 @@ async function _unTurno(providerId, apiKey, messages, systemPrompt, callbacks, a
         case 'cerca_nel_database': msg = '📚 BioSpecInfo · ' + res.tipo + ': ' + res.trovati + ' risultati su ' + res.totale_nel_database; break;
         case 'apri_animazione':   msg = '🎬 Animazione: ' + res.label; break;
         case 'stato_app':          msg = '🧭 Ho controllato dove ti trovi nell\'app'; break;
+        case 'risolvi_matematica':
+        case 'risolvi_fisica':
+        case 'risolvi_chimica':    msg = (er.name === 'risolvi_matematica' ? '📐 ' : er.name === 'risolvi_fisica' ? '⚛️ ' : '⚗️ ') + (res.titolo || 'Esercizio') + (res.risultato ? ': ' + res.risultato : res.risultati && res.risultati.length ? ': ' + res.risultati[0].nome + ' = ' + (typeof res.risultati[0].valore === 'number' ? +res.risultati[0].valore.toPrecision(4) : res.risultati[0].valore) + ' ' + res.risultati[0].unita : ''); break;
         default:                   msg = '🧭 Ho eseguito: ' + (res.label || er.name);
       }
       callbacks.onToolUse(msg);

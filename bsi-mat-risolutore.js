@@ -387,6 +387,7 @@
     linearita: ['Linearità: l’integrale di una somma è la somma degli integrali', 'Linearity: the integral of a sum is the sum of the integrals'],
     costante: ['Le costanti escono dall’integrale', 'Constants come out of the integral'],
     espansione: ['Si sviluppa il prodotto', 'Expand the product'],
+    trigonometria: ['Formule trigonometriche (sin²u = (1 − cos 2u)/2, cos²u = (1 + cos 2u)/2, prodotto in somma, sin³u = sin u·(1 − cos²u)); si riscrive', 'Trigonometric identities (sin²u = (1 − cos 2u)/2, cos²u = (1 + cos 2u)/2, product to sum, sin³u = sin u·(1 − cos²u)); rewrite as'],
     tabella: ['Integrale immediato (tabella)', 'Standard integral (table)'],
     parti: ['Integrazione per parti: ∫ u dv = u·v − ∫ v du', 'Integration by parts: ∫ u dv = u·v − ∫ v du'],
     sostituzione: ['Sostituzione', 'Substitution']
@@ -398,7 +399,7 @@
     if (fr && C.uguali(C.deriva(fr.primitiva, x), e, [x])) { fr.passi.forEach(function (p) { R.passo(p.titolo, p.html); }); Fp = fr.primitiva; }
     else {
       var reg = []; Fp = C.integra(e, x, reg);
-      var visti = {}, utili = reg.filter(function (r) { var k = r.metodo + JSON.stringify(r.dettagli); if (visti[k] || /__u/.test(k)) return false; visti[k] = 1; return r.metodo === 'parti' || r.metodo === 'sostituzione' || r.metodo === 'espansione' || (r.metodo === 'linearita'); });
+      var visti = {}, utili = reg.filter(function (r) { var k = r.metodo + JSON.stringify(r.dettagli); if (visti[k] || /__u/.test(k)) return false; visti[k] = 1; return r.metodo === 'parti' || r.metodo === 'sostituzione' || r.metodo === 'espansione' || r.metodo === 'trigonometria' || (r.metodo === 'linearita'); });
       if (Fp) {
         var principali = utili.filter(function (r) { return r.metodo !== 'linearita'; });
         if (!principali.length) R.passo(F.tt(NOMI_METODO.tabella), t('L’integrando (o ciascun addendo) è nella tabella degli integrali immediati, eventualmente con argomento lineare ax + b (si divide per a).', 'The integrand (or each term) is in the table of standard integrals, possibly with a linear argument ax + b (divide by a).'));
@@ -407,6 +408,7 @@
           if (r.metodo === 'parti') R.passo(F.tt(NOMI_METODO.parti), 'u = ' + esc(d.u) + ', dv = ' + esc(d.dv) + ' d' + x + ' ⇒ v = ' + esc(d.v) + t('; resta da integrare v·du = ', '; it remains to integrate v·du = ') + esc(d.resto) + ' d' + x + '<br><span style="color:#9fb1c6">' + t('Si sceglie come u il fattore che derivando si semplifica (polinomi, logaritmi, arcotangenti).', 'Choose as u the factor that simplifies when differentiated (polynomials, logarithms, arctangents).') + '</span>');
           else if (r.metodo === 'sostituzione') R.passo(F.tt(NOMI_METODO.sostituzione), 'u = ' + esc(d.u) + ', du = ' + esc(d.du) + ' d' + x + ' ⇒ ∫ ' + esc(d.integrando) + ' du = ' + esc(d.Fu) + '<br><span style="color:#9fb1c6">' + t('Funziona perché nell’integrando compare la derivata di u (a meno di una costante).', 'It works because the derivative of u appears in the integrand (up to a constant).') + '</span>');
           else if (r.metodo === 'espansione') R.passo(F.tt(NOMI_METODO.espansione), H(d.espr));
+          else if (r.metodo === 'trigonometria') R.passo(F.tt(NOMI_METODO.trigonometria), H(d.espr));
         });
       }
     }

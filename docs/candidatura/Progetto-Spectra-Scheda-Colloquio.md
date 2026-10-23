@@ -8,7 +8,7 @@ Repository: `samupropio1-ship-it/BioSpecInfo-v11` · demo pubblica su GitHub Pag
 ## In una frase
 
 Un **agente conversazionale** che risolve problemi di chimica e fisica
-invocando 35 strumenti deterministici invece di rispondere a memoria, legge
+invocando 38 strumenti deterministici invece di rispondere a memoria, legge
 foto di appunti e PDF, disegna mappe concettuali e risponde al comando vocale —
 con ragionamento visibile e verificabile, su 10 configurazioni di modello di 7
 fornitori diversi, senza alcun backend.

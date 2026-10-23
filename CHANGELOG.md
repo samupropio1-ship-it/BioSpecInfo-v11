@@ -7,6 +7,52 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v231] — 2026-10-23
+
+**Tre macro-aree con un assistente: Chimica, Fisica, Matematica**
+
+### Aggiunto
+- **⚗️ Area Chimica**, **⚛️ Area Fisica** e **📐 Area Matematica**, in testa
+  alle rispettive categorie. Ogni area ha tre schede:
+  - **🤖 Assistente**: si scrive la domanda come la si scriverebbe al
+    professore («calcola il pH di una soluzione 0,1 M di acido acetico con
+    Ka = 1,8·10⁻⁵», «un'auto a 90 km/h frena con 5 m/s²», «y'' − 3y' + 2y =
+    eˣ, y(0)=0, y'(0)=1»). L'assistente riconosce il tipo di esercizio o il
+    modello di problema, legge i dati (numeri con le unità, che converte;
+    assegnazioni come «Ka = …»; formule; reazioni; liste di valori; scelte
+    come «in parallelo» o «biatomico») e risponde con lo svolgimento completo.
+    Dice che cosa ha capito e da dove viene ogni dato: letto dal testo,
+    dedotto dal contesto («frena», «cade», «un elettrone», «carbonio 14»),
+    oppure supposto e da verificare. Propone i modelli alternativi e apre il
+    risolutore per correggere i dati.
+  - **🗂️ Tutti gli strumenti** della materia, raccolti dalla barra e
+    cercabili.
+  - **🧭 Livelli**, dalle superiori al dottorato.
+- **Problema inverso**: quando la domanda chiede un dato del modello
+  («quanti grammi di NaCl servono per 250 mL di soluzione 0,5 M», «che
+  pressione…»), l'assistente lo ricava all'indietro dal risultato fornito nel
+  testo, per bisezione.
+- Le domande si possono scrivere anche in inglese. L'assistente funziona
+  senza rete; un pulsante passa la domanda a Spectra.
+- Spectra ha **tre strumenti nuovi**, `risolvi_matematica`, `risolvi_fisica`
+  e `risolvi_chimica`, con lo stesso motore dell'assistente: 38 strumenti in
+  tutto.
+- Motore simbolico:
+  - **integrali trigonometrici**: bisezione, prodotto in somma, potenze
+    dispari;
+  - **e^(c·ln u) = u^c**, che sblocca le EDO lineari con coefficiente 1/x;
+  - **semplificazione delle frazioni di polinomi** con il MCD di Euclide.
+- Requisito **SCI-48**.
+
+### Banco
+- Nuovo `test_assistente`: oltre 150 controlli. Su 80 domande in linguaggio
+  naturale si verificano il modello capito, i dati letti con le unità e il
+  risultato, rifatto per altra via; si provano il problema inverso e gli
+  strumenti di Spectra; nel browser si aprono le tre aree, si fa una domanda
+  scritta nella casella, si provano catalogo, ricerca e livelli, a 390 px e in
+  inglese.
+
+---
 ## [bsi-v230] — 2026-10-23
 
 **Dalle superiori al dottorato: astrofisica, nucleare, quantistica, organica**

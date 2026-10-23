@@ -216,6 +216,12 @@
     if (n === 'ln' && x.t === 's' && x.n === 'e') return Q(1);
     if (n === 'ln' && x.t === 'f' && x.n === 'exp') return x.a[0];
     if (n === 'exp' && x.t === 'f' && x.n === 'ln') return x.a[0];
+    /* e^(c·ln u) = u^c e e^(a + c·ln u) = e^a·u^c, con c numerico */
+    if (n === 'exp' && x.t === '*' && x.a.length === 2 && x.a[0].t === 'n' && x.a[1].t === 'f' && x.a[1].n === 'ln') return sempPow(x.a[1].a[0], x.a[0]);
+    if (n === 'exp' && x.t === '+') {
+      var lnT = x.a.filter(function (y) { return y.t === 'f' && y.n === 'ln' || y.t === '*' && y.a.length === 2 && y.a[0].t === 'n' && y.a[1].t === 'f' && y.a[1].n === 'ln'; });
+      if (lnT.length) { var altri = x.a.filter(function (y) { return lnT.indexOf(y) < 0; }); return sempMul([altri.length ? sempF('exp', altri.length === 1 ? altri[0] : sempAdd(altri)) : Q(1)].concat(lnT.map(function (y) { return y.t === 'f' ? y.a[0] : sempPow(y.a[1].a[0], y.a[0]); }))); }
+    }
     if (n === 'abs' && x.t === 'n') return Q(Math.abs(x.n), x.d);
     if (n === 'abs' && x.t === 'f' && x.n === 'abs') return x;
     if (x.t === 's' && x.n === 'π') { if (n === 'sin' || n === 'tan') return Q(0); if (n === 'cos') return Q(-1); }
@@ -564,10 +570,50 @@
     REG = registro || null;
     var r = I(e, x, 0);
     if (!r) { var ex = espandi(e); if (chiave(ex) !== chiave(e)) { if (REG) REG.push({ metodo: 'espansione', dettagli: { espr: stampa(ex) } }); r = I(ex, x, 0); } }
+    if (!r && /sin|cos/.test(stampa(e))) r = tentaTrig(e, x);
     REG = null;
     if (!r) return null;
     r = S(r);
     return verificaPrimitiva(r, e, x) ? r : null;
+  }
+  /* formule trigonometriche per l'integrazione: bisezione (sin²u, cos²u), duplicazione
+     (sin u·cos u), prodotto in somma (sin a·cos b…), potenze dispari (sin³u = sin u·(1 − cos²u)) */
+  function eTrig(f) { return f.t === 'f' && (f.n === 'sin' || f.n === 'cos'); }
+  function riduciTrig(e, dispari) {
+    if (!e || !e.a) return e;
+    var a = e.a.map(function (y) { return riduciTrig(y, dispari); }), n = { t: e.t, n: e.n, a: a };
+    if (n.t === '^' && eTrig(n.a[0]) && intero(n.a[1]) && n.a[1].n >= 2) {
+      var u = n.a[0].a[0], k = n.a[1].n, sn = n.a[0].n === 'sin', altro = fn(sn ? 'cos' : 'sin', u);
+      if (dispari && k % 2 === 1) return mul(n.a[0], pow(add(Q(1), mul(Q(-1), pow(altro, Q(2)))), Q((k - 1) / 2)));
+      if (dispari) return n;
+      var mezzo = mul(Q(1, 2), add(Q(1), mul(sn ? Q(-1) : Q(1), fn('cos', mul(Q(2), u)))));
+      return k === 2 ? mezzo : mul(mezzo, k === 3 ? n.a[0] : pow(n.a[0], Q(k - 2)));
+    }
+    if (n.t === '*' && !dispari) {
+      var tr = [], i;
+      for (i = 0; i < n.a.length && tr.length < 2; i++) if (eTrig(n.a[i])) tr.push(i);
+      if (tr.length === 2) {
+        var f1 = n.a[tr[0]], f2 = n.a[tr[1]], A = f1.a[0], B = f2.a[0], resto = n.a.filter(function (f, j) { return j !== tr[0] && j !== tr[1]; }), somma;
+        if (f1.n === 'cos' && f2.n === 'sin') { var tmp = f1; f1 = f2; f2 = tmp; A = f1.a[0]; B = f2.a[0]; }
+        var piu = add(A, B), meno = add(A, mul(Q(-1), B));
+        if (f1.n === 'sin' && f2.n === 'cos') somma = chiave(S(A)) === chiave(S(B)) ? mul(Q(1, 2), fn('sin', mul(Q(2), A))) : mul(Q(1, 2), add(fn('sin', piu), fn('sin', meno)));
+        else if (f1.n === 'cos') somma = mul(Q(1, 2), add(fn('cos', meno), fn('cos', piu)));
+        else somma = mul(Q(1, 2), add(fn('cos', meno), mul(Q(-1), fn('cos', piu))));
+        return mul.apply(null, resto.concat([somma]));
+      }
+    }
+    return n;
+  }
+  function tentaTrig(e, x) {
+    /* prima le potenze dispari (poi una sostituzione), poi bisezione e prodotti ripetuti fino a stabilita' */
+    var prove = [S(espandi(riduciTrig(e, true)))], c = e;
+    for (var g = 0; g < 5; g++) { var d = S(espandi(riduciTrig(c, false))); if (chiave(d) === chiave(c)) break; c = d; prove.push(c); }
+    for (var i = 0; i < prove.length; i++) {
+      if (chiave(prove[i]) === chiave(e)) continue;
+      var r = I(prove[i], x, 0);
+      if (r) { if (REG) REG.push({ metodo: 'trigonometria', dettagli: { espr: stampa(prove[i]) } }); return r; }
+    }
+    return null;
   }
   function verificaPrimitiva(Fp, f, x) {
     /* gli altri simboli (costanti come R, Cv, a) prendono valori di prova fissi */

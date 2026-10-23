@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v230` |
+| **Versione documentata** | Service Worker `bsi-v231` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 35 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 38 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 35 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 38 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 35 strumenti
+## 3. I 38 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -487,7 +487,8 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 | **Fisica** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
-| **Controllo app** | `naviga_sezione` (117 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
+| **Macro-aree** | `risolvi_matematica`, `risolvi_fisica`, `risolvi_chimica` — lo stesso motore dell'assistente delle tre aree: domanda in linguaggio naturale, oppure modello e dati espliciti; svolgimento, dati con la loro origine, problema inverso |
+| **Controllo app** | `naviga_sezione` (120 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
 
@@ -694,7 +695,7 @@ nel motore di calcolo.
 
 Test automatizzati con Chromium *headless* su tutte le 14 pagine
 dell'applicazione: nessun errore JavaScript, nessuna risorsa mancante.
-Percorse una per una le 117 sezioni di `index.html` e i 18 tab della sezione
+Percorse una per una le 120 sezioni di `index.html` e i 18 tab della sezione
 Astrochimica. Ispezionato il corpo delle richieste per i quattro livelli
 Claude, e simulato un ciclo completo con ricerca web, sospensione e ripresa
 del turno.

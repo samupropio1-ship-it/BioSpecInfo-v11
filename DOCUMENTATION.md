@@ -6,7 +6,7 @@
 |---|---|
 | **Software** | BioSpecInfo — piattaforma di chemioinformatica interattiva |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione documentata** | `bsi-v230` |
+| **Versione documentata** | `bsi-v231` |
 | **Demo** | [samupropio1-ship-it.github.io/BioSpecInfo-v11](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/) |
 | **Licenza** | Proprietaria — *All rights reserved* ([`LICENSE`](LICENSE)) |
 
@@ -39,7 +39,7 @@ La documentazione è estesa. Questo è il percorso più breve secondo chi sei.
 |---|---|---|
 | 00 | [Dossier tecnico](docs/00-Technical-Dossier.md) | Sintesi, factsheet, capacità, stack |
 | 01 | [Software Architecture Document](docs/01-Software-Architecture-Document.md) | Architettura, componenti, flussi dati |
-| 05 | [Architettura dell'agente «Spectra»](docs/05-AI-Agent-Architecture.md) | Ciclo agentico, 35 strumenti, decisioni ingegneristiche |
+| 05 | [Architettura dell'agente «Spectra»](docs/05-AI-Agent-Architecture.md) | Ciclo agentico, 38 strumenti, decisioni ingegneristiche |
 | 10 | [Riferimento delle interfacce](docs/10-API-Reference.md) | Proxy (OpenAPI 3.0), API esterne consumate, API interne JS |
 | 11 | [Modello dei dati](docs/11-Data-Model.md) | `localStorage`, IndexedDB, dataset — con diagramma ER |
 
@@ -137,4 +137,4 @@ impronte SHA-256 dei file si ricalcolano con `sha256sum`.
 
 ---
 
-_Indice aggiornato alla versione `bsi-v230`._
+_Indice aggiornato alla versione `bsi-v231`._
