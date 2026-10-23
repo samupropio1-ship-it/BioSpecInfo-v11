@@ -22,17 +22,8 @@
   if (!F) return;
   var t = F.t, fmt = F.fmt, R = 8.314462618;
   function griglia(div) { var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'); G.appendChild(pan); G.appendChild(dx); div.appendChild(G); return { pan: pan, dx: dx }; }
-  function pennello(c) {
-    var dpr = Math.min(2, globale.devicePixelRatio || 1), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, w, h);
-    return { q: q, W: w, H: h };
-  }
-  function anima(c, passo) {
-    var vivo = true, prec = 0;
-    function giro(ora) { if (!vivo || !c.isConnected) return; if (c.offsetParent !== null) { var dt = prec ? Math.min(0.05, (ora - prec) / 1000) : 0.016; prec = ora; if (passo(dt) === false) return; } else prec = 0; globale.requestAnimationFrame(giro); }
-    globale.requestAnimationFrame(giro); return { ferma: function () { vivo = false; } };
-  }
+  /* il motore comune delle animazioni (pausa, velocita', ricomincia) e la tela pulita */
+  var anima = F.anima, pennello = F.pennello;
   function nota(pan) { var n = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(n); return n; }
 
   /* ═══ cicli ═════════════════════════════════════════════════════════════ */
@@ -145,6 +136,7 @@
     }
     calcola();
     anima(cpv, function (dt) {
+      if (!dt) dt = 0;
       fr = (fr + dt * 0.25) % 1;
       var tutti = [].concat.apply([], C.map(function (x) { return x.punti; })), k = Math.floor(fr * tutti.length), p = tutti[k];
       var o = F.grafico(cpv, { serie: C.map(function (x, i) { return { x: x.punti.map(function (p) { return p[0] * 1000; }), y: x.punti.map(function (p) { return p[1] / 1e5; }), col: ['#ff8a80', '#ffd24a', '#6bcfff', '#5eead4'][i], larg: 2.2, nascondiMirino: true }; }), xl: ['V (L)', 'V (L)'], yl: ['p (bar)', 'p (bar)'], ymin: 0 });
@@ -168,7 +160,8 @@
     nuovo();
     var fot = 0;
     anima(cb, function (dt) {
-      for (var i = 0; i < 4; i++) gasPasso(gas, 0.025);
+      /* 4 passi di 0,025 per fotogramma a ×1: con la velocita' cambia il numero di passi, non la loro lunghezza (gli urti restano esatti) */
+      var np = Math.max(0, Math.round(dt * 60 * 4)); for (var i = 0; i < np; i++) gasPasso(gas, 0.025);
       var E = energiaCinetica(gas), kT = E / gas.P.length; /* due gradi di liberta': ⟨½v²⟩ = kT */
       var P = pennello(cb), q = P.q, W = P.W, H = P.H, lato = Math.min(W, H) - 20, ox = (W - lato) / 2, s = lato / gas.L, vmax = 3 * Math.sqrt(kT);
       q.strokeStyle = '#34465f'; q.strokeRect(ox, 10, lato, lato);
@@ -186,7 +179,7 @@
       var pMis = gas.tempo > 0 ? gas.impulso / gas.tempo / (4 * gas.L) : 0, pId = gas.P.length * kT / (gas.L * gas.L), eta = gas.P.length * Math.PI * gas.r * gas.r / (gas.L * gas.L), pDD = pId * (1 + 2 * eta + 2.7826 * eta * eta);
       info.innerHTML = 'kT = ⟨½ m v²⟩ = ' + fmt(kT) + ' · ' + t('pressione misurata dagli urti sulle pareti ', 'pressure measured from wall hits ') + '<b class="bsiFX-num">' + fmt(pMis) + '</b> · ' + t('gas ideale ', 'ideal gas ') + 'N kT / A = <b class="bsiFX-num">' + fmt(pId) + '</b> (' + t('differenza ', 'difference ') + fmt(pId ? (pMis / pId - 1) * 100 : 0) + ' %)<br>' + t('Correzione dei dischi duri (sviluppo del viriale) ', 'Hard-disc correction (virial expansion) ') + 'N kT/A·(1 + 2η + 2,78η²) = <b class="bsiFX-num">' + fmt(pDD) + '</b>, η = ' + fmt(eta) + '<br>' +
         t('Tutte le particelle partono con la stessa velocità: gli urti la ridistribuiscono finché l’istogramma diventa la curva di Maxwell-Boltzmann, la distribuzione di massima entropia a energia fissata. Lo scarto di pressione rispetto al gas ideale viene dalla superficie occupata dai dischi stessi (gas reale, come il termine b di van der Waals): la correzione del viriale lo spiega.', 'All particles start at the same speed: collisions redistribute it until the histogram becomes the Maxwell-Boltzmann curve, the maximum-entropy distribution at fixed energy. The pressure excess over the ideal gas comes from the area taken by the discs themselves (real gas, like the van der Waals b term): the virial correction accounts for it.');
-    });
+    }, { ricomincia: function () { nuovo(); } });
   }
 
   /* ═══ 3. moto browniano ═════════════════════════════════════════════════ */
@@ -194,25 +187,27 @@
     var G = griglia(div), st = { N: 200, passo: 1 }, info, cam, tt;
     F.cursore(G.pan, ['camminatori', 'walkers'], 20, 1000, 20, st.N, function (v) { st.N = v; nuovo(); });
     F.cursore(G.pan, ['lunghezza del passo', 'step length'], 0.5, 3, 0.1, st.passo, function (v) { st.passo = v; nuovo(); }, function (v) { return v.toFixed(1); });
-    F.bottone(G.pan, ['Ricomincia', 'Restart'], function () { nuovo(); });
     info = nota(G.pan);
     var cw = F.tela(G.dx, 0.55), cg = F.tela(G.dx, 0.38), storia;
-    function nuovo() { cam = []; for (var i = 0; i < st.N; i++) cam.push({ x: 0, y: 0, tr: [[0, 0]] }); tt = 0; storia = [[0, 0]]; }
+    var ultimo = -1;
+    function nuovo() { cam = []; for (var i = 0; i < st.N; i++) cam.push({ x: 0, y: 0, tr: [[0, 0]] }); tt = 0; storia = [[0, 0]]; ultimo = -1; if (ctlB) ctlB.sveglia(); }
+    var ctlB = null;
     nuovo();
     var semeB = 99; function rnd() { semeB = (semeB + 0x6D2B79F5) >>> 0; var q = Math.imul(semeB ^ (semeB >>> 15), 1 | semeB); q = (q + Math.imul(q ^ (q >>> 7), 61 | q)) ^ q; return ((q ^ (q >>> 14)) >>> 0) / 4294967296; }
-    anima(cw, function () {
-      if (tt >= 600) return;
-      for (var k = 0; k < 2; k++) { tt++; cam.forEach(function (c, i) { var a = rnd() * 2 * Math.PI; c.x += st.passo * Math.cos(a); c.y += st.passo * Math.sin(a); if (i < 6) c.tr.push([c.x, c.y]); }); var r2 = 0; cam.forEach(function (c) { r2 += c.x * c.x + c.y * c.y; }); storia.push([tt, r2 / cam.length]); }
+    ctlB = anima(cw, function (dt) {
+      if (tt >= 600) return false;
+      var np = Math.max(0, Math.round(dt * 60 * 2));
+      for (var k = 0; k < np; k++) { tt++; cam.forEach(function (c, i) { var a = rnd() * 2 * Math.PI; c.x += st.passo * Math.cos(a); c.y += st.passo * Math.sin(a); if (i < 6) c.tr.push([c.x, c.y]); }); var r2 = 0; cam.forEach(function (c) { r2 += c.x * c.x + c.y * c.y; }); storia.push([tt, r2 / cam.length]); }
       var P = pennello(cw), q = P.q, W = P.W, H = P.H, sc = Math.min(W, H) / (8 * st.passo * Math.sqrt(Math.max(30, tt))), cx = W / 2, cy = H / 2;
       q.fillStyle = 'rgba(94,234,212,.55)'; cam.forEach(function (c) { q.fillRect(cx + c.x * sc - 1, cy + c.y * sc - 1, 2.2, 2.2); });
       ['#ffd24a', '#ff8a80', '#6bcfff', '#c49bff', '#a8e07a', '#ffffff'].forEach(function (col, i) { var c = cam[i]; if (!c) return; q.strokeStyle = col; q.lineWidth = 1; q.beginPath(); c.tr.forEach(function (p, j) { if (j) q.lineTo(cx + p[0] * sc, cy + p[1] * sc); else q.moveTo(cx + p[0] * sc, cy + p[1] * sc); }); q.stroke(); });
       var rr = Math.sqrt(storia[storia.length - 1][1]); q.strokeStyle = 'rgba(255,210,74,.6)'; q.setLineDash([4, 4]); q.beginPath(); q.arc(cx, cy, rr * sc, 0, Math.PI * 2); q.stroke(); q.setLineDash([]);
       cw.setAttribute('aria-label', t('cammini casuali', 'random walks'));
-      if (tt % 10) return;
+      if (Math.floor(tt / 10) === ultimo && tt < 600) return; ultimo = Math.floor(tt / 10);
       var D = st.passo * st.passo / 4;
       F.grafico(cg, { serie: [{ x: storia.map(function (p) { return p[0]; }), y: storia.map(function (p) { return p[1]; }), col: '#5eead4', larg: 2, etich: t('misurato', 'measured') }, { x: [0, tt], y: [0, 4 * D * tt], col: '#ffd24a', tratt: true, etich: '4Dt' }], xmin: 0, ymin: 0, xl: [t('passi', 'steps'), t('passi', 'steps')], yl: ['⟨r²⟩', '⟨r²⟩'], legenda: [{ col: '#5eead4', etich: ['misurato', 'measured'] }, { col: '#ffd24a', etich: '⟨r²⟩ = 4Dt' }] });
       info.innerHTML = t('Ogni camminatore fa passi di lunghezza ', 'Each walker takes steps of length ') + st.passo + t(' in direzione casuale. Dopo ', ' in a random direction. After ') + tt + t(' passi ', ' steps ') + '⟨r²⟩ = <b class="bsiFX-num">' + fmt(storia[storia.length - 1][1]) + '</b>, ' + t('teoria ', 'theory ') + '4Dt = <b class="bsiFX-num">' + fmt(4 * D * tt) + '</b> ' + t('con D = ℓ²/4 per passo.', 'with D = ℓ²/4 per step.') + '<br>' + t('La distanza tipica cresce come √t, non come t: è per questo che la diffusione è rapida su un micrometro e lentissima su un centimetro. Einstein (1905) ne ricavò il numero di Avogadro: D = RT/(6πηaN_A).', 'The typical distance grows like √t, not t: that is why diffusion is fast over a micrometre and very slow over a centimetre. Einstein (1905) obtained Avogadro’s number from it: D = RT/(6πηaN_A).');
-    });
+    }, { ricomincia: function () { var c0 = ctlB; ctlB = null; nuovo(); ctlB = c0; } });
   }
 
   F.sezione('sfistermo', {

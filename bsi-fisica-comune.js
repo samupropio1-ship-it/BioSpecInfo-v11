@@ -61,6 +61,10 @@
     '.bsiFX-tela.bsiFX-entra{animation:bsiFX-entra .7s cubic-bezier(.2,.7,.2,1) both}',
     '@keyframes bsiFX-entra{from{clip-path:inset(0 100% 0 0);opacity:.35}to{clip-path:inset(0 0 0 0);opacity:1}}',
     '@media (prefers-reduced-motion:reduce){.bsiFX-tela.bsiFX-entra{animation:none}}',
+    '.bsiFX-anim{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:4px 0 8px}',
+    '.bsiFX-anim button{background:#0a1628;color:#e6fffb;border:1px solid #1a3050;border-radius:7px;min-width:34px;min-height:30px;padding:0 8px;font-size:.82rem;cursor:pointer;font-family:inherit}',
+    '.bsiFX-anim button[aria-pressed="true"]{border-color:#5eead4;color:#5eead4;background:rgba(94,234,212,.1)}',
+    '.bsiFX-anim span{font-size:.76rem;color:#8494a8;margin-left:4px;font-variant-numeric:tabular-nums}',
     '.bsiFX-num{font-variant-numeric:tabular-nums;color:#e6fffb}',
     '.bsiFX-tab{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}',
     '.bsiFX-tab td,.bsiFX-tab th{border-bottom:1px solid #16263d;padding:4px 6px;text-align:right}',
@@ -363,12 +367,81 @@
     clearTimeout(tR); tR = setTimeout(function () { ridis.forEach(function (f) { try { f(); } catch (e) {} }); }, 80);
   });
 
+  /* ── il motore delle animazioni ───────────────────────────────────────────
+     Tutte le simulazioni passano di qui, cosi' si comportano allo stesso modo:
+     · una barra sotto la tela: ⏸/▶ pausa, ↺ ricomincia (se il modulo sa
+       ricominciare), velocita' ×¼ … ×4, e il tempo trascorso;
+     · il passo riceve dt in secondi gia' moltiplicato per la velocita', e mai
+       piu' di 1/20 s: se il telefono perde fotogrammi la fisica non salta;
+     · si ferma quando la tela esce dallo schermo, quando la scheda o la
+       finestra non sono visibili, quando la tela viene tolta dalla pagina; e
+       riparte da sola quando torna visibile. Prima, molti cicli giravano anche
+       nascosti, consumando batteria;
+     · con «riduci movimento» attivo nel sistema parte in pausa (il primo
+       fotogramma e' comunque disegnato) e si avvia con ▶;
+     · il passo puo' restituire false per dire «ho finito»: la barra mostra ▶
+       e un clic ricomincia.
+     WCAG 2.2.2: ogni contenuto che si muove per piu' di 5 s si puo' fermare. */
+  var animazioni = [];
+  function anima(c, passo, opz) {
+    opz = opz || {};
+    var A = { inPausa: false, finita: false, velocita: 1, tempo: 0, visibile: true, giro: null, prec: 0 };
+    var barra = null, bP = null, eT = null;
+    if (opz.controlli !== false && c && c.parentNode) {
+      barra = el('div', { 'class': 'bsiFX-anim', role: 'group', 'aria-label': tt(['Controlli dell’animazione', 'Animation controls']) });
+      bP = el('button', { type: 'button', onclick: function () { if (A.finita) { if (opz.ricomincia) opz.ricomincia(); A.finita = false; A.tempo = 0; A.inPausa = false; } else A.inPausa = !A.inPausa; aggiorna(); avvia(); } });
+      barra.appendChild(bP);
+      if (opz.ricomincia) barra.appendChild(el('button', { type: 'button', testo: '↺', title: tt(['Ricomincia', 'Restart']), 'aria-label': tt(['Ricomincia', 'Restart']), onclick: function () { opz.ricomincia(); A.finita = false; A.tempo = 0; A.inPausa = false; aggiorna(); avvia(); } }));
+      var vel = [];
+      [0.25, 0.5, 1, 2, 4].forEach(function (v) { var b = el('button', { type: 'button', testo: '×' + (v === 0.25 ? '¼' : v === 0.5 ? '½' : v), title: tt(['Velocità ', 'Speed ']) + v, 'aria-label': tt(['Velocità ', 'Speed ']) + v, onclick: function () { A.velocita = v; vel.forEach(function (x) { x[1].setAttribute('aria-pressed', String(x[0] === v)); }); } }); b.setAttribute('aria-pressed', String(v === 1)); vel.push([v, b]); barra.appendChild(b); });
+      eT = el('span'); barra.appendChild(eT);
+      c.parentNode.insertBefore(barra, c.nextSibling);
+    }
+    function aggiorna() {
+      if (!bP) return;
+      var gira = !A.inPausa && !A.finita;
+      bP.textContent = gira ? '❚❚' : '▶';
+      var nome = tt(gira ? ['Pausa', 'Pause'] : A.finita ? ['Ricomincia', 'Restart'] : ['Avvia', 'Play']);
+      bP.title = nome; bP.setAttribute('aria-label', nome);
+    }
+    function puoGirare() { return !A.inPausa && !A.finita && A.visibile && c.isConnected && c.offsetParent !== null && !(document.hidden); }
+    function giro(ora) {
+      A.giro = null;
+      if (!puoGirare()) { A.prec = 0; return; }
+      var dt = A.prec ? Math.min(0.05, (ora - A.prec) / 1000) : 1 / 60; A.prec = ora;
+      var d = dt * A.velocita; A.tempo += d;
+      var r;
+      try { r = passo(d, A.tempo); } catch (e) { A.finita = true; aggiorna(); if (globale.console) console.error(e); return; }
+      if (eT) eT.textContent = 't = ' + A.tempo.toFixed(1) + ' s';
+      if (r === false) { A.finita = true; aggiorna(); return; }
+      A.giro = globale.requestAnimationFrame(giro);
+    }
+    function avvia() { if (A.giro || !puoGirare()) return; A.prec = 0; A.giro = globale.requestAnimationFrame(giro); }
+    if (globale.IntersectionObserver && c) { new IntersectionObserver(function (v) { A.visibile = v[0].isIntersecting; if (A.visibile) avvia(); }).observe(c); }
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    if (MENO && opz.rispettaMovimento !== false) { A.inPausa = true; try { passo(0, 0); } catch (e) { } }
+    aggiorna();
+    avvia();
+    var ctl = { pausa: function () { A.inPausa = true; aggiorna(); }, riprendi: function () { A.inPausa = false; A.finita = false; aggiorna(); avvia(); }, ferma: function () { A.finita = true; aggiorna(); }, sveglia: function () { if (A.finita) { A.finita = false; A.tempo = 0; } aggiorna(); avvia(); }, stato: function () { return { pausa: A.inPausa, finita: A.finita, velocita: A.velocita, tempo: A.tempo, gira: !!A.giro }; }, barra: barra };
+    animazioni.push(ctl);
+    return ctl;
+  }
+  /* quando la pagina torna visibile, le animazioni ferme per visibilita' ripartono */
+  if (globale.document && document.addEventListener) document.addEventListener('visibilitychange', function () { if (!document.hidden) animazioni.forEach(function (a) { var s = a.stato(); if (!s.pausa && !s.finita) a.riprendi(); }); });
+  /* il pennello: una tela pulita della dimensione giusta, per chi disegna da se' */
+  function pennello(c) {
+    var dpr = Math.min(2, globale.devicePixelRatio || 1), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, w, h);
+    return { q: q, W: w, H: h };
+  }
+
   globale.BSIFisica = {
     sezione: function (id, d) { sezioni[id] = d; },
     apri: function (id) { return sezioni[id] ? costruisci(id) : false; },
     sezioni: function () { return Object.keys(sezioni); },
     calcolo: calcolo,
     t: t, tt: tt, el: el, cursore: cursore, scelta: scelta, bottone: bottone,
-    tela: tela, grafico: grafico, fmt: fmt, alRidimensiona: alRidimensiona
+    tela: tela, grafico: grafico, fmt: fmt, alRidimensiona: alRidimensiona, anima: anima, pennello: pennello, animazioni: function () { return animazioni.length; }
   };
 })(typeof window !== 'undefined' ? window : globalThis);

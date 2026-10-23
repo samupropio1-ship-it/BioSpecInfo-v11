@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 128 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 133 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -170,6 +170,10 @@ gives the original function back.
 
 
 **🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
+
+### 🔭 Astrophysics, relativity, fluids, vector calculus, complex kinetics
+
+In **⚛️ Physics** there are **🔭 Astrophysics**, **⏱️ Special relativity** and **🌊 Fluids**; in **📐 Mathematics** **∇ Vector calculus**; in **⚗️ Physical Chemistry** **🌀 Complex kinetics**. Under every animation there is a bar: **⏸/▶** pauses and resumes, **↺** restarts, **×¼ … ×4** changes speed, on the right the elapsed time. Animations stop by themselves when they leave the screen; with «reduce motion» on in the system they start paused and run with ▶.
 
 ### 🎯 The laboratories in motion
 
@@ -498,4 +502,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v233`._
+_Guide updated to version `bsi-v234`._

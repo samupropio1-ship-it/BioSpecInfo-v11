@@ -28,25 +28,8 @@
 
   /* ── strumenti comuni per le animazioni ───────────────────────────────── */
   function griglia(div) { var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'); G.appendChild(pan); G.appendChild(dx); div.appendChild(G); return { pan: pan, dx: dx }; }
-  function pennello(c) {
-    var dpr = Math.min(2, globale.devicePixelRatio || 1), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, w, h);
-    return { q: q, W: w, H: h };
-  }
-  /* un ciclo di animazione che si ferma quando la tela non e' visibile */
-  function anima(c, passo) {
-    var stato = { vivo: true, prec: 0 };
-    function giro(ora) {
-      if (!stato.vivo) return;
-      if (!c.isConnected) { stato.vivo = false; return; }
-      if (c.offsetParent !== null) { var dt = stato.prec ? Math.min(0.05, (ora - stato.prec) / 1000) : 0.016; stato.prec = ora; if (passo(dt) === false) { stato.vivo = false; return; } }
-      else stato.prec = 0;
-      globale.requestAnimationFrame(giro);
-    }
-    globale.requestAnimationFrame(giro);
-    return { ferma: function () { stato.vivo = false; } };
-  }
+  /* il motore comune delle animazioni (pausa, velocita', ricomincia) e la tela pulita */
+  var anima = F.anima, pennello = F.pennello;
   function nota(pan) { var n = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(n); return n; }
   var fmt = F.fmt;
 
@@ -96,24 +79,24 @@
     F.cursore(G.pan, ['angolo θ (°)', 'angle θ (°)'], 1, 89, 1, st.th, function (v) { st.th = v; calcola(); });
     F.cursore(G.pan, ['resistenza k (1/m)', 'drag k (1/m)'], 0, 0.05, 0.001, st.k, function (v) { st.k = v; calcola(); }, function (v) { return v.toFixed(3); });
     F.cursore(G.pan, ['quota di lancio (m)', 'launch height (m)'], 0, 50, 1, st.h, function (v) { st.h = v; calcola(); });
-    F.bottone(G.pan, ['Lancia di nuovo', 'Launch again'], function () { k0 = 0; if (!giro) avvia(); });
     info = nota(G.pan);
-    var c = F.tela(G.dx, 0.6), A, V, k0 = 0, giro = null, opt;
+    var c = F.tela(G.dx, 0.6), A, V, k0 = 0, ctl = null, opt;
     function calcola() {
       A = proiettile(st.v0, st.th, st.k, st.h); V = proiettile(st.v0, st.th, 0, st.h); opt = st.k > 0 ? angoloOttimo(st.v0, st.k, st.h) : angoloOttimo(st.v0, 0, st.h);
       info.innerHTML = t('Con l’aria: gittata ', 'With air: range ') + '<b class="bsiFX-num">' + fmt(A.R) + ' m</b>, ' + t('quota massima ', 'max height ') + fmt(A.H) + ' m, ' + t('volo ', 'flight ') + fmt(A.T) + ' s, ' + t('arriva a ', 'lands at ') + fmt(A.vfin) + ' m/s' +
         '<br>' + t('Nel vuoto: gittata ', 'In vacuum: range ') + fmt(V.R) + ' m, ' + t('quota ', 'height ') + fmt(V.H) + ' m' + (st.h === 0 ? ' (v₀² sin 2θ / g = ' + fmt(st.v0 * st.v0 * Math.sin(2 * st.th * Math.PI / 180) / g) + ')' : '') +
         '<br>' + t('Angolo di gittata massima: ', 'Angle of maximum range: ') + '<b>' + fmt(opt) + '°</b>' + (st.k > 0 ? t(' (nel vuoto e da terra sarebbe 45°: la resistenza lo abbassa)', ' (45° in vacuum from the ground: drag lowers it)') : '') +
         '<br>' + t('Velocità limite in caduta √(g/k) = ', 'Terminal velocity √(g/k) = ') + (st.k > 0 ? fmt(Math.sqrt(g / st.k)) + ' m/s' : '∞');
-      k0 = 0; if (!giro) avvia();
+      k0 = 0; if (ctl) ctl.sveglia();
     }
     function disegna(f) {
       var xs = V.pts.map(function (p) { return p[0]; }), ys = V.pts.map(function (p) { return p[1]; }), n = Math.max(2, Math.floor(A.pts.length * f));
       var o = F.grafico(c, { serie: [{ x: xs, y: ys, col: '#7c6fff', tratt: true, etich: ['nel vuoto', 'vacuum'] }, { x: A.pts.slice(0, n).map(function (p) { return p[0]; }), y: A.pts.slice(0, n).map(function (p) { return p[1]; }), col: '#5eead4', larg: 2.5, etich: ['con l’aria', 'with air'] }], xmin: 0, xmax: Math.max(V.R, A.R) * 1.05, ymin: 0, ymax: Math.max(V.H, A.H) * 1.15 + 0.1, xl: ['x (m)', 'x (m)'], yl: ['y (m)', 'y (m)'], legenda: [{ col: '#7c6fff', etich: ['nel vuoto', 'vacuum'] }, { col: '#5eead4', etich: ['con l’aria', 'with air'] }] });
       var p = A.pts[n - 1]; o.q.fillStyle = '#ffd24a'; o.q.beginPath(); o.q.arc(o.X(p[0]), o.Y(p[1]), 6, 0, Math.PI * 2); o.q.fill();
     }
-    function avvia() { giro = anima(c, function (dt) { k0 = Math.min(1, k0 + dt / Math.max(1, Math.min(3, A.T / 2))); disegna(k0); if (k0 >= 1) { giro = null; return false; } }); }
-    calcola(); F.alRidimensiona(function () { disegna(1); });
+    calcola();
+    /* il volo dura il suo tempo vero (al massimo 3 s alla velocita' ×1) */
+    ctl = anima(c, function (dt) { k0 = Math.min(1, k0 + dt / Math.max(1, Math.min(3, A.T))); disegna(k0); if (k0 >= 1) return false; }, { ricomincia: function () { k0 = 0; } }); F.alRidimensiona(function () { disegna(1); });
   }
 
   /* ═══ 2. urti ═══════════════════════════════════════════════════════════ */
@@ -124,9 +107,8 @@
     F.cursore(G.pan, ['m₂ (kg)', 'm₂ (kg)'], 0.5, 10, 0.5, st.m2, function (v) { st.m2 = v; ricomincia(); });
     F.cursore(G.pan, ['v₂ (m/s)', 'v₂ (m/s)'], -5, 5, 0.5, st.v2, function (v) { st.v2 = v; ricomincia(); });
     F.cursore(G.pan, ['restituzione e', 'restitution e'], 0, 1, 0.05, st.e, function (v) { st.e = v; ricomincia(); }, function (v) { return v === 1 ? t('1 (elastico)', '1 (elastic)') : v === 0 ? t('0 (anelastico)', '0 (inelastic)') : v.toFixed(2); });
-    F.bottone(G.pan, ['Ricomincia', 'Restart'], function () { ricomincia(); });
     info = nota(G.pan);
-    var c = F.tela(G.dx, 0.36), sim, giro = null;
+    var c = F.tela(G.dx, 0.36), sim, ctl = null;
     function ricomincia() {
       var r = urto(st.m1, st.v1, st.m2, st.v2, st.e);
       sim = { x1: -2.2, x2: 2.2, v1: st.v1, v2: st.v2, urtato: false, tt: 0, r: r };
@@ -135,7 +117,7 @@
         t('Quantità di moto: ', 'Momentum: ') + fmt(r.P0) + ' → ' + fmt(r.P1) + ' kg·m/s (' + t('si conserva sempre', 'always conserved') + ')<br>' +
         t('Energia cinetica: ', 'Kinetic energy: ') + fmt(r.K0) + ' → ' + fmt(r.K1) + ' J; ' + t('persa ', 'lost ') + '<b>' + fmt(r.persa) + ' J</b> = ½μ(1 − e²)v_rel² ' + t('con μ = m₁m₂/(m₁+m₂)', 'with μ = m₁m₂/(m₁+m₂)') + '<br>' +
         t('Il centro di massa si muove sempre a ', 'The centre of mass always moves at ') + fmt(r.vcm) + ' m/s' + (st.e === 1 && st.m1 === st.m2 ? t('. Masse uguali, urto elastico: le velocità si scambiano.', '. Equal masses, elastic collision: velocities swap.') : '');
-      if (!giro) giro = anima(c, passo);
+      if (ctl) ctl.sveglia(); else ctl = anima(c, passo, { ricomincia: function () { var v = ctl; ctl = null; ricomincia(); ctl = v; } });
     }
     function passo(dt) {
       var s = sim, w1 = 0.25 * Math.cbrt(st.m1), w2 = 0.25 * Math.cbrt(st.m2);
@@ -154,7 +136,7 @@
       });
       var xcm = (st.m1 * s.x1 + st.m2 * s.x2) / (st.m1 + st.m2); q.fillStyle = '#ffd24a'; q.beginPath(); q.moveTo(X(xcm), y0 + 22); q.lineTo(X(xcm) - 5, y0 + 30); q.lineTo(X(xcm) + 5, y0 + 30); q.fill(); q.font = '10px system-ui'; q.fillText(t('CM', 'CM'), X(xcm), y0 + 42);
       c.setAttribute('aria-label', t('urto fra due carrelli', 'collision between two carts'));
-      if (Math.abs(s.x1) > 4 && Math.abs(s.x2) > 4 || s.tt > 14) { giro = null; return false; }
+      if (Math.abs(s.x1) > 4 && Math.abs(s.x2) > 4 || s.tt > 14) return false;
     }
     ricomincia();
   }
@@ -166,13 +148,13 @@
     F.cursore(G.pan, ['ampiezza θ₀ (°)', 'amplitude θ₀ (°)'], 1, 179, 1, st.th, function (v) { st.th = v; ricomincia(); });
     F.cursore(G.pan, ['smorzamento γ (1/s)', 'damping γ (1/s)'], 0, 1, 0.02, st.gam, function (v) { st.gam = v; ricomincia(); }, function (v) { return v.toFixed(2); });
     info = nota(G.pan);
-    var c = F.tela(G.dx, 0.5), s, scia, giro = null;
+    var c = F.tela(G.dx, 0.5), s, scia, ctl = null;
     function ricomincia() {
       s = [st.th * Math.PI / 180, 0]; scia = [];
       var Te = periodoPendolo(st.L, st.th), T0 = 2 * Math.PI * Math.sqrt(st.L / g);
       info.innerHTML = t('Periodo esatto ', 'Exact period ') + 'T = 4√(L/g)·K(sin θ₀/2) = <b class="bsiFX-num">' + fmt(Te) + ' s</b><br>' + t('Piccole oscillazioni ', 'Small oscillations ') + 'T₀ = 2π√(L/g) = ' + fmt(T0) + ' s<br>' + t('Errore dell’approssimazione: ', 'Error of the approximation: ') + '<b>' + fmt((Te / T0 - 1) * 100) + ' %</b>' + (st.th <= 15 ? t(' (sotto l’1 % fino a circa 23°)', ' (below 1 % up to about 23°)') : '') +
         '<br>' + t('A destra lo spazio delle fasi (θ, ω): le curve chiuse sono oscillazioni, la separatrice (tratteggiata) passa per θ = ±180°; con lo smorzamento la traiettoria spiraleggia verso l’origine.', 'Right: phase space (θ, ω): closed curves are oscillations, the separatrix (dashed) goes through θ = ±180°; with damping the trajectory spirals into the origin.');
-      if (!giro) giro = anima(c, passo);
+      if (!ctl) ctl = anima(c, passo, { ricomincia: function () { s = [st.th * Math.PI / 180, 0]; scia = []; } }); else ctl.sveglia();
     }
     function passo(dt) {
       for (var i = 0; i < 8; i++) s = passoPendolo(s, st.L, st.gam, dt / 8);
@@ -209,7 +191,7 @@
     F.cursore(G.pan, ['k_c molla centrale (N/m)', 'k_c middle spring (N/m)'], 0.1, 10, 0.1, st.kc, function (v) { st.kc = v; ricomincia(); }, function (v) { return v.toFixed(1); });
     F.scelta(G.pan, ['Condizione iniziale', 'Initial condition'], [['uno', t('sposto solo la prima massa', 'displace only the first mass')], ['fase', t('modo in fase (x₁ = x₂)', 'in-phase mode (x₁ = x₂)')], ['opp', t('modo in opposizione (x₁ = −x₂)', 'out-of-phase mode (x₁ = −x₂)')]], st.modo, function (v) { st.modo = v; ricomincia(); });
     info = nota(G.pan);
-    var c = F.tela(G.dx, 0.3), c2 = F.tela(G.dx, 0.42), giro = null;
+    var c = F.tela(G.dx, 0.3), c2 = F.tela(G.dx, 0.42), ctl = null;
     function ricomincia() {
       var A = 1, x10 = A, x20 = st.modo === 'uno' ? 0 : st.modo === 'fase' ? A : -A;
       sol = accoppiati(st.k, st.kc, st.m, x10, x20); tt = 0;
@@ -217,7 +199,7 @@
         (st.modo === 'uno' ? t('Spostando una sola massa si eccitano entrambi i modi: l’energia passa da una massa all’altra con periodo ', 'Displacing one mass excites both modes: energy flows from one mass to the other with period ') + '2π/(ω₂ − ω₁) = <b>' + fmt(sol.Tbatt) + ' s</b>. ' + t('Più debole è l’accoppiamento, più lento lo scambio.', 'The weaker the coupling, the slower the exchange.') : t('Partendo da un modo normale le masse oscillano per sempre con una sola frequenza: è questo che rende i modi «normali».', 'Starting from a normal mode the masses oscillate for ever at a single frequency: that is what makes modes «normal».')) +
         '<br>' + t('È lo stesso fenomeno delle vibrazioni simmetrica e antisimmetrica di CO₂ e H₂O.', 'It is the same phenomenon as the symmetric and antisymmetric vibrations of CO₂ and H₂O.');
       grafico();
-      if (!giro) giro = anima(c, passo);
+      if (!ctl) ctl = anima(c, passo, { ricomincia: function () { tt = 0; } }); else ctl.sveglia();
     }
     function grafico() {
       var xs = [], a = [], b = [], Tm = Math.min(60, Math.max(4 * 2 * Math.PI / sol.w1, 1.3 * sol.Tbatt)); for (var i = 0; i <= 900; i++) { var u = Tm * i / 900; xs.push(u); a.push(sol.x1(u)); b.push(sol.x2(u)); }

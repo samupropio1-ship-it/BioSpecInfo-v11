@@ -62,11 +62,12 @@
 
   var COLORI = ['#5eead4', '#ff8a80', '#ffd24a', '#6bcfff'];
   function schedaSimulatore(div) {
-    var G = griglia(div), st = { r: 'haber' }, Rx, T, K, c, storia, tt, eventi, info, stato = F.el('div', { 'class': 'bsiFX-nota' }), giro = null, bott = F.el('div', { style: 'display:flex;flex-wrap:wrap;gap:4px' });
+    var G = griglia(div), st = { r: 'haber' }, Rx, T, K, c, storia, tt, eventi, info, stato = F.el('div', { 'class': 'bsiFX-nota' }), bott = F.el('div', { style: 'display:flex;flex-wrap:wrap;gap:4px' });
     F.scelta(G.pan, ['Reazione', 'Reaction'], Object.keys(REAZIONI).map(function (k) { return [k, REAZIONI[k].nome]; }), st.r, function (v) { st.r = v; nuova(); });
     G.pan.appendChild(bott); info = nota(G.pan); G.pan.appendChild(stato);
     var c1 = F.tela(G.dx, 0.55);
-    function evento(nome) { eventi.push([tt, nome]); avvia(); }
+    var ctl = null;
+    function evento(nome) { eventi.push([tt, nome]); if (ctl) ctl.sveglia(); }
     function nuova() {
       Rx = REAZIONI[st.r]; T = Rx.T; K = costante(Rx, T).K; c = Rx.c0.slice(); storia = [[0].concat(c)]; tt = 0; eventi = [[0, t('inizio', 'start')]];
       bott.innerHTML = '';
@@ -77,18 +78,15 @@
       if (Rx.gas) { F.bottone(bott, ['Volume ÷ 2 (p × 2)', 'Volume ÷ 2 (p × 2)'], function () { c = c.map(function (x) { return 2 * x; }); evento('V/2'); }); F.bottone(bott, ['Volume × 2', 'Volume × 2'], function () { c = c.map(function (x) { return x / 2; }); evento('2V'); }); }
       F.bottone(bott, ['T + 50 K', 'T + 50 K'], function () { T += 50; K = costante(Rx, T).K; evento('T+50'); });
       F.bottone(bott, ['T − 50 K', 'T − 50 K'], function () { T = Math.max(200, T - 50); K = costante(Rx, T).K; evento('T−50'); });
-      F.bottone(bott, ['Ricomincia', 'Restart'], function () { nuova(); });
       var k0 = costante(Rx, Rx.T);
       info.innerHTML = '<b>' + Rx.nome + '</b> · ΔH° = ' + Rx.dH + ' kJ/mol · ΔS° = ' + Rx.dS + ' J/(mol·K)' + (Rx.gas ? ' · Δn(gas) = ' + k0.dn : '') + '<br>' + t('Premi i pulsanti per disturbare l’equilibrio e guarda come il sistema reagisce.', 'Press the buttons to disturb the equilibrium and watch how the system responds.');
-      avvia();
+      if (ctl) ctl.sveglia();
     }
-    function avvia() { if (giro) return; giro = true; globale.requestAnimationFrame(ciclo); }
-    function ciclo() {
-      if (!c1.isConnected) { giro = null; return; }
-      if (c1.offsetParent === null) { giro = null; return; }
+    function ciclo(dt) {
       /* scala dei tempi: k tale che il rilassamento duri qualche secondo */
       var kk = 0.6 / Math.max(1e-6, Math.pow(Math.max.apply(null, c), Math.max(1, -Rx.nu.filter(function (v) { return v < 0; }).reduce(function (s, v) { return s + v; }, 0)) - 1));
-      for (var i = 0; i < 6; i++) { c = passo(Rx, c, K, kk, 0.01); tt += 0.01; }
+      /* 6 passi di 0,01 per fotogramma alla velocita' ×1 */
+      var np = Math.round(dt * 60 * 6); for (var i = 0; i < np; i++) { c = passo(Rx, c, K, kk, 0.01); tt += 0.01; }
       storia.push([tt].concat(c)); if (storia.length > 2400) storia.splice(1, 1);
       var Q = quoziente(Rx, c), lr = Math.log10(Q / K);
       var o = F.grafico(c1, { serie: Rx.sp.map(function (s, j) { return { x: storia.map(function (r) { return r[0]; }), y: storia.map(function (r) { return r[j + 1]; }), col: COLORI[j], larg: 2.2, etich: s }; }), ymin: 0, xl: ['t', 't'], yl: [t('concentrazione (M)', 'concentration (M)'), t('concentrazione (M)', 'concentration (M)')], legenda: Rx.sp.map(function (s, j) { return { col: COLORI[j], etich: s }; }) });
@@ -96,10 +94,11 @@
       var verso = Math.abs(lr) < 0.002 ? t('<b>all’equilibrio</b> (Q = K): le due velocità sono uguali', '<b>at equilibrium</b> (Q = K): the two rates are equal') : lr < 0 ? t('Q < K: la reazione procede <b>verso destra →</b>', 'Q < K: the reaction proceeds <b>to the right →</b>') : t('Q > K: la reazione procede <b>verso sinistra ←</b>', 'Q > K: the reaction proceeds <b>to the left ←</b>');
       stato.innerHTML = 'T = ' + T + ' K · K = <b class="bsiFX-num">' + (K < 1e-3 || K > 1e4 ? K.toExponential(3) : fmt(K)) + '</b> · Q = ' + (Q < 1e-3 || Q > 1e4 ? Q.toExponential(3) : fmt(Q)) + '<br>' + verso + '<br>' + Rx.sp.map(function (s, j) { return s + ' ' + fmt(c[j]) + ' M'; }).join(' · ') +
         '<br>' + t('Le Chatelier: aggiungendo un reagente l’equilibrio si sposta verso i prodotti; comprimendo un gas verso il lato con meno moli gassose; scaldando nel verso endotermico (K cresce se ΔH° > 0).', 'Le Chatelier: adding a reactant shifts the equilibrium towards products; compressing a gas towards the side with fewer gas moles; heating in the endothermic direction (K grows if ΔH° > 0).');
-      if (Math.abs(lr) < 1e-4 && tt - eventi[eventi.length - 1][0] > 0.5) { giro = null; return; }
-      globale.requestAnimationFrame(ciclo);
+      /* raggiunto l'equilibrio si ferma: la barra mostra ▶ e il prossimo disturbo la risveglia */
+      if (Math.abs(lr) < 1e-4 && tt - eventi[eventi.length - 1][0] > 0.5) return false;
     }
     nuova();
+    ctl = F.anima(c1, ciclo, { ricomincia: function () { var c0 = ctl; ctl = null; nuova(); ctl = c0; } });
   }
 
   function schedaTemperatura(div) {

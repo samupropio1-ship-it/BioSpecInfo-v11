@@ -7,6 +7,60 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v234] — 2026-10-23
+
+**Animazioni con pausa e velocità, astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa**
+
+### Aggiunto
+- **🔭 Astrofisica** (categoria ⚛️ Fisica), con cinque schede:
+  - **diagramma H-R** con sedici stelle vere, le rette a raggio costante e
+    una stella di sequenza principale per massa (luminosità, raggio,
+    temperatura, classe, durata della vita);
+  - **corpo nero**: Planck, Wien, σT⁴, il colore che l'occhio vede e B − V;
+  - **sistema solare** animato con l'equazione di Keplero, la terza legge
+    verificata sui dati e il trasferimento di Hohmann Terra-Marte;
+  - **esopianeti**: transito con oscuramento al bordo e curva di luce,
+    velocità radiale, zona abitabile, temperatura di equilibrio;
+  - **cosmologia** di Friedmann: a(t), età dell'universo, distanze e tempo
+    di ritorno, galassie che si allontanano.
+- **⏱️ Relatività ristretta**: diagramma di Minkowski con la relatività
+  della simultaneità e l'intervallo invariante, paradosso dei gemelli con
+  i segnali luminosi, dinamica relativistica, composizione delle velocità
+  e Doppler.
+- **🌊 Fluidi**:
+  - Venturi e Bernoulli con le particelle e i manometri;
+  - Poiseuille, Reynolds, sedimentazione di Stokes anche in centrifuga;
+  - capillarità con la legge di Jurin.
+- **∇ Calcolo vettoriale** (categoria 📐 Matematica):
+  - campi nel piano con particelle trascinate, divergenza e rotore,
+    potenziale;
+  - lavoro e flusso con il teorema di Green verificato, anche nel caso del
+    vortice in cui il «buco» conta;
+  - gradiente e curve di livello.
+- **🌀 Cinetica complessa** (categoria ⚗️ Chimica Fisica):
+  - reazioni consecutive, parallele e reversibili con lo stato stazionario;
+  - Brusselator con la biforcazione di Hopf;
+  - strutture di Turing con il modello di Gray-Scott.
+- **Motore unico delle animazioni**. Ogni simulazione ha una barra con
+  ⏸/▶, ↺ ricomincia, velocità ×¼ … ×4 e il tempo trascorso. Le simulazioni:
+  - si fermano quando escono dallo schermo o la pagina non è visibile, e
+    ripartono da sole;
+  - con «riduci movimento» attivo partono in pausa;
+  - procedono con il tempo reale (dt al massimo 1/20 s), quindi la fisica
+    non salta se il telefono perde fotogrammi.
+  Applicato a meccanica, onde, circuiti, termodinamica ed equilibrio
+  (WCAG 2.2.2).
+- Requisiti **SCI-51** e **UI-17**.
+
+### Migliorato
+- Le animazioni dei laboratori della v233 non girano più quando sono fuori
+  schermo; il gas di particelle, il moto browniano e l'equilibrio seguono
+  la velocità scelta senza cambiare la lunghezza dei passi.
+
+### Banco
+- Nuovo `test_scienze`, su tre configurazioni del browser.
+
+---
 ## [bsi-v233] — 2026-10-23
 
 **Laboratori in movimento: meccanica, onde, circuiti, termodinamica, metodi numerici, geometria, equilibrio**

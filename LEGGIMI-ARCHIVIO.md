@@ -1,11 +1,11 @@
-# BioSpecInfo — archivio completo `bsi-v233`
+# BioSpecInfo — archivio completo `bsi-v234`
 
 Questo archivio contiene **l'applicazione e tutta la documentazione**, nello
 stato esatto del commit pubblicato.
 
 | | |
 |---|---|
-| **Versione** | `bsi-v233` |
+| **Versione** | `bsi-v234` |
 | **Batteria di verifica** | 57 banchi, **0 falliti** — esito CONFORME |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Demo** | `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -73,8 +73,8 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 
 | Se sei… | Parti da |
 |---|---|
-| **Un'azienda che valuta** | `LEGGIMI.md` dentro `BioSpecInfo-AZIENDA-bsi-v233.zip` — percorso di lettura ordinato, circa 45 minuti |
-| **Una commissione di tesi** | `LEGGIMI.md` dentro `BioSpecInfo-TESI-bsi-v233.zip` |
+| **Un'azienda che valuta** | `LEGGIMI.md` dentro `BioSpecInfo-AZIENDA-bsi-v234.zip` — percorso di lettura ordinato, circa 45 minuti |
+| **Una commissione di tesi** | `LEGGIMI.md` dentro `BioSpecInfo-TESI-bsi-v234.zip` |
 | **Chi dovrà lavorarci** | `docs/README.md`, poi `docs/15-Test-Documentation.md` |
 | **Un revisore non italofono** | `docs/en/README.md` — tutti e sedici i documenti |
 | **Chi vuole solo un allegato** | `docs/pdf/BioSpecInfo-Dossier-Completo.it.pdf` (o `.en.pdf`) |
@@ -91,4 +91,4 @@ documentazione lo dichiara, non lo nasconde.
 
 ---
 
-_Archivio prodotto alla versione `bsi-v233`._
+_Archivio prodotto alla versione `bsi-v234`._

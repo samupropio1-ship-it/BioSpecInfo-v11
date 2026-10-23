@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v233` |
+| **Versione descritta** | `bsi-v234` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**71 banchi**, raggruppati per ciò che dimostrano.
+**72 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -117,6 +117,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_assistente` | L'**assistente delle tre macro-aree**: su 80 domande in linguaggio naturale, il tipo di esercizio o il modello capito, i dati letti con le unità (M e m, μC, km/h, masse solari, percentuali), il risultato confrontato con SymPy o con una formula indipendente; il problema inverso; le aggiunte al motore simbolico verificate derivando; nel browser le tre aree, una domanda scritta nella casella, catalogo, ricerca, livelli, gli strumenti di Spectra, 390 px e inglese |
 | `test_grafica3d` | **Ciò che si vede è giusto**: orbitali (nodi, ⟨r⟩ esatto sulla nuvola campionata, frazione dei lobi), Keplero e Lorenz, cristalli (contenuto, impacchettamento, piani di Miller, picco di NaCl), campi (Gauss, spira); nel browser il Laboratorio 3D su due schermi, i gesti, le animazioni dei grafici che finiscono identiche al disegno diretto, il mirino, «riduci movimento», i visori 3Dmol con barra e qualità |
 | `test_laboratori` | **Le simulazioni ritrovano la risposta esatta**: proiettile nel vuoto, urti, pendolo con l'integrale ellittico, modi normali, lenti, reticolo, transitori RLC (Kirchhoff), filtri, cicli (ΔU = ΔS = 0, rendimenti), gas di dischi (Maxwell-Boltzmann, viriale), ordini dei metodi numerici, Runge, coniche, rette sghembe, equilibrio cinetico e Le Chatelier nei due versi; nel browser le 22 schede su due schermi e una perturbazione nella pagina |
+| `test_scienze` | **Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa** contro valori noti (età dell'universo, Planck = σT⁴, Hohmann, transiti, gemelli, Poiseuille, Green, vortice, Brusselator) e il **motore delle animazioni**: pausa, velocità, arresto fuori schermo, «riduci movimento», su tre configurazioni del browser |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
 | `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
@@ -192,7 +193,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 | Banco | Cosa mette alla prova |
 |---|---|
-| `audit_stabilita` | 128 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
+| `audit_stabilita` | 133 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
 | `audit_promesse` | Promesse rifiutate e non gestite, con rete sana e con rete morta |
 | `audit_quota` | `localStorage.setItem` forzato a fallire su 10 pagine |
 | `test_sw` | Offline, rete degradata, aggiornamento durante il lavoro |
@@ -340,8 +341,8 @@ dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `audit_storia` | Che nessuna credenziale sia MAI entrata nel repository: **1 551 versioni distinte di file di testo** su **390 commit**, con 9 schemi. Si rifiuta di passare su un clone superficiale |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 128 sezioni — **e** che nessuna sezione ritagli contenuto rendendolo irraggiungibile: un elemento più largo della sua sezione, senza un antenato che scorra, è testo presente e non leggibile. Una tabella larga dentro un contenitore scorrevole non viene segnalata |
-| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 128 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 133 sezioni — **e** che nessuna sezione ritagli contenuto rendendolo irraggiungibile: un elemento più largo della sua sezione, senza un antenato che scorra, è testo presente e non leggibile. Una tabella larga dentro un contenitore scorrevole non viene segnalata |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 133 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
 
 **`audit_storia` — 6 controlli.** `verifica-sicurezza` esamina i file
@@ -440,7 +441,7 @@ torna a passare.
 
 > **Una sezione per volta.** L'ispezione salta gli elementi non visibili — ed è
 > corretto: un elemento nascosto non ha contrasto da misurare. Ma `index.html`
-> alterna 128 sezioni e ne mostra una sola: su **19 751** elementi di testo il
+> alterna 133 sezioni e ne mostra una sola: su **19 751** elementi di testo il
 > banco ne guardava **41**, e stampava «0 difetti». Non era un risultato falso,
 > era un risultato su un campione che nessuno aveva dichiarato. Ora le sezioni
 > vengono aperte una per una, e **il numero di sezioni percorse viene
@@ -536,13 +537,13 @@ funzionale non osserva.
 
 | Caso | Metodo | Risultato misurato |
 |---|---|---|
-| **Perdite di memoria** | 128 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
+| **Perdite di memoria** | 133 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
 | **Memoria esaurita** | `setItem` sostituito con una funzione che lancia sempre | 10 pagine su 10 restano operative |
 | **Rete degradata ≠ assente** | Richieste sospese 20 s, intercettazione a livello di contesto | Risposta dalla cache in **3 507 ms** (soglia 3 500) |
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 128 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 133 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -616,8 +617,8 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
-| **Accessibilità** | Automatizzata su 13 pagine e tutte le 128 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 412 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 133 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 418 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -636,4 +637,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v233`._
+_Documento aggiornato alla versione `bsi-v234`._

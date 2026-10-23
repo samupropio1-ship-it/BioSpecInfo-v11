@@ -21,17 +21,8 @@
   if (!F) return;
   var t = F.t, fmt = F.fmt;
   function griglia(div) { var G = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'); G.appendChild(pan); G.appendChild(dx); div.appendChild(G); return { pan: pan, dx: dx }; }
-  function pennello(c) {
-    var dpr = Math.min(2, globale.devicePixelRatio || 1), w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600), h = Math.round(w * c._rapporto);
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    var q = c.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.fillStyle = '#081522'; q.fillRect(0, 0, w, h);
-    return { q: q, W: w, H: h };
-  }
-  function anima(c, passo) {
-    var vivo = true, prec = 0;
-    function giro(ora) { if (!vivo || !c.isConnected) return; if (c.offsetParent !== null) { var dt = prec ? Math.min(0.05, (ora - prec) / 1000) : 0.016; prec = ora; if (passo(dt) === false) return; } else prec = 0; globale.requestAnimationFrame(giro); }
-    globale.requestAnimationFrame(giro); return { ferma: function () { vivo = false; } };
-  }
+  /* il motore comune delle animazioni (pausa, velocita', ricomincia) e la tela pulita */
+  var anima = F.anima, pennello = F.pennello;
   function nota(pan) { var n = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(n); return n; }
 
   /* ═══ calcoli ═══════════════════════════════════════════════════════════ */
