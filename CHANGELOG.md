@@ -7,6 +7,57 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v228] — 2026-10-23
+
+**La matematica, dalla base all'avanzata, su un motore simbolico**
+
+### Aggiunto
+- Un motore di calcolo simbolico scritto per l'app, **`bsi-mat-cas.js`**:
+  legge le espressioni come si scrivono a mano (anche `sen`, `tg`, `√`, `²`),
+  lavora in frazioni esatte, semplifica in forma canonica, deriva tenendo il
+  registro delle regole, integra (tabella, sostituzione, per parti) e
+  restituisce una primitiva **solo** se derivandola si riottiene la funzione;
+  serie di Taylor con l'aritmetica delle serie troncate, limiti con le serie
+  e con l'estrapolazione di Richardson. Nessun `eval`.
+- Una nuova categoria **📐 Matematica** nella barra, con otto sezioni:
+  - **🔢 Basi di matematica**: cifre significative e regole dei calcoli con
+    le misure, potenze e logaritmi con il pH, equazioni con i passaggi (primo
+    e secondo grado, polinomi con radici complesse, equazioni fratte
+    dell'equilibrio, trascendenti), allenamento con esercizi generati e
+    corretti.
+  - **📈 Studio di funzione**: dominio, simmetria, zeri, derivate esatte,
+    estremi, flessi, asintoti verticali, orizzontali e obliqui, tangente;
+    famiglie di funzioni e trasformazioni a·f(b(x−c))+d.
+  - **∫ Derivate, integrali e serie**: le regole usate, le somme di Riemann,
+    Simpson adattivo, il teorema fondamentale (e quando non vale), Taylor,
+    limiti destri e sinistri.
+  - **🔲 Algebra lineare**: Gauss-Jordan in frazioni esatte con tutti i
+    passaggi, sistemi, determinante, inversa, rango, nucleo, autovalori e
+    autovettori; trasformazioni del piano; **bilanciamento delle reazioni come
+    nucleo** della matrice di composizione, cariche comprese.
+  - **🌀 Equazioni differenziali**: campo di direzioni con le soluzioni al
+    tocco, ordine di Eulero, Heun e RK4 misurato, piano delle fasi con gli
+    equilibri classificati dallo jacobiano simbolico.
+  - **🗻 Funzioni di più variabili**: superfici 3D, curve di livello,
+    gradiente, hessiano, minimi, massimi e selle, discesa del gradiente;
+    funzioni di stato, relazione di Maxwell per van der Waals, differenziali
+    esatti (δq no, δq/T sì).
+  - **ℂ Complessi e Fourier**: piano di Argand, radici n-esime, formula di
+    Eulero, serie di Fourier con Gibbs e Parseval.
+  - **📏 Statistica di laboratorio**: intervallo di confidenza, Grubbs e
+    Dixon, test t e F con il valore p, propagazione delle incertezze con
+    derivate simboliche e Monte Carlo, retta di taratura con LOD, LOQ e
+    incertezza del campione.
+- Traduzioni della categoria e dei pulsanti nelle tredici lingue della barra.
+- Requisiti **SCI-41**, **SCI-42**, **SCI-43** nella matrice di tracciabilità.
+
+### Banco
+- `test_matematica` (nuovo, 154 controlli): il motore e ogni sezione contro
+  valori indipendenti (tavole, matrice di Hilbert, Lambert W, Miller &
+  Miller, tabelle di t, F e Grubbs), poi ogni sezione e scheda nel browser su
+  due viewport. `test_lingue`: nove categorie. La batteria passa a 67 banchi.
+
+---
 ## [bsi-v227] — 2026-10-22
 
 **La fisica sotto la chimica: otto sezioni calcolate**

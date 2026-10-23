@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 103 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 111 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -144,6 +144,25 @@ is compared by the bench with an independent literature value.
 | ∑ **Mathematics for chemistry** | from FID to spectrum by Fourier transform; Hückel on twelve π systems; kinetics by Runge-Kutta; the Arrhenius line with errors from your data |
 | 💎 **Crystallography** | the 14 Bravais lattices to rotate, Miller planes, the powder pattern of eleven crystals with absences |
 | ☢️ **Radiochemistry** | decay chains (the hospitals' technetium generator), dating with ¹⁴C, K-Ar and U-Pb, nuclear binding energy |
+
+### 📐 Mathematics: from basics to advanced
+
+The **📐 Mathematics** category holds eight sections that run on a real
+computer-algebra engine: type expressions as you would by hand
+(`2x² + sin(3x)`, `√(x+1)`, `e^(-k*t)`, `ln(x)/x`) and the results are
+**exact** — 1/3 stays 1/3. Antiderivatives appear only if differentiating them
+gives the original function back.
+
+| section | what you do |
+|---|---|
+| 🔢 **Mathematics basics** | count significant figures and apply the measurement rules; logarithms and pH; solve equations with the working, from linear to polynomials (complex roots too) and the fractional equations of equilibrium (weak acid); practise with ever-new marked exercises |
+| 📈 **Function analysis** | type f(x): domain, symmetry, zeros, exact derivatives, maxima, minima, inflections, vertical, horizontal and oblique asymptotes, a moving tangent; and function families with a·f(b(x−c))+d |
+| ∫ **Derivatives, integrals and series** | the derivative with the list of rules used; the antiderivative and the definite integral with Riemann sums; the degree-n Taylor polynomial; left and right limits |
+| 🔲 **Linear algebra** | systems, determinant, inverse, rank, null space, eigenvalues, in exact fractions with every Gauss-Jordan step; plane transformations; balancing a reaction (redox with charges too) as the null space of the composition matrix |
+| 🌀 **Differential equations** | the direction field of y′ = f(x, y) with solutions starting where you tap; Euler, Heun and RK4 compared; the phase plane of predator-prey, pendulum, Van der Pol, Brusselator, SIR, with classified equilibria |
+| 🗻 **Functions of several variables** | 3D surfaces to rotate and contour maps, gradient, Hessian, minima, maxima and saddles (the transition state), gradient descent; state functions, the Maxwell relation, exact differentials |
+| ℂ **Complex numbers and Fourier** | complex numbers on the Argand plane, n-th roots, Euler's formula, Fourier series with the Gibbs phenomenon |
+| 📏 **Laboratory statistics** | mean, standard deviation, confidence interval; Grubbs and Dixon for outliers; t and F tests with p-values; uncertainty propagation; calibration line with LOD, LOQ and the sample uncertainty |
 
 ### Where things are
 
@@ -456,4 +475,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v227`._
+_Guide updated to version `bsi-v228`._

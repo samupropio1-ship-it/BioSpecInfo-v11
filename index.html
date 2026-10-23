@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v227';
+window.BSI_APP_VERSION='bsi-v228';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -928,6 +928,8 @@ window.BSI_TELEMETRY_URL='';</script>
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >🛠️ Utility</button>
     <button class="nav-group-tab" data-group="7" onclick="switchNavGroup(7)" 
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >⚛️ Fisica</button>
+    <button class="nav-group-tab" data-group="8" onclick="switchNavGroup(8)" 
+      style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >📐 Matematica</button>
   </div>
 
   <!-- Group button panels -->
@@ -1033,6 +1035,17 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatchim" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">∑ Matematica per la chimica</button>
     <button class="nav-btn" data-s="scristalli" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💎 Cristallografia</button>
     <button class="nav-btn" data-s="snucleare" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">☢️ Radiochimica</button>
+  </div>
+  <!-- 📐 MATEMATICA (v228): otto sezioni sul motore simbolico bsi-mat-cas.js -->
+  <div id="navGroup8" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
+    <button class="nav-btn" data-s="smatbasi" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔢 Basi di matematica</button>
+    <button class="nav-btn" data-s="smatfunz" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📈 Studio di funzione</button>
+    <button class="nav-btn" data-s="smatcalc" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∫ Derivate, integrali e serie</button>
+    <button class="nav-btn" data-s="smatlin" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔲 Algebra lineare</button>
+    <button class="nav-btn" data-s="smatode" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🌀 Equazioni differenziali</button>
+    <button class="nav-btn" data-s="smatmulti" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🗻 Funzioni di più variabili</button>
+    <button class="nav-btn" data-s="smatcompl" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">ℂ Complessi e Fourier</button>
+    <button class="nav-btn" data-s="smatstat" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📏 Statistica di laboratorio</button>
   </div>
 </div>
 
@@ -3752,7 +3765,7 @@ window.onload = function(){
       if(sec==='scft' && typeof window.initCFT==='function') window.initCFT();
       if(sec==='sdistrib' && typeof window.initDistrib==='function') window.initDistrib();
       if(sec==='sqm' && typeof window.initQM==='function') window.initQM();
-      /* le sezioni di fisica (v227) si costruiscono da sé, nei moduli bsi-fis-*.js */
+      /* le sezioni di fisica (v227) e di matematica (v228) si costruiscono da sé, nei moduli bsi-fis-*.js e bsi-mat-*.js */
       if(window.BSIFisica && window.BSIFisica.apri) window.BSIFisica.apri(sec);
       if(sec==='sglic' && typeof window.initGlic==='function') window.initGlic();
       if(sec==='skrebs' && typeof window.initKrebs==='function') window.initKrebs();
@@ -29479,6 +29492,14 @@ window.calcMolProps = function() {
 <div id="smatchim" class="section"></div>
 <div id="scristalli" class="section"></div>
 <div id="snucleare" class="section"></div>
+<div id="smatbasi" class="section"></div>
+<div id="smatfunz" class="section"></div>
+<div id="smatcalc" class="section"></div>
+<div id="smatlin" class="section"></div>
+<div id="smatode" class="section"></div>
+<div id="smatmulti" class="section"></div>
+<div id="smatcompl" class="section"></div>
+<div id="smatstat" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31811,6 +31832,15 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-matematica.js" defer></script>
 <script src="./bsi-fis-cristalli.js" defer></script>
 <script src="./bsi-fis-nucleare.js" defer></script>
+<script src="./bsi-mat-cas.js" defer></script>
+<script src="./bsi-mat-basi.js" defer></script>
+<script src="./bsi-mat-funzioni.js" defer></script>
+<script src="./bsi-mat-calcolo.js" defer></script>
+<script src="./bsi-mat-lineare.js" defer></script>
+<script src="./bsi-mat-ode.js" defer></script>
+<script src="./bsi-mat-multi.js" defer></script>
+<script src="./bsi-mat-complessi.js" defer></script>
+<script src="./bsi-mat-statistica.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
