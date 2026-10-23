@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 117 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 120 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### ⚗️ ⚛️ 📐 Le tre macro-aree e l'assistente
+
+In testa alle categorie **🔬 Chimica**, **⚛️ Fisica** e **📐 Matematica** c'è l'area della materia. Nella scheda **🤖 Assistente** si scrive il problema come lo si scriverebbe al professore, per esempio «un'auto a 90 km/h frena con 5 m/s²», «quanti grammi di NaCl servono per 250 mL di soluzione 0,5 M» o «y'' + 4y = sin(x), y(0)=0, y'(0)=1», e si preme **Risolvi e spiega**. La risposta dice che cosa è stato capito; la tabella **Dati usati** mostra in verde i dati letti dal testo, in giallo quelli dedotti e in rosso quelli supposti, da controllare. Se il modello scelto non è quello giusto, i pulsanti **Intendevi…?** propongono gli altri, e **Correggi i dati nel risolutore** apre il problema con i suoi campi. La scheda **🗂️ Tutti gli strumenti** raccoglie le sezioni della materia, con la ricerca; **🧭 Livelli** le ordina dalle superiori al dottorato.
 
 ### 🧭 Dalle superiori al dottorato
 
@@ -485,4 +489,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v230`._
+_Guida aggiornata alla versione `bsi-v231`._

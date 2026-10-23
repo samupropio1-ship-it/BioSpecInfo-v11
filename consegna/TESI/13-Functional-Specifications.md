@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v230` |
+| **Versione descritta** | `bsi-v231` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **117 sezioni**, raggruppate per area di studio.
+L'applicazione conta **120 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -73,6 +73,7 @@ L'applicazione conta **117 sezioni**, raggruppate per area di studio.
 | **📐 Matematica: otto sezioni su un motore simbolico** | Un motore di calcolo simbolico scritto per l'app (`bsi-mat-cas.js`: frazioni esatte, forma canonica, derivate con le regole, primitive verificate derivandole, serie di Taylor con l'aritmetica delle serie troncate, limiti) su cui poggiano: **basi** (cifre significative e regole delle misure, logaritmi e pH, equazioni dal primo grado ai polinomi e alle fratte dell'equilibrio, allenamento con correzione); **studio di funzione** (dominio, zeri, estremi, flessi, asintoti, tangente; famiglie e trasformazioni); **derivate, integrali e serie** (regole usate, Riemann, Simpson adattivo, Taylor, limiti destri e sinistri); **algebra lineare** in frazioni esatte con i passaggi di Gauss-Jordan, autovalori, trasformazioni del piano e bilanciamento delle reazioni come nucleo; **equazioni differenziali** (campo di direzioni, ordine dei metodi, piano delle fasi con equilibri classificati dallo jacobiano); **più variabili** (superfici 3D, punti critici, relazioni di Maxwell, differenziali esatti); **complessi e Fourier**; **statistica di laboratorio** (t, F, Grubbs, Dixon, propagazione delle incertezze, retta di taratura con LOD/LOQ) |
 | **🎓 Esami UniBA e chimica fisica avanzata** | **Esame di Matematica**: programmi di Istituzioni di Matematiche I e II spiegati, risolutore passo per passo per 16 tipi di esercizio, 16 appelli svolti (64 esercizi), simulazione a tempo. **Esame di Fisica**: programmi di Fisica Generale I e II, 48 problemi tipo risolti con i dati dell'utente (leggi, sostituzioni, unità), 12 prove svolte. **Elettrodi e stato di transizione** (Butler-Volmer, Tafel, Eyring) e **fotochimica, superfici e polimeri** (Jablonski, Stern-Volmer, Langmuir/Freundlich/BET, Mn/Mw, Carothers). **Esame di Chimica** (categoria 🔬): 40 problemi tipo su quattro livelli — base (Chimica Generale e Inorganica), intermedio (Analitica), avanzato (Chimica Fisica), avanzatissimo (Sackur-Tetrode, Debye-Hückel, Pourbaix) — e 7 prove svolte. Matematica e Fisica hanno anche un livello **avanzato e avanzatissimo** (autovalori, sistemi di EDO, Fourier, Laplace, integrali tripli; oscillazioni forzate, onde, Doppler, fotoelettrico, Compton, relatività, corpo nero, particella nella scatola, effetto tunnel). Le tracce sono costruite sui programmi, non sono i testi ufficiali |
 | **🧭 Dalle superiori al dottorato** | Mappa di chimica, fisica e matematica su quattro livelli (superiori, triennale, magistrale, dottorato) con i collegamenti agli strumenti. Nuovi risolutori: **astrofisica** (10 modelli), **fisica nucleare** (9), **fisica quantistica** (11, con variazionale e perturbazioni), **chimica organica, spettroscopia e biochimica** (10), **dottorato** (Marcus, effetto isotopico, Wigner; residui, equazione del calore) |
+| **⚗️ ⚛️ 📐 Le tre macro-aree** | In testa alle categorie Chimica, Fisica e Matematica. Ognuna ha un **assistente** a cui si scrive il problema in linguaggio naturale (anche in inglese): riconosce il tipo di esercizio o il modello, legge numeri con le unità, formule, reazioni e liste, dice che cosa ha capito e da dove viene ogni dato, risolve anche il **problema inverso** e mostra lo svolgimento; il **catalogo** di tutti gli strumenti della materia con la ricerca; i **livelli** dalle superiori al dottorato. Spectra ha gli stessi risolutori come strumenti |
 | **NOE e NMR 2D (tabelle)** | Valori di riferimento per le correlazioni spaziali |
 | **Tabelle di riferimento** | Valori tabulati per la consultazione rapida |
 | **Quiz spettri** | Riconoscimento del gruppo funzionale da uno spettro |
@@ -176,7 +177,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 
 ### Una misura che nessun altro banco poteva fare
 
-`verifica-accessibilita` percorre le 117 sezioni e misura ciò che è **visibile**.
+`verifica-accessibilita` percorre le 120 sezioni e misura ciò che è **visibile**.
 I sei pannelli di questa sezione stanno dentro un contenitore che resta
 `display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
 visti, e il suo «contrasto 0» non parlava di loro.
@@ -273,7 +274,7 @@ picchi producesse un nome farebbe un'affermazione che i dati non reggono.
 
 ### 3.8 Assistente «Spectra»
 
-Agente AI con **35 strumenti** che può interrogare l'applicazione stessa:
+Agente AI con **38 strumenti** che può interrogare l'applicazione stessa:
 calcolare descrittori, generare spettri, cercare costanti, bilanciare reazioni,
 aprire sezioni. Supporta dieci fornitori, e resta utilizzabile quando uno di
 essi si guasta (§5.2).
@@ -380,7 +381,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 117 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 120 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
@@ -401,4 +402,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v230`._
+_Documento aggiornato alla versione `bsi-v231`._

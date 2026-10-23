@@ -34,7 +34,7 @@ In alternativa il solo dossier tecnico di sintesi:
 | 02 | [Verification & Validation & Benchmark Report](02-Verification-Validation-Report.md) | Metodo di test, benchmark spettrali, prestazioni, limiti dichiarati |
 | 03 | [Security, Privacy & Compliance](03-Security-Privacy-Compliance.md) | Modello privacy local-first, OWASP/XSS, allineamento GDPR e GAMP 5 |
 | 04 | [Open-Source Licensing & IP Matrix](04-Open-Source-Licenses.md) | Matrice dipendenze, licenze, proprietà intellettuale |
-| 05 | [Architettura dell'Agente AI "Spectra"](05-AI-Agent-Architecture.md) | Ciclo agentico, 35 strumenti, decisioni ingegneristiche, verifica numerica |
+| 05 | [Architettura dell'Agente AI "Spectra"](05-AI-Agent-Architecture.md) | Ciclo agentico, 38 strumenti, decisioni ingegneristiche, verifica numerica |
 | 06 | [Accuratezza scientifica e provenienza dei dati](06-Scientific-Accuracy-Data-Provenance.md) | Come sono verificati i dati chimici, metodo struttura⟷peso molecolare, limiti dichiarati dei predittori |
 | 07 | [Distinta dei componenti software (SBOM)](07-SBOM.md) | Componenti, licenze, impronte SHA-256; CycloneDX 1.5 in `evidence/` |
 | 08 | [Matrice di tracciabilità](08-Traceability-Matrix.md) | Requisito → implementazione → banco di verifica, con le lacune dichiarate |

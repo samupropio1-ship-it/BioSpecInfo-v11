@@ -136,6 +136,8 @@ const PROPRI = [
     ruoloEn: 'General Physics I and II exam: syllabus, 48 problem models, solved papers.' },
   { file: 'bsi-percorsi.js', ruolo: 'Percorsi di studio dalle superiori al dottorato per chimica, fisica e matematica.',
     ruoloEn: 'Study paths from high school to PhD for chemistry, physics and mathematics.' },
+  { file: 'bsi-assistente.js', ruolo: 'Le tre macro-aree Chimica, Fisica e Matematica: assistente in linguaggio naturale con svolgimento e problema inverso, catalogo degli strumenti, livelli.',
+    ruoloEn: 'The three macro-areas Chemistry, Physics and Mathematics: natural-language assistant with full working and inverse problem, tool catalogue, levels.' },
   { file: 'bsi-chi-esame.js', ruolo: 'Esame di chimica dalla base all’avanzatissimo: 40 modelli di problema, prove svolte.',
     ruoloEn: 'Chemistry exam from basic to expert: 40 problem models, solved papers.' },
   { file: 'bsi-fis-elettrodi.js', ruolo: 'Cinetica elettrodica (Butler-Volmer, Tafel) e teoria dello stato di transizione (Eyring).',

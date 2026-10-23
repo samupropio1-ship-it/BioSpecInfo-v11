@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v230` |
+| **Documented version** | Service Worker `bsi-v231` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 35 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 38 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (35 tools, all local except 2 network)     │
+│        └── tool executor (38 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 35 tools → receive the streamed response → if it
+prompt and the schema of all 38 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 35 tools
+## 3. The 38 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -471,7 +471,8 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 | **Physics** | `astrofisica`, `nucleare`, `statistica_inferenziale` |
 | **External databases** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Internal data** | `cerca_nel_database` (9 datasets), `cerca_molecola` |
-| **App control** | `naviga_sezione` (117 sections), `apri_strumento` (12 labs), `stato_app` |
+| **Macro-areas** | `risolvi_matematica`, `risolvi_fisica`, `risolvi_chimica` — the same engine as the three areas' assistant: a natural-language question, or an explicit model and data; working, data with their origin, inverse problem |
+| **App control** | `naviga_sezione` (120 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
 | **Animations** | `apri_animazione` (6 reaction mechanisms) |
 
@@ -669,7 +670,7 @@ database types, and the 10 injection attempts against the expression engine.
 ### 5.3 Integration — real browser
 
 Automated tests with headless Chromium across all 14 application pages: no
-JavaScript errors, no missing resources. All 117 sections of `index.html` and
+JavaScript errors, no missing resources. All 120 sections of `index.html` and
 the 18 tabs of the Astrochemistry module were traversed one by one. Request
 bodies were inspected for the four Claude tiers, and a full cycle with web
 search, turn suspension and resumption was simulated.
