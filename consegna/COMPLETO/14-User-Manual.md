@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 103 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 111 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -140,6 +140,25 @@ confrontato dal banco con un valore indipendente della letteratura.
 | ∑ **Matematica per la chimica** | dal FID allo spettro con la trasformata di Fourier; Hückel su dodici sistemi π; cinetiche con Runge-Kutta; la retta di Arrhenius con gli errori dai tuoi dati |
 | 💎 **Cristallografia** | i 14 reticoli di Bravais da ruotare, i piani di Miller, il diffrattogramma di polvere di undici cristalli con le estinzioni |
 | ☢️ **Radiochimica** | le catene di decadimento (il generatore di tecnezio degli ospedali), la datazione con ¹⁴C, K-Ar e U-Pb, l'energia di legame dei nuclei |
+
+### 📐 Matematica: dalla base all'avanzata
+
+Nella categoria **📐 Matematica** ci sono otto sezioni che lavorano su un vero
+motore di calcolo simbolico: scrivi le espressioni come le scriveresti a mano
+(`2x² + sin(3x)`, `√(x+1)`, `e^(-k*t)`, `ln(x)/x`, anche `sen` e `tg`) e i
+risultati sono **esatti** — 1/3 resta 1/3. Le primitive compaiono solo se,
+derivandole, si riottiene la funzione di partenza.
+
+| sezione | che cosa fai |
+|---|---|
+| 🔢 **Basi di matematica** | conti le cifre significative e applichi le regole delle misure; logaritmi e pH; risolvi equazioni con i passaggi, dal primo grado ai polinomi (anche radici complesse) e alle equazioni fratte dell'equilibrio (acido debole); ti alleni con esercizi sempre nuovi e la correzione |
+| 📈 **Studio di funzione** | scrivi f(x): dominio, simmetria, zeri, derivate esatte, massimi, minimi, flessi, asintoti verticali, orizzontali e obliqui, la tangente che si sposta; e le famiglie di funzioni con a·f(b(x−c))+d |
+| ∫ **Derivate, integrali e serie** | la derivata con l'elenco delle regole usate; la primitiva e l'integrale definito con le somme di Riemann; il polinomio di Taylor di grado n; i limiti, destro e sinistro |
+| 🔲 **Algebra lineare** | sistemi, determinante, inversa, rango, nucleo, autovalori, in frazioni esatte e con ogni passaggio di Gauss-Jordan; le trasformazioni del piano; il bilanciamento di una reazione (anche redox con le cariche) come nucleo della matrice di composizione |
+| 🌀 **Equazioni differenziali** | il campo di direzioni di y′ = f(x, y) con le soluzioni che partono dove tocchi; Eulero, Heun e RK4 a confronto; il piano delle fasi di preda-predatore, pendolo, Van der Pol, Bruxellatore, SIR, con gli equilibri classificati |
+| 🗻 **Funzioni di più variabili** | superfici 3D da ruotare e mappe a curve di livello, gradiente, hessiano, minimi, massimi e selle (lo stato di transizione), discesa del gradiente; funzioni di stato, relazione di Maxwell, differenziali esatti |
+| ℂ **Complessi e Fourier** | numeri complessi sul piano di Argand, radici n-esime, la formula di Eulero, le serie di Fourier con il fenomeno di Gibbs |
+| 📏 **Statistica di laboratorio** | media, deviazione standard, intervallo di confidenza; Grubbs e Dixon per gli anomali; test t e F con il valore p; propagazione delle incertezze; retta di taratura con LOD, LOQ e l'incertezza del campione |
 
 ### Dove si trovano le cose
 
@@ -455,4 +474,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v227`._
+_Guida aggiornata alla versione `bsi-v228`._
