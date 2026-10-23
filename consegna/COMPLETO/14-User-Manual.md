@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 121 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 128 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🎯 I laboratori in movimento
+
+Nella categoria **⚛️ Fisica** ci sono **🎯 Meccanica in movimento**, **〰️ Onde e ottica**, **🔌 Circuiti** e **🔥 Termodinamica in movimento**; nella categoria **📐 Matematica** ci sono **🧮 Metodi numerici** e **📐 Geometria analitica e vettori**; nella categoria **⚗️ Chimica Fisica** c'è **⚖️ Equilibrio e Le Chatelier**. Ogni scheda ha i cursori a sinistra e la simulazione a destra, con i numeri che la descrivono sotto i comandi. Nel simulatore dell'equilibrio i pulsanti aggiungono o tolgono una specie, cambiano il volume o la temperatura: le concentrazioni si muovono finché Q torna uguale a K, e la nota dice da che parte va la reazione.
 
 ### 🧊 Laboratorio 3D, grafici e viste molecolari
 
@@ -493,4 +497,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v232`._
+_Guida aggiornata alla versione `bsi-v233`._
