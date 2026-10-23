@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v232` |
-| Commit | `31d081b3885aa361dc30d3526425357ad73b71c9` |
-| Generato (UTC) | `2026-10-23T12:33:33.331Z` |
+| Commit | `e041ec9574a87b83c456ac0d3a53e74b3850b1ae` |
+| Generato (UTC) | `2026-10-23T16:08:53.040Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -67,7 +67,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
 | `bsi-nmr.js` | 57 kB | Predizione NMR ¹H e ¹³C assegnata per atomo: applica le tabelle di bsi-pretsch.js camminando l'anello e misurando le distanze, con composto di riferimento ciclico ed equivalenza chimica per codice d'intorno. |
 | `bsi-geom3d.js` | 46 kB | Coordinate 3D da uno SMILES per geometria delle distanze, con gli stessi indici del predittore NMR: è la condizione del collegamento picco↔atomo↔3D. |
-| `bsi-fisica-comune.js` | 15 kB | La casa comune delle sezioni di fisica: intestazione, schede, cursori, grafici su tela, lingua. |
+| `bsi-fisica-comune.js` | 24 kB | La casa comune delle sezioni di fisica: intestazione, schede, cursori, grafici su tela, lingua. |
 | `bsi-fis-schrodinger.js` | 22 kB | Equazione di Schrödinger 1D: differenze finite, bisezione di Sturm, iterazione inversa, Crank-Nicolson, Morse delle molecole reali. |
 | `bsi-fis-hartreefock.js` | 29 kB | Hartree-Fock ristretto con base STO-3G: integrali di McMurchie-Davidson, funzione di Boys, SCF con DIIS, orbitali molecolari. |
 | `bsi-fis-rotovib.js` | 16 kB | Spettri rotovibrazionali IR e Raman delle biatomiche dalle costanti molecolari; differenze di combinazione. |
@@ -88,6 +88,8 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-esame.js` | 56 kB | Esame di Istituzioni di Matematiche I e II: programma, risolutore, appelli svolti, simulazione. |
 | `bsi-fis-esame.js` | 135 kB | Esame di Fisica Generale I e II: programma, 48 modelli di problema, prove svolte. |
 | `bsi-percorsi.js` | 9 kB | Percorsi di studio dalle superiori al dottorato per chimica, fisica e matematica. |
+| `bsi-lab3d.js` | 62 kB | Laboratorio 3D: superfici, orbitali |ψ|², moti nello spazio, strutture cristalline e piani di Miller, linee di campo (three.js). |
+| `bsi-vista-molecole.js` | 8 kB | Qualità e barra dei comandi per tutti i visori molecolari 3Dmol. |
 | `bsi-assistente.js` | 71 kB | Le tre macro-aree Chimica, Fisica e Matematica: assistente in linguaggio naturale con svolgimento e problema inverso, catalogo degli strumenti, livelli. |
 | `bsi-chi-esame.js` | 98 kB | Esame di chimica dalla base all’avanzatissimo: 40 modelli di problema, prove svolte. |
 | `bsi-fis-elettrodi.js` | 14 kB | Cinetica elettrodica (Butler-Volmer, Tafel) e teoria dello stato di transizione (Eyring). |
@@ -99,7 +101,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 191 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 192 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 6 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -112,14 +114,14 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `e2755c96b6cbd99e3e0eddf9b1da29e21bfe9255cdbb8d674c91cf6f4bcbf9b4` |
+| `index.html` | `01f74701b685ead1a9539ed7d30928d6458ad6610ec06ba7038c5dbdea8fa803` |
 | `bsi-ai-hub.js` | `9979f49378cafa4c1bfb141946cd9dccc6f342ebefc2e946617ddba7a81e57de` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
-| `bsi-fisica-comune.js` | `092cde6b44f779694b0aa865f407a2e011a6d047878bf8e2fa3c819d6f3c23e0` |
+| `bsi-fisica-comune.js` | `6db7c7c7c8f22cf8b6602f52a8849f1e8706e7627d4a2ea38c4058cb49175211` |
 | `bsi-fis-schrodinger.js` | `b032084511102c7231bcb244b5bb647128a080a18e9e6d706ec4c727ac29d17d` |
 | `bsi-fis-hartreefock.js` | `8210d2a1501fe6e3f57c0ce8a0e6d5d78432274792833d50bc2e821fc7566fde` |
 | `bsi-fis-rotovib.js` | `428182687a76111f013986127ee49beb7393498387b146bd0694ff16bea7d909` |
@@ -140,7 +142,9 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-esame.js` | `de4af253244bd7d610b1a3607297d1678a529504afa23d7123aebe042e1f2c27` |
 | `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
 | `bsi-percorsi.js` | `c359a77269c1427019b4857d32757948b80dfa752d50c2897896318435a6d4d9` |
-| `bsi-assistente.js` | `58fc096e56a2c34849879e55825f086db49cc56a96e8b50b8f0ae671c492d3c0` |
+| `bsi-lab3d.js` | `04fc433914306ba755fb26e1762db12d061f6dc8f24ad7d885b663ba2d7e9788` |
+| `bsi-vista-molecole.js` | `4a7eb7cd7d8a0033ad0381d936d8e36b2b2e6b75af04988ecc5e9f4e8022cbc4` |
+| `bsi-assistente.js` | `4e04e7e73a04c0082912ba1f30f97f38bb6c89c43e918c71df0479a0587e0a92` |
 | `bsi-chi-esame.js` | `ddb5d73fcf887e03770b3f0794fecaa2f8c918f4fae445bf57ff7a637f4643e7` |
 | `bsi-fis-elettrodi.js` | `249bb92ac39b78e916eaa0ecf80a2b1aac5d10249bb6b51628f61839c4b64240` |
 | `bsi-fis-superfici.js` | `3daec64d2c4755e70279b8ef2f433e4c98d6e90ff7d8c7d9c0689a24f080abd8` |
@@ -151,10 +155,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `f5b668a7739004fc673ec78184db755f129704382d2284c900daef5212f98982` |
+| `bsi-lingue.js` | `afe9750c95a6f553c686f5a8cb914f41189a8ddcd3d403a8f718e89a961dbe3d` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `6e516d994ee08c32394d1d14cab7a567613e047ba9e32837c09b33c847f26d91` |
+| `sw.js` | `67ce13b2683e302564ab2976b768f7583fbe6a1e31c85e7de08e5bf9c3b66578` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -207,4 +211,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-23T12:33:33.331Z._
+_Generato il 2026-10-23T16:08:53.040Z._

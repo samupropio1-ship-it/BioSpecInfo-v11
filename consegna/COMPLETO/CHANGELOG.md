@@ -7,6 +7,48 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v232] — 2026-10-23
+
+**Laboratorio 3D, grafici animati e interattivi, viste molecolari migliori**
+
+### Aggiunto
+- **🧊 Laboratorio 3D** (categoria ⚛️ Fisica, collegato anche alle aree di
+  Chimica e Matematica), con cinque schede:
+  - **superfici** z = f(x, y) colorate per quota, con le curve di livello
+    sul piano e i punti critici (massimi, minimi, selle);
+  - **orbitali** idrogenoidi come nuvola |ψ|² campionata esattamente,
+    colorata per segno, con energia, nodi e taglio a metà;
+  - **moti nello spazio**: elica di una carica in un campo magnetico, orbita
+    di Keplero inclinata, attrattore di Lorenz con due traiettorie vicine
+    che si separano, curva parametrica a piacere;
+  - **strutture cristalline** (NaCl, CsCl, diamante, blenda, fluorite,
+    perovskite, metalli cubici ed esagonale compatto), con contenuto della
+    cella, coordinazione, impacchettamento e un piano di Miller con l'angolo
+    di Bragg;
+  - **linee di campo** di cariche puntiformi e di una spira di corrente.
+  Si ruota con dito o mouse, zoom con due dita o rotellina; rotazione
+  automatica, foto PNG, schermo intero.
+- **Grafici di tutte le sezioni** (59, in 19 moduli):
+  - entrano con un'animazione;
+  - quando i dati cambiano scivolano ai nuovi valori invece di saltare;
+  - passando il dito o il mouse mostrano un **mirino** con i valori.
+  Con un cursore trascinato si disegna subito, senza inseguire, e chi ha
+  chiesto «riduci movimento» non vede animazioni.
+- **Viste molecolari 3D**: qualità scelta per il dispositivo (occlusione
+  ambientale su schede grafiche vere) e una barra con rotazione, ricentra,
+  foto, schermo intero e qualità, per tutti i visori dell'app.
+- Requisito **SCI-49**.
+
+### Corretto
+- Prima della pubblicazione: il campionamento degli orbitali usava un
+  generatore pseudo-casuale in virgola mobile che dava estrazioni correlate
+  (il 3d_z² aveva il 50 % di punti positivi invece del 61,5 %). Ora si usa
+  mulberry32.
+
+### Banco
+- Nuovo `test_grafica3d`: 115 controlli.
+
+---
 ## [bsi-v231] — 2026-10-23
 
 **Tre macro-aree con un assistente: Chimica, Fisica, Matematica**

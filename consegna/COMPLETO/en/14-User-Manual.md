@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 120 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 121 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -170,6 +170,10 @@ gives the original function back.
 
 
 **🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
+
+### 🧊 3D Laboratory, charts and molecular views
+
+In the **⚛️ Physics** category the **🧊 3D Laboratory** shows surfaces, atomic orbitals, motion in space, crystal structures and field lines in three dimensions. Rotate by dragging with a finger or the mouse and zoom with two fingers or the wheel. The buttons at the top right start auto-rotation (⟳), go back to the initial view (⌖), save an image (📷) and switch to full screen (⛶). Moving a finger or the mouse over a chart in any section shows a crosshair with the value of every curve at that point. Molecular 3D views have the same bar, plus the ✦ button choosing quality: automatic, high (with ambient occlusion), medium or low for slow phones. If «reduce motion» is on in the operating system there are no animations.
 
 ### ⚗️ ⚛️ 📐 The three macro-areas and the assistant
 
@@ -490,4 +494,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v231`._
+_Guide updated to version `bsi-v232`._
