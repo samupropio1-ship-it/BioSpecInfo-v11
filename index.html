@@ -990,6 +990,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="schicinet">🌀 Cinetica complessa</button>
     <button class="nav-btn" data-s="schidist">🌡️ Distillazione e miscele</button>
     <button class="nav-btn" data-s="schivolt">🔋 Voltammetria ciclica</button>
+    <button class="nav-btn" data-s="schifasi">🧊 Diagrammi di fase</button>
+    <button class="nav-btn" data-s="schipes">🏔️ Superficie di energia potenziale</button>
     <button class="nav-btn" data-s="sphase">📊 Fasi</button>
     <button class="nav-btn" data-s="senergia">⚡ Diagrammi E.</button>
     <button class="nav-btn" data-s="ssteich">⚗️ Stechiometria</button>
@@ -1046,6 +1048,9 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sfisem" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚡ Elettromagnetismo in movimento</button>
     <button class="nav-btn" data-s="sfissuono" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔊 Suono e acustica</button>
     <button class="nav-btn" data-s="sfissolido" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💡 Semiconduttori</button>
+    <button class="nav-btn" data-s="sfisgrav" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🪐 Gravitazione</button>
+    <button class="nav-btn" data-s="sfiscalore" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔥 Calore e diffusione</button>
+    <button class="nav-btn" data-s="sfisising" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧲 Modello di Ising</button>
     <button class="nav-btn" data-s="sschrod" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Schrödinger</button>
     <button class="nav-btn" data-s="shf" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧮 Hartree-Fock</button>
     <button class="nav-btn" data-s="srotovib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎻 Rotovibrazionale</button>
@@ -1074,6 +1079,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatvett" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∇ Calcolo vettoriale</button>
     <button class="nav-btn" data-s="smatprob" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎲 Probabilità in movimento</button>
     <button class="nav-btn" data-s="smatvis" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎞️ Matematica visiva</button>
+    <button class="nav-btn" data-s="smatnumeri" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔐 Numeri e crittografia</button>
+    <button class="nav-btn" data-s="smatgrafi" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🕸️ Grafi e ottimizzazione</button>
     <button class="nav-btn" data-s="smatesame" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎓 Esame di Matematica (UniBA)</button>
   </div>
 </div>
@@ -29575,6 +29582,13 @@ window.calcMolProps = function() {
 <div id="smatvis" class="section"></div>
 <div id="schidist" class="section"></div>
 <div id="schivolt" class="section"></div>
+<div id="smatnumeri" class="section"></div>
+<div id="smatgrafi" class="section"></div>
+<div id="sfisgrav" class="section"></div>
+<div id="sfiscalore" class="section"></div>
+<div id="sfisising" class="section"></div>
+<div id="schifasi" class="section"></div>
+<div id="schipes" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31945,6 +31959,13 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-solido.js" defer></script>
 <script src="./bsi-chi-distillazione.js" defer></script>
 <script src="./bsi-chi-voltammetria.js" defer></script>
+<script src="./bsi-mat-numeri.js" defer></script>
+<script src="./bsi-mat-grafi.js" defer></script>
+<script src="./bsi-fis-gravita.js" defer></script>
+<script src="./bsi-fis-calore.js" defer></script>
+<script src="./bsi-fis-ising.js" defer></script>
+<script src="./bsi-chi-fasi.js" defer></script>
+<script src="./bsi-chi-pes.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
