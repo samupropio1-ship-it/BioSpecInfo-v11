@@ -31,6 +31,9 @@ const { chromium } = require('playwright-core');
        1,2 s a volte non bastavano e il banco leggeva una tendina vuota */
     await pg.waitForSelector('#bsi-hub-provsel', { state: 'attached', timeout: 60000 }).catch(()=>{});
     await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 5000 }).catch(()=>{});
+    /* e che la tendina sia stata RIEMPITA: esiste prima di avere le voci, e con la
+       batteria carica (v235) il banco aveva letto 0 voci su 10 una volta su molte */
+    await pg.waitForFunction(()=>{ const s=document.getElementById('bsi-hub-provsel'); return !s || s.options.length>0; }, null, { timeout: 30000 }).catch(()=>{});
     await pg.waitForTimeout(600);
     return { pg, err };
   }
