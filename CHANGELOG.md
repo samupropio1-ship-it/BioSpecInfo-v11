@@ -56,6 +56,14 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - Le animazioni dei laboratori della v233 non girano più quando sono fuori
   schermo; il gas di particelle, il moto browniano e l'equilibrio seguono
   la velocità scelta senza cambiare la lunghezza dei passi.
+- **Farmacocinetica**: il grafico concentrazione-tempo compare subito con i
+  valori proposti e si aggiorna a ogni modifica. Prima restava vuoto finché
+  non si premeva «Calcola».
+- **Editor di molecole** del Centro spettroscopico:
+  - si prepara all'apertura del centro; prima la tela poteva restare
+    inerte, perché veniva preparata solo per una sezione che non esiste più;
+  - da vuoto dice che cosa fare.
+  L'audit dei grafici passa da 2 tele vuote a nessuna.
 
 ### Banco
 - Nuovo `test_scienze`, su tre configurazioni del browser.

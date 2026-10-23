@@ -170,7 +170,7 @@
       /* istogramma accumulato */
       var nb = 30, vM = 4 * Math.sqrt(kT); if (!conteggi) conteggi = new Array(nb).fill(0);
       gas.P.forEach(function (p) { var b = Math.floor(Math.hypot(p.vx, p.vy) / vM * nb); if (b < nb) conteggi[b]++; });
-      if (++fot % 6) return;
+      if (++fot % 6 && fot > 1) return; /* l'istogramma si aggiorna ogni 6 fotogrammi, e subito al primo */
       var tot = conteggi.reduce(function (a, b) { return a + b; }, 0) || 1, xs = [], ys = [], xm = [], ym = [];
       for (var b = 0; b < nb; b++) { xs.push((b + 0.5) * vM / nb); ys.push(conteggi[b] / tot / (vM / nb)); }
       for (b = 0; b <= 200; b++) { var v = vM * b / 200; xm.push(v); ym.push(maxwell2D(v, kT)); }

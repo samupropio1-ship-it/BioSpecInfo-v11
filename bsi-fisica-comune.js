@@ -407,10 +407,11 @@
     function puoGirare() { return !A.inPausa && !A.finita && A.visibile && c.isConnected && c.offsetParent !== null && !(document.hidden); }
     function giro(ora) {
       A.giro = null;
-      if (!puoGirare()) { A.prec = 0; return; }
+      if (!puoGirare()) { A.prec = 0; primo(); return; }
       var dt = A.prec ? Math.min(0.05, (ora - A.prec) / 1000) : 1 / 60; A.prec = ora;
       var d = dt * A.velocita; A.tempo += d;
       var r;
+      A.disegnato = true;
       try { r = passo(d, A.tempo); } catch (e) { A.finita = true; aggiorna(); if (globale.console) console.error(e); return; }
       if (eT) eT.textContent = 't = ' + A.tempo.toFixed(1) + ' s';
       if (r === false) { A.finita = true; aggiorna(); return; }
@@ -419,9 +420,12 @@
     function avvia() { if (A.giro || !puoGirare()) return; A.prec = 0; A.giro = globale.requestAnimationFrame(giro); }
     if (globale.IntersectionObserver && c) { new IntersectionObserver(function (v) { A.visibile = v[0].isIntersecting; if (A.visibile) avvia(); }).observe(c); }
     var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
-    if (MENO && opz.rispettaMovimento !== false) { A.inPausa = true; try { passo(0, 0); } catch (e) { } }
+    if (MENO && opz.rispettaMovimento !== false) { A.inPausa = true; A.disegnato = true; try { passo(0, 0); } catch (e) { } }
     aggiorna();
     avvia();
+    /* se parte fuori schermo (o nascosta) il primo fotogramma si disegna comunque: chi scorre fino a li' non trova una tela vuota */
+    function primo() { if (A.disegnato || !c.isConnected) return; A.disegnato = true; try { if (passo(0, 0) === false) { A.finita = true; aggiorna(); } } catch (e) { } }
+    if (!A.giro) primo();
     var ctl = { pausa: function () { A.inPausa = true; aggiorna(); }, riprendi: function () { A.inPausa = false; A.finita = false; aggiorna(); avvia(); }, ferma: function () { A.finita = true; aggiorna(); }, sveglia: function () { if (A.finita) { A.finita = false; A.tempo = 0; } aggiorna(); avvia(); }, stato: function () { return { pausa: A.inPausa, finita: A.finita, velocita: A.velocita, tempo: A.tempo, gira: !!A.giro }; }, barra: barra };
     animazioni.push(ctl);
     return ctl;

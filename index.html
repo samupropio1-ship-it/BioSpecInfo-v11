@@ -3738,6 +3738,8 @@ window.onload = function(){
       if(sec==='smm' && typeof window.initMM==='function') window.initMM();
       if(sec==='snernst' && typeof window.initNernst==='function') window.initNernst();
       if(sec==='smoldraw' && typeof window.initMolEditor==='function') window.initMolEditor();
+      /* l'editor di molecole vive nel Centro spettroscopico: si prepara quando il centro si apre, cosi' la tela non resta muta */
+      if(sec==='scentro' && typeof window.initMolEditor==='function') window.initMolEditor();
       if(sec==='smateriali' && typeof window.initMateriali==='function') window.initMateriali();
       if(sec==='serrori' && typeof window.initRiassunti==='function') window.initRiassunti();
       if(sec==='ssteich' && typeof window.initStechio==='function') window.initStechio();
@@ -26224,6 +26226,12 @@ function renderPKCInputs(mode){
       :'<input type="'+inp.type+'" id="'+inp.id+'" aria-label="'+inp.label+'" value="'+inp.val+'" step="'+inp.step+'" style="width:100%;background:#0a1628;border:1px solid #334155;border-radius:8px;padding:9px;color:#e2e8f0;margin-top:4px" oninput="calcPKC(\''+mode+'\')">';
     return '<div style="margin-bottom:10px"><label style="color:#94a3b8;font-size:0.85rem">'+inp.label+'</label>'+ctrl+'</div>';
   }).join('')+'<button onclick="calcPKC(\''+mode+'\')" style="background:#00d4aa;color:#06141f;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;width:100%">⚗️ Calcola</button>';
+
+  /* risultati e grafico subito con i valori proposti, e di nuovo a ogni modifica:
+     prima la scheda restava con il grafico vuoto finche' non si premeva «Calcola» */
+  var box=document.getElementById('pkcInputs');
+  box.querySelectorAll('input,select').forEach(function(el){ el.addEventListener('input',function(){ try{ calcPKC(mode); }catch(e){} }); el.addEventListener('change',function(){ try{ calcPKC(mode); }catch(e){} }); });
+  try{ calcPKC(mode); }catch(e){}
 }
 
 function g(id){var el=document.getElementById(id); return el?parseFloat(el.value)||0:0;}
@@ -28425,6 +28433,15 @@ function drawMD(){
   });
   // Draw atoms
   MD.atoms.forEach(function(a){ drawAtom(ctx,a); });
+  /* tela vuota: si dice che cosa fare, invece di lasciare un foglio bianco muto */
+  if(!MD.atoms.length){
+    ctx.fillStyle='#64748b'; ctx.textAlign='center';
+    ctx.font='600 '+Math.round(W/34)+'px system-ui,sans-serif';
+    ctx.fillText((window.BSILingue&&BSILingue.corrente&&BSILingue.corrente()!=='it')?'Tap to place a carbon atom':'Tocca per mettere un atomo di carbonio',W/2,H/2-10);
+    ctx.font=Math.round(W/46)+'px system-ui,sans-serif';
+    ctx.fillText((window.BSILingue&&BSILingue.corrente&&BSILingue.corrente()!=='it')?'drag from an atom to draw a bond · choose N, O, rings… in the toolbar':'trascina da un atomo per fare un legame · N, O, anelli… nella barra sopra',W/2,H/2+18);
+    ctx.textAlign='left';
+  }
 }
 
 function drawBond(ctx,a1,a2,order){
