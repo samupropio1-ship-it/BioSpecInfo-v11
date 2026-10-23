@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v229` |
-| Commit | `ab912865bb8e33f133c136c19bcd08fc31341282` |
-| Generato (UTC) | `2026-10-23T11:29:02.651Z` |
+| Versione applicazione | `bsi-v230` |
+| Commit | `e7bbda2edb1129cdc0c462d6c1b64ea420cd6166` |
+| Generato (UTC) | `2026-10-23T12:01:30.126Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -84,10 +84,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-ode.js` | 21 kB | Equazioni differenziali: campo di direzioni, Eulero/Heun/RK4, piano delle fasi ed equilibri dallo jacobiano. |
 | `bsi-mat-multi.js` | 22 kB | Funzioni di più variabili: superfici, punti critici con l'hessiano, relazioni di Maxwell, differenziali esatti. |
 | `bsi-mat-complessi.js` | 20 kB | Numeri complessi (piano di Argand, radici, Eulero) e serie di Fourier. |
-| `bsi-mat-risolutore.js` | 104 kB | Risolutore d’esame di matematica: svolgimento passo per passo di 16 tipi di esercizio. |
-| `bsi-mat-esame.js` | 53 kB | Esame di Istituzioni di Matematiche I e II: programma, risolutore, appelli svolti, simulazione. |
-| `bsi-fis-esame.js` | 97 kB | Esame di Fisica Generale I e II: programma, 48 modelli di problema, prove svolte. |
-| `bsi-chi-esame.js` | 77 kB | Esame di chimica dalla base all’avanzatissimo: 40 modelli di problema, prove svolte. |
+| `bsi-mat-risolutore.js` | 109 kB | Risolutore d’esame di matematica: svolgimento passo per passo di 16 tipi di esercizio. |
+| `bsi-mat-esame.js` | 56 kB | Esame di Istituzioni di Matematiche I e II: programma, risolutore, appelli svolti, simulazione. |
+| `bsi-fis-esame.js` | 135 kB | Esame di Fisica Generale I e II: programma, 48 modelli di problema, prove svolte. |
+| `bsi-percorsi.js` | 9 kB | Percorsi di studio dalle superiori al dottorato per chimica, fisica e matematica. |
+| `bsi-chi-esame.js` | 98 kB | Esame di chimica dalla base all’avanzatissimo: 40 modelli di problema, prove svolte. |
 | `bsi-fis-elettrodi.js` | 14 kB | Cinetica elettrodica (Butler-Volmer, Tafel) e teoria dello stato di transizione (Eyring). |
 | `bsi-fis-superfici.js` | 18 kB | Fotofisica (Jablonski, Stern-Volmer), isoterme di adsorbimento (Langmuir, Freundlich, BET), polimeri. |
 | `bsi-mat-statistica.js` | 27 kB | Statistica di laboratorio: t, F, Grubbs, Dixon, propagazione delle incertezze, retta di taratura con LOD e LOQ. |
@@ -97,7 +98,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | 19 kB | Riconoscimento dei dati spettroscopici nel testo di un quesito, con la provenienza di ogni dato, e svolgimento passo per passo tramite bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Lettore di spettri: JCAMP-DX con compressione ASDF, ricerca dei picchi per prominenza, assegnazione delle bande IR, perdite neutre, apertura di documenti. |
 | `bsi-mol3d.js` | 42 kB | Visore 3D delle molecole: animazione di formazione, selezione degli atomi, misura di angoli, lunghezze e diedri. |
-| `bsi-lingue.js` | 187 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
+| `bsi-lingue.js` | 188 kB | Motore di internazionalizzazione: quattordici lingue, verso di scrittura compreso. |
 | `bsi-molingue.js` | 54 kB | Linguaggi chimici: venticinque uscite da SMILES, con nomenclatura IUPAC su una classe dichiarata. |
 | `bsi-pannelli-lingua.js` | 66 kB | Pannelli delle lingue e dei linguaggi chimici. |
 | `sw.js` | 6 kB | Service Worker: funzionamento offline e strategia di rete. |
@@ -110,7 +111,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `3cf6ef4cdc920a984d13bdd8e7ebf8c4c747c20cf924bf5484c2ac8e7d76d7b3` |
+| `index.html` | `bb27ce5e735c1ffaeba3662b6ec41c0d7ca460c16aae76a07a28057d3e250664` |
 | `bsi-ai-hub.js` | `985b9fa3f6a3d330cc6f7e31456e16760d0a0d9482f760b04d83765a013f2476` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -134,10 +135,11 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-ode.js` | `698725d49dc2bf862161914e41d38c3fafd33069021eae3b11b4973c146b52ce` |
 | `bsi-mat-multi.js` | `1040861c3b9d340febe8c4a78d212b168eb42752ee22589facf8566a401234d7` |
 | `bsi-mat-complessi.js` | `52a2ac5594a697d3a008d9fd629bee60fcff96ea76aa16c2ccda63eafd43f316` |
-| `bsi-mat-risolutore.js` | `b888e18d26d91b78a392c224544e93edb2a660e506fe363d030d2c94083b7b27` |
-| `bsi-mat-esame.js` | `e9d920b422d395e48a00a607af88879e6dc5a3646d7341f0a5677bc8f0e57af7` |
-| `bsi-fis-esame.js` | `1f30f568364cd4b0a343d1befcf1c2d0e5233f0db9a98e7770fd1b734a1a5d46` |
-| `bsi-chi-esame.js` | `85fe03cae65402bbc6cec099594d8c87be912694d0edcefce5d3cf518b476c35` |
+| `bsi-mat-risolutore.js` | `a036da6cd5937dd929800fff79e666a8ed3e71812fc12f7c17208bc6f2a0fc45` |
+| `bsi-mat-esame.js` | `de4af253244bd7d610b1a3607297d1678a529504afa23d7123aebe042e1f2c27` |
+| `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
+| `bsi-percorsi.js` | `c359a77269c1427019b4857d32757948b80dfa752d50c2897896318435a6d4d9` |
+| `bsi-chi-esame.js` | `ddb5d73fcf887e03770b3f0794fecaa2f8c918f4fae445bf57ff7a637f4643e7` |
 | `bsi-fis-elettrodi.js` | `249bb92ac39b78e916eaa0ecf80a2b1aac5d10249bb6b51628f61839c4b64240` |
 | `bsi-fis-superfici.js` | `3daec64d2c4755e70279b8ef2f433e4c98d6e90ff7d8c7d9c0689a24f080abd8` |
 | `bsi-mat-statistica.js` | `0b0c82afa13173b84308589cf16fbaa8b30c5e575fd8fdee00034b70c34d17fc` |
@@ -147,10 +149,10 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `ba192b53f95ff6ae1dd75b0169d8a7820da42f6d110286a52dd2af1e3dbecac5` |
+| `bsi-lingue.js` | `65bd38c8a35b1ad2f12aed356b13d0734010fe9ad2c03b9ed04efbe27cfa08c2` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `88adcc4f934cdb515d59c23dbca1c07e3b1e19738808ff6349881330709e2f6c` |
+| `sw.js` | `a55e6a833854415cb6539e97512edd2dc4e5d0d931b8de0ffe6f209d80c820fc` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -203,4 +205,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-10-23T11:29:02.651Z._
+_Generato il 2026-10-23T12:01:30.126Z._

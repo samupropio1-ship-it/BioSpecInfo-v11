@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 116 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 117 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -170,6 +170,10 @@ gives the original function back.
 
 
 **🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
+
+### 🧭 From high school to PhD
+
+In the **📚 Study** category, **🧭 From high school to PhD** tells you, for chemistry, physics and mathematics, what you should be able to do at each level and opens the right tools with one click. The **Physics exam** now covers astrophysics, nuclear and quantum physics (up to variational and perturbation methods); the **Chemistry exam** organic chemistry, spectroscopy, biochemistry and a PhD level (Marcus, isotope effect, tunnelling); the **Mathematics exam** residues and the heat equation.
 
 ### Where things are
 
@@ -482,4 +486,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v229`._
+_Guide updated to version `bsi-v230`._

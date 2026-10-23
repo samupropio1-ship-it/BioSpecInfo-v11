@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 116 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 117 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,10 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🧭 Dalle superiori al dottorato
+
+Nella categoria **📚 Studio** la sezione **🧭 Dalle superiori al dottorato** dice, per chimica, fisica e matematica, che cosa si deve saper fare a ogni livello e apre con un clic gli strumenti giusti. Nell'**Esame di Fisica** ci sono anche astrofisica, fisica nucleare e fisica quantistica (fino al metodo variazionale e alle perturbazioni); nell'**Esame di Chimica** organica, spettroscopia, biochimica e un livello di dottorato (Marcus, effetto isotopico, tunnelling); nell'**Esame di Matematica** i residui e l'equazione del calore.
 
 ### Dove si trovano le cose
 
@@ -481,4 +485,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v229`._
+_Guida aggiornata alla versione `bsi-v230`._
