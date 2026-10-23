@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v233] — 2026-10-23
+
+**Laboratori in movimento: meccanica, onde, circuiti, termodinamica, metodi numerici, geometria, equilibrio**
+
+### Aggiunto
+- **🎯 Meccanica in movimento**: proiettile con la resistenza dell'aria (e
+  l'angolo di gittata massima, che scende sotto 45°), urti dall'elastico
+  all'anelastico, pendolo vero con il periodo esatto e lo spazio delle fasi,
+  oscillatori accoppiati e modi normali.
+- **〰️ Onde e ottica**: battimenti, onde stazionarie, velocità di gruppo;
+  lenti e specchi con i raggi principali; diffrazione da N fenditure nel
+  colore della luce.
+- **🔌 Circuiti**: transitori RC, RL, RLC con i tre regimi; corrente
+  alternata con i fasori e la risonanza; filtri con il diagramma di Bode.
+- **🔥 Termodinamica in movimento**: cicli di Carnot, Otto, Diesel e
+  Stirling nei piani p-V e T-S con i bilanci; un gas di particelle che
+  arriva da solo a Maxwell-Boltzmann; moto browniano e ⟨r²⟩ = 4Dt.
+- **🧮 Metodi numerici**: zeri, integrazione, EDO e interpolazione con gli
+  ordini di convergenza misurati, il caso rigido e il fenomeno di Runge.
+- **📐 Geometria analitica e vettori**: vettori, rette e piani in 3D;
+  coniche classificate con gli invarianti, con fuochi e forma canonica.
+- **⚖️ Equilibrio e Le Chatelier**: una reazione che si sposta quando la si
+  disturba (specie, volume, temperatura); K in funzione di T.
+- Le nuove sezioni sono nei percorsi per livello e nei cataloghi delle
+  aree.
+- Requisito **SCI-50**.
+
+### Corretto
+- Prima della pubblicazione: con temperatura calda bassa e rapporto di
+  compressione alto il ciclo Otto «bruciava» raffreddando. La combustione
+  ora parte almeno dalla temperatura di fine compressione, e lo si dice.
+- Prima della pubblicazione: nelle lenti il secondo fuoco era disegnato
+  sopra il primo.
+
+### Banco
+- Nuovo `test_laboratori`: 151 controlli.
+
+---
 ## [bsi-v232] — 2026-10-23
 
 **Laboratorio 3D, grafici animati e interattivi, viste molecolari migliori**

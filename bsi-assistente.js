@@ -463,7 +463,7 @@
     chimica: ['calcola il pH di una soluzione 0,1 M di acido acetico con Ka = 1,8e-5', 'Al + Cl2 -> AlCl3 con Al: 10 g e Cl2: 30 g, reagente limitante', 'massa molare di Ca3(PO4)2 e moli in 10 g', 'solubilità di AgCl con Ksp = 1,8e-10', 'pila con E° catodo 0,34 V e anodo -0,76 V, n = 2', 'titolazione di 25 mL di acido debole 0,1 M (Ka = 1,8e-5) con NaOH 0,1 M dopo 12,5 mL', 'punto isoelettrico di un amminoacido con pKa 2,19, 9,67, 4,25', 'gradi di insaturazione di C8H9NO2']
   };
   var CATEGORIE = { chimica: ['0', '1', '2', '3', '4'], fisica: ['7'], matematica: ['8'] };
-  var EXTRA = { chimica: ['slab3d', 'schiesame', 'scristalli', 'selettrodi', 'sfotosup', 'shf', 'sdinmol', 'stermostat', 'srotovib', 'snucleare'], fisica: ['sqm', 'sconst', 'scfgraf', 'scft', 'smatchim'], matematica: ['slab3d', 'sdistrib', 'scalc', 'scalcav', 'sdatasci', 'smatchim', 'scfgraf'] };
+  var EXTRA = { chimica: ['slab3d', 'sfistermo', 'schiesame', 'scristalli', 'selettrodi', 'sfotosup', 'shf', 'sdinmol', 'stermostat', 'srotovib', 'snucleare'], fisica: ['sqm', 'sconst', 'scfgraf', 'scft', 'smatchim'], matematica: ['slab3d', 'sfiscirc', 'sdistrib', 'scalc', 'scalcav', 'sdatasci', 'smatchim', 'scfgraf'] };
   function strumenti(materia) {
     var visti = {}, out = [];
     CATEGORIE[materia].forEach(function (g) { var pan = document.getElementById('navGroup' + g); if (!pan) return; var tab = document.querySelector('.nav-group-tab[data-group="' + g + '"]'); [].forEach.call(pan.querySelectorAll('.nav-btn[data-s]'), function (b) { var id = b.getAttribute('data-s'); if (visti[id]) return; visti[id] = 1; out.push({ id: id, nome: b.textContent.trim(), gruppo: tab ? tab.textContent.trim() : '' }); }); });

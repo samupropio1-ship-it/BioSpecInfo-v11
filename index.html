@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v232';
+window.BSI_APP_VERSION='bsi-v233';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -986,6 +986,7 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="scheminfo">🧬 Chemioinformatica</button>
     <button class="nav-btn" data-s="stitr">🧪 Titolazione</button>
     <button class="nav-btn" data-s="skin">⏱️ Cinetica</button>
+    <button class="nav-btn" data-s="schiequil">⚖️ Equilibrio e Le Chatelier</button>
     <button class="nav-btn" data-s="sphase">📊 Fasi</button>
     <button class="nav-btn" data-s="senergia">⚡ Diagrammi E.</button>
     <button class="nav-btn" data-s="ssteich">⚗️ Stechiometria</button>
@@ -1032,6 +1033,10 @@ window.BSI_TELEMETRY_URL='';</script>
   <div id="navGroup7" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareafis" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">⚛️ Area Fisica · assistente</button>
     <button class="nav-btn" data-s="slab3d" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧊 Laboratorio 3D</button>
+    <button class="nav-btn" data-s="sfismecc" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎯 Meccanica in movimento</button>
+    <button class="nav-btn" data-s="sfisonde" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">〰️ Onde e ottica</button>
+    <button class="nav-btn" data-s="sfiscirc" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔌 Circuiti</button>
+    <button class="nav-btn" data-s="sfistermo" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔥 Termodinamica in movimento</button>
     <button class="nav-btn" data-s="sschrod" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Schrödinger</button>
     <button class="nav-btn" data-s="shf" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧮 Hartree-Fock</button>
     <button class="nav-btn" data-s="srotovib" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎻 Rotovibrazionale</button>
@@ -1055,6 +1060,8 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatmulti" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🗻 Funzioni di più variabili</button>
     <button class="nav-btn" data-s="smatcompl" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">ℂ Complessi e Fourier</button>
     <button class="nav-btn" data-s="smatstat" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📏 Statistica di laboratorio</button>
+    <button class="nav-btn" data-s="smatnum" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🧮 Metodi numerici</button>
+    <button class="nav-btn" data-s="smatgeo" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📐 Geometria analitica e vettori</button>
     <button class="nav-btn" data-s="smatesame" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎓 Esame di Matematica (UniBA)</button>
   </div>
 </div>
@@ -29520,6 +29527,13 @@ window.calcMolProps = function() {
 <div id="sareafis" class="section"></div>
 <div id="sareamat" class="section"></div>
 <div id="slab3d" class="section"></div>
+<div id="sfismecc" class="section"></div>
+<div id="sfisonde" class="section"></div>
+<div id="sfiscirc" class="section"></div>
+<div id="sfistermo" class="section"></div>
+<div id="smatnum" class="section"></div>
+<div id="smatgeo" class="section"></div>
+<div id="schiequil" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -31871,6 +31885,13 @@ window.addEventListener('load', init);
 <script src="./bsi-percorsi.js" defer></script>
 <script src="./bsi-assistente.js" defer></script>
 <script src="./bsi-lab3d.js" defer></script>
+<script src="./bsi-fis-meccanica.js" defer></script>
+<script src="./bsi-fis-onde.js" defer></script>
+<script src="./bsi-fis-circuiti.js" defer></script>
+<script src="./bsi-fis-termo.js" defer></script>
+<script src="./bsi-mat-numerici.js" defer></script>
+<script src="./bsi-mat-geometria.js" defer></script>
+<script src="./bsi-chi-equilibrio.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->

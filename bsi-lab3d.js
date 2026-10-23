@@ -673,5 +673,6 @@
       { nome: ['🧲 Campi', '🧲 Fields'], costruisci: scheda(schedaCampi) }
     ]
   });
-  globale.BSILab3D = { scene: function () { return scene; }, caricaThree: caricaThree };
+  /* il motore e i pezzi comuni, per le altre sezioni che vogliono una vista 3D (geometria analitica) */
+  globale.BSILab3D = { scene: function () { return scene; }, caricaThree: caricaThree, Scena: Scena, stile: stile, assi: assi, linea: linea, sfera: sfera, freccia: freccia, testo3d: testo3d };
 })(typeof window !== 'undefined' ? window : globalThis);

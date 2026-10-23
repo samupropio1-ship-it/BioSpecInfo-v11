@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v232` |
+| **Version described** | `bsi-v233` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **121 sections**, grouped by area of study.
+The application has **128 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -73,6 +73,7 @@ The application has **121 sections**, grouped by area of study.
 | **📐 Mathematics: eight sections on a symbolic engine** | A computer-algebra engine written for the app (`bsi-mat-cas.js`: exact fractions, canonical form, rule-based derivatives, antiderivatives verified by differentiating them, Taylor series by truncated power-series arithmetic, limits) underpinning: **basics** (significant figures and measurement rules, logarithms and pH, equations from linear to polynomial and the fractional ones of equilibrium, practice with marking); **function analysis** (domain, zeros, extrema, inflections, asymptotes, tangent; families and transformations); **derivatives, integrals and series** (rules used, Riemann, adaptive Simpson, Taylor, left and right limits); **linear algebra** in exact fractions with Gauss-Jordan steps, eigenvalues, plane transformations and reaction balancing as a null space; **differential equations** (direction field, order of methods, phase plane with equilibria classified from the Jacobian); **several variables** (3D surfaces, critical points, Maxwell relations, exact differentials); **complex numbers and Fourier**; **laboratory statistics** (t, F, Grubbs, Dixon, uncertainty propagation, calibration line with LOD/LOQ) |
 | **🎓 UniBA exams and advanced physical chemistry** | **Mathematics exam**: Istituzioni di Matematiche I and II syllabi explained, step-by-step solver for 16 exercise types, 16 solved papers (64 exercises), timed simulation. **Physics exam**: General Physics I and II syllabi, 48 standard problems solved with the user's data (laws, substitutions, units), 12 solved papers. **Electrodes and transition state** (Butler-Volmer, Tafel, Eyring) and **photochemistry, surfaces and polymers** (Jablonski, Stern-Volmer, Langmuir/Freundlich/BET, Mn/Mw, Carothers). **Chemistry exam** (🔬 category): 40 standard problems on four levels — basic (General and Inorganic), intermediate (Analytical), advanced (Physical Chemistry), expert (Sackur-Tetrode, Debye-Hückel, Pourbaix) — and 7 solved papers. Mathematics and Physics also gain an **advanced and expert** level (eigenvalues, ODE systems, Fourier, Laplace, triple integrals; driven oscillations, waves, Doppler, photoelectric, Compton, relativity, blackbody, particle in a box, tunnelling). The traces are built on the syllabi, they are not the official papers |
 | **🧭 From high school to PhD** | A map of chemistry, physics and mathematics on four levels (high school, bachelor’s, master’s, PhD) with links to the tools. New solvers: **astrophysics** (10 models), **nuclear physics** (9), **quantum physics** (11, with variational and perturbation methods), **organic chemistry, spectroscopy and biochemistry** (10), **PhD** (Marcus, isotope effect, Wigner; residues, heat equation) |
+| **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratories in motion** | Seven sections: **Mechanics in motion** (projectile with air drag and optimal angle, collisions with a coefficient of restitution, the real pendulum with its phase space, coupled oscillators and normal modes); **Waves and optics** (beats, standing waves, group velocity; lenses and mirrors with principal rays; N-slit diffraction in the colour of light); **Circuits** (RC, RL, RLC transients with the three regimes; alternating current with phasors and resonance; filters with the Bode plot); **Thermodynamics in motion** (Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with balances; a gas of particles reaching Maxwell-Boltzmann; Brownian motion); **Numerical methods** (roots, integration, ODEs, interpolation, with measured convergence orders); **Analytic geometry and vectors** (vectors and lines and planes in 3D, conics with the invariants); **Equilibrium and Le Chatelier** (a reaction shifting when disturbed, K as a function of T) |
 | **🧊 3D Laboratory and animated charts** | New section in the Physics category: **surfaces** z = f(x, y) with contour lines and critical points, hydrogen-like **orbitals** as a |ψ|² cloud coloured by sign (n ≤ 4, Z from 1 to 6, cut to see the nodes), **motion in space** (helix of a charge in B, inclined Kepler orbit, Lorenz attractor, parametric curve), real **crystal structures** with cell content, coordination, packing and Miller planes with the Bragg angle, **field lines** of charges and of a loop. Rotate with finger or mouse, zoom with two fingers or the wheel, auto-rotate, PNG snapshot, full screen. Every chart in the sections enters with an animation, glides to new values and shows a **crosshair** with the values; molecular 3D views have adjustable quality (ambient occlusion) and a control bar |
 | **⚗️ ⚛️ 📐 The three macro-areas** | At the head of the Chemistry, Physics and Mathematics categories. Each has an **assistant** to which you write the problem in natural language (English too): it recognises the kind of exercise or the model, reads numbers with units, formulas, reactions and lists, says what it understood and where each datum comes from, also solves the **inverse problem** and shows the working; the **catalogue** of every tool of the subject with search; the **levels** from high school to PhD. Spectra has the same solvers as tools |
 | **NOE and 2D NMR (tables)** | Reference values for spatial correlations |
@@ -177,7 +178,7 @@ without asking anyone to take it on trust.
 
 ### A measurement no other bench could make
 
-`verifica-accessibilita` walks the 121 sections and measures what is **visible**.
+`verifica-accessibilita` walks the 128 sections and measures what is **visible**.
 The six panels of this section live inside a container that stays `display:none`
 until the analysis has been run: that bench never saw them, and its "contrast 0"
 was not speaking about them.
@@ -382,7 +383,7 @@ Declared, not hidden. The detail is in
 | 3 | **No synchronisation** | Data do not pass from one device to another, and there are no copies on a server |
 | 4 | **File Manager: deterrent, not security** | On a static site, whoever reads the source bypasses any page-side control. The source carries only the SHA-256 digest of the password, never the password |
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
-| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 121 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
+| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 128 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
 | 8 | **Partial code coverage** | Measured: **49.89 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
@@ -403,4 +404,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v232`._
+_Document updated to version `bsi-v233`._
