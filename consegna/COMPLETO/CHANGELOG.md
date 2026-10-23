@@ -7,6 +7,44 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v229] — 2026-10-23
+
+**Esami UniBA di Chimica, Matematica e Fisica dalla base all'avanzatissimo**
+
+### Aggiunto
+- **🎓 Esame di Matematica (UniBA)**: i programmi di Istituzioni di
+  Matematiche I e II del corso di laurea in Chimica spiegati argomento per
+  argomento; un **risolutore passo per passo** per 16 tipi di esercizio
+  (complessi, domini, limiti con Taylor, studio di funzione completo,
+  integrali con i fratti semplici, impropri, Taylor, serie numeriche e di
+  potenze, due variabili, estremi su compatti, integrali doppi, forme
+  differenziali, EDO del primo e del secondo ordine con Cauchy); 16 appelli
+  svolti; una simulazione d'esame a tempo.
+- **🎓 Esame di Fisica (UniBA)**: Fisica Generale I e II, 48 problemi tipo
+  risolti con i dati dell'utente mostrando leggi, sostituzioni e unità;
+  12 prove svolte.
+- **🎓 Esame di Chimica (UniBA)**: 40 problemi tipo su quattro livelli (base:
+  Chimica Generale e Inorganica; intermedio: Analitica; avanzato: Chimica
+  Fisica; avanzatissimo: Sackur-Tetrode, Debye-Hückel, Pourbaix), reazioni che
+  si bilanciano da sole, pH esatti con il bilancio di carica, 7 prove svolte.
+- Livello **avanzato e avanzatissimo** anche per Matematica (autovalori e
+  diagonalizzazione, sistemi di EDO, serie di Fourier, trasformata di
+  Laplace, integrali tripli; 3 appelli) e Fisica (oscillatore forzato, onde
+  su corda, Doppler, fotoelettrico, Compton, relatività, corpo nero,
+  particella nella scatola, effetto tunnel; 3 prove).
+- **⚡ Elettrodi e stato di transizione** (Butler-Volmer, trasporto di massa,
+  Tafel dai dati, Eyring con ΔH‡ e ΔS‡) e **🌟 Fotochimica, superfici e
+  polimeri** (Jablonski, Stern-Volmer, Langmuir, Freundlich, BET con area
+  superficiale, Mn/Mw/Đ, Carothers, catena ideale).
+- Motore simbolico: fattoriale, fratti semplici, integrali ciclici
+  (eˣcos x), lnⁿx, radici multiple esatte, limiti a crescita lenta, registro
+  dei metodi d'integrazione per gli svolgimenti.
+- Requisiti **SCI-44**, **SCI-45** e **SCI-46**.
+
+### Banco
+- `test_esami` (nuovo, 201 controlli). La batteria passa a 68 banchi.
+
+---
 ## [bsi-v228] — 2026-10-23
 
 **La matematica, dalla base all'avanzata, su un motore simbolico**
