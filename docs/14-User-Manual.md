@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 140 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 159 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -166,6 +166,18 @@ derivandole, si riottiene la funzione di partenza.
 
 
 **🎓 Esame di Matematica** (categoria 📐) e **🎓 Esame di Fisica** (categoria ⚛️) seguono i programmi del corso di laurea in Chimica dell'Università di Bari. In ciascuna: il **programma** spiegato argomento per argomento con il metodo; il **risolutore**, che scrive lo svolgimento passo per passo con i tuoi dati; le **prove svolte** nello stile dello scritto (costruite sui programmi: non sono i testi ufficiali). In Matematica c'è anche una **simulazione d'esame** a tempo. In ⚛️ Fisica ci sono inoltre **⚡ Elettrodi e stato di transizione** e **🌟 Fotochimica, superfici e polimeri**.
+
+### 🧪 ⚛️ 📐 Cambiare materia
+
+Sopra **Spectra** e **✨** ci sono due pulsanti tondi: sono le due materie in cui non ti trovi — la **beuta** per la chimica, l'**atomo** per la fisica, la **Σ** per la matematica. Toccandone uno, la barra mostra solo i gruppi di quella materia (più 📚 Studio e 🛠️ Utility, che servono a tutte) e si apre la sua Area. La scelta resta anche quando riapri l'app; se apri una sezione di un'altra materia, per esempio dalla ricerca o da Spectra, la barra la segue da sola.
+
+### 📰 Gli articoli delle tre materie
+
+In **📰 Articoli** scegli in alto 🧪 Chimica, ⚛️ Fisica o 📐 Matematica. Ogni materia ha gli **ultimi articoli** (otto argomenti) e i suoi **premi**: il Nobel per la chimica e per la fisica, il **Premio Abel** e la **Medaglia Fields** per la matematica, che il Nobel non ce l'ha. Anni, nomi e motivazioni arrivano in diretta dalla Fondazione Nobel e da Wikidata; ogni premio ha una spiegazione scritta per l'argomento.
+
+### 🔐 Gli approfondimenti
+
+In **📐 Matematica**: Numeri e crittografia (nella scheda RSA si scrive un messaggio e lo si vede cifrato e decifrato), Grafi e ottimizzazione, Successioni e serie, Calcolo delle variazioni, Topologia (i solidi si ruotano trascinandoli), Strutture algebriche, Teoria dei giochi (si gioca a tris contro un avversario perfetto e a Nim), Logica e calcolabilità (si scrive una formula e compare la tavola di verità), Statistica inferenziale (i punti della regressione si trascinano) e Geometrie non euclidee. In **⚛️ Fisica**: Gravitazione, Calore e diffusione (sulla piastra un tocco sposta la sorgente), Modello di Ising, Fisica delle particelle, Meccanica analitica, Laser e ottica quantistica e Fisica del clima. In **⚗️ Chimica fisica**: Diagrammi di fase e Superficie di energia potenziale.
 
 ### 🎲 Le esplorazioni
 
@@ -505,4 +517,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v235`._
+_Guida aggiornata alla versione `bsi-v236`._

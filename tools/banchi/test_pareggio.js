@@ -6,7 +6,7 @@
    PERCHE' QUESTO BANCO ESISTE
 
    La richiesta: le tre materie allo stesso livello. Prima di questa versione
-   la matematica aveva 17 sezioni e la fisica 26, la chimica piu' di settanta
+   la matematica aveva 15 sezioni e la fisica 23, la chimica piu' di settanta
    in cinque gruppi. Qui entrano otto sezioni di matematica (successioni e
    serie, calcolo delle variazioni, topologia, strutture algebriche, teoria
    dei giochi, logica e calcolabilita', statistica inferenziale, geometrie non
@@ -111,8 +111,8 @@ const SEZ = [
     }
     if (nome === 'schermo grande') {
       console.log('      (sezioni: chimica ' + r.conteggi.chimica + ', fisica ' + r.conteggi.fisica + ', matematica ' + r.conteggi.matematica + ')');
-      vero('la matematica ha almeno 25 sezioni (erano 17)', r.conteggi.matematica >= 25);
-      vero('la fisica ha almeno 30 sezioni (erano 26)', r.conteggi.fisica >= 30);
+      vero('la matematica ha almeno 25 sezioni (erano 15)', r.conteggi.matematica >= 25);
+      vero('la fisica ha almeno 30 sezioni (erano 23)', r.conteggi.fisica >= 30);
     } else att('a 390 px niente sborda', 0, r.sborda);
     att('nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 160)));

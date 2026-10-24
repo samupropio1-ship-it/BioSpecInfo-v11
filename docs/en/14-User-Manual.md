@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 140 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 159 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -170,6 +170,18 @@ gives the original function back.
 
 
 **🎓 Mathematics exam** (📐 category) and **🎓 Physics exam** (⚛️ category) follow the syllabi of the Chemistry degree at the University of Bari. Each has the **syllabus** explained topic by topic with the method; the **solver**, which writes the step-by-step working with your data; **solved papers** in the style of the written exam (built on the syllabi: not the official papers). Mathematics also has a timed **exam simulation**. ⚛️ Physics also gains **⚡ Electrodes and transition state** and **🌟 Photochemistry, surfaces and polymers**.
+
+### 🧪 ⚛️ 📐 Switching subject
+
+Above **Spectra** and **✨** there are two round buttons: the two subjects you are not in — the **flask** for chemistry, the **atom** for physics, the **Σ** for mathematics. Tapping one, the bar shows only that subject's groups (plus 📚 Study and 🛠️ Utility, which serve all) and opens its Area. The choice is kept when you reopen the app; if you open a section of another subject, for instance from search or from Spectra, the bar follows by itself.
+
+### 📰 Articles for the three subjects
+
+In **📰 Articles** choose 🧪 Chemistry, ⚛️ Physics or 📐 Mathematics at the top. Each subject has the **latest articles** (eight topics) and its **prizes**: the Nobel for chemistry and physics, the **Abel Prize** and the **Fields Medal** for mathematics, which has no Nobel. Years, names and motivations arrive live from the Nobel Foundation and Wikidata; every prize has an explanation written for its topic.
+
+### 🔐 The deeper topics
+
+In **📐 Mathematics**: Numbers and cryptography (in the RSA tab you type a message and watch it encrypted and decrypted), Graphs and optimisation, Sequences and series, Calculus of variations, Topology (solids rotate when dragged), Algebraic structures, Game theory (play tic-tac-toe against a perfect opponent, and Nim), Logic and computability (type a formula and get its truth table), Statistical inference (regression points can be dragged) and Non-Euclidean geometries. In **⚛️ Physics**: Gravitation, Heat and diffusion (on the plate a tap moves the source), Ising model, Particle physics, Analytical mechanics, Lasers and quantum optics and Climate physics. In **⚗️ Physical Chemistry**: Phase diagrams and Potential energy surface.
 
 ### 🎲 The explorations
 
@@ -506,4 +518,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v235`._
+_Guide updated to version `bsi-v236`._
