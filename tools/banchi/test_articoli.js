@@ -234,6 +234,106 @@ function sopra(d, minimo, avuto) {
   att('  · compreso quello per leggerlo in italiano', true, iniettato.linkTradotto);
   console.log('      (' + iniettato.conteggio + ')');
 
+  /* ── §3b · Tre materie, lo stesso livello ─────────────────────────────── */
+  console.log('\n── Tre materie, lo stesso livello ──');
+  /* La richiesta e' esplicita: chimica, fisica e matematica devono avere la
+     sezione allo STESSO livello. Si misura: stesse due schede, otto ricerche
+     di articoli ciascuna, almeno sessanta spiegazioni per i premi, con le
+     stesse regole (nessun anno, nessun duplicato, nessun abbozzo). */
+  const pari = await pg.evaluate(() => {
+    const A = window.BSIArticoli, out = {};
+    const S = { chimica: window.BSINobelSpiegazioni, fisica: window.BSINobelSpiegazioniFisica,
+                matematica: window.BSIPremiMatematicaSpiegazioni };
+    Object.keys(S).forEach(k => {
+      const X = S[k], L = X ? X.ARGOMENTI.map(a => a.sp.replace(/<[^>]+>/g, '').length) : [];
+      const src = X ? X.ARGOMENTI.map(a => a.re.source) : [];
+      out[k] = {
+        c: X ? X.quante : 0,
+        minimo: L.length ? Math.min.apply(null, L) : 0,
+        anni: X ? X.ARGOMENTI.filter(a => /\b(1[89]\d\d|20\d\d|21\d\d)\b/.test(a.sp + a.tit)).length : -1,
+        doppie: src.length - new Set(src).size,
+        vuota: X ? X.perMotivazione('for something nobody has ever written about') : 'manca',
+        ricerche: A.ARGOMENTI(k).length,
+        premio: A.MATERIE[k] && A.MATERIE[k].premio[0]
+      };
+    });
+    return out;
+  });
+  ['chimica', 'fisica', 'matematica'].forEach(k => {
+    const x = pari[k];
+    sopra(k + ': spiegazioni dei premi', 60, x.c);
+    sopra(k + ': nessuna spiegazione sotto 380 caratteri', 380, x.minimo);
+    att(k + ': nessun anno e nessuna espressione doppia', '0/0', x.anni + '/' + x.doppie);
+    att(k + ': un argomento sconosciuto non produce spiegazioni', null, x.vuota);
+    att(k + ': otto ricerche di articoli', 8, x.ricerche);
+  });
+  att('i premi delle tre materie', 'Nobel per la chimica|Nobel per la fisica|Premio Abel e Medaglia Fields',
+      [pari.chimica.premio, pari.fisica.premio, pari.matematica.premio].join('|'));
+
+  /* il Nobel per la fisica: stessa prova dell'iniezione, categoria fisica */
+  const fis = await pg.evaluate(async () => {
+    const vero = window.fetch; let chiesto = '';
+    window.fetch = function (u) {
+      if (String(u).indexOf('nobelprize.org') >= 0) {
+        chiesto = String(u);
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ nobelPrizes: [
+          { awardYear: '1898', laureates: [{ knownName: { en: 'Qwfp Yxcvbn' },
+            motivation: { en: 'for the discovery of neutrino oscillations, which shows that neutrinos have mass' } }] }] }) });
+      }
+      return vero.apply(window, arguments);
+    };
+    window.BSIArticoli.materia('fisica'); window.BSIArticoli.scheda('nobel');
+    await new Promise(r => setTimeout(r, 1200));
+    const lista = document.getElementById('bsiART-nlista'), testo = lista ? lista.textContent : '';
+    window.fetch = vero;
+    return { cat: /nobelPrizeCategory=phy/.test(chiesto), nome: testo.indexOf('Qwfp Yxcvbn') >= 0,
+             spieg: !!lista.querySelector('.bsiART-sp'), link: !!lista.querySelector('a[href*="/physics/1898/"]'),
+             barra: [...document.querySelectorAll('#bsiART-mat .bsiART-m')].map(b => b.getAttribute('data-bsi-mat')).join(',') };
+  });
+  att('la barra delle materie', 'chimica,fisica,matematica', fis.barra);
+  att('fisica: la richiesta chiede la categoria fisica', true, fis.cat);
+  att('fisica: il nome mostrato è quello ricevuto', true, fis.nome);
+  att('fisica: la spiegazione è scelta dalla motivazione', true, fis.spieg);
+  att('fisica: i link portano alla pagina del Nobel per la fisica di quell’anno', true, fis.link);
+
+  /* la matematica: Wikidata, con una risposta SPARQL finta */
+  const mat = await pg.evaluate(async () => {
+    const vero = window.fetch; let chiesto = '';
+    window.fetch = function (u) {
+      if (String(u).indexOf('query.wikidata.org') >= 0) {
+        chiesto = decodeURIComponent(String(u));
+        const r = (p, q, n, a, m, c) => ({ nomePremio: { value: p }, persona: { value: 'http://www.wikidata.org/entity/' + q },
+          nome: { value: n }, anno: { value: a }, motivazione: m ? { value: m } : undefined, campi: { value: c } });
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ head: { vars: [] }, results: { bindings: [
+          r('Abel Prize', 'Q999001', 'Zmxncb Vlkjh', '1897', '', 'number theory | algebraic geometry'),
+          r('Fields Medal', 'Q999002', 'Poiuy Trewq', '1896', '', 'probability theory'),
+          r('Fields Medal', 'Q999003', 'Lkjhg Fdsaq', '1896', '', 'partial differential equations'),
+          r('Fields Medal', 'Q999004', 'Senza Anno', '', '', 'topology')
+        ] } }) });
+      }
+      return vero.apply(window, arguments);
+    };
+    window.BSIArticoli.materia('matematica'); window.BSIArticoli.scheda('nobel');
+    await new Promise(r => setTimeout(r, 1200));
+    const lista = document.getElementById('bsiART-nlista'), stato = document.getElementById('bsiART-nstato');
+    const testo = lista ? lista.textContent : '';
+    window.fetch = vero;
+    const carte = lista ? lista.querySelectorAll('.bsiART-card') : [];
+    window.BSIArticoli.materia('chimica');
+    return { chiede: /Abel Prize/.test(chiesto) && /Fields Medal/.test(chiesto),
+             nomi: testo.indexOf('Zmxncb Vlkjh') >= 0 && testo.indexOf('Poiuy Trewq') >= 0,
+             carte: carte.length, spieg: lista.querySelectorAll('.bsiART-sp').length,
+             scartata: testo.indexOf('Senza Anno') < 0,
+             wikidata: !!lista.querySelector('a[href="https://www.wikidata.org/wiki/Q999001"]'),
+             stato: stato ? stato.textContent : '' };
+  });
+  att('matematica: la richiesta a Wikidata chiede Abel e Fields per nome', true, mat.chiede);
+  att('matematica: i nomi mostrati sono quelli ricevuti', true, mat.nomi);
+  att('matematica: le due medaglie dello stesso anno stanno in una carta (2 carte)', 2, mat.carte);
+  att('matematica: ogni premiato ha la spiegazione del suo argomento', 3, mat.spieg);
+  att('matematica: una riga senza anno non si indovina, si scarta', true, mat.scartata);
+  att('matematica: il link alla scheda Wikidata è costruito dall’identificatore', true, mat.wikidata);
+
   /* lo stesso per gli articoli */
   const art = await pg.evaluate(async () => {
     const vero = window.fetch;
@@ -476,9 +576,9 @@ function sopra(d, minimo, avuto) {
   await browser.close();
 
   /* Un banco che non misura nulla passa. */
-  if (eseguiti < 47) {
+  if (eseguiti < 85) {
     ko++;
-    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 47');
+    console.log('\n  ✗ eseguiti solo ' + eseguiti + ' controlli: ne erano attesi almeno 85');
   }
 
   console.log('\n' + (ko ? '✗ ' + ko + ' FALLITI, ' : '') + ok + ' controlli passati');
