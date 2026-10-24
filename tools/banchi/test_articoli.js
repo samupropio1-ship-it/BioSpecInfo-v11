@@ -166,7 +166,7 @@ function sopra(d, minimo, avuto) {
       cortissime: S.ARGOMENTI.filter(a => !a.tit || (a.sp || '').length < 220).map(a => a.tit)
     };
   });
-  sopra('ci sono spiegazioni per molti argomenti', 50, sp.quante);
+  sopra('ci sono spiegazioni per molti argomenti', 130, sp.quante);
   const sbagliate = sp.esiti.filter(e => !e.trovato ||
     e.trovato.toLowerCase().indexOf(e.atteso.toLowerCase()) < 0);
   att('ogni motivazione di prova trova la sua spiegazione', 0, sbagliate.length);
@@ -261,8 +261,8 @@ function sopra(d, minimo, avuto) {
   });
   ['chimica', 'fisica', 'matematica'].forEach(k => {
     const x = pari[k];
-    sopra(k + ': spiegazioni dei premi', 60, x.c);
-    sopra(k + ': nessuna spiegazione sotto 380 caratteri', 380, x.minimo);
+    sopra(k + ': spiegazioni dei premi', 130, x.c);
+    sopra(k + ': nessuna spiegazione sotto 450 caratteri', 450, x.minimo);
     att(k + ': nessun anno e nessuna espressione doppia', '0/0', x.anni + '/' + x.doppie);
     att(k + ': un argomento sconosciuto non produce spiegazioni', null, x.vuota);
     att(k + ': otto ricerche di articoli', 8, x.ricerche);
