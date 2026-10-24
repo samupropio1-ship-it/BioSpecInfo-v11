@@ -259,6 +259,43 @@ function carica() {
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 160)));
     await ctx.close();
   }
+  /* ── i pulsanti delle materie, sopra Spectra e ✨ ─────────────────────── */
+  console.log('── pulsanti delle materie ──');
+  {
+    const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 390, height: 844 } });
+    const pg = await ctx.newPage(), errs = [];
+    pg.on('pageerror', e => errs.push(e.message));
+    await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 90000 });
+    await pg.waitForTimeout(5000);
+    const stato = () => pg.evaluate(() => ({
+      tabs: [...document.querySelectorAll('.nav-group-tab')].filter(t => t.offsetParent).map(t => t.dataset.group).sort().join(','),
+      fab: [...document.querySelectorAll('.bsi-mat-fab')].filter(b => b.offsetParent).map(b => b.dataset.materia).join(','),
+      icone: [...document.querySelectorAll('.bsi-mat-fab svg')].length,
+      nomi: [...document.querySelectorAll('.bsi-mat-fab')].every(b => (b.getAttribute('aria-label') || '').length > 5),
+      sopraSpectra: (() => { const b = document.getElementById('bsi-materie'), sp = document.getElementById('bsi-spectra-fab'); if (!b || !sp) return false; return b.getBoundingClientRect().bottom <= sp.getBoundingClientRect().top + 1; })()
+    }));
+    await pg.evaluate(() => { const g = document.getElementById('bsi-guide'); if (g) g.remove(); try { localStorage.removeItem('bsi-materia'); } catch (e) {} });
+    const s0 = await stato();
+    att('all’avvio: chimica, con i gruppi di chimica più Studio e Utility', '0,1,2,3,4,5,6', s0.tabs);
+    att('  · e due pulsanti: fisica e matematica, con due icone diverse', 'fisica,matematica|2', s0.fab + '|' + s0.icone);
+    vero('  · con un nome accessibile, e sopra Spectra', s0.nomi && s0.sopraSpectra);
+    await pg.click('.bsi-mat-fab[data-materia="fisica"]'); await pg.waitForTimeout(1000);
+    const s1 = await stato(), area1 = await pg.evaluate(() => !!document.getElementById('sareafis').offsetParent);
+    att('il pulsante ⚛️ mostra solo la fisica (più Studio e Utility)', '5,6,7|chimica,matematica', s1.tabs + '|' + s1.fab);
+    vero('  · e apre l’Area Fisica', area1);
+    await pg.click('.bsi-mat-fab[data-materia="matematica"]'); await pg.waitForTimeout(1000);
+    const s2 = await stato();
+    att('il pulsante Σ mostra solo la matematica', '5,6,8|chimica,fisica', s2.tabs + '|' + s2.fab);
+    await pg.reload({ waitUntil: 'load' }); await pg.waitForTimeout(5000);
+    att('la materia scelta si ricorda dopo aver ricaricato', '5,6,8', (await stato()).tabs);
+    /* nessuna sezione diventa irraggiungibile: aprirne una di un'altra materia cambia materia */
+    await pg.evaluate(() => { document.querySelector('.nav-group-tab[data-group="2"]').click(); document.querySelector('.nav-btn[data-s="sbiochimx"], #navGroup2 .nav-btn').click(); });
+    await pg.waitForTimeout(600);
+    att('aprire una sezione di chimica da matematica riporta alla chimica', '0,1,2,3,4,5,6', (await stato()).tabs);
+    att('pulsanti delle materie: nessun errore JavaScript', 0, errs.length);
+    await pg.evaluate(() => { try { localStorage.removeItem('bsi-materia'); } catch (e) {} });
+    await ctx.close();
+  }
   const ctxE = await browser.newContext({ serviceWorkers: 'block' });
   const pgE = await ctxE.newPage();
   await pgE.addInitScript(() => { try { localStorage.setItem('bsi_lang', 'en'); localStorage.setItem('bsi-lingua', 'en'); } catch (e) {} });

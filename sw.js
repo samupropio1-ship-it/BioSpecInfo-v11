@@ -101,6 +101,7 @@ var PRECACHE = [
   './bsi-articoli-nobel-fisica.js',
   './bsi-articoli-premi-matematica.js',
   './bsi-articoli.js',
+  './bsi-materie.js',
   './bsi-documento.js',
   './bsi-quesito.js',
   './bsi-moldraw.js',
