@@ -911,8 +911,12 @@
        successo: «la sezione articoli non l'ho trovata». Una sezione che non si
        trova vale quanto una sezione che non c'è. Qui va dove si guarda, e in
        cima al gruppo invece che in coda. */
-    var gruppo = document.getElementById('navGroup0') ||
-                 document.getElementById('navGroup6');
+    /* Dalla v237 l'applicazione e' tre app in una e la barra mostra una
+       materia per volta: il primo gruppo e' la chimica, e in fisica o in
+       matematica la sezione sparirebbe. Utility e' il gruppo COMUNE alle tre
+       materie, sempre visibile: la sezione sta li', in cima. */
+    var gruppo = document.getElementById('navGroup6') ||
+                 document.getElementById('navGroup0');
     if (!gruppo) return null;
     b = document.createElement('button');
     b.className = 'nav-btn';
@@ -964,6 +968,15 @@
     normalizzaPremiMat: normalizzaPremiMat,
     MATERIE: MATERIE,
     materia: function (k) { if (k && MATERIE[k]) { materia = k; argomento = ''; disegnaTab(); rendi(); } return materia; },
+    /* chiamata quando si cambia materia dalla barra: la sezione si allinea, e
+       chiede alla rete solo se e' aperta in quel momento */
+    imposta: function (k) {
+      if (!k || !MATERIE[k] || k === materia) return materia;
+      materia = k; argomento = ''; disegnaTab();
+      var s = document.getElementById(ID);
+      if (s && s.offsetParent !== null) rendi();
+      return materia;
+    },
     rendi: rendi, applica: applica,
     scheda: function (k) { if (k) { scheda = k; disegnaTab(); rendi(); } return scheda; },
     versione: '2.0'

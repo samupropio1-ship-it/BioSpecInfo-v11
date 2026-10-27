@@ -930,6 +930,8 @@ window.BSI_TELEMETRY_URL='';</script>
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >⚛️ Fisica</button>
     <button class="nav-group-tab" data-group="8" onclick="switchNavGroup(8)" 
       style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)" >📐 Matematica</button>
+    <button class="nav-group-tab" data-group="9" onclick="switchNavGroup(9)" 
+      style="border:1px solid #1a3050;background:#0a1628;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;color:#c9d3df;transition:all 0.15s;font-family:var(--font)">🔭 Astrofisica</button>
   </div>
 
   <!-- Group button panels -->
@@ -1042,13 +1044,11 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="sfisonde" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">〰️ Onde e ottica</button>
     <button class="nav-btn" data-s="sfiscirc" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔌 Circuiti</button>
     <button class="nav-btn" data-s="sfistermo" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔥 Termodinamica in movimento</button>
-    <button class="nav-btn" data-s="sfisastro" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔭 Astrofisica</button>
     <button class="nav-btn" data-s="sfisrel" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⏱️ Relatività ristretta</button>
     <button class="nav-btn" data-s="sfisfluidi" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌊 Fluidi</button>
     <button class="nav-btn" data-s="sfisem" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚡ Elettromagnetismo in movimento</button>
     <button class="nav-btn" data-s="sfissuono" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔊 Suono e acustica</button>
     <button class="nav-btn" data-s="sfissolido" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">💡 Semiconduttori</button>
-    <button class="nav-btn" data-s="sfisgrav" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🪐 Gravitazione</button>
     <button class="nav-btn" data-s="sfiscalore" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔥 Calore e diffusione</button>
     <button class="nav-btn" data-s="sfisising" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧲 Modello di Ising</button>
     <button class="nav-btn" data-s="sfispart" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚛️ Fisica delle particelle</button>
@@ -1094,6 +1094,10 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="smatinfer" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📊 Statistica inferenziale</button>
     <button class="nav-btn" data-s="smatnoneucl" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🌐 Geometrie non euclidee</button>
     <button class="nav-btn" data-s="smatesame" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🎓 Esame di Matematica (UniBA)</button>
+  </div>
+  <div id="navGroup9" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
+    <button class="nav-btn" data-s="sfisastro" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🔭 Astrofisica</button>
+    <button class="nav-btn" data-s="sfisgrav" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🪐 Gravitazione</button>
   </div>
 </div>
 
@@ -32011,6 +32015,8 @@ window.addEventListener('load', init);
 <script src="./bsi-articoli.js" defer></script>
 <!-- i pulsanti per cambiare materia, sopra Spectra e ✨ -->
 <script src="./bsi-materie.js" defer></script>
+<script src="./bsi-attrezzi.js" defer></script>
+<script src="./bsi-materie-app.js" defer></script>
 <script src="./bsi-documento.js" defer></script>
 <script src="./bsi-quesito.js" defer></script>
 <script src="./bsi-moldraw.js" defer></script>

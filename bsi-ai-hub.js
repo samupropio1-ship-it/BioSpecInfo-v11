@@ -5430,8 +5430,8 @@ function buildGrounding(userText){
 /* ---------------------------------------------------------------------
    4. System prompt di base (riprende quello storico dell'app)
 --------------------------------------------------------------------- */
-var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, una piattaforma web di chimica e " +
-"biochimica open-access sviluppata da Samuele come progetto di tesi universitaria presso l'Università di Bari " +
+var BASE_SYSTEM = "Ti chiami Spectra, il copilota AI integrato in BioSpecInfo, una piattaforma web open-access che e' " +
+"tre app in una (chimica e biochimica, fisica, matematica: la materia attiva e' indicata piu' sotto), sviluppata da Samuele come progetto di tesi universitaria presso l'Università di Bari " +
 "Aldo Moro (relatore: Prof. Savino Longo). A differenza di una chat qualunque, quando è attivo il Copilota puoi " +
 "davvero navigare l'app per l'utente (aprire sezioni, strumenti, cercare molecole) invece di limitarti a " +
 "descriverla: usa questi strumenti con sicurezza quando aiutano l'utente, non solo se te lo chiede esplicitamente. " +
@@ -7112,23 +7112,29 @@ function buildChatPane(){
     if(resetBox.scrollIntoView) resetBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
-  var SUGGESTED_PROMPTS = [
-    { icon: '💬', text: 'Spiega la glicolisi passo per passo' },
-    { icon: '🧭', text: 'Aprimi la tavola periodica' },
-    { icon: '🔍', text: 'Cercami la caffeina' },
-    { icon: '🎓', text: 'Interrogami su biochimica' }
-  ];
+  /* Saluto e suggerimenti dipendono dalla materia in cui si trova l'utente:
+     li fornisce bsi-materie-app.js. Senza quel modulo resta la chimica. */
+  function materiaSpectra(){
+    try{ if(window.BSIMaterieApp) return window.BSIMaterieApp.spectra(); }catch(e){}
+    return { prompt: '', intro: 'Ciao, sono <b style="color:#5eead4">Spectra</b> — il copilota AI di BioSpecInfo. Posso navigare l\'app per te, non solo parlartene. Prova:',
+      suggerimenti: [ { icon: '💬', text: 'Spiega la glicolisi passo per passo' }, { icon: '🧭', text: 'Aprimi la tavola periodica' },
+                      { icon: '🔍', text: 'Cercami la caffeina' }, { icon: '🎓', text: 'Interrogami su biochimica' } ] };
+  }
+  window._bsiMateriaSpectra = materiaSpectra;
+  document.addEventListener('bsi-spectra-materia', function(){
+    try{ if(document.getElementById('bsi-hub-msgs')) renderMessages(); }catch(e){}
+  });
   function renderMessages(){
     var d = loadThreads();
     var t = getActiveThread(d);
     var box = document.getElementById('bsi-hub-msgs');
     box.innerHTML = '';
     if(!t.messages.length){
-      var intro = el('div', { class: 'bsi-msg system-note' },
-        'Ciao, sono <b style="color:#5eead4">Spectra</b> — il copilota AI di BioSpecInfo. Posso navigare l\'app per te, non solo parlartene. Prova:');
+      var ms = materiaSpectra();
+      var intro = el('div', { class: 'bsi-msg system-note' }, ms.intro);
       box.appendChild(intro);
       var chipsWrap = el('div', { class: 'bsi-suggest-wrap' });
-      SUGGESTED_PROMPTS.forEach(function(sp){
+      ms.suggerimenti.forEach(function(sp){
         var chip = el('div', { class: 'bsi-suggest-chip' }, sp.icon + ' ' + escapeHtml(sp.text));
         chip.onclick = function(){
           var inp = document.getElementById('bsi-hub-input');
@@ -7407,8 +7413,10 @@ function buildChatPane(){
 
     // Due parti: la prima e' identica ad ogni richiesta e va in cache, la
     // seconda cambia (memoria, contesto della domanda) e resta fuori.
+    // La materia attiva (chimica, fisica, matematica) sta nella parte che
+    // cambia: cambiare materia non deve invalidare la cache della prima.
     var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
-               memoryPrompt() + buildGrounding(text)];
+               (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') + memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });

@@ -29,7 +29,7 @@
   var COMUNI = [5, 6];
   var MATERIE = {
     chimica: { gruppi: [0, 1, 2, 3, 4], area: 'sareachim', nm: ['Chimica', 'Chemistry'], col: '#5eead4', fondo: 'rgba(94,234,212,.16)' },
-    fisica: { gruppi: [7], area: 'sareafis', nm: ['Fisica', 'Physics'], col: '#9d8cff', fondo: 'rgba(157,140,255,.18)' },
+    fisica: { gruppi: [7, 9], area: 'sareafis', nm: ['Fisica', 'Physics'], col: '#9d8cff', fondo: 'rgba(157,140,255,.18)' },
     matematica: { gruppi: [8], area: 'sareamat', nm: ['Matematica', 'Mathematics'], col: '#ffc45a', fondo: 'rgba(255,196,90,.16)' }
   };
   var ORDINE = ['chimica', 'fisica', 'matematica'];
