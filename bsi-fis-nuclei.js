@@ -22,7 +22,7 @@
      grandezza di emivita per un fattore 2 in Q. Il picco di Gamow delle
      reazioni termonucleari, E₀ = (E_G^(1/2) kT/2)^(2/3);
    · IL NUCLEO IN 3D: A nucleoni come sfere impacchettate (protoni rossi,
-     neutroni azzurri) nel raggio R = 1,2 A^(1/3) fm;
+     neutroni azzurri) che riempiono il raggio R = 1,2 A^(1/3) fm;
    · LA CINETICA DEL REATTORE (punto, un gruppo di neutroni ritardati):
      dn/dt = (ρ − β)/Λ n + λC, dC/dt = β/Λ n − λC, risolta esattamente con
      gli autovalori della matrice 2×2; il salto pronto n₊/n₀ = β/(β − ρ),
@@ -356,8 +356,8 @@
     var cA = F.cursore(pan, ['A', 'A'], 1, 240, 1, st.A, function (v) { st.A = v; st.Z = Math.min(st.Z, v); ricostruisci(); });
     var cZ = F.cursore(pan, ['Z', 'Z'], 0, 100, 1, st.Z, function (v) { st.Z = Math.min(v, st.A); ricostruisci(); });
     var info = nota(pan);
-    nota(pan, t('Il nucleo è una goccia: i nucleoni stanno a contatto, a distanza di circa 1 fm, e la densità al centro è quasi la stessa per tutti i nuclei (0,16 nucleoni/fm³, 2,7·10¹⁷ kg/m³). Per questo il volume cresce come A e il raggio come A^(1/3). Il disegno impacchetta A sfere di diametro 1 fm con un rilassamento meccanico; quali siano protoni è casuale: nella meccanica quantistica i nucleoni non hanno posizioni definite, il disegno mostra solo dimensioni e proporzioni.',
-      'The nucleus is a droplet: nucleons touch, about 1 fm apart, and the central density is nearly the same for all nuclei (0.16 nucleons/fm³, 2.7·10¹⁷ kg/m³). That is why the volume grows as A and the radius as A^(1/3). The drawing packs A spheres of diameter 1 fm with a mechanical relaxation; which ones are protons is random: in quantum mechanics nucleons have no definite positions, the drawing shows only sizes and proportions.'));
+    nota(pan, t('Il nucleo è una goccia: i nucleoni stanno quasi a contatto, a circa 1,8 fm l’uno dall’altro, e la densità al centro è quasi la stessa per tutti i nuclei (0,16 nucleoni/fm³, 2,7·10¹⁷ kg/m³). Per questo il volume cresce come A e il raggio come A^(1/3). Il disegno impacchetta A sfere uguali con un rilassamento meccanico e le scala fino a riempire il raggio R; quali siano protoni è casuale: nella meccanica quantistica i nucleoni non hanno posizioni definite, il disegno mostra solo dimensioni e proporzioni.',
+      'The nucleus is a droplet: nucleons nearly touch, about 1.8 fm apart, and the central density is nearly the same for all nuclei (0.16 nucleons/fm³, 2.7·10¹⁷ kg/m³). That is why the volume grows as A and the radius as A^(1/3). The drawing packs A equal spheres with a mechanical relaxation and scales them to fill the radius R; which ones are protons is random: in quantum mechanics nucleons have no definite positions, the drawing shows only sizes and proportions.'));
     var tela = F.tela(destra, 0.36), cb = {}, timer = null;
     function ricostruisci() {
       var v = termini(st.A, st.Z), R = raggio(st.A);
@@ -377,7 +377,10 @@
           if (gr) { mezzo.remove(gr); gr.geometry.dispose(); gr.material.dispose(); }
           var P = impacchetta(st.A, st.Z, st.A * 131 + st.Z), A = st.A, M4 = new T.Matrix4(), col = new T.Color(), rmax = 0;
           gr = new T.InstancedMesh(new T.SphereGeometry(0.5, 18, 12), new T.MeshStandardMaterial({ roughness: 0.35, metalness: 0.15 }), A);
-          for (var i = 0; i < A; i++) { M4.makeTranslation(P.p[3 * i], P.p[3 * i + 1], P.p[3 * i + 2]); gr.setMatrixAt(i, M4); gr.setColorAt(i, P.protone[i] ? col.setRGB(0.95, 0.33, 0.33) : col.setRGB(0.42, 0.72, 1)); rmax = Math.max(rmax, Math.hypot(P.p[3 * i], P.p[3 * i + 1], P.p[3 * i + 2]) + 0.5); }
+          for (var i = 0; i < A; i++) rmax = Math.max(rmax, Math.hypot(P.p[3 * i], P.p[3 * i + 1], P.p[3 * i + 2]) + 0.5);
+          /* il grappolo di sfere a contatto si scala fino a riempire il raggio R: i nucleoni distano ~1,8 fm */
+          var k = raggio(A) / rmax, Sc = new T.Matrix4().makeScale(k, k, k);
+          for (i = 0; i < A; i++) { M4.makeTranslation(P.p[3 * i] * k, P.p[3 * i + 1] * k, P.p[3 * i + 2] * k).multiply(Sc); gr.setMatrixAt(i, M4); gr.setColorAt(i, P.protone[i] ? col.setRGB(0.95, 0.33, 0.33) : col.setRGB(0.42, 0.72, 1)); }
           mezzo.add(gr); pelle.scale.setScalar(raggio(A));
           S.didascalia.textContent = nomeNuclide(A, st.Z) + t(': ', ': ') + st.Z + t(' protoni (rossi), ', ' protons (red), ') + (A - st.Z) + t(' neutroni (azzurri) · R = ', ' neutrons (blue) · R = ') + raggio(A).toFixed(2) + ' fm';
           S.inquadra(Math.max(6, raggio(A) * 4.2));
@@ -451,7 +454,7 @@
           tg += dt; if (tg > 0.15) { tg = 0; grafico(); testo(); S.didascalia.textContent = t('Nocciolo in piscina: potenza ', 'Pool core: power ') + fmt(st.x[0]) + t(' × regime · barre di controllo ', ' × steady · control rods ') + (gc.position.z > 0.6 ? t('estratte', 'withdrawn') : t('inserite', 'inserted')); }
           return true;
         });
-        S.inquadra(13, -0.9, 1.05);
+        S.inquadra(17, -0.9, 1.15);
       }
     };
   }
