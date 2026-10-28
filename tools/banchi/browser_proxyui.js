@@ -22,7 +22,14 @@ const { chromium } = require('playwright-core');
     if(seed) await pg.addInitScript(seed);
     await pg.goto('http://127.0.0.1:8899/index.html',{waitUntil:'load',timeout:60000});
     await pg.waitForTimeout(2500);
-    await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+    /* il pulsante di Spectra nasce da uno script in differita: sotto il carico della
+       batteria (v236) a 2,5 s a volte non c'era ancora e il clic andava a vuoto.
+       Si aspetta il pulsante, si apre la chat, e se non compare si riprova. */
+    await pg.waitForSelector('#bsi-spectra-fab', { state: 'attached', timeout: 60000 }).catch(()=>{});
+    for (let prova = 0; prova < 3; prova++) {
+      await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+      if (await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 20000 }).then(()=>true, ()=>false)) break;
+    }
     await pg.waitForTimeout(1200);
     return { pg, err };
   }

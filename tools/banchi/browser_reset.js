@@ -37,7 +37,14 @@ const { chromium } = require('playwright-core');
   const att=(d,a,v)=>{ if(String(a)===String(v)){ok++;console.log('  ✓ '+d+'  → '+v);} else {ko++;console.log('  ✗ '+d+'\n      atteso: '+a+'\n      avuto:  '+v);} };
 
   // apri Spectra
-  await pg.evaluate(() => { const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+  /* il pulsante di Spectra nasce da uno script in differita: sotto il carico della
+     batteria (v236) a 2,5 s a volte non c'era ancora e il clic andava a vuoto.
+     Si aspetta il pulsante, si apre la chat, e se non compare si riprova. */
+  await pg.waitForSelector('#bsi-spectra-fab', { state: 'attached', timeout: 60000 }).catch(()=>{});
+  for (let prova = 0; prova < 3; prova++) {
+    await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+    if (await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 20000 }).then(()=>true, ()=>false)) break;
+  }
   await pg.waitForTimeout(1200);
 
   console.log('\n1) Il pulsante esiste ed è nella barra');
