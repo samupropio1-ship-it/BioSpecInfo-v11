@@ -87,9 +87,9 @@
     var rim2 = new T.DirectionalLight(0x6f8bff, 0.7); rim2.position.set(-4, -1, -3); sc.add(rim2);
     this.luceOcchi = new T.PointLight(0x1f5eff, 0.8, 4); this.luceOcchi.position.set(0, 0.15, 1.3); sc.add(this.luceOcchi);
 
-    var ceramica = new T.MeshPhysicalMaterial({ color: 0xffffff, map: tramaCeramica(T), metalness: 0.15, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.1 });
+    var ceramica = new T.MeshPhysicalMaterial({ color: 0x5a636d, map: tramaCeramica(T), metalness: 0.15, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.1 });
     var grafite = new T.MeshStandardMaterial({ color: 0x1b222b, metalness: 0.85, roughness: 0.32, envMapIntensity: 1.3 });
-    var acciaio = new T.MeshStandardMaterial({ color: 0x8a96a3, metalness: 1, roughness: 0.25, envMapIntensity: 1.4 });
+    var acciaio = new T.MeshStandardMaterial({ color: 0x4a545f, metalness: 1, roughness: 0.25, envMapIntensity: 1.4 });
     var vetro = new T.MeshPhysicalMaterial({ color: 0x03070c, metalness: 0.2, roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.03, transparent: true, opacity: 0.74, envMapIntensity: 2, depthWrite: false });
     this.matLuce = new T.MeshBasicMaterial({ color: COLORI.attesa, toneMapped: false });
     var sprite = bagliore(T);

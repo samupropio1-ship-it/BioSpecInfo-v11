@@ -23,7 +23,7 @@
      shader somma quello spostamento moltiplicato per l'apertura del momento
      (un uniforme): la bocca si apre e si chiude sul testo pronunciato;
    · gli OCCHI diventano luci: si spengono in un lampo per il battito delle
-     palpebre e cambiano colore con lo stato (ciano, ambra, verde acqua);
+     palpebre e cambiano colore con lo stato (sfumature di blu scuro, come l'app);
    · il VISO bianco diventa METALLO GRIGIO, conservando i rilievi del modello
      (normal map e occlusione); la calotta trasparente diventa un vetro
      sottile, cosi' il viso si vede.
@@ -133,12 +133,12 @@
     this.T = T; this.padre = padre;
     var ren = new T.WebGLRenderer({ antialias: true, alpha: true });
     ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1)); ren.setClearColor(0, 0);
-    ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 1.1;
+    ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.9;
     ren.domElement.style.cssText = 'width:100%;height:100%;display:block'; ren.domElement.setAttribute('aria-hidden', 'true');
     padre.appendChild(ren.domElement); this.ren = ren;
     var sc = new T.Scene(); this.sc = sc; sc.environment = ambiente(T, ren);
-    sc.add(new T.HemisphereLight(0xcfe8ff, 0x0a1018, 0.45));
-    var key = new T.DirectionalLight(0xfff4e8, 1.6); key.position.set(-0.6, 0.8, 1.2); sc.add(key);
+    sc.add(new T.HemisphereLight(0x9fb8e8, 0x05080e, 0.25));
+    var key = new T.DirectionalLight(0xfff4e8, 1.05); key.position.set(-0.6, 0.8, 1.2); sc.add(key);
     var rim = new T.DirectionalLight(0x2a5bff, 2.0); rim.position.set(0.9, 0.5, -0.8); sc.add(rim);
     var rim2 = new T.DirectionalLight(0x3b4bff, 0.8); rim2.position.set(-0.9, -0.2, -0.6); sc.add(rim2);
 
@@ -146,11 +146,11 @@
     var m = gltf.scene.clone(true); m.updateMatrixWorld(true);
     var parti = {}; m.traverse(function (o) { if (o.isMesh) { parti[o.name] = o; o.material = o.material.clone(); o.geometry = o.geometry.clone(); } });
     this.radice = new T.Group(); sc.add(this.radice); this.radice.add(m); m.updateMatrixWorld(true);
-    /* il viso: metallo grigio con i rilievi originali */
+    /* il viso: metallo grigio scuro (canna di fucile) con i rilievi originali (v237: più scuro su richiesta) */
     var faccia = parti.Object_2;
     if (faccia) {
       var o = faccia.material;
-      faccia.material = new T.MeshStandardMaterial({ color: 0x9aa4ae, metalness: 0.92, roughness: 0.3, normalMap: o.normalMap || null, normalScale: new T.Vector2(1.2, 1.2), aoMap: o.aoMap || null, aoMapIntensity: 0.8, envMapIntensity: 1.35 });
+      faccia.material = new T.MeshStandardMaterial({ color: 0x353b42, metalness: 0.9, roughness: 0.36, normalMap: o.normalMap || null, normalScale: new T.Vector2(1.2, 1.2), aoMap: o.aoMap || null, aoMapIntensity: 1, envMapIntensity: 0.7 });
       this.toccati = preparaBocca(T, faccia);
       this.uBocca = { value: 0 };
       this.uE = { sorriso: { value: 0 }, rotondo: { value: 0 }, largo: { value: 0 }, sopra: { value: 0 }, accigliato: { value: 0 } };
@@ -165,10 +165,12 @@
         s.fragmentShader = 'uniform float uBocca;\nvarying float vBanda;\n' + s.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n  diffuseColor.rgb *= 1.0 - 0.94 * clamp(vBanda * uBocca * 1.6, 0.0, 1.0);').replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n  roughnessFactor = mix(roughnessFactor, 1.0, clamp(vBanda * uBocca * 1.6, 0.0, 1.0));');
       };
     }
-    ['Object_4'].forEach(function (k) { var x = parti[k]; if (x) { x.material.color = new T.Color(0x8d969f); x.material.metalness = 0.9; x.material.roughness = 0.35; } });
+    ['Object_4'].forEach(function (k) { var x = parti[k]; if (x) { x.material.color = new T.Color(0x2c3238); if (x.material.emissive) x.material.emissive.setHex(0x0a2a8c).multiplyScalar(0.55); x.material.metalness = 0.9; x.material.roughness = 0.35; } });
+    /* casco, collo e rifiniture: le tinte originali scurite allo stesso tono del viso */
+    Object.keys(parti).forEach(function (k) { if (/^Object_[2345]$/.test(k)) return; var x = parti[k].material; if (x && x.color) x.color.multiplyScalar(0.42); if (x && 'envMapIntensity' in x) x.envMapIntensity = 0.7; if (x && x.emissive) x.emissive.setHex(0x0b2a8a).multiplyScalar(0.3); });
     /* la calotta trasparente: un vetro sottile */
     var vis = parti.Object_5;
-    if (vis) vis.material = new T.MeshPhysicalMaterial({ color: 0xcfe8ff, metalness: 0.1, roughness: 0.06, clearcoat: 1, transparent: true, opacity: 0.14, depthWrite: false, side: T.DoubleSide, envMapIntensity: 1.6 });
+    if (vis) vis.material = new T.MeshPhysicalMaterial({ color: 0x1a2f66, metalness: 0.1, roughness: 0.08, clearcoat: 0.6, transparent: true, opacity: 0.05, depthWrite: false, side: T.DoubleSide, envMapIntensity: 0.18 });
     /* gli occhi: luci */
     this.matOcchi = new T.MeshBasicMaterial({ color: COLORI.attesa, toneMapped: false });
     var occhi = parti.Object_3; if (occhi) occhi.material = this.matOcchi;
@@ -231,7 +233,7 @@
     if (this.prossimo <= 0 && !lento) { this.palp = 1; this.prossimo = Math.random() < 0.18 ? 0.28 : (st === 'ascolta' ? 3.5 : 2) + Math.random() * 4; }
     var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0; this.palp = Math.max(0, this.palp - dt / 0.12);
     var pulsa = st === 'pensa' ? 0.22 * Math.sin(T * 7.5) : st === 'ascolta' ? 0.12 * Math.sin(T * 4.5) : 0.04 * Math.sin(T * 1.3);
-    this.matOcchi.color.copy(this.colore).multiplyScalar((1.2 + pulsa + 0.25 * mente.attenzione) * (1 - 0.92 * chiuso));
+    this.matOcchi.color.copy(this.colore).convertSRGBToLinear().multiplyScalar((0.8 + 0.35 * pulsa + 0.15 * mente.attenzione) * (1 - 0.92 * chiuso));
     this.luceOcchi.color.copy(this.colore); this.luceOcchi.intensity = (0.32 + 0.2 * pulsa) * (1 - chiuso);
     /* ── lo sguardo: il puntatore, piu' micro-movimenti rapidi e qualche occhiata altrove ── */
     this.saccade = this.saccade || { x: 0, y: 0, t: 0.8, altrove: 9 };
