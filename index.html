@@ -1066,6 +1066,21 @@ window.BSI_TELEMETRY_URL='';</script>
     <button class="nav-btn" data-s="selettrodi" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">⚡ Elettrodi e stato di transizione</button>
     <button class="nav-btn" data-s="sfotosup" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🌟 Fotochimica, superfici e polimeri</button>
     <button class="nav-btn" data-s="sfisesame" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎓 Esame di Fisica (UniBA)</button>
+    <button class="nav-btn" data-s="sfisriass">🗺️ Riassunti di fisica</button>
+    <button class="nav-btn" data-s="sfisquiz">❓ Quiz di fisica</button>
+    <button class="nav-btn" data-s="sfisflash">🃏 Flashcard di fisica</button>
+    <button class="nav-btn" data-s="sfisform">📐 Formulario di fisica</button>
+    <button class="nav-btn" data-s="sfisgloss">📖 Glossario di fisica</button>
+    <button class="nav-btn" data-s="smatriass">🗺️ Riassunti di matematica</button>
+    <button class="nav-btn" data-s="smatquiz">❓ Quiz di matematica</button>
+    <button class="nav-btn" data-s="smatflash">🃏 Flashcard di matematica</button>
+    <button class="nav-btn" data-s="smatform">📐 Formulario di matematica</button>
+    <button class="nav-btn" data-s="smatgloss">📖 Glossario di matematica</button>
+    <button class="nav-btn" data-s="sfisris">🌐 Risorse e bibliografia di fisica</button>
+    <button class="nav-btn" data-s="sfiscost">🔢 Costanti e unità</button>
+    <button class="nav-btn" data-s="smatris">🌐 Risorse e bibliografia di matematica</button>
+    <button class="nav-btn" data-s="smattavole">📚 Tavole matematiche</button>
+    <button class="nav-btn" data-s="schiris">📚 Bibliografia e citazioni di chimica</button>
   </div>
   <!-- 📐 MATEMATICA (v228): otto sezioni sul motore simbolico bsi-mat-cas.js -->
   <div id="navGroup8" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
@@ -29617,6 +29632,21 @@ window.calcMolProps = function() {
 <div id="sfisanalitica" class="section"></div>
 <div id="sfislaser" class="section"></div>
 <div id="sfisclima" class="section"></div>
+<div id="sfisriass" class="section"></div>
+<div id="sfisquiz" class="section"></div>
+<div id="sfisflash" class="section"></div>
+<div id="sfisform" class="section"></div>
+<div id="sfisgloss" class="section"></div>
+<div id="smatriass" class="section"></div>
+<div id="smatquiz" class="section"></div>
+<div id="smatflash" class="section"></div>
+<div id="smatform" class="section"></div>
+<div id="smatgloss" class="section"></div>
+<div id="sfisris" class="section"></div>
+<div id="sfiscost" class="section"></div>
+<div id="smatris" class="section"></div>
+<div id="smattavole" class="section"></div>
+<div id="schiris" class="section"></div>
 <div id="sdiagrammi" class="section"></div>
 <div id="scfgraf" class="section"></div>
 <div id="selucid" class="section"></div>
@@ -32006,6 +32036,10 @@ window.addEventListener('load', init);
 <script src="./bsi-fis-analitica.js" defer></script>
 <script src="./bsi-fis-laser.js" defer></script>
 <script src="./bsi-fis-clima.js" defer></script>
+<script src="./bsi-studio.js" defer></script>
+<script src="./bsi-studio-fisica.js" defer></script>
+<script src="./bsi-studio-matematica.js" defer></script>
+<script src="./bsi-risorse-materie.js" defer></script>
 <!-- bsi-articoli-nobel.js contiene SOLO spiegazioni, nessun dato: anni,
      premiati e motivazioni arrivano dalla Fondazione Nobel in diretta.
      Deve caricarsi prima di bsi-articoli.js, che le abbina. -->
@@ -32017,6 +32051,7 @@ window.addEventListener('load', init);
 <script src="./bsi-materie.js" defer></script>
 <script src="./bsi-attrezzi.js" defer></script>
 <script src="./bsi-materie-app.js" defer></script>
+<script src="./bsi-jarvis.js" defer></script>
 <script src="./bsi-documento.js" defer></script>
 <script src="./bsi-quesito.js" defer></script>
 <script src="./bsi-moldraw.js" defer></script>

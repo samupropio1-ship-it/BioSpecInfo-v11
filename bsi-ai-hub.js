@@ -5792,6 +5792,8 @@ function nucleoSvg(){
    la stessa cosa a parole, per chi non guarda l'animazione. */
 var _STATI = { riposo:'pronto', pensa:'sto ragionando…', strumenti:'sto usando gli strumenti…', scrive:'sto rispondendo…' };
 function statoNucleo(nome, dettaglio){
+  // la console Jarvis (bsi-jarvis.js) segue lo stesso stato
+  try{ document.dispatchEvent(new CustomEvent('bsi-spectra-stato', { detail: { stato: nome || 'riposo', dettaglio: dettaglio || '' } })); }catch(e){}
   var ov = document.getElementById('bsi-hub-ov');
   if(ov) ov.setAttribute('data-stato', nome || 'riposo');
   var e = document.getElementById('bsi-hub-stato');
@@ -7324,7 +7326,9 @@ function buildChatPane(){
      forma che Claude rifiuta al turno successivo, costringendo ad aprire una
      chat nuova. Il testo NON viene consumato: resta nella casella, cosi'
      basta ripremere Invio quando la risposta e' arrivata. */
-  var _turnoInCorso = false;
+  var _turnoInCorso = false, _rispostaAnnunciata = false;
+  // per la console Jarvis: c'e' un fornitore utilizzabile (chiave o proxy)?
+  window._bsiSpectraPronta = function(){ try{ return !!chiaveDaUsare(provSel.value); }catch(e){ return false; } };
   async function send(){
     var input = document.getElementById('bsi-hub-input');
     var text = input.value.trim();
@@ -7406,7 +7410,7 @@ function buildChatPane(){
     box.appendChild(liveNode); box.scrollTop = box.scrollHeight;
 
     sendBtn.disabled = true; sendBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
-    _turnoInCorso = true;
+    _turnoInCorso = true; window._bsiTurnoInCorso = true; _rispostaAnnunciata = false;
     statoNucleo('pensa');
     abortFlag.stop = false;
     var abortCtrl = (typeof AbortController === 'function') ? new AbortController() : null;
@@ -7416,7 +7420,8 @@ function buildChatPane(){
     // La materia attiva (chimica, fisica, matematica) sta nella parte che
     // cambia: cambiare materia non deve invalidare la cache della prima.
     var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
-               (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') + memoryPrompt() + buildGrounding(text)];
+               (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') +
+               (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });
@@ -7563,6 +7568,8 @@ function buildChatPane(){
       t2.messages.push(msg2);
       saveThreads(d2);
       renderMessages();
+      // la console Jarvis legge a voce la risposta finale
+      try{ _rispostaAnnunciata = true; document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: acc || '' } })); }catch(e){}
       refreshThreadSel();
     }catch(err){
       var wasStopped = abortFlag.stop || (err && err.name === 'AbortError');
@@ -7592,7 +7599,9 @@ function buildChatPane(){
         refreshThreadSel();
       }catch(e2){}
     } finally {
-      _turnoInCorso = false;
+      _turnoInCorso = false; window._bsiTurnoInCorso = false;
+      // un turno finito male deve comunque sbloccare chi aspettava la risposta
+      if(!_rispostaAnnunciata){ try{ document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: '', errore: true } })); }catch(e){} }
       sendBtn.disabled = false; sendBtn.style.display = 'inline-block'; stopBtn.style.display = 'none';
       statoNucleo('riposo');
       // Il turno puo' aver cambiato cio' che si sa sui fornitori — sia in
