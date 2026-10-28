@@ -290,6 +290,38 @@
     return null;
   }
 
+  /* ═══ 4b. GLI OCCHI: l'immagine di cio' che l'utente sta guardando ════ */
+  /* Le tele visibili della scheda aperta, 2D e 3D, composte in un'immagine
+     sola. Le tele WebGL non conservano il disegno dopo la composizione: si
+     ridisegna la scena e la si copia nello stesso istante. */
+  function catturaSchermo() {
+    var pan = pannelloAttivo(sezioneAttiva()); if (!pan) return null;
+    var tele = [].filter.call(pan.querySelectorAll('canvas'), function (c) { return c.offsetParent !== null && c.width > 40 && c.height > 40; }).slice(0, 4);
+    if (!tele.length) return null;
+    var W = 0, H = 0, sc = 1;
+    tele.forEach(function (c) { W = Math.max(W, c.width); H += c.height; });
+    if (W > 1400) sc = 1400 / W;
+    var out = document.createElement('canvas'); out.width = Math.round(W * sc); out.height = Math.round(H * sc);
+    var q = out.getContext('2d'); q.fillStyle = '#081522'; q.fillRect(0, 0, out.width, out.height);
+    var y = 0, scene = (globale.BSILab3D && globale.BSILab3D.scene && globale.BSILab3D.scene()) || [];
+    tele.forEach(function (c) {
+      var s = scene.filter(function (x) { return x.ren && x.ren.domElement === c; })[0];
+      try { if (s) s.disegna(); q.drawImage(c, 0, y * sc, c.width * sc, c.height * sc); } catch (e) {}
+      y += c.height;
+    });
+    return out;
+  }
+  function allegaSchermo() {
+    return new Promise(function (ok) {
+      var c = catturaSchermo(); if (!c || typeof globale._bsiAllegaFile !== 'function' || !c.toBlob) { ok(false); return; }
+      c.toBlob(function (b) {
+        if (!b) { ok(false); return; }
+        try { var f = new File([b], 'schermo-' + (leggiSchermo().sezione || 'app') + '.png', { type: 'image/png' }); globale._bsiAllegaFile([f]); setTimeout(function () { ok(true); }, 400); } catch (e) { ok(false); }
+      }, 'image/png');
+    });
+  }
+  var VUOLE_VEDERE = /\b(questo|questa|questi|qui|grafico|grafici|figura|immagine|vedi|vedo|guarda|schermo|simulazione|animazione|spiegami cosa|this|chart|plot|look|see|screen)\b/;
+
   /* ═══ 5. IL MODELLO: quando il comando locale non basta ════════════════ */
   var attesaModello = null;
   function chiediAlModello(testo) {
@@ -352,7 +384,7 @@
       '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div>' +
       '<div id="bsiJV-dial" aria-live="polite"></div>' +
-      '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
+      '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
     document.body.appendChild(d);
     var mini = document.createElement('button'); mini.id = 'bsiJV-mini'; mini.type = 'button'; mini.textContent = 'J'; document.body.appendChild(mini);
     mini.onclick = function () { apriHud(); };
@@ -361,6 +393,7 @@
     document.getElementById('bsiJV-riduci').onclick = function () { chiudiHud(true); };
     document.getElementById('bsiJV-mic').onclick = function () { hud.ascolto ? fermaAscolto() : avviaAscolto(); };
     document.getElementById('bsiJV-taci').onclick = function () { taci(); };
+    document.getElementById('bsiJV-occhi').onclick = function () { hud.occhi = !hud.occhi; testiHud(); };
     document.getElementById('bsiJV-voce').onclick = function () { voce.attiva = !voce.attiva; if (!voce.attiva) taci(); testiHud(); };
     var inp = document.getElementById('bsiJV-in');
     document.getElementById('bsiJV-invia').onclick = function () { var v = inp.value.trim(); if (v) { inp.value = ''; elabora(v); } };
@@ -378,6 +411,8 @@
     set('bsiJV-x', '✕', t('Chiudi la console', 'Close the console'));
     set('bsiJV-mic', hud.ascolto ? '🎙️ ' + t('ASCOLTO', 'LISTENING') : '🎙️ ' + t('PARLA', 'TALK'), t('Microfono', 'Microphone'));
     set('bsiJV-taci', '■', t('Interrompi la voce', 'Stop speaking'));
+    set('bsiJV-occhi', '👁', hud.occhi ? t('Alla prossima domanda allego lo schermo', 'I will attach the screen to the next question') : t('Allega lo schermo alla prossima domanda', 'Attach the screen to the next question'));
+    var oc = document.getElementById('bsiJV-occhi'); if (oc) oc.classList.toggle('on', !!hud.occhi);
     var i = document.getElementById('bsiJV-in'); if (i) { i.placeholder = t('Scrivi un comando o una domanda…', 'Type a command or a question…'); i.setAttribute('aria-label', t('Comando per Spectra', 'Command for Spectra')); }
     if (hud.el) hud.el.setAttribute('aria-label', t('Console di Spectra', 'Spectra console'));
     var mic = document.getElementById('bsiJV-mic'); if (mic) mic.classList.toggle('on', hud.ascolto);
@@ -496,7 +531,11 @@
       return;
     }
     stato('pensa');
-    chiediAlModello(testo).then(function (r) {
+    var vedere = hud.occhi || VUOLE_VEDERE.test(norm(testo)); hud.occhi = false;
+    (vedere ? allegaSchermo() : Promise.resolve(false)).then(function (allegato) {
+      if (allegato) dialogo(testo, t('Guardo lo schermo e ci penso…', 'Looking at the screen and thinking…'));
+      return chiediAlModello(testo);
+    }).then(function (r) {
       if (!r || r.senzaChiave) {
         var msg = r && r.senzaChiave ? t('Per questa domanda mi serve un fornitore di intelligenza artificiale: aprilo da Spectra, impostazioni. Intanto posso aprire sezioni, calcolare, derivare, convertire unità, cercare costanti e definizioni, interrogarti e muovere i comandi delle simulazioni.', 'For this question I need an AI provider: set it in Spectra settings. Meanwhile I can open sections, calculate, differentiate, convert units, look up constants and definitions, quiz you and move the simulation controls.')
           : t('Non sono riuscito a interpellare il modello. Riprova tra poco.', 'I could not reach the model. Try again shortly.');
@@ -556,7 +595,7 @@
 
   globale.BSIJarvis = {
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
-    schermo: leggiSchermo, contesto: contestoSchermo, studio: studio,
+    schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };

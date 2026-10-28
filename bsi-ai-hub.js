@@ -6479,6 +6479,8 @@ function buildAttachUI(inputRow){
   renderAzioni();
 }
 
+// la console Jarvis allega l'immagine dello schermo con la stessa strada dei file
+window._bsiAllegaFile = function(f){ aggiungiAllegati(f); };
 function aggiungiAllegati(fileList){
   var arr = Array.prototype.slice.call(fileList || []);
   arr.forEach(function(f){
