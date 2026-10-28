@@ -7,6 +7,64 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v236] — 2026-10-24
+
+**Le tre materie allo stesso livello: diciannove sezioni nuove, i pulsanti per cambiare materia, gli articoli e i premi di chimica, fisica e matematica**
+
+### Aggiunto
+- **Pulsanti per cambiare materia** sopra Spectra e ✨: due pulsanti
+  tondi per le due materie in cui non ci si trova (beuta, atomo, Σ). La
+  barra mostra solo i gruppi della materia scelta, più Studio e Utility.
+  La scelta si ricorda; aprire una sezione di un'altra materia cambia
+  materia da sola.
+- **Articoli per tre materie**, con le stesse schede e le stesse regole:
+  - Nobel per la chimica, 135 spiegazioni per argomento (erano 66);
+  - Nobel per la fisica, 140 spiegazioni;
+  - Premio Abel e Medaglia Fields per la matematica, da Wikidata, 140
+    spiegazioni;
+  - ultimi articoli con otto argomenti per materia.
+- **Matematica, dieci sezioni nuove** (da 15 a 25):
+  - 🔐 Numeri e crittografia;
+  - 🕸️ Grafi e ottimizzazione;
+  - ♾️ Successioni e serie;
+  - 🎢 Calcolo delle variazioni;
+  - 🍩 Topologia e superfici;
+  - 🔣 Strutture algebriche;
+  - ♟️ Teoria dei giochi;
+  - 🧠 Logica e calcolabilità;
+  - 📊 Statistica inferenziale;
+  - 🌐 Geometrie non euclidee.
+- **Fisica, sette sezioni nuove** (da 23 a 30):
+  - 🪐 Gravitazione;
+  - 🔥 Calore e diffusione;
+  - 🧲 Modello di Ising;
+  - ⚛️ Fisica delle particelle;
+  - 🎡 Meccanica analitica;
+  - 🔦 Laser e ottica quantistica;
+  - 🌍 Fisica del clima.
+- **Chimica fisica, due sezioni nuove**:
+  - 🧊 Diagrammi di fase (IAPWS, Span–Wagner, eutettico);
+  - 🏔️ Superficie di energia potenziale (LEPS di H + H₂).
+- Requisiti **SCI-53**, **SCI-54**, **UI-18**.
+
+### Corretto
+- Prima della pubblicazione:
+  - la prima forma della LEPS non tendeva alla Morse di H₂ (asintoto
+    −6,40 eV invece di −4,75 eV). Ora usa la forma di Sato, con k = 0,135:
+    barriera 0,420 eV e sella a 0,931 Å, come il calcolo ab initio di H₃;
+  - nella fionda le velocità misurate a distanza finita non coincidevano:
+    ora si confrontano le v∞ asintotiche;
+  - il lato delle tassellature iperboliche aveva p e q scambiati;
+  - nella prova di Noether il potenziale lasciava fuggire la particella;
+  - le spiegazioni dei Nobel per la chimica mandavano quattro premi alla
+    spiegazione generica invece che alla loro;
+  - nel modello di Ising una tela non aveva il nome accessibile.
+
+### Banco
+- Nuovi `test_approfondimenti` e `test_pareggio` (con i dodici script di
+  `tools/banchi/verifiche/`); `test_articoli` esteso alle tre materie.
+
+---
 ## [bsi-v235] — 2026-10-23
 
 **Probabilità, matematica visiva, elettromagnetismo, suono, semiconduttori, distillazione, voltammetria**
