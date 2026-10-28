@@ -22,6 +22,9 @@ const { chromium } = require('playwright-core');
   pg.on('request', r=>rete.push(r.url()));
   await pg.goto('http://127.0.0.1:8899/index.html', { waitUntil:'load', timeout:60000 });
   await pg.waitForTimeout(3000);
+  /* bsi-ai-hub.js e' grande e caricato in differita: sotto il carico della
+     batteria (v236) a 3 s non c'era ancora. Si aspetta che ci sia davvero. */
+  await pg.waitForFunction(() => !!window.bsiProxy, null, { timeout: 60000 }).catch(()=>{});
   att('nessun errore JS', 0, err.length);
   att('proxy non attivo', '', await pg.evaluate(()=>window.bsiProxy.url()));
   att('nessuna richiesta a /stato', 0, rete.filter(u=>/\/stato$/.test(u)).length);
@@ -50,6 +53,7 @@ const { chromium } = require('playwright-core');
   await pg.addInitScript(() => { try{ localStorage.setItem('bsi_proxy_url','https://proxy.finto.test'); }catch(e){} });
   await pg.goto('http://127.0.0.1:8899/index.html', { waitUntil:'load', timeout:60000 });
   await pg.waitForTimeout(2500);
+  await pg.waitForFunction(() => !!window.bsiProxy, null, { timeout: 60000 }).catch(()=>{});
   const st = await pg.evaluate(async () => {
     await window.bsiProxy.ricarica();
     return { url: window.bsiProxy.url(), groq: window.bsiProxy.copre('groq'),
