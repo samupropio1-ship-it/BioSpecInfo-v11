@@ -346,7 +346,7 @@
     function grafici() {
       if (!cv1) return;
       var cols = ['#e6fffb', '#6bcfff', '#5eead4', '#a3e635', '#ffd24a', '#ffb86b', '#ff8a80', '#c792ea'], serie = [], leg = [];
-      N_LISTA.forEach(function (n, i) { var L = soluzione(n), xs = [], ys = []; for (var k = 0; k < L.xi.length; k += 2) { if (L.xi[k] > 16) break; xs.push(L.xi[k]); ys.push(L.theta[k]); } serie.push({ x: xs, y: ys, col: cols[i], larg: n === st.n ? 3 : 1.4 }); leg.push({ col: cols[i], etich: ['n = ' + n, 'n = ' + n] }); });
+      N_LISTA.forEach(function (n, i) { var L = soluzioni[n], xs = [], ys = []; if (!L) return; for (var k = 0; k < L.xi.length; k += 2) { if (L.xi[k] > 16) break; xs.push(L.xi[k]); ys.push(L.theta[k]); } serie.push({ x: xs, y: ys, col: cols[i], larg: n === st.n ? 3 : 1.4 }); leg.push({ col: cols[i], etich: ['n = ' + n, 'n = ' + n] }); });
       F.grafico(cv1, { serie: serie, xmin: 0, xmax: 16, ymin: -0.05, ymax: 1.02, linee: [{ y: 0, col: '#34465f' }], xl: ['ξ', 'ξ'], yl: ['θ(ξ)', 'θ(ξ)'], legenda: leg, descr: ['Soluzioni dell’equazione di Lane-Emden per n da 0 a 5', 'Solutions of the Lane–Emden equation for n from 0 to 5'] });
       /* massa-raggio di nane bianche: n = 1,5 (R ∝ M^(−1/3)) e il limite di Chandrasekhar */
       var Mch = chandrasekhar(2, soluzione(3).omega) / MSOLE, xs2 = [], y1 = [], y2 = [];
@@ -387,7 +387,9 @@
         S.aggiungi(L3.assi(T, 3.4, ['x', 'y', 'z'], 0.25));
         S.inquadra(9, 2.2, 1.1);
         cv1 = telo(destra, 0.45); cv2 = telo(destra, 0.4);
-        setTimeout(function () { nuvola3D(); if (!daFare.length) grafici(); }, 0);
+        /* i grafici subito con le soluzioni gia' pronte; il lotto li ridisegna quando ha finito */
+        grafici();
+        setTimeout(nuvola3D, 0);
         F.alRidimensiona(grafici);
       }
     };

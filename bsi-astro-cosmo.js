@@ -301,6 +301,9 @@
     b = x >= 66 ? 255 : x <= 19 ? 0 : 138.5 * Math.log(x - 10) - 305.0;
     return [Math.max(0, Math.min(255, r)) / 255, Math.max(0, Math.min(255, g)) / 255, Math.max(0, Math.min(255, b)) / 255];
   }
+  /* rampa «calda» per l'imbuto: 3000 K rosso cupo → arancio → giallo → bianco → violetto pallido ai 10³⁰ K */
+  var RAMPA = [[0, [0.55, 0.08, 0.02]], [0.08, [0.95, 0.35, 0.05]], [0.2, [1, 0.75, 0.25]], [0.4, [1, 0.97, 0.85]], [0.7, [0.75, 0.8, 1]], [1, [0.7, 0.55, 1]]];
+  function rampaCalda(f) { f = Math.max(0, Math.min(1, f)); for (var i = 1; i < RAMPA.length; i++) if (f <= RAMPA[i][0]) { var a = RAMPA[i - 1], b = RAMPA[i], u = (f - a[0]) / (b[0] - a[0]); return [a[1][0] + (b[1][0] - a[1][0]) * u, a[1][1] + (b[1][1] - a[1][1]) * u, a[1][2] + (b[1][2] - a[1][2]) * u]; } return RAMPA[RAMPA.length - 1][1]; }
   /* i cursori cosmologici comuni */
   function cursoriCosmo(pan, p, cambia, opz) {
     opz = opz || {};
@@ -338,7 +341,7 @@
     var pos = new Float32Array(3 * gal.length), col = new Float32Array(3 * gal.length);
     gal.forEach(function (g, n) { var c = n === (3 * N + 3) * N + 3 ? [0.4, 1, 0.85] : [0.95, 0.85 + 0.15 * rnd(), 0.7 + 0.3 * rnd()]; col[3 * n] = c[0]; col[3 * n + 1] = c[1]; col[3 * n + 2] = c[2]; });
     var gg = new T.BufferGeometry(); gg.setAttribute('position', new T.BufferAttribute(pos, 3)); gg.setAttribute('color', new T.BufferAttribute(col, 3));
-    punti = new T.Points(gg, new T.PointsMaterial({ size: 1.1, map: texBagliore(T), vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending }));
+    punti = new T.Points(gg, new T.PointsMaterial({ size: 1.7, map: texBagliore(T), vertexColors: true, transparent: true, depthWrite: false, blending: T.AdditiveBlending }));
     punti.frustumCulled = false; S.aggiungi(punti);
     var noi = sprite(T, 0x5eead4, 2.2); S.aggiungi(noi);
     var etNoi = L3().testo3d(T, t('noi', 'us'), '#5eead4', 0.9); etNoi.position.set(0, 0, 1.2); S.aggiungi(etNoi);
@@ -434,7 +437,7 @@
       ctl.tempo('t = ' + st.t.toFixed(1) + ' Gyr');
       return true;
     });
-    S.inquadra(46, -0.7, 1.1);
+    S.inquadra(36, -0.7, 1.1);
   }
 
   /* ─── scheda 2: distanze e cono di luce ───────────────────────────────── */
@@ -470,7 +473,7 @@
         var tt = tab.t[0] + (t0 - tab.t[0]) * Math.pow(i / np, 1.5), a = interp(tab.t, tab.a, tt), e = interp(tab.t, tab.eta, tt);
         rc.push(a * (eta0 - e) / 1000 * KX); tc.push(tt * KT);
       }
-      var tfin = Math.min(tab.t[tab.t.length - 1], 2 * t0);
+      var tfin = Math.min(tab.t[tab.t.length - 1], 1.35 * t0);
       for (i = 0; i <= np; i++) { tt = tab.t[0] + (tfin - tab.t[0]) * i / np; a = interp(tab.t, tab.a, tt); rh.push(Math.min(40, C_KMS / (q.H0 * E(a, q)) / 1000 * KX)); th.push(tt * KT); }
       rivoluzione(rc, tc, 0xffd24a, 0.22);
       rivoluzione(rh, th, 0xb28dff, 0.08);
@@ -483,7 +486,7 @@
       });
       /* asse del tempo, oggi */
       S.aggiungi(L3().linea(T, [[0, 0, 0], [0, 0, tfin * KT]], 0x5eead4, 0.8));
-      var cerchio = []; for (i = 0; i <= 96; i++) { var f2 = 2 * Math.PI * i / 96; cerchio.push([14 * KX * Math.cos(f2), 14 * KX * Math.sin(f2), t0 * KT]); }
+      var cerchio = []; for (i = 0; i <= 96; i++) { var f2 = 2 * Math.PI * i / 96; cerchio.push([7 * KX * Math.cos(f2), 7 * KX * Math.sin(f2), t0 * KT]); }
       S.aggiungi(L3().linea(T, cerchio, 0x5eead4, 0.4));
       var eo = L3().testo3d(T, t('oggi, t₀ = ', 'today, t₀ = ') + t0.toFixed(2) + ' Gyr', '#5eead4', 0.8); eo.position.set(0, 0, t0 * KT + 0.8); S.aggiungi(eo);
       var eb = L3().testo3d(T, 'Big Bang', '#ffd24a', 0.7); eb.position.set(0, 0, -0.7); S.aggiungi(eb);
@@ -493,7 +496,7 @@
       st.tab = tab; st.t0 = t0; st.eta0 = eta0;
       marcatore();
       S.didascalia.textContent = t('Cono di luce passato e sfera di Hubble (tempo in verticale)', 'Past light cone and Hubble sphere (time vertical)');
-      if (!S.vistaIniziale) S.inquadra(40, -1.2, 1.25);
+      if (!S.vistaIniziale) { S.vista.bersaglio.set(0, 0, t0 * KT * 0.55); S.inquadra(30, -1.2, 1.3); }
       setTimeout(function () { grafici(); testo(); }, 0);
     }
     function marcatore() {
@@ -665,14 +668,14 @@
     var nX = 220, nS = 64, pos = [], col = [], idx = [];
     for (var i = 0; i <= nX; i++) {
       var lt = x0 + (17.64 - x0) * i / nX, r = raggio(lt), Tk = TdiLog(lt), c;
-      if (Tk > 3000) { var u = Math.min(1, (Math.log10(Tk) - 3.5) / 10); c = coloreT(Math.min(30000, Tk)); c = [c[0] * (0.8 + 0.2 * u), c[1] * (0.8 + 0.2 * u), c[2] * (0.7 + 0.3 * u)]; }
+      if (Tk > 3000) { c = rampaCalda((Math.log10(Tk) - 3.47) / 28); }
       else if (lt < 15) { var f = Math.max(0.06, (Math.log10(Tk) - 1.5) / 2); c = [0.55 * f + 0.05, 0.12 * f + 0.03, 0.05 * f + 0.06]; }
       else { c = [0.10, 0.16, 0.32]; }
       for (var j = 0; j <= nS; j++) { var a = 2 * Math.PI * j / nS; pos.push((lt - x0) * KX - 19, r * Math.cos(a), r * Math.sin(a)); col.push(c[0], c[1], c[2]); }
     }
     for (i = 0; i < nX; i++) for (j = 0; j < nS; j++) { var A = i * (nS + 1) + j, B = A + nS + 1; idx.push(A, B, A + 1, B, B + 1, A + 1); }
     var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new T.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
-    S.aggiungi(new T.Mesh(g, new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending })));
+    S.aggiungi(new T.Mesh(g, new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.38, side: T.DoubleSide, depthWrite: false, blending: T.AdditiveBlending })));
     /* stelle e galassie dentro l'imbuto dopo le prime stelle */
     var rnd = mulberry32(17), gp = [], gc = [];
     for (i = 0; i < 2200; i++) { var lt2 = 15 + 2.64 * Math.pow(rnd(), 0.6), r2 = raggio(lt2) * Math.sqrt(rnd()) * 0.95, a2 = 2 * Math.PI * rnd(), cc = [0.8 + 0.2 * rnd(), 0.8 + 0.2 * rnd(), 1]; gp.push((lt2 - x0) * KX - 19, r2 * Math.cos(a2), r2 * Math.sin(a2)); gc.push(cc[0], cc[1], cc[2]); }
@@ -684,7 +687,7 @@
       var X = (e[0] - x0) * KX - 19, r = raggio(e[0]) + 0.05, pts = [];
       for (var j = 0; j <= 64; j++) { var a = 2 * Math.PI * j / 64; pts.push([X, r * Math.cos(a), r * Math.sin(a)]); }
       S.aggiungi(L3().linea(T, pts, 0x5eead4, 0.6));
-      var et = L3().testo3d(T, F.tt(e[1]), '#e6fffb', 0.55); et.position.set(X, 0, r + 0.6 + (k % 2) * 0.7); S.aggiungi(et);
+      var tardi = e[0] > 11, et = L3().testo3d(T, F.tt(e[1]), '#e6fffb', tardi ? 0.42 : 0.55); et.position.set(X, 0, r + 0.6 + (tardi ? (k % 5) * 0.65 : (k % 2) * 0.7)); S.aggiungi(et);
     });
     var ass = []; ass.push([-19.5, 0, 0], [(17.8 - x0) * KX - 19, 0, 0]); S.aggiungi(L3().linea(T, ass, 0x34465f, 0.8));
     [-40, -30, -20, -10, 0, 10, 17].forEach(function (lt) { var e = L3().testo3d(T, '10^' + lt + ' s', '#8494a8', 0.45); e.position.set((lt - x0) * KX - 19, 0, -raggio(lt) - 0.6); S.aggiungi(e); });
@@ -706,7 +709,7 @@
     F.alRidimensiona(grafico);
     S.didascalia.textContent = t('La storia termica dell’universo: dall’inflazione a oggi (tempo in scala logaritmica)', 'The thermal history of the universe: from inflation to today (logarithmic time)');
     S.ogniFotogramma(function (dt) { stelle.rotation.x += dt * 0.05; return true; });
-    S.inquadra(34, -1.57, 1.15);
+    S.vista.bersaglio.set(1.5, 0, 0); S.inquadra(46, -1.57, 1.15);
   }
 
   F.sezione('sastrocosmo', {

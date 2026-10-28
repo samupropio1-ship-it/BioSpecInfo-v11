@@ -376,7 +376,7 @@
         cb.nuovo = function () {
           if (gr) { mezzo.remove(gr); gr.geometry.dispose(); gr.material.dispose(); }
           var P = impacchetta(st.A, st.Z, st.A * 131 + st.Z), A = st.A, M4 = new T.Matrix4(), col = new T.Color(), rmax = 0;
-          gr = new T.InstancedMesh(new T.SphereGeometry(0.5, 24, 16), new T.MeshStandardMaterial({ roughness: 0.35, metalness: 0.15 }), A);
+          gr = new T.InstancedMesh(new T.SphereGeometry(0.5, 18, 12), new T.MeshStandardMaterial({ roughness: 0.35, metalness: 0.15 }), A);
           for (var i = 0; i < A; i++) { M4.makeTranslation(P.p[3 * i], P.p[3 * i + 1], P.p[3 * i + 2]); gr.setMatrixAt(i, M4); gr.setColorAt(i, P.protone[i] ? col.setRGB(0.95, 0.33, 0.33) : col.setRGB(0.42, 0.72, 1)); rmax = Math.max(rmax, Math.hypot(P.p[3 * i], P.p[3 * i + 1], P.p[3 * i + 2]) + 0.5); }
           mezzo.add(gr); pelle.scale.setScalar(raggio(A));
           S.didascalia.textContent = nomeNuclide(A, st.Z) + t(': ', ': ') + st.Z + t(' protoni (rossi), ', ' protons (red), ') + (A - st.Z) + t(' neutroni (azzurri) · R = ', ' neutrons (blue) · R = ') + raggio(A).toFixed(2) + ' fm';
@@ -429,8 +429,8 @@
         var vasca = new T.Mesh(new T.CylinderGeometry(3.4, 3.4, 7, 48, 1, true), new T.MeshPhongMaterial({ color: 0x1a5fae, transparent: true, opacity: 0.16, side: T.DoubleSide, depthWrite: false })); vasca.rotation.x = PI / 2; vasca.position.z = 1.2; S.aggiungi(vasca);
         var acqua = new T.Mesh(new T.CircleGeometry(3.4, 48), new T.MeshPhongMaterial({ color: 0x3a8fe0, transparent: true, opacity: 0.25, depthWrite: false })); acqua.position.z = 4.6; S.aggiungi(acqua);
         var fondo = new T.Mesh(new T.CircleGeometry(3.4, 48), new T.MeshStandardMaterial({ color: 0x1c2a3a })); fondo.position.z = -2.3; S.aggiungi(fondo);
-        var glow = bagliore(T, 0x3b7bff, 7); S.aggiungi(glow);
-        var glow2 = bagliore(T, 0x7fb2ff, 4); S.aggiungi(glow2);
+        var glow = bagliore(T, 0x3b7bff, 4.5); S.aggiungi(glow);
+        var glow2 = bagliore(T, 0x7fb2ff, 2.6); S.aggiungi(glow2);
         var luce = new T.PointLight(0x4d8dff, 1, 14); S.aggiungi(luce);
         /* particelle di luce Čerenkov che salgono */
         var NP = 600, pp = new Float32Array(NP * 3), rnd = mulberry32(3), pg = new T.BufferGeometry();
@@ -441,7 +441,7 @@
         S.ogniFotogramma(function (dt) {
           avanza(dt);
           var lp = Math.log10(Math.max(1e-4, st.x[0])), k = Math.max(0, Math.min(1.6, (lp + 3) / 3)); /* 1 a regime */
-          glow.material.opacity = Math.min(1, 0.15 + 0.6 * k); glow2.material.opacity = Math.min(1, 0.1 + 0.7 * k); glow.scale.setScalar(5 + 2 * k); luce.intensity = 0.2 + 1.2 * k;
+          glow.material.opacity = Math.min(1, 0.15 + 0.6 * k); glow2.material.opacity = Math.min(1, 0.1 + 0.7 * k); glow.scale.setScalar(3.5 + 1.5 * k); luce.intensity = 0.2 + 1.2 * k;
           pm.opacity = Math.min(0.9, 0.08 + 0.55 * k); mc.material.emissiveIntensity = 0.05 + 0.4 * k;
           for (var i = 0; i < NP; i++) { pp[3 * i + 2] += dt * (0.4 + 0.8 * k); if (pp[3 * i + 2] > 4.5) pp[3 * i + 2] = -2; }
           pg.attributes.position.needsUpdate = true;

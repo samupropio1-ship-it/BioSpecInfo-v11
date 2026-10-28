@@ -234,7 +234,7 @@
         setTimeout(avanti, Math.min(12000, 250 + frase.length * 70));
       }, 1200);
       u.onstart = function () { partita = true; hud.energia = 1; if (hud.volto) hud.volto.dici(frase); };
-      u.onboundary = function (ev) { hud.energia = 0.7 + Math.random() * 0.3; if (hud.volto && ev && ev.charIndex != null) hud.volto.allinea(ev.charIndex); };
+      u.onboundary = function (ev) { hud.energia = 0.7 + Math.random() * 0.3; if (hud.volto && ev && ev.charIndex != null) { hud.volto.allinea(ev.charIndex); if (hud.volto.parola && ev.name !== 'sentence') hud.volto.parola(); } };
       u.onend = function () { if (partita) avanti(); }; u.onerror = function () { if (partita) avanti(); };
       speechSynthesis.speak(u);
     })();
@@ -552,7 +552,7 @@
     if (hud.el) hud.el.setAttribute('data-stato', hud.stato);
     /* l'energia: microfono vero se c'e', altrimenti la voce che parla, altrimenti il respiro */
     var spettro = null, e = 0.15 + 0.05 * Math.sin(tt * 1.6);
-    if (hud.analizzatore && hud.ascolto) { hud.analizzatore.getByteFrequencyData(hud.dati); spettro = hud.dati; var s = 0; for (var i = 0; i < 48; i++) s += hud.dati[i]; e = Math.max(e, s / (48 * 255) * 1.6); }
+    if (hud.analizzatore && hud.ascolto) { hud.analizzatore.getByteFrequencyData(hud.dati); spettro = hud.dati; var s = 0; for (var i = 0; i < 48; i++) s += hud.dati[i]; e = Math.max(e, s / (48 * 255) * 1.6); if (hud.volto && hud.volto.ascolto) hud.volto.ascolto(s / (48 * 255) * 2); }
     if (voce.inCorso) { hud.energia = Math.max(0.35, hud.energia * 0.94); e = Math.max(e, hud.energia); }
     if (hud.stato === 'pensa') e = Math.max(e, 0.45 + 0.25 * Math.sin(tt * 7));
     var col = hud.stato === 'pensa' ? [255, 196, 90] : hud.stato === 'parla' ? [127, 255, 212] : [0, 229, 255];

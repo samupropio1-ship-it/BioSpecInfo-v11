@@ -59,6 +59,30 @@
     });
     var pm = new T.PMREMGenerator(ren), env = pm.fromScene(sc, 0.04).texture; pm.dispose(); return env;
   }
+  /* i punti del viso misurati sul modello (metri): angoli della bocca, sopracciglia, guance */
+  var VISO = { angoloX: 0.043, sopraY0: 0.284, sopraY1: 0.318, guanciaY: 0.226, guanciaX: 0.05 };
+  function gauss(dx, dy, r) { return Math.exp(-(dx * dx + dy * dy) / (2 * r * r)); }
+  /* le espressioni: per ogni vertice lo spostamento (in metri, nel mondo del modello) a intensita' 1 */
+  function campi(v) {
+    var ax = Math.abs(v.x), sg = v.x < 0 ? -1 : 1, by = v.y - BOCCA.y, out = {};
+    var davanti = smooth(0.06, 0.085, v.z);
+    /* SORRISO: gli angoli salgono, si allargano e arretrano; le guance si sollevano */
+    var ang = gauss(ax - VISO.angoloX, by, 0.014) * davanti, gu = gauss(ax - VISO.guanciaX, v.y - VISO.guanciaY, 0.018) * davanti;
+    out.sorriso = [sg * 0.0035 * ang, 0.0055 * ang + 0.0022 * gu, -0.0018 * ang + 0.0008 * gu];
+    /* LABBRA ARROTONDATE (o, u): gli angoli verso il centro, le labbra in avanti */
+    var lab = (1 - smooth(0.012, 0.02, Math.abs(by))) * (1 - smooth(0.04, 0.055, ax)) * davanti;
+    out.rotondo = [-v.x * 0.32 * lab, 0, 0.0045 * lab * (1 - ax / 0.055)];
+    /* BOCCA LARGA (i, e): gli angoli verso l'esterno */
+    out.largo = [sg * 0.0032 * ang, 0.0008 * ang, -0.001 * ang];
+    /* SOPRACCIGLIA ALZATE: l'arcata sopra gli occhi sale, la fronte con lei */
+    var arc = smooth(VISO.sopraY0 - 0.004, VISO.sopraY0 + 0.006, v.y) * (1 - smooth(VISO.sopraY1, VISO.sopraY1 + 0.03, v.y)) * (1 - smooth(0.066, 0.08, ax)) * davanti;
+    out.sopra = [0, 0.0075 * arc, 0.001 * arc];
+    /* SOPRACCIGLIA AGGROTTATE: la parte interna scende e si avvicina */
+    var interna = arc * (1 - smooth(0.012, 0.04, ax));
+    out.accigliato = [-sg * 0.003 * interna, -0.0055 * interna, 0.0016 * interna];
+    return out;
+  }
+
   function smooth(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
 
   /* lo spostamento della mandibola aperta, per ogni vertice del viso, in coordinate locali della mesh */
@@ -86,6 +110,19 @@
       sp[3 * i] = l.x - v.x; sp[3 * i + 1] = l.y - v.y; sp[3 * i + 2] = l.z - v.z; toccati++;
     }
     g.setAttribute('aBocca', new T.BufferAttribute(sp, 3));
+    /* gli altri campi espressivi, con la stessa conversione mondo → locale */
+    var NOMI = ['sorriso', 'rotondo', 'largo', 'sopra', 'accigliato'], buf = {};
+    NOMI.forEach(function (k) { buf[k] = new Float32Array(n * 3); });
+    for (var j = 0; j < n; j++) {
+      v.fromBufferAttribute(pos, j).applyMatrix4(M);
+      var c = campi(v), loc = new T.Vector3().fromBufferAttribute(pos, j);
+      NOMI.forEach(function (k) {
+        var d = c[k]; if (!d[0] && !d[1] && !d[2]) return;
+        l.set(v.x + d[0], v.y + d[1], v.z + d[2]).applyMatrix4(inv);
+        buf[k][3 * j] = l.x - loc.x; buf[k][3 * j + 1] = l.y - loc.y; buf[k][3 * j + 2] = l.z - loc.z;
+      });
+    }
+    NOMI.forEach(function (k) { g.setAttribute('aE_' + k, new T.BufferAttribute(buf[k], 3)); });
     g.setAttribute('aBanda', new T.BufferAttribute(banda, 1));
     return toccati;
   }
@@ -115,9 +152,14 @@
       faccia.material = new T.MeshStandardMaterial({ color: 0x9aa4ae, metalness: 0.92, roughness: 0.3, normalMap: o.normalMap || null, normalScale: new T.Vector2(1.2, 1.2), aoMap: o.aoMap || null, aoMapIntensity: 0.8, envMapIntensity: 1.35 });
       this.toccati = preparaBocca(T, faccia);
       this.uBocca = { value: 0 };
-      var uB = this.uBocca;
+      this.uE = { sorriso: { value: 0 }, rotondo: { value: 0 }, largo: { value: 0 }, sopra: { value: 0 }, accigliato: { value: 0 } };
+      var uB = this.uBocca, uE = this.uE;
       faccia.material.onBeforeCompile = function (s) {
         s.uniforms.uBocca = uB;
+        Object.keys(uE).forEach(function (k) { s.uniforms['uE_' + k] = uE[k]; });
+        var dich = Object.keys(uE).map(function (k) { return 'attribute vec3 aE_' + k + ';\nuniform float uE_' + k + ';'; }).join('\n') + '\n';
+        var somma = Object.keys(uE).map(function (k) { return '  transformed += aE_' + k + ' * uE_' + k + ';'; }).join('\n');
+        s.vertexShader = dich + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + somma);
         s.vertexShader = 'attribute vec3 aBocca;\nattribute float aBanda;\nuniform float uBocca;\nvarying float vBanda;\n' + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  transformed += aBocca * uBocca;\n  vBanda = aBanda;');
         s.fragmentShader = 'uniform float uBocca;\nvarying float vBanda;\n' + s.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n  diffuseColor.rgb *= 1.0 - 0.94 * clamp(vBanda * uBocca * 1.6, 0.0, 1.0);').replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n  roughnessFactor = mix(roughnessFactor, 1.0, clamp(vBanda * uBocca * 1.6, 0.0, 1.0));');
       };
@@ -169,33 +211,73 @@
     this.sc.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); }); });
     try { this.ren.dispose(); } catch (e) {}
   };
+  /* IL COMPORTAMENTO. Ogni fotogramma si decide dove guarda, che espressione ha, come
+     muove la bocca. Niente e' registrato in anticipo: tutto nasce dallo stato (ascolta,
+     pensa, parla, attesa), dal testo che sta dicendo, dalla voce dell'utente e dallo
+     stato interno della mente di Spectra. */
+  var VISEMI = { a: [1, 0, 0.1], à: [1, 0, 0.1], e: [0.6, 0, 0.55], è: [0.7, 0, 0.45], é: [0.55, 0, 0.6], i: [0.32, 0, 0.9], ì: [0.32, 0, 0.9], o: [0.7, 0.85, 0], ò: [0.8, 0.8, 0], u: [0.4, 1, 0], ù: [0.4, 1, 0],
+    m: [0, 0.1, 0], b: [0, 0.1, 0], p: [0, 0.1, 0], f: [0.12, 0, 0.3], v: [0.12, 0, 0.3], s: [0.18, 0, 0.6], z: [0.2, 0, 0.5], c: [0.25, 0, 0.4], g: [0.3, 0, 0.2], l: [0.35, 0, 0.3], r: [0.3, 0.1, 0.2], t: [0.22, 0, 0.35], d: [0.25, 0, 0.3], n: [0.22, 0, 0.3], q: [0.35, 0.6, 0], ' ': [0.05, 0, 0] };
+  function visema(c) { c = (c || '').toLowerCase(); return VISEMI[c] || (/[a-z]/.test(c) ? [0.28, 0, 0.2] : [0.04, 0, 0]); }
+  function avvicina(x, y, k) { return x + (y - x) * Math.min(1, k); }
+  Androide.prototype.ascolto = function (energia) { this.energiaUtente = Math.max(this.energiaUtente || 0, energia || 0); };
+  Androide.prototype.parola = function () { this.cenno = 1; };
   Androide.prototype.passo = function (dt) {
-    var lento = MENO_MOTO(), st = this.st, self = this; this.t += dt;
+    var lento = MENO_MOTO(), st = this.st, self = this, T = this.t += dt;
+    var mente = globale.BSISpectraMente ? globale.BSISpectraMente.stato() : { curiosita: 0.5, attenzione: 0.5, premura: 0.2 };
     this.colore.lerp(this.coloreT, Math.min(1, dt * 5));
-    /* palpebre di luce */
-    this.prossimo -= dt; if (this.prossimo <= 0 && !lento) { this.palp = 1; this.prossimo = 2.2 + Math.random() * 4.5; }
-    var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0; this.palp = Math.max(0, this.palp - dt / 0.13);
-    var pulsa = st === 'pensa' ? 0.25 * Math.sin(this.t * 8) : st === 'ascolta' ? 0.15 * Math.sin(this.t * 5) : 0;
-    this.matOcchi.color.copy(this.colore).multiplyScalar((1.25 + pulsa) * (1 - 0.92 * chiuso));
-    this.luceOcchi.color.copy(this.colore); this.luceOcchi.intensity = (0.35 + 0.2 * pulsa) * (1 - chiuso);
-    /* la testa: sguardo, respiro, inclinazioni */
-    var tx = this.mira.tx, ty = this.mira.ty; if (st === 'pensa') { tx = 0.5 + 0.15 * Math.sin(this.t * 0.7); ty = -0.55; }
-    this.mira.x += (tx - this.mira.x) * Math.min(1, dt * 3); this.mira.y += (ty - this.mira.y) * Math.min(1, dt * 3);
-    var resp = lento ? 0 : Math.sin(this.t * 1.1), parla = st === 'parla' ? Math.sin(this.t * 2.6) : 0;
-    this.perno.rotation.y = lento ? 0 : this.mira.x * 0.4;
-    this.perno.rotation.x = this.riposo + (lento ? 0 : this.mira.y * 0.22 + 0.012 * resp + 0.02 * parla * this.boc);
-    this.perno.rotation.z = lento ? 0 : (st === 'ascolta' ? 0.07 : 0) + 0.012 * Math.sin(this.t * 0.6);
-    this.radice.position.y = lento ? 0 : 0.0015 * resp;
-    /* la bocca sul testo pronunciato */
-    var target = 0;
+    /* ── palpebre di luce: a volte doppie, piu' rade quando ascolta con attenzione ── */
+    this.prossimo -= dt;
+    if (this.prossimo <= 0 && !lento) { this.palp = 1; this.prossimo = Math.random() < 0.18 ? 0.28 : (st === 'ascolta' ? 3.5 : 2) + Math.random() * 4; }
+    var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0; this.palp = Math.max(0, this.palp - dt / 0.12);
+    var pulsa = st === 'pensa' ? 0.22 * Math.sin(T * 7.5) : st === 'ascolta' ? 0.12 * Math.sin(T * 4.5) : 0.04 * Math.sin(T * 1.3);
+    this.matOcchi.color.copy(this.colore).multiplyScalar((1.2 + pulsa + 0.25 * mente.attenzione) * (1 - 0.92 * chiuso));
+    this.luceOcchi.color.copy(this.colore); this.luceOcchi.intensity = (0.32 + 0.2 * pulsa) * (1 - chiuso);
+    /* ── lo sguardo: il puntatore, piu' micro-movimenti rapidi e qualche occhiata altrove ── */
+    this.saccade = this.saccade || { x: 0, y: 0, t: 0.8, altrove: 9 };
+    this.saccade.t -= dt; this.saccade.altrove -= dt;
+    if (this.saccade.t <= 0) { this.saccade.x = (Math.random() - 0.5) * 0.12; this.saccade.y = (Math.random() - 0.5) * 0.08; this.saccade.t = 0.6 + Math.random() * 1.8; }
+    if (this.saccade.altrove <= 0 && st === 'attesa') { this.saccade.x = (Math.random() < 0.5 ? -1 : 1) * (0.45 + Math.random() * 0.3); this.saccade.y = (Math.random() - 0.4) * 0.3; this.saccade.t = 1.2 + Math.random(); this.saccade.altrove = 8 + Math.random() * 10; }
+    var tx = this.mira.tx + this.saccade.x, ty = this.mira.ty + this.saccade.y;
+    if (st === 'pensa') { tx = 0.45 + 0.15 * Math.sin(T * 0.6); ty = -0.5 + 0.05 * Math.sin(T * 1.7); }
+    if (st === 'parla') { tx = this.mira.tx * 0.6 + this.saccade.x * 0.5; ty = this.mira.ty * 0.5; }
+    this.mira.x += (tx - this.mira.x) * Math.min(1, dt * (Math.abs(tx - this.mira.x) > 0.2 ? 6 : 3)); this.mira.y += (ty - this.mira.y) * Math.min(1, dt * 4);
+    /* ── la bocca: il visema della lettera che la voce sta dicendo ── */
+    var vis = [0, 0, 0], domanda = false;
     if (st === 'parla' && this.testo) {
       this.pos += dt * this.vel;
-      var c = this.testo.charAt(Math.floor(this.pos)) || ' ';
-      target = globale.BSISpectraVolto ? globale.BSISpectraVolto.apertura(c) : (/[aeiou]/i.test(c) ? 0.85 : 0.3);
-      if (this.pos >= this.testo.length) target = 0;
+      var i = Math.floor(this.pos), c = this.testo.charAt(i) || ' ';
+      vis = i >= this.testo.length ? [0, 0, 0] : visema(c);
+      domanda = /\?/.test(this.testo);
+      /* una parola nuova: piccolo cenno del capo (la prosodia) */
+      if (c === ' ' && this._ultimoSpazio !== i) { this._ultimoSpazio = i; if (Math.random() < 0.45) this.cenno = 0.6 + Math.random() * 0.5; }
     }
-    this.boc += (target - this.boc) * Math.min(1, dt * 18);
+    this.boc = avvicina(this.boc, vis[0], dt * 18);
+    this.rot = avvicina(this.rot || 0, vis[1], dt * 14);
+    this.lar = avvicina(this.lar || 0, vis[2], dt * 14);
+    /* ── le espressioni: lo stato del momento e lo stato della mente ── */
+    var sorrisoT = st === 'attesa' ? 0.25 + 0.3 * mente.premura : st === 'ascolta' ? 0.22 : st === 'parla' ? 0.18 + 0.15 * mente.curiosita : 0.02;
+    var sopraT = st === 'ascolta' ? 0.45 + 0.4 * mente.curiosita : st === 'parla' ? (domanda ? 0.75 : 0.18) + 0.5 * (this.cenno || 0) : st === 'pensa' ? 0.15 : 0.1 + 0.2 * mente.curiosita;
+    var accT = st === 'pensa' ? 0.75 : st === 'ascolta' ? 0.05 : 0;
+    /* l'ascolto attivo: annuisce quando l'utente parla */
+    this.energiaUtente = (this.energiaUtente || 0) * Math.pow(0.05, dt);
+    if (st === 'ascolta' && this.energiaUtente > 0.35 && !this._annuendo) { this._annuendo = true; this.cenno = 1; setTimeout(function () { self._annuendo = false; }, 900 + Math.random() * 900); }
+    var E = this.uE;
+    if (E) {
+      E.sorriso.value = avvicina(E.sorriso.value, sorrisoT, dt * 2.5);
+      E.sopra.value = avvicina(E.sopra.value, sopraT, dt * 5);
+      E.accigliato.value = avvicina(E.accigliato.value, accT, dt * 3);
+      E.rotondo.value = this.rot; E.largo.value = this.lar;
+    }
     if (this.uBocca) this.uBocca.value = this.boc;
+    /* ── la testa: sguardo, cenni, respiro, inclinazioni ── */
+    this.cenno = Math.max(0, (this.cenno || 0) - dt * 2.4);
+    var cennoAng = Math.sin((1 - this.cenno) * Math.PI) * this.cenno * 0.09;
+    var resp = lento ? 0 : Math.sin(T * 1.05);
+    this.perno.rotation.y = lento ? 0 : this.mira.x * 0.42;
+    this.perno.rotation.x = this.riposo + (lento ? 0 : this.mira.y * 0.24 + 0.012 * resp + cennoAng + 0.015 * this.boc);
+    this.perno.rotation.z = lento ? 0 : (st === 'ascolta' ? 0.075 : st === 'pensa' ? -0.04 : 0) + 0.012 * Math.sin(T * 0.6) + this.mira.x * 0.04;
+    this.radice.position.y = lento ? 0 : 0.0016 * resp;
+    this.radice.scale.y = lento ? 1 : 1 + 0.0035 * resp;
   };
 
   globale.BSISpectraAndroide = {

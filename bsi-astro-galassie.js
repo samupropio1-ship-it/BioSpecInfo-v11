@@ -583,7 +583,12 @@
     var nR = 3 * 60, pr = new Lista();
     for (var j = 0; j < 3; j++) for (var i = 0; i < 60; i++) { var r = 0.4 + 15 * i / 59; pr.agg(r, j * 2 * Math.PI / 3, 0, 3, [0.4, 1, 0.9], 1.6, 5.5, 0, 0, 1); }
     var pkR = pr.pacco();
-    function fvAttuale() { var q = {}; for (var kk in p) q[kk] = p[kk]; q.alone = st.scuro; return function (r) { return curva(r, q).vt; }; }
+    /* la curva tabulata (400 punti, interpolazione lineare): 26 000 stelle non richiedono 26 000 funzioni di Bessel */
+    function fvAttuale() {
+      var q = {}; for (var kk in p) q[kk] = p[kk]; q.alone = st.scuro;
+      var n = 400, Rm = 40, v = new Float64Array(n + 1); for (var i = 0; i <= n; i++) v[i] = curva(Math.max(1e-3, Rm * i / n), q).vt;
+      return function (r) { var x = Math.min(n - 1e-9, Math.max(0, r / Rm * n)), i = Math.floor(x); return v[i] + (v[i + 1] - v[i]) * (x - i); };
+    }
     /* Ω cambia: la fase φ₀ + Ω t viene riportata a t = 0 per ogni stella, cosi' nessuna salta */
     function rifasa(pk, omVecchio, tt) { if (!omVecchio) return; for (var i = 0; i < pk.n; i++) pk.pos[3 * i + 1] = (pk.pos[3 * i + 1] + omVecchio[i] * tt) % (2 * Math.PI); }
     function aggiornaOmega() {
