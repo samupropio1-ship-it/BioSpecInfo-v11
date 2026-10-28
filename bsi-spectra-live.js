@@ -465,7 +465,11 @@
     mini.onclick = function () { apriHud(); };
     voltoSuiPulsanti();
     hud.el = d; hud.cv = d.querySelector('canvas');
-    if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(document.getElementById('bsiJV-volto'));
+    /* il volto: l'androide in 3D; senza WebGL, il ritratto vettoriale */
+    var vo = document.getElementById('bsiJV-volto');
+    if (globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile()) {
+      globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
+    } else if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo);
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
     document.getElementById('bsiJV-riduci').onclick = function () { chiudiHud(true); };
     document.getElementById('bsiJV-mic').onclick = function () { hud.ascolto ? fermaAscolto() : avviaAscolto(); };
@@ -694,11 +698,36 @@
     b.onclick = function (e) { e.stopPropagation(); apriHud(); };
     hd.appendChild(b);
   }
+  /* L'ICONA DI SPECTRA: la fotografia del robot 3D, fatta una volta e
+     conservata; finche' non c'e', un androide stilizzato in vettoriale */
+  var ritratto = null;
+  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v1'); } catch (e) {}
+  function iconaVettoriale(px) {
+    return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
+      '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
+      '<ellipse cx="32" cy="27" rx="17" ry="19" fill="url(#bsiRBf)"/><path d="M15.5 30 C16 41 23 46 32 46 C41 46 48 41 48.5 30 Z" fill="#1b222b"/>' +
+      '<path d="M15.6 22 Q32 17 48.4 22 L48.4 30 Q32 26 15.6 30 Z" fill="#05090e"/>' +
+      '<circle cx="25.5" cy="25" r="2.6" fill="#2ee6ff"/><circle cx="38.5" cy="25" r="2.6" fill="#2ee6ff"/><circle cx="25.5" cy="25" r="5" fill="#2ee6ff" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#2ee6ff" opacity=".25"/>' +
+      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#2ee6ff" opacity=".85"/></svg>';
+  }
+  function icona(px) {
+    var dentro = ritratto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
+    return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + px + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle at 50% 40%,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(46,230,255,.55)">' + dentro + '</span>';
+  }
   function voltoSuiPulsanti() {
-    var V = globale.BSISpectraVolto; if (!V) return;
-    globale.bsiSpectraIcon = function (px) { return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + Math.round(px * 1.15) + 'px;border-radius:50%;overflow:hidden;background:radial-gradient(circle,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(94,234,212,.5)">' + V.icona(px) + '</span>'; };
-    var slot = document.querySelector('#bsi-spectra-fab .sp-ico'); if (slot && !slot.querySelector('.bsiVO-ico')) slot.innerHTML = globale.bsiSpectraIcon(22);
-    var mini = document.getElementById('bsiJV-mini'); if (mini && !mini.querySelector('svg')) { mini.innerHTML = V.icona(40); mini.style.overflow = 'hidden'; mini.style.padding = '0'; }
+    globale.bsiSpectraIcon = function (px) { return icona(px || 24); };
+    var slot = document.querySelector('#bsi-spectra-fab .sp-ico'); if (slot) slot.innerHTML = icona(22);
+    var mini = document.getElementById('bsiJV-mini'); if (mini) { mini.innerHTML = icona(44); mini.style.overflow = 'hidden'; mini.style.padding = '0'; }
+    if (!ritratto && globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile() && !voltoSuiPulsanti.inCorso) {
+      voltoSuiPulsanti.inCorso = true;
+      setTimeout(function () {
+        globale.BSISpectraRobot.foto(160).then(function (url) {
+          if (!url || url.length < 2000) return;
+          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v1', url); } catch (e) {}
+          voltoSuiPulsanti();
+        }).catch(function () {});
+      }, 2500);
+    }
   }
   function avvia() {
     registraStrumenti();

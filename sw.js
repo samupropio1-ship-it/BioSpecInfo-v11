@@ -121,6 +121,7 @@ var PRECACHE = [
   './bsi-attrezzi.js',
   './bsi-materie-app.js',
   './bsi-spectra-volto.js',
+  './bsi-spectra-robot.js',
   './bsi-spectra-live.js',
   './bsi-documento.js',
   './bsi-quesito.js',

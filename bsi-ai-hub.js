@@ -6078,7 +6078,7 @@ function el(tag, attrs, html){
 var _spectraIconSeq = 0;
 function spectraIcon(size, opts){
   // dalla v237 Spectra ha un volto: dove c'e' il modulo del volto, l'icona e' il suo ritratto
-  if(window.BSISpectraVolto){ var _px = +(size) || 24; return '<span class="bsiVO-ico" style="display:inline-flex;width:' + _px + 'px;height:' + Math.round(_px * 1.15) + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(94,234,212,.5)">' + window.BSISpectraVolto.icona(_px) + '</span>'; }
+  if(window.BSISpectraLive && window.bsiSpectraIcon && window.bsiSpectraIcon !== spectraIcon){ return window.bsiSpectraIcon(+(size) || 24); }
 
   opts = opts || {};
   var cls = opts.cls ? (' class="' + opts.cls + '"') : '';
