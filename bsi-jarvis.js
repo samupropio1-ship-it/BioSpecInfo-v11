@@ -225,7 +225,47 @@
       .replace(/\bpi greco\b/gi, 'pi').replace(/\bseno\b/gi, 'sin').replace(/\bcoseno\b/gi, 'cos').replace(/\btangente\b/gi, 'tan').replace(/\blogaritmo naturale di\b|\blog naturale di\b/gi, 'ln ').replace(/\bdi\b/gi, ' ');
   }
   function cerca(lista, q, campi) { var A = globale.BSIAttrezzi; return A ? A.calcolo.cerca(lista, q, campi) : []; }
+  /* la guida: legge la spiegazione della scheda e presenta i comandi uno per
+     uno, facendoli lampeggiare mentre ne parla */
+  function guida() {
+    var sez = sezioneAttiva(), pan = pannelloAttivo(sez); if (!sez || !pan) return null;
+    var s = leggiSchermo(), passi = [];
+    passi.push({ testo: t('Questa è ', 'This is ') + (s.titolo || s.sezione).replace(/^[^\wÀ-ÿ]+/, '') + (s.scheda ? t(', scheda ', ', tab ') + s.scheda.replace(/^[^\wÀ-ÿ]+/, '') : '') + '.' });
+    var nota = pan.querySelector('.bsiFX-nota');
+    if (nota && nota.textContent.trim()) passi.push({ testo: nota.textContent.replace(/\s+/g, ' ').trim().slice(0, 900), el: nota });
+    [].forEach.call(pan.querySelectorAll('input[type=range], select'), function (c) {
+      if (c.offsetParent === null || passi.length > 9) return;
+      var et = etichettaDi(c).trim();
+      passi.push({ testo: c.tagName === 'SELECT' ? t('Qui scegli ', 'Here you choose ') + et + '.' : t('Con questo cursore regoli ', 'With this slider you set ') + et + t(': adesso vale ', ': now it is ') + c.value + '.', el: c.closest('.bsiFX-cursore, label, div') || c });
+    });
+    passi.push({ testo: t('Prova a muovere un comando e chiedimi cosa è cambiato: io vedo lo schermo.', 'Try moving a control and ask me what changed: I can see the screen.') });
+    return passi;
+  }
+  function eseguiGuida(passi) {
+    var i = 0;
+    stileGuida();
+    (function prossimo() {
+      [].forEach.call(document.querySelectorAll('.bsiJV-evidenzia'), function (e) { e.classList.remove('bsiJV-evidenzia'); });
+      if (i >= passi.length) { dopoLaRisposta(); return; }
+      var p = passi[i++];
+      if (p.el) { p.el.classList.add('bsiJV-evidenzia'); try { p.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) {} }
+      dialogo('', p.testo); ultima = p.testo;
+      if (!parla(p.testo, prossimo)) setTimeout(prossimo, Math.min(9000, 1200 + p.testo.length * 45));
+    })();
+  }
+  function stileGuida() {
+    if (document.getElementById('bsiJV-stile-guida')) return;
+    var s = document.createElement('style'); s.id = 'bsiJV-stile-guida';
+    s.textContent = '@keyframes bsiJVpulsa{0%,100%{box-shadow:0 0 0 2px rgba(0,229,255,.9),0 0 18px rgba(0,229,255,.6)}50%{box-shadow:0 0 0 4px rgba(0,229,255,.4),0 0 30px rgba(0,229,255,.9)}}' +
+      '.bsiJV-evidenzia{border-radius:10px;animation:bsiJVpulsa 1.2s ease-in-out infinite;position:relative;z-index:2}' +
+      '@media (prefers-reduced-motion:reduce){.bsiJV-evidenzia{animation:none;box-shadow:0 0 0 3px #00e5ff}}';
+    document.head.appendChild(s);
+  }
+
   var COMANDI = [
+    { re: /^(spiegami questa sezione|spiegami questa scheda|spiegami cosa c e qui|fammi da guida|guidami|tour|explain this section|guide me)/, f: function () {
+      var p = guida(); if (!p) return { testo: t('Apri prima una sezione: poi te la spiego passo per passo.', 'Open a section first: then I will explain it step by step.') };
+      chiudiHud(true); setTimeout(function () { eseguiGuida(p); }, 200); return { testo: '', muto: true }; } },
     { re: /^(stop|basta|zitto|silenzio|fermati|smetti)\b/, f: function () { taci(); return { testo: '', muto: true }; } },
     { re: /^(ripeti|puoi ripetere|repeat)/, f: function () { return { testo: ultima || t('Non ho ancora detto niente.', 'I have not said anything yet.') }; } },
     { re: /^(che ore sono|che ora e|what time is it)/, f: function () { var d = new Date(); return { testo: t('Sono le ', 'It is ') + d.getHours() + (lingua() === 'en' ? ':' : ' e ') + String(d.getMinutes()).padStart(2, '0') + '.' }; } },
@@ -384,7 +424,7 @@
       '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div>' +
       '<div id="bsiJV-dial" aria-live="polite"></div>' +
-      '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
+      '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
     document.body.appendChild(d);
     var mini = document.createElement('button'); mini.id = 'bsiJV-mini'; mini.type = 'button'; mini.textContent = 'J'; document.body.appendChild(mini);
     mini.onclick = function () { apriHud(); };
@@ -394,6 +434,7 @@
     document.getElementById('bsiJV-mic').onclick = function () { hud.ascolto ? fermaAscolto() : avviaAscolto(); };
     document.getElementById('bsiJV-taci').onclick = function () { taci(); };
     document.getElementById('bsiJV-occhi').onclick = function () { hud.occhi = !hud.occhi; testiHud(); };
+    document.getElementById('bsiJV-senti').onclick = function () { sentinella.attiva ? fermaSentinella() : avviaSentinella(); testiHud(); };
     document.getElementById('bsiJV-voce').onclick = function () { voce.attiva = !voce.attiva; if (!voce.attiva) taci(); testiHud(); };
     var inp = document.getElementById('bsiJV-in');
     document.getElementById('bsiJV-invia').onclick = function () { var v = inp.value.trim(); if (v) { inp.value = ''; elabora(v); } };
@@ -413,6 +454,8 @@
     set('bsiJV-taci', '■', t('Interrompi la voce', 'Stop speaking'));
     set('bsiJV-occhi', '👁', hud.occhi ? t('Alla prossima domanda allego lo schermo', 'I will attach the screen to the next question') : t('Allega lo schermo alla prossima domanda', 'Attach the screen to the next question'));
     var oc = document.getElementById('bsiJV-occhi'); if (oc) oc.classList.toggle('on', !!hud.occhi);
+    set('bsiJV-senti', '👂', sentinella.attiva ? t('Sempre in ascolto: di\' «Jarvis…» anche a console chiusa (tocca per spegnere)', 'Always listening: say "Jarvis…" even with the console closed (tap to turn off)') : t('Ascolto sempre attivo: di\' «Jarvis…» da qualunque punto dell\'app', 'Always listening: say "Jarvis…" anywhere in the app'));
+    var se = document.getElementById('bsiJV-senti'); if (se) se.classList.toggle('on', sentinella.attiva);
     var i = document.getElementById('bsiJV-in'); if (i) { i.placeholder = t('Scrivi un comando o una domanda…', 'Type a command or a question…'); i.setAttribute('aria-label', t('Comando per Spectra', 'Command for Spectra')); }
     if (hud.el) hud.el.setAttribute('aria-label', t('Console di Spectra', 'Spectra console'));
     var mic = document.getElementById('bsiJV-mic'); if (mic) mic.classList.toggle('on', hud.ascolto);
@@ -518,6 +561,34 @@
     try { r.start(); } catch (e) { hud.ascolto = false; testiHud(); }
   }
   function fermaAscolto() { hud.ascolto = false; if (hud.rec) { try { hud.rec.abort(); } catch (e) {} } stato('attesa'); testiHud(); }
+  /* SEMPRE IN ASCOLTO: anche a console chiusa, una frase che comincia con
+     «Jarvis» o «Spectra» riapre la console ed esegue il comando. Il
+     riconoscimento del browser si ferma da solo dopo un silenzio: si riavvia. */
+  var sentinella = { rec: null, attiva: false };
+  function comandoDaSentinella(s) {
+    var m = norm(s).match(/\b(?:ehi |hey |ok )?(?:jarvis|giarvis|spectra|spettra)\b[ ,]*(.*)$/);
+    return m ? m[1].trim() : null;
+  }
+  function avviaSentinella() {
+    var Rec = globale.SpeechRecognition || globale.webkitSpeechRecognition; if (!Rec) return false;
+    var r = new Rec(); r.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; r.continuous = true; r.interimResults = false;
+    r.onresult = function (ev) {
+      for (var i = ev.resultIndex; i < ev.results.length; i++) {
+        if (!ev.results[i].isFinal) continue;
+        var c = comandoDaSentinella(ev.results[i][0].transcript); if (c === null) continue;
+        if (hud.el && hud.el.classList.contains('aperto') && hud.ascolto) continue;   /* la console sta gia' ascoltando */
+        apriHud({ briefing: !c }); if (c) elabora(c);
+      }
+    };
+    r.onend = function () { if (sentinella.attiva) { try { r.start(); } catch (e) {} } };
+    r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); } };
+    sentinella.rec = r; sentinella.attiva = true;
+    try { r.start(); } catch (e) { sentinella.attiva = false; return false; }
+    try { localStorage.setItem('bsi-jarvis-sentinella', '1'); } catch (e) {}
+    return true;
+  }
+  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } try { localStorage.removeItem('bsi-jarvis-sentinella'); } catch (e) {} }
+
   /* in conversazione a mani libere, finita la risposta si torna ad ascoltare */
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
 
@@ -596,6 +667,7 @@
   globale.BSIJarvis = {
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
+    guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
     calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
