@@ -273,7 +273,11 @@
 
   globale.BSISpectraRobot = {
     disponibile: function () { return webgl(); },
-    crea: function (padre) { return caricaThree().then(function () { return new Robot(padre); }); },
-    foto: foto, versione: '1.0'
+    /* il volto e' l'androide «Noir»; se il modello non arriva, la testa costruita qui */
+    crea: function (padre) {
+      var procedurale = function () { return caricaThree().then(function () { return new Robot(padre); }); };
+      return globale.BSISpectraAndroide ? globale.BSISpectraAndroide.crea(padre).catch(procedurale) : procedurale();
+    },
+    foto: function (px) { return globale.BSISpectraAndroide ? globale.BSISpectraAndroide.foto(px).catch(function () { return foto(px); }) : foto(px); }, versione: '1.0'
   };
 })(typeof window !== 'undefined' ? window : globalThis);

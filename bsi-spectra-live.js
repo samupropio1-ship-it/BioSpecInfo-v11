@@ -428,7 +428,7 @@
       '#bsiJV.aperto{display:block}',
       /* i pulsanti flottanti dell\'app non devono restare sopra la console */
       /* visibility e non display: altri script scrivono display in linea con !important */
-      'body.bsiJV-aperto #bsi14-fab,body.bsiJV-aperto #bsi-spectra-fab,body.bsiJV-aperto #bsi-materie,body.bsiJV-aperto #bsiJV-mini,body.bsiJV-aperto #bsi-hub-ov{visibility:hidden!important;pointer-events:none!important}',
+      'body.bsiJV-aperto #bsi14-fab,body.bsiJV-aperto #bsi105-fab,body.bsiJV-aperto [id$="-fab"],body.bsiJV-aperto #bsi-spectra-fab,body.bsiJV-aperto #bsi-materie,body.bsiJV-aperto #bsiJV-mini,body.bsiJV-aperto #bsi-hub-ov{visibility:hidden!important;pointer-events:none!important}',
       '#bsiJV canvas{position:absolute;inset:0;width:100%;height:100%}',
       '#bsiJV-volto{position:absolute;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0f3b52 0%,#06182a 70%);box-shadow:0 0 50px rgba(0,229,255,.35),inset 0 0 40px rgba(0,229,255,.3);transform:translate(-50%,-50%);pointer-events:none}',
       '#bsiJV-volto svg{position:absolute;left:0;top:-4%;width:100%;height:118%}',
@@ -441,6 +441,8 @@
       '.bsiJV-b.on{background:rgba(0,200,255,.25);border-color:#00e5ff;color:#fff}',
       '#bsiJV-stato{position:absolute;left:50%;top:calc(50% + min(26vh,190px));transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#00e5ff;text-shadow:0 0 12px #00e5ff;white-space:nowrap}',
       '#bsiJV-pensiero{position:absolute;left:50%;top:calc(50% + min(26vh,190px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#8fd8ea;opacity:.85}',
+      '#bsiJV-credito{position:absolute;right:12px;bottom:66px;font:500 10px/1.3 system-ui;color:#5f8aa3;text-align:right}#bsiJV-credito a{color:#7fbcd4}',
+      '@media (max-width:480px){#bsiJV-credito{bottom:110px}}',
       '#bsiJV-tel{position:absolute;left:16px;top:56px;font:600 11px/1.7 ui-monospace,monospace;color:#7fbcd4;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
       '#bsiJV-tel b{color:#cdefff;font-weight:700}',
       '#bsiJV-dial{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:30vh;overflow:auto;text-align:center;font-size:15px;line-height:1.55;text-shadow:0 0 8px rgba(0,0,0,.9)}',
@@ -463,7 +465,7 @@
       '<div id="bsiJV-top"><span>◈ SPECTRA</span><span class="sp"></span>' +
       '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div><div id="bsiJV-pensiero" aria-live="off"></div>' +
-      '<div id="bsiJV-dial" aria-live="polite"></div>' +
+      '<div id="bsiJV-dial" aria-live="polite"></div><div id="bsiJV-credito"></div>' +
       '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
     document.body.appendChild(d);
     var mini = document.createElement('button'); mini.id = 'bsiJV-mini'; mini.type = 'button'; mini.textContent = 'J'; document.body.appendChild(mini);
@@ -487,6 +489,8 @@
     inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('bsiJV-invia').click(); } };
     d.addEventListener('keydown', function (e) { if (e.key === 'Escape') chiudiHud(false); });
     hud.cv.addEventListener('click', function () { if (voce.inCorso) taci(); else if (!hud.ascolto) avviaAscolto(); });
+    /* attribuzione richiesta dalla licenza del modello 3D */
+    document.getElementById('bsiJV-credito').innerHTML = t('Volto: ', 'Face: ') + '<a href="https://sketchfab.com/3d-models/noir-8edf174437494f0080b4cd5aa0f0509c" target="_blank" rel="noopener">«Noir»</a> ' + t('di', 'by') + ' Skyfox13 · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · ' + t('modificato', 'modified');
     testiHud();
     return d;
   }
@@ -716,7 +720,7 @@
   /* L'ICONA DI SPECTRA: la fotografia del robot 3D, fatta una volta e
      conservata; finche' non c'e', un androide stilizzato in vettoriale */
   var ritratto = null;
-  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v1'); } catch (e) {}
+  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v2'); } catch (e) {}
   function iconaVettoriale(px) {
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
       '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
@@ -738,7 +742,7 @@
       setTimeout(function () {
         globale.BSISpectraRobot.foto(160).then(function (url) {
           if (!url || url.length < 2000) return;
-          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v1', url); } catch (e) {}
+          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v2', url); localStorage.removeItem('bsi-spectra-ritratto-v1'); } catch (e) {}
           voltoSuiPulsanti();
         }).catch(function () {});
       }, 2500);
