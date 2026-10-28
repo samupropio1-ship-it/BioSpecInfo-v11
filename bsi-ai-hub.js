@@ -5792,7 +5792,7 @@ function nucleoSvg(){
    la stessa cosa a parole, per chi non guarda l'animazione. */
 var _STATI = { riposo:'pronto', pensa:'sto ragionando…', strumenti:'sto usando gli strumenti…', scrive:'sto rispondendo…' };
 function statoNucleo(nome, dettaglio){
-  // la console Jarvis (bsi-jarvis.js) segue lo stesso stato
+  // la console di Spectra (bsi-spectra-live.js) segue lo stesso stato
   try{ document.dispatchEvent(new CustomEvent('bsi-spectra-stato', { detail: { stato: nome || 'riposo', dettaglio: dettaglio || '' } })); }catch(e){}
   var ov = document.getElementById('bsi-hub-ov');
   if(ov) ov.setAttribute('data-stato', nome || 'riposo');
@@ -6076,6 +6076,9 @@ function el(tag, attrs, html){
    nelle altre copie (bug reale osservato in Chrome). */
 var _spectraIconSeq = 0;
 function spectraIcon(size, opts){
+  // dalla v237 Spectra ha un volto: dove c'e' il modulo del volto, l'icona e' il suo ritratto
+  if(window.BSISpectraVolto){ var _px = +(size) || 24; return '<span class="bsiVO-ico" style="display:inline-flex;width:' + _px + 'px;height:' + Math.round(_px * 1.15) + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(94,234,212,.5)">' + window.BSISpectraVolto.icona(_px) + '</span>'; }
+
   opts = opts || {};
   var cls = opts.cls ? (' class="' + opts.cls + '"') : '';
   var style = 'vertical-align:middle;flex-shrink:0' + (opts.style ? (';' + opts.style) : '');
@@ -6479,7 +6482,7 @@ function buildAttachUI(inputRow){
   renderAzioni();
 }
 
-// la console Jarvis allega l'immagine dello schermo con la stessa strada dei file
+// la console di Spectra allega l'immagine dello schermo con la stessa strada dei file
 window._bsiAllegaFile = function(f){ aggiungiAllegati(f); };
 function aggiungiAllegati(fileList){
   var arr = Array.prototype.slice.call(fileList || []);
@@ -7329,7 +7332,7 @@ function buildChatPane(){
      chat nuova. Il testo NON viene consumato: resta nella casella, cosi'
      basta ripremere Invio quando la risposta e' arrivata. */
   var _turnoInCorso = false, _rispostaAnnunciata = false;
-  // per la console Jarvis: c'e' un fornitore utilizzabile (chiave o proxy)?
+  // per la console di Spectra: c'e' un fornitore utilizzabile (chiave o proxy)?
   window._bsiSpectraPronta = function(){ try{ return !!chiaveDaUsare(provSel.value); }catch(e){ return false; } };
   async function send(){
     var input = document.getElementById('bsi-hub-input');
@@ -7570,7 +7573,7 @@ function buildChatPane(){
       t2.messages.push(msg2);
       saveThreads(d2);
       renderMessages();
-      // la console Jarvis legge a voce la risposta finale
+      // la console di Spectra legge a voce la risposta finale
       try{ _rispostaAnnunciata = true; document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: acc || '' } })); }catch(e){}
       refreshThreadSel();
     }catch(err){

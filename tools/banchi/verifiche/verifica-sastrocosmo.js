@@ -36,6 +36,10 @@ chk('distanza comovente a z = 1100 ≈ 14 Gpc', Math.abs(d1100 / 1000 - 14) < 0.
 /* universo aperto: D_M con sinh contro integrazione diretta della geometria iperbolica: Milne D_L = c/H0 z(1+z/2) */
 var milne = { Om: 0, OL: 0, Or: 0, H0: 70 }, zz = 2, dlM = C.luminosita(zz, milne), dlMc = 299792.458 / 70 * zz * (1 + zz / 2);
 chk('Milne (aperto, Ω_k = 1): D_L = (c/H₀) z(1 + z/2)', Math.abs(dlM / dlMc - 1) < 1e-8, dlM.toFixed(2) + ' Mpc');
+/* la tabella cumulativa dei grafici contro gli integrali di Simpson (due metodi) */
+var TD = C.tabellaDistanze({ Om: 0.4, OL: 0.5, Or: 9e-5, H0: 70 }, [0.5, 2, 9]), dev = 0;
+[0.5, 2, 9].forEach(function (z, i) { var pp = { Om: 0.4, OL: 0.5, Or: 9e-5, H0: 70 }; dev = Math.max(dev, Math.abs(TD.DM[i] / C.trasversale(z, pp) - 1), Math.abs(TD.TL[i] / C.ritorno(z, pp) - 1)); });
+chk('tabella cumulativa (trapezi) = integrali di Simpson, anche aperto (Ω_k = 0.1)', dev < 1e-5, dev.toExponential(2));
 /* lookback: a z → ∞ tende all'eta' */
 chk('tempo di ritorno a z = 10⁶ → età', Math.abs(C.ritorno(1e6, P) - t0) < 0.002, C.ritorno(1e6, P).toFixed(4));
 

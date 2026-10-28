@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   bsi-jarvis.js — Spectra in modalita' Jarvis
+   bsi-spectra-live.js — Spectra dal vivo: voce, volto, occhi e mani
    BioSpecInfo · © Samuele Pio Provenzano
 
    COSA AGGIUNGE A SPECTRA
@@ -165,9 +165,9 @@
     { name: 'stato_studio', description: "Dice come sta andando lo studio dell'utente nella materia: flashcard da ripassare, errori dei quiz da rivedere, riassunti segnati come studiati. Usalo per proporre cosa fare adesso.", parameters: { type: 'object', properties: { materia: { type: 'string', enum: ['chimica', 'fisica', 'matematica'] } } }, execute: function (a) { return Object.assign({ ok: true }, studio(a && a.materia)); } }
   ];
   function registraStrumenti() {
-    var T = globale.BSI_AI_TOOLS; if (!T || T._bsiJarvis) return !!T;
+    var T = globale.BSI_AI_TOOLS; if (!T || T._bsiSpectra) return !!T;
     STRUMENTI.forEach(function (s) { if (!T.some(function (x) { return x.name === s.name; })) T.push(s); });
-    T._bsiJarvis = true; return true;
+    T._bsiSpectra = true; return true;
   }
 
   /* ═══ 3. LA VOCE ═══════════════════════════════════════════════════════ */
@@ -176,8 +176,10 @@
     if (!('speechSynthesis' in globale)) return null;
     var L = speechSynthesis.getVoices() || [], lg = lingua() === 'en' ? 'en' : 'it';
     var cand = L.filter(function (v) { return (v.lang || '').toLowerCase().indexOf(lg) === 0; });
-    var pref = [/natural|neural|online/i, /google/i, /microsoft/i, /alice|elsa|isabella|federica|paola|luca|diego|giorgio|samantha|daniel|serena/i];
-    for (var i = 0; i < pref.length; i++) { var v = cand.filter(function (x) { return pref[i].test(x.name); })[0]; if (v) return v; }
+    /* Spectra ha il volto di un uomo: si preferisce una voce maschile, poi la qualita' */
+    var maschi = /luca|diego|giorgio|cosimo|benigno|gianni|giuseppe|marco|roberto|daniel|david|guy|ryan|thomas|male|uomo/i;
+    var pref = [function (v) { return maschi.test(v.name) && /natural|neural|online/i.test(v.name); }, function (v) { return maschi.test(v.name); }, function (v) { return /natural|neural|online/i.test(v.name); }, function (v) { return /google|microsoft/i.test(v.name); }];
+    for (var i = 0; i < pref.length; i++) { var v = cand.filter(pref[i])[0]; if (v) return v; }
     return cand[0] || null;
   }
   /* il testo scritto per gli occhi diventa testo da dire: niente markdown,
@@ -193,24 +195,35 @@
   }
   function frasi(s) { return (perLaVoce(s).match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }); }
   function parla(testo, fatto) {
-    if (!('speechSynthesis' in globale) || !voce.attiva) { if (fatto) setTimeout(fatto, 0); return false; }
+    if (!('speechSynthesis' in globale) || !voce.attiva) { if (hud.volto && testo) { hud.volto.dici(perLaVoce(testo).slice(0, 220)); setTimeout(function () { if (hud.volto) hud.volto.taci(); }, Math.min(9000, 300 + perLaVoce(testo).length * 70)); } if (fatto) setTimeout(fatto, 0); return false; }
     try { speechSynthesis.cancel(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
     voce.scelta = voce.scelta || scegliVoce(); voce.inCorso = true; stato('parla');
     var i = 0;
     (function prossima() {
       if (!voce.inCorso) return;
-      if (i >= pezzi.length) { voce.inCorso = false; stato('attesa'); if (fatto) fatto(); return; }
+      if (i >= pezzi.length) { voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); return; }
       var u = new SpeechSynthesisUtterance(pezzi[i++]);
-      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 1.03; u.pitch = 1;
-      u.onstart = function () { hud.energia = 1; };
-      u.onboundary = function () { hud.energia = 0.7 + Math.random() * 0.3; };
-      u.onend = prossima; u.onerror = prossima;
+      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 1.02; u.pitch = 0.92;
+      var frase = pezzi[i - 1], partita = false, finita = false;
+      /* una sintesi vocale che non parte (nessuna voce installata, audio
+         bloccato) non deve fermare il discorso: dopo 1,2 s la frase si
+         «recita» con la bocca per il tempo che avrebbe richiesto */
+      function avanti() { if (finita) return; finita = true; prossima(); }
+      setTimeout(function () {
+        if (partita || finita || !voce.inCorso) return;
+        try { speechSynthesis.cancel(); } catch (e) {}
+        if (hud.volto) hud.volto.dici(frase);
+        setTimeout(avanti, Math.min(12000, 250 + frase.length * 70));
+      }, 1200);
+      u.onstart = function () { partita = true; hud.energia = 1; if (hud.volto) hud.volto.dici(frase); };
+      u.onboundary = function (ev) { hud.energia = 0.7 + Math.random() * 0.3; if (hud.volto && ev && ev.charIndex != null) hud.volto.allinea(ev.charIndex); };
+      u.onend = function () { if (partita) avanti(); }; u.onerror = function () { if (partita) avanti(); };
       speechSynthesis.speak(u);
     })();
     return true;
   }
-  function taci() { voce.inCorso = false; try { speechSynthesis.cancel(); } catch (e) {} stato('attesa'); }
+  function taci() { voce.inCorso = false; try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 
   /* ═══ 4. I COMANDI LOCALI (senza rete) ═════════════════════════════════ */
   var UNITA_A_VOCE = { 'elettronvolt': 'eV', 'elettronvolts': 'eV', 'electronvolt': 'eV', 'joule': 'J', 'kilojoule': 'kJ', 'chilojoule': 'kJ', 'calorie': 'cal', 'caloria': 'cal', 'chilocalorie': 'kcal',
@@ -320,7 +333,7 @@
       chiudiHud(true); return { testo: t('Apro ', 'Opening ') + r.nome.replace(/^[^\wÀ-ÿ]+/, '') + '.' }; } }
   ];
   function comandoLocale(testo) {
-    var q = norm(testo).replace(/^(ehi |hey |ok )?(spectra|jarvis)[ ,]*/, '').replace(/^(per favore |puoi |potresti |please |can you )/, '');
+    var q = norm(testo).replace(/^(ehi |hey |ok )?(spectra|spettra)[ ,]*/, '').replace(/^(per favore |puoi |potresti |please |can you )/, '');
     for (var i = 0; i < COMANDI.length; i++) {
       var m = q.match(COMANDI[i].re); if (!m) continue;
       var r = null; try { r = COMANDI[i].f(m); } catch (e) { r = null; }
@@ -393,8 +406,13 @@
       '#bsiJV{position:fixed;inset:0;z-index:2147483642;display:none;background:radial-gradient(ellipse at center,rgba(6,22,38,.94) 0%,rgba(2,7,14,.98) 70%);color:#cdefff;font-family:system-ui,sans-serif;overflow:hidden}',
       '#bsiJV.aperto{display:block}',
       /* i pulsanti flottanti dell\'app non devono restare sopra la console */
-      'body.bsiJV-aperto #bsi14-fab,body.bsiJV-aperto #bsi-spectra-fab,body.bsiJV-aperto #bsi-materie,body.bsiJV-aperto #bsiJV-mini{display:none!important}',
+      /* visibility e non display: altri script scrivono display in linea con !important */
+      'body.bsiJV-aperto #bsi14-fab,body.bsiJV-aperto #bsi-spectra-fab,body.bsiJV-aperto #bsi-materie,body.bsiJV-aperto #bsiJV-mini,body.bsiJV-aperto #bsi-hub-ov{visibility:hidden!important;pointer-events:none!important}',
       '#bsiJV canvas{position:absolute;inset:0;width:100%;height:100%}',
+      '#bsiJV-volto{position:absolute;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0f3b52 0%,#06182a 70%);box-shadow:0 0 50px rgba(0,229,255,.35),inset 0 0 40px rgba(0,229,255,.3);transform:translate(-50%,-50%);pointer-events:none}',
+      '#bsiJV-volto svg{position:absolute;left:0;top:-4%;width:100%;height:118%}',
+      '#bsiJV-volto::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,229,255,.07) 0 1px,transparent 1px 4px);mix-blend-mode:screen}',
+      '#bsiJV[data-stato="pensa"] #bsiJV-volto{box-shadow:0 0 50px rgba(255,196,90,.4),inset 0 0 40px rgba(255,196,90,.25)}',
       '#bsiJV-top{position:absolute;top:0;left:0;right:0;display:flex;gap:10px;align-items:center;padding:12px 16px;font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;color:#7fe8ff;text-transform:uppercase}',
       '#bsiJV-top .sp{flex:1}',
       '.bsiJV-b{background:rgba(10,40,60,.6);border:1px solid rgba(127,232,255,.45);color:#cdefff;border-radius:10px;padding:8px 12px;cursor:pointer;font:700 12px/1 system-ui;letter-spacing:.04em}',
@@ -419,8 +437,8 @@
     if (hud.el) return hud.el;
     stileHud();
     var d = document.createElement('div'); d.id = 'bsiJV'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
-    d.innerHTML = '<canvas aria-hidden="true"></canvas>' +
-      '<div id="bsiJV-top"><span>◈ SPECTRA · JARVIS</span><span class="sp"></span>' +
+    d.innerHTML = '<canvas aria-hidden="true"></canvas><div id="bsiJV-volto"></div>' +
+      '<div id="bsiJV-top"><span>◈ SPECTRA</span><span class="sp"></span>' +
       '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div>' +
       '<div id="bsiJV-dial" aria-live="polite"></div>' +
@@ -428,7 +446,9 @@
     document.body.appendChild(d);
     var mini = document.createElement('button'); mini.id = 'bsiJV-mini'; mini.type = 'button'; mini.textContent = 'J'; document.body.appendChild(mini);
     mini.onclick = function () { apriHud(); };
+    voltoSuiPulsanti();
     hud.el = d; hud.cv = d.querySelector('canvas');
+    if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(document.getElementById('bsiJV-volto'));
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
     document.getElementById('bsiJV-riduci').onclick = function () { chiudiHud(true); };
     document.getElementById('bsiJV-mic').onclick = function () { hud.ascolto ? fermaAscolto() : avviaAscolto(); };
@@ -454,7 +474,7 @@
     set('bsiJV-taci', '■', t('Interrompi la voce', 'Stop speaking'));
     set('bsiJV-occhi', '👁', hud.occhi ? t('Alla prossima domanda allego lo schermo', 'I will attach the screen to the next question') : t('Allega lo schermo alla prossima domanda', 'Attach the screen to the next question'));
     var oc = document.getElementById('bsiJV-occhi'); if (oc) oc.classList.toggle('on', !!hud.occhi);
-    set('bsiJV-senti', '👂', sentinella.attiva ? t('Sempre in ascolto: di\' «Jarvis…» anche a console chiusa (tocca per spegnere)', 'Always listening: say "Jarvis…" even with the console closed (tap to turn off)') : t('Ascolto sempre attivo: di\' «Jarvis…» da qualunque punto dell\'app', 'Always listening: say "Jarvis…" anywhere in the app'));
+    set('bsiJV-senti', '👂', sentinella.attiva ? t('Sempre in ascolto: di\' «Spectra…» anche a console chiusa (tocca per spegnere)', 'Always listening: say "Spectra…" even with the console closed (tap to turn off)') : t('Ascolto sempre attivo: di\' «Spectra…» da qualunque punto dell\'app', 'Always listening: say "Spectra…" anywhere in the app'));
     var se = document.getElementById('bsiJV-senti'); if (se) se.classList.toggle('on', sentinella.attiva);
     var i = document.getElementById('bsiJV-in'); if (i) { i.placeholder = t('Scrivi un comando o una domanda…', 'Type a command or a question…'); i.setAttribute('aria-label', t('Comando per Spectra', 'Command for Spectra')); }
     if (hud.el) hud.el.setAttribute('aria-label', t('Console di Spectra', 'Spectra console'));
@@ -464,6 +484,7 @@
   var NOMI_STATO = { attesa: ['IN ATTESA', 'STANDBY'], ascolta: ['IN ASCOLTO', 'LISTENING'], pensa: ['ELABORO', 'PROCESSING'], parla: ['PARLO', 'SPEAKING'] };
   function stato(s, dett) {
     hud.stato = s || 'attesa';
+    if (hud.volto && hud.stato !== 'parla') hud.volto.stato(hud.stato);
     var e = document.getElementById('bsiJV-stato'); if (e) e.textContent = '◉ ' + t(NOMI_STATO[hud.stato][0], NOMI_STATO[hud.stato][1]) + (dett ? ' · ' + String(dett).toUpperCase().slice(0, 28) : '');
   }
   function telemetria() {
@@ -494,7 +515,11 @@
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     var q = cv.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
     var lento = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var tt = (ts || 0) / 1000, cx = W / 2, cy = H / 2 - Math.min(40, H * 0.05), R = Math.min(W, H) * 0.24;
+    var tt = (ts || 0) / 1000, cx = W / 2, cy = H / 2 - Math.min(40, H * 0.05), R = Math.min(W, H) * 0.27;
+    /* il volto sta al centro del reattore */
+    var vo = document.getElementById('bsiJV-volto');
+    if (vo) { var dia = Math.round(R * 1.18); if (vo._dia !== dia) { vo.style.width = vo.style.height = dia + 'px'; vo._dia = dia; } vo.style.left = cx + 'px'; vo.style.top = cy + 'px'; }
+    if (hud.el) hud.el.setAttribute('data-stato', hud.stato);
     /* l'energia: microfono vero se c'e', altrimenti la voce che parla, altrimenti il respiro */
     var spettro = null, e = 0.15 + 0.05 * Math.sin(tt * 1.6);
     if (hud.analizzatore && hud.ascolto) { hud.analizzatore.getByteFrequencyData(hud.dati); spettro = hud.dati; var s = 0; for (var i = 0; i < 48; i++) s += hud.dati[i]; e = Math.max(e, s / (48 * 255) * 1.6); }
@@ -510,7 +535,7 @@
     /* bagliore centrale */
     var gl = q.createRadialGradient(cx, cy, 0, cx, cy, R * (1.1 + e * 0.5)); gl.addColorStop(0, rgba(0.55 * e + 0.15)); gl.addColorStop(0.35, rgba(0.12)); gl.addColorStop(1, rgba(0)); q.fillStyle = gl; q.beginPath(); q.arc(cx, cy, R * (1.1 + e * 0.5), 0, 2 * Math.PI); q.fill();
     /* anelli e archi rotanti */
-    var anelli = [[0.32, 2.5, 0.9, 6], [0.5, 1.2, -0.6, 3], [0.7, 1.6, 0.35, 12], [0.86, 1, -0.22, 2], [1.0, 3, 0.15, 24]];
+    var anelli = [[0.66, 2, 0.9, 6], [0.74, 1.2, -0.6, 3], [0.84, 1.6, 0.35, 12], [0.92, 1, -0.22, 2], [1.0, 3, 0.15, 24]];
     anelli.forEach(function (a, k) {
       var r = R * a[0] * (1 + e * 0.06 * (k + 1)), rot = lento ? 0 : tt * a[2], n = a[3];
       q.strokeStyle = rgba(0.75 - k * 0.1); q.lineWidth = a[1];
@@ -523,13 +548,12 @@
     var N = 96; q.lineWidth = 2;
     for (var b = 0; b < N; b++) {
       var v = spettro ? spettro[Math.floor(b / N * 64)] / 255 : e * (0.35 + 0.65 * Math.abs(Math.sin(b * 0.37 + tt * (voce.inCorso ? 9 : 2))));
-      var an2 = b / N * 2 * Math.PI - Math.PI / 2, ra = R * 0.38, rb = ra + 6 + v * R * 0.32;
+      var an2 = b / N * 2 * Math.PI - Math.PI / 2, ra = R * 0.63, rb = ra + 4 + v * R * 0.22;
       q.strokeStyle = rgba(0.35 + 0.6 * v); q.beginPath(); q.moveTo(cx + ra * Math.cos(an2), cy + ra * Math.sin(an2)); q.lineTo(cx + rb * Math.cos(an2), cy + rb * Math.sin(an2)); q.stroke();
     }
     /* nucleo */
-    var gn = q.createRadialGradient(cx, cy, 0, cx, cy, R * 0.3); gn.addColorStop(0, 'rgba(255,255,255,' + (0.85 * e + 0.15) + ')'); gn.addColorStop(0.4, rgba(0.7)); gn.addColorStop(1, rgba(0)); q.fillStyle = gn; q.beginPath(); q.arc(cx, cy, R * 0.3, 0, 2 * Math.PI); q.fill();
     /* trascrizione dal vivo */
-    if (hud.interim) { q.fillStyle = 'rgba(200,240,255,.85)'; q.font = '600 14px system-ui'; q.textAlign = 'center'; q.fillText(hud.interim.slice(-70), cx, cy - R * 1.25); }
+    if (hud.interim) { q.fillStyle = 'rgba(200,240,255,.85)'; q.font = '600 14px system-ui'; q.textAlign = 'center'; q.fillText(hud.interim.slice(-70), cx, cy + R * 1.3); }
     if (!(hud.tempo++ % 30)) telemetria();
     hud.raf = globale.requestAnimationFrame(disegna);
   }
@@ -562,11 +586,11 @@
   }
   function fermaAscolto() { hud.ascolto = false; if (hud.rec) { try { hud.rec.abort(); } catch (e) {} } stato('attesa'); testiHud(); }
   /* SEMPRE IN ASCOLTO: anche a console chiusa, una frase che comincia con
-     «Jarvis» o «Spectra» riapre la console ed esegue il comando. Il
+     «Spectra» o «Spectra» riapre la console ed esegue il comando. Il
      riconoscimento del browser si ferma da solo dopo un silenzio: si riavvia. */
   var sentinella = { rec: null, attiva: false };
   function comandoDaSentinella(s) {
-    var m = norm(s).match(/\b(?:ehi |hey |ok )?(?:jarvis|giarvis|spectra|spettra)\b[ ,]*(.*)$/);
+    var m = norm(s).match(/\b(?:ehi |hey |ok )?(?:spectra|spettra|spektra|spetra)\b[ ,]*(.*)$/);
     return m ? m[1].trim() : null;
   }
   function avviaSentinella() {
@@ -584,10 +608,10 @@
     r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); } };
     sentinella.rec = r; sentinella.attiva = true;
     try { r.start(); } catch (e) { sentinella.attiva = false; return false; }
-    try { localStorage.setItem('bsi-jarvis-sentinella', '1'); } catch (e) {}
+    try { localStorage.setItem('bsi-spectra-sentinella', '1'); } catch (e) {}
     return true;
   }
-  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } try { localStorage.removeItem('bsi-jarvis-sentinella'); } catch (e) {} }
+  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } try { localStorage.removeItem('bsi-spectra-sentinella'); } catch (e) {} }
 
   /* in conversazione a mani libere, finita la risposta si torna ad ascoltare */
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
@@ -644,17 +668,24 @@
     if (mini && riduci) { var sp = document.getElementById('bsi-spectra-fab'); if (sp) { var r = sp.getBoundingClientRect(); mini.style.bottom = Math.round(globale.innerHeight - r.top + 12) + 'px'; mini.style.right = Math.round(globale.innerWidth - r.right) + 'px'; } mini.setAttribute('aria-label', t('Riapri la console di Spectra', 'Reopen the Spectra console')); }
   }
 
-  /* il pulsante nella testata di Spectra, e la parola «Jarvis» */
+  /* il pulsante nella testata di Spectra, e la parola «Spectra» */
   function pulsanteNelHub() {
     var hd = document.getElementById('bsi-hub-topbar2');
     if (!hd || document.getElementById('bsiJV-apri')) return;
     var b = document.createElement('button'); b.id = 'bsiJV-apri'; b.type = 'button'; b.className = 'bsi-hub-btn ghost compatto';
-    b.textContent = '◈ Jarvis'; b.title = t('Console vocale a tutto schermo', 'Full-screen voice console');
+    b.textContent = '◈ Live'; b.title = t('Console vocale a tutto schermo', 'Full-screen voice console');
     b.onclick = function (e) { e.stopPropagation(); apriHud(); };
     hd.appendChild(b);
   }
+  function voltoSuiPulsanti() {
+    var V = globale.BSISpectraVolto; if (!V) return;
+    globale.bsiSpectraIcon = function (px) { return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + Math.round(px * 1.15) + 'px;border-radius:50%;overflow:hidden;background:radial-gradient(circle,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(94,234,212,.5)">' + V.icona(px) + '</span>'; };
+    var slot = document.querySelector('#bsi-spectra-fab .sp-ico'); if (slot && !slot.querySelector('.bsiVO-ico')) slot.innerHTML = globale.bsiSpectraIcon(22);
+    var mini = document.getElementById('bsiJV-mini'); if (mini && !mini.querySelector('svg')) { mini.innerHTML = V.icona(40); mini.style.overflow = 'hidden'; mini.style.padding = '0'; }
+  }
   function avvia() {
     registraStrumenti();
+    [300, 1500, 4000].forEach(function (ms) { setTimeout(voltoSuiPulsanti, ms); });
     globale._bsiContestoSchermo = contestoSchermo;
     try { new MutationObserver(function () { if (document.getElementById('bsi-hub-ov')) pulsanteNelHub(); }).observe(document.body, { childList: true }); } catch (e) {}
     if ('speechSynthesis' in globale) { try { speechSynthesis.onvoiceschanged = function () { voce.scelta = scegliVoce(); }; } catch (e) {} }
@@ -664,7 +695,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia); else avvia();
 
-  globale.BSIJarvis = {
+  globale.BSISpectraLive = {
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },

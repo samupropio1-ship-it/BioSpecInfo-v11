@@ -81,6 +81,18 @@
   function diametro(z, p) { return trasversale(z, p) / (1 + z); }
   function ritorno(z, p, n) { var q = norm(p); if (z <= 0) return 0; return simpson(function (x) { return 1 / Ez(Math.exp(x) - 1, q); }, 0, Math.log(1 + z), n || 2000) / hGyr(q); }
   function zMaxDiametro(p) { var a = 0.3, b = 6, g = (Math.sqrt(5) - 1) / 2; for (var k = 0; k < 80; k++) { var x1 = b - g * (b - a), x2 = a + g * (b - a); if (diametro(x1, p) < diametro(x2, p)) a = x1; else b = x2; } return 0.5 * (a + b); }
+  /* tutte le distanze su una griglia in un solo passaggio (integrale cumulativo a trapezi in x = ln(1+z)), per i grafici */
+  function tabellaDistanze(p, zs) {
+    var q = norm(p), DH = C_KMS / q.H0, H = hGyr(q), out = { z: zs, DC: [], DM: [], DL: [], DA: [], TL: [] }, k = Math.sqrt(Math.abs(q.Ok));
+    var x = 0, Ic = 0, It = 0, f0 = 1 / Ez(0, q), g0 = f0;
+    for (var i = 0; i < zs.length; i++) {
+      var xt = Math.log(1 + zs[i]), n = Math.max(1, Math.ceil((xt - x) / 0.002)), h = (xt - x) / n;
+      for (var j = 0; j < n; j++) { var x1 = x + h, e = Ez(Math.exp(x1) - 1, q), f1 = Math.exp(x1) / e, g1 = 1 / e; Ic += 0.5 * h * (f0 + f1); It += 0.5 * h * (g0 + g1); f0 = f1; g0 = g1; x = x1; }
+      var dc = DH * Ic, dm = q.Ok > 1e-8 ? DH / k * Math.sinh(k * Ic) : q.Ok < -1e-8 ? DH / k * Math.sin(k * Ic) : dc;
+      out.DC.push(dc); out.DM.push(dm); out.DL.push((1 + zs[i]) * dm); out.DA.push(dm / (1 + zs[i])); out.TL.push(It / H);
+    }
+    return out;
+  }
   function modulo(z, p) { return 5 * Math.log10(luminosita(z, p) * 1e6 / 10); }
 
   /* ═══ CMB: scala acustica e spettro ════════════════════════════════════ */
@@ -207,7 +219,7 @@
   F.calcolo.cosmo = {
     PLANCK: PLANCK, C_MPC_GYR: C_MPC_GYR, norm: norm, E: E, haBigBang: haBigBang, tempo: tempo, eta: eta, etaEdS: etaEdS, tempoMR: tempoMR,
     zEquivalenza: zEquivalenza, omegaR: omegaR, decelerazione: decelerazione, zAccelerazione: zAccelerazione,
-    comovente: comovente, trasversale: trasversale, luminosita: luminosita, diametro: diametro, ritorno: ritorno, zMaxDiametro: zMaxDiametro, modulo: modulo,
+    comovente: comovente, trasversale: trasversale, tabellaDistanze: tabellaDistanze, luminosita: luminosita, diametro: diametro, ritorno: ritorno, zMaxDiametro: zMaxDiametro, modulo: modulo,
     zStella: zStella, orizzonteSonoro: orizzonteSonoro, scalaAcustica: scalaAcustica, spettroDl: spettroDl, spettroCl: spettroCl, picchi: picchi,
     lambdaRiga: lambdaRiga, coefficienti: coefficienti, mappaCMB: mappaCMB, varianzaTeorica: varianzaTeorica, statMappa: statMappa,
     planckNu: planckNu, piccoPlanckGHz: piccoPlanckGHz, tempoDaT: tempoDaT, TdaTempo: TdaTempo, gstarNu: gstarNu, elio: elio, temperatura: temperatura,
@@ -444,15 +456,16 @@
       var eta0 = interp(tab.t, tab.eta, t0), q = norm(p);
       /* superfici di rivoluzione attorno all'asse z (tempo) */
       function rivoluzione(rad, tt, col, opac) {
-        var nS = 72, pos = [], idx = [];
+        var nS = 60, pos = [], idx = [];
         for (var i = 0; i < rad.length; i++) for (var j = 0; j <= nS; j++) { var f = 2 * Math.PI * j / nS; pos.push(rad[i] * Math.cos(f), rad[i] * Math.sin(f), tt[i]); }
         for (i = 0; i < rad.length - 1; i++) for (j = 0; j < nS; j++) { var a = i * (nS + 1) + j, b = a + nS + 1; idx.push(a, b, a + 1, b, b + 1, a + 1); }
         var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
         var m = new T.Mesh(g, new T.MeshStandardMaterial({ color: col, transparent: true, opacity: opac, side: T.DoubleSide, depthWrite: false, roughness: 0.6, emissive: col, emissiveIntensity: 0.25 }));
         S.aggiungi(m);
-        S.aggiungi(new T.LineSegments(new T.WireframeGeometry(g), new T.LineBasicMaterial({ color: col, transparent: true, opacity: 0.08 })));
+        /* qualche meridiano e parallelo, invece del reticolo completo */
+        for (var jj = 0; jj < nS; jj += 6) { var mer = []; for (var ii = 0; ii < rad.length; ii += 2) { var ff = 2 * Math.PI * jj / nS; mer.push([rad[ii] * Math.cos(ff), rad[ii] * Math.sin(ff), tt[ii]]); } S.aggiungi(L3().linea(T, mer, col, 0.25)); }
       }
-      var rc = [], tc = [], rh = [], th = [], np = 160;
+      var rc = [], tc = [], rh = [], th = [], np = 90;
       for (var i = 0; i <= np; i++) {
         var tt = tab.t[0] + (t0 - tab.t[0]) * Math.pow(i / np, 1.5), a = interp(tab.t, tab.a, tt), e = interp(tab.t, tab.eta, tt);
         rc.push(a * (eta0 - e) / 1000 * KX); tc.push(tt * KT);
@@ -478,9 +491,10 @@
       var el = L3().testo3d(T, t('cono di luce passato', 'past light cone'), '#ffd24a', 0.6); var im = rc.indexOf(Math.max.apply(null, rc)); el.position.set(rc[im] + 1.5, 0, tc[im]); S.aggiungi(el);
       mk = sprite(T, 0xff6b6b, 1.4); S.aggiungi(mk);
       st.tab = tab; st.t0 = t0; st.eta0 = eta0;
-      marcatore(); grafici(); testo();
+      marcatore();
       S.didascalia.textContent = t('Cono di luce passato e sfera di Hubble (tempo in verticale)', 'Past light cone and Hubble sphere (time vertical)');
       if (!S.vistaIniziale) S.inquadra(40, -1.2, 1.25);
+      setTimeout(function () { grafici(); testo(); }, 0);
     }
     function marcatore() {
       if (!mk || !st.tab) return;
@@ -488,13 +502,9 @@
       mk.position.set(dA / 1000 * KX, 0, tt * KT); S.sporca = true; S.avvia();
     }
     function grafici() {
-      var lg = st.zmax === '1100', zm = lg ? 1100 : +st.zmax, n = 160, xs = [], dc = [], dl = [], da = [], lb = [], et = [];
-      for (var i = 1; i <= n; i++) {
-        var z = lg ? Math.pow(10, 3.0414 * i / n) - 1 : zm * i / n;
-        xs.push(lg ? Math.log10(1 + z) : z);
-        var dm = trasversale(z, p); dc.push(comovente(z, p) / 1000); dl.push((1 + z) * dm / 1000); da.push(dm / (1 + z) / 1000);
-        var L = ritorno(z, p); lb.push(L); et.push(st.t0 - L);
-      }
+      var lg = st.zmax === '1100', zm = lg ? 1100 : +st.zmax, n = 160, xs = [], zs = [];
+      for (var i = 1; i <= n; i++) { var z = lg ? Math.pow(10, 3.0414 * i / n) - 1 : zm * i / n; zs.push(z); xs.push(lg ? Math.log10(1 + z) : z); }
+      var TD = tabellaDistanze(p, zs), g = function (v) { return v / 1000; }, dc = TD.DC.map(g), dl = TD.DL.map(g), da = TD.DA.map(g), lb = TD.TL, et = lb.map(function (L) { return st.t0 - L; });
       var ymax = lg ? 20 : Math.min(Math.max.apply(null, dl) * 1.05, 120);
       F.grafico(cv1, { serie: [{ x: xs, y: dc, col: '#5eead4', etich: ['D_C', 'D_C'] }, { x: xs, y: dl, col: '#ff8a80', etich: ['D_L', 'D_L'] }, { x: xs, y: da, col: '#ffd24a', etich: ['D_A', 'D_A'] }], xmin: lg ? 0 : 0, xmax: lg ? 3.0414 : zm, ymin: 0, ymax: ymax, xl: lg ? ['log₁₀(1+z)', 'log₁₀(1+z)'] : ['z', 'z'], yl: ['distanza (Gpc)', 'distance (Gpc)'], legenda: [{ col: '#5eead4', etich: ['comovente D_C', 'comoving D_C'] }, { col: '#ff8a80', etich: ['luminosità D_L', 'luminosity D_L'] }, { col: '#ffd24a', etich: ['diametro angolare D_A', 'angular diameter D_A'] }], descr: ['Distanze cosmologiche in funzione del redshift', 'Cosmological distances versus redshift'] });
       F.grafico(cv2, { serie: [{ x: xs, y: lb, col: '#6bcfff', etich: ['t_L', 't_L'] }, { x: xs, y: et, col: '#b28dff', etich: ['età', 'age'] }], xmin: 0, xmax: lg ? 3.0414 : zm, ymin: 0, ymax: Math.ceil(st.t0 + 0.5), xl: lg ? ['log₁₀(1+z)', 'log₁₀(1+z)'] : ['z', 'z'], yl: ['Gyr', 'Gyr'], legenda: [{ col: '#6bcfff', etich: ['tempo di ritorno', 'lookback time'] }, { col: '#b28dff', etich: ['età dell’universo a quel z', 'age of the universe at that z'] }], descr: ['Tempo di ritorno ed età in funzione del redshift', 'Lookback time and age versus redshift'] });
