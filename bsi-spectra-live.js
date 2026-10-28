@@ -162,6 +162,23 @@
     { name: 'scegli_scheda', description: "Apre una scheda della sezione aperta (per nome, anche parziale).", parameters: { type: 'object', properties: { scheda: { type: 'string' } }, required: ['scheda'] }, execute: function (a) { return scegliScheda(a.scheda); } },
     { name: 'premi_pulsante', description: "Preme un pulsante della scheda aperta (per testo o etichetta, anche parziale), per esempio «Misura», «Lancia», «Ricomincia».", parameters: { type: 'object', properties: { pulsante: { type: 'string' } }, required: ['pulsante'] }, execute: function (a) { return premiPulsante(a.pulsante); } },
     { name: 'cambia_materia', description: "Passa a un'altra materia dell'app: chimica, fisica o matematica (la barra, il menu e i suggerimenti cambiano con lei).", parameters: { type: 'object', properties: { materia: { type: 'string', enum: ['chimica', 'fisica', 'matematica'] } }, required: ['materia'] }, execute: function (a) { if (!globale.BSIMaterie) return { ok: false }; globale.BSIMaterie.imposta(a.materia); return { ok: true, materia: a.materia }; } },
+    { name: 'consulta_kit', description: "Cerca nel materiale di studio dell'app (riassunti, formulario, glossario, domande di quiz) della materia indicata. Usalo PRIMA di spiegare un argomento, una formula o una definizione, e cita che viene da BioSpecInfo: e' materiale verificato.", parameters: { type: 'object', properties: { materia: { type: 'string', enum: ['chimica', 'fisica', 'matematica'] }, tipo: { type: 'string', enum: ['riassunti', 'formule', 'glossario', 'quiz'] }, cerca: { type: 'string' } }, required: ['tipo', 'cerca'] },
+      execute: function (a) {
+        var m = a.materia || materia(), D = globale.BSIStudio && globale.BSIStudio.dati(m);
+        if (!D) return { ok: false, errore: t('nessun kit di studio per ', 'no study kit for ') + m };
+        var campi = { riassunti: ['tit', 'testo'], formule: ['nm', 'f', 'note'], glossario: ['t', 'd'], quiz: ['d', 'sp'] }[a.tipo] || ['t'];
+        var L = (D[a.tipo] || []), r = cerca(L, a.cerca, campi).slice(0, a.tipo === 'riassunti' ? 3 : 8);
+        return { ok: true, materia: m, trovati: r.length, risultati: r.map(function (x) { var o = {}; campi.concat(a.tipo === 'quiz' ? ['r', 'k'] : []).forEach(function (c) { o[c] = typeof x[c] === 'string' ? x[c].replace(/<[^>]+>/g, ' ').slice(0, 1500) : x[c]; }); return o; }) };
+      } },
+    { name: 'disegna_grafico', description: "Disegna sullo schermo il grafico di una o piu' funzioni di x, in una finestra sopra la pagina (sintassi: sin(x), x^2, exp(-x), ln(x), sqrt(x)...). Usalo quando un grafico aiuta a capire: studio di funzione, confronto di andamenti, leggi fisiche.", parameters: { type: 'object', properties: { funzioni: { type: 'array', items: { type: 'string' } }, xmin: { type: 'number' }, xmax: { type: 'number' } }, required: ['funzioni'] },
+      execute: function (a) {
+        var A = globale.BSIAttrezzi; if (!A) return { ok: false };
+        A.apri('grafico', materia());
+        setTimeout(function () { var i = document.getElementById('bsiAT-in'), x0 = document.getElementById('bsiAT-a'), x1 = document.getElementById('bsiAT-b'); if (!i) return; i.value = (a.funzioni || []).join('; '); if (x0 && a.xmin != null) x0.value = a.xmin; if (x1 && a.xmax != null) x1.value = a.xmax; i.dispatchEvent(new Event('input')); }, 80);
+        return { ok: true, nota: 'grafico mostrato: commentalo all\'utente (zeri, massimi, asintoti, confronto)' };
+      } },
+    { name: 'apri_strumento_rapido', description: "Apre uno strumento al volo in una finestra sopra la pagina: calcolatrice esatta, derivata e primitiva, grafico, costante fisica (CODATA), convertitore di unita', formula, glossario, quiz lampo.", parameters: { type: 'object', properties: { strumento: { type: 'string', enum: ['calcolatrice', 'derivata', 'grafico', 'costante', 'unita', 'formula', 'glossario', 'quiz'] } }, required: ['strumento'] },
+      execute: function (a) { var A = globale.BSIAttrezzi; if (!A || !A.STRUMENTI[a.strumento]) return { ok: false }; A.apri(a.strumento, materia()); return { ok: true }; } },
     { name: 'stato_studio', description: "Dice come sta andando lo studio dell'utente nella materia: flashcard da ripassare, errori dei quiz da rivedere, riassunti segnati come studiati. Usalo per proporre cosa fare adesso.", parameters: { type: 'object', properties: { materia: { type: 'string', enum: ['chimica', 'fisica', 'matematica'] } } }, execute: function (a) { return Object.assign({ ok: true }, studio(a && a.materia)); } }
   ];
   function registraStrumenti() {
