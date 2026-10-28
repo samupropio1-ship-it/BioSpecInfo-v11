@@ -210,7 +210,7 @@
       fragmentShader: ['uniform vec3 uCol; uniform float uTempo; uniform float uScala; uniform float uU; varying vec3 vP; varying vec3 vN; varying vec3 vV;', NOISE,
         'void main(){ vec3 q = normalize(vP)*uScala; vec2 v = voronoi(q, uTempo*0.6); float bordo = smoothstep(0.0, 0.18, v.y - v.x);',
         '  vec2 v2 = voronoi(q*3.1 + 7., uTempo*0.9); float fine = smoothstep(0.0, 0.25, v2.y - v2.x);',
-        '  float gran = 0.62 + 0.38*bordo*(0.75 + 0.25*fine) - 0.12*v.x;',
+        '  float gran = 0.78 + 0.22*bordo*(0.8 + 0.2*fine) - 0.1*v.x;',
         '  float mu = clamp(dot(normalize(vN), normalize(vV)), 0., 1.); float ld = 1. - uU*(1. - mu);',
         '  vec3 col = uCol*gran*ld*1.25; col = mix(col, col*vec3(1.05, 0.8, 0.6), 1. - mu);',
         '  gl_FragColor = vec4(col, 1.); }'].join('\n'),
@@ -354,7 +354,7 @@
       var P = F.grafico(cv2, { serie: [{ x: xs2, y: y1, col: '#6bcfff', larg: 2, tratt: true }, { x: xs2, y: y2, col: '#ffd24a', larg: 2.5 }], xmin: 0.1, xmax: 1.6, ymin: 0, xl: ['M / M☉', 'M / M☉'], yl: ['R (R⊕)', 'R (R⊕)'],
         legenda: [{ col: '#6bcfff', etich: ['n = 1,5: R ∝ M^(−1/3)', 'n = 1.5: R ∝ M^(−1/3)'] }, { col: '#ffd24a', etich: ['con la relatività (approssimata)', 'with relativity (approximate)'] }],
         descr: ['Relazione massa-raggio delle nane bianche e limite di Chandrasekhar', 'White dwarf mass-radius relation and the Chandrasekhar limit'] });
-      var q = P.q, xx = P.X(Mch); q.save(); q.strokeStyle = '#ff8a80'; q.setLineDash([4, 4]); q.beginPath(); q.moveTo(xx, 14); q.lineTo(xx, P.H - 40); q.stroke(); q.fillStyle = '#ff8a80'; q.font = '11px system-ui,sans-serif'; q.textAlign = 'right'; q.fillText('M_Ch = ' + Mch.toFixed(2) + ' M☉', xx - 4, 28); q.restore();
+      var q = P.q, xx = P.X(Mch); q.save(); q.strokeStyle = '#ff8a80'; q.setLineDash([4, 4]); q.beginPath(); q.moveTo(xx, 14); q.lineTo(xx, P.H - 40); q.stroke(); q.fillStyle = '#ff8a80'; q.font = '11px system-ui,sans-serif'; q.textAlign = 'right'; q.fillText('M_Ch = ' + Mch.toFixed(2) + ' M☉', xx - 4, P.H - 56); q.restore();
     }
     function nuvola3D() {
       if (!S) return;
