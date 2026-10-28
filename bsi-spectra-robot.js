@@ -26,7 +26,7 @@
 (function (globale) {
   'use strict';
   var MENO_MOTO = function () { return globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches; };
-  var COLORI = { attesa: 0x2ee6ff, ascolta: 0x00e5ff, pensa: 0xffb547, parla: 0x5affd2 };
+  var COLORI = { attesa: 0x1f5eff, ascolta: 0x2f72ff, pensa: 0x4a3dff, parla: 0x1a7dff };
 
   function caricaThree() {
     if (globale.THREE) return Promise.resolve(globale.THREE);
@@ -40,7 +40,7 @@
   function ambiente(T, ren) {
     var sc = new T.Scene(), stanza = new T.Mesh(new T.BoxGeometry(20, 12, 20), new T.MeshBasicMaterial({ color: 0x0a1220, side: T.BackSide }));
     sc.add(stanza);
-    [[0, 5.5, 0, 12, 0.3, 6, 0xffffff, 3], [-9.5, 1, 2, 0.3, 6, 4, 0x9fdcff, 2.2], [9.5, 2, -1, 0.3, 5, 6, 0x5fe9ff, 2.6], [0, 0, -9.5, 8, 4, 0.3, 0x335577, 1.2], [3, -5.5, 3, 6, 0.3, 4, 0x223344, 1]].forEach(function (p) {
+    [[0, 5.5, 0, 12, 0.3, 6, 0xffffff, 3], [-9.5, 1, 2, 0.3, 6, 4, 0x9fdcff, 2.2], [9.5, 2, -1, 0.3, 5, 6, 0x2a5bff, 2.6], [0, 0, -9.5, 8, 4, 0.3, 0x335577, 1.2], [3, -5.5, 3, 6, 0.3, 4, 0x223344, 1]].forEach(function (p) {
       var m = new T.Mesh(new T.BoxGeometry(p[3], p[4], p[5]), new T.MeshBasicMaterial({ color: new T.Color(p[6]).multiplyScalar(p[7]) }));
       m.position.set(p[0], p[1], p[2]); sc.add(m);
     });
@@ -83,9 +83,9 @@
     var cam = new T.PerspectiveCamera(30, 1, 0.1, 50); cam.position.set(0, 0.05, 4.7); cam.lookAt(0, -0.08, 0); this.cam = cam;
     sc.add(new T.HemisphereLight(0xcfe8ff, 0x0a1018, 0.35));
     var key = new T.DirectionalLight(0xfff4e8, 1.25); key.position.set(-3, 3, 5); sc.add(key);
-    var rim = new T.DirectionalLight(0x5fe9ff, 1.6); rim.position.set(4, 2, -4); sc.add(rim);
+    var rim = new T.DirectionalLight(0x2a5bff, 1.6); rim.position.set(4, 2, -4); sc.add(rim);
     var rim2 = new T.DirectionalLight(0x6f8bff, 0.7); rim2.position.set(-4, -1, -3); sc.add(rim2);
-    this.luceOcchi = new T.PointLight(0x2ee6ff, 0.8, 4); this.luceOcchi.position.set(0, 0.15, 1.3); sc.add(this.luceOcchi);
+    this.luceOcchi = new T.PointLight(0x1f5eff, 0.8, 4); this.luceOcchi.position.set(0, 0.15, 1.3); sc.add(this.luceOcchi);
 
     var ceramica = new T.MeshPhysicalMaterial({ color: 0xffffff, map: tramaCeramica(T), metalness: 0.15, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.1 });
     var grafite = new T.MeshStandardMaterial({ color: 0x1b222b, metalness: 0.85, roughness: 0.32, envMapIntensity: 1.3 });
@@ -124,7 +124,7 @@
       var anello = new T.Group();
       for (var k = 0; k < 6; k++) { var seg = new T.Mesh(new T.RingGeometry(0.085, 0.108, 24, 1, k * Math.PI / 3, Math.PI / 4.2), self.matLuce); anello.add(seg); }
       g.add(anello);
-      var esterno = new T.Mesh(new T.RingGeometry(0.125, 0.131, 64), new T.MeshBasicMaterial({ color: 0x2ee6ff, transparent: true, opacity: 0.45, toneMapped: false })); g.add(esterno);
+      var esterno = new T.Mesh(new T.RingGeometry(0.125, 0.131, 64), new T.MeshBasicMaterial({ color: 0x1f5eff, transparent: true, opacity: 0.45, toneMapped: false })); g.add(esterno);
       var gl = new T.Sprite(new T.SpriteMaterial({ map: sprite, color: COLORI.attesa, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false, depthTest: false })); gl.scale.set(0.3, 0.3, 1); gl.renderOrder = 10; g.add(gl);
       g.lookAt(x * 2.2, 0.16, 6);
       testa.add(g);

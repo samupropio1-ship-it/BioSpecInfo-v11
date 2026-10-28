@@ -31,7 +31,8 @@
 (function (globale) {
   'use strict';
   var URL_MODELLO = './models/spectra-noir.glb';
-  var COLORI = { attesa: 0x35e0ff, ascolta: 0x00e5ff, pensa: 0xffb547, parla: 0x5affd2 };
+  /* blu scuro, come l'app: un tono per stato */
+  var COLORI = { attesa: 0x1f5eff, ascolta: 0x2f72ff, pensa: 0x4a3dff, parla: 0x1a7dff };
   var MENO_MOTO = function () { return globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   /* la linea della bocca e la mandibola, in coordinate del modello (metri) */
   var BOCCA = { y: 0.1845, sopra: 0.198, sotto: 0.179, perno: [0, 0.205, 0.035], angolo: 0.24, larga: 0.034, laterale: 0.062 };
@@ -54,7 +55,7 @@
   }
   function ambiente(T, ren) {
     var sc = new T.Scene(); sc.add(new T.Mesh(new T.BoxGeometry(20, 12, 20), new T.MeshBasicMaterial({ color: 0x0a1220, side: T.BackSide })));
-    [[0, 5.5, 0, 12, 0.3, 6, 0xffffff, 3], [-9.5, 1, 2, 0.3, 6, 4, 0x9fdcff, 2.2], [9.5, 2, -1, 0.3, 5, 6, 0x5fe9ff, 2.6], [0, 0, 9.5, 8, 4, 0.3, 0xddeeff, 1.4], [3, -5.5, 3, 6, 0.3, 4, 0x223344, 1]].forEach(function (p) {
+    [[0, 5.5, 0, 12, 0.3, 6, 0xffffff, 3], [-9.5, 1, 2, 0.3, 6, 4, 0x7f9cff, 2.2], [9.5, 2, -1, 0.3, 5, 6, 0x2a5bff, 2.6], [0, 0, 9.5, 8, 4, 0.3, 0xddeeff, 1.4], [3, -5.5, 3, 6, 0.3, 4, 0x223344, 1]].forEach(function (p) {
       var m = new T.Mesh(new T.BoxGeometry(p[3], p[4], p[5]), new T.MeshBasicMaterial({ color: new T.Color(p[6]).multiplyScalar(p[7]) })); m.position.set(p[0], p[1], p[2]); sc.add(m);
     });
     var pm = new T.PMREMGenerator(ren), env = pm.fromScene(sc, 0.04).texture; pm.dispose(); return env;
@@ -138,8 +139,8 @@
     var sc = new T.Scene(); this.sc = sc; sc.environment = ambiente(T, ren);
     sc.add(new T.HemisphereLight(0xcfe8ff, 0x0a1018, 0.45));
     var key = new T.DirectionalLight(0xfff4e8, 1.6); key.position.set(-0.6, 0.8, 1.2); sc.add(key);
-    var rim = new T.DirectionalLight(0x5fe9ff, 2.0); rim.position.set(0.9, 0.5, -0.8); sc.add(rim);
-    var rim2 = new T.DirectionalLight(0x8a7bff, 0.8); rim2.position.set(-0.9, -0.2, -0.6); sc.add(rim2);
+    var rim = new T.DirectionalLight(0x2a5bff, 2.0); rim.position.set(0.9, 0.5, -0.8); sc.add(rim);
+    var rim2 = new T.DirectionalLight(0x3b4bff, 0.8); rim2.position.set(-0.9, -0.2, -0.6); sc.add(rim2);
 
     /* il modello: una copia per questa scena (il file si scarica una volta sola) */
     var m = gltf.scene.clone(true); m.updateMatrixWorld(true);

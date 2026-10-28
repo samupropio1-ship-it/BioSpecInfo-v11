@@ -194,7 +194,7 @@
     var L = speechSynthesis.getVoices() || [], lg = lingua() === 'en' ? 'en' : 'it';
     var cand = L.filter(function (v) { return (v.lang || '').toLowerCase().indexOf(lg) === 0; });
     /* Spectra ha il volto di un uomo: si preferisce una voce maschile, poi la qualita' */
-    var maschi = /luca|diego|giorgio|cosimo|benigno|gianni|giuseppe|marco|roberto|daniel|david|guy|ryan|thomas|male|uomo/i;
+    var maschi = /giorgio|diego|cosimo|luca|benigno|gianni|giuseppe|marco|roberto|daniel|david|guy|ryan|thomas|christopher|eric|male|uomo|deep|grave/i;
     var pref = [function (v) { return maschi.test(v.name) && /natural|neural|online/i.test(v.name); }, function (v) { return maschi.test(v.name); }, function (v) { return /natural|neural|online/i.test(v.name); }, function (v) { return /google|microsoft/i.test(v.name); }];
     for (var i = 0; i < pref.length; i++) { var v = cand.filter(pref[i])[0]; if (v) return v; }
     return cand[0] || null;
@@ -221,7 +221,7 @@
       if (!voce.inCorso) return;
       if (i >= pezzi.length) { voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); return; }
       var u = new SpeechSynthesisUtterance(pezzi[i++]);
-      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 1.02; u.pitch = 0.92;
+      u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 0.95; u.pitch = 0.7; u.volume = 1;
       var frase = pezzi[i - 1], partita = false, finita = false;
       /* una sintesi vocale che non parte (nessuna voce installata, audio
          bloccato) non deve fermare il discorso: dopo 1,2 s la frase si
@@ -286,9 +286,9 @@
   function stileGuida() {
     if (document.getElementById('bsiJV-stile-guida')) return;
     var s = document.createElement('style'); s.id = 'bsiJV-stile-guida';
-    s.textContent = '@keyframes bsiJVpulsa{0%,100%{box-shadow:0 0 0 2px rgba(0,229,255,.9),0 0 18px rgba(0,229,255,.6)}50%{box-shadow:0 0 0 4px rgba(0,229,255,.4),0 0 30px rgba(0,229,255,.9)}}' +
+    s.textContent = '@keyframes bsiJVpulsa{0%,100%{box-shadow:0 0 0 2px rgba(47,107,255,.9),0 0 18px rgba(47,107,255,.6)}50%{box-shadow:0 0 0 4px rgba(47,107,255,.4),0 0 30px rgba(47,107,255,.9)}}' +
       '.bsiJV-evidenzia{border-radius:10px;animation:bsiJVpulsa 1.2s ease-in-out infinite;position:relative;z-index:2}' +
-      '@media (prefers-reduced-motion:reduce){.bsiJV-evidenzia{animation:none;box-shadow:0 0 0 3px #00e5ff}}';
+      '@media (prefers-reduced-motion:reduce){.bsiJV-evidenzia{animation:none;box-shadow:0 0 0 3px #2f6bff}}';
     document.head.appendChild(s);
   }
 
@@ -424,33 +424,33 @@
     if (document.getElementById('bsiJV-stile')) return;
     var s = document.createElement('style'); s.id = 'bsiJV-stile';
     s.textContent = [
-      '#bsiJV{position:fixed;inset:0;z-index:2147483642;display:none;background:radial-gradient(ellipse at center,rgba(6,22,38,.94) 0%,rgba(2,7,14,.98) 70%);color:#cdefff;font-family:system-ui,sans-serif;overflow:hidden}',
+      '#bsiJV{position:fixed;inset:0;z-index:2147483642;display:none;background:radial-gradient(ellipse at center,rgba(5,12,34,.94) 0%,rgba(2,7,14,.98) 70%);color:#d6e2ff;font-family:system-ui,sans-serif;overflow:hidden}',
       '#bsiJV.aperto{display:block}',
       /* i pulsanti flottanti dell\'app non devono restare sopra la console */
       /* visibility e non display: altri script scrivono display in linea con !important */
       'body.bsiJV-aperto #bsi14-fab,body.bsiJV-aperto #bsi105-fab,body.bsiJV-aperto [id$="-fab"],body.bsiJV-aperto #bsi-spectra-fab,body.bsiJV-aperto #bsi-materie,body.bsiJV-aperto #bsiJV-mini,body.bsiJV-aperto #bsi-hub-ov{visibility:hidden!important;pointer-events:none!important}',
       '#bsiJV canvas{position:absolute;inset:0;width:100%;height:100%}',
-      '#bsiJV-volto{position:absolute;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0f3b52 0%,#06182a 70%);box-shadow:0 0 50px rgba(0,229,255,.35),inset 0 0 40px rgba(0,229,255,.3);transform:translate(-50%,-50%);pointer-events:none}',
+      '#bsiJV-volto{position:absolute;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#0e1f4a 0%,#050b1e 70%);box-shadow:0 0 50px rgba(47,107,255,.35),inset 0 0 40px rgba(47,107,255,.3);transform:translate(-50%,-50%);pointer-events:none}',
       '#bsiJV-volto svg{position:absolute;left:0;top:-4%;width:100%;height:118%}',
-      '#bsiJV-volto::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,229,255,.07) 0 1px,transparent 1px 4px);mix-blend-mode:screen}',
-      '#bsiJV[data-stato="pensa"] #bsiJV-volto{box-shadow:0 0 50px rgba(255,196,90,.4),inset 0 0 40px rgba(255,196,90,.25)}',
-      '#bsiJV-top{position:absolute;top:0;left:0;right:0;display:flex;gap:10px;align-items:center;padding:12px 16px;font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;color:#7fe8ff;text-transform:uppercase}',
+      '#bsiJV-volto::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(47,107,255,.07) 0 1px,transparent 1px 4px);mix-blend-mode:screen}',
+      '#bsiJV[data-stato="pensa"] #bsiJV-volto{box-shadow:0 0 50px rgba(74,61,255,.45),inset 0 0 40px rgba(74,61,255,.3)}',
+      '#bsiJV-top{position:absolute;top:0;left:0;right:0;display:flex;gap:10px;align-items:center;padding:12px 16px;font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;color:#8fb0ff;text-transform:uppercase}',
       '#bsiJV-top .sp{flex:1}',
-      '.bsiJV-b{background:rgba(10,40,60,.6);border:1px solid rgba(127,232,255,.45);color:#cdefff;border-radius:10px;padding:8px 12px;cursor:pointer;font:700 12px/1 system-ui;letter-spacing:.04em}',
-      '.bsiJV-b:hover,.bsiJV-b:focus-visible{background:rgba(20,70,100,.75);outline:none;border-color:#7fe8ff}',
-      '.bsiJV-b.on{background:rgba(0,200,255,.25);border-color:#00e5ff;color:#fff}',
-      '#bsiJV-stato{position:absolute;left:50%;top:calc(50% + min(26vh,190px));transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#00e5ff;text-shadow:0 0 12px #00e5ff;white-space:nowrap}',
-      '#bsiJV-pensiero{position:absolute;left:50%;top:calc(50% + min(26vh,190px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#8fd8ea;opacity:.85}',
-      '#bsiJV-credito{position:absolute;right:12px;bottom:66px;font:500 10px/1.3 system-ui;color:#5f8aa3;text-align:right}#bsiJV-credito a{color:#7fbcd4}',
+      '.bsiJV-b{background:rgba(12,24,60,.6);border:1px solid rgba(143,176,255,.45);color:#d6e2ff;border-radius:10px;padding:8px 12px;cursor:pointer;font:700 12px/1 system-ui;letter-spacing:.04em}',
+      '.bsiJV-b:hover,.bsiJV-b:focus-visible{background:rgba(24,44,110,.75);outline:none;border-color:#8fb0ff}',
+      '.bsiJV-b.on{background:rgba(47,107,255,.28);border-color:#2f6bff;color:#fff}',
+      '#bsiJV-stato{position:absolute;left:50%;top:calc(50% + min(26vh,190px));transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#2f6bff;text-shadow:0 0 12px #2f6bff;white-space:nowrap}',
+      '#bsiJV-pensiero{position:absolute;left:50%;top:calc(50% + min(26vh,190px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#9db4f0;opacity:.85}',
+      '#bsiJV-credito{position:absolute;right:12px;bottom:66px;font:500 10px/1.3 system-ui;color:#6f84b8;text-align:right}#bsiJV-credito a{color:#8fa8e0}',
       '@media (max-width:480px){#bsiJV-credito{bottom:110px}}',
-      '#bsiJV-tel{position:absolute;left:16px;top:56px;font:600 11px/1.7 ui-monospace,monospace;color:#7fbcd4;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
-      '#bsiJV-tel b{color:#cdefff;font-weight:700}',
+      '#bsiJV-tel{position:absolute;left:16px;top:56px;font:600 11px/1.7 ui-monospace,monospace;color:#8fa8e0;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
+      '#bsiJV-tel b{color:#d6e2ff;font-weight:700}',
       '#bsiJV-dial{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:30vh;overflow:auto;text-align:center;font-size:15px;line-height:1.55;text-shadow:0 0 8px rgba(0,0,0,.9)}',
-      '#bsiJV-dial .u{color:#8fb7cf;font-style:italic;margin-bottom:6px}#bsiJV-dial .a{color:#e9fbff}#bsiJV-dial .a b{color:#7fe8ff}',
+      '#bsiJV-dial .u{color:#9aaed8;font-style:italic;margin-bottom:6px}#bsiJV-dial .a{color:#e6edff}#bsiJV-dial .a b{color:#8fb0ff}',
       '#bsiJV-giu{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px}',
-      '#bsiJV-in{flex:1;min-width:180px;max-width:520px;background:rgba(5,25,40,.8);border:1px solid rgba(127,232,255,.45);color:#e9fbff;border-radius:10px;padding:9px 12px;font-size:14px}',
+      '#bsiJV-in{flex:1;min-width:180px;max-width:520px;background:rgba(6,14,40,.8);border:1px solid rgba(143,176,255,.45);color:#e6edff;border-radius:10px;padding:9px 12px;font-size:14px}',
       '#bsiJV-mini{position:fixed;right:20px;z-index:99991;width:46px;height:46px;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;',
-      ' background:radial-gradient(circle,#00e5ff 0%,#035 60%,#012 100%);border:1px solid #7fe8ff;box-shadow:0 0 18px rgba(0,229,255,.7);color:#fff;font:800 13px/1 ui-monospace,monospace}',
+      ' background:radial-gradient(circle,#2f6bff 0%,#035 60%,#012 100%);border:1px solid #8fb0ff;box-shadow:0 0 18px rgba(47,107,255,.7);color:#fff;font:800 13px/1 ui-monospace,monospace}',
       '#bsiJV-mini.vis{display:flex}',
       '@media (max-width:480px){#bsiJV-tel{max-width:60vw;font-size:10px}#bsiJV-dial{font-size:14px;bottom:104px}}',
       '@media (prefers-reduced-motion:reduce){#bsiJV-stato{text-shadow:none}}'
@@ -555,13 +555,13 @@
     if (hud.analizzatore && hud.ascolto) { hud.analizzatore.getByteFrequencyData(hud.dati); spettro = hud.dati; var s = 0; for (var i = 0; i < 48; i++) s += hud.dati[i]; e = Math.max(e, s / (48 * 255) * 1.6); if (hud.volto && hud.volto.ascolto) hud.volto.ascolto(s / (48 * 255) * 2); }
     if (voce.inCorso) { hud.energia = Math.max(0.35, hud.energia * 0.94); e = Math.max(e, hud.energia); }
     if (hud.stato === 'pensa') e = Math.max(e, 0.45 + 0.25 * Math.sin(tt * 7));
-    var col = hud.stato === 'pensa' ? [255, 196, 90] : hud.stato === 'parla' ? [127, 255, 212] : [0, 229, 255];
+    var col = hud.stato === 'pensa' ? [92, 76, 255] : hud.stato === 'parla' ? [56, 140, 255] : [40, 104, 255];
     var rgba = function (a) { return 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a + ')'; };
     /* griglia di fondo e scansione */
-    q.strokeStyle = 'rgba(0,229,255,0.05)'; q.lineWidth = 1;
+    q.strokeStyle = 'rgba(47,107,255,0.05)'; q.lineWidth = 1;
     for (var x = (tt * 12) % 40; x < W; x += 40) { q.beginPath(); q.moveTo(x, 0); q.lineTo(x, H); q.stroke(); }
     for (var y = 0; y < H; y += 40) { q.beginPath(); q.moveTo(0, y); q.lineTo(W, y); q.stroke(); }
-    if (!lento) { var sy = (tt * 90) % H; var g = q.createLinearGradient(0, sy - 60, 0, sy); g.addColorStop(0, 'rgba(0,229,255,0)'); g.addColorStop(1, 'rgba(0,229,255,0.08)'); q.fillStyle = g; q.fillRect(0, sy - 60, W, 60); }
+    if (!lento) { var sy = (tt * 90) % H; var g = q.createLinearGradient(0, sy - 60, 0, sy); g.addColorStop(0, 'rgba(47,107,255,0)'); g.addColorStop(1, 'rgba(47,107,255,0.08)'); q.fillStyle = g; q.fillRect(0, sy - 60, W, 60); }
     /* bagliore centrale */
     var gl = q.createRadialGradient(cx, cy, 0, cx, cy, R * (1.1 + e * 0.5)); gl.addColorStop(0, rgba(0.55 * e + 0.15)); gl.addColorStop(0.35, rgba(0.12)); gl.addColorStop(1, rgba(0)); q.fillStyle = gl; q.beginPath(); q.arc(cx, cy, R * (1.1 + e * 0.5), 0, 2 * Math.PI); q.fill();
     /* anelli e archi rotanti */
@@ -720,18 +720,18 @@
   /* L'ICONA DI SPECTRA: la fotografia del robot 3D, fatta una volta e
      conservata; finche' non c'e', un androide stilizzato in vettoriale */
   var ritratto = null;
-  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v2'); } catch (e) {}
+  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v3'); } catch (e) {}
   function iconaVettoriale(px) {
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
       '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
       '<ellipse cx="32" cy="27" rx="17" ry="19" fill="url(#bsiRBf)"/><path d="M15.5 30 C16 41 23 46 32 46 C41 46 48 41 48.5 30 Z" fill="#1b222b"/>' +
       '<path d="M15.6 22 Q32 17 48.4 22 L48.4 30 Q32 26 15.6 30 Z" fill="#05090e"/>' +
-      '<circle cx="25.5" cy="25" r="2.6" fill="#2ee6ff"/><circle cx="38.5" cy="25" r="2.6" fill="#2ee6ff"/><circle cx="25.5" cy="25" r="5" fill="#2ee6ff" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#2ee6ff" opacity=".25"/>' +
-      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#2ee6ff" opacity=".85"/></svg>';
+      '<circle cx="25.5" cy="25" r="2.6" fill="#2f6bff"/><circle cx="38.5" cy="25" r="2.6" fill="#2f6bff"/><circle cx="25.5" cy="25" r="5" fill="#2f6bff" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#2f6bff" opacity=".25"/>' +
+      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#2f6bff" opacity=".85"/></svg>';
   }
   function icona(px) {
     var dentro = ritratto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
-    return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + px + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle at 50% 40%,#0f3b52,#06182a);box-shadow:0 0 0 1px rgba(46,230,255,.55)">' + dentro + '</span>';
+    return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + px + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle at 50% 40%,#0e1f4a,#050b1e);box-shadow:0 0 0 1px rgba(47,107,255,.55)">' + dentro + '</span>';
   }
   function voltoSuiPulsanti() {
     globale.bsiSpectraIcon = function (px) { return icona(px || 24); };
@@ -742,7 +742,7 @@
       setTimeout(function () {
         globale.BSISpectraRobot.foto(160).then(function (url) {
           if (!url || url.length < 2000) return;
-          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v2', url); localStorage.removeItem('bsi-spectra-ritratto-v1'); } catch (e) {}
+          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v3', url); localStorage.removeItem('bsi-spectra-ritratto-v1'); } catch (e) {}
           voltoSuiPulsanti();
         }).catch(function () {});
       }, 2500);
