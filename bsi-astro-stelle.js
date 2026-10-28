@@ -285,7 +285,7 @@
       for (k = 1; k <= 30; k++) pts.push(P(0.97 + k * 0.03, a));
       if (percorso) { gruppo.remove(percorso); percorso.geometry.dispose(); }
       percorso = new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ color: 0x8ff0ff, transparent: true, opacity: 0.85 }));
-      percorso.position.z = 0.004; percorso.visible = st.percorso; fotone.visible = st.percorso; gruppo.add(percorso);
+      percorso.position.z = -0.004; percorso.visible = st.percorso; fotone.visible = st.percorso; gruppo.add(percorso);
       S.didascalia.textContent = t('Stella di ', 'Star of ') + st.M + t(' M☉ tagliata: nucleo, zona radiativa, zona convettiva e superficie granulata', ' M☉ cut open: core, radiative zone, convective zone and granulated surface');
       S.sporca = true; S.avvia();
     }
@@ -312,7 +312,7 @@
         S.ogniFotogramma(function (dt) {
           tempo += dt;
           sup.material.uniforms.uTempo.value = tempo; pareti.forEach(function (p) { p.material.uniforms.uTempo.value = tempo; });
-          if (pts.length > 1) { kf = (kf + dt * 40) % (pts.length - 1); var i = Math.floor(kf), u = kf - i; fotone.position.lerpVectors(pts[i], pts[i + 1], u); fotone.position.z = 0.006; }
+          if (pts.length > 1) { kf = (kf + dt * 40) % (pts.length - 1); var i = Math.floor(kf), u = kf - i; fotone.position.lerpVectors(pts[i], pts[i + 1], u); fotone.position.z = -0.006; }
           return true;
         });
         S.inquadra(7.5, 2.5, 1.05);
@@ -464,10 +464,10 @@
         guscio = new T.Points(g, new T.PointsMaterial({ size: 0.05, vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false, blending: T.AdditiveBlending })); guscio.visible = false; guscio.frustumCulled = false; S.aggiungi(guscio);
         resto = new T.Mesh(new T.SphereGeometry(0.08, 24, 16), new T.MeshBasicMaterial({ color: 0xd8ecff })); resto.add(bagliore(T, 0x9fc8ff, 0.9)); S.aggiungi(resto);
         fasci = new T.Group(); [1, -1].forEach(function (s) { var co = new T.Mesh(new T.ConeGeometry(0.25, 2.4, 24, 1, true), new T.MeshBasicMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.2, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide })); co.position.y = s * 1.2; co.rotation.z = s > 0 ? Math.PI : 0; fasci.add(co); }); fasci.rotation.x = 0.4; resto.add(fasci);
-        var tempo = 0;
+        var tempo = 0, nf = 0;
         S.ogniFotogramma(function (dt) {
           tempo += dt; sup.material.uniforms.uTempo.value = tempo;
-          if (st.gira) { st.s += dt * st.vel * 0.006 * (st.M === 15 ? 1.6 : 1); if (st.s > 1) { st.s = 0; faseVista = ''; guscio.visible = false; } sS.value = st.s; sS.dispatchEvent(new Event('input')); }
+          if (st.gira) { st.s += dt * st.vel * 0.006 * (st.M === 15 ? 1.6 : 1); if (st.s > 1) { st.s = 0; faseVista = ''; guscio.visible = false; } sS.value = st.s; if (++nf % 6 === 0) sS.dispatchEvent(new Event('input')); else aggiornaStella(); }
           if (tGuscio >= 0) {
             tGuscio += dt; var P = guscio.geometry.attributes.position.array;
             for (var i = 0; i < NG * 3; i++) P[i] += vGuscio[i] * dt * 0.5;

@@ -96,12 +96,16 @@
     el.addEventListener('wheel', function (e) { e.preventDefault(); self.vista.r = Math.max(0.5, Math.min(500, self.vista.r * Math.exp(e.deltaY * 0.0012))); self.sporca = true; self.avvia(); }, { passive: false });
     this.adatta();
     F.alRidimensiona(function () { self.adatta(); });
-    if (globale.IntersectionObserver) { new IntersectionObserver(function (v) { self.visibile = v[0].isIntersecting; if (self.visibile) { self.sporca = true; self.avvia(); } }).observe(box); }
+    if (globale.IntersectionObserver) { new IntersectionObserver(function (v) { self.visibile = v[0].isIntersecting; if (self.visibile) { if (self.ren.domElement.width < 2 || Math.abs(self.ren.domElement.clientWidth - self.box.clientWidth) > 2) self.adatta(); self.sporca = true; self.avvia(); } }).observe(box); }
     else this.visibile = true;
     scene.push(this);
   }
   Scena.prototype.adatta = function () {
     var fs = D.fullscreenElement === this.box;
+    /* una scena nascosta (scheda non aperta) ha larghezza 0: ridimensionarla a 600 px
+       riallocava il buffer WebGL a ogni cambio di scheda e bloccava la pagina per
+       secondi con molte scene. Si adatta quando torna visibile (IntersectionObserver). */
+    if (!fs && !this.box.clientWidth) { this.sporca = true; return; }
     var w = Math.max(260, this.box.clientWidth || 600), h = fs ? (globale.innerHeight || 700) : Math.round(Math.min(w * this.rapporto, (globale.innerHeight || 900) * 0.7));
     this.ren.setSize(w, h, true); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); this.sporca = true; this.avvia();
   };
