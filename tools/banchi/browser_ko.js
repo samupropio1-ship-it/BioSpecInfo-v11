@@ -25,7 +25,16 @@ const { chromium } = require('playwright-core');
     await pg.addInitScript(seed);
     await pg.goto('http://127.0.0.1:8899/index.html',{waitUntil:'load',timeout:60000});
     await pg.waitForTimeout(2500);
-    await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+    /* il pulsante di Spectra nasce da uno script in differita: sotto carico
+       (v236) a 2,5 s non c'era ancora, il clic andava a vuoto e l'attesa qui
+       sotto accettava «tendina inesistente» come «pronta». Si aspetta il
+       pulsante, si apre, e se la chat non compare si riprova. */
+    await pg.waitForSelector('#bsi-spectra-fab', { state: 'attached', timeout: 60000 }).catch(()=>{});
+    for (let prova = 0; prova < 3; prova++) {
+      await pg.evaluate(()=>{ const f=document.getElementById('bsi-spectra-fab'); if(f) f.click(); });
+      const ok = await pg.waitForSelector('#bsi-hub-provsel', { state: 'attached', timeout: 20000 }).then(()=>true, ()=>false);
+      if (ok) break;
+    }
     /* si aspetta che la chat ci sia davvero (il selettore e il campo), non
        un tempo fisso: con la batteria che fa girare piu' browser insieme
        1,2 s a volte non bastavano e il banco leggeva una tendina vuota */
@@ -33,7 +42,7 @@ const { chromium } = require('playwright-core');
     await pg.waitForSelector('#bsi-hub-input', { state: 'attached', timeout: 5000 }).catch(()=>{});
     /* e che la tendina sia stata RIEMPITA: esiste prima di avere le voci, e con la
        batteria carica (v235) il banco aveva letto 0 voci su 10 una volta su molte */
-    await pg.waitForFunction(()=>{ const s=document.getElementById('bsi-hub-provsel'); return !s || s.options.length>0; }, null, { timeout: 30000 }).catch(()=>{});
+    await pg.waitForFunction(()=>{ const s=document.getElementById('bsi-hub-provsel'); return !!s && s.options.length>0; }, null, { timeout: 30000 }).catch(()=>{});
     await pg.waitForTimeout(600);
     return { pg, err };
   }
