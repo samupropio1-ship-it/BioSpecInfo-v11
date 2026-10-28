@@ -7427,7 +7427,7 @@ function buildChatPane(){
     // cambia: cambiare materia non deve invalidare la cache della prima.
     var sys = [BASE_SYSTEM + (nucleoAttivo() ? PROMPT_NUCLEO : ''),
                (window._bsiMateriaSpectra ? window._bsiMateriaSpectra().prompt : '') +
-               (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + memoryPrompt() + buildGrounding(text)];
+               (window._bsiContestoSchermo ? window._bsiContestoSchermo() : '') + (window._bsiMente ? window._bsiMente() : '') + memoryPrompt() + buildGrounding(text)];
     // 12 messaggi erano pochi: in una conversazione tecnica il contesto si perdeva
     // a meta' discorso. Opus 5 ha 1M di finestra, 40 turni non sono un problema.
     var history = t.messages.slice(-40).map(function(m){ return { role: m.role, content: m.content }; });

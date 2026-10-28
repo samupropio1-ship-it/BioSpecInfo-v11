@@ -293,6 +293,10 @@
   }
 
   var COMANDI = [
+    { re: /^(cosa ricordi di me|cosa sai di me|chi sono|what do you remember|what do you know about me)/, f: function () { var Mn = globale.BSISpectraMente; return { testo: Mn ? Mn.cosaRicordi() : t('Non ho memoria attiva.', 'I have no active memory.') }; } },
+    { re: /^(come stai|come ti senti|tutto bene|how are you)/, f: function () { var Mn = globale.BSISpectraMente; return { testo: Mn ? Mn.comeStai() : t('Bene, grazie.', 'Fine, thanks.') }; } },
+    { re: /^(dimentica tutto|cancella la memoria|forget everything)/, f: function () { var Mn = globale.BSISpectraMente; if (Mn) Mn.dimentica(); return { testo: t('Fatto: ho cancellato tutto quello che ricordavo di te. Ricominciamo da capo.', 'Done: I erased everything I remembered about you. Fresh start.') }; } },
+    { re: /^(a cosa pensi|cosa pensi|che ne pensi|what are you thinking)/, f: function () { var Mn = globale.BSISpectraMente, p = Mn && Mn.pensieri()[0]; return { testo: p ? p.testo : t('Penso che sia un buon momento per imparare qualcosa di nuovo. Da dove cominciamo?', 'I think it is a good moment to learn something new. Where do we start?') }; } },
     { re: /^(spiegami questa sezione|spiegami questa scheda|spiegami cosa c e qui|fammi da guida|guidami|tour|explain this section|guide me)/, f: function () {
       var p = guida(); if (!p) return { testo: t('Apri prima una sezione: poi te la spiego passo per passo.', 'Open a section first: then I will explain it step by step.') };
       chiudiHud(true); setTimeout(function () { eseguiGuida(p); }, 200); return { testo: '', muto: true }; } },
@@ -436,6 +440,7 @@
       '.bsiJV-b:hover,.bsiJV-b:focus-visible{background:rgba(20,70,100,.75);outline:none;border-color:#7fe8ff}',
       '.bsiJV-b.on{background:rgba(0,200,255,.25);border-color:#00e5ff;color:#fff}',
       '#bsiJV-stato{position:absolute;left:50%;top:calc(50% + min(26vh,190px));transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#00e5ff;text-shadow:0 0 12px #00e5ff;white-space:nowrap}',
+      '#bsiJV-pensiero{position:absolute;left:50%;top:calc(50% + min(26vh,190px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#8fd8ea;opacity:.85}',
       '#bsiJV-tel{position:absolute;left:16px;top:56px;font:600 11px/1.7 ui-monospace,monospace;color:#7fbcd4;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
       '#bsiJV-tel b{color:#cdefff;font-weight:700}',
       '#bsiJV-dial{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:30vh;overflow:auto;text-align:center;font-size:15px;line-height:1.55;text-shadow:0 0 8px rgba(0,0,0,.9)}',
@@ -457,7 +462,7 @@
     d.innerHTML = '<canvas aria-hidden="true"></canvas><div id="bsiJV-volto"></div>' +
       '<div id="bsiJV-top"><span>◈ SPECTRA</span><span class="sp"></span>' +
       '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
-      '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div>' +
+      '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div><div id="bsiJV-pensiero" aria-live="off"></div>' +
       '<div id="bsiJV-dial" aria-live="polite"></div>' +
       '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
     document.body.appendChild(d);
@@ -576,6 +581,7 @@
     /* trascrizione dal vivo */
     if (hud.interim) { q.fillStyle = 'rgba(200,240,255,.85)'; q.font = '600 14px system-ui'; q.textAlign = 'center'; q.fillText(hud.interim.slice(-70), cx, cy + R * 1.3); }
     if (!(hud.tempo++ % 30)) telemetria();
+    if (!(hud.tempo % 900) && globale.BSISpectraMente) { var pz = globale.BSISpectraMente.pensieri()[0], pe = document.getElementById('bsiJV-pensiero'); if (pe) pe.textContent = pz ? '« ' + pz.testo + ' »' : ''; }
     hud.raf = globale.requestAnimationFrame(disegna);
   }
 
@@ -640,6 +646,7 @@
   function elabora(testo) {
     dialogo(testo, '', '');
     var loc = comandoLocale(testo);
+    if (globale.BSISpectraMente && !(loc && loc.muto)) { try { globale.BSISpectraMente.ricorda(testo, loc ? 'locale' : 'modello'); } catch (e) {} }
     if (loc) {
       if (loc.muto) return;
       ultima = loc.testo; dialogo(testo, loc.testo, loc.html);
@@ -664,6 +671,14 @@
 
   /* ═══ 8. APRIRE E CHIUDERE ═════════════════════════════════════════════ */
   function briefing() {
+    var Mn = globale.BSISpectraMente;
+    if (Mn) {
+      var m0 = materia(), s0 = studio(m0), sc0 = leggiSchermo(), pz = Mn.pensieri()[0], q = [Mn.saluto()];
+      q.push(t('Siamo in ', 'We are in ') + nomeMateria(m0) + (sc0.titolo ? ', ' + sc0.titolo.replace(/^[^\wÀ-ÿ]+/, '') : '') + '.');
+      if (pz) q.push(pz.testo); else if (s0.flashTotali && s0.daRipassare) q.push(t('Hai ', 'You have ') + s0.daRipassare + t(' flashcard da consolidare.', ' flashcards to consolidate.'));
+      q.push(t('Dimmi pure.', 'Go ahead.'));
+      return q.join(' ');
+    }
     var o = new Date().getHours(), saluto = o < 6 ? t('Buonanotte', 'Good night') : o < 13 ? t('Buongiorno', 'Good morning') : o < 18 ? t('Buon pomeriggio', 'Good afternoon') : t('Buonasera', 'Good evening');
     var m = materia(), s = studio(m), sc = leggiSchermo(), p = [saluto + '.', t('Siamo in ', 'We are in ') + nomeMateria(m) + (sc.titolo ? ', ' + sc.titolo.replace(/^[^\wÀ-ÿ]+/, '') : '') + '.'];
     if (s.flashTotali) p.push(t('Hai ', 'You have ') + s.daRipassare + t(' flashcard ancora da consolidare', ' flashcards still to consolidate') + '.');
