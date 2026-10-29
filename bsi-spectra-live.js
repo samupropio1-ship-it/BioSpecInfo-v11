@@ -856,7 +856,8 @@
     if (!hud.el) return;
     hud.el.classList.remove('aperto'); document.body.classList.remove('bsiJV-aperto'); fermaAscolto();
     if (!riduci) { taci(); if (hud.audio) { try { hud.audio.st.getTracks().forEach(function (x) { x.stop(); }); hud.audio.ac.close(); } catch (e) {} hud.audio = null; hud.analizzatore = null; } }
-    document.getElementById('bsiJV-mini').classList.toggle('vis', !!riduci);
+    /* ridotta, la console si riapre dal pulsante di Spectra Live, sempre presente */
+    document.getElementById('bsiJV-mini').classList.remove('vis');
     var mini = document.getElementById('bsiJV-mini');
     if (mini && riduci) { var sp = document.getElementById('bsi-spectra-fab'); if (sp) { var r = sp.getBoundingClientRect(); mini.style.bottom = Math.round(globale.innerHeight - r.top + 12) + 'px'; mini.style.right = Math.round(globale.innerWidth - r.right) + 'px'; } mini.setAttribute('aria-label', t('Riapri la console di Spectra', 'Reopen the Spectra console')); }
   }
@@ -904,6 +905,31 @@
     document.addEventListener('bsi-lingua', function () { voce.scelta = null; testiHud(); });
     /* scorciatoia: Ctrl+Shift+J (o Cmd) apre la console */
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) { e.preventDefault(); apriHud(); } });
+    pulsanteLive();
+  }
+  /* IL PULSANTE DI SPECTRA LIVE (v238): Spectra e' l'assistente principale, quindi la console
+     si apre con un tocco da qualunque schermata. Un cerchio con il suo volto, subito a sinistra
+     del pulsante «Spectra» (che resta la chat): la colonna di destra e' gia' piena (⚛️, Σ,
+     Spectra, ✨). Si riposiziona se il pulsante di Spectra si sposta; sparisce con la console
+     aperta (regola [id$="-fab"]). */
+  function pulsanteLive() {
+    var b = document.getElementById('bsiJV-fab');
+    if (!b) {
+      b = document.createElement('button'); b.id = 'bsiJV-fab'; b.type = 'button';
+      b.style.cssText = 'position:fixed;z-index:99990;width:46px;height:46px;border-radius:50%;padding:0;overflow:hidden;cursor:pointer;display:none;border:1px solid #8fb0ff;box-shadow:0 0 16px rgba(47,107,255,.55);background:#050b1e';
+      b.onclick = function () { apriHud(); };
+      document.body.appendChild(b);
+    }
+    b.innerHTML = icona(44); b.title = t('Spectra Live: la console vocale', 'Spectra Live: the voice console'); b.setAttribute('aria-label', b.title);
+    var colloca = function () {
+      var sp = document.getElementById('bsi-spectra-fab'), r = sp && sp.getBoundingClientRect();
+      if (!r || !r.width || getComputedStyle(sp).display === 'none') { b.style.display = 'none'; return; }
+      b.style.display = 'block';
+      b.style.left = Math.max(6, Math.round(r.left - 54)) + 'px'; b.style.top = Math.round(r.top + r.height / 2 - 23) + 'px';
+    };
+    colloca(); setTimeout(colloca, 1500); setTimeout(colloca, 4000);
+    globale.addEventListener('resize', colloca); globale.addEventListener('scroll', colloca, { passive: true });
+    if (!pulsanteLive.giro) pulsanteLive.giro = setInterval(colloca, 2000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia); else avvia();
 

@@ -103,9 +103,9 @@ function vero(d, c) { att(d, true, !!c); }
       const b = document.querySelector('#bsiJV-nav button[data-s="smatserie"]'); b.click();
       await new Promise(r => setTimeout(r, 900));
       const s = document.getElementById('smatserie');
-      return { materia: BSIMaterie.corrente(), visibile: !!(s && s.offsetParent), consoleChiusa: !document.getElementById('bsiJV').classList.contains('aperto'), mini: document.getElementById('bsiJV-mini').classList.contains('vis') };
+      return { materia: BSIMaterie.corrente(), visibile: !!(s && s.offsetParent), consoleChiusa: !document.getElementById('bsiJV').classList.contains('aperto'), mini: (() => { const f = document.getElementById('bsiJV-fab'); return !!(f && f.style.display !== 'none' && getComputedStyle(f).visibility !== 'hidden'); })() };
     });
-    att('dal navigatore si apre una sezione di un\'altra materia, e la materia cambia', 'matematica|true|true|true', [ap.materia, ap.visibile, ap.consoleChiusa, ap.mini].join('|'));
+    att('dal navigatore si apre una sezione di un\'altra materia, la materia cambia, e il pulsante di Spectra Live resta per tornare', 'matematica|true|true|true', [ap.materia, ap.visibile, ap.consoleChiusa, ap.mini].join('|'));
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 160)));
   }
@@ -164,6 +164,7 @@ function vero(d, c) { att(d, true, !!c); }
     vero('concentrata: occhi più accesi (' + O.concentrata.luce.toFixed(2) + ' > ' + O.calma.luce.toFixed(2) + ')', O.concentrata.luce > O.calma.luce * 1.3);
     vero('il battito chiude quasi del tutto le palpebre (' + O.battito.map(x => x.toFixed(2)).join(' / ') + ')', O.battito[0] < 0.2 && O.battito[1] < 0.2);
     att('nessun errore JavaScript nel volto', 0, errs.length);
+    errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
   }
 
   await b.close();
