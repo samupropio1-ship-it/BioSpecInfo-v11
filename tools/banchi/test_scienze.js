@@ -138,7 +138,8 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
-  const SEZ = [[7, 'sfisastro', 5], [7, 'sfisrel', 3], [7, 'sfisfluidi', 3], [8, 'smatvett', 3], [4, 'schicinet', 3]];
+  /* v237: sfisastro e' passata nel gruppo 🔭 Astrofisica (9) */
+  const SEZ = [[9, 'sfisastro', 5], [7, 'sfisrel', 3], [7, 'sfisfluidi', 3], [8, 'smatvett', 3], [4, 'schicinet', 3]];
   for (const [nome, vp, ridotto] of [['schermo grande', { width: 1280, height: 900 }, false], ['telefono', { width: 390, height: 844 }, false], ['riduci movimento', { width: 1280, height: 900 }, true]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp, reducedMotion: ridotto ? 'reduce' : 'no-preference' });
     const pg = await ctx.newPage(), errs = [];
@@ -163,7 +164,7 @@ function carica() {
         out[s] = { schede: sch.length, piene, tele, disegnate, avvisi, barre, barreOk };
       }
       /* il motore: pausa, velocita', fuori schermo — sul sistema solare */
-      document.querySelector('.nav-group-tab[data-group="7"]').click(); document.querySelector('.nav-btn[data-s="sfisastro"]').click(); await pausa(500);
+      document.querySelector('.nav-group-tab[data-group="9"]').click(); document.querySelector('.nav-btn[data-s="sfisastro"]').click(); await pausa(500);
       const sa = document.getElementById('sfisastro'); sa.querySelectorAll('.bsiFX-schede button')[2].click(); await pausa(1500);
       const pan = [...sa.querySelectorAll('[role=tabpanel]')].find(x => x.offsetParent), bar = pan.querySelector('.bsiFX-anim'), tempo = () => +(/t = ([\d.]+)/.exec(bar.textContent) || [0, 0])[1];
       const bott = [...bar.querySelectorAll('button')];

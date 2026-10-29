@@ -210,7 +210,7 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
-  const SEZ = [[8, 'smatnumeri', 5], [8, 'smatgrafi', 4], [7, 'sfisgrav', 3], [7, 'sfiscalore', 4], [7, 'sfisising', 3], [4, 'schifasi', 3], [4, 'schipes', 3]];
+  const SEZ = [[8, 'smatnumeri', 5], [8, 'smatgrafi', 4], [9, 'sfisgrav', 3], [7, 'sfiscalore', 4], [7, 'sfisising', 3], [4, 'schifasi', 3], [4, 'schipes', 3]];
   for (const [nome, vp] of [['schermo grande', { width: 1280, height: 900 }], ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage(), errs = [];
@@ -281,7 +281,8 @@ function carica() {
     vero('  · con un nome accessibile, e sopra Spectra', s0.nomi && s0.sopraSpectra);
     await pg.click('.bsi-mat-fab[data-materia="fisica"]'); await pg.waitForTimeout(1000);
     const s1 = await stato(), area1 = await pg.evaluate(() => !!document.getElementById('sareafis').offsetParent);
-    att('il pulsante ⚛️ mostra solo la fisica (più Studio e Utility)', '5,6,7|chimica,matematica', s1.tabs + '|' + s1.fab);
+    /* v237: la fisica ha due gruppi, ⚛️ Fisica (7) e 🔭 Astrofisica (9) */
+    att('il pulsante ⚛️ mostra solo la fisica e l\'astrofisica (più Studio e Utility)', '5,6,7,9|chimica,matematica', s1.tabs + '|' + s1.fab);
     vero('  · e apre l’Area Fisica', area1);
     await pg.click('.bsi-mat-fab[data-materia="matematica"]'); await pg.waitForTimeout(1000);
     const s2 = await stato();
