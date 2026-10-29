@@ -116,7 +116,7 @@ In line with the principle of scientific transparency:
 
 ---
 
-## 7. Verification battery — state at version `bsi-v236`
+## 7. Verification battery — state at version `bsi-v237`
 
 Verification is no longer only functional end-to-end testing: it includes
 benches dedicated to the properties a functional test does not observe
@@ -126,17 +126,17 @@ benches dedicated to the properties a functional test does not observe
 
 | Family | Benches | Subject |
 |---|---|---|
-| **Scientific data** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati` | structure vs molecular weight, functional-group recognition, axis conventions, physical constants |
+| **Scientific data** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati`, `test_v237` | structure vs molecular weight, functional-group recognition, axis conventions, physical constants; the twenty astrophysics, physics and mathematics sections against known values or an independent second method |
 | **AI agent** | `test_ko`, `test_404`, `test_503`, `test_firma`, `test_attesa`, `test_attesalunga`, `test_tetto`, `test_nucleo`, `browser_ko`, `browser_prova` | retired model, CORS, overload, reasoning signatures, token ceiling, long waits, memory of unreachable providers |
 | **Stability** | `audit_stabilita`, `audit_promesse`, `audit_quota`, `test_filemanager`, `test_doppioinvio`, `test_sw`, `test_visore3d` | long sessions, rejected promises, exhausted storage, unavailable archive, overlapping submissions, degraded network, WebGL contexts |
-| **Interface** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_guidaproxy` | panels, proxy, RDKit laboratory, updates |
+| **Interface** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_controllaagg`, `test_guidaproxy` | panels, proxy, RDKit laboratory, updates (including the «Check» button pressed in the three cases: up to date, new version, site unreachable) |
 | **Consistency** | `verifica_guida` | documentation ⟷ code correspondence, conflict markers across 58 files |
 
 ### 7.2 Properties verified that a functional test does not observe
 
 | Property | Method | Measured result |
 |---|---|---|
-| Absence of memory leaks | 159 sections opened for 5 rounds, DOM node count per round | construction +26,876 nodes on the first round, **+0 on the four that follow** |
+| Absence of memory leaks | 194 sections opened for 5 rounds, DOM node count per round | construction +26,876 nodes on the first round, **+0 on the four that follow** |
 | Survival of exhausted storage | `localStorage.setItem` forced to throw | 10 pages out of 10 stay operational |
 | Network degradation (≠ no network) | requests held for 20 s, interception at context level | answer served from cache in **3,507 ms** (threshold 3,500 ms) |
 | Spectrum reproducibility | drawn twice, compared byte for byte | identical |

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **159 sections**, grouped by area of study.
+The application has **194 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -77,6 +77,10 @@ The application has **159 sections**, grouped by area of study.
 | **🪐 🔥 🧲 ⚛️ 🎡 🔦 🌍 Physics: deeper topics** | **Gravitation** (N bodies, Lagrange points, slingshot); **Heat and diffusion**; **Ising model**; **Particles** (Standard Model, conservation laws, Z invariant mass, muon lifetimes); **Analytical mechanics** (phase space and elliptic integral, chaotic double pendulum, bead on a hoop and Noether, Liouville); **Lasers and quantum optics** (rate equations and threshold, cavity modes and mode locking, Rabi and Bloch, photons in a Mach–Zehnder); **Climate physics** (radiative balance and layers, CO₂ forcing, ice–albedo with hysteresis, Coriolis) |
 | **🧊 🏔️ Physical chemistry: deeper topics** | **Phase diagrams** (water and CO₂ with the IAPWS and Span–Wagner curves, eutectic and lever rule, Clapeyron and Gibbs); **Potential energy surface** (LEPS for H + H₂, trajectories, reaction path, Polanyi) |
 | **🧪 ⚛️ 📐 Subjects and Articles** | Two buttons above Spectra and ✨ switch subject: the bar shows only the chemistry, physics or mathematics groups, plus Study and Utility. The **Articles** section has the same two tabs for all three subjects: latest articles (Crossref) and prizes with a topic explanation — Nobel in Chemistry and in Physics, Abel Prize and Fields Medal for mathematics (Wikidata) |
+| **🔭 Astrophysics: a group of twelve sections** | The bar's **🔭 Astrophysics** group gathers 🔭 Astrophysics and 🪐 Gravitation (previously in the physics group) and ten 3D sections: **Solar system 3D** (positions at any date from Standish's JPL Keplerian elements, valid 1800–2050; Earth, Moon and eclipses with Meeus's truncated theory; Jupiter and Saturn); **Orbital mechanics 3D** (elements ↔ state, Hohmann and bi-elliptic manoeuvres, Earth satellites, Lambert and porkchop); **Celestial mathematics** (Kepler's equation with three methods, celestial sphere and quaternions, N-body integrators, Lomb–Scargle and BLS periodograms); **Life of stars 3D** (a star in cross-section, Lane–Emden, evolution, nucleosynthesis); **Black holes and general relativity** (Schwarzschild ray tracing in the shader, geodesics, curvature, deflection and GPS, Hawking radiation); **Gravitational waves** (inspiral, chirp, detector, Hulse–Taylor pulsar); **Galaxies 3D** (Hubble types, rotation curves, collision, Local Group); **Cosmology 3D** (Friedmann–Lemaître expansion, distances, CMB, thermal history); **Planetarium 3D** (about 170 stars and 28 constellations from any place and time, coordinates, precession, analemma); **Exoplanets 3D** (habitable zone, transit, radial velocity, direct imaging and population) |
+| **🌀 🎲 ☢️ 🧱 🔌 Physics: five laboratories** | **Spin, qubits and entanglement** (Stern–Gerlach, Bloch sphere, Bell and CHSH, BB84); **Statistical mechanics** (levels and the Schottky anomaly, Maxwell–Boltzmann, Fermi and Bose, Einstein and Debye solids); **Nuclei and reactions** (valley of stability, Q values, barrier and tunnelling, 3D nucleus, reactor); **Elasticity and materials** (tension test, beams, Euler buckling, sound in solids); **Electronics** (rectifiers, diodes and Zener, common emitter, op-amps, ADC, DAC and counters) |
+| **🌊 🌀 🔗 🧩 📡 Mathematics: five laboratories** | **Partial differential equations** (string, 3D membrane, heat in 1D and 2D, 3D Laplace, transport and Burgers); **Complex analysis** (domain colouring, 3D landscape of \|f\|, conformal maps, Joukowski, residues, real integrals); **Markov chains and stochastic processes** (chain, PageRank, gambler's ruin, walks in 1, 2 and 3 dimensions, Poisson and queues); **SVD and applied linear algebra** (2×2 and 3×3 SVD, image compression, 3D PCA, least squares); **Codes and elliptic curves** (Hamming(7,4), CRC and check digits, curves over ℝ and over F_p, ECDH) |
+| **🧪 ⚛️ 📐 Three apps in one** | The chosen subject also decides the **✨ menu**, **Spectra**, **Study** and **Utility** (`bsi-materie-app.js`). In physics and mathematics the ✨ menu's chemistry block gives way to the **quick tools** (`bsi-attrezzi.js`), opened in a window above the page: 🧮 exact calculator, ∂ derivative and ∫ antiderivative, 📈 graph, 🔢 CODATA constant, 🔁 unit converter, 📐 formula, 📖 glossary and ⚡ lightning quiz taken from the subject's study kit. Spectra receives the subject's system instruction, suggestions and greeting |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Explorations** | **Probability in motion** (Galton, central limit, Monte Carlo, Bayes); **Visual mathematics** (animated linear maps, Fourier epicycles including from a hand drawing, Mandelbrot and Julia with zoom, logistic map and bifurcations); **Electromagnetism in motion** (draggable charges with equipotentials and field lines, induction, generator, EM waves and polarisation); **Sound and acoustics** with audio (harmonics, timbre, beats, Doppler and Mach cone, decibels); **Semiconductors** (Fermi-Dirac, n_i, doping, p-n junction, LEDs); **Distillation** (T-x-y with Antoine and van Laar, azeotrope, McCabe-Thiele, Rayleigh); simulated **Cyclic voltammetry** (diffusion and Butler-Volmer, Randles-Ševčík, scan-rate analysis) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrophysics, relativity, fluids, vector calculus, complex kinetics** | **Astrophysics**: H-R diagram with real stars and the main sequence by mass, black body and star colours, animated solar system with Kepler and Hohmann, exoplanet transits with light curve and radial velocity, Friedmann cosmology with the age of the universe and receding galaxies. **Special relativity**: Minkowski, twins, dynamics and Doppler. **Fluids**: Venturi, Poiseuille, Reynolds, Stokes and centrifuges, capillarity. **Vector calculus**: fields with particles, divergence and curl, potential, Green's theorem verified, gradient. **Complex kinetics**: consecutive, parallel and reversible reactions, Brusselator and Hopf bifurcation, Turing patterns. Every animation in the app has pause, restart and speed, stops off-screen and honours «reduce motion» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratories in motion** | Seven sections: **Mechanics in motion** (projectile with air drag and optimal angle, collisions with a coefficient of restitution, the real pendulum with its phase space, coupled oscillators and normal modes); **Waves and optics** (beats, standing waves, group velocity; lenses and mirrors with principal rays; N-slit diffraction in the colour of light); **Circuits** (RC, RL, RLC transients with the three regimes; alternating current with phasors and resonance; filters with the Bode plot); **Thermodynamics in motion** (Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with balances; a gas of particles reaching Maxwell-Boltzmann; Brownian motion); **Numerical methods** (roots, integration, ODEs, interpolation, with measured convergence orders); **Analytic geometry and vectors** (vectors and lines and planes in 3D, conics with the invariants); **Equilibrium and Le Chatelier** (a reaction shifting when disturbed, K as a function of T) |
@@ -184,7 +188,7 @@ without asking anyone to take it on trust.
 
 ### A measurement no other bench could make
 
-`verifica-accessibilita` walks the 159 sections and measures what is **visible**.
+`verifica-accessibilita` walks the 194 sections and measures what is **visible**.
 The six panels of this section live inside a container that stays `display:none`
 until the analysis has been run: that bench never saw them, and its "contrast 0"
 was not speaking about them.
@@ -279,13 +283,29 @@ produced a name from three peaks would make a claim the data cannot support.
 | **Notes** | Global and per section |
 | **Pomodoro** | Study timer |
 | **File Manager** | Personal archive of photos, documents and HTML pages |
+| **Physics and mathematics study kits** | Five sections per subject (`bsi-studio.js`): 🗺️ summaries with «mark as studied» and progress; ❓ quizzes by topic and level, with shuffled answers, review of mistakes and history; 🃏 flashcards with the five-box Leitner method; 📐 formula sheet; 📖 glossary. Physics: 69 summaries, 325 questions, 273 flashcards, 227 formulas, 273 entries. Mathematics: 66 summaries, 346 questions, 266 flashcards, 224 formulas, 279 entries |
+| **Resources and bibliography** | For physics, mathematics and chemistry (`bsi-risorse-materie.js`): web resources by category, a bibliography by level with no years or ISBNs (search links are computed from title and author), citations from a DOI read live from Crossref in APA 7, IEEE, ISO 690 and BibTeX; without network, a form to fill in by hand |
+| **🔢 Constants and units**, **📚 Mathematical tables** | CODATA 2018 constants with the exact SI ones marked; a converter that checks dimensions. Tables of derivatives, integrals, series, identities, Laplace and Fourier transforms and constants: every numeric entry carries a proof function that the bench runs |
 
 ### 3.8 The "Spectra" assistant
 
-An AI agent with **38 tools** that can interrogate the application itself:
+An AI agent with **47 tools** that can interrogate the application itself:
 compute descriptors, generate spectra, look up constants, balance reactions,
-open sections. It supports ten providers, and stays usable when one of them
-fails (§5.2).
+open sections, read the open tab and act on its controls. It supports ten
+providers, and stays usable when one of them fails (§5.2).
+
+**Spectra Live** (`bsi-spectra-live.js`) is its full-screen voice console:
+hands-free conversation with the browser's speech recognition and synthesis,
+local commands that work without network and without a key (open sections,
+switch subject, compute, differentiate, convert, look up constants and
+definitions, plot, quiz, move sliders, change tab), and the screen context
+added to the questions that go to the model. In the console Spectra has the
+**face** of the «Noir» android (model by Skyfox13, CC BY 4.0), with a mouth
+that follows the spoken text and 17 emotions; and a **mind**
+(`bsi-spectra-mente.js`) that locally remembers episodes and study time and
+keeps an internal state of five quantities. It is a simulation of behaviour,
+not consciousness: see [`05-AI-Agent-Architecture.md`](05-AI-Agent-Architecture.md)
+§4.10–4.12.
 
 ---
 
@@ -342,6 +362,19 @@ reaches, **without needing any key**.
 3. The material stays ON THE DEVICE (IndexedDB), it is not transmitted
 ```
 
+### 4.5 Checking for updates
+
+```
+1. ✨ menu → 🔄 Updates → «Check for updates»
+2. The app asks the active service worker which version it is serving
+   (BSI_VERSIONE message) and downloads sw.js from the same site, with no
+   cache; if that fails, it tries the copy on GitHub
+3. It always answers, in one of three ways:
+     · same version      → «You already have the latest published version», with the number
+     · new version       → announces it with both versions and offers «Update now»
+     · site unreachable  → says so; the app keeps working offline
+```
+
 ---
 
 ## 5. Business rules
@@ -389,10 +422,14 @@ Declared, not hidden. The detail is in
 | 3 | **No synchronisation** | Data do not pass from one device to another, and there are no copies on a server |
 | 4 | **File Manager: deterrent, not security** | On a static site, whoever reads the source bypasses any page-side control. The source carries only the SHA-256 digest of the password, never the password |
 | 5 | **Functions that need a network** | IUPAC name, CAS, GHS, 3D conformers, AI assistant |
-| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 159 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
+| 6 | **Accessibility automated, not complete** | Contrast, accessible names, labels, heading hierarchy across 13 pages and all 194 sections: **0 defects**, including text over gradients (judged against the worst stop). What stays outside is text inside SVGs and text over a real background image, counted on every run, and everything requiring human judgement |
 | 7 | **Chromatography: no retention prediction** | The section computes resolution, efficiency and indices **given** k, α and N; it does not predict k from a structure, which would require experimental parameters of the stationary phase |
 | 8 | **Partial code coverage** | Measured: **49.89 %** of statements over the widest path a bench walks. It is not whole-battery coverage, and it is statements, not branches; see `08-Traceability-Matrix.md` §8 |
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
+| 10 | **Spectra's mind is a simulation** | Memory and internal state are data and rules in the browser, not understanding or feelings. The mind's summary and the screen context go to the provider with the question, when the question goes to the model |
+| 11 | **Some astrophysics data are illustrative** | The exoplanet population is not a catalogue; the rotation-curve «observations» are a model with noise; the CMB map is synthesised from an illustrative power spectrum. The sections say so |
+| 12 | **Spectra Live and the quick tools have no bench** | Voice and local commands, the tools that act on the page and the per-subject ✨ menu are tested by hand (`08-Traceability-Matrix.md` §6, UI-21 and AI-13) |
+| 13 | **Spectra's face weighs about 8 MB** | `models/spectra-noir.glb` is not in the service worker's precache: it is downloaded the first time the app derives Spectra's icon (a few seconds after the first start, if WebGL is available) or opens the console. If it does not arrive, the console uses the fallback face |
 
 ---
 
@@ -410,4 +447,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

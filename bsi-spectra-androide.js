@@ -104,7 +104,7 @@
   var CAMPI = ['sorriso', 'rotondo', 'largo', 'sopra', 'accigliato', 'triste', 'sopraUno', 'mezzo', 'stretto', 'naso', 'guance'];
 
   /* LE EMOZIONI: ognuna e' una miscela dei campi del viso, piu' la luce degli occhi,
-     la posa della testa e un'apertura di bocca a riposo. Sono sedici, e si fondono
+     la posa della testa e un'apertura di bocca a riposo. Sono diciassette, e si fondono
      l'una nell'altra: il viso non salta mai da una all'altra. */
   var EMOZIONI = {
     neutro:        {},

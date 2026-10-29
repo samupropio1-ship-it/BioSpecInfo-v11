@@ -138,6 +138,11 @@
   function apriSezione(nome) {
     var L = sezioni(), x = trovaPerNome(L, nome, function (s) { return s.nome + ' ' + s.id; });
     if (!x) return { ok: false, errore: t('sezione non trovata: ', 'section not found: ') + nome };
+    /* la sezione appartiene a una materia: se non e' quella corrente, prima si cambia materia,
+       altrimenti la barra e il menu ✨ resterebbero di un'altra (il cambio fra gruppi lo fa da solo,
+       goSection no) */
+    var bt = document.querySelector('.nav-btn[data-s="' + x.id + '"]'), pan = bt && bt.closest('[id^="navGroup"]'), M = globale.BSIMaterie;
+    if (pan && M && M.MATERIE && M.imposta) { var g = +pan.id.replace('navGroup', ''); for (var k in M.MATERIE) if (M.MATERIE[k].gruppi.indexOf(g) >= 0 && k !== M.corrente()) M.imposta(k); }
     if (typeof globale.goSection === 'function') globale.goSection(x.id);
     else { var b = document.querySelector('.nav-btn[data-s="' + x.id + '"]'); if (b) b.click(); }
     return { ok: true, id: x.id, nome: x.nome };
@@ -248,7 +253,7 @@
     'chilogrammi': 'kg', 'grammi': 'g', 'libbre': 'lb', 'secondi': 's', 'minuti': 'min', 'ore': 'h', 'giorni': 'd', 'anni': 'a',
     'pascal': 'Pa', 'atmosfere': 'atm', 'atmosfera': 'atm', 'bar': 'bar', 'millimetri di mercurio': 'mmHg', 'torr': 'Torr', 'kelvin': 'K', 'gradi celsius': '°C', 'celsius': '°C', 'fahrenheit': '°F',
     'watt': 'W', 'kilowatt': 'kW', 'cavalli': 'hp', 'tesla': 'T', 'gauss': 'G', 'radianti': 'rad', 'gradi': '°', 'hartree': 'Eh', 'numeri d onda': 'cm⁻¹', 'kilowattora': 'kWh' };
-  function simboloUnita(s) { s = norm(s).replace(/^(di |in |a )/, ''); if (UNITA_A_VOCE[s]) return UNITA_A_VOCE[s]; if (UNITA_A_VOCE[s.replace(/i$/, 'o')]) return UNITA_A_VOCE[s.replace(/i$/, 'o')]; return s; }
+  function simboloUnita(s) { var orig = String(s || '').trim().replace(/^(di|in|a)\s+/i, ''); s = norm(orig); if (UNITA_A_VOCE[s]) return UNITA_A_VOCE[s]; if (UNITA_A_VOCE[s.replace(/i$/, 'o')]) return UNITA_A_VOCE[s.replace(/i$/, 'o')]; return orig; }
   function espressioneParlata(s) {
     return String(s).replace(/,/g, '.').replace(/\bpiu\b|\bpiù\b|\bplus\b/gi, '+').replace(/\bmeno\b|\bminus\b/gi, '-').replace(/\bper\b|\btimes\b/gi, '*').replace(/\bdiviso\b|\bfratto\b|\bover\b/gi, '/')
       .replace(/\balla\b|\belevato a\b|\bto the\b/gi, '^').replace(/\bal quadrato\b|\bsquared\b/gi, '^2').replace(/\bal cubo\b|\bcubed\b/gi, '^3').replace(/\bradice (quadrata )?di\b|\bsquare root of\b/gi, 'sqrt ')
@@ -308,7 +313,7 @@
       var s = leggiSchermo();
       if (!s.sezione) return { testo: t('Sei nella pagina iniziale, in ', 'You are on the home page, in ') + nomeMateria(s.materia) + '.' };
       return { testo: t('Sei in ', 'You are in ') + nomeMateria(s.materia) + ', ' + (s.titolo || s.sezione) + (s.scheda ? t(', scheda ', ', tab ') + s.scheda : '') + '. ' + (s.controlli.length ? t('Puoi regolare: ', 'You can adjust: ') + s.controlli.slice(0, 5).map(function (c) { return c.etichetta; }).join(', ') + '.' : '') }; } },
-    { re: /^(passa a|modalita|vai in|switch to)\s+(la\s+)?(chimica|fisica|matematica|chemistry|physics|mathematics|maths)\b/, f: function (m) {
+    { re: /^(passa a|passa alla|passa al|passiamo a|passiamo alla|modalita|vai in|switch to)\s+(la\s+)?(chimica|fisica|matematica|chemistry|physics|mathematics|maths)\b/, f: function (m) {
       var k = { chemistry: 'chimica', physics: 'fisica', mathematics: 'matematica', maths: 'matematica' }[m[3]] || m[3];
       if (globale.BSIMaterie) globale.BSIMaterie.imposta(k); return { testo: t('Passo a ', 'Switching to ') + nomeMateria(k) + '.' }; } },
     { re: /^(calcola|quanto fa|quanto vale|calculate|compute|what is)\s+(.+)$/, prova: true, f: function (m) {
@@ -325,6 +330,9 @@
       return { testo: t('Una primitiva è ', 'An antiderivative is ') + r.testo + t(', più una costante.', ', plus a constant.'), html: '∫ ' + esc(m[2]) + ' dx = ' + r.html + ' + C' }; } },
     { re: /^(converti|convert)\s+([\d.,]+)\s+(.+?)\s+(in|a|to)\s+(.+)$/, f: function (m) {
       var U = globale.BSIFisica && globale.BSIFisica.calcolo.unita; if (!U) return null;
+      /* le unita' si leggono dal testo ORIGINALE: norm() porta tutto in minuscolo, e kPa, Pa, MeV non sono kpa, pa, mev */
+      var o = String(comandoLocale.originale || '').match(/([\d.,]+)\s+(.+?)\s+(in|a|to)\s+(.+?)[\s.?!]*$/i);
+      if (o) { m = [m[0], m[1], o[1], o[2], o[3], o[4]]; }
       var v = parseFloat(m[2].replace(',', '.')), da = simboloUnita(m[3]), a = simboloUnita(m[5]);
       try { var r = U.converti(v, da, a); return { testo: m[2] + ' ' + m[3] + t(' sono ', ' is ') + Number(r.toPrecision(6)) + ' ' + m[5] + '.', html: esc(m[2] + ' ' + da) + ' = <b>' + Number(r.toPrecision(10)) + '</b> ' + esc(a) }; }
       catch (e) { return { testo: t('Non so convertire ', 'I cannot convert ') + m[3] + t(' in ', ' to ') + m[5] + '.' }; } } },
@@ -354,6 +362,7 @@
       chiudiHud(true); return { testo: t('Apro ', 'Opening ') + r.nome.replace(/^[^\wÀ-ÿ]+/, '') + '.' }; } }
   ];
   function comandoLocale(testo) {
+    comandoLocale.originale = testo;
     var q = norm(testo).replace(/^(ehi |hey |ok )?(spectra|spettra)[ ,]*/, '').replace(/^(per favore |puoi |potresti |please |can you )/, '');
     for (var i = 0; i < COMANDI.length; i++) {
       var m = q.match(COMANDI[i].re); if (!m) continue;
@@ -641,10 +650,9 @@
     r.onerror = function (ev) { if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') { sentinella.attiva = false; testiHud(); } };
     sentinella.rec = r; sentinella.attiva = true;
     try { r.start(); } catch (e) { sentinella.attiva = false; return false; }
-    try { localStorage.setItem('bsi-spectra-sentinella', '1'); } catch (e) {}
     return true;
   }
-  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } try { localStorage.removeItem('bsi-spectra-sentinella'); } catch (e) {} }
+  function fermaSentinella() { sentinella.attiva = false; if (sentinella.rec) { try { sentinella.rec.abort(); } catch (e) {} } }
 
   /* in conversazione a mani libere, finita la risposta si torna ad ascoltare */
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
@@ -719,17 +727,21 @@
     b.onclick = function (e) { e.stopPropagation(); apriHud(); };
     hd.appendChild(b);
   }
-  /* L'ICONA DI SPECTRA: la fotografia del robot 3D, fatta una volta e
-     conservata; finche' non c'e', un androide stilizzato in vettoriale */
-  var ritratto = null;
-  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v4'); } catch (e) {}
+  /* L'ICONA DI SPECTRA: il ritratto dell'androide, reso una volta con il suo
+     volto 3D e distribuito come immagine (models/spectra-ritratto.jpg, 19 KB).
+     Fino alla v237 in corso la foto si scattava nel browser a ogni prima
+     visita: voleva dire scaricare il modello da 8 MB due secondi e mezzo dopo
+     l'avvio, anche a chi la console non l'apriva mai. Ora il modello si
+     scarica solo quando si apre la console. */
+  var ritratto = './models/spectra-ritratto.jpg';
+  try { ['bsi-spectra-ritratto-v1', 'bsi-spectra-ritratto-v3', 'bsi-spectra-ritratto-v4'].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
   function iconaVettoriale(px) {
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
       '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
       '<ellipse cx="32" cy="27" rx="17" ry="19" fill="url(#bsiRBf)"/><path d="M15.5 30 C16 41 23 46 32 46 C41 46 48 41 48.5 30 Z" fill="#1b222b"/>' +
       '<path d="M15.6 22 Q32 17 48.4 22 L48.4 30 Q32 26 15.6 30 Z" fill="#05090e"/>' +
-      '<circle cx="25.5" cy="25" r="2.6" fill="#2f6bff"/><circle cx="38.5" cy="25" r="2.6" fill="#2f6bff"/><circle cx="25.5" cy="25" r="5" fill="#2f6bff" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#2f6bff" opacity=".25"/>' +
-      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#2f6bff" opacity=".85"/></svg>';
+      '<circle cx="25.5" cy="25" r="2.6" fill="#1a3050"/><circle cx="38.5" cy="25" r="2.6" fill="#1a3050"/><circle cx="25.5" cy="25" r="5" fill="#1a3050" opacity=".25"/><circle cx="38.5" cy="25" r="5" fill="#1a3050" opacity=".25"/>' +
+      '<rect x="26" y="37" width="12" height="2" rx="1" fill="#1a3050" opacity=".85"/></svg>';
   }
   function icona(px) {
     var dentro = ritratto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
@@ -739,16 +751,6 @@
     globale.bsiSpectraIcon = function (px) { return icona(px || 24); };
     var slot = document.querySelector('#bsi-spectra-fab .sp-ico'); if (slot) slot.innerHTML = icona(22);
     var mini = document.getElementById('bsiJV-mini'); if (mini) { mini.innerHTML = icona(44); mini.style.overflow = 'hidden'; mini.style.padding = '0'; }
-    if (!ritratto && globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile() && !voltoSuiPulsanti.inCorso) {
-      voltoSuiPulsanti.inCorso = true;
-      setTimeout(function () {
-        globale.BSISpectraRobot.foto(160).then(function (url) {
-          if (!url || url.length < 2000) return;
-          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v4', url); localStorage.removeItem('bsi-spectra-ritratto-v3'); } catch (e) {}
-          voltoSuiPulsanti();
-        }).catch(function () {});
-      }, 2500);
-    }
   }
   function avvia() {
     registraStrumenti();

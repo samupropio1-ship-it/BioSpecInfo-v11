@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 159 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 194 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right | The assistant that answers questions |
 
@@ -175,6 +175,30 @@ gives the original function back.
 
 Above **Spectra** and **✨** there are two round buttons: the two subjects you are not in — the **flask** for chemistry, the **atom** for physics, the **Σ** for mathematics. Tapping one, the bar shows only that subject's groups (plus 📚 Study and 🛠️ Utility, which serve all) and opens its Area. The choice is kept when you reopen the app; if you open a section of another subject, for instance from search or from Spectra, the bar follows by itself.
 
+The subject does not change only the bar: it changes the whole app. In **📚 Study** and **🛠️ Utility** the common entries stay and the subject's own appear (for physics, for instance, the physics summaries, quizzes and constants); Spectra gets the subject's instructions, suggestions and greeting; in physics and mathematics the **✨** menu shows the **quick tools**, which open in a window above the page without losing your place:
+
+| Tool | What it does |
+|---|---|
+| 🧮 **Calculator** | Exact computation: fractions and roots stay as they are, then the decimal |
+| ∂ **Derivative** and ∫ **antiderivative** | With the app's symbolic engine |
+| 📈 **Graph** | One or more functions of x |
+| 🔢 **Constant** and 🔁 **units** | CODATA constants and unit conversion with a dimension check |
+| 📐 **Formula**, 📖 **glossary**, ⚡ **lightning quiz** | Taken from the subject's study kit |
+
+If a piece of data a tool needs is not loaded, the tool says so instead of making something up.
+
+### 🔭 The Astrophysics group
+
+The bar has an **🔭 Astrophysics** group with twelve sections: **🔭 Astrophysics** and **🪐 Gravitation**, which used to be in ⚛️ Physics, and ten 3D sections — 🪐 Solar system 3D (pick a date and see where the planets are), 🛰️ Orbital mechanics 3D, 📐 Celestial mathematics, ⭐ Life of stars 3D, 🕳️ Black holes and general relativity, 〰️ Gravitational waves, 🌌 Galaxies 3D, 🌠 Cosmology 3D, 🔭 Planetarium 3D (the sky from Bari or a place you choose, at any time; a click on a star gives its coordinates and times) and 🌍 Exoplanets 3D. Scenes rotate by dragging and zoom with two fingers or the wheel. On a slow phone the 3D scenes may take a moment to open. Some data are illustrative and the section says so: the exoplanet population is not a catalogue, and the cosmic microwave background map is synthesised.
+
+### 🌀 The new physics and mathematics laboratories
+
+In **⚛️ Physics**: 🌀 Spin, qubits and entanglement, 🎲 Statistical mechanics, ☢️ Nuclei and reactions, 🧱 Elasticity and materials, 🔌 Electronics. In **📐 Mathematics**: 🌊 Partial differential equations, 🌀 Complex analysis, 🔗 Markov chains and stochastic processes, 🧩 SVD and applied linear algebra, 📡 Codes and elliptic curves. As in the other laboratories, the sliders sit next to the simulation and the note below explains what you see.
+
+### 🗺️ Physics and mathematics study kits and resources
+
+With physics or mathematics chosen, **📚 Study** has five sections: **🗺️ Summaries** (mark the ones you have studied and watch your progress), **❓ Quiz** (choose topic, level and number of questions; keys 1–4 and Enter; at the end the score by topic and a review of mistakes), **🃏 Flashcards** (five-box Leitner method: a card you miss goes back to the first box), **📐 Formula sheet** (with «copy») and **📖 Glossary**. **🛠️ Utility** has **🌐 Resources and bibliography** (links by category, books by level, and the **Citations** tab: paste a DOI and get the citation in APA 7, IEEE, ISO 690 or BibTeX), plus **🔢 Constants and units** for physics and **📚 Mathematical tables** for mathematics. Chemistry has its own 📚 Bibliography and citations section. Your progress stays on this device only.
+
 ### 📰 Articles for the three subjects
 
 In **📰 Articles** choose 🧪 Chemistry, ⚛️ Physics or 📐 Mathematics at the top. Each subject has the **latest articles** (eight topics) and its **prizes**: the Nobel for chemistry and physics, the **Abel Prize** and the **Fields Medal** for mathematics, which has no Nobel. Years, names and motivations arrive live from the Nobel Foundation and Wikidata; every prize has an explanation written for its topic.
@@ -189,7 +213,7 @@ In **📐 Mathematics**: **🎲 Probability in motion** and **🎞️ Visual mat
 
 ### 🔭 Astrophysics, relativity, fluids, vector calculus, complex kinetics
 
-In **⚛️ Physics** there are **🔭 Astrophysics**, **⏱️ Special relativity** and **🌊 Fluids**; in **📐 Mathematics** **∇ Vector calculus**; in **⚗️ Physical Chemistry** **🌀 Complex kinetics**. Under every animation there is a bar: **⏸/▶** pauses and resumes, **↺** restarts, **×¼ … ×4** changes speed, on the right the elapsed time. Animations stop by themselves when they leave the screen; with «reduce motion» on in the system they start paused and run with ▶.
+The **🔭 Astrophysics** group has **🔭 Astrophysics**; in **⚛️ Physics** there are **⏱️ Special relativity** and **🌊 Fluids**; in **📐 Mathematics** **∇ Vector calculus**; in **⚗️ Physical Chemistry** **🌀 Complex kinetics**. Under every animation there is a bar: **⏸/▶** pauses and resumes, **↺** restarts, **×¼ … ×4** changes speed, on the right the elapsed time. Animations stop by themselves when they leave the screen; with «reduce motion» on in the system they start paused and run with ▶.
 
 ### 🎯 The laboratories in motion
 
@@ -444,6 +468,40 @@ If a service stops answering, Spectra remembers it for 24 hours and moves it to
 the bottom of the list, under *"Did not answer from this device"*. It does not
 delete it: tomorrow it might work again.
 
+### Spectra Live: talking to her
+
+In Spectra's header the **◈ Live** button (or `Ctrl+Shift+J`) opens the
+full-screen console. Press the microphone and speak: Spectra listens, answers
+aloud and then listens again, so you can carry on without touching anything.
+Say «stop» or tap the screen to interrupt. If the browser has no speech
+recognition or synthesis, the console says so and you can type.
+
+Some requests Spectra carries out by herself, **without network and without a
+key**: «switch to physics», «calculate 3/4 + 1/6», «derivative of x^2
+sin(x)», «convert 5 km to m», «constant planck», «plot sin(x)», «quiz me»,
+«pause», «where am i». Everything else goes to the artificial-intelligence
+service you chose, together with a short summary of what is on your screen. If
+you ask about «this chart» or press **👁**, Spectra also attaches an image of
+the open tab's charts.
+
+### Spectra's face and mind
+
+In the console Spectra has a face: a 3D android (the «Noir» model by Skyfox13,
+CC BY 4.0 licence, modified; the credit is at the bottom of the console). The
+mouth moves on the text she speaks, the head follows your gaze, and the
+expression changes with what she says and what you tell her: 17 expressions,
+from a smile to doubt. The eyes have the app's blue. Without 3D graphics you
+see a simpler face.
+
+Spectra remembers conversations and the time you spend in the sections, and
+has an internal state (curiosity, attention, care, mood, bond) that changes the
+tone of the greeting and the suggestions, for instance a break after an hour
+and a half of study. **It is a simulation of behaviour, not consciousness**:
+numbers and rules, not feelings. Everything stays on this device; say «what do
+you remember» to see it and «forget everything» to erase it. When a question
+goes to the artificial-intelligence service, a summary of this memory goes
+with it.
+
 ---
 
 ## The File Manager
@@ -481,8 +539,12 @@ recover them for you either if you lose them.
 the conversations, only the study data, or everything.
 
 **I updated but I do not see anything new.**
-✨ menu → **Updates** → *Check*. There you can also see which version you are
-running.
+✨ menu → **🔄 Updates** (*Aggiornamenti*) → **Check for updates** (*Controlla
+aggiornamenti*). There you can also see which version you are running, and the
+check always answers in one of three ways: *you already have the latest
+version* (with the number), *new version available* (with the **Update now**
+button), or *cannot check now*, if the site does not answer — the app keeps
+working offline anyway.
 
 **Can I trust the spectra for a report?**
 For recognising functional groups and understanding the structure-spectrum
@@ -518,4 +580,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v236`._
+_Guide updated to version `bsi-v237`._

@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v236` |
-| Commit | `ce9be1d40e34b2d3eb4fd2726c80bc7d0e8ab31d` |
-| Generated (UTC) | `2026-10-28T15:26:36.123Z` |
+| Application version | `bsi-v237` |
+| Commit | `4a7ff9590f6d858514c4ae213931563ca2e063b4` |
+| Generated (UTC) | `2026-10-29T06:49:42.458Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -36,6 +36,7 @@ availability.
 | **sql.js (JS glue)**<br><sub>sql.js / SQLite</sub> | `lib/sql-wasm.js` | MIT | 45 kB | In-browser SQLite database for the data exercises. |
 | **SQLite (WebAssembly)**<br><sub>SQLite Consortium</sub> | `lib/sql-wasm.wasm` | Public Domain | 644 kB | SQLite engine compiled to WebAssembly. |
 | **Dataset dimuoni (CERN Open Data)**<br><sub>CERN Open Data Portal</sub> | `lib/dimuon.js` | CC0-1.0 | 48 kB | Experimental data for the particle-physics exercise. |
+| **Modello 3D «Noir» (Skyfox13, Sketchfab)**<br><sub>Skyfox13 — https://sketchfab.com/podderkuntal25</sub> | `models/spectra-noir.glb` | CC-BY-4.0 | 8154 kB | Spectra's face in the Spectra Live console. Modified: textures recompressed, tangents removed, face in dark grey metal, mouth and head animated. Credited in the console. |
 
 ### Digests
 
@@ -53,6 +54,7 @@ availability.
 | `lib/sql-wasm.js` | `77d6435bac506af0e3c59636dce9d22b1b14156348bc327f41a1577f3212360f` |
 | `lib/sql-wasm.wasm` | `438c88f666dc054ce4e9395f80fe9db4218b1a3c379960454880f048a7898aed` |
 | `lib/dimuon.js` | `61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d` |
+| `models/spectra-noir.glb` | `b781b54819d1d2aabf751788a813d8da830dabaddb913085352b572140903479` |
 
 ---
 
@@ -60,8 +62,8 @@ availability.
 
 | File | Size | Role |
 |---|---:|---|
-| `index.html` | 4690 kB | Main application: interface, teaching sections, chemical data. |
-| `bsi-ai-hub.js` | 429 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
+| `index.html` | 4700 kB | Main application: interface, teaching sections, chemical data. |
+| `bsi-ai-hub.js` | 432 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
@@ -119,6 +121,38 @@ availability.
 | `bsi-materie.js` | 11 kB | Subject switch buttons: chemistry, physics, mathematics. |
 | `bsi-fis-astro.js` | 36 kB | Astrophysics: H-R diagram, black body, solar system, exoplanets, cosmology. |
 | `bsi-fis-relativita.js` | 15 kB | Special relativity: Minkowski, twins, dynamics. |
+| `bsi-materie-app.js` | 15 kB | Three apps in one: the chosen subject adapts the ✨ menu, Spectra, Study and Utility. |
+| `bsi-attrezzi.js` | 23 kB | Quick tools of the ✨ menu for physics and mathematics: calculator, derivative, graph, constant, units, formula, glossary, quiz. |
+| `bsi-studio.js` | 66 kB | Study-kit engine: summaries, quizzes, Leitner flashcards, formula sheet, glossary. |
+| `bsi-studio-fisica.js` | 306 kB | Physics study-kit data (no code). |
+| `bsi-studio-matematica.js` | 290 kB | Mathematics study-kit data (no code). |
+| `bsi-risorse-materie.js` | 149 kB | Web resources, bibliography and citations for the three subjects; CODATA constants and units; mathematical tables with their proofs. |
+| `bsi-astro-sistemasolare.js` | 110 kB | Solar system 3D at any date: Standish JPL elements, Kepler, Earth, Moon and eclipses, Jupiter and Saturn. |
+| `bsi-astro-orbite.js` | 69 kB | Orbital mechanics 3D: elements and state, manoeuvres, satellites, Lambert. |
+| `bsi-astro-matcelesti.js` | 60 kB | Celestial mathematics: Kepler equation, rotations and quaternions, N-body integrators, periodograms. |
+| `bsi-astro-stelle.js` | 63 kB | Life of stars 3D: Lane-Emden, evolution, nucleosynthesis. |
+| `bsi-astro-buchineri.js` | 72 kB | Black holes and general relativity: Schwarzschild ray tracing, geodesics, curvature, Hawking. |
+| `bsi-astro-ondegrav.js` | 55 kB | Gravitational waves: inspiral, chirp, detector, Hulse-Taylor pulsar. |
+| `bsi-astro-galassie.js` | 70 kB | Galaxies 3D: Hubble types, rotation curves, collision, Local Group. |
+| `bsi-astro-cosmo.js` | 70 kB | Cosmology 3D: Friedmann-Lemaître, distances, CMB, thermal history. |
+| `bsi-astro-cielo.js` | 75 kB | Planetarium 3D: the sky from any place and time, coordinates, precession, analemma. |
+| `bsi-astro-esopianeti.js` | 57 kB | Exoplanets 3D: habitable zone, transit, radial velocity, direct imaging. |
+| `bsi-fis-spin.js` | 55 kB | Spin, qubits and entanglement: Stern-Gerlach, Bloch sphere, CHSH, BB84. |
+| `bsi-fis-statistica.js` | 47 kB | Statistical mechanics: Schottky, Maxwell-Boltzmann, Fermi and Bose, Einstein and Debye. |
+| `bsi-fis-nuclei.js` | 49 kB | Nuclei and reactions: valley of stability, Q values, tunnelling, 3D nucleus, reactor. |
+| `bsi-fis-materiali.js` | 48 kB | Elasticity and materials: tension, beams, Euler, sound in solids. |
+| `bsi-fis-elettronica.js` | 48 kB | Electronics: rectifiers, diodes and Zener, common emitter, op-amps, ADC and DAC. |
+| `bsi-mat-edp.js` | 75 kB | Partial differential equations: string, membrane, heat, Laplace, Burgers. |
+| `bsi-mat-analisicomplessa.js` | 70 kB | Complex analysis: domain colouring, conformal maps, Joukowski, residues. |
+| `bsi-mat-markov.js` | 65 kB | Markov chains and stochastic processes: PageRank, gambler's ruin, walks, queues. |
+| `bsi-mat-svd.js` | 58 kB | SVD and applied linear algebra: 2×2 and 3×3 SVD, compression, PCA, least squares. |
+| `bsi-mat-codici.js` | 59 kB | Codes and elliptic curves: Hamming, CRC, curves over ℝ and F_p, ECDH. |
+| `bsi-spectra-live.js` | 71 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
+| `bsi-spectra-androide.js` | 33 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
+| `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
+| `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
+| `bsi-spectra-volto.js` | 16 kB | Last-resort face: SVG vector portrait. |
+| `bsi-aggiorna.js` | 5 kB | «Check for updates»: version in use from the service worker, published version from sw.js. |
 | `bsi-fis-fluidi.js` | 15 kB | Fluids: Venturi and Bernoulli, viscosity and Stokes, capillarity. |
 | `bsi-mat-vettoriale.js` | 23 kB | Vector calculus: fields, Green, gradient. |
 | `bsi-chi-cinetica.js` | 17 kB | Complex kinetics: composite and oscillating reactions, Turing patterns. |
@@ -129,7 +163,7 @@ availability.
 | `bsi-mat-numerici.js` | 24 kB | Numerical methods: roots, integration, ODEs, interpolation with measured orders. |
 | `bsi-mat-geometria.js` | 24 kB | Analytic geometry and vectors: vectors, lines and planes in 3D, conics. |
 | `bsi-chi-equilibrio.js` | 13 kB | Chemical equilibrium and Le Chatelier: kinetic simulator and K(T). |
-| `bsi-lab3d.js` | 62 kB | 3D Laboratory: surfaces, |ψ|² orbitals, motion in space, crystal structures and Miller planes, field lines (three.js). |
+| `bsi-lab3d.js` | 63 kB | 3D Laboratory: surfaces, |ψ|² orbitals, motion in space, crystal structures and Miller planes, field lines (three.js). |
 | `bsi-vista-molecole.js` | 8 kB | Quality settings and control bar for every 3Dmol molecular viewer. |
 | `bsi-assistente.js` | 71 kB | The three macro-areas Chemistry, Physics and Mathematics: natural-language assistant with full working and inverse problem, tool catalogue, levels. |
 | `bsi-chi-esame.js` | 98 kB | Chemistry exam from basic to expert: 40 problem models, solved papers. |
@@ -142,10 +176,10 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 224 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 255 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
-| `sw.js` | 7 kB | Service Worker: offline operation and network strategy. |
+| `sw.js` | 9 kB | Service Worker: offline operation and network strategy. |
 | `rdkit_lab.html` | 260 kB | Cheminformatics laboratory. |
 | `astro.html` | 2660 kB | Astrochemistry module. |
 | `chimorga.html` | 194 kB | Organic chemistry module. |
@@ -155,8 +189,8 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `86942ae5a03306c9bc4e5dbb43615421d7d7edcba4366171191b61b6d0f148a1` |
-| `bsi-ai-hub.js` | `9979f49378cafa4c1bfb141946cd9dccc6f342ebefc2e946617ddba7a81e57de` |
+| `index.html` | `edfc0bb143be1e408a037c80f3f46fe01d49c78f0aad79210d5677f295926165` |
+| `bsi-ai-hub.js` | `1bc2fd5a625b8ea2f8fa488a2ed79e7fa52e2d969998a732e408ca30dd3a10c8` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -182,7 +216,7 @@ availability.
 | `bsi-mat-risolutore.js` | `709349e1d81f03506c02b9b05a060d8d3801dc37183c0e3894cc93c0aafe9f0c` |
 | `bsi-mat-esame.js` | `de4af253244bd7d610b1a3607297d1678a529504afa23d7123aebe042e1f2c27` |
 | `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
-| `bsi-percorsi.js` | `f5a058693d6c694aab2e5fecfde9166d05f4a13e75ecc1b3c856a12577197c25` |
+| `bsi-percorsi.js` | `950c686202f2934009827bc300c787063b325528b7d5ab5385a8ab3b6706345c` |
 | `bsi-mat-probabilita.js` | `4518252496dfee0770f9e939ef2de831ac463d2d994d96d40776c59f10cd417b` |
 | `bsi-mat-visiva.js` | `cb624f3e1e6c6df94c287f961d0f21a9d8ec852e8245ff5aeed09a083f2c5b14` |
 | `bsi-fis-em.js` | `b20c7103f1253c76691c7cf91eae6c83491148f0aeb0928a78495a3dba270c7c` |
@@ -211,9 +245,41 @@ availability.
 | `bsi-chi-pes.js` | `528b9e19a40cdbe601f45d29fb38e71dfdb8a00ccd8360a0abfd320d1a1d01f4` |
 | `bsi-articoli-nobel-fisica.js` | `afc22b073e64168605b3d792cd83bcdf7d838e0c80548a0a58caae98456d7d30` |
 | `bsi-articoli-premi-matematica.js` | `d62f01d66783d7fb558684959abd1cda2f81ee6885c8cdc0879559f2b64cbf43` |
-| `bsi-materie.js` | `2f1dce99e7447ec096e8d6d1d648a3fd02108f812590f8b31efce17dad974890` |
+| `bsi-materie.js` | `763063fb3d3c1e43da8066c6febab6309f889a6550e7da1f45ce1d001c27c314` |
 | `bsi-fis-astro.js` | `64901258a641c54ee99a862990a7e5d86acc5c2367408bb38db9371a39c7363e` |
 | `bsi-fis-relativita.js` | `276d4e4c2df5b416fc4af4b29fa10e8670cb1b7ff8279e192abba7c1015b18ce` |
+| `bsi-materie-app.js` | `a9d57912a69bf7c599a6c4d16be815be4e654ab424daeca0e12f02c00904911f` |
+| `bsi-attrezzi.js` | `dedf9939e96c9544239f5769b68f0547604aff78e3ee3f47906afddcf1e20a38` |
+| `bsi-studio.js` | `62d001d311fa5a54df8807734bd1c2b389c730b8e6c8a6eb0f29a04d8982f410` |
+| `bsi-studio-fisica.js` | `973bab09dad47980f0d411aef35ff0378f2266030c3fcb14e1cefe64eb63531b` |
+| `bsi-studio-matematica.js` | `3a2d88a7f9cea52bc5c46bf86018904b2d032320726988759b3e0fb84110c5c7` |
+| `bsi-risorse-materie.js` | `03e2fa89af1157985cdab1a08c60153ed57d8c648a5f7b67cd3f5d910c43e417` |
+| `bsi-astro-sistemasolare.js` | `d59c52b7135d020d67a8163e9bc4d0cecea2446df93aa66389f0477a2a908ef7` |
+| `bsi-astro-orbite.js` | `32c8123ac5a7b39a9a4a816713d0305a9d90ddb8fb714614fcbba3eb3e834c4b` |
+| `bsi-astro-matcelesti.js` | `b2ee40c8a53fb25baf42020693539d91dc5278a14436115c69643470d57cda56` |
+| `bsi-astro-stelle.js` | `84064a5bdf8fdc1111011201cf97a11a47396acbd3c7442d52e2c5ba74a388a3` |
+| `bsi-astro-buchineri.js` | `c75a84cba9be45c5fec1b4f77f4ca79f9d898067006a3c309d951147ddde083c` |
+| `bsi-astro-ondegrav.js` | `dcbc8ea2e45f55a463ea344c26e0de8e0aa6a14f6adc73d6b2a2e43aee9736db` |
+| `bsi-astro-galassie.js` | `893eee603ec4af64ceaf440f3a22da3dab77a55333911e80e06212459e5f7125` |
+| `bsi-astro-cosmo.js` | `356152c5251593c68e8dd66b1182f5ee3f7c5f4f1cb26c722bdd384f8fe66d47` |
+| `bsi-astro-cielo.js` | `26b3e33cefe7d1606d0abf8d47be6d7d9b412891ab193d386835d4e40f9fdcf6` |
+| `bsi-astro-esopianeti.js` | `5a540d026927fc13f0081f3ba4cbfcb6de4c44056530571c77574e71f9003a49` |
+| `bsi-fis-spin.js` | `a24dc05385fbff4826a02f95315ae1d8c57c8ee555da868a08620f24127fe3ad` |
+| `bsi-fis-statistica.js` | `b4fd532901c0ed72d0d104c85d686d534cc90b59eacd8eaaed98255cfea553b2` |
+| `bsi-fis-nuclei.js` | `3f393cf853d4171beb53153fa2d03da2f526ba40af2b9ad1ce4c4e426678d4db` |
+| `bsi-fis-materiali.js` | `b2869b83fa17200da5f3900abf6959214df0dd6f88c4d8d02be88d5a6d832269` |
+| `bsi-fis-elettronica.js` | `8620e8ba116f1d3edb3a487a7bf2aab869fbf1afc2230462e251062e7a2bf61d` |
+| `bsi-mat-edp.js` | `525fae4f04fcc0ec7884ebba30e47d013c972a5ff77b1088ab4bca41bd04a50b` |
+| `bsi-mat-analisicomplessa.js` | `0eb6e5181471af7e85eb3ee42012daddbe1fdac932c0c4c28cf67135875302d8` |
+| `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
+| `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
+| `bsi-mat-codici.js` | `1be8fa29332df98115db6402881d621c1806599129aa279ee5678ef586445795` |
+| `bsi-spectra-live.js` | `1ea2fe073f0b0e8ea5690c2802e26198c83ac8539eaa609754dd18895e56a464` |
+| `bsi-spectra-androide.js` | `90ee017923c2899233cd1950e9d63c22dcd8d9daf0fcfc711e3482aa5b6dfcdf` |
+| `bsi-spectra-mente.js` | `bd2bd20245ee552520fdc3af471a5850aec2a72c40e0d6d807211c2464e0cf34` |
+| `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
+| `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
+| `bsi-aggiorna.js` | `5950d90103a7d603175e4b577e2394bb9a6d006a4ff22e48d4a1cc70661f1b8e` |
 | `bsi-fis-fluidi.js` | `65d94ea45133f9537fd3af0feb96b12539a866cde8c12a29cb48c5156b001b9e` |
 | `bsi-mat-vettoriale.js` | `fc3116f45b849118cf41c23f13cc2c07f1d9bdd03341baf6cc81b152a5b6225e` |
 | `bsi-chi-cinetica.js` | `8ba3ad927e4a1858779ffd8ba798c1211a844475b1ad4b571cd1acfd41ea30b0` |
@@ -224,7 +290,7 @@ availability.
 | `bsi-mat-numerici.js` | `8656bdf657dcc3468f78951ed3d8e1056d953b147e04595c6bfaad647fa8ca93` |
 | `bsi-mat-geometria.js` | `609bf6c951d438aa0b0639fd2e736a52b340a363294ee564acfe9510966334be` |
 | `bsi-chi-equilibrio.js` | `de2368be8299a4ebdce9401b77c7bea390208f1372460f17f033e27d0ead88af` |
-| `bsi-lab3d.js` | `bb6a60e7c7ede603c4d7a3e152a92417ff88e66df068f718320e82de0f51badd` |
+| `bsi-lab3d.js` | `9b1424f3ad744cc2abd42be04f9db0907578452ecb66156e2c809a5c774a1604` |
 | `bsi-vista-molecole.js` | `4a7eb7cd7d8a0033ad0381d936d8e36b2b2e6b75af04988ecc5e9f4e8022cbc4` |
 | `bsi-assistente.js` | `00053872ed83218c81b8867b075a5142c6108dbc1f41e7693df1e9aa0897c4f8` |
 | `bsi-chi-esame.js` | `ddb5d73fcf887e03770b3f0794fecaa2f8c918f4fae445bf57ff7a637f4643e7` |
@@ -237,10 +303,10 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `2fee3c9b00322091db122f8ce51b454e7c40068446ae3dffb0e996417e2f6537` |
+| `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `a07069824ab232490fd40e3d9b01092a866d670f8fb03022fc3dc622733d8363` |
+| `sw.js` | `6dc41fca07ff8e6d16ade0ec93989f6e3890378717702f87a677da09fea1e998` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -278,8 +344,8 @@ No personal data is transmitted: API keys, if entered, stay in the device's
 
 ## 5. Licence compatibility
 
-All licences of the distributed components (MIT, BSD-3-Clause, CC0, Public
-Domain) are **permissive** and mutually compatible. No component is subject to
+All licences of the distributed components (MIT, BSD-3-Clause, CC0, CC BY 4.0,
+Public Domain) are **permissive** and mutually compatible. No component is subject to
 a strong copyleft licence (GPL/AGPL): there is no redistribution constraint on
 the code written for this project.
 
@@ -293,4 +359,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-28T15:26:36.123Z._
+_Generated on 2026-10-29T06:49:42.458Z._

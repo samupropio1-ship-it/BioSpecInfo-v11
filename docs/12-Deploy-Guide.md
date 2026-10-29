@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -156,11 +156,29 @@ aggiornamento può mostrare la stessa versione da entrambe le parti.
 - `CACHE` determina se il Service Worker considera la cache obsoleta: senza
   incremento, i dispositivi continuano a servire i file vecchi e la pubblicazione
   non arriva a nessuno.
-- `BSI_APP_VERSION` è ciò che l'utente vede nella finestra «Aggiornamenti» e ciò
-  che il controllo confronta con il `sw.js` su GitHub.
+- `BSI_APP_VERSION` è ciò che l'utente vede nella finestra «Aggiornamenti».
+  «Controlla aggiornamenti» confronta la versione del Service Worker attivo
+  (che risponde al messaggio `BSI_VERSIONE` con il suo `CACHE`) con la riga
+  `var CACHE = '…'` del `sw.js` pubblicato, letto dallo stesso sito senza cache
+  e, solo se questo non risponde, da GitHub. `BSI_APP_VERSION` entra nel
+  confronto solo quando nessun Service Worker risponde.
+
+> **La forma della riga conta.** Il controllo legge `sw.js` con l'espressione
+> `var CACHE = '…'`. Fino alla versione `bsi-v236` cercava una riga
+> `CACHE_VERSION` che `sw.js` non conteneva più, e la versione pubblicata non si
+> leggeva mai. Se la dichiarazione in `sw.js` cambia forma, va cambiato anche
+> `bsi-aggiorna.js`; `test_controllaagg` se ne accorge.
 
 Sono disallineate una volta in passato — la seconda era ferma da mesi — e il
 risultato è stato che il controllo aggiornamenti confrontava un numero sbagliato.
+
+### 2.2-bis File grandi fuori dal precarico
+
+`models/spectra-noir.glb` (il volto di Spectra, circa 8 MB) non è nel
+precarico del Service Worker, come gli altri `models/*.glb`: si scarica la
+prima volta che l'app ricava l'icona di Spectra o apre la console Spectra
+Live. Va pubblicato insieme al resto, con la sua attribuzione CC BY 4.0
+([`07-SBOM.md`](07-SBOM.md)); se manca, la console usa il volto di ripiego.
 
 ### 2.3 Come arriva l'aggiornamento agli utenti
 
@@ -306,8 +324,10 @@ Nell'ordine:
    casi. Senza, il Service Worker serve la cache.
 2. **Pages ha concluso?** GitHub → Actions.
 3. **Il `sw.js` è in cache da una CDN?** Deve rispondere `no-cache`.
-4. Dall'app: menu ✨ → **Aggiornamenti** → *Controlla*, che forza un
-   `registration.update()`.
+4. Dall'app: menu ✨ → **🔄 Aggiornamenti** → **Controlla aggiornamenti**. Dice
+   quale versione è servita e quale è pubblicata; se differiscono forza un
+   `registration.update()`. Se risponde «già aggiornata» con il numero vecchio,
+   il `sw.js` che il sito serve è ancora quello vecchio (punti 2 e 3).
 5. In ultima istanza: strumenti per sviluppatori → Application → Service Workers
    → *Unregister*, poi ricaricare.
 
@@ -344,4 +364,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**75 banchi**, raggruppati per ciò che dimostrano.
+**77 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -121,6 +121,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_esplorazioni` | **Probabilità, matematica visiva, elettromagnetismo, suono, semiconduttori, distillazione, voltammetria** contro risultati noti (Bayes, limite centrale, Fourier, mappa logistica, dipolo, n_i, V_bi, Antoine, azeotropo, Fenske, Randles-Ševčík, Nicholson); nel browser le 24 schede su due schermi, il disegno a mano ricostruito dagli epicicli, le cariche trascinate |
 | `test_approfondimenti` | **Numeri, grafi, gravitazione, calore, Ising, diagrammi di fase, superficie LEPS** contro risultati noti o un secondo metodo (π(x), RSA, Li(x), Floyd–Warshall, Prim, figura a otto, Lagrange, Onsager, IAPWS, Span–Wagner, eutettico misurato, sella di H₃); nel browser le 25 schede su due schermi; i **pulsanti delle materie** (gruppi visibili, icone, materia ricordata, nessuna sezione irraggiungibile) |
 | `test_pareggio` | Le **dodici sezioni** che portano matematica e fisica al livello della chimica: esegue i dodici script di `verifiche/` (462 controlli contro risultati noti o un secondo metodo), apre le 47 schede su due schermi, controlla che ogni scheda si apra in meno di 100 ms e che matematica e fisica abbiano il numero di sezioni dichiarato |
+| `test_v237` | Le **venti sezioni nuove** (dieci di astrofisica, cinque laboratori di fisica, cinque di matematica): esegue i loro venti script di `verifiche/` (705 controlli contro valori pubblicati o un secondo metodo, §3.1-bis) e quelli dei kit di studio e delle risorse; nel browser apre ogni scheda a **1280 e 390 px**; prova il volto, le emozioni e la mente di Spectra e i nomi delle sezioni in inglese. Pretende almeno 900 controlli | 1061 |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
 | `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
@@ -177,6 +178,52 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 > Trentasei dati che sembrano sbagliati tutti insieme sono quasi sempre un
 > contatore sbagliato.
 
+### 3.1-bis Le venti sezioni della v237: che cosa è verificato
+
+Ogni sezione ha uno script `tools/banchi/verifiche/verifica-<id>.js` che si può
+eseguire da solo con `node` e che confronta i calcoli con valori pubblicati o
+con un secondo metodo indipendente. Due o tre esempi per sezione, con il
+valore che lo script stampa:
+
+| Sezione | Script | Controlli | Esempi |
+|---|---|---:|---|
+| 🪐 Sistema solare 3D | `verifica-sastrosole` | 36 | Keplero risolto con residuo < 10⁻¹² fino a e = 0,97 e confermato per bisezione; data giuliana del 1957 ott 4,81 = 2436116,31 (Meeus, es. 7.a); Marte 2003 a 0,3730 UA il 27 agosto (vero: 0,3727) |
+| 🛰️ Meccanica orbitale 3D | `verifica-sastroorbite` | 26 | elementi → stato → elementi su 2000 orbite casuali (400 iperboliche), errore 2,8·10⁻¹⁴; Curtis es. 4.3 (h = 58 312 km²/s, i = 153,25°, e = 0,1712); Hohmann LEO → GEO 3,893 km/s |
+| 📐 Matematica celeste | `verifica-sastromat` | 34 | Newton, punto fisso e serie di Bessel concordi entro 10⁻¹²; limite di Laplace 0,6627434; q v q* = R(q) v su 500 rotazioni casuali |
+| ⭐ Vita delle stelle 3D | `verifica-sastrostelle` | 32 | primi zeri di Lane–Emden: √6, π, 3,65375, 6,89685; soluzioni numeriche uguali alle esatte entro 10⁻¹³; massa di Chandrasekhar dal politropo n = 3, 1,4563 M☉ |
+| 🕳️ Buchi neri | `verifica-sastrobh` | 30 | ISCO a 6M e sfera dei fotoni a 3M dal potenziale efficace; perielio di Mercurio 42,982″ al secolo; GPS +45,72 e −7,21 μs/giorno |
+| 〰️ Onde gravitazionali | `verifica-sastrogw` | 29 | massa di chirp di GW150914 28,096 M☉; f ∝ (t_c − t)^(−3/8), pendenza −0,375; tempo di coalescenza di Peters uguale all'integrazione di da/dt |
+| 🌌 Galassie 3D | `verifica-sastrogal` | 32 | funzioni di Bessel modificate contro le tabelle (I₀(1) = 1,2660659); picco del disco di Freeman a 2,150 R_d; M(r) di NFW in forma chiusa contro l'integrale, 7,6·10⁻¹² |
+| 🌠 Cosmologia 3D | `verifica-sastrocosmo` | 38 | età con i parametri di Planck 13,791 Gyr; Einstein–de Sitter 2/(3H₀); D_A massimo a z = 5/4 in Einstein–de Sitter |
+| 🔭 Planetario 3D | `verifica-sastrocielo` | 30 | GMST di Meeus es. 12.a e 12.b; giorno siderale 86 164,091 s; equazione del tempo: +16,45 min verso il 3 novembre, −14,20 min verso l'11 febbraio |
+| 🌍 Esopianeti 3D | `verifica-sastroeso` | 27 | zona abitabile del Sole 0,95–1,67 UA; T_eq della Terra 254,8 K; profondità dei transiti di Terra e Giove 84,1 ppm e 1,056 % |
+| 🌀 Spin, qubit ed entanglement | `verifica-sfisspin` | 30 | HZH = X, HXH = Z, S² = Z, T² = S; norma del vettore di Bloch 1 dopo 2000 porte casuali; frequenza misurata contro cos²(θ/2) entro 3σ |
+| 🎲 Meccanica statistica | `verifica-sfisstat` | 30 | picco di Schottky a kT = 0,41678 Δ, C = 0,43923 k; v_rms di N₂ a 300 K = 516,84 m/s; energia conservata in 19 527 urti elastici |
+| ☢️ Nuclei e reazioni | `verifica-sfisnuclei` | 28 | B/A del ⁵⁶Fe 8,7903 MeV dalle masse; ⁶²Ni con il B/A più alto; Q di D + T 17,589 MeV, di cui 14,049 al neutrone |
+| 🧱 Elasticità e materiali | `verifica-sfismateriali` | 27 | pendenza elastica dell'acciaio = E = 207 GPa; momenti d'inerzia in forma chiusa contro l'integrale a strisce; frecce delle mensole numeriche uguali alle chiuse |
+| 🔌 Elettronica | `verifica-sfiselettronica` | 27 | ripple simulato contro il calcolo esatto nei raddrizzatori; diodo con Newton = forma chiusa con la W di Lambert (0,650463089 V); Zener con Newton = bisezione |
+| 🌊 Equazioni alle derivate parziali | `verifica-smatedp` | 46 | J₀(1) e J₁(1) delle tavole entro 10⁻¹⁴; dodici zeri di Bessel; membrana quadrata con ω₁₂ = ω₂₁ e ω₁₂/ω₁₁ = √(5/2) |
+| 🌀 Analisi complessa | `verifica-smatanalcomp` | 49 | e^(iπ) + 1 = 1,2·10⁻¹⁶; salto di 2π del logaritmo attraverso il taglio; Cauchy–Riemann su nove funzioni |
+| 🔗 Catene di Markov | `verifica-smatmarkov` | 51 | stazionaria con le potenze = sistema lineare = regola di Cramer; Ehrenfest con la binomiale e il bilancio dettagliato; periodi 2 e 3 riconosciuti |
+| 🧩 SVD | `verifica-smatsvd` | 41 | ‖A − UΣVᵀ‖/‖A‖ ≈ 1,6·10⁻¹⁵ su matrici fino a 12×12; σ di [[3,0],[4,5]] = 3√5 e √5; σ del taglio = φ e 1/φ |
+| 📡 Codici e curve ellittiche | `verifica-smatcodici` | 62 | Hamming(7,4): distanza 3, 112 errori singoli corretti, 336 doppi decodificati male; CRC-32("123456789") = 0xCBF43926 |
+
+A questi si aggiungono `verifica-studio` (167 controlli sul motore dei kit),
+`verifica-studio-fisica` e `verifica-studio-matematica` (schema e quantità
+minime; per la matematica **264 risposte ricalcolate** su 346 domande) e
+`verifica-risorse` (87 controlli: formati delle citazioni e prove delle
+tavole).
+
+> **Due soglie di tempo, e perché.** Nel browser `test_v237` misura quanto
+> resta bloccata la pagina al clic su ogni scheda. Le schede **2D** devono
+> aprirsi entro **250 ms**; quelle che creano una scena **3D** entro **6 s**.
+> La differenza non è indulgenza: nella batteria il browser non ha una scheda
+> grafica, e WebGL gira nel rasterizzatore software **SwiftShader**, dove creare
+> un contesto e compilare gli shader costa da 0,2 a 4 secondi. Su un
+> dispositivo con GPU è questione di millisecondi. Una soglia stretta sulle
+> schede 3D misurerebbe SwiftShader, non l'app; una soglia larga sulle 2D
+> lascerebbe passare un blocco vero.
+
 ### 3.2 Agente AI
 
 | Banco | Condizione simulata |
@@ -196,7 +243,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 | Banco | Cosa mette alla prova |
 |---|---|
-| `audit_stabilita` | 159 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
+| `audit_stabilita` | 194 sezioni aperte 5 volte, memoria piena, dati corrotti, raffiche di clic |
 | `audit_promesse` | Promesse rifiutate e non gestite, con rete sana e con rete morta |
 | `audit_quota` | `localStorage.setItem` forzato a fallire su 10 pagine |
 | `test_sw` | Offline, rete degradata, aggiornamento durante il lavoro |
@@ -206,8 +253,28 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 ### 3.4 Interfaccia
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
-`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
-`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
+`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
+`test_guidaproxy` · `test_fluidita` · `test_lingue` · `test_mol3d` ·
+`test_spettrolettore`
+
+**`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
+ad aggiornare non esce nulla». Era vero. La finestra 🔄 Aggiornamenti cercava
+in `sw.js` una riga `CACHE_VERSION` che non esiste più (`sw.js` dichiara
+`var CACHE = 'bsi-vNNN'`) e la cercava su `raw.githubusercontent.com`: la
+versione pubblicata non si leggeva mai. `test_aggiorna` apriva la finestra ma
+non premeva «Controlla», ed è per questo che il difetto è sopravvissuto. Il
+banco nuovo preme il pulsante in tre casi, ottenuti intercettando la sola
+richiesta di controllo (`sw.js?controllo=`):
+
+| Caso | Come si ottiene | Risposta attesa |
+|---|---|---|
+| Stessa versione | `sw.js` servito com'è | «Hai già l'ultima versione pubblicata», con il numero; nessun «Aggiorna ora» |
+| Versione nuova | `sw.js` servito con un nome di cache più alto (v999) | «Nuova versione disponibile» con le due versioni, e «Aggiorna ora» |
+| Sito irraggiungibile | richiesta interrotta, e anche il ripiego su GitHub | «Impossibile verificare ora» |
+
+Negli stessi tre casi prova `BSIAggiorna.controlla()` (`'aggiornata'`,
+`'nuova'`, `'offline'`), il suo avviso a comparsa e, nel secondo, che chieda
+al service worker di aggiornarsi.
 
 **`test_fluidita` — 15 controlli.** Misura quanto la pagina resta *bloccata*
 a ogni cambio di sezione, su tutte le 91. Ha trovato tre difetti che nessun
@@ -344,8 +411,8 @@ dieci invece di 89 i tempi sarebbero ottimi e la misura priva di valore.
 | `verifica-sicurezza` | Chiavi API nei file tracciati, password in chiaro, segreti nel `wrangler.toml`, telemetria, script da domini esterni |
 | `audit_storia` | Che nessuna credenziale sia MAI entrata nel repository: **1 551 versioni distinte di file di testo** su **390 commit**, con 9 schemi. Si rifiuta di passare su un clone superficiale |
 | `verifica-accessibilita` | Contrasto WCAG AA, nomi accessibili, etichette dei campi, testo alternativo, gerarchia dei titoli, attributo `lang` — su 13 pagine |
-| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 159 sezioni — **e** che nessuna sezione ritagli contenuto rendendolo irraggiungibile: un elemento più largo della sua sezione, senza un antenato che scorra, è testo presente e non leggibile. Una tabella larga dentro un contenitore scorrevole non viene segnalata |
-| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 159 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
+| `audit_mobile` | Che a **390 px** la pagina non scorra in orizzontale, su tutte le 194 sezioni — **e** che nessuna sezione ritagli contenuto rendendolo irraggiungibile: un elemento più largo della sua sezione, senza un antenato che scorra, è testo presente e non leggibile. Una tabella larga dentro un contenitore scorrevole non viene segnalata |
+| `audit_rete` | Che **nessun dato dell'utente lasci il dispositivo**: un valore spia seminato in 71 depositi, l'app usata su 6 pagine e 194 sezioni, URL, intestazioni e corpo di ogni richiesta ispezionati |
 | `audit_copertura` | Quanti byte di JavaScript vengono **davvero eseguiti** percorrendo l'applicazione: 49,89 %, registrato e difeso |
 
 **`audit_storia` — 6 controlli.** `verifica-sicurezza` esamina i file
@@ -444,7 +511,7 @@ torna a passare.
 
 > **Una sezione per volta.** L'ispezione salta gli elementi non visibili — ed è
 > corretto: un elemento nascosto non ha contrasto da misurare. Ma `index.html`
-> alterna 159 sezioni e ne mostra una sola: su **19 751** elementi di testo il
+> alterna 194 sezioni e ne mostra una sola: su **19 751** elementi di testo il
 > banco ne guardava **41**, e stampava «0 difetti». Non era un risultato falso,
 > era un risultato su un campione che nessuno aveva dichiarato. Ora le sezioni
 > vengono aperte una per una, e **il numero di sezioni percorse viene
@@ -540,13 +607,13 @@ funzionale non osserva.
 
 | Caso | Metodo | Risultato misurato |
 |---|---|---|
-| **Perdite di memoria** | 159 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
+| **Perdite di memoria** | 194 sezioni × 5 giri, nodi DOM contati a ogni giro | +26 876 al primo giro (costruzione), **+0** nei quattro successivi |
 | **Memoria esaurita** | `setItem` sostituito con una funzione che lancia sempre | 10 pagine su 10 restano operative |
 | **Rete degradata ≠ assente** | Richieste sospese 20 s, intercettazione a livello di contesto | Risposta dalla cache in **3 507 ms** (soglia 3 500) |
 | **Riproducibilità degli spettri** | Doppio disegno, confronto byte a byte | Identici |
 | **Contesti WebGL** | Costruzioni del visore su 10 molecole consecutive | Da **7 a 1** |
 | **Cronologia corrotta** | Due `Invio` a 500 ms di distanza | `user,assistant` anziché `user,user,assistant,assistant` |
-| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 159 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
+| **Contrasto del testo** | Formula WCAG su ogni elemento con testo proprio, 13 pagine **e 194 sezioni** | 19 751 elementi esaminati (erano 41): **1 069** difetti emersi, **1 069 corretti**, **0 registrati** come valore che non può crescere |
 | **Annullamento immediato** | Stop premuto a 1,5 s, stato campionato ogni secondo | pulsante Invia disponibile dal **1º** secondo (era il 10º) |
 
 ---
@@ -620,11 +687,12 @@ due cose diverse e non vanno confuse.
 | Lacuna | Situazione attuale | Raccomandazione |
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
-| **Accessibilità** | Automatizzata su 13 pagine e tutte le 159 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 463 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 522 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
+| **Spectra Live e strumenti rapidi** | Nessun banco per i comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 
@@ -640,4 +708,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

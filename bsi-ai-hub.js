@@ -5565,8 +5565,8 @@ var DATI_CANCELLABILI = {
   },
   memoria: {
     etichetta: 'Memoria persistente',
-    dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra',
-    chiavi: ['bsi_ai_memory']
+    dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',
@@ -5580,8 +5580,9 @@ var DATI_CANCELLABILI = {
     // (una licenza non si cancella per sbaglio), bsi_device_id e
     // bsi_user_email (identita' del dispositivo).
     chiavi: ['bsi_quiz_history', 'bsi_quiz_progress', 'bsi_studypath', 'bsi_notes',
-             'bsi_ds_prog', 'bsi_ds_proj', 'bsi_guide_v3', 'bsi_section'],
-    prefissi: ['bsi_note_']
+             'bsi_ds_prog', 'bsi_ds_proj', 'bsi_guide_v3', 'bsi_section', 'bsi-materia'],
+    // i kit di studio di chimica, fisica e matematica (v237): bsi-studio:<materia>:<cosa>
+    prefissi: ['bsi_note_', 'bsi-studio:']
   }
 };
 
@@ -5622,6 +5623,10 @@ function cancellaDati(nomi){
     });
   });
   var tolte = 0;
+  // la mente di Spectra tiene i dati anche in memoria e li riscriverebbe al prossimo salvataggio
+  if((nomi || []).indexOf('memoria') >= 0 && window.BSISpectraMente && window.BSISpectraMente.dimentica){
+    try{ window.BSISpectraMente.dimentica(); }catch(e){}
+  }
   daTogliere.forEach(function(k){
     try{
       if(localStorage.getItem(k) !== null){ localStorage.removeItem(k); tolte++; }

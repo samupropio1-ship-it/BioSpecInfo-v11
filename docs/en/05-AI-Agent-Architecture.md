@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v236` |
+| **Documented version** | Service Worker `bsi-v237` |
 
 ---
 
@@ -23,7 +23,7 @@ answering.
 The architecture addresses three problems that separate a usable agent from a
 demo:
 
-1. **Grounding** — a fabricated chemical value can be dangerous. 38 tools cover
+1. **Grounding** — a fabricated chemical value can be dangerous. 47 tools cover
    computation, public databases and the application's own datasets; the system
    prompt explicitly forbids quoting numeric values from memory.
 2. **Transparency** — the model's reasoning is streamed live and stored
@@ -52,7 +52,7 @@ demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── tool executor (38 tools, all local except 2 network)     │
+│        └── tool executor (47 tools, all local except 2 network)     │
 │               ├── expression engine (custom parser, no eval)        │
 │               ├── domain solvers (13 scientific areas)              │
 │               ├── in-app datasets (9 databases)                     │
@@ -68,7 +68,7 @@ which do not exist.
 ### 2.2 Agentic loop
 
 Each round: send the conversation history (last 40 turns) plus the system
-prompt and the schema of all 38 tools → receive the streamed response → if it
+prompt and the schema of all 47 tools → receive the streamed response → if it
 contains tool calls, execute **all** of them → rebuild the assistant turn in the
 provider's native format → repeat.
 
@@ -454,7 +454,7 @@ web-search blocks, or a server-paused turn cannot be resumed.
 
 ---
 
-## 3. The 38 tools
+## 3. The 47 tools
 
 The list is the one **measured** in `window.BSI_AI_TOOLS` on the running
 application, not transcribed from memory: this document declared 32 when there
@@ -472,9 +472,15 @@ were already 35, and three — `analizza_molecola`, `disegna_molecola`,
 | **External databases** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Internal data** | `cerca_nel_database` (9 datasets), `cerca_molecola` |
 | **Macro-areas** | `risolvi_matematica`, `risolvi_fisica`, `risolvi_chimica` — the same engine as the three areas' assistant: a natural-language question, or an explicit model and data; working, data with their origin, inverse problem |
-| **App control** | `naviga_sezione` (159 sections), `apri_strumento` (12 labs), `stato_app` |
+| **App control** | `naviga_sezione` (194 sections), `apri_strumento` (12 labs), `stato_app` |
 | **Memory** | `ricorda`, `ricordi` |
 | **Animations** | `apri_animazione` (6 reaction mechanisms) |
+| **Screen and page** (Spectra Live) | `leggi_schermo` (subject, section, tab, controls with their values, buttons, note text), `imposta_controllo`, `scegli_scheda`, `premi_pulsante`, `cambia_materia` |
+| **Study** (Spectra Live) | `consulta_kit` (summaries, formula sheet, glossary, quiz of the subject), `stato_studio` (flashcards due, quiz mistakes), `disegna_grafico`, `apri_strumento_rapido` |
+
+The nine tools in the last two rows are defined in `bsi-spectra-live.js` and
+added to the same `window.BSI_AI_TOOLS` registry when the page starts: the
+agentic loop treats them like the others, both in the chat and in the console.
 
 > **Web search is not among these thirty-five**, and the distinction matters.
 > The thirty-five are executed **by the application**, in the user's browser. On
@@ -632,6 +638,84 @@ stating the probable cause. It also covers tools added in the future.
 - **Classifier refusals** (`stop_reason: "refusal"`, HTTP 200): detected and
   surfaced, instead of appearing as an empty answer.
 
+### 4.10 Spectra Live: voice, screen and local commands
+
+`bsi-spectra-live.js` adds a full-screen console («◈ Live» button in Spectra's
+header, or `Ctrl+Shift+J`):
+
+- **hands-free conversation**: the browser's speech recognition listens, the
+  answer is spoken sentence by sentence with the system's speech synthesis (a
+  male voice is preferred, rate 0.95, pitch 0.7) and the console then listens
+  again; «stop» or a tap interrupts it. If either capability is missing in the
+  browser, the console says so;
+- **local commands**, recognised with regular expressions before the model is
+  called and therefore available without network and without a key: open a
+  section or switch subject, compute, differentiate and integrate (with the
+  app's symbolic engine), convert units, look up a constant, define a term,
+  plot a graph, quiz, review, move a slider, change tab, pause and resume an
+  animation, tell the time and date, and the mind's commands («what do you
+  remember», «how are you», «forget everything»);
+- **screen context**: every question that goes to the model carries a short
+  summary of what the user is looking at (subject, section, tab, control
+  values, up to 700 characters of visible text). If the question contains
+  words such as «this», «here», «chart», or the user pressed 👁, an image of
+  the tab's visible canvases is attached as well.
+
+Everything that goes to the model takes the same path as the chat, to the
+provider the user chose. Speech recognition is the browser's: where the
+browser runs it on a remote service, the audio follows that browser's rules,
+not BioSpecInfo's.
+
+### 4.11 The face
+
+`bsi-spectra-androide.js` shows the «Noir» 3D model by Skyfox13 in the
+console (Sketchfab, CC BY 4.0, modified; attribution in the console and in
+[`07-SBOM.md`](07-SBOM.md)). The model has neither a skeleton nor mouth
+shapes, so the animation is built in code:
+
+- the **head** is detached from the neck and turns with the gaze and the
+  breathing;
+- the **mouth** opens on the spoken text: the jaw displacement is computed
+  once per vertex and the shader multiplies it by the current opening;
+- the **expressions** are 17 emotions, each a blend of **11 expressive
+  fields** (smile, rounded lips, wide mouth, raised and furrowed brows, …).
+  WebGL allows no more than 16 attributes per vertex, so the eleven fields
+  are kept in memory and **blended on the CPU** into a single attribute when
+  the expression changes, recomputing only the vertices some field moves;
+- the emotion of a sentence comes from Italian and English keywords
+  (`emozioneDi`); with no signal it is «serena» (calm);
+- the **eyes** are lights in the theme's blue, `#1a3050` at rest, with slight
+  variations for listening, thinking and speaking.
+
+Without WebGL, or if the model does not arrive, the console uses the head
+built by `bsi-spectra-robot.js` and, as a last resort, the vector portrait of
+`bsi-spectra-volto.js`. With «reduce motion» the head stays still.
+
+### 4.12 The mind
+
+`bsi-spectra-mente.js` gives Spectra continuity across sessions. **It is a
+simulation of behaviour, not consciousness**: five numbers between 0 and 1
+and a few rules, not subjective states.
+
+- **Memory**: conversation episodes (at most 300, each with time, subject,
+  section and the first 160 characters of the question), the time spent in
+  each section, the study hours, the emotions detected in the user's
+  sentences (at most 60).
+- **Internal state**: curiosity (rises with new questions), attention (rises
+  when working together, falls during pauses), care (grows with session
+  length and at night), mood (moves with the tone of the user's sentences and
+  drifts back to an equilibrium), bond (grows with every conversation, ever
+  more slowly). The state picks the face's background emotion and the tone
+  of the greeting.
+- **Thoughts**: suggestions derived from these data (a break after 90
+  minutes, reviewing quiz mistakes, a subject left behind).
+- **Summary for the model**: every question that goes to the model carries a
+  summary of study time, frequent sections, recent topics and internal state.
+
+Everything is saved only in the browser's `localStorage`, key
+`bsi-spectra-mente-v1` ([`11-Data-Model.md`](11-Data-Model.md)); «what do you
+remember» shows it, «forget everything» erases it.
+
 ---
 
 ## 5. Verification
@@ -670,7 +754,7 @@ database types, and the 10 injection attempts against the expression engine.
 ### 5.3 Integration — real browser
 
 Automated tests with headless Chromium across all 14 application pages: no
-JavaScript errors, no missing resources. All 159 sections of `index.html` and
+JavaScript errors, no missing resources. All 194 sections of `index.html` and
 the 18 tabs of the Astrochemistry module were traversed one by one. Request
 bodies were inspected for the four Claude tiers, and a full cycle with web
 search, turn suspension and resumption was simulated.
@@ -682,7 +766,7 @@ search, turn suspension and resumption was simulated.
 | Metric | Value |
 |---|---|
 | Component size | 6,254 lines |
-| Tools | 32 |
+| Tools | 47 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`) |
 | Model configurations | 10 (3 free) |
 | Scientific areas covered | 13 |
 | Records in exposed internal datasets | over 800 |
@@ -709,6 +793,10 @@ Documented for technical honesty; these are deliberate choices, not omissions.
 - **Solvers apply simplified models** where the literature offers more refined
   ones (e.g. Woodward–Fieser for UV, or ATP yields using average P/O ratios).
   Each tool states the method used in its own result.
+- **The screen context and the mind's summary go to the provider.** When a
+  question goes to the model, the chosen provider also receives the summary
+  of the open section and, if there is memory, the mind's summary (§4.10,
+  §4.12). Only the answers to local commands stay in the browser.
 - **Verification is functional and numeric**, not formal: there is no proof of
   solver correctness, but a set of reference cases drawn from the teaching
   literature.

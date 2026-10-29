@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v236` |
+| **Versione documentata** | Service Worker `bsi-v237` |
 
 ---
 
@@ -24,7 +24,7 @@ L'architettura affronta tre problemi che distinguono un agente utilizzabile da
 una demo:
 
 1. **Fondatezza (*grounding*)** — un dato chimico inventato può essere
-   pericoloso. 38 strumenti coprono calcolo, banche dati pubbliche e i dataset
+   pericoloso. 47 strumenti coprono calcolo, banche dati pubbliche e i dataset
    interni dell'applicazione; il prompt di sistema vieta esplicitamente di
    citare valori numerici a memoria.
 2. **Trasparenza** — il ragionamento del modello è mostrato in tempo reale e
@@ -53,7 +53,7 @@ una demo:
 │        │      · Anthropic (Fable 5.1 · Opus 5 · Sonnet 5 · Haiku)   │
 │        │      · Gemini                                              │
 │        │                                                            │
-│        └── esecutore strumenti (35, tutti locali salvo 2 di rete)   │
+│        └── esecutore strumenti (47, tutti locali salvo 2 di rete)   │
 │               ├── motore di calcolo (parser proprio, no eval)       │
 │               ├── risolutori di dominio (13 aree scientifiche)      │
 │               ├── dataset interni dell'app (9 basi dati)            │
@@ -69,7 +69,7 @@ BioSpecInfo, che non esistono.
 ### 2.2 Ciclo agentico
 
 Ad ogni giro il ciclo: invia la cronologia (ultimi 40 turni) più il prompt di
-sistema e lo schema dei 38 strumenti → riceve la risposta in *streaming* →
+sistema e lo schema dei 47 strumenti → riceve la risposta in *streaming* →
 se contiene chiamate a strumenti le esegue **tutte** → ricostruisce il turno
 assistente nel formato nativo del fornitore → ripete.
 
@@ -470,7 +470,7 @@ non si può riprendere.
 
 ---
 
-## 3. I 38 strumenti
+## 3. I 47 strumenti
 
 L'elenco è quello **misurato** in `window.BSI_AI_TOOLS` sull'applicazione in
 esecuzione, non trascritto a memoria: questo documento ne dichiarava 32 quando
@@ -488,9 +488,15 @@ erano già 35, e tre — `analizza_molecola`, `disegna_molecola`, `mostra_spettr
 | **Banche dati esterne** | `cerca_pubchem` (NIH), `cerca_letteratura` (PubMed) |
 | **Dati interni** | `cerca_nel_database` (9 dataset), `cerca_molecola` |
 | **Macro-aree** | `risolvi_matematica`, `risolvi_fisica`, `risolvi_chimica` — lo stesso motore dell'assistente delle tre aree: domanda in linguaggio naturale, oppure modello e dati espliciti; svolgimento, dati con la loro origine, problema inverso |
-| **Controllo app** | `naviga_sezione` (159 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
+| **Controllo app** | `naviga_sezione` (194 sezioni), `apri_strumento` (12 laboratori), `stato_app` |
 | **Memoria** | `ricorda`, `ricordi` |
 | **Animazioni** | `apri_animazione` (6 meccanismi di reazione) |
+| **Schermo e pagina** (Spectra Live) | `leggi_schermo` (materia, sezione, scheda, controlli con i valori, pulsanti, testo della nota), `imposta_controllo`, `scegli_scheda`, `premi_pulsante`, `cambia_materia` |
+| **Studio** (Spectra Live) | `consulta_kit` (riassunti, formulario, glossario, quiz della materia), `stato_studio` (flashcard da ripassare, errori dei quiz), `disegna_grafico`, `apri_strumento_rapido` |
+
+I nove strumenti delle ultime due righe sono definiti in `bsi-spectra-live.js`
+e aggiunti allo stesso registro `window.BSI_AI_TOOLS` all'avvio della pagina:
+il ciclo agentico li tratta come gli altri, sia nella chat sia nella console.
 
 > **La ricerca web non è fra questi trentacinque**, ed è bene distinguerla. I
 > trentacinque sono eseguiti **dall'applicazione**, nel browser dell'utente.
@@ -655,6 +661,87 @@ strumenti aggiunti in futuro.
 - **Rifiuto dei classificatori** (`stop_reason: "refusal"`, HTTP 200): rilevato
   e comunicato, invece di presentarsi come risposta vuota.
 
+### 4.10 Spectra Live: voce, schermo e comandi locali
+
+`bsi-spectra-live.js` aggiunge una console a tutto schermo (pulsante «◈ Live»
+nella testata di Spectra, oppure `Ctrl+Shift+J`):
+
+- **conversazione a mani libere**: il riconoscimento vocale del browser
+  ascolta, la risposta viene detta frase per frase con la sintesi vocale del
+  sistema (si preferisce una voce maschile, velocità 0,95, tono 0,7) e alla
+  fine la console torna ad ascoltare; «stop» o un tocco la interrompono. Se
+  una delle due capacità manca nel browser, la console lo dice;
+- **comandi locali**, riconosciuti con espressioni regolari prima di
+  chiamare il modello e quindi disponibili senza rete e senza chiave: aprire
+  una sezione o cambiare materia, calcolare, derivare e integrare (con il
+  motore simbolico dell'app), convertire unità, cercare una costante,
+  definire un termine, fare un grafico, interrogare, ripassare, muovere un
+  cursore, cambiare scheda, fermare e riprendere un'animazione, dire ora e
+  data, e i comandi della mente («cosa ricordi di me», «come stai»,
+  «dimentica tutto»);
+- **contesto dello schermo**: a ogni domanda che va al modello si aggiunge un
+  breve quadro di ciò che l'utente ha davanti (materia, sezione, scheda,
+  valori dei controlli, fino a 700 caratteri del testo visibile). Se la
+  domanda contiene parole come «questo», «qui», «grafico», o se l'utente ha
+  premuto 👁, si allega anche un'immagine delle tele visibili della scheda.
+
+Tutto ciò che va al modello passa dalla stessa strada della chat, verso il
+fornitore scelto dall'utente. Il riconoscimento vocale è quello del browser:
+dove il browser lo esegue su un servizio remoto, l'audio segue le regole di
+quel browser, non di BioSpecInfo.
+
+### 4.11 Il volto
+
+`bsi-spectra-androide.js` mostra nella console il modello 3D «Noir» di
+Skyfox13 (Sketchfab, CC BY 4.0, modificato; attribuzione nella console e in
+[`07-SBOM.md`](07-SBOM.md)). Il modello non ha scheletro né forme per la
+bocca, quindi l'animazione è costruita nel codice:
+
+- la **testa** è staccata dal collo e ruota con lo sguardo e il respiro;
+- la **bocca** si apre sul testo pronunciato: lo spostamento della mandibola
+  è calcolato una volta per vertice e lo shader lo moltiplica per l'apertura
+  del momento;
+- le **espressioni** sono 17 emozioni, ognuna una miscela di **11 campi
+  espressivi** (sorriso, labbra arrotondate, bocca larga, sopracciglia alzate,
+  aggrottate, …). WebGL non concede più di 16 attributi per vertice, quindi
+  gli undici campi restano in memoria e vengono **fusi sulla CPU** in un
+  attributo solo quando l'espressione cambia, ricalcolando solo i vertici che
+  qualche campo muove;
+- l'emozione di una frase viene da parole chiave in italiano e in inglese
+  (`emozioneDi`); senza segnali vale «serena»;
+- gli **occhi** sono luci nel blu del tema, `#1a3050` a riposo, con lievi
+  variazioni per ascolto, elaborazione e parola.
+
+Senza WebGL, o se il modello non arriva, la console usa la testa costruita da
+`bsi-spectra-robot.js` e, in ultima istanza, il ritratto vettoriale di
+`bsi-spectra-volto.js`. Con «riduci movimento» la testa resta ferma.
+
+### 4.12 La mente
+
+`bsi-spectra-mente.js` dà a Spectra continuità fra le sessioni. **È una
+simulazione di comportamento, non una coscienza**: cinque numeri fra 0 e 1 e
+alcune regole, non stati soggettivi.
+
+- **Memoria**: gli episodi di conversazione (al massimo 300, ognuno con ora,
+  materia, sezione e i primi 160 caratteri della domanda), il tempo passato
+  in ogni sezione, le ore di studio, le emozioni rilevate nelle frasi
+  dell'utente (al massimo 60).
+- **Stato interno**: curiosità (sale con le domande nuove), attenzione (sale
+  quando si lavora insieme, scende nelle pause), premura (cresce con la
+  durata della sessione e di notte), umore (si sposta con il tono delle
+  frasi dell'utente e torna verso un equilibrio), legame (cresce con ogni
+  conversazione, sempre più lentamente). Lo stato sceglie l'emozione di
+  fondo del volto e il tono del saluto.
+- **Pensieri**: suggerimenti nati da questi dati (una pausa dopo 90 minuti,
+  il ripasso degli errori dei quiz, una materia rimasta indietro).
+- **Quadro per il modello**: a ogni domanda che va al modello si aggiunge un
+  riassunto di tempo di studio, sezioni frequentate, ultimi argomenti e
+  stato interno.
+
+Tutto è salvato solo nel `localStorage` del browser, chiave
+`bsi-spectra-mente-v1` ([`11-Data-Model.md`](11-Data-Model.md)); «cosa ricordi
+di me» lo mostra, «dimentica tutto» lo cancella.
+
 ---
 
 ## 5. Verifica
@@ -695,7 +782,7 @@ nel motore di calcolo.
 
 Test automatizzati con Chromium *headless* su tutte le 14 pagine
 dell'applicazione: nessun errore JavaScript, nessuna risorsa mancante.
-Percorse una per una le 159 sezioni di `index.html` e i 18 tab della sezione
+Percorse una per una le 194 sezioni di `index.html` e i 18 tab della sezione
 Astrochimica. Ispezionato il corpo delle richieste per i quattro livelli
 Claude, e simulato un ciclo completo con ricerca web, sospensione e ripresa
 del turno.
@@ -707,7 +794,7 @@ del turno.
 | Metrica | Valore |
 |---|---|
 | Righe del componente | 6.254 |
-| Strumenti | 32 |
+| Strumenti | 47 (38 in `bsi-ai-hub.js`, 9 in `bsi-spectra-live.js`) |
 | Configurazioni di modello | 10 (3 gratuite) |
 | Aree scientifiche coperte | 13 |
 | Record nei dataset interni esposti | oltre 800 |
@@ -735,6 +822,10 @@ Documentati per onestà tecnica; sono scelte consapevoli, non omissioni.
   prevede di più raffinati (per esempio Woodward–Fieser per l'UV, o le rese in
   ATP con rapporti P/O medi). Ogni strumento dichiara il metodo usato nel
   proprio risultato.
+- **Il contesto dello schermo e il quadro della mente vanno al fornitore.**
+  Quando una domanda va al modello, il fornitore scelto riceve anche il
+  riassunto della sezione aperta e, se c'è memoria, quello della mente
+  (§4.10, §4.12). Restano nel browser solo le risposte dei comandi locali.
 - **La verifica è funzionale e numerica**, non formale: non esiste prova di
   correttezza dei risolutori, ma un insieme di casi di riferimento tratti dalla
   letteratura didattica.

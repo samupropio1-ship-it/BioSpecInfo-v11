@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Document how the scientific data shown by the application are generated, by what method they are verified, and what the declared limits are. |
 
 > **Why this document exists.** A chemistry teaching application can be
@@ -812,6 +812,78 @@ produced.
 
 ---
 
+## 4-bis. Astrophysics, physics and mathematics laboratories, study kits
+
+### 4-bis.1 Where the data come from
+
+| Section | Data used | Source declared in the code |
+|---|---|---|
+| 🪐 Solar system 3D, 🔭 Planetarium 3D | J2000 Keplerian elements of the planets and their secular rates | E. M. Standish's table (JPL), «Keplerian elements for the approximate positions of the major planets», valid 1800–2050 |
+| 🪐 Solar system 3D, 🔭 Planetarium 3D | Julian date, sidereal time, Sun, Moon, Galilean moons | J. Meeus, *Astronomical Algorithms* (chapters 7, 12, 25, 44, 47; lunar theory truncated to the main terms, ~0.1°) |
+| 🔭 Planetarium 3D | About 170 bright stars: α, δ (J2000), V, B − V; 28 constellations | Rounded values; proper motions are neglected |
+| 🌠 Cosmology 3D | Cosmological parameters | Planck 2018: Ω_m = 0.315, Ω_Λ = 0.685, H₀ = 67.4 km/s/Mpc |
+| 🌌 Galaxies 3D | Local Group positions and distances | Compilations by Mateo (1998) and McConnachie (2012), rounded values |
+| ⭐ Life of stars 3D, ☢️ Nuclei and reactions | Atomic masses | AME2016/AME2020, rounded |
+| 🕳️ Black holes, 🔢 Constants and units | Physical constants | CODATA 2018; those defining the SI since 2019 are marked exact |
+
+**Declared illustrative**, and the sections say so: the exoplanet mass-period
+population (not a catalogue), the rotation-curve «observations» (the
+reference model with reproducible noise), the «Milky-Way-like» disc
+parameters, the cosmic microwave background map (synthesised with spherical
+harmonics from an illustrative power spectrum, tuned so that the peaks
+resemble Planck's).
+
+### 4-bis.2 How it is verified
+
+Each of the twenty new sections has a script in
+`tools/banchi/verifiche/verifica-<id>.js`, run by `test_v237`, that sets the
+computations against a known value or an independent second method. Some
+examples, with the value the script prints:
+
+| Section | Comparison | Obtained |
+|---|---|---|
+| 🪐 Solar system | Julian date of 1957 Oct 4.81 (Meeus, ex. 7.a) | 2436116.31 |
+| 🪐 Solar system | Mars 2003: closest approach 0.3727 AU on 27 August | 0.3730 AU on 27/8 |
+| 🛰️ Orbital mechanics | Curtis, ex. 4.3: h, i, Ω, e, ω, ν, a from the state | 58312, 153.25°, 255.28°, 0.1712, 20.07°, 28.45°, 8788 km |
+| 🛰️ Orbital mechanics | elements → state → elements over 2000 random orbits | relative error 2.8·10⁻¹⁴ |
+| 📐 Celestial mathematics | Laplace limit of the Lagrange series | 0.6627434 |
+| ⭐ Life of stars | Lane–Emden: first zero for n = 3 | 6.89685 (ρ_c/ρ̄ = 54.18) |
+| 🕳️ Black holes | perihelion precession of Mercury, 42.98″ per century | 42.982″ |
+| 🕳️ Black holes | light deflection at the Sun's limb, 1.75″ | 1.7512″ |
+| 〰️ Gravitational waves | chirp mass of GW150914 (36 + 29 M☉) | 28.096 M☉ |
+| 🌌 Galaxies | Freeman disc: velocity peak at R/R_d = 2.15 | 2.150 |
+| 🌠 Cosmology | age of the universe with Planck parameters (13.8 ± 0.1 Gyr) | 13.791 Gyr |
+| 🔭 Planetarium | Greenwich sidereal time, 1987 Apr 10 0h UT (Meeus, ex. 12.a) | 13.1795463 h |
+| 🌍 Exoplanets | Earth's equilibrium temperature (A = 0.3) | 254.8 K |
+| 🌀 Spin and qubits | HZH = X, HXH = Z | deviation 2.2·10⁻¹⁶ |
+| 🎲 Statistical mechanics | Schottky peak: kT = 0.4168 Δ, C = 0.4392 k | 0.41678; 0.43923 |
+| ☢️ Nuclei | B/A of ⁵⁶Fe from the masses | 8.7903 MeV |
+| ☢️ Nuclei | Q of D + T → ⁴He + n | 17.589 MeV |
+| 🧱 Materials | I-section: formula against Huygens–Steiner | 7.9990 against 7.9990 (·10⁷ mm⁴) |
+| 🔌 Electronics | diode: Newton against the closed form with Lambert's W | 0.650463089 V in both |
+| 🌊 PDEs | zero j₀₁ of the Bessel function | 2.404825557695773 |
+| 🌀 Complex analysis | e^(iπ) + 1 = 0 | 1.2·10⁻¹⁶ |
+| 🔗 Markov | stationary distribution by powers and by Cramer's rule | π₀ = 0.4615384615384615 in both |
+| 🧩 SVD | [[1,1],[0,1]]: σ₁ = φ, σ₂ = 1/φ | 1.6180339887498947; 0.6180339887498948 |
+| 📡 Codes | CRC-32("123456789") = 0xCBF43926; Hamming(7,4) corrects all 112 single errors | 0xCBF43926; 112 of 112 |
+
+Altogether the twenty scripts run **705 checks**. The study-kit scripts check
+the data schema and minimum quantities and, for mathematics, recompute **264
+quiz answers** out of 346 questions; the resources script checks the citation
+formats on hand-built Crossref records and the tables' numeric proofs.
+
+### 4-bis.3 The 3D model of Spectra's face
+
+The face of the Spectra Live console is the «Noir» model by Skyfox13
+(<https://sketchfab.com/podderkuntal25>), published on Sketchfab under the
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licence, file
+`models/spectra-noir.glb`. It has been **modified**: textures recompressed,
+tangents removed, the face rendered as dark grey metal, head and mouth
+animated by the code. It carries no scientific data; the attribution appears
+in the console and in [`07-SBOM.md`](07-SBOM.md).
+
+---
+
 ## 5. Automation of the verification
 
 All the checks described are runnable and repeatable. At the time of writing the
@@ -825,6 +897,7 @@ battery includes, among others:
 | `test_costanti` | physical-constant lookup and refusal of ambiguities | 45 |
 | `audit_dati` | consistency of the tabulated data | 29 |
 | `verifica_guida` | correspondence between what the documentation promises and what the code does | 71 |
+| `test_v237` | the twenty astrophysics, physics and mathematics sections against known values or a second method (§4-bis.2), the study kits and the resources | 705 in the twenty scripts, plus the kits, the resources and the in-browser checks |
 
 The last bench deserves a mention: it verifies that the statements contained in
 the user documentation correspond to the real behaviour of the code. A promise
@@ -846,4 +919,4 @@ declared rather than presented as verified.
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

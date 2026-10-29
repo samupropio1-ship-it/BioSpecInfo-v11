@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -303,6 +303,9 @@ local data, and says so to the user.
 | **RCSB PDB** | `https://files.rcsb.org/download/{pdb}.pdb` | Protein structures for the 3D viewer | Explicit message in the viewer |
 | **NASA / ESA** | Public images and data | Astrochemistry module | The module shows the tabulated data |
 | **AI providers** | At the user's choice, or via the proxy | Assistant answers | The assistant declares it and offers a reachable alternative |
+| **Crossref REST** | `https://api.crossref.org/works/{doi}` | A work's record for citations (APA 7, IEEE, ISO 690, BibTeX) in the Resources and bibliography sections | Says so, with the request address; the hand-filled form remains |
+| **The app's own site** | `./sw.js?controllo=<time>` with `cache: 'no-store'` | «Check for updates»: the `var CACHE = 'bsi-vNNN'` line is the published version | The GitHub fallback is tried |
+| **GitHub (fallback)** | `https://raw.githubusercontent.com/samupropio1-ship-it/BioSpecInfo-v11/main/sw.js` | Same reading, only if the own site does not answer | «Cannot check now», the app keeps working offline |
 
 None of these calls transmits personal data. There are no persistent
 identifiers and no active telemetry (`BSI_TELEMETRY_URL` is empty).
@@ -349,9 +352,94 @@ Extension points for whoever has to work on the code. They are globals on
 | `window.nmrPeakList(smiles)` | ¹H peaks with integration |
 | `window.bsiCancellaDati(groups)` | Selective deletion of the saved data |
 | `window.bsiOpenUpdate()` | Opens the updates window |
+
+### `window.BSIAggiorna` — update check (`bsi-aggiorna.js`)
+
+| Function | Signature | Description |
+|---|---|---|
+| `controlla` | `() → Promise<'aggiornata' \| 'nuova' \| 'offline'>` | Compares the version in use with the published one and says so in a pop-up notice (`#bsi-agg-esito`). If the version differs it asks the service worker to update (`registration.update()`). It always answers |
+| `versioneInUso` | `() → Promise<string \| null>` | Asks the active service worker for its cache name with the `{ type: 'BSI_VERSIONE' }` message over a `MessageChannel`; `null` without a service worker or after 1.5 s without an answer |
+| `versionePubblicata` | `() → Promise<string \| null>` | Downloads `./sw.js?controllo=<time>` with no cache and reads its `var CACHE = '…'` |
+
+The service worker answers the `BSI_VERSIONE` message with `{ cache: CACHE }`
+on the port it received. The 🔄 Updates window uses these functions and, if the
+own site does not answer, reads the copy of `sw.js` on GitHub.
+
+### `window.BSIAttrezzi` — quick tools of the ✨ menu (`bsi-attrezzi.js`)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `apri` | `(key, subject) → boolean` | Opens the tool in a window above the page. Keys: `calcolatrice`, `derivata`, `grafico`, `costante`, `unita`, `formula`, `glossario`, `quiz`. `false` if the key does not exist |
+| `chiudi` | `()` | Closes the window |
+| `STRUMENTI` | object | Icon, name, description and opening function of each tool |
+| `PER_MATERIA` | object | Which tools the ✨ menu shows for `fisica` and `matematica` (none for `chimica`) |
+| `calcolo.calcola` | `(text) → { esatto, html, valore } \| { errore }` | Exact computation with `BSIMatCAS` |
+| `calcolo.derivaTesto`, `calcolo.integraTesto` | `(text, x?) → { testo, html } \| { errore }` | Symbolic derivative and antiderivative |
+| `calcolo.campioni` | `(text, a, b, n)` | Points of a function of x for the graph; `null` without the symbolic engine |
+| `calcolo.cerca` | `(list, q, fields)` | Accent-insensitive search |
+| `calcolo.quizLampo` | `(subject, n, seed)` | Questions drawn from the study kit with a reproducible generator; `null` without a kit |
+
+### `window.BSIStudio` — study-kit engine (`bsi-studio.js`)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `registra` | `(subject, data) → boolean` | Merges a subject's data (`argomenti`, `riassunti`, `quiz`, `flash`, `formule`, `glossario`) and creates the five sections `s<pre>riass`, `s<pre>quiz`, `s<pre>flash`, `s<pre>form`, `s<pre>gloss` (`pre`: `fis`, `mat`, `chi`). A data file loaded before the engine queues itself in `window.BSIStudioCoda` |
+| `dati` | `(subject) → object \| null` | The subject's merged data |
+| `materie` | `() → string[]` | The registered subjects |
+| `sezioni` | `(subject) → string[]` | The ids of the five sections |
+| `valida` | `(data, opts) → string[]` | The problems found, in Italian; an empty list means «fine». With `{ quantita: true }` it also checks the minimums in `MINIMI` |
+| `MINIMI` | object | `{ riassunti: 60, quiz: 300, flash: 250, formule: 200, glossario: 250 }` |
+| `pulisci` | `(html) → string` | Keeps only `p, b, i, ul, li, sub, sup, br`, without attributes |
+| `norm` | `(s) → string` | Text without tags and accents, lower case |
+| `calcolo.mulberry32` | `(seed) → () → number` | Reproducible generator in [0, 1) |
+| `calcolo.mescola` | `(arr, rnd?) → array` | Fisher–Yates on a copy |
+| `calcolo.leitner` | `(state, id, correct) → state` | Correct: one box up (at most 5); wrong: box 1. Returns a new object |
+| `calcolo.punteggio` | `(answers) → { giuste, totale, perc, perArg }` | Overall and per-topic score |
+
+### `window.BSISpectraAndroide` — Spectra's face (`bsi-spectra-androide.js`)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `disponibile` | `() → boolean` | Whether the browser offers WebGL |
+| `crea` | `(container) → Promise<Androide>` | Loads three.js, `GLTFLoader` and `models/spectra-noir.glb`, and draws the face in the container |
+| `foto` | `(px) → Promise<string>` | A PNG image of the face (data URL), for the icons |
+| `emozioneDi` | `(sentence) → string` | A sentence's emotion from keywords; `'serena'` with no signal |
+| `EMOZIONI` | object | The 17 emotions, each as weights of the expressive fields plus eye light and head pose |
+| `CAMPI` | string[] | The 11 expressive fields |
+| `COLORI` | object | Eye colour per state; `attesa: 0x1a3050` |
+| `URL`, `BOCCA`, `versione` | — | Model path, mouth geometry, module version |
+
+The object returned by `crea` has, among others, `stato(s)` (`'attesa'`,
+`'ascolta'`, `'pensa'`, `'parla'`), `dici(text)` (the mouth follows the text),
+`allinea(i)`, `taci()`, `espressione(name, seconds, intensity) → boolean`,
+`emozione() → string`, `sente(sentence)` (reacts to a user sentence and passes
+it on to the mind), `passo(dt)`, `ferma()`, `libera()`.
+
+`window.BSISpectraRobot` (`bsi-spectra-robot.js`) exposes `disponibile`, `crea`
+and `foto` with the same signatures: it uses the android and, if the model
+does not arrive, the head built in three.js. `window.BSISpectraVolto`
+(`bsi-spectra-volto.js`) is the last-resort SVG portrait.
+
+### `window.BSISpectraMente` — Spectra's mind (`bsi-spectra-mente.js`)
+
+| Function | Signature | Description |
+|---|---|---|
+| `ricorda` | `(question, outcome)` | Records an episode (time, subject, section, question cut to 160 characters) and updates curiosity, attention and bond |
+| `sente` | `(emotion, who)` | Moves the mood (and the care) according to the emotion detected in a sentence |
+| `stato` | `() → { curiosita, attenzione, premura, umore, legame }` | The internal state, values between 0 and 1 |
+| `fondo` | `() → string` | The face's background emotion when nobody is speaking |
+| `profilo` | `() → object` | Favourite sections, minutes per subject, favourite hour, neglected subject, quiz mistakes, recent topics |
+| `pensieri` | `() → [{ peso, testo }]` | Suggestions ordered by weight |
+| `saluto` | `() → string` | Greeting that takes the time and the last visit into account |
+| `coscienza` | `() → string` | The summary added to the question sent to the model; empty without memory. Also exposed as `window._bsiMente` |
+| `cosaRicordi`, `comeStai` | `() → string` | The answers to the «what do you remember» and «how are you» commands |
+| `dimentica` | `()` | Clears the memory and removes the `bsi-spectra-mente-v1` key |
+
+It is a simulation of behaviour: the functions read and write numbers and text
+in `localStorage`, nothing else.
 | `window.bsiAccentoLeggibile(colour, background, threshold)` | Adjusts an accent so it reaches the WCAG threshold on that surface, preserving the hue |
 | `window.bsiEtichettaLeggibile(background, threshold)` | The dual: picks the text colour from the background and, if neither extreme suffices, darkens the background while preserving the hue |
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

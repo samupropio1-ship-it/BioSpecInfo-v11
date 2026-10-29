@@ -7,6 +7,87 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v237] — 2026-10-29
+
+**Tre app in una, il gruppo Astrofisica, dieci laboratori di fisica e matematica, i kit di studio, Spectra Live con il volto dell'androide; «Controlla aggiornamenti» risponde di nuovo**
+
+### Aggiunto
+- **Tre app in una**: la materia scelta (chimica, fisica, matematica) cambia
+  anche il menu ✨, Spectra, Studio e Utility (`bsi-materie-app.js`). In
+  fisica e matematica il blocco delle funzioni chimiche del menu ✨ lascia il
+  posto agli **strumenti rapidi** (`bsi-attrezzi.js`), in una finestra sopra
+  la pagina: calcolatrice esatta, derivata e primitiva, grafico, costante
+  CODATA, convertitore di unità, formula, glossario, quiz lampo.
+- **Kit di studio di fisica e matematica** (`bsi-studio.js`, motore;
+  `bsi-studio-fisica.js`, `bsi-studio-matematica.js`, dati): riassunti,
+  quiz, flashcard con il metodo di Leitner, formulario, glossario, cinque
+  sezioni per materia:
+  - fisica: 69 riassunti, 325 domande, 273 flashcard, 227 formule, 273 voci;
+  - matematica: 66 riassunti, 346 domande, 266 flashcard, 224 formule,
+    279 voci.
+- **Risorse per materia** (`bsi-risorse-materie.js`): risorse web,
+  bibliografia e citazioni da DOI (Crossref) in APA 7, IEEE, ISO 690 e
+  BibTeX per fisica, matematica e chimica; 🔢 Costanti e unità (CODATA
+  2018); 📚 Tavole matematiche, ogni voce numerica con la sua prova.
+- **Gruppo «🔭 Astrofisica»** nella barra, con dieci sezioni nuove in 3D:
+  - 🪐 Sistema solare 3D;
+  - 🛰️ Meccanica orbitale 3D;
+  - 📐 Matematica celeste;
+  - ⭐ Vita delle stelle 3D;
+  - 🕳️ Buchi neri e relatività generale;
+  - 〰️ Onde gravitazionali;
+  - 🌌 Galassie 3D;
+  - 🌠 Cosmologia 3D;
+  - 🔭 Planetario 3D;
+  - 🌍 Esopianeti 3D.
+
+  🔭 Astrofisica e 🪐 Gravitazione passano dal gruppo della fisica a questo.
+- **Fisica, cinque laboratori nuovi**: 🌀 Spin, qubit ed entanglement;
+  🎲 Meccanica statistica; ☢️ Nuclei e reazioni; 🧱 Elasticità e
+  materiali; 🔌 Elettronica.
+- **Matematica, cinque laboratori nuovi**: 🌊 Equazioni alle derivate
+  parziali; 🌀 Analisi complessa; 🔗 Catene di Markov e processi
+  stocastici; 🧩 SVD e algebra lineare applicata; 📡 Codici e curve
+  ellittiche.
+- **Spectra Live** (`bsi-spectra-live.js`): console vocale a tutto
+  schermo, conversazione a mani libere, comandi locali che funzionano senza
+  rete e senza chiave, lettura dello schermo e nove strumenti nuovi per
+  agire sulla pagina e consultare il materiale di studio (gli strumenti
+  dell'agente passano da 38 a 47). Voce grave (tono 0,7).
+- **Il volto di Spectra** (`bsi-spectra-androide.js`): il modello 3D
+  «Noir» di Skyfox13 (Sketchfab, CC BY 4.0, modificato), con la bocca
+  animata sul testo pronunciato e 17 emozioni composte da 11 campi
+  espressivi; occhi nel blu del tema (`#1a3050`). Senza WebGL o senza
+  modello: la testa procedurale di `bsi-spectra-robot.js` o il ritratto SVG
+  di `bsi-spectra-volto.js`.
+- **La mente di Spectra** (`bsi-spectra-mente.js`): memoria locale degli
+  episodi e del tempo di studio, stato interno (curiosità, attenzione,
+  premura, umore, legame), «cosa ricordi di me», «come stai», «dimentica
+  tutto». È una simulazione di comportamento, non una coscienza.
+- Requisiti **SCI-55**, **SCI-56**, **SCI-57**, **UI-19**, **UI-20**,
+  **AI-11**, **AI-12**; non ancora automatizzati **UI-21** e **AI-13**.
+
+### Corretto
+- **«Controlla aggiornamenti» non rispondeva mai.** La finestra 🔄
+  Aggiornamenti cercava in `sw.js` una riga `CACHE_VERSION` che non esiste
+  più (`sw.js` dichiara `var CACHE = 'bsi-vNNN'`) e la cercava su
+  `raw.githubusercontent.com`: la versione remota non si leggeva mai. Ora
+  legge `sw.js` dallo stesso sito senza cache (GitHub solo come ripiego), la
+  confronta con la versione del service worker attivo (messaggio
+  `BSI_VERSIONE`) e risponde sempre: già aggiornata, nuova versione, sito
+  irraggiungibile (`bsi-aggiorna.js`).
+- Prima della pubblicazione:
+  - nel nucleo 3D la nota diceva che i nucleoni distano circa 1 fm; il
+    disegno ora riempie il raggio R e la nota dice circa 1,8 fm;
+  - le scene 3D nascoste si ridimensionavano a ogni cambio di scheda.
+
+### Banco
+- Nuovi `test_v237` (le venti sezioni nuove con i loro script di
+  `tools/banchi/verifiche/`, i kit di studio, le risorse, ogni scheda aperta
+  nel browser a 1280 e 390 px, volto, emozioni e mente di Spectra, nomi in
+  inglese) e `test_controllaagg` (i tre casi del controllo aggiornamenti).
+
+---
 ## [bsi-v236] — 2026-10-24
 
 **Le tre materie allo stesso livello: diciannove sezioni nuove, i pulsanti per cambiare materia, gli articoli e i premi di chimica, fisica e matematica**
