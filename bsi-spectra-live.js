@@ -735,7 +735,7 @@
     /* trascrizione dal vivo */
     if (hud.interim) { q.fillStyle = 'rgba(200,240,255,.85)'; q.font = '600 14px system-ui'; q.textAlign = 'center'; q.fillText(hud.interim.slice(-70), cx, cy + R * 1.3); }
     if (!(hud.tempo++ % 30)) telemetria();
-    if (!(hud.tempo % 900) && globale.BSISpectraMente) { var pz = globale.BSISpectraMente.pensieri()[0], pe = document.getElementById('bsiJV-pensiero'); if (pe) pe.textContent = pz ? '« ' + pz.testo + ' »' : ''; }
+    if (!(hud.tempo % 900) && globale.BSISpectraMente) { var pz = globale.BSISpectraMente.pensieri()[0], pe = document.getElementById('bsiJV-pensiero'); if (pe) pe.textContent = pz ? '« ' + pz.testo + ' »' : ''; iniziativa(pz); }
     hud.raf = globale.requestAnimationFrame(disegna);
   }
 
@@ -796,7 +796,22 @@
   /* in conversazione a mani libere, finita la risposta si torna ad ascoltare */
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
 
+  /* L'INIZIATIVA: se la console resta aperta e in silenzio per piu' di un minuto, e la mente
+     ha un pensiero importante (peso ≥ 2: una pausa, gli errori da rivedere, l'ora tarda), Spectra
+     lo dice da sola, con il viso che lo accompagna. Al massimo una volta ogni tre minuti, mai lo
+     stesso pensiero due volte, mai mentre ascolta o parla. */
+  function iniziativa(pz) {
+    if (!pz || pz.peso < 2 || hud.stato !== 'attesa' || voce.inCorso || hud.ascolto) return;
+    var ora = Date.now();
+    if (ora - (hud.ultimaAttivita || ora) < 60000 || ora - (hud.ultimaIniziativa || 0) < 180000) return;
+    hud.detti = hud.detti || {}; if (hud.detti[pz.testo]) return;
+    hud.detti[pz.testo] = 1; hud.ultimaIniziativa = ora; hud.ultimaAttivita = ora;
+    var emo = /pausa|tardi|sonno|break|late|sleep/i.test(pz.testo) ? 'empatica' : /quiz|errori|errors/i.test(pz.testo) ? 'determinata' : 'curiosa';
+    if (hud.volto && hud.volto.espressione) hud.volto.espressione(emo, 4);
+    ultima = pz.testo; dialogo('', pz.testo); parla(pz.testo, dopoLaRisposta);
+  }
   function elabora(testo) {
+    hud.ultimaAttivita = Date.now();
     var nav = document.getElementById('bsiJV-nav'); if (nav) nav.classList.remove('aperto');
     hud.difficolta = difficolta(testo);
     if (hud.volto && hud.volto.concentra) hud.volto.concentra(hud.difficolta.valore);
@@ -846,7 +861,7 @@
   function apriHud(opz) {
     costruisciHud(); registraStrumenti();
     hud.el.classList.add('aperto'); document.body.classList.add('bsiJV-aperto'); document.getElementById('bsiJV-mini').classList.remove('vis');
-    hud.maniLibere = !opz || opz.maniLibere !== false;
+    hud.maniLibere = !opz || opz.maniLibere !== false; hud.ultimaAttivita = Date.now();
     testiHud(); telemetria();
     if (!hud.raf) hud.raf = globale.requestAnimationFrame(disegna);
     if (!opz || opz.briefing !== false) { var b = briefing(); ultima = b; dialogo('', b); parla(b, dopoLaRisposta); }
