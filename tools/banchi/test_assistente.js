@@ -255,7 +255,9 @@ function carica() {
     if (nome === 'schermo grande') {
       vero('un pulsante del catalogo apre la sezione', r2.apre);
       const S2 = r2.spectra;
-      att('Spectra ha i tre strumenti nuovi (38 in tutto)', 38, S2.n);
+      /* v237: Spectra Live aggiunge nove strumenti (leggi_schermo, imposta_controllo, scegli_scheda,
+         premi_pulsante, cambia_materia, stato_studio, consulta_kit, disegna_grafico, apri_strumento_rapido) */
+      att('Spectra ha i tre strumenti nuovi, piu\' i nove di Spectra Live (47 in tutto)', 47, S2.n);
       vero('risolvi_matematica: lim (1 − cos x)/x² = 1/2 con lo svolgimento', S2.mat && S2.mat.ok && S2.mat.risultato === '1/2' && S2.mat.svolgimento.length > 1);
       vero('risolvi_fisica con modello e dati espliciti: gittata v₀²/g', S2.fis && S2.fis.ok && Math.abs(S2.fis.risultati.filter(y => y.nome === 'R')[0].valore - 400 / 9.81) < 1e-6);
       vero('risolvi_chimica risolve il problema inverso (7,3 g di NaCl)', S2.chi && S2.chi.ok && Math.abs(S2.chi.dati.ms.valore - 7.305) < 0.01 && S2.chi.dati.ms.origine === 'calcolato');
