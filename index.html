@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v236';
+window.BSI_APP_VERSION='bsi-v237';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -34861,26 +34861,37 @@ document.getElementById('bsiUp-x').onclick=function(){modal.classList.remove('op
 modal.onclick=function(e){if(e.target===modal)modal.classList.remove('open');};
 
 var statusEl=document.getElementById('bsiUp-status');
+/* IL CONTROLLO. Fino alla v236 cercava in sw.js una riga «CACHE_VERSION = …» che
+   sw.js non contiene piu' da molte versioni (la riga e' «var CACHE = 'bsi-vNNN'»):
+   la versione remota non si leggeva mai e il pulsante non diceva nulla di utile.
+   E la leggeva da raw.githubusercontent.com, che fallisce se il repository non e'
+   pubblico o se il sito e' servito altrove. Ora si legge sw.js dallo STESSO sito
+   da cui e' servita l'app (senza cache), e GitHub resta solo come ripiego. */
+function versioneRemota(){
+  function leggi(t){ var m=String(t).match(/(?:CACHE_VERSION|var CACHE)\s*=\s*['"]([^'"]+)['"]/); return m?m[1]:null; }
+  var stesso = window.BSIAggiorna ? window.BSIAggiorna.versionePubblicata()
+    : fetch('./sw.js?controllo='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('rete'); return r.text(); }).then(leggi);
+  return stesso.then(function(v){ if(v) return v; throw new Error('illeggibile'); })
+    .catch(function(){ return fetch(REPO_RAW+'?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('rete'); return r.text(); }).then(leggi); });
+}
 document.getElementById('bsiUp-check').onclick=function(){
   statusEl.textContent='Controllo in corso\u2026';
   document.getElementById('bsiUp-do').style.display='none';
   document.getElementById('bsiUp-dl').style.display='none';
-  fetch(REPO_RAW+'?t='+Date.now(),{cache:'no-store'})
-    .then(function(r){ if(!r.ok) throw new Error('rete'); return r.text(); })
-    .then(function(txt){
-      var m=txt.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/);
-      var remote=m?m[1]:null;
-      if(!remote){ statusEl.textContent='Impossibile leggere la versione remota.'; return; }
-      var rn=vnum(remote), ln=vnum(LOCAL);
+  var inUso = window.BSIAggiorna ? window.BSIAggiorna.versioneInUso() : Promise.resolve(null);
+  Promise.all([versioneRemota(), inUso])
+    .then(function(r){
+      var remote=r[0], usata=r[1]||LOCAL;
+      if(!remote){ statusEl.textContent='Impossibile leggere la versione pubblicata.'; return; }
+      var rn=vnum(remote), ln=vnum(usata);
       if(rn>ln){
-        statusEl.innerHTML='\uD83C\uDD95 Nuova versione disponibile: <b style="color:#00d4aa">'+remote.replace('biospecinfo-','')+'</b>';
+        statusEl.innerHTML='\uD83C\uDD95 Nuova versione disponibile: <b style="color:#00d4aa">'+remote.replace('biospecinfo-','')+'</b> (hai la '+String(usata).replace('biospecinfo-','')+')';
         document.getElementById('bsiUp-do').style.display='block';
-        document.getElementById('bsiUp-dl').style.display='block';
       } else {
-        statusEl.innerHTML='\u2705 Hai gi\u00e0 l\u2019ultima versione.';
+        statusEl.innerHTML='\u2705 Hai gi\u00e0 l\u2019ultima versione pubblicata: <b>'+String(remote).replace('biospecinfo-','')+'</b>.';
       }
     })
-    .catch(function(){ statusEl.innerHTML='\u26A0\uFE0F Impossibile verificare ora (connessione assente o file non ancora pubblicato su GitHub).'; });
+    .catch(function(){ statusEl.innerHTML='\u26A0\uFE0F Impossibile verificare ora: il sito non risponde (connessione assente?). L\u2019app continua a funzionare offline.'; });
 };
 document.getElementById('bsiUp-do').onclick=function(){
   statusEl.textContent='Aggiornamento in corso\u2026';

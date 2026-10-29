@@ -7,7 +7,8 @@
    nuova e solo allora compariva la barra «Nuova versione disponibile». Se la
    versione pubblicata era la stessa che si aveva gia', ricaricare o riaprire
    l'app non mostrava nulla, e non c'era modo di sapere se il controllo fosse
-   avvenuto. Ora nel menu ✨ c'e' una riga che:
+   avvenuto. La finestra «🔄 Aggiornamenti» del menu ✨ usa queste funzioni, e
+   controlla() le riassume in un avviso a comparsa (usato anche da Spectra):
    · dice quale versione si sta usando (la chiede al service worker attivo);
    · scarica sw.js dalla rete senza cache e legge la versione pubblicata;
    · se e' la stessa lo dice («gia' aggiornata»); se e' diversa forza il
@@ -73,27 +74,6 @@
       return 'offline';
     });
   }
-
-  /* la riga nel menu ✨: in cima, visibile in tutte e tre le materie */
-  function riga() {
-    var hd = document.getElementById('bsi14-hd');
-    if (!hd || document.getElementById('bsi-agg-riga')) return;
-    var r = document.createElement('div');
-    r.id = 'bsi-agg-riga'; r.className = 'bsi14-row'; r.setAttribute('role', 'button'); r.tabIndex = 0;
-    r.innerHTML = '<span class="bsi14-ic">🔄</span><div class="bsi14-tx"><div class="bsi14-nm"></div><div class="bsi14-ds"></div></div><span class="bsi14-ar">›</span>';
-    r.querySelector('.bsi14-nm').textContent = t('Controlla aggiornamenti', 'Check for updates');
-    r.querySelector('.bsi14-ds').textContent = t('Versione in uso: …', 'Version in use: …');
-    versioneInUso().then(function (v) { r.querySelector('.bsi14-ds').textContent = t('Versione in uso: ', 'Version in use: ') + (v ? bella(v) : t('non ancora installata', 'not installed yet')); });
-    r.onclick = function (e) { if (e) e.stopPropagation(); var sh = document.getElementById('bsi14-sheet'); if (sh) sh.classList.remove('open'); controlla(); };
-    r.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); r.onclick(e); } };
-    hd.parentNode.insertBefore(r, hd.nextSibling);
-  }
-  /* il menu si costruisce al primo tocco del ✨: la riga si aggiunge appena compare */
-  function osserva() {
-    riga();
-    if (globale.MutationObserver) new MutationObserver(function () { riga(); }).observe(document.body, { childList: true });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', osserva); else osserva();
 
   globale.BSIAggiorna = { controlla: controlla, versioneInUso: versioneInUso, versionePubblicata: versionePubblicata, versione: '1.0' };
 })(typeof window !== 'undefined' ? window : globalThis);

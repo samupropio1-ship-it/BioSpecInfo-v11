@@ -4,15 +4,19 @@
 
    PERCHE' QUESTO BANCO ESISTE
    Segnalazione dell'utente: «provando ad aggiornare non esce nulla». Era
-   vero in due sensi: la versione pubblicata non era cambiata, e l'app non
-   aveva modo di dirlo. La riga del menu ✨ (bsi-aggiorna.js) deve dare una
-   risposta in ognuno dei tre casi:
-   · stessa versione → «già aggiornata», con il numero;
-   · versione diversa in rete → «trovata la versione…», e il service worker
-     riceve l'ordine di aggiornarsi;
-   · rete assente → lo dice, invece di tacere.
+   vero: la finestra «🔄 Aggiornamenti» del menu ✨ cercava in sw.js una riga
+   «CACHE_VERSION = …» che sw.js non contiene da molte versioni («var CACHE =
+   'bsi-vNNN'»), e la cercava su raw.githubusercontent.com. La versione
+   remota non si leggeva mai. test_aggiorna apriva la finestra ma non premeva
+   «Controlla»: per questo il difetto e' sopravvissuto. Qui si preme, in tre
+   casi, e ognuno deve dare una risposta:
+   · stessa versione → «Hai già l'ultima versione pubblicata», con il numero;
+   · versione nuova sul sito → la annuncia e mostra «Aggiorna ora»;
+   · sito irraggiungibile → lo dice, invece di tacere.
    Il secondo caso si ottiene servendo un sw.js con un nome di cache diverso
-   (solo per la richiesta di controllo, con il parametro ?controllo=).
+   (solo per la richiesta di controllo, con il parametro ?controllo=); il
+   terzo interrompendo quella richiesta e il ripiego su GitHub.
+   Si controlla anche BSIAggiorna.controlla(), l'avviso a comparsa.
 
    USO   node tools/banchi/test_controllaagg.js    (serve un server su :8899)
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -34,6 +38,7 @@ function vero(d, c) { att(d, true, !!c); }
   const pg = await ctx.newPage(), errs = [];
   pg.on('pageerror', e => errs.push(e.message));
   let modo = 'normale';
+  await ctx.route(/raw\.githubusercontent\.com/, r => modo === 'offline' ? r.abort('internetdisconnected') : r.fulfill({ status: 404, body: '' }));
   await ctx.route(/sw\.js\?controllo=/, async (r) => {
     if (modo === 'offline') return r.abort('internetdisconnected');
     const resp = await r.fetch(); let s = await resp.text();
@@ -54,34 +59,47 @@ function vero(d, c) { att(d, true, !!c); }
   await pg.waitForTimeout(1500);
   const atteso = (await (await pg.request.get(BASE + 'sw.js')).text()).match(/var CACHE = '([^']+)'/)[1];
 
-  /* la riga nel menu ✨ */
-  await pg.evaluate(() => { const g = document.getElementById('bsi-guide'); if (g) g.remove(); const f = document.getElementById('bsi14-fab'); if (f) f.click(); });
-  await pg.waitForSelector('#bsi-agg-riga', { state: 'attached', timeout: 20000 });
-  await pg.waitForFunction(() => !/…/.test(document.querySelector('#bsi-agg-riga .bsi14-ds').textContent), null, { timeout: 10000 }).catch(() => {});
-  att('il menu ✨ ha la riga e mostra la versione in uso', 'Versione in uso: ' + atteso.replace('bsi-v', 'v'), await pg.textContent('#bsi-agg-riga .bsi14-ds'));
+  /* la finestra, aperta come la apre l'utente: ✨ → 🔄 Aggiornamenti → «Controlla aggiornamenti» */
+  const premi = async () => {
+    await pg.evaluate(() => {
+      const g = document.getElementById('bsi-guide'); if (g) g.remove();
+      const m = document.getElementById('bsiUp-modal');
+      if (!m || !m.classList.contains('open')) { const f = document.getElementById('bsi14-fab'); if (f) f.click(); const r = document.querySelector('#bsi14-sheet [data-key="aggiorna"]'); if (r) r.click(); }
+    });
+    await pg.waitForFunction(() => { const m = document.getElementById('bsiUp-modal'); return m && m.classList.contains('open'); }, null, { timeout: 15000 });
+    await pg.click('#bsiUp-check');
+    await pg.waitForFunction(() => !/Controllo in corso/.test(document.getElementById('bsiUp-status').textContent), null, { timeout: 30000 }).catch(() => {});
+    return pg.evaluate(() => ({ testo: document.getElementById('bsiUp-status').textContent, aggiorna: getComputedStyle(document.getElementById('bsiUp-do')).display !== 'none' }));
+  };
+  const v = atteso.replace('bsi-', '');
 
-  const esito = async () => { await pg.waitForFunction(() => { const a = document.getElementById('bsi-agg-esito'); return a && !/Controllo/.test(a.textContent); }, null, { timeout: 20000 }).catch(() => {}); return pg.evaluate(() => (document.getElementById('bsi-agg-esito') || {}).textContent || ''); };
-
-  await pg.click('#bsi-agg-riga');
-  const r1 = await esito();
-  vero('stessa versione: dice che è già aggiornata, con il numero  [' + r1.slice(0, 90) + ']', /già aggiornata/.test(r1) && r1.indexOf(atteso.replace('bsi-v', 'v')) >= 0);
+  const r1 = await premi();
+  vero('stessa versione: «hai già l\'ultima versione», con il numero  [' + r1.testo.slice(0, 80) + ']', /già l.ultima versione/.test(r1.testo) && r1.testo.indexOf(v) >= 0);
+  att('e niente pulsante «Aggiorna ora»', false, r1.aggiorna);
 
   modo = 'nuova';
-  await pg.evaluate(() => { const a = document.getElementById('bsi-agg-esito'); if (a) a.remove(); });
-  await pg.evaluate(() => { window._aggChiesto = 0; navigator.serviceWorker.getRegistration().then(r => { const u = r.update.bind(r); r.update = () => { window._aggChiesto++; return u(); }; }); });
-  await pg.waitForTimeout(300);
-  const r2 = await pg.evaluate(() => BSIAggiorna.controlla());
-  const t2 = await pg.evaluate(() => (document.getElementById('bsi-agg-esito') || {}).textContent || '');
-  att('versione nuova in rete: la trova', 'nuova', r2);
-  vero('e lo dice, con le due versioni  [' + t2.slice(0, 90) + ']', /v999/.test(t2) && t2.indexOf(atteso.replace('bsi-v', 'v')) >= 0);
-  await pg.waitForTimeout(500);
-  vero('e chiede al service worker di aggiornarsi', await pg.evaluate(() => window._aggChiesto > 0));
+  const r2 = await premi();
+  vero('versione nuova sul sito: la annuncia, con le due versioni  [' + r2.testo.slice(0, 80) + ']', /Nuova versione/.test(r2.testo) && /v999/.test(r2.testo) && r2.testo.indexOf(v) >= 0);
+  att('e offre «Aggiorna ora»', true, r2.aggiorna);
 
   modo = 'offline';
-  const r3 = await pg.evaluate(() => BSIAggiorna.controlla());
-  const t3 = await pg.evaluate(() => (document.getElementById('bsi-agg-esito') || {}).textContent || '');
-  att('senza rete: lo dice', 'offline', r3);
-  vero('con un messaggio comprensibile  [' + t3.slice(0, 70) + ']', /connessione/.test(t3));
+  const r3 = await premi();
+  vero('sito irraggiungibile: lo dice  [' + r3.testo.slice(0, 80) + ']', /Impossibile verificare/.test(r3.testo));
+  await pg.evaluate(() => document.getElementById('bsiUp-modal').classList.remove('open'));
+
+  /* l'avviso a comparsa di BSIAggiorna.controlla(), negli stessi tre casi */
+  const avviso = () => pg.evaluate(() => (document.getElementById('bsi-agg-esito') || {}).textContent || '');
+  modo = 'normale';
+  att('controlla(): stessa versione', 'aggiornata', await pg.evaluate(() => BSIAggiorna.controlla()));
+  vero('e l\'avviso lo dice  [' + (await avviso()).slice(0, 70) + ']', /già aggiornata/.test(await avviso()));
+  modo = 'nuova';
+  await pg.evaluate(() => { window._aggChiesto = 0; return navigator.serviceWorker.getRegistration().then(r => { const u = r.update.bind(r); r.update = () => { window._aggChiesto++; return u(); }; }); });
+  att('controlla(): versione nuova', 'nuova', await pg.evaluate(() => BSIAggiorna.controlla()));
+  await pg.waitForTimeout(500);
+  vero('e chiede al service worker di aggiornarsi', await pg.evaluate(() => window._aggChiesto > 0));
+  modo = 'offline';
+  att('controlla(): senza rete', 'offline', await pg.evaluate(() => BSIAggiorna.controlla()));
+  vero('e l\'avviso parla della connessione', /connessione/.test(await avviso()));
 
   att('nessun errore JavaScript', 0, errs.length);
   errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 160)));
