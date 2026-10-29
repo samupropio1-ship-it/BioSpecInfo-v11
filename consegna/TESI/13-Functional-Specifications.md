@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **159 sezioni**, raggruppate per area di studio.
+L'applicazione conta **194 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -77,6 +77,10 @@ L'applicazione conta **159 sezioni**, raggruppate per area di studio.
 | **🪐 🔥 🧲 ⚛️ 🎡 🔦 🌍 Fisica: approfondimenti** | **Gravitazione** (N corpi, punti di Lagrange, fionda); **Calore e diffusione**; **Modello di Ising**; **Particelle** (Modello Standard, leggi di conservazione, massa invariante della Z, vite medie dei muoni); **Meccanica analitica** (spazio delle fasi e integrale ellittico, doppio pendolo caotico, perlina sull'anello e Noether, Liouville); **Laser e ottica quantistica** (equazioni di bilancio e soglia, modi della cavità e mode locking, Rabi e Bloch, fotoni nel Mach–Zehnder); **Fisica del clima** (bilancio radiativo e strati, forzante della CO₂, ghiaccio–albedo con isteresi, Coriolis) |
 | **🧊 🏔️ Chimica fisica: approfondimenti** | **Diagrammi di fase** (acqua e CO₂ con le curve IAPWS e Span–Wagner, eutettico e leva, Clapeyron e Gibbs); **Superficie di energia potenziale** (LEPS di H + H₂, traiettorie, cammino di reazione, Polanyi) |
 | **🧪 ⚛️ 📐 Materie e Articoli** | Due pulsanti sopra Spectra e ✨ cambiano materia: la barra mostra solo i gruppi di chimica, di fisica o di matematica, più Studio e Utility. La sezione **Articoli** ha le stesse due schede per le tre materie: ultimi articoli (Crossref) e premi con spiegazione per argomento — Nobel per la chimica e per la fisica, Premio Abel e Medaglia Fields per la matematica (Wikidata) |
+| **🔭 Astrofisica: un gruppo di dodici sezioni** | Il gruppo **🔭 Astrofisica** della barra raccoglie 🔭 Astrofisica e 🪐 Gravitazione (prima nel gruppo della fisica) e dieci sezioni in 3D: **Sistema solare 3D** (posizioni alla data dagli elementi kepleriani JPL di Standish, validi 1800–2050; Terra, Luna ed eclissi con la teoria di Meeus troncata; Giove e Saturno); **Meccanica orbitale 3D** (elementi ↔ stato, manovre di Hohmann e bi-ellittiche, satelliti terrestri, Lambert e porkchop); **Matematica celeste** (equazione di Keplero con tre metodi, sfera celeste e quaternioni, integratori a N corpi, periodogrammi di Lomb–Scargle e BLS); **Vita delle stelle 3D** (stella in sezione, Lane–Emden, evoluzione, nucleosintesi); **Buchi neri e relatività generale** (tracciamento dei raggi di Schwarzschild nello shader, geodetiche, curvatura, deflessione e GPS, radiazione di Hawking); **Onde gravitazionali** (spirale, chirp, rivelatore, pulsar di Hulse–Taylor); **Galassie 3D** (tipi di Hubble, curve di rotazione, collisione, Gruppo Locale); **Cosmologia 3D** (espansione di Friedmann–Lemaître, distanze, CMB, storia termica); **Planetario 3D** (circa 170 stelle e 28 costellazioni da un luogo e un'ora qualsiasi, coordinate, precessione, analemma); **Esopianeti 3D** (zona abitabile, transito, velocità radiale, immagine diretta e popolazione) |
+| **🌀 🎲 ☢️ 🧱 🔌 Fisica: cinque laboratori** | **Spin, qubit ed entanglement** (Stern–Gerlach, sfera di Bloch, Bell e CHSH, BB84); **Meccanica statistica** (livelli e anomalia di Schottky, Maxwell–Boltzmann, Fermi e Bose, solidi di Einstein e Debye); **Nuclei e reazioni** (valle di stabilità, valori Q, barriera e tunnel, nucleo 3D, reattore); **Elasticità e materiali** (trazione, travi, carico di Eulero, suono nei solidi); **Elettronica** (raddrizzatori, diodi e Zener, emettitore comune, operazionali, ADC, DAC e contatori) |
+| **🌊 🌀 🔗 🧩 📡 Matematica: cinque laboratori** | **Equazioni alle derivate parziali** (corda, membrana 3D, calore 1D e 2D, Laplace 3D, trasporto e Burgers); **Analisi complessa** (colorazione del dominio, paesaggio di \|f\| in 3D, mappe conformi, Joukowski, residui, integrali reali); **Catene di Markov e processi stocastici** (catena, PageRank, rovina del giocatore, passeggiate in 1, 2 e 3 dimensioni, Poisson e code); **SVD e algebra lineare applicata** (SVD 2×2 e 3×3, compressione di immagini, PCA 3D, minimi quadrati); **Codici e curve ellittiche** (Hamming(7,4), CRC e cifre di controllo, curve su ℝ e su F_p, ECDH) |
+| **🧪 ⚛️ 📐 Tre app in una** | La materia scelta decide anche il **menu ✨**, **Spectra**, **Studio** e **Utility** (`bsi-materie-app.js`). In fisica e matematica il blocco delle funzioni chimiche del menu ✨ lascia il posto agli **strumenti rapidi** (`bsi-attrezzi.js`), aperti in una finestra sopra la pagina: 🧮 calcolatrice esatta, ∂ derivata e ∫ primitiva, 📈 grafico, 🔢 costante CODATA, 🔁 convertitore di unità, 📐 formula, 📖 glossario e ⚡ quiz lampo presi dal kit di studio della materia. Spectra riceve un'istruzione di sistema, i suggerimenti e il saluto della materia |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Esplorazioni** | **Probabilità in movimento** (Galton, limite centrale, Monte Carlo, Bayes); **Matematica visiva** (trasformazioni lineari animate, epicicli di Fourier anche da un disegno a mano, Mandelbrot e Julia con lo zoom, mappa logistica e biforcazioni); **Elettromagnetismo in movimento** (cariche da trascinare con equipotenziali e linee di campo, induzione, generatore, onde EM e polarizzazione); **Suono e acustica** con l'audio (armoniche, timbro, battimenti, Doppler e cono di Mach, decibel); **Semiconduttori** (Fermi-Dirac, n_i, drogaggio, giunzione p-n, LED); **Distillazione** (T-x-y con Antoine e van Laar, azeotropo, McCabe-Thiele, Rayleigh); **Voltammetria ciclica** simulata (diffusione e Butler-Volmer, Randles-Ševčík, analisi con la velocità di scansione) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa** | **Astrofisica**: diagramma H-R con stelle vere e la sequenza principale per massa, corpo nero e colore delle stelle, sistema solare animato con Keplero e Hohmann, transiti di esopianeti con curva di luce e velocità radiale, cosmologia di Friedmann con età dell'universo e galassie che si allontanano. **Relatività ristretta**: Minkowski, gemelli, dinamica e Doppler. **Fluidi**: Venturi, Poiseuille, Reynolds, Stokes e centrifuga, capillarità. **Calcolo vettoriale**: campi con particelle, divergenza e rotore, potenziale, teorema di Green verificato, gradiente. **Cinetica complessa**: reazioni consecutive, parallele e reversibili, Brusselator e biforcazione di Hopf, strutture di Turing. Tutte le animazioni dell'app hanno pausa, ricomincia e velocità, si fermano fuori schermo e rispettano «riduci movimento» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratori in movimento** | Sette sezioni: **Meccanica in movimento** (proiettile con l'aria e angolo ottimo, urti con coefficiente di restituzione, pendolo vero con lo spazio delle fasi, oscillatori accoppiati e modi normali); **Onde e ottica** (battimenti, onde stazionarie, velocità di gruppo; lenti e specchi con i raggi principali; diffrazione da N fenditure nel colore della luce); **Circuiti** (transitori RC, RL, RLC con i tre regimi; corrente alternata con i fasori e la risonanza; filtri con il diagramma di Bode); **Termodinamica in movimento** (cicli di Carnot, Otto, Diesel e Stirling nei piani p-V e T-S con i bilanci; gas di particelle che arriva a Maxwell-Boltzmann; moto browniano); **Metodi numerici** (zeri, integrazione, EDO, interpolazione, con gli ordini di convergenza misurati); **Geometria analitica e vettori** (vettori e rette e piani in 3D, coniche con gli invarianti); **Equilibrio e Le Chatelier** (una reazione che si sposta quando la si disturba, K in funzione di T) |
@@ -185,7 +189,7 @@ che nessun dato esce dal dispositivo senza chiedere di crederci sulla parola.
 
 ### Una misura che nessun altro banco poteva fare
 
-`verifica-accessibilita` percorre le 159 sezioni e misura ciò che è **visibile**.
+`verifica-accessibilita` percorre le 194 sezioni e misura ciò che è **visibile**.
 I sei pannelli di questa sezione stanno dentro un contenitore che resta
 `display:none` finché l'analisi non è stata eseguita: quel banco non li ha mai
 visti, e il suo «contrasto 0» non parlava di loro.
@@ -279,13 +283,29 @@ picchi producesse un nome farebbe un'affermazione che i dati non reggono.
 | **Note** | Globali e per sezione |
 | **Pomodoro** | Timer di studio |
 | **File Manager** | Archivio personale di foto, documenti e pagine HTML |
+| **Kit di studio di fisica e matematica** | Cinque sezioni per materia (`bsi-studio.js`): 🗺️ riassunti con «segna come studiato» e progressi; ❓ quiz per argomento e livello, con risposte mescolate, ripasso degli errori e storico; 🃏 flashcard con il metodo di Leitner a cinque scatole; 📐 formulario; 📖 glossario. Fisica: 69 riassunti, 325 domande, 273 flashcard, 227 formule, 273 voci. Matematica: 66 riassunti, 346 domande, 266 flashcard, 224 formule, 279 voci |
+| **Risorse e bibliografia** | Per fisica, matematica e chimica (`bsi-risorse-materie.js`): risorse web per categoria, bibliografia per livello senza anni né ISBN (i link di ricerca si calcolano dal titolo e dall'autore), citazioni da un DOI letto in diretta da Crossref in APA 7, IEEE, ISO 690 e BibTeX; senza rete, un modulo da compilare a mano |
+| **🔢 Costanti e unità**, **📚 Tavole matematiche** | Costanti CODATA 2018 con quelle esatte del SI segnate; un convertitore che controlla le dimensioni. Tavole di derivate, integrali, serie, identità, trasformate di Laplace e di Fourier e costanti: ogni voce numerica porta una funzione di prova che il banco esegue |
 
 ### 3.8 Assistente «Spectra»
 
-Agente AI con **38 strumenti** che può interrogare l'applicazione stessa:
+Agente AI con **47 strumenti** che può interrogare l'applicazione stessa:
 calcolare descrittori, generare spettri, cercare costanti, bilanciare reazioni,
-aprire sezioni. Supporta dieci fornitori, e resta utilizzabile quando uno di
-essi si guasta (§5.2).
+aprire sezioni, leggere la scheda aperta e agire sui suoi controlli. Supporta
+dieci fornitori, e resta utilizzabile quando uno di essi si guasta (§5.2).
+
+**Spectra Live** (`bsi-spectra-live.js`) è la sua console vocale a tutto
+schermo: conversazione a mani libere con il riconoscimento e la sintesi
+vocale del browser, comandi locali che funzionano senza rete e senza chiave
+(aprire sezioni, cambiare materia, calcolare, derivare, convertire, cercare
+costanti e definizioni, fare grafici, interrogare, muovere cursori, cambiare
+scheda), e il contesto dello schermo aggiunto alle domande che vanno al
+modello. Nella console Spectra ha il **volto** dell'androide «Noir» (modello
+di Skyfox13, CC BY 4.0), con la bocca che segue il testo pronunciato e 17
+emozioni; e una **mente** (`bsi-spectra-mente.js`) che ricorda localmente
+episodi e tempo di studio e tiene uno stato interno di cinque grandezze. È una
+simulazione di comportamento, non una coscienza: vedi
+[`05-AI-Agent-Architecture.md`](05-AI-Agent-Architecture.md) §4.10–4.12.
 
 ---
 
@@ -342,6 +362,19 @@ davvero, **senza bisogno di alcuna chiave**.
 3. Il materiale resta NEL DISPOSITIVO (IndexedDB), non viene trasmesso
 ```
 
+### 4.5 Controllare gli aggiornamenti
+
+```
+1. Menu ✨ → 🔄 Aggiornamenti → «Controlla aggiornamenti»
+2. L'app chiede al service worker attivo quale versione sta servendo
+   (messaggio BSI_VERSIONE) e scarica sw.js dallo stesso sito, senza cache;
+   se non ci riesce, prova la copia su GitHub
+3. Risponde sempre, in uno di tre modi:
+     · stessa versione   → «Hai già l'ultima versione pubblicata», con il numero
+     · versione nuova    → la annuncia con le due versioni e offre «Aggiorna ora»
+     · sito irraggiungibile → lo dice; l'app continua a funzionare offline
+```
+
 ---
 
 ## 5. Regole di business
@@ -389,10 +422,14 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 3 | **Nessuna sincronizzazione** | I dati non passano da un dispositivo all'altro, e non esistono copie sul server |
 | 4 | **File Manager: deterrente, non sicurezza** | Su un sito statico chi legge il sorgente aggira qualunque controllo lato pagina. Nel sorgente c'è solo l'impronta SHA-256 della password, mai la password |
 | 5 | **Funzioni che richiedono rete** | Nome IUPAC, CAS, GHS, conformeri 3D, assistente AI |
-| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 159 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
+| 6 | **Accessibilità automatizzata, non completa** | Contrasto, nomi accessibili, etichette, gerarchia dei titoli su 13 pagine e tutte le 194 sezioni: **0 difetti**, compreso il testo su gradiente (valutato sulla tappa peggiore). Restano fuori il testo dentro gli SVG e quello su una vera immagine di sfondo, contati a ogni esecuzione, e tutto ciò che richiede giudizio umano |
 | 7 | **Cromatografia: nessuna previsione di ritenzione** | La sezione calcola risoluzione, efficienza e indici **dati** k, α e N; non prevede k da una struttura, che richiederebbe parametri sperimentali della fase stazionaria |
 | 8 | **Copertura di codice parziale** | Misurata: **49,89 %** di istruzioni sul percorso più ampio che un banco compie. Non è la copertura dell'intera batteria, ed è di istruzioni, non di rami; vedi `08-Traceability-Matrix.md` §8 |
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
+| 10 | **La mente di Spectra è una simulazione** | Memoria e stato interno sono dati e regole nel browser, non comprensione né sentimenti. Il quadro della mente e il contesto dello schermo vanno al fornitore insieme alla domanda, quando la domanda va al modello |
+| 11 | **Alcuni dati di astrofisica sono illustrativi** | La popolazione di esopianeti non è un catalogo; le «osservazioni» delle curve di rotazione sono un modello con rumore; la mappa della CMB è sintetizzata da uno spettro di potenza illustrativo. Le sezioni lo dichiarano |
+| 12 | **Spectra Live e gli strumenti rapidi senza banco** | I comandi vocali e locali, gli strumenti che agiscono sulla pagina e il menu ✨ per materia sono provati a mano (`08-Traceability-Matrix.md` §6, UI-21 e AI-13) |
+| 13 | **Il volto di Spectra pesa circa 8 MB** | `models/spectra-noir.glb` non è nel precarico del service worker: si scarica la prima volta che l'app ricava l'icona di Spectra (pochi secondi dopo il primo avvio, se c'è WebGL) o apre la console. Se non arriva, la console usa il volto di ripiego |
 
 ---
 
@@ -410,4 +447,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

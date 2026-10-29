@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -871,6 +871,80 @@ sovrapposti.
 
 ---
 
+## 4-bis. Astrofisica, laboratori di fisica e matematica, kit di studio
+
+### 4-bis.1 Da dove vengono i dati
+
+| Sezione | Dati usati | Fonte dichiarata nel codice |
+|---|---|---|
+| 🪐 Sistema solare 3D, 🔭 Planetario 3D | Elementi kepleriani J2000 dei pianeti e loro variazioni secolari | Tabella di E. M. Standish (JPL), «Keplerian elements for the approximate positions of the major planets», valida 1800–2050 |
+| 🪐 Sistema solare 3D, 🔭 Planetario 3D | Data giuliana, tempo siderale, Sole, Luna, satelliti medicei | J. Meeus, *Astronomical Algorithms* (capitoli 7, 12, 25, 44, 47; teoria della Luna troncata ai termini maggiori, ~0,1°) |
+| 🔭 Planetario 3D | Circa 170 stelle luminose: α, δ (J2000), V, B − V; 28 costellazioni | Valori arrotondati; i moti propri sono trascurati |
+| 🌠 Cosmologia 3D | Parametri cosmologici | Planck 2018: Ω_m = 0,315, Ω_Λ = 0,685, H₀ = 67,4 km/s/Mpc |
+| 🌌 Galassie 3D | Posizioni e distanze del Gruppo Locale | Compilazioni di Mateo (1998) e McConnachie (2012), valori arrotondati |
+| ⭐ Vita delle stelle 3D, ☢️ Nuclei e reazioni | Masse atomiche | AME2016/AME2020, arrotondate |
+| 🕳️ Buchi neri, 🔢 Costanti e unità | Costanti fisiche | CODATA 2018; quelle che definiscono il SI dal 2019 sono segnate esatte |
+
+**Dichiarati illustrativi**, e le sezioni lo scrivono: la popolazione del
+diagramma massa-periodo degli esopianeti (non è un catalogo), le
+«osservazioni» delle curve di rotazione (il modello di riferimento con rumore
+riproducibile), i parametri del disco «simili alla Via Lattea», la mappa della
+radiazione cosmica di fondo (sintetizzata con armoniche sferiche da uno
+spettro di potenza illustrativo, tarato perché i picchi somiglino a quelli
+di Planck).
+
+### 4-bis.2 Come è verificato
+
+Ognuna delle venti sezioni nuove ha uno script in
+`tools/banchi/verifiche/verifica-<id>.js`, eseguito da `test_v237`, che mette
+i calcoli davanti a un valore noto o a un secondo metodo indipendente. Alcuni
+esempi, con il valore stampato dallo script:
+
+| Sezione | Confronto | Ottenuto |
+|---|---|---|
+| 🪐 Sistema solare | data giuliana del 1957 ott 4,81 (Meeus, es. 7.a) | 2436116,31 |
+| 🪐 Sistema solare | Marte 2003: massimo avvicinamento 0,3727 UA il 27 agosto | 0,3730 UA il 27/8 |
+| 🛰️ Meccanica orbitale | Curtis, es. 4.3: h, i, Ω, e, ω, ν, a dallo stato | 58312, 153,25°, 255,28°, 0,1712, 20,07°, 28,45°, 8788 km |
+| 🛰️ Meccanica orbitale | elementi → stato → elementi su 2000 orbite casuali | errore relativo 2,8·10⁻¹⁴ |
+| 📐 Matematica celeste | limite di Laplace della serie di Lagrange | 0,6627434 |
+| ⭐ Vita delle stelle | Lane–Emden: primo zero per n = 3 | 6,89685 (ρ_c/ρ̄ = 54,18) |
+| 🕳️ Buchi neri | precessione di Mercurio, 42,98″ al secolo | 42,982″ |
+| 🕳️ Buchi neri | deflessione al bordo del Sole, 1,75″ | 1,7512″ |
+| 〰️ Onde gravitazionali | massa di chirp di GW150914 (36 + 29 M☉) | 28,096 M☉ |
+| 🌌 Galassie | disco di Freeman: picco della velocità a R/R_d = 2,15 | 2,150 |
+| 🌠 Cosmologia | età dell'universo con i parametri di Planck (13,8 ± 0,1 Gyr) | 13,791 Gyr |
+| 🔭 Planetario | tempo siderale a Greenwich, 1987 apr 10 0h UT (Meeus, es. 12.a) | 13,1795463 h |
+| 🌍 Esopianeti | temperatura di equilibrio della Terra (A = 0,3) | 254,8 K |
+| 🌀 Spin e qubit | HZH = X, HXH = Z | scarto 2,2·10⁻¹⁶ |
+| 🎲 Meccanica statistica | picco di Schottky: kT = 0,4168 Δ, C = 0,4392 k | 0,41678; 0,43923 |
+| ☢️ Nuclei | B/A del ⁵⁶Fe dalle masse | 8,7903 MeV |
+| ☢️ Nuclei | Q della reazione D + T → ⁴He + n | 17,589 MeV |
+| 🧱 Materiali | profilo a I: formula contro Huygens–Steiner | 7,9990 contro 7,9990 (·10⁷ mm⁴) |
+| 🔌 Elettronica | diodo: Newton contro forma chiusa con la W di Lambert | 0,650463089 V in entrambi |
+| 🌊 EDP | zero j₀₁ della funzione di Bessel | 2,404825557695773 |
+| 🌀 Analisi complessa | e^(iπ) + 1 = 0 | 1,2·10⁻¹⁶ |
+| 🔗 Markov | distribuzione stazionaria con le potenze e con la regola di Cramer | π₀ = 0,4615384615384615 in entrambi |
+| 🧩 SVD | [[1,1],[0,1]]: σ₁ = φ, σ₂ = 1/φ | 1,6180339887498947; 0,6180339887498948 |
+| 📡 Codici | CRC-32("123456789") = 0xCBF43926; Hamming(7,4) corregge tutti i 112 errori singoli | 0xCBF43926; 112 su 112 |
+
+In tutto i venti script eseguono **705 controlli**. Gli script dei kit di
+studio controllano lo schema e le quantità minime dei dati e, per la
+matematica, ricalcolano **264 risposte di quiz** su 346 domande; quello delle
+risorse controlla i formati delle citazioni su record Crossref costruiti a
+mano e le prove numeriche delle tavole.
+
+### 4-bis.3 Il modello 3D del volto di Spectra
+
+Il volto della console Spectra Live è il modello «Noir» di Skyfox13
+(<https://sketchfab.com/podderkuntal25>), pubblicato su Sketchfab con licenza
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), file
+`models/spectra-noir.glb`. È stato **modificato**: texture ricompresse,
+tangenti tolte, viso reso in metallo grigio scuro, testa e bocca animate dal
+codice. Non porta dati scientifici; l'attribuzione compare nella console e in
+[`07-SBOM.md`](07-SBOM.md).
+
+---
+
 ## 5. Automazione della verifica
 
 Tutti i controlli descritti sono eseguibili e ripetibili. Al momento della
@@ -884,6 +958,7 @@ stesura la batteria comprende, fra gli altri:
 | `test_costanti` | ricerca delle costanti fisiche e rifiuto delle ambiguità | 45 |
 | `audit_dati` | coerenza dei dati tabulati | 29 |
 | `verifica_guida` | corrispondenza fra ciò che la documentazione promette e ciò che il codice fa | 71 |
+| `test_v237` | le venti sezioni di astrofisica, fisica e matematica contro valori noti o un secondo metodo (§4-bis.2), i kit di studio e le risorse | 705 nei venti script, più i kit, le risorse e le prove nel browser |
 
 L'ultimo banco merita una menzione: verifica che le affermazioni contenute nella
 documentazione utente corrispondano al comportamento reale del codice. Una
@@ -906,4 +981,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

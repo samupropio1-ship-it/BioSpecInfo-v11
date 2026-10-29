@@ -16,6 +16,7 @@ code is covered by the project [`LICENSE`](LICENSE) ("All rights reserved").
 | SmilesDrawer | `smiles-drawer.min.js` | MIT | Daniel Probst & contributors |
 | sql.js (SQLite → WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | MIT | sql.js authors; SQLite is public domain |
 | PDF.js | `vendor/pdfjs/pdf.min.mjs`, `vendor/pdfjs/pdf.worker.min.mjs`, `vendor/pdfjs/standard_fonts/` | Apache-2.0 | Mozilla Foundation & PDF.js contributors |
+| «Noir» 3D model (Spectra's face) | `models/spectra-noir.glb` | CC BY 4.0 | Skyfox13 (Sketchfab) |
 
 > The exact version of each library is the one bundled in this repository.
 
@@ -142,3 +143,19 @@ The full licence text as shipped by the project is kept verbatim in
 > browsers that do not have them yet — including the Chromium the verification
 > battery runs on. The legacy build is the one meant for wider support, and a
 > PWA that has to open on a three-year-old phone needs it.
+
+---
+
+## «Noir» 3D model — CC BY 4.0
+
+```
+"Noir" by Skyfox13 (https://sketchfab.com/podderkuntal25), published on
+Sketchfab: https://sketchfab.com/3d-models/noir-8edf174437494f0080b4cd5aa0f0509c
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+```
+
+The model has been **modified**: textures recompressed, tangents removed, the
+face rendered as dark grey metal, head and mouth animated by
+`bsi-spectra-androide.js`. The attribution is also shown in the Spectra Live
+console.

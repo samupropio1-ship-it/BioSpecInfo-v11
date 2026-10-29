@@ -117,7 +117,7 @@ In coerenza con il principio di trasparenza scientifica:
 
 ---
 
-## 7. Batteria di verifica — stato alla versione `bsi-v236`
+## 7. Batteria di verifica — stato alla versione `bsi-v237`
 
 La verifica non è più solo end-to-end funzionale: comprende banchi dedicati alle
 proprietà che un test funzionale non osserva (stabilità nel tempo, degrado di
@@ -127,17 +127,17 @@ rete, accuratezza dei dati).
 
 | Famiglia | Banchi | Oggetto |
 |---|---|---|
-| **Dati scientifici** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche |
+| **Dati scientifici** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati`, `test_v237` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche; le venti sezioni di astrofisica, fisica e matematica contro valori noti o un secondo metodo |
 | **Agente AI** | `test_ko`, `test_404`, `test_503`, `test_firma`, `test_attesa`, `test_attesalunga`, `test_tetto`, `test_nucleo`, `browser_ko`, `browser_prova` | modello ritirato, CORS, sovraccarico, firme di ragionamento, tetto di token, attese prolungate, memoria dei fornitori irraggiungibili |
 | **Stabilità** | `audit_stabilita`, `audit_promesse`, `audit_quota`, `test_filemanager`, `test_doppioinvio`, `test_sw`, `test_visore3d` | sessioni lunghe, promesse rifiutate, memoria esaurita, archivio non disponibile, invii sovrapposti, rete degradata, contesti WebGL |
-| **Interfaccia** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_guidaproxy` | pannelli, proxy, laboratorio RDKit, aggiornamenti |
+| **Interfaccia** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_controllaagg`, `test_guidaproxy` | pannelli, proxy, laboratorio RDKit, aggiornamenti (anche il pulsante «Controlla» premuto nei tre casi: già aggiornata, versione nuova, sito irraggiungibile) |
 | **Coerenza** | `verifica_guida` | corrispondenza documentazione ⟷ codice, marcatori di conflitto su 58 file |
 
 ### 7.2 Proprietà verificate che un test funzionale non osserva
 
 | Proprietà | Metodo | Risultato misurato |
 |---|---|---|
-| Assenza di perdite di memoria | 159 sezioni aperte per 5 giri, conteggio nodi DOM per giro | costruzione +26 876 nodi al primo giro, **+0 nei quattro successivi** |
+| Assenza di perdite di memoria | 194 sezioni aperte per 5 giri, conteggio nodi DOM per giro | costruzione +26 876 nodi al primo giro, **+0 nei quattro successivi** |
 | Sopravvivenza a memoria esaurita | `localStorage.setItem` forzato a lanciare | 10 pagine su 10 restano operative |
 | Degrado di rete (≠ assenza di rete) | richieste sospese 20 s, intercettazione a livello di contesto | risposta dalla cache in **3 507 ms** (soglia 3 500 ms) |
 | Riproducibilità degli spettri | doppio disegno, confronto byte a byte | identici |

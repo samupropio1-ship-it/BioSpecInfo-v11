@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 159 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 194 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra | L'assistente che risponde alle domande |
 
@@ -171,6 +171,30 @@ derivandole, si riottiene la funzione di partenza.
 
 Sopra **Spectra** e **✨** ci sono due pulsanti tondi: sono le due materie in cui non ti trovi — la **beuta** per la chimica, l'**atomo** per la fisica, la **Σ** per la matematica. Toccandone uno, la barra mostra solo i gruppi di quella materia (più 📚 Studio e 🛠️ Utility, che servono a tutte) e si apre la sua Area. La scelta resta anche quando riapri l'app; se apri una sezione di un'altra materia, per esempio dalla ricerca o da Spectra, la barra la segue da sola.
 
+La materia non cambia solo la barra: cambia l'app intera. In **📚 Studio** e **🛠️ Utility** restano le voci comuni e compaiono quelle della materia (per la fisica, per esempio, i riassunti, i quiz e le costanti di fisica); Spectra ha istruzioni, suggerimenti e saluto della materia; il menu **✨** in fisica e in matematica mostra gli **strumenti rapidi**, che si aprono in una finestra sopra la pagina senza farti perdere il punto in cui eri:
+
+| Strumento | Che cosa fa |
+|---|---|
+| 🧮 **Calcolatrice** | Calcolo esatto: frazioni e radici restano tali, poi il decimale |
+| ∂ **Derivata** e ∫ **primitiva** | Con il motore simbolico dell'app |
+| 📈 **Grafico** | Una o più funzioni di x |
+| 🔢 **Costante** e 🔁 **unità** | Costanti CODATA e conversione di unità con il controllo delle dimensioni |
+| 📐 **Formula**, 📖 **glossario**, ⚡ **quiz lampo** | Presi dal kit di studio della materia |
+
+Se un dato che lo strumento usa non è caricato, lo strumento lo dice invece di inventare.
+
+### 🔭 Il gruppo Astrofisica
+
+Nella barra c'è un gruppo **🔭 Astrofisica** con dodici sezioni: **🔭 Astrofisica** e **🪐 Gravitazione**, che prima stavano in ⚛️ Fisica, e dieci sezioni in 3D — 🪐 Sistema solare 3D (scegli una data e vedi dove sono i pianeti), 🛰️ Meccanica orbitale 3D, 📐 Matematica celeste, ⭐ Vita delle stelle 3D, 🕳️ Buchi neri e relatività generale, 〰️ Onde gravitazionali, 🌌 Galassie 3D, 🌠 Cosmologia 3D, 🔭 Planetario 3D (il cielo da Bari o da un luogo che scegli, a un'ora qualsiasi; un clic su una stella ne dà le coordinate e gli orari) ed 🌍 Esopianeti 3D. Le scene si ruotano trascinando e si ingrandiscono con due dita o con la rotellina. Su un telefono lento le scene 3D possono metterci qualche istante ad aprirsi. Alcuni dati sono illustrativi e la sezione lo dice: la popolazione di esopianeti non è un catalogo, e la mappa della radiazione cosmica di fondo è sintetizzata.
+
+### 🌀 I nuovi laboratori di fisica e di matematica
+
+In **⚛️ Fisica**: 🌀 Spin, qubit ed entanglement, 🎲 Meccanica statistica, ☢️ Nuclei e reazioni, 🧱 Elasticità e materiali, 🔌 Elettronica. In **📐 Matematica**: 🌊 Equazioni alle derivate parziali, 🌀 Analisi complessa, 🔗 Catene di Markov e processi stocastici, 🧩 SVD e algebra lineare applicata, 📡 Codici e curve ellittiche. Come negli altri laboratori, i cursori stanno accanto alla simulazione e la nota sotto spiega che cosa si vede.
+
+### 🗺️ Kit di studio e risorse di fisica e matematica
+
+Con la fisica o la matematica scelta, in **📚 Studio** trovi cinque sezioni: **🗺️ Riassunti** (segna quelli che hai studiato e guarda i progressi), **❓ Quiz** (scegli argomento, livello e numero di domande; tasti 1–4 e Invio; alla fine il punteggio per argomento e il ripasso degli errori), **🃏 Flashcard** (metodo di Leitner a cinque scatole: una carta sbagliata torna nella prima), **📐 Formulario** (con «copia») e **📖 Glossario**. In **🛠️ Utility** ci sono **🌐 Risorse e bibliografia** (link per categoria, testi per livello, e la scheda **Citazioni**: incolli un DOI e ottieni la citazione in APA 7, IEEE, ISO 690 o BibTeX), più **🔢 Costanti e unità** per la fisica e **📚 Tavole matematiche** per la matematica. La chimica ha la sua sezione 📚 Bibliografia e citazioni. I tuoi progressi restano solo su questo dispositivo.
+
 ### 📰 Gli articoli delle tre materie
 
 In **📰 Articoli** scegli in alto 🧪 Chimica, ⚛️ Fisica o 📐 Matematica. Ogni materia ha gli **ultimi articoli** (otto argomenti) e i suoi **premi**: il Nobel per la chimica e per la fisica, il **Premio Abel** e la **Medaglia Fields** per la matematica, che il Nobel non ce l'ha. Anni, nomi e motivazioni arrivano in diretta dalla Fondazione Nobel e da Wikidata; ogni premio ha una spiegazione scritta per l'argomento.
@@ -185,7 +209,7 @@ In **📐 Matematica**: **🎲 Probabilità in movimento** e **🎞️ Matematic
 
 ### 🔭 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa
 
-In **⚛️ Fisica** ci sono **🔭 Astrofisica**, **⏱️ Relatività ristretta** e **🌊 Fluidi**; in **📐 Matematica** **∇ Calcolo vettoriale**; in **⚗️ Chimica Fisica** **🌀 Cinetica complessa**. Sotto ogni animazione c'è una barra: **⏸/▶** ferma e riprende, **↺** ricomincia, **×¼ … ×4** cambia la velocità, a destra il tempo trascorso. Le animazioni si fermano da sole quando escono dallo schermo; con «riduci movimento» attivo nel sistema partono ferme e si avviano con ▶.
+Nel gruppo **🔭 Astrofisica** c'è **🔭 Astrofisica**; in **⚛️ Fisica** ci sono **⏱️ Relatività ristretta** e **🌊 Fluidi**; in **📐 Matematica** **∇ Calcolo vettoriale**; in **⚗️ Chimica Fisica** **🌀 Cinetica complessa**. Sotto ogni animazione c'è una barra: **⏸/▶** ferma e riprende, **↺** ricomincia, **×¼ … ×4** cambia la velocità, a destra il tempo trascorso. Le animazioni si fermano da sole quando escono dallo schermo; con «riduci movimento» attivo nel sistema partono ferme e si avviano con ▶.
 
 ### 🎯 I laboratori in movimento
 
@@ -444,6 +468,41 @@ Se un servizio smette di rispondere, Spectra se lo ricorda per 24 ore e lo
 sposta in fondo all'elenco, sotto la voce *«Non hanno risposto da questo
 dispositivo»*. Non lo cancella: domani potrebbe tornare a funzionare.
 
+### Spectra Live: parlarle
+
+Nella testata di Spectra il pulsante **◈ Live** (oppure `Ctrl+Shift+J`) apre la
+console a tutto schermo. Premi il microfono e parla: Spectra ascolta, risponde
+a voce e poi torna ad ascoltare, così puoi continuare senza toccare niente. Di'
+«stop» o tocca lo schermo per interromperla. Se il browser non ha il
+riconoscimento o la sintesi vocale, la console lo dice e puoi scrivere.
+
+Alcune richieste Spectra le esegue da sola, **senza rete e senza chiave**:
+«apri il planetario», «passa a fisica», «calcola 3/4 + 1/6», «derivata di
+x^2 sin(x)», «converti 5 km in m», «costante di Planck», «definisci
+derivata», «grafico di sin(x)», «interrogami», «imposta la temperatura a
+300», «scheda Maxwell», «pausa», «dove sono». Tutto il resto va al servizio di intelligenza
+artificiale che hai scelto, insieme a un breve riassunto di ciò che hai sullo
+schermo. Se chiedi di «questo grafico» o premi **👁**, Spectra allega anche
+un'immagine dei grafici della scheda aperta.
+
+### Il volto e la mente di Spectra
+
+Nella console Spectra ha un volto: un androide in 3D (il modello «Noir» di
+Skyfox13, licenza CC BY 4.0, modificato; il credito è in basso nella console).
+La bocca si muove sul testo che pronuncia, la testa segue lo sguardo, e
+l'espressione cambia con quello che dice e che le dici: 17 espressioni, dal
+sorriso al dubbio. Gli occhi hanno il blu dell'app. Senza grafica 3D vedi un
+volto più semplice.
+
+Spectra ricorda le conversazioni e il tempo che passi nelle sezioni, e ha uno
+stato interno (curiosità, attenzione, premura, umore, legame) che cambia il
+tono del saluto e i suggerimenti, per esempio una pausa dopo un'ora e mezza di
+studio. **È una simulazione di comportamento, non una coscienza**: sono numeri
+e regole, non sentimenti. Tutto resta su questo dispositivo; di' «cosa ricordi
+di me» per vederlo e «dimentica tutto» per cancellarlo. Quando una domanda va
+al servizio di intelligenza artificiale, anche un riassunto di questa memoria
+lo accompagna.
+
 ---
 
 ## Il File Manager
@@ -481,8 +540,11 @@ Menu ✨ → Impostazioni → cancellazione dati. Puoi scegliere **cosa**: solo 
 chiavi, solo le conversazioni, solo lo studio, oppure tutto.
 
 **Ho aggiornato ma non vedo niente di nuovo.**
-Menu ✨ → **Aggiornamenti** → *Controlla*. Lì vedi anche quale versione stai
-usando.
+Menu ✨ → **🔄 Aggiornamenti** → **Controlla aggiornamenti**. Lì vedi anche
+quale versione stai usando, e il controllo risponde sempre in uno di tre modi:
+*hai già l'ultima versione* (con il numero), *nuova versione disponibile* (con
+il pulsante **Aggiorna ora**), oppure *impossibile verificare ora*, se il sito
+non risponde — l'app continua comunque a funzionare offline.
 
 **Posso fidarmi degli spettri per una relazione?**
 Per riconoscere i gruppi funzionali e capire la relazione struttura-spettro, sì.
@@ -517,4 +579,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v236`._
+_Guida aggiornata alla versione `bsi-v237`._

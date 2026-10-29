@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -135,6 +135,27 @@ deve essere una condanna definitiva.
 | `bsi_ds_prog`, `bsi_ds_proj` | Avanzamento del modulo di data science |
 | `bsi_section` | Ultima sezione aperta, per riprendere da lì |
 | `bsi_guide_v3` | Guida introduttiva già vista |
+| `bsi-materia` | Materia scelta: `chimica`, `fisica` o `matematica` |
+| `bsi-studio:<materia>:studiati` | Kit di studio: riassunti segnati come studiati |
+| `bsi-studio:<materia>:leitner` | Kit di studio: scatola di Leitner (1–5) di ogni flashcard, `{ id: scatola }` |
+| `bsi-studio:<materia>:quiz` | Kit di studio: storico dei quiz ed errori da ripassare |
+
+`<materia>` è `fisica`, `matematica` o `chimica`. Ogni lettura e scrittura del
+kit è protetta: in navigazione privata il deposito può mancare o essere pieno,
+e il kit resta usabile senza ricordare i progressi.
+
+### 2.3-bis Spectra Live e la mente di Spectra
+
+| Chiave | Contenuto | Ciclo di vita |
+|---|---|---|
+| `bsi-spectra-mente-v1` | JSON: `episodi` (al massimo 300: ora, materia, sezione, domanda troncata a 160 caratteri, esito), `sezioni` (tempo e visite per sezione), `ore` (24 contatori), `materie` (secondi per materia), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, fra 0 e 1), `emozioni` (al massimo 60) | Finché l'utente non dice «dimentica tutto», che azzera l'oggetto e rimuove la chiave |
+| `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
+| `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
+
+La mente è una simulazione di comportamento: la chiave contiene numeri e testi,
+non altro. Il suo riassunto (`BSISpectraMente.coscienza()`) si aggiunge alle
+domande che vanno al fornitore di intelligenza artificiale scelto
+dall'utente; senza domande al modello non esce dal dispositivo.
 
 ### 2.4 Identificativi e licenza
 
@@ -227,6 +248,11 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 | `studio` | Ripetizione spaziata, quiz, percorso di studio, note |
 | `tutto` | Ogni chiave `bsi_*` e l'intero archivio IndexedDB |
 
+Le chiavi con il trattino (`bsi-materia`, `bsi-studio:*`, `bsi-spectra-*`) non
+rientrano nei gruppi di `bsiCancellaDati()`: la memoria di Spectra si cancella
+con «dimentica tutto», i progressi dei kit di studio solo dalle impostazioni
+del browser.
+
 La cancellazione dell'archivio prosegue anche se una singola voce fallisce, e
 riporta quante non sono state eliminate: un'operazione «elimina tutto» che si
 ferma a metà senza dirlo sarebbe peggio del problema che risolve.
@@ -247,4 +273,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

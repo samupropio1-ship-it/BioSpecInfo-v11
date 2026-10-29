@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -139,6 +139,27 @@ not be a permanent sentence.
 | `bsi_ds_prog`, `bsi_ds_proj` | Progress in the data-science module |
 | `bsi_section` | Last section opened, to resume from there |
 | `bsi_guide_v3` | Introductory guide already seen |
+| `bsi-materia` | Chosen subject: `chimica`, `fisica` or `matematica` |
+| `bsi-studio:<subject>:studiati` | Study kit: summaries marked as studied |
+| `bsi-studio:<subject>:leitner` | Study kit: Leitner box (1–5) of each flashcard, `{ id: box }` |
+| `bsi-studio:<subject>:quiz` | Study kit: quiz history and mistakes to review |
+
+`<subject>` is `fisica`, `matematica` or `chimica`. Every read and write of the
+kit is guarded: in private browsing the storage may be missing or full, and
+the kit stays usable without remembering progress.
+
+### 2.3-bis Spectra Live and Spectra's mind
+
+| Key | Content | Lifecycle |
+|---|---|---|
+| `bsi-spectra-mente-v1` | JSON: `episodi` (at most 300: time, subject, section, question cut to 160 characters, outcome), `sezioni` (time and visits per section), `ore` (24 counters), `materie` (seconds per subject), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, between 0 and 1), `emozioni` (at most 60) | Until the user says «forget everything», which resets the object and removes the key |
+| `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
+| `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
+
+The mind is a simulation of behaviour: the key holds numbers and text,
+nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
+questions that go to the artificial-intelligence provider the user chose;
+without questions to the model it does not leave the device.
 
 ### 2.4 Identifiers and licence
 
@@ -235,6 +256,10 @@ everything. The groups are defined in `bsiCancellaDati()`.
 | `studio` | Spaced repetition, quizzes, study path, notes |
 | `tutto` | Every `bsi_*` key and the entire IndexedDB archive |
 
+The hyphenated keys (`bsi-materia`, `bsi-studio:*`, `bsi-spectra-*`) are not
+part of the `bsiCancellaDati()` groups: Spectra's memory is erased with
+«forget everything», the study-kit progress only from the browser's settings.
+
 Deleting the archive proceeds even if a single entry fails, and reports how many
 were not removed: a "delete everything" operation that stops halfway without
 saying so would be worse than the problem it solves.
@@ -255,4 +280,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

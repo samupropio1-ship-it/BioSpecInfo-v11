@@ -5,7 +5,7 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
 [![Versione](https://img.shields.io/badge/versione-bsi--v237-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-77%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)<!--ESITO-BATTERIA-->
+[![Verifica](https://img.shields.io/badge/banchi-77%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2091%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 

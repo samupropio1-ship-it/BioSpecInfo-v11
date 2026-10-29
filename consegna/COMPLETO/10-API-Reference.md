@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v236` |
+| **Versione descritta** | `bsi-v237` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -293,6 +293,9 @@ dati locali, e lo dichiara all'utente.
 | **RCSB PDB** | `https://files.rcsb.org/download/{pdb}.pdb` | Strutture proteiche per il visore 3D | Messaggio esplicito nel visore |
 | **NASA / ESA** | Immagini e dati pubblici | Modulo di astrochimica | Il modulo mostra i dati tabulati |
 | **Fornitori AI** | A scelta dell'utente, o via proxy | Risposte dell'assistente | L'assistente lo dichiara e propone un'alternativa raggiungibile |
+| **Crossref REST** | `https://api.crossref.org/works/{doi}` | Scheda di un'opera per le citazioni (APA 7, IEEE, ISO 690, BibTeX) nelle sezioni Risorse e bibliografia | Lo dichiara, con l'indirizzo della richiesta; resta il modulo da compilare a mano |
+| **Stesso sito dell'app** | `./sw.js?controllo=<ora>` con `cache: 'no-store'` | «Controlla aggiornamenti»: la riga `var CACHE = 'bsi-vNNN'` è la versione pubblicata | Si prova il ripiego su GitHub |
+| **GitHub (ripiego)** | `https://raw.githubusercontent.com/samupropio1-ship-it/BioSpecInfo-v11/main/sw.js` | Stessa lettura, solo se lo stesso sito non risponde | «Impossibile verificare ora», l'app continua offline |
 
 Nessuna di queste chiamate trasmette dati personali. Non sono presenti
 identificativi persistenti né telemetria attiva (`BSI_TELEMETRY_URL` è vuoto).
@@ -336,6 +339,91 @@ Punti di estensione per chi deve intervenire sul codice. Sono globali sul
 | `window.bsiCancellaDati(gruppi)` | Cancellazione selettiva dei dati salvati |
 | `window.bsiOpenUpdate()` | Apre la finestra degli aggiornamenti |
 
+### `window.BSIAggiorna` — controllo degli aggiornamenti (`bsi-aggiorna.js`)
+
+| Funzione | Firma | Descrizione |
+|---|---|---|
+| `controlla` | `() → Promise<'aggiornata' \| 'nuova' \| 'offline'>` | Confronta la versione in uso con quella pubblicata e lo dice in un avviso a comparsa (`#bsi-agg-esito`). Se la versione è diversa chiede al service worker di aggiornarsi (`registration.update()`). Risponde sempre |
+| `versioneInUso` | `() → Promise<string \| null>` | Chiede al service worker attivo il nome della sua cache con il messaggio `{ type: 'BSI_VERSIONE' }` su un `MessageChannel`; `null` senza service worker o dopo 1,5 s senza risposta |
+| `versionePubblicata` | `() → Promise<string \| null>` | Scarica `./sw.js?controllo=<ora>` senza cache e ne legge `var CACHE = '…'` |
+
+Il service worker risponde al messaggio `BSI_VERSIONE` con `{ cache: CACHE }`
+sulla porta ricevuta. La finestra 🔄 Aggiornamenti usa queste funzioni e, se lo
+stesso sito non risponde, legge la copia di `sw.js` su GitHub.
+
+### `window.BSIAttrezzi` — strumenti rapidi del menu ✨ (`bsi-attrezzi.js`)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `apri` | `(chiave, materia) → boolean` | Apre lo strumento in una finestra sopra la pagina. Chiavi: `calcolatrice`, `derivata`, `grafico`, `costante`, `unita`, `formula`, `glossario`, `quiz`. `false` se la chiave non esiste |
+| `chiudi` | `()` | Chiude la finestra |
+| `STRUMENTI` | oggetto | Icona, nome, descrizione e funzione di apertura di ogni strumento |
+| `PER_MATERIA` | oggetto | Quali strumenti mostra il menu ✨ per `fisica` e `matematica` (per `chimica` nessuno) |
+| `calcolo.calcola` | `(testo) → { esatto, html, valore } \| { errore }` | Calcolo esatto con `BSIMatCAS` |
+| `calcolo.derivaTesto`, `calcolo.integraTesto` | `(testo, x?) → { testo, html } \| { errore }` | Derivata e primitiva simboliche |
+| `calcolo.campioni` | `(testo, a, b, n)` | Punti di una funzione di x per il grafico; `null` senza motore simbolico |
+| `calcolo.cerca` | `(lista, q, campi)` | Ricerca che non bada agli accenti |
+| `calcolo.quizLampo` | `(materia, n, seme)` | Domande estratte dal kit di studio con un generatore riproducibile; `null` senza kit |
+
+### `window.BSIStudio` — motore dei kit di studio (`bsi-studio.js`)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `registra` | `(materia, dati) → boolean` | Unisce i dati di una materia (`argomenti`, `riassunti`, `quiz`, `flash`, `formule`, `glossario`) e crea le cinque sezioni `s<pre>riass`, `s<pre>quiz`, `s<pre>flash`, `s<pre>form`, `s<pre>gloss` (`pre`: `fis`, `mat`, `chi`). Un file di dati caricato prima del motore si mette in coda in `window.BSIStudioCoda` |
+| `dati` | `(materia) → oggetto \| null` | I dati uniti della materia |
+| `materie` | `() → string[]` | Le materie registrate |
+| `sezioni` | `(materia) → string[]` | Gli id delle cinque sezioni |
+| `valida` | `(dati, opz) → string[]` | I problemi trovati, in italiano; un elenco vuoto vuol dire «va bene». Con `{ quantita: true }` controlla anche i minimi di `MINIMI` |
+| `MINIMI` | oggetto | `{ riassunti: 60, quiz: 300, flash: 250, formule: 200, glossario: 250 }` |
+| `pulisci` | `(html) → string` | Tiene solo `p, b, i, ul, li, sub, sup, br`, senza attributi |
+| `norm` | `(s) → string` | Testo senza tag e senza accenti, minuscolo |
+| `calcolo.mulberry32` | `(seme) → () → number` | Generatore riproducibile in [0, 1) |
+| `calcolo.mescola` | `(arr, rnd?) → array` | Fisher–Yates su una copia |
+| `calcolo.leitner` | `(stato, id, giusta) → stato` | Giusta: una scatola su (massimo 5); sbagliata: scatola 1. Restituisce un oggetto nuovo |
+| `calcolo.punteggio` | `(risposte) → { giuste, totale, perc, perArg }` | Punteggio complessivo e per argomento |
+
+### `window.BSISpectraAndroide` — il volto di Spectra (`bsi-spectra-androide.js`)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `disponibile` | `() → boolean` | Se il browser offre WebGL |
+| `crea` | `(contenitore) → Promise<Androide>` | Carica three.js, `GLTFLoader` e `models/spectra-noir.glb`, e disegna il volto nel contenitore |
+| `foto` | `(px) → Promise<string>` | Un'immagine PNG del viso (data URL), per le icone |
+| `emozioneDi` | `(frase) → string` | L'emozione di una frase dalle parole chiave; `'serena'` senza segnali |
+| `EMOZIONI` | oggetto | Le 17 emozioni, ognuna come pesi dei campi espressivi più luce degli occhi e posa della testa |
+| `CAMPI` | string[] | Gli 11 campi espressivi |
+| `COLORI` | oggetto | Colore degli occhi per stato; `attesa: 0x1a3050` |
+| `URL`, `BOCCA`, `versione` | — | Percorso del modello, geometria della bocca, versione del modulo |
+
+L'oggetto restituito da `crea` ha, fra gli altri, `stato(s)` (`'attesa'`,
+`'ascolta'`, `'pensa'`, `'parla'`), `dici(testo)` (la bocca segue il testo),
+`allinea(i)`, `taci()`, `espressione(nome, secondi, intensita) → boolean`,
+`emozione() → string`, `sente(frase)` (reagisce a una frase dell'utente e la
+passa alla mente), `passo(dt)`, `ferma()`, `libera()`.
+
+`window.BSISpectraRobot` (`bsi-spectra-robot.js`) espone `disponibile`, `crea` e
+`foto` con le stesse firme: usa l'androide e, se il modello non arriva, la
+testa costruita in three.js. `window.BSISpectraVolto` (`bsi-spectra-volto.js`)
+è il ritratto SVG di ultimo ripiego.
+
+### `window.BSISpectraMente` — la mente di Spectra (`bsi-spectra-mente.js`)
+
+| Funzione | Firma | Descrizione |
+|---|---|---|
+| `ricorda` | `(domanda, esito)` | Registra un episodio (ora, materia, sezione, domanda troncata a 160 caratteri) e aggiorna curiosità, attenzione e legame |
+| `sente` | `(emozione, chi)` | Sposta l'umore (e la premura) secondo l'emozione rilevata in una frase |
+| `stato` | `() → { curiosita, attenzione, premura, umore, legame }` | Lo stato interno, valori fra 0 e 1 |
+| `fondo` | `() → string` | L'emozione di fondo del volto quando nessuno parla |
+| `profilo` | `() → oggetto` | Sezioni preferite, minuti per materia, ora preferita, materia trascurata, errori dei quiz, ultimi argomenti |
+| `pensieri` | `() → [{ peso, testo }]` | Suggerimenti ordinati per peso |
+| `saluto` | `() → string` | Saluto che tiene conto dell'ora e dell'ultima visita |
+| `coscienza` | `() → string` | Il quadro che si aggiunge alla domanda inviata al modello; vuoto senza memoria. Esposto anche come `window._bsiMente` |
+| `cosaRicordi`, `comeStai` | `() → string` | Le risposte ai comandi «cosa ricordi di me» e «come stai» |
+| `dimentica` | `()` | Azzera la memoria e rimuove la chiave `bsi-spectra-mente-v1` |
+
+È una simulazione di comportamento: le funzioni leggono e scrivono numeri e
+testi nel `localStorage`, nient'altro.
+
 ---
 
-_Documento aggiornato alla versione `bsi-v236`._
+_Documento aggiornato alla versione `bsi-v237`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -154,11 +154,30 @@ version on both sides.
 - `CACHE` determines whether the Service Worker considers the cache stale:
   without a bump, devices keep serving the old files and the publication reaches
   nobody.
-- `BSI_APP_VERSION` is what the user sees in the "Updates" window and what the
-  update check compares with the `sw.js` on GitHub.
+- `BSI_APP_VERSION` is what the user sees in the "Updates" window. «Check for
+  updates» compares the active Service Worker's version (it answers the
+  `BSI_VERSIONE` message with its `CACHE`) with the `var CACHE = '…'` line of
+  the published `sw.js`, read from the same site with no cache and, only if
+  that does not answer, from GitHub. `BSI_APP_VERSION` enters the comparison
+  only when no Service Worker answers.
+
+> **The shape of the line matters.** The check reads `sw.js` with the
+> expression `var CACHE = '…'`. Up to version `bsi-v236` it looked for a
+> `CACHE_VERSION` line that `sw.js` no longer contained, and the published
+> version was never read. If the declaration in `sw.js` changes shape,
+> `bsi-aggiorna.js` must change too; `test_controllaagg` notices.
 
 They drifted apart once in the past — the second had been stuck for months — and
 the result was that the update check was comparing the wrong number.
+
+### 2.2-bis Large files outside the precache
+
+`models/spectra-noir.glb` (Spectra's face, about 8 MB) is not in the Service
+Worker's precache, like the other `models/*.glb`: it is downloaded the first
+time the app derives Spectra's icon or opens the Spectra Live console. It must
+be published with the rest, with its CC BY 4.0 attribution
+([`07-SBOM.md`](07-SBOM.md)); if it is missing, the console uses the fallback
+face.
 
 ### 2.3 How the update reaches users
 
@@ -303,8 +322,10 @@ In order:
    Without it, the Service Worker serves the cache.
 2. **Has Pages finished?** GitHub → Actions.
 3. **Is `sw.js` cached by a CDN?** It must answer `no-cache`.
-4. From the app: ✨ menu → **Updates** → *Check*, which forces a
-   `registration.update()`.
+4. From the app: ✨ menu → **🔄 Updates** → **Check for updates**. It tells
+   which version is served and which is published; if they differ it forces a
+   `registration.update()`. If it answers «up to date» with the old number,
+   the `sw.js` the site serves is still the old one (points 2 and 3).
 5. As a last resort: developer tools → Application → Service Workers →
    *Unregister*, then reload.
 
@@ -341,4 +362,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

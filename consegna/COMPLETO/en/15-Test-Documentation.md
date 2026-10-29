@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v236` |
+| **Version described** | `bsi-v237` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**75 benches**, grouped by what they demonstrate.
+**77 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -122,6 +122,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_esplorazioni` | **Probability, visual mathematics, electromagnetism, sound, semiconductors, distillation, voltammetry** against known results (Bayes, central limit, Fourier, logistic map, dipole, n_i, V_bi, Antoine, azeotrope, Fenske, Randles-Ševčík, Nicholson); in the browser the 24 tabs on two screens, a hand drawing rebuilt by epicycles, dragged charges |
 | `test_approfondimenti` | **Numbers, graphs, gravitation, heat, Ising, phase diagrams, LEPS surface** against known results or a second method (π(x), RSA, Li(x), Floyd–Warshall, Prim, figure-eight, Lagrange, Onsager, IAPWS, Span–Wagner, measured eutectic, H₃ saddle); in the browser the 25 tabs on two screens; the **subject buttons** (visible groups, icons, remembered subject, no section unreachable) |
 | `test_pareggio` | The **twelve sections** that bring mathematics and physics to the level of chemistry: runs the twelve scripts in `verifiche/` (462 checks against known results or a second method), opens the 47 tabs on two screens, checks every tab opens in under 100 ms and that mathematics and physics have the declared number of sections |
+| `test_v237` | The **twenty new sections** (ten astrophysics, five physics laboratories, five mathematics laboratories): runs their twenty scripts in `verifiche/` (705 checks against published values or a second method, §3.1-bis) and those of the study kits and resources; in the browser opens every tab at **1280 and 390 px**; tests Spectra's face, emotions and mind and the section names in English. Requires at least 900 checks | 1061 |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -165,6 +166,51 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 > Thirty-six data points that look wrong all at once are almost always a wrong
 > counter.
 
+### 3.1-bis The twenty v237 sections: what is verified
+
+Each section has a script `tools/banchi/verifiche/verifica-<id>.js` that can be
+run on its own with `node` and that sets the computations against published
+values or an independent second method. Two or three examples per section,
+with the value the script prints:
+
+| Section | Script | Checks | Examples |
+|---|---|---:|---|
+| 🪐 Solar system 3D | `verifica-sastrosole` | 36 | Kepler solved with residual < 10⁻¹² up to e = 0.97 and confirmed by bisection; Julian date of 1957 Oct 4.81 = 2436116.31 (Meeus, ex. 7.a); Mars 2003 at 0.3730 AU on 27 August (true: 0.3727) |
+| 🛰️ Orbital mechanics 3D | `verifica-sastroorbite` | 26 | elements → state → elements over 2000 random orbits (400 hyperbolic), error 2.8·10⁻¹⁴; Curtis ex. 4.3 (h = 58,312 km²/s, i = 153.25°, e = 0.1712); Hohmann LEO → GEO 3.893 km/s |
+| 📐 Celestial mathematics | `verifica-sastromat` | 34 | Newton, fixed point and Bessel series agree within 10⁻¹²; Laplace limit 0.6627434; q v q* = R(q) v over 500 random rotations |
+| ⭐ Life of stars 3D | `verifica-sastrostelle` | 32 | first Lane–Emden zeros: √6, π, 3.65375, 6.89685; numerical solutions equal to the exact ones within 10⁻¹³; Chandrasekhar mass from the n = 3 polytrope, 1.4563 M☉ |
+| 🕳️ Black holes | `verifica-sastrobh` | 30 | ISCO at 6M and photon sphere at 3M from the effective potential; Mercury's perihelion 42.982″ per century; GPS +45.72 and −7.21 μs/day |
+| 〰️ Gravitational waves | `verifica-sastrogw` | 29 | GW150914 chirp mass 28.096 M☉; f ∝ (t_c − t)^(−3/8), slope −0.375; Peters coalescence time equal to integrating da/dt |
+| 🌌 Galaxies 3D | `verifica-sastrogal` | 32 | modified Bessel functions against the tables (I₀(1) = 1.2660659); Freeman disc peak at 2.150 R_d; NFW M(r) closed form against the integral, 7.6·10⁻¹² |
+| 🌠 Cosmology 3D | `verifica-sastrocosmo` | 38 | age with Planck parameters 13.791 Gyr; Einstein–de Sitter 2/(3H₀); maximum D_A at z = 5/4 in Einstein–de Sitter |
+| 🔭 Planetarium 3D | `verifica-sastrocielo` | 30 | GMST of Meeus ex. 12.a and 12.b; sidereal day 86,164.091 s; equation of time: +16.45 min around 3 November, −14.20 min around 11 February |
+| 🌍 Exoplanets 3D | `verifica-sastroeso` | 27 | the Sun's habitable zone 0.95–1.67 AU; Earth's T_eq 254.8 K; transit depths of Earth and Jupiter 84.1 ppm and 1.056 % |
+| 🌀 Spin, qubits and entanglement | `verifica-sfisspin` | 30 | HZH = X, HXH = Z, S² = Z, T² = S; Bloch vector norm 1 after 2000 random gates; measured frequency against cos²(θ/2) within 3σ |
+| 🎲 Statistical mechanics | `verifica-sfisstat` | 30 | Schottky peak at kT = 0.41678 Δ, C = 0.43923 k; N₂ v_rms at 300 K = 516.84 m/s; energy conserved over 19,527 elastic collisions |
+| ☢️ Nuclei and reactions | `verifica-sfisnuclei` | 28 | B/A of ⁵⁶Fe 8.7903 MeV from the masses; ⁶²Ni with the highest B/A; Q of D + T 17.589 MeV, 14.049 of it to the neutron |
+| 🧱 Elasticity and materials | `verifica-sfismateriali` | 27 | elastic slope of steel = E = 207 GPa; closed-form moments of inertia against the strip integral; numerical cantilever deflections equal to the closed forms |
+| 🔌 Electronics | `verifica-sfiselettronica` | 27 | simulated ripple against the exact computation in the rectifiers; diode with Newton = closed form with Lambert's W (0.650463089 V); Zener with Newton = bisection |
+| 🌊 Partial differential equations | `verifica-smatedp` | 46 | J₀(1) and J₁(1) from the tables within 10⁻¹⁴; twelve Bessel zeros; square membrane with ω₁₂ = ω₂₁ and ω₁₂/ω₁₁ = √(5/2) |
+| 🌀 Complex analysis | `verifica-smatanalcomp` | 49 | e^(iπ) + 1 = 1.2·10⁻¹⁶; 2π jump of the logarithm across the cut; Cauchy–Riemann on nine functions |
+| 🔗 Markov chains | `verifica-smatmarkov` | 51 | stationary distribution by powers = linear system = Cramer's rule; Ehrenfest with the binomial and detailed balance; periods 2 and 3 recognised |
+| 🧩 SVD | `verifica-smatsvd` | 41 | ‖A − UΣVᵀ‖/‖A‖ ≈ 1.6·10⁻¹⁵ on matrices up to 12×12; σ of [[3,0],[4,5]] = 3√5 and √5; σ of the shear = φ and 1/φ |
+| 📡 Codes and elliptic curves | `verifica-smatcodici` | 62 | Hamming(7,4): distance 3, 112 single errors corrected, 336 double ones decoded wrongly; CRC-32("123456789") = 0xCBF43926 |
+
+On top of these come `verifica-studio` (167 checks on the kit engine),
+`verifica-studio-fisica` and `verifica-studio-matematica` (schema and minimum
+quantities; for mathematics **264 answers recomputed** out of 346 questions)
+and `verifica-risorse` (87 checks: citation formats and table proofs).
+
+> **Two time thresholds, and why.** In the browser `test_v237` measures how
+> long the page stays blocked on the click of each tab. **2D** tabs must open
+> within **250 ms**; those that create a **3D** scene within **6 s**. The
+> difference is not leniency: in the battery the browser has no graphics card,
+> and WebGL runs in the **SwiftShader** software rasteriser, where creating a
+> context and compiling the shaders costs 0.2 to 4 seconds. On a device with a
+> GPU it is a matter of milliseconds. A tight threshold on the 3D tabs would
+> measure SwiftShader, not the app; a loose one on the 2D tabs would let a
+> real stall through.
+
 ### 3.2 AI agent
 
 | Bench | Condition simulated |
@@ -184,7 +230,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 | Bench | What it puts to the test |
 |---|---|
-| `audit_stabilita` | 159 sections opened 5 times, full storage, corrupted data, bursts of clicks |
+| `audit_stabilita` | 194 sections opened 5 times, full storage, corrupted data, bursts of clicks |
 | `audit_promesse` | Rejected and unhandled promises, with a healthy network and a dead one |
 | `audit_quota` | `localStorage.setItem` forced to fail on 10 pages |
 | `test_sw` | Offline, degraded network, update while working |
@@ -194,8 +240,28 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 ### 3.4 Interface
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
-`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_guidaproxy` ·
-`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
+`browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
+`test_guidaproxy` · `test_fluidita` · `test_lingue` · `test_mol3d` ·
+`test_spettrolettore`
+
+**`test_controllaagg` — 12 checks.** It comes from a report: «trying to update,
+nothing comes up». It was true. The 🔄 Updates window looked in `sw.js` for a
+`CACHE_VERSION` line that no longer exists (`sw.js` declares
+`var CACHE = 'bsi-vNNN'`) and looked for it on `raw.githubusercontent.com`: the
+published version was never read. `test_aggiorna` opened the window but did not
+press «Check», which is why the defect survived. The new bench presses the
+button in three cases, obtained by intercepting only the check request
+(`sw.js?controllo=`):
+
+| Case | How it is produced | Expected answer |
+|---|---|---|
+| Same version | `sw.js` served as is | «You already have the latest published version», with the number; no «Update now» |
+| New version | `sw.js` served with a higher cache name (v999) | «New version available» with both versions, and «Update now» |
+| Site unreachable | request aborted, and the GitHub fallback too | «Cannot check now» |
+
+In the same three cases it tests `BSIAggiorna.controlla()` (`'aggiornata'`,
+`'nuova'`, `'offline'`), its pop-up notice and, in the second, that it asks the
+service worker to update.
 
 **`test_fluidita` — 15 checks.** It measures how long the page stays *blocked*
 at every section switch, across all 91. It found three defects no other bench
@@ -330,8 +396,8 @@ be excellent and the measurement worthless.
 | `verifica-sicurezza` | API keys in tracked files, clear-text passwords, secrets in `wrangler.toml`, telemetry, scripts from external domains |
 | `audit_storia` | That no credential has EVER entered the repository: **1,551 distinct versions of text files** across **390 commits**, with 9 patterns. It refuses to pass on a shallow clone |
 | `verifica-accessibilita` | WCAG AA contrast, accessible names, field labels, alternative text, heading hierarchy, `lang` attribute — across 13 pages |
-| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 159 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
-| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 159 sections, the URL, headers and body of every request inspected |
+| `audit_mobile` | That at **390 px** the page does not scroll horizontally, across all 194 sections — **and** that no section clips content into unreachability: an element wider than its section, with no scrolling ancestor, is text that is present and cannot be read. A wide table inside a scrolling container is not reported |
+| `audit_rete` | That **no user data leaves the device**: a canary value seeded into 71 stores, the app used across 6 pages and 194 sections, the URL, headers and body of every request inspected |
 | `audit_copertura` | How many bytes of JavaScript are **actually executed** while walking the application: 49.89 %, recorded and defended |
 
 **`audit_storia` — 6 checks.** `verifica-sicurezza` examines *tracked* files,
@@ -426,7 +492,7 @@ removed, it passes again.
 
 > **One section at a time.** The inspection skips elements that are not visible
 > — and rightly so: a hidden element has no contrast to measure. But
-> `index.html` alternates 159 sections and shows only one: out of **19,751** text
+> `index.html` alternates 194 sections and shows only one: out of **19,751** text
 > elements the bench was looking at **41**, and printing "0 defects". It was not
 > a false result, it was a result on a sample nobody had declared. The sections
 > are now opened one by one, and **the number of sections traversed is
@@ -521,13 +587,13 @@ does not observe.
 
 | Case | Method | Measured result |
 |---|---|---|
-| **Memory leaks** | 159 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
+| **Memory leaks** | 194 sections × 5 rounds, DOM nodes counted each round | +26,876 on the first round (construction), **+0** on the four that follow |
 | **Exhausted storage** | `setItem` replaced with a function that always throws | 10 pages out of 10 stay operational |
 | **Degraded ≠ absent network** | Requests held for 20 s, interception at context level | Answer from cache in **3,507 ms** (threshold 3,500) |
 | **Spectrum reproducibility** | Drawn twice, compared byte for byte | Identical |
 | **WebGL contexts** | Viewer constructions over 10 consecutive molecules | From **7 to 1** |
 | **Corrupted history** | Two `Enter` presses 500 ms apart | `user,assistant` instead of `user,user,assistant,assistant` |
-| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 159 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
+| **Text contrast** | WCAG formula on every element with text of its own, 13 pages **and 194 sections** | 19,751 elements examined (it was 41): **1,069** defects surfaced, **1,069 corrected**, **0 recorded** as a value that must not grow |
 | **Immediate cancellation** | Stop pressed at 1.5 s, state sampled every second | Send button available from the **1st** second (it was the 10th) |
 
 ---
@@ -601,11 +667,12 @@ two different things and must not be confused.
 | Gap | Current situation | Recommendation |
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
-| **Accessibility** | Automated over 13 pages and all 159 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 463 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
+| **Security** | `verifica-sicurezza` runs 10 checks over 522 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
+| **Spectra Live and quick tools** | No bench for the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 
@@ -621,4 +688,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v236`._
+_Document updated to version `bsi-v237`._

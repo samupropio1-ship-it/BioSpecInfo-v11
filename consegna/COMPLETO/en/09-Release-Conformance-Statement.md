@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v236` |
+| **Version** | `bsi-v237` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v236` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v237` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -78,11 +78,13 @@ pass.
 | **D-02** | 19 entries with no SMILES by their very nature (monoclonal antibodies, peptides) | None: for those molecules SMILES notation is not the appropriate representation | Not a substantive deviation; listed for completeness |
 | **D-03** | ~~SEC-02 verified only by proxy~~ — **remedied**: see S-10 | — | `audit_rete` observes the traffic during real use, with a canary value seeded into the user's own data |
 | **D-04** | ~~The File Manager password in the git history~~ — **remedied**: see S-12 | — | The password was **changed** at version `bsi-v188`. The old one is still readable in the history and no longer opens anything |
-| **D-06** | Code coverage **measured but partial**: 49.89 % of statements, not branches | It is the coverage of the widest path a bench walks (159 sections plus the other pages), not of the whole battery; and an `if` entered from one side only counts as covered | `audit_copertura` measures it with Chromium's profiler, with no build and without rewriting the source. The value is **recorded**: if it falls, the battery fails |
+| **D-06** | Code coverage **measured but partial**: 49.89 % of statements, not branches | It is the coverage of the widest path a bench walks (194 sections plus the other pages), not of the whole battery; and an `if` entered from one side only counts as covered | `audit_copertura` measures it with Chromium's profiler, with no build and without rewriting the source. The value is **recorded**: if it falls, the battery fails |
 | **D-07** | Verification on Chromium only | Firefox and WebKit are tested by hand | Declared in `docs/08` §8. In the verification environment the reason is checkable: the CDN from which `playwright-core` downloads the other engines answers **403** to the network policy, so Firefox and WebKit cannot be installed there. **Re-verified on 2026-10-08**: `npx playwright install firefox` fails with «Download failure», and `cdn.playwright.dev` still answers 403 to the tunnel. It is not a choice, it is a constraint of the environment, and it stands |
 | **D-08** | ~~Partial English translation~~ — **remedied**: see S-13 | — | All **16 documents** are in English. `verifica-documenti` and `verifica-affermazioni` read `docs/en/` just like the Italian set: a disagreement between the two languages fails the battery |
 | **D-09** | Full WCAG 2.1 AA conformance not verifiable entirely by automation | What stays outside is text inside SVGs (8,888 elements), text over a real background **image** (108) and everything requiring human judgement. Text over a **gradient** has entered the measurement: 591 elements, judged against the worst stop of the gradient | The skipped elements are **counted** and reported on every run |
 | **D-10** | The `bsi-v181` tag points at the wrong commit | The release workflow, started without filling in the version field, used its own default — `bsi-v181` — and, being rerunnable by design, **moved that tag** from commit `cb0cf03` to the `bsi-v188` one, also attaching the v187 packages to it. The foreign assets were removed. **The tag cannot be moved back by an app**: GitHub refuses to let an app write a ref pointing at a commit whose `.github/workflows/*` differs from the current one, and at `cb0cf03` that file differs by 319 lines. Three routes were tried, all blocked by the same rule: `git push --force` («refusing to allow a GitHub App to create or update workflow»), `PATCH /git/refs` with `force` (403), and delete-and-recreate — where the **403 already lands on creating a throwaway tag** at that commit, so the real tag was left untouched. `GITHUB_TOKEN` cannot be granted the `workflows` permission. **Re-verified on 2026-10-08** with the session's own GitHub client, which uses a different credential: `PATCH /git/refs/tags/bsi-v181` answers **403 «Write access to this GitHub API path is not permitted through this proxy»**. It is a second block, independent of the first: even without the workflow-file rule, writing to git refs does not get through. The tag points at `64e8c316`; it should point at `cb0cf03e` | The three packages attached to the release are the correct ones; the «Source code (zip)» archive must be ignored, and the `bsi-v181` code is downloadable from commit `cb0cf03`. Declared in the CHANGELOG's `bsi-v181` entry and in the release body, with the command that restores the tag from personal credentials. The default was removed and the workflow now **refuses** a version that does not match `sw.js` and the package filenames — verified both ways |
+| **D-11** | Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Local commands, voice, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
+| **D-12** | The new local keys are not part of selective erasure | `bsi-spectra-mente-v1`, `bsi-studio:*` and the other hyphenated keys are not in the `bsiCancellaDati()` groups | Spectra's memory is erased with «forget everything»; study-kit progress can be erased from the browser's settings. Declared in `docs/11` §6 |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -212,8 +214,13 @@ A version is published only if **all** the following criteria are satisfied.
 ## 7. Intellectual property and licences
 
 All third-party components are distributed under **permissive** licences (MIT,
-BSD-3-Clause, CC0, Public Domain), mutually compatible and free of strong
-copyleft constraints. The full bill of materials, with digests and residual
+BSD-3-Clause, Apache-2.0, CC0, Public Domain), mutually compatible and free of
+strong copyleft constraints. The «Noir» 3D model used as Spectra's face
+(`models/spectra-noir.glb`) is by Skyfox13
+(<https://sketchfab.com/podderkuntal25>), under the
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) licence, and has been
+modified; the attribution appears in the Spectra Live console, in the README,
+in `THIRD_PARTY_NOTICES.md` and in `07-SBOM.md`. The full bill of materials, with digests and residual
 obligations, is in [`07-SBOM.md`](07-SBOM.md) and in CycloneDX format at
 [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json).
 
@@ -227,6 +234,13 @@ The application is **local-first**: there is no backend, no personal data is
 collected and no persistent identifier is present. Data generated by the user
 (notes, chats, API keys, uploaded files) stay in the device's `localStorage` and
 IndexedDB and can be deleted selectively from the interface itself.
+
+Spectra's mind (`bsi-spectra-mente.js`) keeps conversation episodes, study
+time and an internal state in `localStorage`: it is a simulation of
+behaviour, not consciousness. When a question goes to the
+artificial-intelligence provider the user chose, a summary of this memory and
+of the open tab goes with it; if the question is about what is on screen, an image
+of its canvases too.
 
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker
@@ -247,4 +261,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v236`._
+_Version `bsi-v237`._

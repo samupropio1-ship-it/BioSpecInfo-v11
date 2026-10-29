@@ -3,11 +3,11 @@
   "specVersion": "1.5",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-28T15:26:36.123Z",
+    "timestamp": "2026-10-29T08:48:29.952Z",
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v236",
+      "version": "bsi-v237",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {
@@ -20,7 +20,7 @@
     "properties": [
       {
         "name": "git.commit",
-        "value": "ce9be1d40e34b2d3eb4fd2726c80bc7d0e8ab31d"
+        "value": "7dc3f011df8f8c0646f9eda186923f345f1ca23b"
       }
     ]
   },
@@ -322,6 +322,31 @@
         {
           "alg": "SHA-256",
           "content": "61190d7bbec3ce4ea3add2503b9513ac27b227a3878dd229560a6cd29aabc36d"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Modello 3D «Noir» (Skyfox13, Sketchfab)",
+      "publisher": "Skyfox13 — https://sketchfab.com/podderkuntal25",
+      "description": "Volto di Spectra nella console Spectra Live. Modificato: texture ricompresse, tangenti tolte, viso in metallo grigio scuro, bocca e testa animate. Attribuzione nella console.",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sketchfab.com/3d-models/noir-8edf174437494f0080b4cd5aa0f0509c"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "CC-BY-4.0"
+          }
+        }
+      ],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b781b54819d1d2aabf751788a813d8da830dabaddb913085352b572140903479"
         }
       ]
     },
