@@ -295,8 +295,8 @@ const RIFIUTI = [
              ricercaCambiata: primaPh !== dopoPh,
              ricercaTornata: ph() === primaPh, esempio: dopoCat[0], esempioPh: dopoPh };
   });
-  att('le categorie della barra sono nove (con 📐 Matematica, dalla v228)', 9, chrome.quante);
-  att('e cambiano tutte con la lingua', 9, chrome.categorieCambiate);
+  att('le categorie della barra sono dieci (📐 Matematica dalla v228, 🔭 Astrofisica dalla v237)', 10, chrome.quante);
+  att('e cambiano tutte con la lingua', 10, chrome.categorieCambiate);
   att('anche il segnaposto della ricerca cambia', true, chrome.ricercaCambiata);
   att('e torna quello di prima in italiano', true, chrome.ricercaTornata);
   console.log('      (in tedesco: «' + chrome.esempio + '» · «' + chrome.esempioPh + '»)');
