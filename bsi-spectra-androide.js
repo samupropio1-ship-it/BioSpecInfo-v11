@@ -405,7 +405,7 @@
   };
 
   globale.BSISpectraAndroide = {
-    URL: URL_MODELLO, BOCCA: BOCCA, EMOZIONI: EMOZIONI, CAMPI: CAMPI, emozioneDi: emozioneDi,
+    URL: URL_MODELLO, BOCCA: BOCCA, COLORI: COLORI, EMOZIONI: EMOZIONI, CAMPI: CAMPI, emozioneDi: emozioneDi,
     disponibile: function () { try { var c = document.createElement('canvas'); return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); } catch (e) { return false; } },
     crea: function (padre) { return caricaTutto().then(scaricaModello).then(function (g) { return new Androide(padre, g); }); },
     /* una foto del volto per le icone: si disegna una volta e si legge come PNG */

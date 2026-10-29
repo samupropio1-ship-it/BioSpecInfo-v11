@@ -109,6 +109,26 @@ var PRECACHE = [
   './bsi-fis-analitica.js',
   './bsi-fis-laser.js',
   './bsi-fis-clima.js',
+  './bsi-astro-sistemasolare.js',
+  './bsi-astro-orbite.js',
+  './bsi-astro-matcelesti.js',
+  './bsi-astro-stelle.js',
+  './bsi-astro-buchineri.js',
+  './bsi-astro-ondegrav.js',
+  './bsi-astro-galassie.js',
+  './bsi-astro-cosmo.js',
+  './bsi-astro-cielo.js',
+  './bsi-astro-esopianeti.js',
+  './bsi-fis-spin.js',
+  './bsi-fis-statistica.js',
+  './bsi-fis-nuclei.js',
+  './bsi-fis-materiali.js',
+  './bsi-fis-elettronica.js',
+  './bsi-mat-edp.js',
+  './bsi-mat-analisicomplessa.js',
+  './bsi-mat-markov.js',
+  './bsi-mat-svd.js',
+  './bsi-mat-codici.js',
   './bsi-studio.js',
   './bsi-studio-fisica.js',
   './bsi-studio-matematica.js',
@@ -125,6 +145,7 @@ var PRECACHE = [
   './bsi-spectra-androide.js',
   './bsi-spectra-mente.js',
   './bsi-spectra-live.js',
+  './bsi-aggiorna.js',
   './bsi-documento.js',
   './bsi-quesito.js',
   './bsi-moldraw.js',
@@ -158,6 +179,11 @@ self.addEventListener('install', function(e){
       }));
     })
   );
+});
+
+/* la versione in uso, per «Controlla aggiornamenti» (bsi-aggiorna.js) */
+self.addEventListener('message', function(e){
+  if(e.data && e.data.type === 'BSI_VERSIONE' && e.ports && e.ports[0]) e.ports[0].postMessage({ cache: CACHE });
 });
 
 self.addEventListener('activate', function(e){
