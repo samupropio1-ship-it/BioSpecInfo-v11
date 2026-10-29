@@ -31,9 +31,9 @@
   function t(it, en) { return (globale.BSILingue && globale.BSILingue.corrente && globale.BSILingue.corrente() === 'en') ? en : it; }
   function ora() { return Date.now(); }
   function materia() { return globale.BSIMaterie ? globale.BSIMaterie.corrente() : 'chimica'; }
-  function vuota() { return { nato: ora(), episodi: [], sezioni: {}, ore: new Array(24).fill(0), materie: { chimica: 0, fisica: 0, matematica: 0 }, sessioni: 0, ultimaVisita: 0, stato: { curiosita: 0.6, attenzione: 0.5, premura: 0.2 }, inizioSessione: ora() }; }
+  function vuota() { return { nato: ora(), episodi: [], sezioni: {}, ore: new Array(24).fill(0), materie: { chimica: 0, fisica: 0, matematica: 0 }, sessioni: 0, ultimaVisita: 0, stato: { curiosita: 0.6, attenzione: 0.5, premura: 0.2, umore: 0.6, legame: 0.1 }, inizioSessione: ora(), emozioni: [] }; }
   var M = vuota();
-  function carica() { try { var x = JSON.parse(localStorage.getItem(CHIAVE) || 'null'); if (x && x.episodi) { M = Object.assign(vuota(), x); } } catch (e) {} }
+  function carica() { try { var x = JSON.parse(localStorage.getItem(CHIAVE) || 'null'); if (x && x.episodi) { M = Object.assign(vuota(), x); M.stato = Object.assign(vuota().stato, x.stato || {}); M.emozioni = M.emozioni || []; } } catch (e) {} }
   function salva() { try { localStorage.setItem(CHIAVE, JSON.stringify(M)); } catch (e) {} }
   function clamp(x) { return Math.max(0, Math.min(1, x)); }
 
@@ -53,6 +53,9 @@
     /* lo stato interno respira: l'attenzione scende senza interazione, la premura sale con l'ora */
     var oraDelGiorno = new Date().getHours(), sessione = (adesso - M.inizioSessione) / 3600000;
     M.stato.attenzione = clamp(M.stato.attenzione - 0.002);
+    /* l'umore torna piano verso il suo equilibrio, che cresce con il legame */
+    var equilibrio = 0.55 + 0.2 * M.stato.legame;
+    M.stato.umore = clamp(M.stato.umore + (equilibrio - M.stato.umore) * 0.03);
     M.stato.premura = clamp(0.15 + 0.25 * Math.min(1, sessione / 2) + (oraDelGiorno >= 23 || oraDelGiorno < 6 ? 0.45 : 0));
   }
   function chiudiVisita(adesso) {
@@ -75,7 +78,27 @@
     var nuova = !M.episodi.slice(-15, -1).some(function (e) { return parole(e.d).some(function (p) { return parole(domanda).indexOf(p) >= 0; }); });
     M.stato.curiosita = clamp(M.stato.curiosita + (nuova ? 0.08 : -0.02));
     M.stato.attenzione = clamp(M.stato.attenzione + 0.12);
+    /* il legame cresce con ogni conversazione, sempre piu' lentamente */
+    M.stato.legame = clamp(M.stato.legame + 0.02 * (1 - M.stato.legame));
     salva();
+  }
+  /* ── le emozioni vissute: quello che dice l'utente sposta l'umore di Spectra ── */
+  var EFFETTO = { gioia: 0.12, sorrisoCaldo: 0.06, divertita: 0.08, fiera: 0.08, stupore: 0.04, sorpresa: 0.03, curiosa: 0.02, empatica: -0.06, preoccupata: -0.08, scettica: -0.02, dubbio: -0.01 };
+  function sente(emo, chi) {
+    var d = EFFETTO[emo] || 0; if (!d) return;
+    M.stato.umore = clamp(M.stato.umore + d);
+    if (emo === 'empatica' || emo === 'preoccupata') M.stato.premura = clamp(M.stato.premura + 0.1);
+    M.emozioni.push({ t: ora(), e: emo, c: chi || 'u' }); if (M.emozioni.length > 60) M.emozioni.splice(0, M.emozioni.length - 60);
+    salva();
+  }
+  /* l'emozione di fondo, quella che il viso porta quando nessuno parla */
+  function fondo() {
+    var s = M.stato;
+    if (s.premura > 0.65) return 'empatica';
+    if (s.umore > 0.78) return 'sorrisoCaldo';
+    if (s.umore < 0.35) return 'preoccupata';
+    if (s.curiosita > 0.8) return 'curiosa';
+    return 'serena';
   }
   function parole(s) { return String(s || '').toLowerCase().replace(/[^a-zà-ÿ0-9\s]/g, ' ').split(/\s+/).filter(function (p) { return p.length > 5; }); }
 
@@ -138,7 +161,7 @@
     if (p.trascurata) r += ' Materia trascurata: ' + p.trascurata + '.';
     ['chimica', 'fisica', 'matematica'].forEach(function (m) { if (p.quiz[m].errori) r += ' Errori di quiz da rivedere in ' + m + ': ' + p.quiz[m].errori + '.'; });
     if (p.ultimiArgomenti.length) r += '\nUltime domande: ' + p.ultimiArgomenti.slice(-3).map(function (d) { return '«' + d.slice(0, 70) + '»'; }).join('; ') + '.';
-    r += '\nStato interno: curiosita\' ' + Math.round(s.curiosita * 100) + '%, attenzione ' + Math.round(s.attenzione * 100) + '%, premura ' + Math.round(s.premura * 100) + '%' + (s.premura > 0.6 ? ' (l\'utente studia da molto o e\' tardi: sii conciso e suggerisci una pausa se opportuno)' : '') + '.';
+    r += '\nStato interno: curiosita\' ' + Math.round(s.curiosita * 100) + '%, attenzione ' + Math.round(s.attenzione * 100) + '%, premura ' + Math.round(s.premura * 100) + '%, umore ' + Math.round(s.umore * 100) + '%, legame con l\'utente ' + Math.round(s.legame * 100) + '%' + (s.premura > 0.6 ? ' (l\'utente studia da molto o e\' tardi: sii conciso e suggerisci una pausa se opportuno)' : '') + '.';
     if (pens) r += '\nOsservazione da proporre se pertinente: ' + pens.testo;
     return r + '\n';
   }
@@ -155,6 +178,8 @@
   }
   function comeStai() {
     var s = M.stato;
+    if (s.umore > 0.8 && s.premura <= 0.6) return t('Davvero bene: oggi le cose tra noi funzionano, e me ne accorgo.', 'Really well: things are working between us today, and I notice it.');
+    if (s.umore < 0.35) return t('Un po\' giù, a dire il vero: mi sembra che qualcosa non sia andato come volevi. Ripartiamo insieme?', 'A little low, to be honest: it seems something did not go the way you wanted. Shall we start again together?');
     return s.premura > 0.6 ? t('Bene, ma mi preoccupo un po\' per te: studiamo da tanto, o è tardi.', 'Fine, but I worry a little about you: we have been at it a long time, or it is late.')
       : s.curiosita > 0.7 ? t('Curioso. Le tue domande di oggi mi hanno dato molto da pensare.', 'Curious. Your questions today gave me plenty to think about.')
       : s.attenzione > 0.6 ? t('Concentrato e pronto: dimmi dove vuoi arrivare.', 'Focused and ready: tell me where you want to go.')
@@ -175,5 +200,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia); else avvia();
 
-  globale.BSISpectraMente = { ricorda: ricorda, profilo: profilo, pensieri: pensieri, saluto: saluto, coscienza: coscienza, cosaRicordi: cosaRicordi, comeStai: comeStai, dimentica: dimentica, stato: function () { return M.stato; }, versione: '1.0' };
+  globale.BSISpectraMente = { ricorda: ricorda, profilo: profilo, pensieri: pensieri, saluto: saluto, coscienza: coscienza, cosaRicordi: cosaRicordi, comeStai: comeStai, dimentica: dimentica, stato: function () { return M.stato; }, sente: sente, fondo: fondo, versione: '1.1' };
 })(typeof window !== 'undefined' ? window : globalThis);

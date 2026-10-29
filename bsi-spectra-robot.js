@@ -26,7 +26,7 @@
 (function (globale) {
   'use strict';
   var MENO_MOTO = function () { return globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches; };
-  var COLORI = { attesa: 0x1f5eff, ascolta: 0x2f72ff, pensa: 0x4a3dff, parla: 0x1a7dff };
+  var COLORI = { attesa: 0x1a3050, ascolta: 0x1d3760, pensa: 0x192c55, parla: 0x1f3c68 };
 
   function caricaThree() {
     if (globale.THREE) return Promise.resolve(globale.THREE);
@@ -85,7 +85,7 @@
     var key = new T.DirectionalLight(0xfff4e8, 1.25); key.position.set(-3, 3, 5); sc.add(key);
     var rim = new T.DirectionalLight(0x2a5bff, 1.6); rim.position.set(4, 2, -4); sc.add(rim);
     var rim2 = new T.DirectionalLight(0x6f8bff, 0.7); rim2.position.set(-4, -1, -3); sc.add(rim2);
-    this.luceOcchi = new T.PointLight(0x1f5eff, 0.8, 4); this.luceOcchi.position.set(0, 0.15, 1.3); sc.add(this.luceOcchi);
+    this.luceOcchi = new T.PointLight(0x1a3050, 0.8, 4); this.luceOcchi.position.set(0, 0.15, 1.3); sc.add(this.luceOcchi);
 
     var ceramica = new T.MeshPhysicalMaterial({ color: 0x5a636d, map: tramaCeramica(T), metalness: 0.15, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 1.1 });
     var grafite = new T.MeshStandardMaterial({ color: 0x1b222b, metalness: 0.85, roughness: 0.32, envMapIntensity: 1.3 });
@@ -124,7 +124,7 @@
       var anello = new T.Group();
       for (var k = 0; k < 6; k++) { var seg = new T.Mesh(new T.RingGeometry(0.085, 0.108, 24, 1, k * Math.PI / 3, Math.PI / 4.2), self.matLuce); anello.add(seg); }
       g.add(anello);
-      var esterno = new T.Mesh(new T.RingGeometry(0.125, 0.131, 64), new T.MeshBasicMaterial({ color: 0x1f5eff, transparent: true, opacity: 0.45, toneMapped: false })); g.add(esterno);
+      var esterno = new T.Mesh(new T.RingGeometry(0.125, 0.131, 64), new T.MeshBasicMaterial({ color: 0x1a3050, transparent: true, opacity: 0.45, toneMapped: false })); g.add(esterno);
       var gl = new T.Sprite(new T.SpriteMaterial({ map: sprite, color: COLORI.attesa, transparent: true, opacity: 0.9, blending: T.AdditiveBlending, depthWrite: false, depthTest: false })); gl.scale.set(0.3, 0.3, 1); gl.renderOrder = 10; g.add(gl);
       g.lookAt(x * 2.2, 0.16, 6);
       testa.add(g);

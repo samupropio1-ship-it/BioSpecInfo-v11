@@ -536,6 +536,8 @@
     var e = document.getElementById('bsiJV-dial'); if (!e) return;
     e.innerHTML = (u ? '<div class="u">« ' + esc(u) + ' »</div>' : '') + (a || html ? '<div class="a">' + (html || esc(a)) + '</div>' : '');
     e.scrollTop = e.scrollHeight;
+    /* appena l'utente ha parlato, il viso reagisce a quello che ha detto (prima ancora della risposta) */
+    if (u && !a && !html && hud.volto && hud.volto.sente) hud.volto.sente(u);
   }
 
   /* il reattore: anelli, archi, scansione, spettro della voce */
@@ -720,7 +722,7 @@
   /* L'ICONA DI SPECTRA: la fotografia del robot 3D, fatta una volta e
      conservata; finche' non c'e', un androide stilizzato in vettoriale */
   var ritratto = null;
-  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v3'); } catch (e) {}
+  try { ritratto = localStorage.getItem('bsi-spectra-ritratto-v4'); } catch (e) {}
   function iconaVettoriale(px) {
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
       '<path d="M14 58 C16 50 24 47 32 47 C40 47 48 50 50 58 Z" fill="#c9d4df"/><rect x="27" y="40" width="10" height="9" fill="#1b222b"/>' +
@@ -742,7 +744,7 @@
       setTimeout(function () {
         globale.BSISpectraRobot.foto(160).then(function (url) {
           if (!url || url.length < 2000) return;
-          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v3', url); localStorage.removeItem('bsi-spectra-ritratto-v1'); } catch (e) {}
+          ritratto = url; try { localStorage.setItem('bsi-spectra-ritratto-v4', url); localStorage.removeItem('bsi-spectra-ritratto-v3'); } catch (e) {}
           voltoSuiPulsanti();
         }).catch(function () {});
       }, 2500);
