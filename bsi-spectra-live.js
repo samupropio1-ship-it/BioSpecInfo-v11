@@ -433,7 +433,13 @@
     if (document.getElementById('bsiJV-stile')) return;
     var s = document.createElement('style'); s.id = 'bsiJV-stile';
     s.textContent = [
-      '#bsiJV{position:fixed;inset:0;z-index:2147483642;display:none;background:radial-gradient(ellipse at center,rgba(5,12,34,.94) 0%,rgba(2,7,14,.98) 70%);color:#d6e2ff;font-family:system-ui,sans-serif;overflow:hidden}',
+      /* i margini sicuri (v238): sul telefono, con l'app installata, la barra di stato e i tasti di
+         navigazione di Android stanno SOPRA la pagina. env() li dichiara solo se il sistema li
+         comunica; quando non lo fa (molte WebView) si usa un minimo, attivato dalla classe
+         .bsiJV-bordi che si mette se la finestra occupa tutto lo schermo su un dispositivo touch */
+      '#bsiJV{--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}',
+      '#bsiJV.bsiJV-bordi{--st:max(env(safe-area-inset-top,0px),34px);--sb:max(env(safe-area-inset-bottom,0px),46px)}',
+      '#bsiJV{position:fixed;inset:0;z-index:2147483642;display:none;background:radial-gradient(ellipse at center,#050c22 0%,#02070e 70%);color:#d6e2ff;font-family:system-ui,sans-serif;overflow:hidden}',
       '#bsiJV.aperto{display:block}',
       /* i pulsanti flottanti dell\'app non devono restare sopra la console */
       /* visibility e non display: altri script scrivono display in linea con !important */
@@ -443,25 +449,41 @@
       '#bsiJV-volto svg{position:absolute;left:0;top:-4%;width:100%;height:118%}',
       '#bsiJV-volto::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(47,107,255,.07) 0 1px,transparent 1px 4px);mix-blend-mode:screen}',
       '#bsiJV[data-stato="pensa"] #bsiJV-volto{box-shadow:0 0 50px rgba(74,61,255,.45),inset 0 0 40px rgba(74,61,255,.3)}',
-      '#bsiJV-top{position:absolute;top:0;left:0;right:0;display:flex;gap:10px;align-items:center;padding:12px 16px;font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;color:#8fb0ff;text-transform:uppercase}',
+      '#bsiJV-top{position:absolute;top:0;left:0;right:0;display:flex;gap:8px;align-items:center;padding:calc(10px + var(--st)) 14px 8px;font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;color:#8fb0ff;text-transform:uppercase}',
       '#bsiJV-top .sp{flex:1}',
       '.bsiJV-b{background:rgba(12,24,60,.6);border:1px solid rgba(143,176,255,.45);color:#d6e2ff;border-radius:10px;padding:8px 12px;cursor:pointer;font:700 12px/1 system-ui;letter-spacing:.04em}',
       '.bsiJV-b:hover,.bsiJV-b:focus-visible{background:rgba(24,44,110,.75);outline:none;border-color:#8fb0ff}',
       '.bsiJV-b.on{background:rgba(47,107,255,.28);border-color:#2f6bff;color:#fff}',
-      '#bsiJV-stato{position:absolute;left:50%;top:calc(50% + min(26vh,190px));transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#2f6bff;text-shadow:0 0 12px #2f6bff;white-space:nowrap}',
-      '#bsiJV-pensiero{position:absolute;left:50%;top:calc(50% + min(26vh,190px) + 26px);transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#9db4f0;opacity:.85}',
-      '#bsiJV-credito{position:absolute;right:12px;bottom:66px;font:500 10px/1.3 system-ui;color:#6f84b8;text-align:right}#bsiJV-credito a{color:#8fa8e0}',
-      '@media (max-width:480px){#bsiJV-credito{bottom:110px}}',
-      '#bsiJV-tel{position:absolute;left:16px;top:56px;font:600 11px/1.7 ui-monospace,monospace;color:#8fa8e0;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
+      '#bsiJV-stato{position:absolute;left:50%;top:70%;transform:translateX(-50%);font:800 13px/1 ui-monospace,monospace;letter-spacing:.35em;color:#2f6bff;text-shadow:0 0 12px #2f6bff;white-space:nowrap}',
+      '#bsiJV-pensiero{position:absolute;left:50%;top:74%;transform:translateX(-50%);width:min(560px,calc(100vw - 40px));text-align:center;font:italic 500 12.5px/1.45 system-ui;color:#9db4f0;opacity:.85}',
+      /* l'attribuzione del modello: in fondo, sotto i comandi, su una riga sua (prima si sovrapponeva al dialogo) */
+      '#bsiJV-credito{flex-basis:100%;order:9;text-align:center;font:500 10px/1.3 system-ui;color:#6f84b8;margin-top:2px}#bsiJV-credito a{color:#8fa8e0}',
+      '#bsiJV-chips{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:2px}',
+      '.bsiJV-chip{background:rgba(26,48,80,.55);border:1px solid rgba(143,176,255,.35);color:#cfe0ff;border-radius:999px;padding:6px 11px;font:600 12px/1 system-ui;cursor:pointer;white-space:nowrap}',
+      '.bsiJV-chip:hover,.bsiJV-chip:focus-visible{background:rgba(47,107,255,.3);outline:none;border-color:#8fb0ff}',
+      /* il navigatore: tutte le sezioni, gli strumenti e i comandi, dentro la console */
+      '#bsiJV-nav{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(8px + var(--sb));top:calc(56px + var(--st));width:min(760px,calc(100vw - 20px));display:none;flex-direction:column;background:rgba(6,14,32,.97);border:1px solid rgba(143,176,255,.4);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:5;overflow:hidden}',
+      '#bsiJV-nav.aperto{display:flex}',
+      '#bsiJV-nav header{display:flex;gap:6px;align-items:center;padding:10px;border-bottom:1px solid rgba(143,176,255,.2);flex-wrap:wrap}',
+      '#bsiJV-nav header input{flex:1;min-width:140px;background:rgba(10,22,48,.9);border:1px solid rgba(143,176,255,.35);color:#e6edff;border-radius:9px;padding:8px 10px;font-size:14px}',
+      '#bsiJV-nav .corpo{overflow:auto;padding:4px 12px 14px;flex:1}',
+      '#bsiJV-nav h4{margin:12px 0 6px;font:800 11px/1.2 ui-monospace,monospace;letter-spacing:.14em;color:#8fb0ff;text-transform:uppercase}',
+      '#bsiJV-nav .gr{display:flex;flex-wrap:wrap;gap:6px}',
+      '#bsiJV-nav .gr button{background:rgba(16,32,64,.8);border:1px solid rgba(143,176,255,.25);color:#dbe6ff;border-radius:9px;padding:7px 10px;font:600 12.5px/1.2 system-ui;cursor:pointer;text-align:left}',
+      '#bsiJV-nav .gr button:hover,#bsiJV-nav .gr button:focus-visible{border-color:#8fb0ff;background:rgba(47,107,255,.25);outline:none}',
+      '#bsiJV-nav .m.on{background:rgba(47,107,255,.35);border-color:#8fb0ff;color:#fff}',
+      '#bsiJV-tel{position:absolute;left:16px;top:calc(54px + var(--st));display:grid;grid-template-columns:auto;column-gap:16px;font:600 11px/1.7 ui-monospace,monospace;color:#8fa8e0;letter-spacing:.05em;max-width:42vw;text-shadow:0 0 6px rgba(0,0,0,.8)}',
       '#bsiJV-tel b{color:#d6e2ff;font-weight:700}',
-      '#bsiJV-dial{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:30vh;overflow:auto;text-align:center;font-size:15px;line-height:1.55;text-shadow:0 0 8px rgba(0,0,0,.9)}',
+      '#bsiJV-dial{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:30vh;overflow:auto;text-align:center;font-size:15px;line-height:1.55;text-shadow:0 0 8px rgba(0,0,0,.9)}',
       '#bsiJV-dial .u{color:#9aaed8;font-style:italic;margin-bottom:6px}#bsiJV-dial .a{color:#e6edff}#bsiJV-dial .a b{color:#8fb0ff}',
-      '#bsiJV-giu{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px}',
+      '#bsiJV-giu{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;padding:8px 12px calc(8px + var(--sb))}',
       '#bsiJV-in{flex:1;min-width:180px;max-width:520px;background:rgba(6,14,40,.8);border:1px solid rgba(143,176,255,.45);color:#e6edff;border-radius:10px;padding:9px 12px;font-size:14px}',
       '#bsiJV-mini{position:fixed;right:20px;z-index:99991;width:46px;height:46px;border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;',
       ' background:radial-gradient(circle,#2f6bff 0%,#035 60%,#012 100%);border:1px solid #8fb0ff;box-shadow:0 0 18px rgba(47,107,255,.7);color:#fff;font:800 13px/1 ui-monospace,monospace}',
       '#bsiJV-mini.vis{display:flex}',
-      '@media (max-width:480px){#bsiJV-tel{max-width:60vw;font-size:10px}#bsiJV-dial{font-size:14px;bottom:104px}}',
+      '@media (max-width:600px){#bsiJV-tel{grid-template-columns:auto auto;max-width:calc(100vw - 24px);left:12px;font-size:9.5px;line-height:1.55}#bsiJV-dial{font-size:14px}#bsiJV-top{padding-left:10px;padding-right:10px}' +
+        /* sul telefono: scorciatoie, poi la riga per scrivere (campo largo + invio), poi i tasti */
+        '#bsiJV-chips{order:1}#bsiJV-in{order:2;flex:1 1 calc(100% - 70px);min-width:0}#bsiJV-invia{order:3}#bsiJV-mic,#bsiJV-occhi,#bsiJV-senti,#bsiJV-taci{order:4}.bsiJV-chip{padding:6px 9px;font-size:11.5px}}',
       '@media (prefers-reduced-motion:reduce){#bsiJV-stato{text-shadow:none}}'
     ].join('');
     document.head.appendChild(s);
@@ -472,10 +494,10 @@
     var d = document.createElement('div'); d.id = 'bsiJV'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
     d.innerHTML = '<canvas aria-hidden="true"></canvas><div id="bsiJV-volto"></div>' +
       '<div id="bsiJV-top"><span>◈ SPECTRA</span><span class="sp"></span>' +
-      '<button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
+      '<button class="bsiJV-b" id="bsiJV-tutto" type="button"></button><button class="bsiJV-b" id="bsiJV-chat" type="button"></button><button class="bsiJV-b" id="bsiJV-voce" type="button"></button><button class="bsiJV-b" id="bsiJV-riduci" type="button"></button><button class="bsiJV-b" id="bsiJV-x" type="button">✕</button></div>' +
       '<div id="bsiJV-tel" aria-live="off"></div><div id="bsiJV-stato" aria-live="polite"></div><div id="bsiJV-pensiero" aria-live="off"></div>' +
-      '<div id="bsiJV-dial" aria-live="polite"></div><div id="bsiJV-credito"></div>' +
-      '<div id="bsiJV-giu"><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button></div>';
+      '<div id="bsiJV-dial" aria-live="polite"></div><div id="bsiJV-nav" role="dialog"></div>' +
+      '<div id="bsiJV-giu"><div id="bsiJV-chips"></div><button class="bsiJV-b" id="bsiJV-mic" type="button"></button><button class="bsiJV-b" id="bsiJV-occhi" type="button"></button><button class="bsiJV-b" id="bsiJV-senti" type="button"></button><input id="bsiJV-in" autocomplete="off"><button class="bsiJV-b" id="bsiJV-invia" type="button">↵</button><button class="bsiJV-b" id="bsiJV-taci" type="button"></button><div id="bsiJV-credito"></div></div>';
     document.body.appendChild(d);
     var mini = document.createElement('button'); mini.id = 'bsiJV-mini'; mini.type = 'button'; mini.textContent = 'J'; document.body.appendChild(mini);
     mini.onclick = function () { apriHud(); };
@@ -487,6 +509,11 @@
       globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
     } else if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo);
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
+    document.getElementById('bsiJV-tutto').onclick = function () { navigatore(); };
+    document.getElementById('bsiJV-chat').onclick = function () { chiudiHud(true); if (typeof globale.bsiOpenAIHub === 'function') globale.bsiOpenAIHub('chat'); };
+    /* i margini minimi quando la finestra copre tutto lo schermo di un telefono */
+    var bordi = function () { var tocco = globale.matchMedia && globale.matchMedia('(pointer:coarse)').matches, pieno = globale.screen && globale.innerHeight >= globale.screen.height * 0.96, app = globale.matchMedia && globale.matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches; d.classList.toggle('bsiJV-bordi', !!(tocco && (pieno || app || navigator.standalone))); };
+    bordi(); globale.addEventListener('resize', bordi);
     document.getElementById('bsiJV-riduci').onclick = function () { chiudiHud(true); };
     document.getElementById('bsiJV-mic').onclick = function () { hud.ascolto ? fermaAscolto() : avviaAscolto(); };
     document.getElementById('bsiJV-taci').onclick = function () { taci(); };
@@ -509,6 +536,9 @@
     set('bsiJV-voce', voce.attiva ? '🔊' : '🔇', voce.attiva ? t('Voce attiva: tocca per silenziare', 'Voice on: tap to mute') : t('Voce spenta: tocca per attivare', 'Voice off: tap to turn on'));
     set('bsiJV-riduci', '▾', t('Riduci a icona', 'Minimise'));
     set('bsiJV-x', '✕', t('Chiudi la console', 'Close the console'));
+    set('bsiJV-tutto', '🧭', t('Tutte le sezioni, gli strumenti e i comandi', 'All sections, tools and commands'));
+    set('bsiJV-chat', '💬', t('Apri la chat completa di Spectra', 'Open the full Spectra chat'));
+    chips();
     set('bsiJV-mic', hud.ascolto ? '🎙️ ' + t('ASCOLTO', 'LISTENING') : '🎙️ ' + t('PARLA', 'TALK'), t('Microfono', 'Microphone'));
     set('bsiJV-taci', '■', t('Interrompi la voce', 'Stop speaking'));
     set('bsiJV-occhi', '👁', hud.occhi ? t('Alla prossima domanda allego lo schermo', 'I will attach the screen to the next question') : t('Allega lo schermo alla prossima domanda', 'Attach the screen to the next question'));
@@ -537,9 +567,12 @@
       [t('DA RIPASSARE', 'TO REVIEW'), st.flashTotali ? st.daRipassare + ' / ' + st.flashTotali + ' flashcard' : '—'],
       [t('ERRORI QUIZ', 'QUIZ ERRORS'), String(st.errori)],
       [t('MODELLO', 'MODEL'), prov ? String(prov).toUpperCase().slice(0, 22) : t('COMANDI LOCALI', 'LOCAL COMMANDS')],
-      [t('RETE', 'NETWORK'), navigator.onLine === false ? 'OFFLINE' : 'ONLINE']
+      [t('RETE', 'NETWORK'), navigator.onLine === false ? 'OFFLINE' : 'ONLINE'],
+      [t('LIVELLO', 'LEVEL'), hud.difficolta ? hud.difficolta.nome.toUpperCase() : (livelloSezione(s.sezione) >= 0 ? t(LIVELLI[livelloSezione(s.sezione)][0], LIVELLI[livelloSezione(s.sezione)][1]).toUpperCase() : '—')],
+      [t('CONCENTRAZIONE', 'FOCUS'), hud.volto && hud.volto.concentrazione ? Math.round(hud.volto.concentrazione() * 100) + '%' : '—']
     ];
-    e.innerHTML = righe.map(function (r) { return esc(r[0]) + ' · <b>' + esc(r[1]) + '</b>'; }).join('<br>');
+    e.innerHTML = righe.map(function (r) { return '<div>' + esc(r[0]) + ' · <b>' + esc(r[1]) + '</b></div>'; }).join('');
+    chips();
   }
   function dialogo(u, a, html) {
     var e = document.getElementById('bsiJV-dial'); if (!e) return;
@@ -549,6 +582,92 @@
     if (u && !a && !html && hud.volto && hud.volto.sente) hud.volto.sente(u);
   }
 
+
+  /* ═══ 6b. IL LIVELLO E LA CONCENTRAZIONE ═══════════════════════════════════
+     Ogni sezione appartiene a un livello di studio nei percorsi (bsi-percorsi.js):
+     scuola superiore, triennale, magistrale, dottorato. Il livello della sezione
+     aperta, insieme a quanto e' impegnativa la domanda (parole da corso avanzato,
+     simboli, lunghezza), da' la concentrazione con cui Spectra la affronta: il viso
+     la mostra (occhi socchiusi e piu' accesi, sopracciglia avvicinate, labbra strette). */
+  var LIVELLI = [['Scuola superiore', 'High school'], ['Laurea triennale', 'Bachelor'], ['Laurea magistrale', 'Master'], ['Dottorato', 'PhD']];
+  var AVANZATO = /\b(dimostr|teorema|lemma|hamilton|lagrang|tensor|autoval|autovett|derivat[ae] parzial|equazion[ei] differenzial|integrale (doppio|triplo|di superficie|curvilineo)|serie di (fourier|taylor|laurent)|trasformat|schr.dinger|perturbazion|hartree|funzional|quantistic|relativit|entropia|partizione|cinetica|meccanismo|retrosintes|nmr|spettro|gruppo puntuale|simmetria|orbitali molecolari|operatore|spazio di hilbert|varieta|topolog|omologia|residu|convergenza uniforme|proof|theorem|eigen|tensor|quantum|mechanism)/;
+  var SEMPLICE = /\b(in parole semplici|spiega(mi)? semplice|in breve|veloce|al volo|simply|briefly)\b/;
+  function livelloSezione(id) {
+    var P = globale.BSIFisica && globale.BSIFisica.calcolo && globale.BSIFisica.calcolo.percorsi;
+    if (!P || !P.MAPPA || !id) return -1;
+    var lv = -1;
+    Object.keys(P.MAPPA).forEach(function (m) { P.MAPPA[m].forEach(function (L, i) { if (L.sez && L.sez.indexOf(id) >= 0) lv = Math.max(lv, i); }); });
+    return lv;
+  }
+  function difficolta(testo) {
+    var sc = leggiSchermo(), lv = livelloSezione(sc.sezione), q = norm(testo);
+    var d = lv >= 0 ? 0.15 + 0.22 * lv : 0.25;
+    if (AVANZATO.test(q)) d += 0.3;
+    var simboli = (String(testo).match(/[∫∑∂√∇^=±≈→]|\b(d\/dx|lim|log|ln|sin|cos|exp)\b/g) || []).length;
+    d += Math.min(0.2, simboli * 0.04);
+    if (String(testo).length > 140) d += 0.1;
+    if (SEMPLICE.test(q)) d -= 0.25;
+    d = Math.max(0.05, Math.min(1, d));
+    var liv = lv >= 0 ? lv : Math.max(0, Math.min(3, Math.round(d * 3 - 0.2)));
+    return { valore: d, livello: liv, nome: t(LIVELLI[liv][0], LIVELLI[liv][1]) };
+  }
+
+  /* ═══ 6c. LE SCORCIATOIE E IL NAVIGATORE ═══════════════════════════════════
+     Spectra e' il centro dell'app: dalla console si raggiunge tutto. Le scorciatoie
+     sopra i comandi cambiano con quello che c'e' sullo schermo; il navigatore 🧭
+     elenca, per materia, ogni gruppo e ogni sezione della barra, gli strumenti
+     rapidi, il kit di studio e le frasi che Spectra capisce da solo. */
+  function chips() {
+    var box = document.getElementById('bsiJV-chips'); if (!box) return;
+    var sc = leggiSchermo(), L;
+    if (sc.sezione) L = [['📖', t('Spiegami questa sezione', 'Explain this section'), t('spiegami questa sezione', 'explain this section')], ['🧭', t('Guidami', 'Guide me'), t('guidami', 'guide me')], ['👁', t('Cosa vedo?', 'What am I looking at?'), t('dove sono', 'where am i')], ['❓', t('Interrogami', 'Quiz me'), t('interrogami', 'quiz me')], ['🔁', t('Ripassa', 'Review'), t('ripassa', 'review')]];
+    else L = [['🧭', t('Tutte le sezioni', 'All sections'), null], ['❓', t('Interrogami', 'Quiz me'), t('interrogami', 'quiz me')], ['🔁', t('Ripassa', 'Review'), t('ripassa', 'review')], ['🧠', t('Cosa ricordi?', 'What do you remember?'), t('cosa ricordi', 'what do you remember')], ['💬', t('Come stai?', 'How are you?'), t('come stai', 'how are you')]];
+    var chiave = L.map(function (x) { return x[1]; }).join('|'); if (box._chiave === chiave) return; box._chiave = chiave;
+    box.innerHTML = '';
+    L.forEach(function (x) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bsiJV-chip'; b.textContent = x[0] + ' ' + x[1];
+      b.onclick = function () { if (x[2]) elabora(x[2]); else navigatore(); };
+      box.appendChild(b);
+    });
+  }
+  function navigatore(materiaScelta) {
+    var nav = document.getElementById('bsiJV-nav'); if (!nav) return;
+    if (nav.classList.contains('aperto') && !materiaScelta) { nav.classList.remove('aperto'); return; }
+    var Mt = globale.BSIMaterie, m = materiaScelta || materia(), A = globale.BSIAttrezzi;
+    var nomi = { chimica: ['⚗️', t('Chimica', 'Chemistry')], fisica: ['⚛️', t('Fisica', 'Physics')], matematica: ['📐', t('Matematica', 'Mathematics')] };
+    var h = '<header>' + ['chimica', 'fisica', 'matematica'].map(function (k) { return '<button type="button" class="bsiJV-b m' + (k === m ? ' on' : '') + '" data-m="' + k + '">' + nomi[k][0] + ' ' + esc(nomi[k][1]) + '</button>'; }).join('') +
+      '<input type="search" id="bsiJV-navq" placeholder="' + esc(t('Cerca una sezione, uno strumento, un comando…', 'Search a section, a tool, a command…')) + '"><button type="button" class="bsiJV-b" id="bsiJV-navx" aria-label="' + esc(t('Chiudi', 'Close')) + '">✕</button></header><div class="corpo">';
+    /* i gruppi della barra che appartengono alla materia, poi quelli comuni (Studio, Utility) */
+    var gruppi = Mt && Mt.MATERIE && Mt.MATERIE[m] ? Mt.MATERIE[m].gruppi.concat(Mt.COMUNI || []) : [];
+    gruppi.forEach(function (g) {
+      var tab = document.querySelector('.nav-group-tab[data-group="' + g + '"]'), bt = document.querySelectorAll('#navGroup' + g + ' .nav-btn');
+      if (!bt.length) return;
+      h += '<h4>' + esc(tab ? tab.textContent.trim() : String(g)) + '</h4><div class="gr">' + [].map.call(bt, function (b) { return '<button type="button" data-s="' + esc(b.getAttribute('data-s')) + '" data-m="' + m + '">' + esc(b.textContent.trim()) + '</button>'; }).join('') + '</div>';
+    });
+    if (A && A.PER_MATERIA && A.PER_MATERIA[m]) h += '<h4>' + esc(t('Strumenti rapidi', 'Quick tools')) + '</h4><div class="gr">' + A.PER_MATERIA[m].map(function (k) { var S = A.STRUMENTI[k]; return '<button type="button" data-a="' + k + '">' + esc(S.ic + ' ' + t(S.nm[0], S.nm[1])) + '</button>'; }).join('') + '</div>';
+    var FRASI = [t('che ore sono', 'what time is it'), t('dove sono', 'where am i'), t('calcola 2 alla 10', 'calculate 2 to the 10'), t('derivata di x^2*sin(x)', 'derivative of x^2*sin(x)'), t('integrale di x*e^x', 'integral of x*e^x'), t('converti 1 atm in Pa', 'convert 1 atm to Pa'), t('costante di Planck', 'constant Planck'), t('grafico di sin(x)/x', 'plot sin(x)/x'), t('passa alla fisica', 'switch to physics'), t('spiegami questa sezione', 'explain this section'), t('guidami', 'guide me'), t('interrogami', 'quiz me'), t('ripassa', 'review'), t('cosa ricordi', 'what do you remember'), t('come stai', 'how are you'), t('a cosa pensi', 'what are you thinking'), t('pausa', 'pause')];
+    h += '<h4>' + esc(t('Cosa puoi dirmi (funziona anche senza rete)', 'What you can say (works offline too)')) + '</h4><div class="gr">' + FRASI.map(function (f) { return '<button type="button" data-f="' + esc(f) + '">« ' + esc(f) + ' »</button>'; }).join('') + '</div></div>';
+    nav.innerHTML = h; nav.classList.add('aperto');
+    nav.querySelector('#bsiJV-navx').onclick = function () { nav.classList.remove('aperto'); };
+    [].forEach.call(nav.querySelectorAll('header .m'), function (b) { b.onclick = function () { navigatore(b.getAttribute('data-m')); }; });
+    nav.querySelector('.corpo').onclick = function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.getAttribute('data-s')) {
+        var id = b.getAttribute('data-s'), mm = b.getAttribute('data-m');
+        nav.classList.remove('aperto');
+        if (Mt && mm && Mt.corrente() !== mm) Mt.imposta(mm);
+        var nome = b.textContent.replace(/^[^\wÀ-ÿ]+/, '');
+        chiudiHud(true); if (typeof globale.goSection === 'function') globale.goSection(id);
+        if (hud.volto && hud.volto.espressione) hud.volto.espressione('attenta', 1.5);
+        parla(t('Apro ', 'Opening ') + nome + '.');
+      } else if (b.getAttribute('data-a')) { nav.classList.remove('aperto'); chiudiHud(true); A.apri(b.getAttribute('data-a'), m); }
+      else if (b.getAttribute('data-f')) { nav.classList.remove('aperto'); elabora(b.getAttribute('data-f')); }
+    };
+    var q = nav.querySelector('#bsiJV-navq');
+    q.oninput = function () { var v = norm(q.value); [].forEach.call(nav.querySelectorAll('.corpo button'), function (b) { b.style.display = !v || norm(b.textContent).indexOf(v) >= 0 ? '' : 'none'; }); };
+    if (!(globale.matchMedia && globale.matchMedia('(pointer:coarse)').matches)) setTimeout(function () { q.focus(); }, 30);
+  }
+
   /* il reattore: anelli, archi, scansione, spettro della voce */
   function disegna(ts) {
     if (!hud.el || !hud.el.classList.contains('aperto')) { hud.raf = 0; return; }
@@ -556,7 +675,22 @@
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     var q = cv.getContext('2d'); q.setTransform(dpr, 0, 0, dpr, 0, 0); q.clearRect(0, 0, W, H);
     var lento = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var tt = (ts || 0) / 1000, cx = W / 2, cy = H / 2 - Math.min(40, H * 0.05), R = Math.min(W, H) * 0.27;
+    var tt = (ts || 0) / 1000, cx = W / 2;
+    /* L'IMPAGINAZIONE (v238): niente posizioni fisse che si sovrappongono. Si misura dove
+       finiscono la testata e la telemetria e dove comincia la barra dei comandi; il dialogo
+       sta subito sopra i comandi, il reattore al centro dello spazio che resta, stato e
+       pensiero appena sotto il reattore. */
+    var elTop = document.getElementById('bsiJV-top'), elTel = document.getElementById('bsiJV-tel'), elGiu = document.getElementById('bsiJV-giu'), elDial = document.getElementById('bsiJV-dial');
+    var yTop = (elTop ? elTop.getBoundingClientRect().bottom : 50) + 4, giuTop = elGiu ? elGiu.getBoundingClientRect().top : H - 90;
+    if (elTel && W <= 760) yTop = Math.max(yTop, elTel.getBoundingClientRect().bottom + 6);
+    if (elDial) { var bd = Math.round(H - giuTop + 6); if (elDial._b !== bd) { elDial.style.bottom = bd + 'px'; elDial._b = bd; } }
+    var dialH = elDial && elDial.textContent ? Math.min(elDial.scrollHeight, H * 0.3) : 0;
+    var yBot = giuTop - 6 - dialH - 46, spazio = Math.max(120, yBot - yTop);
+    var R = Math.max(54, Math.min(Math.min(W, H) * 0.27, spazio * 0.42)), cy = yTop + spazio / 2;
+    if (elDial) { var mh = Math.max(60, Math.round(giuTop - (cy + R * 1.18 + 46) - 8)); if (elDial._mh !== mh) { elDial.style.maxHeight = mh + 'px'; elDial._mh = mh; } }
+    var elSt = document.getElementById('bsiJV-stato'), elPe = document.getElementById('bsiJV-pensiero');
+    if (elSt) elSt.style.top = Math.round(cy + R * 1.2 + 4) + 'px';
+    if (elPe) elPe.style.top = Math.round(cy + R * 1.2 + 26) + 'px';
     /* il volto sta al centro del reattore */
     var vo = document.getElementById('bsiJV-volto');
     if (vo) { var dia = Math.round(R * 1.18); if (vo._dia !== dia) { vo.style.width = vo.style.height = dia + 'px'; vo._dia = dia; } vo.style.left = cx + 'px'; vo.style.top = cy + 'px'; }
@@ -567,6 +701,8 @@
     if (voce.inCorso) { hud.energia = Math.max(0.35, hud.energia * 0.94); e = Math.max(e, hud.energia); }
     if (hud.stato === 'pensa') e = Math.max(e, 0.45 + 0.25 * Math.sin(tt * 7));
     var col = hud.stato === 'pensa' ? [92, 76, 255] : hud.stato === 'parla' ? [56, 140, 255] : [40, 104, 255];
+    /* il reattore prende la tinta degli occhi (l'emozione), schiarita perche' gli anelli si vedano */
+    if (hud.volto && hud.volto.coloreOcchi) { var ho = parseInt(hud.volto.coloreOcchi.slice(1), 16); col = [Math.min(255, ((ho >> 16) & 255) * 0.6 + 40), Math.min(255, ((ho >> 8) & 255) * 0.6 + 70), Math.min(255, (ho & 255) * 0.5 + 128)].map(Math.round); }
     var rgba = function (a) { return 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a + ')'; };
     /* griglia di fondo e scansione */
     q.strokeStyle = 'rgba(47,107,255,0.05)'; q.lineWidth = 1;
@@ -658,10 +794,14 @@
   function dopoLaRisposta() { if (hud.el && hud.el.classList.contains('aperto') && hud.maniLibere && !hud.ascolto) setTimeout(function () { if (!voce.inCorso && hud.el.classList.contains('aperto')) avviaAscolto(); }, 350); }
 
   function elabora(testo) {
+    var nav = document.getElementById('bsiJV-nav'); if (nav) nav.classList.remove('aperto');
+    hud.difficolta = difficolta(testo);
+    if (hud.volto && hud.volto.concentra) hud.volto.concentra(hud.difficolta.valore);
     dialogo(testo, '', '');
     var loc = comandoLocale(testo);
     if (globale.BSISpectraMente && !(loc && loc.muto)) { try { globale.BSISpectraMente.ricorda(testo, loc ? 'locale' : 'modello'); } catch (e) {} }
     if (loc) {
+      if (hud.volto && hud.volto.concentra) hud.volto.concentra(Math.min(0.3, hud.difficolta.valore));
       if (loc.muto) return;
       ultima = loc.testo; dialogo(testo, loc.testo, loc.html);
       parla(loc.testo, dopoLaRisposta); if (!voce.attiva) { stato('attesa'); dopoLaRisposta(); }
@@ -768,6 +908,7 @@
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
+    difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore,
     calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
