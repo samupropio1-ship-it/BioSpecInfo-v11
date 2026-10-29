@@ -327,7 +327,7 @@
      stringono, lo sguardo si ferma e le palpebre battono meno */
   Androide.prototype.concentra = function (c) { this.concT = Math.max(0, Math.min(1, +c || 0)); this.avvia(); };
   Androide.prototype.concentrazione = function () { return this.conc; };
-  Androide.prototype.aperture = function () { return [this.molle.ap0.x, this.molle.ap1.x]; };
+  Androide.prototype.aperture = function () { return this.apVis || [this.molle.ap0.x, this.molle.ap1.x]; };
   /* quello che dice l'utente cambia il viso mentre ascolta (un complimento, un problema, una domanda) */
   Androide.prototype.sente = function (frase) { var e = emozioneDi(String(frase || '')); var mappa = { gioia: 'sorrisoCaldo', preoccupata: 'empatica', curiosa: 'attenta', serena: 'attenta', fiera: 'gioia' }; this.espressione(mappa[e] || e, 2.6, 0.85); if (globale.BSISpectraMente && globale.BSISpectraMente.sente) globale.BSISpectraMente.sente(e, 'u'); };
   Androide.prototype.allinea = function (i) { if (this.testo) this.pos = Math.max(this.pos, i); };
@@ -467,7 +467,7 @@
     var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0; this.palp = Math.max(0, this.palp - dt / 0.13);
     var apBase = O[0] * (1 - 0.32 * C) + (1 - forza) * (1 - O[0]), asi = O[1] * forza;
     var ap0 = lento ? apBase : molla(M.ap0, apBase * (1 + asi), RIGIDO.ap0, dt), ap1 = lento ? apBase : molla(M.ap1, apBase * (1 - asi), RIGIDO.ap1, dt);
-    ap0 = Math.max(0.04, ap0 * (1 - 0.96 * chiuso)); ap1 = Math.max(0.04, ap1 * (1 - 0.96 * chiuso));
+    ap0 = Math.max(0.04, ap0 * (1 - 0.96 * chiuso)); ap1 = Math.max(0.04, ap1 * (1 - 0.96 * chiuso)); this.apVis = [ap0, ap1];
     /* lo sguardo: il puntatore, piu' micro-saccadi (meno quando e' concentrata), qualche occhiata altrove */
     this.saccade = this.saccade || { x: 0, y: 0, t: 0.8, altrove: 9 };
     this.saccade.t -= dt; this.saccade.altrove -= dt;

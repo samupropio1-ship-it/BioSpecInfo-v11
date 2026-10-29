@@ -595,9 +595,10 @@
   function livelloSezione(id) {
     var P = globale.BSIFisica && globale.BSIFisica.calcolo && globale.BSIFisica.calcolo.percorsi;
     if (!P || !P.MAPPA || !id) return -1;
-    var lv = -1;
-    Object.keys(P.MAPPA).forEach(function (m) { P.MAPPA[m].forEach(function (L, i) { if (L.sez && L.sez.indexOf(id) >= 0) lv = Math.max(lv, i); }); });
-    return lv;
+    /* il livello di una sezione e' il primo del percorso in cui compare (dove la si incontra la prima volta) */
+    var lv = 99;
+    Object.keys(P.MAPPA).forEach(function (m) { P.MAPPA[m].forEach(function (L, i) { if (L.sez && L.sez.indexOf(id) >= 0) lv = Math.min(lv, i); }); });
+    return lv === 99 ? -1 : lv;
   }
   function difficolta(testo) {
     var sc = leggiSchermo(), lv = livelloSezione(sc.sezione), q = norm(testo);
@@ -644,7 +645,9 @@
       if (!bt.length) return;
       h += '<h4>' + esc(tab ? tab.textContent.trim() : String(g)) + '</h4><div class="gr">' + [].map.call(bt, function (b) { return '<button type="button" data-s="' + esc(b.getAttribute('data-s')) + '" data-m="' + m + '">' + esc(b.textContent.trim()) + '</button>'; }).join('') + '</div>';
     });
-    if (A && A.PER_MATERIA && A.PER_MATERIA[m]) h += '<h4>' + esc(t('Strumenti rapidi', 'Quick tools')) + '</h4><div class="gr">' + A.PER_MATERIA[m].map(function (k) { var S = A.STRUMENTI[k]; return '<button type="button" data-a="' + k + '">' + esc(S.ic + ' ' + t(S.nm[0], S.nm[1])) + '</button>'; }).join('') + '</div>';
+    /* gli strumenti rapidi della materia; per la chimica (che ha i suoi nel menu ✨) quelli generali */
+    var rapidi = A && A.STRUMENTI ? (A.PER_MATERIA && A.PER_MATERIA[m] && A.PER_MATERIA[m].length ? A.PER_MATERIA[m] : Object.keys(A.STRUMENTI)) : null;
+    if (rapidi) h += '<h4>' + esc(t('Strumenti rapidi', 'Quick tools')) + '</h4><div class="gr">' + rapidi.map(function (k) { var S = A.STRUMENTI[k]; return '<button type="button" data-a="' + k + '">' + esc(S.ic + ' ' + t(S.nm[0], S.nm[1])) + '</button>'; }).join('') + '</div>';
     var FRASI = [t('che ore sono', 'what time is it'), t('dove sono', 'where am i'), t('calcola 2 alla 10', 'calculate 2 to the 10'), t('derivata di x^2*sin(x)', 'derivative of x^2*sin(x)'), t('integrale di x*e^x', 'integral of x*e^x'), t('converti 1 atm in Pa', 'convert 1 atm to Pa'), t('costante di Planck', 'constant Planck'), t('grafico di sin(x)/x', 'plot sin(x)/x'), t('passa alla fisica', 'switch to physics'), t('spiegami questa sezione', 'explain this section'), t('guidami', 'guide me'), t('interrogami', 'quiz me'), t('ripassa', 'review'), t('cosa ricordi', 'what do you remember'), t('come stai', 'how are you'), t('a cosa pensi', 'what are you thinking'), t('pausa', 'pause')];
     h += '<h4>' + esc(t('Cosa puoi dirmi (funziona anche senza rete)', 'What you can say (works offline too)')) + '</h4><div class="gr">' + FRASI.map(function (f) { return '<button type="button" data-f="' + esc(f) + '">« ' + esc(f) + ' »</button>'; }).join('') + '</div></div>';
     nav.innerHTML = h; nav.classList.add('aperto');
