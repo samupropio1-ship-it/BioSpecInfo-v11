@@ -152,6 +152,11 @@ function vero(d, c) { att(d, true, !!c); }
       o.vertici = p.length;
       /* un battito: si chiudono quasi del tutto */
       v.espressione('serena', 99); v.palp = 0.5; v.prossimo = 1e9; v.passo(0.001); o.battito = v.aperture();
+      /* il sonno: due minuti e mezzo senza contatto, poi un tocco */
+      v.stato('attesa'); v.concentra(0); v.conc = 0; v.imposta = null; v.prossimo = 1e9;
+      v.contatto = Date.now() - 170000; for (let i = 0; i < 300; i++) v.passo(1 / 30);
+      o.sonno = v.addormentato(); o.apSonno = v.aperture()[0];
+      v.contatto = Date.now(); for (let i = 0; i < 6; i++) v.passo(1 / 30); o.risveglio = v.emozione();
       v.libera(); box.remove();
       return o;
     });
@@ -163,6 +168,8 @@ function vero(d, c) { att(d, true, !!c); }
     vero('concentrata: occhi più socchiusi (' + O.concentrata.a0.toFixed(2) + ' < ' + O.calma.a0.toFixed(2) + ')', O.concentrata.a0 < O.calma.a0 - 0.15);
     vero('concentrata: occhi più accesi (' + O.concentrata.luce.toFixed(2) + ' > ' + O.calma.luce.toFixed(2) + ')', O.concentrata.luce > O.calma.luce * 1.3);
     vero('il battito chiude quasi del tutto le palpebre (' + O.battito.map(x => x.toFixed(2)).join(' / ') + ')', O.battito[0] < 0.2 && O.battito[1] < 0.2);
+    vero('dopo due minuti senza nessuno si addormenta (sonno ' + O.sonno.toFixed(2) + ', palpebre ' + O.apSonno.toFixed(2) + ')', O.sonno > 0.8 && O.apSonno < 0.4);
+    att('e al primo tocco si sveglia di soprassalto', 'sorpresa', O.risveglio);
     att('nessun errore JavaScript nel volto', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
   }
