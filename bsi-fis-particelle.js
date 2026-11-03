@@ -14,7 +14,9 @@
      e un fit di Breit–Wigner + esponenziale ritrova M_Z e Γ_Z;
    · VITE MEDIE RELATIVISTICHE: i muoni dei raggi cosmici nati a 15 km che
      arrivano al livello del mare, con e senza dilatazione dei tempi; il
-     calcolatore del decadimento a due corpi (π⁺ → μ⁺ν: p = 29,79 MeV/c).
+     calcolatore del decadimento a due corpi (π⁺ → μ⁺ν: p = 29,79 MeV/c);
+   · RIVELATORE 3D (v238): Z → μμ, Z → ee, H → γγ in un rivelatore come CMS,
+     eliche nel campo, colpi, ricostruzione di p_T e della massa invariante.
    Unita': MeV, MeV/c, MeV/c² (c = 1) salvo dove indicato in GeV.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
@@ -223,7 +225,62 @@
     var tLab = h / (b * 299792458), tProprio = tLab / g;
     return { gamma: g, beta: b, L: bg * C_TAU_MU, tLab: tLab, tProprio: tProprio, conDil: Math.exp(-tProprio / TAU_MU), senzaDil: Math.exp(-tLab / TAU_MU) };
   }
-  F.calcolo.particelle = { MODELLO: MODELLO, PART: PART, REAZIONI: REAZIONI, controlla: controlla, soglia: soglia, radiceS: radiceS, massa: massa, somma4: somma4, spinta: spinta, dueCorpi: dueCorpi, generatore: generatore, istogramma: istogramma, riempi: riempi, adatta: adatta, modello: modello, muoni: muoni, nomeReazione: nomeReazione, MZ: MZ, GZ: GZ, HMIN: HMIN, HMAX: HMAX, NB: NB };
+  /* v238 — un rivelatore cilindrico come CMS (unita': metri, GeV, tesla). Dentro il solenoide
+     (r < 3 m) B = 3,8 T lungo z; nel giogo di ferro (3 < r < 7 m) il campo di ritorno e' opposto,
+     −1,8 T, e i muoni curvano dall'altra parte. Una particella di carica q e impulso p percorre
+     un'elica: in ogni passo ds la direzione ruota attorno a z di −0,3 q B ds / p (raggio nel piano
+     trasverso R = p_T/(0,3 B)). I punti misurati sono le intersezioni con gli strati del tracciatore. */
+  var RIV = { B: 3.8, Bferro: -1.8, strati: [0.044, 0.073, 0.102, 0.255, 0.339, 0.418, 0.498, 0.608, 0.692, 0.780, 0.868, 0.965, 1.08], rEcal: 1.29, rHcal: 1.8, rSol: 3.0, rMu: [4.0, 5.0, 6.0, 7.0], zMax: 6.5 };
+  function campoRiv(r) { return r < RIV.rSol ? RIV.B : r < 7.2 ? RIV.Bferro : 0; }
+  /* tipo: 'mu' attraversa tutto, 'e' si ferma nel calorimetro elettromagnetico, 'pi' in quello adronico,
+     'gamma' vola dritto fino all'ECAL (non ha carica) */
+  function traccia(p4, q, tipo, ds) {
+    ds = ds || 0.005;
+    var P = Math.hypot(p4[1], p4[2], p4[3]), u = [p4[1] / P, p4[2] / P, p4[3] / P], x = [0, 0, 0], pts = [[0, 0, 0]], colpi = [], k = 0, rPrec = 0, fine = 'esce', impatto = null;
+    var rStop = tipo === 'e' || tipo === 'gamma' ? RIV.rEcal : tipo === 'pi' ? RIV.rHcal + 0.6 : 7.3;
+    for (var i = 0; i < 40000; i++) {
+      var r = Math.hypot(x[0], x[1]);
+      /* mezza rotazione, il passo, l'altra mezza: i vertici della spezzata stanno sull'elica */
+      var a = q ? -0.15 * q * campoRiv(r) * ds / P : 0, c = Math.cos(a), sn = Math.sin(a), ux = u[0] * c - u[1] * sn; u[1] = u[0] * sn + u[1] * c; u[0] = ux;
+      var xn = [x[0] + u[0] * ds, x[1] + u[1] * ds, x[2] + u[2] * ds], rn = Math.hypot(xn[0], xn[1]);
+      ux = u[0] * c - u[1] * sn; u[1] = u[0] * sn + u[1] * c; u[0] = ux;
+      for (k = 0; k < RIV.strati.length; k++) { var L = RIV.strati[k]; if (r < L && rn >= L) { var f = (L - r) / (rn - r); colpi.push([x[0] + (xn[0] - x[0]) * f, x[1] + (xn[1] - x[1]) * f, x[2] + (xn[2] - x[2]) * f, k]); } }
+      x = xn; if (i % 4 === 3) pts.push(x.slice());
+      if (rn >= rStop) { fine = tipo === 'mu' ? 'esce' : tipo === 'pi' ? 'hcal' : 'ecal'; impatto = x.slice(); break; }
+      if (Math.abs(x[2]) > RIV.zMax) { fine = 'avanti'; break; }
+      if (i * ds > (tipo === 'pi' ? 3.5 : 12)) { fine = 'spirale'; break; }
+    }
+    pts.push(x.slice());
+    return { pts: pts, colpi: colpi, fine: fine, impatto: impatto };
+  }
+  /* la circonferenza per tre punti del piano trasverso */
+  function cerchio3(a, b, c) {
+    var d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1])); if (Math.abs(d) < 1e-15) return null;
+    var a2 = a[0] * a[0] + a[1] * a[1], b2 = b[0] * b[0] + b[1] * b[1], c2 = c[0] * c[0] + c[1] * c[1];
+    var xc = (a2 * (b[1] - c[1]) + b2 * (c[1] - a[1]) + c2 * (a[1] - b[1])) / d, yc = (a2 * (c[0] - b[0]) + b2 * (a[0] - c[0]) + c2 * (b[0] - a[0])) / d;
+    return { xc: xc, yc: yc, R: Math.hypot(a[0] - xc, a[1] - yc) };
+  }
+  /* la ricostruzione: cerchio per il vertice (0, 0), un punto a meta' e l'ultimo strato; p_T = 0,3 B R;
+     la carica dal verso di rotazione; tan λ = z / arco trasverso; il quadrivettore con la massa m */
+  function ricostruisci(colpi, m) {
+    if (colpi.length < 3) return null;
+    var A = colpi[Math.floor(colpi.length / 2)], Bp = colpi[colpi.length - 1], C = cerchio3([0, 0], A, Bp); if (!C) return null;
+    var pT = 0.3 * RIV.B * C.R, t0 = [-C.yc, C.xc]; if (t0[0] * colpi[0][0] + t0[1] * colpi[0][1] < 0) t0 = [C.yc, -C.xc];
+    var nt = Math.hypot(t0[0], t0[1]); t0 = [t0[0] / nt, t0[1] / nt];
+    var q = t0[0] * Bp[1] - t0[1] * Bp[0] < 0 ? 1 : -1;
+    var a0 = Math.atan2(-C.yc, -C.xc), a1 = Math.atan2(Bp[1] - C.yc, Bp[0] - C.xc), da = Math.abs(Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0))), tl = Bp[2] / (C.R * da);
+    var px = pT * t0[0], py = pT * t0[1], pz = pT * tl;
+    return { q: q, pT: pT, p4: [Math.sqrt(m * m + px * px + py * py + pz * pz), px, py, pz], R: C.R };
+  }
+  /* H → γγ: un Higgs con p_T e rapidita' casuali che decade isotropo in due fotoni */
+  function eventoHgg(rnd) {
+    var M = 125.2, pT = Math.abs(gauss(rnd)) * 15, phi = 2 * Math.PI * rnd(), y = (rnd() - 0.5) * 3, mT = Math.sqrt(M * M + pT * pT);
+    var P = [mT * Math.cosh(y), pT * Math.cos(phi), pT * Math.sin(phi), mT * Math.sinh(y)], ct = 2 * rnd() - 1, st = Math.sqrt(1 - ct * ct), ph = 2 * Math.PI * rnd(), E = M / 2;
+    var d = [E * st * Math.cos(ph), E * st * Math.sin(ph), E * ct], b = [P[1] / P[0], P[2] / P[0], P[3] / P[0]];
+    return [spinta([E, d[0], d[1], d[2]], b[0], b[1], b[2]), spinta([E, -d[0], -d[1], -d[2]], b[0], b[1], b[2])];
+  }
+  F.calcolo.particelle = { MODELLO: MODELLO, PART: PART, REAZIONI: REAZIONI, controlla: controlla, soglia: soglia, radiceS: radiceS, massa: massa, somma4: somma4, spinta: spinta, dueCorpi: dueCorpi, generatore: generatore, istogramma: istogramma, riempi: riempi, adatta: adatta, modello: modello, muoni: muoni, nomeReazione: nomeReazione, MZ: MZ, GZ: GZ, HMIN: HMIN, HMAX: HMAX, NB: NB,
+    RIV: RIV, campoRiv: campoRiv, traccia: traccia, cerchio3: cerchio3, ricostruisci: ricostruisci, eventoHgg: eventoHgg };
 
   /* ═══ 1. Modello Standard ═══════════════════════════════════════════════ */
   var COLORI = { quark: '#c9b9ff', leptone: '#5eead4', neutrino: '#6bcfff', bosone: '#ff8a80', higgs: '#ffd24a' };
@@ -380,6 +437,141 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 5. evento nel rivelatore 3D (v238) ══════════════════════════════ */
+  var MMU = M_MU / 1000, ME = 0.51099895e-3;
+  function schedaRivelatore(pan) {
+    var st = { tipo: 'zmm', ris: 0, auto: true, seme: 238 }, cb = {}, ev = null, rnd = mulberry32(st.seme);
+    F.scelta(pan, ['Evento', 'Event'], [['zmm', 'Z → μ⁺μ⁻'], ['zee', 'Z → e⁺e⁻'], ['hgg', 'H → γγ']], st.tipo, function (v) { st.tipo = v; nuovo(); });
+    F.cursore(pan, ['risoluzione dei punti del tracciatore (μm)', 'tracker hit resolution (μm)'], 0, 300, 10, st.ris, function (v) { st.ris = v; nuovo(); });
+    var ca = F.el('input', { type: 'checkbox' }); ca.checked = true; ca.addEventListener('change', function () { st.auto = ca.checked; });
+    pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.86rem;color:#cfe3f7;cursor:pointer' }, [ca, F.el('span', { testo: t('un evento nuovo ogni 6 s', 'a new event every 6 s') })]));
+    F.bottone(pan, ['Nuovo evento', 'New event'], function () { nuovo(); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Un rivelatore cilindrico come CMS, in metri: il tracciatore al silicio (13 strati fino a 1,1 m), il calorimetro elettromagnetico (verde), quello adronico (arancio), il solenoide da 3,8 T e le camere per muoni nel ferro, dove il campo di ritorno è opposto e i muoni curvano dall’altra parte. Le particelle cariche percorrono eliche di raggio R = p_T/(0,3 B); i punti gialli sono i colpi sugli strati, da cui si ricostruisce il cerchio, quindi p_T e la carica, e dalla pendenza p_z. Elettroni e fotoni si fermano nel calorimetro elettromagnetico (torri di altezza ∝ energia), i pioni dell’evento sottostante nell’adronico; i più lenti si arrotolano nel tracciatore. Dai due quadrivettori ricostruiti la massa invariante: quella della Z o dell’Higgs.',
+      'A cylindrical detector like CMS, in metres: the silicon tracker (13 layers up to 1.1 m), the electromagnetic calorimeter (green), the hadronic one (orange), the 3.8 T solenoid and the muon chambers in the iron, where the return field is reversed and muons bend the other way. Charged particles follow helices of radius R = p_T/(0.3 B); the yellow dots are the hits on the layers, from which the circle is rebuilt, giving p_T and the charge, and from the slope p_z. Electrons and photons stop in the electromagnetic calorimeter (towers of height ∝ energy), the pions of the underlying event in the hadronic one; the slowest curl up in the tracker. From the two reconstructed four-vectors, the invariant mass: that of the Z or the Higgs.');
+    function gaussR() { return gauss(rnd); }
+    function nuovo() {
+      var prim = [], i;
+      if (st.tipo === 'hgg') { var f = eventoHgg(rnd); prim = f.map(function (p) { return { p4: p, q: 0, tipo: 'gamma', m: 0 }; }); }
+      else { var e; do { e = generatore((rnd() * 1e9) | 0, 0, 0)(); } while (Math.abs(e.m - MZ) > 6); var el = st.tipo === 'zee'; prim = e.mu.map(function (p, j) { var m = el ? ME : MMU, q4 = [Math.sqrt(m * m + p[1] * p[1] + p[2] * p[2] + p[3] * p[3]), p[1], p[2], p[3]]; return { p4: q4, q: j ? -1 : 1, tipo: el ? 'e' : 'mu', m: m }; }); }
+      var vero = massa(somma4(prim[0].p4, prim[1].p4));
+      /* l'evento sottostante: pioni carichi lenti */
+      var sotto = []; for (i = 0; i < 14; i++) { var pT = 0.25 + 1.6 * rnd() * rnd(), ph = 2 * Math.PI * rnd(), eta = (rnd() - 0.5) * 3, pz = pT * Math.sinh(eta), m = 0.13957; sotto.push({ p4: [Math.sqrt(m * m + pT * pT + pz * pz), pT * Math.cos(ph), pT * Math.sin(ph), pz], q: rnd() < 0.5 ? 1 : -1, tipo: 'pi', m: m }); }
+      var tutte = prim.concat(sotto);
+      tutte.forEach(function (P) {
+        P.tr = traccia(P.p4, P.q, P.tipo);
+        if (st.ris > 0) P.tr.colpi = P.tr.colpi.map(function (c) { var r = Math.hypot(c[0], c[1]), d = st.ris * 1e-6 * gaussR(); return [c[0] - c[1] / r * d, c[1] + c[0] / r * d, c[2] + st.ris * 1e-6 * gaussR(), c[3]]; });
+        P.rec = P.q ? ricostruisci(P.tr.colpi, P.m) : (P.tr.impatto ? (function () { var x = P.tr.impatto, d = Math.hypot(x[0], x[1], x[2]), E = P.p4[0]; return { q: 0, pT: E * Math.hypot(x[0], x[1]) / d, p4: [E, E * x[0] / d, E * x[1] / d, E * x[2] / d] }; })() : null);
+      });
+      var r0 = prim[0].rec, r1 = prim[1].rec, mrec = r0 && r1 ? massa(somma4(r0.p4, r1.p4)) : NaN;
+      ev = { tutte: tutte, prim: prim, vero: vero, mrec: mrec };
+      var nomi = st.tipo === 'hgg' ? ['γ', 'γ'] : st.tipo === 'zee' ? ['e⁺', 'e⁻'] : ['μ⁺', 'μ⁻'];
+      info.innerHTML = prim.map(function (P, j) { var pTv = Math.hypot(P.p4[1], P.p4[2]), eta = Math.asinh(P.p4[3] / pTv); return '<b>' + nomi[j] + '</b>: p_T ' + t('vero ', 'true ') + fmt(pTv) + ' GeV, η = ' + eta.toFixed(2) + (P.rec ? ' · ' + t('ricostruito ', 'reconstructed ') + '<b class="bsiFX-num">' + fmt(P.rec.pT) + '</b> GeV' + (P.q ? ' (q = ' + (P.rec.q > 0 ? '+' : '−') + '1' + (P.rec.q === P.q ? ' ✓' : ' ✗') + ', R = ' + fmt(P.rec.R) + ' m)' : t(' (energia dal calorimetro)', ' (energy from the calorimeter)')) : t(' · fuori dall’accettanza', ' · outside acceptance')); }).join('<br>') +
+        '<br>' + t('Massa invariante ricostruita ', 'Reconstructed invariant mass ') + '<b class="bsiFX-num">' + (isFinite(mrec) ? fmt(mrec) + ' GeV' : '—') + '</b> · ' + t('vera ', 'true ') + fmt(vero) + ' GeV' + (st.ris > 0 ? t(' (con ', ' (with ') + st.ris + t(' μm di risoluzione la misura si allarga)', ' μm resolution the measurement spreads)') : '');
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Evento in un rivelatore di particelle 3D con tracce curve nel campo magnetico e calorimetri', 'Event in a 3D particle detector with tracks curving in the magnetic field and calorimeters'],
+      tre: function (S, T, L3) {
+        /* ogni strato: tre anelli (estremi e centro), tutti in un solo oggetto (pochi disegni per fotogramma);
+           un velo appena visibile solo per calorimetri e solenoide, per non coprire le tracce */
+        var anP = [], anC = [], cc = new T.Color();
+        function cil(r, l, col, op, velo) {
+          if (velo) { var m = new T.Mesh(new T.CylinderGeometry(r, r, l, 64, 1, true), new T.MeshBasicMaterial({ color: col, transparent: true, opacity: op * 0.35, side: T.DoubleSide, depthWrite: false })); m.rotation.x = Math.PI / 2; S.aggiungi(m); }
+          cc.setHex(col).multiplyScalar(Math.min(1, 0.25 + op * 6));
+          [-l / 2, 0, l / 2].forEach(function (z) { for (var k = 0; k < 64; k++) { var a = 2 * Math.PI * k / 64, b = 2 * Math.PI * (k + 1) / 64; anP.push(r * Math.cos(a), r * Math.sin(a), z, r * Math.cos(b), r * Math.sin(b), z); anC.push(cc.r, cc.g, cc.b, cc.r, cc.g, cc.b); } });
+        }
+        RIV.strati.forEach(function (r) { cil(r, 5.4, 0x9fb1c6, 0.035); });
+        cil(RIV.rEcal, 6, 0x5eead4, 0.07, true); cil(1.75, 6.4, 0x5eead4, 0.05); cil(RIV.rHcal, 8, 0xffb36b, 0.06, true); cil(2.95, 9, 0xffb36b, 0.04); cil(RIV.rSol, 12, 0xc9d3df, 0.08, true);
+        RIV.rMu.forEach(function (r) { cil(r, 12, 0xff6b6b, 0.035); });
+        var gA = new T.BufferGeometry(); gA.setAttribute('position', new T.Float32BufferAttribute(anP, 3)); gA.setAttribute('color', new T.Float32BufferAttribute(anC, 3));
+        S.aggiungi(new T.LineSegments(gA, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 })));
+        S.aggiungi(L3.linea(T, [[0, 0, -6.5], [0, 0, 6.5]], 0x6bcfff, 0.5));
+        var eB = L3.testo3d(T, 'B = 3,8 T', '#6bcfff', 0.4); eB.position.set(0.3, 0, 6.3); S.aggiungi(eB);
+        var gr = new T.Group(); S.aggiungi(gr);
+        var linee = [], tP = 0, COL = { mu: 0xff6b6b, e: 0x5eead4, gamma: 0xffd24a, pi: 0x8494a8 };
+        cb.nuovo = function () {
+          svuota(gr); linee = []; tP = 0;
+          ev.tutte.forEach(function (P, j) {
+            var pts = P.tr.pts, g = new T.BufferGeometry(), arr = new Float32Array(pts.length * 3);
+            pts.forEach(function (q, k) { arr[3 * k] = q[0]; arr[3 * k + 1] = q[1]; arr[3 * k + 2] = q[2]; });
+            g.setAttribute('position', new T.BufferAttribute(arr, 3)); g.setDrawRange(0, 0);
+            var mat = P.tipo === 'gamma' ? new T.LineDashedMaterial({ color: COL.gamma, dashSize: 0.15, gapSize: 0.08 }) : new T.LineBasicMaterial({ color: COL[P.tipo], transparent: P.tipo === 'pi', opacity: P.tipo === 'pi' ? 0.55 : 1 }), l, n = pts.length;
+            if (j < 2) {
+              /* le due particelle dell'evento: un tubo, che si rivela per tratti come la linea */
+              var cu = new T.CatmullRomCurve3(pts.filter(function (q, k) { return k % 3 === 0 || k === pts.length - 1; }).map(function (q) { return new T.Vector3(q[0], q[1], q[2]); })), seg = Math.min(600, pts.length);
+              var tg = new T.TubeGeometry(cu, seg, P.tipo === 'gamma' ? 0.015 : 0.03, 6, false); l = new T.Mesh(tg, new T.MeshBasicMaterial({ color: COL[P.tipo] })); n = tg.index.count; tg.setDrawRange(0, 0);
+            } else l = new T.Line(g, mat);
+            if (l.isLine && P.tipo === 'gamma') l.computeLineDistances(); gr.add(l); linee.push([l, n, P]);
+            if (j < 2 && P.q) { var cp = []; P.tr.colpi.forEach(function (c) { cp.push(c[0], c[1], c[2]); }); var gc = new T.BufferGeometry(); gc.setAttribute('position', new T.Float32BufferAttribute(cp, 3)); var pc = new T.Points(gc, new T.PointsMaterial({ color: 0xffd24a, size: 0.07 })); pc.visible = false; gr.add(pc); linee[linee.length - 1].push(pc); }
+            /* il deposito nel calorimetro: una torre radiale di altezza ∝ log E */
+            if (P.tr.impatto && (P.tipo === 'e' || P.tipo === 'gamma' || P.tipo === 'pi')) {
+              var x = P.tr.impatto, r = Math.hypot(x[0], x[1]), E = P.p4[0], h = Math.max(0.05, Math.min(1.2, 0.3 * Math.log(1 + E))), box = new T.Mesh(new T.BoxGeometry(0.12, 0.12, h), new T.MeshStandardMaterial({ color: P.tipo === 'pi' ? 0xffb36b : 0x5eead4, emissive: P.tipo === 'pi' ? 0xffb36b : 0x5eead4, emissiveIntensity: 0.5 }));
+              box.position.set(x[0] + x[0] / r * h / 2, x[1] + x[1] / r * h / 2, x[2]); box.lookAt(x[0] * 3, x[1] * 3, x[2]); box.visible = false; gr.add(box); linee[linee.length - 1][4] = box;
+            }
+          });
+          S.didascalia.textContent = (st.tipo === 'hgg' ? 'H → γγ' : st.tipo === 'zee' ? 'Z → e⁺e⁻' : 'Z → μ⁺μ⁻') + ' · m = ' + (isFinite(ev.mrec) ? ev.mrec.toFixed(2) : '—') + ' GeV';
+          mostra(S.fermo ? 1 : 0); S.sporca = true; S.avvia();
+        };
+        function mostra(f) {
+          linee.forEach(function (L) { var c = Math.round(L[1] * Math.min(1, f)); if (L[0].isMesh) c -= c % 3; L[0].geometry.setDrawRange(0, Math.max(0, c)); if (L[3]) L[3].visible = f >= 0.4; if (L[4]) L[4].visible = f >= 1; });
+        }
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          tP += dt; mostra(tP / 1.8);
+          if (tP > 6 && st.auto) nuovo();
+          return true;
+        });
+        S.inquadra(17, -0.8, 0.6);
+      }
+    };
+  }
+
   F.sezione('sfispart', {
     titolo: ['⚛️ Fisica delle particelle', '⚛️ Particle physics'],
     sotto: ['Il Modello Standard con le masse PDG, le leggi di conservazione che permettono o proibiscono una reazione, la massa invariante che fa emergere il picco della Z da eventi simulati, la dilatazione dei tempi che porta i muoni cosmici fino al suolo.', 'The Standard Model with PDG masses, the conservation laws that allow or forbid a reaction, the invariant mass that brings out the Z peak from simulated events, the time dilation that brings cosmic muons down to the ground.'],
@@ -387,7 +579,8 @@
       { nome: ['🧩 Modello Standard', '🧩 Standard Model'], costruisci: schedaModello },
       { nome: ['⚖️ Conservazione', '⚖️ Conservation'], costruisci: schedaConservazione },
       { nome: ['📊 Massa invariante', '📊 Invariant mass'], costruisci: schedaInvariante },
-      { nome: ['⏱️ Vite medie', '⏱️ Lifetimes'], costruisci: schedaVite }
+      { nome: ['⏱️ Vite medie', '⏱️ Lifetimes'], costruisci: schedaVite },
+      { nome: ['🔭 Rivelatore 3D', '🔭 3D detector'], costruisci: scheda3D(schedaRivelatore) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

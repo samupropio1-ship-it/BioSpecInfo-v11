@@ -47,11 +47,11 @@ function vero(d, c) { att(d, true, !!c); }
 
 /* [script di verifica, id, gruppo, schede] */
 const SEZ = [
-  ['verifica-smatserie.js', 'smatserie', 8, 4], ['verifica-smatvariaz.js', 'smatvariaz', 8, 4],
-  ['verifica-smattopo.js', 'smattopo', 8, 4], ['verifica-smatalgebra.js', 'smatalgebra', 8, 4],
+  ['verifica-smatserie.js', 'smatserie', 8, 4], ['verifica-smatvariaz.js', 'smatvariaz', 8, 5],  /* v238: scheda 3D aggiunta (anche in smattopo e smatnoneucl) */
+  ['verifica-smattopo.js', 'smattopo', 8, 5], ['verifica-smatalgebra.js', 'smatalgebra', 8, 4],
   ['verifica-smatgiochi.js', 'smatgiochi', 8, 4], ['verifica-smatlogica.js', 'smatlogica', 8, 4],
-  ['verifica-smatinfer.js', 'smatinfer', 8, 4], ['verifica-smatnoneucl.js', 'smatnoneucl', 8, 3],
-  ['verifica-sfispart.js', 'sfispart', 7, 4], ['verifica-sfisanalitica.js', 'sfisanalitica', 7, 4],
+  ['verifica-smatinfer.js', 'smatinfer', 8, 4], ['verifica-smatnoneucl.js', 'smatnoneucl', 8, 4],
+  ['verifica-sfispart.js', 'sfispart', 7, 5], ['verifica-sfisanalitica.js', 'sfisanalitica', 7, 4],  /* v238: scheda 3D aggiunta in sfispart (rivelatore) */
   ['verifica-sfislaser.js', 'sfislaser', 7, 4], ['verifica-sfisclima.js', 'sfisclima', 7, 4]
 ];
 
@@ -95,7 +95,7 @@ const SEZ = [
           if (dt >= 100) { sch[(i + 1) % sch.length].click(); await pausa(600); t0 = performance.now(); sch[i].click(); dt = Math.min(dt, performance.now() - t0); await pausa(2200); }
           lenta = Math.max(lenta, dt);
           const pan = [...sec.querySelectorAll('[role=tabpanel]')].find(x => x.offsetParent); if (pan.textContent.length > 100) piene++; if (/⚠/.test(pan.textContent)) avvisi++;
-          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; if ((c.getAttribute('aria-label') || '').length < 3) etichette = false; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 31) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
+          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; if ((c.getAttribute('aria-label') || '').length < 3) etichette = false; const q = c.getContext('2d'); if (!q) { /* v238: tela WebGL di una scheda 3D, si chiede alla scena */ if (pan._scena && pan._scena.campiona() > 0) disegnate++; return; } const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 31) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
         }
         out[s] = { schede: sch.length, piene, tele, disegnate, avvisi, etichette, lenta: Math.round(lenta) };
       }

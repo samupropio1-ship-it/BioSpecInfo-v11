@@ -9,7 +9,9 @@
      esatta di Onsager m = (1 − sinh⁻⁴(2J/kT))^(1/8), Tc = 2/ln(1+√2) ≈ 2,269;
      energia e calore specifico con il picco a Tc;
    · ISTERESI: il campo che va avanti e indietro sotto Tc disegna il ciclo
-     m(h) di un ferromagnete; sopra Tc il ciclo si chiude.
+     m(h) di un ferromagnete; sopra Tc il ciclo si chiude;
+   · ISING 3D (v238): un cubo di spin con Metropolis e sei vicini, i domini
+     visti dentro il cubo e |m| contro T con T_c ≈ 4,51.
    Unita' ridotte: J = k_B = 1.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
@@ -54,7 +56,31 @@
       return { T: T, m: sm, e: se, c: L * L * (se2 - se * se) / (T * T) };
     });
   }
-  F.calcolo.ising = { TC: TC, reticolo: reticolo, sweep: sweep, misura: misura, onsager: onsager, scansione: scansione };
+  /* v238 — il modello di Ising in tre dimensioni: spin ±1 su un cubo L³ con bordi periodici, sei vicini.
+     Non c'e' soluzione esatta: la temperatura critica viene dalle simulazioni, T_c ≈ 4,5115 J/k
+     (il campo medio, z J = 6, la sovrastima). Indice i = x + L(y + L z). */
+  var TC3D = 4.5115;
+  function reticolo3D(L, caldo, seme) {
+    var rnd = mulberry32(seme || 7), N = L * L * L, s = new Int8Array(N);
+    for (var i = 0; i < N; i++) s[i] = caldo ? (rnd() < 0.5 ? 1 : -1) : 1;
+    return { L: L, s: s, rnd: rnd };
+  }
+  function vicini3D(R, i) {
+    var L = R.L, s = R.s, x = i % L, y = ((i / L) | 0) % L, z = (i / (L * L)) | 0, LL = L * L;
+    return s[i - x + (x + 1) % L] + s[i - x + (x + L - 1) % L] + s[i + (((y + 1) % L) - y) * L] + s[i + (((y + L - 1) % L) - y) * L] + s[i + (((z + 1) % L) - z) * LL] + s[i + (((z + L - 1) % L) - z) * LL];
+  }
+  /* energia per girare lo spin i: ΔE = 2 s_i (Σ vicini + h) */
+  function deltaE3D(R, i, h) { return 2 * R.s[i] * (vicini3D(R, i) + (h || 0)); }
+  function sweep3D(R, T, h) {
+    var N = R.s.length, s = R.s, rnd = R.rnd, b = 1 / T;
+    for (var k = 0; k < N; k++) { var i = (rnd() * N) | 0, dE = 2 * s[i] * (vicini3D(R, i) + (h || 0)); if (dE <= 0 || rnd() < Math.exp(-b * dE)) s[i] = -s[i]; }
+  }
+  function misura3D(R, h) {
+    var L = R.L, s = R.s, N = s.length, M = 0, E = 0;
+    for (var i = 0; i < N; i++) { var x = i % L, y = ((i / L) | 0) % L, z = (i / (L * L)) | 0, v = s[i]; M += v; E -= v * (s[i - x + (x + 1) % L] + s[i + (((y + 1) % L) - y) * L] + s[i + (((z + 1) % L) - z) * L * L]) + (h || 0) * v; }
+    return { m: M / N, e: E / N };
+  }
+  F.calcolo.ising = { TC: TC, reticolo: reticolo, sweep: sweep, misura: misura, onsager: onsager, scansione: scansione, TC3D: TC3D, reticolo3D: reticolo3D, sweep3D: sweep3D, misura3D: misura3D, deltaE3D: deltaE3D };
 
   function disegnaSpin(cv, R, cache) {
     var L = R.L;
@@ -143,13 +169,119 @@
     });
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. Ising in 3D (v238) ════════════════════════════════════════════
+     Un cubo di spin come cubetti colorati, Metropolis a ogni fotogramma; sotto, |m| contro T
+     accumulata mentre si cambia la temperatura (o con la scansione lenta che raffredda da sola). */
+  function schedaIsing3D(pan, destra) {
+    var st = { T: 5.5, L: 10, vista: 'tutti', scan: false }, cb = {}, dati = {}, attesa = 0;
+    var inpT = F.cursore(pan, ['temperatura T (J/k)', 'temperature T (J/k)'], 2, 8, 0.05, st.T, function (v) { st.T = v; st.scan = false; attesa = 30; }, function (v) { return v.toFixed(2); });
+    F.scelta(pan, ['Lato del cubo', 'Cube side'], [['10', '10³ = 1000'], ['14', '14³ = 2744'], ['18', '18³ = 5832']], String(st.L), function (v) { st.L = +v; dati = {}; if (cb.nuovo) cb.nuovo(); });
+    F.scelta(pan, ['Che cosa mostrare', 'What to show'], [['tutti', t('tutti gli spin', 'all spins')], ['giu', t('solo gli spin giù (i domini minoritari)', 'only down spins (minority domains)')], ['meta', t('metà cubo (si vede dentro)', 'half cube (see inside)')]], st.vista, function (v) { st.vista = v; });
+    F.bottone(pan, ['❄ Scansione lenta: da T = 7,5 a 2,5', '❄ Slow scan: from T = 7.5 to 2.5'], function () { st.T = 7.5; st.scan = true; attesa = 20; aggiornaT(); });
+    F.bottone(pan, ['Azzera il grafico', 'Clear the chart'], function () { dati = {}; grafico(); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Ogni cubetto è uno spin: arancio su, blu giù; ognuno sente i suoi sei vicini sul reticolo cubico con bordi periodici. A ogni fotogramma l’algoritmo di Metropolis prova a girare ogni spin: accetta se l’energia scende, altrimenti con probabilità e^(−ΔE/kT). In tre dimensioni l’ordine resiste più che nel piano: la transizione cade a T_c ≈ 4,51 J/k (in 2D era 2,269; il campo medio direbbe 6). Sotto il grafico |m| contro T, misurato mentre la simulazione gira: la scansione lenta raffredda da sola il cubo e disegna la curva della transizione.',
+      'Each little cube is a spin: orange up, blue down; each feels its six neighbours on the cubic lattice with periodic boundaries. Every frame the Metropolis algorithm tries to flip every spin: it accepts if the energy drops, otherwise with probability e^(−ΔE/kT). In three dimensions order survives better than in the plane: the transition falls at T_c ≈ 4.51 J/k (2.269 in 2D; mean field would say 6). Below, the chart of |m| against T, measured while the simulation runs: the slow scan cools the cube by itself and draws the transition curve.');
+    var tela = F.tela(destra, 0.36);
+    function aggiornaT() { inpT.value = st.T; var b = inpT.parentNode.querySelector('b'); if (b) b.textContent = st.T.toFixed(2); }
+    function grafico() {
+      var xs = Object.keys(dati).map(Number).sort(function (a, b) { return a - b; }), punti = xs.map(function (k) { return { x: k / 20, y: dati[k][0] / dati[k][1], col: '#ffc45a', r: 3.5 }; });
+      if (R) punti.push({ x: st.T, y: Math.abs(ultima.m), col: '#ff8a80', r: 5 });
+      F.grafico(tela, { serie: [{ x: [TC3D, TC3D], y: [0, 1.05], col: '#ff8a80', tratt: true, larg: 1, etich: 'T_c 3D', nascondiMirino: true }, { x: [6, 6], y: [0, 1.05], col: '#8494a8', tratt: true, larg: 1, etich: t('campo medio', 'mean field'), nascondiMirino: true }, { x: [TC, TC], y: [0, 1.05], col: '#6bcfff', tratt: true, larg: 1, etich: 'T_c 2D', nascondiMirino: true }], punti: punti, xmin: 2, xmax: 8, ymin: 0, ymax: 1.05, xl: ['T (J/k)', 'T (J/k)'], yl: ['|m|', '|m|'], legenda: [{ col: '#ffc45a', etich: ['|m| misurata', 'measured |m|'] }, { col: '#ff8a80', etich: ['T_c 3D ≈ 4,51', 'T_c 3D ≈ 4.51'] }, { col: '#6bcfff', etich: ['T_c 2D = 2,269', 'T_c 2D = 2.269'] }, { col: '#8494a8', etich: ['campo medio 6', 'mean field 6'] }], descr: ['magnetizzazione del cubo di Ising contro la temperatura', 'Ising cube magnetisation versus temperature'] });
+    }
+    var R = null, ultima = { m: 1, e: -3 };
+    grafico(); F.alRidimensiona(grafico);
+    function testo() { info.innerHTML = 'T / T_c = <b class="bsiFX-num">' + (st.T / TC3D).toFixed(3) + '</b> · m = <b class="bsiFX-num">' + ultima.m.toFixed(3) + '</b> · ' + t('energia per spin ', 'energy per spin ') + '<b class="bsiFX-num">' + ultima.e.toFixed(3) + '</b> J<br>' + (st.T < TC3D * 0.97 ? t('Sotto T_c: un colore prevale e i domini dell’altro si riducono a isole.', 'Below T_c: one colour wins and the other’s domains shrink to islands.') : st.T > TC3D * 1.03 ? t('Sopra T_c: spin mescolati, m ≈ 0 (resta ~1/√N per le fluttuazioni).', 'Above T_c: mixed spins, m ≈ 0 (about 1/√N is left by fluctuations).') : t('Vicino a T_c: domini intrecciati di tutte le dimensioni.', 'Near T_c: interlocked domains of every size.')) + (st.scan ? '<br>' + t('Scansione in corso…', 'Scanning…') : ''); }
+    return {
+      etichetta: ['Modello di Ising in 3D: cubo di spin con l’algoritmo di Metropolis', '3D Ising model: a cube of spins with the Metropolis algorithm'],
+      tre: function (S, T, L3) {
+        var mesh = null, M4 = new T.Matrix4(), col = new T.Color(), tG = 0;
+        cb.nuovo = function () {
+          R = reticolo3D(st.L, true, 11); attesa = 30;
+          if (mesh) { S.radice.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
+          mesh = new T.InstancedMesh(new T.BoxGeometry(0.82, 0.82, 0.82), new T.MeshLambertMaterial(), st.L * st.L * st.L);
+          mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+          for (var i = 0; i < R.s.length; i++) mesh.setColorAt(i, col.setRGB(1, 1, 1));
+          S.aggiungi(mesh); disegna(); S.inquadra(st.L * 2.7, -0.75, 1.1);
+        };
+        var vistaPrec = null;
+        function disegna() {
+          var L = st.L, o = (L - 1) / 2, cambia = vistaPrec !== st.vista; vistaPrec = st.vista;
+          for (var i = 0; i < R.s.length; i++) {
+            var su = R.s[i] > 0, x = i % L, y = ((i / L) | 0) % L, z = (i / (L * L)) | 0, vis = st.vista === 'tutti' || (st.vista === 'giu' ? !su : y < L / 2);
+            if (vis) M4.makeTranslation(x - o, y - o, z - o); else M4.makeScale(0, 0, 0);
+            mesh.setMatrixAt(i, M4); mesh.setColorAt(i, su ? col.setRGB(1, 0.72, 0.3) : col.setRGB(0.16, 0.42, 0.85));
+          }
+          mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+          S.didascalia.textContent = 'L = ' + L + ' · T = ' + st.T.toFixed(2) + ' · m = ' + ultima.m.toFixed(3);
+        }
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var n = st.L > 16 ? 1 : 2;
+          for (var k = 0; k < n; k++) sweep3D(R, st.T, 0);
+          ultima = misura3D(R, 0);
+          if (attesa > 0) attesa -= n; else { var b = Math.round(st.T * 20); dati[b] = dati[b] || [0, 0]; dati[b][0] += Math.abs(ultima.m); dati[b][1]++; }
+          if (st.scan) { st.T = Math.max(2.5, st.T - dt * 0.2); aggiornaT(); if (st.T <= 2.5) st.scan = false; }
+          disegna();
+          tG += dt; if (tG > 0.3) { tG = 0; grafico(); testo(); }
+          return true;
+        });
+      }
+    };
+  }
+
   F.sezione('sfisising', {
     titolo: ['🧲 Modello di Ising', '🧲 Ising model'],
     sotto: ['Spin su un reticolo con l’algoritmo di Metropolis: i domini, la transizione di fase a Tc = 2,269 contro la soluzione esatta di Onsager, il calore specifico e il ciclo di isteresi.', 'Spins on a lattice with the Metropolis algorithm: domains, the phase transition at Tc = 2.269 against Onsager’s exact solution, specific heat and the hysteresis loop.'],
     schede: [
       { nome: ['🔲 Reticolo', '🔲 Lattice'], costruisci: schedaReticolo },
       { nome: ['📉 Transizione', '📉 Transition'], costruisci: schedaMagn },
-      { nome: ['🔁 Isteresi', '🔁 Hysteresis'], costruisci: schedaIsteresi }
+      { nome: ['🔁 Isteresi', '🔁 Hysteresis'], costruisci: schedaIsteresi },
+      { nome: ['🧊 Ising 3D', '🧊 3D Ising'], costruisci: scheda3D(schedaIsing3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

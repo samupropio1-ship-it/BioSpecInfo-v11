@@ -44,7 +44,8 @@ const SEZ = [
   ['sfisrel', 'verifica-sfisrel-3d.js'], ['sfisfluidi', 'verifica-sfisfluidi-3d.js'], ['sfistermo', 'verifica-sfistermo-3d.js'],
   ['smatmulti', 'verifica-smatmulti-3d.js'], ['smatvett', 'verifica-smatvett-3d.js'], ['smatcalc', 'verifica-smatcalc-3d.js'], ['smatlin', 'verifica-smatlin-3d.js'],
   ['smatode', 'verifica-smatode-3d.js'], ['smatprob', 'verifica-smatprob-3d.js'], ['smattopo', 'verifica-smattopo.js'], ['smatnoneucl', 'verifica-smatnoneucl.js'],
-  ['smatcompl', 'verifica-smatcompl-3d.js'], ['sfissolido', 'verifica-sfissolido-3d.js'], ['schicinet', 'verifica-schicinet-3d.js']
+  ['smatcompl', 'verifica-smatcompl-3d.js'], ['smatvariaz', 'verifica-smatvariaz-3d.js'], ['sfissolido', 'verifica-sfissolido-3d.js'], ['schicinet', 'verifica-schicinet-3d.js'],
+  ['sfisising', 'verifica-sfisising-3d.js'], ['sfispart', 'verifica-sfispart-3d.js'], ['schiequil', 'verifica-schiequil-3d.js']
 ];
 const SOLO = process.env.BSI_SOLO ? process.env.BSI_SOLO.split(',') : null;
 
