@@ -363,6 +363,116 @@
     }, { ricomincia: function () { k = 0; } });
   }
 
+  /* ═══ 5. la pellicola di sapone in 3D (v238) ════════════════════════════
+     La pellicola parte da un cilindro (r = R) fra gli anelli a z = ±h/2 e si rilassa con il flusso
+     di curvatura media, la discesa del gradiente dell'area: per una superficie di rotazione
+       ∂r/∂t = r″/(1 + r′²) − 1/r,
+     che si ferma esattamente quando r r″ = 1 + r′² (equazione di Eulero–Lagrange dell'area,
+     curvatura media nulla), cioe' sul catenoide r = a cosh(z/a). Se h/R < h_c/R ≈ 1,3255 il
+     flusso arriva al catenoide stabile (quello con il collo largo); oltre, il collo si stringe
+     fino a zero e la pellicola si strappa nei due dischi di Goldschmidt. Differenze finite
+     centrate in z, passo esplicito dt = 0,3 dz² (stabile). */
+  function pellicolaCrea(h, R, N) { var r = []; for (var i = 0; i <= N; i++) r.push(R); return { h: h, R: R, N: N, r: r, t: 0, vel: Infinity, strappata: false }; }
+  function pellicolaPassi(P, passi) {
+    var N = P.N, dz = P.h / N, dt = 0.3 * dz * dz, r = P.r, nuovo = r.slice(), v = 0;
+    for (var k = 0; k < passi && !P.strappata; k++) {
+      v = 0;
+      for (var i = 1; i < N; i++) { var rp = (r[i + 1] - r[i - 1]) / (2 * dz), rpp = (r[i + 1] - 2 * r[i] + r[i - 1]) / (dz * dz), vi = rpp / (1 + rp * rp) - 1 / r[i]; nuovo[i] = r[i] + dt * vi; if (Math.abs(vi) > v) v = Math.abs(vi); }
+      for (i = 1; i < N; i++) { r[i] = nuovo[i]; if (!(r[i] > 0.02 * P.R)) { P.strappata = true; } }
+      P.t += dt;
+    }
+    P.vel = v; return P;
+  }
+  /* cambiare la separazione: il profilo si ricampiona sui nuovi nodi (stessa forma in z/h) */
+  function pellicolaSepara(P, h) { P.h = h; return P; }
+  function pellicolaArea(P) { var N = P.N, dz = P.h / N, s = 0; for (var i = 0; i < N; i++) s += Math.PI * (P.r[i] + P.r[i + 1]) * Math.sqrt(dz * dz + (P.r[i + 1] - P.r[i]) * (P.r[i + 1] - P.r[i])); return s; }
+  /* curvatura media del profilo r(z) = a cosh(z/a): κ₁ + κ₂ = r″/(1 + r′²)^(3/2) − 1/(r√(1 + r′²)) */
+  function curvaturaMedia(r, rp, rpp) { var q = Math.sqrt(1 + rp * rp); return rpp / (q * q * q) - 1 / (r * q); }
+  F.calcolo.variazioni.pellicolaCrea = pellicolaCrea; F.calcolo.variazioni.pellicolaPassi = pellicolaPassi; F.calcolo.variazioni.pellicolaSepara = pellicolaSepara; F.calcolo.variazioni.pellicolaArea = pellicolaArea; F.calcolo.variazioni.curvaturaMedia = curvaturaMedia;
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaPellicola3D(pan) {
+    var st = { h: 0.9, tira: false, instabile: true }, N = 48, M = 72, P = pellicolaCrea(st.h, 1, N), S = null, T = null, lab = null, ogg = {}, ultimo = 0, sc = 2.2, cur;
+    cur = F.cursore(pan, ['separazione degli anelli h/R', 'ring separation h/R'], 0.2, 1.6, 0.01, st.h, function (v) { st.h = v; st.tira = false; riparti(); }, function (v) { return v.toFixed(2); });
+    F.bottone(pan, ['▶ Allontana lentamente', '▶ Pull apart slowly'], function () { if (st.h > 1.3 || P.strappata) { st.h = 0.9; P = pellicolaCrea(st.h, 1, N); } st.tira = true; if (S) { anelli(); S.avvia(); } });
+    F.bottone(pan, ['↺ Riparti dal cilindro', '↺ Restart from the cylinder'], function () { st.tira = false; riparti(); });
+    var c = F.el('input', { type: 'checkbox' }); c.checked = true; c.addEventListener('change', function () { st.instabile = c.checked; if (ogg.inst) ogg.inst.visible = st.instabile && !!catenoide(st.h, 1); if (S) S.avvia(); });
+    pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.84rem;color:#cfe3f7;cursor:pointer' }, [c, F.el('span', { testo: t('Mostra il catenoide instabile (tratteggio)', 'Show the unstable catenoid (dashed)') })]));
+    var info = nota(pan);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('La pellicola parte da un cilindro teso fra i due anelli dorati e scende lungo il gradiente dell’area (flusso di curvatura media): ogni anello di sapone si muove verso l’interno con velocità r″/(1 + r′²) − 1/r. Il moto si ferma quando la curvatura media è zero in ogni punto, cioè sull’equazione di Eulero–Lagrange r r″ = 1 + r′², la cui soluzione è il catenoide r = a cosh(z/a): la superficie minima. Con gli anelli vicini il collo si assesta sul catenoide stabile (confrontato con la forma chiusa); il catenoide instabile, più stretto, è un punto di sella dell’area. Allontanando gli anelli il collo si stringe e oltre h/R ≈ 1,3255 il catenoide non esiste più: il collo si chiude e la pellicola si strappa nei due dischi (soluzione di Goldschmidt, area 2πR²). Già da h/R ≈ 1,055 i dischi hanno area minore: il catenoide è solo un minimo locale, metastabile come una bolla.',
+      'The film starts as a cylinder stretched between the two golden rings and descends the area gradient (mean curvature flow): each soap ring moves inwards with speed r″/(1 + r′²) − 1/r. The motion stops when the mean curvature is zero everywhere, i.e. on the Euler–Lagrange equation r r″ = 1 + r′², whose solution is the catenoid r = a cosh(z/a): the minimal surface. With the rings close the neck settles on the stable catenoid (compared with the closed form); the narrower unstable catenoid is a saddle point of the area. Pulling the rings apart the neck narrows and beyond h/R ≈ 1.3255 no catenoid exists: the neck closes and the film breaks into the two discs (Goldschmidt solution, area 2πR²). Already from h/R ≈ 1.055 the discs have smaller area: the catenoid is only a local minimum, metastable like a bubble.') }));
+    function riparti() { P = pellicolaCrea(st.h, 1, N); testo(); if (S) { anelli(); S.avvia(); } }
+    function testo() {
+      var cat = catenoide(st.h, 1), A = pellicolaArea(P), rmin = Math.min.apply(null, P.r), e = 0;
+      if (cat) { var a = cat.stabile.a; for (var i = 0; i <= N; i++) { var z = -st.h / 2 + st.h * i / N; e = Math.max(e, Math.abs(P.r[i] - a * Math.cosh(z / a))); } }
+      var stato = P.strappata ? '<span class="bsiFX-ko">' + t('pellicola strappata: restano i due dischi', 'film broken: the two discs remain') + '</span>' : P.vel < 1e-4 ? '<span class="bsiFX-ok">' + t('in equilibrio: curvatura media nulla', 'in equilibrium: zero mean curvature') + '</span>' : t('si sta rilassando (velocità massima ', 'relaxing (top speed ') + P.vel.toExponential(1) + ')';
+      info.innerHTML = 'h/R = <b class="bsiFX-num">' + st.h.toFixed(3) + '</b> · h*/R = ' + CRITICO.toFixed(4) + ' · ' + stato + '<br>' +
+        (P.strappata ? t('area dei dischi ', 'disc area ') + '2πR² = <b class="bsiFX-num">' + areaDischi(1).toFixed(4) + '</b>' : t('area della pellicola ', 'film area ') + '<b class="bsiFX-num">' + A.toFixed(4) + '</b> R² · ' + t('collo ', 'neck ') + rmin.toFixed(4) + ' R') + '<br>' +
+        (cat ? t('catenoide stabile: a = ', 'stable catenoid: a = ') + cat.stabile.a.toFixed(4) + ', ' + t('area ', 'area ') + cat.stabile.area.toFixed(4) + (P.strappata ? '' : ' · ' + t('scarto max dal profilo ', 'max gap from the profile ') + e.toExponential(1)) + '<br>' + t('instabile: a = ', 'unstable: a = ') + cat.instabile.a.toFixed(4) + ', ' + t('area ', 'area ') + cat.instabile.area.toFixed(4) + ' · ' + t('dischi ', 'discs ') + areaDischi(1).toFixed(4) : t('nessun catenoide per h/R > h*/R: solo i dischi', 'no catenoid for h/R > h*/R: only the discs'));
+    }
+    /* la maglia della pellicola: (N + 1) × (M + 1) vertici, aggiornati dal profilo */
+    function scena() {
+      if (!S) return;
+      S.pulisci(); ogg = {};
+      var g = new T.BufferGeometry(), idx = []; g.setAttribute('position', new T.BufferAttribute(new Float32Array((N + 1) * (M + 1) * 3), 3));
+      for (var i = 0; i < N; i++) for (var j = 0; j < M; j++) { var a = i * (M + 1) + j, b = a + M + 1; idx.push(a, b, b + 1, a, b + 1, a + 1); }
+      g.setIndex(idx);
+      ogg.film = new T.Mesh(g, new T.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x1a4a6e, emissiveIntensity: 0.25, transparent: true, opacity: 0.5, side: T.DoubleSide, roughness: 0.15, metalness: 0.3, depthWrite: false })); ogg.film.frustumCulled = false; S.aggiungi(ogg.film);
+      ogg.rete = new T.LineSegments(new T.WireframeGeometry(g), new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.18 })); S.aggiungi(ogg.rete);
+      ogg.dischi = new T.Group(); [-1, 1].forEach(function (s) { var d = new T.Mesh(new T.CircleGeometry(sc, 64), new T.MeshStandardMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.4, side: T.DoubleSide, depthWrite: false })); d.position.z = s; d.userData.s = s; ogg.dischi.add(d); }); S.aggiungi(ogg.dischi);
+      ogg.anelli = [-1, 1].map(function (s) { var m = new T.Mesh(new T.TorusGeometry(sc, 0.05, 12, 96), new T.MeshStandardMaterial({ color: 0xffd24a, metalness: 0.7, roughness: 0.25 })); S.aggiungi(m); return m; });
+      ogg.inst = new T.Group(); S.aggiungi(ogg.inst);
+      S.aggiungi(lab.linea(T, [[0, 0, -3.4], [0, 0, 3.4]], 0x8494a8, 0.5));
+      S.didascalia.textContent = t('pellicola di sapone fra due anelli di raggio R', 'soap film between two rings of radius R');
+      if (!S.vistaIniziale) S.inquadra(11, -0.6, 1.25);
+      anelli();
+      S.ogniFotogramma(function (dt) {
+        if (st.tira && !P.strappata) { st.h = Math.min(1.6, st.h + dt * 0.08); pellicolaSepara(P, st.h); cur.value = st.h; var b = cur.parentNode.querySelector('b'); if (b) b.textContent = st.h.toFixed(2); if (st.h >= 1.6) st.tira = false; anelli(); }
+        if (!P.strappata) pellicolaPassi(P, 250);
+        forma();
+        var ora = Date.now(); if (ora - ultimo > 250) { ultimo = ora; testo(); }
+        if (!st.tira && (P.strappata || P.vel < 1e-5)) { testo(); return false; }
+      });
+      forma();
+    }
+    /* anelli e catenoide instabile seguono la separazione */
+    function anelli() {
+      if (!S || !ogg.anelli) return;
+      ogg.anelli[0].position.z = -st.h / 2 * sc; ogg.anelli[1].position.z = st.h / 2 * sc;
+      ogg.dischi.children.forEach(function (d) { d.position.z = d.userData.s * st.h / 2 * sc; });
+      while (ogg.inst.children.length) { var o = ogg.inst.children.pop(); o.geometry.dispose(); }
+      var cat = catenoide(st.h, 1);
+      if (cat) { var a = cat.instabile.a; for (var k = 0; k < 12; k++) { var f = 2 * Math.PI * k / 12, pts = []; for (var i = 0; i <= 40; i++) { var z = -st.h / 2 + st.h * i / 40, r = a * Math.cosh(z / a); pts.push(new T.Vector3(r * Math.cos(f) * sc, r * Math.sin(f) * sc, z * sc)); } var l = new T.Line(new T.BufferGeometry().setFromPoints(pts), new T.LineDashedMaterial({ color: 0xc9b9ff, dashSize: 0.08, gapSize: 0.06, transparent: true, opacity: 0.8 })); l.computeLineDistances(); ogg.inst.add(l); } }
+      ogg.inst.visible = st.instabile && !!cat;
+    }
+    function forma() {
+      var at = ogg.film.geometry.attributes.position, k = 0;
+      for (var i = 0; i <= N; i++) { var z = (-P.h / 2 + P.h * i / N) * sc, r = Math.max(0, P.r[i]) * sc; for (var j = 0; j <= M; j++) { var f = 2 * Math.PI * j / M; at.setXYZ(k++, r * Math.cos(f), r * Math.sin(f), z); } }
+      at.needsUpdate = true; ogg.film.geometry.computeVertexNormals();
+      ogg.rete.geometry.dispose(); ogg.rete.geometry = new T.WireframeGeometry(ogg.film.geometry);
+      ogg.film.visible = ogg.rete.visible = !P.strappata; ogg.dischi.visible = P.strappata;
+    }
+    testo();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
   F.sezione('smatvariaz', {
     titolo: ['🎢 Calcolo delle variazioni', '🎢 Calculus of variations'],
     sotto: ['Funzionali e loro minimi: la brachistocrona e la gara delle perline, la catena che pende (catenaria), la pellicola di sapone fra due anelli (catenoide e soluzione di Goldschmidt), l’equazione di Eulero–Lagrange risolta col metodo di tiro nel principio di Fermat.', 'Functionals and their minima: the brachistochrone and the bead race, the hanging chain (catenary), the soap film between two rings (catenoid and Goldschmidt solution), the Euler–Lagrange equation solved by shooting in Fermat’s principle.'],
@@ -370,7 +480,8 @@
       { nome: ['⏱️ Brachistocrona', '⏱️ Brachistochrone'], costruisci: schedaBrachi },
       { nome: ['⛓️ Catenaria', '⛓️ Catenary'], costruisci: schedaCatena },
       { nome: ['🫧 Catenoide', '🫧 Catenoid'], costruisci: schedaCatenoide },
-      { nome: ['🔦 Fermat e tiro', '🔦 Fermat and shooting'], costruisci: schedaFermat }
+      { nome: ['🔦 Fermat e tiro', '🔦 Fermat and shooting'], costruisci: schedaFermat },
+      { nome: ['🧊 Pellicola di sapone in 3D', '🧊 Soap film in 3D'], costruisci: scheda3d(schedaPellicola3D, ['Pellicola di sapone fra due anelli che si rilassa verso il catenoide o si strappa', 'Soap film between two rings relaxing to the catenoid or breaking']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);
