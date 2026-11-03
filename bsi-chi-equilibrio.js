@@ -17,6 +17,12 @@
    Il sistema risponde da solo, e si vede da che parte (Le Chatelier) e di
    quanto. La seconda scheda e' K in funzione di T: ΔG° = ΔH° − TΔS°, la
    temperatura in cui K = 1 e il diagramma di van 't Hoff.
+
+   v238: la terza scheda guarda l'equilibrio da vicino, molecola per
+   molecola. In una scatola 3D le molecole si muovono e reagiscono una alla
+   volta con l'algoritmo di Gillespie (cinetica stocastica esatta, legge di
+   azione di massa sui numeri di molecole): i numeri non si fermano mai, ma
+   la loro media soddisfa K. K misurata dalle medie contro K teorica.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -58,7 +64,44 @@
     var dx = dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4);
     return c.map(function (x, i) { return Math.max(0, x + Rx.nu[i] * dx); });
   }
-  F.calcolo.equilibrio = { REAZIONI: REAZIONI, costante: costante, quoziente: quoziente, equilibrio: equilibrio, passo: passo };
+
+  /* ── v238: l'equilibrio molecola per molecola (Gillespie) ────────────────
+     Nella scatola ci sono Nᵢ molecole; Ω e' il numero di molecole per 1 M
+     (cᵢ = Nᵢ/Ω). Le propensioni seguono l'azione di massa sui numeri:
+     a→ = k Ω Π (Nᵢ)_νᵢ/Ω^νᵢ sui reagenti, a← = (k/K) Ω Π (Nⱼ)_νⱼ/Ω^νⱼ sui
+     prodotti, con (N)_ν = N(N−1)…(N−ν+1). Il tempo al prossimo evento e'
+     esponenziale di parametro a→ + a←, il verso si sceglie in proporzione
+     (Gillespie 1977). Per A ⇌ B la distribuzione stazionaria e' binomiale e
+     ⟨N_B⟩/⟨N_A⟩ = K esattamente; con piu' molecole che si incontrano la
+     media rispetta K a meno di correzioni dell'ordine di 1/N. */
+  var ISOMERO = { nome: 'A ⇌ B', sp: ['A', 'B'], nu: [-1, 1], gas: false, K298: 3, dH: 8, dS: 0, c0: [1, 0], T: 298 };
+  function fattDec(N, v) { var p = 1; for (var i = 0; i < v; i++) p *= Math.max(0, N - i); return p; }
+  function propensioni(Rx, N, Om, k, K) {
+    var af = k * Om, ab = k / K * Om;
+    Rx.nu.forEach(function (v, i) { if (v < 0) af *= fattDec(N[i], -v) / Math.pow(Om, -v); else ab *= fattDec(N[i], v) / Math.pow(Om, v); });
+    return [af, ab];
+  }
+  function gillespie(Rx, N0, Om, k, K, seme) {
+    var q = (seme || 1) >>> 0, rnd = function () { q = (q + 0x6D2B79F5) >>> 0; var z = Math.imul(q ^ (q >>> 15), 1 | q); z = (z + Math.imul(z ^ (z >>> 7), 61 | z)) ^ z; return ((z ^ (z >>> 14)) >>> 0) / 4294967296; };
+    return { Rx: Rx, N: N0.slice(), Om: Om, k: k, K: K, t: 0, eventi: [], rnd: rnd, somme: null };
+  }
+  /* avanza fino a t + dt; registra gli eventi (+1 avanti, −1 indietro) e, se richiesto, le medie temporali dei Nᵢ */
+  function avanzaSSA(G, dt) {
+    var fine = G.t + dt;
+    for (var it = 0; it < 100000; it++) {
+      var a = propensioni(G.Rx, G.N, G.Om, G.k, G.K), a0 = a[0] + a[1];
+      var tau = a0 > 0 ? -Math.log(1 - G.rnd()) / a0 : Infinity;
+      if (G.t + tau > fine) { media(G, fine - G.t); G.t = fine; break; }
+      media(G, tau); G.t += tau;
+      var verso = G.rnd() * a0 < a[0] ? 1 : -1;
+      G.Rx.nu.forEach(function (v, i) { G.N[i] += verso * v; });
+      G.eventi.push(verso); G.contati = (G.contati || 0) + 1;
+    }
+  }
+  function media(G, w) { if (!G.somme) return; G.somme.w += w; for (var i = 0; i < G.N.length; i++) G.somme.s[i] += w * G.N[i]; }
+  function iniziaMedia(G) { G.somme = { w: 0, s: G.N.map(function () { return 0; }) }; }
+  function concMedie(G) { return G.somme && G.somme.w > 0 ? G.somme.s.map(function (x) { return x / G.somme.w / G.Om; }) : null; }
+  F.calcolo.equilibrio = { REAZIONI: REAZIONI, costante: costante, quoziente: quoziente, equilibrio: equilibrio, passo: passo, ISOMERO: ISOMERO, propensioni: propensioni, gillespie: gillespie, avanzaSSA: avanzaSSA, iniziaMedia: iniziaMedia, concMedie: concMedie };
 
   var COLORI = ['#5eead4', '#ff8a80', '#ffd24a', '#6bcfff'];
   function schedaSimulatore(div) {
@@ -119,12 +162,124 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ── v238: la scatola 3D ─────────────────────────────────────────────── */
+  var MENO_MOTO = false; try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  /* il pannello subito, la scena dopo (three.js al primo uso, il contesto WebGL e il contenuto in compiti separati) */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g.appendChild(pan); g.appendChild(destra); div.appendChild(g);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new L3.Scena(destra, 0.8);
+          var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+          destra.insertBefore(S.box, destra.firstChild);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.nome));
+          div._scena = S;
+          setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+        }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  var MAXP = 1400;
+  function schedaScatola3D(pan) {
+    var st = { r: 'isomero', pausa: MENO_MOTO }, Rx, T, K, G, Om0, k, ultimo = 0, cb = {}, part = null, info, bott = F.el('div', { style: 'display:flex;flex-wrap:wrap;gap:4px' }), seme = 1;
+    var tutte = { isomero: ISOMERO }; Object.keys(REAZIONI).forEach(function (q) { tutte[q] = REAZIONI[q]; });
+    F.scelta(pan, ['Reazione', 'Reaction'], Object.keys(tutte).map(function (q) { return [q, tutte[q].nome]; }), st.r, function (v) { st.r = v; nuova(); });
+    pan.appendChild(bott);
+    var bp = F.bottone(pan, st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause'], function () { st.pausa = !st.pausa; bp.textContent = F.tt(st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause']); if (cb.sveglia) cb.sveglia(); });
+    info = nota(pan); var spiega = nota(pan);
+    spiega.innerHTML = t('Ogni sfera è una molecola (i colori come nel grafico della prima scheda). Le reazioni avvengono una alla volta con l’algoritmo di Gillespie: in ogni istante la probabilità di una reazione diretta o inversa è proporzionale ai prodotti dei numeri di molecole (legge di azione di massa), e il rapporto fra le due costanti di velocità è la K teorica alla temperatura scelta. All’equilibrio le reazioni non si fermano: in avanti e all’indietro succedono con la stessa frequenza, e i numeri oscillano attorno al valore medio. La K misurata viene dalle concentrazioni medie nel tempo; le fluttuazioni relative calano come 1/√N. Disturba il sistema e guarda come si riassesta (Le Chatelier).',
+      'Each sphere is a molecule (colours as in the first tab’s chart). Reactions happen one at a time with the Gillespie algorithm: at every instant the probability of a forward or reverse reaction is proportional to the products of molecule numbers (mass action), and the ratio of the two rate constants is the theoretical K at the chosen temperature. At equilibrium reactions do not stop: forward and backward happen equally often, and the numbers fluctuate around the mean. The measured K comes from time-averaged concentrations; relative fluctuations shrink as 1/√N. Disturb the system and watch it settle again (Le Chatelier).');
+    function disturbo() { G.somme = null; ultimo = G.t; testo(); }
+    function nuova() {
+      Rx = tutte[st.r]; T = Rx.T; K = costante(Rx, T).K;
+      var tot = Rx.c0.reduce(function (a, b) { return a + b; }, 0); Om0 = 240 / tot;
+      var cmax = Math.max.apply(null, Rx.c0), ordine = -Rx.nu.filter(function (v) { return v < 0; }).reduce(function (a, b) { return a + b; }, 0);
+      k = 0.6 / Math.pow(cmax, ordine - 1);
+      G = gillespie(Rx, Rx.c0.map(function (c) { return Math.round(c * Om0); }), Om0, k, K, seme++);
+      ultimo = 0;
+      bott.innerHTML = '';
+      Rx.sp.forEach(function (s, i) { F.bottone(bott, ['+ ' + s, '+ ' + s], function () { aggiungi(i, Math.round(0.25 * G.Om)); disturbo(); }); });
+      if (Rx.gas) { F.bottone(bott, ['Volume ÷ 2', 'Volume ÷ 2'], function () { G.Om /= 2; if (cb.volume) cb.volume(); disturbo(); }); F.bottone(bott, ['Volume × 2', 'Volume × 2'], function () { G.Om *= 2; if (cb.volume) cb.volume(); disturbo(); }); }
+      F.bottone(bott, ['T + 50 K', 'T + 50 K'], function () { T += 50; K = G.K = costante(Rx, T).K; disturbo(); });
+      F.bottone(bott, ['T − 50 K', 'T − 50 K'], function () { T = Math.max(200, T - 50); K = G.K = costante(Rx, T).K; disturbo(); });
+      if (cb.nuova) cb.nuova(); testo();
+    }
+    function aggiungi(i, n) { var tot = G.N.reduce(function (a, b) { return a + b; }, 0); n = Math.min(n, MAXP - tot); if (n <= 0) return; G.N[i] += n; if (cb.aggiungi) cb.aggiungi(i, n); }
+    function testo() {
+      var c = G.N.map(function (x) { return x / G.Om; }), Qi = quoziente(Rx, c), cm = concMedie(G), eq = equilibrio(Rx, c, K).c, f = function (v) { return v < 1e-3 || v > 1e4 ? v.toExponential(3) : fmt(v); };
+      info.innerHTML = '<b>' + Rx.nome + '</b> · T = ' + T + ' K · Ω = ' + fmt(G.Om) + t(' molecole per 1 M', ' molecules per 1 M') + '<br>' +
+        'K ' + t('teorica', 'theoretical') + ' = <b class="bsiFX-num">' + f(K) + '</b> · Q ' + t('istantaneo', 'instantaneous') + ' = ' + f(Qi) + '<br>' +
+        (cm ? 'K ' + t('misurata dalle medie', 'measured from the means') + ' (' + (G.t - ultimo - 4).toFixed(1) + ' s) = <b class="bsiFX-num">' + f(quoziente(Rx, cm)) + '</b> (' + ((quoziente(Rx, cm) / K - 1) * 100).toFixed(1) + ' %)<br>' : t('Rilassamento dopo il disturbo: la media parte fra poco…', 'Relaxing after the disturbance: averaging starts shortly…') + '<br>') +
+        Rx.sp.map(function (s, i) { return '<span style="color:' + COLORI[i] + '">●</span> ' + s + ' ' + G.N[i] + (cm ? ' (' + t('media ', 'mean ') + fmt(cm[i]) + ' M' : ' (' + fmt(c[i]) + ' M') + '; ' + t('equilibrio deterministico ', 'deterministic equilibrium ') + fmt(eq[i]) + ' M)'; }).join('<br>') +
+        '<br>' + t('Reazioni avvenute: ', 'Reactions so far: ') + (G.contati || 0);
+    }
+    nuova();
+    return {
+      nome: ['Equilibrio molecola per molecola in una scatola 3D', 'Equilibrium molecule by molecule in a 3D box'],
+      tre: function (S, T3, L3) {
+        var TH = T3, mesh = null, M4 = new TH.Matrix4(), col = new TH.Color(), x = new Float32Array(3 * MAXP), v = new Float32Array(3 * MAXP), sp = new Int8Array(MAXP), n = 0, Lw = 6.4, scatola = null;
+        var q = 99 >>> 0, rnd = function () { q = (q * 1664525 + 1013904223) >>> 0; return q / 4294967296; };
+        var CC = COLORI.map(function (h) { return [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]; });
+        function nasce(s, p) { if (n >= MAXP) return; for (var c = 0; c < 3; c++) { x[3 * n + c] = p ? p[c] + (rnd() - 0.5) * 0.3 : (rnd() - 0.5) * Lw; v[3 * n + c] = (rnd() - 0.5) * 2.4; } sp[n] = s; n++; }
+        function muore(s) { var cand = []; for (var i = 0; i < n; i++) if (sp[i] === s) cand.push(i); if (!cand.length) return null; var i2 = cand[Math.floor(rnd() * cand.length)], p = [x[3 * i2], x[3 * i2 + 1], x[3 * i2 + 2]]; n--; for (var c = 0; c < 3; c++) { x[3 * i2 + c] = x[3 * n + c]; v[3 * i2 + c] = v[3 * n + c]; } sp[i2] = sp[n]; return p; }
+        cb.sveglia = function () { S.avvia(); };
+        cb.nuova = function () {
+          n = 0; Lw = 6.4; G.N.forEach(function (N, s) { for (var i = 0; i < N; i++) nasce(s); }); cb.volume(); G.eventi = [];
+          if (!mesh) { mesh = new TH.InstancedMesh(new TH.SphereGeometry(0.13, 12, 8), new TH.MeshStandardMaterial({ roughness: 0.35, metalness: 0.1 }), MAXP); mesh.instanceMatrix.setUsage(TH.DynamicDrawUsage); for (var i = 0; i < MAXP; i++) mesh.setColorAt(i, col.setRGB(1, 1, 1)); /* il colore per istanza prima del primo disegno */ S.aggiungi(mesh); }
+          disegna();
+        };
+        cb.aggiungi = function (s, m) { for (var i = 0; i < m; i++) nasce(s); };
+        cb.volume = function () {
+          var Ln = 6.4 * Math.pow(G.Om / Om0, 1 / 3), f = Ln / Lw; for (var i = 0; i < 3 * n; i++) x[i] *= f; Lw = Ln;
+          if (scatola) { S.radice.remove(scatola); scatola.geometry.dispose(); scatola.material.dispose(); }
+          scatola = new TH.LineSegments(new TH.EdgesGeometry(new TH.BoxGeometry(Lw, Lw, Lw)), new TH.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.5 })); S.aggiungi(scatola);
+        };
+        /* un evento di Gillespie diventa un incontro visibile: i reagenti spariscono, i prodotti nascono nel loro baricentro */
+        function reagisci(verso) {
+          var via = [], nuovi = [];
+          Rx.nu.forEach(function (vv, i) { var m = vv * verso; if (m < 0) for (var j = 0; j < -m; j++) via.push(i); else for (j = 0; j < m; j++) nuovi.push(i); });
+          var cen = [0, 0, 0], k2 = 0; via.forEach(function (s) { var p = muore(s); if (p) { cen[0] += p[0]; cen[1] += p[1]; cen[2] += p[2]; k2++; } });
+          if (k2) cen = cen.map(function (c) { return c / k2; }); else cen = null;
+          nuovi.forEach(function (s) { nasce(s, cen); });
+        }
+        function disegna() {
+          for (var i = 0; i < n; i++) { M4.makeTranslation(x[3 * i], x[3 * i + 1], x[3 * i + 2]); mesh.setMatrixAt(i, M4); var c = CC[sp[i]]; mesh.setColorAt(i, col.setRGB(c[0], c[1], c[2])); }
+          mesh.count = n; mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        }
+        cb.nuova();
+        var tt = 0;
+        S.ogniFotogramma(function (dt) {
+          if (st.pausa) return false;
+          avanzaSSA(G, dt);
+          if (!G.somme && G.t - ultimo > 4) iniziaMedia(G);
+          while (G.eventi.length) reagisci(G.eventi.shift());
+          var h = Lw / 2 - 0.13;
+          for (var i = 0; i < 3 * n; i++) { x[i] += v[i] * dt; if (x[i] > h) { x[i] = 2 * h - x[i]; v[i] = -v[i]; } else if (x[i] < -h) { x[i] = -2 * h - x[i]; v[i] = -v[i]; } }
+          disegna();
+          tt += dt; if (tt > 0.25) { tt = 0; testo(); }
+          S.didascalia.textContent = Rx.nome + ' · ' + Rx.sp.map(function (s, j) { return s + ' ' + G.N[j]; }).join(' · ');
+          return true;
+        });
+        S.inquadra(14, 0.6, 1.15);
+      }
+    };
+  }
+
   F.sezione('schiequil', {
     titolo: ['⚖️ Equilibrio e Le Chatelier', '⚖️ Equilibrium and Le Chatelier'],
     sotto: ['Una reazione che raggiunge l’equilibrio sotto i tuoi occhi, e risponde quando aggiungi una specie, cambi il volume o la temperatura; K in funzione di T con ΔG° e il diagramma di van ’t Hoff.', 'A reaction reaching equilibrium before your eyes, responding when you add a species or change volume or temperature; K as a function of T with ΔG° and the van ’t Hoff plot.'],
     schede: [
       { nome: ['⚖️ Simulatore', '⚖️ Simulator'], costruisci: schedaSimulatore },
-      { nome: ['🌡️ K e temperatura', '🌡️ K and temperature'], costruisci: schedaTemperatura }
+      { nome: ['🌡️ K e temperatura', '🌡️ K and temperature'], costruisci: schedaTemperatura },
+      { nome: ['🧊 Scatola 3D', '🧊 3D box'], costruisci: scheda3D(schedaScatola3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

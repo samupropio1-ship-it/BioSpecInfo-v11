@@ -103,17 +103,24 @@
       if (x[k] < r) { x[k] = 2 * r - x[k]; v[k] = -v[k]; } else if (x[k] > L - r) { x[k] = 2 * (L - r) - x[k]; v[k] = -v[k]; }
     }
     /* le coppie vicine con una griglia di celle di lato ≥ 2r */
-    var nc = Math.max(1, Math.floor(L / (2 * r))), lc = L / nc, testa = new Int32Array(nc * nc * nc).fill(-1), dopo = new Int32Array(N), cel = function (q) { return Math.max(0, Math.min(nc - 1, Math.floor(q / lc))); };
+    var nc = Math.max(1, Math.floor(L / (2 * r))), lc = L / nc, testa = new Int32Array(nc * nc * nc).fill(-1), dopo = new Int32Array(N), cel = function (q) { var c = (q / lc) | 0; return c < 0 ? 0 : c >= nc ? nc - 1 : c; };
     for (var i = 0; i < N; i++) { var c = (cel(x[3 * i]) * nc + cel(x[3 * i + 1])) * nc + cel(x[3 * i + 2]); dopo[i] = testa[c]; testa[c] = i; }
     for (i = 0; i < N; i++) {
       var ci = cel(x[3 * i]), cj = cel(x[3 * i + 1]), ck = cel(x[3 * i + 2]);
-      for (var a = Math.max(0, ci - 1); a <= Math.min(nc - 1, ci + 1); a++) for (var b = Math.max(0, cj - 1); b <= Math.min(nc - 1, cj + 1); b++) for (var e = Math.max(0, ck - 1); e <= Math.min(nc - 1, ck + 1); e++) {
+      var a0 = ci > 0 ? ci - 1 : 0, a1 = ci < nc - 1 ? ci + 1 : ci, b0 = cj > 0 ? cj - 1 : 0, b1 = cj < nc - 1 ? cj + 1 : cj, e0 = ck > 0 ? ck - 1 : 0, e1 = ck < nc - 1 ? ck + 1 : ck;
+      for (var a = a0; a <= a1; a++) for (var b = b0; b <= b1; b++) for (var e = e0; e <= e1; e++) {
         for (var j = testa[(a * nc + b) * nc + e]; j >= 0; j = dopo[j]) {
           if (j <= i) continue;
           var dx = x[3 * i] - x[3 * j], dy = x[3 * i + 1] - x[3 * j + 1], dz = x[3 * i + 2] - x[3 * j + 2], q2 = dx * dx + dy * dy + dz * dz;
           if (q2 >= d2 || q2 === 0) continue;
-          var dd = Math.sqrt(q2), nx = dx / dd, ny = dy / dd, nz = dz / dd, vn = (v[3 * i] - v[3 * j]) * nx + (v[3 * i + 1] - v[3 * j + 1]) * ny + (v[3 * i + 2] - v[3 * j + 2]) * nz;
-          if (vn >= 0) continue;   /* si stanno gia' allontanando */
+          var wx = v[3 * i] - v[3 * j], wy = v[3 * i + 1] - v[3 * j + 1], wz = v[3 * i + 2] - v[3 * j + 2], dw = dx * wx + dy * wy + dz * wz;
+          if (dw >= 0) continue;   /* si stanno gia' allontanando */
+          /* il passo discreto trova le sfere gia' compenetrate: si torna indietro lungo il moto relativo fino al
+             contatto (|Δx − w τ| = 2r) e si usa la normale di quell'istante; con la normale "affondata" gli urti
+             radenti sembrerebbero piu' frontali o meno, e la frazione sopra soglia uscirebbe distorta */
+          var aw = wx * wx + wy * wy + wz * wz, tau = (dw + Math.sqrt(dw * dw - aw * (q2 - d2))) / aw;
+          var nx = (dx - wx * tau) / (2 * r), ny = (dy - wy * tau) / (2 * r), nz = (dz - wz * tau) / (2 * r), vn = wx * nx + wy * ny + wz * nz;
+          if (vn >= 0) continue;
           v[3 * i] -= vn * nx; v[3 * i + 1] -= vn * ny; v[3 * i + 2] -= vn * nz; v[3 * j] += vn * nx; v[3 * j + 1] += vn * ny; v[3 * j + 2] += vn * nz;
           var Ec = 0.25 * vn * vn;   /* ½ μ v_n², μ = ½ */
           G.urti++; if (Ec >= E0) G.sopra++;
@@ -199,13 +206,101 @@
     }, { ricomincia: function () { GS.semina(7); passi = 0; testo(); } });
   }
 
+  /* ═══ 4. urti molecolari in 3D (v238) ══════════════════════════════════ */
+  var MENO_MOTO = false; try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  /* il pannello subito, la scena dopo (three.js al primo uso, il contesto WebGL e il contenuto in compiti separati) */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g.appendChild(pan); g.appendChild(destra); div.appendChild(g);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new L3.Scena(destra, 0.8);
+          var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+          destra.insertBefore(S.box, destra.firstChild);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.nome));
+          div._scena = S;
+          setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+        }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  var RG = 8.314462618, T_RIF = 300, L_BOX = 10, R_SF = 0.18, N_SF = 300;
+  function schedaUrti3D(pan) {
+    var st = { Ea: 6, T: 300, pausa: MENO_MOTO }, G = null, cb = {}, seme = 5;
+    /* in unita' ridotte kT = T/300: la soglia E₀ = Ea/(R·300) non dipende da T, e' la temperatura a cambiare le velocita' */
+    function E0() { return st.Ea * 1000 / (RG * T_RIF); }
+    function nuovo() { G = gasUrti(N_SF, L_BOX, R_SF, st.T / T_RIF, seme++); G.t0 = 0; testo(); if (cb.nuovo) cb.nuovo(); }
+    function azzera() { G.urti = G.sopra = G.urtiAB = G.reazioni = 0; G.t0 = G.t; }
+    F.cursore(pan, ['energia di attivazione Ea (kJ/mol)', 'activation energy Ea (kJ/mol)'], 1, 20, 0.5, st.Ea, function (v) { st.Ea = v; azzera(); testo(); }, function (v) { return v.toFixed(1) + ' kJ/mol'; });
+    F.cursore(pan, ['temperatura (K)', 'temperature (K)'], 150, 1200, 10, st.T, function (v) { st.T = v; scalaKT(G, v / T_RIF); azzera(); testo(); }, function (v) { return v + ' K'; });
+    F.bottone(pan, ['↺ Ricomincia (tutti A e B)', '↺ Restart (all A and B)'], function () { nuovo(); });
+    var bp = F.bottone(pan, st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause'], function () { st.pausa = !st.pausa; bp.textContent = F.tt(st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause']); if (cb.sveglia) cb.sveglia(); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Trecento sfere dure rimbalzano in una scatola con urti elastici e velocità di Maxwell alla temperatura scelta: verdi le A, rosse le B. A ogni urto si misura l’energia lungo la congiungente dei centri, ½μ(v_rel·n)², la sola che può rompere un legame. Se un urto A–B la supera Ea le due molecole diventano prodotti (gialla C, viola D) e nel punto d’urto c’è un lampo. La teoria delle collisioni dice che la frazione di urti sopra soglia è esattamente e^(−Ea/RT): il fattore di Arrhenius. Il conteggio qui accanto la mette alla prova dal vivo; alzando T crescono sia gli urti (come √T) sia, molto di più, la frazione efficace.',
+      'Three hundred hard spheres bounce in a box with elastic collisions and Maxwell velocities at the chosen temperature: A green, B red. At every collision the energy along the line of centres, ½μ(v_rel·n)², is measured: the only part that can break a bond. If an A–B collision exceeds Ea the two molecules become products (C yellow, D purple) and the impact point flashes. Collision theory says the fraction of collisions above threshold is exactly e^(−Ea/RT): the Arrhenius factor. The count alongside tests it live; raising T increases both the collisions (as √T) and, much more, the effective fraction.');
+    function testo() {
+      var f = G.urti ? G.sopra / G.urti : 0, err = G.urti ? Math.sqrt(f * (1 - f) / G.urti) : 0, teo = Math.exp(-st.Ea * 1000 / (RG * st.T)), dt = G.t - G.t0;
+      var nA = 0, nB = 0; for (var i = 0; i < G.N; i++) { if (G.sp[i] === 0) nA++; else if (G.sp[i] === 1) nB++; }
+      var z = frequenzaUrti(G.N, G.L, G.r, G.kT);
+      info.innerHTML = 'Ea/RT = <b class="bsiFX-num">' + (st.Ea * 1000 / (RG * st.T)).toFixed(3) + '</b> · ' + t('urti contati ', 'collisions counted ') + G.urti + '<br>' +
+        t('Frazione sopra soglia: misurata ', 'Fraction above threshold: measured ') + '<b class="bsiFX-num">' + (100 * f).toFixed(2) + ' ± ' + (100 * err).toFixed(2) + ' %</b> · e^(−Ea/RT) = <b class="bsiFX-num">' + (100 * teo).toFixed(2) + ' %</b><br>' +
+        t('Urti A–B ', 'A–B collisions ') + G.urtiAB + ', ' + t('reazioni ', 'reactions ') + '<b class="bsiFX-num">' + G.reazioni + '</b>' + (G.urtiAB ? ' (' + (100 * G.reazioni / G.urtiAB).toFixed(1) + ' %)' : '') + ' · ' + t('restano ', 'left ') + 'A ' + nA + ', B ' + nB + '<br>' +
+        t('Urti per molecola e per unità di tempo: misurati ', 'Collisions per molecule per unit time: measured ') + (dt > 0 ? (2 * G.urti / G.N / dt).toFixed(3) : '—') + ' · ' + t('teoria cinetica', 'kinetic theory') + ' √2 nπd²⟨v⟩ = ' + z.toFixed(3) + '<br>' +
+        t('Velocità di reazione ∝ Z·e^(−Ea/RT): Arrhenius con il fattore pre-esponenziale dagli urti.', 'Reaction rate ∝ Z·e^(−Ea/RT): Arrhenius with the pre-exponential factor from collisions.');
+    }
+    nuovo();
+    return {
+      nome: ['Urti molecolari in una scatola 3D', 'Molecular collisions in a 3D box'],
+      tre: function (S, T, L3) {
+        var k = 6.4 / L_BOX, off = -3.2, mesh = null, M4 = new T.Matrix4(), col = new T.Color(), COL = [[0.37, 0.92, 0.83], [1, 0.54, 0.5], [1, 0.82, 0.29], [0.7, 0.53, 1]], lampi = [], letti = 0;
+        S.aggiungi(new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(6.4, 6.4, 6.4)), new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.5 })));
+        var geoL = new T.SphereGeometry(0.3, 12, 8);
+        for (var q = 0; q < 24; q++) { var m = new T.Mesh(geoL, new T.MeshBasicMaterial({ color: 0xfff1a8, transparent: true, opacity: 0, blending: T.AdditiveBlending, depthWrite: false })); m.visible = false; m.userData.v = 0; S.aggiungi(m); lampi.push(m); }
+        cb.sveglia = function () { S.avvia(); };
+        cb.nuovo = function () {
+          if (!mesh) { mesh = new T.InstancedMesh(new T.SphereGeometry(R_SF * k, 12, 8), new T.MeshStandardMaterial({ roughness: 0.35, metalness: 0.1 }), G.N); mesh.instanceMatrix.setUsage(T.DynamicDrawUsage); for (var i0 = 0; i0 < G.N; i0++) mesh.setColorAt(i0, col.setRGB(1, 1, 1)); /* il colore per istanza deve esistere prima del primo disegno */ S.aggiungi(mesh); }
+          letti = 0; aggiorna(); S.sporca = true; S.avvia();
+        };
+        function aggiorna() {
+          for (var i = 0; i < G.N; i++) { M4.makeTranslation(G.x[3 * i] * k + off, G.x[3 * i + 1] * k + off, G.x[3 * i + 2] * k + off); mesh.setMatrixAt(i, M4); var c = COL[G.sp[i]]; mesh.setColorAt(i, col.setRGB(c[0], c[1], c[2])); }
+          mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        }
+        cb.nuovo();
+        var tt = 0, lib = 0;
+        S.ogniFotogramma(function (dt) {
+          lampi.forEach(function (m) { if (m.userData.v > 0) { m.userData.v -= dt / 0.6; var f = Math.max(0, m.userData.v); m.material.opacity = f; m.scale.setScalar(0.4 + 1.6 * (1 - f)); m.visible = f > 0; } });
+          if (st.pausa) return lampi.some(function (m) { return m.visible; });
+          var ns = Math.max(1, Math.round(dt * 2 / 0.01));
+          for (var i = 0; i < ns; i++) passoUrti(G, 0.01, E0());
+          while (G.eventi.length) { var e = G.eventi.shift(), m = lampi[lib++ % lampi.length]; m.position.set(e[0] * k + off, e[1] * k + off, e[2] * k + off); m.userData.v = 1; m.visible = true; }
+          aggiorna();
+          /* finiti A o B, si ricomincia con le stesse velocita' (le statistiche degli urti restano) */
+          var nA = 0; for (i = 0; i < G.N; i++) if (G.sp[i] === 0) nA++;
+          if (nA < 8) { for (i = 0; i < G.N; i++) G.sp[i] = i % 2; }
+          tt += dt; if (tt > 0.3) { tt = 0; testo(); }
+          S.didascalia.textContent = t('A + B → C + D se ½μv_n² ≥ Ea · ', 'A + B → C + D if ½μv_n² ≥ Ea · ') + 'T = ' + st.T + ' K · Ea = ' + st.Ea + ' kJ/mol';
+          return true;
+        });
+        S.inquadra(15, 0.6, 1.15);
+      }
+    };
+  }
+
   F.sezione('schicinet', {
     titolo: ['🌀 Cinetica complessa', '🌀 Complex kinetics'],
     sotto: ['Reazioni consecutive, parallele e reversibili con le soluzioni esatte e lo stato stazionario; il Brusselator e le reazioni oscillanti con la biforcazione di Hopf; le strutture di Turing che nascono da reazione e diffusione.', 'Consecutive, parallel and reversible reactions with exact solutions and the steady state; the Brusselator and oscillating reactions with the Hopf bifurcation; Turing patterns arising from reaction and diffusion.'],
     schede: [
       { nome: ['⛓️ Reazioni composte', '⛓️ Composite reactions'], costruisci: schedaComposte },
       { nome: ['🔄 Reazioni oscillanti', '🔄 Oscillating reactions'], costruisci: schedaOscillanti },
-      { nome: ['🐆 Strutture di Turing', '🐆 Turing patterns'], costruisci: schedaTuring }
+      { nome: ['🐆 Strutture di Turing', '🐆 Turing patterns'], costruisci: schedaTuring },
+      { nome: ['🧊 Urti molecolari', '🧊 Molecular collisions'], costruisci: scheda3D(schedaUrti3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

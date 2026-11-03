@@ -139,7 +139,7 @@ function carica() {
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
   /* v237: sfisastro e' passata nel gruppo 🔭 Astrofisica (9) */
-  const SEZ = [[9, 'sfisastro', 5], [7, 'sfisrel', 3], [7, 'sfisfluidi', 3], [8, 'smatvett', 3], [4, 'schicinet', 3]];
+  const SEZ = [[9, 'sfisastro', 5], [7, 'sfisrel', 3], [7, 'sfisfluidi', 3], [8, 'smatvett', 3], [4, 'schicinet', 4]];   /* v238: scheda 3D aggiunta (schicinet) */
   for (const [nome, vp, ridotto] of [['schermo grande', { width: 1280, height: 900 }, false], ['telefono', { width: 390, height: 844 }, false], ['riduci movimento', { width: 1280, height: 900 }, true]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp, reducedMotion: ridotto ? 'reduce' : 'no-preference' });
     const pg = await ctx.newPage(), errs = [];
@@ -158,7 +158,7 @@ function carica() {
         for (let i = 0; i < sch.length; i++) {
           sch[i].click(); await pausa(2200);
           const pan = [...sec.querySelectorAll('[role=tabpanel]')].find(x => x.offsetParent); if (pan.textContent.length > 100) piene++; if (/⚠/.test(pan.textContent)) avvisi++;
-          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; const q = c.getContext('2d'); const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 31) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
+          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; const q = c.getContext('2d'); if (!q) { if (pan._scena && pan._scena.campiona() > 0) disegnate++; return; } /* v238: le tele WebGL delle schede 3D */ const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 31) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
           pan.querySelectorAll('.bsiFX-anim').forEach(bar => { barre++; const bt = [...bar.querySelectorAll('button')]; if (bt.length >= 6 && bt.every(x => (x.getAttribute('aria-label') || '').length > 2)) barreOk++; });
         }
         out[s] = { schede: sch.length, piene, tele, disegnate, avvisi, barre, barreOk };
