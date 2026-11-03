@@ -506,7 +506,7 @@
     /* il volto: l'androide in 3D; senza WebGL, il ritratto vettoriale */
     var vo = document.getElementById('bsiJV-volto');
     if (globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile()) {
-      globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
+      globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); if (r.concentra && hud.difficolta) r.concentra(hud.difficolta.valore); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
     } else if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo);
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
     document.getElementById('bsiJV-tutto').onclick = function () { navigatore(); };
@@ -696,7 +696,7 @@
     if (elPe) elPe.style.top = Math.round(cy + R * 1.2 + 26) + 'px';
     /* il volto sta al centro del reattore */
     var vo = document.getElementById('bsiJV-volto');
-    if (vo) { var dia = Math.round(R * 1.18); if (vo._dia !== dia) { vo.style.width = vo.style.height = dia + 'px'; vo._dia = dia; } vo.style.left = cx + 'px'; vo.style.top = cy + 'px'; }
+    if (vo) { var dia = Math.round(R * 1.42); if (vo._dia !== dia) { vo.style.width = vo.style.height = dia + 'px'; vo._dia = dia; } vo.style.left = cx + 'px'; vo.style.top = cy + 'px'; }
     if (hud.el) hud.el.setAttribute('data-stato', hud.stato);
     /* l'energia: microfono vero se c'e', altrimenti la voce che parla, altrimenti il respiro */
     var spettro = null, e = 0.15 + 0.05 * Math.sin(tt * 1.6);
@@ -715,7 +715,7 @@
     /* bagliore centrale */
     var gl = q.createRadialGradient(cx, cy, 0, cx, cy, R * (1.1 + e * 0.5)); gl.addColorStop(0, rgba(0.55 * e + 0.15)); gl.addColorStop(0.35, rgba(0.12)); gl.addColorStop(1, rgba(0)); q.fillStyle = gl; q.beginPath(); q.arc(cx, cy, R * (1.1 + e * 0.5), 0, 2 * Math.PI); q.fill();
     /* anelli e archi rotanti */
-    var anelli = [[0.66, 2, 0.9, 6], [0.74, 1.2, -0.6, 3], [0.84, 1.6, 0.35, 12], [0.92, 1, -0.22, 2], [1.0, 3, 0.15, 24]];
+    var anelli = [[0.76, 2, 0.9, 6], [0.82, 1.2, -0.6, 3], [0.9, 1.6, 0.35, 12], [0.97, 1, -0.22, 2], [1.05, 3, 0.15, 24]];
     anelli.forEach(function (a, k) {
       var r = R * a[0] * (1 + e * 0.06 * (k + 1)), rot = lento ? 0 : tt * a[2], n = a[3];
       q.strokeStyle = rgba(0.75 - k * 0.1); q.lineWidth = a[1];
@@ -723,12 +723,12 @@
     });
     /* tacche esterne */
     q.strokeStyle = rgba(0.35); q.lineWidth = 1;
-    for (var j = 0; j < 120; j++) { var an = j * Math.PI / 60 + (lento ? 0 : -tt * 0.05), r1 = R * 1.12, r2 = r1 + (j % 10 ? 5 : 12); q.beginPath(); q.moveTo(cx + r1 * Math.cos(an), cy + r1 * Math.sin(an)); q.lineTo(cx + r2 * Math.cos(an), cy + r2 * Math.sin(an)); q.stroke(); }
+    for (var j = 0; j < 120; j++) { var an = j * Math.PI / 60 + (lento ? 0 : -tt * 0.05), r1 = R * 1.14, r2 = r1 + (j % 10 ? 5 : 12); q.beginPath(); q.moveTo(cx + r1 * Math.cos(an), cy + r1 * Math.sin(an)); q.lineTo(cx + r2 * Math.cos(an), cy + r2 * Math.sin(an)); q.stroke(); }
     /* lo spettro attorno al nucleo */
     var N = 96; q.lineWidth = 2;
     for (var b = 0; b < N; b++) {
       var v = spettro ? spettro[Math.floor(b / N * 64)] / 255 : e * (0.35 + 0.65 * Math.abs(Math.sin(b * 0.37 + tt * (voce.inCorso ? 9 : 2))));
-      var an2 = b / N * 2 * Math.PI - Math.PI / 2, ra = R * 0.63, rb = ra + 4 + v * R * 0.22;
+      var an2 = b / N * 2 * Math.PI - Math.PI / 2, ra = R * 0.72, rb = ra + 4 + v * R * 0.2;
       q.strokeStyle = rgba(0.35 + 0.6 * v); q.beginPath(); q.moveTo(cx + ra * Math.cos(an2), cy + ra * Math.sin(an2)); q.lineTo(cx + rb * Math.cos(an2), cy + rb * Math.sin(an2)); q.stroke();
     }
     /* nucleo */

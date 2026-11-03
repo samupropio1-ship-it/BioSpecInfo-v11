@@ -249,7 +249,8 @@
     var T = globale.THREE, self = this;
     this.T = T; this.padre = padre;
     var ren = new T.WebGLRenderer({ antialias: true, alpha: true });
-    ren.setPixelRatio(Math.min(2, globale.devicePixelRatio || 1)); ren.setClearColor(0, 0);
+    /* la definizione (v238): la densita' vera dello schermo, fino a 3 (i telefoni moderni sono a 2,6-3,5) */
+    ren.setPixelRatio(Math.min(3, globale.devicePixelRatio || 1)); ren.setClearColor(0, 0);
     ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.9;
     ren.domElement.style.cssText = 'width:100%;height:100%;display:block'; ren.domElement.setAttribute('aria-hidden', 'true');
     padre.appendChild(ren.domElement); this.ren = ren;
@@ -272,6 +273,9 @@
     if (faccia) {
       var o = faccia.material;
       faccia.material = new T.MeshStandardMaterial({ color: 0x393d43, metalness: 0.86, roughness: 0.38, normalMap: o.normalMap || null, normalScale: new T.Vector2(1.2, 1.2), aoMap: o.aoMap || null, aoMapIntensity: 1, envMapIntensity: 0.7 });
+      /* filtraggio anisotropo: i rilievi del metallo restano nitidi anche di scorcio */
+      var aniso = ren.capabilities && ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 1;
+      [faccia.material.normalMap, faccia.material.aoMap].forEach(function (tx) { if (tx) { tx.anisotropy = aniso; tx.needsUpdate = true; } });
       this.toccati = preparaBocca(T, faccia);
       this.uBocca = { value: 0 };
       this.uE = {}; var uE0 = this.uE; CAMPI.forEach(function (k) { uE0[k] = { value: 0 }; }); this.faccia = faccia; this._pesi = {};
@@ -304,7 +308,7 @@
     var cam = new T.PerspectiveCamera(26, 1, 0.01, 10); this.cam = cam;
     this.radice.updateMatrixWorld(true);
     var box = new T.Box3().setFromObject(perno), c = box.getCenter(new T.Vector3()), s = box.getSize(new T.Vector3());
-    this.centro = c; cam.position.set(c.x, c.y + s.y * 0.06, c.z + Math.max(s.x, s.y) * 1.75); cam.lookAt(c.x, c.y + s.y * 0.02, c.z);
+    this.centro = c; cam.position.set(c.x, c.y + s.y * 0.06, c.z + Math.max(s.x, s.y) * 1.55); cam.lookAt(c.x, c.y + s.y * 0.04, c.z);
     this.st = 'attesa'; this.t = 0; this.palp = 0; this.prossimo = 1.6; this.mira = { x: 0, y: 0, tx: 0, ty: 0 };
     this.testo = ''; this.pos = 0; this.boc = 0; this.vel = 13;
     this.colore = new T.Color(COLORI.attesa); this.coloreT = new T.Color(COLORI.attesa); this.tinta = new T.Color(COLORI.attesa); this._tmp = new T.Color();
@@ -312,12 +316,16 @@
     this.molle = {}; var mo = this.molle; CAMPI.concat(['ap0', 'ap1', 'inclina', 'alza', 'bocca']).forEach(function (k) { mo[k] = { x: k.indexOf('ap') === 0 ? 1 : 0, v: 0 }; });
     this.conc = 0; this.concT = 0; this.micro = { k: null, fino: 0, prossima: 3 };
     this._muovi = function (e) { var r = padre.getBoundingClientRect(); if (!r.width) return; self.mira.tx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width * 1.5))); self.mira.ty = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (r.height * 1.5))); };
+    /* lo sguardo segue anche il dito: sul telefono pointermove arriva solo trascinando, quindi si guarda dove si tocca */
+    this.contatto = Date.now();
+    var muovi0 = this._muovi; this._muovi = function (e) { self.contatto = Date.now(); muovi0(e); };
     document.addEventListener('pointermove', this._muovi, { passive: true });
+    document.addEventListener('pointerdown', this._muovi, { passive: true });
     this.adatta(); this.avvia();
   }
   Androide.prototype.adatta = function () { var w = this.padre.clientWidth || 300, h = this.padre.clientHeight || w; if (this._w === w && this._h === h) return; this._w = w; this._h = h; this.ren.setSize(w, h, false); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); };
-  Androide.prototype.stato = function (s) { this.st = s || 'attesa'; if (s !== 'parla') this.testo = ''; this.coloreT.setHex(COLORI[this.st] || COLORI.attesa); this.avvia(); };
-  Androide.prototype.dici = function (f) { this.testo = String(f || ''); this.pos = 0; this.copione = copione(this.testo); this.st = 'parla'; this.coloreT.setHex(COLORI.parla); this.avvia(); };
+  Androide.prototype.stato = function (s) { this.contatto = Date.now(); this.st = s || 'attesa'; if (s !== 'parla') this.testo = ''; this.coloreT.setHex(COLORI[this.st] || COLORI.attesa); this.avvia(); };
+  Androide.prototype.dici = function (f) { this.contatto = Date.now(); this.testo = String(f || ''); this.pos = 0; this.copione = copione(this.testo); this.st = 'parla'; this.coloreT.setHex(COLORI.parla); this.avvia(); };
   /* un'emozione imposta da fuori (la console, la mente): dura «secondi», poi torna il comportamento spontaneo */
   Androide.prototype.espressione = function (nome, secondi, intensita) { if (!EMOZIONI[nome]) return false; this.imposta = { emo: nome, fino: this.t + (secondi || 3), k: intensita == null ? 1 : intensita }; this.avvia(); return true; };
   Androide.prototype.emozione = function () { return this.emoCorrente || 'neutro'; };
@@ -327,6 +335,7 @@
      stringono, lo sguardo si ferma e le palpebre battono meno */
   Androide.prototype.concentra = function (c) { this.concT = Math.max(0, Math.min(1, +c || 0)); this.avvia(); };
   Androide.prototype.concentrazione = function () { return this.conc; };
+  Androide.prototype.addormentato = function () { return this.sonno || 0; };
   Androide.prototype.aperture = function () { return this.apVis || [this.molle.ap0.x, this.molle.ap1.x]; };
   /* quello che dice l'utente cambia il viso mentre ascolta (un complimento, un problema, una domanda) */
   Androide.prototype.sente = function (frase) { var e = emozioneDi(String(frase || '')); var mappa = { gioia: 'sorrisoCaldo', preoccupata: 'empatica', curiosa: 'attenta', serena: 'attenta', fiera: 'gioia' }; this.espressione(mappa[e] || e, 2.6, 0.85); if (globale.BSISpectraMente && globale.BSISpectraMente.sente) globale.BSISpectraMente.sente(e, 'u'); };
@@ -359,7 +368,7 @@
   };
   Androide.prototype.ferma = function () { if (this.raf) globale.cancelAnimationFrame(this.raf); this.raf = 0; };
   Androide.prototype.libera = function () {
-    document.removeEventListener('pointermove', this._muovi);
+    document.removeEventListener('pointermove', this._muovi); document.removeEventListener('pointerdown', this._muovi);
     this.sc.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); }); });
     try { this.ren.dispose(); } catch (e) {}
   };
@@ -390,6 +399,18 @@
     var concT = this.concT * (st === 'pensa' ? 1 : st === 'parla' ? 0.55 : st === 'ascolta' ? 0.45 : 0.15);
     this.conc += (concT - this.conc) * Math.min(1, dt * (concT > this.conc ? 3 : 0.6));
     var C = this.conc;
+    /* IL SONNO: dopo due minuti senza nessuno (niente tocchi, niente voce, niente risposte) le palpebre
+       si appesantiscono, la testa si abbassa, il respiro rallenta, la luce degli occhi si abbassa. Al primo
+       tocco si sveglia di soprassalto e saluta con un sorriso. */
+    var inattivo = (Date.now() - (this.contatto || Date.now())) / 1000;
+    var sonnoT = st === 'attesa' && inattivo > 120 && !lento ? Math.min(1, (inattivo - 120) / 20) : 0;
+    var primaSonno = this.sonno || 0;
+    this.sonno = primaSonno + (sonnoT - primaSonno) * Math.min(1, dt * (sonnoT > primaSonno ? 0.4 : 4));
+    if (primaSonno > 0.5 && sonnoT === 0 && !this._sveglia) {
+      this._sveglia = true; this.espressione('sorpresa', 0.7, 0.9);
+      setTimeout(function () { self.espressione('sorrisoCaldo', 2.2); self._sveglia = false; }, 700);
+    }
+    var Z = this.sonno;
     /* ── l'emozione del momento ──
        1) se qualcuno l'ha imposta (la console, quello che ha detto l'utente), quella;
        2) parlando, l'emozione della frase che sta pronunciando;
@@ -415,12 +436,14 @@
       forza = T < sp.fino ? 0.8 : 1;
     }
     if (domanda && st === 'parla' && emo === 'serena') emo = 'curiosa';
+    /* chi dorme non fa espressioni spontanee */
+    if ((this.sonno || 0) > 0.4 && st === 'attesa' && !(this.imposta && T < this.imposta.fino)) { emo = 'serena'; forza = 1; }
     this.emoCorrente = emo;
     var P = EMOZIONI[emo] || {}, O = OCCHI_EMO[emo] || OCCHI_EMO.serena;
     /* ── le micro-espressioni: lampi di un quarto di secondo (un sopracciglio che scatta,
        le labbra che si premono, un'ombra di sorriso) che nessuno decide e tutti notano ── */
     var mi = this.micro; mi.prossima -= dt;
-    if (mi.prossima <= 0 && !lento) {
+    if (mi.prossima <= 0 && !lento && Z < 0.3) {
       var possibili = st === 'ascolta' ? ['sopra', 'sopraUno', 'stretto', 'mezzo'] : st === 'pensa' ? ['stretto', 'accigliato', 'sopraUno', 'naso'] : ['mezzo', 'sopra', 'sorriso', 'stretto'];
       mi.k = possibili[Math.floor(Math.random() * possibili.length)]; mi.fino = T + 0.18 + Math.random() * 0.22; mi.prossima = (st === 'attesa' ? 4 : 2.2) + Math.random() * 3;
     }
@@ -465,7 +488,7 @@
     this.prossimo -= dt;
     if (this.prossimo <= 0 && !lento) { this.palp = 1; this.prossimo = Math.random() < 0.15 ? 0.3 : (2 + 3 * C + (st === 'ascolta' ? 1.5 : 0)) + Math.random() * 4; }
     var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0; this.palp = Math.max(0, this.palp - dt / 0.13);
-    var apBase = O[0] * (1 - 0.32 * C) + (1 - forza) * (1 - O[0]), asi = O[1] * forza;
+    var apBase = (O[0] * (1 - 0.32 * C) + (1 - forza) * (1 - O[0])) * (1 - 0.72 * Z), asi = O[1] * forza * (1 - Z);
     var ap0 = lento ? apBase : molla(M.ap0, apBase * (1 + asi), RIGIDO.ap0, dt), ap1 = lento ? apBase : molla(M.ap1, apBase * (1 - asi), RIGIDO.ap1, dt);
     ap0 = Math.max(0.04, ap0 * (1 - 0.96 * chiuso)); ap1 = Math.max(0.04, ap1 * (1 - 0.96 * chiuso)); this.apVis = [ap0, ap1];
     /* lo sguardo: il puntatore, piu' micro-saccadi (meno quando e' concentrata), qualche occhiata altrove */
@@ -485,13 +508,13 @@
     var pulsa = st === 'pensa' ? (0.16 + 0.2 * C) * Math.sin(T * (6 + 6 * C)) : st === 'ascolta' ? 0.12 * Math.sin(T * 4.5) : 0.04 * Math.sin(T * 1.3);
     var col = this._tmp.copy(this.colore).lerp(this.tinta, emo === 'serena' || emo === 'neutro' ? 0 : 0.75).lerp(this._tmp2 || (this._tmp2 = this.colore.clone().setHex(0x2f6be8)), 0.55 * C);
     this.coloreOcchi = '#' + col.getHexString();
-    this.matOcchi.color.copy(col).convertSRGBToLinear().multiplyScalar((0.95 + 0.3 * pulsa + 0.1 * mente.attenzione + 0.7 * C) * (1 - 0.5 * chiuso));
+    this.matOcchi.color.copy(col).convertSRGBToLinear().multiplyScalar((0.95 + 0.3 * pulsa + 0.1 * mente.attenzione + 0.7 * C) * (1 - 0.5 * chiuso) * (1 - 0.55 * Z));
     this.luceOcchi.color.copy(col); this.luceOcchi.intensity = (0.32 + 0.2 * pulsa + 0.4 * C) * (1 - chiuso);
     /* ── la testa: sguardo, cenni, respiro, inclinazioni; concentrata si sporge appena ── */
     this.cenno = Math.max(0, (this.cenno || 0) - dt * 2.4);
     var cennoAng = Math.sin((1 - this.cenno) * Math.PI) * this.cenno * 0.09;
-    var resp = lento ? 0 : Math.sin(T * (1.05 + 0.25 * C));
-    var inclina = molla(M.inclina, (P.inclina || 0) * forza, RIGIDO.inclina, dt), alza = molla(M.alza, (P.alza || 0) * forza + 0.05 * C, RIGIDO.alza, dt);
+    this.fase = (this.fase || 0) + dt * (1.05 + 0.25 * C - 0.45 * Z); var resp = lento ? 0 : Math.sin(this.fase) * (1 + 0.6 * Z);
+    var inclina = molla(M.inclina, (P.inclina || 0) * forza, RIGIDO.inclina, dt), alza = molla(M.alza, (P.alza || 0) * forza + 0.05 * C + 0.1 * Z, RIGIDO.alza, dt);
     this.perno.rotation.y = lento ? 0 : this.mira.x * 0.42;
     this.perno.rotation.x = this.riposo + (lento ? 0 : this.mira.y * 0.24 + 0.012 * resp + cennoAng + 0.015 * this.boc + alza);
     this.perno.rotation.z = lento ? 0 : inclina + 0.012 * Math.sin(T * 0.6) * (1 - C) + this.mira.x * 0.04;
