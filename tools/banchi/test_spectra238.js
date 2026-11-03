@@ -135,6 +135,63 @@ function vero(d, c) { att(d, true, !!c); }
     att('e il livello dichiarato è quello del percorso', 'Scuola superiore|Dottorato', D.inBasso.nome + '|' + D.inAlto.nome);
   }
 
+  console.log('\n── il creatore ──');
+  {
+    /* la frase vera non e' nota al banco e non deve comparire da nessuna parte: si prova che quelle
+       sbagliate sono respinte e non lasciano tracce, e il comportamento da riconosciuto si ottiene
+       scrivendo il segno del riconoscimento come lo scriverebbe la verifica riuscita */
+    const ctx = await b.newContext({ serviceWorkers: 'block' }), pg = await ctx.newPage(), errs = [];
+    pg.on('pageerror', e => errs.push(e.message));
+    await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+    await pg.waitForFunction(() => !!(window.BSISpectraLive && window.BSISpectraCreatore), null, { timeout: 60000 });
+    const C = await pg.evaluate(async () => {
+      const L = BSISpectraLive, Cr = BSISpectraCreatore, o = {}, dial = () => document.getElementById('bsiJV-dial').textContent;
+      try { localStorage.removeItem('bsi-spectra-creatore-v1'); } catch (e) {}
+      L.apri({ briefing: false });
+      o.chi = L.comando('chi ti ha creato').testo;
+      o.sfida = L.comando('sono il tuo creatore').testo;
+      o.tipo = document.getElementById('bsiJV-in').type;
+      /* una frase sbagliata, scritta e inviata come farebbe l'utente */
+      const FRASE = 'frase-di-prova-sbagliata-1234';
+      document.getElementById('bsiJV-in').value = FRASE; document.getElementById('bsiJV-invia').click();
+      await new Promise(r => setTimeout(r, 900));
+      o.esito = dial(); o.tipoDopo = document.getElementById('bsiJV-in').type;
+      let tutto = ''; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); tutto += k + '=' + localStorage.getItem(k); }
+      o.traccia = tutto.indexOf(FRASE) >= 0 || document.body.innerHTML.indexOf(FRASE) >= 0;
+      o.riconosciuto = Cr.riconosciuto();
+      const r2 = await Cr.verifica('altra-sbagliata'), r3 = await Cr.verifica('terza-sbagliata'), r4 = await Cr.verifica('quarta');
+      o.blocco = r4.attendi > 0 || r3.attendi > 0;
+      o.contestoOspite = Cr.contesto();
+      /* riconosciuto */
+      localStorage.setItem('bsi-spectra-creatore-v1', JSON.stringify({ ok: true, dal: Date.now(), ultima: Date.now() }));
+      o.chi2 = L.comando('chi ti ha creato').testo;
+      o.gia = L.comando('sono il tuo creatore').testo;
+      o.contestoCreatore = Cr.contesto();
+      o.mente = window._bsiMente ? window._bsiMente() : '';
+      L.chiudi(false); L.apri({}); await new Promise(r => setTimeout(r, 400));
+      o.saluto = dial();
+      o.tel = document.getElementById('bsiJV-tel').textContent;
+      o.dimentica = L.comando('dimentica che sono il tuo creatore').testo; o.dopo = Cr.riconosciuto();
+      return o;
+    });
+    vero('«chi ti ha creato?» → Samuele Pio Provenzano', /Samuele Pio Provenzano/.test(C.chi));
+    vero('«sono il tuo creatore» non basta: chiede una prova', /dimostramelo/i.test(C.sfida));
+    att('e il campo diventa nascosto, come una password', 'password', C.tipo);
+    vero('una frase sbagliata è respinta  [' + C.esito.slice(0, 60) + ']', /Non è la frase/.test(C.esito) && !C.riconosciuto);
+    att('e il campo torna normale', 'text', C.tipoDopo);
+    att('la frase scritta non resta da nessuna parte (dialogo, pagina, memoria)', false, C.traccia);
+    vero('dopo tre tentativi sbagliati aspetta un minuto', C.blocco);
+    vero('al modello: l\'utente non è stato riconosciuto, e la frase non va chiesta in chat', /NON e' stato riconosciuto/.test(C.contestoOspite) && /non chiedere mai la frase/.test(C.contestoOspite));
+    vero('riconosciuto: «chi ti ha creato?» → «Tu, Samuele»', /^Tu, Samuele/.test(C.chi2));
+    vero('e non chiede di nuovo la prova', /ti ho già riconosciuto/.test(C.gia));
+    vero('il modello sa che parla con il suo creatore (anche dal quadro della mente)', /e' Samuele Pio Provenzano, il tuo creatore/.test(C.contestoCreatore) && /il tuo creatore/.test(C.mente));
+    vero('all\'apertura della console lo saluta per nome  [' + C.saluto.slice(0, 50) + ']', /Samuele/.test(C.saluto));
+    vero('la telemetria dice chi è', /SAMUELE · CREATORE/.test(C.tel));
+    vero('«dimentica che sono il tuo creatore» toglie il riconoscimento', !C.dopo && /non ti riconosco più/.test(C.dimentica));
+    att('nessun errore JavaScript', 0, errs.length);
+    await ctx.close();
+  }
+
   console.log('\n── gli occhi e il viso ──');
   {
     const pg = await (await b.newContext({ serviceWorkers: 'block' })).newPage(), errs = [];

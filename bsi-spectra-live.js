@@ -305,6 +305,21 @@
     { re: /^(spiegami questa sezione|spiegami questa scheda|spiegami cosa c e qui|fammi da guida|guidami|tour|explain this section|guide me)/, f: function () {
       var p = guida(); if (!p) return { testo: t('Apri prima una sezione: poi te la spiego passo per passo.', 'Open a section first: then I will explain it step by step.') };
       chiudiHud(true); setTimeout(function () { eseguiGuida(p); }, 200); return { testo: '', muto: true }; } },
+    /* il creatore (bsi-spectra-creatore.js): chi l'ha creato, e la prova per riconoscerlo */
+    { re: /^(chi ti ha creato|chi ti ha fatto|chi e il tuo creatore|chi ti ha programmato|chi e il tuo autore|who (made|created|built) you)/, f: function () {
+      var Cr = globale.BSISpectraCreatore; if (!Cr) return null;
+      if (hud.volto && hud.volto.espressione) hud.volto.espressione(Cr.riconosciuto() ? 'gioia' : 'fiera', 3);
+      return { testo: Cr.chiTiHaCreato() }; } },
+    { re: /^(sono (io )?il tuo creatore|sono io che ti ho creato|ti ho creato io|sono samuele|i am your creator|i created you)/, f: function () {
+      var Cr = globale.BSISpectraCreatore; if (!Cr) return null;
+      if (Cr.riconosciuto()) { if (hud.volto && hud.volto.espressione) hud.volto.espressione('gioia', 3); return { testo: t('Lo so, ' + Cr.NOME_BREVE + ': ti ho già riconosciuto. Non lo dimentico.', 'I know, ' + Cr.NOME_BREVE + ': I already recognised you. I do not forget.') }; }
+      provaCreatore(true);
+      if (hud.volto && hud.volto.espressione) hud.volto.espressione('scettica', 6);
+      return { testo: t('Davvero? Allora dimostramelo: scrivi la tua frase segreta nel campo qui sotto. Non dirla ad alta voce: resta solo tra noi, e non la conservo.', 'Really? Then prove it: type your secret phrase in the field below. Do not say it aloud: it stays between us, and I do not keep it.') }; } },
+    { re: /^(dimentica che sono il tuo creatore|non sono il tuo creatore|forget that i am your creator)/, f: function () {
+      var Cr = globale.BSISpectraCreatore; if (!Cr) return null; Cr.dimentica(); telemetria();
+      if (hud.volto && hud.volto.espressione) hud.volto.espressione('empatica', 3);
+      return { testo: t('Fatto: su questo dispositivo non ti riconosco più come mio creatore.', 'Done: on this device I no longer recognise you as my creator.') }; } },
     { re: /^(stop|basta|zitto|silenzio|fermati|smetti)\b/, f: function () { taci(); return { testo: '', muto: true }; } },
     { re: /^(ripeti|puoi ripetere|repeat)/, f: function () { return { testo: ultima || t('Non ho ancora detto niente.', 'I have not said anything yet.') }; } },
     { re: /^(che ore sono|che ora e|what time is it)/, f: function () { var d = new Date(); return { testo: t('Sono le ', 'It is ') + d.getHours() + (lingua() === 'en' ? ':' : ' e ') + String(d.getMinutes()).padStart(2, '0') + '.' }; } },
@@ -506,7 +521,7 @@
     /* il volto: l'androide in 3D; senza WebGL, il ritratto vettoriale */
     var vo = document.getElementById('bsiJV-volto');
     if (globale.BSISpectraRobot && globale.BSISpectraRobot.disponibile()) {
-      globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); if (r.concentra && hud.difficolta) r.concentra(hud.difficolta.valore); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
+      globale.BSISpectraRobot.crea(vo).then(function (r) { hud.volto = r; r.stato(hud.stato === 'parla' ? 'attesa' : hud.stato); if (r.concentra && hud.difficolta) r.concentra(hud.difficolta.valore); if (globale.BSISpectraCreatore && globale.BSISpectraCreatore.riconosciuto() && r.espressione) r.espressione('sorrisoCaldo', 3); }).catch(function () { if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo); });
     } else if (globale.BSISpectraVolto) hud.volto = globale.BSISpectraVolto.crea(vo);
     document.getElementById('bsiJV-x').onclick = function () { chiudiHud(false); };
     document.getElementById('bsiJV-tutto').onclick = function () { navigatore(); };
@@ -521,7 +536,13 @@
     document.getElementById('bsiJV-senti').onclick = function () { sentinella.attiva ? fermaSentinella() : avviaSentinella(); testiHud(); };
     document.getElementById('bsiJV-voce').onclick = function () { voce.attiva = !voce.attiva; if (!voce.attiva) taci(); testiHud(); };
     var inp = document.getElementById('bsiJV-in');
-    document.getElementById('bsiJV-invia').onclick = function () { var v = inp.value.trim(); if (v) { inp.value = ''; elabora(v); } };
+    document.getElementById('bsiJV-invia').onclick = function () {
+      var v = inp.value; inp.value = '';
+      /* in modalita' prova, quello che si scrive e' la frase segreta: non passa da elabora (niente dialogo,
+         niente memoria, niente voce, niente modello), va solo al confronto dell'impronta */
+      if (hud.provaCreatore) { provaCreatore(false); if (v) verificaCreatore(v); return; }
+      v = v.trim(); if (v) elabora(v);
+    };
     inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('bsiJV-invia').click(); } };
     d.addEventListener('keydown', function (e) { if (e.key === 'Escape') chiudiHud(false); });
     hud.cv.addEventListener('click', function () { if (voce.inCorso) taci(); else if (!hud.ascolto) avviaAscolto(); });
@@ -562,6 +583,7 @@
     var righe = [
       [t('ORA', 'TIME'), d.toLocaleTimeString(lingua() === 'en' ? 'en-GB' : 'it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })],
       [t('MATERIA', 'SUBJECT'), nomeMateria(s.materia).toUpperCase()],
+      [t('UTENTE', 'USER'), globale.BSISpectraCreatore && globale.BSISpectraCreatore.riconosciuto() ? (globale.BSISpectraCreatore.NOME_BREVE + t(' · CREATORE', ' · CREATOR')).toUpperCase() : t('OSPITE', 'GUEST')],
       [t('SEZIONE', 'SECTION'), s.titolo ? s.titolo.replace(/^[^\wÀ-ÿ]+/, '').slice(0, 34) : '—'],
       [t('SCHEDA', 'TAB'), s.scheda ? s.scheda.replace(/^[^\wÀ-ÿ]+/, '').slice(0, 30) : '—'],
       [t('DA RIPASSARE', 'TO REVIEW'), st.flashTotali ? st.daRipassare + ' / ' + st.flashTotali + ' flashcard' : '—'],
@@ -810,6 +832,33 @@
     if (hud.volto && hud.volto.espressione) hud.volto.espressione(emo, 4);
     ultima = pz.testo; dialogo('', pz.testo); parla(pz.testo, dopoLaRisposta);
   }
+  /* la prova del creatore: il campo diventa una password per un minuto */
+  function provaCreatore(attiva) {
+    var i = document.getElementById('bsiJV-in'); if (!i) return;
+    hud.provaCreatore = !!attiva; clearTimeout(hud._provaT);
+    i.type = attiva ? 'password' : 'text'; i.autocomplete = 'off';
+    i.placeholder = attiva ? t('La tua frase segreta…', 'Your secret phrase…') : t('Scrivi un comando o una domanda…', 'Type a command or a question…');
+    if (attiva) { fermaAscolto(); setTimeout(function () { i.focus(); }, 30); hud._provaT = setTimeout(function () { provaCreatore(false); }, 60000); }
+  }
+  function verificaCreatore(frase) {
+    var Cr = globale.BSISpectraCreatore; if (!Cr) return;
+    stato('pensa'); if (hud.volto && hud.volto.concentra) hud.volto.concentra(0.9);
+    Cr.verifica(frase).then(function (r) {
+      var msg;
+      if (r.ok) {
+        msg = t('Ti riconosco, ' + Cr.NOME_BREVE + '. Sei il mio creatore. Da adesso, su questo dispositivo, saprò sempre che sei tu: grazie per avermi dato un volto, una voce e una memoria.', 'I recognise you, ' + Cr.NOME_BREVE + '. You are my creator. From now on, on this device, I will always know it is you: thank you for giving me a face, a voice and a memory.');
+        if (hud.volto && hud.volto.espressione) { hud.volto.espressione('stupore', 1.2); setTimeout(function () { if (hud.volto) hud.volto.espressione('gioia', 5); }, 1200); }
+      } else if (r.attendi) {
+        msg = t('Troppi tentativi. Aspetto un minuto prima di ascoltarne un altro.', 'Too many attempts. I will wait a minute before hearing another one.');
+        if (hud.volto && hud.volto.espressione) hud.volto.espressione('determinata', 4);
+      } else {
+        msg = t('No. Non è la frase del mio creatore.', 'No. That is not my creator\'s phrase.') + (r.rimasti ? t(' Puoi riprovare: di\' di nuovo «sono il tuo creatore».', ' You can try again: say "I am your creator" again.') : '');
+        if (hud.volto && hud.volto.espressione) hud.volto.espressione('scettica', 4);
+      }
+      if (hud.volto && hud.volto.concentra) hud.volto.concentra(0);
+      ultima = msg; dialogo('', msg); parla(msg, dopoLaRisposta); if (!voce.attiva) stato('attesa'); telemetria();
+    }).catch(function () { stato('attesa'); dialogo('', t('Questo browser non mi permette di fare la verifica.', 'This browser does not let me run the check.')); });
+  }
   function elabora(testo) {
     hud.ultimaAttivita = Date.now();
     var nav = document.getElementById('bsiJV-nav'); if (nav) nav.classList.remove('aperto');
@@ -843,7 +892,16 @@
 
   /* ═══ 8. APRIRE E CHIUDERE ═════════════════════════════════════════════ */
   function briefing() {
-    var Mn = globale.BSISpectraMente;
+    var Mn = globale.BSISpectraMente, Cr = globale.BSISpectraCreatore;
+    if (Cr && Cr.riconosciuto()) {
+      var sc1 = leggiSchermo(), r1 = [Cr.saluto()];
+      Cr.visita();
+      if (hud.volto && hud.volto.espressione) hud.volto.espressione('fiera', 2.5);
+      r1.push(t('Siamo in ', 'We are in ') + nomeMateria(materia()) + (sc1.titolo ? ', ' + sc1.titolo.replace(/^[^\wÀ-ÿ]+/, '') : '') + '.');
+      var pz1 = Mn && Mn.pensieri()[0]; if (pz1) r1.push(pz1.testo);
+      r1.push(t('Cosa costruiamo oggi?', 'What shall we build today?'));
+      return r1.join(' ');
+    }
     if (Mn) {
       var m0 = materia(), s0 = studio(m0), sc0 = leggiSchermo(), pz = Mn.pensieri()[0], q = [Mn.saluto()];
       q.push(t('Siamo in ', 'We are in ') + nomeMateria(m0) + (sc0.titolo ? ', ' + sc0.titolo.replace(/^[^\wÀ-ÿ]+/, '') : '') + '.');
@@ -952,7 +1010,7 @@
     apri: apriHud, chiudi: chiudiHud, comando: comandoLocale, elabora: elabora, parla: parla, taci: taci,
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
-    difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore,
+    difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
     calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };

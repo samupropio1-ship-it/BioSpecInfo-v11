@@ -154,7 +154,9 @@
   /* ── il quadro che va al modello a ogni domanda ──────────────────────── */
   function coscienza() {
     var p = profilo(), s = M.stato, pens = pensieri()[0];
-    if (!p.episodi && !p.minuti) return '';
+    /* chi e' l'autore, e se e' lui a parlare (bsi-spectra-creatore.js) */
+    var cr = globale.BSISpectraCreatore ? globale.BSISpectraCreatore.contesto() : '';
+    if (!p.episodi && !p.minuti) return cr;
     var r = '\n[MEMORIA E STATO DI SPECTRA — continuita\' con questo utente; usala con naturalezza, senza elencarla]\n';
     r += 'Tempo di studio registrato: ' + p.minuti + ' min (chimica ' + p.perMateria.chimica + ', fisica ' + p.perMateria.fisica + ', matematica ' + p.perMateria.matematica + ').';
     if (p.preferite.length) r += ' Sezioni piu\' frequentate: ' + p.preferite.slice(0, 3).map(function (x) { return x.nome + ' (' + Math.round(x.s / 60) + ' min)'; }).join(', ') + '.';
@@ -163,7 +165,7 @@
     if (p.ultimiArgomenti.length) r += '\nUltime domande: ' + p.ultimiArgomenti.slice(-3).map(function (d) { return '«' + d.slice(0, 70) + '»'; }).join('; ') + '.';
     r += '\nStato interno: curiosita\' ' + Math.round(s.curiosita * 100) + '%, attenzione ' + Math.round(s.attenzione * 100) + '%, premura ' + Math.round(s.premura * 100) + '%, umore ' + Math.round(s.umore * 100) + '%, legame con l\'utente ' + Math.round(s.legame * 100) + '%' + (s.premura > 0.6 ? ' (l\'utente studia da molto o e\' tardi: sii conciso e suggerisci una pausa se opportuno)' : '') + '.';
     if (pens) r += '\nOsservazione da proporre se pertinente: ' + pens.testo;
-    return r + '\n';
+    return r + '\n' + cr;
   }
 
   function cosaRicordi() {
