@@ -15,7 +15,11 @@
    · STRUTTURE DI TURING: il modello di Gray-Scott su una griglia, due
      specie che reagiscono e diffondono a velocita' diverse; da una piccola
      perturbazione nascono macchie, strisce, labirinti, cellule che si
-     dividono.
+     dividono;
+   · URTI IN 3D (v238): sfere dure in una scatola, ogni urto misura
+     l'energia lungo la congiungente dei centri; se supera Ea la coppia A + B
+     reagisce. La frazione di urti sopra soglia e' e^(−Ea/RT): il fattore di
+     Arrhenius visto nascere dagli urti.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -64,7 +68,65 @@
     }
     return { N: N, semina: semina, passo: passo, u: function () { return u; }, v: function () { return v; } };
   }
-  F.calcolo.cinetica = { consecutive: consecutive, brusselatore: brusselatore, periodo: periodo, grayScott: grayScott };
+
+  /* ═══ calcoli: gli urti molecolari (v238) ══════════════════════════════
+     Sfere dure di massa 1 e raggio r in una scatola di lato L con pareti
+     elastiche, velocita' di Maxwell a kT (unita' ridotte). Un urto fra i e j
+     scambia la componente della velocita' relativa lungo la congiungente n;
+     l'energia "utile" per la reazione e' quella lungo n,
+     E_c = ½ μ (v_rel·n)², μ = ½. Per un gas all'equilibrio la frazione di
+     urti con E_c ≥ E₀ e' esattamente e^(−E₀/kT) (teoria delle collisioni
+     con la linea dei centri): e' il fattore di Arrhenius. Le specie: 0 = A,
+     1 = B, 2 = C, 3 = D; un urto A–B sopra soglia diventa C + D. */
+  function gasUrti(N, L, r, kT, seme) {
+    var q = (seme || 3) >>> 0, rnd = function () { q = (q + 0x6D2B79F5) >>> 0; var z = Math.imul(q ^ (q >>> 15), 1 | q); z = (z + Math.imul(z ^ (z >>> 7), 61 | z)) ^ z; return ((z ^ (z >>> 14)) >>> 0) / 4294967296; };
+    var x = new Float64Array(3 * N), v = new Float64Array(3 * N), sp = new Int8Array(N), k = 0, tent = 0;
+    while (k < N && tent < 200 * N) {
+      tent++; var p = [r + (L - 2 * r) * rnd(), r + (L - 2 * r) * rnd(), r + (L - 2 * r) * rnd()], libero = true;
+      for (var j = 0; j < k && libero; j++) if (Math.hypot(p[0] - x[3 * j], p[1] - x[3 * j + 1], p[2] - x[3 * j + 2]) < 2.05 * r) libero = false;
+      if (!libero) continue;
+      x[3 * k] = p[0]; x[3 * k + 1] = p[1]; x[3 * k + 2] = p[2]; sp[k] = k % 2; k++;
+    }
+    var g = [0, 0, 0];
+    for (k = 0; k < 3 * N; k++) { var u1 = Math.max(1e-12, rnd()), u2 = rnd(); v[k] = Math.sqrt(kT) * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); g[k % 3] += v[k]; }
+    for (k = 0; k < 3 * N; k++) v[k] -= g[k % 3] / N;
+    var G = { N: N, L: L, r: r, x: x, v: v, sp: sp, t: 0, urti: 0, sopra: 0, urtiAB: 0, reazioni: 0, eventi: [] };
+    G.kT = kT; scalaKT(G, kT); return G;
+  }
+  function energiaCin(G) { var e = 0; for (var k = 0; k < 3 * G.N; k++) e += 0.5 * G.v[k] * G.v[k]; return e; }
+  /* porta l'energia cinetica media a (3/2)kT */
+  function scalaKT(G, kT) { var f = Math.sqrt(1.5 * kT * G.N / energiaCin(G)); for (var k = 0; k < 3 * G.N; k++) G.v[k] *= f; G.kT = kT; }
+  function passoUrti(G, dt, E0) {
+    var N = G.N, L = G.L, r = G.r, x = G.x, v = G.v, d2 = 4 * r * r;
+    for (var k = 0; k < 3 * N; k++) {
+      x[k] += v[k] * dt;
+      if (x[k] < r) { x[k] = 2 * r - x[k]; v[k] = -v[k]; } else if (x[k] > L - r) { x[k] = 2 * (L - r) - x[k]; v[k] = -v[k]; }
+    }
+    /* le coppie vicine con una griglia di celle di lato ≥ 2r */
+    var nc = Math.max(1, Math.floor(L / (2 * r))), lc = L / nc, testa = new Int32Array(nc * nc * nc).fill(-1), dopo = new Int32Array(N), cel = function (q) { return Math.max(0, Math.min(nc - 1, Math.floor(q / lc))); };
+    for (var i = 0; i < N; i++) { var c = (cel(x[3 * i]) * nc + cel(x[3 * i + 1])) * nc + cel(x[3 * i + 2]); dopo[i] = testa[c]; testa[c] = i; }
+    for (i = 0; i < N; i++) {
+      var ci = cel(x[3 * i]), cj = cel(x[3 * i + 1]), ck = cel(x[3 * i + 2]);
+      for (var a = Math.max(0, ci - 1); a <= Math.min(nc - 1, ci + 1); a++) for (var b = Math.max(0, cj - 1); b <= Math.min(nc - 1, cj + 1); b++) for (var e = Math.max(0, ck - 1); e <= Math.min(nc - 1, ck + 1); e++) {
+        for (var j = testa[(a * nc + b) * nc + e]; j >= 0; j = dopo[j]) {
+          if (j <= i) continue;
+          var dx = x[3 * i] - x[3 * j], dy = x[3 * i + 1] - x[3 * j + 1], dz = x[3 * i + 2] - x[3 * j + 2], q2 = dx * dx + dy * dy + dz * dz;
+          if (q2 >= d2 || q2 === 0) continue;
+          var dd = Math.sqrt(q2), nx = dx / dd, ny = dy / dd, nz = dz / dd, vn = (v[3 * i] - v[3 * j]) * nx + (v[3 * i + 1] - v[3 * j + 1]) * ny + (v[3 * i + 2] - v[3 * j + 2]) * nz;
+          if (vn >= 0) continue;   /* si stanno gia' allontanando */
+          v[3 * i] -= vn * nx; v[3 * i + 1] -= vn * ny; v[3 * i + 2] -= vn * nz; v[3 * j] += vn * nx; v[3 * j + 1] += vn * ny; v[3 * j + 2] += vn * nz;
+          var Ec = 0.25 * vn * vn;   /* ½ μ v_n², μ = ½ */
+          G.urti++; if (Ec >= E0) G.sopra++;
+          var ab = (G.sp[i] === 0 && G.sp[j] === 1) || (G.sp[i] === 1 && G.sp[j] === 0);
+          if (ab) { G.urtiAB++; if (Ec >= E0) { G.reazioni++; G.sp[i] += 2; G.sp[j] += 2; G.eventi.push([(x[3 * i] + x[3 * j]) / 2, (x[3 * i + 1] + x[3 * j + 1]) / 2, (x[3 * i + 2] + x[3 * j + 2]) / 2]); } }
+        }
+      }
+    }
+    G.t += dt;
+  }
+  /* frequenza di urto per particella della teoria cinetica: z = √2 n π d² ⟨v⟩, ⟨v⟩ = √(8kT/πm) */
+  function frequenzaUrti(N, L, r, kT) { var d = 2 * r; return Math.SQRT2 * N / (L * L * L) * Math.PI * d * d * Math.sqrt(8 * kT / Math.PI); }
+  F.calcolo.cinetica = { consecutive: consecutive, brusselatore: brusselatore, periodo: periodo, grayScott: grayScott, gasUrti: gasUrti, passoUrti: passoUrti, scalaKT: scalaKT, energiaCin: energiaCin, frequenzaUrti: frequenzaUrti };
 
   /* ═══ 1. reazioni composte ══════════════════════════════════════════════ */
   function schedaComposte(div) {

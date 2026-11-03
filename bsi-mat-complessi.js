@@ -211,7 +211,138 @@
     prepara(); F.alRidimensiona(disegna);
   }
 
-  F.calcolo.complessi = { Z: Z, valutaZ: valutaZ, leggiZ: leggiZ, strZ: strZ, radici: radici, coefficienti: coefficienti, coeffOnda: coeffOnda, somma: somma, ONDE: ONDE };
+  /* ── la sfera di Riemann (v238) ──────────────────────────────────────────
+     Sfera unitaria, piano complesso z = x + iy come piano equatoriale, proiezione dal polo nord
+     N = (0, 0, 1): z ↦ (2x, 2y, |z|² − 1)/(|z|² + 1), inversa (X, Y, Z) ↦ (X + iY)/(1 − Z), e ∞ ↦ N.
+     Rette e cerchi del piano diventano cerchi sulla sfera (le rette: cerchi per N). Una rotazione
+     di angolo θ attorno all'asse n e' la trasformazione di Möbius f(z) = (az + b)/(cz + d) con
+     a = cos(θ/2) + i n_z sin(θ/2), b = (−n_y + i n_x) sin(θ/2), c = (n_y + i n_x) sin(θ/2),
+     d = cos(θ/2) − i n_z sin(θ/2) (una matrice di SU(2)): proiettare, ruotare e riproiettare
+     e' lo stesso che applicare f. */
+  function stereo(z) { var r = z[0] * z[0] + z[1] * z[1]; return [2 * z[0] / (r + 1), 2 * z[1] / (r + 1), (r - 1) / (r + 1)]; }
+  function stereoInv(P) { var d = 1 - P[2]; return d < 1e-15 ? null : [P[0] / d, P[1] / d]; }
+  function mobiusRotazione(n, th) { var c = Math.cos(th / 2), s = Math.sin(th / 2); return { a: [c, n[2] * s], b: [-n[1] * s, n[0] * s], c: [n[1] * s, n[0] * s], d: [c, -n[2] * s] }; }
+  function applicaMobius(M, z) { var num = Z.add(Z.mul(M.a, z), M.b), den = Z.add(Z.mul(M.c, z), M.d); /* il polo: il denominatore e' nullo rispetto al numeratore (con un angolo di π esatto cos(π/2) vale 6e-17, non 0) */
+    var dn = Math.hypot(den[0], den[1]), nn = Math.hypot(num[0], num[1]); return dn < 1e-300 || dn < 1e-13 * nn ? null : Z.div(num, den); }
+  function ruota3(n, th, p) { var c = Math.cos(th), s = Math.sin(th), d = n[0] * p[0] + n[1] * p[1] + n[2] * p[2], x = [n[1] * p[2] - n[2] * p[1], n[2] * p[0] - n[0] * p[2], n[0] * p[1] - n[1] * p[0]]; return [p[0] * c + x[0] * s + n[0] * d * (1 - c), p[1] * c + x[1] * s + n[1] * d * (1 - c), p[2] * c + x[2] * s + n[2] * d * (1 - c)]; }
+  /* il cerchio immagine di una figura: piano per quattro punti dell'immagine (scarto dalla complanarita') */
+  function complanarita(P) { var u = [P[1][0] - P[0][0], P[1][1] - P[0][1], P[1][2] - P[0][2]], v = [P[2][0] - P[0][0], P[2][1] - P[0][1], P[2][2] - P[0][2]], n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]], l = Math.hypot(n[0], n[1], n[2]) || 1, m = 0; for (var i = 3; i < P.length; i++) m = Math.max(m, Math.abs(((P[i][0] - P[0][0]) * n[0] + (P[i][1] - P[0][1]) * n[1] + (P[i][2] - P[0][2]) * n[2]) / l)); return m; }
+  /* le figure del piano come elenco di curve, ciascuna una funzione s ∈ [0, 1] → z */
+  function figure(tipo, z1, z2) {
+    var out = [], k, L = 6;
+    if (tipo === 'griglia') { for (k = -3; k <= 3; k++) { out.push({ col: 0x5eead4, f: (function (k) { return function (s) { return [k * 0.75, -L + 2 * L * s]; }; })(k) }); out.push({ col: 0xffd24a, f: (function (k) { return function (s) { return [-L + 2 * L * s, k * 0.75]; }; })(k) }); } }
+    else if (tipo === 'polare') { [0.35, 0.7, 1, 1.5, 2.4].forEach(function (r) { out.push({ col: r === 1 ? 0xffffff : 0x5eead4, f: function (s) { return [r * Math.cos(2 * Math.PI * s), r * Math.sin(2 * Math.PI * s)]; } }); }); for (k = 0; k < 8; k++) out.push({ col: 0xffd24a, f: (function (k) { return function (s) { var r = Math.tan(s * Math.PI / 2 * 0.985), a = Math.PI * k / 4; return [r * Math.cos(a), r * Math.sin(a)]; }; })(k) }); }
+    else if (tipo === 'retta') { var d = [z2[0] - z1[0], z2[1] - z1[1]], l = Math.hypot(d[0], d[1]) || 1; out.push({ col: 0xffd24a, f: function (s) { var q = Math.tan((s - 0.5) * Math.PI * 0.985); return [z1[0] + d[0] / l * q, z1[1] + d[1] / l * q]; } }); }
+    else { var r0 = Math.hypot(z2[0] - z1[0], z2[1] - z1[1]); out.push({ col: 0xffd24a, f: function (s) { return [z1[0] + r0 * Math.cos(2 * Math.PI * s), z1[1] + r0 * Math.sin(2 * Math.PI * s)]; } }); }
+    return out;
+  }
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'), posto = F.el('div');
+      g.appendChild(pan); g.appendChild(dx); div.appendChild(g); dx.appendChild(posto);
+      var vista = costruisci(pan, dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaRiemann(pan) {
+    var st = { fig: 'griglia', asse: 'x', ang: 90, z0: '1 + i', z1: '-1 + i', z2: '2', pausa: false }, S = null, T = null, lab = null, ogg = {}, tempo = 0, ultimo = 0, P0 = [1, 1], Z1 = [-1, 1], Z2 = [2, 0], curve = [];
+    var ASSI = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1], d: [1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3)] };
+    F.scelta(pan, ['Figura nel piano', 'Figure in the plane'], [['griglia', t('reticolo di rette', 'grid of lines')], ['polare', t('cerchi |z| = r e raggi', 'circles |z| = r and rays')], ['retta', t('la retta per z₁ e z₂', 'the line through z₁ and z₂')], ['cerchio', t('il cerchio di centro z₁ per z₂', 'the circle centred at z₁ through z₂')]], st.fig, function (v) { st.fig = v; scena(); });
+    var campi = [['z₀ (' + t('un punto', 'a point') + ')', 'z0'], ['z₁', 'z1'], ['z₂', 'z2']].map(function (q) { var inp = F.el('input', { type: 'text', value: st[q[1]], 'aria-label': q[0], spellcheck: 'false', autocomplete: 'off' }); pan.appendChild(F.el('div', { 'class': 'bsiFX-cursore' }, [F.el('label', null, [F.el('span', { testo: q[0] })]), inp])); inp.addEventListener('change', function () { st[q[1]] = inp.value; leggi(); scena(); }); return inp; });
+    F.scelta(pan, ['Asse della rotazione (Möbius)', 'Rotation axis (Möbius)'], [['x', t('asse reale (x)', 'real axis (x)')], ['y', t('asse immaginario (y)', 'imaginary axis (y)')], ['z', t('asse dei poli (z): f(z) = e^(iθ)z', 'polar axis (z): f(z) = e^(iθ)z')], ['d', t('diagonale (1, 1, 1)/√3', 'diagonal (1, 1, 1)/√3')]], st.asse, function (v) { st.asse = v; tempo = Math.min(tempo, 2.5); if (S) S.avvia(); });
+    F.cursore(pan, ['angolo massimo θ (°)', 'maximum angle θ (°)'], 0, 360, 5, st.ang, function (v) { st.ang = v; if (S) S.avvia(); }, function (v) { return v + '°'; });
+    var riga = F.el('div', { 'class': 'bsiFX-anim', role: 'group', 'aria-label': t('Controlli dell’animazione', 'Animation controls') });
+    var bp = F.el('button', { type: 'button', testo: '❚❚', 'aria-label': t('Pausa', 'Pause'), onclick: function () { st.pausa = !st.pausa; bp.textContent = st.pausa ? '▶' : '❚❚'; bp.setAttribute('aria-label', st.pausa ? t('Avvia', 'Play') : t('Pausa', 'Pause')); if (S) S.avvia(); } });
+    riga.appendChild(bp); riga.appendChild(F.el('button', { type: 'button', testo: '↺', 'aria-label': t('Ricomincia', 'Restart'), onclick: function () { tempo = 0; if (S) S.avvia(); } })); pan.appendChild(riga);
+    var info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Ogni punto z del piano complesso viene unito al polo nord N con un raggio: dove il raggio taglia la sfera c’è la sua immagine. Nei primi secondi le figure del piano salgono lungo questi raggi e si avvolgono sulla sfera: le rette diventano cerchi che passano per N (il punto all’infinito, ∞), i cerchi restano cerchi, il cerchio unitario diventa l’equatore e l’origine il polo sud. La proiezione stereografica conserva gli angoli (è conforme) e manda cerchi in cerchi. Poi la sfera ruota: riproiettata sul piano, la rotazione è una trasformazione di Möbius f(z) = (az + b)/(cz + d), e sotto si vede la figura del piano trasformata, in cui rette e cerchi si scambiano fra loro. Le rotazioni della sfera sono esattamente le Möbius con matrice in SU(2): qui la coincidenza è verificata punto per punto.',
+      'Each point z of the complex plane is joined to the north pole N by a ray: where the ray meets the sphere lies its image. In the first seconds the plane figures rise along these rays and wrap onto the sphere: lines become circles through N (the point at infinity, ∞), circles stay circles, the unit circle becomes the equator and the origin the south pole. Stereographic projection preserves angles (it is conformal) and sends circles to circles. Then the sphere turns: projected back to the plane, the rotation is a Möbius transformation f(z) = (az + b)/(cz + d), and below you see the transformed plane figure, where lines and circles turn into each other. Rotations of the sphere are exactly the Möbius maps with a matrix in SU(2): here the match is checked point by point.') }));
+    function leggi() {
+      try { P0 = leggiZ(st.z0); Z1 = leggiZ(st.z1); Z2 = leggiZ(st.z2); if (![P0, Z1, Z2].every(function (z) { return isFinite(z[0]) && isFinite(z[1]); })) throw new Error(t('numero non finito', 'non-finite number')); info.dataset.errore = ''; }
+      catch (e) { info.dataset.errore = t('Numero non valido: ', 'Invalid number: ') + e.message; }
+      if (st.fig === 'cerchio' && Math.hypot(Z2[0] - Z1[0], Z2[1] - Z1[1]) < 1e-9) Z2 = [Z1[0] + 1, Z1[1]];
+      if (st.fig === 'retta' && Math.hypot(Z2[0] - Z1[0], Z2[1] - Z1[1]) < 1e-9) Z2 = [Z1[0] + 1, Z1[1]];
+    }
+    var R = 2.4, H = 0;   /* raggio della sfera nella scena; il piano complesso e' z = 0 */
+    function v3(p) { return new T.Vector3(p[0] * R, p[1] * R, p[2] * R); }
+    function scena() {
+      if (!S) return;
+      S.pulisci(); ogg = {};
+      S.aggiungi(new T.Mesh(new T.SphereGeometry(R, 64, 40), new T.MeshStandardMaterial({ color: 0x7c6fff, transparent: true, opacity: 0.18, roughness: 0.4, depthWrite: false })));
+      ogg.globo = new T.LineSegments(new T.WireframeGeometry(new T.SphereGeometry(R * 1.001, 24, 12)), new T.LineBasicMaterial({ color: 0xc9b9ff, transparent: true, opacity: 0.12 })); S.aggiungi(ogg.globo);
+      /* il piano complesso (quadrato di lato 2·3,2 unita') e gli assi Re, Im */
+      var Lp = 2.6 * R; S.aggiungi(new T.Mesh(new T.PlaneGeometry(2 * Lp, 2 * Lp), new T.MeshBasicMaterial({ color: 0x1a3050, transparent: true, opacity: 0.35, side: T.DoubleSide, depthWrite: false })));
+      S.aggiungi(lab.linea(T, [[-Lp, 0, H], [Lp, 0, H]], 0x8494a8, 0.7)); S.aggiungi(lab.linea(T, [[0, -Lp, H], [0, Lp, H]], 0x8494a8, 0.7));
+      var eRe = lab.testo3d(T, 'Re', '#9fb1c6', 0.3); eRe.position.set(Lp * 1.04, 0, 0.1); S.aggiungi(eRe); var eIm = lab.testo3d(T, 'Im', '#9fb1c6', 0.3); eIm.position.set(0, Lp * 1.04, 0.1); S.aggiungi(eIm);
+      S.aggiungi(lab.sfera(T, 0.08, 0xffffff, 0, 0, R, true)); var eN = lab.testo3d(T, 'N = ∞', '#e6fffb', 0.3); eN.position.set(0.35, 0, R + 0.3); S.aggiungi(eN);
+      /* le curve: campionate in parametro; ogni curva ha tre oggetti (sulla sfera, nel piano, l'immagine di Möbius nel piano) */
+      curve = figure(st.fig, Z1, Z2).map(function (c) {
+        var n = 360, zs = []; for (var i = 0; i <= n; i++) zs.push(c.f(i / n));
+        var mk = function (col, op) { var g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(new Float32Array(n * 6), 3)); var l = new T.LineSegments(g, new T.LineBasicMaterial({ color: col, transparent: true, opacity: op })); l.frustumCulled = false; S.aggiungi(l); return l; };
+        return { zs: zs, P: zs.map(stereo), sfera: mk(c.col, 1), immagine: mk(c.col, 0.85) };
+      });
+      ogg.p0 = lab.sfera(T, 0.11, 0xff6b6b, 0, 0, 0, true); ogg.q0 = lab.sfera(T, 0.09, 0xff6b6b, 0, 0, 0, false); ogg.raggio = lab.linea(T, [[0, 0, R], [0, 0, 0]], 0xff8a80, 0.8); ogg.f0 = lab.sfera(T, 0.09, 0xffffff, 0, 0, 0, false);
+      [ogg.p0, ogg.q0, ogg.raggio, ogg.f0].forEach(function (o) { S.aggiungi(o); });
+      ogg.asse = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0xff9f43, 0.9); S.aggiungi(ogg.asse);
+      S.didascalia.textContent = t('sfera di Riemann sopra il piano complesso', 'Riemann sphere over the complex plane');
+      if (!S.vistaIniziale) S.inquadra(19, -0.75, 1.1);
+      S.ogniFotogramma(function (dt) { if (st.pausa) return false; tempo += dt; aggiorna(dt); });
+      aggiorna(0);
+    }
+    /* il tempo: 0–2,5 s sollevamento lungo i raggi; poi θ(t) oscilla fra 0 e θmax con periodo 8 s */
+    function fasi() { var lam = Math.min(1, tempo / 2.5), u = tempo > 2.5 ? tempo - 2.5 : 0; lam = lam * lam * (3 - 2 * lam); return { lam: lam, th: st.ang * RAD3 * (0.5 - 0.5 * Math.cos(2 * Math.PI * u / 8)) }; }
+    var RAD3 = Math.PI / 180, LIM = 2.6;
+    /* i complessi nel pannello con quattro cifre */
+    function z4(z) { return strZ([+z[0].toFixed(4), +z[1].toFixed(4)]); }
+    function aggiorna(dt) {
+      if (!S || !curve.length) return;
+      var F0 = fasi(), n = ASSI[st.asse], M = mobiusRotazione(n, F0.th), maxErr = 0;
+      curve.forEach(function (c) {
+        var ps = c.sfera.geometry.attributes.position, pi = c.immagine.geometry.attributes.position, k = 0, m = 0, prec = null, precW = null;
+        for (var i = 0; i < c.zs.length; i++) {
+          var z = c.zs[i], P = c.P[i], q = [(1 - F0.lam) * z[0] + F0.lam * P[0], (1 - F0.lam) * z[1] + F0.lam * P[1], F0.lam * P[2]], r = F0.lam >= 1 ? ruota3(n, F0.th, P) : q;
+          /* nel piano: l'immagine di Möbius (f(z) direttamente), tagliata dove esce dal quadrato */
+          var w = F0.lam >= 1 ? applicaMobius(M, z) : null, wv = w && Math.abs(w[0]) < LIM && Math.abs(w[1]) < LIM ? [w[0], w[1], 0.005] : null;
+          if (w && i % 20 === 0) { var Pw = stereo(w); maxErr = Math.max(maxErr, Math.hypot(Pw[0] - r[0], Pw[1] - r[1], Pw[2] - r[2])); }
+          var plane = Math.abs(q[0]) < LIM && Math.abs(q[1]) < LIM || F0.lam > 0.4;
+          if (prec && plane) { ps.setXYZ(k++, prec[0] * R, prec[1] * R, prec[2] * R); ps.setXYZ(k++, r[0] * R, r[1] * R, r[2] * R); }
+          if (precW && wv) { pi.setXYZ(m++, precW[0] * R, precW[1] * R, precW[2] * R); pi.setXYZ(m++, wv[0] * R, wv[1] * R, wv[2] * R); }
+          prec = plane ? r : null; precW = wv;
+        }
+        ps.needsUpdate = pi.needsUpdate = true; c.sfera.geometry.setDrawRange(0, k); c.immagine.geometry.setDrawRange(0, m);
+      });
+      /* il punto z₀, la sua immagine sulla sfera, il raggio da N e il punto f(z₀) */
+      var P = stereo(P0), Pr = ruota3(n, F0.th, P), fz = applicaMobius(M, P0);
+      ogg.q0.position.set(P0[0] * R, P0[1] * R, 0); ogg.p0.position.copy(v3(F0.lam >= 1 ? Pr : [(1 - F0.lam) * P0[0] + F0.lam * P[0], (1 - F0.lam) * P0[1] + F0.lam * P[1], F0.lam * P[2]]));
+      ogg.raggio.geometry.setFromPoints([new T.Vector3(0, 0, R), new T.Vector3(P0[0] * R, P0[1] * R, 0)]);
+      ogg.f0.visible = !!(fz && F0.lam >= 1 && Math.abs(fz[0]) < LIM && Math.abs(fz[1]) < LIM); if (ogg.f0.visible) ogg.f0.position.set(fz[0] * R, fz[1] * R, 0.01);
+      ogg.asse.visible = F0.lam >= 1; ogg.asse.geometry.setFromPoints([new T.Vector3(-n[0] * R * 1.4, -n[1] * R * 1.4, -n[2] * R * 1.4), new T.Vector3(n[0] * R * 1.4, n[1] * R * 1.4, n[2] * R * 1.4)]);
+      ogg.globo.setRotationFromAxisAngle(new T.Vector3(n[0], n[1], n[2]), F0.lam >= 1 ? F0.th : 0);
+      var ora = Date.now(); if (dt && ora - ultimo < 250) return; ultimo = ora;
+      var cop = complanarita(curve[0].P.filter(function (p, i) { return i % 30 === 0; }));
+      info.innerHTML = (info.dataset.errore ? '<span class="bsiFX-ko">' + info.dataset.errore + '</span><br>' : '') +
+        'z₀ = ' + strZ(P0) + ' → ' + t('sulla sfera ', 'on the sphere ') + '(' + P.map(function (v) { return v.toFixed(3); }).join(', ') + ')<br>' +
+        'θ = <b class="bsiFX-num">' + (F0.th / RAD3).toFixed(1) + '°</b> · f(z) = (az + b)/(cz + d), a = ' + z4(M.a) + ', b = ' + z4(M.b) + ', c = ' + z4(M.c) + ', d = ' + z4(M.d) + '<br>' +
+        'f(z₀) = <b class="bsiFX-num">' + (fz ? z4(fz) : '∞') + '</b><br>' +
+        t('rotazione della sfera contro Möbius nel piano: scarto max ', 'sphere rotation versus Möbius in the plane: max gap ') + maxErr.toExponential(1) + ' · ' + t('complanarità del primo cerchio ', 'coplanarity of the first circle ') + cop.toExponential(1);
+    }
+    leggi();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
+  F.calcolo.complessi = { Z: Z, valutaZ: valutaZ, leggiZ: leggiZ, strZ: strZ, radici: radici, coefficienti: coefficienti, coeffOnda: coeffOnda, somma: somma, ONDE: ONDE, stereo: stereo, stereoInv: stereoInv, mobiusRotazione: mobiusRotazione, applicaMobius: applicaMobius, ruota3: ruota3, complanarita: complanarita, figure: figure };
 
   F.sezione('smatcompl', {
     titolo: ['ℂ Complessi e Fourier', 'ℂ Complex numbers and Fourier'],
@@ -220,7 +351,8 @@
     schede: [
       { nome: ['Numeri complessi', 'Complex numbers'], costruisci: schedaComplessi },
       { nome: ['Formula di Eulero', 'Euler’s formula'], costruisci: schedaEulero },
-      { nome: ['Serie di Fourier', 'Fourier series'], costruisci: schedaFourier }
+      { nome: ['Serie di Fourier', 'Fourier series'], costruisci: schedaFourier },
+      { nome: ['🧊 Sfera di Riemann', '🧊 Riemann sphere'], costruisci: scheda3d(schedaRiemann, ['Sfera di Riemann: proiezione stereografica del piano complesso e trasformazione di Möbius che la ruota', 'Riemann sphere: stereographic projection of the complex plane and a Möbius transformation rotating it']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

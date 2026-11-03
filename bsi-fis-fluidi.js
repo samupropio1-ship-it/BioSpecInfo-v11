@@ -11,7 +11,10 @@
      sedimentazione di Stokes v = 2r²(ρ_p − ρ_f)g/(9η), anche in centrifuga
      (g → ω²r, RCF);
    · CAPILLARITA': la legge di Jurin h = 2γ cos θ/(ρ g r) per acqua,
-     mercurio, etanolo; la sovrapressione di Laplace in una goccia.
+     mercurio, etanolo; la sovrapressione di Laplace in una goccia;
+   · FLUSSO ATTORNO A UN OSTACOLO 3D (v238): il flusso potenziale attorno a
+     una sfera o a un cilindro con circolazione, particelle traccianti e
+     pressione di Bernoulli a colori, portanza di Kutta-Žukovskij.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -27,7 +30,28 @@
   function stokes(r, rhop, rhof, eta, acc) { return 2 * r * r * (rhop - rhof) * (acc || g) / (9 * eta); }
   function jurin(gamma, theta, rho, r) { return 2 * gamma * Math.cos(theta * Math.PI / 180) / (rho * g * r); }
   var LIQUIDI = { acqua: [['acqua (vetro pulito)', 'water (clean glass)'], 0.0728, 0, 998], mercurio: [['mercurio', 'mercury'], 0.485, 140, 13534], etanolo: [['etanolo', 'ethanol'], 0.0223, 0, 789], glicerina: [['glicerina', 'glycerol'], 0.0634, 20, 1261] };
-  F.calcolo.fluidi = { venturi: venturi, poiseuille: poiseuille, reynolds: reynolds, stokes: stokes, jurin: jurin, LIQUIDI: LIQUIDI };
+  /* v238 — il flusso potenziale (fluido ideale: incomprimibile, senza viscosita', irrotazionale)
+     attorno a un ostacolo di raggio a, con la corrente U lungo x lontano.
+     · sfera: φ = U x (1 + a³/2r³)  →  v = U[(1 + a³/2r³) x̂ − (3a³x/2r⁵) r];
+     · cilindro con l'asse lungo z e circolazione Γ (positiva in senso antiorario):
+       potenziale complesso w = U(ζ + a²/ζ) − iΓ ln ζ/(2π), v_x − i v_y = dw/dζ, ζ = x + iy.
+     La pressione viene da Bernoulli: p − p∞ = ½ρ(U² − |v|²), il coefficiente C_p = 1 − |v|²/U². */
+  function flussoPotenziale(tipo, a, U, G) {
+    G = G || 0;
+    function v(x, y, z) {
+      if (tipo === 'sfera') { var r2 = x * x + y * y + z * z, r = Math.sqrt(r2), a3 = a * a * a, k = 1 + a3 / (2 * r2 * r), q = 3 * a3 * x / (2 * r2 * r2 * r); return [U * (k - q * x), -U * q * y, -U * q * z]; }
+      var d = x * x + y * y, re = 1 - a * a * (x * x - y * y) / (d * d), im = a * a * 2 * x * y / (d * d);
+      /* dw/dζ = U(1 − a²/ζ²) − iΓ/(2πζ);  1/ζ² = (x² − y² − 2ixy)/d²,  1/ζ = (x − iy)/d */
+      var wr = U * re - G / (2 * Math.PI) * y / d, wi = U * im - G / (2 * Math.PI) * x / d;
+      return [wr, -wi, 0];
+    }
+    function cp(x, y, z) { var w = v(x, y, z); return 1 - (w[0] * w[0] + w[1] * w[1] + w[2] * w[2]) / (U * U); }
+    function dentro(x, y, z) { return tipo === 'sfera' ? x * x + y * y + z * z < a * a : x * x + y * y < a * a; }
+    return { v: v, cp: cp, dentro: dentro, tipo: tipo, a: a, U: U, G: G };
+  }
+  /* pressione con Bernoulli fra due punti della stessa linea di corrente */
+  function bernoulli(p1, rho, v1, v2) { return p1 + 0.5 * rho * (v1 * v1 - v2 * v2); }
+  F.calcolo.fluidi = { venturi: venturi, poiseuille: poiseuille, reynolds: reynolds, stokes: stokes, jurin: jurin, LIQUIDI: LIQUIDI, flussoPotenziale: flussoPotenziale, bernoulli: bernoulli };
 
   /* ═══ 1. Venturi ════════════════════════════════════════════════════════ */
   function schedaVenturi(div) {
@@ -117,13 +141,147 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. flusso attorno a un ostacolo in 3D (v238) ═════════════════════ */
+  var FLUIDI3 = { acqua: [['acqua (20 °C)', 'water (20 °C)'], 998, 1.0e-3], aria: [['aria (20 °C)', 'air (20 °C)'], 1.204, 1.81e-5] };
+  function cpColore(cp, cpMin) {
+    /* rosso dove la pressione cala (veloce), grigio chiaro a p∞, blu dove sale (ristagno);
+       la radice quadrata allarga le differenze piccole, che sono la maggior parte del campo */
+    if (cp < 0) { var u = Math.sqrt(Math.min(1, cp / cpMin)); return [0.78 + 0.22 * u, 0.8 - 0.55 * u, 0.82 - 0.62 * u]; }
+    var w = Math.sqrt(Math.min(1, cp)); return [0.78 - 0.66 * w, 0.8 - 0.35 * w, 0.82 + 0.18 * w];
+  }
+  function schedaFlusso3D(pan) {
+    var st = { tipo: 'sfera', U: 2, a: 5, fl: 'acqua', k: 0 }, cb = {};
+    F.scelta(pan, ['Ostacolo', 'Obstacle'], [['sfera', t('sfera', 'sphere')], ['cilindro', t('cilindro (con circolazione Γ)', 'cylinder (with circulation Γ)')]], st.tipo, function (v) { st.tipo = v; nuovo(); });
+    F.scelta(pan, ['Fluido', 'Fluid'], Object.keys(FLUIDI3).map(function (k) { return [k, FLUIDI3[k][0]]; }), st.fl, function (v) { st.fl = v; nuovo(); });
+    F.cursore(pan, ['velocità della corrente U (m/s)', 'stream speed U (m/s)'], 0.1, 10, 0.1, st.U, function (v) { st.U = v; nuovo(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['raggio dell’ostacolo a (cm)', 'obstacle radius a (cm)'], 0.5, 50, 0.5, st.a, function (v) { st.a = v; nuovo(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['circolazione Γ/(4πUa) (solo cilindro)', 'circulation Γ/(4πUa) (cylinder only)'], 0, 1.5, 0.05, st.k, function (v) { st.k = v; nuovo(); }, function (v) { return v.toFixed(2); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Flusso potenziale: il fluido ideale (senza viscosità, incomprimibile) aggira l’ostacolo. Le particelle traccianti seguono la velocità locale e sono colorate con la pressione data da Bernoulli, p − p∞ = ½ρ(U² − v²): blu dove il fluido rallenta (punto di ristagno davanti, p massima), rosso dove accelera ai fianchi (p minima). Lo stesso colore sull’ostacolo. Le linee bianche sono linee di corrente integrate con Runge-Kutta 4. Con la circolazione Γ il cilindro è come una palla con l’effetto: la velocità diventa diversa sopra e sotto, i punti di ristagno si spostano e nasce la portanza di Kutta-Žukovskij ρUΓ per metro (freccia rosa, effetto Magnus).',
+      'Potential flow: the ideal fluid (inviscid, incompressible) goes round the obstacle. Tracer particles follow the local velocity and are coloured by the pressure from Bernoulli, p − p∞ = ½ρ(U² − v²): blue where the fluid slows down (stagnation point in front, highest p), red where it speeds up on the sides (lowest p). The obstacle has the same colours. White lines are streamlines integrated with fourth-order Runge-Kutta. With circulation Γ the cylinder is like a spinning ball: the speed differs above and below, the stagnation points move and the Kutta-Joukowski lift ρUΓ per metre appears (pink arrow, Magnus effect).');
+    function nuovo() {
+      var f = FLUIDI3[st.fl], a = st.a / 100, rho = f[1], q = 0.5 * rho * st.U * st.U, Re = reynolds(rho, st.U, 2 * a, f[2]), sfera = st.tipo === 'sfera';
+      var vmax = sfera ? 1.5 : 2 + 2 * st.k, cpmin = 1 - vmax * vmax, G = st.k * 4 * Math.PI * st.U * a;
+      info.innerHTML = t('Pressione dinamica ', 'Dynamic pressure ') + '½ρU² = <b class="bsiFX-num">' + fmt(q) + ' Pa</b> · Re = ρU(2a)/η = <b class="bsiFX-num">' + fmt(Re) + '</b><br>' +
+        t('Velocità massima sulla superficie ', 'Maximum speed on the surface ') + '<b>' + fmt(vmax) + ' U</b> = ' + fmt(vmax * st.U) + ' m/s · C_p,min = <b>' + fmt(cpmin) + '</b> → p − p∞ = ' + fmt(cpmin * q) + ' Pa<br>' +
+        (sfera ? t('Sfera: ristagno davanti e dietro (C_p = 1, p − p∞ = ', 'Sphere: stagnation front and back (C_p = 1, p − p∞ = ') + fmt(q) + ' Pa); ' + t('sull’equatore v = 3U/2.', 'on the equator v = 3U/2.') :
+          'Γ = ' + fmt(G) + ' m²/s · ' + t('portanza ', 'lift ') + 'ρUΓ = <b class="bsiFX-num">' + fmt(rho * st.U * G) + ' N/m</b><br>' + (st.k <= 1 ? t('Punti di ristagno sulla superficie a sin θ = Γ/(4πUa) = ', 'Stagnation points on the surface at sin θ = Γ/(4πUa) = ') + fmt(st.k) + ' (θ = ' + fmt(Math.asin(st.k) * 180 / Math.PI) + '° ' + t('e', 'and') + ' ' + fmt(180 - Math.asin(st.k) * 180 / Math.PI) + '°)' : t('Con Γ > 4πUa il punto di ristagno si stacca dalla superficie e il fluido vicino al cilindro gira tutto attorno.', 'With Γ > 4πUa the stagnation point leaves the surface and the fluid near the cylinder circulates all round.'))) +
+        '<br>' + t('Paradosso di d’Alembert: nel fluido ideale la resistenza è zero. Il fluido vero con Re = ', 'D’Alembert’s paradox: in the ideal fluid the drag is zero. The real fluid at Re = ') + fmt(Re) + (Re > (sfera ? 20 : 5) ? t(' stacca lo strato limite dietro l’ostacolo e forma una scia: il flusso potenziale vale davanti e ai fianchi.', ' separates the boundary layer behind the obstacle and forms a wake: potential flow holds in front and at the sides.') : t(' è dominato dalla viscosità (flusso di Stokes): il flusso potenziale qui è solo un limite ideale.', ' is dominated by viscosity (Stokes flow): potential flow here is only an ideal limit.'));
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Flusso potenziale 3D attorno a una sfera o a un cilindro, con particelle traccianti colorate dalla pressione', '3D potential flow around a sphere or a cylinder, with tracer particles coloured by pressure'],
+      tre: function (S, T, L3) {
+        var NP = 900, px = new Float32Array(NP * 3), pc = new Float32Array(NP * 3), eta = new Float32Array(NP), gp = new T.BufferGeometry();
+        gp.setAttribute('position', new T.BufferAttribute(px, 3)); gp.setAttribute('color', new T.BufferAttribute(pc, 3));
+        var nube = new T.Points(gp, new T.PointsMaterial({ size: 0.12, vertexColors: true })); S.aggiungi(nube);
+        var gr = new T.Group(); S.aggiungi(gr);
+        S.aggiungi(new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(10, 6, 4)), new T.LineBasicMaterial({ color: 0x34465f })));
+        var M, cpMin;
+        function nasce(i, ovunque) {
+          for (var k = 0; k < 20; k++) { var x = ovunque ? -5 + 10 * Math.random() : -5, y = -2.9 + 5.8 * Math.random(), z = -1.9 + 3.8 * Math.random(); if (!M.dentro(x, y, z) && (M.tipo === 'sfera' || x * x + y * y > 1.1)) { px[3 * i] = x; px[3 * i + 1] = y; px[3 * i + 2] = z; eta[i] = 0; return; } }
+        }
+        function colora(i) { var c = cpColore(M.cp(px[3 * i], px[3 * i + 1], px[3 * i + 2]), cpMin); pc[3 * i] = c[0]; pc[3 * i + 1] = c[1]; pc[3 * i + 2] = c[2]; }
+        function rk4(p, h) {
+          var f = function (q) { return M.v(q[0], q[1], q[2]); }, k1 = f(p), k2 = f([p[0] + h / 2 * k1[0], p[1] + h / 2 * k1[1], p[2] + h / 2 * k1[2]]), k3 = f([p[0] + h / 2 * k2[0], p[1] + h / 2 * k2[1], p[2] + h / 2 * k2[2]]), k4 = f([p[0] + h * k3[0], p[1] + h * k3[1], p[2] + h * k3[2]]);
+          return [p[0] + h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), p[1] + h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]), p[2] + h / 6 * (k1[2] + 2 * k2[2] + 2 * k3[2] + k4[2])];
+        }
+        cb.nuovo = function () {
+          var sfera = st.tipo === 'sfera';
+          M = flussoPotenziale(sfera ? 'sfera' : 'cilindro', 1, 1, sfera ? 0 : st.k * 4 * Math.PI); cpMin = sfera ? -1.25 : 1 - Math.pow(2 + 2 * st.k, 2);
+          svuota(gr);
+          var geo = sfera ? new T.SphereGeometry(1, 72, 48) : new T.CylinderGeometry(1, 1, 4, 96, 8, true), pos = geo.attributes.position, col = new Float32Array(pos.count * 3);
+          for (var i = 0; i < pos.count; i++) { var x = pos.getX(i), y = sfera ? pos.getY(i) : -pos.getZ(i), z = sfera ? pos.getZ(i) : 0, c = cpColore(M.cp(x * 1.0005 + 1e-9, y * 1.0005, z * 1.0005), cpMin); col[3 * i] = c[0]; col[3 * i + 1] = c[1]; col[3 * i + 2] = c[2]; }
+          geo.setAttribute('color', new T.BufferAttribute(col, 3));
+          var ost = new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0.05, side: T.DoubleSide })); if (!sfera) ost.rotation.x = Math.PI / 2; gr.add(ost);
+          /* linee di corrente */
+          var semi = [];
+          if (sfera) [0.2, 0.55, 0.95, 1.5].forEach(function (r, j) { for (var k = 0; k < 6; k++) { var f = Math.PI * k / 3 + j * 0.4; semi.push([-5, r * Math.cos(f), r * Math.sin(f)]); } });
+          else for (var y0 = -2.6; y0 <= 2.61; y0 += 0.4) [-1.2, 1.2].forEach(function (z0) { semi.push([-5, y0, z0]); });
+          semi.forEach(function (p0) { var p = p0, pts = [p]; for (var k = 0; k < 900 && p[0] < 5 && Math.abs(p[1]) < 3.2; k++) { p = rk4(p, 0.03); pts.push(p); } if (pts.length > 2) gr.add(L3.linea(T, pts, 0xe6fffb, 0.35)); });
+          if (!sfera && st.k > 0) {
+            var arco = []; for (var k = 0; k <= 40; k++) { var f = 0.3 + 1.6 * Math.PI * k / 40; arco.push([1.35 * Math.cos(f), 1.35 * Math.sin(f), 2.15]); } gr.add(L3.linea(T, arco, 0xffd24a));
+            gr.add(L3.freccia(T, arco[38], arco[40], 0xffd24a, 0.25)); var eg = L3.testo3d(T, 'Γ', '#ffd24a', 0.45); eg.position.set(1.6, 1.0, 2.4); gr.add(eg);
+            var Lp = 0.6 + 1.6 * Math.min(1.5, st.k); gr.add(L3.freccia(T, [0, 0, 2.6], [0, -Lp, 2.6], 0xff8ad8, 0.3)); var el = L3.testo3d(T, t('portanza', 'lift'), '#ff8ad8', 0.32); el.position.set(0.3, -Lp - 0.3, 2.9); gr.add(el);
+          }
+          var eu = L3.testo3d(T, 'U →', '#9fdcff', 0.4); eu.position.set(-4.6, 0, 2.4); gr.add(eu);
+          for (i = 0; i < NP; i++) { nasce(i, true); colora(i); }
+          gp.attributes.position.needsUpdate = true; gp.attributes.color.needsUpdate = true;
+          S.didascalia.textContent = (sfera ? t('Sfera', 'Sphere') : t('Cilindro', 'Cylinder') + ' · Γ/(4πUa) = ' + st.k.toFixed(2)) + ' · ' + t('blu: pressione alta · rosso: bassa', 'blue: high pressure · red: low');
+          S.sporca = true; S.avvia();
+        };
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var h = Math.min(0.05, dt) * 1.6;
+          for (var i = 0; i < NP; i++) {
+            var x = px[3 * i], y = px[3 * i + 1], z = px[3 * i + 2], w = M.v(x, y, z), xm = x + w[0] * h / 2, ym = y + w[1] * h / 2, zm = z + w[2] * h / 2, w2 = M.v(xm, ym, zm);
+            x += w2[0] * h; y += w2[1] * h; z += w2[2] * h; eta[i] += dt;
+            if (M.dentro(x, y, z)) { var r = M.tipo === 'sfera' ? Math.sqrt(x * x + y * y + z * z) : Math.sqrt(x * x + y * y), f = 1.002 / r; x *= f; y *= f; if (M.tipo === 'sfera') z *= f; }
+            px[3 * i] = x; px[3 * i + 1] = y; px[3 * i + 2] = z;
+            if (x > 5 || Math.abs(y) > 3.2 || eta[i] > 14 || !isFinite(x)) nasce(i, false);
+            colora(i);
+          }
+          gp.attributes.position.needsUpdate = true; gp.attributes.color.needsUpdate = true;
+          return true;
+        });
+        S.inquadra(14, -1.95, 1.08);
+      }
+    };
+  }
+
   F.sezione('sfisfluidi', {
     titolo: ['🌊 Fluidi', '🌊 Fluids'],
     sotto: ['Continuità e Bernoulli nel tubo di Venturi, la viscosità con Poiseuille, Reynolds e la sedimentazione di Stokes anche in centrifuga, la capillarità con la legge di Jurin.', 'Continuity and Bernoulli in the Venturi tube, viscosity with Poiseuille, Reynolds and Stokes sedimentation including centrifuges, capillarity with Jurin’s law.'],
     schede: [
       { nome: ['🚿 Venturi e Bernoulli', '🚿 Venturi and Bernoulli'], costruisci: schedaVenturi },
       { nome: ['🍯 Viscosità', '🍯 Viscosity'], costruisci: schedaViscosita },
-      { nome: ['🧪 Capillarità', '🧪 Capillarity'], costruisci: schedaCapillarita }
+      { nome: ['🧪 Capillarità', '🧪 Capillarity'], costruisci: schedaCapillarita },
+      { nome: ['🌀 Flusso attorno a un ostacolo 3D', '🌀 3D flow past an obstacle'], costruisci: scheda3D(schedaFlusso3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -228,7 +228,149 @@
     prova(); disegna(); F.alRidimensiona(disegna);
   }
 
-  F.calcolo.multi = { analizza: analizza, discesa: discesa, maxwellVdW: maxwellVdW, esatto: esatto, GAS_VDW: GAS_VDW };
+  /* ═══ v238: la superficie in 3D vera, con il piano tangente ═════════════
+     Nel punto P = (x₀, y₀) il piano tangente e' z = f(P) + f_x(P)(x − x₀) + f_y(P)(y − y₀):
+     l'errore f − piano e' O(h²) (Taylor) ed e' governato dall'hessiana H. Gli autovalori di H
+     (simmetrica 2×2: m ± √(((a − d)/2)² + b²)) sono le curvature principali del grafico in un
+     punto critico e lo classificano: entrambi > 0 minimo, < 0 massimo, segni opposti sella. */
+  function pianoTangente(R, x0, y0) {
+    var z0 = R.f(x0, y0), fx = R.gx(x0, y0), fy = R.gy(x0, y0);
+    return { z0: z0, fx: fx, fy: fy, gradiente: Math.hypot(fx, fy), z: function (x, y) { return z0 + fx * (x - x0) + fy * (y - y0); } };
+  }
+  function hessiana(R, x, y) {
+    var a = R.hxx(x, y), b = R.hxy(x, y), d = R.hyy(x, y), m = (a + d) / 2, r = Math.sqrt((a - d) * (a - d) / 4 + b * b), det = a * d - b * b;
+    return { a: a, b: b, d: d, det: det, traccia: a + d, autovalori: [m + r, m - r], tipo: det > 1e-10 ? (a > 0 ? 'minimo' : 'massimo') : det < -1e-10 ? 'sella' : 'indeciso' };
+  }
+  /* derivata direzionale lungo l'angolo θ: ∇f·(cos θ, sin θ); il massimo sui θ e' |∇f| */
+  function direzionale(R, x, y, th) { return R.gx(x, y) * Math.cos(th) + R.gy(x, y) * Math.sin(th); }
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'), posto = F.el('div');
+      g.appendChild(pan); g.appendChild(dx); div.appendChild(g); dx.appendChild(posto);
+      var vista = costruisci(pan, dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+
+  function schedaTangente3D(pan, dx) {
+    var st = { f: PRESET[2][0], x0: -0.6, y0: 0.5, moto: 'discesa', livelli: true, critici: true, u: 0 }, B = [-2.2, 2.2, -2.2, 2.2], R = null, S = null, T = null, lab = null;
+    var inp = F.el('input', { type: 'text', value: st.f, 'aria-label': 'f(x, y)', spellcheck: 'false', autocomplete: 'off' });
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-cursore' }, [F.el('label', null, [F.el('span', { testo: 'z = f(x, y)' })]), inp]));
+    inp.addEventListener('change', function () { st.f = inp.value; calcola(); });
+    F.scelta(pan, ['Esempi', 'Examples'], PRESET.map(function (p) { return [p[0], F.tt(p[1])]; }), st.f, function (v) { st.f = v; inp.value = v; calcola(); });
+    F.cursore(pan, ['x₀ del punto P', 'x₀ of the point P'], B[0], B[1], 0.05, st.x0, function (v) { st.x0 = v; punto(); }, function (v) { return v.toFixed(2); });
+    F.cursore(pan, ['y₀ del punto P', 'y₀ of the point P'], B[2], B[3], 0.05, st.y0, function (v) { st.y0 = v; punto(); }, function (v) { return v.toFixed(2); });
+    F.scelta(pan, ['Il punto si muove', 'The point moves'], [['discesa', ['lungo −∇f (discesa del gradiente)', 'along −∇f (gradient descent)']], ['giro', ['su un cerchio attorno a P', 'on a circle around P']], ['fermo', ['resta fermo', 'stays still']]], st.moto, function (v) { st.moto = v; punto(); });
+    var casella = function (et, val, cb) { var c = F.el('input', { type: 'checkbox' }); c.checked = val; c.addEventListener('change', function () { cb(c.checked); }); pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.84rem;color:#cfe3f7;cursor:pointer' }, [c, F.el('span', { testo: F.tt(et) })])); };
+    casella(['Curve di livello sul pavimento', 'Contour lines on the floor'], st.livelli, function (v) { st.livelli = v; scena(); });
+    casella(['Punti critici con l’hessiana', 'Critical points with the Hessian'], st.critici, function (v) { st.critici = v; scena(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }), crit = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info); pan.appendChild(crit);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il piano giallo è il piano tangente in P: la migliore approssimazione lineare di f, z ≈ f(P) + ∇f(P)·(x − x₀, y − y₀); lo scarto cresce come h² e lo decide l’hessiana. La freccia arancio sul pavimento è ∇f, perpendicolare alle curve di livello e diretta dove f sale più in fretta (con pendenza |∇f|); quella bianca è la normale (−f_x, −f_y, 1). Nei punti critici ∇f = 0 il piano tangente è orizzontale e gli autovalori dell’hessiana, le curvature principali, decidono: due positivi minimo (azzurro), due negativi massimo (rosso), segni opposti sella (giallo), uno nullo e il test tace. Con «discesa» il punto scivola lungo −∇f fino a un minimo: è così che si ottimizzano le geometrie molecolari, e la doppia buca mostra reagente, prodotto e stato di transizione.',
+      'The yellow plane is the tangent plane at P: the best linear approximation of f, z ≈ f(P) + ∇f(P)·(x − x₀, y − y₀); the gap grows like h² and the Hessian rules it. The orange arrow on the floor is ∇f, perpendicular to the contour lines and pointing where f climbs fastest (with slope |∇f|); the white one is the normal (−f_x, −f_y, 1). At critical points ∇f = 0 the tangent plane is horizontal and the eigenvalues of the Hessian, the principal curvatures, decide: both positive minimum (blue), both negative maximum (red), opposite signs saddle (yellow), one zero and the test is silent. With «descent» the point slides along −∇f to a minimum: this is how molecular geometries are optimised, and the double well shows reactant, product and transition state.') }));
+    var NOMI = { minimo: ['minimo', 'minimum'], massimo: ['massimo', 'maximum'], sella: ['sella', 'saddle'], indeciso: ['indeciso (det H = 0)', 'undecided (det H = 0)'] }, COL = { minimo: 0x6bcfff, massimo: 0xff8a80, sella: 0xffd24a, indeciso: 0xc9d3df };
+    var cammino = null, G = null, oggetti = {}, ultimoTesto = 0;
+    function calcola() {
+      try { R = analizza(st.f, B); }
+      catch (e) { R = null; info.innerHTML = '<span class="bsiFX-ko">' + t('Espressione non valida: ', 'Invalid expression: ') + esc(e.message) + '</span>'; crit.innerHTML = ''; if (S) { S.pulisci(); S.aggiungi(lab.assi(T, 3.3, ['x', 'y', 'z'], 0.3)); } return; }
+      crit.innerHTML = '<b>' + t('Punti critici nel riquadro', 'Critical points in the box') + '</b><br>' + (R.critici.length ? R.critici.map(function (p) { var h = hessiana(R, p.x, p.y); return '<span class="bsi3d-leg" style="background:#' + COL[p.tipo].toString(16).padStart(6, '0') + '"></span>' + F.tt(NOMI[p.tipo]) + ' (' + c4(p.x) + ', ' + c4(p.y) + ') · λ = ' + c4(h.autovalori[0]) + ', ' + c4(h.autovalori[1]); }).join('<br>') : '—');
+      cammino = discesa(R, st.x0, st.y0, 1500);
+      scena();
+    }
+    /* il punto riparte: nuovo cammino di discesa dal punto scelto */
+    function punto() {
+      if (!R) return;
+      cammino = discesa(R, st.x0, st.y0, 1500); st.u = 0;
+      scena();
+    }
+    function posizione(u) {
+      if (st.moto === 'discesa' && cammino && cammino.length > 1) return cammino[Math.min(cammino.length - 1, Math.floor(u * 60))];
+      if (st.moto === 'giro') return [Math.max(B[0], Math.min(B[1], st.x0 + 0.5 * Math.cos(u * 0.8))), Math.max(B[2], Math.min(B[3], st.y0 + 0.5 * Math.sin(u * 0.8)))];
+      return [st.x0, st.y0];
+    }
+    /* nella scena: orizzontale ×L/2,2, verticale con la scala dei valori (1°–99° percentile) */
+    function scena() {
+      if (!S || !R) return;
+      S.pulisci(); oggetti = {}; G = null;
+      var N = 64, L = 3, sc = L / B[1], Z = [], tutti = [], i, j;
+      for (i = 0; i <= N; i++) { Z.push([]); for (j = 0; j <= N; j++) { var z = R.f(B[0] + (B[1] - B[0]) * i / N, B[2] + (B[3] - B[2]) * j / N); Z[i].push(isFinite(z) ? z : NaN); if (isFinite(z)) tutti.push(z); } }
+      if (!tutti.length) { info.innerHTML = '<span class="bsiFX-ko">' + t('La funzione non è definita nel riquadro.', 'The function is undefined in the box.') + '</span>'; S.aggiungi(lab.assi(T, 3.3, ['x', 'y', 'z'], 0.3)); return; }
+      tutti.sort(function (a, b) { return a - b; });
+      var lo = tutti[Math.floor(tutti.length * 0.01)], hi = tutti[Math.ceil(tutti.length * 0.99) - 1]; if (!(hi > lo)) { lo -= 1; hi += 1; }
+      var k = 2 * L * 0.5 / (hi - lo), zc = (lo + hi) / 2, Zs = function (z) { return Math.max(-L * 0.62, Math.min(L * 0.62, (z - zc) * k)); };
+      G = { sc: sc, k: k, zc: zc, Zs: Zs, L: L, piano: -L * 0.78 };
+      var pos = [], col = [], idx = [];
+      for (i = 0; i <= N; i++) for (j = 0; j <= N; j++) { var zz = Z[i][j], c = colore(isFinite(zz) ? (zz - lo) / (hi - lo) : 0); pos.push(-L + 2 * L * i / N, -L + 2 * L * j / N, isFinite(zz) ? Zs(zz) : 0); col.push(c[0] / 255, c[1] / 255, c[2] / 255); }
+      for (i = 0; i < N; i++) for (j = 0; j < N; j++) { var a = i * (N + 1) + j, b = a + N + 1; if (isFinite(Z[i][j]) && isFinite(Z[i + 1][j]) && isFinite(Z[i + 1][j + 1]) && isFinite(Z[i][j + 1])) idx.push(a, b, b + 1, a, b + 1, a + 1); }
+      var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      S.aggiungi(new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, side: T.DoubleSide, roughness: 0.55, metalness: 0.05 })));
+      S.aggiungi(new T.LineSegments(new T.WireframeGeometry(geo), new T.LineBasicMaterial({ color: 0x0b1a2a, transparent: true, opacity: 0.22 })));
+      if (st.livelli && F.calcolo.lab3d) {
+        var liv = []; for (var q = 1; q < 14; q++) liv.push(lo + (hi - lo) * q / 14);
+        var sg = F.calcolo.lab3d.curveLivello(Z, N, B[0], B[1], liv), pts = [];
+        for (q = 0; q < sg.length; q++) pts.push(new T.Vector3(sg[q][0] * sc, sg[q][1] * sc, G.piano));
+        S.aggiungi(new T.LineSegments(new T.BufferGeometry().setFromPoints(pts), new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.6 })));
+        S.aggiungi(lab.linea(T, [[-L, -L, G.piano], [L, -L, G.piano], [L, L, G.piano], [-L, L, G.piano], [-L, -L, G.piano]], 0x34465f));
+      }
+      if (st.critici) R.critici.forEach(function (p) { if (!isFinite(p.z)) return; S.aggiungi(lab.sfera(T, 0.09, COL[p.tipo], p.x * sc, p.y * sc, Zs(p.z), true)); S.aggiungi(lab.linea(T, [[p.x * sc, p.y * sc, Zs(p.z)], [p.x * sc, p.y * sc, G.piano]], COL[p.tipo], 0.45)); });
+      if (cammino && st.moto === 'discesa' && cammino.length > 1) S.aggiungi(lab.linea(T, cammino.filter(function (p, i) { return i % 3 === 0 || i === cammino.length - 1; }).map(function (p) { var zp = R.f(p[0], p[1]); return [p[0] * sc, p[1] * sc, (isFinite(zp) ? Zs(zp) : 0) + 0.03]; }), 0xffffff, 0.8));
+      /* il piano tangente: un quadrato di lato 1,2 (unita' di x) centrato nel punto, aggiornato a ogni fotogramma */
+      var gp = new T.BufferGeometry(); gp.setAttribute('position', new T.Float32BufferAttribute([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 3)); gp.setIndex([0, 1, 2, 0, 2, 3]);
+      oggetti.piano = new T.Mesh(gp, new T.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.42, side: T.DoubleSide, depthWrite: false })); S.aggiungi(oggetti.piano);
+      oggetti.bordo = lab.linea(T, [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]], 0xffd24a); S.aggiungi(oggetti.bordo);
+      oggetti.p = lab.sfera(T, 0.1, 0xffffff, 0, 0, 0, true); S.aggiungi(oggetti.p);
+      oggetti.ombra = lab.sfera(T, 0.06, 0xffffff, 0, 0, G.piano, false); S.aggiungi(oggetti.ombra);
+      oggetti.grad = lab.freccia(T, [0, 0, G.piano], [1, 0, G.piano], 0xff9f43, 0.3); S.aggiungi(oggetti.grad);
+      oggetti.salita = lab.freccia(T, [0, 0, 0], [1, 0, 0], 0xff9f43, 0.22); S.aggiungi(oggetti.salita);
+      oggetti.normale = lab.freccia(T, [0, 0, 0], [0, 0, 1], 0xffffff, 0.22); S.aggiungi(oggetti.normale);
+      S.aggiungi(lab.assi(T, L * 1.1, ['x', 'y', 'z'], 0.3));
+      S.didascalia.textContent = 'z = ' + C.stampa(R.e) + ' · P = (' + st.x0.toFixed(2) + ', ' + st.y0.toFixed(2) + ')';
+      if (!S.vistaIniziale) S.inquadra(14.5, -1.0, 1.08);
+      S.ogniFotogramma(function (dt) { if (st.moto === 'fermo') return false; st.u += dt; aggiornaPunto(dt); if (st.moto === 'discesa' && cammino && st.u * 60 > cammino.length + 90) st.u = 0; });
+      aggiornaPunto(0);
+    }
+    function aggiornaPunto(dt) {
+      if (!R) return;
+      var P = posizione(st.u), x = P[0], y = P[1], Tp = pianoTangente(R, x, y), H = hessiana(R, x, y);
+      /* le derivate sotto 10⁻⁶ sono lo zero del metodo di discesa: si scrivono 0 */
+      if (Math.abs(Tp.fx) < 1e-6) Tp.fx = 0; if (Math.abs(Tp.fy) < 1e-6) Tp.fy = 0; if (Tp.gradiente < 1e-6) Tp.gradiente = 0;
+      if (G && oggetti.piano && isFinite(Tp.z0) && isFinite(Tp.fx) && isFinite(Tp.fy)) {
+        var sc = G.sc, h = 0.6, V = [[x - h, y - h], [x + h, y - h], [x + h, y + h], [x - h, y + h]].map(function (q) { return [q[0] * sc, q[1] * sc, Math.max(-6, Math.min(6, (Tp.z(q[0], q[1]) - G.zc) * G.k))]; });
+        var at = oggetti.piano.geometry.attributes.position; V.forEach(function (v, i) { at.setXYZ(i, v[0], v[1], v[2]); }); at.needsUpdate = true; oggetti.piano.geometry.computeBoundingSphere();
+        oggetti.bordo.geometry.setFromPoints(V.concat([V[0]]).map(function (v) { return new T.Vector3(v[0], v[1], v[2]); }));
+        oggetti.p.position.set(x * sc, y * sc, G.Zs(Tp.z0)); oggetti.ombra.position.set(x * sc, y * sc, G.piano);
+        var gn = Tp.gradiente; oggetti.grad.visible = oggetti.salita.visible = gn > 1e-9;
+        if (gn > 1e-9) {
+          oggetti.grad.position.set(x * sc, y * sc, G.piano); oggetti.grad.setDirection(new T.Vector3(Tp.fx / gn, Tp.fy / gn, 0)); oggetti.grad.setLength(Math.min(1.6, 0.35 + 0.4 * gn), 0.25, 0.14);
+          oggetti.salita.position.copy(oggetti.p.position); oggetti.salita.setDirection(new T.Vector3(Tp.fx / gn * sc, Tp.fy / gn * sc, gn * G.k).normalize()); oggetti.salita.setLength(0.9, 0.2, 0.11);
+        }
+        oggetti.normale.position.copy(oggetti.p.position); oggetti.normale.setDirection(new T.Vector3(-G.k * Tp.fx / sc, -G.k * Tp.fy / sc, 1).normalize()); oggetti.normale.setLength(1, 0.2, 0.11);
+      }
+      /* il testo si aggiorna al piu' cinque volte al secondo */
+      var ora = Date.now(); if (dt && ora - ultimoTesto < 200) return; ultimoTesto = ora;
+      var NOMIP = { minimo: t('curva in su in ogni direzione', 'curves up in every direction'), massimo: t('curva in giù in ogni direzione', 'curves down in every direction'), sella: t('curva in su in una direzione e in giù nell’altra', 'curves up one way and down the other'), indeciso: 'det H ≈ 0' };
+      var sg = function (v) { return (v < 0 ? ' − ' : ' + ') + c4(Math.abs(v)); };
+      info.innerHTML = 'P = (' + x.toFixed(3) + ', ' + y.toFixed(3) + ') · f(P) = <b class="bsiFX-num">' + c4(Tp.z0) + '</b><br>' +
+        t('piano tangente: ', 'tangent plane: ') + '<span class="bsiFX-num">z = ' + c4(Tp.z0) + sg(Tp.fx) + '·(x − x₀)' + sg(Tp.fy) + '·(y − y₀)</span><br>' +
+        '∇f = (' + c4(Tp.fx) + ', ' + c4(Tp.fy) + '), |∇f| = <b class="bsiFX-num">' + c4(Tp.gradiente) + '</b> (' + t('pendenza massima', 'steepest slope') + ')<br>' +
+        'H = [' + c4(H.a) + ', ' + c4(H.b) + '; ' + c4(H.b) + ', ' + c4(H.d) + '] · λ₁ = ' + c4(H.autovalori[0]) + ', λ₂ = ' + c4(H.autovalori[1]) + ': ' + NOMIP[H.tipo];
+    }
+    calcola();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
+  F.calcolo.multi = { analizza: analizza, discesa: discesa, maxwellVdW: maxwellVdW, esatto: esatto, GAS_VDW: GAS_VDW, pianoTangente: pianoTangente, hessiana: hessiana, direzionale: direzionale };
 
   F.sezione('smatmulti', {
     titolo: ['🗻 Funzioni di più variabili', '🗻 Functions of several variables'],
@@ -236,7 +378,8 @@
             '3D surfaces and contour maps, gradient, Hessian and critical points (minima, maxima, saddles — transition states), gradient descent; thermodynamic state functions, Maxwell relations and exact differentials.'],
     schede: [
       { nome: ['Superfici e punti critici', 'Surfaces and critical points'], costruisci: schedaSuperfici },
-      { nome: ['Funzioni di stato', 'State functions'], costruisci: schedaStato }
+      { nome: ['Funzioni di stato', 'State functions'], costruisci: schedaStato },
+      { nome: ['🧊 Piano tangente in 3D', '🧊 Tangent plane in 3D'], costruisci: scheda3d(schedaTangente3D, ['Superficie z = f(x, y) con piano tangente, gradiente e punti critici', 'Surface z = f(x, y) with tangent plane, gradient and critical points']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

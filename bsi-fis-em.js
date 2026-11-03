@@ -13,7 +13,10 @@
      il valore efficace ε₀/√2, la potenza su una resistenza;
    · ONDE ELETTROMAGNETICHE: E e B perpendicolari fra loro e alla direzione
      di propagazione, in fase; polarizzazione lineare, circolare, ellittica
-     a seconda dello sfasamento fra le due componenti di E.
+     a seconda dello sfasamento fra le due componenti di E;
+   · CAMPI 3D E LORENTZ (v238): linee di B di spira e solenoide (Biot-Savart)
+     e di E del dipolo integrate nello spazio; una carica che le percorre con
+     il metodo di Boris: elica, deriva E×B, bottiglia magnetica.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -37,7 +40,61 @@
     return s;
   }
   function generatore(N, B, A, f, R) { var w = 2 * Math.PI * f, e0 = N * B * A * w; return { e0: e0, eff: e0 / Math.SQRT2, Pmedia: e0 * e0 / (2 * R), w: w }; }
-  F.calcolo.em = { potenziale: potenziale, campo: campo, flussoDipolo: flussoDipolo, flussoNumerico: flussoNumerico, generatore: generatore };
+  /* v238 — campi nello spazio e moto di una carica. Unita' ridotte: μ₀I = 1 per le correnti,
+     massa 1 e |q| = 1 per la particella (la pulsazione di ciclotrone e' allora ω = B).
+     Spira di raggio a nel piano xy, centrata nell'origine: Biot-Savart su n tratti (punto medio) */
+  /* i tratti della spira unitaria si calcolano una volta per ogni n (seni e coseni in tabella:
+     le linee di campo di un solenoide chiedono il campo centinaia di migliaia di volte) */
+  var TRATTI = {};
+  function tratti(N) {
+    if (TRATTI[N]) return TRATTI[N];
+    var c = new Float64Array(4 * N);
+    for (var i = 0; i < N; i++) { var f0 = 2 * Math.PI * i / N, f1 = 2 * Math.PI * (i + 1) / N, fm = (f0 + f1) / 2; c[4 * i] = Math.cos(fm); c[4 * i + 1] = Math.sin(fm); c[4 * i + 2] = Math.cos(f1) - Math.cos(f0); c[4 * i + 3] = Math.sin(f1) - Math.sin(f0); }
+    return (TRATTI[N] = c);
+  }
+  function campoSpira3D(a, x, y, z, n, z0) {
+    var N = n || 64, c = tratti(N), zz = z - (z0 || 0), b0 = 0, b1 = 0, b2 = 0;
+    for (var i = 0; i < N; i++) {
+      var k = 4 * i, dl0 = a * c[k + 2], dl1 = a * c[k + 3], r0 = x - a * c[k], r1 = y - a * c[k + 1], r2 = r0 * r0 + r1 * r1 + zz * zz, r3 = r2 * Math.sqrt(r2) || 1e-12;
+      b0 += dl1 * zz / r3; b1 -= dl0 * zz / r3; b2 += (dl0 * r1 - dl1 * r0) / r3;
+    }
+    return [b0 / (4 * Math.PI), b1 / (4 * Math.PI), b2 / (4 * Math.PI)];
+  }
+  /* sull'asse, in forma chiusa: B_z = a² / (2 (a² + z²)^(3/2)) */
+  function bAsse(a, z) { return a * a / (2 * Math.pow(a * a + z * z, 1.5)); }
+  /* solenoide: nSp spire di raggio a distribuite su una lunghezza Lz centrata nell'origine */
+  function campoSolenoide(a, Lz, nSp, x, y, z, n) {
+    var B = [0, 0, 0];
+    for (var k = 0; k < nSp; k++) { var b = campoSpira3D(a, x, y, z, n || 40, -Lz / 2 + Lz * (k + 0.5) / nSp); B[0] += b[0]; B[1] += b[1]; B[2] += b[2]; }
+    return B;
+  }
+  /* campo elettrico di cariche puntiformi [q, x, y, z] (k = 1) */
+  function campoCariche(Q, x, y, z) { var E = [0, 0, 0]; Q.forEach(function (c) { var dx = x - c[1], dy = y - c[2], dz = z - c[3], r3 = Math.pow(dx * dx + dy * dy + dz * dz, 1.5) || 1e-12; E[0] += c[0] * dx / r3; E[1] += c[0] * dy / r3; E[2] += c[0] * dz / r3; }); return E; }
+  /* una linea di campo: passo del punto medio lungo la direzione del campo, finche' stop(p) */
+  function lineaCampo3D(f, p0, verso, stop, passi, h) {
+    var p = p0.slice(), pts = [p.slice()]; h = h || 0.04;
+    for (var i = 0; i < (passi || 800); i++) {
+      var E = f(p[0], p[1], p[2]), m = Math.hypot(E[0], E[1], E[2]); if (!(m > 0) || !isFinite(m)) break;
+      var c = [p[0] + verso * E[0] / m * h / 2, p[1] + verso * E[1] / m * h / 2, p[2] + verso * E[2] / m * h / 2], E2 = f(c[0], c[1], c[2]), m2 = Math.hypot(E2[0], E2[1], E2[2]); if (!(m2 > 0)) break;
+      p = [p[0] + verso * E2[0] / m2 * h, p[1] + verso * E2[1] / m2 * h, p[2] + verso * E2[2] / m2 * h]; pts.push(p.slice());
+      if (stop(p, i)) break;
+    }
+    return pts;
+  }
+  /* passo di Boris (massa 1, carica q): la rotazione magnetica conserva |v| esattamente */
+  function passoBoris(s, q, E, B, dt) {
+    var h = q * dt / 2, v = s.v, vm = [v[0] + h * E[0], v[1] + h * E[1], v[2] + h * E[2]], tq = [h * B[0], h * B[1], h * B[2]], t2 = tq[0] * tq[0] + tq[1] * tq[1] + tq[2] * tq[2], sq = [2 * tq[0] / (1 + t2), 2 * tq[1] / (1 + t2), 2 * tq[2] / (1 + t2)];
+    var vp = [vm[0] + vm[1] * tq[2] - vm[2] * tq[1], vm[1] + vm[2] * tq[0] - vm[0] * tq[2], vm[2] + vm[0] * tq[1] - vm[1] * tq[0]];
+    var vn = [vm[0] + vp[1] * sq[2] - vp[2] * sq[1], vm[1] + vp[2] * sq[0] - vp[0] * sq[2], vm[2] + vp[0] * sq[1] - vp[1] * sq[0]];
+    s.v = [vn[0] + h * E[0], vn[1] + h * E[1], vn[2] + h * E[2]];
+    s.x = [s.x[0] + s.v[0] * dt, s.x[1] + s.v[1] * dt, s.x[2] + s.v[2] * dt];
+    return s;
+  }
+  /* bottiglia magnetica: partendo dove il campo vale B₀ con angolo di passo α, la carica torna
+     indietro prima di arrivare dove il campo vale B_max se sin²α > B₀/B_max (μ = mv⊥²/2B costante) */
+  function angoloSpecchio(B0, Bmax) { return Math.asin(Math.sqrt(Math.min(1, B0 / Bmax))) * 180 / Math.PI; }
+  F.calcolo.em = { potenziale: potenziale, campo: campo, flussoDipolo: flussoDipolo, flussoNumerico: flussoNumerico, generatore: generatore,
+    campoSpira3D: campoSpira3D, bAsse: bAsse, campoSolenoide: campoSolenoide, campoCariche: campoCariche, lineaCampo3D: lineaCampo3D, passoBoris: passoBoris, angoloSpecchio: angoloSpecchio };
 
   /* ═══ 1. cariche nel piano ══════════════════════════════════════════════ */
   function schedaCariche(div) {
@@ -171,6 +228,189 @@
     });
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 5. campi nello spazio e forza di Lorentz (v238) ═══════════════════ */
+  var SORG3D = [
+    ['uniforme', ['Campo B uniforme: l’elica', 'Uniform B field: the helix']],
+    ['incrociati', ['E ⊥ B: la deriva E×B', 'E ⊥ B: the E×B drift']],
+    ['spira', ['Spira: bottiglia magnetica', 'Current loop: magnetic mirror']],
+    ['solenoide', ['Solenoide', 'Solenoid']],
+    ['dipolo', ['Dipolo elettrico (solo E)', 'Electric dipole (E only)']]
+  ];
+  var A_SPIRA = 1.5, A_SOL = 1, L_SOL = 4, N_SOL = 6, Z_SPIRA = -2.5, DIPOLO = [[1, -1, 0, 0], [-1, 1, 0, 0]];
+  var B_SOL = campoSolenoide(A_SOL, L_SOL, N_SOL, 0, 0, 0, 24)[2];
+  function schedaCampi3D(pan) {
+    var st = { s: 'spira', B: 2, v: 0.25, alfa: 35, q: 1 }, cb = {}, cur = {};
+    /* valori di partenza adatti a ogni sorgente (nella bottiglia la carica deve girare stretta: r_L ≪ a) */
+    var CONSIGLIATI = { uniforme: { B: 1, v: 1, alfa: 60 }, incrociati: { B: 1, v: 0.8, alfa: 80 }, spira: { B: 2, v: 0.25, alfa: 35 }, solenoide: { B: 1.2, v: 0.6, alfa: 60 }, dipolo: { B: 1, v: 0.6, alfa: 30 } };
+    F.scelta(pan, ['Sorgente', 'Source'], SORG3D.map(function (s) { return [s[0], s[1]]; }), st.s, function (v) {
+      st.s = v; var c = CONSIGLIATI[v];
+      Object.keys(c).forEach(function (k) { st[k] = c[k]; cur[k].value = c[k]; var b = cur[k].parentNode.querySelector('b'); if (b) b.textContent = k === 'alfa' ? String(c[k]) : c[k].toFixed(2); });
+      nuovo(true);
+    });
+    cur.B = F.cursore(pan, ['intensità B₀ (o E per il dipolo)', 'strength B₀ (or E for the dipole)'], 0.3, 2, 0.05, st.B, function (v) { st.B = v; nuovo(false); }, function (v) { return v.toFixed(2); });
+    cur.v = F.cursore(pan, ['velocità della carica v', 'charge speed v'], 0.1, 2, 0.05, st.v, function (v) { st.v = v; nuovo(false); }, function (v) { return v.toFixed(2); });
+    cur.alfa = F.cursore(pan, ['angolo di passo α fra v e B (°)', 'pitch angle α between v and B (°)'], 2, 88, 1, st.alfa, function (v) { st.alfa = v; nuovo(false); });
+    F.scelta(pan, ['Carica', 'Charge'], [['1', t('positiva (q = +1)', 'positive (q = +1)')], ['-1', t('negativa (q = −1)', 'negative (q = −1)')]], '1', function (v) { st.q = +v; nuovo(false); });
+    var info = nota(pan), vivo = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Le linee di campo (azzurre per B, arancio per E) sono integrate passo per passo dalla legge di Biot-Savart (spira e solenoide divisi in tratti) o da Coulomb. La carica si muove con la forza di Lorentz F = q(E + v × B), integrata con il metodo di Boris, che conserva esattamente |v| in un campo solo magnetico: la forza magnetica è sempre perpendicolare alla velocità e non compie lavoro. Freccia gialla: v; freccia rosa: F. Unità ridotte: massa 1, |q| = 1, μ₀I = 1.',
+      'Field lines (blue for B, orange for E) are integrated step by step from the Biot-Savart law (loop and solenoid split into segments) or from Coulomb’s law. The charge moves under the Lorentz force F = q(E + v × B), integrated with the Boris method, which keeps |v| exactly constant in a purely magnetic field: the magnetic force is always perpendicular to the velocity and does no work. Yellow arrow: v; pink arrow: F. Reduced units: mass 1, |q| = 1, μ₀I = 1.');
+    /* i campi nel punto p per la sorgente scelta */
+    function campi(p) {
+      var B0 = st.B, Z = [0, 0, 0];
+      if (st.s === 'uniforme') return { E: Z, B: [0, 0, B0] };
+      if (st.s === 'incrociati') return { E: [0.5 * B0, 0, 0], B: [0, 0, B0] };
+      if (st.s === 'spira') { var b = campoSpira3D(A_SPIRA, p[0], p[1], p[2], 48), f = B0 / bAsse(A_SPIRA, 0); return { E: Z, B: [b[0] * f, b[1] * f, b[2] * f] }; }
+      if (st.s === 'solenoide') { var c = campoSolenoide(A_SOL, L_SOL, N_SOL, p[0], p[1], p[2], 24), h = B0 / B_SOL; return { E: Z, B: [c[0] * h, c[1] * h, c[2] * h] }; }
+      var e = campoCariche(DIPOLO, p[0], p[1], p[2]); return { E: [e[0] * B0, e[1] * B0, e[2] * B0], B: Z };
+    }
+    var part, tSim, riflessa, zmax;
+    function partenza() {
+      var a = st.alfa * Math.PI / 180, vp = st.v * Math.sin(a), vl = st.v * Math.cos(a), rL = vp / st.B;
+      if (st.s === 'uniforme' || st.s === 'solenoide') part = { x: [-st.q * rL, 0, st.s === 'uniforme' ? -3.5 : -1.9], v: [0, vp, vl] };
+      else if (st.s === 'incrociati') part = { x: [0, 3, -3], v: [0, vp, vl * 0.25] };
+      else if (st.s === 'spira') part = { x: [-st.q * vp / (st.B * bAsse(A_SPIRA, Z_SPIRA) / bAsse(A_SPIRA, 0)), 0, Z_SPIRA], v: [0, vp, vl] };
+      else part = { x: [0, 1.6, 0.3], v: [vl, 0, vp] };
+      tSim = 0; riflessa = false; zmax = part.x[2]; part.v0 = st.v;
+    }
+    function nuovo(linee) {
+      partenza();
+      var a = st.alfa * Math.PI / 180, vp = st.v * Math.sin(a), vl = st.v * Math.cos(a), Tc = 2 * Math.PI / st.B, testo;
+      if (st.s === 'uniforme' || st.s === 'solenoide') testo = t('Raggio di Larmor ', 'Larmor radius ') + 'r = mv⊥/(|q|B) = <b class="bsiFX-num">' + fmt(vp / st.B) + '</b> · ' + t('periodo ', 'period ') + 'T = 2πm/(|q|B) = <b class="bsiFX-num">' + fmt(Tc) + '</b> · ' + t('passo dell’elica ', 'helix pitch ') + 'v∥T = <b class="bsiFX-num">' + fmt(vl * Tc) + '</b>' + (st.s === 'solenoide' ? '<br>' + t('Dentro il solenoide il campo è quasi uniforme (B = μ₀nI); alle estremità le linee si aprono e l’elica si allarga.', 'Inside the solenoid the field is nearly uniform (B = μ₀nI); at the ends the lines open out and the helix widens.') : '');
+      else if (st.s === 'incrociati') testo = t('Velocità di deriva ', 'Drift velocity ') + 'v_d = E × B / B² = <b class="bsiFX-num">' + fmt(0.5) + '</b> ' + t('lungo −y, la stessa per cariche positive e negative e per qualsiasi massa: è il moto del plasma nella magnetosfera e nei tokamak. La traiettoria è una cicloide (o un’elica che deriva).', 'along −y, the same for positive and negative charges and any mass: the motion of plasma in the magnetosphere and in tokamaks. The path is a cycloid (or a drifting helix).');
+      else if (st.s === 'spira') { var r0 = bAsse(A_SPIRA, Z_SPIRA) / bAsse(A_SPIRA, 0), ac = angoloSpecchio(r0, 1); testo = t('Il campo sulla partenza è ', 'The field at the start is ') + fmt(r0) + ' B_max. ' + t('Si conserva il momento magnetico μ = mv⊥²/2B: la carica torna indietro se sin²α > B/B_max, cioè per α > ', 'The magnetic moment μ = mv⊥²/2B is conserved: the charge turns back if sin²α > B/B_max, i.e. for α > ') + '<b class="bsiFX-num">' + fmt(ac) + '°</b>. ' + t('Previsione: ', 'Prediction: ') + '<b>' + (st.alfa > ac ? t('riflessa', 'reflected') : t('attraversa la spira', 'passes through the loop')) + '</b>. ' + t('La previsione vale se la carica gira stretta (r_L ≪ a, regime adiabatico). Così le fasce di Van Allen intrappolano protoni ed elettroni fra i poli.', 'The prediction holds if the charge gyrates tightly (r_L ≪ a, adiabatic regime). This is how the Van Allen belts trap protons and electrons between the poles.'); }
+      else testo = t('Solo campo elettrico: la carica positiva è respinta dalla carica + (rossa) e attratta dalla − (azzurra); si conserva ½mv² + qV. Le linee escono dalle cariche positive ed entrano nelle negative.', 'Electric field only: the positive charge is repelled by the + charge (red) and attracted by the − one (blue); ½mv² + qV is conserved. Lines leave positive charges and enter negative ones.');
+      info.innerHTML = testo;
+      if (cb.nuovo) cb.nuovo(linee);
+    }
+    nuovo(true);
+    return {
+      etichetta: ['Linee di campo in 3D e moto di una carica con la forza di Lorentz', '3D field lines and the motion of a charge under the Lorentz force'],
+      tre: function (S, T, L3) {
+        var sorg = new T.Group(), linee = new T.Group(); S.aggiungi(sorg); S.aggiungi(linee);
+        var palla = L3.sfera(T, 0.12, 0xff6b6b, 0, 0, 0, true); S.aggiungi(palla);
+        var fv = L3.freccia(T, [0, 0, 0], [1, 0, 0], 0xffd24a, 0.2), ff = L3.freccia(T, [0, 0, 0], [0, 1, 0], 0xff8ad8, 0.2); S.aggiungi(fv); S.aggiungi(ff);
+        var NS = 2400, sp = new Float32Array(NS * 3), ns = 0, gs = new T.BufferGeometry(); gs.setAttribute('position', new T.BufferAttribute(sp, 3)); gs.setDrawRange(0, 0);
+        var scia = new T.Line(gs, new T.LineBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.9 })); S.aggiungi(scia);
+        var lotto = 0, tVivo = 0;
+        function aggiungiLinea(L, col) {
+          if (L.length < 2) return;
+          linee.add(L3.linea(T, L, col, 0.7));
+          if (L.length > 30) { var i = Math.floor(L.length * 0.4); linee.add(L3.freccia(T, L[i], L[i + 3], col, 0.16)); }
+        }
+        function sorgente() {
+          svuota(sorg);
+          var rame = new T.MeshStandardMaterial({ color: 0xd9895b, metalness: 0.6, roughness: 0.3 });
+          if (st.s === 'spira') sorg.add(new T.Mesh(new T.TorusGeometry(A_SPIRA, 0.045, 10, 72), rame));
+          else if (st.s === 'solenoide') {
+            for (var k = 0; k < N_SOL; k++) { var m = new T.Mesh(new T.TorusGeometry(A_SOL, 0.04, 8, 56), rame); m.position.z = -L_SOL / 2 + L_SOL * (k + 0.5) / N_SOL; sorg.add(m); }
+            var cil = new T.Mesh(new T.CylinderGeometry(A_SOL, A_SOL, L_SOL, 40, 1, true), new T.MeshStandardMaterial({ color: 0xd9895b, transparent: true, opacity: 0.08, side: T.DoubleSide, depthWrite: false })); cil.rotation.x = Math.PI / 2; sorg.add(cil);
+          } else if (st.s === 'dipolo') DIPOLO.forEach(function (c) { sorg.add(L3.sfera(T, 0.18, c[0] > 0 ? 0xff6b6b : 0x6bcfff, c[1], c[2], c[3], true)); var e = L3.testo3d(T, c[0] > 0 ? '+' : '−', '#081522', 0.3); e.position.set(c[1], c[2], c[3]); sorg.add(e); });
+          if (st.s === 'incrociati') { var eE = L3.testo3d(T, 'E', '#ffb36b', 0.4); eE.position.set(4.3, 0, 3.6); sorg.add(eE); }
+          if (st.s !== 'dipolo') { var eB = L3.testo3d(T, 'B', '#6bcfff', 0.4); eB.position.set(0.35, 0.35, 3.9); sorg.add(eB); }
+        }
+        /* le linee si tracciano a lotti, una sorgente di semi per volta: il clic resta leggero */
+        function traccia() {
+          svuota(linee); var mio = ++lotto, semi = [], f;
+          if (st.s === 'uniforme' || st.s === 'incrociati') {
+            for (var i = -2; i <= 2; i++) for (var j = -2; j <= 2; j++) aggiungiLinea([[i * 1.5, j * 1.5, -4], [i * 1.5, j * 1.5, 4]], 0x6bcfff);
+            if (st.s === 'incrociati') for (i = -2; i <= 2; i++) for (j = -1; j <= 1; j++) aggiungiLinea([[-4, i * 1.5, j * 3], [4, i * 1.5, j * 3]], 0xffb36b);
+            S.sporca = true; S.avvia(); return;
+          }
+          if (st.s === 'dipolo') {
+            f = function (x, y, z) { return campoCariche(DIPOLO, x, y, z); };
+            var g = Math.PI * (3 - Math.sqrt(5)); for (i = 0; i < 22; i++) { var zz = 1 - 2 * (i + 0.5) / 22, rr = Math.sqrt(1 - zz * zz); semi.push([-1 + 0.2 * rr * Math.cos(g * i), 0.2 * rr * Math.sin(g * i), 0.2 * zz]); }
+          } else {
+            var a = st.s === 'spira' ? A_SPIRA : A_SOL;
+            f = st.s === 'spira' ? function (x, y, z) { return campoSpira3D(A_SPIRA, x, y, z, 48); } : function (x, y, z) { return campoSolenoide(A_SOL, L_SOL, N_SOL, x, y, z, 24); };
+            [0.15, 0.45, 0.75].forEach(function (u) { for (var k = 0; k < 6; k++) { var ph = Math.PI * k / 3 + 0.2; semi.push([u * a * Math.cos(ph), u * a * Math.sin(ph), 0]); } });
+            if (st.s === 'spira') for (var k = 0; k < 4; k++) { var ph = Math.PI * k / 2 + 0.2; semi.push([1.25 * a * Math.cos(ph), 1.25 * a * Math.sin(ph), 0]); }
+          }
+          var stop = function (p, i, p0) { if (Math.hypot(p[0], p[1], p[2]) > 6.5) return true; if (st.s === 'dipolo') return Math.hypot(p[0] - 1, p[1], p[2]) < 0.15; return i > 40 && Math.hypot(p[0] - p0[0], p[1] - p0[1], p[2] - p0[2]) < 0.06; };
+          var k2 = 0;
+          (function passo() {
+            if (mio !== lotto) return;
+            var t0 = Date.now();
+            while (k2 < semi.length && Date.now() - t0 < 30) {
+              var p0 = semi[k2++], L1 = lineaCampo3D(f, p0, 1, function (p, i) { return stop(p, i, p0); }, st.s === 'solenoide' ? 420 : 700, 0.06), L = L1;
+              if (st.s !== 'dipolo' && Math.hypot(L1[L1.length - 1][0] - p0[0], L1[L1.length - 1][1] - p0[1], L1[L1.length - 1][2] - p0[2]) > 0.1) L = lineaCampo3D(f, p0, -1, function (p) { return Math.hypot(p[0], p[1], p[2]) > 6.5; }, st.s === 'solenoide' ? 420 : 700, 0.06).reverse().concat(L1);
+              aggiungiLinea(L, st.s === 'dipolo' ? 0xffb36b : 0x6bcfff);
+            }
+            S.sporca = true; S.avvia();
+            if (k2 < semi.length) setTimeout(passo, 0);
+          })();
+        }
+        function posa() {
+          var p = part.x, c = campi(p), v = part.v, F3 = [st.q * (c.E[0] + v[1] * c.B[2] - v[2] * c.B[1]), st.q * (c.E[1] + v[2] * c.B[0] - v[0] * c.B[2]), st.q * (c.E[2] + v[0] * c.B[1] - v[1] * c.B[0])], sv = 0.9 / Math.max(0.2, st.v), sf = 0.7 / Math.max(0.1, st.v * st.B);
+          palla.position.set(p[0], p[1], p[2]); palla.material.color.setHex(st.q > 0 ? 0xff6b6b : 0x6bcfff); palla.material.emissive.setHex(st.q > 0 ? 0xff6b6b : 0x6bcfff);
+          puntaFreccia(T, fv, p, [v[0] * sv, v[1] * sv, v[2] * sv]); puntaFreccia(T, ff, p, [F3[0] * sf, F3[1] * sf, F3[2] * sf]);
+        }
+        cb.nuovo = function (conLinee) { if (conLinee) { sorgente(); traccia(); } ns = 0; gs.setDrawRange(0, 0); posa(); S.sporca = true; S.avvia(); };
+        cb.nuovo(true);
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var h = 0.01, n = Math.max(1, Math.round(dt * 2.4 / h));
+          for (var i = 0; i < n; i++) {
+            var c = campi(part.x); passoBoris(part, st.q, c.E, c.B, h); tSim += h;
+            if (part.x[2] > zmax) zmax = part.x[2]; if (st.s === 'spira' && part.v[2] < 0 && part.x[2] < 0) riflessa = true;
+          }
+          if (ns >= NS) { sp.copyWithin(0, 3); ns = NS - 1; }
+          sp[3 * ns] = part.x[0]; sp[3 * ns + 1] = part.x[1]; sp[3 * ns + 2] = part.x[2]; ns++; gs.attributes.position.needsUpdate = true; gs.setDrawRange(0, ns);
+          posa();
+          var fuori = Math.hypot(part.x[0], part.x[1], part.x[2]) > 6.5 || tSim > 90 || (st.s === 'dipolo' && DIPOLO.some(function (q) { return Math.hypot(part.x[0] - q[1], part.x[1] - q[2], part.x[2] - q[3]) < 0.16; }));
+          var vm = Math.hypot(part.v[0], part.v[1], part.v[2]);
+          S.didascalia.textContent = 't = ' + tSim.toFixed(1) + ' · |v| = ' + vm.toFixed(4) + (st.s === 'spira' ? ' · ' + (riflessa ? t('riflessa', 'reflected') : zmax > 0.5 ? t('ha attraversato la spira', 'went through the loop') : t('in viaggio', 'travelling')) : '');
+          tVivo += dt; if (tVivo > 0.5) { tVivo = 0; vivo.innerHTML = t('Ora: ', 'Now: ') + '|v| = <b class="bsiFX-num">' + vm.toFixed(6) + '</b> ' + (st.s === 'dipolo' || st.s === 'incrociati' ? t('(il campo elettrico compie lavoro: |v| cambia)', '(the electric field does work: |v| changes)') : t('(partita con ', '(started at ') + st.v.toFixed(2) + t(': il campo magnetico non cambia il modulo della velocità)', ': the magnetic field does not change the speed)')); }
+          if (fuori) { partenza(); ns = 0; }
+          return true;
+        });
+        S.inquadra(14, -0.9, 1.15);
+      }
+    };
+  }
+
   F.sezione('sfisem', {
     titolo: ['⚡ Elettromagnetismo in movimento', '⚡ Electromagnetism in motion'],
     sotto: ['Cariche da trascinare con potenziale, equipotenziali e linee di campo; l’induzione di una calamita che attraversa una spira; il generatore a corrente alternata; le onde elettromagnetiche e la polarizzazione.', 'Charges to drag with potential, equipotentials and field lines; induction by a magnet passing through a loop; the AC generator; electromagnetic waves and polarisation.'],
@@ -178,7 +418,8 @@
       { nome: ['➕ Cariche nel piano', '➕ Charges in the plane'], costruisci: schedaCariche },
       { nome: ['🧲 Induzione', '🧲 Induction'], costruisci: schedaInduzione },
       { nome: ['🔄 Generatore', '🔄 Generator'], costruisci: schedaGeneratore },
-      { nome: ['〰️ Onde EM', '〰️ EM waves'], costruisci: schedaOnde }
+      { nome: ['〰️ Onde EM', '〰️ EM waves'], costruisci: schedaOnde },
+      { nome: ['🌀 Campi 3D e Lorentz', '🌀 3D fields and Lorentz'], costruisci: scheda3D(schedaCampi3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

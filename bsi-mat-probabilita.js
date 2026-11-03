@@ -150,6 +150,126 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ 5. normale bivariata in 3D (v238) ═════════════════════════════════
+     (X, Y) normale con medie 0, deviazioni σx, σy e correlazione ρ:
+       f(x, y) = exp(−Q/2) / (2π σx σy √(1 − ρ²)),  Q = (u² − 2ρuv + v²)/(1 − ρ²), u = x/σx, v = y/σy.
+     Q e' il quadrato della distanza di Mahalanobis; Q ha distribuzione χ² con 2 gradi di liberta',
+     quindi l'ellisse Q ≤ k² contiene la probabilita' 1 − e^(−k²/2) (39,35 % per k = 1, 86,47 % per
+     k = 2). Le marginali sono N(0, σx²) e N(0, σy²) qualunque sia ρ; la media condizionata
+     E[Y | X = x] = ρ σy/σx · x e' la retta di regressione. I campioni: Box–Muller e poi
+     X = σx Z₁, Y = σy (ρ Z₁ + √(1 − ρ²) Z₂). */
+  function densitaBiv(x, y, sx, sy, rho) { var u = x / sx, v = y / sy, d = 1 - rho * rho; return Math.exp(-(u * u - 2 * rho * u * v + v * v) / (2 * d)) / (2 * Math.PI * sx * sy * Math.sqrt(d)); }
+  function mahalanobis2(x, y, sx, sy, rho) { var u = x / sx, v = y / sy; return (u * u - 2 * rho * u * v + v * v) / (1 - rho * rho); }
+  function probEllisse(k) { return 1 - Math.exp(-k * k / 2); }
+  function campionaBiv(r, sx, sy, rho) { var u = 1 - r(), w = r(), R = Math.sqrt(-2 * Math.log(u)), z1 = R * Math.cos(2 * Math.PI * w), z2 = R * Math.sin(2 * Math.PI * w); return [sx * z1, sy * (rho * z1 + Math.sqrt(1 - rho * rho) * z2)]; }
+  function correlazione(P) { var n = P.length, mx = 0, my = 0, sxx = 0, syy = 0, sxy = 0, i; for (i = 0; i < n; i++) { mx += P[i][0] / n; my += P[i][1] / n; } for (i = 0; i < n; i++) { var a = P[i][0] - mx, b = P[i][1] - my; sxx += a * a; syy += b * b; sxy += a * b; } return { r: sxy / Math.sqrt(sxx * syy), mx: mx, my: my, sx: Math.sqrt(sxx / (n - 1)), sy: Math.sqrt(syy / (n - 1)) }; }
+  /* assi dell'ellisse: autovalori e autovettori della covarianza [[σx², ρσxσy], [ρσxσy, σy²]] */
+  function assiEllisse(sx, sy, rho) { var a = sx * sx, b = rho * sx * sy, d = sy * sy, m = (a + d) / 2, q = Math.sqrt((a - d) * (a - d) / 4 + b * b), l1 = m + q, l2 = m - q, th = Math.abs(b) < 1e-15 ? (a >= d ? 0 : Math.PI / 2) : Math.atan2(l1 - a, b); return { l1: l1, l2: l2, angolo: th }; }
+  F.calcolo.probabilita.densitaBiv = densitaBiv; F.calcolo.probabilita.mahalanobis2 = mahalanobis2; F.calcolo.probabilita.probEllisse = probEllisse; F.calcolo.probabilita.campionaBiv = campionaBiv; F.calcolo.probabilita.correlazione = correlazione; F.calcolo.probabilita.assiEllisse = assiEllisse;
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaBivariata(pan) {
+    var st = { rho: 0.6, sx: 1, sy: 1, vel: 40 }, S = null, T = null, lab = null, rnd = generatore(2026), ogg = {}, cadono = [], caduti = [], ultimo = 0, MAXC = 5000, L = 4, Hs = 2.6;
+    var f2 = function (v) { return v.toFixed(2); };
+    F.cursore(pan, ['correlazione ρ', 'correlation ρ'], -0.95, 0.95, 0.05, st.rho, function (v) { st.rho = v; nuova(); }, f2);
+    F.cursore(pan, ['deviazione standard σx', 'standard deviation σx'], 0.5, 2, 0.05, st.sx, function (v) { st.sx = v; nuova(); }, f2);
+    F.cursore(pan, ['deviazione standard σy', 'standard deviation σy'], 0.5, 2, 0.05, st.sy, function (v) { st.sy = v; nuova(); }, f2);
+    F.cursore(pan, ['campioni al secondo', 'samples per second'], 5, 400, 5, st.vel, function (v) { st.vel = v; }, function (v) { return String(v); });
+    F.bottone(pan, ['↺ Ricomincia la pioggia', '↺ Restart the rain'], function () { nuova(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }), conti = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info); pan.appendChild(conti);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('La superficie è la densità congiunta f(x, y) (altezza riscalata al suo massimo): con ρ > 0 la campana si allunga lungo la diagonale, con ρ < 0 lungo l’altra, e per ρ → ±1 si schiaccia su una retta. I punti che cadono sono estrazioni casuali (Box–Muller, generatore con seme): si accumulano sul pavimento e la loro nuvola prende la forma delle curve di livello. Le due ellissi gialle sono le regioni Q ≤ 1 e Q ≤ 4 (Mahalanobis), che contengono il 39,35 % e l’86,47 % della probabilità: la frazione di punti che ci cade dentro converge a questi numeri, con un errore che cala come 1/√N. Sulle pareti, in rosso e azzurro, le densità marginali N(0, σx²) e N(0, σy²) con gli istogrammi dei campioni: non dipendono da ρ, perché la correlazione sta solo nella forma congiunta. La retta tratteggiata è la regressione E[Y | X = x] = ρ(σy/σx)x.',
+      'The surface is the joint density f(x, y) (height rescaled to its maximum): with ρ > 0 the bell stretches along the diagonal, with ρ < 0 along the other one, and as ρ → ±1 it collapses onto a line. The falling points are random draws (Box–Muller, seeded generator): they pile up on the floor and their cloud takes the shape of the contour lines. The two yellow ellipses are the regions Q ≤ 1 and Q ≤ 4 (Mahalanobis), holding 39.35 % and 86.47 % of the probability: the fraction of points falling inside converges to these numbers, with an error shrinking like 1/√N. On the walls, in red and blue, the marginal densities N(0, σx²) and N(0, σy²) with the sample histograms: they do not depend on ρ, because the correlation lives only in the joint shape. The dashed line is the regression E[Y | X = x] = ρ(σy/σx)x.') }));
+    function testo() {
+      var A = assiEllisse(st.sx, st.sy, st.rho), picco = densitaBiv(0, 0, st.sx, st.sy, st.rho);
+      info.innerHTML = t('picco ', 'peak ') + 'f(0, 0) = 1/(2πσxσy√(1 − ρ²)) = <b class="bsiFX-num">' + picco.toFixed(4) + '</b><br>' + t('assi dell’ellisse: √λ = ', 'ellipse axes: √λ = ') + Math.sqrt(A.l1).toFixed(3) + ', ' + Math.sqrt(Math.max(0, A.l2)).toFixed(3) + ' · ' + t('inclinazione ', 'tilt ') + (A.angolo * 180 / Math.PI).toFixed(1) + '°<br>' + t('regressione: ', 'regression: ') + 'E[Y | X = x] = <b class="bsiFX-num">' + (st.rho * st.sy / st.sx).toFixed(3) + '</b>·x';
+    }
+    function nuova() { cadono = []; caduti = []; rnd = generatore(2026); testo(); conti.innerHTML = ''; scena(); }
+    /* altezza nella scena: la densita' divisa per il suo massimo, per Hs */
+    function scena() {
+      if (!S) return;
+      S.pulisci(); ogg = {};
+      var N = 70, picco = densitaBiv(0, 0, st.sx, st.sy, st.rho), pos = [], col = [], idx = [], i, j;
+      for (i = 0; i <= N; i++) for (j = 0; j <= N; j++) { var x = -L + 2 * L * i / N, y = -L + 2 * L * j / N, u = densitaBiv(x, y, st.sx, st.sy, st.rho) / picco; pos.push(x, y, u * Hs); var c = colScala(u); col.push(c[0], c[1], c[2]); }
+      for (i = 0; i < N; i++) for (j = 0; j < N; j++) { var a = i * (N + 1) + j, b = a + N + 1; idx.push(a, b, b + 1, a, b + 1, a + 1); }
+      var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('color', new T.Float32BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      S.aggiungi(new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, transparent: true, opacity: 0.78, side: T.DoubleSide, roughness: 0.5, depthWrite: false })));
+      S.aggiungi(new T.LineSegments(new T.WireframeGeometry(geo), new T.LineBasicMaterial({ color: 0x0b1a2a, transparent: true, opacity: 0.15 })));
+      /* il pavimento con le ellissi Q = 1 e Q = 4 (anche sulla superficie, alla quota e^(−k²/2)) */
+      S.aggiungi(lab.linea(T, [[-L, -L, 0], [L, -L, 0], [L, L, 0], [-L, L, 0], [-L, -L, 0]], 0x34465f));
+      var A = assiEllisse(st.sx, st.sy, st.rho);
+      [1, 2].forEach(function (k) {
+        var e = [], es = []; for (var q = 0; q <= 120; q++) { var th = 2 * Math.PI * q / 120, p = k * Math.sqrt(A.l1) * Math.cos(th), r = k * Math.sqrt(Math.max(0, A.l2)) * Math.sin(th), x = p * Math.cos(A.angolo) - r * Math.sin(A.angolo), y = p * Math.sin(A.angolo) + r * Math.cos(A.angolo); e.push([x, y, 0.01]); es.push([x, y, Math.exp(-k * k / 2) * Hs + 0.01]); }
+        S.aggiungi(lab.linea(T, e, 0xffd24a, k === 1 ? 0.95 : 0.7)); S.aggiungi(lab.linea(T, es, 0xffd24a, 0.6));
+      });
+      var m = st.rho * st.sy / st.sx, xr = Math.min(L, L / Math.max(1e-9, Math.abs(m))), reg = [];
+      for (var q = 0; q <= 20; q += 2) { var x0 = -xr + 2 * xr * q / 20, x1 = -xr + 2 * xr * (q + 1) / 20; reg.push(new T.Vector3(x0, m * x0, 0.02), new T.Vector3(x1, m * x1, 0.02)); }
+      S.aggiungi(new T.LineSegments(new T.BufferGeometry().setFromPoints(reg), new T.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })));
+      /* le marginali sulle pareti y = L (in x) e x = −L (in y), alte 2 al massimo */
+      var mx = [], my = []; for (q = 0; q <= 120; q++) { var v = -L + 2 * L * q / 120; mx.push([v, L, 2 * normale(v, 0, st.sx) * st.sx * Math.sqrt(2 * Math.PI)]); my.push([-L, v, 2 * normale(v, 0, st.sy) * st.sy * Math.sqrt(2 * Math.PI)]); }
+      S.aggiungi(lab.linea(T, mx, 0xff8a80)); S.aggiungi(lab.linea(T, my, 0x6bcfff));
+      S.aggiungi(lab.linea(T, [[-L, L, 0], [L, L, 0], [L, L, 2.4], [-L, L, 2.4], [-L, L, 0]], 0x34465f, 0.6)); S.aggiungi(lab.linea(T, [[-L, -L, 0], [-L, L, 0], [-L, L, 2.4], [-L, -L, 2.4], [-L, -L, 0]], 0x34465f, 0.6));
+      ogg.istoX = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0xffc4b8, 0.9); ogg.istoY = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0xbfe6ff, 0.9); S.aggiungi(ogg.istoX); S.aggiungi(ogg.istoY);
+      /* i punti: quelli in aria e quelli caduti, in due nuvole con buffer preallocati */
+      var gc = new T.BufferGeometry(); gc.setAttribute('position', new T.BufferAttribute(new Float32Array(MAXC * 3), 3)); gc.setDrawRange(0, 0);
+      ogg.caduti = new T.Points(gc, new T.PointsMaterial({ color: 0xe6fffb, size: 0.06, transparent: true, opacity: 0.85, depthWrite: false })); ogg.caduti.frustumCulled = false; S.aggiungi(ogg.caduti);
+      var ga = new T.BufferGeometry(); ga.setAttribute('position', new T.BufferAttribute(new Float32Array(600 * 3), 3)); ga.setDrawRange(0, 0);
+      ogg.aria = new T.Points(ga, new T.PointsMaterial({ color: 0xffd24a, size: 0.12, transparent: true, depthWrite: false })); ogg.aria.frustumCulled = false; S.aggiungi(ogg.aria);
+      S.aggiungi(lab.assi(T, L * 1.15, ['x', 'y', 'f'], 0.32));
+      S.didascalia.textContent = 'ρ = ' + st.rho.toFixed(2) + ' · σx = ' + st.sx.toFixed(2) + ' · σy = ' + st.sy.toFixed(2);
+      if (!S.vistaIniziale) S.inquadra(14, -0.95, 1.05);
+      var accumulo = 0;
+      /* una prima manciata di punti gia' a terra: la scena non parte vuota */
+      for (q = 0; q < 400; q++) atterra(campionaBiv(rnd, st.sx, st.sy, st.rho));
+      S.ogniFotogramma(function (dt) {
+        accumulo += dt * st.vel;
+        while (accumulo >= 1 && cadono.length < 600) { accumulo -= 1; var p = campionaBiv(rnd, st.sx, st.sy, st.rho); cadono.push([p[0], p[1], 5 + Math.random() * 0.5, 0]); }
+        if (accumulo > 1) accumulo = 1;
+        var pa = ogg.aria.geometry.attributes.position, k = 0;
+        cadono = cadono.filter(function (c) { c[3] += 9.8 * dt * 0.6; c[2] -= c[3] * dt; if (c[2] <= 0) { atterra(c); return false; } return true; });
+        cadono.forEach(function (c) { pa.setXYZ(k++, c[0], c[1], c[2]); }); pa.needsUpdate = true; ogg.aria.geometry.setDrawRange(0, k);
+        var ora = Date.now(); if (ora - ultimo > 400) { ultimo = ora; statistiche(); }
+      });
+      statistiche();
+    }
+    function atterra(c) {
+      if (caduti.length >= MAXC) caduti.shift();
+      caduti.push([c[0], c[1]]);
+      var pc = ogg.caduti.geometry.attributes.position; if (caduti.length < MAXC) pc.setXYZ(caduti.length - 1, c[0], c[1], 0.015); else caduti.forEach(function (p, i) { pc.setXYZ(i, p[0], p[1], 0.015); });
+      pc.needsUpdate = true; ogg.caduti.geometry.setDrawRange(0, caduti.length);
+    }
+    function statistiche() {
+      var n = caduti.length; if (n < 3) return;
+      var d1 = 0, d2 = 0, hx = [], hy = [], nb = 32, i; for (i = 0; i < nb; i++) { hx.push(0); hy.push(0); }
+      caduti.forEach(function (p) { var q = mahalanobis2(p[0], p[1], st.sx, st.sy, st.rho); if (q <= 1) d1++; if (q <= 4) d2++; var a = Math.floor((p[0] + L) / (2 * L) * nb), b = Math.floor((p[1] + L) / (2 * L) * nb); if (a >= 0 && a < nb) hx[a]++; if (b >= 0 && b < nb) hy[b]++; });
+      /* istogrammi normalizzati come densita' e riscalati come le marginali (altezza 2·σ√(2π)·f) */
+      var w = 2 * L / nb, sx = [], sy = [];
+      for (i = 0; i < nb; i++) { var x0 = -L + i * w, hX = 2 * hx[i] / (n * w) * st.sx * Math.sqrt(2 * Math.PI), hY = 2 * hy[i] / (n * w) * st.sy * Math.sqrt(2 * Math.PI); sx.push(new T.Vector3(x0, L, hX), new T.Vector3(x0 + w, L, hX)); sy.push(new T.Vector3(-L, x0, hY), new T.Vector3(-L, x0 + w, hY)); }
+      ogg.istoX.geometry.setFromPoints(sx); ogg.istoY.geometry.setFromPoints(sy);
+      var R = correlazione(caduti), e1 = Math.sqrt(probEllisse(1) * (1 - probEllisse(1)) / n);
+      conti.innerHTML = 'N = <b class="bsiFX-num">' + n + '</b>' + (n >= MAXC ? t(' (gli ultimi)', ' (the latest)') : '') + '<br>' + t('dentro Q ≤ 1: ', 'inside Q ≤ 1: ') + '<b class="bsiFX-num">' + (100 * d1 / n).toFixed(1) + ' %</b> (' + t('teoria ', 'theory ') + (100 * probEllisse(1)).toFixed(2) + ' % ± ' + (100 * e1).toFixed(1) + ')<br>' + t('dentro Q ≤ 4: ', 'inside Q ≤ 4: ') + '<b class="bsiFX-num">' + (100 * d2 / n).toFixed(1) + ' %</b> (' + t('teoria ', 'theory ') + (100 * probEllisse(2)).toFixed(2) + ' %)<br>' + t('correlazione campionaria ', 'sample correlation ') + 'r = <b class="bsiFX-num">' + R.r.toFixed(3) + '</b> (ρ = ' + st.rho.toFixed(2) + ') · s_x = ' + R.sx.toFixed(3) + ', s_y = ' + R.sy.toFixed(3);
+    }
+    function colScala(u) { var P = [[0.12, 0.2, 0.45], [0.15, 0.55, 0.75], [0.37, 0.92, 0.83], [1, 0.82, 0.29], [1, 0.54, 0.5]], k = Math.min(3, Math.floor(u * 4)), f = u * 4 - k, a = P[k], b = P[k + 1]; return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f]; }
+    testo();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; nuova(); };
+  }
+
   F.sezione('smatprob', {
     titolo: ['🎲 Probabilità in movimento', '🎲 Probability in motion'],
     sotto: ['La macchina di Galton e la binomiale, la legge dei grandi numeri e il teorema del limite centrale, il metodo Monte Carlo, il teorema di Bayes con i test diagnostici.', 'The Galton board and the binomial, the law of large numbers and the central limit theorem, the Monte Carlo method, Bayes’ theorem with diagnostic tests.'],
@@ -157,7 +277,8 @@
       { nome: ['🔻 Galton', '🔻 Galton'], costruisci: schedaGalton },
       { nome: ['📊 Limite centrale', '📊 Central limit'], costruisci: schedaLimiteCentrale },
       { nome: ['🎯 Monte Carlo', '🎯 Monte Carlo'], costruisci: schedaMonteCarlo },
-      { nome: ['🩺 Bayes', '🩺 Bayes'], costruisci: schedaBayes }
+      { nome: ['🩺 Bayes', '🩺 Bayes'], costruisci: schedaBayes },
+      { nome: ['🧊 Normale bivariata 3D', '🧊 Bivariate normal 3D'], costruisci: scheda3d(schedaBivariata, ['Densità normale bivariata in 3D con campioni che cadono e marginali', 'Bivariate normal density in 3D with falling samples and marginals']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

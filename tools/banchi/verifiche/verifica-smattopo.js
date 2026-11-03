@@ -50,4 +50,16 @@ prova('trifoglio con 300 e 1200 campioni: 3 incroci, 9 colorazioni', [300, 1200]
   prova('trifoglio: diagramma alternante (sopra/sotto/sopra…)', ev.map(e => e[1]).join(''), alt); }
 // p divide det ⇔ colorazioni > p (7 non divide 3 ne' 5)
 prova('nessun nodo della lista è 7-colorabile', Object.keys(nodi).map(k => T.colorazioni(T.diagramma(k), 7)).join(','), Object.keys(nodi).every(k => T.colorazioni(T.diagramma(k), 7) === 7));
+// 6. (v238) la triangolazione della scheda 3D: χ invariante per 4 finezze e uguale a quello della maglia a quadrilateri
+{ const att = { sfera: [2, 0, true], toro: [0, 0, true], cilindro: [0, 2, true], mobius: [0, 1, false], klein: [0, 0, false] }, righe = [];
+  const tutto = Object.keys(att).every(k => [[6, 3], [12, 4], [24, 8], [60, 20]].every(([nu, nv]) => { const r = T.triangolazione(k, nu, nv), m = T.maglia(k, nu, nv); righe.push(r.chi); return r.chi === att[k][0] && r.bordi === att[k][1] && r.orientabile === att[k][2] && r.chi === m.chi && r.varieta; }));
+  prova('triangolazione (v238): χ, bordi, orientabilita\' per 5 superfici × 4 finezze, = maglia', righe.join(','), tutto); }
+// 7. (v238) conteggio degli spigoli di una triangolazione chiusa: ogni spigolo sta in due triangoli, 3F = 2S
+{ const r = ['sfera', 'toro', 'klein'].map(k => T.triangolazione(k, 30, 10));
+  prova('triangolazioni chiuse: 3F = 2S (sfera, toro, Klein)', r.map(x => 3 * x.F + '=' + 2 * x.S).join(', '), r.every(x => 3 * x.F === 2 * x.S)); }
+// 8. (v238) normale trasportata con continuita' su due giri: Möbius −1 dopo un giro, +1 dopo due; toro sempre +1
+{ const d = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], m = T.trasportoContinuo('mobius', 720), o = T.trasportoContinuo('toro', 720);
+  const v = [d(m[360].n, m[0].n), d(m[720].n, m[0].n), d(o[360].n, o[0].n)];
+  prova('trasporto continuo (v238): Möbius n(2π)·n₀, n(4π)·n₀; toro n(2π)·n₀', v.map(x => x.toFixed(9)).join(', '), Math.abs(v[0] + 1) < 1e-6 && Math.abs(v[1] - 1) < 1e-6 && Math.abs(v[2] - 1) < 1e-6); }
 console.log('\n' + ok + ' superati, ' + ko + ' falliti');
+process.exit(ko ? 1 : 0);

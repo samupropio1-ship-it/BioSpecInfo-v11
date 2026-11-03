@@ -400,6 +400,127 @@
     });
   }
 
+  /* ═══ 5. superfici in 3D: triangolazione e normale trasportata (v238) ════
+     La griglia (u, v) con gli incollaggi della superficie, ogni quadrilatero diviso in due
+     triangoli lungo la diagonale: una triangolazione vera (le facce sono triangoli). V, S, F si
+     contano sulla struttura incollata; χ = V − S + F non dipende dalla finezza della griglia
+     (invarianza topologica), l'orientabilita' si decide propagando un verso di percorrenza a
+     tutti i triangoli attraverso gli spigoli comuni. Classificazione: chiusa e orientabile →
+     sfera con g manici, g = (2 − χ)/2; chiusa non orientabile → k = 2 − χ cuffie incrociate. */
+  function triangolazione(k, nu, nv) {
+    var S = SUP[k], id = {}, nV = 0, tri = [];
+    function c(i, j) { var key = S.canon(i, j, nu, nv); if (!(key in id)) id[key] = nV++; return id[key]; }
+    for (var i = 0; i < nu; i++) for (var j = 0; j < nv; j++) {
+      var a = c(i, j), b = c(i + 1, j), cc = c(i + 1, j + 1), d = c(i, j + 1);
+      [[a, b, cc], [a, cc, d]].forEach(function (t3) { if (t3[0] !== t3[1] && t3[1] !== t3[2] && t3[0] !== t3[2]) tri.push(t3); });
+    }
+    var spig = {};
+    tri.forEach(function (f, fi) { for (var m = 0; m < 3; m++) { var v = f[m], w = f[(m + 1) % 3], key = Math.min(v, w) + '-' + Math.max(v, w); (spig[key] = spig[key] || []).push([fi, v, w]); } });
+    var chiavi = Object.keys(spig), bordo = chiavi.filter(function (key) { return spig[key].length === 1; }), varieta = chiavi.every(function (key) { return spig[key].length <= 2; });
+    var U = uf(nV), toccati = {}; bordo.forEach(function (key) { var e = key.split('-').map(Number); U.u(e[0], e[1]); toccati[e[0]] = toccati[e[1]] = 1; });
+    var comp = {}; Object.keys(toccati).forEach(function (v) { comp[U.r(+v)] = 1; });
+    var verso = tri.map(function () { return 0; }), ok = true, coda = [0]; verso[0] = 1;
+    while (coda.length && ok) {
+      var fi = coda.shift();
+      for (var m = 0; m < 3; m++) {
+        var v = tri[fi][m], w = tri[fi][(m + 1) % 3], key = Math.min(v, w) + '-' + Math.max(v, w);
+        spig[key].forEach(function (e) { if (e[0] === fi) return; var vuole = e[1] === v ? -verso[fi] : verso[fi]; if (!verso[e[0]]) { verso[e[0]] = vuole; coda.push(e[0]); } else if (verso[e[0]] !== vuole) ok = false; });
+      }
+    }
+    var chi = nV - chiavi.length + tri.length, bordi = Object.keys(comp).length;
+    return { V: nV, S: chiavi.length, F: tri.length, chi: chi, bordi: bordi, orientabile: ok, varieta: varieta, genere: !bordi && ok ? (2 - chi) / 2 : null, cuffie: !bordi && !ok ? 2 - chi : null };
+  }
+  /* il trasporto lungo il giro u ∈ [0, 4π] a v = v₀: la normale scelta con continuita' a ogni passo */
+  function trasportoContinuo(k, M) {
+    var S = SUP[k], out = [], n = normale(k, 0, S.v0);
+    for (var i = 0; i <= M; i++) { var u = 4 * Math.PI * i / M, m = normale(k, u, S.v0); if (pscal(m, n) < 0) m = [-m[0], -m[1], -m[2]]; n = m; out.push({ u: u, p: S.P(u, S.v0), n: n }); }
+    return out;
+  }
+  F.calcolo.topologia.triangolazione = triangolazione; F.calcolo.topologia.trasportoContinuo = trasportoContinuo;
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaSuperfici3D(pan) {
+    var st = { s: 'mobius', nu: 24, rete: true, vel: 1 }, S = null, T = null, lab = null, ogg = {}, cammino = null, tau = 0, ultimo = 0;
+    F.scelta(pan, ['Superficie', 'Surface'], Object.keys(SUP).map(function (k) { return [k, F.tt(SUP[k].nome)]; }), st.s, function (v) { st.s = v; calcola(); });
+    F.cursore(pan, ['finezza della triangolazione (giri in u)', 'triangulation fineness (steps in u)'], 6, 60, 2, st.nu, function (v) { st.nu = v; calcola(); }, function (v) { return v + ' × ' + Math.max(3, Math.round(v / 3)); });
+    var c = F.el('input', { type: 'checkbox' }); c.checked = true; c.addEventListener('change', function () { st.rete = c.checked; if (ogg.rete) ogg.rete.visible = st.rete; if (S) S.avvia(); });
+    pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.84rem;color:#cfe3f7;cursor:pointer' }, [c, F.el('span', { testo: t('Mostra i triangoli', 'Show the triangles') })]));
+    F.bottone(pan, ['↺ Fai ripartire la freccia', '↺ Restart the arrow'], function () { tau = 0; if (S) S.avvia(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }), giro = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info); pan.appendChild(giro);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Le due facce della superficie hanno colori diversi: azzurro dalla parte in cui punta la normale P_u × P_v della parametrizzazione, arancio dall’altra. Sul toro e sulla sfera i due colori non si incontrano mai: sono due lati veri. Sul nastro di Möbius e sulla bottiglia di Klein il colore cambia di colpo lungo la cucitura u = 0: la parametrizzazione non riesce a scegliere un lato in modo coerente, perché un lato solo c’è. La freccia rossa è la normale portata con continuità lungo il giro: dopo un giro sulle superfici non orientabili torna capovolta (n·n₀ = −1) e serve un secondo giro per riportarla com’era. La caratteristica di Eulero χ = V − S + F è contata sulla triangolazione incollata: cambia la finezza e cambiano V, S, F, ma χ resta lo stesso, perché è un invariante topologico. Con χ, i bordi e l’orientabilità si classifica ogni superficie compatta.',
+      'The two faces of the surface have different colours: blue on the side where the normal P_u × P_v of the parametrisation points, orange on the other. On the torus and the sphere the colours never meet: they are two genuine sides. On the Möbius strip and the Klein bottle the colour flips abruptly along the seam u = 0: the parametrisation cannot choose a side consistently, because there is only one. The red arrow is the normal carried continuously around the loop: after one lap on the non-orientable surfaces it comes back upside down (n·n₀ = −1) and a second lap is needed to restore it. The Euler characteristic χ = V − E + F is counted on the glued triangulation: change the fineness and V, E, F change, but χ stays the same, because it is a topological invariant. With χ, the boundaries and orientability every compact surface is classified.') }));
+    function nome(M) {
+      if (M.bordi) return M.orientabile ? (M.chi === 0 && M.bordi === 2 ? t('anello (cilindro): due bordi', 'annulus (cylinder): two boundaries') : t('superficie orientabile con bordo', 'orientable surface with boundary')) : (M.chi === 0 && M.bordi === 1 ? t('nastro di Möbius: un bordo solo', 'Möbius strip: a single boundary') : t('non orientabile con bordo', 'non-orientable with boundary'));
+      return M.orientabile ? (M.genere === 0 ? t('sfera (genere 0)', 'sphere (genus 0)') : M.genere === 1 ? t('toro (genere 1)', 'torus (genus 1)') : t('genere ', 'genus ') + M.genere) : (M.cuffie === 1 ? t('piano proiettivo', 'projective plane') : M.cuffie === 2 ? t('bottiglia di Klein (2 cuffie incrociate)', 'Klein bottle (2 cross-caps)') : M.cuffie + t(' cuffie incrociate', ' cross-caps'));
+    }
+    function calcola() {
+      var nv = Math.max(3, Math.round(st.nu / 3)), M = triangolazione(st.s, st.nu, nv), M2 = triangolazione(st.s, 2 * st.nu, 2 * nv);
+      info.innerHTML = t('Triangolazione ', 'Triangulation ') + st.nu + ' × ' + nv + ': V − S + F = ' + M.V + ' − ' + M.S + ' + ' + M.F + ' = <b class="bsiFX-num">χ = ' + M.chi + '</b><br>' + t('con la griglia doppia: ', 'with the doubled grid: ') + M2.V + ' − ' + M2.S + ' + ' + M2.F + ' = ' + M2.chi + (M2.chi === M.chi ? t(' (stesso χ)', ' (same χ)') : '') + '<br>' +
+        t('bordi: ', 'boundaries: ') + M.bordi + ' · ' + (M.orientabile ? '<span class="bsiFX-ok">' + t('orientabile', 'orientable') + '</span>' : '<span class="bsiFX-ko">' + t('non orientabile', 'non-orientable') + '</span>') + ' → <b>' + nome(M) + '</b>';
+      cammino = trasportoContinuo(st.s, 720); tau = 0;
+      scena();
+    }
+    function scena() {
+      if (!S) return;
+      S.pulisci(); ogg = {};
+      var Sp = SUP[st.s], nu = 120, nv = 40, pos = [], idx = [], i, j, sc = 1.55;
+      for (i = 0; i <= nu; i++) for (j = 0; j <= nv; j++) { var p = Sp.P(Sp.u[0] + (Sp.u[1] - Sp.u[0]) * i / nu, Sp.v[0] + (Sp.v[1] - Sp.v[0]) * j / nv); pos.push(p[0] * sc, p[1] * sc, p[2] * sc); }
+      for (i = 0; i < nu; i++) for (j = 0; j < nv; j++) { var a = i * (nv + 1) + j, b = a + nv + 1; idx.push(a, b, b + 1, a, b + 1, a + 1); }
+      var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      /* due materiali: davanti (verso P_u × P_v) azzurro, dietro arancio */
+      S.aggiungi(new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x6bcfff, side: T.FrontSide, roughness: 0.45, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })));
+      S.aggiungi(new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0xffb45a, side: T.BackSide, roughness: 0.45, metalness: 0.05, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })));
+      /* i triangoli della triangolazione scelta (non incollati: sono solo da vedere) */
+      var tnu = st.nu, tnv = Math.max(3, Math.round(st.nu / 3)), seg = [];
+      var P = function (ii, jj) { var q = Sp.P(Sp.u[0] + (Sp.u[1] - Sp.u[0]) * ii / tnu, Sp.v[0] + (Sp.v[1] - Sp.v[0]) * jj / tnv); return new T.Vector3(q[0] * sc, q[1] * sc, q[2] * sc); };
+      for (i = 0; i < tnu; i++) for (j = 0; j < tnv; j++) { var A = P(i, j), B = P(i + 1, j), Cc = P(i + 1, j + 1), D = P(i, j + 1); seg.push(A, B, A, D, A, Cc); if (i === tnu - 1) seg.push(B, Cc); if (j === tnv - 1) seg.push(D, Cc); }
+      ogg.rete = new T.LineSegments(new T.BufferGeometry().setFromPoints(seg), new T.LineBasicMaterial({ color: 0x0b1a2a, transparent: true, opacity: 0.55 })); ogg.rete.visible = st.rete; S.aggiungi(ogg.rete);
+      /* il giro su cui viaggia la freccia, la freccia e la sua scia */
+      S.aggiungi(lab.linea(T, cammino.filter(function (q, k) { return q.u <= 2 * Math.PI + 1e-9 && k % 4 === 0; }).map(function (q) { return [q.p[0] * sc, q.p[1] * sc, q.p[2] * sc]; }), 0xffd24a, 0.9));
+      ogg.freccia = lab.freccia(T, [0, 0, 0], [0, 0, 1], 0xff4d4d, 0.3); S.aggiungi(ogg.freccia);
+      /* la freccia si vede anche quando passa dietro la superficie */
+      ogg.freccia.traverse(function (o) { if (o.material) { o.material.depthTest = false; o.material.transparent = true; } o.renderOrder = 6; });
+      ogg.n0 = lab.freccia(T, [cammino[0].p[0] * sc, cammino[0].p[1] * sc, cammino[0].p[2] * sc], [(cammino[0].p[0] + 0.8 * cammino[0].n[0]) * sc, (cammino[0].p[1] + 0.8 * cammino[0].n[1]) * sc, (cammino[0].p[2] + 0.8 * cammino[0].n[2]) * sc], 0xffffff, 0.25); S.aggiungi(ogg.n0);
+      var gs = new T.BufferGeometry(); gs.setAttribute('position', new T.BufferAttribute(new Float32Array(400 * 6), 3)); gs.setDrawRange(0, 0);
+      ogg.scia = new T.LineSegments(gs, new T.LineBasicMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.85, depthTest: false })); ogg.scia.frustumCulled = false; ogg.scia.renderOrder = 5; S.aggiungi(ogg.scia);
+      S.didascalia.textContent = F.tt(Sp.nome);
+      if (!S.vistaIniziale) S.inquadra(10, -0.7, 1.0);
+      S.ogniFotogramma(function (dt) { tau += dt * 0.45 * st.vel; aggiorna(dt); });
+      aggiorna(0);
+    }
+    function aggiorna(dt) {
+      if (!cammino || !ogg.freccia) return;
+      var sc = 1.55, u = tau % (4 * Math.PI), k = Math.min(cammino.length - 1, Math.round(u / (4 * Math.PI) * (cammino.length - 1))), q = cammino[k];
+      ogg.freccia.position.set(q.p[0] * sc, q.p[1] * sc, q.p[2] * sc); ogg.freccia.setDirection(new T.Vector3(q.n[0], q.n[1], q.n[2])); ogg.freccia.setLength(1.1, 0.26, 0.15);
+      /* la scia: un pennello di normali ogni 1/200 del doppio giro, fino al punto attuale */
+      var gs = ogg.scia.geometry.attributes.position, m = 0;
+      for (var i = 0; i <= k && m < 400; i += 9) { var r = cammino[i]; gs.setXYZ(2 * m, r.p[0] * sc, r.p[1] * sc, r.p[2] * sc); gs.setXYZ(2 * m + 1, r.p[0] * sc + 0.6 * r.n[0], r.p[1] * sc + 0.6 * r.n[1], r.p[2] * sc + 0.6 * r.n[2]); m++; }
+      gs.needsUpdate = true; ogg.scia.geometry.setDrawRange(0, 2 * m);
+      var ora = Date.now(); if (dt && ora - ultimo < 200) return; ultimo = ora;
+      var n0 = cammino[0].n, pr = pscal(q.n, n0);
+      giro.innerHTML = t('giro ', 'lap ') + '<b>' + (u < 2 * Math.PI ? 1 : 2) + '</b> · u = ' + (u % (2 * Math.PI)).toFixed(2) + ' · n·n₀ = <b class="bsiFX-num">' + pr.toFixed(3) + '</b>' + (Math.abs(u - 2 * Math.PI) < 0.35 ? (pr < 0 ? t(' → capovolta dopo un giro', ' → flipped after one lap') : t(' → tornata uguale dopo un giro', ' → back unchanged after one lap')) : '');
+    }
+    calcola();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
   F.sezione('smattopo', {
     titolo: ['🍩 Topologia e superfici', '🍩 Topology and surfaces'],
     sotto: ['Ciò che non cambia deformando: la caratteristica di Eulero dei poliedri, l’orientabilità di sfera, toro, nastro di Möbius e bottiglia di Klein, i poligoni fondamentali e la classificazione delle superfici, i nodi e le colorazioni di Fox.', 'What does not change under deformation: the Euler characteristic of polyhedra, the orientability of sphere, torus, Möbius strip and Klein bottle, fundamental polygons and the classification of surfaces, knots and Fox colourings.'],
@@ -407,7 +528,8 @@
       { nome: ['🧊 V − S + F', '🧊 V − E + F'], costruisci: schedaEulero },
       { nome: ['🎀 Superfici', '🎀 Surfaces'], costruisci: schedaSuperfici },
       { nome: ['🔲 Poligoni fondamentali', '🔲 Fundamental polygons'], costruisci: schedaPoligoni },
-      { nome: ['🪢 Nodi', '🪢 Knots'], costruisci: schedaNodi }
+      { nome: ['🪢 Nodi', '🪢 Knots'], costruisci: schedaNodi },
+      { nome: ['🧊 Superfici in 3D: χ e orientabilità', '🧊 Surfaces in 3D: χ and orientability'], costruisci: scheda3d(schedaSuperfici3D, ['Superficie in 3D con triangolazione, caratteristica di Eulero e normale trasportata', '3D surface with triangulation, Euler characteristic and transported normal']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -450,7 +450,133 @@
     calcola();
   }
 
-  F.calcolo.lineare = { Qf: Qf, Rf: Rf, fr: fr, leggiMatrice: leggiMatrice, rref: rref, determinante: determinante, inversa: inversa, nucleo: nucleo, risolviSistema: risolviSistema, polCaratteristico: polCaratteristico, autovalori: autovalori, moltiplica: moltiplica, bilancia: bilancia, leggiFormula: leggiFormula };
+  /* ── trasformazioni dello spazio (v238) ──────────────────────────────────
+     M(s) = (1 − s) I + s A porta con continuita' l'identita' in A. Se Av = λv allora
+     M(s)v = (1 − s + sλ) v: gli autovettori di A restano autovettori per ogni s, quindi le rette
+     invarianti stanno ferme per tutta l'animazione mentre lo spazio si deforma attorno a loro.
+     Il volume dell'immagine del cubo unitario e' |det M(s)| = |Π(1 − s + sλᵢ)|: a s = 1 e'
+     |det A|, e se det A < 0 a meta' strada il cubo si schiaccia (det = 0) e si ribalta. */
+  function analizza3(testo) {
+    var L = leggiMatrice(testo), M = L.M, K = L.campo;
+    if (M.length !== 3 || M[0].length !== 3) throw new Error(t('serve una matrice 3 × 3 (tre righe di tre numeri)', 'a 3 × 3 matrix is needed (three rows of three numbers)'));
+    var A = M.map(function (r) { return r.map(K.val); }), det = determinante(M, K), E = autovalori(M, K), rette = [];
+    E.valori.forEach(function (d) {
+      if (d.im) return;
+      var B = A.map(function (r, i) { return r.map(function (v, j) { return i === j ? v - d.re : v; }); });
+      nucleoTollerante(B).forEach(function (v) { var n = Math.hypot(v[0], v[1], v[2]) || 1; rette.push({ lambda: d.re, v: [v[0] / n, v[1] / n, v[2] / n], dimensione: nucleoTollerante(B).length }); });
+    });
+    return { M: M, K: K, A: A, det: det, detNum: K.val(det), E: E, rette: rette };
+  }
+  function interpola(A, s) { return A.map(function (r, i) { return r.map(function (v, j) { return (1 - s) * (i === j ? 1 : 0) + s * v; }); }); }
+  function det3n(M) { return M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]); }
+  /* volume del parallelepipedo immagine del cubo unitario: prodotto misto delle colonne Ae₁·(Ae₂ × Ae₃) */
+  function prodottoMisto(M) { var a = [M[0][0], M[1][0], M[2][0]], b = [M[0][1], M[1][1], M[2][1]], c = [M[0][2], M[1][2], M[2][2]]; return a[0] * (b[1] * c[2] - b[2] * c[1]) + a[1] * (b[2] * c[0] - b[0] * c[2]) + a[2] * (b[0] * c[1] - b[1] * c[0]); }
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), dx = F.el('div'), posto = F.el('div');
+      g.appendChild(pan); g.appendChild(dx); div.appendChild(g); dx.appendChild(posto);
+      var vista = costruisci(pan, dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  var ESEMPI3 = {
+    gen: ['1 2 0\n0 2 0\n1 1 3', ['autovalori 1, 2, 3 (non simmetrica)', 'eigenvalues 1, 2, 3 (non-symmetric)']],
+    simm: ['2 1 0\n1 2 1\n0 1 2', ['simmetrica: autovettori ortogonali', 'symmetric: orthogonal eigenvectors']],
+    taglio: ['1 1 0\n0 1 0\n0 0 1', ['taglio: un piano di autovettori, det = 1', 'shear: a plane of eigenvectors, det = 1']],
+    rot: ['0 -1 0\n1 0 0\n0 0 3/2', ['rotazione di 90° e allungamento: λ complessi', '90° rotation and stretch: complex λ']],
+    rifl: ['1 0 0\n0 1 0\n0 0 -1', ['riflessione: det = −1, il cubo si ribalta', 'reflection: det = −1, the cube flips']],
+    proiez: ['1 0 0\n0 1 0\n0 0 0', ['proiezione: det = 0, volume nullo', 'projection: det = 0, zero volume']],
+    scala: ['2 0 0\n0 1/2 0\n0 0 3/2', ['dilatazione lungo gli assi, det = 3/2', 'scaling along the axes, det = 3/2']]
+  };
+  function schedaSpazio(pan) {
+    var st = { testo: ESEMPI3.gen[0], vel: 1, pausa: false }, R = null, S = null, T = null, lab = null, tempo = 0, oggetti = {}, ultimo = 0;
+    F.scelta(pan, ['Esempi', 'Examples'], Object.keys(ESEMPI3).map(function (k) { return [k, F.tt(ESEMPI3[k][1])]; }), 'gen', function (v) { st.testo = ta.value = ESEMPI3[v][0]; calcola(); });
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('La matrice A (tre righe; frazioni e radici ammesse):', 'The matrix A (three rows; fractions and roots allowed):') }));
+    var ta = F.el('textarea', { rows: '3', spellcheck: 'false', 'aria-label': t('matrice A 3 × 3', '3 × 3 matrix A'), style: 'width:100%;box-sizing:border-box;background:#081522;color:#e6fffb;border:1px solid #1a3050;border-radius:7px;padding:6px 8px;font:.9rem ui-monospace,monospace;resize:vertical' });
+    ta.value = st.testo; pan.appendChild(ta);
+    ta.addEventListener('change', function () { st.testo = ta.value; calcola(); });
+    F.bottone(pan, ['Applica', 'Apply'], function () { st.testo = ta.value; calcola(); });
+    var riga = F.el('div', { 'class': 'bsiFX-anim', role: 'group', 'aria-label': t('Controlli dell’animazione', 'Animation controls') });
+    var bp = F.el('button', { type: 'button', testo: '❚❚', 'aria-label': t('Pausa', 'Pause'), onclick: function () { st.pausa = !st.pausa; bp.textContent = st.pausa ? '▶' : '❚❚'; bp.setAttribute('aria-label', st.pausa ? t('Avvia', 'Play') : t('Pausa', 'Pause')); if (S) S.avvia(); } });
+    riga.appendChild(bp);
+    riga.appendChild(F.el('button', { type: 'button', testo: '↺', 'aria-label': t('Ricomincia', 'Restart'), onclick: function () { tempo = 0; if (S) S.avvia(); } }));
+    [0.5, 1, 2].forEach(function (v) { riga.appendChild(F.el('button', { type: 'button', testo: '×' + (v === 0.5 ? '½' : v), 'aria-label': t('Velocità ', 'Speed ') + v, onclick: function () { st.vel = v; } })); });
+    pan.appendChild(riga);
+    var fase = F.el('div', { 'class': 'bsiFX-nota' }), info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(fase); pan.appendChild(info);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il cubo [0, 1]³ (con il reticolo) viene deformato da M(s) = (1 − s)I + sA, con s che va da 0 a 1 e torna: le colonne di A sono le immagini dei tre spigoli e₁, e₂, e₃ (frecce rossa, verde e azzurra). Le rette gialle sono gli autovettori: poiché M(s)v = (1 − s + sλ)v, restano ferme per tutto il tempo e i punti su di esse si allungano solo del fattore λ. Il volume del parallelepipedo è |det M(s)|, il prodotto dei fattori (1 − s + sλ): a fine corsa è |det A|, calcolato qui in frazioni esatte con l’eliminazione di Gauss e controllato con il prodotto misto delle colonne. Se det A < 0 il cubo passa per un volume nullo e si ribalta (cambia l’orientazione); se det A = 0 lo spazio si schiaccia su un piano o una retta. Autovalori complessi: in quel piano A ruota, e nessuna retta resta ferma.',
+      'The cube [0, 1]³ (with its lattice) is deformed by M(s) = (1 − s)I + sA, with s going from 0 to 1 and back: the columns of A are the images of the three edges e₁, e₂, e₃ (red, green and blue arrows). The yellow lines are the eigenvectors: since M(s)v = (1 − s + sλ)v, they stay put all along and points on them are only stretched by λ. The volume of the parallelepiped is |det M(s)|, the product of the factors (1 − s + sλ): at the end it is |det A|, computed here in exact fractions by Gaussian elimination and checked with the triple product of the columns. If det A < 0 the cube passes through zero volume and flips (orientation reverses); if det A = 0 space collapses onto a plane or a line. Complex eigenvalues: in that plane A rotates, and no line stays put.') }));
+    function calcola() {
+      try { R = analizza3(st.testo); }
+      catch (e) { R = null; info.innerHTML = '<span class="bsiFX-ko">' + t('Matrice non valida: ', 'Invalid matrix: ') + esc(e.message) + '</span>'; fase.textContent = ''; if (S) { S.pulisci(); S.aggiungi(lab.assi(T, 3, ['x', 'y', 'z'], 0.3)); } return; }
+      var K = R.K, vals = R.E.valori.filter(function (d) { return !(d.im < 0); }).map(function (d) { var s = d.im ? C.numeroBello(+d.re.toPrecision(8)) + ' ± ' + C.numeroBello(+Math.abs(d.im).toPrecision(8)) + 'i' : C.numeroBello(+d.re.toPrecision(10)); return s + (d.molt > 1 ? ' (×' + d.molt + ')' : ''); });
+      var righe = R.rette.map(function (r) { return 'λ = ' + C.numeroBello(+r.lambda.toPrecision(10)) + ': v = (' + r.v.map(function (x) { return (Math.abs(x) < 1e-12 ? 0 : x).toFixed(3); }).join(', ') + ')' + (r.dimensione > 1 ? t(' (fa parte di un ', ' (part of a ') + (r.dimensione === 2 ? t('piano', 'plane') : t('spazio', 'space')) + t(' di autovettori)', ' of eigenvectors)') : ''); });
+      info.innerHTML = 'det A = <b class="bsiFX-num">' + esc(K.str(R.det)) + '</b> (' + t('Gauss, ', 'Gauss, ') + (K === Qf ? t('frazioni esatte', 'exact fractions') : t('numeri reali', 'real numbers')) + ') · ' + t('prodotto misto delle colonne ', 'triple product of the columns ') + C.numeroBello(+prodottoMisto(R.A).toPrecision(10)) + '<br>' +
+        t('polinomio caratteristico: ', 'characteristic polynomial: ') + '<span class="bsiFX-num">' + esc(stampaPol(R.E.pol, K)) + '</span><br>' + t('autovalori: ', 'eigenvalues: ') + '<b>' + esc(vals.join(', ')) + '</b><br>' + (righe.length ? esc(righe.join(' · ')) : t('nessun autovettore reale', 'no real eigenvector'));
+      tempo = 0; scena();
+    }
+    function v3(p) { return new T.Vector3(p[0], p[1], p[2]); }
+    function scena() {
+      if (!S || !R) return;
+      S.pulisci(); oggetti = {};
+      /* il reticolo del cubo [0, 1]³ con passo 1/3: le posizioni di partenza si tengono a parte */
+      var base = [], n = 3, i, j, k;
+      for (i = 0; i <= n; i++) for (j = 0; j <= n; j++) { base.push([i / n, j / n, 0], [i / n, j / n, 1]); base.push([i / n, 0, j / n], [i / n, 1, j / n]); base.push([0, i / n, j / n], [1, i / n, j / n]); }
+      var gr = new T.BufferGeometry(); gr.setAttribute('position', new T.Float32BufferAttribute(new Float32Array(base.length * 3), 3));
+      oggetti.ret = new T.LineSegments(gr, new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.5 })); oggetti.base = base; S.aggiungi(oggetti.ret);
+      /* le facce del cubo: 12 triangoli trasparenti */
+      var V = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]], fac = [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [2, 3, 7, 6], [1, 2, 6, 5], [0, 4, 7, 3]], idx = [];
+      fac.forEach(function (f) { idx.push(f[0], f[1], f[2], f[0], f[2], f[3]); });
+      var gc = new T.BufferGeometry(); gc.setAttribute('position', new T.Float32BufferAttribute(new Float32Array(24), 3)); gc.setIndex(idx);
+      oggetti.cubo = new T.Mesh(gc, new T.MeshStandardMaterial({ color: 0x7c6fff, transparent: true, opacity: 0.4, side: T.DoubleSide, depthWrite: false, roughness: 0.5 })); oggetti.V = V; S.aggiungi(oggetti.cubo);
+      /* le immagini di e₁, e₂, e₃ */
+      oggetti.e = [0xff6b6b, 0x5eead4, 0x6bcfff].map(function (c, q) { var f = lab.freccia(T, [0, 0, 0], q === 0 ? [1, 0, 0] : q === 1 ? [0, 1, 0] : [0, 0, 1], c, 0.25); S.aggiungi(f); return f; });
+      /* le rette invarianti e, su ciascuna, il vettore v che diventa (1 − s + sλ)v */
+      oggetti.av = [];
+      R.rette.forEach(function (r) {
+        var d = r.v, Lr = 4.2; S.aggiungi(lab.linea(T, [[-Lr * d[0], -Lr * d[1], -Lr * d[2]], [Lr * d[0], Lr * d[1], Lr * d[2]]], 0xffd24a, 0.55));
+        var f = lab.freccia(T, [0, 0, 0], d, 0xffd24a, 0.25); S.aggiungi(f); oggetti.av.push({ f: f, r: r });
+        var et = lab.testo3d(T, 'λ = ' + C.numeroBello(+r.lambda.toPrecision(6)), '#ffd24a', 0.26); et.position.set(Lr * d[0] * 0.92, Lr * d[1] * 0.92, Lr * d[2] * 0.92 + 0.2); S.aggiungi(et);
+      });
+      S.aggiungi(lab.assi(T, 3.2, ['x', 'y', 'z'], 0.3));
+      /* l'inquadratura segue il cubo: centro fra il cubo di partenza e la sua immagine, distanza dalla dimensione */
+      var est = 1.8; V.forEach(function (p) { var q = [0, 1, 2].map(function (r) { return R.A[r][0] * p[0] + R.A[r][1] * p[1] + R.A[r][2] * p[2]; }); est = Math.max(est, Math.hypot(q[0], q[1], q[2])); });
+      var cA = [0, 1, 2].map(function (r) { return (R.A[r][0] + R.A[r][1] + R.A[r][2]) / 2; });
+      S.vista.bersaglio.set((0.5 + cA[0]) / 2, (0.5 + cA[1]) / 2, (0.5 + cA[2]) / 2);
+      S.inquadra(Math.max(7.5, 2.1 * est), S.vistaIniziale ? S.vista.th : -0.6, S.vistaIniziale ? S.vista.ph : 1.15);
+      S.ogniFotogramma(function (dt) { if (st.pausa) return false; tempo += dt * st.vel; aggiorna(dt); });
+      aggiorna(0);
+    }
+    /* un ciclo di 8 s: 3 s da I ad A, 1 s fermo su A, 3 s di ritorno, 1 s fermo su I */
+    function parametro() { var u = tempo % 8, f = function (x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }; return u < 3 ? f(u / 3) : u < 4 ? 1 : u < 7 ? 1 - f((u - 4) / 3) : 0; }
+    function aggiorna(dt) {
+      if (!R || !oggetti.ret) return;
+      var s = parametro(), M = interpola(R.A, s), ap = function (p) { return [M[0][0] * p[0] + M[0][1] * p[1] + M[0][2] * p[2], M[1][0] * p[0] + M[1][1] * p[1] + M[1][2] * p[2], M[2][0] * p[0] + M[2][1] * p[1] + M[2][2] * p[2]]; };
+      var at = oggetti.ret.geometry.attributes.position; oggetti.base.forEach(function (p, i) { var q = ap(p); at.setXYZ(i, q[0], q[1], q[2]); }); at.needsUpdate = true; oggetti.ret.geometry.computeBoundingSphere();
+      var ac = oggetti.cubo.geometry.attributes.position; oggetti.V.forEach(function (p, i) { var q = ap(p); ac.setXYZ(i, q[0], q[1], q[2]); }); ac.needsUpdate = true; oggetti.cubo.geometry.computeVertexNormals(); oggetti.cubo.geometry.computeBoundingSphere();
+      oggetti.e.forEach(function (f, q) { var c = [M[0][q], M[1][q], M[2][q]], l = Math.hypot(c[0], c[1], c[2]); f.visible = l > 1e-6; if (l > 1e-6) { f.setDirection(v3(c).normalize()); f.setLength(l, Math.min(0.25, 0.4 * l), Math.min(0.15, 0.25 * l)); } });
+      oggetti.av.forEach(function (o) { var fct = 1 - s + s * o.r.lambda, d = o.r.v, l = Math.abs(fct); o.f.visible = l > 1e-6; if (l > 1e-6) { o.f.setDirection(v3(fct > 0 ? d : [-d[0], -d[1], -d[2]])); o.f.setLength(l, Math.min(0.25, 0.4 * l), Math.min(0.15, 0.25 * l)); } });
+      var dM = det3n(M);
+      S.didascalia.textContent = 's = ' + s.toFixed(2) + ' · det M(s) = ' + dM.toFixed(3) + ' · ' + t('volume ', 'volume ') + Math.abs(dM).toFixed(3);
+      var ora = Date.now(); if (dt && ora - ultimo < 250) return; ultimo = ora;
+      fase.innerHTML = '<b>M(s) = (1 − s)I + sA, s = ' + s.toFixed(2) + '</b><br>' + t('volume del parallelepipedo = |det M(s)| = ', 'parallelepiped volume = |det M(s)| = ') + '<b class="bsiFX-num">' + Math.abs(dM).toFixed(4) + '</b>' + (dM < -1e-9 ? t(' (orientazione rovesciata)', ' (orientation reversed)') : Math.abs(dM) < 1e-9 ? t(' (schiacciato)', ' (flattened)') : '');
+    }
+    calcola();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
+  F.calcolo.lineare = { Qf: Qf, Rf: Rf, fr: fr, leggiMatrice: leggiMatrice, rref: rref, determinante: determinante, inversa: inversa, nucleo: nucleo, risolviSistema: risolviSistema, polCaratteristico: polCaratteristico, autovalori: autovalori, moltiplica: moltiplica, bilancia: bilancia, leggiFormula: leggiFormula, analizza3: analizza3, interpola: interpola, prodottoMisto: prodottoMisto, det3n: det3n };
 
   F.sezione('smatlin', {
     titolo: ['🔲 Algebra lineare', '🔲 Linear algebra'],
@@ -459,7 +585,8 @@
     schede: [
       { nome: ['Matrici e sistemi', 'Matrices and systems'], costruisci: schedaMatrici },
       { nome: ['Trasformazioni del piano', 'Plane transformations'], costruisci: schedaPiano },
-      { nome: ['Bilanciare con il nucleo', 'Balancing with the null space'], costruisci: schedaBilancia }
+      { nome: ['Bilanciare con il nucleo', 'Balancing with the null space'], costruisci: schedaBilancia },
+      { nome: ['🧊 Trasformazioni dello spazio', '🧊 Space transformations'], costruisci: scheda3d(schedaSpazio, ['Trasformazione lineare 3D di un cubo, da I ad A, con le rette invarianti', '3D linear transformation of a cube, from I to A, with the invariant lines']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -456,13 +456,153 @@
     disegnaSup(); disegnaC(); F.alRidimensiona(function () { disegnaSup(); disegnaC(); });
   }
 
+  /* ═══ 4. sfera e iperboloide in 3D (v238) ═══════════════════════════════
+     Modello dell'iperboloide (Minkowski): i punti p = (x, y, t) con t² − x² − y² = 1, t > 0, e la
+     forma ⟨p, q⟩ = xx′ + yy′ − tt′ (⟨p, p⟩ = −1). La distanza e' arccosh(−⟨p, q⟩); le geodetiche
+     sono le sezioni con i piani per l'origine, γ(s) = [sinh((1 − s)d) p + sinh(sd) q]/sinh d,
+     come gli archi di cerchio massimo sulla sfera con sin al posto di sinh. L'angolo in A fra i
+     vettori tangenti B + ⟨A, B⟩A e C + ⟨A, C⟩A. Gauss–Bonnet per un triangolo geodetico:
+     α + β + γ − π = ∬ K dA, con K = +1 sulla sfera unitaria e K = −1 sull'iperboloide.
+     L'area si misura anche in modo indipendente, sommando i triangolini di una suddivisione
+     baricentrica proiettata sulla superficie (con l'estrapolazione di Richardson). */
+  function mk(a, b) { return a[0] * b[0] + a[1] * b[1] - a[2] * b[2]; }
+  function puntoIper(x, y) { return [x, y, Math.sqrt(1 + x * x + y * y)]; }
+  function normIper(v) { var q = Math.sqrt(-mk(v, v)); return [v[0] / q, v[1] / q, v[2] / q]; }
+  function distIper(p, q) { return Math.acosh(Math.max(1, -mk(p, q))); }
+  function geodeticaIper(p, q, n) { var d = distIper(p, q), s = Math.sinh(d), out = []; for (var i = 0; i <= n; i++) { var u = i / n; out.push(s < 1e-12 ? p.slice() : comb(p, Math.sinh((1 - u) * d) / s, q, Math.sinh(u * d) / s)); } return out; }
+  function angoloIper(A, B, C) { var tb = comb(B, 1, A, mk(A, B)), tc = comb(C, 1, A, mk(A, C)); return Math.acos(Math.max(-1, Math.min(1, mk(tb, tc) / Math.sqrt(mk(tb, tb) * mk(tc, tc))))); }
+  function triangoloIper3(A, B, C) { var a = [angoloIper(A, B, C), angoloIper(B, C, A), angoloIper(C, A, B)], s = a[0] + a[1] + a[2]; return { angoli: a, somma: s, difetto: PI - s, lati: [distIper(B, C), distIper(A, C), distIper(A, B)] }; }
+  /* area per suddivisione: n² triangolini con i vertici proiettati sulla superficie; ognuno misura
+     ½√(G), G = ⟨u,u⟩⟨w,w⟩ − ⟨u,w⟩² (Gram nella metrica della superficie); errore O(1/n²) */
+  function areaSuddivisa(A, B, C, n, iper) {
+    var pr = iper ? normIper : unit, met = iper ? mk : dot, s = 0;
+    function P(i, j) { var a = (n - i - j) / n, b = i / n, c = j / n; return pr([a * A[0] + b * B[0] + c * C[0], a * A[1] + b * B[1] + c * C[1], a * A[2] + b * B[2] + c * C[2]]); }
+    function tri(p, q, r) { var u = [q[0] - p[0], q[1] - p[1], q[2] - p[2]], w = [r[0] - p[0], r[1] - p[1], r[2] - p[2]], g = met(u, u) * met(w, w) - met(u, w) * met(u, w); return 0.5 * Math.sqrt(Math.max(0, g)); }
+    for (var i = 0; i < n; i++) for (var j = 0; j < n - i; j++) { s += tri(P(i, j), P(i + 1, j), P(i, j + 1)); if (i + j < n - 1) s += tri(P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)); }
+    return s;
+  }
+  function areaRichardson(A, B, C, n, iper) { var a1 = areaSuddivisa(A, B, C, n, iper), a2 = areaSuddivisa(A, B, C, 2 * n, iper); return (4 * a2 - a1) / 3; }
+  /* i tre vertici su una circonferenza (geodetica) di raggio ρ attorno al «polo» (0, 0, 1) */
+  function verticiCerchio(rho, forma, iper) { var az = [PI / 2, PI / 2 + 2 * PI / 3 + forma, PI / 2 + 4 * PI / 3 - forma]; return az.map(function (a) { var r = iper ? Math.sinh(rho) : Math.sin(rho), z = iper ? Math.cosh(rho) : Math.cos(rho); return [r * Math.cos(a), r * Math.sin(a), z]; }); }
+  /* dall'iperboloide al disco di Poincare' (proiezione da (0, 0, −1)) e al disco di Klein (dal centro) */
+  function aPoincare(p) { return [p[0] / (1 + p[2]), p[1] / (1 + p[2])]; }
+  function aKlein(p) { return [p[0] / p[2], p[1] / p[2]]; }
+  F.calcolo.noneuclidea.mk = mk; F.calcolo.noneuclidea.puntoIper = puntoIper; F.calcolo.noneuclidea.distIper = distIper; F.calcolo.noneuclidea.geodeticaIper = geodeticaIper; F.calcolo.noneuclidea.angoloIper = angoloIper; F.calcolo.noneuclidea.triangoloIper3 = triangoloIper3; F.calcolo.noneuclidea.areaSuddivisa = areaSuddivisa; F.calcolo.noneuclidea.areaRichardson = areaRichardson; F.calcolo.noneuclidea.verticiCerchio = verticiCerchio; F.calcolo.noneuclidea.aPoincare = aPoincare; F.calcolo.noneuclidea.aKlein = aKlein;
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.75);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaModelli3D(pan) {
+    var st = { mod: 'iper', rho: 1.2, forma: 0, respira: true, proietta: true }, S = null, T = null, lab = null, ogg = {}, tempo = 0, ultimo = 0, crho = null;
+    F.scelta(pan, ['Modello', 'Model'], [['iper', t('iperboloide di Minkowski (K = −1)', 'Minkowski hyperboloid (K = −1)')], ['sfera', t('sfera unitaria (K = +1)', 'unit sphere (K = +1)')]], st.mod, function (v) { st.mod = v; if (st.mod === 'sfera' && st.rho > 1.5) { st.rho = 1.2; } crho.max = st.mod === 'sfera' ? 1.5 : 1.8; scena(); });
+    crho = F.cursore(pan, ['raggio del cerchio dei vertici ρ', 'radius of the vertex circle ρ'], 0.1, 1.8, 0.05, st.rho, function (v) { st.rho = v; st.respira = false; cR.checked = false; aggiorna(0, true); }, function (v) { return v.toFixed(2); });
+    F.cursore(pan, ['forma del triangolo (spostamento di B e C, °)', 'triangle shape (shift of B and C, °)'], -50, 50, 1, 0, function (v) { st.forma = v * RAD; aggiorna(0, true); }, function (v) { return v + '°'; });
+    var casella = function (et, val, cb) { var c = F.el('input', { type: 'checkbox' }); c.checked = val; c.addEventListener('change', function () { cb(c.checked); if (S) S.avvia(); }); pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.84rem;color:#cfe3f7;cursor:pointer' }, [c, F.el('span', { testo: F.tt(et) })])); return c; };
+    var cR = casella(['Il triangolo cresce e si restringe', 'The triangle grows and shrinks'], st.respira, function (v) { st.respira = v; });
+    casella(['Proietta sul disco di Poincaré (iperboloide)', 'Project onto the Poincaré disk (hyperboloid)'], st.proietta, function (v) { st.proietta = v; if (ogg.disco) ogg.disco.visible = v && st.mod === 'iper'; });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Sulla sfera le «rette» sono i cerchi massimi; sul foglio superiore dell’iperboloide t² − x² − y² = 1, con la metrica di Minkowski ds² = dx² + dy² − dt², sono le sezioni con i piani per l’origine: è la geometria iperbolica, e il disco di Poincaré ne è l’immagine attraverso la proiezione dal punto (0, 0, −1) (le linee grigie mostrano i raggi della proiezione). Il triangolo ha i vertici su un cerchio geodetico di raggio ρ. Gauss–Bonnet lega gli angoli alla curvatura racchiusa: α + β + γ − π = ∬K dA. Sulla sfera (K = +1) la somma supera π dell’area; sull’iperboloide (K = −1) resta sotto π di esattamente l’area, che quindi non supera mai π. Qui l’area è misurata due volte: dalla somma degli angoli e, in modo indipendente, sommando i triangolini di una suddivisione sulla superficie. Per ρ piccolo entrambe le geometrie diventano euclidee e la somma tende a 180°.',
+      'On the sphere the «lines» are great circles; on the upper sheet of the hyperboloid t² − x² − y² = 1, with the Minkowski metric ds² = dx² + dy² − dt², they are the sections by planes through the origin: this is hyperbolic geometry, and the Poincaré disk is its image under projection from the point (0, 0, −1) (the grey lines show the projection rays). The triangle has its vertices on a geodesic circle of radius ρ. Gauss–Bonnet ties the angles to the enclosed curvature: α + β + γ − π = ∬K dA. On the sphere (K = +1) the sum exceeds π by the area; on the hyperboloid (K = −1) it falls short of π by exactly the area, which therefore never exceeds π. Here the area is measured twice: from the angle sum and, independently, by adding up the small triangles of a subdivision on the surface. For small ρ both geometries become Euclidean and the sum tends to 180°.') }));
+    /* scala: l'iperboloide ×1,1 con il vertice nell'origine della scena, la sfera di raggio 2,6 */
+    var sc = 1.1, RS = 2.6, zs = function (p) { return st.mod === 'iper' ? [p[0] * sc, p[1] * sc, (p[2] - 1) * sc] : [p[0] * RS, p[1] * RS, p[2] * RS]; };
+    function v3(p) { var q = zs(p); return new T.Vector3(q[0], q[1], q[2]); }
+    function scena() {
+      if (!S) return;
+      S.pulisci(); ogg = {};
+      var iper = st.mod === 'iper', i, j;
+      if (iper) {
+        /* il foglio dell'iperboloide in coordinate polari (r = sinh s), il cono di luce e il piano t = 0 */
+        var pos = [], idx = [], ns = 40, nf = 72, smax = 1.95;
+        for (i = 0; i <= ns; i++) for (j = 0; j <= nf; j++) { var s = smax * i / ns, f = 2 * PI * j / nf, p = [Math.sinh(s) * Math.cos(f), Math.sinh(s) * Math.sin(f), Math.cosh(s)], q = zs(p); pos.push(q[0], q[1], q[2]); }
+        for (i = 0; i < ns; i++) for (j = 0; j < nf; j++) { var a = i * (nf + 1) + j, b = a + nf + 1; idx.push(a, b, b + 1, a, b + 1, a + 1); }
+        var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+        S.aggiungi(new T.Mesh(g, new T.MeshStandardMaterial({ color: 0x7c6fff, transparent: true, opacity: 0.32, side: T.DoubleSide, depthWrite: false, roughness: 0.5 })));
+        var lin = []; for (i = 0; i <= ns; i += 4) for (j = 0; j < nf; j++) { var a1 = (i * (nf + 1) + j) * 3, b1 = a1 + 3; lin.push(pos[a1], pos[a1 + 1], pos[a1 + 2], pos[b1], pos[b1 + 1], pos[b1 + 2]); }
+        for (j = 0; j < nf; j += 6) for (i = 0; i < ns; i++) { var a2 = (i * (nf + 1) + j) * 3, b2 = a2 + (nf + 1) * 3; lin.push(pos[a2], pos[a2 + 1], pos[a2 + 2], pos[b2], pos[b2 + 1], pos[b2 + 2]); }
+        var gl = new T.BufferGeometry(); gl.setAttribute('position', new T.Float32BufferAttribute(lin, 3)); S.aggiungi(new T.LineSegments(gl, new T.LineBasicMaterial({ color: 0xc9b9ff, transparent: true, opacity: 0.25 })));
+        var cono = []; for (j = 0; j < 24; j++) { var fa = 2 * PI * j / 24; cono.push([0, 0, 0], [3.6 * Math.cos(fa), 3.6 * Math.sin(fa), 3.6]); }
+        S.aggiungi(new T.LineSegments(new T.BufferGeometry().setFromPoints(cono.map(v3)), new T.LineBasicMaterial({ color: 0x34465f, transparent: true, opacity: 0.6 })));
+        ogg.disco = new T.Group(); ogg.disco.visible = st.proietta;
+        var cer = []; for (j = 0; j <= 96; j++) cer.push(new T.Vector3(Math.cos(2 * PI * j / 96) * sc, Math.sin(2 * PI * j / 96) * sc, -sc));
+        ogg.disco.add(new T.Line(new T.BufferGeometry().setFromPoints(cer), new T.LineBasicMaterial({ color: 0x5eead4 })));
+        ogg.disco.add(new T.Mesh(new T.CircleGeometry(sc, 64).translate(0, 0, -sc), new T.MeshBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.08, side: T.DoubleSide, depthWrite: false })));
+        S.aggiungi(ogg.disco);
+        S.aggiungi(lab.sfera(T, 0.06, 0xffffff, 0, 0, -2 * sc, false));
+      } else {
+        S.aggiungi(new T.Mesh(new T.SphereGeometry(RS, 64, 40), new T.MeshStandardMaterial({ color: 0x7c6fff, transparent: true, opacity: 0.3, roughness: 0.5, depthWrite: false })));
+        S.aggiungi(new T.LineSegments(new T.WireframeGeometry(new T.SphereGeometry(RS, 24, 12)), new T.LineBasicMaterial({ color: 0xc9b9ff, transparent: true, opacity: 0.18 })));
+      }
+      /* il triangolo: lati, riempimento, vertici, archi degli angoli (aggiornati da aggiorna) */
+      ogg.lati = [0, 1, 2].map(function () { var l = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0xffd24a); S.aggiungi(l); return l; });
+      ogg.vert = [0xff8a80, 0x5eead4, 0x6bcfff].map(function (c) { var s = lab.sfera(T, 0.09, c, 0, 0, 0, true); S.aggiungi(s); return s; });
+      ogg.archi = [0, 1, 2].map(function () { var l = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0xffffff, 0.9); S.aggiungi(l); return l; });
+      var gf = new T.BufferGeometry(); ogg.riemp = new T.Mesh(gf, new T.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.28, side: T.DoubleSide, depthWrite: false })); S.aggiungi(ogg.riemp);
+      if (iper) {
+        ogg.proiez = lab.linea(T, [[0, 0, 0], [0, 0, 0]], 0x5eead4); S.aggiungi(ogg.proiez);
+        var gr = new T.BufferGeometry(); gr.setAttribute('position', new T.BufferAttribute(new Float32Array(6 * 3), 3)); ogg.raggi = new T.LineSegments(gr, new T.LineBasicMaterial({ color: 0x8494a8, transparent: true, opacity: 0.6 })); S.aggiungi(ogg.raggi);
+        ogg.disco.add(ogg.proiez); ogg.disco.add(ogg.raggi);
+      }
+      S.didascalia.textContent = iper ? t('iperboloide t² − x² − y² = 1 e disco di Poincaré', 'hyperboloid t² − x² − y² = 1 and Poincaré disk') : t('sfera unitaria', 'unit sphere');
+      S.vista.bersaglio.set(0, 0, iper ? 1.1 : 0);
+      S.inquadra(iper ? 10.5 : 11, S.vistaIniziale ? S.vista.th : -0.9, S.vistaIniziale ? S.vista.ph : 1.15);
+      S.ogniFotogramma(function (dt) { if (!st.respira) return false; tempo += dt; aggiorna(dt, false); });
+      aggiorna(0, true);
+    }
+    function vertici() { return verticiCerchio(st.rho, st.forma, st.mod === 'iper'); }
+    function aggiorna(dt, subito) {
+      var iper = st.mod === 'iper', lim = iper ? 1.8 : 1.5;
+      if (st.respira) st.rho = 0.15 + (lim - 0.15) * (0.5 - 0.5 * Math.cos(tempo * 0.5));
+      var V = vertici(), geo = iper ? geodeticaIper : arco, n = 48;
+      if (S && ogg.lati) {
+        [[0, 1], [1, 2], [2, 0]].forEach(function (e, k) { ogg.lati[k].geometry.setFromPoints(geo(V[e[0]], V[e[1]], n).map(v3)); });
+        V.forEach(function (p, k) { var q = zs(p); ogg.vert[k].position.set(q[0], q[1], q[2]); });
+        /* archetti degli angoli: tra i due lati uscenti, a distanza geodetica 0,18 dal vertice */
+        V.forEach(function (A, k) { var B = V[(k + 1) % 3], C = V[(k + 2) % 3], r = 0.12 + 0.1 * Math.min(1, st.rho), pb = geo(A, B, 100)[Math.max(1, Math.round(100 * Math.min(0.4, r / Math.max(1e-6, iper ? distIper(A, B) : distCentrale(A, B)))))], pc = geo(A, C, 100)[Math.max(1, Math.round(100 * Math.min(0.4, r / Math.max(1e-6, iper ? distIper(A, C) : distCentrale(A, C)))))];
+          ogg.archi[k].geometry.setFromPoints(geo(pb, pc, 12).map(v3)); });
+        /* il riempimento: suddivisione baricentrica proiettata sulla superficie */
+        var m = 16, pos = [], idx = [], pr = iper ? normIper : unit, id = {}, cnt = 0;
+        function P(i, j) { var key = i + ',' + j; if (key in id) return id[key]; var a = (m - i - j) / m, b = i / m, c = j / m, q = pr([a * V[0][0] + b * V[1][0] + c * V[2][0], a * V[0][1] + b * V[1][1] + c * V[2][1], a * V[0][2] + b * V[1][2] + c * V[2][2]]), z = zs(q); pos.push(z[0], z[1], z[2]); return (id[key] = cnt++); }
+        for (var i = 0; i < m; i++) for (var j = 0; j < m - i; j++) { idx.push(P(i, j), P(i + 1, j), P(i, j + 1)); if (i + j < m - 1) idx.push(P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)); }
+        var gf = new T.BufferGeometry(); gf.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); gf.setIndex(idx); ogg.riemp.geometry.dispose(); ogg.riemp.geometry = gf;
+        if (iper && ogg.proiez) {
+          var dis = []; [[0, 1], [1, 2], [2, 0]].forEach(function (e) { geodeticaIper(V[e[0]], V[e[1]], 32).forEach(function (p) { var d = aPoincare(p); dis.push(new T.Vector3(d[0] * sc, d[1] * sc, -sc)); }); });
+          ogg.proiez.geometry.setFromPoints(dis);
+          var ra = ogg.raggi.geometry.attributes.position; V.forEach(function (p, k) { var q = zs(p), d = aPoincare(p); ra.setXYZ(2 * k, q[0], q[1], q[2]); ra.setXYZ(2 * k + 1, d[0] * sc, d[1] * sc, -sc); }); ra.needsUpdate = true;
+        }
+      }
+      var ora = Date.now(); if (!subito && ora - ultimo < 250) return; ultimo = ora;
+      if (st.respira && crho) { crho.value = st.rho; var et = crho.parentNode.querySelector('b'); if (et) et.textContent = st.rho.toFixed(2); }
+      var Tr = iper ? triangoloIper3(V[0], V[1], V[2]) : triangoloSferico(V[0], V[1], V[2], 1), area = areaRichardson(V[0], V[1], V[2], subito ? 64 : 40, iper), gb = iper ? PI - Tr.somma : Tr.somma - PI;
+      info.innerHTML = 'ρ = ' + st.rho.toFixed(2) + ' · ' + t('lati ', 'sides ') + Tr.lati.map(function (l) { return l.toFixed(3); }).join(', ') + '<br>' + t('angoli: ', 'angles: ') + Tr.angoli.map(gradi).join(', ') + '<br>' + t('somma ', 'sum ') + '<b class="bsiFX-num">' + gradi(Tr.somma) + '</b> ' + (iper ? '< 180°' : '> 180°') + '<br>' +
+        (iper ? t('difetto π − Σ = ', 'defect π − Σ = ') : t('eccesso Σ − π = ', 'excess Σ − π = ')) + '<b class="bsiFX-num">' + gb.toFixed(6) + '</b><br>' + t('area misurata (suddivisione) = ', 'measured area (subdivision) = ') + '<b class="bsiFX-num">' + area.toFixed(6) + '</b> · ' + t('scarto ', 'gap ') + Math.abs(area - gb).toExponential(1) + '<br>' + t('Gauss–Bonnet: Σ − π = K·A con K = ', 'Gauss–Bonnet: Σ − π = K·A with K = ') + (iper ? '−1' : '+1');
+    }
+    aggiorna(0, true);
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
   F.sezione('smatnoneucl', {
     titolo: ['🌐 Geometrie non euclidee', '🌐 Non-Euclidean geometries'],
     sotto: ['Che cosa diventa la geometria senza il quinto postulato: triangoli sferici con eccesso angolare e rotte ortodromiche, il disco di Poincaré con le sue infinite parallele e le tassellazioni, la curvatura gaussiana e il trasporto parallelo.', 'What geometry becomes without the fifth postulate: spherical triangles with angular excess and great-circle routes, the Poincaré disk with its infinitely many parallels and tilings, Gaussian curvature and parallel transport.'],
     schede: [
       { nome: ['🌍 Sfera', '🌍 Sphere'], costruisci: schedaSferica },
       { nome: ['🌀 Disco di Poincaré', '🌀 Poincaré disk'], costruisci: schedaIperbolica },
-      { nome: ['〰️ Curvatura', '〰️ Curvature'], costruisci: schedaCurvatura }
+      { nome: ['〰️ Curvatura', '〰️ Curvature'], costruisci: schedaCurvatura },
+      { nome: ['🧊 Sfera e iperboloide in 3D', '🧊 Sphere and hyperboloid in 3D'], costruisci: scheda3d(schedaModelli3D, ['Triangoli geodetici sulla sfera e sull’iperboloide di Minkowski, con Gauss–Bonnet', 'Geodesic triangles on the sphere and on the Minkowski hyperboloid, with Gauss–Bonnet']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

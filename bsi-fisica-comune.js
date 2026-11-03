@@ -113,6 +113,12 @@
     return c;
   }
   function prepara(c) {
+    /* ogni grafico ha un nome per i lettori di schermo: se chi l'ha creato non gliel'ha dato,
+       si usa quello della scheda e della sezione (v238: alcune tele di matematica ne erano prive) */
+    if ((c.getAttribute('aria-label') || '').length < 3 && c.getAttribute('aria-hidden') !== 'true') {
+      var pan = c.closest && c.closest('[role=tabpanel]');
+      if (pan && pan.dataset.bsiNome) c.setAttribute('aria-label', tt(['Grafico: ', 'Chart: ']) + pan.dataset.bsiNome);
+    }
     var dpr = Math.min(2, globale.devicePixelRatio || 1);
     var w = Math.max(280, c.clientWidth || (c.parentNode && c.parentNode.clientWidth) || 600);
     var h = Math.round(w * c._rapporto);
@@ -188,7 +194,11 @@
       var ly = m.a + 14, lx = W - m.d - 8; q.textAlign = 'right';
       opz.legenda.forEach(function (L) { q.fillStyle = L.col; q.fillRect(lx - 10, ly - 8, 10, 3); q.fillStyle = '#c9d3df'; q.fillText(tt(L.etich), lx - 14, ly - 3); ly += 15; });
     }
-    c.setAttribute('aria-label', tt(opz.descr || opz.yl || ['grafico', 'chart']));
+    /* il nome del grafico: la descrizione data, oppure il nome della scheda con la grandezza sull'asse y
+       (una sola lettera come «y» non dice niente a chi usa un lettore di schermo) */
+    var nomeG = tt(opz.descr || opz.yl || ['grafico', 'chart']), panG = c.closest && c.closest('[role=tabpanel]');
+    if (!opz.descr && String(nomeG).length < 12 && panG && panG.dataset.bsiNome) nomeG = tt(['Grafico: ', 'Chart: ']) + panG.dataset.bsiNome + ' (' + nomeG + ')';
+    c.setAttribute('aria-label', nomeG);
     return { X: X, Y: Y, q: q, W: W, H: H, m: m, xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax };
   }
 
@@ -344,12 +354,16 @@
       [].forEach.call(barra.children, function (b, i) { b.classList.toggle('on', i === k); b.setAttribute('aria-selected', i === k ? 'true' : 'false'); });
       Object.keys(costruite).forEach(function (j) { costruite[j].style.display = +j === k ? '' : 'none'; });
       if (!costruite[k]) {
-        var div = el('div', { role: 'tabpanel' }); corpo.appendChild(div); costruite[k] = div;
+        var div = el('div', { role: 'tabpanel', 'aria-label': tt(d.schede[k].nome).replace(/^[^\wÀ-ÿ]+/, '') }); corpo.appendChild(div); costruite[k] = div;
+        div.dataset.bsiNome = tt(d.schede[k].nome).replace(/^[^\wÀ-ÿ]+/, '') + ' — ' + tt(d.titolo).replace(/^[^\wÀ-ÿ]+/, '');
         try { d.schede[k].costruisci(div, function (f) { d.ridisegna.push(f); }); }
         catch (e) { div.textContent = '⚠ ' + (e && e.message || e); if (globale.console) console.error(e); }
       }
       (costruite[k]._ridisegna || []).forEach(function (f) { f(); });
       setTimeout(function () { globale.dispatchEvent(new Event('resize')); }, 30);
+      /* le tele create dalla scheda senza nome (anche piu' tardi, a lotti) prendono quello della scheda */
+      var pan = costruite[k], nomina = function () { [].forEach.call(pan.querySelectorAll('canvas'), function (c) { var n = c.getAttribute('aria-label') || '', np = c.parentNode && c.parentNode.getAttribute && c.parentNode.getAttribute('aria-label') || ''; if (c.getAttribute('aria-hidden') !== 'true' && n.length < 3 && np.length < 3) c.setAttribute('aria-label', tt(['Grafico: ', 'Chart: ']) + pan.dataset.bsiNome + (n ? ' (' + n + ')' : '')); }); };
+      nomina(); setTimeout(nomina, 400); setTimeout(nomina, 1500);
     }
     d.schede.forEach(function (s, k) {
       barra.appendChild(el('button', { type: 'button', role: 'tab', testo: tt(s.nome), onclick: function () { mostra(k); } }));

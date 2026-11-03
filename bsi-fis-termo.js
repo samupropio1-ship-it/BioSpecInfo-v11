@@ -14,7 +14,9 @@
      la distribuzione di partenza; la pressione misurata dagli urti sulle
      pareti confrontata con p A = N k T;
    · MOTO BROWNIANO: cammini casuali; lo spostamento quadratico medio
-     cresce linearmente nel tempo, ⟨r²⟩ = 4 D t (Einstein).
+     cresce linearmente nel tempo, ⟨r²⟩ = 4 D t (Einstein);
+   · SUPERFICIE p-V-T 3D (v238): pV = RT con i cicli percorsi da un punto,
+     e la superficie di van der Waals con la cupola di Maxwell e il punto critico.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -112,7 +114,26 @@
   function energiaCinetica(G) { var e = 0; G.P.forEach(function (p) { e += 0.5 * (p.vx * p.vx + p.vy * p.vy); }); return e; }
   /* Maxwell-Boltzmann in 2D per massa 1: f(v) = (v/kT) e^(−v²/2kT), con kT = ⟨½v²⟩ (due gradi di liberta') */
   function maxwell2D(v, kT) { return v / kT * Math.exp(-v * v / (2 * kT)); }
-  F.calcolo.termo = { ciclo: ciclo, gasNuovo: gasNuovo, gasPasso: gasPasso, energiaCinetica: energiaCinetica, maxwell2D: maxwell2D };
+  /* v238 — van der Waals in variabili ridotte (p/p_c, V/V_c, T/T_c): p = 8T/(3V − 1) − 3/V².
+     Sotto T_c l'isoterma ha un'ansa; l'equilibrio liquido-vapore e' la retta p_sat che taglia
+     aree uguali (costruzione di Maxwell): ∫(p_vdW − p_sat) dV = 0 fra V_l e V_g.
+     Primitiva: ∫ p dV = (8T/3) ln(3V − 1) + 3/V. */
+  function vdw(V, T) { return 8 * T / (3 * V - 1) - 3 / (V * V); }
+  function primitivaVdw(V, T) { return 8 * T / 3 * Math.log(3 * V - 1) + 3 / V; }
+  function bisezione(f, a, b, n) { var fa = f(a); for (var i = 0; i < (n || 64); i++) { var m = (a + b) / 2, fm = f(m); if (fa * fm <= 0) b = m; else { a = m; fa = fm; } } return (a + b) / 2; }
+  function maxwellVdw(T) {
+    if (!(T < 1) || !(T > 0.3)) return null;
+    /* l'ansa: dp/dV = 0 dove 4T V³ = (3V − 1)² (spinodali), una a sinistra e una a destra di V = 1 */
+    var sp = function (V) { return 4 * T * V * V * V - (3 * V - 1) * (3 * V - 1); }, Vs1 = bisezione(sp, 1 / 3 + 1e-9, 1), Vs2 = bisezione(sp, 1, 50);
+    /* per una p fra i due estremi le radici esterne della cubica 3pV³ − (p + 8T)V² + 9V − 3 = 0 */
+    function radici(p) { var f = function (V) { return vdw(V, T) - p; }; return [bisezione(f, 1 / 3 + 1e-12, Vs1), bisezione(f, Vs2, 1e4)]; }
+    function aree(p) { var r = radici(p); return primitivaVdw(r[1], T) - primitivaVdw(r[0], T) - p * (r[1] - r[0]); }
+    var psat = bisezione(aree, Math.max(1e-9, vdw(Vs1, T)) + 1e-12, vdw(Vs2, T) - 1e-12), r = radici(psat);
+    return { p: psat, Vl: r[0], Vg: r[1], Vs1: Vs1, Vs2: Vs2 };
+  }
+  /* l'isoterma d'equilibrio: l'ansa sostituita dal tratto orizzontale di coesistenza */
+  function pEquilibrio(V, T, M) { if (M && V > M.Vl && V < M.Vg) return M.p; return vdw(V, T); }
+  F.calcolo.termo = { ciclo: ciclo, gasNuovo: gasNuovo, gasPasso: gasPasso, energiaCinetica: energiaCinetica, maxwell2D: maxwell2D, vdw: vdw, maxwellVdw: maxwellVdw, pEquilibrio: pEquilibrio, R: R };
 
   /* ═══ 1. cicli ══════════════════════════════════════════════════════════ */
   function schedaCicli(div) {
@@ -210,13 +231,164 @@
     }, { ricomincia: function () { var c0 = ctlB; ctlB = null; nuovo(); ctlB = c0; } });
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. la superficie p-V-T in 3D (v238) ══════════════════════════════
+     Gli stati di equilibrio di un gas stanno su una superficie nello spazio (V, T, p). Per il gas
+     ideale e' pV = nRT (assi logaritmici per V e p) e i cicli della prima scheda vi stanno sopra;
+     per il gas di van der Waals la superficie ha la piega liquido-vapore con la cupola di coesistenza. */
+  var COLCICLO = [0xff8a80, 0xffd24a, 0x6bcfff, 0x5eead4];
+  function colT(u) { u = Math.max(0, Math.min(1, u)); var a = [[0.2, 0.35, 0.85], [0.25, 0.75, 0.85], [0.95, 0.85, 0.35], [0.95, 0.4, 0.3]], x = u * 3, i = Math.min(2, Math.floor(x)), f = x - i; return [a[i][0] + (a[i + 1][0] - a[i][0]) * f, a[i][1] + (a[i + 1][1] - a[i][1]) * f, a[i][2] + (a[i + 1][2] - a[i][2]) * f]; }
+  function schedaPVT(pan) {
+    var st = { modo: 'ideale', tipo: 'carnot', Tc: 900, Tf: 300, r: 6, rc: 2, gamma: 1.4, Tr: 0.9, anse: false }, cb = {};
+    F.scelta(pan, ['Gas', 'Gas'], [['ideale', t('ideale, con un ciclo', 'ideal, with a cycle')], ['vdw', t('van der Waals (variabili ridotte)', 'van der Waals (reduced variables)')]], st.modo, function (v) { st.modo = v; gI.style.display = v === 'ideale' ? '' : 'none'; gV.style.display = v === 'ideale' ? 'none' : ''; nuovo(); });
+    var gI = F.el('div'), gV = F.el('div', { style: 'display:none' }); pan.appendChild(gI); pan.appendChild(gV);
+    F.scelta(gI, ['Ciclo', 'Cycle'], [['carnot', 'Carnot'], ['otto', t('Otto (benzina)', 'Otto (petrol)')], ['diesel', 'Diesel'], ['stirling', 'Stirling']], st.tipo, function (v) { st.tipo = v; nuovo(); });
+    F.cursore(gI, ['T calda (K)', 'T hot (K)'], 400, 2500, 50, st.Tc, function (v) { st.Tc = v; nuovo(); });
+    F.cursore(gI, ['T fredda (K, Carnot e Stirling)', 'T cold (K, Carnot and Stirling)'], 200, 400, 10, st.Tf, function (v) { st.Tf = v; nuovo(); });
+    F.cursore(gI, ['rapporto di compressione r', 'compression ratio r'], 2, 22, 0.5, st.r, function (v) { st.r = v; nuovo(); });
+    F.cursore(gV, ['temperatura ridotta T/T_c dell’isoterma', 'reduced temperature T/T_c of the isotherm'], 0.8, 1.25, 0.01, st.Tr, function (v) { st.Tr = v; nuovo(); }, function (v) { return v.toFixed(2); });
+    var ca = F.el('input', { type: 'checkbox' }); ca.addEventListener('change', function () { st.anse = ca.checked; nuovo(); });
+    gV.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.86rem;color:#cfe3f7;cursor:pointer' }, [ca, F.el('span', { testo: t('mostra le anse di van der Waals (stati metastabili e instabili)', 'show the van der Waals loops (metastable and unstable states)') })]));
+    var info = nota(pan), spiega = nota(pan), C, M;
+    function nuovo() {
+      if (st.modo === 'ideale') {
+        C = ciclo(st.tipo, st);
+        info.innerHTML = t('Un mole di gas biatomico: ogni stato di equilibrio sta sulla superficie pV = RT. Il punto bianco percorre il ciclo: ', 'One mole of diatomic gas: every equilibrium state lies on the surface pV = RT. The white dot travels the cycle: ') + C.map(function (x, i) { return '<span class="bsi3d-leg" style="background:#' + COLCICLO[i].toString(16) + '"></span>' + x.nome; }).join(', ') + '.<br>' + t('Rendimento ', 'Efficiency ') + 'η = L/Q_ass = <b class="bsiFX-num">' + fmt(C.eta * 100) + ' %</b> · ' + C.formula + ' = ' + fmt(C.teorico * 100) + ' % · L = ' + fmt(C.lavoro) + ' J';
+        spiega.innerHTML = t('Assi: V e p in scala logaritmica, T lineare. Le isoterme sono le curve a T costante sulla superficie; le adiabatiche la attraversano scendendo di temperatura (pV^γ = costante); isocore e isobare sono i tagli a V o a p costanti. La proiezione del ciclo sulla parete di fondo è il diagramma p-V della prima scheda, la cui area è il lavoro.', 'Axes: V and p on a log scale, T linear. Isotherms are the constant-T curves on the surface; adiabats cross it falling in temperature (pV^γ = constant); isochores and isobars are the cuts at constant V or p. The projection of the cycle on the back wall is the p-V diagram of the first tab, whose area is the work.');
+      } else {
+        M = maxwellVdw(st.Tr);
+        info.innerHTML = 'p = 8T/(3V − 1) − 3/V² ' + t('(ridotte: p/p_c, V/V_c, T/T_c)', '(reduced: p/p_c, V/V_c, T/T_c)') + '<br>' + (M ? t('Coesistenza a T = ', 'Coexistence at T = ') + fmt(st.Tr) + ' T_c: p_sat = <b class="bsiFX-num">' + M.p.toFixed(4) + '</b> p_c, V_liquido = <b class="bsiFX-num">' + M.Vl.toFixed(4) + '</b>, V_vapore = <b class="bsiFX-num">' + M.Vg.toFixed(4) + '</b> V_c ' + t('(aree uguali di Maxwell); spinodali a V = ', '(Maxwell equal areas); spinodals at V = ') + M.Vs1.toFixed(3) + t(' e ', ' and ') + M.Vs2.toFixed(3) : t('Sopra T_c non c’è transizione: liquido e vapore non si distinguono (fluido supercritico).', 'Above T_c there is no transition: liquid and vapour cannot be told apart (supercritical fluid).'));
+        spiega.innerHTML = t('La superficie di van der Waals con la piega: sotto la cupola (bianca) liquido e vapore coesistono alla pressione di saturazione, le isoterme diventano orizzontali e il gas compresso condensa senza che la pressione salga; la frazione di liquido segue la regola della leva. Al punto critico C (1, 1, 1) la piega sparisce: ∂p/∂V = ∂²p/∂V² = 0. Il punto bianco comprime e poi espande il gas lungo l’isoterma scelta.', 'The van der Waals surface with its fold: under the dome (white) liquid and vapour coexist at the saturation pressure, isotherms become horizontal and compressed gas condenses without the pressure rising; the liquid fraction follows the lever rule. At the critical point C (1, 1, 1) the fold disappears: ∂p/∂V = ∂²p/∂V² = 0. The white dot compresses and then expands the gas along the chosen isotherm.');
+      }
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Superficie p-V-T in 3D del gas ideale e di van der Waals con le trasformazioni', '3D p-V-T surface of the ideal and van der Waals gas with the processes'],
+      tre: function (S, T, L3) {
+        var gr = new T.Group(); S.aggiungi(gr);
+        var punto = L3.sfera(T, 0.11, 0xffffff, 0, 0, 0, true); S.aggiungi(punto);
+        var cammino = [], fr = 0, mappa;
+        function tubo(pts, col, r) { if (pts.length < 2) return; var cu = new T.CatmullRomCurve3(pts.map(function (p) { return new T.Vector3(p[0], p[1], p[2]); })); gr.add(new T.Mesh(new T.TubeGeometry(cu, Math.min(400, pts.length * 3), r || 0.045, 8, false), new T.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.35 }))); }
+        function etichetta(s2, col, x, y, z, h) { var e = L3.testo3d(T, s2, col, h || 0.3); e.position.set(x, y, z); gr.add(e); }
+        function superficie(fz, nx, ny, colore) {
+          var pos = [], col = [], idx = [];
+          for (var i = 0; i <= nx; i++) for (var j = 0; j <= ny; j++) { var u = i / nx, w = j / ny, P = fz(u, w); pos.push(P[0], P[1], P[2]); var c = colore(u, w); col.push(c[0], c[1], c[2]); }
+          for (i = 0; i < nx; i++) for (j = 0; j < ny; j++) { var a = i * (ny + 1) + j, b = (i + 1) * (ny + 1) + j; idx.push(a, b, b + 1, a, b + 1, a + 1); }
+          var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new T.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals();
+          gr.add(new T.Mesh(g, new T.MeshStandardMaterial({ vertexColors: true, side: T.DoubleSide, roughness: 0.6, transparent: true, opacity: 0.85 })));
+          gr.add(new T.LineSegments(new T.WireframeGeometry(g), new T.LineBasicMaterial({ color: 0x081522, transparent: true, opacity: 0.18 })));
+        }
+        function cornice(nomi) {
+          var sc = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(6, 6, 4)), new T.LineBasicMaterial({ color: 0x34465f })); sc.position.set(0, 0, 2); gr.add(sc);
+          etichetta(nomi[0], '#ff8a80', 3.6, -3.3, 0); etichetta(nomi[1] + ' →', '#5eead4', 3.7, 0.2, 0); etichetta(nomi[2], '#6bcfff', -3.4, -3.4, 4.3);
+        }
+        cb.nuovo = function () {
+          svuota(gr); cammino = []; fr = 0;
+          if (st.modo === 'ideale') {
+            var tutti = [].concat.apply([], C.map(function (x) { return x.punti; })), Vs = tutti.map(function (p) { return p[0]; }), Ts = tutti.map(function (p) { return p[2]; });
+            var lv0 = Math.log10(Math.min.apply(null, Vs) / 1.6), lv1 = Math.log10(Math.max.apply(null, Vs) * 1.6), T0 = Math.min.apply(null, Ts) * 0.6, T1 = Math.max.apply(null, Ts) * 1.1;
+            var lp0 = Math.log10(R * T0 / Math.pow(10, lv1)), lp1 = Math.log10(R * T1 / Math.pow(10, lv0));
+            mappa = function (V, Tk, p) { return [-3 + 6 * (Math.log10(V) - lv0) / (lv1 - lv0), -3 + 6 * (Tk - T0) / (T1 - T0), 4 * (Math.log10(p) - lp0) / (lp1 - lp0)]; };
+            superficie(function (u, w) { var V = Math.pow(10, lv0 + (lv1 - lv0) * u), Tk = T0 + (T1 - T0) * w; return mappa(V, Tk, R * Tk / V); }, 56, 40, function (u, w) { return colT(w); });
+            [T0 + 0.25 * (T1 - T0), T0 + 0.5 * (T1 - T0), T0 + 0.75 * (T1 - T0)].forEach(function (Tk) { var pts = []; for (var i = 0; i <= 60; i++) { var V = Math.pow(10, lv0 + (lv1 - lv0) * i / 60); pts.push(mappa(V, Tk, R * Tk / V)); pts[i][2] += 0.01; } gr.add(L3.linea(T, pts, 0xe6fffb, 0.45)); });
+            C.forEach(function (x, i) {
+              var pts = x.punti.map(function (q) { var m = mappa(q[0], q[2], q[1]); m[2] += 0.04; return m; }); tubo(pts, COLCICLO[i]);
+              gr.add(L3.linea(T, x.punti.map(function (q) { var m = mappa(q[0], q[2], q[1]); return [m[0], 3, m[2]]; }), COLCICLO[i], 0.6));
+              cammino = cammino.concat(pts);
+            });
+            /* tacche: decadi di V (m³) e di p (bar) */
+            for (var d = Math.ceil(lv0); d <= lv1; d++) etichetta(fmt(Math.pow(10, d)) + ' m³', '#9fb1c6', -3 + 6 * (d - lv0) / (lv1 - lv0), -3.45, -0.15, 0.28);
+            for (d = Math.ceil(lp0 - 5); d <= lp1 - 5; d++) etichetta(fmt(Math.pow(10, d)) + ' bar', '#9fb1c6', -3.6, 3.2, 4 * (d + 5 - lp0) / (lp1 - lp0), 0.28);
+            etichetta(fmt(T0) + ' K', '#9fb1c6', 3.6, -3, -0.15, 0.28); etichetta(fmt(T1) + ' K', '#9fb1c6', 3.6, 3, -0.15, 0.28);
+            cornice(['V', 'T', 'p']);
+          } else {
+            var Va = 0.42, Vb = 8, Ta = 0.8, Tb = 1.25, pmax = 2;
+            mappa = function (V, Tr, p) { return [-3 + 6 * Math.log(V / Va) / Math.log(Vb / Va), -3 + 6 * (Tr - Ta) / (Tb - Ta), 4 * Math.max(0, Math.min(pmax * 1.05, p)) / pmax]; };
+            var cache = {}; function Mx(Tr) { var k = Tr.toFixed(4); if (!(k in cache)) cache[k] = maxwellVdw(Tr); return cache[k]; }
+            superficie(function (u, w) { var V = Va * Math.pow(Vb / Va, u), Tr = Ta + (Tb - Ta) * w; return mappa(V, Tr, st.anse ? vdw(V, Tr) : pEquilibrio(V, Tr, Mx(Tr))); }, 90, 45, function (u, w) { var V = Va * Math.pow(Vb / Va, u), Tr = Ta + (Tb - Ta) * w, m = Mx(Tr); return m && V > m.Vl && V < m.Vg ? [0.85, 0.88, 0.95] : colT(w); });
+            /* la cupola di coesistenza */
+            var sx = [], dx = [];
+            for (var k = 0; k <= 60; k++) { var Tr = Ta + (0.9999 - Ta) * k / 60, m = maxwellVdw(Tr); if (!m) continue; var a = mappa(m.Vl, Tr, m.p), b = mappa(m.Vg, Tr, m.p); a[2] += 0.03; b[2] += 0.03; sx.push(a); dx.push(b); }
+            tubo(sx.concat(dx.reverse()), 0xffffff, 0.035);
+            gr.add(L3.sfera(T, 0.1, 0xff6b6b, mappa(1, 1, 1)[0], mappa(1, 1, 1)[1], mappa(1, 1, 1)[2] + 0.05, true)); etichetta('C', '#ff8a80', mappa(1, 1, 1)[0], mappa(1, 1, 1)[1] + 0.25, mappa(1, 1, 1)[2] + 0.4, 0.35);
+            /* l'isoterma scelta, percorsa dal punto */
+            var M2 = maxwellVdw(st.Tr), pts = [];
+            for (var i = 0; i <= 240; i++) { var V = Vb * Math.pow(Va * 1.08 / Vb, i / 240), q = mappa(V, st.Tr, pEquilibrio(V, st.Tr, M2)); q[2] += 0.05; pts.push(q); }
+            tubo(pts, 0xffd24a, 0.04); cammino = pts.concat(pts.slice().reverse());
+            if (M2) { var an = []; for (i = 0; i <= 120; i++) { var V2 = M2.Vl + (M2.Vg - M2.Vl) * i / 120, q2 = mappa(V2, st.Tr, vdw(V2, st.Tr)); q2[2] += 0.05; an.push(q2); } gr.add(L3.linea(T, an, 0xffd24a, 0.6)); }
+            [1, 2, 4].forEach(function (V) { etichetta(String(V), '#9fb1c6', mappa(V, Ta, 0)[0], -3.45, -0.15, 0.24); });
+            [0.5, 1, 1.5, 2].forEach(function (p) { etichetta(String(p), '#9fb1c6', -3.45, 3.2, mappa(1, 1, p)[2], 0.24); });
+            cornice(['V/V_c', 'T/T_c', 'p/p_c']);
+          }
+          S.didascalia.textContent = st.modo === 'ideale' ? t('Gas ideale: pV = RT · ', 'Ideal gas: pV = RT · ') + st.tipo : 'van der Waals · T = ' + st.Tr.toFixed(2) + ' T_c';
+          posa(); S.sporca = true; S.avvia();
+        };
+        function posa() {
+          if (!cammino.length) return;
+          var k = Math.min(cammino.length - 1, Math.floor(fr * cammino.length)), p = cammino[k]; punto.position.set(p[0], p[1], p[2] + 0.04);
+          if (st.modo === 'vdw' && M && cammino.length) {
+            var Vb = 8, Va = 0.42, i = k < 241 ? k : 481 - k, V = Vb * Math.pow(Va * 1.08 / Vb, i / 240);
+            S.didascalia.textContent = 'T = ' + st.Tr.toFixed(2) + ' T_c · V = ' + V.toFixed(3) + ' V_c · ' + (V > M.Vg ? t('vapore', 'vapour') : V < M.Vl ? t('liquido', 'liquid') : t('liquido ', 'liquid ') + Math.round(100 * (M.Vg - V) / (M.Vg - M.Vl)) + ' % (' + t('regola della leva', 'lever rule') + ')');
+          }
+        }
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) { if (S.fermo) return false; fr = (fr + dt * (st.modo === 'ideale' ? 0.12 : 0.08)) % 1; posa(); return true; });
+        S.vista.bersaglio.set(0, 0, 1.6); S.inquadra(15, -1.2, 1.1);
+      }
+    };
+  }
+
   F.sezione('sfistermo', {
     titolo: ['🔥 Termodinamica in movimento', '🔥 Thermodynamics in motion'],
     sotto: ['I cicli di Carnot, Otto, Diesel e Stirling nei piani p-V e T-S con i bilanci di calore e lavoro, un gas di particelle che trova da solo la distribuzione di Maxwell-Boltzmann, il moto browniano e la legge di Einstein.', 'Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with heat and work balances, a gas of particles finding the Maxwell-Boltzmann distribution by itself, Brownian motion and Einstein’s law.'],
     schede: [
       { nome: ['♻️ Cicli termodinamici', '♻️ Thermodynamic cycles'], costruisci: schedaCicli },
       { nome: ['🫧 Gas di particelle', '🫧 Gas of particles'], costruisci: schedaGas },
-      { nome: ['🚶 Moto browniano', '🚶 Brownian motion'], costruisci: schedaBrowniano }
+      { nome: ['🚶 Moto browniano', '🚶 Brownian motion'], costruisci: schedaBrowniano },
+      { nome: ['🗻 Superficie p-V-T 3D', '🗻 3D p-V-T surface'], costruisci: scheda3D(schedaPVT) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

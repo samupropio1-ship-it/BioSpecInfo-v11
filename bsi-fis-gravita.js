@@ -12,7 +12,10 @@
      Sole-Terra, Sole-Giove); L4 e L5 stabili se μ < 0,0385 (troiani);
    · FIONDA GRAVITAZIONALE: una sonda passa vicino a un pianeta in moto; nel
      sistema del pianeta la velocita' all'infinito non cambia, in quello del
-     Sole si': la sonda guadagna energia a spese del pianeta.
+     Sole si': la sonda guadagna energia a spese del pianeta;
+   · POZZO DI POTENZIALE 3D (v238): il telo −GM/r con un'orbita di prova
+     (E e L conservati, conica di Keplero prevista) e il potenziale efficace
+     rotante con L1…L5 e un troiano attorno a L4 (costante di Jacobi).
    Unita' con G = 1.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
@@ -62,7 +65,27 @@
     var ox = (p.vx - U) / vrF, oy = p.vy / vrF, vSoleOut = Math.hypot(U + vinfOut * ox, vinfOut * oy), vSoleIn = Math.hypot(U + vinfIn * (vin[0] - U) / Math.hypot(vin[0] - U, vin[1]), vinfIn * vin[1] / Math.hypot(vin[0] - U, vin[1]));
     return { cam: cam, vfin: vSoleOut, vin: vSoleIn, vinfIn: vinfIn, vinfOut: vinfOut, vxfin: p.vx, vyfin: p.vy };
   }
-  F.calcolo.gravita = { accelerazioni: accelerazioni, passoVerlet: passoVerlet, energia: energia, momentoAngolare: momentoAngolare, SISTEMI: SISTEMI, potEff: potEff, lagrange: lagrange, fionda: fionda };
+  /* v238 — il problema ristretto dei tre corpi nel sistema rotante (ω = 1, separazione 1, G(m₁+m₂) = 1).
+     U = potEff; la particella di prova sente −∇U e la forza di Coriolis:
+     ẍ = −∂U/∂x + 2ẏ,  ÿ = −∂U/∂y − 2ẋ.  Si conserva la costante di Jacobi C = −2U − v². */
+  function gradEff(x, y, mu) {
+    var a = x + mu, b = x - 1 + mu, r1 = Math.sqrt(a * a + y * y), r2 = Math.sqrt(b * b + y * y), q1 = (1 - mu) / (r1 * r1 * r1), q2 = mu / (r2 * r2 * r2);
+    return [q1 * a + q2 * b - x, q1 * y + q2 * y - y];
+  }
+  function passoR3C(s, mu, dt) {
+    function f(u) { var g = gradEff(u[0], u[1], mu); return [u[2], u[3], -g[0] + 2 * u[3], -g[1] - 2 * u[2]]; }
+    var k1 = f(s), k2 = f(s.map(function (x, j) { return x + dt / 2 * k1[j]; })), k3 = f(s.map(function (x, j) { return x + dt / 2 * k2[j]; })), k4 = f(s.map(function (x, j) { return x + dt * k3[j]; }));
+    return s.map(function (x, j) { return x + dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]); });
+  }
+  function jacobi(s, mu) { return -2 * potEff(s[0], s[1], mu) - (s[2] * s[2] + s[3] * s[3]); }
+  /* l'orbita di Keplero (GM = 1) di chi parte a distanza r₀ con velocita' v₀ perpendicolare al raggio:
+     energia E, momento angolare L, semiasse a, eccentricita' e, semilato retto p = L²;
+     con e «col segno» r(θ) = p/(1 + e cos θ) passa per la partenza in θ = 0 */
+  function kepler(r0, v0) {
+    var E = v0 * v0 / 2 - 1 / r0, L = r0 * v0, p = L * L, es = p / r0 - 1;
+    return { E: E, L: L, p: p, e: Math.abs(es), eSegno: es, a: E < 0 ? -1 / (2 * E) : Infinity, T: E < 0 ? 2 * Math.PI * Math.pow(-1 / (2 * E), 1.5) : Infinity, vc: 1 / Math.sqrt(r0), vfuga: Math.sqrt(2 / r0) };
+  }
+  F.calcolo.gravita = { accelerazioni: accelerazioni, passoVerlet: passoVerlet, energia: energia, momentoAngolare: momentoAngolare, SISTEMI: SISTEMI, potEff: potEff, lagrange: lagrange, fionda: fionda, gradEff: gradEff, passoR3C: passoR3C, jacobi: jacobi, kepler: kepler };
 
   /* ═══ 1. N corpi ════════════════════════════════════════════════════════ */
   function schedaNCorpi(div) {
@@ -137,13 +160,164 @@
     }, { ricomincia: function () { k = 0; } });
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. il pozzo di potenziale in 3D (v238) ═══════════════════════════
+     Il «telo elastico»: la quota del telo e' il potenziale (per unita' di massa della particella
+     di prova). Due modi: il pozzo −GM/r di una stella con un'orbita di prova integrata con Verlet,
+     e il potenziale efficace del sistema rotante di due masse con i punti di Lagrange. */
+  function schedaPozzo(pan) {
+    var st = { modo: 'stella', r0: 1.5, f: 0.8, c: 'sg', sp: 0.01 }, cb = {};
+    F.scelta(pan, ['Che cosa', 'What'], [['stella', t('pozzo di una stella: orbita di prova', 'well of a star: test orbit')], ['lagrange', t('due masse nel sistema rotante: punti di Lagrange', 'two masses in the rotating frame: Lagrange points')]], st.modo, function (v) { st.modo = v; gS.style.display = v === 'stella' ? '' : 'none'; gL.style.display = v === 'stella' ? 'none' : ''; nuovo(); });
+    var gS = F.el('div'), gL = F.el('div', { style: 'display:none' }); pan.appendChild(gS); pan.appendChild(gL);
+    F.cursore(gS, ['distanza di partenza r₀', 'starting distance r₀'], 0.8, 2.5, 0.05, st.r0, function (v) { st.r0 = v; nuovo(); }, function (v) { return v.toFixed(2); });
+    F.cursore(gS, ['velocità di lancio v₀ / v_circolare', 'launch speed v₀ / v_circular'], 0.3, 1.6, 0.01, st.f, function (v) { st.f = v; nuovo(); }, function (v) { return v.toFixed(2); });
+    F.scelta(gL, ['Coppia', 'Pair'], Object.keys(COPPIE).map(function (k) { return [k, F.tt(COPPIE[k][0])]; }), st.c, function (v) { st.c = v; nuovo(); });
+    F.cursore(gL, ['spostamento della particella da L4', 'test particle offset from L4'], 0, 0.2, 0.005, st.sp, function (v) { st.sp = v; nuovo(); }, function (v) { return v.toFixed(3); });
+    var info = nota(pan), vivo = nota(pan), spiega = nota(pan);
+    function testoSpiega() {
+      spiega.innerHTML = st.modo === 'stella' ? t('Il telo è il potenziale Φ = −GM/r: più si scende, più l’energia di legame è grande. La pallina gialla è una particella di prova lanciata perpendicolarmente al raggio; la sua orbita è integrata con Verlet a velocità (lo stesso motore della scheda N corpi), la linea tratteggiata è la conica di Keplero prevista con a, e e T. Energia E = ½v² − GM/r e momento angolare L = r × v restano costanti: per questo la pallina accelera scendendo nel pozzo e rallenta risalendo (legge delle aree). Sopra v_fuga = √2 v_c l’orbita si apre.',
+        'The sheet is the potential Φ = −GM/r: the lower, the more tightly bound. The yellow ball is a test particle launched perpendicular to the radius; its orbit is integrated with velocity Verlet (the same engine as the N-body tab), the dashed line is the Kepler conic predicted from a, e and T. Energy E = ½v² − GM/r and angular momentum L = r × v stay constant: that is why the ball speeds up going down into the well and slows down climbing out (law of areas). Above v_esc = √2 v_c the orbit opens up.') :
+        t('Nel sistema che ruota con le due masse il telo è il potenziale efficace, gravità più centrifuga. L1, L2, L3 sono selle; L4 e L5 sono CIME, eppure per μ < 0,0385 vi si resta: la forza di Coriolis trasforma la caduta in un’orbita a girino attorno al punto (gli asteroidi troiani di Giove); spostando di più la particella il girino si allunga in un ferro di cavallo che abbraccia L3, L4 e L5. La particella è integrata con Runge-Kutta 4 e si conserva la costante di Jacobi C = −2U − v².',
+        'In the frame rotating with the two masses the sheet is the effective potential, gravity plus centrifugal. L1, L2, L3 are saddles; L4 and L5 are HILLTOPS, yet for μ < 0.0385 one stays there: the Coriolis force turns the fall into a tadpole orbit around the point (Jupiter’s Trojan asteroids); with a larger offset the tadpole stretches into a horseshoe embracing L3, L4 and L5. The particle is integrated with fourth-order Runge-Kutta and the Jacobi constant C = −2U − v² is conserved.');
+    }
+    var K, Lg;
+    function nuovo() {
+      testoSpiega();
+      if (st.modo === 'stella') {
+        K = kepler(st.r0, st.f / Math.sqrt(st.r0));
+        info.innerHTML = 'v_c = √(GM/r₀) = ' + fmt(K.vc) + ' · v_fuga = √2 v_c = ' + fmt(K.vfuga) + ' · v₀ = <b class="bsiFX-num">' + fmt(st.f * K.vc) + '</b><br>E = ½v₀² − GM/r₀ = <b class="bsiFX-num">' + fmt(K.E) + '</b> · L = r₀v₀ = <b class="bsiFX-num">' + fmt(K.L) + '</b><br>' +
+          (K.E < 0 ? t('Ellisse: ', 'Ellipse: ') + 'a = −GM/2E = <b>' + fmt(K.a) + '</b>, e = <b>' + fmt(K.e) + '</b>, T = 2π√(a³/GM) = <b>' + fmt(K.T) + '</b>' + (Math.abs(st.f - 1) < 0.005 ? t(' (circolare)', ' (circular)') : st.f < 1 ? t(' — parte dall’afelio', ' — starts at aphelion') : t(' — parte dal perielio', ' — starts at perihelion')) : t('Energia ≥ 0: l’orbita è ', 'Energy ≥ 0: the orbit is ') + (K.e > 1.0001 ? t('un’iperbole', 'a hyperbola') : t('una parabola', 'a parabola')) + ' (e = ' + fmt(K.e) + t('), la particella sfugge.', '), the particle escapes.'));
+      } else {
+        var mu = COPPIE[st.c][1]; Lg = lagrange(mu);
+        info.innerHTML = 'μ = ' + mu + ' · L1 = ' + fmt(Lg.L1[0]) + ' · L2 = ' + fmt(Lg.L2[0]) + ' · L3 = ' + fmt(Lg.L3[0]) + '<br>U(L1) = ' + fmt(potEff(Lg.L1[0], 0, mu)) + ' · U(L4) = ' + fmt(potEff(Lg.L4[0], Lg.L4[1], mu)) + '<br>' + (Lg.stabiliL45 ? t('μ < 0,0385: L4 e L5 stabili (verdi).', 'μ < 0.0385: L4 and L5 stable (green).') : t('μ > 0,0385: anche L4 e L5 sono instabili, la particella scappa.', 'μ > 0.0385: L4 and L5 are unstable too, the particle escapes.'));
+      }
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Pozzo di potenziale gravitazionale in 3D con orbite di prova e punti di Lagrange', '3D gravitational potential well with test orbits and Lagrange points'],
+      tre: function (S, T, L3) {
+        var NG = 100, telo = null, rete = null, gr = new T.Group(); S.aggiungi(gr);
+        var palla = L3.sfera(T, 0.07, 0xffd24a, 0, 0, 0, true); S.aggiungi(palla);
+        var NS = 3000, sp = new Float32Array(NS * 3), ns = 0, gs = new T.BufferGeometry(); gs.setAttribute('position', new T.BufferAttribute(sp, 3)); gs.setDrawRange(0, 0);
+        var scia = new T.Line(gs, new T.LineBasicMaterial({ color: 0xffe08a })); S.aggiungi(scia);
+        var C, s3, mu, tt, tV = 0, E0, L0, J0, LATO, quota, modoVisto = null;
+        function colore(u) { u = Math.max(0, Math.min(1, u)); var a = [[0.10, 0.12, 0.35], [0.12, 0.45, 0.62], [0.30, 0.78, 0.62], [0.95, 0.88, 0.35]], x = u * 3, i = Math.min(2, Math.floor(x)), f = x - i; return [a[i][0] + (a[i + 1][0] - a[i][0]) * f, a[i][1] + (a[i + 1][1] - a[i][1]) * f, a[i][2] + (a[i + 1][2] - a[i][2]) * f]; }
+        function superficie(n, conColore) {
+          var geo = new T.PlaneGeometry(LATO, LATO, n, n), pos = geo.attributes.position, c = new Float32Array(pos.count * 3), zmin = Infinity, zmax = -Infinity, i;
+          for (i = 0; i < pos.count; i++) { var z = quota(pos.getX(i), pos.getY(i)); pos.setZ(i, z); zmin = Math.min(zmin, z); zmax = Math.max(zmax, z); }
+          if (conColore) { for (i = 0; i < pos.count; i++) { var u = (pos.getZ(i) - zmin) / (zmax - zmin || 1), k = colore(st.modo === 'stella' ? Math.pow(u, 4) : u); c[3 * i] = k[0]; c[3 * i + 1] = k[1]; c[3 * i + 2] = k[2]; } geo.setAttribute('color', new T.BufferAttribute(c, 3)); }
+          geo.computeVertexNormals(); return geo;
+        }
+        cb.nuovo = function () {
+          svuota(gr); ns = 0; gs.setDrawRange(0, 0); tt = 0;
+          if (st.modo === 'stella') {
+            LATO = 6.4; quota = function (x, y) { return 0.6 * Math.max(-1 / Math.hypot(x, y), -3.2); };
+            C = [{ m: 1, x: 0, y: 0, vx: 0, vy: 0 }, { m: 1e-12, x: st.r0, y: 0, vx: 0, vy: st.f / Math.sqrt(st.r0) }];
+            E0 = energia(C, 0) / C[1].m; L0 = momentoAngolare(C) / C[1].m;
+            gr.add(L3.sfera(T, 0.16, 0xffc45a, 0, 0, quota(0, 0.06) + 0.05, true));
+            /* la conica prevista, sul telo */
+            var pts = []; for (var k = 0; k <= 720; k++) { var th = 2 * Math.PI * k / 720, den = 1 + K.eSegno * Math.cos(th), r = den > 1e-3 ? K.p / den : Infinity; if (r < LATO / 2 * 1.4 && r > 0.05) pts.push([r * Math.cos(th), r * Math.sin(th), quota(r * Math.cos(th), r * Math.sin(th)) + 0.02]); else if (pts.length > 1) { gr.add(L3.linea(T, pts, 0xff8a80, 0.55)); pts = []; } }
+            if (pts.length > 1) gr.add(L3.linea(T, pts, 0xff8a80, 0.55));
+          } else {
+            mu = COPPIE[st.c][1]; LATO = 3.1;
+            quota = function (x, y) { return 1.7 * (Math.max(potEff(x, y, mu), -2.6) + 1.5); };
+            var L4 = Lg.L4; s3 = [L4[0] + st.sp * 0.7, L4[1] - st.sp * 0.7, 0, 0]; J0 = jacobi(s3, mu);
+            gr.add(L3.sfera(T, 0.11, 0xffc45a, -mu, 0, quota(-mu + 0.04, 0) + 0.05, true));
+            gr.add(L3.sfera(T, 0.05 + 0.08 * Math.cbrt(mu / 0.3), 0x6bcfff, 1 - mu, 0, quota(1 - mu + 0.04, 0) + 0.05, true));
+            ['L1', 'L2', 'L3', 'L4', 'L5'].forEach(function (nm) {
+              var p = Lg[nm], stab = (nm === 'L4' || nm === 'L5') && Lg.stabiliL45, z = quota(p[0], p[1]);
+              gr.add(L3.sfera(T, 0.045, stab ? 0x5eead4 : 0xff6b6b, p[0], p[1], z + 0.02, true));
+              var e = L3.testo3d(T, nm, stab ? '#5eead4' : '#ff8a80', 0.17); e.position.set(p[0], p[1], z + 0.22); gr.add(e);
+            });
+          }
+          if (telo) { S.radice.remove(telo); telo.geometry.dispose(); telo.material.dispose(); }
+          if (rete) { S.radice.remove(rete); rete.geometry.dispose(); rete.material.dispose(); }
+          telo = new T.Mesh(superficie(NG, true), new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.05, side: T.DoubleSide, transparent: true, opacity: 0.92 })); S.aggiungi(telo);
+          rete = new T.LineSegments(new T.WireframeGeometry(superficie(32, false)), new T.LineBasicMaterial({ color: 0xcfe3f7, transparent: true, opacity: 0.16 })); S.aggiungi(rete);
+          posa();
+          if (modoVisto !== st.modo) { modoVisto = st.modo; S.inquadra(st.modo === 'stella' ? 9.5 : 6.2, -1.2, 0.9); }
+        };
+        function posa() {
+          var x, y; if (st.modo === 'stella') { x = C[1].x - C[0].x; y = C[1].y - C[0].y; } else { x = s3[0]; y = s3[1]; }
+          var z = quota(x, y) + 0.06; palla.position.set(x, y, z); palla.visible = Math.abs(x) < LATO / 2 && Math.abs(y) < LATO / 2;
+          if (palla.visible) { if (ns >= NS) { sp.copyWithin(0, 3); ns = NS - 1; } sp[3 * ns] = x; sp[3 * ns + 1] = y; sp[3 * ns + 2] = z - 0.03; ns++; gs.attributes.position.needsUpdate = true; gs.setDrawRange(0, ns); }
+        }
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var testo;
+          if (st.modo === 'stella') {
+            var h = 0.002, n = Math.max(1, Math.round(dt * 2.5 / h)); for (var i = 0; i < n; i++) passoVerlet(C, h, 0); tt += n * h;
+            var E = energia(C, 0) / C[1].m, L = momentoAngolare(C) / C[1].m, r = Math.hypot(C[1].x, C[1].y);
+            if (r > 9 || r < 0.03) cb.nuovo();
+            testo = 'E = <b class="bsiFX-num">' + E.toFixed(6) + '</b> (' + t('scarto ', 'drift ') + Math.abs((E - E0) / E0).toExponential(1) + ') · L = <b class="bsiFX-num">' + L.toFixed(6) + '</b> (' + t('scarto ', 'drift ') + Math.abs((L - L0) / L0).toExponential(1) + ')<br>r = ' + r.toFixed(3) + ', |v| = ' + Math.hypot(C[1].vx, C[1].vy).toFixed(3);
+            S.didascalia.textContent = 't = ' + tt.toFixed(1) + (isFinite(K.T) ? ' · T = ' + K.T.toFixed(2) : '') + ' · r = ' + r.toFixed(2);
+          } else {
+            var h2 = 0.002, n2 = Math.max(1, Math.round(dt * 3 / h2)); for (var j = 0; j < n2; j++) s3 = passoR3C(s3, mu, h2); tt += n2 * h2;
+            var J = jacobi(s3, mu), dL4 = Math.hypot(s3[0] - Lg.L4[0], s3[1] - Lg.L4[1]);
+            if (Math.hypot(s3[0], s3[1]) > 2.5 || tt > 400) cb.nuovo();
+            testo = t('Costante di Jacobi ', 'Jacobi constant ') + 'C = <b class="bsiFX-num">' + J.toFixed(8) + '</b> (' + t('scarto ', 'drift ') + Math.abs((J - J0) / J0).toExponential(1) + ')<br>' + t('distanza da L4: ', 'distance from L4: ') + dL4.toFixed(3);
+            S.didascalia.textContent = t('sistema rotante · t = ', 'rotating frame · t = ') + tt.toFixed(1) + ' · ' + t('da L4: ', 'from L4: ') + dL4.toFixed(3);
+          }
+          posa();
+          tV += dt; if (tV > 0.3) { tV = 0; vivo.innerHTML = testo; }
+          return true;
+        });
+      }
+    };
+  }
+
   F.sezione('sfisgrav', {
     titolo: ['🪐 Gravitazione', '🪐 Gravitation'],
     sotto: ['Il problema degli N corpi con Verlet (figura a otto, stella doppia, problema pitagorico, sistema planetario), i punti di Lagrange nel potenziale efficace, la fionda gravitazionale.', 'The N-body problem with Verlet (figure-eight, binary star, Pythagorean problem, planetary system), Lagrange points in the effective potential, the gravity assist.'],
     schede: [
       { nome: ['🌌 N corpi', '🌌 N bodies'], costruisci: schedaNCorpi },
       { nome: ['⚖️ Punti di Lagrange', '⚖️ Lagrange points'], costruisci: schedaLagrange },
-      { nome: ['🚀 Fionda gravitazionale', '🚀 Gravity assist'], costruisci: schedaFionda }
+      { nome: ['🚀 Fionda gravitazionale', '🚀 Gravity assist'], costruisci: schedaFionda },
+      { nome: ['🕳️ Pozzo di potenziale 3D', '🕳️ 3D potential well'], costruisci: scheda3D(schedaPozzo) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

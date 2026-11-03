@@ -218,7 +218,135 @@
     calcola(); F.alRidimensiona(calcola);
   }
 
-  F.calcolo.calcoloinf = { riemann: riemann, taylor: taylor, stampaTaylor: stampaTaylor };
+  /* ── solidi di rotazione (v238) ──────────────────────────────────────────
+     Il grafico di y = f(x), x ∈ [a, b], ruota attorno all'asse x. Ogni fetta perpendicolare
+     all'asse e' un disco di raggio |f(x)|: V = π ∫ f(x)² dx. Con n dischi di spessore h presi al
+     punto medio la somma π Σ f(mᵢ)² h e' una somma di Riemann di quell'integrale (errore O(h²):
+     raddoppiando n si divide per 4). La superficie laterale e' 2π ∫ |f| √(1 + f′²) dx. */
+  function volumeDischi(f, a, b, n) {
+    var h = (b - a) / n, s = 0, dischi = [];
+    for (var i = 0; i < n; i++) { var m = a + (i + 0.5) * h, r = f(m); dischi.push([m, r]); if (isFinite(r)) s += r * r * h; }
+    return { valore: Math.PI * s, dischi: dischi, h: h };
+  }
+  function volumeRotazione(e, x, a, b) {
+    var f = C.funzione(e, x), f2 = function (v) { var y = f(v); return y * y; }, num = C.integraleDefinito(f2, a, b), esatto = null;
+    /* la primitiva di f² quando il motore la trova: volume esatto dal teorema fondamentale */
+    try { var P = C.integra(C.semplifica(C.costruisci.pow(e, C.Q(2))), x); if (P) { var FP = C.funzione(P, x), d = FP(b) - FP(a); if (isFinite(d) && Math.abs(d - num.valore) < 1e-6 * (1 + Math.abs(d))) esatto = { primitiva: P, valore: Math.PI * d }; } } catch (er) { }
+    return { valore: Math.PI * num.valore, affidabile: num.affidabile, esatto: esatto };
+  }
+  function areaLaterale(e, x, a, b) {
+    var f = C.funzione(e, x), f1 = C.funzione(C.deriva(e, x), x);
+    return 2 * Math.PI * C.integraleDefinito(function (v) { var y = f(v), p = f1(v); return Math.abs(y) * Math.sqrt(1 + p * p); }, a, b).valore;
+  }
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.66);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaSolido(pan) {
+    var st = { n: 10, dischi: true }, R = null, S = null, T = null, lab = null, phi = 0;
+    var inp = F.el('input', { type: 'text', value: 'sqrt(1 - x^2)', 'aria-label': 'f(x)', spellcheck: 'false', autocomplete: 'off' });
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: 'f(x) =' })); pan.appendChild(inp);
+    var ra = F.el('input', { type: 'text', value: '-1', 'aria-label': 'a' }), rb = F.el('input', { type: 'text', value: '1', 'aria-label': 'b' });
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Estremi a, b (anche pi, e…):', 'Limits a, b (pi, e… allowed):') }));
+    pan.appendChild(F.el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:6px' }, [ra, rb]));
+    F.scelta(pan, ['Esempi', 'Examples'], [['sqrt(x)|0|4', t('√x: paraboloide, V = 8π', '√x: paraboloid, V = 8π')], ['sqrt(1 - x^2)|-1|1', t('semicerchio: sfera, V = 4π/3', 'semicircle: sphere, V = 4π/3')], ['x/2|0|3', t('retta: cono, V = πr²h/3', 'line: cone, V = πr²h/3')], ['2 + cos(x)|0|2*pi', t('vaso 2 + cos x', 'vase 2 + cos x')], ['1/x|1|6', t('tromba di Gabriele (1/x)', 'Gabriel’s horn (1/x)')], ['e^(-x^2)|-2|2', t('campana e^(−x²)', 'bell e^(−x²)')], ['sin(x)|0|pi', t('fuso sin x, V = π²/2', 'spindle sin x, V = π²/2')]], 'sqrt(1 - x^2)|-1|1', function (v) { var p = v.split('|'); inp.value = p[0]; ra.value = p[1]; rb.value = p[2]; calcola(); });
+    [inp, ra, rb].forEach(function (i) { i.addEventListener('change', calcola); });
+    F.cursore(pan, ['numero di dischi n', 'number of discs n'], 1, 60, 1, st.n, function (v) { st.n = v; numeri(); dischi(); });
+    var c = F.el('input', { type: 'checkbox' }); c.checked = true; c.addEventListener('change', function () { st.dischi = c.checked; dischi(); });
+    pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.84rem;color:#cfe3f7;cursor:pointer' }, [c, F.el('span', { testo: t('Mostra i dischi', 'Show the discs') })]));
+    F.bottone(pan, ['↻ Fai girare di nuovo', '↻ Spin it again'], function () { phi = 0; if (S) S.avvia(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Il profilo y = f(x) (in giallo) gira attorno all’asse x e la superficie del solido si costruisce mentre ruota. Tagliando il solido perpendicolarmente all’asse ogni fetta è un disco di raggio |f(x)| e area πf(x)²: sommando le fette, V = π∫ₐᵇ f(x)² dx (principio di Cavalieri). I cilindri trasparenti sono n dischi presi al punto medio: la loro somma è una somma di Riemann dell’integrale e l’errore cala come 1/n². Con 1/x su [1, ∞) succede una cosa famosa: il volume resta finito (π) mentre la superficie laterale cresce senza limite (tromba di Gabriele).',
+      'The profile y = f(x) (yellow) spins around the x axis and the surface of the solid is built as it turns. Slicing the solid perpendicular to the axis each slice is a disc of radius |f(x)| and area πf(x)²: adding the slices, V = π∫ₐᵇ f(x)² dx (Cavalieri’s principle). The transparent cylinders are n midpoint discs: their sum is a Riemann sum of the integral and the error falls like 1/n². With 1/x on [1, ∞) something famous happens: the volume stays finite (π) while the lateral surface grows without bound (Gabriel’s horn).') }));
+    var oggetti = {}, Gs = null;
+    function calcola() {
+      try {
+        var e = C.leggi(inp.value), x = variabile(e), a = leggiNum(ra.value), b = leggiNum(rb.value);
+        if (C.simboli(e).filter(function (v) { return v !== x; }).length) throw new Error(t('una sola variabile, per esempio x', 'one variable only, for example x'));
+        if (!isFinite(a) || !isFinite(b) || !(b > a)) throw new Error(t('servono estremi finiti con a < b', 'finite limits with a < b are needed'));
+        R = { e: e, x: x, f: C.funzione(e, x), a: a, b: b, V: volumeRotazione(e, x, a, b), A: areaLaterale(e, x, a, b) };
+      } catch (err) { R = null; info.innerHTML = '<span class="bsiFX-ko">' + t('Non riesco a usarla: ', 'I cannot use it: ') + esc(err.message) + '</span>'; if (S) { S.pulisci(); S.aggiungi(lab.assi(T, 3.4, ['x', 'y', 'z'], 0.3)); } return; }
+      numeri(); phi = 0; scena();
+    }
+    function numeri() {
+      if (!R) return;
+      var D = volumeDischi(R.f, R.a, R.b, st.n), D2 = volumeDischi(R.f, R.a, R.b, 2 * st.n), V = R.V.valore, e1 = D.valore - V, e2 = D2.valore - V;
+      info.innerHTML = '<div class="bsiFX-eq">V = π∫<sub>' + nb(R.a) + '</sub><sup>' + nb(R.b) + '</sup> (' + C.html(R.e) + ')² d' + R.x + ' = <b>' + (R.V.affidabile ? C.fmtNum(V) : '≈ ' + C.fmtNum(V)) + '</b>' + (R.V.esatto ? '<br><span style="color:#9fb1c6">' + t('primitiva di f²: ', 'antiderivative of f²: ') + C.html(R.V.esatto.primitiva) + '</span>' : '') + '</div>' +
+        t('Con ', 'With ') + st.n + t(' dischi: ', ' discs: ') + '<b class="bsiFX-num">' + C.fmtNum(D.valore) + '</b> · ' + t('errore ', 'error ') + '<b class="bsiFX-num">' + C.fmtNum(e1) + '</b><br>' +
+        t('Con ', 'With ') + 2 * st.n + t(' dischi l’errore è ', ' discs the error is ') + C.fmtNum(e2) + (Math.abs(e2) > 1e-12 && R.V.affidabile ? ' (' + t('rapporto ', 'ratio ') + (e1 / e2).toFixed(2) + t(', atteso ≈ 4', ', expected ≈ 4') + ')' : '') + '<br>' +
+        t('Superficie laterale ', 'Lateral surface ') + '2π∫|f|√(1 + f′²) = <b class="bsiFX-num">' + C.fmtNum(R.A) + '</b>' + (R.V.affidabile ? '' : '<br><span class="bsiFX-ko">' + t('L’integrale è poco affidabile: f ha una singolarità nell’intervallo?', 'The integral is unreliable: does f have a singularity in the interval?') + '</span>');
+    }
+    function scena() {
+      if (!S || !R) return;
+      S.pulisci(); oggetti = {};
+      var Nx = 160, Nf = 72, xs = [], ys = [], m = 0, i, j;
+      for (i = 0; i <= Nx; i++) { var x = R.a + (R.b - R.a) * i / Nx, y = R.f(x); xs.push(x); ys.push(isFinite(y) ? y : NaN); if (isFinite(y)) m = Math.max(m, Math.abs(y)); }
+      /* la stessa scala lungo l'asse e in raggio: il solido conserva le sue proporzioni */
+      var s = Math.min(6 / (R.b - R.a), 2.6 / (m || 1)), X = function (x) { return (x - (R.a + R.b) / 2) * s; };
+      Gs = { s: s, X: X };
+      var pos = [], nor = [], idx = [];
+      for (j = 0; j <= Nf; j++) { var f = 2 * Math.PI * j / Nf, cf = Math.cos(f), sf = Math.sin(f); for (i = 0; i <= Nx; i++) { var r = isFinite(ys[i]) ? Math.abs(ys[i]) * s : 0; pos.push(X(xs[i]), r * cf, r * sf); } }
+      /* triangoli in ordine di angolo: setDrawRange fa crescere la superficie mentre gira */
+      for (j = 0; j < Nf; j++) for (i = 0; i < Nx; i++) { if (!isFinite(ys[i]) || !isFinite(ys[i + 1])) continue; var a0 = j * (Nx + 1) + i, b0 = a0 + Nx + 1; idx.push(a0, a0 + 1, b0 + 1, a0, b0 + 1, b0); }
+      var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+      oggetti.sup = new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x5eead4, roughness: 0.6, metalness: 0, side: T.DoubleSide, transparent: true, opacity: 0.6, depthWrite: false })); S.aggiungi(oggetti.sup);
+            oggetti.idx = idx.length;
+      /* la «gabbia» del solido, tenue, visibile da subito: meridiani ogni 15° e paralleli ogni 1/16 dell'intervallo */
+      var gab = [];
+      for (j = 0; j < Nf; j += 3) for (i = 0; i < Nx; i++) if (isFinite(ys[i]) && isFinite(ys[i + 1])) { var p0 = j * (Nx + 1) + i; gab.push(pos[3 * p0], pos[3 * p0 + 1], pos[3 * p0 + 2], pos[3 * p0 + 3], pos[3 * p0 + 4], pos[3 * p0 + 5]); }
+      for (i = 0; i <= Nx; i += 10) if (isFinite(ys[i])) for (j = 0; j < Nf; j++) { var q0 = j * (Nx + 1) + i, q1 = q0 + Nx + 1; gab.push(pos[3 * q0], pos[3 * q0 + 1], pos[3 * q0 + 2], pos[3 * q1], pos[3 * q1 + 1], pos[3 * q1 + 2]); }
+      var gg = new T.BufferGeometry(); gg.setAttribute('position', new T.Float32BufferAttribute(gab, 3));
+      S.aggiungi(new T.LineSegments(gg, new T.LineBasicMaterial({ color: 0x4a7aa8, transparent: true, opacity: 0.45 })));
+      /* il profilo che gira (giallo) e quello fermo nel piano xy */
+      var prof = []; for (i = 0; i <= Nx; i++) if (isFinite(ys[i])) prof.push([X(xs[i]), ys[i] * s, 0]);
+      S.aggiungi(lab.linea(T, prof, 0xffd24a, 0.35));
+      oggetti.prof = new T.Group(); oggetti.prof.add(lab.linea(T, prof.map(function (p) { return [p[0], Math.abs(p[1]), 0]; }), 0xffd24a)); S.aggiungi(oggetti.prof);
+      S.aggiungi(lab.linea(T, [[X(R.a) - 0.6, 0, 0], [X(R.b) + 0.6, 0, 0]], 0xff6b6b, 0.8));
+      S.aggiungi(lab.assi(T, 3.6, ['x', 'y', 'z'], 0.3));
+      dischi();
+      S.didascalia.textContent = 'y = ' + C.stampa(R.e) + ', ' + R.x + ' ∈ [' + nb(R.a) + ', ' + nb(R.b) + ']';
+      if (!S.vistaIniziale) S.inquadra(12.5, -1.2, 1.15);
+      S.ogniFotogramma(function (dt) {
+        if (phi >= 2 * Math.PI) return false;
+        phi = Math.min(2 * Math.PI, phi + dt * 2.4);
+        var k = Math.ceil(phi / (2 * Math.PI) * 72); oggetti.sup.geometry.setDrawRange(0, Math.min(oggetti.idx, Math.round(oggetti.idx * k / 72)));
+        oggetti.prof.rotation.x = phi;
+        if (oggetti.dischi) oggetti.dischi.visible = st.dischi && phi >= 2 * Math.PI;
+      });
+    }
+    /* i dischi: cilindri sottili (asse x) al punto medio di ogni striscia */
+    function dischi() {
+      if (!S || !R || !Gs) return;
+      if (oggetti.dischi) { S.radice.remove(oggetti.dischi); oggetti.dischi.traverse(function (o) { if (o.geometry) o.geometry.dispose(); }); }
+      var D = volumeDischi(R.f, R.a, R.b, st.n), g = new T.Group(), mat = new T.MeshStandardMaterial({ color: 0xff9f43, transparent: true, opacity: 0.45, roughness: 0.4, depthWrite: false }), bordo = new T.LineBasicMaterial({ color: 0xffc58a, transparent: true, opacity: 0.8 });
+      D.dischi.forEach(function (d) {
+        if (!isFinite(d[1]) || Math.abs(d[1]) < 1e-9) return;
+        var r = Math.abs(d[1]) * Gs.s, cil = new T.CylinderGeometry(r, r, D.h * Gs.s * 0.94, 40, 1), mm = new T.Mesh(cil, mat);
+        mm.rotation.z = Math.PI / 2; mm.position.x = Gs.X(d[0]); g.add(mm);
+        var e = new T.LineSegments(new T.EdgesGeometry(cil, 30), bordo); e.rotation.z = Math.PI / 2; e.position.x = Gs.X(d[0]); g.add(e);
+      });
+      g.visible = st.dischi && phi >= 2 * Math.PI; oggetti.dischi = g; S.aggiungi(g);
+    }
+    calcola();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
+  F.calcolo.calcoloinf = { riemann: riemann, taylor: taylor, stampaTaylor: stampaTaylor, volumeDischi: volumeDischi, volumeRotazione: volumeRotazione, areaLaterale: areaLaterale };
 
   F.sezione('smatcalc', {
     titolo: ['∫ Derivate, integrali e serie', '∫ Derivatives, integrals and series'],
@@ -228,7 +356,8 @@
       { nome: ['Derivate', 'Derivatives'], costruisci: schedaDerivate },
       { nome: ['Integrali', 'Integrals'], costruisci: schedaIntegrali },
       { nome: ['Serie di Taylor', 'Taylor series'], costruisci: schedaTaylor },
-      { nome: ['Limiti', 'Limits'], costruisci: schedaLimiti }
+      { nome: ['Limiti', 'Limits'], costruisci: schedaLimiti },
+      { nome: ['🧊 Solidi di rotazione', '🧊 Solids of revolution'], costruisci: scheda3d(schedaSolido, ['Solido di rotazione di y = f(x) attorno all’asse x, con i dischi', 'Solid of revolution of y = f(x) around the x axis, with the discs']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

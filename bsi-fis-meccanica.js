@@ -18,7 +18,10 @@
      separatrice fra oscillazione e rotazione; lo smorzamento;
    · OSCILLATORI ACCOPPIATI: due masse e tre molle; i modi normali
      ω₁ = √(k/m) (in fase) e ω₂ = √((k + 2k_c)/m) (in opposizione) e il
-     passaggio di energia da una massa all'altra (battimenti).
+     passaggio di energia da una massa all'altra (battimenti);
+   · LANCIO IN 3D CON IL VENTO (v238): la resistenza sulla velocita' relativa
+     all'aria, la deriva laterale, i vettori v e a sul corpo in volo e il
+     bilancio dell'energia contro il lavoro della resistenza.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -70,7 +73,36 @@
     var w1 = Math.sqrt(k / m), w2 = Math.sqrt((k + 2 * kc) / m), a = (x10 + x20) / 2, b = (x10 - x20) / 2;
     return { w1: w1, w2: w2, x1: function (tt) { return a * Math.cos(w1 * tt) + b * Math.cos(w2 * tt); }, x2: function (tt) { return a * Math.cos(w1 * tt) - b * Math.cos(w2 * tt); }, Tbatt: 2 * Math.PI / Math.abs(w2 - w1) };
   }
-  F.calcolo.meccanica = { proiettile: proiettile, angoloOttimo: angoloOttimo, urto: urto, ellitticoK: ellitticoK, periodoPendolo: periodoPendolo, passoPendolo: passoPendolo, accoppiati: accoppiati };
+  /* v238 — il lancio in tre dimensioni con l'aria che si muove. La resistenza dipende dalla
+     velocita' RELATIVA all'aria: a = −g ẑ − k|v − w|(v − w), con w il vento orizzontale.
+     x lungo la direzione di lancio, y di lato, z in alto; il vento ha intensita' W e soffia
+     VERSO l'angolo φ misurato dall'asse x (φ = 90°: vento laterale verso +y, φ = 180°: contrario).
+     La settima variabile integra il lavoro della resistenza ∫ a_res · v dt (per unita' di massa):
+     serve a controllare il bilancio dell'energia ½v² + g z. Il passo e' quello di `proiettile`,
+     cosi' senza vento i due calcoli coincidono. */
+  function proiettile3D(v0, gradi, k, W, phiVento, h0) {
+    var th = gradi * Math.PI / 180, fv = (phiVento || 0) * Math.PI / 180, wx = (W || 0) * Math.cos(fv), wy = (W || 0) * Math.sin(fv);
+    var s = [0, 0, h0 || 0, v0 * Math.cos(th), 0, v0 * Math.sin(th), 0], dt = Math.max(1e-4, Math.min(0.01, v0 / g / 400));
+    function f(u) {
+      var rx = u[3] - wx, ry = u[4] - wy, rz = u[5], v = Math.sqrt(rx * rx + ry * ry + rz * rz);
+      return [u[3], u[4], u[5], -k * v * rx, -k * v * ry, -g - k * v * rz, -k * v * (rx * u[3] + ry * u[4] + rz * u[5])];
+    }
+    var pts = [], tt = 0, hmax = s[2];
+    function campione(u, tc) { var a = f(u); pts.push({ t: tc, p: [u[0], u[1], u[2]], v: [u[3], u[4], u[5]], a: [a[3], a[4], a[5]] }); }
+    function riepilogo(u) {
+      return { pts: pts, X: u[0], Y: u[1], R: Math.hypot(u[0], u[1]), T: tt, H: hmax, vfin: Math.hypot(u[3], u[4], u[5]), lavoro: u[6],
+        E0: 0.5 * v0 * v0 + g * (h0 || 0), E1: 0.5 * (u[3] * u[3] + u[4] * u[4] + u[5] * u[5]) + g * u[2], wx: wx, wy: wy };
+    }
+    campione(s, 0);
+    for (var i = 0; i < 2e6; i++) {
+      var k1 = f(s), k2 = f(s.map(function (x, j) { return x + dt / 2 * k1[j]; })), k3 = f(s.map(function (x, j) { return x + dt / 2 * k2[j]; })), k4 = f(s.map(function (x, j) { return x + dt * k3[j]; }));
+      var n = s.map(function (x, j) { return x + dt / 6 * (k1[j] + 2 * k2[j] + 2 * k3[j] + k4[j]); });
+      if (n[2] < 0 && n[5] < 0) { var u = s[2] / (s[2] - n[2]), fin = s.map(function (x, j) { return x + (n[j] - x) * u; }); fin[2] = 0; tt += dt * u; campione(fin, tt); return riepilogo(fin); }
+      s = n; tt += dt; hmax = Math.max(hmax, s[2]); if (i % 4 === 3) campione(s, tt);
+    }
+    return riepilogo(s);
+  }
+  F.calcolo.meccanica = { proiettile: proiettile, proiettile3D: proiettile3D, angoloOttimo: angoloOttimo, urto: urto, ellitticoK: ellitticoK, periodoPendolo: periodoPendolo, passoPendolo: passoPendolo, accoppiati: accoppiati };
 
   /* ═══ 1. proiettile ═════════════════════════════════════════════════════ */
   function schedaProiettile(div) {
@@ -216,6 +248,135 @@
     ricomincia(); F.alRidimensiona(grafico);
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        /* una scena in una scheda nascosta non si ridimensiona (riallocare il framebuffer costa) */
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  /* ❚❚ / ▶ nella barra della vista: S.fermo blocca i fotogrammi del moto (WCAG 2.2.2) */
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  /* una freccia gia' creata portata da p lungo d (componenti nella scala della scena) */
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.28, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 5. lancio in 3D con il vento (v238) ═══════════════════════════════ */
+  function schedaLancio3D(pan) {
+    var st = { v0: 45, th: 40, k: 0.006, W: 10, phi: 90, h: 0 }, A, V, N, cb = {};
+    F.cursore(pan, ['v₀ (m/s)', 'v₀ (m/s)'], 5, 120, 1, st.v0, function (v) { st.v0 = v; calcola(); });
+    F.cursore(pan, ['angolo θ (°)', 'angle θ (°)'], 1, 89, 1, st.th, function (v) { st.th = v; calcola(); });
+    F.cursore(pan, ['resistenza k (1/m)', 'drag k (1/m)'], 0, 0.05, 0.001, st.k, function (v) { st.k = v; calcola(); }, function (v) { return v.toFixed(3); });
+    F.cursore(pan, ['vento W (m/s)', 'wind W (m/s)'], 0, 30, 0.5, st.W, function (v) { st.W = v; calcola(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['verso del vento φ (°): 0 a favore, 90 di lato, 180 contro', 'wind heading φ (°): 0 tail, 90 side, 180 head'], 0, 360, 5, st.phi, function (v) { st.phi = v; calcola(); });
+    F.cursore(pan, ['quota di lancio (m)', 'launch height (m)'], 0, 50, 1, st.h, function (v) { st.h = v; calcola(); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Che cosa si vede: la traiettoria vera (verde acqua) con la resistenza quadratica dell’aria e il vento, la parabola del vuoto (viola), la stessa aria ma senza vento (grigia) e l’ombra a terra. La freccia gialla è la velocità v, la rossa l’accelerazione a = g + resistenza. La resistenza dipende dalla velocità RELATIVA all’aria, v − w: il vento laterale spinge il corpo di lato, un vento a favore allunga il tiro e la resistenza, rispetto al suolo, può perfino compiere lavoro positivo. Le particelle azzurre viaggiano con il vento. Integrazione Runge-Kutta 4 in sei variabili.',
+      'What you see: the true path (teal) with quadratic air drag and wind, the vacuum parabola (purple), the same air without wind (grey) and the shadow on the ground. The yellow arrow is the velocity v, the red one the acceleration a = g + drag. Drag depends on the velocity RELATIVE to the air, v − w: a crosswind pushes the body sideways, a tailwind lengthens the shot and drag can even do positive work with respect to the ground. The blue particles travel with the wind. Fourth-order Runge-Kutta in six variables.');
+    function calcola() {
+      A = proiettile3D(st.v0, st.th, st.k, st.W, st.phi, st.h); V = proiettile3D(st.v0, st.th, 0, 0, 0, st.h); N = proiettile3D(st.v0, st.th, st.k, 0, 0, st.h);
+      info.innerHTML = t('Con aria e vento: gittata ', 'With air and wind: range ') + '<b class="bsiFX-num">' + fmt(A.R) + ' m</b>, ' + t('deriva laterale ', 'lateral drift ') + '<b class="bsiFX-num">' + fmt(A.Y) + ' m</b>, ' + t('quota massima ', 'max height ') + fmt(A.H) + ' m, ' + t('volo ', 'flight ') + fmt(A.T) + ' s, ' + t('arrivo a ', 'lands at ') + fmt(A.vfin) + ' m/s' +
+        '<br>' + t('Stessa aria senza vento: ', 'Same air, no wind: ') + fmt(N.R) + ' m · ' + t('nel vuoto: ', 'in vacuum: ') + fmt(V.R) + ' m' +
+        '<br>' + t('Bilancio dell’energia (per kg): ', 'Energy balance (per kg): ') + 'Δ(½v² + gz) = ' + fmt(A.E1 - A.E0) + ' J/kg, ' + t('lavoro della resistenza ', 'work of drag ') + fmt(A.lavoro) + ' J/kg';
+      if (cb.nuovo) cb.nuovo();
+    }
+    calcola();
+    return {
+      etichetta: ['Lancio di un proiettile in 3D con resistenza dell’aria e vento', '3D projectile launch with air drag and wind'],
+      tre: function (S, T, L3) {
+        var gr = new T.Group(); S.aggiungi(gr);
+        var palla = L3.sfera(T, 0.15, 0xffd24a, 0, 0, 0, true); S.aggiungi(palla);
+        var ombra = new T.Mesh(new T.CircleGeometry(0.13, 24), new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.5 })); S.aggiungi(ombra);
+        var fv = L3.freccia(T, [0, 0, 0], [1, 0, 0], 0xffd24a, 0.25), fa = L3.freccia(T, [0, 0, 0], [0, 0, -1], 0xff6b6b, 0.25); S.aggiungi(fv); S.aggiungi(fa);
+        var NV = 220, pv = new Float32Array(NV * 3), gv = new T.BufferGeometry(); gv.setAttribute('position', new T.BufferAttribute(pv, 3));
+        var nuvola = new T.Points(gv, new T.PointsMaterial({ color: 0x9fdcff, size: 0.07, transparent: true, opacity: 0.75 })); S.aggiungi(nuvola);
+        for (var i = 0; i < NV; i++) { pv[3 * i] = (Math.random() - 0.5) * 12; pv[3 * i + 1] = (Math.random() - 0.5) * 12; pv[3 * i + 2] = 0.1 + Math.random() * 4; }
+        var sc = 1, cx = 0, tA = 0, j = 0;
+        function P(p) { return [p[0] * sc - cx, p[1] * sc, p[2] * sc]; }
+        function posa(tc) {
+          var Q = A.pts; if (tc < Q[j].t) j = 0; while (j < Q.length - 2 && Q[j + 1].t < tc) j++;
+          var a = Q[j], b = Q[Math.min(Q.length - 1, j + 1)], u = b.t > a.t ? Math.max(0, Math.min(1, (tc - a.t) / (b.t - a.t))) : 0, m = function (x, y) { return [x[0] + (y[0] - x[0]) * u, x[1] + (y[1] - x[1]) * u, x[2] + (y[2] - x[2]) * u]; };
+          var p = P(m(a.p, b.p)), v = m(a.v, b.v), ac = m(a.a, b.a), sv = 1.8 / st.v0, sa = 1.1 / g;
+          palla.position.set(p[0], p[1], p[2]); ombra.position.set(p[0], p[1], 0.01);
+          puntaFreccia(T, fv, p, [v[0] * sv, v[1] * sv, v[2] * sv]); puntaFreccia(T, fa, p, [ac[0] * sa, ac[1] * sa, ac[2] * sa]);
+          S.didascalia.textContent = 't = ' + tc.toFixed(2) + ' s · |v| = ' + Math.hypot(v[0], v[1], v[2]).toFixed(1) + ' m/s · |a| = ' + Math.hypot(ac[0], ac[1], ac[2]).toFixed(1) + ' m/s²';
+        }
+        cb.nuovo = function () {
+          svuota(gr);
+          /* la scala segue il tiro vero: la parabola del vuoto, che con molta resistenza e' lunga
+             anche dieci volte, si taglia dove esce dal riquadro */
+          var Lm = Math.max(A.R, N.R, 1.6 * A.H, 2.2 * Math.abs(A.Y), 0.45 * V.R, 1); sc = 9 / Lm; cx = Math.max(A.R, N.R) * sc / 2;
+          var dentro = function (q) { var r = P(q.p); return r[0] < cx + 3.2 && r[2] < 7; };
+          var gh = new T.GridHelper(12, 24, 0x2a4a6e, 0x16263d); gh.rotation.x = Math.PI / 2; gr.add(gh);
+          gr.add(L3.linea(T, V.pts.filter(dentro).map(function (q) { return P(q.p); }), 0x9b8cff, 0.85));
+          if (st.W > 0 && st.k > 0) gr.add(L3.linea(T, N.pts.map(function (q) { return P(q.p); }), 0x8494a8, 0.8));
+          gr.add(L3.linea(T, A.pts.map(function (q) { return P(q.p); }), 0x5eead4));
+          gr.add(L3.linea(T, A.pts.map(function (q) { var r = P(q.p); return [r[0], r[1], 0.005]; }), 0x5eead4, 0.3));
+          var fin = P(A.pts[A.pts.length - 1].p); gr.add(L3.sfera(T, 0.1, 0xff8a80, fin[0], fin[1], 0.02, true));
+          var et = L3.testo3d(T, 'R = ' + fmt(A.R) + ' m', '#e6fffb', 0.34); et.position.set(fin[0] + 0.3, fin[1], 0.95); gr.add(et);
+          if (Math.abs(A.Y) * sc > 0.05) { gr.add(L3.linea(T, [[fin[0], 0, 0.01], [fin[0], fin[1], 0.01]], 0xff8a80, 0.8)); var ed = L3.testo3d(T, 'y = ' + fmt(A.Y) + ' m', '#ff8a80', 0.3); ed.position.set(fin[0] + 0.9, fin[1] / 2, 0.12); gr.add(ed); }
+          gr.add(L3.linea(T, [[-cx - 0.5, 0, 0.005], [cx + 1.5, 0, 0.005]], 0x34465f));
+          var ex = L3.testo3d(T, 'x', '#ff6b6b', 0.3); ex.position.set(cx + 1.8, 0, 0.1); gr.add(ex);
+          var base = new T.Mesh(new T.CylinderGeometry(0.08, 0.16, Math.max(0.1, st.h * sc), 16), new T.MeshStandardMaterial({ color: 0x8494a8 })); base.rotation.x = Math.PI / 2; base.position.set(-cx, 0, Math.max(0.1, st.h * sc) / 2); gr.add(base);
+          if (st.W > 0) {
+            var fw = st.phi * Math.PI / 180, Lw = 0.5 + 1.6 * st.W / 30, o = [-cx - 1.2, -3.2, 0.6];
+            gr.add(L3.freccia(T, o, [o[0] + Lw * Math.cos(fw), o[1] + Lw * Math.sin(fw), o[2]], 0x9fdcff, 0.3));
+            var ew = L3.testo3d(T, t('vento ', 'wind ') + fmt(st.W) + ' m/s', '#9fdcff', 0.28); ew.position.set(o[0], o[1] - 0.45, o[2]); gr.add(ew);
+          }
+          nuvola.visible = st.W > 0;
+          tA = 0; j = 0; posa(0); S.sporca = true; S.avvia();
+        };
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var durata = Math.max(1.5, Math.min(6, A.T)), vel = A.T / durata;
+          tA += dt * vel; if (tA > A.T + 1.2 * vel) tA = 0;
+          posa(Math.min(tA, A.T));
+          if (st.W > 0) {
+            var dx = A.wx * sc * dt * vel, dy = A.wy * sc * dt * vel;
+            for (var i = 0; i < NV; i++) { var x = pv[3 * i] + dx, y = pv[3 * i + 1] + dy; pv[3 * i] = x > 6 ? x - 12 : x < -6 ? x + 12 : x; pv[3 * i + 1] = y > 6 ? y - 12 : y < -6 ? y + 12 : y; }
+            gv.attributes.position.needsUpdate = true;
+          }
+          return true;
+        });
+        S.inquadra(15, -1.25, 1.12);
+      }
+    };
+  }
+
   F.sezione('sfismecc', {
     titolo: ['🎯 Meccanica in movimento', '🎯 Mechanics in motion'],
     sotto: ['Il proiettile con la resistenza dell’aria, gli urti dall’elastico all’anelastico, il pendolo vero con lo spazio delle fasi, gli oscillatori accoppiati e i modi normali: animati, con i numeri che li descrivono.', 'Projectile with air drag, collisions from elastic to inelastic, the real pendulum with its phase space, coupled oscillators and normal modes: animated, with the numbers that describe them.'],
@@ -223,7 +384,8 @@
       { nome: ['🏹 Proiettile con l’aria', '🏹 Projectile with air'], costruisci: schedaProiettile },
       { nome: ['💥 Urti', '💥 Collisions'], costruisci: schedaUrti },
       { nome: ['🕰️ Pendolo vero', '🕰️ Real pendulum'], costruisci: schedaPendolo },
-      { nome: ['🔗 Oscillatori accoppiati', '🔗 Coupled oscillators'], costruisci: schedaAccoppiati }
+      { nome: ['🔗 Oscillatori accoppiati', '🔗 Coupled oscillators'], costruisci: schedaAccoppiati },
+      { nome: ['🌬️ Lancio 3D con vento', '🌬️ 3D launch with wind'], costruisci: scheda3D(schedaLancio3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

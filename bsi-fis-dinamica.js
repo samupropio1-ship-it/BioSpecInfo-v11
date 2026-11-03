@@ -16,6 +16,10 @@
    pressione dal viriale P = ρT + (1/2A) Σ r·f, la distribuzione delle
    velocita' contro quella di Maxwell-Boltzmann in 2D, P(v) = (v/T) e^(−v²/2T),
    e la funzione di distribuzione radiale g(r).
+
+   v238: la stessa fisica in TRE dimensioni, in una scatola 3D: reticolo
+   cubico a facce centrate di partenza, liste di celle, T dall'equipartizione
+   (3N − 3 gradi di liberta'), P dal viriale (1/3V) Σ r·f.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -104,7 +108,70 @@
     for (var k = 0; k < nb; k++) { var r1 = k * dr, r2 = r1 + dr; out.push({ r: r1 + dr / 2, g: g[k] / (N * rho * Math.PI * (r2 * r2 - r1 * r1)) }); }
     return out;
   }
-  F.calcolo.dinamica = { sistema: sistema, passo: passo, misure: misure, rdf: rdf, forze: forze };
+
+  /* ── v238: lo stesso fluido in tre dimensioni ─────────────────────────────
+     Partenza da un reticolo cubico a facce centrate (4 n³ particelle), stesse
+     unita' ridotte e stesso taglio a 2,5σ. Si misurano la temperatura
+     dall'equipartizione in 3D, ⟨E_cin⟩ = (3N − 3)/2 kT (la quantita' di moto
+     totale e' fissata a zero), e la pressione dal viriale
+     P = ρT + (1/3V) Σ r·f. */
+  function sistema3D(n, rho, T, seme) {
+    var N = 4 * n * n * n, L = Math.pow(N / rho, 1 / 3), a = L / n, x = new Float64Array(3 * N), v = new Float64Array(3 * N);
+    var s = (seme || 12345) >>> 0, rnd = function () { s = (s + 0x6D2B79F5) >>> 0; var q = Math.imul(s ^ (s >>> 15), 1 | s); q = (q + Math.imul(q ^ (q >>> 7), 61 | q)) ^ q; return ((q ^ (q >>> 14)) >>> 0) / 4294967296; };
+    var B = [[0.25, 0.25, 0.25], [0.75, 0.75, 0.25], [0.75, 0.25, 0.75], [0.25, 0.75, 0.75]], k = 0;
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) for (var l = 0; l < n; l++) B.forEach(function (b) { x[3 * k] = (i + b[0]) * a; x[3 * k + 1] = (j + b[1]) * a; x[3 * k + 2] = (l + b[2]) * a; k++; });
+    var g = [0, 0, 0];
+    for (k = 0; k < 3 * N; k++) { var u1 = Math.max(1e-12, rnd()), u2 = rnd(); v[k] = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); g[k % 3] += v[k]; }
+    for (k = 0; k < 3 * N; k++) v[k] -= g[k % 3] / N;
+    var S = { N: N, L: L, x: x, v: v, f: new Float64Array(3 * N), Ep: 0, vir: 0, passi: 0, t: 0 };
+    scalaT3D(S, T); forze3D(S);
+    return S;
+  }
+  function cinetica3D(S) { var ke = 0; for (var k = 0; k < 3 * S.N; k++) ke += 0.5 * S.v[k] * S.v[k]; return ke; }
+  function scalaT3D(S, T) { var ke = cinetica3D(S), f = Math.sqrt(T * (3 * S.N - 3) / 2 / ke); for (var k = 0; k < 3 * S.N; k++) S.v[k] *= f; }
+  function forze3D(S) {
+    var N = S.N, L = S.L, hL = L / 2, x = S.x, f = S.f, Ep = 0, vir = 0; f.fill(0);
+    function coppia(i, j) {
+      var dx = x[3 * i] - x[3 * j], dy = x[3 * i + 1] - x[3 * j + 1], dz = x[3 * i + 2] - x[3 * j + 2];
+      /* immagine minima: le posizioni stanno in [0, L), le differenze in (−L, L) */
+      if (dx > hL) dx -= L; else if (dx < -hL) dx += L;
+      if (dy > hL) dy -= L; else if (dy < -hL) dy += L;
+      if (dz > hL) dz -= L; else if (dz < -hL) dz += L;
+      var r2 = dx * dx + dy * dy + dz * dz; if (r2 >= RC2) return;
+      var ir2 = 1 / r2, ir6 = ir2 * ir2 * ir2, ff = 48 * ir2 * ir6 * (ir6 - 0.5);
+      f[3 * i] += ff * dx; f[3 * i + 1] += ff * dy; f[3 * i + 2] += ff * dz; f[3 * j] -= ff * dx; f[3 * j + 1] -= ff * dy; f[3 * j + 2] -= ff * dz;
+      Ep += 4 * ir6 * (ir6 - 1) - VSH; vir += ff * r2;
+    }
+    var nc = Math.floor(L / RC);
+    if (nc < 3) { for (var i = 0; i < N; i++) for (var j = i + 1; j < N; j++) coppia(i, j); }
+    else {
+      /* liste di celle: ogni coppia di celle vicine una volta sola (13 delle 26 vicine) */
+      var lc = L / nc, testa = new Int32Array(nc * nc * nc).fill(-1), dopo = new Int32Array(N), cel = function (q) { return Math.min(nc - 1, Math.floor(q / lc)); };
+      for (i = 0; i < N; i++) { var c = (cel(x[3 * i]) * nc + cel(x[3 * i + 1])) * nc + cel(x[3 * i + 2]); dopo[i] = testa[c]; testa[c] = i; }
+      var vic = []; for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) for (var d = -1; d <= 1; d++) if (a > 0 || (a === 0 && (b > 0 || (b === 0 && d > 0)))) vic.push([a, b, d]);
+      for (var cx = 0; cx < nc; cx++) for (var cy = 0; cy < nc; cy++) for (var cz = 0; cz < nc; cz++) {
+        var c0 = (cx * nc + cy) * nc + cz;
+        for (i = testa[c0]; i >= 0; i = dopo[i]) for (j = dopo[i]; j >= 0; j = dopo[j]) coppia(i, j);
+        for (var q = 0; q < 13; q++) { var c1 = (((cx + vic[q][0] + nc) % nc) * nc + (cy + vic[q][1] + nc) % nc) * nc + (cz + vic[q][2] + nc) % nc; for (i = testa[c0]; i >= 0; i = dopo[i]) for (j = testa[c1]; j >= 0; j = dopo[j]) coppia(i, j); }
+      }
+    }
+    S.Ep = Ep; S.vir = vir;
+  }
+  function passo3D(S, dt, Tbagno) {
+    var N3 = 3 * S.N, L = S.L, h = dt / 2, x = S.x, v = S.v, f = S.f;
+    for (var k = 0; k < N3; k++) { v[k] += h * f[k]; x[k] += dt * v[k]; x[k] -= L * Math.floor(x[k] / L); }
+    forze3D(S);
+    for (k = 0; k < N3; k++) v[k] += h * f[k];
+    if (Tbagno) { var ke = cinetica3D(S), T = 2 * ke / (3 * S.N - 3), g = Math.sqrt(1 + 0.05 * (Tbagno / T - 1)); for (k = 0; k < N3; k++) v[k] *= g; }
+    S.passi++; S.t += dt;
+    return S;
+  }
+  function misure3D(S) {
+    var V = S.L * S.L * S.L, ke = cinetica3D(S), T = 2 * ke / (3 * S.N - 3), p = [0, 0, 0];
+    for (var k = 0; k < 3 * S.N; k++) p[k % 3] += S.v[k];
+    return { T: T, Ek: ke / S.N, Ep: S.Ep / S.N, E: (ke + S.Ep) / S.N, P: S.N * T / V + S.vir / (3 * V), rho: S.N / V, p: Math.hypot(p[0], p[1], p[2]) };
+  }
+  F.calcolo.dinamica = { sistema: sistema, passo: passo, misure: misure, rdf: rdf, forze: forze, sistema3D: sistema3D, forze3D: forze3D, passo3D: passo3D, misure3D: misure3D, scalaT3D: scalaT3D };
 
   function schedaSimulatore(div, alRid) {
     var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div');
@@ -163,10 +230,103 @@
     if (alRid) alRid(function () { if (!anim && S) giro(); });
   }
 
+  /* ── v238: la scatola 3D ─────────────────────────────────────────────── */
+  var MENO_MOTO = false; try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  /* il pannello subito, la scena dopo (three.js al primo uso, il contesto WebGL e il contenuto in compiti separati) */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g.appendChild(pan); g.appendChild(destra); div.appendChild(g);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new L3.Scena(destra, 0.8);
+          var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+          destra.insertBefore(S.box, destra.firstChild);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.nome));
+          div._scena = S;
+          setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+        }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function schedaScatola3D(pan) {
+    var st = { n: 4, rho: 0.8, T: 1.0, termo: true, pausa: MENO_MOTO }, Sx = null, cb = {}, medie = null, cT = null;
+    F.scelta(pan, ['Situazione di partenza', 'Starting state'], [['gas', ['gas (ρ* 0,1, T* 2,0)', 'gas (ρ* 0.1, T* 2.0)']], ['liq', ['liquido (ρ* 0,8, T* 1,0)', 'liquid (ρ* 0.8, T* 1.0)']], ['sol', ['solido CFC (ρ* 1,05, T* 0,4)', 'FCC solid (ρ* 1.05, T* 0.4)']]], 'liq', function (v) {
+      var P = { gas: [0.1, 2.0], liq: [0.8, 1.0], sol: [1.05, 0.4] }[v]; st.rho = P[0]; st.T = P[1]; cT.value = st.T; cT.dispatchEvent(new Event('input')); cR.value = st.rho; cR.dispatchEvent(new Event('input'));
+    });
+    F.scelta(pan, ['Particelle', 'Particles'], [['3', '108'], ['4', '256'], ['5', '500']], '4', function (v) { st.n = +v; riparti(); });
+    cT = F.cursore(pan, ['temperatura T* del termostato', 'thermostat temperature T*'], 0.1, 3, 0.05, st.T, function (v) { st.T = v; });
+    var cR = F.cursore(pan, ['densità ρ* (riparte)', 'density ρ* (restarts)'], 0.05, 1.2, 0.05, st.rho, function (v) { st.rho = v; riparti(); });
+    var cb1 = F.el('input', { type: 'checkbox' }); cb1.checked = true; cb1.addEventListener('change', function () { st.termo = cb1.checked; medie = null; });
+    pan.appendChild(F.el('label', { style: 'display:flex;gap:6px;align-items:center;font-size:.82rem;color:#aebccd;margin:6px 0' }, [cb1, F.el('span', { testo: t('termostato acceso (spento: energia costante, NVE)', 'thermostat on (off: constant energy, NVE)') })]));
+    var bp = F.bottone(pan, st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause'], function () { st.pausa = !st.pausa; bp.textContent = F.tt(st.pausa ? ['▶ Avvia', '▶ Play'] : ['⏸ Pausa', '⏸ Pause']); if (cb.sveglia) cb.sveglia(); });
+    var info = F.el('div', { 'class': 'bsiFX-nota' }), spiega = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info); pan.appendChild(spiega);
+    spiega.innerHTML = t('Ogni sfera è un atomo di Lennard-Jones (diametro σ), mosso con velocity Verlet (Δt* = 0,004) in una scatola con confini periodici: chi esce da una faccia rientra dall’opposta. Il colore va dal blu (lento) al rosso (veloce). La temperatura viene dall’energia cinetica (equipartizione, 3N − 3 gradi di libertà), la pressione dal viriale di Clausius: P = ρT + (1/3V) Σ r·f. Sotto ρ* ≈ 0,9 e T* ≈ 0,7 il reticolo cubico a facce centrate di partenza fonde; a bassa densità P si avvicina al gas ideale ρT. Spegnendo il termostato l’energia totale resta costante: è il controllo dell’integratore.',
+      'Each sphere is a Lennard-Jones atom (diameter σ), moved with velocity Verlet (Δt* = 0.004) in a box with periodic boundaries: whoever leaves through a face comes back through the opposite one. Colour goes from blue (slow) to red (fast). Temperature comes from kinetic energy (equipartition, 3N − 3 degrees of freedom), pressure from the Clausius virial: P = ρT + (1/3V) Σ r·f. Below ρ* ≈ 0.9 and T* ≈ 0.7 the starting face-centred cubic lattice melts; at low density P approaches the ideal gas ρT. With the thermostat off the total energy stays constant: that is the check on the integrator.');
+    function riparti() { Sx = sistema3D(st.n, st.rho, st.T, 7 + st.n); medie = null; testo(); if (cb.nuova) cb.nuova(); }
+    function testo() {
+      var m = misure3D(Sx);
+      if (!medie) medie = { n: 0, T: 0, P: 0, E0: m.E };
+      medie.n++; var a = 1 / Math.min(medie.n, 150); medie.T += a * (m.T - medie.T); medie.P += a * (m.P - medie.P);
+      info.innerHTML = 'N = ' + Sx.N + ' · ρ* = ' + m.rho.toFixed(3) + ' · L = ' + Sx.L.toFixed(2) + ' σ · ' + t('passi ', 'steps ') + Sx.passi + ' (t* = ' + Sx.t.toFixed(1) + ')<br>' +
+        'T* = <b class="bsiFX-num">' + m.T.toFixed(3) + '</b> (' + t('media ', 'mean ') + medie.T.toFixed(3) + ') · P* = <b class="bsiFX-num">' + m.P.toFixed(3) + '</b> (' + t('media ', 'mean ') + medie.P.toFixed(3) + ')<br>' +
+        t('Gas ideale ρT = ', 'Ideal gas ρT = ') + (m.rho * medie.T).toFixed(3) + ' → Z = P/ρT = <b class="bsiFX-num">' + (medie.P / (m.rho * medie.T)).toFixed(3) + '</b><br>' +
+        t('Energia per particella ', 'Energy per particle ') + '<b class="bsiFX-num">' + m.E.toFixed(4) + '</b> (' + t('cinetica ', 'kinetic ') + m.Ek.toFixed(3) + ', ' + t('potenziale ', 'potential ') + m.Ep.toFixed(3) + ')' +
+        (st.termo ? '' : '<br>' + t('NVE: deriva dell’energia ', 'NVE: energy drift ') + ((m.E - medie.E0)).toExponential(1)) + ' · |Σp| = ' + m.p.toExponential(0);
+    }
+    riparti();
+    return {
+      nome: ['Fluido di Lennard-Jones in una scatola 3D', 'Lennard-Jones fluid in a 3D box'],
+      tre: function (S, T, L3) {
+        var mesh = null, scatola = null, M4 = new T.Matrix4(), col = new T.Color(), k = 1;
+        function caldo(f) { f = Math.max(0, Math.min(1, f)); var c = [[0.15, 0.35, 0.95], [0.2, 0.8, 0.95], [0.35, 0.92, 0.55], [1, 0.85, 0.25], [1, 0.35, 0.2]], x = f * 4, i = Math.min(3, Math.floor(x)), u = x - i; return [c[i][0] + (c[i + 1][0] - c[i][0]) * u, c[i][1] + (c[i + 1][1] - c[i][1]) * u, c[i][2] + (c[i + 1][2] - c[i][2]) * u]; }
+        cb.sveglia = function () { S.avvia(); };
+        cb.nuova = function () {
+          if (mesh) { S.radice.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
+          if (scatola) { S.radice.remove(scatola); scatola.geometry.dispose(); scatola.material.dispose(); }
+          k = 6.4 / Sx.L;
+          mesh = new T.InstancedMesh(new T.SphereGeometry(0.42 * k, 12, 8), new T.MeshStandardMaterial({ roughness: 0.35, metalness: 0.1 }), Sx.N);
+          mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
+          for (var i = 0; i < Sx.N; i++) mesh.setColorAt(i, col.setRGB(1, 1, 1));
+          S.aggiungi(mesh);
+          scatola = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(6.4, 6.4, 6.4)), new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.55 })); S.aggiungi(scatola);
+          aggiorna();
+        };
+        function aggiorna() {
+          var m = 0; for (var i = 0; i < 3 * Sx.N; i++) m += Sx.v[i] * Sx.v[i]; var vr = Math.sqrt(m / Sx.N), off = -3.2;
+          for (i = 0; i < Sx.N; i++) {
+            M4.makeTranslation(Sx.x[3 * i] * k + off, Sx.x[3 * i + 1] * k + off, Sx.x[3 * i + 2] * k + off); mesh.setMatrixAt(i, M4);
+            var c = caldo(Math.hypot(Sx.v[3 * i], Sx.v[3 * i + 1], Sx.v[3 * i + 2]) / (2 * vr)); mesh.setColorAt(i, col.setRGB(c[0], c[1], c[2]));
+          }
+          mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+        }
+        cb.nuova();
+        var tt = 0;
+        S.ogniFotogramma(function (dt) {
+          if (st.pausa) return false;
+          var np = Sx.N > 300 ? 3 : 5;
+          for (var i = 0; i < np; i++) passo3D(Sx, 0.004, st.termo ? st.T : 0);
+          aggiorna();
+          tt += dt; if (tt > 0.25) { tt = 0; testo(); }
+          S.didascalia.textContent = Sx.N + t(' atomi di Lennard-Jones', ' Lennard-Jones atoms') + ' · T* = ' + st.T.toFixed(2) + (st.termo ? '' : ' (NVE)') + ' · ρ* = ' + st.rho.toFixed(2);
+          return true;
+        });
+        S.inquadra(15, 0.6, 1.15);
+      }
+    };
+  }
+
   F.sezione('sdinmol', {
     titolo: ['🎱 Dinamica molecolare', '🎱 Molecular dynamics'],
     sotto: ['Un fluido di Lennard-Jones in due dimensioni simulato dal vivo (velocity Verlet, confini periodici): temperatura, pressione dal viriale, distribuzione di Maxwell-Boltzmann, funzione di distribuzione radiale, gas, liquido e cristallo.',
             'A two-dimensional Lennard-Jones fluid simulated live (velocity Verlet, periodic boundaries): temperature, virial pressure, Maxwell-Boltzmann distribution, radial distribution function, gas, liquid and crystal.'],
-    schede: [{ nome: ['Simulatore', 'Simulator'], costruisci: schedaSimulatore }]
+    schede: [{ nome: ['Simulatore', 'Simulator'], costruisci: schedaSimulatore },
+             { nome: ['🧊 Scatola 3D', '🧊 3D box'], costruisci: scheda3D(schedaScatola3D) }]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

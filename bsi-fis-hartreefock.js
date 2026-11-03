@@ -24,6 +24,11 @@
      1,4632 bohr con l'elio di Szabo-Ostlund (ζ = 2,0925: −2,860662 Eh),
      H₂O alla geometria del progetto di
      programmazione di Crawford (−74,942079928 Eh): il banco li riproduce.
+   · Gli orbitali in 3D (v238): ψ su una griglia cubica (le gaussiane si
+     separano asse per asse, quindi la griglia costa poco), l'isosuperficie
+     con i tetraedri in marcia per +c e −c (due colori: il segno), c scelto
+     perche' racchiuda una frazione data di |ψ|², i lobi contati come
+     componenti connesse della superficie.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -276,7 +281,86 @@
     HF:   { nome: 'HF', carica: 0, atomi: function (R) { return [{ Z: 9, r: [0, 0, 0] }, { Z: 1, r: [0, 0, R] }]; }, R: 1.7328, scan: [1.2, 5] },
     N2:   { nome: 'N₂', carica: 0, atomi: function (R) { return [{ Z: 7, r: [0, 0, 0] }, { Z: 7, r: [0, 0, R] }]; }, R: 2.074, scan: [1.6, 4] }
   };
-  F.calcolo.hartreefock = { scf: scf, base: base, boys: boys, MOL: MOL, valoreMO: valoreMO, jacobi: jacobi };
+
+  /* ── v238: l'orbitale su una griglia e la sua isosuperficie ──────────────
+     Una gaussiana cartesiana x^l y^m z^n e^(−a r²) e' il prodotto di tre
+     funzioni di una variabile: sulla griglia si calcolano i fattori 1D una
+     volta sola e il valore in ogni nodo e' una somma di prodotti. */
+  function grigliaMO(ris, k, N, margine) {
+    var lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    ris.atomi.forEach(function (a) { for (var d = 0; d < 3; d++) { lo[d] = Math.min(lo[d], a.r[d]); hi[d] = Math.max(hi[d], a.r[d]); } });
+    var L = 0; for (var d = 0; d < 3; d++) L = Math.max(L, hi[d] - lo[d]);
+    L += 2 * (margine || 4.5); var h = L / N, n1 = N + 1, x0 = [0, 1, 2].map(function (q) { return (lo[q] + hi[q]) / 2 - L / 2; });
+    var v = new Float32Array(n1 * n1 * n1), ax = [new Float64Array(n1), new Float64Array(n1), new Float64Array(n1)];
+    ris.base.forEach(function (f, i) {
+      var C = ris.C[i][k]; if (Math.abs(C) < 1e-12) return;
+      for (var p = 0; p < f.a.length; p++) {
+        for (var q = 0; q < 3; q++) for (var u = 0; u < n1; u++) { var dx = x0[q] + u * h - f.A[q]; ax[q][u] = Math.pow(dx, f.lmn[q]) * Math.exp(-f.a[p] * dx * dx); }
+        var cc = C * f.c[p], X = ax[0], Y = ax[1], Z = ax[2];
+        for (var a = 0; a < n1; a++) { var xa = cc * X[a]; if (Math.abs(xa) < 1e-14) continue; for (var b = 0; b < n1; b++) { var xy = xa * Y[b], base0 = (a * n1 + b) * n1; if (Math.abs(xy) < 1e-14) continue; for (var c = 0; c < n1; c++) v[base0 + c] += xy * Z[c]; } }
+      }
+    });
+    return { n: N, h: h, x0: x0, v: v };
+  }
+  function normaGriglia(G) { var s = 0; for (var i = 0; i < G.v.length; i++) s += G.v[i] * G.v[i]; return s * G.h * G.h * G.h; }
+  /* la soglia c tale che la regione |ψ| > c contenga la frazione data di ∫|ψ|² */
+  function sogliaIso(G, frazione) {
+    var a = Array.prototype.slice.call(G.v).map(Math.abs).sort(function (x, y) { return y - x; }), tot = 0, s = 0, i;
+    for (i = 0; i < a.length; i++) tot += a[i] * a[i];
+    for (i = 0; i < a.length; i++) { s += a[i] * a[i]; if (s >= frazione * tot) return a[i]; }
+    return a[a.length - 1];
+  }
+  /* tetraedri in marcia: la superficie segno·ψ = c, triangoli orientati con la normale verso l'esterno (ψ che cala) */
+  var TETRA = [[0, 5, 1, 6], [0, 1, 2, 6], [0, 2, 3, 6], [0, 3, 7, 6], [0, 7, 4, 6], [0, 4, 5, 6]], VERT = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]];
+  function isosuperficie(G, c, segno) {
+    var n = G.n, n1 = n + 1, v = G.v, sg = segno || 1, pos = [], idx = [], mappa = new Map();
+    function lin(a, b, d) { return (a * n1 + b) * n1 + d; }
+    function punto(ia, ib) {
+      var key = ia < ib ? ia * 4e6 + ib : ib * 4e6 + ia, g = mappa.get(key); if (g !== undefined) return g;
+      var va = sg * v[ia] - c, vb = sg * v[ib] - c, tt = va / (va - vb);
+      var pa = [Math.floor(ia / (n1 * n1)), Math.floor(ia / n1) % n1, ia % n1], pb = [Math.floor(ib / (n1 * n1)), Math.floor(ib / n1) % n1, ib % n1];
+      g = pos.length / 3; for (var q = 0; q < 3; q++) pos.push(G.x0[q] + G.h * (pa[q] + (pb[q] - pa[q]) * tt));
+      mappa.set(key, g); return g;
+    }
+    function tri(i1, i2, i3, fuori, dentro) {
+      var A = [pos[3 * i1], pos[3 * i1 + 1], pos[3 * i1 + 2]], B = [pos[3 * i2] - A[0], pos[3 * i2 + 1] - A[1], pos[3 * i2 + 2] - A[2]], C = [pos[3 * i3] - A[0], pos[3 * i3 + 1] - A[1], pos[3 * i3 + 2] - A[2]];
+      var nr = [B[1] * C[2] - B[2] * C[1], B[2] * C[0] - B[0] * C[2], B[0] * C[1] - B[1] * C[0]], d = [fuori[0] - dentro[0], fuori[1] - dentro[1], fuori[2] - dentro[2]];
+      if (nr[0] * d[0] + nr[1] * d[1] + nr[2] * d[2] < 0) idx.push(i1, i3, i2); else idx.push(i1, i2, i3);
+    }
+    function centro(ids) { var s = [0, 0, 0]; ids.forEach(function (g) { s[0] += Math.floor(g / (n1 * n1)) / ids.length; s[1] += (Math.floor(g / n1) % n1) / ids.length; s[2] += (g % n1) / ids.length; }); return s; }
+    for (var a = 0; a < n; a++) for (var b = 0; b < n; b++) for (var d = 0; d < n; d++) {
+      var g8 = VERT.map(function (o) { return lin(a + o[0], b + o[1], d + o[2]); }), dentroN = 0;
+      for (var q = 0; q < 8; q++) if (sg * v[g8[q]] > c) dentroN++;
+      if (dentroN === 0 || dentroN === 8) continue;
+      TETRA.forEach(function (T4) {
+        var g4 = T4.map(function (q2) { return g8[q2]; }), din = g4.filter(function (g) { return sg * v[g] > c; }), fu = g4.filter(function (g) { return sg * v[g] <= c; });
+        if (din.length === 0 || din.length === 4) return;
+        var cf = centro(fu), cd = centro(din);
+        if (din.length === 1 || din.length === 3) {
+          var solo = din.length === 1 ? din[0] : fu[0], altri = din.length === 1 ? fu : din;
+          tri(punto(solo, altri[0]), punto(solo, altri[1]), punto(solo, altri[2]), cf, cd);
+        } else {
+          var p1 = punto(din[0], fu[0]), p2 = punto(din[0], fu[1]), p3 = punto(din[1], fu[1]), p4 = punto(din[1], fu[0]);
+          tri(p1, p2, p3, cf, cd); tri(p1, p3, p4, cf, cd);
+        }
+      });
+    }
+    return { pos: new Float32Array(pos), idx: idx };
+  }
+  /* i lobi: componenti connesse della superficie; e la caratteristica di Eulero V − E + F */
+  function lobi(M) {
+    var nv = M.pos.length / 3, P = new Int32Array(nv); for (var i = 0; i < nv; i++) P[i] = i;
+    function radice(x) { while (P[x] !== x) { P[x] = P[P[x]]; x = P[x]; } return x; }
+    var spigoli = new Set();
+    for (i = 0; i < M.idx.length; i += 3) {
+      var a = M.idx[i], b = M.idx[i + 1], c = M.idx[i + 2];
+      P[radice(a)] = radice(b); P[radice(b)] = radice(c);
+      [[a, b], [b, c], [c, a]].forEach(function (e) { spigoli.add(Math.min(e[0], e[1]) * 4e6 + Math.max(e[0], e[1])); });
+    }
+    var r = new Set(); for (i = 0; i < nv; i++) r.add(radice(i));
+    return { componenti: nv ? r.size : 0, eulero: nv - spigoli.size + M.idx.length / 3 };
+  }
+  F.calcolo.hartreefock = { scf: scf, base: base, boys: boys, MOL: MOL, valoreMO: valoreMO, jacobi: jacobi, grigliaMO: grigliaMO, normaGriglia: normaGriglia, sogliaIso: sogliaIso, isosuperficie: isosuperficie, lobi: lobi };
 
   /* ── l'interfaccia ────────────────────────────────────────────────────── */
   function schedaSCF(div) {
@@ -387,13 +471,164 @@
     F.alRidimensiona(disegna);
   }
 
+  /* ── v238: gli orbitali in 3D ─────────────────────────────────────────── */
+  var MENO_MOTO = false; try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  /* il pannello subito, la scena dopo (three.js al primo uso, il contesto WebGL e il contenuto in compiti separati) */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g.appendChild(pan); g.appendChild(destra); div.appendChild(g);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new L3.Scena(destra, 0.75);
+          var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+          destra.insertBefore(S.box, destra.firstChild);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.nome));
+          div._scena = S;
+          setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+        }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  var COL_ATOMO = { 1: 0xf2f5f8, 2: 0x7fe6ff, 3: 0xb388ff, 4: 0x9be37a, 5: 0xffb27a, 6: 0x9aa6b2, 7: 0x6b8cff, 8: 0xff5a4f, 9: 0x7ef07e };
+  function schedaOrbitali3D(pan) {
+    var st = { mol: 'H2O', R: null, k: null, frazione: 0.85, taglio: true }, ris = null, cb = {}, gettone = 0, G = null;
+    F.scelta(pan, ['Molecola', 'Molecule'], Object.keys(MOL).map(function (k) { return [k, MOL[k].nome]; }), st.mol, function (v) { st.mol = v; st.R = MOL[v].R || null; st.k = null; zonaR(); scf3D(); });
+    var contR = F.el('div'), contO = F.el('div'); pan.appendChild(contR); pan.appendChild(contO);
+    F.cursore(pan, ['probabilità racchiusa dalla superficie', 'probability enclosed by the surface'], 0.5, 0.95, 0.05, st.frazione, function (v) { st.frazione = v; superficie(); }, function (v) { return Math.round(v * 100) + ' %'; });
+    var cT = F.el('input', { type: 'checkbox' }); cT.checked = st.taglio; cT.addEventListener('change', function () { st.taglio = cT.checked; if (cb.taglio) cb.taglio(); });
+    pan.appendChild(F.el('label', { style: 'display:flex;gap:6px;align-items:center;font-size:.82rem;color:#aebccd;margin:6px 0' }, [cT, F.el('span', { testo: t('piano di taglio che scorre (la mappa di ψ)', 'sweeping cut plane (the ψ map)') })]));
+    var info = F.el('div', { 'class': 'bsiFX-nota' }), spiega = F.el('div', { 'class': 'bsiFX-nota' }); pan.appendChild(info); pan.appendChild(spiega);
+    spiega.innerHTML = t('La superficie è dove |ψ| vale c, con c scelto perché dentro ci sia la frazione indicata della probabilità |ψ|²: verde dove ψ > 0, rosa dove ψ < 0 (gli stessi colori della mappa nella prima scheda). Dove due lobi di segno opposto si toccano passa un piano nodale: gli orbitali di antilegame ne hanno uno fra i nuclei. ψ viene dai coefficienti dell’SCF appena convergito (RHF/STO-3G) calcolati su una griglia di 49³ punti; la superficie è costruita con i tetraedri in marcia. Il piano che scorre mostra ψ fetta per fetta.',
+      'The surface is where |ψ| equals c, with c chosen so that it encloses the given fraction of the probability |ψ|²: green where ψ > 0, pink where ψ < 0 (the same colours as the map in the first tab). Where two lobes of opposite sign meet there is a nodal plane: antibonding orbitals have one between the nuclei. ψ comes from the coefficients of the SCF just converged (RHF/STO-3G), evaluated on a 49³ grid; the surface is built with marching tetrahedra. The sweeping plane shows ψ slice by slice.');
+    var selR = null;
+    function zonaR() {
+      contR.innerHTML = ''; var M = MOL[st.mol]; if (!M.scan) return;
+      if (st.R == null) st.R = M.R;
+      var attesa = null;
+      F.cursore(contR, ['distanza R (bohr)', 'distance R (bohr)'], M.scan[0], Math.min(M.scan[1], 4.5), 0.05, st.R, function (v) { st.R = v; clearTimeout(attesa); attesa = setTimeout(scf3D, 250); }, function (v) { return v.toFixed(2) + ' bohr = ' + (v * 0.529177).toFixed(3) + ' Å'; });
+    }
+    function scf3D() {
+      var mio = ++gettone; info.textContent = t('Calcolo SCF…', 'SCF running…');
+      setTimeout(function () {
+        if (mio !== gettone) return;
+        var M = MOL[st.mol];
+        try { ris = scf(M.atomi(st.R || M.R), M.carica); } catch (e) { info.textContent = e.message; return; }
+        if (st.k == null || st.k >= ris.eps.length) st.k = ris.nocc - 1;
+        contO.innerHTML = '';
+        F.scelta(contO, ['Orbitale', 'Orbital'], ris.eps.map(function (e, k) { return [String(k), (k < ris.nocc ? '● ' : '○ ') + 'MO ' + (k + 1) + (k === ris.nocc - 1 ? ' HOMO' : k === ris.nocc ? ' LUMO' : '') + ' · ' + e.toFixed(3) + ' Eh']; }), String(st.k), function (v) { st.k = +v; griglia3D(); });
+        if (cb.molecola) cb.molecola();
+        griglia3D();
+      }, 0);
+    }
+    function griglia3D() {
+      var mio = ++gettone; info.textContent = t('Orbitale sulla griglia…', 'Orbital on the grid…');
+      setTimeout(function () { if (mio !== gettone || !ris) return; G = grigliaMO(ris, st.k, 48, 4.5); G.k = st.k; superficie(); }, 0);
+    }
+    function superficie() {
+      if (!G) return;
+      var mio = ++gettone, c = sogliaIso(G, st.frazione), pos = null;
+      /* le due superfici in due compiti: + poi − */
+      setTimeout(function () {
+        if (mio !== gettone) return; pos = isosuperficie(G, c, 1);
+        setTimeout(function () {
+          if (mio !== gettone) return; var neg = isosuperficie(G, c, -1), lp = lobi(pos), ln = lobi(neg), e = ris.eps[G.k];
+          info.innerHTML = '<b>' + MOL[st.mol].nome + '</b>' + (st.R && MOL[st.mol].scan ? ' · R = ' + st.R.toFixed(2) + ' bohr' : '') + ' · E = <b class="bsiFX-num">' + ris.E.toFixed(6) + ' Eh</b><br>' +
+            'MO ' + (G.k + 1) + (G.k === ris.nocc - 1 ? ' (HOMO)' : G.k === ris.nocc ? ' (LUMO)' : '') + ': ε = <b class="bsiFX-num">' + e.toFixed(4) + ' Eh = ' + (e * 27.211386).toFixed(2) + ' eV</b> · ' + t('occupazione ', 'occupation ') + (G.k < ris.nocc ? 2 : 0) + '<br>' +
+            t('Isovalore ', 'Isovalue ') + '|ψ| = ' + c.toFixed(4) + ' bohr⁻³ᐟ² ' + t('(racchiude il ', '(encloses ') + Math.round(st.frazione * 100) + ' %)' + '<br>' +
+            t('Lobi: ', 'Lobes: ') + '<b class="bsiFX-num">' + lp.componenti + '</b> ' + t('positivi', 'positive') + ', <b class="bsiFX-num">' + ln.componenti + '</b> ' + t('negativi', 'negative') + ' · ' + ((pos.idx.length + neg.idx.length) / 3) + t(' triangoli', ' triangles');
+          if (cb.disegna) cb.disegna(pos, neg);
+        }, 0);
+      }, 0);
+    }
+    zonaR(); st.R = MOL[st.mol].R || null; scf3D();
+    return {
+      nome: ['Orbitali molecolari RHF in 3D', 'RHF molecular orbitals in 3D'],
+      tre: function (S, T, L3) {
+        var s = 0.85, gMol = new T.Group(), gOrb = new T.Group(), piano = null, tela = null, ctxT = null, tex = null; S.aggiungi(gMol); S.aggiungi(gOrb);
+        function svuota(gr) { while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) { if (x.material.map) x.material.map.dispose(); x.material.dispose(); } }); } }
+        var centro = [0, 0, 0];
+        cb.molecola = function () {
+          svuota(gMol); if (!ris) return;
+          centro = [0, 1, 2].map(function (d) { var a = ris.atomi.map(function (x) { return x.r[d]; }); return (Math.min.apply(null, a) + Math.max.apply(null, a)) / 2; });
+          ris.atomi.forEach(function (a, i) {
+            var p = [(a.r[0] - centro[0]) * s, (a.r[1] - centro[1]) * s, (a.r[2] - centro[2]) * s];
+            gMol.add(L3.sfera(T, a.Z > 1 ? 0.2 : 0.13, COL_ATOMO[a.Z] || 0xffffff, p[0], p[1], p[2]));
+            var et = L3.testo3d(T, SIMBOLI[a.Z], '#e6fffb', 0.28); et.position.set(p[0], p[1], p[2] + 0.38); gMol.add(et);
+            for (var j = 0; j < i; j++) { var b = ris.atomi[j], d = Math.hypot(a.r[0] - b.r[0], a.r[1] - b.r[1], a.r[2] - b.r[2]); if (d < (a.Z === 1 && b.Z === 1 ? 2 : 3.4)) gMol.add(L3.linea(T, [p, [(b.r[0] - centro[0]) * s, (b.r[1] - centro[1]) * s, (b.r[2] - centro[2]) * s]], 0xdfe8f2, 0.85)); }
+          });
+          S.sporca = true; S.avvia();
+        };
+        cb.disegna = function (pos, neg) {
+          svuota(gOrb);
+          [[pos, 0x5eead4], [neg, 0xff7890]].forEach(function (q) {
+            if (!q[0].idx.length) return;
+            var p = q[0].pos, pp = new Float32Array(p.length);
+            for (var i = 0; i < p.length; i += 3) { pp[i] = (p[i] - centro[0]) * s; pp[i + 1] = (p[i + 1] - centro[1]) * s; pp[i + 2] = (p[i + 2] - centro[2]) * s; }
+            var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pp, 3)); geo.setIndex(q[0].idx); geo.computeVertexNormals();
+            gOrb.add(new T.Mesh(geo, new T.MeshStandardMaterial({ color: q[1], roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.72, side: T.DoubleSide, depthWrite: false })));
+          });
+          preparaTaglio();
+          S.didascalia.textContent = MOL[st.mol].nome + ' · MO ' + (G.k + 1) + (G.k === ris.nocc - 1 ? ' HOMO' : G.k === ris.nocc ? ' LUMO' : '') + ' · ' + t('verde ψ > 0, rosa ψ < 0', 'green ψ > 0, pink ψ < 0');
+          S.sporca = true; S.avvia();
+        };
+        /* il piano di taglio: perpendicolare all'asse lungo cui gli atomi si allargano meno */
+        var asseT = 2, iT = -1;
+        function preparaTaglio() {
+          if (piano) { gOrb.remove(piano); }
+          var sp = [0, 1, 2].map(function (d) { var a = ris.atomi.map(function (x) { return x.r[d]; }); return Math.max.apply(null, a) - Math.min.apply(null, a); });
+          asseT = sp.indexOf(Math.min.apply(null, sp)); if (sp[0] === sp[1] && sp[1] === 0) asseT = 0;
+          if (!tela) { tela = document.createElement('canvas'); tela.width = tela.height = G.n + 1; ctxT = tela.getContext('2d'); tex = new T.CanvasTexture(tela); tex.magFilter = T.LinearFilter; }
+          if (tela.width !== G.n + 1) { tela.width = tela.height = G.n + 1; }
+          var L = G.n * G.h * s, mat = new T.MeshBasicMaterial({ map: tex, transparent: true, side: T.DoubleSide, depthWrite: false });
+          piano = new T.Mesh(new T.PlaneGeometry(L, L), mat);
+          if (asseT === 0) piano.rotation.y = Math.PI / 2; else if (asseT === 1) piano.rotation.x = Math.PI / 2;
+          var bordo = new T.LineSegments(new T.EdgesGeometry(piano.geometry), new T.LineBasicMaterial({ color: 0x5eead4, transparent: true, opacity: 0.45 })); piano.add(bordo);
+          gOrb.add(piano); piano.visible = st.taglio; iT = -1;
+        }
+        function fetta(i) {
+          var n1 = G.n + 1, img = ctxT.createImageData(n1, n1), d = img.data, c = sogliaIso(G, 0.5) * 2.2;
+          for (var a = 0; a < n1; a++) for (var b = 0; b < n1; b++) {
+            /* a, b sono le due coordinate del piano (le altre due dopo asseT), in modo coerente con la rotazione del piano */
+            var g3 = [0, 0, 0]; g3[asseT] = i;
+            if (asseT === 0) { g3[2] = a; g3[1] = b; } else if (asseT === 1) { g3[0] = a; g3[2] = b; } else { g3[0] = a; g3[1] = b; }
+            var v = G.v[(g3[0] * n1 + g3[1]) * n1 + g3[2]], f = Math.min(1, Math.abs(v) / c), k = 4 * ((n1 - 1 - b) * n1 + a);
+            var col = v >= 0 ? [94, 234, 212] : [255, 120, 144];
+            d[k] = col[0]; d[k + 1] = col[1]; d[k + 2] = col[2]; d[k + 3] = Math.round(235 * Math.pow(f, 0.7));
+          }
+          ctxT.putImageData(img, 0, 0); tex.needsUpdate = true;
+        }
+        cb.taglio = function () { if (piano) piano.visible = st.taglio; S.sporca = true; S.avvia(); };
+        var tempo = 0;
+        S.ogniFotogramma(function (dt) {
+          if (!piano || !st.taglio) return false;
+          if (!MENO_MOTO) tempo += dt;
+          var n = G.n, u = 0.5 + 0.45 * Math.sin(tempo * 0.6), i = Math.round(u * n);
+          if (i !== iT) { iT = i; fetta(i); var q = G.x0[asseT] + i * G.h - centro[asseT]; piano.position.set(0, 0, 0); piano.position.setComponent(asseT, q * s); var o = [0, 1, 2].filter(function (d) { return d !== asseT; }); o.forEach(function (d) { piano.position.setComponent(d, (G.x0[d] + n * G.h / 2 - centro[d]) * s); }); }
+          return !MENO_MOTO;
+        });
+        if (ris) cb.molecola();
+        if (G) superficie();
+        if (!MENO_MOTO) { S.gira = true; var bg = S.box.querySelector('.bsi3d-barra button'); if (bg) bg.setAttribute('aria-pressed', 'true'); }
+        S.inquadra(12, 0.6, 1.2);
+      }
+    };
+  }
+
   F.sezione('shf', {
     titolo: ['🧮 Hartree-Fock in diretta', '🧮 Live Hartree-Fock'],
     sotto: ['Un calcolo ab initio vero nel browser: RHF con la base STO-3G, tutti gli integrali calcolati qui (McMurchie-Davidson), il campo autoconsistente con DIIS, gli orbitali molecolari disegnati.',
             'A real ab initio calculation in the browser: RHF in the STO-3G basis, every integral computed here (McMurchie-Davidson), the self-consistent field with DIIS, the molecular orbitals drawn.'],
     schede: [
       { nome: ['Calcolo SCF e orbitali', 'SCF and orbitals'], costruisci: schedaSCF },
-      { nome: ['Curva di dissociazione', 'Dissociation curve'], costruisci: schedaDissociazione }
+      { nome: ['Curva di dissociazione', 'Dissociation curve'], costruisci: schedaDissociazione },
+      { nome: ['🧊 Orbitali in 3D', '🧊 Orbitals in 3D'], costruisci: scheda3D(schedaOrbitali3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

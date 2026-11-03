@@ -191,13 +191,215 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ 4. campo nello spazio (v238) ══════════════════════════════════════
+     F = (P, Q, R) di x, y, z: divergenza e rotore simbolici, frecce su una griglia 6×6×6, linee
+     di flusso integrate con Runge-Kutta 4 e particelle che le percorrono; una sfera di centro e
+     raggio a scelta, colorata con F·n, per il teorema della divergenza:
+       ∯ F·n dS (sulla sfera)  =  ∭ div F dV (nella palla).
+     Entrambi gli integrali con Gauss–Legendre nelle variabili polari (cos θ e raggio) e con la
+     regola dei trapezi in φ, che per una funzione periodica converge esponenzialmente: per campi
+     regolari i due membri coincidono fino a ~10⁻¹². */
+  function analizzaCampo3(Pt, Qt, Rt) {
+    var E = [C.leggi(Pt), C.leggi(Qt), C.leggi(Rt)], extra = [];
+    E.forEach(function (e) { C.simboli(e).forEach(function (v) { if (v !== 'x' && v !== 'y' && v !== 'z' && extra.indexOf(v) < 0) extra.push(v); }); });
+    if (extra.length) throw new Error(t('usa solo x, y e z (trovato: ', 'use only x, y and z (found: ') + extra.join(', ') + ')');
+    var d = function (e, v) { return C.deriva(e, v); }, S = C.semplifica, cs = C.costruisci;
+    var div = S(cs.add(cs.add(d(E[0], 'x'), d(E[1], 'y')), d(E[2], 'z')));
+    var rot = [S(cs.sub(d(E[2], 'y'), d(E[1], 'z'))), S(cs.sub(d(E[0], 'z'), d(E[2], 'x'))), S(cs.sub(d(E[1], 'x'), d(E[0], 'y')))];
+    /* il semplificatore non sempre riduce a 0 un'espressione nulla (la carica puntiforme): si prova in 40 punti */
+    var nulla = function (e) { var f = C.compila(e), n = 0; for (var i = 0; i < 40; i++) { var r = 0.3 + i * 0.05, a = i * 2.39996, b = i * 0.7; var v = f({ x: r * Math.cos(a) * Math.sin(b + 0.3), y: r * Math.sin(a) * Math.sin(b + 0.3), z: r * Math.cos(b + 0.3) }); if (!isFinite(v)) continue; if (Math.abs(v) > 1e-9) return false; n++; } return n > 10; };
+    if (C.stampa(div) !== '0' && nulla(div)) div = C.Q(0);
+    rot = rot.map(function (e) { return C.stampa(e) !== '0' && nulla(e) ? C.Q(0) : e; });
+    var f = E.map(C.compila), fr = rot.map(C.compila), fd = C.compila(div), amb = { x: 0, y: 0, z: 0 };
+    return {
+      E: E, div: div, rot: rot,
+      F: function (x, y, z) { amb.x = x; amb.y = y; amb.z = z; return [f[0](amb), f[1](amb), f[2](amb)]; },
+      divF: function (x, y, z) { amb.x = x; amb.y = y; amb.z = z; return fd(amb); },
+      rotF: function (x, y, z) { amb.x = x; amb.y = y; amb.z = z; return [fr[0](amb), fr[1](amb), fr[2](amb)]; }
+    };
+  }
+  /* nodi e pesi di Gauss–Legendre su [−1, 1] (Newton sul polinomio di Legendre) */
+  var GL = {};
+  function gaussLegendre(n) {
+    if (GL[n]) return GL[n];
+    var x = [], w = [];
+    for (var i = 1; i <= n; i++) {
+      var z = Math.cos(Math.PI * (i - 0.25) / (n + 0.5)), dp = 1;
+      for (var it = 0; it < 100; it++) { var p0 = 1, p1 = z; for (var k = 2; k <= n; k++) { var p2 = ((2 * k - 1) * z * p1 - (k - 1) * p0) / k; p0 = p1; p1 = p2; } dp = n * (z * p1 - p0) / (z * z - 1); var dz = p1 / dp; z -= dz; if (Math.abs(dz) < 1e-15) break; }
+      x.push(z); w.push(2 / ((1 - z * z) * dp * dp));
+    }
+    return (GL[n] = { x: x, w: w });
+  }
+  /* flusso uscente dalla sfera |p − c| = r: n = (p − c)/r, dS = r² d(cos θ) dφ */
+  function flussoSfera(A, c, r, n) {
+    n = n || 24; var G = gaussLegendre(n), m = 2 * n, s = 0;
+    for (var i = 0; i < n; i++) { var u = G.x[i], st = Math.sqrt(1 - u * u); for (var j = 0; j < m; j++) { var ph = 2 * Math.PI * (j + 0.5) / m, nx = st * Math.cos(ph), ny = st * Math.sin(ph), v = A.F(c[0] + r * nx, c[1] + r * ny, c[2] + r * u); s += G.w[i] * (v[0] * nx + v[1] * ny + v[2] * u); } }
+    return s * r * r * 2 * Math.PI / m;
+  }
+  /* ∭ div F dV sulla palla: ρ ∈ [0, r] e cos θ con Gauss–Legendre, φ con i trapezi */
+  function divergenzaPalla(A, c, r, n) {
+    n = n || 16; var G = gaussLegendre(n), m = 2 * n, s = 0;
+    for (var a = 0; a < n; a++) { var rho = r * (G.x[a] + 1) / 2, wr = G.w[a] * r / 2 * rho * rho;
+      for (var i = 0; i < n; i++) { var u = G.x[i], st = Math.sqrt(1 - u * u); for (var j = 0; j < m; j++) { var ph = 2 * Math.PI * (j + 0.5) / m; s += wr * G.w[i] * A.divF(c[0] + rho * st * Math.cos(ph), c[1] + rho * st * Math.sin(ph), c[2] + rho * u); } } }
+    return s * 2 * Math.PI / m;
+  }
+  /* linea di flusso: RK4 lungo la direzione del campo (velocita' unitaria), dentro il cubo |x|,|y|,|z| ≤ L */
+  function lineaFlusso3(A, p0, verso, passi, h, L) {
+    var p = p0.slice(), out = [p.slice()];
+    function dir(q) { var v = A.F(q[0], q[1], q[2]), m = Math.hypot(v[0], v[1], v[2]); return m > 1e-12 && isFinite(m) ? [verso * v[0] / m, verso * v[1] / m, verso * v[2] / m] : null; }
+    for (var i = 0; i < passi; i++) {
+      var k1 = dir(p); if (!k1) break; var k2 = dir([p[0] + h / 2 * k1[0], p[1] + h / 2 * k1[1], p[2] + h / 2 * k1[2]]); if (!k2) break;
+      var k3 = dir([p[0] + h / 2 * k2[0], p[1] + h / 2 * k2[1], p[2] + h / 2 * k2[2]]); if (!k3) break; var k4 = dir([p[0] + h * k3[0], p[1] + h * k3[1], p[2] + h * k3[2]]); if (!k4) break;
+      p = [p[0] + h / 6 * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]), p[1] + h / 6 * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]), p[2] + h / 6 * (k1[2] + 2 * k2[2] + 2 * k3[2] + k4[2])];
+      if (Math.abs(p[0]) > L || Math.abs(p[1]) > L || Math.abs(p[2]) > L) break;
+      out.push(p.slice());
+    }
+    return out;
+  }
+  F.calcolo.vettoriale.analizzaCampo3 = analizzaCampo3; F.calcolo.vettoriale.gaussLegendre = gaussLegendre; F.calcolo.vettoriale.flussoSfera = flussoSfera; F.calcolo.vettoriale.divergenzaPalla = divergenzaPalla; F.calcolo.vettoriale.lineaFlusso3 = lineaFlusso3;
+
+  /* la scheda 3D: il pannello si costruisce subito (testo e comandi), la scena dopo, fuori dal gestore del clic */
+  function scheda3d(costruisci, etichetta, rapporto) {
+    return function (div) {
+      var G = griglia(div), posto = F.el('div'); G.dx.appendChild(posto);
+      var vista = costruisci(G.pan, G.dx), lab = globale.BSILab3D;
+      if (!lab) { posto.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Serve il Laboratorio 3D (bsi-lab3d.js) per la vista tridimensionale.', 'The 3D Laboratory (bsi-lab3d.js) is needed for the three-dimensional view.') })); return; }
+      var attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') }); posto.appendChild(attesa);
+      lab.stile();
+      lab.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new lab.Scena(posto, rapporto || 0.72);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(etichetta));
+          globale.requestAnimationFrame(function () { try { vista(S, lab, globale.THREE); } catch (e) { if (globale.console) console.error(e); } div._scena = S; });
+        }, 0);
+      }).catch(function (e) { if (globale.console) console.error(e); attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  /* scala di colori per il modulo: blu → verde acqua → giallo → rosso */
+  function scalaModulo(u) { u = Math.max(0, Math.min(1, u)); var P = [[0.32, 0.45, 1], [0.37, 0.92, 0.83], [1, 0.82, 0.29], [1, 0.42, 0.42]], k = Math.min(2, Math.floor(u * 3)), f = u * 3 - k, a = P[k], b = P[k + 1]; return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f]; }
+  var CAMPI3 = [
+    ['x', 'y', 'z', ['sorgente uniforme (div F = 3)', 'uniform source (div F = 3)']],
+    ['-y', 'x', '0', ['rotazione rigida (rot F = 2 k)', 'rigid rotation (curl F = 2 k)']],
+    ['-y', 'x', '0.3*z', ['vortice che si apre in altezza', 'vortex opening upwards']],
+    ['x - y', 'x + y', '-2*z', ['spirale schiacciata (div F = 0)', 'squeezed spiral (div F = 0)']],
+    ['y*z', 'x*z', 'x*y', ['conservativo, φ = xyz (rot F = 0)', 'conservative, φ = xyz (curl F = 0)']],
+    ['sin(z) + cos(y)', 'sin(x) + cos(z)', 'sin(y) + cos(x)', ['flusso ABC di Beltrami (rot F = F)', 'ABC Beltrami flow (curl F = F)']],
+    ['x/(x^2+y^2+z^2)^(3/2)', 'y/(x^2+y^2+z^2)^(3/2)', 'z/(x^2+y^2+z^2)^(3/2)', ['carica puntiforme (div F = 0 tranne nell’origine)', 'point charge (div F = 0 except at the origin)']]
+  ];
+  function schedaCampo3D(pan) {
+    var st = { k: 0, P: CAMPI3[0][0], Q: CAMPI3[0][1], R: CAMPI3[0][2], c: [0.3, 0, 0], r: 1, linee: 18 }, A = null, S = null, T = null, lab = null, Lb = 2, sc = 1.4, oggetti = {}, ip, iq, ir, attesaConti = null;
+    F.scelta(pan, ['Esempi', 'Examples'], CAMPI3.map(function (c, i) { return [String(i), F.tt(c[3])]; }), '0', function (v) { var c = CAMPI3[+v]; st.P = ip.value = c[0]; st.Q = iq.value = c[1]; st.R = ir.value = c[2]; analizza(); });
+    ip = campo(pan, ['P(x, y, z)', 'P(x, y, z)'], st.P, function (v) { st.P = v; analizza(); });
+    iq = campo(pan, ['Q(x, y, z)', 'Q(x, y, z)'], st.Q, function (v) { st.Q = v; analizza(); });
+    ir = campo(pan, ['R(x, y, z)', 'R(x, y, z)'], st.R, function (v) { st.R = v; analizza(); });
+    var f1 = function (v) { return v.toFixed(2); };
+    F.cursore(pan, ['centro della sfera x', 'sphere centre x'], -1, 1, 0.05, st.c[0], function (v) { st.c[0] = v; sfera(); }, f1);
+    F.cursore(pan, ['centro della sfera y', 'sphere centre y'], -1, 1, 0.05, st.c[1], function (v) { st.c[1] = v; sfera(); }, f1);
+    F.cursore(pan, ['centro della sfera z', 'sphere centre z'], -1, 1, 0.05, st.c[2], function (v) { st.c[2] = v; sfera(); }, f1);
+    F.cursore(pan, ['raggio della sfera r', 'sphere radius r'], 0.2, 1.6, 0.05, st.r, function (v) { st.r = v; sfera(); }, f1);
+    F.cursore(pan, ['linee di flusso', 'streamlines'], 6, 40, 2, st.linee, function (v) { st.linee = v; flusso(); });
+    var info = nota(pan), conti = nota(pan);
+    pan.appendChild(F.el('div', { 'class': 'bsiFX-nota', testo: t('Le frecce danno direzione e verso di F (colore e lunghezza crescono con |F|); le linee di flusso sono le curve tangenti al campo, integrate con Runge-Kutta 4, e le particelle bianche le percorrono. La divergenza misura quanto «esce» da un volumetto: positiva in una sorgente, nulla in un fluido incomprimibile. Il rotore misura la rotazione locale: la freccia gialla al centro della sfera è rot F, il cui modulo è il doppio della velocità angolare di una rotellina immersa nel fluido. La sfera è colorata con F·n: rosso dove il campo esce, blu dove entra. Il teorema della divergenza (Gauss–Ostrogradskij) dice che il flusso uscente totale è l’integrale della divergenza sul volume interno: qui i due membri sono calcolati in modo indipendente, uno sulla superficie e uno nel volume. Con la carica puntiforme il teorema cade se l’origine è dentro la sfera: la divergenza è nulla ovunque tranne in un punto, ma il flusso vale 4π.',
+      'Arrows give the direction and sense of F (colour and length grow with |F|); streamlines are the curves tangent to the field, integrated with Runge-Kutta 4, and the white particles travel along them. Divergence measures how much «leaves» a small volume: positive at a source, zero in an incompressible fluid. Curl measures local rotation: the yellow arrow at the centre of the sphere is curl F, whose magnitude is twice the angular velocity of a small paddle wheel in the fluid. The sphere is coloured by F·n: red where the field leaves, blue where it enters. The divergence theorem (Gauss–Ostrogradsky) says that the total outward flux equals the integral of the divergence over the volume inside: here the two sides are computed independently, one on the surface and one in the volume. With the point charge the theorem fails when the origin is inside the sphere: the divergence is zero everywhere except at one point, yet the flux is 4π.') }));
+    function analizza() {
+      try { A = analizzaCampo3(st.P, st.Q, st.R); }
+      catch (e) { A = null; info.innerHTML = '<span class="bsiFX-ko">' + t('Espressione non valida: ', 'Invalid expression: ') + esc(e.message) + '</span>'; conti.innerHTML = ''; if (S) { S.pulisci(); S.aggiungi(lab.assi(T, Lb * sc * 1.1, ['x', 'y', 'z'], 0.3)); } return; }
+      var r0 = A.rotF(0.37, -0.21, 0.53), F0 = A.F(0.37, -0.21, 0.53), beltrami = isFinite(r0[0]) && Math.hypot(r0[0] - F0[0], r0[1] - F0[1], r0[2] - F0[2]) < 1e-9 && Math.hypot(F0[0], F0[1], F0[2]) > 1e-6;
+      info.innerHTML = 'div F = <b>' + C.html(A.div) + '</b><br>rot F = (<b>' + A.rot.map(C.html).join('</b>, <b>') + '</b>)' + (A.rot.every(function (e) { return C.stampa(e) === '0'; }) ? t(' → irrotazionale', ' → irrotational') : '') + (beltrami ? t(' → rot F = F (campo di Beltrami)', ' → curl F = F (Beltrami field)') : '');
+      scena(); conta();
+    }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    /* i due integrali: dopo il disegno, fuori dal gestore del cursore */
+    function conta() {
+      clearTimeout(attesaConti);
+      attesaConti = setTimeout(function () {
+        if (!A) return;
+        var zero = function (v) { return Math.abs(v) < 1e-12 ? 0 : v; }, fl = zero(flussoSfera(A, st.c, st.r, 24)), dv = zero(divergenzaPalla(A, st.c, st.r, 16)), diff = Math.abs(fl - dv), ok = isFinite(fl) && isFinite(dv) && diff <= 1e-6 * Math.max(1, Math.abs(fl));
+        conti.innerHTML = t('Flusso uscente ', 'Outward flux ') + '∯ F·n dS = <b class="bsiFX-num">' + C.fmtNum(fl) + '</b><br>∭ div F dV = <b class="bsiFX-num">' + (isFinite(dv) ? C.fmtNum(dv) : t('non definito', 'undefined')) + '</b> · ' + t('scarto ', 'gap ') + (isFinite(diff) ? diff.toExponential(1) : '—') + '<br>' +
+          (ok ? '<span class="bsiFX-ok">' + t('Teorema della divergenza verificato: i due membri coincidono.', 'Divergence theorem verified: both sides agree.') + '</span>' : '<span class="bsiFX-ko">' + t('I due membri non coincidono: il campo ha una singolarità dentro la sfera (una carica puntiforme, 4π = 12,566) e il teorema non si applica. Sposta la sfera finché l’origine resta fuori.', 'The two sides disagree: the field has a singularity inside the sphere (a point charge, 4π = 12.566) and the theorem does not apply. Move the sphere until the origin is outside.') + '</span>');
+      }, 30);
+    }
+    function vec(p) { return new T.Vector3(p[0] * sc, p[1] * sc, p[2] * sc); }
+    function scena() {
+      if (!S || !A) return;
+      S.pulisci(); oggetti = {};
+      /* le frecce: aste e punte come mesh istanziate (216 frecce in due chiamate di disegno) */
+      var pts = [], vs = [], mods = [], n = 6;
+      for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) for (var k = 0; k < n; k++) { var p = [-1.75 + 3.5 * i / (n - 1), -1.75 + 3.5 * j / (n - 1), -1.75 + 3.5 * k / (n - 1)], v = A.F(p[0], p[1], p[2]), m = Math.hypot(v[0], v[1], v[2]); if (!(m > 1e-12) || !isFinite(m)) continue; pts.push(p); vs.push(v); mods.push(m); }
+      var ord = mods.slice().sort(function (a, b) { return a - b; }), mmax = ord[Math.floor(ord.length * 0.95)] || 1;
+      if (pts.length) {
+        var asta = new T.InstancedMesh(new T.CylinderGeometry(0.022, 0.022, 1, 6), new T.MeshStandardMaterial({ roughness: 0.5 }), pts.length), punta = new T.InstancedMesh(new T.ConeGeometry(0.07, 0.18, 10), new T.MeshStandardMaterial({ roughness: 0.4 }), pts.length);
+        var M4 = new T.Matrix4(), q = new T.Quaternion(), su = new T.Vector3(0, 1, 0), col = new T.Color();
+        pts.forEach(function (p, i) {
+          var u = Math.min(1, mods[i] / mmax), L = 0.2 + 0.38 * Math.sqrt(u), d = new T.Vector3(vs[i][0], vs[i][1], vs[i][2]).normalize(), c = vec(p), cc = scalaModulo(u);
+          q.setFromUnitVectors(su, d); col.setRGB(cc[0], cc[1], cc[2]);
+          M4.compose(c.clone().addScaledVector(d, -L / 2 + (L - 0.18) / 2 - 0.0), q, new T.Vector3(1, Math.max(0.02, L - 0.18), 1)); asta.setMatrixAt(i, M4); asta.setColorAt(i, col);
+          M4.compose(c.clone().addScaledVector(d, L / 2 - 0.09), q, new T.Vector3(1, 1, 1)); punta.setMatrixAt(i, M4); punta.setColorAt(i, col);
+        });
+        S.aggiungi(asta); S.aggiungi(punta);
+      }
+      var L = Lb * sc, cubo = [[-L, -L, -L], [L, -L, -L], [L, L, -L], [-L, L, -L]];
+      S.aggiungi(new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(2 * L, 2 * L, 2 * L)), new T.LineBasicMaterial({ color: 0x34465f, transparent: true, opacity: 0.6 }))); void cubo;
+      S.aggiungi(lab.assi(T, L * 1.1, ['x', 'y', 'z'], 0.3));
+      S.didascalia.textContent = 'F = (' + C.stampa(A.E[0]) + ', ' + C.stampa(A.E[1]) + ', ' + C.stampa(A.E[2]) + ')';
+      flusso(); sfera();
+      if (!S.vistaIniziale) S.inquadra(13, -0.8, 1.15);
+    }
+    /* le linee di flusso partono da una spirale di Fibonacci sulla sfera di raggio 1,2 attorno all'origine */
+    function flusso() {
+      if (!S || !A) return;
+      if (oggetti.linee) { S.radice.remove(oggetti.linee); oggetti.linee.geometry.dispose(); S.radice.remove(oggetti.parti); oggetti.parti.geometry.dispose(); }
+      var seg = [], cols = [], tracce = [], ga = Math.PI * (3 - Math.sqrt(5)), N = st.linee;
+      for (var i = 0; i < N; i++) {
+        var z = 1 - 2 * (i + 0.5) / N, rr = Math.sqrt(1 - z * z), p0 = [1.2 * rr * Math.cos(ga * i), 1.2 * rr * Math.sin(ga * i), 1.2 * z];
+        var avanti = lineaFlusso3(A, p0, 1, 160, 0.04, Lb), indietro = lineaFlusso3(A, p0, -1, 160, 0.04, Lb), tr = indietro.reverse().concat(avanti.slice(1));
+        if (tr.length < 2) continue; tracce.push(tr);
+        for (var k = 1; k < tr.length; k++) { seg.push(tr[k - 1][0] * sc, tr[k - 1][1] * sc, tr[k - 1][2] * sc, tr[k][0] * sc, tr[k][1] * sc, tr[k][2] * sc); var c = scalaModulo(0.15 + 0.7 * k / tr.length); cols.push(c[0], c[1], c[2], c[0], c[1], c[2]); }
+      }
+      var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(seg, 3)); g.setAttribute('color', new T.Float32BufferAttribute(cols, 3));
+      oggetti.linee = new T.LineSegments(g, new T.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.75 })); S.aggiungi(oggetti.linee);
+      /* le particelle: quattro per linea, sfasate, avanzano lungo la traccia */
+      var np = tracce.length * 4, pp = new Float32Array(np * 3), fasi = []; for (i = 0; i < np; i++) fasi.push((i % 4) / 4 + 0.13 * Math.floor(i / 4));
+      var gp = new T.BufferGeometry(); gp.setAttribute('position', new T.BufferAttribute(pp, 3));
+      oggetti.parti = new T.Points(gp, new T.PointsMaterial({ color: 0xffffff, size: 0.11, transparent: true, opacity: 0.95, depthWrite: false })); S.aggiungi(oggetti.parti);
+      var tempo = 0;
+      S.fotogrammi = S.fotogrammi.filter(function (f) { return !f._flusso; });
+      var passo = function (dt) {
+        tempo += dt * 0.12;
+        for (var i = 0; i < np; i++) { var tr = tracce[Math.floor(i / 4)], u = (tempo + fasi[i]) % 1, k = Math.min(tr.length - 1, Math.floor(u * (tr.length - 1))); pp[3 * i] = tr[k][0] * sc; pp[3 * i + 1] = tr[k][1] * sc; pp[3 * i + 2] = tr[k][2] * sc; }
+        gp.attributes.position.needsUpdate = true;
+      };
+      passo._flusso = true; passo(0); S.ogniFotogramma(passo);
+    }
+    /* la sfera colorata con F·n e il rotore nel centro */
+    function sfera() {
+      if (!S || !A) return;
+      if (oggetti.sfera) { [oggetti.sfera, oggetti.rete, oggetti.rot, oggetti.centro].forEach(function (o) { if (o) { S.radice.remove(o); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); }); } }); }
+      var geo = new T.SphereGeometry(st.r * sc, 48, 32), pos = geo.attributes.position, col = [], fn = [], m = 0, i;
+      for (i = 0; i < pos.count; i++) { var nx = pos.getX(i) / (st.r * sc), ny = pos.getY(i) / (st.r * sc), nz = pos.getZ(i) / (st.r * sc), v = A.F(st.c[0] + st.r * nx, st.c[1] + st.r * ny, st.c[2] + st.r * nz), d = v[0] * nx + v[1] * ny + v[2] * nz; fn.push(d); if (isFinite(d)) m = Math.max(m, Math.abs(d)); }
+      fn.forEach(function (d) { var u = isFinite(d) && m > 0 ? d / m : 0, a = Math.abs(u); col.push(u > 0 ? 0.25 + 0.75 * a : 0.25 - 0.1 * a, 0.3 + 0.2 * (1 - a), u > 0 ? 0.3 - 0.1 * a : 0.35 + 0.65 * a); });
+      geo.setAttribute('color', new T.Float32BufferAttribute(col, 3));
+      oggetti.sfera = new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, transparent: true, opacity: 0.55, roughness: 0.4, side: T.DoubleSide, depthWrite: false }));
+      oggetti.sfera.position.copy(vec(st.c)); S.aggiungi(oggetti.sfera);
+      oggetti.rete = new T.LineSegments(new T.WireframeGeometry(new T.SphereGeometry(st.r * sc, 16, 10)), new T.LineBasicMaterial({ color: 0xe6fffb, transparent: true, opacity: 0.12 })); oggetti.rete.position.copy(vec(st.c)); S.aggiungi(oggetti.rete);
+      var rc = A.rotF(st.c[0], st.c[1], st.c[2]), mr = Math.hypot(rc[0], rc[1], rc[2]);
+      oggetti.centro = lab.sfera(T, 0.06, 0xffd24a, st.c[0] * sc, st.c[1] * sc, st.c[2] * sc, true); S.aggiungi(oggetti.centro);
+      if (mr > 1e-9 && isFinite(mr)) { var lr = Math.min(2.2, 0.5 + 0.5 * mr); oggetti.rot = lab.freccia(T, [st.c[0] * sc, st.c[1] * sc, st.c[2] * sc], [st.c[0] * sc + rc[0] / mr * lr, st.c[1] * sc + rc[1] / mr * lr, st.c[2] * sc + rc[2] / mr * lr], 0xffd24a, 0.32); S.aggiungi(oggetti.rot); }
+      conta();
+    }
+    analizza();
+    return function (Sc, L3, Tr) { S = Sc; lab = L3; T = Tr; scena(); };
+  }
+
   F.sezione('smatvett', {
     titolo: ['∇ Calcolo vettoriale', '∇ Vector calculus'],
     sotto: ['Campi vettoriali nel piano con particelle trascinate, divergenza e rotore, campi conservativi e potenziale; circuitazione e flusso con il teorema di Green verificato; gradiente, curve di livello e laplaciano.', 'Planar vector fields with advected particles, divergence and curl, conservative fields and potential; circulation and flux with Green’s theorem verified; gradient, level curves and Laplacian.'],
     schede: [
       { nome: ['🌬️ Campi', '🌬️ Fields'], costruisci: schedaCampi },
       { nome: ['🔁 Lavoro e flusso (Green)', '🔁 Work and flux (Green)'], costruisci: schedaGreen },
-      { nome: ['⛰️ Gradiente', '⛰️ Gradient'], costruisci: schedaGradiente }
+      { nome: ['⛰️ Gradiente', '⛰️ Gradient'], costruisci: schedaGradiente },
+      { nome: ['🧊 Campo 3D e divergenza', '🧊 3D field and divergence'], costruisci: scheda3d(schedaCampo3D, ['Campo vettoriale 3D con linee di flusso e sfera per il teorema della divergenza', '3D vector field with streamlines and a sphere for the divergence theorem']) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

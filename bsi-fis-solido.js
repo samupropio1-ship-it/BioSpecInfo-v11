@@ -12,7 +12,10 @@
      V_bi = (kT/q) ln(N_a N_d / n_i²), la zona di svuotamento, la
      caratteristica di Shockley I = I₀(e^(V/V_T) − 1); in polarizzazione
      diretta elettroni e lacune si ricombinano emettendo fotoni di energia
-     ≈ E_g: il colore dei LED, λ = hc/E_g.
+     ≈ E_g: il colore dei LED, λ = hc/E_g;
+   · ZONA DI BRILLOUIN 3D (v238): l'ottaedro troncato dell'fcc con le valli
+     di conduzione (ellissoidi di massa efficace) e la nuvola termica; la N_c
+     ricavata dalle masse delle valli contro la tabella dei materiali.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -41,7 +44,40 @@
   }
   function shockley(V, I0, VT, nid) { return I0 * (Math.exp(V / ((nid || 1) * VT)) - 1); }
   var LED = [['GaAs (infrarosso, telecomandi)', 'GaAs (infrared, remote controls)', 1.42], ['AlGaInP (rosso)', 'AlGaInP (red)', 1.9], ['GaAsP (arancione)', 'GaAsP (orange)', 2.0], ['GaP (verde)', 'GaP (green)', 2.26], ['InGaN (blu)', 'InGaN (blue)', 2.75], ['GaN (ultravioletto)', 'GaN (ultraviolet)', 3.4]];
-  F.calcolo.solido = { MATERIALI: MATERIALI, Eg: Eg, ni: ni, fermiDirac: fermiDirac, drogaggio: drogaggio, giunzione: giunzione, shockley: shockley, LED: LED };
+  /* v238 — le valli della banda di conduzione nella zona di Brillouin del reticolo cubico a facce
+     centrate (diamante e blenda). Coordinate k in unita' di 2π/a. Masse efficaci in m₀: longitudinale
+     m_l (lungo l'asse della valle) e trasversa m_t; M_c valli equivalenti; m_h lacuna pesante.
+     · Si: sei valli lungo Δ, a 0,85 della distanza Γ-X (gap indiretto);
+     · Ge: otto mezze valli nei punti L, cioe' quattro valli intere (gap indiretto);
+     · GaAs: una valle sferica in Γ (gap diretto: emette luce). */
+  var VALLI = {
+    Si: { dove: 'Δ', ml: 0.98, mt: 0.19, Mc: 6, a: 5.431, mh: 0.49, centri: [[0.85, 0, 0], [-0.85, 0, 0], [0, 0.85, 0], [0, -0.85, 0], [0, 0, 0.85], [0, 0, -0.85]] },
+    Ge: { dove: 'L', ml: 1.64, mt: 0.082, Mc: 4, a: 5.658, mh: 0.33, centri: [[0.5, 0.5, 0.5], [-0.5, -0.5, -0.5], [0.5, -0.5, 0.5], [-0.5, 0.5, -0.5], [0.5, 0.5, -0.5], [-0.5, -0.5, 0.5], [-0.5, 0.5, 0.5], [0.5, -0.5, -0.5]] },
+    GaAs: { dove: 'Γ', ml: 0.067, mt: 0.067, Mc: 1, a: 5.653, mh: 0.45, centri: [[0, 0, 0]] }
+  };
+  var M0 = 9.1093837015e-31, KB = 1.380649e-23, HP = 6.62607015e-34, HB = HP / (2 * Math.PI);
+  /* massa efficace di densita' degli stati: M_c^(2/3) (m_l m_t²)^(1/3) */
+  function massaDensita(v) { return Math.pow(v.Mc * v.Mc * v.ml * v.mt * v.mt, 1 / 3); }
+  /* densita' efficace degli stati N = 2 (2π m* kT / h²)^(3/2), in cm⁻³ */
+  function densitaStati(mStar, T) { return 2 * Math.pow(2 * Math.PI * mStar * M0 * KB * T / (HP * HP), 1.5) / 1e6; }
+  /* l'ampiezza termica della nuvola di elettroni nella valle lungo una direzione di massa m:
+     σ_k = √(m kT)/ħ (distribuzione di Maxwell-Boltzmann in k), in unita' di 2π/a */
+  function sigmaK(m, T, aAng) { return Math.sqrt(m * M0 * KB * T) / HB / (2 * Math.PI / (aAng * 1e-10)); }
+  /* la prima zona di Brillouin dell'fcc (ottaedro troncato): |kx| + |ky| + |kz| ≤ 3/2 e |k_i| ≤ 1.
+     Vertici: le permutazioni di (0, ±½, ±1) (punti W); spigoli lunghi √2/2 */
+  function zonaBrillouin() {
+    var V = [], E = [], i, j;
+    [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]].forEach(function (pr) { [-0.5, 0.5].forEach(function (b) { [-1, 1].forEach(function (c) { var v = [0, 0, 0]; v[pr[1]] = b; v[pr[2]] = c; v[pr[0]] = 0; V.push(v); }); }); });
+    var uni = []; V.forEach(function (v) { if (!uni.some(function (u) { return u[0] === v[0] && u[1] === v[1] && u[2] === v[2]; })) uni.push(v); });
+    for (i = 0; i < uni.length; i++) for (j = i + 1; j < uni.length; j++) if (Math.abs(Math.hypot(uni[i][0] - uni[j][0], uni[i][1] - uni[j][1], uni[i][2] - uni[j][2]) - Math.SQRT1_2) < 1e-9) E.push([i, j]);
+    return { V: uni, E: E };
+  }
+  function nellaZona(k) { return Math.abs(k[0]) + Math.abs(k[1]) + Math.abs(k[2]) <= 1.5 + 1e-12 && Math.max(Math.abs(k[0]), Math.abs(k[1]), Math.abs(k[2])) <= 1 + 1e-12; }
+  /* un passo di Ornstein-Uhlenbeck: gli urti con i fononi rimescolano k mantenendo la distribuzione
+     di equilibrio N(0, σ²) — e' la nuvola che «respira» nell'animazione */
+  function passoOU(k, sigma, dt, tau, gauss) { var f = Math.exp(-dt / tau), q = sigma * Math.sqrt(1 - f * f); return k * f + q * gauss(); }
+  F.calcolo.solido = { MATERIALI: MATERIALI, Eg: Eg, ni: ni, fermiDirac: fermiDirac, drogaggio: drogaggio, giunzione: giunzione, shockley: shockley, LED: LED,
+    VALLI: VALLI, massaDensita: massaDensita, densitaStati: densitaStati, sigmaK: sigmaK, zonaBrillouin: zonaBrillouin, nellaZona: nellaZona, passoOU: passoOU };
 
   /* ═══ 1. bande e portatori ══════════════════════════════════════════════ */
   function schedaBande(div) {
@@ -120,13 +156,138 @@
     });
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. zona di Brillouin e valli (v238) ═════════════════════════════ */
+  var INGR = 4; /* le nuvole termiche sono piccole rispetto alla zona: si disegnano ingrandite 4 volte */
+  function schedaBrillouin(pan) {
+    var st = { m: 'Si', T: 300 }, cb = {};
+    F.scelta(pan, ['Materiale', 'Material'], Object.keys(VALLI).map(function (k2) { return [k2, k2 + ' — ' + F.tt(MATERIALI[k2].nome)]; }), st.m, function (v) { st.m = v; nuovo(); });
+    F.cursore(pan, ['temperatura (K)', 'temperature (K)'], 50, 700, 10, st.T, function (v) { st.T = v; nuovo(); });
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Lo spazio dei vettori d’onda k: il poliedro è la prima zona di Brillouin del reticolo cubico a facce centrate (silicio, germanio, arseniuro di gallio), con i punti di simmetria Γ (centro), X (facce quadrate), L (facce esagonali), K. Gli elettroni di conduzione (azzurri) stanno nelle valli, i minimi della banda: le nuvole hanno la forma degli ellissoidi di massa efficace (allungate dove la massa è grande) e la dimensione della distribuzione termica √(m kT)/ħ, ingrandita 4 volte. Le lacune (rosse) stanno in Γ, al massimo della banda di valenza. Se valle e lacune non sono nello stesso punto (Si, Ge) il gap è indiretto: per ricombinare serve un fonone, e il silicio non fa LED.',
+      'The space of wave vectors k: the polyhedron is the first Brillouin zone of the face-centred cubic lattice (silicon, germanium, gallium arsenide), with the symmetry points Γ (centre), X (square faces), L (hexagonal faces), K. Conduction electrons (blue) sit in the valleys, the band minima: the clouds have the shape of the effective-mass ellipsoids (elongated where the mass is large) and the size of the thermal distribution √(m kT)/ħ, magnified 4 times. Holes (red) sit at Γ, at the top of the valence band. If valleys and holes are not at the same point (Si, Ge) the gap is indirect: recombination needs a phonon, and silicon makes no LEDs.');
+    function nuovo() {
+      var v = VALLI[st.m], m = MATERIALI[st.m], md = massaDensita(v), Nc = densitaStati(md, st.T), Nt = m.Nc * Math.pow(st.T / 300, 1.5);
+      info.innerHTML = t('Valli: ', 'Valleys: ') + '<b>' + v.Mc + '</b> ' + t('in ', 'at ') + v.dove + (st.m === 'Ge' ? t(' (otto mezze valli)', ' (eight half valleys)') : '') + ' · m_l = ' + v.ml + ', m_t = ' + v.mt + ' m₀<br>' + t('Massa di densità degli stati ', 'Density-of-states mass ') + 'M_c^(2/3)(m_l m_t²)^(1/3) = <b class="bsiFX-num">' + fmt(md) + ' m₀</b><br>N_c = 2(2πm*kT/h²)^(3/2) = <b class="bsiFX-num">' + Nc.toExponential(2) + '</b> cm⁻³ · ' + t('tabella della sezione: ', 'section table: ') + Nt.toExponential(2) + ' (' + fmt((Nc / Nt - 1) * 100) + ' %)<br>E_g(' + st.T + ' K) = <b>' + fmt(Eg(m, st.T)) + ' eV</b> ' + (v.dove === 'Γ' ? t('diretto', 'direct') : t('indiretto', 'indirect')) + ' · n_i = <b>' + ni(m, st.T).toExponential(2) + '</b> cm⁻³';
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Zona di Brillouin 3D del reticolo fcc con le valli di conduzione e la nuvola termica degli elettroni', '3D Brillouin zone of the fcc lattice with conduction valleys and the thermal electron cloud'],
+      tre: function (S, T, L3) {
+        var Z = zonaBrillouin(), sc = 2.6;
+        var segs = []; Z.E.forEach(function (e) { var a = Z.V[e[0]], b = Z.V[e[1]]; segs.push(a[0] * sc, a[1] * sc, a[2] * sc, b[0] * sc, b[1] * sc, b[2] * sc); });
+        var gz = new T.BufferGeometry(); gz.setAttribute('position', new T.Float32BufferAttribute(segs, 3)); S.aggiungi(new T.LineSegments(gz, new T.LineBasicMaterial({ color: 0x9fb1c6, transparent: true, opacity: 0.8 })));
+        /* le facce, appena velate: esagoni in L e quadrati in X (vertici della faccia ordinati per angolo) */
+        var facce = []; [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]].forEach(function (n) { facce.push([n, 1]); });
+        [-1, 1].forEach(function (a) { [-1, 1].forEach(function (b) { [-1, 1].forEach(function (c) { facce.push([[a, b, c], 1.5]); }); }); });
+        facce.forEach(function (f) {
+          var n = f[0], vv = Z.V.filter(function (v) { return Math.abs(v[0] * n[0] + v[1] * n[1] + v[2] * n[2] - f[1]) < 1e-9; }), c = [0, 0, 0]; vv.forEach(function (v) { c[0] += v[0] / vv.length; c[1] += v[1] / vv.length; c[2] += v[2] / vv.length; });
+          var u = new T.Vector3(vv[0][0] - c[0], vv[0][1] - c[1], vv[0][2] - c[2]).normalize(), nn = new T.Vector3(n[0], n[1], n[2]).normalize(), w = new T.Vector3().crossVectors(nn, u);
+          vv.sort(function (p, q) { var dp = new T.Vector3(p[0] - c[0], p[1] - c[1], p[2] - c[2]), dq = new T.Vector3(q[0] - c[0], q[1] - c[1], q[2] - c[2]); return Math.atan2(dp.dot(w), dp.dot(u)) - Math.atan2(dq.dot(w), dq.dot(u)); });
+          var pos = [], idx = []; vv.forEach(function (v) { pos.push(v[0] * sc, v[1] * sc, v[2] * sc); }); for (var i = 1; i < vv.length - 1; i++) idx.push(0, i, i + 1);
+          var g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); g.setIndex(idx);
+          S.aggiungi(new T.Mesh(g, new T.MeshBasicMaterial({ color: f[1] === 1 ? 0x6bcfff : 0x5eead4, transparent: true, opacity: 0.06, side: T.DoubleSide, depthWrite: false })));
+        });
+        [['Γ', [0, 0, 0]], ['X', [1, 0, 0]], ['L', [0.5, 0.5, 0.5]], ['K', [0.75, 0.75, 0]], ['W', [1, 0.5, 0]], ['X', [0, 0, 1]]].forEach(function (q) {
+          S.aggiungi(L3.sfera(T, 0.035, 0xe6fffb, q[1][0] * sc, q[1][1] * sc, q[1][2] * sc)); var e = L3.testo3d(T, q[0], '#e6fffb', 0.28); e.position.set(q[1][0] * sc + 0.12, q[1][1] * sc + 0.12, q[1][2] * sc + 0.18); S.aggiungi(e);
+        });
+        S.aggiungi(L3.assi(T, 3.3, ['k_x', 'k_y', 'k_z'], 0.26));
+        var gr = new T.Group(); S.aggiungi(gr);
+        var NE = 900, NH = 300, pe = new Float32Array(NE * 3), ph = new Float32Array(NH * 3), ke = new Float32Array(NE * 3), kh = new Float32Array(NH * 3), valle = new Int16Array(NE);
+        var ge = new T.BufferGeometry(); ge.setAttribute('position', new T.BufferAttribute(pe, 3)); S.aggiungi(new T.Points(ge, new T.PointsMaterial({ color: 0x6bcfff, size: 0.05 })));
+        var gh = new T.BufferGeometry(); gh.setAttribute('position', new T.BufferAttribute(ph, 3)); S.aggiungi(new T.Points(gh, new T.PointsMaterial({ color: 0xff8a80, size: 0.05 })));
+        var seme = 238; function rnd() { seme = (seme + 0x6D2B79F5) >>> 0; var q = Math.imul(seme ^ (seme >>> 15), 1 | seme); q = (q + Math.imul(q ^ (q >>> 7), 61 | q)) ^ q; return ((q ^ (q >>> 14)) >>> 0) / 4294967296; }
+        function gauss() { return Math.sqrt(-2 * Math.log(Math.max(1e-12, rnd()))) * Math.cos(2 * Math.PI * rnd()); }
+        var v, sl, stt, sh, assi;
+        function piazza() {
+          for (var i = 0; i < NE; i++) {
+            var c = v.centri[valle[i]], ax = assi[valle[i]], kl = ke[3 * i], t1 = ke[3 * i + 1], t2 = ke[3 * i + 2];
+            pe[3 * i] = (c[0] + INGR * (kl * ax[0][0] + t1 * ax[1][0] + t2 * ax[2][0])) * sc; pe[3 * i + 1] = (c[1] + INGR * (kl * ax[0][1] + t1 * ax[1][1] + t2 * ax[2][1])) * sc; pe[3 * i + 2] = (c[2] + INGR * (kl * ax[0][2] + t1 * ax[1][2] + t2 * ax[2][2])) * sc;
+          }
+          for (i = 0; i < NH * 3; i++) ph[i] = INGR * kh[i] * sc;
+          ge.attributes.position.needsUpdate = true; gh.attributes.position.needsUpdate = true;
+        }
+        cb.nuovo = function () {
+          v = VALLI[st.m]; sl = sigmaK(v.ml, st.T, v.a); stt = sigmaK(v.mt, st.T, v.a); sh = sigmaK(v.mh, st.T, v.a);
+          /* per ogni valle una terna: l'asse lungo (dal centro della zona verso la valle) e due trasversi */
+          assi = v.centri.map(function (c) { var L = Math.hypot(c[0], c[1], c[2]); if (!L) return [[1, 0, 0], [0, 1, 0], [0, 0, 1]]; var a = new T.Vector3(c[0] / L, c[1] / L, c[2] / L), b = new T.Vector3(Math.abs(a.x) < 0.9 ? 1 : 0, Math.abs(a.x) < 0.9 ? 0 : 1, 0).cross(a).normalize(), d = new T.Vector3().crossVectors(a, b); return [[a.x, a.y, a.z], [b.x, b.y, b.z], [d.x, d.y, d.z]]; });
+          for (var i = 0; i < NE; i++) { valle[i] = i % v.centri.length; ke[3 * i] = sl * gauss(); ke[3 * i + 1] = stt * gauss(); ke[3 * i + 2] = stt * gauss(); }
+          for (i = 0; i < NH * 3; i++) kh[i] = sh * gauss();
+          svuota(gr);
+          /* l'ellissoide di energia costante (3/2)kT di ogni valle: semiassi √3 σ */
+          v.centri.forEach(function (c, j) {
+            var el = new T.Mesh(new T.SphereGeometry(1, 28, 18), new T.MeshStandardMaterial({ color: 0x6bcfff, transparent: true, opacity: 0.18, depthWrite: false })), ax = assi[j];
+            var M = new T.Matrix4().makeBasis(new T.Vector3(ax[0][0], ax[0][1], ax[0][2]), new T.Vector3(ax[1][0], ax[1][1], ax[1][2]), new T.Vector3(ax[2][0], ax[2][1], ax[2][2]));
+            el.quaternion.setFromRotationMatrix(M); el.scale.set(INGR * Math.sqrt(3) * sl * sc, INGR * Math.sqrt(3) * stt * sc, INGR * Math.sqrt(3) * stt * sc); el.position.set(c[0] * sc, c[1] * sc, c[2] * sc); gr.add(el);
+          });
+          piazza();
+          S.didascalia.textContent = st.m + ' · ' + st.T + ' K · ' + (v.dove === 'Γ' ? t('gap diretto in Γ', 'direct gap at Γ') : t('gap indiretto: valli in ', 'indirect gap: valleys at ') + v.dove) + ' · ' + t('nuvole ×4', 'clouds ×4');
+          S.sporca = true; S.avvia();
+        };
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) {
+          if (S.fermo) return false;
+          var tau = 0.6;
+          for (var i = 0; i < NE; i++) { ke[3 * i] = passoOU(ke[3 * i], sl, dt, tau, gauss); ke[3 * i + 1] = passoOU(ke[3 * i + 1], stt, dt, tau, gauss); ke[3 * i + 2] = passoOU(ke[3 * i + 2], stt, dt, tau, gauss); }
+          for (i = 0; i < NH * 3; i++) kh[i] = passoOU(kh[i], sh, dt, tau, gauss);
+          piazza(); return true;
+        });
+        S.inquadra(10, -0.7, 1.15);
+      }
+    };
+  }
+
   F.sezione('sfissolido', {
     titolo: ['💡 Semiconduttori', '💡 Semiconductors'],
     sotto: ['La distribuzione di Fermi-Dirac e i portatori intrinseci di Si, Ge e GaAs; il drogaggio, il livello di Fermi e la conducibilità; la giunzione p-n, la caratteristica di Shockley e il colore dei LED.', 'The Fermi-Dirac distribution and intrinsic carriers of Si, Ge and GaAs; doping, the Fermi level and conductivity; the p-n junction, the Shockley characteristic and the colour of LEDs.'],
     schede: [
       { nome: ['📶 Bande e portatori', '📶 Bands and carriers'], costruisci: schedaBande },
       { nome: ['🧂 Drogaggio', '🧂 Doping'], costruisci: schedaDrogaggio },
-      { nome: ['💡 Giunzione p-n e LED', '💡 p-n junction and LEDs'], costruisci: schedaGiunzione }
+      { nome: ['💡 Giunzione p-n e LED', '💡 p-n junction and LEDs'], costruisci: schedaGiunzione },
+      { nome: ['🔷 Zona di Brillouin 3D', '🔷 3D Brillouin zone'], costruisci: scheda3D(schedaBrillouin) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

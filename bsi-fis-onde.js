@@ -13,7 +13,9 @@
    · DIFFRAZIONE: N fenditure di larghezza a e passo d,
      I(θ) = I₀ (sin β/β)² (sin Nα / (N sin α))², α = π d sin θ/λ,
      β = π a sin θ/λ; la figura vista sullo schermo nel colore della luce,
-     i massimi principali d sin θ = mλ, il potere risolutivo R = mN.
+     i massimi principali d sin θ = mλ, il potere risolutivo R = mN;
+   · ONDOSCOPIO 3D (v238): la superficie dell'acqua mossa da due sorgenti,
+     con le linee nodali (iperboli r₁ − r₂ = (m + ½)λ), λ, d e sfasamento.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -46,7 +48,33 @@
     var fattore = nm < 420 ? 0.3 + 0.7 * (nm - 380) / 40 : nm > 700 ? 0.3 + 0.7 * (780 - nm) / 80 : 1;
     return [Math.max(0, r * fattore), Math.max(0, g * fattore), Math.max(0, b * fattore)];
   }
-  F.calcolo.onde = { immagine: immagine, reticolo: reticolo, coloreLambda: coloreLambda };
+  /* v238 — l'ondoscopio: due sorgenti puntiformi in (−d/2, 0) e (+d/2, 0) con la stessa frequenza,
+     la seconda in ritardo di fase φ. Ogni onda circolare sulla superficie, se P.smorza, cala come
+     1/√r (l'energia si distribuisce su un cerchio che cresce): a = 1/√(1 + r/λ).
+     z(x, y, t) = a₁ cos(k r₁ − ωt) + a₂ cos(k r₂ − ωt − φ) */
+  function ampiezze(x, y, P) {
+    var r1 = Math.hypot(x + P.d / 2, y), r2 = Math.hypot(x - P.d / 2, y);
+    return { r1: r1, r2: r2, a1: P.smorza ? 1 / Math.sqrt(1 + r1 / P.lam) : 1, a2: P.smorza ? 1 / Math.sqrt(1 + r2 / P.lam) : 1 };
+  }
+  function ondoscopio(x, y, tt, P) {
+    var k = 2 * Math.PI / P.lam, w = 2 * Math.PI * (P.f || 1), q = ampiezze(x, y, P);
+    return q.a1 * Math.cos(k * q.r1 - w * tt) + q.a2 * Math.cos(k * q.r2 - w * tt - (P.fase || 0));
+  }
+  /* l'ampiezza con cui oscilla il punto: |a₁ + a₂ e^{i(k(r₁ − r₂) + φ)}| */
+  function inviluppo(x, y, P) {
+    var q = ampiezze(x, y, P), k = 2 * Math.PI / P.lam;
+    return Math.sqrt(Math.max(0, q.a1 * q.a1 + q.a2 * q.a2 + 2 * q.a1 * q.a2 * Math.cos(k * (q.r1 - q.r2) + (P.fase || 0))));
+  }
+  /* le linee nodali (interferenza distruttiva): k(r₁ − r₂) + φ = (2m+1)π, cioe' r₁ − r₂ = Δ_m con |Δ_m| < d.
+     Sono iperboli con i fuochi nelle sorgenti; lontano tendono alle rette sin θ_m = Δ_m/d (θ dall'asse y) */
+  function lineeNodali(lam, d, fase) {
+    var out = [], k = 2 * Math.PI / lam;
+    for (var m = -60; m <= 60; m++) { var D = ((2 * m + 1) * Math.PI - (fase || 0)) / k; if (Math.abs(D) < d - 1e-12) out.push({ m: m, delta: D, theta: Math.asin(D / d) }); }
+    return out;
+  }
+  /* un punto dell'iperbole r₁ − r₂ = Δ (parametro u): x = (Δ/2) cosh u, y = b sinh u, b² = (d/2)² − (Δ/2)² */
+  function puntoIperbole(D, d, u) { var a = D / 2, b = Math.sqrt(Math.max(0, d * d / 4 - a * a)); return [a * Math.cosh(u), b * Math.sinh(u)]; }
+  F.calcolo.onde = { immagine: immagine, reticolo: reticolo, coloreLambda: coloreLambda, ondoscopio: ondoscopio, inviluppo: inviluppo, lineeNodali: lineeNodali, puntoIperbole: puntoIperbole };
 
   /* ═══ 1. sovrapposizione ════════════════════════════════════════════════ */
   function schedaSovrapposizione(div) {
@@ -166,13 +194,122 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ la scheda 3D (v238) ═══════════════════════════════════════════════
+     Il pannello compare subito; la scena quando three.js e' pronto, costruita in un
+     compito separato, cosi' il clic sulla scheda resta leggero. Nella barra della vista
+     un tasto ferma e riavvia il moto; con «riduci movimento» la scena parte ferma. */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g3 = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g3.appendChild(pan); g3.appendChild(destra); div.appendChild(g3);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        attesa.remove();
+        var S = new L3.Scena(destra, 0.66);
+        var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+        destra.insertBefore(S.box, destra.firstChild);
+        S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.etichetta)); S.ren.domElement.setAttribute('aria-label', F.tt(ctx.etichetta));
+        tastoPausa(S);
+        div._scena = S;
+        setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  function tastoPausa(S) {
+    var MENO = false; try { MENO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+    S.fermo = MENO;
+    var barra = S.box.querySelector('.bsi3d-barra'); if (!barra) return;
+    var b = F.el('button', { type: 'button' });
+    function aggiorna() { b.textContent = S.fermo ? '▶' : '❚❚'; var n = S.fermo ? t('Avvia il moto', 'Play the motion') : t('Ferma il moto', 'Pause the motion'); b.title = n; b.setAttribute('aria-label', n); b.setAttribute('aria-pressed', String(S.fermo)); }
+    b.addEventListener('click', function (e) { e.stopPropagation(); S.fermo = !S.fermo; aggiorna(); if (!S.fermo) S.avvia(); });
+    aggiorna(); barra.insertBefore(b, barra.firstChild);
+  }
+  function svuota(gr) {
+    while (gr.children.length) { var o = gr.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) (Array.isArray(x.material) ? x.material : [x.material]).forEach(function (m) { if (m.map) m.map.dispose(); m.dispose(); }); }); }
+  }
+  function puntaFreccia(T, fr, p, d) {
+    var L = Math.hypot(d[0], d[1], d[2]); fr.visible = L > 0.03; if (!fr.visible) return;
+    fr.position.set(p[0], p[1], p[2]); fr.setDirection(new T.Vector3(d[0] / L, d[1] / L, d[2] / L));
+    var h = Math.min(0.25, L * 0.4); fr.setLength(L, h, h * 0.6);
+  }
+
+  /* ═══ 4. ondoscopio in 3D (v238) ═══════════════════════════════════════ */
+  function schedaOndoscopio(pan) {
+    var st = { lam: 1.2, d: 3.6, fase: 0, smorza: true, colore: 'altezza' }, cb = {};
+    function P() { return { lam: st.lam, d: st.d, fase: st.fase * Math.PI / 180, smorza: st.smorza, f: 0.8 }; }
+    F.cursore(pan, ['lunghezza d’onda λ (cm)', 'wavelength λ (cm)'], 0.5, 3, 0.05, st.lam, function (v) { st.lam = v; nuovo(); }, function (v) { return v.toFixed(2); });
+    F.cursore(pan, ['distanza fra le sorgenti d (cm)', 'source separation d (cm)'], 0.5, 6, 0.1, st.d, function (v) { st.d = v; nuovo(); }, function (v) { return v.toFixed(1); });
+    F.cursore(pan, ['sfasamento φ fra le sorgenti (°)', 'phase difference φ between sources (°)'], 0, 360, 5, st.fase, function (v) { st.fase = v; nuovo(); });
+    F.scelta(pan, ['Colore della superficie', 'Surface colour'], [['altezza', t('altezza istantanea', 'instantaneous height')], ['intensita', t('intensità media (ampiezza²)', 'mean intensity (amplitude²)')]], st.colore, function (v) { st.colore = v; nuovo(); });
+    var cc = F.el('input', { type: 'checkbox' }); cc.checked = st.smorza; cc.addEventListener('change', function () { st.smorza = cc.checked; nuovo(); });
+    pan.appendChild(F.el('label', { style: 'display:flex;align-items:center;gap:6px;margin:4px 0;font-size:.86rem;color:#cfe3f7;cursor:pointer' }, [cc, F.el('span', { testo: t('onde che calano come 1/√r', 'waves decaying as 1/√r') })]));
+    var info = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Due punte che battono sull’acqua con la stessa frequenza: le onde circolari si sommano. Dove arrivano cresta su cresta l’acqua oscilla il doppio (interferenza costruttiva), dove arrivano cresta su ventre resta ferma: le linee nodali (rosse) sono iperboli con i fuochi nelle sorgenti, i punti con differenza di cammino r₁ − r₂ = (m + ½)λ. Lontano diventano rette con sin θ = (m + ½)λ/d: è la stessa geometria della doppia fenditura di Young. Lo sfasamento φ fa ruotare il ventaglio: è il principio delle antenne a schiera che orientano il fascio senza muoversi.',
+      'Two dippers striking the water at the same frequency: the circular waves add up. Where crest meets crest the water oscillates twice as much (constructive interference), where crest meets trough it stays still: the nodal lines (red) are hyperbolas with foci at the sources, the points with path difference r₁ − r₂ = (m + ½)λ. Far away they become straight lines with sin θ = (m + ½)λ/d: the same geometry as Young’s double slit. The phase difference φ swings the fan: the principle of phased-array antennas that steer the beam without moving.');
+    function nuovo() {
+      var N = lineeNodali(st.lam, st.d, st.fase * Math.PI / 180);
+      info.innerHTML = 'd/λ = <b class="bsiFX-num">' + fmt(st.d / st.lam) + '</b> · ' + t('linee nodali: ', 'nodal lines: ') + '<b class="bsiFX-num">' + N.length + '</b><br>' + t('Direzioni lontane (dall’asse fra le sorgenti): ', 'Far-field directions (from the axis between the sources): ') + (N.length ? N.map(function (q) { return fmt(q.theta * 180 / Math.PI) + '°'; }).join(' · ') : '—') +
+        '<br>' + t('Frequenza 0,8 Hz, velocità di fase v = λf = ', 'Frequency 0.8 Hz, phase speed v = λf = ') + fmt(st.lam * 0.8) + ' cm/s' + (st.smorza ? '<br>' + t('Con lo smorzamento le due onde non sono uguali dappertutto: i nodi restano minimi, non zeri perfetti.', 'With decay the two waves are not equal everywhere: nodes stay minima, not perfect zeros.') : '');
+      if (cb.nuovo) cb.nuovo();
+    }
+    nuovo();
+    return {
+      etichetta: ['Ondoscopio 3D: interferenza di due sorgenti con le linee nodali', '3D ripple tank: two-source interference with nodal lines'],
+      tre: function (S, T, L3) {
+        var NG = 96, LATO = 12, hz = 0.32, geo = new T.PlaneGeometry(LATO, LATO, NG, NG), pos = geo.attributes.position, nv = pos.count;
+        var col = new Float32Array(nv * 3); geo.setAttribute('color', new T.BufferAttribute(col, 3));
+        var acqua = new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.35, metalness: 0.1, side: T.DoubleSide })); S.aggiungi(acqua);
+        var bordo = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(LATO, LATO, 1.6)), new T.LineBasicMaterial({ color: 0x34465f })); S.aggiungi(bordo);
+        var gr = new T.Group(); S.aggiungi(gr);
+        var s1 = L3.sfera(T, 0.14, 0xffd24a, 0, 0, 0, true), s2 = L3.sfera(T, 0.14, 0xffd24a, 0, 0, 0, true); S.aggiungi(s1); S.aggiungi(s2);
+        var R1 = new Float32Array(nv), R2 = new Float32Array(nv), A1 = new Float32Array(nv), A2 = new Float32Array(nv), INV = new Float32Array(nv), tt = 0;
+        cb.nuovo = function () {
+          var p = P();
+          for (var i = 0; i < nv; i++) { var x = pos.getX(i), y = pos.getY(i), r1 = Math.hypot(x + p.d / 2, y), r2 = Math.hypot(x - p.d / 2, y); R1[i] = r1; R2[i] = r2; A1[i] = p.smorza ? 1 / Math.sqrt(1 + r1 / p.lam) : 1; A2[i] = p.smorza ? 1 / Math.sqrt(1 + r2 / p.lam) : 1; INV[i] = inviluppo(x, y, p); }
+          svuota(gr);
+          lineeNodali(p.lam, p.d, p.fase).forEach(function (q) {
+            var b = Math.sqrt(Math.max(1e-9, p.d * p.d / 4 - q.delta * q.delta / 4)), U = Math.asinh(7 / b), pts = [];
+            for (var k = 0; k <= 160; k++) { var c = puntoIperbole(q.delta, p.d, -U + 2 * U * k / 160); if (Math.abs(c[0]) <= LATO / 2 && Math.abs(c[1]) <= LATO / 2) pts.push([c[0], c[1], 0.03]); }
+            if (pts.length > 1) gr.add(L3.linea(T, pts, 0xff6b6b, 0.95));
+          });
+          s1.position.set(-p.d / 2, 0, 0); s2.position.set(p.d / 2, 0, 0);
+          var e1 = L3.testo3d(T, 'S₁', '#ffd24a', 0.36), e2 = L3.testo3d(T, 'S₂', '#ffd24a', 0.36); e1.position.set(-p.d / 2, -0.5, 1.0); e2.position.set(p.d / 2, -0.5, 1.0); gr.add(e1); gr.add(e2);
+          gr.add(L3.linea(T, [[-p.d / 2, -LATO / 2 - 0.3, 0], [p.d / 2, -LATO / 2 - 0.3, 0]], 0xffd24a));
+          var ed = L3.testo3d(T, 'd = ' + fmt(p.d) + ' cm', '#ffd24a', 0.3); ed.position.set(0, -LATO / 2 - 0.75, 0); gr.add(ed);
+          aggiorna(); S.sporca = true; S.avvia();
+        };
+        function aggiorna() {
+          var p = P(), k = 2 * Math.PI / p.lam, w = 2 * Math.PI * p.f, ph = p.fase, inten = st.colore === 'intensita', imax = st.smorza ? 2 : 4;
+          for (var i = 0; i < nv; i++) {
+            var z = A1[i] * Math.cos(k * R1[i] - w * tt) + A2[i] * Math.cos(k * R2[i] - w * tt - ph); pos.setZ(i, z * hz);
+            var r, g2, b;
+            if (inten) { var u = Math.min(1, INV[i] * INV[i] / imax); r = 0.05 + 0.95 * Math.pow(u, 0.8); g2 = 0.1 + 0.75 * u; b = 0.25 + 0.1 * (1 - u); }
+            else { var v = Math.max(-1, Math.min(1, z / 1.6)); r = v > 0 ? 0.2 + 0.75 * v : 0.12 + 0.08 * (1 + v); g2 = v > 0 ? 0.55 + 0.4 * v : 0.25 + 0.3 * (1 + v); b = v > 0 ? 0.75 + 0.25 * v : 0.45 + 0.3 * (1 + v); }
+            col[3 * i] = r; col[3 * i + 1] = g2; col[3 * i + 2] = b;
+          }
+          pos.needsUpdate = true; geo.attributes.color.needsUpdate = true; geo.computeVertexNormals();
+          s1.position.z = hz * Math.cos(-w * tt) + 0.15; s2.position.z = hz * Math.cos(-w * tt - ph) + 0.15;
+          S.didascalia.textContent = t('t = ', 't = ') + tt.toFixed(2) + ' s · λ = ' + fmt(p.lam) + ' cm · φ = ' + st.fase + '°';
+        }
+        cb.nuovo();
+        S.ogniFotogramma(function (dt) { if (S.fermo) return false; tt += dt; aggiorna(); return true; });
+        S.inquadra(17.5, -1.35, 0.95);
+      }
+    };
+  }
+
   F.sezione('sfisonde', {
     titolo: ['〰️ Onde e ottica', '〰️ Waves and optics'],
     sotto: ['Onde che si sommano (battimenti, onde stazionarie, velocità di gruppo), lenti e specchi con i raggi principali, la diffrazione da una o più fenditure con i colori della luce.', 'Waves adding up (beats, standing waves, group velocity), lenses and mirrors with the principal rays, diffraction from one or more slits in the colours of light.'],
     schede: [
       { nome: ['〰️ Sovrapposizione', '〰️ Superposition'], costruisci: schedaSovrapposizione },
       { nome: ['🔍 Lenti e specchi', '🔍 Lenses and mirrors'], costruisci: schedaOttica },
-      { nome: ['🌈 Diffrazione', '🌈 Diffraction'], costruisci: schedaDiffrazione }
+      { nome: ['🌈 Diffrazione', '🌈 Diffraction'], costruisci: schedaDiffrazione },
+      { nome: ['🌊 Ondoscopio 3D', '🌊 3D ripple tank'], costruisci: scheda3D(schedaOndoscopio) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);

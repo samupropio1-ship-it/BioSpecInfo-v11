@@ -95,4 +95,20 @@ chk('haversine: quarto di meridiano = πR/2', N.haversine(0, 0, 90, 0, Re), PI *
   chk('olonomia triangolo generico = eccesso (con segno dell’orientazione)', Tt.rotazione, Tg.orient * Tg.eccesso, 1e-12);
   chk('trasporto conserva la lunghezza', Math.hypot(...Tt.finale), 1, 1e-12);
 })();
+// ── v238: il modello dell'iperboloide e Gauss–Bonnet sulla scheda 3D ──
+(function () {
+  // triangolo iperbolico: gli angoli sull'iperboloide coincidono con quelli del disco di Poincare' (stesso triangolo proiettato)
+  const V = N.verticiCerchio(1.1, 0.3, true), Ti = N.triangoloIper3(V[0], V[1], V[2]), D = V.map(N.aPoincare), Td = N.triangoloIperb(D[0], D[1], D[2]);
+  let m = 0; for (let i = 0; i < 3; i++) m = Math.max(m, Math.abs(Ti.angoli[i] - Td.angoli[i]));
+  chk('v238 iperboloide vs disco di Poincaré: stessi angoli e lati (scarto max)', m, 0, 1e-9);
+  // Gauss–Bonnet con K = −1: difetto = area misurata per suddivisione (secondo metodo, indipendente dagli angoli)
+  chk('v238 Gauss–Bonnet sull’iperboloide: π − Σ = area (suddivisione)', N.areaRichardson(V[0], V[1], V[2], 48, true), PI - Ti.somma, 1e-6);
+  // Gauss–Bonnet con K = +1 sulla sfera: eccesso = area per suddivisione (ottante: π/2)
+  const Vs = N.verticiCerchio(0.9, -0.2, false), Ts = N.triangoloSferico(Vs[0], Vs[1], Vs[2], 1);
+  chk('v238 Gauss–Bonnet sulla sfera: Σ − π = area (suddivisione)', N.areaRichardson(Vs[0], Vs[1], Vs[2], 48, false), Ts.eccesso, 1e-6);
+  // le geodetiche dell'iperboloide restano sull'iperboloide e in un piano per l'origine
+  const g = N.geodeticaIper(V[0], V[2], 40), nrm = [V[0][1] * V[2][2] - V[0][2] * V[2][1], V[0][2] * V[2][0] - V[0][0] * V[2][2], V[0][0] * V[2][1] - V[0][1] * V[2][0]];
+  let mh = 0, mp = 0; g.forEach(p => { mh = Math.max(mh, Math.abs(N.mk(p, p) + 1)); mp = Math.max(mp, Math.abs(p[0] * nrm[0] + p[1] * nrm[1] + p[2] * nrm[2])); });
+  chk('v238 geodetica: ⟨p, p⟩ = −1 e nel piano per l’origine (scarto max)', Math.max(mh, mp), 0, 1e-12);
+})();
 console.log('\n' + ok + ' superati, ' + ko + ' falliti');

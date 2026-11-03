@@ -12,7 +12,11 @@
      ln x = −ΔH_fus/R (1/T − 1/T_fus); il punto eutettico; la regola della
      leva; la curva di raffreddamento con la sosta all'eutettico;
    · CLAPEYRON E REGOLA DELLE FASI: dP/dT = ΔH/(TΔV) per la fusione del
-     ghiaccio (pendenza negativa), varianza F = C − P + 2.
+     ghiaccio (pendenza negativa), varianza F = C − P + 2;
+   · SUPERFICIE P–V–T (v238): l'equazione di Peng–Robinson con Tc, Pc e il
+     fattore acentrico ricavati dalle curve qui sopra, la cupola liquido–
+     vapore dalla costruzione di Maxwell (fugacita' uguali), il punto critico
+     e la linea tripla; un'isoterma percorsa da un punto che condensa.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function (globale) {
   'use strict';
@@ -99,7 +103,63 @@
     return out;
   }
   function varianza(C, P) { return C - P + 2; }
-  F.calcolo.fasi = { SOST: SOST, fase: fase, dHvap: dHvap, COPPIE: COPPIE, liquidus: liquidus, eutettico: eutettico, leva: leva, raffreddamento: raffreddamento, varianza: varianza };
+
+  /* ═══ calcoli: la superficie P–V–T (v238) ══════════════════════════════
+     Peng–Robinson: P = RT/(V − b) − aα(T)/(V² + 2bV − b²), con
+     a = 0,45724 R²Tc²/Pc, b = 0,07780 RTc/Pc, α = [1 + κ(1 − √(T/Tc))]²,
+     κ = 0,37464 + 1,54226ω − 0,26992ω². Il fattore acentrico ω viene dalla
+     curva di vapore della sezione: ω = −log₁₀(P_vap(0,7 Tc)/Pc) − 1.
+     Sotto Tc l'isoterma di PR ha il ciclo di van der Waals: la pressione
+     di saturazione e' quella in cui liquido e vapore hanno la stessa
+     fugacita' (equivalente alle aree uguali di Maxwell). */
+  function omega(s) { var S = SOST[s]; return -Math.log10(S.vap(0.7 * S.Tc) / S.Pc) - 1; }
+  function parametriPR(s) {
+    var S = SOST[s], w = omega(s);
+    return { a: 0.45724 * R * R * S.Tc * S.Tc / S.Pc, b: 0.07780 * R * S.Tc / S.Pc, k: 0.37464 + 1.54226 * w - 0.26992 * w * w, Tc: S.Tc, Pc: S.Pc, w: w };
+  }
+  function alfaPR(p, T) { var q = 1 + p.k * (1 - Math.sqrt(T / p.Tc)); return q * q; }
+  function pressionePR(p, T, V) { return R * T / (V - p.b) - p.a * alfaPR(p, T) / (V * V + 2 * p.b * V - p.b * p.b); }
+  /* radici reali del cubico in Z, ordinate */
+  function radiciZ(A, B) {
+    var c2 = -(1 - B), c1 = A - 3 * B * B - 2 * B, c0 = -(A * B - B * B - B * B * B);
+    var q = (3 * c1 - c2 * c2) / 9, r = (9 * c2 * c1 - 27 * c0 - 2 * c2 * c2 * c2) / 54, D = q * q * q + r * r, out = [];
+    if (D > 0) { var sq = Math.sqrt(D); out.push(Math.cbrt(r + sq) + Math.cbrt(r - sq) - c2 / 3); }
+    else { var th = Math.acos(r / Math.sqrt(-q * q * q)), m = 2 * Math.sqrt(-q); for (var k = 0; k < 3; k++) out.push(m * Math.cos((th + 2 * Math.PI * k) / 3) - c2 / 3); }
+    return out.filter(function (z) { return z > B; }).sort(function (x, y) { return x - y; });
+  }
+  function lnPhi(Z, A, B) { var s2 = Math.SQRT2; return Z - 1 - Math.log(Z - B) - A / (2 * s2 * B) * Math.log((Z + (1 + s2) * B) / (Z + (1 - s2) * B)); }
+  /* saturazione a T < Tc: P con fugacita' uguali, e i volumi molari delle due fasi */
+  function saturazione(s, T) {
+    var p = parametriPR(s), S = SOST[s]; if (T >= p.Tc) return null;
+    var P = S.vap(T), aa = p.a * alfaPR(p, T);
+    for (var it = 0; it < 200; it++) {
+      var A = aa * P / (R * R * T * T), B = p.b * P / (R * T), z = radiciZ(A, B);
+      if (z.length < 2) {
+        /* fuori dal ciclo: si sposta P verso l'interno, dove le radici sono tre */
+        var zz = z[0]; if (zz * R * T / P < 3 * p.b) P *= 0.97; else P *= 1.03; continue;
+      }
+      var fl = lnPhi(z[0], A, B), fv = lnPhi(z[z.length - 1], A, B), Pn = P * Math.exp(fl - fv);
+      if (Math.abs(Pn / P - 1) < 1e-12) { P = Pn; break; }
+      P = Pn;
+    }
+    A = aa * P / (R * R * T * T); B = p.b * P / (R * T); z = radiciZ(A, B);
+    if (z.length < 2) return null;
+    return { P: P, Vl: z[0] * R * T / P, Vv: z[z.length - 1] * R * T / P, rif: S.vap(T) };
+  }
+  /* ∫ P dV lungo l'isoterma di PR fra V1 e V2 (per controllare le aree uguali) */
+  function lavoroPR(p, T, V1, V2) {
+    var aa = p.a * alfaPR(p, T), s2 = Math.SQRT2, F2 = function (V) { return R * T * Math.log(V - p.b) - aa / (2 * s2 * p.b) * Math.log((V + p.b - s2 * p.b) / (V + p.b + s2 * p.b)); };
+    return F2(V2) - F2(V1);
+  }
+  /* la pressione della superficie: PR fuori dalla cupola, la pressione di saturazione dentro */
+  function superficiePVT(s, T, V, sat) {
+    var p = parametriPR(s); sat = sat === undefined ? saturazione(s, T) : sat;
+    if (sat && V > sat.Vl && V < sat.Vv) return { P: sat.P, regione: 'coesistenza', xl: (sat.Vv - V) / (sat.Vv - sat.Vl) };
+    var Pv = pressionePR(p, T, V);
+    return { P: Pv, regione: T >= p.Tc ? (Pv >= p.Pc ? 'supercritico' : 'gas') : sat && V <= sat.Vl ? 'liquido' : 'gas', xl: sat && V <= sat.Vl ? 1 : 0 };
+  }
+  F.calcolo.fasi = { SOST: SOST, fase: fase, dHvap: dHvap, COPPIE: COPPIE, liquidus: liquidus, eutettico: eutettico, leva: leva, raffreddamento: raffreddamento, varianza: varianza,
+    omega: omega, parametriPR: parametriPR, pressionePR: pressionePR, radiciZ: radiciZ, saturazione: saturazione, lavoroPR: lavoroPR, superficiePVT: superficiePVT };
 
   var NOMEFASE = { solido: ['solido', 'solid'], liquido: ['liquido', 'liquid'], gas: ['gas', 'gas'], supercritico: ['fluido supercritico', 'supercritical fluid'] };
   function fmtP(P) { return P >= 1e6 ? fmt(P / 1e6) + ' MPa' : P >= 1e3 ? fmt(P / 1e3) + ' kPa' : fmt(P) + ' Pa'; }
@@ -173,13 +233,135 @@
     disegna(); F.alRidimensiona(disegna);
   }
 
+  /* ═══ 4. la superficie P–V–T in 3D (v238) ═══════════════════════════════ */
+  var MENO_MOTO = false; try { MENO_MOTO = !!(globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { }
+  /* il pannello subito, la scena dopo (three.js al primo uso, il contesto WebGL e il contenuto in compiti separati) */
+  function scheda3D(costruisci) {
+    return function (div) {
+      var g = F.el('div', { 'class': 'bsiFX-griglia' }), pan = F.el('div', { 'class': 'bsiFX-pannello' }), destra = F.el('div', { style: 'min-width:0' });
+      g.appendChild(pan); g.appendChild(destra); div.appendChild(g);
+      var L3 = globale.BSILab3D, attesa = F.el('div', { 'class': 'bsiFX-nota', testo: t('Caricamento del motore 3D…', 'Loading the 3D engine…') });
+      destra.appendChild(attesa);
+      var ctx = costruisci(pan, destra);
+      if (!L3) { attesa.textContent = t('Il motore 3D non è disponibile in questa pagina.', 'The 3D engine is not available on this page.'); return; }
+      L3.stile();
+      L3.caricaThree().then(function () {
+        setTimeout(function () {
+          attesa.remove();
+          var S = new L3.Scena(destra, 0.75);
+          var adatta = S.adatta; S.adatta = function () { if (this.box.offsetParent === null) return; adatta.call(this); };
+          destra.insertBefore(S.box, destra.firstChild);
+          S.box.setAttribute('role', 'group'); S.box.setAttribute('aria-label', F.tt(ctx.nome));
+          div._scena = S;
+          setTimeout(function () { ctx.tre(S, globale.THREE, L3); }, 0);
+        }, 0);
+      }).catch(function (e) { attesa.textContent = t('Motore 3D non disponibile: ', '3D engine unavailable: ') + e.message; });
+    };
+  }
+  var COL_REG = { liquido: [0.25, 0.55, 1.0], gas: [0.36, 0.9, 0.78], coesistenza: [0.72, 0.55, 1.0], supercritico: [1.0, 0.68, 0.42] };
+  var NOME_REG = { liquido: ['liquido', 'liquid'], gas: ['vapore', 'vapour'], coesistenza: ['liquido + vapore', 'liquid + vapour'], supercritico: ['fluido supercritico', 'supercritical fluid'] };
+  function schedaPVT3D(pan) {
+    var st = { s: 'co2', fT: 0.85, pausa: MENO_MOTO }, cb = {}, mod = null, cT = null;
+    F.scelta(pan, ['Sostanza', 'Substance'], [['co2', 'CO₂'], ['acqua', t('acqua', 'water')]], st.s, function (v) { st.s = v; modello(); if (cb.nuova) cb.nuova(); });
+    cT = F.cursore(pan, ['isoterma percorsa (T / Tc)', 'isotherm traced (T / Tc)'], 0.45, 1.25, 0.01, st.fT, function (v) { st.fT = v; isoterma(); if (cb.isoterma) cb.isoterma(); }, function (v) { return v.toFixed(2) + ' · ' + (mod ? (v * mod.p.Tc).toFixed(1) + ' K' : ''); });
+    var bp = F.bottone(pan, st.pausa ? ['▶ Comprimi', '▶ Compress'] : ['⏸ Pausa', '⏸ Pause'], function () { st.pausa = !st.pausa; bp.textContent = F.tt(st.pausa ? ['▶ Comprimi', '▶ Compress'] : ['⏸ Pausa', '⏸ Pause']); if (cb.sveglia) cb.sveglia(); });
+    var info = nota(pan), vivo = nota(pan), spiega = nota(pan);
+    spiega.innerHTML = t('Sull’asse orizzontale il volume molare (scala logaritmica), in profondità la temperatura, in alto la pressione (logaritmica). La superficie viene dall’equazione di stato di Peng–Robinson con Tc, Pc e il fattore acentrico presi dalle curve della prima scheda; dove l’isoterma di PR ondeggia (il ciclo di van der Waals) la sostituisce il piano orizzontale della coesistenza, alla pressione in cui liquido e vapore hanno la stessa fugacità (le aree di Maxwell sono uguali). La cupola viola si chiude nel punto critico rosso; la linea gialla è la linea tripla, sotto la quale c’è il solido (non modellato da PR). Il punto bianco percorre un’isoterma comprimendo il vapore: sotto Tc a un certo volume compaiono le prime gocce, la pressione resta ferma mentre il vapore condensa, poi il liquido quasi incomprimibile fa salire la pressione di colpo.',
+      'Horizontally the molar volume (log scale), in depth the temperature, upwards the pressure (log). The surface comes from the Peng–Robinson equation of state with Tc, Pc and the acentric factor taken from the curves of the first tab; where the PR isotherm wiggles (the van der Waals loop) it is replaced by the flat coexistence plane, at the pressure where liquid and vapour have the same fugacity (Maxwell’s equal areas). The purple dome closes at the red critical point; the yellow line is the triple line, below which there is the solid (not modelled by PR). The white point travels along an isotherm compressing the vapour: below Tc, at some volume the first droplets appear, the pressure stays put while the vapour condenses, then the nearly incompressible liquid makes the pressure shoot up.');
+    function modello() {
+      var S = SOST[st.s], p = parametriPR(st.s), satT = saturazione(st.s, S.Tt);
+      mod = { p: p, S: S, satT: satT, lvmin: Math.log10(1.12 * p.b), lvmax: Math.log10(R * S.Tt / (0.5 * satT.P)), lpmin: Math.log10(0.5 * satT.P), lpmax: Math.log10(4 * S.Pc), Tmin: S.Tt, Tmax: 1.3 * S.Tc };
+      cT.dispatchEvent(new Event('input'));
+      isoterma();
+    }
+    function isoterma() {
+      var p = mod.p, T = st.fT * p.Tc, sat = saturazione(st.s, T), Vc = 0.3074 * R * p.Tc / p.Pc;
+      mod.T = T; mod.sat = sat;
+      info.innerHTML = '<b>' + (st.s === 'co2' ? 'CO₂' : t('Acqua', 'Water')) + '</b> · Peng–Robinson: ω = ' + p.w.toFixed(4) + ' (' + t('dalla curva di vapore', 'from the vapour curve') + '), b = ' + (p.b * 1e6).toFixed(2) + ' cm³/mol<br>' +
+        t('Punto critico ', 'Critical point ') + p.Tc + ' K, ' + fmtP(p.Pc) + ', V_c(PR) = ' + (Vc * 1e6).toFixed(1) + ' cm³/mol (Z_c = 0,307)<br>' +
+        (sat ? t('A ', 'At ') + T.toFixed(1) + ' K: P_sat(PR) = <b class="bsiFX-num">' + fmtP(sat.P) + '</b> ' + t('contro ', 'versus ') + fmtP(sat.rif) + t(' della curva di riferimento (', ' of the reference curve (') + ((sat.P / sat.rif - 1) * 100).toFixed(1) + ' %)<br>' +
+          'V_liq = <b class="bsiFX-num">' + (sat.Vl * 1e6).toFixed(1) + ' cm³/mol</b> · V_vap = <b class="bsiFX-num">' + (sat.Vv * 1e3).toFixed(3) + ' L/mol</b> · ' + t('rapporto ', 'ratio ') + Math.round(sat.Vv / sat.Vl) + '<br>' + t('Aree di Maxwell: ∫P dV / [P_sat (V_vap − V_liq)] = ', 'Maxwell areas: ∫P dV / [P_sat (V_vap − V_liq)] = ') + (lavoroPR(p, T, sat.Vl, sat.Vv) / (sat.P * (sat.Vv - sat.Vl))).toFixed(6)
+          : t('Sopra Tc non c’è cupola: comprimendo, il gas diventa denso senza mai condensare.', 'Above Tc there is no dome: on compression the gas becomes dense without ever condensing.'));
+    }
+    modello();
+    return {
+      nome: ['Superficie P–V–T con la cupola liquido–vapore', 'P–V–T surface with the liquid–vapour dome'],
+      tre: function (S, T3, L3) {
+        var T = T3, gr = new T.Group(), gIso = new T.Group(), punto = null, u = 0;
+        S.aggiungi(gr); S.aggiungi(gIso);
+        function X(lv) { return -3.6 + 7.2 * (lv - mod.lvmin) / (mod.lvmax - mod.lvmin); }
+        function Y(Tk) { return -3 + 6 * (Tk - mod.Tmin) / (mod.Tmax - mod.Tmin); }
+        function Z(P) { var lp = P > 0 ? Math.log10(P) : mod.lpmin; lp = Math.max(mod.lpmin, Math.min(mod.lpmax, lp)); return -1.9 + 3.8 * (lp - mod.lpmin) / (mod.lpmax - mod.lpmin); }
+        function libera(g) { while (g.children.length) { var o = g.children.pop(); o.traverse(function (x) { if (x.geometry) x.geometry.dispose(); if (x.material) { if (x.material.map) x.material.map.dispose(); x.material.dispose(); } }); } }
+        cb.sveglia = function () { S.avvia(); };
+        cb.nuova = function () {
+          libera(gr);
+          var nV = 120, nT = 60, pos = new Float32Array((nV + 1) * (nT + 1) * 3), col = new Float32Array(pos.length), idx = [], sats = [];
+          for (var j = 0; j <= nT; j++) {
+            var Tk = mod.Tmin + (mod.Tmax - mod.Tmin) * j / nT, sat = Tk < mod.p.Tc * 0.9995 ? saturazione(st.s, Tk) : null; sats.push([Tk, sat]);
+            for (var i = 0; i <= nV; i++) {
+              var lv = mod.lvmin + (mod.lvmax - mod.lvmin) * i / nV, q = superficiePVT(st.s, Tk, Math.pow(10, lv), sat), k = j * (nV + 1) + i, c = COL_REG[q.regione];
+              pos[3 * k] = X(lv); pos[3 * k + 1] = Y(Tk); pos[3 * k + 2] = Z(q.P);
+              var sh = 0.55 + 0.45 * (Z(q.P) + 1.9) / 3.8; col[3 * k] = c[0] * sh; col[3 * k + 1] = c[1] * sh; col[3 * k + 2] = c[2] * sh;
+            }
+          }
+          for (j = 0; j < nT; j++) for (i = 0; i < nV; i++) { var a = j * (nV + 1) + i, b = a + nV + 1; idx.push(a, a + 1, b + 1, a, b + 1, b); }
+          var geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('color', new T.BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+          gr.add(new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, side: T.DoubleSide, roughness: 0.7, metalness: 0.02, transparent: true, opacity: 0.93 })));
+          /* qualche isoterma sulla superficie, l'isoterma critica in evidenza */
+          [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2].forEach(function (f) {
+            var Tk = f * mod.p.Tc; if (Tk < mod.Tmin) return; var sat = Tk < mod.p.Tc * 0.9995 ? saturazione(st.s, Tk) : null, pts = [];
+            for (var i2 = 0; i2 <= 200; i2++) { var lv = mod.lvmin + (mod.lvmax - mod.lvmin) * i2 / 200; pts.push([X(lv), Y(Tk), Z(superficiePVT(st.s, Tk, Math.pow(10, lv), sat).P) + 0.015]); }
+            gr.add(L3.linea(T, pts, f === 1 ? 0xff8a80 : 0x0b1a2a, f === 1 ? 1 : 0.6));
+          });
+          /* la cupola: i due rami fino al punto critico */
+          var lq = [], vp = [];
+          sats.forEach(function (q2) { if (!q2[1]) return; lq.push([X(Math.log10(q2[1].Vl)), Y(q2[0]), Z(q2[1].P) + 0.03]); vp.push([X(Math.log10(q2[1].Vv)), Y(q2[0]), Z(q2[1].P) + 0.03]); });
+          var Vc = 0.3074 * R * mod.p.Tc / mod.p.Pc, pc = [X(Math.log10(Vc)), Y(mod.p.Tc), Z(mod.p.Pc) + 0.03];
+          gr.add(L3.linea(T, lq.concat([pc]).concat(vp.reverse()), 0xffffff, 0.95));
+          gr.add(L3.sfera(T, 0.1, 0xff6b6b, pc[0], pc[1], pc[2], true));
+          var ec = L3.testo3d(T, t('punto critico', 'critical point'), '#ff8a80', 0.26); ec.position.set(pc[0], pc[1], pc[2] + 0.4); gr.add(ec);
+          /* la linea tripla */
+          var st3 = mod.satT, a3 = [X(Math.log10(st3.Vl)), Y(mod.Tmin), Z(st3.P) + 0.04], b3 = [X(Math.log10(st3.Vv)), Y(mod.Tmin), Z(st3.P) + 0.04];
+          gr.add(L3.linea(T, [a3, b3], 0xffd24a)); var et = L3.testo3d(T, t('linea tripla', 'triple line'), '#ffd24a', 0.24); et.position.set((a3[0] + b3[0]) / 2, a3[1] - 0.35, a3[2] + 0.2); gr.add(et);
+          /* assi con qualche tacca */
+          var o = [-3.6, -3, -1.9];
+          gr.add(L3.linea(T, [o, [3.6, -3, -1.9]], 0x8494a8)); gr.add(L3.linea(T, [o, [-3.6, 3, -1.9]], 0x8494a8)); gr.add(L3.linea(T, [o, [-3.6, -3, 1.9]], 0x8494a8));
+          [-4, -3, -2, -1, 0].forEach(function (e) { if (e < mod.lvmin || e > mod.lvmax) return; var l = L3.testo3d(T, (Math.pow(10, e + 3) >= 1 ? fmt(Math.pow(10, e + 3)) : fmt(Math.pow(10, e + 3))) + ' L', '#9fb1c6', 0.2); l.position.set(X(e), -3.35, -1.9); gr.add(l); });
+          [3, 4, 5, 6, 7, 8].forEach(function (e) { if (e < mod.lpmin || e > mod.lpmax) return; var l = L3.testo3d(T, fmtP(Math.pow(10, e)), '#9fb1c6', 0.2); l.position.set(-4.1, -3, Z(Math.pow(10, e))); gr.add(l); });
+          [mod.Tmin, mod.p.Tc, mod.Tmax].forEach(function (Tk) { var l = L3.testo3d(T, Math.round(Tk) + ' K', '#9fb1c6', 0.2); l.position.set(-4.1, Y(Tk), -1.9); gr.add(l); });
+          var ex = L3.testo3d(T, t('V molare', 'molar V'), '#ff8a80', 0.27); ex.position.set(0, -3.8, -1.9); gr.add(ex);
+          var ey = L3.testo3d(T, 'T', '#5eead4', 0.3); ey.position.set(-3.9, 3.3, -1.9); gr.add(ey);
+          var ez = L3.testo3d(T, 'P', '#6bcfff', 0.3); ez.position.set(-3.6, -3, 2.25); gr.add(ez);
+          cb.isoterma();
+        };
+        cb.isoterma = function () {
+          libera(gIso); var pts = [];
+          for (var i = 0; i <= 240; i++) { var lv = mod.lvmin + (mod.lvmax - mod.lvmin) * i / 240; pts.push([X(lv), Y(mod.T), Z(superficiePVT(st.s, mod.T, Math.pow(10, lv), mod.sat).P) + 0.05]); }
+          gIso.add(L3.linea(T, pts, 0xffffff)); punto = L3.sfera(T, 0.12, 0xffffff, 0, 0, 0, true); gIso.add(punto); u = 0; muovi(); S.sporca = true; S.avvia();
+        };
+        function muovi() {
+          /* da V grande a V piccolo in 8 s (scala logaritmica), poi ricomincia */
+          var lv = mod.lvmax - (mod.lvmax - mod.lvmin) * 0.97 * u, V = Math.pow(10, lv), q = superficiePVT(st.s, mod.T, V, mod.sat);
+          punto.position.set(X(lv), Y(mod.T), Z(q.P) + 0.08);
+          vivo.innerHTML = 'V = <b class="bsiFX-num">' + (V * 1e3 < 0.1 ? (V * 1e6).toFixed(1) + ' cm³/mol' : (V * 1e3).toFixed(3) + ' L/mol') + '</b> · P = <b class="bsiFX-num">' + fmtP(q.P) + '</b> · ' + F.tt(NOME_REG[q.regione]) + (q.regione === 'coesistenza' ? ' — ' + t('liquido ', 'liquid ') + '<b class="bsiFX-num">' + (q.xl * 100).toFixed(1) + ' %</b> ' + t('(regola della leva)', '(lever rule)') : '');
+          S.didascalia.textContent = (st.s === 'co2' ? 'CO₂' : t('Acqua', 'Water')) + ' · T = ' + mod.T.toFixed(1) + ' K · ' + F.tt(NOME_REG[q.regione]);
+        }
+        cb.nuova();
+        S.ogniFotogramma(function (dt) { if (st.pausa) return false; u += dt / 8; if (u > 1) u = 0; muovi(); return true; });
+        S.inquadra(13, -1.05, 1.0);
+      }
+    };
+  }
+
   F.sezione('schifasi', {
     titolo: ['🧊 Diagrammi di fase', '🧊 Phase diagrams'],
     sotto: ['Il diagramma P–T di acqua e CO₂ con punto triplo e critico, l’eutettico binario con la regola della leva e la curva di raffreddamento, l’equazione di Clapeyron e la regola delle fasi di Gibbs.', 'The P–T diagram of water and CO₂ with triple and critical points, the binary eutectic with the lever rule and the cooling curve, the Clapeyron equation and Gibbs’ phase rule.'],
     schede: [
       { nome: ['💧 Sostanza pura', '💧 Pure substance'], costruisci: schedaPura },
       { nome: ['🔩 Eutettico', '🔩 Eutectic'], costruisci: schedaEutettico },
-      { nome: ['📐 Clapeyron e Gibbs', '📐 Clapeyron and Gibbs'], costruisci: schedaRegola }
+      { nome: ['📐 Clapeyron e Gibbs', '📐 Clapeyron and Gibbs'], costruisci: schedaRegola },
+      { nome: ['🧊 Superficie P–V–T', '🧊 P–V–T surface'], costruisci: scheda3D(schedaPVT3D) }
     ]
   });
 })(typeof window !== 'undefined' ? window : globalThis);
