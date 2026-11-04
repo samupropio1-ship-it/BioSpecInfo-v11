@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v239';
+window.BSI_APP_VERSION='bsi-v240';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -32119,6 +32119,21 @@ window.addEventListener('load', init);
 <script src="./bsi-spectra-creatore.js" defer></script>
 <script src="./bsi-lezione.js" defer></script>
 <script src="./bsi-spectra-live.js" defer></script>
+<script src="./bsi-spectra-figura.js" defer></script>
+<!-- (v240) LO SPAZIO VUOTO IN CIMA ALLE SEZIONI: alcune sezioni (la dashboard, le aree con l'assistente, Spectra AI…) stanno
+     fuori da #main, accanto a lui. #main resta vuoto ma tiene il suo margine inferiore (lo spazio per i pulsanti flottanti):
+     fino a 190 px vuoti sopra la sezione. Quando la sezione aperta e' fuori da #main, quel margine passa alla sezione. -->
+<style id="bsi240-sezioni-fuori">
+body.bsi-sez-fuori #main{padding-bottom:0!important;padding-top:0!important;min-height:0!important}
+body.bsi-sez-fuori > .section.on{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)}
+</style>
+<script>
+(function(){
+  function aggiorna(){ var on=document.querySelector('body > .section.on'); document.body.classList.toggle('bsi-sez-fuori', !!on); }
+  function presto(){ aggiorna(); try{ new MutationObserver(aggiorna).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']}); }catch(e){ setInterval(aggiorna,700); } }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',presto); else presto();
+})();
+</script>
 <script src="./bsi-aggiorna.js" defer></script>
 <script src="./bsi-documento.js" defer></script>
 <script src="./bsi-quesito.js" defer></script>

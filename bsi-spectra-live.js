@@ -217,6 +217,8 @@
   }
   function frasi(s) { return (perLaVoce(s).match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }); }
   function parla(testo, fatto) {
+    /* la figura col corpo (bsi-spectra-figura.js), se c'e' nella sezione aperta, parla e gesticola con la console */
+    if (testo) { try { document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: { testo: String(testo) } })); } catch (e) {} }
     /* LA VOCE DI QUALITA' (v239): con una chiave OpenAI, la voce profonda e metallica di bsi-spectra-voce.js
        (audio vero, catena di effetti, labiale sull'audio); altrimenti la sintesi del browser, qui sotto */
     var VQ = globale.BSISpectraVoce;

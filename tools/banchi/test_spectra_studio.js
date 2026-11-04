@@ -27,6 +27,20 @@ function att(d, atteso, avuto) {
   else { ko++; console.log('  ✗ ' + d + '\n      atteso: ' + atteso + '\n      avuto:  ' + avuto); }
 }
 function vero(d, c) { att(d, true, !!c); }
+/* l'umanoide sintetico (come in test_spectra_rig): una mesh sola senza ossa, busto, braccia e gambe come tubi, testa e cappuccio */
+const SINTETICO = () => {
+  const T = THREE, pezzi = [];
+  function tubo(a, b, r, seg) { const A = new T.Vector3(...a), B = new T.Vector3(...b), d = B.clone().sub(A), g = new T.CylinderGeometry(r, r, d.length(), 12, seg || 12, false);
+    g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), d.clone().normalize()))); g.translate(...A.clone().add(B).multiplyScalar(0.5).toArray()); pezzi.push(g); }
+  tubo([0, 0.40, 0.02], [0, 0.80, 0.02], 0.12, 16); tubo([0, 0.80, 0.02], [0, 0.84, 0.02], 0.04, 2);
+  const testa = new T.SphereGeometry(0.06, 16, 12); testa.translate(0, 0.90, 0.03); pezzi.push(testa);
+  const capp = new T.SphereGeometry(0.075, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.75); capp.translate(0, 0.905, 0.02); pezzi.push(capp);
+  [1, -1].forEach(s => { tubo([s * 0.15, 0.775, 0.015], [s * 0.245, 0.47, 0.04], 0.035, 24); tubo([s * 0.075, 0.42, 0.02], [s * 0.10, 0.02, 0.0], 0.05, 24); const p = new T.BoxGeometry(0.07, 0.03, 0.14, 2, 1, 4); p.translate(s * 0.10, 0.015, 0.04); pezzi.push(p); });
+  const pos = [], nor = [], uv = [], ind = []; let base = 0;
+  pezzi.forEach(g => { const p = g.attributes.position, n = g.attributes.normal, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { pos.push(p.getX(i), p.getY(i), p.getZ(i)); nor.push(n.getX(i), n.getY(i), n.getZ(i)); uv.push(u ? u.getX(i) : 0, u ? u.getY(i) : 0); } for (let i = 0; i < g.index.count; i++) ind.push(base + g.index.getX(i)); base += p.count; });
+  const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nor, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(ind);
+  const sc = new T.Group(); sc.add(new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x1a3050 }))); return SpectraStudio.S().usaScena(sc);
+};
 
 (async () => {
   console.log('── I calcoli delle lezioni ──');
@@ -117,12 +131,22 @@ function vero(d, c) { att(d, true, !!c); }
     pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push('console: ' + m.text()); });
     await pg.goto(BASE + 'spectra-studio.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
-    await pg.waitForFunction(() => SpectraStudio.stato().volto, null, { timeout: 90000 }).catch(() => {});
+    /* (v240) Spectra e' solo il corpo dell'autore: senza, la scena invita a caricarlo e non mostra un sostituto */
+    await pg.waitForTimeout(1500);
+    const senza = await pg.evaluate(() => { const S = SpectraStudio.S(), i = document.getElementById('invito'); return { invito: !!i && !i.hidden && i.offsetWidth > 0, figura: S.spectra.radice.children.length, corpo: !!S.spectra.corpo }; });
+    if (!senza.corpo) {
+      vero('senza il corpo sul dispositivo: l\'invito a caricarlo è visibile', senza.invito);
+      att('e nessun sostituto in scena (niente manichino)', 0, senza.figura);
+      /* il banco carica un UMANOIDE SINTETICO senza scheletro (posa ad A, cappuccio): lo stesso percorso del corpo vero */
+      await pg.evaluate(SINTETICO);
+    }
+    await pg.waitForFunction(() => SpectraStudio.stato().volto && SpectraStudio.S().allinea === 0, null, { timeout: 90000 }).catch(() => {});
+    if (!senza.corpo) vero('caricato il corpo, l\'invito sparisce e Spectra c\'è (corpo riggato nel browser)', await pg.evaluate(() => document.getElementById('invito').hidden && !!SpectraStudio.S().rig));
     await pg.evaluate(() => { try { localStorage.removeItem('bsi-spectra-studio-v1'); } catch (e) {} });
     /* il riferimento: sul manichino l'osso della testa; sul corpo riggato (models/spectra-corpo.glb, se presente in locale)
        il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */
     const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.rig ? S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045 * (S.rig.scalaTesta || 1), 0)) : S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return { d: bb.min.y - rif.y, rig: !!S.rig }; });
-    if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato.d * 100).toFixed(1) + ' cm dal punto voluto, ' + (allineato.rig ? 'corpo riggato' : 'manichino') + ')', Math.abs(allineato.d) < 0.03);
+    if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato.d * 100).toFixed(1) + ' cm dal punto voluto, ' + (allineato.rig ? 'corpo riggato' : 'altro') + ')', Math.abs(allineato.d) < 0.03);
     /* SINCRONIA VISO–CAPPUCCIO (solo col corpo riggato): il cappuccio e' rigido con l'osso della testa, quindi il viso,
        misurato nel riferimento della testa, non deve muoversi mentre Spectra cammina, gesticola e guarda in giro */
     const sinc = await pg.evaluate(async () => { const S = SpectraStudio.S(), T = THREE; if (!S.rig || !S.volto) return null;

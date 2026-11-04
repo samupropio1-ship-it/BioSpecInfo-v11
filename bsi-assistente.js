@@ -520,7 +520,9 @@
       var ta = F.el('textarea', { rows: 3, 'aria-label': t('domanda', 'question'), placeholder: ESEMPI[materia][0], style: 'width:100%;box-sizing:border-box;background:#081522;color:#e6fffb;border:1px solid #1a3050;border-radius:8px;padding:8px;font-family:inherit;font-size:.95rem' });
       pan.appendChild(ta);
       var risposte = F.el('div');
-      function invia() { var q = ta.value.trim(); if (!q) return; var r = rispondi(q, materia); risposte.insertBefore(disegnaRisposta(r || { domanda: q }, materia), risposte.firstChild); }
+      function invia() { var q = ta.value.trim(); if (!q) return; var r = rispondi(q, materia); risposte.insertBefore(disegnaRisposta(r || { domanda: q }, materia), risposte.firstChild);
+        /* Spectra (la figura col corpo nella sezione) reagisce: spiega se ha risolto, dubita se non ha capito o c'e' un errore */
+        try { document.dispatchEvent(new CustomEvent('bsi-spectra-dice', { detail: r && r.titolo && !r.errore ? { testo: t('Ecco lo svolgimento: ', 'Here is the working: ') + r.titolo + (r.capito ? '. ' + String(r.capito).replace(/<[^>]*>/g, '') : '') + '.', emo: 'sorrisoCaldo' } : { testo: t('Non ne sono sicuro: riformula o chiedi all\'intelligenza artificiale.', 'I am not sure: rephrase it or ask the AI.'), emo: 'dubbio' } })); } catch (e) {} }
       F.bottone(pan, ['Risolvi e spiega', 'Solve and explain'], invia);
       ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); invia(); } });
       var es = F.el('div', { style: 'display:flex;flex-wrap:wrap;gap:4px;margin:6px 0' }); pan.appendChild(es);

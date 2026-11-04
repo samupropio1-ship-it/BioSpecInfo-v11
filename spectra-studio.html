@@ -29,6 +29,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 @media (max-width:760px){#pan{left:8px;right:8px;width:auto;top:auto;height:52vh;bottom:calc(8px + env(safe-area-inset-bottom,0px))}}
 #pan header{padding:12px 14px 8px;border-bottom:1px solid rgba(143,176,255,.15)}
 #pan h1{margin:0 0 6px;font:800 13px/1.2 ui-monospace,monospace;letter-spacing:.2em;color:var(--ciano);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+#invito{position:absolute;left:16px;top:16px;max-width:min(380px,calc(100% - 32px));background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui;z-index:2}
+#invito[hidden]{display:none}
+#invito button{margin-top:8px;background:linear-gradient(135deg,#2f6bff,#00c9b7);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer}
 #pan h1 .corpoBtn{margin-left:auto;color:var(--tenue);font:600 12px system-ui;letter-spacing:0;text-transform:none;background:none;border:1px solid var(--linea);border-radius:8px;padding:4px 8px;cursor:pointer}
 #pan h1 .corpoBtn + a{margin-left:0}
 #pan h1 a{margin-left:auto;color:var(--tenue);font:600 12px system-ui;letter-spacing:0;text-transform:none;text-decoration:none;border:1px solid var(--linea);border-radius:8px;padding:4px 8px}
@@ -84,6 +87,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 <script src="./bsi-spectra-androide.js"></script>
 <script src="./bsi-spectra-corpo.js"></script>
 <script src="./bsi-spectra-rig.js"></script>
+<script src="./bsi-spectra-figura.js"></script>
 <script src="./bsi-spectra-voce.js"></script>
 <script src="./bsi-spectra-studio-lezioni.js"></script>
 <script>
@@ -126,87 +130,29 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     var anello = new T.Mesh(new T.TorusGeometry(0.7, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.y = 0.845; banco.add(anello);
     var cono = new T.Mesh(new T.CylinderGeometry(0.7, 0.68, 1.5, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.05, side: T.DoubleSide, depthWrite: false })); cono.position.y = 1.6; banco.add(cono);
     var lezione = new T.Group(); lezione.position.y = 0.86; lezione.scale.setScalar(0.85); banco.add(lezione);
-    /* Spectra: il corpo. Si parte dal manichino; se esiste models/spectra-cyberpunk.glb (il modello scelto
-       dall'autore) lo si carica e lo si sostituisce: il driver ne trova ossa, blendshape e capelli */
-    var corpoRadice = BSISpectraCorpo.manichino({ neon: 0x2f6bff }); corpoRadice.position.set(-0.55, 0, 0.15); corpoRadice.rotation.y = 0.35; sc.add(corpoRadice);
-    var corpo = BSISpectraCorpo.crea(corpoRadice, {});
-    /* (v239) il corpo scelto dall'autore: models/spectra-corpo.glb, una figura senza scheletro. Il rig automatico
-       (bsi-spectra-rig.js) le da' ossa e pesi, la ricolora con la tavolozza dell'app e le toglie la testa: al suo
-       posto va il volto «Noir», con le espressioni. Se manca, si prova il modello completo spectra-cyberpunk.glb. */
-    /* IL CORPO DAL DISPOSITIVO DELL'UTENTE. Il modello scelto dall'autore viene da CGTrader con la licenza «Royalty
-       Free», che permette di usarlo in un prodotto ma non di renderlo scaricabile: per questo NON sta nel repository
-       ne' sul server. Chi lo possiede lo carica dal pulsante «🧍 Corpo»: il file resta nel browser di quel dispositivo
-       (IndexedDB, base «bsi-spectra-modelli») e a ogni apertura lo studio lo riprende da li'. In sviluppo vale anche
-       models/spectra-corpo.glb accanto alla pagina (escluso da git). */
-    var DB_CORPO = { nome: 'bsi-spectra-modelli', archivio: 'file', chiave: 'corpo' };
-    function dbCorpo(modo, valore) {
-      return new Promise(function (ok) {
-        try {
-          var rq = indexedDB.open(DB_CORPO.nome, 1);
-          rq.onupgradeneeded = function () { rq.result.createObjectStore(DB_CORPO.archivio); };
-          rq.onerror = function () { ok(null); };
-          rq.onsuccess = function () {
-            var db = rq.result, tx = db.transaction(DB_CORPO.archivio, modo === 'leggi' ? 'readonly' : 'readwrite'), st = tx.objectStore(DB_CORPO.archivio);
-            var op = modo === 'leggi' ? st.get(DB_CORPO.chiave) : modo === 'togli' ? st.delete(DB_CORPO.chiave) : st.put(valore, DB_CORPO.chiave);
-            op.onsuccess = function () { ok(modo === 'leggi' ? op.result || null : true); db.close(); };
-            op.onerror = function () { ok(null); db.close(); };
-          };
-        } catch (e) { ok(null); }
-      });
-    }
-    function usaCorpo(g) {
-      var R = BSISpectraRig.rigga(g.scene, { T: T, altezza: 1.8, togliTesta: true, cappuccio: true, gonfia: 1.22, viso: { y: 1.6, ax: 0.09, ay: 0.09 }, suddividi: 1, anisotropia: ren.capabilities.getMaxAnisotropy() }); if (!R) return false;
-      var m = R.radice, prima = corpoRadice; m.position.copy(prima.position); m.rotation.y = prima.rotation.y;
-      sc.remove(prima); sc.add(m); corpoRadice = m; S.corpoRadice = m;
-      corpo = BSISpectraCorpo.crea(m, { scalaOssa: 1 }); S.corpo = corpo; S.rig = R; R.viso = 0.065; S.modelloRiggato = corpo.rapporto();
-      /* se prima c'era un modello completo (con il suo viso) il volto «Noir» era stato tolto: lo si ricrea */
-      S.modelloVero = null; S.viso = null;
-      if (S.volto) attaccaVolto(S.volto); else if (S.creaVolto) S.creaVolto();
-      return true;
-    }
-    function daBuffer(buf) {
-      return new Promise(function (ok) {
-        if (!T.GLTFLoader || !window.BSISpectraRig) return ok(false);
-        try { new T.GLTFLoader().parse(buf, './', function (g) { ok(usaCorpo(g)); }, function () { ok(false); }); } catch (e) { ok(false); }
-      });
-    }
-    function caricaCorpo() {
-      return dbCorpo('leggi').then(function (buf) {
-        if (buf) return daBuffer(buf).then(function (f) { if (f) S.corpoLocale = true; return f; });
-        return fetch('./models/spectra-corpo.glb', { method: 'HEAD' }).then(function (r) {
-          if (!r.ok) return false;
-          return fetch('./models/spectra-corpo.glb').then(function (x) { return x.arrayBuffer(); }).then(daBuffer);
-        });
-      }).catch(function () { return false; });
-    }
-    /* il pulsante: scegli un .glb → si prova → se va, si conserva sul dispositivo */
+    /* SPECTRA (bsi-spectra-figura.js, lo stesso delle sezioni dell'AI): SOLO il corpo scelto dall'autore, col cappuccio e
+       il viso «Noir». Il file viene da CGTrader (licenza Royalty Free: non si puo' rendere scaricabile), quindi non sta sul
+       server: chi lo possiede lo carica una volta dal pulsante «🧍 Corpo» e resta nel browser del dispositivo. Finche' non
+       c'e', la scena mostra l'invito a caricarlo, non un sostituto. */
+    var SP = new BSISpectraFigura.Spectra(T, sc, ren, { posizione: new T.Vector3(-0.55, 0, 0.15), rotY: 0.35, contenitore: cont, cambiato: function () { invito(); } });
+    var inv = D.createElement('div'); inv.id = 'invito'; inv.setAttribute('role', 'note');
+    inv.innerHTML = '<b>Spectra non è ancora su questo dispositivo.</b><br>Carica una volta il suo corpo (.glb): resta salvato solo qui.<br><button type="button" id="invitoBtn">🧍 Carica il corpo</button>';
+    cont.appendChild(inv);
+    function invito() { inv.hidden = SP.presente(); }
     var cBtn = D.getElementById('corpoBtn'), cFile = D.getElementById('corpoFile');
     if (cBtn && cFile) {
       cBtn.onclick = function () { cFile.click(); };
+      D.getElementById('invitoBtn').onclick = function () { cFile.click(); };
       cFile.onchange = function () {
         var f = cFile.files && cFile.files[0]; if (!f) return;
-        if (f.size > 60 * 1024 * 1024) { D.getElementById('stato').textContent = 'SPECTRA · file troppo grande (massimo 60 MB)'; return; }
         cBtn.disabled = true; cBtn.textContent = '⏳ Corpo';
-        f.arrayBuffer().then(function (buf) { return daBuffer(buf).then(function (ok) { if (ok) { S.corpoLocale = true; return dbCorpo('metti', buf).then(function () { return ok; }); } return ok; }); })
-          .then(function (ok) { cBtn.disabled = false; cBtn.textContent = '🧍 Corpo'; D.getElementById('stato').textContent = ok ? 'SPECTRA · NUOVO CORPO (salvato solo su questo dispositivo)' : 'SPECTRA · questo file non e\' una figura umanoide utilizzabile'; cFile.value = ''; });
+        SP.daFile(f).then(function (r) {
+          cBtn.disabled = false; cBtn.textContent = '🧍 Corpo'; cFile.value = ''; invito();
+          D.getElementById('stato').textContent = r.ok ? 'SPECTRA · NUOVO CORPO (salvato solo su questo dispositivo)' : r.motivo === 'grande' ? 'SPECTRA · file troppo grande (massimo 60 MB)' : 'SPECTRA · questo file non e\' una figura umanoide utilizzabile';
+        });
       };
     }
-    caricaCorpo().then(function (fatto) {
-      if (fatto) return;
-      fetch('./models/spectra-cyberpunk.glb', { method: 'HEAD' }).then(function (r) {
-        if (!r.ok || !T.GLTFLoader) return;
-        new T.GLTFLoader().load('./models/spectra-cyberpunk.glb', function (g) {
-          var m = g.scene, bb = new T.Box3().setFromObject(m), alto = bb.max.y - bb.min.y || 1;
-          m.scale.setScalar(1.8 / alto); m.position.set(-0.55, -bb.min.y * 1.8 / alto, 0.15); m.rotation.y = 0.35;
-          sc.remove(corpoRadice); sc.add(m); corpoRadice = m; S.corpoRadice = m; S.allinea = 0;
-          corpo = BSISpectraCorpo.crea(m, { animazioni: g.animations, scalaOssa: 1 }); S.corpo = corpo;
-          /* senza blendshape il viso si anima con i campi procedurali, misurati sulla sua geometria */
-          if (!corpo.rapporto().blendshape || corpo.rapporto().blendshape.indexOf('0/') === 0) S.viso = corpo.visoProcedurale();
-          S.modelloVero = corpo.rapporto();
-          if (S.volto && S.volto.radice.parent) S.volto.radice.parent.remove(S.volto.radice);   /* il modello vero ha il suo viso */
-        });
-      }).catch(function () {});
-    });
+    SP.carica().then(invito);
     /* la telecamera: si puo' girare trascinando */
     var cam = new T.PerspectiveCamera(38, 1, 0.05, 60), bers = new T.Vector3(0.15, 1.15, 0), orb = { az: 0.12, el: 0.12, r: 3.6 };
     function posCam() { cam.position.set(bers.x + orb.r * Math.sin(orb.az) * Math.cos(orb.el), bers.y + orb.r * Math.sin(orb.el), bers.z + orb.r * Math.cos(orb.az) * Math.cos(orb.el)); cam.lookAt(bers); }
@@ -222,58 +168,19 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
       var verticale = w < h * 0.8; bers.x = verticale ? 0.1 : 0.15; bers.y = verticale ? 1.0 : 1.15; orb.r = verticale ? Math.max(orb.r, 6.2) : orb.r; if (typeof posCam === 'function') posCam();
       cam.updateProjectionMatrix(); }
     addEventListener('resize', adatta);
-    S = { ok: true, ren: ren, sc: sc, cam: cam, corpo: corpo, corpoRadice: corpoRadice, lezione: lezione, banco: banco, anello: anello, cono: cono, adatta: adatta, posCam: posCam, ctrl: null, volto: null, dbCorpo: dbCorpo, daBuffer: daBuffer };
+    S = { ok: true, ren: ren, sc: sc, cam: cam, lezione: lezione, banco: banco, anello: anello, cono: cono, adatta: adatta, posCam: posCam, ctrl: null, spectra: SP, dbCorpo: BSISpectraFigura.dbCorpo,
+      daBuffer: function (buf) { return SP.daBuffer(buf); }, usaScena: function (sc2) { var ok = SP.usaScena(sc2); invito(); return ok; } };
+    /* le proprieta' del corpo vengono dal controllore; senza corpo, un corpo «muto» che accetta i comandi e non fa nulla */
+    var MUTO = { emozione: function () {}, fai: function () {}, dici: function () {}, audio: function () {}, cammina: function () {}, taci: function () {}, guarda: function () {}, ossa: {} };
+    Object.defineProperty(S, 'corpo', { get: function () { return SP.corpo || MUTO; } });
+    ['volto', 'rig', 'allinea', 'supportoVolto', 'modelloVero', 'modelloRiggato', 'corpoLocale', 'viso'].forEach(function (k) { Object.defineProperty(S, k, { get: function () { return SP[k]; } }); });
+    Object.defineProperty(S, 'corpoRadice', { get: function () { return SP.radice; } });
     adatta(); posCam();
-    /* il volto «Noir» incarnato sulla testa del corpo */
-    if (window.BSISpectraAndroide && BSISpectraAndroide.disponibile()) {
-      S.creaVolto = function () { return BSISpectraAndroide.crea(cont, { scena: sc, renderer: ren, senzaBusto: true }).then(function (A) {
-        /* il modello vero ha il suo viso: il volto «Noir» non serve e non deve restare nella scena */
-        if (S.modelloVero) { if (A.radice.parent) A.radice.parent.remove(A.radice); return; }
-        if (!attaccaVolto(A)) return;
-        S.volto = A; A.stato('attesa'); window.dispatchEvent(new Event('spectra-volto'));
-      }).catch(function () {}); };
-      S.creaVolto();
-    }
-    /* il volto sulla testa del corpo attuale (manichino o corpo riggato) */
-    function attaccaVolto(A) {
-      var testa = S.corpo && S.corpo.ossa.testa; if (!testa) { if (A.radice.parent) A.radice.parent.remove(A.radice); return false; }
-      S.corpoRadice.traverse(function (o) { if (o.isMesh && /Spectra_Head|Hair/.test(o.name)) o.visible = false; if (o.isBone && /Eye$/.test(o.name)) o.visible = false; });
-      /* un supporto fra l'osso e il volto: il volto muove da se' la sua radice (il respiro ne riscrive l'altezza a ogni
-         fotogramma), quindi l'allineamento sposta il supporto, non la radice */
-      if (S.supportoVolto && S.supportoVolto.parent) S.supportoVolto.parent.remove(S.supportoVolto);
-      var sup = S.supportoVolto = new T.Group(); sup.name = 'SupportoVolto'; testa.add(sup);
-      var k = S.rig ? 0.96 * (S.rig.scalaTesta || 1) : 0.82;   /* sul corpo riggato il viso riempie l'apertura del cappuccio */
-      /* sul corpo riggato il cappuccio fa da testa: del volto «Noir» resta SOLO il viso (la maschera, gli occhi e i loro
-         dettagli); cornice, cavi, casco e nuca si nascondono, e il cappuccio avvolge il resto */
-      A.solidale = !!S.rig;
-      if (S.rig && A.parti) Object.keys(A.parti).forEach(function (q) { if (A.parti[q] && A.parti[q].isMesh) A.parti[q].visible = /^Object_[234]$/.test(q); });
-      sup.add(A.radice); A.radice.scale.setScalar(k); A.radice.position.set(0, 0, 0); A.radice.rotation.set(0, 0, 0);
-      /* sul corpo la testa non va raddrizzata quanto nella console: la si inclina meno all'indietro */
-      A.riposo = -0.18;
-      /* l'allineamento si fa nei primi fotogrammi (vedi giro): il mento appoggiato sopra il collo */
-      S.allinea = 40;
-      return true;
-    }
     var prec = 0;
     (function giro(ora) {
       /* il tempo vero (fino a 0,25 s per fotogramma): su un dispositivo lento la simulazione resta in orario */
       var dt = prec ? Math.min(0.25, (ora - prec) / 1000) : 0.016; prec = ora;
-      corpo = S.corpo || corpo;
-      corpo.guarda(S.guardaQui || cam.position);
-      corpo.passo(dt); if (S.volto && !S.modelloVero) S.volto.passo(dt);
-      /* ALLINEAMENTO DEL VOLTO SUL COLLO, misurato: il punto piu' basso del viso (il mento) va 1 cm sopra
-         l'osso della testa, centrato sul collo e un poco avanti. Si corregge per qualche fotogramma, finche'
-         lo scarto misurato e' sotto il millimetro (la posa della testa cambia la misura). */
-      corpoRadice = S.corpoRadice || corpoRadice;
-      if (S.allinea > 0 && S.volto && S.volto.parti && S.volto.parti.Object_2) {
-        S.allinea--; corpoRadice.updateMatrixWorld(true);
-        var bbv = new T.Box3().setFromObject(S.volto.parti.Object_2), tb = corpo.ossa.testa, tp = tb.getWorldPosition(new T.Vector3());
-        var fw = new T.Vector3(0, 0, 1).applyQuaternion(corpoRadice.quaternion);
-        /* sul corpo riggato il mento poggia sul colletto: 4,5 cm sopra l'osso del collo (dove il rig ha tagliato la testa) */
-        var vuoi = S.rig && corpo.ossa.collo ? corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045 * (S.rig.scalaTesta || 1), 0)).addScaledVector(fw, S.rig.viso || 0.035) : tp.clone().add(new T.Vector3(0, 0.01, 0)).addScaledVector(fw, 0.03), mento = new T.Vector3((bbv.min.x + bbv.max.x) / 2, bbv.min.y, (bbv.min.z + bbv.max.z) / 2);
-        var d = vuoi.sub(mento); if (d.length() < 0.001) S.allinea = 0;
-        var qi = tb.getWorldQuaternion(new T.Quaternion()).invert(); d.applyQuaternion(qi); (S.supportoVolto || S.volto.radice).position.add(d);
-      }
+      SP.passo(dt, S.guardaQui || cam.position);
       anello.material.color.setHSL(0.58, 1, 0.55 + 0.1 * Math.sin(ora / 600));
       if (S.ctrl) { var m = S.ctrl.passo(dt); if (m && S.suMisura) S.suMisura(m); }
       ren.render(sc, cam); requestAnimationFrame(giro);
