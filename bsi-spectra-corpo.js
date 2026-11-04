@@ -45,18 +45,20 @@
   'use strict';
   /* ── i nomi delle ossa nelle convenzioni comuni (regex sul nome normalizzato) ── */
   var OSSA = {
-    anche: /^(hips|pelvis|root_?pelvis|hip)$/,
-    colonna: /^(spine|spine_?0?1|abdomen)$/, petto: /^(spine_?1|spine_?0?2|chest)$/, torace: /^(spine_?2|spine_?0?3|upperchest|upper_?chest)$/,
-    collo: /^(neck|neck_?0?1)$/, testa: /^head$/, mandibola: /^(jaw|lowerjaw|jaw_?bone)$/,
+    anche: /^(hips|pelvis|root_?pelvis|hip|root_?x)$/,
+    colonna: /^(spine|spine_?0?1|abdomen|spine_?01_?x)$/, petto: /^(spine_?1|spine_?0?2|chest)$/, torace: /^(spine_?2|spine_?0?3|upperchest|upper_?chest)$/,
+    collo: /^(neck|neck_?0?1|neck_?x)$/, testa: /^(head|head_?x)$/, mandibola: /^(jaw|lowerjaw|jaw_?bone)$/,
     occhioS: /^(lefteye|eye_?l|l_?eye|eyeleft)$/, occhioD: /^(righteye|eye_?r|r_?eye|eyeright)$/,
     claviS: /^(leftshoulder|clavicle_?l|l_?clavicle|shoulder_?l)$/, claviD: /^(rightshoulder|clavicle_?r|r_?clavicle|shoulder_?r)$/,
-    braccioS: /^(leftarm|upperarm_?l|l_?upperarm|leftupperarm|arm_?l)$/, braccioD: /^(rightarm|upperarm_?r|r_?upperarm|rightupperarm|arm_?r)$/,
-    avambS: /^(leftforearm|lowerarm_?l|l_?forearm|leftlowerarm|forearm_?l)$/, avambD: /^(rightforearm|lowerarm_?r|r_?forearm|rightlowerarm|forearm_?r)$/,
+    braccioS: /^(leftarm|upperarm_?l|l_?upperarm|leftupperarm|arm_?l|arm_stretch_?l)$/, braccioD: /^(rightarm|upperarm_?r|r_?upperarm|rightupperarm|arm_?r|arm_stretch_?r)$/,
+    avambS: /^(leftforearm|lowerarm_?l|l_?forearm|leftlowerarm|forearm_?l|forearm_stretch_?l)$/, avambD: /^(rightforearm|lowerarm_?r|r_?forearm|rightlowerarm|forearm_?r|forearm_stretch_?r)$/,
     manoS: /^(lefthand|hand_?l|l_?hand)$/, manoD: /^(righthand|hand_?r|r_?hand)$/,
-    cosciaS: /^(leftupleg|thigh_?l|l_?thigh|leftupperleg|upperleg_?l)$/, cosciaD: /^(rightupleg|thigh_?r|r_?thigh|rightupperleg|upperleg_?r)$/,
-    gambaS: /^(leftleg|calf_?l|l_?calf|leftlowerleg|lowerleg_?l|shin_?l)$/, gambaD: /^(rightleg|calf_?r|r_?calf|rightlowerleg|lowerleg_?r|shin_?r)$/,
+    cosciaS: /^(leftupleg|thigh_?l|l_?thigh|leftupperleg|upperleg_?l|thigh_stretch_?l)$/, cosciaD: /^(rightupleg|thigh_?r|r_?thigh|rightupperleg|upperleg_?r|thigh_stretch_?r)$/,
+    gambaS: /^(leftleg|calf_?l|l_?calf|leftlowerleg|lowerleg_?l|shin_?l|leg_stretch_?l)$/, gambaD: /^(rightleg|calf_?r|r_?calf|rightlowerleg|lowerleg_?r|shin_?r|leg_stretch_?r)$/,
     piedeS: /^(leftfoot|foot_?l|l_?foot)$/, piedeD: /^(rightfoot|foot_?r|r_?foot)$/
   };
+  /* (v239) anche la convenzione di Auto-Rig Pro: root.x, spine_01.x, neck.x, head.x, arm_stretch.l, forearm_stretch.l,
+     thigh_stretch.l, leg_stretch.l — con o senza il punto, che three.js toglie dai nomi */
   /* il prefisso si toglie solo se seguito da un separatore: «rig_» si', ma non il «rig» di «RightArm» */
   function normaNome(n) { return String(n || '').toLowerCase().replace(/^.*[:|]/, '').replace(/^(mixamorig|bip0?1|def|cc_base|rig)[_ ]/, '').replace(/[\s.-]/g, '_').replace(/_+/g, '_'); }
 
@@ -151,8 +153,12 @@
   /* ── l'IK minimo: porta la direzione osso → figlio su una direzione del mondo ── */
   Corpo.prototype.orienta = function (osso, dir, peso) {
     if (!osso || !osso.children.length || !(peso > 0)) return;
-    var T = this.T, figlio = osso.children.filter(function (c) { return c.isBone || c.type === 'Bone' || (c.userData && c.userData.osso); })[0] || osso.children[0];
+    /* il figlio che da' la direzione dell'osso: il piu' lontano (nei rig con ossa di torsione a meta' segmento,
+       come Auto-Rig Pro, il primo figlio puo' essere la torsione, quasi sovrapposta) */
+    var T = this.T, figli = osso.children.filter(function (c) { return c.isBone || c.type === 'Bone' || (c.userData && c.userData.osso); });
     osso.updateMatrixWorld(true);
+    var po = new T.Vector3().setFromMatrixPosition(osso.matrixWorld), figlio = figli[0] || osso.children[0], dmax = -1;
+    figli.forEach(function (c) { var d = new T.Vector3().setFromMatrixPosition(c.matrixWorld).distanceTo(po); if (d > dmax) { dmax = d; figlio = c; } });
     var a = this.v1.setFromMatrixPosition(osso.matrixWorld), b = this.v2.setFromMatrixPosition(figlio.matrixWorld);
     var cur = b.sub(a); if (cur.lengthSq() < 1e-10) return; cur.normalize();
     var delta = this.q1.setFromUnitVectors(cur, this.v3.copy(dir).normalize());
@@ -291,9 +297,171 @@
       var m = self.molle['m_' + n] || (self.molle['m_' + n] = { x: 0, v: 0 }), v = veloce ? b : molla(m, b, /brow/.test(n) ? 140 : 60, dt);
       self.pesi[n] = v; self.imposta(n, Math.max(0, Math.min(1, v)));
     });
+    if (this.vp) this.passoViso(dt);
     /* senza blendshape: la mandibola e gli occhi con le ossa */
-    if (!this.morph.jawOpen && !this.morph.jawopen && O.mandibola) { O.mandibola.rotateX(0.35 * this.bocca.apertura); }
+    if (!this.vp && !this.morph.jawOpen && !this.morph.jawopen && O.mandibola) { O.mandibola.rotateX(0.35 * this.bocca.apertura); }
     this.radice.updateMatrixWorld(true);
+  };
+
+  /* ═══ IL VISO PROCEDURALE (v239): per i modelli senza blendshape ════════════════
+     Molti modelli (il robot «I-HOMO 08» scelto dall'autore, per esempio) hanno il viso
+     scolpito ma nessuna espressione registrata. Qui il viso si anima come quello di «Noir»,
+     ma i punti di riferimento non sono scritti a mano: si MISURANO sulla geometria.
+     · occhi: i centri delle mesh degli occhi (nome con «eye»); da qui la distanza
+       interoculare d, l'unita' di misura di tutto il resto;
+     · punta del naso: il vertice piu' avanzato vicino alla linea mediana, sotto gli occhi;
+     · linea della bocca: lungo la linea mediana, sotto il naso, il profilo del viso ha due
+       sporgenze (labbro superiore e inferiore) e un incavo fra le due: e' quello;
+     · mandibola: ruota attorno a un perno dietro la bocca, verso le orecchie.
+     Poi gli stessi campi espressivi di «Noir» (sorriso, sopracciglia, tristezza, labbra
+     strette, naso, guance, bocca arrotondata o larga), scalati con d, fusi sulla CPU in un
+     attributo solo; gli occhi si schiacciano e si allargano (palpebre) e cambiano tinta.
+     Le posizioni possono essere quantizzate (interi normalizzati): si leggono e si scrivono
+     tenendone conto. */
+  function lettore(a) { var k = !a.normalized ? 1 : a.array instanceof Int16Array ? 1 / 32767 : a.array instanceof Uint16Array ? 1 / 65535 : a.array instanceof Int8Array ? 1 / 127 : a.array instanceof Uint8Array ? 1 / 255 : 1; return { k: k, x: function (i) { return a.array[i * a.itemSize] * k; }, y: function (i) { return a.array[i * a.itemSize + 1] * k; }, z: function (i) { return a.array[i * a.itemSize + 2] * k; } }; }
+  function sm(a, b, x) { var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+  function gs(dx, dy, r) { return Math.exp(-(dx * dx + dy * dy) / (2 * r * r)); }
+  var CAMPI_V = ['sorriso', 'rotondo', 'largo', 'sopra', 'accigliato', 'triste', 'sopraUno', 'mezzo', 'stretto', 'naso', 'guance'];
+  /* le emozioni sui campi (come in bsi-spectra-androide.js) e gli occhi: [apertura, asimmetria, tinta] */
+  var EMO_V = { neutro: {}, serena: { sorriso: 0.3, guance: 0.12 }, gioia: { sorriso: 0.95, guance: 0.75, sopra: 0.25 }, sorrisoCaldo: { sorriso: 0.6, guance: 0.4, sopra: 0.12 },
+    divertita: { mezzo: 0.85, sorriso: 0.3, sopraUno: 0.35, guance: 0.35 }, sorpresa: { sopra: 1, bocca: 0.38, rotondo: 0.35 }, stupore: { sopra: 1, bocca: 0.62, rotondo: 0.15 },
+    curiosa: { sopraUno: 0.7, sopra: 0.3, sorriso: 0.15 }, dubbio: { sopraUno: 0.9, accigliato: 0.25, stretto: 0.45, mezzo: 0.15 }, scettica: { naso: 0.75, accigliato: 0.45, stretto: 0.3, sopraUno: 0.4 },
+    riflessione: { accigliato: 0.5, stretto: 0.35, sopraUno: 0.2 }, concentrata: { accigliato: 0.85, stretto: 0.6, guance: 0.25 }, preoccupata: { triste: 0.6, sopra: 0.3, accigliato: 0.2, stretto: 0.3 },
+    empatica: { triste: 0.75, sorriso: 0.12 }, determinata: { accigliato: 0.55, stretto: 0.75, sorriso: 0.1 }, fiera: { sorriso: 0.4, guance: 0.2 }, attenta: { sopra: 0.45, sorriso: 0.12 } };
+  var OCCHI_V = { neutro: [1, 0, 0x1a3050], serena: [1, 0, 0x1a3050], gioia: [0.66, 0, 0x2f6fd0], sorrisoCaldo: [0.8, 0, 0x2a5ab8], divertita: [0.72, 0.14, 0x2f64c4], sorpresa: [1.38, 0, 0x3f86f0], stupore: [1.52, 0, 0x4a92ff], curiosa: [1.12, -0.16, 0x2a5cc0], dubbio: [0.8, 0.24, 0x22407a], scettica: [0.6, 0.12, 0x1c3566], riflessione: [0.86, 0, 0x233f88], concentrata: [0.7, 0, 0x2f6be8], preoccupata: [1.12, 0, 0x1a2c58], empatica: [0.84, 0, 0x3a4ca8], determinata: [0.74, 0, 0x2c62e0], fiera: [0.88, 0, 0x2a58c0], attenta: [1.1, 0, 0x2654b0] };
+
+  Corpo.prototype.visoProcedurale = function () {
+    var T = this.T, self = this, testa = this.ossa.testa; if (!testa) return null;
+    this.radice.updateMatrixWorld(true);
+    /* le mesh del viso e degli occhi: discendenti della testa */
+    var occhi = [], viso = null, nv = 0;
+    testa.traverse(function (o) { if (!o.isMesh) return; var n = (o.name + ' ' + (o.parent && o.parent.name) + ' ' + (o.material && o.material.name)).toLowerCase(); if (/eye|occh/.test(n)) occhi.push(o); else if (o.geometry.attributes.position.count > nv) { nv = o.geometry.attributes.position.count; viso = o; } });
+    if (!viso || occhi.length < 2) return null;
+    /* i centri degli occhi (mondo), per lato */
+    var cO = {}; occhi.forEach(function (o) { var c = new T.Box3().setFromObject(o).getCenter(new T.Vector3()); var k = c.x.toFixed(3); (cO[k] = cO[k] || []).push(o); });
+    var ch = Object.keys(cO).map(Number).sort(function (a, b) { return a - b; }); if (ch.length < 2) return null;
+    var occhiS = cO[ch[ch.length - 1].toFixed(3)], occhiD = cO[ch[0].toFixed(3)];
+    var EL = new T.Box3().setFromObject(occhiS[0]).getCenter(new T.Vector3()), ER = new T.Box3().setFromObject(occhiD[0]).getCenter(new T.Vector3());
+    var F = avanti(this.radice, T), R = destra(this.radice, T), U = new T.Vector3(0, 1, 0), Mo = EL.clone().add(ER).multiplyScalar(0.5), d = EL.distanceTo(ER);
+    /* i vertici del viso nel sistema (laterale u, verticale v, avanti w) centrato fra gli occhi */
+    var pos = viso.geometry.attributes.position, L = lettore(pos), n = pos.count, M = viso.matrixWorld, inv = new T.Matrix4().copy(M).invert(), p = new T.Vector3();
+    var uu = new Float32Array(n), vv = new Float32Array(n), ww = new Float32Array(n), WX = new Float32Array(n * 3);
+    for (var i = 0; i < n; i++) { p.set(L.x(i), L.y(i), L.z(i)).applyMatrix4(M); WX[3 * i] = p.x; WX[3 * i + 1] = p.y; WX[3 * i + 2] = p.z; var q = p.clone().sub(Mo); uu[i] = q.dot(R); vv[i] = q.dot(U); ww[i] = q.dot(F); }
+    /* la punta del naso */
+    var nasoV = -0.6 * d, nasoW = -1e9;
+    for (i = 0; i < n; i++) if (Math.abs(uu[i]) < 0.15 * d && vv[i] < -0.2 * d && vv[i] > -1.3 * d && ww[i] > nasoW) { nasoW = ww[i]; nasoV = vv[i]; }
+    /* la linea della bocca: l'incavo fra le due labbra lungo la linea mediana */
+    var B = 40, prof = [], vlo = nasoV - 1.0 * d, vhi = nasoV - 0.15 * d;
+    for (var b = 0; b < B; b++) prof.push(-1e9);
+    for (i = 0; i < n; i++) if (Math.abs(uu[i]) < 0.07 * d && vv[i] > vlo && vv[i] < vhi) { var bi = Math.floor((vv[i] - vlo) / (vhi - vlo) * B); if (ww[i] > prof[bi]) prof[bi] = ww[i]; }
+    var boccaV = nasoV - 0.48 * d, migl = 1e9;
+    for (b = 2; b < B - 2; b++) { if (prof[b] < -1e8) continue; var sopra = Math.max(prof[b + 1], prof[b + 2]), sotto = Math.max(prof[b - 1], prof[b - 2]); if (prof[b] < sopra && prof[b] < sotto && prof[b] < migl) { migl = prof[b]; boccaV = vlo + (b + 0.5) / B * (vhi - vlo); } }
+    var boccaW = migl < 1e8 ? migl : nasoW - 0.3 * d;
+    /* i campi, nel mondo (metri), scalati con d (i numeri di «Noir» valgono per d = 0,072 m) */
+    var s = d / 0.072, perno = { v: boccaV + 0.28 * d, w: boccaW - 1.05 * d }, ang = 0.24, larga = 0.47 * d, lat = 0.86 * d;
+    var buf = {}; CAMPI_V.forEach(function (k) { buf[k] = new Float32Array(n * 3); });
+    var bocca = new Float32Array(n * 3), banda = new Float32Array(n), mossi = [], tmp = new T.Vector3(), loc0 = new T.Vector3();
+    var ca = Math.cos(ang), sa = Math.sin(ang);
+    for (i = 0; i < n; i++) {
+      var u = uu[i], v = vv[i], w = ww[i], ax = Math.abs(u), sg = u < 0 ? -1 : 1, by = v - boccaV, davanti = sm(boccaW - 0.55 * d, boccaW - 0.2 * d, w);
+      if (w < boccaW - 0.9 * d) davanti = 0;
+      var c = {}, any = false;
+      var angB = gs(ax - 0.6 * d, by, 0.19 * d) * davanti, gu = gs(ax - 0.69 * d, v + 0.74 * d, 0.25 * d) * davanti;
+      c.sorriso = [sg * 0.0035 * s * angB, 0.0055 * s * angB + 0.0022 * s * gu, -0.0018 * s * angB + 0.0008 * s * gu];
+      var lab = (1 - sm(0.17 * d, 0.28 * d, Math.abs(by))) * (1 - sm(0.55 * d, 0.76 * d, ax)) * davanti;
+      c.rotondo = [-u * 0.32 * lab, 0, 0.0045 * s * lab * Math.max(0, 1 - ax / (0.76 * d))];
+      c.largo = [sg * 0.0032 * s * angB, 0.0008 * s * angB, -0.001 * s * angB];
+      var arc = sm(0.07 * d, 0.21 * d, v) * (1 - sm(0.54 * d, 0.95 * d, v)) * (1 - sm(0.92 * d, 1.11 * d, ax)) * davanti;
+      c.sopra = [0, 0.0075 * s * arc, 0.001 * s * arc];
+      var interna = arc * (1 - sm(0.17 * d, 0.56 * d, ax)), esterna = arc * sm(0.42 * d, 0.83 * d, ax);
+      c.accigliato = [-sg * 0.003 * s * interna, -0.0055 * s * interna, 0.0016 * s * interna];
+      c.triste = [-sg * 0.0008 * s * angB, -0.0045 * s * angB + 0.0042 * s * interna - 0.0022 * s * esterna, 0.0006 * s * interna];
+      var latoS = u > 0 ? 1 : 0.12; c.sopraUno = [0, 0.0085 * s * arc * latoS, 0.0012 * s * arc * latoS];
+      c.mezzo = u > 0 ? [0.004 * s * angB, 0.0058 * s * angB + 0.002 * s * gu, -0.002 * s * angB] : [0, 0, 0];
+      var dl = (1 - sm(0.08 * d, 0.22 * d, Math.abs(by))) * (1 - sm(0.49 * d, 0.7 * d, ax)) * davanti;
+      c.stretto = [-u * 0.1 * dl, -(by > 0 ? 1 : -1) * 0.0018 * s * dl, -0.0014 * s * dl];
+      var ali = gs(ax - 0.24 * d, v - (nasoV + 0.1 * d), 0.15 * d) * davanti, lsu = by > 0 ? gs(ax - 0.17 * d, by - 0.11 * d, 0.14 * d) * davanti : 0;
+      c.naso = [sg * 0.0008 * s * ali, 0.0032 * s * ali + 0.0022 * s * lsu, 0.0006 * s * ali];
+      var pg = gs(ax - 0.5 * d, v + 0.24 * d, 0.15 * d) * davanti; c.guance = [0, 0.0042 * s * gu + 0.0026 * s * pg, 0.0012 * s * gu];
+      /* la mandibola: sotto la linea della bocca, al centro, ruota attorno al perno */
+      var latM = 1 - sm(larga, lat, ax), giu = 1 - sm(boccaV - 0.07 * d, boccaV, v), su = v > boccaV ? (1 - sm(boccaV, boccaV + 0.19 * d, v)) * sm(boccaV - 0.01 * d, boccaV + 0.04 * d, v) : 0;
+      var dm = [0, 0, 0];
+      if (latM > 0 && w > boccaW - 0.55 * d) {
+        if (giu * latM > 0) { var dy = v - perno.v, dz = w - perno.w, ny = perno.v + dy * ca - dz * sa, nz = perno.w + dy * sa + dz * ca; dm = [0, (ny - v) * giu * latM, (nz - w) * giu * latM]; }
+        else if (su > 0) dm = [0, 0.006 * s * su * latM, 0.0012 * s * su * latM];
+        banda[i] = latM * sm(boccaV - 0.03 * d, boccaV - 0.005 * d, v) * (1 - sm(boccaV + 0.005 * d, boccaV + 0.05 * d, v));
+      }
+      /* dal sistema (u, v, w) al mondo, poi al locale della mesh (posizioni denormalizzate) */
+      loc0.set(WX[3 * i], WX[3 * i + 1], WX[3 * i + 2]).applyMatrix4(inv);
+      var conv = function (dd, out) { if (!dd[0] && !dd[1] && !dd[2]) return false; tmp.set(WX[3 * i], WX[3 * i + 1], WX[3 * i + 2]).addScaledVector(R, dd[0]).addScaledVector(U, dd[1]).addScaledVector(F, dd[2]).applyMatrix4(inv); out[3 * i] = tmp.x - loc0.x; out[3 * i + 1] = tmp.y - loc0.y; out[3 * i + 2] = tmp.z - loc0.z; return true; };
+      CAMPI_V.forEach(function (k) { if (conv(c[k], buf[k])) any = true; });
+      if (conv(dm, bocca)) any = true;
+      if (any) mossi.push(i);
+    }
+    var g = viso.geometry, unito = new T.BufferAttribute(new Float32Array(n * 3), 3); if (unito.setUsage) unito.setUsage(T.DynamicDrawUsage);
+    g.setAttribute('aEspr', unito); g.setAttribute('aBocca', new T.BufferAttribute(bocca, 3)); g.setAttribute('aBanda', new T.BufferAttribute(banda, 1));
+    var uB = { value: 0 }, mat = viso.material;
+    (Array.isArray(mat) ? mat : [mat]).forEach(function (m) {
+      m.onBeforeCompile = function (sh) {
+        sh.uniforms.uBocca = uB;
+        sh.vertexShader = 'attribute vec3 aEspr;\nattribute vec3 aBocca;\nattribute float aBanda;\nuniform float uBocca;\nvarying float vBanda;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  transformed += aEspr + aBocca * uBocca;\n  vBanda = aBanda;');
+        sh.fragmentShader = 'uniform float uBocca;\nvarying float vBanda;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n  diffuseColor.rgb *= 1.0 - 0.94 * clamp(vBanda * uBocca * 1.6, 0.0, 1.0);');
+      };
+      m.customProgramCacheKey = function () { return 'bsi-viso-procedurale'; }; m.needsUpdate = true;
+    });
+    /* gli occhi: posizioni a riposo nel mondo e centro, per schiacciarli (palpebre) e spostarli (sguardo) */
+    var datiOcchi = occhi.map(function (o) {
+      var a = o.geometry.attributes.position, Lo = lettore(a), N = a.count, Mw = o.matrixWorld, iw = new T.Matrix4().copy(Mw).invert(), Wp = new Float32Array(N * 3), cen = new T.Box3().setFromObject(o).getCenter(new T.Vector3()), hh = 0;
+      for (var j = 0; j < N; j++) { p.set(Lo.x(j), Lo.y(j), Lo.z(j)).applyMatrix4(Mw); Wp[3 * j] = p.x; Wp[3 * j + 1] = p.y; Wp[3 * j + 2] = p.z; hh = Math.max(hh, Math.abs(p.y - cen.y)); }
+      if (a.setUsage) a.setUsage(T.DynamicDrawUsage);
+      return { o: o, W: Wp, inv: iw, c: cen, h: hh || 0.005, k: Lo.k, sinistro: cen.dot(R) - Mo.dot(R) < 0,   /* a sinistra del personaggio = dalla parte opposta alla sua destra */ ultimo: '' };
+    });
+    /* il materiale luminoso degli occhi: la tinta del tema */
+    var glow = []; occhi.forEach(function (o) { var m = o.material; if (m && m.emissive) { m.emissive.setHex(0x1a3050); glow.push(m); } });
+    this.vp = { viso: viso, buf: buf, mossi: new Uint32Array(mossi), uB: uB, pesi: {}, occhi: datiOcchi, glow: glow, R: R, U: U, F: F, d: d, landmarks: { naso: nasoV / d, bocca: boccaV / d, boccaW: boccaW / d, toccati: mossi.length } };
+    this.vpVal = {}; this.vpMolle = {}; var vv0 = this.vpVal; CAMPI_V.concat(['bocca', 'ap0', 'ap1']).forEach(function (k) { vv0[k] = k.indexOf('ap') === 0 ? 1 : 0; self.vpMolle[k] = { x: vv0[k], v: 0 }; });
+    this.tinta = new T.Color(0x1a3050);
+    return this.vp.landmarks;
+  };
+  Corpo.prototype.passoViso = function (dt) {
+    var V = this.vp; if (!V) return;
+    var T = this.T, self = this, t = this.t, lento = globale.matchMedia && globale.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var emo = t < this.emoFino ? this.emo : 'serena', P = EMO_V[emo] || {}, k = t < this.emoFino ? this.emoK : 1, O = OCCHI_V[emo] || OCCHI_V.serena;
+    var K = { sopra: 140, sopraUno: 140, accigliato: 110, triste: 60, sorriso: 55, mezzo: 60, guance: 45, stretto: 80, naso: 70, rotondo: 90, largo: 90, bocca: 70, ap0: 260, ap1: 260 };
+    CAMPI_V.forEach(function (c) {
+      var b = (P[c] || 0) * k; if (c === 'rotondo') b = Math.max(b, self.bocca.rotondo * 0.9); if (c === 'largo') b = self.bocca.largo * 0.9;
+      self.vpVal[c] = lento ? b : molla(self.vpMolle[c], b, K[c], dt);
+    });
+    var apr = Math.max(this.bocca.apertura, (P.bocca || 0) * k); this.vpVal.bocca = /* la mandibola segue subito */ apr;
+    /* fusione dei campi nell'attributo unico (solo se i pesi sono cambiati) */
+    var cambiato = false; CAMPI_V.forEach(function (c) { if (Math.abs(self.vpVal[c] - (V.pesi[c] || 0)) > 0.004) cambiato = true; });
+    if (cambiato) {
+      CAMPI_V.forEach(function (c) { V.pesi[c] = self.vpVal[c]; });
+      var att = CAMPI_V.filter(function (c) { return Math.abs(V.pesi[c]) > 0.002; }), Bf = att.map(function (c) { return V.buf[c]; }), Wf = att.map(function (c) { return V.pesi[c] * (c === 'rotondo' || c === 'largo' ? 1 : 1.8); });
+      var a = V.viso.geometry.attributes.aEspr, out = a.array, idx = V.mossi;
+      for (var j = 0; j < idx.length; j++) { var i3 = idx[j] * 3, x = 0, y = 0, z = 0; for (var h = 0; h < att.length; h++) { var bb = Bf[h], ww = Wf[h]; x += bb[i3] * ww; y += bb[i3 + 1] * ww; z += bb[i3 + 2] * ww; } out[i3] = x; out[i3 + 1] = y; out[i3 + 2] = z; }
+      a.needsUpdate = true;
+    }
+    V.uB.value = this.vpVal.bocca;
+    /* gli occhi: apertura (emozione × battito), asimmetria, tinta */
+    var chiuso = this.palp > 0 ? Math.sin(this.palp * Math.PI) : 0;
+    var ap0 = molla(this.vpMolle.ap0, O[0] * (1 + O[1]), K.ap0, dt), ap1 = molla(this.vpMolle.ap1, O[0] * (1 - O[1]), K.ap1, dt);
+    ap0 = Math.max(0.05, ap0 * (1 - 0.95 * chiuso)); ap1 = Math.max(0.05, ap1 * (1 - 0.95 * chiuso)); this.apVis = [ap0, ap1];
+    V.occhi.forEach(function (E) {
+      var A = E.sinistro ? ap0 : ap1, chiave = A.toFixed(3); if (chiave === E.ultimo) return; E.ultimo = chiave;
+      var a = E.o.geometry.attributes.position, arr = a.array, e = E.inv.elements, U2 = V.U, inv = 1 / E.k;
+      for (var j = 0; j < arr.length / 3; j++) {
+        var x = E.W[3 * j], y = E.W[3 * j + 1], z = E.W[3 * j + 2], cy = E.c.y - (A < 1 ? (1 - A) * E.h * 0.35 : 0);
+        y = cy + (y - E.c.y) * A;
+        var lx = e[0] * x + e[4] * y + e[8] * z + e[12], ly = e[1] * x + e[5] * y + e[9] * z + e[13], lz = e[2] * x + e[6] * y + e[10] * z + e[14];
+        arr[3 * j] = Math.round(lx * inv); arr[3 * j + 1] = Math.round(ly * inv); arr[3 * j + 2] = Math.round(lz * inv);
+      }
+      a.needsUpdate = true;
+    });
+    this.tinta.lerp(new T.Color(O[2]), Math.min(1, dt * 3));
+    var parla = this.bocca.apertura > 0.05 ? 0.4 * this.bocca.apertura : 0;
+    V.glow.forEach(function (m) { m.emissive.copy(self.tinta); m.emissiveIntensity = (1.6 + parla) * (1 - 0.6 * chiuso); });
+    this.coloreOcchi = '#' + this.tinta.getHexString();
   };
 
   /* ═══ IL MANICHINO: un umanoide riggato costruito nel codice ═════════════════
