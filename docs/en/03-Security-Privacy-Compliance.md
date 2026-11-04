@@ -39,12 +39,15 @@
   avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
   Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
   or do not save an OpenAI key.
-- **The AI's Lesson mode (`bsi-spectra-lezione-ai.js`, v240):** with a
-  configured provider, the lesson topic, the level and the student's answers
-  go to that provider, with its key, like chat messages; without a key the lab
-  lessons never leave the device. Predictions stay in
-  `bsi-spectra-lezioni-ai-v1` and are erased by «Clear data → Persistent
-  memory».
+- **«🧠 Spiega» and the screen (`bsi-spectra-spiega.js`, v240):** with the
+  **«📺 Includi lo schermo»** checkbox checked (it is checked by default when
+  a section is open behind the window), the configured AI provider receives,
+  with its key and together with the question, **the screen text** (section,
+  tab, control values, visible tables and text) and **an image of the visible
+  graphs and 3D scenes**, like a chat attachment; the image is sent in the
+  first turn only. With the checkbox unchecked only the question is sent.
+  Without a key nothing leaves the device. The conversation is kept in memory
+  for the session and is not saved.
 - **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
   the «🧍 Corpo» button stays only in the browser's IndexedDB
   (`bsi-spectra-modelli`) and is not sent to any server. It is erased with

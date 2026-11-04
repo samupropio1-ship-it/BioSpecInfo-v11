@@ -18,6 +18,9 @@
      (labiale, gesto, emozione) quando arriva la risposta, quando Spectra Live
      parla e quando l'assistente locale risolve un esercizio;
    · sul telefono i suoi pulsanti non si sovrappongano a quelli flottanti;
+   · l'OLOGRAMMA alla destra di Spectra: sei scene vive (i pianeti seguono
+     Keplero), il soggetto che segue il discorso, l'etichetta che apre la
+     sezione, lo schermo vivo della sezione aperta dietro la finestra Spiega;
    · «🧠 SPIEGA», l'AI che spiega tutto in modo esaustivo, ci sia nella finestra
      di Spectra: seconda scheda, Spectra col corpo che spiega, la lettura dello
      schermo (uno spettro NMR e una scena 3D: testo, valori e immagine) che arriva
@@ -98,7 +101,9 @@ const SINTETICO = () => {
     vero('il modello lavora → Spectra pensa (mano al mento, concentrata; «' + await hud() + '»)', pensa.gesto === 'pensa' && pensa.emo === 'concentrata');
     await pg.evaluate(() => document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: 'Ottimo! Il pH vale 3,4: ecco perché.' } }))); await pg.waitForTimeout(500);
     const parla = await pg.evaluate(() => { const S = BSISpectraFigura.figura.spectra; return { gesto: S.corpo.gesto, emo: S.corpo.emo, testo: !!S.corpo.testo, viso: !!S.volto.testo }; });
-    vero('arriva la risposta → spiega con le mani, gioia, labiale su corpo e viso (' + await hud() + ')', parla.gesto === 'spiega' && parla.emo === 'gioia' && parla.testo && parla.viso);
+    vero('arriva la risposta → indica l\'ologramma, gioia, labiale su corpo e viso (' + await hud() + ')', parla.gesto === 'indica' && parla.emo === 'gioia' && parla.testo && parla.viso);
+    await pg.waitForTimeout(2900);
+    att('poi accompagna la spiegazione con le mani', 'spiega', await pg.evaluate(() => BSISpectraFigura.figura.spectra.corpo.gesto));
     await pg.evaluate(() => document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { errore: true } }))); await pg.waitForTimeout(200);
     att('una risposta mancata → dubbio', 'dubbio', await pg.evaluate(() => BSISpectraFigura.figura.spectra.corpo.emo));
     const live = await pg.evaluate(() => { const S = BSISpectraFigura.figura.spectra; S.taci(); if (!window.BSISpectraLive) return null; BSISpectraLive.parla('Ciao, sono Spectra.'); const r = !!S.corpo.testo; BSISpectraLive.taci(); return r; });
@@ -112,6 +117,30 @@ const SINTETICO = () => {
         let n = 0; bs.forEach(a => fl.forEach(c => { if (a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top) n++; })); return n; });
       att('i pulsanti della figura non finiscono sotto quelli flottanti', 0, sov);
     }
+    /* L'OLOGRAMMA alla destra di Spectra: le scene vive delle sezioni */
+    const ol = await pg.evaluate(async () => {
+      const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, O = F.olo, T = THREE, o = {};
+      F.box.scrollIntoView({ block: 'center' }); await pausa(300);
+      const pS = F.spectra.radice.getWorldPosition(new T.Vector3()).project(F.cam), pO = O.grp.getWorldPosition(new T.Vector3()).project(F.cam);
+      o.destra = pO.x > pS.x + 0.3 && pO.x < 1; o.xs = [pS.x.toFixed(2), pO.x.toFixed(2)];
+      o.scene = []; for (const k of ['pianeti', 'molecola', 'spettro', 'superficie', 'orbitale', 'onda']) { O.auto = false; O.mostra(k); await pausa(250); const g = O.scene[k]; o.scene.push(k + ':' + (g.visible && g.children.length > 0 ? 'ok' : 'no')); }
+      /* Keplero: il pianeta piu' eccentrico e' piu' veloce al perielio che all'afelio */
+      O.mostra('pianeti'); const q = O.scene.pianeti.userData.U.p[3], U = O.scene.pianeti.userData.U, v = t => { U.passo(t); const a = q.pl.position.clone(); U.passo(t + 0.01); return { r: a.length(), v: q.pl.position.distanceTo(a) / 0.01 }; };
+      let peri = null, afe = null; for (let t = 0; t < q.T; t += q.T / 200) { const x = v(t); if (!peri || x.r < peri.r) peri = x; if (!afe || x.r > afe.r) afe = x; }
+      o.kepler = { vp: peri.v, va: afe.v, atteso: (1 + q.e) / (1 - q.e) };
+      /* il soggetto segue il discorso */
+      O.auto = true; document.dispatchEvent(new CustomEvent('bsi-spectra-risposta', { detail: { testo: 'Lo spettro IR mostra una banda a 1715 cm⁻¹.' } })); await pausa(200); o.tema = O.attuale;
+      document.dispatchEvent(new CustomEvent('bsi-spectra-tema', { detail: { testo: 'perché i pianeti seguono orbite ellittiche?' } })); await pausa(200); o.tema2 = O.attuale;
+      o.etichetta = F.box.querySelector('.bsiSF-olo').textContent;
+      return o;
+    });
+    vero('l\'ologramma sta alla destra di Spectra (x sullo schermo ' + ol.xs.join(' → ') + ')', ol.destra);
+    att('sei scene vive: pianeti, molecola, spettro, superficie, orbitale, onda', 'pianeti:ok,molecola:ok,spettro:ok,superficie:ok,orbitale:ok,onda:ok', ol.scene.join(','));
+    vero('i pianeti seguono Keplero: al perielio più veloci che all\'afelio (rapporto ' + (ol.kepler.vp / ol.kepler.va).toFixed(2) + ', atteso (1+e)/(1−e) = ' + ol.kepler.atteso.toFixed(2) + ')', Math.abs(ol.kepler.vp / ol.kepler.va - ol.kepler.atteso) / ol.kepler.atteso < 0.08);
+    att('il soggetto segue il discorso: una risposta sullo spettro IR → spettro; una domanda sulle orbite → pianeti', 'spettro|pianeti', ol.tema + '|' + ol.tema2);
+    vero('l\'etichetta porta alla sezione (' + ol.etichetta + ')', /apri|open/.test(ol.etichetta));
+    const apre = await pg.evaluate(async () => { BSISpectraFigura.figura.box.querySelector('.bsiSF-olo').click(); await new Promise(r => setTimeout(r, 1200)); return (BSISpectraLive.schermo() || {}).sezione; });
+    vero('un tocco sull\'etichetta apre «Sistema solare 3D» (' + apre + ')', /sastrosole/.test(apre || ''));
     /* «🧠 SPIEGA»: l'AI che spiega tutto, anche spettri e scene 3D sullo schermo */
     const sp = await pg.evaluate(async () => {
       const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
@@ -145,6 +174,8 @@ const SINTETICO = () => {
       window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
       /* una scena 3D */
       document.getElementById('bsi-hub-close').click(); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
+      window.bsiOpenAIHub('spiega'); await pausa(1800); const O = BSISpectraFigura.figura.olo, px = O.tela.getContext('2d').getImageData(0, 0, O.tela.width, O.tela.height).data; let acc = 0; for (let i = 0; i < px.length; i += 4000) acc += px[i] + px[i + 1] + px[i + 2];
+      o.vivo = { modo: O.attuale, pieno: acc > 2000 }; document.getElementById('bsi-hub-close').click();
       const S3 = BSISpiega.schermo(), im3 = await BSISpiega.immagine(S3); o.s3 = S3 && { titolo: S3.titolo, grafici: S3.grafici, img: !!im3 && im3.length > 2000 };
       /* uno spettro in SVG (il quiz degli spettri) */
       document.querySelector('[data-s="squizspec"]').click(); await pausa(1500); const Sv = BSISpiega.schermo(), imv = await BSISpiega.immagine(Sv); o.sv = Sv && { svg: Sv.svg.length, img: !!imv && imv.length > 2000 };
@@ -162,6 +193,7 @@ const SINTETICO = () => {
     vero('al PhD avanzato: frontiera, problemi aperti, letteratura primaria', /frontiera/.test(sp.sysPhd) && /problemi aperti/.test(sp.sysPhd) && /letteratura primaria/.test(sp.sysPhd));
     vero('senza modello non finge: lo dice e mostra ciò che l\'app sa della sezione', /serve un modello/.test(sp.senza) && /Sullo schermo/.test(sp.senza));
     vero('legge anche gli spettri disegnati in SVG (' + (sp.sv && sp.sv.svg) + ' grafici vettoriali trasformati in immagine)', sp.sv && sp.sv.svg >= 1 && sp.sv.img);
+    vero('con la scena 3D aperta dietro Spiega, l\'ologramma la mostra dal vivo (' + sp.vivo.modo + ')', sp.vivo.modo === 'schermo' && sp.vivo.pieno);
     vero('legge anche una scena 3D (' + (sp.s3 && sp.s3.titolo) + ': ' + (sp.s3 && sp.s3.grafici) + ' tele, immagine)', sp.s3 && sp.s3.grafici >= 1 && sp.s3.img);
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));

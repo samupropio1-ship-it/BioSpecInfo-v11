@@ -356,28 +356,34 @@ In Spectra AI e nelle tre aree con l'assistente, sotto il titolo, un riquadro
 da laboratorio mostra Spectra in piedi: pensa mentre il modello lavora, spiega
 con le mani e il labiale quando arriva la risposta, parla con Spectra Live e
 spiega lo svolgimento quando l'assistente locale risolve un esercizio; pulsanti
-«🧍 Corpo», «🎙️ Parla con me», «⚡ Lezione», «🎓 Studio». Una figura sola per
+«🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio». Una figura sola per
 tutta l'app. L'icona di Spectra è solo il volto.
 
-**La modalità Lezione** (`bsi-spectra-lezione-ai.js`, v240). Nella finestra di
-Spectra la scheda **«⚡ Lezione»** è la seconda, dopo «💬 Chat» (poi Esame
-Orale, Ripassa Oggi, Genera Guida). Si sceglie un argomento qualunque, la
-materia (chimica, fisica, matematica) e il livello, uno dei cinque dalla
-scuola superiore al PhD avanzato (Scuola superiore, Triennale, Magistrale,
-Dottorato (PhD), PhD avanzato · frontiera: il modello riceve che cosa ci si
-aspetta a quel livello e l'istruzione di non semplificare sotto di esso); Spectra insegna in quattro fasi: **PREDICI**
-(la scena, la domanda, quattro risposte fra cui le tre idee sbagliate più
-comuni), **PROVA** (che cosa succede davvero, con numeri e una tabella),
-**DIMOSTRA** (la derivazione a passi numerati), **RIVELA** (perché, con
-empatia; collegamenti fra discipline; con un modello cinque esercizi, uno per
-livello, l'ultimo un problema aperto o di ricerca, con le soluzioni; le lezioni
-del laboratorio ne hanno quattro). Con un fornitore configurato scrive il modello (la prima fase in
-JSON controllato; una risposta malformata è rifiutata con un messaggio). Senza
-chiave o senza rete ci sono le tre lezioni del laboratorio (caduta, acqua,
-Basilea) con un cursore che ricalcola in PROVA e il collegamento allo studio
-3D. Spectra col corpo la conduce: la figura si sposta nella scheda e cambia
-espressione con le fasi. Le previsioni restano in `bsi-spectra-lezioni-ai-v1`
-e compaiono come riepilogo all'inizio della scheda. Corpo, volto e mente sono una simulazione di
+**«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). Nella finestra di Spectra la
+scheda **«🧠 Spiega»** è la seconda, dopo «💬 Chat» (poi Esame Orale, Ripassa
+Oggi, Genera Guida). Dà una **spiegazione esaustiva** di qualunque domanda di
+chimica, fisica o matematica, a uno dei cinque livelli (Scuola superiore,
+Triennale, Magistrale, Dottorato (PhD), PhD avanzato · frontiera), senza
+semplificare sotto il livello scelto e senza tralasciare nulla di rilevante.
+La risposta ha una struttura obbligatoria: in sintesi; che cosa stai guardando
+(con lo schermo: la lettura quantitativa del grafico — per uno spettro NMR
+ogni segnale con δ, molteplicità, J, integrale e attribuzione, per IR, MS e
+UV-Vis bande, frammenti e transizioni; per una scena 3D geometria, simmetria,
+nodi, punti critici e isosuperfici; per un grafico matematico dominio,
+asintoti, estremi, flessi, convergenza); fondamenti teorici; formalismo e
+derivazione completa; esempi numerici calcolati; casi limite, approssimazioni
+ed errori comuni; collegamenti fra le tre materie; applicazioni e frontiera
+della ricerca; tre domande per verificarsi, con risposta. Con **«📺 Includi lo
+schermo»** la spiegazione riguarda ciò che è aperto: al modello vanno il testo
+della sezione (comandi con i valori, tabelle, testo) e un'immagine dei grafici
+e delle scene 3D. Domande rapide: «📈 Spiegami questo grafico», «🧪 Lo spettro,
+picco per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+della ricerca»; «↺ Nuova spiegazione» ricomincia. Serve un fornitore di IA
+configurato: senza, la scheda lo dice e mostra ciò che l'app sa da sola
+(l'assistente locale per gli esercizi numerici, i capitoli della lezione
+guidata della sezione, i dati dello schermo). Spectra col corpo si sposta
+nella scheda, pensa mentre il modello scrive e poi spiega a voce e a gesti.
+Corpo, volto e mente sono una simulazione di
 comportamento, non una coscienza.
 
 ---

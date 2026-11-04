@@ -181,6 +181,8 @@
     immagineSchermo(S).then(function (imm) { if (S) { S.immagine = imm; ST.ultimoSchermo = S; } disegnaCarta(box, S); });
   }
   function disegnaCarta(box, S) {
+    /* l'ologramma alla destra di Spectra mostra subito la sezione aperta, dal vivo */
+    if (S) annuncia('bsi-spectra-tema', { testo: S.titolo, schermo: true });
     box.innerHTML = (S && S.immagine ? '<img alt="' + t('I grafici e le scene 3D della sezione', 'The section\'s graphs and 3D scenes') + '" src="' + S.immagine + '">' : '') +
       '<label style="flex:1"><input type="checkbox" id="bsiSP-usa" checked> <b>📺 ' + t('Includi lo schermo', 'Include the screen') + '</b><br><span class="nota">' + esc(S ? S.titolo : '') + ' · ' + (S ? S.grafici : 0) + ' ' + t('grafici/scene 3D', 'graphs/3D scenes') + ' · ' + t('valori dei controlli, tabelle e testo', 'control values, tables and text') + (S && S.immagine ? '' : ' · ' + t('nessuna immagine', 'no image')) + '</span></label>';
   }
@@ -199,6 +201,7 @@
     var out = D.getElementById('bsiSP-out'); if (!out) return Promise.resolve(null);
     var livello = o.livello == null ? ST.livello : o.livello; ST.livello = livello;
     var S = o.schermo ? schermo() : null; ST.materia = S ? S.materia : ST.materia;
+    annuncia('bsi-spectra-tema', { testo: domanda, schermo: !!S });
     return immagineSchermo(S).then(function (imm) { if (S) S.immagine = imm; return chiediCon(domanda, S, livello, out); });
   }
   function chiediCon(domanda, S, livello, out) {

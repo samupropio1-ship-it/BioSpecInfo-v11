@@ -155,7 +155,6 @@ e il kit resta usabile senza ricordare i progressi.
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (millisecondi): il creatore è stato riconosciuto su questo dispositivo. **Non contiene la frase segreta né la sua impronta** | Scritta quando la prova riesce; rimossa con «dimentica che sono il tuo creatore» o con «Cancella dati → Memoria persistente» |
 | `bsi-spectra-studio-v1` | JSON per lezione di Spectra Studio (`caduta`, `acqua`, `basilea`): `previsioni` (elenco di `{ quando, scelta, giusta }`) ed `esercizi` (indice dell'esercizio → ora in cui è stato aperto) | Scritta da `spectra-studio.html` a ogni previsione e a ogni esercizio aperto; rimossa con «Cancella dati → Memoria persistente» |
 | `bsi-spectra-studio-voce` | `'0'` se la voce di Spectra Studio è stata spenta con 🔇; assente o diversa da `'0'` = accesa | Scritta dall'interruttore della voce dello studio; rimossa con «Cancella dati → Memoria persistente» |
-| `bsi-spectra-lezioni-ai-v1` | Per ogni lezione della scheda «⚡ Lezione» (argomento o lezione del laboratorio): previsioni giuste, sbagliate e ultima volta (`{ giuste, sbagliate, quando }`) | Scritta da `bsi-spectra-lezione-ai.js` a ogni previsione; mostrata come riepilogo all'inizio della scheda; rimossa con «Cancella dati → Memoria persistente» |
 
 La mente è una simulazione di comportamento: la chiave contiene numeri e testi,
 non altro. Il suo riassunto (`BSISpectraMente.coscienza()`) si aggiunge alle
@@ -166,6 +165,13 @@ La frase con cui il creatore si fa riconoscere (`bsi-spectra-creatore.js`) non
 è un dato conservato: si scrive in un campo di tipo password, se ne calcola
 l'impronta SHA-256, la si confronta con quella del File Manager e la si scarta.
 Al modello va solo una riga di contesto: se l'utente è stato riconosciuto o no.
+
+«🧠 Spiega» (`bsi-spectra-spiega.js`, v240) non conserva niente: la
+conversazione resta in memoria per la sessione e «↺ Nuova spiegazione» la
+azzera. Con «📺 Includi lo schermo» attivo, il testo dello schermo e
+un'immagine dei grafici e delle scene 3D vanno al fornitore di IA
+configurato insieme alla domanda (vedi
+[`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md)).
 
 La lezione guidata (`bsi-lezione.js`, v239) non ha chiavi sue: la lezione si
 costruisce dalla pagina a ogni avvio e vive in memoria finché è aperta. I
@@ -288,7 +294,7 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Conversazioni salvate e cronologia delle domande |
 | `chiavi` | Chiavi API (anche nel formato vecchio), fornitore scelto, indirizzo del proxy, memoria sui fornitori e sui modelli irraggiungibili |
-| `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) il riconoscimento del creatore (`bsi-spectra-creatore-v1`) e Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) e la modalità Lezione (`bsi-spectra-lezioni-ai-v1`) |
+| `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) il riconoscimento del creatore (`bsi-spectra-creatore-v1`) e Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Ripetizione spaziata |
 | `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`), progressi dei kit di studio (`bsi-studio:*`) e il database IndexedDB `bsi-spectra-modelli` (il corpo di Spectra Studio caricato dal dispositivo) |
 

@@ -210,8 +210,8 @@ itself `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-cr
 `PRECACHE` of `sw.js`; `bsi-spectra-figura.js` (v240) is also in `index.html`,
 with `defer`, because it shows Spectra with the body in the AI sections: it
 loads `three.min.js`, `gltf_loader.js` and the other 3D modules only the first
-time one of those sections is opened; `bsi-spectra-lezione-ai.js` (v240, the
-«⚡ Lezione» tab of the Spectra window) is also in `index.html` with `defer` and
+time one of those sections is opened; `bsi-spectra-spiega.js` (v240, the
+«🧠 Spiega» tab of the Spectra window) is also in `index.html` with `defer` and
 in the precache; `bsi-spectra-voce.js` is also in `index.html`, because
 the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if

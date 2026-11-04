@@ -358,28 +358,34 @@ In Spectra AI and in the three areas with the assistant, under the title, a
 lab-style frame shows Spectra standing: it thinks while the model works,
 explains with its hands and lip sync when the answer arrives, speaks with
 Spectra Live and explains the working when the local assistant solves an
-exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «⚡ Lezione», «🎓 Studio».
+exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
 One figure for the whole app. Spectra's icon is the face only.
 
-**Lesson mode** (`bsi-spectra-lezione-ai.js`, v240). In the Spectra window the
-**«⚡ Lezione»** tab is the second one, after «💬 Chat» (then Esame Orale,
-Ripassa Oggi, Genera Guida). The user picks any topic, the subject (chemistry,
-physics, mathematics) and the level, one of five from high school to advanced
-PhD (High school, Bachelor, Master, PhD, Advanced PhD · frontier: the model
-receives what is expected at that level and the instruction not to simplify
-below it);
-Spectra teaches in four phases: **PREDICT** (the scene, the question, four
-answers including the three most common misconceptions), **TEST** (what really
-happens, with numbers and a table), **PROVE** (the numbered derivation),
-**REVEAL** (why, with empathy; cross-discipline links; with a model five
-exercises, one per level, the last an open or research problem, with solutions;
-the lab lessons have four). With a configured provider the model writes it (the
-first phase as controlled JSON; a malformed answer is rejected with a message).
-Without a key or offline the three lab lessons (fall, water, Basel) are
-available, with a slider that recomputes in TEST and the link to the 3D studio.
-Spectra with the body leads it: the figure moves into the tab and changes
-expression with the phases. Predictions stay in `bsi-spectra-lezioni-ai-v1` and
-appear as a summary at the start of the tab. Body, face and mind are a
+**«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). In the Spectra window the
+**«🧠 Spiega»** tab is the second one, after «💬 Chat» (then Esame Orale,
+Ripassa Oggi, Genera Guida). It gives an **exhaustive explanation** of any
+chemistry, physics or mathematics question, at one of five levels (High school,
+Bachelor, Master, PhD, Advanced PhD · frontier), without simplifying below the
+chosen level and without leaving out anything relevant. The answer has a
+mandatory structure: in short; what you are looking at (with the screen: the
+quantitative reading of the graph — for an NMR spectrum every signal with δ,
+multiplicity, J, integral and assignment, for IR, MS and UV-Vis bands,
+fragments and transitions; for a 3D scene geometry, symmetry, nodes, critical
+points and isosurfaces; for a mathematical graph domain, asymptotes, extrema,
+inflections, convergence); theoretical foundations; formalism and full
+derivation; computed numerical examples; limiting cases, approximations and
+common errors; links between the three subjects; applications and research
+frontier; three self-check questions with answers. With **«📺 Includi lo
+schermo»** the explanation is about what is open: the model receives the
+section's text (controls with values, tables, text) and an image of the graphs
+and 3D scenes. Quick prompts: «📈 Spiegami questo grafico», «🧪 Lo spettro,
+picco per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+della ricerca»; «↺ Nuova spiegazione» starts over. A configured AI provider is
+needed: without one, the tab says so and shows what the app knows on its own
+(the local assistant for numeric exercises, the chapters of the section's
+guided lesson, the screen data). Spectra with the body moves into the tab,
+thinks while the model writes and then explains with voice and gestures.
+Body, face and mind are a
 simulation of behaviour, not consciousness.
 
 ---

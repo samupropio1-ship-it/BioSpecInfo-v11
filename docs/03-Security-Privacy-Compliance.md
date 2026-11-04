@@ -41,12 +41,15 @@
   console, nella lezione guidata e in Spectra Studio, dove la scelta resta
   ricordata (`bsi-spectra-studio-voce`); oppure non si salva una chiave
   OpenAI.
-- **Modalità Lezione dell'AI (`bsi-spectra-lezione-ai.js`, dalla v240):**
-  con un fornitore configurato, l'argomento della lezione, il livello e le
-  risposte dello studente vanno a quel fornitore, con la sua chiave, come i
-  messaggi della chat; senza chiave le lezioni del laboratorio non escono dal
-  dispositivo. Le previsioni restano in `bsi-spectra-lezioni-ai-v1` e si
-  cancellano con «Cancella dati → Memoria persistente».
+- **«🧠 Spiega» e lo schermo (`bsi-spectra-spiega.js`, dalla v240):** con
+  la casella **«📺 Includi lo schermo»** attiva (lo è da sola quando dietro
+  la finestra c'è una sezione aperta), insieme alla domanda vanno al
+  fornitore di IA configurato, con la sua chiave, **il testo dello schermo**
+  (sezione, scheda, valori dei comandi, tabelle e testo visibili) e
+  **un'immagine dei grafici e delle scene 3D visibili**, come un allegato
+  della chat; l'immagine va solo nel primo turno. Con la casella spenta va
+  solo la domanda. Senza chiave non esce niente dal dispositivo. La
+  conversazione resta in memoria per la sessione e non si salva.
 - **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
   con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
   (`bsi-spectra-modelli`) e non viene inviato a nessun server. Si cancella con

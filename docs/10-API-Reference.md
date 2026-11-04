@@ -516,23 +516,25 @@ Metodi del controllore: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScen
 
 Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { testo }`), emesso da `parla()` di `bsi-spectra-live.js` e da `bsi-assistente.js` quando risolve un esercizio; la figura lo dice con labiale e gesto.
 
-### `window.BSILezioneAI` — la modalità Lezione (`bsi-spectra-lezione-ai.js`, v240)
+### `window.BSISpiega` — «🧠 Spiega» (`bsi-spectra-spiega.js`, v240)
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
-| `costruisci` | `(pannello)` | Costruisce la scheda «⚡ Lezione» nel pannello dato (la chiama `bsi-ai-hub.js`): argomento, materia, livello (cinque, dalla scuola superiore al PhD avanzato), riepilogo della memoria, lezioni del laboratorio |
-| `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Comincia una lezione: con un modello la fase PREDICI in JSON controllato; con `locale`, una lezione del laboratorio senza rete |
-| `scegli`, `prova`, `dimostra`, `rivela` | `(indice)`, `()`, `()`, `()` | La previsione dello studente e le tre fasi successive |
-| `leggiPredici` | `(testo) → oggetto \| null` | Estrae e controlla il JSON della prima fase (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` se malformato |
-| `PROVE`, `MEM` | oggetto, stringa | I calcoli delle prove del laboratorio (con il cursore); la chiave della memoria `bsi-spectra-lezioni-ai-v1` |
-| `stato` | `() → { fase, locale, scelta, argomento, misura }` | Lo stato della lezione in corso |
+| `costruisci` | `(pannello)` | Costruisce la scheda «🧠 Spiega» nel pannello dato (la chiama `bsi-ai-hub.js`): domanda, livello, casella «📺 Includi lo schermo» con la scheda dello schermo, domande rapide, «↺ Nuova spiegazione» |
+| `chiedi` | `(domanda, { schermo?, livello? }?) → Promise` | Manda la domanda al modello della chat; con `schermo` aggiunge il testo dello schermo e, al primo turno, l'immagine; le domande successive continuano la conversazione. Senza modello mostra ciò che l'app sa da sola |
+| `schermo` | `() → { testo, tela, svg, grafici, titolo, materia }` | Legge la sezione aperta: titolo, scheda, comandi con valore e intervallo, tabelle visibili (fino a 4 × 40 righe), testo visibile, tele e SVG visibili |
+| `immagine` | `(S) → Promise<dataURL>` | Compone in un JPEG (largo al massimo 1400 px) le tele visibili (scene `BSILab3D` ridisegnate prima) e gli SVG visibili trasformati in immagine |
+| `sistema` | `(livello, materia) → string` | Il prompt di sistema: livello, `PROFONDITA`, struttura obbligatoria, rigore |
+| `aggiornaSchermo` | `()` | Aggiorna la scheda dello schermo (titolo, numero di grafici e scene 3D, miniatura) |
+| `LIVELLI`, `PROFONDITA` | array | I cinque livelli (da Scuola superiore a PhD avanzato · frontiera) e che cosa si chiede a ciascuno |
+| `stato` | `() → { turni, livello, inCorso }` | Lo stato della conversazione |
 
 ### `window.bsiLLM` — il fornitore della chat (`bsi-ai-hub.js`, v240)
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
 | `provider` | `() → string` | Il fornitore scelto nella finestra di Spectra (o quello salvato) |
-| `chiave` | `(provider) → string \| null` | La chiave da usare per quel fornitore, come la chat |
+| `chiave` | `(provider) → string \| null` | La chiave da usare per quel fornitore, come la chat; la usa «🧠 Spiega» |
 
 ### `window.BSIStudioLezioni` e `window.SpectraStudio` — lo studio (v239)
 

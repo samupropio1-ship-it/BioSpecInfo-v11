@@ -532,23 +532,25 @@ Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(sc
 
 New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
 
-### `window.BSILezioneAI` — Lesson mode (`bsi-spectra-lezione-ai.js`, v240)
+### `window.BSISpiega` — «🧠 Spiega» (`bsi-spectra-spiega.js`, v240)
 
 | Symbol | Signature | Description |
 |---|---|---|
-| `costruisci` | `(panel)` | Builds the «⚡ Lezione» tab in the given panel (called by `bsi-ai-hub.js`): topic, subject, level (five, from high school to advanced PhD), memory summary, lab lessons |
-| `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Starts a lesson: with a model the PREDICT phase as controlled JSON; with `locale`, an offline lab lesson |
-| `scegli`, `prova`, `dimostra`, `rivela` | `(index)`, `()`, `()`, `()` | The student's prediction and the three following phases |
-| `leggiPredici` | `(text) → object \| null` | Extracts and checks the first phase's JSON (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` if malformed |
-| `PROVE`, `MEM` | object, string | The lab tests' computations (with the slider); the memory key `bsi-spectra-lezioni-ai-v1` |
-| `stato` | `() → { fase, locale, scelta, argomento, misura }` | The state of the current lesson |
+| `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione» |
+| `chiedi` | `(question, { schermo?, livello? }?) → Promise` | Sends the question to the chat's model; with `schermo` it adds the screen text and, in the first turn, the image; follow-up questions continue the conversation. Without a model it shows what the app knows on its own |
+| `schermo` | `() → { testo, tela, svg, grafici, titolo, materia }` | Reads the open section: title, tab, controls with value and range, visible tables (up to 4 × 40 rows), visible text, visible canvases and SVGs |
+| `immagine` | `(S) → Promise<dataURL>` | Composes into a JPEG (at most 1400 px wide) the visible canvases (`BSILab3D` scenes re-rendered first) and the visible SVGs rasterised |
+| `sistema` | `(level, subject) → string` | The system prompt: level, `PROFONDITA`, mandatory structure, rigour |
+| `aggiornaSchermo` | `()` | Refreshes the screen card (title, number of graphs and 3D scenes, thumbnail) |
+| `LIVELLI`, `PROFONDITA` | array | The five levels (High school to Advanced PhD · frontier) and what is asked at each |
+| `stato` | `() → { turni, livello, inCorso }` | The state of the conversation |
 
 ### `window.bsiLLM` — the chat's provider (`bsi-ai-hub.js`, v240)
 
 | Symbol | Signature | Description |
 |---|---|---|
 | `provider` | `() → string` | The provider chosen in the Spectra window (or the saved one) |
-| `chiave` | `(provider) → string \| null` | The key to use for that provider, as the chat does |
+| `chiave` | `(provider) → string \| null` | The key to use for that provider, as the chat does; used by «🧠 Spiega» |
 
 ### `window.BSIStudioLezioni` and `window.SpectraStudio` — the studio (v239)
 

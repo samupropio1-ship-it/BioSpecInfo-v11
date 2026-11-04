@@ -589,27 +589,35 @@ dell'app». Non c'è un corpo sostitutivo.
 di Chimica, Fisica e Matematica, sotto il titolo, Spectra è in piedi in un
 riquadro da laboratorio: mentre il modello lavora si porta la mano al mento,
 quando arriva la risposta spiega con le mani e muove le labbra. **«🎙️ Parla con
-me»** apre Spectra Live, **«⚡ Lezione»** apre la lezione, **«🎓 Studio»** apre
+me»** apre Spectra Live, **«🧠 Spiega»** apre la spiegazione, **«🎓 Studio»** apre
 Spectra Studio. Il pulsante rotondo di Spectra, in ogni schermata, è il suo
 volto.
 
-**Una lezione su qualunque argomento: «⚡ Lezione».** Nella finestra di Spectra
-apri la seconda scheda, **«⚡ Lezione»** (oppure premi «⚡ Lezione» nel riquadro
-di Spectra). Scrivi l'argomento, scegli materia e livello — dalla scuola superiore al
-PhD avanzato, alla frontiera della ricerca: Spectra non semplifica sotto il
-livello scelto — e avvia. Spectra ti
-mette davanti a una situazione e ti chiede che cosa succederà (**Predici**):
-scegli una delle quattro risposte, senza paura di sbagliare, perché due o tre
-sono gli errori che fanno quasi tutti. Poi vedi che cosa succede davvero, con i
-numeri (**Prova**), la dimostrazione passo per passo (**Dimostra**) e infine
-perché la risposta giusta è giusta, con cinque esercizi dal più facile al più
-difficile — l'ultimo è un vero problema aperto — e le soluzioni da aprire
-(**Rivela**). Serve un fornitore di IA
-configurato, come per la chat; senza, o senza rete, puoi fare le tre lezioni
-del laboratorio (la caduta, la forma dell'acqua, il problema di Basilea), dove
-in **Prova** muovi un cursore e il risultato si ricalcola. All'inizio della
-scheda vedi come sono andate le tue previsioni; si cancellano con «Cancella dati
-→ Memoria persistente».
+**Spiegami tutto: «🧠 Spiega».** Nella finestra di Spectra apri la seconda
+scheda, **«🧠 Spiega»** (oppure premi «🧠 Spiega» nel riquadro di Spectra).
+Scrivi la domanda — qualunque cosa di chimica, fisica o matematica — e scegli
+il livello, dalla scuola superiore al PhD avanzato, alla frontiera della
+ricerca: Spectra non semplifica sotto il livello scelto. La risposta è
+completa e sempre con la stessa struttura: la sintesi, la teoria, la
+derivazione passo per passo, esempi con i numeri, casi limite ed errori
+comuni, i collegamenti fra le tre materie, le applicazioni e la ricerca, e tre
+domande per verificare di aver capito. Poi puoi continuare: «approfondisci»,
+«dimostra il passaggio 3», «e se raddoppio la temperatura?».
+
+**Che cosa stai guardando.** Se dietro la finestra hai aperto una sezione con
+un grafico, uno spettro o una scena 3D, lascia spuntato **«📺 Includi lo
+schermo»** (la scheda mostra quale sezione e una miniatura) oppure usa una
+domanda rapida: **«📈 Spiegami questo grafico»**, **«🧪 Lo spettro, picco per
+picco»**, **«🧊 La scena 3D»**. Spectra legge i valori dei comandi e le tabelle
+e guarda l'immagine dei grafici: per uno spettro NMR ti spiega ogni segnale
+(spostamento chimico, molteplicità, costante di accoppiamento, integrale) e a
+quale atomo appartiene. **Attenzione**: con la casella spuntata il testo dello
+schermo e l'immagine dei grafici vanno al fornitore di IA che hai configurato,
+insieme alla domanda; togli la spunta se non vuoi. Serve un fornitore di IA
+configurato, come per la chat; senza, la scheda te lo dice e ti mostra ciò che
+l'app sa da sola (per un esercizio numerico lo svolgimento dell'assistente,
+i capitoli della lezione guidata della sezione). **«↺ Nuova spiegazione»**
+ricomincia; la conversazione non si salva.
 
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).

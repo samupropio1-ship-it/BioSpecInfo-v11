@@ -46,71 +46,73 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     «Lezione guidata» e la descrizione, prima delle schede. Sul telefono i
     suoi pulsanti stanno a sinistra, in colonna, per non coprire i pulsanti
     flottanti.
-- **La modalità Lezione nell'AI** (`bsi-spectra-lezione-ai.js`, oggetto
-  `BSILezioneAI`). Richiesta dell'autore: la lezione «alla Every Joule»
-  (*predici → prova → dimostra → rivela*) dentro l'AI. Nella finestra di
-  Spectra (`bsi-ai-hub.js`) c'è una scheda nuova, **«⚡ Lezione»**, la
-  seconda subito dopo «💬 Chat» (le schede ora sono Chat, Lezione, Esame
-  Orale, Ripassa Oggi, Genera Guida). Qualunque argomento, materia (chimica,
-  fisica, matematica) e livello (cinque, dalla scuola superiore al PhD
-  avanzato; vedi sotto), in quattro fasi:
-  - **PREDICI**: la scena, la domanda e quattro risposte, fra cui le tre idee
-    sbagliate più comuni. Con un modello la prima fase è un JSON controllato
-    (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); una
-    risposta malformata viene rifiutata con un messaggio;
-  - **PROVA**: che cosa succede davvero, con i numeri e una piccola tabella,
-    senza dire ancora se la previsione era giusta;
-  - **DIMOSTRA**: la derivazione rigorosa, a passi numerati;
-  - **RIVELA**: perché la risposta giusta è giusta e quella sbagliata no (con
-    empatia), due o tre collegamenti fra discipline e, con un modello,
-    **esattamente cinque esercizi**, uno per livello, l'ultimo un vero
-    problema aperto o di ricerca, con le soluzioni (le lezioni del
-    laboratorio senza rete tengono i loro quattro esercizi: Scuola
-    superiore, Triennale, Magistrale, Ricerca (PhD)).
-  Il livello va **dalla scuola superiore al PhD avanzato**, come ha chiesto
-  l'autore («il livello deve essere avanzatissimo, da superiori ad avanzato
-  PhD»): cinque livelli — Scuola superiore, Triennale, Magistrale, Dottorato
-  (PhD), PhD avanzato · frontiera. Per ognuno il prompt di sistema dice il
-  nome e che cosa ci si aspetta (`PROFONDITA`): concetti chiari e
-  algebra/trigonometria alle superiori; analisi, vettori, equazioni
-  differenziali semplici e SI rigoroso in triennale; il formalismo completo
-  in magistrale (meccanica analitica, termodinamica statistica, meccanica
-  quantistica, algebra lineare e analisi complessa, teoria dei gruppi di
-  base) con approssimazioni controllate; metodi avanzati al dottorato
-  (funzioni di Green, teoria delle perturbazioni, seconda quantizzazione,
-  metodi variazionali, analisi funzionale, teoria delle rappresentazioni,
-  calcolo numerico con stima dell'errore), con letteratura primaria solo se
-  certa; al PhD avanzato lo stato dell'arte, i problemi aperti e le
-  controversie attuali, i limiti dei modelli, le tecniche di frontiera
-  (integrali di cammino, rinormalizzazione, teoria dei campi, metodi
-  topologici e geometrici, ab initio ad alta accuratezza, apprendimento
-  automatico per la scienza), la letteratura primaria (solo riferimenti
-  certi, altrimenti lo dice) e una domanda di ricerca proposta; e sempre
-  «Non semplificare sotto questo livello». Ai livelli di dottorato i limiti
-  di lunghezza crescono (PROVA 280, DIMOSTRA 450, RIVELA 600 parole invece
-  di 180, 250 e 420).
-  Il modello riceve un prompt di sistema con il metodo e il livello, e usa il
-  fornitore e la chiave della chat (`window.bsiLLM = { provider(), chiave(p)
-  }`, esportato da `bsi-ai-hub.js`). **Senza chiave o senza rete** si fanno,
-  nelle stesse quattro fasi, le tre lezioni del laboratorio (caduta, acqua,
-  Basilea, da `bsi-spectra-studio-lezioni.js`, caricato alla prima richiesta),
-  con un **cursore in PROVA che ricalcola davvero**: la caduta con v₀ da 0 a
-  20 m/s (i due tempi restano 2,019 s, la gittata cresce), l'acqua con la
-  dimensione del doppietto da 1 a 1,6 (l'angolo H–O–H dal minimo
-  dell'energia VSEPR), Basilea con N = 10^x termini (S_N, la distanza da
-  π²/6 e la forbice 1/(N+1)…1/N); e il collegamento «Guardalo accadere in 3D
-  nello studio». **Spectra col corpo la conduce**: la figura condivisa si
-  sposta nella scheda (che ha la precedenza sulle sezioni dell'AI), pensa
-  mentre il modello scrive, è curiosa in PREDICI, concentrata in PROVA,
-  determinata in DIMOSTRA, felice in RIVELA se la previsione era giusta,
-  sorpresa (con garbo) se era sbagliata. La memoria
-  `bsi-spectra-lezioni-ai-v1` (per lezione: previsioni giuste e sbagliate,
-  ultima volta) appare come riepilogo all'inizio della scheda e rientra in
-  «Cancella dati → Memoria persistente». Il riquadro di Spectra nelle sezioni
-  dell'AI ha un pulsante **«⚡ Lezione»** che apre la finestra di Spectra su
-  questa scheda (nascosto dentro la scheda stessa). Con un modello,
-  l'argomento della lezione va al fornitore configurato, come i messaggi
-  della chat.
+- **«🧠 Spiega»: l'AI che spiega tutto, in modo esaustivo**
+  (`bsi-spectra-spiega.js`, oggetto `BSISpiega`). Richiesta dell'autore: «Non
+  deve fare lezioni ma una spiegazione perfetta, completa e completamente
+  esaustiva su tutto ciò che riguarda queste 3 materie… deve essere un vero e
+  proprio AI… deve spiegare grafici in 3D e tutto, dai grafici degli spettri a
+  chimica, fisica e matematica, a un livello avanzatissimo». Nella finestra di
+  Spectra (`bsi-ai-hub.js`) la scheda **«🧠 Spiega»** è la seconda, subito
+  dopo «💬 Chat» (le schede sono Chat, Spiega, Esame Orale, Ripassa Oggi,
+  Genera Guida).
+  - **La domanda**: qualunque cosa di chimica, fisica o matematica, a cinque
+    livelli — Scuola superiore, Triennale, Magistrale, Dottorato (PhD), PhD
+    avanzato · frontiera. Per ogni livello il prompt di sistema dice che cosa
+    ci si aspetta (`PROFONDITA`: dalle superiori al formalismo completo della
+    magistrale, ai metodi avanzati del dottorato, fino allo stato dell'arte,
+    ai problemi aperti, alle tecniche di frontiera e alla letteratura primaria
+    — solo riferimenti certi — al PhD avanzato), più «Non semplificare sotto
+    questo livello e non tralasciare nulla di rilevante».
+  - **La struttura obbligatoria della risposta** (titoli `##`): 1 In sintesi;
+    2 Che cosa stai guardando — solo con lo schermo: lettura quantitativa di
+    ogni elemento (assi, unità, scala, curve, valori dei comandi); per gli
+    spettri NMR ogni segnale con δ, molteplicità, J, integrale e
+    attribuzione; IR bande (numero d'onda, intensità, forma) e gruppi
+    funzionali; MS ione molecolare, frammenti, perdite neutre, profilo
+    isotopico; UV-Vis λmax, tipo di transizione, ε; poi la struttura che ne
+    risulta e la sua coerenza; per le scene 3D geometria, simmetria (gruppo
+    puntuale o spaziale), piani e superfici nodali, punti critici,
+    isosuperfici, campi e significato fisico o matematico; per i grafici
+    matematici dominio, simmetrie, asintoti, zeri, estremi, flessi,
+    convergenza, limiti; 3 Fondamenti teorici; 4 Formalismo e derivazione
+    completa, a passi numerati; 5 Esempi numerici calcolati (con i valori
+    dello schermo, se ci sono); 6 Casi limite, approssimazioni, errori comuni;
+    7 Collegamenti fra chimica, fisica e matematica; 8 Applicazioni e
+    frontiera della ricerca (letteratura solo se certa); 9 Per verificare di
+    aver capito: tre domande con risposta. Le domande successive ricevono una
+    risposta diretta con lo stesso rigore. Rigore: unità, assunzioni, numeri
+    calcolati e non inventati; se i dati non bastano, si dice che cosa manca.
+  - **Lo schermo**: la casella **«📺 Includi lo schermo»** (attiva da sola
+    quando dietro la finestra c'è una sezione aperta; la scheda mostra il
+    titolo della sezione, quanti grafici e scene 3D ci sono e una miniatura).
+    Manda la sezione, la scheda aperta, ogni comando con il suo valore e il
+    suo intervallo, le tabelle visibili per intero (fino a 4 × 40 righe), il
+    testo visibile, il numero dei grafici; e **un'immagine**: le tele visibili
+    (grafici e scene 3D; le scene di `BSILab3D` si ridisegnano prima della
+    foto, con `BSISpectraLive.cattura`) e i grafici SVG visibili trasformati
+    in immagine (molti spettri e diagrammi sono SVG), impilati, larghi al
+    massimo 1400 px, in JPEG. L'immagine va ai modelli che accettano
+    immagini, con la conversione per fornitore della chat (stile Anthropic,
+    Gemini, OpenAI); nelle domande successive non si rimanda.
+  - **Domande rapide**: «📈 Spiegami questo grafico», «🧪 Lo spettro, picco
+    per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+    della ricerca». **«↺ Nuova spiegazione»** ricomincia; la conversazione
+    resta solo in memoria per la sessione, non si salva niente.
+  - **Spectra col corpo** (la figura condivisa) si sposta nella scheda (che
+    ha la precedenza sulle sezioni dell'AI), pensa mentre il modello scrive,
+    poi parla e gesticola con la risposta. Il pulsante della figura nelle
+    sezioni dell'AI è **«🧠 Spiega»** e apre la finestra su questa scheda.
+  - **Senza modello non finge**: dice che per la spiegazione completa serve un
+    modello e mostra ciò che l'app sa da sola — il riconoscimento
+    dell'assistente locale se la domanda è un esercizio numerico, i capitoli
+    della lezione guidata della sezione aperta (`bsi-lezione.js`) e i dati
+    dello schermo come testo.
+  - Fornitore e chiave sono quelli della chat (`window.bsiLLM = { provider(),
+    chiave(p) }`, esportato da `bsi-ai-hub.js`). **Con «Includi lo schermo»
+    attivo, il testo dello schermo e l'immagine dei grafici e delle scene 3D
+    vanno al fornitore di IA configurato insieme alla domanda**, come un
+    allegato della chat; senza la casella, solo la domanda; senza chiave non
+    esce niente dal dispositivo.
 
 ### Cambiato
 - **Nessun manichino come Spectra**, né nelle sezioni dell'AI né nello
@@ -143,7 +145,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (71 controlli: 36 a 412 px, 35 a 1280 px): il
+- Nuovo `test_spectra_figura` (73 controlli: 37 a 412 px, 36 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -155,18 +157,21 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
   Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
   coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 12
-  controlli della modalità Lezione: «Lezione» è la seconda scheda; i livelli
-  vanno dalla scuola superiore al PhD avanzato (5); la figura
-  si sposta nella scheda; tre lezioni del laboratorio senza rete; PREDICI con
-  quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola (v₀ = 15 →
-  gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e
-  Spectra determinata; RIVELA con la risposta giusta segnata, quattro
-  esercizi e la sorpresa per la previsione sbagliata; un argomento libero con
-  un modello simulato (JSON controllato, quattro opzioni, tabella della
-  prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo
-  e il livello; al PhD avanzato il modello riceve frontiera, problemi aperti
-  e letteratura primaria, e l'istruzione di non semplificare; la memoria
-  registra le previsioni. Il banco porta la figura
+  controlli di «🧠 Spiega»: è la seconda scheda e «Lezione» non c'è più; la
+  figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel
+  Centro spettri) legge lo schermo (almeno un grafico, i valori dei comandi,
+  l'immagine); cinque livelli; il modello riceve il testo dello schermo, la
+  domanda e l'immagine; la richiesta chiede una spiegazione esaustiva e non
+  semplificata, con la lettura quantitativa dello spettro (δ, molteplicità,
+  J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta
+  arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta;
+  la domanda successiva continua la conversazione senza rimandare
+  l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura
+  primaria; senza modello non finge; legge come immagine gli spettri SVG (il
+  quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele,
+  immagine). Le risposte del modello sono simulate: il banco controlla che
+  cosa si manda e come si mostra, non la qualità della spiegazione di un
+  modello vero. Il banco porta la figura
   in vista prima di misurare, perché la figura si disegna (e allinea il viso)
   solo quando è visibile.
 - `test_spectra_studio` passa a **91 controlli**, con o senza il modello in

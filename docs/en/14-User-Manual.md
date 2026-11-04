@@ -587,26 +587,35 @@ in the rest of the app». There is no substitute body.
 assistant for Chemistry, Physics and Mathematics, under the title, Spectra
 stands in a lab-style frame: while the model works it brings its hand to its
 chin, when the answer arrives it explains with its hands and moves its lips.
-**«🎙️ Parla con me»** opens Spectra Live, **«⚡ Lezione»** opens the lesson,
+**«🎙️ Parla con me»** opens Spectra Live, **«🧠 Spiega»** opens the explanation,
 **«🎓 Studio»** opens Spectra Studio. Spectra's round button, on every screen,
 is its face.
 
-**A lesson on any topic: «⚡ Lezione».** In the Spectra window open the second
-tab, **«⚡ Lezione»** (or press «⚡ Lezione» in Spectra's frame). Write the
-topic, choose subject and level — from high school to advanced PhD, at the
-research frontier: Spectra does not simplify below the chosen level — and
-start. Spectra puts a situation in front of
-you and asks what will happen (**Predict**): pick one of the four answers
-without fear of being wrong, because two or three are the mistakes almost
-everyone makes. Then you see what really happens, with numbers (**Test**), the
-step-by-step proof (**Prove**) and finally why the right answer is right, with
-five exercises from easiest to hardest — the last a genuine open problem — and
-solutions to open (**Reveal**). A
-configured AI provider is needed, as for the chat; without one, or offline, you
-can do the three lab lessons (the fall, the shape of water, the Basel problem),
-where in **Test** you move a slider and the result is recomputed. At the start
-of the tab you see how your predictions went; they are erased by «Clear data →
-Persistent memory».
+**Explain everything: «🧠 Spiega».** In the Spectra window open the second
+tab, **«🧠 Spiega»** (or press «🧠 Spiega» in Spectra's frame). Write the
+question — anything in chemistry, physics or mathematics — and choose the
+level, from high school to advanced PhD, at the research frontier: Spectra does
+not simplify below the chosen level. The answer is complete and always has the
+same structure: the summary, the theory, the step-by-step derivation, worked
+numerical examples, limiting cases and common errors, the links between the
+three subjects, applications and research, and three questions to check you
+understood. Then you can go on: «go deeper», «prove step 3», «and if I double
+the temperature?».
+
+**What you are looking at.** If behind the window you have a section open with
+a graph, a spectrum or a 3D scene, leave **«📺 Includi lo schermo»** checked
+(the card shows which section and a thumbnail) or use a quick prompt:
+**«📈 Spiegami questo grafico»**, **«🧪 Lo spettro, picco per picco»**,
+**«🧊 La scena 3D»**. Spectra reads the control values and the tables and looks
+at the image of the graphs: for an NMR spectrum it explains every signal
+(chemical shift, multiplicity, coupling constant, integral) and which atom it
+belongs to. **Note**: with the box checked the screen text and the image of the
+graphs go to the AI provider you configured, together with the question;
+uncheck it if you do not want that. A configured AI provider is needed, as for
+the chat; without one, the tab tells you so and shows what the app knows on
+its own (the assistant's working for a numeric exercise, the chapters of the
+section's guided lesson). **«↺ Nuova spiegazione»** starts over; the
+conversation is not saved.
 
 Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described

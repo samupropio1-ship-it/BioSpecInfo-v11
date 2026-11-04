@@ -209,22 +209,140 @@
   }
   function perIlViso(s) { return String(s || '').replace(/```[\s\S]*?```/g, ' ').replace(/[`*_#>|$\\{}]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 420); }
 
+  /* ═══ L'OLOGRAMMA: alla destra di Spectra (destra di chi guarda), le animazioni delle sezioni ═══
+     Richiesta dell'autore: «alla mia destra di Spectra appaiano le immagini dei grafici e dei movimenti
+     delle sezioni con animazioni 3D o 2D, ad esempio pianeti che orbitano». Uno schermo olografico con
+     scene vive calcolate davvero (non filmati):
+     · pianeti — quattro pianeti su ellissi di Keplero: l'equazione M = E − e sin E si risolve a ogni
+       fotogramma (Newton), il periodo segue la terza legge (T ∝ a^1,5): piu' veloci al perielio;
+     · molecola — il benzene a sfere e bastoncini, con la nube π sopra e sotto l'anello;
+     · spettro — uno spettro IR che si traccia (bande gaussiane a 3400, 2925, 1715, 1405, 1130 cm⁻¹);
+     · superficie — z = sin(r − t)/r, la superficie che si propaga (funzioni di piu' variabili);
+     · orbitale — l'orbitale 3d_z² (lobi e anello, fasi in due colori) che ruota;
+     · onda — un pacchetto d'onda gaussiano che si muove e si allarga (dispersione, Schrödinger libero);
+     · schermo — la sezione aperta dietro la finestra di Spectra, dal vivo (la sua tela ridisegnata).
+     Ogni scena porta alla sua sezione dell'app (un tocco sull'etichetta). */
+  var SCENE_OLO = {
+    pianeti: { nome: ['🪐 Orbite di Keplero', '🪐 Kepler orbits'], sez: 'sastrosole', parole: /pianet|orbit|keplero|gravit|sole|astro|satellit|planet/ },
+    molecola: { nome: ['⌬ Benzene, sfere e bastoncini', '⌬ Benzene, ball and stick'], sez: 'sstruct', parole: /molecol|legam|benzen|aromatic|struttur|composto|reazion|molecule|bond/ },
+    spettro: { nome: ['📈 Spettro IR', '📈 IR spectrum'], sez: 'sirvis', parole: /spettr|nmr|ir\b|infrarosso|uv|massa|picc|banda|spectr/ },
+    superficie: { nome: ['🗻 z = sin(r − t)/r', '🗻 z = sin(r − t)/r'], sez: 'smatmulti', parole: /funzion|superfic|integral|derivat|gradient|limite|serie|matemat|function|surface/ },
+    orbitale: { nome: ['🔵 Orbitale 3d_z²', '🔵 3d_z² orbital'], sez: 'smo', parole: /orbital|elettron|atomo|quantistic|spin|electron/ },
+    onda: { nome: ['〰️ Pacchetto d\'onda', '〰️ Wave packet'], sez: 'sschrod', parole: /onda|schr|ondulat|pacchett|interfer|luce|ottic|wave/ }
+  };
+  var GIRO_OLO = ['pianeti', 'molecola', 'spettro', 'superficie', 'orbitale', 'onda'];
+  function Ologramma(T, sc) {
+    var self = this; this.T = T; this.grp = new T.Group(); this.grp.position.set(1.05, 1.05, -0.1); this.grp.rotation.y = -0.32; sc.add(this.grp);
+    var ciano = 0x6bcfff, verde = 0x00c9b7, blu = 0x2f6bff;
+    function mat(c, o) { return new T.MeshBasicMaterial({ color: c, transparent: true, opacity: o == null ? 0.85 : o, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false }); }
+    function lin(c, o) { return new T.LineBasicMaterial({ color: c, transparent: true, opacity: o == null ? 0.9 : o, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false }); }
+    this.mat = mat; this.lin = lin;
+    /* la cornice: un pannello di vetro con i bordi accesi e una base proiettore */
+    var W = 1.1, H = 1.25;
+    var vetro = new T.Mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ color: 0x0b2a55, transparent: true, opacity: 0.16, depthWrite: false, side: T.DoubleSide })); this.grp.add(vetro);
+    var bordo = new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(W, H)), lin(ciano, 0.75)); this.grp.add(bordo);
+    var base = new T.Mesh(new T.CylinderGeometry(0.16, 0.2, 0.05, 32), new T.MeshStandardMaterial({ color: 0x141c2c, metalness: 0.8, roughness: 0.3 })); base.position.set(1.05, 0.025, -0.1); sc.add(base);
+    var fascio = new T.Mesh(new T.CylinderGeometry(0.02, 0.16, 0.4, 24, 1, true), mat(blu, 0.12)); fascio.position.set(1.05, 0.25, -0.1); sc.add(fascio);
+    this.cornice = { vetro: vetro, bordo: bordo }; this.W = W; this.H = H;
+    this.scene = {}; this.attuale = null; this.t = 0; this.cambioT = 0; this.auto = true;
+    /* la tela dello schermo vivo */
+    this.tela = D.createElement('canvas'); this.tela.width = 512; this.tela.height = 384; this.tex = new T.CanvasTexture(this.tela); this.tex.encoding = T.sRGBEncoding;
+  }
+  Ologramma.prototype.costruisci = function (nome) {
+    var T = this.T, g = new T.Group(), mat = this.mat, lin = this.lin, U = {}, blu = 0x2f6bff;
+    if (nome === 'pianeti') {
+      var sole = new T.Mesh(new T.SphereGeometry(0.05, 24, 16), mat(0xffd27a, 0.95)); g.add(sole);
+      var alone = new T.Mesh(new T.SphereGeometry(0.085, 24, 16), mat(0xffb347, 0.18)); g.add(alone);
+      U.p = [[0.16, 0.05, 0x9fe7ff], [0.25, 0.2, 0x00c9b7], [0.34, 0.09, 0x6b8cff], [0.45, 0.32, 0xff9fd2]].map(function (d, i) {
+        var a = d[0], e = d[1], b = a * Math.sqrt(1 - e * e), pts = [];
+        for (var k = 0; k <= 96; k++) { var E = k / 96 * Math.PI * 2; pts.push(new T.Vector3(a * (Math.cos(E) - e), 0, b * Math.sin(E))); }
+        g.add(new T.Line(new T.BufferGeometry().setFromPoints(pts), lin(d[2], 0.45)));
+        var pl = new T.Mesh(new T.SphereGeometry(0.018 + 0.006 * (i % 2), 16, 12), mat(d[2], 0.95)); g.add(pl);
+        return { a: a, e: e, b: b, pl: pl, T: Math.pow(a / 0.16, 1.5) * 2.2, M0: i * 1.7 };
+      });
+      g.rotation.x = 0.55;
+      U.passo = function (t) { U.p.forEach(function (q) { var M = q.M0 + 2 * Math.PI * t / q.T, E = M; for (var k = 0; k < 6; k++) E -= (E - q.e * Math.sin(E) - M) / (1 - q.e * Math.cos(E)); q.pl.position.set(q.a * (Math.cos(E) - q.e), 0, q.b * Math.sin(E)); }); g.rotation.y = t * 0.05; };
+    } else if (nome === 'molecola') {
+      var C = [], R = 0.2;
+      for (var k = 0; k < 6; k++) { var a2 = k * Math.PI / 3, c = new T.Vector3(R * Math.cos(a2), R * Math.sin(a2), 0); C.push(c); var at = new T.Mesh(new T.SphereGeometry(0.035, 16, 12), mat(0x9fb6dd, 0.95)); at.position.copy(c); g.add(at);
+        var h = new T.Mesh(new T.SphereGeometry(0.022, 12, 10), mat(0xffffff, 0.9)); h.position.copy(c.clone().multiplyScalar(1.55)); g.add(h);
+        g.add(new T.Line(new T.BufferGeometry().setFromPoints([c, c.clone().multiplyScalar(1.55)]), lin(0xcfe2ff, 0.7))); }
+      for (k = 0; k < 6; k++) { var A = C[k], B = C[(k + 1) % 6]; g.add(new T.Line(new T.BufferGeometry().setFromPoints([A, B]), lin(0x00c9b7, 0.95)));
+        if (k % 2 === 0) { var off = A.clone().add(B).multiplyScalar(0.5).multiplyScalar(-0.12); g.add(new T.Line(new T.BufferGeometry().setFromPoints([A.clone().add(off), B.clone().add(off)]), lin(0x00c9b7, 0.6))); } }
+      [-1, 1].forEach(function (sg) { var tor = new T.Mesh(new T.TorusGeometry(R, 0.03, 10, 48), mat(blu, 0.22)); tor.position.z = 0.05 * sg; g.add(tor); });
+      U.passo = function (t) { g.rotation.set(0.9 + 0.25 * Math.sin(t * 0.4), t * 0.5, 0); };
+    } else if (nome === 'spettro') {
+      var assi = [new T.Vector3(-0.45, -0.3, 0), new T.Vector3(0.45, -0.3, 0), new T.Vector3(-0.45, -0.3, 0), new T.Vector3(-0.45, 0.32, 0)];
+      g.add(new T.LineSegments(new T.BufferGeometry().setFromPoints(assi), lin(0x9fb6dd, 0.6)));
+      for (var gx = 0; gx <= 8; gx++) g.add(new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(-0.45 + gx * 0.1125, -0.3, 0), new T.Vector3(-0.45 + gx * 0.1125, 0.32, 0)]), lin(0x2f6bff, 0.15)));
+      var bande = [[3400, 0.95, 120], [2925, 0.55, 40], [1715, 0.9, 25], [1405, 0.4, 20], [1130, 0.8, 35]], N = 400, pos = new Float32Array(N * 3);
+      for (var i = 0; i < N; i++) { var nu = 4000 - i / (N - 1) * 3600, y = 0; bande.forEach(function (bd) { y += bd[1] * Math.exp(-Math.pow((nu - bd[0]) / bd[2], 2)); }); pos[i * 3] = -0.45 + i / (N - 1) * 0.9; pos[i * 3 + 1] = -0.3 + Math.min(1, y) * 0.58; }
+      var gs = new T.BufferGeometry(); gs.setAttribute('position', new T.BufferAttribute(pos, 3)); var curva = new T.Line(gs, lin(0x00c9b7, 1)); g.add(curva);
+      var cursore = new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(0, -0.3, 0), new T.Vector3(0, 0.32, 0)]), lin(0xffd27a, 0.8)); g.add(cursore);
+      U.passo = function (t) { var f = (t % 6) / 4.5, n = Math.max(2, Math.min(N, Math.floor(f * N))); gs.setDrawRange(0, n); cursore.position.x = -0.45 + Math.min(1, f) * 0.9; cursore.visible = f < 1; g.rotation.y = 0.18 * Math.sin(t * 0.3); };
+    } else if (nome === 'superficie') {
+      var n2 = 34, gp = new T.PlaneGeometry(0.9, 0.9, n2, n2), wire = new T.LineSegments(new T.WireframeGeometry(gp), lin(0x6bcfff, 0.55)), P = gp.attributes.position;
+      var wpos = wire.geometry.attributes.position; g.add(wire); g.rotation.x = -1.0;
+      U.passo = function (t) { for (var k = 0; k < wpos.count; k++) { var x = wpos.getX(k), y = wpos.getY(k), r = Math.hypot(x, y) * 22 + 1e-6; wpos.setZ(k, 0.16 * Math.sin(r - t * 3) / (r * 0.35 + 1)); } wpos.needsUpdate = true; g.rotation.z = t * 0.15; };
+    } else if (nome === 'orbitale') {
+      var lobo = new T.SphereGeometry(0.12, 32, 24); lobo.scale(1, 1.75, 1);
+      var su = new T.Mesh(lobo, mat(0x00c9b7, 0.55)); su.position.y = 0.2; g.add(su); var giu = new T.Mesh(lobo, mat(0x00c9b7, 0.55)); giu.position.y = -0.2; g.add(giu);
+      var anello = new T.Mesh(new T.TorusGeometry(0.15, 0.055, 16, 48), mat(0x6b8cff, 0.55)); anello.rotation.x = Math.PI / 2; g.add(anello);
+      var nucleo = new T.Mesh(new T.SphereGeometry(0.018, 12, 10), mat(0xffffff, 1)); g.add(nucleo);
+      U.passo = function (t) { g.rotation.set(0.35 + 0.2 * Math.sin(t * 0.5), t * 0.6, 0.15); };
+    } else if (nome === 'onda') {
+      var M2 = 300, op = new Float32Array(M2 * 3), og = new T.BufferGeometry(); og.setAttribute('position', new T.BufferAttribute(op, 3)); g.add(new T.Line(og, lin(0x00c9b7, 1)));
+      var ip = new Float32Array(M2 * 3), ig = new T.BufferGeometry(); ig.setAttribute('position', new T.BufferAttribute(ip, 3)); g.add(new T.Line(ig, lin(0x6b8cff, 0.8)));
+      var dp = new Float32Array(M2 * 3), dg = new T.BufferGeometry(); dg.setAttribute('position', new T.BufferAttribute(dp, 3)); g.add(new T.Line(dg, lin(0xffd27a, 0.9)));
+      U.passo = function (t) {
+        var tt = t % 8, s0 = 0.06, k0 = 60, v = 0.12, sig = s0 * Math.sqrt(1 + Math.pow(tt * 0.9, 2)), x0 = -0.35 + v * tt;
+        for (var k = 0; k < M2; k++) { var x = -0.45 + k / (M2 - 1) * 0.9, env = Math.sqrt(s0 / sig) * Math.exp(-Math.pow(x - x0, 2) / (2 * sig * sig)), fase = k0 * (x - x0 / 2);
+          op[k * 3] = x; op[k * 3 + 1] = 0.25 * env * Math.cos(fase); ip[k * 3] = x; ip[k * 3 + 1] = 0.25 * env * Math.sin(fase); ip[k * 3 + 2] = 0.04; dp[k * 3] = x; dp[k * 3 + 1] = -0.32 + 0.3 * env * env; }
+        og.attributes.position.needsUpdate = true; ig.attributes.position.needsUpdate = true; dg.attributes.position.needsUpdate = true; g.rotation.y = 0.25 * Math.sin(t * 0.3);
+      };
+    } else if (nome === 'schermo') {
+      var pl2 = new T.Mesh(new T.PlaneGeometry(this.W * 0.94, this.H * 0.7), new T.MeshBasicMaterial({ map: this.tex, transparent: true, opacity: 0.95, toneMapped: false })); g.add(pl2);
+      U.passo = function () {};
+    }
+    g.userData.U = U; g.visible = false; this.grp.add(g); this.scene[nome] = g; return g;
+  };
+  Ologramma.prototype.mostra = function (nome) {
+    if (!nome || nome === this.attuale) return;
+    if (!this.scene[nome]) this.costruisci(nome);
+    var self = this; Object.keys(this.scene).forEach(function (k) { self.scene[k].visible = k === nome; });
+    this.attuale = nome; this.t0 = this.t; this.comparsa = 0;
+    if (this.suCambio) this.suCambio(nome);
+  };
+  Ologramma.prototype.passo = function (dt) {
+    this.t += dt; var g = this.attuale && this.scene[this.attuale]; if (!g) return;
+    /* la comparsa: l'ologramma «si accende» in mezzo secondo */
+    this.comparsa = Math.min(1, (this.comparsa || 0) + dt * 2); g.scale.setScalar(0.6 + 0.4 * this.comparsa);
+    this.cornice.bordo.material.opacity = 0.55 + 0.2 * Math.sin(this.t * 2.2);
+    if (g.userData.U.passo) g.userData.U.passo(this.t);
+    /* a riposo le scene si alternano da sole */
+    if (this.auto && this.attuale !== 'schermo') { this.cambioT += dt; if (this.cambioT > 14) { this.cambioT = 0; this.mostra(GIRO_OLO[(GIRO_OLO.indexOf(this.attuale) + 1) % GIRO_OLO.length]); } }
+  };
+  /* la scena adatta a un testo (domanda o risposta): la prima che vi si riconosce */
+  function sceneDi(testo) { var s = String(testo || '').toLowerCase(); for (var k = 0; k < GIRO_OLO.length; k++) if (SCENE_OLO[GIRO_OLO[k]].parole.test(s)) return GIRO_OLO[k]; return null; }
+
   /* ═══ 2. LA FIGURA: un riquadro con Spectra in piedi ═══════════════════ */
-  var CSS = '.bsiSF{position:relative;border:1px solid rgba(107,207,255,.28);border-radius:16px;overflow:hidden;margin:0 0 14px;background:radial-gradient(120% 90% at 30% 100%,#0d1d3a 0%,#060b18 55%,#040814 100%);min-height:300px;height:clamp(300px,46vh,440px)}' +
-    '.bsiSF canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y}' +
+  var CSS = '.bsiSF{display:flex;flex-direction:column;position:relative;border:1px solid rgba(107,207,255,.28);border-radius:16px;overflow:hidden;margin:0 0 14px;background:radial-gradient(120% 90% at 30% 100%,#0d1d3a 0%,#060b18 55%,#040814 100%);min-height:340px;height:clamp(340px,54vh,520px)}' +
+    '.bsiSF canvas{display:block;width:100%!important;flex:1 1 auto;min-height:0;touch-action:pan-y}' +
     '.bsiSF-hud{position:absolute;left:12px;top:10px;right:12px;display:flex;align-items:center;gap:8px;pointer-events:none;font:800 11px/1.2 ui-monospace,monospace;letter-spacing:.18em;color:#6bcfff;text-transform:uppercase}' +
     '.bsiSF-hud b{color:#e9f3ff}.bsiSF-led{width:8px;height:8px;border-radius:50%;background:#00c9b7;box-shadow:0 0 10px #00c9b7}' +
-    '.bsiSF-az{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}' +
-    /* sul telefono i pulsanti flottanti dell\'app stanno a destra: i pulsanti della figura vanno a sinistra, in colonna */
-    '@media (max-width:640px){.bsiSF-az{right:auto;left:10px;flex-direction:column;align-items:flex-start}}' +
+    /* i pulsanti in una barra sotto la scena: non coprono Spectra ne' l'ologramma */
+    '.bsiSF-az{position:relative;flex:0 0 auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start;padding:8px 10px;background:rgba(5,10,22,.88);border-top:1px solid rgba(107,207,255,.2)}' +
     '.bsiSF-az button,.bsiSF-az a{background:rgba(13,21,34,.86);border:1px solid rgba(107,207,255,.35);color:#cfe2ff;border-radius:999px;padding:7px 11px;font:700 12px system-ui;cursor:pointer;text-decoration:none;min-height:34px}' +
     '.bsiSF-az button:focus-visible,.bsiSF-az a:focus-visible{outline:2px solid #00c9b7;outline-offset:2px}' +
-    '.bsiSF-nota{position:absolute;left:12px;bottom:12px;max-width:52%;font:600 12px/1.35 system-ui;color:#9fb6dd;pointer-events:none}' +
+    '.bsiSF-olo{position:absolute;right:12px;top:8px;max-width:58%;background:rgba(8,14,30,.78);border:1px solid rgba(107,207,255,.4);color:#9fe7ff;border-radius:999px;padding:5px 11px;font:700 11.5px system-ui;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px}' +
+    /* sul telefono i pulsanti flottanti dell\'app stanno sul bordo destro: la barra lascia loro spazio */
+    '@media (max-width:640px){.bsiSF .bsiSF-az{padding-right:74px}#bsi-pane-spiega .bsiSF .bsiSF-az{padding-right:10px}}' +
+    '.bsiSF-nota{position:absolute;left:12px;bottom:58px;max-width:52%;font:600 12px/1.35 system-ui;color:#9fb6dd;pointer-events:none}' +
     '.bsiSF-invito{position:absolute;left:12px;right:12px;top:42px;max-width:380px;background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui}' +
     '.bsiSF-invito[hidden]{display:none}.bsiSF-invito button{margin-top:8px;background:linear-gradient(135deg,#2f6bff,#00c9b7);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer;min-height:36px}' +
-    '#bsi-pane-spiega .bsiSF{flex:0 0 auto;height:clamp(220px,30vh,320px);min-height:220px;margin:10px 14px 0}#bsi-pane-spiega #bsiSP{flex:1;min-height:0}' +
+    '#bsi-pane-spiega .bsiSF{flex:0 0 auto;height:clamp(290px,40vh,400px);min-height:290px;margin:10px 14px 0}#bsi-pane-spiega #bsiSP{flex:1;min-height:0}' +
     /* nella scheda Spiega i pulsanti stanno in riga, in basso a destra, e «🧠 Spiega» non serve (ci siamo gia') */
-    '#bsi-pane-spiega .bsiSF-az{flex-direction:row;left:auto;right:10px;align-items:center}#bsi-pane-spiega .bsiSF-lez{display:none}' +
+    '#bsi-pane-spiega .bsiSF-lez{display:none}' +
     '@media (max-width:520px){.bsiSF-nota{display:none}}';
   function stile() { if (D.getElementById('bsiSF-stile')) return; var s = D.createElement('style'); s.id = 'bsiSF-stile'; s.textContent = CSS; D.head.appendChild(s); }
 
@@ -258,19 +376,40 @@
     var gr = new T.GridHelper(14, 28, 0x2f6bff, 0x13244a); gr.material.transparent = true; gr.material.opacity = 0.5; sc.add(gr);
     for (var ip = -2; ip <= 2; ip++) { var pn = new T.Mesh(new T.PlaneGeometry(0.9, 1.6), new T.MeshBasicMaterial({ color: ip % 2 ? 0x2f6bff : 0x6bcfff, transparent: true, opacity: 0.07, side: T.DoubleSide })); pn.position.set(ip * 1.1, 1.3, -2.2 + Math.abs(ip) * 0.25); pn.rotation.y = -ip * 0.14; sc.add(pn); var bo = new T.LineSegments(new T.EdgesGeometry(pn.geometry), new T.LineBasicMaterial({ color: 0x6bcfff, transparent: true, opacity: 0.35 })); bo.position.copy(pn.position); bo.rotation.copy(pn.rotation); sc.add(bo); }
     /* la pedana olografica */
-    var ped = new T.Mesh(new T.CircleGeometry(0.7, 64), new T.MeshStandardMaterial({ color: 0x0b1428, metalness: 0.8, roughness: 0.3 })); ped.rotation.x = -Math.PI / 2; sc.add(ped);
-    var anello = new T.Mesh(new T.TorusGeometry(0.7, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.y = 0.006; sc.add(anello);
-    var alone = new T.Mesh(new T.CylinderGeometry(0.7, 0.72, 2.2, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.045, side: T.DoubleSide, depthWrite: false })); alone.position.y = 1.1; sc.add(alone);
-    var cam = new T.PerspectiveCamera(26, 1, 0.05, 40), bers = new T.Vector3(0, 0.98, 0), az0 = 0.25;
+    var ped = new T.Mesh(new T.CircleGeometry(0.62, 64), new T.MeshStandardMaterial({ color: 0x0b1428, metalness: 0.8, roughness: 0.3 })); ped.rotation.x = -Math.PI / 2; ped.position.set(-0.32, 0, 0.05); sc.add(ped);
+    var anello = new T.Mesh(new T.TorusGeometry(0.62, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.set(-0.32, 0.006, 0.05); sc.add(anello);
+    var alone = new T.Mesh(new T.CylinderGeometry(0.62, 0.64, 2.2, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.045, side: T.DoubleSide, depthWrite: false })); alone.position.set(-0.32, 1.1, 0.05); sc.add(alone);
+    var cam = new T.PerspectiveCamera(26, 1, 0.05, 40), bers = new T.Vector3(0.38, 0.98, 0), az0 = 0.12;
     function posCam(r) { cam.position.set(bers.x + r * Math.sin(az0), bers.y + 0.18, bers.z + r * Math.cos(az0)); cam.lookAt(bers); }
 
     var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null };
-    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(0, 0, 0), rotY: az0 * 0.6, contenitore: box, soloDispositivo: opz.soloDispositivo, suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
+    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo, suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
     /* finche' il corpo non c'e' (la prima volta su un dispositivo): l'invito a caricarlo, non un sostituto */
     var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'note');
     inv.innerHTML = '<b>' + t('Spectra non è ancora su questo dispositivo.', 'Spectra is not on this device yet.') + '</b><br>' + t('Carica una volta il suo corpo (.glb): resta salvato solo qui.', 'Load its body (.glb) once: it stays saved here only.');
     var invB = D.createElement('button'); invB.type = 'button'; invB.textContent = t('🧍 Carica il corpo', '🧍 Load the body'); inv.appendChild(D.createElement('br')); inv.appendChild(invB); box.appendChild(inv);
     S.carica().then(aggiornaNota);
+    /* L'OLOGRAMMA alla destra di Spectra */
+    var OL = F.olo = new Ologramma(T, sc), etO = D.createElement('button'); etO.type = 'button'; etO.className = 'bsiSF-olo'; box.appendChild(etO);
+    OL.suCambio = function (nome) { var d = SCENE_OLO[nome]; etO.textContent = nome === 'schermo' ? t('📺 La tua sezione, dal vivo', '📺 Your section, live') : (d.nome[t(0, 1)] + ' · ' + t('apri', 'open') + ' ›'); etO.title = nome === 'schermo' ? '' : t('Apri la sezione dell\'app', 'Open the app section'); };
+    etO.onclick = function () { var d = SCENE_OLO[OL.attuale]; if (!d) return; var b = D.querySelector('[data-s="' + d.sez + '"]'); if (!b) return; var ch = D.getElementById('bsi-hub-close'); if (ch && D.getElementById('bsi-hub-ov') && D.getElementById('bsi-hub-ov').classList.contains('open')) ch.click(); b.click(); try { b.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {} };
+    OL.mostra('pianeti');
+    var vivoT = 0;
+    function vivo() {
+      /* lo schermo vivo: la sezione aperta (la sua tela, ridisegnata) copiata nell'ologramma, 5 volte al secondo */
+      var L = globale.BSISpectraLive, c = L && L.cattura ? (function () { try { return L.cattura(); } catch (e) { return null; } })() : null;
+      if (!c) { OL.auto = true; OL.mostra('pianeti'); return; }
+      var q = OL.tela.getContext('2d'), k = Math.min(OL.tela.width / c.width, OL.tela.height / c.height);
+      q.fillStyle = '#04101e'; q.fillRect(0, 0, OL.tela.width, OL.tela.height);
+      q.drawImage(c, (OL.tela.width - c.width * k) / 2, (OL.tela.height - c.height * k) / 2, c.width * k, c.height * k); OL.tex.needsUpdate = true;
+    }
+    function tema(testo, conSchermo) {
+      if (conSchermo && globale.BSISpectraLive && globale.BSISpectraLive.cattura && globale.BSISpectraLive.cattura()) { OL.auto = false; OL.mostra('schermo'); vivo(); return; }
+      var n = sceneDi(testo); if (n) { OL.auto = false; OL.mostra(n); clearTimeout(tema._t); tema._t = setTimeout(function () { OL.auto = true; }, 60000); }
+    }
+    F.tema = tema;
+    function suTema(e) { var d = e.detail || {}; tema(d.testo, d.schermo); }
+    D.addEventListener('bsi-spectra-tema', suTema);
     function aggiornaNota() { var c = S.presente(); inv.hidden = c; nota.textContent = c ? t('Il tuo Spectra, salvato su questo dispositivo.', 'Your Spectra, saved on this device.') : ''; }
     aggiornaNota();
     function statoHud(s) { hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + s + '</b>'; }
@@ -294,10 +433,11 @@
 
     /* la misura del riquadro e l'inquadratura: Spectra intero, dai piedi alla testa */
     function adatta() {
-      var w = box.clientWidth || 300, h = box.clientHeight || 300; ren.setSize(w, h, false); cam.aspect = w / h;
+      var w = box.clientWidth || 300, h = Math.max(160, (box.clientHeight || 300) - (az.offsetHeight || 0)); ren.setSize(w, h, false); cam.aspect = w / h;
       /* in un riquadro largo Spectra sta a sinistra (lascia spazio ai pulsanti), in uno stretto al centro */
-      if (w > h * 1.25) cam.setViewOffset(w, h, w * 0.18, 0, w, h); else cam.clearViewOffset();
-      var serve = 2.15 / (2 * Math.tan(cam.fov * Math.PI / 360)); posCam(Math.max(serve, serve / Math.min(1, cam.aspect * 1.25)));
+      /* l'inquadratura contiene Spectra intero (a sinistra) e l'ologramma (a destra): 2,5 m di larghezza, 2,15 di altezza */
+      cam.clearViewOffset(); var tg = Math.tan(cam.fov * Math.PI / 360);
+      posCam(Math.max(2.2 / (2 * tg), 2.55 / (2 * tg * cam.aspect)));
       cam.updateProjectionMatrix();
     }
     F.adatta = adatta; adatta();
@@ -309,7 +449,10 @@
       var s = perIlViso(testo); if (!s) return;
       if (s === F.ultimo && quando < 3) return;   /* la stessa frase annunciata due volte (risposta e voce): una reazione sola */
       F.ultimo = s; statoHud(t('PARLA', 'SPEAKING'));
-      S.emozione(emo || emozioneDi(s), 6); S.fai('spiega', null, Math.min(9, 2 + s.length / 40)); S.dici(s); quando = 0;
+      if (OL.attuale !== 'schermo') { var n2 = sceneDi(s); if (n2 && OL.auto) OL.mostra(n2); }
+      S.emozione(emo || emozioneDi(s), 6); S.dici(s); quando = 0;
+      /* spiegando, Spectra indica l'ologramma, poi accompagna con le mani */
+      S.fai('indica', OL.grp.getWorldPosition(new T.Vector3()), 2.5); clearTimeout(F._g); F._g = setTimeout(function () { S.fai('spiega', null, Math.min(8, 1 + s.length / 45)); }, 2600);
     }
     F.reagisci = reagisci;
     function suStato(e) { var s = e.detail && e.detail.stato; if (s === 'pensa' || s === 'strumenti' || s === 'scrive') { S.emozione('concentrata', 8); S.fai('pensa', null, 8); statoHud(t('PENSA', 'THINKING')); } }
@@ -327,12 +470,13 @@
       /* lo sguardo: verso chi guarda; ogni tanto un'occhiata altrove (vivo, non fisso) */
       occhi.copy(cam.position); if (idleT % 9 > 7.6) occhi.x += 1.2 * Math.sin(idleT * 0.7);
       S.passo(dt, occhi);
+      OL.passo(dt); if (OL.attuale === 'schermo') { vivoT += dt; if (vivoT > 0.2) { vivoT = 0; vivo(); } }
       if (quando > 6 && !(S.corpo && S.corpo.testo)) statoHud(t('IN ASCOLTO', 'LISTENING'));
       anello.material.color.setHSL(0.55 + (S.corpo && S.corpo.testo ? 0.08 : 0), 1, 0.55 + 0.1 * Math.sin(ora / 600));
       ren.render(sc, cam);
     }
     requestAnimationFrame(giro);
-    F.distruggi = function () { F.attiva = false; D.removeEventListener('bsi-spectra-stato', suStato); D.removeEventListener('bsi-spectra-risposta', suRisposta); D.removeEventListener('bsi-spectra-dice', suRisposta); try { ren.dispose(); ren.forceContextLoss(); } catch (e) {} if (box.parentNode) box.parentNode.removeChild(box); };
+    F.distruggi = function () { F.attiva = false; D.removeEventListener('bsi-spectra-stato', suStato); D.removeEventListener('bsi-spectra-risposta', suRisposta); D.removeEventListener('bsi-spectra-dice', suRisposta); D.removeEventListener('bsi-spectra-tema', suTema); try { ren.dispose(); ren.forceContextLoss(); } catch (e) {} if (box.parentNode) box.parentNode.removeChild(box); };
     return F;
   }
 
@@ -390,7 +534,7 @@
     return { controlla: controlla, figura: function () { return condivisa; } };
   }
 
-  globale.BSISpectraFigura = { Spectra: Spectra, monta: monta, sezioni: sezioni, prepara: prepara, dbCorpo: dbCorpo, emozioneDi: emozioneDi, LIMITE: LIMITE, RIG: RIG, figura: null };
+  globale.BSISpectraFigura = { Spectra: Spectra, Ologramma: Ologramma, SCENE_OLO: SCENE_OLO, sceneDi: sceneDi, monta: monta, sezioni: sezioni, prepara: prepara, dbCorpo: dbCorpo, emozioneDi: emozioneDi, LIMITE: LIMITE, RIG: RIG, figura: null };
   /* nell'app (non nello studio, che usa il controllore direttamente) le sezioni dell'AI ricevono la figura */
   if (D && !/spectra-studio\.html/.test(globale.location && globale.location.pathname || '')) {
     var via = function () { if (D.querySelector('[data-s="sai"],[data-s="sareachim"]')) sezioni(); };

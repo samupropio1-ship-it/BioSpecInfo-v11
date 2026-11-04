@@ -896,33 +896,37 @@ summarised here.
   figure says that text. It renders only when visible and the page is in the
   foreground. The events are one-way: the figure does not change what the
   model answers.
-- **Lesson mode** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`, v240): the
-  «⚡ Lezione» tab, second in the Spectra window after «💬 Chat», teaches any
-  chemistry, physics or mathematics topic at the chosen level in four phases.
-  There are five levels: High school, Bachelor, Master, PhD, Advanced PhD ·
-  frontier. The model receives a **system prompt** with the *predict → test →
-  prove → reveal* method, the topic, the level's name and what is expected
-  (`PROFONDITA`: from high-school algebra to the master's full formalism, the
-  PhD's advanced methods, up to the state of the art, open problems, frontier
-  techniques and primary literature — certain references only — with a
-  proposed research question at advanced PhD), plus «do not simplify below
-  this level»; at PhD levels the length limits grow (TEST 280, PROVE 450,
-  REVEAL 600 words instead of 180, 250 and 420), and uses the chat's provider and key (`window.bsiLLM`). The first
-  phase is **controlled JSON** (`titolo`, `scena`, `domanda`, `opzioni[4]`
-  with the three most common misconceptions, `giusta`, `perche[4]`):
-  `leggiPredici` takes the first `{…}` object and checks its shape, and a
-  malformed answer is rejected with a message. TEST (numbers and a small
-  table, without saying yet who was right), PROVE (numbered derivation) and
-  REVEAL (why, with empathy; two or three links; exactly five exercises,
-  one per level, the last a genuine open or research problem, with solutions) are model text in the same conversation. **Without a
-  key or offline** the three lab lessons (`bsi-spectra-studio-lezioni.js`)
-  follow the same phases, with a slider in TEST that recomputes. The shared
-  figure moves into the tab (which has priority over the sections) and follows
-  the phases: thinks while the model writes, curious, concentrated,
-  determined, then joyful or surprised. The memory
-  `bsi-spectra-lezioni-ai-v1` counts right and wrong predictions per lesson.
-  With a model, the topic and the student's answers go to the configured
-  provider, like chat messages.
+- **«🧠 Spiega»** (`bsi-spectra-spiega.js`, `BSISpiega`, v240): the second
+  tab of the Spectra window, after «💬 Chat», for an **exhaustive
+  explanation** of any chemistry, physics or mathematics question. The system
+  prompt (`sistema(level, subject)`) sets the level — five, from High school
+  to Advanced PhD · frontier, each with its instructions in `PROFONDITA` and
+  «do not simplify below this level and do not leave out anything relevant» —
+  and a **mandatory structure** with `##` titles: in short; what you are
+  looking at (only with the screen: quantitative reading of axes, units,
+  curves and values; for NMR spectra δ, multiplicity, J, integral and
+  assignment of every signal, IR bands and groups, MS molecular ion,
+  fragments and isotopes, UV-Vis λmax, transitions and ε, then the structure
+  and its consistency; for 3D scenes geometry, symmetry, nodes, critical
+  points, isosurfaces and fields; for mathematical graphs domain, asymptotes,
+  zeros, extrema, inflections, convergence); foundations; numbered
+  derivation; computed examples; limiting cases and common errors; links
+  between the three subjects; applications and frontier (literature only if
+  certain); three self-check questions with answers. **The screen**
+  (`schermo()`, checkbox «📺 Includi lo schermo»): section, tab, every control
+  with value and range, visible tables (up to 4 × 40 rows), visible text,
+  number of graphs; `immagine()` composes the visible canvases (`BSILab3D`
+  scenes re-rendered first, via `BSISpectraLive.cattura`) and the visible SVGs
+  rasterised, at most 1400 px wide, as JPEG. The image goes to models that
+  accept images, with the chat's per-provider conversion, in the first turn
+  only; follow-up questions continue the conversation, which is kept in memory
+  for the session. Provider and key are the chat's (`window.bsiLLM`). The
+  shared figure moves into the tab (priority over the sections), thinks while
+  the model writes, then speaks and gestures. **Without a model it does not
+  pretend**: it says so and shows what the app knows on its own (the local
+  assistant's recognition, the chapters of the section's guided lesson, the
+  screen data as text). With the screen included, text and image go to the
+  configured provider together with the question.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

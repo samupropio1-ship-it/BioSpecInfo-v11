@@ -356,7 +356,7 @@ the repository); the call to OpenAI and listening to the voice (the bench does
 not reach OpenAI and does not listen); the visual quality of the body and
 gestures, which has to be judged by looking.
 
-**`test_spectra_figura` — 71 checks (36 at 412 px, 35 at 1280 px).** It comes
+**`test_spectra_figura` — 73 checks (37 at 412 px, 36 at 1280 px).** It comes
 from the author's request: Spectra's icon with the face only and, in every AI
 section, Spectra with the body, «and nothing else». It tests
 `bsi-spectra-figura.js` in the app, on a phone (412 px) and on a large screen
@@ -370,7 +370,7 @@ synthetic humanoid as `test_spectra_rig` (no skeleton, with a hood).
 | Without the body | The invitation to load it appears and **no substitute** (no mannequin in the scene) |
 | With the body | Once the synthetic humanoid is loaded the invitation disappears; the «Noir» face rests on the collar (0.0 cm); of the face model only `Object_2`, `Object_3`, `Object_4` are visible |
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → «spiega» gesture, joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
-| Lesson mode (12 per width) | «⚡ Lezione» is the second tab of the Spectra window; the levels go from high school to advanced PhD (five); the figure moves into the tab; offline the three lab lessons are there; PREDICT with four options and a curious Spectra; the TEST slider really recomputes (v₀ = 15 m/s → range 30.29 m, time unchanged 2.019 s); PROVE with formulas and a determined Spectra; REVEAL with the right answer marked, four exercises and, for a wrong prediction, surprise; a free topic with a **simulated model** (controlled JSON, four options, test table, four phases, right prediction → joy); the model receives the method and the level; at advanced PhD the model receives frontier, open problems and primary literature, and the instruction not to simplify; the memory `bsi-spectra-lezioni-ai-v1` records the predictions |
+| «🧠 Spiega» (12 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG spectra (the spectra quiz) as an image; reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image) |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 
@@ -379,8 +379,10 @@ and aligns the face, only when it is visible.
 
 Still outside: the author's body, which is not in the repository; the visual
 quality of the figure and gestures, which has to be judged by looking; the
-voice; the teaching quality of lessons written by a real model (the bench uses
-a simulated model and checks its form, not its content).
+voice; the quality of a real model's explanation: the model's answers are
+simulated, and the bench checks what is sent (screen text, image, level,
+requested structure) and how it is shown, not what a real model would
+explain.
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's

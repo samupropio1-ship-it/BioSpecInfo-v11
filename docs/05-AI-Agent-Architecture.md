@@ -928,38 +928,38 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   …», oppure dubbio se non ha capito) → la figura dice quel testo. Si
   disegna solo quando è visibile e la pagina è in primo piano. Gli eventi
   sono a senso unico: la figura non cambia ciò che il modello risponde.
-- **La modalità Lezione** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`,
-  v240): la scheda «⚡ Lezione», seconda nella finestra di Spectra dopo
-  «💬 Chat», insegna qualunque argomento di chimica, fisica o matematica al
-  livello scelto in quattro fasi. I livelli sono cinque: Scuola superiore,
-  Triennale, Magistrale, Dottorato (PhD), PhD avanzato · frontiera. Il
-  modello riceve un **prompt di sistema** con il metodo *predici → prova →
-  dimostra → rivela*, l'argomento, il nome del livello e che cosa ci si
-  aspetta (`PROFONDITA`: dall'algebra delle superiori al formalismo completo
-  della magistrale, ai metodi avanzati del dottorato, fino allo stato
-  dell'arte, ai problemi aperti, alle tecniche di frontiera e alla
-  letteratura primaria — solo riferimenti certi — con una domanda di ricerca
-  al PhD avanzato), più «Non semplificare sotto questo livello»; ai livelli
-  di dottorato i limiti di lunghezza crescono (PROVA 280, DIMOSTRA 450,
-  RIVELA 600 parole invece di 180, 250 e 420), e usa il
-  fornitore e la chiave della chat (`window.bsiLLM`). La prima fase è un
-  **JSON controllato** (`titolo`, `scena`, `domanda`, `opzioni[4]` con le tre
-  idee sbagliate più comuni, `giusta`, `perche[4]`): `leggiPredici` prende
-  il primo oggetto `{…}` e ne controlla la forma, e una risposta malformata
-  viene rifiutata con un messaggio. PROVA (numeri e una piccola tabella,
-  senza dire ancora chi aveva ragione), DIMOSTRA (derivazione a passi
-  numerati) e RIVELA (perché, con empatia; due o tre collegamenti;
-  esattamente cinque esercizi, uno per livello, l'ultimo un vero problema
-  aperto o di ricerca, con le soluzioni) sono testo del modello nella
-  stessa conversazione. **Senza chiave o senza rete** le tre lezioni del
-  laboratorio (`bsi-spectra-studio-lezioni.js`) seguono le stesse fasi, con
-  un cursore in PROVA che ricalcola. La figura condivisa si sposta nella
-  scheda (che ha la precedenza sulle sezioni) e segue le fasi: pensa mentre
-  il modello scrive, curiosa, concentrata, determinata, poi felice o
-  sorpresa. La memoria `bsi-spectra-lezioni-ai-v1` conta le previsioni
-  giuste e sbagliate per lezione. Con un modello, l'argomento e le risposte
-  dello studente vanno al fornitore configurato, come i messaggi della
-  chat.
+- **«🧠 Spiega»** (`bsi-spectra-spiega.js`, `BSISpiega`, v240): la scheda
+  seconda nella finestra di Spectra, dopo «💬 Chat», per una **spiegazione
+  esaustiva** di qualunque domanda di chimica, fisica o matematica. Il
+  prompt di sistema (`sistema(livello, materia)`) fissa il livello — cinque,
+  da Scuola superiore a PhD avanzato · frontiera, ciascuno con le sue
+  istruzioni in `PROFONDITA` e «Non semplificare sotto questo livello e non
+  tralasciare nulla di rilevante» — e una **struttura obbligatoria** a titoli
+  `##`: in sintesi; che cosa stai guardando (solo con lo schermo: lettura
+  quantitativa di assi, unità, curve e valori; per gli spettri NMR δ,
+  molteplicità, J, integrale e attribuzione di ogni segnale, IR bande e
+  gruppi, MS ione molecolare, frammenti e isotopi, UV-Vis λmax, transizioni
+  ed ε, poi la struttura e la sua coerenza; per le scene 3D geometria,
+  simmetria, nodi, punti critici, isosuperfici e campi; per i grafici
+  matematici dominio, asintoti, zeri, estremi, flessi, convergenza);
+  fondamenti; derivazione numerata; esempi calcolati; casi limite ed errori
+  comuni; collegamenti fra le tre materie; applicazioni e frontiera
+  (letteratura solo se certa); tre domande di verifica con risposta.
+  **Lo schermo** (`schermo()`, casella «📺 Includi lo schermo»): sezione,
+  scheda, ogni comando con valore e intervallo, tabelle visibili (fino a
+  4 × 40 righe), testo visibile, numero dei grafici; `immagine()` compone le
+  tele visibili (le scene di `BSILab3D` ridisegnate prima, con
+  `BSISpectraLive.cattura`) e gli SVG visibili trasformati in immagine, larghi
+  al massimo 1400 px, in JPEG. L'immagine va ai modelli che accettano
+  immagini con la conversione per fornitore della chat, solo nel primo turno;
+  le domande successive continuano la conversazione, che resta in memoria
+  per la sessione. Fornitore e chiave sono quelli della chat
+  (`window.bsiLLM`). La figura condivisa si sposta nella scheda (precedenza
+  sulle sezioni), pensa mentre il modello scrive, poi parla e gesticola.
+  **Senza modello non finge**: lo dice e mostra ciò che l'app sa da sola
+  (riconoscimento dell'assistente locale, capitoli della lezione guidata
+  della sezione, dati dello schermo come testo). Con lo schermo incluso,
+  testo e immagine vanno al fornitore configurato insieme alla domanda.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità
