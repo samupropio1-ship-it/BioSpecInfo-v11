@@ -320,6 +320,12 @@
       var Cr = globale.BSISpectraCreatore; if (!Cr) return null; Cr.dimentica(); telemetria();
       if (hud.volto && hud.volto.espressione) hud.volto.espressione('empatica', 3);
       return { testo: t('Fatto: su questo dispositivo non ti riconosco più come mio creatore.', 'Done: on this device I no longer recognise you as my creator.') }; } },
+    /* la lezione guidata della sezione aperta (bsi-lezione.js) */
+    { re: /^(fammi (una )?lezione|lezione( guidata)?|insegnami (questa sezione|questo)|spiegami passo passo|teach me|give me a lesson|lesson)/, f: function () {
+      var Lz = globale.BSILezione; if (!Lz) return null;
+      if (!sezioneAttiva()) return { testo: t('Apri prima una sezione: poi ti faccio lezione, capitolo per capitolo.', 'Open a section first: then I will teach it to you, chapter by chapter.') };
+      chiudiHud(true); setTimeout(function () { Lz.avvia(); }, 250);
+      return { testo: t('Cominciamo. Ti mostro tutto mentre lo spiego.', 'Let us begin. I will show you everything as I explain it.') }; } },
     { re: /^(stop|basta|zitto|silenzio|fermati|smetti)\b/, f: function () { taci(); return { testo: '', muto: true }; } },
     { re: /^(ripeti|puoi ripetere|repeat)/, f: function () { return { testo: ultima || t('Non ho ancora detto niente.', 'I have not said anything yet.') }; } },
     { re: /^(che ore sono|che ora e|what time is it)/, f: function () { var d = new Date(); return { testo: t('Sono le ', 'It is ') + d.getHours() + (lingua() === 'en' ? ':' : ' e ') + String(d.getMinutes()).padStart(2, '0') + '.' }; } },
@@ -643,7 +649,7 @@
   function chips() {
     var box = document.getElementById('bsiJV-chips'); if (!box) return;
     var sc = leggiSchermo(), L;
-    if (sc.sezione) L = [['📖', t('Spiegami questa sezione', 'Explain this section'), t('spiegami questa sezione', 'explain this section')], ['🧭', t('Guidami', 'Guide me'), t('guidami', 'guide me')], ['👁', t('Cosa vedo?', 'What am I looking at?'), t('dove sono', 'where am i')], ['❓', t('Interrogami', 'Quiz me'), t('interrogami', 'quiz me')], ['🔁', t('Ripassa', 'Review'), t('ripassa', 'review')]];
+    if (sc.sezione) L = [['🎓', t('Lezione', 'Lesson'), t('fammi lezione', 'give me a lesson')], ['📖', t('Spiegami questa sezione', 'Explain this section'), t('spiegami questa sezione', 'explain this section')], ['🧭', t('Guidami', 'Guide me'), t('guidami', 'guide me')], ['👁', t('Cosa vedo?', 'What am I looking at?'), t('dove sono', 'where am i')], ['❓', t('Interrogami', 'Quiz me'), t('interrogami', 'quiz me')], ['🔁', t('Ripassa', 'Review'), t('ripassa', 'review')]];
     else L = [['🧭', t('Tutte le sezioni', 'All sections'), null], ['❓', t('Interrogami', 'Quiz me'), t('interrogami', 'quiz me')], ['🔁', t('Ripassa', 'Review'), t('ripassa', 'review')], ['🧠', t('Cosa ricordi?', 'What do you remember?'), t('cosa ricordi', 'what do you remember')], ['💬', t('Come stai?', 'How are you?'), t('come stai', 'how are you')]];
     var chiave = L.map(function (x) { return x[1]; }).join('|'); if (box._chiave === chiave) return; box._chiave = chiave;
     box.innerHTML = '';
