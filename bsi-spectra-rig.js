@@ -25,7 +25,9 @@
       (in modo graduale dal colletto: nessun gradino), diventa rigido con l'osso
       della testa e si apre davanti con un'ellisse fatta NELLO SHADER, al pixel
       (bordo liscio, che segue la testa in ogni movimento). L'interno del casco
-      resta come fodera in ombra: della testa si vede solo il viso. Senza viso,
+      resta come fodera in ombra; con { visiera: false } anche il casco sotto il
+      cappuccio (la visiera nera lucida) diventa ombra opaca: della testa si vede
+      solo il viso, che emerge dall'ombra del cappuccio. Senza viso,
       { togliTesta } toglie i triangoli sopra il collo.
    5. RICOLORA la texture in BLU NOTTE (richiesta dell'autore): ombre quasi nere
       #03050c, mezzitoni #0d162e–#162448, luci #2a3c6c, i bianchi appena azzurri;
@@ -270,6 +272,20 @@
         if (P[i * 3 + 1] > hy) P[i * 3 + 1] = hy + (P[i * 3 + 1] - hy) * (1 + (g - 1) * 0.25);   /* in altezza poco: la cupola resta bassa sulla fronte */
       }
     }
+    /* NIENTE VISIERA NERA (opz.visiera === false): il casco sotto il cappuccio e' un pezzo di texture a se' (un'«isola»
+       UV: triangoli collegati dagli indici, senza saldare le cuciture). Si riconosce perche' sta tutto sopra il collo e
+       davanti all'asse della testa; il tessuto del cappuccio invece scende sulle spalle e gira dietro. Non si toglie
+       (resterebbero buchi e bordi a scalini): diventa OMBRA, opaca e senza riflessi, come l'interno di un cappuccio. */
+    var visiera = null;
+    if (opz.visiera === false && ind) {
+      var pi = Int32Array.from({ length: n }, function (_, k) { return k; });
+      var fi = function (x) { while (pi[x] !== x) { pi[x] = pi[pi[x]]; x = pi[x]; } return x; };
+      for (t = 0; t < ntri; t++) for (c = 1; c < 3; c++) { var ra = fi(ind[t * 3]), rb = fi(ind[t * 3 + c]); if (ra !== rb) pi[ra] = rb; }
+      var isole = {};
+      for (i = 0; i < n; i++) { var r0 = fi(i), o0 = isole[r0] || (isole[r0] = { n: 0, sopra: 0, z: 0 }); o0.n++; if (P[i * 3 + 1] > (U.collo - 0.03) * alto) o0.sopra++; o0.z += P[i * 3 + 2]; }
+      visiera = {}; Object.keys(isole).forEach(function (k) { var o = isole[k]; if (o.n > 50 && o.sopra / o.n > 0.9 && o.z / o.n > punti.Head[2]) visiera[k] = 1; });
+      var vfi = fi; visiera.di = function (k) { return visiera[vfi(k)]; };
+    }
     var nuovoInd = [], tolti = 0, taglio = (U.collo + 0.012) * alto, apertura = (opz.apertura || 75) * Math.PI / 180;
     for (t = 0; t < ntri; t++) {
       var a0 = vi(t, 0), a1 = vi(t, 1), a2 = vi(t, 2);
@@ -290,6 +306,7 @@
     if (g0.attributes.uv) geo.setAttribute('uv', g0.attributes.uv.clone());
     geo.setAttribute('skinIndex', new T.Uint16BufferAttribute(SW.idx, 4));
     geo.setAttribute('skinWeight', new T.Float32BufferAttribute(SW.wt, 4));
+    if (visiera) { var om = new Float32Array(n); for (i = 0; i < n; i++) om[i] = visiera.di(i) ? 1 : 0; geo.setAttribute('aOmbra', new T.BufferAttribute(om, 1)); }
     geo.setIndex(nuovoInd); geo.computeVertexNormals();
     /* le normali calcolate si saldano: niente spigoli finti lungo le cuciture della texture */
     var no = geo.attributes.normal, acc = {};
@@ -316,10 +333,11 @@
       var V = opz.viso; mat.side = T.DoubleSide;   /* dal foro si vede l'interno del casco, non il vuoto */
       mat.onBeforeCompile = function (sh) {
         sh.uniforms.uViso = { value: new T.Vector4(V.y, V.ax, V.ay, hz) };
-        sh.vertexShader = 'varying vec3 vRig;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vRig = position;');
-        sh.fragmentShader = 'uniform vec4 uViso;\nvarying vec3 vRig;\n' + sh.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n  { vec2 e = vec2(vRig.x / uViso.y, (vRig.y - uViso.x) / uViso.z); if (vRig.z > uViso.w && dot(e, e) < 1.0) discard; }').replace('#include <dithering_fragment>', '#include <dithering_fragment>\n  if (!gl_FrontFacing) gl_FragColor.rgb *= 0.06;');   /* l\'interno del casco: ombra, senza riflessi */
+        var conOmbra = !!geo.attributes.aOmbra;
+        sh.vertexShader = 'varying vec3 vRig;\n' + (conOmbra ? 'attribute float aOmbra;\nvarying float vOmbra;\n' : '') + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vRig = position;' + (conOmbra ? ' vOmbra = aOmbra;' : ''));
+        sh.fragmentShader = 'uniform vec4 uViso;\nvarying vec3 vRig;\n' + (conOmbra ? 'varying float vOmbra;\n' : '') + sh.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n  { vec2 e = vec2(vRig.x / uViso.y, (vRig.y - uViso.x) / uViso.z); if (vRig.z > uViso.w && dot(e, e) < 1.0) discard; }').replace('#include <dithering_fragment>', '#include <dithering_fragment>\n  if (!gl_FrontFacing) gl_FragColor.rgb *= 0.06;' + (conOmbra ? '\n  gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.2 + vec3(0.006, 0.010, 0.022), vOmbra);' : ''));   /* l\'interno del casco: ombra, senza riflessi */
       };
-      mat.customProgramCacheKey = function () { return 'bsi-rig-viso-' + [V.y, V.ax, V.ay, hz].join('|'); };
+      mat.customProgramCacheKey = function () { return 'bsi-rig-viso-' + [V.y, V.ax, V.ay, hz, !!geo.attributes.aOmbra].join('|'); };
     }
     var mesh = new T.SkinnedMesh(geo, mat); mesh.name = 'SpectraCorpo_Pelle'; mesh.frustumCulled = false;
     radice.add(mesh); radice.updateMatrixWorld(true);

@@ -123,6 +123,22 @@ function vero(d, c) { att(d, true, !!c); }
        il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */
     const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.rig ? S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045, 0)) : S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return { d: bb.min.y - rif.y, rig: !!S.rig }; });
     if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato.d * 100).toFixed(1) + ' cm dal punto voluto, ' + (allineato.rig ? 'corpo riggato' : 'manichino') + ')', Math.abs(allineato.d) < 0.03);
+    /* SINCRONIA VISO–CAPPUCCIO (solo col corpo riggato): il cappuccio e' rigido con l'osso della testa, quindi il viso,
+       misurato nel riferimento della testa, non deve muoversi mentre Spectra cammina, gesticola e guarda in giro */
+    const sinc = await pg.evaluate(async () => { const S = SpectraStudio.S(), T = THREE; if (!S.rig || !S.volto) return null;
+      const C = S.corpo, o = S.volto.parti.Object_2, mis = [];
+      for (let w = 0; w < 100 && S.allinea > 0; w++) await new Promise(r => setTimeout(r, 100));   /* finito l'allineamento iniziale */
+      C.fai('spiega', null, 3); C.cammina(S.corpoRadice.position.clone().add(new T.Vector3(0.3, 0, 0.3)));
+      for (let k = 0; k < 24; k++) { S.guardaQui = new T.Vector3(Math.sin(k) * 2, 1 + Math.cos(k * 0.7), 2); await new Promise(r => setTimeout(r, 90));
+        S.corpoRadice.updateMatrixWorld(true); const p = o.getWorldPosition(new T.Vector3()).applyMatrix4(C.ossa.testa.matrixWorld.clone().invert()); mis.push(p); }
+      let max = 0; mis.forEach(a => mis.forEach(b => { max = Math.max(max, a.distanceTo(b)); }));
+      return { max, nascosti: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(','), solidale: S.volto.solidale };
+    });
+    if (sinc) {
+      vero('viso e cappuccio in sincronia: in 24 pose il viso si sposta di ' + (sinc.max * 1000).toFixed(1) + ' mm rispetto alla testa', sinc.max < 0.004);
+      att('della testa si vede solo il viso (maschera, occhi, dettagli)', 'Object_2,Object_3,Object_4', sinc.nascosti);
+      vero('il volto è «solidale»: i movimenti della testa li fa il corpo', sinc.solidale);
+    }
     for (const [id, giusta] of [['caduta', 2], ['acqua', 3], ['basilea', 2]]) {
       const r = await pg.evaluate(async ([id, giusta]) => {
         const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};

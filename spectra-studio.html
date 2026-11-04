@@ -135,10 +135,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
         if (!r.ok || !T.GLTFLoader || !window.BSISpectraRig) return false;
         return new Promise(function (ok) {
           new T.GLTFLoader().load('./models/spectra-corpo.glb', function (g) {
-            var R = BSISpectraRig.rigga(g.scene, { T: T, altezza: 1.8, togliTesta: true, cappuccio: true, gonfia: 1.22, viso: { y: 1.6, ax: 0.09, ay: 0.09 } }); if (!R) return ok(false);
+            var R = BSISpectraRig.rigga(g.scene, { T: T, altezza: 1.8, togliTesta: true, cappuccio: true, visiera: false, gonfia: 1.22, viso: { y: 1.594, ax: 0.09, ay: 0.084 } }); if (!R) return ok(false);
             var m = R.radice; m.position.set(-0.55, 0, 0.15); m.rotation.y = 0.35;
             sc.remove(corpoRadice); sc.add(m); corpoRadice = m; S.corpoRadice = m;
-            corpo = BSISpectraCorpo.crea(m, { scalaOssa: 1 }); S.corpo = corpo; S.rig = R; R.viso = 0.065; S.modelloRiggato = corpo.rapporto();
+            corpo = BSISpectraCorpo.crea(m, { scalaOssa: 1 }); S.corpo = corpo; S.rig = R; R.viso = 0.05; S.modelloRiggato = corpo.rapporto();
             if (S.volto) attaccaVolto(S.volto);   /* il volto era gia' pronto: passa sulla testa nuova */
             ok(true);
           }, undefined, function () { ok(false); });

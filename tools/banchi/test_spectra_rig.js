@@ -67,11 +67,12 @@ function vero(d, c) { att(d, true, !!c); }
     const Rintera = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: false, ricolora: false });
     out.tolti = [Rg.tolti, Rsenza.tolti, Rintera.tolti];
     /* il cappuccio col solo viso: nessun triangolo tolto, foro nello shader, cappuccio rigido con la testa */
-    const Rv = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: true, cappuccio: true, gonfia: 1.2, viso: { y: 1.62, ax: 0.06, ay: 0.07 }, ricolora: false });
+    const Rv = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: true, cappuccio: true, visiera: false, gonfia: 1.2, viso: { y: 1.62, ax: 0.06, ay: 0.07 }, ricolora: false });
     const mv = Rv.mesh.material, gv = Rv.mesh.geometry, nv = Rv.mesh.skeleton.bones.map(o => o.name), iH = nv.indexOf('Head');
     let rigidi = 0, sopra = 0; for (let i = 0; i < gv.attributes.position.count; i++) if (gv.attributes.position.getY(i) > 1.8 * 0.84) { sopra++; if (gv.attributes.skinIndex.array[i * 4] === iH && gv.attributes.skinWeight.array[i * 4] === 1) rigidi++; }
     const sh = { uniforms: {}, vertexShader: '#include <begin_vertex>', fragmentShader: '#include <clipping_planes_fragment>\n#include <dithering_fragment>' }; mv.onBeforeCompile(sh);
-    out.viso = { tolti: Rv.tolti, doppio: mv.side === T.DoubleSide, chiave: mv.customProgramCacheKey(), discard: /discard/.test(sh.fragmentShader) && /vRig = position/.test(sh.vertexShader), rigidi, sopra };
+    const om = gv.attributes.aOmbra; let inOmbra = 0; if (om) for (let i = 0; i < om.count; i++) inOmbra += om.getX(i);
+    out.viso = { inOmbra, ombraShader: /vOmbra/.test(sh.fragmentShader), tolti: Rv.tolti, doppio: mv.side === T.DoubleSide, chiave: mv.customProgramCacheKey(), discard: /discard/.test(sh.fragmentShader) && /vRig = position/.test(sh.vertexShader), rigidi, sopra };
     out.ossa = Rg.mesh.skeleton.bones.length; out.mixamo = ['Hips', 'Spine2', 'Neck', 'Head', 'LeftArm', 'RightForeArm', 'LeftHand', 'RightUpLeg', 'LeftLeg', 'RightFoot'].every(n => Rg.ossa[n] && Rg.ossa[n].isBone);
     const C = BSISpectraCorpo.crea(Rg.radice, {}); out.rap = C.rapporto();
     const G = Rg.mesh.geometry, P = G.attributes.position, SI = G.attributes.skinIndex.array, SW = G.attributes.skinWeight.array, nomi = Rg.mesh.skeleton.bones.map(o => o.name), n = P.count;
@@ -117,6 +118,7 @@ function vero(d, c) { att(d, true, !!c); }
   att('con la testa: nessun triangolo tolto', 0, R.tolti[2]);
   att('col solo viso: nessun triangolo tolto (il foro è nello shader)', 0, R.viso.tolti);
   vero('il foro è un\'ellisse al pixel, sulla posa di riposo (segue la testa)', R.viso.discard && /bsi-rig-viso/.test(R.viso.chiave));
+  vero('niente visiera nera: il casco sotto il cappuccio diventa ombra opaca (' + R.viso.inOmbra + ' vertici, nessuno tolto)', R.viso.inOmbra > 0 && R.viso.ombraShader);
   vero('dal foro si vede l\'interno del casco (doppia faccia), non il vuoto', R.viso.doppio);
   vero('il cappuccio è rigido con la testa (' + R.viso.rigidi + '/' + R.viso.sopra + ' vertici)', R.viso.sopra > 50 && R.viso.rigidi === R.viso.sopra);
   console.log('── I colori dell\'app ──');
