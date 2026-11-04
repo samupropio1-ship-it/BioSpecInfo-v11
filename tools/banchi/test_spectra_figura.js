@@ -136,6 +136,9 @@ const SINTETICO = () => {
       o.aiTab = !!document.querySelector('#bsiLA table');
       [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(300); [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(300);
       o.aiFase = BSILezioneAI.stato().fase; o.gioia = F.spectra.corpo.emo;
+      /* i livelli: dalle superiori al PhD avanzato; al massimo il modello riceve la frontiera della ricerca */
+      o.sistemaTri = o.sistema; o.livelli = [...document.querySelectorAll('#bsiLA-liv option')].map(x => x.textContent);
+      k = 0; document.getElementById('bsiLA-liv').value = '4'; document.getElementById('bsiLA-arg').value = 'teoria di Marcus'; document.getElementById('bsiLA-via').click(); await pausa(300); o.sistemaPhd = o.sistema;
       o.json = !!BSILezioneAI.leggiPredici(R[0]) && !BSILezioneAI.leggiPredici('{"domanda":"x","opzioni":["a"],"giusta":3}');
       window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
       o.mem = JSON.parse(localStorage.getItem(BSILezioneAI.MEM) || '{}');
@@ -147,9 +150,11 @@ const SINTETICO = () => {
     vero('PREDICI: quattro previsioni, Spectra curiosa', lz.opzioni === 4 && lz.curiosa === 'curiosa');
     vero('PROVA: il cursore ricalcola (v₀ 15 → gittata ' + lz.m15.gittata.toFixed(2) + ' m) e il tempo non cambia (' + lz.m15.tB.toFixed(3) + ' = ' + lz.m0.tB.toFixed(3) + ' s)', Math.abs(lz.m15.gittata - 15 * Math.sqrt(40 / 9.81)) < 0.05 && Math.abs(lz.m15.tB - lz.m0.tB) < 1e-9);
     vero('DIMOSTRA: le formule (' + lz.formule + '), Spectra determinata', lz.formule >= 3 && lz.det === 'determinata');
-    vero('RIVELA: la giusta segnata, 4 esercizi per livello; previsione sbagliata → sorpresa', lz.fase === 3 && lz.giusta === 1 && lz.ese === 4 && lz.sorpresa === 'sorpresa');
+    vero('RIVELA: la giusta segnata, gli esercizi del laboratorio dalle superiori alla ricerca (4); previsione sbagliata → sorpresa', lz.fase === 3 && lz.giusta === 1 && lz.ese === 4 && lz.sorpresa === 'sorpresa');
     vero('argomento libero col modello: JSON controllato, 4 opzioni, prova con tabella, quattro fasi; giusta → gioia', lz.json && lz.aiOpz === 4 && lz.aiTab && lz.aiFase === 3 && lz.gioia === 'gioia');
-    vero('il modello riceve il metodo (prevedi → prova → dimostra → rivela) e il livello', /PREDICI → PROVA → DIMOSTRA → RIVELA/.test(lz.sistema) && /Triennale/.test(lz.sistema));
+    vero('il modello riceve il metodo (prevedi → prova → dimostra → rivela) e il livello', /PREDICI → PROVA → DIMOSTRA → RIVELA/.test(lz.sistemaTri) && /Triennale/.test(lz.sistemaTri));
+    vero('livelli dalla scuola superiore al PhD avanzato (' + lz.livelli.length + ': ' + lz.livelli[0] + ' … ' + lz.livelli[lz.livelli.length - 1] + ')', lz.livelli.length === 5 && /superiore/i.test(lz.livelli[0]) && /PhD avanzato/.test(lz.livelli[4]));
+    vero('al PhD avanzato il modello riceve frontiera, problemi aperti e letteratura primaria, e non semplifica', /frontiera/.test(lz.sistemaPhd) && /problemi aperti/.test(lz.sistemaPhd) && /letteratura primaria/.test(lz.sistemaPhd) && /Non semplificare/.test(lz.sistemaPhd));
     vero('la memoria ricorda le previsioni (caduta: sbagliata; tunnel: giusta)', lz.mem.caduta && lz.mem.caduta.sbagliate === 1 && lz.mem['ai:effetto tunnel'] && lz.mem['ai:effetto tunnel'].giuste === 1);
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));

@@ -13,8 +13,12 @@
                     laboratorio, un cursore da muovere: il risultato si ricalcola).
      3. DIMOSTRA  — la derivazione rigorosa, passo per passo.
      4. RIVELA    — perche' la risposta giusta e' giusta e la tua (se diversa) no;
-                    i collegamenti fra discipline; quattro esercizi (superiori,
-                    triennale, magistrale, ricerca) con la soluzione da aprire.
+                    i collegamenti fra discipline; cinque esercizi (superiori,
+                    triennale, magistrale, dottorato, PhD avanzato · frontiera)
+                    con la soluzione da aprire.
+   I LIVELLI vanno dalla scuola superiore al PhD avanzato (frontiera della ricerca):
+   per ciascuno il modello riceve che cosa ci si aspetta (strumenti matematici,
+   formalismo, letteratura primaria, problemi aperti), e non semplifica sotto.
 
    Con un fornitore di IA configurato, ogni fase la scrive il modello (la prima in
    JSON controllato: domanda, opzioni, indice della giusta). Senza chiave, o se
@@ -37,7 +41,18 @@
   function annuncia(tipo, d) { try { D.dispatchEvent(new CustomEvent(tipo, { detail: d })); } catch (e) {} }
 
   var FASI = [t('Predici', 'Predict'), t('Prova', 'Test'), t('Dimostra', 'Prove'), t('Rivela', 'Reveal')];
-  var LIVELLI = [t('Scuola superiore', 'High school'), t('Triennale', 'Bachelor'), t('Magistrale', 'Master'), t('Ricerca', 'Research')];
+  /* i livelli: dalle superiori al dottorato avanzato (richiesta dell'autore: «avanzatissimo, da superiori ad avanzato PhD») */
+  var LIVELLI = [t('Scuola superiore', 'High school'), t('Triennale', 'Bachelor'), t('Magistrale', 'Master'), t('Dottorato (PhD)', 'PhD'), t('PhD avanzato · frontiera', 'Advanced PhD · frontier')];
+  /* che cosa si chiede al modello per ciascun livello: profondita', strumenti matematici, fonti */
+  var PROFONDITA = [
+    'liceo: concetti chiari, algebra e trigonometria, nessuna derivata salvo cenni; esempi quotidiani',
+    'primi anni di università: calcolo differenziale e integrale, vettori, equazioni differenziali ordinarie semplici, unità SI rigorose',
+    'laurea magistrale: formalismo completo (meccanica analitica, termodinamica statistica, meccanica quantistica, algebra lineare e analisi complessa, teoria dei gruppi di base), ordini di grandezza e approssimazioni controllate',
+    'dottorato: metodi avanzati (funzioni di Green, teoria delle perturbazioni, seconda quantizzazione, metodi variazionali, analisi funzionale, teoria delle rappresentazioni, metodi numerici con stima dell\'errore), con riferimenti alla letteratura primaria (autori, anno, rivista) solo se ne sei certo',
+    'PhD avanzato e frontiera della ricerca: lo stato dell\'arte, i problemi aperti e le controversie attuali, i limiti dei modelli correnti, tecniche di punta (integrali sui cammini, rinormalizzazione, teoria dei campi, metodi topologici e geometrici, calcolo ab initio ad alta accuratezza, apprendimento automatico per la scienza), con la letteratura primaria (solo riferimenti di cui sei certo, altrimenti dillo) e una proposta di domanda di ricerca'
+  ];
+  /* gli esercizi delle lezioni del laboratorio hanno quattro gradini: l'ultimo e' di ricerca */
+  var LIVELLI_ESE = [LIVELLI[0], LIVELLI[1], LIVELLI[2], t('Ricerca (PhD)', 'Research (PhD)')];
   var MEM = 'bsi-spectra-lezioni-ai-v1';
   function memoria() { try { return JSON.parse(localStorage.getItem(MEM) || '{}'); } catch (e) { return {}; } }
   function ricorda(chiave, giusta) { try { var m = memoria(); var x = m[chiave] || (m[chiave] = { giuste: 0, sbagliate: 0, quando: 0 }); if (giusta) x.giuste++; else x.sbagliate++; x.quando = Date.now(); localStorage.setItem(MEM, JSON.stringify(m)); } catch (e) {} }
@@ -54,6 +69,8 @@
       'Insegni con il metodo PREDICI → PROVA → DIMOSTRA → RIVELA: prima lo studente prevede, poi vede che cosa succede davvero ' +
       'con i numeri, poi la derivazione rigorosa, infine il perché e i collegamenti. Rigore scientifico assoluto: niente numeri ' +
       'inventati, unità di misura sempre, cita le assunzioni. Rispondi in ' + (t('it', 'en') === 'it' ? 'italiano' : 'English') + '. ' +
+      'Livello richiesto: «' + LIVELLI[lez.livello] + '» — ' + PROFONDITA[lez.livello] + '. Non semplificare sotto questo livello: a livello di dottorato e oltre la ' +
+      'lezione deve essere davvero avanzata, con il formalismo e le sottigliezze che un esperto si aspetta. ' +
       'Argomento della lezione: ' + lez.argomento + '.';
   }
   function chiedi(testo, suToken) {
@@ -204,7 +221,7 @@
       dice(L.testa.testo, 'concentrata'); return;
     }
     var k2 = carta('🔬 ' + FASI[1], '<div class="md"></div>'); c.appendChild(k2); attesa(k2, true);
-    chiedi('FASE 2 — PROVA. Lo studente ha previsto: «' + ST.P.opzioni[ST.scelta].testo + '». NON dire ancora se è giusto. Mostra che cosa succede davvero: un esperimento o una simulazione concreta, con numeri realistici e una piccola tabella di misure in markdown. Massimo 180 parole.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
+    chiedi('FASE 2 — PROVA. Lo studente ha previsto: «' + ST.P.opzioni[ST.scelta].testo + '». NON dire ancora se è giusto. Mostra che cosa succede davvero: un esperimento o una simulazione concreta, con numeri realistici e una piccola tabella di misure in markdown. Massimo ' + (ST.lez.livello >= 3 ? 280 : 180) + ' parole. Ai livelli di dottorato usa dati e scale realistici della letteratura o di un calcolo vero.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
       .then(function (s) { attesa(k2, false); k2.appendChild(bottone('∴ ' + FASI[2], dimostra)); dice(s, 'concentrata'); })
       .catch(function (e) { attesa(k2, false); k2.appendChild(carta('', '⚠ ' + esc(e && e.message || e))); annuncia('bsi-spectra-risposta', { errore: true }); });
   }
@@ -216,7 +233,7 @@
       dice(L.dimostra.map(function (p) { return p.testo; }).join(' '), 'determinata'); return;
     }
     var k2 = carta('∴ ' + FASI[2], '<div class="md"></div>'); c.appendChild(k2); attesa(k2, true);
-    chiedi('FASE 3 — DIMOSTRA. La derivazione rigorosa, passo per passo, numerata, con le formule (una per riga) e le assunzioni dichiarate, al livello «' + LIVELLI[ST.lez.livello] + '». Massimo 250 parole.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
+    chiedi('FASE 3 — DIMOSTRA. La derivazione rigorosa, passo per passo, numerata, con le formule (una per riga) e le assunzioni dichiarate, al livello «' + LIVELLI[ST.lez.livello] + '». Massimo ' + (ST.lez.livello >= 3 ? 450 : 250) + ' parole.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
       .then(function (s) { attesa(k2, false); k2.appendChild(bottone('✦ ' + FASI[3], rivela)); dice(s, 'determinata'); })
       .catch(function (e) { attesa(k2, false); k2.appendChild(carta('', '⚠ ' + esc(e && e.message || e))); annuncia('bsi-spectra-risposta', { errore: true }); });
   }
@@ -228,14 +245,14 @@
     if (ST.locale) {
       var L = ST.lez.L, R = L.rivela, perche = P.opzioni.map(function (o, k) { return '<p>' + (o.giusta ? '✓ ' : k === ST.scelta ? '✗ ' : '· ') + '<b>' + esc(o.testo) + '</b> — ' + esc(o.perche) + '</p>'; }).join('');
       var html = '<p><b>' + esito + '</b></p>' + perche + '<p>' + esc(R.testo) + '</p>' + (R.collegamenti ? '<p><b>' + t('Collegamenti', 'Connections') + '</b></p><ul>' + R.collegamenti.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
-        '<p><b>' + t('Esercizi', 'Exercises') + '</b></p>' + R.esercizi.map(function (e) { return '<div class="ese"><b>' + LIVELLI[e.livello] + '</b> — ' + esc(e.testo) + '<details><summary>' + t('Soluzione', 'Solution') + '</summary><div class="f">' + esc(e.soluzione) + '</div></details></div>'; }).join('');
+        '<p><b>' + t('Esercizi', 'Exercises') + '</b></p>' + R.esercizi.map(function (e) { return '<div class="ese"><b>' + LIVELLI_ESE[e.livello] + '</b> — ' + esc(e.testo) + '<details><summary>' + t('Soluzione', 'Solution') + '</summary><div class="f">' + esc(e.soluzione) + '</div></details></div>'; }).join('');
       var k = carta('✦ ' + FASI[3], html); fine(k); c.appendChild(k);
       dice(esito + ' ' + R.testo, giusta ? 'gioia' : 'sorpresa'); return;
     }
     var k2 = carta('✦ ' + FASI[3], '<p><b>' + esito + '</b></p><div class="md"></div>'); c.appendChild(k2); attesa(k2, true);
     chiedi('FASE 4 — RIVELA. Lo studente aveva scelto «' + P.opzioni[ST.scelta].testo + '», che è ' + (giusta ? 'GIUSTA' : 'SBAGLIATA (la giusta è «' + P.opzioni.filter(function (o) { return o.giusta; })[0].testo + '»)') + '. ' +
       'Spiega perché la giusta è giusta e perché ciascuna sbagliata è sbagliata (con empatia, senza sminuire). Poi 2-3 collegamenti con altre discipline (chimica, fisica, matematica, biologia). ' +
-      'Poi ESATTAMENTE 4 esercizi, uno per livello (Scuola superiore, Triennale, Magistrale, Ricerca), ciascuno con la soluzione breve dopo «Soluzione:». Massimo 380 parole.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
+      'Poi ESATTAMENTE 5 esercizi, uno per livello (Scuola superiore, Triennale, Magistrale, Dottorato, PhD avanzato · frontiera della ricerca: l\'ultimo è un vero problema aperto o di ricerca), ciascuno con la soluzione o la traccia dopo «Soluzione:». Massimo ' + (ST.lez.livello >= 3 ? 600 : 420) + ' parole.', function (s) { k2.querySelector('.md').innerHTML = md(s); })
       .then(function (s) { attesa(k2, false); fine(k2); dice(esito + ' ' + s, giusta ? 'gioia' : 'sorpresa'); })
       .catch(function (e) { attesa(k2, false); k2.appendChild(carta('', '⚠ ' + esc(e && e.message || e))); annuncia('bsi-spectra-risposta', { errore: true }); });
   }
