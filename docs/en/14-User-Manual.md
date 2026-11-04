@@ -591,6 +591,16 @@ chin, when the answer arrives it explains with its hands and moves its lips.
 **«🎓 Studio»** opens Spectra Studio. Spectra's round button, on every screen,
 is its face.
 
+**The hologram.** To Spectra's right there is a holographic screen with scenes
+that really move: orbiting planets, a benzene molecule, an IR spectrum drawing
+itself, a wave, an orbital, a surface. It changes by itself with the subject
+you are talking about (ask about orbits and the planets appear; talk about a
+spectrum and the spectrum appears) and, if you have a section open behind the
+Spectra window, it shows it live. **Tap the label at the top right of the
+hologram** («🪐 Orbite di Keplero · apri ›»…) to open the section where that
+scene is really studied. When answering, Spectra points at the hologram and
+then explains with the hands. The buttons are in the bar under the scene.
+
 **Explain everything: «🧠 Spiega».** In the Spectra window open the second
 tab, **«🧠 Spiega»** (or press «🧠 Spiega» in Spectra's frame). Write the
 question — anything in chemistry, physics or mathematics — and choose the

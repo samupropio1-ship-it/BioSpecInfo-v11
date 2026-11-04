@@ -357,7 +357,21 @@ da laboratorio mostra Spectra in piedi: pensa mentre il modello lavora, spiega
 con le mani e il labiale quando arriva la risposta, parla con Spectra Live e
 spiega lo svolgimento quando l'assistente locale risolve un esercizio; pulsanti
 «🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio». Una figura sola per
-tutta l'app. L'icona di Spectra è solo il volto.
+tutta l'app. L'icona di Spectra è solo il volto. I pulsanti stanno in una barra
+sotto la scena.
+
+**L'ologramma** (`bsi-spectra-figura.js`, v240). Alla destra di Spectra (la
+destra di chi guarda) uno schermo olografico mostra scene vive, calcolate e
+non registrate: quattro pianeti su orbite di Keplero (equazione di Keplero
+risolta a ogni fotogramma, più veloci al perielio), il benzene con la nube π,
+uno spettro IR che si disegna da sé, la superficie z = sin(r − t)/r, l'orbitale
+3d_z² che ruota, un pacchetto d'onda di Schrödinger che si allarga; oppure la
+sezione aperta dietro la finestra di Spectra, dal vivo. La scena segue
+l'argomento della domanda e della risposta (orbite → pianeti, spettro → IR,
+orbitale → 3d_z²…); con «📺 Includi lo schermo» mostra la sezione aperta; a
+riposo le scene si alternano ogni 14 s. L'etichetta in alto a destra («🪐 Orbite
+di Keplero · apri ›»…) apre la sezione corrispondente con un tocco. Quando
+risponde, Spectra indica prima l'ologramma e poi spiega con le mani.
 
 **«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). Nella finestra di Spectra la
 scheda **«🧠 Spiega»** è la seconda, dopo «💬 Chat» (poi Esame Orale, Ripassa

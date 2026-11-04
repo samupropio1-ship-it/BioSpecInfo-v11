@@ -593,6 +593,17 @@ me»** apre Spectra Live, **«🧠 Spiega»** apre la spiegazione, **«🎓 Stud
 Spectra Studio. Il pulsante rotondo di Spectra, in ogni schermata, è il suo
 volto.
 
+**L'ologramma.** Alla destra di Spectra c'è uno schermo olografico con scene
+che si muovono davvero: pianeti che orbitano, una molecola di benzene, uno
+spettro IR che si disegna, un'onda, un orbitale, una superficie. Cambia da solo
+secondo l'argomento di cui parlate (chiedi delle orbite e compaiono i pianeti;
+parla di uno spettro e compare lo spettro) e, se hai una sezione aperta dietro
+la finestra di Spectra, la mostra dal vivo. **Tocca l'etichetta in alto a
+destra dell'ologramma** («🪐 Orbite di Keplero · apri ›»…) per aprire la
+sezione in cui quella scena si studia davvero. Quando risponde, Spectra indica
+l'ologramma e poi spiega con le mani. I pulsanti stanno nella barra sotto la
+scena.
+
 **Spiegami tutto: «🧠 Spiega».** Nella finestra di Spectra apri la seconda
 scheda, **«🧠 Spiega»** (oppure premi «🧠 Spiega» nel riquadro di Spectra).
 Scrivi la domanda — qualunque cosa di chimica, fisica o matematica — e scegli

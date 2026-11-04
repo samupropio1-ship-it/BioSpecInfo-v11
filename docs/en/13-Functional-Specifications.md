@@ -359,7 +359,21 @@ lab-style frame shows Spectra standing: it thinks while the model works,
 explains with its hands and lip sync when the answer arrives, speaks with
 Spectra Live and explains the working when the local assistant solves an
 exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
-One figure for the whole app. Spectra's icon is the face only.
+One figure for the whole app. Spectra's icon is the face only. The buttons sit
+in a bar under the scene.
+
+**The hologram** (`bsi-spectra-figura.js`, v240). To Spectra's right (the
+viewer's right) a holographic screen shows live scenes, computed rather than
+recorded: four planets on Kepler orbits (Kepler's equation solved every frame,
+faster at perihelion), benzene with its π cloud, an IR spectrum tracing itself,
+the surface z = sin(r − t)/r, the 3d_z² orbital rotating, a Schrödinger wave
+packet spreading; or the section open behind the Spectra window, live. The
+scene follows the subject of the question and the answer (orbits → planets,
+spectrum → IR, orbital → 3d_z²…); with «📺 Includi lo schermo» it shows the open
+section; at rest the scenes alternate every 14 s. The label at top right
+(«🪐 Orbite di Keplero · apri ›»…) opens the matching section with one tap. When
+answering, Spectra first points at the hologram and then explains with the
+hands.
 
 **«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). In the Spectra window the
 **«🧠 Spiega»** tab is the second one, after «💬 Chat» (then Esame Orale,

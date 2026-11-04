@@ -510,11 +510,16 @@ Metodi di un `Corpo`:
 | `prepara` | `() → Promise` | Carica three.js, il caricatore GLB, il driver del corpo e il rig se non ci sono |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | Il corpo `.glb` nell'IndexedDB (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`) |
 | `emozioneDi` | `(testo) → string` | L'emozione suggerita dal contenuto di una risposta |
+| `Ologramma` | `new (T, scena) → ologramma` | Lo schermo olografico alla destra di Spectra; metodi `costruisci(nome)`, `mostra(nome)`, `passo(dt)`; scene calcolate a ogni fotogramma, più `'schermo'` (la sezione dietro la finestra, ridisegnata con `BSISpectraLive.cattura` 5 volte al secondo) |
+| `SCENE_OLO` | oggetto | Le sei scene (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): per ognuna `nome` (it, en), `sez` (l'id della sezione che apre l'etichetta) e `parole` (l'espressione regolare che la sceglie) |
+| `sceneDi` | `(testo) → string \| null` | La scena che corrisponde alle parole di un testo, o `null` |
 | `LIMITE`, `RIG`, `figura` | numero, oggetto, figura | 60 MB; i parametri del rig del corpo dell'autore; la figura condivisa delle sezioni (o `null`) |
 
 Metodi del controllore: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scena)` (per i banchi), `passo(dt)`, `emozione(nome, secondi?)`, `dici(testo)`, `taci()`, `fai(gesto, bersaglio?, secondi?)`, `presente() → boolean`.
 
 Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { testo }`), emesso da `parla()` di `bsi-spectra-live.js` e da `bsi-assistente.js` quando risolve un esercizio; la figura lo dice con labiale e gesto.
+
+Evento nuovo: **`bsi-spectra-tema`** (`CustomEvent` su `document`, `detail: { testo, schermo }`), emesso da `bsi-spectra-spiega.js` con la domanda (e all'apertura della scheda con una sezione dietro); l'ologramma sceglie la scena con `sceneDi(testo)`, oppure mostra lo schermo dal vivo se `schermo` è vero. Quando risponde, la figura indica prima l'ologramma (gesto «indica», circa 2,5 s) e poi accompagna con «spiega».
 
 ### `window.BSISpiega` — «🧠 Spiega» (`bsi-spectra-spiega.js`, v240)
 

@@ -526,11 +526,16 @@ Methods of a `Corpo`:
 | `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The `.glb` body in IndexedDB (`bsi-spectra-modelli`, store `file`, key `corpo`) |
 | `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
+| `Ologramma` | `new (T, scene) → hologram` | The holographic screen to Spectra's right; methods `costruisci(name)`, `mostra(name)`, `passo(dt)`; scenes computed every frame, plus `'schermo'` (the section behind the window, re-rendered with `BSISpectraLive.cattura` 5 times a second) |
+| `SCENE_OLO` | object | The six scenes (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): for each `nome` (it, en), `sez` (the id of the section the label opens) and `parole` (the regular expression that selects it) |
+| `sceneDi` | `(text) → string \| null` | The scene matching the words of a text, or `null` |
 | `LIMITE`, `RIG`, `figura` | number, object, figure | 60 MB; the rig parameters for the author's body; the sections' shared figure (or `null`) |
 
 Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scene)` (for benches), `passo(dt)`, `emozione(name, seconds?)`, `dici(text)`, `taci()`, `fai(gesture, target?, seconds?)`, `presente() → boolean`.
 
 New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
+
+New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo, schermo }`), dispatched by `bsi-spectra-spiega.js` with the question (and when the tab opens with a section behind); the hologram picks the scene with `sceneDi(text)`, or shows the screen live if `schermo` is true. When answering, the figure first points at the hologram («indica» gesture, about 2.5 s) and then accompanies with «spiega».
 
 ### `window.BSISpiega` — «🧠 Spiega» (`bsi-spectra-spiega.js`, v240)
 

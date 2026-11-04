@@ -46,6 +46,48 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     «Lezione guidata» e la descrizione, prima delle schede. Sul telefono i
     suoi pulsanti stanno a sinistra, in colonna, per non coprire i pulsanti
     flottanti.
+- **L'ologramma alla destra di Spectra** (`bsi-spectra-figura.js`,
+  `BSISpectraFigura.Ologramma`). Richiesta dell'autore: «alla mia destra di
+  Spectra appaiano le immagini dei grafici e dei movimenti delle sezioni in
+  cui vi sono animazioni in 3D o 2D di ogni sezione, ad esempio pianeti che
+  orbitano; deve essere mastodontica questa AI». Nella scena da laboratorio
+  della figura, alla destra di Spectra (la destra di chi guarda), c'è uno
+  schermo olografico: pannello di vetro con i bordi luminosi, base del
+  proiettore con il fascio di luce. Spectra sta a sinistra del centro sulla
+  sua pedana; l'inquadratura contiene Spectra intera e l'ologramma (2,55 m di
+  larghezza, 2,2 m di altezza).
+  - **Sei scene vive, calcolate** (non video): **pianeti** — quattro pianeti
+    su ellissi di Keplero, con l'equazione di Keplero M = E − e sin E risolta
+    a ogni fotogramma (Newton), periodi dalla terza legge (T ∝ a^1,5), più
+    veloci al perielio; **molecola** — il benzene a sfere e bastoncini con la
+    nube π sopra e sotto l'anello; **spettro** — uno spettro IR che si
+    disegna da sé (bande gaussiane a 3400, 2925, 1715, 1405 e 1130 cm⁻¹) con
+    un cursore che scorre; **superficie** — z = sin(r − t)/r che si propaga;
+    **orbitale** — l'orbitale 3d_z² (due lobi e l'anello, le fasi in due
+    colori) che ruota; **onda** — un pacchetto d'onda gaussiano che si muove
+    e si allarga (dispersione di Schrödinger libera: parte reale, parte
+    immaginaria e |ψ|²). In più **«schermo»**: la sezione aperta dietro la
+    finestra di Spectra, dal vivo (la sua tela ridisegnata con
+    `BSISpectraLive.cattura` e copiata nell'ologramma 5 volte al secondo).
+  - **Ogni scena porta alla sua sezione**: un'etichetta in alto a destra
+    («🪐 Orbite di Keplero · apri ›»…) la apre con un tocco (pianeti →
+    Sistema solare 3D, molecola → Strutture 3D, spettro → IR Visivi,
+    superficie → Funzioni di più variabili, orbitale → Orbitali MO, onda →
+    Schrödinger), chiudendo la finestra di Spectra se è aperta.
+  - **Il soggetto segue la conversazione**: le parole della domanda (il
+    nuovo evento `bsi-spectra-tema`, emesso da «🧠 Spiega» con la domanda) o
+    della risposta scelgono la scena (orbite e pianeti → pianeti; spettro,
+    NMR, IR → spettro; molecola, legame → molecola; funzione, superficie,
+    integrale → superficie; orbitale, elettrone, quantistica → orbitale;
+    onda, Schrödinger, luce → onda); con «Includi lo schermo» l'ologramma
+    mostra la sezione dal vivo, e aprendo «🧠 Spiega» con una sezione dietro
+    la mostra subito. A riposo le scene si alternano ogni 14 s; dopo un
+    argomento l'alternanza riprende dopo 60 s.
+  - **Quando risponde, Spectra indica prima l'ologramma** (gesto «indica»,
+    circa 2,5 s), poi accompagna la spiegazione con le mani («spiega»).
+  - **I pulsanti della figura** stanno in una barra **sotto** la scena (non
+    coprono più Spectra né l'ologramma); sul telefono la barra lascia spazio
+    a destra per i pulsanti flottanti dell'app.
 - **«🧠 Spiega»: l'AI che spiega tutto, in modo esaustivo**
   (`bsi-spectra-spiega.js`, oggetto `BSISpiega`). Richiesta dell'autore: «Non
   deve fare lezioni ma una spiegazione perfetta, completa e completamente
@@ -145,7 +187,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (73 controlli: 37 a 412 px, 36 a 1280 px): il
+- Nuovo `test_spectra_figura` (89 controlli: 45 a 412 px, 44 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -153,7 +195,8 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   nessun sostituto; caricato un umanoide sintetico (senza scheletro, con
   cappuccio) l'invito sparisce, il viso poggia sul colletto (0,0 cm) e si vede
   solo il viso; reazioni: pensa (gesto «pensa», concentrata), risposta
-  («spiega», gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
+  (prima indica l'ologramma, poi accompagna la spiegazione con le mani;
+  gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
   che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
   Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
   coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 12
@@ -171,7 +214,13 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele,
   immagine). Le risposte del modello sono simulate: il banco controlla che
   cosa si manda e come si mostra, non la qualità della spiegazione di un
-  modello vero. Il banco porta la figura
+  modello vero; con la scena 3D aperta dietro «🧠 Spiega» l'ologramma la
+  mostra dal vivo. Per ogni larghezza, 6 controlli dell'ologramma: sta alla
+  destra di Spectra (x sullo schermo); sei scene vive; Keplero: il rapporto
+  fra le velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro
+  l'8 %; il soggetto segue la conversazione (risposta sull'IR → spettro,
+  domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco
+  apre «Sistema solare 3D». Il banco porta la figura
   in vista prima di misurare, perché la figura si disegna (e allinea il viso)
   solo quando è visibile.
 - `test_spectra_studio` passa a **91 controlli**, con o senza il modello in
