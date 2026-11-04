@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**80 banchi**, raggruppati per ciò che dimostrano.
+**81 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -307,8 +307,8 @@ controlli già presenti prima della v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_lezione` · `test_guidaproxy` · `test_fluidita` ·
-`test_lingue` · `test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_guidaproxy` ·
+`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
 **`test_spectra238` — 66 controlli.** Nasce da segnalazioni fatte con una
 schermata dal telefono: con l'app installata la barra di stato e i tasti di
@@ -343,6 +343,23 @@ tutte.
 Restano fuori la voce della lezione (non c'è sintesi vocale nel Chromium senza
 interfaccia) e la qualità didattica dei testi, che dipende dalle spiegazioni
 delle sezioni e va giudicata leggendo.
+
+**`test_spectra_studio` — 71 controlli.** Prova Spectra incarnato
+(`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
+`bsi-spectra-studio-lezioni.js`; progetto in
+[`docs/spectra/02`](spectra/02-Architettura.md)).
+
+| Parte | Che cosa pretende |
+|---|---|
+| Calcoli (23) | Esegue `verifiche/verifica-studio-spectra.js`, anche da solo con `node`: caduta da 20 m in √(2h/g) = 2,0193 s per entrambe le sfere, gittata 12,116 m, con l'aria (k = 0,02 m⁻¹) la lanciata arriva dopo (2,1789 contro 2,1563 s), passo dimezzato che cambia il tempo meno di 10⁻⁴; VSEPR: tetraedro 109,471°, trigonale 120°, lineare 180°, acqua 104,40° con w = 1,25 (calibrato), ammoniaca 106,69° con lo stesso w (previsione), angolo che cala al crescere di w; Basilea: S(100 000) entro la coda di π²/6, coda fra 1/(N+1) e 1/N per N = 10, 100, 1000, Fourier di x² in π e in 1, armonica come ln N + γ, coprimi → 6/π² entro 3σ; per ogni lezione una sola risposta giusta, ogni opzione spiegata, almeno tre passi di dimostrazione, esercizi su quattro livelli |
+| Corpo (11) | Sul manichino: ossa 22/23 (manca la mandibola), blendshape 14/14, capelli trovati e resi neri (RGB 0,039 0,039 0,047); braccia giù dalla posa a T; indica (avambraccio sul bersaglio, scarto 1,7°); pensa (mano a 20,8 cm dalla testa); sguardo verso destra; passo (0,96 m, gambe a 24°); seduta (anche giù di 42 cm); gioia → sorriso, preoccupazione → angoli giù e sorriso a zero; labiale dall'audio (mandibola 0,75); battito (palpebre chiuse) |
+| Voce (3) | In un contesto audio offline: a 80 Hz i bassi escono rinforzati (6,9 dB), il riverbero lascia una coda dopo la fine del suono; senza chiave `qualita()` vale `'sistema'` |
+| Lezioni, a 1280 e 390 px | Il volto «Noir» appoggiato sul collo (mento 1,0 cm sopra l'osso della testa); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
+| Senza WebGL | Nessuna scena, ma la lezione dà le misure (2,019 s); nessun errore JavaScript |
+
+Restano fuori: il modello «cyberpunk», che non è integrato; la chiamata a
+OpenAI e l'ascolto della voce (il banco non raggiunge OpenAI e non ascolta);
+la qualità visiva del corpo e dei gesti, che va giudicata guardando.
 
 **`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
 ad aggiornare non esce nulla». Era vero. La finestra 🔄 Aggiornamenti cercava
@@ -775,11 +792,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 554 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 563 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione». Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 

@@ -651,8 +651,9 @@ Live» button in Spectra's header and `Ctrl+Shift+J` remain:
 
 - **hands-free conversation**: the browser's speech recognition listens, the
   answer is spoken sentence by sentence with the system's speech synthesis (a
-  male voice is preferred, rate 0.95, pitch 0.7) and the console then listens
-  again; «stop» or a tap interrupts it. If either capability is missing in the
+  male voice is preferred, rate 0.95, pitch 0.7) or, since v239 and only with a
+  saved OpenAI key, with the voice of `bsi-spectra-voce.js` (§4.15); the
+  console then listens again; «stop» or a tap interrupts it. If either capability is missing in the
   browser, the console says so;
 - **local commands**, recognised with regular expressions before the model is
   called and therefore available without network and without a key: open a
@@ -791,8 +792,9 @@ whoever holds the device (`09-Release-Conformance-Statement.md`, D-13).
 ### 4.14 The guided lesson
 
 `bsi-lezione.js` (v239, object `BSILezione`) turns every section into a lesson
-in chapters led by Spectra. It does not use the model and does not go online:
-the lesson is built by reading the open section.
+in chapters led by Spectra. It does not use the model: the lesson is built by
+reading the open section. Only the voice goes online, and only with a saved
+OpenAI key (§4.15).
 
 - **Construction** (`costruisci(section)`): an opening step with title and
   subtitle; one chapter per tab (`.bsiFX-schede button`), whose steps are read
@@ -814,8 +816,8 @@ the lesson is built by reading the open section.
   below 760 px; from 1100 px `#main` shifts left), progress by chapter, text
   appearing word by word, ◀ ▶, pause, voice, `Esc` to close, arrow keys to
   move. The spotlight `#bsiLZ-luce` dims the rest and follows the piece being
-  discussed. The voice is Spectra Live's (`BSISpectraLive.parla`); without
-  voice, reading time depends on the length of the text. With «reduce motion»
+  discussed. The voice is Spectra Live's (`BSISpectraLive.parla`) and, if the
+  console is not there, `BSISpectraVoce.parla`; without voice, reading time depends on the length of the text. With «reduce motion»
   sliders jump to the value, text appears all at once and the spotlight does
   not pulse.
 - **Floating buttons**: they are hidden during the lesson (including those
@@ -829,6 +831,63 @@ the lesson is built by reading the open section.
 The lesson has no keys of its own in `localStorage`; at the end it signals an
 emotion to Spectra's mind (`sente('fiera', 'lezione')`), which the mind records
 in `bsi-spectra-mente-v1` like the others.
+
+### 4.15 Embodied Spectra: the studio, the body, the voice
+
+Since v239 Spectra also has a body, on a page of its own:
+`spectra-studio.html`, reached from the console's 🧭 navigator. The full design
+(model requirements, choice of stack, modules, state, lesson cycle, migration,
+domain coverage) is in the Italian design documents in
+[`docs/spectra/`](../spectra/01-Analisi-modello-e-piano.md):
+[analysis and plan](../spectra/01-Analisi-modello-e-piano.md),
+[architecture](../spectra/02-Architettura.md),
+[domain map](../spectra/03-Mappa-dei-domini.md). What is in the code is
+summarised here.
+
+- **The studio** (`spectra-studio.html`): a three.js r128 scene (grid floor,
+  neon lights, holographic bench) with Spectra standing; an accessible panel
+  with all the text. The lessons in `bsi-spectra-studio-lezioni.js`
+  (`BSIStudioLezioni`: `LEZIONI`, `SCENE`, `calcolo`) follow four phases:
+  **predict** (choices with the most common misconceptions and one right
+  answer, each explained), **test** (the simulation with the numbers measured
+  in the scene), **prove** (the derivation step by step), **reveal** (why,
+  connections, exercises on four levels). The computations live in `calcolo`
+  and also run in node: fall with semi-implicit Euler (and optional quadratic
+  drag), VSEPR as the minimum of the energy w_i·w_j/r of domains on the sphere
+  (w = 1 for bonds, 1.25 for lone pairs), partial sums, tail, Fourier series of
+  x², Monte Carlo coprimes.
+- **The studio's memory**: `bsi-spectra-studio-v1` keeps, per lesson, the
+  predictions (`quando`, `scelta`, `giusta`) and the exercises opened; the
+  recommended level is the number of right predictions plus exercises opened,
+  up to 3. Each prediction also goes to the mind (`BSISpectraMente.ricorda`).
+- **The body** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): the driver
+  recognises bones, ARKit blendshapes, hair and clips of a humanoid GLB; every
+  pose is a direction in the world, converted into the bone's local frame
+  (`orienta`, a minimal inverse kinematics valid for any rig); emotions, lip
+  sync, eyelids, gaze, gestures, walking and sitting are blended with springs.
+  The studio's body is the **mannequin** from `BSISpectraCorpo.manichino()`:
+  bones with Mixamo names in T-pose, 26 ARKit blendshapes, red hair that the
+  driver turns black. The «Noir» face is mounted on the mannequin's head with
+  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` and
+  aligned by measuring, in the first frames, the distance between the chin and
+  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). The «cyberpunk»
+  model chosen by the author is not integrated: the file was not reachable and
+  its licence must be checked.
+- **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
+  `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
+  `'sistema'` with the browser's speech synthesis only, `'testo'` without. In
+  audio mode the text (up to 3,800 characters) goes to
+  `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voice «onyx», with
+  instructions on the timbre; `tts-1` if that fails); the decoded audio stays
+  in an in-memory cache per sentence and goes through the `TIMBRO` chain (bass
+  +5 dB below 140 Hz, −3 dB at 350 Hz, +3 dB at 2.8 kHz, ring modulator at
+  55 Hz at 12 %, 4.3 ms comb, saturation, synthetic 1.4 s reverb at 16 %,
+  compressor). An analyser gives energy and spectral centroid every frame for
+  the lip sync. The text to be spoken leaves the device: see
+  [`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2.
+
+Like the mind and the face, the body is a **simulation of behaviour, not
+consciousness**.
 
 ---
 

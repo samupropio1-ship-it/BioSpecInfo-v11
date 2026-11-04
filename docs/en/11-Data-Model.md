@@ -156,6 +156,7 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
+| `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; not in the «Clear data» groups, removed with the site data |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
@@ -171,6 +172,17 @@ The guided lesson (`bsi-lezione.js`, v239) has no keys of its own: the lesson
 is built from the page at every start and lives in memory while it is open.
 The controls it shows at work return to the value they had. At the end of a
 lesson the mind records an emotion («fiera», proud) in `bsi-spectra-mente-v1`.
+
+Spectra Studio (v239) derives from its key the recommended exercise level
+(right predictions plus exercises opened, up to 3) and also sends each
+prediction to the mind (`BSISpectraMente.ricorda`). The studio's body and scenes
+store nothing.
+
+The quality voice (`bsi-spectra-voce.js`) reads the OpenAI key from
+`bsi_api_keys` and writes nothing: the audio received stays in an in-memory
+cache for the session. The text to be spoken, however, leaves the device for
+OpenAI when the key is there
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2).
 
 ### 2.4 Identifiers and licence
 
@@ -269,8 +281,9 @@ everything. The groups are defined in `bsiCancellaDati()`.
 | `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`) and study-kit progress (`bsi-studio:*`) |
 
 Left outside the groups: `bsi-spectra-ritratto-v4` (the icon derived from the
-face, which is regenerated) and `bsi-spectra-sentinella` (which removes
-itself).
+face, which is regenerated), `bsi-spectra-sentinella` (which removes itself)
+and `bsi-spectra-studio-v1` (Spectra Studio predictions and exercises; see
+`09-Release-Conformance-Statement.md`, D-14).
 
 Deleting the archive proceeds even if a single entry fails, and reports how many
 were not removed: a "delete everything" operation that stops halfway without

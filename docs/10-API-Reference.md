@@ -465,6 +465,62 @@ testi nel `localStorage`, nient'altro.
 Il comando locale «fammi lezione» di `BSISpectraLive.comando` chiama
 `BSILezione.avvia()` dopo aver chiuso la console.
 
+### `window.BSISpectraVoce` — la voce (`bsi-spectra-voce.js`, v239)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `qualita` | `() → 'audio' \| 'sistema' \| 'testo'` | `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio; `'sistema'` con la sola `speechSynthesis`; `'testo'` senza voce |
+| `parla` | `(testo, { suBocca?, timbro?, soloSistema? }?) → Promise<{ ok, motore, durata? } \| { annullato }>` | In modalità audio invia il testo (fino a 3 800 caratteri) a `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voce «onyx»; `tts-1` come ripiego), lo fa passare nella catena e chiama `suBocca({ energia, centroide, apertura, rotondo, largo, frazione })` a ogni fotogramma; se la richiesta fallisce, o con `soloSistema`, usa `speechSynthesis`. Interrompe la frase precedente |
+| `ferma` | `()` | Ferma l'audio e la sintesi del browser |
+| `catena` | `(audioContext, timbro?) → { ingresso, uscita, analizzatore, ferma }` | La catena di effetti del `TIMBRO` |
+| `impulso` | `(audioContext, secondi) → AudioBuffer` | Risposta all'impulso sintetica del riverbero (stereo) |
+| `leggiBocca` | `(analizzatore, dati) → { energia, centroide, apertura, rotondo, largo }` | Labiale dall'audio: energia RMS e centroide spettrale |
+| `TIMBRO` | oggetto | `bassiHz` 140, `bassiDb` 5, `fangoHz` 350, `fangoDb` −3, `presenzaHz` 2800, `presenzaDb` 3, `anelloHz` 55, `anello` 0,12, `pettineMs` 4,3, `pettineRetro` 0,35, `pettine` 0,18, `calore` 1,6, `stanzaS` 1,4, `stanza` 0,16, `volume` 0,95 |
+
+### `window.BSISpectraCorpo` — il corpo (`bsi-spectra-corpo.js`, v239)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `crea` | `(radice, { animazioni?, capelliNeri? }?) → Corpo` | Collega il driver a un oggetto three.js con scheletro; con `animazioni` (le clip del GLB) riconosce `idle`, `walk`, `sit`, `stand`, `wave`, `point`, `talk`; i capelli diventano neri salvo `capelliNeri: false` |
+| `manichino` | `({ neon? }?) → THREE.Group` | Il manichino di prova: ossa con nomi Mixamo in posa a T, testa con 26 blendshape ARKit, occhi separati, calotta di capelli rossa |
+| `EMOZIONI`, `OSSA`, `normaNome` | oggetti, funzione | Pesi ARKit per emozione; espressioni regolari dei nomi delle ossa; normalizzazione dei nomi |
+
+Metodi di un `Corpo`:
+
+| Metodo | Firma | Descrizione |
+|---|---|---|
+| `rapporto` | `() → { ossa, mancanti, blendshape, capelli, clip, locomozione, viso }` | Che cosa il modello sa fare (il controllo dei requisiti di `docs/spectra/01`) |
+| `capelliNeri` | `(colore?)` | Colore (predefinito `#0a0a0c`), rugosità, e texture desaturata nello shader |
+| `orienta` | `(osso, direzione, peso)` | Porta la direzione osso → figlio su una direzione del mondo |
+| `emozione` | `(nome, secondi?, intensita?) → boolean` | Una delle emozioni di `EMOZIONI` per qualche secondo |
+| `dici`, `audio`, `taci` | `(testo)`, `(statoBocca)`, `()` | Labiale dal testo, dall'audio (`suBocca` di `BSISpectraVoce`), stop |
+| `guarda` | `(punto)` | Occhi, collo e testa verso un punto |
+| `fai` | `(gesto, bersaglio?, secondi?)` | `'indica'`, `'spiega'`, `'pensa'`, `'attende'`, `'conclude'` |
+| `cammina`, `siedi` | `(punto)`, `(si?)` | Passo verso un punto; seduta (`false` per alzarsi) |
+| `peso`, `imposta` | `(nome) → number \| null`, `(nome, valore) → boolean` | Legge e scrive il peso di un blendshape |
+| `passo` | `(dt)` | Avanza il comportamento di `dt` secondi; va chiamato a ogni fotogramma |
+
+### `window.BSIStudioLezioni` e `window.SpectraStudio` — lo studio (v239)
+
+`BSIStudioLezioni` (`bsi-spectra-studio-lezioni.js`, usabile anche con
+`require` in node) espone `LEZIONI` (per ogni lezione `id`, `materia`,
+`predici`, `testa`, `dimostra`, `rivela`), `SCENE` (gli oggetti 3D di ogni
+lezione) e `calcolo`: `caduta(h, v0, g?, dt?, k?)`,
+`vsepr(nLegami, nDoppietti, wLP?, iter?)`, `parziale(N)`, `armonica(N)`,
+`coda(N)`, `fourierX2(x, N)`, `mcd(a, b)`, `coprimi(M, max, seme?)`.
+
+`SpectraStudio`, definito dentro `spectra-studio.html`, serve ai banchi:
+`apri(id)`, `scegli(i)`, `testa()`, `dimostra(k)`, `rivela()`,
+`stato() → { lez, fase, misure, previsione, scena, volto }`.
+
+### `window.BSISpectraAndroide.crea` — il volto in una scena altrui (v239)
+
+`crea(padre, { scena, renderer, senzaBusto }?)`: con `scena` il volto vive in
+una scena three.js esistente, senza renderer, luci, telecamera e ciclo di
+disegno propri (chi lo ospita chiama `passo(dt)` e appende `radice` al corpo);
+con `senzaBusto` collo e spalle del modello sono nascosti. L'oggetto espone
+anche `parti` (le mesh del modello per nome).
+
 ---
 
 _Documento aggiornato alla versione `bsi-v239`._

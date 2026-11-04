@@ -152,6 +152,7 @@ e il kit resta usabile senza ricordare i progressi.
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
 | `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (millisecondi): il creatore è stato riconosciuto su questo dispositivo. **Non contiene la frase segreta né la sua impronta** | Scritta quando la prova riesce; rimossa con «dimentica che sono il tuo creatore» o con «Cancella dati → Memoria persistente» |
+| `bsi-spectra-studio-v1` | JSON per lezione di Spectra Studio (`caduta`, `acqua`, `basilea`): `previsioni` (elenco di `{ quando, scelta, giusta }`) ed `esercizi` (indice dell'esercizio → ora in cui è stato aperto) | Scritta da `spectra-studio.html` a ogni previsione e a ogni esercizio aperto; non rientra nei gruppi di «Cancella dati», si toglie con i dati del sito |
 
 La mente è una simulazione di comportamento: la chiave contiene numeri e testi,
 non altro. Il suo riassunto (`BSISpectraMente.coscienza()`) si aggiunge alle
@@ -167,6 +168,17 @@ La lezione guidata (`bsi-lezione.js`, v239) non ha chiavi sue: la lezione si
 costruisce dalla pagina a ogni avvio e vive in memoria finché è aperta. I
 comandi che mostra al lavoro tornano al valore che avevano. A fine lezione la
 mente registra un'emozione («fiera») in `bsi-spectra-mente-v1`.
+
+Spectra Studio (v239) ricava dalla sua chiave il livello di esercizio
+consigliato (previsioni giuste più esercizi aperti, fino a 3) e manda ogni
+previsione anche alla mente (`BSISpectraMente.ricorda`). Il corpo e le scene
+dello studio non conservano niente.
+
+La voce di qualità (`bsi-spectra-voce.js`) legge la chiave OpenAI da
+`bsi_api_keys` e non scrive niente: l'audio ricevuto resta in una cache in
+memoria per la sessione. Il testo da pronunciare, invece, esce dal dispositivo
+verso OpenAI quando la chiave c'è
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2).
 
 ### 2.4 Identificativi e licenza
 
@@ -261,7 +273,9 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 | `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`) e progressi dei kit di studio (`bsi-studio:*`) |
 
 Restano fuori dai gruppi `bsi-spectra-ritratto-v4` (l'icona ricavata dal
-volto, che si rigenera) e `bsi-spectra-sentinella` (che si toglie da sola).
+volto, che si rigenera), `bsi-spectra-sentinella` (che si toglie da sola) e
+`bsi-spectra-studio-v1` (previsioni ed esercizi di Spectra Studio; vedi
+`09-Release-Conformance-Statement.md`, D-14).
 
 La cancellazione dell'archivio prosegue anche se una singola voce fallisce, e
 riporta quante non sono state eliminate: un'operazione «elimina tutto» che si

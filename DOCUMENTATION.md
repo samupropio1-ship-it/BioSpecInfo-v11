@@ -86,6 +86,14 @@ La documentazione è estesa. Questo è il percorso più breve secondo chi sei.
 | [Changelog](CHANGELOG.md) | Cronologia delle versioni |
 | [Guida Data Science](docs/Guida-DataScience-Corsi-Progetti.md) | Percorso formativo collegato |
 
+### Spectra incarnato (documenti di progetto, v239)
+
+| Documento | Contenuto |
+|---|---|
+| [1. Analisi del modello e piano](docs/spectra/01-Analisi-modello-e-piano.md) | Che cosa serve dal modello del corpo, capelli neri, viso, gesti, voce; che cosa manca e perché |
+| [2. Architettura](docs/spectra/02-Architettura.md) | Scelta dello stack, moduli, stato, ciclo predici → testa → dimostra → rivela, ripieghi, migrazione |
+| [3. Mappa dei domini](docs/spectra/03-Mappa-dei-domini.md) | Copertura di chimica, fisica e matematica per livello, e piano delle lezioni dello studio |
+
 **🌍 English:** [`docs/en/`](docs/en/README.md) — **tutti e sedici** i documenti in inglese, allineati all'italiano da un banco che confronta i numeri dichiarati nelle due lingue.
 **📑 PDF:** [`docs/pdf/`](docs/pdf/) — versioni pronte da allegare.
 

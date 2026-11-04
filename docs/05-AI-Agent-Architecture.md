@@ -675,8 +675,9 @@ dopo l'evento `load`. Restano il pulsante «◈ Live» nella testata di Spectra 
 
 - **conversazione a mani libere**: il riconoscimento vocale del browser
   ascolta, la risposta viene detta frase per frase con la sintesi vocale del
-  sistema (si preferisce una voce maschile, velocità 0,95, tono 0,7) e alla
-  fine la console torna ad ascoltare; «stop» o un tocco la interrompono. Se
+  sistema (si preferisce una voce maschile, velocità 0,95, tono 0,7) oppure,
+  dalla v239 e solo con una chiave OpenAI salvata, con la voce di
+  `bsi-spectra-voce.js` (§4.15); alla fine la console torna ad ascoltare; «stop» o un tocco la interrompono. Se
   una delle due capacità manca nel browser, la console lo dice;
 - **comandi locali**, riconosciuti con espressioni regolari prima di
   chiamare il modello e quindi disponibili senza rete e senza chiave: aprire
@@ -820,8 +821,9 @@ mano da chi ha il dispositivo (`09-Release-Conformance-Statement.md`, D-13).
 ### 4.14 La lezione guidata
 
 `bsi-lezione.js` (v239, oggetto `BSILezione`) trasforma ogni sezione in una
-lezione in capitoli condotta da Spectra. Non usa il modello e non va in rete:
-la lezione si costruisce leggendo la sezione aperta.
+lezione in capitoli condotta da Spectra. Non usa il modello: la lezione si
+costruisce leggendo la sezione aperta. Va in rete solo la voce, e solo con una
+chiave OpenAI salvata (§4.15).
 
 - **Costruzione** (`costruisci(sezione)`): un passo di apertura con titolo e
   sottotitolo; per ogni scheda (`.bsiFX-schede button`) un capitolo, i cui
@@ -844,7 +846,8 @@ la lezione si costruisce leggendo la sezione aperta.
   testo che compare parola per parola, ◀ ▶, pausa, voce, `Esc` per chiudere,
   frecce per muoversi. Il riflettore `#bsiLZ-luce` oscura il resto e segue il
   pezzo di cui si parla. La voce è quella di Spectra Live
-  (`BSISpectraLive.parla`); senza voce, il tempo di lettura dipende dalla
+  (`BSISpectraLive.parla`) e, se la console non c'è, quella di
+  `BSISpectraVoce.parla`; senza voce, il tempo di lettura dipende dalla
   lunghezza del testo. Con «riduci movimento» i cursori saltano al valore, il
   testo compare tutto insieme e il riflettore non pulsa.
 - **Pulsanti flottanti**: durante la lezione si nascondono (anche quelli con
@@ -858,6 +861,64 @@ la lezione si costruisce leggendo la sezione aperta.
 La lezione non ha chiavi sue nel `localStorage`; a fine lezione segnala alla
 mente di Spectra un'emozione (`sente('fiera', 'lezione')`), che la mente
 registra in `bsi-spectra-mente-v1` come le altre.
+
+### 4.15 Spectra incarnato: lo studio, il corpo, la voce
+
+Dalla v239 Spectra ha anche un corpo, in una pagina a sé:
+`spectra-studio.html`, raggiungibile dal navigatore 🧭 della console. Il
+progetto completo (requisiti del modello, scelta dello stack, moduli, stato,
+ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
+[`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md):
+[analisi e piano](spectra/01-Analisi-modello-e-piano.md),
+[architettura](spectra/02-Architettura.md),
+[mappa dei domini](spectra/03-Mappa-dei-domini.md). Qui si riassume ciò che
+è nel codice.
+
+- **Lo studio** (`spectra-studio.html`): una scena three.js r128 (pavimento a
+  griglia, luci al neon, banco olografico) con Spectra in piedi; un pannello
+  accessibile con tutto il testo. Le lezioni di
+  `bsi-spectra-studio-lezioni.js` (`BSIStudioLezioni`: `LEZIONI`, `SCENE`,
+  `calcolo`) seguono quattro fasi: **predici** (scelte con le idee sbagliate
+  più comuni e una giusta, ciascuna spiegata), **testa** (la simulazione con i
+  numeri misurati in scena), **dimostra** (la derivazione passo per passo),
+  **rivela** (perché, collegamenti, esercizi su quattro livelli). I calcoli
+  stanno in `calcolo` e si eseguono anche in node: caduta con Eulero
+  semi-implicito (e resistenza quadratica facoltativa), VSEPR come minimo
+  dell'energia w_i·w_j/r di domini sulla sfera (w = 1 per i legami, 1,25 per
+  i doppietti), somme parziali, coda, Fourier di x², coprimi Monte Carlo.
+- **La memoria dello studio**: `bsi-spectra-studio-v1` conserva per lezione
+  le previsioni (`quando`, `scelta`, `giusta`) e gli esercizi aperti; il
+  livello consigliato è il numero di previsioni giuste più gli esercizi
+  aperti, fino a 3. Ogni previsione va anche alla mente
+  (`BSISpectraMente.ricorda`).
+- **Il corpo** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): il driver
+  riconosce ossa, blendshape ARKit, capelli e clip di un GLB umanoide; ogni
+  posa è una direzione nel mondo, convertita nel sistema locale dell'osso
+  (`orienta`, una cinematica inversa minima valida per ogni rig); emozioni,
+  labiale, palpebre, sguardo, gesti, passo e seduta sono fusi con molle. Il
+  corpo dello studio è il **manichino** di `BSISpectraCorpo.manichino()`:
+  ossa con nomi Mixamo in posa a T, 26 blendshape ARKit, capelli rossi che il
+  driver rende neri. Il volto «Noir» si monta sulla testa del manichino con
+  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` e
+  viene allineato misurando, nei primi fotogrammi, la distanza fra il mento e
+  l'osso della testa (1 cm sopra, 3 cm avanti, tolleranza 1 mm). Il modello
+  «cyberpunk» scelto dall'autore non è integrato: il file non era
+  raggiungibile e la licenza va verificata.
+- **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
+  `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
+  `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità
+  audio il testo (fino a 3 800 caratteri) va a
+  `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voce «onyx», con
+  istruzioni sul timbro; `tts-1` se fallisce); l'audio decodificato resta in
+  una cache in memoria per frase e passa nella catena del `TIMBRO` (bassi
+  +5 dB sotto 140 Hz, −3 dB a 350 Hz, +3 dB a 2,8 kHz, modulatore ad anello a
+  55 Hz al 12 %, pettine di 4,3 ms, saturazione, riverbero sintetico di 1,4 s
+  al 16 %, compressore). Un analizzatore dà energia e centroide spettrale a
+  ogni fotogramma per il labiale. Il testo da pronunciare esce dal
+  dispositivo: vedi [`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2.
+
+Come la mente e il volto, il corpo è una **simulazione di comportamento, non
+una coscienza**.
 
 ---
 

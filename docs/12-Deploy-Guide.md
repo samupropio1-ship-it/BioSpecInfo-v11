@@ -201,6 +201,25 @@ riceve «fammi lezione»), nel precarico `PRECACHE` di `sw.js`, perché funzioni
 e nell'elenco dei moduli di `tools/genera-sbom.js`, perché compaia nello SBOM.
 Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 
+### 2.2-quinquies Spectra Studio, una pagina a sé
+
+`spectra-studio.html` (v239) non passa da `index.html`: carica da sé
+`three.min.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
+`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js` e
+`bsi-spectra-studio-lezioni.js`. La pagina e i tre moduli nuovi sono nel
+`PRECACHE` di `sw.js`; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
+usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
+`models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
+arriva, Spectra resta con la testa del manichino. Il modello «cyberpunk» non è
+nel repository; quando arriverà andrà pubblicato con la sua licenza e
+l'attribuzione, e collegato allo studio secondo
+[`docs/spectra/01`](spectra/01-Analisi-modello-e-piano.md) §6. La voce di
+qualità chiama `api.openai.com` direttamente dal browser: un'eventuale
+`Content-Security-Policy`
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)
+deve permetterlo in `connect-src`, altrimenti la voce ripiega sulla sintesi del
+browser.
+
 ### 2.3 Come arriva l'aggiornamento agli utenti
 
 1. Il browser rileva un `sw.js` diverso e installa il nuovo Service Worker.

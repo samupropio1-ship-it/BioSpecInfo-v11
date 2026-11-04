@@ -549,6 +549,44 @@ The lesson is built by reading the section: where a tab has little text, the
 chapter is short; and in sections with no suitable question in the study kit
 there is no check.
 
+### 🌌 Spectra Studio: Spectra's laboratory
+
+In Spectra's console tap **🧭** and, at the top of the list, **Spectra
+Studio**. A separate page opens: a 3D laboratory where Spectra stands next to a
+holographic bench and teaches you in four steps.
+
+1. **Predict** — Spectra stages a phenomenon and asks what will happen. Choose
+   an answer: it is recorded.
+2. **Test** — the simulation runs on the bench, with the measured numbers.
+3. **Prove** — the rigorous explanation, one step at a time.
+4. **Reveal** — why the right answer is right and the others are not, what it
+   connects to, and four exercises from high school to research. The one
+   highlighted is the level Spectra recommends, based on how your predictions
+   went and on the exercises you have already opened.
+
+For now there are three lessons: **🪂 The fall** (a sphere dropped and one
+thrown: which lands first?), **💧 The shape of water** (why is the angle
+104.5°?) and **∑ The Basel problem** (what is 1 + 1/4 + 1/9 + …?). Dragging
+turns the camera, the wheel zooms in. If the device has no 3D graphics, the
+whole lesson stays in the panel, as text. Your predictions stay on this device.
+The studio's own buttons and messages are in Italian.
+
+Spectra's body is, for now, a **test mannequin** with his face: the character
+chosen by the author will come when the file is available. Body, face and voice
+imitate a behaviour: **they are not a consciousness**. The design is described
+(in Italian) in [`docs/spectra/`](../spectra/01-Analisi-modello-e-piano.md).
+
+### Spectra's voice
+
+Without setting anything, Spectra speaks with your device's voice, the deepest
+one it finds. If you have saved an **OpenAI key** among Spectra's keys, in the
+console, in the guided lesson and in Spectra Studio he speaks with a deeper,
+metallic voice, and the mouth follows the voice. In that case **the text
+Spectra speaks is sent to OpenAI** to turn it into audio, even if you use
+another service for the chat. If you do not want this, turn the voice off with
+🔇 in the console and in the lesson, or do not save an OpenAI key (in Spectra
+Studio the voice cannot be turned off).
+
 ### Spectra's face and mind
 
 In the console Spectra has a face: a 3D android (the «Noir» model by Skyfox13,

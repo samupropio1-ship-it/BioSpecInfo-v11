@@ -551,6 +551,44 @@ La lezione è costruita leggendo la sezione: dove una scheda ha poco testo, il
 capitolo è breve; e nelle sezioni senza domande adatte nel kit di studio la
 verifica non c'è.
 
+### 🌌 Spectra Studio: il laboratorio di Spectra
+
+Nella console di Spectra tocca **🧭** e, in cima all'elenco, **Spectra
+Studio**. Si apre una pagina a parte: un laboratorio 3D dove Spectra sta in
+piedi accanto a un banco olografico e ti fa lezione in quattro tempi.
+
+1. **Predici** — Spectra mette in scena un fenomeno e ti chiede che cosa
+   succederà. Scegli una risposta: viene registrata.
+2. **Testa** — la simulazione gira sul banco, con i numeri misurati.
+3. **Dimostra** — la spiegazione rigorosa, un passo alla volta.
+4. **Rivela** — perché la risposta giusta è giusta e le altre no, a che cosa
+   si collega, e quattro esercizi dalla scuola superiore alla ricerca. Quello
+   evidenziato è il livello che Spectra ti consiglia, in base a come sono
+   andate le tue previsioni e agli esercizi che hai già aperto.
+
+Le lezioni, per ora, sono tre: **🪂 La caduta** (una sfera lasciata cadere e
+una lanciata: quale arriva prima?), **💧 La forma dell'acqua** (perché
+l'angolo è 104,5°?) e **∑ Il problema di Basilea** (quanto fa 1 + 1/4 + 1/9 +
+…?). Trascinando giri la telecamera, con la rotellina ti avvicini. Se il
+dispositivo non ha la grafica 3D, la lezione resta tutta nel pannello, a testo.
+Le tue previsioni restano su questo dispositivo.
+
+Il corpo di Spectra, oggi, è un **manichino di prova** con il suo volto: il
+personaggio scelto dall'autore arriverà quando il file sarà disponibile.
+Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
+progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).
+
+### La voce di Spectra
+
+Senza impostare niente, Spectra parla con la voce del tuo dispositivo, la più
+grave che trova. Se hai salvato una **chiave OpenAI** fra le chiavi di
+Spectra, nella console, nella lezione guidata e in Spectra Studio parla con
+una voce più profonda e metallica, e la bocca segue la voce. In quel caso **il
+testo che Spectra pronuncia viene inviato a OpenAI** per trasformarlo in
+audio, anche se per la chat usi un altro servizio. Se non lo vuoi, spegni la
+voce con 🔇 nella console e nella lezione, oppure non salvare una chiave
+OpenAI (in Spectra Studio la voce non si spegne).
+
 ### Il volto e la mente di Spectra
 
 Nella console Spectra ha un volto: un androide in 3D (il modello «Noir» di

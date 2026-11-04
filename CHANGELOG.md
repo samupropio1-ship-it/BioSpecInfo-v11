@@ -9,7 +9,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 ---
 ## [bsi-v239] — 2026-11-04
 
-**Una lezione guidata con Spectra per ogni sezione; un solo pulsante di Spectra, il volto in un cerchio**
+**Una lezione guidata con Spectra per ogni sezione; Spectra incarnato: Spectra Studio, il corpo e la voce; un solo pulsante di Spectra, il volto in un cerchio**
 
 ### Aggiunto
 - **Lezione guidata per ogni sezione** (`bsi-lezione.js`, oggetto globale
@@ -41,6 +41,49 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
     Lezione** nella console, con una sezione aperta.
   - Alla stesura: **194 sezioni** hanno la lezione, **99** hanno schede,
     **79** hanno una domanda di verifica.
+- **Spectra Studio** (`spectra-studio.html`, lezioni in
+  `bsi-spectra-studio-lezioni.js`): un laboratorio 3D in una pagina a sé, con
+  Spectra in piedi accanto a un banco olografico. Si apre dal navigatore 🧭
+  della console (voce «Spectra Studio», in cima). Tre lezioni con il metodo
+  *predici → testa → dimostra → rivela*:
+  - 🪂 **La caduta**: una sfera lasciata cadere e una lanciata in orizzontale a
+    6 m/s da 20 m toccano terra insieme dopo 2,019 s; gittata 12,12 m; con la
+    resistenza dell'aria la lanciata arriva dopo;
+  - 💧 **La forma dell'acqua**: VSEPR come minimo di energia di domini che si
+    respingono sulla sfera; quattro domini uguali danno il tetraedro,
+    arccos(−1/3) = 109,47°; con i doppietti solitari pesati w = 1,25
+    (calibrato sull'acqua) l'acqua viene 104,4° (sperimentale 104,5°) e
+    l'ammoniaca, con lo stesso w e senza nuova calibrazione, 106,7° come il
+    valore sperimentale;
+  - ∑ **Il problema di Basilea**: somme parziali di 1/n², coda fra 1/(N+1) e
+    1/N, serie di Fourier di x², probabilità che due interi siano coprimi
+    (Monte Carlo) → 6/π².
+  Ogni lezione ha le spiegazioni di ogni opzione, una dimostrazione passo per
+  passo, collegamenti fra discipline ed esercizi su quattro livelli (scuola
+  superiore, triennale, magistrale, ricerca). Le previsioni e gli esercizi
+  aperti restano nel `localStorage` (`bsi-spectra-studio-v1`), e da lì viene
+  il livello di esercizio consigliato. Il pannello contiene tutto il testo
+  della lezione, ha nome accessibile e si segue anche senza WebGL (solo
+  testo, con le misure calcolate).
+- **Il corpo di Spectra** (`bsi-spectra-corpo.js`, oggetto
+  `BSISpectraCorpo`): un driver per qualunque avatar umanoide in GLB. Riconosce
+  le ossa per nome (Mixamo, Ready Player Me, VRM, Unreal, nomi generici), i
+  blendshape ARKit del viso, i capelli e le clip di animazione, e dice che cosa
+  manca (`rapporto()`). Muove respiro, peso, sguardo, emozioni, labiale (dal
+  testo o dall'audio), battito delle palpebre, gesti (indica, spiega, pensa,
+  attende, conclude), passo e seduta; ricolora i capelli in nero. Nello studio
+  il corpo è un **manichino riggato di prova** costruito nel codice, con il
+  volto «Noir» incarnato sulla testa e allineato al collo per misura.
+- **La voce di Spectra** (`bsi-spectra-voce.js`, oggetto `BSISpectraVoce`):
+  con una chiave OpenAI salvata nell'app, l'audio arriva da `gpt-4o-mini-tts`
+  (voce «onyx»; `tts-1` se il primo non risponde) e passa in una catena Web
+  Audio (bassi, presenza, modulatore ad anello, filtro a pettine,
+  saturazione, riverbero di 1,4 s, compressore); il labiale segue l'energia e
+  il centroide dell'audio. **Il testo da pronunciare viene inviato a OpenAI**,
+  anche quando la chat usa un altro fornitore. Senza chiave resta la sintesi
+  del browser, con la voce maschile più grave disponibile.
+- Documenti di progetto in [`docs/spectra/`](docs/spectra/): analisi del
+  modello e piano, architettura, mappa dei domini.
 
 ### Cambiato
 - **Un solo pulsante di Spectra** (`bsi-spectra-live.js`): il volto in un
@@ -49,6 +92,14 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   pagina ma nascosta, perché altri moduli e i banchi la usano per aprire la
   chat. Il cerchio compare subito con il volto vettoriale e passa al ritratto
   dopo il caricamento della pagina.
+- **Voce della console** (`bsi-spectra-live.js`): con una chiave OpenAI la
+  console di Spectra Live parla con la voce di `bsi-spectra-voce.js`;
+  altrimenti con la sintesi del browser come prima. La lezione guidata usa la
+  voce della console e, se la console non c'è, direttamente
+  `bsi-spectra-voce.js`.
+- **Volto «Noir» incarnabile** (`bsi-spectra-androide.js`): `crea(padre,
+  { scena, renderer, senzaBusto })` mette il volto in una scena altrui, senza
+  renderer, luci e telecamera propri e senza il busto del modello.
 
 ### Banco
 - Nuovo `test_lezione` (30 controlli): tutte le 194 sezioni hanno la lezione e
@@ -58,12 +109,29 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   «fammi lezione»; a 390 e 1280 px niente sborda; nessun errore JavaScript.
 - `test_spectra238` passa a 66 controlli: un solo pulsante di Spectra
   visibile, rotondo.
-- La batteria passa da 79 a 80 banchi.
+- Nuovo `test_spectra_studio` (71 controlli): i 23 calcoli delle lezioni
+  (`verifiche/verifica-studio-spectra.js`); il driver sul manichino (11:
+  ossa e blendshape trovati, capelli rossi resi neri, braccia giù dalla posa a
+  T, indicare, pensare, sguardo, passo, seduta, emozioni, labiale dall'audio,
+  battito); la catena della voce in un contesto audio offline (3: bassi
+  rinforzati, coda del riverbero, ripiego senza chiave); le lezioni a 1280 e
+  390 px con il volto appoggiato sul collo e la memoria delle previsioni; la
+  lezione senza WebGL; nessun errore JavaScript.
+- La batteria passa da 79 a 81 banchi.
 
 ### Non incluso
-- **Capelli neri per Spectra**: il modello di Sketchfab indicato non era
-  raggiungibile, e una prova con capelli procedurali sulla forma del casco non
-  era convincente; non è in questa versione.
+- **Il modello «cyberpunk» di Sketchfab** scelto dall'autore non è
+  integrato: non era raggiungibile dalla sessione di lavoro, e prima di
+  usarlo servono il file GLB e la verifica della licenza
+  ([`docs/spectra/01`](docs/spectra/01-Analisi-modello-e-piano.md) §6). Il
+  corpo di oggi è un manichino di prova.
+- **Capelli neri per Spectra**: il driver li rende neri su qualunque modello
+  con capelli riconoscibili, ed è provato sul manichino; sul volto «Noir»
+  della console non ci sono capelli, e una prova con capelli procedurali
+  sulla forma del casco non era convincente. Sul modello vero si vedranno
+  quando il modello arriverà.
+- Il corpo, il volto e la voce sono una simulazione di comportamento, non una
+  coscienza.
 
 ---
 ## [bsi-v238] — 2026-11-03

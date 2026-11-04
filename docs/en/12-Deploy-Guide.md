@@ -201,6 +201,25 @@ offline, and in the module list of `tools/genera-sbom.js`, so that it appears in
 the SBOM. A module missing from the precache works while there is a network and
 disappears offline.
 
+### 2.2-quinquies Spectra Studio, a page of its own
+
+`spectra-studio.html` (v239) does not go through `index.html`: it loads by
+itself `three.min.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
+`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js` and
+`bsi-spectra-studio-lezioni.js`. The page and the three new modules are in the
+`PRECACHE` of `sw.js`; `bsi-spectra-voce.js` is also in `index.html`, because
+the console and the guided lesson use it. The studio's «Noir» face is the same
+`models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
+it does not arrive, Spectra keeps the mannequin's head. The «cyberpunk» model is
+not in the repository; when it arrives it must be published with its licence
+and attribution, and connected to the studio as described in
+[`docs/spectra/01`](../spectra/01-Analisi-modello-e-piano.md) §6. The quality
+voice calls `api.openai.com` directly from the browser: any
+`Content-Security-Policy`
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)
+must allow it in `connect-src`, otherwise the voice falls back on the browser's
+synthesis.
+
 ### 2.3 How the update reaches users
 
 1. The browser detects a different `sw.js` and installs the new Service Worker.

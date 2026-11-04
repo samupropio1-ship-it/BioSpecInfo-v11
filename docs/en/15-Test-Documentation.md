@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**80 benches**, grouped by what they demonstrate.
+**81 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -293,8 +293,8 @@ existed before v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_lezione` · `test_guidaproxy` · `test_fluidita` ·
-`test_lingue` · `test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_guidaproxy` ·
+`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
 **`test_spectra238` — 66 checks.** It comes from reports made with a phone
 screenshot: with the app installed, Android's status bar and navigation keys
@@ -327,6 +327,24 @@ tests them all.
 Still outside: the lesson's voice (there is no speech synthesis in headless
 Chromium) and the teaching quality of the texts, which depends on the sections'
 explanations and has to be judged by reading.
+
+**`test_spectra_studio` — 71 checks.** It tests embodied Spectra
+(`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
+`bsi-spectra-studio-lezioni.js`; design in
+[`docs/spectra/02`](../spectra/02-Architettura.md)).
+
+| Part | What it requires |
+|---|---|
+| Computations (23) | Runs `verifiche/verifica-studio-spectra.js`, also standalone with `node`: fall from 20 m in √(2h/g) = 2.0193 s for both spheres, range 12.116 m, with air (k = 0.02 m⁻¹) the thrown one lands later (2.1789 vs 2.1563 s), halved step changing the time by less than 10⁻⁴; VSEPR: tetrahedron 109.471°, trigonal 120°, linear 180°, water 104.40° with w = 1.25 (calibrated), ammonia 106.69° with the same w (prediction), angle decreasing as w grows; Basel: S(100 000) within the tail of π²/6, tail between 1/(N+1) and 1/N for N = 10, 100, 1000, Fourier series of x² at π and at 1, harmonic series as ln N + γ, coprimes → 6/π² within 3σ; for each lesson exactly one right answer, every option explained, at least three proof steps, exercises on four levels |
+| Body (11) | On the mannequin: bones 22/23 (no jaw), blendshapes 14/14, hair found and turned black (RGB 0.039 0.039 0.047); arms down from the T-pose; pointing (forearm on the target, 1.7° off); thinking (hand 20.8 cm from the head); gaze to the right; walking (0.96 m, legs at 24°); sitting (hips down 42 cm); joy → smile, worry → mouth corners down and smile at zero; lip sync from audio (jaw 0.75); blink (eyelids closed) |
+| Voice (3) | In an offline audio context: at 80 Hz the bass comes out boosted (6.9 dB), the reverb leaves a tail after the sound ends; without a key `qualita()` is `'sistema'` |
+| Lessons, at 1280 and 390 px | The «Noir» face resting on the neck (chin 1.0 cm above the head bone); for fall, water and Basel the measurements in the scene (2.019 s, 109.47° and 104.4°, S₁₀₀₀ = 1.64393 and coprimes 0.6079), four predictions, formulas in the proof, the reveal with the right answer and four exercises of which one recommended, the memory remembering the prediction and the exercise opened; at 390 px nothing overflows; no JavaScript errors |
+| Without WebGL | No scene, but the lesson gives the measurements (2.019 s); no JavaScript errors |
+
+Still outside: the «cyberpunk» model, which is not integrated; the call to
+OpenAI and listening to the voice (the bench does not reach OpenAI and does not
+listen); the visual quality of the body and gestures, which has to be judged by
+looking.
 
 **`test_controllaagg` — 12 checks.** It comes from a report: «trying to update,
 nothing comes up». It was true. The 🔄 Updates window looked in `sw.js` for a
@@ -752,11 +770,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 554 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 563 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione». Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 

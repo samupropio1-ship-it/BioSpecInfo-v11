@@ -86,6 +86,7 @@ pass.
 | **D-11** | Part of Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Voice, continuous listening, local commands other than the creator's, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Since v238 the console layout, the navigator, the level, the face and the creator commands are covered by `test_spectra238` (UI-22, AI-14, SEC-08); since v239 the guided lesson and the «fammi lezione» command by `test_lezione` (UI-24) and the single button by `test_spectra238` (UI-25), while the lesson's voice is still tested by hand. Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
 | **D-12** | Two Spectra local keys stay outside selective erasure | `bsi-spectra-ritratto-v4` (the icon derived from the face) and `bsi-spectra-sentinella` (continuous-listening mark) are not in the «Clear data» groups. The mind, the creator recognition, the subject and the study kits are (Persistent memory and Progress groups) | Neither holds user data: the first is regenerated, the second is removed when listening stops. Declared in `docs/11` §6 |
 | **D-13** | Spectra's creator recognition is not an access control | The SHA-256 fingerprint of the secret phrase is in the code, and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`, where whoever holds the device can write it by hand. An unsalted fingerprint of a weak phrase can also be searched by trial outside the app | Like the File Manager password (SEC-03), it is a deterrent: it protects no data, it tells Spectra whom it is talking to. The phrase is neither in the code nor stored (SEC-08, `test_spectra238`) |
+| **D-14** | Spectra Studio: memory outside selective erasure, voice without a switch, test body | The `bsi-spectra-studio-v1` key (predictions and exercises opened) is not in the «Clear data» groups. The studio has no voice switch: with an OpenAI key every spoken text goes to OpenAI. The body is a test mannequin: the «cyberpunk» model chosen by the author is not integrated (file not reachable, licence to be checked) | The key is erased with the site data from the browser; to send no text to OpenAI it is enough not to save an OpenAI key. The body driver is generic and tested on the mannequin (AI-15); the plan for the real model is in `docs/spectra/01` |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -250,9 +251,18 @@ dialogue, nor memory, nor voice, nor the requests to the provider; the model
 receives only whether the user has been recognised.
 
 The guided lesson (`bsi-lezione.js`) is built from the open page: it does not
-call the model, does not go online and has no keys of its own in
-`localStorage`; at the end it notes an emotion («fiera», proud) in Spectra's
+call the model, has no keys of its own in `localStorage` and goes online
+only for the voice, as below; at the end it notes an emotion («fiera», proud) in Spectra's
 mind, which ends up in `bsi-spectra-mente-v1` like the others.
+
+**Spectra's quality voice** (`bsi-spectra-voce.js`, since v239): if the user
+has saved an OpenAI key, the text Spectra speaks in the console, in the guided
+lesson and in Spectra Studio is sent to OpenAI (`gpt-4o-mini-tts`) to receive
+the audio, even when the chat uses another provider and without going through
+the proxy. Without an OpenAI key the browser's speech synthesis is used and the
+text does not leave. Spectra Studio (`spectra-studio.html`) keeps in
+`localStorage` the predictions and the exercises opened for each lesson
+(`bsi-spectra-studio-v1`) and also sends each prediction to the mind.
 
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker

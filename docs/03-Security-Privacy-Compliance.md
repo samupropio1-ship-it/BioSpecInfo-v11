@@ -27,6 +27,19 @@
   pubbliche di terzi (PubChem, NASA/ESA, database spettrali). Tali richieste
   contengono **solo l'identificativo chimico** (es. SMILES/nome) e **nessun dato
   personale**. L'uso di questi servizi è soggetto alle rispettive privacy policy.
+- **Voce di qualità di Spectra (dalla v239, `bsi-spectra-voce.js`):** se
+  l'utente ha salvato nell'app una chiave OpenAI, il **testo che Spectra
+  pronuncia** (fino a 3 800 caratteri per volta: risposte della console,
+  passi della lezione guidata, testi di Spectra Studio) viene inviato
+  direttamente dal browser a `api.openai.com/v1/audio/speech`
+  (`gpt-4o-mini-tts`, voce «onyx»; `tts-1` come ripiego), con la chiave
+  dell'utente. Succede **anche quando la chat usa un altro fornitore**, e la
+  richiesta non passa dal proxy. Il testo può contenere ciò che l'utente ha
+  chiesto e ciò che Spectra ricorda di lui. L'audio ricevuto resta solo in
+  memoria per la sessione. Senza chiave OpenAI questo flusso non esiste: si
+  usa la sintesi vocale del browser. Per evitarlo si spegne la voce (🔇) nella
+  console e nella lezione guidata; **Spectra Studio non ha un interruttore
+  della voce**, quindi lì l'unico modo è non salvare una chiave OpenAI.
 - **Diritto all'oblio locale:** l'utente può cancellare i dati svuotando lo
   storage del sito dal browser.
 
@@ -111,6 +124,7 @@ con i principi GAMP 5:
 | Aspetto | Stato |
 |---------|-------|
 | Dati personali trasmessi a server dell'autore | **Nessuno** |
+| Testo pronunciato da Spectra inviato a OpenAI per la voce | **Solo con una chiave OpenAI salvata** (§1.2) |
 | Backend / database server | **Assente** |
 | Validazione input molecolari | RDKit WASM |
 | Escaping output nel DOM | Sì (contenuto non fidato) |
