@@ -356,7 +356,7 @@ the repository); the call to OpenAI and listening to the voice (the bench does
 not reach OpenAI and does not listen); the visual quality of the body and
 gestures, which has to be judged by looking.
 
-**`test_spectra_figura` — 47 checks (24 at 412 px, 23 at 1280 px).** It comes
+**`test_spectra_figura` — 67 checks (34 at 412 px, 33 at 1280 px).** It comes
 from the author's request: Spectra's icon with the face only and, in every AI
 section, Spectra with the body, «and nothing else». It tests
 `bsi-spectra-figura.js` in the app, on a phone (412 px) and on a large screen
@@ -370,12 +370,17 @@ synthetic humanoid as `test_spectra_rig` (no skeleton, with a hood).
 | Without the body | The invitation to load it appears and **no substitute** (no mannequin in the scene) |
 | With the body | Once the synthetic humanoid is loaded the invitation disappears; the «Noir» face rests on the collar (0.0 cm); of the face model only `Object_2`, `Object_3`, `Object_4` are visible |
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → «spiega» gesture, joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
+| Lesson mode (10 per width) | «⚡ Lezione» is the second tab of the Spectra window; the figure moves into the tab; offline the three lab lessons are there; PREDICT with four options and a curious Spectra; the TEST slider really recomputes (v₀ = 15 m/s → range 30.29 m, time unchanged 2.019 s); PROVE with formulas and a determined Spectra; REVEAL with the right answer marked, four exercises and, for a wrong prediction, surprise; a free topic with a **simulated model** (controlled JSON, four options, test table, four phases, right prediction → joy); the model receives the method and the level; the memory `bsi-spectra-lezioni-ai-v1` records the predictions |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 
+The bench scrolls the figure into view before measuring: the figure renders,
+and aligns the face, only when it is visible.
+
 Still outside: the author's body, which is not in the repository; the visual
 quality of the figure and gestures, which has to be judged by looking; the
-voice.
+voice; the teaching quality of lessons written by a real model (the bench uses
+a simulated model and checks its form, not its content).
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
@@ -823,7 +828,7 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 567 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 568 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |

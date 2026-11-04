@@ -91,6 +91,28 @@ Lo studio e le sezioni dell'AI usano lo stesso controllore, `BSISpectraFigura.Sp
 - **Lo studio** usa lo stesso controllore (`S.spectra`; `S.corpo`, `S.volto`, `S.rig`, `S.allinea`… sono letture dal controllore; `S.usaScena` per i banchi); l'invito è `#invito`.
 - **L'icona** di Spectra resta il volto in un cerchio; la pillola «Spectra» è nascosta.
 
+### 2.3 La modalità Lezione nell'AI (`bsi-spectra-lezione-ai.js`, v240)
+
+```
+ finestra di Spectra (bsi-ai-hub.js)          bsi-spectra-lezione-ai.js
+ schede: 💬 Chat · ⚡ Lezione · Esame Orale ·  ──► costruisci(pannello), avvia(...)
+         Ripassa Oggi · Genera Guida
+                                               con un modello (window.bsiLLM):
+ PREDICI ─ JSON controllato ─► leggiPredici      prompt di sistema = metodo + livello
+ PROVA   ─ numeri, tabella                       bsiStreamChat, stessa conversazione
+ DIMOSTRA─ passi numerati                      senza modello: PROVE (caduta, acqua,
+ RIVELA  ─ perché, collegamenti, 4 esercizi      basilea) con il cursore che ricalcola
+            │
+            └─► figura condivisa (bsi-spectra-figura.js) nella scheda:
+                pensa → curiosa → concentrata → determinata → felice / sorpresa
+```
+
+- La scheda «⚡ Lezione» è la **seconda** della finestra di Spectra; il riquadro di Spectra nelle sezioni ha un pulsante «⚡ Lezione» che la apre (nascosto dentro la scheda).
+- **Con un modello**: fornitore e chiave sono quelli della chat (`window.bsiLLM`); la prima fase è JSON controllato (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`), una risposta malformata è rifiutata con un messaggio.
+- **Senza modello**: le tre lezioni del laboratorio (`bsi-spectra-studio-lezioni.js`, caricato alla prima richiesta) nelle stesse fasi, con il cursore in PROVA e il collegamento allo studio 3D.
+- **La figura** ha la precedenza nella scheda rispetto alle sezioni dell'AI.
+- **Memoria**: `bsi-spectra-lezioni-ai-v1` (per lezione: previsioni giuste e sbagliate, ultima volta), riepilogata all'inizio della scheda e cancellata con «Cancella dati → Memoria persistente».
+
 ## 3. Lo stato
 
 | Dove | Che cosa | Persistenza |
@@ -98,6 +120,7 @@ Lo studio e le sezioni dell'AI usano lo stesso controllore, `BSISpectraFigura.Sp
 | `bsi-spectra-mente-v1` | episodi (domande), tempi di studio, umore, legame | localStorage |
 | `bsi-spectra-studio-v1` | per ogni concetto: previsioni (giuste/sbagliate), fasi completate, livello raggiunto negli esercizi | localStorage |
 | `bsi-spectra-creatore-v1` | riconoscimento dell'autore | localStorage |
+| `bsi-spectra-lezioni-ai-v1` | per ogni lezione della scheda «⚡ Lezione»: previsioni giuste e sbagliate, ultima volta | localStorage; cancellata con «Cancella dati → Memoria persistente» |
 | `bsi-spectra-modelli` (archivio `file`, chiave `corpo`) | il corpo `.glb` caricato dal dispositivo con «🧍 Corpo» | IndexedDB, solo su quel dispositivo; cancellato con «Cancella dati → Progressi del resto dell'app» |
 | driver del corpo | pose, pesi dei blendshape, molle | memoria (per fotogramma) |
 
@@ -133,6 +156,6 @@ Lo studio e le sezioni dell'AI usano lo stesso controllore, `BSISpectraFigura.Sp
 | `test_spectra_studio` (parte «lezioni») | le tre lezioni: quattro fasi; le simulazioni danno i numeri attesi (tempo di caduta indipendente da v₀; angolo HOH ≈ 104,5° dal modello a repulsione; somme parziali → π²/6); memoria delle previsioni; versione solo testo; 390 e 1280 px; nessun errore |
 | `test_spectra_studio` (parte «corpo riggato») | sempre, a 1280 e 390 px: senza corpo l'invito e nessun sostituto; poi il banco carica un umanoide sintetico con `S.usaScena` e l'invito sparisce; sincronia viso–cappuccio in 24 pose mentre Spectra cammina e gesticola (soglia 1 mm; misurati 0,0 mm); del volto «Noir» si vedono solo maschera, occhi e dettagli; volto «solidale»; mento sul colletto (osso del collo + 4,5 cm) |
 | `test_spectra_studio` (parte «corpo dal dispositivo») | a 1280 e 390 px: il pulsante «🧍 Corpo» c'è e accetta i `.glb`; il corpo fa andata e ritorno nell'IndexedDB; un file che non è un modello viene rifiutato senza errori |
-| `test_spectra_figura` (47 controlli) | a 412 e 1280 px: icona solo volto; nelle quattro sezioni dell'AI la figura dentro la sezione sotto il titolo, una sola in tutta l'app; niente spazio vuoto sopra le sezioni fuori da `#main`; senza corpo l'invito e nessun sostituto; con l'umanoide sintetico viso sul colletto e solo il viso; pensa, spiega col labiale, dubbio sull'errore, parla con Spectra Live, spiega lo svolgimento dell'assistente; pulsanti che non coprono quelli flottanti; nessun errore |
+| `test_spectra_figura` (67 controlli) | a 412 e 1280 px: icona solo volto; nelle quattro sezioni dell'AI la figura dentro la sezione sotto il titolo, una sola in tutta l'app; niente spazio vuoto sopra le sezioni fuori da `#main`; senza corpo l'invito e nessun sostituto; con l'umanoide sintetico viso sul colletto e solo il viso; pensa, spiega col labiale, dubbio sull'errore, parla con Spectra Live, spiega lo svolgimento dell'assistente; pulsanti che non coprono quelli flottanti; la modalità «⚡ Lezione» (seconda scheda, figura nella scheda, tre lezioni del laboratorio senza rete, cursore che ricalcola, quattro fasi con le emozioni giuste, argomento libero con un modello simulato in JSON controllato, metodo e livello nel prompt, memoria delle previsioni); nessun errore |
 | `test_spectra_rig` (30 controlli) | il rig automatico su un umanoide sintetico in posa ad A costruito nel codice: nomi Mixamo e riconoscimento da parte del driver, locomozione; pesi con somma 1, la mano alla mano e all'avambraccio, il fianco accanto alla mano pendente senza peso del braccio, gambe che non si incrociano; gesto «spiega» che muove la mano e non il fianco; camminata; triangoli della testa tolti o conservati; cappuccio col solo viso (nessun triangolo tolto, ellisse nello shader, doppia faccia, cappuccio rigido con la testa; l'opzione `visiera: false` rende il casco ombra opaca); blu notte e luce verde acqua; la definizione (tassellazione ×4, pesi normalizzati sui vertici nuovi, pelle chiusa); nessun errore |
 | `test_spectra_studio` (parte «voce») | catena costruita su un buffer sintetico in un contesto audio offline: il filtro dei bassi alza davvero lo spettro sotto 140 Hz; il riverbero allunga la coda |

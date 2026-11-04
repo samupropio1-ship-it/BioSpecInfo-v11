@@ -896,6 +896,27 @@ summarised here.
   figure says that text. It renders only when visible and the page is in the
   foreground. The events are one-way: the figure does not change what the
   model answers.
+- **Lesson mode** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`, v240): the
+  «⚡ Lezione» tab, second in the Spectra window after «💬 Chat», teaches any
+  chemistry, physics or mathematics topic at the chosen level (high school,
+  bachelor, master, research) in four phases. The model receives a **system
+  prompt** with the *predict → test → prove → reveal* method, the level and
+  the topic, and uses the chat's provider and key (`window.bsiLLM`). The first
+  phase is **controlled JSON** (`titolo`, `scena`, `domanda`, `opzioni[4]`
+  with the three most common misconceptions, `giusta`, `perche[4]`):
+  `leggiPredici` takes the first `{…}` object and checks its shape, and a
+  malformed answer is rejected with a message. TEST (numbers and a small
+  table, without saying yet who was right), PROVE (numbered derivation) and
+  REVEAL (why, with empathy; two or three links; four exercises, one per
+  level, with solutions) are model text in the same conversation. **Without a
+  key or offline** the three lab lessons (`bsi-spectra-studio-lezioni.js`)
+  follow the same phases, with a slider in TEST that recomputes. The shared
+  figure moves into the tab (which has priority over the sections) and follows
+  the phases: thinks while the model writes, curious, concentrated,
+  determined, then joyful or surprised. The memory
+  `bsi-spectra-lezioni-ai-v1` counts right and wrong predictions per lesson.
+  With a model, the topic and the student's answers go to the configured
+  provider, like chat messages.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

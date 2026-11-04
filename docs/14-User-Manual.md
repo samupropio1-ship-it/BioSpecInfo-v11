@@ -589,8 +589,24 @@ dell'app». Non c'è un corpo sostitutivo.
 di Chimica, Fisica e Matematica, sotto il titolo, Spectra è in piedi in un
 riquadro da laboratorio: mentre il modello lavora si porta la mano al mento,
 quando arriva la risposta spiega con le mani e muove le labbra. **«🎙️ Parla con
-me»** apre Spectra Live, **«🎓 Studio»** apre Spectra Studio. Il pulsante
-rotondo di Spectra, in ogni schermata, è il suo volto.
+me»** apre Spectra Live, **«⚡ Lezione»** apre la lezione, **«🎓 Studio»** apre
+Spectra Studio. Il pulsante rotondo di Spectra, in ogni schermata, è il suo
+volto.
+
+**Una lezione su qualunque argomento: «⚡ Lezione».** Nella finestra di Spectra
+apri la seconda scheda, **«⚡ Lezione»** (oppure premi «⚡ Lezione» nel riquadro
+di Spectra). Scrivi l'argomento, scegli materia e livello e avvia. Spectra ti
+mette davanti a una situazione e ti chiede che cosa succederà (**Predici**):
+scegli una delle quattro risposte, senza paura di sbagliare, perché due o tre
+sono gli errori che fanno quasi tutti. Poi vedi che cosa succede davvero, con i
+numeri (**Prova**), la dimostrazione passo per passo (**Dimostra**) e infine
+perché la risposta giusta è giusta, con quattro esercizi dal più facile al più
+difficile e le soluzioni da aprire (**Rivela**). Serve un fornitore di IA
+configurato, come per la chat; senza, o senza rete, puoi fare le tre lezioni
+del laboratorio (la caduta, la forma dell'acqua, il problema di Basilea), dove
+in **Prova** muovi un cursore e il risultato si ricalcola. All'inizio della
+scheda vedi come sono andate le tue previsioni; si cancellano con «Cancella dati
+→ Memoria persistente».
 
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).

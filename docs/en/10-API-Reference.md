@@ -532,6 +532,24 @@ Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(sc
 
 New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
 
+### `window.BSILezioneAI` — Lesson mode (`bsi-spectra-lezione-ai.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `costruisci` | `(panel)` | Builds the «⚡ Lezione» tab in the given panel (called by `bsi-ai-hub.js`): topic, subject, level, memory summary, lab lessons |
+| `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Starts a lesson: with a model the PREDICT phase as controlled JSON; with `locale`, an offline lab lesson |
+| `scegli`, `prova`, `dimostra`, `rivela` | `(index)`, `()`, `()`, `()` | The student's prediction and the three following phases |
+| `leggiPredici` | `(text) → object \| null` | Extracts and checks the first phase's JSON (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` if malformed |
+| `PROVE`, `MEM` | object, string | The lab tests' computations (with the slider); the memory key `bsi-spectra-lezioni-ai-v1` |
+| `stato` | `() → { fase, locale, scelta, argomento, misura }` | The state of the current lesson |
+
+### `window.bsiLLM` — the chat's provider (`bsi-ai-hub.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `provider` | `() → string` | The provider chosen in the Spectra window (or the saved one) |
+| `chiave` | `(provider) → string \| null` | The key to use for that provider, as the chat does |
+
 ### `window.BSIStudioLezioni` and `window.SpectraStudio` — the studio (v239)
 
 `BSIStudioLezioni` (`bsi-spectra-studio-lezioni.js`, also usable with

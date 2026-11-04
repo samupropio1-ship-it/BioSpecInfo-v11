@@ -928,6 +928,29 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   …», oppure dubbio se non ha capito) → la figura dice quel testo. Si
   disegna solo quando è visibile e la pagina è in primo piano. Gli eventi
   sono a senso unico: la figura non cambia ciò che il modello risponde.
+- **La modalità Lezione** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`,
+  v240): la scheda «⚡ Lezione», seconda nella finestra di Spectra dopo
+  «💬 Chat», insegna qualunque argomento di chimica, fisica o matematica al
+  livello scelto (scuola superiore, triennale, magistrale, ricerca) in
+  quattro fasi. Il modello riceve un **prompt di sistema** con il metodo
+  *predici → prova → dimostra → rivela*, il livello e l'argomento, e usa il
+  fornitore e la chiave della chat (`window.bsiLLM`). La prima fase è un
+  **JSON controllato** (`titolo`, `scena`, `domanda`, `opzioni[4]` con le tre
+  idee sbagliate più comuni, `giusta`, `perche[4]`): `leggiPredici` prende
+  il primo oggetto `{…}` e ne controlla la forma, e una risposta malformata
+  viene rifiutata con un messaggio. PROVA (numeri e una piccola tabella,
+  senza dire ancora chi aveva ragione), DIMOSTRA (derivazione a passi
+  numerati) e RIVELA (perché, con empatia; due o tre collegamenti; quattro
+  esercizi, uno per livello, con le soluzioni) sono testo del modello nella
+  stessa conversazione. **Senza chiave o senza rete** le tre lezioni del
+  laboratorio (`bsi-spectra-studio-lezioni.js`) seguono le stesse fasi, con
+  un cursore in PROVA che ricalcola. La figura condivisa si sposta nella
+  scheda (che ha la precedenza sulle sezioni) e segue le fasi: pensa mentre
+  il modello scrive, curiosa, concentrata, determinata, poi felice o
+  sorpresa. La memoria `bsi-spectra-lezioni-ai-v1` conta le previsioni
+  giuste e sbagliate per lezione. Con un modello, l'argomento e le risposte
+  dello studente vanno al fornitore configurato, come i messaggi della
+  chat.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

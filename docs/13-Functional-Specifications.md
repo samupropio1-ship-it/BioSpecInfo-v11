@@ -356,8 +356,25 @@ In Spectra AI e nelle tre aree con l'assistente, sotto il titolo, un riquadro
 da laboratorio mostra Spectra in piedi: pensa mentre il modello lavora, spiega
 con le mani e il labiale quando arriva la risposta, parla con Spectra Live e
 spiega lo svolgimento quando l'assistente locale risolve un esercizio; pulsanti
-«🧍 Corpo», «🎙️ Parla con me», «🎓 Studio». Una figura sola per tutta l'app.
-L'icona di Spectra è solo il volto. Corpo, volto e mente sono una simulazione di
+«🧍 Corpo», «🎙️ Parla con me», «⚡ Lezione», «🎓 Studio». Una figura sola per
+tutta l'app. L'icona di Spectra è solo il volto.
+
+**La modalità Lezione** (`bsi-spectra-lezione-ai.js`, v240). Nella finestra di
+Spectra la scheda **«⚡ Lezione»** è la seconda, dopo «💬 Chat» (poi Esame
+Orale, Ripassa Oggi, Genera Guida). Si sceglie un argomento qualunque, la
+materia (chimica, fisica, matematica) e il livello (scuola superiore,
+triennale, magistrale, ricerca); Spectra insegna in quattro fasi: **PREDICI**
+(la scena, la domanda, quattro risposte fra cui le tre idee sbagliate più
+comuni), **PROVA** (che cosa succede davvero, con numeri e una tabella),
+**DIMOSTRA** (la derivazione a passi numerati), **RIVELA** (perché, con
+empatia; collegamenti fra discipline; quattro esercizi, uno per livello, con le
+soluzioni). Con un fornitore configurato scrive il modello (la prima fase in
+JSON controllato; una risposta malformata è rifiutata con un messaggio). Senza
+chiave o senza rete ci sono le tre lezioni del laboratorio (caduta, acqua,
+Basilea) con un cursore che ricalcola in PROVA e il collegamento allo studio
+3D. Spectra col corpo la conduce: la figura si sposta nella scheda e cambia
+espressione con le fasi. Le previsioni restano in `bsi-spectra-lezioni-ai-v1`
+e compaiono come riepilogo all'inizio della scheda. Corpo, volto e mente sono una simulazione di
 comportamento, non una coscienza.
 
 ---

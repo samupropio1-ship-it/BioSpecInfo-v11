@@ -159,6 +159,7 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
 | `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; removed by «Clear data → Persistent memory» |
 | `bsi-spectra-studio-voce` | `'0'` if Spectra Studio's voice has been turned off with 🔇; absent or other than `'0'` = on | Written by the studio's voice switch; removed by «Clear data → Persistent memory» |
+| `bsi-spectra-lezioni-ai-v1` | For each lesson of the «⚡ Lezione» tab (topic or lab lesson): right and wrong predictions and last time (`{ giuste, sbagliate, quando }`) | Written by `bsi-spectra-lezione-ai.js` at every prediction; shown as a summary at the start of the tab; removed by «Clear data → Persistent memory» |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
@@ -296,7 +297,7 @@ everything. The groups are defined in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Saved conversations and question history |
 | `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
-| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
+| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) and Lesson mode (`bsi-spectra-lezioni-ai-v1`) |
 | `ripasso` | Spaced repetition |
 | `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`), study-kit progress (`bsi-studio:*`) and the IndexedDB database `bsi-spectra-modelli` (the Spectra Studio body loaded from the device) |
 

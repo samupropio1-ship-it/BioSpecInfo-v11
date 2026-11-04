@@ -210,7 +210,9 @@ Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 `PRECACHE` di `sw.js`; `bsi-spectra-figura.js` (v240) è anche in `index.html`,
 con `defer`, perché mostra Spectra col corpo nelle sezioni dell'AI: carica
 `three.min.js`, `gltf_loader.js` e gli altri moduli 3D solo la prima volta che si
-apre una di quelle sezioni; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
+apre una di quelle sezioni; anche `bsi-spectra-lezione-ai.js` (v240, la
+scheda «⚡ Lezione» della finestra di Spectra) sta in `index.html` con `defer` e
+nel precarico; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
 usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
 `models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
 arriva, il corpo resta senza viso. Il corpo «Bounty Hunter»

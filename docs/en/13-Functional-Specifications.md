@@ -358,8 +358,24 @@ In Spectra AI and in the three areas with the assistant, under the title, a
 lab-style frame shows Spectra standing: it thinks while the model works,
 explains with its hands and lip sync when the answer arrives, speaks with
 Spectra Live and explains the working when the local assistant solves an
-exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio». One figure for
-the whole app. Spectra's icon is the face only. Body, face and mind are a
+exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «⚡ Lezione», «🎓 Studio».
+One figure for the whole app. Spectra's icon is the face only.
+
+**Lesson mode** (`bsi-spectra-lezione-ai.js`, v240). In the Spectra window the
+**«⚡ Lezione»** tab is the second one, after «💬 Chat» (then Esame Orale,
+Ripassa Oggi, Genera Guida). The user picks any topic, the subject (chemistry,
+physics, mathematics) and the level (high school, bachelor, master, research);
+Spectra teaches in four phases: **PREDICT** (the scene, the question, four
+answers including the three most common misconceptions), **TEST** (what really
+happens, with numbers and a table), **PROVE** (the numbered derivation),
+**REVEAL** (why, with empathy; cross-discipline links; four exercises, one per
+level, with solutions). With a configured provider the model writes it (the
+first phase as controlled JSON; a malformed answer is rejected with a message).
+Without a key or offline the three lab lessons (fall, water, Basel) are
+available, with a slider that recomputes in TEST and the link to the 3D studio.
+Spectra with the body leads it: the figure moves into the tab and changes
+expression with the phases. Predictions stay in `bsi-spectra-lezioni-ai-v1` and
+appear as a summary at the start of the tab. Body, face and mind are a
 simulation of behaviour, not consciousness.
 
 ---

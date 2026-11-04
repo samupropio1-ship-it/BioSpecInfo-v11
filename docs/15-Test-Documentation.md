@@ -372,7 +372,7 @@ repository); la chiamata a OpenAI e l'ascolto della voce (il banco non
 raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
 va giudicata guardando.
 
-**`test_spectra_figura` — 47 controlli (24 a 412 px, 23 a 1280 px).** Nasce
+**`test_spectra_figura` — 67 controlli (34 a 412 px, 33 a 1280 px).** Nasce
 dalla richiesta dell'autore: l'icona di Spectra solo col volto e, in ogni
 sezione dell'AI, Spectra col corpo, «e non altro». Prova
 `bsi-spectra-figura.js` nell'app, su un telefono (412 px) e su schermo grande
@@ -387,11 +387,17 @@ cappuccio).
 | Senza il corpo | Compare l'invito a caricarlo e **nessun sostituto** (niente manichino in scena) |
 | Con il corpo | Caricato l'umanoide sintetico l'invito sparisce; il viso «Noir» poggia sul colletto (0,0 cm); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → gesto «spiega», gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
+| Modalità Lezione (10 per larghezza) | «⚡ Lezione» è la seconda scheda della finestra di Spectra; la figura si sposta nella scheda; senza rete ci sono le tre lezioni del laboratorio; PREDICI con quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola davvero (v₀ = 15 m/s → gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e Spectra determinata; RIVELA con la risposta giusta segnata, quattro esercizi e, per una previsione sbagliata, la sorpresa; un argomento libero con un **modello simulato** (JSON controllato, quattro opzioni, tabella della prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo e il livello; la memoria `bsi-spectra-lezioni-ai-v1` registra le previsioni |
 | Telefono | I pulsanti della figura non finiscono sotto quelli flottanti |
 | Errori | Nessun errore JavaScript, a ogni larghezza |
 
+Il banco porta la figura in vista prima di misurare: la figura si disegna, e
+allinea il viso, solo quando è visibile.
+
 Restano fuori: il corpo dell'autore, che non è nel repository; la qualità
-visiva della figura e dei gesti, che va giudicata guardando; la voce.
+visiva della figura e dei gesti, che va giudicata guardando; la voce; la
+qualità didattica delle lezioni scritte da un modello vero (il banco usa un
+modello simulato e ne controlla la forma, non il contenuto).
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -847,7 +853,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 567 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 568 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |

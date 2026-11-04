@@ -39,6 +39,12 @@
   avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
   Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
   or do not save an OpenAI key.
+- **The AI's Lesson mode (`bsi-spectra-lezione-ai.js`, v240):** with a
+  configured provider, the lesson topic, the level and the student's answers
+  go to that provider, with its key, like chat messages; without a key the lab
+  lessons never leave the device. Predictions stay in
+  `bsi-spectra-lezioni-ai-v1` and are erased by «Clear data → Persistent
+  memory».
 - **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
   the «🧍 Corpo» button stays only in the browser's IndexedDB
   (`bsi-spectra-modelli`) and is not sent to any server. It is erased with

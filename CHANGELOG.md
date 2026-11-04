@@ -46,6 +46,46 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     «Lezione guidata» e la descrizione, prima delle schede. Sul telefono i
     suoi pulsanti stanno a sinistra, in colonna, per non coprire i pulsanti
     flottanti.
+- **La modalità Lezione nell'AI** (`bsi-spectra-lezione-ai.js`, oggetto
+  `BSILezioneAI`). Richiesta dell'autore: la lezione «alla Every Joule»
+  (*predici → prova → dimostra → rivela*) dentro l'AI. Nella finestra di
+  Spectra (`bsi-ai-hub.js`) c'è una scheda nuova, **«⚡ Lezione»**, la
+  seconda subito dopo «💬 Chat» (le schede ora sono Chat, Lezione, Esame
+  Orale, Ripassa Oggi, Genera Guida). Qualunque argomento, materia (chimica,
+  fisica, matematica) e livello (scuola superiore, triennale, magistrale,
+  ricerca), in quattro fasi:
+  - **PREDICI**: la scena, la domanda e quattro risposte, fra cui le tre idee
+    sbagliate più comuni. Con un modello la prima fase è un JSON controllato
+    (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); una
+    risposta malformata viene rifiutata con un messaggio;
+  - **PROVA**: che cosa succede davvero, con i numeri e una piccola tabella,
+    senza dire ancora se la previsione era giusta;
+  - **DIMOSTRA**: la derivazione rigorosa, a passi numerati;
+  - **RIVELA**: perché la risposta giusta è giusta e quella sbagliata no (con
+    empatia), due o tre collegamenti fra discipline, esattamente quattro
+    esercizi, uno per livello, con le soluzioni.
+  Il modello riceve un prompt di sistema con il metodo e il livello, e usa il
+  fornitore e la chiave della chat (`window.bsiLLM = { provider(), chiave(p)
+  }`, esportato da `bsi-ai-hub.js`). **Senza chiave o senza rete** si fanno,
+  nelle stesse quattro fasi, le tre lezioni del laboratorio (caduta, acqua,
+  Basilea, da `bsi-spectra-studio-lezioni.js`, caricato alla prima richiesta),
+  con un **cursore in PROVA che ricalcola davvero**: la caduta con v₀ da 0 a
+  20 m/s (i due tempi restano 2,019 s, la gittata cresce), l'acqua con la
+  dimensione del doppietto da 1 a 1,6 (l'angolo H–O–H dal minimo
+  dell'energia VSEPR), Basilea con N = 10^x termini (S_N, la distanza da
+  π²/6 e la forbice 1/(N+1)…1/N); e il collegamento «Guardalo accadere in 3D
+  nello studio». **Spectra col corpo la conduce**: la figura condivisa si
+  sposta nella scheda (che ha la precedenza sulle sezioni dell'AI), pensa
+  mentre il modello scrive, è curiosa in PREDICI, concentrata in PROVA,
+  determinata in DIMOSTRA, felice in RIVELA se la previsione era giusta,
+  sorpresa (con garbo) se era sbagliata. La memoria
+  `bsi-spectra-lezioni-ai-v1` (per lezione: previsioni giuste e sbagliate,
+  ultima volta) appare come riepilogo all'inizio della scheda e rientra in
+  «Cancella dati → Memoria persistente». Il riquadro di Spectra nelle sezioni
+  dell'AI ha un pulsante **«⚡ Lezione»** che apre la finestra di Spectra su
+  questa scheda (nascosto dentro la scheda stessa). Con un modello,
+  l'argomento della lezione va al fornitore configurato, come i messaggi
+  della chat.
 
 ### Cambiato
 - **Nessun manichino come Spectra**, né nelle sezioni dell'AI né nello
@@ -78,7 +118,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (47 controlli: 24 a 412 px, 23 a 1280 px): il
+- Nuovo `test_spectra_figura` (67 controlli: 34 a 412 px, 33 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -89,7 +129,18 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   («spiega», gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
   che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
   Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
-  coprono quelli flottanti; nessun errore JavaScript.
+  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 10
+  controlli della modalità Lezione: «Lezione» è la seconda scheda; la figura
+  si sposta nella scheda; tre lezioni del laboratorio senza rete; PREDICI con
+  quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola (v₀ = 15 →
+  gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e
+  Spectra determinata; RIVELA con la risposta giusta segnata, quattro
+  esercizi e la sorpresa per la previsione sbagliata; un argomento libero con
+  un modello simulato (JSON controllato, quattro opzioni, tabella della
+  prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo
+  e il livello; la memoria registra le previsioni. Il banco porta la figura
+  in vista prima di misurare, perché la figura si disegna (e allinea il viso)
+  solo quando è visibile.
 - `test_spectra_studio` passa a **91 controlli**, con o senza il modello in
   locale: nelle lezioni, a ogni larghezza, «senza il corpo: l'invito», «nessun
   sostituto in scena (niente manichino)», poi il banco carica lo stesso

@@ -516,6 +516,24 @@ Metodi del controllore: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScen
 
 Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { testo }`), emesso da `parla()` di `bsi-spectra-live.js` e da `bsi-assistente.js` quando risolve un esercizio; la figura lo dice con labiale e gesto.
 
+### `window.BSILezioneAI` — la modalità Lezione (`bsi-spectra-lezione-ai.js`, v240)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `costruisci` | `(pannello)` | Costruisce la scheda «⚡ Lezione» nel pannello dato (la chiama `bsi-ai-hub.js`): argomento, materia, livello, riepilogo della memoria, lezioni del laboratorio |
+| `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Comincia una lezione: con un modello la fase PREDICI in JSON controllato; con `locale`, una lezione del laboratorio senza rete |
+| `scegli`, `prova`, `dimostra`, `rivela` | `(indice)`, `()`, `()`, `()` | La previsione dello studente e le tre fasi successive |
+| `leggiPredici` | `(testo) → oggetto \| null` | Estrae e controlla il JSON della prima fase (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` se malformato |
+| `PROVE`, `MEM` | oggetto, stringa | I calcoli delle prove del laboratorio (con il cursore); la chiave della memoria `bsi-spectra-lezioni-ai-v1` |
+| `stato` | `() → { fase, locale, scelta, argomento, misura }` | Lo stato della lezione in corso |
+
+### `window.bsiLLM` — il fornitore della chat (`bsi-ai-hub.js`, v240)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `provider` | `() → string` | Il fornitore scelto nella finestra di Spectra (o quello salvato) |
+| `chiave` | `(provider) → string \| null` | La chiave da usare per quel fornitore, come la chat |
+
 ### `window.BSIStudioLezioni` e `window.SpectraStudio` — lo studio (v239)
 
 `BSIStudioLezioni` (`bsi-spectra-studio-lezioni.js`, usabile anche con
