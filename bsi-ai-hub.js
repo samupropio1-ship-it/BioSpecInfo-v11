@@ -5399,7 +5399,7 @@ function mdToHtml(src){
   return s;
 }
 window.bsiMarkdownToHtml = mdToHtml;
-/* (v240) il fornitore e la chiave della chat, per la modalita' Lezione (bsi-spectra-lezione-ai.js) */
+/* (v240) il fornitore e la chiave della chat, per «🧠 Spiega» (bsi-spectra-spiega.js) */
 window.bsiLLM = {
   provider: function(){ var sel = document.getElementById('bsi-hub-provsel'); return sel && sel.value ? sel.value : getSavedProvider(); },
   chiave: function(p){ return chiaveDaUsare(p); }
@@ -5571,7 +5571,7 @@ var DATI_CANCELLABILI = {
   memoria: {
     etichetta: 'Memoria persistente',
     dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
-    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-spectra-lezioni-ai-v1']
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',
@@ -6125,7 +6125,7 @@ function buildShell(){
       '<button id="bsi-hub-close">✕ Chiudi</button></div>' +
     '<div id="bsi-hub-tabwrap"><div id="bsi-hub-tabs">' +
       '<div class="bsi-hub-tab" data-tab="chat">💬 Chat</div>' +
-      '<div class="bsi-hub-tab" data-tab="lezione">⚡ Lezione</div>' +
+      '<div class="bsi-hub-tab" data-tab="spiega">🧠 Spiega</div>' +
       '<div class="bsi-hub-tab" data-tab="exam">🎓 Esame Orale</div>' +
       '<div class="bsi-hub-tab" data-tab="srs">🔁 Ripassa Oggi</div>' +
       '<div class="bsi-hub-tab" data-tab="guide">📘 Genera Guida</div>' +
@@ -6135,7 +6135,7 @@ function buildShell(){
       '<div class="bsi-hub-pane" id="bsi-pane-exam"></div>' +
       '<div class="bsi-hub-pane" id="bsi-pane-srs"></div>' +
       '<div class="bsi-hub-pane" id="bsi-pane-guide"></div>' +
-      '<div class="bsi-hub-pane" id="bsi-pane-lezione"></div>' +
+      '<div class="bsi-hub-pane" id="bsi-pane-spiega"></div>' +
     '</div>';
   document.body.appendChild(ov);
   document.getElementById('bsi-hub-close').onclick = closeHub;
@@ -6146,8 +6146,8 @@ function buildShell(){
   buildExamPane();
   buildSrsPane();
   buildGuidePane();
-  /* (v240) la modalita' Lezione (prevedi → prova → dimostra → rivela), condotta da Spectra col corpo: bsi-spectra-lezione-ai.js */
-  if(window.BSILezioneAI) window.BSILezioneAI.costruisci(document.getElementById('bsi-pane-lezione'));
+  /* (v240) «🧠 Spiega»: l'AI che spiega tutto, in modo esaustivo, anche spettri, grafici e scene 3D sullo schermo (bsi-spectra-spiega.js) */
+  if(window.BSISpiega) window.BSISpiega.costruisci(document.getElementById('bsi-pane-spiega'));
 }
 
 function selectTab(name){
@@ -6157,6 +6157,7 @@ function selectTab(name){
   var pane = document.getElementById('bsi-pane-' + name);
   if(pane) pane.classList.add('on');
   if(name === 'srs') refreshSrsPane();
+  if(name === 'spiega' && window.BSISpiega) window.BSISpiega.aggiornaSchermo();
 }
 
 function closeHub(){

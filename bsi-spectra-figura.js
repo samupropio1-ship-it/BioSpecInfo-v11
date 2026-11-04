@@ -21,16 +21,16 @@
       (bsi-spectra-androide.js), allineato misurando il mento.
    2. LA FIGURA (monta): un riquadro con la sua scena (il laboratorio della
       lezione: griglia al neon, pannelli olografici, pedana), Spectra in piedi,
-      intero; i pulsanti Corpo, Parla con me, ⚡ Lezione (la modalita' lezione
-      della finestra di Spectra, bsi-spectra-lezione-ai.js), Studio. Ascolta l'app:
+      intero; i pulsanti Corpo, Parla con me, 🧠 Spiega (la spiegazione esaustiva
+      della finestra di Spectra, bsi-spectra-spiega.js), Studio. Ascolta l'app:
       · «bsi-spectra-stato» (pensa / strumenti / scrive) → si concentra, mano al mento;
       · «bsi-spectra-risposta» (la risposta del modello) → spiega con le mani, il
         viso legge il testo (labiale), l'emozione segue il contenuto;
       · «bsi-spectra-dice» (Spectra Live che parla, l'assistente che risolve) → idem.
       Si disegna solo quando e' visibile e la pagina e' in primo piano.
    3. LE SEZIONI DELL'AI (sezioni): una figura sola, spostata nella sezione AI
-      aperta (un contesto WebGL solo, anche su telefono); la scheda «⚡ Lezione»
-      della finestra di Spectra ha la precedenza, perche' e' Spectra a condurla.
+      aperta (un contesto WebGL solo, anche su telefono); la scheda «🧠 Spiega»
+      della finestra di Spectra ha la precedenza, perche' e' Spectra che spiega.
 
    API: BSISpectraFigura.Spectra(T, scena, renderer, opz) → controllore del corpo
         BSISpectraFigura.monta(contenitore, opz) → figura
@@ -222,9 +222,9 @@
     '.bsiSF-nota{position:absolute;left:12px;bottom:12px;max-width:52%;font:600 12px/1.35 system-ui;color:#9fb6dd;pointer-events:none}' +
     '.bsiSF-invito{position:absolute;left:12px;right:12px;top:42px;max-width:380px;background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui}' +
     '.bsiSF-invito[hidden]{display:none}.bsiSF-invito button{margin-top:8px;background:linear-gradient(135deg,#2f6bff,#00c9b7);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer;min-height:36px}' +
-    '#bsi-pane-lezione .bsiSF{flex:0 0 auto;height:clamp(220px,30vh,320px);min-height:220px;margin:10px 14px 0}#bsi-pane-lezione #bsiLA{flex:1;min-height:0;height:auto}' +
-    /* nella scheda Lezione i pulsanti stanno in riga, in basso a destra, e «⚡ Lezione» non serve (ci siamo gia') */
-    '#bsi-pane-lezione .bsiSF-az{flex-direction:row;left:auto;right:10px;align-items:center}#bsi-pane-lezione .bsiSF-lez{display:none}' +
+    '#bsi-pane-spiega .bsiSF{flex:0 0 auto;height:clamp(220px,30vh,320px);min-height:220px;margin:10px 14px 0}#bsi-pane-spiega #bsiSP{flex:1;min-height:0}' +
+    /* nella scheda Spiega i pulsanti stanno in riga, in basso a destra, e «🧠 Spiega» non serve (ci siamo gia') */
+    '#bsi-pane-spiega .bsiSF-az{flex-direction:row;left:auto;right:10px;align-items:center}#bsi-pane-spiega .bsiSF-lez{display:none}' +
     '@media (max-width:520px){.bsiSF-nota{display:none}}';
   function stile() { if (D.getElementById('bsiSF-stile')) return; var s = D.createElement('style'); s.id = 'bsiSF-stile'; s.textContent = CSS; D.head.appendChild(s); }
 
@@ -285,8 +285,8 @@
       S.daFile(f).then(function (r) { bCorpo.disabled = false; aggiornaNota(); file.value = ''; statoHud(r.ok ? t('NUOVO CORPO', 'NEW BODY') : r.motivo === 'grande' ? t('FILE TROPPO GRANDE (MAX 60 MB)', 'FILE TOO LARGE (MAX 60 MB)') : t('FILE NON UTILIZZABILE', 'FILE NOT USABLE')); if (r.ok) { S.emozione('gioia', 4); S.fai('spiega', null, 3); } });
     };
     if (globale.BSISpectraLive && globale.BSISpectraLive.apri) bottone(t('🎙️ Parla con me', '🎙️ Talk to me'), t('Apri la conversazione dal vivo con Spectra', 'Open the live conversation with Spectra'), function () { globale.BSISpectraLive.apri(); });
-    /* la modalita' lezione (prevedi → prova → dimostra → rivela) nella finestra di Spectra */
-    if (globale.bsiOpenAIHub && D.getElementById && !D.getElementById('bsi-pane-lezione-no')) bottone(t('⚡ Lezione', '⚡ Lesson'), t('Una lezione con Spectra: prevedi, prova, dimostra, rivela', 'A lesson with Spectra: predict, test, prove, reveal'), function () { globale.bsiOpenAIHub('lezione'); }).className = 'bsiSF-lez';
+    /* «🧠 Spiega» nella finestra di Spectra */
+    if (globale.bsiOpenAIHub) bottone(t('🧠 Spiega', '🧠 Explain'), t('Spectra spiega tutto, anche ciò che hai sullo schermo: spettri, grafici, scene 3D', 'Spectra explains everything, including what is on screen: spectra, graphs, 3D scenes'), function () { globale.bsiOpenAIHub('spiega'); }).className = 'bsiSF-lez';
     var a = D.createElement('a'); a.href = './spectra-studio.html'; a.textContent = t('🎓 Studio', '🎓 Studio'); a.title = t('Le lezioni immersive di Spectra', 'Spectra\'s immersive lessons'); az.appendChild(a);
 
     /* un altro riquadro (o lo studio) ha caricato un corpo nuovo: lo si riprende */
@@ -357,8 +357,8 @@
   /* ═══ 3. LE SEZIONI DELL'AI: una figura sola, spostata nella sezione aperta ═══ */
   var condivisa = null, inCorso = false;
   function sezioni(ids) {
-    /* la scheda «⚡ Lezione» della finestra di Spectra ha la precedenza: e' lei che Spectra sta conducendo */
-    ids = ids || ['bsi-pane-lezione', 'sai', 'sareachim', 'sareafis', 'sareamat'];
+    /* la scheda «🧠 Spiega» della finestra di Spectra ha la precedenza: e' Spectra che sta spiegando */
+    ids = ids || ['bsi-pane-spiega', 'sai', 'sareachim', 'sareafis', 'sareamat'];
     function bersaglio() {
       for (var i = 0; i < ids.length; i++) {
         var s = D.getElementById(ids[i]); if (!s || !s.offsetParent) continue;
@@ -376,10 +376,10 @@
       }
       var q0 = s.querySelector('.bsiFX') || s, d0 = null;
       ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q0.querySelector(':scope > ' + sel); if (e) { d0 = e; return true; } return false; });
-      if (s.id === 'bsi-pane-lezione' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
+      if (s.id === 'bsi-pane-spiega' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
         /* dopo il titolo, la «Lezione guidata» e la descrizione, prima delle schede e del contenuto */
         var q = s.querySelector('.bsiFX') || s, dopo = null;
-        if (s.id === 'bsi-pane-lezione') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
+        if (s.id === 'bsi-pane-spiega') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
         ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q.querySelector(':scope > ' + sel); if (e) { dopo = e; return true; } return false; });
         if (dopo) q.insertBefore(condivisa.box, dopo.nextSibling); else q.insertBefore(condivisa.box, q.firstChild);
         condivisa.adatta();

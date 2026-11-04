@@ -362,13 +362,16 @@ tutta l'app. L'icona di Spectra è solo il volto.
 **La modalità Lezione** (`bsi-spectra-lezione-ai.js`, v240). Nella finestra di
 Spectra la scheda **«⚡ Lezione»** è la seconda, dopo «💬 Chat» (poi Esame
 Orale, Ripassa Oggi, Genera Guida). Si sceglie un argomento qualunque, la
-materia (chimica, fisica, matematica) e il livello (scuola superiore,
-triennale, magistrale, ricerca); Spectra insegna in quattro fasi: **PREDICI**
+materia (chimica, fisica, matematica) e il livello, uno dei cinque dalla
+scuola superiore al PhD avanzato (Scuola superiore, Triennale, Magistrale,
+Dottorato (PhD), PhD avanzato · frontiera: il modello riceve che cosa ci si
+aspetta a quel livello e l'istruzione di non semplificare sotto di esso); Spectra insegna in quattro fasi: **PREDICI**
 (la scena, la domanda, quattro risposte fra cui le tre idee sbagliate più
 comuni), **PROVA** (che cosa succede davvero, con numeri e una tabella),
 **DIMOSTRA** (la derivazione a passi numerati), **RIVELA** (perché, con
-empatia; collegamenti fra discipline; quattro esercizi, uno per livello, con le
-soluzioni). Con un fornitore configurato scrive il modello (la prima fase in
+empatia; collegamenti fra discipline; con un modello cinque esercizi, uno per
+livello, l'ultimo un problema aperto o di ricerca, con le soluzioni; le lezioni
+del laboratorio ne hanno quattro). Con un fornitore configurato scrive il modello (la prima fase in
 JSON controllato; una risposta malformata è rifiutata con un messaggio). Senza
 chiave o senza rete ci sono le tre lezioni del laboratorio (caduta, acqua,
 Basilea) con un cursore che ricalcola in PROVA e il collegamento allo studio

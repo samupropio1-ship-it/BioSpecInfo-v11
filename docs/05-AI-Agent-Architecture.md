@@ -931,17 +931,26 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
 - **La modalità Lezione** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`,
   v240): la scheda «⚡ Lezione», seconda nella finestra di Spectra dopo
   «💬 Chat», insegna qualunque argomento di chimica, fisica o matematica al
-  livello scelto (scuola superiore, triennale, magistrale, ricerca) in
-  quattro fasi. Il modello riceve un **prompt di sistema** con il metodo
-  *predici → prova → dimostra → rivela*, il livello e l'argomento, e usa il
+  livello scelto in quattro fasi. I livelli sono cinque: Scuola superiore,
+  Triennale, Magistrale, Dottorato (PhD), PhD avanzato · frontiera. Il
+  modello riceve un **prompt di sistema** con il metodo *predici → prova →
+  dimostra → rivela*, l'argomento, il nome del livello e che cosa ci si
+  aspetta (`PROFONDITA`: dall'algebra delle superiori al formalismo completo
+  della magistrale, ai metodi avanzati del dottorato, fino allo stato
+  dell'arte, ai problemi aperti, alle tecniche di frontiera e alla
+  letteratura primaria — solo riferimenti certi — con una domanda di ricerca
+  al PhD avanzato), più «Non semplificare sotto questo livello»; ai livelli
+  di dottorato i limiti di lunghezza crescono (PROVA 280, DIMOSTRA 450,
+  RIVELA 600 parole invece di 180, 250 e 420), e usa il
   fornitore e la chiave della chat (`window.bsiLLM`). La prima fase è un
   **JSON controllato** (`titolo`, `scena`, `domanda`, `opzioni[4]` con le tre
   idee sbagliate più comuni, `giusta`, `perche[4]`): `leggiPredici` prende
   il primo oggetto `{…}` e ne controlla la forma, e una risposta malformata
   viene rifiutata con un messaggio. PROVA (numeri e una piccola tabella,
   senza dire ancora chi aveva ragione), DIMOSTRA (derivazione a passi
-  numerati) e RIVELA (perché, con empatia; due o tre collegamenti; quattro
-  esercizi, uno per livello, con le soluzioni) sono testo del modello nella
+  numerati) e RIVELA (perché, con empatia; due o tre collegamenti;
+  esattamente cinque esercizi, uno per livello, l'ultimo un vero problema
+  aperto o di ricerca, con le soluzioni) sono testo del modello nella
   stessa conversazione. **Senza chiave o senza rete** le tre lezioni del
   laboratorio (`bsi-spectra-studio-lezioni.js`) seguono le stesse fasi, con
   un cursore in PROVA che ricalcola. La figura condivisa si sposta nella

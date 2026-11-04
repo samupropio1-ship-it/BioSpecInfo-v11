@@ -593,12 +593,15 @@ is its face.
 
 **A lesson on any topic: «⚡ Lezione».** In the Spectra window open the second
 tab, **«⚡ Lezione»** (or press «⚡ Lezione» in Spectra's frame). Write the
-topic, choose subject and level and start. Spectra puts a situation in front of
+topic, choose subject and level — from high school to advanced PhD, at the
+research frontier: Spectra does not simplify below the chosen level — and
+start. Spectra puts a situation in front of
 you and asks what will happen (**Predict**): pick one of the four answers
 without fear of being wrong, because two or three are the mistakes almost
 everyone makes. Then you see what really happens, with numbers (**Test**), the
 step-by-step proof (**Prove**) and finally why the right answer is right, with
-four exercises from easiest to hardest and solutions to open (**Reveal**). A
+five exercises from easiest to hardest — the last a genuine open problem — and
+solutions to open (**Reveal**). A
 configured AI provider is needed, as for the chat; without one, or offline, you
 can do the three lab lessons (the fall, the shape of water, the Basel problem),
 where in **Test** you move a slider and the result is recomputed. At the start

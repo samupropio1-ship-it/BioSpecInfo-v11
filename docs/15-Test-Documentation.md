@@ -372,7 +372,7 @@ repository); la chiamata a OpenAI e l'ascolto della voce (il banco non
 raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
 va giudicata guardando.
 
-**`test_spectra_figura` — 67 controlli (34 a 412 px, 33 a 1280 px).** Nasce
+**`test_spectra_figura` — 71 controlli (36 a 412 px, 35 a 1280 px).** Nasce
 dalla richiesta dell'autore: l'icona di Spectra solo col volto e, in ogni
 sezione dell'AI, Spectra col corpo, «e non altro». Prova
 `bsi-spectra-figura.js` nell'app, su un telefono (412 px) e su schermo grande
@@ -387,7 +387,7 @@ cappuccio).
 | Senza il corpo | Compare l'invito a caricarlo e **nessun sostituto** (niente manichino in scena) |
 | Con il corpo | Caricato l'umanoide sintetico l'invito sparisce; il viso «Noir» poggia sul colletto (0,0 cm); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → gesto «spiega», gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
-| Modalità Lezione (10 per larghezza) | «⚡ Lezione» è la seconda scheda della finestra di Spectra; la figura si sposta nella scheda; senza rete ci sono le tre lezioni del laboratorio; PREDICI con quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola davvero (v₀ = 15 m/s → gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e Spectra determinata; RIVELA con la risposta giusta segnata, quattro esercizi e, per una previsione sbagliata, la sorpresa; un argomento libero con un **modello simulato** (JSON controllato, quattro opzioni, tabella della prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo e il livello; la memoria `bsi-spectra-lezioni-ai-v1` registra le previsioni |
+| Modalità Lezione (12 per larghezza) | «⚡ Lezione» è la seconda scheda della finestra di Spectra; i livelli vanno dalla scuola superiore al PhD avanzato (cinque); la figura si sposta nella scheda; senza rete ci sono le tre lezioni del laboratorio; PREDICI con quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola davvero (v₀ = 15 m/s → gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e Spectra determinata; RIVELA con la risposta giusta segnata, quattro esercizi e, per una previsione sbagliata, la sorpresa; un argomento libero con un **modello simulato** (JSON controllato, quattro opzioni, tabella della prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo e il livello; al PhD avanzato il modello riceve frontiera, problemi aperti e letteratura primaria, e l'istruzione di non semplificare; la memoria `bsi-spectra-lezioni-ai-v1` registra le previsioni |
 | Telefono | I pulsanti della figura non finiscono sotto quelli flottanti |
 | Errori | Nessun errore JavaScript, a ogni larghezza |
 

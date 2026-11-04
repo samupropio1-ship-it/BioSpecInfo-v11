@@ -898,17 +898,23 @@ summarised here.
   model answers.
 - **Lesson mode** (`bsi-spectra-lezione-ai.js`, `BSILezioneAI`, v240): the
   «⚡ Lezione» tab, second in the Spectra window after «💬 Chat», teaches any
-  chemistry, physics or mathematics topic at the chosen level (high school,
-  bachelor, master, research) in four phases. The model receives a **system
-  prompt** with the *predict → test → prove → reveal* method, the level and
-  the topic, and uses the chat's provider and key (`window.bsiLLM`). The first
+  chemistry, physics or mathematics topic at the chosen level in four phases.
+  There are five levels: High school, Bachelor, Master, PhD, Advanced PhD ·
+  frontier. The model receives a **system prompt** with the *predict → test →
+  prove → reveal* method, the topic, the level's name and what is expected
+  (`PROFONDITA`: from high-school algebra to the master's full formalism, the
+  PhD's advanced methods, up to the state of the art, open problems, frontier
+  techniques and primary literature — certain references only — with a
+  proposed research question at advanced PhD), plus «do not simplify below
+  this level»; at PhD levels the length limits grow (TEST 280, PROVE 450,
+  REVEAL 600 words instead of 180, 250 and 420), and uses the chat's provider and key (`window.bsiLLM`). The first
   phase is **controlled JSON** (`titolo`, `scena`, `domanda`, `opzioni[4]`
   with the three most common misconceptions, `giusta`, `perche[4]`):
   `leggiPredici` takes the first `{…}` object and checks its shape, and a
   malformed answer is rejected with a message. TEST (numbers and a small
   table, without saying yet who was right), PROVE (numbered derivation) and
-  REVEAL (why, with empathy; two or three links; four exercises, one per
-  level, with solutions) are model text in the same conversation. **Without a
+  REVEAL (why, with empathy; two or three links; exactly five exercises,
+  one per level, the last a genuine open or research problem, with solutions) are model text in the same conversation. **Without a
   key or offline** the three lab lessons (`bsi-spectra-studio-lezioni.js`)
   follow the same phases, with a slider in TEST that recomputes. The shared
   figure moves into the tab (which has priority over the sections) and follows

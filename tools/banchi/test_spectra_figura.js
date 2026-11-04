@@ -18,10 +18,11 @@
      (labiale, gesto, emozione) quando arriva la risposta, quando Spectra Live
      parla e quando l'assistente locale risolve un esercizio;
    · sul telefono i suoi pulsanti non si sovrappongano a quelli flottanti;
-   · la MODALITA' LEZIONE (stile every-joule) ci sia nella finestra di Spectra:
-     scheda «⚡ Lezione», Spectra col corpo che la conduce, le tre lezioni del
-     laboratorio offline in quattro fasi (il cursore della prova ricalcola davvero),
-     un argomento libero con un modello simulato (JSON controllato), la memoria;
+   · «🧠 SPIEGA», l'AI che spiega tutto in modo esaustivo, ci sia nella finestra
+     di Spectra: seconda scheda, Spectra col corpo che spiega, la lettura dello
+     schermo (uno spettro NMR e una scena 3D: testo, valori e immagine) che arriva
+     al modello, la struttura obbligatoria, i livelli fino al PhD avanzato, la
+     conversazione che continua, e senza modello nessuna finzione;
    · nessun errore JavaScript.
 
    USO   node tools/banchi/test_spectra_figura.js    (serve un server su :8899)
@@ -111,51 +112,57 @@ const SINTETICO = () => {
         let n = 0; bs.forEach(a => fl.forEach(c => { if (a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top) n++; })); return n; });
       att('i pulsanti della figura non finiscono sotto quelli flottanti', 0, sov);
     }
-    /* LA MODALITA' LEZIONE (stile every-joule) nella finestra di Spectra */
-    await pg.evaluate(() => window.bsiOpenAIHub('lezione'));
-    await pg.waitForFunction(() => document.querySelectorAll('#bsiLA-locali button').length >= 3, null, { timeout: 60000 }).catch(() => {});
-    await pg.waitForTimeout(1200);
-    const lz = await pg.evaluate(async () => {
-      const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {}, F = BSISpectraFigura.figura, tab = [...document.querySelectorAll('.bsi-hub-tab')].map(x => x.dataset.tab);
-      o.tab = tab.indexOf('lezione'); o.figura = document.getElementById('bsi-pane-lezione').contains(F.box);
-      o.locali = document.querySelectorAll('#bsiLA-locali button').length;
-      document.querySelectorAll('#bsiLA-locali button')[0].click(); await pausa(500);
-      o.opzioni = document.querySelectorAll('#bsiLA .opz button').length; o.curiosa = F.spectra.corpo.emo;
-      document.querySelectorAll('#bsiLA .opz button')[0].click(); await pausa(400);
-      const i = document.querySelector('#bsiLA .cursore input'); i.value = 15; i.dispatchEvent(new Event('input')); o.m15 = BSILezioneAI.stato().misura;
-      i.value = 0; i.dispatchEvent(new Event('input')); o.m0 = BSILezioneAI.stato().misura;
-      [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(300); o.formule = document.querySelectorAll('#bsiLA .f').length; o.det = F.spectra.corpo.emo;
-      [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(400);
-      o.fase = BSILezioneAI.stato().fase; o.giusta = document.querySelectorAll('#bsiLA .opz .giusta').length; o.ese = document.querySelectorAll('#bsiLA .ese').length; o.sorpresa = F.spectra.corpo.emo;
-      /* un argomento libero con un modello simulato: JSON nella prima fase, markdown dopo */
-      const R = ['ecco: {"titolo":"Tunnel","scena":"Un elettrone da 1 eV e una barriera di 2 eV larga 1 nm.","domanda":"Passa?","opzioni":["Mai","Sì, raramente","Sempre","Solo accelerando"],"giusta":1,"perche":["a","b","c","d"]} fine', '| a | T |\n|---|---|\n| 0,5 nm | 6 % |', '1. T ≈ e^(−2κa)', 'Giusta.'];
-      let k = 0; const prima = [window.bsiLLM, window.bsiStreamChat];
-      window.bsiLLM = { provider: () => 'finto', chiave: () => 'x' }; window.bsiStreamChat = (p, c, m, sys, cb) => { o.sistema = sys; const x = R[k++]; cb.onToken(x, x); return Promise.resolve(); };
-      document.getElementById('bsiLA-arg').value = 'effetto tunnel'; document.getElementById('bsiLA-via').click(); await pausa(300);
-      o.aiOpz = document.querySelectorAll('#bsiLA .opz button').length; document.querySelectorAll('#bsiLA .opz button')[1].click(); await pausa(300);
-      o.aiTab = !!document.querySelector('#bsiLA table');
-      [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(300); [...document.querySelectorAll('#bsiLA .bt')].pop().click(); await pausa(300);
-      o.aiFase = BSILezioneAI.stato().fase; o.gioia = F.spectra.corpo.emo;
-      /* i livelli: dalle superiori al PhD avanzato; al massimo il modello riceve la frontiera della ricerca */
-      o.sistemaTri = o.sistema; o.livelli = [...document.querySelectorAll('#bsiLA-liv option')].map(x => x.textContent);
-      k = 0; document.getElementById('bsiLA-liv').value = '4'; document.getElementById('bsiLA-arg').value = 'teoria di Marcus'; document.getElementById('bsiLA-via').click(); await pausa(300); o.sistemaPhd = o.sistema;
-      o.json = !!BSILezioneAI.leggiPredici(R[0]) && !BSILezioneAI.leggiPredici('{"domanda":"x","opzioni":["a"],"giusta":3}');
+    /* «🧠 SPIEGA»: l'AI che spiega tutto, anche spettri e scene 3D sullo schermo */
+    const sp = await pg.evaluate(async () => {
+      const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
+      /* si apre uno spettro (NMR) dietro la finestra di Spectra */
+      document.querySelector('[data-s="sspec"]').click(); await pausa(1500);
+      window.bsiOpenAIHub('spiega'); await pausa(1200);
+      const F = BSISpectraFigura.figura, tab = [...document.querySelectorAll('.bsi-hub-tab')].map(x => x.dataset.tab);
+      o.tab = tab.indexOf('spiega'); o.lezione = tab.indexOf('lezione'); o.figura = !!F && document.getElementById('bsi-pane-spiega').contains(F.box);
+      const S = BSISpiega.schermo(), im = await BSISpiega.immagine(S); o.schermo = S && { titolo: S.titolo, grafici: S.grafici, img: !!im && im.length > 2000, len: S.testo.length, ctrl: /Controlli/.test(S.testo) };
+      o.carta = !!document.querySelector('#bsiSP-schermo #bsiSP-usa:checked');
+      o.livelli = [...document.querySelectorAll('#bsiSP-liv option')].map(x => x.textContent);
+      /* il modello simulato: si registra che cosa riceve */
+      let ricevuto = null; const prima = [window.bsiLLM, window.bsiStreamChat];
+      window.bsiLLM = { provider: () => 'finto', chiave: () => 'x' };
+      window.bsiStreamChat = (p, c, m, sys, cb) => { ricevuto = { sys, m }; const x = '## In sintesi\nUno spettro ¹H-NMR.\n## Che cosa stai guardando\n| δ (ppm) | molteplicità |\n|---|---|\n| 7,26 | s |'; return new Promise(r => setTimeout(() => { cb.onToken(x, x); r(); }, 300)); };
+      document.querySelectorAll('#bsiSP-spunti button')[1].click(); await pausa(250);
+      o.pensa = F.spectra.corpo ? F.spectra.corpo.gesto : 'pensa'; await pausa(900);
+      o.risposta = { h2: document.querySelectorAll('#bsiSP-out .risposta .bsi-md-h, #bsiSP-out .risposta h2').length, tab: !!document.querySelector('#bsiSP-out table') };
+      o.sys = ricevuto.sys; o.msg = ricevuto.m[ricevuto.m.length - 1];
+      o.immagine = !!(o.msg.files && o.msg.files[0] && o.msg.files[0].kind === 'image' && o.msg.files[0].data.length > 500);
+      o.testoSchermo = /SCHERMO DELL'UTENTE/.test(o.msg.content) && /DOMANDA:/.test(o.msg.content);
+      /* l'approfondimento: la conversazione continua, l'immagine non si rimanda */
+      document.getElementById('bsiSP-q').value = 'dimostra il passaggio 3'; document.getElementById('bsiSP-usa').checked = false; document.getElementById('bsiSP-via').click(); await pausa(500);
+      o.turni = ricevuto.m.length; o.vecchiaSenzaImm = !ricevuto.m[0].files;
+      /* il livello PhD avanzato */
+      o.sysPhd = BSISpiega.sistema(4, 'chimica');
+      /* senza modello: non si finge */
+      window.bsiLLM = { provider: () => null, chiave: () => null };
+      document.getElementById('bsiSP-nuova').click(); document.getElementById('bsiSP-q').value = 'spiegami questo spettro'; document.getElementById('bsiSP-usa').checked = true; document.getElementById('bsiSP-via').click(); await pausa(300);
+      o.senza = document.querySelector('#bsiSP-out .risposta').textContent;
       window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
-      o.mem = JSON.parse(localStorage.getItem(BSILezioneAI.MEM) || '{}');
+      /* una scena 3D */
+      document.getElementById('bsi-hub-close').click(); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
+      const S3 = BSISpiega.schermo(), im3 = await BSISpiega.immagine(S3); o.s3 = S3 && { titolo: S3.titolo, grafici: S3.grafici, img: !!im3 && im3.length > 2000 };
+      /* uno spettro in SVG (il quiz degli spettri) */
+      document.querySelector('[data-s="squizspec"]').click(); await pausa(1500); const Sv = BSISpiega.schermo(), imv = await BSISpiega.immagine(Sv); o.sv = Sv && { svg: Sv.svg.length, img: !!imv && imv.length > 2000 };
       return o;
     });
-    att('la scheda «⚡ Lezione» è la seconda della finestra di Spectra', 1, lz.tab);
-    vero('Spectra col corpo si sposta nella scheda e conduce la lezione', lz.figura);
-    att('tre lezioni del laboratorio anche senza rete e senza chiave', 3, lz.locali);
-    vero('PREDICI: quattro previsioni, Spectra curiosa', lz.opzioni === 4 && lz.curiosa === 'curiosa');
-    vero('PROVA: il cursore ricalcola (v₀ 15 → gittata ' + lz.m15.gittata.toFixed(2) + ' m) e il tempo non cambia (' + lz.m15.tB.toFixed(3) + ' = ' + lz.m0.tB.toFixed(3) + ' s)', Math.abs(lz.m15.gittata - 15 * Math.sqrt(40 / 9.81)) < 0.05 && Math.abs(lz.m15.tB - lz.m0.tB) < 1e-9);
-    vero('DIMOSTRA: le formule (' + lz.formule + '), Spectra determinata', lz.formule >= 3 && lz.det === 'determinata');
-    vero('RIVELA: la giusta segnata, gli esercizi del laboratorio dalle superiori alla ricerca (4); previsione sbagliata → sorpresa', lz.fase === 3 && lz.giusta === 1 && lz.ese === 4 && lz.sorpresa === 'sorpresa');
-    vero('argomento libero col modello: JSON controllato, 4 opzioni, prova con tabella, quattro fasi; giusta → gioia', lz.json && lz.aiOpz === 4 && lz.aiTab && lz.aiFase === 3 && lz.gioia === 'gioia');
-    vero('il modello riceve il metodo (prevedi → prova → dimostra → rivela) e il livello', /PREDICI → PROVA → DIMOSTRA → RIVELA/.test(lz.sistemaTri) && /Triennale/.test(lz.sistemaTri));
-    vero('livelli dalla scuola superiore al PhD avanzato (' + lz.livelli.length + ': ' + lz.livelli[0] + ' … ' + lz.livelli[lz.livelli.length - 1] + ')', lz.livelli.length === 5 && /superiore/i.test(lz.livelli[0]) && /PhD avanzato/.test(lz.livelli[4]));
-    vero('al PhD avanzato il modello riceve frontiera, problemi aperti e letteratura primaria, e non semplifica', /frontiera/.test(lz.sistemaPhd) && /problemi aperti/.test(lz.sistemaPhd) && /letteratura primaria/.test(lz.sistemaPhd) && /Non semplificare/.test(lz.sistemaPhd));
-    vero('la memoria ricorda le previsioni (caduta: sbagliata; tunnel: giusta)', lz.mem.caduta && lz.mem.caduta.sbagliate === 1 && lz.mem['ai:effetto tunnel'] && lz.mem['ai:effetto tunnel'].giuste === 1);
+    att('la scheda «🧠 Spiega» è la seconda della finestra di Spectra (e la «Lezione» non c\'è più)', '1|-1', sp.tab + '|' + sp.lezione);
+    vero('Spectra col corpo si sposta nella scheda e spiega', sp.figura);
+    vero('legge lo schermo: uno spettro aperto («Spettri Ref.»: ' + (sp.schermo && sp.schermo.titolo) + ', ' + (sp.schermo && sp.schermo.grafici) + ' grafici, valori dei controlli, immagine)', sp.schermo && sp.schermo.grafici >= 1 && sp.schermo.img && sp.schermo.ctrl && sp.carta);
+    vero('livelli dalla scuola superiore al PhD avanzato (' + sp.livelli.length + ')', sp.livelli.length === 5 && /superiore/i.test(sp.livelli[0]) && /PhD avanzato/.test(sp.livelli[4]));
+    vero('al modello arrivano il testo dello schermo, la domanda e l\'IMMAGINE di grafici e scene 3D', sp.testoSchermo && sp.immagine);
+    vero('la richiesta: spiegazione esaustiva, non semplificata, lettura quantitativa dello spettro (δ, molteplicità, J, integrale)', /completamente esaustiv/.test(sp.sys) && /Non semplificare/.test(sp.sys) && /molteplicità, J, integrale/.test(sp.sys) && /scena 3D/.test(sp.sys));
+    vero('la struttura obbligatoria: sintesi, fondamenti, derivazione, esempi, casi limite, collegamenti, frontiera, verifiche', ['In sintesi', 'Fondamenti', 'derivazione completa', 'Esempi numerici', 'Casi limite', 'Collegamenti', 'frontiera', 'verificare'].every(k => sp.sys.indexOf(k) >= 0));
+    vero('la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre il modello scrive', sp.risposta.h2 >= 2 && sp.risposta.tab && sp.pensa === 'pensa');
+    vero('l\'approfondimento continua la conversazione senza rimandare l\'immagine (' + sp.turni + ' messaggi)', sp.turni === 3 && sp.vecchiaSenzaImm);
+    vero('al PhD avanzato: frontiera, problemi aperti, letteratura primaria', /frontiera/.test(sp.sysPhd) && /problemi aperti/.test(sp.sysPhd) && /letteratura primaria/.test(sp.sysPhd));
+    vero('senza modello non finge: lo dice e mostra ciò che l\'app sa della sezione', /serve un modello/.test(sp.senza) && /Sullo schermo/.test(sp.senza));
+    vero('legge anche gli spettri disegnati in SVG (' + (sp.sv && sp.sv.svg) + ' grafici vettoriali trasformati in immagine)', sp.sv && sp.sv.svg >= 1 && sp.sv.img);
+    vero('legge anche una scena 3D (' + (sp.s3 && sp.s3.titolo) + ': ' + (sp.s3 && sp.s3.grafici) + ' tele, immagine)', sp.s3 && sp.s3.grafici >= 1 && sp.s3.img);
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
     await ctx.close();

@@ -364,12 +364,16 @@ One figure for the whole app. Spectra's icon is the face only.
 **Lesson mode** (`bsi-spectra-lezione-ai.js`, v240). In the Spectra window the
 **«⚡ Lezione»** tab is the second one, after «💬 Chat» (then Esame Orale,
 Ripassa Oggi, Genera Guida). The user picks any topic, the subject (chemistry,
-physics, mathematics) and the level (high school, bachelor, master, research);
+physics, mathematics) and the level, one of five from high school to advanced
+PhD (High school, Bachelor, Master, PhD, Advanced PhD · frontier: the model
+receives what is expected at that level and the instruction not to simplify
+below it);
 Spectra teaches in four phases: **PREDICT** (the scene, the question, four
 answers including the three most common misconceptions), **TEST** (what really
 happens, with numbers and a table), **PROVE** (the numbered derivation),
-**REVEAL** (why, with empathy; cross-discipline links; four exercises, one per
-level, with solutions). With a configured provider the model writes it (the
+**REVEAL** (why, with empathy; cross-discipline links; with a model five
+exercises, one per level, the last an open or research problem, with solutions;
+the lab lessons have four). With a configured provider the model writes it (the
 first phase as controlled JSON; a malformed answer is rejected with a message).
 Without a key or offline the three lab lessons (fall, water, Basel) are
 available, with a slider that recomputes in TEST and the link to the 3D studio.

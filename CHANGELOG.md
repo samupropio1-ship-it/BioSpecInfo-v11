@@ -52,8 +52,8 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   Spectra (`bsi-ai-hub.js`) c'è una scheda nuova, **«⚡ Lezione»**, la
   seconda subito dopo «💬 Chat» (le schede ora sono Chat, Lezione, Esame
   Orale, Ripassa Oggi, Genera Guida). Qualunque argomento, materia (chimica,
-  fisica, matematica) e livello (scuola superiore, triennale, magistrale,
-  ricerca), in quattro fasi:
+  fisica, matematica) e livello (cinque, dalla scuola superiore al PhD
+  avanzato; vedi sotto), in quattro fasi:
   - **PREDICI**: la scena, la domanda e quattro risposte, fra cui le tre idee
     sbagliate più comuni. Con un modello la prima fase è un JSON controllato
     (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); una
@@ -62,8 +62,33 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     senza dire ancora se la previsione era giusta;
   - **DIMOSTRA**: la derivazione rigorosa, a passi numerati;
   - **RIVELA**: perché la risposta giusta è giusta e quella sbagliata no (con
-    empatia), due o tre collegamenti fra discipline, esattamente quattro
-    esercizi, uno per livello, con le soluzioni.
+    empatia), due o tre collegamenti fra discipline e, con un modello,
+    **esattamente cinque esercizi**, uno per livello, l'ultimo un vero
+    problema aperto o di ricerca, con le soluzioni (le lezioni del
+    laboratorio senza rete tengono i loro quattro esercizi: Scuola
+    superiore, Triennale, Magistrale, Ricerca (PhD)).
+  Il livello va **dalla scuola superiore al PhD avanzato**, come ha chiesto
+  l'autore («il livello deve essere avanzatissimo, da superiori ad avanzato
+  PhD»): cinque livelli — Scuola superiore, Triennale, Magistrale, Dottorato
+  (PhD), PhD avanzato · frontiera. Per ognuno il prompt di sistema dice il
+  nome e che cosa ci si aspetta (`PROFONDITA`): concetti chiari e
+  algebra/trigonometria alle superiori; analisi, vettori, equazioni
+  differenziali semplici e SI rigoroso in triennale; il formalismo completo
+  in magistrale (meccanica analitica, termodinamica statistica, meccanica
+  quantistica, algebra lineare e analisi complessa, teoria dei gruppi di
+  base) con approssimazioni controllate; metodi avanzati al dottorato
+  (funzioni di Green, teoria delle perturbazioni, seconda quantizzazione,
+  metodi variazionali, analisi funzionale, teoria delle rappresentazioni,
+  calcolo numerico con stima dell'errore), con letteratura primaria solo se
+  certa; al PhD avanzato lo stato dell'arte, i problemi aperti e le
+  controversie attuali, i limiti dei modelli, le tecniche di frontiera
+  (integrali di cammino, rinormalizzazione, teoria dei campi, metodi
+  topologici e geometrici, ab initio ad alta accuratezza, apprendimento
+  automatico per la scienza), la letteratura primaria (solo riferimenti
+  certi, altrimenti lo dice) e una domanda di ricerca proposta; e sempre
+  «Non semplificare sotto questo livello». Ai livelli di dottorato i limiti
+  di lunghezza crescono (PROVA 280, DIMOSTRA 450, RIVELA 600 parole invece
+  di 180, 250 e 420).
   Il modello riceve un prompt di sistema con il metodo e il livello, e usa il
   fornitore e la chiave della chat (`window.bsiLLM = { provider(), chiave(p)
   }`, esportato da `bsi-ai-hub.js`). **Senza chiave o senza rete** si fanno,
@@ -118,7 +143,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (67 controlli: 34 a 412 px, 33 a 1280 px): il
+- Nuovo `test_spectra_figura` (71 controlli: 36 a 412 px, 35 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -129,8 +154,9 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   («spiega», gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
   che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
   Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
-  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 10
-  controlli della modalità Lezione: «Lezione» è la seconda scheda; la figura
+  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 12
+  controlli della modalità Lezione: «Lezione» è la seconda scheda; i livelli
+  vanno dalla scuola superiore al PhD avanzato (5); la figura
   si sposta nella scheda; tre lezioni del laboratorio senza rete; PREDICI con
   quattro opzioni e Spectra curiosa; il cursore di PROVA ricalcola (v₀ = 15 →
   gittata 30,29 m, tempo invariato 2,019 s); DIMOSTRA con le formule e
@@ -138,7 +164,9 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   esercizi e la sorpresa per la previsione sbagliata; un argomento libero con
   un modello simulato (JSON controllato, quattro opzioni, tabella della
   prova, quattro fasi, previsione giusta → gioia); il modello riceve il metodo
-  e il livello; la memoria registra le previsioni. Il banco porta la figura
+  e il livello; al PhD avanzato il modello riceve frontiera, problemi aperti
+  e letteratura primaria, e l'istruzione di non semplificare; la memoria
+  registra le previsioni. Il banco porta la figura
   in vista prima di misurare, perché la figura si disegna (e allinea il viso)
   solo quando è visibile.
 - `test_spectra_studio` passa a **91 controlli**, con o senza il modello in

@@ -536,7 +536,7 @@ New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo
 
 | Symbol | Signature | Description |
 |---|---|---|
-| `costruisci` | `(panel)` | Builds the «⚡ Lezione» tab in the given panel (called by `bsi-ai-hub.js`): topic, subject, level, memory summary, lab lessons |
+| `costruisci` | `(panel)` | Builds the «⚡ Lezione» tab in the given panel (called by `bsi-ai-hub.js`): topic, subject, level (five, from high school to advanced PhD), memory summary, lab lessons |
 | `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Starts a lesson: with a model the PREDICT phase as controlled JSON; with `locale`, an offline lab lesson |
 | `scegli`, `prova`, `dimostra`, `rivela` | `(index)`, `()`, `()`, `()` | The student's prediction and the three following phases |
 | `leggiPredici` | `(text) → object \| null` | Extracts and checks the first phase's JSON (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` if malformed |

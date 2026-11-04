@@ -595,13 +595,16 @@ volto.
 
 **Una lezione su qualunque argomento: «⚡ Lezione».** Nella finestra di Spectra
 apri la seconda scheda, **«⚡ Lezione»** (oppure premi «⚡ Lezione» nel riquadro
-di Spectra). Scrivi l'argomento, scegli materia e livello e avvia. Spectra ti
+di Spectra). Scrivi l'argomento, scegli materia e livello — dalla scuola superiore al
+PhD avanzato, alla frontiera della ricerca: Spectra non semplifica sotto il
+livello scelto — e avvia. Spectra ti
 mette davanti a una situazione e ti chiede che cosa succederà (**Predici**):
 scegli una delle quattro risposte, senza paura di sbagliare, perché due o tre
 sono gli errori che fanno quasi tutti. Poi vedi che cosa succede davvero, con i
 numeri (**Prova**), la dimostrazione passo per passo (**Dimostra**) e infine
-perché la risposta giusta è giusta, con quattro esercizi dal più facile al più
-difficile e le soluzioni da aprire (**Rivela**). Serve un fornitore di IA
+perché la risposta giusta è giusta, con cinque esercizi dal più facile al più
+difficile — l'ultimo è un vero problema aperto — e le soluzioni da aprire
+(**Rivela**). Serve un fornitore di IA
 configurato, come per la chat; senza, o senza rete, puoi fare le tre lezioni
 del laboratorio (la caduta, la forma dell'acqua, il problema di Basilea), dove
 in **Prova** muovi un cursore e il risultato si ricalcola. All'inizio della

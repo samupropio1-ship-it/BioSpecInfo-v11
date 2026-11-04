@@ -356,7 +356,7 @@ the repository); the call to OpenAI and listening to the voice (the bench does
 not reach OpenAI and does not listen); the visual quality of the body and
 gestures, which has to be judged by looking.
 
-**`test_spectra_figura` — 67 checks (34 at 412 px, 33 at 1280 px).** It comes
+**`test_spectra_figura` — 71 checks (36 at 412 px, 35 at 1280 px).** It comes
 from the author's request: Spectra's icon with the face only and, in every AI
 section, Spectra with the body, «and nothing else». It tests
 `bsi-spectra-figura.js` in the app, on a phone (412 px) and on a large screen
@@ -370,7 +370,7 @@ synthetic humanoid as `test_spectra_rig` (no skeleton, with a hood).
 | Without the body | The invitation to load it appears and **no substitute** (no mannequin in the scene) |
 | With the body | Once the synthetic humanoid is loaded the invitation disappears; the «Noir» face rests on the collar (0.0 cm); of the face model only `Object_2`, `Object_3`, `Object_4` are visible |
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → «spiega» gesture, joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
-| Lesson mode (10 per width) | «⚡ Lezione» is the second tab of the Spectra window; the figure moves into the tab; offline the three lab lessons are there; PREDICT with four options and a curious Spectra; the TEST slider really recomputes (v₀ = 15 m/s → range 30.29 m, time unchanged 2.019 s); PROVE with formulas and a determined Spectra; REVEAL with the right answer marked, four exercises and, for a wrong prediction, surprise; a free topic with a **simulated model** (controlled JSON, four options, test table, four phases, right prediction → joy); the model receives the method and the level; the memory `bsi-spectra-lezioni-ai-v1` records the predictions |
+| Lesson mode (12 per width) | «⚡ Lezione» is the second tab of the Spectra window; the levels go from high school to advanced PhD (five); the figure moves into the tab; offline the three lab lessons are there; PREDICT with four options and a curious Spectra; the TEST slider really recomputes (v₀ = 15 m/s → range 30.29 m, time unchanged 2.019 s); PROVE with formulas and a determined Spectra; REVEAL with the right answer marked, four exercises and, for a wrong prediction, surprise; a free topic with a **simulated model** (controlled JSON, four options, test table, four phases, right prediction → joy); the model receives the method and the level; at advanced PhD the model receives frontier, open problems and primary literature, and the instruction not to simplify; the memory `bsi-spectra-lezioni-ai-v1` records the predictions |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 

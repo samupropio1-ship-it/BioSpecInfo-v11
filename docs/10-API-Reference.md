@@ -520,7 +520,7 @@ Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { te
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
-| `costruisci` | `(pannello)` | Costruisce la scheda «⚡ Lezione» nel pannello dato (la chiama `bsi-ai-hub.js`): argomento, materia, livello, riepilogo della memoria, lezioni del laboratorio |
+| `costruisci` | `(pannello)` | Costruisce la scheda «⚡ Lezione» nel pannello dato (la chiama `bsi-ai-hub.js`): argomento, materia, livello (cinque, dalla scuola superiore al PhD avanzato), riepilogo della memoria, lezioni del laboratorio |
 | `avvia` | `({ argomento, materia, livello }) \| ({ locale: 'caduta' \| 'acqua' \| 'basilea' }) → Promise` | Comincia una lezione: con un modello la fase PREDICI in JSON controllato; con `locale`, una lezione del laboratorio senza rete |
 | `scegli`, `prova`, `dimostra`, `rivela` | `(indice)`, `()`, `()`, `()` | La previsione dello studente e le tre fasi successive |
 | `leggiPredici` | `(testo) → oggetto \| null` | Estrae e controlla il JSON della prima fase (`titolo`, `scena`, `domanda`, `opzioni[4]`, `giusta`, `perche[4]`); `null` se malformato |
