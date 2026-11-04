@@ -206,22 +206,26 @@ disappears offline.
 `spectra-studio.html` (v239) does not go through `index.html`: it loads by
 itself `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
 `bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-rig.js`,
-`bsi-spectra-voce.js` and `bsi-spectra-studio-lezioni.js`. The page and the four new modules are in the
-`PRECACHE` of `sw.js`; `bsi-spectra-voce.js` is also in `index.html`, because
+`bsi-spectra-figura.js`, `bsi-spectra-voce.js` and `bsi-spectra-studio-lezioni.js`. The page and these modules are in the
+`PRECACHE` of `sw.js`; `bsi-spectra-figura.js` (v240) is also in `index.html`,
+with `defer`, because it shows Spectra with the body in the AI sections: it
+loads `three.min.js`, `gltf_loader.js` and the other 3D modules only the first
+time one of those sections is opened; `bsi-spectra-voce.js` is also in `index.html`, because
 the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
-it does not arrive, Spectra keeps the mannequin's head. The «Bounty Hunter» body
+it does not arrive, the body stays without a face. The «Bounty Hunter» body
 (`models/spectra-corpo.glb`) and `models/spectra-cyberpunk.glb` **are not in the
 repository** (the body comes from CGTrader, whose Royalty Free licence does
 not allow third parties to retrieve the file): deploying from the repository
-gives the mannequin, and each user can load their own copy with the
+gives, instead of Spectra, the invitation to load the body (no substitute),
+and each user can load their own copy with the
 «🧍 Corpo» button, which keeps it only in their browser's IndexedDB; the studio looks for them with a `HEAD` request
 and, if they are missing, moves on to the next one without errors.
 
 **The body model.** The studio looks for `models/spectra-cyberpunk.glb` with a
-`HEAD` request: if the file is there it loads it and uses it in place of the
-mannequin (scaled to 1.8 m, hair turned black by the driver, «Noir» face
-hidden); if it is not, the mannequin stays. The «cyberpunk» model chosen by the
+`HEAD` request: if the file is there it loads it and uses it (scaled to 1.8 m,
+hair turned black by the driver, «Noir» face hidden); if it is not, and there
+is no body loaded from the device either, the invitation to load it appears. The «cyberpunk» model chosen by the
 author is not in the repository. To add it: check that the licence allows
 modified redistribution, optimise it as in
 [`docs/spectra/01`](../spectra/01-Analisi-modello-e-piano.md) §2 and §6, copy it

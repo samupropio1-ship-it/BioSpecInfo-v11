@@ -574,13 +574,23 @@ bar there is **🔊/🔇**: it turns Spectra's voice off and on, and the studio
 remembers your choice next time too. The studio's own buttons and messages are
 in Italian.
 
-Spectra's body is, for now, a **test mannequin** with his face: the character
-chosen by the author has not been provided yet. The studio is already ready to
-use it: whoever publishes the app, **after checking that the model's licence
-allows redistribution**, puts the GLB file at `models/spectra-cyberpunk.glb`
-(the steps are in the [deploy guide](12-Deploy-Guide.md), §2.2-quinquies). The
-next time the studio opens, Spectra has that body, with black hair and the
-model's own face. Body, face and voice
+**Spectra's body has to be loaded once.** The body chosen by the author is a
+third-party model (CGTrader) that cannot be distributed with the app. If
+Spectra is not on your device yet, in its place you see the invitation
+«Spectra non è ancora su questo dispositivo — carica una volta il suo corpo
+(.glb)»: press **«🧍 Corpo»** and choose the `.glb` file (at most 60 MB). The
+file stays only in this browser, and from then on Spectra appears with the body
+in the studio and in the AI sections. It is erased with «Clear data → Progress
+in the rest of the app». There is no substitute body.
+
+**Spectra in the AI sections.** In Spectra AI and in the areas with the
+assistant for Chemistry, Physics and Mathematics, under the title, Spectra
+stands in a lab-style frame: while the model works it brings its hand to its
+chin, when the answer arrives it explains with its hands and moves its lips.
+**«🎙️ Parla con me»** opens Spectra Live, **«🎓 Studio»** opens Spectra Studio.
+Spectra's round button, on every screen, is its face.
+
+Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described
 (in Italian) in [`docs/spectra/`](../spectra/01-Analisi-modello-e-piano.md).
 

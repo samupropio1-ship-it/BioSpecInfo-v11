@@ -482,7 +482,7 @@ Il comando locale «fammi lezione» di `BSISpectraLive.comando` chiama
 | Simbolo | Firma | Descrizione |
 |---|---|---|
 | `crea` | `(radice, { animazioni?, capelliNeri? }?) → Corpo` | Collega il driver a un oggetto three.js con scheletro; con `animazioni` (le clip del GLB) riconosce `idle`, `walk`, `sit`, `stand`, `wave`, `point`, `talk`; i capelli diventano neri salvo `capelliNeri: false` |
-| `manichino` | `({ neon? }?) → THREE.Group` | Il manichino di prova: ossa con nomi Mixamo in posa a T, testa con 26 blendshape ARKit, occhi separati, calotta di capelli rossa |
+| `manichino` | `({ neon? }?) → THREE.Group` | Il manichino di prova (dalla v240 solo per il banco del driver, mai come Spectra): ossa con nomi Mixamo in posa a T, testa con 26 blendshape ARKit, occhi separati, calotta di capelli rossa |
 | `EMOZIONI`, `OSSA`, `normaNome` | oggetti, funzione | Pesi ARKit per emozione; espressioni regolari dei nomi delle ossa; normalizzazione dei nomi |
 
 Metodi di un `Corpo`:
@@ -499,6 +499,22 @@ Metodi di un `Corpo`:
 | `cammina`, `siedi` | `(punto)`, `(si?)` | Passo verso un punto; seduta (`false` per alzarsi) |
 | `peso`, `imposta` | `(nome) → number \| null`, `(nome, valore) → boolean` | Legge e scrive il peso di un blendshape |
 | `passo` | `(dt)` | Avanza il comportamento di `dt` secondi; va chiamato a ogni fotogramma |
+
+### `window.BSISpectraFigura` — Spectra col corpo (`bsi-spectra-figura.js`, v240)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Ordine: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (solo sviluppo) → `models/spectra-cyberpunk.glb` → nessun corpo (il manichino solo con `opz.manichino === true`, per il banco del driver). Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
+| `monta` | `(contenitore, opz?) → figura` | Riquadro da laboratorio con Spectra in piedi, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», pulsanti «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invito se manca il corpo; ascolta `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
+| `sezioni` | `(id[]) → figura` | Una figura condivisa (un contesto WebGL) spostata nella sezione dell'AI aperta (`sai`, `sareachim`, `sareafis`, `sareamat`); i file 3D si caricano alla prima apertura |
+| `prepara` | `() → Promise` | Carica three.js, il caricatore GLB, il driver del corpo e il rig se non ci sono |
+| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | Il corpo `.glb` nell'IndexedDB (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`) |
+| `emozioneDi` | `(testo) → string` | L'emozione suggerita dal contenuto di una risposta |
+| `LIMITE`, `RIG`, `figura` | numero, oggetto, figura | 60 MB; i parametri del rig del corpo dell'autore; la figura condivisa delle sezioni (o `null`) |
+
+Metodi del controllore: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scena)` (per i banchi), `passo(dt)`, `emozione(nome, secondi?)`, `dici(testo)`, `taci()`, `fai(gesto, bersaglio?, secondi?)`, `presente() → boolean`.
+
+Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { testo }`), emesso da `parla()` di `bsi-spectra-live.js` e da `bsi-assistente.js` quando risolve un esercizio; la figura lo dice con labiale e gesto.
 
 ### `window.BSIStudioLezioni` e `window.SpectraStudio` — lo studio (v239)
 

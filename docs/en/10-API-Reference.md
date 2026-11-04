@@ -498,7 +498,7 @@ Spectra Live's local command «fammi lezione» («give me a lesson») in
 | Symbol | Signature | Description |
 |---|---|---|
 | `crea` | `(root, { animazioni?, capelliNeri? }?) → Corpo` | Attaches the driver to a three.js object with a skeleton; with `animazioni` (the GLB's clips) it recognises `idle`, `walk`, `sit`, `stand`, `wave`, `point`, `talk`; the hair turns black unless `capelliNeri: false` |
-| `manichino` | `({ neon? }?) → THREE.Group` | The test mannequin: bones with Mixamo names in T-pose, head with 26 ARKit blendshapes, separate eyes, red hair cap |
+| `manichino` | `({ neon? }?) → THREE.Group` | The test mannequin (since v240 only for the driver's bench, never as Spectra): bones with Mixamo names in T-pose, head with 26 ARKit blendshapes, separate eyes, red hair cap |
 | `EMOZIONI`, `OSSA`, `normaNome` | objects, function | ARKit weights per emotion; regular expressions for bone names; name normalisation |
 
 Methods of a `Corpo`:
@@ -515,6 +515,22 @@ Methods of a `Corpo`:
 | `cammina`, `siedi` | `(point)`, `(yes?)` | Walk to a point; sit (`false` to stand up) |
 | `peso`, `imposta` | `(name) → number \| null`, `(name, value) → boolean` | Reads and writes a blendshape weight |
 | `passo` | `(dt)` | Advances the behaviour by `dt` seconds; to be called every frame |
+
+### `window.BSISpectraFigura` — Spectra with the body (`bsi-spectra-figura.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Order: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (development only) → `models/spectra-cyberpunk.glb` → no body (the mannequin only with `opz.manichino === true`, for the driver's bench). Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
+| `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invitation when the body is missing; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
+| `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`); the 3D files load on first opening |
+| `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
+| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The `.glb` body in IndexedDB (`bsi-spectra-modelli`, store `file`, key `corpo`) |
+| `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
+| `LIMITE`, `RIG`, `figura` | number, object, figure | 60 MB; the rig parameters for the author's body; the sections' shared figure (or `null`) |
+
+Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scene)` (for benches), `passo(dt)`, `emozione(name, seconds?)`, `dici(text)`, `taci()`, `fai(gesture, target?, seconds?)`, `presente() → boolean`.
+
+New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
 
 ### `window.BSIStudioLezioni` and `window.SpectraStudio` — the studio (v239)
 

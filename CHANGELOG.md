@@ -7,6 +7,105 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v240] — 2026-11-04
+
+**Spectra col corpo in ogni sezione dell'AI, l'icona solo col volto, nessun sostituto; niente spazio vuoto sopra le sezioni fuori da `#main`**
+
+Richiesta dell'autore: «l'icona di Spectra solo col volto, e la versione di
+Spectra col corpo in ogni sezione dell'AI»; e, guardando la schermata della
+lezione nello studio, «questo è quello che voglio per Spectra e non altro».
+
+### Aggiunto
+- **`bsi-spectra-figura.js`** (oggetto globale `BSISpectraFigura`): Spectra col
+  corpo in un modulo solo, usato dallo studio e dalle sezioni dell'AI.
+  - `Spectra(T, scena, renderer, opz)`: il controllore del corpo. Cerca il corpo
+    nell'IndexedDB del dispositivo (`bsi-spectra-modelli`), poi in
+    `models/spectra-corpo.glb` (solo in sviluppo), poi in
+    `models/spectra-cyberpunk.glb`; **altrimenti niente**. Il corpo passa dal
+    rig automatico (`bsi-spectra-rig.js`); sul colletto va il viso «Noir»,
+    allineato misurando il mento, del quale si vede solo il viso; il volto è
+    «solidale». Metodi `carica`, `daFile`, `daBuffer`, `usaScena`, `passo`,
+    `emozione`, `dici`, `taci`, `fai`, `presente`.
+  - `monta(contenitore)`: un riquadro con Spectra in piedi, intero, nello
+    stile del laboratorio della lezione (pavimento a griglia al neon, pannelli
+    olografici, pedana olografica, luci da studio); in sovrimpressione
+    «SPECTRA · IN ASCOLTO / PENSA / PARLA»; pulsanti **«🧍 Corpo»**, **«🎙️ Parla
+    con me»** (apre Spectra Live) e **«🎓 Studio»**. Si disegna solo quando è
+    visibile e la pagina è in primo piano; i file 3D si caricano la prima
+    volta che si apre una sezione dell'AI; rapporto di pixel fino a 2,5.
+  - **Reagisce all'app**: `bsi-spectra-stato` (pensa, strumenti, scrive) →
+    concentrato, mano al mento; `bsi-spectra-risposta` (la risposta del
+    modello) → spiega con le mani, labiale di corpo e viso dal testo, emozione
+    dal contenuto; un errore → dubbio; il nuovo evento **`bsi-spectra-dice`**,
+    emesso da `parla()` di Spectra Live e dall'assistente locale
+    (`bsi-assistente.js`) quando risolve un esercizio («Ecco lo svolgimento:
+    …», oppure dubbio se non ha capito).
+  - `sezioni()`: **una figura sola** (un contesto WebGL) spostata nella
+    sezione dell'AI aperta: Spectra AI (`sai`) e le tre aree con l'assistente
+    (`sareachim`, `sareafis`, `sareamat`), dopo il titolo, il pulsante
+    «Lezione guidata» e la descrizione, prima delle schede. Sul telefono i
+    suoi pulsanti stanno a sinistra, in colonna, per non coprire i pulsanti
+    flottanti.
+
+### Cambiato
+- **Nessun manichino come Spectra**, né nelle sezioni dell'AI né nello
+  studio: senza il corpo dell'autore sul dispositivo compare l'invito
+  «Spectra non è ancora su questo dispositivo — carica una volta il suo corpo
+  (.glb)» con il pulsante, e nessun sostituto. Il corpo non può stare nel
+  repository né essere servito dall'app (licenza Royalty Free di CGTrader),
+  quindi **l'app pubblicata, finché l'utente non carica la propria copia,
+  mostra l'invito**. `BSISpectraCorpo.manichino()` resta per il banco del
+  driver (`opz.manichino === true`).
+- **L'icona di Spectra è solo il volto**: il pulsante rotondo con il volto
+  «Noir»; la pillola «Spectra» resta nascosta.
+- **Spectra Studio** (`spectra-studio.html`) usa il controllore condiviso
+  (`S.spectra`; `S.corpo`, `S.volto`, `S.rig`, `S.allinea`… sono letture
+  dal controllore; `S.usaScena` per i banchi); l'invito è `#invito`.
+
+### Corretto
+- **Spazio vuoto sopra le sezioni sul telefono.** Alcune sezioni (la
+  dashboard, le aree dell'AI…) stanno fuori da `#main`, accanto a esso:
+  `#main` restava vuoto ma teneva il suo margine in basso (lo spazio per i
+  pulsanti flottanti), e sopra la sezione restavano fino a circa 190 px vuoti
+  (visibili nella schermata dell'autore). `index.html` aggiunge la classe
+  `bsi-sez-fuori` al `body` quando la sezione aperta è fuori da `#main`: il
+  margine di `#main` va a 0 e il margine in basso passa alla sezione.
+
+### Nota sugli aggiornamenti
+- Il telefono dell'autore mostrava ancora la v238 anche con la v239 già
+  pubblicata su GitHub Pages: una PWA installata tiene la sua versione finché
+  non si aggiorna. Si aggiorna dal menu ✨ → **«🔄 Aggiornamenti»**
+  (`bsi-aggiorna.js`).
+
+### Banco
+- Nuovo `test_spectra_figura` (47 controlli: 24 a 412 px, 23 a 1280 px): il
+  pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
+  quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
+  alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
+  sopra le sezioni fuori da `#main` (`#main` a 0 px); senza il corpo l'invito e
+  nessun sostituto; caricato un umanoide sintetico (senza scheletro, con
+  cappuccio) l'invito sparisce, il viso poggia sul colletto (0,0 cm) e si vede
+  solo il viso; reazioni: pensa (gesto «pensa», concentrata), risposta
+  («spiega», gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
+  che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
+  Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
+  coprono quelli flottanti; nessun errore JavaScript.
+- `test_spectra_studio` passa a **91 controlli**, con o senza il modello in
+  locale: nelle lezioni, a ogni larghezza, «senza il corpo: l'invito», «nessun
+  sostituto in scena (niente manichino)», poi il banco carica lo stesso
+  umanoide sintetico con `S.usaScena` e «l'invito sparisce, Spectra c'è»;
+  così i controlli sul corpo riggato (mento sul colletto, sincronia
+  viso–cappuccio 0,0 mm, solo il viso, volto solidale) girano **sempre**.
+- La batteria passa da 82 a 83 banchi.
+
+### Non incluso
+- Il corpo dell'autore resta fuori dal repository (licenza Royalty Free di
+  CGTrader): nell'app pubblicata Spectra compare col corpo solo sui
+  dispositivi dove l'utente l'ha caricato una volta.
+- Il corpo, il volto e le reazioni sono una simulazione di comportamento, non
+  una coscienza.
+
+---
 ## [bsi-v239] — 2026-11-04
 
 **Una lezione guidata con Spectra per ogni sezione; Spectra incarnato: Spectra Studio, il corpo e la voce; un solo pulsante di Spectra, il volto in un cerchio**

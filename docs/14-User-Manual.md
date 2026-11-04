@@ -576,13 +576,22 @@ Le tue previsioni restano su questo dispositivo; si cancellano con
 c'è **🔊/🔇**: spegne e riaccende la voce di Spectra, e lo studio si ricorda
 la tua scelta anche le volte successive.
 
-Il corpo di Spectra, oggi, è un **manichino di prova** con il suo volto: il
-personaggio scelto dall'autore non è ancora stato fornito. Lo studio è già
-pronto a usarlo: chi pubblica l'app, **dopo aver verificato che la licenza
-del modello ne permetta la ridistribuzione**, mette il file GLB in
-`models/spectra-cyberpunk.glb` (i passi sono nella
-[guida al deploy](12-Deploy-Guide.md), §2.2-quinquies). Alla prossima apertura
-dello studio Spectra ha quel corpo, con i capelli neri e il viso del modello.
+**Il corpo di Spectra va caricato una volta.** Il corpo scelto dall'autore è
+un modello di terzi (CGTrader) che non si può distribuire con l'app. Se Spectra
+non è ancora sul tuo dispositivo, al suo posto vedi l'invito «Spectra non è
+ancora su questo dispositivo — carica una volta il suo corpo (.glb)»: premi
+**«🧍 Corpo»** e scegli il file `.glb` (al massimo 60 MB). Il file resta solo
+in questo browser e da allora Spectra compare col corpo nello studio e nelle
+sezioni dell'AI. Si cancella con «Cancella dati → Progressi del resto
+dell'app». Non c'è un corpo sostitutivo.
+
+**Spectra nelle sezioni dell'AI.** In Spectra AI e nelle aree con l'assistente
+di Chimica, Fisica e Matematica, sotto il titolo, Spectra è in piedi in un
+riquadro da laboratorio: mentre il modello lavora si porta la mano al mento,
+quando arriva la risposta spiega con le mani e muove le labbra. **«🎙️ Parla con
+me»** apre Spectra Live, **«🎓 Studio»** apre Spectra Studio. Il pulsante
+rotondo di Spectra, in ogni schermata, è il suo volto.
+
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).
 

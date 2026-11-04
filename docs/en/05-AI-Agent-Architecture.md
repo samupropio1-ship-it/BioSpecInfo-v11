@@ -868,25 +868,34 @@ summarised here.
   pose is a direction in the world, converted into the bone's local frame
   (`orienta`, a minimal inverse kinematics valid for any rig); emotions, lip
   sync, eyelids, gaze, gestures, walking and sitting are blended with springs.
-  The studio's body is the **mannequin** from `BSISpectraCorpo.manichino()`:
-  bones with Mixamo names in T-pose, 26 ARKit blendshapes, red hair that the
-  driver turns black. The «Noir» face is mounted on the mannequin's head with
-  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` and
-  aligned by measuring, in the first frames, the distance between the chin and
-  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). **The real
-  model**: at start-up the studio asks for `models/spectra-cyberpunk.glb` with a
-  `HEAD` request; if the file is there it loads it with `GLTFLoader`, scales it
-  to 1.8 m tall, puts it in place of the mannequin and attaches the driver
-  (with its clips), which recognises its bones, blendshapes and hair and turns
-  the hair black; the «Noir» face is hidden, because the model has its own
-  face. The «cyberpunk» model chosen by the author has not been provided (the
-  file was not reachable and its licence must be checked): today the file is
-  not there and the mannequin is shown. **The body from the device**: first of
-  all the studio looks in IndexedDB (`bsi-spectra-modelli`) for a `.glb` body
-  the user loaded with the «🧍 Corpo» button, rigs it with
-  `bsi-spectra-rig.js` and uses it; then `models/spectra-corpo.glb`
-  (development only, kept out of git because of the CGTrader licence), then
-  the «cyberpunk» model, then the mannequin.
+  The mannequin from `BSISpectraCorpo.manichino()` (bones with Mixamo names in
+  T-pose, 26 ARKit blendshapes, red hair that the driver turns black) is used
+  **only by the driver's bench** (`opz.manichino === true`): since v240 it is
+  no longer Spectra anywhere. **Spectra's body** is chosen by the shared
+  controller `BSISpectraFigura.Spectra()` (`bsi-spectra-figura.js`), in the
+  studio and in the AI sections: first a `.glb` body the user loaded with the
+  «🧍 Corpo» button, kept in IndexedDB (`bsi-spectra-modelli`), then
+  `models/spectra-corpo.glb` (development only, kept out of git because of
+  the CGTrader licence), then `models/spectra-cyberpunk.glb` (a complete
+  model with its own face: the «Noir» face is hidden); **otherwise no body**,
+  and an invitation to load it appears, with no substitute. A body without a
+  skeleton goes through the automatic rig (`bsi-spectra-rig.js`); the «Noir»
+  face (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`)
+  goes on the collar, aligned by measuring the chin, with only the face
+  visible, «solidale» with the body's head.
+- **The figure in the AI sections** (`BSISpectraFigura.monta`, `sezioni`,
+  v240): one figure, moved into whichever section is open among Spectra AI
+  and the three areas with the assistant, shows Spectra standing in a lab-style
+  frame and **reacts to the app's events**: `bsi-spectra-stato` (thinking,
+  tools, writing) → concentrated, hand on chin, «SPECTRA · PENSA»;
+  `bsi-spectra-risposta` (the model's answer) → explains with the hands, lip
+  sync of body and face from the text, emotion from the content, «SPECTRA ·
+  PARLA»; an error → doubt; `bsi-spectra-dice`, dispatched by Spectra Live's
+  `parla()` and by the local assistant (`bsi-assistente.js`) when it solves an
+  exercise («Ecco lo svolgimento: …», or doubt if it did not understand) → the
+  figure says that text. It renders only when visible and the page is in the
+  foreground. The events are one-way: the figure does not change what the
+  model answers.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

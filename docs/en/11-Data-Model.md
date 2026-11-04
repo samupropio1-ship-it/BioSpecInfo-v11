@@ -247,9 +247,9 @@ If another tab requests a version upgrade, the connection is closed
 | **Database name** | `bsi-spectra-modelli` |
 | **Object store** | `file` |
 | **Key** | `corpo` |
-| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button of `spectra-studio.html`; at most 60 MB |
-| **Who writes it** | The studio, only after the file has been rigged successfully; an invalid file is not saved |
-| **Who reads it** | The studio, at every opening, before any other body |
+| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button (in `spectra-studio.html` or in Spectra's frame in the AI sections); at most 60 MB |
+| **Who writes it** | `bsi-spectra-figura.js` (studio and AI sections), only after the file has been rigged successfully; an invalid file is not saved |
+| **Who reads it** | `bsi-spectra-figura.js`, at every opening of the studio and at the first opening of an AI section, before any other body |
 | **Erasure** | «Clear data → Progress in the rest of the app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) deletes the whole database |
 
 The file never leaves the device. The reason is the licence: the body chosen

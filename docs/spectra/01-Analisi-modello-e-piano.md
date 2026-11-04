@@ -82,17 +82,17 @@ Il **labiale** si sincronizza sull'audio reale: la posizione nel testo segue il 
 
 ## 4. Che cosa c'è nel primo prototipo (v239)
 
-- **`bsi-spectra-corpo.js`**: il driver generico, provato su un **manichino riggato costruito nel codice**. Il manichino ha ossa con nomi Mixamo e blendshape con nomi ARKit, quindi il driver è verificato prima che arrivi il modello vero.
+- **`bsi-spectra-corpo.js`**: il driver generico, provato su un **manichino riggato costruito nel codice**. Il manichino ha ossa con nomi Mixamo e blendshape con nomi ARKit, quindi il driver è verificato prima che arrivi il modello vero. Dalla v240 il manichino serve **solo al banco del driver**: non è più Spectra da nessuna parte (§8).
 - **`bsi-spectra-voce.js`**: la voce con la catena di effetti e il labiale sull'audio.
 - **`spectra-studio.html`**: lo studio immersivo. Un laboratorio 3D dove Spectra insegna con il metodo *predici → testa → dimostra → rivela*. Parte con tre lezioni complete: fisica, chimica, matematica.
 - **`bsi-spectra-rig.js`**: il rig automatico per le figure senza scheletro (§7).
 - **Modello di Spectra nello studio**, in quest'ordine:
   1. il corpo che l'utente ha caricato dal proprio dispositivo con il pulsante **«🧍 Corpo»**, conservato nell'IndexedDB del browser (§7.5);
   2. `models/spectra-corpo.glb`, il corpo «Bounty Hunter» (solo in sviluppo): riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7);
-  3. se manca, `models/spectra-cyberpunk.glb`, caricato al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
-  4. se manca anche questo, il manichino riggato con il volto «Noir» incarnato.
+  3. se manca, `models/spectra-cyberpunk.glb` (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
+  4. se manca anche questo, **nessun corpo**: compare l'invito a caricarlo (fino alla v239 qui c'era il manichino riggato; vedi §8).
 
-  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra il manichino**, finché l'utente non carica un corpo suo.
+  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra l'invito**, finché l'utente non carica un corpo suo.
 
 ## 5. Che cosa manca e perché
 
@@ -145,9 +145,9 @@ Detto con onestà: la texture di partenza è 2048×2048 e **nessun dettaglio nuo
 ### 7.4 Licenza: il file resta fuori da git
 **`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**, dove si scarica gratis. La licenza Royalty Free di CGTrader permette di usare un modello dentro un prodotto **a patto che terzi non possano recuperarne il file**. Il repository è pubblico e l'app pubblicata serve i suoi file a chiunque: metterci il modello vorrebbe dire ridistribuirlo (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. I due file sono esclusi in `.gitignore`. Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
 
-- **l'app pubblicata mostra il manichino riggato**, non il corpo «Bounty Hunter», a meno che l'utente non carichi un corpo suo (§7.5);
+- **l'app pubblicata mostra l'invito a caricare il corpo**, non il corpo «Bounty Hunter» e nessun sostituto, a meno che l'utente non carichi un corpo suo (§7.5);
 - il banco `test_spectra_rig` prova il rig su un **umanoide sintetico** costruito nel codice, non sul modello vero;
-- i controlli di `test_spectra_studio` sul corpo riggato (sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano solo dove il file è presente in locale, e altrove si saltano.
+- i controlli di `test_spectra_studio` e di `test_spectra_figura` sul corpo riggato (viso sul colletto, sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano sempre, sullo stesso umanoide sintetico.
 
 In sviluppo il file può stare in `models/` (è escluso da git) e lo studio lo carica. Una licenza che permettesse la ridistribuzione basterebbe a toglierlo da `.gitignore` e ad aggiungerne la riga in `models/CREDITS.md`.
 
@@ -155,9 +155,18 @@ In sviluppo il file può stare in `models/` (è escluso da git) e lo studio lo c
 La soluzione che rispetta la licenza è che **ognuno usi la propria copia**:
 
 1. scaricare il modello da CGTrader con il proprio account ed esportarlo in `.glb`;
-2. in Spectra Studio premere **«🧍 Corpo»**, nella testata del pannello, e scegliere il file;
+2. premere **«🧍 Corpo»** — nella testata del pannello di Spectra Studio, oppure nel riquadro di Spectra in una sezione dell'AI — e scegliere il file;
 3. lo studio lo rigga, lo ricolora e lo mette al posto del corpo attuale (anche di un modello completo, e in quel caso ricrea il volto «Noir»).
 
-Il file resta **solo nel browser di quel dispositivo**, nell'IndexedDB (database `bsi-spectra-modelli`, archivio `file`, chiave `corpo`): non va su nessun server e nessun altro lo vede. A ogni apertura lo studio lo riprende da lì per primo. I file oltre 60 MB sono rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un messaggio, e il corpo di prima resta. «Cancella i miei dati → Progressi del resto dell'app» cancella anche questo database.
+Il file resta **solo nel browser di quel dispositivo**, nell'IndexedDB (database `bsi-spectra-modelli`, archivio `file`, chiave `corpo`): non va su nessun server e nessun altro lo vede. A ogni apertura lo studio e le sezioni dell'AI lo riprendono da lì per primo. I file oltre 60 MB sono rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un messaggio, e il corpo di prima resta. «Cancella i miei dati → Progressi del resto dell'app» cancella anche questo database.
 
 Il pulsante funziona con qualunque `.glb` umanoide, non solo con il «Bounty Hunter»: la responsabilità della licenza del file caricato resta di chi lo carica, ma poiché il file non esce dal dispositivo nulla viene ridistribuito.
+
+## 8. Spectra col corpo in ogni sezione dell'AI, e nient'altro (v240)
+
+Le richieste dell'autore: «l'icona di Spectra solo col volto, e la versione di Spectra col corpo in ogni sezione dell'AI»; e, guardando la schermata della lezione nello studio, «questo è quello che voglio per Spectra e non altro». Le conseguenze:
+
+- **L'icona è solo il volto.** Il pulsante flottante rotondo con il volto «Noir» resta l'unico modo di aprire Spectra Live; la pillola «Spectra» è nascosta.
+- **Spectra col corpo nelle sezioni dell'AI.** In Spectra AI e nelle tre aree con l'assistente (Chimica, Fisica, Matematica), sotto il titolo, un riquadro mostra Spectra in piedi, intero, nello stile del laboratorio della lezione. Pensa quando il modello lavora (mano al mento), spiega con le mani e con il labiale di corpo e viso quando arriva la risposta, parla con Spectra Live e spiega lo svolgimento quando l'assistente locale risolve un esercizio. Il modulo è `bsi-spectra-figura.js` ([documento 2](02-Architettura.md) §2.2).
+- **Nessun sostituto.** Il manichino non è più Spectra, né nelle sezioni né nello studio. Senza il corpo dell'autore sul dispositivo compare l'invito «Spectra non è ancora su questo dispositivo — carica una volta il suo corpo (.glb)» con il pulsante. Detto chiaramente: poiché il corpo non può stare nel repository (§7.4), **chi apre l'app pubblicata senza averlo caricato vede l'invito, non Spectra col corpo**. Basta caricarlo una volta per dispositivo.
+

@@ -899,25 +899,35 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   posa è una direzione nel mondo, convertita nel sistema locale dell'osso
   (`orienta`, una cinematica inversa minima valida per ogni rig); emozioni,
   labiale, palpebre, sguardo, gesti, passo e seduta sono fusi con molle. Il
-  corpo dello studio è il **manichino** di `BSISpectraCorpo.manichino()`:
-  ossa con nomi Mixamo in posa a T, 26 blendshape ARKit, capelli rossi che il
-  driver rende neri. Il volto «Noir» si monta sulla testa del manichino con
-  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` e
-  viene allineato misurando, nei primi fotogrammi, la distanza fra il mento e
-  l'osso della testa (1 cm sopra, 3 cm avanti, tolleranza 1 mm). **Il
-  modello vero**: all'avvio lo studio chiede `models/spectra-cyberpunk.glb`
-  con una richiesta `HEAD`; se il file c'è lo carica con `GLTFLoader`, lo
-  scala a 1,8 m di altezza, lo mette al posto del manichino e gli collega il
-  driver (con le sue clip), che ne riconosce ossa, blendshape e capelli e
-  rende neri i capelli; il volto «Noir» si nasconde, perché il modello ha il
-  suo viso. Il modello «cyberpunk» scelto dall'autore non è stato fornito (il
-  file non era raggiungibile e la licenza va verificata): oggi il file non
-  c'è e si vede il manichino. **Il corpo dal dispositivo**: prima di tutto lo
-  studio cerca nell'IndexedDB (`bsi-spectra-modelli`) un corpo `.glb` che
-  l'utente ha caricato con il pulsante «🧍 Corpo», lo rigga con
-  `bsi-spectra-rig.js` e lo usa; poi `models/spectra-corpo.glb` (solo in
-  sviluppo, fuori da git per la licenza CGTrader), poi il modello
-  «cyberpunk», poi il manichino.
+  manichino di `BSISpectraCorpo.manichino()` (ossa con nomi Mixamo in posa a
+  T, 26 blendshape ARKit, capelli rossi che il driver rende neri) serve **solo
+  al banco del driver** (`opz.manichino === true`): dalla v240 non è più
+  Spectra da nessuna parte. **Il corpo di Spectra** lo sceglie il controllore
+  condiviso `BSISpectraFigura.Spectra()` (`bsi-spectra-figura.js`), nello
+  studio e nelle sezioni dell'AI: prima un corpo `.glb` che l'utente ha
+  caricato con il pulsante «🧍 Corpo» e che sta nell'IndexedDB
+  (`bsi-spectra-modelli`), poi `models/spectra-corpo.glb` (solo in sviluppo,
+  fuori da git per la licenza CGTrader), poi `models/spectra-cyberpunk.glb`
+  (un modello completo, col suo viso: il volto «Noir» si nasconde);
+  **altrimenti nessun corpo**, e compare l'invito a caricarlo, senza
+  sostituti. Il corpo senza scheletro passa dal rig automatico
+  (`bsi-spectra-rig.js`); sul colletto va il volto «Noir»
+  (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`),
+  allineato misurando il mento, del quale si vede solo il viso, «solidale» con
+  la testa del corpo.
+- **La figura nelle sezioni dell'AI** (`BSISpectraFigura.monta`,
+  `sezioni`, v240): una figura sola, spostata nella sezione aperta fra
+  Spectra AI e le tre aree con l'assistente, mostra Spectra in piedi in un
+  riquadro da laboratorio e **reagisce agli eventi dell'app**:
+  `bsi-spectra-stato` (pensa, strumenti, scrive) → concentrato, mano al
+  mento, «SPECTRA · PENSA»; `bsi-spectra-risposta` (la risposta del
+  modello) → spiega con le mani, labiale di corpo e viso dal testo, emozione
+  dal contenuto, «SPECTRA · PARLA»; un errore → dubbio; `bsi-spectra-dice`,
+  emesso da `parla()` di Spectra Live e dall'assistente locale
+  (`bsi-assistente.js`) quando risolve un esercizio («Ecco lo svolgimento:
+  …», oppure dubbio se non ha capito) → la figura dice quel testo. Si
+  disegna solo quando è visibile e la pagina è in primo piano. Gli eventi
+  sono a senso unico: la figura non cambia ciò che il modello risponde.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

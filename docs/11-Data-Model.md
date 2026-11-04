@@ -238,9 +238,9 @@ chiusa (`onversionchange`) per non bloccare entrambe.
 | **Nome database** | `bsi-spectra-modelli` |
 | **Object store** | `file` |
 | **Chiave** | `corpo` |
-| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» di `spectra-studio.html`; al massimo 60 MB |
-| **Chi lo scrive** | Lo studio, solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
-| **Chi lo legge** | Lo studio, a ogni apertura, prima di ogni altro corpo |
+| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» (in `spectra-studio.html` o nel riquadro di Spectra nelle sezioni dell'AI); al massimo 60 MB |
+| **Chi lo scrive** | `bsi-spectra-figura.js` (studio e sezioni dell'AI), solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
+| **Chi lo legge** | `bsi-spectra-figura.js`, a ogni apertura dello studio e alla prima apertura di una sezione dell'AI, prima di ogni altro corpo |
 | **Cancellazione** | «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
 
 Il file non esce dal dispositivo. Il motivo è la licenza: il corpo scelto

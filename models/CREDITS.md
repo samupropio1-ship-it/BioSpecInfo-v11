@@ -38,11 +38,12 @@ Spectra Live.
 **Il file non è nel repository** (escluso in `.gitignore`) e l'app pubblicata
 non lo serve: la licenza Royalty Free di CGTrader permette di usare il
 modello dentro un prodotto solo se terzi non possono recuperarne il file.
-Senza il file l'app pubblicata usa il manichino riggato costruito nel codice.
+Senza il file l'app pubblicata, nello studio e nelle sezioni dell'AI, mostra
+l'invito a caricarlo e nessun corpo sostitutivo.
 
 **Come caricarlo**: chi possiede il file (scaricato con il proprio account
 CGTrader ed esportato in `.glb`) preme **«🧍 Corpo»** nella testata del
-pannello di Spectra Studio e lo sceglie. Il file resta solo nell'IndexedDB
+pannello di Spectra Studio (o nel riquadro di Spectra in una sezione dell'AI) e lo sceglie. Il file resta solo nell'IndexedDB
 di quel browser (database `bsi-spectra-modelli`) e a ogni apertura lo studio
 lo riprende da lì; non va su nessun server. In sviluppo può stare anche in
 `models/spectra-corpo.glb`. Il volto «Noir» che lo studio mette nel
