@@ -204,16 +204,24 @@ disappears offline.
 ### 2.2-quinquies Spectra Studio, a page of its own
 
 `spectra-studio.html` (v239) does not go through `index.html`: it loads by
-itself `three.min.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
+itself `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
 `bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js` and
 `bsi-spectra-studio-lezioni.js`. The page and the three new modules are in the
 `PRECACHE` of `sw.js`; `bsi-spectra-voce.js` is also in `index.html`, because
 the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
-it does not arrive, Spectra keeps the mannequin's head. The «cyberpunk» model is
-not in the repository; when it arrives it must be published with its licence
-and attribution, and connected to the studio as described in
-[`docs/spectra/01`](../spectra/01-Analisi-modello-e-piano.md) §6. The quality
+it does not arrive, Spectra keeps the mannequin's head.
+
+**The body model.** The studio looks for `models/spectra-cyberpunk.glb` with a
+`HEAD` request: if the file is there it loads it and uses it in place of the
+mannequin (scaled to 1.8 m, hair turned black by the driver, «Noir» face
+hidden); if it is not, the mannequin stays. The «cyberpunk» model chosen by the
+author is not in the repository. To add it: check that the licence allows
+modified redistribution, optimise it as in
+[`docs/spectra/01`](../spectra/01-Analisi-modello-e-piano.md) §2 and §6, copy it
+to `models/spectra-cyberpunk.glb`, add the attribution to `models/CREDITS.md`,
+`THIRD_PARTY_NOTICES.md` and the SBOM, and publish. Like `spectra-noir.glb`, it
+does not go into the precache. The quality
 voice calls `api.openai.com` directly from the browser: any
 `Content-Security-Policy`
 ([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)

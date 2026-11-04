@@ -357,7 +357,9 @@ delle sezioni e va giudicata leggendo.
 | Lezioni, a 1280 e 390 px | Il volto «Noir» appoggiato sul collo (mento 1,0 cm sopra l'osso della testa); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
 | Senza WebGL | Nessuna scena, ma la lezione dà le misure (2,019 s); nessun errore JavaScript |
 
-Restano fuori: il modello «cyberpunk», che non è integrato; la chiamata a
+Restano fuori: il caricamento del modello «cyberpunk», che non è stato
+fornito (`models/spectra-cyberpunk.glb` non c'è); l'interruttore della voce
+dello studio e la sua chiave `bsi-spectra-studio-voce`; la chiamata a
 OpenAI e l'ascolto della voce (il banco non raggiunge OpenAI e non ascolta);
 la qualità visiva del corpo e dei gesti, che va giudicata guardando.
 

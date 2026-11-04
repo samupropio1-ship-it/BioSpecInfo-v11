@@ -890,7 +890,10 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   le previsioni (`quando`, `scelta`, `giusta`) e gli esercizi aperti; il
   livello consigliato è il numero di previsioni giuste più gli esercizi
   aperti, fino a 3. Ogni previsione va anche alla mente
-  (`BSISpectraMente.ricorda`).
+  (`BSISpectraMente.ricorda`). L'interruttore 🔊/🔇 nella barra delle azioni
+  spegne la voce dello studio e la scelta resta in `bsi-spectra-studio-voce`
+  (`'0'` = spenta). Entrambe le chiavi rientrano in «Cancella dati → Memoria
+  persistente».
 - **Il corpo** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): il driver
   riconosce ossa, blendshape ARKit, capelli e clip di un GLB umanoide; ogni
   posa è una direzione nel mondo, convertita nel sistema locale dell'osso
@@ -901,9 +904,15 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   driver rende neri. Il volto «Noir» si monta sulla testa del manichino con
   `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` e
   viene allineato misurando, nei primi fotogrammi, la distanza fra il mento e
-  l'osso della testa (1 cm sopra, 3 cm avanti, tolleranza 1 mm). Il modello
-  «cyberpunk» scelto dall'autore non è integrato: il file non era
-  raggiungibile e la licenza va verificata.
+  l'osso della testa (1 cm sopra, 3 cm avanti, tolleranza 1 mm). **Il
+  modello vero**: all'avvio lo studio chiede `models/spectra-cyberpunk.glb`
+  con una richiesta `HEAD`; se il file c'è lo carica con `GLTFLoader`, lo
+  scala a 1,8 m di altezza, lo mette al posto del manichino e gli collega il
+  driver (con le sue clip), che ne riconosce ossa, blendshape e capelli e
+  rende neri i capelli; il volto «Noir» si nasconde, perché il modello ha il
+  suo viso. Il modello «cyberpunk» scelto dall'autore non è stato fornito (il
+  file non era raggiungibile e la licenza va verificata): oggi il file non
+  c'è e si vede il manichino.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

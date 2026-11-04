@@ -156,7 +156,8 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
-| `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; not in the «Clear data» groups, removed with the site data |
+| `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; removed by «Clear data → Persistent memory» |
+| `bsi-spectra-studio-voce` | `'0'` if Spectra Studio's voice has been turned off with 🔇; absent or other than `'0'` = on | Written by the studio's voice switch; removed by «Clear data → Persistent memory» |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
@@ -181,8 +182,9 @@ store nothing.
 The quality voice (`bsi-spectra-voce.js`) reads the OpenAI key from
 `bsi_api_keys` and writes nothing: the audio received stays in an in-memory
 cache for the session. The text to be spoken, however, leaves the device for
-OpenAI when the key is there
+OpenAI when the key is there and the voice is on
 ([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2).
+In Spectra Studio the choice to turn it off is kept in `bsi-spectra-studio-voce`.
 
 ### 2.4 Identifiers and licence
 
@@ -276,14 +278,13 @@ everything. The groups are defined in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Saved conversations and question history |
 | `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
-| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) and the creator recognition (`bsi-spectra-creatore-v1`) |
+| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Spaced repetition |
 | `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`) and study-kit progress (`bsi-studio:*`) |
 
 Left outside the groups: `bsi-spectra-ritratto-v4` (the icon derived from the
-face, which is regenerated), `bsi-spectra-sentinella` (which removes itself)
-and `bsi-spectra-studio-v1` (Spectra Studio predictions and exercises; see
-`09-Release-Conformance-Statement.md`, D-14).
+face, which is regenerated) and `bsi-spectra-sentinella` (which removes
+itself).
 
 Deleting the archive proceeds even if a single entry fails, and reports how many
 were not removed: a "delete everything" operation that stops halfway without

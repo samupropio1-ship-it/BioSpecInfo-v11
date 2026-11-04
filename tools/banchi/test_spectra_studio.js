@@ -151,6 +151,22 @@ function vero(d, c) { att(d, true, !!c); }
     await ctx.close();
   }
 
+  console.log('\n── La voce si ricorda, e i dati dello studio si cancellano ──');
+  {
+    const ctx = await b.newContext(), pg = await ctx.newPage();
+    await pg.goto(BASE + 'spectra-studio.html', { waitUntil: 'load', timeout: 120000 });
+    await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
+    await pg.evaluate(() => { localStorage.removeItem('bsi-spectra-studio-voce'); SpectraStudio.apri('caduta'); const v = document.getElementById('voce'); if (v.textContent === '🔊') v.click(); });
+    await pg.reload({ waitUntil: 'load' }); await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
+    const v = await pg.evaluate(() => { SpectraStudio.apri('caduta'); return { salvata: localStorage.getItem('bsi-spectra-studio-voce'), bottone: document.getElementById('voce').textContent }; });
+    att('la voce spenta resta spenta dopo una ricarica', '0|🔇', v.salvata + '|' + v.bottone);
+    await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
+    await pg.waitForFunction(() => typeof window.bsiCancellaDati === 'function', null, { timeout: 60000 });
+    const c = await pg.evaluate(() => { localStorage.setItem('bsi-spectra-studio-v1', '{"caduta":{}}'); bsiCancellaDati(['memoria']); return [localStorage.getItem('bsi-spectra-studio-v1'), localStorage.getItem('bsi-spectra-studio-voce')].map(String).join('|'); });
+    att('«Cancella dati → memoria» toglie la memoria e la scelta della voce dello studio', 'null|null', c);
+    await ctx.close();
+  }
+
   console.log('\n── Senza WebGL: la lezione si segue a testo ──');
   {
     const b2 = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--disable-3d-apis', '--disable-webgl'] });

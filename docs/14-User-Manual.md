@@ -571,10 +571,18 @@ una lanciata: quale arriva prima?), **💧 La forma dell'acqua** (perché
 l'angolo è 104,5°?) e **∑ Il problema di Basilea** (quanto fa 1 + 1/4 + 1/9 +
 …?). Trascinando giri la telecamera, con la rotellina ti avvicini. Se il
 dispositivo non ha la grafica 3D, la lezione resta tutta nel pannello, a testo.
-Le tue previsioni restano su questo dispositivo.
+Le tue previsioni restano su questo dispositivo; si cancellano con
+«Cancella dati → Memoria persistente». Nella barra dei pulsanti dello studio
+c'è **🔊/🔇**: spegne e riaccende la voce di Spectra, e lo studio si ricorda
+la tua scelta anche le volte successive.
 
 Il corpo di Spectra, oggi, è un **manichino di prova** con il suo volto: il
-personaggio scelto dall'autore arriverà quando il file sarà disponibile.
+personaggio scelto dall'autore non è ancora stato fornito. Lo studio è già
+pronto a usarlo: chi pubblica l'app, **dopo aver verificato che la licenza
+del modello ne permetta la ridistribuzione**, mette il file GLB in
+`models/spectra-cyberpunk.glb` (i passi sono nella
+[guida al deploy](12-Deploy-Guide.md), §2.2-quinquies). Alla prossima apertura
+dello studio Spectra ha quel corpo, con i capelli neri e il viso del modello.
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).
 
@@ -586,8 +594,9 @@ Spectra, nella console, nella lezione guidata e in Spectra Studio parla con
 una voce più profonda e metallica, e la bocca segue la voce. In quel caso **il
 testo che Spectra pronuncia viene inviato a OpenAI** per trasformarlo in
 audio, anche se per la chat usi un altro servizio. Se non lo vuoi, spegni la
-voce con 🔇 nella console e nella lezione, oppure non salvare una chiave
-OpenAI (in Spectra Studio la voce non si spegne).
+voce con 🔇: nella console, nel pannello della lezione guidata e nella barra
+dei pulsanti di Spectra Studio (che si ricorda la scelta). Oppure non salvare
+una chiave OpenAI.
 
 ### Il volto e la mente di Spectra
 

@@ -568,11 +568,19 @@ For now there are three lessons: **🪂 The fall** (a sphere dropped and one
 thrown: which lands first?), **💧 The shape of water** (why is the angle
 104.5°?) and **∑ The Basel problem** (what is 1 + 1/4 + 1/9 + …?). Dragging
 turns the camera, the wheel zooms in. If the device has no 3D graphics, the
-whole lesson stays in the panel, as text. Your predictions stay on this device.
-The studio's own buttons and messages are in Italian.
+whole lesson stays in the panel, as text. Your predictions stay on this device;
+they are erased with «Clear data → Persistent memory». In the studio's button
+bar there is **🔊/🔇**: it turns Spectra's voice off and on, and the studio
+remembers your choice next time too. The studio's own buttons and messages are
+in Italian.
 
 Spectra's body is, for now, a **test mannequin** with his face: the character
-chosen by the author will come when the file is available. Body, face and voice
+chosen by the author has not been provided yet. The studio is already ready to
+use it: whoever publishes the app, **after checking that the model's licence
+allows redistribution**, puts the GLB file at `models/spectra-cyberpunk.glb`
+(the steps are in the [deploy guide](12-Deploy-Guide.md), §2.2-quinquies). The
+next time the studio opens, Spectra has that body, with black hair and the
+model's own face. Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described
 (in Italian) in [`docs/spectra/`](../spectra/01-Analisi-modello-e-piano.md).
 
@@ -584,8 +592,8 @@ console, in the guided lesson and in Spectra Studio he speaks with a deeper,
 metallic voice, and the mouth follows the voice. In that case **the text
 Spectra speaks is sent to OpenAI** to turn it into audio, even if you use
 another service for the chat. If you do not want this, turn the voice off with
-🔇 in the console and in the lesson, or do not save an OpenAI key (in Spectra
-Studio the voice cannot be turned off).
+🔇: in the console, in the guided-lesson panel and in Spectra Studio's button
+bar (which remembers the choice). Or do not save an OpenAI key.
 
 ### Spectra's face and mind
 

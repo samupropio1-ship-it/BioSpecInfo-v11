@@ -85,7 +85,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-11** | Parte di Spectra Live, il menu ✨ per materia e gli strumenti rapidi non hanno un banco | La voce, l'ascolto continuo, i comandi locali diversi da quelli del creatore, gli strumenti che agiscono sulla pagina e il menu ✨ di fisica e matematica sono provati a mano: un loro guasto non farebbe fallire la batteria | Dichiarati in `docs/08` §6 come **UI-21** e **AI-13**. Dalla v238 l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore sono coperti da `test_spectra238` (UI-22, AI-14, SEC-08); dalla v239 la lezione guidata e il comando «fammi lezione» da `test_lezione` (UI-24) e il pulsante unico da `test_spectra238` (UI-25), mentre la voce della lezione resta provata a mano. Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia della batteria; i calcoli degli strumenti rapidi poggiano su `BSIMatCAS`, verificato da `test_matematica` |
 | **D-12** | Due chiavi locali di Spectra restano fuori dalla cancellazione selettiva | `bsi-spectra-ritratto-v4` (l'icona ricavata dal volto) e `bsi-spectra-sentinella` (segno dell'ascolto continuo) non sono nei gruppi di «Cancella dati». La mente, il riconoscimento del creatore, la materia e i kit di studio invece sì (gruppi Memoria persistente e Progressi) | Nessuna delle due contiene dati dell'utente: la prima si rigenera, la seconda si toglie quando l'ascolto si ferma. Dichiarato in `docs/11` §6 |
 | **D-13** | Il riconoscimento del creatore di Spectra non è un controllo d'accesso | L'impronta SHA-256 della frase segreta è nel codice, e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`, dove chi ha il dispositivo può scriverlo a mano. Un'impronta senza sale di una frase debole si può anche cercare per tentativi fuori dall'app | Come la password del File Manager (SEC-03), è un deterrente: non protegge dati, dice a Spectra con chi parla. La frase non è nel codice né conservata (SEC-08, `test_spectra238`) |
-| **D-14** | Spectra Studio: memoria fuori dalla cancellazione selettiva, voce senza interruttore, corpo di prova | La chiave `bsi-spectra-studio-v1` (previsioni ed esercizi aperti) non è nei gruppi di «Cancella dati». Lo studio non ha un interruttore della voce: con una chiave OpenAI ogni testo pronunciato va a OpenAI. Il corpo è un manichino di prova: il modello «cyberpunk» scelto dall'autore non è integrato (file non raggiungibile, licenza da verificare) | La chiave si cancella con i dati del sito dal browser; per non inviare testo a OpenAI basta non salvare una chiave OpenAI. Il driver del corpo è generico e provato sul manichino (AI-15); il piano per il modello vero è in `docs/spectra/01` |
+| **D-14** | Spectra Studio: il corpo è un manichino di prova | Il modello «cyberpunk» scelto dall'autore non è stato fornito (il file non era raggiungibile dalla sessione di lavoro, la licenza va verificata). Lo studio lo carica da `models/spectra-cyberpunk.glb` se il file c'è; oggi non c'è, quindi si vede il manichino con il volto «Noir» | Il driver del corpo è generico e provato sul manichino (AI-15); il piano per il modello vero è in `docs/spectra/01`. Basta pubblicare il GLB in `models/spectra-cyberpunk.glb`, con licenza e attribuzione verificate |
 
 > ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
 >
@@ -263,8 +263,10 @@ console, nella lezione guidata e in Spectra Studio viene inviato a OpenAI
 fornitore e senza passare dal proxy. Senza chiave OpenAI si usa la sintesi
 vocale del browser e il testo non esce. Spectra Studio
 (`spectra-studio.html`) conserva nel `localStorage` le previsioni e gli
-esercizi aperti di ogni lezione (`bsi-spectra-studio-v1`) e manda ogni
-previsione anche alla mente.
+esercizi aperti di ogni lezione (`bsi-spectra-studio-v1`) e la scelta sulla
+voce (`bsi-spectra-studio-voce`), e manda ogni previsione anche alla mente.
+Le due chiavi rientrano in «Cancella dati → Memoria persistente». Con la voce
+spenta nello studio (🔇) il testo non va a OpenAI.
 
 Le chiamate di rete sono opzionali e dirette a servizi pubblici documentati
 (§4 di `07-SBOM.md`). Se l'utente configura il proxy, le chiavi API risiedono

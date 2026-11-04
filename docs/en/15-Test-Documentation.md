@@ -341,8 +341,10 @@ explanations and has to be judged by reading.
 | Lessons, at 1280 and 390 px | The «Noir» face resting on the neck (chin 1.0 cm above the head bone); for fall, water and Basel the measurements in the scene (2.019 s, 109.47° and 104.4°, S₁₀₀₀ = 1.64393 and coprimes 0.6079), four predictions, formulas in the proof, the reveal with the right answer and four exercises of which one recommended, the memory remembering the prediction and the exercise opened; at 390 px nothing overflows; no JavaScript errors |
 | Without WebGL | No scene, but the lesson gives the measurements (2.019 s); no JavaScript errors |
 
-Still outside: the «cyberpunk» model, which is not integrated; the call to
-OpenAI and listening to the voice (the bench does not reach OpenAI and does not
+Still outside: loading the «cyberpunk» model, which has not been provided
+(`models/spectra-cyberpunk.glb` is not there); the studio's voice switch and
+its `bsi-spectra-studio-voce` key; the call to OpenAI and listening to the
+voice (the bench does not reach OpenAI and does not
 listen); the visual quality of the body and gestures, which has to be judged by
 looking.
 

@@ -38,8 +38,9 @@
   chiesto e ciò che Spectra ricorda di lui. L'audio ricevuto resta solo in
   memoria per la sessione. Senza chiave OpenAI questo flusso non esiste: si
   usa la sintesi vocale del browser. Per evitarlo si spegne la voce (🔇) nella
-  console e nella lezione guidata; **Spectra Studio non ha un interruttore
-  della voce**, quindi lì l'unico modo è non salvare una chiave OpenAI.
+  console, nella lezione guidata e in Spectra Studio, dove la scelta resta
+  ricordata (`bsi-spectra-studio-voce`); oppure non si salva una chiave
+  OpenAI.
 - **Diritto all'oblio locale:** l'utente può cancellare i dati svuotando lo
   storage del sito dal browser.
 

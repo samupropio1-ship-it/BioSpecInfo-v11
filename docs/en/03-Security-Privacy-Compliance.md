@@ -36,9 +36,9 @@
   may contain what the user asked and what Spectra remembers about the user.
   The audio received stays only in memory for the session. Without an OpenAI
   key this flow does not exist: the browser's speech synthesis is used. To
-  avoid it, turn the voice off (🔇) in the console and in the guided lesson;
-  **Spectra Studio has no voice switch**, so there the only way is not to save
-  an OpenAI key.
+  avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
+  Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
+  or do not save an OpenAI key.
 - **Local right to erasure:** the user can delete data by clearing the site
   storage in the browser.
 

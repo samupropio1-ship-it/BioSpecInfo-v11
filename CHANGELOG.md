@@ -62,9 +62,12 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   passo, collegamenti fra discipline ed esercizi su quattro livelli (scuola
   superiore, triennale, magistrale, ricerca). Le previsioni e gli esercizi
   aperti restano nel `localStorage` (`bsi-spectra-studio-v1`), e da lì viene
-  il livello di esercizio consigliato. Il pannello contiene tutto il testo
-  della lezione, ha nome accessibile e si segue anche senza WebGL (solo
-  testo, con le misure calcolate).
+  il livello di esercizio consigliato. L'interruttore 🔊/🔇 nella barra delle
+  azioni spegne la voce dello studio e la scelta si ricorda
+  (`bsi-spectra-studio-voce`); le due chiavi rientrano in «Cancella dati →
+  Memoria persistente». Il pannello contiene tutto il testo della lezione,
+  ha nome accessibile e si segue anche senza WebGL (solo testo, con le misure
+  calcolate).
 - **Il corpo di Spectra** (`bsi-spectra-corpo.js`, oggetto
   `BSISpectraCorpo`): un driver per qualunque avatar umanoide in GLB. Riconosce
   le ossa per nome (Mixamo, Ready Player Me, VRM, Unreal, nomi generici), i
@@ -73,15 +76,19 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   testo o dall'audio), battito delle palpebre, gesti (indica, spiega, pensa,
   attende, conclude), passo e seduta; ricolora i capelli in nero. Nello studio
   il corpo è un **manichino riggato di prova** costruito nel codice, con il
-  volto «Noir» incarnato sulla testa e allineato al collo per misura.
+  volto «Noir» incarnato sulla testa e allineato al collo per misura. Se
+  esiste `models/spectra-cyberpunk.glb`, lo studio lo carica al posto del
+  manichino (scalato a 1,8 m, capelli resi neri dal driver, volto «Noir»
+  nascosto perché il modello ha il suo viso).
 - **La voce di Spectra** (`bsi-spectra-voce.js`, oggetto `BSISpectraVoce`):
   con una chiave OpenAI salvata nell'app, l'audio arriva da `gpt-4o-mini-tts`
   (voce «onyx»; `tts-1` se il primo non risponde) e passa in una catena Web
   Audio (bassi, presenza, modulatore ad anello, filtro a pettine,
   saturazione, riverbero di 1,4 s, compressore); il labiale segue l'energia e
   il centroide dell'audio. **Il testo da pronunciare viene inviato a OpenAI**,
-  anche quando la chat usa un altro fornitore. Senza chiave resta la sintesi
-  del browser, con la voce maschile più grave disponibile.
+  anche quando la chat usa un altro fornitore, salvo che la voce sia spenta
+  (🔇). Senza chiave resta la sintesi del browser, con la voce maschile più
+  grave disponibile.
 - Documenti di progetto in [`docs/spectra/`](docs/spectra/): analisi del
   modello e piano, architettura, mappa dei domini.
 
@@ -120,11 +127,12 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - La batteria passa da 79 a 81 banchi.
 
 ### Non incluso
-- **Il modello «cyberpunk» di Sketchfab** scelto dall'autore non è
-  integrato: non era raggiungibile dalla sessione di lavoro, e prima di
+- **Il modello «cyberpunk» di Sketchfab** scelto dall'autore non è stato
+  fornito: non era raggiungibile dalla sessione di lavoro, e prima di
   usarlo servono il file GLB e la verifica della licenza
-  ([`docs/spectra/01`](docs/spectra/01-Analisi-modello-e-piano.md) §6). Il
-  corpo di oggi è un manichino di prova.
+  ([`docs/spectra/01`](docs/spectra/01-Analisi-modello-e-piano.md) §6). Lo
+  studio è pronto a caricarlo da `models/spectra-cyberpunk.glb`; finché il
+  file non c'è, il corpo è il manichino di prova.
 - **Capelli neri per Spectra**: il driver li rende neri su qualunque modello
   con capelli riconoscibili, ed è provato sul manichino; sul volto «Noir»
   della console non ci sono capelli, e una prova con capelli procedurali

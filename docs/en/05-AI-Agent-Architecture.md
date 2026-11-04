@@ -860,6 +860,9 @@ summarised here.
   predictions (`quando`, `scelta`, `giusta`) and the exercises opened; the
   recommended level is the number of right predictions plus exercises opened,
   up to 3. Each prediction also goes to the mind (`BSISpectraMente.ricorda`).
+  The 🔊/🔇 switch in the action bar turns the studio's voice off and the
+  choice is kept in `bsi-spectra-studio-voce` (`'0'` = off). Both keys are
+  covered by «Clear data → Persistent memory».
 - **The body** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): the driver
   recognises bones, ARKit blendshapes, hair and clips of a humanoid GLB; every
   pose is a direction in the world, converted into the bone's local frame
@@ -870,9 +873,15 @@ summarised here.
   driver turns black. The «Noir» face is mounted on the mannequin's head with
   `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` and
   aligned by measuring, in the first frames, the distance between the chin and
-  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). The «cyberpunk»
-  model chosen by the author is not integrated: the file was not reachable and
-  its licence must be checked.
+  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). **The real
+  model**: at start-up the studio asks for `models/spectra-cyberpunk.glb` with a
+  `HEAD` request; if the file is there it loads it with `GLTFLoader`, scales it
+  to 1.8 m tall, puts it in place of the mannequin and attaches the driver
+  (with its clips), which recognises its bones, blendshapes and hair and turns
+  the hair black; the «Noir» face is hidden, because the model has its own
+  face. The «cyberpunk» model chosen by the author has not been provided (the
+  file was not reachable and its licence must be checked): today the file is
+  not there and the mannequin is shown.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In
