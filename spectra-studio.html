@@ -217,8 +217,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     function adatta() { var pan = D.getElementById('pan').getBoundingClientRect(), w = innerWidth, h = innerHeight; ren.setSize(w, h, false); cam.aspect = w / h;
       /* la scena si sposta nello spazio libero: a sinistra del pannello o sopra */
       if (pan.left > w * 0.4) cam.setViewOffset(w, h, (w - pan.left) / 2 * 0.9, 0, w, h); else cam.setViewOffset(w, h, 0, (h - pan.top) / 2 * 0.85, w, h);
-      /* in verticale (telefono) lo spazio e' stretto: l'inquadratura si centra fra Spectra e il banco e si allontana */
-      var verticale = w < h * 0.8; bers.x = verticale ? -0.12 : 0.15; orb.r = verticale ? Math.max(orb.r, 4.4) : orb.r; if (typeof posCam === 'function') posCam();
+      /* in verticale (telefono) la stessa composizione del computer, voluta dall'autore: Spectra intero a sinistra e il banco
+         a destra, nello spazio sopra il pannello; la telecamera si allontana quanto serve */
+      var verticale = w < h * 0.8; bers.x = verticale ? 0.1 : 0.15; bers.y = verticale ? 1.0 : 1.15; orb.r = verticale ? Math.max(orb.r, 6.2) : orb.r; if (typeof posCam === 'function') posCam();
       cam.updateProjectionMatrix(); }
     addEventListener('resize', adatta);
     S = { ok: true, ren: ren, sc: sc, cam: cam, corpo: corpo, corpoRadice: corpoRadice, lezione: lezione, banco: banco, anello: anello, cono: cono, adatta: adatta, posCam: posCam, ctrl: null, volto: null, dbCorpo: dbCorpo, daBuffer: daBuffer };
