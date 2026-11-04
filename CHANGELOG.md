@@ -7,6 +7,65 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v239] — 2026-11-04
+
+**Una lezione guidata con Spectra per ogni sezione; un solo pulsante di Spectra, il volto in un cerchio**
+
+### Aggiunto
+- **Lezione guidata per ogni sezione** (`bsi-lezione.js`, oggetto globale
+  `BSILezione`). Richiesta dell'autore: «qualcosa come la lezione interattiva
+  di Every Joule, ma per ogni sezione». La pagina di riferimento non era
+  raggiungibile dalla sessione di lavoro: la lezione ne è un'interpretazione,
+  non una copia.
+  - In ogni sezione, sotto il titolo, compare il pulsante **«🎓 Lezione
+    guidata con Spectra»**.
+  - La lezione non è scritta a mano: nasce dalla sezione. Apertura con titolo
+    e sottotitolo; un capitolo per scheda, in cui la scheda si apre, la sua
+    spiegazione si legge a pezzi di una o due frasi, le tele e le scene 3D
+    vengono illuminate, i cursori sono mostrati al lavoro dal minimo al
+    massimo e rimessi dov'erano, le scelte passate in rassegna e rimesse
+    com'erano; una domanda di verifica presa dal kit di studio della materia
+    (quella con più parole in comune con la sezione), con la spiegazione dopo
+    la risposta; un riepilogo dei capitoli. Le sezioni senza schede si leggono
+    per titoli e paragrafi, con i loro grafici e comandi.
+  - Lettore: pannello a destra sullo schermo grande (da 1100 px la pagina si
+    sposta a sinistra) o in basso sul telefono; avanzamento per capitoli;
+    testo che compare parola per parola; tasti ◀ ▶ e pausa; voce di Spectra
+    attivabile e disattivabile; un riflettore oscura il resto della pagina e
+    illumina il pezzo di cui si parla. Durante la lezione i pulsanti
+    flottanti si nascondono e alla chiusura tornano com'erano. Con «riduci
+    movimento» i cursori saltano al valore invece di scorrere, il testo
+    compare tutto insieme e il riflettore non pulsa.
+  - Spectra: il comando **«fammi lezione»** (anche «lezione guidata»,
+    «insegnami questa sezione», «give me a lesson») e la scorciatoia **🎓
+    Lezione** nella console, con una sezione aperta.
+  - Alla stesura: **194 sezioni** hanno la lezione, **99** hanno schede,
+    **79** hanno una domanda di verifica.
+
+### Cambiato
+- **Un solo pulsante di Spectra** (`bsi-spectra-live.js`): il volto in un
+  cerchio prende il posto della pillola «Spectra». Il cerchio apre la console
+  di Spectra Live; dalla console 💬 apre la chat. La pillola resta nella
+  pagina ma nascosta, perché altri moduli e i banchi la usano per aprire la
+  chat. Il cerchio compare subito con il volto vettoriale e passa al ritratto
+  dopo il caricamento della pagina.
+
+### Banco
+- Nuovo `test_lezione` (30 controlli): tutte le 194 sezioni hanno la lezione e
+  il pulsante; un capitolo per scheda; un cursore e una scelta mostrati al
+  lavoro e rimessi com'erano anche saltando avanti a metà; la verifica con la
+  spiegazione; il riepilogo; i pulsanti flottanti nascosti e ripristinati;
+  «fammi lezione»; a 390 e 1280 px niente sborda; nessun errore JavaScript.
+- `test_spectra238` passa a 66 controlli: un solo pulsante di Spectra
+  visibile, rotondo.
+- La batteria passa da 79 a 80 banchi.
+
+### Non incluso
+- **Capelli neri per Spectra**: il modello di Sketchfab indicato non era
+  raggiungibile, e una prova con capelli procedurali sulla forma del casco non
+  era convincente; non è in questa versione.
+
+---
 ## [bsi-v238] — 2026-11-03
 
 **Spectra Live riprogettata e al centro dell'app, un volto con palpebre vere, il riconoscimento del creatore; schede 3D nuove in 29 sezioni di chimica, fisica e matematica**

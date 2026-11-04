@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**79 benches**, grouped by what they demonstrate.
+**80 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -293,13 +293,16 @@ existed before v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
-`test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_guidaproxy` · `test_fluidita` ·
+`test_lingue` · `test_mol3d` · `test_spettrolettore`
 
-**`test_spectra238` — 64 checks.** It comes from reports made with a phone
+**`test_spectra238` — 66 checks.** It comes from reports made with a phone
 screenshot: with the app installed, Android's status bar and navigation keys
 covered the controls of the Spectra Live console, and the model attribution
-overlapped the dialogue. The bench works in four parts:
+overlapped the dialogue. Since v239 it also checks, first of all, that Spectra
+has **a single visible button**: the circle with the face (`#bsiJV-fab`) is
+visible, the «Spectra» pill (`#bsi-spectra-fab`) is not, and the circle is
+round (`border-radius: 50%`). The rest of the bench works in four parts:
 
 | Part | What it requires |
 |---|---|
@@ -310,6 +313,20 @@ overlapped the dialogue. The bench works in four parts:
 
 Still outside, as `docs/08` §6 declares (AI-13): voice, continuous listening and
 the other local commands, which cannot be tested in the battery's headless Chromium.
+
+**`test_lezione` — 30 checks.** It comes from the request for an interactive
+lesson «for every section» (`bsi-lezione.js`). Since the lesson is not written
+by hand but built from the section, the bench does not test one lesson: it
+tests them all.
+
+| Part | What it requires |
+|---|---|
+| All sections | It opens the sections of the bar one by one in the three subjects (switching subject when needed) and requires at least 190 of them to be visited (**194** at the time of writing). For each: the lesson exists and runs from the opening to the summary; the «🎓 Guided lesson» button is there; if the section has tabs (**99**), the chapters are one per tab plus opening, summary and the check if any. At least 60 lessons must have a check question (**79** at the time of writing). No JavaScript errors |
+| The player, at 390 and 1280 px | On 〰️ Waves and optics: the button opens the lesson from the opening; floating buttons go from visible to hidden; at the first slider the value really changes (at least four different values in 4.5 s) and the spotlight is on; skipping ahead half-way the slider returns to its starting value; a select goes through at least two options and returns to the starting one; the check shows the right answer and an explanation longer than 20 characters; the summary lists the chapters; nothing overflows; on closing the panel disappears, the `bsiLZ-aperto` class is removed and the floating buttons are visible again; `BSISpectraLive.comando('fammi lezione')` answers and starts the lesson; no JavaScript errors |
+
+Still outside: the lesson's voice (there is no speech synthesis in headless
+Chromium) and the teaching quality of the texts, which depends on the sections'
+explanations and has to be judged by reading.
 
 **`test_controllaagg` — 12 checks.** It comes from a report: «trying to update,
 nothing comes up». It was true. The 🔄 Updates window looked in `sw.js` for a
@@ -735,11 +752,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 552 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 554 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione». Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 

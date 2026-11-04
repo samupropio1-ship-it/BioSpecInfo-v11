@@ -163,6 +163,11 @@ La frase con cui il creatore si fa riconoscere (`bsi-spectra-creatore.js`) non
 l'impronta SHA-256, la si confronta con quella del File Manager e la si scarta.
 Al modello va solo una riga di contesto: se l'utente è stato riconosciuto o no.
 
+La lezione guidata (`bsi-lezione.js`, v239) non ha chiavi sue: la lezione si
+costruisce dalla pagina a ogni avvio e vive in memoria finché è aperta. I
+comandi che mostra al lavoro tornano al valore che avevano. A fine lezione la
+mente registra un'emozione («fiera») in `bsi-spectra-mente-v1`.
+
 ### 2.4 Identificativi e licenza
 
 | Chiave | Contenuto | Nota sulla riservatezza |

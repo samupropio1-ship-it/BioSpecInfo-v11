@@ -45,7 +45,8 @@ everything it needs. From then on it works with no signal too.
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
 | **Section menu** | Navigation bar | The 194 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
-| **Spectra** | Bottom right | The assistant that answers questions |
+| **Spectra** | Bottom right, the face in a circle | The assistant that answers questions: a tap opens the console, and from there 💬 the chat |
+| **🎓 Guided lesson** | Under the title of every section | A lesson in chapters on the section, led by Spectra |
 
 ---
 
@@ -457,7 +458,8 @@ free **key**. Two routes:
 
 1. Go to [console.groq.com](https://console.groq.com/keys) and create a key
    (free, it takes two minutes)
-2. Open Spectra, paste the key into the 🔑 box
+2. Open Spectra (the face at the bottom right, then 💬), paste the key into
+   the 🔑 box
 3. Done
 
 **The definitive one — a proxy**
@@ -481,8 +483,10 @@ delete it: tomorrow it might work again.
 
 ### Spectra Live: talking to him
 
-The quickest way to open the console is the **round button with Spectra's
-face**, to the left of the Spectra button: it is there on every screen. The
+Spectra has **a single button**: his face in a circle, at the bottom right, on
+every screen. A tap opens the console; from the console the **💬** button opens
+the written chat. Right after the app opens the circle shows a drawn face; once
+the page has loaded it becomes the portrait. The
 **◈ Live** button in Spectra's header and `Ctrl+Shift+J` work too. The console
 fills the screen; on a phone, with the app installed, it leaves the status bar
 at the top and Android's keys at the bottom free. Press the microphone and speak: Spectra listens, answers
@@ -490,7 +494,7 @@ aloud and then listens again, so you can carry on without touching anything.
 Say «stop» or tap the screen to interrupt. If the browser has no speech
 recognition or synthesis, the console says so and you can type.
 
-Some requests Spectra carries out by herself, **without network and without a
+Some requests Spectra carries out by himself, **without network and without a
 key**: «switch to physics», «calculate 3/4 + 1/6», «derivative of x^2
 sin(x)», «convert 5 km to m», «constant planck», «plot sin(x)», «quiz me»,
 «pause», «where am i». Everything else goes to the artificial-intelligence
@@ -499,7 +503,8 @@ you ask about «this chart» or press **👁**, Spectra also attaches an image o
 the open tab's charts.
 
 Above the controls are the **shortcuts**: with a section open «Explain this
-section», «Guide me», «What am I looking at?», «Quiz me» and «Review». At the
+section», «Guide me», «What am I looking at?», «Quiz me», «Review» and
+**🎓 Lesson**, which starts the section's guided lesson (see below). At the
 top, the **🧭** button opens the navigator: for chemistry, physics and
 mathematics every section of the bar, the quick tools and the phrases Spectra
 understands even offline, with a search box. A tap on a section opens it, even
@@ -512,6 +517,37 @@ master, PhD) and rises with advanced-course questions; «in simple words» lower
 it. If the console stays open and silent for more than a minute, Spectra may
 tell you something important unprompted, for instance that it is time for a
 break.
+
+### 🎓 The guided lesson
+
+In every section, under the title, there is the **«🎓 Guided lesson with
+Spectra»** button. Tap it, or say or type «give me a lesson» to Spectra: the
+section becomes a lesson in chapters, with the real simulation in front of you.
+
+- It starts from the section's title. Then **one chapter per tab**: the tab
+  opens by itself, the explanation appears one piece at a time, word by word,
+  and a **spotlight** dims the rest of the page and lights up the chart or
+  control being discussed.
+- The **sliders** move by themselves, from minimum to maximum, while the chart
+  or the 3D scene changes; the **selects** go through their options. At the
+  end every control is back as it was, even if you skip ahead or close
+  half-way.
+- Many sections have a **check question** taken from the subject's study kit:
+  the lesson waits for your answer, then shows the right one and the
+  explanation.
+- The **summary** lists the chapters covered; from there you can replay the
+  lesson or ask Spectra to go deeper.
+
+The lesson panel sits on the right on a large screen (the page shifts left to
+make room) and at the bottom on a phone. **◀ ▶** move one step, the middle key
+pauses, **🔊/🔇** turns Spectra's voice on and off, **✕** (or Esc) closes.
+During the lesson the app's round buttons are hidden and they come back at the
+end. If «reduce motion» is on in your system, sliders jump to the value instead
+of sliding and the text appears all at once.
+
+The lesson is built by reading the section: where a tab has little text, the
+chapter is short; and in sections with no suitable question in the study kit
+there is no check.
 
 ### Spectra's face and mind
 

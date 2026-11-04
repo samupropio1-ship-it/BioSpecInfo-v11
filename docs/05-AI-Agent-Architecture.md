@@ -663,9 +663,14 @@ strumenti aggiunti in futuro.
 
 ### 4.10 Spectra Live: voce, schermo e comandi locali
 
-`bsi-spectra-live.js` aggiunge una console a tutto schermo. Dalla v238 si
-apre da ogni schermata con un pulsante tondo con il volto, a sinistra del
-pulsante Spectra; restano il pulsante «◈ Live» nella testata di Spectra e
+`bsi-spectra-live.js` aggiunge una console a tutto schermo. Si apre da ogni
+schermata con l'unico pulsante di Spectra: il volto in un cerchio
+(`#bsiJV-fab`), che dalla v239 prende il posto della pillola «Spectra»
+(`#bsi-spectra-fab`). La pillola resta nel documento, nascosta dalla classe
+`bsiJV-solo-volto` sul `body`, perché altri moduli e i banchi la usano per
+aprire la chat; dalla console la chat si apre con 💬. Il cerchio compare subito
+con il volto vettoriale e passa al ritratto (`models/spectra-ritratto.jpg`)
+dopo l'evento `load`. Restano il pulsante «◈ Live» nella testata di Spectra e
 `Ctrl+Shift+J`:
 
 - **conversazione a mani libere**: il riconoscimento vocale del browser
@@ -811,6 +816,48 @@ persistente».
 **Limite.** Come la password del File Manager è un deterrente, non un
 controllo d'accesso: l'impronta è nel codice e il segno può essere scritto a
 mano da chi ha il dispositivo (`09-Release-Conformance-Statement.md`, D-13).
+
+### 4.14 La lezione guidata
+
+`bsi-lezione.js` (v239, oggetto `BSILezione`) trasforma ogni sezione in una
+lezione in capitoli condotta da Spectra. Non usa il modello e non va in rete:
+la lezione si costruisce leggendo la sezione aperta.
+
+- **Costruzione** (`costruisci(sezione)`): un passo di apertura con titolo e
+  sottotitolo; per ogni scheda (`.bsiFX-schede button`) un capitolo, i cui
+  passi si leggono quando la scheda è aperta: la spiegazione spezzata in pezzi
+  di una o due frasi (al massimo tre pezzi, circa 260 caratteri l'uno), la
+  prima tela o scena 3D visibile, fino a quattro cursori e scelte; per le
+  sezioni senza schede un solo capitolo con titoli e paragrafi visibili e gli
+  stessi comandi. Poi una **domanda di verifica** dal kit di studio della
+  materia (`BSIStudio.dati(materia).quiz`): vince quella con più parole
+  (di più di quattro lettere) in comune con titolo, sottotitolo e schede, con
+  un peso doppio per le parole dell'argomento; serve un punteggio di almeno 2,
+  altrimenti la verifica non c'è. Infine il **riepilogo** dei capitoli.
+- **Dimostrazioni**: un cursore va dal valore attuale al minimo, al massimo e
+  di nuovo al valore di partenza in circa 4 s, generando eventi `input` e
+  `change` come farebbe l'utente; una scelta passa per le prime cinque
+  opzioni e torna a quella di partenza. Se si passa oltre a metà, o si chiude
+  la lezione, il comando viene rimesso com'era.
+- **Lettore**: pannello `#bsiLZ` (a destra sullo schermo grande, in basso sotto
+  i 760 px; da 1100 px `#main` si sposta a sinistra), avanzamento per capitoli,
+  testo che compare parola per parola, ◀ ▶, pausa, voce, `Esc` per chiudere,
+  frecce per muoversi. Il riflettore `#bsiLZ-luce` oscura il resto e segue il
+  pezzo di cui si parla. La voce è quella di Spectra Live
+  (`BSISpectraLive.parla`); senza voce, il tempo di lettura dipende dalla
+  lunghezza del testo. Con «riduci movimento» i cursori saltano al valore, il
+  testo compare tutto insieme e il riflettore non pulsa.
+- **Pulsanti flottanti**: durante la lezione si nascondono (anche quelli con
+  `visibility` scritta in linea, il cui valore viene annotato e rimesso alla
+  chiusura).
+- **Avvio**: il pulsante «🎓 Lezione guidata con Spectra» che il modulo aggiunge
+  sotto il titolo di ogni sezione visibile; il comando locale «fammi lezione»
+  di Spectra Live, che chiude la console e avvia la lezione della sezione
+  aperta; la scorciatoia 🎓 della console.
+
+La lezione non ha chiavi sue nel `localStorage`; a fine lezione segnala alla
+mente di Spectra un'emozione (`sente('fiera', 'lezione')`), che la mente
+registra in `bsi-spectra-mente-v1` come le altre.
 
 ---
 

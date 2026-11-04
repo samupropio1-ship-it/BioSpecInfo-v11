@@ -181,7 +181,7 @@ face.
 
 ### 2.2-ter One secret phrase, two fingerprints
 
-Since `bsi-v238` the same secret phrase serves the File Manager and the
+Since version `bsi-v238` the same secret phrase serves the File Manager and the
 recognition of Spectra's creator. Its SHA-256 fingerprint is written in two
 places: `file_manager.html` and `bsi-spectra-creatore.js` (constant
 `IMPRONTA`). If the phrase changes, **both** must change in the same release;
@@ -190,6 +190,16 @@ only the old one. A recognition mark already written in a browser
 (`bsi-spectra-creatore-v1`) is not revoked by the change: it is removed with
 «forget that I am your creator» or with «Clear data». The plaintext phrase must
 never be written to a file in the repository.
+
+### 2.2-quater A new module: three places to keep aligned
+
+A new application `.js` file, such as `bsi-lezione.js` (the guided lesson),
+must be declared in `index.html` (with `defer`; `bsi-lezione.js` comes
+before `bsi-spectra-live.js`, which uses its `BSILezione` object when it
+receives «fammi lezione»), in the `PRECACHE` list of `sw.js`, so that it works
+offline, and in the module list of `tools/genera-sbom.js`, so that it appears in
+the SBOM. A module missing from the precache works while there is a network and
+disappears offline.
 
 ### 2.3 How the update reaches users
 

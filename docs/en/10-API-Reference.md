@@ -467,6 +467,20 @@ in `localStorage`, nothing else.
 | `saluto`, `chiTiHaCreato` | `() → string` | The greeting by name and the answer to «who created you?» |
 | `contesto` | `() → string` | The `[CREATORE]` line added to the model's context |
 
+### `window.BSILezione` — the guided lesson (`bsi-lezione.js`, v239)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `avvia` | `(section?, { muta? }?) → boolean` | Builds the lesson for the given section (or the visible one) and starts it in the player; `muta: true` starts with the voice off. `false` if no section is visible. A lesson already running is closed |
+| `chiudi` | `()` | Stops the lesson, puts the control being demonstrated back as it was, removes panel and spotlight, makes the floating buttons visible again |
+| `costruisci` | `(section?) → { sezione, titolo, capitoli, passi } \| null` | Construction only, without the player. `capitoli`: «Introduzione», one name per tab (or «Esploriamo»), «Verifica» if there is a question, «Riepilogo» (English labels when the interface is in English). `passi`: objects with `tipo` among `titolo`, `scheda`, `leggi` (placeholder replaced by the tab's steps when the tab is opened), `testo`, `tela`, `cursore`, `scelta`, `quiz`, `fine`, and `cap` (chapter index) |
+| `vai` | `(i)` | Goes to step `i` like a tap on ◀ ▶ (interrupts the voice) |
+| `stato` | `() → { i, passi, tipo, capitoli, auto } \| null` | Current step, number of steps, step type, chapters, whether auto-advance is on; `null` with no lesson |
+| `versione` | string | `'1.0'` |
+
+Spectra Live's local command «fammi lezione» («give me a lesson») in
+`BSISpectraLive.comando` calls `BSILezione.avvia()` after closing the console.
+
 ---
 
 _Document updated to version `bsi-v239`._

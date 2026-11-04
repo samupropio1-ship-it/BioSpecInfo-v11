@@ -182,7 +182,7 @@ Live. Va pubblicato insieme al resto, con la sua attribuzione CC BY 4.0
 
 ### 2.2-ter Una frase segreta, due impronte
 
-Dalla `bsi-v238` la stessa frase segreta serve al File Manager e al
+Dalla versione `bsi-v238` la stessa frase segreta serve al File Manager e al
 riconoscimento del creatore di Spectra. La sua impronta SHA-256 è scritta in
 due posti: `file_manager.html` e `bsi-spectra-creatore.js` (costante
 `IMPRONTA`). Se si cambia la frase, vanno cambiate **entrambe** nello stesso
@@ -191,6 +191,15 @@ riconosce solo la vecchia. Un segno di riconoscimento già scritto in un
 browser (`bsi-spectra-creatore-v1`) non viene revocato dal cambio: si toglie
 con «dimentica che sono il tuo creatore» o con «Cancella dati». La frase in
 chiaro non va mai scritta in un file del repository.
+
+### 2.2-quater Un modulo nuovo: tre posti da tenere allineati
+
+Un file `.js` nuovo dell'applicazione, come `bsi-lezione.js` (la lezione
+guidata), va dichiarato in `index.html` (con `defer`; `bsi-lezione.js` sta
+prima di `bsi-spectra-live.js`, che ne usa l'oggetto `BSILezione` quando
+riceve «fammi lezione»), nel precarico `PRECACHE` di `sw.js`, perché funzioni senza rete,
+e nell'elenco dei moduli di `tools/genera-sbom.js`, perché compaia nello SBOM.
+Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 
 ### 2.3 Come arriva l'aggiornamento agli utenti
 

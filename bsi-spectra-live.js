@@ -217,6 +217,16 @@
   }
   function frasi(s) { return (perLaVoce(s).match(/[^.!?;:\n]+[.!?;:]*/g) || []).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 1; }); }
   function parla(testo, fatto) {
+    /* LA VOCE DI QUALITA' (v239): con una chiave OpenAI, la voce profonda e metallica di bsi-spectra-voce.js
+       (audio vero, catena di effetti, labiale sull'audio); altrimenti la sintesi del browser, qui sotto */
+    var VQ = globale.BSISpectraVoce;
+    if (VQ && voce.attiva && VQ.qualita() === 'audio' && testo) {
+      var detto = perLaVoce(testo).slice(0, 3800); voce.inCorso = true; stato('parla');
+      if (hud.volto) hud.volto.dici(detto);
+      VQ.parla(detto, { suBocca: function (b) { hud.energia = Math.max(0.35, b.energia); if (hud.volto && hud.volto.allinea && b.frazione != null) hud.volto.allinea(Math.floor(b.frazione * detto.length)); } })
+        .then(function (r) { if (r && r.annullato) return; voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); });
+      return true;
+    }
     if (!('speechSynthesis' in globale) || !voce.attiva) { if (hud.volto && testo) { hud.volto.dici(perLaVoce(testo).slice(0, 220)); setTimeout(function () { if (hud.volto) hud.volto.taci(); }, Math.min(9000, 300 + perLaVoce(testo).length * 70)); } if (fatto) setTimeout(fatto, 0); return false; }
     try { speechSynthesis.cancel(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
@@ -245,7 +255,7 @@
     })();
     return true;
   }
-  function taci() { voce.inCorso = false; try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
+  function taci() { voce.inCorso = false; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 
   /* ═══ 4. I COMANDI LOCALI (senza rete) ═════════════════════════════════ */
   var UNITA_A_VOCE = { 'elettronvolt': 'eV', 'elettronvolts': 'eV', 'electronvolt': 'eV', 'joule': 'J', 'kilojoule': 'kJ', 'chilojoule': 'kJ', 'calorie': 'cal', 'caloria': 'cal', 'chilocalorie': 'kcal',
@@ -666,6 +676,8 @@
     var nomi = { chimica: ['⚗️', t('Chimica', 'Chemistry')], fisica: ['⚛️', t('Fisica', 'Physics')], matematica: ['📐', t('Matematica', 'Mathematics')] };
     var h = '<header>' + ['chimica', 'fisica', 'matematica'].map(function (k) { return '<button type="button" class="bsiJV-b m' + (k === m ? ' on' : '') + '" data-m="' + k + '">' + nomi[k][0] + ' ' + esc(nomi[k][1]) + '</button>'; }).join('') +
       '<input type="search" id="bsiJV-navq" placeholder="' + esc(t('Cerca una sezione, uno strumento, un comando…', 'Search a section, a tool, a command…')) + '"><button type="button" class="bsiJV-b" id="bsiJV-navx" aria-label="' + esc(t('Chiudi', 'Close')) + '">✕</button></header><div class="corpo">';
+    /* in cima: lo studio di Spectra, il laboratorio 3D con le lezioni predici → testa → dimostra → rivela */
+    h += '<h4>' + esc(t('Spectra Studio', 'Spectra Studio')) + '</h4><div class="gr"><button type="button" data-u="./spectra-studio.html">' + esc(t('🌌 Il mio laboratorio 3D: prevedi, osserva, dimostra, scopri', '🌌 My 3D lab: predict, test, prove, reveal')) + '</button></div>';
     /* i gruppi della barra che appartengono alla materia, poi quelli comuni (Studio, Utility) */
     var gruppi = Mt && Mt.MATERIE && Mt.MATERIE[m] ? Mt.MATERIE[m].gruppi.concat(Mt.COMUNI || []) : [];
     gruppi.forEach(function (g) {
@@ -683,6 +695,7 @@
     [].forEach.call(nav.querySelectorAll('header .m'), function (b) { b.onclick = function () { navigatore(b.getAttribute('data-m')); }; });
     nav.querySelector('.corpo').onclick = function (e) {
       var b = e.target.closest('button'); if (!b) return;
+      if (b.getAttribute('data-u')) { location.href = b.getAttribute('data-u'); return; }
       if (b.getAttribute('data-s')) {
         var id = b.getAttribute('data-s'), mm = b.getAttribute('data-m');
         nav.classList.remove('aperto');

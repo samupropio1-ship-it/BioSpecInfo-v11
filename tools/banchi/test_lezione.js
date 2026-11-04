@@ -81,7 +81,9 @@ function vero(d, c) { att(d, true, !!c); }
       const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
       BSIMaterie.imposta('fisica'); goSection('sfisonde'); await pausa(1500);
       const fab = document.getElementById('bsi14-fab'); o.fabPrima = getComputedStyle(fab).visibility;
-      [...document.querySelectorAll('.bsiLZ-avvia')].find(x => x.offsetParent).click(); await pausa(600);
+      [...document.querySelectorAll('.bsiLZ-avvia')].find(x => x.offsetParent).click();
+      /* si aspetta che i pulsanti siano nascosti (fino a 2 s): sotto carico il primo controllo arrivava prima */
+      for (let k = 0; k < 20 && getComputedStyle(fab).visibility !== 'hidden'; k++) await pausa(100);
       const S = () => BSILezione.stato();
       o.aperta = !!document.getElementById('bsiLZ'); o.fabDurante = getComputedStyle(fab).visibility;
       o.primo = S().tipo; o.titolo = document.querySelector('#bsiLZ .corpo h3') && document.querySelector('#bsiLZ .corpo h3').textContent;

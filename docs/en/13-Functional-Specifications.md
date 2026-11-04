@@ -82,6 +82,7 @@ The application has **194 sections**, grouped by area of study.
 | **🌊 🌀 🔗 🧩 📡 Mathematics: five laboratories** | **Partial differential equations** (string, 3D membrane, heat in 1D and 2D, 3D Laplace, transport and Burgers); **Complex analysis** (domain colouring, 3D landscape of \|f\|, conformal maps, Joukowski, residues, real integrals); **Markov chains and stochastic processes** (chain, PageRank, gambler's ruin, walks in 1, 2 and 3 dimensions, Poisson and queues); **SVD and applied linear algebra** (2×2 and 3×3 SVD, image compression, 3D PCA, least squares); **Codes and elliptic curves** (Hamming(7,4), CRC and check digits, curves over ℝ and over F_p, ECDH) |
 | **🧪 ⚛️ 📐 Three apps in one** | The chosen subject also decides the **✨ menu**, **Spectra**, **Study** and **Utility** (`bsi-materie-app.js`). In physics and mathematics the ✨ menu's chemistry block gives way to the **quick tools** (`bsi-attrezzi.js`), opened in a window above the page: 🧮 exact calculator, ∂ derivative and ∫ antiderivative, 📈 graph, 🔢 CODATA constant, 🔁 unit converter, 📐 formula, 📖 glossary and ⚡ lightning quiz taken from the subject's study kit. Spectra receives the subject's system instruction, suggestions and greeting |
 | **🧊 3D tabs in the sections (v238)** | Twenty-nine sections (4 chemistry, 15 physics, 10 mathematics) have, after their other tabs, a 3D tab built on the section's model: LEPS surface with the trajectory, P–V–T surface with the dome, molecular collisions in a box, equilibrium molecule by molecule, unit cells with Miller planes, the \|ψ\|² cloud, RHF orbitals, a molecule rotating and vibrating, a Lennard-Jones fluid, a launch with wind, fields and the Lorentz force, a ripple tank, a potential well with the Lagrange points, the light cone, flow past an obstacle, the p-V-T surface, the Brillouin zone, 3D Ising, a particle detector; tangent plane, field and divergence, solids of revolution, space transformations, chaos in phase space, the bivariate normal, surfaces with χ and orientability, sphere and hyperboloid, Riemann sphere, soap film. Text and controls are built on click, the scene right after. Every tab has a verification script (`15-Test-Documentation.md` §3.1-ter). Canvases without a name take the tab's and the section's |
+| **🎓 Guided lesson in every section (v239)** | Under the title of every section the «🎓 Guided lesson with Spectra» button starts a lesson in chapters built from the section itself (`bsi-lezione.js`): an opening with title and subtitle; one chapter per tab, in which the tab opens, the explanation is read in pieces, canvases and 3D scenes are highlighted, every slider runs from minimum to maximum and returns where it was, every select goes through its options and returns as it was; a check question from the subject's study kit with the explanation after the answer; a summary. Sections without tabs are read by headings and paragraphs. The player sits on the right on a large screen (the page shifts left) and at the bottom on a phone; it has ◀ ▶, pause, Spectra's voice and a spotlight that dims the rest of the page. During the lesson the floating buttons are hidden. At the time of writing: 194 sections with a lesson, 99 with tabs, 79 with a check question |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Explorations** | **Probability in motion** (Galton, central limit, Monte Carlo, Bayes); **Visual mathematics** (animated linear maps, Fourier epicycles including from a hand drawing, Mandelbrot and Julia with zoom, logistic map and bifurcations); **Electromagnetism in motion** (draggable charges with equipotentials and field lines, induction, generator, EM waves and polarisation); **Sound and acoustics** with audio (harmonics, timbre, beats, Doppler and Mach cone, decibels); **Semiconductors** (Fermi-Dirac, n_i, doping, p-n junction, LEDs); **Distillation** (T-x-y with Antoine and van Laar, azeotrope, McCabe-Thiele, Rayleigh); simulated **Cyclic voltammetry** (diffusion and Butler-Volmer, Randles-Ševčík, scan-rate analysis) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrophysics, relativity, fluids, vector calculus, complex kinetics** | **Astrophysics**: H-R diagram with real stars and the main sequence by mass, black body and star colours, animated solar system with Kepler and Hohmann, exoplanet transits with light curve and radial velocity, Friedmann cosmology with the age of the universe and receding galaxies. **Special relativity**: Minkowski, twins, dynamics and Doppler. **Fluids**: Venturi, Poiseuille, Reynolds, Stokes and centrifuges, capillarity. **Vector calculus**: fields with particles, divergence and curl, potential, Green's theorem verified, gradient. **Complex kinetics**: consecutive, parallel and reversible reactions, Brusselator and Hopf bifurcation, Turing patterns. Every animation in the app has pause, restart and speed, stops off-screen and honours «reduce motion» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratories in motion** | Seven sections: **Mechanics in motion** (projectile with air drag and optimal angle, collisions with a coefficient of restitution, the real pendulum with its phase space, coupled oscillators and normal modes); **Waves and optics** (beats, standing waves, group velocity; lenses and mirrors with principal rays; N-slit diffraction in the colour of light); **Circuits** (RC, RL, RLC transients with the three regimes; alternating current with phasors and resonance; filters with the Bode plot); **Thermodynamics in motion** (Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with balances; a gas of particles reaching Maxwell-Boltzmann; Brownian motion); **Numerical methods** (roots, integration, ODEs, interpolation, with measured convergence orders); **Analytic geometry and vectors** (vectors and lines and planes in 3D, conics with the invariants); **Equilibrium and Le Chatelier** (a reaction shifting when disturbed, K as a function of T) |
@@ -308,14 +309,19 @@ keeps an internal state of five quantities. It is a simulation of behaviour,
 not consciousness: see [`05-AI-Agent-Architecture.md`](05-AI-Agent-Architecture.md)
 §4.10–4.12.
 
-Since v238 the console is the main entry point: a round button with the face,
-always present next to the Spectra button, opens it from any screen. On a
+The console is the main entry point. Since v239 Spectra has **a single
+button**, the face in a circle, present on every screen in place of the
+«Spectra» pill: it opens the console, and from the console 💬 opens the chat.
+The circle shows a drawn face at once and, once the page has loaded, the
+portrait. On a
 full-screen phone it respects the margins of the status bar and of Android's
 keys (at least 34 and 46 px when the system does not report them) and lays out
 face, state, dialogue and controls without overlaps. The 🧭 navigator lists
 every section per subject, the quick tools and the recognised phrases; the
 context shortcuts (Explain this section, Guide me, What am I looking at?, Quiz
-me, Review) change with the screen; 💬 opens the chat. The **difficulty** of a
+me, Review, and since v239 🎓 Lesson) change with the screen; 💬 opens the
+chat. «Give me a lesson» («fammi lezione») starts the guided lesson of the open
+section. The **difficulty** of a
 question starts from the study level of the open section in the paths (high
 school, bachelor, master, PhD) and grows with advanced-course words, symbols
 and length; it becomes the face's **concentration** (eyes half closed and
@@ -354,7 +360,8 @@ says so instead of hanging.
 ### 4.2 Asking the assistant
 
 ```
-1. Tap the "Spectra" button
+1. Tap Spectra's face (the circle at the bottom right), then 💬
+   for the chat
 2. On first use: choose a provider and enter an API key,
    or connect a proxy (and then no key is needed)
 3. Type the question
@@ -396,6 +403,21 @@ reaches, **without needing any key**.
      · same version      → «You already have the latest published version», with the number
      · new version       → announces it with both versions and offers «Update now»
      · site unreachable  → says so; the app keeps working offline
+```
+
+### 4.6 Following a guided lesson
+
+```
+1. Open a section and tap «🎓 Guided lesson with Spectra»
+   (or say or type «give me a lesson» to Spectra)
+2. The lesson advances by itself, chapter by chapter: it opens the tabs,
+   highlights the charts, moves the sliders and selects and puts them back
+3. ◀ ▶ move one step, pause stops the advance, 🔊/🔇 the voice,
+   ✕ or Esc close
+4. At the check question the lesson waits for the answer, then shows
+   the explanation
+5. The summary lists the chapters and offers «Replay the lesson» and
+   «Ask Spectra»
 ```
 
 ---
@@ -451,9 +473,10 @@ Declared, not hidden. The detail is in
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
 | 10 | **Spectra's mind is a simulation** | Memory and internal state are data and rules in the browser, not understanding or feelings. The mind's summary and the screen context go to the provider with the question, when the question goes to the model |
 | 11 | **Some astrophysics data are illustrative** | The exoplanet population is not a catalogue; the rotation-curve «observations» are a model with noise; the CMB map is synthesised from an illustrative power spectrum. The sections say so |
-| 12 | **Spectra Live and the quick tools have no bench** | Since v238 `test_spectra238` tests layout, navigator, level, face and creator commands; voice, the other local commands, the tools that act on the page and the per-subject ✨ menu are tested by hand (`08-Traceability-Matrix.md` §6, UI-21 and AI-13) |
+| 12 | **Spectra Live and the quick tools have no bench** | Since v238 `test_spectra238` tests layout, navigator, level, face and creator commands, since v239 also the single button, and `test_lezione` the guided lesson and «fammi lezione»; voice, the other local commands, the tools that act on the page and the per-subject ✨ menu are tested by hand (`08-Traceability-Matrix.md` §6, UI-21 and AI-13) |
 | 13 | **Spectra's face weighs about 8 MB** | `models/spectra-noir.glb` is not in the service worker's precache: it is downloaded the first time the app derives Spectra's icon (a few seconds after the first start, if WebGL is available) or opens the console. If it does not arrive, the console uses the fallback face |
 | 14 | **Creator recognition is not an access control** | The SHA-256 fingerprint is in the code and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`: whoever holds the device can write it by hand. Like the File Manager password, it is a deterrent and protects no data |
+| 15 | **The guided lesson comes from the page, not from an author** | The lesson reads the section's explanations, canvases and controls: where a tab has little text, the chapter says little. The check question is chosen by words in common with the section and may be only close to the topic; 115 sections out of 194 have none. The voice is not tested by the bench. The model it is inspired by (Every Joule's interactive lesson) was not reachable during development: the lesson is an interpretation of it |
 
 ---
 

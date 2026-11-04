@@ -73,7 +73,7 @@ the device or reads the source. Two features declare it:
 - **File Manager** (`file_manager.html`): the password is compared as a SHA-256
   fingerprint; it is a deterrent against passers-by, not protection for
   confidential documents (`08-Traceability-Matrix.md`, SEC-03).
-- **Spectra's creator recognition** (`bsi-spectra-creatore.js`, since
+- **Spectra's creator recognition** (`bsi-spectra-creatore.js`, since version
   `bsi-v238`): on «I am your creator» Spectra asks for the same secret phrase as
   the File Manager, typed into a password field and compared as a SHA-256
   fingerprint. The phrase does not appear in the code, is not stored and enters

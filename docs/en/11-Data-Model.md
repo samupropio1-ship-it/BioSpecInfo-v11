@@ -167,6 +167,11 @@ is not stored data: it is typed into a password field, its SHA-256 fingerprint
 is computed, compared with the File Manager's and discarded. The model receives
 only one line of context: whether the user has been recognised or not.
 
+The guided lesson (`bsi-lezione.js`, v239) has no keys of its own: the lesson
+is built from the page at every start and lives in memory while it is open.
+The controls it shows at work return to the value they had. At the end of a
+lesson the mind records an emotion («fiera», proud) in `bsi-spectra-mente-v1`.
+
 ### 2.4 Identifiers and licence
 
 | Key | Content | Privacy note |

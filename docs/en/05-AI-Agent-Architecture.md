@@ -640,9 +640,14 @@ stating the probable cause. It also covers tools added in the future.
 
 ### 4.10 Spectra Live: voice, screen and local commands
 
-`bsi-spectra-live.js` adds a full-screen console. Since v238 it opens from any
-screen with a round button showing the face, to the left of the Spectra button;
-the «◈ Live» button in Spectra's header and `Ctrl+Shift+J` remain:
+`bsi-spectra-live.js` adds a full-screen console. It opens from any screen with
+Spectra's only button: the face in a circle (`#bsiJV-fab`), which since v239
+takes the place of the «Spectra» pill (`#bsi-spectra-fab`). The pill stays in
+the document, hidden by the `bsiJV-solo-volto` class on `body`, because other
+modules and the benches use it to open the chat; from the console the chat
+opens with 💬. The circle appears at once with the vector face and switches to
+the portrait (`models/spectra-ritratto.jpg`) after the `load` event. The «◈
+Live» button in Spectra's header and `Ctrl+Shift+J` remain:
 
 - **hands-free conversation**: the browser's speech recognition listens, the
   answer is spoken sentence by sentence with the system's speech synthesis (a
@@ -782,6 +787,48 @@ mark; so does «Clear data → Persistent memory».
 **Limitation.** Like the File Manager password it is a deterrent, not an access
 control: the fingerprint is in the code and the mark can be written by hand by
 whoever holds the device (`09-Release-Conformance-Statement.md`, D-13).
+
+### 4.14 The guided lesson
+
+`bsi-lezione.js` (v239, object `BSILezione`) turns every section into a lesson
+in chapters led by Spectra. It does not use the model and does not go online:
+the lesson is built by reading the open section.
+
+- **Construction** (`costruisci(section)`): an opening step with title and
+  subtitle; one chapter per tab (`.bsiFX-schede button`), whose steps are read
+  when the tab is open: the explanation split into pieces of one or two
+  sentences (at most three pieces, about 260 characters each), the first
+  visible canvas or 3D scene, up to four sliders and selects; for sections
+  without tabs a single chapter with the visible headings and paragraphs and
+  the same controls. Then a **check question** from the subject's study kit
+  (`BSIStudio.dati(subject).quiz`): the one with the most words (longer than
+  four letters) in common with title, subtitle and tabs wins, with double
+  weight for the words of its topic; a score of at least 2 is required,
+  otherwise there is no check. Finally the **summary** of the chapters.
+- **Demonstrations**: a slider goes from its current value to the minimum, the
+  maximum and back to the starting value in about 4 s, firing `input` and
+  `change` events as the user would; a select goes through its first five
+  options and returns to the starting one. Skipping ahead half-way, or closing
+  the lesson, puts the control back as it was.
+- **Player**: panel `#bsiLZ` (on the right on a large screen, at the bottom
+  below 760 px; from 1100 px `#main` shifts left), progress by chapter, text
+  appearing word by word, ◀ ▶, pause, voice, `Esc` to close, arrow keys to
+  move. The spotlight `#bsiLZ-luce` dims the rest and follows the piece being
+  discussed. The voice is Spectra Live's (`BSISpectraLive.parla`); without
+  voice, reading time depends on the length of the text. With «reduce motion»
+  sliders jump to the value, text appears all at once and the spotlight does
+  not pulse.
+- **Floating buttons**: they are hidden during the lesson (including those
+  with `visibility` written inline, whose value is noted and restored on
+  closing).
+- **Start**: the «🎓 Guided lesson with Spectra» button the module adds under
+  the title of every visible section; Spectra Live's local command «give me a
+  lesson» («fammi lezione»), which closes the console and starts the lesson of
+  the open section; the 🎓 shortcut in the console.
+
+The lesson has no keys of its own in `localStorage`; at the end it signals an
+emotion to Spectra's mind (`sente('fiera', 'lezione')`), which the mind records
+in `bsi-spectra-mente-v1` like the others.
 
 ---
 

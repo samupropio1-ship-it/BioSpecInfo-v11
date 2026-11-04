@@ -247,16 +247,21 @@
     a.needsUpdate = true;
   }
 
-  function Androide(padre, gltf) {
-    var T = globale.THREE, self = this;
-    this.T = T; this.padre = padre;
-    var ren = new T.WebGLRenderer({ antialias: true, alpha: true });
+  /* opz.scena (v239, lo studio): il volto vive in una scena altrui, senza renderer, luci e telecamera
+     propri; chi lo ospita chiama passo(dt) a ogni fotogramma e lo appende al corpo */
+  function Androide(padre, gltf, opz) {
+    var T = globale.THREE, self = this; opz = opz || {};
+    this.T = T; this.padre = padre; this.esterno = !!opz.scena;
+    var ren = this.esterno ? opz.renderer : new T.WebGLRenderer({ antialias: true, alpha: true });
+    if (!this.esterno) {
     /* la definizione (v238): la densita' vera dello schermo, fino a 3 (i telefoni moderni sono a 2,6-3,5) */
     ren.setPixelRatio(Math.min(3, globale.devicePixelRatio || 1)); ren.setClearColor(0, 0);
     ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 0.9;
     ren.domElement.style.cssText = 'width:100%;height:100%;display:block'; ren.domElement.setAttribute('aria-hidden', 'true');
-    padre.appendChild(ren.domElement); this.ren = ren;
-    var sc = new T.Scene(); this.sc = sc; sc.environment = ambiente(T, ren);
+    padre.appendChild(ren.domElement); }
+    this.ren = ren;
+    var sc = this.esterno ? opz.scena : new T.Scene(); this.sc = sc; if (!this.esterno) sc.environment = ambiente(T, ren);
+    if (!this.esterno) {
     /* luci da ritratto, neutre (v238): prima i controluce erano blu saturi e tingevano il
        metallo di azzurro («colori strani»). Ora una luce principale calda, un riempimento
        freddo tenue e un controluce appena bluastro che stacca la testa dal fondo */
@@ -265,6 +270,7 @@
     var fill = new T.DirectionalLight(0xb8c4d6, 0.35); fill.position.set(0.8, 0.1, 0.9); sc.add(fill);
     var rim = new T.DirectionalLight(0x6f86c8, 1.0); rim.position.set(0.9, 0.5, -0.8); sc.add(rim);
     var rim2 = new T.DirectionalLight(0x8a96b0, 0.4); rim2.position.set(-0.9, -0.2, -0.6); sc.add(rim2);
+    }
 
     /* il modello: una copia per questa scena (il file si scarica una volta sola) */
     var m = gltf.scene.clone(true); m.updateMatrixWorld(true);
@@ -276,7 +282,7 @@
       var o = faccia.material;
       faccia.material = new T.MeshStandardMaterial({ color: 0x393d43, metalness: 0.86, roughness: 0.38, normalMap: o.normalMap || null, normalScale: new T.Vector2(1.2, 1.2), aoMap: o.aoMap || null, aoMapIntensity: 1, envMapIntensity: 0.7 });
       /* filtraggio anisotropo: i rilievi del metallo restano nitidi anche di scorcio */
-      var aniso = ren.capabilities && ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 1;
+      var aniso = ren && ren.capabilities && ren.capabilities.getMaxAnisotropy ? ren.capabilities.getMaxAnisotropy() : 1;
       [faccia.material.normalMap, faccia.material.aoMap].forEach(function (tx) { if (tx) { tx.anisotropy = aniso; tx.needsUpdate = true; } });
       this.toccati = preparaBocca(T, faccia);
       this.uBocca = { value: 0 };
@@ -301,7 +307,9 @@
     /* la testa si stacca dal collo: tutto tranne collo e spalle, con il perno alla base del collo */
     var perno = new T.Group(); perno.position.set(0, 0.165, -0.02); this.radice.add(perno); this.radice.updateMatrixWorld(true);
     Object.keys(parti).forEach(function (k) { if (k !== 'Object_6') perno.attach(parti[k]); });
-    this.perno = perno;
+    this.perno = perno; this.parti = parti;
+    /* incarnato su un corpo: niente busto del modello (collo e spalle li ha il corpo) */
+    if (opz.senzaBusto && parti.Object_6) parti.Object_6.visible = false;
     /* il busto e' modellato con la testa china: la si raddrizza */
     this.riposo = -0.42; perno.rotation.x = this.riposo;
     /* luce che esce dagli occhi, e bagliori */
@@ -323,9 +331,9 @@
     var muovi0 = this._muovi; this._muovi = function (e) { self.contatto = Date.now(); muovi0(e); };
     document.addEventListener('pointermove', this._muovi, { passive: true });
     document.addEventListener('pointerdown', this._muovi, { passive: true });
-    this.adatta(); this.avvia();
+    if (!this.esterno) { this.adatta(); this.avvia(); }
   }
-  Androide.prototype.adatta = function () { var w = this.padre.clientWidth || 300, h = this.padre.clientHeight || w; if (this._w === w && this._h === h) return; this._w = w; this._h = h; this.ren.setSize(w, h, false); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); };
+  Androide.prototype.adatta = function () { if (this.esterno) return; var w = this.padre.clientWidth || 300, h = this.padre.clientHeight || w; if (this._w === w && this._h === h) return; this._w = w; this._h = h; this.ren.setSize(w, h, false); this.cam.aspect = w / h; this.cam.updateProjectionMatrix(); };
   Androide.prototype.stato = function (s) { this.contatto = Date.now(); this.st = s || 'attesa'; if (s !== 'parla') this.testo = ''; this.coloreT.setHex(COLORI[this.st] || COLORI.attesa); this.avvia(); };
   Androide.prototype.dici = function (f) { this.contatto = Date.now(); this.testo = String(f || ''); this.pos = 0; this.copione = copione(this.testo); this.st = 'parla'; this.coloreT.setHex(COLORI.parla); this.avvia(); };
   /* un'emozione imposta da fuori (la console, la mente): dura «secondi», poi torna il comportamento spontaneo */
@@ -344,7 +352,7 @@
   Androide.prototype.allinea = function (i) { if (this.testo) this.pos = Math.max(this.pos, i); };
   Androide.prototype.taci = function () { this.testo = ''; if (this.st === 'parla') this.stato('attesa'); };
   Androide.prototype.avvia = function () {
-    if (this.raf) return; var self = this, prec = 0;
+    if (this.raf || this.esterno) return; var self = this, prec = 0;
     (function giro(ora) {
       if (!self.ren.domElement.isConnected) { self.raf = 0; self.libera(); return; }
       var dt = prec ? Math.min(0.05, (ora - prec) / 1000) : 0.016; prec = ora;
@@ -372,7 +380,7 @@
   Androide.prototype.libera = function () {
     document.removeEventListener('pointermove', this._muovi); document.removeEventListener('pointerdown', this._muovi);
     this.sc.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (m) { m.dispose(); }); });
-    try { this.ren.dispose(); } catch (e) {}
+    if (!this.esterno) try { this.ren.dispose(); } catch (e) {}
   };
   /* IL COMPORTAMENTO. Ogni fotogramma si decide dove guarda, che espressione ha, come
      muove la bocca. Niente e' registrato in anticipo: tutto nasce dallo stato (ascolta,
@@ -527,7 +535,7 @@
   globale.BSISpectraAndroide = {
     URL: URL_MODELLO, BOCCA: BOCCA, COLORI: COLORI, EMOZIONI: EMOZIONI, OCCHI_EMO: OCCHI_EMO, CAMPI: CAMPI, emozioneDi: emozioneDi,
     disponibile: function () { try { var c = document.createElement('canvas'); return !!(c.getContext('webgl') || c.getContext('experimental-webgl')); } catch (e) { return false; } },
-    crea: function (padre) { return caricaTutto().then(scaricaModello).then(function (g) { return new Androide(padre, g); }); },
+    crea: function (padre, opz) { return caricaTutto().then(scaricaModello).then(function (g) { return new Androide(padre, g, opz); }); },
     /* una foto del volto per le icone: si disegna una volta e si legge come PNG */
     foto: function (px) {
       return caricaTutto().then(scaricaModello).then(function (g) {

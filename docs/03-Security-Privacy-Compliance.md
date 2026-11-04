@@ -73,7 +73,7 @@ dispositivo o legge il sorgente. Due funzioni lo dichiarano:
 - **File Manager** (`file_manager.html`): la password si confronta come
   impronta SHA-256; è un deterrente contro chi passa, non una protezione per
   documenti riservati (`08-Traceability-Matrix.md`, SEC-03).
-- **Riconoscimento del creatore di Spectra** (`bsi-spectra-creatore.js`, dalla
+- **Riconoscimento del creatore di Spectra** (`bsi-spectra-creatore.js`, dalla versione
   `bsi-v238`): a «sono il tuo creatore» Spectra chiede la stessa frase segreta
   del File Manager, scritta in un campo di tipo password e confrontata come
   impronta SHA-256. La frase non compare nel codice, non viene conservata e non

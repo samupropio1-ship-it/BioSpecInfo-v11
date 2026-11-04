@@ -451,6 +451,20 @@ testi nel `localStorage`, nient'altro.
 | `saluto`, `chiTiHaCreato` | `() → string` | Il saluto per nome e la risposta a «chi ti ha creato?» |
 | `contesto` | `() → string` | La riga `[CREATORE]` aggiunta al quadro per il modello |
 
+### `window.BSILezione` — la lezione guidata (`bsi-lezione.js`, v239)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `avvia` | `(sezione?, { muta? }?) → boolean` | Costruisce la lezione della sezione indicata (o di quella visibile) e la avvia nel lettore; `muta: true` parte con la voce spenta. `false` se non c'è una sezione visibile. Una lezione già in corso viene chiusa |
+| `chiudi` | `()` | Ferma la lezione, rimette com'era il comando in dimostrazione, toglie pannello e riflettore, rende di nuovo visibili i pulsanti flottanti |
+| `costruisci` | `(sezione?) → { sezione, titolo, capitoli, passi } \| null` | Solo la costruzione, senza lettore. `capitoli`: «Introduzione», un nome per scheda (o «Esploriamo»), «Verifica» se c'è la domanda, «Riepilogo». `passi`: oggetti con `tipo` fra `titolo`, `scheda`, `leggi` (segnaposto sostituito dai passi della scheda quando la si apre), `testo`, `tela`, `cursore`, `scelta`, `quiz`, `fine`, e `cap` (indice del capitolo) |
+| `vai` | `(i)` | Va al passo `i` come un tocco su ◀ ▶ (interrompe la voce) |
+| `stato` | `() → { i, passi, tipo, capitoli, auto } \| null` | Passo corrente, numero di passi, tipo del passo, capitoli, avanzamento automatico attivo; `null` senza lezione |
+| `versione` | string | `'1.0'` |
+
+Il comando locale «fammi lezione» di `BSISpectraLive.comando` chiama
+`BSILezione.avvia()` dopo aver chiuso la console.
+
 ---
 
 _Documento aggiornato alla versione `bsi-v239`._

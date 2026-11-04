@@ -190,10 +190,15 @@
     var y = globale.scrollY + r.top + r.height / 2 - centro;
     try { globale.scrollTo({ top: Math.max(0, y), behavior: lento() ? 'auto' : 'smooth' }); } catch (e) { globale.scrollTo(0, Math.max(0, y)); }
   }
+  /* la voce: quella di Spectra (che con una chiave OpenAI usa la voce profonda e metallica di
+     bsi-spectra-voce.js); senza console di Spectra, direttamente bsi-spectra-voce.js, che a sua volta
+     ripiega sulla sintesi del browser */
   function voce(testo, fatto) {
     if (!L || !L.voce) return false;
     var S = globale.BSISpectraLive;
     if (S && S.parla) { try { if (S.parla(testo, fatto) !== false) return true; } catch (e) {} }
+    var V = globale.BSISpectraVoce;
+    if (V && V.qualita() !== 'testo') { V.parla(testo).then(function (r) { if (!(r && r.annullato) && fatto) fatto(); }); return true; }
     return false;
   }
   function taci() { var S = globale.BSISpectraLive; if (S && S.taci) try { S.taci(); } catch (e) {} else if (globale.speechSynthesis) try { speechSynthesis.cancel(); } catch (e) {} }

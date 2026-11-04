@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**79 banchi**, raggruppati per ciò che dimostrano.
+**80 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -307,13 +307,17 @@ controlli già presenti prima della v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
-`test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_guidaproxy` · `test_fluidita` ·
+`test_lingue` · `test_mol3d` · `test_spettrolettore`
 
-**`test_spectra238` — 64 controlli.** Nasce da segnalazioni fatte con una
+**`test_spectra238` — 66 controlli.** Nasce da segnalazioni fatte con una
 schermata dal telefono: con l'app installata la barra di stato e i tasti di
 Android coprivano i comandi della console di Spectra Live, e l'attribuzione del
-modello si sovrapponeva al dialogo. Il banco lavora in quattro parti:
+modello si sovrapponeva al dialogo. Dalla v239 controlla anche, prima di
+tutto, che Spectra abbia **un solo pulsante visibile**: il cerchio con il volto
+(`#bsiJV-fab`) si vede, la pillola «Spectra» (`#bsi-spectra-fab`) no, e il
+cerchio è rotondo (`border-radius: 50%`). Il resto del banco lavora in quattro
+parti:
 
 | Parte | Che cosa pretende |
 |---|---|
@@ -325,6 +329,20 @@ modello si sovrapponeva al dialogo. Il banco lavora in quattro parti:
 Restano fuori, e lo dichiara `docs/08` §6 (AI-13): la voce, l'ascolto continuo
 e gli altri comandi locali, che nel Chromium senza interfaccia della batteria non si
 possono provare.
+
+**`test_lezione` — 30 controlli.** Nasce dalla richiesta di una lezione
+interattiva «per ogni sezione» (`bsi-lezione.js`). Poiché la lezione non è
+scritta a mano ma costruita dalla sezione, il banco non ne prova una: le prova
+tutte.
+
+| Parte | Che cosa pretende |
+|---|---|
+| Tutte le sezioni | Apre una per una le sezioni della barra nelle tre materie (cambiando materia quando serve) e pretende di averne attraversate almeno 190 (**194** alla stesura). Per ognuna: la lezione esiste e va dall'apertura al riepilogo; il pulsante «🎓 Lezione guidata» c'è; se la sezione ha schede (**99**), i capitoli sono uno per scheda più apertura, riepilogo ed eventuale verifica. Almeno 60 lezioni devono avere una domanda di verifica (**79** alla stesura). Nessun errore JavaScript |
+| Il lettore, a 390 e a 1280 px | Su 〰️ Onde e ottica: il pulsante apre la lezione dall'apertura; i pulsanti flottanti passano da visibili a nascosti; arrivati al primo cursore il valore cambia davvero (almeno quattro valori diversi in 4,5 s) e il riflettore è acceso; saltando avanti a metà il cursore torna al valore di partenza; una scelta passa almeno due opzioni e torna a quella di partenza; la verifica mostra la risposta giusta e una spiegazione di più di 20 caratteri; il riepilogo elenca i capitoli; niente sborda; alla chiusura il pannello sparisce, la classe `bsiLZ-aperto` è tolta e i pulsanti flottanti sono di nuovo visibili; `BSISpectraLive.comando('fammi lezione')` risponde e avvia la lezione; nessun errore JavaScript |
+
+Restano fuori la voce della lezione (non c'è sintesi vocale nel Chromium senza
+interfaccia) e la qualità didattica dei testi, che dipende dalle spiegazioni
+delle sezioni e va giudicata leggendo.
 
 **`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
 ad aggiornare non esce nulla». Era vero. La finestra 🔄 Aggiornamenti cercava
@@ -757,11 +775,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 552 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 554 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione». Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 

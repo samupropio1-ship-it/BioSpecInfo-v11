@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Spectra Studio · BioSpecInfo</title>
+<meta name="theme-color" content="#050b1e">
+<!--
+  SPECTRA STUDIO — il laboratorio dove Spectra insegna con il corpo.
+  BioSpecInfo · © Samuele Pio Provenzano
+
+  Una scena 3D (un laboratorio cyberpunk) con Spectra in piedi accanto a un banco
+  olografico. Le lezioni seguono il metodo predici → testa → dimostra → rivela
+  (bsi-spectra-studio-lezioni.js). Spectra parla (bsi-spectra-voce.js), muove il
+  viso (bsi-spectra-androide.js, il volto «Noir» incarnato) e il corpo
+  (bsi-spectra-corpo.js): indica gli oggetti, spiega con le mani, pensa, cammina
+  verso il banco. Il pannello contiene TUTTO il testo: la scena e' un di piu',
+  la lezione si segue anche senza (lettori di schermo, niente WebGL).
+  Se esiste models/spectra-cyberpunk.glb (il modello scelto dall'autore), il
+  corpo e' quello; altrimenti un manichino riggato con il volto «Noir».
+-->
+<style>
+:root{--bg:#050b1e;--pan:rgba(8,16,38,.94);--linea:rgba(143,176,255,.35);--testo:#e6edff;--tenue:#9db4f0;--blu:#2f6bff;--ciano:#6bcfff;--ok:#1fd39a;--ko:#ff6b9d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#scena{position:fixed;inset:0}
+#scena canvas{display:block;width:100%;height:100%;touch-action:none}
+#pan{position:fixed;right:14px;top:calc(14px + env(safe-area-inset-top,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:min(430px,calc(100vw - 28px));display:flex;flex-direction:column;background:var(--pan);border:1px solid var(--linea);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.55);backdrop-filter:blur(6px);overflow:hidden}
+@media (max-width:760px){#pan{left:8px;right:8px;width:auto;top:auto;height:52vh;bottom:calc(8px + env(safe-area-inset-bottom,0px))}}
+#pan header{padding:12px 14px 8px;border-bottom:1px solid rgba(143,176,255,.15)}
+#pan h1{margin:0 0 6px;font:800 13px/1.2 ui-monospace,monospace;letter-spacing:.2em;color:var(--ciano);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+#pan h1 a{margin-left:auto;color:var(--tenue);font:600 12px system-ui;letter-spacing:0;text-transform:none;text-decoration:none;border:1px solid var(--linea);border-radius:8px;padding:4px 8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:rgba(16,32,64,.85);border:1px solid var(--linea);color:var(--testo);border-radius:999px;padding:6px 11px;font:600 12.5px system-ui;cursor:pointer}
+.chip.on{background:rgba(47,107,255,.35);border-color:#8fb0ff}
+.fasi{display:flex;gap:4px;padding:8px 14px}
+.fasi span{flex:1;text-align:center;font:700 11px/1 system-ui;letter-spacing:.06em;text-transform:uppercase;color:#6f84b8;padding:7px 2px;border-radius:8px;background:rgba(143,176,255,.08)}
+.fasi span.on{color:#fff;background:linear-gradient(135deg,rgba(47,107,255,.6),rgba(107,207,255,.35))}
+.fasi span.fatta{color:var(--ok)}
+#corpo{flex:1;overflow:auto;padding:6px 16px 14px}
+#corpo h2{margin:6px 0 6px;font:800 20px/1.25 system-ui}
+#corpo p{margin:0 0 10px;font:500 15px/1.6 system-ui;color:#dbe6ff}
+.f{display:block;margin:6px 0 12px;padding:9px 12px;border-radius:10px;background:rgba(47,107,255,.12);border:1px solid rgba(143,176,255,.3);font:600 15px/1.5 "STIX Two Math","Cambria Math",ui-monospace,monospace;color:#e9f1ff;overflow-x:auto}
+.opz{display:grid;gap:8px;margin:8px 0}
+.opz button{text-align:left;background:rgba(16,32,64,.85);border:1px solid var(--linea);color:var(--testo);border-radius:11px;padding:10px 12px;font:600 14.5px/1.35 system-ui;cursor:pointer}
+.opz button:hover,.opz button:focus-visible,.chip:focus-visible,.az button:focus-visible{outline:none;border-color:#8fb0ff;background:rgba(47,107,255,.28)}
+.opz button.giusta{border-color:var(--ok);background:rgba(31,211,154,.16)}.opz button.scelta.sbagliata{border-color:var(--ko);background:rgba(255,107,157,.14)}
+.perche{font:500 13.5px/1.5 system-ui;color:#cfe3f7;margin:4px 0 0}
+.mis{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 12px;padding:10px 12px;border-radius:10px;background:rgba(31,211,154,.08);border:1px solid rgba(31,211,154,.3);font:600 13.5px ui-monospace,monospace}
+.mis b{color:#9ff0d2}
+.ese{border:1px solid rgba(143,176,255,.22);border-radius:10px;padding:9px 11px;margin:7px 0}
+.ese .lv{font:800 10.5px ui-monospace,monospace;letter-spacing:.12em;color:var(--ciano);text-transform:uppercase}
+.ese.consigliato{border-color:#8fb0ff;box-shadow:0 0 0 1px rgba(143,176,255,.4)}
+.ese details{margin-top:6px}.ese summary{cursor:pointer;color:var(--tenue);font:600 13px system-ui}
+.az{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 12px;border-top:1px solid rgba(143,176,255,.15)}
+.az button{background:rgba(16,32,64,.9);border:1px solid var(--linea);color:var(--testo);border-radius:10px;padding:9px 14px;font:700 13.5px system-ui;cursor:pointer}
+.az button.prim{background:linear-gradient(135deg,#2f6bff,#3b8cff);border-color:#8fb0ff}
+.az .sp{flex:1}
+#stato{position:fixed;left:16px;top:calc(14px + env(safe-area-inset-top,0px));font:700 11px/1.6 ui-monospace,monospace;letter-spacing:.12em;color:var(--tenue);text-shadow:0 0 8px #000;pointer-events:none}
+#stato b{color:#fff}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="scena" role="img" aria-label="Laboratorio 3D: Spectra accanto al banco olografico della lezione"></div>
+<div id="stato" aria-hidden="true"></div>
+<section id="pan" aria-live="polite">
+  <header>
+    <h1>◈ Spectra Studio <a href="./index.html" id="torna">← App</a></h1>
+    <div class="chips" id="lezioni" role="tablist" aria-label="Lezioni"></div>
+  </header>
+  <div class="fasi" id="fasi" aria-hidden="true"><span>Predici</span><span>Testa</span><span>Dimostra</span><span>Rivela</span></div>
+  <div id="corpo"></div>
+  <div class="az" id="az"></div>
+</section>
+
+<script src="./three.min.js"></script>
+<script src="./bsi-spectra-mente.js"></script>
+<script src="./bsi-spectra-creatore.js"></script>
+<script src="./bsi-spectra-androide.js"></script>
+<script src="./bsi-spectra-corpo.js"></script>
+<script src="./bsi-spectra-voce.js"></script>
+<script src="./bsi-spectra-studio-lezioni.js"></script>
+<script>
+(function () {
+  'use strict';
+  var L = window.BSIStudioLezioni, T = window.THREE, D = document;
+  var MEM_K = 'bsi-spectra-studio-v1';
+  function memoria() { try { return JSON.parse(localStorage.getItem(MEM_K) || '{}'); } catch (e) { return {}; } }
+  function salva(m) { try { localStorage.setItem(MEM_K, JSON.stringify(m)); } catch (e) {} }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var lento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ═══ LA SCENA ═══════════════════════════════════════════════════════════ */
+  var S = { ok: false };
+  function costruisciScena() {
+    var cont = D.getElementById('scena'), c = D.createElement('canvas');
+    if (!T || !(c.getContext('webgl2') || c.getContext('webgl'))) { cont.textContent = ''; return; }
+    var ren = new T.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    ren.setPixelRatio(Math.min(2, devicePixelRatio || 1)); ren.outputEncoding = T.sRGBEncoding; ren.toneMapping = T.ACESFilmicToneMapping; ren.toneMappingExposure = 1.0;
+    ren.domElement.setAttribute('aria-hidden', 'true'); cont.appendChild(ren.domElement);
+    var sc = new T.Scene(); sc.background = new T.Color(0x040814); sc.fog = new T.FogExp2(0x040814, 0.09);
+    /* l'ambiente per i riflessi: pannelli luminosi in una stanza buia */
+    var amb = new T.Scene(); amb.add(new T.Mesh(new T.BoxGeometry(20, 10, 20), new T.MeshBasicMaterial({ color: 0x070b16, side: T.BackSide })));
+    [[0, 4.8, 0, 10, .2, 4, 0xffffff, 2.2], [-9.5, 1.5, 0, .2, 3, 8, 0x2f6bff, 2.4], [9.5, 1.5, 0, .2, 3, 8, 0xff3d9a, 1.4], [0, 1, -9.5, 8, 2, .2, 0x6bcfff, 1.2]].forEach(function (p) { var m = new T.Mesh(new T.BoxGeometry(p[3], p[4], p[5]), new T.MeshBasicMaterial({ color: new T.Color(p[6]).multiplyScalar(p[7]) })); m.position.set(p[0], p[1], p[2]); amb.add(m); });
+    var pm = new T.PMREMGenerator(ren); sc.environment = pm.fromScene(amb, 0.04).texture; pm.dispose();
+    sc.add(new T.HemisphereLight(0xb8c8e8, 0x05070c, 0.45));
+    var key = new T.DirectionalLight(0xfff1e2, 1.2); key.position.set(-2, 4, 3); sc.add(key);
+    var rimB = new T.PointLight(0x2f6bff, 3, 6); rimB.position.set(-2, 2.2, -1.5); sc.add(rimB);
+    var rimM = new T.PointLight(0xff3d9a, 1.6, 6); rimM.position.set(2.5, 2, -1); sc.add(rimM);
+    /* pavimento e griglia al neon */
+    var pav = new T.Mesh(new T.CircleGeometry(9, 64), new T.MeshStandardMaterial({ color: 0x0a1020, metalness: 0.7, roughness: 0.35 })); pav.rotation.x = -Math.PI / 2; sc.add(pav);
+    var gr = new T.GridHelper(18, 36, 0x2f6bff, 0x13244a); gr.position.y = 0.002; gr.material.transparent = true; gr.material.opacity = 0.55; sc.add(gr);
+    /* pannelli olografici sul fondo */
+    for (var i = -3; i <= 3; i++) { var pn = new T.Mesh(new T.PlaneGeometry(0.9, 1.6), new T.MeshBasicMaterial({ color: i % 2 ? 0x2f6bff : 0x6bcfff, transparent: true, opacity: 0.07, side: T.DoubleSide })); pn.position.set(i * 1.15, 1.4, -3.2 + Math.abs(i) * 0.25); pn.rotation.y = -i * 0.12; sc.add(pn); var bordo = new T.LineSegments(new T.EdgesGeometry(pn.geometry), new T.LineBasicMaterial({ color: 0x6bcfff, transparent: true, opacity: 0.35 })); bordo.position.copy(pn.position); bordo.rotation.copy(pn.rotation); sc.add(bordo); }
+    /* il banco olografico */
+    var banco = new T.Group(); banco.position.set(0.75, 0, 0.1); sc.add(banco);
+    var piede = new T.Mesh(new T.CylinderGeometry(0.22, 0.3, 0.8, 32), new T.MeshStandardMaterial({ color: 0x141c2c, metalness: 0.8, roughness: 0.3 })); piede.position.y = 0.4; banco.add(piede);
+    var piano = new T.Mesh(new T.CylinderGeometry(0.7, 0.7, 0.04, 64), new T.MeshStandardMaterial({ color: 0x0e1626, metalness: 0.8, roughness: 0.25 })); piano.position.y = 0.82; banco.add(piano);
+    var anello = new T.Mesh(new T.TorusGeometry(0.7, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.y = 0.845; banco.add(anello);
+    var cono = new T.Mesh(new T.CylinderGeometry(0.7, 0.68, 1.5, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.05, side: T.DoubleSide, depthWrite: false })); cono.position.y = 1.6; banco.add(cono);
+    var lezione = new T.Group(); lezione.position.y = 0.86; lezione.scale.setScalar(0.85); banco.add(lezione);
+    /* Spectra: il corpo (modello vero se c'e', altrimenti il manichino) */
+    var corpoRadice = BSISpectraCorpo.manichino({ neon: 0x2f6bff }); corpoRadice.position.set(-0.55, 0, 0.15); corpoRadice.rotation.y = 0.35; sc.add(corpoRadice);
+    var corpo = BSISpectraCorpo.crea(corpoRadice, {});
+    /* la telecamera: si puo' girare trascinando */
+    var cam = new T.PerspectiveCamera(38, 1, 0.05, 60), bers = new T.Vector3(0.15, 1.15, 0), orb = { az: 0.12, el: 0.12, r: 3.6 };
+    function posCam() { cam.position.set(bers.x + orb.r * Math.sin(orb.az) * Math.cos(orb.el), bers.y + orb.r * Math.sin(orb.el), bers.z + orb.r * Math.cos(orb.az) * Math.cos(orb.el)); cam.lookAt(bers); }
+    var trasc = null; ren.domElement.addEventListener('pointerdown', function (e) { trasc = { x: e.clientX, y: e.clientY, az: orb.az, el: orb.el }; });
+    addEventListener('pointerup', function () { trasc = null; });
+    addEventListener('pointermove', function (e) { if (!trasc) return; orb.az = trasc.az - (e.clientX - trasc.x) * 0.006; orb.el = Math.max(-0.05, Math.min(0.7, trasc.el + (e.clientY - trasc.y) * 0.004)); });
+    ren.domElement.addEventListener('wheel', function (e) { orb.r = Math.max(1.6, Math.min(6, orb.r * (1 + Math.sign(e.deltaY) * 0.08))); e.preventDefault(); }, { passive: false });
+    function adatta() { var pan = D.getElementById('pan').getBoundingClientRect(), w = innerWidth, h = innerHeight; ren.setSize(w, h, false); cam.aspect = w / h;
+      /* la scena si sposta nello spazio libero: a sinistra del pannello o sopra */
+      if (pan.left > w * 0.4) cam.setViewOffset(w, h, (w - pan.left) / 2 * 0.9, 0, w, h); else cam.setViewOffset(w, h, 0, (h - pan.top) / 2 * 0.85, w, h);
+      cam.updateProjectionMatrix(); }
+    addEventListener('resize', adatta);
+    S = { ok: true, ren: ren, sc: sc, cam: cam, corpo: corpo, corpoRadice: corpoRadice, lezione: lezione, banco: banco, anello: anello, cono: cono, adatta: adatta, posCam: posCam, ctrl: null, volto: null };
+    adatta(); posCam();
+    /* il volto «Noir» incarnato sulla testa del corpo */
+    if (window.BSISpectraAndroide && BSISpectraAndroide.disponibile()) {
+      BSISpectraAndroide.crea(cont, { scena: sc, renderer: ren, senzaBusto: true }).then(function (A) {
+        var testa = corpo.ossa.testa; if (!testa) return;
+        corpoRadice.traverse(function (o) { if (o.isMesh && /Spectra_Head|Hair/.test(o.name)) o.visible = false; if (o.isBone && /Eye$/.test(o.name)) o.visible = false; });
+        var k = 0.82; testa.add(A.radice); A.radice.scale.setScalar(k); A.radice.position.set(0, 0, 0); A.radice.rotation.set(0, 0, 0);
+        /* sul corpo la testa non va raddrizzata quanto nella console: la si inclina meno all'indietro */
+        A.riposo = -0.18;
+        /* l'allineamento si fa nei primi fotogrammi (vedi giro): il mento appoggiato sopra il collo */
+        S.allinea = 40;
+        S.volto = A; A.stato('attesa'); window.dispatchEvent(new Event('spectra-volto'));
+      }).catch(function () {});
+    }
+    var prec = 0;
+    (function giro(ora) {
+      /* il tempo vero (fino a 0,25 s per fotogramma): su un dispositivo lento la simulazione resta in orario */
+      var dt = prec ? Math.min(0.25, (ora - prec) / 1000) : 0.016; prec = ora;
+      corpo.guarda(S.guardaQui || cam.position);
+      corpo.passo(dt); if (S.volto) S.volto.passo(dt);
+      /* ALLINEAMENTO DEL VOLTO SUL COLLO, misurato: il punto piu' basso del viso (il mento) va 1 cm sopra
+         l'osso della testa, centrato sul collo e un poco avanti. Si corregge per qualche fotogramma, finche'
+         lo scarto misurato e' sotto il millimetro (la posa della testa cambia la misura). */
+      if (S.allinea > 0 && S.volto && S.volto.parti && S.volto.parti.Object_2) {
+        S.allinea--; corpoRadice.updateMatrixWorld(true);
+        var bbv = new T.Box3().setFromObject(S.volto.parti.Object_2), tb = corpo.ossa.testa, tp = tb.getWorldPosition(new T.Vector3());
+        var fw = new T.Vector3(0, 0, 1).applyQuaternion(corpoRadice.quaternion);
+        var vuoi = tp.clone().add(new T.Vector3(0, 0.01, 0)).addScaledVector(fw, 0.03), mento = new T.Vector3((bbv.min.x + bbv.max.x) / 2, bbv.min.y, (bbv.min.z + bbv.max.z) / 2);
+        var d = vuoi.sub(mento); if (d.length() < 0.001) S.allinea = 0;
+        var qi = tb.getWorldQuaternion(new T.Quaternion()).invert(); d.applyQuaternion(qi); S.volto.radice.position.add(d);
+      }
+      anello.material.color.setHSL(0.58, 1, 0.55 + 0.1 * Math.sin(ora / 600));
+      if (S.ctrl) { var m = S.ctrl.passo(dt); if (m && S.suMisura) S.suMisura(m); }
+      ren.render(sc, cam); requestAnimationFrame(giro);
+    })(0);
+  }
+
+  /* ═══ LA LEZIONE ═════════════════════════════════════════════════════════ */
+  var stato = { lez: null, fase: -1, passo: 0, previsione: null, misure: null, voce: true };
+  function parla(testo, emo, gesto, bersaglio) {
+    if (S.ok) {
+      if (emo) { S.corpo.emozione(emo, 6); if (S.volto) S.volto.espressione(emo, 6); }
+      if (gesto) S.corpo.fai(gesto, bersaglio, 5);
+      S.corpo.dici(testo); if (S.volto) S.volto.dici(testo);
+    }
+    D.getElementById('stato').innerHTML = 'SPECTRA · <b>' + (emo ? emo.toUpperCase() : 'PARLA') + '</b>';
+    if (!stato.voce || !window.BSISpectraVoce) return Promise.resolve();
+    return BSISpectraVoce.parla(testo, { suBocca: function (b) { if (S.ok) { S.corpo.audio(b); if (S.volto && S.volto.testo) S.volto.allinea(Math.floor(b.frazione * S.volto.testo.length)); } } }).then(function () { if (S.volto) S.volto.taci(); });
+  }
+  function fasi(i) { [].forEach.call(D.querySelectorAll('#fasi span'), function (s, k) { s.classList.toggle('on', k === i); s.classList.toggle('fatta', k < i); }); }
+  function azioni(lista) { var az = D.getElementById('az'); az.innerHTML = ''; lista.forEach(function (x) { var b = D.createElement('button'); b.type = 'button'; b.textContent = x[0]; if (x[2]) b.className = 'prim'; b.onclick = x[1]; az.appendChild(b); if (x[3]) { var sp = D.createElement('span'); sp.className = 'sp'; az.appendChild(sp); } }); var v = D.createElement('button'); v.type = 'button'; v.id = 'voce'; v.textContent = stato.voce ? '🔊' : '🔇'; v.setAttribute('aria-label', stato.voce ? 'Voce attiva' : 'Voce spenta'); v.onclick = function () { stato.voce = !stato.voce; if (!stato.voce && window.BSISpectraVoce) BSISpectraVoce.ferma(); v.textContent = stato.voce ? '🔊' : '🔇'; }; az.appendChild(v); }
+  function apri(id) {
+    var lez = L.LEZIONI.filter(function (x) { return x.id === id; })[0]; if (!lez) return;
+    stato.lez = lez; stato.previsione = null; stato.misure = null;
+    [].forEach.call(D.querySelectorAll('#lezioni .chip'), function (c) { var on = c.dataset.id === id; c.classList.toggle('on', on); c.setAttribute('aria-selected', on); });
+    if (S.ok) { while (S.lezione.children.length) S.lezione.remove(S.lezione.children[0]); S.lezione.rotation.set(0, 0, 0); S.ctrl = L.SCENE[id](T, S.lezione); S.ctrl.fase('predici'); S.corpoRadice.position.set(-0.55, 0, 0.15); S.corpo.meta = null; }
+    predici();
+  }
+  function predici() {
+    var lez = stato.lez; stato.fase = 0; fasi(0);
+    var m = memoria()[lez.id], prima = m && m.previsioni && m.previsioni.length ? m.previsioni[m.previsioni.length - 1] : null;
+    var c = D.getElementById('corpo');
+    c.innerHTML = '<h2>' + esc(lez.icona + ' ' + lez.titolo[0]) + '</h2><p>' + esc(lez.sotto) + '</p>' + (prima ? '<p class="perche">' + esc(prima.giusta ? 'L\'ultima volta avevi previsto giusto. Vediamo se regge anche stavolta.' : 'L\'ultima volta la previsione era un\'altra: riproviamo, con calma.') + '</p>' : '') + '<p><b>' + esc(lez.predici.domanda) + '</b></p><div class="opz" role="group" aria-label="Le possibili previsioni"></div>';
+    var box = c.querySelector('.opz');
+    lez.predici.opzioni.forEach(function (o, i) { var b = D.createElement('button'); b.type = 'button'; b.textContent = o.testo; b.onclick = function () { scegli(i); }; box.appendChild(b); });
+    azioni([]);
+    S.guardaQui = null; parla(lez.predici.domanda, 'curiosa', 'spiega');
+  }
+  function scegli(i) {
+    var lez = stato.lez, o = lez.predici.opzioni[i]; stato.previsione = i;
+    [].forEach.call(D.querySelectorAll('#corpo .opz button'), function (b, k) { b.disabled = true; if (k === i) b.classList.add('scelta'); });
+    var m = memoria(); m[lez.id] = m[lez.id] || { previsioni: [], esercizi: {} }; m[lez.id].previsioni.push({ quando: Date.now(), scelta: i, giusta: !!o.giusta }); salva(m);
+    try { if (window.BSISpectraMente) BSISpectraMente.ricorda('Studio · ' + lez.titolo[0] + ': previsione «' + o.testo + '»', o.giusta ? 'giusta' : 'sbagliata'); } catch (e) {}
+    var c = D.getElementById('corpo'); c.insertAdjacentHTML('beforeend', '<p class="perche">Previsione registrata. Ora non te lo dico: lo vediamo.</p>');
+    azioni([['▶ Testa', testa, true]]);
+    parla('Previsione registrata. Ora non te lo dico: lo vediamo.', 'determinata');
+  }
+  function testa() {
+    var lez = stato.lez; stato.fase = 1; fasi(1);
+    var c = D.getElementById('corpo'); c.innerHTML = '<h2>Testa</h2><p>' + esc(lez.testa.testo) + '</p><div class="mis" id="mis"><span>stato</span><b>in corso…</b></div>';
+    azioni([]);
+    if (S.ok) {
+      S.ctrl.fase('testa');
+      /* Spectra si avvicina al banco e indica */
+      S.corpo.cammina(new T.Vector3(-0.25, 0, 0.25));
+      setTimeout(function () { S.guardaQui = S.ctrl.bersaglio(); S.corpo.fai('indica', S.ctrl.bersaglio(), 4); }, 1400);
+    }
+    parla(lez.testa.testo, 'concentrata', null);
+    S.suMisura = function (m) { if (!m.fine) return; stato.misure = m; S.suMisura = null; mostraMisure(m); };
+    if (!S.ok) setTimeout(function () { var m = calcolaSenzaScena(lez.id); stato.misure = m; mostraMisure(m); }, 300);
+  }
+  function calcolaSenzaScena(id) {
+    var C = L.calcolo;
+    if (id === 'caduta') { var R = C.caduta(20, 6); return { fine: true, tA: R.tA, tB: R.tB, gittata: R.gittata }; }
+    if (id === 'acqua') return { fine: true, uguali: C.vsepr(2, 2, 1, 8000).angolo, acqua: C.vsepr(2, 2, 1.25, 8000).angolo };
+    return { fine: true, S40: C.parziale(40), S1000: C.parziale(1000), H40: C.armonica(40), coprimi: C.coprimi(20000, 1e6, 7) };
+  }
+  function mostraMisure(m) {
+    var id = stato.lez.id, righe = [], f = function (x, d) { return Number(x).toFixed(d).replace('.', ','); };
+    if (id === 'caduta') righe = [['sfera lasciata', f(m.tA, 3) + ' s'], ['sfera lanciata', f(m.tB, 3) + ' s'], ['differenza', f(Math.abs(m.tA - m.tB) * 1000, 3) + ' ms'], ['gittata', f(m.gittata, 2) + ' m']];
+    if (id === 'acqua') righe = [['4 domini uguali', f(m.uguali, 2) + '°'], ['con i doppietti solitari', f(m.acqua, 2) + '°'], ['sperimentale', '104,50°']];
+    if (id === 'basilea') righe = [['S₄₀', f(m.S40, 5)], ['S₁₀₀₀', f(m.S1000, 5)], ['π²/6', f(Math.PI * Math.PI / 6, 5)], ['armonica H₄₀', f(m.H40, 3) + ' (e cresce)'], ['coprimi (20 000 coppie)', f(m.coprimi, 4) + ' vs 6/π² = 0,6079']];
+    D.getElementById('mis').innerHTML = righe.map(function (r) { return '<span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b>'; }).join('');
+    azioni([['∴ Dimostra', function () { dimostra(0); }, true]]);
+    var giusta = stato.lez.predici.opzioni[stato.previsione] && stato.lez.predici.opzioni[stato.previsione].giusta;
+    parla(giusta ? 'Ecco i numeri. Avevi visto giusto: adesso capiamo perché.' : 'Ecco i numeri. Non è quello che ti aspettavi, vero? Adesso capiamo perché.', giusta ? 'fiera' : 'sorpresa', 'spiega');
+  }
+  function dimostra(k) {
+    var lez = stato.lez, passi = lez.dimostra; stato.fase = 2; fasi(2); stato.passo = k;
+    var c = D.getElementById('corpo'), html = '<h2>Dimostra</h2>';
+    for (var i = 0; i <= k; i++) html += '<p>' + esc(passi[i].testo) + '</p><span class="f" role="math">' + esc(passi[i].formula) + '</span>';
+    c.innerHTML = html; c.scrollTop = c.scrollHeight;
+    var ultimo = k >= passi.length - 1;
+    azioni(ultimo ? [['◀', function () { dimostra(Math.max(0, k - 1)); }], ['✦ Rivela', rivela, true]] : [['◀', function () { dimostra(Math.max(0, k - 1)); }, false], ['Passo successivo ▶', function () { dimostra(k + 1); }, true]]);
+    if (S.ok) S.guardaQui = null;
+    parla(passi[k].testo + ' ' + passi[k].formula.replace(/[⇒]/g, ' quindi '), k === passi.length - 1 ? 'determinata' : 'riflessione', k % 2 ? 'pensa' : 'spiega');
+  }
+  function rivela() {
+    var lez = stato.lez, R = lez.rivela; stato.fase = 3; fasi(3);
+    var mem = memoria()[lez.id] || { previsioni: [], esercizi: {} }, giuste = mem.previsioni.filter(function (p) { return p.giusta; }).length;
+    var risolti = Object.keys(mem.esercizi || {}).length, consigliato = Math.min(3, giuste + risolti);
+    var c = D.getElementById('corpo'), html = '<h2>Rivela</h2><p>' + esc(R.testo) + '</p><div class="opz">';
+    lez.predici.opzioni.forEach(function (o, i) { html += '<button type="button" disabled class="' + (o.giusta ? 'giusta' : '') + (i === stato.previsione ? ' scelta' + (o.giusta ? '' : ' sbagliata') : '') + '">' + esc(o.testo) + '<div class="perche">' + esc(o.perche) + '</div></button>'; });
+    html += '</div><p><b>Collegamenti</b></p>' + R.collegamenti.map(function (x) { return '<p class="perche">↳ ' + esc(x) + '</p>'; }).join('');
+    var LV = ['Scuola superiore', 'Laurea triennale', 'Laurea magistrale', 'Ricerca'];
+    html += '<p><b>Esercizi</b> <span class="perche">(ti consiglio: ' + LV[consigliato] + ')</span></p>' + R.esercizi.map(function (e, i) { return '<div class="ese' + (e.livello === consigliato ? ' consigliato' : '') + '"><div class="lv">' + LV[e.livello] + '</div><p>' + esc(e.testo) + '</p><details data-i="' + i + '"><summary>Mostra la soluzione</summary><p class="perche">' + esc(e.soluzione) + '</p></details></div>'; }).join('');
+    c.innerHTML = html;
+    [].forEach.call(c.querySelectorAll('details'), function (d) { d.addEventListener('toggle', function () { if (!d.open) return; var m = memoria(); m[lez.id] = m[lez.id] || { previsioni: [], esercizi: {} }; m[lez.id].esercizi[d.dataset.i] = Date.now(); salva(m); }); });
+    var giusta = lez.predici.opzioni[stato.previsione] && lez.predici.opzioni[stato.previsione].giusta;
+    var altre = L.LEZIONI.filter(function (x) { return x.id !== lez.id; });
+    azioni([['↺ Ripeti', function () { apri(lez.id); }], [altre[0].icona + ' ' + altre[0].titolo[0], function () { apri(altre[0].id); }, true]]);
+    if (S.ok) S.corpo.cammina(new T.Vector3(-0.55, 0, 0.15));
+    parla(R.testo, giusta ? 'gioia' : 'empatica', 'conclude');
+  }
+
+  /* ═══ AVVIO ══════════════════════════════════════════════════════════════ */
+  var chips = D.getElementById('lezioni');
+  L.LEZIONI.forEach(function (lez) { var b = D.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.id = lez.id; b.setAttribute('role', 'tab'); b.textContent = lez.icona + ' ' + lez.titolo[0]; b.onclick = function () { apri(lez.id); }; chips.appendChild(b); });
+  try { costruisciScena(); } catch (e) { S = { ok: false }; }
+  var saluto = window.BSISpectraCreatore && BSISpectraCreatore.riconosciuto() ? 'Bentornato nel laboratorio, ' + BSISpectraCreatore.NOME_BREVE + '.' : 'Benvenuto nel mio laboratorio.';
+  D.getElementById('corpo').innerHTML = '<h2>Spectra Studio</h2><p>' + esc(saluto) + ' Qui le lezioni seguono quattro tempi: prima prevedi, poi lo vediamo accadere, poi lo dimostriamo, infine ti rivelo perché e dove porta.</p><p class="perche">Scegli una lezione qui sopra. Puoi girare la scena trascinando.</p>';
+  azioni([['Comincia: ' + L.LEZIONI[0].icona + ' ' + L.LEZIONI[0].titolo[0], function () { apri(L.LEZIONI[0].id); }, true]]);
+  window.SpectraStudio = { apri: apri, scegli: scegli, testa: testa, dimostra: dimostra, rivela: rivela, stato: function () { return { lez: stato.lez && stato.lez.id, fase: stato.fase, misure: stato.misure, previsione: stato.previsione, scena: S.ok, volto: !!S.volto }; }, S: function () { return S; } };
+  setTimeout(function () { if (S.ok) S.adatta(); }, 100);
+})();
+</script>
+</body>
+</html>
