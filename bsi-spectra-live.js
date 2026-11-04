@@ -950,7 +950,7 @@
      visita: voleva dire scaricare il modello da 8 MB due secondi e mezzo dopo
      l'avvio, anche a chi la console non l'apriva mai. Ora il modello si
      scarica solo quando si apre la console. */
-  var ritratto = './models/spectra-ritratto.jpg';
+  var ritratto = './models/spectra-ritratto.jpg', ritrattoPronto = false;
   try { ['bsi-spectra-ritratto-v1', 'bsi-spectra-ritratto-v3', 'bsi-spectra-ritratto-v4'].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
   function iconaVettoriale(px) {
     return '<svg width="' + px + '" height="' + px + '" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="bsiRBf" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#b9c6d3"/></radialGradient></defs>' +
@@ -961,7 +961,7 @@
       '<rect x="26" y="37" width="12" height="2" rx="1" fill="#1a3050" opacity=".85"/></svg>';
   }
   function icona(px) {
-    var dentro = ritratto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
+    var dentro = ritratto && ritrattoPronto ? '<img src="' + ritratto + '" alt="" width="' + px + '" height="' + px + '" style="width:100%;height:100%;object-fit:cover">' : iconaVettoriale(px);
     return '<span class="bsiVO-ico" style="display:inline-flex;width:' + px + 'px;height:' + px + 'px;border-radius:50%;overflow:hidden;vertical-align:middle;background:radial-gradient(circle at 50% 40%,#0e1f4a,#050b1e);box-shadow:0 0 0 1px rgba(47,107,255,.55)">' + dentro + '</span>';
   }
   function voltoSuiPulsanti() {
@@ -974,34 +974,42 @@
     /* il ritratto e' un'immagine: chiederla durante il caricamento allunga l'apertura dell'app con la
        rete lenta (il service worker aspetta la rete 3,5 s prima di servire la copia). Si mette dopo «load» */
     var dopoCarico = function (f) { if (document.readyState === 'complete') f(); else globale.addEventListener('load', function () { f(); }, { once: true }); };
-    dopoCarico(function () { [300, 1500, 4000].forEach(function (ms) { setTimeout(voltoSuiPulsanti, ms); }); });
+    /* subito il volto disegnato (vettoriale, niente rete); dopo «load» il ritratto vero */
+    voltoSuiPulsanti();
+    dopoCarico(function () { ritrattoPronto = true; [300, 1500, 4000].forEach(function (ms) { setTimeout(function () { voltoSuiPulsanti(); pulsanteLive(); }, ms); }); });
     globale._bsiContestoSchermo = contestoSchermo;
     try { new MutationObserver(function () { if (document.getElementById('bsi-hub-ov')) pulsanteNelHub(); }).observe(document.body, { childList: true }); } catch (e) {}
     if ('speechSynthesis' in globale) { try { speechSynthesis.onvoiceschanged = function () { voce.scelta = scegliVoce(); }; } catch (e) {} }
     document.addEventListener('bsi-lingua', function () { voce.scelta = null; testiHud(); });
     /* scorciatoia: Ctrl+Shift+J (o Cmd) apre la console */
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) { e.preventDefault(); apriHud(); } });
-    dopoCarico(pulsanteLive);
+    pulsanteLive();
   }
-  /* IL PULSANTE DI SPECTRA LIVE (v238): Spectra e' l'assistente principale, quindi la console
-     si apre con un tocco da qualunque schermata. Un cerchio con il suo volto, subito a sinistra
-     del pulsante «Spectra» (che resta la chat): la colonna di destra e' gia' piena (⚛️, Σ,
-     Spectra, ✨). Si riposiziona se il pulsante di Spectra si sposta; sparisce con la console
-     aperta (regola [id$="-fab"]). */
+  /* IL PULSANTE DI SPECTRA: SOLO IL VOLTO, IN UN CERCHIO (v239).
+     Nella v238 c'erano due pulsanti affiancati, il cerchio con il volto (la console) e la
+     pillola «Spectra» (la chat): l'autore li ha visti come un errore e ha chiesto solo la
+     figura nel pallino. Ora resta il cerchio, al posto della pillola, nella colonna dei
+     pulsanti di destra: apre la console, e dalla console 💬 apre la chat. La pillola resta
+     nella pagina (altri moduli e i banchi la usano per aprire la chat) ma non si vede. */
   function pulsanteLive() {
     var b = document.getElementById('bsiJV-fab');
     if (!b) {
       b = document.createElement('button'); b.id = 'bsiJV-fab'; b.type = 'button';
-      b.style.cssText = 'position:fixed;z-index:99990;width:46px;height:46px;border-radius:50%;padding:0;overflow:hidden;cursor:pointer;display:none;border:1px solid #8fb0ff;box-shadow:0 0 16px rgba(47,107,255,.55);background:#050b1e';
+      b.style.cssText = 'position:fixed;z-index:99990;width:58px;height:58px;border-radius:50%;padding:0;overflow:hidden;cursor:pointer;display:none;border:2px solid #8fb0ff;box-shadow:0 0 18px rgba(47,107,255,.6),0 4px 14px rgba(0,0,0,.45);background:#050b1e';
       b.onclick = function () { apriHud(); };
       document.body.appendChild(b);
+      var st = document.createElement('style'); st.id = 'bsiJV-fab-stile';
+      st.textContent = 'body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}';
+      document.head.appendChild(st);
     }
-    b.innerHTML = icona(44); b.title = t('Spectra Live: la console vocale', 'Spectra Live: the voice console'); b.setAttribute('aria-label', b.title);
+    document.body.classList.add('bsiJV-solo-volto');
+    b.innerHTML = icona(56); b.title = t('Spectra: tocca per parlargli', 'Spectra: tap to talk'); b.setAttribute('aria-label', t('Spectra, il tuo assistente: apri la console', 'Spectra, your assistant: open the console'));
     var colloca = function () {
       var sp = document.getElementById('bsi-spectra-fab'), r = sp && sp.getBoundingClientRect();
       if (!r || !r.width || getComputedStyle(sp).display === 'none') { b.style.display = 'none'; return; }
+      /* al posto della pillola, allineato a destra come gli altri pulsanti tondi */
       b.style.display = 'block';
-      b.style.left = Math.max(6, Math.round(r.left - 54)) + 'px'; b.style.top = Math.round(r.top + r.height / 2 - 23) + 'px';
+      b.style.left = Math.round(r.right - 58) + 'px'; b.style.top = Math.round(r.top + r.height / 2 - 35) + 'px';
     };
     colloca(); setTimeout(colloca, 1500); setTimeout(colloca, 4000);
     /* gli ascoltatori si mettono una volta sola, anche se la funzione viene richiamata */

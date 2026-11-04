@@ -51,6 +51,10 @@ function vero(d, c) { att(d, true, !!c); }
     pg.on('pageerror', e => errs.push(e.message));
     await pg.goto(BASE + 'index.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!(window.BSISpectraLive && window.BSIMaterie && window.goSection), null, { timeout: 60000 });
+    /* v239: un solo pulsante di Spectra, il volto nel cerchio; la pillola «Spectra» non si vede */
+    await pg.waitForTimeout(2500);
+    const P = await pg.evaluate(() => { const f = document.getElementById('bsiJV-fab'), p = document.getElementById('bsi-spectra-fab'), vis = e => !!(e && e.getBoundingClientRect().width && getComputedStyle(e).visibility !== 'hidden' && getComputedStyle(e).display !== 'none'); return { cerchio: vis(f), pillola: vis(p), tondo: f ? getComputedStyle(f).borderRadius : '' }; });
+    att('un solo pulsante di Spectra: il volto nel cerchio (cerchio, pillola)', 'true|false|50%', [P.cerchio, P.pillola, P.tondo].join('|'));
     await pg.evaluate(() => { const g = document.getElementById('bsi-guide'); if (g) g.remove(); BSIMaterie.imposta('fisica'); goSection('sfisspin'); });
     await pg.waitForTimeout(1200);
     await pg.evaluate(() => BSISpectraLive.apri({ briefing: false }));
