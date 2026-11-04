@@ -129,15 +129,23 @@ Invece di riggare il modello a mano in Blender, il rig si fa **nel browser**, al
 
 ### 7.3 Il cappuccio, il viso, i colori
 - **Cappuccio col solo viso.** Il cappuccio del modello si allarga quanto basta ad avvolgere il volto «Noir», in modo graduale dal colletto, diventa **rigido con l'osso della testa** e si apre davanti con un'**ellisse calcolata nello shader**, al pixel: il bordo è liscio e segue la testa in ogni movimento, e non si tolgono triangoli.
-- **Niente visiera nera.** Il casco del modello sotto il cappuccio, una visiera nera lucida, diventa **ombra opaca** (`visiera: false`): della testa si vede solo il viso, che emerge dall'ombra del cappuccio.
-- **Il volto «Noir».** Del modello «Noir» restano visibili solo maschera, occhi e dettagli (`Object_2`, `Object_3`, `Object_4`), su un supporto allineato in modo che il mento poggi sul colletto. Il volto è **«solidale»**: i movimenti della testa li fa il corpo, il volto fa solo espressioni, occhi e bocca. Misurata in 24 pose mentre Spectra cammina e gesticola, la posizione del viso rispetto alla testa resta entro 4 mm (3,2 mm il massimo osservato, dovuti al respiro del viso).
+- **La visiera nera resta.** Sotto il cappuccio si vede la visiera nera lucida del modello, attorno al viso. Per un periodo è stata resa ombra opaca; l'autore ha chiesto di tornare alla visiera lucida. Il rig conserva l'opzione `visiera: false` (il casco reso ombra opaca) e l'opzione `testa` (scala della testa), ma lo studio non le usa.
+- **Il volto «Noir».** Del modello «Noir» restano visibili solo maschera, occhi e dettagli (`Object_2`, `Object_3`, `Object_4`), avanzati di 6,5 cm e in scala 0,96, su un supporto allineato in modo che il mento poggi sul colletto. Il volto è **«solidale»**: i movimenti della testa li fa il corpo, il volto fa solo espressioni, occhi e bocca, e non fa il proprio respiro dentro il cappuccio. Misurata in 24 pose mentre Spectra cammina e gesticola, la posizione del viso rispetto alla testa non si sposta (0,0 mm; il banco pretende meno di 1 mm).
 - **Blu notte.** La texture è ricolorata nei colori dell'app, come ha chiesto l'autore: ombre quasi nere `#03050c`, mezzitoni `#0d162e`–`#162448`, luci `#2a3c6c`, bianchi appena azzurri. I dettagli turchesi del modello diventano luce propria verde acqua `#00c9b7`. Il disegno della texture (cuciture, piastre, pieghe) resta tutto.
 
+### 7.3-bis La definizione («4K»)
+- **Renderer**: il rapporto di pixel dello studio arriva fino a 3 (era 2), per gli schermi ad alta densità e 4K.
+- **Tassellazione di Phong** (Boubekeur e Alexa, 2008; opzione `suddividi`, un livello): ogni triangolo ne diventa quattro, sul corpo dell'autore da 13 592 a 54 368 triangoli, e il rig resta pronto in circa 0,5–1 s. I punti medi si calcolano su posizioni e normali saldate, così le cuciture restano chiuse; i pesi si calcolano sulla mesh già tassellata.
+- **Mappa di rilievo** ricavata dalla luminanza della texture originale, appena sfocata (`bumpScale` 0,016): bordi delle piastre, cuciture, tessuto e pieghe dei guanti prendono la luce vera.
+- **Filtraggio anisotropo** della texture al massimo della GPU.
+
+Detto con onestà: la texture di partenza è 2048×2048 e **nessun dettaglio nuovo viene inventato**. «4K» si riferisce alla risoluzione di disegno, non alla texture.
+
 ### 7.4 Licenza: il file resta fuori da git
-**`models/spectra-corpo.glb` non è nel repository.** La licenza e la fonte del modello di terzi non sono ancora state confermate dall'autore, e senza quella conferma il modello non si ridistribuisce (§2, prima riga). Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
+**`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**; il tipo di licenza non è ancora stato indicato dall'autore. Le licenze royalty-free di CGTrader, in generale, non permettono di ridistribuire il file del modello così com'è, e senza una conferma il modello non si ridistribuisce (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. I due file sono esclusi in `.gitignore`. Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
 
 - **l'app pubblicata mostra il manichino riggato**, non il corpo «Bounty Hunter»;
 - il banco `test_spectra_rig` prova il rig su un **umanoide sintetico** costruito nel codice, non sul modello vero;
-- i controlli di `test_spectra_studio` sul corpo riggato (sincronia viso–cappuccio, solo il viso visibile, volto solidale) girano solo dove il file è presente in locale, e altrove si saltano.
+- i controlli di `test_spectra_studio` sul corpo riggato (sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano solo dove il file è presente in locale, e altrove si saltano.
 
 Confermata la licenza, basta aggiungere il file a `models/` e la sua riga in `models/CREDITS.md`: lo studio lo carica senza altre modifiche.

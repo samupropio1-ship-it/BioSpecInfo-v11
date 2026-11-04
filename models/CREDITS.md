@@ -28,3 +28,16 @@ ciascun modello la licenza e inserire qui il **nome dell'autore** e il
 grigio scuro, testa staccata dal collo e bocca animate dal codice
 (`bsi-spectra-androide.js`). L'attribuzione compare anche nella console di
 Spectra Live.
+
+## Corpo di Spectra nello studio (**Spectra Studio**)
+
+| File | Contenuto | Origine | Licenza |
+|---|---|---|---|
+| `spectra-corpo.glb` | corpo «Bounty Hunter», mesh senza scheletro riggata nel browser da `bsi-spectra-rig.js` | CGTrader | **da confermare** |
+
+**Il file non è nel repository** (escluso in `.gitignore`): l'autore non ha
+ancora indicato il tipo di licenza, e le licenze royalty-free di CGTrader in
+generale non permettono di ridistribuire il file del modello così com'è.
+Finché la licenza non è confermata, l'app pubblicata usa il manichino
+riggato costruito nel codice. Il volto «Noir» che lo studio mette nel
+cappuccio è quello della tabella qui sopra (CC BY 4.0).

@@ -33,3 +33,9 @@ stack/web/node_modules/
 stack/web/dist/
 stack/api/**/__pycache__/
 stack/api/.pytest_cache/
+
+# Modelli 3D di terzi tenuti fuori dal repository finché la licenza non ne
+# permette la ridistribuzione (corpo di Spectra da CGTrader, licenza da
+# confermare): vedi docs/spectra/01-Analisi-modello-e-piano.md §7.4
+models/spectra-corpo.glb
+models/spectra-cyberpunk.glb

@@ -178,7 +178,8 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   studio; la lezione senza WebGL; nessun errore JavaScript. Con il corpo
   riggato presente, per ognuna delle due larghezze: sincronia viso–cappuccio
   misurata in 24 pose mentre Spectra cammina e gesticola (soglia 1 mm;
-  misurati 0,0 mm), della testa si vede solo il viso, il volto è «solidale»; il mento si misura sull'osso del collo più
+  misurati 0,0 mm), del volto «Noir» si vedono solo maschera, occhi e
+  dettagli, il volto è «solidale»; il mento si misura sull'osso del collo più
   4,5 cm. Senza il modello questi controlli si saltano.
 - Nuovo `test_spectra_rig` (30 controlli), su un umanoide sintetico in posa ad
   A costruito nel codice (il modello vero non è nel repository): nomi dello
