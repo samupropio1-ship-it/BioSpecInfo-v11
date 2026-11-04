@@ -134,6 +134,16 @@ function vero(d, c) { att(d, true, !!c); }
       let max = 0; mis.forEach(a => mis.forEach(b => { max = Math.max(max, a.distanceTo(b)); }));
       return { max, nascosti: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(','), solidale: S.volto.solidale };
     });
+    /* IL CORPO DAL DISPOSITIVO: pulsante, archivio nel browser (andata e ritorno), file non valido rifiutato senza errori */
+    const cdisp = await pg.evaluate(async () => { const S = SpectraStudio.S(), b = document.getElementById('corpoBtn'), f = document.getElementById('corpoFile');
+      const buf = new Uint8Array([1, 2, 3, 4]).buffer, prima = await S.dbCorpo('leggi');
+      await S.dbCorpo('metti', buf); const letto = await S.dbCorpo('leggi'); const giro = !!letto && letto.byteLength === 4;
+      if (prima) await S.dbCorpo('metti', prima); else await S.dbCorpo('togli');
+      const rifiuto = await S.daBuffer(new Uint8Array([0, 1, 2, 3, 4, 5]).buffer);
+      return { btn: !!b && b.offsetWidth > 0, accetta: f && f.accept, giro, rifiuto }; });
+    vero('il pulsante «🧍 Corpo» c\'è e accetta i .glb (' + cdisp.accetta + ')', cdisp.btn && /\.glb/.test(cdisp.accetta));
+    vero('il corpo si conserva nel browser del dispositivo (IndexedDB, andata e ritorno)', cdisp.giro);
+    att('un file che non è un modello viene rifiutato, senza errori', false, cdisp.rifiuto);
     if (sinc) {
       vero('viso e cappuccio in sincronia: in 24 pose il viso si sposta di ' + (sinc.max * 1000).toFixed(1) + ' mm rispetto alla testa', sinc.max < 0.001);
       att('della testa si vede solo il viso (maschera, occhi, dettagli)', 'Object_2,Object_3,Object_4', sinc.nascosti);

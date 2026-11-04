@@ -5575,7 +5575,7 @@ var DATI_CANCELLABILI = {
   },
   app: {
     etichetta: 'Progressi del resto dell\'app',
-    dettaglio: 'quiz, appunti, percorso di studio, progetti di data science',
+    dettaglio: 'quiz, appunti, percorso di studio, progetti di data science, il corpo di Spectra caricato dal dispositivo',
     // NON compaiono qui, di proposito: bsi_pro_license e bsi_trial_start
     // (una licenza non si cancella per sbaglio), bsi_device_id e
     // bsi_user_email (identita' del dispositivo).
@@ -5632,6 +5632,10 @@ function cancellaDati(nomi){
       if(localStorage.getItem(k) !== null){ localStorage.removeItem(k); tolte++; }
     }catch(e){}
   });
+  // il corpo di Spectra caricato dal dispositivo (studio) sta in IndexedDB, non in localStorage
+  if((nomi || []).indexOf('app') >= 0){
+    try{ if(window.indexedDB) indexedDB.deleteDatabase('bsi-spectra-modelli'); }catch(e){}
+  }
   // Anche la memoria del processo va azzerata, altrimenti l'elenco dei
   // fornitori del proxy o il modello risolto resterebbero validi fino al
   // prossimo caricamento della pagina.
