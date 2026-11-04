@@ -192,7 +192,7 @@ function carica() {
           schede[i].click(); await new Promise(r => setTimeout(r, 1800));
           sec.querySelectorAll('canvas').forEach(c => {
             if (!c.offsetParent) return; tele++;
-            const q = c.getContext('2d'), d = q.getImageData(0, 0, c.width, c.height).data; let n = 0;
+            const q = c.getContext('2d'); if (!q) { /* v238: tela WebGL di una scheda 3D: la si legge dalla sua scena */ let S = null; for (let e = c; e && !S; e = e.parentNode) S = e._scena || null; if (S && S.campiona && S.campiona() > 0) disegnate++; return; } const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0;
             for (let k = 0; k < d.length; k += 4 * 97) if (d[k] + d[k + 1] + d[k + 2] > 120) n++;
             if (n > 5) disegnate++;
           });
