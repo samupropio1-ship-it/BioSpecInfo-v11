@@ -110,6 +110,9 @@ const ALTRE_VERIFICHE = ['verifica-studio.js', 'verifica-studio-fisica.js', 'ver
             const q = c.getContext('2d');
             if (q) { const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 31) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; pieno = n > 5; }
             else { const S = scenaDi(c); pieno = S && S.campiona ? S.campiona() > 0 : true; }
+            /* una tela ancora vuota si riguarda una volta dopo 4 s: alcune mappe (la CMB, per esempio)
+               si calcolano a lotti e sotto il carico della batteria possono superare l'attesa normale */
+            if (!pieno && q) { await pausa(4000); const d2 = q.getImageData(0, 0, c.width, c.height).data; let n2 = 0; for (let k = 0; k < d2.length; k += 4 * 31) if (d2[k] + d2[k + 1] + d2[k + 2] > 120) n2++; pieno = n2 > 5; }
             if (pieno) disegnate++; else vuote.push(i);
           }
         }
@@ -169,7 +172,8 @@ const ALTRE_VERIFICHE = ['verifica-studio.js', 'verifica-studio-fisica.js', 'ver
       let n = 0; for (let i = 0; i < px.length; i += 4) if (px[i + 3] > 0) n++; o.disegnato = n;
       v.libera(); box.remove();
       o.comeStai = M.comeStai().length > 10;
-      o.coscienza = /umore/.test(window._bsiMente ? window._bsiMente() || 'umore' : '');
+      /* v238: il quadro contiene sempre la parte sul creatore; l'umore compare dopo la prima conversazione */
+      M.ricorda('prova del banco'); o.coscienza = /umore/.test(window._bsiMente ? window._bsiMente() : '');
       return o;
     });
     att('17 emozioni', 17, r.emozioni);
