@@ -528,6 +528,9 @@
     this.perno.rotation.y = lento ? 0 : this.mira.x * 0.42;
     this.perno.rotation.x = this.riposo + (lento ? 0 : this.mira.y * 0.24 + 0.012 * resp + cennoAng + 0.015 * this.boc + alza);
     this.perno.rotation.z = lento ? 0 : inclina + 0.012 * Math.sin(T * 0.6) * (1 - C) + this.mira.x * 0.04;
+    /* (v239) volto «solidale» con un corpo che ha gia' la testa (e un cappuccio rigido attorno): i movimenti della testa
+       li fa il corpo; il viso resta fermo nel suo foro e muove solo le espressioni, gli occhi e la bocca */
+    if (this.solidale) this.perno.rotation.set(this.riposo, 0, 0);
     this.radice.position.y = lento ? 0 : 0.0016 * resp;
     this.radice.scale.y = lento ? 1 : 1 + 0.0035 * resp;
   };

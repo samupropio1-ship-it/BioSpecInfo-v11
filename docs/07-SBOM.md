@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v239` |
-| Commit | `ecc7a883380aad30afb2ae2f81c79cf437226b82` |
-| Generato (UTC) | `2026-11-04T10:16:24.185Z` |
+| Commit | `3216a7544625f05539e47693fdd77fd42b6d18d5` |
+| Generato (UTC) | `2026-11-04T16:41:13.676Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -147,11 +147,16 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | 65 kB | Catene di Markov e processi stocastici: PageRank, rovina del giocatore, passeggiate, code. |
 | `bsi-mat-svd.js` | 58 kB | SVD e algebra lineare applicata: SVD 2×2 e 3×3, compressione, PCA, minimi quadrati. |
 | `bsi-mat-codici.js` | 60 kB | Codici e curve ellittiche: Hamming, CRC, curve su ℝ e F_p, ECDH. |
-| `bsi-spectra-live.js` | 96 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
-| `bsi-spectra-androide.js` | 44 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
+| `bsi-spectra-live.js` | 99 kB | Spectra Live: console vocale, comandi locali, lettura dello schermo, nove strumenti dell'agente. |
+| `bsi-spectra-androide.js` | 45 kB | Volto di Spectra sul modello «Noir»: testa e bocca animate, 17 emozioni da 11 campi espressivi. |
 | `bsi-spectra-mente.js` | 17 kB | Mente di Spectra: memoria locale, stato interno, pensieri (simulazione di comportamento). |
 | `bsi-spectra-robot.js` | 20 kB | Volto di ripiego: testa di androide costruita in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Volto di ultimo ripiego: ritratto vettoriale SVG. |
+| `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
+| `bsi-spectra-voce.js` | 12 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
+| `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
+| `bsi-spectra-rig.js` | 22 kB | Rig automatico nel browser per le figure umanoidi senza scheletro: misura, scheletro con nomi Mixamo, pesi della pelle (distanza, normale, geodetica), testa tolta col cappuccio, ricolorazione in blu notte. |
+| `bsi-spectra-studio-lezioni.js` | 34 kB | Lezioni dello studio di Spectra (predici → testa → dimostra → rivela): caduta, forma dell'acqua, problema di Basilea, con calcoli verificati. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d'accesso). |
 | `bsi-aggiorna.js` | 5 kB | «Controlla aggiornamenti»: versione in uso dal service worker, versione pubblicata da sw.js. |
 | `bsi-fis-fluidi.js` | 31 kB | Fluidi: Venturi e Bernoulli, viscosità e Stokes, capillarità. |
@@ -190,8 +195,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `832e18099bd5876cbfa1e2a6cd5c6e671525a8593ab6ba0d976b080e4aa25e54` |
-| `bsi-ai-hub.js` | `e19d6d3d2c56061268e094c4ed917357adf92ea269bb5c5e8a477d82ae0c45b1` |
+| `index.html` | `5ac63397aced013751b52c450a643ce1f64900e84c32556e0903bee522564a1b` |
+| `bsi-ai-hub.js` | `49dfe3d24ebf314f42be04dd08082814047df7ddcd8f92a71635ad111acc40ee` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -275,11 +280,16 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `948940a1c4ec085d31d3b9c80c84e74435c97a2a2f19f852626b366fc21480af` |
-| `bsi-spectra-androide.js` | `c29db9297c60e6304c3d81a645f25b47e1e43d091c9b7f65baf922e25adb1b4e` |
+| `bsi-spectra-live.js` | `a205ee32a4df8e7cd81a4ac183c2f9f5ec7cc1252d3d761fd167d58807fb3f99` |
+| `bsi-spectra-androide.js` | `fbb793fc6c61000bac647b9b43d75bb66c01a40cee400fd144ecd6920782fd60` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
+| `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
+| `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
+| `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
+| `bsi-spectra-rig.js` | `8e401842c38abd4467afee0c267f55b5f7e8f486b93d07de3d153c30d0207004` |
+| `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
 | `bsi-aggiorna.js` | `5950d90103a7d603175e4b577e2394bb9a6d006a4ff22e48d4a1cc70661f1b8e` |
 | `bsi-fis-fluidi.js` | `33b66d5c555b28b0b65224aef0d23b1f113fdc402ef58e00de4e2c630e38fc7f` |
@@ -308,7 +318,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `5d0d06381d62bdffe07f4665b31be5d541871d1923558996e10d8cba243fc97c` |
+| `sw.js` | `9bfdef43879b696dc74a1813ab628a1fdf5361b7eaab5042e2365b029ecc1e46` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -361,4 +371,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-04T10:16:24.185Z._
+_Generato il 2026-11-04T16:41:13.676Z._

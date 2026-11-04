@@ -270,6 +270,8 @@ const PROPRI = [
     ruoloEn: 'Spectra\'s voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis.' },
   { file: 'bsi-spectra-corpo.js', ruolo: 'Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova.',
     ruoloEn: 'Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin.' },
+  { file: 'bsi-spectra-rig.js', ruolo: 'Rig automatico nel browser per le figure umanoidi senza scheletro: misura, scheletro con nomi Mixamo, pesi della pelle (distanza, normale, geodetica), testa tolta col cappuccio, ricolorazione in blu notte.',
+    ruoloEn: 'In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring.' },
   { file: 'bsi-spectra-studio-lezioni.js', ruolo: 'Lezioni dello studio di Spectra (predici → testa → dimostra → rivela): caduta, forma dell\'acqua, problema di Basilea, con calcoli verificati.',
     ruoloEn: 'Spectra Studio lessons (predict → test → prove → reveal): the fall, the shape of water, the Basel problem, with verified computations.' },
   { file: 'bsi-spectra-creatore.js', ruolo: 'Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d\'accesso).',

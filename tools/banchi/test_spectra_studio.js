@@ -119,8 +119,10 @@ function vero(d, c) { att(d, true, !!c); }
     await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
     await pg.waitForFunction(() => SpectraStudio.stato().volto, null, { timeout: 90000 }).catch(() => {});
     await pg.evaluate(() => { try { localStorage.removeItem('bsi-spectra-studio-v1'); } catch (e) {} });
-    const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), tp = S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return bb.min.y - tp.y; });
-    if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato * 100).toFixed(1) + ' cm sopra l\'osso della testa)', Math.abs(allineato) < 0.03);
+    /* il riferimento: sul manichino l'osso della testa; sul corpo riggato (models/spectra-corpo.glb, se presente in locale)
+       il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */
+    const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.rig ? S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045, 0)) : S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return { d: bb.min.y - rif.y, rig: !!S.rig }; });
+    if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato.d * 100).toFixed(1) + ' cm dal punto voluto, ' + (allineato.rig ? 'corpo riggato' : 'manichino') + ')', Math.abs(allineato.d) < 0.03);
     for (const [id, giusta] of [['caduta', 2], ['acqua', 3], ['basilea', 2]]) {
       const r = await pg.evaluate(async ([id, giusta]) => {
         const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
