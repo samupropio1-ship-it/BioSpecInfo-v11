@@ -1001,8 +1001,8 @@
       b.style.left = Math.max(6, Math.round(r.left - 54)) + 'px'; b.style.top = Math.round(r.top + r.height / 2 - 23) + 'px';
     };
     colloca(); setTimeout(colloca, 1500); setTimeout(colloca, 4000);
-    globale.addEventListener('resize', colloca); globale.addEventListener('scroll', colloca, { passive: true });
-    if (!pulsanteLive.giro) pulsanteLive.giro = setInterval(colloca, 2000);
+    /* gli ascoltatori si mettono una volta sola, anche se la funzione viene richiamata */
+    if (!pulsanteLive.giro) { globale.addEventListener('resize', colloca); globale.addEventListener('scroll', colloca, { passive: true }); pulsanteLive.giro = setInterval(colloca, 2000); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia); else avvia();
 

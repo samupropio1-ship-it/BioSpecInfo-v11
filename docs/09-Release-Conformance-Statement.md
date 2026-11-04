@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v237` |
+| **Versione** | `bsi-v238` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v237` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v238` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -82,8 +82,9 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-08** | ~~Traduzione inglese parziale~~ — **sanata**: vedi S-13 | — | Tutti e **16 i documenti** sono in inglese. `verifica-documenti` e `verifica-affermazioni` leggono `docs/en/` come l'italiano: un disaccordo fra le due lingue fa fallire la batteria |
 | **D-09** | Conformità WCAG 2.1 AA non verificabile integralmente in modo automatico | Restano fuori il testo dentro gli SVG (8 888 elementi), quello su una vera **immagine** di sfondo (108) e tutto ciò che richiede giudizio umano. Il testo su **gradiente** è entrato nella misura: 591 elementi, valutati sulla tappa peggiore del gradiente | Gli elementi saltati sono **contati** e riportati a ogni esecuzione |
 | **D-10** | Il tag `bsi-v181` punta al commit sbagliato | Il workflow di pubblicazione, avviato senza compilare il campo della versione, ha usato il proprio valore predefinito — `bsi-v181` — e, essendo rieseguibile per progetto, ha **spostato quel tag** dal commit `cb0cf03` a quello della `bsi-v188`, allegandole anche i pacchetti della v187. Gli allegati estranei sono stati rimossi. **Il tag non è riportabile indietro da un'app**: GitHub rifiuta che un'app scriva un ref verso un commit il cui `.github/workflows/*` differisce da quello corrente, e a `cb0cf03` quel file differisce di 319 righe. Tre strade provate, tutte bloccate dalla stessa regola: `git push --force` («refusing to allow a GitHub App to create or update workflow»), `PATCH /git/refs` con `force` (403), e cancella-e-ricrea — dove il **403 arriva già sulla creazione di un tag di prova** sullo stesso commit, perciò il tag vero non è stato toccato. `GITHUB_TOKEN` non può ottenere il permesso `workflows`. **Riverificato il 2026-10-08** con il client GitHub della sessione, che usa una credenziale diversa: `PATCH /git/refs/tags/bsi-v181` risponde **403 «Write access to this GitHub API path is not permitted through this proxy»**. È un secondo blocco, indipendente dal primo: anche senza la regola sui file di workflow, la scrittura sui riferimenti git non passa. Il tag punta a `64e8c316`, dovrebbe puntare a `cb0cf03e` | I tre pacchetti allegati alla release sono quelli giusti; va ignorato l'archivio «Source code (zip)», e il codice della `bsi-v181` si scarica dal commit `cb0cf03`. Dichiarato nella voce `bsi-v181` del CHANGELOG e nel testo della release, con il comando che rimette il tag da credenziali personali. Il valore predefinito è stato togliato e il workflow ora **rifiuta** una versione che non coincida con quella di `sw.js` e con il nome dei pacchetti — provato nei due versi |
-| **D-11** | Spectra Live, il menu ✨ per materia e gli strumenti rapidi non hanno un banco | I comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ di fisica e matematica sono provati a mano: un loro guasto non farebbe fallire la batteria | Dichiarati in `docs/08` §6 come **UI-21** e **AI-13**. Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia della batteria; i calcoli degli strumenti rapidi poggiano su `BSIMatCAS`, verificato da `test_matematica` |
-| **D-12** | Le chiavi locali nuove non rientrano nella cancellazione selettiva | `bsi-spectra-mente-v1`, `bsi-studio:*` e le altre chiavi con il trattino non sono nei gruppi di `bsiCancellaDati()` | La memoria di Spectra si cancella con «dimentica tutto»; i progressi dei kit di studio restano cancellabili dalle impostazioni del browser. Dichiarato in `docs/11` §6 |
+| **D-11** | Parte di Spectra Live, il menu ✨ per materia e gli strumenti rapidi non hanno un banco | La voce, l'ascolto continuo, i comandi locali diversi da quelli del creatore, gli strumenti che agiscono sulla pagina e il menu ✨ di fisica e matematica sono provati a mano: un loro guasto non farebbe fallire la batteria | Dichiarati in `docs/08` §6 come **UI-21** e **AI-13**. Dalla v238 l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore sono coperti da `test_spectra238` (UI-22, AI-14, SEC-08). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia della batteria; i calcoli degli strumenti rapidi poggiano su `BSIMatCAS`, verificato da `test_matematica` |
+| **D-12** | Due chiavi locali di Spectra restano fuori dalla cancellazione selettiva | `bsi-spectra-ritratto-v4` (l'icona ricavata dal volto) e `bsi-spectra-sentinella` (segno dell'ascolto continuo) non sono nei gruppi di «Cancella dati». La mente, il riconoscimento del creatore, la materia e i kit di studio invece sì (gruppi Memoria persistente e Progressi) | Nessuna delle due contiene dati dell'utente: la prima si rigenera, la seconda si toglie quando l'ascolto si ferma. Dichiarato in `docs/11` §6 |
+| **D-13** | Il riconoscimento del creatore di Spectra non è un controllo d'accesso | L'impronta SHA-256 della frase segreta è nel codice, e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`, dove chi ha il dispositivo può scriverlo a mano. Un'impronta senza sale di una frase debole si può anche cercare per tentativi fuori dall'app | Come la password del File Manager (SEC-03), è un deterrente: non protegge dati, dice a Spectra con chi parla. La frase non è nel codice né conservata (SEC-08, `test_spectra238`) |
 
 > ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
 >
@@ -242,6 +243,12 @@ fornitore di intelligenza artificiale scelto dall'utente, la accompagnano un
 riassunto di questa memoria e della scheda aperta; se la domanda riguarda ciò
 che è sullo schermo, anche un'immagine delle sue tele.
 
+Il riconoscimento del creatore (`bsi-spectra-creatore.js`) conserva solo un
+segno (`bsi-spectra-creatore-v1`: riconosciuto sì, data del primo e
+dell'ultimo accesso). La frase segreta si confronta come impronta SHA-256 e
+non entra nel dialogo, nella memoria, nella voce né nelle richieste al
+fornitore; al modello va soltanto se l'utente è stato riconosciuto.
+
 Le chiamate di rete sono opzionali e dirette a servizi pubblici documentati
 (§4 di `07-SBOM.md`). Se l'utente configura il proxy, le chiavi API risiedono
 sul Worker di sua proprietà e non sul dispositivo.
@@ -261,4 +268,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v237`._
+_Versione `bsi-v238`._

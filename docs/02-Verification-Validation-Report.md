@@ -117,7 +117,7 @@ In coerenza con il principio di trasparenza scientifica:
 
 ---
 
-## 7. Batteria di verifica — stato alla versione `bsi-v237`
+## 7. Batteria di verifica — stato alla versione `bsi-v238`
 
 La verifica non è più solo end-to-end funzionale: comprende banchi dedicati alle
 proprietà che un test funzionale non osserva (stabilità nel tempo, degrado di
@@ -127,10 +127,10 @@ rete, accuratezza dei dati).
 
 | Famiglia | Banchi | Oggetto |
 |---|---|---|
-| **Dati scientifici** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati`, `test_v237` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche; le venti sezioni di astrofisica, fisica e matematica contro valori noti o un secondo metodo |
+| **Dati scientifici** | `verifica-farmaci`, `test_spettri`, `test_assi`, `test_assi_canvas`, `test_costanti`, `audit_dati`, `test_v237`, `test_3d238` | struttura vs peso molecolare, riconoscimento gruppi funzionali, convenzioni degli assi, costanti fisiche; le venti sezioni di astrofisica, fisica e matematica contro valori noti o un secondo metodo; le schede 3D di 29 sezioni (311 controlli dei calcoli, ogni scheda aperta a 1280 e 390 px) |
 | **Agente AI** | `test_ko`, `test_404`, `test_503`, `test_firma`, `test_attesa`, `test_attesalunga`, `test_tetto`, `test_nucleo`, `browser_ko`, `browser_prova` | modello ritirato, CORS, sovraccarico, firme di ragionamento, tetto di token, attese prolungate, memoria dei fornitori irraggiungibili |
 | **Stabilità** | `audit_stabilita`, `audit_promesse`, `audit_quota`, `test_filemanager`, `test_doppioinvio`, `test_sw`, `test_visore3d` | sessioni lunghe, promesse rifiutate, memoria esaurita, archivio non disponibile, invii sovrapposti, rete degradata, contesti WebGL |
-| **Interfaccia** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_controllaagg`, `test_guidaproxy` | pannelli, proxy, laboratorio RDKit, aggiornamenti (anche il pulsante «Controlla» premuto nei tre casi: già aggiornata, versione nuova, sito irraggiungibile) |
+| **Interfaccia** | `browser_reset`, `browser_proxy`, `browser_proxyui`, `browser_rdkit`, `browser_lab`, `browser_frontiera`, `test_aggiorna`, `test_controllaagg`, `test_spectra238`, `test_guidaproxy` | pannelli, proxy, laboratorio RDKit, aggiornamenti (anche il pulsante «Controlla» premuto nei tre casi: già aggiornata, versione nuova, sito irraggiungibile); console di Spectra Live su telefono e schermo grande, navigatore, livello e concentrazione, riconoscimento del creatore, occhi e sonno del volto |
 | **Coerenza** | `verifica_guida` | corrispondenza documentazione ⟷ codice, marcatori di conflitto su 58 file |
 
 ### 7.2 Proprietà verificate che un test funzionale non osserva

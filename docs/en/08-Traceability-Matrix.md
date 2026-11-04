@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Author** | Samuele Pio Provenzano |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Connect every declared requirement to the implementation that realises it and to the bench that verifies it. |
 
 > **How to read this matrix.** Every row is a closed chain: a requirement, the
@@ -81,6 +81,9 @@
 | **SCI-57** | Study material must be checked: minimum quantities, valid schema, quiz answers computed where possible, tables with a numeric proof, citations in the declared formats | `bsi-studio.js` (`valida`, `MINIMI`), `bsi-studio-fisica.js`, `bsi-studio-matematica.js`, `bsi-risorse-materie.js` (citations, tables with `prova`) | `test_v237` — `verifica-studio` (167 checks on the engine: generator, shuffle, Leitner, score, HTML cleaning), `verifica-studio-fisica` and `verifica-studio-matematica` (minimums and schema; **264 mathematics answers recomputed** out of 346 questions), `verifica-risorse` (87 checks: APA 7, IEEE, ISO 690, BibTeX on hand-built records, table proofs) |
 | **UI-19** | Every tab of the twenty new sections must open full, without warnings, with its canvases drawn and an accessible name, on a large screen and on a phone, without blocking the page | group 9 «🔭 Astrophysics» in `index.html`; sections built with `bsi-fisica-comune.js` and, for 3D, `bsi-lab3d.js` | `test_v237` — at 1280 and 390 px every tab is full, has no ⚠, every canvas draws (for 3D the scene is sampled) and has a name; **2D tabs within 250 ms, 3D tabs within 6 s** (in the bench WebGL runs in SwiftShader, with no GPU); the Astrophysics group has at least 12 sections; nothing overflows at 390 px; no JavaScript errors; the section names in English |
 | **UI-20** | «Check for updates» must always give an answer: up to date, new version, site unreachable | `bsi-aggiorna.js` (service worker version via `BSI_VERSIONE`, `sw.js` from the same site with no cache); in `index.html` the 🔄 Updates window, with GitHub as fallback; in `sw.js` the answer to `BSI_VERSIONE`. **Found and fixed**: the window looked for a `CACHE_VERSION` line that `sw.js` no longer has, and on GitHub: the published version was never read | `test_controllaagg` — 12 checks: the «Check» button actually pressed in the three cases (same `sw.js`; `sw.js` with a higher version (v999); request aborted), «Update now» only in the second, and `BSIAggiorna.controlla()` with its pop-up notice in the same three cases |
+| **SCI-58** | The 3D tabs added to 29 chemistry, physics and mathematics sections must show quantities computed from the section's model and compared with known values, a closed form or a second method | `bsi-chi-pes.js`, `bsi-chi-fasi.js`, `bsi-chi-cinetica.js`, `bsi-chi-equilibrio.js`, `bsi-fis-cristalli.js`, `bsi-fis-schrodinger.js`, `bsi-fis-hartreefock.js`, `bsi-fis-rotovib.js`, `bsi-fis-dinamica.js`, `bsi-fis-meccanica.js`, `bsi-fis-em.js`, `bsi-fis-onde.js`, `bsi-fis-gravita.js`, `bsi-fis-relativita.js`, `bsi-fis-fluidi.js`, `bsi-fis-termo.js`, `bsi-fis-solido.js`, `bsi-fis-ising.js`, `bsi-fis-particelle.js`, `bsi-mat-multi.js`, `bsi-mat-vettoriale.js`, `bsi-mat-calcolo.js`, `bsi-mat-lineare.js`, `bsi-mat-ode.js`, `bsi-mat-probabilita.js`, `bsi-mat-topologia.js`, `bsi-mat-noneuclidea.js`, `bsi-mat-complessi.js`, `bsi-mat-variazioni.js` (scene through `bsi-lab3d.js`). **Found and fixed before publication**: `applicaMobius` did not recognise the pole for an angle of exactly π; in molecular collisions the normal was taken from spheres that had already overlapped (fraction above threshold 0.345 against e⁻¹ = 0.368, now 0.370) | `test_3d238` — runs the 29 scripts `tools/banchi/verifiche/verifica-<id>-3d.js` (for `smattopo` and `smatnoneucl` the section's own script): 311 checks, among them the LEPS saddle with a single imaginary frequency, h*/R = 1.32549 for the soap film, for 3D Ising |m| high below T_c ≈ 4.51 and almost zero above, the invariant mass reconstructed within 2·10⁻⁵, K measured within 1.5 % in the equilibrium box |
+| **UI-23** | Every tab of the 29 sections with the new 3D tab must open full, without warnings, with its canvases drawn and an accessible name, and the last tab must be a 3D scene that draws; a chart without a name must take the tab's | `bsi-fisica-comune.js` — `prepara()` and `mostra()` give canvases without a name (or with a one-letter name) «Chart: <tab> — <section>»; the 3D scene is built after the click, outside the handler | `test_3d238` — at 1280 and 390 px, for every section: all tabs full, no ⚠, every canvas draws and has a name of at least three characters; the last tab is a scene with `Scena.campiona() > 0`; **synchronous work on click under 250 ms** (WebGL in SwiftShader); nothing overflows at 390 px; no JavaScript error |
+| **UI-22** | The Spectra Live console must stay usable on a phone with Android's status bar and navigation keys over the page, with no overlapping elements, and every section must be reachable from it | `bsi-spectra-live.js` — `env(safe-area-inset-*)` margins with minimums of 34 and 46 px (class `.bsiJV-bordi`) when the window covers the screen on a touch device or the app is installed; layout computed in the drawing loop; 🧭 navigator per subject; context shortcuts; 💬 button; round Spectra Live button next to the Spectra button | `test_spectra238` — on a simulated phone (412×915, touch): safe margins active, first button ≥ 34 px from the top edge, controls ≥ 46 px from the bottom edge, telemetry in two columns not covering the face; on a large screen no forced margins; on both, header, face, state, dialogue, controls and attribution without overlaps; the navigator lists, for each of the three subjects, exactly the sections of the bar, the quick tools and the phrases; opening a section of another subject switches subject and leaves the Spectra Live button |
 | **UI-14** | One function must not have two entry points. The spectra lived in **nine sections** across two menus; Spectra in three places; and the ✨ panel showed **two "Data Science", two "File Manager", two "Articles", two "Updates"**, because the panel has a hardwired list that opened the very sections the menu module was inserting — and nobody compared the two lists | `bsi-centrospettri.js` — the panels are **moved** (`appendChild` moves, it does not copy) into a single tabbed section; the old buttons stay hidden because they are the target of `goSection()`, and a tab **clicks the button** instead of showing the panel, so lazy initialisation goes through the one road that already existed. `bsi-menu.js` — the "Utility" category is in the **main bar** with all its entries, and the rule is: if something has a **reachable** button in the bar it is not in the ✨ menu, if it has none it is only in the menu. "Reachable" is not measured with `offsetParent` — the bar shows one group at a time, and a perfectly reachable button has a null `offsetParent` | `test_articoli` §5-6 — the **ten** tabs are inside the centre, and each identifier exists in the document **exactly once** (the proof that it was moved and not copied); `goSection()` on each opens the centre on the right tab and shows **only** one. `test_menu` — Utility visible in the bar with all **fifteen** entries plus the two language ones, **no** menu entry repeating a bar section, **no** duplicate label in the panel, across **two viewports**: large screen and phone. **Both ways**: no repeated id, no duplicate button, Spectra and the reader out of the bar but with their button still in the document because `goSection()` uses it |
 | **UI-17** | Anything that moves must be pausable, slowable and restartable, must not consume when not visible, and must honour «reduce motion» (WCAG 2.2.2) | `bsi-fisica-comune.js` — `F.anima`: bar with ⏸/▶, ↺, speed ×¼…×4 and time; step with real dt capped at 1/20 s; stops off-screen (IntersectionObserver), with the page hidden and when the canvas is removed; with «reduce motion» it starts paused with the first frame drawn. Every laboratory uses it | `test_scienze` — time advances, stops when paused, runs faster at ×4 than at ×¼, stops off-screen and resumes when visible; with «reduce motion» it starts paused and ▶ starts it; every bar has accessible names |
 | **UI-15** | A data table must not exist twice: two copies diverge, and the reader gets a different answer depending on where they came in | The J coupling constants existed in two independent tables with **different** numbers (aromatic ortho ³J 6–9 Hz against 7–10 Hz). The one inside the Spectra centre remains, which sits in the section with its own reference list; `_apriCostantiJ()` is the single road and leads there | `test_articoli` §6 — asking for the J constants opens the centre on the reference-tables tab, on the right sub-tab, and the table has its rows |
@@ -104,8 +107,9 @@
 | **AI-08** | The user must be able to measure which providers they can actually reach | `provaTuttiIFornitori()` | `browser_prova` — 29 checks |
 | **AI-09** | Paid providers must not be offered as free ones | separation by `PROVIDERS[id].free` | `browser_prova` §D2 |
 | **AI-10** | A documented route must exist to remove CORS and rate limits | `proxy/spectra-proxy.js` + in-app guide | `test_guidaproxy` (12), `browser_proxy` (15), `browser_proxyui` (17) |
-| **AI-11** | Spectra's face must really move with what she says and hears: emotions recognised in sentences, a face that changes, eyes in the theme's colour | `bsi-spectra-androide.js` — «Noir» model (Skyfox13, CC BY 4.0, modified); 17 emotions from 11 expressive fields blended on the CPU into one attribute (WebGL allows at most 16 per vertex); mouth from the spoken text; fallbacks `bsi-spectra-robot.js` and `bsi-spectra-volto.js` | `test_v237` — 17 emotions and 11 fields; nine sentences give the expected emotion; eyes at rest `#1a3050`; more than 1000 animated vertices; face still in neutral and different between joy and empathy; the set emotion persists; a compliment produces the warm smile; more than 1000 pixels drawn at the centre; no JavaScript errors. The no-WebGL fallback is not exercised by the bench |
+| **AI-11** | Spectra's face must really move with what he says and hears: emotions recognised in sentences, a face that changes, eyes in the theme's colour | `bsi-spectra-androide.js` — «Noir» model (Skyfox13, CC BY 4.0, modified); 17 emotions from 11 expressive fields blended on the CPU into one attribute (WebGL allows at most 16 per vertex); mouth from the spoken text; fallbacks `bsi-spectra-robot.js` and `bsi-spectra-volto.js` | `test_v237` — 17 emotions and 11 fields; nine sentences give the expected emotion; eyes at rest `#1a3050`; more than 1000 animated vertices; face still in neutral and different between joy and empathy; the set emotion persists; a compliment produces the warm smile; more than 1000 pixels drawn at the centre; no JavaScript errors. The no-WebGL fallback is not exercised by the bench |
 | **AI-12** | Spectra's mind must stay in the browser and declare itself for what it is: a state that responds to events, not consciousness | `bsi-spectra-mente.js` — key `bsi-spectra-mente-v1`, state of curiosity, attention, care, mood, bond; `coscienza()` passes a summary to the model; «forget everything» | `test_v237` — a compliment raises the mood, «how are you» answers from the internal state, the summary for the model contains the mood. «Forget everything» and the persistence of the key are not exercised by the bench |
+| **AI-14** | The face must show how demanding the question is and stay alive without looking conscious: concentration from the section's level and from the question, eyelids and eye tint per emotion, sleep when nobody is there | `bsi-spectra-live.js` — `difficolta(testo)` and `livelloSezione(id)` (first level of the path in `bsi-percorsi.js`); `bsi-spectra-androide.js` 3.0 — eyelids as a deformation of each eye's vertices around its centre, tint per emotion in the `#1a3050` family, `concentra()`, damped springs, micro-expressions, sleep after 120 s without contact | `test_spectra238` — an advanced-course question weighs more than a sum, «in simple words» lowers it, the same question weighs more in a PhD-level section than in a school-level one and the level is the path's; joy narrows the eyes, surprise widens them, doubt makes them asymmetric, `#1a3050` at rest, four emotions give four tints, concentration narrows and brightens the eyes, the blink closes the eyelids, after two minutes it sleeps and wakes at the first touch |
 
 ---
 
@@ -146,11 +150,12 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 522 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 552 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
 | **SEC-04** | No conflict marker may reach publication | — | `verifica_guida` §12 — 58 text files |
+| **SEC-08** | The phrase with which the creator makes himself known to Spectra must not appear in the code nor be stored, and must not reach dialogue, memory, voice or model | `bsi-spectra-creatore.js` — SHA-256 fingerprint compared with the File Manager's; in proof mode the console field is a password field and sending skips `elabora()`; three wrong attempts, then a one-minute wait; in `localStorage` only `bsi-spectra-creatore-v1` with `ok`, `dal`, `ultima`, erasable through «Clear data → Persistent memory» | `test_spectra238` — «I am your creator» asks for proof and the field becomes a password field; a wrong phrase is rejected and the field goes back to normal; the typed phrase remains neither in the dialogue, nor in the page, nor in memory; after three attempts the wait; for the model the guest is not recognised, with the instruction never to ask for the phrase in chat; recognised: greeting by name, telemetry, context for the model; «forget that I am your creator» removes the recognition. `tools/verifica-sicurezza.js` — no plaintext password in the code |
 
 > **SEC-03 — declared limitation.** GitHub Pages serves static files: any
 > page-side access control can be bypassed by whoever reads the source. The File
@@ -160,6 +165,11 @@
 > take it out of the history: `git log -p` hands it to anyone. The only effective
 > remedy was to change it, and that **has been done** at version `bsi-v188`. The
 > old one remains in the history and no longer opens anything.
+
+> **SEC-08 — declared limitation.** The File Manager's limitation applies:
+> the fingerprint is in the code and the recognition mark is in `localStorage`,
+> where whoever holds the device can write it by hand. It is a deterrent, not an
+> access control, and it protects no data: it tells Spectra whom it is talking to.
 
 ---
 
@@ -184,15 +194,15 @@ manual testing, and their automation is planned.
 
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
-| Scientific (SCI-01…57) | 55 | 55 | 100 % |
-| AI agent (AI-01…13) | 12 | 12 | 100 % |
+| Scientific (SCI-01…58) | 56 | 56 | 100 % |
+| AI agent (AI-01…14) | 13 | 13 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
-| Interface (UI-01…21) | 18 | 18 | 100 % |
-| Security (SEC-01…07) | 5 | 5 | 100 % |
+| Interface (UI-01…23) | 20 | 20 | 100 % |
+| Security (SEC-01…08) | 6 | 6 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **100** | **100** | **100 %** |
+| **Automated total** | **105** | **105** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **107** | **100** | **93 %** |
+| **Declared total** | **112** | **105** | **94 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -200,8 +210,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **100
-> requirements verified out of 107 declared** — and the seven that are missing
+> automated. The number that matters to an assessor is the second one — **105
+> requirements verified out of 112 declared** — and the seven that are missing
 > are listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the
@@ -227,4 +237,4 @@ that therefore cannot be asserted.
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

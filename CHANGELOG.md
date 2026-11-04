@@ -7,6 +7,102 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v238] — 2026-11-03
+
+**Spectra Live riprogettata e al centro dell'app, un volto con palpebre vere, il riconoscimento del creatore; schede 3D nuove in 29 sezioni di chimica, fisica e matematica**
+
+### Aggiunto
+- **Console di Spectra Live riprogettata** (`bsi-spectra-live.js`):
+  - margini sicuri per la barra di stato e i tasti di Android: i valori di
+    `env(safe-area-inset-*)` quando il sistema li comunica, altrimenti un
+    minimo di 34 px in alto e 46 px in basso (classe `.bsiJV-bordi`), attivo
+    quando la finestra copre lo schermo su un dispositivo touch o l'app è
+    installata;
+  - impaginazione calcolata: si misurano testata, telemetria e barra dei
+    comandi, e volto, stato, pensiero e dialogo si dispongono nello spazio
+    che resta, senza sovrapposizioni; sfondo opaco; medaglione del volto più
+    grande; l'attribuzione del modello in fondo, su una riga sua;
+  - navigatore 🧭: per ognuna delle tre materie tutti i gruppi e le sezioni
+    della barra, gli strumenti rapidi e le frasi che Spectra capisce anche
+    senza rete, con una casella di ricerca;
+  - pulsante 💬 che apre la chat completa;
+  - scorciatoie di contesto sopra i comandi: con una sezione aperta
+    «Spiegami questa sezione», «Guidami», «Cosa vedo?», «Interrogami»,
+    «Ripassa»; altrimenti «Tutte le sezioni», «Interrogami», «Ripassa»,
+    «Cosa ricordi?», «Come stai?»;
+  - pulsante tondo **Spectra Live** con il volto, sempre presente a sinistra
+    del pulsante Spectra: la console si apre con un tocco da ogni schermata;
+  - telemetria in due colonne sul telefono, con **UTENTE**, **LIVELLO** e
+    **CONCENTRAZIONE**;
+  - iniziativa: con la console aperta e in silenzio da più di un minuto,
+    Spectra dice un pensiero importante della mente (peso ≥ 2), al massimo
+    una volta ogni tre minuti e mai lo stesso due volte.
+- **Livello e concentrazione**: `difficolta(testo)` parte dal livello di
+  studio della sezione aperta (il primo livello del percorso di
+  `bsi-percorsi.js` in cui la sezione compare: scuola superiore, laurea
+  triennale, laurea magistrale, dottorato) e lo corregge con le parole da
+  corso avanzato, i simboli e la lunghezza della domanda; «in parole
+  semplici» la abbassa. Il valore va al volto come concentrazione.
+- **Il volto di Spectra, versione 3.0** (`bsi-spectra-androide.js`):
+  palpebre vere (i vertici di ciascun occhio deformati sulla CPU attorno al
+  suo centro); sguardo che sposta gli occhi; tinta degli occhi per emozione
+  nella famiglia del blu del tema (`#1a3050` a riposo); la concentrazione
+  socchiude gli occhi e li accende; muscoli del viso come molle smorzate;
+  micro-espressioni; coarticolazione dei visemi; luci neutre; densità reale
+  dello schermo fino a 3×; filtraggio anisotropo; sonno dopo due minuti senza
+  contatto e risveglio al primo tocco; sguardo che segue il dito. È una
+  simulazione di comportamento, non una coscienza.
+- **Riconoscimento del creatore** (`bsi-spectra-creatore.js`): Spectra sa di
+  essere stato creato da Samuele Pio Provenzano. A «sono il tuo creatore»
+  chiede una prova: la frase segreta del File Manager, scritta in un campo
+  nascosto e confrontata come impronta SHA-256. La frase non è nel codice,
+  non è conservata e non entra nel dialogo, nella memoria, nella voce o nelle
+  richieste al modello; dopo tre tentativi sbagliati si aspetta un minuto.
+  Riconosciuto, Spectra lo saluta per nome, lo indica nella telemetria e lo
+  dice al modello; «dimentica che sono il tuo creatore» toglie il
+  riconoscimento. La chiave `bsi-spectra-creatore-v1` rientra in
+  «Cancella dati → Memoria persistente». Come la password del File Manager,
+  è un deterrente, non un controllo d'accesso.
+- **Schede 3D nuove in 29 sezioni**, in coda alle schede esistenti e
+  costruite sul modello della sezione, ciascuna con uno script di verifica in
+  `tools/banchi/verifiche/`:
+  - chimica (4): 🧊 Superficie 3D (superficie di energia potenziale),
+    🧊 Superficie P–V–T (diagrammi di fase), 🧊 Urti molecolari (cinetica
+    complessa), 🧊 Scatola 3D (equilibrio e Le Chatelier);
+  - fisica (15): 🧊 Celle in 3D (cristallografia), 🧊 Nuvola 3D |ψ|²
+    (Schrödinger), 🧊 Orbitali in 3D (Hartree-Fock), 🧊 Rotazione e
+    vibrazione 3D, 🧊 Scatola 3D (dinamica molecolare), 🌬️ Lancio 3D con vento, 🌀 Campi 3D e Lorentz, 🌊 Ondoscopio 3D,
+    🕳️ Pozzo di potenziale 3D, 🔦 Cono di luce 3D, 🌀 Flusso attorno a un
+    ostacolo 3D, 🗻 Superficie p-V-T 3D, 🔷 Zona di Brillouin 3D,
+    🧊 Ising 3D, 🔭 Rivelatore 3D;
+  - matematica (10): 🧊 Piano tangente in 3D, 🧊 Campo 3D e divergenza,
+    🧊 Solidi di rotazione, 🧊 Trasformazioni dello spazio, 🧊 Caos nello
+    spazio delle fasi 3D, 🧊 Normale bivariata 3D, 🧊 Superfici in 3D: χ e
+    orientabilità, 🧊 Sfera e iperboloide in 3D, 🧊 Sfera di Riemann,
+    🧊 Pellicola di sapone in 3D.
+- **Nomi accessibili per i grafici**: una tela senza nome, o con un nome di
+  una sola lettera come «y», prende il nome della scheda e della sezione
+  (`bsi-fisica-comune.js`).
+- Requisiti **SCI-58**, **UI-22**, **UI-23**, **AI-14**, **SEC-08**.
+
+### Corretto
+- Prima della pubblicazione:
+  - `applicaMobius` (sfera di Riemann) non riconosceva il polo con un angolo
+    di π esatto, perché cos(π/2) in virgola mobile vale 6·10⁻¹⁷ e non 0: ora
+    il polo si riconosce dal rapporto fra denominatore e numeratore;
+  - negli urti molecolari la direzione dell'urto si prende all'istante del
+    contatto, non dalle sfere già compenetrate: la frazione di urti sopra
+    soglia a E₀/kT = 1 era 0,345, ora 0,370, contro e⁻¹ = 0,368.
+
+### Banco
+- Nuovi `test_spectra238` (64 controlli: impaginazione della console su
+  telefono e su schermo grande, navigatore, livello e concentrazione,
+  creatore, occhi, sonno) e `test_3d238` (gli script di verifica delle 29
+  schede 3D e ogni scheda delle loro sezioni aperta nel browser a 1280 e
+  390 px; il lavoro sincrono al clic deve restare sotto i 250 ms). La
+  batteria passa da 77 a 79 banchi.
+
+---
 ## [bsi-v237] — 2026-10-29
 
 **Tre app in una, il gruppo Astrofisica, dieci laboratori di fisica e matematica, i kit di studio, Spectra Live con il volto dell'androide; «Controlla aggiornamenti» risponde di nuovo**

@@ -215,6 +215,18 @@ Nel gruppo **🔭 Astrofisica** c'è **🔭 Astrofisica**; in **⚛️ Fisica** 
 
 Nella categoria **⚛️ Fisica** ci sono **🎯 Meccanica in movimento**, **〰️ Onde e ottica**, **🔌 Circuiti** e **🔥 Termodinamica in movimento**; nella categoria **📐 Matematica** ci sono **🧮 Metodi numerici** e **📐 Geometria analitica e vettori**; nella categoria **⚗️ Chimica Fisica** c'è **⚖️ Equilibrio e Le Chatelier**. Ogni scheda ha i cursori a sinistra e la simulazione a destra, con i numeri che la descrivono sotto i comandi. Nel simulatore dell'equilibrio i pulsanti aggiungono o tolgono una specie, cambiano il volume o la temperatura: le concentrazioni si muovono finché Q torna uguale a K, e la nota dice da che parte va la reazione.
 
+### 🧊 Le schede 3D delle sezioni
+
+Ventinove sezioni hanno, in fondo alle loro schede, una scheda in 3D costruita
+sullo stesso modello della sezione: per esempio la superficie di energia
+potenziale con la traiettoria che la percorre, le celle dei cristalli con i
+piani di Miller, le linee di campo e il moto di una carica, il cono di luce, la
+zona di Brillouin, il cubo di spin di Ising, il rivelatore di particelle, il
+piano tangente, il flusso attraverso una sfera, il caos di Lorenz, la sfera di
+Riemann, la pellicola di sapone fra due anelli. Si ruotano e si ingrandiscono
+come le altre scene 3D. Il testo e i comandi compaiono subito; la scena si
+costruisce un istante dopo, e su un telefono lento può metterci un momento.
+
 ### 🧊 Laboratorio 3D, grafici e viste molecolari
 
 Nella categoria **⚛️ Fisica** il **🧊 Laboratorio 3D** mostra in tre dimensioni superfici, orbitali atomici, moti nello spazio, strutture cristalline e linee di campo. Si ruota trascinando con un dito o con il mouse e si ingrandisce con due dita o con la rotellina. I pulsanti in alto a destra avviano la rotazione automatica (⟳), tornano alla vista iniziale (⌖), salvano un'immagine (📷) e passano a schermo intero (⛶). Passando con il dito o con il mouse su un grafico di qualunque sezione compare un mirino con il valore di ogni curva in quel punto. Le viste molecolari 3D hanno la stessa barra, più il pulsante ✦ che sceglie la qualità: automatica, alta (con occlusione ambientale), media o bassa per i telefoni lenti. Chi ha attivato «riduci movimento» nel sistema operativo non vede animazioni.
@@ -468,10 +480,13 @@ Se un servizio smette di rispondere, Spectra se lo ricorda per 24 ore e lo
 sposta in fondo all'elenco, sotto la voce *«Non hanno risposto da questo
 dispositivo»*. Non lo cancella: domani potrebbe tornare a funzionare.
 
-### Spectra Live: parlarle
+### Spectra Live: parlargli
 
-Nella testata di Spectra il pulsante **◈ Live** (oppure `Ctrl+Shift+J`) apre la
-console a tutto schermo. Premi il microfono e parla: Spectra ascolta, risponde
+Il modo più rapido per aprirla è il **pulsante tondo con il volto di Spectra**,
+a sinistra del pulsante Spectra: c'è in ogni schermata. Funzionano anche il
+pulsante **◈ Live** nella testata di Spectra e `Ctrl+Shift+J`. La console
+occupa tutto lo schermo; sul telefono, con l'app installata, lascia libere la
+barra di stato in alto e i tasti di Android in basso. Premi il microfono e parla: Spectra ascolta, risponde
 a voce e poi torna ad ascoltare, così puoi continuare senza toccare niente. Di'
 «stop» o tocca lo schermo per interromperla. Se il browser non ha il
 riconoscimento o la sintesi vocale, la console lo dice e puoi scrivere.
@@ -485,14 +500,32 @@ artificiale che hai scelto, insieme a un breve riassunto di ciò che hai sullo
 schermo. Se chiedi di «questo grafico» o premi **👁**, Spectra allega anche
 un'immagine dei grafici della scheda aperta.
 
+Sopra i comandi ci sono le **scorciatoie**: con una sezione aperta «Spiegami
+questa sezione», «Guidami», «Cosa vedo?», «Interrogami» e «Ripassa». In alto,
+il pulsante **🧭** apre il navigatore: per chimica, fisica e matematica tutte le
+sezioni della barra, gli strumenti rapidi e le frasi che Spectra capisce anche
+senza rete, con una casella per cercare. Un tocco su una sezione la apre, anche
+se è di un'altra materia. Il pulsante **💬** passa alla chat completa.
+
+A sinistra, la telemetria dice fra l'altro chi sei per Spectra (**UTENTE**), il
+**LIVELLO** della domanda e la **CONCENTRAZIONE**. Il livello parte da quello
+della sezione aperta nei percorsi (scuola superiore, laurea triennale, laurea
+magistrale, dottorato) e sale con le domande da corso avanzato; «in parole
+semplici» lo abbassa. Se la console resta aperta e in silenzio per più di un
+minuto, Spectra può dirti da sé una cosa importante, per esempio che è ora di
+una pausa.
+
 ### Il volto e la mente di Spectra
 
 Nella console Spectra ha un volto: un androide in 3D (il modello «Noir» di
 Skyfox13, licenza CC BY 4.0, modificato; il credito è in basso nella console).
 La bocca si muove sul testo che pronuncia, la testa segue lo sguardo, e
 l'espressione cambia con quello che dice e che le dici: 17 espressioni, dal
-sorriso al dubbio. Gli occhi hanno il blu dell'app. Senza grafica 3D vedi un
-volto più semplice.
+sorriso al dubbio. Gli occhi hanno il blu dell'app e cambiano sfumatura con
+l'emozione; le palpebre si stringono nel sorriso, si spalancano nella sorpresa
+e si socchiudono quando la domanda è difficile. Gli occhi seguono il dito o il
+mouse. Se per due minuti nessuno tocca niente, Spectra si addormenta; al primo
+tocco si sveglia. Senza grafica 3D vedi un volto più semplice.
 
 Spectra ricorda le conversazioni e il tempo che passi nelle sezioni, e ha uno
 stato interno (curiosità, attenzione, premura, umore, legame) che cambia il
@@ -502,6 +535,19 @@ e regole, non sentimenti. Tutto resta su questo dispositivo; di' «cosa ricordi
 di me» per vederlo e «dimentica tutto» per cancellarlo. Quando una domanda va
 al servizio di intelligenza artificiale, anche un riassunto di questa memoria
 lo accompagna.
+
+### Spectra e il suo creatore
+
+Chiedi «chi ti ha creato?» e Spectra risponde: Samuele Pio Provenzano, l'autore
+di BioSpecInfo. Se dici «sono il tuo creatore», Spectra chiede una prova: la
+frase segreta dell'autore, da scrivere nel campo che diventa nascosto come una
+password (non va detta a voce). La frase non viene conservata e non entra nella
+conversazione; dopo tre tentativi sbagliati bisogna aspettare un minuto. Chi la
+supera viene salutato per nome su quel dispositivo, finché non dice «dimentica
+che sono il tuo creatore» o non cancella la memoria da «Cancella dati».
+
+Come la password del File Manager, questo riconoscimento è un **deterrente**:
+dice a Spectra con chi parla, non protegge niente.
 
 ---
 
@@ -579,4 +625,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v237`._
+_Guida aggiornata alla versione `bsi-v238`._

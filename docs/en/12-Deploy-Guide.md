@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -178,6 +178,18 @@ time the app derives Spectra's icon or opens the Spectra Live console. It must
 be published with the rest, with its CC BY 4.0 attribution
 ([`07-SBOM.md`](07-SBOM.md)); if it is missing, the console uses the fallback
 face.
+
+### 2.2-ter One secret phrase, two fingerprints
+
+Since `bsi-v238` the same secret phrase serves the File Manager and the
+recognition of Spectra's creator. Its SHA-256 fingerprint is written in two
+places: `file_manager.html` and `bsi-spectra-creatore.js` (constant
+`IMPRONTA`). If the phrase changes, **both** must change in the same release;
+otherwise the File Manager opens with the new phrase and Spectra recognises
+only the old one. A recognition mark already written in a browser
+(`bsi-spectra-creatore-v1`) is not revoked by the change: it is removed with
+«forget that I am your creator» or with «Clear data». The plaintext phrase must
+never be written to a file in the repository.
 
 ### 2.3 How the update reaches users
 
@@ -362,4 +374,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

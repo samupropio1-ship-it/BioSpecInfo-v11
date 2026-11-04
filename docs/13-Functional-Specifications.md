@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -81,6 +81,7 @@ L'applicazione conta **194 sezioni**, raggruppate per area di studio.
 | **🌀 🎲 ☢️ 🧱 🔌 Fisica: cinque laboratori** | **Spin, qubit ed entanglement** (Stern–Gerlach, sfera di Bloch, Bell e CHSH, BB84); **Meccanica statistica** (livelli e anomalia di Schottky, Maxwell–Boltzmann, Fermi e Bose, solidi di Einstein e Debye); **Nuclei e reazioni** (valle di stabilità, valori Q, barriera e tunnel, nucleo 3D, reattore); **Elasticità e materiali** (trazione, travi, carico di Eulero, suono nei solidi); **Elettronica** (raddrizzatori, diodi e Zener, emettitore comune, operazionali, ADC, DAC e contatori) |
 | **🌊 🌀 🔗 🧩 📡 Matematica: cinque laboratori** | **Equazioni alle derivate parziali** (corda, membrana 3D, calore 1D e 2D, Laplace 3D, trasporto e Burgers); **Analisi complessa** (colorazione del dominio, paesaggio di \|f\| in 3D, mappe conformi, Joukowski, residui, integrali reali); **Catene di Markov e processi stocastici** (catena, PageRank, rovina del giocatore, passeggiate in 1, 2 e 3 dimensioni, Poisson e code); **SVD e algebra lineare applicata** (SVD 2×2 e 3×3, compressione di immagini, PCA 3D, minimi quadrati); **Codici e curve ellittiche** (Hamming(7,4), CRC e cifre di controllo, curve su ℝ e su F_p, ECDH) |
 | **🧪 ⚛️ 📐 Tre app in una** | La materia scelta decide anche il **menu ✨**, **Spectra**, **Studio** e **Utility** (`bsi-materie-app.js`). In fisica e matematica il blocco delle funzioni chimiche del menu ✨ lascia il posto agli **strumenti rapidi** (`bsi-attrezzi.js`), aperti in una finestra sopra la pagina: 🧮 calcolatrice esatta, ∂ derivata e ∫ primitiva, 📈 grafico, 🔢 costante CODATA, 🔁 convertitore di unità, 📐 formula, 📖 glossario e ⚡ quiz lampo presi dal kit di studio della materia. Spectra riceve un'istruzione di sistema, i suggerimenti e il saluto della materia |
+| **🧊 Schede 3D nelle sezioni (v238)** | Ventinove sezioni (4 di chimica, 15 di fisica, 10 di matematica) hanno in coda una scheda 3D costruita sul modello della sezione: superficie LEPS con la traiettoria, superficie P–V–T con la cupola, urti molecolari in una scatola, equilibrio molecola per molecola, celle elementari con i piani di Miller, nuvola \|ψ\|², orbitali RHF, molecola che ruota e vibra, fluido di Lennard-Jones, lancio con vento, campi e forza di Lorentz, ondoscopio, pozzo di potenziale con i punti di Lagrange, cono di luce, flusso attorno a un ostacolo, superficie p-V-T, zona di Brillouin, Ising 3D, rivelatore di particelle; piano tangente, campo e divergenza, solidi di rotazione, trasformazioni dello spazio, caos nello spazio delle fasi, normale bivariata, superfici con χ e orientabilità, sfera e iperboloide, sfera di Riemann, pellicola di sapone. Testo e comandi si costruiscono al clic, la scena subito dopo. Ogni scheda ha uno script di verifica (`15-Test-Documentation.md` §3.1-ter). Le tele senza nome prendono quello della scheda e della sezione |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Esplorazioni** | **Probabilità in movimento** (Galton, limite centrale, Monte Carlo, Bayes); **Matematica visiva** (trasformazioni lineari animate, epicicli di Fourier anche da un disegno a mano, Mandelbrot e Julia con lo zoom, mappa logistica e biforcazioni); **Elettromagnetismo in movimento** (cariche da trascinare con equipotenziali e linee di campo, induzione, generatore, onde EM e polarizzazione); **Suono e acustica** con l'audio (armoniche, timbro, battimenti, Doppler e cono di Mach, decibel); **Semiconduttori** (Fermi-Dirac, n_i, drogaggio, giunzione p-n, LED); **Distillazione** (T-x-y con Antoine e van Laar, azeotropo, McCabe-Thiele, Rayleigh); **Voltammetria ciclica** simulata (diffusione e Butler-Volmer, Randles-Ševčík, analisi con la velocità di scansione) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa** | **Astrofisica**: diagramma H-R con stelle vere e la sequenza principale per massa, corpo nero e colore delle stelle, sistema solare animato con Keplero e Hohmann, transiti di esopianeti con curva di luce e velocità radiale, cosmologia di Friedmann con età dell'universo e galassie che si allontanano. **Relatività ristretta**: Minkowski, gemelli, dinamica e Doppler. **Fluidi**: Venturi, Poiseuille, Reynolds, Stokes e centrifuga, capillarità. **Calcolo vettoriale**: campi con particelle, divergenza e rotore, potenziale, teorema di Green verificato, gradiente. **Cinetica complessa**: reazioni consecutive, parallele e reversibili, Brusselator e biforcazione di Hopf, strutture di Turing. Tutte le animazioni dell'app hanno pausa, ricomincia e velocità, si fermano fuori schermo e rispettano «riduci movimento» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratori in movimento** | Sette sezioni: **Meccanica in movimento** (proiettile con l'aria e angolo ottimo, urti con coefficiente di restituzione, pendolo vero con lo spazio delle fasi, oscillatori accoppiati e modi normali); **Onde e ottica** (battimenti, onde stazionarie, velocità di gruppo; lenti e specchi con i raggi principali; diffrazione da N fenditure nel colore della luce); **Circuiti** (transitori RC, RL, RLC con i tre regimi; corrente alternata con i fasori e la risonanza; filtri con il diagramma di Bode); **Termodinamica in movimento** (cicli di Carnot, Otto, Diesel e Stirling nei piani p-V e T-S con i bilanci; gas di particelle che arriva a Maxwell-Boltzmann; moto browniano); **Metodi numerici** (zeri, integrazione, EDO, interpolazione, con gli ordini di convergenza misurati); **Geometria analitica e vettori** (vettori e rette e piani in 3D, coniche con gli invarianti); **Equilibrio e Le Chatelier** (una reazione che si sposta quando la si disturba, K in funzione di T) |
@@ -307,6 +308,28 @@ episodi e tempo di studio e tiene uno stato interno di cinque grandezze. È una
 simulazione di comportamento, non una coscienza: vedi
 [`05-AI-Agent-Architecture.md`](05-AI-Agent-Architecture.md) §4.10–4.12.
 
+Dalla v238 la console è il punto d'ingresso principale: un pulsante tondo con
+il volto, sempre presente accanto al pulsante Spectra, la apre da ogni
+schermata. Sul telefono a schermo intero rispetta i margini della barra di
+stato e dei tasti di Android (almeno 34 e 46 px quando il sistema non li
+comunica) e dispone volto, stato, dialogo e comandi senza sovrapposizioni. Il
+navigatore 🧭 elenca per materia ogni sezione, gli strumenti rapidi e le frasi
+riconosciute; le scorciatoie di contesto (Spiegami questa sezione, Guidami,
+Cosa vedo?, Interrogami, Ripassa) cambiano con lo schermo; 💬 apre la chat.
+La **difficoltà** di una domanda parte dal livello di studio della sezione
+aperta nei percorsi (scuola superiore, triennale, magistrale, dottorato) e
+cresce con parole da corso avanzato, simboli e lunghezza; diventa la
+**concentrazione** del volto (occhi socchiusi e più accesi). Il volto (v3.0)
+ha palpebre, tinta degli occhi per emozione, molle muscolari, micro-espressioni
+e un sonno dopo due minuti senza contatto. Con la console in silenzio da più di
+un minuto Spectra può dire da sé un pensiero importante della mente.
+
+**Il creatore** (`bsi-spectra-creatore.js`). Spectra sa di essere stato creato
+da Samuele Pio Provenzano. Il riconoscimento richiede la frase segreta del File
+Manager, confrontata come impronta SHA-256 e mai conservata; riconosciuto,
+l'autore è salutato per nome e il modello lo sa. È un deterrente, non un
+controllo d'accesso (§6).
+
 ---
 
 ## 4. Flussi principali
@@ -428,8 +451,9 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 9 | **Verifica su Chromium soltanto** | Firefox e WebKit sono provati a mano, non da banco |
 | 10 | **La mente di Spectra è una simulazione** | Memoria e stato interno sono dati e regole nel browser, non comprensione né sentimenti. Il quadro della mente e il contesto dello schermo vanno al fornitore insieme alla domanda, quando la domanda va al modello |
 | 11 | **Alcuni dati di astrofisica sono illustrativi** | La popolazione di esopianeti non è un catalogo; le «osservazioni» delle curve di rotazione sono un modello con rumore; la mappa della CMB è sintetizzata da uno spettro di potenza illustrativo. Le sezioni lo dichiarano |
-| 12 | **Spectra Live e gli strumenti rapidi senza banco** | I comandi vocali e locali, gli strumenti che agiscono sulla pagina e il menu ✨ per materia sono provati a mano (`08-Traceability-Matrix.md` §6, UI-21 e AI-13) |
+| 12 | **Spectra Live e gli strumenti rapidi senza banco** | Dalla v238 `test_spectra238` prova impaginazione, navigatore, livello, volto e comandi del creatore; la voce, gli altri comandi locali, gli strumenti che agiscono sulla pagina e il menu ✨ per materia sono provati a mano (`08-Traceability-Matrix.md` §6, UI-21 e AI-13) |
 | 13 | **Il volto di Spectra pesa circa 8 MB** | `models/spectra-noir.glb` non è nel precarico del service worker: si scarica la prima volta che l'app ricava l'icona di Spectra (pochi secondi dopo il primo avvio, se c'è WebGL) o apre la console. Se non arriva, la console usa il volto di ripiego |
+| 14 | **Il riconoscimento del creatore non è un controllo d'accesso** | L'impronta SHA-256 è nel codice e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`: chi ha il dispositivo può scriverlo a mano. Come la password del File Manager, è un deterrente e non protegge dati |
 
 ---
 
@@ -447,4 +471,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

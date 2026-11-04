@@ -22,8 +22,10 @@
      all'altezza delle orecchie; il labbro superiore si alza di poco. Lo
      shader somma quello spostamento moltiplicato per l'apertura del momento
      (un uniforme): la bocca si apre e si chiude sul testo pronunciato;
-   · gli OCCHI diventano luci: si spengono in un lampo per il battito delle
-     palpebre e cambiano colore con lo stato (sfumature di blu scuro, come l'app);
+   · gli OCCHI diventano luci con PALPEBRE VERE (v3.0): i loro vertici si
+     schiacciano e si allargano attorno al centro di ciascun occhio (battito,
+     sorriso, sorpresa, concentrazione, sonno) e si spostano verso dove guarda;
+     la tinta segue l'emozione nella famiglia del blu del tema (#1a3050);
    · il VISO bianco diventa METALLO GRIGIO, conservando i rilievi del modello
      (normal map e occlusione); la calotta trasparente diventa un vetro
      sottile, cosi' il viso si vede.

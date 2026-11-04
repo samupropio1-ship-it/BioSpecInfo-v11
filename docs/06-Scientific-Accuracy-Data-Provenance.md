@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Documentare come vengono generati i dati scientifici mostrati dall'applicazione, con quale metodo sono verificati, e quali sono i limiti dichiarati. |
 
 > **Perché questo documento esiste.** Un'applicazione didattica di chimica può
@@ -945,6 +945,43 @@ codice. Non porta dati scientifici; l'attribuzione compare nella console e in
 
 ---
 
+## 4-ter. Le schede 3D della v238
+
+Ventinove sezioni ricevono una scheda 3D costruita **sullo stesso modello**
+della sezione: la scena disegna grandezze calcolate (la superficie LEPS, le
+celle con le costanti reticolari, le linee di campo integrate, la soluzione di
+Lorenz, il flusso di curvatura media della pellicola…), non figure fatte a
+mano. Ogni scheda ha uno script `tools/banchi/verifiche/verifica-<id>-3d.js`
+(per Topologia e Geometrie non euclidee lo script della sezione), eseguito da
+`test_3d238`; in tutto **311 controlli**, descritti per esteso in
+[`15-Test-Documentation.md`](15-Test-Documentation.md) §3.1-ter.
+
+| Tipo di confronto | Esempi, con il valore stampato dallo script |
+|---|---|
+| Valore misurato o pubblicato | ω(H₂) del modello LEPS 4396,6 cm⁻¹ contro 4401 misurati; H₂ a 1,4 bohr −1,116714 Eh (Szabo-Ostlund); fattore acentrico di acqua e CO₂ 0,3443 e 0,2249 |
+| Forma chiusa | raggio di Larmor 0,61538; h*/R = 1,32549 per il catenoide (u* tanh u* = 1); volume della sfera 4π/3 con Simpson |
+| Secondo metodo | liste di celle contro la somma su tutte le coppie (5·10⁻¹⁴); rotazioni della sfera contro le Möbius di SU(2) (5,5·10⁻¹⁶); iperboloide contro disco di Poincaré (1,2·10⁻¹⁵) |
+| Grandezza statistica entro l'errore | frazione di urti sopra soglia = e^(−E₀/kT) entro 3σ; K misurata nella scatola dell'equilibrio entro l'1,5 % |
+
+**Dichiarati dal codice come modelli o valori di letteratura, non misure
+dell'app**: la temperatura critica dell'Ising 3D, T_c ≈ 4,5115 J/k, viene dalle
+simulazioni pubblicate (non esiste una soluzione esatta) ed è usata come
+riferimento; il rivelatore è «come CMS» (solenoide di 3,8 T, giogo a −1,8 T,
+13 strati del tracciatore fino a 1,08 m) con eventi Z → μμ, Z → ee e H → γγ
+generati dal codice (m_H = 125,2 GeV); i parametri delle molecole e dei
+cristalli sono quelli già usati e verificati dalle schede 2D delle stesse
+sezioni.
+
+**Corretti prima della pubblicazione.** Negli urti molecolari la normale
+dell'urto si prendeva dalle sfere già compenetrate dal passo discreto, e gli
+urti radenti risultavano più frontali: la frazione sopra soglia a E₀/kT = 1 era
+0,345 contro e⁻¹ = 0,368. Ora si torna indietro lungo il moto relativo fino al
+contatto: 0,370. Nella sfera di Riemann il polo non si riconosceva con un
+angolo di π esatto, perché cos(π/2) in virgola mobile vale 6·10⁻¹⁷: ora il polo
+si riconosce dal rapporto fra denominatore e numeratore della Möbius.
+
+---
+
 ## 5. Automazione della verifica
 
 Tutti i controlli descritti sono eseguibili e ripetibili. Al momento della
@@ -959,6 +996,7 @@ stesura la batteria comprende, fra gli altri:
 | `audit_dati` | coerenza dei dati tabulati | 29 |
 | `verifica_guida` | corrispondenza fra ciò che la documentazione promette e ciò che il codice fa | 71 |
 | `test_v237` | le venti sezioni di astrofisica, fisica e matematica contro valori noti o un secondo metodo (§4-bis.2), i kit di studio e le risorse | 705 nei venti script, più i kit, le risorse e le prove nel browser |
+| `test_3d238` | le schede 3D di 29 sezioni contro valori noti, forme chiuse o un secondo metodo (§4-ter), e ogni scheda aperta nel browser a 1280 e 390 px | 311 nei 29 script, 488 in tutto |
 
 L'ultimo banco merita una menzione: verifica che le affermazioni contenute nella
 documentazione utente corrispondano al comportamento reale del codice. Una
@@ -981,4 +1019,4 @@ anziché presentarlo come verificato.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._
