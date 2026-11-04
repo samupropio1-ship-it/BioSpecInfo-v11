@@ -335,6 +335,9 @@
     '.bsiST-vuoto{font-size:.88rem;color:#aebccd;background:#0a1628;border:1px dashed #1a3050;border-radius:10px;padding:14px;line-height:1.55}',
     '.bsiST-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}',
     '.bsiST-scheda{background:#0a1628;border:1px solid #1a3050;border-radius:12px;padding:12px 14px;min-width:0;overflow-wrap:anywhere}',
+    /* v238: un kit ha 60-80 riassunti (85 000 caratteri, 18 000 px): con content-visibility il browser impagina
+       solo le schede sullo schermo; contain-intrinsic-size tiene la barra di scorrimento stabile */
+    '.bsiST-lista .bsiST-scheda{content-visibility:auto;contain-intrinsic-size:auto 240px}',
     '.bsiST-scheda.fatto{border-color:rgba(94,234,212,.55)}',
     '.bsiST-scheda h3{margin:0 0 4px;font-size:1rem;color:#e6fffb;line-height:1.35}',
     '.bsiST-corpo{font-size:.86rem;color:#c9d3df;line-height:1.6}',

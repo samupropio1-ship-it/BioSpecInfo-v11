@@ -198,9 +198,19 @@
       var ok = dec.dati.join('') === st.dati.join('');
       info.innerHTML = t('Parola inviata: ', 'Sent codeword: ') + '<b>' + cod.join('') + '</b><br>' + t('Ricevuta: ', 'Received: ') + '<b>' + ric.join('') + '</b> · ' + t('sindrome ', 'syndrome ') + '<b>' + dec.sindrome.toString(2).padStart(3, '0') + '₂ = ' + dec.sindrome + '</b><br>' + t('Dati decodificati: ', 'Decoded data: ') + '<b>' + dec.dati.join('') + '</b> ' + (ok ? '<span class="bsiFX-ok">' + t('corretti', 'correct') + '</span>' : '<span class="bsiFX-ko">' + t('sbagliati: con due errori la sindrome punta al bit sbagliato e la «correzione» aggiunge un terzo errore', 'wrong: with two errors the syndrome points at the wrong bit and the «correction» adds a third error') + '</span>');
     }
+    var simulati = null;
     function curva() {
       var P = [], A = [], B = []; for (var k = 0; k <= 60; k++) { var p = 0.3 * k / 60, e = erroreBlocco(p); P.push(p); A.push(e.senza); B.push(e.hamming); }
-      var pts = [0.02, 0.05, 0.1, 0.15, 0.2, 0.25].map(function (p, i) { var s = simulaCanale(p, 20000, 3 + i); return [{ x: p, y: s.senza, col: '#ff8a80', r: 4 }, { x: p, y: s.hamming, col: '#5eead4', r: 4 }]; }).reduce(function (a, b) { return a.concat(b); }, []);
+      /* i punti simulati (6 × 20 000 blocchi) non dipendono da p: si calcolano una volta, un valore
+         di p per volta in compiti separati, cosi' l'apertura della scheda resta leggera (v238: 200 ms →
+         pochi ms); la curva si ridisegna quando arrivano */
+      if (!simulati) {
+        simulati = [];
+        [0.02, 0.05, 0.1, 0.15, 0.2, 0.25].forEach(function (p, i) {
+          setTimeout(function () { var sm = simulaCanale(p, 20000, 3 + i); simulati.push({ x: p, y: sm.senza, col: '#ff8a80', r: 4 }, { x: p, y: sm.hamming, col: '#5eead4', r: 4 }); if (cp.isConnected) curva(); }, 60 + 40 * i);
+        });
+      }
+      var pts = simulati.slice();
       var e0 = erroreBlocco(st.p);
       F.grafico(cp, { serie: [{ x: P, y: A, col: '#ff8a80', etich: [t('senza codice', 'uncoded'), t('senza codice', 'uncoded')] }, { x: P, y: B, col: '#5eead4', etich: ['Hamming(7,4)', 'Hamming(7,4)'] }], punti: pts.concat([{ x: st.p, y: e0.hamming, col: '#ffffff', r: 5 }]), xmin: 0, xmax: 0.3, ymin: 0, ymax: 1, xl: ['probabilità di errore per bit p', 'bit error probability p'], yl: ['P(blocco di 4 bit sbagliato)', 'P(4-bit block wrong)'], legenda: [{ col: '#ff8a80', etich: ['4 bit senza codice: 1 − (1 − p)⁴', '4 bits uncoded: 1 − (1 − p)⁴'] }, { col: '#5eead4', etich: ['Hamming: 1 − (1 − p)⁷ − 7p(1 − p)⁶', 'Hamming: 1 − (1 − p)⁷ − 7p(1 − p)⁶'] }], descr: ['Probabilità di errore per blocco con e senza codice di Hamming', 'Block error probability with and without the Hamming code'] });
       cp._info = t('Con p = ', 'With p = ') + st.p.toFixed(3) + ': ' + (100 * e0.senza).toFixed(2) + ' % → ' + (100 * e0.hamming).toFixed(2) + ' %';
