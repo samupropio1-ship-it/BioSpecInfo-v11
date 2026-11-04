@@ -76,6 +76,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 </section>
 
 <script src="./three.min.js"></script>
+<script src="./gltf_loader.js"></script>
 <script src="./bsi-spectra-mente.js"></script>
 <script src="./bsi-spectra-creatore.js"></script>
 <script src="./bsi-spectra-androide.js"></script>
@@ -121,9 +122,20 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     var anello = new T.Mesh(new T.TorusGeometry(0.7, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.y = 0.845; banco.add(anello);
     var cono = new T.Mesh(new T.CylinderGeometry(0.7, 0.68, 1.5, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.05, side: T.DoubleSide, depthWrite: false })); cono.position.y = 1.6; banco.add(cono);
     var lezione = new T.Group(); lezione.position.y = 0.86; lezione.scale.setScalar(0.85); banco.add(lezione);
-    /* Spectra: il corpo (modello vero se c'e', altrimenti il manichino) */
+    /* Spectra: il corpo. Si parte dal manichino; se esiste models/spectra-cyberpunk.glb (il modello scelto
+       dall'autore) lo si carica e lo si sostituisce: il driver ne trova ossa, blendshape e capelli */
     var corpoRadice = BSISpectraCorpo.manichino({ neon: 0x2f6bff }); corpoRadice.position.set(-0.55, 0, 0.15); corpoRadice.rotation.y = 0.35; sc.add(corpoRadice);
     var corpo = BSISpectraCorpo.crea(corpoRadice, {});
+    fetch('./models/spectra-cyberpunk.glb', { method: 'HEAD' }).then(function (r) {
+      if (!r.ok || !T.GLTFLoader) return;
+      new T.GLTFLoader().load('./models/spectra-cyberpunk.glb', function (g) {
+        var m = g.scene, bb = new T.Box3().setFromObject(m), alto = bb.max.y - bb.min.y || 1;
+        m.scale.setScalar(1.8 / alto); m.position.set(-0.55, -bb.min.y * 1.8 / alto, 0.15); m.rotation.y = 0.35;
+        sc.remove(corpoRadice); sc.add(m); corpoRadice = m; S.corpoRadice = m; S.allinea = 0;
+        corpo = BSISpectraCorpo.crea(m, { animazioni: g.animations, scalaOssa: 1 }); S.corpo = corpo; S.modelloVero = corpo.rapporto();
+        if (S.volto) S.volto.radice.visible = false;   /* il modello vero ha il suo viso */
+      });
+    }).catch(function () {});
     /* la telecamera: si puo' girare trascinando */
     var cam = new T.PerspectiveCamera(38, 1, 0.05, 60), bers = new T.Vector3(0.15, 1.15, 0), orb = { az: 0.12, el: 0.12, r: 3.6 };
     function posCam() { cam.position.set(bers.x + orb.r * Math.sin(orb.az) * Math.cos(orb.el), bers.y + orb.r * Math.sin(orb.el), bers.z + orb.r * Math.cos(orb.az) * Math.cos(orb.el)); cam.lookAt(bers); }
@@ -141,7 +153,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     /* il volto «Noir» incarnato sulla testa del corpo */
     if (window.BSISpectraAndroide && BSISpectraAndroide.disponibile()) {
       BSISpectraAndroide.crea(cont, { scena: sc, renderer: ren, senzaBusto: true }).then(function (A) {
-        var testa = corpo.ossa.testa; if (!testa) return;
+        var testa = corpo.ossa.testa; if (!testa || S.modelloVero) return;
         corpoRadice.traverse(function (o) { if (o.isMesh && /Spectra_Head|Hair/.test(o.name)) o.visible = false; if (o.isBone && /Eye$/.test(o.name)) o.visible = false; });
         var k = 0.82; testa.add(A.radice); A.radice.scale.setScalar(k); A.radice.position.set(0, 0, 0); A.radice.rotation.set(0, 0, 0);
         /* sul corpo la testa non va raddrizzata quanto nella console: la si inclina meno all'indietro */
@@ -155,8 +167,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     (function giro(ora) {
       /* il tempo vero (fino a 0,25 s per fotogramma): su un dispositivo lento la simulazione resta in orario */
       var dt = prec ? Math.min(0.25, (ora - prec) / 1000) : 0.016; prec = ora;
+      corpo = S.corpo || corpo;
       corpo.guarda(S.guardaQui || cam.position);
-      corpo.passo(dt); if (S.volto) S.volto.passo(dt);
+      corpo.passo(dt); if (S.volto && !S.modelloVero) S.volto.passo(dt);
       /* ALLINEAMENTO DEL VOLTO SUL COLLO, misurato: il punto piu' basso del viso (il mento) va 1 cm sopra
          l'osso della testa, centrato sul collo e un poco avanti. Si corregge per qualche fotogramma, finche'
          lo scarto misurato e' sotto il millimetro (la posa della testa cambia la misura). */
@@ -175,7 +188,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
   }
 
   /* ═══ LA LEZIONE ═════════════════════════════════════════════════════════ */
-  var stato = { lez: null, fase: -1, passo: 0, previsione: null, misure: null, voce: true };
+  /* la voce si ricorda: chi la spegne (per esempio per non mandare il testo al servizio di sintesi) la ritrova spenta */
+  var VOCE_K = 'bsi-spectra-studio-voce', voceSalvata = null; try { voceSalvata = localStorage.getItem(VOCE_K); } catch (e) {}
+  var stato = { lez: null, fase: -1, passo: 0, previsione: null, misure: null, voce: voceSalvata !== '0' };
   function parla(testo, emo, gesto, bersaglio) {
     if (S.ok) {
       if (emo) { S.corpo.emozione(emo, 6); if (S.volto) S.volto.espressione(emo, 6); }
@@ -187,7 +202,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     return BSISpectraVoce.parla(testo, { suBocca: function (b) { if (S.ok) { S.corpo.audio(b); if (S.volto && S.volto.testo) S.volto.allinea(Math.floor(b.frazione * S.volto.testo.length)); } } }).then(function () { if (S.volto) S.volto.taci(); });
   }
   function fasi(i) { [].forEach.call(D.querySelectorAll('#fasi span'), function (s, k) { s.classList.toggle('on', k === i); s.classList.toggle('fatta', k < i); }); }
-  function azioni(lista) { var az = D.getElementById('az'); az.innerHTML = ''; lista.forEach(function (x) { var b = D.createElement('button'); b.type = 'button'; b.textContent = x[0]; if (x[2]) b.className = 'prim'; b.onclick = x[1]; az.appendChild(b); if (x[3]) { var sp = D.createElement('span'); sp.className = 'sp'; az.appendChild(sp); } }); var v = D.createElement('button'); v.type = 'button'; v.id = 'voce'; v.textContent = stato.voce ? '🔊' : '🔇'; v.setAttribute('aria-label', stato.voce ? 'Voce attiva' : 'Voce spenta'); v.onclick = function () { stato.voce = !stato.voce; if (!stato.voce && window.BSISpectraVoce) BSISpectraVoce.ferma(); v.textContent = stato.voce ? '🔊' : '🔇'; }; az.appendChild(v); }
+  function azioni(lista) { var az = D.getElementById('az'); az.innerHTML = ''; lista.forEach(function (x) { var b = D.createElement('button'); b.type = 'button'; b.textContent = x[0]; if (x[2]) b.className = 'prim'; b.onclick = x[1]; az.appendChild(b); if (x[3]) { var sp = D.createElement('span'); sp.className = 'sp'; az.appendChild(sp); } }); var v = D.createElement('button'); v.type = 'button'; v.id = 'voce'; v.textContent = stato.voce ? '🔊' : '🔇'; v.setAttribute('aria-label', stato.voce ? 'Voce attiva' : 'Voce spenta'); v.onclick = function () { stato.voce = !stato.voce; try { localStorage.setItem(VOCE_K, stato.voce ? '1' : '0'); } catch (e) {} if (!stato.voce && window.BSISpectraVoce) BSISpectraVoce.ferma(); v.textContent = stato.voce ? '🔊' : '🔇'; v.setAttribute('aria-label', stato.voce ? 'Voce attiva' : 'Voce spenta'); }; az.appendChild(v); }
   function apri(id) {
     var lez = L.LEZIONI.filter(function (x) { return x.id === id; })[0]; if (!lez) return;
     stato.lez = lez; stato.previsione = null; stato.misure = null;

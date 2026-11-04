@@ -83,7 +83,7 @@ Il **labiale** si sincronizza sull'audio reale: la posizione nel testo segue il 
 - **`bsi-spectra-corpo.js`**: il driver generico, provato su un **manichino riggato costruito nel codice**. Il manichino ha ossa con nomi Mixamo e blendshape con nomi ARKit, quindi il driver è verificato prima che arrivi il modello vero.
 - **`bsi-spectra-voce.js`**: la voce con la catena di effetti e il labiale sull'audio.
 - **`spectra-studio.html`**: lo studio immersivo. Un laboratorio 3D dove Spectra insegna con il metodo *predici → testa → dimostra → rivela*. Parte con tre lezioni complete: fisica, chimica, matematica.
-- **Modello di Spectra nello studio**: se esiste `models/spectra-cyberpunk.glb` è quello; altrimenti il manichino, con capelli neri procedurali, al posto del corpo.
+- **Modello di Spectra nello studio**: se esiste `models/spectra-cyberpunk.glb` lo studio lo carica al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri); altrimenti il manichino riggato con il volto «Noir» incarnato.
 
 ## 5. Che cosa manca e perché
 
