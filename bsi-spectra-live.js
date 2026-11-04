@@ -971,14 +971,17 @@
   }
   function avvia() {
     registraStrumenti();
-    [300, 1500, 4000].forEach(function (ms) { setTimeout(voltoSuiPulsanti, ms); });
+    /* il ritratto e' un'immagine: chiederla durante il caricamento allunga l'apertura dell'app con la
+       rete lenta (il service worker aspetta la rete 3,5 s prima di servire la copia). Si mette dopo «load» */
+    var dopoCarico = function (f) { if (document.readyState === 'complete') f(); else globale.addEventListener('load', function () { f(); }, { once: true }); };
+    dopoCarico(function () { [300, 1500, 4000].forEach(function (ms) { setTimeout(voltoSuiPulsanti, ms); }); });
     globale._bsiContestoSchermo = contestoSchermo;
     try { new MutationObserver(function () { if (document.getElementById('bsi-hub-ov')) pulsanteNelHub(); }).observe(document.body, { childList: true }); } catch (e) {}
     if ('speechSynthesis' in globale) { try { speechSynthesis.onvoiceschanged = function () { voce.scelta = scegliVoce(); }; } catch (e) {} }
     document.addEventListener('bsi-lingua', function () { voce.scelta = null; testiHud(); });
     /* scorciatoia: Ctrl+Shift+J (o Cmd) apre la console */
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) { e.preventDefault(); apriHud(); } });
-    pulsanteLive();
+    dopoCarico(pulsanteLive);
   }
   /* IL PULSANTE DI SPECTRA LIVE (v238): Spectra e' l'assistente principale, quindi la console
      si apre con un tocco da qualunque schermata. Un cerchio con il suo volto, subito a sinistra
