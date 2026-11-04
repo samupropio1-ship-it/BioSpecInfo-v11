@@ -208,7 +208,7 @@ function carica() {
   /* ── nel browser ─────────────────────────────────────────────────────── */
   console.log('\n── Nel browser ──');
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
-  const SEZ = [[7, 'sfismecc', 4], [7, 'sfisonde', 3], [7, 'sfiscirc', 3], [7, 'sfistermo', 3], [8, 'smatnum', 4], [8, 'smatgeo', 3], [4, 'schiequil', 3]];   /* v238: scheda 3D aggiunta (schiequil) */
+  const SEZ = [[7, 'sfismecc', 5], [7, 'sfisonde', 4], [7, 'sfiscirc', 3], [7, 'sfistermo', 4], [8, 'smatnum', 4], [8, 'smatgeo', 3], [4, 'schiequil', 3]];   /* v238: scheda 3D aggiunta (schiequil) */   /* v238: scheda 3D aggiunta (sfismecc, sfisonde, sfistermo) */
   for (const [nome, vp] of [['schermo grande', { width: 1280, height: 900 }], ['telefono', { width: 390, height: 844 }]]) {
     const ctx = await browser.newContext({ serviceWorkers: 'block', viewport: vp });
     const pg = await ctx.newPage(), errs = [];
@@ -227,7 +227,7 @@ function carica() {
         for (let i = 0; i < sch.length; i++) {
           sch[i].click(); await pausa(2400);
           const pan = [...sec.querySelectorAll('[role=tabpanel]')].find(x => x.offsetParent); if (pan.textContent.length > 100) piene++; if (/⚠/.test(pan.textContent)) avvisi++;
-          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; const q = c.getContext('2d'); if (!q) { if (pan._scena && pan._scena.campiona() > 300) disegnate++; return; } const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 97) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
+          pan.querySelectorAll('canvas').forEach(c => { if (!c.offsetParent) return; tele++; const q = c.getContext('2d'); if (!q) { { const S = (()=>{for(let e=c;e&&e!==pan.parentNode;e=e.parentNode)if(e._scena)return e._scena;return null;})(); if (S && S.campiona && S.campiona() > 300) disegnate++; } return; } const d = q.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let k = 0; k < d.length; k += 4 * 97) if (d[k] + d[k + 1] + d[k + 2] > 120) n++; if (n > 5) disegnate++; });
         }
         out[s] = { schede: sch.length, piene, tele, disegnate, avvisi, etichette: [...sec.querySelectorAll('canvas')].every(c => !c.offsetParent || (c.getAttribute('aria-label') || '').length > 2) };
       }
