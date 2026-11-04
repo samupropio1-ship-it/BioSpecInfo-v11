@@ -21,6 +21,7 @@ documentato. Si articola su tre livelli:
 |---|---|---|---|
 | **Preferenze e progressi** | `localStorage` | Impostazioni, chiavi API, cronologia AI, avanzamento nello studio | Browser dell'utente |
 | **Archivio documenti** | IndexedDB | Foto, documenti, sezioni HTML, note, registro attività | Browser dell'utente |
+| **Corpo di Spectra Studio** | IndexedDB (`bsi-spectra-modelli`) | Il file `.glb` caricato dall'utente con «🧍 Corpo» | Browser dell'utente |
 | **Dataset didattici** | SQLite via `sql.js` | Tabelle di esercitazione, create in memoria a ogni sessione | Memoria, non persistito |
 
 **Tutti i dati restano sul dispositivo.** Non vengono trasmessi, non esiste un
@@ -230,6 +231,22 @@ ancora valorizzata, e distingue due casi:
 Se un'altra scheda richiede un aggiornamento di versione, la connessione viene
 chiusa (`onversionchange`) per non bloccare entrambe.
 
+### 3.3 Il corpo di Spectra Studio — `bsi-spectra-modelli`
+
+| | |
+|---|---|
+| **Nome database** | `bsi-spectra-modelli` |
+| **Object store** | `file` |
+| **Chiave** | `corpo` |
+| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» di `spectra-studio.html`; al massimo 60 MB |
+| **Chi lo scrive** | Lo studio, solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
+| **Chi lo legge** | Lo studio, a ogni apertura, prima di ogni altro corpo |
+| **Cancellazione** | «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
+
+Il file non esce dal dispositivo. Il motivo è la licenza: il corpo scelto
+dall'autore viene da CGTrader, la cui licenza Royalty Free non permette che
+terzi possano recuperare il file, quindi ognuno usa la propria copia.
+
 ---
 
 ## 4. Dataset didattici — SQLite in memoria
@@ -272,7 +289,7 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 | `chiavi` | Chiavi API (anche nel formato vecchio), fornitore scelto, indirizzo del proxy, memoria sui fornitori e sui modelli irraggiungibili |
 | `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) il riconoscimento del creatore (`bsi-spectra-creatore-v1`) e Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Ripetizione spaziata |
-| `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`) e progressi dei kit di studio (`bsi-studio:*`) |
+| `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`), progressi dei kit di studio (`bsi-studio:*`) e il database IndexedDB `bsi-spectra-modelli` (il corpo di Spectra Studio caricato dal dispositivo) |
 
 Restano fuori dai gruppi `bsi-spectra-ritratto-v4` (l'icona ricavata dal
 volto, che si rigenera) e `bsi-spectra-sentinella` (che si toglie da sola).

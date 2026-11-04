@@ -345,7 +345,7 @@ Restano fuori la voce della lezione (non c'è sintesi vocale nel Chromium senza
 interfaccia) e la qualità didattica dei testi, che dipende dalle spiegazioni
 delle sezioni e va giudicata leggendo.
 
-**`test_spectra_studio` — 73 controlli (79 con il corpo riggato presente in
+**`test_spectra_studio` — 79 controlli (85 con il corpo riggato presente in
 locale).** Prova Spectra incarnato
 (`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
 `bsi-spectra-studio-lezioni.js`; progetto in
@@ -358,12 +358,13 @@ locale).** Prova Spectra incarnato
 | Voce (3) | In un contesto audio offline: a 80 Hz i bassi escono rinforzati (6,9 dB), il riverbero lascia una coda dopo la fine del suono; senza chiave `qualita()` vale `'sistema'` |
 | Lezioni, a 1280 e 390 px | Il volto «Noir» appoggiato sul collo (sul manichino il mento sta 1,0 cm sopra l'osso della testa; sul corpo riggato il riferimento è l'osso del collo più 4,5 cm, dove il mento poggia sul colletto); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
 | Corpo riggato, a 1280 e 390 px (3 + 3) | Solo se `models/spectra-corpo.glb` è presente in locale. **Sincronia viso–cappuccio**: mentre Spectra cammina, fa il gesto «spiega» e guarda in 24 punti diversi, la posizione del viso misurata nel riferimento dell'osso della testa non si sposta più di 1 mm (misurati 0,0 mm); **del volto «Noir» si vede solo il viso** (sono visibili soltanto `Object_2`, `Object_3`, `Object_4`: maschera, occhi, dettagli); il volto è **«solidale»** (i movimenti della testa li fa il corpo, e il volto non fa il proprio respiro dentro il cappuccio) |
+| Corpo dal dispositivo, a 1280 e 390 px (3 + 3) | Il pulsante «🧍 Corpo» c'è e il suo campo file accetta i `.glb` (`.glb,model/gltf-binary`); un corpo scritto e riletto dall'IndexedDB (`bsi-spectra-modelli`) torna uguale (andata e ritorno); un file che non è un modello viene rifiutato con un messaggio, senza errori JavaScript |
 | Voce e dati (2) | La voce spenta resta spenta dopo una ricarica; «Cancella dati → Memoria persistente» toglie `bsi-spectra-studio-v1` e `bsi-spectra-studio-voce` |
 | Senza WebGL | Nessuna scena, ma la lezione dà le misure (2,019 s); nessun errore JavaScript |
 
 Restano fuori: il corpo «Bounty Hunter» nella batteria pubblica, perché
-`models/spectra-corpo.glb` non è nel repository (la licenza del modello di
-terzi non è ancora confermata dall'autore): senza il file i sei controlli del
+`models/spectra-corpo.glb` non è nel repository (viene da CGTrader, e la
+licenza Royalty Free non permette che terzi possano recuperarne il file): senza il file i sei controlli del
 corpo riggato si saltano e il banco prova il manichino; il caricamento del
 modello «cyberpunk» (`models/spectra-cyberpunk.glb`, anch'esso fuori dal
 repository); la chiamata a OpenAI e l'ascolto della voce (il banco non

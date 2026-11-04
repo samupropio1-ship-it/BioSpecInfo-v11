@@ -265,7 +265,9 @@ text does not leave. Spectra Studio (`spectra-studio.html`) keeps in
 (`bsi-spectra-studio-v1`) and the voice choice (`bsi-spectra-studio-voce`), and
 also sends each prediction to the mind. Both keys are covered by «Clear data →
 Persistent memory». With the voice off in the studio (🔇) no text goes to
-OpenAI.
+OpenAI. A `.glb` body loaded with the «🧍 Corpo» button stays only in the
+browser's IndexedDB (`bsi-spectra-modelli`), never leaves the device and is
+erased with «Clear data → Progress in the rest of the app».
 
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker

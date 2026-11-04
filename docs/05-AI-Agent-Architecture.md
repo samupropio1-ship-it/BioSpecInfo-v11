@@ -912,7 +912,12 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   rende neri i capelli; il volto «Noir» si nasconde, perché il modello ha il
   suo viso. Il modello «cyberpunk» scelto dall'autore non è stato fornito (il
   file non era raggiungibile e la licenza va verificata): oggi il file non
-  c'è e si vede il manichino.
+  c'è e si vede il manichino. **Il corpo dal dispositivo**: prima di tutto lo
+  studio cerca nell'IndexedDB (`bsi-spectra-modelli`) un corpo `.glb` che
+  l'utente ha caricato con il pulsante «🧍 Corpo», lo rigga con
+  `bsi-spectra-rig.js` e lo usa; poi `models/spectra-corpo.glb` (solo in
+  sviluppo, fuori da git per la licenza CGTrader), poi il modello
+  «cyberpunk», poi il manichino.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

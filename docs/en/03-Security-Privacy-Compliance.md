@@ -39,6 +39,10 @@
   avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
   Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
   or do not save an OpenAI key.
+- **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
+  the «🧍 Corpo» button stays only in the browser's IndexedDB
+  (`bsi-spectra-modelli`) and is not sent to any server. It is erased with
+  «Clear data → Progress in the rest of the app».
 - **Local right to erasure:** the user can delete data by clearing the site
   storage in the browser.
 

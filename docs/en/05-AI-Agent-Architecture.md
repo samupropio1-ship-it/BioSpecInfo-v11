@@ -881,7 +881,12 @@ summarised here.
   the hair black; the «Noir» face is hidden, because the model has its own
   face. The «cyberpunk» model chosen by the author has not been provided (the
   file was not reachable and its licence must be checked): today the file is
-  not there and the mannequin is shown.
+  not there and the mannequin is shown. **The body from the device**: first of
+  all the studio looks in IndexedDB (`bsi-spectra-modelli`) for a `.glb` body
+  the user loaded with the «🧍 Corpo» button, rigs it with
+  `bsi-spectra-rig.js` and uses it; then `models/spectra-corpo.glb`
+  (development only, kept out of git because of the CGTrader licence), then
+  the «cyberpunk» model, then the mannequin.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

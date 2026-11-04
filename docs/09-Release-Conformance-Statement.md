@@ -266,7 +266,10 @@ vocale del browser e il testo non esce. Spectra Studio
 esercizi aperti di ogni lezione (`bsi-spectra-studio-v1`) e la scelta sulla
 voce (`bsi-spectra-studio-voce`), e manda ogni previsione anche alla mente.
 Le due chiavi rientrano in «Cancella dati → Memoria persistente». Con la voce
-spenta nello studio (🔇) il testo non va a OpenAI.
+spenta nello studio (🔇) il testo non va a OpenAI. Un corpo `.glb` caricato
+con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
+(`bsi-spectra-modelli`), non esce dal dispositivo e si cancella con «Cancella
+dati → Progressi del resto dell'app».
 
 Le chiamate di rete sono opzionali e dirette a servizi pubblici documentati
 (§4 di `07-SBOM.md`). Se l'utente configura il proxy, le chiavi API risiedono

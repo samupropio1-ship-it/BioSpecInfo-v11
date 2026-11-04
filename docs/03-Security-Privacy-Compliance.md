@@ -41,6 +41,10 @@
   console, nella lezione guidata e in Spectra Studio, dove la scelta resta
   ricordata (`bsi-spectra-studio-voce`); oppure non si salva una chiave
   OpenAI.
+- **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
+  con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
+  (`bsi-spectra-modelli`) e non viene inviato a nessun server. Si cancella con
+  «Cancella dati → Progressi del resto dell'app».
 - **Diritto all'oblio locale:** l'utente può cancellare i dati svuotando lo
   storage del sito dal browser.
 

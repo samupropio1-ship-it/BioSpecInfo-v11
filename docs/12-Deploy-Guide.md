@@ -212,8 +212,10 @@ usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stes
 `models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
 arriva, Spectra resta con la testa del manichino. Il corpo «Bounty Hunter»
 (`models/spectra-corpo.glb`) e `models/spectra-cyberpunk.glb` **non sono nel
-repository** finché l'autore non conferma la licenza: chi pubblica dal
-repository ottiene il manichino; lo studio li cerca con una richiesta `HEAD` e,
+repository** (il corpo viene da CGTrader, la cui licenza Royalty Free non
+permette che terzi ne recuperino il file): chi pubblica dal repository
+ottiene il manichino, e ogni utente può caricare la propria copia con il
+pulsante «🧍 Corpo», che la conserva solo nell'IndexedDB del suo browser; lo studio li cerca con una richiesta `HEAD` e,
 se mancano, passa al successivo senza errori.
 
 **Il modello del corpo.** Lo studio cerca `models/spectra-cyberpunk.glb` con

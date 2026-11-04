@@ -33,11 +33,17 @@ Spectra Live.
 
 | File | Contenuto | Origine | Licenza |
 |---|---|---|---|
-| `spectra-corpo.glb` | corpo «Bounty Hunter», mesh senza scheletro riggata nel browser da `bsi-spectra-rig.js` | CGTrader | **da confermare** |
+| `spectra-corpo.glb` | corpo «Bounty Hunter», mesh senza scheletro riggata nel browser da `bsi-spectra-rig.js` | CGTrader (download gratuito) | Royalty Free di CGTrader |
 
-**Il file non è nel repository** (escluso in `.gitignore`): l'autore non ha
-ancora indicato il tipo di licenza, e le licenze royalty-free di CGTrader in
-generale non permettono di ridistribuire il file del modello così com'è.
-Finché la licenza non è confermata, l'app pubblicata usa il manichino
-riggato costruito nel codice. Il volto «Noir» che lo studio mette nel
+**Il file non è nel repository** (escluso in `.gitignore`) e l'app pubblicata
+non lo serve: la licenza Royalty Free di CGTrader permette di usare il
+modello dentro un prodotto solo se terzi non possono recuperarne il file.
+Senza il file l'app pubblicata usa il manichino riggato costruito nel codice.
+
+**Come caricarlo**: chi possiede il file (scaricato con il proprio account
+CGTrader ed esportato in `.glb`) preme **«🧍 Corpo»** nella testata del
+pannello di Spectra Studio e lo sceglie. Il file resta solo nell'IndexedDB
+di quel browser (database `bsi-spectra-modelli`) e a ogni apertura lo studio
+lo riprende da lì; non va su nessun server. In sviluppo può stare anche in
+`models/spectra-corpo.glb`. Il volto «Noir» che lo studio mette nel
 cappuccio è quello della tabella qui sopra (CC BY 4.0).

@@ -87,11 +87,12 @@ Il **labiale** si sincronizza sull'audio reale: la posizione nel testo segue il 
 - **`spectra-studio.html`**: lo studio immersivo. Un laboratorio 3D dove Spectra insegna con il metodo *predici → testa → dimostra → rivela*. Parte con tre lezioni complete: fisica, chimica, matematica.
 - **`bsi-spectra-rig.js`**: il rig automatico per le figure senza scheletro (§7).
 - **Modello di Spectra nello studio**, in quest'ordine:
-  1. `models/spectra-corpo.glb`, il corpo «Bounty Hunter»: riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7);
-  2. se manca, `models/spectra-cyberpunk.glb`, caricato al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
-  3. se manca anche questo, il manichino riggato con il volto «Noir» incarnato.
+  1. il corpo che l'utente ha caricato dal proprio dispositivo con il pulsante **«🧍 Corpo»**, conservato nell'IndexedDB del browser (§7.5);
+  2. `models/spectra-corpo.glb`, il corpo «Bounty Hunter» (solo in sviluppo): riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7);
+  3. se manca, `models/spectra-cyberpunk.glb`, caricato al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
+  4. se manca anche questo, il manichino riggato con il volto «Noir» incarnato.
 
-  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra il manichino**.
+  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra il manichino**, finché l'utente non carica un corpo suo.
 
 ## 5. Che cosa manca e perché
 
@@ -142,10 +143,21 @@ Invece di riggare il modello a mano in Blender, il rig si fa **nel browser**, al
 Detto con onestà: la texture di partenza è 2048×2048 e **nessun dettaglio nuovo viene inventato**. «4K» si riferisce alla risoluzione di disegno, non alla texture.
 
 ### 7.4 Licenza: il file resta fuori da git
-**`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**; il tipo di licenza non è ancora stato indicato dall'autore. Le licenze royalty-free di CGTrader, in generale, non permettono di ridistribuire il file del modello così com'è, e senza una conferma il modello non si ridistribuisce (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. I due file sono esclusi in `.gitignore`. Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
+**`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**, dove si scarica gratis. La licenza Royalty Free di CGTrader permette di usare un modello dentro un prodotto **a patto che terzi non possano recuperarne il file**. Il repository è pubblico e l'app pubblicata serve i suoi file a chiunque: metterci il modello vorrebbe dire ridistribuirlo (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. I due file sono esclusi in `.gitignore`. Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
 
-- **l'app pubblicata mostra il manichino riggato**, non il corpo «Bounty Hunter»;
+- **l'app pubblicata mostra il manichino riggato**, non il corpo «Bounty Hunter», a meno che l'utente non carichi un corpo suo (§7.5);
 - il banco `test_spectra_rig` prova il rig su un **umanoide sintetico** costruito nel codice, non sul modello vero;
 - i controlli di `test_spectra_studio` sul corpo riggato (sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano solo dove il file è presente in locale, e altrove si saltano.
 
-Confermata la licenza, basta aggiungere il file a `models/` e la sua riga in `models/CREDITS.md`: lo studio lo carica senza altre modifiche.
+In sviluppo il file può stare in `models/` (è escluso da git) e lo studio lo carica. Una licenza che permettesse la ridistribuzione basterebbe a toglierlo da `.gitignore` e ad aggiungerne la riga in `models/CREDITS.md`.
+
+### 7.5 Come caricare il corpo: dal proprio dispositivo
+La soluzione che rispetta la licenza è che **ognuno usi la propria copia**:
+
+1. scaricare il modello da CGTrader con il proprio account ed esportarlo in `.glb`;
+2. in Spectra Studio premere **«🧍 Corpo»**, nella testata del pannello, e scegliere il file;
+3. lo studio lo rigga, lo ricolora e lo mette al posto del corpo attuale (anche di un modello completo, e in quel caso ricrea il volto «Noir»).
+
+Il file resta **solo nel browser di quel dispositivo**, nell'IndexedDB (database `bsi-spectra-modelli`, archivio `file`, chiave `corpo`): non va su nessun server e nessun altro lo vede. A ogni apertura lo studio lo riprende da lì per primo. I file oltre 60 MB sono rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un messaggio, e il corpo di prima resta. «Cancella i miei dati → Progressi del resto dell'app» cancella anche questo database.
+
+Il pulsante funziona con qualunque `.glb` umanoide, non solo con il «Bounty Hunter»: la responsabilità della licenza del file caricato resta di chi lo carica, ma poiché il file non esce dal dispositivo nulla viene ridistribuito.

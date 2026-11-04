@@ -329,7 +329,7 @@ Still outside: the lesson's voice (there is no speech synthesis in headless
 Chromium) and the teaching quality of the texts, which depends on the sections'
 explanations and has to be judged by reading.
 
-**`test_spectra_studio` — 73 checks (79 with the rigged body present
+**`test_spectra_studio` — 79 checks (85 with the rigged body present
 locally).** It tests embodied Spectra
 (`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
 `bsi-spectra-studio-lezioni.js`; design in
@@ -342,12 +342,14 @@ locally).** It tests embodied Spectra
 | Voice (3) | In an offline audio context: at 80 Hz the bass comes out boosted (6.9 dB), the reverb leaves a tail after the sound ends; without a key `qualita()` is `'sistema'` |
 | Lessons, at 1280 and 390 px | The «Noir» face resting on the neck (on the mannequin the chin is 1.0 cm above the head bone; on the rigged body the reference is the neck bone plus 4.5 cm, where the chin rests on the collar); for fall, water and Basel the measurements in the scene (2.019 s, 109.47° and 104.4°, S₁₀₀₀ = 1.64393 and coprimes 0.6079), four predictions, formulas in the proof, the reveal with the right answer and four exercises of which one recommended, the memory remembering the prediction and the exercise opened; at 390 px nothing overflows; no JavaScript errors |
 | Rigged body, at 1280 and 390 px (3 + 3) | Only if `models/spectra-corpo.glb` is present locally. **Face–hood sync**: while Spectra walks, makes the «spiega» gesture and looks at 24 different points, the face position measured in the head bone's frame moves by no more than 1 mm (measured 0.0 mm); **of the «Noir» model only the face is visible** (only `Object_2`, `Object_3`, `Object_4` are visible: mask, eyes, details); the face is **«solidale»** (head movement is done by the body, and the face does not do its own breathing inside the hood) |
+| Body from the device, at 1280 and 390 px (3 + 3) | The «🧍 Corpo» button is there and its file input accepts `.glb` (`.glb,model/gltf-binary`); a body written to and read back from IndexedDB (`bsi-spectra-modelli`) comes back identical (round trip); a file that is not a model is rejected with a message, without JavaScript errors |
 | Voice and data (2) | The muted voice stays muted after a reload; «Clear data → Persistent memory» removes `bsi-spectra-studio-v1` and `bsi-spectra-studio-voce` |
 | Without WebGL | No scene, but the lesson gives the measurements (2.019 s); no JavaScript errors |
 
 Still outside: the «Bounty Hunter» body in the public battery, because
-`models/spectra-corpo.glb` is not in the repository (the licence of the
-third-party model has not yet been confirmed by the author): without the file
+`models/spectra-corpo.glb` is not in the repository (it comes from CGTrader,
+and the Royalty Free licence does not allow third parties to be able to
+retrieve the file): without the file
 the six rigged-body checks are skipped and the bench tests the mannequin;
 loading the «cyberpunk» model (`models/spectra-cyberpunk.glb`, also outside
 the repository); the call to OpenAI and listening to the voice (the bench does

@@ -212,8 +212,10 @@ the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
 it does not arrive, Spectra keeps the mannequin's head. The «Bounty Hunter» body
 (`models/spectra-corpo.glb`) and `models/spectra-cyberpunk.glb` **are not in the
-repository** until the author confirms the licence: deploying from the
-repository gives the mannequin; the studio looks for them with a `HEAD` request
+repository** (the body comes from CGTrader, whose Royalty Free licence does
+not allow third parties to retrieve the file): deploying from the repository
+gives the mannequin, and each user can load their own copy with the
+«🧍 Corpo» button, which keeps it only in their browser's IndexedDB; the studio looks for them with a `HEAD` request
 and, if they are missing, moves on to the next one without errors.
 
 **The body model.** The studio looks for `models/spectra-cyberpunk.glb` with a

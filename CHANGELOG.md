@@ -111,11 +111,24 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   visiera nera lucida del modello, come ha chiesto l'autore. Del volto «Noir»
   si vedono solo maschera, occhi e dettagli (`Object_2/3/4`), avanzati di
   6,5 cm e in scala 0,96, su un supporto allineato in modo che il mento poggi
-  sul colletto. Se il file manca, lo studio prova
-  `models/spectra-cyberpunk.glb` e poi il manichino riggato.
-  **`models/spectra-corpo.glb` non è nel repository**: la licenza e la fonte
-  del modello di terzi non sono ancora state confermate dall'autore. Finché
-  non lo sono, l'app pubblicata mostra il manichino.
+  sul colletto. **`models/spectra-corpo.glb` non è nel repository** (escluso
+  in `.gitignore`): vale solo in sviluppo. Il corpo viene da CGTrader, dove si
+  scarica gratis, ma la licenza Royalty Free permette di usare un modello
+  dentro un prodotto solo se terzi non possono recuperarne il file: non può
+  stare nel repository pubblico né essere servito dall'app pubblicata.
+- **Il corpo dal proprio dispositivo** (`spectra-studio.html`): il pulsante
+  **«🧍 Corpo»** nella testata del pannello (con un campo file nascosto che
+  accetta `.glb`) carica un corpo dal dispositivo dell'utente. Il file viene
+  riggato e ricolorato come sopra e conservato **solo nell'IndexedDB di quel
+  browser** (database `bsi-spectra-modelli`, archivio `file`, chiave
+  `corpo`); non va su nessun server. A ogni apertura lo studio cerca il corpo
+  in quest'ordine: IndexedDB, `models/spectra-corpo.glb` (solo sviluppo),
+  `models/spectra-cyberpunk.glb`, manichino riggato. Un corpo caricato dal
+  dispositivo sostituisce sempre qualunque altro corpo e ricrea il volto
+  «Noir» se un modello completo lo aveva tolto. I file oltre 60 MB sono
+  rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un
+  messaggio. Così chi possiede il file usa la propria copia e nulla viene
+  ridistribuito; senza il file, l'app pubblicata mostra il manichino.
 - **Blu notte**: la texture del corpo è ricolorata nei colori dell'app (ombre
   quasi nere `#03050c`, mezzitoni `#0d162e`–`#162448`, luci `#2a3c6c`); i
   dettagli turchesi del modello diventano luce propria verde acqua `#00c9b7`.
@@ -157,6 +170,11 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   respiro (posizione e scala della radice) dentro il cappuccio. Così viso e
   cappuccio restano in sincronia mentre Spectra cammina, gesticola e guarda
   in giro.
+- **Cancella dati** (`bsi-ai-hub.js`, `DATI_CANCELLABILI.app`): il gruppo
+  «Progressi del resto dell'app» cancella anche il database IndexedDB
+  `bsi-spectra-modelli`, cioè il corpo caricato dal dispositivo.
+- **Studio sul telefono in verticale**: la telecamera si centra fra Spectra e
+  il banco e arretra (bersaglio spostato a x = −0,12, distanza almeno 4,4).
 
 ### Banco
 - Nuovo `test_lezione` (30 controlli): tutte le 194 sezioni hanno la lezione e
@@ -166,7 +184,7 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   «fammi lezione»; a 390 e 1280 px niente sborda; nessun errore JavaScript.
 - `test_spectra238` passa a 66 controlli: un solo pulsante di Spectra
   visibile, rotondo.
-- Nuovo `test_spectra_studio` (73 controlli; 79 con il corpo riggato presente
+- Nuovo `test_spectra_studio` (79 controlli; 85 con il corpo riggato presente
   in locale): i 23 calcoli delle lezioni
   (`verifiche/verifica-studio-spectra.js`); il driver sul manichino (11:
   ossa e blendshape trovati, capelli rossi resi neri, braccia giù dalla posa a
@@ -175,7 +193,9 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   rinforzati, coda del riverbero, ripiego senza chiave); le lezioni a 1280 e
   390 px con il volto appoggiato sul collo e la memoria delle previsioni; la
   voce spenta che si ricorda e «Cancella dati» che toglie le chiavi dello
-  studio; la lezione senza WebGL; nessun errore JavaScript. Con il corpo
+  studio; per ognuna delle due larghezze il pulsante «🧍 Corpo» che c'è e
+  accetta i `.glb`, il corpo che fa andata e ritorno nell'IndexedDB, un file
+  che non è un modello rifiutato senza errori; la lezione senza WebGL; nessun errore JavaScript. Con il corpo
   riggato presente, per ognuna delle due larghezze: sincronia viso–cappuccio
   misurata in 24 pose mentre Spectra cammina e gesticola (soglia 1 mm;
   misurati 0,0 mm), del volto «Noir» si vedono solo maschera, occhi e

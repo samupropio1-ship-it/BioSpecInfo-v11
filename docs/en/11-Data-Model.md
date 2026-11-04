@@ -21,6 +21,7 @@ documented. It is organised across three levels:
 |---|---|---|---|
 | **Preferences and progress** | `localStorage` | Settings, API keys, AI history, study progress | The user's browser |
 | **Document archive** | IndexedDB | Photos, documents, HTML sections, notes, activity log | The user's browser |
+| **Spectra Studio body** | IndexedDB (`bsi-spectra-modelli`) | The `.glb` file the user loaded with «🧍 Corpo» | The user's browser |
 | **Teaching datasets** | SQLite via `sql.js` | Exercise tables, created in memory at each session | Memory, not persisted |
 
 **All data stay on the device.** They are not transmitted, there is no
@@ -238,6 +239,23 @@ distinguishes two cases:
 If another tab requests a version upgrade, the connection is closed
 (`onversionchange`) so as not to block both.
 
+
+### 3.3 The Spectra Studio body — `bsi-spectra-modelli`
+
+| | |
+|---|---|
+| **Database name** | `bsi-spectra-modelli` |
+| **Object store** | `file` |
+| **Key** | `corpo` |
+| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button of `spectra-studio.html`; at most 60 MB |
+| **Who writes it** | The studio, only after the file has been rigged successfully; an invalid file is not saved |
+| **Who reads it** | The studio, at every opening, before any other body |
+| **Erasure** | «Clear data → Progress in the rest of the app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) deletes the whole database |
+
+The file never leaves the device. The reason is the licence: the body chosen
+by the author comes from CGTrader, whose Royalty Free licence does not allow
+third parties to be able to retrieve the file, so everyone uses their own copy.
+
 ---
 
 ## 4. Teaching datasets — SQLite in memory
@@ -280,7 +298,7 @@ everything. The groups are defined in `bsiCancellaDati()`.
 | `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
 | `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Spaced repetition |
-| `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`) and study-kit progress (`bsi-studio:*`) |
+| `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`), study-kit progress (`bsi-studio:*`) and the IndexedDB database `bsi-spectra-modelli` (the Spectra Studio body loaded from the device) |
 
 Left outside the groups: `bsi-spectra-ritratto-v4` (the icon derived from the
 face, which is regenerated) and `bsi-spectra-sentinella` (which removes

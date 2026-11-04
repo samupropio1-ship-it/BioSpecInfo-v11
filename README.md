@@ -198,7 +198,7 @@ BioSpecInfo-v11/
 ├── bsi-spectra-rig.js      Rig automatico nel browser per figure umanoidi senza scheletro
 ├── bsi-spectra-voce.js     Voce di Spectra: audio TTS (con chiave OpenAI) ed effetti
 ├── bsi-spectra-studio-lezioni.js  Lezioni di Spectra Studio, con i calcoli
-├── spectra-studio.html     Spectra Studio: laboratorio 3D con Spectra in piedi
+├── spectra-studio.html     Spectra Studio: laboratorio 3D con Spectra in piedi (corpo .glb caricabile dal dispositivo)
 ├── bsi-materie-app.js      Tre app in una: menu ✨, Spectra, Studio e Utility per materia
 ├── bsi-studio.js           Motore dei kit di studio
 ├── bsi-aggiorna.js         «Controlla aggiornamenti»
