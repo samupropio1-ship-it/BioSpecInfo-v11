@@ -531,8 +531,9 @@
     /* (v239) volto «solidale» con un corpo che ha gia' la testa (e un cappuccio rigido attorno): i movimenti della testa
        li fa il corpo; il viso resta fermo nel suo foro e muove solo le espressioni, gli occhi e la bocca */
     if (this.solidale) this.perno.rotation.set(this.riposo, 0, 0);
-    this.radice.position.y = lento ? 0 : 0.0016 * resp;
-    this.radice.scale.y = lento ? 1 : 1 + 0.0035 * resp;
+    /* il respiro del volto: solo se e' una testa a se'; dentro il cappuccio il viso non deve muoversi di un millimetro */
+    this.radice.position.y = lento || this.solidale ? 0 : 0.0016 * resp;
+    this.radice.scale.y = lento || this.solidale ? 1 : 1 + 0.0035 * resp;
   };
 
   globale.BSISpectraAndroide = {

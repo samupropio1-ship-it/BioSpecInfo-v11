@@ -207,10 +207,18 @@
     for (var i = 1; i < SCALA.length; i++) if (l <= SCALA[i][0]) { var a = SCALA[i - 1], b = SCALA[i], f = (l - a[0]) / (b[0] - a[0]); return [a[1][0] + f * (b[1][0] - a[1][0]), a[1][1] + f * (b[1][1] - a[1][1]), a[1][2] + f * (b[1][2] - a[1][2])]; }
     return SCALA[SCALA.length - 1][1];
   }
-  function ricolora(mappa, T) {
+  function ricolora(mappa, T, opz2) {
+    opz2 = opz2 || {};
     var im = mappa && mappa.image; if (!im || !im.width || typeof document === 'undefined') return null;
     var w = im.width, h = im.height, c = document.createElement('canvas'); c.width = w; c.height = h;
     var g = c.getContext('2d'); g.drawImage(im, 0, 0); var D = g.getImageData(0, 0, w, h), d = D.data;
+    /* il rilievo: la luminanza originale (prima della ricolorazione) fa da mappa d'altezza, cosi' cuciture, bordi delle
+       piastre e pieghe della stoffa prendono luce e ombra vere a ogni angolo, non solo dipinte */
+    var cb = document.createElement('canvas'); cb.width = w; cb.height = h; var gb = cb.getContext('2d'), B = gb.createImageData(w, h), bb = B.data;
+    for (var ib = 0; ib < d.length; ib += 4) { var lb = 0.299 * d[ib] + 0.587 * d[ib + 1] + 0.114 * d[ib + 2]; bb[ib] = bb[ib + 1] = bb[ib + 2] = lb; bb[ib + 3] = 255; }
+    gb.putImageData(B, 0, 0);
+    /* una sfumatura leggera: la trama fitta della stoffa non deve diventare squame; restano bordi, cuciture e pieghe */
+    try { var cb2 = document.createElement('canvas'); cb2.width = w; cb2.height = h; var g2b = cb2.getContext('2d'); g2b.filter = 'blur(' + Math.max(1, w / 1400) + 'px)'; g2b.drawImage(cb, 0, 0); if (g2b.filter !== 'none') cb = cb2; } catch (e) {}
     var ce = document.createElement('canvas'); ce.width = w; ce.height = h; var ge = ce.getContext('2d'), E = ge.createImageData(w, h), e = E.data;
     var tab = []; for (var k = 0; k < 256; k++) tab.push(tinta(Math.pow(k / 255, 0.8)));
     for (var i = 0; i < d.length; i += 4) {
@@ -222,8 +230,39 @@
       e[i + 3] = 255;
     }
     g.putImageData(D, 0, 0); ge.putImageData(E, 0, 0);
-    function tex(cv) { var t2 = new T.CanvasTexture(cv); t2.flipY = mappa.flipY; t2.encoding = T.sRGBEncoding; t2.wrapS = mappa.wrapS; t2.wrapT = mappa.wrapT; t2.anisotropy = 4; return t2; }
-    return { mappa: tex(c), emissiva: tex(ce) };
+    function tex(cv) { var t2 = new T.CanvasTexture(cv); t2.flipY = mappa.flipY; t2.encoding = T.sRGBEncoding; t2.wrapS = mappa.wrapS; t2.wrapT = mappa.wrapT; t2.anisotropy = opz2.anisotropia || 8; return t2; }
+    var rilievo = tex(cb); rilievo.encoding = T.LinearEncoding;
+    return { mappa: tex(c), emissiva: tex(ce), rilievo: rilievo };
+  }
+
+  /* ── LA DEFINIZIONE: tassellazione di Phong (Boubekeur e Alexa, 2008) ──
+     Ogni triangolo diventa quattro; il nuovo vertice a meta' di un lato non sta sulla corda ma sulla superficie curva
+     che le normali dei due estremi descrivono (la media delle proiezioni del punto medio sui due piani tangenti, peso
+     α = 0,75). Le dita, le spalle e i contorni si arrotondano invece di restare a spigoli. Le posizioni e le normali
+     usate sono quelle SALDATE (cuciture della texture comprese): due copie dello stesso lato, separate da una
+     cucitura, danno lo stesso punto, quindi la pelle resta chiusa. */
+  function phong(P, NW, UVa, IND, chiaveDi) {
+    var n = P.length / 3, nuoviP = Array.from(P), nuoviN = Array.from(NW), nuoviUV = UVa ? Array.from(UVa) : null, lati = {}, out = [], A = 0.75;
+    function medio(a, b) {
+      var k = a < b ? a + '_' + b : b + '_' + a; if (lati[k] !== undefined) return lati[k];
+      var q = [0, 0, 0], r = [0, 0, 0], ia = chiaveDi(a), ib = chiaveDi(b);
+      for (var c = 0; c < 3; c++) q[c] = (P[ia * 3 + c] + P[ib * 3 + c]) / 2;
+      [ia, ib].forEach(function (v) {
+        var d = (q[0] - P[v * 3]) * NW[v * 3] + (q[1] - P[v * 3 + 1]) * NW[v * 3 + 1] + (q[2] - P[v * 3 + 2]) * NW[v * 3 + 2];
+        for (var c2 = 0; c2 < 3; c2++) r[c2] += (q[c2] - d * NW[v * 3 + c2]) / 2;
+      });
+      var id = nuoviP.length / 3;
+      for (c = 0; c < 3; c++) nuoviP.push((1 - A) * q[c] + A * r[c]);
+      var nn = [NW[ia * 3] + NW[ib * 3], NW[ia * 3 + 1] + NW[ib * 3 + 1], NW[ia * 3 + 2] + NW[ib * 3 + 2]], l = Math.hypot(nn[0], nn[1], nn[2]) || 1;
+      nuoviN.push(nn[0] / l, nn[1] / l, nn[2] / l);
+      if (nuoviUV) nuoviUV.push((UVa[a * 2] + UVa[b * 2]) / 2, (UVa[a * 2 + 1] + UVa[b * 2 + 1]) / 2);
+      lati[k] = id; return id;
+    }
+    for (var t = 0; t < IND.length; t += 3) {
+      var a = IND[t], b = IND[t + 1], c = IND[t + 2], ab = medio(a, b), bc = medio(b, c), ca = medio(c, a);
+      out.push(a, ab, ca, ab, b, bc, ca, bc, c, ab, bc, ca);
+    }
+    return { P: new Float32Array(nuoviP), N: new Float32Array(nuoviN), UV: nuoviUV ? new Float32Array(nuoviUV) : null, IND: new Uint32Array(out), n0: n };
   }
 
   /* ── il rig ── */
@@ -242,8 +281,26 @@
     for (i = 0; i < n; i++) { P[i * 3] = (P[i * 3] - cx0) * k; P[i * 3 + 1] = (P[i * 3 + 1] - mn[1]) * k; P[i * 3 + 2] = (P[i * 3 + 2] - cz0) * k; }
     var info = { y0: 0, h: alto, cx: 0 };
     var punti = misura(P, n, info);
+    /* la definizione (opz.suddividi = livelli di tassellazione di Phong) */
+    var IND0 = null, UV0 = null, NR0 = null;
+    if (opz.suddividi > 0 && g0.attributes.normal) {
+      IND0 = g0.index ? Array.from(g0.index.array) : Array.from({ length: n }, function (_, q) { return q; });
+      UV0 = g0.attributes.uv ? new Float32Array(n * 2) : null; if (UV0) for (i = 0; i < n; i++) { UV0[i * 2] = g0.attributes.uv.getX(i); UV0[i * 2 + 1] = g0.attributes.uv.getY(i); }
+      var nmS = new T.Matrix3().getNormalMatrix(sorgente.matrixWorld); NR0 = new Float32Array(n * 3);
+      for (i = 0; i < n; i++) { v.fromBufferAttribute(g0.attributes.normal, i).applyMatrix3(nmS).normalize(); NR0[i * 3] = v.x; NR0[i * 3 + 1] = v.y; NR0[i * 3 + 2] = v.z; }
+      for (var liv = 0; liv < Math.min(2, opz.suddividi); liv++) {
+        /* saldatura per posizione: normali medie e un rappresentante per punto */
+        var ch0 = {}, rp0 = new Int32Array(n), NW = new Float32Array(n * 3);
+        for (i = 0; i < n; i++) { var kk = Math.round(P[i * 3] * 2e3) + ',' + Math.round(P[i * 3 + 1] * 2e3) + ',' + Math.round(P[i * 3 + 2] * 2e3); if (ch0[kk] === undefined) ch0[kk] = i; rp0[i] = ch0[kk]; }
+        for (i = 0; i < n; i++) for (var c0 = 0; c0 < 3; c0++) NW[rp0[i] * 3 + c0] += NR0[i * 3 + c0];
+        for (i = 0; i < n; i++) { var r0b = rp0[i], l0 = Math.hypot(NW[r0b * 3], NW[r0b * 3 + 1], NW[r0b * 3 + 2]) || 1; if (r0b === i) { NW[i * 3] /= l0; NW[i * 3 + 1] /= l0; NW[i * 3 + 2] /= l0; } }
+        for (i = 0; i < n; i++) if (rp0[i] !== i) { NW[i * 3] = NW[rp0[i] * 3]; NW[i * 3 + 1] = NW[rp0[i] * 3 + 1]; NW[i * 3 + 2] = NW[rp0[i] * 3 + 2]; }
+        var PH = phong(P, NW, UV0, IND0, function (q) { return rp0[q]; });
+        P = PH.P; NR0 = PH.N; UV0 = PH.UV; IND0 = PH.IND; n = P.length / 3;
+      }
+    }
     /* i vicini (saldando i vertici coincidenti: le cuciture della texture non devono separare la pelle) */
-    var ind = g0.index ? g0.index.array : null, chiave = {}, rap = new Int32Array(n);
+    var ind = IND0 || (g0.index ? g0.index.array : null), chiave = {}, rap = new Int32Array(n);
     for (i = 0; i < n; i++) { var ch = Math.round(P[i * 3] * 2e3) + ',' + Math.round(P[i * 3 + 1] * 2e3) + ',' + Math.round(P[i * 3 + 2] * 2e3); if (chiave[ch] === undefined) chiave[ch] = i; rap[i] = chiave[ch]; }
     var adiac = []; for (i = 0; i < n; i++) adiac.push([]);
     var ntri = ind ? ind.length / 3 : n / 3;
@@ -252,7 +309,7 @@
     for (i = 0; i < n; i++) if (rap[i] !== i) adiac[i] = adiac[rap[i]];
     var nomi = GERARCHIA.map(function (g) { return g[0]; }).filter(pesa);
     info.uMano = punti.LeftHand[1] / alto; info.xMano = Math.abs(punti.LeftHand[0]); info.xSpalla = Math.abs(punti.LeftArm[0]);
-    var NR = null, gn = g0.attributes.normal;
+    var NR = NR0, gn = NR0 ? null : g0.attributes.normal;
     if (gn) { NR = new Float32Array(n * 3); var nm3 = new T.Matrix3().getNormalMatrix(sorgente.matrixWorld); for (i = 0; i < n; i++) { v.fromBufferAttribute(gn, i).applyMatrix3(nm3).normalize(); NR[i * 3] = v.x; NR[i * 3 + 1] = v.y; NR[i * 3 + 2] = v.z; } }
     var SW = pesi(P, n, adiac, punti, nomi, info, NR, rap);
     /* il cappuccio (sopra il collo) e' un pezzo rigido con la testa: il foro del viso segue il volto in ogni rotazione */
@@ -271,6 +328,18 @@
         P[i * 3] *= g; P[i * 3 + 2] = hz + (P[i * 3 + 2] - hz) * g;
         if (P[i * 3 + 1] > hy) P[i * 3 + 1] = hy + (P[i * 3 + 1] - hy) * (1 + (g - 1) * 0.25);   /* in altezza poco: la cupola resta bassa sulla fronte */
       }
+    }
+    /* LA TESTA PIU' GRANDE (opz.testa = fattore): cappuccio e colletto alto si ingrandiscono attorno al collo, con la
+       stessa transizione morbida dal colletto (le spalle non cambiano); l'apertura del viso si ingrandisce con loro */
+    var st = opz.cappuccio && opz.testa ? opz.testa : 1, perno = { y: (U.collo - 0.01) * alto };
+    if (st !== 1) {
+      var v0 = U.collo - 0.02, v1 = U.collo + 0.03;
+      for (i = 0; i < n; i++) {
+        var uu3 = P[i * 3 + 1] / alto; if (uu3 <= v0) continue;
+        var f3 = Math.min(1, (uu3 - v0) / (v1 - v0)); f3 = f3 * f3 * (3 - 2 * f3); var g3 = 1 + (st - 1) * f3;
+        P[i * 3] *= g3; P[i * 3 + 1] = perno.y + (P[i * 3 + 1] - perno.y) * g3; P[i * 3 + 2] = hz + (P[i * 3 + 2] - hz) * g3;
+      }
+      if (opz.viso) opz.viso = { y: perno.y + (opz.viso.y - perno.y) * st, ax: opz.viso.ax * st, ay: opz.viso.ay * st };
     }
     /* NIENTE VISIERA NERA (opz.visiera === false): il casco sotto il cappuccio e' un pezzo di texture a se' (un'«isola»
        UV: triangoli collegati dagli indici, senza saldare le cuciture). Si riconosce perche' sta tutto sopra il collo e
@@ -303,7 +372,7 @@
     }
     var geo = new T.BufferGeometry();
     geo.setAttribute('position', new T.BufferAttribute(P, 3));
-    if (g0.attributes.uv) geo.setAttribute('uv', g0.attributes.uv.clone());
+    if (UV0) geo.setAttribute('uv', new T.BufferAttribute(UV0, 2)); else if (g0.attributes.uv) geo.setAttribute('uv', g0.attributes.uv.clone());
     geo.setAttribute('skinIndex', new T.Uint16BufferAttribute(SW.idx, 4));
     geo.setAttribute('skinWeight', new T.Float32BufferAttribute(SW.wt, 4));
     if (visiera) { var om = new Float32Array(n); for (i = 0; i < n; i++) om[i] = visiera.di(i) ? 1 : 0; geo.setAttribute('aOmbra', new T.BufferAttribute(om, 1)); }
@@ -324,8 +393,8 @@
     GERARCHIA.forEach(function (gg) { if (!pesa(gg[0])) lista.push(ossa[gg[0]]); });
     var mat0 = Array.isArray(sorgente.material) ? sorgente.material[0] : sorgente.material, mappa = mat0 && mat0.map;
     var mat = new T.MeshStandardMaterial({ color: 0xffffff, metalness: 0.45, roughness: 0.5, envMapIntensity: 0.55, skinning: true });
-    var col = opz.ricolora !== false && mappa ? ricolora(mappa, T) : null;
-    if (col) { mat.map = col.mappa; mat.emissiveMap = col.emissiva; mat.emissive = new T.Color(0xffffff); mat.emissiveIntensity = 1.1; }
+    var col = opz.ricolora !== false && mappa ? ricolora(mappa, T, { anisotropia: opz.anisotropia }) : null;
+    if (col) { mat.map = col.mappa; mat.emissiveMap = col.emissiva; mat.emissive = new T.Color(0xffffff); mat.emissiveIntensity = 1.1; if (col.rilievo) { mat.bumpMap = col.rilievo; mat.bumpScale = opz.rilievo != null ? opz.rilievo : 0.016; } }
     else if (mappa) mat.map = mappa; else mat.color.set(0x1a3050);
     if (opz.viso) {
       /* IL FORO PER IL VISO, al pixel: lo shader conosce la posizione di ogni punto della pelle PRIMA dello scheletro

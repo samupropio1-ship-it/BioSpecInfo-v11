@@ -205,12 +205,16 @@ Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 
 `spectra-studio.html` (v239) non passa da `index.html`: carica da sé
 `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
-`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js` e
-`bsi-spectra-studio-lezioni.js`. La pagina e i tre moduli nuovi sono nel
+`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-rig.js`,
+`bsi-spectra-voce.js` e `bsi-spectra-studio-lezioni.js`. La pagina e i quattro moduli nuovi sono nel
 `PRECACHE` di `sw.js`; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
 usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
 `models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
-arriva, Spectra resta con la testa del manichino.
+arriva, Spectra resta con la testa del manichino. Il corpo «Bounty Hunter»
+(`models/spectra-corpo.glb`) e `models/spectra-cyberpunk.glb` **non sono nel
+repository** finché l'autore non conferma la licenza: chi pubblica dal
+repository ottiene il manichino; lo studio li cerca con una richiesta `HEAD` e,
+se mancano, passa al successivo senza errori.
 
 **Il modello del corpo.** Lo studio cerca `models/spectra-cyberpunk.glb` con
 una richiesta `HEAD`: se il file c'è lo carica e lo usa al posto del

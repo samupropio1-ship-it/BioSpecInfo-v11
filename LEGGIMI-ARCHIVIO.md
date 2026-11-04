@@ -6,7 +6,7 @@ stato esatto del commit pubblicato.
 | | |
 |---|---|
 | **Versione** | `bsi-v239` |
-| **Batteria di verifica** | 81 banchi, **0 falliti** <!--ESITO-BATTERIA--> — esito CONFORME |
+| **Batteria di verifica** | 82 banchi, **0 falliti** <!--ESITO-BATTERIA--> — esito CONFORME |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Demo** | `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
 
@@ -29,7 +29,7 @@ stato esatto del commit pubblicato.
 | `docs/pdf/` | **36 PDF** impaginati, versione e commit in ogni piè di pagina |
 | `docs/evidence/` | Rapporto di verifica integrale, SBOM CycloneDX, registri dei debiti misurati |
 | `tools/` | Gli strumenti che producono l'evidenza |
-| `tools/banchi/` | **Gli 81 banchi di prova**, versionati: chiunque può rieseguirli |
+| `tools/banchi/` | **Gli 82 banchi di prova**, versionati: chiunque può rieseguirli |
 | `proxy/` | Il proxy opzionale (Cloudflare Worker) |
 
 ---
@@ -54,7 +54,7 @@ python3 -m http.server 8899
 
 # per rieseguire la verifica
 npm install                      # solo playwright-core
-node tools/genera-evidenza.js    # 81 banchi; deve chiudersi con 0 falliti
+node tools/genera-evidenza.js    # 82 banchi; deve chiudersi con 0 falliti
 ```
 
 > **Serve un server anche in locale.** Aprire `index.html` con un doppio clic

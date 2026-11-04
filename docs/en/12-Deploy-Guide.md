@@ -205,12 +205,16 @@ disappears offline.
 
 `spectra-studio.html` (v239) does not go through `index.html`: it loads by
 itself `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
-`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js` and
-`bsi-spectra-studio-lezioni.js`. The page and the three new modules are in the
+`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-rig.js`,
+`bsi-spectra-voce.js` and `bsi-spectra-studio-lezioni.js`. The page and the four new modules are in the
 `PRECACHE` of `sw.js`; `bsi-spectra-voce.js` is also in `index.html`, because
 the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
-it does not arrive, Spectra keeps the mannequin's head.
+it does not arrive, Spectra keeps the mannequin's head. The «Bounty Hunter» body
+(`models/spectra-corpo.glb`) and `models/spectra-cyberpunk.glb` **are not in the
+repository** until the author confirms the licence: deploying from the
+repository gives the mannequin; the studio looks for them with a `HEAD` request
+and, if they are missing, moves on to the next one without errors.
 
 **The body model.** The studio looks for `models/spectra-cyberpunk.glb` with a
 `HEAD` request: if the file is there it loads it and uses it in place of the

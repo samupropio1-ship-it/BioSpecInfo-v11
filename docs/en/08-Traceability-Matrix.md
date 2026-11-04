@@ -116,6 +116,7 @@
 | **AI-14** | The face must show how demanding the question is and stay alive without looking conscious: concentration from the section's level and from the question, eyelids and eye tint per emotion, sleep when nobody is there | `bsi-spectra-live.js` — `difficolta(testo)` and `livelloSezione(id)` (first level of the path in `bsi-percorsi.js`); `bsi-spectra-androide.js` 3.0 — eyelids as a deformation of each eye's vertices around its centre, tint per emotion in the `#1a3050` family, `concentra()`, damped springs, micro-expressions, sleep after 120 s without contact | `test_spectra238` — an advanced-course question weighs more than a sum, «in simple words» lowers it, the same question weighs more in a PhD-level section than in a school-level one and the level is the path's; joy narrows the eyes, surprise widens them, doubt makes them asymmetric, `#1a3050` at rest, four emotions give four tints, concentration narrows and brightens the eyes, the blink closes the eyelids, after two minutes it sleeps and wakes at the first touch |
 | **AI-15** | Spectra's body must work with any humanoid avatar: recognise bones, blendshapes and hair, report what is missing, and drive gaze, gestures, emotions, lip sync, eyelids, walking and sitting; the hair must turn black | `bsi-spectra-corpo.js` — recognition by name (Mixamo, Ready Player Me, VRM, Unreal, generic), `rapporto()`, `orienta()` (poses as world directions), emotions as ARKit weights, `capelliNeri()` (colour `#0a0a0c` and texture desaturated in the shader), `fai`, `cammina`, `siedi`, `audio`; test `manichino()` | `test_spectra_studio` — on the mannequin (11 checks): bones 22/23 (no jaw), blendshapes 14/14 and hair found; red hair turned black (RGB 0.039 0.039 0.047); arms down from the T-pose; pointing with the forearm on the target (1.7° off); thinking with the hand near the chin; the gaze turns; walking moves the body 0.96 m moving the legs; sitting lowers the hips by 42 cm; joy → smile, worry → mouth corners down; lip sync from audio opens the jaw; the blink closes the eyelids. **Not tested**: the «cyberpunk» model, which has not been provided; the studio loads it from `models/spectra-cyberpunk.glb` (`HEAD` request, then `GLTFLoader`, scaled to 1.8 m, «Noir» face hidden) when the file is there |
 | **AI-16** | The quality voice must go through a measurable effects chain, give the lip sync from the audio and fall back on the browser's synthesis without a key | `bsi-spectra-voce.js` — `catena()` (bass, mud, presence, ring, comb, saturation, reverb from `impulso()`, compressor), `leggiBocca()` (energy and centroid), `qualita()`, `TIMBRO`; `bsi-spectra-live.js` and `bsi-lezione.js` use it when there is an OpenAI key | `test_spectra_studio` — in an offline audio context (3 checks): at 80 Hz the bass comes out boosted (6.9 dB), the reverb leaves a tail after the sound ends, without a key `qualita()` is `'sistema'`. **Not tested**: the call to OpenAI and listening to the voice |
+| **AI-17** | A humanoid body without a skeleton must become drivable by the body driver without external tools: a recognised skeleton, weights that do not tear the torso, a hood rigid with the head that shows only the «Noir» face, the app's colours | `bsi-spectra-rig.js` — `misura()` (height, axis, legs, hands, shoulders; human canon for the points that cannot be measured), skeleton with Mixamo names (20 weighted bones and 7 tips), weights ∝ 1/d⁴ with a per-region gate, normal, geodesic-distance-from-the-hand and head-axis filters, three smoothing passes; `rigga()` with `cappuccio`, `gonfia`, `viso` (elliptical opening in the shader) and `visiera: false` (helmet as matte shadow); `ricolora()` (night blue, turquoise → emissive `#00c9b7`). `spectra-studio.html` uses it on `models/spectra-corpo.glb`; `bsi-spectra-androide.js` — «solidale» face | `test_spectra_rig` — 27 checks on a synthetic A-pose humanoid: 27 bones with Mixamo names recognised by the driver, locomotion; weights summing to 1, the hand to the hand and forearm, the flank next to the hanging hand with zero arm weight, legs never crossing; in the «spiega» gesture the hand moves 0.52 m and the flank 1 mm; walking moves the body; with the face only no triangle removed, ellipse in the shader, double side, hood rigid with the head (480/480 vertices), visor in shadow; night blue and teal light, grey emits nothing; no JavaScript errors. `test_spectra_studio`, only with the file present locally: face–hood sync in 24 poses (within 4 mm), only the face visible, «solidale» face. **Not tested in the public battery**: the real «Bounty Hunter» body, because `models/spectra-corpo.glb` is not in the repository until the author confirms the licence |
 
 ---
 
@@ -156,7 +157,7 @@
 
 | ID | Requirement | Implementation | Verification bench |
 |---|---|---|---|
-| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 563 tracked files, 8 credential shapes |
+| **SEC-01** | No API key may be present in the repository | keys only in `localStorage` or in the Worker's secrets | `tools/verifica-sicurezza.js` — 565 tracked files, 8 credential shapes |
 | **SEC-02** | No personal data may leave the device without an explicit action | local-first architecture, telemetry disabled | `audit_rete` — **direct verification**: a canary value seeded into 71 stores of the user's data, the application used across 194 sections on 6 pages, and the URL, headers and body of every request inspected. Plus `verifica-sicurezza` on the two exit mechanisms |
 | **SEC-03** | Passwords must not appear in clear text in the source | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | No credential may EVER have entered the repository, not even in a commit later fixed | no key has ever been committed; keys live in `localStorage` or in the Worker's secrets | `audit_storia` — **1,551 distinct versions of text files across 390 commits**, 9 patterns tested in both directions; fails on a shallow clone, because it would measure less surface |
@@ -202,14 +203,14 @@ manual testing, and their automation is planned.
 | Category | Requirements | Verified by a bench | Coverage |
 |---|---:|---:|---:|
 | Scientific (SCI-01…59) | 57 | 57 | 100 % |
-| AI agent (AI-01…16) | 15 | 15 | 100 % |
+| AI agent (AI-01…17) | 16 | 16 | 100 % |
 | Stability (STA-01…08) | 8 | 8 | 100 % |
 | Interface (UI-01…26) | 23 | 23 | 100 % |
 | Security (SEC-01…09) | 7 | 7 | 100 % |
 | Architecture (ING-01…02) | 2 | 2 | 100 % |
-| **Automated total** | **112** | **112** | **100 %** |
+| **Automated total** | **113** | **113** | **100 %** |
 | Not automated (§6) | 7 | 0 | 0 % |
-| **Declared total** | **119** | **112** | **94 %** |
+| **Declared total** | **120** | **113** | **94 %** |
 
 Coverage is computed over the requirements **declared in this document** and
 must not be confused with code coverage: it measures how many requirements have
@@ -217,8 +218,8 @@ a bench verifying them, not how many lines are executed during the tests.
 
 > **Why two totals.** Reporting only the 100 % of automated requirements would
 > be true and misleading at once: it is 100 % of what was *chosen* to be
-> automated. The number that matters to an assessor is the second one — **112
-> requirements verified out of 119 declared** — and the seven that are missing
+> automated. The number that matters to an assessor is the second one — **113
+> requirements verified out of 120 declared** — and the seven that are missing
 > are listed by name in §6, not summarised into a percentage.
 >
 > This table is checked by `tools/verifica-documenti.js`, which counts the

@@ -19,7 +19,7 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 
 | Che cosa | Dimensione | Link |
 |---|---:|---|
-| **Tutto** — applicazione, codice, documentazione, gli 81 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
+| **Tutto** — applicazione, codice, documentazione, gli 82 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
 | Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v239.zip) |
 | Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v239.zip) |
 | Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v239.zip) |
@@ -156,7 +156,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 81 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 82 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -176,7 +176,7 @@ node tools/genera-evidenza.js    # 81 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-Gli 81 banchi stanno in [`tools/banchi/`](tools/banchi/) e sono versionati:
+Gli 82 banchi stanno in [`tools/banchi/`](tools/banchi/) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.
@@ -195,6 +195,7 @@ BioSpecInfo-v11/
 ├── bsi-spectra-creatore.js Spectra riconosce il suo creatore (prova con impronta SHA-256)
 ├── bsi-lezione.js          Lezione guidata con Spectra per ogni sezione
 ├── bsi-spectra-corpo.js    Corpo di Spectra: driver per avatar umanoidi, manichino di prova
+├── bsi-spectra-rig.js      Rig automatico nel browser per figure umanoidi senza scheletro
 ├── bsi-spectra-voce.js     Voce di Spectra: audio TTS (con chiave OpenAI) ed effetti
 ├── bsi-spectra-studio-lezioni.js  Lezioni di Spectra Studio, con i calcoli
 ├── spectra-studio.html     Spectra Studio: laboratorio 3D con Spectra in piedi

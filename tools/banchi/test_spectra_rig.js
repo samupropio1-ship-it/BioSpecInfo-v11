@@ -66,6 +66,16 @@ function vero(d, c) { att(d, true, !!c); }
     const Rsenza = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: true, cappuccio: false, ricolora: false });
     const Rintera = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: false, ricolora: false });
     out.tolti = [Rg.tolti, Rsenza.tolti, Rintera.tolti];
+    /* la definizione: tassellazione di Phong, un livello */
+    const Rd = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: false, suddividi: 1, ricolora: false });
+    const gd = Rd.mesh.geometry, swd = gd.attributes.skinWeight.array; let errD = 0; for (let i = 0; i < gd.attributes.position.count; i++) errD = Math.max(errD, Math.abs(swd[i * 4] + swd[i * 4 + 1] + swd[i * 4 + 2] + swd[i * 4 + 3] - 1));
+    /* la pelle resta chiusa: ogni lato interno e' condiviso da due triangoli (contando i vertici saldati per posizione) */
+    const pd = gd.attributes.position, idd = gd.index.array, kd = i => Math.round(pd.getX(i) * 1e4) + ',' + Math.round(pd.getY(i) * 1e4) + ',' + Math.round(pd.getZ(i) * 1e4), conta = {};
+    for (let t = 0; t < idd.length; t += 3) for (let c = 0; c < 3; c++) { const a = kd(idd[t + c]), b = kd(idd[t + (c + 1) % 3]), e = a < b ? a + '|' + b : b + '|' + a; conta[e] = (conta[e] || 0) + 1; }
+    const contaO = {}, po = geo.attributes.position, io = geo.index.array, ko = i => Math.round(po.getX(i) * 1e4) + ',' + Math.round(po.getY(i) * 1e4) + ',' + Math.round(po.getZ(i) * 1e4);
+    for (let t = 0; t < io.length; t += 3) for (let c = 0; c < 3; c++) { const a = ko(io[t + c]), b = ko(io[t + (c + 1) % 3]), e = a < b ? a + '|' + b : b + '|' + a; contaO[e] = (contaO[e] || 0) + 1; }
+    const bordi = o => Object.values(o).filter(x => x === 1).length;
+    out.def = { tri0: Rintera.mesh.geometry.index.count / 3, tri1: gd.index.count / 3, errD, bordi0: bordi(contaO), bordi1: bordi(conta) };
     /* il cappuccio col solo viso: nessun triangolo tolto, foro nello shader, cappuccio rigido con la testa */
     const Rv = BSISpectraRig.rigga(scena(), { T, altezza: 1.8, togliTesta: true, cappuccio: true, visiera: false, gonfia: 1.2, viso: { y: 1.62, ax: 0.06, ay: 0.07 }, ricolora: false });
     const mv = Rv.mesh.material, gv = Rv.mesh.geometry, nv = Rv.mesh.skeleton.bones.map(o => o.name), iH = nv.indexOf('Head');
@@ -112,6 +122,10 @@ function vero(d, c) { att(d, true, !!c); }
   vero('nel gesto «spiega» la mano si sposta (' + R.manoSi + ' m)', R.manoSi > 0.15);
   vero('e il fianco resta fermo (' + R.fiancoSi + ' m)', R.fiancoSi < 0.03);
   vero('la camminata sposta il corpo (' + R.cammino + ' m)', R.cammino > 0.3);
+  console.log('── La definizione ──');
+  att('tassellazione: ogni triangolo ne diventa quattro (' + R.def.tri0 + ' → ' + R.def.tri1 + ')', R.def.tri0 * 4, R.def.tri1);
+  vero('i pesi restano normalizzati anche sui vertici nuovi (scarto ' + R.def.errD.toExponential(1) + ')', R.def.errD < 1e-3);
+  att('la pelle resta chiusa: i bordi aperti raddoppiano soltanto (ogni lato di bordo diventa due)', R.def.bordi0 * 2, R.def.bordi1);
   console.log('── Testa e cappuccio ──');
   vero('senza testa: tolti ' + R.tolti[1] + ' triangoli', R.tolti[1] > 100);
   vero('col cappuccio se ne tolgono meno (' + R.tolti[0] + '): la nuca resta', R.tolti[0] > 0 && R.tolti[0] < R.tolti[1]);

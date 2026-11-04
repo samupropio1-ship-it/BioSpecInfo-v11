@@ -121,7 +121,7 @@ function vero(d, c) { att(d, true, !!c); }
     await pg.evaluate(() => { try { localStorage.removeItem('bsi-spectra-studio-v1'); } catch (e) {} });
     /* il riferimento: sul manichino l'osso della testa; sul corpo riggato (models/spectra-corpo.glb, se presente in locale)
        il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */
-    const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.rig ? S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045, 0)) : S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return { d: bb.min.y - rif.y, rig: !!S.rig }; });
+    const allineato = await pg.evaluate(() => { const S = SpectraStudio.S(), T = THREE; if (!S.volto) return null; S.corpoRadice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.rig ? S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045 * (S.rig.scalaTesta || 1), 0)) : S.corpo.ossa.testa.getWorldPosition(new T.Vector3()); return { d: bb.min.y - rif.y, rig: !!S.rig }; });
     if (allineato != null) vero('il volto è appoggiato sul collo (mento ' + (allineato.d * 100).toFixed(1) + ' cm dal punto voluto, ' + (allineato.rig ? 'corpo riggato' : 'manichino') + ')', Math.abs(allineato.d) < 0.03);
     /* SINCRONIA VISO–CAPPUCCIO (solo col corpo riggato): il cappuccio e' rigido con l'osso della testa, quindi il viso,
        misurato nel riferimento della testa, non deve muoversi mentre Spectra cammina, gesticola e guarda in giro */
@@ -135,7 +135,7 @@ function vero(d, c) { att(d, true, !!c); }
       return { max, nascosti: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(','), solidale: S.volto.solidale };
     });
     if (sinc) {
-      vero('viso e cappuccio in sincronia: in 24 pose il viso si sposta di ' + (sinc.max * 1000).toFixed(1) + ' mm rispetto alla testa', sinc.max < 0.004);
+      vero('viso e cappuccio in sincronia: in 24 pose il viso si sposta di ' + (sinc.max * 1000).toFixed(1) + ' mm rispetto alla testa', sinc.max < 0.001);
       att('della testa si vede solo il viso (maschera, occhi, dettagli)', 'Object_2,Object_3,Object_4', sinc.nascosti);
       vero('il volto è «solidale»: i movimenti della testa li fa il corpo', sinc.solidale);
     }

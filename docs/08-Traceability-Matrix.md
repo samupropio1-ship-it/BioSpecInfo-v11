@@ -116,6 +116,7 @@
 | **AI-14** | Il volto deve mostrare l'impegno della domanda e restare vivo senza sembrare cosciente: concentrazione dal livello della sezione e dalla domanda, palpebre e tinta degli occhi per emozione, sonno quando nessuno c'è | `bsi-spectra-live.js` — `difficolta(testo)` e `livelloSezione(id)` (primo livello del percorso in `bsi-percorsi.js`); `bsi-spectra-androide.js` 3.0 — palpebre come deformazione dei vertici di ciascun occhio attorno al suo centro, tinta per emozione nella famiglia di `#1a3050`, `concentra()`, molle smorzate, micro-espressioni, sonno dopo 120 s senza contatto | `test_spectra238` — una domanda da corso avanzato pesa più di un conto, «in parole semplici» abbassa, la stessa domanda pesa di più in una sezione da dottorato che in una da scuola e il livello è quello del percorso; gioia stringe gli occhi, sorpresa li spalanca, il dubbio li rende asimmetrici, a riposo `#1a3050`, quattro emozioni danno quattro tinte, la concentrazione socchiude e accende gli occhi, il battito chiude le palpebre, dopo due minuti dorme e al primo tocco si sveglia |
 | **AI-15** | Il corpo di Spectra deve funzionare con qualunque avatar umanoide: riconoscere ossa, blendshape e capelli, dire che cosa manca, e muovere sguardo, gesti, emozioni, labiale, palpebre, passo e seduta; i capelli devono diventare neri | `bsi-spectra-corpo.js` — riconoscimento per nome (Mixamo, Ready Player Me, VRM, Unreal, generici), `rapporto()`, `orienta()` (pose come direzioni nel mondo), emozioni in pesi ARKit, `capelliNeri()` (colore `#0a0a0c` e texture desaturata nello shader), `fai`, `cammina`, `siedi`, `audio`; `manichino()` di prova | `test_spectra_studio` — sul manichino (11 controlli): ossa 22/23 (manca la mandibola), blendshape 14/14 e capelli trovati; capelli rossi resi neri (RGB 0,039 0,039 0,047); braccia giù dalla posa a T; indica con l'avambraccio sul bersaglio (scarto 1,7°); pensa con la mano vicino al mento; lo sguardo gira; il passo sposta il corpo di 0,96 m muovendo le gambe; seduto le anche scendono di 42 cm; gioia → sorriso, preoccupazione → angoli della bocca giù; labiale dall'audio apre la mandibola; il battito chiude le palpebre. **Non provato**: il modello «cyberpunk», che non è stato fornito; lo studio lo carica da `models/spectra-cyberpunk.glb` (richiesta `HEAD`, poi `GLTFLoader`, scala a 1,8 m, volto «Noir» nascosto) quando il file c'è |
 | **AI-16** | La voce di qualità deve passare in una catena di effetti che si possa misurare, dare il labiale dall'audio e ripiegare sulla sintesi del browser senza chiave | `bsi-spectra-voce.js` — `catena()` (bassi, fango, presenza, anello, pettine, saturazione, riverbero da `impulso()`, compressore), `leggiBocca()` (energia e centroide), `qualita()`, `TIMBRO`; `bsi-spectra-live.js` e `bsi-lezione.js` la usano quando c'è una chiave OpenAI | `test_spectra_studio` — in un contesto audio offline (3 controlli): a 80 Hz i bassi escono rinforzati (6,9 dB), il riverbero lascia una coda dopo la fine del suono, senza chiave `qualita()` vale `'sistema'`. **Non provati**: la chiamata a OpenAI e l'ascolto della voce |
+| **AI-17** | Un corpo umanoide senza scheletro deve diventare pilotabile dal driver del corpo senza strumenti esterni: scheletro riconosciuto, pesi che non strappano il busto, cappuccio rigido con la testa che lascia vedere solo il viso «Noir», colori dell'app | `bsi-spectra-rig.js` — `misura()` (altezza, asse, gambe, mani, spalle; canone umano per i punti non misurabili), scheletro con i nomi Mixamo (20 ossa che pesano e 7 punte), pesi ∝ 1/d⁴ con cancello per regione, filtri di normale, distanza geodetica dalla mano e asse della testa, tre passate di levigatura; `rigga()` con `cappuccio`, `gonfia`, `viso` (foro ellittico nello shader) e `visiera: false` (casco in ombra opaca); `ricolora()` (blu notte, turchese → luce `#00c9b7`). `spectra-studio.html` lo usa su `models/spectra-corpo.glb`; `bsi-spectra-androide.js` — volto «solidale» | `test_spectra_rig` — 27 controlli su un umanoide sintetico in posa ad A: 27 ossa con nomi Mixamo riconosciute dal driver, locomozione; pesi con somma 1, la mano alla mano e all'avambraccio, il fianco accanto alla mano pendente con peso del braccio zero, gambe mai incrociate; nel gesto «spiega» la mano si sposta di 0,52 m e il fianco di 1 mm; la camminata sposta il corpo; col solo viso nessun triangolo tolto, ellisse nello shader, doppia faccia, cappuccio rigido con la testa (480/480 vertici), visiera in ombra; blu notte e luce verde acqua, il grigio non emette; nessun errore JavaScript. `test_spectra_studio`, solo col file in locale: sincronia viso–cappuccio in 24 pose (entro 4 mm), solo il viso visibile, volto solidale. **Non provato nella batteria pubblica**: il corpo «Bounty Hunter» vero, perché `models/spectra-corpo.glb` non è nel repository finché l'autore non conferma la licenza |
 
 ---
 
@@ -156,7 +157,7 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 563 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 565 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
@@ -202,14 +203,14 @@ manuale, e la loro automazione è in programma.
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
 | Scientifici (SCI-01…59) | 57 | 57 | 100 % |
-| Agente AI (AI-01…16) | 15 | 15 | 100 % |
+| Agente AI (AI-01…17) | 16 | 16 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
 | Interfaccia (UI-01…26) | 23 | 23 | 100 % |
 | Sicurezza (SEC-01…09) | 7 | 7 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **112** | **112** | **100 %** |
+| **Totale automatizzato** | **113** | **113** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **119** | **112** | **94 %** |
+| **Totale dichiarato** | **120** | **113** | **94 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -217,8 +218,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **112
-> requisiti verificati su 119 dichiarati** — e i sette che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **113
+> requisiti verificati su 120 dichiarati** — e i sette che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli

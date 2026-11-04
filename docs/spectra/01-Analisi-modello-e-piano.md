@@ -10,6 +10,8 @@
 - **fissa le condizioni** che il modello deve soddisfare e **cosa fa il sistema in ciascun caso**;
 - **prepara tutto il resto** in modo che il modello, quando arriva, si colleghi senza riscrivere nulla. Il driver del corpo è generico: riconosce lo scheletro e le espressioni di qualunque GLB umanoide.
 
+**Aggiornamento.** In seguito l'autore ha fornito direttamente i file: prima «I-HOMO 08», poi il corpo «Bounty Hunter», che è quello scelto per Spectra. Il corpo è una **mesh statica senza scheletro**: per muoverlo è nato il rig automatico (§7). Nessuno dei due file è nel repository finché l'autore non conferma licenza e fonte (§7.4).
+
 **«Senziente».** Spectra *simula* in modo convincente:
 
 - attenzione, emozioni, memoria, iniziativa;
@@ -83,11 +85,17 @@ Il **labiale** si sincronizza sull'audio reale: la posizione nel testo segue il 
 - **`bsi-spectra-corpo.js`**: il driver generico, provato su un **manichino riggato costruito nel codice**. Il manichino ha ossa con nomi Mixamo e blendshape con nomi ARKit, quindi il driver è verificato prima che arrivi il modello vero.
 - **`bsi-spectra-voce.js`**: la voce con la catena di effetti e il labiale sull'audio.
 - **`spectra-studio.html`**: lo studio immersivo. Un laboratorio 3D dove Spectra insegna con il metodo *predici → testa → dimostra → rivela*. Parte con tre lezioni complete: fisica, chimica, matematica.
-- **Modello di Spectra nello studio**: se esiste `models/spectra-cyberpunk.glb` lo studio lo carica al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri); altrimenti il manichino riggato con il volto «Noir» incarnato.
+- **`bsi-spectra-rig.js`**: il rig automatico per le figure senza scheletro (§7).
+- **Modello di Spectra nello studio**, in quest'ordine:
+  1. `models/spectra-corpo.glb`, il corpo «Bounty Hunter»: riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7);
+  2. se manca, `models/spectra-cyberpunk.glb`, caricato al posto del manichino (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
+  3. se manca anche questo, il manichino riggato con il volto «Noir» incarnato.
+
+  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra il manichino**.
 
 ## 5. Che cosa manca e perché
 
-- **Il modello cyberpunk vero**: serve il file (vedi §6).
+- **Il corpo vero nell'app pubblicata**: il file c'è, ma resta fuori da git finché la licenza non è confermata (§7.4).
 - **WebGPU e React Three Fiber**: la scelta e il percorso sono motivati nel documento 2 (architettura).
 - **Gesti di qualità «motion capture»**: richiedono clip registrate. Con il modello arrivano quelle che contiene; altre si possono prendere da Mixamo (gratuito, con account Adobe) e aggiungere al GLB.
 
@@ -106,3 +114,30 @@ All'arrivo del file, il lavoro è:
 - **verifica dei requisiti** del §2, automatica con il driver;
 - **capelli neri** e **tabella dei blendshape**;
 - **banco visivo**: foto delle emozioni, del labiale, della camminata.
+
+## 7. I modelli forniti e il rig automatico
+
+### 7.1 Che cosa è arrivato
+L'autore ha fornito i modelli direttamente nella conversazione: prima «I-HOMO 08», poi il corpo **«Bounty Hunter»**, scelto per Spectra. Il corpo è bello ma **immobile**: una mesh sola, statica, **senza scheletro** e senza blendshape. Il driver del corpo (§3.3) non ha ossa da riconoscere, quindi così com'è sarebbe una statua.
+
+### 7.2 Il rig automatico (`bsi-spectra-rig.js`)
+Invece di riggare il modello a mano in Blender, il rig si fa **nel browser**, al caricamento:
+
+1. **Misura** la figura in piedi (posa a T o ad A, rivolta verso +z): altezza, asse del corpo, profondità del busto, centri delle gambe a varie altezze, mani (i vertici più esterni sopra le anche), spalle. I punti che non si possono misurare, come vertebre e collo, seguono le proporzioni del canone umano (anche al 41 % dell'altezza, collo all'81 %…).
+2. **Costruisce uno scheletro con i nomi Mixamo** (`Hips`, `Spine`…, `LeftArm`, `LeftForeArm`, `LeftHand`, `LeftUpLeg`…): 20 ossa che pesano e 7 punte, 27 in tutto. Il driver lo riconosce da solo.
+3. **Calcola i pesi della pelle**: per ogni vertice la distanza da ogni osso, con un cancello per regione (una coscia non muove l'altra), peso ∝ 1/d⁴, i quattro maggiori, poi tre passate di levigatura sui vicini perché gomiti, ginocchia e ascelle si pieghino morbidi. I pesi del braccio passano **tre filtri**: la normale (la pelle sta davanti all'osso), la **distanza geodetica dalla mano** (il braccio è un tubo: il fianco del busto, vicino in linea d'aria, è lontano camminando sulla pelle) e l'asse della testa (cappuccio e colletto non seguono mai il braccio). La mano non prende peso dal bacino. Così alzare un braccio non strappa il busto.
+
+### 7.3 Il cappuccio, il viso, i colori
+- **Cappuccio col solo viso.** Il cappuccio del modello si allarga quanto basta ad avvolgere il volto «Noir», in modo graduale dal colletto, diventa **rigido con l'osso della testa** e si apre davanti con un'**ellisse calcolata nello shader**, al pixel: il bordo è liscio e segue la testa in ogni movimento, e non si tolgono triangoli.
+- **Niente visiera nera.** Il casco del modello sotto il cappuccio, una visiera nera lucida, diventa **ombra opaca** (`visiera: false`): della testa si vede solo il viso, che emerge dall'ombra del cappuccio.
+- **Il volto «Noir».** Del modello «Noir» restano visibili solo maschera, occhi e dettagli (`Object_2`, `Object_3`, `Object_4`), su un supporto allineato in modo che il mento poggi sul colletto. Il volto è **«solidale»**: i movimenti della testa li fa il corpo, il volto fa solo espressioni, occhi e bocca. Misurata in 24 pose mentre Spectra cammina e gesticola, la posizione del viso rispetto alla testa resta entro 4 mm (3,2 mm il massimo osservato, dovuti al respiro del viso).
+- **Blu notte.** La texture è ricolorata nei colori dell'app, come ha chiesto l'autore: ombre quasi nere `#03050c`, mezzitoni `#0d162e`–`#162448`, luci `#2a3c6c`, bianchi appena azzurri. I dettagli turchesi del modello diventano luce propria verde acqua `#00c9b7`. Il disegno della texture (cuciture, piastre, pieghe) resta tutto.
+
+### 7.4 Licenza: il file resta fuori da git
+**`models/spectra-corpo.glb` non è nel repository.** La licenza e la fonte del modello di terzi non sono ancora state confermate dall'autore, e senza quella conferma il modello non si ridistribuisce (§2, prima riga). Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
+
+- **l'app pubblicata mostra il manichino riggato**, non il corpo «Bounty Hunter»;
+- il banco `test_spectra_rig` prova il rig su un **umanoide sintetico** costruito nel codice, non sul modello vero;
+- i controlli di `test_spectra_studio` sul corpo riggato (sincronia viso–cappuccio, solo il viso visibile, volto solidale) girano solo dove il file è presente in locale, e altrove si saltano.
+
+Confermata la licenza, basta aggiungere il file a `models/` e la sua riga in `models/CREDITS.md`: lo studio lo carica senza altre modifiche.

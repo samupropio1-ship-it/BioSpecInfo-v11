@@ -89,6 +89,50 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   anche quando la chat usa un altro fornitore, salvo che la voce sia spenta
   (🔇). Senza chiave resta la sintesi del browser, con la voce maschile più
   grave disponibile.
+- **Il rig automatico** (`bsi-spectra-rig.js`, oggetto `BSISpectraRig`): molti
+  modelli umanoidi arrivano come una mesh sola, senza scheletro. Il modulo li
+  rende pilotabili dal driver del corpo direttamente nel browser, senza
+  Blender: **misura** la figura in piedi (altezza, asse, gambe, mani, spalle;
+  i punti non misurabili seguono le proporzioni del canone umano), **costruisce
+  uno scheletro con i nomi Mixamo** (20 ossa che pesano e 7 punte, 27 in
+  tutto) e **calcola i pesi della pelle** (peso ∝ 1/d⁴ con un cancello per
+  regione, i quattro maggiori, tre passate di levigatura). I pesi del braccio
+  passano tre filtri — la normale, la distanza geodetica dalla mano, l'asse
+  della testa — e la mano non prende peso dal bacino: alzare un braccio non
+  strappa il busto. Il modulo ha anche due opzioni che lo studio non usa:
+  `visiera: false` (il casco sotto il cappuccio reso come ombra opaca) e
+  `testa` (scala della testa).
+- **Il corpo «Bounty Hunter» con il cappuccio e il solo viso «Noir»**
+  (`spectra-studio.html`): lo studio prova prima `models/spectra-corpo.glb`, il
+  corpo scelto dall'autore, una figura senza scheletro. Il rig automatico la
+  rigga; il cappuccio del modello si allarga quanto basta ad avvolgere il
+  volto, diventa rigido con l'osso della testa e si apre davanti con
+  un'ellisse calcolata nello shader, al pixel. Sotto il cappuccio resta la
+  visiera nera lucida del modello, come ha chiesto l'autore. Del volto «Noir»
+  si vedono solo maschera, occhi e dettagli (`Object_2/3/4`), avanzati di
+  6,5 cm e in scala 0,96, su un supporto allineato in modo che il mento poggi
+  sul colletto. Se il file manca, lo studio prova
+  `models/spectra-cyberpunk.glb` e poi il manichino riggato.
+  **`models/spectra-corpo.glb` non è nel repository**: la licenza e la fonte
+  del modello di terzi non sono ancora state confermate dall'autore. Finché
+  non lo sono, l'app pubblicata mostra il manichino.
+- **Blu notte**: la texture del corpo è ricolorata nei colori dell'app (ombre
+  quasi nere `#03050c`, mezzitoni `#0d162e`–`#162448`, luci `#2a3c6c`); i
+  dettagli turchesi del modello diventano luce propria verde acqua `#00c9b7`.
+  Il disegno della texture (cuciture, piastre, pieghe) resta.
+- **Definizione grafica («4K»)** dello studio: il rapporto di pixel del
+  renderer arriva fino a 3 (era 2), per gli schermi ad alta densità e 4K;
+  `bsi-spectra-rig.js` applica la **tassellazione di Phong** (Boubekeur e
+  Alexa, 2008; opzione `suddividi`, un livello: ogni triangolo ne diventa
+  quattro, sul corpo dell'autore da 13 592 a 54 368 triangoli, rig pronto in
+  circa 0,5–1 s), con i punti medi calcolati su posizioni e normali saldate
+  perché le cuciture restino chiuse, e i pesi calcolati sulla mesh già
+  tassellata; una **mappa di rilievo** ricavata dalla luminanza della texture
+  originale, appena sfocata (`bumpScale` 0,016), fa prendere la luce vera a
+  bordi delle piastre, cuciture, tessuto e pieghe dei guanti; filtraggio
+  anisotropo della texture al massimo della GPU. Detto con onestà: la texture
+  di partenza è 2048×2048 e nessun dettaglio nuovo viene inventato; «4K» si
+  riferisce alla risoluzione di disegno.
 - Documenti di progetto in [`docs/spectra/`](docs/spectra/): analisi del
   modello e piano, architettura, mappa dei domini.
 
@@ -107,6 +151,12 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 - **Volto «Noir» incarnabile** (`bsi-spectra-androide.js`): `crea(padre,
   { scena, renderer, senzaBusto })` mette il volto in una scena altrui, senza
   renderer, luci e telecamera propri e senza il busto del modello.
+- **Volto «solidale»** (`bsi-spectra-androide.js`): con un corpo che ha già la
+  testa e un cappuccio rigido attorno, i movimenti della testa li fa il corpo;
+  il volto fa solo espressioni, occhi e bocca, e non fa più il proprio
+  respiro (posizione e scala della radice) dentro il cappuccio. Così viso e
+  cappuccio restano in sincronia mentre Spectra cammina, gesticola e guarda
+  in giro.
 
 ### Banco
 - Nuovo `test_lezione` (30 controlli): tutte le 194 sezioni hanno la lezione e
@@ -116,15 +166,34 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   «fammi lezione»; a 390 e 1280 px niente sborda; nessun errore JavaScript.
 - `test_spectra238` passa a 66 controlli: un solo pulsante di Spectra
   visibile, rotondo.
-- Nuovo `test_spectra_studio` (71 controlli): i 23 calcoli delle lezioni
+- Nuovo `test_spectra_studio` (73 controlli; 79 con il corpo riggato presente
+  in locale): i 23 calcoli delle lezioni
   (`verifiche/verifica-studio-spectra.js`); il driver sul manichino (11:
   ossa e blendshape trovati, capelli rossi resi neri, braccia giù dalla posa a
   T, indicare, pensare, sguardo, passo, seduta, emozioni, labiale dall'audio,
   battito); la catena della voce in un contesto audio offline (3: bassi
   rinforzati, coda del riverbero, ripiego senza chiave); le lezioni a 1280 e
   390 px con il volto appoggiato sul collo e la memoria delle previsioni; la
-  lezione senza WebGL; nessun errore JavaScript.
-- La batteria passa da 79 a 81 banchi.
+  voce spenta che si ricorda e «Cancella dati» che toglie le chiavi dello
+  studio; la lezione senza WebGL; nessun errore JavaScript. Con il corpo
+  riggato presente, per ognuna delle due larghezze: sincronia viso–cappuccio
+  misurata in 24 pose mentre Spectra cammina e gesticola (soglia 1 mm;
+  misurati 0,0 mm), della testa si vede solo il viso, il volto è «solidale»; il mento si misura sull'osso del collo più
+  4,5 cm. Senza il modello questi controlli si saltano.
+- Nuovo `test_spectra_rig` (30 controlli), su un umanoide sintetico in posa ad
+  A costruito nel codice (il modello vero non è nel repository): nomi dello
+  scheletro e riconoscimento da parte del driver, locomozione; pesi con somma
+  1, la mano all'osso della mano e all'avambraccio, il fianco del busto
+  accanto alla mano pendente senza nessun peso del braccio, le gambe che non
+  si incrociano mai; nel gesto «spiega» la mano si sposta e il fianco no; la
+  camminata sposta il corpo; testa e cappuccio (triangoli tolti; col solo
+  viso nessun triangolo tolto, ellisse nello shader, doppia faccia,
+  cappuccio rigido con la testa; l'opzione `visiera: false` rende il casco
+  ombra opaca senza togliere vertici); blu notte e luce verde acqua; la
+  definizione (la tassellazione moltiplica i triangoli per 4, i pesi restano
+  normalizzati sui vertici nuovi, la pelle resta chiusa: i bordi aperti
+  raddoppiano soltanto); nessun errore JavaScript.
+- La batteria passa da 79 a 82 banchi.
 
 ### Non incluso
 - **Il modello «cyberpunk» di Sketchfab** scelto dall'autore non è stato
@@ -133,6 +202,10 @@ Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
   ([`docs/spectra/01`](docs/spectra/01-Analisi-modello-e-piano.md) §6). Lo
   studio è pronto a caricarlo da `models/spectra-cyberpunk.glb`; finché il
   file non c'è, il corpo è il manichino di prova.
+- **I modelli forniti in seguito dall'autore** («I-HOMO 08», poi il corpo
+  «Bounty Hunter» usato dallo studio) **non sono nel repository**: finché
+  l'autore non conferma licenza e fonte, restano solo in locale e l'app
+  pubblicata mostra il manichino riggato.
 - **Capelli neri per Spectra**: il driver li rende neri su qualunque modello
   con capelli riconoscibili, ed è provato sul manichino; sul volto «Noir»
   della console non ci sono capelli, e una prova con capelli procedurali
