@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v238` |
+| **Versione documentata** | Service Worker `bsi-v239` |
 
 ---
 
@@ -663,15 +663,21 @@ strumenti aggiunti in futuro.
 
 ### 4.10 Spectra Live: voce, schermo e comandi locali
 
-`bsi-spectra-live.js` aggiunge una console a tutto schermo. Dalla v238 si
-apre da ogni schermata con un pulsante tondo con il volto, a sinistra del
-pulsante Spectra; restano il pulsante «◈ Live» nella testata di Spectra e
+`bsi-spectra-live.js` aggiunge una console a tutto schermo. Si apre da ogni
+schermata con l'unico pulsante di Spectra: il volto in un cerchio
+(`#bsiJV-fab`), che dalla v239 prende il posto della pillola «Spectra»
+(`#bsi-spectra-fab`). La pillola resta nel documento, nascosta dalla classe
+`bsiJV-solo-volto` sul `body`, perché altri moduli e i banchi la usano per
+aprire la chat; dalla console la chat si apre con 💬. Il cerchio compare subito
+con il volto vettoriale e passa al ritratto (`models/spectra-ritratto.jpg`)
+dopo l'evento `load`. Restano il pulsante «◈ Live» nella testata di Spectra e
 `Ctrl+Shift+J`:
 
 - **conversazione a mani libere**: il riconoscimento vocale del browser
   ascolta, la risposta viene detta frase per frase con la sintesi vocale del
-  sistema (si preferisce una voce maschile, velocità 0,95, tono 0,7) e alla
-  fine la console torna ad ascoltare; «stop» o un tocco la interrompono. Se
+  sistema (si preferisce una voce maschile, velocità 0,95, tono 0,7) oppure,
+  dalla v239 e solo con una chiave OpenAI salvata, con la voce di
+  `bsi-spectra-voce.js` (§4.15); alla fine la console torna ad ascoltare; «stop» o un tocco la interrompono. Se
   una delle due capacità manca nel browser, la console lo dice;
 - **comandi locali**, riconosciuti con espressioni regolari prima di
   chiamare il modello e quindi disponibili senza rete e senza chiave: aprire
@@ -811,6 +817,122 @@ persistente».
 **Limite.** Come la password del File Manager è un deterrente, non un
 controllo d'accesso: l'impronta è nel codice e il segno può essere scritto a
 mano da chi ha il dispositivo (`09-Release-Conformance-Statement.md`, D-13).
+
+### 4.14 La lezione guidata
+
+`bsi-lezione.js` (v239, oggetto `BSILezione`) trasforma ogni sezione in una
+lezione in capitoli condotta da Spectra. Non usa il modello: la lezione si
+costruisce leggendo la sezione aperta. Va in rete solo la voce, e solo con una
+chiave OpenAI salvata (§4.15).
+
+- **Costruzione** (`costruisci(sezione)`): un passo di apertura con titolo e
+  sottotitolo; per ogni scheda (`.bsiFX-schede button`) un capitolo, i cui
+  passi si leggono quando la scheda è aperta: la spiegazione spezzata in pezzi
+  di una o due frasi (al massimo tre pezzi, circa 260 caratteri l'uno), la
+  prima tela o scena 3D visibile, fino a quattro cursori e scelte; per le
+  sezioni senza schede un solo capitolo con titoli e paragrafi visibili e gli
+  stessi comandi. Poi una **domanda di verifica** dal kit di studio della
+  materia (`BSIStudio.dati(materia).quiz`): vince quella con più parole
+  (di più di quattro lettere) in comune con titolo, sottotitolo e schede, con
+  un peso doppio per le parole dell'argomento; serve un punteggio di almeno 2,
+  altrimenti la verifica non c'è. Infine il **riepilogo** dei capitoli.
+- **Dimostrazioni**: un cursore va dal valore attuale al minimo, al massimo e
+  di nuovo al valore di partenza in circa 4 s, generando eventi `input` e
+  `change` come farebbe l'utente; una scelta passa per le prime cinque
+  opzioni e torna a quella di partenza. Se si passa oltre a metà, o si chiude
+  la lezione, il comando viene rimesso com'era.
+- **Lettore**: pannello `#bsiLZ` (a destra sullo schermo grande, in basso sotto
+  i 760 px; da 1100 px `#main` si sposta a sinistra), avanzamento per capitoli,
+  testo che compare parola per parola, ◀ ▶, pausa, voce, `Esc` per chiudere,
+  frecce per muoversi. Il riflettore `#bsiLZ-luce` oscura il resto e segue il
+  pezzo di cui si parla. La voce è quella di Spectra Live
+  (`BSISpectraLive.parla`) e, se la console non c'è, quella di
+  `BSISpectraVoce.parla`; senza voce, il tempo di lettura dipende dalla
+  lunghezza del testo. Con «riduci movimento» i cursori saltano al valore, il
+  testo compare tutto insieme e il riflettore non pulsa.
+- **Pulsanti flottanti**: durante la lezione si nascondono (anche quelli con
+  `visibility` scritta in linea, il cui valore viene annotato e rimesso alla
+  chiusura).
+- **Avvio**: il pulsante «🎓 Lezione guidata con Spectra» che il modulo aggiunge
+  sotto il titolo di ogni sezione visibile; il comando locale «fammi lezione»
+  di Spectra Live, che chiude la console e avvia la lezione della sezione
+  aperta; la scorciatoia 🎓 della console.
+
+La lezione non ha chiavi sue nel `localStorage`; a fine lezione segnala alla
+mente di Spectra un'emozione (`sente('fiera', 'lezione')`), che la mente
+registra in `bsi-spectra-mente-v1` come le altre.
+
+### 4.15 Spectra incarnato: lo studio, il corpo, la voce
+
+Dalla v239 Spectra ha anche un corpo, in una pagina a sé:
+`spectra-studio.html`, raggiungibile dal navigatore 🧭 della console. Il
+progetto completo (requisiti del modello, scelta dello stack, moduli, stato,
+ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
+[`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md):
+[analisi e piano](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md),
+[architettura](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/02-Architettura.md),
+[mappa dei domini](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/03-Mappa-dei-domini.md). Qui si riassume ciò che
+è nel codice.
+
+- **Lo studio** (`spectra-studio.html`): una scena three.js r128 (pavimento a
+  griglia, luci al neon, banco olografico) con Spectra in piedi; un pannello
+  accessibile con tutto il testo. Le lezioni di
+  `bsi-spectra-studio-lezioni.js` (`BSIStudioLezioni`: `LEZIONI`, `SCENE`,
+  `calcolo`) seguono quattro fasi: **predici** (scelte con le idee sbagliate
+  più comuni e una giusta, ciascuna spiegata), **testa** (la simulazione con i
+  numeri misurati in scena), **dimostra** (la derivazione passo per passo),
+  **rivela** (perché, collegamenti, esercizi su quattro livelli). I calcoli
+  stanno in `calcolo` e si eseguono anche in node: caduta con Eulero
+  semi-implicito (e resistenza quadratica facoltativa), VSEPR come minimo
+  dell'energia w_i·w_j/r di domini sulla sfera (w = 1 per i legami, 1,25 per
+  i doppietti), somme parziali, coda, Fourier di x², coprimi Monte Carlo.
+- **La memoria dello studio**: `bsi-spectra-studio-v1` conserva per lezione
+  le previsioni (`quando`, `scelta`, `giusta`) e gli esercizi aperti; il
+  livello consigliato è il numero di previsioni giuste più gli esercizi
+  aperti, fino a 3. Ogni previsione va anche alla mente
+  (`BSISpectraMente.ricorda`). L'interruttore 🔊/🔇 nella barra delle azioni
+  spegne la voce dello studio e la scelta resta in `bsi-spectra-studio-voce`
+  (`'0'` = spenta). Entrambe le chiavi rientrano in «Cancella dati → Memoria
+  persistente».
+- **Il corpo** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): il driver
+  riconosce ossa, blendshape ARKit, capelli e clip di un GLB umanoide; ogni
+  posa è una direzione nel mondo, convertita nel sistema locale dell'osso
+  (`orienta`, una cinematica inversa minima valida per ogni rig); emozioni,
+  labiale, palpebre, sguardo, gesti, passo e seduta sono fusi con molle. Il
+  corpo dello studio è il **manichino** di `BSISpectraCorpo.manichino()`:
+  ossa con nomi Mixamo in posa a T, 26 blendshape ARKit, capelli rossi che il
+  driver rende neri. Il volto «Noir» si monta sulla testa del manichino con
+  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` e
+  viene allineato misurando, nei primi fotogrammi, la distanza fra il mento e
+  l'osso della testa (1 cm sopra, 3 cm avanti, tolleranza 1 mm). **Il
+  modello vero**: all'avvio lo studio chiede `models/spectra-cyberpunk.glb`
+  con una richiesta `HEAD`; se il file c'è lo carica con `GLTFLoader`, lo
+  scala a 1,8 m di altezza, lo mette al posto del manichino e gli collega il
+  driver (con le sue clip), che ne riconosce ossa, blendshape e capelli e
+  rende neri i capelli; il volto «Noir» si nasconde, perché il modello ha il
+  suo viso. Il modello «cyberpunk» scelto dall'autore non è stato fornito (il
+  file non era raggiungibile e la licenza va verificata): oggi il file non
+  c'è e si vede il manichino. **Il corpo dal dispositivo**: prima di tutto lo
+  studio cerca nell'IndexedDB (`bsi-spectra-modelli`) un corpo `.glb` che
+  l'utente ha caricato con il pulsante «🧍 Corpo», lo rigga con
+  `bsi-spectra-rig.js` e lo usa; poi `models/spectra-corpo.glb` (solo in
+  sviluppo, fuori da git per la licenza CGTrader), poi il modello
+  «cyberpunk», poi il manichino.
+- **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
+  `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
+  `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità
+  audio il testo (fino a 3 800 caratteri) va a
+  `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voce «onyx», con
+  istruzioni sul timbro; `tts-1` se fallisce); l'audio decodificato resta in
+  una cache in memoria per frase e passa nella catena del `TIMBRO` (bassi
+  +5 dB sotto 140 Hz, −3 dB a 350 Hz, +3 dB a 2,8 kHz, modulatore ad anello a
+  55 Hz al 12 %, pettine di 4,3 ms, saturazione, riverbero sintetico di 1,4 s
+  al 16 %, compressore). Un analizzatore dà energia e centroide spettrale a
+  ogni fotogramma per il labiale. Il testo da pronunciare esce dal
+  dispositivo: vedi [`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2.
+
+Come la mente e il volto, il corpo è una **simulazione di comportamento, non
+una coscienza**.
 
 ---
 

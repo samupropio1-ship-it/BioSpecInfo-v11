@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v238` |
+| **Versione descritta** | `bsi-v239` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**79 banchi**, raggruppati per ciò che dimostrano.
+**82 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -307,13 +307,18 @@ controlli già presenti prima della v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
-`test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
+`test_guidaproxy` ·
+`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
-**`test_spectra238` — 64 controlli.** Nasce da segnalazioni fatte con una
+**`test_spectra238` — 66 controlli.** Nasce da segnalazioni fatte con una
 schermata dal telefono: con l'app installata la barra di stato e i tasti di
 Android coprivano i comandi della console di Spectra Live, e l'attribuzione del
-modello si sovrapponeva al dialogo. Il banco lavora in quattro parti:
+modello si sovrapponeva al dialogo. Dalla v239 controlla anche, prima di
+tutto, che Spectra abbia **un solo pulsante visibile**: il cerchio con il volto
+(`#bsiJV-fab`) si vede, la pillola «Spectra» (`#bsi-spectra-fab`) no, e il
+cerchio è rotondo (`border-radius: 50%`). Il resto del banco lavora in quattro
+parti:
 
 | Parte | Che cosa pretende |
 |---|---|
@@ -325,6 +330,69 @@ modello si sovrapponeva al dialogo. Il banco lavora in quattro parti:
 Restano fuori, e lo dichiara `docs/08` §6 (AI-13): la voce, l'ascolto continuo
 e gli altri comandi locali, che nel Chromium senza interfaccia della batteria non si
 possono provare.
+
+**`test_lezione` — 30 controlli.** Nasce dalla richiesta di una lezione
+interattiva «per ogni sezione» (`bsi-lezione.js`). Poiché la lezione non è
+scritta a mano ma costruita dalla sezione, il banco non ne prova una: le prova
+tutte.
+
+| Parte | Che cosa pretende |
+|---|---|
+| Tutte le sezioni | Apre una per una le sezioni della barra nelle tre materie (cambiando materia quando serve) e pretende di averne attraversate almeno 190 (**194** alla stesura). Per ognuna: la lezione esiste e va dall'apertura al riepilogo; il pulsante «🎓 Lezione guidata» c'è; se la sezione ha schede (**99**), i capitoli sono uno per scheda più apertura, riepilogo ed eventuale verifica. Almeno 60 lezioni devono avere una domanda di verifica (**79** alla stesura). Nessun errore JavaScript |
+| Il lettore, a 390 e a 1280 px | Su 〰️ Onde e ottica: il pulsante apre la lezione dall'apertura; i pulsanti flottanti passano da visibili a nascosti; arrivati al primo cursore il valore cambia davvero (almeno quattro valori diversi in 4,5 s) e il riflettore è acceso; saltando avanti a metà il cursore torna al valore di partenza; una scelta passa almeno due opzioni e torna a quella di partenza; la verifica mostra la risposta giusta e una spiegazione di più di 20 caratteri; il riepilogo elenca i capitoli; niente sborda; alla chiusura il pannello sparisce, la classe `bsiLZ-aperto` è tolta e i pulsanti flottanti sono di nuovo visibili; `BSISpectraLive.comando('fammi lezione')` risponde e avvia la lezione; nessun errore JavaScript |
+
+Restano fuori la voce della lezione (non c'è sintesi vocale nel Chromium senza
+interfaccia) e la qualità didattica dei testi, che dipende dalle spiegazioni
+delle sezioni e va giudicata leggendo.
+
+**`test_spectra_studio` — 79 controlli (85 con il corpo riggato presente in
+locale).** Prova Spectra incarnato
+(`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
+`bsi-spectra-studio-lezioni.js`; progetto in
+[`docs/spectra/02`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/02-Architettura.md)).
+
+| Parte | Che cosa pretende |
+|---|---|
+| Calcoli (23) | Esegue `verifiche/verifica-studio-spectra.js`, anche da solo con `node`: caduta da 20 m in √(2h/g) = 2,0193 s per entrambe le sfere, gittata 12,116 m, con l'aria (k = 0,02 m⁻¹) la lanciata arriva dopo (2,1789 contro 2,1563 s), passo dimezzato che cambia il tempo meno di 10⁻⁴; VSEPR: tetraedro 109,471°, trigonale 120°, lineare 180°, acqua 104,40° con w = 1,25 (calibrato), ammoniaca 106,69° con lo stesso w (previsione), angolo che cala al crescere di w; Basilea: S(100 000) entro la coda di π²/6, coda fra 1/(N+1) e 1/N per N = 10, 100, 1000, Fourier di x² in π e in 1, armonica come ln N + γ, coprimi → 6/π² entro 3σ; per ogni lezione una sola risposta giusta, ogni opzione spiegata, almeno tre passi di dimostrazione, esercizi su quattro livelli |
+| Corpo (11) | Sul manichino: ossa 22/23 (manca la mandibola), blendshape 14/14, capelli trovati e resi neri (RGB 0,039 0,039 0,047); braccia giù dalla posa a T; indica (avambraccio sul bersaglio, scarto 1,7°); pensa (mano a 20,8 cm dalla testa); sguardo verso destra; passo (0,96 m, gambe a 24°); seduta (anche giù di 42 cm); gioia → sorriso, preoccupazione → angoli giù e sorriso a zero; labiale dall'audio (mandibola 0,75); battito (palpebre chiuse) |
+| Voce (3) | In un contesto audio offline: a 80 Hz i bassi escono rinforzati (6,9 dB), il riverbero lascia una coda dopo la fine del suono; senza chiave `qualita()` vale `'sistema'` |
+| Lezioni, a 1280 e 390 px | Il volto «Noir» appoggiato sul collo (sul manichino il mento sta 1,0 cm sopra l'osso della testa; sul corpo riggato il riferimento è l'osso del collo più 4,5 cm, dove il mento poggia sul colletto); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
+| Corpo riggato, a 1280 e 390 px (3 + 3) | Solo se `models/spectra-corpo.glb` è presente in locale. **Sincronia viso–cappuccio**: mentre Spectra cammina, fa il gesto «spiega» e guarda in 24 punti diversi, la posizione del viso misurata nel riferimento dell'osso della testa non si sposta più di 1 mm (misurati 0,0 mm); **del volto «Noir» si vede solo il viso** (sono visibili soltanto `Object_2`, `Object_3`, `Object_4`: maschera, occhi, dettagli); il volto è **«solidale»** (i movimenti della testa li fa il corpo, e il volto non fa il proprio respiro dentro il cappuccio) |
+| Corpo dal dispositivo, a 1280 e 390 px (3 + 3) | Il pulsante «🧍 Corpo» c'è e il suo campo file accetta i `.glb` (`.glb,model/gltf-binary`); un corpo scritto e riletto dall'IndexedDB (`bsi-spectra-modelli`) torna uguale (andata e ritorno); un file che non è un modello viene rifiutato con un messaggio, senza errori JavaScript |
+| Voce e dati (2) | La voce spenta resta spenta dopo una ricarica; «Cancella dati → Memoria persistente» toglie `bsi-spectra-studio-v1` e `bsi-spectra-studio-voce` |
+| Senza WebGL | Nessuna scena, ma la lezione dà le misure (2,019 s); nessun errore JavaScript |
+
+Restano fuori: il corpo «Bounty Hunter» nella batteria pubblica, perché
+`models/spectra-corpo.glb` non è nel repository (viene da CGTrader, e la
+licenza Royalty Free non permette che terzi possano recuperarne il file): senza il file i sei controlli del
+corpo riggato si saltano e il banco prova il manichino; il caricamento del
+modello «cyberpunk» (`models/spectra-cyberpunk.glb`, anch'esso fuori dal
+repository); la chiamata a OpenAI e l'ascolto della voce (il banco non
+raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
+va giudicata guardando.
+
+**`test_spectra_rig` — 30 controlli.** Prova il rig automatico
+(`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
+umanoide senza ossa. Il modello vero non è nel repository, quindi il banco
+costruisce nel codice un **umanoide sintetico in posa ad A**, una mesh sola:
+busto, braccia e gambe come tubi continui, testa con un cappuccio. Il caso
+difficile è voluto: la mano pendente sta a pochi centimetri dal fianco, e in
+linea d'aria il fianco è più vicino alle ossa del braccio che a quelle del
+busto.
+
+| Parte | Che cosa pretende |
+|---|---|
+| Scheletro (5) | Rig costruito in meno di 3 s; **27 ossa** (20 che pesano e 7 punte); nomi Mixamo (`Hips`, `Spine2`, `Neck`, `Head`, `LeftArm`, `RightForeArm`…); il driver del corpo le riconosce (almeno 20 su 23) e sa farlo camminare |
+| Pesi (5) | Somma dei pesi = 1 su ogni vertice; i vertici della mano vanno alla mano e all'avambraccio; **il fianco del busto accanto alla mano pendente non prende nessun peso del braccio** (il difetto che strappava il busto alzando un braccio); una gamba non prende mai peso dalle ossa dell'altra; la gamba sinistra va alle sue ossa (oltre il 99 %) |
+| Movimento (3) | Nel gesto «spiega» la mano si sposta (mezzo metro) e il fianco resta fermo (1 mm); la camminata sposta il corpo |
+| Testa e cappuccio (8) | Senza testa si tolgono i triangoli sopra il collo; col cappuccio se ne tolgono meno, perché la nuca resta; con la testa nessuno; **col solo viso nessun triangolo tolto**: il foro è un'ellisse calcolata al pixel nello shader, sulla posa di riposo, quindi segue la testa; con l'opzione `visiera: false` (disponibile, non usata dallo studio, che tiene la visiera nera lucida) il casco sotto il cappuccio diventa ombra opaca senza togliere vertici; dal foro si vede l'interno del casco (doppia faccia), non il vuoto; il cappuccio è rigido con l'osso della testa (tutti i suoi vertici) |
+| Colori (5) | Il grigio medio diventa blu notte; le ombre restano quasi nere; le luci restano chiare, appena azzurre; il turchese diventa luce propria verde acqua `#00c9b7` (0, 201, 183); il grigio non emette luce |
+| Definizione (3) | Con la tassellazione di Phong (`suddividi: 1`) ogni triangolo ne diventa quattro; i pesi restano normalizzati anche sui vertici nuovi; la pelle resta chiusa: i bordi aperti raddoppiano soltanto (ogni lato di bordo diventa due), nessuna cucitura si apre |
+| Errori (1) | Nessun errore JavaScript |
+
+Restano fuori: il modello vero (`models/spectra-corpo.glb`), che non è nel
+repository; la qualità visiva delle pieghe (gomiti, ginocchia, ascelle) e del
+cappuccio, che va giudicata guardando.
 
 **`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
 ad aggiornare non esce nulla». Era vero. La finestra 🔄 Aggiornamenti cercava
@@ -757,11 +825,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 552 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 565 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio, `test_spectra_rig` il rig automatico su un umanoide sintetico. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 
@@ -777,4 +845,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v238`._
+_Documento aggiornato alla versione `bsi-v239`._

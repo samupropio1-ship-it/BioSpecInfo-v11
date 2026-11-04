@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -467,6 +467,76 @@ in `localStorage`, nothing else.
 | `saluto`, `chiTiHaCreato` | `() → string` | The greeting by name and the answer to «who created you?» |
 | `contesto` | `() → string` | The `[CREATORE]` line added to the model's context |
 
+### `window.BSILezione` — the guided lesson (`bsi-lezione.js`, v239)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `avvia` | `(section?, { muta? }?) → boolean` | Builds the lesson for the given section (or the visible one) and starts it in the player; `muta: true` starts with the voice off. `false` if no section is visible. A lesson already running is closed |
+| `chiudi` | `()` | Stops the lesson, puts the control being demonstrated back as it was, removes panel and spotlight, makes the floating buttons visible again |
+| `costruisci` | `(section?) → { sezione, titolo, capitoli, passi } \| null` | Construction only, without the player. `capitoli`: «Introduzione», one name per tab (or «Esploriamo»), «Verifica» if there is a question, «Riepilogo» (English labels when the interface is in English). `passi`: objects with `tipo` among `titolo`, `scheda`, `leggi` (placeholder replaced by the tab's steps when the tab is opened), `testo`, `tela`, `cursore`, `scelta`, `quiz`, `fine`, and `cap` (chapter index) |
+| `vai` | `(i)` | Goes to step `i` like a tap on ◀ ▶ (interrupts the voice) |
+| `stato` | `() → { i, passi, tipo, capitoli, auto } \| null` | Current step, number of steps, step type, chapters, whether auto-advance is on; `null` with no lesson |
+| `versione` | string | `'1.0'` |
+
+Spectra Live's local command «fammi lezione» («give me a lesson») in
+`BSISpectraLive.comando` calls `BSILezione.avvia()` after closing the console.
+
+### `window.BSISpectraVoce` — the voice (`bsi-spectra-voce.js`, v239)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `qualita` | `() → 'audio' \| 'sistema' \| 'testo'` | `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio; `'sistema'` with `speechSynthesis` only; `'testo'` without voice |
+| `parla` | `(text, { suBocca?, timbro?, soloSistema? }?) → Promise<{ ok, motore, durata? } \| { annullato }>` | In audio mode sends the text (up to 3,800 characters) to `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voice «onyx»; `tts-1` as fallback), runs it through the chain and calls `suBocca({ energia, centroide, apertura, rotondo, largo, frazione })` every frame; if the request fails, or with `soloSistema`, uses `speechSynthesis`. Interrupts the previous sentence |
+| `ferma` | `()` | Stops the audio and the browser's synthesis |
+| `catena` | `(audioContext, timbre?) → { ingresso, uscita, analizzatore, ferma }` | The effects chain of `TIMBRO` |
+| `impulso` | `(audioContext, seconds) → AudioBuffer` | Synthetic reverb impulse response (stereo) |
+| `leggiBocca` | `(analyser, data) → { energia, centroide, apertura, rotondo, largo }` | Lip sync from audio: RMS energy and spectral centroid |
+| `TIMBRO` | object | `bassiHz` 140, `bassiDb` 5, `fangoHz` 350, `fangoDb` −3, `presenzaHz` 2800, `presenzaDb` 3, `anelloHz` 55, `anello` 0.12, `pettineMs` 4.3, `pettineRetro` 0.35, `pettine` 0.18, `calore` 1.6, `stanzaS` 1.4, `stanza` 0.16, `volume` 0.95 |
+
+### `window.BSISpectraCorpo` — the body (`bsi-spectra-corpo.js`, v239)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `crea` | `(root, { animazioni?, capelliNeri? }?) → Corpo` | Attaches the driver to a three.js object with a skeleton; with `animazioni` (the GLB's clips) it recognises `idle`, `walk`, `sit`, `stand`, `wave`, `point`, `talk`; the hair turns black unless `capelliNeri: false` |
+| `manichino` | `({ neon? }?) → THREE.Group` | The test mannequin: bones with Mixamo names in T-pose, head with 26 ARKit blendshapes, separate eyes, red hair cap |
+| `EMOZIONI`, `OSSA`, `normaNome` | objects, function | ARKit weights per emotion; regular expressions for bone names; name normalisation |
+
+Methods of a `Corpo`:
+
+| Method | Signature | Description |
+|---|---|---|
+| `rapporto` | `() → { ossa, mancanti, blendshape, capelli, clip, locomozione, viso }` | What the model can do (the requirements check of `docs/spectra/01`) |
+| `capelliNeri` | `(colour?)` | Colour (default `#0a0a0c`), roughness, and texture desaturated in the shader |
+| `orienta` | `(bone, direction, weight)` | Brings the bone → child direction onto a world direction |
+| `emozione` | `(name, seconds?, intensity?) → boolean` | One of the emotions in `EMOZIONI` for a few seconds |
+| `dici`, `audio`, `taci` | `(text)`, `(mouthState)`, `()` | Lip sync from text, from audio (`suBocca` of `BSISpectraVoce`), stop |
+| `guarda` | `(point)` | Eyes, neck and head towards a point |
+| `fai` | `(gesture, target?, seconds?)` | `'indica'` (point), `'spiega'` (explain), `'pensa'` (think), `'attende'` (wait), `'conclude'` |
+| `cammina`, `siedi` | `(point)`, `(yes?)` | Walk to a point; sit (`false` to stand up) |
+| `peso`, `imposta` | `(name) → number \| null`, `(name, value) → boolean` | Reads and writes a blendshape weight |
+| `passo` | `(dt)` | Advances the behaviour by `dt` seconds; to be called every frame |
+
+### `window.BSIStudioLezioni` and `window.SpectraStudio` — the studio (v239)
+
+`BSIStudioLezioni` (`bsi-spectra-studio-lezioni.js`, also usable with
+`require` in node) exposes `LEZIONI` (for each lesson `id`, `materia`,
+`predici`, `testa`, `dimostra`, `rivela`), `SCENE` (each lesson's 3D objects)
+and `calcolo`: `caduta(h, v0, g?, dt?, k?)`,
+`vsepr(nBonds, nLonePairs, wLP?, iter?)`, `parziale(N)`, `armonica(N)`,
+`coda(N)`, `fourierX2(x, N)`, `mcd(a, b)`, `coprimi(M, max, seed?)`.
+
+`SpectraStudio`, defined inside `spectra-studio.html`, serves the benches:
+`apri(id)`, `scegli(i)`, `testa()`, `dimostra(k)`, `rivela()`,
+`stato() → { lez, fase, misure, previsione, scena, volto }`.
+
+### `window.BSISpectraAndroide.crea` — the face in someone else's scene (v239)
+
+`crea(parent, { scena, renderer, senzaBusto }?)`: with `scena` the face lives in
+an existing three.js scene, without its own renderer, lights, camera or drawing
+loop (the host calls `passo(dt)` and attaches `radice` to the body); with
+`senzaBusto` the model's neck and shoulders are hidden. The object also exposes
+`parti` (the model's meshes by name).
+
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._

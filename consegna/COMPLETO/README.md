@@ -4,8 +4,8 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v238-0e655c)](CHANGELOG.md)
-[![Verifica](https://img.shields.io/badge/banchi-79%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v239-0e655c)](CHANGELOG.md)
+[![Verifica](https://img.shields.io/badge/banchi-82%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)<!--ESITO-BATTERIA-->
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2091%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
 
@@ -19,10 +19,10 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 
 | Che cosa | Dimensione | Link |
 |---|---:|---|
-| **Tutto** — applicazione, codice, documentazione, i 79 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
-| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v238.zip) |
-| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v238.zip) |
-| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v238.zip) |
+| **Tutto** — applicazione, codice, documentazione, gli 82 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
+| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v239.zip) |
+| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v239.zip) |
+| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v239.zip) |
 
 I tre pacchetti della versione in corso stanno sempre in
 [`consegna/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/consegna); l'archivio completo è generato da GitHub sul
@@ -70,8 +70,8 @@ promesso, ma perché non esiste un server che possa farlo.
 | **Chemioinformatica** | Banco di lavoro completo: standardizzazione, 43 descrittori, impronte Morgan/MACCS, Tanimoto, raggruppamento di Butina, scheletri di Bemis–Murcko, PCA, QSAR con **divisione per scheletro**, **validazione incrociata raggruppata** e **modello nullo per rimescolamento**, salti di attività, allarmi PAINS e Brenk. I risultati escono in **CSV** e in un **rapporto di metodo** che porta il seme, così l'analisi si rifà |
 | **Fisica e matematica** | Laboratori interattivi verificati contro valori noti o un secondo metodo, fra cui spin e qubit, meccanica statistica, nuclei, materiali, elettronica, equazioni alle derivate parziali, analisi complessa, catene di Markov, SVD, codici e curve ellittiche; 29 sezioni di chimica, fisica e matematica hanno anche una scheda 3D costruita sul loro modello e verificata |
 | **Astrofisica** | Un gruppo di dodici sezioni, dieci in 3D: sistema solare alla data, meccanica orbitale, matematica celeste, vita delle stelle, buchi neri, onde gravitazionali, galassie, cosmologia, planetario, esopianeti |
-| **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale; per fisica e matematica kit di studio (riassunti, quiz, flashcard, formulari, glossari), risorse web, bibliografia e citazioni |
-| **Spectra** | Agente AI con 47 strumenti, dieci fornitori, ricaduta automatica sui guasti; console vocale **Spectra Live** con il volto 3D dell'androide, un navigatore di tutte le sezioni e un pulsante sempre presente |
+| **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale; per fisica e matematica kit di studio (riassunti, quiz, flashcard, formulari, glossari), risorse web, bibliografia e citazioni; in ognuna delle 194 sezioni una **lezione guidata con Spectra** che apre le schede, mostra i comandi al lavoro e chiude con una domanda di verifica |
+| **Spectra** | Agente AI con 47 strumenti, dieci fornitori, ricaduta automatica sui guasti; console vocale **Spectra Live** con il volto 3D dell'androide, un navigatore di tutte le sezioni e un solo pulsante, il suo volto in un cerchio, presente in ogni schermata; **Spectra Studio**, un laboratorio 3D in cui Spectra, in piedi accanto a un banco olografico, insegna con il metodo *predici → testa → dimostra → rivela* (il corpo è per ora un manichino di prova; progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/spectra)) |
 
 ---
 
@@ -156,7 +156,7 @@ git clone https://github.com/samupropio1-ship-it/BioSpecInfo-v11
 cd BioSpecInfo-v11
 npm install                      # solo playwright-core, per i banchi
 python3 -m http.server 8899 &    # RDKit e SQLite sono WASM: serve HTTP
-node tools/genera-evidenza.js    # 79 banchi, rapporto di verifica completo
+node tools/genera-evidenza.js    # 82 banchi, rapporto di verifica completo
 ```
 
 | Comando | Cosa fa |
@@ -176,7 +176,7 @@ node tools/genera-evidenza.js    # 79 banchi, rapporto di verifica completo
 | `node tools/genera-pdf.js` | Rigenera i PDF allegabili da `docs/*.md` e `docs/en/*.md` |
 | `node tools/genera-pacchetti.js` | Costruisce i tre pacchetti di consegna in `consegna/` |
 
-I 79 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
+Gli 82 banchi stanno in [`tools/banchi/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/tools/banchi) e sono versionati:
 non è una comodità, è la condizione perché *«chiunque può rieseguirli»* sia
 vero. Un banco assente rende l'esito **NON CONFORME**, perché un banco che non
 c'è non è un banco superato.
@@ -193,6 +193,12 @@ BioSpecInfo-v11/
 ├── bsi-spectra-androide.js Volto 3D di Spectra (modello «Noir», CC BY 4.0)
 ├── bsi-spectra-mente.js    Memoria locale e stato interno di Spectra
 ├── bsi-spectra-creatore.js Spectra riconosce il suo creatore (prova con impronta SHA-256)
+├── bsi-lezione.js          Lezione guidata con Spectra per ogni sezione
+├── bsi-spectra-corpo.js    Corpo di Spectra: driver per avatar umanoidi, manichino di prova
+├── bsi-spectra-rig.js      Rig automatico nel browser per figure umanoidi senza scheletro
+├── bsi-spectra-voce.js     Voce di Spectra: audio TTS (con chiave OpenAI) ed effetti
+├── bsi-spectra-studio-lezioni.js  Lezioni di Spectra Studio, con i calcoli
+├── spectra-studio.html     Spectra Studio: laboratorio 3D con Spectra in piedi (corpo .glb caricabile dal dispositivo)
 ├── bsi-materie-app.js      Tre app in una: menu ✨, Spectra, Studio e Utility per materia
 ├── bsi-studio.js           Motore dei kit di studio
 ├── bsi-aggiorna.js         «Controlla aggiornamenti»

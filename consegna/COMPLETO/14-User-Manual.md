@@ -45,7 +45,8 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
 | **Menu delle sezioni** | Barra di navigazione | Le 194 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
-| **Spectra** | In basso a destra | L'assistente che risponde alle domande |
+| **Spectra** | In basso a destra, il volto in un cerchio | L'assistente che risponde alle domande: un tocco apre la console, e da lì 💬 la chat |
+| **🎓 Lezione guidata** | Sotto il titolo di ogni sezione | Una lezione in capitoli sulla sezione, condotta da Spectra |
 
 ---
 
@@ -457,7 +458,8 @@ serve una **chiave** gratuita. Due strade:
 
 1. Vai su [console.groq.com](https://console.groq.com/keys) e crea una chiave
    (gratuita, bastano due minuti)
-2. Aprila Spectra, incolla la chiave nel riquadro 🔑
+2. Apri Spectra (il volto in basso a destra, poi 💬), incolla la chiave nel
+   riquadro 🔑
 3. Fatto
 
 **La definitiva — un proxy**
@@ -482,13 +484,15 @@ dispositivo»*. Non lo cancella: domani potrebbe tornare a funzionare.
 
 ### Spectra Live: parlargli
 
-Il modo più rapido per aprirla è il **pulsante tondo con il volto di Spectra**,
-a sinistra del pulsante Spectra: c'è in ogni schermata. Funzionano anche il
+Spectra ha **un solo pulsante**: il suo volto in un cerchio, in basso a
+destra, in ogni schermata. Un tocco apre la console; dalla console il pulsante
+**💬** apre la chat scritta. Appena apri l'app nel cerchio c'è un volto
+disegnato; a pagina caricata diventa il ritratto. Funzionano anche il
 pulsante **◈ Live** nella testata di Spectra e `Ctrl+Shift+J`. La console
 occupa tutto lo schermo; sul telefono, con l'app installata, lascia libere la
 barra di stato in alto e i tasti di Android in basso. Premi il microfono e parla: Spectra ascolta, risponde
 a voce e poi torna ad ascoltare, così puoi continuare senza toccare niente. Di'
-«stop» o tocca lo schermo per interromperla. Se il browser non ha il
+«stop» o tocca lo schermo per interromperlo. Se il browser non ha il
 riconoscimento o la sintesi vocale, la console lo dice e puoi scrivere.
 
 Alcune richieste Spectra le esegue da sola, **senza rete e senza chiave**:
@@ -501,7 +505,8 @@ schermo. Se chiedi di «questo grafico» o premi **👁**, Spectra allega anche
 un'immagine dei grafici della scheda aperta.
 
 Sopra i comandi ci sono le **scorciatoie**: con una sezione aperta «Spiegami
-questa sezione», «Guidami», «Cosa vedo?», «Interrogami» e «Ripassa». In alto,
+questa sezione», «Guidami», «Cosa vedo?», «Interrogami», «Ripassa» e
+**🎓 Lezione**, che avvia la lezione guidata della sezione (vedi sotto). In alto,
 il pulsante **🧭** apre il navigatore: per chimica, fisica e matematica tutte le
 sezioni della barra, gli strumenti rapidi e le frasi che Spectra capisce anche
 senza rete, con una casella per cercare. Un tocco su una sezione la apre, anche
@@ -515,12 +520,90 @@ semplici» lo abbassa. Se la console resta aperta e in silenzio per più di un
 minuto, Spectra può dirti da sé una cosa importante, per esempio che è ora di
 una pausa.
 
+### 🎓 La lezione guidata
+
+In ogni sezione, sotto il titolo, c'è il pulsante **«🎓 Lezione guidata con
+Spectra»**. Toccalo, oppure di' o scrivi a Spectra «fammi lezione»: la sezione
+diventa una lezione in capitoli, con la simulazione vera sotto gli occhi.
+
+- Si comincia dal titolo della sezione. Poi un **capitolo per ogni scheda**:
+  la scheda si apre da sola, la spiegazione compare un pezzo per volta, parola
+  per parola, e un **riflettore** oscura il resto della pagina e illumina il
+  grafico o il comando di cui si sta parlando.
+- I **cursori** si muovono da soli, dal minimo al massimo, mentre il grafico o
+  la scena 3D cambiano; le **scelte** passano in rassegna le loro opzioni. Alla
+  fine ogni comando torna com'era, anche se salti avanti o chiudi a metà.
+- In molte sezioni c'è una **domanda di verifica** presa dal kit di studio
+  della materia: la lezione aspetta la tua risposta, poi mostra quella giusta
+  e la spiegazione.
+- Il **riepilogo** elenca i capitoli percorsi; da lì puoi ripetere la lezione
+  o chiedere a Spectra di approfondire.
+
+Il pannello della lezione sta a destra sullo schermo grande (la pagina si
+sposta a sinistra per lasciargli posto) e in basso sul telefono. **◀ ▶**
+spostano di un passo, il tasto centrale mette in pausa, **🔊/🔇** accende e
+spegne la voce di Spectra, **✕** (o Esc) chiude. Durante la lezione i pulsanti
+tondi dell'app si nascondono e alla fine tornano. Se nel sistema hai attivato
+«riduci movimento», i cursori saltano al valore invece di scorrere e il testo
+compare tutto insieme.
+
+La lezione è costruita leggendo la sezione: dove una scheda ha poco testo, il
+capitolo è breve; e nelle sezioni senza domande adatte nel kit di studio la
+verifica non c'è.
+
+### 🌌 Spectra Studio: il laboratorio di Spectra
+
+Nella console di Spectra tocca **🧭** e, in cima all'elenco, **Spectra
+Studio**. Si apre una pagina a parte: un laboratorio 3D dove Spectra sta in
+piedi accanto a un banco olografico e ti fa lezione in quattro tempi.
+
+1. **Predici** — Spectra mette in scena un fenomeno e ti chiede che cosa
+   succederà. Scegli una risposta: viene registrata.
+2. **Testa** — la simulazione gira sul banco, con i numeri misurati.
+3. **Dimostra** — la spiegazione rigorosa, un passo alla volta.
+4. **Rivela** — perché la risposta giusta è giusta e le altre no, a che cosa
+   si collega, e quattro esercizi dalla scuola superiore alla ricerca. Quello
+   evidenziato è il livello che Spectra ti consiglia, in base a come sono
+   andate le tue previsioni e agli esercizi che hai già aperto.
+
+Le lezioni, per ora, sono tre: **🪂 La caduta** (una sfera lasciata cadere e
+una lanciata: quale arriva prima?), **💧 La forma dell'acqua** (perché
+l'angolo è 104,5°?) e **∑ Il problema di Basilea** (quanto fa 1 + 1/4 + 1/9 +
+…?). Trascinando giri la telecamera, con la rotellina ti avvicini. Se il
+dispositivo non ha la grafica 3D, la lezione resta tutta nel pannello, a testo.
+Le tue previsioni restano su questo dispositivo; si cancellano con
+«Cancella dati → Memoria persistente». Nella barra dei pulsanti dello studio
+c'è **🔊/🔇**: spegne e riaccende la voce di Spectra, e lo studio si ricorda
+la tua scelta anche le volte successive.
+
+Il corpo di Spectra, oggi, è un **manichino di prova** con il suo volto: il
+personaggio scelto dall'autore non è ancora stato fornito. Lo studio è già
+pronto a usarlo: chi pubblica l'app, **dopo aver verificato che la licenza
+del modello ne permetta la ridistribuzione**, mette il file GLB in
+`models/spectra-cyberpunk.glb` (i passi sono nella
+[guida al deploy](12-Deploy-Guide.md), §2.2-quinquies). Alla prossima apertura
+dello studio Spectra ha quel corpo, con i capelli neri e il viso del modello.
+Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
+progetto è descritto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md).
+
+### La voce di Spectra
+
+Senza impostare niente, Spectra parla con la voce del tuo dispositivo, la più
+grave che trova. Se hai salvato una **chiave OpenAI** fra le chiavi di
+Spectra, nella console, nella lezione guidata e in Spectra Studio parla con
+una voce più profonda e metallica, e la bocca segue la voce. In quel caso **il
+testo che Spectra pronuncia viene inviato a OpenAI** per trasformarlo in
+audio, anche se per la chat usi un altro servizio. Se non lo vuoi, spegni la
+voce con 🔇: nella console, nel pannello della lezione guidata e nella barra
+dei pulsanti di Spectra Studio (che si ricorda la scelta). Oppure non salvare
+una chiave OpenAI.
+
 ### Il volto e la mente di Spectra
 
 Nella console Spectra ha un volto: un androide in 3D (il modello «Noir» di
 Skyfox13, licenza CC BY 4.0, modificato; il credito è in basso nella console).
 La bocca si muove sul testo che pronuncia, la testa segue lo sguardo, e
-l'espressione cambia con quello che dice e che le dici: 17 espressioni, dal
+l'espressione cambia con quello che dice e che gli dici: 17 espressioni, dal
 sorriso al dubbio. Gli occhi hanno il blu dell'app e cambiano sfumatura con
 l'emozione; le palpebre si stringono nel sorriso, si spalancano nella sorpresa
 e si socchiudono quando la domanda è difficile. Gli occhi seguono il dito o il
@@ -625,4 +708,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v238`._
+_Guida aggiornata alla versione `bsi-v239`._

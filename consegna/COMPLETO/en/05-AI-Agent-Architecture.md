@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v238` |
+| **Documented version** | Service Worker `bsi-v239` |
 
 ---
 
@@ -640,14 +640,20 @@ stating the probable cause. It also covers tools added in the future.
 
 ### 4.10 Spectra Live: voice, screen and local commands
 
-`bsi-spectra-live.js` adds a full-screen console. Since v238 it opens from any
-screen with a round button showing the face, to the left of the Spectra button;
-the «◈ Live» button in Spectra's header and `Ctrl+Shift+J` remain:
+`bsi-spectra-live.js` adds a full-screen console. It opens from any screen with
+Spectra's only button: the face in a circle (`#bsiJV-fab`), which since v239
+takes the place of the «Spectra» pill (`#bsi-spectra-fab`). The pill stays in
+the document, hidden by the `bsiJV-solo-volto` class on `body`, because other
+modules and the benches use it to open the chat; from the console the chat
+opens with 💬. The circle appears at once with the vector face and switches to
+the portrait (`models/spectra-ritratto.jpg`) after the `load` event. The «◈
+Live» button in Spectra's header and `Ctrl+Shift+J` remain:
 
 - **hands-free conversation**: the browser's speech recognition listens, the
   answer is spoken sentence by sentence with the system's speech synthesis (a
-  male voice is preferred, rate 0.95, pitch 0.7) and the console then listens
-  again; «stop» or a tap interrupts it. If either capability is missing in the
+  male voice is preferred, rate 0.95, pitch 0.7) or, since v239 and only with a
+  saved OpenAI key, with the voice of `bsi-spectra-voce.js` (§4.15); the
+  console then listens again; «stop» or a tap interrupts it. If either capability is missing in the
   browser, the console says so;
 - **local commands**, recognised with regular expressions before the model is
   called and therefore available without network and without a key: open a
@@ -782,6 +788,120 @@ mark; so does «Clear data → Persistent memory».
 **Limitation.** Like the File Manager password it is a deterrent, not an access
 control: the fingerprint is in the code and the mark can be written by hand by
 whoever holds the device (`09-Release-Conformance-Statement.md`, D-13).
+
+### 4.14 The guided lesson
+
+`bsi-lezione.js` (v239, object `BSILezione`) turns every section into a lesson
+in chapters led by Spectra. It does not use the model: the lesson is built by
+reading the open section. Only the voice goes online, and only with a saved
+OpenAI key (§4.15).
+
+- **Construction** (`costruisci(section)`): an opening step with title and
+  subtitle; one chapter per tab (`.bsiFX-schede button`), whose steps are read
+  when the tab is open: the explanation split into pieces of one or two
+  sentences (at most three pieces, about 260 characters each), the first
+  visible canvas or 3D scene, up to four sliders and selects; for sections
+  without tabs a single chapter with the visible headings and paragraphs and
+  the same controls. Then a **check question** from the subject's study kit
+  (`BSIStudio.dati(subject).quiz`): the one with the most words (longer than
+  four letters) in common with title, subtitle and tabs wins, with double
+  weight for the words of its topic; a score of at least 2 is required,
+  otherwise there is no check. Finally the **summary** of the chapters.
+- **Demonstrations**: a slider goes from its current value to the minimum, the
+  maximum and back to the starting value in about 4 s, firing `input` and
+  `change` events as the user would; a select goes through its first five
+  options and returns to the starting one. Skipping ahead half-way, or closing
+  the lesson, puts the control back as it was.
+- **Player**: panel `#bsiLZ` (on the right on a large screen, at the bottom
+  below 760 px; from 1100 px `#main` shifts left), progress by chapter, text
+  appearing word by word, ◀ ▶, pause, voice, `Esc` to close, arrow keys to
+  move. The spotlight `#bsiLZ-luce` dims the rest and follows the piece being
+  discussed. The voice is Spectra Live's (`BSISpectraLive.parla`) and, if the
+  console is not there, `BSISpectraVoce.parla`; without voice, reading time depends on the length of the text. With «reduce motion»
+  sliders jump to the value, text appears all at once and the spotlight does
+  not pulse.
+- **Floating buttons**: they are hidden during the lesson (including those
+  with `visibility` written inline, whose value is noted and restored on
+  closing).
+- **Start**: the «🎓 Guided lesson with Spectra» button the module adds under
+  the title of every visible section; Spectra Live's local command «give me a
+  lesson» («fammi lezione»), which closes the console and starts the lesson of
+  the open section; the 🎓 shortcut in the console.
+
+The lesson has no keys of its own in `localStorage`; at the end it signals an
+emotion to Spectra's mind (`sente('fiera', 'lezione')`), which the mind records
+in `bsi-spectra-mente-v1` like the others.
+
+### 4.15 Embodied Spectra: the studio, the body, the voice
+
+Since v239 Spectra also has a body, on a page of its own:
+`spectra-studio.html`, reached from the console's 🧭 navigator. The full design
+(model requirements, choice of stack, modules, state, lesson cycle, migration,
+domain coverage) is in the Italian design documents in
+[`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md):
+[analysis and plan](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md),
+[architecture](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/02-Architettura.md),
+[domain map](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/03-Mappa-dei-domini.md). What is in the code is
+summarised here.
+
+- **The studio** (`spectra-studio.html`): a three.js r128 scene (grid floor,
+  neon lights, holographic bench) with Spectra standing; an accessible panel
+  with all the text. The lessons in `bsi-spectra-studio-lezioni.js`
+  (`BSIStudioLezioni`: `LEZIONI`, `SCENE`, `calcolo`) follow four phases:
+  **predict** (choices with the most common misconceptions and one right
+  answer, each explained), **test** (the simulation with the numbers measured
+  in the scene), **prove** (the derivation step by step), **reveal** (why,
+  connections, exercises on four levels). The computations live in `calcolo`
+  and also run in node: fall with semi-implicit Euler (and optional quadratic
+  drag), VSEPR as the minimum of the energy w_i·w_j/r of domains on the sphere
+  (w = 1 for bonds, 1.25 for lone pairs), partial sums, tail, Fourier series of
+  x², Monte Carlo coprimes.
+- **The studio's memory**: `bsi-spectra-studio-v1` keeps, per lesson, the
+  predictions (`quando`, `scelta`, `giusta`) and the exercises opened; the
+  recommended level is the number of right predictions plus exercises opened,
+  up to 3. Each prediction also goes to the mind (`BSISpectraMente.ricorda`).
+  The 🔊/🔇 switch in the action bar turns the studio's voice off and the
+  choice is kept in `bsi-spectra-studio-voce` (`'0'` = off). Both keys are
+  covered by «Clear data → Persistent memory».
+- **The body** (`bsi-spectra-corpo.js`, `BSISpectraCorpo`): the driver
+  recognises bones, ARKit blendshapes, hair and clips of a humanoid GLB; every
+  pose is a direction in the world, converted into the bone's local frame
+  (`orienta`, a minimal inverse kinematics valid for any rig); emotions, lip
+  sync, eyelids, gaze, gestures, walking and sitting are blended with springs.
+  The studio's body is the **mannequin** from `BSISpectraCorpo.manichino()`:
+  bones with Mixamo names in T-pose, 26 ARKit blendshapes, red hair that the
+  driver turns black. The «Noir» face is mounted on the mannequin's head with
+  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` and
+  aligned by measuring, in the first frames, the distance between the chin and
+  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). **The real
+  model**: at start-up the studio asks for `models/spectra-cyberpunk.glb` with a
+  `HEAD` request; if the file is there it loads it with `GLTFLoader`, scales it
+  to 1.8 m tall, puts it in place of the mannequin and attaches the driver
+  (with its clips), which recognises its bones, blendshapes and hair and turns
+  the hair black; the «Noir» face is hidden, because the model has its own
+  face. The «cyberpunk» model chosen by the author has not been provided (the
+  file was not reachable and its licence must be checked): today the file is
+  not there and the mannequin is shown. **The body from the device**: first of
+  all the studio looks in IndexedDB (`bsi-spectra-modelli`) for a `.glb` body
+  the user loaded with the «🧍 Corpo» button, rigs it with
+  `bsi-spectra-rig.js` and uses it; then `models/spectra-corpo.glb`
+  (development only, kept out of git because of the CGTrader licence), then
+  the «cyberpunk» model, then the mannequin.
+- **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
+  `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
+  `'sistema'` with the browser's speech synthesis only, `'testo'` without. In
+  audio mode the text (up to 3,800 characters) goes to
+  `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voice «onyx», with
+  instructions on the timbre; `tts-1` if that fails); the decoded audio stays
+  in an in-memory cache per sentence and goes through the `TIMBRO` chain (bass
+  +5 dB below 140 Hz, −3 dB at 350 Hz, +3 dB at 2.8 kHz, ring modulator at
+  55 Hz at 12 %, 4.3 ms comb, saturation, synthetic 1.4 s reverb at 16 %,
+  compressor). An analyser gives energy and spectral centroid every frame for
+  the lip sync. The text to be spoken leaves the device: see
+  [`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2.
+
+Like the mind and the face, the body is a **simulation of behaviour, not
+consciousness**.
 
 ---
 

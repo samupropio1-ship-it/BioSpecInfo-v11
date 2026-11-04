@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**79 benches**, grouped by what they demonstrate.
+**82 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -293,13 +293,17 @@ existed before v238.
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
-`test_mol3d` · `test_spettrolettore`
+`test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
+`test_guidaproxy` ·
+`test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
-**`test_spectra238` — 64 checks.** It comes from reports made with a phone
+**`test_spectra238` — 66 checks.** It comes from reports made with a phone
 screenshot: with the app installed, Android's status bar and navigation keys
 covered the controls of the Spectra Live console, and the model attribution
-overlapped the dialogue. The bench works in four parts:
+overlapped the dialogue. Since v239 it also checks, first of all, that Spectra
+has **a single visible button**: the circle with the face (`#bsiJV-fab`) is
+visible, the «Spectra» pill (`#bsi-spectra-fab`) is not, and the circle is
+round (`border-radius: 50%`). The rest of the bench works in four parts:
 
 | Part | What it requires |
 |---|---|
@@ -310,6 +314,69 @@ overlapped the dialogue. The bench works in four parts:
 
 Still outside, as `docs/08` §6 declares (AI-13): voice, continuous listening and
 the other local commands, which cannot be tested in the battery's headless Chromium.
+
+**`test_lezione` — 30 checks.** It comes from the request for an interactive
+lesson «for every section» (`bsi-lezione.js`). Since the lesson is not written
+by hand but built from the section, the bench does not test one lesson: it
+tests them all.
+
+| Part | What it requires |
+|---|---|
+| All sections | It opens the sections of the bar one by one in the three subjects (switching subject when needed) and requires at least 190 of them to be visited (**194** at the time of writing). For each: the lesson exists and runs from the opening to the summary; the «🎓 Guided lesson» button is there; if the section has tabs (**99**), the chapters are one per tab plus opening, summary and the check if any. At least 60 lessons must have a check question (**79** at the time of writing). No JavaScript errors |
+| The player, at 390 and 1280 px | On 〰️ Waves and optics: the button opens the lesson from the opening; floating buttons go from visible to hidden; at the first slider the value really changes (at least four different values in 4.5 s) and the spotlight is on; skipping ahead half-way the slider returns to its starting value; a select goes through at least two options and returns to the starting one; the check shows the right answer and an explanation longer than 20 characters; the summary lists the chapters; nothing overflows; on closing the panel disappears, the `bsiLZ-aperto` class is removed and the floating buttons are visible again; `BSISpectraLive.comando('fammi lezione')` answers and starts the lesson; no JavaScript errors |
+
+Still outside: the lesson's voice (there is no speech synthesis in headless
+Chromium) and the teaching quality of the texts, which depends on the sections'
+explanations and has to be judged by reading.
+
+**`test_spectra_studio` — 79 checks (85 with the rigged body present
+locally).** It tests embodied Spectra
+(`spectra-studio.html`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
+`bsi-spectra-studio-lezioni.js`; design in
+[`docs/spectra/02`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/02-Architettura.md)).
+
+| Part | What it requires |
+|---|---|
+| Computations (23) | Runs `verifiche/verifica-studio-spectra.js`, also standalone with `node`: fall from 20 m in √(2h/g) = 2.0193 s for both spheres, range 12.116 m, with air (k = 0.02 m⁻¹) the thrown one lands later (2.1789 vs 2.1563 s), halved step changing the time by less than 10⁻⁴; VSEPR: tetrahedron 109.471°, trigonal 120°, linear 180°, water 104.40° with w = 1.25 (calibrated), ammonia 106.69° with the same w (prediction), angle decreasing as w grows; Basel: S(100 000) within the tail of π²/6, tail between 1/(N+1) and 1/N for N = 10, 100, 1000, Fourier series of x² at π and at 1, harmonic series as ln N + γ, coprimes → 6/π² within 3σ; for each lesson exactly one right answer, every option explained, at least three proof steps, exercises on four levels |
+| Body (11) | On the mannequin: bones 22/23 (no jaw), blendshapes 14/14, hair found and turned black (RGB 0.039 0.039 0.047); arms down from the T-pose; pointing (forearm on the target, 1.7° off); thinking (hand 20.8 cm from the head); gaze to the right; walking (0.96 m, legs at 24°); sitting (hips down 42 cm); joy → smile, worry → mouth corners down and smile at zero; lip sync from audio (jaw 0.75); blink (eyelids closed) |
+| Voice (3) | In an offline audio context: at 80 Hz the bass comes out boosted (6.9 dB), the reverb leaves a tail after the sound ends; without a key `qualita()` is `'sistema'` |
+| Lessons, at 1280 and 390 px | The «Noir» face resting on the neck (on the mannequin the chin is 1.0 cm above the head bone; on the rigged body the reference is the neck bone plus 4.5 cm, where the chin rests on the collar); for fall, water and Basel the measurements in the scene (2.019 s, 109.47° and 104.4°, S₁₀₀₀ = 1.64393 and coprimes 0.6079), four predictions, formulas in the proof, the reveal with the right answer and four exercises of which one recommended, the memory remembering the prediction and the exercise opened; at 390 px nothing overflows; no JavaScript errors |
+| Rigged body, at 1280 and 390 px (3 + 3) | Only if `models/spectra-corpo.glb` is present locally. **Face–hood sync**: while Spectra walks, makes the «spiega» gesture and looks at 24 different points, the face position measured in the head bone's frame moves by no more than 1 mm (measured 0.0 mm); **of the «Noir» model only the face is visible** (only `Object_2`, `Object_3`, `Object_4` are visible: mask, eyes, details); the face is **«solidale»** (head movement is done by the body, and the face does not do its own breathing inside the hood) |
+| Body from the device, at 1280 and 390 px (3 + 3) | The «🧍 Corpo» button is there and its file input accepts `.glb` (`.glb,model/gltf-binary`); a body written to and read back from IndexedDB (`bsi-spectra-modelli`) comes back identical (round trip); a file that is not a model is rejected with a message, without JavaScript errors |
+| Voice and data (2) | The muted voice stays muted after a reload; «Clear data → Persistent memory» removes `bsi-spectra-studio-v1` and `bsi-spectra-studio-voce` |
+| Without WebGL | No scene, but the lesson gives the measurements (2.019 s); no JavaScript errors |
+
+Still outside: the «Bounty Hunter» body in the public battery, because
+`models/spectra-corpo.glb` is not in the repository (it comes from CGTrader,
+and the Royalty Free licence does not allow third parties to be able to
+retrieve the file): without the file
+the six rigged-body checks are skipped and the bench tests the mannequin;
+loading the «cyberpunk» model (`models/spectra-cyberpunk.glb`, also outside
+the repository); the call to OpenAI and listening to the voice (the bench does
+not reach OpenAI and does not listen); the visual quality of the body and
+gestures, which has to be judged by looking.
+
+**`test_spectra_rig` — 30 checks.** It tests the automatic rig
+(`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
+colours to a humanoid figure without bones. The real model is not in the
+repository, so the bench builds in code a **synthetic humanoid in A-pose**, a
+single mesh: torso, arms and legs as continuous tubes, a head with a hood. The
+hard case is deliberate: the hanging hand is a few centimetres from the flank,
+and as the crow flies the flank is closer to the arm bones than to the torso's.
+
+| Part | What it requires |
+|---|---|
+| Skeleton (5) | Rig built in under 3 s; **27 bones** (20 weighted and 7 tips); Mixamo names (`Hips`, `Spine2`, `Neck`, `Head`, `LeftArm`, `RightForeArm`…); the body driver recognises them (at least 20 of 23) and can make it walk |
+| Weights (5) | Weights sum to 1 on every vertex; the hand's vertices go to the hand and the forearm; **the torso flank next to the hanging hand gets no arm weight at all** (the defect that tore the torso when an arm was raised); a leg never takes weight from the other leg's bones; the left leg goes to its own bones (over 99 %) |
+| Movement (3) | In the «spiega» gesture the hand moves (half a metre) and the flank stays still (1 mm); walking moves the body |
+| Head and hood (8) | Without a head the triangles above the neck are removed; with the hood fewer are removed, because the back of the head stays; with the head none; **with the face only, no triangle is removed**: the opening is an ellipse computed per pixel in the shader, on the rest pose, so it follows the head; with the `visiera: false` option (available, not used by the studio, which keeps the glossy black visor) the helmet under the hood becomes matte shadow without removing vertices; through the opening the inside of the helmet is visible (double side), not empty space; the hood is rigid with the head bone (all its vertices) |
+| Colours (5) | Mid grey becomes night blue; shadows stay almost black; highlights stay light, slightly blue; turquoise becomes teal emissive light `#00c9b7` (0, 201, 183); grey emits no light |
+| Definition (3) | With Phong tessellation (`suddividi: 1`) every triangle becomes four; the weights stay normalised on the new vertices too; the skin stays closed: open border edges only double (each border edge becomes two), no seam opens |
+| Errors (1) | No JavaScript errors |
+
+Still outside: the real model (`models/spectra-corpo.glb`), which is not in the
+repository; the visual quality of the folds (elbows, knees, armpits) and of the
+hood, which has to be judged by looking.
 
 **`test_controllaagg` — 12 checks.** It comes from a report: «trying to update,
 nothing comes up». It was true. The 🔄 Updates window looked in `sw.js` for a
@@ -735,11 +802,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 552 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 565 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio, `test_spectra_rig` the automatic rig on a synthetic humanoid. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 
@@ -755,4 +822,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._

@@ -27,6 +27,24 @@
   pubbliche di terzi (PubChem, NASA/ESA, database spettrali). Tali richieste
   contengono **solo l'identificativo chimico** (es. SMILES/nome) e **nessun dato
   personale**. L'uso di questi servizi è soggetto alle rispettive privacy policy.
+- **Voce di qualità di Spectra (dalla v239, `bsi-spectra-voce.js`):** se
+  l'utente ha salvato nell'app una chiave OpenAI, il **testo che Spectra
+  pronuncia** (fino a 3 800 caratteri per volta: risposte della console,
+  passi della lezione guidata, testi di Spectra Studio) viene inviato
+  direttamente dal browser a `api.openai.com/v1/audio/speech`
+  (`gpt-4o-mini-tts`, voce «onyx»; `tts-1` come ripiego), con la chiave
+  dell'utente. Succede **anche quando la chat usa un altro fornitore**, e la
+  richiesta non passa dal proxy. Il testo può contenere ciò che l'utente ha
+  chiesto e ciò che Spectra ricorda di lui. L'audio ricevuto resta solo in
+  memoria per la sessione. Senza chiave OpenAI questo flusso non esiste: si
+  usa la sintesi vocale del browser. Per evitarlo si spegne la voce (🔇) nella
+  console, nella lezione guidata e in Spectra Studio, dove la scelta resta
+  ricordata (`bsi-spectra-studio-voce`); oppure non si salva una chiave
+  OpenAI.
+- **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
+  con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
+  (`bsi-spectra-modelli`) e non viene inviato a nessun server. Si cancella con
+  «Cancella dati → Progressi del resto dell'app».
 - **Diritto all'oblio locale:** l'utente può cancellare i dati svuotando lo
   storage del sito dal browser.
 
@@ -73,7 +91,7 @@ dispositivo o legge il sorgente. Due funzioni lo dichiarano:
 - **File Manager** (`file_manager.html`): la password si confronta come
   impronta SHA-256; è un deterrente contro chi passa, non una protezione per
   documenti riservati (`08-Traceability-Matrix.md`, SEC-03).
-- **Riconoscimento del creatore di Spectra** (`bsi-spectra-creatore.js`, dalla
+- **Riconoscimento del creatore di Spectra** (`bsi-spectra-creatore.js`, dalla versione
   `bsi-v238`): a «sono il tuo creatore» Spectra chiede la stessa frase segreta
   del File Manager, scritta in un campo di tipo password e confrontata come
   impronta SHA-256. La frase non compare nel codice, non viene conservata e non
@@ -111,6 +129,7 @@ con i principi GAMP 5:
 | Aspetto | Stato |
 |---------|-------|
 | Dati personali trasmessi a server dell'autore | **Nessuno** |
+| Testo pronunciato da Spectra inviato a OpenAI per la voce | **Solo con una chiave OpenAI salvata** (§1.2) |
 | Backend / database server | **Assente** |
 | Validazione input molecolari | RDKit WASM |
 | Escaping output nel DOM | Sì (contenuto non fidato) |

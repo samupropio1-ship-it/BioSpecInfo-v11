@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -21,6 +21,7 @@ documented. It is organised across three levels:
 |---|---|---|---|
 | **Preferences and progress** | `localStorage` | Settings, API keys, AI history, study progress | The user's browser |
 | **Document archive** | IndexedDB | Photos, documents, HTML sections, notes, activity log | The user's browser |
+| **Spectra Studio body** | IndexedDB (`bsi-spectra-modelli`) | The `.glb` file the user loaded with «🧍 Corpo» | The user's browser |
 | **Teaching datasets** | SQLite via `sql.js` | Exercise tables, created in memory at each session | Memory, not persisted |
 
 **All data stay on the device.** They are not transmitted, there is no
@@ -156,6 +157,8 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
+| `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; removed by «Clear data → Persistent memory» |
+| `bsi-spectra-studio-voce` | `'0'` if Spectra Studio's voice has been turned off with 🔇; absent or other than `'0'` = on | Written by the studio's voice switch; removed by «Clear data → Persistent memory» |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
@@ -166,6 +169,23 @@ The phrase with which the creator makes himself known (`bsi-spectra-creatore.js`
 is not stored data: it is typed into a password field, its SHA-256 fingerprint
 is computed, compared with the File Manager's and discarded. The model receives
 only one line of context: whether the user has been recognised or not.
+
+The guided lesson (`bsi-lezione.js`, v239) has no keys of its own: the lesson
+is built from the page at every start and lives in memory while it is open.
+The controls it shows at work return to the value they had. At the end of a
+lesson the mind records an emotion («fiera», proud) in `bsi-spectra-mente-v1`.
+
+Spectra Studio (v239) derives from its key the recommended exercise level
+(right predictions plus exercises opened, up to 3) and also sends each
+prediction to the mind (`BSISpectraMente.ricorda`). The studio's body and scenes
+store nothing.
+
+The quality voice (`bsi-spectra-voce.js`) reads the OpenAI key from
+`bsi_api_keys` and writes nothing: the audio received stays in an in-memory
+cache for the session. The text to be spoken, however, leaves the device for
+OpenAI when the key is there and the voice is on
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2).
+In Spectra Studio the choice to turn it off is kept in `bsi-spectra-studio-voce`.
 
 ### 2.4 Identifiers and licence
 
@@ -219,6 +239,23 @@ distinguishes two cases:
 If another tab requests a version upgrade, the connection is closed
 (`onversionchange`) so as not to block both.
 
+
+### 3.3 The Spectra Studio body — `bsi-spectra-modelli`
+
+| | |
+|---|---|
+| **Database name** | `bsi-spectra-modelli` |
+| **Object store** | `file` |
+| **Key** | `corpo` |
+| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button of `spectra-studio.html`; at most 60 MB |
+| **Who writes it** | The studio, only after the file has been rigged successfully; an invalid file is not saved |
+| **Who reads it** | The studio, at every opening, before any other body |
+| **Erasure** | «Clear data → Progress in the rest of the app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) deletes the whole database |
+
+The file never leaves the device. The reason is the licence: the body chosen
+by the author comes from CGTrader, whose Royalty Free licence does not allow
+third parties to be able to retrieve the file, so everyone uses their own copy.
+
 ---
 
 ## 4. Teaching datasets — SQLite in memory
@@ -259,9 +296,9 @@ everything. The groups are defined in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Saved conversations and question history |
 | `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
-| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) and the creator recognition (`bsi-spectra-creatore-v1`) |
+| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Spaced repetition |
-| `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`) and study-kit progress (`bsi-studio:*`) |
+| `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`), study-kit progress (`bsi-studio:*`) and the IndexedDB database `bsi-spectra-modelli` (the Spectra Studio body loaded from the device) |
 
 Left outside the groups: `bsi-spectra-ritratto-v4` (the icon derived from the
 face, which is regenerated) and `bsi-spectra-sentinella` (which removes
@@ -287,4 +324,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._

@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v239` |
-| Commit | `3216a7544625f05539e47693fdd77fd42b6d18d5` |
-| Generated (UTC) | `2026-11-04T16:41:13.676Z` |
+| Commit | `4976e1d250bdc0852700131ccbad05514040c92d` |
+| Generated (UTC) | `2026-11-04T21:21:09.777Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -155,7 +155,7 @@ availability.
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
 | `bsi-spectra-voce.js` | 12 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
 | `bsi-spectra-corpo.js` | 49 kB | Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin. |
-| `bsi-spectra-rig.js` | 22 kB | In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring. |
+| `bsi-spectra-rig.js` | 34 kB | In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Spectra Studio lessons (predict → test → prove → reveal): the fall, the shape of water, the Basel problem, with verified computations. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control). |
 | `bsi-aggiorna.js` | 5 kB | «Check for updates»: version in use from the service worker, published version from sw.js. |
@@ -196,7 +196,7 @@ availability.
 | File | SHA-256 |
 |---|---|
 | `index.html` | `5ac63397aced013751b52c450a643ce1f64900e84c32556e0903bee522564a1b` |
-| `bsi-ai-hub.js` | `49dfe3d24ebf314f42be04dd08082814047df7ddcd8f92a71635ad111acc40ee` |
+| `bsi-ai-hub.js` | `5aa4324fbf7f85db62cd93e5ecd1d9e44942722aedf33e3ee8660cdebdd01387` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -281,14 +281,14 @@ availability.
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
 | `bsi-spectra-live.js` | `a205ee32a4df8e7cd81a4ac183c2f9f5ec7cc1252d3d761fd167d58807fb3f99` |
-| `bsi-spectra-androide.js` | `fbb793fc6c61000bac647b9b43d75bb66c01a40cee400fd144ecd6920782fd60` |
+| `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
-| `bsi-spectra-rig.js` | `8e401842c38abd4467afee0c267f55b5f7e8f486b93d07de3d153c30d0207004` |
+| `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
 | `bsi-aggiorna.js` | `5950d90103a7d603175e4b577e2394bb9a6d006a4ff22e48d4a1cc70661f1b8e` |
@@ -371,4 +371,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-04T16:41:13.676Z._
+_Generated on 2026-11-04T21:21:09.777Z._

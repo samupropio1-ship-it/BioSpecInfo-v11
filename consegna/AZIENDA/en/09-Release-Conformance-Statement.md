@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v238` |
+| **Version** | `bsi-v239` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v238` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v239` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -83,9 +83,10 @@ pass.
 | **D-08** | ~~Partial English translation~~ — **remedied**: see S-13 | — | All **16 documents** are in English. `verifica-documenti` and `verifica-affermazioni` read `docs/en/` just like the Italian set: a disagreement between the two languages fails the battery |
 | **D-09** | Full WCAG 2.1 AA conformance not verifiable entirely by automation | What stays outside is text inside SVGs (8,888 elements), text over a real background **image** (108) and everything requiring human judgement. Text over a **gradient** has entered the measurement: 591 elements, judged against the worst stop of the gradient | The skipped elements are **counted** and reported on every run |
 | **D-10** | The `bsi-v181` tag points at the wrong commit | The release workflow, started without filling in the version field, used its own default — `bsi-v181` — and, being rerunnable by design, **moved that tag** from commit `cb0cf03` to the `bsi-v188` one, also attaching the v187 packages to it. The foreign assets were removed. **The tag cannot be moved back by an app**: GitHub refuses to let an app write a ref pointing at a commit whose `.github/workflows/*` differs from the current one, and at `cb0cf03` that file differs by 319 lines. Three routes were tried, all blocked by the same rule: `git push --force` («refusing to allow a GitHub App to create or update workflow»), `PATCH /git/refs` with `force` (403), and delete-and-recreate — where the **403 already lands on creating a throwaway tag** at that commit, so the real tag was left untouched. `GITHUB_TOKEN` cannot be granted the `workflows` permission. **Re-verified on 2026-10-08** with the session's own GitHub client, which uses a different credential: `PATCH /git/refs/tags/bsi-v181` answers **403 «Write access to this GitHub API path is not permitted through this proxy»**. It is a second block, independent of the first: even without the workflow-file rule, writing to git refs does not get through. The tag points at `64e8c316`; it should point at `cb0cf03e` | The three packages attached to the release are the correct ones; the «Source code (zip)» archive must be ignored, and the `bsi-v181` code is downloadable from commit `cb0cf03`. Declared in the CHANGELOG's `bsi-v181` entry and in the release body, with the command that restores the tag from personal credentials. The default was removed and the workflow now **refuses** a version that does not match `sw.js` and the package filenames — verified both ways |
-| **D-11** | Part of Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Voice, continuous listening, local commands other than the creator's, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Since v238 the console layout, the navigator, the level, the face and the creator commands are covered by `test_spectra238` (UI-22, AI-14, SEC-08). Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
+| **D-11** | Part of Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Voice, continuous listening, local commands other than the creator's, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Since v238 the console layout, the navigator, the level, the face and the creator commands are covered by `test_spectra238` (UI-22, AI-14, SEC-08); since v239 the guided lesson and the «fammi lezione» command by `test_lezione` (UI-24) and the single button by `test_spectra238` (UI-25), while the lesson's voice is still tested by hand. Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
 | **D-12** | Two Spectra local keys stay outside selective erasure | `bsi-spectra-ritratto-v4` (the icon derived from the face) and `bsi-spectra-sentinella` (continuous-listening mark) are not in the «Clear data» groups. The mind, the creator recognition, the subject and the study kits are (Persistent memory and Progress groups) | Neither holds user data: the first is regenerated, the second is removed when listening stops. Declared in `docs/11` §6 |
 | **D-13** | Spectra's creator recognition is not an access control | The SHA-256 fingerprint of the secret phrase is in the code, and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`, where whoever holds the device can write it by hand. An unsalted fingerprint of a weak phrase can also be searched by trial outside the app | Like the File Manager password (SEC-03), it is a deterrent: it protects no data, it tells Spectra whom it is talking to. The phrase is neither in the code nor stored (SEC-08, `test_spectra238`) |
+| **D-14** | Spectra Studio: the body is a test mannequin | The «cyberpunk» model chosen by the author has not been provided (the file was not reachable from the work session, the licence must be checked). The studio loads it from `models/spectra-cyberpunk.glb` if the file is there; today it is not, so the mannequin with the «Noir» face is shown | The body driver is generic and tested on the mannequin (AI-15); the plan for the real model is in `docs/spectra/01`. Publishing the GLB at `models/spectra-cyberpunk.glb`, with licence and attribution checked, is enough |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -249,6 +250,25 @@ The secret phrase is compared as a SHA-256 fingerprint and enters neither the
 dialogue, nor memory, nor voice, nor the requests to the provider; the model
 receives only whether the user has been recognised.
 
+The guided lesson (`bsi-lezione.js`) is built from the open page: it does not
+call the model, has no keys of its own in `localStorage` and goes online
+only for the voice, as below; at the end it notes an emotion («fiera», proud) in Spectra's
+mind, which ends up in `bsi-spectra-mente-v1` like the others.
+
+**Spectra's quality voice** (`bsi-spectra-voce.js`, since v239): if the user
+has saved an OpenAI key, the text Spectra speaks in the console, in the guided
+lesson and in Spectra Studio is sent to OpenAI (`gpt-4o-mini-tts`) to receive
+the audio, even when the chat uses another provider and without going through
+the proxy. Without an OpenAI key the browser's speech synthesis is used and the
+text does not leave. Spectra Studio (`spectra-studio.html`) keeps in
+`localStorage` the predictions and the exercises opened for each lesson
+(`bsi-spectra-studio-v1`) and the voice choice (`bsi-spectra-studio-voce`), and
+also sends each prediction to the mind. Both keys are covered by «Clear data →
+Persistent memory». With the voice off in the studio (🔇) no text goes to
+OpenAI. A `.glb` body loaded with the «🧍 Corpo» button stays only in the
+browser's IndexedDB (`bsi-spectra-modelli`), never leaves the device and is
+erased with «Clear data → Progress in the rest of the app».
+
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker
 they own and not on the device.
@@ -268,4 +288,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v238`._
+_Version `bsi-v239`._

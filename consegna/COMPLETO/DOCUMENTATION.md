@@ -6,7 +6,7 @@
 |---|---|
 | **Software** | BioSpecInfo — piattaforma di chemioinformatica interattiva |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione documentata** | `bsi-v238` |
+| **Versione documentata** | `bsi-v239` |
 | **Demo** | [samupropio1-ship-it.github.io/BioSpecInfo-v11](https://samupropio1-ship-it.github.io/BioSpecInfo-v11/) |
 | **Licenza** | Proprietaria — *All rights reserved* ([`LICENSE`](LICENSE)) |
 
@@ -86,6 +86,14 @@ La documentazione è estesa. Questo è il percorso più breve secondo chi sei.
 | [Changelog](CHANGELOG.md) | Cronologia delle versioni |
 | [Guida Data Science](Guida-DataScience-Corsi-Progetti.md) | Percorso formativo collegato |
 
+### Spectra incarnato (documenti di progetto, v239)
+
+| Documento | Contenuto |
+|---|---|
+| [1. Analisi del modello e piano](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) | Che cosa serve dal modello del corpo, capelli neri, viso, gesti, voce; che cosa manca e perché |
+| [2. Architettura](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/02-Architettura.md) | Scelta dello stack, moduli, stato, ciclo predici → testa → dimostra → rivela, ripieghi, migrazione |
+| [3. Mappa dei domini](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/03-Mappa-dei-domini.md) | Copertura di chimica, fisica e matematica per livello, e piano delle lezioni dello studio |
+
 **🌍 English:** [`docs/en/`](en/README.md) — **tutti e sedici** i documenti in inglese, allineati all'italiano da un banco che confronta i numeri dichiarati nelle due lingue.
 **📑 PDF:** [`docs/pdf/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/pdf) — versioni pronte da allegare.
 
@@ -137,4 +145,4 @@ impronte SHA-256 dei file si ricalcolano con `sha256sum`.
 
 ---
 
-_Indice aggiornato alla versione `bsi-v238`._
+_Indice aggiornato alla versione `bsi-v239`._

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v238` |
+| **Versione descritta** | `bsi-v239` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -21,6 +21,7 @@ documentato. Si articola su tre livelli:
 |---|---|---|---|
 | **Preferenze e progressi** | `localStorage` | Impostazioni, chiavi API, cronologia AI, avanzamento nello studio | Browser dell'utente |
 | **Archivio documenti** | IndexedDB | Foto, documenti, sezioni HTML, note, registro attività | Browser dell'utente |
+| **Corpo di Spectra Studio** | IndexedDB (`bsi-spectra-modelli`) | Il file `.glb` caricato dall'utente con «🧍 Corpo» | Browser dell'utente |
 | **Dataset didattici** | SQLite via `sql.js` | Tabelle di esercitazione, create in memoria a ogni sessione | Memoria, non persistito |
 
 **Tutti i dati restano sul dispositivo.** Non vengono trasmessi, non esiste un
@@ -152,6 +153,8 @@ e il kit resta usabile senza ricordare i progressi.
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
 | `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (millisecondi): il creatore è stato riconosciuto su questo dispositivo. **Non contiene la frase segreta né la sua impronta** | Scritta quando la prova riesce; rimossa con «dimentica che sono il tuo creatore» o con «Cancella dati → Memoria persistente» |
+| `bsi-spectra-studio-v1` | JSON per lezione di Spectra Studio (`caduta`, `acqua`, `basilea`): `previsioni` (elenco di `{ quando, scelta, giusta }`) ed `esercizi` (indice dell'esercizio → ora in cui è stato aperto) | Scritta da `spectra-studio.html` a ogni previsione e a ogni esercizio aperto; rimossa con «Cancella dati → Memoria persistente» |
+| `bsi-spectra-studio-voce` | `'0'` se la voce di Spectra Studio è stata spenta con 🔇; assente o diversa da `'0'` = accesa | Scritta dall'interruttore della voce dello studio; rimossa con «Cancella dati → Memoria persistente» |
 
 La mente è una simulazione di comportamento: la chiave contiene numeri e testi,
 non altro. Il suo riassunto (`BSISpectraMente.coscienza()`) si aggiunge alle
@@ -162,6 +165,23 @@ La frase con cui il creatore si fa riconoscere (`bsi-spectra-creatore.js`) non
 è un dato conservato: si scrive in un campo di tipo password, se ne calcola
 l'impronta SHA-256, la si confronta con quella del File Manager e la si scarta.
 Al modello va solo una riga di contesto: se l'utente è stato riconosciuto o no.
+
+La lezione guidata (`bsi-lezione.js`, v239) non ha chiavi sue: la lezione si
+costruisce dalla pagina a ogni avvio e vive in memoria finché è aperta. I
+comandi che mostra al lavoro tornano al valore che avevano. A fine lezione la
+mente registra un'emozione («fiera») in `bsi-spectra-mente-v1`.
+
+Spectra Studio (v239) ricava dalla sua chiave il livello di esercizio
+consigliato (previsioni giuste più esercizi aperti, fino a 3) e manda ogni
+previsione anche alla mente (`BSISpectraMente.ricorda`). Il corpo e le scene
+dello studio non conservano niente.
+
+La voce di qualità (`bsi-spectra-voce.js`) legge la chiave OpenAI da
+`bsi_api_keys` e non scrive niente: l'audio ricevuto resta in una cache in
+memoria per la sessione. Il testo da pronunciare, invece, esce dal dispositivo
+verso OpenAI quando la chiave c'è e la voce è accesa
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §1.2).
+In Spectra Studio la scelta di spegnerla resta in `bsi-spectra-studio-voce`.
 
 ### 2.4 Identificativi e licenza
 
@@ -211,6 +231,22 @@ ancora valorizzata, e distingue due casi:
 Se un'altra scheda richiede un aggiornamento di versione, la connessione viene
 chiusa (`onversionchange`) per non bloccare entrambe.
 
+### 3.3 Il corpo di Spectra Studio — `bsi-spectra-modelli`
+
+| | |
+|---|---|
+| **Nome database** | `bsi-spectra-modelli` |
+| **Object store** | `file` |
+| **Chiave** | `corpo` |
+| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» di `spectra-studio.html`; al massimo 60 MB |
+| **Chi lo scrive** | Lo studio, solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
+| **Chi lo legge** | Lo studio, a ogni apertura, prima di ogni altro corpo |
+| **Cancellazione** | «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
+
+Il file non esce dal dispositivo. Il motivo è la licenza: il corpo scelto
+dall'autore viene da CGTrader, la cui licenza Royalty Free non permette che
+terzi possano recuperare il file, quindi ognuno usa la propria copia.
+
 ---
 
 ## 4. Dataset didattici — SQLite in memoria
@@ -251,9 +287,9 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Conversazioni salvate e cronologia delle domande |
 | `chiavi` | Chiavi API (anche nel formato vecchio), fornitore scelto, indirizzo del proxy, memoria sui fornitori e sui modelli irraggiungibili |
-| `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) e il riconoscimento del creatore (`bsi-spectra-creatore-v1`) |
+| `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) il riconoscimento del creatore (`bsi-spectra-creatore-v1`) e Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
 | `ripasso` | Ripetizione spaziata |
-| `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`) e progressi dei kit di studio (`bsi-studio:*`) |
+| `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`), progressi dei kit di studio (`bsi-studio:*`) e il database IndexedDB `bsi-spectra-modelli` (il corpo di Spectra Studio caricato dal dispositivo) |
 
 Restano fuori dai gruppi `bsi-spectra-ritratto-v4` (l'icona ricavata dal
 volto, che si rigenera) e `bsi-spectra-sentinella` (che si toglie da sola).
@@ -278,4 +314,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v238`._
+_Documento aggiornato alla versione `bsi-v239`._

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v238` |
+| **Versione descritta** | `bsi-v239` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -182,7 +182,7 @@ Live. Va pubblicato insieme al resto, con la sua attribuzione CC BY 4.0
 
 ### 2.2-ter Una frase segreta, due impronte
 
-Dalla `bsi-v238` la stessa frase segreta serve al File Manager e al
+Dalla versione `bsi-v238` la stessa frase segreta serve al File Manager e al
 riconoscimento del creatore di Spectra. La sua impronta SHA-256 è scritta in
 due posti: `file_manager.html` e `bsi-spectra-creatore.js` (costante
 `IMPRONTA`). Se si cambia la frase, vanno cambiate **entrambe** nello stesso
@@ -191,6 +191,48 @@ riconosce solo la vecchia. Un segno di riconoscimento già scritto in un
 browser (`bsi-spectra-creatore-v1`) non viene revocato dal cambio: si toglie
 con «dimentica che sono il tuo creatore» o con «Cancella dati». La frase in
 chiaro non va mai scritta in un file del repository.
+
+### 2.2-quater Un modulo nuovo: tre posti da tenere allineati
+
+Un file `.js` nuovo dell'applicazione, come `bsi-lezione.js` (la lezione
+guidata), va dichiarato in `index.html` (con `defer`; `bsi-lezione.js` sta
+prima di `bsi-spectra-live.js`, che ne usa l'oggetto `BSILezione` quando
+riceve «fammi lezione»), nel precarico `PRECACHE` di `sw.js`, perché funzioni senza rete,
+e nell'elenco dei moduli di `tools/genera-sbom.js`, perché compaia nello SBOM.
+Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
+
+### 2.2-quinquies Spectra Studio, una pagina a sé
+
+`spectra-studio.html` (v239) non passa da `index.html`: carica da sé
+`three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
+`bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-rig.js`,
+`bsi-spectra-voce.js` e `bsi-spectra-studio-lezioni.js`. La pagina e i quattro moduli nuovi sono nel
+`PRECACHE` di `sw.js`; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
+usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
+`models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
+arriva, Spectra resta con la testa del manichino. Il corpo «Bounty Hunter»
+(`models/spectra-corpo.glb`) e `models/spectra-cyberpunk.glb` **non sono nel
+repository** (il corpo viene da CGTrader, la cui licenza Royalty Free non
+permette che terzi ne recuperino il file): chi pubblica dal repository
+ottiene il manichino, e ogni utente può caricare la propria copia con il
+pulsante «🧍 Corpo», che la conserva solo nell'IndexedDB del suo browser; lo studio li cerca con una richiesta `HEAD` e,
+se mancano, passa al successivo senza errori.
+
+**Il modello del corpo.** Lo studio cerca `models/spectra-cyberpunk.glb` con
+una richiesta `HEAD`: se il file c'è lo carica e lo usa al posto del
+manichino (scalato a 1,8 m, capelli resi neri dal driver, volto «Noir»
+nascosto); se non c'è, resta il manichino. Il modello «cyberpunk» scelto
+dall'autore non è nel repository. Per aggiungerlo: verificare che la licenza
+permetta la ridistribuzione modificata, ottimizzarlo come
+[`docs/spectra/01`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) §2 e §6, copiarlo
+in `models/spectra-cyberpunk.glb`, aggiungere l'attribuzione in
+`models/CREDITS.md`, in `THIRD_PARTY_NOTICES.md` e nello SBOM, e pubblicare.
+Come `spectra-noir.glb`, non va nel precarico. La voce di
+qualità chiama `api.openai.com` direttamente dal browser: un'eventuale
+`Content-Security-Policy`
+([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)
+deve permetterlo in `connect-src`, altrimenti la voce ripiega sulla sintesi del
+browser.
 
 ### 2.3 Come arriva l'aggiornamento agli utenti
 
@@ -376,4 +418,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v238`._
+_Documento aggiornato alla versione `bsi-v239`._

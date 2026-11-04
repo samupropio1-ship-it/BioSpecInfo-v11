@@ -7,6 +7,235 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v239] — 2026-11-04
+
+**Una lezione guidata con Spectra per ogni sezione; Spectra incarnato: Spectra Studio, il corpo e la voce; un solo pulsante di Spectra, il volto in un cerchio**
+
+### Aggiunto
+- **Lezione guidata per ogni sezione** (`bsi-lezione.js`, oggetto globale
+  `BSILezione`). Richiesta dell'autore: «qualcosa come la lezione interattiva
+  di Every Joule, ma per ogni sezione». La pagina di riferimento non era
+  raggiungibile dalla sessione di lavoro: la lezione ne è un'interpretazione,
+  non una copia.
+  - In ogni sezione, sotto il titolo, compare il pulsante **«🎓 Lezione
+    guidata con Spectra»**.
+  - La lezione non è scritta a mano: nasce dalla sezione. Apertura con titolo
+    e sottotitolo; un capitolo per scheda, in cui la scheda si apre, la sua
+    spiegazione si legge a pezzi di una o due frasi, le tele e le scene 3D
+    vengono illuminate, i cursori sono mostrati al lavoro dal minimo al
+    massimo e rimessi dov'erano, le scelte passate in rassegna e rimesse
+    com'erano; una domanda di verifica presa dal kit di studio della materia
+    (quella con più parole in comune con la sezione), con la spiegazione dopo
+    la risposta; un riepilogo dei capitoli. Le sezioni senza schede si leggono
+    per titoli e paragrafi, con i loro grafici e comandi.
+  - Lettore: pannello a destra sullo schermo grande (da 1100 px la pagina si
+    sposta a sinistra) o in basso sul telefono; avanzamento per capitoli;
+    testo che compare parola per parola; tasti ◀ ▶ e pausa; voce di Spectra
+    attivabile e disattivabile; un riflettore oscura il resto della pagina e
+    illumina il pezzo di cui si parla. Durante la lezione i pulsanti
+    flottanti si nascondono e alla chiusura tornano com'erano. Con «riduci
+    movimento» i cursori saltano al valore invece di scorrere, il testo
+    compare tutto insieme e il riflettore non pulsa.
+  - Spectra: il comando **«fammi lezione»** (anche «lezione guidata»,
+    «insegnami questa sezione», «give me a lesson») e la scorciatoia **🎓
+    Lezione** nella console, con una sezione aperta.
+  - Alla stesura: **194 sezioni** hanno la lezione, **99** hanno schede,
+    **79** hanno una domanda di verifica.
+- **Spectra Studio** (`spectra-studio.html`, lezioni in
+  `bsi-spectra-studio-lezioni.js`): un laboratorio 3D in una pagina a sé, con
+  Spectra in piedi accanto a un banco olografico. Si apre dal navigatore 🧭
+  della console (voce «Spectra Studio», in cima). Tre lezioni con il metodo
+  *predici → testa → dimostra → rivela*:
+  - 🪂 **La caduta**: una sfera lasciata cadere e una lanciata in orizzontale a
+    6 m/s da 20 m toccano terra insieme dopo 2,019 s; gittata 12,12 m; con la
+    resistenza dell'aria la lanciata arriva dopo;
+  - 💧 **La forma dell'acqua**: VSEPR come minimo di energia di domini che si
+    respingono sulla sfera; quattro domini uguali danno il tetraedro,
+    arccos(−1/3) = 109,47°; con i doppietti solitari pesati w = 1,25
+    (calibrato sull'acqua) l'acqua viene 104,4° (sperimentale 104,5°) e
+    l'ammoniaca, con lo stesso w e senza nuova calibrazione, 106,7° come il
+    valore sperimentale;
+  - ∑ **Il problema di Basilea**: somme parziali di 1/n², coda fra 1/(N+1) e
+    1/N, serie di Fourier di x², probabilità che due interi siano coprimi
+    (Monte Carlo) → 6/π².
+  Ogni lezione ha le spiegazioni di ogni opzione, una dimostrazione passo per
+  passo, collegamenti fra discipline ed esercizi su quattro livelli (scuola
+  superiore, triennale, magistrale, ricerca). Le previsioni e gli esercizi
+  aperti restano nel `localStorage` (`bsi-spectra-studio-v1`), e da lì viene
+  il livello di esercizio consigliato. L'interruttore 🔊/🔇 nella barra delle
+  azioni spegne la voce dello studio e la scelta si ricorda
+  (`bsi-spectra-studio-voce`); le due chiavi rientrano in «Cancella dati →
+  Memoria persistente». Il pannello contiene tutto il testo della lezione,
+  ha nome accessibile e si segue anche senza WebGL (solo testo, con le misure
+  calcolate).
+- **Il corpo di Spectra** (`bsi-spectra-corpo.js`, oggetto
+  `BSISpectraCorpo`): un driver per qualunque avatar umanoide in GLB. Riconosce
+  le ossa per nome (Mixamo, Ready Player Me, VRM, Unreal, nomi generici), i
+  blendshape ARKit del viso, i capelli e le clip di animazione, e dice che cosa
+  manca (`rapporto()`). Muove respiro, peso, sguardo, emozioni, labiale (dal
+  testo o dall'audio), battito delle palpebre, gesti (indica, spiega, pensa,
+  attende, conclude), passo e seduta; ricolora i capelli in nero. Nello studio
+  il corpo è un **manichino riggato di prova** costruito nel codice, con il
+  volto «Noir» incarnato sulla testa e allineato al collo per misura. Se
+  esiste `models/spectra-cyberpunk.glb`, lo studio lo carica al posto del
+  manichino (scalato a 1,8 m, capelli resi neri dal driver, volto «Noir»
+  nascosto perché il modello ha il suo viso).
+- **La voce di Spectra** (`bsi-spectra-voce.js`, oggetto `BSISpectraVoce`):
+  con una chiave OpenAI salvata nell'app, l'audio arriva da `gpt-4o-mini-tts`
+  (voce «onyx»; `tts-1` se il primo non risponde) e passa in una catena Web
+  Audio (bassi, presenza, modulatore ad anello, filtro a pettine,
+  saturazione, riverbero di 1,4 s, compressore); il labiale segue l'energia e
+  il centroide dell'audio. **Il testo da pronunciare viene inviato a OpenAI**,
+  anche quando la chat usa un altro fornitore, salvo che la voce sia spenta
+  (🔇). Senza chiave resta la sintesi del browser, con la voce maschile più
+  grave disponibile.
+- **Il rig automatico** (`bsi-spectra-rig.js`, oggetto `BSISpectraRig`): molti
+  modelli umanoidi arrivano come una mesh sola, senza scheletro. Il modulo li
+  rende pilotabili dal driver del corpo direttamente nel browser, senza
+  Blender: **misura** la figura in piedi (altezza, asse, gambe, mani, spalle;
+  i punti non misurabili seguono le proporzioni del canone umano), **costruisce
+  uno scheletro con i nomi Mixamo** (20 ossa che pesano e 7 punte, 27 in
+  tutto) e **calcola i pesi della pelle** (peso ∝ 1/d⁴ con un cancello per
+  regione, i quattro maggiori, tre passate di levigatura). I pesi del braccio
+  passano tre filtri — la normale, la distanza geodetica dalla mano, l'asse
+  della testa — e la mano non prende peso dal bacino: alzare un braccio non
+  strappa il busto. Il modulo ha anche due opzioni che lo studio non usa:
+  `visiera: false` (il casco sotto il cappuccio reso come ombra opaca) e
+  `testa` (scala della testa).
+- **Il corpo «Bounty Hunter» con il cappuccio e il solo viso «Noir»**
+  (`spectra-studio.html`): lo studio prova prima `models/spectra-corpo.glb`, il
+  corpo scelto dall'autore, una figura senza scheletro. Il rig automatico la
+  rigga; il cappuccio del modello si allarga quanto basta ad avvolgere il
+  volto, diventa rigido con l'osso della testa e si apre davanti con
+  un'ellisse calcolata nello shader, al pixel. Sotto il cappuccio resta la
+  visiera nera lucida del modello, come ha chiesto l'autore. Del volto «Noir»
+  si vedono solo maschera, occhi e dettagli (`Object_2/3/4`), avanzati di
+  6,5 cm e in scala 0,96, su un supporto allineato in modo che il mento poggi
+  sul colletto. **`models/spectra-corpo.glb` non è nel repository** (escluso
+  in `.gitignore`): vale solo in sviluppo. Il corpo viene da CGTrader, dove si
+  scarica gratis, ma la licenza Royalty Free permette di usare un modello
+  dentro un prodotto solo se terzi non possono recuperarne il file: non può
+  stare nel repository pubblico né essere servito dall'app pubblicata.
+- **Il corpo dal proprio dispositivo** (`spectra-studio.html`): il pulsante
+  **«🧍 Corpo»** nella testata del pannello (con un campo file nascosto che
+  accetta `.glb`) carica un corpo dal dispositivo dell'utente. Il file viene
+  riggato e ricolorato come sopra e conservato **solo nell'IndexedDB di quel
+  browser** (database `bsi-spectra-modelli`, archivio `file`, chiave
+  `corpo`); non va su nessun server. A ogni apertura lo studio cerca il corpo
+  in quest'ordine: IndexedDB, `models/spectra-corpo.glb` (solo sviluppo),
+  `models/spectra-cyberpunk.glb`, manichino riggato. Un corpo caricato dal
+  dispositivo sostituisce sempre qualunque altro corpo e ricrea il volto
+  «Noir» se un modello completo lo aveva tolto. I file oltre 60 MB sono
+  rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un
+  messaggio. Così chi possiede il file usa la propria copia e nulla viene
+  ridistribuito; senza il file, l'app pubblicata mostra il manichino.
+- **Blu notte**: la texture del corpo è ricolorata nei colori dell'app (ombre
+  quasi nere `#03050c`, mezzitoni `#0d162e`–`#162448`, luci `#2a3c6c`); i
+  dettagli turchesi del modello diventano luce propria verde acqua `#00c9b7`.
+  Il disegno della texture (cuciture, piastre, pieghe) resta.
+- **Definizione grafica («4K»)** dello studio: il rapporto di pixel del
+  renderer arriva fino a 3 (era 2), per gli schermi ad alta densità e 4K;
+  `bsi-spectra-rig.js` applica la **tassellazione di Phong** (Boubekeur e
+  Alexa, 2008; opzione `suddividi`, un livello: ogni triangolo ne diventa
+  quattro, sul corpo dell'autore da 13 592 a 54 368 triangoli, rig pronto in
+  circa 0,5–1 s), con i punti medi calcolati su posizioni e normali saldate
+  perché le cuciture restino chiuse, e i pesi calcolati sulla mesh già
+  tassellata; una **mappa di rilievo** ricavata dalla luminanza della texture
+  originale, appena sfocata (`bumpScale` 0,016), fa prendere la luce vera a
+  bordi delle piastre, cuciture, tessuto e pieghe dei guanti; filtraggio
+  anisotropo della texture al massimo della GPU. Detto con onestà: la texture
+  di partenza è 2048×2048 e nessun dettaglio nuovo viene inventato; «4K» si
+  riferisce alla risoluzione di disegno.
+- Documenti di progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/spectra): analisi del
+  modello e piano, architettura, mappa dei domini.
+
+### Cambiato
+- **Un solo pulsante di Spectra** (`bsi-spectra-live.js`): il volto in un
+  cerchio prende il posto della pillola «Spectra». Il cerchio apre la console
+  di Spectra Live; dalla console 💬 apre la chat. La pillola resta nella
+  pagina ma nascosta, perché altri moduli e i banchi la usano per aprire la
+  chat. Il cerchio compare subito con il volto vettoriale e passa al ritratto
+  dopo il caricamento della pagina.
+- **Voce della console** (`bsi-spectra-live.js`): con una chiave OpenAI la
+  console di Spectra Live parla con la voce di `bsi-spectra-voce.js`;
+  altrimenti con la sintesi del browser come prima. La lezione guidata usa la
+  voce della console e, se la console non c'è, direttamente
+  `bsi-spectra-voce.js`.
+- **Volto «Noir» incarnabile** (`bsi-spectra-androide.js`): `crea(padre,
+  { scena, renderer, senzaBusto })` mette il volto in una scena altrui, senza
+  renderer, luci e telecamera propri e senza il busto del modello.
+- **Volto «solidale»** (`bsi-spectra-androide.js`): con un corpo che ha già la
+  testa e un cappuccio rigido attorno, i movimenti della testa li fa il corpo;
+  il volto fa solo espressioni, occhi e bocca, e non fa più il proprio
+  respiro (posizione e scala della radice) dentro il cappuccio. Così viso e
+  cappuccio restano in sincronia mentre Spectra cammina, gesticola e guarda
+  in giro.
+- **Cancella dati** (`bsi-ai-hub.js`, `DATI_CANCELLABILI.app`): il gruppo
+  «Progressi del resto dell'app» cancella anche il database IndexedDB
+  `bsi-spectra-modelli`, cioè il corpo caricato dal dispositivo.
+- **Studio sul telefono in verticale**: la telecamera si centra fra Spectra e
+  il banco e arretra (bersaglio spostato a x = −0,12, distanza almeno 4,4).
+
+### Banco
+- Nuovo `test_lezione` (30 controlli): tutte le 194 sezioni hanno la lezione e
+  il pulsante; un capitolo per scheda; un cursore e una scelta mostrati al
+  lavoro e rimessi com'erano anche saltando avanti a metà; la verifica con la
+  spiegazione; il riepilogo; i pulsanti flottanti nascosti e ripristinati;
+  «fammi lezione»; a 390 e 1280 px niente sborda; nessun errore JavaScript.
+- `test_spectra238` passa a 66 controlli: un solo pulsante di Spectra
+  visibile, rotondo.
+- Nuovo `test_spectra_studio` (79 controlli; 85 con il corpo riggato presente
+  in locale): i 23 calcoli delle lezioni
+  (`verifiche/verifica-studio-spectra.js`); il driver sul manichino (11:
+  ossa e blendshape trovati, capelli rossi resi neri, braccia giù dalla posa a
+  T, indicare, pensare, sguardo, passo, seduta, emozioni, labiale dall'audio,
+  battito); la catena della voce in un contesto audio offline (3: bassi
+  rinforzati, coda del riverbero, ripiego senza chiave); le lezioni a 1280 e
+  390 px con il volto appoggiato sul collo e la memoria delle previsioni; la
+  voce spenta che si ricorda e «Cancella dati» che toglie le chiavi dello
+  studio; per ognuna delle due larghezze il pulsante «🧍 Corpo» che c'è e
+  accetta i `.glb`, il corpo che fa andata e ritorno nell'IndexedDB, un file
+  che non è un modello rifiutato senza errori; la lezione senza WebGL; nessun errore JavaScript. Con il corpo
+  riggato presente, per ognuna delle due larghezze: sincronia viso–cappuccio
+  misurata in 24 pose mentre Spectra cammina e gesticola (soglia 1 mm;
+  misurati 0,0 mm), del volto «Noir» si vedono solo maschera, occhi e
+  dettagli, il volto è «solidale»; il mento si misura sull'osso del collo più
+  4,5 cm. Senza il modello questi controlli si saltano.
+- Nuovo `test_spectra_rig` (30 controlli), su un umanoide sintetico in posa ad
+  A costruito nel codice (il modello vero non è nel repository): nomi dello
+  scheletro e riconoscimento da parte del driver, locomozione; pesi con somma
+  1, la mano all'osso della mano e all'avambraccio, il fianco del busto
+  accanto alla mano pendente senza nessun peso del braccio, le gambe che non
+  si incrociano mai; nel gesto «spiega» la mano si sposta e il fianco no; la
+  camminata sposta il corpo; testa e cappuccio (triangoli tolti; col solo
+  viso nessun triangolo tolto, ellisse nello shader, doppia faccia,
+  cappuccio rigido con la testa; l'opzione `visiera: false` rende il casco
+  ombra opaca senza togliere vertici); blu notte e luce verde acqua; la
+  definizione (la tassellazione moltiplica i triangoli per 4, i pesi restano
+  normalizzati sui vertici nuovi, la pelle resta chiusa: i bordi aperti
+  raddoppiano soltanto); nessun errore JavaScript.
+- La batteria passa da 79 a 82 banchi.
+
+### Non incluso
+- **Il modello «cyberpunk» di Sketchfab** scelto dall'autore non è stato
+  fornito: non era raggiungibile dalla sessione di lavoro, e prima di
+  usarlo servono il file GLB e la verifica della licenza
+  ([`docs/spectra/01`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) §6). Lo
+  studio è pronto a caricarlo da `models/spectra-cyberpunk.glb`; finché il
+  file non c'è, il corpo è il manichino di prova.
+- **I modelli forniti in seguito dall'autore** («I-HOMO 08», poi il corpo
+  «Bounty Hunter» usato dallo studio) **non sono nel repository**: finché
+  l'autore non conferma licenza e fonte, restano solo in locale e l'app
+  pubblicata mostra il manichino riggato.
+- **Capelli neri per Spectra**: il driver li rende neri su qualunque modello
+  con capelli riconoscibili, ed è provato sul manichino; sul volto «Noir»
+  della console non ci sono capelli, e una prova con capelli procedurali
+  sulla forma del casco non era convincente. Sul modello vero si vedranno
+  quando il modello arriverà.
+- Il corpo, il volto e la voce sono una simulazione di comportamento, non una
+  coscienza.
+
+---
 ## [bsi-v238] — 2026-11-03
 
 **Spectra Live riprogettata e al centro dell'app, un volto con palpebre vere, il riconoscimento del creatore; schede 3D nuove in 29 sezioni di chimica, fisica e matematica**

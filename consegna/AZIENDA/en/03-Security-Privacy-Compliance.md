@@ -26,6 +26,23 @@
   (PubChem, NASA/ESA, spectral databases). Such requests contain **only the
   chemical identifier** (e.g. SMILES/name) and **no personal data**. Use of these
   services is subject to their respective privacy policies.
+- **Spectra's quality voice (since v239, `bsi-spectra-voce.js`):** if the user
+  has saved an OpenAI key in the app, the **text Spectra speaks** (up to 3,800
+  characters at a time: console answers, guided-lesson steps, Spectra Studio
+  texts) is sent directly from the browser to
+  `api.openai.com/v1/audio/speech` (`gpt-4o-mini-tts`, voice «onyx»; `tts-1` as
+  fallback), with the user's key. This happens **even when the chat uses
+  another provider**, and the request does not go through the proxy. The text
+  may contain what the user asked and what Spectra remembers about the user.
+  The audio received stays only in memory for the session. Without an OpenAI
+  key this flow does not exist: the browser's speech synthesis is used. To
+  avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
+  Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
+  or do not save an OpenAI key.
+- **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
+  the «🧍 Corpo» button stays only in the browser's IndexedDB
+  (`bsi-spectra-modelli`) and is not sent to any server. It is erased with
+  «Clear data → Progress in the rest of the app».
 - **Local right to erasure:** the user can delete data by clearing the site
   storage in the browser.
 
@@ -73,7 +90,7 @@ the device or reads the source. Two features declare it:
 - **File Manager** (`file_manager.html`): the password is compared as a SHA-256
   fingerprint; it is a deterrent against passers-by, not protection for
   confidential documents (`08-Traceability-Matrix.md`, SEC-03).
-- **Spectra's creator recognition** (`bsi-spectra-creatore.js`, since
+- **Spectra's creator recognition** (`bsi-spectra-creatore.js`, since version
   `bsi-v238`): on «I am your creator» Spectra asks for the same secret phrase as
   the File Manager, typed into a password field and compared as a SHA-256
   fingerprint. The phrase does not appear in the code, is not stored and enters
@@ -111,6 +128,7 @@ with GAMP 5 principles:
 | Aspect | Status |
 |--------|--------|
 | Personal data transmitted to author's servers | **None** |
+| Text spoken by Spectra sent to OpenAI for the voice | **Only with a saved OpenAI key** (§1.2) |
 | Backend / server database | **Absent** |
 | Molecular input validation | RDKit WASM |
 | DOM output escaping | Yes (untrusted content) |
