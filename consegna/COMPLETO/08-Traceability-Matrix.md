@@ -4,7 +4,7 @@
 |-------|--------|
 | **Software** | BioSpecInfo |
 | **Autore** | Samuele Pio Provenzano |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Collegare ogni requisito dichiarato all'implementazione che lo realizza e al banco di prova che lo verifica. |
 
 > **Come leggere questa matrice.** Ogni riga è una catena chiusa: un requisito,
@@ -81,6 +81,9 @@
 | **SCI-57** | Il materiale di studio deve essere controllato: quantità minime, schema valido, risposte dei quiz calcolate dove si può, tavole con una prova numerica, citazioni nei formati dichiarati | `bsi-studio.js` (`valida`, `MINIMI`), `bsi-studio-fisica.js`, `bsi-studio-matematica.js`, `bsi-risorse-materie.js` (citazioni, tavole con `prova`) | `test_v237` — `verifica-studio` (167 controlli sul motore: generatore, mescolamento, Leitner, punteggio, pulizia dell'HTML), `verifica-studio-fisica` e `verifica-studio-matematica` (minimi e schema; **264 risposte di matematica ricalcolate** su 346 domande), `verifica-risorse` (87 controlli: APA 7, IEEE, ISO 690, BibTeX su record costruiti a mano, prove delle tavole) |
 | **UI-19** | Ogni scheda delle venti sezioni nuove deve aprirsi piena, senza avvisi, con le tele disegnate e un nome accessibile, su schermo grande e su telefono, senza bloccare la pagina | gruppo 9 «🔭 Astrofisica» in `index.html`; sezioni costruite con `bsi-fisica-comune.js` e, per il 3D, `bsi-lab3d.js` | `test_v237` — a 1280 e a 390 px ogni scheda è piena, senza ⚠, ogni tela disegna (per il 3D si campiona la scena) e ha un nome; **schede 2D entro 250 ms, schede 3D entro 6 s** (nel banco WebGL gira in SwiftShader, senza GPU); il gruppo Astrofisica ha almeno 12 sezioni; a 390 px niente sborda; nessun errore JavaScript; i nomi delle sezioni in inglese |
 | **UI-20** | «Controlla aggiornamenti» deve dare sempre una risposta: già aggiornata, nuova versione, sito irraggiungibile | `bsi-aggiorna.js` (versione del service worker con `BSI_VERSIONE`, `sw.js` dallo stesso sito senza cache); in `index.html` la finestra 🔄 Aggiornamenti, con GitHub come ripiego; in `sw.js` la risposta a `BSI_VERSIONE`. **Trovato e corretto**: la finestra cercava una riga `CACHE_VERSION` che `sw.js` non ha più, e su GitHub: la versione pubblicata non si leggeva mai | `test_controllaagg` — 12 controlli: il pulsante «Controlla» premuto davvero nei tre casi (stesso `sw.js`; `sw.js` con una versione più alta (v999); richiesta interrotta), «Aggiorna ora» solo nel secondo, e `BSIAggiorna.controlla()` con l'avviso a comparsa negli stessi tre casi |
+| **SCI-58** | Le schede 3D aggiunte a 29 sezioni di chimica, fisica e matematica devono mostrare grandezze calcolate dal modello della sezione e confrontate con valori noti, una forma chiusa o un secondo metodo | `bsi-chi-pes.js`, `bsi-chi-fasi.js`, `bsi-chi-cinetica.js`, `bsi-chi-equilibrio.js`, `bsi-fis-cristalli.js`, `bsi-fis-schrodinger.js`, `bsi-fis-hartreefock.js`, `bsi-fis-rotovib.js`, `bsi-fis-dinamica.js`, `bsi-fis-meccanica.js`, `bsi-fis-em.js`, `bsi-fis-onde.js`, `bsi-fis-gravita.js`, `bsi-fis-relativita.js`, `bsi-fis-fluidi.js`, `bsi-fis-termo.js`, `bsi-fis-solido.js`, `bsi-fis-ising.js`, `bsi-fis-particelle.js`, `bsi-mat-multi.js`, `bsi-mat-vettoriale.js`, `bsi-mat-calcolo.js`, `bsi-mat-lineare.js`, `bsi-mat-ode.js`, `bsi-mat-probabilita.js`, `bsi-mat-topologia.js`, `bsi-mat-noneuclidea.js`, `bsi-mat-complessi.js`, `bsi-mat-variazioni.js` (scena con `bsi-lab3d.js`). **Trovati e corretti prima della pubblicazione**: `applicaMobius` non riconosceva il polo con un angolo di π esatto; negli urti molecolari la normale si prendeva dalle sfere già compenetrate (frazione sopra soglia 0,345 contro e⁻¹ = 0,368, ora 0,370) | `test_3d238` — esegue i 29 script `tools/banchi/verifiche/verifica-<id>-3d.js` (per `smattopo` e `smatnoneucl` lo script della sezione): 311 controlli, fra cui la sella LEPS con una sola frequenza immaginaria, h*/R = 1,32549 per la pellicola di sapone, per Ising 3D |m| alta sotto T_c ≈ 4,51 e quasi nulla sopra, massa invariante ricostruita entro 2·10⁻⁵, K misurata entro l'1,5 % nella scatola dell'equilibrio |
+| **UI-23** | Ogni scheda delle 29 sezioni con la scheda 3D nuova deve aprirsi piena, senza avvisi, con le tele disegnate e un nome accessibile, e l'ultima scheda deve essere una scena 3D che disegna; un grafico senza nome deve prendere quello della scheda | `bsi-fisica-comune.js` — `prepara()` e `mostra()` danno alle tele senza nome (o con un nome di una sola lettera) «Grafico: <scheda> — <sezione>»; la scena 3D si costruisce dopo il clic, fuori dal gestore | `test_3d238` — a 1280 e a 390 px, per ogni sezione: tutte le schede piene, senza ⚠, ogni tela disegna e ha un nome di almeno tre caratteri; l'ultima scheda è una scena con `Scena.campiona() > 0`; **lavoro sincrono al clic sotto i 250 ms** (WebGL in SwiftShader); a 390 px niente sborda; nessun errore JavaScript |
+| **UI-22** | La console di Spectra Live deve restare usabile su un telefono con la barra di stato e i tasti di Android sopra la pagina, senza elementi sovrapposti, e da lì si deve raggiungere ogni sezione | `bsi-spectra-live.js` — margini `env(safe-area-inset-*)` con minimi di 34 e 46 px (classe `.bsiJV-bordi`) quando la finestra copre lo schermo su un dispositivo touch o l'app è installata; impaginazione calcolata nel ciclo di disegno; navigatore 🧭 per materia; scorciatoie di contesto; pulsante 💬; pulsante tondo Spectra Live accanto al pulsante Spectra | `test_spectra238` — su un telefono simulato (412×915, touch): margini sicuri attivi, primo pulsante ≥ 34 px dal bordo alto, comandi ≥ 46 px dal bordo basso, telemetria in due colonne che non copre il volto; su schermo grande nessun margine forzato; in entrambi testata, volto, stato, dialogo, comandi e attribuzione senza sovrapposizioni; il navigatore elenca per ognuna delle tre materie esattamente le sezioni della barra, gli strumenti rapidi e le frasi; aprire una sezione di un'altra materia cambia materia e lascia il pulsante di Spectra Live |
 | **UI-14** | Una stessa funzione non deve avere due porte d'ingresso. Gli spettri stavano in **nove sezioni** su due menù diversi; Spectra in tre posti; e nel pannello ✨ comparivano **due «Data Science», due «File Manager», due «Articoli», due «Aggiornamenti»**, perché il pannello ha un elenco cablato che apriva le stesse sezioni inserite dal modulo del menù — e nessuno confrontava le due liste fra loro | `bsi-centrospettri.js` — i pannelli vengono **spostati** (`appendChild` muove, non copia) in una sola sezione a schede; i vecchi pulsanti restano nascosti perché sono il bersaglio di `goSection()`, e la scheda **clicca il pulsante** invece di mostrare il pannello, così l'inizializzazione pigra passa per l'unica strada che già c'era. `bsi-menu.js` — la categoria «Utility» è nel **menù principale** con tutte le sue voci, e la regola è: se una cosa ha un pulsante **raggiungibile** nella barra non sta nel menù ✨, se non ce l'ha sta solo nel menù. «Raggiungibile» non si misura con `offsetParent` — nella barra un gruppo per volta è mostrato, e un pulsante perfettamente raggiungibile ha `offsetParent` nullo | `test_articoli` §5-6 — le **dieci** schede sono dentro il centro, e ogni identificatore esiste nel documento **una volta sola** (la prova che si è spostato e non copiato); `goSection()` su ognuna apre il centro sulla scheda giusta e ne mostra **solo** una. `test_menu` — Utility visibile nella barra con tutte e **quindici** le voci più le due delle lingue, **nessuna** voce del menù che ripeta una sezione della barra, **nessuna** etichetta doppia nel pannello, e su **due viewport**: schermo grande e telefono. **Nei due versi**: nessun id ripetuto, nessun pulsante doppio, Spectra e il lettore fuori dalla barra ma con il pulsante ancora nel documento perché `goSection()` lo usa |
 | **UI-17** | Ogni contenuto che si muove deve potersi fermare, rallentare e ricominciare, non deve consumare quando non si vede, e deve rispettare «riduci movimento» (WCAG 2.2.2) | `bsi-fisica-comune.js` — `F.anima`: barra con ⏸/▶, ↺, velocità ×¼…×4 e tempo; passo con dt reale limitato a 1/20 s; arresto fuori schermo (IntersectionObserver), con la pagina nascosta e quando la tela è tolta; con «riduci movimento» parte in pausa con il primo fotogramma disegnato. Tutti i laboratori lo usano | `test_scienze` — il tempo avanza, in pausa si ferma, a ×4 va più veloce che a ×¼, fuori dallo schermo si ferma e tornando riparte; con «riduci movimento» parte fermo e ▶ lo avvia; ogni barra ha i nomi accessibili |
 | **UI-15** | Una tabella di dati non deve esistere due volte: due copie divergono, e chi legge ottiene una risposta diversa a seconda di dove entra | Le costanti di accoppiamento J esistevano in due tabelle indipendenti con numeri **diversi** (³J orto aromatico 6–9 Hz contro 7–10 Hz). Resta quella dentro il Centro spettri, che è nella sezione con la sua lista di riferimenti; `_apriCostantiJ()` è l'unica strada e porta lì | `test_articoli` §6 — chiedere le costanti J apre il centro sulla scheda delle tabelle di riferimento, sulla sotto-scheda giusta, e la tabella ha le sue righe |
@@ -106,6 +109,7 @@
 | **AI-10** | Deve esistere una via documentata per eliminare CORS e limiti | `proxy/spectra-proxy.js` + guida in-app | `test_guidaproxy` (12), `browser_proxy` (15), `browser_proxyui` (17) |
 | **AI-11** | Il volto di Spectra deve muoversi davvero con ciò che dice e sente: emozioni riconosciute nelle frasi, viso che cambia, occhi nel colore del tema | `bsi-spectra-androide.js` — modello «Noir» (Skyfox13, CC BY 4.0, modificato); 17 emozioni da 11 campi espressivi fusi sulla CPU in un attributo (WebGL ne concede al massimo 16 per vertice); bocca dal testo pronunciato; ripieghi `bsi-spectra-robot.js` e `bsi-spectra-volto.js` | `test_v237` — 17 emozioni e 11 campi; nove frasi danno l'emozione attesa; occhi a riposo `#1a3050`; più di 1000 vertici animati; viso fermo nel neutro e diverso fra gioia ed empatia; l'emozione imposta resta; un complimento produce il sorriso; più di 1000 pixel disegnati al centro; nessun errore JavaScript. Il ripiego senza WebGL non è provato dal banco |
 | **AI-12** | La mente di Spectra deve restare nel browser e dichiararsi per quello che è: uno stato che risponde agli eventi, non una coscienza | `bsi-spectra-mente.js` — chiave `bsi-spectra-mente-v1`, stato di curiosità, attenzione, premura, umore, legame; `coscienza()` passa un riassunto al modello; «dimentica tutto» | `test_v237` — un complimento alza l'umore, «come stai» risponde dallo stato interno, il quadro per il modello contiene l'umore. «Dimentica tutto» e la permanenza della chiave non sono provati dal banco |
+| **AI-14** | Il volto deve mostrare l'impegno della domanda e restare vivo senza sembrare cosciente: concentrazione dal livello della sezione e dalla domanda, palpebre e tinta degli occhi per emozione, sonno quando nessuno c'è | `bsi-spectra-live.js` — `difficolta(testo)` e `livelloSezione(id)` (primo livello del percorso in `bsi-percorsi.js`); `bsi-spectra-androide.js` 3.0 — palpebre come deformazione dei vertici di ciascun occhio attorno al suo centro, tinta per emozione nella famiglia di `#1a3050`, `concentra()`, molle smorzate, micro-espressioni, sonno dopo 120 s senza contatto | `test_spectra238` — una domanda da corso avanzato pesa più di un conto, «in parole semplici» abbassa, la stessa domanda pesa di più in una sezione da dottorato che in una da scuola e il livello è quello del percorso; gioia stringe gli occhi, sorpresa li spalanca, il dubbio li rende asimmetrici, a riposo `#1a3050`, quattro emozioni danno quattro tinte, la concentrazione socchiude e accende gli occhi, il battito chiude le palpebre, dopo due minuti dorme e al primo tocco si sveglia |
 
 ---
 
@@ -146,11 +150,12 @@
 
 | ID | Requisito | Implementazione | Banco di verifica |
 |---|---|---|---|
-| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 522 file tracciati, 8 forme di credenziale |
+| **SEC-01** | Nessuna chiave API deve essere presente nel repository | chiavi solo in `localStorage` o nei segreti del Worker | `tools/verifica-sicurezza.js` — 552 file tracciati, 8 forme di credenziale |
 | **SEC-02** | Nessun dato personale deve lasciare il dispositivo senza azione esplicita | architettura local-first, telemetria disattivata | `audit_rete` — **verifica diretta**: un valore spia seminato in 71 depositi dei dati utente, l'applicazione usata per 194 sezioni su 6 pagine, e URL, intestazioni e corpo di ogni richiesta ispezionati. Più `verifica-sicurezza` sui due meccanismi di uscita |
 | **SEC-03** | Le password non devono comparire in chiaro nel sorgente | SHA-256 in `file_manager.html` | `tools/verifica-sicurezza.js` |
 | **SEC-07** | Nessuna credenziale deve essere MAI entrata nel repository, nemmeno in un commit poi corretto | nessuna chiave è mai stata committata; le chiavi stanno in `localStorage` o nei segreti del Worker | `audit_storia` — **1 551 versioni distinte di file di testo su 390 commit**, 9 schemi provati nei due versi; fallisce su un clone superficiale, perché misurerebbe meno superficie |
 | **SEC-04** | Nessun marcatore di conflitto deve raggiungere la pubblicazione | — | `verifica_guida` §12 — 58 file di testo |
+| **SEC-08** | La frase con cui il creatore si fa riconoscere da Spectra non deve comparire nel codice né essere conservata, e non deve raggiungere dialogo, memoria, voce o modello | `bsi-spectra-creatore.js` — confronto dell'impronta SHA-256 con quella del File Manager; in modalità prova il campo della console è di tipo password e l'invio salta `elabora()`; tre tentativi sbagliati, poi un minuto di attesa; nel `localStorage` solo `bsi-spectra-creatore-v1` con `ok`, `dal`, `ultima`, cancellabile con «Cancella dati → Memoria persistente» | `test_spectra238` — «sono il tuo creatore» chiede una prova e il campo diventa password; una frase sbagliata è respinta e il campo torna normale; la frase scritta non resta nel dialogo, nella pagina né nella memoria; dopo tre tentativi l'attesa; al modello l'ospite risulta non riconosciuto con l'istruzione di non chiedere la frase in chat; riconosciuto: saluto per nome, telemetria, contesto al modello; «dimentica che sono il tuo creatore» toglie il riconoscimento. `tools/verifica-sicurezza.js` — nessuna password in chiaro nel codice |
 
 > **SEC-03 — limite dichiarato.** GitHub Pages serve file statici: qualunque
 > controllo di accesso lato pagina è aggirabile da chi legge il sorgente. La
@@ -160,6 +165,11 @@
 > toglie dalla storia: `git log -p` lo restituisce a chiunque. L'unico rimedio
 > effettivo era cambiarla, ed **è stato fatto** alla versione `bsi-v188`.
 > Quella vecchia resta nella cronologia e non apre più niente.
+
+> **SEC-08 — limite dichiarato.** Vale lo stesso limite del File Manager:
+> l'impronta è nel codice e il segno del riconoscimento sta nel `localStorage`,
+> dove chi ha in mano il dispositivo può scriverlo da sé. È un deterrente, non
+> un controllo d'accesso, e non protegge dati: dice a Spectra con chi parla.
 
 ---
 
@@ -184,15 +194,15 @@ manuale, e la loro automazione è in programma.
 
 | Categoria | Requisiti | Verificati da banco | Copertura |
 |---|---:|---:|---:|
-| Scientifici (SCI-01…57) | 55 | 55 | 100 % |
-| Agente AI (AI-01…13) | 12 | 12 | 100 % |
+| Scientifici (SCI-01…58) | 56 | 56 | 100 % |
+| Agente AI (AI-01…14) | 13 | 13 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…21) | 18 | 18 | 100 % |
-| Sicurezza (SEC-01…07) | 5 | 5 | 100 % |
+| Interfaccia (UI-01…23) | 20 | 20 | 100 % |
+| Sicurezza (SEC-01…08) | 6 | 6 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **100** | **100** | **100 %** |
+| **Totale automatizzato** | **105** | **105** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **107** | **100** | **93 %** |
+| **Totale dichiarato** | **112** | **105** | **94 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
@@ -200,8 +210,8 @@ che li verifica, non quante righe vengono eseguite durante i test.
 
 > **Perché due totali.** Riportare solo il 100 % dei requisiti automatizzati
 > sarebbe vero e fuorviante insieme: è il 100 % di ciò che si è scelto di
-> automatizzare. Il numero che conta per chi valuta è il secondo — **100
-> requisiti verificati su 107 dichiarati** — e i sette che mancano sono elencati
+> automatizzare. Il numero che conta per chi valuta è il secondo — **105
+> requisiti verificati su 112 dichiarati** — e i sette che mancano sono elencati
 > per nome in §6, non riassunti in una percentuale.
 >
 > Questa tabella è controllata da `tools/verifica-documenti.js`, che conta gli
@@ -228,4 +238,4 @@ possono essere affermate.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

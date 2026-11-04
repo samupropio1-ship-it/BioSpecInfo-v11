@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -151,11 +151,17 @@ e il kit resta usabile senza ricordare i progressi.
 | `bsi-spectra-mente-v1` | JSON: `episodi` (al massimo 300: ora, materia, sezione, domanda troncata a 160 caratteri, esito), `sezioni` (tempo e visite per sezione), `ore` (24 contatori), `materie` (secondi per materia), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, fra 0 e 1), `emozioni` (al massimo 60) | Finché l'utente non dice «dimentica tutto», che azzera l'oggetto e rimuove la chiave |
 | `bsi-spectra-ritratto-v4` | Immagine PNG (data URL) del volto, ricavata una volta dal modello 3D e usata come icona di Spectra | Sostituisce `bsi-spectra-ritratto-v3`, che viene rimossa |
 | `bsi-spectra-sentinella` | `'1'` mentre l'ascolto continuo della console è attivo | Rimossa quando l'ascolto si ferma |
+| `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (millisecondi): il creatore è stato riconosciuto su questo dispositivo. **Non contiene la frase segreta né la sua impronta** | Scritta quando la prova riesce; rimossa con «dimentica che sono il tuo creatore» o con «Cancella dati → Memoria persistente» |
 
 La mente è una simulazione di comportamento: la chiave contiene numeri e testi,
 non altro. Il suo riassunto (`BSISpectraMente.coscienza()`) si aggiunge alle
 domande che vanno al fornitore di intelligenza artificiale scelto
 dall'utente; senza domande al modello non esce dal dispositivo.
+
+La frase con cui il creatore si fa riconoscere (`bsi-spectra-creatore.js`) non
+è un dato conservato: si scrive in un campo di tipo password, se ne calcola
+l'impronta SHA-256, la si confronta con quella del File Manager e la si scarta.
+Al modello va solo una riga di contesto: se l'utente è stato riconosciuto o no.
 
 ### 2.4 Identificativi e licenza
 
@@ -243,15 +249,14 @@ tutto. I gruppi sono definiti in `bsiCancellaDati()`.
 
 | Gruppo | Cosa rimuove |
 |---|---|
-| `chiavi` | Chiavi API, fornitore scelto, indirizzo del proxy, memoria sui fornitori irraggiungibili |
-| `chat` | Conversazioni e memoria dell'assistente |
-| `studio` | Ripetizione spaziata, quiz, percorso di studio, note |
-| `tutto` | Ogni chiave `bsi_*` e l'intero archivio IndexedDB |
+| `chat` | Conversazioni salvate e cronologia delle domande |
+| `chiavi` | Chiavi API (anche nel formato vecchio), fornitore scelto, indirizzo del proxy, memoria sui fornitori e sui modelli irraggiungibili |
+| `memoria` | Memoria persistente dell'assistente, la mente di Spectra (`bsi-spectra-mente-v1`) e il riconoscimento del creatore (`bsi-spectra-creatore-v1`) |
+| `ripasso` | Ripetizione spaziata |
+| `app` | Quiz, note, percorso di studio, progetti di data science, materia scelta (`bsi-materia`) e progressi dei kit di studio (`bsi-studio:*`) |
 
-Le chiavi con il trattino (`bsi-materia`, `bsi-studio:*`, `bsi-spectra-*`) non
-rientrano nei gruppi di `bsiCancellaDati()`: la memoria di Spectra si cancella
-con «dimentica tutto», i progressi dei kit di studio solo dalle impostazioni
-del browser.
+Restano fuori dai gruppi `bsi-spectra-ritratto-v4` (l'icona ricavata dal
+volto, che si rigenera) e `bsi-spectra-sentinella` (che si toglie da sola).
 
 La cancellazione dell'archivio prosegue anche se una singola voce fallisce, e
 riporta quante non sono state eliminate: un'operazione «elimina tutto» che si
@@ -273,4 +278,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

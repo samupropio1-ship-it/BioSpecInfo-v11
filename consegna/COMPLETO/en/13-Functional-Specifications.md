@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -81,6 +81,7 @@ The application has **194 sections**, grouped by area of study.
 | **🌀 🎲 ☢️ 🧱 🔌 Physics: five laboratories** | **Spin, qubits and entanglement** (Stern–Gerlach, Bloch sphere, Bell and CHSH, BB84); **Statistical mechanics** (levels and the Schottky anomaly, Maxwell–Boltzmann, Fermi and Bose, Einstein and Debye solids); **Nuclei and reactions** (valley of stability, Q values, barrier and tunnelling, 3D nucleus, reactor); **Elasticity and materials** (tension test, beams, Euler buckling, sound in solids); **Electronics** (rectifiers, diodes and Zener, common emitter, op-amps, ADC, DAC and counters) |
 | **🌊 🌀 🔗 🧩 📡 Mathematics: five laboratories** | **Partial differential equations** (string, 3D membrane, heat in 1D and 2D, 3D Laplace, transport and Burgers); **Complex analysis** (domain colouring, 3D landscape of \|f\|, conformal maps, Joukowski, residues, real integrals); **Markov chains and stochastic processes** (chain, PageRank, gambler's ruin, walks in 1, 2 and 3 dimensions, Poisson and queues); **SVD and applied linear algebra** (2×2 and 3×3 SVD, image compression, 3D PCA, least squares); **Codes and elliptic curves** (Hamming(7,4), CRC and check digits, curves over ℝ and over F_p, ECDH) |
 | **🧪 ⚛️ 📐 Three apps in one** | The chosen subject also decides the **✨ menu**, **Spectra**, **Study** and **Utility** (`bsi-materie-app.js`). In physics and mathematics the ✨ menu's chemistry block gives way to the **quick tools** (`bsi-attrezzi.js`), opened in a window above the page: 🧮 exact calculator, ∂ derivative and ∫ antiderivative, 📈 graph, 🔢 CODATA constant, 🔁 unit converter, 📐 formula, 📖 glossary and ⚡ lightning quiz taken from the subject's study kit. Spectra receives the subject's system instruction, suggestions and greeting |
+| **🧊 3D tabs in the sections (v238)** | Twenty-nine sections (4 chemistry, 15 physics, 10 mathematics) have, after their other tabs, a 3D tab built on the section's model: LEPS surface with the trajectory, P–V–T surface with the dome, molecular collisions in a box, equilibrium molecule by molecule, unit cells with Miller planes, the \|ψ\|² cloud, RHF orbitals, a molecule rotating and vibrating, a Lennard-Jones fluid, a launch with wind, fields and the Lorentz force, a ripple tank, a potential well with the Lagrange points, the light cone, flow past an obstacle, the p-V-T surface, the Brillouin zone, 3D Ising, a particle detector; tangent plane, field and divergence, solids of revolution, space transformations, chaos in phase space, the bivariate normal, surfaces with χ and orientability, sphere and hyperboloid, Riemann sphere, soap film. Text and controls are built on click, the scene right after. Every tab has a verification script (`15-Test-Documentation.md` §3.1-ter). Canvases without a name take the tab's and the section's |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Explorations** | **Probability in motion** (Galton, central limit, Monte Carlo, Bayes); **Visual mathematics** (animated linear maps, Fourier epicycles including from a hand drawing, Mandelbrot and Julia with zoom, logistic map and bifurcations); **Electromagnetism in motion** (draggable charges with equipotentials and field lines, induction, generator, EM waves and polarisation); **Sound and acoustics** with audio (harmonics, timbre, beats, Doppler and Mach cone, decibels); **Semiconductors** (Fermi-Dirac, n_i, doping, p-n junction, LEDs); **Distillation** (T-x-y with Antoine and van Laar, azeotrope, McCabe-Thiele, Rayleigh); simulated **Cyclic voltammetry** (diffusion and Butler-Volmer, Randles-Ševčík, scan-rate analysis) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrophysics, relativity, fluids, vector calculus, complex kinetics** | **Astrophysics**: H-R diagram with real stars and the main sequence by mass, black body and star colours, animated solar system with Kepler and Hohmann, exoplanet transits with light curve and radial velocity, Friedmann cosmology with the age of the universe and receding galaxies. **Special relativity**: Minkowski, twins, dynamics and Doppler. **Fluids**: Venturi, Poiseuille, Reynolds, Stokes and centrifuges, capillarity. **Vector calculus**: fields with particles, divergence and curl, potential, Green's theorem verified, gradient. **Complex kinetics**: consecutive, parallel and reversible reactions, Brusselator and Hopf bifurcation, Turing patterns. Every animation in the app has pause, restart and speed, stops off-screen and honours «reduce motion» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratories in motion** | Seven sections: **Mechanics in motion** (projectile with air drag and optimal angle, collisions with a coefficient of restitution, the real pendulum with its phase space, coupled oscillators and normal modes); **Waves and optics** (beats, standing waves, group velocity; lenses and mirrors with principal rays; N-slit diffraction in the colour of light); **Circuits** (RC, RL, RLC transients with the three regimes; alternating current with phasors and resonance; filters with the Bode plot); **Thermodynamics in motion** (Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with balances; a gas of particles reaching Maxwell-Boltzmann; Brownian motion); **Numerical methods** (roots, integration, ODEs, interpolation, with measured convergence orders); **Analytic geometry and vectors** (vectors and lines and planes in 3D, conics with the invariants); **Equilibrium and Le Chatelier** (a reaction shifting when disturbed, K as a function of T) |
@@ -307,6 +308,28 @@ keeps an internal state of five quantities. It is a simulation of behaviour,
 not consciousness: see [`05-AI-Agent-Architecture.md`](05-AI-Agent-Architecture.md)
 §4.10–4.12.
 
+Since v238 the console is the main entry point: a round button with the face,
+always present next to the Spectra button, opens it from any screen. On a
+full-screen phone it respects the margins of the status bar and of Android's
+keys (at least 34 and 46 px when the system does not report them) and lays out
+face, state, dialogue and controls without overlaps. The 🧭 navigator lists
+every section per subject, the quick tools and the recognised phrases; the
+context shortcuts (Explain this section, Guide me, What am I looking at?, Quiz
+me, Review) change with the screen; 💬 opens the chat. The **difficulty** of a
+question starts from the study level of the open section in the paths (high
+school, bachelor, master, PhD) and grows with advanced-course words, symbols
+and length; it becomes the face's **concentration** (eyes half closed and
+brighter). The face (v3.0) has eyelids, an eye tint per emotion, muscle
+springs, micro-expressions and sleep after two minutes without contact. With
+the console silent for more than a minute Spectra may voice an important
+thought from the mind unprompted.
+
+**The creator** (`bsi-spectra-creatore.js`). Spectra knows it was created by
+Samuele Pio Provenzano. Recognition requires the File Manager's secret phrase,
+compared as a SHA-256 fingerprint and never stored; once recognised, the author
+is greeted by name and the model knows it. It is a deterrent, not an access
+control (§6).
+
 ---
 
 ## 4. Main flows
@@ -428,8 +451,9 @@ Declared, not hidden. The detail is in
 | 9 | **Verification on Chromium only** | Firefox and WebKit are tested by hand, not by a bench |
 | 10 | **Spectra's mind is a simulation** | Memory and internal state are data and rules in the browser, not understanding or feelings. The mind's summary and the screen context go to the provider with the question, when the question goes to the model |
 | 11 | **Some astrophysics data are illustrative** | The exoplanet population is not a catalogue; the rotation-curve «observations» are a model with noise; the CMB map is synthesised from an illustrative power spectrum. The sections say so |
-| 12 | **Spectra Live and the quick tools have no bench** | Voice and local commands, the tools that act on the page and the per-subject ✨ menu are tested by hand (`08-Traceability-Matrix.md` §6, UI-21 and AI-13) |
+| 12 | **Spectra Live and the quick tools have no bench** | Since v238 `test_spectra238` tests layout, navigator, level, face and creator commands; voice, the other local commands, the tools that act on the page and the per-subject ✨ menu are tested by hand (`08-Traceability-Matrix.md` §6, UI-21 and AI-13) |
 | 13 | **Spectra's face weighs about 8 MB** | `models/spectra-noir.glb` is not in the service worker's precache: it is downloaded the first time the app derives Spectra's icon (a few seconds after the first start, if WebGL is available) or opens the console. If it does not arrive, the console uses the fallback face |
+| 14 | **Creator recognition is not an access control** | The SHA-256 fingerprint is in the code and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`: whoever holds the device can write it by hand. Like the File Manager password, it is a deterrent and protects no data |
 
 ---
 
@@ -447,4 +471,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

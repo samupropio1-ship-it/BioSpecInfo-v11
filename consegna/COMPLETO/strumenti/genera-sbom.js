@@ -264,6 +264,8 @@ const PROPRI = [
     ruoloEn: 'Fallback face: android head built in three.js.' },
   { file: 'bsi-spectra-volto.js', ruolo: 'Volto di ultimo ripiego: ritratto vettoriale SVG.',
     ruoloEn: 'Last-resort face: SVG vector portrait.' },
+  { file: 'bsi-spectra-creatore.js', ruolo: 'Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d\'accesso).',
+    ruoloEn: 'Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control).' },
   { file: 'bsi-aggiorna.js', ruolo: '«Controlla aggiornamenti»: versione in uso dal service worker, versione pubblicata da sw.js.',
     ruoloEn: '«Check for updates»: version in use from the service worker, published version from sw.js.' },
   { file: 'bsi-fis-fluidi.js', ruolo: 'Fluidi: Venturi e Bernoulli, viscosità e Stokes, capillarità.',

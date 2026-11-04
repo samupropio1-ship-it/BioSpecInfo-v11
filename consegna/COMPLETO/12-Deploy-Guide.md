@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -179,6 +179,18 @@ precarico del Service Worker, come gli altri `models/*.glb`: si scarica la
 prima volta che l'app ricava l'icona di Spectra o apre la console Spectra
 Live. Va pubblicato insieme al resto, con la sua attribuzione CC BY 4.0
 ([`07-SBOM.md`](07-SBOM.md)); se manca, la console usa il volto di ripiego.
+
+### 2.2-ter Una frase segreta, due impronte
+
+Dalla `bsi-v238` la stessa frase segreta serve al File Manager e al
+riconoscimento del creatore di Spectra. La sua impronta SHA-256 è scritta in
+due posti: `file_manager.html` e `bsi-spectra-creatore.js` (costante
+`IMPRONTA`). Se si cambia la frase, vanno cambiate **entrambe** nello stesso
+rilascio; altrimenti il File Manager si apre con la frase nuova e Spectra
+riconosce solo la vecchia. Un segno di riconoscimento già scritto in un
+browser (`bsi-spectra-creatore-v1`) non viene revocato dal cambio: si toglie
+con «dimentica che sono il tuo creatore» o con «Cancella dati». La frase in
+chiaro non va mai scritta in un file del repository.
 
 ### 2.3 Come arriva l'aggiornamento agli utenti
 
@@ -364,4 +376,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

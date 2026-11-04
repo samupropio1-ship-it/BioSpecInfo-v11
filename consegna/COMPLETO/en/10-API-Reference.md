@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -352,6 +352,8 @@ Extension points for whoever has to work on the code. They are globals on
 | `window.nmrPeakList(smiles)` | ¹H peaks with integration |
 | `window.bsiCancellaDati(groups)` | Selective deletion of the saved data |
 | `window.bsiOpenUpdate()` | Opens the updates window |
+| `window.bsiAccentoLeggibile(colour, background, threshold)` | Adjusts an accent so it reaches the WCAG threshold on that surface, preserving the hue |
+| `window.bsiEtichettaLeggibile(background, threshold)` | The dual: picks the text colour from the background and, if neither extreme suffices, darkens the background while preserving the hue |
 
 ### `window.BSIAggiorna` — update check (`bsi-aggiorna.js`)
 
@@ -414,6 +416,11 @@ The object returned by `crea` has, among others, `stato(s)` (`'attesa'`,
 `allinea(i)`, `taci()`, `espressione(name, seconds, intensity) → boolean`,
 `emozione() → string`, `sente(sentence)` (reacts to a user sentence and passes
 it on to the mind), `passo(dt)`, `ferma()`, `libera()`.
+Since version 3.0 of the module (v238) also `concentra(c)` (target
+concentration between 0 and 1), `concentrazione() → number` (the current one),
+`addormentato() → number` (0 awake, 1 asleep), `aperture() → [left, right]`
+(visible opening of the two eyelids, 1 = at rest) and the `coloreOcchi`
+property (current eye tint, `#rrggbb`).
 
 `window.BSISpectraRobot` (`bsi-spectra-robot.js`) exposes `disponibile`, `crea`
 and `foto` with the same signatures: it uses the android and, if the model
@@ -437,9 +444,29 @@ does not arrive, the head built in three.js. `window.BSISpectraVolto`
 
 It is a simulation of behaviour: the functions read and write numbers and text
 in `localStorage`, nothing else.
-| `window.bsiAccentoLeggibile(colour, background, threshold)` | Adjusts an accent so it reaches the WCAG threshold on that surface, preserving the hue |
-| `window.bsiEtichettaLeggibile(background, threshold)` | The dual: picks the text colour from the background and, if neither extreme suffices, darkens the background while preserving the hue |
+
+### `window.BSISpectraLive` — the console (`bsi-spectra-live.js`), v238 additions
+
+| Function | Signature | Description |
+|---|---|---|
+| `difficolta` | `(text) → { valore, livello, nome }` | Difficulty of the question between 0.05 and 1, level 0–3 and its name (high school … PhD) |
+| `livelloSezione` | `(id) → number` | First level of the `bsi-percorsi.js` path in which the section appears; −1 if none |
+| `navigatore` | `(subject?)` | Opens (or closes) the 🧭 navigator; with a subject, shows that one |
+| `provaCreatore` | `(active)` | Puts the console field in proof mode (password type for one minute) or takes it out |
+| `verificaCreatore` | `(phrase)` | Checks the phrase with `BSISpectraCreatore.verifica` and answers in the dialogue, without recording the phrase |
+
+### `window.BSISpectraCreatore` — the creator (`bsi-spectra-creatore.js`)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `NOME`, `NOME_BREVE` | string | `'Samuele Pio Provenzano'`, `'Samuele'` |
+| `riconosciuto` | `() → boolean` | Whether the creator has been recognised on this device |
+| `verifica` | `(phrase) → Promise<{ ok, rimasti?, attendi? }>` | SHA-256 fingerprint of the phrase compared with the File Manager's; after three errors `attendi` (seconds) for one minute. The phrase is not stored |
+| `dimentica` | `()` | Removes `bsi-spectra-creatore-v1` |
+| `visita` | `()` | Updates the last-visit date of the recognised creator |
+| `saluto`, `chiTiHaCreato` | `() → string` | The greeting by name and the answer to «who created you?» |
+| `contesto` | `() → string` | The `[CREATORE]` line added to the model's context |
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

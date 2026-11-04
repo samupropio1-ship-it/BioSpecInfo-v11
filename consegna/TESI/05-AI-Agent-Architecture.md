@@ -8,7 +8,7 @@
 | **Componente** | `bsi-ai-hub.js` — 6.254 righe, nessuna dipendenza runtime |
 | **Tipo** | Agente conversazionale multi-provider con esecuzione di strumenti lato client |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Versione documentata** | Service Worker `bsi-v237` |
+| **Versione documentata** | Service Worker `bsi-v238` |
 
 ---
 
@@ -663,8 +663,10 @@ strumenti aggiunti in futuro.
 
 ### 4.10 Spectra Live: voce, schermo e comandi locali
 
-`bsi-spectra-live.js` aggiunge una console a tutto schermo (pulsante «◈ Live»
-nella testata di Spectra, oppure `Ctrl+Shift+J`):
+`bsi-spectra-live.js` aggiunge una console a tutto schermo. Dalla v238 si
+apre da ogni schermata con un pulsante tondo con il volto, a sinistra del
+pulsante Spectra; restano il pulsante «◈ Live» nella testata di Spectra e
+`Ctrl+Shift+J`:
 
 - **conversazione a mani libere**: il riconoscimento vocale del browser
   ascolta, la risposta viene detta frase per frase con la sintesi vocale del
@@ -690,6 +692,32 @@ fornitore scelto dall'utente. Il riconoscimento vocale è quello del browser:
 dove il browser lo esegue su un servizio remoto, l'audio segue le regole di
 quel browser, non di BioSpecInfo.
 
+**Impaginazione e navigazione (v238).** Sul telefono con l'app installata la
+barra di stato e i tasti di Android stanno sopra la pagina. La console usa
+`env(safe-area-inset-top/bottom)` quando il sistema li comunica e, con la
+classe `.bsiJV-bordi` (finestra a schermo intero su un dispositivo touch, o app
+installata), almeno 34 px in alto e 46 px in basso. Le posizioni non sono più
+fisse: a ogni fotogramma si misurano testata, telemetria e barra dei comandi, e
+il volto, lo stato, il pensiero e il dialogo occupano lo spazio che resta. Il
+navigatore 🧭 costruisce dalla barra stessa, per ognuna delle tre materie,
+l'elenco di gruppi e sezioni, poi gli strumenti rapidi (`BSIAttrezzi`) e le
+frasi riconosciute localmente; il pulsante 💬 passa alla chat; le scorciatoie
+di contesto cambiano con la sezione aperta. La telemetria mostra UTENTE
+(ospite o creatore), LIVELLO e CONCENTRAZIONE.
+
+**Livello e concentrazione.** `difficolta(testo)` parte dal livello della
+sezione aperta, cioè il primo livello del percorso di `bsi-percorsi.js` in cui
+compare (scuola superiore 0, triennale 1, magistrale 2, dottorato 3: valore
+0,15 + 0,22·livello), aggiunge 0,3 per le parole da corso avanzato (teorema,
+hamiltoniana, autovalori, …), fino a 0,2 per i simboli, 0,1 per una domanda
+lunga, toglie 0,25 per «in parole semplici», e limita il risultato fra 0,05 e
+1. Il valore va al volto con `concentra()`.
+
+**Iniziativa.** Con la console aperta, in attesa e in silenzio da più di un
+minuto, se la mente ha un pensiero di peso ≥ 2 (una pausa, gli errori da
+rivedere, l'ora tarda) Spectra lo dice, al massimo una volta ogni tre minuti e
+mai lo stesso due volte, con l'espressione adatta.
+
 ### 4.11 Il volto
 
 `bsi-spectra-androide.js` mostra nella console il modello 3D «Noir» di
@@ -709,8 +737,27 @@ bocca, quindi l'animazione è costruita nel codice:
   qualche campo muove;
 - l'emozione di una frase viene da parole chiave in italiano e in inglese
   (`emozioneDi`); senza segnali vale «serena»;
-- gli **occhi** sono luci nel blu del tema, `#1a3050` a riposo, con lievi
-  variazioni per ascolto, elaborazione e parola.
+- gli **occhi** (versione 3.0, v238) hanno **palpebre vere**: i vertici di
+  ciascun occhio sono deformati sulla CPU attorno al suo centro, per
+  apertura e asimmetria propri di ogni emozione (la gioia li stringe, la
+  sorpresa li spalanca, il dubbio li rende asimmetrici); lo sguardo li sposta;
+  la **tinta** cambia con l'emozione nella famiglia del blu del tema
+  (`#1a3050` a riposo, più viva nella gioia e nella sorpresa);
+- la **concentrazione** (0–1, da `difficolta()`) socchiude gli occhi, li
+  accende, avvicina le sopracciglia, stringe le labbra e rallenta il battito;
+- ogni muscolo del viso è una **molla smorzata**, così le espressioni hanno
+  inerzia e un piccolo assestamento; ogni pochi secondi compare una
+  **micro-espressione** di un quarto di secondo; la bocca usa la
+  **coarticolazione**: il visema della lettera successiva comincia prima che
+  finisca quello corrente;
+- luci neutre (i controluce blu saturi tingevano il metallo), densità reale
+  dello schermo fino a 3× e filtraggio anisotropo sulle mappe del metallo;
+- dopo **due minuti senza contatto** (tocco, voce, risposta) il volto si
+  addormenta: palpebre pesanti, testa bassa, respiro lento; al primo tocco si
+  sveglia con un'espressione di sorpresa e poi un sorriso. Lo sguardo segue
+  il puntatore e, sul telefono, il punto toccato.
+
+Come la mente, è una **simulazione di comportamento, non una coscienza**.
 
 Senza WebGL, o se il modello non arriva, la console usa la testa costruita da
 `bsi-spectra-robot.js` e, in ultima istanza, il ritratto vettoriale di
@@ -741,6 +788,29 @@ alcune regole, non stati soggettivi.
 Tutto è salvato solo nel `localStorage` del browser, chiave
 `bsi-spectra-mente-v1` ([`11-Data-Model.md`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/11-Data-Model.md)); «cosa ricordi
 di me» lo mostra, «dimentica tutto» lo cancella.
+
+### 4.13 Il creatore
+
+`bsi-spectra-creatore.js` (v238) dice a Spectra chi l'ha creato: Samuele Pio
+Provenzano. «Chi ti ha creato?» ha una risposta locale. «Sono il tuo creatore»
+apre una prova: il campo della console diventa di tipo password per un minuto,
+l'ascolto vocale si ferma, e il testo inviato **non passa da `elabora()`**:
+niente dialogo, memoria, voce né modello. Se ne calcola l'impronta SHA-256
+(`crypto.subtle`) e la si confronta con quella del File Manager; la frase non
+compare nel codice. Tre tentativi sbagliati portano a un minuto di attesa.
+
+Riconosciuto, Spectra scrive nel `localStorage` solo
+`bsi-spectra-creatore-v1` (`ok`, `dal`, `ultima`), saluta per nome
+all'apertura della console, mostra «CREATORE» nella telemetria e aggiunge al
+quadro per il modello (`contesto()`, anche dentro `coscienza()` della mente)
+che sta parlando con il suo autore. A un ospite il quadro dice che non è stato
+riconosciuto e che la frase non va mai chiesta in chat. «Dimentica che sono il
+tuo creatore» toglie il segno; lo toglie anche «Cancella dati → Memoria
+persistente».
+
+**Limite.** Come la password del File Manager è un deterrente, non un
+controllo d'accesso: l'impronta è nel codice e il segno può essere scritto a
+mano da chi ha il dispositivo (`09-Release-Conformance-Statement.md`, D-13).
 
 ---
 

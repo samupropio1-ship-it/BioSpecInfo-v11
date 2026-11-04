@@ -67,6 +67,26 @@ with security headers at the hosting/CDN level:
   `SharedArrayBuffer` and parallel Web Workers are enabled in the future (HPC
   roadmap).
 
+### 2.5 Page-side checks: deterrents, not locks
+On static hosting every check made in the page can be bypassed by whoever holds
+the device or reads the source. Two features declare it:
+- **File Manager** (`file_manager.html`): the password is compared as a SHA-256
+  fingerprint; it is a deterrent against passers-by, not protection for
+  confidential documents (`08-Traceability-Matrix.md`, SEC-03).
+- **Spectra's creator recognition** (`bsi-spectra-creatore.js`, since
+  `bsi-v238`): on «I am your creator» Spectra asks for the same secret phrase as
+  the File Manager, typed into a password field and compared as a SHA-256
+  fingerprint. The phrase does not appear in the code, is not stored and enters
+  neither the dialogue, nor memory, nor voice, nor the requests to the model;
+  after three wrong attempts there is a one-minute wait. Only the mark
+  `bsi-spectra-creatore-v1` stays in `localStorage`, erasable from «Clear data →
+  Persistent memory». **It is not an access control**: the fingerprint is in the
+  code, the mark can be written by hand by whoever holds the device, and an
+  unsalted fingerprint of a weak phrase can be searched by trial outside the
+  app. It protects no data: it tells Spectra whom it is talking to
+  (`08-Traceability-Matrix.md`, SEC-08; `09-Release-Conformance-Statement.md`,
+  D-13).
+
 ---
 
 ## 3. Integrity and reproducibility (GAMP 5 alignment)

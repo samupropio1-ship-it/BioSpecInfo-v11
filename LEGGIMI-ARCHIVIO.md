@@ -6,7 +6,7 @@ stato esatto del commit pubblicato.
 | | |
 |---|---|
 | **Versione** | `bsi-v238` |
-| **Batteria di verifica** | 79 banchi, **0 falliti** <!--ESITO-BATTERIA--> — esito CONFORME |
+| **Batteria di verifica** | 79 banchi, **0 falliti** — esito CONFORME |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Demo** | `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
 

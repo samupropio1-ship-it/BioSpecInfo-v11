@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**77 benches**, grouped by what they demonstrate.
+**79 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -123,6 +123,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 | `test_approfondimenti` | **Numbers, graphs, gravitation, heat, Ising, phase diagrams, LEPS surface** against known results or a second method (π(x), RSA, Li(x), Floyd–Warshall, Prim, figure-eight, Lagrange, Onsager, IAPWS, Span–Wagner, measured eutectic, H₃ saddle); in the browser the 25 tabs on two screens; the **subject buttons** (visible groups, icons, remembered subject, no section unreachable) |
 | `test_pareggio` | The **twelve sections** that bring mathematics and physics to the level of chemistry: runs the twelve scripts in `verifiche/` (462 checks against known results or a second method), opens the 47 tabs on two screens, checks every tab opens in under 100 ms and that mathematics and physics have the declared number of sections |
 | `test_v237` | The **twenty new sections** (ten astrophysics, five physics laboratories, five mathematics laboratories): runs their twenty scripts in `verifiche/` (705 checks against published values or a second method, §3.1-bis) and those of the study kits and resources; in the browser opens every tab at **1280 and 390 px**; tests Spectra's face, emotions and mind and the section names in English. Requires at least 900 checks | 1061 |
+| `test_3d238` | The **new 3D tabs of 29 sections** of chemistry, physics and mathematics: runs their 29 scripts in `verifiche/` (311 checks against known values, a closed form or a second method, §3.1-ter); in the browser opens every tab of the 29 sections at **1280 and 390 px** and requires full tabs, no ⚠, canvases drawn and named, the last tab a 3D scene that draws, synchronous work on click under **250 ms**; nothing overflows at 390 px; no JavaScript error | 488 |
 | `test_sellingua` | The round language switcher, on **two viewports** (1280 and 390 px): the button is visible, round, top right, **at the measured title height** as the overlap of the two boxes, with an accessible name that says what it does; the disc with the fourteen flags on two shells **inside the screen**; and **both ways** the language actually changing, the flag following, the disc closing and, going back to Italian, the text identical to before. **30 checks**, declared minimum 30 | 30 |
 | `audit_statico` | The classes of bug this project has already had, searched across **all** files instead of where they showed up: `calc()` without spaces (the browser drops the rule), secrets in logs, API keys in the code, plaintext passwords, `target="_blank"` without `noopener`, duplicate ids in the markup, unbalanced scripts. The report **flags and does not block**, because those classes have false positives. Three measures **do** block, and have a written baseline: verbatim duplicated code blocks (**0**), redefined global functions (**11**, the file's declared "additive patch" style), of which with identical bodies (**0**). If they grow, the battery fails | 3 gates |
 | `test_articoli` | That no function has two entry points, and that the articles are not hand-written. Ten tabs inside a single Spectra centre, with each identifier present in the document **exactly once**; no repeated id, no duplicate button, no section reachable by two roads; Spectra out of the menu and with its dedicated button. Then the articles: the links tested as **pure functions** of the identifier, the Nobel explanations matched to the topic of the motivation and **none** invented when it is not recognised, and the decisive proof — an **injected** response with a name that exists nowhere, which must appear on screen. **Three distinct failures**: failed request, empty answer, unrecognised shape | 58 |
@@ -211,6 +212,57 @@ and `verifica-risorse` (87 checks: citation formats and table proofs).
 > measure SwiftShader, not the app; a loose one on the 2D tabs would let a
 > real stall through.
 
+### 3.1-ter The v238 3D tabs: what is verified
+
+Twenty-nine sections receive, at the end, a 3D tab built on the section's
+model. Each tab has a script `tools/banchi/verifiche/verifica-<id>-3d.js` (for
+Topology and Non-Euclidean geometries the checks were added to the section's
+own script) that runs on its own with `node`. Two examples per tab, with the
+value the script prints:
+
+| Section · 3D tab | Script | Checks | Examples |
+|---|---|---:|---|
+| 🏔️ Potential energy surface · 🧊 3D surface | `verifica-schipes-3d` | 9 | at the saddle a single negative curvature: 2116 and −2022 cm⁻¹ (imaginary frequency); the model's ω(H₂) 4396.6 cm⁻¹ against 4401 measured |
+| 🧊 Phase diagrams · 🧊 P–V–T surface | `verifica-schifasi-3d` | 8 | acentric factor from the vapour curve: water 0.3443, CO₂ 0.2249; equal Maxwell areas on the dome within 5.5·10⁻¹² |
+| 🌀 Complex kinetics · 🧊 Molecular collisions | `verifica-schicinet-3d` | 7 | kinetic energy conserved after 6000 steps and 2993 collisions (1.8·10⁻¹⁵); fraction of collisions above E₀/kT = 2.5 equal to e^(−2.5) within 3σ (0.0812 against 0.0821) |
+| ⚖️ Equilibrium and Le Chatelier · 🧊 3D box | `verifica-schiequil-3d` | 7 | A ⇌ B: measured K 2.9976 against 2.9951 theoretical (within 1.5 %); halving the volume lowers the dissociation degree of N₂O₄ from 0.177 to 0.129 |
+| 💎 Crystallography and X-rays · 🧊 Cells in 3D | `verifica-scristalli-3d` | 9 | coordination numbers 6, 8, 12, 12, 6, 8, 4 for SC, BCC, FCC, HCP, NaCl, CsCl, diamond; d(hkl) = 1/\|G\| equal to `dSpaziatura` within 4.4·10⁻¹⁶ |
+| 🌊 Schrödinger laboratory · 🧊 3D cloud \|ψ\|² | `verifica-sschrod-3d` | 10 | degeneracies of the 3D oscillator 1, 3, 6, 10; fraction of the cloud outside the classical region 0.1107 against P(χ²₃ > 6) = 0.1116 |
+| 🧮 Live Hartree-Fock · 🧊 Orbitals in 3D | `verifica-shf-3d` | 9 | H₂ at 1.4 bohr: E = −1.116714 Eh (Szabo-Ostlund); ∫\|ψ\|² over the grid = 1.0000 for σg and σu |
+| 🎻 Rovibrational spectroscopy · 🧊 3D rotation and vibration | `verifica-srotovib-3d` | 10 | T + V = G(v) along the classical motion within 9.5·10⁻⁹; CO₂: ν₁ IR-inactive, ν₂ and ν₃ active |
+| 🎱 Molecular dynamics · 🧊 3D box | `verifica-sdinmol-3d` | 7 | NVE: \|ΔE\| per particle 9.6·10⁻⁴ over 2000 steps; thermostat: ⟨T⟩ = 1.400 like the bath |
+| 🎯 Mechanics in motion · 🌬️ 3D launch with wind | `verifica-sfismecc-3d` | 7 | in vacuum R = v₀² sin 2θ/g = 91.774 m even with 15 m/s of wind; terminal speed √(g/k) = 22.145 m/s (measured 22.1435) |
+| ⚡ Electromagnetism in motion · 🌀 3D fields and Lorentz | `verifica-sfisem-3d` | 8 | Larmor radius mv⊥/qB = 0.61538 (measured 0.61539); E×B drift = (0, −0.5) the same for q = +1 and q = −1 |
+| 〰️ Waves and optics · 🌊 3D ripple tank | `verifica-sfisonde-3d` | 6 | d = 3λ gives 6 nodal lines, d = 0.4λ none; far minima at arcsin((m + ½)λ/d) within 2.1·10⁻⁵ rad |
+| 🪐 Gravitation · 🕳️ 3D potential well | `verifica-sfisgrav-3d` | 8 | \|∇U\| at the five Lagrange points 1.1·10⁻¹⁵; measured period 7.2779 = 2π a^(3/2) |
+| ⏱️ Special relativity · 🔦 3D light cone | `verifica-sfisrel-3d` | 6 | invariant interval in (x, y, ct) within 2.7·10⁻¹³; boost composition Λ(β₂)Λ(β₁) = Λ((β₁ + β₂)/(1 + β₁β₂)) within 5.3·10⁻¹⁵ |
+| 🌊 Fluids · 🌀 3D flow past an obstacle | `verifica-sfisfluidi-3d` | 7 | sphere: v = 1.5U and C_p = −1.25; cylinder: v = 2U and C_p = −3; lift −ρUΓ = −5988 N/m |
+| 🔥 Thermodynamics in motion · 🗻 3D p-V-T surface | `verifica-sfistermo-3d` | 8 | van der Waals critical point: p = 1, ∂p/∂V and ∂²p/∂V² zero; at T = 0.9 p_sat 0.6470, V_l 0.6034, V_g 2.3488 |
+| 💡 Semiconductors · 🔷 3D Brillouin zone | `verifica-sfissolido-3d` | 7 | fcc zone: 24 vertices, 36 edges, 14 faces (V − E + F = 2); m*_dos(Si) = 1.084 m₀ |
+| 🧲 Ising model · 🧊 3D Ising | `verifica-sfisising-3d` | 6 | ground state e = −3, m = 1 (with h = 0.4: e = −3.4); \|m\| 0.946 at T = 3, 0.052 at T = 5.5 (T_c ≈ 4.5115) |
+| ⚛️ Particle physics · 🔭 3D detector | `verifica-sfispart-3d` | 6 | helix in 3.8 T: R = p_T/(0.3 B) = 0.8772 m; invariant mass reconstructed from 200 Z → μμ pairs equal to the generated one within 1.6·10⁻⁵ |
+| 🗻 Functions of several variables · 🧊 Tangent plane in 3D | `verifica-smatmulti-3d` | 9 | x² + y² at (1, 2): f = 5, ∇f = (2, 4); second-order deviation from the tangent plane (ratio 4.0445) |
+| ∇ Vector calculus · 🧊 3D field and divergence | `verifica-smatvett-3d` | 8 | F = (x, y, z), r = 1.2: flux = ∭3 dV = 4πr³ = 21.7146884216; point charge: flux 4π with the origin inside, 0 outside |
+| ∫ Derivatives, integrals and series · 🧊 Solids of revolution | `verifica-smatcalc-3d` | 8 | unit sphere V = 4π/3 = 4.188790204786; spindle of sin x V = π²/2 |
+| 🔲 Linear algebra · 🧊 Space transformations | `verifica-smatlin-3d` | 9 | det = triple product = Πλ = 6; reflection: det −1 and det M(1/2) = 0 |
+| 🌀 Differential equations · 🧊 Chaos in 3D phase space | `verifica-smatode-3d` | 9 | Lorenz Lyapunov exponent 0.9036 against 0.9056; RK4: error ratio 16.04 when halving the step |
+| 🎲 Probability in motion · 🧊 Bivariate normal 3D | `verifica-smatprob-3d` | 7 | ∬ xy f = ρσxσy = 0.546; samples inside Q ≤ 1: 39.37 % against 39.35 % |
+| 🍩 Topology and surfaces · 🧊 Surfaces in 3D: χ and orientability | `verifica-smattopo` | 45 (3 from v238) | triangulations of five surfaces at four refinements with χ equal to the mesh's; Möbius: n(2π)·n₀ = −1 and n(4π)·n₀ = +1 |
+| 🌐 Non-Euclidean geometries · 🧊 Sphere and hyperboloid in 3D | `verifica-smatnoneucl` | 56 (4 from v238) | hyperboloid and Poincaré disc with the same angles and sides within 1.2·10⁻¹⁵; Gauss–Bonnet on the hyperboloid: π − Σ = area (1.0700757) |
+| ℂ Complex numbers and Fourier · 🧊 Riemann sphere | `verifica-smatcompl-3d` | 7 | sphere rotations = SU(2) Möbius maps on 4 axes × 3 angles × 30 points within 5.5·10⁻¹⁶; rotation by π about x: f(z) = 1/z and f(0) = ∞ |
+| 🎢 Calculus of variations · 🧊 Soap film in 3D | `verifica-smatvariaz-3d` | 8 | h*/R = 1.32549 (u* tanh u* = 1); h/R = 1.36 tears, h/R = 1.30 stays a catenoid |
+
+All the scripts, run while writing this document: **311 checks passed,
+0 failed**. The counts for `smattopo` and `smatnoneucl` include the checks that
+existed before v238.
+
+> **One time threshold for the new 3D tabs.** `test_v237` allowed the 3D tabs
+> 6 s, because the scene was built inside the click handler and in the battery
+> WebGL runs in SwiftShader (§3.1-bis). The v238 tabs build text and controls at
+> once and the scene **after** the handler returns: the synchronous work on
+> click must stay under **250 ms**, as for 2D tabs. Measured in the trial runs:
+> a few tens of milliseconds at most.
+
 ### 3.2 AI agent
 
 | Bench | Condition simulated |
@@ -241,8 +293,23 @@ and `verifica-risorse` (87 checks: citation formats and table proofs).
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_guidaproxy` · `test_fluidita` · `test_lingue` · `test_mol3d` ·
-`test_spettrolettore`
+`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
+`test_mol3d` · `test_spettrolettore`
+
+**`test_spectra238` — 64 checks.** It comes from reports made with a phone
+screenshot: with the app installed, Android's status bar and navigation keys
+covered the controls of the Spectra Live console, and the model attribution
+overlapped the dialogue. The bench works in four parts:
+
+| Part | What it requires |
+|---|---|
+| Layout | On a simulated phone (412×915, touch, full-screen window) the safe-margin class is active, the first button at the top is at least **34 px** from the edge and the controls at the bottom at least **46 px**; the telemetry is in two columns and does not cover the face. On a large screen no forced margins. On both: header above the face, face above the state, state above the dialogue, dialogue above shortcuts and controls, attribution inside the control bar; at least four shortcuts with a section open |
+| Navigator | For chemistry, physics and mathematics the 🧭 navigator lists **exactly** the sections of the bar (more than 20 per subject), at least four quick tools and ten phrases; opening a section of another subject switches subject, closes the console and leaves the Spectra Live button |
+| Level and concentration | An advanced-course question weighs more than a sum (gap > 0.2); «in simple words» lowers it; the same question weighs more (gap > 0.3) in a PhD-level section than in a high-school one, and the declared level is the path's |
+| Creator, eyes, sleep | «who created you?» names Samuele Pio Provenzano; «I am your creator» asks for proof and the field becomes a password field; a wrong phrase is rejected, the field goes back to normal and the phrase remains neither in the dialogue, nor in the page, nor in memory; after three attempts the wait; recognised (the bench writes the `bsi-spectra-creatore-v1` mark in `localStorage`: the phrase does not appear in the bench): greeting by name, telemetry «SAMUELE · CREATOR», context for the model and the mind; «forget that I am your creator» removes it. Eyes: joy narrows them (< 0.8), surprise widens them (> 1.25), doubt makes them asymmetric, `#1a3050` at rest, four emotions give four tints, concentration narrows and brightens them, the blink closes the eyelids (< 0.2); after two minutes without contact it sleeps, at the first touch it wakes with surprise |
+
+Still outside, as `docs/08` §6 declares (AI-13): voice, continuous listening and
+the other local commands, which cannot be tested in the battery's headless Chromium.
 
 **`test_controllaagg` — 12 checks.** It comes from a report: «trying to update,
 nothing comes up». It was true. The 🔄 Updates window looked in `sw.js` for a
@@ -668,11 +735,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 522 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 552 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | No bench for the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 
@@ -688,4 +755,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

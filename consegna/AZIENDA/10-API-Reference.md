@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -400,6 +400,11 @@ L'oggetto restituito da `crea` ha, fra gli altri, `stato(s)` (`'attesa'`,
 `allinea(i)`, `taci()`, `espressione(nome, secondi, intensita) → boolean`,
 `emozione() → string`, `sente(frase)` (reagisce a una frase dell'utente e la
 passa alla mente), `passo(dt)`, `ferma()`, `libera()`.
+Dalla versione 3.0 del modulo (v238) anche `concentra(c)` (concentrazione
+bersaglio fra 0 e 1), `concentrazione() → number` (quella del momento),
+`addormentato() → number` (0 sveglio, 1 addormentato), `aperture() → [sx, dx]`
+(apertura visibile delle due palpebre, 1 = a riposo) e la proprietà
+`coloreOcchi` (tinta corrente degli occhi, `#rrggbb`).
 
 `window.BSISpectraRobot` (`bsi-spectra-robot.js`) espone `disponibile`, `crea` e
 `foto` con le stesse firme: usa l'androide e, se il modello non arriva, la
@@ -424,6 +429,28 @@ testa costruita in three.js. `window.BSISpectraVolto` (`bsi-spectra-volto.js`)
 È una simulazione di comportamento: le funzioni leggono e scrivono numeri e
 testi nel `localStorage`, nient'altro.
 
+### `window.BSISpectraLive` — la console (`bsi-spectra-live.js`), aggiunte della v238
+
+| Funzione | Firma | Descrizione |
+|---|---|---|
+| `difficolta` | `(testo) → { valore, livello, nome }` | Difficoltà della domanda fra 0,05 e 1, livello 0–3 e il suo nome (scuola superiore … dottorato) |
+| `livelloSezione` | `(id) → number` | Primo livello del percorso di `bsi-percorsi.js` in cui compare la sezione; −1 se in nessuno |
+| `navigatore` | `(materia?)` | Apre (o chiude) il navigatore 🧭; con una materia, mostra quella |
+| `provaCreatore` | `(attiva)` | Mette il campo della console in modalità prova (tipo password per un minuto) o la toglie |
+| `verificaCreatore` | `(frase)` | Confronta la frase con `BSISpectraCreatore.verifica` e risponde nel dialogo, senza registrare la frase |
+
+### `window.BSISpectraCreatore` — il creatore (`bsi-spectra-creatore.js`)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `NOME`, `NOME_BREVE` | string | `'Samuele Pio Provenzano'`, `'Samuele'` |
+| `riconosciuto` | `() → boolean` | Se su questo dispositivo il creatore è stato riconosciuto |
+| `verifica` | `(frase) → Promise<{ ok, rimasti?, attendi? }>` | Impronta SHA-256 della frase confrontata con quella del File Manager; dopo tre errori `attendi` (secondi) per un minuto. La frase non viene conservata |
+| `dimentica` | `()` | Rimuove `bsi-spectra-creatore-v1` |
+| `visita` | `()` | Aggiorna la data dell'ultima visita del creatore riconosciuto |
+| `saluto`, `chiTiHaCreato` | `() → string` | Il saluto per nome e la risposta a «chi ti ha creato?» |
+| `contesto` | `() → string` | La riga `[CREATORE]` aggiunta al quadro per il modello |
+
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v237` |
+| **Version described** | `bsi-v238` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -155,11 +155,17 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-mente-v1` | JSON: `episodi` (at most 300: time, subject, section, question cut to 160 characters, outcome), `sezioni` (time and visits per section), `ore` (24 counters), `materie` (seconds per subject), `sessioni`, `ultimaVisita`, `stato` (`curiosita`, `attenzione`, `premura`, `umore`, `legame`, between 0 and 1), `emozioni` (at most 60) | Until the user says «forget everything», which resets the object and removes the key |
 | `bsi-spectra-ritratto-v4` | PNG image (data URL) of the face, derived once from the 3D model and used as Spectra's icon | Replaces `bsi-spectra-ritratto-v3`, which is removed |
 | `bsi-spectra-sentinella` | `'1'` while the console's continuous listening is on | Removed when listening stops |
+| `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
 questions that go to the artificial-intelligence provider the user chose;
 without questions to the model it does not leave the device.
+
+The phrase with which the creator makes himself known (`bsi-spectra-creatore.js`)
+is not stored data: it is typed into a password field, its SHA-256 fingerprint
+is computed, compared with the File Manager's and discarded. The model receives
+only one line of context: whether the user has been recognised or not.
 
 ### 2.4 Identifiers and licence
 
@@ -251,14 +257,15 @@ everything. The groups are defined in `bsiCancellaDati()`.
 
 | Group | What it removes |
 |---|---|
-| `chiavi` | API keys, chosen provider, proxy address, memory of unreachable providers |
-| `chat` | Conversations and the assistant's memory |
-| `studio` | Spaced repetition, quizzes, study path, notes |
-| `tutto` | Every `bsi_*` key and the entire IndexedDB archive |
+| `chat` | Saved conversations and question history |
+| `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
+| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) and the creator recognition (`bsi-spectra-creatore-v1`) |
+| `ripasso` | Spaced repetition |
+| `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`) and study-kit progress (`bsi-studio:*`) |
 
-The hyphenated keys (`bsi-materia`, `bsi-studio:*`, `bsi-spectra-*`) are not
-part of the `bsiCancellaDati()` groups: Spectra's memory is erased with
-«forget everything», the study-kit progress only from the browser's settings.
+Left outside the groups: `bsi-spectra-ritratto-v4` (the icon derived from the
+face, which is regenerated) and `bsi-spectra-sentinella` (which removes
+itself).
 
 Deleting the archive proceeds even if a single entry fails, and reports how many
 were not removed: a "delete everything" operation that stops halfway without
@@ -280,4 +287,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v237`._
+_Document updated to version `bsi-v238`._

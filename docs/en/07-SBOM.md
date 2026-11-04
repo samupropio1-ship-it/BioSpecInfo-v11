@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v238` |
-| Commit | `7dc3f011df8f8c0646f9eda186923f345f1ca23b` |
-| Generated (UTC) | `2026-10-29T08:48:29.952Z` |
+| Commit | `ecc7a883380aad30afb2ae2f81c79cf437226b82` |
+| Generated (UTC) | `2026-11-04T10:16:24.185Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -69,58 +69,58 @@ availability.
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
 | `bsi-nmr.js` | 57 kB | Per-atom ¹H and ¹³C NMR prediction: applies the bsi-pretsch.js tables by walking the ring and measuring distances, with a cyclic reference compound and chemical equivalence by environment code. |
 | `bsi-geom3d.js` | 46 kB | 3D coordinates from a SMILES by distance geometry, carrying the NMR predictor's own atom indices: the precondition for the peak↔atom↔3D link. |
-| `bsi-fisica-comune.js` | 31 kB | The shared home of the physics sections: header, tabs, sliders, canvas charts, language. |
-| `bsi-fis-schrodinger.js` | 22 kB | 1D Schrödinger equation: finite differences, Sturm bisection, inverse iteration, Crank-Nicolson, Morse for real molecules. |
-| `bsi-fis-hartreefock.js` | 29 kB | Restricted Hartree-Fock in the STO-3G basis: McMurchie-Davidson integrals, Boys function, SCF with DIIS, molecular orbitals. |
-| `bsi-fis-rotovib.js` | 16 kB | IR and Raman rovibrational spectra of diatomics from molecular constants; combination differences. |
+| `bsi-fisica-comune.js` | 33 kB | The shared home of the physics sections: header, tabs, sliders, canvas charts, language. |
+| `bsi-fis-schrodinger.js` | 38 kB | 1D Schrödinger equation: finite differences, Sturm bisection, inverse iteration, Crank-Nicolson, Morse for real molecules. |
+| `bsi-fis-hartreefock.js` | 48 kB | Restricted Hartree-Fock in the STO-3G basis: McMurchie-Davidson integrals, Boys function, SCF with DIIS, molecular orbitals. |
+| `bsi-fis-rotovib.js` | 34 kB | IR and Raman rovibrational spectra of diatomics from molecular constants; combination differences. |
 | `bsi-fis-termostat.js` | 11 kB | Statistical thermodynamics: partition functions, entropy, heat capacity, Boltzmann populations. |
-| `bsi-fis-dinamica.js` | 12 kB | 2D Lennard-Jones molecular dynamics: velocity Verlet, thermostat, virial, radial distribution. |
+| `bsi-fis-dinamica.js` | 26 kB | 2D Lennard-Jones molecular dynamics: velocity Verlet, thermostat, virial, radial distribution. |
 | `bsi-fis-matematica.js` | 24 kB | Mathematics for chemistry: FFT of the FID, Hückel, Runge-Kutta for kinetics, least squares with errors. |
-| `bsi-fis-cristalli.js` | 20 kB | Crystallography: Bravais lattices, Miller indices, powder pattern with structure factor and absences. |
+| `bsi-fis-cristalli.js` | 44 kB | Crystallography: Bravais lattices, Miller indices, powder pattern with structure factor and absences. |
 | `bsi-fis-nucleare.js` | 14 kB | Radiochemistry: Bateman equations, radiometric dating, Weizsäcker semi-empirical formula. |
 | `bsi-mat-cas.js` | 67 kB | Computer-algebra engine: parser, exact fractions, canonical form, derivatives, verified antiderivatives, truncated series, limits. |
 | `bsi-mat-basi.js` | 26 kB | Mathematics basics: significant figures, logarithms and pH, equations with working, practice. |
 | `bsi-mat-funzioni.js` | 17 kB | Function analysis: domain, zeros, extrema, inflections, asymptotes; families and transformations. |
-| `bsi-mat-calcolo.js` | 21 kB | Derivatives with rules, integrals and Riemann sums, Taylor polynomials, limits. |
-| `bsi-mat-lineare.js` | 38 kB | Exact-fraction linear algebra: step-by-step Gauss-Jordan, determinant, inverse, eigenvalues, balancing as a null space. |
-| `bsi-mat-ode.js` | 21 kB | Differential equations: direction field, Euler/Heun/RK4, phase plane and equilibria from the Jacobian. |
-| `bsi-mat-multi.js` | 22 kB | Functions of several variables: surfaces, critical points from the Hessian, Maxwell relations, exact differentials. |
-| `bsi-mat-complessi.js` | 20 kB | Complex numbers (Argand plane, roots, Euler) and Fourier series. |
+| `bsi-mat-calcolo.js` | 34 kB | Derivatives with rules, integrals and Riemann sums, Taylor polynomials, limits. |
+| `bsi-mat-lineare.js` | 54 kB | Exact-fraction linear algebra: step-by-step Gauss-Jordan, determinant, inverse, eigenvalues, balancing as a null space. |
+| `bsi-mat-ode.js` | 38 kB | Differential equations: direction field, Euler/Heun/RK4, phase plane and equilibria from the Jacobian. |
+| `bsi-mat-multi.js` | 38 kB | Functions of several variables: surfaces, critical points from the Hessian, Maxwell relations, exact differentials. |
+| `bsi-mat-complessi.js` | 37 kB | Complex numbers (Argand plane, roots, Euler) and Fourier series. |
 | `bsi-mat-risolutore.js` | 110 kB | Mathematics exam solver: step-by-step working for 16 exercise types. |
 | `bsi-mat-esame.js` | 56 kB | Istituzioni di Matematiche I and II exam: syllabus, solver, solved papers, simulation. |
 | `bsi-fis-esame.js` | 135 kB | General Physics I and II exam: syllabus, 48 problem models, solved papers. |
 | `bsi-percorsi.js` | 9 kB | Study paths from high school to PhD for chemistry, physics and mathematics. |
-| `bsi-mat-probabilita.js` | 18 kB | Probability in motion: Galton, central limit, Monte Carlo, Bayes. |
+| `bsi-mat-probabilita.js` | 34 kB | Probability in motion: Galton, central limit, Monte Carlo, Bayes. |
 | `bsi-mat-visiva.js` | 24 kB | Visual mathematics: linear maps, Fourier epicycles, fractals, logistic map. |
-| `bsi-fis-em.js` | 21 kB | Electromagnetism in motion: charges, induction, generator, EM waves. |
+| `bsi-fis-em.js` | 44 kB | Electromagnetism in motion: charges, induction, generator, EM waves. |
 | `bsi-fis-suono.js` | 18 kB | Sound and acoustics with Web Audio: harmonics, timbre, Doppler, decibels. |
-| `bsi-fis-solido.js` | 16 kB | Semiconductors: Fermi-Dirac, doping, p-n junction, LEDs. |
+| `bsi-fis-solido.js` | 32 kB | Semiconductors: Fermi-Dirac, doping, p-n junction, LEDs. |
 | `bsi-chi-distillazione.js` | 17 kB | Distillation: Antoine, van Laar, McCabe-Thiele, Rayleigh. |
 | `bsi-chi-voltammetria.js` | 12 kB | Simulated cyclic voltammetry: diffusion and Butler-Volmer. |
 | `bsi-mat-numeri.js` | 16 kB | Numbers and cryptography: sieve, Euclid, modular arithmetic, RSA, prime distribution. |
 | `bsi-mat-grafi.js` | 22 kB | Graphs and optimisation: Dijkstra, Kruskal, gradient descent, linear programming. |
 | `bsi-mat-serie.js` | 32 kB | Sequences and series: ε–N limit, tests, rearrangement, radius of convergence. |
-| `bsi-mat-variazioni.js` | 38 kB | Calculus of variations: brachistochrone, catenary, catenoid, Fermat. |
-| `bsi-mat-topologia.js` | 43 kB | Topology: Euler characteristic, surfaces, fundamental polygons, knots. |
+| `bsi-mat-variazioni.js` | 51 kB | Calculus of variations: brachistochrone, catenary, catenoid, Fermat. |
+| `bsi-mat-topologia.js` | 57 kB | Topology: Euler characteristic, surfaces, fundamental polygons, knots. |
 | `bsi-mat-algebra.js` | 45 kB | Algebraic structures: dihedral groups, permutations, finite fields, Lagrange. |
 | `bsi-mat-giochi.js` | 36 kB | Game theory: Nash, iterated dilemma, minimax, Nim. |
 | `bsi-mat-logica.js` | 46 kB | Logic and computability: truth tables, circuits, Turing machine, sets. |
 | `bsi-mat-inferenza.js` | 39 kB | Statistical inference: intervals, tests and power, regression, bootstrap. |
-| `bsi-mat-noneuclidea.js` | 48 kB | Non-Euclidean geometries: sphere, Poincaré disk, curvature and parallel transport. |
-| `bsi-fis-gravita.js` | 18 kB | Gravitation: N bodies with Verlet, Lagrange points, gravity assist. |
+| `bsi-mat-noneuclidea.js` | 66 kB | Non-Euclidean geometries: sphere, Poincaré disk, curvature and parallel transport. |
+| `bsi-fis-gravita.js` | 35 kB | Gravitation: N bodies with Verlet, Lagrange points, gravity assist. |
 | `bsi-fis-calore.js` | 17 kB | Heat and diffusion: 1D and 2D heat equation, Newton cooling, walls. |
-| `bsi-fis-ising.js` | 14 kB | Ising model: Metropolis, phase transition, hysteresis. |
-| `bsi-fis-particelle.js` | 40 kB | Particle physics: Standard Model, conservation, invariant mass, lifetimes. |
+| `bsi-fis-ising.js` | 26 kB | Ising model: Metropolis, phase transition, hysteresis. |
+| `bsi-fis-particelle.js` | 59 kB | Particle physics: Standard Model, conservation, invariant mass, lifetimes. |
 | `bsi-fis-analitica.js` | 40 kB | Analytical mechanics: phase space, double pendulum, Noether, Liouville. |
 | `bsi-fis-laser.js` | 34 kB | Lasers and quantum optics: threshold, cavity modes, Rabi, Mach–Zehnder. |
 | `bsi-fis-clima.js` | 34 kB | Climate physics: radiative balance, CO2 forcing, ice-albedo, Coriolis. |
-| `bsi-chi-fasi.js` | 20 kB | Phase diagrams: water and CO2 (IAPWS, Span-Wagner), eutectic, Clapeyron. |
-| `bsi-chi-pes.js` | 17 kB | LEPS potential energy surface for H + H2 and trajectories. |
+| `bsi-chi-fasi.js` | 38 kB | Phase diagrams: water and CO2 (IAPWS, Span-Wagner), eutectic, Clapeyron. |
+| `bsi-chi-pes.js` | 33 kB | LEPS potential energy surface for H + H2 and trajectories. |
 | `bsi-articoli-nobel-fisica.js` | 118 kB | Topic explanations of the Nobel Prizes in Physics (no data). |
 | `bsi-articoli-premi-matematica.js` | 123 kB | Topic explanations of the Abel Prize and Fields Medal (no data). |
 | `bsi-materie.js` | 11 kB | Subject switch buttons: chemistry, physics, mathematics. |
 | `bsi-fis-astro.js` | 36 kB | Astrophysics: H-R diagram, black body, solar system, exoplanets, cosmology. |
-| `bsi-fis-relativita.js` | 15 kB | Special relativity: Minkowski, twins, dynamics. |
+| `bsi-fis-relativita.js` | 30 kB | Special relativity: Minkowski, twins, dynamics. |
 | `bsi-materie-app.js` | 15 kB | Three apps in one: the chosen subject adapts the ✨ menu, Spectra, Study and Utility. |
 | `bsi-attrezzi.js` | 23 kB | Quick tools of the ✨ menu for physics and mathematics: calculator, derivative, graph, constant, units, formula, glossary, quiz. |
 | `bsi-studio.js` | 66 kB | Study-kit engine: summaries, quizzes, Leitner flashcards, formula sheet, glossary. |
@@ -146,23 +146,24 @@ availability.
 | `bsi-mat-analisicomplessa.js` | 70 kB | Complex analysis: domain colouring, conformal maps, Joukowski, residues. |
 | `bsi-mat-markov.js` | 65 kB | Markov chains and stochastic processes: PageRank, gambler's ruin, walks, queues. |
 | `bsi-mat-svd.js` | 58 kB | SVD and applied linear algebra: 2×2 and 3×3 SVD, compression, PCA, least squares. |
-| `bsi-mat-codici.js` | 59 kB | Codes and elliptic curves: Hamming, CRC, curves over ℝ and F_p, ECDH. |
-| `bsi-spectra-live.js` | 71 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
-| `bsi-spectra-androide.js` | 33 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
+| `bsi-mat-codici.js` | 60 kB | Codes and elliptic curves: Hamming, CRC, curves over ℝ and F_p, ECDH. |
+| `bsi-spectra-live.js` | 96 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
+| `bsi-spectra-androide.js` | 44 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
 | `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
 | `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
 | `bsi-spectra-volto.js` | 16 kB | Last-resort face: SVG vector portrait. |
+| `bsi-spectra-creatore.js` | 6 kB | Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control). |
 | `bsi-aggiorna.js` | 5 kB | «Check for updates»: version in use from the service worker, published version from sw.js. |
-| `bsi-fis-fluidi.js` | 15 kB | Fluids: Venturi and Bernoulli, viscosity and Stokes, capillarity. |
-| `bsi-mat-vettoriale.js` | 23 kB | Vector calculus: fields, Green, gradient. |
-| `bsi-chi-cinetica.js` | 17 kB | Complex kinetics: composite and oscillating reactions, Turing patterns. |
-| `bsi-fis-meccanica.js` | 23 kB | Mechanics in motion: projectile with air, collisions, real pendulum, coupled oscillators. |
-| `bsi-fis-onde.js` | 20 kB | Waves and optics: superposition, lenses and mirrors, diffraction. |
+| `bsi-fis-fluidi.js` | 31 kB | Fluids: Venturi and Bernoulli, viscosity and Stokes, capillarity. |
+| `bsi-mat-vettoriale.js` | 43 kB | Vector calculus: fields, Green, gradient. |
+| `bsi-chi-cinetica.js` | 31 kB | Complex kinetics: composite and oscillating reactions, Turing patterns. |
+| `bsi-fis-meccanica.js` | 37 kB | Mechanics in motion: projectile with air, collisions, real pendulum, coupled oscillators. |
+| `bsi-fis-onde.js` | 33 kB | Waves and optics: superposition, lenses and mirrors, diffraction. |
 | `bsi-fis-circuiti.js` | 17 kB | Circuits: RLC transients, alternating current, filters and Bode. |
-| `bsi-fis-termo.js` | 25 kB | Thermodynamics in motion: cycles, particle gas, Brownian motion. |
+| `bsi-fis-termo.js` | 44 kB | Thermodynamics in motion: cycles, particle gas, Brownian motion. |
 | `bsi-mat-numerici.js` | 24 kB | Numerical methods: roots, integration, ODEs, interpolation with measured orders. |
 | `bsi-mat-geometria.js` | 24 kB | Analytic geometry and vectors: vectors, lines and planes in 3D, conics. |
-| `bsi-chi-equilibrio.js` | 13 kB | Chemical equilibrium and Le Chatelier: kinetic simulator and K(T). |
+| `bsi-chi-equilibrio.js` | 27 kB | Chemical equilibrium and Le Chatelier: kinetic simulator and K(T). |
 | `bsi-lab3d.js` | 63 kB | 3D Laboratory: surfaces, |ψ|² orbitals, motion in space, crystal structures and Miller planes, field lines (three.js). |
 | `bsi-vista-molecole.js` | 8 kB | Quality settings and control bar for every 3Dmol molecular viewer. |
 | `bsi-assistente.js` | 71 kB | The three macro-areas Chemistry, Physics and Mathematics: natural-language assistant with full working and inverse problem, tool catalogue, levels. |
@@ -189,68 +190,68 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `edfc0bb143be1e408a037c80f3f46fe01d49c78f0aad79210d5677f295926165` |
-| `bsi-ai-hub.js` | `1bc2fd5a625b8ea2f8fa488a2ed79e7fa52e2d969998a732e408ca30dd3a10c8` |
+| `index.html` | `832e18099bd5876cbfa1e2a6cd5c6e671525a8593ab6ba0d976b080e4aa25e54` |
+| `bsi-ai-hub.js` | `e19d6d3d2c56061268e094c4ed917357adf92ea269bb5c5e8a477d82ae0c45b1` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
 | `bsi-nmr.js` | `881917dbb141dfcbab9a25b9c518eaa4a8c1c52dc1020cbac90985a1cf859b72` |
 | `bsi-geom3d.js` | `a616b91efa8f790388c99f22cc9f2d48630cb760d4f7fa87f92b99b9db106054` |
-| `bsi-fisica-comune.js` | `8ec1678339245dcbd3f416807d0840bc8b5caebe6f99c39a510bbffa68353584` |
-| `bsi-fis-schrodinger.js` | `b032084511102c7231bcb244b5bb647128a080a18e9e6d706ec4c727ac29d17d` |
-| `bsi-fis-hartreefock.js` | `8210d2a1501fe6e3f57c0ce8a0e6d5d78432274792833d50bc2e821fc7566fde` |
-| `bsi-fis-rotovib.js` | `428182687a76111f013986127ee49beb7393498387b146bd0694ff16bea7d909` |
+| `bsi-fisica-comune.js` | `5fe08ef43a14a93e09caef439a07f0742221bdf1d395ce1c50dfed9e90cc73bb` |
+| `bsi-fis-schrodinger.js` | `9954f7b14d9c84a2539480c2e61b468f2c37c72d03b3a6147d414c9870480d9b` |
+| `bsi-fis-hartreefock.js` | `541b5340edbb392f5f85d473f430a586282a848e0dc432b752ab898407582c84` |
+| `bsi-fis-rotovib.js` | `0ce3ad61451a86506e9e653776d73b9e2cd21986c84a00e65db0fb6290ebbdde` |
 | `bsi-fis-termostat.js` | `0bb9f04d7d5b144791764fa4efd9f8e658be5b5d78b40f94e18752c2366589a9` |
-| `bsi-fis-dinamica.js` | `f1d76c737ce7f75cdc9c75665194180a4cdf401e47a105583838f31c85c9b906` |
+| `bsi-fis-dinamica.js` | `0b1ab11071eab8a1af5def46919bc73aa2dbd9dd58c77cea30aa6dee020f4755` |
 | `bsi-fis-matematica.js` | `616a2d4f338fe1d371f5ba3fd4fe569e94b2d94626a8d323bba8ae58f8550f62` |
-| `bsi-fis-cristalli.js` | `f5283d63ff075ddc19f9d200194528366f38294909db5872e7604b46e0a7d7d5` |
+| `bsi-fis-cristalli.js` | `02e2224e77713d071720d6394452a21eb8e9e1c9103871f41193e82f346fe805` |
 | `bsi-fis-nucleare.js` | `8ae148a2f37a40f6902faa4148e44468b4d659b6c7d1230378de92c2703a5874` |
 | `bsi-mat-cas.js` | `eea3a1eef74d31d3fde78b7e4a2795169e8af0f357edc10050eb98d8eaf386ac` |
 | `bsi-mat-basi.js` | `db30e16c58bde3638f13de5c3311a00598628676b7b418dc023b175efa77c214` |
 | `bsi-mat-funzioni.js` | `68f8780d4fb4fcda6f028e4749adef333253efbf270d0caab47def5bdf30c66c` |
-| `bsi-mat-calcolo.js` | `c3363448c4d773d29c4f680eddb79e9ad55a5eb87b033a728754df8cbee2a631` |
-| `bsi-mat-lineare.js` | `da33ea18f2b14c21c6e630be4a1ccfe2e35e911489bdd4ededd60c0f533ac94f` |
-| `bsi-mat-ode.js` | `698725d49dc2bf862161914e41d38c3fafd33069021eae3b11b4973c146b52ce` |
-| `bsi-mat-multi.js` | `1040861c3b9d340febe8c4a78d212b168eb42752ee22589facf8566a401234d7` |
-| `bsi-mat-complessi.js` | `52a2ac5594a697d3a008d9fd629bee60fcff96ea76aa16c2ccda63eafd43f316` |
+| `bsi-mat-calcolo.js` | `3d5cff0520cf385dfe35af1b3f916a66c5afb4ff60d880f04123ac5fe73a9279` |
+| `bsi-mat-lineare.js` | `a84ca3fb6720da50f474633152b84e03e1d2287e3271cdadca790b735c69d686` |
+| `bsi-mat-ode.js` | `bfbb1528e5d025d7492c69503115dc0dfb1c50fbbd6735133306ad1327830163` |
+| `bsi-mat-multi.js` | `5a025543a12c66994e8ac08a2705da5761eac8bbcc5a5be471536372762b2e37` |
+| `bsi-mat-complessi.js` | `8ad8fff97934e7224d97523decec29bb3b4bc4631dc20cc6ea78a0caec69320b` |
 | `bsi-mat-risolutore.js` | `709349e1d81f03506c02b9b05a060d8d3801dc37183c0e3894cc93c0aafe9f0c` |
 | `bsi-mat-esame.js` | `de4af253244bd7d610b1a3607297d1678a529504afa23d7123aebe042e1f2c27` |
 | `bsi-fis-esame.js` | `c9ffb883e94a07b7cda3777b34d6141bd4c47bb3c9857218a9a37f65f8728947` |
 | `bsi-percorsi.js` | `950c686202f2934009827bc300c787063b325528b7d5ab5385a8ab3b6706345c` |
-| `bsi-mat-probabilita.js` | `4518252496dfee0770f9e939ef2de831ac463d2d994d96d40776c59f10cd417b` |
+| `bsi-mat-probabilita.js` | `adc628789ec90772c14ce0e61aed74981cf60b261ac15ff6076d1d4b3e8d0bec` |
 | `bsi-mat-visiva.js` | `cb624f3e1e6c6df94c287f961d0f21a9d8ec852e8245ff5aeed09a083f2c5b14` |
-| `bsi-fis-em.js` | `b20c7103f1253c76691c7cf91eae6c83491148f0aeb0928a78495a3dba270c7c` |
+| `bsi-fis-em.js` | `1c45fb608ccda1e500ab3038998cee4cb9c27b091c0b1d1b4f7af0137bf9a6ab` |
 | `bsi-fis-suono.js` | `fead9e5dde961fc56c3a649cce6e8eed23046f327c8392dbfd8de5024cf0a1bf` |
-| `bsi-fis-solido.js` | `5b6a023a84434f6fd52167e1de7a025342915d7d3287173db89901b503641cd4` |
+| `bsi-fis-solido.js` | `e185ce2e4f5cb4e1101bbb5d398fa3893a017c8df8fa4a26246291fda60ca2ad` |
 | `bsi-chi-distillazione.js` | `8d13592cf7523c1dd159d3e954947a4956e44539308312dc97cd3588207fcfc0` |
 | `bsi-chi-voltammetria.js` | `4db1a71e0ac3569b821f6cc5280470453f3a4df5c62b9695a3339367c5aa3e41` |
 | `bsi-mat-numeri.js` | `f30d041cd9963342aa476e128e4b29d543e113d3483253377ea486de3d46484f` |
 | `bsi-mat-grafi.js` | `4670e67bd25b97d4c7d2b8e72b03ed8ed4f6e6aa5c1c43dd74c56b437c1c8c33` |
 | `bsi-mat-serie.js` | `722b1a1b7397b7710689af555d1fd60de73ee405f5061819d9e59d7f4631d060` |
-| `bsi-mat-variazioni.js` | `067d676d0c04d00704b6b9feea4291629feec132d78270569327fe5afb3bb29a` |
-| `bsi-mat-topologia.js` | `6690c261fc8b584c399c7af58f6ea2f96a1e9c56da97a0afdc281e7cc69ff14e` |
+| `bsi-mat-variazioni.js` | `ccb7379618067a0412d27fe95cb19d5823e0c0b739a371afc7cc69f162a5ca7a` |
+| `bsi-mat-topologia.js` | `87a8df768b8fa968608b52462df4340484ccaeb7ed3e6a987987a62603ceb8fa` |
 | `bsi-mat-algebra.js` | `59d66b5c6be431f49e5808e5c78758a7ca3cc33fba6155e56457f13dec14e237` |
 | `bsi-mat-giochi.js` | `d1ae8048acab5a518f1ca9c9ef31e4c9346459c7a0d83ec935733a57465c4b72` |
 | `bsi-mat-logica.js` | `26cfc591156a6c232dd40938252ce238374a6a678f08557d3bcfa899a5d0785e` |
 | `bsi-mat-inferenza.js` | `4dadc036537e3833e396ab5dfa9968f0ccab398ccc18959ab474e6652d27e43c` |
-| `bsi-mat-noneuclidea.js` | `4f5751bc0fbd2a1813797656f752fa16760e30032dbbdc4e1695596ec2ea8849` |
-| `bsi-fis-gravita.js` | `8ebd280a63f5b80370cc6a9330787ae1bf3058082713f7340f17ac5bc4e4d5d5` |
+| `bsi-mat-noneuclidea.js` | `a687dbe43e91cacc5b2287af6e135188363e49644cd870b48db9b4a66d555119` |
+| `bsi-fis-gravita.js` | `195d35280eb3484f0374b9e51801e96634c797ba21209fce1bdb7b8aed867e33` |
 | `bsi-fis-calore.js` | `81b9c1c60c7ba5a022f2f95e36ac17274ed1e2027d0ba36bcc24f8d6243ad3b8` |
-| `bsi-fis-ising.js` | `6ff592edd42ca364589ec0ab1670fa9e502c445042959898e994073a6d6b7161` |
-| `bsi-fis-particelle.js` | `0ea36a93387c4000b08ca834a6bdd82f7b232009e84b1b9c9b6ab99726dcdb63` |
+| `bsi-fis-ising.js` | `8ccd29082a4388ce63bdc1e39d9aa5fa92322e378384df0951d98bde6fe79b8c` |
+| `bsi-fis-particelle.js` | `4dce551cb464150e0faae0bcddcea8340596921873104503bd6a2dd10b41140c` |
 | `bsi-fis-analitica.js` | `01b4178998372c6db7d18a312c5a5ed1c8c26267bd0b72ae63ad6fbf92ba2895` |
 | `bsi-fis-laser.js` | `8f876f1552b50b22643526a2d16a4a8b0c0bbf5b8d9161d325f38efd16c917fa` |
 | `bsi-fis-clima.js` | `8e136c02f7559cd22d57ccd857d06f8d6a6a89b2f38790d2782e6a45a7f2c822` |
-| `bsi-chi-fasi.js` | `afa26d00f28caa1d462c5a8cfd74ca33e4595b5cf0b8214ece3d6ddc12140f21` |
-| `bsi-chi-pes.js` | `528b9e19a40cdbe601f45d29fb38e71dfdb8a00ccd8360a0abfd320d1a1d01f4` |
+| `bsi-chi-fasi.js` | `99854760b11db89cf853bb4c2be08d00f018fb510fd6a56aff1c3006e68ed1af` |
+| `bsi-chi-pes.js` | `c4e74b909e7987275930b05c0c25cdc0968bcf338ea78a144bc7ff949a821e36` |
 | `bsi-articoli-nobel-fisica.js` | `afc22b073e64168605b3d792cd83bcdf7d838e0c80548a0a58caae98456d7d30` |
 | `bsi-articoli-premi-matematica.js` | `d62f01d66783d7fb558684959abd1cda2f81ee6885c8cdc0879559f2b64cbf43` |
 | `bsi-materie.js` | `763063fb3d3c1e43da8066c6febab6309f889a6550e7da1f45ce1d001c27c314` |
 | `bsi-fis-astro.js` | `64901258a641c54ee99a862990a7e5d86acc5c2367408bb38db9371a39c7363e` |
-| `bsi-fis-relativita.js` | `276d4e4c2df5b416fc4af4b29fa10e8670cb1b7ff8279e192abba7c1015b18ce` |
+| `bsi-fis-relativita.js` | `d90cb347a69e668fde69df4805815938f8da8b9a5f288ce7a16914aa0fec32bd` |
 | `bsi-materie-app.js` | `a9d57912a69bf7c599a6c4d16be815be4e654ab424daeca0e12f02c00904911f` |
 | `bsi-attrezzi.js` | `dedf9939e96c9544239f5769b68f0547604aff78e3ee3f47906afddcf1e20a38` |
-| `bsi-studio.js` | `62d001d311fa5a54df8807734bd1c2b389c730b8e6c8a6eb0f29a04d8982f410` |
+| `bsi-studio.js` | `aa1c97df67465affd4f7d0c96240b0d0ae6dd9d8c8dd6bf3c93abe9cef49e377` |
 | `bsi-studio-fisica.js` | `973bab09dad47980f0d411aef35ff0378f2266030c3fcb14e1cefe64eb63531b` |
 | `bsi-studio-matematica.js` | `3a2d88a7f9cea52bc5c46bf86018904b2d032320726988759b3e0fb84110c5c7` |
 | `bsi-risorse-materie.js` | `03e2fa89af1157985cdab1a08c60153ed57d8c648a5f7b67cd3f5d910c43e417` |
@@ -273,23 +274,24 @@ availability.
 | `bsi-mat-analisicomplessa.js` | `0eb6e5181471af7e85eb3ee42012daddbe1fdac932c0c4c28cf67135875302d8` |
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
-| `bsi-mat-codici.js` | `1be8fa29332df98115db6402881d621c1806599129aa279ee5678ef586445795` |
-| `bsi-spectra-live.js` | `1ea2fe073f0b0e8ea5690c2802e26198c83ac8539eaa609754dd18895e56a464` |
-| `bsi-spectra-androide.js` | `90ee017923c2899233cd1950e9d63c22dcd8d9daf0fcfc711e3482aa5b6dfcdf` |
-| `bsi-spectra-mente.js` | `bd2bd20245ee552520fdc3af471a5850aec2a72c40e0d6d807211c2464e0cf34` |
+| `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
+| `bsi-spectra-live.js` | `948940a1c4ec085d31d3b9c80c84e74435c97a2a2f19f852626b366fc21480af` |
+| `bsi-spectra-androide.js` | `c29db9297c60e6304c3d81a645f25b47e1e43d091c9b7f65baf922e25adb1b4e` |
+| `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
+| `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
 | `bsi-aggiorna.js` | `5950d90103a7d603175e4b577e2394bb9a6d006a4ff22e48d4a1cc70661f1b8e` |
-| `bsi-fis-fluidi.js` | `65d94ea45133f9537fd3af0feb96b12539a866cde8c12a29cb48c5156b001b9e` |
-| `bsi-mat-vettoriale.js` | `fc3116f45b849118cf41c23f13cc2c07f1d9bdd03341baf6cc81b152a5b6225e` |
-| `bsi-chi-cinetica.js` | `8ba3ad927e4a1858779ffd8ba798c1211a844475b1ad4b571cd1acfd41ea30b0` |
-| `bsi-fis-meccanica.js` | `07d67eb501958079347fa1905a9c212ca2a588c5d1930f615bd0bd07b36a9279` |
-| `bsi-fis-onde.js` | `23bc4412088de214ad1f6f2671c2507eadd08ff252f21966f557c31ed6dae073` |
+| `bsi-fis-fluidi.js` | `33b66d5c555b28b0b65224aef0d23b1f113fdc402ef58e00de4e2c630e38fc7f` |
+| `bsi-mat-vettoriale.js` | `ced5e1917ee286455c37ca008c9154b74118ef40021c7df6b97561437c544fdb` |
+| `bsi-chi-cinetica.js` | `e1a42d19404deb16f0c9cf9ac19de6b0970c955ec7b4427c4838ca97705bf3b4` |
+| `bsi-fis-meccanica.js` | `a73522108a4fdcd7b99719157b87111af8520f219c3a086d6d73eee6fefed569` |
+| `bsi-fis-onde.js` | `83ac1416df79f6fde4057382143fce24f9c6bb178f10fd44d44c96c0ffe6660a` |
 | `bsi-fis-circuiti.js` | `098679cdbb52241b6035e23076c82a25fe3d9a72b6f5bf7d4f880f887223f375` |
-| `bsi-fis-termo.js` | `c04fc820b4d874b41b18407b200410d8b8862b3e20f8813660ad009f6af67d3b` |
+| `bsi-fis-termo.js` | `61a151f01860e31d7c5470d6ace6e6ee8d007c4797f316cf6b005d8de21d8224` |
 | `bsi-mat-numerici.js` | `8656bdf657dcc3468f78951ed3d8e1056d953b147e04595c6bfaad647fa8ca93` |
 | `bsi-mat-geometria.js` | `609bf6c951d438aa0b0639fd2e736a52b340a363294ee564acfe9510966334be` |
-| `bsi-chi-equilibrio.js` | `de2368be8299a4ebdce9401b77c7bea390208f1372460f17f033e27d0ead88af` |
+| `bsi-chi-equilibrio.js` | `15d9d99c63c1db49dc3834b7b1db83f5ad2e03d1b9cc1b2f69cdb8ba6cffcefd` |
 | `bsi-lab3d.js` | `9b1424f3ad744cc2abd42be04f9db0907578452ecb66156e2c809a5c774a1604` |
 | `bsi-vista-molecole.js` | `4a7eb7cd7d8a0033ad0381d936d8e36b2b2e6b75af04988ecc5e9f4e8022cbc4` |
 | `bsi-assistente.js` | `00053872ed83218c81b8867b075a5142c6108dbc1f41e7693df1e9aa0897c4f8` |
@@ -306,7 +308,7 @@ availability.
 | `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `6dc41fca07ff8e6d16ade0ec93989f6e3890378717702f87a677da09fea1e998` |
+| `sw.js` | `5d0d06381d62bdffe07f4665b31be5d541871d1923558996e10d8cba243fc97c` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -359,4 +361,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-10-29T08:48:29.952Z._
+_Generated on 2026-11-04T10:16:24.185Z._

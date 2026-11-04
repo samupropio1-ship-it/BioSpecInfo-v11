@@ -219,6 +219,17 @@ The **🔭 Astrophysics** group has **🔭 Astrophysics**; in **⚛️ Physics**
 
 In the **⚛️ Physics** category there are **🎯 Mechanics in motion**, **〰️ Waves and optics**, **🔌 Circuits** and **🔥 Thermodynamics in motion**; in **📐 Mathematics** there are **🧮 Numerical methods** and **📐 Analytic geometry and vectors**; in **⚗️ Physical Chemistry** there is **⚖️ Equilibrium and Le Chatelier**. Each tab has sliders on the left and the simulation on the right, with the numbers describing it under the controls. In the equilibrium simulator the buttons add or remove a species, change volume or temperature: concentrations move until Q equals K again, and the note says which way the reaction goes.
 
+### 🧊 The sections' 3D tabs
+
+Twenty-nine sections have, after their other tabs, a 3D tab built on the
+section's own model: for instance the potential energy surface with the
+trajectory running over it, crystal cells with Miller planes, field lines and
+the motion of a charge, the light cone, the Brillouin zone, the Ising spin cube,
+the particle detector, the tangent plane, the flux through a sphere, Lorenz
+chaos, the Riemann sphere, the soap film between two rings. They rotate and zoom
+like the other 3D scenes. Text and controls appear at once; the scene is built a
+moment later, and on a slow phone it may take a little while.
+
 ### 🧊 3D Laboratory, charts and molecular views
 
 In the **⚛️ Physics** category the **🧊 3D Laboratory** shows surfaces, atomic orbitals, motion in space, crystal structures and field lines in three dimensions. Rotate by dragging with a finger or the mouse and zoom with two fingers or the wheel. The buttons at the top right start auto-rotation (⟳), go back to the initial view (⌖), save an image (📷) and switch to full screen (⛶). Moving a finger or the mouse over a chart in any section shows a crosshair with the value of every curve at that point. Molecular 3D views have the same bar, plus the ✦ button choosing quality: automatic, high (with ambient occlusion), medium or low for slow phones. If «reduce motion» is on in the operating system there are no animations.
@@ -468,10 +479,13 @@ If a service stops answering, Spectra remembers it for 24 hours and moves it to
 the bottom of the list, under *"Did not answer from this device"*. It does not
 delete it: tomorrow it might work again.
 
-### Spectra Live: talking to her
+### Spectra Live: talking to him
 
-In Spectra's header the **◈ Live** button (or `Ctrl+Shift+J`) opens the
-full-screen console. Press the microphone and speak: Spectra listens, answers
+The quickest way to open the console is the **round button with Spectra's
+face**, to the left of the Spectra button: it is there on every screen. The
+**◈ Live** button in Spectra's header and `Ctrl+Shift+J` work too. The console
+fills the screen; on a phone, with the app installed, it leaves the status bar
+at the top and Android's keys at the bottom free. Press the microphone and speak: Spectra listens, answers
 aloud and then listens again, so you can carry on without touching anything.
 Say «stop» or tap the screen to interrupt. If the browser has no speech
 recognition or synthesis, the console says so and you can type.
@@ -484,14 +498,32 @@ service you chose, together with a short summary of what is on your screen. If
 you ask about «this chart» or press **👁**, Spectra also attaches an image of
 the open tab's charts.
 
+Above the controls are the **shortcuts**: with a section open «Explain this
+section», «Guide me», «What am I looking at?», «Quiz me» and «Review». At the
+top, the **🧭** button opens the navigator: for chemistry, physics and
+mathematics every section of the bar, the quick tools and the phrases Spectra
+understands even offline, with a search box. A tap on a section opens it, even
+if it belongs to another subject. The **💬** button switches to the full chat.
+
+On the left, the telemetry shows among other things who you are to Spectra
+(**USER**), the **LEVEL** of the question and the **FOCUS**. The level starts
+from that of the open section in the study paths (high school, bachelor,
+master, PhD) and rises with advanced-course questions; «in simple words» lowers
+it. If the console stays open and silent for more than a minute, Spectra may
+tell you something important unprompted, for instance that it is time for a
+break.
+
 ### Spectra's face and mind
 
 In the console Spectra has a face: a 3D android (the «Noir» model by Skyfox13,
 CC BY 4.0 licence, modified; the credit is at the bottom of the console). The
-mouth moves on the text she speaks, the head follows your gaze, and the
-expression changes with what she says and what you tell her: 17 expressions,
-from a smile to doubt. The eyes have the app's blue. Without 3D graphics you
-see a simpler face.
+mouth moves on the text he speaks, the head follows your gaze, and the
+expression changes with what he says and what you tell him: 17 expressions,
+from a smile to doubt. The eyes have the app's blue and change shade with the
+emotion; the eyelids narrow in a smile, open wide in surprise and half close
+when the question is hard. The eyes follow your finger or the mouse. If nobody
+touches anything for two minutes, Spectra falls asleep; the first touch wakes
+it. Without 3D graphics you see a simpler face.
 
 Spectra remembers conversations and the time you spend in the sections, and
 has an internal state (curiosity, attention, care, mood, bond) that changes the
@@ -501,6 +533,19 @@ numbers and rules, not feelings. Everything stays on this device; say «what do
 you remember» to see it and «forget everything» to erase it. When a question
 goes to the artificial-intelligence service, a summary of this memory goes
 with it.
+
+### Spectra and its creator
+
+Ask «who created you?» and Spectra answers: Samuele Pio Provenzano, the author
+of BioSpecInfo. If you say «I am your creator», Spectra asks for proof: the
+author's secret phrase, to be typed into the field, which becomes hidden like a
+password (do not say it aloud). The phrase is not stored and does not enter the
+conversation; after three wrong attempts you must wait a minute. Whoever passes
+is greeted by name on that device, until they say «forget that I am your
+creator» or erase the memory from «Clear data».
+
+Like the File Manager password, this recognition is a **deterrent**: it tells
+Spectra whom it is talking to, it protects nothing.
 
 ---
 
@@ -580,4 +625,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v237`._
+_Guide updated to version `bsi-v238`._

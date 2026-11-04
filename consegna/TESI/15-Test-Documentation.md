@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v237` |
+| **Versione descritta** | `bsi-v238` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**77 banchi**, raggruppati per ciò che dimostrano.
+**79 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -122,6 +122,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 | `test_approfondimenti` | **Numeri, grafi, gravitazione, calore, Ising, diagrammi di fase, superficie LEPS** contro risultati noti o un secondo metodo (π(x), RSA, Li(x), Floyd–Warshall, Prim, figura a otto, Lagrange, Onsager, IAPWS, Span–Wagner, eutettico misurato, sella di H₃); nel browser le 25 schede su due schermi; i **pulsanti delle materie** (gruppi visibili, icone, materia ricordata, nessuna sezione irraggiungibile) |
 | `test_pareggio` | Le **dodici sezioni** che portano matematica e fisica al livello della chimica: esegue i dodici script di `verifiche/` (462 controlli contro risultati noti o un secondo metodo), apre le 47 schede su due schermi, controlla che ogni scheda si apra in meno di 100 ms e che matematica e fisica abbiano il numero di sezioni dichiarato |
 | `test_v237` | Le **venti sezioni nuove** (dieci di astrofisica, cinque laboratori di fisica, cinque di matematica): esegue i loro venti script di `verifiche/` (705 controlli contro valori pubblicati o un secondo metodo, §3.1-bis) e quelli dei kit di studio e delle risorse; nel browser apre ogni scheda a **1280 e 390 px**; prova il volto, le emozioni e la mente di Spectra e i nomi delle sezioni in inglese. Pretende almeno 900 controlli | 1061 |
+| `test_3d238` | Le **schede 3D nuove di 29 sezioni** di chimica, fisica e matematica: esegue i loro 29 script di `verifiche/` (311 controlli contro valori noti, una forma chiusa o un secondo metodo, §3.1-ter); nel browser apre ogni scheda delle 29 sezioni a **1280 e 390 px** e pretende schede piene, senza ⚠, tele disegnate e con un nome, l'ultima scheda una scena 3D che disegna, lavoro sincrono al clic sotto i **250 ms**; a 390 px niente sborda; nessun errore JavaScript | 488 |
 | `test_sellingua` | Il cambio lingua tondo, su **due viewport** (1280 e 390 px): il pulsante si vede, è tondo, in alto a destra, **all'altezza del titolo misurata** come sovrapposizione dei due riquadri, con un nome accessibile che dice che cosa fa; il disco con le quattordici bandiere su due gusci **dentro lo schermo**; e **nei due versi** la lingua che cambia davvero, la bandiera che segue, il disco che si chiude e, tornando all'italiano, il testo identico a prima. **30 controlli**, minimo dichiarato 30 | 30 |
 | `audit_statico` | Le classi di bug che questo progetto ha già avuto, cercate in **tutti** i file invece che dove si sono manifestate: `calc()` senza spazi (il browser scarta la regola), segreti nei log, chiavi API nel codice, password in chiaro, `target="_blank"` senza `noopener`, id duplicati nel markup, script sbilanciati. Il rapporto **segnala e non blocca**, perché quelle classi hanno falsi positivi. Tre misure invece **bloccano**, e hanno un riferimento scritto: blocchi di codice duplicati verbatim (**0**), funzioni globali ridefinite (**11**, lo stile «patch additivo» dichiarato del file), di cui con corpi identici (**0**). Se crescono, la batteria fallisce | 3 cancelli |
 | `test_articoli` | Che nessuna funzione abbia due porte d'ingresso, e che gli articoli non siano scritti a mano. Dieci schede dentro un solo Centro spettri, con ogni identificatore presente nel documento **una volta sola**; nessun id ripetuto, nessun pulsante doppio, nessuna sezione raggiungibile da due strade; Spectra fuori dal menù e con il suo pulsante dedicato. Poi gli articoli: i link provati come **funzioni pure** dell'identificatore, le spiegazioni dei Nobel abbinate all'argomento della motivazione e **nessuna** inventata quando non si riconosce, e la prova decisiva — una risposta **iniettata** con un nome inesistente, che deve comparire sullo schermo. **Tre guasti distinti**: richiesta fallita, risposta vuota, forma non riconosciuta | 58 |
@@ -224,6 +225,58 @@ tavole).
 > schede 3D misurerebbe SwiftShader, non l'app; una soglia larga sulle 2D
 > lascerebbe passare un blocco vero.
 
+### 3.1-ter Le schede 3D della v238: che cosa è verificato
+
+Ventinove sezioni ricevono in coda una scheda 3D costruita sul modello della
+sezione. Ogni scheda ha uno script `tools/banchi/verifiche/verifica-<id>-3d.js`
+(per Topologia e Geometrie non euclidee i controlli sono stati aggiunti allo
+script della sezione) che si esegue da solo con `node`. Due esempi per scheda,
+con il valore che lo script stampa:
+
+| Sezione · scheda 3D | Script | Controlli | Esempi |
+|---|---|---:|---|
+| 🏔️ Superficie di energia potenziale · 🧊 Superficie 3D | `verifica-schipes-3d` | 9 | alla sella una sola curvatura negativa: 2116 e −2022 cm⁻¹ (frequenza immaginaria); ω(H₂) del modello 4396,6 cm⁻¹ contro 4401 misurati |
+| 🧊 Diagrammi di fase · 🧊 Superficie P–V–T | `verifica-schifasi-3d` | 8 | fattore acentrico dalla curva di vapore: acqua 0,3443, CO₂ 0,2249; aree di Maxwell uguali sulla cupola entro 5,5·10⁻¹² |
+| 🌀 Cinetica complessa · 🧊 Urti molecolari | `verifica-schicinet-3d` | 7 | energia cinetica conservata dopo 6000 passi e 2993 urti (1,8·10⁻¹⁵); frazione di urti sopra E₀/kT = 2,5 pari a e^(−2,5) entro 3σ (0,0812 contro 0,0821) |
+| ⚖️ Equilibrio e Le Chatelier · 🧊 Scatola 3D | `verifica-schiequil-3d` | 7 | A ⇌ B: K misurata 2,9976 contro 2,9951 teorica (entro l'1,5 %); dimezzando il volume il grado di dissociazione di N₂O₄ cala da 0,177 a 0,129 |
+| 💎 Cristallografia e raggi X · 🧊 Celle in 3D | `verifica-scristalli-3d` | 9 | numeri di coordinazione 6, 8, 12, 12, 6, 8, 4 per SC, CCC, CFC, EC, NaCl, CsCl, diamante; d(hkl) = 1/\|G\| uguale a `dSpaziatura` entro 4,4·10⁻¹⁶ |
+| 🌊 Laboratorio di Schrödinger · 🧊 Nuvola 3D \|ψ\|² | `verifica-sschrod-3d` | 10 | degenerazioni dell'oscillatore 3D 1, 3, 6, 10; frazione della nuvola fuori dalla regione classica 0,1107 contro P(χ²₃ > 6) = 0,1116 |
+| 🧮 Hartree-Fock in diretta · 🧊 Orbitali in 3D | `verifica-shf-3d` | 9 | H₂ a 1,4 bohr: E = −1,116714 Eh (Szabo-Ostlund); ∫\|ψ\|² sulla griglia = 1,0000 per σg e σu |
+| 🎻 Spettroscopia rotovibrazionale · 🧊 Rotazione e vibrazione 3D | `verifica-srotovib-3d` | 10 | T + V = G(v) lungo il moto classico entro 9,5·10⁻⁹; CO₂: ν₁ inattivo in IR, ν₂ e ν₃ attivi |
+| 🎱 Dinamica molecolare · 🧊 Scatola 3D | `verifica-sdinmol-3d` | 7 | NVE: \|ΔE\| per particella 9,6·10⁻⁴ su 2000 passi; termostato: ⟨T⟩ = 1,400 come il bagno |
+| 🎯 Meccanica in movimento · 🌬️ Lancio 3D con vento | `verifica-sfismecc-3d` | 7 | nel vuoto R = v₀² sin 2θ/g = 91,774 m anche con 15 m/s di vento; velocità limite √(g/k) = 22,145 m/s (misurata 22,1435) |
+| ⚡ Elettromagnetismo in movimento · 🌀 Campi 3D e Lorentz | `verifica-sfisem-3d` | 8 | raggio di Larmor mv⊥/qB = 0,61538 (misurato 0,61539); deriva E×B = (0; −0,5) uguale per q = +1 e q = −1 |
+| 〰️ Onde e ottica · 🌊 Ondoscopio 3D | `verifica-sfisonde-3d` | 6 | d = 3λ dà 6 linee nodali, d = 0,4λ nessuna; minimi lontani in arcsin((m + ½)λ/d) entro 2,1·10⁻⁵ rad |
+| 🪐 Gravitazione · 🕳️ Pozzo di potenziale 3D | `verifica-sfisgrav-3d` | 8 | \|∇U\| nei cinque punti di Lagrange 1,1·10⁻¹⁵; periodo misurato 7,2779 = 2π a^(3/2) |
+| ⏱️ Relatività ristretta · 🔦 Cono di luce 3D | `verifica-sfisrel-3d` | 6 | intervallo invariante in (x, y, ct) entro 2,7·10⁻¹³; composizione delle spinte Λ(β₂)Λ(β₁) = Λ((β₁ + β₂)/(1 + β₁β₂)) entro 5,3·10⁻¹⁵ |
+| 🌊 Fluidi · 🌀 Flusso attorno a un ostacolo 3D | `verifica-sfisfluidi-3d` | 7 | sfera: v = 1,5U e C_p = −1,25; cilindro: v = 2U e C_p = −3; portanza −ρUΓ = −5988 N/m |
+| 🔥 Termodinamica in movimento · 🗻 Superficie p-V-T 3D | `verifica-sfistermo-3d` | 8 | punto critico di van der Waals: p = 1, ∂p/∂V e ∂²p/∂V² nulli; a T = 0,9 p_sat 0,6470, V_l 0,6034, V_g 2,3488 |
+| 💡 Semiconduttori · 🔷 Zona di Brillouin 3D | `verifica-sfissolido-3d` | 7 | zona fcc: 24 vertici, 36 spigoli, 14 facce (V − E + F = 2); m*_dos(Si) = 1,084 m₀ |
+| 🧲 Modello di Ising · 🧊 Ising 3D | `verifica-sfisising-3d` | 6 | stato fondamentale e = −3, m = 1 (con h = 0,4: e = −3,4); \|m\| 0,946 a T = 3, 0,052 a T = 5,5 (T_c ≈ 4,5115) |
+| ⚛️ Fisica delle particelle · 🔭 Rivelatore 3D | `verifica-sfispart-3d` | 6 | elica in 3,8 T: R = p_T/(0,3 B) = 0,8772 m; massa invariante ricostruita da 200 coppie Z → μμ uguale a quella generata entro 1,6·10⁻⁵ |
+| 🗻 Funzioni di più variabili · 🧊 Piano tangente in 3D | `verifica-smatmulti-3d` | 9 | x² + y² in (1, 2): f = 5, ∇f = (2, 4); scarto dal piano tangente di ordine 2 (rapporto 4,0445) |
+| ∇ Calcolo vettoriale · 🧊 Campo 3D e divergenza | `verifica-smatvett-3d` | 8 | F = (x, y, z), r = 1,2: flusso = ∭3 dV = 4πr³ = 21,7146884216; carica puntiforme: flusso 4π con l'origine dentro, 0 fuori |
+| ∫ Derivate, integrali e serie · 🧊 Solidi di rotazione | `verifica-smatcalc-3d` | 8 | sfera unitaria V = 4π/3 = 4,188790204786; fuso di sin x V = π²/2 |
+| 🔲 Algebra lineare · 🧊 Trasformazioni dello spazio | `verifica-smatlin-3d` | 9 | det = prodotto misto = Πλ = 6; riflessione: det −1 e det M(1/2) = 0 |
+| 🌀 Equazioni differenziali · 🧊 Caos nello spazio delle fasi 3D | `verifica-smatode-3d` | 9 | esponente di Lyapunov di Lorenz 0,9036 contro 0,9056; RK4: rapporto degli errori 16,04 dimezzando il passo |
+| 🎲 Probabilità in movimento · 🧊 Normale bivariata 3D | `verifica-smatprob-3d` | 7 | ∬ xy f = ρσxσy = 0,546; campioni dentro Q ≤ 1: 39,37 % contro 39,35 % |
+| 🍩 Topologia e superfici · 🧊 Superfici in 3D: χ e orientabilità | `verifica-smattopo` | 45 (3 della v238) | triangolazioni di cinque superfici a quattro finezze con χ uguale alla maglia; Möbius: n(2π)·n₀ = −1 e n(4π)·n₀ = +1 |
+| 🌐 Geometrie non euclidee · 🧊 Sfera e iperboloide in 3D | `verifica-smatnoneucl` | 56 (4 della v238) | iperboloide e disco di Poincaré con stessi angoli e lati entro 1,2·10⁻¹⁵; Gauss–Bonnet sull'iperboloide: π − Σ = area (1,0700757) |
+| ℂ Complessi e Fourier · 🧊 Sfera di Riemann | `verifica-smatcompl-3d` | 7 | rotazioni della sfera = Möbius di SU(2) su 4 assi × 3 angoli × 30 punti entro 5,5·10⁻¹⁶; rotazione di π attorno a x: f(z) = 1/z e f(0) = ∞ |
+| 🎢 Calcolo delle variazioni · 🧊 Pellicola di sapone in 3D | `verifica-smatvariaz-3d` | 8 | h*/R = 1,32549 (u* tanh u* = 1); h/R = 1,36 si strappa, h/R = 1,30 resta un catenoide |
+
+Tutti gli script, eseguiti alla stesura di questo documento: **311 controlli
+superati, 0 falliti**. Il conteggio di `smattopo` e `smatnoneucl` comprende i
+controlli già presenti prima della v238.
+
+> **Una sola soglia di tempo per le schede 3D nuove.** `test_v237` concedeva
+> alle schede 3D 6 s, perché la scena si costruiva dentro il gestore del clic e
+> nella batteria WebGL gira in SwiftShader (§3.1-bis). Le schede della v238
+> costruiscono subito testo e comandi e la scena **dopo** il ritorno del
+> gestore: il lavoro sincrono al clic deve restare sotto i **250 ms**, come per
+> le schede 2D. Misurato nelle esecuzioni di prova: al massimo poche decine di
+> millisecondi.
+
 ### 3.2 Agente AI
 
 | Banco | Condizione simulata |
@@ -254,8 +307,24 @@ tavole).
 
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
-`test_guidaproxy` · `test_fluidita` · `test_lingue` · `test_mol3d` ·
-`test_spettrolettore`
+`test_spectra238` · `test_guidaproxy` · `test_fluidita` · `test_lingue` ·
+`test_mol3d` · `test_spettrolettore`
+
+**`test_spectra238` — 64 controlli.** Nasce da segnalazioni fatte con una
+schermata dal telefono: con l'app installata la barra di stato e i tasti di
+Android coprivano i comandi della console di Spectra Live, e l'attribuzione del
+modello si sovrapponeva al dialogo. Il banco lavora in quattro parti:
+
+| Parte | Che cosa pretende |
+|---|---|
+| Impaginazione | Su un telefono simulato (412×915, touch, finestra a schermo intero) la classe dei margini sicuri è attiva, il primo pulsante in alto sta ad almeno **34 px** dal bordo e i comandi in basso ad almeno **46 px**; la telemetria è in due colonne e non copre il volto. Su schermo grande nessun margine forzato. In entrambi: testata sopra il volto, volto sopra lo stato, stato sopra il dialogo, dialogo sopra scorciatoie e comandi, attribuzione dentro la barra dei comandi; almeno quattro scorciatoie con una sezione aperta |
+| Navigatore | Per chimica, fisica e matematica il navigatore 🧭 elenca **esattamente** le sezioni della barra (più di 20 per materia), almeno quattro strumenti rapidi e dieci frasi; aprire una sezione di un'altra materia cambia materia, chiude la console e lascia il pulsante di Spectra Live |
+| Livello e concentrazione | Una domanda da corso avanzato pesa più di un conto (scarto > 0,2); «in parole semplici» abbassa; la stessa domanda pesa di più (scarto > 0,3) in una sezione da dottorato che in una da scuola superiore, e il livello dichiarato è quello del percorso |
+| Creatore, occhi, sonno | «chi ti ha creato?» nomina Samuele Pio Provenzano; «sono il tuo creatore» chiede una prova e il campo diventa password; una frase sbagliata è respinta, il campo torna normale e la frase non resta nel dialogo, nella pagina né nella memoria; dopo tre tentativi l'attesa; riconosciuto (il banco scrive il segno `bsi-spectra-creatore-v1` nel `localStorage`: la frase non compare nel banco): saluto per nome, telemetria «SAMUELE · CREATORE», contesto al modello e alla mente; «dimentica che sono il tuo creatore» lo toglie. Occhi: gioia li stringe (< 0,8), sorpresa li spalanca (> 1,25), dubbio li rende asimmetrici, a riposo `#1a3050`, quattro emozioni danno quattro tinte, la concentrazione socchiude e accende, il battito chiude le palpebre (< 0,2); dopo due minuti senza contatto dorme, al primo tocco si sveglia con la sorpresa |
+
+Restano fuori, e lo dichiara `docs/08` §6 (AI-13): la voce, l'ascolto continuo
+e gli altri comandi locali, che nel Chromium senza interfaccia della batteria non si
+possono provare.
 
 **`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
 ad aggiornare non esce nulla». Era vero. La finestra 🔄 Aggiornamenti cercava
@@ -688,11 +757,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 522 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 552 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Nessun banco per i comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 
@@ -708,4 +777,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v237`._
+_Documento aggiornato alla versione `bsi-v238`._

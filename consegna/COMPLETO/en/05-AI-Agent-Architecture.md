@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v237` |
+| **Documented version** | Service Worker `bsi-v238` |
 
 ---
 
@@ -640,8 +640,9 @@ stating the probable cause. It also covers tools added in the future.
 
 ### 4.10 Spectra Live: voice, screen and local commands
 
-`bsi-spectra-live.js` adds a full-screen console («◈ Live» button in Spectra's
-header, or `Ctrl+Shift+J`):
+`bsi-spectra-live.js` adds a full-screen console. Since v238 it opens from any
+screen with a round button showing the face, to the left of the Spectra button;
+the «◈ Live» button in Spectra's header and `Ctrl+Shift+J` remain:
 
 - **hands-free conversation**: the browser's speech recognition listens, the
   answer is spoken sentence by sentence with the system's speech synthesis (a
@@ -666,6 +667,32 @@ provider the user chose. Speech recognition is the browser's: where the
 browser runs it on a remote service, the audio follows that browser's rules,
 not BioSpecInfo's.
 
+**Layout and navigation (v238).** On a phone with the app installed, Android's
+status bar and keys sit over the page. The console uses
+`env(safe-area-inset-top/bottom)` when the system reports them and, with the
+class `.bsiJV-bordi` (full-screen window on a touch device, or installed app),
+at least 34 px at the top and 46 px at the bottom. Positions are no longer
+fixed: on every frame the header, telemetry and control bar are measured, and
+the face, state, thought and dialogue take the remaining space. The 🧭
+navigator builds from the bar itself, for each of the three subjects, the list
+of groups and sections, then the quick tools (`BSIAttrezzi`) and the locally
+recognised phrases; the 💬 button switches to the chat; the context shortcuts
+change with the open section. The telemetry shows USER (guest or creator),
+LEVEL and FOCUS.
+
+**Level and concentration.** `difficolta(testo)` starts from the level of the
+open section, i.e. the first level of the `bsi-percorsi.js` path in which it
+appears (high school 0, bachelor 1, master 2, PhD 3: value 0.15 + 0.22·level),
+adds 0.3 for advanced-course words (theorem, Hamiltonian, eigenvalues, …), up
+to 0.2 for symbols, 0.1 for a long question, subtracts 0.25 for «in simple
+words», and clamps the result between 0.05 and 1. The value goes to the face
+through `concentra()`.
+
+**Initiative.** With the console open, waiting and silent for more than a
+minute, if the mind has a thought of weight ≥ 2 (a break, mistakes to review,
+the late hour) Spectra says it, at most once every three minutes and never the
+same twice, with the matching expression.
+
 ### 4.11 The face
 
 `bsi-spectra-androide.js` shows the «Noir» 3D model by Skyfox13 in the
@@ -684,8 +711,26 @@ shapes, so the animation is built in code:
   the expression changes, recomputing only the vertices some field moves;
 - the emotion of a sentence comes from Italian and English keywords
   (`emozioneDi`); with no signal it is «serena» (calm);
-- the **eyes** are lights in the theme's blue, `#1a3050` at rest, with slight
-  variations for listening, thinking and speaking.
+- the **eyes** (version 3.0, v238) have **real eyelids**: the vertices of
+  each eye are deformed on the CPU around its centre, with the opening and
+  asymmetry of each emotion (joy narrows them, surprise widens them, doubt
+  makes them asymmetric); the gaze moves them; the **tint** changes with the
+  emotion within the theme's blue family (`#1a3050` at rest, brighter in joy
+  and surprise);
+- **concentration** (0–1, from `difficolta()`) half closes the eyes, brightens
+  them, draws the brows together, presses the lips and slows the blinking;
+- every facial muscle is a **damped spring**, so expressions have inertia and
+  a small settling; every few seconds a quarter-second **micro-expression**
+  appears; the mouth uses **coarticulation**: the next letter's viseme starts
+  before the current one ends;
+- neutral lights (the saturated blue back-lights tinted the metal), the
+  screen's real density up to 3× and anisotropic filtering on the metal maps;
+- after **two minutes without contact** (touch, voice, answer) the face falls
+  asleep: heavy eyelids, lowered head, slow breathing; the first touch wakes
+  it with surprise and then a smile. The gaze follows the pointer and, on a
+  phone, the touched point.
+
+Like the mind, it is a **simulation of behaviour, not consciousness**.
 
 Without WebGL, or if the model does not arrive, the console uses the head
 built by `bsi-spectra-robot.js` and, as a last resort, the vector portrait of
@@ -715,6 +760,28 @@ and a few rules, not subjective states.
 Everything is saved only in the browser's `localStorage`, key
 `bsi-spectra-mente-v1` ([`11-Data-Model.md`](11-Data-Model.md)); «what do you
 remember» shows it, «forget everything» erases it.
+
+### 4.13 The creator
+
+`bsi-spectra-creatore.js` (v238) tells Spectra who created it: Samuele Pio
+Provenzano. «Who created you?» has a local answer. «I am your creator» opens a
+proof: the console field becomes a password field for a minute, voice
+listening stops, and the text sent **does not go through `elabora()`**: no
+dialogue, memory, voice or model. Its SHA-256 fingerprint (`crypto.subtle`) is
+computed and compared with the File Manager's; the phrase does not appear in
+the code. Three wrong attempts lead to a one-minute wait.
+
+Once recognised, Spectra writes only `bsi-spectra-creatore-v1` (`ok`, `dal`,
+`ultima`) to `localStorage`, greets the author by name when the console opens,
+shows «CREATOR» in the telemetry and adds to the model's context (`contesto()`,
+also inside the mind's `coscienza()`) that it is talking with its author. For a
+guest the context says the user has not been recognised and that the phrase
+must never be asked for in chat. «Forget that I am your creator» removes the
+mark; so does «Clear data → Persistent memory».
+
+**Limitation.** Like the File Manager password it is a deterrent, not an access
+control: the fingerprint is in the code and the mark can be written by hand by
+whoever holds the device (`09-Release-Conformance-Statement.md`, D-13).
 
 ---
 

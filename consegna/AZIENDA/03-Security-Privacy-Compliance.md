@@ -67,6 +67,26 @@ header di sicurezza a livello di hosting/CDN:
 - `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy` se in futuro si
   abiliteranno `SharedArrayBuffer` e i Web Worker paralleli (roadmap HPC).
 
+### 2.5 Controlli sul lato pagina: deterrenti, non serrature
+Su hosting statico ogni controllo fatto nella pagina è aggirabile da chi ha il
+dispositivo o legge il sorgente. Due funzioni lo dichiarano:
+- **File Manager** (`file_manager.html`): la password si confronta come
+  impronta SHA-256; è un deterrente contro chi passa, non una protezione per
+  documenti riservati (`08-Traceability-Matrix.md`, SEC-03).
+- **Riconoscimento del creatore di Spectra** (`bsi-spectra-creatore.js`, dalla
+  `bsi-v238`): a «sono il tuo creatore» Spectra chiede la stessa frase segreta
+  del File Manager, scritta in un campo di tipo password e confrontata come
+  impronta SHA-256. La frase non compare nel codice, non viene conservata e non
+  entra nel dialogo, nella memoria, nella voce né nelle richieste al modello;
+  dopo tre tentativi sbagliati si aspetta un minuto. Nel `localStorage` resta
+  solo il segno `bsi-spectra-creatore-v1`, cancellabile da «Cancella dati →
+  Memoria persistente». **Non è un controllo d'accesso**: l'impronta è nel
+  codice, il segno può essere scritto a mano da chi ha il dispositivo, e
+  un'impronta senza sale di una frase debole si può cercare per tentativi fuori
+  dall'app. Non protegge dati: dice a Spectra con chi parla
+  (`08-Traceability-Matrix.md`, SEC-08; `09-Release-Conformance-Statement.md`,
+  D-13).
+
 ---
 
 ## 3. Integrità e riproducibilità (allineamento GAMP 5)
