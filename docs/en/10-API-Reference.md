@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -469,4 +469,4 @@ in `localStorage`, nothing else.
 
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._

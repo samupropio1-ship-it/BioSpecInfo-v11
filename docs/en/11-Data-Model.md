@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -287,4 +287,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._

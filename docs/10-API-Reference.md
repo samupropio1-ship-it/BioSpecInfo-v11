@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v238` |
+| **Versione descritta** | `bsi-v239` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -453,4 +453,4 @@ testi nel `localStorage`, nient'altro.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v238`._
+_Documento aggiornato alla versione `bsi-v239`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v238` |
+| **Version described** | `bsi-v239` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -755,4 +755,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v238`._
+_Document updated to version `bsi-v239`._
