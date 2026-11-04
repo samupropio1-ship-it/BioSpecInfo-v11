@@ -21,8 +21,9 @@
    formalismo, letteratura primaria, problemi aperti), e non semplifica sotto.
 
    Con un fornitore di IA configurato, ogni fase la scrive il modello (la prima in
-   JSON controllato: domanda, opzioni, indice della giusta). Senza chiave, o se
-   il modello non risponde in forma valida, ci sono le lezioni del laboratorio
+   JSON controllato: domanda, opzioni, indice della giusta; una risposta in forma
+   non valida non si usa: lo si dice e si propone di riprovare o di scegliere una
+   lezione del laboratorio). Senza chiave ci sono le lezioni del laboratorio
    (la caduta, la forma dell'acqua, il problema di Basilea), calcolate qui.
    Spectra col corpo (bsi-spectra-figura.js) la conduce: la figura si sposta
    nella scheda, pensa mentre il modello scrive, spiega, si stupisce se la
