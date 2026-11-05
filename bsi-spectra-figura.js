@@ -528,7 +528,7 @@
       var hud = D.getElementById('bsiJV');
       if (hud && hud.classList.contains('aperto')) {
         var posto = D.getElementById('bsiJV-figura'); if (!posto) { posto = D.createElement('div'); posto.id = 'bsiJV-figura'; hud.appendChild(posto); }
-        hud.classList.add('con-figura'); return posto;
+        stile(); hud.classList.add('con-figura'); spazioConsole(hud, posto); return posto;   /* lo stile subito: il posto si crea prima che la figura sia pronta */
       }
       for (var i = 0; i < ids.length; i++) {
         var s = D.getElementById(ids[i]); if (!s || !s.offsetParent) continue;
@@ -536,6 +536,17 @@
         return s;
       }
       return null;
+    }
+    /* (v242) nella console la figura prende lo spazio del busto: sotto la testata e la telemetria, sopra lo stato,
+       misurati sul posto (sul telefono le percentuali fisse finivano sotto la telemetria) */
+    function spazioConsole(hud, posto) {
+      var h = hud.getBoundingClientRect(), su = 0, giu = h.bottom;
+      ['bsiJV-top', 'bsiJV-tel'].forEach(function (id) { var e = D.getElementById(id); if (e && e.offsetParent) { var r = e.getBoundingClientRect(); if (r.height) su = Math.max(su, r.bottom); } });
+      var st = D.getElementById('bsiJV-stato'); if (st && st.offsetParent) { var r2 = st.getBoundingClientRect(); if (r2.height) giu = r2.top; }
+      var t = Math.round(su - h.top + 6), a = Math.round(giu - su - 12);
+      if (a < 120) return;   /* spazio troppo piccolo: restano le regole del foglio di stile */
+      var top = t + 'px', alt = a + 'px';
+      if (posto.style.top !== top || posto.style.height !== alt) { posto.style.top = top; posto.style.height = alt; if (condivisa) condivisa.adatta(); }
     }
     function controlla() {
       var s = bersaglio(); if (!s) return;

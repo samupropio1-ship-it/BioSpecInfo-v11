@@ -63,7 +63,7 @@ function vero(d, c) { att(d, true, !!c); }
 
     const L = await pg.evaluate(() => {
       const r = id => { const e = document.getElementById(id); if (!e) return null; const q = e.getBoundingClientRect(); return { t: q.top, b: q.bottom, l: q.left, r: q.right, h: q.height }; };
-      const giu = r('bsiJV-giu'), top = r('bsiJV-top'), tel = r('bsiJV-tel'), vol = r('bsiJV-volto'), st = r('bsiJV-stato'), dial = r('bsiJV-dial'), cred = r('bsiJV-credito'), chips = r('bsiJV-chips');
+      const giu = r('bsiJV-giu'), top = r('bsiJV-top'), tel = r('bsiJV-tel'), vol = document.getElementById('bsiJV').classList.contains('con-figura') ? r('bsiJV-figura') : r('bsiJV-volto'), /* (v242) con la figura col corpo nella console il busto e' nascosto: conta la figura */ st = r('bsiJV-stato'), dial = r('bsiJV-dial'), cred = r('bsiJV-credito'), chips = r('bsiJV-chips');
       const cs = getComputedStyle(document.getElementById('bsiJV'));
       const primo = document.querySelector('#bsiJV-top .bsiJV-b').getBoundingClientRect(), ultimo = document.getElementById('bsiJV-mic').getBoundingClientRect();
       return { H: innerHeight, W: innerWidth, bordi: document.getElementById('bsiJV').classList.contains('bsiJV-bordi'), giu, top, tel, vol, st, dial, cred, chips, primoTop: primo.top, micBottom: ultimo.bottom, credBottom: cred.b, chipsN: document.querySelectorAll('#bsiJV-chips .bsiJV-chip').length };
