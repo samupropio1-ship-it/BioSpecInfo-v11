@@ -183,7 +183,7 @@ function vero(d, c) { att(d, true, !!c); }
       return fetch0.apply(this, arguments);
     };
     const t0 = Date.now(); let testo = '', errore = '';
-    try { testo = await window.bsiStreamChat('gemini', 'AIzaFINTA-chiave-di-prova-000000000000', [{ role: 'user', content: 'ciao' }], 'sii breve', { onToken: () => {}, onDone: () => {} }); } catch (e) { errore = e.message; }
+    try { testo = await window.bsiStreamChat('gemini', 'chiave-finta-di-prova', [{ role: 'user', content: 'ciao' }], 'sii breve', { onToken: () => {}, onDone: () => {} }); } catch (e) { errore = e.message; }
     o.gemini = { testo, errore: errore.slice(0, 90), visti: visti.join(' → '), ms: Date.now() - t0 };
     window.fetch = fetch0; return o;
   });
