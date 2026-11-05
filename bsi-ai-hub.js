@@ -5571,7 +5571,7 @@ var DATI_CANCELLABILI = {
   memoria: {
     etichetta: 'Memoria persistente',
     dettaglio: 'ciò che Spectra ha imparato su di te fra una sessione e l\'altra (anche la sua «mente»: tempi di studio, umore, ultime domande)',
-    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce']
+    chiavi: ['bsi_ai_memory', 'bsi-spectra-mente-v1', 'bsi-spectra-creatore-v1', 'bsi-spectra-studio-v1', 'bsi-spectra-studio-voce', 'bsi-esplora-v1']
   },
   ripasso: {
     etichetta: 'Ripasso programmato',

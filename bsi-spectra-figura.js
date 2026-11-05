@@ -326,6 +326,10 @@
     '#bsi-pane-spiega .bsiSF{flex:0 0 auto;height:clamp(290px,40vh,400px);min-height:290px;margin:10px 14px 0}#bsi-pane-spiega #bsiSP{flex:1;min-height:0}' +
     /* nella scheda Spiega i pulsanti stanno in riga, in basso a destra, e «🧠 Spiega» non serve (ci siamo gia') */
     '#bsi-pane-spiega .bsiSF-lez{display:none}' +
+    /* nella console Spectra Live: la figura prende il posto del busto, fra la telemetria e il dialogo */
+    '#bsiJV.con-figura #bsiJV-volto{display:none!important}#bsiJV-figura{position:absolute;left:10px;right:10px;top:21%;height:34%;z-index:3}' +
+    '#bsiJV-figura .bsiSF{height:100%;min-height:0;margin:0}#bsiJV-figura .bsiSF-az{display:none}' +
+    '@media (min-width:900px){#bsiJV-figura{left:auto;right:3%;width:46%;top:14%;height:58%}}' +
     '@media (max-width:520px){.bsiSF-nota{display:none}}';
   function stile() { if (D.getElementById('bsiSF-stile')) return; var s = D.createElement('style'); s.id = 'bsiSF-stile'; s.textContent = CSS; D.head.appendChild(s); }
 
@@ -456,7 +460,7 @@
       S.fai('indica', OL.grp.getWorldPosition(new T.Vector3()), 2.5); clearTimeout(F._g); F._g = setTimeout(function () { S.fai('spiega', null, Math.min(8, 1 + s.length / 45)); }, 2600);
     }
     F.reagisci = reagisci;
-    function suStato(e) { var s = e.detail && e.detail.stato; if (s === 'pensa' || s === 'strumenti' || s === 'scrive') { S.emozione('concentrata', 8); S.fai('pensa', null, 8); statoHud(t('PENSA', 'THINKING')); } }
+    function suStato(e) { var s = e.detail && e.detail.stato; if (s === 'pensa' || s === 'strumenti' || s === 'scrive') { clearTimeout(F._g); S.emozione('concentrata', 8); S.fai('pensa', null, 8); statoHud(t('PENSA', 'THINKING')); } else if (s === 'ascolta') { S.emozione('curiosa', 6); statoHud(t('TI ASCOLTA', 'LISTENING TO YOU')); } }
     function suRisposta(e) { var d = e.detail || {}; if (d.errore) { S.emozione('dubbio', 4); statoHud(t('NON HO POTUTO RISPONDERE', 'COULD NOT ANSWER')); return; } reagisci(d.testo, d.emo); }
     D.addEventListener('bsi-spectra-stato', suStato); D.addEventListener('bsi-spectra-risposta', suRisposta); D.addEventListener('bsi-spectra-dice', suRisposta);
 
@@ -503,8 +507,14 @@
   var condivisa = null, inCorso = false;
   function sezioni(ids) {
     /* la scheda «🧠 Spiega» della finestra di Spectra ha la precedenza: e' Spectra che sta spiegando */
-    ids = ids || ['bsi-pane-spiega', 'sai', 'sareachim', 'sareafis', 'sareamat'];
+    ids = ids || ['bsi-pane-spiega', 'sai', 'sareachim', 'sareafis', 'sareamat', 'sesplchim', 'sesplfis', 'sesplmat'];
     function bersaglio() {
+      /* LA CONSOLE SPECTRA LIVE, aperta, ha la precedenza su tutto: al posto del busto, Spectra col corpo e l'ologramma */
+      var hud = D.getElementById('bsiJV');
+      if (hud && hud.classList.contains('aperto')) {
+        var posto = D.getElementById('bsiJV-figura'); if (!posto) { posto = D.createElement('div'); posto.id = 'bsiJV-figura'; hud.appendChild(posto); }
+        hud.classList.add('con-figura'); return posto;
+      }
       for (var i = 0; i < ids.length; i++) {
         var s = D.getElementById(ids[i]); if (!s || !s.offsetParent) continue;
         /* dentro la sezione: prima del suo contenuto principale (dopo il titolo, se c'e') */
@@ -521,12 +531,13 @@
       }
       var q0 = s.querySelector('.bsiFX') || s, d0 = null;
       ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q0.querySelector(':scope > ' + sel); if (e) { d0 = e; return true; } return false; });
-      if (s.id === 'bsi-pane-spiega' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
+      if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
         /* dopo il titolo, la «Lezione guidata» e la descrizione, prima delle schede e del contenuto */
         var q = s.querySelector('.bsiFX') || s, dopo = null;
-        if (s.id === 'bsi-pane-spiega') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
+        if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
         ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q.querySelector(':scope > ' + sel); if (e) { dopo = e; return true; } return false; });
         if (dopo) q.insertBefore(condivisa.box, dopo.nextSibling); else q.insertBefore(condivisa.box, q.firstChild);
+        condivisa.box.classList.toggle('bsiEX-palco', /^sespl/.test(s.id));   /* nelle sezioni «Esplora» Spectra resta in scena mentre si scorre */
         condivisa.adatta();
       }
     }

@@ -173,7 +173,7 @@
   /* LA FIGURA NON SPARISCE: la sezione dell'AI da cui si e' partiti (dove sta Spectra col corpo) si ricorda, e quando la
      finestra di Spectra si chiude dopo che Spectra ha aperto altre sezioni, l'app torna li' */
   var ORIGINE = { id: null };
-  var AI = /^(sai|sareachim|sareafis|sareamat)$/;
+  var AI = /^(sai|sareachim|sareafis|sareamat|sesplchim|sesplfis|sesplmat)$/;
   function sorvegliaChiusura() {
     var ov = D.getElementById('bsi-hub-ov'); if (!ov || ov._bsiSP) return; ov._bsiSP = true;
     var era = ov.classList.contains('open');

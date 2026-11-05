@@ -79,6 +79,8 @@ function vero(d, c) { att(d, true, !!c); }
     /* la figura si disegna (e si allinea) solo quando si vede: la si porta in vista */
     await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
     await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.volto && S.allinea === 0; }, null, { timeout: 90000 }).catch(() => {});
+    /* l'allineamento del viso si fa nei primi fotogrammi: si misura a regime */
+    await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra, T = THREE; if (!S.volto) return false; S.radice.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.corpo.ossa.collo.getWorldPosition(new T.Vector3()); return Math.abs(bb.min.y - rif.y - 0.045) < 0.03; }, null, { timeout: 8000 }).catch(() => {});
     const con = await pg.evaluate(() => { const F = BSISpectraFigura.figura, S = F.spectra, T = THREE; S.radice.updateMatrixWorld(true);
       const bb = new T.Box3().setFromObject(S.volto.parti.Object_2), rif = S.corpo.ossa.collo.getWorldPosition(new T.Vector3()).add(new T.Vector3(0, 0.045, 0));
       return { invito: F.box.querySelector('.bsiSF-invito').hidden, mento: bb.min.y - rif.y, viso: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(',') }; });
@@ -107,6 +109,18 @@ function vero(d, c) { att(d, true, !!c); }
         let n = 0; bs.forEach(a => fl.forEach(c => { if (a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top) n++; })); return n; });
       att('i pulsanti della figura non finiscono sotto quelli flottanti', 0, sov);
     }
+    /* LA CONSOLE SPECTRA LIVE: al posto del busto, Spectra col corpo e l'ologramma */
+    const cons = await pg.evaluate(async () => {
+      const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, da = F.box.parentNode && F.box.closest('[id]').id;
+      BSISpectraLive.apri({ briefing: false }); await pausa(1500);
+      const v = document.getElementById('bsiJV-volto'), o = { dentro: !!document.getElementById('bsiJV-figura') && document.getElementById('bsiJV-figura').contains(F.box), busto: v ? getComputedStyle(v).display : 'none', vista: F.box.getBoundingClientRect().height > 150 };
+      document.dispatchEvent(new CustomEvent('bsi-spectra-stato', { detail: { stato: 'pensa' } })); await pausa(200); o.pensa = F.spectra.corpo.gesto;
+      BSISpectraLive.chiudi(); await pausa(1500); o.torna = F.box.closest('.section') ? F.box.closest('.section').id : null; o.da = da;
+      return o;
+    });
+    vero('nella console Spectra Live c\'è Spectra col corpo (e l\'ologramma) al posto del busto', cons.dentro && cons.busto === 'none' && cons.vista);
+    att('la figura segue lo stato della console (elabora → mano al mento)', 'pensa', cons.pensa);
+    vero('chiusa la console, Spectra torna nella sezione (' + cons.torna + ')', !!cons.torna);
     /* L'OLOGRAMMA alla destra di Spectra: le scene vive delle sezioni */
     const ol = await pg.evaluate(async () => {
       const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, O = F.olo, T = THREE, o = {};
@@ -196,8 +210,15 @@ function vero(d, c) { att(d, true, !!c); }
       window.bsiOpenAIHub('spiega'); await pausa(1800); const O = BSISpectraFigura.figura.olo, px = O.tela.getContext('2d').getImageData(0, 0, O.tela.width, O.tela.height).data; let acc = 0; for (let i = 0; i < px.length; i += 4000) acc += px[i] + px[i + 1] + px[i + 2];
       o.vivo = { modo: O.attuale, pieno: acc > 2000 }; document.getElementById('bsi-hub-close').click();
       const S3 = BSISpiega.schermo(), im3 = await BSISpiega.immagine(S3); o.s3 = S3 && { titolo: S3.titolo, grafici: S3.grafici, img: !!im3 && im3.length > 2000 };
-      /* uno spettro in SVG (il quiz degli spettri) */
-      document.querySelector('[data-s="squizspec"]').click(); await pausa(1500); const Sv = BSISpiega.schermo(), imv = await BSISpiega.immagine(Sv); o.sv = Sv && { svg: Sv.svg.length, img: !!imv && imv.length > 2000 };
+      /* un grafico in SVG: si mette nella sezione aperta uno spettro vettoriale noto (molti spettri e diagrammi dell'app sono SVG)
+         e si controlla che Spectra lo trovi e lo trasformi in immagine — deterministico, non dipende dai tempi di un'altra sezione */
+      await pausa(1500);   /* chiusa la finestra, l'app torna alla sezione di partenza: si aspetta che si fermi */
+      const sezA = document.getElementById((BSISpectraLive.schermo() || {}).sezione), ns = 'http://www.w3.org/2000/svg', sv = document.createElementNS(ns, 'svg');
+      sv.setAttribute('width', '420'); sv.setAttribute('height', '180'); sv.setAttribute('viewBox', '0 0 420 180'); sv.id = 'banco-svg';
+      const pl = document.createElementNS(ns, 'polyline'); pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', '#00c9b7'); pl.setAttribute('stroke-width', '3');
+      pl.setAttribute('points', Array.from({ length: 84 }, (_, i) => (i * 5) + ',' + (170 - 150 * Math.exp(-Math.pow((i - 30) / 4, 2)) - 90 * Math.exp(-Math.pow((i - 60) / 3, 2)))).join(' ')); sv.appendChild(pl);
+      (sezA.querySelector('.bsiFX') || sezA).appendChild(sv); for (let w = 0; w < 30 && !(BSISpiega.schermo() || { svg: [] }).svg.some(x => x.id === 'banco-svg'); w++) await pausa(100);
+      const Sv = BSISpiega.schermo(), imv = await BSISpiega.immagine(Sv); o.sv = Sv && { svg: Sv.svg.length, img: !!imv && imv.length > 2000 }; sv.remove();
       return o;
     });
     att('la scheda «🧠 Spiega» è la seconda della finestra di Spectra (e la «Lezione» non c\'è più)', '1|-1', sp.tab + '|' + sp.lezione);
@@ -211,7 +232,7 @@ function vero(d, c) { att(d, true, !!c); }
     vero('l\'approfondimento continua la conversazione senza rimandare l\'immagine (' + sp.turni + ' messaggi)', sp.turni === 3 && sp.vecchiaSenzaImm);
     vero('al PhD avanzato: frontiera, problemi aperti, letteratura primaria', /frontiera/.test(sp.sysPhd) && /problemi aperti/.test(sp.sysPhd) && /letteratura primaria/.test(sp.sysPhd));
     vero('senza modello non finge: lo dice e mostra ciò che l\'app sa della sezione', /serve un modello/.test(sp.senza) && /Sullo schermo/.test(sp.senza));
-    vero('legge anche gli spettri disegnati in SVG (' + (sp.sv && sp.sv.svg) + ' grafici vettoriali trasformati in immagine)', sp.sv && sp.sv.svg >= 1 && sp.sv.img);
+    vero('legge anche i grafici disegnati in SVG (' + (sp.sv && sp.sv.svg) + ' grafico vettoriale trasformato in immagine)', sp.sv && sp.sv.svg >= 1 && sp.sv.img);
     vero('con la scena 3D aperta dietro Spiega, l\'ologramma la mostra dal vivo (' + sp.vivo.modo + ')', sp.vivo.modo === 'schermo' && sp.vivo.pieno);
     vero('il catalogo ha TUTTE le sezioni della barra (' + sp.cat.n + '/' + sp.cat.barra + ': chimica ' + sp.cat.mm.chimica + ', fisica ' + sp.cat.mm.fisica + ', matematica ' + sp.cat.mm.matematica + ', comuni ' + (sp.cat.mm.comune || 0) + ')', sp.cat.n === sp.cat.barra && sp.cat.n >= 190 && sp.cat.mm.chimica > 50 && sp.cat.mm.fisica > 40 && sp.cat.mm.matematica > 20);
     att('una domanda che nomina un argomento trova la sua sezione', 'stitr|sschrod|smatcalc|sms|sirvis|sastroorbite|—', sp.nomina.join('|'));

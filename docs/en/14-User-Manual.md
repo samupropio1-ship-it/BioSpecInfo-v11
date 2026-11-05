@@ -781,4 +781,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v241`._
+_Guide updated to version `bsi-v242`._

@@ -845,7 +845,7 @@ input::placeholder, textarea::placeholder { color: #888888; }
    arrivato alla v161: chi voleva sapere se l'app si fosse aggiornata
    leggeva un numero vecchio di mesi. Ora e' la stessa versione della cache
    (sw.js), e va cambiata insieme a quella ad ogni pubblicazione. */
-window.BSI_APP_VERSION='bsi-v241';
+window.BSI_APP_VERSION='bsi-v242';
 /* Il distintivo accanto al nome diceva «v13l»: una stringa scritta a mano
    nell'HTML e rimasta ferma mentre l'applicazione arrivava alla v195. Era la
    cosa piu' visibile della pagina, e la piu' vecchia. Ora lo riempie il
@@ -938,6 +938,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <div id="navGroup0" class="nav-group-panel" style="display:flex;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn on" data-s="sdashboard">🏠 Dashboard</button>
     <button class="nav-btn" data-s="sareachim" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">⚗️ Area Chimica · assistente</button>
+    <button class="nav-btn" data-s="sesplchim" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la chimica con Spectra</button>
     <button class="nav-btn" data-s="smol">🔍 Molecola</button>
     <button class="nav-btn" data-s="spt">⬡ Tavola Periodica</button>
     <button class="nav-btn" data-s="ssyn">🧪 Sintesi Org.</button>
@@ -1039,6 +1040,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <!-- ⚛️ FISICA (v227): otto sezioni calcolate, nei moduli bsi-fis-*.js -->
   <div id="navGroup7" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareafis" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">⚛️ Area Fisica · assistente</button>
+    <button class="nav-btn" data-s="sesplfis" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la fisica con Spectra</button>
     <button class="nav-btn" data-s="slab3d" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🧊 Laboratorio 3D</button>
     <button class="nav-btn" data-s="sfismecc" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">🎯 Meccanica in movimento</button>
     <button class="nav-btn" data-s="sfisonde" style="border:1px solid #6bcfff;background:linear-gradient(135deg,rgba(107,207,255,.16),rgba(124,111,255,.08))">〰️ Onde e ottica</button>
@@ -1090,6 +1092,7 @@ window.BSI_TELEMETRY_URL='';</script>
   <!-- 📐 MATEMATICA (v228): otto sezioni sul motore simbolico bsi-mat-cas.js -->
   <div id="navGroup8" class="nav-group-panel" style="display:none;overflow-x:auto;scrollbar-width:none;padding:2px 6px 6px">
     <button class="nav-btn" data-s="sareamat" style="border:1px solid #5eead4;background:linear-gradient(135deg,rgba(94,234,212,.22),rgba(124,111,255,.12));font-weight:700">📐 Area Matematica · assistente</button>
+    <button class="nav-btn" data-s="sesplmat" style="border:1px solid #00c9b7;background:linear-gradient(135deg,rgba(14,116,144,.32),rgba(29,78,216,.18));font-weight:800">⚡ Esplora la matematica con Spectra</button>
     <button class="nav-btn" data-s="smatbasi" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">🔢 Basi di matematica</button>
     <button class="nav-btn" data-s="smatfunz" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">📈 Studio di funzione</button>
     <button class="nav-btn" data-s="smatcalc" style="border:1px solid #f5a623;background:linear-gradient(135deg,rgba(245,166,35,.14),rgba(124,111,255,.08))">∫ Derivate, integrali e serie</button>
@@ -29613,6 +29616,9 @@ window.calcMolProps = function() {
 <div id="sareachim" class="section"></div>
 <div id="sareafis" class="section"></div>
 <div id="sareamat" class="section"></div>
+<div id="sesplchim" class="section"></div>
+<div id="sesplfis" class="section"></div>
+<div id="sesplmat" class="section"></div>
 <div id="slab3d" class="section"></div>
 <div id="sfismecc" class="section"></div>
 <div id="sfisonde" class="section"></div>
@@ -32037,6 +32043,7 @@ window.addEventListener('load', init);
 <script src="./bsi-chi-esame.js" defer></script>
 <script src="./bsi-percorsi.js" defer></script>
 <script src="./bsi-assistente.js" defer></script>
+<script src="./bsi-spectra-esplora.js" defer></script>
 <script src="./bsi-lab3d.js" defer></script>
 <script src="./bsi-fis-meccanica.js" defer></script>
 <script src="./bsi-fis-onde.js" defer></script>

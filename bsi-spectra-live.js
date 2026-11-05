@@ -457,7 +457,7 @@
     });
   }
   document.addEventListener('bsi-spectra-risposta', function (e) { var f = attesaModello; attesaModello = null; if (f) f({ testo: e.detail && e.detail.testo || '' }); });
-  document.addEventListener('bsi-spectra-stato', function (e) { var s = e.detail && e.detail.stato; if (!hud.el) return; if (s === 'pensa' || s === 'strumenti' || s === 'scrive') stato('pensa', e.detail.dettaglio); });
+  document.addEventListener('bsi-spectra-stato', function (e) { var s = e.detail && e.detail.stato; if (!hud.el || (e.detail && e.detail.daLive)) return; if (s === 'pensa' || s === 'strumenti' || s === 'scrive') stato('pensa', e.detail.dettaglio); });
 
   /* ═══ 6. LA CONSOLE ════════════════════════════════════════════════════ */
   var hud = { el: null, cv: null, energia: 0, stato: 'attesa', ascolto: false, rec: null, audio: null, analizzatore: null, dati: null, tempo: 0, raf: 0, interim: '' };
@@ -592,6 +592,9 @@
   var NOMI_STATO = { attesa: ['IN ATTESA', 'STANDBY'], ascolta: ['IN ASCOLTO', 'LISTENING'], pensa: ['ELABORO', 'PROCESSING'], parla: ['PARLO', 'SPEAKING'] };
   function stato(s, dett) {
     hud.stato = s || 'attesa';
+    /* la figura col corpo (bsi-spectra-figura.js) segue lo stato della console */
+    /* (l'evento porta la firma della console: la console stessa lo ignora, altrimenti si richiamerebbe all'infinito) */
+    try { document.dispatchEvent(new CustomEvent('bsi-spectra-stato', { detail: { stato: hud.stato, dettaglio: dett || '', daLive: true } })); } catch (e) {}
     if (hud.volto && hud.stato !== 'parla') hud.volto.stato(hud.stato);
     var e = document.getElementById('bsiJV-stato'); if (e) e.textContent = '◉ ' + t(NOMI_STATO[hud.stato][0], NOMI_STATO[hud.stato][1]) + (dett ? ' · ' + String(dett).toUpperCase().slice(0, 28) : '');
   }
