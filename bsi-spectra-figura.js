@@ -339,7 +339,7 @@
     '@media (max-width:640px){.bsiSF .bsiSF-az{padding-right:74px}#bsi-pane-spiega .bsiSF .bsiSF-az{padding-right:10px}}' +
     '.bsiSF-nota{position:absolute;left:12px;bottom:58px;max-width:52%;font:600 12px/1.35 system-ui;color:#9fb6dd;pointer-events:none}' +
     '.bsiSF-invito{position:absolute;left:12px;right:12px;top:42px;max-width:380px;background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui}' +
-    '.bsiSF-invito[hidden]{display:none}.bsiSF-invito button{margin-top:8px;background:linear-gradient(135deg,#2f6bff,#00c9b7);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer;min-height:36px}' +
+    '.bsiSF-invito[hidden]{display:none}.bsiSF-invito button{margin-top:8px;background:linear-gradient(135deg,#1d4ed8,#0e7490);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer;min-height:36px}' +
     '#bsi-pane-spiega .bsiSF{flex:0 0 auto;height:clamp(290px,40vh,400px);min-height:290px;margin:10px 14px 0}#bsi-pane-spiega #bsiSP{flex:1;min-height:0}' +
     /* nella scheda Spiega i pulsanti stanno in riga, in basso a destra, e «🧠 Spiega» non serve (ci siamo gia') */
     '#bsi-pane-spiega .bsiSF-lez{display:none}' +
@@ -383,7 +383,7 @@
     function posCam(r) { cam.position.set(bers.x + r * Math.sin(az0), bers.y + 0.18, bers.z + r * Math.cos(az0)); cam.lookAt(bers); }
 
     var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null };
-    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo, suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
+    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app il corpo viene solo dal dispositivo: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
     /* finche' il corpo non c'e' (la prima volta su un dispositivo): l'invito a caricarlo, non un sostituto */
     var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'note');
     inv.innerHTML = '<b>' + t('Spectra non è ancora su questo dispositivo.', 'Spectra is not on this device yet.') + '</b><br>' + t('Carica una volta il suo corpo (.glb): resta salvato solo qui.', 'Load its body (.glb) once: it stays saved here only.');
@@ -398,13 +398,30 @@
     function vivo() {
       /* lo schermo vivo: la sezione aperta (la sua tela, ridisegnata) copiata nell'ologramma, 5 volte al secondo */
       var L = globale.BSISpectraLive, c = L && L.cattura ? (function () { try { return L.cattura(); } catch (e) { return null; } })() : null;
-      if (!c) { OL.auto = true; OL.mostra('pianeti'); return; }
-      var q = OL.tela.getContext('2d'), k = Math.min(OL.tela.width / c.width, OL.tela.height / c.height);
+      var q = OL.tela.getContext('2d');
+      if (!c) {
+        /* una sezione senza grafici (testo, tabelle, controlli) si proietta come scheda: ogni sezione e' mostrabile */
+        var sc2 = L && L.schermo ? L.schermo() : null; if (!sc2 || !sc2.sezione) { OL.auto = true; OL.mostra('pianeti'); return; }
+        if (vivo.ultima === sc2.sezione + '|' + (sc2.scheda || '') + '|' + (sc2.controlli || []).map(function (x) { return x.valore; }).join(',')) return;
+        vivo.ultima = sc2.sezione + '|' + (sc2.scheda || '') + '|' + (sc2.controlli || []).map(function (x) { return x.valore; }).join(',');
+        schedaOlo(q, OL.tela.width, OL.tela.height, sc2); OL.tex.needsUpdate = true; return;
+      }
+      vivo.ultima = null;
+      var k = Math.min(OL.tela.width / c.width, OL.tela.height / c.height);
       q.fillStyle = '#04101e'; q.fillRect(0, 0, OL.tela.width, OL.tela.height);
       q.drawImage(c, (OL.tela.width - c.width * k) / 2, (OL.tela.height - c.height * k) / 2, c.width * k, c.height * k); OL.tex.needsUpdate = true;
     }
+    function schedaOlo(q, W, H, sc2) {
+      q.fillStyle = '#04101e'; q.fillRect(0, 0, W, H); q.strokeStyle = 'rgba(107,207,255,.6)'; q.lineWidth = 2; q.strokeRect(6, 6, W - 12, H - 12);
+      var y = 34; function riga(txt, font, col, max) { q.font = font; q.fillStyle = col; var parole = String(txt || '').split(' '), r = ''; for (var i = 0; i < parole.length; i++) { var p2 = r ? r + ' ' + parole[i] : parole[i]; if (q.measureText(p2).width > W - 40 && r) { q.fillText(r, 20, y); y += max; r = parole[i]; if (y > H - 16) return; } else r = p2; } if (r && y <= H - 16) { q.fillText(r, 20, y); y += max; } }
+      riga(sc2.titolo || sc2.sezione, '800 24px system-ui', '#5eead4', 30);
+      if (sc2.scheda) riga('▸ ' + sc2.scheda, '700 16px system-ui', '#9fe7ff', 22);
+      (sc2.controlli || []).slice(0, 6).forEach(function (x) { riga(x.etichetta + ' = ' + x.valore, '600 15px ui-monospace,monospace', '#ffd27a', 20); });
+      y += 4; riga((sc2.testo || '').slice(0, 520), '400 15px system-ui', '#cfe2ff', 20);
+    }
     function tema(testo, conSchermo) {
-      if (conSchermo && globale.BSISpectraLive && globale.BSISpectraLive.cattura && globale.BSISpectraLive.cattura()) { OL.auto = false; OL.mostra('schermo'); vivo(); return; }
+      var Lv = globale.BSISpectraLive, aperta = Lv && Lv.schermo ? Lv.schermo() : null;
+      if (conSchermo && aperta && aperta.sezione) { OL.auto = false; vivo.ultima = null; OL.mostra('schermo'); vivo(); return; }
       var n = sceneDi(testo); if (n) { OL.auto = false; OL.mostra(n); clearTimeout(tema._t); tema._t = setTimeout(function () { OL.auto = true; }, 60000); }
     }
     F.tema = tema;

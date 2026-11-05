@@ -37,7 +37,10 @@
      la domanda e' un esercizio numerico, lo svolgimento dell'assistente locale
      (bsi-assistente.js).
 
-   API: BSISpiega.costruisci(pannello), BSISpiega.chiedi(domanda, { schermo, livello }),
+   IL CATALOGO: tutte le sezioni dell'app (lette dalla barra, per materia e gruppo) si possono mostrare
+   nell'ologramma e spiegare; «🎞️ Mostrami tutto» le fa scorrere; una domanda che nomina una sezione la apre.
+   API: BSISpiega.costruisci(pannello), BSISpiega.catalogo(), BSISpiega.sezioneDi(testo), BSISpiega.mostraSezione(id),
+        BSISpiega.giro(materia), BSISpiega.giroFerma(), BSISpiega.chiedi(domanda, { schermo, livello }),
         BSISpiega.schermo() → { testo, tela, svg, grafici }, BSISpiega.immagine(S) → Promise<dataURL>,
         BSISpiega.sistema(livello, materia)
    ════════════════════════════════════════════════════════════════════════ */
@@ -132,6 +135,59 @@
     });
   }
 
+  /* ═══ IL CATALOGO: TUTTE le sezioni dell'app, per materia e per gruppo ═══
+     Richiesta dell'autore: «ogni sezione della chimica, della fisica e della matematica deve esserci, non deve
+     mancare nulla nell'ologramma: tutto spiegabile e mostrabile». Il catalogo non e' scritto a mano: si legge
+     dalla barra dell'app (ogni pulsante di sezione, nel suo gruppo), quindi una sezione nuova c'e' da sola. */
+  function catalogo() {
+    var M = globale.BSIMaterie, out = [];
+    [].forEach.call(D.querySelectorAll('.nav-group-panel'), function (pan) {
+      var g = +String(pan.id).replace('navGroup', ''), tab = D.querySelector('.nav-group-tab[data-group="' + g + '"]');
+      var materia = M && M.materiaDi ? M.materiaDi(g) : null;
+      [].forEach.call(pan.querySelectorAll('[data-s]'), function (b) {
+        var nome = b.textContent.replace(/\s+/g, ' ').trim(); if (!nome) return;
+        out.push({ id: b.getAttribute('data-s'), nome: nome, gruppo: tab ? tab.textContent.trim() : '', g: g, materia: materia || 'comune' });
+      });
+    });
+    return out;
+  }
+  function norma(x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  /* la sezione che una domanda nomina: le parole significative del nome della sezione dentro la domanda */
+  var VUOTE = /^(della|delle|degli|dello|dei|del|nella|nelle|sulla|con|per|una|uno|gli|che|come|sono|questa|questo|spiegami|spiega|mostrami|cosa|perche|area|assistente|guida|quiz|calcolatore|calc|pro|interattivi|interattive)$/;
+  /* le sigle della spettroscopia e della chimica: brevi, ma decisive */
+  var SIGLE = /^(ms|ir|uv|nmr|noe|mo|pk|ph|dna|rna|qm|mm|gw|edo|edp)$/;
+  var SINONIMI = [[/spettr\w* di massa|spettrometria di massa|mass spectr/, ' ms '], [/infrarosso|infrared/, ' ir '], [/ultraviolett|visibile/, ' uv '], [/risonanza magnetica/, ' nmr '], [/orbitali molecolari|molecular orbital/, ' mo '], [/onde gravitazionali/, ' gw ']];
+  function sezioneDi(testo) {
+    var q = ' ' + norma(testo) + ' ', meglio = null, punti = 0;
+    SINONIMI.forEach(function (x) { if (x[0].test(q)) q += x[1]; });
+    catalogo().forEach(function (x) {
+      var parole = norma(x.nome).split(' ').filter(function (w) { return (w.length > 3 || SIGLE.test(w)) && !VUOTE.test(w); }); if (!parole.length) return;
+      var p = 0; parole.forEach(function (w) { var rad = w.length > 6 ? w.slice(0, w.length - 2) : w; if (q.indexOf(' ' + rad + (SIGLE.test(w) ? ' ' : '')) >= 0) p += (SIGLE.test(w) ? 10 : w.length); });
+      var tot = parole.reduce(function (a, w) { return a + (SIGLE.test(w) ? 10 : w.length); }, 0), f = p / tot;
+      /* una parola lunga e precisa basta («integrali» → «Derivate, integrali e serie»); a parita', il nome piu' corto */
+      if (p >= 6 && (f >= 0.5 || p >= 8)) { var v = p * (0.5 + f); if (v > punti || (v === punti && meglio && x.nome.length < meglio.nome.length)) { punti = v; meglio = x; } }
+    });
+    return meglio;
+  }
+  /* aprire una sezione dietro la finestra di Spectra (cambiando materia se serve) e mostrarla nell'ologramma */
+  function mostraSezione(id) {
+    var L = globale.BSISpectraLive, r = L && L.calcolo && L.calcolo.apriSezione ? L.calcolo.apriSezione(id) : null;
+    if (!r || !r.ok) { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); else return Promise.resolve(false); }
+    return new Promise(function (ok) { setTimeout(function () { aggiornaSchermo(); ok(true); }, 1300); });
+  }
+  var GIRO = { t: null, lista: [], i: 0 };
+  function giroFerma() { clearTimeout(GIRO.t); GIRO.t = null; var b = D.getElementById('bsiSP-giro'); if (b) b.textContent = '🎞️ ' + t('Mostrami tutto', 'Show me everything'); }
+  function giroAvvia(materia) {
+    giroFerma(); GIRO.lista = catalogo().filter(function (x) { return !materia || x.materia === materia; }); GIRO.i = 0;
+    var b = D.getElementById('bsiSP-giro'); if (b) b.textContent = '⏹ ' + t('Ferma il giro', 'Stop the tour');
+    (function avanti() {
+      if (!GIRO.lista.length) return giroFerma();
+      var x = GIRO.lista[GIRO.i % GIRO.lista.length]; GIRO.i++;
+      var st = D.getElementById('bsiSP-giro-stato'); if (st) st.textContent = GIRO.i + '/' + GIRO.lista.length + ' · ' + x.nome;
+      mostraSezione(x.id).then(function () { GIRO.t = setTimeout(avanti, 7000); });
+    })();
+  }
+
   /* ── il modello: lo stesso fornitore e la stessa chiave della chat ── */
   function modello() { var L = globale.bsiLLM; if (!L || !globale.bsiStreamChat) return null; var p = L.provider(), k = p ? L.chiave(p) : null; return p && k ? { p: p, k: k } : null; }
 
@@ -144,7 +200,7 @@
     '#bsiSP textarea,#bsiSP select{background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e9eef6;padding:9px 11px;font:500 14.5px/1.45 system-ui}' +
     '#bsiSP textarea{width:100%;box-sizing:border-box;min-height:64px;resize:vertical}' +
     '#bsiSP .riga{display:flex;gap:8px;flex-wrap:wrap;align-items:center}' +
-    '#bsiSP .bt{background:linear-gradient(135deg,#2f6bff,#00c9b7);color:#fff;border:0;border-radius:10px;padding:9px 16px;font:800 14px system-ui;cursor:pointer;min-height:40px}' +
+    '#bsiSP .bt{background:linear-gradient(135deg,#1d4ed8,#0e7490);color:#fff;border:0;border-radius:10px;padding:9px 16px;font:800 14px system-ui;cursor:pointer;min-height:40px}' +
     '#bsiSP .bt[disabled]{opacity:.6;cursor:wait}#bsiSP .bt2{background:rgba(16,32,64,.85);border:1px solid #2a4a70;color:#cfe2ff;border-radius:999px;padding:7px 12px;font:600 12.5px system-ui;cursor:pointer;min-height:34px}' +
     '#bsiSP .schermo{display:flex;gap:10px;align-items:center}#bsiSP .schermo img{width:96px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #2a4a70;background:#081522}' +
     '#bsiSP .risposta h2,#bsiSP .risposta .bsi-md-h{font:800 15.5px system-ui;color:#6bcfff;margin:14px 0 6px}#bsiSP .risposta table{border-collapse:collapse;margin:6px 0}#bsiSP .risposta td,#bsiSP .risposta th{border:1px solid #1a3550;padding:4px 8px}' +
@@ -158,6 +214,11 @@
     w.innerHTML = '<div class="carta"><h3>🧠 ' + t('Spectra spiega tutto', 'Spectra explains everything') + '</h3><div class="nota">' +
       t('Chimica, fisica e matematica, dalle superiori al PhD avanzato: una spiegazione completa ed esaustiva, con la derivazione, i numeri, i collegamenti e la frontiera della ricerca. Può leggere ciò che hai sullo schermo: spettri, grafici e scene 3D.', 'Chemistry, physics and mathematics, from high school to advanced PhD: a complete, exhaustive explanation with derivation, numbers, connections and the research frontier. It can read what is on your screen: spectra, graphs and 3D scenes.') + '</div></div>' +
       '<div class="carta schermo" id="bsiSP-schermo"></div>' +
+      '<details class="carta" id="bsiSP-cat"><summary><b>🗂️ ' + t('Tutte le sezioni nell\'ologramma', 'Every section in the hologram') + '</b> <span class="nota" id="bsiSP-cat-n"></span></summary>' +
+      '<div class="riga" style="margin:8px 0"><input type="search" id="bsiSP-cerca" aria-label="' + t('Cerca una sezione', 'Search a section') + '" placeholder="' + t('Cerca: titolazione, Schrödinger, integrali…', 'Search: titration, Schrödinger, integrals…') + '" style="flex:1;min-width:160px;background:#0d1b2e;border:1px solid #1a3550;border-radius:10px;color:#e9eef6;padding:8px 10px">' +
+      '<select id="bsiSP-mat" aria-label="' + t('Materia', 'Subject') + '"><option value="">' + t('Tutte le materie', 'All subjects') + '</option><option value="chimica">' + t('Chimica', 'Chemistry') + '</option><option value="fisica">' + t('Fisica', 'Physics') + '</option><option value="matematica">' + t('Matematica', 'Mathematics') + '</option></select>' +
+      '<button type="button" class="bt2" id="bsiSP-giro">🎞️ ' + t('Mostrami tutto', 'Show me everything') + '</button></div><div class="nota" id="bsiSP-giro-stato" aria-live="polite"></div>' +
+      '<div id="bsiSP-lista" style="max-height:260px;overflow:auto"></div></details>' +
       '<textarea id="bsiSP-q" aria-label="' + t('Che cosa vuoi capire', 'What do you want to understand') + '" placeholder="' + t('Che cosa vuoi capire? Es.: spiegami questo spettro ¹H-NMR; perché l\'orbitale 3d_z² ha quella forma; la trasformata di Fourier del grafico…', 'What do you want to understand? E.g.: explain this ¹H-NMR spectrum; why the 3d_z² orbital looks like that; the Fourier transform of the graph…') + '"></textarea>' +
       '<div class="riga" id="bsiSP-spunti"></div>' +
       '<div class="riga"><select id="bsiSP-liv" aria-label="' + t('Livello', 'Level') + '">' + LIVELLI.map(function (l, i) { return '<option value="' + i + '"' + (i === ST.livello ? ' selected' : '') + '>' + l + '</option>'; }).join('') + '</select>' +
@@ -171,6 +232,22 @@
     D.getElementById('bsiSP-liv').onchange = function () { ST.livello = +this.value; };
     D.getElementById('bsiSP-nuova').onclick = function () { ST.storia = []; D.getElementById('bsiSP-out').innerHTML = ''; D.getElementById('bsiSP-q').value = ''; aggiornaSchermo(); D.getElementById('bsiSP-q').focus(); };
     aggiornaSchermo();
+    disegnaCatalogo();
+    D.getElementById('bsiSP-cerca').oninput = disegnaCatalogo; D.getElementById('bsiSP-mat').onchange = disegnaCatalogo;
+    D.getElementById('bsiSP-giro').onclick = function () { if (GIRO.t) giroFerma(); else giroAvvia(D.getElementById('bsiSP-mat').value); };
+  }
+  function disegnaCatalogo() {
+    var box = D.getElementById('bsiSP-lista'); if (!box) return;
+    var q = norma((D.getElementById('bsiSP-cerca') || {}).value), m = (D.getElementById('bsiSP-mat') || {}).value, tutte = catalogo();
+    var L = tutte.filter(function (x) { return (!m || x.materia === m) && (!q || norma(x.nome + ' ' + x.gruppo).indexOf(q) >= 0); });
+    var n = D.getElementById('bsiSP-cat-n'); if (n) n.textContent = '· ' + tutte.length + ' ' + t('sezioni', 'sections') + (L.length !== tutte.length ? ', ' + L.length + ' ' + t('mostrate', 'shown') : '');
+    box.innerHTML = ''; var gruppo = null;
+    L.forEach(function (x) {
+      if (x.gruppo !== gruppo) { gruppo = x.gruppo; var h = D.createElement('div'); h.className = 'nota'; h.style.cssText = 'margin:8px 0 4px;font-weight:800;color:#6bcfff'; h.textContent = gruppo; box.appendChild(h); }
+      var b = D.createElement('button'); b.type = 'button'; b.className = 'bt2'; b.style.margin = '0 6px 6px 0'; b.textContent = x.nome; b.setAttribute('data-sez', x.id);
+      b.onclick = function () { giroFerma(); mostraSezione(x.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = true; D.getElementById('bsiSP-q').focus(); }); };
+      box.appendChild(b);
+    });
   }
   /* la carta dello schermo: che cosa e' aperto, con la miniatura; si aggiorna a ogni apertura della scheda */
   function aggiornaSchermo() {
@@ -200,6 +277,10 @@
     if (!ST.pan || !D.getElementById('bsiSP-out')) { var p = D.getElementById('bsi-pane-spiega'); if (p) costruisci(p); }
     var out = D.getElementById('bsiSP-out'); if (!out) return Promise.resolve(null);
     var livello = o.livello == null ? ST.livello : o.livello; ST.livello = livello;
+    /* la domanda nomina una sezione dell'app (e lo schermo non e' gia' incluso): la si apre dietro la finestra, la si
+       mostra nell'ologramma e la spiegazione usa i suoi dati */
+    if (!o.schermo && !o.nonAprire) { var nominata = sezioneDi(domanda), aperta = sezioneAperta();
+      if (nominata && (!aperta || aperta.sezione !== nominata.id)) return mostraSezione(nominata.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = true; o.schermo = true; o.nonAprire = true; return chiedi(domanda, o); }); }
     var S = o.schermo ? schermo() : null; ST.materia = S ? S.materia : ST.materia;
     annuncia('bsi-spectra-tema', { testo: domanda, schermo: !!S });
     return immagineSchermo(S).then(function (imm) { if (S) S.immagine = imm; return chiediCon(domanda, S, livello, out); });
@@ -249,6 +330,6 @@
     return null;
   }
 
-  globale.BSISpiega = { costruisci: costruisci, chiedi: chiedi, schermo: schermo, immagine: immagineSchermo, sistema: sistema, aggiornaSchermo: aggiornaSchermo, LIVELLI: LIVELLI, PROFONDITA: PROFONDITA,
+  globale.BSISpiega = { costruisci: costruisci, chiedi: chiedi, catalogo: catalogo, sezioneDi: sezioneDi, mostraSezione: mostraSezione, giro: giroAvvia, giroFerma: giroFerma, schermo: schermo, immagine: immagineSchermo, sistema: sistema, aggiornaSchermo: aggiornaSchermo, LIVELLI: LIVELLI, PROFONDITA: PROFONDITA,
     stato: function () { return { turni: ST.storia.length, livello: ST.livello, inCorso: ST.inCorso }; } };
 })(typeof window !== 'undefined' ? window : this);

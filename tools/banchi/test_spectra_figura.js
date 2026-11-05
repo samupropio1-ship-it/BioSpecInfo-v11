@@ -21,6 +21,9 @@
    · l'OLOGRAMMA alla destra di Spectra: sei scene vive (i pianeti seguono
      Keplero), il soggetto che segue il discorso, l'etichetta che apre la
      sezione, lo schermo vivo della sezione aperta dietro la finestra Spiega;
+   · il CATALOGO: tutte le sezioni della barra mostrabili e spiegabili, una
+     domanda che nomina un argomento apre la sua sezione, le sezioni senza
+     grafici proiettate come scheda, il giro di tutte le sezioni di una materia;
    · «🧠 SPIEGA», l'AI che spiega tutto in modo esaustivo, ci sia nella finestra
      di Spectra: seconda scheda, Spectra col corpo che spiega, la lettura dello
      schermo (uno spettro NMR e una scena 3D: testo, valori e immagine) che arriva
@@ -172,6 +175,20 @@ const SINTETICO = () => {
       document.getElementById('bsiSP-nuova').click(); document.getElementById('bsiSP-q').value = 'spiegami questo spettro'; document.getElementById('bsiSP-usa').checked = true; document.getElementById('bsiSP-via').click(); await pausa(300);
       o.senza = document.querySelector('#bsiSP-out .risposta').textContent;
       window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
+      /* IL CATALOGO: tutte le sezioni, per materia; una domanda che nomina una sezione la apre */
+      const C = BSISpiega.catalogo(), mm = {}; C.forEach(x => { mm[x.materia] = (mm[x.materia] || 0) + 1; });
+      o.cat = { n: C.length, barra: document.querySelectorAll('.nav-group-panel [data-s]').length, mm };
+      o.nomina = ['spiegami le titolazioni acido base', 'come funziona l\'equazione di Schrödinger', 'calcola gli integrali per parti', 'lo spettro di massa del benzene', 'lo spettro infrarosso dell\'etanolo', 'la meccanica orbitale dei satelliti', 'ciao come stai'].map(q => (BSISpiega.sezioneDi(q) || {}).id || '—');
+      window.bsiLLM = { provider: () => 'finto', chiave: () => 'x' }; let ric2 = null;
+      window.bsiStreamChat = (p, c, m, sys, cb) => { ric2 = m[m.length - 1]; cb.onToken('## In sintesi\nok', '## In sintesi\nok'); return Promise.resolve(); };
+      document.getElementById('bsiSP-nuova').click(); document.getElementById('bsiSP-usa').checked = false; document.getElementById('bsiSP-q').value = 'spiegami le titolazioni acido base'; document.getElementById('bsiSP-via').click(); await pausa(2600);
+      o.autoApre = { sez: (BSILive = BSISpectraLive.schermo() || {}).sezione, schermo: !!ric2 && /SCHERMO DELL'UTENTE/.test(ric2.content), olo: BSISpectraFigura.figura.olo.attuale };
+      window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
+      /* una sezione senza grafici si proietta come scheda */
+      await BSISpiega.mostraSezione('spt'); await pausa(1400); const O2 = BSISpectraFigura.figura.olo, px2 = O2.tela.getContext('2d').getImageData(0, 0, O2.tela.width, O2.tela.height).data; let a2 = 0; for (let i = 0; i < px2.length; i += 4000) a2 += px2[i] + px2[i + 1] + px2[i + 2];
+      o.scheda = { modo: O2.attuale, pieno: a2 > 2000, sez: (BSISpectraLive.schermo() || {}).sezione };
+      /* il giro di tutte le sezioni di una materia */
+      BSISpiega.giro('matematica'); await pausa(8800); o.giro = document.getElementById('bsiSP-giro-stato').textContent; BSISpiega.giroFerma();
       /* una scena 3D */
       document.getElementById('bsi-hub-close').click(); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
       window.bsiOpenAIHub('spiega'); await pausa(1800); const O = BSISpectraFigura.figura.olo, px = O.tela.getContext('2d').getImageData(0, 0, O.tela.width, O.tela.height).data; let acc = 0; for (let i = 0; i < px.length; i += 4000) acc += px[i] + px[i + 1] + px[i + 2];
@@ -194,6 +211,11 @@ const SINTETICO = () => {
     vero('senza modello non finge: lo dice e mostra ciò che l\'app sa della sezione', /serve un modello/.test(sp.senza) && /Sullo schermo/.test(sp.senza));
     vero('legge anche gli spettri disegnati in SVG (' + (sp.sv && sp.sv.svg) + ' grafici vettoriali trasformati in immagine)', sp.sv && sp.sv.svg >= 1 && sp.sv.img);
     vero('con la scena 3D aperta dietro Spiega, l\'ologramma la mostra dal vivo (' + sp.vivo.modo + ')', sp.vivo.modo === 'schermo' && sp.vivo.pieno);
+    vero('il catalogo ha TUTTE le sezioni della barra (' + sp.cat.n + '/' + sp.cat.barra + ': chimica ' + sp.cat.mm.chimica + ', fisica ' + sp.cat.mm.fisica + ', matematica ' + sp.cat.mm.matematica + ', comuni ' + (sp.cat.mm.comune || 0) + ')', sp.cat.n === sp.cat.barra && sp.cat.n >= 190 && sp.cat.mm.chimica > 50 && sp.cat.mm.fisica > 40 && sp.cat.mm.matematica > 20);
+    att('una domanda che nomina un argomento trova la sua sezione', 'stitr|sschrod|smatcalc|sms|sirvis|sastroorbite|—', sp.nomina.join('|'));
+    vero('chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell\'ologramma e la spiega con i suoi dati (' + sp.autoApre.sez + ')', sp.autoApre.sez === 'stitr' && sp.autoApre.schermo && sp.autoApre.olo === 'schermo');
+    vero('una sezione senza grafici (Tavola Periodica) si proietta come scheda nell\'ologramma', sp.scheda.sez === 'spt' && sp.scheda.modo === 'schermo' && sp.scheda.pieno);
+    vero('«🎞️ Mostrami tutto» scorre le sezioni della materia (' + sp.giro + ')', /^2\/\d+ · /.test(sp.giro) || /^3\/\d+ · /.test(sp.giro));
     vero('legge anche una scena 3D (' + (sp.s3 && sp.s3.titolo) + ': ' + (sp.s3 && sp.s3.grafici) + ' tele, immagine)', sp.s3 && sp.s3.grafici >= 1 && sp.s3.img);
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
