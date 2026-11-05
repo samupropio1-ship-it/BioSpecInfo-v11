@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v239` |
+| **Versione descritta** | `bsi-v240` |
 | **Scopo** | Descrivere cosa fa il prodotto, per chi, con quali regole e con quali limiti. |
 
 ---
@@ -83,7 +83,7 @@ L'applicazione conta **194 sezioni**, raggruppate per area di studio.
 | **🧪 ⚛️ 📐 Tre app in una** | La materia scelta decide anche il **menu ✨**, **Spectra**, **Studio** e **Utility** (`bsi-materie-app.js`). In fisica e matematica il blocco delle funzioni chimiche del menu ✨ lascia il posto agli **strumenti rapidi** (`bsi-attrezzi.js`), aperti in una finestra sopra la pagina: 🧮 calcolatrice esatta, ∂ derivata e ∫ primitiva, 📈 grafico, 🔢 costante CODATA, 🔁 convertitore di unità, 📐 formula, 📖 glossario e ⚡ quiz lampo presi dal kit di studio della materia. Spectra riceve un'istruzione di sistema, i suggerimenti e il saluto della materia |
 | **🧊 Schede 3D nelle sezioni (v238)** | Ventinove sezioni (4 di chimica, 15 di fisica, 10 di matematica) hanno in coda una scheda 3D costruita sul modello della sezione: superficie LEPS con la traiettoria, superficie P–V–T con la cupola, urti molecolari in una scatola, equilibrio molecola per molecola, celle elementari con i piani di Miller, nuvola \|ψ\|², orbitali RHF, molecola che ruota e vibra, fluido di Lennard-Jones, lancio con vento, campi e forza di Lorentz, ondoscopio, pozzo di potenziale con i punti di Lagrange, cono di luce, flusso attorno a un ostacolo, superficie p-V-T, zona di Brillouin, Ising 3D, rivelatore di particelle; piano tangente, campo e divergenza, solidi di rotazione, trasformazioni dello spazio, caos nello spazio delle fasi, normale bivariata, superfici con χ e orientabilità, sfera e iperboloide, sfera di Riemann, pellicola di sapone. Testo e comandi si costruiscono al clic, la scena subito dopo. Ogni scheda ha uno script di verifica (`15-Test-Documentation.md` §3.1-ter). Le tele senza nome prendono quello della scheda e della sezione |
 | **🎓 Lezione guidata in ogni sezione (v239)** | Sotto il titolo di ogni sezione il pulsante «🎓 Lezione guidata con Spectra» avvia una lezione in capitoli costruita dalla sezione stessa (`bsi-lezione.js`): apertura con titolo e sottotitolo; un capitolo per scheda, in cui la scheda si apre, la spiegazione si legge a pezzi, tele e scene 3D vengono illuminate, ogni cursore scorre dal minimo al massimo e torna dov'era, ogni scelta passa le sue opzioni e torna com'era; una domanda di verifica dal kit di studio della materia con la spiegazione dopo la risposta; un riepilogo. Le sezioni senza schede si leggono per titoli e paragrafi. Il lettore sta a destra sullo schermo grande (la pagina si sposta a sinistra) e in basso sul telefono; ha ◀ ▶, pausa, voce di Spectra e un riflettore che oscura il resto della pagina. Durante la lezione i pulsanti flottanti sono nascosti. Alla stesura: 194 sezioni con la lezione, 99 con schede, 79 con una domanda di verifica |
-| **🌌 Spectra Studio (v239)** | Una pagina a sé (`spectra-studio.html`), aperta dal navigatore 🧭 della console: un laboratorio 3D con Spectra in piedi accanto a un banco olografico. Tre lezioni con il metodo predici → testa → dimostra → rivela: 🪂 la caduta (lasciata o lanciata, tocca terra insieme: 2,019 s da 20 m, gittata 12,12 m), 💧 la forma dell'acqua (VSEPR come minimo di energia: tetraedro 109,47°, acqua 104,4°, ammoniaca prevista 106,7°), ∑ il problema di Basilea (somme parziali, coda, Fourier di x², coprimi → 6/π²). Ogni opzione è spiegata; esercizi su quattro livelli con quello consigliato dalla memoria delle previsioni (`bsi-spectra-studio-v1`). Il corpo è il modello `models/spectra-cyberpunk.glb` se c'è, altrimenti (oggi) un manichino riggato di prova con il volto «Noir»; la voce si spegne con 🔊/🔇 e la scelta si ricorda; il pannello contiene tutto il testo e la lezione si segue anche senza WebGL. Progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) |
+| **🌌 Spectra Studio (v239)** | Una pagina a sé (`spectra-studio.html`), aperta dal navigatore 🧭 della console: un laboratorio 3D con Spectra in piedi accanto a un banco olografico. Tre lezioni con il metodo predici → testa → dimostra → rivela: 🪂 la caduta (lasciata o lanciata, tocca terra insieme: 2,019 s da 20 m, gittata 12,12 m), 💧 la forma dell'acqua (VSEPR come minimo di energia: tetraedro 109,47°, acqua 104,4°, ammoniaca prevista 106,7°), ∑ il problema di Basilea (somme parziali, coda, Fourier di x², coprimi → 6/π²). Ogni opzione è spiegata; esercizi su quattro livelli con quello consigliato dalla memoria delle previsioni (`bsi-spectra-studio-v1`). Il corpo è quello scelto dall'autore, caricato una volta dal dispositivo con «🧍 Corpo» (oppure `models/spectra-cyberpunk.glb` se c'è), riggato, con il volto «Noir» sul colletto; senza corpo l'invito a caricarlo, nessun sostituto (dalla v240); la voce si spegne con 🔊/🔇 e la scelta si ricorda; il pannello contiene tutto il testo e la lezione si segue anche senza WebGL. Progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Esplorazioni** | **Probabilità in movimento** (Galton, limite centrale, Monte Carlo, Bayes); **Matematica visiva** (trasformazioni lineari animate, epicicli di Fourier anche da un disegno a mano, Mandelbrot e Julia con lo zoom, mappa logistica e biforcazioni); **Elettromagnetismo in movimento** (cariche da trascinare con equipotenziali e linee di campo, induzione, generatore, onde EM e polarizzazione); **Suono e acustica** con l'audio (armoniche, timbro, battimenti, Doppler e cono di Mach, decibel); **Semiconduttori** (Fermi-Dirac, n_i, drogaggio, giunzione p-n, LED); **Distillazione** (T-x-y con Antoine e van Laar, azeotropo, McCabe-Thiele, Rayleigh); **Voltammetria ciclica** simulata (diffusione e Butler-Volmer, Randles-Ševčík, analisi con la velocità di scansione) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrofisica, relatività, fluidi, calcolo vettoriale, cinetica complessa** | **Astrofisica**: diagramma H-R con stelle vere e la sequenza principale per massa, corpo nero e colore delle stelle, sistema solare animato con Keplero e Hohmann, transiti di esopianeti con curva di luce e velocità radiale, cosmologia di Friedmann con età dell'universo e galassie che si allontanano. **Relatività ristretta**: Minkowski, gemelli, dinamica e Doppler. **Fluidi**: Venturi, Poiseuille, Reynolds, Stokes e centrifuga, capillarità. **Calcolo vettoriale**: campi con particelle, divergenza e rotore, potenziale, teorema di Green verificato, gradiente. **Cinetica complessa**: reazioni consecutive, parallele e reversibili, Brusselator e biforcazione di Hopf, strutture di Turing. Tutte le animazioni dell'app hanno pausa, ricomincia e velocità, si fermano fuori schermo e rispettano «riduci movimento» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratori in movimento** | Sette sezioni: **Meccanica in movimento** (proiettile con l'aria e angolo ottimo, urti con coefficiente di restituzione, pendolo vero con lo spazio delle fasi, oscillatori accoppiati e modi normali); **Onde e ottica** (battimenti, onde stazionarie, velocità di gruppo; lenti e specchi con i raggi principali; diffrazione da N fenditure nel colore della luce); **Circuiti** (transitori RC, RL, RLC con i tre regimi; corrente alternata con i fasori e la risonanza; filtri con il diagramma di Bode); **Termodinamica in movimento** (cicli di Carnot, Otto, Diesel e Stirling nei piani p-V e T-S con i bilanci; gas di particelle che arriva a Maxwell-Boltzmann; moto browniano); **Metodi numerici** (zeri, integrazione, EDO, interpolazione, con gli ordini di convergenza misurati); **Geometria analitica e vettori** (vettori e rette e piani in 3D, coniche con gli invarianti); **Equilibrio e Le Chatelier** (una reazione che si sposta quando la si disturba, K in funzione di T) |
@@ -345,9 +345,102 @@ pronunciato esce dal dispositivo solo in questo caso
 
 **Il corpo** (`bsi-spectra-corpo.js`, v239). Un driver generico per avatar
 umanoidi (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta),
-usato in Spectra Studio. Lo studio carica il modello scelto dall'autore da
-`models/spectra-cyberpunk.glb` se il file c'è; il modello non è stato fornito,
-quindi oggi si vede un manichino di prova (§6). Corpo, volto e mente sono una simulazione di
+usato da `bsi-spectra-figura.js` (v240) in Spectra Studio e nelle sezioni
+dell'AI. Il corpo scelto dall'autore (CGTrader, licenza Royalty Free) non può
+stare nel repository: l'utente lo carica una volta dal proprio dispositivo con
+«🧍 Corpo» e resta nell'IndexedDB del browser. Senza quel corpo compare
+l'invito a caricarlo, senza sostituti (§6).
+
+**Spectra col corpo nelle sezioni dell'AI** (`bsi-spectra-figura.js`, v240).
+In Spectra AI e nelle tre aree con l'assistente, sotto il titolo, un riquadro
+da laboratorio mostra Spectra in piedi: pensa mentre il modello lavora, spiega
+con le mani e il labiale quando arriva la risposta, parla con Spectra Live e
+spiega lo svolgimento quando l'assistente locale risolve un esercizio; pulsanti
+«🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio». Una figura sola per
+tutta l'app. L'icona di Spectra è solo il volto. I pulsanti stanno in una barra
+sotto la scena.
+
+**L'ologramma** (`bsi-spectra-figura.js`, v240). Alla destra di Spectra (la
+destra di chi guarda) uno schermo olografico mostra scene vive, calcolate e
+non registrate: quattro pianeti su orbite di Keplero (equazione di Keplero
+risolta a ogni fotogramma, più veloci al perielio), il benzene con la nube π,
+uno spettro IR che si disegna da sé, la superficie z = sin(r − t)/r, l'orbitale
+3d_z² che ruota, un pacchetto d'onda di Schrödinger che si allarga; oppure la
+sezione aperta dietro la finestra di Spectra, dal vivo. La scena segue
+l'argomento della domanda e della risposta (orbite → pianeti, spettro → IR,
+orbitale → 3d_z²…); con «📺 Includi lo schermo» mostra la sezione aperta; a
+riposo le scene si alternano ogni 14 s. L'etichetta in alto a destra («🪐 Orbite
+di Keplero · apri ›»…) apre con un tocco la sezione corrispondente **senza
+togliere la figura di Spectra**: non si lascia la sezione dell'AI, si apre la
+finestra di Spectra su «🧠 Spiega» (se non è già aperta) e la sezione dietro di
+essa, così Spectra resta visibile davanti e la sezione si vede dal vivo
+nell'ologramma. Chiusa la finestra, se Spectra ha aperto altre sezioni (il
+catalogo, «🎞️ Mostrami tutto», una domanda che nomina un argomento,
+l'etichetta), l'app torna alla sezione dell'AI da cui si era partiti, dove c'è
+la figura, e il giro si ferma. Quando
+risponde, Spectra indica prima l'ologramma e poi spiega con le mani. **Ogni
+sezione è mostrabile**: una sezione senza grafici (testo, tabelle, comandi) si
+proietta come una scheda disegnata nell'ologramma (titolo, scheda aperta, fino
+a sei comandi con i loro valori, testo visibile), invece di tornare ai pianeti.
+
+**«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). Nella finestra di Spectra la
+scheda **«🧠 Spiega»** è la seconda, dopo «💬 Chat» (poi Esame Orale, Ripassa
+Oggi, Genera Guida). Dà una **spiegazione esaustiva** di qualunque domanda di
+chimica, fisica o matematica, a uno dei cinque livelli (Scuola superiore,
+Triennale, Magistrale, Dottorato (PhD), PhD avanzato · frontiera), senza
+semplificare sotto il livello scelto e senza tralasciare nulla di rilevante.
+La risposta ha una struttura obbligatoria: in sintesi; che cosa stai guardando
+(con lo schermo: la lettura quantitativa del grafico — per uno spettro NMR
+ogni segnale con δ, molteplicità, J, integrale e attribuzione, per IR, MS e
+UV-Vis bande, frammenti e transizioni; per una scena 3D geometria, simmetria,
+nodi, punti critici e isosuperfici; per un grafico matematico dominio,
+asintoti, estremi, flessi, convergenza); fondamenti teorici; formalismo e
+derivazione completa; esempi numerici calcolati; casi limite, approssimazioni
+ed errori comuni; collegamenti fra le tre materie; applicazioni e frontiera
+della ricerca; tre domande per verificarsi, con risposta. Con **«📺 Includi lo
+schermo»** la spiegazione riguarda ciò che è aperto: al modello vanno il testo
+della sezione (comandi con i valori, tabelle, testo) e un'immagine dei grafici
+e delle scene 3D. Domande rapide: «📈 Spiegami questo grafico», «🧪 Lo spettro,
+picco per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+della ricerca»; «↺ Nuova spiegazione» ricomincia. Serve un fornitore di IA
+configurato: senza, la scheda lo dice e mostra ciò che l'app sa da sola
+(l'assistente locale per gli esercizi numerici, i capitoli della lezione
+guidata della sezione, i dati dello schermo). Spectra col corpo si sposta
+nella scheda, pensa mentre il modello scrive e poi spiega a voce e a gesti.
+
+**Il catalogo: tutte le sezioni nell'ologramma** (`bsi-spectra-spiega.js`,
+v240). Richiesta dell'autore: «ogni sezione della chimica, della fisica e della
+matematica deve esserci, non deve mancare nulla in questo ologramma: deve
+esserci tutto spiegabile e mostrabile». Il catalogo non è scritto a mano: si
+legge dalla barra dell'app (ogni pulsante di sezione, con il suo gruppo —
+Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+Utility, Fisica, Matematica, Astrofisica — e la sua materia): 194 sezioni
+(chimica 75, fisica 60, matematica 30, comuni 29); una sezione nuova compare da
+sola. Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
+nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un filtro
+per materia; un tocco apre la sezione dietro la finestra di Spectra
+(cambiando materia se serve), l'ologramma la mostra dal vivo e «📺 Includi lo
+schermo» si spunta, così la spiegazione usa i suoi dati. **«🎞️ Mostrami
+tutto»** fa scorrere nell'ologramma ogni sezione della materia scelta (o
+tutte), una ogni 7 s, con il contatore «n/N · nome»; si può fermare. **Una
+domanda che nomina un argomento trova la sua sezione** (le parole
+significative dei nomi delle sezioni cercate nella domanda, anche per radice;
+le sigle MS, IR, UV, NMR, MO… pesano di più; sinonimi come «spettro di massa» →
+MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
+MO; a parità vince il nome più corto): chiedendo in «🧠 Spiega» senza lo
+schermo incluso, la sezione nominata si apre dietro la finestra, si mostra
+nell'ologramma e la spiegazione comprende i dati del suo schermo. **La spunta
+tolta dall'utente si rispetta**: se l'utente ha tolto «📺 Includi lo schermo»,
+la sezione nominata o scelta dal catalogo si apre e si mostra lo stesso, ma la
+casella resta spenta e al modello va solo la domanda, senza testo né immagine
+dello schermo; le domande rapide sullo schermo rimettono la spunta (scelta
+esplicita). Esempi:
+titolazioni → Titolazione, Schrödinger → l'equazione di Schrödinger,
+integrali per parti → «Derivate, integrali e serie», spettro di massa →
+Spettro MS, spettro infrarosso → IR Visivi, meccanica orbitale → la meccanica
+orbitale 3D; «ciao come stai» → nessuna.
+
+Corpo, volto e mente sono una simulazione di
 comportamento, non una coscienza.
 
 ---
@@ -506,7 +599,7 @@ Dichiarate, non nascoste. Il dettaglio è in
 | 13 | **Il volto di Spectra pesa circa 8 MB** | `models/spectra-noir.glb` non è nel precarico del service worker: si scarica la prima volta che l'app ricava l'icona di Spectra (pochi secondi dopo il primo avvio, se c'è WebGL) o apre la console. Se non arriva, la console usa il volto di ripiego |
 | 14 | **Il riconoscimento del creatore non è un controllo d'accesso** | L'impronta SHA-256 è nel codice e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`: chi ha il dispositivo può scriverlo a mano. Come la password del File Manager, è un deterrente e non protegge dati |
 | 15 | **La lezione guidata nasce dalla pagina, non da un autore** | La lezione legge spiegazioni, tele e comandi della sezione: dove una scheda ha poco testo, il capitolo dice poco. La domanda di verifica è scelta per parole in comune con la sezione e può essere solo vicina all'argomento; 115 sezioni su 194 non ne hanno una. La voce non è provata dal banco. Il modello a cui si ispira (la lezione interattiva di Every Joule) non era raggiungibile durante lo sviluppo: la lezione ne è un'interpretazione |
-| 16 | **Spectra Studio è un primo prototipo** | Tre lezioni soltanto. Il modello «cyberpunk» scelto dall'autore non è stato fornito (il file non era raggiungibile e la licenza va verificata): lo studio lo caricherebbe da `models/spectra-cyberpunk.glb`, ma oggi il file non c'è e il corpo è un manichino di prova. I capelli neri sul modello vero sono garantiti dal driver ma provati solo sul manichino. I testi dell'interfaccia dello studio sono in italiano |
+| 16 | **Spectra Studio è un primo prototipo; il corpo va caricato dal dispositivo** | Tre lezioni soltanto. Il corpo scelto dall'autore non è nel repository (licenza Royalty Free di CGTrader): nell'app pubblicata, nello studio e nelle sezioni dell'AI, compare l'invito a caricarlo finché l'utente non carica la propria copia con «🧍 Corpo»; nessun sostituto. I capelli neri sono garantiti dal driver ma provati solo sul manichino del suo banco. I testi dell'interfaccia dello studio sono in italiano |
 | 17 | **Con una chiave OpenAI e la voce accesa il testo pronunciato va a OpenAI** | La voce di qualità invia a OpenAI il testo che Spectra pronuncia, anche quando la chat usa un altro fornitore e senza passare dal proxy. Si evita spegnendo la voce (🔇) nella console, nella lezione guidata o in Spectra Studio, dove la scelta resta ricordata, oppure non salvando una chiave OpenAI |
 
 ---
@@ -525,4 +618,4 @@ Non impegni: direzioni coerenti con l'architettura.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v239`._
+_Documento aggiornato alla versione `bsi-v240`._

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version** | `bsi-v239` |
+| **Version** | `bsi-v240` |
 | **Author and release owner** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribution** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Subject of this statement
 
-The undersigned declares that version `bsi-v239` of BioSpecInfo has been put
+The undersigned declares that version `bsi-v240` of BioSpecInfo has been put
 through the verification procedure described in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 and that the outcomes are those reported, without selection, in
@@ -86,7 +86,7 @@ pass.
 | **D-11** | Part of Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Voice, continuous listening, local commands other than the creator's, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Since v238 the console layout, the navigator, the level, the face and the creator commands are covered by `test_spectra238` (UI-22, AI-14, SEC-08); since v239 the guided lesson and the «fammi lezione» command by `test_lezione` (UI-24) and the single button by `test_spectra238` (UI-25), while the lesson's voice is still tested by hand. Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
 | **D-12** | Two Spectra local keys stay outside selective erasure | `bsi-spectra-ritratto-v4` (the icon derived from the face) and `bsi-spectra-sentinella` (continuous-listening mark) are not in the «Clear data» groups. The mind, the creator recognition, the subject and the study kits are (Persistent memory and Progress groups) | Neither holds user data: the first is regenerated, the second is removed when listening stops. Declared in `docs/11` §6 |
 | **D-13** | Spectra's creator recognition is not an access control | The SHA-256 fingerprint of the secret phrase is in the code, and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`, where whoever holds the device can write it by hand. An unsalted fingerprint of a weak phrase can also be searched by trial outside the app | Like the File Manager password (SEC-03), it is a deterrent: it protects no data, it tells Spectra whom it is talking to. The phrase is neither in the code nor stored (SEC-08, `test_spectra238`) |
-| **D-14** | Spectra Studio: the body is a test mannequin | The «cyberpunk» model chosen by the author has not been provided (the file was not reachable from the work session, the licence must be checked). The studio loads it from `models/spectra-cyberpunk.glb` if the file is there; today it is not, so the mannequin with the «Noir» face is shown | The body driver is generic and tested on the mannequin (AI-15); the plan for the real model is in `docs/spectra/01`. Publishing the GLB at `models/spectra-cyberpunk.glb`, with licence and attribution checked, is enough |
+| **D-14** | Spectra with the body: the body is not in the published app | The body chosen by the author comes from CGTrader under a Royalty Free licence, which does not allow third parties to retrieve the file: it is not in the repository nor served by the app. Without it, the studio and the AI sections show an invitation to load it, with no substitute (no mannequin) | Each user loads their own copy once with «🧍 Corpo»; it stays only in their browser's IndexedDB (`bsi-spectra-modelli`). Rig, figure and reactions are tested on a synthetic humanoid (AI-17, UI-27); the real body has to be judged by looking |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -288,4 +288,4 @@ Anyone can verify what is declared here by re-running the procedure in §5 of
 the commit indicated, and comparing the SHA-256 digests of the files.
 
 **Samuele Pio Provenzano**
-_Version `bsi-v239`._
+_Version `bsi-v240`._

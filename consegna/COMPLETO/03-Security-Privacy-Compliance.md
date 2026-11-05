@@ -41,6 +41,21 @@
   console, nella lezione guidata e in Spectra Studio, dove la scelta resta
   ricordata (`bsi-spectra-studio-voce`); oppure non si salva una chiave
   OpenAI.
+- **«🧠 Spiega» e lo schermo (`bsi-spectra-spiega.js`, dalla v240):** con
+  la casella **«📺 Includi lo schermo»** attiva (lo è da sola quando dietro
+  la finestra c'è una sezione aperta), insieme alla domanda vanno al
+  fornitore di IA configurato, con la sua chiave, **il testo dello schermo**
+  (sezione, scheda, valori dei comandi, tabelle e testo visibili) e
+  **un'immagine dei grafici e delle scene 3D visibili**, come un allegato
+  della chat; l'immagine va solo nel primo turno. Con la casella spenta va
+  solo la domanda. **La spunta tolta dall'utente si rispetta**: anche quando
+  Spectra apre una sezione nominata nella domanda («spiegami le
+  titolazioni») o scelta dal catalogo «🗂️ Tutte le sezioni nell'ologramma»,
+  la sezione si apre dietro la finestra e si mostra nell'ologramma, ma la
+  casella resta spenta e al modello va solo la domanda, senza testo né
+  immagine dello schermo. Solo le domande rapide sullo schermo («📈 Spiegami
+  questo grafico»…) rimettono la spunta, perché sono una scelta esplicita. Senza chiave non esce niente dal dispositivo. La
+  conversazione resta in memoria per la sessione e non si salva.
 - **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
   con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
   (`bsi-spectra-modelli`) e non viene inviato a nessun server. Si cancella con

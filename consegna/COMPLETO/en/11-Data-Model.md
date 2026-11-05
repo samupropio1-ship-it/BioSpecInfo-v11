@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v239` |
+| **Version described** | `bsi-v240` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -170,6 +170,12 @@ is not stored data: it is typed into a password field, its SHA-256 fingerprint
 is computed, compared with the File Manager's and discarded. The model receives
 only one line of context: whether the user has been recognised or not.
 
+«🧠 Spiega» (`bsi-spectra-spiega.js`, v240) stores nothing: the conversation
+is kept in memory for the session and «↺ Nuova spiegazione» clears it. With
+«📺 Includi lo schermo» checked, the screen text and an image of the graphs and
+3D scenes go to the configured AI provider together with the question (see
+[`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md)).
+
 The guided lesson (`bsi-lezione.js`, v239) has no keys of its own: the lesson
 is built from the page at every start and lives in memory while it is open.
 The controls it shows at work return to the value they had. At the end of a
@@ -247,9 +253,9 @@ If another tab requests a version upgrade, the connection is closed
 | **Database name** | `bsi-spectra-modelli` |
 | **Object store** | `file` |
 | **Key** | `corpo` |
-| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button of `spectra-studio.html`; at most 60 MB |
-| **Who writes it** | The studio, only after the file has been rigged successfully; an invalid file is not saved |
-| **Who reads it** | The studio, at every opening, before any other body |
+| **Content** | The `.glb` file (as an `ArrayBuffer`) the user loaded with the «🧍 Corpo» button (in `spectra-studio.html` or in Spectra's frame in the AI sections); at most 60 MB |
+| **Who writes it** | `bsi-spectra-figura.js` (studio and AI sections), only after the file has been rigged successfully; an invalid file is not saved |
+| **Who reads it** | `bsi-spectra-figura.js`, at every opening of the studio and at the first opening of an AI section, before any other body |
 | **Erasure** | «Clear data → Progress in the rest of the app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) deletes the whole database |
 
 The file never leaves the device. The reason is the licence: the body chosen
@@ -324,4 +330,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v239`._
+_Document updated to version `bsi-v240`._

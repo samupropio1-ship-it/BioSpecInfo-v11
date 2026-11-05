@@ -7,6 +7,318 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v240] — 2026-11-04
+
+**Spectra col corpo in ogni sezione dell'AI, l'icona solo col volto, nessun sostituto; niente spazio vuoto sopra le sezioni fuori da `#main`**
+
+Richiesta dell'autore: «l'icona di Spectra solo col volto, e la versione di
+Spectra col corpo in ogni sezione dell'AI»; e, guardando la schermata della
+lezione nello studio, «questo è quello che voglio per Spectra e non altro».
+
+### Aggiunto
+- **`bsi-spectra-figura.js`** (oggetto globale `BSISpectraFigura`): Spectra col
+  corpo in un modulo solo, usato dallo studio e dalle sezioni dell'AI.
+  - `Spectra(T, scena, renderer, opz)`: il controllore del corpo. Cerca il corpo
+    nell'IndexedDB del dispositivo (`bsi-spectra-modelli`), poi in
+    `models/spectra-corpo.glb` (solo in sviluppo), poi in
+    `models/spectra-cyberpunk.glb`; **altrimenti niente**. Nell'app (non nello
+    studio) la figura cerca il corpo **solo sul dispositivo** (`opz.soloDispositivo`):
+    i due file di sviluppo non si chiedono, quindi nell'app pubblicata
+    niente 404; lo studio li prova ancora (sviluppo). Il corpo passa dal
+    rig automatico (`bsi-spectra-rig.js`); sul colletto va il viso «Noir»,
+    allineato misurando il mento, del quale si vede solo il viso; il volto è
+    «solidale». Metodi `carica`, `daFile`, `daBuffer`, `usaScena`, `passo`,
+    `emozione`, `dici`, `taci`, `fai`, `presente`.
+  - `monta(contenitore)`: un riquadro con Spectra in piedi, intero, nello
+    stile del laboratorio della lezione (pavimento a griglia al neon, pannelli
+    olografici, pedana olografica, luci da studio); in sovrimpressione
+    «SPECTRA · IN ASCOLTO / PENSA / PARLA»; pulsanti **«🧍 Corpo»**, **«🎙️ Parla
+    con me»** (apre Spectra Live) e **«🎓 Studio»**. Si disegna solo quando è
+    visibile e la pagina è in primo piano; i file 3D si caricano la prima
+    volta che si apre una sezione dell'AI; rapporto di pixel fino a 2,5.
+  - **Reagisce all'app**: `bsi-spectra-stato` (pensa, strumenti, scrive) →
+    concentrato, mano al mento; `bsi-spectra-risposta` (la risposta del
+    modello) → spiega con le mani, labiale di corpo e viso dal testo, emozione
+    dal contenuto; un errore → dubbio; il nuovo evento **`bsi-spectra-dice`**,
+    emesso da `parla()` di Spectra Live e dall'assistente locale
+    (`bsi-assistente.js`) quando risolve un esercizio («Ecco lo svolgimento:
+    …», oppure dubbio se non ha capito).
+  - `sezioni()`: **una figura sola** (un contesto WebGL) spostata nella
+    sezione dell'AI aperta: Spectra AI (`sai`) e le tre aree con l'assistente
+    (`sareachim`, `sareafis`, `sareamat`), dopo il titolo, il pulsante
+    «Lezione guidata» e la descrizione, prima delle schede. Sul telefono i
+    suoi pulsanti stanno a sinistra, in colonna, per non coprire i pulsanti
+    flottanti.
+- **L'ologramma alla destra di Spectra** (`bsi-spectra-figura.js`,
+  `BSISpectraFigura.Ologramma`). Richiesta dell'autore: «alla mia destra di
+  Spectra appaiano le immagini dei grafici e dei movimenti delle sezioni in
+  cui vi sono animazioni in 3D o 2D di ogni sezione, ad esempio pianeti che
+  orbitano; deve essere mastodontica questa AI». Nella scena da laboratorio
+  della figura, alla destra di Spectra (la destra di chi guarda), c'è uno
+  schermo olografico: pannello di vetro con i bordi luminosi, base del
+  proiettore con il fascio di luce. Spectra sta a sinistra del centro sulla
+  sua pedana; l'inquadratura contiene Spectra intera e l'ologramma (2,55 m di
+  larghezza, 2,2 m di altezza).
+  - **Sei scene vive, calcolate** (non video): **pianeti** — quattro pianeti
+    su ellissi di Keplero, con l'equazione di Keplero M = E − e sin E risolta
+    a ogni fotogramma (Newton), periodi dalla terza legge (T ∝ a^1,5), più
+    veloci al perielio; **molecola** — il benzene a sfere e bastoncini con la
+    nube π sopra e sotto l'anello; **spettro** — uno spettro IR che si
+    disegna da sé (bande gaussiane a 3400, 2925, 1715, 1405 e 1130 cm⁻¹) con
+    un cursore che scorre; **superficie** — z = sin(r − t)/r che si propaga;
+    **orbitale** — l'orbitale 3d_z² (due lobi e l'anello, le fasi in due
+    colori) che ruota; **onda** — un pacchetto d'onda gaussiano che si muove
+    e si allarga (dispersione di Schrödinger libera: parte reale, parte
+    immaginaria e |ψ|²). In più **«schermo»**: la sezione aperta dietro la
+    finestra di Spectra, dal vivo (la sua tela ridisegnata con
+    `BSISpectraLive.cattura` e copiata nell'ologramma 5 volte al secondo).
+    **Anche le sezioni senza grafici** (testo, tabelle, comandi) si
+    proiettano: una scheda disegnata nell'ologramma (titolo, scheda aperta,
+    fino a 6 comandi con i loro valori, testo visibile) invece di tornare ai
+    pianeti, così ogni sezione è mostrabile.
+  - **Ogni scena porta alla sua sezione**: un'etichetta in alto a destra
+    («🪐 Orbite di Keplero · apri ›»…) la apre con un tocco (pianeti →
+    Sistema solare 3D, molecola → Strutture 3D, spettro → IR Visivi,
+    superficie → Funzioni di più variabili, orbitale → Orbitali MO, onda →
+    Schrödinger). **Senza togliere la figura di Spectra** (richiesta
+    dell'autore: «Continua, soprattutto senza togliere la figura di Spectra,
+    deve essere perfetto»): il tocco non lascia la sezione dell'AI, ma apre
+    la finestra di Spectra su «🧠 Spiega» (se non è già aperta) e la sezione
+    **dietro** di essa (`BSISpiega.mostraSezione`), così Spectra resta
+    visibile davanti e la sezione si vede dal vivo nell'ologramma.
+  - **Chiusa la finestra, si torna da Spectra**: se Spectra ha aperto altre
+    sezioni (il catalogo, «🎞️ Mostrami tutto», una domanda che nomina un
+    argomento, l'etichetta dell'ologramma), chiudendo la finestra di Spectra
+    l'app torna alla sezione dell'AI da cui si era partiti (`sai`,
+    `sareachim`, `sareafis`, `sareamat`), dove c'è la figura; il giro di
+    «Mostrami tutto» si ferma alla chiusura.
+  - **Il soggetto segue la conversazione**: le parole della domanda (il
+    nuovo evento `bsi-spectra-tema`, emesso da «🧠 Spiega» con la domanda) o
+    della risposta scelgono la scena (orbite e pianeti → pianeti; spettro,
+    NMR, IR → spettro; molecola, legame → molecola; funzione, superficie,
+    integrale → superficie; orbitale, elettrone, quantistica → orbitale;
+    onda, Schrödinger, luce → onda); con «Includi lo schermo» l'ologramma
+    mostra la sezione dal vivo, e aprendo «🧠 Spiega» con una sezione dietro
+    la mostra subito. A riposo le scene si alternano ogni 14 s; dopo un
+    argomento l'alternanza riprende dopo 60 s.
+  - **Quando risponde, Spectra indica prima l'ologramma** (gesto «indica»,
+    circa 2,5 s), poi accompagna la spiegazione con le mani («spiega»).
+  - **I pulsanti della figura** stanno in una barra **sotto** la scena (non
+    coprono più Spectra né l'ologramma); sul telefono la barra lascia spazio
+    a destra per i pulsanti flottanti dell'app.
+- **«🧠 Spiega»: l'AI che spiega tutto, in modo esaustivo**
+  (`bsi-spectra-spiega.js`, oggetto `BSISpiega`). Richiesta dell'autore: «Non
+  deve fare lezioni ma una spiegazione perfetta, completa e completamente
+  esaustiva su tutto ciò che riguarda queste 3 materie… deve essere un vero e
+  proprio AI… deve spiegare grafici in 3D e tutto, dai grafici degli spettri a
+  chimica, fisica e matematica, a un livello avanzatissimo». Nella finestra di
+  Spectra (`bsi-ai-hub.js`) la scheda **«🧠 Spiega»** è la seconda, subito
+  dopo «💬 Chat» (le schede sono Chat, Spiega, Esame Orale, Ripassa Oggi,
+  Genera Guida).
+  - **La domanda**: qualunque cosa di chimica, fisica o matematica, a cinque
+    livelli — Scuola superiore, Triennale, Magistrale, Dottorato (PhD), PhD
+    avanzato · frontiera. Per ogni livello il prompt di sistema dice che cosa
+    ci si aspetta (`PROFONDITA`: dalle superiori al formalismo completo della
+    magistrale, ai metodi avanzati del dottorato, fino allo stato dell'arte,
+    ai problemi aperti, alle tecniche di frontiera e alla letteratura primaria
+    — solo riferimenti certi — al PhD avanzato), più «Non semplificare sotto
+    questo livello e non tralasciare nulla di rilevante».
+  - **La struttura obbligatoria della risposta** (titoli `##`): 1 In sintesi;
+    2 Che cosa stai guardando — solo con lo schermo: lettura quantitativa di
+    ogni elemento (assi, unità, scala, curve, valori dei comandi); per gli
+    spettri NMR ogni segnale con δ, molteplicità, J, integrale e
+    attribuzione; IR bande (numero d'onda, intensità, forma) e gruppi
+    funzionali; MS ione molecolare, frammenti, perdite neutre, profilo
+    isotopico; UV-Vis λmax, tipo di transizione, ε; poi la struttura che ne
+    risulta e la sua coerenza; per le scene 3D geometria, simmetria (gruppo
+    puntuale o spaziale), piani e superfici nodali, punti critici,
+    isosuperfici, campi e significato fisico o matematico; per i grafici
+    matematici dominio, simmetrie, asintoti, zeri, estremi, flessi,
+    convergenza, limiti; 3 Fondamenti teorici; 4 Formalismo e derivazione
+    completa, a passi numerati; 5 Esempi numerici calcolati (con i valori
+    dello schermo, se ci sono); 6 Casi limite, approssimazioni, errori comuni;
+    7 Collegamenti fra chimica, fisica e matematica; 8 Applicazioni e
+    frontiera della ricerca (letteratura solo se certa); 9 Per verificare di
+    aver capito: tre domande con risposta. Le domande successive ricevono una
+    risposta diretta con lo stesso rigore. Rigore: unità, assunzioni, numeri
+    calcolati e non inventati; se i dati non bastano, si dice che cosa manca.
+  - **Lo schermo**: la casella **«📺 Includi lo schermo»** (attiva da sola
+    quando dietro la finestra c'è una sezione aperta; la scheda mostra il
+    titolo della sezione, quanti grafici e scene 3D ci sono e una miniatura).
+    Manda la sezione, la scheda aperta, ogni comando con il suo valore e il
+    suo intervallo, le tabelle visibili per intero (fino a 4 × 40 righe), il
+    testo visibile, il numero dei grafici; e **un'immagine**: le tele visibili
+    (grafici e scene 3D; le scene di `BSILab3D` si ridisegnano prima della
+    foto, con `BSISpectraLive.cattura`) e i grafici SVG visibili trasformati
+    in immagine (molti spettri e diagrammi sono SVG), impilati, larghi al
+    massimo 1400 px, in JPEG. L'immagine va ai modelli che accettano
+    immagini, con la conversione per fornitore della chat (stile Anthropic,
+    Gemini, OpenAI); nelle domande successive non si rimanda.
+  - **Domande rapide**: «📈 Spiegami questo grafico», «🧪 Lo spettro, picco
+    per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+    della ricerca». **«↺ Nuova spiegazione»** ricomincia; la conversazione
+    resta solo in memoria per la sessione, non si salva niente.
+  - **Spectra col corpo** (la figura condivisa) si sposta nella scheda (che
+    ha la precedenza sulle sezioni dell'AI), pensa mentre il modello scrive,
+    poi parla e gesticola con la risposta. Il pulsante della figura nelle
+    sezioni dell'AI è **«🧠 Spiega»** e apre la finestra su questa scheda.
+  - **Senza modello non finge**: dice che per la spiegazione completa serve un
+    modello e mostra ciò che l'app sa da sola — il riconoscimento
+    dell'assistente locale se la domanda è un esercizio numerico, i capitoli
+    della lezione guidata della sezione aperta (`bsi-lezione.js`) e i dati
+    dello schermo come testo.
+  - Fornitore e chiave sono quelli della chat (`window.bsiLLM = { provider(),
+    chiave(p) }`, esportato da `bsi-ai-hub.js`). **Con «Includi lo schermo»
+    attivo, il testo dello schermo e l'immagine dei grafici e delle scene 3D
+    vanno al fornitore di IA configurato insieme alla domanda**, come un
+    allegato della chat; senza la casella, solo la domanda; senza chiave non
+    esce niente dal dispositivo.
+- **Il catalogo: tutte le sezioni nell'ologramma, spiegabili e mostrabili**
+  (`bsi-spectra-spiega.js`). Richiesta dell'autore: «ogni sezione della
+  chimica, della fisica e della matematica deve esserci, non deve mancare
+  nulla in questo ologramma: deve esserci tutto spiegabile e mostrabile».
+  - **`BSISpiega.catalogo()`** legge ogni pulsante di sezione della barra
+    dell'app (`.nav-group-panel [data-s]`) con l'etichetta del suo gruppo
+    (Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+    Utility, Fisica, Matematica, Astrofisica) e la materia
+    (`BSIMaterie.materiaDi`): **194 sezioni** (chimica 75, fisica 60,
+    matematica 30, comuni 29). Non è scritto a mano: una sezione nuova
+    compare da sola.
+  - Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
+    nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un
+    filtro per materia. Un tocco apre la sezione dietro la finestra di
+    Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se
+    serve), l'ologramma la mostra dal vivo e «📺 Includi lo schermo» si
+    spunta (se l'utente non l'ha tolta), così la spiegazione usa i suoi dati (`BSISpiega.mostraSezione(id)`).
+  - **«🎞️ Mostrami tutto»** (`BSISpiega.giro(materia)`): ogni sezione della
+    materia scelta (o tutte) a turno nell'ologramma, una ogni 7 s, con il
+    contatore «n/N · nome»; «⏹ Ferma il giro» (`BSISpiega.giroFerma()`) lo
+    ferma.
+  - **Una domanda che nomina un argomento trova la sua sezione**
+    (`BSISpiega.sezioneDi(testo)`): le parole significative dei nomi delle
+    sezioni cercate nella domanda, anche per radice; le sigle (MS, IR, UV,
+    NMR, MO…) pesano di più; sinonimi «spettro di massa» → MS, «infrarosso» →
+    IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO; a parità
+    vince il nome più corto. Chiedendo in «🧠 Spiega» senza lo schermo
+    incluso, la sezione nominata si apre dietro la finestra, si mostra
+    nell'ologramma e la spiegazione comprende i dati del suo schermo. **La
+    spunta tolta si rispetta**: se l'utente ha tolto «📺 Includi lo schermo»
+    (`ST.schermoNo`, impostato dall'evento `change`), la sezione nominata o
+    scelta dal catalogo si apre e si mostra lo stesso, ma la casella resta
+    spenta e al modello va solo la domanda, senza testo né immagine dello
+    schermo; le domande rapide («📈 Spiegami questo grafico»…) parlano dello
+    schermo e rimettono la spunta (scelta esplicita). Esempi
+    verificati: titolazioni → Titolazione (`stitr`), Schrödinger →
+    `sschrod`, integrali per parti → «Derivate, integrali e serie»
+    (`smatcalc`), spettro di massa → Spettro MS (`sms`), spettro infrarosso →
+    IR Visivi (`sirvis`), meccanica orbitale → `sastroorbite`; «ciao come
+    stai» → nessuna.
+
+### Cambiato
+- **Nessun manichino come Spectra**, né nelle sezioni dell'AI né nello
+  studio: senza il corpo dell'autore sul dispositivo compare l'invito
+  «Spectra non è ancora su questo dispositivo — carica una volta il suo corpo
+  (.glb)» con il pulsante, e nessun sostituto. Il corpo non può stare nel
+  repository né essere servito dall'app (licenza Royalty Free di CGTrader),
+  quindi **l'app pubblicata, finché l'utente non carica la propria copia,
+  mostra l'invito**. `BSISpectraCorpo.manichino()` resta per il banco del
+  driver (`opz.manichino === true`).
+- **L'icona di Spectra è solo il volto**: il pulsante rotondo con il volto
+  «Noir»; la pillola «Spectra» resta nascosta.
+- **Spectra Studio** (`spectra-studio.html`) usa il controllore condiviso
+  (`S.spectra`; `S.corpo`, `S.volto`, `S.rig`, `S.allinea`… sono letture
+  dal controllore; `S.usaScena` per i banchi); l'invito è `#invito`.
+
+### Corretto
+- **Spazio vuoto sopra le sezioni sul telefono.** Alcune sezioni (la
+  dashboard, le aree dell'AI…) stanno fuori da `#main`, accanto a esso:
+  `#main` restava vuoto ma teneva il suo margine in basso (lo spazio per i
+  pulsanti flottanti), e sopra la sezione restavano fino a circa 190 px vuoti
+  (visibili nella schermata dell'autore). `index.html` aggiunge la classe
+  `bsi-sez-fuori` al `body` quando la sezione aperta è fuori da `#main`: il
+  margine di `#main` va a 0 e il margine in basso passa alla sezione.
+- **Contrasto dei pulsanti col gradiente blu→verde acqua.** L'invito
+  «🧍 Carica il corpo» della figura, l'invito dello studio e il pulsante
+  principale di «🧠 Spiega» avevano il testo bianco su `#2f6bff`→`#00c9b7`:
+  contrasto 2,09:1 (WCAG AA chiede 4,5:1). Ora `#1d4ed8`→`#0e7490`
+  (`bsi-spectra-figura.js`, `spectra-studio.html`, `bsi-spectra-spiega.js`);
+  `verifica-accessibilita` torna a 0 errori di contrasto.
+- **Niente 404 nell'app pubblicata.** La figura delle sezioni dell'AI
+  chiedeva `models/spectra-corpo.glb` e `models/spectra-cyberpunk.glb`, file
+  di sviluppo che sul server non ci sono. Ora nell'app cerca il corpo solo
+  nell'IndexedDB del dispositivo; lo studio li prova ancora (sviluppo).
+
+### Nota sugli aggiornamenti
+- Il telefono dell'autore mostrava ancora la v238 anche con la v239 già
+  pubblicata su GitHub Pages: una PWA installata tiene la sua versione finché
+  non si aggiorna. Si aggiorna dal menu ✨ → **«🔄 Aggiornamenti»**
+  (`bsi-aggiorna.js`).
+
+### Banco
+- Nuovo `test_spectra_figura` (103 controlli: 52 a 412 px, 51 a 1280 px): il
+  pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
+  quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
+  alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
+  sopra le sezioni fuori da `#main` (`#main` a 0 px); senza il corpo l'invito e
+  nessun sostituto; caricato un umanoide sintetico (senza scheletro, con
+  cappuccio) l'invito sparisce, il viso poggia sul colletto (0,0 cm) e si vede
+  solo il viso; reazioni: pensa (gesto «pensa», concentrata), risposta
+  (prima indica l'ologramma, poi accompagna la spiegazione con le mani;
+  gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
+  che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
+  Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
+  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 14
+  controlli di «🧠 Spiega»: è la seconda scheda e «Lezione» non c'è più; la
+  figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel
+  Centro spettri) legge lo schermo (almeno un grafico, i valori dei comandi,
+  l'immagine); cinque livelli; il modello riceve il testo dello schermo, la
+  domanda e l'immagine; la richiesta chiede una spiegazione esaustiva e non
+  semplificata, con la lettura quantitativa dello spettro (δ, molteplicità,
+  J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta
+  arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta;
+  la domanda successiva continua la conversazione senza rimandare
+  l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura
+  primaria; senza modello non finge; legge come immagine gli spettri SVG (il
+  quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele,
+  immagine). Le risposte del modello sono simulate: il banco controlla che
+  cosa si manda e come si mostra, non la qualità della spiegazione di un
+  modello vero; con la scena 3D aperta dietro «🧠 Spiega» l'ologramma la
+  mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione
+  nominata si apre ma al modello vanno solo la domanda, senza testo né
+  immagine dello schermo. Per ogni larghezza, 7 controlli dell'ologramma: sta alla
+  destra di Spectra (x sullo schermo); sei scene vive; Keplero: il rapporto
+  fra le velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro
+  l'8 %; il soggetto segue la conversazione (risposta sull'IR → spettro,
+  domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco
+  sull'etichetta apre «Sistema solare 3D» DIETRO la finestra Spiega (Spectra
+  resta visibile davanti, l'ologramma la mostra dal vivo); chiusa la
+  finestra, l'app torna alla sezione di Spectra e la figura è lì. Per ogni larghezza, 5 controlli del catalogo: il
+  catalogo ha TUTTE le sezioni della barra (194/194, chimica 75, fisica 60,
+  matematica 30, comuni 29); una domanda che nomina un argomento trova la sua
+  sezione (i sette esempi: titolazioni, Schrödinger, integrali per parti,
+  spettro di massa, spettro infrarosso, meccanica orbitale, «ciao come stai»
+  → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la
+  finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione
+  senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma;
+  «🎞️ Mostrami tutto» scorre le sezioni della materia. Il banco porta la figura
+  in vista prima di misurare, perché la figura si disegna (e allinea il viso)
+  solo quando è visibile.
+- `test_spectra_studio` passa a **91 controlli**, con o senza il modello in
+  locale: nelle lezioni, a ogni larghezza, «senza il corpo: l'invito», «nessun
+  sostituto in scena (niente manichino)», poi il banco carica lo stesso
+  umanoide sintetico con `S.usaScena` e «l'invito sparisce, Spectra c'è»;
+  così i controlli sul corpo riggato (mento sul colletto, sincronia
+  viso–cappuccio 0,0 mm, solo il viso, volto solidale) girano **sempre**.
+- La batteria passa da 82 a 83 banchi.
+
+### Non incluso
+- Il corpo dell'autore resta fuori dal repository (licenza Royalty Free di
+  CGTrader): nell'app pubblicata Spectra compare col corpo solo sui
+  dispositivi dove l'utente l'ha caricato una volta.
+- Il corpo, il volto e le reazioni sono una simulazione di comportamento, non
+  una coscienza.
+
+---
 ## [bsi-v239] — 2026-11-04
 
 **Una lezione guidata con Spectra per ogni sezione; Spectra incarnato: Spectra Studio, il corpo e la voce; un solo pulsante di Spectra, il volto in un cerchio**

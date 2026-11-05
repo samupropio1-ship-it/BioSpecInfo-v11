@@ -8,7 +8,7 @@
 | **Component** | `bsi-ai-hub.js` — 6,254 lines, zero runtime dependencies |
 | **Type** | Multi-provider conversational agent with client-side tool execution |
 | **Repository** | `samupropio1-ship-it/BioSpecInfo-v11` |
-| **Documented version** | Service Worker `bsi-v239` |
+| **Documented version** | Service Worker `bsi-v240` |
 
 ---
 
@@ -868,25 +868,90 @@ summarised here.
   pose is a direction in the world, converted into the bone's local frame
   (`orienta`, a minimal inverse kinematics valid for any rig); emotions, lip
   sync, eyelids, gaze, gestures, walking and sitting are blended with springs.
-  The studio's body is the **mannequin** from `BSISpectraCorpo.manichino()`:
-  bones with Mixamo names in T-pose, 26 ARKit blendshapes, red hair that the
-  driver turns black. The «Noir» face is mounted on the mannequin's head with
-  `BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })` and
-  aligned by measuring, in the first frames, the distance between the chin and
-  the head bone (1 cm above, 3 cm forward, 1 mm tolerance). **The real
-  model**: at start-up the studio asks for `models/spectra-cyberpunk.glb` with a
-  `HEAD` request; if the file is there it loads it with `GLTFLoader`, scales it
-  to 1.8 m tall, puts it in place of the mannequin and attaches the driver
-  (with its clips), which recognises its bones, blendshapes and hair and turns
-  the hair black; the «Noir» face is hidden, because the model has its own
-  face. The «cyberpunk» model chosen by the author has not been provided (the
-  file was not reachable and its licence must be checked): today the file is
-  not there and the mannequin is shown. **The body from the device**: first of
-  all the studio looks in IndexedDB (`bsi-spectra-modelli`) for a `.glb` body
-  the user loaded with the «🧍 Corpo» button, rigs it with
-  `bsi-spectra-rig.js` and uses it; then `models/spectra-corpo.glb`
-  (development only, kept out of git because of the CGTrader licence), then
-  the «cyberpunk» model, then the mannequin.
+  The mannequin from `BSISpectraCorpo.manichino()` (bones with Mixamo names in
+  T-pose, 26 ARKit blendshapes, red hair that the driver turns black) is used
+  **only by the driver's bench** (`opz.manichino === true`): since v240 it is
+  no longer Spectra anywhere. **Spectra's body** is chosen by the shared
+  controller `BSISpectraFigura.Spectra()` (`bsi-spectra-figura.js`), in the
+  studio and in the AI sections: first a `.glb` body the user loaded with the
+  «🧍 Corpo» button, kept in IndexedDB (`bsi-spectra-modelli`), then
+  `models/spectra-corpo.glb` (development only, kept out of git because of
+  the CGTrader licence), then `models/spectra-cyberpunk.glb` (a complete
+  model with its own face: the «Noir» face is hidden); **otherwise no body**,
+  and an invitation to load it appears, with no substitute. In the app (not
+  the studio) the figure looks only in IndexedDB (`soloDispositivo`): the
+  development files are not requested, so no 404s in the published app. A body without a
+  skeleton goes through the automatic rig (`bsi-spectra-rig.js`); the «Noir»
+  face (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`)
+  goes on the collar, aligned by measuring the chin, with only the face
+  visible, «solidale» with the body's head.
+- **The figure in the AI sections** (`BSISpectraFigura.monta`, `sezioni`,
+  v240): one figure, moved into whichever section is open among Spectra AI
+  and the three areas with the assistant, shows Spectra standing in a lab-style
+  frame and **reacts to the app's events**: `bsi-spectra-stato` (thinking,
+  tools, writing) → concentrated, hand on chin, «SPECTRA · PENSA»;
+  `bsi-spectra-risposta` (the model's answer) → explains with the hands, lip
+  sync of body and face from the text, emotion from the content, «SPECTRA ·
+  PARLA»; an error → doubt; `bsi-spectra-dice`, dispatched by Spectra Live's
+  `parla()` and by the local assistant (`bsi-assistente.js`) when it solves an
+  exercise («Ecco lo svolgimento: …», or doubt if it did not understand) → the
+  figure says that text. It renders only when visible and the page is in the
+  foreground. The events are one-way: the figure does not change what the
+  model answers.
+- **«🧠 Spiega»** (`bsi-spectra-spiega.js`, `BSISpiega`, v240): the second
+  tab of the Spectra window, after «💬 Chat», for an **exhaustive
+  explanation** of any chemistry, physics or mathematics question. The system
+  prompt (`sistema(level, subject)`) sets the level — five, from High school
+  to Advanced PhD · frontier, each with its instructions in `PROFONDITA` and
+  «do not simplify below this level and do not leave out anything relevant» —
+  and a **mandatory structure** with `##` titles: in short; what you are
+  looking at (only with the screen: quantitative reading of axes, units,
+  curves and values; for NMR spectra δ, multiplicity, J, integral and
+  assignment of every signal, IR bands and groups, MS molecular ion,
+  fragments and isotopes, UV-Vis λmax, transitions and ε, then the structure
+  and its consistency; for 3D scenes geometry, symmetry, nodes, critical
+  points, isosurfaces and fields; for mathematical graphs domain, asymptotes,
+  zeros, extrema, inflections, convergence); foundations; numbered
+  derivation; computed examples; limiting cases and common errors; links
+  between the three subjects; applications and frontier (literature only if
+  certain); three self-check questions with answers. **The screen**
+  (`schermo()`, checkbox «📺 Includi lo schermo»): section, tab, every control
+  with value and range, visible tables (up to 4 × 40 rows), visible text,
+  number of graphs; `immagine()` composes the visible canvases (`BSILab3D`
+  scenes re-rendered first, via `BSISpectraLive.cattura`) and the visible SVGs
+  rasterised, at most 1400 px wide, as JPEG. The image goes to models that
+  accept images, with the chat's per-provider conversion, in the first turn
+  only; follow-up questions continue the conversation, which is kept in memory
+  for the session. Provider and key are the chat's (`window.bsiLLM`). The
+  shared figure moves into the tab (priority over the sections), thinks while
+  the model writes, then speaks and gestures. **Without a model it does not
+  pretend**: it says so and shows what the app knows on its own (the local
+  assistant's recognition, the chapters of the section's guided lesson, the
+  screen data as text). With the screen included, text and image go to the
+  configured provider together with the question. **The catalogue**
+  (`catalogo()`): every section button of the bar (`.nav-group-panel
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 194
+  sections (chemistry 75, physics 60, mathematics 30, shared 29), read from
+  the bar rather than written by hand. The «🗂️ Tutte le sezioni
+  nell'ologramma» card lists them by group, with search and a subject filter;
+  `mostraSezione(id)` opens the section behind the window
+  (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed),
+  the hologram shows it live and the screen checkbox is checked, unless the
+  user unchecked it;
+  `giro(materia)` («🎞️ Mostrami tutto») shows them in turn every 7 s, with the
+  counter «n/N · name», and `giroFerma()` stops it. `sezioneDi(testo)` finds
+  the section a question names (meaningful words of the names, also by stem;
+  acronyms MS, IR, UV, NMR, MO… weighted more; synonyms «spettro di massa» →
+  MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
+  MO; ties go to the shorter name; none if the question names no topic):
+  asking without the screen included, the named section opens, is shown in
+  the hologram and the explanation includes its screen. **A box unchecked by
+  the user is respected** (`ST.schermoNo`, set by the checkbox's `change`
+  event): the section still opens and is shown, but the model receives only
+  the question, with no screen text or image; the quick prompts about the
+  screen check it again (explicit choice). A section without graphs
+  is projected on the hologram as a card (title, tab, up to 6 controls with
+  values, visible text), so every section is showable.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

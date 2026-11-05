@@ -576,13 +576,86 @@ Le tue previsioni restano su questo dispositivo; si cancellano con
 c'è **🔊/🔇**: spegne e riaccende la voce di Spectra, e lo studio si ricorda
 la tua scelta anche le volte successive.
 
-Il corpo di Spectra, oggi, è un **manichino di prova** con il suo volto: il
-personaggio scelto dall'autore non è ancora stato fornito. Lo studio è già
-pronto a usarlo: chi pubblica l'app, **dopo aver verificato che la licenza
-del modello ne permetta la ridistribuzione**, mette il file GLB in
-`models/spectra-cyberpunk.glb` (i passi sono nella
-[guida al deploy](12-Deploy-Guide.md), §2.2-quinquies). Alla prossima apertura
-dello studio Spectra ha quel corpo, con i capelli neri e il viso del modello.
+**Il corpo di Spectra va caricato una volta.** Il corpo scelto dall'autore è
+un modello di terzi (CGTrader) che non si può distribuire con l'app. Se Spectra
+non è ancora sul tuo dispositivo, al suo posto vedi l'invito «Spectra non è
+ancora su questo dispositivo — carica una volta il suo corpo (.glb)»: premi
+**«🧍 Corpo»** e scegli il file `.glb` (al massimo 60 MB). Il file resta solo
+in questo browser e da allora Spectra compare col corpo nello studio e nelle
+sezioni dell'AI. Si cancella con «Cancella dati → Progressi del resto
+dell'app». Non c'è un corpo sostitutivo.
+
+**Spectra nelle sezioni dell'AI.** In Spectra AI e nelle aree con l'assistente
+di Chimica, Fisica e Matematica, sotto il titolo, Spectra è in piedi in un
+riquadro da laboratorio: mentre il modello lavora si porta la mano al mento,
+quando arriva la risposta spiega con le mani e muove le labbra. **«🎙️ Parla con
+me»** apre Spectra Live, **«🧠 Spiega»** apre la spiegazione, **«🎓 Studio»** apre
+Spectra Studio. Il pulsante rotondo di Spectra, in ogni schermata, è il suo
+volto.
+
+**L'ologramma.** Alla destra di Spectra c'è uno schermo olografico con scene
+che si muovono davvero: pianeti che orbitano, una molecola di benzene, uno
+spettro IR che si disegna, un'onda, un orbitale, una superficie. Cambia da solo
+secondo l'argomento di cui parlate (chiedi delle orbite e compaiono i pianeti;
+parla di uno spettro e compare lo spettro) e, se hai una sezione aperta dietro
+la finestra di Spectra, la mostra dal vivo. **Tocca l'etichetta in alto a
+destra dell'ologramma** («🪐 Orbite di Keplero · apri ›»…) per aprire la
+sezione in cui quella scena si studia davvero: si apre dietro la finestra di
+Spectra, sulla scheda «🧠 Spiega», così Spectra resta davanti a te e la sezione
+si vede dal vivo nell'ologramma. Quando chiudi la finestra torni alla sezione
+dell'AI da cui eri partito, con Spectra lì (vale anche per le sezioni aperte
+dal catalogo, da «🎞️ Mostrami tutto», che si ferma, o da una domanda). Ogni sezione dell'app si può
+mostrare nell'ologramma (più sotto, «Tutte le sezioni nell'ologramma»). Quando risponde, Spectra indica
+l'ologramma e poi spiega con le mani. I pulsanti stanno nella barra sotto la
+scena.
+
+**Spiegami tutto: «🧠 Spiega».** Nella finestra di Spectra apri la seconda
+scheda, **«🧠 Spiega»** (oppure premi «🧠 Spiega» nel riquadro di Spectra).
+Scrivi la domanda — qualunque cosa di chimica, fisica o matematica — e scegli
+il livello, dalla scuola superiore al PhD avanzato, alla frontiera della
+ricerca: Spectra non semplifica sotto il livello scelto. La risposta è
+completa e sempre con la stessa struttura: la sintesi, la teoria, la
+derivazione passo per passo, esempi con i numeri, casi limite ed errori
+comuni, i collegamenti fra le tre materie, le applicazioni e la ricerca, e tre
+domande per verificare di aver capito. Poi puoi continuare: «approfondisci»,
+«dimostra il passaggio 3», «e se raddoppio la temperatura?».
+
+**Che cosa stai guardando.** Se dietro la finestra hai aperto una sezione con
+un grafico, uno spettro o una scena 3D, lascia spuntato **«📺 Includi lo
+schermo»** (la scheda mostra quale sezione e una miniatura) oppure usa una
+domanda rapida: **«📈 Spiegami questo grafico»**, **«🧪 Lo spettro, picco per
+picco»**, **«🧊 La scena 3D»**. Spectra legge i valori dei comandi e le tabelle
+e guarda l'immagine dei grafici: per uno spettro NMR ti spiega ogni segnale
+(spostamento chimico, molteplicità, costante di accoppiamento, integrale) e a
+quale atomo appartiene. **Attenzione**: con la casella spuntata il testo dello
+schermo e l'immagine dei grafici vanno al fornitore di IA che hai configurato,
+insieme alla domanda; togli la spunta se non vuoi, e la tua scelta resta: anche
+quando Spectra apre una sezione che hai nominato o scelto dal catalogo qui
+sotto, al modello va solo la domanda. Le domande rapide sullo schermo
+(«📈 Spiegami questo grafico»…) rimettono la spunta. Serve un fornitore di IA
+configurato, come per la chat; senza, la scheda te lo dice e ti mostra ciò che
+l'app sa da sola (per un esercizio numerico lo svolgimento dell'assistente,
+i capitoli della lezione guidata della sezione). **«↺ Nuova spiegazione»**
+ricomincia; la conversazione non si salva.
+
+**Tutte le sezioni nell'ologramma.** Nella scheda «🧠 Spiega» apri il riquadro
+**«🗂️ Tutte le sezioni nell'ologramma»**: ci sono tutte le sezioni dell'app
+(194: 75 di chimica, 60 di fisica, 30 di matematica e 29 comuni), divise per
+gruppo come nella barra. Cercane una nella casella (per esempio «titolazione»,
+«Schrödinger», «integrali») o filtra per materia; toccala e Spectra la apre
+dietro la finestra, la mostra dal vivo nell'ologramma e spunta «📺 Includi lo
+schermo», così la spiegazione usa i suoi dati (se avevi tolto la spunta, resta
+tolta). Anche una sezione senza grafici
+(testo, tabelle, comandi, come la Tavola Periodica) compare nell'ologramma,
+come una scheda con il titolo, i comandi e il testo. **«🎞️ Mostrami tutto»**
+fa scorrere nell'ologramma tutte le sezioni della materia scelta (o tutte),
+una ogni 7 secondi, con il contatore («12/60 · …»); **«⏹ Ferma il giro»** lo
+ferma. Non serve nemmeno cercare: se nella domanda nomini un argomento
+(«spiegami le titolazioni», «lo spettro di massa», «la meccanica orbitale»),
+Spectra trova la sezione che ne parla, la apre dietro la finestra, la mostra
+nell'ologramma e la spiega con i dati del suo schermo. Le sezioni nuove
+compaiono da sole: l'elenco si legge dalla barra dell'app.
+
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md).
 
@@ -708,4 +781,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v239`._
+_Guida aggiornata alla versione `bsi-v240`._

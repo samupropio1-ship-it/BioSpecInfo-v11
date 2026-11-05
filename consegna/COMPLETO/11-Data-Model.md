@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v239` |
+| **Versione descritta** | `bsi-v240` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -166,6 +166,13 @@ La frase con cui il creatore si fa riconoscere (`bsi-spectra-creatore.js`) non
 l'impronta SHA-256, la si confronta con quella del File Manager e la si scarta.
 Al modello va solo una riga di contesto: se l'utente è stato riconosciuto o no.
 
+«🧠 Spiega» (`bsi-spectra-spiega.js`, v240) non conserva niente: la
+conversazione resta in memoria per la sessione e «↺ Nuova spiegazione» la
+azzera. Con «📺 Includi lo schermo» attivo, il testo dello schermo e
+un'immagine dei grafici e delle scene 3D vanno al fornitore di IA
+configurato insieme alla domanda (vedi
+[`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md)).
+
 La lezione guidata (`bsi-lezione.js`, v239) non ha chiavi sue: la lezione si
 costruisce dalla pagina a ogni avvio e vive in memoria finché è aperta. I
 comandi che mostra al lavoro tornano al valore che avevano. A fine lezione la
@@ -238,9 +245,9 @@ chiusa (`onversionchange`) per non bloccare entrambe.
 | **Nome database** | `bsi-spectra-modelli` |
 | **Object store** | `file` |
 | **Chiave** | `corpo` |
-| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» di `spectra-studio.html`; al massimo 60 MB |
-| **Chi lo scrive** | Lo studio, solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
-| **Chi lo legge** | Lo studio, a ogni apertura, prima di ogni altro corpo |
+| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» (in `spectra-studio.html` o nel riquadro di Spectra nelle sezioni dell'AI); al massimo 60 MB |
+| **Chi lo scrive** | `bsi-spectra-figura.js` (studio e sezioni dell'AI), solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
+| **Chi lo legge** | `bsi-spectra-figura.js`, a ogni apertura dello studio e alla prima apertura di una sezione dell'AI, prima di ogni altro corpo |
 | **Cancellazione** | «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
 
 Il file non esce dal dispositivo. Il motivo è la licenza: il corpo scelto
@@ -314,4 +321,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v239`._
+_Documento aggiornato alla versione `bsi-v240`._

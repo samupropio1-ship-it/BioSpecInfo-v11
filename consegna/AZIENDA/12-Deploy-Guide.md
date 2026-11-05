@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v239` |
+| **Versione descritta** | `bsi-v240` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -206,22 +206,28 @@ Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 `spectra-studio.html` (v239) non passa da `index.html`: carica da sé
 `three.min.js`, `gltf_loader.js`, `bsi-spectra-mente.js`, `bsi-spectra-creatore.js`,
 `bsi-spectra-androide.js`, `bsi-spectra-corpo.js`, `bsi-spectra-rig.js`,
-`bsi-spectra-voce.js` e `bsi-spectra-studio-lezioni.js`. La pagina e i quattro moduli nuovi sono nel
-`PRECACHE` di `sw.js`; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
+`bsi-spectra-figura.js`, `bsi-spectra-voce.js` e `bsi-spectra-studio-lezioni.js`. La pagina e questi moduli sono nel
+`PRECACHE` di `sw.js`; `bsi-spectra-figura.js` (v240) è anche in `index.html`,
+con `defer`, perché mostra Spectra col corpo nelle sezioni dell'AI: carica
+`three.min.js`, `gltf_loader.js` e gli altri moduli 3D solo la prima volta che si
+apre una di quelle sezioni; anche `bsi-spectra-spiega.js` (v240, la
+scheda «🧠 Spiega» della finestra di Spectra) sta in `index.html` con `defer` e
+nel precarico; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
 usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
 `models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
-arriva, Spectra resta con la testa del manichino. Il corpo «Bounty Hunter»
+arriva, il corpo resta senza viso. Il corpo «Bounty Hunter»
 (`models/spectra-corpo.glb`) e `models/spectra-cyberpunk.glb` **non sono nel
 repository** (il corpo viene da CGTrader, la cui licenza Royalty Free non
 permette che terzi ne recuperino il file): chi pubblica dal repository
-ottiene il manichino, e ogni utente può caricare la propria copia con il
+ottiene, al posto di Spectra, l'invito a caricare il corpo (nessun sostituto),
+e ogni utente può caricare la propria copia con il
 pulsante «🧍 Corpo», che la conserva solo nell'IndexedDB del suo browser; lo studio li cerca con una richiesta `HEAD` e,
 se mancano, passa al successivo senza errori.
 
 **Il modello del corpo.** Lo studio cerca `models/spectra-cyberpunk.glb` con
-una richiesta `HEAD`: se il file c'è lo carica e lo usa al posto del
-manichino (scalato a 1,8 m, capelli resi neri dal driver, volto «Noir»
-nascosto); se non c'è, resta il manichino. Il modello «cyberpunk» scelto
+una richiesta `HEAD`: se il file c'è lo carica e lo usa (scalato a 1,8 m,
+capelli resi neri dal driver, volto «Noir» nascosto); se non c'è, e non c'è
+nemmeno un corpo caricato dal dispositivo, compare l'invito a caricarlo. Il modello «cyberpunk» scelto
 dall'autore non è nel repository. Per aggiungerlo: verificare che la licenza
 permetta la ridistribuzione modificata, ottimizzarlo come
 [`docs/spectra/01`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) §2 e §6, copiarlo
@@ -418,4 +424,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v239`._
+_Documento aggiornato alla versione `bsi-v240`._

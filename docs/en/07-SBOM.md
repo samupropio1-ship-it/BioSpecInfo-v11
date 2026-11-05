@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v240` |
-| Commit | `ca9f6ab0f33ca855f12cd25cfb0c08cba29efd13` |
-| Generated (UTC) | `2026-11-05T05:01:07.128Z` |
+| Commit | `6794af602f807d7f6d7cbd2904c89fadbddc6529` |
+| Generated (UTC) | `2026-11-05T06:25:43.847Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -375,4 +375,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-05T05:01:07.128Z._
+_Generated on 2026-11-05T06:25:43.847Z._

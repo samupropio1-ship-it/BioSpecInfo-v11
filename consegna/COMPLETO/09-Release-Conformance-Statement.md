@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione** | `bsi-v239` |
+| **Versione** | `bsi-v240` |
 | **Autore e responsabile del rilascio** | Samuele Pio Provenzano |
 | **Repository** | `github.com/samupropio1-ship-it/BioSpecInfo-v11` |
 | **Distribuzione** | GitHub Pages — `samupropio1-ship-it.github.io/BioSpecInfo-v11/` |
@@ -13,7 +13,7 @@
 
 ## 1. Oggetto della dichiarazione
 
-Il sottoscritto dichiara che la versione `bsi-v239` di BioSpecInfo è stata
+Il sottoscritto dichiara che la versione `bsi-v240` di BioSpecInfo è stata
 sottoposta alla procedura di verifica descritta in
 [`02-Verification-Validation-Report.md`](02-Verification-Validation-Report.md)
 e che gli esiti sono quelli riportati, senza selezione, in
@@ -85,7 +85,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-11** | Parte di Spectra Live, il menu ✨ per materia e gli strumenti rapidi non hanno un banco | La voce, l'ascolto continuo, i comandi locali diversi da quelli del creatore, gli strumenti che agiscono sulla pagina e il menu ✨ di fisica e matematica sono provati a mano: un loro guasto non farebbe fallire la batteria | Dichiarati in `docs/08` §6 come **UI-21** e **AI-13**. Dalla v238 l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore sono coperti da `test_spectra238` (UI-22, AI-14, SEC-08); dalla v239 la lezione guidata e il comando «fammi lezione» da `test_lezione` (UI-24) e il pulsante unico da `test_spectra238` (UI-25), mentre la voce della lezione resta provata a mano. Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia della batteria; i calcoli degli strumenti rapidi poggiano su `BSIMatCAS`, verificato da `test_matematica` |
 | **D-12** | Due chiavi locali di Spectra restano fuori dalla cancellazione selettiva | `bsi-spectra-ritratto-v4` (l'icona ricavata dal volto) e `bsi-spectra-sentinella` (segno dell'ascolto continuo) non sono nei gruppi di «Cancella dati». La mente, il riconoscimento del creatore, la materia e i kit di studio invece sì (gruppi Memoria persistente e Progressi) | Nessuna delle due contiene dati dell'utente: la prima si rigenera, la seconda si toglie quando l'ascolto si ferma. Dichiarato in `docs/11` §6 |
 | **D-13** | Il riconoscimento del creatore di Spectra non è un controllo d'accesso | L'impronta SHA-256 della frase segreta è nel codice, e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`, dove chi ha il dispositivo può scriverlo a mano. Un'impronta senza sale di una frase debole si può anche cercare per tentativi fuori dall'app | Come la password del File Manager (SEC-03), è un deterrente: non protegge dati, dice a Spectra con chi parla. La frase non è nel codice né conservata (SEC-08, `test_spectra238`) |
-| **D-14** | Spectra Studio: il corpo è un manichino di prova | Il modello «cyberpunk» scelto dall'autore non è stato fornito (il file non era raggiungibile dalla sessione di lavoro, la licenza va verificata). Lo studio lo carica da `models/spectra-cyberpunk.glb` se il file c'è; oggi non c'è, quindi si vede il manichino con il volto «Noir» | Il driver del corpo è generico e provato sul manichino (AI-15); il piano per il modello vero è in `docs/spectra/01`. Basta pubblicare il GLB in `models/spectra-cyberpunk.glb`, con licenza e attribuzione verificate |
+| **D-14** | Spectra col corpo: il corpo non è nell'app pubblicata | Il corpo scelto dall'autore viene da CGTrader con licenza Royalty Free, che non permette che terzi ne recuperino il file: non è nel repository né servito dall'app. Senza di esso, nello studio e nelle sezioni dell'AI compare l'invito a caricarlo, senza sostituti (niente manichino) | Ogni utente carica la propria copia una volta con «🧍 Corpo»; resta solo nell'IndexedDB del suo browser (`bsi-spectra-modelli`). Rig, figura e reazioni sono provati su un umanoide sintetico (AI-17, UI-27); il corpo vero va giudicato guardando |
 
 > ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
 >
@@ -290,4 +290,4 @@ Chiunque può verificare quanto dichiarato rieseguendo la procedura del §5 di
 indicato, e confrontando le impronte SHA-256 dei file.
 
 **Samuele Pio Provenzano**
-_Versione `bsi-v239`._
+_Versione `bsi-v240`._

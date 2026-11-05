@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v239` |
+| **Version described** | `bsi-v240` |
 | **Purpose** | Document the project's HTTP interfaces and the external APIs the application consumes. |
 
 ---
@@ -498,7 +498,7 @@ Spectra Live's local command «fammi lezione» («give me a lesson») in
 | Symbol | Signature | Description |
 |---|---|---|
 | `crea` | `(root, { animazioni?, capelliNeri? }?) → Corpo` | Attaches the driver to a three.js object with a skeleton; with `animazioni` (the GLB's clips) it recognises `idle`, `walk`, `sit`, `stand`, `wave`, `point`, `talk`; the hair turns black unless `capelliNeri: false` |
-| `manichino` | `({ neon? }?) → THREE.Group` | The test mannequin: bones with Mixamo names in T-pose, head with 26 ARKit blendshapes, separate eyes, red hair cap |
+| `manichino` | `({ neon? }?) → THREE.Group` | The test mannequin (since v240 only for the driver's bench, never as Spectra): bones with Mixamo names in T-pose, head with 26 ARKit blendshapes, separate eyes, red hair cap |
 | `EMOZIONI`, `OSSA`, `normaNome` | objects, function | ARKit weights per emotion; regular expressions for bone names; name normalisation |
 
 Methods of a `Corpo`:
@@ -515,6 +515,52 @@ Methods of a `Corpo`:
 | `cammina`, `siedi` | `(point)`, `(yes?)` | Walk to a point; sit (`false` to stand up) |
 | `peso`, `imposta` | `(name) → number \| null`, `(name, value) → boolean` | Reads and writes a blendshape weight |
 | `passo` | `(dt)` | Advances the behaviour by `dt` seconds; to be called every frame |
+
+### `window.BSISpectraFigura` — Spectra with the body (`bsi-spectra-figura.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Order: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (development only) → `models/spectra-cyberpunk.glb` → no body (the mannequin only with `opz.manichino === true`, for the driver's bench). With `opz.soloDispositivo` IndexedDB only: the figure from `monta` enables it by default (in the app no requests for the development files, no 404s); the studio still tries the files. Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
+| `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invitation when the body is missing; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
+| `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`); the 3D files load on first opening |
+| `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
+| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The `.glb` body in IndexedDB (`bsi-spectra-modelli`, store `file`, key `corpo`) |
+| `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
+| `Ologramma` | `new (T, scene) → hologram` | The holographic screen to Spectra's right; methods `costruisci(name)`, `mostra(name)`, `passo(dt)`; scenes computed every frame, plus `'schermo'` (the section behind the window, re-rendered with `BSISpectraLive.cattura` 5 times a second; a section without graphs is projected as a card: title, tab, up to 6 controls with values, visible text) |
+| `SCENE_OLO` | object | The six scenes (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): for each `nome` (it, en), `sez` (the id of the section the label opens) and `parole` (the regular expression that selects it) |
+| `sceneDi` | `(text) → string \| null` | The scene matching the words of a text, or `null` |
+| `LIMITE`, `RIG`, `figura` | number, object, figure | 60 MB; the rig parameters for the author's body; the sections' shared figure (or `null`) |
+
+Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scene)` (for benches), `passo(dt)`, `emozione(name, seconds?)`, `dici(text)`, `taci()`, `fai(gesture, target?, seconds?)`, `presente() → boolean`.
+
+New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
+
+New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo, schermo }`), dispatched by `bsi-spectra-spiega.js` with the question (and when the tab opens with a section behind); the hologram picks the scene with `sceneDi(text)`, or shows the screen live if `schermo` is true. When answering, the figure first points at the hologram («indica» gesture, about 2.5 s) and then accompanies with «spiega».
+
+### `window.BSISpiega` — «🧠 Spiega» (`bsi-spectra-spiega.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione», the «🗂️ Tutte le sezioni nell'ologramma» card (search, subject filter, «🎞️ Mostrami tutto») |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 194 sections (chemistry 75, physics 60, mathematics 30, shared 29). Read from the bar, not written by hand |
+| `sezioneDi` | `(text) → catalogue entry \| null` | The section a question names: meaningful words of the names (with stems), acronyms (MS, IR, UV, NMR, MO…) weighted more, synonyms («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); ties go to the shorter name. E.g. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
+| `mostraSezione` | `(id) → Promise<boolean>` | Opens the section behind the Spectra window (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed) and refreshes the screen, so the hologram shows it live |
+| `giro` | `(subject?)` | «🎞️ Mostrami tutto»: every section of the subject (`'chimica'`, `'fisica'`, `'matematica'`; all if empty) in the hologram, one every 7 s, with the counter «n/N · name» |
+| `giroFerma` | `()` | Stops the tour |
+| `chiedi` | `(question, { schermo?, livello? }?) → Promise` | Sends the question to the chat's model; with `schermo` it adds the screen text and, in the first turn, the image; without `schermo`, if the question names a section (`sezioneDi`) other than the open one, it first opens it (`mostraSezione`) and then asks with the screen, unless the user unchecked the box (`ST.schermoNo`): then only the question; follow-up questions continue the conversation. Without a model it shows what the app knows on its own |
+| `schermo` | `() → { testo, tela, svg, grafici, titolo, materia }` | Reads the open section: title, tab, controls with value and range, visible tables (up to 4 × 40 rows), visible text, visible canvases and SVGs |
+| `immagine` | `(S) → Promise<dataURL>` | Composes into a JPEG (at most 1400 px wide) the visible canvases (`BSILab3D` scenes re-rendered first) and the visible SVGs rasterised |
+| `sistema` | `(level, subject) → string` | The system prompt: level, `PROFONDITA`, mandatory structure, rigour |
+| `aggiornaSchermo` | `()` | Refreshes the screen card (title, number of graphs and 3D scenes, thumbnail) |
+| `LIVELLI`, `PROFONDITA` | array | The five levels (High school to Advanced PhD · frontier) and what is asked at each |
+| `stato` | `() → { turni, livello, inCorso }` | The state of the conversation |
+
+### `window.bsiLLM` — the chat's provider (`bsi-ai-hub.js`, v240)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `provider` | `() → string` | The provider chosen in the Spectra window (or the saved one) |
+| `chiave` | `(provider) → string \| null` | The key to use for that provider, as the chat does; used by «🧠 Spiega» |
 
 ### `window.BSIStudioLezioni` and `window.SpectraStudio` — the studio (v239)
 
@@ -539,4 +585,4 @@ loop (the host calls `passo(dt)` and attaches `radice` to the body); with
 
 ---
 
-_Document updated to version `bsi-v239`._
+_Document updated to version `bsi-v240`._

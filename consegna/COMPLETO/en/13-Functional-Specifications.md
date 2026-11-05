@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v239` |
+| **Version described** | `bsi-v240` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -83,7 +83,7 @@ The application has **194 sections**, grouped by area of study.
 | **🧪 ⚛️ 📐 Three apps in one** | The chosen subject also decides the **✨ menu**, **Spectra**, **Study** and **Utility** (`bsi-materie-app.js`). In physics and mathematics the ✨ menu's chemistry block gives way to the **quick tools** (`bsi-attrezzi.js`), opened in a window above the page: 🧮 exact calculator, ∂ derivative and ∫ antiderivative, 📈 graph, 🔢 CODATA constant, 🔁 unit converter, 📐 formula, 📖 glossary and ⚡ lightning quiz taken from the subject's study kit. Spectra receives the subject's system instruction, suggestions and greeting |
 | **🧊 3D tabs in the sections (v238)** | Twenty-nine sections (4 chemistry, 15 physics, 10 mathematics) have, after their other tabs, a 3D tab built on the section's model: LEPS surface with the trajectory, P–V–T surface with the dome, molecular collisions in a box, equilibrium molecule by molecule, unit cells with Miller planes, the \|ψ\|² cloud, RHF orbitals, a molecule rotating and vibrating, a Lennard-Jones fluid, a launch with wind, fields and the Lorentz force, a ripple tank, a potential well with the Lagrange points, the light cone, flow past an obstacle, the p-V-T surface, the Brillouin zone, 3D Ising, a particle detector; tangent plane, field and divergence, solids of revolution, space transformations, chaos in phase space, the bivariate normal, surfaces with χ and orientability, sphere and hyperboloid, Riemann sphere, soap film. Text and controls are built on click, the scene right after. Every tab has a verification script (`15-Test-Documentation.md` §3.1-ter). Canvases without a name take the tab's and the section's |
 | **🎓 Guided lesson in every section (v239)** | Under the title of every section the «🎓 Guided lesson with Spectra» button starts a lesson in chapters built from the section itself (`bsi-lezione.js`): an opening with title and subtitle; one chapter per tab, in which the tab opens, the explanation is read in pieces, canvases and 3D scenes are highlighted, every slider runs from minimum to maximum and returns where it was, every select goes through its options and returns as it was; a check question from the subject's study kit with the explanation after the answer; a summary. Sections without tabs are read by headings and paragraphs. The player sits on the right on a large screen (the page shifts left) and at the bottom on a phone; it has ◀ ▶, pause, Spectra's voice and a spotlight that dims the rest of the page. During the lesson the floating buttons are hidden. At the time of writing: 194 sections with a lesson, 99 with tabs, 79 with a check question |
-| **🌌 Spectra Studio (v239)** | A page of its own (`spectra-studio.html`), opened from the console's 🧭 navigator: a 3D laboratory with Spectra standing next to a holographic bench. Three lessons with the predict → test → prove → reveal method: 🪂 the fall (dropped or thrown, they land together: 2.019 s from 20 m, range 12.12 m), 💧 the shape of water (VSEPR as an energy minimum: tetrahedron 109.47°, water 104.4°, ammonia predicted 106.7°), ∑ the Basel problem (partial sums, tail, Fourier series of x², coprimes → 6/π²). Every option is explained; exercises on four levels with the one recommended by the memory of predictions (`bsi-spectra-studio-v1`). The body is the `models/spectra-cyberpunk.glb` model if it is there, otherwise (today) a rigged test mannequin with the «Noir» face; the voice is turned off with 🔊/🔇 and the choice is remembered; the panel holds all the text and the lesson can be followed without WebGL too. Design in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) |
+| **🌌 Spectra Studio (v239)** | A page of its own (`spectra-studio.html`), opened from the console's 🧭 navigator: a 3D laboratory with Spectra standing next to a holographic bench. Three lessons with the predict → test → prove → reveal method: 🪂 the fall (dropped or thrown, they land together: 2.019 s from 20 m, range 12.12 m), 💧 the shape of water (VSEPR as an energy minimum: tetrahedron 109.47°, water 104.4°, ammonia predicted 106.7°), ∑ the Basel problem (partial sums, tail, Fourier series of x², coprimes → 6/π²). Every option is explained; exercises on four levels with the one recommended by the memory of predictions (`bsi-spectra-studio-v1`). The body is the one chosen by the author, loaded once from the device with «🧍 Corpo» (or `models/spectra-cyberpunk.glb` if it is there), rigged, with the «Noir» face on the collar; without a body an invitation to load it, no substitute (since v240); the voice is turned off with 🔊/🔇 and the choice is remembered; the panel holds all the text and the lesson can be followed without WebGL too. Design in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) |
 | **🎲 🎞️ ⚡ 🔊 💡 🌡️ 🔋 Explorations** | **Probability in motion** (Galton, central limit, Monte Carlo, Bayes); **Visual mathematics** (animated linear maps, Fourier epicycles including from a hand drawing, Mandelbrot and Julia with zoom, logistic map and bifurcations); **Electromagnetism in motion** (draggable charges with equipotentials and field lines, induction, generator, EM waves and polarisation); **Sound and acoustics** with audio (harmonics, timbre, beats, Doppler and Mach cone, decibels); **Semiconductors** (Fermi-Dirac, n_i, doping, p-n junction, LEDs); **Distillation** (T-x-y with Antoine and van Laar, azeotrope, McCabe-Thiele, Rayleigh); simulated **Cyclic voltammetry** (diffusion and Butler-Volmer, Randles-Ševčík, scan-rate analysis) |
 | **🔭 ⏱️ 🌊 ∇ 🌀 Astrophysics, relativity, fluids, vector calculus, complex kinetics** | **Astrophysics**: H-R diagram with real stars and the main sequence by mass, black body and star colours, animated solar system with Kepler and Hohmann, exoplanet transits with light curve and radial velocity, Friedmann cosmology with the age of the universe and receding galaxies. **Special relativity**: Minkowski, twins, dynamics and Doppler. **Fluids**: Venturi, Poiseuille, Reynolds, Stokes and centrifuges, capillarity. **Vector calculus**: fields with particles, divergence and curl, potential, Green's theorem verified, gradient. **Complex kinetics**: consecutive, parallel and reversible reactions, Brusselator and Hopf bifurcation, Turing patterns. Every animation in the app has pause, restart and speed, stops off-screen and honours «reduce motion» |
 | **🎯 〰️ 🔌 🔥 🧮 📐 ⚖️ Laboratories in motion** | Seven sections: **Mechanics in motion** (projectile with air drag and optimal angle, collisions with a coefficient of restitution, the real pendulum with its phase space, coupled oscillators and normal modes); **Waves and optics** (beats, standing waves, group velocity; lenses and mirrors with principal rays; N-slit diffraction in the colour of light); **Circuits** (RC, RL, RLC transients with the three regimes; alternating current with phasors and resonance; filters with the Bode plot); **Thermodynamics in motion** (Carnot, Otto, Diesel and Stirling cycles in the p-V and T-S planes with balances; a gas of particles reaching Maxwell-Boltzmann; Brownian motion); **Numerical methods** (roots, integration, ODEs, interpolation, with measured convergence orders); **Analytic geometry and vectors** (vectors and lines and planes in 3D, conics with the invariants); **Equilibrium and Le Chatelier** (a reaction shifting when disturbed, K as a function of T) |
@@ -347,9 +347,102 @@ remains. The spoken text leaves the device only in this case
 
 **The body** (`bsi-spectra-corpo.js`, v239). A generic driver for humanoid
 avatars (bones, ARKit blendshapes, black hair, gaze, gestures, walking,
-sitting), used in Spectra Studio. The studio loads the model chosen by the
-author from `models/spectra-cyberpunk.glb` if the file is there; the model has
-not been provided, so today a test mannequin is shown (§6). Body, face and mind are a
+sitting), used by `bsi-spectra-figura.js` (v240) in Spectra Studio and in the
+AI sections. The body chosen by the author (CGTrader, Royalty Free licence)
+cannot be in the repository: the user loads it once from their own device with
+«🧍 Corpo» and it stays in the browser's IndexedDB. Without that body an
+invitation to load it appears, with no substitute (§6).
+
+**Spectra with the body in the AI sections** (`bsi-spectra-figura.js`, v240).
+In Spectra AI and in the three areas with the assistant, under the title, a
+lab-style frame shows Spectra standing: it thinks while the model works,
+explains with its hands and lip sync when the answer arrives, speaks with
+Spectra Live and explains the working when the local assistant solves an
+exercise; buttons «🧍 Corpo», «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
+One figure for the whole app. Spectra's icon is the face only. The buttons sit
+in a bar under the scene.
+
+**The hologram** (`bsi-spectra-figura.js`, v240). To Spectra's right (the
+viewer's right) a holographic screen shows live scenes, computed rather than
+recorded: four planets on Kepler orbits (Kepler's equation solved every frame,
+faster at perihelion), benzene with its π cloud, an IR spectrum tracing itself,
+the surface z = sin(r − t)/r, the 3d_z² orbital rotating, a Schrödinger wave
+packet spreading; or the section open behind the Spectra window, live. The
+scene follows the subject of the question and the answer (orbits → planets,
+spectrum → IR, orbital → 3d_z²…); with «📺 Includi lo schermo» it shows the open
+section; at rest the scenes alternate every 14 s. The label at top right
+(«🪐 Orbite di Keplero · apri ›»…) opens the matching section with one tap
+**without removing Spectra's figure**: the AI section is not left; the Spectra
+window opens on «🧠 Spiega» (if it is not open already) with the section behind
+it, so Spectra stays visible in front and the section is seen live in the
+hologram. When the window is closed, if Spectra opened other sections (the
+catalogue, «🎞️ Mostrami tutto», a question naming a topic, the label), the app
+returns to the AI section the user started from, where the figure is, and the
+tour stops. When
+answering, Spectra first points at the hologram and then explains with the
+hands. **Every section is showable**: a section without graphs (text, tables,
+controls) is projected as a card drawn on the hologram (title, open tab, up to
+six controls with their values, visible text) instead of falling back to the
+planets.
+
+**«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). In the Spectra window the
+**«🧠 Spiega»** tab is the second one, after «💬 Chat» (then Esame Orale,
+Ripassa Oggi, Genera Guida). It gives an **exhaustive explanation** of any
+chemistry, physics or mathematics question, at one of five levels (High school,
+Bachelor, Master, PhD, Advanced PhD · frontier), without simplifying below the
+chosen level and without leaving out anything relevant. The answer has a
+mandatory structure: in short; what you are looking at (with the screen: the
+quantitative reading of the graph — for an NMR spectrum every signal with δ,
+multiplicity, J, integral and assignment, for IR, MS and UV-Vis bands,
+fragments and transitions; for a 3D scene geometry, symmetry, nodes, critical
+points and isosurfaces; for a mathematical graph domain, asymptotes, extrema,
+inflections, convergence); theoretical foundations; formalism and full
+derivation; computed numerical examples; limiting cases, approximations and
+common errors; links between the three subjects; applications and research
+frontier; three self-check questions with answers. With **«📺 Includi lo
+schermo»** the explanation is about what is open: the model receives the
+section's text (controls with values, tables, text) and an image of the graphs
+and 3D scenes. Quick prompts: «📈 Spiegami questo grafico», «🧪 Lo spettro,
+picco per picco», «🧊 La scena 3D», «∴ Dimostrazione completa», «🔭 Frontiera
+della ricerca»; «↺ Nuova spiegazione» starts over. A configured AI provider is
+needed: without one, the tab says so and shows what the app knows on its own
+(the local assistant for numeric exercises, the chapters of the section's
+guided lesson, the screen data). Spectra with the body moves into the tab,
+thinks while the model writes and then explains with voice and gestures.
+
+**The catalogue: every section in the hologram** (`bsi-spectra-spiega.js`,
+v240). The author's request: «ogni sezione della chimica, della fisica e della
+matematica deve esserci, non deve mancare nulla in questo ologramma: deve
+esserci tutto spiegabile e mostrabile» (every section of chemistry, physics
+and mathematics must be there, nothing may be missing from this hologram:
+everything must be explainable and showable). The catalogue is not written by
+hand: it is read from the app bar (every section button, with its group —
+Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+Utility, Fisica, Matematica, Astrofisica — and its subject): 194 sections
+(chemistry 75, physics 60, mathematics 30, shared 29); a new section appears by
+itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
+nell'ologramma»** lists them by group, with a search box and a subject
+filter; one tap opens the section behind the Spectra window (switching subject
+if needed), the hologram shows it live and «📺 Includi lo schermo» is checked,
+so the explanation uses its data. **«🎞️ Mostrami tutto»** runs every section
+of the chosen subject (or all of them) through the hologram, one every 7 s,
+with the counter «n/N · name»; it can be stopped. **A question that names a
+topic finds its section** (the meaningful words of the section names looked
+for in the question, also by stem; the acronyms MS, IR, UV, NMR, MO… weigh
+more; synonyms such as «spettro di massa» → MS, «infrarosso» → IR, «risonanza
+magnetica» → NMR, «orbitali molecolari» → MO; ties go to the shorter name):
+asking in «🧠 Spiega» without the screen included, the named section opens
+behind the window, is shown in the hologram and the explanation includes its
+screen data. **A box unchecked by the user is respected**: if the user
+unchecked «📺 Includi lo schermo», the section named or chosen from the
+catalogue still opens and is shown, but the box stays unchecked and the model
+receives only the question, with no screen text or image; the quick prompts
+about the screen check it again (explicit choice). Examples: titolazioni → Titolazione, Schrödinger → the
+Schrödinger equation, integrali per parti → «Derivate, integrali e serie»,
+spettro di massa → Spettro MS, spettro infrarosso → IR Visivi, meccanica
+orbitale → 3D orbital mechanics; «ciao come stai» → none.
+
+Body, face and mind are a
 simulation of behaviour, not consciousness.
 
 ---
@@ -508,7 +601,7 @@ Declared, not hidden. The detail is in
 | 13 | **Spectra's face weighs about 8 MB** | `models/spectra-noir.glb` is not in the service worker's precache: it is downloaded the first time the app derives Spectra's icon (a few seconds after the first start, if WebGL is available) or opens the console. If it does not arrive, the console uses the fallback face |
 | 14 | **Creator recognition is not an access control** | The SHA-256 fingerprint is in the code and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`: whoever holds the device can write it by hand. Like the File Manager password, it is a deterrent and protects no data |
 | 15 | **The guided lesson comes from the page, not from an author** | The lesson reads the section's explanations, canvases and controls: where a tab has little text, the chapter says little. The check question is chosen by words in common with the section and may be only close to the topic; 115 sections out of 194 have none. The voice is not tested by the bench. The model it is inspired by (Every Joule's interactive lesson) was not reachable during development: the lesson is an interpretation of it |
-| 16 | **Spectra Studio is a first prototype** | Three lessons only. The «cyberpunk» model chosen by the author has not been provided (the file was not reachable and the licence must be checked): the studio would load it from `models/spectra-cyberpunk.glb`, but today the file is not there and the body is a test mannequin. Black hair on the real model is guaranteed by the driver but tested only on the mannequin. The studio's interface texts are in Italian |
+| 16 | **Spectra Studio is a first prototype; the body has to be loaded from the device** | Three lessons only. The body chosen by the author is not in the repository (CGTrader Royalty Free licence): in the published app, in the studio and in the AI sections, an invitation to load it appears until the user loads their own copy with «🧍 Corpo»; no substitute. Black hair is guaranteed by the driver but tested only on the mannequin of its bench. The studio's interface texts are in Italian |
 | 17 | **With an OpenAI key and the voice on, the spoken text goes to OpenAI** | The quality voice sends OpenAI the text Spectra speaks, even when the chat uses another provider and without going through the proxy. It is avoided by turning the voice off (🔇) in the console, in the guided lesson or in Spectra Studio, where the choice is remembered, or by not saving an OpenAI key |
 
 ---
@@ -527,4 +620,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v239`._
+_Document updated to version `bsi-v240`._

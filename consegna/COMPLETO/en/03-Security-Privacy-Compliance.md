@@ -39,6 +39,22 @@
   avoid it, turn the voice off (🔇) in the console, in the guided lesson and in
   Spectra Studio, where the choice is remembered (`bsi-spectra-studio-voce`);
   or do not save an OpenAI key.
+- **«🧠 Spiega» and the screen (`bsi-spectra-spiega.js`, v240):** with the
+  **«📺 Includi lo schermo»** checkbox checked (it is checked by default when
+  a section is open behind the window), the configured AI provider receives,
+  with its key and together with the question, **the screen text** (section,
+  tab, control values, visible tables and text) and **an image of the visible
+  graphs and 3D scenes**, like a chat attachment; the image is sent in the
+  first turn only. With the checkbox unchecked only the question is sent.
+  **An unchecked box is respected**: even when Spectra opens a section named
+  in the question («spiegami le titolazioni») or chosen from the
+  «🗂️ Tutte le sezioni nell'ologramma» catalogue, the section opens behind
+  the window and is shown in the hologram, but the box stays unchecked and
+  the model receives only the question, with no screen text or image. Only
+  the quick prompts about the screen («📈 Spiegami questo grafico»…) check it
+  again, since they are an explicit choice.
+  Without a key nothing leaves the device. The conversation is kept in memory
+  for the session and is not saved.
 - **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
   the «🧍 Corpo» button stays only in the browser's IndexedDB
   (`bsi-spectra-modelli`) and is not sent to any server. It is erased with

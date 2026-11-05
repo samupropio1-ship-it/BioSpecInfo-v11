@@ -574,13 +574,86 @@ bar there is **🔊/🔇**: it turns Spectra's voice off and on, and the studio
 remembers your choice next time too. The studio's own buttons and messages are
 in Italian.
 
-Spectra's body is, for now, a **test mannequin** with his face: the character
-chosen by the author has not been provided yet. The studio is already ready to
-use it: whoever publishes the app, **after checking that the model's licence
-allows redistribution**, puts the GLB file at `models/spectra-cyberpunk.glb`
-(the steps are in the [deploy guide](12-Deploy-Guide.md), §2.2-quinquies). The
-next time the studio opens, Spectra has that body, with black hair and the
-model's own face. Body, face and voice
+**Spectra's body has to be loaded once.** The body chosen by the author is a
+third-party model (CGTrader) that cannot be distributed with the app. If
+Spectra is not on your device yet, in its place you see the invitation
+«Spectra non è ancora su questo dispositivo — carica una volta il suo corpo
+(.glb)»: press **«🧍 Corpo»** and choose the `.glb` file (at most 60 MB). The
+file stays only in this browser, and from then on Spectra appears with the body
+in the studio and in the AI sections. It is erased with «Clear data → Progress
+in the rest of the app». There is no substitute body.
+
+**Spectra in the AI sections.** In Spectra AI and in the areas with the
+assistant for Chemistry, Physics and Mathematics, under the title, Spectra
+stands in a lab-style frame: while the model works it brings its hand to its
+chin, when the answer arrives it explains with its hands and moves its lips.
+**«🎙️ Parla con me»** opens Spectra Live, **«🧠 Spiega»** opens the explanation,
+**«🎓 Studio»** opens Spectra Studio. Spectra's round button, on every screen,
+is its face.
+
+**The hologram.** To Spectra's right there is a holographic screen with scenes
+that really move: orbiting planets, a benzene molecule, an IR spectrum drawing
+itself, a wave, an orbital, a surface. It changes by itself with the subject
+you are talking about (ask about orbits and the planets appear; talk about a
+spectrum and the spectrum appears) and, if you have a section open behind the
+Spectra window, it shows it live. **Tap the label at the top right of the
+hologram** («🪐 Orbite di Keplero · apri ›»…) to open the section where that
+scene is really studied: it opens behind the Spectra window, on the
+«🧠 Spiega» tab, so Spectra stays in front of you and the section is seen live
+in the hologram. When you close the window you return to the AI section you
+started from, with Spectra there (this also applies to sections opened from
+the catalogue, from «🎞️ Mostrami tutto», which stops, or from a question). Every section of the app can be shown in the
+hologram (below, «Every section in the hologram»). When answering, Spectra points at the hologram and
+then explains with the hands. The buttons are in the bar under the scene.
+
+**Explain everything: «🧠 Spiega».** In the Spectra window open the second
+tab, **«🧠 Spiega»** (or press «🧠 Spiega» in Spectra's frame). Write the
+question — anything in chemistry, physics or mathematics — and choose the
+level, from high school to advanced PhD, at the research frontier: Spectra does
+not simplify below the chosen level. The answer is complete and always has the
+same structure: the summary, the theory, the step-by-step derivation, worked
+numerical examples, limiting cases and common errors, the links between the
+three subjects, applications and research, and three questions to check you
+understood. Then you can go on: «go deeper», «prove step 3», «and if I double
+the temperature?».
+
+**What you are looking at.** If behind the window you have a section open with
+a graph, a spectrum or a 3D scene, leave **«📺 Includi lo schermo»** checked
+(the card shows which section and a thumbnail) or use a quick prompt:
+**«📈 Spiegami questo grafico»**, **«🧪 Lo spettro, picco per picco»**,
+**«🧊 La scena 3D»**. Spectra reads the control values and the tables and looks
+at the image of the graphs: for an NMR spectrum it explains every signal
+(chemical shift, multiplicity, coupling constant, integral) and which atom it
+belongs to. **Note**: with the box checked the screen text and the image of the
+graphs go to the AI provider you configured, together with the question;
+uncheck it if you do not want that, and your choice stays: even when Spectra
+opens a section you named or chose from the catalogue below, the model receives
+only the question. The quick prompts about the screen («📈 Spiegami questo
+grafico»…) check it again. A configured AI provider is needed, as for
+the chat; without one, the tab tells you so and shows what the app knows on
+its own (the assistant's working for a numeric exercise, the chapters of the
+section's guided lesson). **«↺ Nuova spiegazione»** starts over; the
+conversation is not saved.
+
+**Every section in the hologram.** In the «🧠 Spiega» tab open the
+**«🗂️ Tutte le sezioni nell'ologramma»** card (in English «Every section in the
+hologram»): it lists every section of the app (194: 75 chemistry, 60 physics,
+30 mathematics and 29 shared), grouped as in the bar. Search for one in the box
+(for example «titration», «Schrödinger», «integrals») or filter by subject;
+tap it and Spectra opens it behind the window, shows it live in the hologram
+and checks «📺 Includi lo schermo», so the explanation uses its data (if you
+had unchecked it, it stays unchecked). Even a
+section without graphs (text, tables, controls, such as the Periodic Table)
+appears in the hologram, as a card with the title, the controls and the text.
+**«🎞️ Mostrami tutto»** («Show me everything») runs through every section of
+the chosen subject (or all of them) in the hologram, one every 7 seconds, with
+a counter («12/60 · …»); **«⏹ Ferma il giro»** stops it. You do not even need
+to search: if your question names a topic (in Italian, for example
+«spiegami le titolazioni», «lo spettro di massa», «la meccanica orbitale»), Spectra finds the section about it, opens it
+behind the window, shows it in the hologram and explains it with its screen
+data. New sections appear by themselves: the list is read from the app bar.
+
+Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described
 (in Italian) in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md).
 
@@ -707,4 +780,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v239`._
+_Guide updated to version `bsi-v240`._
