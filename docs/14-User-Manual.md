@@ -600,7 +600,11 @@ secondo l'argomento di cui parlate (chiedi delle orbite e compaiono i pianeti;
 parla di uno spettro e compare lo spettro) e, se hai una sezione aperta dietro
 la finestra di Spectra, la mostra dal vivo. **Tocca l'etichetta in alto a
 destra dell'ologramma** («🪐 Orbite di Keplero · apri ›»…) per aprire la
-sezione in cui quella scena si studia davvero. Ogni sezione dell'app si può
+sezione in cui quella scena si studia davvero: si apre dietro la finestra di
+Spectra, sulla scheda «🧠 Spiega», così Spectra resta davanti a te e la sezione
+si vede dal vivo nell'ologramma. Quando chiudi la finestra torni alla sezione
+dell'AI da cui eri partito, con Spectra lì (vale anche per le sezioni aperte
+dal catalogo, da «🎞️ Mostrami tutto», che si ferma, o da una domanda). Ogni sezione dell'app si può
 mostrare nell'ologramma (più sotto, «Tutte le sezioni nell'ologramma»). Quando risponde, Spectra indica
 l'ologramma e poi spiega con le mani. I pulsanti stanno nella barra sotto la
 scena.

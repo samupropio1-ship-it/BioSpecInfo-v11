@@ -80,7 +80,18 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     («🪐 Orbite di Keplero · apri ›»…) la apre con un tocco (pianeti →
     Sistema solare 3D, molecola → Strutture 3D, spettro → IR Visivi,
     superficie → Funzioni di più variabili, orbitale → Orbitali MO, onda →
-    Schrödinger), chiudendo la finestra di Spectra se è aperta.
+    Schrödinger). **Senza togliere la figura di Spectra** (richiesta
+    dell'autore: «Continua, soprattutto senza togliere la figura di Spectra,
+    deve essere perfetto»): il tocco non lascia la sezione dell'AI, ma apre
+    la finestra di Spectra su «🧠 Spiega» (se non è già aperta) e la sezione
+    **dietro** di essa (`BSISpiega.mostraSezione`), così Spectra resta
+    visibile davanti e la sezione si vede dal vivo nell'ologramma.
+  - **Chiusa la finestra, si torna da Spectra**: se Spectra ha aperto altre
+    sezioni (il catalogo, «🎞️ Mostrami tutto», una domanda che nomina un
+    argomento, l'etichetta dell'ologramma), chiudendo la finestra di Spectra
+    l'app torna alla sezione dell'AI da cui si era partiti (`sai`,
+    `sareachim`, `sareafis`, `sareamat`), dove c'è la figura; il giro di
+    «Mostrami tutto» si ferma alla chiusura.
   - **Il soggetto segue la conversazione**: le parole della domanda (il
     nuovo evento `bsi-spectra-tema`, emesso da «🧠 Spiega» con la domanda) o
     della risposta scelgono la scena (orbite e pianeti → pianeti; spettro,
@@ -241,7 +252,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (99 controlli: 50 a 412 px, 49 a 1280 px): il
+- Nuovo `test_spectra_figura` (101 controlli: 51 a 412 px, 50 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -269,12 +280,14 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   immagine). Le risposte del modello sono simulate: il banco controlla che
   cosa si manda e come si mostra, non la qualità della spiegazione di un
   modello vero; con la scena 3D aperta dietro «🧠 Spiega» l'ologramma la
-  mostra dal vivo. Per ogni larghezza, 6 controlli dell'ologramma: sta alla
+  mostra dal vivo. Per ogni larghezza, 7 controlli dell'ologramma: sta alla
   destra di Spectra (x sullo schermo); sei scene vive; Keplero: il rapporto
   fra le velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro
   l'8 %; il soggetto segue la conversazione (risposta sull'IR → spettro,
   domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco
-  apre «Sistema solare 3D». Per ogni larghezza, 5 controlli del catalogo: il
+  sull'etichetta apre «Sistema solare 3D» DIETRO la finestra Spiega (Spectra
+  resta visibile davanti, l'ologramma la mostra dal vivo); chiusa la
+  finestra, l'app torna alla sezione di Spectra e la figura è lì. Per ogni larghezza, 5 controlli del catalogo: il
   catalogo ha TUTTE le sezioni della barra (194/194, chimica 75, fisica 60,
   matematica 30, comuni 29); una domanda che nomina un argomento trova la sua
   sezione (i sette esempi: titolazioni, Schrödinger, integrali per parti,

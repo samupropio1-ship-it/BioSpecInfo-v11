@@ -193,12 +193,17 @@ const SINTETICO = () => {
       window.bsiStreamChat = (p, c, m, sys, cb) => { ric2 = m[m.length - 1]; cb.onToken('## In sintesi\nok', '## In sintesi\nok'); return Promise.resolve(); };
       document.getElementById('bsiSP-nuova').click(); document.getElementById('bsiSP-usa').checked = false; document.getElementById('bsiSP-q').value = 'spiegami le titolazioni acido base'; document.getElementById('bsiSP-via').click(); await pausa(2600);
       o.autoApre = { sez: (BSILive = BSISpectraLive.schermo() || {}).sezione, schermo: !!ric2 && /SCHERMO DELL'UTENTE/.test(ric2.content), olo: BSISpectraFigura.figura.olo.attuale };
+      /* la privacy: se l'utente toglie la spunta, la sezione nominata si apre ma al modello va solo la domanda */
+      const u = document.getElementById('bsiSP-usa'); u.checked = false; u.dispatchEvent(new Event('change'));
+      document.getElementById('bsiSP-q').value = 'come funziona l\'equazione di Schrödinger'; document.getElementById('bsiSP-via').click(); await pausa(2600);
+      o.privacy = { sez: (BSISpectraLive.schermo() || {}).sezione, schermo: !!ric2 && /SCHERMO DELL'UTENTE/.test(ric2.content), img: !!(ric2 && ric2.files), spunta: document.getElementById('bsiSP-usa').checked };
+      document.getElementById('bsiSP-usa').checked = true; document.getElementById('bsiSP-usa').dispatchEvent(new Event('change'));
       window.bsiLLM = prima[0]; window.bsiStreamChat = prima[1];
       /* una sezione senza grafici si proietta come scheda */
       await BSISpiega.mostraSezione('spt'); await pausa(1400); const O2 = BSISpectraFigura.figura.olo, px2 = O2.tela.getContext('2d').getImageData(0, 0, O2.tela.width, O2.tela.height).data; let a2 = 0; for (let i = 0; i < px2.length; i += 4000) a2 += px2[i] + px2[i + 1] + px2[i + 2];
       o.scheda = { modo: O2.attuale, pieno: a2 > 2000, sez: (BSISpectraLive.schermo() || {}).sezione };
       /* il giro di tutte le sezioni di una materia */
-      BSISpiega.giro('matematica'); await pausa(8800); o.giro = document.getElementById('bsiSP-giro-stato').textContent; BSISpiega.giroFerma();
+      BSISpiega.giro('matematica'); await pausa(10500); o.giro = document.getElementById('bsiSP-giro-stato').textContent; BSISpiega.giroFerma();
       /* una scena 3D */
       document.getElementById('bsi-hub-close').click(); await pausa(1800); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
       window.bsiOpenAIHub('spiega'); await pausa(1800); const O = BSISpectraFigura.figura.olo, px = O.tela.getContext('2d').getImageData(0, 0, O.tela.width, O.tela.height).data; let acc = 0; for (let i = 0; i < px.length; i += 4000) acc += px[i] + px[i + 1] + px[i + 2];
@@ -224,6 +229,7 @@ const SINTETICO = () => {
     vero('il catalogo ha TUTTE le sezioni della barra (' + sp.cat.n + '/' + sp.cat.barra + ': chimica ' + sp.cat.mm.chimica + ', fisica ' + sp.cat.mm.fisica + ', matematica ' + sp.cat.mm.matematica + ', comuni ' + (sp.cat.mm.comune || 0) + ')', sp.cat.n === sp.cat.barra && sp.cat.n >= 190 && sp.cat.mm.chimica > 50 && sp.cat.mm.fisica > 40 && sp.cat.mm.matematica > 20);
     att('una domanda che nomina un argomento trova la sua sezione', 'stitr|sschrod|smatcalc|sms|sirvis|sastroorbite|—', sp.nomina.join('|'));
     vero('chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell\'ologramma e la spiega con i suoi dati (' + sp.autoApre.sez + ')', sp.autoApre.sez === 'stitr' && sp.autoApre.schermo && sp.autoApre.olo === 'schermo');
+    vero('privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre (' + sp.privacy.sez + ') ma al modello vanno solo la domanda, senza testo né immagine dello schermo', sp.privacy.sez === 'sschrod' && !sp.privacy.schermo && !sp.privacy.img && !sp.privacy.spunta);
     vero('una sezione senza grafici (Tavola Periodica) si proietta come scheda nell\'ologramma', sp.scheda.sez === 'spt' && sp.scheda.modo === 'schermo' && sp.scheda.pieno);
     vero('«🎞️ Mostrami tutto» scorre le sezioni della materia (' + sp.giro + ')', /^2\/\d+ · /.test(sp.giro) || /^3\/\d+ · /.test(sp.giro));
     vero('legge anche una scena 3D (' + (sp.s3 && sp.s3.titolo) + ': ' + (sp.s3 && sp.s3.grafici) + ' tele, immagine)', sp.s3 && sp.s3.grafici >= 1 && sp.s3.img);

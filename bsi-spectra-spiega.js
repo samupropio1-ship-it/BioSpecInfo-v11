@@ -206,7 +206,7 @@
   /* ── il modello: lo stesso fornitore e la stessa chiave della chat ── */
   function modello() { var L = globale.bsiLLM; if (!L || !globale.bsiStreamChat) return null; var p = L.provider(), k = p ? L.chiave(p) : null; return p && k ? { p: p, k: k } : null; }
 
-  var ST = { storia: [], livello: 3, materia: null, pan: null, inCorso: false };
+  var ST = { storia: [], livello: 3, materia: null, pan: null, inCorso: false, schermoNo: false };   /* schermoNo: l'utente ha tolto la spunta «Includi lo schermo»: si rispetta */
 
   /* ── l'interfaccia ── */
   var CSS = '#bsiSP{display:flex;flex-direction:column;gap:10px;padding:12px 14px;overflow-y:auto;box-sizing:border-box}' +
@@ -241,7 +241,7 @@
       '<button type="button" class="bt2" id="bsiSP-nuova">↺ ' + t('Nuova spiegazione', 'New explanation') + '</button></div>' +
       '<div id="bsiSP-out" aria-live="polite"></div>';
     var sp = D.getElementById('bsiSP-spunti');
-    SPUNTI.forEach(function (x) { var b = D.createElement('button'); b.type = 'button'; b.className = 'bt2'; b.textContent = x[0]; b.onclick = function () { D.getElementById('bsiSP-q').value = x[1]; D.getElementById('bsiSP-usa').checked = true; via(); }; sp.appendChild(b); });
+    SPUNTI.forEach(function (x) { var b = D.createElement('button'); b.type = 'button'; b.className = 'bt2'; b.textContent = x[0]; b.onclick = function () { D.getElementById('bsiSP-q').value = x[1]; D.getElementById('bsiSP-usa').checked = true; ST.schermoNo = false; via(); };   /* gli spunti parlano dello schermo: e' una scelta esplicita */ sp.appendChild(b); });
     D.getElementById('bsiSP-via').onclick = via;
     D.getElementById('bsiSP-q').onkeydown = function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) via(); };
     D.getElementById('bsiSP-liv').onchange = function () { ST.livello = +this.value; };
@@ -260,7 +260,7 @@
     L.forEach(function (x) {
       if (x.gruppo !== gruppo) { gruppo = x.gruppo; var h = D.createElement('div'); h.className = 'nota'; h.style.cssText = 'margin:8px 0 4px;font-weight:800;color:#6bcfff'; h.textContent = gruppo; box.appendChild(h); }
       var b = D.createElement('button'); b.type = 'button'; b.className = 'bt2'; b.style.margin = '0 6px 6px 0'; b.textContent = x.nome; b.setAttribute('data-sez', x.id);
-      b.onclick = function () { giroFerma(); mostraSezione(x.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = true; D.getElementById('bsiSP-q').focus(); }); };
+      b.onclick = function () { giroFerma(); mostraSezione(x.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = !ST.schermoNo; D.getElementById('bsiSP-q').focus(); }); };
       box.appendChild(b);
     });
   }
@@ -277,6 +277,7 @@
     if (S) annuncia('bsi-spectra-tema', { testo: S.titolo, schermo: true });
     box.innerHTML = (S && S.immagine ? '<img alt="' + t('I grafici e le scene 3D della sezione', 'The section\'s graphs and 3D scenes') + '" src="' + S.immagine + '">' : '') +
       '<label style="flex:1"><input type="checkbox" id="bsiSP-usa" checked> <b>📺 ' + t('Includi lo schermo', 'Include the screen') + '</b><br><span class="nota">' + esc(S ? S.titolo : '') + ' · ' + (S ? S.grafici : 0) + ' ' + t('grafici/scene 3D', 'graphs/3D scenes') + ' · ' + t('valori dei controlli, tabelle e testo', 'control values, tables and text') + (S && S.immagine ? '' : ' · ' + t('nessuna immagine', 'no image')) + '</span></label>';
+    var usa = D.getElementById('bsiSP-usa'); if (usa) { if (ST.schermoNo) usa.checked = false; usa.onchange = function () { ST.schermoNo = !usa.checked; }; }
   }
 
   function via() {
@@ -295,7 +296,7 @@
     /* la domanda nomina una sezione dell'app (e lo schermo non e' gia' incluso): la si apre dietro la finestra, la si
        mostra nell'ologramma e la spiegazione usa i suoi dati */
     if (!o.schermo && !o.nonAprire) { var nominata = sezioneDi(domanda), aperta = sezioneAperta();
-      if (nominata && (!aperta || aperta.sezione !== nominata.id)) return mostraSezione(nominata.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = true; o.schermo = true; o.nonAprire = true; return chiedi(domanda, o); }); }
+      if (nominata && (!aperta || aperta.sezione !== nominata.id)) return mostraSezione(nominata.id).then(function () { var u = D.getElementById('bsiSP-usa'); if (u) u.checked = !ST.schermoNo; o.schermo = !ST.schermoNo; o.nonAprire = true; return chiedi(domanda, o); }); }
     var S = o.schermo ? schermo() : null; ST.materia = S ? S.materia : ST.materia;
     annuncia('bsi-spectra-tema', { testo: domanda, schermo: !!S });
     return immagineSchermo(S).then(function (imm) { if (S) S.immagine = imm; return chiediCon(domanda, S, livello, out); });

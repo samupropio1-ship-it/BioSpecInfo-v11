@@ -371,7 +371,14 @@ packet spreading; or the section open behind the Spectra window, live. The
 scene follows the subject of the question and the answer (orbits → planets,
 spectrum → IR, orbital → 3d_z²…); with «📺 Includi lo schermo» it shows the open
 section; at rest the scenes alternate every 14 s. The label at top right
-(«🪐 Orbite di Keplero · apri ›»…) opens the matching section with one tap. When
+(«🪐 Orbite di Keplero · apri ›»…) opens the matching section with one tap
+**without removing Spectra's figure**: the AI section is not left; the Spectra
+window opens on «🧠 Spiega» (if it is not open already) with the section behind
+it, so Spectra stays visible in front and the section is seen live in the
+hologram. When the window is closed, if Spectra opened other sections (the
+catalogue, «🎞️ Mostrami tutto», a question naming a topic, the label), the app
+returns to the AI section the user started from, where the figure is, and the
+tour stops. When
 answering, Spectra first points at the hologram and then explains with the
 hands. **Every section is showable**: a section without graphs (text, tables,
 controls) is projected as a card drawn on the hologram (title, open tab, up to

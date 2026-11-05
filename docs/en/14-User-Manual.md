@@ -598,7 +598,11 @@ you are talking about (ask about orbits and the planets appear; talk about a
 spectrum and the spectrum appears) and, if you have a section open behind the
 Spectra window, it shows it live. **Tap the label at the top right of the
 hologram** («🪐 Orbite di Keplero · apri ›»…) to open the section where that
-scene is really studied. Every section of the app can be shown in the
+scene is really studied: it opens behind the Spectra window, on the
+«🧠 Spiega» tab, so Spectra stays in front of you and the section is seen live
+in the hologram. When you close the window you return to the AI section you
+started from, with Spectra there (this also applies to sections opened from
+the catalogue, from «🎞️ Mostrami tutto», which stops, or from a question). Every section of the app can be shown in the
 hologram (below, «Every section in the hologram»). When answering, Spectra points at the hologram and
 then explains with the hands. The buttons are in the bar under the scene.
 

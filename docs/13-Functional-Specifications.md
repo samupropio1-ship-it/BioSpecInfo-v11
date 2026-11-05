@@ -370,7 +370,14 @@ sezione aperta dietro la finestra di Spectra, dal vivo. La scena segue
 l'argomento della domanda e della risposta (orbite → pianeti, spettro → IR,
 orbitale → 3d_z²…); con «📺 Includi lo schermo» mostra la sezione aperta; a
 riposo le scene si alternano ogni 14 s. L'etichetta in alto a destra («🪐 Orbite
-di Keplero · apri ›»…) apre la sezione corrispondente con un tocco. Quando
+di Keplero · apri ›»…) apre con un tocco la sezione corrispondente **senza
+togliere la figura di Spectra**: non si lascia la sezione dell'AI, si apre la
+finestra di Spectra su «🧠 Spiega» (se non è già aperta) e la sezione dietro di
+essa, così Spectra resta visibile davanti e la sezione si vede dal vivo
+nell'ologramma. Chiusa la finestra, se Spectra ha aperto altre sezioni (il
+catalogo, «🎞️ Mostrami tutto», una domanda che nomina un argomento,
+l'etichetta), l'app torna alla sezione dell'AI da cui si era partiti, dove c'è
+la figura, e il giro si ferma. Quando
 risponde, Spectra indica prima l'ologramma e poi spiega con le mani. **Ogni
 sezione è mostrabile**: una sezione senza grafici (testo, tabelle, comandi) si
 proietta come una scheda disegnata nell'ologramma (titolo, scheda aperta, fino
