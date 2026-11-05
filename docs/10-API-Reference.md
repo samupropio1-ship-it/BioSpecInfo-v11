@@ -554,6 +554,25 @@ Evento **`bsi-spectra-stato`**, dalla v242 anche dalla console: `bsi-spectra-liv
 
 Il modulo si carica anche in node (`require`), senza `document`: `CAPITOLI`, `calcola` e `gibbsMax` sono funzioni pure, ed è così che `test_spectra_esplora` le confronta con le formule. «🧠 Spiegamelo tutto» usa `BSISpiega.chiedi(domanda, { schermo: true, livello, nonAprire: true })` dopo `BSISpiega.mostraSezione(sez)`.
 
+### `window.BSIOloInterattivo` — l'ologramma interattivo (`bsi-spectra-olointerattivo.js`, v242)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `apri` | `(modo?, testo?)` | Apre la finestra `#bsi-olo-ov` (costruita alla prima apertura; chiama `_bsiSyncFabs`, così i pulsanti flottanti si nascondono) nella modalità data — `'spettri'`, `'universo'`, `'matematica'`, `'fisica'` — o nell'ultima usata; `testo` precompila la traccia, l'orbita o la domanda. Emette `bsi-olo-interattivo` con `{ aperto: true }` |
+| `chiudi` | `()` | Ferma la voce, chiude la finestra ed emette `bsi-olo-interattivo` con `{ aperto: false }`; la figura condivisa torna nella sezione |
+| `modo` | `(modo, testo?)` | Passa a un'altra modalità (scheda in alto) e rifà ologramma e passaggi |
+| `stato` | `() → { aperto, modo, tipo, chi, MHz, passi, sel, dati }` | Lo stato: tipo di spettro, molecola o traccia (`chi`), campo NMR, titoli dei passaggi, passaggio scelto, i dati disegnati |
+| `imposta` | `(testo)` | Scrive nel campo della modalità (traccia, domanda o orbita) e ridisegna; per matematica e fisica avvia anche la risoluzione |
+| `scegli` | `(i, parla?)` | Sceglie il passaggio `i`, lo evidenzia nel testo e nell'ologramma; con `parla` Spectra lo dice |
+| `SPETTRI` | oggetto | Le sei molecole di riferimento (`acetone`, `etanolo`, `acetico`, `benzene`, `toluene`, `etile`): `nome`, `formula` e i segnali `ir`, `h1`, `c13`, `ms`, `uv` — valori tipici di letteratura, non spettri misurati |
+| `PIANETI` | array | Gli otto pianeti (scheda NASA): nome, semiasse (UA), eccentricità, periodo, massa, raggio, lune (al 2024), colore |
+| `spettro` | `(tipo, molecola \| traccia, { MHz }?) → { tipo, assi, curva, passi, segnali, righe, MHz }` | Lo spettro di una molecola o di una traccia scritta: la curva da disegnare e un passaggio per segnale (posizione, forma, attribuzione, perché); per l'¹H i multipletti in Hz convertiti in ppm con il campo (400 MHz se non indicato) |
+| `pianeta` | `(nome \| { a, e }) → { nome, a, e, T, q, Q, vq, vQ, passi }` | Periodo dalla terza legge (anni), perielio e afelio (UA), velocità vis-viva al perielio e all'afelio (km/s), e i passaggi (con gravità in superficie e velocità di fuga per i pianeti veri) |
+| `leggiTraccia` | `(tipo, testo) → segnali` | Interpreta una traccia scritta: IR «1715 s, 3300 br» (s/m/w, br = larga), ¹H «2.17 s 6H; 1.2 t 3H J=7», ¹³C un elenco di δ, MS «m/z intensità», UV «λ ε»; attribuzioni candidate dalle tabelle |
+| `massa`, `insaturazione` | `(formula) → number` | Massa molare (C, H, O, N) e grado di insaturazione C − H/2 + N/2 + 1 |
+
+Evento nuovo: **`bsi-olo-interattivo`** (`CustomEvent` su `document`, `detail: { aperto }`), all'apertura e alla chiusura della finestra. `bsi-spectra-figura.js` aggiunge il pulsante «⛶ Interagisci» sull'ologramma e, a finestra aperta, sposta la figura condivisa in `#bsiOI-figura`.
+
 ### `window.bsiLLM` — il fornitore della chat (`bsi-ai-hub.js`, v240)
 
 | Simbolo | Firma | Descrizione |

@@ -455,6 +455,29 @@ integrali per parti → «Derivate, integrali e serie», spettro di massa →
 Spettro MS, spettro infrarosso → IR Visivi, meccanica orbitale → la meccanica
 orbitale 3D; «ciao come stai» → nessuna.
 
+**L'ologramma interattivo, «⛶ Interagisci»** (`bsi-spectra-olointerattivo.js`,
+v242). Richiesta dell'autore: selezionare l'ologramma e interagire, con ogni
+passaggio spiegato a voce da Spectra e per iscritto. Il pulsante
+**«⛶ Interagisci»** sta sull'ologramma ovunque ci sia la figura (sezioni
+dell'AI, sezioni Esplora, finestra «🧠 Spiega», console Spectra Live) e apre una
+finestra a tutto schermo con Spectra col corpo, l'ologramma grande e il
+pannello dei passaggi; i pulsanti flottanti dell'app si nascondono. La
+modalità parte da ciò che l'ologramma mostrava:
+
+| Modalità | Che cosa si fa | Che cosa spiegano i passaggi |
+|---|---|---|
+| 🧪 Spettri | IR, ¹H-NMR (campo 60–600 MHz, con il multipletto scelto ingrandito), ¹³C-NMR, massa (EI), UV-Vis; una delle sei molecole di riferimento (acetone, etanolo, acido acetico, benzene, toluene, acetato di etile) oppure una traccia scritta («1715 s, 2950 m, 3300 br», «2.17 s 6H; 1.2 t 3H J=7», «58 30, 43 100», «254 200»), ridisegnata mentre si scrive | Per ogni segnale posizione, forma, attribuzione e perché (frequenze di gruppo, spostamenti chimici, perdite neutre; una banda stretta non è mai un O–H carbossilico); per le molecole formula, massa molare, grado di insaturazione |
+| 🪐 Universo | Gli otto pianeti in 3D (dati NASA, orbite di Keplero, distanze compresse come √a); si tocca un pianeta, o si scrive un'orbita («a=2 e=0,6») | Terza legge di Keplero, perielio e afelio, velocità dalla vis-viva e rapporto (1+e)/(1−e), gravità in superficie, velocità di fuga |
+| 📐 Matematica, ⚛️ Fisica e chimica | Si scrive la domanda; la risolve l'assistente dell'app (`bsi-assistente.js`, `bsi-mat-cas.js`) e il grafico segue: funzione e derivata con zeri e punti stazionari; traiettoria del proiettile; pendolo che oscilla | I passaggi calcolati dall'assistente, non scritti da un modello |
+
+**«🔊 Spectra spiega i passaggi»** li legge uno per uno, evidenziandoli nel
+testo e nell'ologramma; toccando un picco, un pianeta o un passaggio si va lì e
+Spectra lo dice; **«🧠 Approfondisci»** apre «🧠 Spiega» con i dati
+dell'ologramma. Chiusa la finestra, Spectra torna nella sezione. Gli spettri di
+riferimento sono valori tipici di letteratura per la didattica, non spettri
+misurati; dalla traccia l'interprete propone attribuzioni candidate prese dalle
+tabelle, non determina una struttura.
+
 **⚡ Esplora con Spectra** (`bsi-spectra-esplora.js`, v242). Richiesta
 dell'autore: «non c'è la sezione richiesta per ogni materia come every-joule».
 Tre sezioni, una per materia, nella barra della loro materia subito dopo il
@@ -609,6 +632,21 @@ davvero, **senza bisogno di alcuna chiave**.
    Spectra, dal vivo nell'ologramma; chiudendo si torna qui
 6. «🧠 Spiegamelo tutto» — la spiegazione completa al livello del capitolo;
    «🔊 Ascolta Spectra» — il capitolo letto a voce
+```
+
+### 4.9 Interagire con l'ologramma (v242)
+
+```
+1. Sull'ologramma di Spectra → «⛶ Interagisci»: finestra a tutto schermo
+2. Si sceglie la modalità: 🧪 Spettri · 🪐 Universo · 📐 Matematica ·
+   ⚛️ Fisica e chimica
+3. Si cambia tipo di spettro o molecola, si scrive una traccia, si tocca un
+   pianeta o si scrive la domanda: l'ologramma si ridisegna e i passaggi si
+   rifanno
+4. «🔊 Spectra spiega i passaggi» — uno per uno, evidenziati; un tocco su un
+   picco, un pianeta o un passaggio va lì
+5. «🧠 Approfondisci» — «🧠 Spiega» con i dati dell'ologramma
+6. Chiusa la finestra, Spectra torna nella sezione
 ```
 
 ---

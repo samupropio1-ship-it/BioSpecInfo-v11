@@ -967,6 +967,26 @@ summarised here.
   screen check it again (explicit choice). A section without graphs
   is projected on the hologram as a card (title, tab, up to 6 controls with
   values, visible text), so every section is showable.
+- **The interactive hologram, «⛶ Interagisci»** (`bsi-spectra-olointerattivo.js`,
+  `BSIOloInterattivo`, v242): the button on the shared figure's hologram opens
+  `#bsi-olo-ov`, full screen; `sezioni()` gives precedence to `#bsiOI-figura`
+  while the window is open, so Spectra with the body moves in, and with the
+  window closed returns to the section. The mode comes from the hologram's
+  scene (planets → universe; spectrum and molecule → spectra; surface and
+  orbital → mathematics; wave → physics; the «screen» according to the open
+  section). **No model call**: spectra come from the six reference molecules
+  (typical literature values) or from `leggiTraccia` (candidate assignments
+  from group-frequency, chemical-shift and neutral-loss tables, taking band
+  shape into account); planets from the NASA fact sheet with Kepler and
+  vis-viva computed; mathematics and physics from the local assistant
+  (`bsi-assistente.js`, `bsi-mat-cas.js`), whose working becomes the list of
+  steps and whose result drives the graph (function and derivative with zeros
+  and stationary points, projectile trajectory, pendulum). Each step has a
+  title and a text; «🔊 Spectra spiega i passaggi» hands them one by one to
+  `BSISpectraLive.parla` and the figure says them with lip-sync and gestures;
+  tapping a peak or a planet calls `scegli(i)`. Only **«🧠 Approfondisci»**
+  goes to a model, through «🧠 Spiega» with the hologram's data, and under its
+  rules.
 - **«⚡ Explore with Spectra»** (`bsi-spectra-esplora.js`, `BSIEsplora`,
   v242): three sections, one per subject (`sesplchim`, `sesplfis`,
   `sesplmat`), registered with `BSIFisica.sezione`, in the style of explorable

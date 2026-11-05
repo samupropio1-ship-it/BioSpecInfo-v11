@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**84 benches**, grouped by what they demonstrate.
+**85 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -294,7 +294,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -406,6 +406,28 @@ Left out: the voice of «🔊 Ascolta Spectra» (headless Chromium has no speech
 synthesis); the explanation of «🧠 Spiegamelo tutto», which depends on a model
 (the path is the one of «🧠 Spiega», tested by `test_spectra_figura`); the
 didactic quality of the texts, which has to be judged by reading.
+
+**`test_spectra_olo` — 46 checks (15 in node, 16 at 412 px, 15 at 1280 px; v242).**
+It comes from the author's request to select the hologram and interact with
+it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
+
+| Part | What it requires |
+|---|---|
+| Spectra (8, in node) | Six reference molecules, each with the five spectra (IR, ¹H, ¹³C, mass, UV); molar mass of acetone **58.08 g/mol**; degree of unsaturation benzene 4, acetone 1, ethanol 0; the CH₃ triplet at 400 MHz **2J/ν₀** wide; at 60 MHz the multiplet is **10 times** wider than at 600 MHz; IR trace: 1715 → C=O, narrow 2950 → sp³ C–H and **not** acid O–H, broad 3300 → O–H; MS trace: 58 → molecular ion, 43 → M − 15 (CH₃·) and the CH₃CO⁺ acylium |
+| Universe (7, in node) | Earth: Kepler period 1 year, vis-viva **30.29 km/s** at perihelion and **29.29 km/s** at aphelion; Mars: speed ratio = (1+e)/(1−e), surface gravity **3.71 m/s²**; Earth escape velocity **11.19 km/s**; a written orbit with a = 4 AU → T = 8 years |
+| The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
+| Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
+| Universe, mathematics, physics (5 per width) | Mars with its six steps, in the 3D scene; «studia f(x)=x^3-3x» → zeros −√3, 0, √3 and stationary points ±1, with at least eight assistant steps; the projectile with range **35.31 m**; the 2 m pendulum with period **2.837 s** |
+| Voice, Spiega, return (3 per width) | «🔊 Spectra spiega i passaggi» says them all; «🧠 Approfondisci» opens «🧠 Spiega»; with the windows closed, Spectra returns to the section |
+| Phone (1) | At 412 px nothing overflows |
+| Errors (1 per width) | No JavaScript error |
+
+Left out: the real voice (headless Chromium has no speech synthesis: the bench
+checks that every step is spoken, not how it sounds); a real model's
+explanation after «🧠 Approfondisci»; the chemical correctness of every value
+of the six molecules, which are typical literature values for teaching, not
+measured spectra; the trace interpreter proposes candidate assignments from
+tables, it does not determine a structure.
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
@@ -853,11 +875,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 575 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 577 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio, `test_spectra_rig` the automatic rig on a synthetic humanoid, `test_spectra_figura` Spectra with the body in the four AI sections, in the Spectra Live console (since v242) and its reactions; `test_spectra_esplora` (v242) the three «⚡ Explore with Spectra» sections, their chapters and the slider numbers. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio, `test_spectra_rig` the automatic rig on a synthetic humanoid, `test_spectra_figura` Spectra with the body in the four AI sections, in the Spectra Live console (since v242) and its reactions; `test_spectra_esplora` (v242) the three «⚡ Explore with Spectra» sections, their chapters and the slider numbers; `test_spectra_olo` (v242) the interactive hologram (spectra and written traces, universe, mathematics and physics from the assistant, the steps read by Spectra). Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 

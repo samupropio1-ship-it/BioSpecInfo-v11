@@ -661,6 +661,44 @@ to search: if your question names a topic (in Italian, for example
 behind the window, shows it in the hologram and explains it with its screen
 data. New sections appear by themselves: the list is read from the app bar.
 
+### ⛶ Interacting with the hologram
+
+On the hologram, on Spectra's right, there is the **«⛶ Interagisci»**
+(interact) button (in the AI sections, in the Explore sections, in the
+«🧠 Spiega» tab and in the Spectra Live console). Tap it: the hologram opens
+full screen, with Spectra beside it and the steps panel at the side. It starts
+from what the hologram was showing; you can change mode at the top.
+
+- **🧪 Spectra.** Choose the type (IR, ¹H-NMR, ¹³C-NMR, mass, UV-Vis) and a
+  molecule (acetone, ethanol, acetic acid, benzene, toluene, ethyl acetate),
+  or **write your own trace** and the spectrum is redrawn as you type.
+  Examples: IR «1715 s, 2950 m, 3300 br» (wavenumber and intensity: s strong,
+  m medium, br broad); ¹H-NMR «2.17 s 6H; 1.2 t 3H J=7»; mass «58 30, 43 100»
+  (m/z and intensity); UV-Vis «254 200» (λ and ε). Each signal becomes a step:
+  where it is, its shape, what it is assigned to and why. In ¹H-NMR choose the
+  instrument field (60 to 600 MHz): multiplets really narrow or widen, and an
+  inset zooms into the selected one. For the molecules you also see formula,
+  molar mass and degree of unsaturation.
+- **🪐 Universe.** The eight planets in 3D on their orbits. Tap a planet (or
+  pick it from the list, or write an orbit such as «a=2 e=0,6»): period,
+  perihelion and aphelion, speeds, surface gravity and escape velocity,
+  computed step by step.
+- **📐 Mathematics** and **⚛️ Physics and chemistry.** Write the question, for
+  example «studia f(x)=x^3-3x» or a projectile or a pendulum: the app's own
+  assistant solves it, offline, and the graph changes with the question (the
+  function with its derivative, zeros and extrema; the trajectory; the
+  swinging pendulum).
+
+Press **«🔊 Spectra spiega i passaggi»**: Spectra reads them aloud one by one,
+and each lights up in the text and on the hologram. Tap a peak, a planet or a
+step to jump there. **«🧠 Approfondisci»** opens «🧠 Spiega» with the hologram's
+data (an AI provider is needed). When you close, Spectra returns to the
+section.
+
+The spectra of the six molecules are typical literature values, for study: they
+are not measured spectra. From your trace the app proposes possible assignments
+according to tables; it does not tell you which molecule it is.
+
 ### ⚡ Explore with Spectra: a subject to scroll
 
 In the chemistry, physics and mathematics bars, right after the «Area … ·

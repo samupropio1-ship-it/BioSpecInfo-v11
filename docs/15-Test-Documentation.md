@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**84 banchi**, raggruppati per ciò che dimostrano.
+**85 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -308,7 +308,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -423,6 +423,29 @@ non c'è sintesi vocale); la spiegazione di «🧠 Spiegamelo tutto», che dipen
 un modello (il percorso è quello di «🧠 Spiega», provato da
 `test_spectra_figura`); la qualità didattica dei testi, che va giudicata
 leggendo.
+
+**`test_spectra_olo` — 46 controlli (15 in node, 16 a 412 px, 15 a 1280 px; v242).**
+Nasce dalla richiesta dell'autore di selezionare l'ologramma e interagire, con
+ogni passaggio spiegato. Prova `bsi-spectra-olointerattivo.js`.
+
+| Parte | Che cosa pretende |
+|---|---|
+| Spettri (8, in node) | Sei molecole di riferimento, ognuna con i cinque spettri (IR, ¹H, ¹³C, massa, UV); massa molare dell'acetone **58,08 g/mol**; grado di insaturazione benzene 4, acetone 1, etanolo 0; il tripletto del CH₃ a 400 MHz largo **2J/ν₀**; a 60 MHz il multipletto è **10 volte** più largo che a 600 MHz; traccia IR: 1715 → C=O, 2950 stretta → C–H sp³ e **non** O–H acido, 3300 larga → O–H; traccia MS: 58 → ione molecolare, 43 → M − 15 (CH₃·) e acilio CH₃CO⁺ |
+| Universo (7, in node) | Terra: periodo di Keplero 1 anno, vis-viva **30,29 km/s** al perielio e **29,29 km/s** all'afelio; Marte: rapporto delle velocità = (1+e)/(1−e), gravità in superficie **3,71 m/s²**; velocità di fuga della Terra **11,19 km/s**; un'orbita scritta con a = 4 UA → T = 8 anni |
+| La finestra (3 per larghezza) | Il pulsante «⛶ Interagisci» c'è sull'ologramma e apre la finestra in «spettri» (perché l'ologramma mostrava uno spettro); Spectra col corpo ci si sposta; i pulsanti flottanti dell'app spariscono |
+| Spettri dal vivo (3 per larghezza) | Cambiando tipo (IR) e scrivendo una traccia, lo spettro e i passaggi si rifanno (1715 e 2950 cm⁻¹ fra i passaggi); una traccia di massa con due picchi dà due passaggi; toccando il picco a m/z 43 si sceglie il suo passaggio e Spectra lo dice |
+| Universo, matematica, fisica (5 per larghezza) | Marte con i suoi sei passaggi, nella scena 3D; «studia f(x)=x^3-3x» → zeri −√3, 0, √3 e punti stazionari ±1, con almeno otto passaggi dell'assistente; il proiettile con gittata **35,31 m**; il pendolo da 2 m con periodo **2,837 s** |
+| Voce, Spiega, ritorno (3 per larghezza) | «🔊 Spectra spiega i passaggi» li dice tutti; «🧠 Approfondisci» apre «🧠 Spiega»; chiuse le finestre, Spectra torna nella sezione |
+| Telefono (1) | A 412 px niente sborda |
+| Errori (1 per larghezza) | Nessun errore JavaScript |
+
+Restano fuori: la voce vera (nel Chromium senza interfaccia non c'è sintesi
+vocale: il banco controlla che i passaggi vengano detti tutti, non come
+suonano); la spiegazione di un modello vero dopo «🧠 Approfondisci»; la
+correttezza chimica di ogni valore delle sei molecole, che sono valori tipici
+di letteratura per la didattica e non spettri misurati; l'interprete della
+traccia propone attribuzioni candidate dalle tabelle, non determina una
+struttura.
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -878,11 +901,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 575 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 577 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio, `test_spectra_rig` il rig automatico su un umanoide sintetico, `test_spectra_figura` Spectra col corpo nelle quattro sezioni dell'AI, nella console Spectra Live (dalla v242) e le sue reazioni; `test_spectra_esplora` (v242) le tre sezioni «⚡ Esplora con Spectra», i loro capitoli e i numeri dei cursori. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio, `test_spectra_rig` il rig automatico su un umanoide sintetico, `test_spectra_figura` Spectra col corpo nelle quattro sezioni dell'AI, nella console Spectra Live (dalla v242) e le sue reazioni; `test_spectra_esplora` (v242) le tre sezioni «⚡ Esplora con Spectra», i loro capitoli e i numeri dei cursori; `test_spectra_olo` (v242) l'ologramma interattivo (spettri e tracce scritte, universo, matematica e fisica dall'assistente, i passaggi letti da Spectra). Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 

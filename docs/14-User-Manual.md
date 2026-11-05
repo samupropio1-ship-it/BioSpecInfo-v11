@@ -663,6 +663,44 @@ Spectra trova la sezione che ne parla, la apre dietro la finestra, la mostra
 nell'ologramma e la spiega con i dati del suo schermo. Le sezioni nuove
 compaiono da sole: l'elenco si legge dalla barra dell'app.
 
+### ⛶ Interagire con l'ologramma
+
+Sull'ologramma, alla destra di Spectra, c'è il pulsante **«⛶ Interagisci»**
+(nelle sezioni dell'AI, nelle sezioni Esplora, nella scheda «🧠 Spiega» e nella
+console Spectra Live). Toccalo: l'ologramma si apre a tutto schermo, con Spectra
+accanto e, di lato, il pannello dei passaggi. Parte da ciò che l'ologramma
+stava mostrando; in alto puoi cambiare modalità.
+
+- **🧪 Spettri.** Scegli il tipo (IR, ¹H-NMR, ¹³C-NMR, massa, UV-Vis) e una
+  molecola (acetone, etanolo, acido acetico, benzene, toluene, acetato di
+  etile), oppure **scrivi la tua traccia** e lo spettro si ridisegna mentre
+  scrivi. Esempi: IR «1715 s, 2950 m, 3300 br» (numero d'onda e intensità:
+  s forte, m media, br larga); ¹H-NMR «2.17 s 6H; 1.2 t 3H J=7»; massa
+  «58 30, 43 100» (m/z e intensità); UV-Vis «254 200» (λ e ε). Ogni segnale
+  diventa un passaggio: dove sta, che forma ha, a che cosa si attribuisce e
+  perché. Nell'¹H-NMR scegli il campo dello strumento (da 60 a 600 MHz): i
+  multipletti si stringono o si allargano davvero, e un riquadro ingrandisce
+  quello scelto. Per le molecole vedi anche formula, massa molare e grado di
+  insaturazione.
+- **🪐 Universo.** Gli otto pianeti in 3D sulle loro orbite. Tocca un pianeta
+  (o sceglilo dall'elenco, o scrivi un'orbita come «a=2 e=0,6»): periodo,
+  perielio e afelio, velocità, gravità in superficie e velocità di fuga,
+  calcolati passo per passo.
+- **📐 Matematica** e **⚛️ Fisica e chimica.** Scrivi la domanda, per esempio
+  «studia f(x)=x^3-3x» o un proiettile o un pendolo: la risolve l'assistente
+  dell'app, senza rete, e il grafico cambia con la domanda (la funzione con la
+  derivata, gli zeri e gli estremi; la traiettoria; il pendolo che oscilla).
+
+Premi **«🔊 Spectra spiega i passaggi»**: Spectra li legge a voce uno per uno,
+e ognuno si illumina nel testo e nell'ologramma. Tocca un picco, un pianeta o
+un passaggio per andare lì. **«🧠 Approfondisci»** apre «🧠 Spiega» con i dati
+dell'ologramma (serve un fornitore di IA). Quando chiudi, Spectra torna nella
+sezione.
+
+Gli spettri delle sei molecole sono valori tipici di letteratura, per
+studiare: non sono spettri misurati. Dalla tua traccia l'app propone le
+attribuzioni possibili secondo le tabelle; non ti dice quale molecola è.
+
 ### ⚡ Esplora con Spectra: una materia da scorrere
 
 Nella barra di chimica, di fisica e di matematica, subito dopo il pulsante

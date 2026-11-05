@@ -210,6 +210,15 @@ containers `<div id="sesplchim" class="section">`… and the three bar buttons
 are in `index.html`. The module brings no 3D files of its own: it uses the
 shared figure of `bsi-spectra-figura.js`.
 
+In the same version `bsi-spectra-olointerattivo.js` (v242, the «⛶ Interagisci»
+interactive hologram) follows the same three rules: in `index.html` with
+`defer`, **right after** `bsi-spectra-figura.js`, which creates the button on
+the hologram and moves the figure into its window; in the `PRECACHE` of
+`sw.js`; in the list of `tools/genera-sbom.js`. It uses three.js and the figure
+already loaded by `bsi-spectra-figura.js` and the local assistant
+(`bsi-assistente.js`, `bsi-mat-cas.js`), and brings no data files of its own:
+molecules and planets are in the code.
+
 ### 2.2-quinquies Spectra Studio, a page of its own
 
 `spectra-studio.html` (v239) does not go through `index.html`: it loads by

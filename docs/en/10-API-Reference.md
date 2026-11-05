@@ -570,6 +570,25 @@ The **`bsi-spectra-stato`** event, since v242 also from the console: `bsi-spectr
 
 The module also loads in node (`require`), without `document`: `CAPITOLI`, `calcola` and `gibbsMax` are pure, which is how `test_spectra_esplora` compares them with the formulas. «🧠 Spiegamelo tutto» uses `BSISpiega.chiedi(question, { schermo: true, livello, nonAprire: true })` after `BSISpiega.mostraSezione(sez)`.
 
+### `window.BSIOloInterattivo` — the interactive hologram (`bsi-spectra-olointerattivo.js`, v242)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `apri` | `(modo?, testo?)` | Opens the `#bsi-olo-ov` window (built on first opening; calls `_bsiSyncFabs`, so the floating buttons hide) in the given mode — `'spettri'`, `'universo'`, `'matematica'`, `'fisica'` — or in the last one used; `testo` pre-fills the trace, the orbit or the question. Emits `bsi-olo-interattivo` with `{ aperto: true }` |
+| `chiudi` | `()` | Stops the voice, closes the window and emits `bsi-olo-interattivo` with `{ aperto: false }`; the shared figure returns to the section |
+| `modo` | `(modo, testo?)` | Switches to another mode (tab at the top) and redoes hologram and steps |
+| `stato` | `() → { aperto, modo, tipo, chi, MHz, passi, sel, dati }` | The state: spectrum type, molecule or trace (`chi`), NMR field, step titles, selected step, the data drawn |
+| `imposta` | `(testo)` | Writes into the mode's field (trace, question or orbit) and redraws; for mathematics and physics it also starts solving |
+| `scegli` | `(i, parla?)` | Selects step `i`, highlighting it in the text and on the hologram; with `parla` Spectra says it |
+| `SPETTRI` | object | The six reference molecules (`acetone`, `etanolo`, `acetico`, `benzene`, `toluene`, `etile`): `nome`, `formula` and the `ir`, `h1`, `c13`, `ms`, `uv` signals — typical literature values, not measured spectra |
+| `PIANETI` | array | The eight planets (NASA fact sheet): name, semi-major axis (AU), eccentricity, period, mass, radius, moons (as of 2024), colour |
+| `spettro` | `(tipo, molecola \| traccia, { MHz }?) → { tipo, assi, curva, passi, segnali, righe, MHz }` | The spectrum of a molecule or of a written trace: the curve to draw and one step per signal (position, shape, assignment, why); for ¹H the multiplets in Hz converted to ppm with the field (400 MHz if not given) |
+| `pianeta` | `(nome \| { a, e }) → { nome, a, e, T, q, Q, vq, vQ, passi }` | Period from the third law (years), perihelion and aphelion (AU), vis-viva speeds at perihelion and aphelion (km/s), and the steps (with surface gravity and escape velocity for real planets) |
+| `leggiTraccia` | `(tipo, testo) → signals` | Interprets a written trace: IR «1715 s, 3300 br» (s/m/w, br = broad), ¹H «2.17 s 6H; 1.2 t 3H J=7», ¹³C a list of δ, MS «m/z intensity», UV «λ ε»; candidate assignments from tables |
+| `massa`, `insaturazione` | `(formula) → number` | Molar mass (C, H, O, N) and degree of unsaturation C − H/2 + N/2 + 1 |
+
+New event: **`bsi-olo-interattivo`** (`CustomEvent` on `document`, `detail: { aperto }`), on opening and closing the window. `bsi-spectra-figura.js` adds the «⛶ Interagisci» button on the hologram and, with the window open, moves the shared figure into `#bsiOI-figura`.
+
 ### `window.bsiLLM` — the chat's provider (`bsi-ai-hub.js`, v240)
 
 | Symbol | Signature | Description |

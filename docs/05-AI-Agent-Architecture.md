@@ -1000,6 +1000,26 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   spunta (scelta esplicita). Una sezione senza grafici si
   proietta nell'ologramma come scheda (titolo, scheda, fino a 6 comandi con
   i valori, testo visibile), così ogni sezione è mostrabile.
+- **L'ologramma interattivo, «⛶ Interagisci»** (`bsi-spectra-olointerattivo.js`,
+  `BSIOloInterattivo`, v242): il pulsante sull'ologramma della figura
+  condivisa apre `#bsi-olo-ov`, a tutto schermo; `sezioni()` dà la precedenza
+  a `#bsiOI-figura` quando la finestra è aperta, quindi Spectra col corpo ci
+  si sposta, e chiusa la finestra torna nella sezione. La modalità viene
+  dalla scena dell'ologramma (pianeti → universo; spettro e molecola →
+  spettri; superficie e orbitale → matematica; onda → fisica; lo «schermo»
+  secondo la sezione aperta). **Nessuna chiamata a un modello**: gli spettri
+  vengono dalle sei molecole di riferimento (valori tipici di letteratura) o
+  da `leggiTraccia` (attribuzioni candidate dalle tabelle di frequenze di
+  gruppo, spostamenti chimici e perdite neutre, con la forma della banda);
+  i pianeti dalla scheda NASA con Keplero e vis-viva calcolati; matematica e
+  fisica dall'assistente locale (`bsi-assistente.js`, `bsi-mat-cas.js`), il
+  cui svolgimento diventa la lista dei passaggi e il cui risultato guida il
+  grafico (funzione e derivata con zeri e punti stazionari, traiettoria del
+  proiettile, pendolo). Ogni passaggio ha un titolo e un testo; «🔊 Spectra
+  spiega i passaggi» li dà a `BSISpectraLive.parla` uno per uno e la figura
+  li dice con labiale e gesti; un tocco su un picco o su un pianeta chiama
+  `scegli(i)`. Solo **«🧠 Approfondisci»** passa a un modello, attraverso
+  «🧠 Spiega» con i dati dell'ologramma, e con le sue regole.
 - **«⚡ Esplora con Spectra»** (`bsi-spectra-esplora.js`, `BSIEsplora`,
   v242): tre sezioni, una per materia (`sesplchim`, `sesplfis`,
   `sesplmat`), registrate con `BSIFisica.sezione`, nello stile delle lezioni

@@ -210,6 +210,15 @@ contenitori `<div id="sesplchim" class="section">`… e i tre pulsanti della
 barra stanno in `index.html`. Il modulo non porta file 3D suoi: usa la figura
 condivisa di `bsi-spectra-figura.js`.
 
+Nella stessa versione `bsi-spectra-olointerattivo.js` (v242, l'ologramma
+interattivo «⛶ Interagisci») segue le stesse tre regole: in `index.html` con
+`defer`, **subito dopo** `bsi-spectra-figura.js`, che crea il pulsante
+sull'ologramma e sposta la figura nella sua finestra; nel `PRECACHE` di `sw.js`;
+nell'elenco di `tools/genera-sbom.js`. Usa three.js e la figura già caricati da
+`bsi-spectra-figura.js` e l'assistente locale (`bsi-assistente.js`,
+`bsi-mat-cas.js`), e non porta file di dati propri: molecole e pianeti sono nel
+codice.
+
 ### 2.2-quinquies Spectra Studio, una pagina a sé
 
 `spectra-studio.html` (v239) non passa da `index.html`: carica da sé
