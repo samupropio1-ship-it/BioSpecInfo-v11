@@ -43,19 +43,6 @@ function att(d, atteso, avuto) {
   else { ko++; console.log('  ✗ ' + d + '\n      atteso: ' + atteso + '\n      avuto:  ' + avuto); }
 }
 function vero(d, c) { att(d, true, !!c); }
-const SINTETICO = () => {
-  const T = THREE, pezzi = [];
-  function tubo(a, b, r, seg) { const A = new T.Vector3(...a), B = new T.Vector3(...b), d = B.clone().sub(A), g = new T.CylinderGeometry(r, r, d.length(), 12, seg || 12, false);
-    g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), d.clone().normalize()))); g.translate(...A.clone().add(B).multiplyScalar(0.5).toArray()); pezzi.push(g); }
-  tubo([0, 0.40, 0.02], [0, 0.80, 0.02], 0.12, 16); tubo([0, 0.80, 0.02], [0, 0.84, 0.02], 0.04, 2);
-  const testa = new T.SphereGeometry(0.06, 16, 12); testa.translate(0, 0.90, 0.03); pezzi.push(testa);
-  const capp = new T.SphereGeometry(0.075, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.75); capp.translate(0, 0.905, 0.02); pezzi.push(capp);
-  [1, -1].forEach(s => { tubo([s * 0.15, 0.775, 0.015], [s * 0.245, 0.47, 0.04], 0.035, 24); tubo([s * 0.075, 0.42, 0.02], [s * 0.10, 0.02, 0.0], 0.05, 24); const p = new T.BoxGeometry(0.07, 0.03, 0.14, 2, 1, 4); p.translate(s * 0.10, 0.015, 0.04); pezzi.push(p); });
-  const pos = [], nor = [], uv = [], ind = []; let base = 0;
-  pezzi.forEach(g => { const p = g.attributes.position, n = g.attributes.normal, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { pos.push(p.getX(i), p.getY(i), p.getZ(i)); nor.push(n.getX(i), n.getY(i), n.getZ(i)); uv.push(u ? u.getX(i) : 0, u ? u.getY(i) : 0); } for (let i = 0; i < g.index.count; i++) ind.push(base + g.index.getX(i)); base += p.count; });
-  const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nor, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(ind);
-  const sc = new T.Group(); sc.add(new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x1a3050 }))); return BSISpectraFigura.figura.spectra.usaScena(sc);
-};
 
 (async () => {
   const b = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox'] });
@@ -83,12 +70,12 @@ const SINTETICO = () => {
       att(id + ': una figura sola in tutta l\'app', 1, r.tele);
       if (r.fuori) vero(id + ': nessuno spazio vuoto sopra la sezione (#main ' + r.mainH + ' px)', r.mainH <= 12);
     }
-    const senza = await pg.evaluate(() => { const F = BSISpectraFigura.figura, i = F.box.querySelector('.bsiSF-invito'); return { invito: !!i && !i.hidden, figura: F.spectra.radice.children.length, corpo: !!F.spectra.corpo }; });
-    if (!senza.corpo) {
-      vero('senza il corpo sul dispositivo: l\'invito a caricarlo', senza.invito);
-      att('e nessun sostituto (niente manichino)', 0, senza.figura);
-      await pg.evaluate(SINTETICO);
-    }
+    /* IL CORPO E' SEMPRE PRESENTE: incorporato nell'app, nessuno deve caricarlo */
+    await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
+    await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.rig && S.volto; }, null, { timeout: 120000 }).catch(() => {});
+    const sempre = await pg.evaluate(() => { const F = BSISpectraFigura.figura, i = F.box.querySelector('.bsiSF-invito'); return { rig: !!F.spectra.rig, ossa: F.spectra.modelloRiggato && F.spectra.modelloRiggato.ossa, invito: !!i && !i.hidden, pulsanti: [...F.box.querySelectorAll('.bsiSF-az > *')].map(b => b.textContent.trim()), file: !!F.box.querySelector('input[type=file]') }; });
+    vero('il corpo di Spectra c\'è sempre, senza caricarlo: incorporato nell\'app (ossa ' + sempre.ossa + ')', sempre.rig && !sempre.invito);
+    vero('nessun pulsante «Corpo» né scelta di file (' + sempre.pulsanti.join(', ') + ')', !sempre.file && !sempre.pulsanti.some(x => /Corpo|Body/.test(x)));
     /* la figura si disegna (e si allinea) solo quando si vede: la si porta in vista */
     await pg.evaluate(() => BSISpectraFigura.figura.box.scrollIntoView({ block: 'center' }));
     await pg.waitForFunction(() => { const S = BSISpectraFigura.figura.spectra; return S.volto && S.allinea === 0; }, null, { timeout: 90000 }).catch(() => {});

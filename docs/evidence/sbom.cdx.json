@@ -7,7 +7,7 @@
     "component": {
       "type": "application",
       "name": "BioSpecInfo",
-      "version": "bsi-v240",
+      "version": "bsi-v241",
       "description": "Piattaforma di chemioinformatica interattiva client-side",
       "licenses": [
         {

@@ -27,20 +27,6 @@ function att(d, atteso, avuto) {
   else { ko++; console.log('  ✗ ' + d + '\n      atteso: ' + atteso + '\n      avuto:  ' + avuto); }
 }
 function vero(d, c) { att(d, true, !!c); }
-/* l'umanoide sintetico (come in test_spectra_rig): una mesh sola senza ossa, busto, braccia e gambe come tubi, testa e cappuccio */
-const SINTETICO = () => {
-  const T = THREE, pezzi = [];
-  function tubo(a, b, r, seg) { const A = new T.Vector3(...a), B = new T.Vector3(...b), d = B.clone().sub(A), g = new T.CylinderGeometry(r, r, d.length(), 12, seg || 12, false);
-    g.applyMatrix4(new T.Matrix4().makeRotationFromQuaternion(new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), d.clone().normalize()))); g.translate(...A.clone().add(B).multiplyScalar(0.5).toArray()); pezzi.push(g); }
-  tubo([0, 0.40, 0.02], [0, 0.80, 0.02], 0.12, 16); tubo([0, 0.80, 0.02], [0, 0.84, 0.02], 0.04, 2);
-  const testa = new T.SphereGeometry(0.06, 16, 12); testa.translate(0, 0.90, 0.03); pezzi.push(testa);
-  const capp = new T.SphereGeometry(0.075, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.75); capp.translate(0, 0.905, 0.02); pezzi.push(capp);
-  [1, -1].forEach(s => { tubo([s * 0.15, 0.775, 0.015], [s * 0.245, 0.47, 0.04], 0.035, 24); tubo([s * 0.075, 0.42, 0.02], [s * 0.10, 0.02, 0.0], 0.05, 24); const p = new T.BoxGeometry(0.07, 0.03, 0.14, 2, 1, 4); p.translate(s * 0.10, 0.015, 0.04); pezzi.push(p); });
-  const pos = [], nor = [], uv = [], ind = []; let base = 0;
-  pezzi.forEach(g => { const p = g.attributes.position, n = g.attributes.normal, u = g.attributes.uv; for (let i = 0; i < p.count; i++) { pos.push(p.getX(i), p.getY(i), p.getZ(i)); nor.push(n.getX(i), n.getY(i), n.getZ(i)); uv.push(u ? u.getX(i) : 0, u ? u.getY(i) : 0); } for (let i = 0; i < g.index.count; i++) ind.push(base + g.index.getX(i)); base += p.count; });
-  const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.Float32BufferAttribute(nor, 3)); geo.setAttribute('uv', new T.Float32BufferAttribute(uv, 2)); geo.setIndex(ind);
-  const sc = new T.Group(); sc.add(new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0x1a3050 }))); return SpectraStudio.S().usaScena(sc);
-};
 
 (async () => {
   console.log('── I calcoli delle lezioni ──');
@@ -131,17 +117,9 @@ const SINTETICO = () => {
     pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push('console: ' + m.text()); });
     await pg.goto(BASE + 'spectra-studio.html', { waitUntil: 'load', timeout: 120000 });
     await pg.waitForFunction(() => !!window.SpectraStudio, null, { timeout: 60000 });
-    /* (v240) Spectra e' solo il corpo dell'autore: senza, la scena invita a caricarlo e non mostra un sostituto */
-    await pg.waitForTimeout(1500);
-    const senza = await pg.evaluate(() => { const S = SpectraStudio.S(), i = document.getElementById('invito'); return { invito: !!i && !i.hidden && i.offsetWidth > 0, figura: S.spectra.radice.children.length, corpo: !!S.spectra.corpo }; });
-    if (!senza.corpo) {
-      vero('senza il corpo sul dispositivo: l\'invito a caricarlo è visibile', senza.invito);
-      att('e nessun sostituto in scena (niente manichino)', 0, senza.figura);
-      /* il banco carica un UMANOIDE SINTETICO senza scheletro (posa ad A, cappuccio): lo stesso percorso del corpo vero */
-      await pg.evaluate(SINTETICO);
-    }
-    await pg.waitForFunction(() => SpectraStudio.stato().volto && SpectraStudio.S().allinea === 0, null, { timeout: 90000 }).catch(() => {});
-    if (!senza.corpo) vero('caricato il corpo, l\'invito sparisce e Spectra c\'è (corpo riggato nel browser)', await pg.evaluate(() => document.getElementById('invito').hidden && !!SpectraStudio.S().rig));
+    /* (v240) il corpo di Spectra e' SEMPRE presente: incorporato nell'app (models/spectra-corpo.bsi) */
+    await pg.waitForFunction(() => SpectraStudio.stato().volto && SpectraStudio.S().rig && SpectraStudio.S().allinea === 0, null, { timeout: 120000 }).catch(() => {});
+    vero('il corpo di Spectra c\'è sempre, senza caricarlo (incorporato), e l\'avviso «sta arrivando» è sparito', await pg.evaluate(() => !!SpectraStudio.S().rig && document.getElementById('invito').hidden));
     await pg.evaluate(() => { try { localStorage.removeItem('bsi-spectra-studio-v1'); } catch (e) {} });
     /* il riferimento: sul manichino l'osso della testa; sul corpo riggato (models/spectra-corpo.glb, se presente in locale)
        il mento poggia sul colletto, 4,5 cm sopra l'osso del collo */
@@ -158,16 +136,12 @@ const SINTETICO = () => {
       let max = 0; mis.forEach(a => mis.forEach(b => { max = Math.max(max, a.distanceTo(b)); }));
       return { max, nascosti: Object.keys(S.volto.parti).filter(q => S.volto.parti[q].isMesh && S.volto.parti[q].visible).join(','), solidale: S.volto.solidale };
     });
-    /* IL CORPO DAL DISPOSITIVO: pulsante, archivio nel browser (andata e ritorno), file non valido rifiutato senza errori */
-    const cdisp = await pg.evaluate(async () => { const S = SpectraStudio.S(), b = document.getElementById('corpoBtn'), f = document.getElementById('corpoFile');
-      const buf = new Uint8Array([1, 2, 3, 4]).buffer, prima = await S.dbCorpo('leggi');
-      await S.dbCorpo('metti', buf); const letto = await S.dbCorpo('leggi'); const giro = !!letto && letto.byteLength === 4;
-      if (prima) await S.dbCorpo('metti', prima); else await S.dbCorpo('togli');
-      const rifiuto = await S.daBuffer(new Uint8Array([0, 1, 2, 3, 4, 5]).buffer);
-      return { btn: !!b && b.offsetWidth > 0, accetta: f && f.accept, giro, rifiuto }; });
-    vero('il pulsante «🧍 Corpo» c\'è e accetta i .glb (' + cdisp.accetta + ')', cdisp.btn && /\.glb/.test(cdisp.accetta));
-    vero('il corpo si conserva nel browser del dispositivo (IndexedDB, andata e ritorno)', cdisp.giro);
-    att('un file che non è un modello viene rifiutato, senza errori', false, cdisp.rifiuto);
+    /* IL CORPO INCORPORATO: nessun pulsante per caricarlo; il file pubblicato non e' un .glb (solo l'app lo riapre) */
+    const inc = await pg.evaluate(async () => { const r = await fetch('./models/spectra-corpo.bsi'), u = new Uint8Array(await r.arrayBuffer());
+      return { btn: !!document.getElementById('corpoBtn') || !!document.querySelector('input[type=file]'), testa: String.fromCharCode(u[0], u[1], u[2], u[3]), rifiuto: await SpectraStudio.S().daBuffer(new Uint8Array([0, 1, 2, 3, 4, 5]).buffer) }; });
+    att('nessun pulsante «Corpo» né scelta di file', false, inc.btn);
+    att('il file pubblicato è un blocco impacchettato («BSIC»), non un modello .glb riutilizzabile', 'BSIC', inc.testa);
+    att('un blocco che non è un modello viene rifiutato, senza errori', false, inc.rifiuto);
     if (sinc) {
       vero('viso e cappuccio in sincronia: in 24 pose il viso si sposta di ' + (sinc.max * 1000).toFixed(1) + ' mm rispetto alla testa', sinc.max < 0.001);
       att('della testa si vede solo il viso (maschera, occhi, dettagli)', 'Object_2,Object_3,Object_4', sinc.nascosti);

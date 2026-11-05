@@ -9,19 +9,17 @@
    stessa definizione. Per questo la logica sta qui e non e' copiata due volte.
 
    1. IL CORPO (Spectra): in una scena three.js gia' esistente.
-      Ordine: il corpo caricato dall'utente dal suo dispositivo (IndexedDB
-      «bsi-spectra-modelli»: il modello dell'autore e' di CGTrader con licenza
-      Royalty Free, che non permette di renderlo scaricabile, quindi non sta sul
-      server) → models/spectra-corpo.glb (solo in sviluppo, escluso da git) →
-      models/spectra-cyberpunk.glb (un modello completo, col suo viso) → NIENTE:
-      Spectra e' solo quel corpo (richiesta dell'autore), senza sostituti; chi usa il
-      controllore mostra l'invito a caricarlo. Il manichino riggato esiste solo
-      per il banco del driver (opz.manichino === true). Il corpo senza scheletro passa dal rig automatico
+      Il corpo e' SEMPRE presente, per tutti (richiesta dell'autore): e' incorporato
+      nell'app in forma impacchettata (models/spectra-corpo.bsi, da
+      tools/impacchetta-corpo.js). Il modello e' gratuito su CGTrader con licenza
+      Royalty Free: si usa dentro il prodotto e non si offre come file .glb a se'.
+      Nello studio, in sviluppo, se il blocco manca si prova
+      models/spectra-corpo.glb. Il corpo, senza scheletro, passa dal rig automatico
       (bsi-spectra-rig.js); sopra il collo va il viso «Noir»
       (bsi-spectra-androide.js), allineato misurando il mento.
    2. LA FIGURA (monta): un riquadro con la sua scena (il laboratorio della
       lezione: griglia al neon, pannelli olografici, pedana), Spectra in piedi,
-      intero; i pulsanti Corpo, Parla con me, 🧠 Spiega (la spiegazione esaustiva
+      intero; i pulsanti Parla con me, 🧠 Spiega (la spiegazione esaustiva
       della finestra di Spectra, bsi-spectra-spiega.js), Studio. Ascolta l'app:
       · «bsi-spectra-stato» (pensa / strumenti / scrive) → si concentra, mano al mento;
       · «bsi-spectra-risposta» (la risposta del modello) → spiega con le mani, il
@@ -102,46 +100,31 @@
       try { new T.GLTFLoader().parse(buf, './', function (g) { ok(self.usa(g)); }, function () { ok(false); }); } catch (e) { ok(false); }
     });
   };
-  /* un file scelto dall'utente: si prova e, se va, si conserva sul dispositivo */
-  Spectra.prototype.daFile = function (f) {
-    var self = this;
-    if (!f) return Promise.resolve({ ok: false, motivo: 'nessuno' });
-    if (f.size > LIMITE) return Promise.resolve({ ok: false, motivo: 'grande' });
-    return f.arrayBuffer().then(function (buf) {
-      return self.daBuffer(buf).then(function (ok) {
-        if (!ok) return { ok: false, motivo: 'forma' };
-        self.corpoLocale = true;
-        return dbCorpo('metti', buf).then(function () { try { D.dispatchEvent(new CustomEvent('bsi-spectra-corpo', { detail: { nuovo: true } })); } catch (e) {} return { ok: true }; });
-      });
-    });
-  };
+  /* IL CORPO INCORPORATO (v240, richiesta dell'autore: «sempre presente, senza doverlo mettere»): models/spectra-corpo.bsi,
+     il modello impacchettato da tools/impacchetta-corpo.js (non e' un .glb: solo questo codice lo riapre). Licenza Royalty
+     Free di CGTrader: il modello si usa dentro l'app e non si offre come file a se'. Nello studio, in sviluppo, se il
+     blocco manca si prova models/spectra-corpo.glb (escluso da git). */
+  var SEME = 0x5bd1e995 ^ 0x53504543;
+  function apri(ab) {
+    var u = new Uint8Array(ab); if (u.length < 9 || String.fromCharCode(u[0], u[1], u[2], u[3]) !== 'BSIC') return null;
+    var n = u[5] | (u[6] << 8) | (u[7] << 16) | (u[8] << 24), out = new Uint8Array(n), x = SEME >>> 0 || 1;
+    for (var i = 0; i < n; i++) { x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0; out[i] = u[9 + i] ^ (x & 0xff); }
+    return out.buffer;
+  }
   Spectra.prototype.carica = function () {
-    var self = this, T = this.T;
-    return dbCorpo('leggi').then(function (buf) {
-      if (buf) return self.daBuffer(buf).then(function (f) { if (f) self.corpoLocale = true; return f; });
-      if (self.opz.soloDispositivo) return false;
-      return fetch('./models/spectra-corpo.glb', { method: 'HEAD' }).then(function (r) {
-        if (!r.ok) return false;
-        return fetch('./models/spectra-corpo.glb').then(function (x) { return x.arrayBuffer(); }).then(function (b) { return self.daBuffer(b); });
-      });
-    }).catch(function () { return false; }).then(function (fatto) {
-      if (fatto || self.opz.soloDispositivo) return fatto;
-      /* un modello completo (con il suo viso), se c'e' */
-      return fetch('./models/spectra-cyberpunk.glb', { method: 'HEAD' }).then(function (r) {
-        if (!r.ok || !T.GLTFLoader) return false;
-        return new Promise(function (ok) {
-          new T.GLTFLoader().load('./models/spectra-cyberpunk.glb', function (g) {
-            var m = g.scene, bb = new T.Box3().setFromObject(m), alto = bb.max.y - bb.min.y || 1;
-            m.scale.setScalar(1.8 / alto); self.sostituisci(m); m.position.y = self.pos.y - bb.min.y * 1.8 / alto; self.allinea = 0;
-            self.corpo = globale.BSISpectraCorpo.crea(m, { animazioni: g.animations, scalaOssa: 1 });
-            if (!self.corpo.rapporto().blendshape || self.corpo.rapporto().blendshape.indexOf('0/') === 0) self.viso = self.corpo.visoProcedurale();
-            self.modelloVero = self.corpo.rapporto();
-            if (self.volto && self.volto.radice.parent) self.volto.radice.parent.remove(self.volto.radice);   /* il modello vero ha il suo viso */
-            self.cambiato(); ok(true);
-          }, undefined, function () { ok(false); });
-        });
-      }).catch(function () { return false; });
-    });
+    var self = this;
+    /* il vecchio corpo «dal dispositivo» (v239) non serve piu': si libera lo spazio */
+    dbCorpo('leggi').then(function (b) { if (b) dbCorpo('togli'); });
+    return fetch('./models/spectra-corpo.bsi').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(function (ab) { var g = apri(ab); if (!g) throw new Error('blocco non valido'); return self.daBuffer(g); })
+      .catch(function () {
+        if (self.opz.soloDispositivo) return false;
+        return fetch('./models/spectra-corpo.glb', { method: 'HEAD' }).then(function (r) {
+          if (!r.ok) return false;
+          return fetch('./models/spectra-corpo.glb').then(function (x) { return x.arrayBuffer(); }).then(function (b) { return self.daBuffer(b); });
+        }).catch(function () { return false; });
+      })
+      .then(function (fatto) { self.caricato = !!fatto; self.cambiato(); return fatto; });
   };
   Spectra.prototype.creaVolto = function () {
     var self = this, A0 = globale.BSISpectraAndroide;
@@ -383,11 +366,12 @@
     function posCam(r) { cam.position.set(bers.x + r * Math.sin(az0), bers.y + 0.18, bers.z + r * Math.cos(az0)); cam.lookAt(bers); }
 
     var F = { box: box, ren: ren, sc: sc, cam: cam, attiva: true, ultimo: null };
-    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app il corpo viene solo dal dispositivo: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
-    /* finche' il corpo non c'e' (la prima volta su un dispositivo): l'invito a caricarlo, non un sostituto */
-    var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'note');
-    inv.innerHTML = '<b>' + t('Spectra non è ancora su questo dispositivo.', 'Spectra is not on this device yet.') + '</b><br>' + t('Carica una volta il suo corpo (.glb): resta salvato solo qui.', 'Load its body (.glb) once: it stays saved here only.');
-    var invB = D.createElement('button'); invB.type = 'button'; invB.textContent = t('🧍 Carica il corpo', '🧍 Load the body'); inv.appendChild(D.createElement('br')); inv.appendChild(invB); box.appendChild(inv);
+    var S = F.spectra = new Spectra(T, sc, ren, { manichino: opz.manichino, posizione: new T.Vector3(-0.32, 0, 0.05), rotY: 0.32, contenitore: box, soloDispositivo: opz.soloDispositivo !== false,   /* nell'app solo il corpo incorporato: i file di sviluppo non si cercano (niente 404) */ suddividi: opz.suddividi, cambiato: function () { aggiornaNota(); } });
+    /* mentre il corpo incorporato arriva: «Spectra sta arrivando…»; se non arriva (rete assente al primo avvio): riprova */
+    var inv = D.createElement('div'); inv.className = 'bsiSF-invito'; inv.setAttribute('role', 'status');
+    inv.innerHTML = '<b>' + t('Spectra sta arrivando…', 'Spectra is on the way…') + '</b>';
+    var invB = D.createElement('button'); invB.type = 'button'; invB.textContent = t('↻ Riprova', '↻ Retry'); invB.hidden = true; inv.appendChild(D.createElement('br')); inv.appendChild(invB); box.appendChild(inv);
+    invB.onclick = function () { invB.hidden = true; inv.querySelector('b').textContent = t('Spectra sta arrivando…', 'Spectra is on the way…'); S.carica().then(aggiornaNota); };
     S.carica().then(aggiornaNota);
     /* L'OLOGRAMMA alla destra di Spectra */
     var OL = F.olo = new Ologramma(T, sc), etO = D.createElement('button'); etO.type = 'button'; etO.className = 'bsiSF-olo'; box.appendChild(etO);
@@ -436,26 +420,17 @@
     F.tema = tema;
     function suTema(e) { var d = e.detail || {}; tema(d.testo, d.schermo); }
     D.addEventListener('bsi-spectra-tema', suTema);
-    function aggiornaNota() { var c = S.presente(); inv.hidden = c; nota.textContent = c ? t('Il tuo Spectra, salvato su questo dispositivo.', 'Your Spectra, saved on this device.') : ''; }
+    function aggiornaNota() { var c = S.presente(); inv.hidden = c; nota.textContent = ''; if (!c && S.caricato === false) { inv.querySelector('b').textContent = t('Spectra non è arrivato: serve la rete la prima volta.', 'Spectra did not arrive: the network is needed the first time.'); invB.hidden = false; } }
     aggiornaNota();
     function statoHud(s) { hud.innerHTML = '<span class="bsiSF-led"></span>SPECTRA · <b>' + s + '</b>'; }
 
     /* i pulsanti: corpo dal dispositivo, conversazione dal vivo, studio */
-    var file = D.createElement('input'); file.type = 'file'; file.accept = '.glb,model/gltf-binary'; file.hidden = true; box.appendChild(file);
     function bottone(testo, titolo, fn) { var b = D.createElement('button'); b.type = 'button'; b.textContent = testo; b.title = titolo; b.setAttribute('aria-label', titolo); b.onclick = fn; az.appendChild(b); return b; }
-    var bCorpo = bottone(t('🧍 Corpo', '🧍 Body'), t('Carica dal tuo dispositivo un modello .glb per il corpo di Spectra: resta solo su questo dispositivo', 'Load a .glb model for Spectra\'s body from your device: it stays on this device only'), function () { file.click(); });
-    invB.onclick = function () { file.click(); };
-    file.onchange = function () {
-      var f = file.files && file.files[0]; if (!f) return; bCorpo.disabled = true; statoHud(t('CARICO IL CORPO…', 'LOADING THE BODY…'));
-      S.daFile(f).then(function (r) { bCorpo.disabled = false; aggiornaNota(); file.value = ''; statoHud(r.ok ? t('NUOVO CORPO', 'NEW BODY') : r.motivo === 'grande' ? t('FILE TROPPO GRANDE (MAX 60 MB)', 'FILE TOO LARGE (MAX 60 MB)') : t('FILE NON UTILIZZABILE', 'FILE NOT USABLE')); if (r.ok) { S.emozione('gioia', 4); S.fai('spiega', null, 3); } });
-    };
     if (globale.BSISpectraLive && globale.BSISpectraLive.apri) bottone(t('🎙️ Parla con me', '🎙️ Talk to me'), t('Apri la conversazione dal vivo con Spectra', 'Open the live conversation with Spectra'), function () { globale.BSISpectraLive.apri(); });
     /* «🧠 Spiega» nella finestra di Spectra */
     if (globale.bsiOpenAIHub) bottone(t('🧠 Spiega', '🧠 Explain'), t('Spectra spiega tutto, anche ciò che hai sullo schermo: spettri, grafici, scene 3D', 'Spectra explains everything, including what is on screen: spectra, graphs, 3D scenes'), function () { globale.bsiOpenAIHub('spiega'); }).className = 'bsiSF-lez';
     var a = D.createElement('a'); a.href = './spectra-studio.html'; a.textContent = t('🎓 Studio', '🎓 Studio'); a.title = t('Le lezioni immersive di Spectra', 'Spectra\'s immersive lessons'); az.appendChild(a);
 
-    /* un altro riquadro (o lo studio) ha caricato un corpo nuovo: lo si riprende */
-    D.addEventListener('bsi-spectra-corpo', function () { if (!S.corpoLocale) S.carica(); });
 
     /* la misura del riquadro e l'inquadratura: Spectra intero, dai piedi alla testa */
     function adatta() {

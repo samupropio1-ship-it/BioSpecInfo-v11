@@ -32,8 +32,6 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 #invito{position:absolute;left:16px;top:16px;max-width:min(380px,calc(100% - 32px));background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui;z-index:2}
 #invito[hidden]{display:none}
 #invito button{margin-top:8px;background:linear-gradient(135deg,#1d4ed8,#0e7490);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer}
-#pan h1 .corpoBtn{margin-left:auto;color:var(--tenue);font:600 12px system-ui;letter-spacing:0;text-transform:none;background:none;border:1px solid var(--linea);border-radius:8px;padding:4px 8px;cursor:pointer}
-#pan h1 .corpoBtn + a{margin-left:0}
 #pan h1 a{margin-left:auto;color:var(--tenue);font:600 12px system-ui;letter-spacing:0;text-transform:none;text-decoration:none;border:1px solid var(--linea);border-radius:8px;padding:4px 8px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{background:rgba(16,32,64,.85);border:1px solid var(--linea);color:var(--testo);border-radius:999px;padding:6px 11px;font:600 12.5px system-ui;cursor:pointer}
@@ -72,7 +70,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
 <div id="stato" aria-hidden="true"></div>
 <section id="pan" aria-live="polite">
   <header>
-    <h1>◈ Spectra Studio <button type="button" class="corpoBtn" id="corpoBtn" title="Carica dal tuo dispositivo un modello .glb per il corpo di Spectra: resta solo su questo dispositivo">🧍 Corpo</button><input type="file" id="corpoFile" accept=".glb,model/gltf-binary" hidden><a href="./index.html" id="torna">← App</a></h1>
+    <h1>◈ Spectra Studio <a href="./index.html" id="torna">← App</a></h1>
     <div class="chips" id="lezioni" role="tablist" aria-label="Lezioni"></div>
   </header>
   <div class="fasi" id="fasi" aria-hidden="true"><span>Predici</span><span>Testa</span><span>Dimostra</span><span>Rivela</span></div>
@@ -130,28 +128,15 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--testo);font-fami
     var anello = new T.Mesh(new T.TorusGeometry(0.7, 0.008, 8, 96), new T.MeshBasicMaterial({ color: 0x6bcfff, toneMapped: false })); anello.rotation.x = Math.PI / 2; anello.position.y = 0.845; banco.add(anello);
     var cono = new T.Mesh(new T.CylinderGeometry(0.7, 0.68, 1.5, 48, 1, true), new T.MeshBasicMaterial({ color: 0x2f6bff, transparent: true, opacity: 0.05, side: T.DoubleSide, depthWrite: false })); cono.position.y = 1.6; banco.add(cono);
     var lezione = new T.Group(); lezione.position.y = 0.86; lezione.scale.setScalar(0.85); banco.add(lezione);
-    /* SPECTRA (bsi-spectra-figura.js, lo stesso delle sezioni dell'AI): SOLO il corpo scelto dall'autore, col cappuccio e
-       il viso «Noir». Il file viene da CGTrader (licenza Royalty Free: non si puo' rendere scaricabile), quindi non sta sul
-       server: chi lo possiede lo carica una volta dal pulsante «🧍 Corpo» e resta nel browser del dispositivo. Finche' non
-       c'e', la scena mostra l'invito a caricarlo, non un sostituto. */
+    /* SPECTRA (bsi-spectra-figura.js, lo stesso delle sezioni dell'AI): il corpo scelto dall'autore, col cappuccio e il viso
+       «Noir», SEMPRE presente: e' incorporato nell'app (models/spectra-corpo.bsi, impacchettato: licenza Royalty Free di
+       CGTrader, il modello non si offre come file a se'). Mentre arriva: «Spectra sta arrivando…»; se non arriva: riprova. */
     var SP = new BSISpectraFigura.Spectra(T, sc, ren, { posizione: new T.Vector3(-0.55, 0, 0.15), rotY: 0.35, contenitore: cont, cambiato: function () { invito(); } });
-    var inv = D.createElement('div'); inv.id = 'invito'; inv.setAttribute('role', 'note');
-    inv.innerHTML = '<b>Spectra non è ancora su questo dispositivo.</b><br>Carica una volta il suo corpo (.glb): resta salvato solo qui.<br><button type="button" id="invitoBtn">🧍 Carica il corpo</button>';
+    var inv = D.createElement('div'); inv.id = 'invito'; inv.setAttribute('role', 'status');
+    inv.innerHTML = '<b>Spectra sta arrivando…</b><br><button type="button" id="invitoBtn" hidden>↻ Riprova</button>';
     cont.appendChild(inv);
-    function invito() { inv.hidden = SP.presente(); }
-    var cBtn = D.getElementById('corpoBtn'), cFile = D.getElementById('corpoFile');
-    if (cBtn && cFile) {
-      cBtn.onclick = function () { cFile.click(); };
-      D.getElementById('invitoBtn').onclick = function () { cFile.click(); };
-      cFile.onchange = function () {
-        var f = cFile.files && cFile.files[0]; if (!f) return;
-        cBtn.disabled = true; cBtn.textContent = '⏳ Corpo';
-        SP.daFile(f).then(function (r) {
-          cBtn.disabled = false; cBtn.textContent = '🧍 Corpo'; cFile.value = ''; invito();
-          D.getElementById('stato').textContent = r.ok ? 'SPECTRA · NUOVO CORPO (salvato solo su questo dispositivo)' : r.motivo === 'grande' ? 'SPECTRA · file troppo grande (massimo 60 MB)' : 'SPECTRA · questo file non e\' una figura umanoide utilizzabile';
-        });
-      };
-    }
+    function invito() { inv.hidden = SP.presente(); if (!SP.presente() && SP.caricato === false) { inv.querySelector('b').textContent = 'Spectra non è arrivato: serve la rete la prima volta.'; D.getElementById('invitoBtn').hidden = false; } }
+    D.getElementById('invitoBtn').onclick = function () { this.hidden = true; inv.querySelector('b').textContent = 'Spectra sta arrivando…'; SP.carica().then(invito); };
     SP.carica().then(invito);
     /* la telecamera: si puo' girare trascinando */
     var cam = new T.PerspectiveCamera(38, 1, 0.05, 60), bers = new T.Vector3(0.15, 1.15, 0), orb = { az: 0.12, el: 0.12, r: 3.6 };
