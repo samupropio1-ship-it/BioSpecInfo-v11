@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v242` |
+| **Versione descritta** | `bsi-v243` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**85 banchi**, raggruppati per ciò che dimostrano.
+**86 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -308,7 +308,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -447,6 +447,21 @@ correttezza chimica di ogni valore delle sei molecole, che sono valori tipici
 di letteratura per la didattica e non spettri misurati; l'interprete della
 traccia propone attribuzioni candidate dalle tabelle, non determina una
 struttura.
+
+**`test_impronta` — 22 controlli (v243).** Nasce da due segnalazioni
+dell'autore sulla v242: «non sento la voce» e «vorrei che fossi io con un
+riconoscimento impronta, però solo con me». Prova `bsi-spectra-creatore.js`
+(WebAuthn) e la voce di `bsi-spectra-live.js`.
+
+| Parte | Che cosa pretende |
+|---|---|
+| L'impronta (12) | Con l'**autenticatore virtuale** di Chromium (protocollo DevTools, dominio WebAuthn) al posto del sensore: senza la frase segreta l'impronta non si lega; una frase sbagliata non riconosce; legata dopo la frase, si conservano solo `id` della credenziale e data; in una sessione nuova il ricordo del browser non basta e Spectra aspetta l'impronta; l'impronta giusta con la persona verificata riconosce il creatore e il modello lo sa; con la persona **non** verificata, o con **un altro** autenticatore, nessun riconoscimento |
+| La console (6) | «attiva l'impronta» la lega e Spectra lo dice; aperta in una sessione nuova la console chiede l'impronta con «👆 Sono io»; toccato, riconosciuto e salutato per nome; «prova la voce» risponde; `statoVoce()` leggibile; «dimentica che sono il tuo creatore» toglie anche l'impronta |
+| La voce (3) | Una sintesi finta che parte dopo 2,5 s **senza «onstart»** (come certi motori Android): **nessuna frase annullata** e 2/2 arrivate in fondo (prima della v243 si annullava dopo 1,2 s: la causa del silenzio); una sintesi che non parte affatto non blocca il discorso: il labiale lo porta avanti |
+| Errori (1) | Nessun errore JavaScript |
+
+WebAuthn non accetta un indirizzo IP come dominio: il banco apre l'app da
+`localhost`. **Non provato**: il sensore vero di un telefono e l'audio udibile.
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -902,7 +917,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 577 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 578 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
@@ -922,4 +937,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v242`._
+_Documento aggiornato alla versione `bsi-v243`._
