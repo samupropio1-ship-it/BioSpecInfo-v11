@@ -45,7 +45,12 @@
   with its key and together with the question, **the screen text** (section,
   tab, control values, visible tables and text) and **an image of the visible
   graphs and 3D scenes**, like a chat attachment; the image is sent in the
-  first turn only. With the checkbox unchecked only the question is sent.
+  first turn only. With the checkbox unchecked only the question is sent,
+  **except when the question names a section of the app** («spiegami le
+  titolazioni»): then Spectra opens that section, checks the box and also
+  sends its screen; likewise when a section is chosen from the
+  «🗂️ Tutte le sezioni nell'ologramma» catalogue. The checked box stays
+  visible and can be unchecked before the next question.
   Without a key nothing leaves the device. The conversation is kept in memory
   for the session and is not saved.
 - **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with

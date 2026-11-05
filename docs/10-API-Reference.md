@@ -504,13 +504,13 @@ Metodi di un `Corpo`:
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
-| `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Ordine: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (solo sviluppo) → `models/spectra-cyberpunk.glb` → nessun corpo (il manichino solo con `opz.manichino === true`, per il banco del driver). Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
+| `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Ordine: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (solo sviluppo) → `models/spectra-cyberpunk.glb` → nessun corpo (il manichino solo con `opz.manichino === true`, per il banco del driver). Con `opz.soloDispositivo` solo l'IndexedDB: la figura di `monta` lo attiva per difetto (nell'app nessuna richiesta ai file di sviluppo, niente 404); lo studio prova ancora i file. Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
 | `monta` | `(contenitore, opz?) → figura` | Riquadro da laboratorio con Spectra in piedi, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», pulsanti «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invito se manca il corpo; ascolta `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
 | `sezioni` | `(id[]) → figura` | Una figura condivisa (un contesto WebGL) spostata nella sezione dell'AI aperta (`sai`, `sareachim`, `sareafis`, `sareamat`); i file 3D si caricano alla prima apertura |
 | `prepara` | `() → Promise` | Carica three.js, il caricatore GLB, il driver del corpo e il rig se non ci sono |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | Il corpo `.glb` nell'IndexedDB (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`) |
 | `emozioneDi` | `(testo) → string` | L'emozione suggerita dal contenuto di una risposta |
-| `Ologramma` | `new (T, scena) → ologramma` | Lo schermo olografico alla destra di Spectra; metodi `costruisci(nome)`, `mostra(nome)`, `passo(dt)`; scene calcolate a ogni fotogramma, più `'schermo'` (la sezione dietro la finestra, ridisegnata con `BSISpectraLive.cattura` 5 volte al secondo) |
+| `Ologramma` | `new (T, scena) → ologramma` | Lo schermo olografico alla destra di Spectra; metodi `costruisci(nome)`, `mostra(nome)`, `passo(dt)`; scene calcolate a ogni fotogramma, più `'schermo'` (la sezione dietro la finestra, ridisegnata con `BSISpectraLive.cattura` 5 volte al secondo; una sezione senza grafici si proietta come scheda: titolo, scheda, fino a 6 comandi con i valori, testo visibile) |
 | `SCENE_OLO` | oggetto | Le sei scene (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): per ognuna `nome` (it, en), `sez` (l'id della sezione che apre l'etichetta) e `parole` (l'espressione regolare che la sceglie) |
 | `sceneDi` | `(testo) → string \| null` | La scena che corrisponde alle parole di un testo, o `null` |
 | `LIMITE`, `RIG`, `figura` | numero, oggetto, figura | 60 MB; i parametri del rig del corpo dell'autore; la figura condivisa delle sezioni (o `null`) |
@@ -525,8 +525,13 @@ Evento nuovo: **`bsi-spectra-tema`** (`CustomEvent` su `document`, `detail: { te
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
-| `costruisci` | `(pannello)` | Costruisce la scheda «🧠 Spiega» nel pannello dato (la chiama `bsi-ai-hub.js`): domanda, livello, casella «📺 Includi lo schermo» con la scheda dello schermo, domande rapide, «↺ Nuova spiegazione» |
-| `chiedi` | `(domanda, { schermo?, livello? }?) → Promise` | Manda la domanda al modello della chat; con `schermo` aggiunge il testo dello schermo e, al primo turno, l'immagine; le domande successive continuano la conversazione. Senza modello mostra ciò che l'app sa da sola |
+| `costruisci` | `(pannello)` | Costruisce la scheda «🧠 Spiega» nel pannello dato (la chiama `bsi-ai-hub.js`): domanda, livello, casella «📺 Includi lo schermo» con la scheda dello schermo, domande rapide, «↺ Nuova spiegazione», il riquadro «🗂️ Tutte le sezioni nell'ologramma» (ricerca, filtro per materia, «🎞️ Mostrami tutto») |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Tutte le sezioni della barra dell'app (`.nav-group-panel [data-s]`), con l'etichetta del gruppo e la materia (`BSIMaterie.materiaDi`; `'comune'` se nessuna): 194 sezioni (chimica 75, fisica 60, matematica 30, comuni 29). Letto dalla barra, non scritto a mano |
+| `sezioneDi` | `(testo) → voce del catalogo \| null` | La sezione che una domanda nomina: parole significative dei nomi (con radice), sigle (MS, IR, UV, NMR, MO…) pesate di più, sinonimi («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); a parità il nome più corto. Es. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
+| `mostraSezione` | `(id) → Promise<boolean>` | Apre la sezione dietro la finestra di Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve) e aggiorna lo schermo, così l'ologramma la mostra dal vivo |
+| `giro` | `(materia?)` | «🎞️ Mostrami tutto»: ogni sezione della materia (`'chimica'`, `'fisica'`, `'matematica'`; tutte se vuota) nell'ologramma, una ogni 7 s, con il contatore «n/N · nome» |
+| `giroFerma` | `()` | Ferma il giro |
+| `chiedi` | `(domanda, { schermo?, livello? }?) → Promise` | Manda la domanda al modello della chat; con `schermo` aggiunge il testo dello schermo e, al primo turno, l'immagine; senza `schermo`, se la domanda nomina una sezione (`sezioneDi`) diversa da quella aperta, prima la apre (`mostraSezione`) e poi chiede con lo schermo; le domande successive continuano la conversazione. Senza modello mostra ciò che l'app sa da sola |
 | `schermo` | `() → { testo, tela, svg, grafici, titolo, materia }` | Legge la sezione aperta: titolo, scheda, comandi con valore e intervallo, tabelle visibili (fino a 4 × 40 righe), testo visibile, tele e SVG visibili |
 | `immagine` | `(S) → Promise<dataURL>` | Compone in un JPEG (largo al massimo 1400 px) le tele visibili (scene `BSILab3D` ridisegnate prima) e gli SVG visibili trasformati in immagine |
 | `sistema` | `(livello, materia) → string` | Il prompt di sistema: livello, `PROFONDITA`, struttura obbligatoria, rigore |

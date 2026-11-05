@@ -48,7 +48,11 @@
   (sezione, scheda, valori dei comandi, tabelle e testo visibili) e
   **un'immagine dei grafici e delle scene 3D visibili**, come un allegato
   della chat; l'immagine va solo nel primo turno. Con la casella spenta va
-  solo la domanda. Senza chiave non esce niente dal dispositivo. La
+  solo la domanda, **tranne quando la domanda nomina una sezione dell'app**
+  («spiegami le titolazioni»): allora Spectra apre quella sezione, spunta la
+  casella e manda anche il suo schermo; lo stesso quando si sceglie una
+  sezione dal catalogo «🗂️ Tutte le sezioni nell'ologramma». La casella
+  spuntata resta visibile e si può togliere prima della domanda successiva. Senza chiave non esce niente dal dispositivo. La
   conversazione resta in memoria per la sessione e non si salva.
 - **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
   con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser

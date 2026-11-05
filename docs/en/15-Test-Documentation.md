@@ -356,7 +356,7 @@ the repository); the call to OpenAI and listening to the voice (the bench does
 not reach OpenAI and does not listen); the visual quality of the body and
 gestures, which has to be judged by looking.
 
-**`test_spectra_figura` — 89 checks (45 at 412 px, 44 at 1280 px).** It comes
+**`test_spectra_figura` — 99 checks (50 at 412 px, 49 at 1280 px).** It comes
 from the author's request: Spectra's icon with the face only and, in every AI
 section, Spectra with the body, «and nothing else». It tests
 `bsi-spectra-figura.js` in the app, on a phone (412 px) and on a large screen
@@ -372,6 +372,7 @@ synthetic humanoid as `test_spectra_rig` (no skeleton, with a hood).
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → Spectra first points at the hologram («indica» gesture), then accompanies the explanation with the hands («spiega»), joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
 | «🧠 Spiega» (13 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG spectra (the spectra quiz) as an image; reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image); with that scene open behind «🧠 Spiega» the hologram shows it live |
 | Hologram (6 per width) | It is **to Spectra's right** (screen x); there are **six live scenes**; Kepler: the ratio of perihelion to aphelion speed equals (1+e)/(1−e) = 1.94 within 8 %; **the subject follows the conversation** (an IR answer → spectrum, an orbit question → planets); the label leads to the section; one tap opens «Sistema solare 3D» |
+| Catalogue (5 per width) | The catalogue has **every** section of the bar (194/194: chemistry 75, physics 60, mathematics 30, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 

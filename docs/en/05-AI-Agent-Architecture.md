@@ -878,7 +878,9 @@ summarised here.
   `models/spectra-corpo.glb` (development only, kept out of git because of
   the CGTrader licence), then `models/spectra-cyberpunk.glb` (a complete
   model with its own face: the «Noir» face is hidden); **otherwise no body**,
-  and an invitation to load it appears, with no substitute. A body without a
+  and an invitation to load it appears, with no substitute. In the app (not
+  the studio) the figure looks only in IndexedDB (`soloDispositivo`): the
+  development files are not requested, so no 404s in the published app. A body without a
   skeleton goes through the automatic rig (`bsi-spectra-rig.js`); the «Noir»
   face (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`)
   goes on the collar, aligned by measuring the chin, with only the face
@@ -926,7 +928,26 @@ summarised here.
   pretend**: it says so and shows what the app knows on its own (the local
   assistant's recognition, the chapters of the section's guided lesson, the
   screen data as text). With the screen included, text and image go to the
-  configured provider together with the question.
+  configured provider together with the question. **The catalogue**
+  (`catalogo()`): every section button of the bar (`.nav-group-panel
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 194
+  sections (chemistry 75, physics 60, mathematics 30, shared 29), read from
+  the bar rather than written by hand. The «🗂️ Tutte le sezioni
+  nell'ologramma» card lists them by group, with search and a subject filter;
+  `mostraSezione(id)` opens the section behind the window
+  (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed),
+  the hologram shows it live and the screen checkbox is checked;
+  `giro(materia)` («🎞️ Mostrami tutto») shows them in turn every 7 s, with the
+  counter «n/N · name», and `giroFerma()` stops it. `sezioneDi(testo)` finds
+  the section a question names (meaningful words of the names, also by stem;
+  acronyms MS, IR, UV, NMR, MO… weighted more; synonyms «spettro di massa» →
+  MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
+  MO; ties go to the shorter name; none if the question names no topic):
+  asking without the screen included, the named section opens, is shown in
+  the hologram and the explanation includes its screen — so its text and
+  image go to the provider as with the box checked. A section without graphs
+  is projected on the hologram as a card (title, tab, up to 6 controls with
+  values, visible text), so every section is showable.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

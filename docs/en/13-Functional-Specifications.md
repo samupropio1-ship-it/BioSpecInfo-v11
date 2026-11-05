@@ -373,7 +373,10 @@ spectrum → IR, orbital → 3d_z²…); with «📺 Includi lo schermo» it sho
 section; at rest the scenes alternate every 14 s. The label at top right
 («🪐 Orbite di Keplero · apri ›»…) opens the matching section with one tap. When
 answering, Spectra first points at the hologram and then explains with the
-hands.
+hands. **Every section is showable**: a section without graphs (text, tables,
+controls) is projected as a card drawn on the hologram (title, open tab, up to
+six controls with their values, visible text) instead of falling back to the
+planets.
 
 **«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). In the Spectra window the
 **«🧠 Spiega»** tab is the second one, after «💬 Chat» (then Esame Orale,
@@ -399,6 +402,35 @@ needed: without one, the tab says so and shows what the app knows on its own
 (the local assistant for numeric exercises, the chapters of the section's
 guided lesson, the screen data). Spectra with the body moves into the tab,
 thinks while the model writes and then explains with voice and gestures.
+
+**The catalogue: every section in the hologram** (`bsi-spectra-spiega.js`,
+v240). The author's request: «ogni sezione della chimica, della fisica e della
+matematica deve esserci, non deve mancare nulla in questo ologramma: deve
+esserci tutto spiegabile e mostrabile» (every section of chemistry, physics
+and mathematics must be there, nothing may be missing from this hologram:
+everything must be explainable and showable). The catalogue is not written by
+hand: it is read from the app bar (every section button, with its group —
+Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+Utility, Fisica, Matematica, Astrofisica — and its subject): 194 sections
+(chemistry 75, physics 60, mathematics 30, shared 29); a new section appears by
+itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
+nell'ologramma»** lists them by group, with a search box and a subject
+filter; one tap opens the section behind the Spectra window (switching subject
+if needed), the hologram shows it live and «📺 Includi lo schermo» is checked,
+so the explanation uses its data. **«🎞️ Mostrami tutto»** runs every section
+of the chosen subject (or all of them) through the hologram, one every 7 s,
+with the counter «n/N · name»; it can be stopped. **A question that names a
+topic finds its section** (the meaningful words of the section names looked
+for in the question, also by stem; the acronyms MS, IR, UV, NMR, MO… weigh
+more; synonyms such as «spettro di massa» → MS, «infrarosso» → IR, «risonanza
+magnetica» → NMR, «orbitali molecolari» → MO; ties go to the shorter name):
+asking in «🧠 Spiega» without the screen included, the named section opens
+behind the window, is shown in the hologram and the explanation includes its
+screen data. Examples: titolazioni → Titolazione, Schrödinger → the
+Schrödinger equation, integrali per parti → «Derivate, integrali e serie»,
+spettro di massa → Spettro MS, spettro infrarosso → IR Visivi, meccanica
+orbitale → 3D orbital mechanics; «ciao come stai» → none.
+
 Body, face and mind are a
 simulation of behaviour, not consciousness.
 

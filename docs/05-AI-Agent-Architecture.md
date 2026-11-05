@@ -910,7 +910,9 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   fuori da git per la licenza CGTrader), poi `models/spectra-cyberpunk.glb`
   (un modello completo, col suo viso: il volto «Noir» si nasconde);
   **altrimenti nessun corpo**, e compare l'invito a caricarlo, senza
-  sostituti. Il corpo senza scheletro passa dal rig automatico
+  sostituti. Nell'app (non nello studio) la figura cerca solo
+  nell'IndexedDB (`soloDispositivo`): i file di sviluppo non si chiedono,
+  niente 404 nell'app pubblicata. Il corpo senza scheletro passa dal rig automatico
   (`bsi-spectra-rig.js`); sul colletto va il volto «Noir»
   (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`),
   allineato misurando il mento, del quale si vede solo il viso, «solidale» con
@@ -960,6 +962,26 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   (riconoscimento dell'assistente locale, capitoli della lezione guidata
   della sezione, dati dello schermo come testo). Con lo schermo incluso,
   testo e immagine vanno al fornitore configurato insieme alla domanda.
+  **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
+  (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
+  (`BSIMaterie.materiaDi`), 194 sezioni (chimica 75, fisica 60, matematica 30,
+  comuni 29), letto dalla barra e non scritto a mano. Il riquadro
+  «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
+  filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
+  (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),
+  l'ologramma la mostra dal vivo e la casella dello schermo si spunta;
+  `giro(materia)` («🎞️ Mostrami tutto») le mostra a turno ogni 7 s, con il
+  contatore «n/N · nome», e `giroFerma()` lo ferma. `sezioneDi(testo)`
+  trova la sezione che una domanda nomina (parole significative dei nomi,
+  anche per radice; sigle MS, IR, UV, NMR, MO… pesate di più; sinonimi
+  «spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR,
+  «orbitali molecolari» → MO; a parità il nome più corto; nessuna se la
+  domanda non nomina un argomento): chiedendo senza lo schermo incluso, la
+  sezione nominata si apre, si mostra nell'ologramma e la spiegazione
+  comprende il suo schermo — quindi il suo testo e la sua immagine vanno al
+  fornitore come con la casella spuntata. Una sezione senza grafici si
+  proietta nell'ologramma come scheda (titolo, scheda, fino a 6 comandi con
+  i valori, testo visibile), così ogni sezione è mostrabile.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

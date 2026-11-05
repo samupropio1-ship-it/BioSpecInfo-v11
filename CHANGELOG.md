@@ -21,7 +21,10 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   - `Spectra(T, scena, renderer, opz)`: il controllore del corpo. Cerca il corpo
     nell'IndexedDB del dispositivo (`bsi-spectra-modelli`), poi in
     `models/spectra-corpo.glb` (solo in sviluppo), poi in
-    `models/spectra-cyberpunk.glb`; **altrimenti niente**. Il corpo passa dal
+    `models/spectra-cyberpunk.glb`; **altrimenti niente**. Nell'app (non nello
+    studio) la figura cerca il corpo **solo sul dispositivo** (`opz.soloDispositivo`):
+    i due file di sviluppo non si chiedono, quindi nell'app pubblicata
+    niente 404; lo studio li prova ancora (sviluppo). Il corpo passa dal
     rig automatico (`bsi-spectra-rig.js`); sul colletto va il viso «Noir»,
     allineato misurando il mento, del quale si vede solo il viso; il volto è
     «solidale». Metodi `carica`, `daFile`, `daBuffer`, `usaScena`, `passo`,
@@ -69,6 +72,10 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     immaginaria e |ψ|²). In più **«schermo»**: la sezione aperta dietro la
     finestra di Spectra, dal vivo (la sua tela ridisegnata con
     `BSISpectraLive.cattura` e copiata nell'ologramma 5 volte al secondo).
+    **Anche le sezioni senza grafici** (testo, tabelle, comandi) si
+    proiettano: una scheda disegnata nell'ologramma (titolo, scheda aperta,
+    fino a 6 comandi con i loro valori, testo visibile) invece di tornare ai
+    pianeti, così ogni sezione è mostrabile.
   - **Ogni scena porta alla sua sezione**: un'etichetta in alto a destra
     («🪐 Orbite di Keplero · apri ›»…) la apre con un tocco (pianeti →
     Sistema solare 3D, molecola → Strutture 3D, spettro → IR Visivi,
@@ -153,8 +160,45 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     chiave(p) }`, esportato da `bsi-ai-hub.js`). **Con «Includi lo schermo»
     attivo, il testo dello schermo e l'immagine dei grafici e delle scene 3D
     vanno al fornitore di IA configurato insieme alla domanda**, come un
-    allegato della chat; senza la casella, solo la domanda; senza chiave non
-    esce niente dal dispositivo.
+    allegato della chat; senza la casella, solo la domanda (ma una domanda che
+    nomina una sezione la apre e spunta la casella: vedi il catalogo qui
+    sotto); senza chiave non esce niente dal dispositivo.
+- **Il catalogo: tutte le sezioni nell'ologramma, spiegabili e mostrabili**
+  (`bsi-spectra-spiega.js`). Richiesta dell'autore: «ogni sezione della
+  chimica, della fisica e della matematica deve esserci, non deve mancare
+  nulla in questo ologramma: deve esserci tutto spiegabile e mostrabile».
+  - **`BSISpiega.catalogo()`** legge ogni pulsante di sezione della barra
+    dell'app (`.nav-group-panel [data-s]`) con l'etichetta del suo gruppo
+    (Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+    Utility, Fisica, Matematica, Astrofisica) e la materia
+    (`BSIMaterie.materiaDi`): **194 sezioni** (chimica 75, fisica 60,
+    matematica 30, comuni 29). Non è scritto a mano: una sezione nuova
+    compare da sola.
+  - Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
+    nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un
+    filtro per materia. Un tocco apre la sezione dietro la finestra di
+    Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se
+    serve), l'ologramma la mostra dal vivo e «📺 Includi lo schermo» si
+    spunta, così la spiegazione usa i suoi dati (`BSISpiega.mostraSezione(id)`).
+  - **«🎞️ Mostrami tutto»** (`BSISpiega.giro(materia)`): ogni sezione della
+    materia scelta (o tutte) a turno nell'ologramma, una ogni 7 s, con il
+    contatore «n/N · nome»; «⏹ Ferma il giro» (`BSISpiega.giroFerma()`) lo
+    ferma.
+  - **Una domanda che nomina un argomento trova la sua sezione**
+    (`BSISpiega.sezioneDi(testo)`): le parole significative dei nomi delle
+    sezioni cercate nella domanda, anche per radice; le sigle (MS, IR, UV,
+    NMR, MO…) pesano di più; sinonimi «spettro di massa» → MS, «infrarosso» →
+    IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO; a parità
+    vince il nome più corto. Chiedendo in «🧠 Spiega» senza lo schermo
+    incluso, la sezione nominata si apre dietro la finestra, si mostra
+    nell'ologramma e la spiegazione comprende i dati del suo schermo (la
+    casella «📺 Includi lo schermo» si spunta: testo e immagine di quella
+    sezione vanno al fornitore configurato insieme alla domanda). Esempi
+    verificati: titolazioni → Titolazione (`stitr`), Schrödinger →
+    `sschrod`, integrali per parti → «Derivate, integrali e serie»
+    (`smatcalc`), spettro di massa → Spettro MS (`sms`), spettro infrarosso →
+    IR Visivi (`sirvis`), meccanica orbitale → `sastroorbite`; «ciao come
+    stai» → nessuna.
 
 ### Cambiato
 - **Nessun manichino come Spectra**, né nelle sezioni dell'AI né nello
@@ -179,6 +223,16 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (visibili nella schermata dell'autore). `index.html` aggiunge la classe
   `bsi-sez-fuori` al `body` quando la sezione aperta è fuori da `#main`: il
   margine di `#main` va a 0 e il margine in basso passa alla sezione.
+- **Contrasto dei pulsanti col gradiente blu→verde acqua.** L'invito
+  «🧍 Carica il corpo» della figura, l'invito dello studio e il pulsante
+  principale di «🧠 Spiega» avevano il testo bianco su `#2f6bff`→`#00c9b7`:
+  contrasto 2,09:1 (WCAG AA chiede 4,5:1). Ora `#1d4ed8`→`#0e7490`
+  (`bsi-spectra-figura.js`, `spectra-studio.html`, `bsi-spectra-spiega.js`);
+  `verifica-accessibilita` torna a 0 errori di contrasto.
+- **Niente 404 nell'app pubblicata.** La figura delle sezioni dell'AI
+  chiedeva `models/spectra-corpo.glb` e `models/spectra-cyberpunk.glb`, file
+  di sviluppo che sul server non ci sono. Ora nell'app cerca il corpo solo
+  nell'IndexedDB del dispositivo; lo studio li prova ancora (sviluppo).
 
 ### Nota sugli aggiornamenti
 - Il telefono dell'autore mostrava ancora la v238 anche con la v239 già
@@ -187,7 +241,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (89 controlli: 45 a 412 px, 44 a 1280 px): il
+- Nuovo `test_spectra_figura` (99 controlli: 50 a 412 px, 49 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -220,7 +274,15 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   fra le velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro
   l'8 %; il soggetto segue la conversazione (risposta sull'IR → spettro,
   domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco
-  apre «Sistema solare 3D». Il banco porta la figura
+  apre «Sistema solare 3D». Per ogni larghezza, 5 controlli del catalogo: il
+  catalogo ha TUTTE le sezioni della barra (194/194, chimica 75, fisica 60,
+  matematica 30, comuni 29); una domanda che nomina un argomento trova la sua
+  sezione (i sette esempi: titolazioni, Schrödinger, integrali per parti,
+  spettro di massa, spettro infrarosso, meccanica orbitale, «ciao come stai»
+  → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la
+  finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione
+  senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma;
+  «🎞️ Mostrami tutto» scorre le sezioni della materia. Il banco porta la figura
   in vista prima di misurare, perché la figura si disegna (e allinea il viso)
   solo quando è visibile.
 - `test_spectra_studio` passa a **91 controlli**, con o senza il modello in

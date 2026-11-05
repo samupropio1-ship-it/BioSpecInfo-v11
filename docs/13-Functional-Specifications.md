@@ -371,7 +371,10 @@ l'argomento della domanda e della risposta (orbite → pianeti, spettro → IR,
 orbitale → 3d_z²…); con «📺 Includi lo schermo» mostra la sezione aperta; a
 riposo le scene si alternano ogni 14 s. L'etichetta in alto a destra («🪐 Orbite
 di Keplero · apri ›»…) apre la sezione corrispondente con un tocco. Quando
-risponde, Spectra indica prima l'ologramma e poi spiega con le mani.
+risponde, Spectra indica prima l'ologramma e poi spiega con le mani. **Ogni
+sezione è mostrabile**: una sezione senza grafici (testo, tabelle, comandi) si
+proietta come una scheda disegnata nell'ologramma (titolo, scheda aperta, fino
+a sei comandi con i loro valori, testo visibile), invece di tornare ai pianeti.
 
 **«🧠 Spiega»** (`bsi-spectra-spiega.js`, v240). Nella finestra di Spectra la
 scheda **«🧠 Spiega»** è la seconda, dopo «💬 Chat» (poi Esame Orale, Ripassa
@@ -397,6 +400,34 @@ configurato: senza, la scheda lo dice e mostra ciò che l'app sa da sola
 (l'assistente locale per gli esercizi numerici, i capitoli della lezione
 guidata della sezione, i dati dello schermo). Spectra col corpo si sposta
 nella scheda, pensa mentre il modello scrive e poi spiega a voce e a gesti.
+
+**Il catalogo: tutte le sezioni nell'ologramma** (`bsi-spectra-spiega.js`,
+v240). Richiesta dell'autore: «ogni sezione della chimica, della fisica e della
+matematica deve esserci, non deve mancare nulla in questo ologramma: deve
+esserci tutto spiegabile e mostrabile». Il catalogo non è scritto a mano: si
+legge dalla barra dell'app (ogni pulsante di sezione, con il suo gruppo —
+Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
+Utility, Fisica, Matematica, Astrofisica — e la sua materia): 194 sezioni
+(chimica 75, fisica 60, matematica 30, comuni 29); una sezione nuova compare da
+sola. Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
+nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un filtro
+per materia; un tocco apre la sezione dietro la finestra di Spectra
+(cambiando materia se serve), l'ologramma la mostra dal vivo e «📺 Includi lo
+schermo» si spunta, così la spiegazione usa i suoi dati. **«🎞️ Mostrami
+tutto»** fa scorrere nell'ologramma ogni sezione della materia scelta (o
+tutte), una ogni 7 s, con il contatore «n/N · nome»; si può fermare. **Una
+domanda che nomina un argomento trova la sua sezione** (le parole
+significative dei nomi delle sezioni cercate nella domanda, anche per radice;
+le sigle MS, IR, UV, NMR, MO… pesano di più; sinonimi come «spettro di massa» →
+MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
+MO; a parità vince il nome più corto): chiedendo in «🧠 Spiega» senza lo
+schermo incluso, la sezione nominata si apre dietro la finestra, si mostra
+nell'ologramma e la spiegazione comprende i dati del suo schermo. Esempi:
+titolazioni → Titolazione, Schrödinger → l'equazione di Schrödinger,
+integrali per parti → «Derivate, integrali e serie», spettro di massa →
+Spettro MS, spettro infrarosso → IR Visivi, meccanica orbitale → la meccanica
+orbitale 3D; «ciao come stai» → nessuna.
+
 Corpo, volto e mente sono una simulazione di
 comportamento, non una coscienza.
 

@@ -372,7 +372,7 @@ repository); la chiamata a OpenAI e l'ascolto della voce (il banco non
 raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
 va giudicata guardando.
 
-**`test_spectra_figura` — 89 controlli (45 a 412 px, 44 a 1280 px).** Nasce
+**`test_spectra_figura` — 99 controlli (50 a 412 px, 49 a 1280 px).** Nasce
 dalla richiesta dell'autore: l'icona di Spectra solo col volto e, in ogni
 sezione dell'AI, Spectra col corpo, «e non altro». Prova
 `bsi-spectra-figura.js` nell'app, su un telefono (412 px) e su schermo grande
@@ -389,6 +389,7 @@ cappuccio).
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → Spectra prima indica l'ologramma (gesto «indica»), poi accompagna la spiegazione con le mani («spiega»), gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
 | «🧠 Spiega» (13 per larghezza) | «🧠 Spiega» è la seconda scheda della finestra di Spectra e «Lezione» non c'è più; la figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel Centro spettri) legge lo schermo: almeno un grafico, i valori dei comandi, l'immagine; cinque livelli; il modello riceve il testo dello schermo, la domanda e **l'immagine**; la richiesta chiede una spiegazione esaustiva e non semplificata, con la lettura quantitativa dello spettro (δ, molteplicità, J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta; la domanda successiva continua la conversazione senza rimandare l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura primaria; senza modello non finge; legge come immagine gli spettri SVG (il quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele, immagine); con quella scena aperta dietro «🧠 Spiega» l'ologramma la mostra dal vivo |
 | Ologramma (6 per larghezza) | Sta **alla destra di Spectra** (x sullo schermo); ci sono **sei scene vive**; Keplero: il rapporto fra la velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro l'8 %; **il soggetto segue la conversazione** (una risposta sull'IR → spettro, una domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco apre «Sistema solare 3D» |
+| Catalogo (5 per larghezza) | Il catalogo ha **tutte** le sezioni della barra (194/194: chimica 75, fisica 60, matematica 30, comuni 29); una domanda che nomina un argomento trova la sua sezione (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma; «🎞️ Mostrami tutto» scorre le sezioni della materia |
 | Telefono | I pulsanti della figura non finiscono sotto quelli flottanti |
 | Errori | Nessun errore JavaScript, a ogni larghezza |
 

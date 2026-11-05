@@ -520,13 +520,13 @@ Methods of a `Corpo`:
 
 | Symbol | Signature | Description |
 |---|---|---|
-| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Order: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (development only) → `models/spectra-cyberpunk.glb` → no body (the mannequin only with `opz.manichino === true`, for the driver's bench). Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
+| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Order: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (development only) → `models/spectra-cyberpunk.glb` → no body (the mannequin only with `opz.manichino === true`, for the driver's bench). With `opz.soloDispositivo` IndexedDB only: the figure from `monta` enables it by default (in the app no requests for the development files, no 404s); the studio still tries the files. Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
 | `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invitation when the body is missing; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
 | `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`); the 3D files load on first opening |
 | `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The `.glb` body in IndexedDB (`bsi-spectra-modelli`, store `file`, key `corpo`) |
 | `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
-| `Ologramma` | `new (T, scene) → hologram` | The holographic screen to Spectra's right; methods `costruisci(name)`, `mostra(name)`, `passo(dt)`; scenes computed every frame, plus `'schermo'` (the section behind the window, re-rendered with `BSISpectraLive.cattura` 5 times a second) |
+| `Ologramma` | `new (T, scene) → hologram` | The holographic screen to Spectra's right; methods `costruisci(name)`, `mostra(name)`, `passo(dt)`; scenes computed every frame, plus `'schermo'` (the section behind the window, re-rendered with `BSISpectraLive.cattura` 5 times a second; a section without graphs is projected as a card: title, tab, up to 6 controls with values, visible text) |
 | `SCENE_OLO` | object | The six scenes (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): for each `nome` (it, en), `sez` (the id of the section the label opens) and `parole` (the regular expression that selects it) |
 | `sceneDi` | `(text) → string \| null` | The scene matching the words of a text, or `null` |
 | `LIMITE`, `RIG`, `figura` | number, object, figure | 60 MB; the rig parameters for the author's body; the sections' shared figure (or `null`) |
@@ -541,8 +541,13 @@ New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo
 
 | Symbol | Signature | Description |
 |---|---|---|
-| `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione» |
-| `chiedi` | `(question, { schermo?, livello? }?) → Promise` | Sends the question to the chat's model; with `schermo` it adds the screen text and, in the first turn, the image; follow-up questions continue the conversation. Without a model it shows what the app knows on its own |
+| `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione», the «🗂️ Tutte le sezioni nell'ologramma» card (search, subject filter, «🎞️ Mostrami tutto») |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 194 sections (chemistry 75, physics 60, mathematics 30, shared 29). Read from the bar, not written by hand |
+| `sezioneDi` | `(text) → catalogue entry \| null` | The section a question names: meaningful words of the names (with stems), acronyms (MS, IR, UV, NMR, MO…) weighted more, synonyms («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); ties go to the shorter name. E.g. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
+| `mostraSezione` | `(id) → Promise<boolean>` | Opens the section behind the Spectra window (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed) and refreshes the screen, so the hologram shows it live |
+| `giro` | `(subject?)` | «🎞️ Mostrami tutto»: every section of the subject (`'chimica'`, `'fisica'`, `'matematica'`; all if empty) in the hologram, one every 7 s, with the counter «n/N · name» |
+| `giroFerma` | `()` | Stops the tour |
+| `chiedi` | `(question, { schermo?, livello? }?) → Promise` | Sends the question to the chat's model; with `schermo` it adds the screen text and, in the first turn, the image; without `schermo`, if the question names a section (`sezioneDi`) other than the open one, it first opens it (`mostraSezione`) and then asks with the screen; follow-up questions continue the conversation. Without a model it shows what the app knows on its own |
 | `schermo` | `() → { testo, tela, svg, grafici, titolo, materia }` | Reads the open section: title, tab, controls with value and range, visible tables (up to 4 × 40 rows), visible text, visible canvases and SVGs |
 | `immagine` | `(S) → Promise<dataURL>` | Composes into a JPEG (at most 1400 px wide) the visible canvases (`BSILab3D` scenes re-rendered first) and the visible SVGs rasterised |
 | `sistema` | `(level, subject) → string` | The system prompt: level, `PROFONDITA`, mandatory structure, rigour |

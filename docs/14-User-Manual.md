@@ -600,7 +600,8 @@ secondo l'argomento di cui parlate (chiedi delle orbite e compaiono i pianeti;
 parla di uno spettro e compare lo spettro) e, se hai una sezione aperta dietro
 la finestra di Spectra, la mostra dal vivo. **Tocca l'etichetta in alto a
 destra dell'ologramma** («🪐 Orbite di Keplero · apri ›»…) per aprire la
-sezione in cui quella scena si studia davvero. Quando risponde, Spectra indica
+sezione in cui quella scena si studia davvero. Ogni sezione dell'app si può
+mostrare nell'ologramma (più sotto, «Tutte le sezioni nell'ologramma»). Quando risponde, Spectra indica
 l'ologramma e poi spiega con le mani. I pulsanti stanno nella barra sotto la
 scena.
 
@@ -624,11 +625,29 @@ e guarda l'immagine dei grafici: per uno spettro NMR ti spiega ogni segnale
 (spostamento chimico, molteplicità, costante di accoppiamento, integrale) e a
 quale atomo appartiene. **Attenzione**: con la casella spuntata il testo dello
 schermo e l'immagine dei grafici vanno al fornitore di IA che hai configurato,
-insieme alla domanda; togli la spunta se non vuoi. Serve un fornitore di IA
+insieme alla domanda; togli la spunta se non vuoi (una domanda che nomina una
+sezione, o una sezione scelta dal catalogo qui sotto, la spunta da sola). Serve un fornitore di IA
 configurato, come per la chat; senza, la scheda te lo dice e ti mostra ciò che
 l'app sa da sola (per un esercizio numerico lo svolgimento dell'assistente,
 i capitoli della lezione guidata della sezione). **«↺ Nuova spiegazione»**
 ricomincia; la conversazione non si salva.
+
+**Tutte le sezioni nell'ologramma.** Nella scheda «🧠 Spiega» apri il riquadro
+**«🗂️ Tutte le sezioni nell'ologramma»**: ci sono tutte le sezioni dell'app
+(194: 75 di chimica, 60 di fisica, 30 di matematica e 29 comuni), divise per
+gruppo come nella barra. Cercane una nella casella (per esempio «titolazione»,
+«Schrödinger», «integrali») o filtra per materia; toccala e Spectra la apre
+dietro la finestra, la mostra dal vivo nell'ologramma e spunta «📺 Includi lo
+schermo», così la spiegazione usa i suoi dati. Anche una sezione senza grafici
+(testo, tabelle, comandi, come la Tavola Periodica) compare nell'ologramma,
+come una scheda con il titolo, i comandi e il testo. **«🎞️ Mostrami tutto»**
+fa scorrere nell'ologramma tutte le sezioni della materia scelta (o tutte),
+una ogni 7 secondi, con il contatore («12/60 · …»); **«⏹ Ferma il giro»** lo
+ferma. Non serve nemmeno cercare: se nella domanda nomini un argomento
+(«spiegami le titolazioni», «lo spettro di massa», «la meccanica orbitale»),
+Spectra trova la sezione che ne parla, la apre dietro la finestra, la mostra
+nell'ologramma e la spiega con i dati del suo schermo. Le sezioni nuove
+compaiono da sole: l'elenco si legge dalla barra dell'app.
 
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](spectra/01-Analisi-modello-e-piano.md).

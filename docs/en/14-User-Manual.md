@@ -598,7 +598,8 @@ you are talking about (ask about orbits and the planets appear; talk about a
 spectrum and the spectrum appears) and, if you have a section open behind the
 Spectra window, it shows it live. **Tap the label at the top right of the
 hologram** («🪐 Orbite di Keplero · apri ›»…) to open the section where that
-scene is really studied. When answering, Spectra points at the hologram and
+scene is really studied. Every section of the app can be shown in the
+hologram (below, «Every section in the hologram»). When answering, Spectra points at the hologram and
 then explains with the hands. The buttons are in the bar under the scene.
 
 **Explain everything: «🧠 Spiega».** In the Spectra window open the second
@@ -621,11 +622,29 @@ at the image of the graphs: for an NMR spectrum it explains every signal
 (chemical shift, multiplicity, coupling constant, integral) and which atom it
 belongs to. **Note**: with the box checked the screen text and the image of the
 graphs go to the AI provider you configured, together with the question;
-uncheck it if you do not want that. A configured AI provider is needed, as for
+uncheck it if you do not want that (a question that names a section, or a
+section chosen from the catalogue below, checks it by itself). A configured AI provider is needed, as for
 the chat; without one, the tab tells you so and shows what the app knows on
 its own (the assistant's working for a numeric exercise, the chapters of the
 section's guided lesson). **«↺ Nuova spiegazione»** starts over; the
 conversation is not saved.
+
+**Every section in the hologram.** In the «🧠 Spiega» tab open the
+**«🗂️ Tutte le sezioni nell'ologramma»** card (in English «Every section in the
+hologram»): it lists every section of the app (194: 75 chemistry, 60 physics,
+30 mathematics and 29 shared), grouped as in the bar. Search for one in the box
+(for example «titration», «Schrödinger», «integrals») or filter by subject;
+tap it and Spectra opens it behind the window, shows it live in the hologram
+and checks «📺 Includi lo schermo», so the explanation uses its data. Even a
+section without graphs (text, tables, controls, such as the Periodic Table)
+appears in the hologram, as a card with the title, the controls and the text.
+**«🎞️ Mostrami tutto»** («Show me everything») runs through every section of
+the chosen subject (or all of them) in the hologram, one every 7 seconds, with
+a counter («12/60 · …»); **«⏹ Ferma il giro»** stops it. You do not even need
+to search: if your question names a topic (in Italian, for example
+«spiegami le titolazioni», «lo spettro di massa», «la meccanica orbitale»), Spectra finds the section about it, opens it
+behind the window, shows it in the hologram and explains it with its screen
+data. New sections appear by themselves: the list is read from the app bar.
 
 Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described
