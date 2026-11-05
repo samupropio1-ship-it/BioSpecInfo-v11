@@ -211,12 +211,12 @@ manuale, e la loro automazione è in programma.
 | Scientifici (SCI-01…59) | 57 | 57 | 100 % |
 | Agente AI (AI-01…18) | 17 | 17 | 100 % |
 | Stabilità (STA-01…08) | 8 | 8 | 100 % |
-| Interfaccia (UI-01…30) | 27 | 27 | 100 % |
+| Interfaccia (UI-01…31) | 28 | 28 | 100 % |
 | Sicurezza (SEC-01…09) | 7 | 7 | 100 % |
 | Architettura (ING-01…02) | 2 | 2 | 100 % |
-| **Totale automatizzato** | **118** | **118** | **100 %** |
+| **Totale automatizzato** | **119** | **119** | **100 %** |
 | Non automatizzati (§6) | 7 | 0 | 0 % |
-| **Totale dichiarato** | **125** | **118** | **94 %** |
+| **Totale dichiarato** | **126** | **119** | **94 %** |
 
 La copertura è calcolata sui requisiti **dichiarati in questo documento** e non
 va confusa con una copertura di codice: misura quanti requisiti hanno un banco
