@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v241` |
+| **Versione descritta** | `bsi-v242` |
 | **Scopo** | Procedura operativa per pubblicare, aggiornare e ripristinare l'applicazione. |
 
 ---
@@ -200,6 +200,24 @@ prima di `bsi-spectra-live.js`, che ne usa l'oggetto `BSILezione` quando
 riceve «fammi lezione»), nel precarico `PRECACHE` di `sw.js`, perché funzioni senza rete,
 e nell'elenco dei moduli di `tools/genera-sbom.js`, perché compaia nello SBOM.
 Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
+
+L'ultimo modulo aggiunto così è `bsi-spectra-esplora.js` (v242, «⚡ Esplora con
+Spectra»): in `index.html` con `defer`, **dopo** `bsi-fisica-comune.js`,
+perché registra le sue tre sezioni (`sesplchim`, `sesplfis`, `sesplmat`) con
+`BSIFisica.sezione` appena viene eseguito; nel `PRECACHE` di `sw.js`, accanto a
+`bsi-spectra-spiega.js`; nell'elenco di `tools/genera-sbom.js`. I tre
+contenitori `<div id="sesplchim" class="section">`… e i tre pulsanti della
+barra stanno in `index.html`. Il modulo non porta file 3D suoi: usa la figura
+condivisa di `bsi-spectra-figura.js`.
+
+Nella stessa versione `bsi-spectra-olointerattivo.js` (v242, l'ologramma
+interattivo «⛶ Interagisci») segue le stesse tre regole: in `index.html` con
+`defer`, **subito dopo** `bsi-spectra-figura.js`, che crea il pulsante
+sull'ologramma e sposta la figura nella sua finestra; nel `PRECACHE` di `sw.js`;
+nell'elenco di `tools/genera-sbom.js`. Usa three.js e la figura già caricati da
+`bsi-spectra-figura.js` e l'assistente locale (`bsi-assistente.js`,
+`bsi-mat-cas.js`), e non porta file di dati propri: molecole e pianeti sono nel
+codice.
 
 ### 2.2-quinquies Spectra Studio, una pagina a sé
 
@@ -433,4 +451,4 @@ restano la sola forma di copia di sicurezza.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v241`._
+_Documento aggiornato alla versione `bsi-v242`._

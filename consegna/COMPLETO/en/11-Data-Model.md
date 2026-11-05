@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v241` |
+| **Version described** | `bsi-v242` |
 | **Purpose** | Document where the data live, with what structure, and what lifecycle they have. |
 
 ---
@@ -159,6 +159,7 @@ the kit stays usable without remembering progress.
 | `bsi-spectra-creatore-v1` | JSON `{ ok: true, dal, ultima }` (milliseconds): the creator has been recognised on this device. **It contains neither the secret phrase nor its fingerprint** | Written when the proof succeeds; removed by «forget that I am your creator» or by «Clear data → Persistent memory» |
 | `bsi-spectra-studio-v1` | JSON per Spectra Studio lesson (`caduta`, `acqua`, `basilea`): `previsioni` (list of `{ quando, scelta, giusta }`) and `esercizi` (exercise index → time it was opened) | Written by `spectra-studio.html` at every prediction and every exercise opened; removed by «Clear data → Persistent memory» |
 | `bsi-spectra-studio-voce` | `'0'` if Spectra Studio's voice has been turned off with 🔇; absent or other than `'0'` = on | Written by the studio's voice switch; removed by «Clear data → Persistent memory» |
+| `bsi-esplora-v1` | JSON per «⚡ Explore with Spectra» chapter (v242): `{ <chapter id>: { giusta, quando } }` — the outcome of the last prediction (right or wrong) and when it was made (milliseconds); the «n/10» bar of each subject comes from here | Written by `bsi-spectra-esplora.js` at every prediction (reviewing a chapter already predicted does not rewrite it); removed by «Clear data → Persistent memory» |
 
 The mind is a simulation of behaviour: the key holds numbers and text,
 nothing else. Its summary (`BSISpectraMente.coscienza()`) is added to the
@@ -185,6 +186,11 @@ Spectra Studio (v239) derives from its key the recommended exercise level
 (right predictions plus exercises opened, up to 3) and also sends each
 prediction to the mind (`BSISpectraMente.ricorda`). The studio's body and scenes
 store nothing.
+
+«⚡ Explore with Spectra» (`bsi-spectra-esplora.js`, v242) keeps only the
+predictions, in `bsi-esplora-v1`; slider positions and the active chapter are
+not saved. It sends nothing to anyone: «🧠 Spiegamelo tutto» goes through
+«🧠 Spiega», with its rules.
 
 The quality voice (`bsi-spectra-voce.js`) reads the OpenAI key from
 `bsi_api_keys` and writes nothing: the audio received stays in an in-memory
@@ -304,7 +310,7 @@ everything. The groups are defined in `bsiCancellaDati()`.
 |---|---|
 | `chat` | Saved conversations and question history |
 | `chiavi` | API keys (including the old format), chosen provider, proxy address, memory of unreachable providers and models |
-| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) |
+| `memoria` | The assistant's persistent memory, Spectra's mind (`bsi-spectra-mente-v1`) the creator recognition (`bsi-spectra-creatore-v1`) and Spectra Studio (`bsi-spectra-studio-v1`, `bsi-spectra-studio-voce`) and the «⚡ Explore with Spectra» predictions (`bsi-esplora-v1`) |
 | `ripasso` | Spaced repetition |
 | `app` | Quizzes, notes, study path, data-science projects, chosen subject (`bsi-materia`), study-kit progress (`bsi-studio:*`) and the IndexedDB database `bsi-spectra-modelli` (the Spectra Studio body loaded from the device) |
 
@@ -332,4 +338,4 @@ Behaviour with space exhausted is verified by the `audit_quota` and
 
 ---
 
-_Document updated to version `bsi-v241`._
+_Document updated to version `bsi-v242`._

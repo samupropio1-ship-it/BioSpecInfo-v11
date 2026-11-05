@@ -43,7 +43,7 @@ quello che le serve. Da quel momento funziona anche senza campo.
 | Elemento | Dove si trova | A cosa serve |
 |---|---|---|
 | **🔍 Cerca** | In alto | Cerca in tutta l'app. Scorciatoia: `Ctrl+K` |
-| **Menu delle sezioni** | Barra di navigazione | Le 194 sezioni, raggruppate per materia |
+| **Menu delle sezioni** | Barra di navigazione | Le 197 sezioni, raggruppate per materia |
 | **✨** | In basso a destra | Strumenti, impostazioni e aggiornamenti |
 | **Spectra** | In basso a destra, il volto in un cerchio | L'assistente che risponde alle domande: un tocco apre la console, e da lì 💬 la chat |
 | **🎓 Lezione guidata** | Sotto il titolo di ogni sezione | Una lezione in capitoli sulla sezione, condotta da Spectra |
@@ -495,6 +495,13 @@ a voce e poi torna ad ascoltare, così puoi continuare senza toccare niente. Di'
 «stop» o tocca lo schermo per interromperlo. Se il browser non ha il
 riconoscimento o la sintesi vocale, la console lo dice e puoi scrivere.
 
+Nella console c'è **Spectra col corpo**, in piedi, con l'ologramma alla sua
+destra (non più il busto col solo volto): sul telefono fra la telemetria e il
+dialogo, sullo schermo grande a destra. Segue quello che fa la console: mentre
+ti ascolta è curioso, mentre elabora si porta la mano al mento, poi ti parla e
+gesticola. Quando chiudi la console, Spectra torna nella sezione dove l'avevi
+lasciata.
+
 Alcune richieste Spectra le esegue da sola, **senza rete e senza chiave**:
 «apri il planetario», «passa a fisica», «calcola 3/4 + 1/6», «derivata di
 x^2 sin(x)», «converti 5 km in m», «costante di Planck», «definisci
@@ -640,7 +647,7 @@ ricomincia; la conversazione non si salva.
 
 **Tutte le sezioni nell'ologramma.** Nella scheda «🧠 Spiega» apri il riquadro
 **«🗂️ Tutte le sezioni nell'ologramma»**: ci sono tutte le sezioni dell'app
-(194: 75 di chimica, 60 di fisica, 30 di matematica e 29 comuni), divise per
+(197: 76 di chimica, 61 di fisica, 31 di matematica e 29 comuni), divise per
 gruppo come nella barra. Cercane una nella casella (per esempio «titolazione»,
 «Schrödinger», «integrali») o filtra per materia; toccala e Spectra la apre
 dietro la finestra, la mostra dal vivo nell'ologramma e spunta «📺 Includi lo
@@ -655,6 +662,89 @@ ferma. Non serve nemmeno cercare: se nella domanda nomini un argomento
 Spectra trova la sezione che ne parla, la apre dietro la finestra, la mostra
 nell'ologramma e la spiega con i dati del suo schermo. Le sezioni nuove
 compaiono da sole: l'elenco si legge dalla barra dell'app.
+
+### ⛶ Interagire con l'ologramma
+
+Sull'ologramma, alla destra di Spectra, c'è il pulsante **«⛶ Interagisci»**
+(nelle sezioni dell'AI, nelle sezioni Esplora, nella scheda «🧠 Spiega» e nella
+console Spectra Live). Toccalo: l'ologramma si apre a tutto schermo, con Spectra
+accanto e, di lato, il pannello dei passaggi. Parte da ciò che l'ologramma
+stava mostrando; in alto puoi cambiare modalità.
+
+- **🧪 Spettri.** Scegli il tipo (IR, ¹H-NMR, ¹³C-NMR, massa, UV-Vis) e una
+  molecola (acetone, etanolo, acido acetico, benzene, toluene, acetato di
+  etile), oppure **scrivi la tua traccia** e lo spettro si ridisegna mentre
+  scrivi. Esempi: IR «1715 s, 2950 m, 3300 br» (numero d'onda e intensità:
+  s forte, m media, br larga); ¹H-NMR «2.17 s 6H; 1.2 t 3H J=7»; massa
+  «58 30, 43 100» (m/z e intensità); UV-Vis «254 200» (λ e ε). Ogni segnale
+  diventa un passaggio: dove sta, che forma ha, a che cosa si attribuisce e
+  perché. Nell'¹H-NMR scegli il campo dello strumento (da 60 a 600 MHz): i
+  multipletti si stringono o si allargano davvero, e un riquadro ingrandisce
+  quello scelto. Per le molecole vedi anche formula, massa molare e grado di
+  insaturazione.
+- **🪐 Universo.** Gli otto pianeti in 3D sulle loro orbite. Tocca un pianeta
+  (o sceglilo dall'elenco, o scrivi un'orbita come «a=2 e=0,6»): periodo,
+  perielio e afelio, velocità, gravità in superficie e velocità di fuga,
+  calcolati passo per passo.
+- **📐 Matematica** e **⚛️ Fisica e chimica.** Scrivi la domanda, per esempio
+  «studia f(x)=x^3-3x» o un proiettile o un pendolo: la risolve l'assistente
+  dell'app, senza rete, e il grafico cambia con la domanda (la funzione con la
+  derivata, gli zeri e gli estremi; la traiettoria; il pendolo che oscilla).
+
+Premi **«🔊 Spectra spiega i passaggi»**: Spectra li legge a voce uno per uno,
+e ognuno si illumina nel testo e nell'ologramma. Tocca un picco, un pianeta o
+un passaggio per andare lì. **«🧠 Approfondisci»** apre «🧠 Spiega» con i dati
+dell'ologramma (serve un fornitore di IA). Quando chiudi, Spectra torna nella
+sezione.
+
+Gli spettri delle sei molecole sono valori tipici di letteratura, per
+studiare: non sono spettri misurati. Dalla tua traccia l'app propone le
+attribuzioni possibili secondo le tabelle; non ti dice quale molecola è.
+
+### ⚡ Esplora con Spectra: una materia da scorrere
+
+Nella barra di chimica, di fisica e di matematica, subito dopo il pulsante
+«Area … · assistente», c'è **«⚡ Esplora la chimica con Spectra»** (e la
+fisica, e la matematica). È una pagina da scorrere, come una lezione
+esplorabile: **dieci capitoli**, dalla scuola superiore al PhD avanzato, alla
+frontiera della ricerca.
+
+- **Chimica**: l'energia di ionizzazione, la forma delle molecole (VSEPR), il
+  pH di un acido forte molto diluito, il tampone e Henderson–Hasselbalch, la
+  cinetica del primo ordine, la spettroscopia IR, l'¹H-NMR e l'accoppiamento,
+  gli orbitali molecolari di O₂, la teoria di Marcus e la regione invertita,
+  l'errore di delocalizzazione della DFT.
+- **Fisica**: la caduta dei gravi, il moto del proiettile, le leggi di
+  Keplero, il pendolo, il rendimento di Carnot, l'interferenza da due
+  fenditure, la particella in una scatola, l'effetto tunnel, la dilatazione
+  del tempo e i muoni, le onde gravitazionali (GW150914).
+- **Matematica**: la derivata come pendenza, il numero e, l'integrale e il
+  logaritmo, la serie di Basilea, la serie armonica, gli autovalori della
+  rotazione, Fourier e il fenomeno di Gibbs, i residui, l'equazione del
+  calore, l'ipotesi di Riemann.
+
+Mentre scorri, **Spectra resta in alto**, sotto la testata dell'app (sul
+telefono in un riquadro più basso, per lasciare spazio al testo). Il capitolo
+che hai davanti si illumina: Spectra te lo racconta, con le labbra e i gesti, e
+l'ologramma alla sua destra cambia scena. In ogni capitolo:
+
+1. **🔮 Prevedi** — tocca una delle quattro risposte. Subito vedi se era
+   giusta e **perché ogni risposta è giusta o sbagliata**; Spectra si
+   rallegra o si sorprende.
+2. **🧪 Prova** — in molti capitoli un cursore: muovilo e il numero si
+   ricalcola davvero (il pH, il tempo di caduta, il periodo del pendolo, il
+   fenomeno di Gibbs…).
+3. **📺 Guardalo dal vivo** — la sezione dell'app che mostra quel fenomeno si
+   apre dietro la finestra di Spectra e l'ologramma la proietta. Quando chiudi
+   la finestra torni al capitolo.
+4. **🧠 Spiegamelo tutto** — la spiegazione completa di «🧠 Spiega», al
+   livello del capitolo, con i dati della sezione (serve un fornitore di IA
+   configurato). **🔊 Ascolta Spectra** te lo legge a voce.
+
+In alto la barra **«Il tuo percorso»** conta i capitoli che hai già previsto
+(per esempio 3/10); un capitolo già fatto mostra «Già previsto ✓» o «✗» e
+puoi rivederlo toccando una risposta. Le previsioni restano su questo
+dispositivo; le cancella **«Cancella dati → Memoria persistente»**.
 
 Corpo, volto e voce imitano un comportamento: **non sono una coscienza**. Il
 progetto è descritto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md).
@@ -673,8 +763,10 @@ una chiave OpenAI.
 
 ### Il volto e la mente di Spectra
 
-Nella console Spectra ha un volto: un androide in 3D (il modello «Noir» di
+Spectra ha un volto: un androide in 3D (il modello «Noir» di
 Skyfox13, licenza CC BY 4.0, modificato; il credito è in basso nella console).
+Nella console, dalla v242, lo vedi sul corpo di Spectra, che prende il posto
+del busto.
 La bocca si muove sul testo che pronuncia, la testa segue lo sguardo, e
 l'espressione cambia con quello che dice e che gli dici: 17 espressioni, dal
 sorriso al dubbio. Gli occhi hanno il blu dell'app e cambiano sfumatura con
@@ -781,4 +873,4 @@ I dati sono sottoposti a controlli automatici, ma nessun controllo trova tutto.
 
 ---
 
-_Guida aggiornata alla versione `bsi-v241`._
+_Guida aggiornata alla versione `bsi-v242`._

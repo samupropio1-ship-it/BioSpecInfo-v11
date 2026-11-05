@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v241` |
+| **Versione descritta** | `bsi-v242` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -506,7 +506,7 @@ Metodi di un `Corpo`:
 |---|---|---|
 | `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Dalla v241 il corpo è **incorporato**: `carica()` scarica `models/spectra-corpo.bsi`, lo riapre (funzione interna `apri`: firma «BSIC», versione, lunghezza, byte mescolati con un flusso xorshift32 da un seme fisso) e lo passa a `daBuffer`; prima cancella un vecchio corpo dall'IndexedDB `bsi-spectra-modelli`, se c'è. Se il blocco non arriva: con `opz.soloDispositivo` (attivo per la figura di `monta`) nessun altro tentativo e `caricato = false`; senza (lo studio, in sviluppo) prova `models/spectra-corpo.glb`. Il ripiego `models/spectra-cyberpunk.glb` non c'è più. Nessun corpo sostitutivo (il manichino solo con `opz.manichino === true`, per il banco del driver). Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
 | `monta` | `(contenitore, opz?) → figura` | Riquadro da laboratorio con Spectra in piedi, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», pulsanti «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio» (dalla v241 niente «🧍 Corpo» né campo file); mentre il corpo arriva «Spectra sta arrivando…», se non arriva «Spectra non è arrivato: serve la rete la prima volta» con «↻ Riprova»; ascolta `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
-| `sezioni` | `(id[]) → figura` | Una figura condivisa (un contesto WebGL) spostata nella sezione dell'AI aperta (`sai`, `sareachim`, `sareafis`, `sareamat`); i file 3D si caricano alla prima apertura |
+| `sezioni` | `(id[]) → figura` | Una figura condivisa (un contesto WebGL) spostata nella sezione dell'AI aperta (`sai`, `sareachim`, `sareafis`, `sareamat`; dalla v242 anche `sesplchim`, `sesplfis`, `sesplmat`, dove la figura prende la classe `bsiEX-palco` e resta in scena mentre si scorre); i file 3D si caricano alla prima apertura. **Dalla v242 la console Spectra Live aperta ha la precedenza su tutto**: la figura va in `#bsiJV-figura` (creato se manca) e la console prende la classe `con-figura`, che nasconde il busto `#bsiJV-volto`; chiusa la console, la figura torna nella sezione |
 | `prepara` | `() → Promise` | Carica three.js, il caricatore GLB, il driver del corpo e il rig se non ci sono |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | L'IndexedDB del vecchio corpo caricato dall'utente (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`); dalla v241 `carica()` la usa solo per leggere e **togliere** un vecchio corpo, non ci scrive più |
 | `emozioneDi` | `(testo) → string` | L'emozione suggerita dal contenuto di una risposta |
@@ -526,7 +526,7 @@ Evento nuovo: **`bsi-spectra-tema`** (`CustomEvent` su `document`, `detail: { te
 | Simbolo | Firma | Descrizione |
 |---|---|---|
 | `costruisci` | `(pannello)` | Costruisce la scheda «🧠 Spiega» nel pannello dato (la chiama `bsi-ai-hub.js`): domanda, livello, casella «📺 Includi lo schermo» con la scheda dello schermo, domande rapide, «↺ Nuova spiegazione», il riquadro «🗂️ Tutte le sezioni nell'ologramma» (ricerca, filtro per materia, «🎞️ Mostrami tutto») |
-| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Tutte le sezioni della barra dell'app (`.nav-group-panel [data-s]`), con l'etichetta del gruppo e la materia (`BSIMaterie.materiaDi`; `'comune'` se nessuna): 194 sezioni (chimica 75, fisica 60, matematica 30, comuni 29). Letto dalla barra, non scritto a mano |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Tutte le sezioni della barra dell'app (`.nav-group-panel [data-s]`), con l'etichetta del gruppo e la materia (`BSIMaterie.materiaDi`; `'comune'` se nessuna): 197 sezioni dalla v242 (chimica 76, fisica 61, matematica 31, comuni 29). Letto dalla barra, non scritto a mano |
 | `sezioneDi` | `(testo) → voce del catalogo \| null` | La sezione che una domanda nomina: parole significative dei nomi (con radice), sigle (MS, IR, UV, NMR, MO…) pesate di più, sinonimi («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); a parità il nome più corto. Es. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
 | `mostraSezione` | `(id) → Promise<boolean>` | Apre la sezione dietro la finestra di Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve) e aggiorna lo schermo, così l'ologramma la mostra dal vivo |
 | `giro` | `(materia?)` | «🎞️ Mostrami tutto»: ogni sezione della materia (`'chimica'`, `'fisica'`, `'matematica'`; tutte se vuota) nell'ologramma, una ogni 7 s, con il contatore «n/N · nome» |
@@ -538,6 +538,40 @@ Evento nuovo: **`bsi-spectra-tema`** (`CustomEvent` su `document`, `detail: { te
 | `aggiornaSchermo` | `()` | Aggiorna la scheda dello schermo (titolo, numero di grafici e scene 3D, miniatura) |
 | `LIVELLI`, `PROFONDITA` | array | I cinque livelli (da Scuola superiore a PhD avanzato · frontiera) e che cosa si chiede a ciascuno |
 | `stato` | `() → { turni, livello, inCorso }` | Lo stato della conversazione |
+
+Evento **`bsi-spectra-stato`**, dalla v242 anche dalla console: `bsi-spectra-live.js` lo emette a ogni cambio di stato con `detail: { stato, dettaglio, daLive: true }` (`stato`: `'attesa'`, `'ascolta'`, `'pensa'`, `'parla'`); la figura reagisce (`'pensa'` → concentrata, gesto «pensa», mano al mento; `'ascolta'` → curiosa, «TI ASCOLTA»). La console ignora gli eventi con `daLive`: è la firma che impedisce alla console di richiamarsi all'infinito.
+
+### `window.BSIEsplora` — «⚡ Esplora con Spectra» (`bsi-spectra-esplora.js`, v242)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `CAPITOLI` | `{ chimica, fisica, matematica }` → array di 10 capitoli | Ogni capitolo: `id` (`c-…`, `f-…`, `m-…`), `liv` (0 Scuola superiore … 4 PhD avanzato · frontiera), `tit`, `sez` (l'id della sezione dell'app collegata), `scena` (la scena dell'ologramma: `orbitale`, `molecola`, `spettro`, `onda`, `pianeti`, `superficie`), `testo`, `pred: { d, o[4], g, p[4] }` (domanda, quattro risposte, indice della giusta, un perché per ognuna), `prova?: { et, min, max, passo, val }` (il cursore, in 19 capitoli su 30) |
+| `calcola` | `(id, valore) → { v, testo } \| null` | La grandezza del cursore di un capitolo: `v` il numero, `testo` la riga mostrata. Es. `calcola('c-ph', 8).v` ≈ 6,978 (HCl 10⁻⁸ M, con l'autoprotolisi), `calcola('f-pendolo', 1).v` ≈ 2,006 s, `calcola('m-armonica', 3).v` ≈ 7,4855; `null` per i capitoli senza cursore |
+| `costruisci` | `(materia, pannello) → elemento` | Costruisce la pagina della materia nel pannello: testa con la barra «n/10», i dieci capitoli (`section.cap`, id `bsiEX-<id>`) con previsione, prova e i pulsanti «📺 Guardalo dal vivo», «🧠 Spiegamelo tutto», «🔊 Ascolta Spectra»; allo scorrimento il capitolo che attraversa il centro dello spazio libero sotto la figura prende la classe `attivo`, emette `bsi-spectra-dice` e porta l'ologramma alla sua scena; imposta la variabile CSS `--bsiEX-top` (l'altezza della testata fissa dell'app) |
+| `gibbsMax` | `(N) → number` | Il massimo, calcolato numericamente su 4000 punti in (0, π/2], della somma parziale dell'onda quadra (4/π) Σ sin(kx)/k sui k dispari ≤ N (≈ 1,179 con N = 201) |
+| `SEZIONI` | `['sesplchim', 'sesplfis', 'sesplmat']` | Le tre sezioni, registrate con `BSIFisica.sezione` (una scheda, «⚡ Esplora») |
+| `MEM` | `'bsi-esplora-v1'` | La chiave `localStorage` delle previsioni: `{ <id capitolo>: { giusta, quando } }` |
+
+Il modulo si carica anche in node (`require`), senza `document`: `CAPITOLI`, `calcola` e `gibbsMax` sono funzioni pure, ed è così che `test_spectra_esplora` le confronta con le formule. «🧠 Spiegamelo tutto» usa `BSISpiega.chiedi(domanda, { schermo: true, livello, nonAprire: true })` dopo `BSISpiega.mostraSezione(sez)`.
+
+### `window.BSIOloInterattivo` — l'ologramma interattivo (`bsi-spectra-olointerattivo.js`, v242)
+
+| Simbolo | Firma | Descrizione |
+|---|---|---|
+| `apri` | `(modo?, testo?)` | Apre la finestra `#bsi-olo-ov` (costruita alla prima apertura; chiama `_bsiSyncFabs`, così i pulsanti flottanti si nascondono) nella modalità data — `'spettri'`, `'universo'`, `'matematica'`, `'fisica'` — o nell'ultima usata; `testo` precompila la traccia, l'orbita o la domanda. Emette `bsi-olo-interattivo` con `{ aperto: true }` |
+| `chiudi` | `()` | Ferma la voce, chiude la finestra ed emette `bsi-olo-interattivo` con `{ aperto: false }`; la figura condivisa torna nella sezione |
+| `modo` | `(modo, testo?)` | Passa a un'altra modalità (scheda in alto) e rifà ologramma e passaggi |
+| `stato` | `() → { aperto, modo, tipo, chi, MHz, passi, sel, dati }` | Lo stato: tipo di spettro, molecola o traccia (`chi`), campo NMR, titoli dei passaggi, passaggio scelto, i dati disegnati |
+| `imposta` | `(testo)` | Scrive nel campo della modalità (traccia, domanda o orbita) e ridisegna; per matematica e fisica avvia anche la risoluzione |
+| `scegli` | `(i, parla?)` | Sceglie il passaggio `i`, lo evidenzia nel testo e nell'ologramma; con `parla` Spectra lo dice |
+| `SPETTRI` | oggetto | Le sei molecole di riferimento (`acetone`, `etanolo`, `acetico`, `benzene`, `toluene`, `etile`): `nome`, `formula` e i segnali `ir`, `h1`, `c13`, `ms`, `uv` — valori tipici di letteratura, non spettri misurati |
+| `PIANETI` | array | Gli otto pianeti (scheda NASA): nome, semiasse (UA), eccentricità, periodo, massa, raggio, lune (al 2024), colore |
+| `spettro` | `(tipo, molecola \| traccia, { MHz }?) → { tipo, assi, curva, passi, segnali, righe, MHz }` | Lo spettro di una molecola o di una traccia scritta: la curva da disegnare e un passaggio per segnale (posizione, forma, attribuzione, perché); per l'¹H i multipletti in Hz convertiti in ppm con il campo (400 MHz se non indicato) |
+| `pianeta` | `(nome \| { a, e }) → { nome, a, e, T, q, Q, vq, vQ, passi }` | Periodo dalla terza legge (anni), perielio e afelio (UA), velocità vis-viva al perielio e all'afelio (km/s), e i passaggi (con gravità in superficie e velocità di fuga per i pianeti veri) |
+| `leggiTraccia` | `(tipo, testo) → segnali` | Interpreta una traccia scritta: IR «1715 s, 3300 br» (s/m/w, br = larga), ¹H «2.17 s 6H; 1.2 t 3H J=7», ¹³C un elenco di δ, MS «m/z intensità», UV «λ ε»; attribuzioni candidate dalle tabelle |
+| `massa`, `insaturazione` | `(formula) → number` | Massa molare (C, H, O, N) e grado di insaturazione C − H/2 + N/2 + 1 |
+
+Evento nuovo: **`bsi-olo-interattivo`** (`CustomEvent` su `document`, `detail: { aperto }`), all'apertura e alla chiusura della finestra. `bsi-spectra-figura.js` aggiunge il pulsante «⛶ Interagisci» sull'ologramma e, a finestra aperta, sposta la figura condivisa in `#bsiOI-figura`.
 
 ### `window.bsiLLM` — il fornitore della chat (`bsi-ai-hub.js`, v240)
 
@@ -569,4 +603,4 @@ anche `parti` (le mesh del modello per nome).
 
 ---
 
-_Documento aggiornato alla versione `bsi-v241`._
+_Documento aggiornato alla versione `bsi-v242`._

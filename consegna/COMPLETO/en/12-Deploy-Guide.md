@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v241` |
+| **Version described** | `bsi-v242` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -200,6 +200,24 @@ receives «fammi lezione»), in the `PRECACHE` list of `sw.js`, so that it works
 offline, and in the module list of `tools/genera-sbom.js`, so that it appears in
 the SBOM. A module missing from the precache works while there is a network and
 disappears offline.
+
+The latest module added this way is `bsi-spectra-esplora.js` (v242, «⚡ Explore
+with Spectra»): in `index.html` with `defer`, **after** `bsi-fisica-comune.js`,
+because it registers its three sections (`sesplchim`, `sesplfis`, `sesplmat`)
+with `BSIFisica.sezione` as soon as it runs; in the `PRECACHE` of `sw.js`, next
+to `bsi-spectra-spiega.js`; in the list of `tools/genera-sbom.js`. The three
+containers `<div id="sesplchim" class="section">`… and the three bar buttons
+are in `index.html`. The module brings no 3D files of its own: it uses the
+shared figure of `bsi-spectra-figura.js`.
+
+In the same version `bsi-spectra-olointerattivo.js` (v242, the «⛶ Interagisci»
+interactive hologram) follows the same three rules: in `index.html` with
+`defer`, **right after** `bsi-spectra-figura.js`, which creates the button on
+the hologram and moves the figure into its window; in the `PRECACHE` of
+`sw.js`; in the list of `tools/genera-sbom.js`. It uses three.js and the figure
+already loaded by `bsi-spectra-figura.js` and the local assistant
+(`bsi-assistente.js`, `bsi-mat-cas.js`), and brings no data files of its own:
+molecules and planets are in the code.
 
 ### 2.2-quinquies Spectra Studio, a page of its own
 
@@ -433,4 +451,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v241`._
+_Document updated to version `bsi-v242`._

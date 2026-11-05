@@ -7,6 +7,212 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v242] — 2026-11-05
+
+**«⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili; l'ologramma interattivo («⛶ Interagisci»); Spectra col corpo anche nella console Spectra Live**
+
+Richiesta dell'autore, guardando la console Spectra Live: «Esce ancora così
+(il busto) e soprattutto non c'è la sezione richiesta per ogni materia come
+every-joule».
+
+### Aggiunto
+- **`bsi-spectra-esplora.js`** (oggetto globale `BSIEsplora`): tre sezioni
+  nuove, una per materia, nella barra della loro materia subito dopo il
+  pulsante «Area … · assistente»: **«⚡ Esplora la chimica con Spectra»**
+  (`sesplchim`), **«⚡ Esplora la fisica con Spectra»** (`sesplfis`),
+  **«⚡ Esplora la matematica con Spectra»** (`sesplmat`). Sono registrate con
+  il framework delle sezioni `BSIFisica` (una scheda, «⚡ Esplora»).
+  - **Una pagina da scorrere**, nello stile delle lezioni esplorabili
+    (every-joule). **Spectra col corpo resta in scena in alto mentre si
+    scorre** (la figura condivisa, `position: sticky` subito sotto la testata
+    fissa dell'app, misurata da sé; sul telefono più bassa,
+    `clamp(220px, 32vh, 280px)`); l'ologramma cambia con il capitolo che si ha
+    davanti.
+  - **Dieci capitoli per materia, dalla Scuola superiore al PhD avanzato ·
+    frontiera.**
+    Chimica: l'atomo e l'energia di ionizzazione; la forma delle molecole
+    (VSEPR); il pH di un acido forte molto diluito; il tampone e
+    Henderson–Hasselbalch; la cinetica del primo ordine; la spettroscopia IR;
+    l'¹H-NMR e l'accoppiamento spin–spin; gli orbitali molecolari (perché O₂ è
+    magnetico); la teoria di Marcus e la regione invertita; la frontiera:
+    l'errore di delocalizzazione della DFT.
+    Fisica: la caduta dei gravi; il moto del proiettile; le leggi di Keplero;
+    il pendolo; il rendimento di Carnot; l'interferenza da due fenditure; la
+    particella in una scatola; l'effetto tunnel; la dilatazione del tempo e i
+    muoni; la frontiera: le onde gravitazionali (GW150914).
+    Matematica: la derivata come pendenza; il numero e; l'integrale e il
+    logaritmo; la serie di Basilea; la serie armonica; gli autovalori della
+    rotazione del piano; la serie di Fourier e il fenomeno di Gibbs; l'analisi
+    complessa e i residui; l'equazione del calore; la frontiera: l'ipotesi di
+    Riemann.
+  - **Ogni capitolo**: il fenomeno in poche righe esatte; **🔮 Prevedi**, una
+    domanda con quattro risposte (fra cui le idee sbagliate più comuni);
+    scelta la risposta, la rivelazione — giusta o no, e **perché ciascuna
+    risposta è giusta o sbagliata** — e Spectra reagisce (gioia se giusta,
+    sorpresa se no); **🧪 Prova**, in 19 capitoli su 30, un cursore che
+    ricalcola davvero la grandezza (pH con l'autoprotolisi dell'acqua,
+    Henderson–Hasselbalch, t½, ΔG‡ di Marcus e velocità relativa, tempo di
+    caduta, gittata, periodo del pendolo, Carnot, E₁ della particella in una
+    scatola, trasmissione per effetto tunnel, γ e percorso medio dei muoni,
+    derivata, (1+1/n)ⁿ, ln b, somme parziali di Basilea con la coda fra
+    1/(N+1) e 1/N, H_N contro ln N + γ, autovalori della rotazione, massimo di
+    Gibbs calcolato numericamente, decadimento di un modo dell'equazione del
+    calore); **«📺 Guardalo dal vivo»** apre la sezione dell'app collegata
+    dietro la finestra di Spectra (scheda «🧠 Spiega») e l'ologramma la mostra
+    dal vivo; chiusa la finestra, si torna alla sezione Esplora; **«🧠
+    Spiegamelo tutto»** chiede a «🧠 Spiega» la spiegazione al livello del
+    capitolo, con lo schermo della sezione; **«🔊 Ascolta Spectra»** legge il
+    capitolo con la voce di Spectra Live.
+  - **Scorrendo**, il capitolo che attraversa il centro dello spazio libero
+    sotto Spectra diventa «attivo» (funziona anche per i capitoli più alti
+    dello schermo): Spectra lo racconta (labiale e gesti, evento
+    `bsi-spectra-dice`) e l'ologramma prende la sua scena.
+  - **La memoria**: le previsioni fatte, giuste o sbagliate, per capitolo
+    (`localStorage`, chiave `bsi-esplora-v1`) e la barra dei progressi
+    «n/10»; un capitolo già previsto mostra «Già previsto ✓/✗» e si può
+    rivedere senza ripetere la reazione. Si cancella con «Cancella dati →
+    Memoria persistente».
+  - API: `BSIEsplora.CAPITOLI`, `calcola(id, valore)`, `costruisci(materia,
+    pannello)`, `gibbsMax(N)`, `SEZIONI`, `MEM`.
+- **L'ologramma interattivo, «⛶ Interagisci»** (`bsi-spectra-olointerattivo.js`,
+  oggetto globale `BSIOloInterattivo`). Richiesta dell'autore: «selezionare
+  l'ologramma e, una volta fatto, interagire: nei grafici i vari passaggi e i
+  dati, che significato hanno e come ci si è arrivati; nei pianeti o
+  nell'universo tutto ciò che li riguarda; negli spettri vederli modificare in
+  base alla traccia e ai dati che scrivo, selezionando i vari tipi di spettri;
+  in matematica o fisica, in base a cosa chiedo, l'ologramma si modifica in
+  tempo reale; tutto spiegato sia a voce da Spectra sia dettagliatamente, ogni
+  passaggio per iscritto».
+  - **Il pulsante «⛶ Interagisci»** sta sull'ologramma, ovunque ci sia la
+    figura (sezioni dell'AI, sezioni Esplora, finestra «🧠 Spiega», console
+    Spectra Live). Apre una finestra a tutto schermo (`#bsi-olo-ov`, chiamata
+    come le altre sovrapposizioni dell'app, così i pulsanti flottanti si
+    nascondono da soli con `_bsiSyncFabs`) con Spectra col corpo (la figura
+    condivisa ci si sposta), l'ologramma grande e il pannello dei passaggi. La
+    modalità si sceglie da ciò che l'ologramma stava mostrando.
+  - **🧪 Spettri**: IR, ¹H-NMR (campo da 60 a 600 MHz, con un riquadro
+    ingrandito del multipletto scelto, così si vedono la struttura n+1 e
+    J/ν₀), ¹³C-NMR, massa (EI), UV-Vis. Sei molecole di riferimento con
+    valori tipici di letteratura (acetone, etanolo, acido acetico, benzene,
+    toluene, acetato di etile), oppure **la traccia scritta dall'utente**
+    («1715 s, 2950 m, 3300 br» · «2.17 s 6H; 1.2 t 3H J=7» · «58 30, 43 100» ·
+    «254 200»): lo spettro si ridisegna mentre si scrive. Ogni segnale è un
+    passaggio: posizione, forma, attribuzione e **perché**, dalle tabelle delle
+    frequenze di gruppo, degli spostamenti chimici e delle perdite neutre; la
+    forma della banda conta (una banda stretta non si attribuisce mai a un
+    O–H carbossilico). Per le molecole: formula, massa molare e grado di
+    insaturazione C − H/2 + N/2 + 1.
+  - **🪐 Universo**: gli otto pianeti (valori della scheda NASA: semiasse,
+    eccentricità, periodo, massa, raggio, lune al 2024), in 3D con le orbite
+    di Keplero (equazione di Keplero risolta a ogni fotogramma; distanze
+    compresse come √a). Si tocca un pianeta; i passaggi: terza legge di
+    Keplero, perielio e afelio, velocità dalla vis-viva con il rapporto
+    (1+e)/(1−e), gravità in superficie, velocità di fuga. Oppure un'orbita
+    scritta («a=2 e=0,6»).
+  - **📐 Matematica** e **⚛️ Fisica e chimica**: la domanda la risolve
+    l'assistente dell'app (`bsi-assistente.js`, con il motore simbolico
+    `bsi-mat-cas.js`): **i passaggi sono calcolati, non scritti da un
+    modello**. Il grafico segue: la funzione con la derivata, gli zeri e i
+    punti stazionari, con la finestra adattata a loro; la traiettoria del
+    proiettile con quota massima e gittata; il pendolo che oscilla con il suo
+    periodo; per gli altri problemi, i risultati.
+  - **«🔊 Spectra spiega i passaggi»** li legge uno per uno con la voce di
+    Spectra Live, evidenziando ciascuno nel testo e nell'ologramma; toccando
+    un picco, un pianeta o un passaggio si va a quel passaggio e Spectra lo
+    dice; **«🧠 Approfondisci»** apre «🧠 Spiega» con i dati dell'ologramma.
+    Chiusa la finestra, Spectra torna nella sezione.
+  - API: `apri(modo, testo)`, `chiudi()`, `modo()`, `stato()`,
+    `imposta(testo)`, `scegli(i)`, `SPETTRI`, `PIANETI`, `spettro(tipo,
+    molecola|traccia, { MHz })`, `pianeta(nome|{a, e})`, `leggiTraccia`,
+    `massa`, `insaturazione`. Evento `bsi-olo-interattivo` (`{ aperto }`).
+  - **Detto con onestà**: gli spettri di riferimento sono valori tipici di
+    letteratura per la didattica, non spettri misurati; l'interprete della
+    traccia dà attribuzioni candidate dalle tabelle, non una
+    determinazione della struttura.
+
+### Cambiato
+- **La console Spectra Live mostra Spectra col corpo e l'ologramma al posto
+  del busto** (`bsi-spectra-figura.js`). Quando la console è aperta, la
+  figura condivisa si sposta nella console (`#bsiJV-figura`, fra la
+  telemetria e il dialogo; sullo schermo grande a destra) e il busto solo
+  volto (`#bsiJV-volto`) è nascosto. Lo stato della console (attesa, ascolta,
+  pensa, parla) guida la figura con l'evento `bsi-spectra-stato`: pensa →
+  concentrata, mano al mento; ascolta → curiosa. Chiusa la console, la figura
+  torna nella sezione.
+- **Il catalogo di «🧠 Spiega»** ha ora **197 sezioni** (chimica 76, fisica
+  61, matematica 31, comuni 29): le tre sezioni Esplora compaiono da sole.
+  Le sezioni Esplora contano come sezioni dell'AI (`bsi-spectra-spiega.js`):
+  chiudendo la finestra di Spectra si torna lì.
+- **«Cancella dati → Memoria persistente»** cancella anche `bsi-esplora-v1`
+  (`bsi-ai-hub.js`).
+
+### Corretto
+- **Ricorsione infinita fra la console e la figura**, trovata dal banco:
+  la console emette ora `bsi-spectra-stato` per la figura, e ascoltava lo
+  stesso evento. L'evento della console porta la firma `daLive: true` e la
+  console ignora i propri eventi.
+
+### Banco
+- Nuovo **`test_spectra_esplora`** (75 controlli). In node, per ogni
+  materia: dieci capitoli; livelli da 0 a 4 in ordine; previsioni ben
+  formate (quattro risposte, l'indice della giusta, un perché per ognuna);
+  identificativi unici. Poi 22 controlli numerici dei cursori contro le
+  formule: pH di HCl 10⁻⁸ M = 6,978 con l'autoprotolisi; 10⁻² M = 2;
+  Henderson–Hasselbalch pH = pKa a rapporto 1; t½ = 6,931 s a k = 0,1 s⁻¹;
+  barriera di Marcus nulla a ΔG° = −λ e λ/4 a −2λ; caduta da 20 m in
+  2,019 s; gittata a 45° 40,775 m; pendolo da 1 m 2,006 s; Carnot 600/300 K =
+  0,5; scatola di 1 nm 0,376 eV e ×4 dimezzandola; tunnel, spessore doppio =
+  trasmissione al quadrato; γ dei muoni 31,63 a 0,9995c; derivata 12; e entro
+  2·10⁻⁶ con n = 10⁶; ∫₁ᵉ dx/x = 1; Basilea con 10⁵ termini = π²/6 − 10⁻⁵;
+  armonica con 1000 termini 7,4855; autovalori della rotazione ±i; massimo di
+  Gibbs ≈ 1,179 con 201 termini; modo del calore e^(−0,4). Nel browser, a 412
+  e 1280 px: le tre sezioni nella barra della loro materia, ogni sezione
+  collegata esiste; per ogni materia dieci capitoli e Spectra nella sezione,
+  sticky, ancora in vista dopo lo scorrimento; il capitolo davanti è attivo e
+  l'ologramma prende la sua scena; prevedere segna la giusta e la sbagliata
+  con il perché di ogni risposta e Spectra reagisce (sorpresa); memoria e
+  barra (1/10); il cursore ricalcola; a 412 px niente sborda; «📺 Guardalo dal
+  vivo» apre la sezione dietro la finestra di Spectra con l'ologramma dal
+  vivo, e chiudendo si torna alla sezione Esplora; nessun errore JavaScript.
+- Nuovo **`test_spectra_olo`** (46 controlli: 15 in node, 16 a 412 px, 15 a
+  1280 px). In node: sei molecole con i cinque spettri; massa molare
+  dell'acetone 58,08 g/mol; insaturazione benzene 4, acetone 1, etanolo 0;
+  tripletto del CH₃ largo 2J/ν₀ a 400 MHz, 10 volte più largo a 60 che a
+  600 MHz; traccia IR (1715 → C=O; 2950 stretta → C–H sp³, non O–H acido;
+  3300 larga → O–H); traccia MS (58 → ione molecolare; 43 → M − 15 e
+  acilio); Terra T = 1 anno, vis-viva 30,29 / 29,29 km/s; Marte rapporto
+  (1+e)/(1−e); gravità di Marte 3,71 m/s²; fuga dalla Terra 11,19 km/s;
+  un'orbita scritta a = 4 UA → T = 8 anni. Nel browser, per larghezza: il
+  pulsante apre la finestra in «spettri»; la figura ci si sposta; i pulsanti
+  flottanti spariscono; cambio di tipo e traccia scritta ridisegnano e
+  rifanno i passaggi; traccia di massa con due passaggi; toccando il picco 43
+  si sceglie il suo passaggio e Spectra lo dice; Marte con sei passaggi nella
+  scena 3D; matematica: zeri −√3, 0, √3 e punti stazionari ±1, almeno otto
+  passaggi dell'assistente; proiettile, gittata 35,31 m; pendolo da 2 m,
+  2,837 s; la voce dice tutti i passaggi; a 412 px niente sborda;
+  «🧠 Approfondisci» apre Spiega; Spectra torna nella sezione; nessun errore
+  JavaScript.
+- `test_spectra_figura` passa a **109 controlli** (55 a 412 px, 54 a
+  1280 px): +3 per larghezza sulla console (la figura al posto del busto; lo
+  stato → mano al mento; chiusa la console, la figura torna nella sezione).
+  Il controllo sugli SVG ora inserisce nella sezione aperta uno spettro SVG
+  noto (deterministico) invece di dipendere dal quiz degli spettri, che è
+  casuale; la misura del viso sul colletto aspetta il regime.
+- La batteria passa da 83 a 85 banchi. I file tracciati esaminati da
+  `verifica-sicurezza` passano da 570 a 577: +4 di questa versione
+  (`bsi-spectra-esplora.js`, `tools/banchi/test_spectra_esplora.js`,
+  `bsi-spectra-olointerattivo.js`, `tools/banchi/test_spectra_olo.js`) e +3
+  dalla consegna della v241 (le copie di `impacchetta-corpo.js` nei pacchetti
+  AZIENDA, COMPLETO e TESI).
+
+### Non incluso
+- I banchi controllano i numeri, la struttura e il comportamento delle
+  sezioni Esplora, non la qualità didattica dei testi né la voce.
+- L'ologramma interattivo non legge spettri misurati da file (per quello c'è
+  il lettore di spettri) e non deduce una struttura da una traccia: propone
+  attribuzioni candidate.
+
+---
 ## [bsi-v241] — 2026-11-05
 
 **Il corpo di Spectra sempre presente, incorporato nell'app; tolto il pulsante «🧍 Corpo»**

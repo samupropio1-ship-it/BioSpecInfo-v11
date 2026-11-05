@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v241` |
+| **Version described** | `bsi-v242` |
 | **Purpose** | Describe what the product does, for whom, under which rules and with which limits. |
 
 ---
@@ -53,7 +53,7 @@ distinction of permissions. The File Manager has a local protection that is a
 
 ## 3. Functional areas
 
-The application has **194 sections**, grouped by area of study.
+The application has **197 sections**, grouped by area of study.
 
 ### 3.1 Spectroscopy
 
@@ -368,6 +368,15 @@ exercise; buttons «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
 One figure for the whole app. Spectra's icon is the face only. The buttons sit
 in a bar under the scene.
 
+**Spectra with the body in the Spectra Live console** (`bsi-spectra-figura.js`,
+v242). The author's request, looking at the console: «it still comes out like
+this (the bust)». While the console is open, the face-only bust is replaced by
+Spectra with the body and the hologram (the same figure, moved into the
+console, between the telemetry and the dialogue; on a large screen on the
+right). The console's state drives the figure: while listening it is curious,
+while working it is concentrated with its hand on its chin, then it speaks.
+With the console closed, the figure returns to the section it came from.
+
 **The hologram** (`bsi-spectra-figura.js`, v240). To Spectra's right (the
 viewer's right) a holographic screen shows live scenes, computed rather than
 recorded: four planets on Kepler orbits (Kepler's equation solved every frame,
@@ -424,8 +433,8 @@ and mathematics must be there, nothing may be missing from this hologram:
 everything must be explainable and showable). The catalogue is not written by
 hand: it is read from the app bar (every section button, with its group —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — and its subject): 194 sections
-(chemistry 75, physics 60, mathematics 30, shared 29); a new section appears by
+Utility, Fisica, Matematica, Astrofisica — and its subject): 197 sections
+(chemistry 76, physics 61, mathematics 31, shared 29, since v242); a new section appears by
 itself. In the «🧠 Spiega» tab the collapsible card **«🗂️ Tutte le sezioni
 nell'ologramma»** lists them by group, with a search box and a subject
 filter; one tap opens the section behind the Spectra window (switching subject
@@ -447,6 +456,66 @@ about the screen check it again (explicit choice). Examples: titolazioni → Tit
 Schrödinger equation, integrali per parti → «Derivate, integrali e serie»,
 spettro di massa → Spettro MS, spettro infrarosso → IR Visivi, meccanica
 orbitale → 3D orbital mechanics; «ciao come stai» → none.
+
+**The interactive hologram, «⛶ Interagisci»** (`bsi-spectra-olointerattivo.js`,
+v242). The author's request: select the hologram and interact with it, with
+every step explained aloud by Spectra and in writing. The **«⛶ Interagisci»**
+(interact) button sits on the hologram wherever the figure is (AI sections,
+Explore sections, the «🧠 Spiega» window, the Spectra Live console) and opens a
+full-screen window with Spectra with the body, the big hologram and the steps
+panel; the app's floating buttons hide. The mode starts from what the hologram
+was showing:
+
+| Mode | What you do | What the steps explain |
+|---|---|---|
+| 🧪 Spectra | IR, ¹H-NMR (field 60–600 MHz, with the selected multiplet zoomed in), ¹³C-NMR, mass (EI), UV-Vis; one of six reference molecules (acetone, ethanol, acetic acid, benzene, toluene, ethyl acetate) or a written trace («1715 s, 2950 m, 3300 br», «2.17 s 6H; 1.2 t 3H J=7», «58 30, 43 100», «254 200»), redrawn while you type | For each signal position, shape, assignment and why (group frequencies, chemical shifts, neutral losses; a narrow band is never a carboxylic O–H); for molecules formula, molar mass, degree of unsaturation |
+| 🪐 Universe | The eight planets in 3D (NASA data, Kepler orbits, distances compressed as √a); tap a planet, or write an orbit («a=2 e=0,6») | Kepler's third law, perihelion and aphelion, vis-viva speeds and the (1+e)/(1−e) ratio, surface gravity, escape velocity |
+| 📐 Mathematics, ⚛️ Physics and chemistry | Write the question; the app's own assistant (`bsi-assistente.js`, `bsi-mat-cas.js`) solves it and the graph follows: function and derivative with zeros and stationary points; projectile trajectory; swinging pendulum | The steps computed by the assistant, not written by a model |
+
+**«🔊 Spectra spiega i passaggi»** reads them one by one, highlighting each in
+the text and on the hologram; tapping a peak, a planet or a step jumps there and
+Spectra says it; **«🧠 Approfondisci»** opens «🧠 Spiega» with the hologram's
+data. With the window closed, Spectra returns to the section. The reference
+spectra are typical literature values for teaching, not measured spectra; from
+a trace the interpreter proposes candidate assignments taken from tables, it
+does not determine a structure.
+
+**⚡ Explore with Spectra** (`bsi-spectra-esplora.js`, v242). The author's
+request: «there is no section for each subject like every-joule». Three
+sections, one per subject, in their subject's bar right after the «Area … ·
+assistente» button: **«⚡ Esplora la chimica con Spectra»**, **«⚡ Esplora la
+fisica con Spectra»**, **«⚡ Esplora la matematica con Spectra»**. Each is a
+page to scroll, in the style of explorable lessons: Spectra with the body stays
+on stage at the top while scrolling (right under the app header; shorter on a
+phone) and the hologram changes with the chapter in front. Ten chapters per
+subject, from high school to advanced PhD · frontier:
+
+| Subject | Chapters |
+|---|---|
+| Chemistry | the atom and ionisation energy · the shape of molecules (VSEPR) · the pH of a very dilute strong acid · buffers and Henderson–Hasselbalch · first-order kinetics · IR spectroscopy · ¹H-NMR and spin–spin coupling · molecular orbitals: why O₂ is magnetic · Marcus theory and the inverted region · the frontier: the delocalisation error of DFT |
+| Physics | falling bodies · projectile motion · Kepler's laws · the pendulum · Carnot efficiency · two-slit interference · the particle in a box · tunnelling · time dilation and muons · the frontier: gravitational waves (GW150914) |
+| Mathematics | the derivative as a slope · the number e · the integral and the logarithm · the Basel series · the harmonic series · eigenvalues: the rotation of the plane · Fourier series and the Gibbs phenomenon · complex analysis and residues · the heat equation · the frontier: the Riemann hypothesis |
+
+Each chapter: the phenomenon in a few exact lines; **🔮 Prevedi** (predict),
+four answers including the most common misconceptions, then the reveal (right
+or wrong, and why each answer is right or wrong) and Spectra reacts (joy or
+surprise); **🧪 Prova** (try), in 19 chapters out of 30, a slider that
+recomputes the real quantity (pH with water autoprotolysis,
+Henderson–Hasselbalch, t½, Marcus ΔG‡ and relative rate, fall time, range,
+pendulum period, Carnot, the box's E₁, tunnelling transmission, muon γ and mean
+path, derivative, (1+1/n)ⁿ, ln b, Basel sums with the tail, H_N against
+ln N + γ, rotation eigenvalues, the computed Gibbs maximum, the decay of a heat
+mode); **«📺 Guardalo dal vivo»** (watch it live) opens the linked section
+behind the Spectra window («🧠 Spiega» tab) and the hologram shows it live, and
+closing the window returns to the Explore section; **«🧠 Spiegamelo tutto»**
+(explain it all) asks «🧠 Spiega» for the explanation at the chapter's level,
+with the section's screen (an AI provider is needed); **«🔊 Ascolta Spectra»**
+reads the chapter with the Spectra Live voice. While scrolling, the chapter
+crossing the middle of the free space under Spectra becomes «active» (even when
+taller than the screen): Spectra tells it, with lip-sync and gestures, and the
+hologram takes its scene. Predictions stay on the device (`bsi-esplora-v1`)
+with the «n/10» progress bar, and are erased by «Cancella dati → Memoria
+persistente».
 
 Body, face and mind are a
 simulation of behaviour, not consciousness.
@@ -550,6 +619,36 @@ reaches, **without needing any key**.
    the camera. Without WebGL the panel with all the text remains
 ```
 
+### 4.8 Exploring a subject with Spectra (v242)
+
+```
+1. Subject bar → «⚡ Esplora la chimica / la fisica / la matematica con
+   Spectra» (right after the area with the assistant)
+2. Scroll: Spectra stays at the top, the chapter in front becomes active,
+   Spectra tells it and the hologram takes its scene
+3. PREDICT — tap one of the four answers; the reveal explains each one,
+             Spectra reacts, the «n/10» bar advances
+4. TRY     — move the slider: the quantity is recomputed
+5. «📺 Guardalo dal vivo» — the linked section behind the Spectra window,
+   live on the hologram; closing returns here
+6. «🧠 Spiegamelo tutto» — the full explanation at the chapter's level;
+   «🔊 Ascolta Spectra» — the chapter read aloud
+```
+
+### 4.9 Interacting with the hologram (v242)
+
+```
+1. On Spectra's hologram → «⛶ Interagisci»: full-screen window
+2. Choose the mode: 🧪 Spectra · 🪐 Universe · 📐 Mathematics ·
+   ⚛️ Physics and chemistry
+3. Change the spectrum type or molecule, write a trace, tap a planet or
+   write the question: the hologram is redrawn and the steps redone
+4. «🔊 Spectra spiega i passaggi» — one by one, highlighted; tapping a
+   peak, a planet or a step jumps there
+5. «🧠 Approfondisci» — «🧠 Spiega» with the hologram's data
+6. With the window closed, Spectra returns to the section
+```
+
 ---
 
 ## 5. Business rules
@@ -626,4 +725,4 @@ Not commitments: directions consistent with the architecture.
 
 ---
 
-_Document updated to version `bsi-v241`._
+_Document updated to version `bsi-v242`._

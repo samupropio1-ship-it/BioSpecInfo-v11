@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v241` |
+| **Version described** | `bsi-v242` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**83 benches**, grouped by what they demonstrate.
+**85 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -294,7 +294,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -356,7 +356,7 @@ development; the call to OpenAI and listening to the voice (the bench does
 not reach OpenAI and does not listen); the visual quality of the body and
 gestures, which has to be judged by looking.
 
-**`test_spectra_figura` — 103 checks (52 at 412 px, 51 at 1280 px).** It comes
+**`test_spectra_figura` — 109 checks (55 at 412 px, 54 at 1280 px).** It comes
 from the author's request: Spectra's icon with the face only and, in every AI
 section, Spectra with the body, «and nothing else». It tests
 `bsi-spectra-figura.js` in the app, on a phone (412 px) and on a large screen
@@ -368,11 +368,12 @@ section, Spectra with the body, «and nothing else». It tests
 | Icon | Spectra's button is the face only; the «Spectra» pill is hidden |
 | The four sections | In Spectra AI (`sai`) and in the areas with the assistant (`sareachim`, `sareafis`, `sareamat`) the figure is **inside the section, under the title**, at least 280 px tall; in the whole app there is **one figure only** (one WebGL context); for the sections outside `#main` no empty space above (`#main` at most 12 px tall; measured 0) |
 | The embedded body | Spectra's body is always there, without loading it: embedded in the app (bones 20/23); no «🧍 Corpo» button and no file choice (the buttons are «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio») |
-| With the body | The «Noir» face rests on the collar (0.0 cm); of the face model only `Object_2`, `Object_3`, `Object_4` are visible |
+| With the body | The «Noir» face rests on the collar (0.0 cm, measured at steady state: the bench waits for the alignment of the first frames to finish); of the face model only `Object_2`, `Object_3`, `Object_4` are visible |
+| Spectra Live console (3 per width, v242) | With the console open, **Spectra with the body (and the hologram) takes the place of the bust**: the figure is inside `#bsiJV-figura`, more than 150 px tall, and the bust `#bsiJV-volto` is hidden; the figure follows the console's state (working → «pensa» gesture, hand on chin); with the console closed, the figure returns to the section |
 | Reactions | `bsi-spectra-stato` «pensa» → «pensa» gesture and concentrated emotion; `bsi-spectra-risposta` → Spectra first points at the hologram («indica» gesture), then accompanies the explanation with the hands («spiega»), joy, lip sync on body and face; a failed answer → doubt; Spectra Live speaking → the figure speaks with it; the local assistant solving «deriva x^2» → «Ecco lo svolgimento…» and a warm smile |
-| «🧠 Spiega» (14 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG spectra (the spectra quiz) as an image; reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image); with that scene open behind «🧠 Spiega» the hologram shows it live; privacy: with «Includi lo schermo» unchecked, the named section opens but the model receives only the question, with no screen text or image |
+| «🧠 Spiega» (14 per width) | «🧠 Spiega» is the second tab of the Spectra window and «Lezione» is gone; the figure moves into the tab; with a spectrum open («Spettri Ref.» in the Spectra centre) it reads the screen: at least one graph, the control values, the image; five levels; the model receives the screen text, the question and **the image**; the request asks for an exhaustive, non-simplified explanation, with the quantitative reading of the spectrum (δ, multiplicity, J, integral) and of 3D scenes; the mandatory structure; the answer arrives formatted (titles and table) and Spectra thinks while it is written; the follow-up question continues the conversation without re-sending the image; at advanced PhD frontier, open problems and primary literature; without a model it does not pretend; reads SVG graphs as an image (since v242 the bench inserts a known SVG spectrum into the open section, deterministically, instead of relying on the spectra quiz, which is random); reads a 3D scene («Meccanica orbitale 3D»: 2 canvases, image); with that scene open behind «🧠 Spiega» the hologram shows it live; privacy: with «Includi lo schermo» unchecked, the named section opens but the model receives only the question, with no screen text or image |
 | Hologram (7 per width) | It is **to Spectra's right** (screen x); there are **six live scenes**; Kepler: the ratio of perihelion to aphelion speed equals (1+e)/(1−e) = 1.94 within 8 %; **the subject follows the conversation** (an IR answer → spectrum, an orbit question → planets); the label leads to the section; a tap on the label opens «Sistema solare 3D» **behind** the «🧠 Spiega» window: Spectra stays visible in front and the hologram shows the section live; once the window is closed, the app returns to Spectra's section and the figure is there |
-| Catalogue (5 per width) | The catalogue has **every** section of the bar (194/194: chemistry 75, physics 60, mathematics 30, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
+| Catalogue (5 per width) | The catalogue has **every** section of the bar (197/197 since v242: chemistry 76, physics 61, mathematics 31, shared 29); a question that names a topic finds its section (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → none); asking about titrations, Spectra opens the section behind the window, shows it in the hologram and explains it with its data; a section without graphs (Periodic Table) is projected as a card on the hologram; «🎞️ Mostrami tutto» runs through the subject's sections |
 | Phone | The figure's buttons do not end up under the floating buttons |
 | Errors | No JavaScript errors, at each width |
 
@@ -385,6 +386,49 @@ voice; the quality of a real model's explanation: the model's answers are
 simulated, and the bench checks what is sent (screen text, image, level,
 requested structure) and how it is shown, not what a real model would
 explain.
+
+**`test_spectra_esplora` — 75 checks (v242).** It comes from the author's
+request: «there is no section for each subject like every-joule». It tests
+`bsi-spectra-esplora.js`: in node the chapters and the slider numbers, in the
+browser (412 and 1280 px) the three «⚡ Explore with Spectra» sections.
+
+| Part | What it requires |
+|---|---|
+| Chapters (12, in node) | For chemistry, physics and mathematics: **ten chapters**; levels from 0 (high school) to 4 (advanced PhD · frontier), in order; every prediction has **four answers**, the index of the right one and **a reason for each**; the ids are unique |
+| Slider numbers (22, in node) | Against the formulas: pH of HCl 10⁻⁸ M = **6.978** with water autoprotolysis, 10⁻² M = 2; Henderson–Hasselbalch pH = pKa at ratio 1; t½ = ln 2/k = **6.931 s** at k = 0.1 s⁻¹; Marcus, zero barrier at ΔG° = −λ and **λ/4 at −2λ** (inverted region); fall from 20 m in **2.019 s**; range at 45° with v₀ = 20 m/s **40.775 m**; 1 m pendulum **2.006 s**; Carnot between 600 and 300 K = 0.5; particle in a 1 nm box **0.376 eV**, ×4 when halved; tunnelling, double thickness → transmission squared; muon γ at 0.9995c = **31.63**; derivative of x³ at 2 = 12; (1+1/n)ⁿ with n = 10⁶ within 2·10⁻⁶ of e; ∫₁ᵉ dx/x = 1; Basel with 10⁵ terms = π²/6 − 10⁻⁵; harmonic with 1000 terms **7.4855**; eigenvalues of the 90° rotation ±i; Gibbs maximum with 201 terms ≈ **1.179**; heat mode k = 2 at t = 0.1 → e^(−0.4) |
+| The bar (1 per width) | The three sections (`sesplchim`, `sesplfis`, `sesplmat`) are in their subject's bar, and every chapter links to a section that exists |
+| Per subject (5 per subject and width) | Ten chapters and **Spectra with the body in the section, `sticky`, still in view after scrolling** (under the app header); the chapter in front (the fifth, brought to the middle) is **active** and the hologram takes its scene; predicting with a wrong answer marks the right and the wrong one, with the reason for each answer, and **Spectra reacts** (surprise); the memory (`bsi-esplora-v1`) remembers the prediction and the bar advances (1/10); the slider recomputes |
+| Phone (3) | At 412 px nothing overflows, for each subject |
+| Watch it live (2 per width) | «📺 Guardalo dal vivo» opens the linked section **behind** the Spectra window («🧠 Spiega» tab) and the hologram shows it live («schermo» scene); with the window closed, the app returns to the Explore section (`sesplmat`) |
+| Errors (1 per width) | No JavaScript error |
+
+Left out: the voice of «🔊 Ascolta Spectra» (headless Chromium has no speech
+synthesis); the explanation of «🧠 Spiegamelo tutto», which depends on a model
+(the path is the one of «🧠 Spiega», tested by `test_spectra_figura`); the
+didactic quality of the texts, which has to be judged by reading.
+
+**`test_spectra_olo` — 52 checks (15 in node, 19 at 412 px, 18 at 1280 px; v242).**
+It comes from the author's request to select the hologram and interact with
+it, with every step explained. It tests `bsi-spectra-olointerattivo.js`.
+
+| Part | What it requires |
+|---|---|
+| Spectra (8, in node) | Six reference molecules, each with the five spectra (IR, ¹H, ¹³C, mass, UV); molar mass of acetone **58.08 g/mol**; degree of unsaturation benzene 4, acetone 1, ethanol 0; the CH₃ triplet at 400 MHz **2J/ν₀** wide; at 60 MHz the multiplet is **10 times** wider than at 600 MHz; IR trace: 1715 → C=O, narrow 2950 → sp³ C–H and **not** acid O–H, broad 3300 → O–H; MS trace: 58 → molecular ion, 43 → M − 15 (CH₃·) and the CH₃CO⁺ acylium |
+| Universe (7, in node) | Earth: Kepler period 1 year, vis-viva **30.29 km/s** at perihelion and **29.29 km/s** at aphelion; Mars: speed ratio = (1+e)/(1−e), surface gravity **3.71 m/s²**; Earth escape velocity **11.19 km/s**; a written orbit with a = 4 AU → T = 8 years |
+| The window (3 per width) | The «⛶ Interagisci» button is on the hologram and opens the window in «spettri» mode (because the hologram was showing a spectrum); Spectra with the body moves into it; the app's floating buttons disappear |
+| Live spectra (3 per width) | Changing type (IR) and writing a trace redoes the spectrum and the steps (1715 and 2950 cm⁻¹ among the steps); a mass trace with two peaks gives two steps; tapping the peak at m/z 43 selects its step and Spectra says it |
+| Voice, tap and Spiega without a key (3 per width) | Once a trace is written, Spectra explains it **aloud on her own** after 1.4 s, without touching «🔊»; a tap **on the hologram itself** (the panel to Spectra's right, hit with a ray from the camera) opens it in interactive mode; «🧠 Spiega» **without a key** still answers the question (pH of 0.01 M HCl: the local assistant's full working) and says it aloud |
+| Universe, mathematics, physics (5 per width) | Mars with its six steps, in the 3D scene; «studia f(x)=x^3-3x» → zeros −√3, 0, √3 and stationary points ±1, with at least eight assistant steps; the projectile with range **35.31 m**; the 2 m pendulum with period **2.837 s** |
+| Voice, Spiega, return (3 per width) | «🔊 Spectra spiega i passaggi» says them all; «🧠 Approfondisci» opens «🧠 Spiega»; with the windows closed, Spectra returns to the section |
+| Phone (1) | At 412 px nothing overflows |
+| Errors (1 per width) | No JavaScript error |
+
+Left out: the real voice (headless Chromium has no speech synthesis: the bench
+checks that every step is spoken, not how it sounds); a real model's
+explanation after «🧠 Approfondisci»; the chemical correctness of every value
+of the six molecules, which are typical literature values for teaching, not
+measured spectra; the trace interpreter proposes candidate assignments from
+tables, it does not determine a structure.
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
@@ -832,11 +876,11 @@ two different things and must not be confused.
 |---|---|---|
 | **Code coverage** | Measured: **49.89 %** of statements over the widest path. What stays outside is whole-battery coverage and **branch** coverage: an `if` entered from one side only counts as covered | Extend collection to every bench, and move from statement coverage to branch coverage |
 | **Accessibility** | Automated over 13 pages and all 194 sections: WCAG contrast, accessible names, labels, alternative text, heading hierarchy. Text inside SVGs and over gradients stay outside, and are **counted** on every run | Add `axe-core` alongside, for the rules this bench does not implement (ARIA roles, tab order, focus management) |
-| **Security** | `verifica-sicurezza` runs 10 checks over 570 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
+| **Security** | `verifica-sicurezza` runs 10 checks over 577 tracked files and covers SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 is covered by `verifica_guida`. **SEC-02 remains indirect**: see `docs/09` D-03 | Observe the network traffic during real use, the only direct verification of SEC-02 |
 | **Browsers other than Chromium** | No automatic test on Firefox or WebKit | Extend the main benches to `webkit`, where the differences on IndexedDB and Service Worker are greatest |
 | **Performance** | Manual cross-device testing | Automatic measurement of first-paint time |
 | **Visual regression** | Absent | Screenshot comparison for the charts, which are the heart of the product |
-| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio, `test_spectra_rig` the automatic rig on a synthetic humanoid, `test_spectra_figura` Spectra with the body in the four AI sections and its reactions. Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
+| **Spectra Live and quick tools** | Since v238 `test_spectra238` covers the console layout, the navigator, the level, the face and the creator commands; since v239 the single button, and `test_lezione` the guided lesson and «fammi lezione»; `test_spectra_studio` the body, the voice (without OpenAI) and Spectra Studio, `test_spectra_rig` the automatic rig on a synthetic humanoid, `test_spectra_figura` Spectra with the body in the four AI sections, in the Spectra Live console (since v242) and its reactions; `test_spectra_esplora` (v242) the three «⚡ Explore with Spectra» sections, their chapters and the slider numbers; `test_spectra_olo` (v242) the interactive hologram (spectra and written traces, universe, mathematics and physics from the assistant, the steps read by Spectra). Still without a bench: the rest of the local commands, voice, the tools that act on the page and the per-subject ✨ menu (UI-21, AI-13). Speech recognition and synthesis do not exist in headless Chromium | Test the local commands as pure functions (`BSISpectraLive.comando`) and the quick tools in node, as is already done with the sections' computations |
 
 ---
 
@@ -852,4 +896,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v241`._
+_Document updated to version `bsi-v242`._

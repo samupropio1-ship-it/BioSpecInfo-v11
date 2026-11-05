@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v242` |
-| Commit | `1e3bb9f82c227492451cf9908915cc69f39c8db5` |
-| Generated (UTC) | `2026-11-05T10:26:59.238Z` |
+| Commit | `d229adfb74d13d9cabc7e7afd73cb0dbef86fcd4` |
+| Generated (UTC) | `2026-11-05T14:47:05.223Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -147,7 +147,7 @@ availability.
 | `bsi-mat-markov.js` | 65 kB | Markov chains and stochastic processes: PageRank, gambler's ruin, walks, queues. |
 | `bsi-mat-svd.js` | 58 kB | SVD and applied linear algebra: 2×2 and 3×3 SVD, compression, PCA, least squares. |
 | `bsi-mat-codici.js` | 60 kB | Codes and elliptic curves: Hamming, CRC, curves over ℝ and F_p, ECDH. |
-| `bsi-spectra-live.js` | 100 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
+| `bsi-spectra-live.js` | 101 kB | Spectra Live: voice console, local commands, screen reading, nine agent tools. |
 | `bsi-spectra-androide.js` | 45 kB | Spectra's face on the «Noir» model: animated head and mouth, 17 emotions from 11 expressive fields. |
 | `bsi-spectra-mente.js` | 17 kB | Spectra's mind: local memory, internal state, thoughts (a simulation of behaviour). |
 | `bsi-spectra-robot.js` | 20 kB | Fallback face: android head built in three.js. |
@@ -155,10 +155,10 @@ availability.
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
 | `bsi-spectra-voce.js` | 12 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
 | `bsi-spectra-corpo.js` | 49 kB | Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin. |
-| `bsi-spectra-olointerattivo.js` | 54 kB | Spectra's interactive hologram: IR/¹H/¹³C/mass/UV spectra of reference molecules or of a written trace with each signal assigned; universe with NASA data, Kepler and vis-viva; maths and physics with the assistant's working; every step explained aloud and in writing. |
+| `bsi-spectra-olointerattivo.js` | 55 kB | Spectra's interactive hologram: IR/¹H/¹³C/mass/UV spectra of reference molecules or of a written trace with each signal assigned; universe with NASA data, Kepler and vis-viva; maths and physics with the assistant's working; every step explained aloud and in writing. |
 | `bsi-spectra-esplora.js` | 42 kB | «⚡ Explore with Spectra»: one section per subject in the style of explorable lessons, ten chapters from high school to advanced PhD with prediction, a recomputing slider, live view in the hologram and full explanation. |
-| `bsi-spectra-spiega.js` | 34 kB | «🧠 Explain»: the complete, exhaustive explanation of chemistry, physics and mathematics from high school to advanced PhD, including what is on screen (text, values, tables and an image of spectra, graphs and 3D scenes); without a model it shows what the app knows on its own. |
-| `bsi-spectra-figura.js` | 51 kB | Spectra with a body in one module: the body controller (embedded in the app and packed, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
+| `bsi-spectra-spiega.js` | 36 kB | «🧠 Explain»: the complete, exhaustive explanation of chemistry, physics and mathematics from high school to advanced PhD, including what is on screen (text, values, tables and an image of spectra, graphs and 3D scenes); without a model it shows what the app knows on its own. |
+| `bsi-spectra-figura.js` | 54 kB | Spectra with a body in one module: the body controller (embedded in the app and packed, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
 | `bsi-spectra-rig.js` | 34 kB | In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Spectra Studio lessons (predict → test → prove → reveal): the fall, the shape of water, the Basel problem, with verified computations. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control). |
@@ -186,7 +186,7 @@ availability.
 | `bsi-quesito.js` | 19 kB | Recognition of spectroscopic data in a problem's text, with each datum's provenance, and step-by-step working through bsi-elucida.js. |
 | `bsi-spettrolettore.js` | 104 kB | Spectrum reader: JCAMP-DX with ASDF compression, prominence-based peak finding, IR band assignment, neutral losses. |
 | `bsi-mol3d.js` | 42 kB | 3D molecule viewer: formation animation, atom selection, measurement of angles, lengths and dihedrals. |
-| `bsi-lingue.js` | 255 kB | Internationalisation engine: fourteen languages, writing direction included. |
+| `bsi-lingue.js` | 258 kB | Internationalisation engine: fourteen languages, writing direction included. |
 | `bsi-molingue.js` | 54 kB | Chemical languages: twenty-five outputs from SMILES, with IUPAC naming over a declared class. |
 | `bsi-pannelli-lingua.js` | 66 kB | Panels for languages and chemical languages. |
 | `sw.js` | 9 kB | Service Worker: offline operation and network strategy. |
@@ -284,7 +284,7 @@ availability.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `0eba5b7f133d7df16bba65d67fa9db405a278f668214a6e192c32becddec89fb` |
+| `bsi-spectra-live.js` | `564e252d408ccf7cea4f06ea827529d5dbf1babaf9fe7a280196a5f3817a32e7` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
@@ -292,10 +292,10 @@ availability.
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
-| `bsi-spectra-olointerattivo.js` | `2348a2d444f3a9a773a87733497f29fcafc27cb0ce62043b8ec1dfe3cf4c1a5f` |
+| `bsi-spectra-olointerattivo.js` | `7707fffe6c9cba12cf7fea0e4c81f55991c57692dda947656c8895e40b8e9498` |
 | `bsi-spectra-esplora.js` | `71b0362cbc8c12442ba5fe9b804bb982b95911afce317684a4cdf418586f7c91` |
-| `bsi-spectra-spiega.js` | `73c68f251303c9551ad972e108d1d9a5b94ae4dd7099ec8273da1ad1abf74659` |
-| `bsi-spectra-figura.js` | `750f583b8941935384b5e9dd2821cb9b4905aba5a9f9de7a33b90ff3b657b9e6` |
+| `bsi-spectra-spiega.js` | `789b3560c1372da180a86a486e9ce26f1d471768d39bd39fe1c6f55b85dc8b95` |
+| `bsi-spectra-figura.js` | `f66f02fa1856bce728f8c2bb660e6c0504c88bbc285c53a218ed7b33d613476c` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
@@ -323,7 +323,7 @@ availability.
 | `bsi-quesito.js` | `6f686abcfdc3959d8c865a3e6ee7129224de52992ab1ba3da07372a986769cdf` |
 | `bsi-spettrolettore.js` | `14daf41305b0a7271c6ff5f7c9078a4e5f0e0149f32460a9608ed1996f810256` |
 | `bsi-mol3d.js` | `93fea4a6811ba4263de450db4e7ae1801d4fde196cf7683d0100846c51751893` |
-| `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
+| `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
 | `sw.js` | `1c25a3ed6d4e4c3b91a85091f2e91d1cd05e1594f888277b3e11116f3d886be6` |
@@ -379,4 +379,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-05T10:26:59.238Z._
+_Generated on 2026-11-05T14:47:05.223Z._
