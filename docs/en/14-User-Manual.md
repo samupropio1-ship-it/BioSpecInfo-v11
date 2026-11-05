@@ -626,8 +626,10 @@ at the image of the graphs: for an NMR spectrum it explains every signal
 (chemical shift, multiplicity, coupling constant, integral) and which atom it
 belongs to. **Note**: with the box checked the screen text and the image of the
 graphs go to the AI provider you configured, together with the question;
-uncheck it if you do not want that (a question that names a section, or a
-section chosen from the catalogue below, checks it by itself). A configured AI provider is needed, as for
+uncheck it if you do not want that, and your choice stays: even when Spectra
+opens a section you named or chose from the catalogue below, the model receives
+only the question. The quick prompts about the screen («📈 Spiegami questo
+grafico»…) check it again. A configured AI provider is needed, as for
 the chat; without one, the tab tells you so and shows what the app knows on
 its own (the assistant's working for a numeric exercise, the chapters of the
 section's guided lesson). **«↺ Nuova spiegazione»** starts over; the
@@ -639,7 +641,8 @@ hologram»): it lists every section of the app (194: 75 chemistry, 60 physics,
 30 mathematics and 29 shared), grouped as in the bar. Search for one in the box
 (for example «titration», «Schrödinger», «integrals») or filter by subject;
 tap it and Spectra opens it behind the window, shows it live in the hologram
-and checks «📺 Includi lo schermo», so the explanation uses its data. Even a
+and checks «📺 Includi lo schermo», so the explanation uses its data (if you
+had unchecked it, it stays unchecked). Even a
 section without graphs (text, tables, controls, such as the Periodic Table)
 appears in the hologram, as a card with the title, the controls and the text.
 **«🎞️ Mostrami tutto»** («Show me everything») runs through every section of

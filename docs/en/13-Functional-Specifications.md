@@ -433,7 +433,11 @@ more; synonyms such as «spettro di massa» → MS, «infrarosso» → IR, «ris
 magnetica» → NMR, «orbitali molecolari» → MO; ties go to the shorter name):
 asking in «🧠 Spiega» without the screen included, the named section opens
 behind the window, is shown in the hologram and the explanation includes its
-screen data. Examples: titolazioni → Titolazione, Schrödinger → the
+screen data. **A box unchecked by the user is respected**: if the user
+unchecked «📺 Includi lo schermo», the section named or chosen from the
+catalogue still opens and is shown, but the box stays unchecked and the model
+receives only the question, with no screen text or image; the quick prompts
+about the screen check it again (explicit choice). Examples: titolazioni → Titolazione, Schrödinger → the
 Schrödinger equation, integrali per parti → «Derivate, integrali e serie»,
 spettro di massa → Spettro MS, spettro infrarosso → IR Visivi, meccanica
 orbitale → 3D orbital mechanics; «ciao come stai» → none.

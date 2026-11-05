@@ -429,7 +429,12 @@ le sigle MS, IR, UV, NMR, MO… pesano di più; sinonimi come «spettro di massa
 MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
 MO; a parità vince il nome più corto): chiedendo in «🧠 Spiega» senza lo
 schermo incluso, la sezione nominata si apre dietro la finestra, si mostra
-nell'ologramma e la spiegazione comprende i dati del suo schermo. Esempi:
+nell'ologramma e la spiegazione comprende i dati del suo schermo. **La spunta
+tolta dall'utente si rispetta**: se l'utente ha tolto «📺 Includi lo schermo»,
+la sezione nominata o scelta dal catalogo si apre e si mostra lo stesso, ma la
+casella resta spenta e al modello va solo la domanda, senza testo né immagine
+dello schermo; le domande rapide sullo schermo rimettono la spunta (scelta
+esplicita). Esempi:
 titolazioni → Titolazione, Schrödinger → l'equazione di Schrödinger,
 integrali per parti → «Derivate, integrali e serie», spettro di massa →
 Spettro MS, spettro infrarosso → IR Visivi, meccanica orbitale → la meccanica

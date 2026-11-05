@@ -936,7 +936,8 @@ summarised here.
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window
   (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed),
-  the hologram shows it live and the screen checkbox is checked;
+  the hologram shows it live and the screen checkbox is checked, unless the
+  user unchecked it;
   `giro(materia)` («🎞️ Mostrami tutto») shows them in turn every 7 s, with the
   counter «n/N · name», and `giroFerma()` stops it. `sezioneDi(testo)` finds
   the section a question names (meaningful words of the names, also by stem;
@@ -944,8 +945,11 @@ summarised here.
   MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» →
   MO; ties go to the shorter name; none if the question names no topic):
   asking without the screen included, the named section opens, is shown in
-  the hologram and the explanation includes its screen — so its text and
-  image go to the provider as with the box checked. A section without graphs
+  the hologram and the explanation includes its screen. **A box unchecked by
+  the user is respected** (`ST.schermoNo`, set by the checkbox's `change`
+  event): the section still opens and is shown, but the model receives only
+  the question, with no screen text or image; the quick prompts about the
+  screen check it again (explicit choice). A section without graphs
   is projected on the hologram as a card (title, tab, up to 6 controls with
   values, visible text), so every section is showable.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is

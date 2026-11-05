@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v240` |
-| Commit | `1e76205a64909b34f401933a8d0d992daab3b517` |
-| Generated (UTC) | `2026-11-04T22:18:11.846Z` |
+| Commit | `ca9f6ab0f33ca855f12cd25cfb0c08cba29efd13` |
+| Generated (UTC) | `2026-11-05T05:01:07.128Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -155,8 +155,8 @@ availability.
 | `bsi-lezione.js` | 33 kB | Guided lesson with Spectra for every section: chapters from the tabs, controls demonstrated, spotlight, check question from the study kit. |
 | `bsi-spectra-voce.js` | 12 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
 | `bsi-spectra-corpo.js` | 49 kB | Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin. |
-| `bsi-spectra-spiega.js` | 25 kB | «🧠 Explain»: the complete, exhaustive explanation of chemistry, physics and mathematics from high school to advanced PhD, including what is on screen (text, values, tables and an image of spectra, graphs and 3D scenes); without a model it shows what the app knows on its own. |
-| `bsi-spectra-figura.js` | 48 kB | Spectra with a body in one module: the body controller (from the device, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
+| `bsi-spectra-spiega.js` | 34 kB | «🧠 Explain»: the complete, exhaustive explanation of chemistry, physics and mathematics from high school to advanced PhD, including what is on screen (text, values, tables and an image of spectra, graphs and 3D scenes); without a model it shows what the app knows on its own. |
+| `bsi-spectra-figura.js` | 50 kB | Spectra with a body in one module: the body controller (from the device, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
 | `bsi-spectra-rig.js` | 34 kB | In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Spectra Studio lessons (predict → test → prove → reveal): the fall, the shape of water, the Basel problem, with verified computations. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control). |
@@ -290,8 +290,8 @@ availability.
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
-| `bsi-spectra-spiega.js` | `66b888d30e725674c0669cc5c4904cbc63cb9cfe5632eda849da35eb8551e39d` |
-| `bsi-spectra-figura.js` | `73e21688662ef71078ba087ac12d404ef176440331ead5133f6dd46f8956e948` |
+| `bsi-spectra-spiega.js` | `8ee9e4358cc1f4a0e6524baef520b2d512808dfc098b0f1c1cdd1f3702744585` |
+| `bsi-spectra-figura.js` | `4c2804d8456c6c3c79bd1382a0df199040647513a3fd4c428402a3789bbfe0c5` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
@@ -375,4 +375,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-04T22:18:11.846Z._
+_Generated on 2026-11-05T05:01:07.128Z._

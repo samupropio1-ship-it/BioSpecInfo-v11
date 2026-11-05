@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v240` |
-| Commit | `1e76205a64909b34f401933a8d0d992daab3b517` |
-| Generato (UTC) | `2026-11-04T22:18:11.846Z` |
+| Commit | `ca9f6ab0f33ca855f12cd25cfb0c08cba29efd13` |
+| Generato (UTC) | `2026-11-05T05:01:07.128Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -155,8 +155,8 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lezione.js` | 33 kB | Lezione guidata con Spectra per ogni sezione: capitoli dalle schede, comandi mostrati al lavoro, riflettore, verifica dal kit di studio. |
 | `bsi-spectra-voce.js` | 12 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
-| `bsi-spectra-spiega.js` | 25 kB | «🧠 Spiega»: la spiegazione completa ed esaustiva di chimica, fisica e matematica dalle superiori al PhD avanzato, anche di ciò che è sullo schermo (testo, valori, tabelle e immagine di spettri, grafici e scene 3D); senza modello mostra ciò che l'app sa da sola. |
-| `bsi-spectra-figura.js` | 48 kB | Spectra col corpo in un modulo solo: il controllore del corpo (dal dispositivo, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
+| `bsi-spectra-spiega.js` | 34 kB | «🧠 Spiega»: la spiegazione completa ed esaustiva di chimica, fisica e matematica dalle superiori al PhD avanzato, anche di ciò che è sullo schermo (testo, valori, tabelle e immagine di spettri, grafici e scene 3D); senza modello mostra ciò che l'app sa da sola. |
+| `bsi-spectra-figura.js` | 50 kB | Spectra col corpo in un modulo solo: il controllore del corpo (dal dispositivo, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
 | `bsi-spectra-rig.js` | 34 kB | Rig automatico nel browser per le figure umanoidi senza scheletro: misura, scheletro con nomi Mixamo, pesi della pelle (distanza, normale, geodetica), testa tolta col cappuccio, ricolorazione in blu notte. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Lezioni dello studio di Spectra (predici → testa → dimostra → rivela): caduta, forma dell'acqua, problema di Basilea, con calcoli verificati. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d'accesso). |
@@ -290,8 +290,8 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
-| `bsi-spectra-spiega.js` | `66b888d30e725674c0669cc5c4904cbc63cb9cfe5632eda849da35eb8551e39d` |
-| `bsi-spectra-figura.js` | `73e21688662ef71078ba087ac12d404ef176440331ead5133f6dd46f8956e948` |
+| `bsi-spectra-spiega.js` | `8ee9e4358cc1f4a0e6524baef520b2d512808dfc098b0f1c1cdd1f3702744585` |
+| `bsi-spectra-figura.js` | `4c2804d8456c6c3c79bd1382a0df199040647513a3fd4c428402a3789bbfe0c5` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
@@ -375,4 +375,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-04T22:18:11.846Z._
+_Generato il 2026-11-05T05:01:07.128Z._

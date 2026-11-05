@@ -969,7 +969,8 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
   (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),
-  l'ologramma la mostra dal vivo e la casella dello schermo si spunta;
+  l'ologramma la mostra dal vivo e la casella dello schermo si spunta, se
+  l'utente non l'ha tolta;
   `giro(materia)` («🎞️ Mostrami tutto») le mostra a turno ogni 7 s, con il
   contatore «n/N · nome», e `giroFerma()` lo ferma. `sezioneDi(testo)`
   trova la sezione che una domanda nomina (parole significative dei nomi,
@@ -978,8 +979,11 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   «orbitali molecolari» → MO; a parità il nome più corto; nessuna se la
   domanda non nomina un argomento): chiedendo senza lo schermo incluso, la
   sezione nominata si apre, si mostra nell'ologramma e la spiegazione
-  comprende il suo schermo — quindi il suo testo e la sua immagine vanno al
-  fornitore come con la casella spuntata. Una sezione senza grafici si
+  comprende il suo schermo. **La spunta tolta dall'utente si rispetta**
+  (`ST.schermoNo`, dall'evento `change` della casella): la sezione si apre e
+  si mostra lo stesso, ma al modello va solo la domanda, senza testo né
+  immagine dello schermo; le domande rapide sullo schermo rimettono la
+  spunta (scelta esplicita). Una sezione senza grafici si
   proietta nell'ologramma come scheda (titolo, scheda, fino a 6 comandi con
   i valori, testo visibile), così ogni sezione è mostrabile.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale

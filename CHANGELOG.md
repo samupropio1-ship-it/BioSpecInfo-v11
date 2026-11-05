@@ -171,9 +171,8 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     chiave(p) }`, esportato da `bsi-ai-hub.js`). **Con «Includi lo schermo»
     attivo, il testo dello schermo e l'immagine dei grafici e delle scene 3D
     vanno al fornitore di IA configurato insieme alla domanda**, come un
-    allegato della chat; senza la casella, solo la domanda (ma una domanda che
-    nomina una sezione la apre e spunta la casella: vedi il catalogo qui
-    sotto); senza chiave non esce niente dal dispositivo.
+    allegato della chat; senza la casella, solo la domanda; senza chiave non
+    esce niente dal dispositivo.
 - **Il catalogo: tutte le sezioni nell'ologramma, spiegabili e mostrabili**
   (`bsi-spectra-spiega.js`). Richiesta dell'autore: «ogni sezione della
   chimica, della fisica e della matematica deve esserci, non deve mancare
@@ -190,7 +189,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     filtro per materia. Un tocco apre la sezione dietro la finestra di
     Spectra (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se
     serve), l'ologramma la mostra dal vivo e «📺 Includi lo schermo» si
-    spunta, così la spiegazione usa i suoi dati (`BSISpiega.mostraSezione(id)`).
+    spunta (se l'utente non l'ha tolta), così la spiegazione usa i suoi dati (`BSISpiega.mostraSezione(id)`).
   - **«🎞️ Mostrami tutto»** (`BSISpiega.giro(materia)`): ogni sezione della
     materia scelta (o tutte) a turno nell'ologramma, una ogni 7 s, con il
     contatore «n/N · nome»; «⏹ Ferma il giro» (`BSISpiega.giroFerma()`) lo
@@ -202,9 +201,13 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
     IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO; a parità
     vince il nome più corto. Chiedendo in «🧠 Spiega» senza lo schermo
     incluso, la sezione nominata si apre dietro la finestra, si mostra
-    nell'ologramma e la spiegazione comprende i dati del suo schermo (la
-    casella «📺 Includi lo schermo» si spunta: testo e immagine di quella
-    sezione vanno al fornitore configurato insieme alla domanda). Esempi
+    nell'ologramma e la spiegazione comprende i dati del suo schermo. **La
+    spunta tolta si rispetta**: se l'utente ha tolto «📺 Includi lo schermo»
+    (`ST.schermoNo`, impostato dall'evento `change`), la sezione nominata o
+    scelta dal catalogo si apre e si mostra lo stesso, ma la casella resta
+    spenta e al modello va solo la domanda, senza testo né immagine dello
+    schermo; le domande rapide («📈 Spiegami questo grafico»…) parlano dello
+    schermo e rimettono la spunta (scelta esplicita). Esempi
     verificati: titolazioni → Titolazione (`stitr`), Schrödinger →
     `sschrod`, integrali per parti → «Derivate, integrali e serie»
     (`smatcalc`), spettro di massa → Spettro MS (`sms`), spettro infrarosso →
@@ -252,7 +255,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   (`bsi-aggiorna.js`).
 
 ### Banco
-- Nuovo `test_spectra_figura` (101 controlli: 51 a 412 px, 50 a 1280 px): il
+- Nuovo `test_spectra_figura` (103 controlli: 52 a 412 px, 51 a 1280 px): il
   pulsante di Spectra è solo il volto (pillola nascosta); in ognuna delle
   quattro sezioni dell'AI la figura sta dentro la sezione, sotto il titolo,
   alta almeno 280 px, e in tutta l'app ce n'è una sola; nessuno spazio vuoto
@@ -264,7 +267,7 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   gioia, labiale su corpo e viso), errore → dubbio, Spectra Live
   che parla → la figura parla, l'assistente locale che risolve «deriva x^2» →
   Spectra spiega (sorriso caldo); sul telefono i pulsanti della figura non
-  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 12
+  coprono quelli flottanti; nessun errore JavaScript. Per ogni larghezza, 14
   controlli di «🧠 Spiega»: è la seconda scheda e «Lezione» non c'è più; la
   figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel
   Centro spettri) legge lo schermo (almeno un grafico, i valori dei comandi,
@@ -280,7 +283,9 @@ lezione nello studio, «questo è quello che voglio per Spectra e non altro».
   immagine). Le risposte del modello sono simulate: il banco controlla che
   cosa si manda e come si mostra, non la qualità della spiegazione di un
   modello vero; con la scena 3D aperta dietro «🧠 Spiega» l'ologramma la
-  mostra dal vivo. Per ogni larghezza, 7 controlli dell'ologramma: sta alla
+  mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione
+  nominata si apre ma al modello vanno solo la domanda, senza testo né
+  immagine dello schermo. Per ogni larghezza, 7 controlli dell'ologramma: sta alla
   destra di Spectra (x sullo schermo); sei scene vive; Keplero: il rapporto
   fra le velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro
   l'8 %; il soggetto segue la conversazione (risposta sull'IR → spettro,

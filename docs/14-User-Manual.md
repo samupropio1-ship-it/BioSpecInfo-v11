@@ -629,8 +629,10 @@ e guarda l'immagine dei grafici: per uno spettro NMR ti spiega ogni segnale
 (spostamento chimico, molteplicità, costante di accoppiamento, integrale) e a
 quale atomo appartiene. **Attenzione**: con la casella spuntata il testo dello
 schermo e l'immagine dei grafici vanno al fornitore di IA che hai configurato,
-insieme alla domanda; togli la spunta se non vuoi (una domanda che nomina una
-sezione, o una sezione scelta dal catalogo qui sotto, la spunta da sola). Serve un fornitore di IA
+insieme alla domanda; togli la spunta se non vuoi, e la tua scelta resta: anche
+quando Spectra apre una sezione che hai nominato o scelto dal catalogo qui
+sotto, al modello va solo la domanda. Le domande rapide sullo schermo
+(«📈 Spiegami questo grafico»…) rimettono la spunta. Serve un fornitore di IA
 configurato, come per la chat; senza, la scheda te lo dice e ti mostra ciò che
 l'app sa da sola (per un esercizio numerico lo svolgimento dell'assistente,
 i capitoli della lezione guidata della sezione). **«↺ Nuova spiegazione»**
@@ -642,7 +644,8 @@ ricomincia; la conversazione non si salva.
 gruppo come nella barra. Cercane una nella casella (per esempio «titolazione»,
 «Schrödinger», «integrali») o filtra per materia; toccala e Spectra la apre
 dietro la finestra, la mostra dal vivo nell'ologramma e spunta «📺 Includi lo
-schermo», così la spiegazione usa i suoi dati. Anche una sezione senza grafici
+schermo», così la spiegazione usa i suoi dati (se avevi tolto la spunta, resta
+tolta). Anche una sezione senza grafici
 (testo, tabelle, comandi, come la Tavola Periodica) compare nell'ologramma,
 come una scheda con il titolo, i comandi e il testo. **«🎞️ Mostrami tutto»**
 fa scorrere nell'ologramma tutte le sezioni della materia scelta (o tutte),
