@@ -392,7 +392,16 @@
     /* L'OLOGRAMMA alla destra di Spectra */
     var OL = F.olo = new Ologramma(T, sc), etO = D.createElement('button'); etO.type = 'button'; etO.className = 'bsiSF-olo'; box.appendChild(etO);
     OL.suCambio = function (nome) { var d = SCENE_OLO[nome]; etO.textContent = nome === 'schermo' ? t('📺 La tua sezione, dal vivo', '📺 Your section, live') : (d.nome[t(0, 1)] + ' · ' + t('apri', 'open') + ' ›'); etO.title = nome === 'schermo' ? '' : t('Apri la sezione dell\'app', 'Open the app section'); };
-    etO.onclick = function () { var d = SCENE_OLO[OL.attuale]; if (!d) return; var b = D.querySelector('[data-s="' + d.sez + '"]'); if (!b) return; var ch = D.getElementById('bsi-hub-close'); if (ch && D.getElementById('bsi-hub-ov') && D.getElementById('bsi-hub-ov').classList.contains('open')) ch.click(); b.click(); try { b.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {} };
+    /* un tocco sull'etichetta: la sezione si apre DIETRO la finestra «🧠 Spiega», cosi' Spectra resta davanti, con la sezione
+       dal vivo nell'ologramma (la figura non sparisce mai); senza la finestra, si apre la sezione e basta */
+    etO.onclick = function () {
+      var d = SCENE_OLO[OL.attuale]; if (!d) return;
+      if (globale.BSISpiega && globale.BSISpiega.mostraSezione && globale.bsiOpenAIHub) {
+        var ov = D.getElementById('bsi-hub-ov'); if (!(ov && ov.classList.contains('open'))) globale.bsiOpenAIHub('spiega');
+        globale.BSISpiega.mostraSezione(d.sez); return;
+      }
+      var b = D.querySelector('[data-s="' + d.sez + '"]'); if (b) b.click();
+    };
     OL.mostra('pianeti');
     var vivoT = 0;
     function vivo() {

@@ -170,7 +170,22 @@
     return meglio;
   }
   /* aprire una sezione dietro la finestra di Spectra (cambiando materia se serve) e mostrarla nell'ologramma */
+  /* LA FIGURA NON SPARISCE: la sezione dell'AI da cui si e' partiti (dove sta Spectra col corpo) si ricorda, e quando la
+     finestra di Spectra si chiude dopo che Spectra ha aperto altre sezioni, l'app torna li' */
+  var ORIGINE = { id: null };
+  var AI = /^(sai|sareachim|sareafis|sareamat)$/;
+  function sorvegliaChiusura() {
+    var ov = D.getElementById('bsi-hub-ov'); if (!ov || ov._bsiSP) return; ov._bsiSP = true;
+    var era = ov.classList.contains('open');
+    new MutationObserver(function () {
+      var ora = ov.classList.contains('open');
+      if (era && !ora && ORIGINE.id) { var o = ORIGINE.id, cur = sezioneAperta(); ORIGINE.id = null; giroFerma(); if (!cur || cur.sezione !== o) { var L = globale.BSISpectraLive; if (L && L.calcolo && L.calcolo.apriSezione) L.calcolo.apriSezione(o); } }
+      era = ora;
+    }).observe(ov, { attributes: true, attributeFilter: ['class'] });
+  }
   function mostraSezione(id) {
+    var cur = sezioneAperta(); if (!ORIGINE.id && cur && AI.test(cur.sezione)) ORIGINE.id = cur.sezione;
+    sorvegliaChiusura();
     var L = globale.BSISpectraLive, r = L && L.calcolo && L.calcolo.apriSezione ? L.calcolo.apriSezione(id) : null;
     if (!r || !r.ok) { var b = D.querySelector('.nav-btn[data-s="' + id + '"]'); if (b) b.click(); else return Promise.resolve(false); }
     return new Promise(function (ok) { setTimeout(function () { aggiornaSchermo(); ok(true); }, 1300); });

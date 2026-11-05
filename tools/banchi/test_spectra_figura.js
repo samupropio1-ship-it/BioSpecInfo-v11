@@ -142,8 +142,18 @@ const SINTETICO = () => {
     vero('i pianeti seguono Keplero: al perielio più veloci che all\'afelio (rapporto ' + (ol.kepler.vp / ol.kepler.va).toFixed(2) + ', atteso (1+e)/(1−e) = ' + ol.kepler.atteso.toFixed(2) + ')', Math.abs(ol.kepler.vp / ol.kepler.va - ol.kepler.atteso) / ol.kepler.atteso < 0.08);
     att('il soggetto segue il discorso: una risposta sullo spettro IR → spettro; una domanda sulle orbite → pianeti', 'spettro|pianeti', ol.tema + '|' + ol.tema2);
     vero('l\'etichetta porta alla sezione (' + ol.etichetta + ')', /apri|open/.test(ol.etichetta));
-    const apre = await pg.evaluate(async () => { BSISpectraFigura.figura.box.querySelector('.bsiSF-olo').click(); await new Promise(r => setTimeout(r, 1200)); return (BSISpectraLive.schermo() || {}).sezione; });
-    vero('un tocco sull\'etichetta apre «Sistema solare 3D» (' + apre + ')', /sastrosole/.test(apre || ''));
+    /* LA FIGURA NON SPARISCE: l'etichetta apre la sezione dietro la finestra «Spiega», con Spectra davanti; chiusa la finestra si torna da Spectra */
+    const apre = await pg.evaluate(async () => {
+      const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, da = (BSISpectraLive.schermo() || {}).sezione;
+      F.box.querySelector('.bsiSF-olo').click(); await pausa(2600);
+      const vis = e => { const r = e.getBoundingClientRect(); return r.width > 50 && r.height > 50 && e.offsetParent !== null; };
+      const o = { da, dietro: (BSISpectraLive.schermo() || {}).sezione, finestra: document.getElementById('bsi-hub-ov').classList.contains('open'), figuraVista: vis(F.box), nelPannello: document.getElementById('bsi-pane-spiega').contains(F.box), olo: F.olo.attuale };
+      document.getElementById('bsi-hub-close').click(); await pausa(2500);
+      o.ritorno = (BSISpectraLive.schermo() || {}).sezione; o.figuraDopo = vis(F.box) && document.getElementById(o.ritorno).contains(F.box);
+      return o;
+    });
+    vero('un tocco sull\'etichetta apre «Sistema solare 3D» DIETRO la finestra Spiega: Spectra resta visibile davanti, l\'ologramma la mostra dal vivo', /sastrosole/.test(apre.dietro || '') && apre.finestra && apre.figuraVista && apre.nelPannello && apre.olo === 'schermo');
+    vero('chiusa la finestra, l\'app torna alla sezione di Spectra (' + apre.ritorno + ') e la figura è lì', apre.ritorno === apre.da && apre.figuraDopo);
     /* «🧠 SPIEGA»: l'AI che spiega tutto, anche spettri e scene 3D sullo schermo */
     const sp = await pg.evaluate(async () => {
       const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
@@ -190,7 +200,7 @@ const SINTETICO = () => {
       /* il giro di tutte le sezioni di una materia */
       BSISpiega.giro('matematica'); await pausa(8800); o.giro = document.getElementById('bsiSP-giro-stato').textContent; BSISpiega.giroFerma();
       /* una scena 3D */
-      document.getElementById('bsi-hub-close').click(); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
+      document.getElementById('bsi-hub-close').click(); await pausa(1800); document.querySelector('[data-s="sastroorbite"]').click(); await pausa(2500);
       window.bsiOpenAIHub('spiega'); await pausa(1800); const O = BSISpectraFigura.figura.olo, px = O.tela.getContext('2d').getImageData(0, 0, O.tela.width, O.tela.height).data; let acc = 0; for (let i = 0; i < px.length; i += 4000) acc += px[i] + px[i + 1] + px[i + 2];
       o.vivo = { modo: O.attuale, pieno: acc > 2000 }; document.getElementById('bsi-hub-close').click();
       const S3 = BSISpiega.schermo(), im3 = await BSISpiega.immagine(S3); o.s3 = S3 && { titolo: S3.titolo, grafici: S3.grafici, img: !!im3 && im3.length > 2000 };
