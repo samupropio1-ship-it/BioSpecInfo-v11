@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v240` |
-| Commit | `6794af602f807d7f6d7cbd2904c89fadbddc6529` |
-| Generato (UTC) | `2026-11-05T06:25:43.847Z` |
+| Versione applicazione | `bsi-v241` |
+| Commit | `b901e2d7c86cb832688a4f2b2b1f4b38f1d7861c` |
+| Generato (UTC) | `2026-11-05T08:56:51.243Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -156,7 +156,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-voce.js` | 12 kB | Voce di Spectra: audio TTS (con chiave OpenAI) in una catena Web Audio (bassi, metallo, stanza) e labiale dall'audio; ripiego sulla sintesi del browser. |
 | `bsi-spectra-corpo.js` | 49 kB | Driver del corpo di Spectra per qualunque avatar umanoide (ossa, blendshape ARKit, capelli neri, sguardo, gesti, passo, seduta) e manichino riggato di prova. |
 | `bsi-spectra-spiega.js` | 34 kB | «🧠 Spiega»: la spiegazione completa ed esaustiva di chimica, fisica e matematica dalle superiori al PhD avanzato, anche di ciò che è sullo schermo (testo, valori, tabelle e immagine di spettri, grafici e scene 3D); senza modello mostra ciò che l'app sa da sola. |
-| `bsi-spectra-figura.js` | 50 kB | Spectra col corpo in un modulo solo: il controllore del corpo (dal dispositivo, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
+| `bsi-spectra-figura.js` | 48 kB | Spectra col corpo in un modulo solo: il controllore del corpo (incorporato nell'app e impacchettato, rig, viso «Noir» allineato) usato dallo studio e la figura nelle sezioni dell'AI, che pensa, parla e gesticola con le risposte. |
 | `bsi-spectra-rig.js` | 34 kB | Rig automatico nel browser per le figure umanoidi senza scheletro: misura, scheletro con nomi Mixamo, pesi della pelle (distanza, normale, geodetica), testa tolta col cappuccio, ricolorazione in blu notte. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Lezioni dello studio di Spectra (predici → testa → dimostra → rivela): caduta, forma dell'acqua, problema di Basilea, con calcoli verificati. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra riconosce il suo creatore: prova con la frase segreta confrontata come impronta SHA-256 (deterrente, non controllo d'accesso). |
@@ -197,7 +197,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `61a054fe8f48fab54346c01105defae1e44a358e76da655768d71e0608e491bc` |
+| `index.html` | `e853f28be7b5ffc897a8953f52fd7f056d21c62663e23fac6e8524306fb8078b` |
 | `bsi-ai-hub.js` | `fadae204b67d213f0e2499adb432c0ffe8ffa34f414ffa8058c96b74091832e2` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -291,7 +291,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-spiega.js` | `8ee9e4358cc1f4a0e6524baef520b2d512808dfc098b0f1c1cdd1f3702744585` |
-| `bsi-spectra-figura.js` | `4c2804d8456c6c3c79bd1382a0df199040647513a3fd4c428402a3789bbfe0c5` |
+| `bsi-spectra-figura.js` | `77c24c6bb9b23b490af4af995b09cd672f8c817c833810dd6e1e51bdd5f54139` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
@@ -322,7 +322,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `208ce02aeef8b540c9c69d120a0967f435117eabfaf7b462fe2293b7592dc3bb` |
+| `sw.js` | `b3858eb108fb8ad3cbf5e6163851759afc5f9db11c76f20a266118af313c6321` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -375,4 +375,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-05T06:25:43.847Z._
+_Generato il 2026-11-05T08:56:51.243Z._

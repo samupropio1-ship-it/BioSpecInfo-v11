@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v240` |
+| **Versione descritta** | `bsi-v241` |
 | **Scopo** | Documentare le interfacce HTTP del progetto e le API esterne consumate dall'applicazione. |
 
 ---
@@ -500,22 +500,22 @@ Metodi di un `Corpo`:
 | `peso`, `imposta` | `(nome) → number \| null`, `(nome, valore) → boolean` | Legge e scrive il peso di un blendshape |
 | `passo` | `(dt)` | Avanza il comportamento di `dt` secondi; va chiamato a ogni fotogramma |
 
-### `window.BSISpectraFigura` — Spectra col corpo (`bsi-spectra-figura.js`, v240)
+### `window.BSISpectraFigura` — Spectra col corpo (`bsi-spectra-figura.js`, v240; corpo incorporato dalla v241)
 
 | Simbolo | Firma | Descrizione |
 |---|---|---|
-| `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Ordine: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (solo sviluppo) → `models/spectra-cyberpunk.glb` → nessun corpo (il manichino solo con `opz.manichino === true`, per il banco del driver). Con `opz.soloDispositivo` solo l'IndexedDB: la figura di `monta` lo attiva per difetto (nell'app nessuna richiesta ai file di sviluppo, niente 404); lo studio prova ancora i file. Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
-| `monta` | `(contenitore, opz?) → figura` | Riquadro da laboratorio con Spectra in piedi, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», pulsanti «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invito se manca il corpo; ascolta `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
+| `Spectra` | `new (T, scena, renderer, opz?) → controllore` | Il corpo di Spectra in una scena esistente. Dalla v241 il corpo è **incorporato**: `carica()` scarica `models/spectra-corpo.bsi`, lo riapre (funzione interna `apri`: firma «BSIC», versione, lunghezza, byte mescolati con un flusso xorshift32 da un seme fisso) e lo passa a `daBuffer`; prima cancella un vecchio corpo dall'IndexedDB `bsi-spectra-modelli`, se c'è. Se il blocco non arriva: con `opz.soloDispositivo` (attivo per la figura di `monta`) nessun altro tentativo e `caricato = false`; senza (lo studio, in sviluppo) prova `models/spectra-corpo.glb`. Il ripiego `models/spectra-cyberpunk.glb` non c'è più. Nessun corpo sostitutivo (il manichino solo con `opz.manichino === true`, per il banco del driver). Rig con `bsi-spectra-rig.js` (`RIG`), volto «Noir» sul colletto, «solidale» |
+| `monta` | `(contenitore, opz?) → figura` | Riquadro da laboratorio con Spectra in piedi, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», pulsanti «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio» (dalla v241 niente «🧍 Corpo» né campo file); mentre il corpo arriva «Spectra sta arrivando…», se non arriva «Spectra non è arrivato: serve la rete la prima volta» con «↻ Riprova»; ascolta `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
 | `sezioni` | `(id[]) → figura` | Una figura condivisa (un contesto WebGL) spostata nella sezione dell'AI aperta (`sai`, `sareachim`, `sareafis`, `sareamat`); i file 3D si caricano alla prima apertura |
 | `prepara` | `() → Promise` | Carica three.js, il caricatore GLB, il driver del corpo e il rig se non ci sono |
-| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | Il corpo `.glb` nell'IndexedDB (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`) |
+| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | L'IndexedDB del vecchio corpo caricato dall'utente (`bsi-spectra-modelli`, archivio `file`, chiave `corpo`); dalla v241 `carica()` la usa solo per leggere e **togliere** un vecchio corpo, non ci scrive più |
 | `emozioneDi` | `(testo) → string` | L'emozione suggerita dal contenuto di una risposta |
 | `Ologramma` | `new (T, scena) → ologramma` | Lo schermo olografico alla destra di Spectra; metodi `costruisci(nome)`, `mostra(nome)`, `passo(dt)`; scene calcolate a ogni fotogramma, più `'schermo'` (la sezione dietro la finestra, ridisegnata con `BSISpectraLive.cattura` 5 volte al secondo; una sezione senza grafici si proietta come scheda: titolo, scheda, fino a 6 comandi con i valori, testo visibile) |
 | `SCENE_OLO` | oggetto | Le sei scene (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): per ognuna `nome` (it, en), `sez` (l'id della sezione che apre l'etichetta) e `parole` (l'espressione regolare che la sceglie) |
 | `sceneDi` | `(testo) → string \| null` | La scena che corrisponde alle parole di un testo, o `null` |
 | `LIMITE`, `RIG`, `figura` | numero, oggetto, figura | 60 MB; i parametri del rig del corpo dell'autore; la figura condivisa delle sezioni (o `null`) |
 
-Metodi del controllore: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scena)` (per i banchi), `passo(dt)`, `emozione(nome, secondi?)`, `dici(testo)`, `taci()`, `fai(gesto, bersaglio?, secondi?)`, `presente() → boolean`.
+Metodi del controllore: `carica() → Promise<boolean>` (il corpo incorporato; imposta `caricato`), `daBuffer(buffer)`, `usaScena(scena)` (per i banchi), `passo(dt)`, `emozione(nome, secondi?)`, `dici(testo)`, `taci()`, `fai(gesto, bersaglio?, secondi?)`, `presente() → boolean`. `daFile(file)` è stato tolto nella v241 insieme al pulsante «🧍 Corpo».
 
 Evento nuovo: **`bsi-spectra-dice`** (`CustomEvent` su `document`, `detail: { testo }`), emesso da `parla()` di `bsi-spectra-live.js` e da `bsi-assistente.js` quando risolve un esercizio; la figura lo dice con labiale e gesto.
 
@@ -569,4 +569,4 @@ anche `parti` (le mesh del modello per nome).
 
 ---
 
-_Documento aggiornato alla versione `bsi-v240`._
+_Documento aggiornato alla versione `bsi-v241`._

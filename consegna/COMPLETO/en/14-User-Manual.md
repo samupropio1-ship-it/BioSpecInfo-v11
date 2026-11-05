@@ -574,14 +574,15 @@ bar there is **🔊/🔇**: it turns Spectra's voice off and on, and the studio
 remembers your choice next time too. The studio's own buttons and messages are
 in Italian.
 
-**Spectra's body has to be loaded once.** The body chosen by the author is a
-third-party model (CGTrader) that cannot be distributed with the app. If
-Spectra is not on your device yet, in its place you see the invitation
-«Spectra non è ancora su questo dispositivo — carica una volta il suo corpo
-(.glb)»: press **«🧍 Corpo»** and choose the `.glb` file (at most 60 MB). The
-file stays only in this browser, and from then on Spectra appears with the body
-in the studio and in the AI sections. It is erased with «Clear data → Progress
-in the rest of the app». There is no substitute body.
+**Spectra's body is always there.** You do not have to load anything: the
+body chosen by the author is already inside the app, in the studio and in the
+AI sections. The first time a network is needed: while it arrives you see
+«Spectra sta arrivando…» («Spectra is on the way…»); without a network
+«Spectra non è arrivato: serve la rete la prima volta» appears — press
+**«↻ Riprova»** («↻ Retry») once you are connected. After the first start
+Spectra stays in the app and appears offline too. The «🧍 Corpo» button is
+gone; if in a previous version you had loaded the body yourself, that copy is
+deleted automatically to free space.
 
 **Spectra in the AI sections.** In Spectra AI and in the areas with the
 assistant for Chemistry, Physics and Mathematics, under the title, Spectra
@@ -780,4 +781,4 @@ The data go through automatic checks, but no check finds everything.
 
 ---
 
-_Guide updated to version `bsi-v240`._
+_Guide updated to version `bsi-v241`._

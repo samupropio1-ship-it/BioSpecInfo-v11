@@ -4,7 +4,7 @@
 scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 2D/3D e un agente AI — senza alcun server, installabile e funzionante offline.**
 
-[![Versione](https://img.shields.io/badge/versione-bsi--v240-0e655c)](CHANGELOG.md)
+[![Versione](https://img.shields.io/badge/versione-bsi--v241-0e655c)](CHANGELOG.md)
 [![Verifica](https://img.shields.io/badge/banchi-83%20superati%2C%200%20falliti-2e7d32)](docs/evidence/RAPPORTO-VERIFICA.md)<!--ESITO-BATTERIA-->
 [![Contrasto](https://img.shields.io/badge/contrasto%20WCAG%20AA-0%20difetti%20su%2091%20sezioni-2e7d32)](docs/09-Release-Conformance-Statement.md)
 [![Licenza](https://img.shields.io/badge/licenza-proprietaria-b3372c)](LICENSE)
@@ -20,9 +20,9 @@ scientifica nel browser: analisi molecolare, predizione spettrale, modellistica
 | Che cosa | Dimensione | Link |
 |---|---:|---|
 | **Tutto** — applicazione, codice, documentazione, gli 83 banchi, i pacchetti di consegna e le strutture 3D di `models/` | ~124 MB | **[archivio completo](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/archive/refs/heads/main.zip)** |
-| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v240.zip) |
-| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v240.zip) |
-| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v240.zip) |
+| Dossier per una valutazione aziendale — 67 documenti | 5,4 MB | [AZIENDA](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-AZIENDA-bsi-v241.zip) |
+| Fascicolo per la commissione di tesi — 33 documenti | 2,4 MB | [TESI](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-TESI-bsi-v241.zip) |
+| Tutti i documenti, note operative incluse — 94 | 7,3 MB | [COMPLETO](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/raw/main/consegna/BioSpecInfo-COMPLETO-bsi-v241.zip) |
 
 I tre pacchetti della versione in corso stanno sempre in
 [`consegna/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/consegna); l'archivio completo è generato da GitHub sul
@@ -77,7 +77,7 @@ promesso, ma perché non esiste un server che possa farlo.
 | **Fisica e matematica** | Laboratori interattivi verificati contro valori noti o un secondo metodo, fra cui spin e qubit, meccanica statistica, nuclei, materiali, elettronica, equazioni alle derivate parziali, analisi complessa, catene di Markov, SVD, codici e curve ellittiche; 29 sezioni di chimica, fisica e matematica hanno anche una scheda 3D costruita sul loro modello e verificata |
 | **Astrofisica** | Un gruppo di dodici sezioni, dieci in 3D: sistema solare alla data, meccanica orbitale, matematica celeste, vita delle stelle, buchi neri, onde gravitazionali, galassie, cosmologia, planetario, esopianeti |
 | **Studio** | Ripetizione spaziata (SM-2), quiz, percorsi, note, File Manager personale; per fisica e matematica kit di studio (riassunti, quiz, flashcard, formulari, glossari), risorse web, bibliografia e citazioni; in ognuna delle 194 sezioni una **lezione guidata con Spectra** che apre le schede, mostra i comandi al lavoro e chiude con una domanda di verifica |
-| **Spectra** | Agente AI con 47 strumenti, dieci fornitori, ricaduta automatica sui guasti; console vocale **Spectra Live** con il volto 3D dell'androide, un navigatore di tutte le sezioni e un solo pulsante, il suo volto in un cerchio, presente in ogni schermata; **Spectra Studio**, un laboratorio 3D in cui Spectra, in piedi accanto a un banco olografico, insegna con il metodo *predici → testa → dimostra → rivela* ; in Spectra AI e nelle tre aree con l'assistente (Chimica, Fisica, Matematica) **Spectra col corpo**, in piedi in un riquadro da laboratorio, con alla sua destra un **ologramma** di scene vive calcolate (pianeti su orbite di Keplero, benzene, uno spettro IR, un'onda di Schrödinger, l'orbitale 3d_z², una superficie, o la sezione aperta dal vivo) che segue l'argomento e porta alla sezione con un tocco; pensa mentre il modello lavora, indica l'ologramma e spiega con le mani e il labiale quando risponde; la scheda **«🧠 Spiega»** della finestra di Spectra dà una spiegazione esaustiva di qualunque domanda di chimica, fisica o matematica, a cinque livelli dalla scuola superiore al PhD avanzato, e può leggere lo schermo — spettri picco per picco, grafici, scene 3D — mandandone testo e immagine al modello (serve un fornitore di IA configurato); **ogni sezione dell'app è mostrabile e spiegabile**: il catalogo «🗂️ Tutte le sezioni nell'ologramma» elenca tutte le 194 sezioni della barra (con ricerca e filtro per materia), un tocco la apre e la proietta nell'ologramma (anche quelle senza grafici, come scheda), «🎞️ Mostrami tutto» le fa scorrere una dopo l'altra, e una domanda che nomina un argomento apre da sola la sua sezione. Il corpo è quello scelto dall'autore e si carica una volta dal proprio dispositivo (pulsante «🧍 Corpo»): il modello è di terzi e non è nel repository, e senza di esso compare l'invito a caricarlo, senza sostituti (progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/spectra)) |
+| **Spectra** | Agente AI con 47 strumenti, dieci fornitori, ricaduta automatica sui guasti; console vocale **Spectra Live** con il volto 3D dell'androide, un navigatore di tutte le sezioni e un solo pulsante, il suo volto in un cerchio, presente in ogni schermata; **Spectra Studio**, un laboratorio 3D in cui Spectra, in piedi accanto a un banco olografico, insegna con il metodo *predici → testa → dimostra → rivela* ; in Spectra AI e nelle tre aree con l'assistente (Chimica, Fisica, Matematica) **Spectra col corpo**, in piedi in un riquadro da laboratorio, con alla sua destra un **ologramma** di scene vive calcolate (pianeti su orbite di Keplero, benzene, uno spettro IR, un'onda di Schrödinger, l'orbitale 3d_z², una superficie, o la sezione aperta dal vivo) che segue l'argomento e porta alla sezione con un tocco; pensa mentre il modello lavora, indica l'ologramma e spiega con le mani e il labiale quando risponde; la scheda **«🧠 Spiega»** della finestra di Spectra dà una spiegazione esaustiva di qualunque domanda di chimica, fisica o matematica, a cinque livelli dalla scuola superiore al PhD avanzato, e può leggere lo schermo — spettri picco per picco, grafici, scene 3D — mandandone testo e immagine al modello (serve un fornitore di IA configurato); **ogni sezione dell'app è mostrabile e spiegabile**: il catalogo «🗂️ Tutte le sezioni nell'ologramma» elenca tutte le 194 sezioni della barra (con ricerca e filtro per materia), un tocco la apre e la proietta nell'ologramma (anche quelle senza grafici, come scheda), «🎞️ Mostrami tutto» le fa scorrere una dopo l'altra, e una domanda che nomina un argomento apre da sola la sua sezione. Il corpo, quello scelto dall'autore (il «Bounty Hunter», gratuito su CGTrader, licenza Royalty Free), **c'è sempre, per tutti, senza caricarlo**: è incorporato nell'app come blocco impacchettato (`models/spectra-corpo.bsi`, prodotto da `tools/impacchetta-corpo.js`), non come file `.glb` riutilizzabile; la prima volta serve la rete, poi resta in cache (progetto in [`docs/spectra/`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/tree/main/docs/spectra)) |
 
 ---
 
@@ -170,6 +170,7 @@ node tools/genera-evidenza.js    # 83 banchi, rapporto di verifica completo
 | `python3 -m http.server 8899` | Avvia l'applicazione in locale |
 | `node tools/genera-evidenza.js` | Esegue tutta la batteria e produce il rapporto di verifica |
 | `node tools/genera-evidenza.js --veloce` | Come sopra, saltando i banchi con browser |
+| `node tools/impacchetta-corpo.js <corpo.glb>` | Impacchetta il corpo di Spectra in `models/spectra-corpo.bsi` e verifica che si riapra identico |
 | `node tools/banchi/audit_farmaci.js` | Struttura ⟷ peso, duplicati e formula ricostruita contro ChEMBL sui 263 farmaci |
 | `node tools/verifica-sicurezza.js` | Credenziali, password in chiaro, script esterni |
 | `node tools/verifica-accessibilita.js` | Contrasto WCAG AA e nomi accessibili, sezione per sezione |
@@ -223,7 +224,7 @@ BioSpecInfo-v11/
 │   …                       altre pagine tematiche
 │
 ├── lib/                    sql.js, dataset
-├── models/  textures/      Modelli 3D e texture (spectra-noir.glb: volto di Spectra)
+├── models/  textures/      Modelli 3D e texture (spectra-noir.glb: volto di Spectra; spectra-corpo.bsi: corpo di Spectra, impacchettato)
 ├── proxy/                  Cloudflare Worker opzionale
 │
 ├── tools/                  Strumenti di verifica ed evidenza
@@ -300,9 +301,10 @@ Le librerie di terze parti restano sotto le rispettive licenze permissive
 | Contenuto | Autore | Licenza | Modifiche |
 |---|---|---|---|
 | Modello 3D «Noir» ([Sketchfab](https://sketchfab.com/3d-models/noir-8edf174437494f0080b4cd5aa0f0509c)), file `models/spectra-noir.glb`, usato come volto di Spectra | [Skyfox13](https://sketchfab.com/podderkuntal25) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | Texture ricompresse, tangenti tolte, viso reso in metallo grigio scuro, bocca e testa animate. L'attribuzione compare anche nella console di Spectra Live |
+| Corpo «Bounty Hunter» (CGTrader, download gratuito), incorporato come blocco impacchettato `models/spectra-corpo.bsi`, usato come corpo di Spectra | Autore su CGTrader (il nome non è nel file) | Royalty Free di CGTrader: uso dentro il prodotto, il modello non si offre come file a sé | Riggato nel browser, cappuccio, ricolorazione blu notte, viso «Noir» sul colletto; impacchettato con `tools/impacchetta-corpo.js` |
 
-La licenza proprietaria del progetto non si estende al modello, che resta
-sotto CC BY 4.0.
+La licenza proprietaria del progetto non si estende ai modelli: «Noir» resta
+sotto CC BY 4.0, il corpo sotto la licenza Royalty Free di CGTrader.
 
 ---
 

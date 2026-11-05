@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v240` |
+| **Versione descritta** | `bsi-v241` |
 | **Scopo** | Documentare dove risiedono i dati, con quale struttura, e quale ciclo di vita hanno. |
 
 ---
@@ -21,7 +21,7 @@ documentato. Si articola su tre livelli:
 |---|---|---|---|
 | **Preferenze e progressi** | `localStorage` | Impostazioni, chiavi API, cronologia AI, avanzamento nello studio | Browser dell'utente |
 | **Archivio documenti** | IndexedDB | Foto, documenti, sezioni HTML, note, registro attività | Browser dell'utente |
-| **Corpo di Spectra Studio** | IndexedDB (`bsi-spectra-modelli`) | Il file `.glb` caricato dall'utente con «🧍 Corpo» | Browser dell'utente |
+| **Corpo di Spectra Studio** | IndexedDB (`bsi-spectra-modelli`) | Dalla v241 non si scrive più: il corpo è incorporato nell'app; il database si legge solo per cancellare un vecchio corpo | Browser dell'utente |
 | **Dataset didattici** | SQLite via `sql.js` | Tabelle di esercitazione, create in memoria a ogni sessione | Memoria, non persistito |
 
 **Tutti i dati restano sul dispositivo.** Non vengono trasmessi, non esiste un
@@ -245,14 +245,17 @@ chiusa (`onversionchange`) per non bloccare entrambe.
 | **Nome database** | `bsi-spectra-modelli` |
 | **Object store** | `file` |
 | **Chiave** | `corpo` |
-| **Contenuto** | Il file `.glb` (come `ArrayBuffer`) che l'utente ha caricato con il pulsante «🧍 Corpo» (in `spectra-studio.html` o nel riquadro di Spectra nelle sezioni dell'AI); al massimo 60 MB |
-| **Chi lo scrive** | `bsi-spectra-figura.js` (studio e sezioni dell'AI), solo dopo che il file è stato riggato con successo; un file non valido non viene salvato |
-| **Chi lo legge** | `bsi-spectra-figura.js`, a ogni apertura dello studio e alla prima apertura di una sezione dell'AI, prima di ogni altro corpo |
-| **Cancellazione** | «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
+| **Contenuto** | Fino alla v240: il file `.glb` (come `ArrayBuffer`) che l'utente aveva caricato con il pulsante «🧍 Corpo». **Dalla v241 non si scrive più niente** |
+| **Chi lo scrive** | Nessuno, dalla v241 (il pulsante «🧍 Corpo» e il campo file sono stati tolti) |
+| **Chi lo legge** | `Spectra.carica()` in `bsi-spectra-figura.js`, solo per **cancellare** un vecchio corpo, se c'è, e liberare spazio |
+| **Cancellazione** | All'avvio, da `Spectra.carica()`; e «Cancella dati → Progressi del resto dell'app» (`DATI_CANCELLABILI.app` in `bsi-ai-hub.js`) elimina l'intero database |
 
-Il file non esce dal dispositivo. Il motivo è la licenza: il corpo scelto
-dall'autore viene da CGTrader, la cui licenza Royalty Free non permette che
-terzi possano recuperare il file, quindi ognuno usa la propria copia.
+Dalla v241 il corpo di Spectra è **incorporato nell'app** come blocco
+impacchettato `models/spectra-corpo.bsi` (non un `.glb`: licenza Royalty Free
+di CGTrader, il modello si usa dentro il prodotto e non si offre come file a
+sé). Non è un dato dell'utente: si scarica dallo stesso sito dell'app e resta
+nella cache del service worker, così dopo il primo avvio funziona senza
+rete.
 
 ---
 
@@ -321,4 +324,4 @@ Il comportamento a spazio esaurito è verificato dai banchi `audit_quota` e
 
 ---
 
-_Documento aggiornato alla versione `bsi-v240`._
+_Documento aggiornato alla versione `bsi-v241`._

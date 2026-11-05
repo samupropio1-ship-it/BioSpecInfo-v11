@@ -17,6 +17,7 @@ code is covered by the project [`LICENSE`](LICENSE) ("All rights reserved").
 | sql.js (SQLite → WASM) | `lib/sql-wasm.js`, `lib/sql-wasm.wasm` | MIT | sql.js authors; SQLite is public domain |
 | PDF.js | `vendor/pdfjs/pdf.min.mjs`, `vendor/pdfjs/pdf.worker.min.mjs`, `vendor/pdfjs/standard_fonts/` | Apache-2.0 | Mozilla Foundation & PDF.js contributors |
 | «Noir» 3D model (Spectra's face) | `models/spectra-noir.glb` | CC BY 4.0 | Skyfox13 (Sketchfab) |
+| «Bounty Hunter» 3D model (Spectra's body), embedded as a packed block | `models/spectra-corpo.bsi` | CGTrader Royalty Free | Its author on CGTrader (name not present in the file) |
 
 > The exact version of each library is the one bundled in this repository.
 
@@ -159,3 +160,17 @@ The model has been **modified**: textures recompressed, tangents removed, the
 face rendered as dark grey metal, head and mouth animated by
 `bsi-spectra-androide.js`. The attribution is also shown in the Spectra Live
 console.
+
+---
+
+## «Bounty Hunter» 3D model — CGTrader Royalty Free
+
+Spectra's body is the «Bounty Hunter» model, downloaded free of charge from
+CGTrader under the CGTrader Royalty Free licence, which allows using the model
+inside a product but not offering it as a standalone file. It is therefore
+embedded in the app as a packed block (`models/spectra-corpo.bsi`, produced by
+`tools/impacchetta-corpo.js`) that only the app's code reopens; the original
+`.glb` is not in the repository. The author's name is not present in the file.
+The model has been **modified** in the browser: automatic rig, hood, night-blue
+recolouring, the «Noir» face on the collar. See `models/CREDITS.md`.
+

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v240` |
+| **Version described** | `bsi-v241` |
 | **Purpose** | Operational procedure for publishing, updating and rolling back the application. |
 
 ---
@@ -215,25 +215,35 @@ time one of those sections is opened; `bsi-spectra-spiega.js` (v240, the
 in the precache; `bsi-spectra-voce.js` is also in `index.html`, because
 the console and the guided lesson use it. The studio's «Noir» face is the same
 `models/spectra-noir.glb` as the console's, outside the precache (§2.2-bis): if
-it does not arrive, the body stays without a face. The «Bounty Hunter» body
-(`models/spectra-corpo.glb`) and `models/spectra-cyberpunk.glb` **are not in the
-repository** (the body comes from CGTrader, whose Royalty Free licence does
-not allow third parties to retrieve the file): deploying from the repository
-gives, instead of Spectra, the invitation to load the body (no substitute),
-and each user can load their own copy with the
-«🧍 Corpo» button, which keeps it only in their browser's IndexedDB; the studio looks for them with a `HEAD` request
-and, if they are missing, moves on to the next one without errors.
+it does not arrive, the body stays without a face.
 
-**The body model.** The studio looks for `models/spectra-cyberpunk.glb` with a
-`HEAD` request: if the file is there it loads it and uses it (scaled to 1.8 m,
-hair turned black by the driver, «Noir» face hidden); if it is not, and there
-is no body loaded from the device either, the invitation to load it appears. The «cyberpunk» model chosen by the
-author is not in the repository. To add it: check that the licence allows
-modified redistribution, optimise it as in
-[`docs/spectra/01`](https://github.com/samupropio1-ship-it/BioSpecInfo-v11/blob/main/docs/spectra/01-Analisi-modello-e-piano.md) §2 and §6, copy it
-to `models/spectra-cyberpunk.glb`, add the attribution to `models/CREDITS.md`,
-`THIRD_PARTY_NOTICES.md` and the SBOM, and publish. Like `spectra-noir.glb`, it
-does not go into the precache. The quality
+**Spectra's body (v241): `models/spectra-corpo.bsi` must be deployed.** The
+«Bounty Hunter» body (free on CGTrader, Royalty Free licence: used inside the
+product, not offered as a standalone file) is embedded in the app as the
+packed block `models/spectra-corpo.bsi` (4.40 MB), which is in the repository
+and must be deployed with the app: without it the figure and the studio stay
+on «Spectra non è arrivato: serve la rete la prima volta» with «↻ Riprova».
+The block is not a `.glb`: only `bsi-spectra-figura.js` (function `apri`)
+reopens it. Like the `models/*.glb` files it is not in the precache: the
+service worker (network first) caches it on the first request, and from then
+on it works offline. The original `.glb` (`models/spectra-corpo.glb`) stays
+out of git (`.gitignore`); the studio tries it only in development, if the
+block is missing. The `models/spectra-cyberpunk.glb` fallback no longer
+exists.
+
+**Regenerating the block** (for example after changing the model):
+
+```bash
+node tools/impacchetta-corpo.js path/to/body.glb models/spectra-corpo.bsi
+# ✓ models/spectra-corpo.bsi (4.40 MB), verificato: si riapre identico al .glb
+```
+
+The tool checks that the input is a `.glb`, writes the block («BSIC» ·
+version · length · bytes mixed with an xorshift32 stream from the fixed seed,
+the same as in `bsi-spectra-figura.js`) and checks that it reopens identical.
+Then the new `models/spectra-corpo.bsi` is deployed; clients' caches refresh
+with the `sw.js` version change. A change of model must also be reflected in
+`models/CREDITS.md` and `THIRD_PARTY_NOTICES.md`. The quality
 voice calls `api.openai.com` directly from the browser: any
 `Content-Security-Policy`
 ([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)
@@ -423,4 +433,4 @@ the only form of backup.
 
 ---
 
-_Document updated to version `bsi-v240`._
+_Document updated to version `bsi-v241`._

@@ -55,10 +55,12 @@
   again, since they are an explicit choice.
   Without a key nothing leaves the device. The conversation is kept in memory
   for the session and is not saved.
-- **Spectra Studio body (`spectra-studio.html`):** a `.glb` file loaded with
-  the «🧍 Corpo» button stays only in the browser's IndexedDB
-  (`bsi-spectra-modelli`) and is not sent to any server. It is erased with
-  «Clear data → Progress in the rest of the app».
+- **Spectra's body (since v241):** the body is embedded in the app
+  (`models/spectra-corpo.bsi`, downloaded from the app's own site and kept in
+  the service worker's cache); the user no longer loads any file and nothing
+  is written to IndexedDB any more. On start an old body stored by a previous
+  version (database `bsi-spectra-modelli`), if any, is deleted; «Clear data →
+  Progress in the rest of the app» still deletes that database.
 - **Local right to erasure:** the user can delete data by clearing the site
   storage in the browser.
 

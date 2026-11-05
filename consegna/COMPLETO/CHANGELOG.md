@@ -7,6 +7,71 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v241] — 2026-11-05
+
+**Il corpo di Spectra sempre presente, incorporato nell'app; tolto il pulsante «🧍 Corpo»**
+
+Richiesta dell'autore: «la sezione Corpo non la voglio: vorrei che fosse
+sempre presente e non dover sempre mettere il corpo di Spectra».
+
+### Aggiunto
+- **Il corpo incorporato: `models/spectra-corpo.bsi`** (4,40 MB). Il corpo di
+  Spectra (il «Bounty Hunter», gratuito su CGTrader, licenza Royalty Free di
+  CGTrader: si usa dentro un prodotto, non si offre come file a sé) c'è ora
+  **sempre, per tutti**, senza caricarlo. Non è pubblicato come `.glb`: è un
+  blocco impacchettato che solo il codice dell'app riapre
+  (`bsi-spectra-figura.js`, funzione `apri`). Formato «BSIC»: 4 byte di
+  firma · 1 byte di versione · 4 byte di lunghezza (little endian) · i byte
+  del `.glb` mescolati (XOR) con un flusso xorshift32 da un seme fisso.
+  **Detto con onestà**: non è una protezione assoluta (nessun modello
+  mostrato su uno schermo lo è); è il modo in cui giochi e app incorporano i
+  modelli acquistati, e il file pubblicato non è un `.glb` riutilizzabile. Il
+  `.glb` originale resta fuori da git (`.gitignore`).
+- **`tools/impacchetta-corpo.js`**: produce il blocco dal `.glb`
+  (`node tools/impacchetta-corpo.js <corpo.glb> [models/spectra-corpo.bsi]`)
+  e verifica che si riapra identico al `.glb`.
+
+### Cambiato
+- **`Spectra.carica()`** scarica `models/spectra-corpo.bsi`, lo riapre e lo
+  rigga come prima (rig automatico, cappuccio, viso «Noir» sul colletto).
+  Mentre arriva, la figura e lo studio mostrano «Spectra sta arrivando…»; se
+  non arriva (nessuna rete al primo avvio), «Spectra non è arrivato: serve
+  la rete la prima volta» con **«↻ Riprova»**. Dopo il primo caricamento il
+  service worker (prima la rete) lo tiene in cache, quindi funziona anche
+  senza rete. Solo nello studio, in sviluppo, se il blocco manca si prova
+  ancora `models/spectra-corpo.glb`; nell'app (`opz.soloDispositivo`, attivo
+  per la figura) nessun file di sviluppo si chiede. Il ripiego su
+  `models/spectra-cyberpunk.glb` non c'è più.
+- **I pulsanti della figura** sono «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
+
+### Rimosso
+- Il pulsante **«🧍 Corpo»** (nella testata dello studio e nella barra della
+  figura), il campo file, l'invito a caricare il corpo e il metodo
+  `Spectra.daFile`.
+- **La conservazione del corpo dell'utente nell'IndexedDB**: all'avvio un
+  vecchio corpo conservato in `bsi-spectra-modelli`, se c'è, si cancella per
+  liberare spazio; «Cancella dati» continua a cancellare quel database.
+
+### Banco
+- `test_spectra_studio` passa a **87 controlli**. L'umanoide sintetico
+  iniettato e i controlli «Corpo dal dispositivo» sono sostituiti, per ogni
+  larghezza, da: il corpo di Spectra c'è sempre, senza caricarlo
+  (incorporato), e l'avviso «sta arrivando» è sparito; nessun pulsante Corpo
+  né scelta di file; il file pubblicato è un blocco impacchettato (BSIC), non
+  un modello `.glb` riutilizzabile; un blocco che non è un modello viene
+  rifiutato, senza errori. Tutti i controlli sul corpo riggato (mento sul
+  colletto, sincronia viso–cappuccio 0,0 mm, solo il viso, volto solidale)
+  girano ora sul **corpo vero incorporato**.
+- `test_spectra_figura` resta a **103 controlli**: «senza corpo: invito»,
+  «nessun sostituto» e il caricamento dell'umanoide sintetico sono
+  sostituiti da «il corpo di Spectra c'è sempre, senza caricarlo:
+  incorporato nell'app (ossa 20/23)» e «nessun pulsante Corpo né scelta di
+  file (Parla con me, Spiega, Studio)»; tutti gli altri controlli girano sul
+  corpo vero.
+- I file tracciati passano da 568 a 570 (`models/spectra-corpo.bsi`,
+  `tools/impacchetta-corpo.js`).
+
+---
 ## [bsi-v240] — 2026-11-04
 
 **Spectra col corpo in ogni sezione dell'AI, l'icona solo col volto, nessun sostituto; niente spazio vuoto sopra le sezioni fuori da `#main`**
