@@ -1541,6 +1541,26 @@ var ATTESA_TROPPO_LUNGA_MS = 10000;
    fare e non lo ascoltavamo.
      503 sovraccarico · 529 sovraccarico (Anthropic) · 500/502/504 guasti
      passeggeri del lato server · 429 limite di frequenza. */
+/* (v243) MODELLO SOVRACCARICO → UN ALTRO MODELLO DELLO STESSO FORNITORE.
+   Schermata dell'autore: «Google Gemini Flash è sovraccarico… ho già riprovato 4 volte» e poi niente, con una sola chiave.
+   Un 503 «This model is currently experiencing high demand» riguarda QUEL modello, non la chiave: con la stessa chiave
+   gli altri modelli candidati (per Gemini: un'altra versione di Flash, Flash-Lite) di solito rispondono. Il modello
+   sovraccarico si mette da parte per 10 minuti (non si boccia: e' sano) e si passa al candidato successivo, al primo
+   503, senza le quattro attese. Solo quando non resta nessun candidato si torna ad aspettare e poi alla riserva. */
+var _sovraccarichi = {};
+var SOVRACCARICO_PAUSA_MS = 10 * 60 * 1000;
+function segnaSovraccarico(provId, model){ if(model) _sovraccarichi[provId + '|' + model] = Date.now() + SOVRACCARICO_PAUSA_MS; }
+function sovraccaricoDaPoco(provId, model){ var t = _sovraccarichi[provId + '|' + model]; return !!(t && t > Date.now()); }
+function altroModello(p, provId, apiKey){
+  var c = p.modelliCandidati || [];
+  for(var i = 0; i < c.length; i++){
+    var m = c[i];
+    if(m === p.model || sovraccaricoDaPoco(provId, m)) continue;
+    try{ if(modelloBocciato(provId, apiKey, m)) continue; }catch(e){}
+    return m;
+  }
+  return null;
+}
 function erroreTemporaneo(stato){
   return stato === 429 || stato === 500 || stato === 502 ||
          stato === 503 || stato === 504 || stato === 529;
@@ -1745,6 +1765,18 @@ async function streamChat(providerId, apiKey, messages, systemPrompt, callbacks,
       if(callbacks && callbacks.onTetto) callbacks.onTetto(p.name, tettoDetto);
       return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
                         abortSignal, _giaRiprovato, _tentativi, true);
+    }
+    if((res.status === 503 || res.status === 529) && p.modelliCandidati && !(abortSignal && abortSignal.aborted)){
+      segnaSovraccarico(providerId, p.model);
+      var alt = altroModello(p, providerId, apiKey);
+      if(alt){
+        var vecchioS = p.model;
+        modelloCacheScrivi(providerId, apiKey, alt);   /* streamChat ririsolve dall'alto: si legge dalla cache */
+        p.model = alt;
+        if(callbacks && callbacks.onModello) callbacks.onModello(vecchioS, alt, p.name, false, 'sovraccarico');
+        return streamChat(providerId, apiKey, messages, systemPrompt, callbacks, tools,
+                          abortSignal, _giaRiprovato, _tentativi, _tettoRiprovato);
+      }
     }
     if(erroreTemporaneo(res.status) && (_tentativi || 0) < TENTATIVI_TEMPORANEO){
       // Un sovraccarico non si sblocca in un secondo e mezzo come un limite
@@ -7369,6 +7401,21 @@ function buildChatPane(){
       }
       return;
     }
+    /* (v243) Schermata dell'autore: «sono il tuo creatore» scritto qui finiva al modello (e con Gemini sovraccarico,
+       a un errore). Le frasi che riguardano Spectra stesso — il creatore, l'impronta, la voce — non sono domande per il
+       modello: le gestisce la console Spectra Live, che ha il campo nascosto per la frase segreta e il sensore. */
+    var Lv = window.BSISpectraLive;
+    var qN = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+      .replace(/^(ehi |hey |ok )?(spectra|spettra) ?/, '');
+    if(Lv && Lv.apri && Lv.elabora && /^(sono (io )?il tuo creatore|sono io che ti ho creato|ti ho creato io|sono samuele|i am your creator|attiva (l )?impronta|usa (l )?impronta|riconoscimi|impronta$|sono io$|prova (la )?voce|non (ti )?sento|dimentica che sono il tuo creatore|non sono il tuo creatore|chi ti ha creato|chi e il tuo creatore)/.test(qN)){
+      input.value = '';
+      var boxC = document.getElementById('bsi-hub-msgs');
+      if(boxC){ boxC.appendChild(el('div', { class: 'bsi-msg system-note' }, '🎙️ Ti rispondo nella console di Spectra: lì c\'è il campo nascosto per la frase segreta e il sensore dell\'impronta.')); boxC.scrollTop = boxC.scrollHeight; }
+      /* la console sta sotto la finestra dell'AI: si chiude la finestra, poi si apre la console */
+      var chC = document.getElementById('bsi-hub-close'); if(chC) chC.click();
+      setTimeout(function(){ try{ Lv.apri({ briefing: false }); }catch(e){} setTimeout(function(){ try{ Lv.elabora(text); }catch(e){} }, 450); }, 250);
+      return;
+    }
     var provId = provSel.value;
     var apiKey = chiaveDaUsare(provId);
     if(!apiKey){
@@ -7553,11 +7600,11 @@ function buildChatPane(){
             'giro non saranno verificati con i risolutori.'), liveNode);
           box.scrollTop = box.scrollHeight;
         },
-        onModello: function(vecchio, nuovo, nome, suggerito){
+        onModello: function(vecchio, nuovo, nome, suggerito, motivo){
           if(abortFlag.stop) return;
           box.insertBefore(el('div', { class: 'bsi-msg tool-note' },
             '🔁 ' + escapeHtml(nome) + ': <b>' + escapeHtml(String(vecchio || '?')) +
-            '</b> non è più utilizzabile' +
+            (motivo === 'sovraccarico' ? '</b> è sovraccarico in questo momento' : '</b> non è più utilizzabile') +
             (suggerito ? ', e il fornitore indica <b>' : ', passo a <b>') +
             escapeHtml(nuovo) + '</b>. Riprovo.'), liveNode);
           box.scrollTop = box.scrollHeight;

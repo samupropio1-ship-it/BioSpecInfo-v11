@@ -9,7 +9,7 @@ let src = fs.readFileSync('/home/user/BioSpecInfo-v11/bsi-ai-hub.js','utf8');
 src = src.replace('window.bsiDati = ',
   'window.__t = { erroreTemporaneo:erroreTemporaneo, attesaDaRisposta:attesaDaRisposta,\n' +
   '  providerUtilizzabili:providerUtilizzabili, PROVIDERS:PROVIDERS,\n' +
-  '  TENTATIVI_TEMPORANEO:TENTATIVI_TEMPORANEO };\nwindow.bsiDati = ');
+  '  TENTATIVI_TEMPORANEO:TENTATIVI_TEMPORANEO, azzeraSovraccarichi:function(){ _sovraccarichi = {}; } };\nwindow.bsiDati = ');
 let store = {};
 global.localStorage = {
   getItem:k=>(k in store?store[k]:null), setItem:(k,v)=>{store[k]=String(v);},
@@ -52,7 +52,7 @@ global.fetch = async (url, opz) => {
   const h = hostDi(url);
   const coda = piano[h] || [];
   const stato = coda.length ? coda.shift() : 200;
-  chiamate.push({ host:h, stato:stato });
+  chiamate.push({ host:h, stato:stato, modello:(url.match(/models\/([^:/?]+):/) || [])[1] || '' });
   if(stato === 200) return { ok:true, status:200, body:null, text: async()=>'ok',
                              json: async()=>({ candidates:[] }) };
   const msg = stato === 400 ? 'Invalid JSON payload received.'
@@ -74,6 +74,7 @@ const CB = { onToken(){}, onDone(){}, onToolUse(){}, onThinking(){}, onServerToo
 function reset(chiavi){
   store = chiavi ? { bsi_api_keys: JSON.stringify(chiavi) } : {};
   chiamate = []; attese = []; riserve = []; piano = {};
+  if(global.__t && global.__t.azzeraSovraccarichi) global.__t.azzeraSovraccarichi();
 }
 // le attese vere renderebbero il test lunghissimo: le azzero, misuro le
 // DECISIONI (quante volte riprova, con che motivo), non il cronometro.
@@ -86,14 +87,17 @@ console.log('\n1) Quali stati sono temporanei');
   att('HTTP ' + c[0], c[1], T.erroreTemporaneo(c[0]));
 });
 
-console.log('\n2) Un 503 passeggero viene superato da solo');
+/* (v243) Schermata dell'autore: «Google Gemini Flash è sovraccarico… ho già riprovato 4 volte» con una sola chiave.
+   Il 503 «This model is currently experiencing high demand» riguarda QUEL modello: dalla v243 si passa SUBITO a un
+   altro modello candidato dello stesso fornitore, con la stessa chiave, invece di aspettare quattro volte lo stesso. */
+console.log('\n2) Un 503 su un modello: si passa subito a un altro modello dello stesso fornitore');
 reset({ gemini:'AIza' });
-piano.gemini = [503, 503, 200];        // due sovraccarichi, poi passa
+piano.gemini = [503, 503, 200];        // due modelli sovraccarichi, il terzo risponde
 let r = await global.bsiStreamChat('gemini','AIza',[{role:'user',content:'ciao'}],'', CB);
 att('il turno RIESCE', true, !!r);
 att('tre chiamate: 503, 503, ok', 3, chiamate.length);
-att('ha aspettato due volte', 2, attese.length);
-att('e lo ha detto col motivo giusto', 503, attese[0] && attese[0].stato);
+att('tre modelli diversi, con la stessa chiave', 3, new Set(chiamate.map(c => c.modello)).size);
+att('senza aspettare', 0, attese.length);
 
 console.log('\n3) La nota NON dice "limite al minuto" per un 503');
 // il testo lo compone la UI; qui verifico che il motivo arrivi distinto
@@ -104,7 +108,7 @@ att('su un 429 il motivo è 429', 429, attese[0] && attese[0].stato);
 
 console.log('\n4) Sovraccarico che non passa: si cambia fornitore');
 reset({ gemini:'AIza', groq:'gsk_X' });
-piano.gemini = [503,503,503,503,503];   // sempre giù
+piano.gemini = Array(40).fill(503);     // sempre giù, su ogni modello
 piano.groq   = [200];
 let r2 = await global.bsiRunAgentTurn('gemini','AIza',[{role:'user',content:'ciao'}],'', CB);
 att('il turno RIESCE lo stesso', true, !!r2);
@@ -122,7 +126,7 @@ att('la risposta è arrivata da groq', 'groq', chiamate[chiamate.length-1].host)
 
 console.log('\n5) Con una sola chiave: messaggio utile, non "HTTP 503"');
 reset({ gemini:'AIza' });
-piano.gemini = [503,503,503,503,503,503,503];
+piano.gemini = Array(40).fill(503);
 let e5 = null;
 try{ await global.bsiRunAgentTurn('gemini','AIza',[{role:'user',content:'ciao'}],'', CB); }
 catch(err){ e5 = err; }
@@ -132,7 +136,7 @@ att('dice che NON è colpa della chiave', true, /non è un problema della tua ch
 att('e suggerisce cosa fare', true, /seconda chiave gratuita/.test(e5.message));
 att('conserva il codice vero per la diagnosi', true, /\[503:/.test(e5.message));
 att('è marcato come sovraccarico', true, e5.sovraccarico === true);
-att('tentativi limitati', true, chiamate.length <= T.TENTATIVI_TEMPORANEO + 1);
+att('tentativi limitati (i modelli candidati, poi le attese)', true, chiamate.length <= T.PROVIDERS.gemini.modelliCandidati.length + 1 + T.TENTATIVI_TEMPORANEO + 1);
 
 console.log('\n6) Un errore NON temporaneo non viene ritentato');
 reset({ gemini:'AIza' });
@@ -153,7 +157,7 @@ reset({ gemini:'AIza' });
 piano.gemini = [503, 200];
 await global.bsiRunAgentTurn('gemini','AIza',[{role:'user',content:'ciao'}],'', CB);
 att('nessun modello bocciato', undefined, store.bsi_modelli_ko);
-att('ha solo aspettato e riprovato', 1, attese.length);
+att('ha cambiato modello e riprovato, senza bocciare il primo', 0, attese.length);
 
 console.log('\n7) Una chiave sbagliata non manda in giro la domanda');
 reset({ gemini:'AIza', groq:'gsk_X' });

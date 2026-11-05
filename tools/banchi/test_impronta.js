@@ -156,6 +156,41 @@ function vero(d, c) { att(d, true, !!c); }
   vero('e tutte le frasi arrivano in fondo (' + v.finite + '/2)', v.finito && v.finite === 2);
   vero('una sintesi che non parte affatto non blocca il discorso: il labiale lo porta avanti', v.muta);
 
+  console.log('\n── Dalla scheda 💬 Chat, e con Gemini sovraccarico ──');
+  const h = await pg.evaluate(async () => {
+    const pausa = ms => new Promise(r => setTimeout(r, ms)), o = {};
+    /* «sono il tuo creatore» scritto nella Chat: non va al modello, apre la console col campo nascosto */
+    let chiamate = 0; const fetch0 = window.fetch; window.fetch = function (u) { if (/generativelanguage|groq|openai|anthropic/.test(String(u))) chiamate++; return fetch0.apply(this, arguments); };
+    localStorage.removeItem('bsi-spectra-creatore-v1'); localStorage.removeItem('bsi-spectra-creatore-impronta-v1'); sessionStorage.clear();
+    window.bsiOpenAIHub('chat'); await pausa(1200);
+    const inp = document.getElementById('bsi-hub-input'); inp.value = 'sono il tuo creatore';
+    const invia = document.getElementById('bsi-hub-send') || [...document.querySelectorAll('#bsi-hub-ov button')].find(b => /invia|send/i.test(b.textContent + (b.title || '') + (b.getAttribute('aria-label') || '')));
+    if (invia) invia.click(); else inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await pausa(1800);
+    const jv = document.getElementById('bsiJV'), campo = document.getElementById('bsiJV-in') || (jv && jv.querySelector('input'));
+    o.console = !!(jv && jv.classList.contains('aperto')) && !document.getElementById('bsi-hub-ov').classList.contains('open');
+    o.password = campo ? campo.type : ''; o.chiamate = chiamate; o.invia = !!invia;
+    window.fetch = fetch0; BSISpectraLive.chiudi && BSISpectraLive.chiudi(); await pausa(400);
+    /* Gemini: il primo modello risponde 503 «high demand», gli altri rispondono: si passa da soli a un altro modello */
+    const visti = [];
+    window.fetch = async function (u) {
+      u = String(u);
+      if (/generativelanguage/.test(u) && /\/models\?/.test(u)) return new Response(JSON.stringify({ models: ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'].map(n => ({ name: 'models/' + n, supportedGenerationMethods: ['generateContent', 'streamGenerateContent'] })) }), { status: 200, headers: { 'content-type': 'application/json' } });
+      const m = (u.match(/models\/([^:]+):streamGenerateContent/) || [])[1];
+      if (m) { visti.push(m);
+        if (visti.length === 1) return new Response(JSON.stringify({ error: { code: 503, message: 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', status: 'UNAVAILABLE' } }), { status: 503, headers: { 'content-type': 'application/json' } });
+        return new Response('data: ' + JSON.stringify({ candidates: [{ content: { parts: [{ text: 'Eccomi.' }] }, finishReason: 'STOP' }] }) + '\n\n', { status: 200, headers: { 'content-type': 'text/event-stream' } }); }
+      return fetch0.apply(this, arguments);
+    };
+    const t0 = Date.now(); let testo = '', errore = '';
+    try { testo = await window.bsiStreamChat('gemini', 'AIzaFINTA-chiave-di-prova-000000000000', [{ role: 'user', content: 'ciao' }], 'sii breve', { onToken: () => {}, onDone: () => {} }); } catch (e) { errore = e.message; }
+    o.gemini = { testo, errore: errore.slice(0, 90), visti: visti.join(' → '), ms: Date.now() - t0 };
+    window.fetch = fetch0; return o;
+  });
+  vero('«sono il tuo creatore» scritto nella Chat apre la console col campo nascosto, senza chiamare il modello (' + h.password + ', ' + h.chiamate + ' chiamate)', h.invia && h.console && h.password === 'password' && h.chiamate === 0);
+  vero('Gemini sovraccarico (503) su un modello: si passa da soli a un altro modello con la stessa chiave (' + h.gemini.visti + ', ' + h.gemini.ms + ' ms, «' + h.gemini.testo + '» ' + h.gemini.errore + ')', h.gemini.testo === 'Eccomi.' && h.gemini.visti.split(' → ').length === 2 && h.gemini.visti.split(' → ')[0] !== h.gemini.visti.split(' → ')[1]);
+  vero('…subito, senza le quattro attese (< 5 s)', h.gemini.ms < 5000);
+
   att('nessun errore JavaScript', 0, errs.length);
   errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
   await b.close();

@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v243` |
+| **Version described** | `bsi-v244` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -430,7 +430,7 @@ of the six molecules, which are typical literature values for teaching, not
 measured spectra; the trace interpreter proposes candidate assignments from
 tables, it does not determine a structure.
 
-**`test_impronta` — 22 checks (v243).** It comes from two reports by the
+**`test_impronta` — 25 checks (v243).** It comes from two reports by the
 author on v242: «I can't hear the voice» and «I'd like it to be me, with a
 fingerprint recognition, but only with me». It tests
 `bsi-spectra-creatore.js` (WebAuthn) and the voice in `bsi-spectra-live.js`.
@@ -440,6 +440,7 @@ fingerprint recognition, but only with me». It tests
 | The fingerprint (12) | With Chromium's **virtual authenticator** (DevTools protocol, WebAuthn domain) standing in for the sensor: without the secret phrase the fingerprint is not bound; a wrong phrase does not recognise; bound after the phrase, only the credential `id` and the date are stored; in a new session the browser's memory is not enough and Spectra waits for the fingerprint; the right fingerprint with a verified user recognises the creator and the model knows; with an **unverified** user, or **another** authenticator, no recognition |
 | The console (6) | «attiva l'impronta» binds it and Spectra says so; opened in a new session the console asks for the fingerprint with «👆 Sono io»; tapped, recognised and greeted by name; «prova la voce» answers; `statoVoce()` readable; «dimentica che sono il tuo creatore» also removes the fingerprint |
 | The voice (3) | A fake synthesis that starts after 2.5 s **without «onstart»** (like some Android engines): **no sentence cancelled** and 2/2 reach the end (before v243 it was cancelled after 1.2 s: the cause of the silence); a synthesis that never starts does not block the speech: lip-sync carries it forward |
+| Chat and overload (3) | «sono il tuo creatore» typed in the **💬 Chat** tab does not go to the model: it closes the window and opens the console with the hidden field (0 calls to the model); Gemini answering **503** on the first model: it moves on its own to another model with the same key and the answer arrives, in under 5 s |
 | Errors (1) | No JavaScript errors |
 
 WebAuthn does not accept an IP address as a domain: the bench opens the app
@@ -911,4 +912,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v243`._
+_Document updated to version `bsi-v244`._
