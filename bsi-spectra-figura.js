@@ -403,6 +403,21 @@
       I.apri(m);
     };
     box.appendChild(oiB);
+    /* (v242) richiesta dell'autore: «l'ologramma non me lo fa selezionare». Un tocco SULL'OLOGRAMMA stesso (il pannello di vetro
+       alla destra di Spectra) lo apre in modalita' interattiva, come «⛶ Interagisci»; un trascinamento non conta */
+    (function () {
+      var cv = ren.domElement, giu = null, rc = new T.Raycaster();
+      function sopra(e) {
+        var r = cv.getBoundingClientRect(); if (!r.width) return false;
+        rc.setFromCamera(new T.Vector2((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1), cam);
+        return rc.intersectObject(OL.cornice.vetro).length > 0;
+      }
+      cv.addEventListener('pointerdown', function (e) { giu = { x: e.clientX, y: e.clientY }; });
+      cv.addEventListener('pointerup', function (e) { var g = giu; giu = null; if (!g || Math.abs(e.clientX - g.x) + Math.abs(e.clientY - g.y) > 10) return; if (sopra(e)) oiB.onclick(); });
+      cv.addEventListener('pointermove', function (e) { if (!giu) cv.style.cursor = sopra(e) ? 'pointer' : ''; });
+      F.toccaOlogramma = function () { oiB.onclick(); };
+      F.puntoOlogramma = function () { var v = OL.grp.getWorldPosition(new T.Vector3()).project(cam), r = cv.getBoundingClientRect(); return { x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height }; };
+    })();
     var vivoT = 0;
     function vivo() {
       /* lo schermo vivo: la sezione aperta (la sua tela, ridisegnata) copiata nell'ologramma, 5 volte al secondo */

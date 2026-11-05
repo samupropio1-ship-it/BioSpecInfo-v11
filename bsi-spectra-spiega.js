@@ -206,7 +206,7 @@
   /* ── il modello: lo stesso fornitore e la stessa chiave della chat ── */
   function modello() { var L = globale.bsiLLM; if (!L || !globale.bsiStreamChat) return null; var p = L.provider(), k = p ? L.chiave(p) : null; return p && k ? { p: p, k: k } : null; }
 
-  var ST = { storia: [], livello: 3, materia: null, pan: null, inCorso: false, schermoNo: false };   /* schermoNo: l'utente ha tolto la spunta «Includi lo schermo»: si rispetta */
+  var ST = { storia: [], livello: 3, materia: null, pan: null, inCorso: false, schermoNo: false, muto: false };   /* schermoNo: l'utente ha tolto la spunta «Includi lo schermo»: si rispetta */
 
   /* ── l'interfaccia ── */
   var CSS = '#bsiSP{display:flex;flex-direction:column;gap:10px;padding:12px 14px;overflow-y:auto;box-sizing:border-box}' +
@@ -318,7 +318,7 @@
     return globale.bsiStreamChat(M.p, M.k, storia, sistema(livello, ST.materia), { onToken: function (tok, full) { acc = full; corpo.innerHTML = md(acc); }, onDone: function () {} })
       .then(function () {
         ST.storia.push({ role: 'assistant', content: acc }); ST.inCorso = false; if (bt) bt.disabled = false;
-        annuncia('bsi-spectra-risposta', { testo: acc });
+        annuncia('bsi-spectra-risposta', { testo: acc }); dillo(acc);   /* (v242) Spectra dice la risposta a voce */
         D.getElementById('bsiSP-q').value = ''; D.getElementById('bsiSP-q').placeholder = t('Approfondisci: «dimostra il passaggio 3», «e se raddoppio la temperatura?»…', 'Go deeper: «prove step 3», «what if I double the temperature?»…');
         return acc;
       })
@@ -329,23 +329,41 @@
   }
 
   /* senza modello: lo si dice, e si mostra cio' che l'app sa da sola */
+  function testoDi(html) { var d = D.createElement('div'); d.innerHTML = String(html || ''); return (d.textContent || '').replace(/\s+/g, ' ').trim(); }
+  /* la voce di Spectra (bsi-spectra-live.js: voce di qualita' o sintesi del browser, labiale sulla figura); senza, solo il labiale */
+  function dillo(testo) {
+    if (ST.muto) return; var L = globale.BSISpectraLive, s = String(testo || '').slice(0, 6000);
+    if (L && L.parla) { try { L.parla(s); return; } catch (e) {} }
+    annuncia('bsi-spectra-dice', { testo: s });
+  }
   function senzaModello(carta, domanda, S) {
     var corpo = carta.querySelector('.md'), html = '<p><b>' + t('Per la spiegazione completa ed esaustiva serve un modello di intelligenza artificiale (scheda 💬 Chat → fornitore e chiave).', 'A complete, exhaustive explanation needs an AI model (💬 Chat tab → provider and key).') + '</b> ' + t('Intanto, ecco ciò che l\'app sa da sola:', 'Meanwhile, here is what the app knows on its own:') + '</p>';
     var A = globale.BSIAssistente, r = null;
     try { r = A && A.rispondi ? A.rispondi(domanda, S ? S.materia : null) : null; } catch (e) { r = null; }
-    if (r && r.titolo && !r.errore) html += '<h2>🧠 ' + esc(r.titolo) + '</h2><p>' + t('L\'assistente locale ha riconosciuto l\'esercizio: lo svolgimento completo è nella sezione dell\'area (scheda Assistente).', 'The local assistant recognised the exercise: the full working is in the area section (Assistant tab).') + '</p>';
-    var Lz = globale.BSILezione, sez = S && D.getElementById((sezioneAperta() || {}).sezione), lez = null;
+    /* (v242) anche senza modello Spectra risponde a cio' che si chiede, e lo dice a voce: lo svolgimento dell'assistente locale
+       per intero, oppure la sezione che la domanda nomina (mostrata nell'ologramma) con la sua spiegazione */
+    var voce = [];
+    if (r && r.titolo && !r.errore) {
+      html += '<h2>🧠 ' + esc(r.titolo) + '</h2>'; voce.push(r.titolo + '.');
+      (r.passi || []).forEach(function (p, i) { html += '<h3>' + (i + 1) + '. ' + esc(p.titolo || '') + '</h3><div>' + (p.html || '') + '</div>'; voce.push((p.titolo || '') + '. ' + testoDi(p.html)); });
+      if (r.risultati && r.risultati.length) { html += '<h3>✅ ' + t('Risultati', 'Results') + '</h3><ul>' + r.risultati.map(function (x) { return '<li><b>' + esc(x.nome) + '</b> = ' + esc(String(x.v)) + ' ' + esc(x.u || '') + '</li>'; }).join('') + '</ul>'; voce.push(r.risultati.map(function (x) { return x.nome + ' uguale ' + x.v + ' ' + (x.u || ''); }).join('. ') + '.'); }
+    }
+    var idQ = !voce.length ? sezioneDi(domanda) : null;
+    if (idQ && (!S || idQ !== (sezioneAperta() || {}).sezione)) { try { mostraSezione(idQ); } catch (e) {} }
+    var Lz = globale.BSILezione, sez = idQ ? D.getElementById(idQ) : S && D.getElementById((sezioneAperta() || {}).sezione), lez = null;
+    if (sez && !S) S = { titolo: (sez.querySelector('.section-title, h2') || {}).textContent || idQ, testo: '' };
     try { lez = Lz && sez ? Lz.costruisci(sez) : null; } catch (e) { lez = null; }
     if (lez && lez.passi) {
       html += '<h2>📚 ' + esc(S.titolo) + '</h2>';
-      lez.passi.filter(function (p) { return p.testo; }).slice(0, 12).forEach(function (p) { html += '<p>' + (p.titolo ? '<b>' + esc(p.titolo) + '.</b> ' : '') + esc(p.testo) + '</p>'; });
+      lez.passi.filter(function (p) { return p.testo; }).slice(0, 12).forEach(function (p) { html += '<p>' + (p.titolo ? '<b>' + esc(p.titolo) + '.</b> ' : '') + esc(p.testo) + '</p>'; if (!r || !r.titolo) voce.push((p.titolo ? p.titolo + '. ' : '') + p.testo); });
     }
-    if (S) html += '<h2>📺 ' + t('Sullo schermo', 'On screen') + '</h2><pre style="white-space:pre-wrap;font:12.5px ui-monospace,monospace;color:#9fe7ff">' + esc(S.testo) + '</pre>';
+    if (S && S.testo) html += '<h2>📺 ' + t('Sullo schermo', 'On screen') + '</h2><pre style="white-space:pre-wrap;font:12.5px ui-monospace,monospace;color:#9fe7ff">' + esc(S.testo) + '</pre>';
     corpo.innerHTML = html;
-    annuncia('bsi-spectra-dice', { testo: t('Per spiegarti tutto mi serve un modello. Intanto ti mostro ciò che so di questa sezione.', 'To explain everything I need a model. Meanwhile here is what I know about this section.'), emo: 'dubbio' });
+    if (voce.length) dillo(voce.join(' '));
+    else dillo(t('Per spiegarti tutto mi serve un modello: aggiungi la chiave nella scheda Chat. Intanto ti mostro ciò che so di questa sezione.', 'To explain everything I need a model: add the key in the Chat tab. Meanwhile here is what I know about this section.'));
     return null;
   }
 
-  globale.BSISpiega = { costruisci: costruisci, chiedi: chiedi, catalogo: catalogo, sezioneDi: sezioneDi, mostraSezione: mostraSezione, giro: giroAvvia, giroFerma: giroFerma, schermo: schermo, immagine: immagineSchermo, sistema: sistema, aggiornaSchermo: aggiornaSchermo, LIVELLI: LIVELLI, PROFONDITA: PROFONDITA,
+  globale.BSISpiega = { voce: function (si) { ST.muto = si === false; }, costruisci: costruisci, chiedi: chiedi, catalogo: catalogo, sezioneDi: sezioneDi, mostraSezione: mostraSezione, giro: giroAvvia, giroFerma: giroFerma, schermo: schermo, immagine: immagineSchermo, sistema: sistema, aggiornaSchermo: aggiornaSchermo, LIVELLI: LIVELLI, PROFONDITA: PROFONDITA,
     stato: function () { return { turni: ST.storia.length, livello: ST.livello, inCorso: ST.inCorso }; } };
 })(typeof window !== 'undefined' ? window : this);

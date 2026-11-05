@@ -170,7 +170,7 @@
     '#bsiOI-passi{display:flex;flex-direction:column;gap:6px}#bsiOI-passi .p{background:rgba(13,27,46,.75);border:1px solid #1a3550;border-radius:10px;padding:8px 10px;cursor:pointer}#bsiOI-passi .p.on{border-color:#00c9b7;box-shadow:0 0 0 1px rgba(0,201,183,.4)}' +
     '#bsiOI-passi .p h4{margin:0 0 3px;font:700 13.5px system-ui;color:#5eead4}#bsi-olo-ov .nota{color:#9fb6dd;font-size:13px}' +
     '@media (max-width:820px){#bsi-olo-ov.aperto{grid-template-columns:1fr;grid-template-rows:auto 190px 38vh 1fr;grid-template-areas:"testa" "fig" "tela" "lato"}#bsiOI-figura{grid-area:fig;height:auto;padding:6px 10px 0}#bsiOI-lato{border-right:0;border-top:1px solid rgba(107,207,255,.15)}}';
-  var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '' };
+  var ST = { aperto: false, modo: 'spettri', tipo: 'h1', chi: 'etanolo', MHz: 400, dati: null, sel: -1, voce: false, pianeta: 'Terra', domanda: '', autoVoce: true };
   var el = {};
   function costruisci() {
     if (el.box) return;
@@ -198,7 +198,7 @@
     modo(m || ST.modo, txt);
     try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: true } })); } catch (e) {}
   }
-  function chiudi() { if (!el.box) return; fermaVoce(); el.box.classList.remove('aperto'); ST.aperto = false; fermaUniverso(); if (globale._bsiSyncFabs) globale._bsiSyncFabs(); try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: false } })); } catch (e) {} }
+  function chiudi() { if (!el.box) return; clearTimeout(tVoce); fermaVoce(); el.box.classList.remove('aperto'); ST.aperto = false; fermaUniverso(); if (globale._bsiSyncFabs) globale._bsiSyncFabs(); try { D.dispatchEvent(new CustomEvent('bsi-olo-interattivo', { detail: { aperto: false } })); } catch (e) {} }
   function modo(m, txt) {
     ST.modo = m; ST.sel = -1; fermaVoce();
     [].forEach.call(el.box.querySelectorAll('.tab'), function (x) { x.classList.toggle('on', x.getAttribute('data-modo') === m); });
@@ -267,8 +267,16 @@
     ST.dati = { tipo: 'domanda', r: r, vis: vis }; ST.sel = -1; passi(P); disegna(); tema(mat === 'matematica' ? 'superficie' : 'onda');
   }
   function tema(scena) { var F = globale.BSISpectraFigura && globale.BSISpectraFigura.figura; if (F && F.olo) { F.olo.auto = false; F.olo.mostra(scena); } }
+  /* (v242) richiesta dell'autore: «spiegato tutto a voce di Spectra». A ogni nuovo calcolo, appena i dati smettono di cambiare
+     (1,4 s dopo l'ultima modifica), Spectra dice i passaggi da sola; «⏹ Ferma» la interrompe */
+  var tVoce = 0;
+  function voceAutomatica() {
+    clearTimeout(tVoce); if (!ST.autoVoce || !ST.aperto) return;
+    if (ST.voce) fermaVoce();
+    tVoce = setTimeout(function () { if (ST.aperto && ST.autoVoce && !ST.voce) spiegaPassaggi(); }, 1400);
+  }
   function passi(P) {
-    ST.passi = P; var box = D.getElementById('bsiOI-passi'); box.innerHTML = '';
+    ST.passi = P; voceAutomatica(); var box = D.getElementById('bsiOI-passi'); box.innerHTML = '';
     P.forEach(function (p, i) { var d = D.createElement('div'); d.className = 'p'; d.setAttribute('role', 'button'); d.tabIndex = 0; d.innerHTML = '<h4>' + (i + 1) + '. ' + esc(p.tit) + '</h4><div>' + p.html + '</div>'; d.onclick = function () { scegli(i, true); }; d.onkeydown = function (e) { if (e.key === 'Enter') scegli(i, true); }; box.appendChild(d); });
   }
   function scegli(i, parla) {
@@ -401,5 +409,6 @@
 
   globale.BSIOloInterattivo = { apri: apri, chiudi: chiudi, modo: modo, SPETTRI: MOLECOLE, PIANETI: PIANETI, spettro: spettro, pianeta: pianeta, leggiTraccia: leggiTraccia, massa: massa, insaturazione: insaturazione,
     imposta: function (s) { var q = D.getElementById('bsiOI-traccia') || D.getElementById('bsiOI-q') || D.getElementById('bsiOI-orb'); if (q) { q.value = s; (q.oninput || function () {})(); var v = D.getElementById('bsiOI-vai'); if (v && q.id === 'bsiOI-q') v.click(); } },
+    voceAutomatica: function (si) { ST.autoVoce = si !== false; if (!ST.autoVoce) { clearTimeout(tVoce); if (ST.voce) fermaVoce(); } },
     scegli: scegli, stato: function () { return { aperto: ST.aperto, modo: ST.modo, tipo: ST.tipo, chi: ST.chi, MHz: ST.MHz, passi: (ST.passi || []).map(function (p) { return p.tit; }), sel: ST.sel, dati: ST.dati }; } };
 })(typeof window !== 'undefined' ? window : globalThis);

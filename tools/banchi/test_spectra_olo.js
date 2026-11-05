@@ -80,6 +80,7 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
       const pausa = ms => new Promise(r => setTimeout(r, ms)), F = BSISpectraFigura.figura, I = BSIOloInterattivo, o = {};
       /* la voce: si registra che cosa dice Spectra e si chiude subito ogni frase */
       const detti = []; const prima = BSISpectraLive.parla; BSISpectraLive.parla = (s, fatto) => { detti.push(s); if (fatto) setTimeout(fatto, 20); return true; };
+      I.voceAutomatica(false);   /* qui si provano i comandi uno per uno; la voce automatica si prova sotto */
       F.olo.mostra('spettro'); await pausa(200); const bt = F.box.querySelector('.bsiSF-oi'); o.bottone = !!bt && bt.offsetWidth > 0; bt.click(); await pausa(1800);
       const ov = document.getElementById('bsi-olo-ov'); o.aperto = ov.classList.contains('aperto'); o.modo = I.stato().modo; o.figura = document.getElementById('bsiOI-figura').contains(F.box);
       const fab = document.getElementById('bsi14-fab'); o.fab = fab ? getComputedStyle(fab).display : 'none';
@@ -102,9 +103,22 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
       detti.length = 0; document.getElementById('bsiOI-voce').click(); for (let k = 0; k < 60 && detti.length < I.stato().passi.length; k++) await pausa(100); await pausa(300);
       o.voce = detti.length + '/' + I.stato().passi.length;
       o.sborda = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      /* (v242) la voce automatica: scritta una traccia, Spectra la spiega da sola, senza toccare «🔊» */
+      I.voceAutomatica(true); I.modo('spettri'); await pausa(300); detti.length = 0;
+      const tr2 = document.getElementById('bsiOI-traccia'); tr2.value = '1700 s'; tr2.oninput(); for (let k = 0; k < 40 && !detti.length; k++) await pausa(100);
+      o.auto = detti.length > 0 && /1700/.test(detti.join(' ')); I.voceAutomatica(false); await pausa(200);
       /* approfondisci → Spiega; chiusa la finestra, Spectra torna */
       document.getElementById('bsiOI-ai').click(); await pausa(1200); o.spiega = document.getElementById('bsi-hub-ov').classList.contains('open') && !ov.classList.contains('aperto');
       document.getElementById('bsi-hub-close').click(); await pausa(1500); o.torna = !!F.box.closest('.section');
+      /* (v242) un tocco SULL'OLOGRAMMA (il pannello alla destra di Spectra) lo apre interattivo */
+      F.box.scrollIntoView({ block: 'center' }); await pausa(400); const cvF = F.box.querySelector('canvas'), pt = F.puntoOlogramma();
+      const ev = (tipo) => cvF.dispatchEvent(new PointerEvent(tipo, { clientX: pt.x, clientY: pt.y, bubbles: true, pointerId: 1 }));
+      ev('pointerdown'); ev('pointerup'); await pausa(900); o.toccoOlo = ov.classList.contains('aperto'); I.chiudi(); await pausa(600);
+      /* (v242) «🧠 Spiega» senza chiave: risponde comunque a cio' che si chiede (lo svolgimento dell'assistente locale) e lo dice a voce */
+      const ll = window.bsiLLM, pv = ll && ll.provider; if (ll) ll.provider = () => null; detti.length = 0;
+      await BSISpiega.chiedi('calcola il pH di una soluzione di HCl 0,01 M'); await pausa(300);
+      const carta = document.querySelector('#bsiSP-out .risposta'); o.spiegaLocale = carta ? carta.querySelectorAll('h3').length : 0; o.spiegaVoce = detti.join(' ').slice(0, 160);
+      if (ll) ll.provider = pv;
       BSISpectraLive.parla = prima; return o;
     });
     vero('il pulsante «⛶ Interagisci» c\'è sull\'ologramma e apre la finestra, in «spettri» (perché l\'ologramma mostrava uno spettro)', r.bottone && r.aperto && r.modo === 'spettri');
@@ -122,6 +136,9 @@ function vicino(d, x, y, tol) { vero(d + ' (' + (typeof x === 'number' ? x.toPre
     if (nome === 'telefono') att('a 412 px niente sborda', 0, r.sborda);
     vero('«🧠 Approfondisci» apre Spiega', r.spiega);
     vero('chiuse le finestre, Spectra torna nella sezione', r.torna);
+    vero('Spectra spiega da sola, a voce, la traccia appena scritta (voce automatica)', r.auto);
+    vero('un tocco sull\'ologramma stesso lo apre interattivo', r.toccoOlo);
+    vero('«🧠 Spiega» senza chiave: lo svolgimento locale per intero (' + r.spiegaLocale + ' passaggi) e detto a voce (' + r.spiegaVoce.slice(0, 60) + '…)', r.spiegaLocale >= 2 && /pH/i.test(r.spiegaVoce));
     att(nome + ': nessun errore JavaScript', 0, errs.length);
     errs.slice(0, 3).forEach(e => console.log('      ! ' + e.slice(0, 200)));
     await ctx.close();
