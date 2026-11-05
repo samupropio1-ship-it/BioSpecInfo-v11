@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Version described** | `bsi-v242` |
+| **Version described** | `bsi-v243` |
 | **Purpose** | Describe how the tests are organised, how to run them, what they cover and where they leave gaps. |
 
 ---
@@ -90,7 +90,7 @@ repository; the `BSI_BANCHI` variable allows another folder to be pointed at.
 
 ## 3. Composition of the battery
 
-**85 benches**, grouped by what they demonstrate.
+**86 benches**, grouped by what they demonstrate.
 
 ### 3.1 Scientific data
 
@@ -294,7 +294,7 @@ existed before v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -429,6 +429,21 @@ explanation after «🧠 Approfondisci»; the chemical correctness of every valu
 of the six molecules, which are typical literature values for teaching, not
 measured spectra; the trace interpreter proposes candidate assignments from
 tables, it does not determine a structure.
+
+**`test_impronta` — 22 checks (v243).** It comes from two reports by the
+author on v242: «I can't hear the voice» and «I'd like it to be me, with a
+fingerprint recognition, but only with me». It tests
+`bsi-spectra-creatore.js` (WebAuthn) and the voice in `bsi-spectra-live.js`.
+
+| Part | What it requires |
+|---|---|
+| The fingerprint (12) | With Chromium's **virtual authenticator** (DevTools protocol, WebAuthn domain) standing in for the sensor: without the secret phrase the fingerprint is not bound; a wrong phrase does not recognise; bound after the phrase, only the credential `id` and the date are stored; in a new session the browser's memory is not enough and Spectra waits for the fingerprint; the right fingerprint with a verified user recognises the creator and the model knows; with an **unverified** user, or **another** authenticator, no recognition |
+| The console (6) | «attiva l'impronta» binds it and Spectra says so; opened in a new session the console asks for the fingerprint with «👆 Sono io»; tapped, recognised and greeted by name; «prova la voce» answers; `statoVoce()` readable; «dimentica che sono il tuo creatore» also removes the fingerprint |
+| The voice (3) | A fake synthesis that starts after 2.5 s **without «onstart»** (like some Android engines): **no sentence cancelled** and 2/2 reach the end (before v243 it was cancelled after 1.2 s: the cause of the silence); a synthesis that never starts does not block the speech: lip-sync carries it forward |
+| Errors (1) | No JavaScript errors |
+
+WebAuthn does not accept an IP address as a domain: the bench opens the app
+from `localhost`. **Not tested**: a real phone sensor and audible sound.
 
 **`test_spectra_rig` — 30 checks.** It tests the automatic rig
 (`bsi-spectra-rig.js`), which gives a skeleton, skin weights and the app's
@@ -896,4 +911,4 @@ A version is not published if even one of these is unsatisfied.
 
 ---
 
-_Document updated to version `bsi-v242`._
+_Document updated to version `bsi-v243`._

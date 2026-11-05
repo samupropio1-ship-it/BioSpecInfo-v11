@@ -130,6 +130,8 @@
       if (a.state === 'suspended') try { a.resume(); } catch (e) {}
       return sintetizza(testo).then(function (audio) {
         if (mio.annullato) return { annullato: true };
+        /* (v243) un contesto audio ancora sospeso suonerebbe in silenzio: meglio la voce del sistema */
+        if (a.state !== 'running') return sistema(testo, opz, mio);
         var src = a.createBufferSource(); src.buffer = audio;
         var C = catena(a, opz.timbro); src.connect(C.ingresso); C.uscita.connect(a.destination);
         var dati = new Uint8Array(C.analizzatore.frequencyBinCount), t0 = a.currentTime;
@@ -157,7 +159,7 @@
       if (v) u.voice = v; u.lang = v ? v.lang : (lg === 'en' ? 'en-GB' : 'it-IT'); u.rate = 0.93; u.pitch = 0.6; u.volume = 1;
       u.onboundary = function (ev) { if (opz.suBocca && ev.charIndex != null) opz.suBocca({ energia: 0.7, apertura: 0.6, rotondo: 0, largo: 0, frazione: ev.charIndex / Math.max(1, testo.length) }); };
       u.onend = u.onerror = function () { if (opz.suBocca) opz.suBocca({ energia: 0, apertura: 0, rotondo: 0, largo: 0, frazione: 1 }); fine({ ok: true, motore: 'sistema' }); };
-      mio.u = u; try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { fine({ ok: false }); }
+      mio.u = u; try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { fine({ ok: false }); }
     });
   }
   function punteggio(v) { var n = (v.name || '').toLowerCase(); return (/male|uomo|diego|luca|giorgio|cosimo|paolo|daniel|george|arthur|onyx/.test(n) ? 3 : 0) + (/female|donna|alice|elsa|federica|samantha|google/.test(n) ? -2 : 0) + (v.localService ? 0.5 : 0); }
@@ -165,7 +167,9 @@
     if (corrente) { corrente.annullato = true; try { if (corrente.src) corrente.src.stop(); } catch (e) {} if (corrente.chain) corrente.chain.ferma(); if (corrente.raf) cancelAnimationFrame(corrente.raf); }
     try { if ('speechSynthesis' in globale) speechSynthesis.cancel(); } catch (e) {}
   }
+  /* (v243) chiamata al primo tocco: il contesto audio nasce/riprende dentro un gesto, come chiedono i browser dei telefoni */
+  function sblocca() { var a = contesto(); if (a && a.state === 'suspended') try { a.resume(); } catch (e) {} return a ? a.state : 'nessuno'; }
   function qualita() { return chiaveOpenAI() && (globale.AudioContext || globale.webkitAudioContext) ? 'audio' : ('speechSynthesis' in globale ? 'sistema' : 'testo'); }
 
-  globale.BSISpectraVoce = { parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, versione: '1.0' };
+  globale.BSISpectraVoce = { sblocca: sblocca, parla: parla, ferma: ferma, qualita: qualita, catena: catena, impulso: impulso, leggiBocca: leggiBocca, TIMBRO: TIMBRO, versione: '1.0' };
 })(typeof window !== 'undefined' ? window : globalThis);

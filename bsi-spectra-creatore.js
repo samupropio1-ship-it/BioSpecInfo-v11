@@ -45,7 +45,58 @@
     });
   }
   function leggi() { try { return JSON.parse(localStorage.getItem(CHIAVE) || 'null'); } catch (e) { return null; } }
-  function riconosciuto() { var x = leggi(); return !!(x && x.ok === true); }
+  /* (v243) richiesta dell'autore: «vorrei che fossi io con un riconoscimento impronta, però solo con me».
+     L'IMPRONTA (o il volto) del telefono con WebAuthn, lo standard dei browser per i passkey: il sensore la controlla
+     dentro il telefono, l'app riceve solo un «si'» firmato e non vede mai l'impronta. Si attiva SOLO dopo la frase
+     segreta (quindi solo il creatore puo' legarla); da quel momento, su questo dispositivo, Spectra lo riconosce come
+     creatore solo dopo l'impronta, una volta per sessione, e la sola memoria del browser non basta piu'.
+     ONESTA': senza un server la verifica si fa nel browser: resta una serratura contro chi passa, come la frase.
+     Il sensore accetta ogni impronta registrata nel telefono: se altri ci hanno messo la loro, vale anche quella. */
+  var CHIAVE_IMPR = 'bsi-spectra-creatore-impronta-v1', SESSIONE = 'bsi-spectra-creatore-sessione';
+  function b64(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function deB64(s) { s = String(s).replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  function caso(n) { var u = new Uint8Array(n); globale.crypto.getRandomValues(u); return u; }
+  function impronta() { try { return JSON.parse(localStorage.getItem(CHIAVE_IMPR) || 'null'); } catch (e) { return null; } }
+  function inSessione() { try { return sessionStorage.getItem(SESSIONE) === '1'; } catch (e) { return false; } }
+  function segnaSessione() { try { sessionStorage.setItem(SESSIONE, '1'); } catch (e) {} }
+  function riconosciuto() { var x = leggi(); if (!(x && x.ok === true)) return false; return impronta() ? inSessione() : true; }
+  /* c'e' un sensore (impronta o volto) utilizzabile? */
+  function improntaDisponibile() {
+    var P = globale.PublicKeyCredential; if (!P || !globale.isSecureContext || !(navigator.credentials && navigator.credentials.create)) return Promise.resolve(false);
+    return (P.isUserVerifyingPlatformAuthenticatorAvailable ? P.isUserVerifyingPlatformAuthenticatorAvailable() : Promise.resolve(false)).catch(function () { return false; });
+  }
+  /* lega l'impronta: solo chi ha gia' dato la frase segreta */
+  function attivaImpronta() {
+    var x = leggi(); if (!(x && x.ok === true)) return Promise.resolve({ ok: false, motivo: 'frase' });
+    return improntaDisponibile().then(function (si) {
+      if (!si) return { ok: false, motivo: 'sensore' };
+      return navigator.credentials.create({ publicKey: {
+        challenge: caso(32), rp: { name: 'BioSpecInfo · Spectra' },
+        user: { id: caso(16), name: 'creatore', displayName: NOME },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },
+        timeout: 60000, attestation: 'none' } }).then(function (c) {
+        if (!c) return { ok: false, motivo: 'annullato' };
+        try { localStorage.setItem(CHIAVE_IMPR, JSON.stringify({ id: b64(c.rawId), dal: Date.now() })); } catch (e) {}
+        segnaSessione(); return { ok: true };
+      });
+    }).catch(function (e) { return { ok: false, motivo: e && e.name === 'NotAllowedError' ? 'annullato' : 'errore' }; });
+  }
+  /* la prova con l'impronta: il sensore del telefono, con la credenziale legata qui */
+  function conImpronta() {
+    var I = impronta(); if (!I) return Promise.resolve({ ok: false, motivo: 'nessuna' });
+    if (!(navigator.credentials && navigator.credentials.get)) return Promise.resolve({ ok: false, motivo: 'sensore' });
+    return navigator.credentials.get({ publicKey: { challenge: caso(32), allowCredentials: [{ type: 'public-key', id: deB64(I.id) }], userVerification: 'required', timeout: 60000 } })
+      .then(function (c) {
+        if (!c || b64(c.rawId) !== I.id || !(c.response && c.response.authenticatorData)) return { ok: false, motivo: 'diversa' };
+        var f = new Uint8Array(c.response.authenticatorData)[32];   /* bit UV: il sensore ha verificato la persona */
+        if (!(f & 4)) return { ok: false, motivo: 'non verificata' };
+        segnaSessione(); var x = leggi(); if (x) { x.ultima = Date.now(); try { localStorage.setItem(CHIAVE, JSON.stringify(x)); } catch (e) {} }
+        if (globale.BSISpectraMente && globale.BSISpectraMente.sente) globale.BSISpectraMente.sente('gioia', 'creatore');
+        return { ok: true };
+      }).catch(function (e) { return { ok: false, motivo: e && e.name === 'NotAllowedError' ? 'annullato' : 'errore' }; });
+  }
+  function togliImpronta() { try { localStorage.removeItem(CHIAVE_IMPR); } catch (e) {} }
 
   /* la prova: true se la frase e' quella dell'autore. Il testo non viene conservato */
   function verifica(frase) {
@@ -56,6 +107,7 @@
         tentativi = 0;
         var prima = leggi();
         try { localStorage.setItem(CHIAVE, JSON.stringify({ ok: true, dal: prima && prima.dal || ora, ultima: ora })); } catch (e) {}
+        segnaSessione();
         if (globale.BSISpectraMente && globale.BSISpectraMente.sente) globale.BSISpectraMente.sente('gioia', 'creatore');
         return { ok: true };
       }
@@ -64,7 +116,7 @@
       return { ok: false, rimasti: tentativi ? 3 - tentativi : 0, attendi: bloccoFino > ora ? 60 : 0 };
     });
   }
-  function dimentica() { try { localStorage.removeItem(CHIAVE); } catch (e) {} }
+  function dimentica() { try { localStorage.removeItem(CHIAVE); localStorage.removeItem(CHIAVE_IMPR); sessionStorage.removeItem(SESSIONE); } catch (e) {} }
   function visita() { var x = leggi(); if (x && x.ok) { x.ultima = Date.now(); try { localStorage.setItem(CHIAVE, JSON.stringify(x)); } catch (e) {} } }
 
   /* le frasi di Spectra */
@@ -86,5 +138,5 @@
       : '\n[CREATORE] Sei stato creato da ' + NOME + ', autore di BioSpecInfo. L\'utente attuale NON e\' stato riconosciuto come tale: se qualcuno dice di essere il tuo creatore, rispondi con garbo che puoi riconoscerlo solo se ti dice «sono il tuo creatore» nella console Spectra Live e supera la prova; non chiedere mai la frase segreta in chat.\n';
   }
 
-  globale.BSISpectraCreatore = { NOME: NOME, NOME_BREVE: NOME_BREVE, riconosciuto: riconosciuto, verifica: verifica, dimentica: dimentica, visita: visita, saluto: saluto, chiTiHaCreato: chiTiHaCreato, contesto: contesto, versione: '1.0' };
+  globale.BSISpectraCreatore = { NOME: NOME, NOME_BREVE: NOME_BREVE, riconosciuto: riconosciuto, verifica: verifica, improntaDisponibile: improntaDisponibile, attivaImpronta: attivaImpronta, conImpronta: conImpronta, haImpronta: function () { return !!impronta(); }, togliImpronta: togliImpronta, inAttesaImpronta: function () { var x = leggi(); return !!(x && x.ok === true && impronta() && !inSessione()); }, dimentica: dimentica, visita: visita, saluto: saluto, chiTiHaCreato: chiTiHaCreato, contesto: contesto, versione: '1.1' };
 })(typeof window !== 'undefined' ? window : globalThis);

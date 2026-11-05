@@ -3,7 +3,7 @@
 | Campo | Valore |
 |-------|--------|
 | **Software** | BioSpecInfo |
-| **Versione descritta** | `bsi-v242` |
+| **Versione descritta** | `bsi-v243` |
 | **Scopo** | Descrivere come sono organizzati i test, come eseguirli, che cosa coprono e dove restano scoperti. |
 
 ---
@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**85 banchi**, raggruppati per ciò che dimostrano.
+**86 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -308,7 +308,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` ·
+`test_spectra_figura` · `test_spectra_esplora` · `test_spectra_olo` · `test_impronta` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -447,6 +447,21 @@ correttezza chimica di ogni valore delle sei molecole, che sono valori tipici
 di letteratura per la didattica e non spettri misurati; l'interprete della
 traccia propone attribuzioni candidate dalle tabelle, non determina una
 struttura.
+
+**`test_impronta` — 22 controlli (v243).** Nasce da due segnalazioni
+dell'autore sulla v242: «non sento la voce» e «vorrei che fossi io con un
+riconoscimento impronta, però solo con me». Prova `bsi-spectra-creatore.js`
+(WebAuthn) e la voce di `bsi-spectra-live.js`.
+
+| Parte | Che cosa pretende |
+|---|---|
+| L'impronta (12) | Con l'**autenticatore virtuale** di Chromium (protocollo DevTools, dominio WebAuthn) al posto del sensore: senza la frase segreta l'impronta non si lega; una frase sbagliata non riconosce; legata dopo la frase, si conservano solo `id` della credenziale e data; in una sessione nuova il ricordo del browser non basta e Spectra aspetta l'impronta; l'impronta giusta con la persona verificata riconosce il creatore e il modello lo sa; con la persona **non** verificata, o con **un altro** autenticatore, nessun riconoscimento |
+| La console (6) | «attiva l'impronta» la lega e Spectra lo dice; aperta in una sessione nuova la console chiede l'impronta con «👆 Sono io»; toccato, riconosciuto e salutato per nome; «prova la voce» risponde; `statoVoce()` leggibile; «dimentica che sono il tuo creatore» toglie anche l'impronta |
+| La voce (3) | Una sintesi finta che parte dopo 2,5 s **senza «onstart»** (come certi motori Android): **nessuna frase annullata** e 2/2 arrivate in fondo (prima della v243 si annullava dopo 1,2 s: la causa del silenzio); una sintesi che non parte affatto non blocca il discorso: il labiale lo porta avanti |
+| Errori (1) | Nessun errore JavaScript |
+
+WebAuthn non accetta un indirizzo IP come dominio: il banco apre l'app da
+`localhost`. **Non provato**: il sensore vero di un telefono e l'audio udibile.
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -922,4 +937,4 @@ Una versione non viene pubblicata se uno solo di questi non è soddisfatto.
 
 ---
 
-_Documento aggiornato alla versione `bsi-v242`._
+_Documento aggiornato alla versione `bsi-v243`._

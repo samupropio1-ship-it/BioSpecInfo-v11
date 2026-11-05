@@ -7,6 +7,56 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v243] — 2026-11-05
+
+**La voce di Spectra che si sente anche sul telefono; il creatore riconosciuto dall'impronta, solo lui**
+
+Richiesta dell'autore sulla v242: «Funziona tutto alla perfezione tranne che
+non sento la voce; inoltre vorrei che fossi io con un riconoscimento impronta
+o qualcosa del genere, però solo con me».
+
+### Corretto
+- **La voce muta sul telefono** (`bsi-spectra-live.js`, `parla()`): se il
+  motore vocale non mandava «onstart» entro 1,2 s, la frase veniva
+  **annullata** e restava il solo labiale; su Android il motore ci mette
+  spesso di più. Ora, finché il browser dice che sta parlando o ha la frase in
+  coda, si aspetta (fino a ~8 s); «onend» porta avanti anche senza «onstart»;
+  si annulla solo se c'è qualcosa in corso, e la sintesi si riprende
+  (`resume`) prima di parlare.
+- **Sblocco al primo tocco**: una frase vuota a volume zero e il contesto audio
+  della voce di qualità ripreso dentro un gesto (`BSISpectraVoce.sblocca()`);
+  un contesto audio ancora sospeso passa alla voce del sistema invece di
+  suonare in silenzio; le voci, che il browser carica in ritardo, si
+  riscelgono quando arrivano.
+
+### Aggiunto
+- **«prova la voce» / «non ti sento»** nella console: Spectra dice quale voce
+  usa e quante ne vede; se il telefono non ne ha, spiega dove scaricare la
+  voce italiana su Android e di controllare il volume dei contenuti
+  multimediali. `BSISpectraLive.statoVoce()`.
+- **L'impronta del creatore** (`bsi-spectra-creatore.js`, WebAuthn, lo
+  standard dei passkey): dopo la frase segreta Spectra propone «👆 Attiva
+  l'impronta»; il sensore del telefono (impronta o volto) verifica la persona
+  **dentro il telefono** e l'app riceve solo una risposta firmata; si
+  conserva solo l'identificativo della credenziale. Da quel momento, su quel
+  telefono, Spectra riconosce il creatore **solo dopo l'impronta**, una volta
+  per sessione: all'apertura della console chiede «Sei tu, Samuele?» con
+  «👆 Sono io». Comandi «attiva l'impronta», «riconoscimi»; «dimentica che
+  sono il tuo creatore» toglie anche l'impronta. Per tutti gli altri l'app
+  resta com'è.
+- Banco **`test_impronta`** (22 controlli, autenticatore virtuale di
+  Chromium e sintesi vocale finta e lenta); batteria a 86 banchi.
+  Requisiti SEC-10 e UI-32.
+
+### Onestà
+- Senza un server la verifica dell'impronta avviene nel browser: come la frase
+  segreta, è una serratura contro chi passa, non contro chi ha il telefono e
+  vuole forzarla. Il sensore accetta ogni impronta registrata nel telefono:
+  se altre persone vi hanno registrato la loro, vale anche quella.
+- Che la voce **si senta** su un telefono vero non si può provare da qui: il
+  banco prova che non viene più annullata.
+
+---
 ## [bsi-v242] — 2026-11-05
 
 **«⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili; l'ologramma interattivo («⛶ Interagisci»); Spectra col corpo anche nella console Spectra Live**

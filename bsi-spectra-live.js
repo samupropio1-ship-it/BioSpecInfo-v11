@@ -230,7 +230,9 @@
       return true;
     }
     if (!('speechSynthesis' in globale) || !voce.attiva) { if (hud.volto && testo) { hud.volto.dici(perLaVoce(testo).slice(0, 220)); setTimeout(function () { if (hud.volto) hud.volto.taci(); }, Math.min(9000, 300 + perLaVoce(testo).length * 70)); } if (fatto) setTimeout(fatto, 0); return false; }
-    try { speechSynthesis.cancel(); } catch (e) {}
+    /* (v243) «non sento la voce»: su Android annullare quando non c'e' nulla in corso puo' far cadere la frase successiva,
+       e la sintesi a volte resta in pausa: si annulla solo se serve e si riprende */
+    try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
     voce.scelta = voce.scelta || scegliVoce(); voce.inCorso = true; stato('parla');
     var i = 0;
@@ -244,18 +246,45 @@
          bloccato) non deve fermare il discorso: dopo 1,2 s la frase si
          «recita» con la bocca per il tempo che avrebbe richiesto */
       function avanti() { if (finita) return; finita = true; prossima(); }
-      setTimeout(function () {
-        if (partita || finita || !voce.inCorso) return;
-        try { speechSynthesis.cancel(); } catch (e) {}
-        if (hud.volto) hud.volto.dici(frase);
-        setTimeout(avanti, Math.min(12000, 250 + frase.length * 70));
-      }, 1200);
-      u.onstart = function () { partita = true; hud.energia = 1; if (hud.volto) hud.volto.dici(frase); };
+      /* (v243) la causa del silenzio sul telefono: il motore vocale di Android puo' metterci piu' di 1,2 s a partire (o non
+         mandare «onstart»), e qui la frase veniva annullata. Ora, finche' il browser dice che sta parlando o ha la frase in
+         coda, si aspetta (fino a 8 s); si recita col solo labiale soltanto se la sintesi non e' davvero partita */
+      var attese = 0;
+      (function controlla() {
+        setTimeout(function () {
+          if (partita || finita || !voce.inCorso) return;
+          var vivo = false; try { vivo = speechSynthesis.speaking || speechSynthesis.pending; } catch (e) {}
+          if (vivo && ++attese < 6) { if (attese === 1 && hud.volto) hud.volto.dici(frase); return controlla(); }
+          if (vivo) { partita = true; return; }   /* parla senza «onstart»: si lascia finire, «onend» porta avanti */
+          voce.muta = (voce.muta || 0) + 1;
+          if (hud.volto) hud.volto.dici(frase);
+          setTimeout(avanti, Math.min(12000, 250 + frase.length * 70));
+        }, attese ? 1400 : 1200);
+      })();
+      u.onstart = function () { partita = true; voce.muta = 0; hud.energia = 1; if (hud.volto) hud.volto.dici(frase); };
       u.onboundary = function (ev) { hud.energia = 0.7 + Math.random() * 0.3; if (hud.volto && ev && ev.charIndex != null) { hud.volto.allinea(ev.charIndex); if (hud.volto.parola && ev.name !== 'sentence') hud.volto.parola(); } };
-      u.onend = function () { if (partita) avanti(); }; u.onerror = function () { if (partita) avanti(); };
-      speechSynthesis.speak(u);
+      /* (v243) «onend» porta avanti anche quando «onstart» non e' mai arrivato (certi motori Android non lo mandano) */
+      u.onend = function () { partita = true; avanti(); }; u.onerror = function () { if (partita) avanti(); };
+      try { speechSynthesis.speak(u); } catch (e) {}
     })();
     return true;
+  }
+  /* (v243) SBLOCCO DELLA VOCE al primo tocco: su iPhone e su alcuni Android la sintesi e l'audio partono solo se la prima volta
+     nascono da un gesto. Al primo tocco (o tasto) si dice una frase vuota a volume zero e si riprende il contesto audio della
+     voce di qualita'; le voci, che il browser carica in ritardo, si riscelgono quando arrivano */
+  var sbloccata = false;
+  function sbloccaVoce() {
+    if (sbloccata) return; sbloccata = true;
+    try { if ('speechSynthesis' in globale) { var u0 = new SpeechSynthesisUtterance(' '); u0.volume = 0; u0.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; speechSynthesis.speak(u0); speechSynthesis.resume(); } } catch (e) {}
+    try { if (globale.BSISpectraVoce && globale.BSISpectraVoce.sblocca) globale.BSISpectraVoce.sblocca(); } catch (e) {}
+  }
+  if (typeof document !== 'undefined') {
+    ['pointerdown', 'keydown', 'touchend'].forEach(function (ev) { document.addEventListener(ev, sbloccaVoce, { capture: true, passive: true }); });
+    try { if ('speechSynthesis' in globale) speechSynthesis.addEventListener('voiceschanged', function () { voce.scelta = null; }); } catch (e) {}
+  }
+  function statoVoce() {
+    var n = 0; try { n = ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : -1; } catch (e) {}
+    return { attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
   }
   function taci() { voce.inCorso = false; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 
@@ -317,13 +346,29 @@
     { re: /^(spiegami questa sezione|spiegami questa scheda|spiegami cosa c e qui|fammi da guida|guidami|tour|explain this section|guide me)/, f: function () {
       var p = guida(); if (!p) return { testo: t('Apri prima una sezione: poi te la spiego passo per passo.', 'Open a section first: then I will explain it step by step.') };
       chiudiHud(true); setTimeout(function () { eseguiGuida(p); }, 200); return { testo: '', muto: true }; } },
+    /* (v243) «non sento la voce»: la prova dice che cosa vede il browser e che cosa fare */
+    { re: /^(prova (la )?voce|non (ti )?sento|test (the )?voice|i can ?t hear you)/, f: function () {
+      sbloccaVoce(); voce.attiva = true; voce.scelta = null; var V = statoVoce();
+      if (V.voci === -1) return { testo: t('Questo browser non ha la sintesi vocale: ti rispondo per iscritto, con il labiale.', 'This browser has no speech synthesis: I answer in writing, with lip-sync.') };
+      if (V.voci === 0) return { testo: t('Il telefono non mi dà nessuna voce. Su Android apri Impostazioni → Sistema → Lingue → Output sintesi vocale, scegli «Servizi di riconoscimento vocale di Google» e scarica la voce italiana; poi riapri l\'app. Controlla anche il volume dei contenuti multimediali.', 'The phone gives me no voice. On Android open Settings → System → Languages → Text-to-speech output, choose Google speech services and download the voice; then reopen the app. Also check the media volume.') };
+      return { testo: t('Mi senti? Uso la voce «' + (scegliVoce() || { name: 'predefinita' }).name + '», una delle ' + V.voci + ' del telefono. Se non senti nulla, alza il volume dei contenuti multimediali (non quello della suoneria) e togli il silenzioso.', 'Can you hear me? I am using the voice «' + (scegliVoce() || { name: 'default' }).name + '», one of the phone\'s ' + V.voci + '. If you hear nothing, raise the media volume (not the ringer) and turn off silent mode.') }; } },
     /* il creatore (bsi-spectra-creatore.js): chi l'ha creato, e la prova per riconoscerlo */
     { re: /^(chi ti ha creato|chi ti ha fatto|chi e il tuo creatore|chi ti ha programmato|chi e il tuo autore|who (made|created|built) you)/, f: function () {
       var Cr = globale.BSISpectraCreatore; if (!Cr) return null;
       if (hud.volto && hud.volto.espressione) hud.volto.espressione(Cr.riconosciuto() ? 'gioia' : 'fiera', 3);
       return { testo: Cr.chiTiHaCreato() }; } },
+    /* (v243) l'impronta del creatore: attivarla (dopo la frase segreta) e usarla */
+    { re: /^(attiva (l )?impronta|usa (l )?impronta|riconoscimi con (l )?impronta|enable (the )?fingerprint)/, f: function () {
+      var Cr = globale.BSISpectraCreatore; if (!Cr || !Cr.attivaImpronta) return null;
+      if (Cr.haImpronta()) { improntaCreatore('usa'); return { testo: '', muto: true }; }
+      if (!Cr.riconosciuto()) return { testo: t('Prima devo sapere che sei tu: di\' «sono il tuo creatore» e scrivi la frase segreta. Poi lego la tua impronta.', 'First I need to know it is you: say "I am your creator" and type the secret phrase. Then I bind your fingerprint.') };
+      improntaCreatore('attiva'); return { testo: '', muto: true }; } },
+    { re: /^(riconoscimi|impronta|sono io|it s me|fingerprint)$/, f: function () {
+      var Cr = globale.BSISpectraCreatore; if (!Cr || !Cr.haImpronta || !Cr.haImpronta()) return null;
+      improntaCreatore('usa'); return { testo: '', muto: true }; } },
     { re: /^(sono (io )?il tuo creatore|sono io che ti ho creato|ti ho creato io|sono samuele|i am your creator|i created you)/, f: function () {
       var Cr = globale.BSISpectraCreatore; if (!Cr) return null;
+      if (Cr.inAttesaImpronta && Cr.inAttesaImpronta()) { improntaCreatore('usa'); return { testo: '', muto: true }; }
       if (Cr.riconosciuto()) { if (hud.volto && hud.volto.espressione) hud.volto.espressione('gioia', 3); return { testo: t('Lo so, ' + Cr.NOME_BREVE + ': ti ho già riconosciuto. Non lo dimentico.', 'I know, ' + Cr.NOME_BREVE + ': I already recognised you. I do not forget.') }; }
       provaCreatore(true);
       if (hud.volto && hud.volto.espressione) hud.volto.espressione('scettica', 6);
@@ -864,6 +909,29 @@
     i.placeholder = attiva ? t('La tua frase segreta…', 'Your secret phrase…') : t('Scrivi un comando o una domanda…', 'Type a command or a question…');
     if (attiva) { fermaAscolto(); setTimeout(function () { i.focus(); }, 30); hud._provaT = setTimeout(function () { provaCreatore(false); }, 60000); }
   }
+  /* (v243) l'impronta: «attiva» la lega (dopo la frase), «usa» la chiede al sensore del telefono */
+  function bottoneImpronta(modo) {
+    return '<button type="button" class="bsiJV-b" data-bsi-impronta="' + modo + '" style="margin-top:8px;min-height:40px">' + (modo === 'attiva' ? t('👆 Attiva l\'impronta', '👆 Enable fingerprint') : t('👆 Sono io: impronta', '👆 It\'s me: fingerprint')) + '</button>';
+  }
+  function improntaCreatore(modo) {
+    var Cr = globale.BSISpectraCreatore; if (!Cr) return;
+    stato('pensa'); if (hud.volto && hud.volto.concentra) hud.volto.concentra(0.7);
+    dialogo('', t('Appoggia il dito sul sensore (o guarda il telefono)…', 'Touch the sensor (or look at the phone)…'));
+    (modo === 'attiva' ? Cr.attivaImpronta() : Cr.conImpronta()).then(function (r) {
+      var msg, html = null;
+      if (r.ok && modo === 'attiva') { msg = t('Fatto, ' + Cr.NOME_BREVE + ': la tua impronta è legata a me. Da ora, su questo telefono, ti riconosco solo così: niente più frasi da scrivere.', 'Done, ' + Cr.NOME_BREVE + ': your fingerprint is bound to me. From now on, on this phone, I recognise you only this way: no more phrases to type.'); if (hud.volto && hud.volto.espressione) hud.volto.espressione('gioia', 5); }
+      else if (r.ok) { msg = Cr.saluto() + ' ' + t('Ti ho riconosciuto dall\'impronta.', 'I recognised you by your fingerprint.'); if (hud.volto && hud.volto.espressione) { hud.volto.espressione('stupore', 1); setTimeout(function () { if (hud.volto) hud.volto.espressione('gioia', 5); }, 1000); } }
+      else if (r.motivo === 'sensore') msg = t('Questo telefono o browser non mi offre il sensore di impronta o volto (serve anche l\'app aperta da https).', 'This phone or browser does not offer me a fingerprint or face sensor (the app must also be opened over https).');
+      else if (r.motivo === 'annullato') { msg = t('Annullato. Quando vuoi, tocca di nuovo il pulsante.', 'Cancelled. Tap the button again whenever you like.'); html = esc(msg) + '<br>' + bottoneImpronta(modo); }
+      else { msg = t('Non sei il mio creatore: l\'impronta non è quella legata a me.', 'You are not my creator: this is not the fingerprint bound to me.'); if (hud.volto && hud.volto.espressione) hud.volto.espressione('scettica', 4); }
+      if (hud.volto && hud.volto.concentra) hud.volto.concentra(0);
+      ultima = msg; dialogo('', msg, html); parla(msg, dopoLaRisposta); if (!voce.attiva) stato('attesa'); telemetria();
+    });
+  }
+  if (typeof document !== 'undefined') document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('[data-bsi-impronta]'); if (!b) return;
+    e.preventDefault(); improntaCreatore(b.getAttribute('data-bsi-impronta'));
+  });
   function verificaCreatore(frase) {
     var Cr = globale.BSISpectraCreatore; if (!Cr) return;
     stato('pensa'); if (hud.volto && hud.volto.concentra) hud.volto.concentra(0.9);
@@ -881,6 +949,11 @@
       }
       if (hud.volto && hud.volto.concentra) hud.volto.concentra(0);
       ultima = msg; dialogo('', msg); parla(msg, dopoLaRisposta); if (!voce.attiva) stato('attesa'); telemetria();
+      /* (v243) riconosciuto con la frase: se il telefono ha il sensore, Spectra propone di legare l'impronta */
+      if (r.ok && Cr.improntaDisponibile && !Cr.haImpronta()) Cr.improntaDisponibile().then(function (si) {
+        if (!si) return; var m2 = msg + ' ' + t('Vuoi che d\'ora in poi ti riconosca dalla tua impronta, solo te?', 'Shall I recognise you by your fingerprint from now on, only you?');
+        dialogo('', m2, esc(m2) + '<br>' + bottoneImpronta('attiva'));
+      });
     }).catch(function () { stato('attesa'); dialogo('', t('Questo browser non mi permette di fare la verifica.', 'This browser does not let me run the check.')); });
   }
   function elabora(testo) {
@@ -917,6 +990,10 @@
   /* ═══ 8. APRIRE E CHIUDERE ═════════════════════════════════════════════ */
   function briefing() {
     var Mn = globale.BSISpectraMente, Cr = globale.BSISpectraCreatore;
+    if (Cr && Cr.inAttesaImpronta && Cr.inAttesaImpronta()) {
+      setTimeout(function () { var m = t('Sei tu, ' + Cr.NOME_BREVE + '? Fammi sentire la tua impronta.', 'Is that you, ' + Cr.NOME_BREVE + '? Let me feel your fingerprint.'); dialogo('', m, esc(m) + '<br>' + bottoneImpronta('usa')); }, 60);
+      return t('Sei tu, ' + Cr.NOME_BREVE + '? Fammi sentire la tua impronta.', 'Is that you, ' + Cr.NOME_BREVE + '? Let me feel your fingerprint.');
+    }
     if (Cr && Cr.riconosciuto()) {
       var sc1 = leggiSchermo(), r1 = [Cr.saluto()];
       Cr.visita();
@@ -1057,7 +1134,7 @@
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
-    apriAssistente: apriAssistente, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
+    apriAssistente: apriAssistente, statoVoce: statoVoce, sbloccaVoce: sbloccaVoce, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
 })(typeof window !== 'undefined' ? window : globalThis);
