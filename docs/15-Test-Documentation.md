@@ -89,7 +89,7 @@ repository; la variabile `BSI_BANCHI` permette di indicare un'altra cartella.
 
 ## 3. Composizione della batteria
 
-**83 banchi**, raggruppati per ciò che dimostrano.
+**84 banchi**, raggruppati per ciò che dimostrano.
 
 ### 3.1 Dati scientifici
 
@@ -308,7 +308,7 @@ controlli già presenti prima della v238.
 `browser_reset` · `browser_proxy` · `browser_proxyui` · `browser_rdkit` ·
 `browser_lab` · `browser_frontiera` · `test_aggiorna` · `test_controllaagg` ·
 `test_spectra238` · `test_lezione` · `test_spectra_studio` · `test_spectra_rig` ·
-`test_spectra_figura` ·
+`test_spectra_figura` · `test_spectra_esplora` ·
 `test_guidaproxy` ·
 `test_fluidita` · `test_lingue` · `test_mol3d` · `test_spettrolettore`
 
@@ -372,7 +372,7 @@ prova solo in sviluppo; la chiamata a OpenAI e l'ascolto della voce (il banco no
 raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
 va giudicata guardando.
 
-**`test_spectra_figura` — 103 controlli (52 a 412 px, 51 a 1280 px).** Nasce
+**`test_spectra_figura` — 109 controlli (55 a 412 px, 54 a 1280 px).** Nasce
 dalla richiesta dell'autore: l'icona di Spectra solo col volto e, in ogni
 sezione dell'AI, Spectra col corpo, «e non altro». Prova
 `bsi-spectra-figura.js` nell'app, su un telefono (412 px) e su schermo grande
@@ -384,11 +384,12 @@ sezione dell'AI, Spectra col corpo, «e non altro». Prova
 | Icona | Il pulsante di Spectra è solo il volto; la pillola «Spectra» è nascosta |
 | Le quattro sezioni | In Spectra AI (`sai`) e nelle aree con l'assistente (`sareachim`, `sareafis`, `sareamat`) la figura sta **dentro la sezione, sotto il titolo**, alta almeno 280 px; in tutta l'app c'è **una figura sola** (un contesto WebGL); per le sezioni fuori da `#main` nessuno spazio vuoto sopra (`#main` alto al massimo 12 px; misurati 0) |
 | Il corpo incorporato | Il corpo di Spectra c'è sempre, senza caricarlo: incorporato nell'app (ossa 20/23); nessun pulsante «🧍 Corpo» né scelta di file (i pulsanti sono «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio») |
-| Con il corpo | Il viso «Noir» poggia sul colletto (0,0 cm); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
+| Con il corpo | Il viso «Noir» poggia sul colletto (0,0 cm, misurato a regime: il banco aspetta che l'allineamento dei primi fotogrammi sia finito); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
+| Console Spectra Live (3 per larghezza, v242) | Aperta la console, **Spectra col corpo (e l'ologramma) sta al posto del busto**: la figura è dentro `#bsiJV-figura`, alta più di 150 px, e il busto `#bsiJV-volto` è nascosto; la figura segue lo stato della console (elabora → gesto «pensa», mano al mento); chiusa la console, la figura torna nella sezione |
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → Spectra prima indica l'ologramma (gesto «indica»), poi accompagna la spiegazione con le mani («spiega»), gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
-| «🧠 Spiega» (14 per larghezza) | «🧠 Spiega» è la seconda scheda della finestra di Spectra e «Lezione» non c'è più; la figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel Centro spettri) legge lo schermo: almeno un grafico, i valori dei comandi, l'immagine; cinque livelli; il modello riceve il testo dello schermo, la domanda e **l'immagine**; la richiesta chiede una spiegazione esaustiva e non semplificata, con la lettura quantitativa dello spettro (δ, molteplicità, J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta; la domanda successiva continua la conversazione senza rimandare l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura primaria; senza modello non finge; legge come immagine gli spettri SVG (il quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele, immagine); con quella scena aperta dietro «🧠 Spiega» l'ologramma la mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre ma al modello vanno solo la domanda, senza testo né immagine dello schermo |
+| «🧠 Spiega» (14 per larghezza) | «🧠 Spiega» è la seconda scheda della finestra di Spectra e «Lezione» non c'è più; la figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel Centro spettri) legge lo schermo: almeno un grafico, i valori dei comandi, l'immagine; cinque livelli; il modello riceve il testo dello schermo, la domanda e **l'immagine**; la richiesta chiede una spiegazione esaustiva e non semplificata, con la lettura quantitativa dello spettro (δ, molteplicità, J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta; la domanda successiva continua la conversazione senza rimandare l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura primaria; senza modello non finge; legge come immagine i grafici SVG (dalla v242 il banco inserisce nella sezione aperta uno spettro SVG noto, deterministico, invece di dipendere dal quiz degli spettri, che è casuale); legge una scena 3D («Meccanica orbitale 3D»: 2 tele, immagine); con quella scena aperta dietro «🧠 Spiega» l'ologramma la mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre ma al modello vanno solo la domanda, senza testo né immagine dello schermo |
 | Ologramma (7 per larghezza) | Sta **alla destra di Spectra** (x sullo schermo); ci sono **sei scene vive**; Keplero: il rapporto fra la velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro l'8 %; **il soggetto segue la conversazione** (una risposta sull'IR → spettro, una domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco sull'etichetta apre «Sistema solare 3D» **dietro** la finestra «🧠 Spiega»: Spectra resta visibile davanti e l'ologramma mostra la sezione dal vivo; chiusa la finestra, l'app torna alla sezione di Spectra e la figura è lì |
-| Catalogo (5 per larghezza) | Il catalogo ha **tutte** le sezioni della barra (194/194: chimica 75, fisica 60, matematica 30, comuni 29); una domanda che nomina un argomento trova la sua sezione (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma; «🎞️ Mostrami tutto» scorre le sezioni della materia |
+| Catalogo (5 per larghezza) | Il catalogo ha **tutte** le sezioni della barra (197/197 dalla v242: chimica 76, fisica 61, matematica 31, comuni 29); una domanda che nomina un argomento trova la sua sezione (titolazioni → `stitr`, Schrödinger → `sschrod`, integrali per parti → `smatcalc`, spettro di massa → `sms`, spettro infrarosso → `sirvis`, meccanica orbitale → `sastroorbite`, «ciao come stai» → nessuna); chiedendo delle titolazioni, Spectra apre la sezione dietro la finestra, la mostra nell'ologramma e la spiega con i suoi dati; una sezione senza grafici (Tavola Periodica) si proietta come scheda nell'ologramma; «🎞️ Mostrami tutto» scorre le sezioni della materia |
 | Telefono | I pulsanti della figura non finiscono sotto quelli flottanti |
 | Errori | Nessun errore JavaScript, a ogni larghezza |
 
@@ -401,6 +402,27 @@ qualità della spiegazione di un modello vero: le risposte del modello sono
 simulate, e il banco controlla che cosa si manda (testo dello schermo,
 immagine, livello, struttura richiesta) e come si mostra, non che cosa un
 modello vero spiegherebbe.
+
+**`test_spectra_esplora` — 75 controlli (v242).** Nasce dalla richiesta
+dell'autore: «non c'è la sezione richiesta per ogni materia come every-joule».
+Prova `bsi-spectra-esplora.js`: in node i capitoli e i numeri dei cursori, nel
+browser (412 e 1280 px) le tre sezioni «⚡ Esplora con Spectra».
+
+| Parte | Che cosa pretende |
+|---|---|
+| Capitoli (12, in node) | Per chimica, fisica e matematica: **dieci capitoli**; livelli da 0 (Scuola superiore) a 4 (PhD avanzato · frontiera), in ordine; ogni previsione ha **quattro risposte**, l'indice della giusta e **un perché per ognuna**; gli identificativi sono unici |
+| Numeri dei cursori (22, in node) | Contro le formule: pH di HCl 10⁻⁸ M = **6,978** con l'autoprotolisi dell'acqua, 10⁻² M = 2; Henderson–Hasselbalch pH = pKa a rapporto 1; t½ = ln 2/k = **6,931 s** a k = 0,1 s⁻¹; Marcus, barriera nulla a ΔG° = −λ e **λ/4 a −2λ** (regione invertita); caduta da 20 m in **2,019 s**; gittata a 45° con v₀ = 20 m/s **40,775 m**; pendolo da 1 m **2,006 s**; Carnot fra 600 e 300 K = 0,5; particella in una scatola di 1 nm **0,376 eV**, ×4 dimezzandola; tunnel, spessore doppio → trasmissione al quadrato; γ dei muoni a 0,9995c = **31,63**; derivata di x³ in 2 = 12; (1+1/n)ⁿ con n = 10⁶ entro 2·10⁻⁶ da e; ∫₁ᵉ dx/x = 1; Basilea con 10⁵ termini = π²/6 − 10⁻⁵; armonica con 1000 termini **7,4855**; autovalori della rotazione di 90° ±i; massimo di Gibbs con 201 termini ≈ **1,179**; modo del calore k = 2 a t = 0,1 → e^(−0,4) |
+| La barra (1 per larghezza) | Le tre sezioni (`sesplchim`, `sesplfis`, `sesplmat`) stanno nella barra della loro materia, e ogni capitolo è collegato a una sezione che esiste |
+| Per materia (5 per materia e per larghezza) | Dieci capitoli e **Spectra col corpo nella sezione, `sticky`, ancora in vista dopo lo scorrimento** (sotto la testata dell'app); il capitolo davanti (il quinto, portato al centro) è **attivo** e l'ologramma prende la sua scena; prevedere con una risposta sbagliata segna la giusta e la sbagliata, con il perché di ogni risposta, e **Spectra reagisce** (sorpresa); la memoria (`bsi-esplora-v1`) ricorda la previsione e la barra avanza (1/10); il cursore ricalcola |
+| Telefono (3) | A 412 px niente sborda, per ogni materia |
+| Guardalo dal vivo (2 per larghezza) | «📺 Guardalo dal vivo» apre la sezione collegata **dietro** la finestra di Spectra (scheda «🧠 Spiega») e l'ologramma la mostra dal vivo (scena «schermo»); chiusa la finestra, si torna alla sezione Esplora (`sesplmat`) |
+| Errori (1 per larghezza) | Nessun errore JavaScript |
+
+Restano fuori: la voce di «🔊 Ascolta Spectra» (nel Chromium senza interfaccia
+non c'è sintesi vocale); la spiegazione di «🧠 Spiegamelo tutto», che dipende da
+un modello (il percorso è quello di «🧠 Spiega», provato da
+`test_spectra_figura`); la qualità didattica dei testi, che va giudicata
+leggendo.
 
 **`test_spectra_rig` — 30 controlli.** Prova il rig automatico
 (`bsi-spectra-rig.js`), che dà scheletro, pesi e colori dell'app a una figura
@@ -856,11 +878,11 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 570 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 575 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |
-| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio, `test_spectra_rig` il rig automatico su un umanoide sintetico, `test_spectra_figura` Spectra col corpo nelle quattro sezioni dell'AI e le sue reazioni. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
+| **Spectra Live e strumenti rapidi** | Dalla v238 `test_spectra238` copre l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore; dalla v239 il pulsante unico, e `test_lezione` la lezione guidata e «fammi lezione»; `test_spectra_studio` corpo, voce (senza OpenAI) e Spectra Studio, `test_spectra_rig` il rig automatico su un umanoide sintetico, `test_spectra_figura` Spectra col corpo nelle quattro sezioni dell'AI, nella console Spectra Live (dalla v242) e le sue reazioni; `test_spectra_esplora` (v242) le tre sezioni «⚡ Esplora con Spectra», i loro capitoli e i numeri dei cursori. Resta senza banco il resto dei comandi locali, la voce, gli strumenti che agiscono sulla pagina e il menu ✨ per materia (UI-21, AI-13). Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia | Provare i comandi locali come funzioni pure (`BSISpectraLive.comando`) e gli strumenti rapidi in node, come si fa già con i calcoli delle sezioni |
 
 ---
 

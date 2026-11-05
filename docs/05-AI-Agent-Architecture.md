@@ -933,6 +933,17 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   …», oppure dubbio se non ha capito) → la figura dice quel testo. Si
   disegna solo quando è visibile e la pagina è in primo piano. Gli eventi
   sono a senso unico: la figura non cambia ciò che il modello risponde.
+- **La figura nella console Spectra Live** (v242): con la console aperta,
+  `sezioni()` sposta la figura condivisa in `#bsiJV-figura` (fra la
+  telemetria e il dialogo; sullo schermo grande a destra), aggiunge la classe
+  `con-figura` e nasconde il busto `#bsiJV-volto`: al posto del solo volto,
+  Spectra col corpo e l'ologramma. La console emette `bsi-spectra-stato` a
+  ogni cambio di stato (attesa, ascolta, pensa, parla): pensa → concentrato,
+  mano al mento; ascolta → curioso, «SPECTRA · TI ASCOLTA». L'evento della
+  console porta la firma `daLive: true` e la console ignora i propri eventi:
+  senza la firma la console, che ascolta lo stesso evento per gli altri
+  moduli, si richiamava all'infinito (ricorsione trovata dal banco). Chiusa la
+  console, la figura torna nella sezione.
 - **«🧠 Spiega»** (`bsi-spectra-spiega.js`, `BSISpiega`, v240): la scheda
   seconda nella finestra di Spectra, dopo «💬 Chat», per una **spiegazione
   esaustiva** di qualunque domanda di chimica, fisica o matematica. Il
@@ -967,8 +978,8 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   testo e immagine vanno al fornitore configurato insieme alla domanda.
   **Il catalogo** (`catalogo()`): ogni pulsante di sezione della barra
   (`.nav-group-panel [data-s]`) con l'etichetta del gruppo e la materia
-  (`BSIMaterie.materiaDi`), 194 sezioni (chimica 75, fisica 60, matematica 30,
-  comuni 29), letto dalla barra e non scritto a mano. Il riquadro
+  (`BSIMaterie.materiaDi`), 197 sezioni dalla v242 (chimica 76, fisica 61,
+  matematica 31, comuni 29), letto dalla barra e non scritto a mano. Il riquadro
   «🗂️ Tutte le sezioni nell'ologramma» le elenca per gruppo, con ricerca e
   filtro per materia; `mostraSezione(id)` apre la sezione dietro la finestra
   (`BSISpectraLive.calcolo.apriSezione`, che cambia materia se serve),
@@ -989,6 +1000,27 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   spunta (scelta esplicita). Una sezione senza grafici si
   proietta nell'ologramma come scheda (titolo, scheda, fino a 6 comandi con
   i valori, testo visibile), così ogni sezione è mostrabile.
+- **«⚡ Esplora con Spectra»** (`bsi-spectra-esplora.js`, `BSIEsplora`,
+  v242): tre sezioni, una per materia (`sesplchim`, `sesplfis`,
+  `sesplmat`), registrate con `BSIFisica.sezione`, nello stile delle lezioni
+  esplorabili. Dieci capitoli per materia (`CAPITOLI`, livelli 0→4, dalla
+  Scuola superiore al PhD avanzato · frontiera), ciascuno con il fenomeno, una
+  previsione a quattro risposte con il perché di ognuna, in 19 capitoli un
+  cursore calcolato (`calcola(id, v)`), la sezione dell'app collegata e la
+  scena dell'ologramma. La figura condivisa entra nella sezione con la classe
+  `bsiEX-palco` (`position: sticky` sotto la testata misurata dell'app; sul
+  telefono più bassa) e resta in scena mentre si scorre; il capitolo che
+  attraversa il centro dello spazio libero sotto la figura diventa attivo:
+  `bsi-spectra-dice` (Spectra lo racconta, curioso) e `olo.mostra(scena)`.
+  La previsione emette `bsi-spectra-dice` con gioia o sorpresa. «📺 Guardalo
+  dal vivo» apre la finestra su «🧠 Spiega» e la sezione dietro
+  (`BSISpiega.mostraSezione`); «🧠 Spiegamelo tutto» chiama
+  `BSISpiega.chiedi(titolo + domanda, { schermo: true, livello })`, quindi
+  passa per lo stesso fornitore e le stesse regole sullo schermo di «🧠
+  Spiega»; «🔊 Ascolta Spectra» usa `BSISpectraLive.parla`. Le sezioni
+  Esplora contano come sezioni dell'AI: chiusa la finestra si torna lì.
+  Nessuna chiamata a un modello senza un gesto dell'utente; le previsioni
+  restano in `bsi-esplora-v1`.
 - **La voce** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` vale
   `'audio'` con una chiave OpenAI in `bsi_api_keys` e Web Audio disponibile,
   `'sistema'` con la sola sintesi del browser, `'testo'` senza. In modalità

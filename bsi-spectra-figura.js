@@ -320,6 +320,7 @@
     '.bsiSF-olo{position:absolute;right:12px;top:8px;max-width:58%;background:rgba(8,14,30,.78);border:1px solid rgba(107,207,255,.4);color:#9fe7ff;border-radius:999px;padding:5px 11px;font:700 11.5px system-ui;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:30px}' +
     /* sul telefono i pulsanti flottanti dell\'app stanno sul bordo destro: la barra lascia loro spazio */
     '@media (max-width:640px){.bsiSF .bsiSF-az{padding-right:74px}#bsi-pane-spiega .bsiSF .bsiSF-az{padding-right:10px}}' +
+    '.bsiSF-oi{position:absolute;right:12px;top:44px;background:linear-gradient(135deg,#1d4ed8,#0e7490);border:0;color:#fff;border-radius:999px;padding:6px 12px;font:800 12px system-ui;cursor:pointer;min-height:32px;box-shadow:0 0 14px rgba(0,201,183,.35)}' +
     '.bsiSF-nota{position:absolute;left:12px;bottom:58px;max-width:52%;font:600 12px/1.35 system-ui;color:#9fb6dd;pointer-events:none}' +
     '.bsiSF-invito{position:absolute;left:12px;right:12px;top:42px;max-width:380px;background:rgba(8,14,30,.88);border:1px solid rgba(107,207,255,.35);border-radius:14px;padding:12px 14px;color:#cfe2ff;font:500 13.5px/1.45 system-ui}' +
     '.bsiSF-invito[hidden]{display:none}.bsiSF-invito button{margin-top:8px;background:linear-gradient(135deg,#1d4ed8,#0e7490);color:#fff;border:0;border-radius:10px;padding:8px 12px;font:700 13px system-ui;cursor:pointer;min-height:36px}' +
@@ -391,6 +392,17 @@
       var b = D.querySelector('[data-s="' + d.sez + '"]'); if (b) b.click();
     };
     OL.mostra('pianeti');
+    /* «⛶ Interagisci»: l'ologramma interattivo (bsi-spectra-olointerattivo.js), nella modalita' di cio' che l'ologramma mostra */
+    var oiB = D.createElement('button'); oiB.type = 'button'; oiB.className = 'bsiSF-oi'; oiB.textContent = '⛶ ' + t('Interagisci', 'Interact');
+    oiB.title = t('Apri l\'ologramma: scrivi dati e tracce, cambia lo spettro, scegli un pianeta, e Spectra spiega ogni passaggio', 'Open the hologram: write data and traces, change the spectrum, pick a planet, and Spectra explains every step');
+    oiB.onclick = function () {
+      var I = globale.BSIOloInterattivo; if (!I) return;
+      var m = { pianeti: 'universo', spettro: 'spettri', molecola: 'spettri', superficie: 'matematica', orbitale: 'matematica', onda: 'fisica' }[OL.attuale];
+      if (!m) { var sc0 = globale.BSISpectraLive && globale.BSISpectraLive.schermo ? globale.BSISpectraLive.schermo() : null, mat = sc0 && sc0.materia; m = /spet|sirvis|sspec|sms|snoe|suvvis|scentrospettri/.test(sc0 && sc0.sezione || '') ? 'spettri' : mat === 'fisica' ? 'fisica' : mat === 'matematica' ? 'matematica' : 'spettri'; }
+      var ov = D.getElementById('bsi-hub-ov'); if (ov && ov.classList.contains('open')) { var ch = D.getElementById('bsi-hub-close'); if (ch) ch.click(); }
+      I.apri(m);
+    };
+    box.appendChild(oiB);
     var vivoT = 0;
     function vivo() {
       /* lo schermo vivo: la sezione aperta (la sua tela, ridisegnata) copiata nell'ologramma, 5 volte al secondo */
@@ -510,6 +522,9 @@
     ids = ids || ['bsi-pane-spiega', 'sai', 'sareachim', 'sareafis', 'sareamat', 'sesplchim', 'sesplfis', 'sesplmat'];
     function bersaglio() {
       /* LA CONSOLE SPECTRA LIVE, aperta, ha la precedenza su tutto: al posto del busto, Spectra col corpo e l'ologramma */
+      /* l'OLOGRAMMA INTERATTIVO aperto: Spectra va li', a spiegare */
+      var oi = D.getElementById('bsi-olo-ov');
+      if (oi && oi.classList.contains('aperto')) { var po = D.getElementById('bsiOI-figura'); if (po) return po; }
       var hud = D.getElementById('bsiJV');
       if (hud && hud.classList.contains('aperto')) {
         var posto = D.getElementById('bsiJV-figura'); if (!posto) { posto = D.createElement('div'); posto.id = 'bsiJV-figura'; hud.appendChild(posto); }
@@ -531,10 +546,10 @@
       }
       var q0 = s.querySelector('.bsiFX') || s, d0 = null;
       ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q0.querySelector(':scope > ' + sel); if (e) { d0 = e; return true; } return false; });
-      if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
+      if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura' || s.id === 'bsiOI-figura' ? condivisa.box.parentNode !== s : (!s.contains(condivisa.box) || condivisa.box.parentNode !== q0 || (d0 && condivisa.box.previousElementSibling !== d0))) {
         /* dopo il titolo, la «Lezione guidata» e la descrizione, prima delle schede e del contenuto */
         var q = s.querySelector('.bsiFX') || s, dopo = null;
-        if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
+        if (s.id === 'bsi-pane-spiega' || s.id === 'bsiJV-figura' || s.id === 'bsiOI-figura') { s.insertBefore(condivisa.box, s.firstChild); condivisa.adatta(); return; }
         ['.bsiFX-sotto', '.bsiLZ-avvia', '.section-title'].some(function (sel) { var e = q.querySelector(':scope > ' + sel); if (e) { dopo = e; return true; } return false; });
         if (dopo) q.insertBefore(condivisa.box, dopo.nextSibling); else q.insertBefore(condivisa.box, q.firstChild);
         condivisa.box.classList.toggle('bsiEX-palco', /^sespl/.test(s.id));   /* nelle sezioni «Esplora» Spectra resta in scena mentre si scorre */

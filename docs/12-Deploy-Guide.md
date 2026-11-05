@@ -201,6 +201,15 @@ riceve «fammi lezione»), nel precarico `PRECACHE` di `sw.js`, perché funzioni
 e nell'elenco dei moduli di `tools/genera-sbom.js`, perché compaia nello SBOM.
 Un modulo che manca nel precarico funziona finché c'è rete e sparisce offline.
 
+L'ultimo modulo aggiunto così è `bsi-spectra-esplora.js` (v242, «⚡ Esplora con
+Spectra»): in `index.html` con `defer`, **dopo** `bsi-fisica-comune.js`,
+perché registra le sue tre sezioni (`sesplchim`, `sesplfis`, `sesplmat`) con
+`BSIFisica.sezione` appena viene eseguito; nel `PRECACHE` di `sw.js`, accanto a
+`bsi-spectra-spiega.js`; nell'elenco di `tools/genera-sbom.js`. I tre
+contenitori `<div id="sesplchim" class="section">`… e i tre pulsanti della
+barra stanno in `index.html`. Il modulo non porta file 3D suoi: usa la figura
+condivisa di `bsi-spectra-figura.js`.
+
 ### 2.2-quinquies Spectra Studio, una pagina a sé
 
 `spectra-studio.html` (v239) non passa da `index.html`: carica da sé

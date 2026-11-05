@@ -53,7 +53,7 @@ non un controllo d'accesso (vedi §6).
 
 ## 3. Aree funzionali
 
-L'applicazione conta **194 sezioni**, raggruppate per area di studio.
+L'applicazione conta **197 sezioni**, raggruppate per area di studio.
 
 ### 3.1 Spettroscopia
 
@@ -366,6 +366,15 @@ spiega lo svolgimento quando l'assistente locale risolve un esercizio; pulsanti
 tutta l'app. L'icona di Spectra è solo il volto. I pulsanti stanno in una barra
 sotto la scena.
 
+**Spectra col corpo nella console Spectra Live** (`bsi-spectra-figura.js`,
+v242). Richiesta dell'autore, guardando la console: «Esce ancora così (il
+busto)». Quando la console è aperta, al posto del busto solo volto c'è Spectra
+col corpo e l'ologramma (la stessa figura, spostata nella console, fra la
+telemetria e il dialogo; sullo schermo grande a destra). Lo stato della
+console guida la figura: mentre ascolta è curioso, mentre elabora è
+concentrato con la mano al mento, poi parla. Chiusa la console, la figura
+torna nella sezione da cui era venuta.
+
 **L'ologramma** (`bsi-spectra-figura.js`, v240). Alla destra di Spectra (la
 destra di chi guarda) uno schermo olografico mostra scene vive, calcolate e
 non registrate: quattro pianeti su orbite di Keplero (equazione di Keplero
@@ -420,8 +429,8 @@ matematica deve esserci, non deve mancare nulla in questo ologramma: deve
 esserci tutto spiegabile e mostrabile». Il catalogo non è scritto a mano: si
 legge dalla barra dell'app (ogni pulsante di sezione, con il suo gruppo —
 Chimica, Spettroscopia, Biochimica, Farmacologia, Chimica Fisica, Studio,
-Utility, Fisica, Matematica, Astrofisica — e la sua materia): 194 sezioni
-(chimica 75, fisica 60, matematica 30, comuni 29); una sezione nuova compare da
+Utility, Fisica, Matematica, Astrofisica — e la sua materia): 197 sezioni
+(chimica 76, fisica 61, matematica 31, comuni 29, dalla v242); una sezione nuova compare da
 sola. Nella scheda «🧠 Spiega» il riquadro apribile **«🗂️ Tutte le sezioni
 nell'ologramma»** le elenca per gruppo, con una casella di ricerca e un filtro
 per materia; un tocco apre la sezione dietro la finestra di Spectra
@@ -445,6 +454,44 @@ titolazioni → Titolazione, Schrödinger → l'equazione di Schrödinger,
 integrali per parti → «Derivate, integrali e serie», spettro di massa →
 Spettro MS, spettro infrarosso → IR Visivi, meccanica orbitale → la meccanica
 orbitale 3D; «ciao come stai» → nessuna.
+
+**⚡ Esplora con Spectra** (`bsi-spectra-esplora.js`, v242). Richiesta
+dell'autore: «non c'è la sezione richiesta per ogni materia come every-joule».
+Tre sezioni, una per materia, nella barra della loro materia subito dopo il
+pulsante «Area … · assistente»: **«⚡ Esplora la chimica con Spectra»**,
+**«⚡ Esplora la fisica con Spectra»**, **«⚡ Esplora la matematica con
+Spectra»**. Ognuna è una pagina da scorrere, nello stile delle lezioni
+esplorabili: Spectra col corpo resta in scena in alto mentre si scorre (subito
+sotto la testata dell'app; sul telefono più bassa) e l'ologramma cambia con il
+capitolo che si ha davanti. Dieci capitoli per materia, dalla Scuola superiore
+al PhD avanzato · frontiera:
+
+| Materia | Capitoli |
+|---|---|
+| Chimica | l'atomo e l'energia di ionizzazione · la forma delle molecole (VSEPR) · il pH di un acido forte molto diluito · il tampone e Henderson–Hasselbalch · la cinetica del primo ordine · la spettroscopia IR · l'¹H-NMR e l'accoppiamento spin–spin · gli orbitali molecolari: perché O₂ è magnetico · la teoria di Marcus e la regione invertita · la frontiera: l'errore di delocalizzazione della DFT |
+| Fisica | la caduta dei gravi · il moto del proiettile · le leggi di Keplero · il pendolo · il rendimento di Carnot · l'interferenza da due fenditure · la particella in una scatola · l'effetto tunnel · la dilatazione del tempo e i muoni · la frontiera: le onde gravitazionali (GW150914) |
+| Matematica | la derivata come pendenza · il numero e · l'integrale e il logaritmo · la serie di Basilea · la serie armonica · autovalori: la rotazione del piano · la serie di Fourier e il fenomeno di Gibbs · l'analisi complessa e i residui · l'equazione del calore · la frontiera: l'ipotesi di Riemann |
+
+Ogni capitolo: il fenomeno in poche righe esatte; **🔮 Prevedi**, quattro
+risposte fra cui le idee sbagliate più comuni, poi la rivelazione (giusta o no,
+e perché ciascuna risposta è giusta o sbagliata) e Spectra reagisce (gioia o
+sorpresa); **🧪 Prova**, in 19 capitoli su 30, un cursore che ricalcola la
+grandezza vera (pH con l'autoprotolisi dell'acqua, Henderson–Hasselbalch, t½,
+ΔG‡ di Marcus e velocità relativa, tempo di caduta, gittata, periodo del
+pendolo, Carnot, E₁ della scatola, trasmissione per effetto tunnel, γ e
+percorso medio dei muoni, derivata, (1+1/n)ⁿ, ln b, somme di Basilea con la
+coda, H_N contro ln N + γ, autovalori della rotazione, massimo di Gibbs
+calcolato, decadimento di un modo del calore); **«📺 Guardalo dal vivo»** apre
+la sezione collegata dietro la finestra di Spectra (scheda «🧠 Spiega») e
+l'ologramma la mostra dal vivo, e chiudendo la finestra si torna alla sezione
+Esplora; **«🧠 Spiegamelo tutto»** chiede a «🧠 Spiega» la spiegazione al
+livello del capitolo, con lo schermo della sezione (serve un fornitore di IA);
+**«🔊 Ascolta Spectra»** legge il capitolo con la voce di Spectra Live.
+Scorrendo, il capitolo che attraversa il centro dello spazio libero sotto
+Spectra diventa «attivo» (anche se è più alto dello schermo): Spectra lo
+racconta, con labiale e gesti, e l'ologramma prende la sua scena. Le previsioni
+fatte restano sul dispositivo (`bsi-esplora-v1`) con la barra dei progressi
+«n/10», e si cancellano con «Cancella dati → Memoria persistente».
 
 Corpo, volto e mente sono una simulazione di
 comportamento, non una coscienza.
@@ -546,6 +593,22 @@ davvero, **senza bisogno di alcuna chiave**.
                gli esercizi su quattro livelli (uno consigliato)
 7. Spectra parla, guarda la scena, indica e gesticola; trascinando si gira
    la telecamera. Senza WebGL resta il pannello con tutto il testo
+```
+
+### 4.8 Esplorare una materia con Spectra (v242)
+
+```
+1. Barra della materia → «⚡ Esplora la chimica / la fisica / la matematica
+   con Spectra» (subito dopo l'area con l'assistente)
+2. Si scorre: Spectra resta in alto, il capitolo davanti diventa attivo,
+   Spectra lo racconta e l'ologramma prende la sua scena
+3. PREVEDI   — si tocca una delle quattro risposte; la rivelazione spiega
+               ognuna, Spectra reagisce, la barra «n/10» avanza
+4. PROVA     — si muove il cursore: la grandezza si ricalcola
+5. «📺 Guardalo dal vivo» — la sezione collegata dietro la finestra di
+   Spectra, dal vivo nell'ologramma; chiudendo si torna qui
+6. «🧠 Spiegamelo tutto» — la spiegazione completa al livello del capitolo;
+   «🔊 Ascolta Spectra» — il capitolo letto a voce
 ```
 
 ---

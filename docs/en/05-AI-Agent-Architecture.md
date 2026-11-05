@@ -901,6 +901,18 @@ summarised here.
   figure says that text. It renders only when visible and the page is in the
   foreground. The events are one-way: the figure does not change what the
   model answers.
+- **The figure in the Spectra Live console** (v242): with the console open,
+  `sezioni()` moves the shared figure into `#bsiJV-figura` (between the
+  telemetry and the dialogue; on a large screen on the right), adds the
+  `con-figura` class and hides the bust `#bsiJV-volto`: instead of the face
+  alone, Spectra with the body and the hologram. The console emits
+  `bsi-spectra-stato` at every state change (waiting, listening, thinking,
+  speaking): thinking → concentrated, hand on chin; listening → curious,
+  «SPECTRA · LISTENING TO YOU». The console's event carries the `daLive: true`
+  signature and the console ignores its own events: without the signature the
+  console, which listens to the same event for the other modules, called
+  itself forever (a recursion found by the bench). With the console closed,
+  the figure returns to the section.
 - **«🧠 Spiega»** (`bsi-spectra-spiega.js`, `BSISpiega`, v240): the second
   tab of the Spectra window, after «💬 Chat», for an **exhaustive
   explanation** of any chemistry, physics or mathematics question. The system
@@ -933,8 +945,8 @@ summarised here.
   screen data as text). With the screen included, text and image go to the
   configured provider together with the question. **The catalogue**
   (`catalogo()`): every section button of the bar (`.nav-group-panel
-  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 194
-  sections (chemistry 75, physics 60, mathematics 30, shared 29), read from
+  [data-s]`) with its group label and subject (`BSIMaterie.materiaDi`), 197
+  sections since v242 (chemistry 76, physics 61, mathematics 31, shared 29), read from
   the bar rather than written by hand. The «🗂️ Tutte le sezioni
   nell'ologramma» card lists them by group, with search and a subject filter;
   `mostraSezione(id)` opens the section behind the window
@@ -955,6 +967,25 @@ summarised here.
   screen check it again (explicit choice). A section without graphs
   is projected on the hologram as a card (title, tab, up to 6 controls with
   values, visible text), so every section is showable.
+- **«⚡ Explore with Spectra»** (`bsi-spectra-esplora.js`, `BSIEsplora`,
+  v242): three sections, one per subject (`sesplchim`, `sesplfis`,
+  `sesplmat`), registered with `BSIFisica.sezione`, in the style of explorable
+  lessons. Ten chapters per subject (`CAPITOLI`, levels 0→4, from high school
+  to advanced PhD · frontier), each with the phenomenon, a four-answer
+  prediction with the reason for each, in 19 chapters a computed slider
+  (`calcola(id, v)`), the linked app section and the hologram scene. The
+  shared figure enters the section with the `bsiEX-palco` class
+  (`position: sticky` under the measured app header; shorter on phones) and
+  stays on stage while scrolling; the chapter crossing the middle of the free
+  space under the figure becomes active: `bsi-spectra-dice` (Spectra tells
+  it, curious) and `olo.mostra(scena)`. The prediction emits
+  `bsi-spectra-dice` with joy or surprise. «📺 Guardalo dal vivo» opens the
+  window on «🧠 Spiega» and the section behind it (`BSISpiega.mostraSezione`);
+  «🧠 Spiegamelo tutto» calls `BSISpiega.chiedi(title + question, { schermo:
+  true, livello })`, so it goes through the same provider and the same screen
+  rules as «🧠 Spiega»; «🔊 Ascolta Spectra» uses `BSISpectraLive.parla`. The
+  Explore sections count as AI sections: closing the window returns there. No
+  model call without a user gesture; predictions stay in `bsi-esplora-v1`.
 - **The voice** (`bsi-spectra-voce.js`, `BSISpectraVoce`): `qualita()` is
   `'audio'` with an OpenAI key in `bsi_api_keys` and Web Audio available,
   `'sistema'` with the browser's speech synthesis only, `'testo'` without. In

@@ -522,7 +522,7 @@ Methods of a `Corpo`:
 |---|---|---|
 | `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Since v241 the body is **embedded**: `carica()` downloads `models/spectra-corpo.bsi`, reopens it (internal function `apri`: «BSIC» signature, version, length, bytes mixed with an xorshift32 stream from a fixed seed) and hands it to `daBuffer`; first it deletes an old body from IndexedDB `bsi-spectra-modelli`, if any. If the block does not arrive: with `opz.soloDispositivo` (enabled for the figure from `monta`) no further attempt and `caricato = false`; without it (the studio, in development) it tries `models/spectra-corpo.glb`. The `models/spectra-cyberpunk.glb` fallback is gone. No substitute body (the mannequin only with `opz.manichino === true`, for the driver's bench). Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
 | `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio» (since v241 no «🧍 Corpo» and no file input); while the body arrives «Spectra sta arrivando…», if it does not arrive «Spectra non è arrivato: serve la rete la prima volta» with «↻ Riprova»; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
-| `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`); the 3D files load on first opening |
+| `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`; since v242 also `sesplchim`, `sesplfis`, `sesplmat`, where the figure takes the `bsiEX-palco` class and stays on stage while scrolling); the 3D files load on first opening. **Since v242 the open Spectra Live console takes precedence over everything**: the figure goes into `#bsiJV-figura` (created if missing) and the console takes the `con-figura` class, which hides the bust `#bsiJV-volto`; with the console closed, the figure returns to the section |
 | `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
 | `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The IndexedDB of the old user-loaded body (`bsi-spectra-modelli`, store `file`, key `corpo`); since v241 `carica()` uses it only to read and **remove** an old body, it no longer writes to it |
 | `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
@@ -542,7 +542,7 @@ New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo
 | Symbol | Signature | Description |
 |---|---|---|
 | `costruisci` | `(panel)` | Builds the «🧠 Spiega» tab in the given panel (called by `bsi-ai-hub.js`): question, level, «📺 Includi lo schermo» checkbox with the screen card, quick prompts, «↺ Nuova spiegazione», the «🗂️ Tutte le sezioni nell'ologramma» card (search, subject filter, «🎞️ Mostrami tutto») |
-| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 194 sections (chemistry 75, physics 60, mathematics 30, shared 29). Read from the bar, not written by hand |
+| `catalogo` | `() → [{ id, nome, gruppo, g, materia }]` | Every section of the app bar (`.nav-group-panel [data-s]`), with its group label and subject (`BSIMaterie.materiaDi`; `'comune'` if none): 197 sections since v242 (chemistry 76, physics 61, mathematics 31, shared 29). Read from the bar, not written by hand |
 | `sezioneDi` | `(text) → catalogue entry \| null` | The section a question names: meaningful words of the names (with stems), acronyms (MS, IR, UV, NMR, MO…) weighted more, synonyms («spettro di massa» → MS, «infrarosso» → IR, «risonanza magnetica» → NMR, «orbitali molecolari» → MO); ties go to the shorter name. E.g. «titolazioni» → `stitr`, «integrali per parti» → `smatcalc`, «ciao come stai» → `null` |
 | `mostraSezione` | `(id) → Promise<boolean>` | Opens the section behind the Spectra window (`BSISpectraLive.calcolo.apriSezione`, which switches subject if needed) and refreshes the screen, so the hologram shows it live |
 | `giro` | `(subject?)` | «🎞️ Mostrami tutto»: every section of the subject (`'chimica'`, `'fisica'`, `'matematica'`; all if empty) in the hologram, one every 7 s, with the counter «n/N · name» |
@@ -554,6 +554,21 @@ New event: **`bsi-spectra-tema`** (`CustomEvent` on `document`, `detail: { testo
 | `aggiornaSchermo` | `()` | Refreshes the screen card (title, number of graphs and 3D scenes, thumbnail) |
 | `LIVELLI`, `PROFONDITA` | array | The five levels (High school to Advanced PhD · frontier) and what is asked at each |
 | `stato` | `() → { turni, livello, inCorso }` | The state of the conversation |
+
+The **`bsi-spectra-stato`** event, since v242 also from the console: `bsi-spectra-live.js` emits it at every state change with `detail: { stato, dettaglio, daLive: true }` (`stato`: `'attesa'`, `'ascolta'`, `'pensa'`, `'parla'`); the figure reacts (`'pensa'` → concentrated, «pensa» gesture, hand on chin; `'ascolta'` → curious, «LISTENING TO YOU»). The console ignores events carrying `daLive`: that signature is what stops the console from calling itself forever.
+
+### `window.BSIEsplora` — «⚡ Explore with Spectra» (`bsi-spectra-esplora.js`, v242)
+
+| Symbol | Signature | Description |
+|---|---|---|
+| `CAPITOLI` | `{ chimica, fisica, matematica }` → array of 10 chapters | Each chapter: `id` (`c-…`, `f-…`, `m-…`), `liv` (0 high school … 4 advanced PhD · frontier), `tit`, `sez` (the id of the linked app section), `scena` (the hologram scene: `orbitale`, `molecola`, `spettro`, `onda`, `pianeti`, `superficie`), `testo`, `pred: { d, o[4], g, p[4] }` (question, four answers, index of the right one, a reason for each), `prova?: { et, min, max, passo, val }` (the slider, in 19 chapters out of 30) |
+| `calcola` | `(id, value) → { v, testo } \| null` | A chapter's slider quantity: `v` the number, `testo` the line shown. E.g. `calcola('c-ph', 8).v` ≈ 6.978 (HCl 10⁻⁸ M, with autoprotolysis), `calcola('f-pendolo', 1).v` ≈ 2.006 s, `calcola('m-armonica', 3).v` ≈ 7.4855; `null` for chapters without a slider |
+| `costruisci` | `(materia, pannello) → element` | Builds the subject's page in the panel: header with the «n/10» bar, the ten chapters (`section.cap`, id `bsiEX-<id>`) with prediction, try and the «📺 Guardalo dal vivo», «🧠 Spiegamelo tutto», «🔊 Ascolta Spectra» buttons; on scroll the chapter crossing the middle of the free space under the figure takes the `attivo` class, emits `bsi-spectra-dice` and brings the hologram to its scene; sets the CSS variable `--bsiEX-top` (the height of the app's fixed header) |
+| `gibbsMax` | `(N) → number` | The maximum, computed numerically over 4000 points in (0, π/2], of the partial sum of the square wave (4/π) Σ sin(kx)/k over odd k ≤ N (≈ 1.179 with N = 201) |
+| `SEZIONI` | `['sesplchim', 'sesplfis', 'sesplmat']` | The three sections, registered with `BSIFisica.sezione` (one tab, «⚡ Esplora») |
+| `MEM` | `'bsi-esplora-v1'` | The `localStorage` key of the predictions: `{ <chapter id>: { giusta, quando } }` |
+
+The module also loads in node (`require`), without `document`: `CAPITOLI`, `calcola` and `gibbsMax` are pure, which is how `test_spectra_esplora` compares them with the formulas. «🧠 Spiegamelo tutto» uses `BSISpiega.chiedi(question, { schermo: true, livello, nonAprire: true })` after `BSISpiega.mostraSezione(sez)`.
 
 ### `window.bsiLLM` — the chat's provider (`bsi-ai-hub.js`, v240)
 

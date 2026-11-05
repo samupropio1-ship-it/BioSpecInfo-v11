@@ -7,6 +7,135 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v242] — 2026-11-05
+
+**«⚡ Esplora con Spectra»: una sezione per materia nello stile delle lezioni esplorabili; Spectra col corpo anche nella console Spectra Live**
+
+Richiesta dell'autore, guardando la console Spectra Live: «Esce ancora così
+(il busto) e soprattutto non c'è la sezione richiesta per ogni materia come
+every-joule».
+
+### Aggiunto
+- **`bsi-spectra-esplora.js`** (oggetto globale `BSIEsplora`): tre sezioni
+  nuove, una per materia, nella barra della loro materia subito dopo il
+  pulsante «Area … · assistente»: **«⚡ Esplora la chimica con Spectra»**
+  (`sesplchim`), **«⚡ Esplora la fisica con Spectra»** (`sesplfis`),
+  **«⚡ Esplora la matematica con Spectra»** (`sesplmat`). Sono registrate con
+  il framework delle sezioni `BSIFisica` (una scheda, «⚡ Esplora»).
+  - **Una pagina da scorrere**, nello stile delle lezioni esplorabili
+    (every-joule). **Spectra col corpo resta in scena in alto mentre si
+    scorre** (la figura condivisa, `position: sticky` subito sotto la testata
+    fissa dell'app, misurata da sé; sul telefono più bassa,
+    `clamp(220px, 32vh, 280px)`); l'ologramma cambia con il capitolo che si ha
+    davanti.
+  - **Dieci capitoli per materia, dalla Scuola superiore al PhD avanzato ·
+    frontiera.**
+    Chimica: l'atomo e l'energia di ionizzazione; la forma delle molecole
+    (VSEPR); il pH di un acido forte molto diluito; il tampone e
+    Henderson–Hasselbalch; la cinetica del primo ordine; la spettroscopia IR;
+    l'¹H-NMR e l'accoppiamento spin–spin; gli orbitali molecolari (perché O₂ è
+    magnetico); la teoria di Marcus e la regione invertita; la frontiera:
+    l'errore di delocalizzazione della DFT.
+    Fisica: la caduta dei gravi; il moto del proiettile; le leggi di Keplero;
+    il pendolo; il rendimento di Carnot; l'interferenza da due fenditure; la
+    particella in una scatola; l'effetto tunnel; la dilatazione del tempo e i
+    muoni; la frontiera: le onde gravitazionali (GW150914).
+    Matematica: la derivata come pendenza; il numero e; l'integrale e il
+    logaritmo; la serie di Basilea; la serie armonica; gli autovalori della
+    rotazione del piano; la serie di Fourier e il fenomeno di Gibbs; l'analisi
+    complessa e i residui; l'equazione del calore; la frontiera: l'ipotesi di
+    Riemann.
+  - **Ogni capitolo**: il fenomeno in poche righe esatte; **🔮 Prevedi**, una
+    domanda con quattro risposte (fra cui le idee sbagliate più comuni);
+    scelta la risposta, la rivelazione — giusta o no, e **perché ciascuna
+    risposta è giusta o sbagliata** — e Spectra reagisce (gioia se giusta,
+    sorpresa se no); **🧪 Prova**, in 19 capitoli su 30, un cursore che
+    ricalcola davvero la grandezza (pH con l'autoprotolisi dell'acqua,
+    Henderson–Hasselbalch, t½, ΔG‡ di Marcus e velocità relativa, tempo di
+    caduta, gittata, periodo del pendolo, Carnot, E₁ della particella in una
+    scatola, trasmissione per effetto tunnel, γ e percorso medio dei muoni,
+    derivata, (1+1/n)ⁿ, ln b, somme parziali di Basilea con la coda fra
+    1/(N+1) e 1/N, H_N contro ln N + γ, autovalori della rotazione, massimo di
+    Gibbs calcolato numericamente, decadimento di un modo dell'equazione del
+    calore); **«📺 Guardalo dal vivo»** apre la sezione dell'app collegata
+    dietro la finestra di Spectra (scheda «🧠 Spiega») e l'ologramma la mostra
+    dal vivo; chiusa la finestra, si torna alla sezione Esplora; **«🧠
+    Spiegamelo tutto»** chiede a «🧠 Spiega» la spiegazione al livello del
+    capitolo, con lo schermo della sezione; **«🔊 Ascolta Spectra»** legge il
+    capitolo con la voce di Spectra Live.
+  - **Scorrendo**, il capitolo che attraversa il centro dello spazio libero
+    sotto Spectra diventa «attivo» (funziona anche per i capitoli più alti
+    dello schermo): Spectra lo racconta (labiale e gesti, evento
+    `bsi-spectra-dice`) e l'ologramma prende la sua scena.
+  - **La memoria**: le previsioni fatte, giuste o sbagliate, per capitolo
+    (`localStorage`, chiave `bsi-esplora-v1`) e la barra dei progressi
+    «n/10»; un capitolo già previsto mostra «Già previsto ✓/✗» e si può
+    rivedere senza ripetere la reazione. Si cancella con «Cancella dati →
+    Memoria persistente».
+  - API: `BSIEsplora.CAPITOLI`, `calcola(id, valore)`, `costruisci(materia,
+    pannello)`, `gibbsMax(N)`, `SEZIONI`, `MEM`.
+
+### Cambiato
+- **La console Spectra Live mostra Spectra col corpo e l'ologramma al posto
+  del busto** (`bsi-spectra-figura.js`). Quando la console è aperta, la
+  figura condivisa si sposta nella console (`#bsiJV-figura`, fra la
+  telemetria e il dialogo; sullo schermo grande a destra) e il busto solo
+  volto (`#bsiJV-volto`) è nascosto. Lo stato della console (attesa, ascolta,
+  pensa, parla) guida la figura con l'evento `bsi-spectra-stato`: pensa →
+  concentrata, mano al mento; ascolta → curiosa. Chiusa la console, la figura
+  torna nella sezione.
+- **Il catalogo di «🧠 Spiega»** ha ora **197 sezioni** (chimica 76, fisica
+  61, matematica 31, comuni 29): le tre sezioni Esplora compaiono da sole.
+  Le sezioni Esplora contano come sezioni dell'AI (`bsi-spectra-spiega.js`):
+  chiudendo la finestra di Spectra si torna lì.
+- **«Cancella dati → Memoria persistente»** cancella anche `bsi-esplora-v1`
+  (`bsi-ai-hub.js`).
+
+### Corretto
+- **Ricorsione infinita fra la console e la figura**, trovata dal banco:
+  la console emette ora `bsi-spectra-stato` per la figura, e ascoltava lo
+  stesso evento. L'evento della console porta la firma `daLive: true` e la
+  console ignora i propri eventi.
+
+### Banco
+- Nuovo **`test_spectra_esplora`** (75 controlli). In node, per ogni
+  materia: dieci capitoli; livelli da 0 a 4 in ordine; previsioni ben
+  formate (quattro risposte, l'indice della giusta, un perché per ognuna);
+  identificativi unici. Poi 22 controlli numerici dei cursori contro le
+  formule: pH di HCl 10⁻⁸ M = 6,978 con l'autoprotolisi; 10⁻² M = 2;
+  Henderson–Hasselbalch pH = pKa a rapporto 1; t½ = 6,931 s a k = 0,1 s⁻¹;
+  barriera di Marcus nulla a ΔG° = −λ e λ/4 a −2λ; caduta da 20 m in
+  2,019 s; gittata a 45° 40,775 m; pendolo da 1 m 2,006 s; Carnot 600/300 K =
+  0,5; scatola di 1 nm 0,376 eV e ×4 dimezzandola; tunnel, spessore doppio =
+  trasmissione al quadrato; γ dei muoni 31,63 a 0,9995c; derivata 12; e entro
+  2·10⁻⁶ con n = 10⁶; ∫₁ᵉ dx/x = 1; Basilea con 10⁵ termini = π²/6 − 10⁻⁵;
+  armonica con 1000 termini 7,4855; autovalori della rotazione ±i; massimo di
+  Gibbs ≈ 1,179 con 201 termini; modo del calore e^(−0,4). Nel browser, a 412
+  e 1280 px: le tre sezioni nella barra della loro materia, ogni sezione
+  collegata esiste; per ogni materia dieci capitoli e Spectra nella sezione,
+  sticky, ancora in vista dopo lo scorrimento; il capitolo davanti è attivo e
+  l'ologramma prende la sua scena; prevedere segna la giusta e la sbagliata
+  con il perché di ogni risposta e Spectra reagisce (sorpresa); memoria e
+  barra (1/10); il cursore ricalcola; a 412 px niente sborda; «📺 Guardalo dal
+  vivo» apre la sezione dietro la finestra di Spectra con l'ologramma dal
+  vivo, e chiudendo si torna alla sezione Esplora; nessun errore JavaScript.
+- `test_spectra_figura` passa a **109 controlli** (55 a 412 px, 54 a
+  1280 px): +3 per larghezza sulla console (la figura al posto del busto; lo
+  stato → mano al mento; chiusa la console, la figura torna nella sezione).
+  Il controllo sugli SVG ora inserisce nella sezione aperta uno spettro SVG
+  noto (deterministico) invece di dipendere dal quiz degli spettri, che è
+  casuale; la misura del viso sul colletto aspetta il regime.
+- La batteria passa da 83 a 84 banchi. I file tracciati esaminati da
+  `verifica-sicurezza` passano da 570 a 575: +2 di questa versione
+  (`bsi-spectra-esplora.js`, `tools/banchi/test_spectra_esplora.js`) e +3
+  dalla consegna della v241 (le copie di `impacchetta-corpo.js` nei pacchetti
+  AZIENDA, COMPLETO e TESI).
+
+### Non incluso
+- I banchi controllano i numeri, la struttura e il comportamento delle
+  sezioni Esplora, non la qualità didattica dei testi né la voce.
+
+---
 ## [bsi-v241] — 2026-11-05
 
 **Il corpo di Spectra sempre presente, incorporato nell'app; tolto il pulsante «🧍 Corpo»**

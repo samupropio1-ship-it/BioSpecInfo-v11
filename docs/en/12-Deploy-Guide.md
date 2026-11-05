@@ -201,6 +201,15 @@ offline, and in the module list of `tools/genera-sbom.js`, so that it appears in
 the SBOM. A module missing from the precache works while there is a network and
 disappears offline.
 
+The latest module added this way is `bsi-spectra-esplora.js` (v242, «⚡ Explore
+with Spectra»): in `index.html` with `defer`, **after** `bsi-fisica-comune.js`,
+because it registers its three sections (`sesplchim`, `sesplfis`, `sesplmat`)
+with `BSIFisica.sezione` as soon as it runs; in the `PRECACHE` of `sw.js`, next
+to `bsi-spectra-spiega.js`; in the list of `tools/genera-sbom.js`. The three
+containers `<div id="sesplchim" class="section">`… and the three bar buttons
+are in `index.html`. The module brings no 3D files of its own: it uses the
+shared figure of `bsi-spectra-figura.js`.
+
 ### 2.2-quinquies Spectra Studio, a page of its own
 
 `spectra-studio.html` (v239) does not go through `index.html`: it loads by

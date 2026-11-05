@@ -43,7 +43,7 @@ everything it needs. From then on it works with no signal too.
 | Element | Where it is | What it is for |
 |---|---|---|
 | **🔍 Search** | At the top | Searches the whole app. Shortcut: `Ctrl+K` |
-| **Section menu** | Navigation bar | The 194 sections, grouped by subject |
+| **Section menu** | Navigation bar | The 197 sections, grouped by subject |
 | **✨** | Bottom right | Tools, settings and updates |
 | **Spectra** | Bottom right, the face in a circle | The assistant that answers questions: a tap opens the console, and from there 💬 the chat |
 | **🎓 Guided lesson** | Under the title of every section | A lesson in chapters on the section, led by Spectra |
@@ -494,6 +494,13 @@ aloud and then listens again, so you can carry on without touching anything.
 Say «stop» or tap the screen to interrupt. If the browser has no speech
 recognition or synthesis, the console says so and you can type.
 
+In the console there is **Spectra with the body**, standing, with the hologram
+on his right (no longer the face-only bust): on a phone between the telemetry
+and the dialogue, on a large screen on the right. He follows what the console
+is doing: while listening to you he is curious, while working he puts his hand
+to his chin, then he speaks and gestures. When you close the console, Spectra
+goes back to the section where you left him.
+
 Some requests Spectra carries out by himself, **without network and without a
 key**: «switch to physics», «calculate 3/4 + 1/6», «derivative of x^2
 sin(x)», «convert 5 km to m», «constant planck», «plot sin(x)», «quiz me»,
@@ -638,8 +645,8 @@ conversation is not saved.
 
 **Every section in the hologram.** In the «🧠 Spiega» tab open the
 **«🗂️ Tutte le sezioni nell'ologramma»** card (in English «Every section in the
-hologram»): it lists every section of the app (194: 75 chemistry, 60 physics,
-30 mathematics and 29 shared), grouped as in the bar. Search for one in the box
+hologram»): it lists every section of the app (197: 76 chemistry, 61 physics,
+31 mathematics and 29 shared), grouped as in the bar. Search for one in the box
 (for example «titration», «Schrödinger», «integrals») or filter by subject;
 tap it and Spectra opens it behind the window, shows it live in the hologram
 and checks «📺 Includi lo schermo», so the explanation uses its data (if you
@@ -653,6 +660,49 @@ to search: if your question names a topic (in Italian, for example
 «spiegami le titolazioni», «lo spettro di massa», «la meccanica orbitale»), Spectra finds the section about it, opens it
 behind the window, shows it in the hologram and explains it with its screen
 data. New sections appear by themselves: the list is read from the app bar.
+
+### ⚡ Explore with Spectra: a subject to scroll
+
+In the chemistry, physics and mathematics bars, right after the «Area … ·
+assistente» button, there is **«⚡ Esplora la chimica con Spectra»** (and
+physics, and mathematics; in English «⚡ Explore chemistry with Spectra»…). It
+is a page to scroll, like an explorable lesson: **ten chapters**, from high
+school to advanced PhD, at the frontier of research.
+
+- **Chemistry**: ionisation energy, the shape of molecules (VSEPR), the pH of a
+  very dilute strong acid, buffers and Henderson–Hasselbalch, first-order
+  kinetics, IR spectroscopy, ¹H-NMR and coupling, the molecular orbitals of
+  O₂, Marcus theory and the inverted region, the delocalisation error of DFT.
+- **Physics**: falling bodies, projectile motion, Kepler's laws, the pendulum,
+  Carnot efficiency, two-slit interference, the particle in a box, tunnelling,
+  time dilation and muons, gravitational waves (GW150914).
+- **Mathematics**: the derivative as a slope, the number e, the integral and
+  the logarithm, the Basel series, the harmonic series, the eigenvalues of a
+  rotation, Fourier and the Gibbs phenomenon, residues, the heat equation, the
+  Riemann hypothesis.
+
+While you scroll, **Spectra stays at the top**, under the app header (on a
+phone in a shorter frame, to leave room for the text). The chapter in front of
+you lights up: Spectra tells it to you, with his lips and gestures, and the
+hologram on his right changes scene. In every chapter:
+
+1. **🔮 Prevedi** (predict) — tap one of the four answers. You see at once
+   whether it was right and **why each answer is right or wrong**; Spectra is
+   pleased or surprised.
+2. **🧪 Prova** (try) — in many chapters a slider: move it and the number is
+   really recomputed (the pH, the fall time, the pendulum period, the Gibbs
+   phenomenon…).
+3. **📺 Guardalo dal vivo** (watch it live) — the app section that shows the
+   phenomenon opens behind the Spectra window and the hologram projects it.
+   When you close the window you are back at the chapter.
+4. **🧠 Spiegamelo tutto** (explain it all) — the full «🧠 Spiega»
+   explanation, at the chapter's level, with the section's data (an AI
+   provider must be configured). **🔊 Ascolta Spectra** reads it aloud.
+
+At the top, the **«Il tuo percorso»** (your path) bar counts the chapters you
+have already predicted (for example 3/10); a chapter already done shows «Già
+previsto ✓» or «✗» and you can review it by tapping an answer. Predictions stay
+on this device; **«Cancella dati → Memoria persistente»** erases them.
 
 Body, face and voice
 imitate a behaviour: **they are not a consciousness**. The design is described
@@ -671,8 +721,10 @@ bar (which remembers the choice). Or do not save an OpenAI key.
 
 ### Spectra's face and mind
 
-In the console Spectra has a face: a 3D android (the «Noir» model by Skyfox13,
-CC BY 4.0 licence, modified; the credit is at the bottom of the console). The
+Spectra has a face: a 3D android (the «Noir» model by Skyfox13,
+CC BY 4.0 licence, modified; the credit is at the bottom of the console).
+In the console, since v242, you see it on Spectra's body, which takes the
+place of the bust. The
 mouth moves on the text he speaks, the head follows your gaze, and the
 expression changes with what he says and what you tell him: 17 expressions,
 from a smile to doubt. The eyes have the app's blue and change shade with the
