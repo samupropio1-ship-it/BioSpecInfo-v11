@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Versione applicazione | `bsi-v244` |
-| Commit | `fdfd9678cab305b3266d93e97e2a0d7c415f0ac1` |
-| Generato (UTC) | `2026-11-05T18:09:12.663Z` |
+| Commit | `f1b97b24c7c8cb45da6dfb66134d6efd8940dc46` |
+| Generato (UTC) | `2026-11-05T23:16:47.940Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -63,7 +63,7 @@ la dipendenza dalla disponibilità di terzi.
 | File | Dimensione | Ruolo |
 |---|---:|---|
 | `index.html` | 4702 kB | Applicazione principale: interfaccia, sezioni didattiche, dati chimici. |
-| `bsi-ai-hub.js` | 433 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
+| `bsi-ai-hub.js` | 437 kB | Agente AI «Spectra»: ciclo agentico, strumenti, gestione dei fornitori. |
 | `bsi-spettri.js` | 35 kB | Motore di predizione spettrale IR/NMR su grafo molecolare. |
 | `bsi-cheminfo.js` | 125 kB | Motore di chemioinformatica: standardizzazione, impronte, raggruppamento, PCA, modelli QSAR con modello nullo. |
 | `bsi-pretsch.js` | 37 kB | Le tabelle di stima NMR trascritte intere da Pretsch–Bühlmann–Badertscher, 4ª ed.: benzeni ¹³C e ¹H, etileni, alcani, alchini, alifatici ¹³C, correzioni steriche, ¹J(C,H). Solo numeri, nessun codice. |
@@ -199,8 +199,8 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `2ac1e6318256846a7f2f51f317b9f6ee78b350597f2155498de2ca7809780966` |
-| `bsi-ai-hub.js` | `2d3b1b3b11e83fdc379c26767fecbd0a025a70e1ced37e2037da7540578cad93` |
+| `index.html` | `127948800afd1f350ebf3ee22d673b6eae64d9cd47c5b3b730f9048bc4b5f9be` |
+| `bsi-ai-hub.js` | `d688ef9918b74799b534a477ec9d005e62ea3ed2c5bc8aa55db0767d896696e0` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -326,7 +326,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `07742d8f3a6540a0e765019711622ffc1019da0269f978d1d14656b2e5a7a24d` |
+| `sw.js` | `6b9c48f56776ba5c0be461b6c4932de263ee4b1fa61bca92bd699e8051f7bfb0` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -379,4 +379,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-05T18:09:12.663Z._
+_Generato il 2026-11-05T23:16:47.940Z._

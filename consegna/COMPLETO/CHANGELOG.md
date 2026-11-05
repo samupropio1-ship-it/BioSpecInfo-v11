@@ -7,6 +7,34 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v244] — 2026-11-05
+
+**«sono il tuo creatore» anche dalla Chat; Gemini sovraccarico passa da solo a un altro modello**
+
+Schermata dell'autore sulla v243: nella scheda 💬 Chat «sono il tuo creatore»
+→ «⚠ Google Gemini Flash è sovraccarico in questo momento — ho già riprovato
+4 volte… [503]». «Risolvi tutto».
+
+### Corretto
+- **«sono il tuo creatore» scritto nella scheda 💬 Chat** finiva al modello
+  (e con Gemini sovraccarico, a un errore 503). Le frasi su Spectra stesso
+  — il creatore, l'impronta, «prova la voce» — ora chiudono la finestra
+  dell'AI e aprono la console Spectra Live, che ha il campo nascosto per la
+  frase segreta e il sensore.
+- **Gemini sovraccarico con una sola chiave** («ho già riprovato 4 volte» e
+  poi niente): un 503 «This model is currently experiencing high demand»
+  riguarda quel modello, non la chiave. Ora si passa **subito** a un altro
+  modello candidato dello stesso fornitore con la stessa chiave (il modello
+  sovraccarico resta da parte 10 minuti, non viene bocciato); solo quando non
+  resta nessun candidato si aspetta e poi si passa a un altro fornitore. La
+  nota in chat dice «è sovraccarico, passo a …».
+
+### Verifiche
+- `test_impronta` a 25 controlli (la frase dalla Chat, Gemini 503 → un altro
+  modello in meno di 5 s); `test_503` aggiornato: tre modelli diversi senza
+  attese, e solo finiti i candidati la riserva su un altro fornitore.
+
+---
 ## [bsi-v243] — 2026-11-05
 
 **La voce di Spectra che si sente anche sul telefono; il creatore riconosciuto dall'impronta, solo lui**
