@@ -202,8 +202,11 @@ function carica() {
         document.querySelector('.nav-group-tab[data-group="' + grp + '"]').click();
         const b = document.querySelector('#navGroup' + grp + ' .nav-btn[data-s="' + s + '"]');
         if (!b) { out[s] = { manca: true }; continue; }
-        const primo = [...document.querySelectorAll('#navGroup' + grp + ' .nav-btn')].indexOf(b) <= (grp === 0 ? 2 : 0); /* in Chimica vengono prima la Dashboard e gli Articoli, che un modulo inserisce al caricamento */
-        b.click(); await pausa(800);
+        /* (v242) l'area non sta piu' nella barra: la apre il volto di Spectra, nella materia corrente */
+        const nascosto = getComputedStyle(b).display === 'none';
+        BSIMaterie.imposta(BSIMaterie.materiaDi(grp)); await pausa(300); const fab = document.getElementById('bsiJV-fab'); if (fab) fab.click(); await pausa(900);
+        const primo = nascosto && (BSISpectraLive.schermo() || {}).sezione === s;
+        if ((BSISpectraLive.schermo() || {}).sezione !== s) { b.click(); await pausa(800); }
         const sec = document.getElementById(s), sch = sec.querySelectorAll('.bsiFX-schede button');
         const vis = () => [...sec.querySelectorAll('[role=tabpanel]')].find(x => x.offsetParent);
         /* l'assistente: si scrive la domanda e si preme il pulsante */
@@ -242,7 +245,7 @@ function carica() {
     console.log('── ' + nome + ' ──');
     for (const [, s] of AREE) {
       const x = r2[s];
-      vero(s + ': c\'è, è in testa alla sua categoria, ha tre schede', x && !x.manca && x.primo && x.schede === 3);
+      vero(s + ': non è più nella barra, la apre il volto di Spectra nella sua materia, ha tre schede', x && !x.manca && x.primo && x.schede === 3);
       if (!x || x.manca) continue;
       if (nome === 'schermo grande') {
         vero(s + ': l\'assistente risponde con lo svolgimento', s === 'sareachim' ? /pH di un acido debole[\s\S]*2[,.]875/.test(x.risposta) : s === 'sareafis' ? /Moto del proiettile[\s\S]*62[,.]74/.test(x.risposta) : /Integrale definito[\s\S]*Risultato/.test(x.risposta));

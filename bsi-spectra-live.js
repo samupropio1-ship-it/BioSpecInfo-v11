@@ -1015,19 +1015,30 @@
      figura nel pallino. Ora resta il cerchio, al posto della pillola, nella colonna dei
      pulsanti di destra: apre la console, e dalla console 💬 apre la chat. La pillola resta
      nella pagina (altri moduli e i banchi la usano per aprire la chat) ma non si vede. */
+  var AREE = { chimica: 'sareachim', fisica: 'sareafis', matematica: 'sareamat' };
+  function apriAssistente() {
+    var M = globale.BSIMaterie, m = M && M.corrente ? M.corrente() : 'chimica', id = AREE[m] || 'sareachim';
+    if (!document.getElementById(id)) return false;
+    if (typeof globale.goSection === 'function') globale.goSection(id); else { var nb = document.querySelector('.nav-btn[data-s="' + id + '"]'); if (!nb) return false; nb.click(); }
+    try { globale.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { globale.scrollTo(0, 0); }
+    return true;
+  }
   function pulsanteLive() {
     var b = document.getElementById('bsiJV-fab');
     if (!b) {
       b = document.createElement('button'); b.id = 'bsiJV-fab'; b.type = 'button';
       b.style.cssText = 'position:fixed;z-index:99990;width:58px;height:58px;border-radius:50%;padding:0;overflow:hidden;cursor:pointer;display:none;border:2px solid #8fb0ff;box-shadow:0 0 18px rgba(47,107,255,.6),0 4px 14px rgba(0,0,0,.45);background:#050b1e';
-      b.onclick = function () { apriHud(); };
+      /* (v242) richiesta dell'autore: l'assistente di chimica, fisica e matematica non sta piu' nella barra in alto ma «dentro
+         il pallino col volto»: il volto apre l'area con l'assistente della materia in cui si e' (Spectra col corpo, l'ologramma,
+         il risolutore con lo svolgimento). La console vocale resta su «🎙️ Parla con me» e nei comandi di Spectra. */
+      b.onclick = function () { if (!apriAssistente()) apriHud(); };
       document.body.appendChild(b);
       var st = document.createElement('style'); st.id = 'bsiJV-fab-stile';
-      st.textContent = 'body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}';
+      st.textContent = '.nav-btn[data-s="sareachim"],.nav-btn[data-s="sareafis"],.nav-btn[data-s="sareamat"]{display:none!important}body.bsiJV-solo-volto #bsi-spectra-fab{visibility:hidden!important;pointer-events:none!important}#bsiJV-fab:focus-visible{outline:3px solid #8fb0ff;outline-offset:3px}@media (prefers-reduced-motion:no-preference){#bsiJV-fab{animation:bsiJVrespira 4s ease-in-out infinite}}@keyframes bsiJVrespira{0%,100%{box-shadow:0 0 14px rgba(47,107,255,.45),0 4px 14px rgba(0,0,0,.45)}50%{box-shadow:0 0 26px rgba(47,107,255,.8),0 4px 14px rgba(0,0,0,.45)}}';
       document.head.appendChild(st);
     }
     document.body.classList.add('bsiJV-solo-volto');
-    b.innerHTML = icona(56); b.title = t('Spectra: tocca per parlargli', 'Spectra: tap to talk'); b.setAttribute('aria-label', t('Spectra, il tuo assistente: apri la console', 'Spectra, your assistant: open the console'));
+    b.innerHTML = icona(56); b.title = t('Spectra: l\'assistente di questa materia', 'Spectra: this subject\'s assistant'); b.setAttribute('aria-label', t('Spectra, il tuo assistente: apri l\'assistente della materia', 'Spectra, your assistant: open the subject assistant'));
     var colloca = function () {
       var sp = document.getElementById('bsi-spectra-fab'), r = sp && sp.getBoundingClientRect();
       if (!r || !r.width || getComputedStyle(sp).display === 'none') { b.style.display = 'none'; return; }
@@ -1046,7 +1057,7 @@
     schermo: leggiSchermo, contesto: contestoSchermo, studio: studio, cattura: catturaSchermo,
     guida: guida, sentinella: { avvia: avviaSentinella, ferma: fermaSentinella, comando: comandoDaSentinella },
     difficolta: difficolta, livelloSezione: livelloSezione, navigatore: navigatore, provaCreatore: provaCreatore, verificaCreatore: verificaCreatore,
-    calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
+    apriAssistente: apriAssistente, calcolo: { norm: norm, espressioneParlata: espressioneParlata, perLaVoce: perLaVoce, frasi: frasi, simboloUnita: simboloUnita, impostaControllo: impostaControllo, scegliScheda: scegliScheda, apriSezione: apriSezione },
     STRUMENTI: STRUMENTI, versione: '1.0'
   };
 })(typeof window !== 'undefined' ? window : globalThis);
