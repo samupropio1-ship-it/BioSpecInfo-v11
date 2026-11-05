@@ -346,8 +346,8 @@ Restano fuori la voce della lezione (non c'è sintesi vocale nel Chromium senza
 interfaccia) e la qualità didattica dei testi, che dipende dalle spiegazioni
 delle sezioni e va giudicata leggendo.
 
-**`test_spectra_studio` — 91 controlli**, con o senza il modello in locale.
-Prova Spectra incarnato
+**`test_spectra_studio` — 87 controlli**, sul corpo vero incorporato
+(`models/spectra-corpo.bsi`, dalla v241). Prova Spectra incarnato
 (`spectra-studio.html`, `bsi-spectra-figura.js`, `bsi-spectra-corpo.js`, `bsi-spectra-voce.js`,
 `bsi-spectra-studio-lezioni.js`; progetto in
 [`docs/spectra/02`](spectra/02-Architettura.md)).
@@ -357,18 +357,18 @@ Prova Spectra incarnato
 | Calcoli (23) | Esegue `verifiche/verifica-studio-spectra.js`, anche da solo con `node`: caduta da 20 m in √(2h/g) = 2,0193 s per entrambe le sfere, gittata 12,116 m, con l'aria (k = 0,02 m⁻¹) la lanciata arriva dopo (2,1789 contro 2,1563 s), passo dimezzato che cambia il tempo meno di 10⁻⁴; VSEPR: tetraedro 109,471°, trigonale 120°, lineare 180°, acqua 104,40° con w = 1,25 (calibrato), ammoniaca 106,69° con lo stesso w (previsione), angolo che cala al crescere di w; Basilea: S(100 000) entro la coda di π²/6, coda fra 1/(N+1) e 1/N per N = 10, 100, 1000, Fourier di x² in π e in 1, armonica come ln N + γ, coprimi → 6/π² entro 3σ; per ogni lezione una sola risposta giusta, ogni opzione spiegata, almeno tre passi di dimostrazione, esercizi su quattro livelli |
 | Corpo (11) | Sul manichino: ossa 22/23 (manca la mandibola), blendshape 14/14, capelli trovati e resi neri (RGB 0,039 0,039 0,047); braccia giù dalla posa a T; indica (avambraccio sul bersaglio, scarto 1,7°); pensa (mano a 20,8 cm dalla testa); sguardo verso destra; passo (0,96 m, gambe a 24°); seduta (anche giù di 42 cm); gioia → sorriso, preoccupazione → angoli giù e sorriso a zero; labiale dall'audio (mandibola 0,75); battito (palpebre chiuse) |
 | Voce (3) | In un contesto audio offline: a 80 Hz i bassi escono rinforzati (6,9 dB), il riverbero lascia una coda dopo la fine del suono; senza chiave `qualita()` vale `'sistema'` |
-| Lezioni, a 1280 e 390 px | **Senza il corpo**: l'invito (`#invito`) è visibile e in scena non c'è nessun sostituto (niente manichino); poi il banco carica un umanoide sintetico con `S.usaScena` e l'invito sparisce, Spectra c'è (3 controlli); il volto «Noir» appoggiato sul collo (il riferimento è l'osso del collo più 4,5 cm, dove il mento poggia sul colletto); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
-| Corpo riggato, a 1280 e 390 px (3 + 3) | Sempre, sull'umanoide sintetico caricato dal banco. **Sincronia viso–cappuccio**: mentre Spectra cammina, fa il gesto «spiega» e guarda in 24 punti diversi, la posizione del viso misurata nel riferimento dell'osso della testa non si sposta più di 1 mm (misurati 0,0 mm); **del volto «Noir» si vede solo il viso** (sono visibili soltanto `Object_2`, `Object_3`, `Object_4`: maschera, occhi, dettagli); il volto è **«solidale»** (i movimenti della testa li fa il corpo, e il volto non fa il proprio respiro dentro il cappuccio) |
-| Corpo dal dispositivo, a 1280 e 390 px (3 + 3) | Il pulsante «🧍 Corpo» c'è e il suo campo file accetta i `.glb` (`.glb,model/gltf-binary`); un corpo scritto e riletto dall'IndexedDB (`bsi-spectra-modelli`) torna uguale (andata e ritorno); un file che non è un modello viene rifiutato con un messaggio, senza errori JavaScript |
+| Lezioni, a 1280 e 390 px | Il volto «Noir» appoggiato sul collo (il riferimento è l'osso del collo più 4,5 cm, dove il mento poggia sul colletto); per caduta, acqua e Basilea le misure in scena (2,019 s, 109,47° e 104,4°, S₁₀₀₀ = 1,64393 e coprimi 0,6079), quattro previsioni, formule nella dimostrazione, la rivelazione con la risposta giusta e quattro esercizi di cui uno consigliato, la memoria che ricorda previsione ed esercizio aperto; a 390 px niente sborda; nessun errore JavaScript |
+| Corpo riggato, a 1280 e 390 px (3 + 3) | Sul **corpo vero incorporato**. **Sincronia viso–cappuccio**: mentre Spectra cammina, fa il gesto «spiega» e guarda in 24 punti diversi, la posizione del viso misurata nel riferimento dell'osso della testa non si sposta più di 1 mm (misurati 0,0 mm); **del volto «Noir» si vede solo il viso** (sono visibili soltanto `Object_2`, `Object_3`, `Object_4`: maschera, occhi, dettagli); il volto è **«solidale»** (i movimenti della testa li fa il corpo, e il volto non fa il proprio respiro dentro il cappuccio) |
+| Corpo incorporato, a 1280 e 390 px (4 + 4) | Il corpo di Spectra c'è sempre, senza caricarlo (incorporato), e l'avviso «Spectra sta arrivando…» è sparito; nessun pulsante «🧍 Corpo» né scelta di file; il file pubblicato è un blocco impacchettato (firma «BSIC»), non un modello `.glb` riutilizzabile; un blocco che non è un modello viene rifiutato, senza errori JavaScript |
 | Voce e dati (2) | La voce spenta resta spenta dopo una ricarica; «Cancella dati → Memoria persistente» toglie `bsi-spectra-studio-v1` e `bsi-spectra-studio-voce` |
 | Senza WebGL | Nessuna scena, ma la lezione dà le misure (2,019 s); nessun errore JavaScript |
 
-Restano fuori: il corpo «Bounty Hunter» vero, perché
-`models/spectra-corpo.glb` non è nel repository (viene da CGTrader, e la
-licenza Royalty Free non permette che terzi possano recuperarne il file): il
-banco prova il corpo riggato su un umanoide sintetico; il caricamento del
-modello «cyberpunk» (`models/spectra-cyberpunk.glb`, anch'esso fuori dal
-repository); la chiamata a OpenAI e l'ascolto della voce (il banco non
+Dalla v241 i controlli sul corpo riggato (mento sul colletto, sincronia
+viso–cappuccio, solo il viso, volto solidale) girano sul corpo «Bounty Hunter»
+vero, incorporato nell'app; l'umanoide sintetico iniettato dal banco e i
+controlli sul corpo caricato dal dispositivo non ci sono più. Restano fuori:
+il `.glb` originale (`models/spectra-corpo.glb`, fuori da git), che lo studio
+prova solo in sviluppo; la chiamata a OpenAI e l'ascolto della voce (il banco non
 raggiunge OpenAI e non ascolta); la qualità visiva del corpo e dei gesti, che
 va giudicata guardando.
 
@@ -376,16 +376,15 @@ va giudicata guardando.
 dalla richiesta dell'autore: l'icona di Spectra solo col volto e, in ogni
 sezione dell'AI, Spectra col corpo, «e non altro». Prova
 `bsi-spectra-figura.js` nell'app, su un telefono (412 px) e su schermo grande
-(1280 px). Il corpo vero non è nel repository, quindi il banco carica lo
-stesso umanoide sintetico di `test_spectra_rig` (senza scheletro, con
-cappuccio).
+(1280 px). Dalla v241 il banco usa il **corpo vero**, incorporato nell'app
+(`models/spectra-corpo.bsi`).
 
 | Parte | Che cosa pretende |
 |---|---|
 | Icona | Il pulsante di Spectra è solo il volto; la pillola «Spectra» è nascosta |
 | Le quattro sezioni | In Spectra AI (`sai`) e nelle aree con l'assistente (`sareachim`, `sareafis`, `sareamat`) la figura sta **dentro la sezione, sotto il titolo**, alta almeno 280 px; in tutta l'app c'è **una figura sola** (un contesto WebGL); per le sezioni fuori da `#main` nessuno spazio vuoto sopra (`#main` alto al massimo 12 px; misurati 0) |
-| Senza il corpo | Compare l'invito a caricarlo e **nessun sostituto** (niente manichino in scena) |
-| Con il corpo | Caricato l'umanoide sintetico l'invito sparisce; il viso «Noir» poggia sul colletto (0,0 cm); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
+| Il corpo incorporato | Il corpo di Spectra c'è sempre, senza caricarlo: incorporato nell'app (ossa 20/23); nessun pulsante «🧍 Corpo» né scelta di file (i pulsanti sono «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio») |
+| Con il corpo | Il viso «Noir» poggia sul colletto (0,0 cm); del volto si vedono solo `Object_2`, `Object_3`, `Object_4` |
 | Reazioni | `bsi-spectra-stato` «pensa» → gesto «pensa» ed emozione concentrata; `bsi-spectra-risposta` → Spectra prima indica l'ologramma (gesto «indica»), poi accompagna la spiegazione con le mani («spiega»), gioia, labiale sul corpo e sul viso; una risposta mancata → dubbio; Spectra Live che parla → la figura parla con lei; l'assistente locale che risolve «deriva x^2» → «Ecco lo svolgimento…» e sorriso caldo |
 | «🧠 Spiega» (14 per larghezza) | «🧠 Spiega» è la seconda scheda della finestra di Spectra e «Lezione» non c'è più; la figura si sposta nella scheda; con uno spettro aperto («Spettri Ref.» nel Centro spettri) legge lo schermo: almeno un grafico, i valori dei comandi, l'immagine; cinque livelli; il modello riceve il testo dello schermo, la domanda e **l'immagine**; la richiesta chiede una spiegazione esaustiva e non semplificata, con la lettura quantitativa dello spettro (δ, molteplicità, J, integrale) e delle scene 3D; la struttura obbligatoria; la risposta arriva formattata (titoli e tabella) e Spectra pensa mentre viene scritta; la domanda successiva continua la conversazione senza rimandare l'immagine; al PhD avanzato frontiera, problemi aperti e letteratura primaria; senza modello non finge; legge come immagine gli spettri SVG (il quiz degli spettri); legge una scena 3D («Meccanica orbitale 3D»: 2 tele, immagine); con quella scena aperta dietro «🧠 Spiega» l'ologramma la mostra dal vivo; privacy: tolta la spunta «Includi lo schermo», la sezione nominata si apre ma al modello vanno solo la domanda, senza testo né immagine dello schermo |
 | Ologramma (7 per larghezza) | Sta **alla destra di Spectra** (x sullo schermo); ci sono **sei scene vive**; Keplero: il rapporto fra la velocità al perielio e all'afelio vale (1+e)/(1−e) = 1,94 entro l'8 %; **il soggetto segue la conversazione** (una risposta sull'IR → spettro, una domanda sulle orbite → pianeti); l'etichetta porta alla sezione; un tocco sull'etichetta apre «Sistema solare 3D» **dietro** la finestra «🧠 Spiega»: Spectra resta visibile davanti e l'ologramma mostra la sezione dal vivo; chiusa la finestra, l'app torna alla sezione di Spectra e la figura è lì |
@@ -396,7 +395,7 @@ cappuccio).
 Il banco porta la figura in vista prima di misurare: la figura si disegna, e
 allinea il viso, solo quando è visibile.
 
-Restano fuori: il corpo dell'autore, che non è nel repository; la qualità
+Restano fuori: la qualità
 visiva della figura e dei gesti, che va giudicata guardando; la voce; la
 qualità della spiegazione di un modello vero: le risposte del modello sono
 simulate, e il banco controlla che cosa si manda (testo dello schermo,
@@ -422,8 +421,8 @@ busto.
 | Definizione (3) | Con la tassellazione di Phong (`suddividi: 1`) ogni triangolo ne diventa quattro; i pesi restano normalizzati anche sui vertici nuovi; la pelle resta chiusa: i bordi aperti raddoppiano soltanto (ogni lato di bordo diventa due), nessuna cucitura si apre |
 | Errori (1) | Nessun errore JavaScript |
 
-Restano fuori: il modello vero (`models/spectra-corpo.glb`), che non è nel
-repository; la qualità visiva delle pieghe (gomiti, ginocchia, ascelle) e del
+Il corpo vero, incorporato dalla v241, è provato da `test_spectra_studio` e
+`test_spectra_figura`. Restano fuori: la qualità visiva delle pieghe (gomiti, ginocchia, ascelle) e del
 cappuccio, che va giudicata guardando.
 
 **`test_controllaagg` — 12 controlli.** Nasce da una segnalazione: «provando
@@ -857,7 +856,7 @@ due cose diverse e non vanno confuse.
 |---|---|---|
 | **Copertura di codice** | Misurata: **49,89 %** di istruzioni sul percorso più ampio. Resta fuori la copertura dell'intera batteria e quella di **rami**: un `if` entrato da un solo lato conta come coperto | Estendere la raccolta a ogni banco, e passare dalla copertura di istruzioni a quella di rami |
 | **Accessibilità** | Automatizzata su 13 pagine e tutte le 194 sezioni: contrasto WCAG, nomi accessibili, etichette, testo alternativo, gerarchia dei titoli. Restano fuori il testo negli SVG e quello su gradiente, **contati** a ogni esecuzione | Affiancare `axe-core` per le regole che questo banco non implementa (ruoli ARIA, ordine di tabulazione, gestione del fuoco) |
-| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 568 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
+| **Sicurezza** | `verifica-sicurezza` esegue 10 controlli su 570 file tracciati e copre SEC-01, SEC-03, SEC-05, SEC-06; SEC-04 è coperto da `verifica_guida`. **SEC-02 resta indiretto**: vedi `docs/09` D-03 | Osservare il traffico di rete durante un uso reale, l'unica verifica diretta di SEC-02 |
 | **Browser diversi da Chromium** | Nessuna prova automatica su Firefox o WebKit | Estendere i banchi principali a `webkit`, dove le differenze su IndexedDB e Service Worker sono maggiori |
 | **Prestazioni** | Prove manuali cross-device | Misura automatica del tempo di primo disegno |
 | **Regressione visiva** | Assente | Confronto di schermate per i grafici, che sono il cuore del prodotto |

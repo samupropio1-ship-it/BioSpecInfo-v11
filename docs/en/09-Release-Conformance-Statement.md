@@ -86,7 +86,7 @@ pass.
 | **D-11** | Part of Spectra Live, the per-subject ✨ menu and the quick tools have no bench | Voice, continuous listening, local commands other than the creator's, the tools that act on the page and the physics and mathematics ✨ menu are tested by hand: a failure in them would not fail the battery | Declared in `docs/08` §6 as **UI-21** and **AI-13**. Since v238 the console layout, the navigator, the level, the face and the creator commands are covered by `test_spectra238` (UI-22, AI-14, SEC-08); since v239 the guided lesson and the «fammi lezione» command by `test_lezione` (UI-24) and the single button by `test_spectra238` (UI-25), while the lesson's voice is still tested by hand. Speech recognition and synthesis do not exist in the battery's headless Chromium; the quick tools' computations rest on `BSIMatCAS`, verified by `test_matematica` |
 | **D-12** | Two Spectra local keys stay outside selective erasure | `bsi-spectra-ritratto-v4` (the icon derived from the face) and `bsi-spectra-sentinella` (continuous-listening mark) are not in the «Clear data» groups. The mind, the creator recognition, the subject and the study kits are (Persistent memory and Progress groups) | Neither holds user data: the first is regenerated, the second is removed when listening stops. Declared in `docs/11` §6 |
 | **D-13** | Spectra's creator recognition is not an access control | The SHA-256 fingerprint of the secret phrase is in the code, and the recognition mark (`bsi-spectra-creatore-v1`) is in `localStorage`, where whoever holds the device can write it by hand. An unsalted fingerprint of a weak phrase can also be searched by trial outside the app | Like the File Manager password (SEC-03), it is a deterrent: it protects no data, it tells Spectra whom it is talking to. The phrase is neither in the code nor stored (SEC-08, `test_spectra238`) |
-| **D-14** | Spectra with the body: the body is not in the published app | The body chosen by the author comes from CGTrader under a Royalty Free licence, which does not allow third parties to retrieve the file: it is not in the repository nor served by the app. Without it, the studio and the AI sections show an invitation to load it, with no substitute (no mannequin) | Each user loads their own copy once with «🧍 Corpo»; it stays only in their browser's IndexedDB (`bsi-spectra-modelli`). Rig, figure and reactions are tested on a synthetic humanoid (AI-17, UI-27); the real body has to be judged by looking |
+| **D-14** | Spectra with the body: the body is included in the app, but **packed**, not as a `.glb` (since v241) | The body chosen by the author (the «Bounty Hunter», free on CGTrader) is under CGTrader's Royalty Free licence: it may be used inside a product, not offered as a standalone file. Up to v240 it was not in the app and each user had to load it; since v241 it is always there, for everyone, as the packed block `models/spectra-corpo.bsi` (4.40 MB, «BSIC» format: the `.glb` bytes mixed with an xorshift32 stream from a fixed seed) that only the app's code reopens. **It is not absolute protection**: someone reading the code can rebuild the `.glb`, as with any model shown on a screen | It is how games and apps embed purchased models: the published file is not a downloadable, reusable `.glb`; the original `.glb` stays out of git (`.gitignore`). The block is regenerated with `tools/impacchetta-corpo.js`, which checks that it reopens identical. Rig, figure and reactions are tested on the **real embedded body** (`test_spectra_studio`, `test_spectra_figura`: AI-17, UI-26, UI-27); the visual rendering has to be judged by looking |
 
 > ### Contrast, from 1,069 defects to zero — how it surfaced and how it was closed
 >
@@ -265,9 +265,11 @@ text does not leave. Spectra Studio (`spectra-studio.html`) keeps in
 (`bsi-spectra-studio-v1`) and the voice choice (`bsi-spectra-studio-voce`), and
 also sends each prediction to the mind. Both keys are covered by «Clear data →
 Persistent memory». With the voice off in the studio (🔇) no text goes to
-OpenAI. A `.glb` body loaded with the «🧍 Corpo» button stays only in the
-browser's IndexedDB (`bsi-spectra-modelli`), never leaves the device and is
-erased with «Clear data → Progress in the rest of the app».
+OpenAI. Since v241 Spectra's body is embedded in the app
+(`models/spectra-corpo.bsi`): the user no longer loads any file and nothing is
+written to IndexedDB; an old body stored by a previous version
+(`bsi-spectra-modelli`) is deleted on start, and «Clear data → Progress in the
+rest of the app» deletes that database.
 
 Network calls are optional and go to documented public services (§4 of
 `07-SBOM.md`). If the user configures the proxy, the API keys reside on a Worker

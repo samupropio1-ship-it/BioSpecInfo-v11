@@ -215,25 +215,34 @@ scheda «🧠 Spiega» della finestra di Spectra) sta in `index.html` con `defer
 nel precarico; `bsi-spectra-voce.js` è anche in `index.html`, perché lo
 usano la console e la lezione guidata. Il volto «Noir» dello studio è lo stesso
 `models/spectra-noir.glb` della console, fuori dal precarico (§2.2-bis): se non
-arriva, il corpo resta senza viso. Il corpo «Bounty Hunter»
-(`models/spectra-corpo.glb`) e `models/spectra-cyberpunk.glb` **non sono nel
-repository** (il corpo viene da CGTrader, la cui licenza Royalty Free non
-permette che terzi ne recuperino il file): chi pubblica dal repository
-ottiene, al posto di Spectra, l'invito a caricare il corpo (nessun sostituto),
-e ogni utente può caricare la propria copia con il
-pulsante «🧍 Corpo», che la conserva solo nell'IndexedDB del suo browser; lo studio li cerca con una richiesta `HEAD` e,
-se mancano, passa al successivo senza errori.
+arriva, il corpo resta senza viso.
 
-**Il modello del corpo.** Lo studio cerca `models/spectra-cyberpunk.glb` con
-una richiesta `HEAD`: se il file c'è lo carica e lo usa (scalato a 1,8 m,
-capelli resi neri dal driver, volto «Noir» nascosto); se non c'è, e non c'è
-nemmeno un corpo caricato dal dispositivo, compare l'invito a caricarlo. Il modello «cyberpunk» scelto
-dall'autore non è nel repository. Per aggiungerlo: verificare che la licenza
-permetta la ridistribuzione modificata, ottimizzarlo come
-[`docs/spectra/01`](spectra/01-Analisi-modello-e-piano.md) §2 e §6, copiarlo
-in `models/spectra-cyberpunk.glb`, aggiungere l'attribuzione in
-`models/CREDITS.md`, in `THIRD_PARTY_NOTICES.md` e nello SBOM, e pubblicare.
-Come `spectra-noir.glb`, non va nel precarico. La voce di
+**Il corpo di Spectra (v241): `models/spectra-corpo.bsi` va pubblicato.** Il
+corpo «Bounty Hunter» (gratuito su CGTrader, licenza Royalty Free: si usa
+dentro il prodotto, non si offre come file a sé) è incorporato nell'app come
+blocco impacchettato `models/spectra-corpo.bsi` (4,40 MB), che è nel
+repository e va pubblicato insieme all'app: senza di esso la figura e lo
+studio restano su «Spectra non è arrivato: serve la rete la prima volta» con
+«↻ Riprova». Il blocco non è un `.glb`: solo `bsi-spectra-figura.js`
+(funzione `apri`) lo riapre. Come i `models/*.glb` non è nel precarico: il
+service worker (prima la rete) lo mette in cache alla prima richiesta, e da
+lì funziona senza rete. Il `.glb` originale (`models/spectra-corpo.glb`)
+resta fuori da git (`.gitignore`); lo studio lo prova solo in sviluppo, se il
+blocco manca. Il ripiego `models/spectra-cyberpunk.glb` non esiste più.
+
+**Rigenerare il blocco** (per esempio dopo aver cambiato il modello):
+
+```bash
+node tools/impacchetta-corpo.js percorso/del/corpo.glb models/spectra-corpo.bsi
+# ✓ models/spectra-corpo.bsi (4.40 MB), verificato: si riapre identico al .glb
+```
+
+Il programma controlla che l'ingresso sia un `.glb`, scrive il blocco
+(«BSIC» · versione · lunghezza · byte mescolati con un flusso xorshift32 dal
+seme fisso, lo stesso di `bsi-spectra-figura.js`) e verifica che si riapra
+identico. Poi si pubblica il nuovo `models/spectra-corpo.bsi`; la cache dei
+client si aggiorna con il cambio di versione di `sw.js`. Un cambio di modello
+va riportato anche in `models/CREDITS.md` e in `THIRD_PARTY_NOTICES.md`. La voce di
 qualità chiama `api.openai.com` direttamente dal browser: un'eventuale
 `Content-Security-Policy`
 ([`03-Security-Privacy-Compliance.md`](03-Security-Privacy-Compliance.md) §2.4)

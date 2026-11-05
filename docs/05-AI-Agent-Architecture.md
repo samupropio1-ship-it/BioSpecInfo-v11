@@ -904,15 +904,18 @@ ciclo delle lezioni, migrazione, copertura dei domini) è nei documenti di
   al banco del driver** (`opz.manichino === true`): dalla v240 non è più
   Spectra da nessuna parte. **Il corpo di Spectra** lo sceglie il controllore
   condiviso `BSISpectraFigura.Spectra()` (`bsi-spectra-figura.js`), nello
-  studio e nelle sezioni dell'AI: prima un corpo `.glb` che l'utente ha
-  caricato con il pulsante «🧍 Corpo» e che sta nell'IndexedDB
-  (`bsi-spectra-modelli`), poi `models/spectra-corpo.glb` (solo in sviluppo,
-  fuori da git per la licenza CGTrader), poi `models/spectra-cyberpunk.glb`
-  (un modello completo, col suo viso: il volto «Noir» si nasconde);
-  **altrimenti nessun corpo**, e compare l'invito a caricarlo, senza
-  sostituti. Nell'app (non nello studio) la figura cerca solo
-  nell'IndexedDB (`soloDispositivo`): i file di sviluppo non si chiedono,
-  niente 404 nell'app pubblicata. Il corpo senza scheletro passa dal rig automatico
+  studio e nelle sezioni dell'AI. Dalla v241 il corpo è **sempre presente**:
+  `carica()` scarica `models/spectra-corpo.bsi`, il «Bounty Hunter» (CGTrader,
+  licenza Royalty Free) incorporato come blocco impacchettato da
+  `tools/impacchetta-corpo.js`, e lo riapre con `apri`; il file pubblicato
+  non è un `.glb` riutilizzabile (non è una protezione assoluta). Mentre
+  arriva, «Spectra sta arrivando…»; se non arriva, «↻ Riprova». Solo nello
+  studio, in sviluppo, se il blocco manca si prova `models/spectra-corpo.glb`
+  (fuori da git); nell'app (`soloDispositivo`) nessun file di sviluppo si
+  chiede, niente 404. Il pulsante «🧍 Corpo», il corpo caricato dall'utente
+  nell'IndexedDB e il ripiego `models/spectra-cyberpunk.glb` sono stati
+  tolti; un vecchio corpo in `bsi-spectra-modelli` si cancella all'avvio.
+  Nessun sostituto. Il corpo senza scheletro passa dal rig automatico
   (`bsi-spectra-rig.js`); sul colletto va il volto «Noir»
   (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`),
   allineato misurando il mento, del quale si vede solo il viso, «solidale» con

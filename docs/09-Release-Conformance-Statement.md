@@ -85,7 +85,7 @@ Elencate per esteso. Nessuna è stata rimossa dalla verifica per farla passare.
 | **D-11** | Parte di Spectra Live, il menu ✨ per materia e gli strumenti rapidi non hanno un banco | La voce, l'ascolto continuo, i comandi locali diversi da quelli del creatore, gli strumenti che agiscono sulla pagina e il menu ✨ di fisica e matematica sono provati a mano: un loro guasto non farebbe fallire la batteria | Dichiarati in `docs/08` §6 come **UI-21** e **AI-13**. Dalla v238 l'impaginazione della console, il navigatore, il livello, il volto e i comandi del creatore sono coperti da `test_spectra238` (UI-22, AI-14, SEC-08); dalla v239 la lezione guidata e il comando «fammi lezione» da `test_lezione` (UI-24) e il pulsante unico da `test_spectra238` (UI-25), mentre la voce della lezione resta provata a mano. Il riconoscimento e la sintesi vocale non esistono nel Chromium senza interfaccia della batteria; i calcoli degli strumenti rapidi poggiano su `BSIMatCAS`, verificato da `test_matematica` |
 | **D-12** | Due chiavi locali di Spectra restano fuori dalla cancellazione selettiva | `bsi-spectra-ritratto-v4` (l'icona ricavata dal volto) e `bsi-spectra-sentinella` (segno dell'ascolto continuo) non sono nei gruppi di «Cancella dati». La mente, il riconoscimento del creatore, la materia e i kit di studio invece sì (gruppi Memoria persistente e Progressi) | Nessuna delle due contiene dati dell'utente: la prima si rigenera, la seconda si toglie quando l'ascolto si ferma. Dichiarato in `docs/11` §6 |
 | **D-13** | Il riconoscimento del creatore di Spectra non è un controllo d'accesso | L'impronta SHA-256 della frase segreta è nel codice, e il segno del riconoscimento (`bsi-spectra-creatore-v1`) sta nel `localStorage`, dove chi ha il dispositivo può scriverlo a mano. Un'impronta senza sale di una frase debole si può anche cercare per tentativi fuori dall'app | Come la password del File Manager (SEC-03), è un deterrente: non protegge dati, dice a Spectra con chi parla. La frase non è nel codice né conservata (SEC-08, `test_spectra238`) |
-| **D-14** | Spectra col corpo: il corpo non è nell'app pubblicata | Il corpo scelto dall'autore viene da CGTrader con licenza Royalty Free, che non permette che terzi ne recuperino il file: non è nel repository né servito dall'app. Senza di esso, nello studio e nelle sezioni dell'AI compare l'invito a caricarlo, senza sostituti (niente manichino) | Ogni utente carica la propria copia una volta con «🧍 Corpo»; resta solo nell'IndexedDB del suo browser (`bsi-spectra-modelli`). Rig, figura e reazioni sono provati su un umanoide sintetico (AI-17, UI-27); il corpo vero va giudicato guardando |
+| **D-14** | Spectra col corpo: il corpo è incluso nell'app, ma **impacchettato**, non come `.glb` (dalla v241) | Il corpo scelto dall'autore (il «Bounty Hunter», gratuito su CGTrader) ha la licenza Royalty Free di CGTrader: si può usare dentro un prodotto, non offrire come file a sé. Fino alla v240 non era nell'app e ogni utente doveva caricarlo; dalla v241 c'è sempre, per tutti, come blocco impacchettato `models/spectra-corpo.bsi` (4,40 MB, formato «BSIC»: i byte del `.glb` mescolati con un flusso xorshift32 da un seme fisso) che solo il codice dell'app riapre. **Non è una protezione assoluta**: chi legge il codice può ricostruire il `.glb`, come per qualunque modello mostrato su uno schermo | È il modo in cui giochi e app incorporano i modelli acquistati: il file pubblicato non è un `.glb` scaricabile e riutilizzabile; il `.glb` originale resta fuori da git (`.gitignore`). Il blocco si rigenera con `tools/impacchetta-corpo.js`, che verifica che si riapra identico. Rig, figura e reazioni sono provati sul **corpo vero incorporato** (`test_spectra_studio`, `test_spectra_figura`: AI-17, UI-26, UI-27); la resa visiva va giudicata guardando |
 
 > ### Il contrasto, da 1 069 difetti a zero — come è emerso e come è stato chiuso
 >
@@ -266,10 +266,12 @@ vocale del browser e il testo non esce. Spectra Studio
 esercizi aperti di ogni lezione (`bsi-spectra-studio-v1`) e la scelta sulla
 voce (`bsi-spectra-studio-voce`), e manda ogni previsione anche alla mente.
 Le due chiavi rientrano in «Cancella dati → Memoria persistente». Con la voce
-spenta nello studio (🔇) il testo non va a OpenAI. Un corpo `.glb` caricato
-con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
-(`bsi-spectra-modelli`), non esce dal dispositivo e si cancella con «Cancella
-dati → Progressi del resto dell'app».
+spenta nello studio (🔇) il testo non va a OpenAI. Dalla v241 il corpo di
+Spectra è incorporato nell'app (`models/spectra-corpo.bsi`): l'utente non
+carica più nessun file e nell'IndexedDB non si scrive niente; un vecchio corpo
+conservato da una versione precedente (`bsi-spectra-modelli`) si cancella
+all'avvio, e «Cancella dati → Progressi del resto dell'app» cancella quel
+database.
 
 Le chiamate di rete sono opzionali e dirette a servizi pubblici documentati
 (§4 di `07-SBOM.md`). Se l'utente configura il proxy, le chiavi API risiedono

@@ -873,14 +873,17 @@ summarised here.
   **only by the driver's bench** (`opz.manichino === true`): since v240 it is
   no longer Spectra anywhere. **Spectra's body** is chosen by the shared
   controller `BSISpectraFigura.Spectra()` (`bsi-spectra-figura.js`), in the
-  studio and in the AI sections: first a `.glb` body the user loaded with the
-  «🧍 Corpo» button, kept in IndexedDB (`bsi-spectra-modelli`), then
-  `models/spectra-corpo.glb` (development only, kept out of git because of
-  the CGTrader licence), then `models/spectra-cyberpunk.glb` (a complete
-  model with its own face: the «Noir» face is hidden); **otherwise no body**,
-  and an invitation to load it appears, with no substitute. In the app (not
-  the studio) the figure looks only in IndexedDB (`soloDispositivo`): the
-  development files are not requested, so no 404s in the published app. A body without a
+  studio and in the AI sections. Since v241 the body is **always present**:
+  `carica()` downloads `models/spectra-corpo.bsi`, the «Bounty Hunter»
+  (CGTrader, Royalty Free licence) embedded as a block packed by
+  `tools/impacchetta-corpo.js`, and reopens it with `apri`; the published file
+  is not a reusable `.glb` (it is not absolute protection). While it arrives,
+  «Spectra sta arrivando…»; if it does not, «↻ Riprova». Only in the studio,
+  in development, if the block is missing `models/spectra-corpo.glb` (out of
+  git) is tried; in the app (`soloDispositivo`) no development file is
+  requested, no 404s. The «🧍 Corpo» button, the user-loaded body in
+  IndexedDB and the `models/spectra-cyberpunk.glb` fallback were removed; an
+  old body in `bsi-spectra-modelli` is deleted on start. No substitute. A body without a
   skeleton goes through the automatic rig (`bsi-spectra-rig.js`); the «Noir»
   face (`BSISpectraAndroide.crea(cont, { scena, renderer, senzaBusto: true })`)
   goes on the collar, aligned by measuring the chin, with only the face

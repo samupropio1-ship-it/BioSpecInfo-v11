@@ -86,17 +86,11 @@ Il **labiale** si sincronizza sull'audio reale: la posizione nel testo segue il 
 - **`bsi-spectra-voce.js`**: la voce con la catena di effetti e il labiale sull'audio.
 - **`spectra-studio.html`**: lo studio immersivo. Un laboratorio 3D dove Spectra insegna con il metodo *predici → testa → dimostra → rivela*. Parte con tre lezioni complete: fisica, chimica, matematica.
 - **`bsi-spectra-rig.js`**: il rig automatico per le figure senza scheletro (§7).
-- **Modello di Spectra nello studio**, in quest'ordine:
-  1. il corpo che l'utente ha caricato dal proprio dispositivo con il pulsante **«🧍 Corpo»**, conservato nell'IndexedDB del browser (§7.5);
-  2. `models/spectra-corpo.glb`, il corpo «Bounty Hunter» (solo in sviluppo): riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7);
-  3. se manca, `models/spectra-cyberpunk.glb` (il driver ne riconosce ossa, blendshape e capelli e li rende neri);
-  4. se manca anche questo, **nessun corpo**: compare l'invito a caricarlo (fino alla v239 qui c'era il manichino riggato; vedi §8).
-
-  Nel repository non c'è nessuno dei due file: **l'app pubblicata mostra l'invito**, finché l'utente non carica un corpo suo.
+- **Modello di Spectra** (dalla v241, §9): il corpo «Bounty Hunter» **incorporato nell'app** come blocco impacchettato `models/spectra-corpo.bsi`, riggato in automatico, ricolorato in blu notte, con il cappuccio e il solo viso «Noir» (§7). C'è sempre, per tutti, senza caricarlo; nessun sostituto. Solo nello studio, in sviluppo, se il blocco manca si prova `models/spectra-corpo.glb` (fuori da git). Il pulsante «🧍 Corpo» (v239–v240) e il ripiego `models/spectra-cyberpunk.glb` sono stati tolti.
 
 ## 5. Che cosa manca e perché
 
-- **Il corpo vero nell'app pubblicata**: il file c'è, ma resta fuori da git finché la licenza non è confermata (§7.4).
+- ~~Il corpo vero nell'app pubblicata~~ — risolto nella v241: il corpo è incorporato come blocco impacchettato (§9); il `.glb` resta fuori da git (§7.4).
 - **WebGPU e React Three Fiber**: la scelta e il percorso sono motivati nel documento 2 (architettura).
 - **Gesti di qualità «motion capture»**: richiedono clip registrate. Con il modello arrivano quelle che contiene; altre si possono prendere da Mixamo (gratuito, con account Adobe) e aggiungere al GLB.
 
@@ -142,25 +136,17 @@ Invece di riggare il modello a mano in Blender, il rig si fa **nel browser**, al
 
 Detto con onestà: la texture di partenza è 2048×2048 e **nessun dettaglio nuovo viene inventato**. «4K» si riferisce alla risoluzione di disegno, non alla texture.
 
-### 7.4 Licenza: il file resta fuori da git
-**`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**, dove si scarica gratis. La licenza Royalty Free di CGTrader permette di usare un modello dentro un prodotto **a patto che terzi non possano recuperarne il file**. Il repository è pubblico e l'app pubblicata serve i suoi file a chiunque: metterci il modello vorrebbe dire ridistribuirlo (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. I due file sono esclusi in `.gitignore`. Lo stesso vale per `models/spectra-cyberpunk.glb`. Le conseguenze, dette chiaramente:
+### 7.4 Licenza: il `.glb` resta fuori da git, il corpo è incorporato impacchettato
+**`models/spectra-corpo.glb` non è nel repository.** Il corpo viene da **CGTrader**, dove si scarica gratis. La licenza Royalty Free di CGTrader permette di usare un modello dentro un prodotto, **non di offrirlo come file a sé**. Il repository è pubblico e l'app pubblicata serve i suoi file a chiunque: pubblicare il `.glb` vorrebbe dire offrirlo come file (§2, prima riga). Il volto «Noir», invece, è di Sketchfab con licenza CC BY 4.0 ed è già attribuito in `models/CREDITS.md`. Il `.glb` resta escluso in `.gitignore`.
 
-- **l'app pubblicata mostra l'invito a caricare il corpo**, non il corpo «Bounty Hunter» e nessun sostituto, a meno che l'utente non carichi un corpo suo (§7.5);
-- il banco `test_spectra_rig` prova il rig su un **umanoide sintetico** costruito nel codice, non sul modello vero;
-- i controlli di `test_spectra_studio` e di `test_spectra_figura` sul corpo riggato (viso sul colletto, sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano sempre, sullo stesso umanoide sintetico.
+Dalla v241 il corpo è **incorporato** come blocco impacchettato `models/spectra-corpo.bsi` (§9), come giochi e app incorporano i modelli acquistati: il file pubblicato non è un `.glb` riutilizzabile, e solo il codice dell'app lo riapre. Detto con onestà: non è una protezione assoluta, perché nessun modello mostrato su uno schermo lo è. Le conseguenze:
 
-In sviluppo il file può stare in `models/` (è escluso da git) e lo studio lo carica. Una licenza che permettesse la ridistribuzione basterebbe a toglierlo da `.gitignore` e ad aggiungerne la riga in `models/CREDITS.md`.
+- l'app pubblicata mostra **sempre** Spectra col corpo «Bounty Hunter», senza che l'utente carichi niente;
+- i controlli di `test_spectra_studio` e di `test_spectra_figura` sul corpo riggato (viso sul colletto, sincronia viso–cappuccio, del volto solo maschera, occhi e dettagli visibili, volto solidale) girano sul **corpo vero**;
+- il banco `test_spectra_rig` continua a provare il rig su un **umanoide sintetico** costruito nel codice, dove i casi difficili (la mano pendente accanto al fianco) sono messi apposta.
 
-### 7.5 Come caricare il corpo: dal proprio dispositivo
-La soluzione che rispetta la licenza è che **ognuno usi la propria copia**:
-
-1. scaricare il modello da CGTrader con il proprio account ed esportarlo in `.glb`;
-2. premere **«🧍 Corpo»** — nella testata del pannello di Spectra Studio, oppure nel riquadro di Spectra in una sezione dell'AI — e scegliere il file;
-3. lo studio lo rigga, lo ricolora e lo mette al posto del corpo attuale (anche di un modello completo, e in quel caso ricrea il volto «Noir»).
-
-Il file resta **solo nel browser di quel dispositivo**, nell'IndexedDB (database `bsi-spectra-modelli`, archivio `file`, chiave `corpo`): non va su nessun server e nessun altro lo vede. A ogni apertura lo studio e le sezioni dell'AI lo riprendono da lì per primo. I file oltre 60 MB sono rifiutati; un file che non è un umanoide utilizzabile è rifiutato con un messaggio, e il corpo di prima resta. «Cancella i miei dati → Progressi del resto dell'app» cancella anche questo database.
-
-Il pulsante funziona con qualunque `.glb` umanoide, non solo con il «Bounty Hunter»: la responsabilità della licenza del file caricato resta di chi lo carica, ma poiché il file non esce dal dispositivo nulla viene ridistribuito.
+### 7.5 ~~Come caricare il corpo dal proprio dispositivo~~ (v239–v240, tolto nella v241)
+Fino alla v240 ognuno caricava la propria copia con il pulsante «🧍 Corpo», e il file restava nell'IndexedDB del browser (`bsi-spectra-modelli`). L'autore non lo voleva («la sezione Corpo non la voglio»): nella v241 il pulsante, il campo file e la conservazione nell'IndexedDB sono stati tolti. All'avvio un vecchio corpo conservato lì, se c'è, si cancella per liberare spazio; «Cancella i miei dati → Progressi del resto dell'app» continua a cancellare quel database.
 
 ## 8. Spectra col corpo in ogni sezione dell'AI, e nient'altro (v240)
 
@@ -168,6 +154,16 @@ Le richieste dell'autore: «l'icona di Spectra solo col volto, e la versione di 
 
 - **L'icona è solo il volto.** Il pulsante flottante rotondo con il volto «Noir» resta l'unico modo di aprire Spectra Live; la pillola «Spectra» è nascosta.
 - **Spectra col corpo nelle sezioni dell'AI.** In Spectra AI e nelle tre aree con l'assistente (Chimica, Fisica, Matematica), sotto il titolo, un riquadro mostra Spectra in piedi, intero, nello stile del laboratorio della lezione. Pensa quando il modello lavora (mano al mento), spiega con le mani e con il labiale di corpo e viso quando arriva la risposta, parla con Spectra Live e spiega lo svolgimento quando l'assistente locale risolve un esercizio. Il modulo è `bsi-spectra-figura.js` ([documento 2](02-Architettura.md) §2.2).
-- **Nessun sostituto.** Il manichino non è più Spectra, né nelle sezioni né nello studio. Senza il corpo dell'autore sul dispositivo compare l'invito «Spectra non è ancora su questo dispositivo — carica una volta il suo corpo (.glb)» con il pulsante. Detto chiaramente: poiché il corpo non può stare nel repository (§7.4), **chi apre l'app pubblicata senza averlo caricato vede l'invito, non Spectra col corpo**. Basta caricarlo una volta per dispositivo.
+- **Nessun sostituto.** Il manichino non è più Spectra, né nelle sezioni né nello studio. Nella v240 senza il corpo dell'autore sul dispositivo compariva l'invito a caricarlo; dalla v241 il corpo è incorporato e c'è sempre (§9).
 - **Un'AI che spiega tutto: «🧠 Spiega».** L'autore ha chiesto che l'AI non facesse lezioni ma «una spiegazione perfetta, completa e completamente esaustiva su tutto ciò che riguarda queste 3 materie… deve spiegare grafici in 3D e tutto, dai grafici degli spettri a chimica, fisica e matematica, a un livello avanzatissimo». Nella finestra di Spectra la scheda **«🧠 Spiega»** (`bsi-spectra-spiega.js`), la seconda dopo «💬 Chat», risponde a qualunque domanda delle tre materie a cinque livelli, dalla scuola superiore al PhD avanzato, con una struttura obbligatoria che va dalla sintesi alla derivazione completa, agli esempi calcolati, ai collegamenti e alla frontiera della ricerca. Con «📺 Includi lo schermo» la spiegazione riguarda ciò che è aperto: al modello vanno il testo della sezione e un'immagine dei grafici, degli spettri e delle scene 3D, e la risposta comincia con la lettura quantitativa di ciò che si vede (per uno spettro NMR, segnale per segnale). Spectra col corpo si sposta nella scheda e spiega. Detto con onestà: la spiegazione la scrive il modello configurato, e la sua qualità dipende da quel modello; senza modello la scheda non finge e mostra solo ciò che l'app sa da sola; il banco controlla che cosa si manda al modello e come si mostra la risposta (con risposte simulate), non il contenuto di una spiegazione vera.
 - **Tutto mostrabile e spiegabile: il catalogo.** L'autore ha chiesto: «ogni sezione della chimica, della fisica e della matematica deve esserci, non deve mancare nulla in questo ologramma: deve esserci tutto spiegabile e mostrabile». Nella scheda «🧠 Spiega» il riquadro **«🗂️ Tutte le sezioni nell'ologramma»** elenca per gruppo tutte le sezioni dell'app (194: chimica 75, fisica 60, matematica 30, comuni 29), lette dalla barra e non scritte a mano, quindi una sezione nuova c'è da sola; con ricerca e filtro per materia, un tocco apre la sezione dietro la finestra, l'ologramma la mostra dal vivo e la spiegazione usa i suoi dati. **«🎞️ Mostrami tutto»** le fa scorrere nell'ologramma, una ogni 7 s. Una domanda che nomina un argomento («spiegami le titolazioni») apre da sola la sua sezione. Le sezioni senza grafici (testo, tabelle, comandi) si proiettano come una scheda, invece di lasciare i pianeti ([documento 2](02-Architettura.md) §2.3).
+
+## 9. Il corpo sempre presente, incorporato (v241)
+
+La richiesta dell'autore: «la sezione Corpo non la voglio: vorrei che fosse sempre presente e non dover sempre mettere il corpo di Spectra». Le conseguenze:
+
+- **Il corpo è incorporato nell'app**: `models/spectra-corpo.bsi` (4,40 MB), prodotto da `tools/impacchetta-corpo.js` a partire dal `.glb`. Formato «BSIC»: 4 byte di firma · 1 byte di versione · 4 byte di lunghezza (little endian) · i byte del `.glb` mescolati con un flusso xorshift32 da un seme fisso. Il programma verifica che il blocco si riapra identico; in `bsi-spectra-figura.js` la funzione `apri` lo rimette in ordine.
+- **Si carica da sé**: `Spectra.carica()` scarica il blocco, lo riapre e lo rigga come prima. Mentre arriva, «Spectra sta arrivando…»; senza rete al primo avvio, «Spectra non è arrivato: serve la rete la prima volta» con «↻ Riprova». Poi il service worker lo tiene in cache e Spectra compare anche senza rete.
+- **Tolto**: il pulsante «🧍 Corpo» (nella testata dello studio e nella barra della figura), il campo file, l'invito a caricare il corpo, `Spectra.daFile` e la conservazione del corpo nell'IndexedDB. I pulsanti della figura sono «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio».
+- **Detto con onestà**: l'impacchettamento non è una protezione assoluta (chi legge il codice può rimettere in ordine i byte); è il modo in cui giochi e app incorporano i modelli acquistati, e il file pubblicato non è un `.glb` scaricabile e riutilizzabile. Il `.glb` originale resta fuori da git.
+

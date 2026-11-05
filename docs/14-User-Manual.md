@@ -576,14 +576,14 @@ Le tue previsioni restano su questo dispositivo; si cancellano con
 c'è **🔊/🔇**: spegne e riaccende la voce di Spectra, e lo studio si ricorda
 la tua scelta anche le volte successive.
 
-**Il corpo di Spectra va caricato una volta.** Il corpo scelto dall'autore è
-un modello di terzi (CGTrader) che non si può distribuire con l'app. Se Spectra
-non è ancora sul tuo dispositivo, al suo posto vedi l'invito «Spectra non è
-ancora su questo dispositivo — carica una volta il suo corpo (.glb)»: premi
-**«🧍 Corpo»** e scegli il file `.glb` (al massimo 60 MB). Il file resta solo
-in questo browser e da allora Spectra compare col corpo nello studio e nelle
-sezioni dell'AI. Si cancella con «Cancella dati → Progressi del resto
-dell'app». Non c'è un corpo sostitutivo.
+**Il corpo di Spectra c'è sempre.** Non devi caricare niente: il corpo
+scelto dall'autore è già dentro l'app, nello studio e nelle sezioni dell'AI.
+La prima volta serve la rete: mentre arriva vedi «Spectra sta arrivando…»; se
+non c'è rete compare «Spectra non è arrivato: serve la rete la prima volta» —
+premi **«↻ Riprova»** quando sei connesso. Dopo il primo avvio Spectra resta
+nell'app e compare anche senza rete. Non c'è più il pulsante «🧍 Corpo»; se in
+una versione precedente avevi caricato tu il corpo, quella copia si cancella
+da sola per liberare spazio.
 
 **Spectra nelle sezioni dell'AI.** In Spectra AI e nelle aree con l'assistente
 di Chimica, Fisica e Matematica, sotto il titolo, Spectra è in piedi in un

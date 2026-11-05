@@ -56,10 +56,13 @@
   immagine dello schermo. Solo le domande rapide sullo schermo («📈 Spiegami
   questo grafico»…) rimettono la spunta, perché sono una scelta esplicita. Senza chiave non esce niente dal dispositivo. La
   conversazione resta in memoria per la sessione e non si salva.
-- **Corpo di Spectra Studio (`spectra-studio.html`):** un file `.glb` caricato
-  con il pulsante «🧍 Corpo» resta solo nell'IndexedDB del browser
-  (`bsi-spectra-modelli`) e non viene inviato a nessun server. Si cancella con
-  «Cancella dati → Progressi del resto dell'app».
+- **Corpo di Spectra (dalla v241):** il corpo è incorporato nell'app
+  (`models/spectra-corpo.bsi`, scaricato dallo stesso sito dell'app e tenuto
+  nella cache del service worker); l'utente non carica più nessun file e
+  nell'IndexedDB non si scrive più niente. All'avvio un vecchio corpo
+  conservato da una versione precedente (database `bsi-spectra-modelli`), se
+  c'è, si cancella; «Cancella dati → Progressi del resto dell'app» continua a
+  cancellare quel database.
 - **Diritto all'oblio locale:** l'utente può cancellare i dati svuotando lo
   storage del sito dal browser.
 

@@ -516,22 +516,22 @@ Methods of a `Corpo`:
 | `peso`, `imposta` | `(name) → number \| null`, `(name, value) → boolean` | Reads and writes a blendshape weight |
 | `passo` | `(dt)` | Advances the behaviour by `dt` seconds; to be called every frame |
 
-### `window.BSISpectraFigura` — Spectra with the body (`bsi-spectra-figura.js`, v240)
+### `window.BSISpectraFigura` — Spectra with the body (`bsi-spectra-figura.js`, v240; embedded body since v241)
 
 | Symbol | Signature | Description |
 |---|---|---|
-| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Order: IndexedDB `bsi-spectra-modelli` → `models/spectra-corpo.glb` (development only) → `models/spectra-cyberpunk.glb` → no body (the mannequin only with `opz.manichino === true`, for the driver's bench). With `opz.soloDispositivo` IndexedDB only: the figure from `monta` enables it by default (in the app no requests for the development files, no 404s); the studio still tries the files. Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
-| `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🧍 Corpo», «🎙️ Parla con me», «🎓 Studio», invitation when the body is missing; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
+| `Spectra` | `new (T, scene, renderer, opz?) → controller` | Spectra's body in an existing scene. Since v241 the body is **embedded**: `carica()` downloads `models/spectra-corpo.bsi`, reopens it (internal function `apri`: «BSIC» signature, version, length, bytes mixed with an xorshift32 stream from a fixed seed) and hands it to `daBuffer`; first it deletes an old body from IndexedDB `bsi-spectra-modelli`, if any. If the block does not arrive: with `opz.soloDispositivo` (enabled for the figure from `monta`) no further attempt and `caricato = false`; without it (the studio, in development) it tries `models/spectra-corpo.glb`. The `models/spectra-cyberpunk.glb` fallback is gone. No substitute body (the mannequin only with `opz.manichino === true`, for the driver's bench). Rig with `bsi-spectra-rig.js` (`RIG`), «Noir» face on the collar, «solidale» |
+| `monta` | `(container, opz?) → figure` | Lab-style frame with Spectra standing, HUD «SPECTRA · IN ASCOLTO / PENSA / PARLA», buttons «🎙️ Parla con me», «🧠 Spiega», «🎓 Studio» (since v241 no «🧍 Corpo» and no file input); while the body arrives «Spectra sta arrivando…», if it does not arrive «Spectra non è arrivato: serve la rete la prima volta» with «↻ Riprova»; listens to `bsi-spectra-stato`, `bsi-spectra-risposta`, `bsi-spectra-dice` |
 | `sezioni` | `(id[]) → figure` | One shared figure (one WebGL context) moved into the open AI section (`sai`, `sareachim`, `sareafis`, `sareamat`); the 3D files load on first opening |
 | `prepara` | `() → Promise` | Loads three.js, the GLB loader, the body driver and the rig if they are missing |
-| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The `.glb` body in IndexedDB (`bsi-spectra-modelli`, store `file`, key `corpo`) |
+| `dbCorpo` | `('leggi' \| 'metti' \| 'togli', buffer?) → Promise` | The IndexedDB of the old user-loaded body (`bsi-spectra-modelli`, store `file`, key `corpo`); since v241 `carica()` uses it only to read and **remove** an old body, it no longer writes to it |
 | `emozioneDi` | `(text) → string` | The emotion suggested by an answer's content |
 | `Ologramma` | `new (T, scene) → hologram` | The holographic screen to Spectra's right; methods `costruisci(name)`, `mostra(name)`, `passo(dt)`; scenes computed every frame, plus `'schermo'` (the section behind the window, re-rendered with `BSISpectraLive.cattura` 5 times a second; a section without graphs is projected as a card: title, tab, up to 6 controls with values, visible text) |
 | `SCENE_OLO` | object | The six scenes (`pianeti`, `molecola`, `spettro`, `superficie`, `orbitale`, `onda`): for each `nome` (it, en), `sez` (the id of the section the label opens) and `parole` (the regular expression that selects it) |
 | `sceneDi` | `(text) → string \| null` | The scene matching the words of a text, or `null` |
 | `LIMITE`, `RIG`, `figura` | number, object, figure | 60 MB; the rig parameters for the author's body; the sections' shared figure (or `null`) |
 
-Controller methods: `carica()`, `daFile(file)`, `daBuffer(buffer)`, `usaScena(scene)` (for benches), `passo(dt)`, `emozione(name, seconds?)`, `dici(text)`, `taci()`, `fai(gesture, target?, seconds?)`, `presente() → boolean`.
+Controller methods: `carica() → Promise<boolean>` (the embedded body; sets `caricato`), `daBuffer(buffer)`, `usaScena(scene)` (for benches), `passo(dt)`, `emozione(name, seconds?)`, `dici(text)`, `taci()`, `fai(gesture, target?, seconds?)`, `presente() → boolean`. `daFile(file)` was removed in v241 together with the «🧍 Corpo» button.
 
 New event: **`bsi-spectra-dice`** (`CustomEvent` on `document`, `detail: { testo }`), dispatched by `parla()` in `bsi-spectra-live.js` and by `bsi-assistente.js` when it solves an exercise; the figure says it with lip sync and a gesture.
 

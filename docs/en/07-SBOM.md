@@ -5,8 +5,8 @@
 | | |
 |---|---|
 | Application version | `bsi-v241` |
-| Commit | `6794af602f807d7f6d7cbd2904c89fadbddc6529` |
-| Generated (UTC) | `2026-11-05T06:25:43.847Z` |
+| Commit | `a311a4bda43460fde9a55a4369361523a8969360` |
+| Generated (UTC) | `2026-11-05T07:26:26.175Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -156,7 +156,7 @@ availability.
 | `bsi-spectra-voce.js` | 12 kB | Spectra's voice: TTS audio (with an OpenAI key) through a Web Audio chain (bass, metal, room) and lip-sync from the audio; falls back to browser synthesis. |
 | `bsi-spectra-corpo.js` | 49 kB | Body driver for any humanoid avatar (bones, ARKit blendshapes, black hair, gaze, gestures, walking, sitting) and a rigged test mannequin. |
 | `bsi-spectra-spiega.js` | 34 kB | «🧠 Explain»: the complete, exhaustive explanation of chemistry, physics and mathematics from high school to advanced PhD, including what is on screen (text, values, tables and an image of spectra, graphs and 3D scenes); without a model it shows what the app knows on its own. |
-| `bsi-spectra-figura.js` | 50 kB | Spectra with a body in one module: the body controller (from the device, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
+| `bsi-spectra-figura.js` | 48 kB | Spectra with a body in one module: the body controller (embedded in the app and packed, rig, aligned «Noir» face) used by the studio, and the figure in the AI sections that thinks, speaks and gestures with the answers. |
 | `bsi-spectra-rig.js` | 34 kB | In-browser auto-rig for humanoid figures without a skeleton: measuring, Mixamo-named skeleton, skin weights (distance, normal, geodesic), head removed keeping the hood, night-blue recolouring. |
 | `bsi-spectra-studio-lezioni.js` | 34 kB | Spectra Studio lessons (predict → test → prove → reveal): the fall, the shape of water, the Basel problem, with verified computations. |
 | `bsi-spectra-creatore.js` | 6 kB | Spectra recognises its creator: a secret-phrase check compared as a SHA-256 fingerprint (a deterrent, not access control). |
@@ -197,7 +197,7 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `61a054fe8f48fab54346c01105defae1e44a358e76da655768d71e0608e491bc` |
+| `index.html` | `e853f28be7b5ffc897a8953f52fd7f056d21c62663e23fac6e8524306fb8078b` |
 | `bsi-ai-hub.js` | `fadae204b67d213f0e2499adb432c0ffe8ffa34f414ffa8058c96b74091832e2` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -291,7 +291,7 @@ availability.
 | `bsi-spectra-voce.js` | `39e32e88dcbeb3dd59bbd0eb55dbe106ba7b6e19f76912901ad955115fabc936` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-spiega.js` | `8ee9e4358cc1f4a0e6524baef520b2d512808dfc098b0f1c1cdd1f3702744585` |
-| `bsi-spectra-figura.js` | `4c2804d8456c6c3c79bd1382a0df199040647513a3fd4c428402a3789bbfe0c5` |
+| `bsi-spectra-figura.js` | `77c24c6bb9b23b490af4af995b09cd672f8c817c833810dd6e1e51bdd5f54139` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
 | `bsi-spectra-creatore.js` | `028030c93719e0f96faea51f327f5a0457557e62a276dd731678a38dbc538cc4` |
@@ -322,7 +322,7 @@ availability.
 | `bsi-lingue.js` | `f08f2a9bd754d9212d69a2a1f8169c0a24ee992ec2af1bcaf54c4ca37b10d229` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `208ce02aeef8b540c9c69d120a0967f435117eabfaf7b462fe2293b7592dc3bb` |
+| `sw.js` | `b3858eb108fb8ad3cbf5e6163851759afc5f9db11c76f20a266118af313c6321` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -375,4 +375,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-05T06:25:43.847Z._
+_Generated on 2026-11-05T07:26:26.175Z._

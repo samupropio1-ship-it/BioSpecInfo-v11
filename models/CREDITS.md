@@ -29,22 +29,30 @@ grigio scuro, testa staccata dal collo e bocca animate dal codice
 (`bsi-spectra-androide.js`). L'attribuzione compare anche nella console di
 Spectra Live.
 
-## Corpo di Spectra nello studio (**Spectra Studio**)
+## Corpo di Spectra (studio e sezioni dell'AI)
 
 | File | Contenuto | Origine | Licenza |
 |---|---|---|---|
-| `spectra-corpo.glb` | corpo «Bounty Hunter», mesh senza scheletro riggata nel browser da `bsi-spectra-rig.js` | CGTrader (download gratuito) | Royalty Free di CGTrader |
+| `spectra-corpo.bsi` | corpo «Bounty Hunter», incorporato come blocco impacchettato; mesh senza scheletro riggata nel browser da `bsi-spectra-rig.js` | CGTrader (download gratuito) | Royalty Free di CGTrader |
 
-**Il file non è nel repository** (escluso in `.gitignore`) e l'app pubblicata
-non lo serve: la licenza Royalty Free di CGTrader permette di usare il
-modello dentro un prodotto solo se terzi non possono recuperarne il file.
-Senza il file l'app pubblicata, nello studio e nelle sezioni dell'AI, mostra
-l'invito a caricarlo e nessun corpo sostitutivo.
+**Dalla v241 il corpo è sempre presente, per tutti**: è incorporato nell'app
+come blocco impacchettato `spectra-corpo.bsi` (4,40 MB), prodotto da
+`tools/impacchetta-corpo.js` a partire dal `.glb` (formato «BSIC»: firma,
+versione, lunghezza, poi i byte del `.glb` mescolati con un flusso
+pseudocasuale da un seme fisso). Solo il codice dell'app
+(`bsi-spectra-figura.js`, funzione `apri`) lo riapre. La licenza Royalty Free
+di CGTrader permette di usare il modello dentro un prodotto, non di offrirlo
+come file a sé: per questo **il file pubblicato non è un `.glb`
+riutilizzabile**. Non è una protezione assoluta (nessun modello mostrato su
+uno schermo lo è): è il modo in cui giochi e app incorporano i modelli
+acquistati. Il `.glb` originale (`spectra-corpo.glb`) resta fuori dal
+repository (escluso in `.gitignore`); in sviluppo lo studio lo usa se il
+blocco manca.
 
-**Come caricarlo**: chi possiede il file (scaricato con il proprio account
-CGTrader ed esportato in `.glb`) preme **«🧍 Corpo»** nella testata del
-pannello di Spectra Studio (o nel riquadro di Spectra in una sezione dell'AI) e lo sceglie. Il file resta solo nell'IndexedDB
-di quel browser (database `bsi-spectra-modelli`) e a ogni apertura lo studio
-lo riprende da lì; non va su nessun server. In sviluppo può stare anche in
-`models/spectra-corpo.glb`. Il volto «Noir» che lo studio mette nel
-cappuccio è quello della tabella qui sopra (CC BY 4.0).
+Il nome dell'autore del modello su CGTrader non è presente nel file.
+Il volto «Noir» che va nel cappuccio è quello della tabella qui sopra
+(CC BY 4.0).
+
+**Rigenerare il blocco**: `node tools/impacchetta-corpo.js <corpo.glb>
+models/spectra-corpo.bsi` (il programma verifica che il blocco si riapra
+identico al `.glb`).
