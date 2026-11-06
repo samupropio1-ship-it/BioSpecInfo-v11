@@ -19,6 +19,14 @@ La frase precedente non apre più nulla. Su un dispositivo dove Spectra aveva
 già riconosciuto il creatore il riconoscimento resta; per legare l'impronta
 del dito serve la frase nuova.
 
+### Corretto
+- **La voce che si accavallava**: quando Spectra cominciava a parlare mentre
+  un discorso precedente era rimasto a metà (un timer o un «onend» in
+  ritardo), il vecchio discorso riprendeva insieme al nuovo. Ora ogni
+  discorso ha il suo numero e uno vecchio non riparte (`bsi-spectra-live.js`,
+  `parla()`/`taci()`). Trovato da `test_impronta`, che vedeva arrivare 5
+  frasi invece di 2.
+
 ### Verificato
 - Con la frase nuova Spectra riconosce il creatore e il File Manager si apre;
   la stessa frase con un carattere in più è rifiutata da entrambi.

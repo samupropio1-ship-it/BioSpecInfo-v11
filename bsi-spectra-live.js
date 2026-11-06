@@ -223,7 +223,7 @@
        (audio vero, catena di effetti, labiale sull'audio); altrimenti la sintesi del browser, qui sotto */
     var VQ = globale.BSISpectraVoce;
     if (VQ && voce.attiva && VQ.qualita() === 'audio' && testo) {
-      var detto = perLaVoce(testo).slice(0, 3800); voce.inCorso = true; stato('parla');
+      var detto = perLaVoce(testo).slice(0, 3800); voce.giro = (voce.giro || 0) + 1; voce.inCorso = true; stato('parla');
       if (hud.volto) hud.volto.dici(detto);
       VQ.parla(detto, { suBocca: function (b) { hud.energia = Math.max(0.35, b.energia); if (hud.volto && hud.volto.allinea && b.frazione != null) hud.volto.allinea(Math.floor(b.frazione * detto.length)); } })
         .then(function (r) { if (r && r.annullato) return; voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); });
@@ -234,10 +234,13 @@
        e la sintesi a volte resta in pausa: si annulla solo se serve e si riprende */
     try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); speechSynthesis.resume(); } catch (e) {}
     var pezzi = frasi(testo).slice(0, 40); if (!pezzi.length) { if (fatto) fatto(); return false; }
+    /* (v245) ogni discorso ha il suo numero: un discorso vecchio rimasto a meta' (timer, «onend» in ritardo) non riprende
+       quando ne comincia uno nuovo, che rimette voce.inCorso a vero — prima le due sequenze si accavallavano */
+    var mio = voce.giro = (voce.giro || 0) + 1;
     voce.scelta = voce.scelta || scegliVoce(); voce.inCorso = true; stato('parla');
     var i = 0;
     (function prossima() {
-      if (!voce.inCorso) return;
+      if (!voce.inCorso || mio !== voce.giro) return;
       if (i >= pezzi.length) { voce.inCorso = false; if (hud.volto) hud.volto.taci(); stato('attesa'); if (fatto) fatto(); return; }
       var u = new SpeechSynthesisUtterance(pezzi[i++]);
       u.lang = lingua() === 'en' ? 'en-US' : 'it-IT'; if (voce.scelta) u.voice = voce.scelta; u.rate = 0.95; u.pitch = 0.7; u.volume = 1;
@@ -252,7 +255,7 @@
       var attese = 0;
       (function controlla() {
         setTimeout(function () {
-          if (partita || finita || !voce.inCorso) return;
+          if (partita || finita || !voce.inCorso || mio !== voce.giro) return;
           var vivo = false; try { vivo = speechSynthesis.speaking || speechSynthesis.pending; } catch (e) {}
           if (vivo && ++attese < 6) { if (attese === 1 && hud.volto) hud.volto.dici(frase); return controlla(); }
           if (vivo) { partita = true; return; }   /* parla senza «onstart»: si lascia finire, «onend» porta avanti */
@@ -286,7 +289,7 @@
     var n = 0; try { n = ('speechSynthesis' in globale) ? speechSynthesis.getVoices().length : -1; } catch (e) {}
     return { attiva: voce.attiva, sbloccata: sbloccata, voci: n, scelta: voce.scelta ? voce.scelta.name : null, muta: voce.muta || 0, qualita: globale.BSISpectraVoce ? globale.BSISpectraVoce.qualita() : 'sistema' };
   }
-  function taci() { voce.inCorso = false; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
+  function taci() { voce.inCorso = false; voce.giro = (voce.giro || 0) + 1; if (globale.BSISpectraVoce) try { globale.BSISpectraVoce.ferma(); } catch (e) {} try { speechSynthesis.cancel(); } catch (e) {} if (hud.volto) hud.volto.taci(); stato('attesa'); }
 
   /* ═══ 4. I COMANDI LOCALI (senza rete) ═════════════════════════════════ */
   var UNITA_A_VOCE = { 'elettronvolt': 'eV', 'elettronvolts': 'eV', 'electronvolt': 'eV', 'joule': 'J', 'kilojoule': 'kJ', 'chilojoule': 'kJ', 'calorie': 'cal', 'caloria': 'cal', 'chilocalorie': 'kcal',
