@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Versione applicazione | `bsi-v244` |
-| Commit | `f1b97b24c7c8cb45da6dfb66134d6efd8940dc46` |
-| Generato (UTC) | `2026-11-05T23:16:47.940Z` |
+| Versione applicazione | `bsi-v245` |
+| Commit | `65735e946963ae61f63c000d5934348f9c03c726` |
+| Generato (UTC) | `2026-11-06T09:59:53.564Z` |
 | Formato macchina | [`evidence/sbom.cdx.json`](evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > Le impronte SHA-256 si riferiscono ai file effettivamente distribuiti in
@@ -199,7 +199,7 @@ la dipendenza dalla disponibilità di terzi.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `127948800afd1f350ebf3ee22d673b6eae64d9cd47c5b3b730f9048bc4b5f9be` |
+| `index.html` | `82842fcbd0d41c5036702e15c684993ff146c9849cd0653e6096b1f9c728b4ac` |
 | `bsi-ai-hub.js` | `d688ef9918b74799b534a477ec9d005e62ea3ed2c5bc8aa55db0767d896696e0` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
@@ -284,7 +284,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `ba4e083744391d96c99c14a45ef430d8cf0174c2f73fe196754ab901ade64af5` |
+| `bsi-spectra-live.js` | `f8a18aeac3fe337c091d4913edf4d220eefa48a0cda3c6a735b040a790ad9d32` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
@@ -298,7 +298,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-spectra-figura.js` | `f66f02fa1856bce728f8c2bb660e6c0504c88bbc285c53a218ed7b33d613476c` |
 | `bsi-spectra-rig.js` | `347ab6b22a956920919924cb2240c118f7663b00771acdc85f73f5091e23ee6c` |
 | `bsi-spectra-studio-lezioni.js` | `a7344a2b7a62986827dff100a44676d10daa841d76af97b056b796657a991a9c` |
-| `bsi-spectra-creatore.js` | `4e6f3d7fb80532160331ad78709955d08b490e23a02fc6032fe22452d61bc7b5` |
+| `bsi-spectra-creatore.js` | `73954030d3fac2a5b12fd26c92f61a1c8bb986813941d33fb6b154e8cf89bee2` |
 | `bsi-aggiorna.js` | `5950d90103a7d603175e4b577e2394bb9a6d006a4ff22e48d4a1cc70661f1b8e` |
 | `bsi-fis-fluidi.js` | `33b66d5c555b28b0b65224aef0d23b1f113fdc402ef58e00de4e2c630e38fc7f` |
 | `bsi-mat-vettoriale.js` | `ced5e1917ee286455c37ca008c9154b74118ef40021c7df6b97561437c544fdb` |
@@ -326,7 +326,7 @@ la dipendenza dalla disponibilità di terzi.
 | `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `6b9c48f56776ba5c0be461b6c4932de263ee4b1fa61bca92bd699e8051f7bfb0` |
+| `sw.js` | `7f637eaddae4256f9f5b6eb6453033c9200542c5c33ac2903c4efcb38a32e592` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -379,4 +379,4 @@ monte sono riportate in `THIRD_PARTY_NOTICES.md`.
 > permissive elencate sopra riguardano **soltanto** le librerie di terze parti
 > incluse, e non si estendono all'applicazione.
 
-_Generato il 2026-11-05T23:16:47.940Z._
+_Generato il 2026-11-06T09:59:53.564Z._
