@@ -7,6 +7,23 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v245] — 2026-11-06
+
+**Nuova frase segreta dell'autore, per il File Manager e per Spectra**
+
+L'autore non ricordava la frase impostata alla `bsi-v188` e ne ha scelta una
+nuova. Come sempre, nel codice c'è solo la sua impronta SHA-256
+(`file_manager.html` · `CORRECT_HASH`, `bsi-spectra-creatore.js` ·
+`IMPRONTA`, la stessa nei due file); il testo non compare nel repository.
+La frase precedente non apre più nulla. Su un dispositivo dove Spectra aveva
+già riconosciuto il creatore il riconoscimento resta; per legare l'impronta
+del dito serve la frase nuova.
+
+### Verificato
+- Con la frase nuova Spectra riconosce il creatore e il File Manager si apre;
+  la stessa frase con un carattere in più è rifiutata da entrambi.
+
+---
 ## [bsi-v244] — 2026-11-05
 
 **«sono il tuo creatore» anche dalla Chat; Gemini sovraccarico passa da solo a un altro modello**

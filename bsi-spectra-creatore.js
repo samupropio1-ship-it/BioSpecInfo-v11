@@ -33,7 +33,7 @@
   'use strict';
   var NOME = 'Samuele Pio Provenzano', NOME_BREVE = 'Samuele';
   /* l'impronta della frase segreta dell'autore: la stessa del File Manager */
-  var IMPRONTA = '540870326f7ff394e7fe5f7dc9842d8cb18358b4cf794be4a77b49899e92dd03';
+  var IMPRONTA = 'eab68d3e9c2260920bb91578adb0f4a8a73997422d4b75a5fa6d4488395d8514';
   var CHIAVE = 'bsi-spectra-creatore-v1';
   var tentativi = 0, bloccoFino = 0;
 
