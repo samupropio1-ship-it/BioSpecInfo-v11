@@ -7,6 +7,40 @@ La versione dell'applicazione coincide con la versione della cache del Service
 Worker (`bsi-vNNN`) ed è visibile nell'app: menu ✨ → **Aggiornamenti**.
 
 ---
+## [bsi-v246] — 2026-11-10
+
+**La voce robotica di Spectra nella Chat: ogni risposta si ascolta, anche da sola**
+
+Richiesta dell'autore: ogni risposta di Spectra deve potersi leggere ad alta
+voce con una voce maschile robotica, bassa e fredda («stile Ultron»), solo con
+la Web Speech API del browser (niente librerie né servizi a pagamento, anche
+offline), con pitch 0,58, rate 0,88, volume 1; un pulsante 🔊 su ogni
+risposta; «Leggi automaticamente» ricordato; stop chiudendo la chat o
+cambiando sezione.
+
+### Aggiunto
+- `bsi-ai-hub.js`: `speakRobotic(testo)`, `stopSpeaking()`,
+  `toggleAutoSpeak()`, `createSpeakButton(testo)` (anche globali, con questi
+  nomi). Voce italiana maschile → italiana → maschile → la prima; si riscelgono
+  quando il browser le carica in ritardo.
+- Nella barra della Chat l'interruttore **«🔊 Leggi automaticamente»**
+  (`localStorage` `spectraAutoSpeak`): a fine risposta Spectra la legge da
+  sola, col suo pulsante acceso (non se la console Spectra Live è aperta, che
+  ha già la sua voce).
+- Il pulsante **«🔊 Ascolta»** di ogni risposta diventa **«⏹ Ferma»** mentre
+  legge; senza sintesi vocale non compare.
+- La figura di Spectra muove le labbra mentre legge.
+- Banco **`test_voce`** (17 controlli); requisito UI-33; batteria a 87 banchi.
+
+### Cambiato
+- Il vecchio «🔊 Ascolta» leggeva solo i primi **600 caratteri**, con la voce
+  predefinita, e annullava sempre prima di parlare (su Android fa cadere la
+  frase): ora legge la risposta **intera**, a frasi, ripulita da markdown e
+  formule, e annulla solo se c'è qualcosa in corso.
+- La console Spectra Live e il ripiego della voce di qualità usano gli stessi
+  parametri (0,58 / 0,88): Spectra ha la stessa voce ovunque.
+
+---
 ## [bsi-v245] — 2026-11-06
 
 **Nuova frase segreta dell'autore, per il File Manager e per Spectra**

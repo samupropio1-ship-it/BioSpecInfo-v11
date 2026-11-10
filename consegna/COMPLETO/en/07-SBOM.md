@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Application version | `bsi-v245` |
-| Commit | `65735e946963ae61f63c000d5934348f9c03c726` |
-| Generated (UTC) | `2026-11-06T09:59:53.564Z` |
+| Application version | `bsi-v246` |
+| Commit | `5dafb94132deb1a7dd0387ca3159bc8fa5aa5b38` |
+| Generated (UTC) | `2026-11-10T23:37:55.239Z` |
 | Machine-readable format | [`../evidence/sbom.cdx.json`](../evidence/sbom.cdx.json) — CycloneDX 1.5 |
 
 > The SHA-256 digests refer to the files actually distributed in this
@@ -63,7 +63,7 @@ availability.
 | File | Size | Role |
 |---|---:|---|
 | `index.html` | 4702 kB | Main application: interface, teaching sections, chemical data. |
-| `bsi-ai-hub.js` | 437 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
+| `bsi-ai-hub.js` | 445 kB | «Spectra» AI agent: agentic loop, tools, provider management. |
 | `bsi-spettri.js` | 35 kB | IR/NMR spectral prediction engine over the molecular graph. |
 | `bsi-cheminfo.js` | 125 kB | Cheminformatics engine: standardisation, fingerprints, clustering, PCA, QSAR models with a null model. |
 | `bsi-pretsch.js` | 37 kB | The NMR estimation tables transcribed in full from Pretsch–Bühlmann–Badertscher, 4th ed.: ¹³C and ¹H benzenes, ethylenes, alkanes, alkynes, ¹³C aliphatics, steric corrections, ¹J(C,H). Numbers only, no code. |
@@ -199,8 +199,8 @@ availability.
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `82842fcbd0d41c5036702e15c684993ff146c9849cd0653e6096b1f9c728b4ac` |
-| `bsi-ai-hub.js` | `d688ef9918b74799b534a477ec9d005e62ea3ed2c5bc8aa55db0767d896696e0` |
+| `index.html` | `770ef03c89844bb9f3807d36caf3b8877813b7272c9388f52257f9701053cf0f` |
+| `bsi-ai-hub.js` | `5f9a616fa27b1ebf4ac66e61aa209a47aa8bdf0c13b27946458182a532068a21` |
 | `bsi-spettri.js` | `be757f15a70f884e3374d401596e2dfd18bcc852cafbb4584920e2b2d24eb3c9` |
 | `bsi-cheminfo.js` | `59a3111b3b9436add5376fde1be6f90ded3dc08c095cebdc04da50c7f8268bbc` |
 | `bsi-pretsch.js` | `27f727240363579fba3dba50ab3b567fbcdb26a8a9a06c0e43968b195c479db3` |
@@ -284,13 +284,13 @@ availability.
 | `bsi-mat-markov.js` | `0e122fac691f1faa2e464214a7d24c9a687b16491c5964b760e0df191b13a35b` |
 | `bsi-mat-svd.js` | `ce6d77e921c469c532f9f6de2689f7b2a8c8de656f18ee32b1fc4e1977538931` |
 | `bsi-mat-codici.js` | `9aaf44beb1922a95239285067941899e6ae4424024546c8b38dc2663e5f091b2` |
-| `bsi-spectra-live.js` | `f8a18aeac3fe337c091d4913edf4d220eefa48a0cda3c6a735b040a790ad9d32` |
+| `bsi-spectra-live.js` | `2a01d9da5fc8d38a3e61a47f790d918580a05f57f9771e14c35c74c95e346021` |
 | `bsi-spectra-androide.js` | `36bd9ad900e9da2860ddf95469c48ff81387d6da6ca71672bb52975cebb6bd08` |
 | `bsi-spectra-mente.js` | `29a9666fb7278adcd8747060927f29403b53b47ab00e5d2b5dc6e9ccff311436` |
 | `bsi-spectra-robot.js` | `227944042a092f360a6f27e2d8221686101fa6f29514c4e56eb4401d7de5b1b7` |
 | `bsi-spectra-volto.js` | `7061605f2d7e124d2a80ec2f19531b7fa32fed843b60ca3d07843f4926105bf6` |
 | `bsi-lezione.js` | `9d254c1cfaaf0c9ea5ec33086e71c665941f352378a14c874e27b3cb7e8f861a` |
-| `bsi-spectra-voce.js` | `76bb9e18e9e45cf31909259f8ca73f9c7f21abfd66b79f543abe714849792368` |
+| `bsi-spectra-voce.js` | `76e7be69fd8bcd4d211da5c3083e6b5f28000862a67404e44680d594713bbae4` |
 | `bsi-spectra-corpo.js` | `ae8e5ea95d2a8946b7318d5ac4f4e3646297a4ebeeb30924d8f8c1bd0110a04f` |
 | `bsi-spectra-olointerattivo.js` | `7707fffe6c9cba12cf7fea0e4c81f55991c57692dda947656c8895e40b8e9498` |
 | `bsi-spectra-esplora.js` | `71b0362cbc8c12442ba5fe9b804bb982b95911afce317684a4cdf418586f7c91` |
@@ -326,7 +326,7 @@ availability.
 | `bsi-lingue.js` | `054821470fe9228c314ab8e9801ff84be1dce30358dc0a52501012d4e8397a34` |
 | `bsi-molingue.js` | `e45fec1ee20e3e7b9a7bea3d6e20aa4e33e74ec43578bfa7bfb94646b7bc53fb` |
 | `bsi-pannelli-lingua.js` | `4af94d70ef104cf21be18ff7fbc7a2248c56e376e2ae48e8cac83878f4554f93` |
-| `sw.js` | `7f637eaddae4256f9f5b6eb6453033c9200542c5c33ac2903c4efcb38a32e592` |
+| `sw.js` | `0497383e92460aed1ca435c812047e6fda0e735f3b6d1bf34e50a450009ed635` |
 | `rdkit_lab.html` | `066a42092b829df2fa306b691b9d162b6d44edfdb5317ce4cc8a276bc34c80ad` |
 | `astro.html` | `3376b2b7f26ed483f2d698c6692b31f21c9f245f87d1fb1884216fb8b1da489d` |
 | `chimorga.html` | `047934abc73a79fbaf06ed7036b6e89a913ebdf5354fc52cecdbee7e8f94f51d` |
@@ -379,4 +379,4 @@ upstream projects are reproduced in `THIRD_PARTY_NOTICES.md`.
 > permissive licences listed above cover **only** the bundled third-party
 > libraries, and do not extend to the application.
 
-_Generated on 2026-11-06T09:59:53.564Z._
+_Generated on 2026-11-10T23:37:55.239Z._
